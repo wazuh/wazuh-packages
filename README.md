@@ -7,7 +7,7 @@ These are the files used to create Wazuh version 2.0 debs and rpms packages, the
 
 [Wazuh](https://wazuh.com) or visiting our [documentation](http://documentation.wazuh.com)
 
-There are two different packages that can be built with these files:
+There are three different packages that can be built with these files:
 
 * wazuh-manager: Package that includes the server.
 * wazuh-agent: Package that includes just the agent.
