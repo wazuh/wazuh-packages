@@ -1,0 +1,48 @@
+--- /dev/null
++++ wazuh-api-1.3/Makefile
+@@ -0,0 +1,45 @@
++PREFIX?=./debian/wazuh-api/var/ossec/api
++OSSEC_GROUP?=ossec
++LIB_PATH="framework/lib"
++SONAME="libsqlite3.so.0"
++SOURCE="framework/database/sqlite3.c"
++
++wazuh-api:
++	npm install
++	install -d -m 700 ${PREFIX}/framework/lib
++	gcc -pipe -O2 -shared -fPIC -o ${PREFIX}/${LIB_PATH}/${SONAME} ${SOURCE}
++
++install: wazuh-api
++	install -d -m 0500 ${PREFIX}/configuration
++	install -d -m 0500 ${PREFIX}/configuration/auth
++	install -d -m 0500 ${PREFIX}/configuration/ssl
++	install -d -m 0500 ${PREFIX}/controllers
++	install -d -m 0500 ${PREFIX}/examples
++	install -d -m 0500 ${PREFIX}/framework
++	install -d -m 0500 ${PREFIX}/framework/examples
++	install -d -m 0500 ${PREFIX}/framework/wazuh
++	install -d -m 0500 ${PREFIX}/helpers
++	install -d -m 0500 ${PREFIX}/models
++	install -d -m 0500 ${PREFIX}/scripts
++	install -d -m 0500 ${PREFIX}/node_modules
++
++	install -m 0755 app.js ${PREFIX}
++	install -m 0755 configuration/auth/user ${PREFIX}/configuration/auth
++	install -m 0400 package.json ${PREFIX}
++	install -m 0500 controllers/* ${PREFIX}/controllers
++	install -m 0500 configuration/config.js ${PREFIX}/configuration
++	install -m 0500 examples/* ${PREFIX}/examples
++	install -m 0500 framework/examples/* ${PREFIX}/framework/examples
++	install -m 0500 framework/wazuh/* ${PREFIX}/framework/wazuh
++	install -m 0500 helpers/* ${PREFIX}/helpers
++	install -m 0500 models/*  ${PREFIX}/models
++	install -m 0500 scripts/configure_api.sh ${PREFIX}/scripts
++	install -m 0500 scripts/install_daemon.sh ${PREFIX}/scripts
++	install -m 0400 scripts/wazuh-api ${PREFIX}/scripts
++	install -m 0400 scripts/wazuh-api.service  ${PREFIX}/scripts
++	cp -r node_modules/* ${PREFIX}/node_modules/ 
++
++clean:
++	rm -rf ${PREFIX}/node_modules
++	rm -rf node_modules
++	rm -rf ${PREFIX}/framework/lib

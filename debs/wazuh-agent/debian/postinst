@@ -1,0 +1,190 @@
+#!/bin/sh
+# postinst script for ossec-hids
+# Wazuh, Inc 2016
+
+set -e
+
+case "$1" in
+    configure)
+
+        OS=$(lsb_release -si)
+	VER=$(lsb_release -sr)
+	DIR="/var/ossec/"
+	USER="ossec"
+	GROUP="ossec"
+	OSSEC_HIDS_TMP_DIR="/tmp/wazuh-agent"
+
+	OSMYSHELL="/sbin/nologin"
+        if [ ! -f ${OSMYSHELL} ]; then
+	    if [ -f "/bin/false" ]; then
+	        OSMYSHELL="/bin/false"
+	    fi
+	fi
+
+        if ! getent group | grep -q "^ossec"
+        then
+            addgroup --system ossec > /dev/null 2>&1
+        fi
+        if ! getent passwd | grep -q "^ossec"
+        then
+            adduser --system --home ${DIR} --shell ${OSMYSHELL} --ingroup ${GROUP} ${USER} > /dev/null 2>&1
+        fi
+        if [ -z "$2" ]
+        then
+	  chmod +x ${DIR}/tmp/add_localfiles.sh
+          ${DIR}/tmp/add_localfiles.sh >> ${DIR}/etc/ossec.conf
+  	  echo "======================================================================================================================================"
+  	  echo "= By default, OSSEC analyses some logs found in your system. Please, review the configuration if you want to monitor any other file. ="
+  	  echo "======================================================================================================================================"
+	  rm -rf ${DIR}/tmp/add_localfiles.sh
+	if [ -f ${DIR}/etc/ossec.conf.deborig ]; then
+	  chmod +x ${DIR}/tmp/src/init/replace_manager_ip.sh
+          ${DIR}/tmp/src/init/replace_manager_ip.sh ${DIR}/etc/ossec.conf.deborig ${DIR}/etc/ossec.conf
+        fi
+        fi
+        rm -rf ${DIR}/tmp/src
+        rm -rf ${DIR}/tmp/etc
+	# Default for all directories
+	chmod -R 750 ${DIR}
+	chown -R root:${GROUP} ${DIR}
+
+	# To the ossec queue (default for agentd to read)
+	chown -R ${USER}:${GROUP} ${DIR}/queue/*
+	chmod -R 750 ${DIR}/queue/*
+	chmod -R 770 ${DIR}/queue/alerts
+	
+	# For the logging user
+	chown -R ${USER}:${GROUP} ${DIR}/logs
+	chmod -R 750 ${DIR}/logs
+	touch ${DIR}/logs/ossec.log
+	chown ${USER}:${GROUP} ${DIR}/logs/ossec.log
+	chmod 660 ${DIR}/logs/ossec.log
+
+  	chown -R ${USER}:${GROUP} ${DIR}/queue/diff
+  	chmod -R 750 ${DIR}/queue/diff
+  	chmod 740 ${DIR}/queue/diff/* > /dev/null 2>&1 || true
+  	
+        if [ ${OS} = "Debian" ]; then
+        chmod 640 ${DIR}/wodles/oscap/content/cve-debian-oval.xml
+	chmod 640 ${DIR}/wodles/oscap/content/ssg-debian-8-ds.xml
+        fi
+        if [ ${OS} = "Ubuntu" ]; then
+        if [ ${VER} = "16.04" ]; then
+        chmod 640 ${DIR}/wodles/oscap/content/ssg-ubuntu-1604-ds.xml
+        fi
+	fi
+
+        # ossec-init.conf
+	if [ -e ${DIR}/ossec-init.conf ] && [ -d /etc/ ]; then
+            if [ -e /etc/ossec-init.conf ]; then
+                rm -f /etc/ossec-init.conf
+            fi
+                mv ${DIR}/ossec-init.conf /etc/
+                chmod 640 /etc/ossec-init.conf
+                ln -sf /etc/ossec-init.conf ${DIR}/etc/ossec-init.conf
+        fi
+	# For the etc dir
+	chown -R ossec:${GROUP} ${DIR}/etc
+	if [ -f /etc/localtime ]; then
+	    cp -pL /etc/localtime ${DIR}/etc/;
+	    chmod 640 ${DIR}/etc/localtime
+	    chown root:${GROUP} ${DIR}/etc/localtime
+	fi
+
+        # Restore the local rules, client.keys and local_decoder
+        if [ -f ${OSSEC_HIDS_TMP_DIR}/client.keys ]; then
+            cp ${OSSEC_HIDS_TMP_DIR}/client.keys ${DIR}/etc/client.keys
+        fi
+        # Restore client.keys configuration
+        if [ -f ${OSSEC_HIDS_TMP_DIR}/local_internal_options.conf ]; then
+            mv ${OSSEC_HIDS_TMP_DIR}/local_internal_options.conf ${DIR}/etc/local_internal_options.conf
+        fi
+
+	# More files
+	chown root:${GROUP} ${DIR}/etc/internal_options.conf
+	chown root:${GROUP} ${DIR}/etc/local_internal_options.conf >/dev/null 2>&1 || true
+	chown root:${GROUP} ${DIR}/etc/client.keys >/dev/null 2>&1 || true
+	chown root:${GROUP} ${DIR}/agentless/*
+	chown -R root:root ${DIR}/lua
+        chown -R root:root ${DIR}/bin
+	chown root:${GROUP} ${DIR}/.ssh
+	chown root:${GROUP} ${DIR}/etc/shared
+	chown root:${GROUP} ${DIR}/etc/shared/*
+	chmod 770 ${DIR}/var/*
+	chmod 750 ${DIR}/lua || true
+	chmod 750 ${DIR}/lua/native || true
+	chmod 750 ${DIR}/lua/compiled || true
+
+	chmod 770 ${DIR}/etc
+	chmod 640 ${DIR}/etc/internal_options.conf
+	chmod 640 ${DIR}/etc/local_internal_options.conf >/dev/null 2>&1 || true
+	chmod 640 ${DIR}/etc/client.keys >/dev/null 2>&1 || true
+	chmod 750 ${DIR}/agentless/*
+	chmod 700 ${DIR}/.ssh
+	chmod 770 ${DIR}/etc/shared
+	chmod 660 ${DIR}/etc/shared/*
+        chmod 1750  ${DIR}/tmp
+	# For the /var/run
+	chown root:${GROUP} ${DIR}/var/run
+
+	# For util.sh
+	chmod +x ${DIR}/bin/util.sh
+
+	# For binaries and active response
+  	chmod 750 ${DIR}/active-response/bin/*
+  	chown root:${GROUP} ${DIR}/active-response/bin/*
+  	chmod 750 ${DIR}/bin/*
+
+	# For ossec.conf
+	chown root:${GROUP} ${DIR}/etc/ossec.conf
+	chmod 640 ${DIR}/etc/ossec.conf
+
+        # init.d/ossec file
+        if [ -x ${DIR}/etc/init.d/wazuh-agent ] && [ -d /etc/init.d/ ]; then
+            if [ -e /etc/init.d/wazuh-agent ]; then
+                rm -f /etc/init.d/wazuh-agent
+            fi
+            cp ${DIR}/etc/init.d/wazuh-agent /etc/init.d/wazuh-agent
+            chmod +x /etc/init.d/wazuh-agent
+            chmod go-w /etc/init.d/wazuh-agent
+	    chown root:${GROUP} /etc/init.d/wazuh-agent
+            rm -rf ${DIR}/etc/init.d
+        fi
+
+        # logrotate configuration file
+        if [ -d /etc/logrotate.d/ ]; then
+            if [ -e /etc/logrotate.d/wazuh-hids ]; then
+                rm -f /etc/logrotate.d/wazuh-hids
+            fi
+            cp -p ${DIR}/etc/logrotate.d/wazuh-hids /etc/logrotate.d/wazuh-hids
+            chmod 644 /etc/logrotate.d/wazuh-hids
+            chown root:root /etc/logrotate.d/wazuh-hids
+            rm -rf ${DIR}/etc/logrotate.d
+        fi
+
+	# Service
+	if [ -x /etc/init.d/wazuh-agent ]; then
+            update-rc.d wazuh-agent defaults > /dev/null 2>&1
+	fi
+
+	# Delete tmp directory
+	if [ -d ${OSSEC_HIDS_TMP_DIR} ]; then
+	    rm -r ${OSSEC_HIDS_TMP_DIR}
+	fi
+
+    ;;
+
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+
+    ;;
+
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >22
+        exit 1
+    ;;
+
+esac
+
+exit 0

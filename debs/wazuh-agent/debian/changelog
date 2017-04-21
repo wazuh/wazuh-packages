@@ -1,0 +1,5 @@
+wazuh-agent (2.0-1) stable; urgency=low
+
+  * Wazuh-agent - base 2.0
+
+ -- Wazuh, Inc <support@wazuh.com>  Mon, 30 Sep 2016 08:43:10 +0000

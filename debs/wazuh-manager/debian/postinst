@@ -1,0 +1,327 @@
+#!/bin/sh
+# postinst script for ossec-hids
+# Wazuh, Inc 2016
+set -e
+
+case "$1" in
+    configure)
+        
+        OS=$(lsb_release -si)
+	VER=$(lsb_release -sr)
+	DIR="/var/ossec/"
+	USER="ossec"
+	USER_MAIL="ossecm"
+	USER_REM="ossecr"
+	GROUP="ossec"
+	OSSEC_HIDS_TMP_DIR="/tmp/wazuh-manager"
+	OSMYSHELL="/sbin/nologin"
+        if [ ! -f ${OSMYSHELL} ]; then
+	    if [ -f "/bin/false" ]; then
+	        OSMYSHELL="/bin/false"
+	    fi
+	fi
+
+        if ! getent group | grep -q "^ossec"
+        then
+            addgroup --system ossec  > /dev/null 2>&1
+        fi
+        if ! getent passwd | grep -q "^ossec"
+        then
+            adduser --system --home ${DIR} --shell ${OSMYSHELL} --ingroup ${GROUP} ${USER} > /dev/null 2>&1
+        fi
+        if ! getent passwd | grep -q "^ossecm"
+        then
+            adduser --system --home ${DIR} --shell ${OSMYSHELL} --ingroup ${GROUP} ${USER_MAIL} > /dev/null 2>&1
+        fi
+        if ! getent passwd | grep -q "^ossecr"
+        then
+            adduser --system --home ${DIR} --shell ${OSMYSHELL} --ingroup ${GROUP} ${USER_REM} > /dev/null 2>&1
+        fi
+
+        if [ -z "$2" ] 
+        then
+	chmod +x ${DIR}/tmp/add_localfiles.sh
+        ${DIR}/tmp/add_localfiles.sh >> ${DIR}/etc/ossec.conf
+
+        ETC_DECODERS="${DIR}/etc/decoders"
+        ETC_RULES="${DIR}/etc/rules"
+
+        # Moving local_decoder
+        if [ -f "${DIR}/etc/local_decoder.xml" ]; then
+            if [ -s "${DIR}/etc/local_decoder.xml" ]; then
+                mv "${DIR}/etc/local_decoder.xml" $ETC_DECODERS
+            else
+                # it is empty
+                rm -f "${DIR}/etc/local_decoder.xml"
+            fi
+        fi
+
+        # Moving local_rules
+        if [ -f "${DIR}/rules/local_rules.xml" ]; then
+            mv "${DIR}/rules/local_rules.xml" $ETC_RULES
+        fi
+        # Creating backup directory
+        BACKUP_RULESET="${DIR}/etc/backup_ruleset"
+        mkdir $BACKUP_RULESET > /dev/null 2>&1
+        chmod 750 $BACKUP_RULESET > /dev/null 2>&1
+        chown root:ossec $BACKUP_RULESET > /dev/null 2>&1
+
+        # Backup decoders: Wazuh v1.0.1 to v1.1.1
+        old_decoders="ossec_decoders wazuh_decoders"
+        for old_decoder in $old_decoders
+        do
+            if [ -d "${DIR}/etc/$old_decoder" ]; then
+                mv "${DIR}/etc/$old_decoder" $BACKUP_RULESET
+            fi
+        done
+
+        # Backup decoders: Wazuh v1.0 and OSSEC
+        if [ -f "${DIR}/etc/decoder.xml" ]; then
+            mv "${DIR}/etc/decoder.xml" $BACKUP_RULESET
+        fi
+        if [ -d "${DIR}/rules" ]; then
+        # Backup rules: All versions
+        mv "${DIR}/rules" $BACKUP_RULESET
+        fi
+
+        passlist="${DIR}/agentless/.passlist"
+
+        if [ -f $passlist ] && ! base64 -d $passlist > /dev/null 2>&1; then
+          cp $passlist $passlist.bak
+          base64 $passlist.bak > $passlist
+         if [ $? = 0 ]; then
+              echo "Agentless passlist encoded successfully."
+              rm -f $passlist.bak
+          else
+              echo "ERROR: Couldn't encode Agentless passlist."
+              mv $passlist.bak $passlist
+          fi
+        fi
+        fi        
+	rm -rf ${DIR}/tmp/add_localfiles.sh
+	rm -rf ${DIR}/tmp/src
+	rm -rf ${DIR}/tmp/etc
+	# Default for all directories
+	chmod -R 750 ${DIR}
+	chown -R root:${GROUP} ${DIR}
+
+	# AnalysisD needs to write to alerts: log, mail and cmds
+	chmod -R 750 ${DIR}/queue
+	chown -R ${USER}:${GROUP} ${DIR}/queue/alerts
+	chmod -R 770 ${DIR}/queue/alerts
+
+	# To the ossec queue (default for analysisd to read)
+	chown -R ${USER}:${GROUP} ${DIR}/queue/ossec
+	chmod -R 750 ${DIR}/queue/ossec
+
+	# To the ossec fts queue
+	chown -R ${USER}:${GROUP} ${DIR}/queue/fts
+	chmod -R 750 ${DIR}/queue/fts
+	chmod 740 ${DIR}/queue/fts/* > /dev/null 2>&1 || true
+
+	# To the ossec syscheck/rootcheck queue
+	chown -R ${USER}:${GROUP} ${DIR}/queue/syscheck
+	chmod -R 750 ${DIR}/queue/syscheck
+	chmod 740 ${DIR}/queue/syscheck/* > /dev/null 2>&1 || true
+
+	chown -R ${USER}:${GROUP} ${DIR}/queue/rootcheck
+	chmod -R 750 ${DIR}/queue/rootcheck
+	chmod 740 ${DIR}/queue/rootcheck/* > /dev/null 2>&1 || true
+
+	chown -R ${USER}:${GROUP} ${DIR}/queue/diff
+	chmod -R 750 ${DIR}/queue/diff
+	chmod 740 ${DIR}/queue/diff/* > /dev/null 2>&1 || true
+
+	chown -R ${USER_REM}:${GROUP} ${DIR}/queue/agent-info
+	chmod -R 750 ${DIR}/queue/agent-info
+        
+	chown -R ${USER_REM}:${GROUP} ${DIR}/queue/rids
+	chmod -R 750 ${DIR}/queue/rids
+
+	chown -R ${USER}:${GROUP} ${DIR}/queue/agentless
+	chmod -R 750 ${DIR}/queue/agentless
+	chmod 750 ${DIR}/queue/agentless/* > /dev/null 2>&1 || true
+
+	# For the stats directory
+	chown -R ${USER}:${GROUP} ${DIR}/stats
+	chmod -R 750 ${DIR}/stats
+
+	# For the ruleset
+	chown root:${GROUP} ${DIR}/ruleset/VERSION
+	chmod 640 ${DIR}/ruleset/VERSION
+	chown root:${GROUP} ${DIR}/ruleset/rules/*
+	chmod 640 ${DIR}/ruleset/rules/*
+	chown root:${GROUP} ${DIR}/ruleset/decoders/*
+	chmod 640 ${DIR}/ruleset/decoders/*
+
+	# For the logging user
+	chown -R ${USER}:${GROUP} ${DIR}/logs
+        chown ${USER_MAIL}:${GROUP} ${DIR}/logs/integrations.log        
+        chmod -R 750 ${DIR}/logs
+        chmod 640 ${DIR}/logs/integrations.log
+        chmod 660 ${DIR}/logs/ossec.log
+        chmod 660 ${DIR}/logs/active-responses.log
+
+        chown -R ${USER}:${GROUP} ${DIR}/etc
+	# For the etc dir
+	if [ -f /etc/localtime ]; then
+	    cp -pL /etc/localtime ${DIR}/etc/;
+	    chmod 640 ${DIR}/etc/localtime
+	    chown root:${GROUP} ${DIR}/etc/localtime
+	fi
+
+	if [ -f /etc/TIMEZONE ]; then
+	    cp -p /etc/TIMEZONE ${DIR}/etc/;
+	    chmod 740 ${DIR}/etc/TIMEZONE
+	fi
+
+	# For the /var/run
+	chmod -R 770 ${DIR}/var
+        chmod 750 ${DIR}/var
+	chown -R root:${GROUP} ${DIR}/var
+
+        # Restore client.keys configuration
+        if [ -f ${OSSEC_HIDS_TMP_DIR}/client.keys ]; then
+            mv ${OSSEC_HIDS_TMP_DIR}/client.keys ${DIR}/etc/client.keys
+        fi
+        # Restore client.keys configuration
+        if [ -f ${OSSEC_HIDS_TMP_DIR}/local_internal_options.conf ]; then
+            mv ${OSSEC_HIDS_TMP_DIR}/local_internal_options.conf ${DIR}/etc/local_internal_options.conf
+        fi
+	# More files
+	touch ${DIR}/etc/client.keys
+        chown root:root ${DIR}/bin
+        chown root:${GROUP} ${DIR}/etc/decoders
+	chown root:${GROUP} ${DIR}/etc/rules
+	chown root:${GROUP} ${DIR}/etc/rules/*
+        chown root:${GROUP} ${DIR}/etc/lists
+	chown root:${GROUP} ${DIR}/etc/lists/*
+	chown root:${GROUP} ${DIR}/etc/decoders/*
+	chown root:${GROUP} ${DIR}/etc/internal_options.conf
+	chown root:${GROUP} ${DIR}/etc/local_internal_options.conf >/dev/null 2>&1 || true
+	chown root:${GROUP} ${DIR}/etc/client.keys >/dev/null 2>&1 || true
+	chown root:${GROUP} ${DIR}/etc/shared/*
+	chown root:${GROUP} ${DIR}/agentless/*
+	chown root:${GROUP} ${DIR}/.ssh
+	chmod 640 ${DIR}/etc/lists/*
+  	chmod 640 ${DIR}/etc/decoders/* >/dev/null 2>&1 || true
+	chmod 640 ${DIR}/etc/rules/* >/dev/null 2>&1 || true
+	chmod 640 ${DIR}/etc/internal_options.conf
+	chmod 640 ${DIR}/etc/local_internal_options.conf >/dev/null 2>&1 || true
+	chmod 640 ${DIR}/etc/client.keys >/dev/null 2>&1 || true
+	chmod 770 ${DIR}/etc
+        chown root:${GROUP} ${DIR}/etc/shared
+	chmod 770 ${DIR}/etc/shared
+	chmod 660 ${DIR}/etc/shared/*
+	chmod 750 ${DIR}/agentless
+	chmod 750 ${DIR}/agentless/*
+	chmod 700 ${DIR}/.ssh
+	chmod 750 ${DIR}/logs/archives || true
+	chmod 750 ${DIR}/logs/alerts || true
+	chmod 750 ${DIR}/logs/firewall || true
+
+	rm ${DIR}/etc/shared/merged.mg >/dev/null 2>&1 || true
+	chmod 750 ${DIR}/active-response/bin/*
+	chown root:${GROUP} ${DIR}/active-response/bin/*
+	chown root:root ${DIR}/bin/*
+	chmod 750 ${DIR}/bin
+	chmod 750 ${DIR}/bin/*
+        chown -R root:root ${DIR}/lua
+	chmod 750 ${DIR}/lua || true
+	chmod 750 ${DIR}/lua/native || true
+	chmod 750 ${DIR}/lua/compiled || true
+	chown root:${GROUP} ${DIR}/etc/ossec.conf
+	chmod 640 ${DIR}/etc/ossec.conf
+
+	# Sticky bit for /var/ossec/tmp
+        chown root:${GROUP} ${DIR}/tmp
+	chmod 1750 ${DIR}/tmp
+
+	# Integrations folder
+	chown root:${GROUP} ${DIR}/integrations
+	chmod 750 ${DIR}/integrations
+	chown root:${GROUP} ${DIR}/integrations/*
+	chmod 750 ${DIR}/integrations/*
+
+	# Backup folder
+	chown root:${GROUP} ${DIR}/backup
+	chmod 750 ${DIR}/backup
+	chown ${USER}:${GROUP} ${DIR}/backup/agents
+	chmod 750 ${DIR}/backup/agents
+
+        # Update openscap
+        if [ ${OS} = "Debian" ]; then
+        chmod 640 ${DIR}/wodles/oscap/content/cve-debian-oval.xml
+	chmod 640 ${DIR}/wodles/oscap/content/ssg-debian-8-ds.xml
+        fi
+	if [ ${OS} = "Ubuntu" ]; then
+	if [ ${VER} = "16.04" ]; then
+	chmod 640 ${DIR}/wodles/oscap/content/ssg-ubuntu-1604-ds.xml
+	fi
+	fi
+	# ossec-init.conf
+	if [ -e ${DIR}/ossec-init.conf ] && [ -d /etc/ ]; then
+            if [ -e /etc/ossec-init.conf ]; then
+                rm -f /etc/ossec-init.conf
+            fi
+		mv ${DIR}/ossec-init.conf /etc/
+		chmod 640 /etc/ossec-init.conf
+	        ln -sf /etc/ossec-init.conf ${DIR}/etc/ossec-init.conf
+        fi
+        
+        # init.d/ossec file
+        if [ -x ${DIR}/etc/init.d/wazuh-manager ] && [ -d /etc/init.d/ ]; then
+            if [ -e /etc/init.d/wazuh-manager ]; then
+                rm -f /etc/init.d/wazuh-manager
+            fi
+            cp ${DIR}/etc/init.d/wazuh-manager /etc/init.d/wazuh-manager
+            chmod +x /etc/init.d/wazuh-manager
+            chmod go-w /etc/init.d/wazuh-manager
+	    chown root:${GROUP} /etc/init.d/wazuh-manager
+            rm -rf ${DIR}/etc/init.d
+        fi
+        # Delete old service
+        if [ -e /etc/init.d/ossec ]; then
+            rm -f /etc/init.d/ossec
+        fi
+        if [ -e /etc/init.d/ossec-hids ]; then
+            rm -f /etc/init.d/ossec-hids
+        fi
+
+        # logrotate configuration file
+        if [ -d /etc/logrotate.d/ ]; then
+            if [ -e /etc/logrotate.d/wazuh-hids ]; then
+                rm -f /etc/logrotate.d/wazuh-hids
+            fi
+            cp -p ${DIR}/etc/logrotate.d/wazuh-hids /etc/logrotate.d/wazuh-hids
+            chmod 644 /etc/logrotate.d/wazuh-hids
+            chown root:root /etc/logrotate.d/wazuh-hids
+            rm -rf ${DIR}/etc/logrotate.d
+        fi
+
+        # Service
+      	if [ -x /etc/init.d/wazuh-manager ]; then
+            update-rc.d wazuh-manager defaults > /dev/null 2>&1
+            service wazuh-manager restart
+      	fi
+	# Delete tmp directory
+	if [ -d ${OSSEC_HIDS_TMP_DIR} ]; then
+	    rm -r ${OSSEC_HIDS_TMP_DIR}
+	fi
+
+    ;;
+
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+
+    ;;
+
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >22
+        exit 1
+    ;;
+
+esac
+
+exit 0
