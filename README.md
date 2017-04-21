@@ -5,7 +5,7 @@ Wazuh is an Open Source Host-based Intrusion Detection System that performs log 
 
 These are the files used to create Wazuh version 2.0 debs and rpms packages, the ones WAZUH repository. You can find these packages at:
 
-https://wazuh.com
+[Wazuh](https://wazuh.com) or visit our [documentation](http://documentation.wazuh.com)
 
 There are two different packages that can be built with these files:
 
