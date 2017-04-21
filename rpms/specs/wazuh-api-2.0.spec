@@ -173,5 +173,5 @@ rm -fr %{buildroot}
 %attr(640,root,root) %{_localstatedir}/ossec/api/scripts/wazuh-api.service
 %attr(750,ossec,ossec) %{_localstatedir}/ossec/api/node_modules/*
 %changelog
-* Fri Sep 16 2016 Jose Luis Ruiz <jose@wazuh.com> - 1.2.1
-- First rpm.
+* Fri Apr 21 2017 Jose Luis Ruiz <jose@wazuh.com> - 2.0
+- First package v2.0

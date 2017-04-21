@@ -293,38 +293,5 @@ rm -fr %{buildroot}
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/add_localfiles.sh
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/generic/*
 %changelog
-* Fri Sep 16 2016 Jose Luis Ruiz <jose@wazuh.com> - 1.2
-- First package v1.2
-* Mon Jul 25 2016 Jose Luis Ruiz <jose@wazuh.com> - 1.1.1.3
-- Added epel-release as dependece.
-* Sat May 21 2016 Jose Luis Ruiz <jose@wazuh.com> - 1.1.1.2
-- Fixed bug at Logcollector that inhibited alerts about file reduction.
-* Thu May 12 2016 Jose Luis Ruiz <jose@wazuh.com> - 1.1.1.1
-- maild: timeout limitation, preventing it from hang in some cases.
-- Updated decoders, ruleset and rootchecks from Wazuh Ruleset v1.0.8.
-- Updated changes from ossec-hids repository.
-- Avoid authd to rename agent if overplaced.
-- Changed some log messages.
-- Reordered directories for agent backups.
-- Don't exit when client.keys is empty by default.
-- Improved client.keys reloading capabilities.
-- Fixed JSON output at rootcheck_control.
-- Fixed agent compilation on OS X.
-- Fixed memory issue on removing timestamps.
-- Fixed segmentation fault at reported.
-- Fixed segmentation fault at logcollector.
-- Removed old rootcheck options.
-
-* Mon Apr 25 2016 Jose Luis Ruiz <jose@wazuh.com> - 1.1.0
-- Re-usage of agent ID in manage_agents and authd, with time limit.
-- Added option to avoid manager from exiting when there are no keys.
-- Backup of the information about an agent that's going to be deleted.
-- Alerting if Authd can't add an agent because of a duplicated IP.
-- Integrator with Slack and PagerDuty.
-- Simplified keywords for the option "frequency".
-- Added custom Reply-to e-mail header.
-- Added option to syscheck to avoid showing diffs on some files.
-- Created agents-timestamp file to save the agents' date of adding.
-
-* Tue Feb 9 2016 Jose Luis Ruiz <jose@wazuh.com> - 1.1.0
-- First RPM ossec-wazuh
+* Fri Apr 21 2017 Jose Luis Ruiz <jose@wazuh.com> - 2.0
+- First package v2.0
