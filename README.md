@@ -15,6 +15,7 @@ There are three different packages that can be built with these files:
 
 
 References about rpms:
+
 https://techarena51.com/index.php/build-rpm-without-breaking-head/
 https://wiki.centos.org/HowTos/SetupRpmBuildEnvironment
 http://www.thegeekstuff.com/2015/02/rpm-build-package-example/
@@ -23,6 +24,7 @@ http://blog.celingest.com/en/2014/09/17/create-your-own-yum-rpm-repository-using
 
 
 References about debs:
+
 http://santi-bassett.blogspot.ca/2014/07/setting-up-apt-repository-with-reprepro.html
 https://debian-handbook.info/browse/stable/sect.building-first-package.html
 http://www.hackgnar.com/2016/01/simple-deb-package-creation.html
