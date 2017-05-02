@@ -373,11 +373,11 @@ rm -fr %{buildroot}
 %attr(750,root,root) %dir %{_localstatedir}/ossec/lua/compiled
 %attr(750,root,root) %dir %{_localstatedir}/ossec/lua/native
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/queue
-%attr(750,ossecr,ossec) %dir %{_localstatedir}/ossec/queue/agent-info
+%attr(770,ossecr,ossec) %dir %{_localstatedir}/ossec/queue/agent-info
 %attr(750,ossec,ossec) %dir %{_localstatedir}/ossec/queue/agentless
 %attr(770,ossec,ossec) %dir %{_localstatedir}/ossec/queue/alerts
 %attr(750,ossec,ossec) %dir %{_localstatedir}/ossec/queue/fts
-%attr(750,ossecr,ossec) %dir %{_localstatedir}/ossec/queue/rids
+%attr(770,ossecr,ossec) %dir %{_localstatedir}/ossec/queue/rids
 %attr(750,ossec,ossec) %dir %{_localstatedir}/ossec/queue/rootcheck
 %attr(750,ossec,ossec) %dir %{_localstatedir}/ossec/queue/syscheck
 %attr(750,ossec,ossec) %dir %{_localstatedir}/ossec/queue/ossec
