@@ -13,7 +13,7 @@ BuildRoot:   %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Vendor:      http://www.wazuh.com
 Packager:    Jose Luis Ruiz <jose@wazuh.com>
 Requires(pre):    /usr/sbin/groupadd /usr/sbin/useradd
-Requires(post):   /sbin/chkconfig 
+Requires(post):   /sbin/chkconfig
 Requires(preun):  /sbin/chkconfig /sbin/service
 Requires(postun): /sbin/service
 Conflicts:   ossec-hids ossec-hids-agent wazuh-agent
@@ -31,14 +31,14 @@ BuildRequires: inotify-tools-devel
 %endif
 BuildRequires: zlib-devel
 
- 
+
 Requires:  expect logrotate
- 
+
 ExclusiveOS: linux
- 
+
 %description
-Wazuh helps you to gain security visibility into your infrastructure by monitoring 
-hosts at an operating system and application level. It provides the following capabilities: 
+Wazuh helps you to gain security visibility into your infrastructure by monitoring
+hosts at an operating system and application level. It provides the following capabilities:
 log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 
 %prep
@@ -52,7 +52,7 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 ./gen_ossec.sh conf manager %_vendor %rhel  > etc/ossec-server.conf
 %endif
 
-./gen_ossec.sh init manager  > ossec-init.conf 
+./gen_ossec.sh init manager  > ossec-init.conf
 CFLAGS="$RPM_OPT_FLAGS -fpic -fPIE -Wformat -Wformat-security -fstack-protector-all -Wstack-protector --param ssp-buffer-size=4 -D_FORTIFY_SOURCE=2"
 LDFLAGS="-fPIE -pie -Wl,-z,relro"
 SH_LDFLAGS="-fPIE -pie -Wl,-z,relro"
@@ -64,15 +64,15 @@ CFLAGS+=" -I/usr/include/openssl101e -L/usr/lib64/openssl101e -L/usr/lib/openssl
 
 pushd src
 # Rebuild for server
-make clean 
+make clean
 #make DATABASE=mysql MAXAGENTS=16384 USE_GEOIP=1 TARGET=server V=1
-make TARGET=server 
+make TARGET=server
 popd
- 
+
 %install
 # Clean BUILDROOT
 rm -fr %{buildroot}
- 
+
 mkdir -p ${RPM_BUILD_ROOT}%{_initrddir}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/active-response/bin
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/agentless
@@ -183,29 +183,29 @@ install -m 0640 etc/lists/audit-keys.cdb ${RPM_BUILD_ROOT}%{_localstatedir}/osse
 
 cp -pr etc/ossec-server.conf ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/ossec.conf
 cp -pr src/init/ossec-server.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin/ossec-control
-  
+
 mkdir -p $RPM_BUILD_ROOT/etc/logrotate.d
 install -m 0644 %{SOURCE3} ${RPM_BUILD_ROOT}/etc/logrotate.d/wazuh-manager
 
 exit 0
 %pre
- 
+
 if ! id -g ossec > /dev/null 2>&1; then
   groupadd -r ossec
 fi
- 
+
 if ! id -u ossec > /dev/null 2>&1; then
   useradd -g ossec -G ossec       \
         -d %{_localstatedir}/ossec \
         -r -s /sbin/nologin ossec
 fi
- 
+
 if ! id -u ossecr > /dev/null 2>&1; then
   useradd -g ossec -G ossec       \
         -d %{_localstatedir}/ossec \
         -r -s /sbin/nologin ossecr
 fi
- 
+
 if ! id -u ossecm > /dev/null 2>&1; then
   useradd -g ossec -G ossec       \
         -d %{_localstatedir}/ossec \
@@ -229,7 +229,7 @@ if [ $1 = 2 ]; then
     cp -rp /opt/ossec/etc/ossec.conf /opt/ossec/etc/ossec.bck
 fi
 %post
- 
+
 if [ $1 = 1 ]; then
 
 
@@ -310,7 +310,7 @@ if [ $1 = 1 ]; then
   echo "=========================================================================================================="
    /sbin/chkconfig --add wazuh-manager
    /sbin/chkconfig wazuh-manager on
-   
+
 fi
   rm -f %{_localstatedir}/ossec/tmp/add_localfiles.sh
   rm -rf %{_localstatedir}/ossec/tmp/src
@@ -323,32 +323,32 @@ if [ $1 = 2 ]; then
   fi
 fi
 /sbin/service wazuh-manager restart || :
- 
+
 %preun
- 
+
 if [ $1 = 0 ]; then
   /sbin/chkconfig wazuh-manager off
   /sbin/chkconfig --del wazuh-manager
- 
+
   /sbin/service wazuh-manager stop || :
- 
+
   rm -f %{_localstatedir}/ossec/etc/localtime
 fi
- 
+
 %triggerin -- glibc
 [ -r %{_sysconfdir}/localtime ] && cp -fpL %{_sysconfdir}/localtime %{_localstatedir}/ossec/etc
- chown root:ossec %{_localstatedir}/ossec/etc/localtime 
- chmod 0640 %{_localstatedir}/ossec/etc/localtime 
- 
+ chown root:ossec %{_localstatedir}/ossec/etc/localtime
+ chmod 0640 %{_localstatedir}/ossec/etc/localtime
+
 %clean
 rm -fr %{buildroot}
-  
+
 %files
 %defattr(-,root,root)
 %doc BUGS CONFIG CONTRIBUTORS INSTALL LICENSE README.md CHANGELOG
 
 
-%attr(640,root,ossec) %verify(not md5 size mtime) %{_sysconfdir}/ossec-init.conf  
+%attr(640,root,ossec) %verify(not md5 size mtime) %{_sysconfdir}/ossec-init.conf
 %attr(550,root,ossec) %dir %{_localstatedir}/ossec
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/backup
 %attr(750,ossec,ossec) %dir %{_localstatedir}/ossec/backup/agents
@@ -410,15 +410,18 @@ rm -fr %{buildroot}
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/wodles/oscap/content
 %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap/oscap.*
 %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap/template*
-%if 0%{?rhel} >= 6 || 0%{?rhel} >= 7 ||  0%{?fedora} >= 23 || 0%{?fedora} >= 24 || 0%{?fedora} >= 25 
+%if 0%{?rhel} >= 6 || 0%{?rhel} >= 7 ||  0%{?fedora} >= 23 || 0%{?fedora} >= 24 || 0%{?fedora} >= 25
 %attr(640,root,ossec) %{_localstatedir}/ossec/wodles/oscap/content/*
 %endif
- 
+
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/add_localfiles.sh
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/src/*
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/generic/*
 %config(noreplace) /etc/logrotate.d/wazuh-manager
 
 %changelog
+* xxx xxx xx 2017 Jose Luis Ruiz <jose@wazuh.com> - 2.0.1
+- Fix permissions in agent-info folder
+- Fix permissions in rids folder.
 * Fri Apr 21 2017 Jose Luis Ruiz <jose@wazuh.com> - 2.0
 - First package v2.0

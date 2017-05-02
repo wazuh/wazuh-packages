@@ -1,3 +1,8 @@
+wazuh-manager (2.0.1-1) stable; urgency=low
+
+  * Fix permissions in agent-info folder
+  * Fix permissions in rids folder.
+  
 wazuh-manager (2.0-1) stable; urgency=low
 
   * agent_control: maximum number of agents can now be extracted using option "-m".
@@ -15,5 +20,5 @@ wazuh-manager (2.0-1) stable; urgency=low
   * Fixed segmentation fault at reported.
   * Fixed segmentation fault at logcollector.
   * Removed old rootcheck options.
-  
+
  -- Wazuh, Inc <support@wazuh.com>  Mon, 01 Jul 2016 08:43:10 +0000

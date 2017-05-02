@@ -5,7 +5,7 @@ set -e
 
 case "$1" in
     configure)
-        
+
         OS=$(lsb_release -si)
 	VER=$(lsb_release -sr)
 	DIR="/var/ossec/"
@@ -38,7 +38,7 @@ case "$1" in
             adduser --system --home ${DIR} --shell ${OSMYSHELL} --ingroup ${GROUP} ${USER_REM} > /dev/null 2>&1
         fi
 
-        if [ -z "$2" ] 
+        if [ -z "$2" ]
         then
 	chmod +x ${DIR}/tmp/add_localfiles.sh
         ${DIR}/tmp/add_localfiles.sh >> ${DIR}/etc/ossec.conf
@@ -97,7 +97,7 @@ case "$1" in
               mv $passlist.bak $passlist
           fi
         fi
-        fi        
+        fi
 	rm -rf ${DIR}/tmp/add_localfiles.sh
 	rm -rf ${DIR}/tmp/src
 	rm -rf ${DIR}/tmp/etc
@@ -133,10 +133,10 @@ case "$1" in
 	chmod 740 ${DIR}/queue/diff/* > /dev/null 2>&1 || true
 
 	chown -R ${USER_REM}:${GROUP} ${DIR}/queue/agent-info
-	chmod -R 750 ${DIR}/queue/agent-info
-        
+	chmod -R 770 ${DIR}/queue/agent-info
+
 	chown -R ${USER_REM}:${GROUP} ${DIR}/queue/rids
-	chmod -R 750 ${DIR}/queue/rids
+	chmod -R 770 ${DIR}/queue/rids
 
 	chown -R ${USER}:${GROUP} ${DIR}/queue/agentless
 	chmod -R 750 ${DIR}/queue/agentless
@@ -156,7 +156,7 @@ case "$1" in
 
 	# For the logging user
 	chown -R ${USER}:${GROUP} ${DIR}/logs
-        chown ${USER_MAIL}:${GROUP} ${DIR}/logs/integrations.log        
+        chown ${USER_MAIL}:${GROUP} ${DIR}/logs/integrations.log
         chmod -R 750 ${DIR}/logs
         chmod 640 ${DIR}/logs/integrations.log
         chmod 660 ${DIR}/logs/ossec.log
@@ -268,7 +268,7 @@ case "$1" in
 		chmod 640 /etc/ossec-init.conf
 	        ln -sf /etc/ossec-init.conf ${DIR}/etc/ossec-init.conf
         fi
-        
+
         # init.d/ossec file
         if [ -x ${DIR}/etc/init.d/wazuh-manager ] && [ -d /etc/init.d/ ]; then
             if [ -e /etc/init.d/wazuh-manager ]; then
