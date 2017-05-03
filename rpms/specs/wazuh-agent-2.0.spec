@@ -29,10 +29,9 @@ Requires: openssl101e
 %if 0%{!?el6}
 BuildRequires: inotify-tools-devel
 %endif
-BuildRequires: zlib-devel
 
+BuildRequires: zlib-devel
 Requires:  logrotate
- 
 ExclusiveOS: linux
  
 %description
@@ -71,7 +70,7 @@ popd
 # Clean BUILDROOT
 rm -fr %{buildroot}
 
-
+# Make Folders
 mkdir -p ${RPM_BUILD_ROOT}%{_initrddir}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/active-response/bin
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/agentless
@@ -89,12 +88,18 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/lua/native
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
-
-
-# Templates for initscript
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/init
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/generic
+mkdir -p ${RPM_BUILD_ROOT}/etc/logrotate.d
+
+#Copy files
 cp -rp  etc/templates/config/generic/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/generic
+cp -pr src/init/ossec-client.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin/ossec-control
+cp -pr contrib/util.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin/
+cp -pr etc/ossec-agent.conf ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/ossec.conf
+cp %{SOURCE2} CHANGELOG
+
+# Install Files
 install -m 0640 ossec-init.conf ${RPM_BUILD_ROOT}%{_sysconfdir}
 install -m 0640 src/init/inst-functions.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/init
 install -m 0640 src/init/template-select.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/init
@@ -103,9 +108,6 @@ install -m 0640 src/init/replace_manager_ip.sh ${RPM_BUILD_ROOT}%{_localstatedir
 install -m 0640 src/LOCATION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src
 install -m 0640 src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src
 install -m 0640 add_localfiles.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp
-
-
-cp %{SOURCE2} CHANGELOG
 install -m 0755 %{SOURCE1} ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-agent
 install -m 0640 etc/internal_options* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc
 install -m 0640 etc/local_internal_options.conf ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc
@@ -122,16 +124,15 @@ install -m 0650 src/agent-auth ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin/
 install -m 0650 src/external/lua-5.2.3/src/ossec-lua ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
 install -m 0650 src/external/lua-5.2.3/src/ossec-luac ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
 install -m 0650 src/wazuh-modulesd ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-
-
 install -m 0750 wodles/oscap/oscap.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap
 install -m 0750 wodles/oscap/template* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap
-
+install -m 0644 %{SOURCE3} ${RPM_BUILD_ROOT}/etc/logrotate.d/wazuh-agent
 
 %if  "%_vendor" == "redhat" && 0%{?el7}
   install -m 0640 wodles/oscap/content/cve-redhat-7-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
   install -m 0640 wodles/oscap/content/ssg-rhel-7-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 %endif
+
 %if  "%_vendor" == "centos" && 0%{?el7}
   install -m 0640 wodles/oscap/content/ssg-centos-7-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 %endif
@@ -149,14 +150,6 @@ install -m 0750 wodles/oscap/template* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/
   install -m 0640 wodles/oscap/content/ssg-fedora-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 %endif
 
-cp -pr src/init/ossec-client.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin/ossec-control
-cp -pr contrib/util.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin/
-cp -pr etc/ossec-agent.conf ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/ossec.conf
-
-
-mkdir -p ${RPM_BUILD_ROOT}/etc/logrotate.d
-install -m 0644 %{SOURCE3} ${RPM_BUILD_ROOT}/etc/logrotate.d/wazuh-agent
-
 exit 0
 %pre
 
@@ -168,7 +161,6 @@ if ! id -u ossec > /dev/null 2>&1; then
         -d %{_localstatedir}/ossec \
         -r -s /sbin/nologin ossec
 fi
-
 
 # Delete old service
 if [ -f /etc/init.d/ossec ]; then
@@ -191,23 +183,25 @@ fi
 
 if [ $1 = 1 ]; then
 
+  # Create Files
   touch %{_localstatedir}/ossec/etc/client.keys
-  chown root:ossec %{_localstatedir}/ossec/etc/client.keys
-  chmod 0640 %{_localstatedir}/ossec/etc/client.keys
   touch %{_localstatedir}/ossec/logs/ossec.log
-  chown ossec:ossec %{_localstatedir}/ossec/logs/ossec.log
-  chmod 660 %{_localstatedir}/ossec/logs/ossec.log
-
   touch %{_localstatedir}/ossec/logs/active-responses.log
+  # Change Users and Groups
+  chown ossec:ossec %{_localstatedir}/ossec/logs/ossec.log
+  chown root:ossec %{_localstatedir}/ossec/etc/client.keys
   chown ossec:ossec %{_localstatedir}/ossec/logs/active-responses.log
+  # Change Permissions 
+  chmod 660 %{_localstatedir}/ossec/logs/ossec.log
+  chmod 0640 %{_localstatedir}/ossec/etc/client.keys
   chmod 0660 %{_localstatedir}/ossec/logs/active-responses.log
-
 
   # Add default local_files to ossec.conf
   %{_localstatedir}/ossec/tmp/add_localfiles.sh >>  %{_localstatedir}/ossec/etc/ossec.conf
   echo "======================================================================================================================================"
   echo "= By default, OSSEC analyses some logs found in your system. Please, review the configuration if you want to monitor any other file. ="
   echo "======================================================================================================================================"
+  
   if [ -f %{_localstatedir}/ossec/etc/ossec.conf.rpmorig ]; then
       %{_localstatedir}/ossec/tmp/src/init/replace_manager_ip.sh %{_localstatedir}/ossec/etc/ossec.conf.rpmorig %{_localstatedir}/ossec/etc/ossec.conf
   fi
@@ -226,7 +220,6 @@ if [ $1 = 2 ]; then
   fi
 fi
 
-
 %preun
  
 if [ $1 = 0 ]; then
@@ -241,7 +234,6 @@ fi
 [ -r %{_sysconfdir}/localtime ] && cp -fpL %{_sysconfdir}/localtime %{_localstatedir}/ossec/etc
  chown root:ossec %{_localstatedir}/ossec/etc/localtime
  chmod 0640 %{_localstatedir}/ossec/etc/localtime
-
 %clean
 rm -fr %{buildroot}
   

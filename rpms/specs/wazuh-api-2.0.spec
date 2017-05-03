@@ -62,9 +62,8 @@ install -m 0500 scripts/install_daemon.sh ${RPM_BUILD_ROOT}%{_localstatedir}/oss
 install -m 0400 scripts/wazuh-api ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/scripts
 install -m 0400 scripts/wazuh-api.service  ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/scripts
 install -m 0400 framework/lib/libsqlite3.so.0 ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/framework/lib
-
+#Copy files
 cp -r node_modules/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/node_modules/
-
 cp %{SOURCE1} CHANGELOG
 
 exit 0
@@ -119,7 +118,6 @@ else
    echo "Warning: You need python 2.7 or above"
 fi
 
-
 %preun
  
 if [ $1 = 0 ]; then
@@ -156,7 +154,6 @@ rm -fr %{buildroot}
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/api/framework/wazuh
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/api/node_modules
 %attr(750,root,ossec) %{_localstatedir}/ossec/api/framework/lib
-
 %attr(640,root,ossec) %{_localstatedir}/ossec/api/package.json 
 %attr(750,root,ossec) %{_localstatedir}/ossec/api/app.js
 %attr(750,root,root) %config(noreplace) %{_localstatedir}/ossec/api/configuration/config.js
