@@ -1,0 +1,39 @@
+#!/bin/sh
+# prerm script for wazuh-manager
+
+set -e
+
+case "$1" in
+    remove|upgrade|deconfigure)
+    if ps axu | grep /var/ossec/api/app.js | grep -v grep; then
+            if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
+                systemctl stop wazuh-api.service
+            fi
+
+            if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
+                service wazuh-api stop
+            fi
+    fi
+    ;;
+
+    failed-upgrade)
+    if ps axu | grep /var/ossec/api/app.js | grep -v grep; then
+            if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
+                systemctl stop wazuh-api.service
+            fi
+
+            if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
+                echo "aqui init"
+                service wazuh-api stop
+            fi
+    fi
+    ;;
+
+    *)
+        echo "prerm called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+
+esac
+
+exit 0

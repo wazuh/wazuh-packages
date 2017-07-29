@@ -40,6 +40,9 @@ case "$1" in
         if [ -f ${DIR}/etc/local_internal_options.conf ]; then
             cp -p ${DIR}/etc/local_internal_options.conf ${OSSEC_HIDS_TMP_DIR}/local_internal_options.conf
         fi
+        if [ -f ${DIR}/etc/ossec.conf ]; then
+            cp -p ${DIR}/etc/ossec.conf ${OSSEC_HIDS_TMP_DIR}/ossec.conf
+        fi
 
     ;;
 

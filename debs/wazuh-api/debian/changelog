@@ -1,3 +1,11 @@
+wazuh-api (2.0.1-1) stable; urgency=low
+
+  * Issue when basic-auth is disabled.
+  * Regex for latest version in install_api.sh
+  * Wrong scan dates for syscheck and rootcheck.
+  * IP value always must be lowercase.
+
+ -- Wazuh, Inc <support@wazuh.com>  Mon, 30 Sep 2016 08:43:10 +0000
 wazuh-api (2.0-1) stable; urgency=low
 
   * Wazuh-api - base 2.0

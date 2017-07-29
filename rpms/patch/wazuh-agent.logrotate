@@ -8,6 +8,6 @@
     olddir /var/ossec/logs/
     sharedscripts
     postrotate
-         /var/ossec/bin/ossec-control restart 2> /dev/null > /dev/null
+         /var/ossec/bin/ossec-control restart
     endscript
 }

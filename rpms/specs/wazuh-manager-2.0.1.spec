@@ -1,6 +1,6 @@
 Summary:     The Wazuh Manager
 Name:        wazuh-manager
-Version:     2.0
+Version:     2.0.1
 Release:     1%{?dist}
 License:     GPL
 Group:       System Environment/Daemons
@@ -8,37 +8,33 @@ Source0:     https://github.com/wazuh/ossec-wazuh/archive/%{name}-%{version}.tar
 Source1:     %{name}.init
 Source2:     CHANGELOG
 Source3:     wazuh-manager.logrotate
-URL:         http://www.wazuh.com/
+URL:         https://www.wazuh.com/
 BuildRoot:   %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Vendor:      http://www.wazuh.com
 Packager:    Jose Luis Ruiz <jose@wazuh.com>
 Requires(pre):    /usr/sbin/groupadd /usr/sbin/useradd
-Requires(post):   /sbin/chkconfig
+Requires(post):   /sbin/chkconfig 
 Requires(preun):  /sbin/chkconfig /sbin/service
 Requires(postun): /sbin/service
 Conflicts:   ossec-hids ossec-hids-agent wazuh-agent
 
-BuildRequires: coreutils glibc-devel openssl-devel
-BuildRequires: sqlite-devel
+BuildRequires: openssl-devel coreutils glibc-devel sqlite-devel 
 
-%if 0%{?el5}
-BuildRequires: openssl101e-devel
-Requires: openssl101e
+%if 0%{!?el5}
+BuildRequires: openssl-devel
 %endif
 
 %if 0%{!?el6}
 BuildRequires: inotify-tools-devel
 %endif
-BuildRequires: zlib-devel
-
-
+ 
 Requires:  expect logrotate
-
+ 
 ExclusiveOS: linux
-
+ 
 %description
-Wazuh helps you to gain security visibility into your infrastructure by monitoring
-hosts at an operating system and application level. It provides the following capabilities:
+Wazuh helps you to gain security visibility into your infrastructure by monitoring 
+hosts at an operating system and application level. It provides the following capabilities: 
 log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 
 %prep
@@ -48,31 +44,36 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 ./gen_ossec.sh conf manager %_vendor %fedora  > etc/ossec-server.conf
 %endif
 
-%if  "%_vendor" == "redhat" || "%_vendor" == "centos"
-./gen_ossec.sh conf manager %_vendor %rhel  > etc/ossec-server.conf
+%if  "%_vendor" == "rhel" || "%_vendor" == "redhat"
+./gen_ossec.sh conf manager rhel %rhel  > etc/ossec-server.conf
 %endif
 
-./gen_ossec.sh init manager  > ossec-init.conf
-CFLAGS="$RPM_OPT_FLAGS -fpic -fPIE -Wformat -Wformat-security -fstack-protector-all -Wstack-protector --param ssp-buffer-size=4 -D_FORTIFY_SOURCE=2"
-LDFLAGS="-fPIE -pie -Wl,-z,relro"
-SH_LDFLAGS="-fPIE -pie -Wl,-z,relro"
-export CFLAGS LDFLAGS SH_LDFLAGS
-
-%if 0%{?el5}
-CFLAGS+=" -I/usr/include/openssl101e -L/usr/lib64/openssl101e -L/usr/lib/openssl101e "
+%if  "%_vendor" == "centos"
+./gen_ossec.sh conf manager centos %rhel  > etc/ossec-server.conf
 %endif
+
+
+./gen_ossec.sh init manager  > ossec-init.conf 
+#CFLAGS="$RPM_OPT_FLAGS -fpic -fPIE -Wformat -Wformat-security -fstack-protector-all -Wstack-protector --param ssp-buffer-size=4 -D_FORTIFY_SOURCE=2"
+#LDFLAGS="-fPIE -pie -Wl,-z,relro"
+#SH_LDFLAGS="-fPIE -pie -Wl,-z,relro"
+#export CFLAGS LDFLAGS SH_LDFLAGS
+
+#%if 0%{?el5}
+#CFLAGS+=" -I/usr/include/openssl101e -L/usr/lib64/openssl101e -L/usr/lib/openssl101e "
+#%endif
 
 pushd src
 # Rebuild for server
-make clean
+make clean 
 #make DATABASE=mysql MAXAGENTS=16384 USE_GEOIP=1 TARGET=server V=1
-make TARGET=server
+make TARGET=server 
 popd
-
+ 
 %install
 # Clean BUILDROOT
 rm -fr %{buildroot}
-
+ 
 mkdir -p ${RPM_BUILD_ROOT}%{_initrddir}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/active-response/bin
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/agentless
@@ -103,6 +104,7 @@ install -m 0640 src/init/template-select.sh ${RPM_BUILD_ROOT}%{_localstatedir}/o
 install -m 0640 src/init/shared.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/init
 install -m 0640 src/LOCATION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src
 install -m 0640 src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src
+install -m 0640 src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src
 #install -m 0640 gen_ossec.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp
 install -m 0640 add_localfiles.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp
 
@@ -176,36 +178,36 @@ install -m 0640 etc/lists/audit-keys.cdb ${RPM_BUILD_ROOT}%{_localstatedir}/osse
   install -m 0640 wodles/oscap/content/ssg-centos-6-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 %endif
 
-%if 0%{?fedora} >= 23 || 0%{?fedora} >= 24 || 0%{?fedora} >= 25
+%if 0%{?fedora} == 23 || 0%{?fedora} == 24 || 0%{?fedora} == 25
   install -m 0640 wodles/oscap/content/ssg-fedora-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 %endif
 
 
 cp -pr etc/ossec-server.conf ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/ossec.conf
 cp -pr src/init/ossec-server.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin/ossec-control
-
+  
 mkdir -p $RPM_BUILD_ROOT/etc/logrotate.d
 install -m 0644 %{SOURCE3} ${RPM_BUILD_ROOT}/etc/logrotate.d/wazuh-manager
 
 exit 0
 %pre
-
+ 
 if ! id -g ossec > /dev/null 2>&1; then
   groupadd -r ossec
 fi
-
+ 
 if ! id -u ossec > /dev/null 2>&1; then
   useradd -g ossec -G ossec       \
         -d %{_localstatedir}/ossec \
         -r -s /sbin/nologin ossec
 fi
-
+ 
 if ! id -u ossecr > /dev/null 2>&1; then
   useradd -g ossec -G ossec       \
         -d %{_localstatedir}/ossec \
         -r -s /sbin/nologin ossecr
 fi
-
+ 
 if ! id -u ossecm > /dev/null 2>&1; then
   useradd -g ossec -G ossec       \
         -d %{_localstatedir}/ossec \
@@ -222,134 +224,137 @@ if [ $1 = 1 ]; then
     echo "= Backup from your ossec.conf has been created at /var/ossec/etc/ossec.conf.rpmorig ="
     echo "= Please verify your ossec.conf configuration at /var/ossec/etc/ossec.conf          ="
     echo "====================================================================================="
-    mv /opt/ossec/etc/ossec.conf /opt/ossec/etc/ossec.conf.rpmorig
+    mv %{_localstatedir}/ossec/etc/ossec.conf %{_localstatedir}/ossec/etc/ossec.conf.rpmorig
   fi
 fi
 if [ $1 = 2 ]; then
-    cp -rp /opt/ossec/etc/ossec.conf /opt/ossec/etc/ossec.bck
+    cp -rp %{_localstatedir}/ossec/etc/ossec.conf %{_localstatedir}/ossec/etc/ossec.bck
 fi
 %post
-
+ 
 if [ $1 = 1 ]; then
 
+  ETC_DECODERS="%{_localstatedir}/ossec/etc/decoders"
+  ETC_RULES="%{_localstatedir}/ossec/etc/rules"
 
-	ETC_DECODERS="%{_localstatedir}/ossec/etc/decoders"
-        ETC_RULES="%{_localstatedir}/ossec/etc/rules"
+  # Moving local_decoder
+  if [ -f "%{_localstatedir}/ossec/etc/local_decoder.xml" ]; then
+    if [ -s "%{_localstatedir}/ossec/etc/local_decoder.xml" ]; then
+      mv "%{_localstatedir}/ossec/etc/local_decoder.xml" $ETC_DECODERS
+    else
+      # it is empty
+      rm -f "%{_localstatedir}/ossec/etc/local_decoder.xml"
+    fi
+  fi
 
-        # Moving local_decoder
-        if [ -f "%{_localstatedir}/ossec/etc/local_decoder.xml" ]; then
-            if [ -s "%{_localstatedir}/ossec/etc/local_decoder.xml" ]; then
-                mv "%{_localstatedir}/ossec/etc/local_decoder.xml" $ETC_DECODERS
-            else
-                # it is empty
-                rm -f "%{_localstatedir}/ossec/etc/local_decoder.xml"
-            fi
-        fi
+  # Moving local_rules
+  if [ -f "%{_localstatedir}/ossec/rules/local_rules.xml" ]; then
+    mv "%{_localstatedir}/ossec/rules/local_rules.xml" $ETC_RULES
+  fi
 
-        # Moving local_rules
-        if [ -f "%{_localstatedir}/ossec/rules/local_rules.xml" ]; then
-            mv "%{_localstatedir}/ossec/rules/local_rules.xml" $ETC_RULES
-        fi
+  # Creating backup directory
+  if [ -d "%{_localstatedir}/ossec/etc/wazuh_decoders" ]; then
+    BACKUP_RULESET="%{_localstatedir}/ossec/etc/backup_ruleset"
+    mkdir $BACKUP_RULESET > /dev/null 2>&1
+    chmod 750 $BACKUP_RULESET > /dev/null 2>&1
+    chown root:ossec $BACKUP_RULESET > /dev/null 2>&1
+    # Backup decoders: Wazuh v1.0.1 to v1.1.1
+    old_decoders="ossec_decoders wazuh_decoders"
+    for old_decoder in $old_decoders
+    do
+      if [ -d "%{_localstatedir}/ossec/etc/$old_decoder" ]; then
+        mv "%{_localstatedir}/ossec/etc/$old_decoder" $BACKUP_RULESET
+      fi
+    done
 
-        # Creating backup directory
-        BACKUP_RULESET="%{_localstatedir}/ossec/etc/backup_ruleset"
-        mkdir $BACKUP_RULESET > /dev/null 2>&1
-        chmod 750 $BACKUP_RULESET > /dev/null 2>&1
-        chown root:ossec $BACKUP_RULESET > /dev/null 2>&1
+    # Backup decoders: Wazuh v1.0 and OSSEC
+    if [ -f "%{_localstatedir}/ossec/etc/decoder.xml" ]; then
+      mv "%{_localstatedir}/ossec/etc/decoder.xml" $BACKUP_RULESET
+    fi
+    if [ -d "%{_localstatedir}/ossec/rules" ]; then
+      # Backup rules: All versions
+      mv "%{_localstatedir}/ossec/rules" $BACKUP_RULESET
+    fi
+  fi
+  passlist="%{_localstatedir}/ossec/agentless/.passlist"
 
-        # Backup decoders: Wazuh v1.0.1 to v1.1.1
-        old_decoders="ossec_decoders wazuh_decoders"
-        for old_decoder in $old_decoders
-        do
-            if [ -d "%{_localstatedir}/ossec/ossec/etc/$old_decoder" ]; then
-                mv "%{_localstatedir}/ossec/etc/$old_decoder" $BACKUP_RULESET
-            fi
-        done
+  if [ -f $passlist ] && ! base64 -d $passlist > /dev/null 2>&1; then
+    cp $passlist $passlist.bak
+    base64 $passlist.bak > $passlist
 
-        # Backup decoders: Wazuh v1.0 and OSSEC
-        if [ -f "%{_localstatedir}/ossec/etc/decoder.xml" ]; then
-            mv "%{_localstatedir}/ossec/etc/decoder.xml" $BACKUP_RULESET
-        fi
-        if [ -d "%{_localstatedir}/ossec/rules" ]; then
-        # Backup rules: All versions
-        mv "%{_localstatedir}/ossec/rules" $BACKUP_RULESET
-        fi
+    if [ $? = 0 ]; then
+      echo "Agentless passlist encoded successfully."
+      rm -f $passlist.bak
+    else
+      echo "ERROR: Couldn't encode Agentless passlist."
+      mv $passlist.bak $passlist
+    fi
+  fi
 
-    	passlist="%{_localstatedir}/ossec/agentless/.passlist"
-
-    	if [ -f $passlist ] && ! base64 -d $passlist > /dev/null 2>&1; then
-          cp $passlist $passlist.bak
-          base64 $passlist.bak > $passlist
-
-          if [ $? = 0 ]; then
-              echo "Agentless passlist encoded successfully."
-              rm -f $passlist.bak
-          else
-              echo "ERROR: Couldn't encode Agentless passlist."
-              mv $passlist.bak $passlist
-          fi
-        fi
-
-  	touch %{_localstatedir}/ossec/logs/ossec.log
-	touch %{_localstatedir}/ossec/logs/integrations.log
-  	touch %{_localstatedir}/ossec/logs/active-responses.log
-  	touch %{_localstatedir}/ossec/etc/client.keys
-  	chown ossec:ossec %{_localstatedir}/ossec/logs/ossec.log
-  	chown ossecm:ossec %{_localstatedir}/ossec/logs/integrations.log
-  	chown ossec:ossec %{_localstatedir}/ossec/logs/active-responses.log
-  	chown root:ossec %{_localstatedir}/ossec/etc/client.keys
-  	chmod 0660 %{_localstatedir}/ossec/logs/ossec.log
-  	chmod 0640  %{_localstatedir}/ossec/logs/integrations.log
-  	chmod 0660 %{_localstatedir}/ossec/logs/active-responses.log
-  	chmod 0640 %{_localstatedir}/ossec/etc/client.keys
+  touch %{_localstatedir}/ossec/logs/ossec.log
+  touch %{_localstatedir}/ossec/logs/integrations.log
+  touch %{_localstatedir}/ossec/logs/active-responses.log
+  touch %{_localstatedir}/ossec/etc/client.keys
+  chown ossec:ossec %{_localstatedir}/ossec/logs/ossec.log
+  chown ossecm:ossec %{_localstatedir}/ossec/logs/integrations.log
+  chown ossec:ossec %{_localstatedir}/ossec/logs/active-responses.log
+  chown root:ossec %{_localstatedir}/ossec/etc/client.keys
+  chmod 0660 %{_localstatedir}/ossec/logs/ossec.log
+  chmod 0640  %{_localstatedir}/ossec/logs/integrations.log
+  chmod 0660 %{_localstatedir}/ossec/logs/active-responses.log
+  chmod 0640 %{_localstatedir}/ossec/etc/client.keys
 
   # Add default local_files to ossec.conf
   %{_localstatedir}/ossec/tmp/add_localfiles.sh >>  %{_localstatedir}/ossec/etc/ossec.conf
-  echo "=========================================================================================================="
-  echo "= Based in your current configuration, the local_files have been added to your /var/ossec/etc/ossec.conf ="
-  echo "=========================================================================================================="
    /sbin/chkconfig --add wazuh-manager
    /sbin/chkconfig wazuh-manager on
-
+   
 fi
-  rm -f %{_localstatedir}/ossec/tmp/add_localfiles.sh
-  rm -rf %{_localstatedir}/ossec/tmp/src
-  rm -rf %{_localstatedir}/ossec/tmp/etc
-  ln -sf %{_sysconfdir}/ossec-init.conf %{_localstatedir}/ossec/etc/ossec-init.conf
+rm -f %{_localstatedir}/ossec/tmp/add_localfiles.sh
+rm -rf %{_localstatedir}/ossec/tmp/src
+rm -rf %{_localstatedir}/ossec/tmp/etc
+ln -sf %{_sysconfdir}/ossec-init.conf %{_localstatedir}/ossec/etc/ossec-init.conf
 
 if [ $1 = 2 ]; then
-  if [ -f /opt/ossec/etc/ossec.bck ]; then
-      mv /opt/ossec/etc/ossec.bck /opt/ossec/etc/ossec.conf
+  if [ -f %{_localstatedir}/ossec/etc/ossec.bck ]; then
+      mv %{_localstatedir}/ossec/etc/ossec.bck %{_localstatedir}/ossec/etc/ossec.conf
   fi
 fi
-/sbin/service wazuh-manager restart || :
 
+if %{_localstatedir}/ossec/bin/ossec-logtest 2>/dev/null ; then 
+  /sbin/service wazuh-manager restart 2>&1
+else
+  echo "================================================================================================================"
+  echo "Something in your actual rules configuration is wrong, please review your configuration and restart the service."
+  echo "================================================================================================================"
+fi
+ 
 %preun
-
+ 
 if [ $1 = 0 ]; then
   /sbin/chkconfig wazuh-manager off
   /sbin/chkconfig --del wazuh-manager
-
+ 
   /sbin/service wazuh-manager stop || :
-
+ 
   rm -f %{_localstatedir}/ossec/etc/localtime
 fi
-
+ 
 %triggerin -- glibc
 [ -r %{_sysconfdir}/localtime ] && cp -fpL %{_sysconfdir}/localtime %{_localstatedir}/ossec/etc
- chown root:ossec %{_localstatedir}/ossec/etc/localtime
- chmod 0640 %{_localstatedir}/ossec/etc/localtime
-
+ chown root:ossec %{_localstatedir}/ossec/etc/localtime 
+ chmod 0640 %{_localstatedir}/ossec/etc/localtime 
+ 
 %clean
 rm -fr %{buildroot}
-
+  
 %files
 %defattr(-,root,root)
 %doc BUGS CONFIG CONTRIBUTORS INSTALL LICENSE README.md CHANGELOG
 
 
-%attr(640,root,ossec) %verify(not md5 size mtime) %{_sysconfdir}/ossec-init.conf
-%attr(550,root,ossec) %dir %{_localstatedir}/ossec
+%attr(640,root,ossec) %verify(not md5 size mtime) %{_sysconfdir}/ossec-init.conf  
+%attr(750,root,ossec) %dir %{_localstatedir}/ossec
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/backup
 %attr(750,ossec,ossec) %dir %{_localstatedir}/ossec/backup/agents
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/integrations
@@ -399,8 +404,8 @@ rm -fr %{buildroot}
 %attr(660,root,ossec) %{_localstatedir}/ossec/etc/shared/*.txt
 %attr(640,root,ossec) %config(missingok,noreplace) %{_localstatedir}/ossec/etc/lists/*
 %attr(640,root,ossec) %{_localstatedir}/ossec/ruleset/VERSION
-%attr(640,root,ossec) %config %{_localstatedir}/ossec/ruleset/rules/*
-%attr(640,root,ossec) %config  %{_localstatedir}/ossec/ruleset/decoders/*
+%attr(640,root,ossec) %{_localstatedir}/ossec/ruleset/rules/*
+%attr(640,root,ossec) %{_localstatedir}/ossec/ruleset/decoders/*
 %attr(750,ossec,ossec) %dir %{_localstatedir}/ossec/stats
 %attr(1750,root,ossec) %dir %{_localstatedir}/ossec/tmp
 
@@ -410,18 +415,53 @@ rm -fr %{buildroot}
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/wodles/oscap/content
 %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap/oscap.*
 %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap/template*
-%if 0%{?rhel} >= 6 || 0%{?rhel} >= 7 ||  0%{?fedora} >= 23 || 0%{?fedora} >= 24 || 0%{?fedora} >= 25
+%if 0%{?rhel} == 6 || 0%{?rhel} == 7 ||  0%{?fedora} == 23 || 0%{?fedora} == 24 || 0%{?fedora} == 25 
 %attr(640,root,ossec) %{_localstatedir}/ossec/wodles/oscap/content/*
 %endif
-
+ 
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/add_localfiles.sh
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/src/*
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/generic/*
 %config(noreplace) /etc/logrotate.d/wazuh-manager
 
 %changelog
-* xxx xxx xx 2017 Jose Luis Ruiz <jose@wazuh.com> - 2.0.1
+* Tue Jun 06 2017 support <support@wazuh.com> - 2.0.1
+- Changed random data generator for a secure OS-provided generator.
+- Changed Windows installer file name (depending on version).
+- Linux distro detection using standard os-release file.
+- Changed some URLs to documentation.
+- Disable synchronization with SQLite databases for Syscheck by default.
+- Minor changes at Rootcheck formatter for JSON alerts.
+- Added debugging messages to Integrator logs.
+- Show agent ID when possible on logs about incorrectly formatted messages.
+- Use default maximum inotify event queue size.
+- Show remote IP on encoding format errors when unencrypting messages.
 - Fix permissions in agent-info folder
 - Fix permissions in rids folder.
 * Fri Apr 21 2017 Jose Luis Ruiz <jose@wazuh.com> - 2.0
-- First package v2.0
+- Changed random data generator for a secure OS-provided generator.
+- Changed Windows installer file name (depending on version).
+- Linux distro detection using standard os-release file.
+- Changed some URLs to documentation.
+- Disable synchronization with SQLite databases for Syscheck by default.
+- Minor changes at Rootcheck formatter for JSON alerts.
+- Added debugging messages to Integrator logs.
+- Show agent ID when possible on logs about incorrectly formatted messages.
+- Use default maximum inotify event queue size.
+- Show remote IP on encoding format errors when unencrypting messages.
+- Fixed resource leaks at rules configuration parsing.
+- Fixed memory leaks at rules parser.
+- Fixed memory leaks at XML decoders parser.
+- Fixed TOCTOU condition when removing directories recursively.
+- Fixed insecure temporary file creation for old POSIX specifications.
+- Fixed missing agentless devices identification at JSON alerts.
+- Fixed FIM timestamp and file name issue at SQLite database.
+- Fixed cryptographic context acquirement on Windows agents.
+- Fixed debug mode for Analysisd.
+- Fixed bad exclusion of BTRFS filesystem by Rootcheck.
+- Fixed compile errors on macOS.
+- Fixed option -V for Integrator.
+- Exclude symbolic links to directories when sending FIM diffs (by Stephan Joerrens).
+- Fixed daemon list for service reloading at ossec-control.
+- Fixed socket waiting issue on Windows agents.
+- Fixed PCI_DSS definitions grouping issue at Rootcheck controls.

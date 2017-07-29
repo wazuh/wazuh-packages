@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 # postinst script for ossec-hids
 # Wazuh, Inc 2016
 
@@ -21,20 +21,26 @@ case "$1" in
 
         if [ -z "$2" ]
         then
-  	    /var/ossec/api/scripts/install_daemon.sh
-  	    touch /var/ossec/logs/api.log
-  	    chmod 660 /var/ossec/logs/api.log
-  	    chown root:ossec /var/ossec/logs/api.log
+#  	    /var/ossec/api/scripts/install_daemon.sh
             echo "======================================================================================================"
 	    echo "= Don't forget run the API configuration running the script /var/ossec/api/scripts/configure_api.sh  ="
             echo "======================================================================================================"
         fi
+        touch /var/ossec/logs/api.log
 	ln -sf /var/ossec/api/node_modules/htpasswd/bin/htpasswd /var/ossec/api/configuration/auth/htpasswd
 	if [ -x /etc/init.d/wazuh-api ]; then
             update-rc.d wazuh-api defaults > /dev/null 2>&1
 	fi
+        # Restore local_decoders.xml configuration
+        if [ -d ${OSSEC_HIDS_TMP_DIR}/configuration ]; then
+            cp ${DIR}/configuration/config.js ${OSSEC_HIDS_TMP_DIR}/configuration/config.js.debnew
+            cp -rp ${OSSEC_HIDS_TMP_DIR}/configuration ${DIR}/
+        fi
 	# Folder Permissions
-        
+#        /var/ossec/api/scripts/install_daemon.sh > /dev/null 2>&1 || true
+        chown -h root:root ${DIR}/configuration/auth/htpasswd
+        chmod 660 /var/ossec/logs/api.log 
+        chown root:ossec /var/ossec/logs/api.log
 	chmod 750 ${DIR}
 	chown root:${GROUP} ${DIR}
         chmod 750 ${DIR}/configuration
@@ -101,17 +107,20 @@ case "$1" in
           python_version=$(python -c 'import sys; print(".".join(map(str, sys.version_info[:3])))' | cut -c1-3)
           if [ ! $python_version == '2.7' ]; then
              echo "Warning: Minimal supported version is 2.7"
-          else
-             service wazuh-api restart || :
           fi
         else
-          echo "Warning: You need python 2.7"
+          echo "Warning: Minimal supported version is 2.7"
         fi
         # Delete tmp directory
 	if [ -d ${OSSEC_HIDS_TMP_DIR} ]; then
 	    rm -r ${OSSEC_HIDS_TMP_DIR}
 	fi
-
+        if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
+           systemctl restart wazuh-api.service
+        fi
+        if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
+           service wazuh-api restart
+        fi
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

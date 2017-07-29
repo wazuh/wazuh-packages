@@ -1,5 +1,5 @@
 #!/bin/sh
-# postinst script for ossec-hids
+# postinst script for wazuh-agent
 # Wazuh, Inc 2016
 
 set -e
@@ -33,25 +33,35 @@ case "$1" in
         then
 	  chmod +x ${DIR}/tmp/add_localfiles.sh
           ${DIR}/tmp/add_localfiles.sh >> ${DIR}/etc/ossec.conf
-  	  echo "======================================================================================================================================"
-  	  echo "= By default, OSSEC analyses some logs found in your system. Please, review the configuration if you want to monitor any other file. ="
-  	  echo "======================================================================================================================================"
-	  rm -rf ${DIR}/tmp/add_localfiles.sh
 	if [ -f ${DIR}/etc/ossec.conf.deborig ]; then
 	  chmod +x ${DIR}/tmp/src/init/replace_manager_ip.sh
           ${DIR}/tmp/src/init/replace_manager_ip.sh ${DIR}/etc/ossec.conf.deborig ${DIR}/etc/ossec.conf
         fi
         fi
+        rm -rf ${DIR}/tmp/add_localfiles.sh || true
         rm -rf ${DIR}/tmp/src
         rm -rf ${DIR}/tmp/etc
 	# Default for all directories
-	chmod -R 750 ${DIR}
+        chmod 750 ${DIR}
 	chown -R root:${GROUP} ${DIR}
 
 	# To the ossec queue (default for agentd to read)
-	chown -R ${USER}:${GROUP} ${DIR}/queue/*
-	chmod -R 750 ${DIR}/queue/*
-	chmod -R 770 ${DIR}/queue/alerts
+        chmod 750 ${DIR}/queue
+        chown -R ${USER}:${GROUP} ${DIR}/queue/alerts
+        chmod  770 ${DIR}/queue/alerts
+
+        chown -R ${USER}:${GROUP} ${DIR}/queue/rids
+        chmod 750 ${DIR}/queue/rids
+        chmod 644 ${DIR}/queue/rids/* > /dev/null 2>&1 || true
+
+        # To the ossec syscheck/rootcheck queue
+        chown -R ${USER}:${GROUP} ${DIR}/queue/syscheck
+        chmod 750 ${DIR}/queue/syscheck
+        chmod 640 ${DIR}/queue/syscheck/* > /dev/null 2>&1 || true
+
+        # To the ossec queue (default for analysisd to read)
+        chown -R ${USER}:${GROUP} ${DIR}/queue/ossec
+        chmod  750 ${DIR}/queue/ossec
 	
 	# For the logging user
 	chown -R ${USER}:${GROUP} ${DIR}/logs
@@ -59,11 +69,19 @@ case "$1" in
 	touch ${DIR}/logs/ossec.log
 	chown ${USER}:${GROUP} ${DIR}/logs/ossec.log
 	chmod 660 ${DIR}/logs/ossec.log
+        chmod 660 ${DIR}/logs/active-responses.log
 
-  	chown -R ${USER}:${GROUP} ${DIR}/queue/diff
-  	chmod -R 750 ${DIR}/queue/diff
-  	chmod 740 ${DIR}/queue/diff/* > /dev/null 2>&1 || true
-  	
+        chown -R ${USER}:${GROUP} ${DIR}/queue/diff
+        chmod 750 ${DIR}/queue/diff
+        chown -R root:root ${DIR}/queue/diff/local > /dev/null 2>&1 || true
+
+        # Update openscap
+        chmod 750 ${DIR}/wodles
+        chmod 750 ${DIR}/wodles/oscap
+        chmod 750 ${DIR}/wodles/oscap/content
+        chmod 750 ${DIR}/wodles/oscap/oscap.py || true
+        chmod 750 ${DIR}/wodles/oscap/template_oval.xsl || true
+        chmod 750 ${DIR}/wodles/oscap/template_xccdf.xsl || true
         if [ ${OS} = "Debian" ]; then
         chmod 640 ${DIR}/wodles/oscap/content/cve-debian-oval.xml
 	chmod 640 ${DIR}/wodles/oscap/content/ssg-debian-8-ds.xml
@@ -74,6 +92,14 @@ case "$1" in
         fi
 	fi
 
+        # For the etc dir
+        chown -R ossec:${GROUP} ${DIR}/etc
+        if [ -f /etc/localtime ]; then
+            cp -pL /etc/localtime ${DIR}/etc/;
+            chmod 640 ${DIR}/etc/localtime
+            chown root:${GROUP} ${DIR}/etc/localtime
+        fi
+
         # ossec-init.conf
 	if [ -e ${DIR}/ossec-init.conf ] && [ -d /etc/ ]; then
             if [ -e /etc/ossec-init.conf ]; then
@@ -82,18 +108,16 @@ case "$1" in
                 mv ${DIR}/ossec-init.conf /etc/
                 chmod 640 /etc/ossec-init.conf
                 ln -sf /etc/ossec-init.conf ${DIR}/etc/ossec-init.conf
+                chown -h root:root ${DIR}/etc/ossec-init.conf
         fi
-	# For the etc dir
-	chown -R ossec:${GROUP} ${DIR}/etc
-	if [ -f /etc/localtime ]; then
-	    cp -pL /etc/localtime ${DIR}/etc/;
-	    chmod 640 ${DIR}/etc/localtime
-	    chown root:${GROUP} ${DIR}/etc/localtime
-	fi
 
         # Restore the local rules, client.keys and local_decoder
         if [ -f ${OSSEC_HIDS_TMP_DIR}/client.keys ]; then
             cp ${OSSEC_HIDS_TMP_DIR}/client.keys ${DIR}/etc/client.keys
+        fi
+        # Restore ossec.conf configuration
+        if [ -f ${OSSEC_HIDS_TMP_DIR}/ossec.conf ]; then
+            mv ${OSSEC_HIDS_TMP_DIR}/ossec.conf ${DIR}/etc/ossec.conf
         fi
         # Restore client.keys configuration
         if [ -f ${OSSEC_HIDS_TMP_DIR}/local_internal_options.conf ]; then
@@ -110,6 +134,9 @@ case "$1" in
 	chown root:${GROUP} ${DIR}/.ssh
 	chown root:${GROUP} ${DIR}/etc/shared
 	chown root:${GROUP} ${DIR}/etc/shared/*
+        chown ${USER}:${GROUP} ${DIR}/etc/shared/ar.conf > /dev/null 2>&1 || true
+        chown ${USER}:${GROUP} ${DIR}/etc/shared/merged.mg > /dev/null 2>&1 || true
+        chmod 750 ${DIR}/var
 	chmod 770 ${DIR}/var/*
 	chmod 750 ${DIR}/lua || true
 	chmod 750 ${DIR}/lua/native || true
@@ -119,11 +146,12 @@ case "$1" in
 	chmod 640 ${DIR}/etc/internal_options.conf
 	chmod 640 ${DIR}/etc/local_internal_options.conf >/dev/null 2>&1 || true
 	chmod 640 ${DIR}/etc/client.keys >/dev/null 2>&1 || true
+        chmod 750 ${DIR}/agentless
 	chmod 750 ${DIR}/agentless/*
 	chmod 700 ${DIR}/.ssh
 	chmod 770 ${DIR}/etc/shared
-	chmod 660 ${DIR}/etc/shared/*
-        chmod 1750  ${DIR}/tmp
+	chmod 660 ${DIR}/etc/shared/*.txt
+        chmod 1750 ${DIR}/tmp
 	# For the /var/run
 	chown root:${GROUP} ${DIR}/var/run
 
@@ -131,8 +159,11 @@ case "$1" in
 	chmod +x ${DIR}/bin/util.sh
 
 	# For binaries and active response
+        chmod 750 ${DIR}/active-response
+        chmod 750 ${DIR}/active-response/bin
   	chmod 750 ${DIR}/active-response/bin/*
   	chown root:${GROUP} ${DIR}/active-response/bin/*
+        chmod 750 ${DIR}/bin
   	chmod 750 ${DIR}/bin/*
 
 	# For ossec.conf
@@ -140,7 +171,7 @@ case "$1" in
 	chmod 640 ${DIR}/etc/ossec.conf
 
         # init.d/ossec file
-        if [ -x ${DIR}/etc/init.d/wazuh-agent ] && [ -d /etc/init.d/ ]; then
+        if [ -f ${DIR}/etc/init.d/wazuh-agent ] && [ -d /etc/init.d/ ]; then
             if [ -e /etc/init.d/wazuh-agent ]; then
                 rm -f /etc/init.d/wazuh-agent
             fi
@@ -163,10 +194,15 @@ case "$1" in
         fi
 
 	# Service
-	if [ -x /etc/init.d/wazuh-agent ]; then
+	if [ -f /etc/init.d/wazuh-agent ]; then
             update-rc.d wazuh-agent defaults > /dev/null 2>&1
 	fi
-
+        if cat ${DIR}/etc/ossec.conf | grep -o -P '(?<=<server-ip>).*(?=</server-ip>)' | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' > /dev/null 2>&1; then
+          service wazuh-agent restart || :
+        fi
+        if cat ${DIR}/etc/ossec.conf | grep -o -P '(?<=<server-hostname>).*(?=</server-hostname>)' > /dev/null 2>&1; then
+          service wazuh-agent restart || :
+        fi
 	# Delete tmp directory
 	if [ -d ${OSSEC_HIDS_TMP_DIR} ]; then
 	    rm -r ${OSSEC_HIDS_TMP_DIR}

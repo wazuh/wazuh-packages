@@ -7,13 +7,12 @@
 set -e
 
 case "$1" in
-    purge|remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
+    purge|remove|failed-upgrade|abort-install|abort-upgrade|disappear)
 
         if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
             systemctl stop wazuh-api.service
-            systemctl disable wazuh-api.service
+#            systemctl disable wazuh-api.service
         fi
-
         if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
  
            if ps axu | grep /var/ossec/api/app.js | grep -v grep; then
@@ -27,7 +26,18 @@ case "$1" in
 	     rm /var/ossec/api/configuration/auth/htpasswd
         fi
     ;;
+    upgrade) 
+        if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
+            systemctl stop wazuh-api.service
+        fi
 
+        if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
+
+           if ps axu | grep /var/ossec/api/app.js | grep -v grep; then
+                service wazuh-api stop
+           fi
+        fi
+    ;;
     *)
         echo "postrm called with unknown argument \`$1'" >&2
         exit 1

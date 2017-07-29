@@ -1,6 +1,6 @@
 Summary:     Wazuh RESTful API
 Name:        wazuh-api
-Version:     2.0
+Version:     2.0.1
 Release:     1%{?dist}
 License:     GPL
 Group:       System Environment/Daemons
@@ -112,13 +112,19 @@ if python -V >/dev/null 2>&1; then
    python_version=$(python -c 'import sys; print(".".join(map(str, sys.version_info[:3])))' | cut -c1-3)
    if [ ! $python_version == '2.7' ]; then
       echo "Warning: Minimal supported version is 2.7"
-   else
-      service wazuh-api restart || :
    fi
 else
    echo "Warning: You need python 2.7 or above"
 fi
 
+if ps axu | grep /var/ossec/api/app.js | grep -v grep; then
+   if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
+     systemctl restart wazuh-api.service
+   fi
+   if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
+     service wazuh-api restart
+   fi
+fi
 
 %preun
  
@@ -173,5 +179,10 @@ rm -fr %{buildroot}
 %attr(640,root,root) %{_localstatedir}/ossec/api/scripts/wazuh-api.service
 %attr(750,ossec,ossec) %{_localstatedir}/ossec/api/node_modules/*
 %changelog
-* Fri Apr 21 2017 Jose Luis Ruiz <jose@wazuh.com> - 2.0
-- First package v2.0
+* Fri May 26 2017 support <support@wazuh.com> - 2.0.1
+- Issue when basic-auth is disabled.
+- Regex for latest version in install_api.sh
+- Wrong scan dates for syscheck and rootcheck.
+- IP value always must be lowercase.
+* Fri Sep 16 2016 Jose Luis Ruiz <jose@wazuh.com> - 2.0
+- First rpm.
