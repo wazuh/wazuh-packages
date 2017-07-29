@@ -3,7 +3,7 @@ Wazuh
 
 Wazuh is an Open Source Host-based Intrusion Detection System that performs log analysis, file integrity checking, policy monitoring, rootkit detection, real-time alerting and active response.
 
-These are the files used to create Wazuh version 2.0 debs and rpm packages, the ones Wazuh repository. You can find these packages at:
+These are the files used to create Wazuh debs and rpm packages, the ones Wazuh repository. You can find these packages at:
 
 [Wazuh](https://wazuh.com) or visiting our [documentation](http://documentation.wazuh.com)
 
