@@ -1,13 +1,13 @@
-wazuh-manager (2.0.1-2) stable; urgency=low
+wazuh-manager (2.1.0-1) stable; urgency=low
 
-  * Fixed the logstash user verification and creation if exists.
+  * https://github.com/wazuh/wazuh/blob/master/CHANGELOG.md#v210---2017-08-14.
 
- -- Wazuh, Inc <support@wazuh.com>  Thu, 06 Jun 2017 08:43:10 +0000
+ -- Wazuh, Inc <support@wazuh.com>  Mon, 01 Jul 2016 08:43:10 +0000
 
 wazuh-manager (2.0.1-1) stable; urgency=low
 
   * Changed random data generator for a secure OS-provided generator.
-  * Changed Windows installer file name (depending on version).
+  exi* Changed Windows installer file name (depending on version).
   * Linux distro detection using standard os-release file.
   * Changed some URLs to documentation.
   * Disable synchronization with SQLite databases for Syscheck by default.

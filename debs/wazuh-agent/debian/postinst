@@ -66,9 +66,14 @@ case "$1" in
 	# For the logging user
 	chown -R ${USER}:${GROUP} ${DIR}/logs
 	chmod -R 750 ${DIR}/logs
+        chown -R ${USER}:${GROUP} ${DIR}/logs/ossec
+        chmod -R 750 ${DIR}/logs/ossec
 	touch ${DIR}/logs/ossec.log
 	chown ${USER}:${GROUP} ${DIR}/logs/ossec.log
 	chmod 660 ${DIR}/logs/ossec.log
+        touch ${DIR}/logs/ossec.json
+        chown ${USER}:${GROUP} ${DIR}/logs/ossec.json
+        chmod 660 ${DIR}/logs/ossec.json
         chmod 660 ${DIR}/logs/active-responses.log
 
         chown -R ${USER}:${GROUP} ${DIR}/queue/diff
@@ -187,10 +192,6 @@ case "$1" in
             if [ -e /etc/logrotate.d/wazuh-hids ]; then
                 rm -f /etc/logrotate.d/wazuh-hids
             fi
-            cp -p ${DIR}/etc/logrotate.d/wazuh-hids /etc/logrotate.d/wazuh-hids
-            chmod 644 /etc/logrotate.d/wazuh-hids
-            chown root:root /etc/logrotate.d/wazuh-hids
-            rm -rf ${DIR}/etc/logrotate.d
         fi
 
 	# Service

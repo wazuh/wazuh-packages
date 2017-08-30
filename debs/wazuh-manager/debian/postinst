@@ -101,10 +101,16 @@ case "$1" in
 	rm -rf ${DIR}/tmp/add_localfiles.sh
 	rm -rf ${DIR}/tmp/src
 	rm -rf ${DIR}/tmp/etc
+
+        # Remove existing SQLite databases
+        rm -f ${DIR}/var/db/global.db* || true 
+        rm -f ${DIR}/var/db/.profile.db* || true
+        rm -f ${DIR}/var/db/agents/* || true
+
 	# Default for all directories
 	chmod 750 ${DIR}
-        chown root:${GROUP} ${DIR}
-	cd ${DIR} && chown -R root:${GROUP} $(ls ${DIR} | awk '{if($1 != "api"){ print $1 }}')
+	chown -R root:${GROUP} ${DIR}
+
 	# AnalysisD needs to write to alerts: log, mail and cmds
 	chmod 750 ${DIR}/queue
 	chown -R ${USER}:${GROUP} ${DIR}/queue/alerts
@@ -160,14 +166,14 @@ case "$1" in
 
 	# For the logging user
         chmod 750 ${DIR}/logs
+        chmod 750 ${DIR}/logs/ossec
 	chown -R ${USER}:${GROUP} ${DIR}/logs
         chown ${USER_MAIL}:${GROUP} ${DIR}/logs/integrations.log        
         chmod 640 ${DIR}/logs/integrations.log
         chmod 660 ${DIR}/logs/ossec.log
+        chmod 660 ${DIR}/logs/ossec.json
         chmod 660 ${DIR}/logs/active-responses.log
-        if [ -f ${DIR}/logs/api.log ]; then
-          chown -R root:ossec ${DIR}/logs/api.log
-        fi
+
         chown -R ${USER}:${GROUP} ${DIR}/etc
 	# For the etc dir
 	if [ -f /etc/localtime ]; then
@@ -220,9 +226,6 @@ case "$1" in
         fi
         if [ -f ${OSSEC_HIDS_TMP_DIR}/wazuh-api.restart ]; then
             service wazuh-api start > /dev/null 2>&1 || true
-        fi
-        if [ -f ${OSSEC_HIDS_TMP_DIR}/logstash.user ]; then
-            usermod -a -G ossec logstash || true
         fi
 	# More files
 	touch ${DIR}/etc/client.keys
@@ -341,12 +344,6 @@ case "$1" in
             if [ -e /etc/logrotate.d/wazuh-hids ]; then
                 rm -f /etc/logrotate.d/wazuh-hids
             fi
-             if [ -d ${DIR}/etc/logrotate.d ]; then
-               cp -p ${DIR}/etc/logrotate.d/wazuh-hids /etc/logrotate.d/wazuh-hids
-               chmod 644 /etc/logrotate.d/wazuh-hids
-               chown root:root /etc/logrotate.d/wazuh-hids
-               rm -rf ${DIR}/etc/logrotate.d
-             fi
         fi
 
         # Service

@@ -40,10 +40,7 @@ case "$1" in
               service wazuh-api stop
            fi
         fi
-        if grep "ossec.*logstash" /etc/group; then
-           touch ${OSSEC_HIDS_TMP_DIR}/logstash.user
-        fi
-       # Delete old service
+        # Delete old service
         if [ -f /etc/init.d/ossec ]; then
             rm /etc/init.d/ossec
         fi

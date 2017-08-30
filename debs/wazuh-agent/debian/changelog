@@ -1,3 +1,9 @@
+wazuh-agent (2.1.0-1) stable; urgency=low
+
+  * https://github.com/wazuh/wazuh/blob/master/CHANGELOG.md#v210---2017-08-14.
+
+ -- Wazuh, Inc <support@wazuh.com>  Mon, 01 Jul 2016 08:43:10 +0000
+
 wazuh-agent (2.0.1-1) stable; urgency=low
 
   * Changed random data generator for a secure OS-provided generator.

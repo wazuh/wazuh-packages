@@ -1,13 +1,12 @@
 Summary:     The Wazuh Agent
 Name:        wazuh-agent
-Version:     2.0.1
+Version:     2.1.0
 Release:     1%{?dist}
 License:     GPL
 Group:       System Environment/Daemons
 Source0:     https://github.com/wazuh/ossec-wazuh/archive/%{name}-%{version}.tar.gz
 Source1:     %{name}.init
 Source2:     CHANGELOG
-Source3:     wazuh-agent.logrotate
 URL:         http://www.wazuh.com/
 BuildRoot:   %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Vendor:      https://www.wazuh.com
@@ -20,16 +19,14 @@ Conflicts:   ossec-hids ossec-hids-agent wazuh-manager
 
 BuildRequires: openssl-devel coreutils glibc-devel
 
-%if 0%{!?el5}
-BuildRequires: openssl-devel
-%endif
+#%if 0%{!?el5}
+#BuildRequires: openssl-devel
+#%endif
 
 %if 0%{!?el6}
 BuildRequires: inotify-tools-devel
 %endif
 
-Requires:  logrotate
- 
 ExclusiveOS: linux
  
 %description
@@ -65,9 +62,15 @@ echo "Vendor is %_vendor"
 #%endif
 
 pushd src
-# Rebuild for server
+# Rebuild for agent
 make clean 
+%if 0%{?rhel} >= 6 || 0%{?fedora} >= 22
 make TARGET=agent
+%endif
+
+%if  0%{?rhel} <= 5
+make TARGET=agent USE_LEGACY_SSL=yes
+%endif
 popd
  
 %install
@@ -81,6 +84,7 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/agentless
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/shared
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/logs
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/logs/ossec
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/lua/{compiled,native}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/queue/{alerts,diff,ossec,rids,syscheck}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/var/{run,wodles}
@@ -158,9 +162,6 @@ cp -pr contrib/util.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin/
 cp -pr etc/ossec-agent.conf ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/ossec.conf
 
 
-mkdir -p ${RPM_BUILD_ROOT}/etc/logrotate.d
-install -m 0644 %{SOURCE3} ${RPM_BUILD_ROOT}/etc/logrotate.d/wazuh-agent
-
 exit 0
 %pre
 
@@ -217,6 +218,10 @@ if [ $1 = 1 ]; then
 
 fi
 
+touch %{_localstatedir}/ossec/logs/ossec.json
+chown ossec:ossec %{_localstatedir}/ossec/logs/ossec.json
+chmod 660 %{_localstatedir}/ossec/logs/ossec.json
+
 rm -rf %{_localstatedir}/ossec/tmp/etc
 rm -rf %{_localstatedir}/ossec/tmp/src
 rm -f %{_localstatedir}/ossec/tmp/add_localfiles.sh
@@ -239,10 +244,12 @@ fi
 %preun
  
 if [ $1 = 0 ]; then
+
+  /sbin/service wazuh-agent stop || :
+
   /sbin/chkconfig wazuh-agent off
   /sbin/chkconfig --del wazuh-agent
 
-  /sbin/service wazuh-agent stop || :
 fi
 
 
@@ -271,6 +278,7 @@ rm -fr %{buildroot}
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/active-response/bin
 %attr(770,root,ossec) %dir %{_localstatedir}/ossec/etc/shared
 %attr(750,ossec,ossec) %dir %{_localstatedir}/ossec/logs
+%attr(750,ossec,ossec) %dir %{_localstatedir}/ossec/logs/ossec
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/queue
 %attr(750,ossec,ossec) %dir %{_localstatedir}/ossec/queue/ossec
 %attr(750,ossec,ossec) %dir %{_localstatedir}/ossec/queue/diff
@@ -290,7 +298,6 @@ rm -fr %{buildroot}
 %attr(640,root,ossec) %config(noreplace)%{_localstatedir}/ossec/etc/local_internal_options.conf
 %attr(640,root,ossec) %{_localstatedir}/ossec/etc/ossec.conf
 %attr(660,root,ossec) %config %{_localstatedir}/ossec/etc/shared/*
-%config(noreplace) /etc/logrotate.d/wazuh-agent
 %attr(1750,root,ossec) %dir %{_localstatedir}/ossec/tmp
 %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap/oscap.py
 %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap/template*

@@ -1,3 +1,9 @@
+wazuh-api (2.1.0-1) stable; urgency=low
+
+  * https://github.com/wazuh/wazuh-api/blob/2.1/CHANGELOG.md.
+
+ -- Wazuh, Inc <support@wazuh.com>  Mon, 30 Sep 2016 08:43:10 +0000
+
 wazuh-api (2.0.1-1) stable; urgency=low
 
   * Issue when basic-auth is disabled.
@@ -6,6 +12,7 @@ wazuh-api (2.0.1-1) stable; urgency=low
   * IP value always must be lowercase.
 
  -- Wazuh, Inc <support@wazuh.com>  Mon, 30 Sep 2016 08:43:10 +0000
+
 wazuh-api (2.0-1) stable; urgency=low
 
   * Wazuh-api - base 2.0

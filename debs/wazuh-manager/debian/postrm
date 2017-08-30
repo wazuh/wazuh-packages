@@ -35,9 +35,7 @@ case "$1" in
         fi
 
 	update-rc.d -f wazuh-manager remove
-    ;;
-    upgrade)
-   
+
     ;;
 
     *)

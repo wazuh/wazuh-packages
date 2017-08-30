@@ -1,5 +1,5 @@
---- wazuh-manager-2.0.1.orig/src/Makefile
-+++ wazuh-manager-2.0.1/src/Makefile
+--- wazuh-manager-2.1.0.orig/src/Makefile
++++ wazuh-manager-2.1.0/src/Makefile
 @@ -2,6 +2,9 @@
  
  uname_S := $(shell sh -c 'uname -s 2>/dev/null || echo not')
@@ -9,8 +9,8 @@
 +VER=$(shell lsb_release -sr)
  EXTERNAL_JSON=external/cJSON/
  EXTERNAL_LUA=external/lua-5.2.3/
- EXTERNAL_ZLIB=external/zlib-1.2.8/
-@@ -9,7 +12,7 @@
+ EXTERNAL_ZLIB=external/zlib/
+@@ -10,7 +13,7 @@
  MAXAGENTS?=8000
  REUSE_ID?=no
  # XXX Becareful NO EXTRA Spaces here
@@ -19,7 +19,7 @@
  PG_CONFIG?=pg_config
  MY_CONFIG?=mysql_config
  PRELUDE_CONFIG?=libprelude-config
-@@ -35,7 +38,7 @@
+@@ -36,7 +39,7 @@
  CLEANFULL?=no
  
  DEFINES=-DMAX_AGENTS=${MAXAGENTS} -DOSSECHIDS
@@ -28,41 +28,41 @@
  DEFINES+=-DUSER=\"${OSSEC_USER}\"
  DEFINES+=-DREMUSER=\"${OSSEC_USER_REM}\"
  DEFINES+=-DGROUPGLOBAL=\"${OSSEC_GROUP}\"
-@@ -376,8 +379,11 @@
+@@ -377,9 +380,12 @@
  install-server: install-server-generic
  
  install-common: build
 -	./init/adduser.sh ${OSSEC_USER} ${OSSEC_USER_MAIL} ${OSSEC_USER_REM} ${OSSEC_GROUP} ${PREFIX}
 +	./init/adduser.sh ${OSSEC_USER} ${OSSEC_USER_MAIL} ${OSSEC_USER_REM} ${OSSEC_GROUP} /var/ossec
+ 
 +	../gen_ossec.sh conf manager ${OS} ${VER} > ossec-server.conf
 +	../gen_ossec.sh init manager  > ossec-init.conf
  	${INSTALL} -d -m 0750 -o root -g ${OSSEC_GROUP} ${PREFIX}/
-+	install -m 0750 -o root -g ${OSSEC_GROUP} ./ossec-init.conf ${PREFIX}
++	${INSTALL} -m 0750 -o root -g ${OSSEC_GROUP} ./ossec-init.conf ${PREFIX}
  	${INSTALL} -d -m 0750 -o ${OSSEC_USER} -g ${OSSEC_GROUP} ${PREFIX}/logs
+ 	${INSTALL} -d -m 0750 -o ${OSSEC_USER} -g ${OSSEC_GROUP} ${PREFIX}/logs/ossec
  	${INSTALL} -m 0660 -o ${OSSEC_USER} -g ${OSSEC_GROUP} /dev/null ${PREFIX}/logs/ossec.log
- 	${INSTALL} -m 0660 -o ${OSSEC_USER} -g ${OSSEC_GROUP} /dev/null ${PREFIX}/logs/active-responses.log
-@@ -408,14 +414,38 @@
+@@ -412,14 +418,36 @@
  	${INSTALL} -d -m 0750 -o root -g ${OSSEC_GROUP} ${PREFIX}/wodles/oscap/content
  
  	${INSTALL} -m 0750 -o root -g ${OSSEC_GROUP} ../wodles/oscap/oscap.py ${PREFIX}/wodles/oscap
 -	${INSTALL} -m 0750 -o root -g ${OSSEC_GROUP} ../wodles/oscap/template_*.xsl ${PREFIX}/wodles/oscap
 -	${INSTALL} -m 0640 -o root -g ${OSSEC_GROUP} ../wodles/oscap/content/* ${PREFIX}/wodles/oscap/content
-+	install -m 0750 -o root -g ${OSSEC_GROUP} ../wodles/oscap/template_oval.xsl ${PREFIX}/wodles/oscap
-+	install -m 0750 -o root -g ${OSSEC_GROUP} ../wodles/oscap/template_xccdf.xsl ${PREFIX}/wodles/oscap
- 
--	${INSTALL} -d -m 0770 -o ${OSSEC_USER} -g ${OSSEC_GROUP} ${PREFIX}/etc
--	${INSTALL} -m 0640 -o root -g ${OSSEC_GROUP} /etc/localtime ${PREFIX}/etc
+-
++	${INSTALL} -m 0750 -o root -g ${OSSEC_GROUP} ../wodles/oscap/template_oval.xsl ${PREFIX}/wodles/oscap
++	${INSTALL} -m 0750 -o root -g ${OSSEC_GROUP} ../wodles/oscap/template_xccdf.xsl ${PREFIX}/wodles/oscap
 +ifeq (${OS},Debian)
-+	install -m 0640 -o root -g ${OSSEC_GROUP} ../wodles/oscap/content/ssg-debian-8-ds.xml ${PREFIX}/wodles/oscap/content
-+	install -m 0640 -o root -g ${OSSEC_GROUP} ../wodles/oscap/content/cve-debian-oval.xml ${PREFIX}/wodles/oscap/content
++	${INSTALL} -m 0640 -o root -g ${OSSEC_GROUP} ../wodles/oscap/content/ssg-debian-8-ds.xml ${PREFIX}/wodles/oscap/content
++	${INSTALL} -m 0640 -o root -g ${OSSEC_GROUP} ../wodles/oscap/content/cve-debian-oval.xml ${PREFIX}/wodles/oscap/content
 +endif
- 
 +ifeq (${OS},Ubuntu)
 +ifeq (${VER},16.04)
-+	install -m 0640 -o root -g ${OSSEC_GROUP} ../wodles/oscap/content/ssg-ubuntu-1604-ds.xml ${PREFIX}/wodles/oscap/content
++	${INSTALL} -m 0640 -o root -g ${OSSEC_GROUP} ../wodles/oscap/content/ssg-ubuntu-1604-ds.xml ${PREFIX}/wodles/oscap/content
 +endif
 +endif
-+	${INSTALL} -d -m 0770 -o ${OSSEC_USER} -g ${OSSEC_GROUP} ${PREFIX}/etc
+ 	${INSTALL} -d -m 0770 -o ${OSSEC_USER} -g ${OSSEC_GROUP} ${PREFIX}/etc
+ 	${INSTALL} -m 0640 -o root -g ${OSSEC_GROUP} /etc/localtime ${PREFIX}/etc
+ 
  	${INSTALL} -d -m 1750 -o root -g ${OSSEC_GROUP} ${PREFIX}/tmp
  
 +	install -d -m 1750 -o root -g ${OSSEC_GROUP} ${PREFIX}/tmp/src/init
@@ -78,24 +78,24 @@
 +
 +	install -d -m 0750 -o root -g ${OSSEC_GROUP} ${PREFIX}/etc/init.d
 +	install -m 0660 -o ${OSSEC_USER} -g ${OSSEC_GROUP} init/ossec-hids-debian.init ${PREFIX}/etc/init.d/wazuh-manager
-+	install -d -m 0750 -o root -g ${OSSEC_GROUP} ${PREFIX}/etc/logrotate.d
-+	install -m 0660 -o ${OSSEC_USER} -g ${OSSEC_GROUP} ../etc/logrotate.d/wazuh-hids ${PREFIX}/etc/logrotate.d/wazuh-hids
 +
  ifneq (,$(wildcard /etc/TIMEZONE))
  	${INSTALL} -m 0640 -o root -g ${OSSEC_GROUP} /etc/TIMEZONE ${PREFIX}/etc/
  endif
-@@ -439,7 +469,7 @@
+@@ -443,7 +471,7 @@
  ifneq (,$(wildcard ../etc/ossec.mc))
  	${INSTALL} -m 0640 -o root -g ${OSSEC_GROUP} ../etc/ossec.mc ${PREFIX}/etc/ossec.conf
  else
 -	${INSTALL} -m 0640 -o root -g ${OSSEC_GROUP} ${OSSEC_CONF_SRC} ${PREFIX}/etc/ossec.conf
-+	${INSTALL} -m 0640 -o root -g ${OSSEC_GROUP} ossec-server.conf ${PREFIX}/etc/ossec.conf
++	${INSTALL} -m 0640 -o root -g ${OSSEC_GROUP} ossec-server.conf  ${PREFIX}/etc/ossec.conf
  endif
  endif
  
-@@ -1371,6 +1401,8 @@
+@@ -1377,8 +1405,9 @@
+ 	rm -f ${EXTERNAL_ZLIB}/Makefile ${EXTERNAL_ZLIB}/zconf.h
+ 	cd ${EXTERNAL_LUA} && ${MAKE} clean
  
- 
+-
  clean-internals:
 +	rm -f ossec-init.conf
 +	rm -f ossec-server.conf
