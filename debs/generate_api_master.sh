@@ -376,7 +376,7 @@ do
 done
 }
 
-# Synchronizes with the external repository, uploading new packages and ubstituting old ones.
+# Synchronizes with the external repository, uploading new packages and substituting old ones.
 sync_repository_prod()
 {
 for package in ${packages[@]}
@@ -449,7 +449,7 @@ do
 done
 }
 
-# Synchronizes with the external repository, uploading new packages and ubstituting old ones.
+# Synchronizes with the external repository, uploading new packages and substituting old ones.
 sync_repository_dev()
 {
 for package in ${packages[@]}
