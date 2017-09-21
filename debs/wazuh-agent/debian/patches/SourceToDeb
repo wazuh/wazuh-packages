@@ -42,7 +42,7 @@
  	${INSTALL} -d -m 0750 -o ${OSSEC_USER} -g ${OSSEC_GROUP} ${PREFIX}/logs
  	${INSTALL} -d -m 0750 -o ${OSSEC_USER} -g ${OSSEC_GROUP} ${PREFIX}/logs/ossec
  	${INSTALL} -m 0660 -o ${OSSEC_USER} -g ${OSSEC_GROUP} /dev/null ${PREFIX}/logs/ossec.log
-@@ -412,14 +418,36 @@
+@@ -412,14 +418,37 @@
  	${INSTALL} -d -m 0750 -o root -g ${OSSEC_GROUP} ${PREFIX}/wodles/oscap/content
  
  	${INSTALL} -m 0750 -o root -g ${OSSEC_GROUP} ../wodles/oscap/oscap.py ${PREFIX}/wodles/oscap
@@ -71,6 +71,7 @@
 +	install -m 0640 init/inst-functions.sh ${PREFIX}/tmp/src/init
 +	install -m 0640 init/template-select.sh ${PREFIX}/tmp/src/init
 +	install -m 0640 init/shared.sh ${PREFIX}/tmp/src/init
++	install -m 0750 init/replace_manager_ip.sh ${PREFIX}/tmp/src/init
 +	install -m 0640 LOCATION ${PREFIX}/tmp/src
 +	install -m 0640 VERSION ${PREFIX}/tmp/src
 +	install -m 0640 REVISION ${PREFIX}/tmp/src
@@ -82,7 +83,7 @@
  ifneq (,$(wildcard /etc/TIMEZONE))
  	${INSTALL} -m 0640 -o root -g ${OSSEC_GROUP} /etc/TIMEZONE ${PREFIX}/etc/
  endif
-@@ -443,7 +471,7 @@
+@@ -443,7 +472,7 @@
  ifneq (,$(wildcard ../etc/ossec.mc))
  	${INSTALL} -m 0640 -o root -g ${OSSEC_GROUP} ../etc/ossec.mc ${PREFIX}/etc/ossec.conf
  else
@@ -91,7 +92,7 @@
  endif
  endif
  
-@@ -1377,8 +1405,9 @@
+@@ -1377,8 +1406,9 @@
  	rm -f ${EXTERNAL_ZLIB}/Makefile ${EXTERNAL_ZLIB}/zconf.h
  	cd ${EXTERNAL_LUA} && ${MAKE} clean
  
