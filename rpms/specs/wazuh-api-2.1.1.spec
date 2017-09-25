@@ -1,6 +1,6 @@
 Summary:     Wazuh RESTful API
 Name:        wazuh-api
-Version:     2.1.0
+Version:     2.1.1
 Release:     1%{?dist}
 License:     GPL
 Group:       System Environment/Daemons
@@ -9,7 +9,7 @@ Source1:     CHANGELOG
 URL:         http://www.wazuh.com/
 BuildRoot:   %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Vendor:      http://www.wazuh.com
-Packager:    Jose Luis Ruiz <jose@wazuh.com>
+Packager:    Wazuh, Inc <support@wazuh.com>
 Requires(pre):    /usr/sbin/groupadd /usr/sbin/useradd
 Requires(post):   /sbin/chkconfig
 Requires(preun):  /sbin/chkconfig /sbin/service
@@ -107,7 +107,7 @@ if [ $1 = 1 ]; then
 fi
 ln -sf /var/ossec/api/node_modules/htpasswd/bin/htpasswd /var/ossec/api/configuration/auth/htpasswd
 
-#verify python version
+#veriy python version
 if python -V >/dev/null 2>&1; then
    python_version=$(python -c 'import sys; print(".".join(map(str, sys.version_info[:3])))' | cut -c1-3)
    if [ ! $python_version == '2.7' ]; then
