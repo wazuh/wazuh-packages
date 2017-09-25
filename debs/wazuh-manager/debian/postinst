@@ -204,7 +204,7 @@ case "$1" in
         if [ -f ${OSSEC_HIDS_TMP_DIR}/client.keys ]; then
             mv ${OSSEC_HIDS_TMP_DIR}/client.keys ${DIR}/etc/client.keys
         fi
-        # Restore local insternal options configuration
+        # Restore local internal options configuration
         if [ -f ${OSSEC_HIDS_TMP_DIR}/local_internal_options.conf ]; then
             mv ${OSSEC_HIDS_TMP_DIR}/local_internal_options.conf ${DIR}/etc/local_internal_options.conf
         fi

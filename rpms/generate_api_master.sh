@@ -169,7 +169,7 @@ build_packages()
                   if mock -r $codename-$arch rebuild $szRpmBuildDir/$package-$ossec_version-$release".el7.centos.src.rpm" --resultdir=$szYumRepoDir/"%(dist)s"/"%(target_arch)s"/ ; then
                      echo " + Successfully built package $package-$ossec_version $codename-$arch" | write_log
                   else
-                     echo "Error: Could not build package $package-$ossec_version $condename-$arch" | write_log
+                     echo "Error: Could not build package $package-$ossec_version $codename-$arch" | write_log
                      exit 1
                   fi
                   find $szYumRepoDir -name *.log -exec rm  {} \;
