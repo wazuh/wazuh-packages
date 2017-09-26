@@ -1,3 +1,16 @@
+wazuh-agent (2.1.1-2) stable; urgency=low
+
+  * New upstream release.
+  * Fix lock in agent on HP-UX
+
+ -- Dan Fuhry <dan@fuhry.com>  Fri, 22 Sep 2017 16:41:19 +0000
+
+wazuh-agent (2.1.0-2) stable; urgency=low
+
+  * Add missing "replace_manager_ip.sh" script.
+
+ -- Dan Fuhry <dan@fuhry.com>  Thu, 21 Sep 2017 16:17:59 +0000
+
 wazuh-agent (2.1.0-1) stable; urgency=low
 
   * https://github.com/wazuh/wazuh/blob/master/CHANGELOG.md#v210---2017-08-14.
