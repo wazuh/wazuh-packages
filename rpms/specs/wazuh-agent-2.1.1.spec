@@ -1,6 +1,6 @@
 Summary:     The Wazuh Agent
 Name:        wazuh-agent
-Version:     2.1.0
+Version:     2.1.1
 Release:     1%{?dist}
 License:     GPL
 Group:       System Environment/Daemons
@@ -10,9 +10,9 @@ Source2:     CHANGELOG
 URL:         http://www.wazuh.com/
 BuildRoot:   %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Vendor:      https://www.wazuh.com
-Packager:    Jose Luis Ruiz <jose@wazuh.com>
+Packager:    Wazuh, Inc <support@wazuh.com>
 Requires(pre):    /usr/sbin/groupadd /usr/sbin/useradd
-Requires(post):   /sbin/chkconfig 
+Requires(post):   /sbin/chkconfig
 Requires(preun):  /sbin/chkconfig /sbin/service
 Requires(postun): /sbin/service
 Conflicts:   ossec-hids ossec-hids-agent wazuh-manager
@@ -28,7 +28,7 @@ BuildRequires: inotify-tools-devel
 %endif
 
 ExclusiveOS: linux
- 
+
 %description
 Wazuh helps you to gain security visibility into your infrastructure by monitoring
 hosts at an operating system and application level. It provides the following capabilities:
@@ -51,7 +51,11 @@ echo "Vendor is %_vendor"
 ./gen_ossec.sh conf agent centos %rhel  > etc/ossec-agent.conf
 %endif
 
-./gen_ossec.sh init agent  > ossec-init.conf 
+%if  "%_vendor" == "suse"
+./gen_ossec.sh conf agent suse %sles_version  > etc/ossec-agent.conf
+%endif
+
+./gen_ossec.sh init agent  > ossec-init.conf
 #CFLAGS="$RPM_OPT_FLAGS -fpic -fPIE -Wformat -Wformat-security -fstack-protector-all -Wstack-protector --param ssp-buffer-size=4 -D_FORTIFY_SOURCE=2"
 #LDFLAGS="-fPIE -pie -Wl,-z,relro"
 #SH_LDFLAGS="-fPIE -pie -Wl,-z,relro"
@@ -63,16 +67,16 @@ echo "Vendor is %_vendor"
 
 pushd src
 # Rebuild for agent
-make clean 
+make clean
 %if 0%{?rhel} >= 6 || 0%{?fedora} >= 22
 make TARGET=agent
 %endif
 
-%if  0%{?rhel} <= 5
+%if  0%{?rhel} <= 5 || 0%{?sles_version} < 11 || 0%{?suse_version} >= 1200
 make TARGET=agent USE_LEGACY_SSL=yes
 %endif
 popd
- 
+
 %install
 # Clean BUILDROOT
 rm -fr %{buildroot}
@@ -242,7 +246,7 @@ if cat /var/ossec/etc/ossec.conf | grep -o -P '(?<=<server-hostname>).*(?=</serv
 fi
 
 %preun
- 
+
 if [ $1 = 0 ]; then
 
   /sbin/service wazuh-agent stop || :
@@ -260,7 +264,7 @@ fi
 
 %clean
 rm -fr %{buildroot}
-  
+
 %files
 %defattr(-,root,root)
 %doc BUGS CONFIG CONTRIBUTORS INSTALL LICENSE README.md CHANGELOG

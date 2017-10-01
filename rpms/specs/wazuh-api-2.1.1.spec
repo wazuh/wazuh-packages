@@ -1,6 +1,6 @@
 Summary:     Wazuh RESTful API
 Name:        wazuh-api
-Version:     2.1.0
+Version:     2.1.1
 Release:     1%{?dist}
 License:     GPL
 Group:       System Environment/Daemons
@@ -9,7 +9,7 @@ Source1:     CHANGELOG
 URL:         http://www.wazuh.com/
 BuildRoot:   %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Vendor:      http://www.wazuh.com
-Packager:    Jose Luis Ruiz <jose@wazuh.com>
+Packager:    Wazuh, Inc <support@wazuh.com>
 Requires(pre):    /usr/sbin/groupadd /usr/sbin/useradd
 Requires(post):   /sbin/chkconfig
 Requires(preun):  /sbin/chkconfig /sbin/service
