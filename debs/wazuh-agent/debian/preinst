@@ -1,7 +1,5 @@
 #!/bin/sh
-# preinst script for ossec-hids
-# Santiago Bassett <santiago.bassett@gmail.com>
-# 03/25/2014
+# preinst script for wazuh-agent
 
 set -e
 
@@ -19,15 +17,15 @@ case "$1" in
 
         if [ -z "$2" ]
         then
-                if [ -f ${DIR}/etc/ossec.conf ]; then
-                cp  ${DIR}/etc/ossec.conf  ${DIR}/etc/ossec.conf.deborig
-                chmod 0600 ${DIR}/etc/ossec.conf.deborig
-                chown root:root ${DIR}/etc/ossec.conf.deborig
-                echo "====================================================================================="
-                echo "= Backup from your ossec.conf has been created at /var/ossec/etc/ossec.conf.deborig ="
-                echo "= Please verify your ossec.conf configuration at /var/ossec/etc/ossec.conf          ="
-                echo "====================================================================================="
-                fi
+            if [ -f ${DIR}/etc/ossec.conf ]; then
+            cp  ${DIR}/etc/ossec.conf  ${DIR}/etc/ossec.conf.deborig
+            chmod 0600 ${DIR}/etc/ossec.conf.deborig
+            chown root:root ${DIR}/etc/ossec.conf.deborig
+            echo "====================================================================================="
+            echo "= Backup from your ossec.conf has been created at /var/ossec/etc/ossec.conf.deborig ="
+            echo "= Please verify your ossec.conf configuration at /var/ossec/etc/ossec.conf          ="
+            echo "====================================================================================="
+            fi
         fi
         # Delete old service
         if [ -f /etc/init.d/ossec ]; then

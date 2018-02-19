@@ -20,18 +20,20 @@
 #
 # CONFIGURATION VARIABLES
 #
+
 wazuh_major='3.0'
 wazuh_version='3.0.0'
-source_file="$wazuh_major.zip"
-packages=(wazuh-api)
+# source_file="${wazuh_major}.zip"
+source_file="v${wazuh_version}.zip"
 
 revision="1"
+
+packages=(wazuh-agent wazuh-manager)
 
 # The distribution codename with the lowest libc6 version
 codename="wheezy"
 
-# architectures=(amd64 i386) only options available
-architectures=(amd64)
+architectures=(amd64 i386)
 
 # GPG key
 signing_key='*******'
@@ -42,7 +44,7 @@ debian_files_path="/home/ubuntu/debian_files"
 
 # Setting up logfile
 scriptpath=$( cd $(dirname $0) ; pwd -P )
-logfile=$scriptpath/api_packages.log
+logfile=$scriptpath/wazuh_packages.log
 
 
 #
@@ -110,7 +112,9 @@ read_package_version()
     exit 1
   fi
 
+  return 0
 }
+
 
 #
 # Updates changelog file with new codename, date and debdist.
@@ -153,6 +157,8 @@ update_changelog()
   done < ${changelog_file}
 
   mv ${changelog_file_tmp} ${changelog_file}
+
+  return 0
 }
 
 #
@@ -169,6 +175,8 @@ update_chroots()
       echo "Error: Problem detected updating chroot environment: ${codename}-${arch}" | write_log
     fi
   done
+
+  return 0
 }
 
 #
@@ -188,7 +196,8 @@ download_source()
   done
 
   # Downloading file
-  if wget -O $scriptpath/${source_file} -U ossec https://github.com/wazuh/wazuh-api/archive/${source_file}; then
+
+  if wget -O $scriptpath/${source_file} -U ossec https://github.com/wazuh/wazuh/archive/${source_file}; then
     echo "Successfully downloaded source file ${source_file} from github" | write_log
   else
     echo "Error: File ${source_file} was could not be downloaded" | write_log
@@ -197,10 +206,11 @@ download_source()
 
   # Uncompressing files
   tmp_directory=$(echo ${source_file} | sed -e 's/.zip$//')
+  unzip -o ${scriptpath}/${source_file}
 
-  unzip ${scriptpath}/${source_file}
-  mv wazuh-api-${tmp_directory} wazuh-api-${wazuh_version}
-  tmp_directory="wazuh-api-$wazuh_version"
+  mv wazuh-${tmp_directory} wazuh-${wazuh_version}
+  tmp_directory="wazuh-${wazuh_version}"
+
   if [ ! -d ${scriptpath}/${tmp_directory} ]; then
     echo "Error: Couldn't find uncompressed directory, named ${tmp_directory}" | write_log
     exit 1
@@ -219,7 +229,7 @@ download_source()
     cp -pr $scriptpath/${tmp_directory} $scriptpath/$package/$package-${wazuh_version}
     cp -r $scriptpath/${tmp_directory} $scriptpath/${package}_${wazuh_version}
     cd $scriptpath
-    mv ${tmp_directory} ${package}-${wazuh_version}
+    cp -rp ${tmp_directory} ${package}-${wazuh_version}
     tar czvf ${package}_${wazuh_version}.orig.tar.gz ${package}-${wazuh_version}/*
     cp -p ${package}_${wazuh_version}.orig.tar.gz  $scriptpath/$package/
     rm ${package}_${wazuh_version}.orig.tar.gz
@@ -230,6 +240,8 @@ download_source()
   rm -rf $scriptpath/${tmp_directory}
 
   echo "The packages directories for ${packages[*]} version ${wazuh_version} have been successfully prepared." | write_log
+
+  return 0
 }
 
 #
@@ -237,7 +249,7 @@ download_source()
 #
 build_packages()
 {
-cp $scriptpath/.pbuilderrc-with-nodejs $scriptpath/.pbuilderrc
+cp $scriptpath/.pbuilderrc-without-nodejs $scriptpath/.pbuilderrc
 for package in ${packages[@]}
 do
     for arch in ${architectures[@]}
@@ -262,6 +274,7 @@ do
 
       # Setting up global variable package_version, used for deb_file and changes_file
       read_package_version ${changelog_file}
+
       local deb_file="${package}_${wazuh_version}-${package_version}_${arch}.deb"
       local changes_file="${package}_${wazuh_version}-${package_version}_${arch}.changes"
       local dsc_file="${package}_${wazuh_version}-${package_version}.dsc"
@@ -274,12 +287,18 @@ do
         sudo mkdir -p ${results_dir}
       fi
 
+      # Fix for i386 package creation, if not the uname -m gets x86_64 and openssl fails https://goo.gl/mZ1fRu
+      if [ "$arch" == "i386" ]; then
+        linux32_fix=linux32
+      else
+        linux32_fix=""
+      fi
+
       # Building the package
       cd ${source_path}
-      if sudo /usr/bin/pdebuild --use-pdebuild-internal --architecture ${arch} --buildresult ${results_dir} -- --basetgz \
+      if sudo ${linux32_fix} /usr/bin/pdebuild --use-pdebuild-internal --architecture ${arch} --buildresult ${results_dir} -- --basetgz \
       ${base_tgz} --architecture ${arch} --aptcache ${cache_dir} --override-config ; then
         echo " + Successfully built Debian package ${package} ${codename}-${arch}" | write_log
-        sudo rm -rf  ${source_path}/node_modules
       else
         echo "Error: Could not build package $package ${codename}-${arch}" | write_log
         exit 1
@@ -333,8 +352,9 @@ do
 
     done
 done
-}
+return 0
 
+}
 sync_repository_prod()
 {
   sync_repository "stable" "apt"
@@ -359,11 +379,9 @@ sync_repository()
   fi
 
   if ! aptly publish show ${distribution} &> /dev/null ; then
-    echo "Publishing ${distribution} repository..." | write_log
+    echo "Publishing ${distribution} ${folder_name} repository..." | write_log
     aptly publish repo -gpg-key="${signing_key}" -passphrase="${signing_pass}" -architectures="amd64,i386" ${distribution} s3:S3_BUCKET_NAME/${folder_name}/
   fi
-
-
   for package in ${packages[@]}
   do
 
@@ -389,6 +407,7 @@ sync_repository()
       fi
 
       echo "Adding package ${results_dir}/${deb_file} to ${distribution} repository..." | write_log
+      echo "${results_dir}/${deb_file}"
       aptly repo add -force-replace=true ${distribution} ${results_dir}/${deb_file}
 
       echo "Successfully added package ${deb_file} to server repository for ${distribution} distribution" | write_log
@@ -396,11 +415,11 @@ sync_repository()
 
   done
 
-  echo "Publishing ${distribution} repository update..." | write_log
+  echo "Publishing ${distribution}  ${folder_name} repository update..." | write_log
   aptly publish update -gpg-key="${signing_key}" -passphrase="${signing_pass}" -force-overwrite ${distribution} s3:S3_BUCKET_NAME/${folder_name}/
+  return 0
 
 }
-
 # If there are no arguments, display help
 if [ $# -eq 0 ]; then
   show_help
@@ -420,22 +439,34 @@ case $key in
     ;;
   -u|--update)
     update_chroots
+    exit 0
     shift
     ;;
   -d|--download)
     download_source
+    exit 0
     shift
     ;;
   -b|--build)
     build_packages
+    exit 0
     shift
     ;;
   -sp|--sync_prod)
     sync_repository_prod
+    exit 0
     shift
     ;;
   -sd|--sync_dev)
     sync_repository_dev
+    exit 0
+    shift
+    ;;
+  -ad|--all_dev)
+    download_source
+    build_packages
+    sync_repository_dev
+    exit 0
     shift
     ;;
   -ad|--all_dev)
@@ -451,5 +482,6 @@ case $key in
     ;;
   esac
 done
+exit 0
 
 # vim: tabstop=2 expandtab shiftwidth=2 softtabstop=2

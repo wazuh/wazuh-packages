@@ -1,126 +1,75 @@
-#!/bin/bash 
+#!/bin/bash
 # postinst script for ossec-hids
 # Wazuh, Inc 2016
 
 set -e
 
 case "$1" in
-    configure)
+    configure|upgrade)
 
-        OS=$(lsb_release -si)
+    OS=$(lsb_release -si)
 	DIR="/var/ossec/api"
 	OSSEC_HIDS_TMP_DIR="/tmp/wazuh-api"
-        USER="ossec"
-        GROUP="ossec"
+    USER="ossec"
+    GROUP="ossec"
 	OSMYSHELL="/sbin/nologin"
-        if [ ! -f ${OSMYSHELL} ]; then
+    SCRIPTS_DIR="/usr/share/wazuh-api/scripts/tmp"
+
+    if [ ! -f ${OSMYSHELL} ]; then
 	    if [ -f "/bin/false" ]; then
 	        OSMYSHELL="/bin/false"
 	    fi
 	fi
 
-        if [ -z "$2" ]
-        then
-#  	    /var/ossec/api/scripts/install_daemon.sh
-            echo "======================================================================================================"
-	    echo "= Don't forget run the API configuration running the script /var/ossec/api/scripts/configure_api.sh  ="
-            echo "======================================================================================================"
-        fi
-        touch /var/ossec/logs/api.log
-	ln -sf /var/ossec/api/node_modules/htpasswd/bin/htpasswd /var/ossec/api/configuration/auth/htpasswd
+    if [ -z "$2" ]; then
+        echo "======================================================================================================"
+        echo "= Don’t forget to secure the API configuration by running the script /var/ossec/api/scripts/configure_api.sh  ="
+        echo "======================================================================================================"
+    fi
+
+    if [ -f /var/ossec/api/node_modules/htpasswd/bin/htpasswd ] && [ ! -x /var/ossec/api/configuration/auth/htpasswd ]; then
+        ln -sf /var/ossec/api/node_modules/htpasswd/bin/htpasswd /var/ossec/api/configuration/auth/htpasswd
+    fi
+
 	if [ -x /etc/init.d/wazuh-api ]; then
-            update-rc.d wazuh-api defaults > /dev/null 2>&1
+        update-rc.d wazuh-api defaults > /dev/null 2>&1
 	fi
-        # Restore local_decoders.xml configuration
-        if [ -d ${OSSEC_HIDS_TMP_DIR}/configuration ]; then
-            cp ${DIR}/configuration/config.js ${OSSEC_HIDS_TMP_DIR}/configuration/config.js.debnew
-            cp -rp ${OSSEC_HIDS_TMP_DIR}/configuration ${DIR}/
-        fi
-	# Folder Permissions
-#        /var/ossec/api/scripts/install_daemon.sh > /dev/null 2>&1 || true
-        chown -h root:root ${DIR}/configuration/auth/htpasswd
-        chmod 660 /var/ossec/logs/api.log 
-        chown root:ossec /var/ossec/logs/api.log
-	chmod 750 ${DIR}
-	chown root:${GROUP} ${DIR}
-        chmod 750 ${DIR}/configuration
-        chown root:root ${DIR}/configuration
-        chmod 750 ${DIR}/controllers
-        chown root:${GROUP} ${DIR}/controllers
-        chmod 750 ${DIR}/examples
-        chown root:${GROUP} ${DIR}/examples
-        chmod 750 ${DIR}/framework
-        chown root:${GROUP} ${DIR}/framework
-        chmod 750 ${DIR}/helpers
-        chown root:${GROUP} ${DIR}/helpers
-        chmod 750 ${DIR}/models
-        chown root:${GROUP} ${DIR}/models
-        chmod 750 ${DIR}/scripts
-        chown root:root ${DIR}/scripts
-        chmod 750 ${DIR}/configuration/auth
-        chown root:root ${DIR}/configuration/auth
-        chmod 750 ${DIR}/configuration/ssl
-        chown root:root ${DIR}/configuration/ssl
-        chmod 750 ${DIR}/framework/examples
-        chown root:${GROUP} ${DIR}/framework/examples
-        chmod 750 ${DIR}/framework/wazuh
-        chown root:${GROUP} ${DIR}/framework/wazuh
-        chmod 750 ${DIR}/node_modules
-        chown root:${GROUP} ${DIR}/node_modules
-        chmod 750 ${DIR}/framework/lib
-        chown root:${GROUP} ${DIR}/framework/lib
 
+    # Restore local_decoders.xml configuration
+    if [ -d ${OSSEC_HIDS_TMP_DIR}/configuration ]; then
+        cp ${DIR}/configuration/config.js ${OSSEC_HIDS_TMP_DIR}/configuration/config.js.debnew
+        cp -rp ${OSSEC_HIDS_TMP_DIR}/configuration ${DIR}/
+    fi
 
-	#Files Permissions
-        chmod 640 ${DIR}/package.json
-        chown root:${GROUP} ${DIR}/package.json
-        chmod 750 ${DIR}/app.js
-        chown root:${GROUP} ${DIR}/app.js
-        chmod 750 ${DIR}/configuration/config.js
-        chown root:root ${DIR}/configuration/config.js
-        chmod 750 ${DIR}/configuration/auth/user
-        chown root:root ${DIR}/configuration/auth/user
-        chmod 750 ${DIR}/controllers/*
-        chown root:${GROUP} ${DIR}/controllers/*
-        chmod 750 ${DIR}/examples/*
-        chown root:${GROUP} ${DIR}/examples/*
-        chmod 750 ${DIR}/framework/examples/*
-        chown root:${GROUP} ${DIR}/framework/examples/*
-        chmod 750 ${DIR}/framework/wazuh/*
-        chown root:${GROUP} ${DIR}/framework/wazuh/*
-        chmod 750 ${DIR}/helpers/*
-        chown root:${GROUP} ${DIR}/helpers/*
-        chmod 750 ${DIR}/models/*
-        chown root:${GROUP} ${DIR}/models/*
-        chmod 750 ${DIR}/scripts/*.sh
-        chown root:root ${DIR}/scripts/*.sh
-        chmod 640 ${DIR}/scripts/wazuh-api
-        chown root:root ${DIR}/scripts/wazuh-api
-        chmod 640 ${DIR}/scripts/wazuh-api.service
-        chown root:root ${DIR}/scripts/wazuh-api.service
-        chmod 750 ${DIR}/node_modules/*
-        chown root:${GROUP} ${DIR}/node_modules/*
-        chmod 750 ${DIR}/framework/lib/*
-        chown root:${GROUP} ${DIR}/framework/lib/*
-        #verify python version
-        if python -V >/dev/null 2>&1; then
-          python_version=$(python -c 'import sys; print(".".join(map(str, sys.version_info[:3])))' | cut -c1-3)
-          if [ ! $python_version == '2.7' ]; then
-             echo "Warning: Minimal supported version is 2.7"
-          fi
-        else
-          echo "Warning: Minimal supported version is 2.7"
-        fi
-        # Delete tmp directory
+    # Restore /var/ossec permissions
+    . ${SCRIPTS_DIR}/restore-permissions.sh
+
+    #veriy python version
+    if python -V >/dev/null 2>&1; then
+      python_version=$(python -c 'import sys; print(".".join(map(str, sys.version_info[:3])))' | cut -c1-3)
+      if [ ! $python_version == '2.7' ]; then
+         echo "Warning: Minimal supported version is 2.7"
+      fi
+    else
+      echo "Warning: Minimal supported version is 2.7"
+    fi
+
+    # Delete tmp directory
 	if [ -d ${OSSEC_HIDS_TMP_DIR} ]; then
 	    rm -r ${OSSEC_HIDS_TMP_DIR}
 	fi
         if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
-           systemctl restart wazuh-api.service
+           systemctl restart wazuh-api.service > /dev/null 2>&1
         fi
         if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
-           service wazuh-api restart
+           service wazuh-api restart > /dev/null 2>&1
         fi
+
+    # Delete old api framework (new is included with wazuh-manager in /var/ossec/framework)
+    if [ -d /var/ossec/api/framework ]; then
+        rm -rf /var/ossec/api/framework
+    fi
+
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

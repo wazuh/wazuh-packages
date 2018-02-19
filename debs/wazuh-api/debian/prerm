@@ -4,8 +4,9 @@
 set -e
 
 case "$1" in
-    remove|upgrade|deconfigure)
-    if ps axu | grep /var/ossec/api/app.js | grep -v grep; then
+    upgrade|deconfigure)
+
+        if ps axu | grep /var/ossec/api/app.js | grep -v grep; then
             if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
                 systemctl stop wazuh-api.service
             fi
@@ -13,19 +14,52 @@ case "$1" in
             if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
                 service wazuh-api stop
             fi
-    fi
+        fi
+
+
+        # Fix for forcing the stop of the api
+        if ps aux | grep /var/ossec/api/app.js | grep -v grep; then
+            kill -9 `ps -ef | grep '/var/ossec/api/app.js' | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
+        fi
+
+    ;;
+
+    remove)
+
+
+        if ps axu | grep /var/ossec/api/app.js | grep -v grep; then
+            if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
+                systemctl stop wazuh-api.service
+            fi
+
+            if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
+                service wazuh-api stop
+            fi
+        fi
+
+
+        # Fix for forcing the stop of the api
+        if ps aux | grep /var/ossec/api/app.js | grep -v grep; then
+            kill -9 `ps -ef | grep '/var/ossec/api/app.js' | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
+        fi
+
+
+        # Deleting auth configuration on delete
+        if [ -d /var/ossec/api/configuration/auth/ ]; then
+            rm -rf /var/ossec/api/configuration/auth/
+        fi
     ;;
 
     failed-upgrade)
     if ps axu | grep /var/ossec/api/app.js | grep -v grep; then
-            if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
-                systemctl stop wazuh-api.service
-            fi
+        if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
+            systemctl stop wazuh-api.service
+        fi
 
-            if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
-                echo "aqui init"
-                service wazuh-api stop
-            fi
+        if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
+            echo "aqui init"
+            service wazuh-api stop
+        fi
     fi
     ;;
 

@@ -27,8 +27,8 @@ case "$1" in
           fi
 
           cp -rLfp ${API_PATH} ${API_PATH_BACKUP}
-          chown root:root ${API_PATH_BACKUP}
-  
+          # chown root:root ${API_PATH_BACKUP}
+
           API_OLD_VERSION=`cat ${API_PATH_BACKUP}\/package.json | grep "version\":" | grep -P "\d+(?:\.\d+){0,2}" -o`
           if [ "X${API_OLD_VERSION}" = "X1.3.0" ]; then
               rm -rf ${API_PATH}/configuration
@@ -36,9 +36,6 @@ case "$1" in
           elif [ "X${API_OLD_VERSION}" = "X1.1" ] || [ "X${API_OLD_VERSION}" = "X1.2.0" ] || [ "X${API_OLD_VERSION}" = "X1.2.1" ]; then
               cp -rfp ${API_PATH_BACKUP}/ssl/htpasswd ${API_PATH}/configuration/auth/user
               cp -p ${API_PATH_BACKUP}/ssl/*.key $API_PATH_BACKUP/ssl/*.crt ${API_PATH}/configuration/ssl/
-              chown -R root:root ${API_PATH}/configuration
-              chmod -R 500 ${API_PATH}/configuration
-              chmod u-x ${API_PATH}/configuration/ssl/*
           fi
       fi
     fi

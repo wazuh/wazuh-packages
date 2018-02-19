@@ -4,21 +4,37 @@
 set -e
 
 case "$1" in
-    remove|upgrade|deconfigure)
+    upgrade|deconfigure)
       if [ -f /var/ossec/bin/ossec-control ]; then
          /var/ossec/bin/ossec-control stop > /dev/null 2>&1
       fi
     ;;
 
+    remove)
+
+      if [ -f /var/ossec/bin/ossec-control ]; then
+         /var/ossec/bin/ossec-control stop > /dev/null 2>&1
+      fi
+
+      # Purging files
+      if [ -d /var/ossec/queue/ ]; then
+        rm -rf /var/ossec/queue/
+      fi
+      if [ -d /var/ossec/etc/shared/ ]; then
+        rm -rf /var/ossec/etc/shared/
+      fi
+
+    ;;
+
     failed-upgrade)
       if [ -f /var/ossec/bin/ossec-control ]; then
-	 /var/ossec/bin/ossec-control stop > /dev/null 2>&1
+        /var/ossec/bin/ossec-control stop > /dev/null 2>&1
       fi
     ;;
 
     *)
-        echo "prerm called with unknown argument \`$1'" >&2
-        exit 1
+      echo "prerm called with unknown argument \`$1'" >&2
+      exit 1
     ;;
 
 esac
