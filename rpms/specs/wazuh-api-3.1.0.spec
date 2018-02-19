@@ -1,14 +1,14 @@
 Summary:     Wazuh RESTful API
 Name:        wazuh-api
-Version:     3.0.0
+Version:     3.1.0
 Release:     1
 License:     GPL
 Group:       System Environment/Daemons
 Source0:     %{name}-%{version}.tar.gz
 Source1:     CHANGELOG
-URL:         http://www.wazuh.com/
+URL:         https://www.wazuh.com/
 BuildRoot:   %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-Vendor:      http://www.wazuh.com
+Vendor:      https://www.wazuh.com
 Packager:    Wazuh, Inc <support@wazuh.com>
 Requires(pre):    /usr/sbin/groupadd /usr/sbin/useradd
 Requires(post):   /sbin/chkconfig
@@ -16,7 +16,7 @@ Requires(preun):  /sbin/chkconfig /sbin/service
 Requires(postun): /sbin/service
 
 Requires: nodejs >= 4.6
-Requires: wazuh-manager >= 3.0
+Requires: wazuh-manager >= 2.1
 BuildRequires: gcc-c++ make nodejs >= 4.6
 ExclusiveOS: linux
 
@@ -111,13 +111,13 @@ else
    echo "Warning: You need python 2.7 or above"
 fi
 
-if ps axu | grep /var/ossec/api/app.js | grep -v grep; then
-   if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
-     systemctl restart wazuh-api.service
-   fi
-   if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
-     service wazuh-api restart
-   fi
+if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
+  systemctl stop wazuh-api.service
+  systemctl daemon-reload
+  systemctl restart wazuh-api.service
+fi
+if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
+  service wazuh-api restart
 fi
 
 %preun
@@ -167,7 +167,10 @@ rm -fr %{buildroot}
 %attr(640,root,root) %{_localstatedir}/ossec/api/scripts/wazuh-api.service
 %attr(750,ossec,ossec) %{_localstatedir}/ossec/api/node_modules/*
 
+
 %changelog
+* Mon Dec 19 2017 support <support@wazuh.com> - 3.1.0
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Nov 07 2017 support <support@wazuh.com> - 3.0.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Fri May 26 2017 support <support@wazuh.com> - 2.0.1

@@ -1,6 +1,6 @@
 Summary:     The Wazuh Manager
 Name:        wazuh-manager
-Version:     3.0.0
+Version:     3.1.0
 Release:     1
 License:     GPL
 Group:       System Environment/Daemons
@@ -9,7 +9,7 @@ Source1:     %{name}.init
 Source2:     CHANGELOG
 URL:         https://www.wazuh.com/
 BuildRoot:   %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-Vendor:      http://www.wazuh.com
+Vendor:      https://www.wazuh.com
 Packager:    Wazuh, Inc <support@wazuh.com>
 Requires(pre):    /usr/sbin/groupadd /usr/sbin/useradd
 Requires(post):   /sbin/chkconfig
@@ -17,10 +17,6 @@ Requires(preun):  /sbin/chkconfig /sbin/service
 Requires(postun): /sbin/service /usr/sbin/groupdel /usr/sbin/userdel
 Conflicts:   ossec-hids ossec-hids-agent wazuh-agent wazuh-local
 AutoReqProv: no
-
-%if  0%{?rhel} > 5
-Requires: python-requests
-%endif
 
 BuildRequires: coreutils glibc-devel
 
@@ -48,7 +44,8 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 pushd src
 # Rebuild for server
 make clean
-make -j5 TARGET=server
+
+make -j3 TARGET=server
 
 popd
 
@@ -74,7 +71,7 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/lists/amazon
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/shared/default
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/{lib,wazuh}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/integrations
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/logs/{alerts,archives,firewall,ossec}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/logs/{alerts,archives,firewall,ossec,vuls}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/lua/{compiled,native}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/queue/{agent-groups,agent-info,agentless,agents,alerts,diff,fts,ossec,rids,rootcheck,syscheck}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/{decoders,rules}
@@ -85,11 +82,22 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/var/{db,run,upgrade,wodles}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/var/db/agents
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/var/wodles
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/ciscat
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/vuls
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/vuls/go
 
 # Templates for initscript
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/init
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/generic
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/centos
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/fedora
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/rhel
+
 cp -rp  etc/templates/config/generic/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/generic
+# Copy scap templates
+cp -rp  etc/templates/config/centos/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/centos
+cp -rp  etc/templates/config/fedora/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/fedora
+cp -rp  etc/templates/config/rhel/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/rhel
 
 install -m 0640 ossec-init.conf ${RPM_BUILD_ROOT}%{_sysconfdir}
 install -m 0750 active-response/firewalls/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/active-response/bin
@@ -98,6 +106,7 @@ install -m 0550 src/agentlessd/scripts/* ${RPM_BUILD_ROOT}%{_localstatedir}/osse
 install -m 0550 src/agent_control ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
 install -m 0550 framework/scripts/agent_groups.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin/agent_groups
 install -m 0550 framework/scripts/agent_upgrade.py  ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin/agent_upgrade
+install -m 0550 framework/scripts/cluster_control.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin/cluster_control
 install -m 0550 framework/scripts/wazuh-clusterd.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin/wazuh-clusterd
 install -m 0550 src/clear_stats ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
 install -m 0550 src/list_agents ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
@@ -141,18 +150,28 @@ install -m 0660 src/rootcheck/db/*.txt ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/
 install -m 0640 etc/local_rules.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/rules
 install -m 0640 etc/agent.conf ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/shared/default
 install -m 0660 src/rootcheck/db/*.txt ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/shared/default
-install -m 0660 framework/wazuh/*.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/wazuh
+install -m 0640 framework/wazuh/*.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/wazuh
 install -m 0660 framework/libsqlite3.so.0 ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/lib
 install -m 0660 framework/wazuh-clusterd-internal ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-
+install -m 0640 framework/wazuh/cluster.json ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/wazuh/cluster.json
 
 install -m 0640 etc/rules/*xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/rules
 install -m 0640 etc/decoders/*.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/decoders
 install -m 0440 src/update/ruleset/RULESET_VERSION  ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/VERSION
 install -m 0750 integrations/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/integrations
+
+# OSCAP files
 install -m 0750 wodles/oscap/oscap.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap
 install -m 0750 wodles/oscap/template_oval.xsl ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap
 install -m 0750 wodles/oscap/template_xccdf.xsl ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap
+install -m 0640 wodles/oscap/content/cve-redhat-7-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
+install -m 0640 wodles/oscap/content/ssg-rhel-7-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
+install -m 0640 wodles/oscap/content/ssg-centos-7-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
+install -m 0640 wodles/oscap/content/cve-redhat-6-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
+install -m 0640 wodles/oscap/content/ssg-rhel-6-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
+install -m 0640 wodles/oscap/content/ssg-centos-6-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
+install -m 0640 wodles/oscap/content/ssg-fedora-24-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
+
 install -m 0755 %{SOURCE1} ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-manager
 
 # Temporal files for gent_ossec
@@ -165,36 +184,50 @@ install -m 0640 src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src
 install -m 0640 add_localfiles.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp
 cp %{SOURCE2} CHANGELOG
 
-# OSCAP files
-install -m 0640 wodles/oscap/content/cve-redhat-7-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
-install -m 0640 wodles/oscap/content/ssg-rhel-7-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
-install -m 0640 wodles/oscap/content/ssg-centos-7-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
-install -m 0640 wodles/oscap/content/cve-redhat-6-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
-install -m 0640 wodles/oscap/content/ssg-rhel-6-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
-install -m 0640 wodles/oscap/content/ssg-centos-6-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
-install -m 0640 wodles/oscap/content/ssg-fedora-24-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
+# Ciscat files
+install -m 0750 wodles/ciscat/template_xccdf.xsl ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/ciscat
+
+# Vuls files
+install -m 0750 wodles/vuls/deploy_vuls.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/vuls
+install -m 0750 wodles/vuls/vuls.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/vuls
+
 
 cp -pr etc/ossec-server.conf ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/ossec.conf
 
+
 # Copying install scripts to /usr/share
-mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/
-cp gen_ossec.sh ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/
-cp add_localfiles.sh ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/
+mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/
+cp gen_ossec.sh ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/
+cp add_localfiles.sh ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/
 
-mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/src
-cp src/VERSION ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/src/
-cp src/REVISION ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/src/
-cp src/LOCATION ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/src/
+mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/src
+cp src/VERSION ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/src/
+cp src/REVISION ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/src/
+cp src/LOCATION ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/src/
 
-mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/src/init
-cp -r src/init/*  ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/src/init
+mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/src/init
+cp -r src/init/*  ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/src/init
 
-mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic
-cp -r etc/templates/config/generic/* ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic
+mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/generic
+cp -r etc/templates/config/generic/* ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/generic
 
+# Copy scap templates
+mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/centos
+cp -r  etc/templates/config/centos/* ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/centos
+
+mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/fedora
+cp -r  etc/templates/config/fedora/* ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/fedora
+
+mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/rhel
+cp -r  etc/templates/config/rhel/* ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/rhel
 
 exit 0
 %pre
+
+# Stop Authd if it is running
+if ps aux | grep /var/ossec/bin/ossec-authd | grep -v grep; then
+   kill `ps -ef | grep '/var/ossec/bin/ossec-authd' | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
+fi
 
 if ! id -g ossec > /dev/null 2>&1; then
   groupadd -r ossec
@@ -234,10 +267,12 @@ fi
 if [ $1 = 2 ]; then
     cp -rp %{_localstatedir}/ossec/etc/ossec.conf %{_localstatedir}/ossec/etc/ossec.bck
     cp -rp %{_localstatedir}/ossec/etc/shared %{_localstatedir}/ossec/backup/
-    mkdir  %{_localstatedir}/ossec/etc/shared/default
-    cp -rp %{_localstatedir}/ossec/backup/shared/* %{_localstatedir}/ossec/etc/shared/default || true
-    rm -f  %{_localstatedir}/ossec/etc/shared/default/merged.mg || true
-    rm -f  %{_localstatedir}/ossec/etc/shared/default/ar.conf || true
+    if [ ! -d %{_localstatedir}/ossec/etc/shared/default ]; then
+      mkdir  %{_localstatedir}/ossec/etc/shared/default
+      cp -rp %{_localstatedir}/ossec/backup/shared/* %{_localstatedir}/ossec/etc/shared/default || true
+      rm -f  %{_localstatedir}/ossec/etc/shared/merged.mg || true
+      rm -f  %{_localstatedir}/ossec/etc/shared/default/ar.conf || true
+    fi
 fi
 %post
 
@@ -245,8 +280,8 @@ if [ $1 = 1 ]; then
 
 
   # Generating osse.conf file
-  . /usr/share/wazuh-agent/scripts/tmp/src/init/dist-detect.sh
-  /usr/share/wazuh-agent/scripts/tmp/gen_ossec.sh conf manager ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} > %{_localstatedir}/ossec/etc/ossec.conf
+  . /usr/share/wazuh-manager/scripts/tmp/src/init/dist-detect.sh
+  /usr/share/wazuh-manager/scripts/tmp/gen_ossec.sh conf manager ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} > %{_localstatedir}/ossec/etc/ossec.conf
   chown root:ossec %{_localstatedir}/ossec/etc/ossec.conf
   chmod 0640 %{_localstatedir}/ossec/etc/ossec.conf
 
@@ -308,22 +343,20 @@ if [ $1 = 1 ]; then
     fi
   fi
 
+
   touch %{_localstatedir}/ossec/logs/ossec.log
   touch %{_localstatedir}/ossec/logs/integrations.log
   touch %{_localstatedir}/ossec/logs/active-responses.log
-  touch %{_localstatedir}/ossec/logs/cluster.json
   touch %{_localstatedir}/ossec/etc/client.keys
 
   chown ossec:ossec %{_localstatedir}/ossec/logs/ossec.log
   chown ossecm:ossec %{_localstatedir}/ossec/logs/integrations.log
   chown ossec:ossec %{_localstatedir}/ossec/logs/active-responses.log
-  chown root:ossec %{_localstatedir}/ossec/logs/cluster.json
   chown root:ossec %{_localstatedir}/ossec/etc/client.keys
 
   chmod 0660 %{_localstatedir}/ossec/logs/ossec.log
-  chmod 0640  %{_localstatedir}/ossec/logs/integrations.log
+  chmod 0640 %{_localstatedir}/ossec/logs/integrations.log
   chmod 0660 %{_localstatedir}/ossec/logs/active-responses.log
-  chmod 0660 %{_localstatedir}/ossec/logs/cluster.json
   chmod 0640 %{_localstatedir}/ossec/etc/client.keys
 
   # Add default local_files to ossec.conf
@@ -358,11 +391,19 @@ touch %{_localstatedir}/ossec/logs/cluster.log
 chown ossec:ossec %{_localstatedir}/ossec/logs/cluster.log
 chmod 0660 %{_localstatedir}/ossec/logs/cluster.log
 
+chown root:ossec %{_localstatedir}/ossec/framework/wazuh/cluster.json
+# Temporal fix for cluster.json permissions
+chmod 640 %{_localstatedir}/ossec/framework/wazuh/cluster.json
+
+
 
 rm -f %{_localstatedir}/ossec/tmp/add_localfiles.sh
 rm -rf %{_localstatedir}/ossec/tmp/src
 rm -rf %{_localstatedir}/ossec/tmp/etc
 ln -sf %{_sysconfdir}/ossec-init.conf %{_localstatedir}/ossec/etc/ossec-init.conf
+
+chmod 640 %{_sysconfdir}/ossec-init.conf
+chown root:ossec %{_sysconfdir}/ossec-init.conf
 
 if [ $1 = 2 ]; then
   if [ -f %{_localstatedir}/ossec/etc/ossec.bck ]; then
@@ -376,8 +417,11 @@ chown ossecr:ossec %{_localstatedir}/ossec/queue/agent-info/* 2>/dev/null || tru
 
 # Remove existing SQLite databases
 rm -f %{_localstatedir}/ossec/var/db/global.db* || true
+rm -f %{_localstatedir}/ossec/var/db/cluster.db* || true
 rm -f %{_localstatedir}/ossec/var/db/.profile.db* || true
 rm -f %{_localstatedir}/ossec/var/db/agents/* || true
+
+touch %{_localstatedir}/ossec/etc/shared/default/*
 
 if %{_localstatedir}/ossec/bin/ossec-logtest 2>/dev/null ; then
   /sbin/service wazuh-manager restart 2>&1
@@ -386,6 +430,12 @@ else
   echo "Something in your actual rules configuration is wrong, please review your configuration and restart the service."
   echo "================================================================================================================"
 fi
+
+if [ ! -f %{_localstatedir}/ossec/queue/agents-timestamp ]; then
+  touch %{_localstatedir}/ossec/queue/agents-timestamp
+fi
+chmod 600 %{_localstatedir}/ossec/queue/agents-timestamp
+chown root:ossec %{_localstatedir}/ossec/queue/agents-timestamp
 
 %preun
 
@@ -412,6 +462,7 @@ rm -fr %{buildroot}
 %files
 %defattr(-,root,root)
 %doc BUGS CONFIG CONTRIBUTORS INSTALL LICENSE README.md CHANGELOG
+
 %attr(640,root,ossec) %verify(not md5 size mtime) %{_sysconfdir}/ossec-init.conf
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/active-response
@@ -421,7 +472,7 @@ rm -fr %{buildroot}
 %attr(750,ossec,ossec) %dir %{_localstatedir}/ossec/backup/agents
 %attr(750,ossec,ossec) %dir %{_localstatedir}/ossec/backup/groups
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/backup/shared
-%attr(750,root,root) %dir %{_localstatedir}/ossec/bin
+%attr(750,root,ossec) %dir %{_localstatedir}/ossec/bin
 %attr(770,ossec,ossec) %dir %{_localstatedir}/ossec/etc
 %attr(770,root,ossec) %dir %{_localstatedir}/ossec/etc/decoders
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/etc/lists
@@ -439,6 +490,7 @@ rm -fr %{buildroot}
 %attr(750,ossec,ossec) %dir %{_localstatedir}/ossec/logs/alerts
 %attr(750,ossec,ossec) %dir %{_localstatedir}/ossec/logs/firewall
 %attr(750,ossec,ossec) %dir %{_localstatedir}/ossec/logs/ossec
+%attr(750,ossec,ossec) %dir %{_localstatedir}/ossec/logs/vuls
 %attr(750,root,root) %dir %{_localstatedir}/ossec/lua
 %attr(750,root,root) %dir %{_localstatedir}/ossec/lua/compiled
 %attr(750,root,root) %dir %{_localstatedir}/ossec/lua/native
@@ -467,17 +519,20 @@ rm -fr %{buildroot}
 %attr(770,root,ossec) %dir %{_localstatedir}/ossec/var/db/agents
 %attr(770,root,ossec) %dir %{_localstatedir}/ossec/var/wodles
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/wodles
+%attr(750,root,ossec) %dir %{_localstatedir}/ossec/wodles/ciscat
+%attr(750,root,ossec) %dir %{_localstatedir}/ossec/wodles/vuls
+%attr(750,root,ossec) %dir %{_localstatedir}/ossec/wodles/vuls/go
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/wodles/oscap
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/wodles/oscap/content
 
 
-
 %attr(640,root,ossec) %{_localstatedir}/ossec/framework/lib/*
-%attr(750,root,ossec) %{_localstatedir}/ossec/framework/wazuh/*
+%attr(640,root,ossec) %{_localstatedir}/ossec/framework/wazuh/*
 %attr(750,root,ossec) %{_localstatedir}/ossec/integrations/*
 %attr(750,root,root) %{_localstatedir}/ossec/bin/*
 %attr(750,root,ossec) %{_localstatedir}/ossec/bin/agent_groups
 %attr(750,root,ossec) %{_localstatedir}/ossec/bin/agent_upgrade
+%attr(750,root,ossec) %{_localstatedir}/ossec/bin/cluster_control
 %attr(750,root,ossec) %{_localstatedir}/ossec/bin/wazuh-clusterd-internal
 %attr(750,root,ossec) %{_localstatedir}/ossec/bin/wazuh-clusterd
 %{_initrddir}/*
@@ -494,75 +549,102 @@ rm -fr %{buildroot}
 %attr(640,root,ossec) %{_localstatedir}/ossec/ruleset/VERSION
 %attr(640,root,ossec) %{_localstatedir}/ossec/ruleset/rules/*
 %attr(640,root,ossec) %{_localstatedir}/ossec/ruleset/decoders/*
+%attr(750,root,ossec) %{_localstatedir}/ossec/wodles/ciscat/*
+%attr(750,root,ossec) %{_localstatedir}/ossec/wodles/vuls/*
 %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap/oscap.*
 %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap/template*
 %attr(640,root,ossec) %{_localstatedir}/ossec/wodles/oscap/content/*
+
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/add_localfiles.sh
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/src/*
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/generic/*
+%attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/centos/*
+%attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/fedora/*
+%attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/rhel/*
 
-
-/usr/share/wazuh-agent/scripts/tmp/add_localfiles.sh
-/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic/alerts.template
-/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic/ar-commands.template
-/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic/ar-definitions.template
-/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic/auth.template
-/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic/cluster.template
-/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic/global-ar.template
-/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic/global.template
-/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic/header-comments.template
-/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic/localfile-commands.template
-/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic/localfile-logs/apache-logs.template
-/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic/localfile-logs/audit-logs.template
-/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic/localfile-logs/ossec-logs.template
-/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic/localfile-logs/pgsql-logs.template
-/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic/localfile-logs/snort-logs.template
-/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic/localfile-logs/syslog-logs.template
-/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic/logging.template
-/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic/remote-secure.template
-/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic/remote-syslog.template
-/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic/rootcheck.agent.template
-/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic/rootcheck.manager.template
-/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic/rules.template
-/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic/syscheck.agent.template
-/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic/syscheck.manager.template
-/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic/wodle-openscap.template
-/usr/share/wazuh-agent/scripts/tmp/gen_ossec.sh
-/usr/share/wazuh-agent/scripts/tmp/src/LOCATION
-/usr/share/wazuh-agent/scripts/tmp/src/REVISION
-/usr/share/wazuh-agent/scripts/tmp/src/VERSION
-/usr/share/wazuh-agent/scripts/tmp/src/init/adduser.sh
-/usr/share/wazuh-agent/scripts/tmp/src/init/darwin-addusers.pl
-/usr/share/wazuh-agent/scripts/tmp/src/init/darwin-init.sh
-/usr/share/wazuh-agent/scripts/tmp/src/init/dist-detect.sh
-/usr/share/wazuh-agent/scripts/tmp/src/init/functions.sh
-/usr/share/wazuh-agent/scripts/tmp/src/init/fw-check.sh
-/usr/share/wazuh-agent/scripts/tmp/src/init/init.sh
-/usr/share/wazuh-agent/scripts/tmp/src/init/inst-functions.sh
-/usr/share/wazuh-agent/scripts/tmp/src/init/language.sh
-/usr/share/wazuh-agent/scripts/tmp/src/init/ossec-client.sh
-/usr/share/wazuh-agent/scripts/tmp/src/init/ossec-hids-aix.init
-/usr/share/wazuh-agent/scripts/tmp/src/init/ossec-hids-debian.init
-/usr/share/wazuh-agent/scripts/tmp/src/init/ossec-hids-gentoo.init
-/usr/share/wazuh-agent/scripts/tmp/src/init/ossec-hids-hpux.init
-/usr/share/wazuh-agent/scripts/tmp/src/init/ossec-hids-rh.init
-/usr/share/wazuh-agent/scripts/tmp/src/init/ossec-hids-solaris.init
-/usr/share/wazuh-agent/scripts/tmp/src/init/ossec-hids-suse.init
-/usr/share/wazuh-agent/scripts/tmp/src/init/ossec-hids.init
-/usr/share/wazuh-agent/scripts/tmp/src/init/ossec-local.sh
-/usr/share/wazuh-agent/scripts/tmp/src/init/ossec-server.sh
-/usr/share/wazuh-agent/scripts/tmp/src/init/osx105-addusers.sh
-/usr/share/wazuh-agent/scripts/tmp/src/init/pkg_installer.sh
-/usr/share/wazuh-agent/scripts/tmp/src/init/replace_manager_ip.sh
-/usr/share/wazuh-agent/scripts/tmp/src/init/shared.sh
-/usr/share/wazuh-agent/scripts/tmp/src/init/template-select.sh
-/usr/share/wazuh-agent/scripts/tmp/src/init/update.sh
-/usr/share/wazuh-agent/scripts/tmp/src/init/wazuh/database.py
-/usr/share/wazuh-agent/scripts/tmp/src/init/wazuh/deprecated_ruleset.txt
-/usr/share/wazuh-agent/scripts/tmp/src/init/wazuh/upgrade.py
-/usr/share/wazuh-agent/scripts/tmp/src/init/wazuh/wazuh.sh
+/usr/share/wazuh-manager/scripts/tmp/add_localfiles.sh
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/generic/alerts.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/generic/ar-commands.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/generic/ar-definitions.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/generic/auth.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/generic/cluster.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/generic/global-ar.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/generic/global.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/generic/header-comments.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/generic/localfile-commands.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/generic/localfile-logs/apache-logs.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/generic/localfile-logs/audit-logs.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/generic/localfile-logs/ossec-logs.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/generic/localfile-logs/pgsql-logs.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/generic/localfile-logs/snort-logs.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/generic/localfile-logs/syslog-logs.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/generic/logging.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/generic/remote-secure.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/generic/remote-syslog.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/generic/rootcheck.agent.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/generic/rootcheck.manager.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/generic/rules.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/generic/syscheck.agent.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/generic/syscheck.manager.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/generic/wodle-openscap.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/generic/wodle-ciscat.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/centos/5/rootcheck.agent.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/centos/5/rootcheck.manager.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/centos/6/openscap.files
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/centos/6/rootcheck.agent.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/centos/6/rootcheck.manager.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/centos/6/wodle-openscap.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/centos/7/openscap.files
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/centos/7/rootcheck.agent.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/centos/7/rootcheck.manager.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/centos/7/wodle-openscap.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/fedora/24/openscap.files
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/fedora/24/wodle-openscap.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/rhel/5/rootcheck.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/rhel/6/openscap.files
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/rhel/6/rootcheck.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/rhel/6/wodle-openscap.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/rhel/7/openscap.files
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/rhel/7/rootcheck.template
+/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/rhel/7/wodle-openscap.template
+/usr/share/wazuh-manager/scripts/tmp/gen_ossec.sh
+/usr/share/wazuh-manager/scripts/tmp/src/LOCATION
+/usr/share/wazuh-manager/scripts/tmp/src/REVISION
+/usr/share/wazuh-manager/scripts/tmp/src/VERSION
+/usr/share/wazuh-manager/scripts/tmp/src/init/adduser.sh
+/usr/share/wazuh-manager/scripts/tmp/src/init/darwin-addusers.pl
+/usr/share/wazuh-manager/scripts/tmp/src/init/darwin-init.sh
+/usr/share/wazuh-manager/scripts/tmp/src/init/dist-detect.sh
+/usr/share/wazuh-manager/scripts/tmp/src/init/functions.sh
+/usr/share/wazuh-manager/scripts/tmp/src/init/fw-check.sh
+/usr/share/wazuh-manager/scripts/tmp/src/init/init.sh
+/usr/share/wazuh-manager/scripts/tmp/src/init/inst-functions.sh
+/usr/share/wazuh-manager/scripts/tmp/src/init/language.sh
+/usr/share/wazuh-manager/scripts/tmp/src/init/ossec-client.sh
+/usr/share/wazuh-manager/scripts/tmp/src/init/ossec-hids-aix.init
+/usr/share/wazuh-manager/scripts/tmp/src/init/ossec-hids-debian.init
+/usr/share/wazuh-manager/scripts/tmp/src/init/ossec-hids-gentoo.init
+/usr/share/wazuh-manager/scripts/tmp/src/init/ossec-hids-hpux.init
+/usr/share/wazuh-manager/scripts/tmp/src/init/ossec-hids-rh.init
+/usr/share/wazuh-manager/scripts/tmp/src/init/ossec-hids-solaris.init
+/usr/share/wazuh-manager/scripts/tmp/src/init/ossec-hids-suse.init
+/usr/share/wazuh-manager/scripts/tmp/src/init/ossec-hids.init
+/usr/share/wazuh-manager/scripts/tmp/src/init/ossec-local.sh
+/usr/share/wazuh-manager/scripts/tmp/src/init/ossec-server.sh
+/usr/share/wazuh-manager/scripts/tmp/src/init/osx105-addusers.sh
+/usr/share/wazuh-manager/scripts/tmp/src/init/pkg_installer.sh
+/usr/share/wazuh-manager/scripts/tmp/src/init/replace_manager_ip.sh
+/usr/share/wazuh-manager/scripts/tmp/src/init/shared.sh
+/usr/share/wazuh-manager/scripts/tmp/src/init/template-select.sh
+/usr/share/wazuh-manager/scripts/tmp/src/init/update.sh
+/usr/share/wazuh-manager/scripts/tmp/src/init/wazuh/database.py
+/usr/share/wazuh-manager/scripts/tmp/src/init/wazuh/deprecated_ruleset.txt
+/usr/share/wazuh-manager/scripts/tmp/src/init/wazuh/upgrade.py
+/usr/share/wazuh-manager/scripts/tmp/src/init/wazuh/wazuh.sh
 
 %changelog
+* Mon Dec 19 2017 support <support@wazuh.com> - 3.1.0
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Nov 06 2017 support <support@wazuh.com> - 3.0.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Tue Jun 06 2017 support <support@wazuh.com> - 2.0.1

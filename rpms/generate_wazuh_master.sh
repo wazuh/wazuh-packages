@@ -20,8 +20,8 @@
 #
 # CONFIGURATION VARIABLES
 #
-wazuh_version='3.0'
-wazuh_version_final='3.0.0'
+wazuh_version='3.1'
+wazuh_version_final='3.1.0'
 # Tag
 source_file="v${wazuh_version}.zip"
 # Branch
