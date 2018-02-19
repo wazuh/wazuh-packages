@@ -10,13 +10,13 @@ Wazuh is an Open Source Host-based Intrusion Detection System that performs log 
 
 These are the files used to create Wazuh debs and rpm packages, the ones in the Wazuh repository. You can find these packages at:
 
-[Wazuh](https://wazuh.com) or visiting our [documentation](http://documentation.wazuh.com)
+[Wazuh](https://wazuh.com) or visiting our [documentation](https://documentation.wazuh.com)
 
 There are three different packages that can be built with these files:
 
 * wazuh-manager: Package that includes the server.
 * wazuh-agent: Package that includes just the agent.
-* wazuh-api: Package that includes [RESTful API](http://documentation.wazuh.com/en/latest/ossec_api.html)
+* wazuh-api: Package that includes [RESTful API](https://documentation.wazuh.com/current/user-manual/api/index.html)
 
 
 References about rpms:
