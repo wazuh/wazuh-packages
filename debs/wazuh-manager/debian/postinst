@@ -190,6 +190,7 @@ case "$1" in
 
 	# More files
 	touch ${DIR}etc/client.keys
+    touch ${DIR}etc/shared/default/*
 
 
         # Delete old service
@@ -229,6 +230,18 @@ case "$1" in
 	if [ -d ${OSSEC_HIDS_TMP_DIR} ]; then
 	    rm -r ${OSSEC_HIDS_TMP_DIR}
 	fi
+
+    # Fix /etc/ossec-init.conf
+    chmod 640 /etc/ossec-init.conf
+    chown root:ossec /etc/ossec-init.conf
+
+    if [ -d /usr/share/wazuh-manager ]; then
+        rm -rf /usr/share/wazuh-manager
+    fi
+
+    if [ -d /usr/share/wazuh-agent ]; then
+        rm -rf /usr/share/wazuh-agent
+    fi
 
     ;;
 

@@ -44,6 +44,11 @@ case "$1" in
            fi
         fi
 
+        # Stop Authd if it is running
+        if ps aux | grep /var/ossec/bin/ossec-authd | grep -v grep; then
+           kill `ps -ef | grep '/var/ossec/bin/ossec-authd' | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
+        fi
+
         # Fix for forcing the stop of the api
         if ps aux | grep /var/ossec/api/app.js | grep -v grep; then
             kill -9 `ps -ef | grep '/var/ossec/api/app.js' | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
@@ -52,12 +57,15 @@ case "$1" in
         # cp -rp %{_localstatedir}/ossec/etc/shared %{_localstatedir}/ossec/backup/
 
 
-        if [ -f /var/ossec/etc/shared/default/merged.mg ]; then
-            rm -f  /var/ossec/etc/shared/default/merged.mg || true
-            rm -f  /var/ossec/etc/shared/default/ar.conf || true
+        if [ -f /var/ossec/etc/shared/merged.mg ]; then
+            cp -rp /var/ossec/etc/ossec.conf /var/ossec/etc/ossec.bck
             cp -rp /var/ossec/etc/shared /var/ossec/backup/
-            mkdir -p /var/ossec/etc/shared/default
-            cp -rp /var/ossec/backup/shared/* /var/ossec/etc/shared/default || true
+            if [ ! -d /var/ossec/etc/shared/default ]; then
+              mkdir  /var/ossec/etc/shared/default
+              cp -rp /var/ossec/backup/shared/* /var/ossec/etc/shared/default || true
+              rm -f  /var/ossec/etc/shared/default/merged.mg || true
+              rm -f  /var/ossec/etc/shared/default/ar.conf || true
+            fi
         fi
 
         # Delete old service
@@ -94,7 +102,7 @@ case "$1" in
 
     *)
         echo "preinst called with unknown argument \`$1'" >&2
-        exit 1
+        exit 0
 
     ;;
 

@@ -76,6 +76,15 @@ override_dh_install:
 	mkdir -p ${TARGET_DIR}/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/generic
 	cp -r etc/templates/config/generic/* ${TARGET_DIR}/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/generic
 
+	# Copying systemd file
+	mkdir -p ${TARGET_DIR}/etc/
+	mkdir -p ${TARGET_DIR}/etc/systemd/
+	mkdir -p ${TARGET_DIR}/etc/systemd/system/
+
+	cp src/systemd/wazuh-manager.service ${TARGET_DIR}/etc/systemd/system/
+
+
+
 override_dh_auto_clean:
 	$(MAKE) -C src clean
 

@@ -24,6 +24,8 @@ case "$1" in
 
     ;;
 
+
+
     remove)
 
 
@@ -48,6 +50,8 @@ case "$1" in
         if [ -d /var/ossec/api/configuration/auth/ ]; then
             rm -rf /var/ossec/api/configuration/auth/
         fi
+
+
     ;;
 
     failed-upgrade)

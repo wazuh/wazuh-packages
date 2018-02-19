@@ -20,8 +20,8 @@
 #
 # CONFIGURATION VARIABLES
 #
-wazuh_major='3.0'
-wazuh_version='3.0.0'
+wazuh_major='3.1'
+wazuh_version='3.1.0'
 source_file="$wazuh_major.zip"
 packages=(wazuh-api)
 

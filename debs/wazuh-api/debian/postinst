@@ -27,6 +27,9 @@ case "$1" in
         echo "======================================================================================================"
     fi
 
+    # touch /var/ossec/logs/api.log
+
+
     if [ -f /var/ossec/api/node_modules/htpasswd/bin/htpasswd ] && [ ! -x /var/ossec/api/configuration/auth/htpasswd ]; then
         ln -sf /var/ossec/api/node_modules/htpasswd/bin/htpasswd /var/ossec/api/configuration/auth/htpasswd
     fi
@@ -59,21 +62,25 @@ case "$1" in
 	    rm -r ${OSSEC_HIDS_TMP_DIR}
 	fi
         if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
-           systemctl restart wazuh-api.service > /dev/null 2>&1
+            systemctl daemon-reload > /dev/null 2>&1 
+            systemctl restart wazuh-api.service > /dev/null 2>&1
+    
         fi
         if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
            service wazuh-api restart > /dev/null 2>&1
         fi
-
     # Delete old api framework (new is included with wazuh-manager in /var/ossec/framework)
     if [ -d /var/ossec/api/framework ]; then
         rm -rf /var/ossec/api/framework
     fi
 
+    if [ -d /usr/share/wazuh-api ]; then
+        rm -rf /usr/share/wazuh-api
+    fi
+
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
-
     ;;
 
 

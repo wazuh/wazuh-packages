@@ -34,7 +34,7 @@ case "$1" in
 
     *)
         echo "prerm called with unknown argument \`$1'" >&2
-        exit 1
+        exit 0
     ;;
 
 esac

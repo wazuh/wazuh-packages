@@ -33,25 +33,28 @@ override_dh_auto_install:
 
 	# Installing api by its own script
 	./install_api.sh
-
+	
 	# Remove "fake" framework directory
 	rmdir /var/ossec/framework
-
- 	# REMOVE THIS when @mgmacias push the dev changes!!!!
-	rm -f /var/ossec/logs/cluster_debug_inotify.log
-	rm -f /var/ossec/logs/cluster_debug_socket.log
 
 	# Remove the httpaswd file
 	rm -f /var/ossec/api/configuration/auth/htpasswd
 
 	# Copying /var/ossec/api files to package target
 	mkdir -p ${TARGET_DIR}/var/ossec/
+	mkdir -p ${TARGET_DIR}/etc/
+	mkdir -p ${TARGET_DIR}/etc/systemd
+	mkdir -p ${TARGET_DIR}/etc/systemd/system
+
 	cp -r /var/ossec/* $(TARGET_DIR)/var/ossec/
+	sed -i "s:^ExecStart=.*:ExecStart=/usr/bin/nodejs /var/ossec/api/app.js:g" ./scripts/wazuh-api.service
+	cp ./scripts/wazuh-api.service $(TARGET_DIR)/etc/systemd/system
 
 	# Generating permission restoration file for postinstall
 	mkdir -p ${TARGET_DIR}/usr/share/wazuh-api/scripts/tmp/
 	# Generating permission restoration file for postinstall
 	./gen_permissions.sh "/var/ossec/api/ /var/ossec/logs/*" ${TARGET_DIR}/usr/share/wazuh-api/scripts/tmp/restore-permissions.sh
+
 
 override_dh_auto_clean:
 	# $(MAKE) clean

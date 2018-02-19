@@ -96,6 +96,14 @@ case "$1" in
         rm -r ${OSSEC_HIDS_TMP_DIR}
     fi
 
+    if [ -d /usr/share/wazuh-agent ]; then
+        rm -rf /usr/share/wazuh-agent
+    fi
+
+    # Fix /etc/ossec-init.conf
+    chmod 640 /etc/ossec-init.conf
+    chown root:ossec /etc/ossec-init.conf
+
     ;;
 
 
