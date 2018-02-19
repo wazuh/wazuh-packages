@@ -1,10 +1,10 @@
 Summary:     Wazuh RESTful API
 Name:        wazuh-api
-Version:     2.1.1
-Release:     1%{?dist}
+Version:     3.0.0
+Release:     1
 License:     GPL
 Group:       System Environment/Daemons
-Source0:     https://github.com/wazuh/API/archive/%{name}-%{version}.tar.gz
+Source0:     %{name}-%{version}.tar.gz
 Source1:     CHANGELOG
 URL:         http://www.wazuh.com/
 BuildRoot:   %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -16,7 +16,7 @@ Requires(preun):  /sbin/chkconfig /sbin/service
 Requires(postun): /sbin/service
 
 Requires: nodejs >= 4.6
-Requires: wazuh-manager >= 1.2
+Requires: wazuh-manager >= 3.0
 BuildRequires: gcc-c++ make nodejs >= 4.6
 ExclusiveOS: linux
 
@@ -27,12 +27,6 @@ from your own application or with a simple web browser or tools like cURL
 %prep
 %setup -q
 
-mkdir -pm 700 framework/lib
-LIB_PATH="framework/lib"
-SONAME="libsqlite3.so.0"
-SOURCE="framework/database/sqlite3.c"
-gcc -pipe -O2 -shared -fPIC -o $LIB_PATH/$SONAME $SOURCE
-
 npm install --production
 
 %install
@@ -42,26 +36,24 @@ rm -fr %{buildroot}
 mkdir -p ${RPM_BUILD_ROOT}%{_initrddir}
 #Folders
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/{configuration,controllers,examples,framework,helpers,models,scripts}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/{configuration,controllers,examples,helpers,models,scripts}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/configuration/{auth,ssl}
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/framework/{examples,lib,wazuh}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/node_modules
 #Files
 install -m 0400 package.json ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api
 install -m 0500 app.js ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api
 install -m 0500 configuration/config.js ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/configuration
+install -m 0500 configuration/preloaded_vars.conf ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/configuration
 install -m 0500 configuration/auth/user  ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/configuration/auth
 install -m 0500 controllers/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/controllers
 install -m 0500 examples/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/examples
-install -m 0500 framework/examples/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/framework/examples
-install -m 0500 framework/wazuh/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/framework/wazuh
 install -m 0500 helpers/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/helpers
 install -m 0500 models/*  ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/models
+install -m 0500 scripts/bump_version.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/scripts
 install -m 0500 scripts/configure_api.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/scripts
 install -m 0500 scripts/install_daemon.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/scripts
 install -m 0400 scripts/wazuh-api ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/scripts
 install -m 0400 scripts/wazuh-api.service  ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/scripts
-install -m 0400 framework/lib/libsqlite3.so.0 ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/framework/lib
 
 cp -r node_modules/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/node_modules/
 
@@ -100,14 +92,16 @@ fi
 
 if [ $1 = 1 ]; then
   /var/ossec/api/scripts/install_daemon.sh
+  echo "Don’t forget to secure the API configuration by running the script /var/ossec/api/scripts/configure_api.sh"
+fi
   touch /var/ossec/logs/api.log
   chmod 660 /var/ossec/logs/api.log
   chown root:ossec /var/ossec/logs/api.log
-  echo "Don't forget to run the configuration script after installation: /var/ossec/api/scripts/configure_api.sh"
-fi
+  chmod 740 /var/ossec/api/configuration/config.js
+  chown root:ossec /var/ossec/api/configuration/config.js
 ln -sf /var/ossec/api/node_modules/htpasswd/bin/htpasswd /var/ossec/api/configuration/auth/htpasswd
 
-#verify python version
+#veriy python version
 if python -V >/dev/null 2>&1; then
    python_version=$(python -c 'import sys; print(".".join(map(str, sys.version_info[:3])))' | cut -c1-3)
    if [ ! $python_version == '2.7' ]; then
@@ -149,36 +143,33 @@ rm -fr %{buildroot}
 %defattr(-,root,root)
 %doc CHANGELOG
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/api
-%attr(750,root,root) %config(noreplace) %dir %{_localstatedir}/ossec/api/configuration
+%attr(750,root,ossec) %config(noreplace) %dir %{_localstatedir}/ossec/api/configuration
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/api/controllers
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/api/examples
-%attr(750,root,ossec) %dir %{_localstatedir}/ossec/api/framework
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/api/helpers
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/api/models
 %attr(750,root,root) %dir %{_localstatedir}/ossec/api/scripts
 %attr(750,root,root) %config(noreplace) %dir %{_localstatedir}/ossec/api/configuration/auth
 %attr(750,root,root) %config(noreplace) %dir %{_localstatedir}/ossec/api/configuration/ssl
-%attr(750,root,ossec) %dir %{_localstatedir}/ossec/api/framework/examples
-%attr(750,root,ossec) %dir %{_localstatedir}/ossec/api/framework/wazuh
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/api/node_modules
-%attr(750,root,ossec) %{_localstatedir}/ossec/api/framework/lib
 
 %attr(640,root,ossec) %{_localstatedir}/ossec/api/package.json
 %attr(750,root,ossec) %{_localstatedir}/ossec/api/app.js
-%attr(750,root,root) %config(noreplace) %{_localstatedir}/ossec/api/configuration/config.js
+%attr(740,root,ossec) %config(noreplace) %{_localstatedir}/ossec/api/configuration/config.js
+%attr(750,root,root) %{_localstatedir}/ossec/api/configuration/preloaded_vars.conf
 %attr(750,root,root) %config(noreplace) %{_localstatedir}/ossec/api/configuration/auth/user
 %attr(750,root,ossec) %{_localstatedir}/ossec/api/controllers/*
 %attr(750,root,ossec) %{_localstatedir}/ossec/api/examples/*
-%attr(750,root,ossec) %{_localstatedir}/ossec/api/framework/examples/*
-%attr(750,root,ossec) %{_localstatedir}/ossec/api/framework/wazuh/*
-%attr(750,root,ossec) %{_localstatedir}/ossec/api/framework/lib/*
 %attr(750,root,ossec) %{_localstatedir}/ossec/api/helpers/*
 %attr(750,root,ossec) %{_localstatedir}/ossec/api/models/*
 %attr(750,root,root) %{_localstatedir}/ossec/api/scripts/*.sh
 %attr(640,root,root) %{_localstatedir}/ossec/api/scripts/wazuh-api
 %attr(640,root,root) %{_localstatedir}/ossec/api/scripts/wazuh-api.service
 %attr(750,ossec,ossec) %{_localstatedir}/ossec/api/node_modules/*
+
 %changelog
+* Mon Nov 07 2017 support <support@wazuh.com> - 3.0.0
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Fri May 26 2017 support <support@wazuh.com> - 2.0.1
 - Issue when basic-auth is disabled.
 - Regex for latest version in install_api.sh

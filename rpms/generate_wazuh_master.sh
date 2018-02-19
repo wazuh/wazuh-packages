@@ -20,25 +20,31 @@
 #
 # CONFIGURATION VARIABLES
 #
-
-ossec_version='2.0'
-source_file="master.zip"
+wazuh_version='3.0'
+wazuh_version_final='3.0.0'
+# Tag
+source_file="v${wazuh_version}.zip"
+# Branch
+# source_file="${wazuh_version}.zip"
 release='1'
-packages=(wazuh-agent)
-#packages=(wazuh-manager wazuh-agent)
+packages=(wazuh-manager wazuh-agent)
 
-codenames=(centos-6 centos-7 epel-6 epel-7 fedora-22 fedora-23 fedora-24 fedora-25)
-#codenames=(centos-6 centos-7 epel-6 epel-7 fedora-22 fedora-23 fedora-24 fedora-25)
-#architectures=(i386 x86_64)
+codenames=(centos-6)
 architectures=(i386 x86_64)
+
 # Setting up logfile
 scriptpath=$( cd $(dirname $0) ; pwd -P )
 logfile=$scriptpath/wazuh_packages.log
 
-szBaseDir=$(dirname "$0")
+
+szBaseDir=$( pwd -P )
 szRpmBaseDir=/home/centos/rpmbuild
 szRpmBuildDir=$szRpmBaseDir/SRPMS
-szYumRepoDir=$(dirname "$0")/yum
+szYumRepoDir=$szBaseDir/3.x/yum
+
+# GPG key
+signing_key='*********'
+signing_pass='*********'
 
 #
 # Function to write to LOG_FILE
@@ -71,23 +77,21 @@ contains_element() {
 show_help()
 {
   echo "
-  This tool can be used to generate OSSEC packages for Ubuntu and Debian.
+  This tool can be used to generate WAZUH packages for RPM.
 
   CONFIGURATION: The script is currently configured with the following variables:
     * Packages: ${packages[*]}.
     * Distributions: ${codenames[*]}.
     * Architectures: ${architectures[*]}.
-    * OSSEC version: ${ossec_version}.
+    * WAZUH version: ${wazuh_version}.
     * Source file: ${source_file}.
     * Signing key: ${signing_key}.
-
+    * Release: ${release}
   USAGE: Command line arguments available:
     -h | --help     Displays this help.
     -d | --download Downloads source file and prepares source directories.
-    -b | --build    Builds deb packages.
-    -sd | --sync_devel Synchronizes with the DEVEL repository.
-    -sp | --sync_prod  Synchronizes with the PROD repository   
-
+    -b | --build   Builds rpm packages.
+    -a | --all     Download and Build packages.
   "
 }
 
@@ -99,8 +103,8 @@ download_source()
 {
 
   # Downloading file
-  if wget -O $scriptpath/${source_file} -U ossec https://github.com/wazuh/wazuh/archive/master.zip; then
-    echo "Successfully downloaded source file ${source_file} from ossec.net" | write_log
+  if wget -O $scriptpath/${source_file} -U ossec https://github.com/wazuh/wazuh/archive/${source_file} ; then
+    echo "Successfully downloaded source file ${source_file} from GitHub" | write_log
   else
     echo "Error: File ${source_file} was could not be downloaded" | write_log
     exit 1
@@ -115,39 +119,51 @@ download_source()
     sleep 10
   fi
   unzip ${scriptpath}/${source_file}
-  tmp_directory="wazuh-master"
+  tmp_directory="wazuh-$wazuh_version"
   if [ ! -d ${scriptpath}/${tmp_directory} ]; then
-    echo "Error: Couldn't find uncompressed directory, named ${tmp_directory}" | write_log
-    exit 1
+    # Try to remove leading v
+    if [ ${wazuh_version:0:1} = "v" ]
+    then
+        tmp_directory="wazuh-${wazuh_version:1}"
+
+        if [ ! -d ${scriptpath}/${tmp_directory} ]
+        then
+          echo "Error: Couldn't find uncompressed directory, named ${tmp_directory}" | write_log
+          exit 1
+        fi
+    else
+      echo "Error: Couldn't find uncompressed directory, named ${tmp_directory}" | write_log
+      exit 1
+    fi
   fi
-  
+
   # Organizing directories structure
   for package in ${packages[*]}
   do
-    echo ${scriptpath}/rpmbuild/SOURCES/$package-$ossec_version".tar.gz"
-    if [ -f ${scriptpath}/rpmbuild/SOURCES/$package-$ossec_version".tar.gz" ]; then
-      echo " + Deleting previous source directory ${scriptpath}/RMPBUILD/SOURCES/$package-$ossec_version".tar.gz"" | write_log
-      sudo rm -rf ${scriptpath}/rpmbuild/SOURCES/$package-$ossec_version".tar.gz"
+    echo ${scriptpath}/rpmbuild/SOURCES/$package-$wazuh_version".tar.gz"
+    if [ -f ${scriptpath}/rpmbuild/SOURCES/$package-$wazuh_version".tar.gz" ]; then
+      echo " + Deleting previous source directory ${scriptpath}/RMPBUILD/SOURCES/$package-$wazuh_version".tar.gz"" | write_log
+      sudo rm -rf ${scriptpath}/rpmbuild/SOURCES/$package-$wazuh_version".tar.gz"
     fi
-  cp -rp ${scriptpath}/${tmp_directory} ${scriptpath}/$package-$ossec_version
-  cd ${scriptpath} 
-  tar czvf ${scriptpath}/rpmbuild/SOURCES/$package-$ossec_version".tar.gz" $package-$ossec_version/*
+  cp -rp ${scriptpath}/${tmp_directory} ${scriptpath}/$package-$wazuh_version_final
+  cd ${scriptpath}
+  tar czvf ${scriptpath}/rpmbuild/SOURCES/$package-$wazuh_version_final".tar.gz" $package-$wazuh_version_final/*
   cd ..
-  rm -rf $scriptpath/$package-$ossec_version
+  rm -rf $scriptpath/$package-$wazuh_version
   done
-  rm -rf $scriptpath/master.zip 
+  rm -rf $scriptpath/${source_file}
   rm -rf $scriptpath/${tmp_directory}
 
-  echo "The packages directories for ${packages[*]} version ${ossec_version} have been successfully prepared." | write_log
+  echo "The packages directories for ${packages[*]} version ${wazuh_version} have been successfully prepared." | write_log
 
 # Create SRCM packages
 
   for package in ${packages[*]}
   do
-     if rpmbuild -ba ${scriptpath}/rpmbuild/SPECS/$package-$ossec_version.spec ; then
-        echo " + Successfully built SRCM package $package-$ossec_version" | write_log
+     if rpmbuild -ba ${scriptpath}/rpmbuild/SPECS/$package-$wazuh_version_final.spec ; then
+        echo " + Successfully built SRCM package $package-$wazuh_version" | write_log
       else
-        echo "Error: Could not build package $package-$ossec_version" | write_log
+        echo "aaError: Could not build package $package-$wazuh_version" | write_log
         exit 1
       fi
   done
@@ -158,66 +174,35 @@ download_source()
 #
 build_packages()
 {
-  for package in ${packages[@]}
-  do
-    for codename in ${codenames[@]}
+    for package in ${packages[@]}
     do
-      for arch in ${architectures[@]}
-      do
+        for codename in ${codenames[@]}
+        do
+            for arch in ${architectures[@]}
+            do
                 if [[ $codename == 'centos-7' && $arch == 'i386' ]] || [[ $codename == 'epel-7' && $arch == 'i386' ]]; then
-                        echo "+ $release doesn't have i386" | write_log
+                    echo "+ $release doesn't have i386" | write_log
                 else
-                 if mock -r $codename-$arch rebuild $szRpmBuildDir/$package-$ossec_version-$release".el7.centos.src.rpm" --resultdir=$szYumRepoDir/"%(dist)s"/"%(target_arch)s"/ ; then
-                     echo " + Successfully built package $package-$ossec_version $codename-$arch" | write_log
-                  else
-                     echo "Error: Could not build package $package-$ossec_version $codename-$arch" | write_log
-                     exit 1
-                  fi
-                  find $szYumRepoDir -name *.log -exec rm  {} \;
-                  find $szYumRepoDir -name *debuginfo* -exec rm  {} \;
-                  find $szYumRepoDir -name *src* -exec rm  {} \;
+                if mock -r $codename-$arch rebuild $szRpmBuildDir/$package-$wazuh_version_final-$release".src.rpm" --resultdir=$szYumRepoDir/ ; then
+                    echo " + Successfully built package $package-$wazuh_version $codename-$arch-$release" | write_log
+                else
+                    echo "Error: Could not build package $package-$wazuh_version $codename-$arch-$release" | write_log
+                    exit 1
                 fi
+                find $szYumRepoDir -name *.log -exec rm  {} \;
+                find $szYumRepoDir -name *debuginfo* -exec rm  {} \;
+                find $szYumRepoDir -name *src* -exec rm  {} \;
+                fi
+            done
+            sudo rm -rf /var/cache/mock/*
         done
-        sudo rm -rf /var/cache/mock/*
     done
-  done
 
-#sign packages
-cd $szYumRepoDir
-
-for createrepo in rhel/6Server/i386 rhel/6Server/x86_64 rhel/7Server/x86_64 el/6/i386 el/6/x86_64 el/7/x86_64 fc/22/x86_64 fc/23/i686 fc/23/x86_64 fc/24/i686 fc/24/x86_64 fc/25/i686 fc/25/x86_64; do
-        cp $scriptpath/GPG/rpmmacros-wazuh $scriptpath/.rpmmacros
-        ../sign_rpm_wazuh.sh $createrepo/*.rpm
-        createrepo --deltas "$scriptpath/yum/$createrepo"
-done
-
-
-for createrepo in rhel/5Server/i386 rhel/5Server/x86_64 el/5/i386 el/5/x86_64; do
-        cp ../GPG/rpmmacros-rhel5 ../.rpmmacros
-        ../sign_rpm.sh $createrepo/*.rpm
-       createrepo -v -s sha1 "$createrepo"
-done
+    # SIGN YOUR RPMs HERE
+    # Create repo metadata
+    createrepo --deltas $szYumRepoDir
 }
 
-#update repository
-sync_repository_devel()
-{
-  if s3cmd -P sync ${scriptpath}/yum/ s3://packages.wazuh.com/yumtest/ --delete-removed --follow-symlinks ; then
-    echo " + Updated DEVEL repository" | write_log
-  else
-    echo "Error: Could not sync DEVEL repository" | write_log
-    exit 1
-  fi
-}
-sync_repository_prod()
-{
-  if s3cmd -P sync ${scriptpath}/yum/ s3://packages.wazuh.com/yum/ --delete-removed --follow-symlinks ; then
-     echo " + Updated PROD repository" | write_log
-  else
-    echo "Error: Could not sync PROD repository" | write_log
-    exit 1
-  fi
-}
 
 if [ $# -eq 0 ]; then
   show_help
@@ -247,12 +232,9 @@ case $key in
     build_packages
     shift
     ;;
-  -sp|--sync_prod)
-    sync_repository_prod
-    shift
-    ;;
-  -sd|--sync_devel)
-    sync_repository_devel
+  -a|--all)
+    download_source
+    build_packages
     shift
     ;;
   *)
