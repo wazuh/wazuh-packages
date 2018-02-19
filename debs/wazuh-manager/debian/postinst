@@ -106,6 +106,7 @@ case "$1" in
 
     # Remove existing SQLite databases
     rm -f ${DIR}var/db/global.db* || true
+    rm -f ${DIR}var/db/cluster.db* || true
     rm -f ${DIR}var/db/.profile.db* || true
     rm -f ${DIR}var/db/agents/* || true
 
@@ -132,7 +133,6 @@ case "$1" in
     if [ -f "${DIR}ossec/etc/shared/agent.conf" ]; then
         mv "${DIR}ossec/etc/shared/agent.conf" "${DIR}ossec/etc/shared/default/agent.conf "
     fi
-
 
 	# For the etc dir
 	if [ -f /etc/localtime ]; then
@@ -192,6 +192,9 @@ case "$1" in
 	touch ${DIR}etc/client.keys
     touch ${DIR}etc/shared/default/*
 
+    chmod 770 /var/ossec/etc/lists
+    chmod 770 /var/ossec/etc/lists/amazon
+    chmod 660 /var/ossec/etc/lists/amazon/*
 
         # Delete old service
         if [ -e /etc/init.d/ossec ]; then
@@ -217,7 +220,13 @@ case "$1" in
 
         # Service
       	if [ -x /etc/init.d/wazuh-manager ]; then
+            if [ -d /run/systemd/system ]; then
+              systemctl daemon-reload
+              systemctl enable wazuh-manager > /dev/null 2>&1
+            fi
+
             update-rc.d wazuh-manager defaults > /dev/null 2>&1
+
             if ${DIR}bin/ossec-logtest -t 2>/dev/null ; then
               service wazuh-manager restart
             else

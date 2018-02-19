@@ -35,6 +35,9 @@ case "$1" in
     fi
 
 	if [ -x /etc/init.d/wazuh-api ]; then
+        if [ -d /run/systemd/system ]; then
+          systemctl enable wazuh-api > /dev/null 2>&1
+        fi
         update-rc.d wazuh-api defaults > /dev/null 2>&1
 	fi
 
@@ -62,9 +65,9 @@ case "$1" in
 	    rm -r ${OSSEC_HIDS_TMP_DIR}
 	fi
         if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
-            systemctl daemon-reload > /dev/null 2>&1 
+            systemctl daemon-reload > /dev/null 2>&1
             systemctl restart wazuh-api.service > /dev/null 2>&1
-    
+
         fi
         if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
            service wazuh-api restart > /dev/null 2>&1

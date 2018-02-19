@@ -21,8 +21,8 @@
 # CONFIGURATION VARIABLES
 #
 
-wazuh_major='3.1'
-wazuh_version='3.1.0'
+wazuh_major='3.2'
+wazuh_version='3.2.0'
 # source_file="${wazuh_major}.zip"
 source_file="v${wazuh_version}.zip"
 

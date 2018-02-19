@@ -80,6 +80,9 @@ case "$1" in
 
     # Service
     if [ -f /etc/init.d/wazuh-agent ]; then
+        if [ -d /run/systemd/system ]; then
+          systemctl enable wazuh-agent > /dev/null 2>&1
+        fi
         update-rc.d wazuh-agent defaults > /dev/null 2>&1
     fi
     if cat ${DIR}etc/ossec.conf | grep -o -P '(?<=<server-ip>).*(?=</server-ip>)' | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' > /dev/null 2>&1; then

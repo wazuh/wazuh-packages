@@ -14,7 +14,7 @@ fi
 
 case "$1" in
     install|upgrade)
-
+    
         if [ -z "$2" ]
         then
             if [ -f ${DIR}/etc/ossec.conf ]; then

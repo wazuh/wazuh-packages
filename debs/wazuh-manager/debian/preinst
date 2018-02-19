@@ -94,6 +94,10 @@ case "$1" in
             cp -p ${DIR}/etc/ossec.conf ${OSSEC_HIDS_TMP_DIR}/ossec.conf
         fi
 
+        if [ -d ${DIR}/var/db/agents ]; then
+          rm -f ${DIR}/var/db/agents/*
+        fi
+
     ;;
 
     abort-upgrade)
