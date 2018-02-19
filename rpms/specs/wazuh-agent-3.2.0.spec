@@ -1,6 +1,6 @@
-Summary:     The Wazuh Agent
+Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-agent
-Version:     3.1.0
+Version:     3.2.0
 Release:     1
 License:     GPL
 Group:       System Environment/Daemons
@@ -41,17 +41,20 @@ echo "Vendor is %_vendor"
 ./gen_ossec.sh init agent  > ossec-init.conf
 
 pushd src
-
 # Rebuild for agent
 make clean
-make -j5 TARGET=agent
+
+%if 0%{?rhel} >= 6
+    make -j5 TARGET=server
+%else
+    make -j5 TARGET=server DISABLE_SYSC=yes
+%endif
 
 popd
 
 %install
 # Clean BUILDROOT
 rm -fr %{buildroot}
-
 
 mkdir -p ${RPM_BUILD_ROOT}%{_initrddir}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/backup
@@ -71,7 +74,7 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/lua
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/lua/compiled
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/lua/native
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/ciscat
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/aws
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/vuls
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/vuls/go
@@ -90,7 +93,10 @@ install -m 0640 src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src
 install -m 0640 src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src
 install -m 0640 add_localfiles.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp
 
-# Oscap files
+# AWS wodle
+install -m 0750 wodles/aws/aws.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/aws
+
+# Open Scap files
 install -m 0750 wodles/oscap/oscap.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap
 install -m 0750 wodles/oscap/template_oval.xsl ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap
 install -m 0750 wodles/oscap/template_xccdf.xsl ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap
@@ -101,9 +107,6 @@ install -m 0640 wodles/oscap/content/cve-redhat-6-ds.xml ${RPM_BUILD_ROOT}%{_loc
 install -m 0640 wodles/oscap/content/ssg-rhel-6-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 install -m 0640 wodles/oscap/content/ssg-centos-6-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 install -m 0640 wodles/oscap/content/ssg-fedora-24-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
-
-# Ciscat files
-install -m 0750 wodles/ciscat/template_xccdf.xsl ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/ciscat
 
 # Vuls files
 install -m 0750 wodles/vuls/deploy_vuls.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/vuls
@@ -151,8 +154,6 @@ cp -r src/init/*  ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/src/init
 mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic
 cp -r etc/templates/config/generic/* ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic
 
-
-
 # Copy scap templates
 mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/centos
 cp -r  etc/templates/config/centos/* ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/centos
@@ -174,7 +175,6 @@ if ! id -u ossec > /dev/null 2>&1; then
         -d %{_localstatedir}/ossec \
         -r -s /sbin/nologin ossec
 fi
-
 
 # Delete old service
 if [ -f /etc/init.d/ossec ]; then
@@ -207,14 +207,11 @@ if [ $1 = 1 ]; then
   chown ossec:ossec %{_localstatedir}/ossec/logs/active-responses.log
   chmod 0660 %{_localstatedir}/ossec/logs/active-responses.log
 
-
   # Generating osse.conf file
   . /usr/share/wazuh-agent/scripts/tmp/src/init/dist-detect.sh
   /usr/share/wazuh-agent/scripts/tmp/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} > %{_localstatedir}/ossec/etc/ossec.conf
   chown root:ossec %{_localstatedir}/ossec/etc/ossec.conf
   chmod 0640 %{_localstatedir}/ossec/etc/ossec.conf
-
-
 
   # Add default local_files to ossec.conf
   %{_localstatedir}/ossec/tmp/add_localfiles.sh >>  %{_localstatedir}/ossec/etc/ossec.conf
@@ -225,6 +222,16 @@ if [ $1 = 1 ]; then
   /sbin/chkconfig --add wazuh-agent
   /sbin/chkconfig wazuh-agent on
 
+fi
+
+if [ ! -d /run/systemd/system ]; then
+  update-rc.d wazuh-agent defaults > /dev/null 2>&1
+fi
+
+if [ -d /run/systemd/system ]; then
+  systemctl daemon-reload
+  systemctl stop wazuh-agent
+  systemctl enable wazuh-agent > /dev/null 2>&1
 fi
 
 touch %{_localstatedir}/ossec/logs/ossec.json
@@ -262,7 +269,6 @@ fi
 if [ $1 = 0 ]; then
 
   /sbin/service wazuh-agent stop || :
-
   /sbin/chkconfig wazuh-agent off
   /sbin/chkconfig --del wazuh-agent
 
@@ -286,7 +292,7 @@ rm -fr %{buildroot}
 %attr(750,root,root) %dir %{_localstatedir}/ossec/lua/compiled
 %attr(750,root,root) %dir %{_localstatedir}/ossec/lua/native
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/wodles
-%attr(750,root,ossec) %dir %{_localstatedir}/ossec/wodles/ciscat
+%attr(750,root,ossec) %dir %{_localstatedir}/ossec/wodles/aws
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/wodles/vuls
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/wodles/vuls/go
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/wodles/oscap
@@ -322,7 +328,7 @@ rm -fr %{buildroot}
 %attr(640,root,ossec) %{_localstatedir}/ossec/etc/ossec.conf
 %attr(660,root,ossec) %config %{_localstatedir}/ossec/etc/shared/*
 %attr(1750,root,ossec) %dir %{_localstatedir}/ossec/tmp
-%attr(750,root,ossec) %{_localstatedir}/ossec/wodles/ciscat/*
+%attr(750,root,ossec) %{_localstatedir}/ossec/wodles/aws/*
 %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/vuls/*
 %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap/oscap.py
 %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap/template*
@@ -361,10 +367,13 @@ rm -fr %{buildroot}
 /usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic/wodle-ciscat.template
 /usr/share/wazuh-agent/scripts/tmp/etc/templates/config/centos/5/rootcheck.agent.template
 /usr/share/wazuh-agent/scripts/tmp/etc/templates/config/centos/5/rootcheck.manager.template
+/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/centos/5/wodle-syscollector.template
 /usr/share/wazuh-agent/scripts/tmp/etc/templates/config/centos/6/openscap.files
 /usr/share/wazuh-agent/scripts/tmp/etc/templates/config/centos/6/rootcheck.agent.template
 /usr/share/wazuh-agent/scripts/tmp/etc/templates/config/centos/6/rootcheck.manager.template
 /usr/share/wazuh-agent/scripts/tmp/etc/templates/config/centos/6/wodle-openscap.template
+/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic/wodle-syscollector.template
+/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic/wodle-vulnerability-detector.manager.template
 /usr/share/wazuh-agent/scripts/tmp/etc/templates/config/centos/7/openscap.files
 /usr/share/wazuh-agent/scripts/tmp/etc/templates/config/centos/7/rootcheck.agent.template
 /usr/share/wazuh-agent/scripts/tmp/etc/templates/config/centos/7/rootcheck.manager.template
@@ -414,8 +423,9 @@ rm -fr %{buildroot}
 /usr/share/wazuh-agent/scripts/tmp/src/init/wazuh/upgrade.py
 /usr/share/wazuh-agent/scripts/tmp/src/init/wazuh/wazuh.sh
 
-
 %changelog
+* Wed Feb 07 2018 support <support@wazuh.com> - 3.2.0
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Thu Dec 21 2017 support <support@wazuh.com> - 3.1.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Nov 06 2017 support <support@wazuh.com> - 3.0.0
