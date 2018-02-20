@@ -45,9 +45,9 @@ pushd src
 make clean
 
 %if 0%{?rhel} >= 6
-    make -j5 TARGET=server
+    make -j5 TARGET=agent
 %else
-    make -j5 TARGET=server DISABLE_SYSC=yes
+    make -j5 TARGET=agent DISABLE_SYSC=yes
 %endif
 
 popd
