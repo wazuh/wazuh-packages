@@ -23,6 +23,7 @@ case "$1" in
       rm -rf /var/ossec/logs/*
       rm -rf /var/ossec/queue/*
       rm -rf /var/ossec/var/*
+      rm -rf /var/ossec/framework/*
 
     ;;
 

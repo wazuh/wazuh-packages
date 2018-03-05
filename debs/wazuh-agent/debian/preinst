@@ -14,7 +14,7 @@ fi
 
 case "$1" in
     install|upgrade)
-    
+
         if [ -z "$2" ]
         then
             if [ -f ${DIR}/etc/ossec.conf ]; then
@@ -42,6 +42,14 @@ case "$1" in
             cp -p ${DIR}/etc/ossec.conf ${OSSEC_HIDS_TMP_DIR}/ossec.conf
         fi
 
+        if [ -d ${DIR}etc/shared ]; then
+            files="$(ls -A ${DIR}etc/shared/*)"
+        fi
+
+        if [ ! -z "$files" ]; then
+            mkdir ${OSSEC_HIDS_TMP_DIR}/group
+            cp -rp ${DIR}etc/shared/* ${OSSEC_HIDS_TMP_DIR}/group/
+        fi
     ;;
 
     abort-upgrade)
@@ -57,3 +65,4 @@ case "$1" in
 esac
 
 exit 0
+

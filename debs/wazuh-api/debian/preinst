@@ -27,8 +27,7 @@ case "$1" in
           fi
 
           cp -rLfp ${API_PATH} ${API_PATH_BACKUP}
-          # chown root:root ${API_PATH_BACKUP}
-
+          
           API_OLD_VERSION=`cat ${API_PATH_BACKUP}\/package.json | grep "version\":" | grep -P "\d+(?:\.\d+){0,2}" -o`
           if [ "X${API_OLD_VERSION}" = "X1.3.0" ]; then
               rm -rf ${API_PATH}/configuration

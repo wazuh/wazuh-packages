@@ -22,9 +22,9 @@ case "$1" in
 	fi
 
     if [ -z "$2" ]; then
-        echo "======================================================================================================"
-        echo "= Don’t forget to secure the API configuration by running the script /var/ossec/api/scripts/configure_api.sh  ="
-        echo "======================================================================================================"
+        echo "=============================================================================================================="
+        echo "= Don’t forget to secure the API configuration by running the script /var/ossec/api/scripts/configure_api.sh ="
+        echo "=============================================================================================================="
     fi
 
     # touch /var/ossec/logs/api.log

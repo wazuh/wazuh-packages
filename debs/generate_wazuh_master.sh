@@ -22,7 +22,7 @@
 #
 
 wazuh_major='3.2'
-wazuh_version='3.2.0'
+wazuh_version='3.2.1'
 # source_file="${wazuh_major}.zip"
 source_file="v${wazuh_version}.zip"
 
@@ -467,12 +467,6 @@ case $key in
     build_packages
     sync_repository_dev
     exit 0
-    shift
-    ;;
-  -ad|--all_dev)
-    download_source
-    build_packages
-    sync_repository_dev
     shift
     ;;
   *)

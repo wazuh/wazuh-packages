@@ -29,7 +29,11 @@ case "$1" in
       rm -f /etc/logrotate.d/wazuh-hids
     fi
 
-	  update-rc.d -f wazuh-manager remove
+    if [ -f /etc/ossec-init.conf ]; then
+        rm -f /etc/ossec-init.conf
+    fi
+
+	update-rc.d -f wazuh-manager remove
 
     ;;
 

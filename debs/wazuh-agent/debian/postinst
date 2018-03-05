@@ -78,6 +78,14 @@ case "$1" in
         fi
     fi
 
+    # Restore group files
+    if [ -d ${OSSEC_HIDS_TMP_DIR}/group ]; then
+        rm -rf ${DIR}etc/shared/*
+        mv ${OSSEC_HIDS_TMP_DIR}/group/* ${DIR}etc/shared
+        chmod 660 /var/ossec/etc/shared/*
+        chown root:ossec /var/ossec/etc/shared/*
+    fi
+
     # Service
     if [ -f /etc/init.d/wazuh-agent ]; then
         if [ -d /run/systemd/system ]; then
@@ -96,7 +104,7 @@ case "$1" in
     fi
     # Delete tmp directory
     if [ -d ${OSSEC_HIDS_TMP_DIR} ]; then
-        rm -r ${OSSEC_HIDS_TMP_DIR}
+        rm -rr ${OSSEC_HIDS_TMP_DIR}
     fi
 
     if [ -d /usr/share/wazuh-agent ]; then
@@ -123,3 +131,4 @@ case "$1" in
 esac
 
 exit 0
+
