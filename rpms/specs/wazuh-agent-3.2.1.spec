@@ -1,6 +1,6 @@
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-agent
-Version:     3.2.0
+Version:     3.2.1
 Release:     1
 License:     GPL
 Group:       System Environment/Daemons
@@ -18,11 +18,15 @@ Requires(postun): /sbin/service
 Conflicts:   ossec-hids ossec-hids-agent wazuh-manager wazuh-local
 AutoReqProv: no
 
-
+Requires: which
 BuildRequires: coreutils glibc-devel
 
-%if 0%{!?el6}
-BuildRequires: inotify-tools-devel
+%if 0%{?fc25}
+BuildRequires: perl
+%endif
+
+%if 0%{?el5}
+BuildRequires: perl
 %endif
 
 ExclusiveOS: linux
@@ -44,7 +48,7 @@ pushd src
 # Rebuild for agent
 make clean
 
-%if 0%{?rhel} >= 6
+%if 0%{?el} >= 6 || 0%{?rhel} >= 6
     make -j5 TARGET=agent
 %else
     make -j5 TARGET=agent DISABLE_SYSC=yes
@@ -196,6 +200,12 @@ fi
 %post
 
 if [ $1 = 1 ]; then
+  if [ -f /etc/os-release ]; then
+    sles=$(grep "\"sles" /etc/os-release)
+    if [ ! -z "$sles" ]; then
+      install -m 755 /usr/share/wazuh-agent/scripts/tmp/src/init/ossec-hids-suse.init /etc/rc.d/wazuh-agent
+    fi
+  fi
   touch %{_localstatedir}/ossec/etc/client.keys
   chown root:ossec %{_localstatedir}/ossec/etc/client.keys
   chmod 0640 %{_localstatedir}/ossec/etc/client.keys
@@ -324,9 +334,9 @@ rm -fr %{buildroot}
 %{_initrddir}/*
 %attr(640,root,ossec) %{_localstatedir}/ossec/etc/internal_options*
 %attr(640,root,ossec) %{_localstatedir}/ossec/etc/wpk_root.pem
-%attr(640,root,ossec) %config(noreplace)%{_localstatedir}/ossec/etc/local_internal_options.conf
+%attr(640,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/local_internal_options.conf
 %attr(640,root,ossec) %{_localstatedir}/ossec/etc/ossec.conf
-%attr(660,root,ossec) %config %{_localstatedir}/ossec/etc/shared/*
+%attr(660,root,ossec) %config(missingok,noreplace) %{_localstatedir}/ossec/etc/shared/*
 %attr(1750,root,ossec) %dir %{_localstatedir}/ossec/tmp
 %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/aws/*
 %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/vuls/*
@@ -424,6 +434,8 @@ rm -fr %{buildroot}
 /usr/share/wazuh-agent/scripts/tmp/src/init/wazuh/wazuh.sh
 
 %changelog
+* Wed Feb 21 2018 support <support@wazuh.com> - 3.2.1
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Wed Feb 07 2018 support <support@wazuh.com> - 3.2.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Thu Dec 21 2017 support <support@wazuh.com> - 3.1.0

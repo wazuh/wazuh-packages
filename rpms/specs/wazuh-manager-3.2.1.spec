@@ -1,6 +1,6 @@
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-manager
-Version:     3.2.0
+Version:     3.2.1
 Release:     1
 License:     GPL
 Group:       System Environment/Daemons
@@ -18,15 +18,17 @@ Requires(postun): /sbin/service /usr/sbin/groupdel /usr/sbin/userdel
 Conflicts:   ossec-hids ossec-hids-agent wazuh-agent wazuh-local
 AutoReqProv: no
 
+Requires: which
 BuildRequires: coreutils glibc-devel
 
 %if 0%{?fc25}
 BuildRequires: perl
 %endif
 
-%if 0%{!?el6}
-BuildRequires: inotify-tools-devel
+%if 0%{?el5}
+BuildRequires: perl
 %endif
+
 
 ExclusiveOS: linux
 
@@ -45,19 +47,11 @@ pushd src
 # Rebuild for server
 make clean
 
-%if 0%{?rhel} >= 6
+%if 0%{?el} >= 6 || 0%{?rhel} >= 6
     make -j5 TARGET=server
 %else
     make -j5 TARGET=server DISABLE_SYSC=yes
 %endif
-
-popd
-
-pushd framework
-
-make clean
-
-make
 
 popd
 
@@ -662,6 +656,8 @@ rm -fr %{buildroot}
 /usr/share/wazuh-manager/scripts/tmp/src/init/wazuh/wazuh.sh
 
 %changelog
+* Wed Feb 21 2018 support <support@wazuh.com> - 3.2.1
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Wed Feb 07 2018 support <support@wazuh.com> - 3.2.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Dec 19 2017 support <support@wazuh.com> - 3.1.0

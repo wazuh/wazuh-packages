@@ -22,7 +22,7 @@
 #
 
 wazuh_major='3.2'
-wazuh_version='3.2.0'
+wazuh_version='3.2.1'
 # Tag
 # source_file="v${wazuh_version}.zip"
 # Branch
