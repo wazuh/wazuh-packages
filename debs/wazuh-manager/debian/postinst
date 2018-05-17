@@ -6,21 +6,21 @@ case "$1" in
     configure)
 
     OS=$(lsb_release -si)
-	VER=$(lsb_release -sr)
-	DIR="/var/ossec/"
-	USER="ossec"
-	USER_MAIL="ossecm"
-	USER_REM="ossecr"
-	GROUP="ossec"
-	OSSEC_HIDS_TMP_DIR="/tmp/wazuh-manager"
-	OSMYSHELL="/sbin/nologin"
+    VER=$(lsb_release -sr)
+    DIR="/var/ossec/"
+    USER="ossec"
+    USER_MAIL="ossecm"
+    USER_REM="ossecr"
+    GROUP="ossec"
+    OSSEC_HIDS_TMP_DIR="/tmp/wazuh-manager"
+    OSMYSHELL="/sbin/nologin"
     SCRIPTS_DIR="/usr/share/wazuh-manager/scripts/tmp"
 
     if [ ! -f ${OSMYSHELL} ]; then
-	    if [ -f "/bin/false" ]; then
-	        OSMYSHELL="/bin/false"
-	    fi
-	fi
+            if [ -f "/bin/false" ]; then
+                OSMYSHELL="/bin/false"
+            fi
+        fi
 
     if ! getent group | grep -q "^ossec" ; then
         addgroup --system ossec  > /dev/null 2>&1
@@ -134,28 +134,28 @@ case "$1" in
         mv "${DIR}ossec/etc/shared/agent.conf" "${DIR}ossec/etc/shared/default/agent.conf "
     fi
 
-	# For the etc dir
-	if [ -f /etc/localtime ]; then
-	    cp -pL /etc/localtime ${DIR}etc/;
-	    chmod 640 ${DIR}etc/localtime
-	    chown root:${GROUP} ${DIR}etc/localtime
-	fi
+        # For the etc dir
+        if [ -f /etc/localtime ]; then
+            cp -pL /etc/localtime ${DIR}etc/;
+            chmod 640 ${DIR}etc/localtime
+            chown root:${GROUP} ${DIR}etc/localtime
+        fi
 
-	if [ -f /etc/TIMEZONE ]; then
-	    cp -p /etc/TIMEZONE ${DIR}etc/;
-	    chmod 640 ${DIR}etc/TIMEZONE
+        if [ -f /etc/TIMEZONE ]; then
+            cp -p /etc/TIMEZONE ${DIR}etc/;
+            chmod 640 ${DIR}etc/TIMEZONE
         chown root:${GROUP} ${DIR}etc/localtime
-	fi
+        fi
 
     if [ -d "${DIR}etc/backup_ruleset" ]; then
         chmod 750 -R ${DIR}etc/backup_ruleset
         chown root:${GROUP} ${DIR}etc/backup_ruleset
     fi
 
-	# For the /var/run and global-db
+        # For the /var/run and global-db
         chmod -R 770 ${DIR}var
         chmod 750 ${DIR}var
-	    chown -R root:${GROUP} ${DIR}var
+            chown -R root:${GROUP} ${DIR}var
         chmod 770 ${DIR}var/db > /dev/null 2>&1 || true
         chmod -R 660 ${DIR}var/db/* > /dev/null 2>&1 || true
         chmod 660 ${DIR}var/db/.profile.db > /dev/null 2>&1 || true
@@ -188,8 +188,21 @@ case "$1" in
             service wazuh-api start > /dev/null 2>&1 || true
         fi
 
-	# More files
-	touch ${DIR}etc/client.keys
+        # Restore group files
+        if [ -d ${OSSEC_HIDS_TMP_DIR}/group ]; then
+            rm -rf ${DIR}etc/shared/*
+            mv ${OSSEC_HIDS_TMP_DIR}/group/* ${DIR}etc/shared
+            find ${DIR}etc/shared -maxdepth 1 -type f \( -name "*.txt" \) -exec mv {} ${DIR}etc/shared/default \;
+            find ${DIR}etc/shared -type f \( -name "merged.mg" \) -exec rm {} \;
+            chmod -R 660 ${DIR}etc/shared/*
+            chown -R ossec:ossec ${DIR}etc/shared/*
+            chmod 770 ${DIR}etc/shared/*
+            chmod 640 ${DIR}etc/shared/ar.conf
+	        chown -R root:ossec ${DIR}etc/shared/ar.conf  ${DIR}etc/shared/default
+        fi
+
+        # More files
+        touch ${DIR}etc/client.keys
     touch ${DIR}etc/shared/default/*
 
     chmod 770 /var/ossec/etc/lists
@@ -219,7 +232,7 @@ case "$1" in
         fi
 
         # Service
-      	if [ -x /etc/init.d/wazuh-manager ]; then
+        if [ -x /etc/init.d/wazuh-manager ]; then
             if [ -d /run/systemd/system ]; then
               systemctl daemon-reload
               systemctl enable wazuh-manager > /dev/null 2>&1
@@ -234,11 +247,11 @@ case "$1" in
               echo "Something in your actual rules configuration is wrong, please review your configuration and restart the service."
               echo "================================================================================================================"
             fi
-      	fi
-	# Delete tmp directory
-	if [ -d ${OSSEC_HIDS_TMP_DIR} ]; then
-	    rm -r ${OSSEC_HIDS_TMP_DIR}
-	fi
+        fi
+        # Delete tmp directory
+        if [ -d ${OSSEC_HIDS_TMP_DIR} ]; then
+            rm -r ${OSSEC_HIDS_TMP_DIR}
+        fi
 
     # Fix /etc/ossec-init.conf
     chmod 640 /etc/ossec-init.conf

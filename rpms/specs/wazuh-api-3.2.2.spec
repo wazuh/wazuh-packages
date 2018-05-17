@@ -1,6 +1,6 @@
 Summary:     Wazuh API is an open source RESTful API to interact with Wazuh from your own application or with a simple web browser or tools like cURL
 Name:        wazuh-api
-Version:     3.2.1
+Version:     3.2.2
 Release:     1
 License:     GPL
 Group:       System Environment/Daemons
@@ -16,7 +16,7 @@ Requires(preun):  /sbin/chkconfig /sbin/service
 Requires(postun): /sbin/service
 
 Requires: nodejs >= 4.6
-Requires: wazuh-manager >= 3.2.1
+Requires: wazuh-manager >= 3.2.2, wazuh-manager < 3.3.0
 BuildRequires: nodejs >= 4.6
 ExclusiveOS: linux
 
@@ -44,7 +44,7 @@ install -m 0400 package.json ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api
 install -m 0500 app.js ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api
 install -m 0500 configuration/config.js ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/configuration
 install -m 0500 configuration/preloaded_vars.conf ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/configuration
-install -m 0500 configuration/auth/user  ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/configuration/auth
+install -m 0660 configuration/auth/user  ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/configuration/auth
 install -m 0500 controllers/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/controllers
 install -m 0500 examples/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/examples
 install -m 0500 helpers/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/helpers
@@ -91,15 +91,15 @@ fi
 %post
 
 if [ $1 = 1 ]; then
-  /var/ossec/api/scripts/install_daemon.sh
-  echo "Don’t forget to secure the API configuration by running the script /var/ossec/api/scripts/configure_api.sh"
+  %{_localstatedir}/ossec/api/scripts/install_daemon.sh
+  echo "Don’t forget to secure the API configuration by running the script %{_localstatedir}/ossec/api/scripts/configure_api.sh"
 fi
-  touch /var/ossec/logs/api.log
-  chmod 660 /var/ossec/logs/api.log
-  chown root:ossec /var/ossec/logs/api.log
-  chmod 740 /var/ossec/api/configuration/config.js
-  chown root:ossec /var/ossec/api/configuration/config.js
-ln -sf /var/ossec/api/node_modules/htpasswd/bin/htpasswd /var/ossec/api/configuration/auth/htpasswd
+  touch %{_localstatedir}/ossec/logs/api.log
+  chmod 660 %{_localstatedir}/ossec/logs/api.log
+  chown root:ossec %{_localstatedir}/ossec/logs/api.log
+  chmod 740 %{_localstatedir}/ossec/api/configuration/config.js
+  chown root:ossec %{_localstatedir}/ossec/api/configuration/config.js
+ln -sf %{_localstatedir}/ossec/api/node_modules/htpasswd/bin/htpasswd %{_localstatedir}/ossec/api/configuration/auth/htpasswd
 
 #veriy python version
 if python -V >/dev/null 2>&1; then
@@ -157,7 +157,7 @@ rm -fr %{buildroot}
 %attr(750,root,ossec) %{_localstatedir}/ossec/api/app.js
 %attr(740,root,ossec) %config(noreplace) %{_localstatedir}/ossec/api/configuration/config.js
 %attr(750,root,root) %{_localstatedir}/ossec/api/configuration/preloaded_vars.conf
-%attr(750,root,root) %config(noreplace) %{_localstatedir}/ossec/api/configuration/auth/user
+%attr(660,root,root) %config(noreplace) %{_localstatedir}/ossec/api/configuration/auth/user
 %attr(750,root,ossec) %{_localstatedir}/ossec/api/controllers/*
 %attr(750,root,ossec) %{_localstatedir}/ossec/api/examples/*
 %attr(750,root,ossec) %{_localstatedir}/ossec/api/helpers/*
@@ -168,11 +168,13 @@ rm -fr %{buildroot}
 %attr(750,ossec,ossec) %{_localstatedir}/ossec/api/node_modules/*
 
 %changelog
+* Mon Apr 09 2018 support <support@wazuh.com> - 3.2.2
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Wed Feb 21 2018 support <support@wazuh.com> - 3.2.1
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Wed Feb 07 2018 support <support@wazuh.com> - 3.2.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Mon Dec 19 2017 support <support@wazuh.com> - 3.1.0
+* Tue Dec 19 2017 support <support@wazuh.com> - 3.1.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Nov 07 2017 support <support@wazuh.com> - 3.0.0
 - More info: https://documentation.wazuh.com/current/release-notes/

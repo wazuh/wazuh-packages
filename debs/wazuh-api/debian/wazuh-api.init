@@ -37,9 +37,7 @@ start() {
 
     start-stop-daemon --start --quiet --make-pidfile --pidfile $PID_PATH --background --exec $BIN_DIR -- $APP_PATH
 
-    if [ "$?" = "0" ]; then
-      echo $! > $PID_PATH
-    else
+    if [ "$?" != "0" ]; then
       echo "Start error"
       exit 1
     fi

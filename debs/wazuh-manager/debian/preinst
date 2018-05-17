@@ -56,7 +56,6 @@ case "$1" in
 
         # cp -rp %{_localstatedir}/ossec/etc/shared %{_localstatedir}/ossec/backup/
 
-
         if [ -f /var/ossec/etc/shared/merged.mg ]; then
             cp -rp /var/ossec/etc/ossec.conf /var/ossec/etc/ossec.bck
             cp -rp /var/ossec/etc/shared /var/ossec/backup/
@@ -97,7 +96,16 @@ case "$1" in
         if [ -d ${DIR}/var/db/agents ]; then
           rm -f ${DIR}/var/db/agents/*
         fi
+        if [ -d ${DIR}etc/shared ]; then
+            files="$(ls -A ${DIR}etc/shared/*)"
+        fi
 
+        if [ ! -z "$files" ]; then
+            mkdir ${OSSEC_HIDS_TMP_DIR}/group
+            cp -rp ${DIR}etc/shared/* ${OSSEC_HIDS_TMP_DIR}/group/
+            chmod 770 ${DIR}etc/shared/
+            chmod 640 ${DIR}etc/shared/ar.conf
+        fi
     ;;
 
     abort-upgrade)

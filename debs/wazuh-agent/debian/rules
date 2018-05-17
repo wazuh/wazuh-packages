@@ -38,6 +38,7 @@ override_dh_install:
 	USER_ENABLE_SYSCHECK="y" \
 	USER_ENABLE_ROOTCHECK="y" \
 	USER_ENABLE_OPENSCAP="y" \
+	USER_ENABLE_CISCAT="y" \
 	USER_UPDATE="n" \
 	USER_AGENT_SERVER_IP="MANAGER_IP" \
 	USER_CA_STORE="/path/to/my_cert.pem" \
@@ -81,7 +82,7 @@ override_dh_install:
 	mkdir -p ${TARGET_DIR}/etc/systemd/
 	mkdir -p ${TARGET_DIR}/etc/systemd/system/
 
-	cp src/systemd/wazuh-manager.service ${TARGET_DIR}/etc/systemd/system/
+	cp src/systemd/wazuh-agent.service ${TARGET_DIR}/etc/systemd/system/
 
 override_dh_auto_clean:
 	$(MAKE) -C src clean
