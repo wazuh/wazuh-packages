@@ -1,3 +1,9 @@
+wazuh-agent (3.2.4) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <support@wazuh.com>  Wed, 30 May 2018 12:44:31 +0000
+
 wazuh-agent (3.2.3) stable; urgency=low
 
   * More info: https://documentation.wazuh.com/current/release-notes/

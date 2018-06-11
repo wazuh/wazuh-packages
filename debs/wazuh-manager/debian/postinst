@@ -130,8 +130,8 @@ case "$1" in
     fi
 
     # Move existing agent.conf to new target
-    if [ -f "${DIR}ossec/etc/shared/agent.conf" ]; then
-        mv "${DIR}ossec/etc/shared/agent.conf" "${DIR}ossec/etc/shared/default/agent.conf "
+    if [ -f "${DIR}etc/shared/agent.conf" ]; then
+        mv "${DIR}etc/shared/agent.conf" "${DIR}etc/shared/default/agent.conf "
     fi
 
     # For the etc dir
@@ -154,7 +154,7 @@ case "$1" in
 
     # "Restore the old cluster.json"
     if [ -f "${WAZUH_TMP_DIR}/cluster.json" ]; then
-        mv "${WAZUH_TMP_DIR}/cluster.json" "${DIR}/ossec/framework/wazuh/cluster/cluster.json.old"
+        mv "${WAZUH_TMP_DIR}/cluster.json" "${DIR}/framework/wazuh/cluster/cluster.json.old"
     fi
 
     # For the /var/run and global-db
@@ -202,11 +202,11 @@ case "$1" in
 
     # More files
     touch ${DIR}etc/client.keys
-    touch ${DIR}etc/shared/default/*
 
     chmod 770 /var/ossec/etc/lists
     chmod 770 /var/ossec/etc/lists/amazon
     chmod 660 /var/ossec/etc/lists/amazon/*
+    chmod 770 ${DIR}/etc/shared/default
 
     chown -R ossec:ossec ${DIR}etc/client.keys
     chown -R ossec:ossec ${DIR}etc/lists/*

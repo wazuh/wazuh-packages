@@ -1,6 +1,6 @@
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-manager
-Version:     3.2.3
+Version:     3.2.4
 Release:     1
 License:     GPL
 Group:       System Environment/Daemons
@@ -607,6 +607,8 @@ rm -fr %{buildroot}
 /usr/share/wazuh-manager/scripts/tmp/*
 
 %changelog
+* Wed May 30 2018 support <support@wazuh.com> - 3.2.4
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Thu May 10 2018 support <support@wazuh.com> - 3.2.3
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Apr 09 2018 support <support@wazuh.com> - 3.2.2
