@@ -1,6 +1,6 @@
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-manager
-Version:     3.2.2
+Version:     3.2.3
 Release:     1
 License:     GPL
 Group:       System Environment/Daemons
@@ -68,10 +68,11 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/{decoders,lists,rules,shar
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/lists/amazon
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/shared/default
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/{lib,wazuh}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/wazuh/cluster
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/integrations
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/logs/{alerts,archives,firewall,ossec,vuls}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/lua/{compiled,native}
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/queue/{agent-groups,agent-info,agentless,agents,alerts,db,diff,fts,ossec,rids,rootcheck,syscheck}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/queue/{agent-groups,agent-info,agentless,agents,alerts,cluster,db,diff,fts,ossec,rids,rootcheck,syscheck}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/{decoders,rules}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/.ssh
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/stats
@@ -152,9 +153,9 @@ install -m 0640 etc/local_rules.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc
 install -m 0640 etc/agent.conf ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/shared/default
 install -m 0660 src/rootcheck/db/*.txt ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/shared/default
 install -m 0640 framework/wazuh/*.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/wazuh
+install -m 0640 framework/wazuh/cluster/*.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/wazuh/cluster
+install -m 0640 framework/wazuh/cluster/cluster.json ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/wazuh/cluster
 install -m 0660 framework/libsqlite3.so.0 ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/lib
-install -m 0660 framework/wazuh-clusterd-internal ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-install -m 0640 framework/wazuh/cluster.json ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/wazuh/cluster.json
 
 install -m 0640 etc/rules/*xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/rules
 install -m 0640 etc/decoders/*.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/decoders
@@ -266,6 +267,18 @@ rm -f %{_localstatedir}/ossec/var/db/cluster.db* || true
 rm -f %{_localstatedir}/ossec/var/db/.profile.db* || true
 rm -f %{_localstatedir}/ossec/var/db/agents/* || true
 
+# Back up the cluster.json >= 3.2.3
+if [ -d %{_localstatedir}/ossec/framework ]; then
+    if [ -f %{_localstatedir}/ossec/framework/wazuh/cluster/cluster.json ]; then
+        cp %{_localstatedir}/ossec/framework/wazuh/cluster/cluster.json %{_localstatedir}/tmp/cluster.json
+        rm -f %{_localstatedir}/ossec/framework/wazuh/cluster/cluster.json
+    fi
+fi
+
+# Backup /etc/shared/default/agent.conf file
+if [ -f %{_localstatedir}/ossec/etc/shared/default/agent.conf ]; then
+  cp -p %{_localstatedir}/ossec/etc/shared/default/agent.conf /tmp/agent.conf
+fi
 
 # Delete old service
 if [ -f /etc/init.d/ossec ]; then
@@ -293,8 +306,6 @@ fi
 %post
 
 if [ $1 = 1 ]; then
-
-
   # Generating osse.conf file
   . /usr/share/wazuh-manager/scripts/tmp/src/init/dist-detect.sh
   /usr/share/wazuh-manager/scripts/tmp/gen_ossec.sh conf manager ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir}/ossec > %{_localstatedir}/ossec/etc/ossec.conf
@@ -359,7 +370,6 @@ if [ $1 = 1 ]; then
     fi
   fi
 
-
   touch %{_localstatedir}/ossec/logs/ossec.log
   touch %{_localstatedir}/ossec/logs/integrations.log
   touch %{_localstatedir}/ossec/logs/active-responses.log
@@ -368,7 +378,7 @@ if [ $1 = 1 ]; then
   chown ossec:ossec %{_localstatedir}/ossec/logs/ossec.log
   chown ossecm:ossec %{_localstatedir}/ossec/logs/integrations.log
   chown ossec:ossec %{_localstatedir}/ossec/logs/active-responses.log
-  chown root:ossec %{_localstatedir}/ossec/etc/client.keys
+  chown ossec:ossec %{_localstatedir}/ossec/etc/client.keys
 
   chmod 0660 %{_localstatedir}/ossec/logs/ossec.log
   chmod 0640 %{_localstatedir}/ossec/logs/integrations.log
@@ -382,19 +392,34 @@ if [ $1 = 1 ]; then
 
 fi
 
-  # Generation auto-signed certificate if not exists
-  if type openssl >/dev/null 2>&1 && [ ! -f "%{_localstatedir}/ossec/etc/sslmanager.key" ] && [ ! -f "%{_localstatedir}/ossec/etc/sslmanager.cert" ]; then
-      echo "Generating self-signed certificate for ossec-authd"
-      openssl req -x509 -batch -nodes -days 365 -newkey rsa:2048 -subj "/C=US/ST=California/CN=Wazuh/" -keyout %{_localstatedir}/ossec/etc/sslmanager.key -out %{_localstatedir}/ossec/etc/sslmanager.cert
-      chmod 640 %{_localstatedir}/ossec/etc/sslmanager.key
-      chmod 640 %{_localstatedir}/ossec/etc/sslmanager.cert
-  fi
+# "Restore the old cluster.json"
+if [ -f %{_localstatedir}/tmp/cluster.json ]; then
+    mv %{_localstatedir}/tmp/cluster.json %{_localstatedir}/ossec/framework/wazuh/cluster/cluster.json.old
+    chown root:ossec %{_localstatedir}/ossec/framework/wazuh/cluster/cluster.json.old
+    chmod 640 %{_localstatedir}/ossec/framework/wazuh/cluster/cluster.json.old
+fi
 
-  if [ -f "%{_localstatedir}/ossec/etc/shared/agent.conf" ]; then
-    mv "%{_localstatedir}/ossec/etc/shared/agent.conf" "%{_localstatedir}/ossec/etc/shared/default/agent.conf"
-    chmod 0660 %{_localstatedir}/ossec/etc/shared/default/agent.conf
-    chown root:ossec %{_localstatedir}/ossec/etc/shared/default/agent.conf
-  fi
+# Restore the agent.conf
+if [ -f /tmp/agent.conf ]; then
+  cp -rp /tmp/agent.conf %{_localstatedir}/ossec/etc/shared/default/agent.conf
+  rm /tmp/agent.conf
+  chown ossec:ossec %{_localstatedir}/ossec/etc/shared/default/agent.conf
+  chmod 660 %{_localstatedir}/ossec/etc/shared/default/agent.conf
+fi
+
+if [ -f "%{_localstatedir}/ossec/etc/shared/agent.conf" ]; then
+mv "%{_localstatedir}/ossec/etc/shared/agent.conf" "%{_localstatedir}/ossec/etc/shared/default/agent.conf"
+chmod 0660 %{_localstatedir}/ossec/etc/shared/default/agent.conf
+chown ossec:ossec %{_localstatedir}/ossec/etc/shared/default/agent.conf
+fi
+
+# Generation auto-signed certificate if not exists
+if type openssl >/dev/null 2>&1 && [ ! -f "%{_localstatedir}/ossec/etc/sslmanager.key" ] && [ ! -f "%{_localstatedir}/ossec/etc/sslmanager.cert" ]; then
+  echo "Generating self-signed certificate for ossec-authd"
+  openssl req -x509 -batch -nodes -days 365 -newkey rsa:2048 -subj "/C=US/ST=California/CN=Wazuh/" -keyout %{_localstatedir}/ossec/etc/sslmanager.key -out %{_localstatedir}/ossec/etc/sslmanager.cert
+  chmod 640 %{_localstatedir}/ossec/etc/sslmanager.key
+  chmod 640 %{_localstatedir}/ossec/etc/sslmanager.cert
+fi
 
 rm %{_localstatedir}/ossec/etc/shared/ar.conf  >/dev/null 2>&1 || true
 rm %{_localstatedir}/ossec/etc/shared/merged.mg  >/dev/null 2>&1 || true
@@ -403,15 +428,16 @@ touch %{_localstatedir}/ossec/logs/ossec.json
 chown ossec:ossec %{_localstatedir}/ossec/logs/ossec.json
 chmod 0660 %{_localstatedir}/ossec/logs/ossec.json
 
-touch %{_localstatedir}/ossec/logs/cluster.log
-chown ossec:ossec %{_localstatedir}/ossec/logs/cluster.log
-chmod 0660 %{_localstatedir}/ossec/logs/cluster.log
+if [ -f %{_localstatedir}/ossec/logs/cluster.log ]; then
+    chown ossec:ossec %{_localstatedir}/ossec/logs/cluster.log
+    chmod 0660 %{_localstatedir}/ossec/logs/cluster.log
+fi
 
-chown root:ossec %{_localstatedir}/ossec/framework/wazuh/cluster.json
-# Temporal fix for cluster.json permissions
-chmod 640 %{_localstatedir}/ossec/framework/wazuh/cluster.json
-
-
+chown -R ossec:ossec %{_localstatedir}/ossec/etc/client.keys
+chown -R ossec:ossec %{_localstatedir}/ossec/etc/lists/*
+chown -R ossec:ossec %{_localstatedir}/ossec/etc/decoders/*
+chown -R ossec:ossec %{_localstatedir}/ossec/etc/rules/*
+chown -R ossec:ossec %{_localstatedir}/ossec/etc/shared/*
 
 rm -f %{_localstatedir}/ossec/tmp/add_localfiles.sh
 rm -rf %{_localstatedir}/ossec/tmp/src
@@ -430,8 +456,6 @@ fi
 # Agent info change between 2.1.1 and 3.0.0
 chmod 0660 %{_localstatedir}/ossec/queue/agent-info/* 2>/dev/null || true
 chown ossecr:ossec %{_localstatedir}/ossec/queue/agent-info/* 2>/dev/null || true
-
-touch %{_localstatedir}/ossec/etc/shared/default/*
 
 # If systemd is installed, add the wazuh-manager.service file to systemd files directory
 if [ -d /run/systemd/system ]; then
@@ -493,14 +517,15 @@ rm -fr %{buildroot}
 %attr(770,ossec,ossec) %dir %{_localstatedir}/ossec/etc
 %attr(770,root,ossec) %dir %{_localstatedir}/ossec/etc/decoders
 %attr(770,root,ossec) %dir %{_localstatedir}/ossec/etc/lists
-%attr(770,root,ossec) %dir %{_localstatedir}/ossec/etc/lists/amazon
+%attr(770,ossec,ossec) %dir %{_localstatedir}/ossec/etc/lists/amazon
 %attr(770,root,ossec) %dir %{_localstatedir}/ossec/etc/shared
-%attr(770,root,ossec) %dir %{_localstatedir}/ossec/etc/shared/default
+%attr(770,ossec,ossec) %dir %{_localstatedir}/ossec/etc/shared/default
 %attr(770,root,ossec) %dir %{_localstatedir}/ossec/etc/rootcheck
 %attr(770,root,ossec) %dir %{_localstatedir}/ossec/etc/rules
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/framework
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/framework/lib
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/framework/wazuh
+%attr(750,root,ossec) %dir %{_localstatedir}/ossec/framework/wazuh/cluster
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/integrations
 %attr(770,ossec,ossec) %dir %{_localstatedir}/ossec/logs
 %attr(750,ossec,ossec) %dir %{_localstatedir}/ossec/logs/archives
@@ -517,6 +542,7 @@ rm -fr %{buildroot}
 %attr(750,ossec,ossec) %dir %{_localstatedir}/ossec/queue/agentless
 %attr(750,ossec,ossec) %dir %{_localstatedir}/ossec/queue/agents
 %attr(770,ossec,ossec) %dir %{_localstatedir}/ossec/queue/alerts
+%attr(770,ossec,ossec) %dir %{_localstatedir}/ossec/queue/cluster
 %attr(750,ossec,ossec) %dir %{_localstatedir}/ossec/queue/db
 %attr(750,ossec,ossec) %dir %{_localstatedir}/ossec/queue/fts
 %attr(770,ossecr,ossec) %dir %{_localstatedir}/ossec/queue/rids
@@ -544,24 +570,24 @@ rm -fr %{buildroot}
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/wodles/oscap/content
 
 %attr(640,root,ossec) %{_localstatedir}/ossec/framework/lib/*
-%attr(640,root,ossec) %{_localstatedir}/ossec/framework/wazuh/*
+%attr(640,root,ossec) %{_localstatedir}/ossec/framework/wazuh/*.py
+%attr(640,root,ossec) %{_localstatedir}/ossec/framework/wazuh/cluster/*
 %attr(750,root,ossec) %{_localstatedir}/ossec/integrations/*
 %attr(750,root,root) %{_localstatedir}/ossec/bin/*
 %attr(750,root,ossec) %{_localstatedir}/ossec/bin/agent_groups
 %attr(750,root,ossec) %{_localstatedir}/ossec/bin/agent_upgrade
 %attr(750,root,ossec) %{_localstatedir}/ossec/bin/cluster_control
-%attr(750,root,ossec) %{_localstatedir}/ossec/bin/wazuh-clusterd-internal
 %attr(750,root,ossec) %{_localstatedir}/ossec/bin/wazuh-clusterd
 %{_initrddir}/*
 %attr(750,root,ossec) %{_localstatedir}/ossec/active-response/bin/*
 %attr(640,root,ossec) %{_localstatedir}/ossec/etc/ossec.conf
-%attr(640,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/decoders/local_decoder.xml
+%attr(640,ossec,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/decoders/local_decoder.xml
 %attr(640,root,ossec) %{_localstatedir}/ossec/etc/internal_options*
 %attr(640,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/local_internal_options.conf
-%attr(640,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/rules/local_rules.xml
-%attr(660,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/shared/default/*
-%attr(640,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/audit-*
-%attr(660,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/amazon/*
+%attr(640,ossec,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/rules/local_rules.xml
+%attr(660,ossec,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/shared/default/*
+%attr(640,ossec,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/audit-*
+%attr(660,ossec,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/amazon/*
 %attr(660,root,ossec) %{_localstatedir}/ossec/etc/rootcheck/*.txt
 %attr(640,root,ossec) %{_localstatedir}/ossec/ruleset/VERSION
 %attr(640,root,ossec) %{_localstatedir}/ossec/ruleset/rules/*
@@ -581,6 +607,8 @@ rm -fr %{buildroot}
 /usr/share/wazuh-manager/scripts/tmp/*
 
 %changelog
+* Thu May 10 2018 support <support@wazuh.com> - 3.2.3
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Apr 09 2018 support <support@wazuh.com> - 3.2.2
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Wed Feb 21 2018 support <support@wazuh.com> - 3.2.1

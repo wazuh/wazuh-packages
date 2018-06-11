@@ -1,6 +1,6 @@
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-agent
-Version:     3.2.2
+Version:     3.2.3
 Release:     1
 License:     GPL
 Group:       System Environment/Daemons
@@ -261,6 +261,8 @@ rm -rf %{_localstatedir}/ossec/tmp/src
 rm -f %{_localstatedir}/ossec/tmp/add_localfiles.sh
 ln -sf %{_sysconfdir}/ossec-init.conf %{_localstatedir}/ossec/etc/ossec-init.conf
 
+chown root:ossec %{_localstatedir}/ossec/etc/shared/*
+
 if [ $1 = 2 ]; then
   if [ -f %{_localstatedir}/ossec/etc/ossec.bck ]; then
       mv %{_localstatedir}/ossec/etc/ossec.bck %{_localstatedir}/ossec/etc/ossec.conf
@@ -358,6 +360,8 @@ rm -fr %{buildroot}
 
 
 %changelog
+* Thu May 10 2018 support <support@wazuh.com> - 3.2.3
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Apr 09 2018 support <support@wazuh.com> - 3.2.2
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Wed Feb 21 2018 support <support@wazuh.com> - 3.2.1

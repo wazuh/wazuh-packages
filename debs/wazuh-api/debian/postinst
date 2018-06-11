@@ -9,7 +9,7 @@ case "$1" in
 
     OS=$(lsb_release -si)
 	DIR="/var/ossec/api"
-	OSSEC_HIDS_TMP_DIR="/tmp/wazuh-api"
+	WAZUH_TMP_DIR="/tmp/wazuh-api"
     USER="ossec"
     GROUP="ossec"
 	OSMYSHELL="/sbin/nologin"
@@ -42,9 +42,9 @@ case "$1" in
 	fi
 
     # Restore local_decoders.xml configuration
-    if [ -d ${OSSEC_HIDS_TMP_DIR}/configuration ]; then
-        cp ${DIR}/configuration/config.js ${OSSEC_HIDS_TMP_DIR}/configuration/config.js.debnew
-        cp -rp ${OSSEC_HIDS_TMP_DIR}/configuration ${DIR}/
+    if [ -d ${WAZUH_TMP_DIR}/configuration ]; then
+        cp ${DIR}/configuration/config.js ${WAZUH_TMP_DIR}/configuration/config.js.debnew
+        cp -rp ${WAZUH_TMP_DIR}/configuration ${DIR}/
     fi
 
     # Restore /var/ossec permissions
@@ -61,8 +61,8 @@ case "$1" in
     fi
 
     # Delete tmp directory
-	if [ -d ${OSSEC_HIDS_TMP_DIR} ]; then
-	    rm -r ${OSSEC_HIDS_TMP_DIR}
+	if [ -d ${WAZUH_TMP_DIR} ]; then
+	    rm -r ${WAZUH_TMP_DIR}
 	fi
         if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
             systemctl daemon-reload > /dev/null 2>&1

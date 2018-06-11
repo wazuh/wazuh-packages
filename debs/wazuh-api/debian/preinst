@@ -6,12 +6,12 @@
 set -e
 
 # configuration variables
-OSSEC_HIDS_TMP_DIR="/tmp/wazuh-api"
+WAZUH_TMP_DIR="/tmp/wazuh-api"
 DIR="/var/ossec/"
 
 # environment configuration
-if [ ! -d ${OSSEC_HIDS_TMP_DIR} ]; then
-  mkdir ${OSSEC_HIDS_TMP_DIR}
+if [ ! -d ${WAZUH_TMP_DIR} ]; then
+  mkdir ${WAZUH_TMP_DIR}
 fi
 
 case "$1" in
@@ -27,7 +27,7 @@ case "$1" in
           fi
 
           cp -rLfp ${API_PATH} ${API_PATH_BACKUP}
-          
+
           API_OLD_VERSION=`cat ${API_PATH_BACKUP}\/package.json | grep "version\":" | grep -P "\d+(?:\.\d+){0,2}" -o`
           if [ "X${API_OLD_VERSION}" = "X1.3.0" ]; then
               rm -rf ${API_PATH}/configuration
@@ -39,7 +39,7 @@ case "$1" in
       fi
     fi
     if [ -d ${DIR}/api/configuration ]; then
-        cp -rp ${DIR}/api/configuration ${OSSEC_HIDS_TMP_DIR}/
+        cp -rp ${DIR}/api/configuration ${WAZUH_TMP_DIR}/
     fi
     ;;
 

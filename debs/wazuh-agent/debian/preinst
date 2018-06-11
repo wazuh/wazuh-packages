@@ -4,12 +4,12 @@
 set -e
 
 # configuration variables
-OSSEC_HIDS_TMP_DIR="/tmp/wazuh-agent"
+WAZUH_TMP_DIR="/tmp/wazuh-agent"
 DIR="/var/ossec/"
 
 # environment configuration
-if [ ! -d ${OSSEC_HIDS_TMP_DIR} ]; then
-  mkdir ${OSSEC_HIDS_TMP_DIR}
+if [ ! -d ${WAZUH_TMP_DIR} ]; then
+  mkdir ${WAZUH_TMP_DIR}
 fi
 
 case "$1" in
@@ -33,13 +33,13 @@ case "$1" in
         fi
         # back up the current user rules
         if [ -f ${DIR}/etc/client.keys ]; then
-            cp ${DIR}/etc/client.keys ${OSSEC_HIDS_TMP_DIR}/client.keys
+            cp ${DIR}/etc/client.keys ${WAZUH_TMP_DIR}/client.keys
         fi
         if [ -f ${DIR}/etc/local_internal_options.conf ]; then
-            cp -p ${DIR}/etc/local_internal_options.conf ${OSSEC_HIDS_TMP_DIR}/local_internal_options.conf
+            cp -p ${DIR}/etc/local_internal_options.conf ${WAZUH_TMP_DIR}/local_internal_options.conf
         fi
         if [ -f ${DIR}/etc/ossec.conf ]; then
-            cp -p ${DIR}/etc/ossec.conf ${OSSEC_HIDS_TMP_DIR}/ossec.conf
+            cp -p ${DIR}/etc/ossec.conf ${WAZUH_TMP_DIR}/ossec.conf
         fi
 
         if [ -d ${DIR}etc/shared ]; then
@@ -47,8 +47,8 @@ case "$1" in
         fi
 
         if [ ! -z "$files" ]; then
-            mkdir ${OSSEC_HIDS_TMP_DIR}/group
-            cp -rp ${DIR}etc/shared/* ${OSSEC_HIDS_TMP_DIR}/group/
+            mkdir ${WAZUH_TMP_DIR}/group
+            cp -rp ${DIR}etc/shared/* ${WAZUH_TMP_DIR}/group/
         fi
     ;;
 
@@ -65,4 +65,3 @@ case "$1" in
 esac
 
 exit 0
-

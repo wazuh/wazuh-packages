@@ -12,7 +12,7 @@ case "$1" in
     DIR="/var/ossec/"
     USER="ossec"
     GROUP="ossec"
-    OSSEC_HIDS_TMP_DIR="/tmp/wazuh-agent"
+    WAZUH_TMP_DIR="/tmp/wazuh-agent"
     SCRIPTS_DIR="/usr/share/wazuh-agent/scripts/tmp"
 
     OSMYSHELL="/sbin/nologin"
@@ -59,16 +59,16 @@ case "$1" in
     fi
 
     # Restore the local rules, client.keys and local_decoder
-    if [ -f ${OSSEC_HIDS_TMP_DIR}/client.keys ]; then
-        cp ${OSSEC_HIDS_TMP_DIR}/client.keys ${DIR}etc/client.keys
+    if [ -f ${WAZUH_TMP_DIR}/client.keys ]; then
+        cp ${WAZUH_TMP_DIR}/client.keys ${DIR}etc/client.keys
     fi
     # Restore ossec.conf configuration
-    if [ -f ${OSSEC_HIDS_TMP_DIR}/ossec.conf ]; then
-        mv ${OSSEC_HIDS_TMP_DIR}/ossec.conf ${DIR}etc/ossec.conf
+    if [ -f ${WAZUH_TMP_DIR}/ossec.conf ]; then
+        mv ${WAZUH_TMP_DIR}/ossec.conf ${DIR}etc/ossec.conf
     fi
     # Restore client.keys configuration
-    if [ -f ${OSSEC_HIDS_TMP_DIR}/local_internal_options.conf ]; then
-        mv ${OSSEC_HIDS_TMP_DIR}/local_internal_options.conf ${DIR}etc/local_internal_options.conf
+    if [ -f ${WAZUH_TMP_DIR}/local_internal_options.conf ]; then
+        mv ${WAZUH_TMP_DIR}/local_internal_options.conf ${DIR}etc/local_internal_options.conf
     fi
 
     # logrotate configuration file
@@ -79,9 +79,11 @@ case "$1" in
     fi
 
     # Restore group files
-    if [ -d ${OSSEC_HIDS_TMP_DIR}/group ]; then
-        rm -rf ${DIR}etc/shared/*
-        mv ${OSSEC_HIDS_TMP_DIR}/group/* ${DIR}etc/shared
+    if [ -d ${WAZUH_TMP_DIR}/group ]; then
+        for file in ${WAZUH_TMP_DIR}/group/* ; do
+            mv ${file} ${DIR}etc/shared/
+        done
+        rm -rf ${WAZUH_TMP_DIR}/group
         chmod 660 /var/ossec/etc/shared/*
         chown root:ossec /var/ossec/etc/shared/*
     fi
@@ -103,8 +105,8 @@ case "$1" in
       service wazuh-agent restart || :
     fi
     # Delete tmp directory
-    if [ -d ${OSSEC_HIDS_TMP_DIR} ]; then
-        rm -rr ${OSSEC_HIDS_TMP_DIR}
+    if [ -d ${WAZUH_TMP_DIR} ]; then
+        rm -rr ${WAZUH_TMP_DIR}
     fi
 
     if [ -d /usr/share/wazuh-agent ]; then
@@ -131,4 +133,3 @@ case "$1" in
 esac
 
 exit 0
-

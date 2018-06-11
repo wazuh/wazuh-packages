@@ -1,3 +1,9 @@
+wazuh-api (3.2.3) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <support@wazuh.com>  Tue, 15 May 2018 12:35:30 +0000
+
 wazuh-api (3.2.2) stable; urgency=low
 
   * More info: https://documentation.wazuh.com/current/release-notes/
