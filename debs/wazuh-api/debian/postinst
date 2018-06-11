@@ -34,17 +34,12 @@ case "$1" in
         ln -sf /var/ossec/api/node_modules/htpasswd/bin/htpasswd /var/ossec/api/configuration/auth/htpasswd
     fi
 
-	if [ -x /etc/init.d/wazuh-api ]; then
-        if [ -d /run/systemd/system ]; then
-          systemctl enable wazuh-api > /dev/null 2>&1
-        fi
-        update-rc.d wazuh-api defaults > /dev/null 2>&1
-	fi
-
     # Restore local_decoders.xml configuration
-    if [ -d ${WAZUH_TMP_DIR}/configuration ]; then
-        cp ${DIR}/configuration/config.js ${WAZUH_TMP_DIR}/configuration/config.js.debnew
-        cp -rp ${WAZUH_TMP_DIR}/configuration ${DIR}/
+    if [ -d ${WAZUH_TMP_DIR}/api/configuration ]; then
+        cp ${DIR}/configuration/config.js ${WAZUH_TMP_DIR}/api/configuration/config.js.debnew
+        cp -rfp ${WAZUH_TMP_DIR}/api/configuration ${DIR}/
+        cp -rfp ${WAZUH_TMP_DIR}/api/configuration/auth/user ${DIR}/configuration/auth/user
+        cp -rfp ${WAZUH_TMP_DIR}/api/configuration/config.js ${DIR}/configuration/config.js
     fi
 
     # Restore /var/ossec permissions
@@ -64,14 +59,16 @@ case "$1" in
 	if [ -d ${WAZUH_TMP_DIR} ]; then
 	    rm -r ${WAZUH_TMP_DIR}
 	fi
-        if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
-            systemctl daemon-reload > /dev/null 2>&1
-            systemctl restart wazuh-api.service > /dev/null 2>&1
 
-        fi
-        if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
-           service wazuh-api restart > /dev/null 2>&1
-        fi
+    if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
+        systemctl daemon-reload > /dev/null 2>&1
+        systemctl enable wazuh-api > /dev/null 2>&1
+        systemctl restart wazuh-api.service > /dev/null 2>&1
+    else
+        update-rc.d wazuh-api defaults > /dev/null 2>&1
+        service wazuh-api restart > /dev/null 2>&1
+    fi
+
     # Delete old api framework (new is included with wazuh-manager in /var/ossec/framework)
     if [ -d /var/ossec/api/framework ]; then
         rm -rf /var/ossec/api/framework

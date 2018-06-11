@@ -39,7 +39,7 @@ case "$1" in
       fi
     fi
     if [ -d ${DIR}/api/configuration ]; then
-        cp -rp ${DIR}/api/configuration ${WAZUH_TMP_DIR}/
+        cp -rp ${DIR}/api/ ${WAZUH_TMP_DIR}/
     fi
     ;;
 

@@ -1,6 +1,11 @@
-#!/bin/bash
+#!/bin/sh
 # WAZUH API Service
-# Author: Wazuh
+# Copyright (C) 2015-2018 Wazuh, Inc.All rights reserved.
+# Wazuh.com
+# This program is a free software; you can redistribute it
+# and/or modify it under the terms of the GNU General Public
+# License (version 2) as published by the FSF - Free Software
+# Foundation.
 
 ### BEGIN INIT INFO
 # Provides:          wazuh_api
@@ -15,35 +20,32 @@
 #
 ### END INIT INFO
 
-# Load the VERBOSE setting and other rcS variables
-. /lib/init/vars.sh
-
-# Define LSB log_* functions.
-# Depend on lsb-base (>= 3.0-6) to ensure that this file is present.
-. /lib/lsb/init-functions
-
+# Instructions:
+#  sudo install -m 755 -o root -g root /var/ossec/api/scripts/wazuh-api /etc/init.d/
+#  sudo systemctl enable wazuh-api
+#  sudo systemctl daemon-reload
+#  sudo systemctl restart wazuh-api
 
 BIN_DIR="/usr/bin/nodejs"
 APP_PATH="/var/ossec/api/app.js"
 OSSEC_PATH="/var/ossec"
 PID_PATH="$OSSEC_PATH/var/run/wazuh-api.pid"
 API_LOGS="$OSSEC_PATH/logs/api.log"
-NODEUSER=root:ossec
 
 start() {
   if [ -f $PID_PATH ] && [ -n "$(ps --no-headers -p `cat $PID_PATH`)" ]; then
     echo "WAZUH-API is already running."
   else
+    $BIN_DIR $APP_PATH > /dev/null 2>&1 < /dev/null &
 
-    start-stop-daemon --start --quiet --make-pidfile --pidfile $PID_PATH --background --exec $BIN_DIR -- $APP_PATH
-
-    if [ "$?" != "0" ]; then
+    if [ "$?" = "0" ]; then
+      echo $! > $PID_PATH
+    else
       echo "Start error"
       exit 1
     fi
 
     echo "WAZUH-API started."
-    exit 0
   fi
 }
 

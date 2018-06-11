@@ -1,6 +1,6 @@
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-manager
-Version:     3.2.4
+Version:     3.3.0
 Release:     1
 License:     GPL
 Group:       System Environment/Daemons
@@ -386,7 +386,7 @@ if [ $1 = 1 ]; then
   chmod 0640 %{_localstatedir}/ossec/etc/client.keys
 
   # Add default local_files to ossec.conf
-  %{_localstatedir}/ossec/tmp/add_localfiles.sh >>  %{_localstatedir}/ossec/etc/ossec.conf
+  %{_localstatedir}/ossec/tmp/add_localfiles.sh %{_localstatedir}/ossec >> %{_localstatedir}/ossec/etc/ossec.conf
    /sbin/chkconfig --add wazuh-manager
    /sbin/chkconfig wazuh-manager on
 
@@ -484,7 +484,7 @@ chown root:ossec %{_localstatedir}/ossec/queue/agents-timestamp
 if [ $1 = 0 ]; then
 
   /sbin/service wazuh-manager stop || :
-
+  %{_localstatedir}/ossec/bin/ossec-control stop 2>/dev/null
   /sbin/chkconfig wazuh-manager off
   /sbin/chkconfig --del wazuh-manager
 

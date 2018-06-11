@@ -1,6 +1,6 @@
 Summary:     Wazuh API is an open source RESTful API to interact with Wazuh from your own application or with a simple web browser or tools like cURL
 Name:        wazuh-api
-Version:     3.2.4
+Version:     3.3.0
 Release:     1
 License:     GPL
 Group:       System Environment/Daemons
@@ -16,7 +16,7 @@ Requires(preun):  /sbin/chkconfig /sbin/service
 Requires(postun): /sbin/service
 
 Requires: nodejs >= 4.6
-Requires: wazuh-manager >= 3.2.3, wazuh-manager < 3.3.0
+Requires: wazuh-manager >= 3.3.0
 BuildRequires: nodejs >= 4.6
 ExclusiveOS: linux
 
@@ -63,10 +63,12 @@ exit 0
 %pre
 
 if [ $1 = 1 ]; then
+
   API_PATH="${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api"
   API_PATH_BACKUP="${RPM_BUILD_ROOT}%{_localstatedir}/ossec/~api"
 
   if [ -e ${API_PATH} ]; then
+
     if [ -e ${API_PATH_BACKUP} ]; then
         rm -rf ${API_PATH_BACKUP}
     fi
@@ -94,12 +96,16 @@ if [ $1 = 1 ]; then
   %{_localstatedir}/ossec/api/scripts/install_daemon.sh
   echo "Don’t forget to secure the API configuration by running the script %{_localstatedir}/ossec/api/scripts/configure_api.sh"
 fi
-  touch %{_localstatedir}/ossec/logs/api.log
-  chmod 660 %{_localstatedir}/ossec/logs/api.log
-  chown root:ossec %{_localstatedir}/ossec/logs/api.log
-  chmod 740 %{_localstatedir}/ossec/api/configuration/config.js
-  chown root:ossec %{_localstatedir}/ossec/api/configuration/config.js
+
+touch %{_localstatedir}/ossec/logs/api.log
+chmod 660 %{_localstatedir}/ossec/logs/api.log
+chown root:ossec %{_localstatedir}/ossec/logs/api.log
+chmod 740 %{_localstatedir}/ossec/api/configuration/config.js
+chown root:ossec %{_localstatedir}/ossec/api/configuration/config.js
+
 ln -sf %{_localstatedir}/ossec/api/node_modules/htpasswd/bin/htpasswd %{_localstatedir}/ossec/api/configuration/auth/htpasswd
+
+sed -i "s:config.ossec_path =.*:config.ossec_path = \"%{_localstatedir}/ossec\";:g" "%{_localstatedir}/ossec/api/configuration/config.js"
 
 #veriy python version
 if python -V >/dev/null 2>&1; then
