@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env /bin/bash
 #
 # Wazuh restore permissions script generator (ver 0.1)
 # Copyright (C) 2017 Wazuh Inc.
@@ -12,6 +12,8 @@
 # Remember: you must use gawk, be careful mawk is not compatible
 #
 # Usage: ./gen_permissions.sh /var/ossec/ ~/restore_permissions.sh
+
+set -euo pipefail
 
 find $1 -depth -printf '%m:%u:%g:%p\0' | awk -v RS='\0' -F: '
 BEGIN {
