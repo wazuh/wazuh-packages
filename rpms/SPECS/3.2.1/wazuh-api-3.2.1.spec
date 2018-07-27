@@ -5,7 +5,6 @@ Release:     1
 License:     GPL
 Group:       System Environment/Daemons
 Source0:     %{name}-%{version}.tar.gz
-Source1:     CHANGELOG
 URL:         https://www.wazuh.com/
 BuildRoot:   %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Vendor:      https://www.wazuh.com
@@ -57,7 +56,7 @@ install -m 0400 scripts/wazuh-api.service  ${RPM_BUILD_ROOT}%{_localstatedir}/os
 
 cp -r node_modules/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/node_modules/
 
-cp %{SOURCE1} CHANGELOG
+cp CHANGELOG.md CHANGELOG
 
 exit 0
 %pre

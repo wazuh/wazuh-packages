@@ -1,11 +1,10 @@
 Summary:     Wazuh RESTful API
 Name:        wazuh-api
 Version:     3.0.0
-Release:     0.1rc1
+Release:     1
 License:     GPL
 Group:       System Environment/Daemons
 Source0:     %{name}-%{version}.tar.gz
-Source1:     CHANGELOG
 URL:         http://www.wazuh.com/
 BuildRoot:   %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Vendor:      http://www.wazuh.com
@@ -57,7 +56,7 @@ install -m 0400 scripts/wazuh-api.service  ${RPM_BUILD_ROOT}%{_localstatedir}/os
 
 cp -r node_modules/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/node_modules/
 
-cp %{SOURCE1} CHANGELOG
+cp CHANGELOG.md CHANGELOG
 
 exit 0
 %pre

@@ -5,8 +5,6 @@ Release:     1
 License:     GPL
 Group:       System Environment/Daemons
 Source0:     %{name}-%{version}.tar.gz
-Source1:     %{name}.init
-Source2:     CHANGELOG
 URL:         https://www.wazuh.com/
 BuildRoot:   %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Vendor:      https://www.wazuh.com
@@ -18,12 +16,7 @@ Requires(postun): /sbin/service
 Conflicts:   ossec-hids ossec-hids-agent wazuh-manager wazuh-local
 AutoReqProv: no
 
-
 BuildRequires: coreutils glibc-devel
-
-#%if 0%{!?el5}
-#BuildRequires: openssl-devel
-#%endif
 
 %if 0%{!?el6}
 BuildRequires: inotify-tools-devel
@@ -41,33 +34,8 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 
 echo "Vendor is %_vendor"
 
-#%if  "%_vendor" == "fedora"
-#./gen_ossec.sh conf agent %_vendor %fedora > etc/ossec-agent.conf
-#%endif
-
-#%if  "%_vendor" == "rhel" || "%_vendor" == "redhat"
-#./gen_ossec.sh conf agent rhel %rhel  > etc/ossec-agent.conf
-#%endif
-
-#%if  "%_vendor" == "centos"
 ./gen_ossec.sh conf agent centos %rhel  > etc/ossec-agent.conf
-#%endif
-
 ./gen_ossec.sh init agent  > ossec-init.conf
-
-
-
-
-#CFLAGS="$RPM_OPT_FLAGS -fpic -fPIE -Wformat -Wformat-security -fstack-protector-all -Wstack-protector --param ssp-buffer-size=4 -D_FORTIFY_SOURCE=2"
-#LDFLAGS="-fPIE -pie -Wl,-z,relro"
-#SH_LDFLAGS="-fPIE -pie -Wl,-z,relro"
-#export CFLAGS LDFLAGS SH_LDFLAGS
-
-#%if 0%{?el5}
-#CFLAGS+=" -I/usr/include/openssl101e -L/usr/lib64/openssl101e -L/usr/lib/openssl101e "
-#%endif
-
-#%build
 
 pushd src
 # Rebuild for agent
@@ -79,7 +47,6 @@ popd
 %install
 # Clean BUILDROOT
 rm -fr %{buildroot}
-
 
 mkdir -p ${RPM_BUILD_ROOT}%{_initrddir}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/backup
@@ -103,10 +70,6 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/aws
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/vuls
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/vuls/go
-# Init files for suse. Review later
-# mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}
-# mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}/init.d
-
 
 # Templates for initscript
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/init
@@ -158,8 +121,8 @@ install -m 0750 wodles/vuls/vuls.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wod
   install -m 0640 wodles/oscap/content/ssg-fedora-24-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 #%endif
 
-cp %{SOURCE2} CHANGELOG
-install -m 0755 %{SOURCE1} ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-agent
+cp CHANGELOG.md CHANGELOG
+install -m 0755 src/init/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-agent
 install -m 0640 etc/wpk_root.pem ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc
 install -m 0640 etc/internal_options* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc
 install -m 0640 etc/local_internal_options.conf ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc
@@ -300,12 +263,6 @@ chmod 660 %{_localstatedir}/ossec/logs/ossec.json
 chmod 640 %{_sysconfdir}/ossec-init.conf
 chown root:ossec %{_sysconfdir}/ossec-init.conf
 
-# chmod 755 %{_sysconfdir}/init.d/wazuh-agent
-# chown root:ossec %{_sysconfdir}/init.d/wazuh-agent
-
-# chmod 644 %{_sysconfdir}/init.d/functions
-# chown root:root %{_sysconfdir}/init.d/functions
-
 rm -rf %{_localstatedir}/ossec/tmp/etc
 rm -rf %{_localstatedir}/ossec/tmp/src
 rm -f %{_localstatedir}/ossec/tmp/add_localfiles.sh
@@ -316,8 +273,6 @@ if [ $1 = 2 ]; then
       mv /var/ossec/etc/ossec.bck /var/ossec/etc/ossec.conf
   fi
 fi
-
-
 
 if cat /var/ossec/etc/ossec.conf | grep -o -P '(?<=<server-ip>).*(?=</server-ip>)' | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' > /dev/null 2>&1; then
    /sbin/service wazuh-agent restart || :
@@ -342,15 +297,6 @@ if [ $1 = 0 ]; then
 
 fi
 
-
-# TEST WELL if deleting on upgrade is working
-#%postun
-#if [ "$1" = "0" ]; then
-#   rm -rf /var/ossec 2> /dev/null; true
-#   userdel --force ossec 2> /dev/null; true
-#   groupdel ossec 2> /dev/null; true
-#fi
-
 %triggerin -- glibc
 [ -r %{_sysconfdir}/localtime ] && cp -fpL %{_sysconfdir}/localtime %{_localstatedir}/ossec/etc
  chown root:ossec %{_localstatedir}/ossec/etc/localtime
@@ -364,8 +310,6 @@ rm -fr %{buildroot}
 %doc BUGS CONFIG CONTRIBUTORS INSTALL LICENSE README.md CHANGELOG
 
 %attr(640,root,ossec) %verify(not md5 size mtime) %{_sysconfdir}/ossec-init.conf
-# %attr(755,root,ossec) %{_sysconfdir}/init.d/wazuh-agent
-# %attr(644,root,root) %{_sysconfdir}/init.d/functions
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/backup
 %attr(750,root,root) %dir %{_localstatedir}/ossec/lua
@@ -412,20 +356,12 @@ rm -fr %{buildroot}
 %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/vuls/*
 %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap/oscap.py
 %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap/template*
-#%if 0%{?rhel} == 6 || 0%{?rhel} == 7 ||  0%{?fedora} == 24
 %attr(640,root,ossec) %{_localstatedir}/ossec/wodles/oscap/content/*
-#%endif
+
 #Template files
 %attr(750,root,root) %config(missingok)%{_localstatedir}/ossec/tmp/src/*
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/add_localfiles.sh
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/generic/*
-
-
-
-#%attr(640,root,ossec) %dir  /usr/share/wazuh-agent/scripts/tmp/*
-#%attr(640,root,ossec) %dir /usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic/*
-#%attr(640,root,ossec) %dir /usr/share/wazuh-agent/scripts/tmp/src/*
-#%attr(640,root,ossec) %dir /usr/share/wazuh-agent/scripts/tmp/src/init/*
 
 /usr/share/wazuh-agent/scripts/tmp/add_localfiles.sh
 /usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic/alerts.template

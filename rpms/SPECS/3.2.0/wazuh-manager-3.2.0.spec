@@ -5,8 +5,6 @@ Release:     1
 License:     GPL
 Group:       System Environment/Daemons
 Source0:     %{name}-%{version}.tar.gz
-Source1:     %{name}.init
-Source2:     CHANGELOG
 URL:         https://www.wazuh.com/
 BuildRoot:   %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Vendor:      https://www.wazuh.com
@@ -189,7 +187,7 @@ install -m 0640 src/LOCATION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src
 install -m 0640 src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src
 install -m 0640 src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src
 install -m 0640 add_localfiles.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp
-cp %{SOURCE2} CHANGELOG
+cp CHANGELOG.md CHANGELOG
 
 # Vuls files
 install -m 0750 wodles/vuls/deploy_vuls.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/vuls

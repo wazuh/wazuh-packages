@@ -5,8 +5,6 @@ Release:     1
 License:     GPL
 Group:       System Environment/Daemons
 Source0:     %{name}-%{version}.tar.gz
-Source1:     %{name}.init
-Source2:     CHANGELOG
 URL:         https://www.wazuh.com/
 BuildRoot:   %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Vendor:      https://www.wazuh.com
@@ -17,7 +15,6 @@ Requires(preun):  /sbin/chkconfig /sbin/service
 Requires(postun): /sbin/service
 Conflicts:   ossec-hids ossec-hids-agent wazuh-manager wazuh-local
 AutoReqProv: no
-
 
 BuildRequires: coreutils glibc-devel
 
@@ -112,8 +109,8 @@ install -m 0640 wodles/oscap/content/ssg-fedora-24-ds.xml ${RPM_BUILD_ROOT}%{_lo
 install -m 0750 wodles/vuls/deploy_vuls.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/vuls
 install -m 0750 wodles/vuls/vuls.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/vuls
 
-cp %{SOURCE2} CHANGELOG
-install -m 0755 %{SOURCE1} ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-agent
+cp CHANGELOG.md CHANGELOG
+install -m 0755 src/init/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-agent
 install -m 0640 etc/wpk_root.pem ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc
 install -m 0640 etc/internal_options* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc
 install -m 0640 etc/local_internal_options.conf ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc

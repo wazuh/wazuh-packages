@@ -57,7 +57,7 @@ install -m 0400 scripts/wazuh-api.service  ${RPM_BUILD_ROOT}%{_localstatedir}/os
 
 cp -r node_modules/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/node_modules/
 
-cp %{SOURCE1} CHANGELOG
+cp CHANGELOG.md CHANGELOG
 
 exit 0
 %pre
