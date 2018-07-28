@@ -1,0 +1,52 @@
+wazuh-manager (3.2.0) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <support@wazuh.com>  Thu, 11 Dec 2017 15:19:24 +0000
+
+
+wazuh-manager (3.1.0) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <support@wazuh.com>  Mon, 01 Nov 2017 08:00:10 +0000
+
+
+wazuh-manager (3.0.0) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <support@wazuh.com>  Mon, 01 Nov 2017 08:00:10 +0000
+
+wazuh-manager (2.1.1) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <support@wazuh.com>  Mon, 01 Aug 2016 08:43:10 +0000
+
+wazuh-manager (2.1.0) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <support@wazuh.com>  Mon, 01 Jul 2016 08:43:10 +0000
+
+wazuh-manager (2.0.1) stable; urgency=low
+
+  * Changed random data generator for a secure OS-provided generator.
+  exi* Changed Windows installer file name (depending on version).
+  * Linux distro detection using standard os-release file.
+  * Changed some URLs to documentation.
+  * Disable synchronization with SQLite databases for Syscheck by default.
+  * Minor changes at Rootcheck formatter for JSON alerts.
+  * Added debugging messages to Integrator logs.
+  * Show agent ID when possible on logs about incorrectly formatted messages.
+  * Use default maximum inotify event queue size.
+  * Show remote IP on encoding format errors when unencrypting messages.
+
+ -- Wazuh, Inc <support@wazuh.com>  Thu, 06 Jun 2017 08:43:10 +0000
+
+wazuh-manager (2.0) stable; urgency=low
+
+  * Wazuh-agent - base 2.0
+
+ -- Wazuh, Inc <support@wazuh.com>  Mon, 01 Jul 2016 08:43:10 +0000

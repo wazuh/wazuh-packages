@@ -1,0 +1,103 @@
+#!/bin/sh
+# preinst script for ossec-hids
+
+set -e
+
+# configuration variables
+OSSEC_HIDS_TMP_DIR="/tmp/wazuh-manager"
+DIR="/var/ossec/"
+
+# environment configuration
+if [ ! -d ${OSSEC_HIDS_TMP_DIR} ]; then
+  mkdir ${OSSEC_HIDS_TMP_DIR}
+fi
+
+case "$1" in
+    install|upgrade)
+
+        # Force deleting the old ossec-init.conf and link
+        rm -f /etc/ossec-init.conf
+
+        if [ -z "$2" ]; then
+          if [ -f ${DIR}/etc/ossec.conf ]; then
+            cp  ${DIR}/etc/ossec.conf  ${DIR}/etc/ossec.conf.deborig
+            chmod 0600 ${DIR}/etc/ossec.conf.deborig
+            chown root:root ${DIR}/etc/ossec.conf.deborig
+
+            echo "====================================================================================="
+            echo "= Backup from your ossec.conf has been created at /var/ossec/etc/ossec.conf.deborig ="
+            echo "= Please verify your ossec.conf configuration at /var/ossec/etc/ossec.conf          ="
+            echo "====================================================================================="
+          fi
+        fi
+        # Stop API service if it's running
+        if ps aux | grep /var/ossec/api/app.js | grep -v grep; then
+           touch ${OSSEC_HIDS_TMP_DIR}/wazuh-api.restart
+           echo "-----------------------------------------------------------------------------------------------"
+           echo "  The service wazuh-api needs to be stopped during the manager upgrade.                        "
+           echo "  It will be started again after finish the process.                                           "
+           echo "-----------------------------------------------------------------------------------------------"
+           if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
+              systemctl --quiet stop wazuh-api.service
+           else
+              service wazuh-api stop
+           fi
+        fi
+
+        # Fix for forcing the stop of the api
+        if ps aux | grep /var/ossec/api/app.js | grep -v grep; then
+            kill -9 `ps -ef | grep '/var/ossec/api/app.js' | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
+        fi
+
+        # cp -rp %{_localstatedir}/ossec/etc/shared %{_localstatedir}/ossec/backup/
+
+
+        if [ -f /var/ossec/etc/shared/default/merged.mg ]; then
+            rm -f  /var/ossec/etc/shared/default/merged.mg || true
+            rm -f  /var/ossec/etc/shared/default/ar.conf || true
+            cp -rp /var/ossec/etc/shared /var/ossec/backup/
+            mkdir -p /var/ossec/etc/shared/default
+            cp -rp /var/ossec/backup/shared/* /var/ossec/etc/shared/default || true
+        fi
+
+        # Delete old service
+        if [ -f /etc/init.d/ossec ]; then
+          rm /etc/init.d/ossec
+        fi
+        if [ -d ${DIR}/etc/lists ]; then
+          cp -rp ${DIR}/etc/lists ${OSSEC_HIDS_TMP_DIR}/lists
+        fi
+        if [ -f ${DIR}/etc/client.keys ]; then
+          cp -p ${DIR}/etc/client.keys ${OSSEC_HIDS_TMP_DIR}/client.keys
+        fi
+        if [ -f ${DIR}/etc/local_internal_options.conf ]; then
+            cp -p ${DIR}/etc/local_internal_options.conf ${OSSEC_HIDS_TMP_DIR}/local_internal_options.conf
+        fi
+
+        if [ -f ${DIR}/etc/rules/local_rules.xml ]; then
+            cp -p ${DIR}/etc/rules/local_rules.xml ${OSSEC_HIDS_TMP_DIR}/local_rules.xml
+        fi
+
+        if [ -f ${DIR}/etc/decoders/local_decoder.xml ]; then
+            cp -p ${DIR}/etc/decoders/local_decoder.xml ${OSSEC_HIDS_TMP_DIR}/local_decoder.xml
+        fi
+
+        if [ -f ${DIR}/etc/ossec.conf ]; then
+            cp -p ${DIR}/etc/ossec.conf ${OSSEC_HIDS_TMP_DIR}/ossec.conf
+        fi
+
+    ;;
+
+    abort-upgrade)
+
+    ;;
+
+    *)
+        echo "preinst called with unknown argument \`$1'" >&2
+        exit 1
+
+    ;;
+
+esac
+
+exit 0

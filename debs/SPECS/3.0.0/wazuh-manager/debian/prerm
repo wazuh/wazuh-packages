@@ -1,0 +1,42 @@
+#!/bin/sh
+# prerm script for wazuh-manager
+
+set -e
+
+case "$1" in
+    upgrade|deconfigure)
+      if [ -f /var/ossec/bin/ossec-control ]; then
+         /var/ossec/bin/ossec-control stop > /dev/null 2>&1
+      fi
+
+    ;;
+
+    remove)
+
+      if [ -f /var/ossec/bin/ossec-control ]; then
+         /var/ossec/bin/ossec-control stop > /dev/null 2>&1
+      fi
+
+      # Purging files
+      rm -rf /var/ossec/etc/*
+      rm -rf /var/ossec/stats/*
+      rm -rf /var/ossec/logs/*
+      rm -rf /var/ossec/queue/*
+      rm -rf /var/ossec/var/*
+
+    ;;
+
+    failed-upgrade)
+      if [ -f /var/ossec/bin/ossec-control ]; then
+	       /var/ossec/bin/ossec-control stop > /dev/null 2>&1
+      fi
+    ;;
+
+    *)
+        echo "prerm called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+
+esac
+
+exit 0
