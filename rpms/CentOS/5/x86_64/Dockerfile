@@ -2,12 +2,12 @@ FROM centos:5.11
 
 RUN rm /etc/yum.repos.d/* && echo "exactarch=1" >> /etc/yum.conf
 COPY CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo
-RUN yum clean all && yum update -y
+RUN yum clean all && yum update -y && yum downgrade -y libselinux
 
 # Install sudo, SSH and compilers
-RUN yum install -y sudo ca-certificates \
-    make gcc curl initscripts tar \
-    rpm-build automake autoconf libtool wget -x libselinux devicemapper libselinux-python krb5-libs
+RUN yum install -y sudo ca-certificates make gcc curl initscripts tar \
+    rpm-build automake autoconf libtool wget libselinux devicemapper \
+    libselinux-python krb5-libs policycoreutils checkpolicy
 
 RUN yum groupinstall -y "Development tools"
 RUN yum install -y zlib-devel bzip2-devel openssl-devel ncurses-devel
