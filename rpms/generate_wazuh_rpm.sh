@@ -14,6 +14,7 @@ RPM_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/6"
 LEGACY_RPM_X86_BUILDER="rpm_legacy_builder_x86"
 LEGACY_RPM_I386_BUILDER="rpm_legacy_builder_i386"
 LEGACY_RPM_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/5"
+INSTALLATION_PATH="/var"
 
 if [ -z "$OUTDIR" ]
 then
@@ -38,10 +39,6 @@ build_rpm() {
     # Copy the necessary files
     cp build.sh ${DOCKERFILE_PATH}
     cp SPECS/$VERSION/wazuh-$TARGET-$VERSION.spec ${DOCKERFILE_PATH}/wazuh.spec
-    
-    # Modify the RPM spec
-    sed -i "s:make -j.:make $JOBS:g" ${DOCKERFILE_PATH}/wazuh.spec
-    sed -i "s/Release:     .*/Release:     ${RELEASE}/g" ${DOCKERFILE_PATH}/wazuh.spec
 
     # Build the Docker image
     docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH}
@@ -49,7 +46,8 @@ build_rpm() {
     # Build the RPM package with a Docker container
     docker run -t --rm -v $OUTDIR:/var/local/wazuh \
         -v ${DOCKERFILE_PATH}/sources:/build_wazuh/wazuh-$TARGET-$VERSION \
-        ${CONTAINER_NAME} $TARGET $VERSION $ARCHITECTURE || exit 1
+        ${CONTAINER_NAME} $TARGET $VERSION $ARCHITECTURE \
+        $JOBS $RELEASE ${INSTALLATION_PATH} || exit 1
 
     # Clean the files
     rm -rf ${DOCKERFILE_PATH}/{*.sh,*.spec} ${DOCKERFILE_PATH}/sources
@@ -102,6 +100,7 @@ help() {
     echo "    -j, --jobs                Change number of parallel jobs."
     echo "    -l, --legacy              Build the package for CentOS 5."
     echo "    -r, --release             Package release."
+    echo "    -p, --path                Installation path for the package."
     echo
     exit $1
 }
@@ -156,6 +155,15 @@ main() {
             if [ -n "$2" ]
             then
                 RELEASE="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
+        "-p"|"--path")
+            if [ -n "$2" ]
+            then
+                INSTALLATION_PATH="$2"
                 shift 2
             else
                 help 1

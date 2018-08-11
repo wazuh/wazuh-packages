@@ -1,7 +1,7 @@
 Summary:     The Wazuh Agent
 Name:        wazuh-agent
 Version:     3.0.0
-Release:     1
+Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
 Source0:     %{name}-%{version}.tar.gz

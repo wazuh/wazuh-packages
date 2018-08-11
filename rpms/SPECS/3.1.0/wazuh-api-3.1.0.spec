@@ -1,7 +1,7 @@
 Summary:     Wazuh RESTful API
 Name:        wazuh-api
 Version:     3.1.0
-Release:     1
+Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
 Source0:     %{name}-%{version}.tar.gz

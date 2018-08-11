@@ -1,7 +1,7 @@
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-manager
 Version:     3.4.0
-Release:     1
+Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
 Source0:     %{name}-%{version}.tar.gz
@@ -37,7 +37,7 @@ ExclusiveOS: linux
 %description
 Wazuh helps you to gain security visibility into your infrastructure by monitoring
 hosts at an operating system and application level. It provides the following capabilities:
-log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
+log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring.
 
 %prep
 %setup -q
@@ -50,9 +50,9 @@ pushd src
 make clean
 
 %if 0%{?el} >= 6 || 0%{?rhel} >= 6
-    make -j5 TARGET=server USE_SELINUX=yes PREFIX=%{_localstatedir}/ossec
+    make -j%{_threads} TARGET=server USE_SELINUX=yes PREFIX=%{_localstatedir}/ossec
 %else
-    make -j5 TARGET=server DISABLE_SYSC=yes USE_AUDIT=no USE_SELINUX=yes PREFIX=%{_localstatedir}/ossec
+    make -j%{_threads} TARGET=server DISABLE_SYSC=yes USE_AUDIT=no USE_SELINUX=yes PREFIX=%{_localstatedir}/ossec
 %endif
 
 popd

@@ -1,7 +1,7 @@
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-agent
 Version:     3.2.0
-Release:     1
+Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
 Source0:     %{name}-%{version}.tar.gz
@@ -42,9 +42,9 @@ pushd src
 make clean
 
 %if 0%{?rhel} >= 6
-    make -j5 TARGET=agent
+    make -j%{_threads} TARGET=agent
 %else
-    make -j5 TARGET=agent DISABLE_SYSC=yes
+    make -j%{_threads} TARGET=agent DISABLE_SYSC=yes
 %endif
 
 popd

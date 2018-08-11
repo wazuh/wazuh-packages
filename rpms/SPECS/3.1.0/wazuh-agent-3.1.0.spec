@@ -1,7 +1,7 @@
 Summary:     The Wazuh Agent
 Name:        wazuh-agent
 Version:     3.1.0
-Release:     1
+Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
 Source0:     %{name}-%{version}.tar.gz
@@ -42,7 +42,7 @@ pushd src
 
 # Rebuild for agent
 make clean
-make -j5 TARGET=agent
+make -j%{_threads} TARGET=agent
 
 popd
 

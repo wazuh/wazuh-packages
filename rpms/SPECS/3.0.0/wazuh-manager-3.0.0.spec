@@ -1,7 +1,7 @@
 Summary:     The Wazuh Manager
 Name:        wazuh-manager
 Version:     3.0.0
-Release:     1
+Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
 Source0:     %{name}-%{version}.tar.gz
@@ -46,7 +46,7 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 pushd src
 # Rebuild for server
 make clean
-make -j5 TARGET=server
+make -j%{_threads} TARGET=server
 
 popd
 
