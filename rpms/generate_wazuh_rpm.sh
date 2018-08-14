@@ -74,9 +74,13 @@ build() {
         BUILD_NAME=""
         FILE_PATH=""
         if [[ "$LEGACY" = "yes" ]] && [[ "$ARCHITECTURE" = "x86_64" ]]; then
+            OUTDIR="$OUTDIR/5/x86_64"
+            RELEASE="$RELEASE.el5"
             BUILD_NAME="${LEGACY_RPM_X86_BUILDER}"
             FILE_PATH="${LEGACY_RPM_BUILDER_DOCKERFILE}/$ARCHITECTURE"
         elif [[ "$LEGACY" = "yes" ]] && [[ "$ARCHITECTURE" = "i386" ]]; then
+            OUTDIR="$OUTDIR/5/i386"
+            RELEASE="$RELEASE.el5"
             BUILD_NAME="${LEGACY_RPM_I386_BUILDER}"
             FILE_PATH="${LEGACY_RPM_BUILDER_DOCKERFILE}/$ARCHITECTURE"
         elif [[ "$LEGACY" = "no" ]] && [[ "$ARCHITECTURE" = "x86_64" ]]; then
