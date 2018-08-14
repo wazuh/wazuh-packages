@@ -5,6 +5,9 @@ RUN yum -y install centos-release-scl gcc make git \
     openssh-clients rpm-build sudo gnupg \
     automake autoconf libtool policycoreutils-python
 
+RUN curl --silent --location https://rpm.nodesource.com/setup_8.x | bash -
+RUN yum install -y nodejs
+
 # Add the scripts to build the RPM package
 ADD build.sh /usr/local/bin/build_package
 RUN chmod +x /usr/local/bin/build_package

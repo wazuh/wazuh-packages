@@ -34,10 +34,16 @@ build_rpm() {
 
     # Download the sources
     git clone ${SOURCE_REPOSITORY} -b $BRANCH ${DOCKERFILE_PATH}/sources
-    VERSION="$(cat ${DOCKERFILE_PATH}/sources/src/VERSION | cut -d 'v' -f 2)"
-
+    
     # Copy the necessary files
     cp build.sh ${DOCKERFILE_PATH}
+
+    if [[ "$TARGET" != "api" ]]; then
+        VERSION="$(cat ${DOCKERFILE_PATH}/sources/src/VERSION | cut -d 'v' -f 2)"
+    else
+        VERSION="$(grep version ${DOCKERFILE_PATH}/sources/package.json | cut -d '"' -f 4)"
+    fi
+    
     cp SPECS/$VERSION/wazuh-$TARGET-$VERSION.spec ${DOCKERFILE_PATH}/wazuh.spec
 
     # Build the Docker image
@@ -60,7 +66,7 @@ build() {
     if [[ "$TARGET" = "api" ]]; then
 
         SOURCE_REPOSITORY="https://github.com/wazuh/wazuh-api"
-        build_rpm ${RPM_X86_BUILDER} ${RPM_X86_BUILDER_DOCKERFILE} || exit 1
+        build_rpm ${RPM_X86_BUILDER} ${RPM_BUILDER_DOCKERFILE}/x86_64 || exit 1
 
     elif [[ "$TARGET" = "manager" ]] || [[ "$TARGET" = "agent" ]]; then
 
