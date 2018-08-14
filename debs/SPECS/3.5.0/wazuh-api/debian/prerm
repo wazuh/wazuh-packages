@@ -1,0 +1,77 @@
+#!/bin/sh
+# prerm script for wazuh-manager
+
+set -e
+
+case "$1" in
+    upgrade|deconfigure)
+
+        if ps axu | grep /var/ossec/api/app.js | grep -v grep; then
+            if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
+                systemctl stop wazuh-api.service > /dev/null 2>&1
+                systemctl disable wazuh-api > /dev/null 2>&1
+            fi
+
+            if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
+                service wazuh-api stop
+            fi
+        fi
+
+
+        # Fix for forcing the stop of the api
+        if ps aux | grep /var/ossec/api/app.js | grep -v grep; then
+            kill -9 `ps -ef | grep '/var/ossec/api/app.js' | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
+        fi
+
+    ;;
+
+
+
+    remove)
+
+
+        if ps axu | grep /var/ossec/api/app.js | grep -v grep; then
+            if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
+                systemctl stop wazuh-api.service
+            fi
+
+            if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
+                service wazuh-api stop
+            fi
+        fi
+
+
+        # Fix for forcing the stop of the api
+        if ps aux | grep /var/ossec/api/app.js | grep -v grep; then
+            kill -9 `ps -ef | grep '/var/ossec/api/app.js' | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
+        fi
+
+
+        # Deleting auth configuration on delete
+        if [ -d /var/ossec/api/configuration/auth/ ]; then
+            rm -rf /var/ossec/api/configuration/auth/
+        fi
+
+
+    ;;
+
+    failed-upgrade)
+    if ps axu | grep /var/ossec/api/app.js | grep -v grep; then
+        if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
+            systemctl stop wazuh-api.service
+        fi
+
+        if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
+            service wazuh-api stop
+        fi
+    fi
+    ;;
+
+    *)
+        echo "prerm called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+
+esac
+
+exit 0
