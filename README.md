@@ -85,5 +85,5 @@ If you want to contribute to our project please don't hesitate to send a pull re
 
 ## License and copyright
 
-WAZUH
+WAZUH  
 Copyright (C) 2016-2018 Wazuh Inc.  (License GPLv2)
