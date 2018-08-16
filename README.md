@@ -26,7 +26,7 @@ To build a RPM package, you need to download this repository and use the `genera
     ```
 
 2. Execute the `generate_wazuh_rpm.sh` script to build the package. There are multiple parameters to select which package is going to be build, its architecture, etc. Here you can see all the different parameters:
-    ```
+    ```shellsession
     # ./generate_wazuh_rpm.sh -h
 
     Usage: ./generate_wazuh_rpm.sh [OPTIONS]
@@ -59,7 +59,7 @@ Building a .deb package is pretty similar to build a .rpm package. You need to d
     ```
 
 2. Execute the `generate_wazuh_debs.sh` script to build the package. There are multiple parameters to select which package is going to be build, its architecture, etc. Here you can see all the different parameters:
-      ```
+      ```shellsession
       # ./generate_wazuh_debs.sh -h
 
       Usage: ./generate_wazuh_debs.sh [OPTIONS]
