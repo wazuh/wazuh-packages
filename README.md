@@ -8,9 +8,9 @@ Wazuh
 
 Wazuh is an Open Source Host-based Intrusion Detection System that performs log analysis, file integrity monitoring, policy monitoring, rootkit detection, real-time alerting, active response, vulnerability detector, etc.
 
-In this repository, you can find the necessary tools to build a Wazuh package for Debian based OS (.deb) and a RPM based OS package (.rpm).
+In this repository, you can find the necessary tools to build a Wazuh package for Debian based OS (.deb) and an RPM based OS package (.rpm).
 
-## Requeriments
+## Tools needed to build the package
 
 To build a Wazuh package you need to install the following tools:
   - `docker`: [installation guide](https://docs.docker.com/install/linux/docker-ce/centos/) for RPM and [installation guide](https://docs.docker.com/install/linux/docker-ce/debian/) for Debian.
@@ -18,14 +18,14 @@ To build a Wazuh package you need to install the following tools:
   
 ## Building RPM packages
 
-To build a RPM package, you need to download this repository and use the `generate_wazuh_rpm.sh` script. This script will download the source code from the [wazuh/wazuh](https://github.com/wazuh/wazuh) repository or the [wazuh/wazuh-api](https://github.com/wazuh/wazuh-api) (depending on which package do you want to build), select automatically the RPM spec file, build a docker image with all the necessary tools to build the RPM package and run a docker container from that image that will generate the `.src.rpm` and `.rpm` packages. These packages will be stored by default in `$HOME/3.x/yum-dev`.
+To build an RPM package, you need to download this repository and use the `generate_wazuh_rpm.sh` script. This script will download the source code from the [wazuh/wazuh](https://github.com/wazuh/wazuh) repository or the [wazuh/wazuh-api](https://github.com/wazuh/wazuh-api) (depending on which package do you want to build), select automatically the RPM spec file, build a Docker image with all the necessary tools to build the RPM package and run a Docker container from that image that will generate the `.src.rpm` and `.rpm` packages. These packages will be stored by default in `$HOME/3.x/yum-dev`.
 
 1. Download this repository and go to the rpm directory:
     ```bash
     $ git clone https://github.com/wazuh/wazuh-packages && cd wazuh-packages/rpms
     ```
 
-2. Execute the `generate_wazuh_rpm.sh` script to build the package. There are multiple parameters to select which package is going to be build, its architecture, etc. Here you can see all the different parameters:
+2. Execute the `generate_wazuh_rpm.sh` script to build the package. There are multiple parameters to select which package is going to be built, its architecture, etc. Here you can see all the different parameters:
     ```shellsession
     # ./generate_wazuh_rpm.sh -h
 
@@ -51,14 +51,14 @@ To build a RPM package, you need to download this repository and use the `genera
 
 ## Building DEB packages
 
-Building a .deb package is pretty similar to build a .rpm package. You need to download the repository and execut the `generate_wazuh_debs.sh` script. This will create the docker image, choose the needed files to build the package and build it. These packages will be stored by default in `$HOME/3.x/apt-dev`.
+Building a .deb package is pretty similar to build a .rpm package. You need to download the repository and execute the `generate_wazuh_debs.sh` script. This will create the docker image, choose the needed files to build the package and build it. These packages will be stored by default in `$HOME/3.x/apt-dev`.
 
 1. Download this repository and go to the rpm directory:
     ```bash
     $ git clone https://github.com/wazuh/wazuh-packages && cd wazuh-packages/debs
     ```
 
-2. Execute the `generate_wazuh_debs.sh` script to build the package. There are multiple parameters to select which package is going to be build, its architecture, etc. Here you can see all the different parameters:
+2. Execute the `generate_wazuh_debs.sh` script to built the package. There are multiple parameters to select which package is going to be build, its architecture, etc. Here you can see all the different parameters:
       ```shellsession
       # ./generate_wazuh_debs.sh -h
 
