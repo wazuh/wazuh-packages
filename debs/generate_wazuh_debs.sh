@@ -36,7 +36,6 @@ build_deb() {
 
     if [[ "$TARGET" != "api" ]]; then
         VERSION="$(cat ${DOCKERFILE_PATH}/sources/src/VERSION | cut -d 'v' -f 2)"
-        # sed -i "s:make -j.:make $JOBS:g" ${DOCKERFILE_PATH}/sources/
     else
         VERSION="$(grep version ${DOCKERFILE_PATH}/sources/package.json | cut -d '"' -f 4)"
     fi
@@ -51,7 +50,7 @@ build_deb() {
     docker run -t --rm -v $OUTDIR:/var/local/wazuh \
         -v ${DOCKERFILE_PATH}/sources:/build_wazuh/$TARGET/wazuh-$TARGET-$VERSION \
         -v ${DOCKERFILE_PATH}/wazuh-$TARGET:/$TARGET \
-        ${CONTAINER_NAME} $TARGET $VERSION $ARCHITECTURE || exit 1
+        ${CONTAINER_NAME} $TARGET $VERSION $ARCHITECTURE $RELEASE || exit 1
 
     # Clean the files
     rm -rf ${DOCKERFILE_PATH}/{*.sh,*.tar.gz} ${DOCKERFILE_PATH}/sources

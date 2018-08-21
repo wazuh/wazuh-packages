@@ -1,10 +1,10 @@
-wazuh-agent (3.0.0) stable; urgency=low
+wazuh-agent (3.0.0-RELEASE) stable; urgency=low
 
   * More info: https://documentation.wazuh.com/current/release-notes/
 
  -- Wazuh, Inc <support@wazuh.com>  Mon, 01 Nov 2017 08:00:10 +0000
 
-wazuh-agent (2.1.1) stable; urgency=low
+wazuh-agent (2.1.1-1) stable; urgency=low
 
   * Labels configuration for agents to show data on alerts.
   * Added group property for agents to customize shared files set.
@@ -21,7 +21,7 @@ wazuh-agent (2.1.1) stable; urgency=low
   * Increased shared file delivery speed when using TCP.
   * Increased TCP listening socket backlog.
   * Changed Windows agent UI panel to show revision number instead of installation date.
-  * Group every decoded field (static and dynamic fields) into a data object for JSON alerts.
+  * Group every decoded field (static and dynamic fields-1) into a data object for JSON alerts.
   * Reload shared files by Remoted every 10 minutes.
   * Increased string size limit for XML reader to 4096 bytes.
   * Updated Logstash configuration and Elasticsearch mappings.
@@ -40,7 +40,7 @@ wazuh-agent (2.1.1) stable; urgency=low
 
  -- Wazuh, Inc <support@wazuh.com>  Mon, 01 Aug 2016 08:00:10 +0000
 
-wazuh-agent (2.1.0) stable; urgency=low
+wazuh-agent (2.1.0-1) stable; urgency=low
 
   * Rotate and compress log feature.
   * Labeling data for agents to be shown in alerts.
@@ -85,7 +85,7 @@ wazuh-agent (2.1.0) stable; urgency=low
 
  -- Wazuh, Inc <support@wazuh.com>  Mon, 01 Jul 2016 08:43:10 +0000
 
-wazuh-agent (2.0.1) stable; urgency=low
+wazuh-agent (2.0.1-1) stable; urgency=low
 
   * Changed random data generator for a secure OS-provided generator.
   * Changed Windows installer file name (depending on version).
@@ -100,7 +100,7 @@ wazuh-agent (2.0.1) stable; urgency=low
 
  -- Wazuh, Inc <support@wazuh.com>  Thu, 06 Jun 2017 08:43:10 +0000
 
-wazuh-agent (2.0) stable; urgency=low
+wazuh-agent (2.0-1) stable; urgency=low
 
   * Wazuh-agent - base 2.0
 

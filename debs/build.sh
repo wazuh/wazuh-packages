@@ -20,6 +20,7 @@ source_dir=${build_dir}/source_wazuh
 # Generating directory structure to build the .deb package
 cd ${build_dir}/${build_target} && tar -czvf ${package_full_name}.orig.tar.gz "${package_full_name}"
 cp -pr /${build_target}/debian ${build_dir}/${build_target}/${package_full_name}/debian
+sed -i "s:RELEASE:${package_release}:g" ${build_dir}/${build_target}/${package_full_name}/debian/changelog
 
 # Installing build dependencies
 cd ${build_dir}/${build_target}/${package_full_name}
