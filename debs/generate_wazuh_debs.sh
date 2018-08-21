@@ -28,16 +28,18 @@ build_deb() {
     CONTAINER_NAME="$1"
     DOCKERFILE_PATH="$2"
 
+    SOURCES_DIRECTORY="/tmp/wazuh-builder/sources-$(( ( RANDOM % 1000 )  + 1 ))"
+
     # Download the sources
-    git clone ${SOURCE_REPOSITORY} -b $BRANCH ${DOCKERFILE_PATH}/sources    
+    git clone ${SOURCE_REPOSITORY} -b $BRANCH ${SOURCES_DIRECTORY}
     # Copy the necessary files
     cp build.sh ${DOCKERFILE_PATH}
-    cp gen_permissions.sh ${DOCKERFILE_PATH}/sources
+    cp gen_permissions.sh ${SOURCES_DIRECTORY}
 
     if [[ "$TARGET" != "api" ]]; then
-        VERSION="$(cat ${DOCKERFILE_PATH}/sources/src/VERSION | cut -d 'v' -f 2)"
+        VERSION="$(cat ${SOURCES_DIRECTORY}/src/VERSION | cut -d 'v' -f 2)"
     else
-        VERSION="$(grep version ${DOCKERFILE_PATH}/sources/package.json | cut -d '"' -f 4)"
+        VERSION="$(grep version ${SOURCES_DIRECTORY}/package.json | cut -d '"' -f 4)"
     fi
     
     # Copy the "specs" files for the Debian package
@@ -48,12 +50,14 @@ build_deb() {
 
     # Build the Debian package with a Docker container
     docker run -t --rm -v $OUTDIR:/var/local/wazuh \
-        -v ${DOCKERFILE_PATH}/sources:/build_wazuh/$TARGET/wazuh-$TARGET-$VERSION \
+        -v ${SOURCES_DIRECTORY}:/build_wazuh/$TARGET/wazuh-$TARGET-$VERSION \
         -v ${DOCKERFILE_PATH}/wazuh-$TARGET:/$TARGET \
         ${CONTAINER_NAME} $TARGET $VERSION $ARCHITECTURE $RELEASE || exit 1
 
     # Clean the files
-    rm -rf ${DOCKERFILE_PATH}/{*.sh,*.tar.gz} ${DOCKERFILE_PATH}/sources
+    rm -rf ${DOCKERFILE_PATH}/{*.sh,*.tar.gz} ${SOURCES_DIRECTORY}
+
+    echo "Package $(ls $OUTDIR -Art | tail -n 1) added to $OUTDIR."
 
     return 0
 }
