@@ -5,7 +5,7 @@ set -e
 
 # configuration variables
 WAZUH_TMP_DIR="/tmp/wazuh-agent"
-DIR="/var/ossec/"
+DIR="/var/ossec"
 
 # environment configuration
 if [ ! -d ${WAZUH_TMP_DIR} ]; then
@@ -18,13 +18,13 @@ case "$1" in
         if [ -z "$2" ]
         then
             if [ -f ${DIR}/etc/ossec.conf ]; then
-            cp  ${DIR}/etc/ossec.conf  ${DIR}/etc/ossec.conf.deborig
-            chmod 0600 ${DIR}/etc/ossec.conf.deborig
-            chown root:root ${DIR}/etc/ossec.conf.deborig
-            echo "====================================================================================="
-            echo "= Backup from your ossec.conf has been created at /var/ossec/etc/ossec.conf.deborig ="
-            echo "= Please verify your ossec.conf configuration at /var/ossec/etc/ossec.conf          ="
-            echo "====================================================================================="
+                cp  ${DIR}/etc/ossec.conf  ${DIR}/etc/ossec.conf.deborig
+                chmod 0600 ${DIR}/etc/ossec.conf.deborig
+                chown root:root ${DIR}/etc/ossec.conf.deborig
+                echo "====================================================================================="
+                echo "= Backup from your ossec.conf has been created at ${DIR}/etc/ossec.conf.deborig ="
+                echo "= Please verify your ossec.conf configuration at ${DIR}/etc/ossec.conf          ="
+                echo "====================================================================================="
             fi
         fi
         # Delete old service
@@ -42,13 +42,13 @@ case "$1" in
             cp -p ${DIR}/etc/ossec.conf ${WAZUH_TMP_DIR}/ossec.conf
         fi
 
-        if [ -d ${DIR}etc/shared ]; then
-            files="$(ls -A ${DIR}etc/shared/*)"
+        if [ -d ${DIR}/etc/shared ]; then
+            files="$(ls -A ${DIR}/etc/shared/*)"
         fi
 
         if [ ! -z "$files" ]; then
             mkdir ${WAZUH_TMP_DIR}/group
-            cp -rp ${DIR}etc/shared/* ${WAZUH_TMP_DIR}/group/
+            cp -rp ${DIR}/etc/shared/* ${WAZUH_TMP_DIR}/group/
         fi
     ;;
 
