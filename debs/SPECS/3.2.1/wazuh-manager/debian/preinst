@@ -1,5 +1,5 @@
 #!/bin/sh
-# preinst script for ossec-hids
+# preinst script for Wazuh 
 
 set -e
 

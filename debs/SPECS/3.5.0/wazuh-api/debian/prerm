@@ -1,5 +1,5 @@
 #!/bin/sh
-# prerm script for wazuh-manager
+# prerm script for Wazuh
 
 set -e
 

@@ -1,11 +1,11 @@
 #!/bin/sh
-# preinst script for ossec-hids
+# preinst script for Wazuh 
 
 set -e
 
 # configuration variables
 WAZUH_TMP_DIR="/tmp/wazuh-manager"
-DIR="/var/ossec/"
+DIR="/var/ossec"
 
 # environment configuration
 if [ ! -d ${WAZUH_TMP_DIR} ]; then
@@ -25,13 +25,13 @@ case "$1" in
             chown root:root ${DIR}/etc/ossec.conf.deborig
 
             echo "====================================================================================="
-            echo "= Backup from your ossec.conf has been created at /var/ossec/etc/ossec.conf.deborig ="
-            echo "= Please verify your ossec.conf configuration at /var/ossec/etc/ossec.conf          ="
+            echo "= Backup from your ossec.conf has been created at ${DIR}/etc/ossec.conf.deborig ="
+            echo "= Please verify your ossec.conf configuration at ${DIR}/etc/ossec.conf          ="
             echo "====================================================================================="
           fi
         fi
         # Stop API service if it's running
-        if ps aux | grep "${DIR}api/app.js" | grep -v grep > /dev/null 2>&1; then
+        if ps aux | grep "${DIR}/api/app.js" | grep -v grep > /dev/null 2>&1; then
            touch ${WAZUH_TMP_DIR}/wazuh-api.restart
            echo "-----------------------------------------------------------------------------------------------"
            echo "  The service wazuh-api needs to be stopped during the manager upgrade.                        "
@@ -45,13 +45,13 @@ case "$1" in
         fi
 
         # Stop Authd if it is running
-        if ps aux | grep /var/ossec/bin/ossec-authd | grep -v grep > /dev/null 2>&1; then
-           kill `ps -ef | grep '/var/ossec/bin/ossec-authd' | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
+        if ps aux | grep ${DIR}/bin/ossec-authd | grep -v grep > /dev/null 2>&1; then
+           kill `ps -ef | grep "${DIR}/bin/ossec-authd" | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
         fi
 
         # Fix for forcing the stop of the api
-        if ps aux | grep /var/ossec/api/app.js | grep -v grep > /dev/null 2>&1; then
-            kill -9 `ps -ef | grep '/var/ossec/api/app.js' | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
+        if ps aux | grep ${DIR}/api/app.js | grep -v grep > /dev/null 2>&1; then
+            kill -9 `ps -ef | grep "${DIR}/api/app.js" | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
         fi
 
         if [ -f ${DIR}/etc/ossec.conf ]; then
@@ -66,8 +66,8 @@ case "$1" in
               mkdir  ${DIR}/etc/shared/default
               chown ossec:ossec ${DIR}/etc/shared/default
               chmod -R 770 ${DIR}/etc/shared/default
-              find ${DIR}etc/shared -maxdepth 1 -type f \( -name "*.txt" -o -name "merged.mg" \) -exec cp -rp {} ${DIR}etc/shared/default \;
-              find ${DIR}etc/shared -maxdepth 1 -type f \( -name "*.txt" -o -name "merged.mg" \) -exec rm {} \;
+              find ${DIR}/etc/shared -maxdepth 1 -type f \( -name "*.txt" -o -name "merged.mg" \) -exec cp -rp {} ${DIR}/etc/shared/default \;
+              find ${DIR}/etc/shared -maxdepth 1 -type f \( -name "*.txt" -o -name "merged.mg" \) -exec rm {} \;
             fi
 
             cp -rp ${DIR}/etc/shared ${WAZUH_TMP_DIR}/group

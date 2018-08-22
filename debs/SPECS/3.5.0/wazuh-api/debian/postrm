@@ -1,5 +1,5 @@
 #!/bin/sh
-# postrm script for ossec-hids
+# postrm script for Wazuh 
 # Santiago Bassett <santiago.bassett@gmail.com>
 # 03/25/2014
 

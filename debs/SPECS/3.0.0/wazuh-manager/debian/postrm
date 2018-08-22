@@ -1,5 +1,5 @@
 #!/bin/sh
-# postrm script for ossec-hids
+# postrm script for Wazuh 
 # Wazuh, Inc 2016
 set -e
 

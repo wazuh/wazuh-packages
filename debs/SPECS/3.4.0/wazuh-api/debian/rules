@@ -18,6 +18,10 @@ export DH_OPTIONS
 
 export TARGET_DIR=${CURDIR}/debian/wazuh-api
 
+# Package build options
+export INSTALLATION_DIR="/var/ossec"
+export JOBS="5"
+
 %:
 	dh $@ --with-systemd
 
@@ -32,7 +36,7 @@ override_dh_auto_install:
 	groupadd ossec
 
 	# Installing api by its own script
-	./install_api.sh
+	DIRECTORY="$(INSTALLATION_DIR)" ./install_api.sh
 	
 	# Remove "fake" framework directory
 	rmdir /var/ossec/framework

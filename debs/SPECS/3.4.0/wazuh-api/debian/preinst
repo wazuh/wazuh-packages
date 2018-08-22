@@ -1,5 +1,5 @@
 #!/bin/sh
-# preinst script for ossec-hids
+# preinst script for Wazuh 
 # Santiago Bassett <support@wazuh.com>
 # 03/25/2014
 
@@ -7,7 +7,7 @@ set -e
 
 # configuration variables
 WAZUH_TMP_DIR="/tmp/wazuh-api"
-DIR="/var/ossec/"
+DIR="/var/ossec"
 
 # environment configuration
 if [ ! -d ${WAZUH_TMP_DIR} ]; then

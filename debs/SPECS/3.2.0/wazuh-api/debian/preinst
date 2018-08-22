@@ -1,5 +1,5 @@
 #!/bin/sh
-# preinst script for ossec-hids
+# preinst script for Wazuh 
 # Santiago Bassett <support@wazuh.com>
 # 03/25/2014
 
