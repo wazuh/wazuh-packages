@@ -32,16 +32,18 @@ build_rpm() {
     CONTAINER_NAME="$1"
     DOCKERFILE_PATH="$2"
 
+    SOURCES_DIRECTORY="/tmp/wazuh-builder/sources-$(( ( RANDOM % 1000000 )  + 1 ))" 
+
     # Download the sources
-    git clone ${SOURCE_REPOSITORY} -b $BRANCH ${DOCKERFILE_PATH}/sources
+    git clone ${SOURCE_REPOSITORY} -b $BRANCH ${SOURCES_DIRECTORY}
     
     # Copy the necessary files
     cp build.sh ${DOCKERFILE_PATH}
 
     if [[ "$TARGET" != "api" ]]; then
-        VERSION="$(cat ${DOCKERFILE_PATH}/sources/src/VERSION | cut -d 'v' -f 2)"
+        VERSION="$(cat ${SOURCES_DIRECTORY}/src/VERSION | cut -d 'v' -f 2)"
     else
-        VERSION="$(grep version ${DOCKERFILE_PATH}/sources/package.json | cut -d '"' -f 4)"
+        VERSION="$(grep version ${SOURCES_DIRECTORY}/package.json | cut -d '"' -f 4)"
     fi
     
     cp SPECS/$VERSION/wazuh-$TARGET-$VERSION.spec ${DOCKERFILE_PATH}/wazuh.spec
@@ -51,12 +53,14 @@ build_rpm() {
 
     # Build the RPM package with a Docker container
     docker run -t --rm -v $OUTDIR:/var/local/wazuh \
-        -v ${DOCKERFILE_PATH}/sources:/build_wazuh/wazuh-$TARGET-$VERSION \
+        -v ${SOURCES_DIRECTORY}:/build_wazuh/wazuh-$TARGET-$VERSION \
         ${CONTAINER_NAME} $TARGET $VERSION $ARCHITECTURE \
         $JOBS $RELEASE ${INSTALLATION_PATH} || exit 1
 
     # Clean the files
-    rm -rf ${DOCKERFILE_PATH}/{*.sh,*.spec} ${DOCKERFILE_PATH}/sources
+    rm -rf ${DOCKERFILE_PATH}/{*.sh,*.spec} ${SOURCES_DIRECTORY}
+
+    echo "Package $(ls $OUTDIR -Art | tail -n 1) added to $OUTDIR."
 
     return 0
 }
