@@ -29,6 +29,8 @@ override_dh_install:
 
 	rm -rf /var/ossec/
 
+	make -j5 -C src/ TARGET=agent
+
 	USER_LANGUAGE="en" \
 	USER_NO_STOP="y" \
 	USER_INSTALL_TYPE="agent" \

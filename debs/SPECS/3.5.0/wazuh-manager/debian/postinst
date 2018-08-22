@@ -208,9 +208,9 @@ case "$1" in
     # More files
     touch ${DIR}/etc/client.keys
 
-    chmod 770 /var/ossec/etc/lists
-    chmod 770 /var/ossec/etc/lists/amazon
-    chmod 660 /var/ossec/etc/lists/amazon/*
+    chmod 770 ${DIR}/etc/lists
+    chmod 770 ${DIR}/etc/lists/amazon
+    chmod 660 ${DIR}/etc/lists/amazon/*
     chmod 770 ${DIR}/etc/shared/default
 
     chown -R ossec:ossec ${DIR}/etc/client.keys
@@ -238,9 +238,9 @@ case "$1" in
     fi
 
     # create cluster.log file if not exists
-    if [ -f /var/ossec/logs/cluster.log ]; then
-        chmod 660 /var/ossec/logs/cluster.log
-        chown ${USER}:${GROUP} /var/ossec/logs/cluster.log
+    if [ -f ${DIR}/logs/cluster.log ]; then
+        chmod 660 ${DIR}/logs/cluster.log
+        chown ${USER}:${GROUP} ${DIR}/logs/cluster.log
     fi
 
     # Check if SELinux is installed and enabled

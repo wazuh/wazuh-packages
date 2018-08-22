@@ -4,9 +4,10 @@ CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ARCHITECTURE="amd64"
 OUTDIR="${HOME}/3.x/apt-dev/"
 BRANCH="master"
-RELEASE="1"
+REVISION="1"
 TARGET=""
-JOBS="-j4"
+JOBS="4"
+INSTALLATION_PATH="/var/ossec"
 DEB_AMD64_BUILDER="deb_builder_amd64"
 DEB_I386_BUILDER="deb_builder_i386"
 DEB_AMD64_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/amd64"
@@ -52,7 +53,7 @@ build_deb() {
     docker run -t --rm -v $OUTDIR:/var/local/wazuh \
         -v ${SOURCES_DIRECTORY}:/build_wazuh/$TARGET/wazuh-$TARGET-$VERSION \
         -v ${DOCKERFILE_PATH}/wazuh-$TARGET:/$TARGET \
-        ${CONTAINER_NAME} $TARGET $VERSION $ARCHITECTURE $RELEASE || exit 1
+        ${CONTAINER_NAME} $TARGET $VERSION $ARCHITECTURE $REVISION $JOBS $INSTALLATION_PATH || exit 1
 
     # Clean the files
     rm -rf ${DOCKERFILE_PATH}/{*.sh,*.tar.gz} ${SOURCES_DIRECTORY}
@@ -103,7 +104,8 @@ help() {
     echo "    -t, --target              Target package to build: manager, api or agent."
     echo "    -a, --architecture        Target architecture of the package."
     echo "    -j, --jobs                Change number of parallel jobs."
-    echo "    -r, --release             Package release."
+    echo "    -r, --revision            Package revision."
+    echo "    -p, --path                Installation path for the package. By default: /var/ossec."
     echo
     exit $1
 }
@@ -154,10 +156,19 @@ main() {
                 help 1
             fi
             ;;
-        "-r"|"--release")
+        "-r"|"--revision")
             if [ -n "$2" ]
             then
-                RELEASE="$2"
+                REVISION="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
+        "-p"|"--path")
+            if [ -n "$2" ]
+            then
+                INSTALLATION_PATH="$2"
                 shift 2
             else
                 help 1
