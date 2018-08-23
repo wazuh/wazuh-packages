@@ -18,6 +18,10 @@ export DH_OPTIONS
 
 export TARGET_DIR=${CURDIR}/debian/wazuh-manager
 
+# Package build options
+export INSTALLATION_DIR="/var/ossec"
+export JOBS="5"
+
 %:
 	dh $@
 
@@ -27,12 +31,14 @@ override_dh_auto_install:
 
 override_dh_install:
 
-	rm -rf /var/ossec/
+	rm -rf $(INSTALLATION_DIR)/
+	# Build the binaries
+	make -j$(JOBS) -C src/ TARGET=server PREFIX=$(INSTALLATION_DIR)
 
 	USER_LANGUAGE="en" \
 	USER_NO_STOP="y" \
 	USER_INSTALL_TYPE="server" \
-	USER_DIR="/var/ossec" \
+	USER_DIR="$(INSTALLATION_DIR)" \
 	USER_DELETE_DIR="y" \
 	USER_ENABLE_ACTIVE_RESPONSE="y" \
 	USER_ENABLE_SYSCHECK="y" \
@@ -48,12 +54,11 @@ override_dh_install:
 	USER_CA_STORE="/path/to/my_cert.pem" \
 	USER_GENERATE_AUTHD_CERT="y" \
 	USER_AUTO_START="n" \
-	USER_AUTO_START="n" \
 	./install.sh
 
 	# Copying debian & ubuntu OSCAP xml files
-	install -v -m 0640 -o root -g ossec wodles/oscap/content/*debian*.xml /var/ossec/wodles/oscap/content/
-	install -v -m 0640 -o root -g ossec wodles/oscap/content/*ubuntu*.xml /var/ossec/wodles/oscap/content/
+	install -v -m 0640 -o root -g ossec wodles/oscap/content/*debian*.xml $(DIR)/wodles/oscap/content/
+	install -v -m 0640 -o root -g ossec wodles/oscap/content/*ubuntu*.xml $(DIR)/wodles/oscap/content/
 
 	# Copying init.d script
 	mkdir -p ${TARGET_DIR}/etc/init.d/
@@ -61,11 +66,11 @@ override_dh_install:
 
 	# Generating permission restoration file for postinstall
 	mkdir -p ${TARGET_DIR}/usr/share/wazuh-manager/scripts/tmp/
-	./gen_permissions.sh /var/ossec/ ${TARGET_DIR}/usr/share/wazuh-manager/scripts/tmp/restore-permissions.sh
+	./gen_permissions.sh $(DIR)/ ${TARGET_DIR}/usr/share/wazuh-manager/scripts/tmp/restore-permissions.sh
 
 	# Copying to target
-	mkdir -p ${TARGET_DIR}/var/ossec/
-	cp -r /var/ossec/. $(TARGET_DIR)/var/ossec/
+	mkdir -p ${TARGET_DIR}$(DIR)/
+	cp -r $(DIR)/. $(TARGET_DIR)$(DIR)/
 
 	mkdir -p ${TARGET_DIR}/usr/share/wazuh-manager/scripts/tmp/
 	cp gen_ossec.sh ${TARGET_DIR}/usr/share/wazuh-manager/scripts/tmp/

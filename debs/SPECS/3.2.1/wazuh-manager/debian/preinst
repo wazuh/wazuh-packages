@@ -5,7 +5,7 @@ set -e
 
 # configuration variables
 OSSEC_HIDS_TMP_DIR="/tmp/wazuh-manager"
-DIR="/var/ossec/"
+DIR="/var/ossec"
 
 # environment configuration
 if [ ! -d ${OSSEC_HIDS_TMP_DIR} ]; then
@@ -25,13 +25,13 @@ case "$1" in
             chown root:root ${DIR}/etc/ossec.conf.deborig
 
             echo "====================================================================================="
-            echo "= Backup from your ossec.conf has been created at /var/ossec/etc/ossec.conf.deborig ="
-            echo "= Please verify your ossec.conf configuration at /var/ossec/etc/ossec.conf          ="
+            echo "= Backup from your ossec.conf has been created at ${DIR}/etc/ossec.conf.deborig ="
+            echo "= Please verify your ossec.conf configuration at ${DIR}/etc/ossec.conf          ="
             echo "====================================================================================="
           fi
         fi
         # Stop API service if it's running
-        if ps aux | grep /var/ossec/api/app.js | grep -v grep; then
+        if ps aux | grep ${DIR}/api/app.js | grep -v grep; then
            touch ${OSSEC_HIDS_TMP_DIR}/wazuh-api.restart
            echo "-----------------------------------------------------------------------------------------------"
            echo "  The service wazuh-api needs to be stopped during the manager upgrade.                        "
@@ -45,25 +45,25 @@ case "$1" in
         fi
 
         # Stop Authd if it is running
-        if ps aux | grep /var/ossec/bin/ossec-authd | grep -v grep; then
-           kill `ps -ef | grep '/var/ossec/bin/ossec-authd' | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
+        if ps aux | grep ${DIR}/bin/ossec-authd | grep -v grep; then
+           kill `ps -ef | grep "${DIR}/bin/ossec-authd" | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
         fi
 
         # Fix for forcing the stop of the api
-        if ps aux | grep /var/ossec/api/app.js | grep -v grep; then
-            kill -9 `ps -ef | grep '/var/ossec/api/app.js' | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
+        if ps aux | grep ${DIR}/api/app.js | grep -v grep; then
+            kill -9 `ps -ef | grep "${DIR}/api/app.js" | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
         fi
 
         # cp -rp %{_localstatedir}/ossec/etc/shared %{_localstatedir}/ossec/backup/
 
-        if [ -f /var/ossec/etc/shared/merged.mg ]; then
-            cp -rp /var/ossec/etc/ossec.conf /var/ossec/etc/ossec.bck
-            cp -rp /var/ossec/etc/shared /var/ossec/backup/
-            if [ ! -d /var/ossec/etc/shared/default ]; then
-              mkdir  /var/ossec/etc/shared/default
-              cp -rp /var/ossec/backup/shared/* /var/ossec/etc/shared/default || true
-              rm -f  /var/ossec/etc/shared/default/merged.mg || true
-              rm -f  /var/ossec/etc/shared/default/ar.conf || true
+        if [ -f ${DIR}/etc/shared/merged.mg ]; then
+            cp -rp ${DIR}/etc/ossec.conf ${DIR}/etc/ossec.bck
+            cp -rp ${DIR}/etc/shared ${DIR}/backup/
+            if [ ! -d ${DIR}/etc/shared/default ]; then
+              mkdir  ${DIR}/etc/shared/default
+              cp -rp ${DIR}/backup/shared/* ${DIR}/etc/shared/default || true
+              rm -f  ${DIR}/etc/shared/default/merged.mg || true
+              rm -f  ${DIR}/etc/shared/default/ar.conf || true
             fi
         fi
 
@@ -96,13 +96,13 @@ case "$1" in
         if [ -d ${DIR}/var/db/agents ]; then
           rm -f ${DIR}/var/db/agents/*
         fi
-        if [ -d ${DIR}etc/shared ]; then
-            files="$(ls -A ${DIR}etc/shared/*)"
+        if [ -d ${DIR}/etc/shared ]; then
+            files="$(ls -A ${DIR}/etc/shared/*)"
         fi
 
         if [ ! -z "$files" ]; then
             mkdir ${OSSEC_HIDS_TMP_DIR}/group
-            cp -rp ${DIR}etc/shared/* ${OSSEC_HIDS_TMP_DIR}/group/
+            cp -rp ${DIR}/etc/shared/* ${OSSEC_HIDS_TMP_DIR}/group/
         fi
     ;;
 

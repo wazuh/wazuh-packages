@@ -2,34 +2,35 @@
 # prerm script for wazuh-manager
 
 set -e
+DIR="/var/ossec"
 
 case "$1" in
     upgrade|deconfigure)
-      if [ -f /var/ossec/bin/ossec-control ]; then
-         /var/ossec/bin/ossec-control stop > /dev/null 2>&1
+      if [ -f ${DIR}/bin/ossec-control ]; then
+         ${DIR}/bin/ossec-control stop > /dev/null 2>&1
       fi
 
     ;;
 
     remove)
 
-      if [ -f /var/ossec/bin/ossec-control ]; then
-         /var/ossec/bin/ossec-control stop > /dev/null 2>&1
+      if [ -f ${DIR}/bin/ossec-control ]; then
+         ${DIR}/bin/ossec-control stop > /dev/null 2>&1
       fi
 
       # Purging files
-      rm -rf /var/ossec/etc/*
-      rm -rf /var/ossec/stats/*
-      rm -rf /var/ossec/logs/*
-      rm -rf /var/ossec/queue/*
-      rm -rf /var/ossec/var/*
-      rm -rf /var/ossec/framework/*
+      rm -rf ${DIR}/etc/*
+      rm -rf ${DIR}/stats/*
+      rm -rf ${DIR}/logs/*
+      rm -rf ${DIR}/queue/*
+      rm -rf ${DIR}/var/*
+      rm -rf ${DIR}/framework/*
 
     ;;
 
     failed-upgrade)
-      if [ -f /var/ossec/bin/ossec-control ]; then
-	       /var/ossec/bin/ossec-control stop > /dev/null 2>&1
+      if [ -f ${DIR}/bin/ossec-control ]; then
+	       ${DIR}/bin/ossec-control stop > /dev/null 2>&1
       fi
     ;;
 

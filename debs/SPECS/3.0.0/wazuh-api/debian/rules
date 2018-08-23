@@ -18,6 +18,10 @@ export DH_OPTIONS
 
 export TARGET_DIR=${CURDIR}/debian/wazuh-api
 
+# Package build options
+export INSTALLATION_DIR="/var/ossec"
+export JOBS="5"
+
 %:
 	dh $@ --with-systemd
 
@@ -27,31 +31,31 @@ override_dh_auto_install:
 
 	# Creating needeed files and directories (and group)
 	touch /etc/ossec-init.conf
-	mkdir -p /var/ossec/framework
-	mkdir -p /var/ossec/logs
+	mkdir -p $(INSTALLATION_DIR)/framework
+	mkdir -p $(INSTALLATION_DIR)/logs
 	groupadd ossec
 
 	# Installing api by its own script
-	./install_api.sh
+	DIRECTORY="$(INSTALLATION_DIR)" ./install_api.sh
 
 	# Remove "fake" framework directory
-	rmdir /var/ossec/framework
+	rmdir $(INSTALLATION_DIR)/framework
 
  	# REMOVE THIS when @mgmacias push the dev changes!!!!
-	rm -f /var/ossec/logs/cluster_debug_inotify.log
-	rm -f /var/ossec/logs/cluster_debug_socket.log
+	rm -f $(INSTALLATION_DIR)/logs/cluster_debug_inotify.log
+	rm -f $(INSTALLATION_DIR)/logs/cluster_debug_socket.log
 
 	# Remove the httpaswd file
-	rm -f /var/ossec/api/configuration/auth/htpasswd
+	rm -f $(INSTALLATION_DIR)/api/configuration/auth/htpasswd
 
-	# Copying /var/ossec/api files to package target
-	mkdir -p ${TARGET_DIR}/var/ossec/
-	cp -r /var/ossec/* $(TARGET_DIR)/var/ossec/
+	# Copying $(INSTALLATION_DIR)/api files to package target
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_DIR)/
+	cp -r $(INSTALLATION_DIR)/* $(TARGET_DIR)$(INSTALLATION_DIR)/
 
 	# Generating permission restoration file for postinstall
 	mkdir -p ${TARGET_DIR}/usr/share/wazuh-api/scripts/tmp/
 	# Generating permission restoration file for postinstall
-	./gen_permissions.sh "/var/ossec/api/ /var/ossec/logs/*" ${TARGET_DIR}/usr/share/wazuh-api/scripts/tmp/restore-permissions.sh
+	./gen_permissions.sh "$(INSTALLATION_DIR)/api/ $(INSTALLATION_DIR)/logs/*" ${TARGET_DIR}/usr/share/wazuh-api/scripts/tmp/restore-permissions.sh
 
 override_dh_auto_clean:
 	# $(MAKE) clean

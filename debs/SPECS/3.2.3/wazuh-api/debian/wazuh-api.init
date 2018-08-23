@@ -24,10 +24,10 @@
 
 
 BIN_DIR="/usr/bin/nodejs"
-APP_PATH="/var/ossec/api/app.js"
-OSSEC_PATH="/var/ossec"
-PID_PATH="$OSSEC_PATH/var/run/wazuh-api.pid"
-API_LOGS="$OSSEC_PATH/logs/api.log"
+DIR="/var/ossec"
+APP_PATH="$DIR/api/app.js"
+PID_PATH="$DIR/var/run/wazuh-api.pid"
+API_LOGS="$DIR/logs/api.log"
 NODEUSER=root:ossec
 
 start() {
