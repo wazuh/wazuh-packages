@@ -42,7 +42,7 @@ override_dh_install:
 	USER_UPDATE="n" \
 	USER_AGENT_SERVER_IP="MANAGER_IP" \
 	USER_CA_STORE="/path/to/my_cert.pem" \
-	AUTO_START="n" \
+	USER_AUTO_START="n" \
 	./install.sh
 
 	# Copying debian & ubuntu OSCAP xml files

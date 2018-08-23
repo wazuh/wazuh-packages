@@ -2,14 +2,15 @@
 # postrm script for Wazuh 
 # Wazuh, Inc 2016
 set -e
+DIR="/var/ossec"
 
 case "$1" in
     purge|remove|failed-upgrade|abort-install|abort-upgrade|disappear)
 
 
     # Fix for forcing the stop of the api
-    if ps aux | grep /var/ossec/api/app.js | grep -v grep; then
-        kill -9 `ps -ef | grep '/var/ossec/api/app.js' | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
+    if ps aux | grep ${DIR}/api/app.js | grep -v grep; then
+        kill -9 `ps -ef | grep '${DIR}/api/app.js' | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
     fi
 
   	if getent passwd | grep -q "^ossecr" ; then

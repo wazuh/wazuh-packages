@@ -8,7 +8,8 @@ case "$1" in
     configure|upgrade)
 
     OS=$(lsb_release -si)
-	DIR="/var/ossec/api"
+    DIR="/var/ossec"
+	WAZUH_API_DIR="${DIR}/api"
 	WAZUH_TMP_DIR="/tmp/wazuh-api"
     USER="ossec"
     GROUP="ossec"
@@ -23,15 +24,15 @@ case "$1" in
 
     if [ -z "$2" ]; then
         echo "=============================================================================================================="
-        echo "= Don’t forget to secure the API configuration by running the script /var/ossec/api/scripts/configure_api.sh ="
+        echo "= Don’t forget to secure the API configuration by running the script ${WAZUH_API_DIR}/scripts/configure_api.sh ="
         echo "=============================================================================================================="
     fi
 
     # touch /var/ossec/logs/api.log
 
 
-    if [ -f /var/ossec/api/node_modules/htpasswd/bin/htpasswd ] && [ ! -x /var/ossec/api/configuration/auth/htpasswd ]; then
-        ln -sf /var/ossec/api/node_modules/htpasswd/bin/htpasswd /var/ossec/api/configuration/auth/htpasswd
+    if [ -f ${WAZUH_API_DIR}/node_modules/htpasswd/bin/htpasswd ] && [ ! -x ${WAZUH_API_DIR}/configuration/auth/htpasswd ]; then
+        ln -sf ${WAZUH_API_DIR}/node_modules/htpasswd/bin/htpasswd ${WAZUH_API_DIR}/configuration/auth/htpasswd
     fi
 
 	if [ -x /etc/init.d/wazuh-api ]; then
@@ -43,8 +44,8 @@ case "$1" in
 
     # Restore local_decoders.xml configuration
     if [ -d ${WAZUH_TMP_DIR}/configuration ]; then
-        cp ${DIR}/configuration/config.js ${WAZUH_TMP_DIR}/configuration/config.js.debnew
-        cp -rp ${WAZUH_TMP_DIR}/configuration ${DIR}/
+        cp ${WAZUH_API_DIR}/configuration/config.js ${WAZUH_TMP_DIR}/configuration/config.js.debnew
+        cp -rp ${WAZUH_TMP_DIR}/configuration ${WAZUH_API_DIR}/
     fi
 
     # Restore /var/ossec permissions
@@ -73,8 +74,8 @@ case "$1" in
            service wazuh-api restart > /dev/null 2>&1
         fi
     # Delete old api framework (new is included with wazuh-manager in /var/ossec/framework)
-    if [ -d /var/ossec/api/framework ]; then
-        rm -rf /var/ossec/api/framework
+    if [ -d ${WAZUH_API_DIR}/framework ]; then
+        rm -rf ${WAZUH_API_DIR}/framework
     fi
 
     if [ -d /usr/share/wazuh-api ]; then

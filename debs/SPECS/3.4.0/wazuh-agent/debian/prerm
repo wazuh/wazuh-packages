@@ -3,40 +3,34 @@
 
 set -e
 
+DIR="/var/ossec"
+
 case "$1" in
     upgrade|deconfigure)
-      if [ -f /var/ossec/bin/ossec-control ]; then
-         /var/ossec/bin/ossec-control stop > /dev/null 2>&1
+      if [ -f ${DIR}/bin/ossec-control ]; then
+         ${DIR}/bin/ossec-control stop > /dev/null 2>&1
       fi
     ;;
 
     remove)
 
-      if [ -n "$(ps -e | grep -E ^\ *1\ .*systemd$)" ]; then
-        systemctl stop wazuh-agent
-      fi
-
-      if [ -n "$(ps -e | grep -E ^\ *1\ .*init$)" ]; then
-        service wazuh-agent stop
-      fi
-
-      if [ -f /var/ossec/bin/ossec-control ]; then
-        /var/ossec/bin/ossec-control stop > /dev/null 2>&1
+      if [ -f ${DIR}/bin/ossec-control ]; then
+         ${DIR}/bin/ossec-control stop > /dev/null 2>&1
       fi
 
       # Purging files
-      if [ -d /var/ossec/queue/ ]; then
-        rm -rf /var/ossec/queue/
+      if [ -d ${DIR}/queue/ ]; then
+        rm -rf ${DIR}/queue/
       fi
-      if [ -d /var/ossec/etc/shared/ ]; then
-        rm -rf /var/ossec/etc/shared/
+      if [ -d ${DIR}/etc/shared/ ]; then
+        rm -rf ${DIR}/etc/shared/
       fi
 
     ;;
 
     failed-upgrade)
-      if [ -f /var/ossec/bin/ossec-control ]; then
-        /var/ossec/bin/ossec-control stop > /dev/null 2>&1
+      if [ -f ${DIR}/bin/ossec-control ]; then
+        ${DIR}/bin/ossec-control stop > /dev/null 2>&1
       fi
     ;;
 

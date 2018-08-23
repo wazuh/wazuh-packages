@@ -31,33 +31,33 @@ override_dh_auto_install:
 
 	# Creating needeed files and directories (and group)
 	touch /etc/ossec-init.conf
-	mkdir -p /var/ossec/framework
-	mkdir -p /var/ossec/logs
+	mkdir -p $(INSTALLATION_DIR)/framework
+	mkdir -p $(INSTALLATION_DIR)/logs
 	groupadd ossec
 
 	# Installing api by its own script
 	DIRECTORY="$(INSTALLATION_DIR)" ./install_api.sh
 	
 	# Remove "fake" framework directory
-	rmdir /var/ossec/framework
+	rmdir $(INSTALLATION_DIR)/framework
 
 	# Remove the httpaswd file
-	rm -f /var/ossec/api/configuration/auth/htpasswd
+	rm -f $(INSTALLATION_DIR)/api/configuration/auth/htpasswd
 
-	# Copying /var/ossec/api files to package target
-	mkdir -p ${TARGET_DIR}/var/ossec/
+	# Copying $(INSTALLATION_DIR)/api files to package target
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_DIR)/
 	mkdir -p ${TARGET_DIR}/etc/
 	mkdir -p ${TARGET_DIR}/etc/systemd
 	mkdir -p ${TARGET_DIR}/etc/systemd/system
 
-	cp -r /var/ossec/* $(TARGET_DIR)/var/ossec/
-	sed -i "s:^ExecStart=.*:ExecStart=/usr/bin/nodejs /var/ossec/api/app.js:g" ./scripts/wazuh-api.service
+	cp -r $(INSTALLATION_DIR)/* $(TARGET_DIR)$(INSTALLATION_DIR)/
+	sed -i "s:^ExecStart=.*:ExecStart=/usr/bin/nodejs $(INSTALLATION_DIR)/api/app.js:g" ./scripts/wazuh-api.service
 	cp ./scripts/wazuh-api.service $(TARGET_DIR)/etc/systemd/system
 
 	# Generating permission restoration file for postinstall
 	mkdir -p ${TARGET_DIR}/usr/share/wazuh-api/scripts/tmp/
 	# Generating permission restoration file for postinstall
-	./gen_permissions.sh "/var/ossec/api/ /var/ossec/logs/*" ${TARGET_DIR}/usr/share/wazuh-api/scripts/tmp/restore-permissions.sh
+	./gen_permissions.sh "$(INSTALLATION_DIR)/api/ $(INSTALLATION_DIR)/logs/*" ${TARGET_DIR}/usr/share/wazuh-api/scripts/tmp/restore-permissions.sh
 
 
 override_dh_auto_clean:
