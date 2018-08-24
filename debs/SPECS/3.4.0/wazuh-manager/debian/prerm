@@ -1,0 +1,52 @@
+#!/bin/sh
+# prerm script for wazuh-manager
+
+set -e
+DIR="/var/ossec"
+
+case "$1" in
+    upgrade|deconfigure)
+      if [ -f ${DIR}/bin/ossec-control ]; then
+         ${DIR}/bin/ossec-control stop > /dev/null 2>&1
+      fi
+
+    ;;
+
+    remove)
+
+      if [ -n "$(ps -e | grep -E ^\ *1\ .*systemd$)" ]; then
+        systemctl stop wazuh-manager
+      fi
+
+      if [ -n "$(ps -e | grep -E ^\ *1\ .*init$)" ]; then
+        service wazuh-manager stop
+      fi
+
+      if [ -f ${DIR}/bin/ossec-control ]; then
+        ${DIR}/bin/ossec-control stop > /dev/null 2>&1
+      fi
+
+      # Purging files
+      rm -rf ${DIR}/etc/*
+      rm -rf ${DIR}/stats/*
+      rm -rf ${DIR}/logs/*
+      rm -rf ${DIR}/queue/*
+      rm -rf ${DIR}/var/*
+      rm -rf ${DIR}/framework/*
+
+    ;;
+
+    failed-upgrade)
+      if [ -f ${DIR}/bin/ossec-control ]; then
+	       ${DIR}/bin/ossec-control stop > /dev/null 2>&1
+      fi
+    ;;
+
+    *)
+        echo "prerm called with unknown argument \`$1'" >&2
+        exit 0
+    ;;
+
+esac
+
+exit 0

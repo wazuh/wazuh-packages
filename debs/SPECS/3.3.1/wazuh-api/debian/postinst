@@ -1,0 +1,95 @@
+#!/bin/bash
+# postinst script for Wazuh 
+# Wazuh, Inc 2016
+
+set -e
+
+case "$1" in
+    configure|upgrade)
+
+    OS=$(lsb_release -si)
+	DIR="/var/ossec"
+    WAZUH_API_DIR="${DIR}/api"
+	WAZUH_TMP_DIR="/tmp/wazuh-api"
+    USER="ossec"
+    GROUP="ossec"
+	OSMYSHELL="/sbin/nologin"
+    SCRIPTS_DIR="/usr/share/wazuh-api/scripts/tmp"
+
+    if [ ! -f ${OSMYSHELL} ]; then
+	    if [ -f "/bin/false" ]; then
+	        OSMYSHELL="/bin/false"
+	    fi
+	fi
+
+    if [ -z "$2" ]; then
+        echo "=============================================================================================================="
+        echo "= Don’t forget to secure the API configuration by running the script ${WAZUH_API_DIR}/scripts/configure_api.sh ="
+        echo "=============================================================================================================="
+    fi
+
+    # touch /var/ossec/logs/api.log
+
+
+    if [ -f ${WAZUH_API_DIR}/node_modules/htpasswd/bin/htpasswd ] && [ ! -x ${WAZUH_API_DIR}/configuration/auth/htpasswd ]; then
+        ln -sf ${WAZUH_API_DIR}/node_modules/htpasswd/bin/htpasswd ${WAZUH_API_DIR}/configuration/auth/htpasswd
+    fi
+
+    # Restore local_decoders.xml configuration
+    if [ -d ${WAZUH_TMP_DIR}/api/configuration ]; then
+        cp ${WAZUH_API_DIR}/configuration/config.js ${WAZUH_TMP_DIR}/api/configuration/config.js.debnew
+        cp -rfp ${WAZUH_TMP_DIR}/api/configuration ${WAZUH_API_DIR}/
+        cp -rfp ${WAZUH_TMP_DIR}/api/configuration/auth/user ${WAZUH_API_DIR}/configuration/auth/user
+        cp -rfp ${WAZUH_TMP_DIR}/api/configuration/config.js ${WAZUH_API_DIR}/configuration/config.js
+    fi
+
+    # Restore /var/ossec permissions
+    . ${SCRIPTS_DIR}/restore-permissions.sh
+
+    #veriy python version
+    if python -V >/dev/null 2>&1; then
+      python_version=$(python -c 'import sys; print(".".join(map(str, sys.version_info[:3])))' | cut -c1-3)
+      if [ ! $python_version == '2.7' ]; then
+         echo "Warning: Minimal supported version is 2.7"
+      fi
+    else
+      echo "Warning: Minimal supported version is 2.7"
+    fi
+
+    # Delete tmp directory
+	if [ -d ${WAZUH_TMP_DIR} ]; then
+	    rm -r ${WAZUH_TMP_DIR}
+	fi
+
+    if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
+        systemctl daemon-reload > /dev/null 2>&1
+        systemctl enable wazuh-api > /dev/null 2>&1
+        systemctl restart wazuh-api.service > /dev/null 2>&1
+    else
+        update-rc.d wazuh-api defaults > /dev/null 2>&1
+        service wazuh-api restart > /dev/null 2>&1
+    fi
+
+    # Delete old api framework (new is included with wazuh-manager in /var/ossec/framework)
+    if [ -d ${WAZUH_API_DIR}/framework ]; then
+        rm -rf ${WAZUH_API_DIR}/framework
+    fi
+
+    if [ -d /usr/share/wazuh-api ]; then
+        rm -rf /usr/share/wazuh-api
+    fi
+
+    ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >22
+        exit 1
+    ;;
+
+esac
+
+exit 0

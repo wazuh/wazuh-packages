@@ -1,0 +1,32 @@
+wazuh-api (3.1.0-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <support@wazuh.com>  Mon, 19 Dec 2017 08:00:10 +0000
+
+wazuh-api (2.1.1-1) stable; urgency=low
+
+  * First release.
+
+ -- Wazuh, Inc <support@wazuh.com>  Mon, 01 Aug 2017 08:00:10 +0000
+
+wazuh-api (2.1.0-1) stable; urgency=low
+
+  * First release.
+
+ -- Wazuh, Inc <support@wazuh.com>  Mon, 30 Sep 2016 08:43:10 +0000
+
+wazuh-api (2.0.1-1) stable; urgency=low
+
+  * Issue when basic-auth is disabled.
+  * Regex for latest version in install_api.sh
+  * Wrong scan dates for syscheck and rootcheck.
+  * IP value always must be lowercase.
+
+ -- Wazuh, Inc <support@wazuh.com>  Mon, 30 Sep 2016 08:43:10 +0000
+
+wazuh-api (2.0-1) stable; urgency=low
+
+  * Wazuh-api - base 2.0
+
+ -- Wazuh, Inc <support@wazuh.com>  Mon, 30 Sep 2016 08:43:10 +0000

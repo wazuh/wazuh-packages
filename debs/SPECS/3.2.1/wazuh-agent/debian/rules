@@ -1,0 +1,102 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Sample debian/rules that uses debhelper.
+#
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+#
+# Modified to make a template file for a multi-binary package with separated
+# build-arch and build-indep targets  by Bill Allombert 2001
+
+# Uncomment this to turn on verbose mode.
+export DH_VERBOSE=1
+
+# This has to be exported to make some magic below work.
+export DH_OPTIONS
+
+export TARGET_DIR=${CURDIR}/debian/wazuh-agent
+
+# Package build options
+export INSTALLATION_DIR="/var/ossec"
+export JOBS="5"
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+
+override_dh_auto_install:
+
+override_dh_install:
+
+	rm -rf $(INSTALLATION_DIR)/
+
+	# Build the binaries
+	make -j$(JOBS) -C src/ TARGET=agent PREFIX=$(INSTALLATION_DIR)
+
+	USER_LANGUAGE="en" \
+	USER_NO_STOP="y" \
+	USER_INSTALL_TYPE="agent" \
+	USER_DIR="$(INSTALLATION_DIR)" \
+	USER_DELETE_DIR="y" \
+	USER_ENABLE_ACTIVE_RESPONSE="y" \
+	USER_ENABLE_SYSCHECK="y" \
+	USER_ENABLE_ROOTCHECK="y" \
+	USER_ENABLE_OPENSCAP="y" \
+	USER_ENABLE_CISCAT="y" \
+	USER_UPDATE="n" \
+	USER_AGENT_SERVER_IP="MANAGER_IP" \
+	USER_CA_STORE="/path/to/my_cert.pem" \
+	USER_AUTO_START="n" \
+	./install.sh
+
+
+	# Copying debian & ubuntu OSCAP xml files
+	install -v -m 0640 -o root -g ossec wodles/oscap/content/*debian*.xml $(DIR)/wodles/oscap/content/
+	install -v -m 0640 -o root -g ossec wodles/oscap/content/*ubuntu*.xml $(DIR)/wodles/oscap/content/
+
+	# Copying init.d script
+	mkdir -p ${TARGET_DIR}/etc/init.d/
+	cp src/init/ossec-hids-debian.init ${TARGET_DIR}/etc/init.d/wazuh-agent
+
+	# Generating permission restoration file for postinstall
+	mkdir -p ${TARGET_DIR}/usr/share/wazuh-agent/scripts/tmp/
+	./gen_permissions.sh $(DIR)/ ${TARGET_DIR}/usr/share/wazuh-agent/scripts/tmp/restore-permissions.sh
+
+	# Copying to target
+	mkdir -p ${TARGET_DIR}$(DIR)/
+	cp -r $(DIR)/. $(TARGET_DIR)$(DIR)/
+
+	# Copying install scripts to /usr/share
+	mkdir -p ${TARGET_DIR}/usr/share/wazuh-agent/scripts/tmp/
+	cp gen_ossec.sh ${TARGET_DIR}/usr/share/wazuh-agent/scripts/tmp/
+	cp add_localfiles.sh ${TARGET_DIR}/usr/share/wazuh-agent/scripts/tmp/
+
+	mkdir -p ${TARGET_DIR}/usr/share/wazuh-agent/scripts/tmp/src
+	cp src/VERSION ${TARGET_DIR}/usr/share/wazuh-agent/scripts/tmp/src/
+	cp src/REVISION ${TARGET_DIR}/usr/share/wazuh-agent/scripts/tmp/src/
+	cp src/LOCATION ${TARGET_DIR}/usr/share/wazuh-agent/scripts/tmp/src/
+
+	mkdir -p ${TARGET_DIR}/usr/share/wazuh-agent/scripts/tmp/src/init
+	cp -r src/init/*  ${TARGET_DIR}/usr/share/wazuh-agent/scripts/tmp/src/init
+
+	mkdir -p ${TARGET_DIR}/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic
+	cp -r etc/templates/config/generic/* ${TARGET_DIR}/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic
+
+	# Copying systemd file
+	mkdir -p ${TARGET_DIR}/etc/
+	mkdir -p ${TARGET_DIR}/etc/systemd/
+	mkdir -p ${TARGET_DIR}/etc/systemd/system/
+
+	cp src/systemd/wazuh-manager.service ${TARGET_DIR}/etc/systemd/system/
+
+override_dh_auto_clean:
+	$(MAKE) -C src clean
+
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym
+
+.PHONY: override_dh_strip override_dh_auto_clean override_dh_auto_build override_dh_auto_configure
