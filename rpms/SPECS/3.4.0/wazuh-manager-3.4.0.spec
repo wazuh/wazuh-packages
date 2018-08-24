@@ -1,12 +1,10 @@
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-manager
-Version:     3.3.0
-Release:     1
+Version:     3.4.0
+Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
 Source0:     %{name}-%{version}.tar.gz
-Source1:     %{name}.init
-Source2:     CHANGELOG
 URL:         https://www.wazuh.com/
 BuildRoot:   %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Vendor:      https://www.wazuh.com
@@ -19,7 +17,11 @@ Conflicts:   ossec-hids ossec-hids-agent wazuh-agent wazuh-local
 AutoReqProv: no
 
 Requires: coreutils
-BuildRequires: coreutils glibc-devel
+%if 0%{?el} >= 6 || 0%{?rhel} >= 6
+BuildRequires: coreutils glibc-devel automake autoconf libtool policycoreutils-python
+%else
+BuildRequires: coreutils glibc-devel automake autoconf libtool policycoreutils
+%endif
 
 %if 0%{?fc25}
 BuildRequires: perl
@@ -35,7 +37,7 @@ ExclusiveOS: linux
 %description
 Wazuh helps you to gain security visibility into your infrastructure by monitoring
 hosts at an operating system and application level. It provides the following capabilities:
-log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
+log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring.
 
 %prep
 %setup -q
@@ -48,9 +50,9 @@ pushd src
 make clean
 
 %if 0%{?el} >= 6 || 0%{?rhel} >= 6
-    make -j5 TARGET=server PREFIX=%{_localstatedir}/ossec
+    make -j%{_threads} TARGET=server USE_SELINUX=yes PREFIX=%{_localstatedir}/ossec
 %else
-    make -j5 TARGET=server DISABLE_SYSC=yes PREFIX=%{_localstatedir}/ossec
+    make -j%{_threads} TARGET=server DISABLE_SYSC=yes USE_AUDIT=no USE_SELINUX=yes PREFIX=%{_localstatedir}/ossec
 %endif
 
 popd
@@ -77,7 +79,7 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/{decoders,rules}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/.ssh
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/stats
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/var/{db,run,upgrade,wodles}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/var/{db,run,selinux,upgrade,wodles}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/var/db/agents
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/var/wodles
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
@@ -174,7 +176,7 @@ install -m 0640 wodles/oscap/content/ssg-rhel-6-ds.xml ${RPM_BUILD_ROOT}%{_local
 install -m 0640 wodles/oscap/content/ssg-centos-6-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 install -m 0640 wodles/oscap/content/ssg-fedora-24-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 
-install -m 0755 %{SOURCE1} ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-manager
+install -m 0755 src/init/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-manager
 
 # Temporal files for gent_ossec
 install -m 0640 src/init/inst-functions.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/init
@@ -184,7 +186,11 @@ install -m 0640 src/LOCATION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src
 install -m 0640 src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src
 install -m 0640 src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src
 install -m 0640 add_localfiles.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp
-cp %{SOURCE2} CHANGELOG
+
+# SELinux file
+install -m 0640 src/selinux/wazuh.pp ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/var/selinux
+
+cp CHANGELOG.md CHANGELOG
 
 # Vuls files
 install -m 0750 wodles/vuls/deploy_vuls.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/vuls
@@ -270,7 +276,7 @@ rm -f %{_localstatedir}/ossec/var/db/agents/* || true
 # Back up the cluster.json >= 3.2.3
 if [ -d %{_localstatedir}/ossec/framework ]; then
     if [ -f %{_localstatedir}/ossec/framework/wazuh/cluster/cluster.json ]; then
-        cp %{_localstatedir}/ossec/framework/wazuh/cluster/cluster.json %{_localstatedir}/tmp/cluster.json
+        cp %{_localstatedir}/ossec/framework/wazuh/cluster/cluster.json /tmp/cluster.json
         rm -f %{_localstatedir}/ossec/framework/wazuh/cluster/cluster.json
     fi
 fi
@@ -393,8 +399,8 @@ if [ $1 = 1 ]; then
 fi
 
 # "Restore the old cluster.json"
-if [ -f %{_localstatedir}/tmp/cluster.json ]; then
-    mv %{_localstatedir}/tmp/cluster.json %{_localstatedir}/ossec/framework/wazuh/cluster/cluster.json.old
+if [ -f /tmp/cluster.json ]; then
+    mv /tmp/cluster.json %{_localstatedir}/ossec/framework/wazuh/cluster/cluster.json.old
     chown root:ossec %{_localstatedir}/ossec/framework/wazuh/cluster/cluster.json.old
     chmod 640 %{_localstatedir}/ossec/framework/wazuh/cluster/cluster.json.old
 fi
@@ -465,6 +471,31 @@ if [ -d /run/systemd/system ]; then
   systemctl enable wazuh-manager > /dev/null 2>&1
 fi
 
+# The check for SELinux is not executed in the legacy OS.
+add_selinux="yes"
+if [ "${DIST_NAME}" == "centos" -a "${DIST_VER}" == "5" ] || [ "${DIST_NAME}" == "rhel" -a "${DIST_VER}" == "5" ] || [ "${DIST_NAME}" == "suse" -a "${DIST_VER}" == "11" ] ; then
+  add_selinux="no"
+fi
+
+# Check if SELinux is installed and enabled
+if [ ${add_selinux} == "yes" ]; then
+  if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
+    if [ $(getenforce) !=  "Disabled" ]; then
+      if ! (semodule -l | grep wazuh > /dev/null); then
+        echo "Installing Wazuh policy for SELinux."
+        semodule -i %{_localstatedir}/ossec/var/selinux/wazuh.pp
+        semodule -e wazuh
+      else
+        echo "Skipping installation of Wazuh policy for SELinux: module already installed."
+      fi
+    else
+      echo "SELinux is disabled. Not adding Wazuh policy."
+    fi
+  else
+    echo "SELinux is not installed. Not adding Wazuh policy."
+  fi
+fi
+
 if %{_localstatedir}/ossec/bin/ossec-logtest 2>/dev/null ; then
   /sbin/service wazuh-manager restart 2>&1
 else
@@ -489,6 +520,38 @@ if [ $1 = 0 ]; then
   /sbin/chkconfig --del wazuh-manager
 
   /sbin/service wazuh-manager stop || :
+
+  # Check if Wazuh SELinux policy is installed
+  if [ -r "/etc/centos-release" ]; then
+    DIST_NAME="centos"
+    DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.[0-9]{1,2}.*/\1/p' /etc/centos-release`
+  
+  elif [ -r "/etc/redhat-release" ]; then
+    DIST_NAME="rhel"
+    DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.[0-9]{1,2}.*/\1/p' /etc/redhat-release`
+  elif [ -r "/etc/SuSE-release" ]; then
+    DIST_NAME="suse"
+    DIST_VER=`sed -rn 's/.*VERSION = ([0-9]{1,2}).*/\1/p' /etc/SuSE-release`
+  else
+    DIST_NAME=""
+    DIST_VER=""
+  fi
+
+  add_selinux="yes"
+  if [ "${DIST_NAME}" == "centos" -a "${DIST_VER}" == "5" ] || [ "${DIST_NAME}" == "rhel" -a "${DIST_VER}" == "5" ] || [ "${DIST_NAME}" == "suse" -a "${DIST_VER}" == "11" ] ; then
+    add_selinux="no"
+  fi
+  
+  # If it is a valid system, remove the policy if it is installed
+  if [ ${add_selinux} == "yes" ]; then
+    if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
+      if [ $(getenforce) !=  "Disabled" ]; then
+        if (semodule -l | grep wazuh > /dev/null); then
+          semodule -r wazuh
+        fi
+      fi
+    fi
+  fi
 
   rm -f %{_localstatedir}/ossec/etc/localtime || :
 fi
@@ -557,10 +620,11 @@ rm -fr %{buildroot}
 %attr(750,ossec,ossec) %dir %{_localstatedir}/ossec/stats
 %attr(1750,root,ossec) %dir %{_localstatedir}/ossec/tmp
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/var
-%attr(770,root,ossec) %dir %{_localstatedir}/ossec/var/run
 %attr(770,root,ossec) %dir %{_localstatedir}/ossec/var/db
-%attr(770,root,ossec) %dir %{_localstatedir}/ossec/var/upgrade
 %attr(770,root,ossec) %dir %{_localstatedir}/ossec/var/db/agents
+%attr(770,root,ossec) %dir %{_localstatedir}/ossec/var/run
+%attr(770,root,ossec) %dir %{_localstatedir}/ossec/var/selinux
+%attr(770,root,ossec) %dir %{_localstatedir}/ossec/var/upgrade
 %attr(770,root,ossec) %dir %{_localstatedir}/ossec/var/wodles
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/wodles
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/wodles/aws
@@ -592,6 +656,7 @@ rm -fr %{buildroot}
 %attr(640,root,ossec) %{_localstatedir}/ossec/ruleset/VERSION
 %attr(640,root,ossec) %{_localstatedir}/ossec/ruleset/rules/*
 %attr(640,root,ossec) %{_localstatedir}/ossec/ruleset/decoders/*
+%attr(640,root,ossec) %{_localstatedir}/ossec/var/selinux/*
 %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/aws/*
 %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/vuls/*
 %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap/oscap.*
@@ -607,6 +672,12 @@ rm -fr %{buildroot}
 /usr/share/wazuh-manager/scripts/tmp/*
 
 %changelog
+* Wed Jul 11 2018 support <support@wazuh.com> - 3.4.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Jun 18 2018 support <support@wazuh.com> - 3.3.1
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Jun 11 2018 support <support@wazuh.com> - 3.3.0
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Wed May 30 2018 support <support@wazuh.com> - 3.2.4
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Thu May 10 2018 support <support@wazuh.com> - 3.2.3
