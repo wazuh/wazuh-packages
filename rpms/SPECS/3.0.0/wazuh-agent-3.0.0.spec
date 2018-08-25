@@ -7,7 +7,7 @@ Group:       System Environment/Daemons
 Source0:     %{name}-%{version}.tar.gz
 URL:         http://www.wazuh.com/
 BuildRoot:   %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-Vendor:      https://www.wazuh.com
+Vendor:      Wazuh, Inc <support@wazuh.com>
 Packager:    Wazuh, Inc <support@wazuh.com>
 Requires(pre):    /usr/sbin/groupadd /usr/sbin/useradd
 Requires(post):   /sbin/chkconfig
