@@ -96,7 +96,7 @@ install -m 0640 src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src
 install -m 0640 add_localfiles.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp
 
 # AWS wodle
-install -m 0750 wodles/aws/aws.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/aws
+install -m 0750 wodles/aws/aws-s3.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/aws/aws-s3 
 
 # Wazuh lib
 install -m 0750 src/libwazuhext.so ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/lib

@@ -165,7 +165,7 @@ install -m 0640 etc/decoders/*.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/rule
 install -m 0440 src/update/ruleset/RULESET_VERSION  ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/VERSION
 install -m 0750 integrations/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/integrations
 # AWS wodle
-install -m 0750 wodles/aws/aws.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/aws
+install -m 0750 wodles/aws/aws-s3.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/aws/aws-s3
 install -m 0750 wodles/oscap/oscap.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap
 install -m 0750 wodles/oscap/template_oval.xsl ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap
 install -m 0750 wodles/oscap/template_xccdf.xsl ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap
