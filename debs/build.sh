@@ -27,9 +27,9 @@ cp -pr /${build_target}/debian ${build_dir}/${build_target}/${package_full_name}
 sed -i "s:RELEASE:${package_release}:g" ${build_dir}/${build_target}/${package_full_name}/debian/changelog
 sed -i "s:export JOBS=.*:export JOBS=${jobs}:g" ${build_dir}/${build_target}/${package_full_name}/debian/rules
 sed -i "s:export INSTALLATION_DIR=.*:export INSTALLATION_DIR=${dir_path}:g" ${build_dir}/${build_target}/${package_full_name}/debian/rules
-sed -i "s:DIR=.*:DIR=\"${dir_path}\":g" ${build_dir}/${build_target}/${package_full_name}/debian/{preinst,postinst,prerm,postrm}
+sed -i "s:DIR=\"/var/ossec\":DIR=\"${dir_path}\":g" ${build_dir}/${build_target}/${package_full_name}/debian/{preinst,postinst,prerm,postrm}
 if [ "${build_target}" == "api" ]; then 
-    sed -i "s:DIR=.*:DIR=\"${dir_path}\":g" ${build_dir}/${build_target}/${package_full_name}/debian/wazuh-api.init
+    sed -i "s:DIR=\"/var/ossec\":DIR=\"${dir_path}\":g" ${build_dir}/${build_target}/${package_full_name}/debian/wazuh-api.init
 fi
 
 # Installing build dependencies
