@@ -99,11 +99,11 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -b, --branch <branch>     Select Git branch [$BRANCH]."
+    echo "    -b, --branch <branch>     Select Git branch or tag [$BRANCH]."
     echo "    -h, --help                Show this help."
     echo "    -t, --target              Target package to build: manager, api or agent."
     echo "    -a, --architecture        Target architecture of the package."
-    echo "    -j, --jobs                Change number of parallel jobs."
+    echo "    -j, --jobs                Change number of parallel jobs when compiling the manager or agent."
     echo "    -r, --revision            Package revision."
     echo "    -p, --path                Installation path for the package. By default: /var/ossec."
     echo

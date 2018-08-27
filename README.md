@@ -35,10 +35,10 @@ To build an RPM package, you need to download this repository and use the `gener
         -h, --help                Show this help.
         -t, --target              Target package to build: manager, api or agent.
         -a, --architecture        Target architecture of the package.
-        -j, --jobs                Change number of parallel jobs.
+        -j, --jobs                Change number of parallel jobs when compiling the manager or agent.
         -l, --legacy              Build the package for CentOS 5.
         -r, --release             Package release.
-        -p, --path                Installation path for the package.
+        -p, --path                Installation path for the package. By default: /var.
     ```
     * To build a wazuh-manager package for x86_64:  
         `# ./generate_wazuh_rpm.sh -b v3.4.0 -t manager -a x86_64`.
@@ -46,6 +46,8 @@ To build an RPM package, you need to download this repository and use the `gener
         `# ./generate_wazuh_rpm.sh -b v3.4.0 -t agent -a x86_64 -j 15 -r 3`.
     * To build a wazuh-api package from branch 3.6:  
         `# ./generate_wazuh_rpm.sh -b 3.6 -t api`.
+    * To build a wazuh-manager package for x86_64 in a different directory:  
+        `# ./generate_wazuh_rpm.sh -b v3.4.0 -t manager -a x86_64 -p /opt`.
 3. When the execution finish, you can find your `.src.rpm` and the `.rpm` packages in `$HOME/3.x/yum-dev`.
 
 
@@ -53,7 +55,7 @@ To build an RPM package, you need to download this repository and use the `gener
 
 Building a .deb package is pretty similar to build a .rpm package. You need to download the repository and execute the `generate_wazuh_debs.sh` script. This will create the docker image, choose the needed files to build the package and build it. These packages will be stored by default in `$HOME/3.x/apt-dev`.
 
-1. Download this repository and go to the rpm directory:
+1. Download this repository and go to the debs directory:
     ```bash
     $ git clone https://github.com/wazuh/wazuh-packages && cd wazuh-packages/debs
     ```
@@ -63,13 +65,14 @@ Building a .deb package is pretty similar to build a .rpm package. You need to d
       # ./generate_wazuh_debs.sh -h
 
       Usage: ./generate_wazuh_debs.sh [OPTIONS]
-
-          -b, --branch <branch>     Select Git branch [master].
-          -h, --help                Show this help.
-          -t, --target              Target package to build: manager, api or agent.
-          -a, --architecture        Target architecture of the package.
-          -j, --jobs                Change number of parallel jobs.
-          -r, --release             Package release.
+    
+        -b, --branch <branch>     Select Git branch or tag [master].
+        -h, --help                Show this help.
+        -t, --target              Target package to build: manager, api or agent.
+        -a, --architecture        Target architecture of the package.
+        -j, --jobs                Change number of parallel jobs when compiling the manager or agent.
+        -r, --revision            Package revision.
+        -p, --path                Installation path for the package. By default: /var/ossec.
       ```
     * To build a wazuh-manager package for amd64 (x86_64):  
         `# ./generate_wazuh_debs.sh -b 3.4 -t manager`.
@@ -77,6 +80,8 @@ Building a .deb package is pretty similar to build a .rpm package. You need to d
         `# ./generate_wazuh_debs.sh -b v3.5.0 -t agent -a i386 -r 2`.
     * To build a wazuh-api package from branch 3.6:  
         `# ./generate_wazuh_debs.sh -b 3.6 -t api`.
+    * To build a wazuh-manager package for amd64 (x86_64) in a different directory:  
+        `# ./generate_wazuh_debs.sh -b 3.4 -t manager -p /opt/ossec`.
 3. When the execution finish, you can find your `.deb` packages in `$HOME/3.x/apt-dev`.
 
 ## Contribute
