@@ -5,6 +5,7 @@
 
 DIR="/var/ossec"
 WAZUH_API_DIR="${DIR}/api"
+WAZUH_TMP_DIR="/tmp/wazuh-api"
 
 set -e
 
@@ -27,6 +28,11 @@ case "$1" in
         if [ -L ${WAZUH_API_DIR}/configuration/auth/htpasswd ]; then
             rm ${WAZUH_API_DIR}/configuration/auth/htpasswd
         fi
+
+        if [ -d ${WAZUH_TMP_DIR} ]; then
+            rm -rf ${WAZUH_TMP_DIR}
+        fi
+
     ;;
     purge)
         rm -rf ${WAZUH_API_DIR}/ ${DIR}/~api/

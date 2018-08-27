@@ -9,7 +9,10 @@ DIR="/var/ossec"
 
 # environment configuration
 if [ ! -d ${WAZUH_TMP_DIR} ]; then
-  mkdir ${WAZUH_TMP_DIR}
+    mkdir -p ${WAZUH_TMP_DIR}
+else 
+    rm -rf ${WAZUH_TMP_DIR}
+    mkdir -p ${WAZUH_TMP_DIR}
 fi
 
 case "$1" in
@@ -63,7 +66,7 @@ case "$1" in
         if [ "$1" = "upgrade" ] ; then
 
             if [ ! -d ${DIR}/etc/shared/default ]; then
-              mkdir  ${DIR}/etc/shared/default
+              mkdir -p  ${DIR}/etc/shared/default
               chown ossec:ossec ${DIR}/etc/shared/default
               chmod -R 770 ${DIR}/etc/shared/default
               find ${DIR}/etc/shared -maxdepth 1 -type f \( -name "*.txt" -o -name "merged.mg" \) -exec cp -rp {} ${DIR}etc/shared/default \;

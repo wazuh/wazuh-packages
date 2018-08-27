@@ -11,7 +11,10 @@ DIR="/var/ossec"
 
 # environment configuration
 if [ ! -d ${WAZUH_TMP_DIR} ]; then
-  mkdir ${WAZUH_TMP_DIR}
+    mkdir -p ${WAZUH_TMP_DIR}
+else 
+    rm -rf ${WAZUH_TMP_DIR}
+    mkdir -p ${WAZUH_TMP_DIR}
 fi
 
 case "$1" in

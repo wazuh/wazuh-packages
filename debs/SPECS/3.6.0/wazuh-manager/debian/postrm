@@ -3,6 +3,7 @@
 # Wazuh, Inc 2016
 set -e
 DIR="/var/ossec"
+WAZUH_TMP_DIR="/tmp/wazuh-manager"
 
 case "$1" in
     purge|remove|failed-upgrade|abort-install|abort-upgrade|disappear)
@@ -32,6 +33,10 @@ case "$1" in
 
     if [ -f /etc/ossec-init.conf ]; then
         rm -f /etc/ossec-init.conf
+    fi
+
+    if [ -d ${WAZUH_TMP_DIR} ]; then
+        rm -rf ${WAZUH_TMP_DIR}
     fi
 
 	update-rc.d -f wazuh-manager remove

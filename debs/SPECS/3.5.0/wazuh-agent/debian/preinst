@@ -9,7 +9,10 @@ DIR="/var/ossec"
 
 # environment configuration
 if [ ! -d ${WAZUH_TMP_DIR} ]; then
-  mkdir ${WAZUH_TMP_DIR}
+    mkdir -p ${WAZUH_TMP_DIR}
+else 
+    rm -rf ${WAZUH_TMP_DIR}
+    mkdir -p ${WAZUH_TMP_DIR}
 fi
 
 case "$1" in
@@ -47,7 +50,7 @@ case "$1" in
         fi
 
         if [ ! -z "$files" ]; then
-            mkdir ${WAZUH_TMP_DIR}/group
+            mkdir -p ${WAZUH_TMP_DIR}/group
             cp -rp ${DIR}/etc/shared/* ${WAZUH_TMP_DIR}/group/
         fi
     ;;
