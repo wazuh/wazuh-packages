@@ -51,10 +51,10 @@ make clean
 
 %if 0%{?el} >= 6 || 0%{?rhel} >= 6
     make deps
-    make -j%{_threads} TARGET=server USE_SELINUX=yes PREFIX=%{_localstatedir}/ossec
+    make -j%{_threads} TARGET=server USE_SELINUX=yes PREFIX=%{_localstatedir}/ossec USE_FRAMEWORK_LIB=yes
 %else
     make deps RESOURCES_URL=http://packages.wazuh.com/deps/3.5
-    make -j%{_threads} TARGET=server USE_AUDIT=no USE_SELINUX=yes PREFIX=%{_localstatedir}/ossec
+    make -j%{_threads} TARGET=server USE_AUDIT=no USE_SELINUX=yes PREFIX=%{_localstatedir}/ossec USE_FRAMEWORK_LIB=yes
 %endif
 
 popd
@@ -71,7 +71,7 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/{decoders,lists,rules,shared,rootcheck,init.d}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/lists/amazon
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/shared/default
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/wazuh
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/{lib,wazuh}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/wazuh/cluster
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/integrations
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/lib
@@ -111,6 +111,7 @@ install -m 0550 framework/scripts/agent_groups.py ${RPM_BUILD_ROOT}%{_localstate
 install -m 0550 framework/scripts/agent_upgrade.py  ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin/agent_upgrade
 install -m 0550 framework/scripts/cluster_control.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin/cluster_control
 install -m 0550 framework/scripts/wazuh-clusterd.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin/wazuh-clusterd
+install -m 0660 framework/libsqlite3.so.0 ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/lib
 
 install -m 0550 src/clear_stats ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
 install -m 0550 src/manage_agents ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
@@ -596,6 +597,7 @@ rm -fr %{buildroot}
 %attr(770,root,ossec) %dir %{_localstatedir}/ossec/etc/rootcheck
 %attr(770,root,ossec) %dir %{_localstatedir}/ossec/etc/rules
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/framework
+%attr(750,root,ossec) %dir %{_localstatedir}/ossec/framework/lib
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/framework/wazuh
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/framework/wazuh/cluster
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/integrations
@@ -639,7 +641,7 @@ rm -fr %{buildroot}
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/wodles/aws
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/wodles/oscap
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/wodles/oscap/content
-
+%attr(640,root,ossec) %{_localstatedir}/ossec/framework/lib/*
 %attr(640,root,ossec) %{_localstatedir}/ossec/framework/wazuh/*.py
 %attr(640,root,ossec) %{_localstatedir}/ossec/framework/wazuh/cluster/*
 %attr(750,root,ossec) %{_localstatedir}/ossec/integrations/*
