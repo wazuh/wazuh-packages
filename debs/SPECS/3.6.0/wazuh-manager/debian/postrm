@@ -41,6 +41,12 @@ case "$1" in
 
 	update-rc.d -f wazuh-manager remove
 
+    if [ -d /run/systemd/system ]; then
+        systemctl disable wazuh-manager > /dev/null 2>&1
+        systemctl daemon-reload
+        systemctl reset-failed
+    fi
+
     ;;
 
 
