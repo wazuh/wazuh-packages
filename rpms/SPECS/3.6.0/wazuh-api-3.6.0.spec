@@ -1,11 +1,10 @@
 Summary:     Wazuh API is an open source RESTful API to interact with Wazuh from your own application or with a simple web browser or tools like cURL
 Name:        wazuh-api
-Version:     3.2.2
+Version:     3.6.0
 Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
 Source0:     %{name}-%{version}.tar.gz
-Source1:     CHANGELOG
 URL:         https://www.wazuh.com/
 BuildRoot:   %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Vendor:      Wazuh, Inc <support@wazuh.com>
@@ -16,7 +15,7 @@ Requires(preun):  /sbin/chkconfig /sbin/service
 Requires(postun): /sbin/service
 
 Requires: nodejs >= 4.6
-Requires: wazuh-manager >= 3.2.2, wazuh-manager < 3.3.0
+Requires: wazuh-manager >= 3.6.0
 BuildRequires: nodejs >= 4.6
 ExclusiveOS: linux
 
@@ -39,6 +38,7 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/{configuration,controllers,examples,helpers,models,scripts}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/configuration/{auth,ssl}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/node_modules
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/logs/api
 #Files
 install -m 0400 package.json ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api
 install -m 0500 app.js ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api
@@ -63,10 +63,12 @@ exit 0
 %pre
 
 if [ $1 = 1 ]; then
+
   API_PATH="${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api"
   API_PATH_BACKUP="${RPM_BUILD_ROOT}%{_localstatedir}/ossec/~api"
 
   if [ -e ${API_PATH} ]; then
+
     if [ -e ${API_PATH_BACKUP} ]; then
         rm -rf ${API_PATH_BACKUP}
     fi
@@ -94,12 +96,16 @@ if [ $1 = 1 ]; then
   %{_localstatedir}/ossec/api/scripts/install_daemon.sh
   echo "Don’t forget to secure the API configuration by running the script %{_localstatedir}/ossec/api/scripts/configure_api.sh"
 fi
-  touch %{_localstatedir}/ossec/logs/api.log
-  chmod 660 %{_localstatedir}/ossec/logs/api.log
-  chown root:ossec %{_localstatedir}/ossec/logs/api.log
-  chmod 740 %{_localstatedir}/ossec/api/configuration/config.js
-  chown root:ossec %{_localstatedir}/ossec/api/configuration/config.js
+
+touch %{_localstatedir}/ossec/logs/api.log
+chmod 660 %{_localstatedir}/ossec/logs/api.log
+chown root:ossec %{_localstatedir}/ossec/logs/api.log
+chmod 740 %{_localstatedir}/ossec/api/configuration/config.js
+chown root:ossec %{_localstatedir}/ossec/api/configuration/config.js
+
 ln -sf %{_localstatedir}/ossec/api/node_modules/htpasswd/bin/htpasswd %{_localstatedir}/ossec/api/configuration/auth/htpasswd
+
+sed -i "s:config.ossec_path =.*:config.ossec_path = \"%{_localstatedir}/ossec\";:g" "%{_localstatedir}/ossec/api/configuration/config.js"
 
 #veriy python version
 if python -V >/dev/null 2>&1; then
@@ -152,6 +158,7 @@ rm -fr %{buildroot}
 %attr(750,root,root) %config(noreplace) %dir %{_localstatedir}/ossec/api/configuration/auth
 %attr(750,root,root) %config(noreplace) %dir %{_localstatedir}/ossec/api/configuration/ssl
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/api/node_modules
+%attr(750,ossec,ossec) %dir %{_localstatedir}/ossec/logs/api
 
 %attr(640,root,ossec) %{_localstatedir}/ossec/api/package.json
 %attr(750,root,ossec) %{_localstatedir}/ossec/api/app.js
@@ -168,6 +175,20 @@ rm -fr %{buildroot}
 %attr(750,ossec,ossec) %{_localstatedir}/ossec/api/node_modules/*
 
 %changelog
+* Thu Aug 23 2018 support <support@wazuh.com> - 3.6.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Wed Jul 25 2018 support <support@wazuh.com> - 3.5.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Wed Jul 11 2018 support <support@wazuh.com> - 3.4.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Jun 18 2018 support <support@wazuh.com> - 3.3.1
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Jun 11 2018 support <support@wazuh.com> - 3.3.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Wed May 30 2018 support <support@wazuh.com> - 3.2.4
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Thu May 10 2018 support <support@wazuh.com> - 3.2.3
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Apr 09 2018 support <support@wazuh.com> - 3.2.2
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Wed Feb 21 2018 support <support@wazuh.com> - 3.2.1
