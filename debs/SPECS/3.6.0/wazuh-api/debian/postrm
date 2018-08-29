@@ -32,7 +32,6 @@ case "$1" in
         if [ -d ${WAZUH_TMP_DIR} ]; then
             rm -rf ${WAZUH_TMP_DIR}
         fi
-
     ;;
     purge)
         rm -rf ${WAZUH_API_DIR}/ ${DIR}/~api/
