@@ -39,10 +39,6 @@ case "$1" in
         ${SCRIPTS_DIR}/gen_ossec.sh conf agent ${OS} ${VER} > ${DIR}/etc/ossec.conf
         ${SCRIPTS_DIR}/add_localfiles.sh >> ${DIR}/etc/ossec.conf
 
-        if [ -f ${DIR}/etc/ossec.conf.deborig ]; then
-            chmod +x ${DIR}/src/init/replace_manager_ip.sh
-            ${DIR}/src/init/replace_manager_ip.sh ${DIR}/etc/ossec.conf.deborig ${DIR}/etc/ossec.conf
-        fi
     else
         ${SCRIPTS_DIR}/gen_ossec.sh conf agent ${OS} ${VER} > ${DIR}/etc/ossec.conf.new
         chmod 640 ${DIR}/etc/ossec.conf.new
@@ -84,9 +80,9 @@ case "$1" in
             mv ${file} ${DIR}/etc/shared/
         done
         rm -rf ${WAZUH_TMP_DIR}/group
-        chmod 660 ${DIR}/etc/shared/*
-        chown root:ossec ${DIR}/etc/shared/*
     fi
+    chmod 660 ${DIR}/etc/shared/*
+    chown -R root:ossec ${DIR}/etc/shared/
 
     # Check if SELinux is installed and enabled
     if command -v getenforce 2>/dev/null && command -v semodule 2>/dev/null; then
