@@ -7,7 +7,7 @@ WAZUH_TMP_DIR="/tmp/wazuh-manager"
 
 case "$1" in
     purge|remove|failed-upgrade|abort-install|abort-upgrade|disappear)
-
+    action="$1"
 
     # Fix for forcing the stop of the api
     if ps aux | grep ${DIR}/api/app.js | grep -v grep; then
@@ -41,7 +41,7 @@ case "$1" in
 
 	update-rc.d -f wazuh-manager remove
 
-    if [ -d /run/systemd/system ]; then
+    if [ -d /run/systemd/system ] && [ "$action" != "purge" ]; then
         systemctl disable wazuh-manager > /dev/null 2>&1
         systemctl daemon-reload
         systemctl reset-failed
