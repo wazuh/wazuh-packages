@@ -7,6 +7,8 @@ WAZUH_TMP_DIR="/tmp/wazuh-agent"
 
 case "$1" in
     purge|remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
+    action="$1"
+    
 	if getent passwd | grep -q "^ossec" ; then
 		deluser ossec > /dev/null 2>&1
 	fi
@@ -27,7 +29,7 @@ case "$1" in
 
 	update-rc.d -f wazuh-agent remove
 
-    if [ -d /run/systemd/system ]; then
+    if [ -d /run/systemd/system ] && [ "$action" != "purge" ]; then
         systemctl disable wazuh-agent > /dev/null 2>&1
         systemctl daemon-reload
         systemctl reset-failed
