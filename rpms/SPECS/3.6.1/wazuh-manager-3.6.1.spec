@@ -314,9 +314,12 @@ fi
 %post
 
 if [ $1 = 1 ]; then
-  # Generating osse.conf file
+  # Generating ossec.conf file and ossec-init.conf
   . /usr/share/wazuh-manager/scripts/tmp/src/init/dist-detect.sh
+  # Generate ossec.conf
   /usr/share/wazuh-manager/scripts/tmp/gen_ossec.sh conf manager ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir}/ossec > %{_localstatedir}/ossec/etc/ossec.conf
+  # Generate ossec-init.conf
+  /usr/share/wazuh-manager/scripts/tmp/gen_ossec.sh init manager ${DIST_NAME} %{_localstatedir}/ossec > %{_sysconfdir}/ossec-init.conf
   chown root:ossec %{_localstatedir}/ossec/etc/ossec.conf
   chmod 0640 %{_localstatedir}/ossec/etc/ossec.conf
 

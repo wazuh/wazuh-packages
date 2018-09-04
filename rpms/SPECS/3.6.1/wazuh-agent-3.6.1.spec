@@ -221,9 +221,12 @@ if [ $1 = 1 ]; then
   chown ossec:ossec %{_localstatedir}/ossec/logs/active-responses.log
   chmod 0660 %{_localstatedir}/ossec/logs/active-responses.log
 
-  # Generating osse.conf file
+  # Generating ossec.conf file and ossec-init.conf
   . /usr/share/wazuh-agent/scripts/tmp/src/init/dist-detect.sh
+  # Generate ossec.conf
   /usr/share/wazuh-agent/scripts/tmp/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir}/ossec > %{_localstatedir}/ossec/etc/ossec.conf
+  # Generate ossec-init.conf
+  /usr/share/wazuh-agent/scripts/tmp/gen_ossec.sh init agent %{_localstatedir}/ossec > %{_sysconfdir}/ossec-init.conf
   chown root:ossec %{_localstatedir}/ossec/etc/ossec.conf
   chmod 0640 %{_localstatedir}/ossec/etc/ossec.conf
 
