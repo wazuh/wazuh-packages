@@ -362,6 +362,21 @@ fi
  chown root:ossec %{_localstatedir}/ossec/etc/localtime
  chmod 0640 %{_localstatedir}/ossec/etc/localtime
 
+%postun
+
+# If the package is been uninstalled
+if [ $1 == 0 ];then
+  # Remove the ossec user if it exists
+  if id -u ossec > /dev/null 2>&1; then
+    usedel ossec
+  fi
+  # Remove the ossec group if it exists
+  if id -g ossec > /dev/null 2>&1; then
+    groupdel ossec
+  fi
+fi
+
+
 %clean
 rm -fr %{buildroot}
 
