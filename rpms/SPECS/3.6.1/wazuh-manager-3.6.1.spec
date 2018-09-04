@@ -576,7 +576,7 @@ fi
 if [ $1 == 0 ];then
   # Remove the ossec user if it exists
   if id -u ossec > /dev/null 2>&1; then
-    usedel ossec
+    userdel ossec
   fi
   # Remove the ossecr user if it exists
   if id -u ossecr > /dev/null 2>&1; then
