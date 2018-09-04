@@ -702,6 +702,8 @@ rm -fr %{buildroot}
 /usr/share/wazuh-manager/scripts/tmp/*
 
 %changelog
+* Mon Sep 3 2018 support <support@wazuh.com> - 3.6.1
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Thu Aug 23 2018 support <support@wazuh.com> - 3.6.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Wed Jul 25 2018 support <support@wazuh.com> - 3.5.0
