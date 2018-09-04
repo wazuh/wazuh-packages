@@ -141,6 +141,13 @@ if [ $1 = 0 ]; then
   fi
 fi
 
+%postun
+
+# If the package is been uninstalled
+if [ $1 == 0 ];then
+  rm -rf %{_localstatedir}/ossec/api %{_localstatedir}/ossec/~api
+fi
+
 
 %clean
 rm -fr %{buildroot}
