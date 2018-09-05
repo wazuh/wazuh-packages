@@ -70,23 +70,11 @@ if [ $1 = 1 ]; then
   if [ -e ${API_PATH} ]; then
 
     if [ -e ${API_PATH_BACKUP} ]; then
-        rm -rf ${API_PATH_BACKUP}
+      rm -rf ${API_PATH_BACKUP}
     fi
 
+    rm -f %{_localstatedir}/ossec/api/configuration/auth/htpasswd
     cp -rLfp ${API_PATH} ${API_PATH_BACKUP}
-    chown root:root ${API_PATH_BACKUP}
-
-    ${API_OLD_VERSION}=`cat ${API_PATH_BACKUP}/package.json | grep "version\":" | grep -P "\d+(?:\.\d+){0,2}" -o`
-    if [ "X${API_OLD_VERSION}" == "X1.3.0" ]; then
-        rm -rf ${API_PATH}/configuration
-        cp -rfp ${API_PATH_BACKUP}/configuration ${API_PATH}/configuration
-    elif [ "X${API_OLD_VERSION}" == "X1.1" ] || [ "X${API_OLD_VERSION}" == "X1.2.0" ] || [ "X${API_OLD_VERSION}" == "X1.2.1" ]; then
-        cp -rfp ${API_PATH_BACKUP}/ssl/htpasswd ${API_PATH}/configuration/auth/user
-        cp -p ${API_PATH_BACKUP}/ssl/*.key $API_PATH_BACKUP/ssl/*.crt ${API_PATH}/configuration/ssl/
-        chown -R root:root ${API_PATH}/configuration
-        chmod -R 500 ${API_PATH}/configuration
-        chmod u-x ${API_PATH}/configuration/ssl/*
-    fi
   fi
 fi
 
@@ -95,6 +83,14 @@ fi
 if [ $1 = 1 ]; then
   %{_localstatedir}/ossec/api/scripts/install_daemon.sh
   echo "Don’t forget to secure the API configuration by running the script %{_localstatedir}/ossec/api/scripts/configure_api.sh"
+fi
+
+API_PATH="${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api"
+API_PATH_BACKUP="${RPM_BUILD_ROOT}%{_localstatedir}/ossec/~api"
+
+if [ -d ${API_PATH_BACKUP} ]; then
+  cp -rfnp ${API_PATH_BACKUP}/configuration ${API_PATH_BACKUP_BACKUP}/configuration
+  rm -rf ${API_PATH_BACKUP}
 fi
 
 touch %{_localstatedir}/ossec/logs/api.log
@@ -140,14 +136,6 @@ if [ $1 = 0 ]; then
     chkconfig wazuh-api off
   fi
 fi
-
-%postun
-
-# If the package is been uninstalled
-if [ $1 == 0 ];then
-  rm -rf %{_localstatedir}/ossec/api %{_localstatedir}/ossec/~api
-fi
-
 
 %clean
 rm -fr %{buildroot}
