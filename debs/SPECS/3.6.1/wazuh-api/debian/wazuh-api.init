@@ -1,0 +1,95 @@
+#!/bin/sh
+# WAZUH API Service
+# Copyright (C) 2015-2018 Wazuh, Inc.All rights reserved.
+# Wazuh.com
+# This program is a free software; you can redistribute it
+# and/or modify it under the terms of the GNU General Public
+# License (version 2) as published by the FSF - Free Software
+# Foundation.
+
+### BEGIN INIT INFO
+# Provides:          wazuh_api
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Should-Start:      $network
+# Should-Stop:       $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Wazuh API
+# Description:       Wazuh API daemon
+#
+### END INIT INFO
+
+# Instructions:
+#  sudo install -m 755 -o root -g root /var/ossec/api/scripts/wazuh-api /etc/init.d/
+#  sudo systemctl enable wazuh-api
+#  sudo systemctl daemon-reload
+#  sudo systemctl restart wazuh-api
+
+BIN_DIR="/usr/bin/nodejs"
+DIR="/var/ossec"
+APP_PATH="$DIR/api/app.js"
+PID_PATH="$DIR/var/run/wazuh-api.pid"
+API_LOGS="$DIR/logs/api.log"
+
+start() {
+  if [ -f $PID_PATH ] && [ -n "$(ps --no-headers -p `cat $PID_PATH`)" ]; then
+    echo "WAZUH-API is already running."
+  else
+    $BIN_DIR $APP_PATH > /dev/null 2>&1 < /dev/null &
+
+    if [ "$?" = "0" ]; then
+      echo $! > $PID_PATH
+    else
+      echo "Start error"
+      exit 1
+    fi
+
+    echo "WAZUH-API started."
+  fi
+}
+
+stop() {
+  if [ -f $PID_PATH ] && [ -n "$(ps --no-headers -p `cat $PID_PATH`)" ]; then
+    kill `cat $PID_PATH` >  /dev/null 2>&1
+    while [ -n "$(ps --no-headers -p `cat $PID_PATH`)" ]; do sleep 0.1; done
+    rm -f $PID_PATH
+    echo "WAZUH-API stopped."
+  else
+    echo "WAZUH-API is not running."
+  fi
+}
+
+status() {
+  if [ -f $PID_PATH ] && [ -n "$(ps --no-headers -p `cat $PID_PATH`)" ]; then
+    echo "WAZUH-API is running."
+  else
+    echo "WAZUH-API is stopped."
+    if [ -f $API_LOGS ]; then
+      echo ""
+      echo "Last 20 log entries:"
+      tail -n 20 $API_LOGS
+      echo ""
+    fi
+    echo "Full log: $API_LOGS"
+  fi
+}
+
+case "$1" in
+start)
+  start
+  ;;
+stop)
+  stop
+  ;;
+restart)
+stop
+  start
+  ;;
+status)
+  status
+  ;;
+*)
+  echo "*** Usage: $0 {start|stop|restart|status}"
+  exit 1
+esac
