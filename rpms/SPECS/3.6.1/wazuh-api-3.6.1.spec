@@ -7,8 +7,8 @@ Group:       System Environment/Daemons
 Source0:     %{name}-%{version}.tar.gz
 URL:         https://www.wazuh.com/
 BuildRoot:   %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-Vendor:      Wazuh, Inc <support@wazuh.com>
-Packager:    Wazuh, Inc <support@wazuh.com>
+Vendor:      Wazuh, Inc <info@wazuh.com>
+Packager:    Wazuh, Inc <info@wazuh.com>
 Requires(pre):    /usr/sbin/groupadd /usr/sbin/useradd
 Requires(post):   /sbin/chkconfig
 Requires(preun):  /sbin/chkconfig /sbin/service
@@ -182,33 +182,33 @@ rm -fr %{buildroot}
 %attr(750,ossec,ossec) %{_localstatedir}/ossec/api/node_modules/*
 
 %changelog
-* Mon Sep 3 2018 support <support@wazuh.com> - 3.6.1
+* Mon Sep 3 2018 support <info@wazuh.com> - 3.6.1
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Thu Aug 23 2018 support <support@wazuh.com> - 3.6.0
+* Thu Aug 23 2018 support <info@wazuh.com> - 3.6.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Wed Jul 25 2018 support <support@wazuh.com> - 3.5.0
+* Wed Jul 25 2018 support <info@wazuh.com> - 3.5.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Wed Jul 11 2018 support <support@wazuh.com> - 3.4.0
+* Wed Jul 11 2018 support <info@wazuh.com> - 3.4.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Mon Jun 18 2018 support <support@wazuh.com> - 3.3.1
+* Mon Jun 18 2018 support <info@wazuh.com> - 3.3.1
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Mon Jun 11 2018 support <support@wazuh.com> - 3.3.0
+* Mon Jun 11 2018 support <info@wazuh.com> - 3.3.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Wed May 30 2018 support <support@wazuh.com> - 3.2.4
+* Wed May 30 2018 support <info@wazuh.com> - 3.2.4
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Thu May 10 2018 support <support@wazuh.com> - 3.2.3
+* Thu May 10 2018 support <info@wazuh.com> - 3.2.3
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Mon Apr 09 2018 support <support@wazuh.com> - 3.2.2
+* Mon Apr 09 2018 support <info@wazuh.com> - 3.2.2
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Wed Feb 21 2018 support <support@wazuh.com> - 3.2.1
+* Wed Feb 21 2018 support <info@wazuh.com> - 3.2.1
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Wed Feb 07 2018 support <support@wazuh.com> - 3.2.0
+* Wed Feb 07 2018 support <info@wazuh.com> - 3.2.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Tue Dec 19 2017 support <support@wazuh.com> - 3.1.0
+* Tue Dec 19 2017 support <info@wazuh.com> - 3.1.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Mon Nov 07 2017 support <support@wazuh.com> - 3.0.0
+* Mon Nov 07 2017 support <info@wazuh.com> - 3.0.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Fri May 26 2017 support <support@wazuh.com> - 2.0.1
+* Fri May 26 2017 support <info@wazuh.com> - 2.0.1
 - Issue when basic-auth is disabled.
 - Regex for latest version in install_api.sh
 - Wrong scan dates for syscheck and rootcheck.
