@@ -1,6 +1,6 @@
 This work was packaged for Debian by:
 
-    Wazuh, Inc <support@wazuh.com> on Fri, 01 Jul 2016 03:11:44 +0000
+    Wazuh, Inc <info@wazuh.com> on Fri, 01 Jul 2016 03:11:44 +0000
 
 It was downloaded from:
 
@@ -32,7 +32,7 @@ License:
 
 The Debian packaging is:
 
-    Copyright (C) 2016-2018 Wazuh, Inc <support@wazuh.com>
+    Copyright (C) 2016-2018 Wazuh, Inc <info@wazuh.com>
 
 and is licensed under the GPL version 2,
 see "/usr/share/common-licenses/GPL-2".
