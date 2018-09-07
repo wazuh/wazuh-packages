@@ -27,10 +27,13 @@ case "$1" in
       fi
 
       # Purging files
-      rm -rf ${DIR}/queue/*
-      rm -rf ${DIR}/etc/*
-      rm -rf ${DIR}/var/*
-      
+      if [ -d ${DIR}/queue/ ]; then
+        rm -rf ${DIR}/queue/
+      fi
+      if [ -d ${DIR}/etc/shared/ ]; then
+        rm -rf ${DIR}/etc/shared/
+      fi
+
     ;;
 
     failed-upgrade)

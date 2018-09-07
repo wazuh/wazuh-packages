@@ -17,10 +17,10 @@ case "$1" in
     SCRIPTS_DIR="/usr/share/wazuh-api/scripts/tmp"
 
     if [ ! -f ${OSMYSHELL} ]; then
-	    if [ -f "/bin/false" ]; then
-	        OSMYSHELL="/bin/false"
-	    fi
-	fi
+        if [ -f "/bin/false" ]; then
+            OSMYSHELL="/bin/false"
+        fi
+    fi
 
     if [ -f ${WAZUH_API_DIR}/node_modules/htpasswd/bin/htpasswd ] && [ ! -x ${WAZUH_API_DIR}/configuration/auth/htpasswd ]; then
         ln -sf ${WAZUH_API_DIR}/node_modules/htpasswd/bin/htpasswd ${WAZUH_API_DIR}/configuration/auth/htpasswd
@@ -48,9 +48,9 @@ case "$1" in
     fi
 
     # Delete tmp directory
-	if [ -d ${WAZUH_TMP_DIR} ]; then
-	    rm -r ${WAZUH_TMP_DIR}
-	fi
+    if [ -d ${WAZUH_TMP_DIR} ]; then
+        rm -r ${WAZUH_TMP_DIR}
+    fi
 
     ${WAZUH_API_DIR}/scripts/install_daemon.sh
 
