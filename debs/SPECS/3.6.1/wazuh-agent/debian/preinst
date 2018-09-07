@@ -4,8 +4,9 @@
 set -e
 
 # configuration variables
-WAZUH_TMP_DIR="/tmp/wazuh-agent"
 DIR="/var/ossec"
+OLD_WAZUH_TMP_DIR="/tmp/wazuh-agent"
+WAZUH_TMP_DIR="${DIR}/tmp/wazuh-agent"
 
 # environment configuration
 if [ ! -d ${WAZUH_TMP_DIR} ]; then
