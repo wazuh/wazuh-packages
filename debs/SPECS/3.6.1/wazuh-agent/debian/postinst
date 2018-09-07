@@ -109,6 +109,12 @@ case "$1" in
         fi
         update-rc.d wazuh-agent defaults > /dev/null 2>&1
     fi
+
+    # Delete tmp directory
+    if [ -d ${WAZUH_TMP_DIR} ]; then
+        rm -rf ${WAZUH_TMP_DIR}
+    fi
+
     if cat ${DIR}/etc/ossec.conf | grep -o -P '(?<=<server-ip>).*(?=</server-ip>)' | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' > /dev/null 2>&1; then
       service wazuh-agent restart || :
     fi
@@ -117,10 +123,6 @@ case "$1" in
     fi
     if cat ${DIR}/etc/ossec.conf | grep -o -P '(?<=<address>)(?!MANAGER_IP).*(?=</address>)' > /dev/null 2>&1; then
       service wazuh-agent restart || :
-    fi
-    # Delete tmp directory
-    if [ -d ${WAZUH_TMP_DIR} ]; then
-        rm -rf ${WAZUH_TMP_DIR}
     fi
 
     if [ -d /usr/share/wazuh-agent ]; then
