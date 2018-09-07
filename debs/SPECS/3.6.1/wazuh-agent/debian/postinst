@@ -12,8 +12,7 @@ case "$1" in
     DIR="/var/ossec"
     USER="ossec"
     GROUP="ossec"
-    OLD_TMP_DIR="/tmp/wazuh-agent"
-    WAZUH_TMP_DIR="${DIR}/tmp/wazuh-agent"
+    WAZUH_TMP_DIR="${DIR}/tmp/installation_files"
     SCRIPTS_DIR="/usr/share/wazuh-agent/scripts/tmp"
 
     OSMYSHELL="/sbin/nologin"
