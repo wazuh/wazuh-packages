@@ -53,7 +53,7 @@ make clean
     make deps
     make -j%{_threads} TARGET=server USE_SELINUX=yes USE_FRAMEWORK_LIB=yes PREFIX=%{_localstatedir}/ossec
 %else
-    make deps RESOURCES_URL=http://packages.wazuh.com/deps/3.5
+    make deps RESOURCES_URL=http://packages.wazuh.com/deps/3.7
     make -j%{_threads} TARGET=server USE_AUDIT=no USE_SELINUX=yes USE_FRAMEWORK_LIB=yes USE_EXEC_ENVIRON=no PREFIX=%{_localstatedir}/ossec
 %endif
 
@@ -63,30 +63,48 @@ popd
 # Clean BUILDROOT
 rm -fr %{buildroot}
 
+echo 'USER_LANGUAGE="en"' > ./etc/preloaded-vars.conf
+echo 'USER_NO_STOP="y"' >> ./etc/preloaded-vars.conf
+echo 'USER_INSTALL_TYPE="server"' >> ./etc/preloaded-vars.conf
+echo 'USER_DIR="%{_localstatedir}/ossec"' >> ./etc/preloaded-vars.conf
+echo 'USER_DELETE_DIR="y"' >> ./etc/preloaded-vars.conf
+echo 'USER_ENABLE_ACTIVE_RESPONSE="y"' >> ./etc/preloaded-vars.conf
+echo 'USER_ENABLE_SYSCHECK="y"' >> ./etc/preloaded-vars.conf
+echo 'USER_ENABLE_ROOTCHECK="y"' >> ./etc/preloaded-vars.conf
+echo 'USER_ENABLE_OPENSCAP="y"' >> ./etc/preloaded-vars.conf
+echo 'USER_ENABLE_CISCAT="y"' >> ./etc/preloaded-vars.conf
+echo 'USER_UPDATE="n"' >> ./etc/preloaded-vars.conf
+echo 'USER_ENABLE_EMAIL="n"' >> ./etc/preloaded-vars.conf
+echo 'USER_WHITE_LIST="n"' >> ./etc/preloaded-vars.conf
+echo 'USER_ENABLE_SYSLOG="y"' >> ./etc/preloaded-vars.conf
+echo 'USER_ENABLE_AUTHD="n"' >> ./etc/preloaded-vars.conf
+echo 'USER_SERVER_IP="MANAGER_IP"' >> ./etc/preloaded-vars.conf
+echo 'USER_CA_STORE="/path/to/my_cert.pem"' >> ./etc/preloaded-vars.conf
+echo 'USER_GENERATE_AUTHD_CERT="y"' >> ./etc/preloaded-vars.conf
+echo 'USER_AUTO_START="n"' >> ./etc/preloaded-vars.conf
+./install.sh
+
+# Create directories
 mkdir -p ${RPM_BUILD_ROOT}%{_initrddir}
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/active-response/bin
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/agentless
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/backup/{agents,groups,shared}
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/{decoders,lists,rules,shared,rootcheck,init.d}
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/lists/amazon
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/shared/default
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/{lib,wazuh}
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/wazuh/cluster
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/integrations
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/lib
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/logs/{alerts,archives,cluster,firewall,ossec}
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/queue/{agent-groups,agent-info,agentless,agents,alerts,cluster,db,diff,fts,ossec,rids,rootcheck,syscheck,vulnerabilities}
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/{decoders,rules}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/.ssh
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/stats
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/var/{db,run,selinux,upgrade,wodles}
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/var/db/agents
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/var/download
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/var/wodles
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/aws
+
+# Copy the installed files into RPM_BUILD_ROOT directory
+cp -pr %{_localstatedir}/ossec/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/
+install -m 0640 ossec-init.conf ${RPM_BUILD_ROOT}%{_sysconfdir}
+install -m 0755 src/init/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-manager
+
+# Install oscap files
+install -m 0640 wodles/oscap/content/*redhat* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
+install -m 0640 wodles/oscap/content/*rhel* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
+install -m 0640 wodles/oscap/content/*centos* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
+install -m 0640 wodles/oscap/content/*fedora* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
+
+cp CHANGELOG.md CHANGELOG
+
+# Add configuration scripts
+mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/
+cp gen_ossec.sh ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/
+cp add_localfiles.sh ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/
 
 # Templates for initscript
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/init
@@ -95,116 +113,18 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/cento
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/fedora
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/rhel
 
-cp -rp  etc/templates/config/generic/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/generic
 # Copy scap templates
+cp -rp  etc/templates/config/generic/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/generic
 cp -rp  etc/templates/config/centos/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/centos
 cp -rp  etc/templates/config/fedora/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/fedora
 cp -rp  etc/templates/config/rhel/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/rhel
 
-install -m 0640 ossec-init.conf ${RPM_BUILD_ROOT}%{_sysconfdir}
-install -m 0750 active-response/firewalls/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/active-response/bin
-install -m 0750 active-response/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/active-response/bin
-install -m 0750 active-response/*.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/active-response/bin
-install -m 0550 src/agentlessd/scripts/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/agentless
-install -m 0550 src/agent_control ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-install -m 0550 framework/scripts/agent_groups.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin/agent_groups
-install -m 0550 framework/scripts/agent_upgrade.py  ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin/agent_upgrade
-install -m 0550 framework/scripts/cluster_control.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin/cluster_control
-install -m 0550 framework/scripts/wazuh-clusterd.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin/wazuh-clusterd
-install -m 0660 framework/libsqlite3.so.0 ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/lib
-
-install -m 0550 src/clear_stats ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-install -m 0550 src/manage_agents ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-install -m 0550 src/ossec-agentlessd ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-install -m 0550 src/ossec-analysisd ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-install -m 0550 src/ossec-authd ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-
-# Install Wazuh Lib
-install -m 0750 src/libwazuhext.so ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/lib
-
-cp -pr src/init/ossec-server.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin/ossec-control
-install -m 0550 src/ossec-csyslogd ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-install -m 0550 src/ossec-dbd ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-install -m 0550 src/ossec-execd ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-install -m 0550 src/ossec-integratord ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-install -m 0550 src/ossec-logcollector ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-install -m 0550 src/ossec-logtest ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-install -m 0550 src/ossec-maild ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-install -m 0550 src/ossec-makelists ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-install -m 0550 src/ossec-monitord ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-install -m 0550 src/ossec-regex ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-install -m 0550 src/ossec-remoted ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-install -m 0550 src/ossec-reportd ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-install -m 0550 src/ossec-syscheckd ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-install -m 0550 src/rootcheck_control ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-install -m 0550 src/syscheck_control ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-install -m 0550 src/syscheck_update ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-install -m 0750 src/update/ruleset/update_ruleset ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin/update_ruleset
-install -m 0550 src/verify-agent-conf ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-install -m 0550 contrib/util.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-install -m 0750 src/wazuh-db ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-install -m 0550 src/wazuh-modulesd ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-install -m 0440 etc/local_decoder.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/decoders
-install -m 0640 etc/internal_options* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc
-install -m 0660 etc/lists/amazon/aws-eventnames ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/lists/amazon
-install -m 0660 etc/lists/amazon/aws-eventnames.cdb ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/lists/amazon
-install -m 0660 etc/lists/amazon/aws-sources ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/lists/amazon
-install -m 0660 etc/lists/amazon/aws-sources.cdb ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/lists/amazon
-install -m 0640 etc/lists/audit-keys ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/lists
-install -m 0640 etc/lists/audit-keys.cdb ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/lists
-install -m 0640 etc/local_internal_options.conf ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc
-install -m 0660 src/rootcheck/db/*.txt ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/rootcheck
-install -m 0640 etc/local_rules.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/rules
-install -m 0640 etc/agent.conf ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/shared/default
-install -m 0660 src/rootcheck/db/*.txt ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/shared/default
-install -m 0640 framework/wazuh/*.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/wazuh
-install -m 0640 framework/wazuh/cluster/*.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/wazuh/cluster
-install -m 0640 framework/wazuh/cluster/cluster.json ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/wazuh/cluster
-
-install -m 0640 etc/rules/*xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/rules
-install -m 0640 etc/decoders/*.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/decoders
-install -m 0440 src/update/ruleset/RULESET_VERSION  ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/VERSION
-install -m 0750 integrations/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/integrations
-# AWS wodle
-install -m 0750 wodles/aws/aws-s3.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/aws/aws-s3
-install -m 0750 wodles/oscap/oscap.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap
-install -m 0750 wodles/oscap/template_oval.xsl ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap
-install -m 0750 wodles/oscap/template_xccdf.xsl ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap
-install -m 0640 wodles/oscap/content/cve-redhat-7-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
-install -m 0640 wodles/oscap/content/ssg-rhel-7-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
-install -m 0640 wodles/oscap/content/ssg-centos-7-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
-install -m 0640 wodles/oscap/content/cve-redhat-6-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
-install -m 0640 wodles/oscap/content/ssg-rhel-6-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
-install -m 0640 wodles/oscap/content/ssg-centos-6-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
-install -m 0640 wodles/oscap/content/ssg-fedora-24-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
-
-install -m 0755 src/init/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-manager
-
-# Temporal files for gent_ossec
-install -m 0640 src/init/inst-functions.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/init
-install -m 0640 src/init/template-select.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/init
-install -m 0640 src/init/shared.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/init
-install -m 0640 src/LOCATION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src
-install -m 0640 src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src
-install -m 0640 src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src
-install -m 0640 add_localfiles.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp
-
-# SELinux file
-install -m 0640 src/selinux/wazuh.pp ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/var/selinux
-
-cp CHANGELOG.md CHANGELOG
-
-cp -pr etc/ossec-server.conf ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/ossec.conf
-
-# Copying install scripts to /usr/share
-mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/
-cp gen_ossec.sh ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/
-cp add_localfiles.sh ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/
-
+# Add installation scripts
 mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/src
 cp src/VERSION ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/src/
 cp src/REVISION ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/src/
 cp src/LOCATION ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/src/
+install -m 0640 add_localfiles.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp
 
 mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/src/init
 cp -r src/init/*  ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/src/init
@@ -674,15 +594,24 @@ rm -fr %{buildroot}
 %attr(750,root,ossec) %{_localstatedir}/ossec/bin/wazuh-clusterd
 %{_initrddir}/*
 %attr(750,root,ossec) %{_localstatedir}/ossec/active-response/bin/*
-%attr(640,root,ossec) %{_localstatedir}/ossec/etc/ossec.conf
+%attr(640,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/ossec.conf
 %attr(640,ossec,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/decoders/local_decoder.xml
 %attr(640,root,ossec) %{_localstatedir}/ossec/etc/internal_options*
+%attr(640,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/client.keys
 %attr(640,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/local_internal_options.conf
+%{_localstatedir}/ossec/etc/ossec-init.conf
+%attr(640,root,root) %config(noreplace) %{_localstatedir}/ossec/etc/sslmanager*
+%attr(640,root,ossec) %{_localstatedir}/ossec/etc/localtime
 %attr(640,ossec,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/rules/local_rules.xml
 %attr(660,ossec,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/shared/default/*
 %attr(640,ossec,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/audit-*
 %attr(660,ossec,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/amazon/*
 %attr(750,root,root) %{_localstatedir}/ossec/lib/*
+%attr(660,ossec,ossec) %ghost %{_localstatedir}/ossec/logs/active-responses.log
+%attr(660,ossecm,ossec) %ghost %{_localstatedir}/ossec/logs/integrations.log
+%attr(660,ossec,ossec) %ghost %{_localstatedir}/ossec/logs/ossec.log
+%attr(660,ossec,ossec) %ghost %{_localstatedir}/ossec/logs/ossec.json
+%attr(600,ossec,ossec) %config(missingok) %{_localstatedir}/ossec/queue/agents-timestamp
 %attr(660,root,ossec) %{_localstatedir}/ossec/etc/rootcheck/*.txt
 %attr(640,root,ossec) %{_localstatedir}/ossec/ruleset/VERSION
 %attr(640,root,ossec) %{_localstatedir}/ossec/ruleset/rules/*
