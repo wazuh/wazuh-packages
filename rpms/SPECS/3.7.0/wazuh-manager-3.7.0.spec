@@ -102,12 +102,13 @@ install -m 0640 wodles/oscap/content/*fedora* ${RPM_BUILD_ROOT}%{_localstatedir}
 cp CHANGELOG.md CHANGELOG
 
 # Add configuration scripts
-mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/
-cp gen_ossec.sh ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/
-cp add_localfiles.sh ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/
+cp gen_ossec.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/
+cp add_localfiles.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/
 
 # Templates for initscript
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/init
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/systemd
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/generic
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/centos
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/fedora
@@ -119,32 +120,13 @@ cp -rp  etc/templates/config/centos/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/t
 cp -rp  etc/templates/config/fedora/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/fedora
 cp -rp  etc/templates/config/rhel/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/rhel
 
+install -m 0640 src/init/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/init
+
 # Add installation scripts
-mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/src
-cp src/VERSION ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/src/
-cp src/REVISION ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/src/
-cp src/LOCATION ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/src/
-install -m 0640 add_localfiles.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp
-
-mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/src/init
-cp -r src/init/*  ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/src/init
-
-# Systemd files
-mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/src/systemd
-cp -r src/systemd/*  ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/src/systemd
-
-mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/generic
-cp -r etc/templates/config/generic/* ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/generic
-
-# Copy scap templates
-mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/centos
-cp -r  etc/templates/config/centos/* ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/centos
-
-mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/fedora
-cp -r  etc/templates/config/fedora/* ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/fedora
-
-mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/rhel
-cp -r  etc/templates/config/rhel/* ${RPM_BUILD_ROOT}/usr/share/wazuh-manager/scripts/tmp/etc/templates/config/rhel
+cp src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/
+cp src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/
+cp src/LOCATION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/
+cp -r src/systemd/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/systemd
 
 exit 0
 %pre
@@ -235,8 +217,8 @@ fi
 
 if [ $1 = 1 ]; then
   # Generating osse.conf file
-  . /usr/share/wazuh-manager/scripts/tmp/src/init/dist-detect.sh
-  /usr/share/wazuh-manager/scripts/tmp/gen_ossec.sh conf manager ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir}/ossec > %{_localstatedir}/ossec/etc/ossec.conf
+  . %{_localstatedir}/ossec/tmp/src/init/dist-detect.sh
+  %{_localstatedir}/ossec/tmp/gen_ossec.sh conf manager ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir}/ossec > %{_localstatedir}/ossec/etc/ossec.conf
   chown root:ossec %{_localstatedir}/ossec/etc/ossec.conf
   chmod 0640 %{_localstatedir}/ossec/etc/ossec.conf
 
@@ -367,9 +349,6 @@ chown -R ossec:ossec %{_localstatedir}/ossec/etc/decoders/*
 chown -R ossec:ossec %{_localstatedir}/ossec/etc/rules/*
 chown -R ossec:ossec %{_localstatedir}/ossec/etc/shared/*
 
-rm -f %{_localstatedir}/ossec/tmp/add_localfiles.sh
-rm -rf %{_localstatedir}/ossec/tmp/src
-rm -rf %{_localstatedir}/ossec/tmp/etc
 ln -sf %{_sysconfdir}/ossec-init.conf %{_localstatedir}/ossec/etc/ossec-init.conf
 
 chmod 640 %{_sysconfdir}/ossec-init.conf
@@ -387,7 +366,7 @@ chown ossecr:ossec %{_localstatedir}/ossec/queue/agent-info/* 2>/dev/null || tru
 
 # If systemd is installed, add the wazuh-manager.service file to systemd files directory
 if [ -d /run/systemd/system ]; then
-  install -m 644 /usr/share/wazuh-manager/scripts/tmp/src/systemd/wazuh-manager.service /etc/systemd/system/
+  install -m 644 %{_localstatedir}/ossec/tmp/src/systemd/wazuh-manager.service /etc/systemd/system/
   systemctl daemon-reload
   systemctl stop wazuh-manager
   systemctl enable wazuh-manager > /dev/null 2>&1
@@ -426,6 +405,10 @@ elif [ ${add_selinux} == "no" ]; then
     fi
   fi
 fi
+
+rm -f %{_localstatedir}/ossec/tmp/add_localfiles.sh
+rm -rf %{_localstatedir}/ossec/tmp/src
+rm -rf %{_localstatedir}/ossec/tmp/etc
 
 if %{_localstatedir}/ossec/bin/ossec-logtest 2>/dev/null ; then
   /sbin/service wazuh-manager restart 2>&1
@@ -575,6 +558,7 @@ rm -fr %{buildroot}
 %attr(770,root,ossec) %dir %{_localstatedir}/ossec/var/db
 %attr(770,root,ossec) %dir %{_localstatedir}/ossec/var/db/agents
 %attr(770,root,ossec) %dir %{_localstatedir}/ossec/var/download
+%attr(770,root,ossec) %dir %{_localstatedir}/ossec/var/multigroups
 %attr(770,root,ossec) %dir %{_localstatedir}/ossec/var/run
 %attr(770,root,ossec) %dir %{_localstatedir}/ossec/var/selinux
 %attr(770,root,ossec) %dir %{_localstatedir}/ossec/var/upgrade
@@ -622,13 +606,12 @@ rm -fr %{buildroot}
 %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap/template*
 %attr(640,root,ossec) %{_localstatedir}/ossec/wodles/oscap/content/*
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/add_localfiles.sh
+%attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/gen_ossec.sh
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/src/*
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/generic/*
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/centos/*
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/fedora/*
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/rhel/*
-
-/usr/share/wazuh-manager/scripts/tmp/*
 
 %changelog
 * Fri Sep 7 2018 support <info@wazuh.com> - 3.7.0
