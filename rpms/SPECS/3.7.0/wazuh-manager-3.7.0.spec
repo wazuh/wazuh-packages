@@ -177,17 +177,9 @@ rm -f %{_localstatedir}/ossec/var/db/agents/* || true
 rm -f %{_localstatedir}/ossec/queue/db/*.db*
 rm -f %{_localstatedir}/ossec/queue/db/.template.db
 
-# Back up the cluster.json >= 3.2.3
-if [ -d %{_localstatedir}/ossec/framework ]; then
-    if [ -f %{_localstatedir}/ossec/framework/wazuh/cluster/cluster.json ]; then
-        cp %{_localstatedir}/ossec/framework/wazuh/cluster/cluster.json /tmp/cluster.json
-        rm -f %{_localstatedir}/ossec/framework/wazuh/cluster/cluster.json
-    fi
-fi
-
 # Backup /etc/shared/default/agent.conf file
 if [ -f %{_localstatedir}/ossec/etc/shared/default/agent.conf ]; then
-  cp -p %{_localstatedir}/ossec/etc/shared/default/agent.conf /tmp/agent.conf
+  cp -p %{_localstatedir}/ossec/etc/shared/default/agent.conf %{_localstatedir}/ossec/tmp/agent.conf
 fi
 
 # Delete old service
@@ -280,21 +272,6 @@ if [ $1 = 1 ]; then
     fi
   fi
 
-  touch %{_localstatedir}/ossec/logs/ossec.log
-  touch %{_localstatedir}/ossec/logs/integrations.log
-  touch %{_localstatedir}/ossec/logs/active-responses.log
-  touch %{_localstatedir}/ossec/etc/client.keys
-
-  chown ossec:ossec %{_localstatedir}/ossec/logs/ossec.log
-  chown ossecm:ossec %{_localstatedir}/ossec/logs/integrations.log
-  chown ossec:ossec %{_localstatedir}/ossec/logs/active-responses.log
-  chown ossec:ossec %{_localstatedir}/ossec/etc/client.keys
-
-  chmod 0660 %{_localstatedir}/ossec/logs/ossec.log
-  chmod 0640 %{_localstatedir}/ossec/logs/integrations.log
-  chmod 0660 %{_localstatedir}/ossec/logs/active-responses.log
-  chmod 0640 %{_localstatedir}/ossec/etc/client.keys
-
   # Add default local_files to ossec.conf
   %{_localstatedir}/ossec/tmp/add_localfiles.sh %{_localstatedir}/ossec >> %{_localstatedir}/ossec/etc/ossec.conf
    /sbin/chkconfig --add wazuh-manager
@@ -302,17 +279,10 @@ if [ $1 = 1 ]; then
 
 fi
 
-# "Restore the old cluster.json"
-if [ -f /tmp/cluster.json ]; then
-    mv /tmp/cluster.json %{_localstatedir}/ossec/framework/wazuh/cluster/cluster.json.old
-    chown root:ossec %{_localstatedir}/ossec/framework/wazuh/cluster/cluster.json.old
-    chmod 640 %{_localstatedir}/ossec/framework/wazuh/cluster/cluster.json.old
-fi
-
 # Restore the agent.conf
-if [ -f /tmp/agent.conf ]; then
-  cp -rp /tmp/agent.conf %{_localstatedir}/ossec/etc/shared/default/agent.conf
-  rm /tmp/agent.conf
+if [ -f %{_localstatedir}/ossec/tmp/agent.conf ]; then
+  cp -rp %{_localstatedir}/ossec/tmp/agent.conf %{_localstatedir}/ossec/etc/shared/default/agent.conf
+  rm %{_localstatedir}/ossec/tmp/agent.conf
   chown ossec:ossec %{_localstatedir}/ossec/etc/shared/default/agent.conf
   chmod 660 %{_localstatedir}/ossec/etc/shared/default/agent.conf
 fi
@@ -333,21 +303,6 @@ fi
 
 rm %{_localstatedir}/ossec/etc/shared/ar.conf  >/dev/null 2>&1 || true
 rm %{_localstatedir}/ossec/etc/shared/merged.mg  >/dev/null 2>&1 || true
-
-touch %{_localstatedir}/ossec/logs/ossec.json
-chown ossec:ossec %{_localstatedir}/ossec/logs/ossec.json
-chmod 0660 %{_localstatedir}/ossec/logs/ossec.json
-
-if [ -f %{_localstatedir}/ossec/logs/cluster.log ]; then
-    chown ossec:ossec %{_localstatedir}/ossec/logs/cluster.log
-    chmod 0660 %{_localstatedir}/ossec/logs/cluster.log
-fi
-
-chown -R ossec:ossec %{_localstatedir}/ossec/etc/client.keys
-chown -R ossec:ossec %{_localstatedir}/ossec/etc/lists/*
-chown -R ossec:ossec %{_localstatedir}/ossec/etc/decoders/*
-chown -R ossec:ossec %{_localstatedir}/ossec/etc/rules/*
-chown -R ossec:ossec %{_localstatedir}/ossec/etc/shared/*
 
 ln -sf %{_sysconfdir}/ossec-init.conf %{_localstatedir}/ossec/etc/ossec-init.conf
 
@@ -417,12 +372,6 @@ else
   echo "Something in your actual rules configuration is wrong, please review your configuration and restart the service."
   echo "================================================================================================================"
 fi
-
-if [ ! -f %{_localstatedir}/ossec/queue/agents-timestamp ]; then
-  touch %{_localstatedir}/ossec/queue/agents-timestamp
-fi
-chmod 600 %{_localstatedir}/ossec/queue/agents-timestamp
-chown root:ossec %{_localstatedir}/ossec/queue/agents-timestamp
 
 %preun
 
