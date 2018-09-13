@@ -534,7 +534,7 @@ rm -fr %{buildroot}
 %attr(640,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/ossec.conf
 %attr(640,ossec,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/decoders/local_decoder.xml
 %attr(640,root,ossec) %{_localstatedir}/ossec/etc/internal_options*
-%attr(640,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/client.keys
+%attr(640,ossec,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/client.keys
 %attr(640,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/local_internal_options.conf
 %{_localstatedir}/ossec/etc/ossec-init.conf
 %attr(640,root,root) %config(noreplace) %{_localstatedir}/ossec/etc/sslmanager*
@@ -548,7 +548,6 @@ rm -fr %{buildroot}
 %attr(660,ossecm,ossec) %ghost %{_localstatedir}/ossec/logs/integrations.log
 %attr(660,ossec,ossec) %ghost %{_localstatedir}/ossec/logs/ossec.log
 %attr(660,ossec,ossec) %ghost %{_localstatedir}/ossec/logs/ossec.json
-%attr(600,ossec,ossec) %config(missingok) %{_localstatedir}/ossec/queue/agents-timestamp
 %attr(660,root,ossec) %{_localstatedir}/ossec/etc/rootcheck/*.txt
 %attr(640,root,ossec) %{_localstatedir}/ossec/ruleset/VERSION
 %attr(640,root,ossec) %{_localstatedir}/ossec/ruleset/rules/*
