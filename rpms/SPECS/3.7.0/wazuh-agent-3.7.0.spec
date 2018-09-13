@@ -54,7 +54,7 @@ make clean
     make deps
     make -j%{_threads} TARGET=agent USE_SELINUX=yes PREFIX=%{_localstatedir}/ossec 
 %else
-    make deps RESOURCES_URL=http://packages.wazuh.com/deps/3.5
+    make deps RESOURCES_URL=http://packages.wazuh.com/deps/3.7
     make -j%{_threads} TARGET=agent USE_AUDIT=no USE_SELINUX=yes USE_EXEC_ENVIRON=no PREFIX=%{_localstatedir}/ossec
 %endif
 
@@ -64,113 +64,65 @@ popd
 # Clean BUILDROOT
 rm -fr %{buildroot}
 
+echo 'USER_LANGUAGE="en"' > ./etc/preloaded-vars.conf
+echo 'USER_NO_STOP="y"' >> ./etc/preloaded-vars.conf
+echo 'USER_INSTALL_TYPE="agent"' >> ./etc/preloaded-vars.conf
+echo 'USER_DIR="%{_localstatedir}/ossec"' >> ./etc/preloaded-vars.conf
+echo 'USER_DELETE_DIR="y"' >> ./etc/preloaded-vars.conf
+echo 'USER_ENABLE_ACTIVE_RESPONSE="y"' >> ./etc/preloaded-vars.conf
+echo 'USER_ENABLE_SYSCHECK="y"' >> ./etc/preloaded-vars.conf
+echo 'USER_ENABLE_ROOTCHECK="y"' >> ./etc/preloaded-vars.conf
+echo 'USER_ENABLE_OPENSCAP="y"' >> ./etc/preloaded-vars.conf
+echo 'USER_ENABLE_CISCAT="y"' >> ./etc/preloaded-vars.conf
+echo 'USER_UPDATE="n"' >> ./etc/preloaded-vars.conf
+echo 'USER_AGENT_SERVER_IP="MANAGER_IP"' >> ./etc/preloaded-vars.conf
+echo 'USER_CA_STORE="/path/to/my_cert.pem"' >> ./etc/preloaded-vars.conf
+echo 'USER_AUTO_START="n"' >> ./etc/preloaded-vars.conf
+./install.sh
+
+# Create directories
 mkdir -p ${RPM_BUILD_ROOT}%{_initrddir}
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/backup
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/active-response/bin
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/agentless
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/shared
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/lib
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/logs
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/logs/ossec
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/queue/{agents,alerts,diff,ossec,rids,syscheck}
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/var/{run,selinux,wodles,incoming,upgrade}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/.ssh
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/aws
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
+
+# Copy the installed files into RPM_BUILD_ROOT directory
+cp -pr %{_localstatedir}/ossec/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/
+install -m 0640 ossec-init.conf ${RPM_BUILD_ROOT}%{_sysconfdir}
+install -m 0755 src/init/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-agent
+
+# Install oscap files
+install -m 0640 wodles/oscap/content/*redhat* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
+install -m 0640 wodles/oscap/content/*rhel* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
+install -m 0640 wodles/oscap/content/*centos* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
+install -m 0640 wodles/oscap/content/*fedora* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
+
+cp CHANGELOG.md CHANGELOG
+
+# Add configuration scripts
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/
+cp gen_ossec.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/
+cp add_localfiles.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/
 
 # Templates for initscript
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/init
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/systemd
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/generic
-cp -rp  etc/templates/config/generic/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/generic
-install -m 0640 ossec-init.conf ${RPM_BUILD_ROOT}%{_sysconfdir}
-install -m 0640 src/init/inst-functions.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/init
-install -m 0640 src/init/template-select.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/init
-install -m 0640 src/init/shared.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/init
-install -m 0640 src/init/replace_manager_ip.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/init
-install -m 0640 src/LOCATION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src
-install -m 0640 src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src
-install -m 0640 src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src
-install -m 0640 add_localfiles.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp
-
-# AWS wodle
-install -m 0750 wodles/aws/aws-s3.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/aws/aws-s3 
-
-# Wazuh lib
-install -m 0750 src/libwazuhext.so ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/lib
-
-# Open Scap files
-install -m 0750 wodles/oscap/oscap.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap
-install -m 0750 wodles/oscap/template_oval.xsl ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap
-install -m 0750 wodles/oscap/template_xccdf.xsl ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap
-install -m 0640 wodles/oscap/content/cve-redhat-7-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
-install -m 0640 wodles/oscap/content/ssg-rhel-7-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
-install -m 0640 wodles/oscap/content/ssg-centos-7-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
-install -m 0640 wodles/oscap/content/cve-redhat-6-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
-install -m 0640 wodles/oscap/content/ssg-rhel-6-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
-install -m 0640 wodles/oscap/content/ssg-centos-6-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
-install -m 0640 wodles/oscap/content/ssg-fedora-24-ds.xml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
-
-# SELinux file
-install -m 0640 src/selinux/wazuh.pp ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/var/selinux
-
-
-cp CHANGELOG.md CHANGELOG
-install -m 0755 src/init/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-agent
-install -m 0640 etc/wpk_root.pem ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc
-install -m 0640 etc/internal_options* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc
-install -m 0640 etc/local_internal_options.conf ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc
-install -m 0755 active-response/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/active-response/bin
-install -m 0750 active-response/*.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/active-response/bin
-install -m 0755 active-response/firewalls/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/active-response/bin
-install -m 0644 src/rootcheck/db/*.txt ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/shared
-install -m 0650 src/agentlessd/scripts/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/agentless
-install -m 0650 src/ossec-logcollector ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-install -m 0650 src/ossec-syscheckd ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-install -m 0650 src/ossec-execd ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-install -m 0650 src/ossec-agentd ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-install -m 0650 src/manage_agents ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-install -m 0650 src/agent-auth ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin/
-install -m 0650 src/wazuh-modulesd ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
-
-install -m 0750 wodles/oscap/oscap.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap
-install -m 0750 wodles/oscap/template* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap
-
-cp -pr src/init/ossec-client.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin/ossec-control
-cp -pr contrib/util.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin/
-cp -pr etc/ossec-agent.conf ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/ossec.conf
-
-# Copying install scripts to /usr/share
-mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/
-cp gen_ossec.sh ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/
-cp add_localfiles.sh ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/
-
-mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/src
-cp src/VERSION ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/src/
-cp src/REVISION ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/src/
-cp src/LOCATION ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/src/
-
-mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/src/init
-cp -r src/init/*  ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/src/init
-
-# Systemd files
-mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/src/systemd
-cp -r src/systemd/*  ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/src/systemd
-
-mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic
-cp -r etc/templates/config/generic/* ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/centos
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/fedora
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/rhel
 
 # Copy scap templates
-mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/centos
-cp -r  etc/templates/config/centos/* ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/centos
+cp -rp  etc/templates/config/generic/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/generic
+cp -rp  etc/templates/config/centos/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/centos
+cp -rp  etc/templates/config/fedora/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/fedora
+cp -rp  etc/templates/config/rhel/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/rhel
 
-mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/fedora
-cp -r  etc/templates/config/fedora/* ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/fedora
+install -m 0640 src/init/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/init
 
-mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/rhel
-cp -r  etc/templates/config/rhel/* ${RPM_BUILD_ROOT}/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/rhel
+# Add installation scripts
+cp src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/
+cp src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/
+cp src/LOCATION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/
+cp -r src/systemd/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/systemd
 
 exit 0
 %pre
@@ -207,23 +159,17 @@ if [ $1 = 1 ]; then
   if [ -f /etc/os-release ]; then
     sles=$(grep "\"sles" /etc/os-release)
     if [ ! -z "$sles" ]; then
-      install -m 755 /usr/share/wazuh-agent/scripts/tmp/src/init/ossec-hids-suse.init /etc/rc.d/wazuh-agent
+      install -m 755 %{_localstatedir}/ossec/tmp/src/init/ossec-hids-suse.init /etc/rc.d/wazuh-agent
     fi
   fi
-  touch %{_localstatedir}/ossec/etc/client.keys
-  chown root:ossec %{_localstatedir}/ossec/etc/client.keys
-  chmod 0640 %{_localstatedir}/ossec/etc/client.keys
-  touch %{_localstatedir}/ossec/logs/ossec.log
-  chown ossec:ossec %{_localstatedir}/ossec/logs/ossec.log
-  chmod 660 %{_localstatedir}/ossec/logs/ossec.log
 
   touch %{_localstatedir}/ossec/logs/active-responses.log
   chown ossec:ossec %{_localstatedir}/ossec/logs/active-responses.log
   chmod 0660 %{_localstatedir}/ossec/logs/active-responses.log
 
   # Generating osse.conf file
-  . /usr/share/wazuh-agent/scripts/tmp/src/init/dist-detect.sh
-  /usr/share/wazuh-agent/scripts/tmp/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir}/ossec > %{_localstatedir}/ossec/etc/ossec.conf
+  . %{_localstatedir}/ossec/tmp/src/init/dist-detect.sh
+  %{_localstatedir}/ossec/tmp/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir}/ossec > %{_localstatedir}/ossec/etc/ossec.conf
   chown root:ossec %{_localstatedir}/ossec/etc/ossec.conf
   chmod 0640 %{_localstatedir}/ossec/etc/ossec.conf
 
@@ -243,15 +189,11 @@ if [ ! -d /run/systemd/system ]; then
 fi
 
 if [ -d /run/systemd/system ]; then
-  install -m 644 /usr/share/wazuh-agent/scripts/tmp/src/systemd/wazuh-agent.service /etc/systemd/system/
+  install -m 644 %{_localstatedir}/ossec/tmp/src/systemd/wazuh-agent.service /etc/systemd/system/
   systemctl daemon-reload
   systemctl stop wazuh-agent
   systemctl enable wazuh-agent > /dev/null 2>&1
 fi
-
-touch %{_localstatedir}/ossec/logs/ossec.json
-chown ossec:ossec %{_localstatedir}/ossec/logs/ossec.json
-chmod 660 %{_localstatedir}/ossec/logs/ossec.json
 
 chmod 640 %{_sysconfdir}/ossec-init.conf
 chown root:ossec %{_sysconfdir}/ossec-init.conf
@@ -396,6 +338,9 @@ rm -fr %{buildroot}
 %attr(770,root,ossec) %dir %{_localstatedir}/ossec/etc/shared
 %attr(750,root,root) %dir %{_localstatedir}/ossec/lib
 %attr(770,ossec,ossec) %dir %{_localstatedir}/ossec/logs
+%attr(660,ossec,ossec) %ghost %{_localstatedir}/ossec/logs/active-responses.log
+%attr(660,ossec,ossec) %ghost %{_localstatedir}/ossec/logs/ossec.log
+%attr(660,ossec,ossec) %ghost %{_localstatedir}/ossec/logs/ossec.json
 %attr(750,ossec,ossec) %dir %{_localstatedir}/ossec/logs/ossec
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/queue
 %attr(750,ossec,ossec) %dir %{_localstatedir}/ossec/queue/agents
@@ -418,9 +363,13 @@ rm -fr %{buildroot}
 %{_initrddir}/*
 %attr(640,root,ossec) %{_localstatedir}/ossec/etc/internal_options*
 %attr(640,root,ossec) %{_localstatedir}/ossec/etc/wpk_root.pem
+%attr(640,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/client.keys
 %attr(640,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/local_internal_options.conf
+%attr(640,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/ossec.conf
 %attr(640,root,ossec) %{_localstatedir}/ossec/etc/ossec.conf
 %attr(660,root,ossec) %config(missingok,noreplace) %{_localstatedir}/ossec/etc/shared/*
+%{_localstatedir}/ossec/etc/ossec-init.conf
+%attr(640,root,ossec) %{_localstatedir}/ossec/etc/localtime
 %attr(750,root,root) %{_localstatedir}/ossec/lib/*
 %attr(1750,root,ossec) %dir %{_localstatedir}/ossec/tmp
 %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/aws/*
@@ -430,11 +379,13 @@ rm -fr %{buildroot}
 %attr(640,root,ossec) %{_localstatedir}/ossec/wodles/oscap/content/*
 
 #Template files
-%attr(750,root,root) %config(missingok)%{_localstatedir}/ossec/tmp/src/*
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/add_localfiles.sh
+%attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/gen_ossec.sh
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/generic/*
-
-/usr/share/wazuh-agent/scripts/tmp/*
+%attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/centos/*
+%attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/fedora/*
+%attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/rhel/*
+%attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/src/*
 
 
 %changelog
