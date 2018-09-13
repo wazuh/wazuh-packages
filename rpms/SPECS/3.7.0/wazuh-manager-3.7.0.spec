@@ -548,6 +548,7 @@ rm -fr %{buildroot}
 %attr(660,ossecm,ossec) %ghost %{_localstatedir}/ossec/logs/integrations.log
 %attr(660,ossec,ossec) %ghost %{_localstatedir}/ossec/logs/ossec.log
 %attr(660,ossec,ossec) %ghost %{_localstatedir}/ossec/logs/ossec.json
+%attr(600,root,ossec) %ghost %{_localstatedir}/ossec/queue/agents-timestamp
 %attr(660,root,ossec) %{_localstatedir}/ossec/etc/rootcheck/*.txt
 %attr(640,root,ossec) %{_localstatedir}/ossec/ruleset/VERSION
 %attr(640,root,ossec) %{_localstatedir}/ossec/ruleset/rules/*
