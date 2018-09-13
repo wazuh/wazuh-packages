@@ -272,6 +272,10 @@ if [ $1 = 1 ]; then
     fi
   fi
 
+  touch %{_localstatedir}/ossec/logs/active-responses.log
+  chown ossec:ossec %{_localstatedir}/ossec/logs/active-responses.log
+  chmod 0660 %{_localstatedir}/ossec/logs/active-responses.log
+
   # Add default local_files to ossec.conf
   %{_localstatedir}/ossec/tmp/add_localfiles.sh %{_localstatedir}/ossec >> %{_localstatedir}/ossec/etc/ossec.conf
    /sbin/chkconfig --add wazuh-manager
