@@ -420,7 +420,6 @@ if [ $1 = 0 ]; then
     fi
   fi
 
-  rm -f %{_localstatedir}/ossec/etc/localtime || :
 fi
 
 %postun
