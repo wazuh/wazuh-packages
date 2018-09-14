@@ -426,10 +426,6 @@ fi
 
 # If the package is been uninstalled
 if [ $1 == 0 ];then
-  # Remove the ossec user if it exists
-  if id -u ossec > /dev/null 2>&1; then
-    userdel ossec
-  fi
   # Remove the ossecr user if it exists
   if id -u ossecr > /dev/null 2>&1; then
     userdel ossecr
@@ -437,6 +433,10 @@ if [ $1 == 0 ];then
   # Remove the ossecm user if it exists
   if id -u ossecm > /dev/null 2>&1; then
     userdel ossecm
+  fi
+  # Remove the ossec user if it exists
+  if id -u ossec > /dev/null 2>&1; then
+    userdel ossec
   fi
   # Remove the ossec group if it exists
   if id -g ossec > /dev/null 2>&1; then
