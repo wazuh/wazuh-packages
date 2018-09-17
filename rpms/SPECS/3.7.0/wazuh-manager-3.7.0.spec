@@ -206,12 +206,11 @@ fi
 
 # If the package is being installed 
 if [ $1 = 1 ]; then
-  # Generating osse.conf file
+  # Generating ossec.conf file
   . %{_localstatedir}/ossec/tmp/src/init/dist-detect.sh
   %{_localstatedir}/ossec/tmp/gen_ossec.sh conf manager ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir}/ossec > %{_localstatedir}/ossec/etc/ossec.conf
   chown root:ossec %{_localstatedir}/ossec/etc/ossec.conf
   chmod 0640 %{_localstatedir}/ossec/etc/ossec.conf
-
 
   ETC_DECODERS="%{_localstatedir}/ossec/etc/decoders"
   ETC_RULES="%{_localstatedir}/ossec/etc/rules"
@@ -286,7 +285,7 @@ if [ $1 = 1 ]; then
     systemctl stop wazuh-manager
     systemctl enable wazuh-manager > /dev/null 2>&1
   fi
-  
+
 fi
 
 if [ -f "%{_localstatedir}/ossec/etc/shared/agent.conf" ]; then
@@ -305,11 +304,6 @@ fi
 
 rm %{_localstatedir}/ossec/etc/shared/ar.conf  >/dev/null 2>&1 || true
 rm %{_localstatedir}/ossec/etc/shared/merged.mg  >/dev/null 2>&1 || true
-
-ln -sf %{_sysconfdir}/ossec-init.conf %{_localstatedir}/ossec/etc/ossec-init.conf
-
-chmod 640 %{_sysconfdir}/ossec-init.conf
-chown root:ossec %{_sysconfdir}/ossec-init.conf
 
 if [ $1 = 2 ]; then
   if [ -f %{_localstatedir}/ossec/etc/ossec.bck ]; then

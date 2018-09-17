@@ -140,7 +140,7 @@ fi
 if [ -f /etc/init.d/ossec ]; then
   rm /etc/init.d/ossec
 fi
-
+# Execute this if only when installing the package
 if [ $1 = 1 ]; then
   if [ -f %{_localstatedir}/ossec/etc/ossec.conf ]; then
     echo "====================================================================================="
@@ -150,11 +150,13 @@ if [ $1 = 1 ]; then
     mv %{_localstatedir}/ossec/etc/ossec.conf %{_localstatedir}/ossec/etc/ossec.conf.rpmorig
   fi
 fi
+# Execute this if only when upgrading the package
 if [ $1 = 2 ]; then
     cp -rp %{_localstatedir}/ossec/etc/ossec.conf %{_localstatedir}/ossec/etc/ossec.bck
 fi
-%post
 
+%post
+# If the package is being installed 
 if [ $1 = 1 ]; then
   if [ -f /etc/os-release ]; then
     sles=$(grep "\"sles" /etc/os-release)
@@ -182,17 +184,17 @@ if [ $1 = 1 ]; then
   /sbin/chkconfig --add wazuh-agent
   /sbin/chkconfig wazuh-agent on
 
+  if [ -d /run/systemd/system ]; then
+    install -m 644 %{_localstatedir}/ossec/tmp/src/systemd/wazuh-agent.service /etc/systemd/system/
+    systemctl daemon-reload
+    systemctl stop wazuh-agent
+    systemctl enable wazuh-agent > /dev/null 2>&1
+  fi
+
 fi
 
 if [ ! -d /run/systemd/system ]; then
   update-rc.d wazuh-agent defaults > /dev/null 2>&1
-fi
-
-if [ -d /run/systemd/system ]; then
-  install -m 644 %{_localstatedir}/ossec/tmp/src/systemd/wazuh-agent.service /etc/systemd/system/
-  systemctl daemon-reload
-  systemctl stop wazuh-agent
-  systemctl enable wazuh-agent > /dev/null 2>&1
 fi
 
 rm -rf %{_localstatedir}/ossec/tmp/etc
