@@ -56,7 +56,7 @@ build_deb() {
         ${CONTAINER_NAME} $TARGET $VERSION $ARCHITECTURE $REVISION $JOBS $INSTALLATION_PATH || exit 1
 
     # Clean the files
-    rm -rf ${DOCKERFILE_PATH}/{*.sh,*.tar.gz} ${SOURCES_DIRECTORY}
+    rm -rf ${DOCKERFILE_PATH}/{*.sh,*.tar.gz,wazuh-*} ${SOURCES_DIRECTORY}
 
     echo "Package $(ls $OUTDIR -Art | tail -n 1) added to $OUTDIR."
 
