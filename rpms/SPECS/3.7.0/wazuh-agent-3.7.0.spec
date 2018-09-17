@@ -319,60 +319,42 @@ rm -fr %{buildroot}
 %files
 %defattr(-,root,root)
 %doc BUGS CONFIG CONTRIBUTORS INSTALL LICENSE README.md CHANGELOG
+%{_initrddir}/*
 %attr(640,root,ossec) %verify(not md5 size mtime) %{_sysconfdir}/ossec-init.conf
-%attr(750,root,ossec) %dir %{_localstatedir}/ossec
-%attr(750,root,ossec) %dir %{_localstatedir}/ossec/backup
-%attr(750,root,ossec) %dir %{_localstatedir}/ossec/wodles
-%attr(750,root,ossec) %dir %{_localstatedir}/ossec/wodles/aws
-%attr(750,root,ossec) %dir %{_localstatedir}/ossec/wodles/oscap
-%attr(750,root,ossec) %dir %{_localstatedir}/ossec/wodles/oscap/content
-%attr(700,root,ossec) %dir %{_localstatedir}/ossec/.ssh
-%attr(750,root,ossec) %dir %{_localstatedir}/ossec/active-response
-%attr(750,root,ossec) %dir %{_localstatedir}/ossec/active-response/bin
-%attr(770,root,ossec) %dir %{_localstatedir}/ossec/etc/shared
-%attr(750,root,root) %dir %{_localstatedir}/ossec/lib
-%attr(770,ossec,ossec) %dir %{_localstatedir}/ossec/logs
+%dir %attr(750,root,ossec) %{_localstatedir}/ossec
+%attr(750,root,ossec) %{_localstatedir}/ossec/agentless
+%dir %attr(700,root,ossec) %{_localstatedir}/ossec/.ssh
+%dir %attr(750,root,ossec) %{_localstatedir}/ossec/active-response
+%dir %attr(750,root,ossec) %{_localstatedir}/ossec/active-response/bin
+%attr(750,root,ossec) %{_localstatedir}/ossec/active-response/bin/*
+%dir %attr(750,root,root) %{_localstatedir}/ossec/bin
+%attr(750,root,root) %{_localstatedir}/ossec/bin/*
+%dir %attr(750,root,ossec) %{_localstatedir}/ossec/backup
+%dir %attr(770,ossec,ossec) %{_localstatedir}/ossec/etc
+%attr(640,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/client.keys
+%attr(640,root,ossec) %{_localstatedir}/ossec/etc/internal_options*
+%attr(640,root,ossec) %{_localstatedir}/ossec/etc/localtime
+%attr(640,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/local_internal_options.conf
+%attr(640,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/ossec.conf
+%{_localstatedir}/ossec/etc/ossec-init.conf
+%attr(640,root,ossec) %{_localstatedir}/ossec/etc/wpk_root.pem
+%dir %attr(770,root,ossec) %{_localstatedir}/ossec/etc/shared
+%attr(660,root,ossec) %config(missingok,noreplace) %{_localstatedir}/ossec/etc/shared/*
+%dir %attr(750,root,root) %{_localstatedir}/ossec/lib
+%attr(750,root,root) %{_localstatedir}/ossec/lib/*
+%dir %attr(770,ossec,ossec) %{_localstatedir}/ossec/logs
 %attr(660,ossec,ossec) %ghost %{_localstatedir}/ossec/logs/active-responses.log
 %attr(660,ossec,ossec) %ghost %{_localstatedir}/ossec/logs/ossec.log
 %attr(660,ossec,ossec) %ghost %{_localstatedir}/ossec/logs/ossec.json
-%attr(750,ossec,ossec) %dir %{_localstatedir}/ossec/logs/ossec
-%attr(750,root,ossec) %dir %{_localstatedir}/ossec/queue
-%attr(750,ossec,ossec) %dir %{_localstatedir}/ossec/queue/agents
-%attr(770,ossec,ossec) %dir %{_localstatedir}/ossec/queue/ossec
-%attr(750,ossec,ossec) %dir %{_localstatedir}/ossec/queue/diff
-%attr(770,ossec,ossec) %dir %{_localstatedir}/ossec/queue/alerts
-%attr(750,ossec,ossec) %dir %{_localstatedir}/ossec/queue/rids
-%attr(750,ossec,ossec) %dir %{_localstatedir}/ossec/queue/syscheck
-%attr(750,root,root) %dir %{_localstatedir}/ossec/bin
-%attr(770,ossec,ossec) %dir %{_localstatedir}/ossec/etc
-%attr(750,root,ossec) %dir %{_localstatedir}/ossec/var
-%attr(770,root,ossec) %dir %{_localstatedir}/ossec/var/incoming
-%attr(770,root,ossec) %dir %{_localstatedir}/ossec/var/run
-%attr(770,root,ossec) %dir %{_localstatedir}/ossec/var/selinux
-%attr(770,root,ossec) %dir %{_localstatedir}/ossec/var/wodles
-%attr(770,root,ossec) %dir %{_localstatedir}/ossec/var/upgrade
-%attr(750,root,ossec) %{_localstatedir}/ossec/active-response/bin/*
-%attr(750,root,ossec) %{_localstatedir}/ossec/agentless
-%attr(750,root,root) %{_localstatedir}/ossec/bin/*
-%{_initrddir}/*
-%attr(640,root,ossec) %{_localstatedir}/ossec/etc/internal_options*
-%attr(640,root,ossec) %{_localstatedir}/ossec/etc/wpk_root.pem
-%attr(640,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/client.keys
-%attr(640,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/local_internal_options.conf
-%attr(640,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/ossec.conf
-%attr(640,root,ossec) %{_localstatedir}/ossec/etc/ossec.conf
-%attr(660,root,ossec) %config(missingok,noreplace) %{_localstatedir}/ossec/etc/shared/*
-%{_localstatedir}/ossec/etc/ossec-init.conf
-%attr(640,root,ossec) %{_localstatedir}/ossec/etc/localtime
-%attr(750,root,root) %{_localstatedir}/ossec/lib/*
-%attr(1750,root,ossec) %dir %{_localstatedir}/ossec/tmp
-%attr(750,root,ossec) %{_localstatedir}/ossec/wodles/aws/*
-%attr(640,root,ossec) %{_localstatedir}/ossec/var/selinux/*
-%attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap/oscap.py
-%attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap/template*
-%attr(640,root,ossec) %{_localstatedir}/ossec/wodles/oscap/content/*
-
-#Template files
+%dir %attr(750,ossec,ossec) %{_localstatedir}/ossec/logs/ossec
+%dir %attr(750,root,ossec) %{_localstatedir}/ossec/queue
+%dir %attr(750,ossec,ossec) %{_localstatedir}/ossec/queue/agents
+%dir %attr(770,ossec,ossec) %{_localstatedir}/ossec/queue/ossec
+%dir %attr(750,ossec,ossec) %{_localstatedir}/ossec/queue/diff
+%dir %attr(770,ossec,ossec) %{_localstatedir}/ossec/queue/alerts
+%dir %attr(750,ossec,ossec) %{_localstatedir}/ossec/queue/rids
+%dir %attr(750,ossec,ossec) %{_localstatedir}/ossec/queue/syscheck
+%dir %attr(1750,root,ossec) %{_localstatedir}/ossec/tmp
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/add_localfiles.sh
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/gen_ossec.sh
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/generic/*
@@ -380,6 +362,21 @@ rm -fr %{buildroot}
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/fedora/*
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/rhel/*
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/src/*
+%dir %attr(750,root,ossec) %{_localstatedir}/ossec/var
+%dir %attr(770,root,ossec) %{_localstatedir}/ossec/var/incoming
+%dir %attr(770,root,ossec) %{_localstatedir}/ossec/var/run
+%dir %attr(770,root,ossec) %{_localstatedir}/ossec/var/selinux
+%attr(640,root,ossec) %{_localstatedir}/ossec/var/selinux/*
+%dir %attr(770,root,ossec) %{_localstatedir}/ossec/var/upgrade
+%dir %attr(770,root,ossec) %{_localstatedir}/ossec/var/wodles
+%dir %attr(750,root,ossec) %{_localstatedir}/ossec/wodles
+%dir %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/aws
+%attr(750,root,ossec) %{_localstatedir}/ossec/wodles/aws/*
+%dir %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap
+%attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap/oscap.py
+%attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap/template*
+%dir %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap/content
+%attr(640,root,ossec) %{_localstatedir}/ossec/wodles/oscap/content/*
 
 
 %changelog
