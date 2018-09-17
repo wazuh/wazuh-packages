@@ -181,6 +181,7 @@ rm -f %{_localstatedir}/ossec/queue/db/.template.db
 if [ -f /etc/init.d/ossec ]; then
   rm /etc/init.d/ossec
 fi
+# Execute this if only when installing the package
 if [ $1 = 1 ]; then
   if [ -f %{_localstatedir}/ossec/etc/ossec.conf ]; then
     echo "====================================================================================="
@@ -190,6 +191,7 @@ if [ $1 = 1 ]; then
     mv %{_localstatedir}/ossec/etc/ossec.conf %{_localstatedir}/ossec/etc/ossec.conf.rpmorig
   fi
 fi
+# Execute this if only when upgrading the package
 if [ $1 = 2 ]; then
     cp -rp %{_localstatedir}/ossec/etc/ossec.conf %{_localstatedir}/ossec/etc/ossec.bck
     cp -rp %{_localstatedir}/ossec/etc/shared %{_localstatedir}/ossec/backup/
@@ -202,6 +204,7 @@ if [ $1 = 2 ]; then
 fi
 %post
 
+# If the package is being installed 
 if [ $1 = 1 ]; then
   # Generating osse.conf file
   . %{_localstatedir}/ossec/tmp/src/init/dist-detect.sh
@@ -276,6 +279,14 @@ if [ $1 = 1 ]; then
    /sbin/chkconfig --add wazuh-manager
    /sbin/chkconfig wazuh-manager on
 
+  # If systemd is installed, add the wazuh-manager.service file to systemd files directory
+  if [ -d /run/systemd/system ]; then
+    install -m 644 %{_localstatedir}/ossec/tmp/src/systemd/wazuh-manager.service /etc/systemd/system/
+    systemctl daemon-reload
+    systemctl stop wazuh-manager
+    systemctl enable wazuh-manager > /dev/null 2>&1
+  fi
+  
 fi
 
 if [ -f "%{_localstatedir}/ossec/etc/shared/agent.conf" ]; then
@@ -309,14 +320,6 @@ fi
 # Agent info change between 2.1.1 and 3.0.0
 chmod 0660 %{_localstatedir}/ossec/queue/agent-info/* 2>/dev/null || true
 chown ossecr:ossec %{_localstatedir}/ossec/queue/agent-info/* 2>/dev/null || true
-
-# If systemd is installed, add the wazuh-manager.service file to systemd files directory
-if [ -d /run/systemd/system ]; then
-  install -m 644 %{_localstatedir}/ossec/tmp/src/systemd/wazuh-manager.service /etc/systemd/system/
-  systemctl daemon-reload
-  systemctl stop wazuh-manager
-  systemctl enable wazuh-manager > /dev/null 2>&1
-fi
 
 # The check for SELinux is not executed in the legacy OS.
 add_selinux="yes"
@@ -527,10 +530,19 @@ rm -fr %{buildroot}
 %dir %attr(1750, root, ossec) %{_localstatedir}/ossec/tmp
 %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/add_localfiles.sh
 %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/gen_ossec.sh
+%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/src/
 %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/src/*
+%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/src/systemd/
+%attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/src/systemd/*
+%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates
+%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config
+%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/generic
 %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/generic/*
+%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/centos
 %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/centos/*
+%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/fedora
 %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/fedora/*
+%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/rhel
 %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/rhel/*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/var
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/var/db
