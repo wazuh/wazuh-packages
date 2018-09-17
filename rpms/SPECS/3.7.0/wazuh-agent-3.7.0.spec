@@ -195,15 +195,9 @@ if [ -d /run/systemd/system ]; then
   systemctl enable wazuh-agent > /dev/null 2>&1
 fi
 
-chmod 640 %{_sysconfdir}/ossec-init.conf
-chown root:ossec %{_sysconfdir}/ossec-init.conf
-
 rm -rf %{_localstatedir}/ossec/tmp/etc
 rm -rf %{_localstatedir}/ossec/tmp/src
 rm -f %{_localstatedir}/ossec/tmp/add_localfiles.sh
-ln -sf %{_sysconfdir}/ossec-init.conf %{_localstatedir}/ossec/etc/ossec-init.conf
-
-chown root:ossec %{_localstatedir}/ossec/etc/shared/*
 
 if [ $1 = 2 ]; then
   if [ -f %{_localstatedir}/ossec/etc/ossec.bck ]; then

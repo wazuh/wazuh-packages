@@ -177,11 +177,6 @@ rm -f %{_localstatedir}/ossec/var/db/agents/* || true
 rm -f %{_localstatedir}/ossec/queue/db/*.db*
 rm -f %{_localstatedir}/ossec/queue/db/.template.db
 
-# Backup /etc/shared/default/agent.conf file
-if [ -f %{_localstatedir}/ossec/etc/shared/default/agent.conf ]; then
-  cp -p %{_localstatedir}/ossec/etc/shared/default/agent.conf %{_localstatedir}/ossec/tmp/agent.conf
-fi
-
 # Delete old service
 if [ -f /etc/init.d/ossec ]; then
   rm /etc/init.d/ossec
@@ -281,14 +276,6 @@ if [ $1 = 1 ]; then
    /sbin/chkconfig --add wazuh-manager
    /sbin/chkconfig wazuh-manager on
 
-fi
-
-# Restore the agent.conf
-if [ -f %{_localstatedir}/ossec/tmp/agent.conf ]; then
-  cp -rp %{_localstatedir}/ossec/tmp/agent.conf %{_localstatedir}/ossec/etc/shared/default/agent.conf
-  rm %{_localstatedir}/ossec/tmp/agent.conf
-  chown ossec:ossec %{_localstatedir}/ossec/etc/shared/default/agent.conf
-  chmod 660 %{_localstatedir}/ossec/etc/shared/default/agent.conf
 fi
 
 if [ -f "%{_localstatedir}/ossec/etc/shared/agent.conf" ]; then
