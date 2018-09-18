@@ -346,8 +346,8 @@ rm -fr %{buildroot}
 %attr(750,root,root) %{_localstatedir}/ossec/lib/*
 %dir %attr(770,ossec,ossec) %{_localstatedir}/ossec/logs
 %attr(660,ossec,ossec) %ghost %{_localstatedir}/ossec/logs/active-responses.log
-%attr(660,ossec,ossec) %ghost %{_localstatedir}/ossec/logs/ossec.log
-%attr(660,ossec,ossec) %ghost %{_localstatedir}/ossec/logs/ossec.json
+%attr(660,root,ossec) %ghost %{_localstatedir}/ossec/logs/ossec.log
+%attr(660,root,ossec) %ghost %{_localstatedir}/ossec/logs/ossec.json
 %dir %attr(750,ossec,ossec) %{_localstatedir}/ossec/logs/ossec
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec/queue
 %dir %attr(750,ossec,ossec) %{_localstatedir}/ossec/queue/agents

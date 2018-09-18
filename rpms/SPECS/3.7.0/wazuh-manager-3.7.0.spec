@@ -269,9 +269,10 @@ if [ $1 = 1 ]; then
     fi
   fi
 
-  touch %{_localstatedir}/ossec/logs/active-responses.log
-  chown ossec:ossec %{_localstatedir}/ossec/logs/active-responses.log
-  chmod 0660 %{_localstatedir}/ossec/logs/active-responses.log
+  touch %{_localstatedir}/ossec/logs/active-responses.log %{_localstatedir}/ossec/logs/integrations.log
+  chown ossec:ossec %{_localstatedir}/ossec/logs/active-responses.log 
+  chown ossecm:ossec %{_localstatedir}/ossec/logs/integrations.log
+  chmod 0660 %{_localstatedir}/ossec/logs/active-responses.log %{_localstatedir}/ossec/logs/integrations.log
 
   # Add default local_files to ossec.conf
   %{_localstatedir}/ossec/tmp/add_localfiles.sh %{_localstatedir}/ossec >> %{_localstatedir}/ossec/etc/ossec.conf
@@ -396,7 +397,7 @@ if [ $1 = 0 ]; then
   # If it is a valid system, remove the policy if it is installed
   if [ ${add_selinux} == "yes" ]; then
     if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
-      if [ $(getenforce) !=  "Disabled" ]; then
+      if [ $(getenforce) != "Disabled" ]; then
         if (semodule -l | grep wazuh > /dev/null); then
           semodule -r wazuh
         fi
@@ -490,8 +491,8 @@ rm -fr %{buildroot}
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/logs
 %attr(660, ossec, ossec)  %ghost %{_localstatedir}/ossec/logs/active-responses.log
 %attr(660, ossecm, ossec) %ghost %{_localstatedir}/ossec/logs/integrations.log
-%attr(660, ossec, ossec)  %ghost %{_localstatedir}/ossec/logs/ossec.log
-%attr(660, ossec, ossec)  %ghost %{_localstatedir}/ossec/logs/ossec.json
+%attr(660, ossec, ossec) %ghost %{_localstatedir}/ossec/logs/ossec.log
+%attr(660, ossec, ossec) %ghost %{_localstatedir}/ossec/logs/ossec.json
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/logs/archives
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/logs/alerts
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/logs/cluster
