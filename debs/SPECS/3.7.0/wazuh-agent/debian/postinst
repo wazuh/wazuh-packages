@@ -13,7 +13,7 @@ case "$1" in
     USER="ossec"
     GROUP="ossec"
     WAZUH_TMP_DIR="${DIR}/tmp/installation_files"
-    SCRIPTS_DIR="/usr/share/wazuh-agent/scripts/tmp"
+    SCRIPTS_DIR="${DIR}/tmp"
 
     OSMYSHELL="/sbin/nologin"
 
@@ -124,8 +124,11 @@ case "$1" in
       service wazuh-agent restart || :
     fi
 
-    if [ -d /usr/share/wazuh-agent ]; then
-        rm -rf /usr/share/wazuh-agent
+    # Delete installation scripts
+    if [ -d ${SCRIPTS_DIR} ]; then
+        rm -f ${DIR}/tmp/add_localfiles.sh gen_ossec.sh
+        rm -rf ${DIR}/tmp/src
+        rm -rf ${DIR}/tmp/etc
     fi
 
     # Fix /etc/ossec-init.conf

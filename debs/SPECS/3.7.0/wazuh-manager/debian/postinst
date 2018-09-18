@@ -14,7 +14,7 @@ case "$1" in
     GROUP="ossec"
     WAZUH_TMP_DIR="/tmp/wazuh-manager"
     OSMYSHELL="/sbin/nologin"
-    SCRIPTS_DIR="/usr/share/wazuh-manager/scripts/tmp"
+    SCRIPTS_DIR="${DIR}/tmp"
 
     if [ ! -f ${OSMYSHELL} ]; then
         if [ -f "/bin/false" ]; then
@@ -286,12 +286,11 @@ case "$1" in
     chmod 640 /etc/ossec-init.conf
     chown root:ossec /etc/ossec-init.conf
 
-    if [ -d /usr/share/wazuh-manager ]; then
-        rm -rf /usr/share/wazuh-manager
-    fi
-
-    if [ -d /usr/share/wazuh-agent ]; then
-        rm -rf /usr/share/wazuh-agent
+    # Delete installation scripts
+    if [ -d ${SCRIPTS_DIR} ]; then
+        rm -f ${DIR}/tmp/add_localfiles.sh gen_ossec.sh
+        rm -rf ${DIR}/tmp/src
+        rm -rf ${DIR}/tmp/etc
     fi
 
     ;;

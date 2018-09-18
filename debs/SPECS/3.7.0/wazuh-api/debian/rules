@@ -56,9 +56,9 @@ override_dh_auto_install:
 	cp ./scripts/wazuh-api.service $(TARGET_DIR)/etc/systemd/system
 
 	# Generating permission restoration file for postinstall
-	mkdir -p ${TARGET_DIR}/usr/share/wazuh-api/scripts/tmp/
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_DIR)/tmp/api_scripts/
 	# Generating permission restoration file for postinstall
-	./gen_permissions.sh "$(INSTALLATION_DIR)/api/ $(INSTALLATION_DIR)/logs/*" ${TARGET_DIR}/usr/share/wazuh-api/scripts/tmp/restore-permissions.sh
+	./gen_permissions.sh "$(INSTALLATION_DIR)/api/ $(INSTALLATION_DIR)/logs/*" ${TARGET_DIR}$(INSTALLATION_DIR)/tmp/api_scripts/restore-permissions.sh
 
 
 override_dh_auto_clean:
