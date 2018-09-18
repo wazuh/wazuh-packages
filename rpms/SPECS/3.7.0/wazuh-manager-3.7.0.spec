@@ -552,6 +552,8 @@ rm -fr %{buildroot}
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/wodles
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/aws
 %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/aws/*
+%dir %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/azure
+%attr(750, root, ossec) %{_localstatedir}/ossec/wodles/azure/*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap
 %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/oscap.*
 %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/template*  
