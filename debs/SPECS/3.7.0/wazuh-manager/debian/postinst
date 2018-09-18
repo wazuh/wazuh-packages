@@ -12,7 +12,7 @@ case "$1" in
     USER_MAIL="ossecm"
     USER_REM="ossecr"
     GROUP="ossec"
-    WAZUH_TMP_DIR="/tmp/wazuh-manager"
+    WAZUH_TMP_DIR="${DIR}/tmp/installation_files"
     OSMYSHELL="/sbin/nologin"
     SCRIPTS_DIR="${DIR}/tmp"
 

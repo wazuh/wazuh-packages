@@ -10,7 +10,7 @@ case "$1" in
     OS=$(lsb_release -si)
     DIR="/var/ossec"
     WAZUH_API_DIR="${DIR}/api"
-    WAZUH_TMP_DIR="/tmp/wazuh-api"
+    WAZUH_TMP_DIR="${DIR}/tmp/api_installation_files"
     USER="ossec"
     GROUP="ossec"
     OSMYSHELL="/sbin/nologin"

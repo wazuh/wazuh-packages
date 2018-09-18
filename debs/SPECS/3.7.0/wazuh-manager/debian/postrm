@@ -3,7 +3,7 @@
 # Wazuh, Inc 2016
 set -e
 DIR="/var/ossec"
-WAZUH_TMP_DIR="/tmp/wazuh-manager"
+WAZUH_TMP_DIR="${DIR}/tmp/installation_files"
 
 case "$1" in
     purge|remove|failed-upgrade|abort-install|abort-upgrade|disappear)
