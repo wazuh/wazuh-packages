@@ -73,7 +73,6 @@ fi
 
 if [ $1 = 1 ]; then
   %{_localstatedir}/ossec/api/scripts/install_daemon.sh
-  echo "Don’t forget to secure the API configuration by running the script %{_localstatedir}/ossec/api/scripts/configure_api.sh"
 fi
 
 API_PATH="${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api"
