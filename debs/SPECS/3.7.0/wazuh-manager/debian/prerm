@@ -27,13 +27,23 @@ case "$1" in
       fi
 
       # Purging files
-      rm -rf ${DIR}/etc/*
       rm -rf ${DIR}/stats/*
-      rm -rf ${DIR}/logs/*
       rm -rf ${DIR}/queue/*
       rm -rf ${DIR}/var/*
       rm -rf ${DIR}/framework/*
+      
+      # Save the conffiles
+      mkdir -p ${DIR}/tmp/conffiles
 
+      cp ${DIR}/etc/client.keys ${DIR}/tmp/conffiles
+      cp ${DIR}/etc/local_internal_options.conf ${DIR}/tmp/conffiles
+      cp ${DIR}/etc/ossec.conf ${DIR}/tmp/conffiles
+      cp -r ${DIR}/etc/decoders ${DIR}/tmp/conffiles
+      cp -r ${DIR}/etc/lists ${DIR}/tmp/conffiles
+      cp -r ${DIR}/etc/rules ${DIR}/tmp/conffiles
+      cp -r ${DIR}/etc/shared ${DIR}/tmp/conffiles
+
+      rm -rf ${DIR}/etc/*
     ;;
 
     failed-upgrade)

@@ -6,8 +6,7 @@ DIR="/var/ossec"
 WAZUH_TMP_DIR="${DIR}/tmp/installation_files"
 
 case "$1" in
-    purge|remove|failed-upgrade|abort-install|abort-upgrade|disappear)
-    action="$1"
+    remove|failed-upgrade|abort-install|abort-upgrade|disappear)
 
     # Fix for forcing the stop of the api
     if ps aux | grep ${DIR}/api/app.js | grep -v grep; then
@@ -41,14 +40,25 @@ case "$1" in
 
 	update-rc.d -f wazuh-manager remove
 
-    if [ -d /run/systemd/system ] && [ "$action" != "purge" ]; then
+    if [ -d /run/systemd/system ] ; then
         systemctl disable wazuh-manager > /dev/null 2>&1
         systemctl daemon-reload
         systemctl reset-failed
     fi
 
+    if [ ! -d ${DIR}/etc ]; then
+        mkdir -p ${DIR}/etc
+    fi
+
+    mv ${DIR}/tmp/conffiles/* ${DIR}/etc
+    rm -rf ${DIR}/tmp/conffiles
+    find /var/ossec/etc/ -type f -exec mv {} {}.save \;
+
     ;;
 
+    purge)
+        rm -rf ${DIR}/*
+    ;;
 
     upgrade)
 
