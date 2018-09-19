@@ -269,7 +269,8 @@ if [ $1 = 1 ]; then
     fi
   fi
 
-  touch %{_localstatedir}/ossec/logs/active-responses.log %{_localstatedir}/ossec/logs/integrations.log
+  touch %{_localstatedir}/ossec/logs/active-responses.log 
+  touch %{_localstatedir}/ossec/logs/integrations.log
   chown ossec:ossec %{_localstatedir}/ossec/logs/active-responses.log 
   chown ossecm:ossec %{_localstatedir}/ossec/logs/integrations.log
   chmod 0660 %{_localstatedir}/ossec/logs/active-responses.log %{_localstatedir}/ossec/logs/integrations.log
