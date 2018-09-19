@@ -128,6 +128,8 @@ cp src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/
 cp src/LOCATION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/
 cp -r src/systemd/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/systemd
 
+rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/sslmanager*
+
 exit 0
 %pre
 
@@ -460,10 +462,9 @@ rm -fr %{buildroot}
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/etc
 %attr(640, root, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/ossec.conf
 %attr(640, root, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/client.keys
-%attr(640, root, ossec)  %{_localstatedir}/ossec/etc/internal_options*
-%attr(640, root, ossec)  %config(noreplace) %{_localstatedir}/ossec/etc/local_internal_options.conf
+%attr(640, root, ossec) %{_localstatedir}/ossec/etc/internal_options*
+%attr(640, root, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/local_internal_options.conf
 %{_localstatedir}/ossec/etc/ossec-init.conf
-%attr(640, root, root) %config(noreplace) %{_localstatedir}/ossec/etc/sslmanager*
 %attr(640, root, ossec) %{_localstatedir}/ossec/etc/localtime
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/etc/decoders
 %attr(640, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/decoders/local_decoder.xml
