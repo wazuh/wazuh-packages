@@ -103,6 +103,9 @@ cp -rp  etc/templates/config/rhel/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp
 
 install -m 0640 ossec-init.conf ${RPM_BUILD_ROOT}%{_sysconfdir}
 install -m 0750 active-response/firewalls/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/active-response/bin
+pushd src
+./init/fw-check.sh execute
+popd
 install -m 0750 active-response/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/active-response/bin
 install -m 0750 active-response/*.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/active-response/bin
 install -m 0550 src/agentlessd/scripts/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/agentless
