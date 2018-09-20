@@ -41,9 +41,9 @@ case "$1" in
       cp -r ${DIR}/etc/decoders ${DIR}/tmp/conffiles
       cp -r ${DIR}/etc/lists ${DIR}/tmp/conffiles
       cp -r ${DIR}/etc/rules ${DIR}/tmp/conffiles
-      cp -r ${DIR}/etc/shared ${DIR}/tmp/conffiles
-
-      rm -rf ${DIR}/etc/*
+      mkdir -p ${DIR}/tmp/conffiles/shared/default
+      cp ${DIR}/etc/shared/default/agent.conf ${DIR}/tmp/conffiles/shared/default
+      
     ;;
 
     failed-upgrade)
