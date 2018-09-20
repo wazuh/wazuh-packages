@@ -34,8 +34,8 @@ case "$1" in
     chown root:${GROUP} ${DIR}/etc/ossec-init.conf
     chmod 640 ${DIR}/etc/ossec-init.conf
 
-    if [ -z "$2" ]; then
-
+    if [ -z "$2" ] || [ -f ${WAZUH_TMP_DIR}/create_conf ] ; then
+    
         ${SCRIPTS_DIR}/gen_ossec.sh conf agent ${OS} ${VER} > ${DIR}/etc/ossec.conf
         ${SCRIPTS_DIR}/add_localfiles.sh >> ${DIR}/etc/ossec.conf
 
