@@ -46,6 +46,7 @@ case "$1" in
         systemctl reset-failed
     fi
 
+    # Back up the old configuration files as .save
     if [ ! -d ${DIR}/etc ]; then
         mkdir -p ${DIR}/etc
     fi
