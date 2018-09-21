@@ -213,7 +213,7 @@ case "$1" in
     chmod 660 ${DIR}/etc/lists/amazon/*
     chmod 770 ${DIR}/etc/shared/default
 
-    chown -R ossec:ossec ${DIR}/etc/client.keys
+    chown -R root:ossec ${DIR}/etc/client.keys
     chown -R ossec:ossec ${DIR}/etc/lists/*
     chown -R ossec:ossec ${DIR}/etc/decoders/*
     chown -R ossec:ossec ${DIR}/etc/rules/*
