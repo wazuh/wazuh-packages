@@ -454,11 +454,38 @@ rm -fr %{buildroot}
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/backup/groups
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/backup/shared
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/bin
-%attr(750, root, root) %{_localstatedir}/ossec/bin/*
+%attr(750, root, root) %{_localstatedir}/ossec/bin/agent_control
 %attr(750, root, ossec) %{_localstatedir}/ossec/bin/agent_groups
 %attr(750, root, ossec) %{_localstatedir}/ossec/bin/agent_upgrade
+%attr(750, root, root) %{_localstatedir}/ossec/bin/clear_stats
 %attr(750, root, ossec) %{_localstatedir}/ossec/bin/cluster_control
+%attr(750, root, root) %{_localstatedir}/ossec/bin/manage_agents
+%attr(750, root, root) %{_localstatedir}/ossec/bin/ossec-agentlessd
+%attr(750, root, root) %{_localstatedir}/ossec/bin/ossec-analysisd
+%attr(750, root, root) %{_localstatedir}/ossec/bin/ossec-authd
+%attr(750, root, root) %{_localstatedir}/ossec/bin/ossec-control
+%attr(750, root, root) %{_localstatedir}/ossec/bin/ossec-csyslogd
+%attr(750, root, root) %{_localstatedir}/ossec/bin/ossec-dbd
+%attr(750, root, root) %{_localstatedir}/ossec/bin/ossec-execd
+%attr(750, root, root) %{_localstatedir}/ossec/bin/ossec-integratord
+%attr(750, root, root) %{_localstatedir}/ossec/bin/ossec-logcollector
+%attr(750, root, root) %{_localstatedir}/ossec/bin/ossec-logtest
+%attr(750, root, root) %{_localstatedir}/ossec/bin/ossec-maild
+%attr(750, root, root) %{_localstatedir}/ossec/bin/ossec-makelists
+%attr(750, root, root) %{_localstatedir}/ossec/bin/ossec-monitord
+%attr(750, root, root) %{_localstatedir}/ossec/bin/ossec-regex
+%attr(750, root, root) %{_localstatedir}/ossec/bin/ossec-remoted
+%attr(750, root, root) %{_localstatedir}/ossec/bin/ossec-reportd
+%attr(750, root, root) %{_localstatedir}/ossec/bin/ossec-syscheckd
+%attr(750, root, root) %{_localstatedir}/ossec/bin/rootcheck_control
+%attr(750, root, root) %{_localstatedir}/ossec/bin/syscheck_control
+%attr(750, root, root) %{_localstatedir}/ossec/bin/syscheck_update
+%attr(750, root, root) %{_localstatedir}/ossec/bin/update_ruleset
+%attr(750, root, root) %{_localstatedir}/ossec/bin/util.sh
+%attr(750, root, root) %{_localstatedir}/ossec/bin/verify-agent-conf
 %attr(750, root, ossec) %{_localstatedir}/ossec/bin/wazuh-clusterd
+%attr(750, root, root) %{_localstatedir}/ossec/bin/wazuh-db
+%attr(750, root, root) %{_localstatedir}/ossec/bin/wazuh-modulesd
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/etc
 %attr(640, root, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/ossec.conf
 %attr(640, root, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/client.keys
@@ -528,7 +555,11 @@ rm -fr %{buildroot}
 %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/add_localfiles.sh
 %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/gen_ossec.sh
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/src/
-%attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/src/*
+%attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/src/LOCATION
+%attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/src/REVISION
+%attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/src/VERSION
+%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/src/init/
+%attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/src/init/*
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/src/systemd/
 %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/src/systemd/*
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates
