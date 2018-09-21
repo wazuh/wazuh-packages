@@ -512,7 +512,10 @@ rm -fr %{buildroot}
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/wazuh
 %attr(640, root, ossec) %{_localstatedir}/ossec/framework/wazuh/*.py
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/wazuh/cluster
-%attr(640, root, ossec) %{_localstatedir}/ossec/framework/wazuh/cluster/*
+%attr(640, root, ossec) %{_localstatedir}/ossec/framework/wazuh/cluster/*.py
+%attr(640, root, ossec) %{_localstatedir}/ossec/framework/wazuh/cluster/*.json
+%dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/wazuh/cluster/dapi
+%attr(640, root, ossec) %{_localstatedir}/ossec/framework/wazuh/cluster/dapi/*.py
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/integrations
 %attr(750, root, ossec) %{_localstatedir}/ossec/integrations/*
 %dir %attr(750, root, root) %{_localstatedir}/ossec/lib
