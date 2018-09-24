@@ -244,7 +244,7 @@ case "$1" in
     fi
 
     # Check if SELinux is installed and enabled
-    if command -v getenforce 2>/dev/null && command -v semodule 2>/dev/null; then
+    if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
         if [ $(getenforce) !=  "Disabled" ]; then
             if ! (semodule -l | grep wazuh > /dev/null); then
             echo "Installing Wazuh policy for SELinux."
