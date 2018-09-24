@@ -263,7 +263,6 @@ if [ $1 = 1 ]; then
     base64 $passlist.bak > $passlist
 
     if [ $? = 0 ]; then
-      echo "Agentless passlist encoded successfully."
       rm -f $passlist.bak
     else
       echo "ERROR: Couldn't encode Agentless passlist."
@@ -301,7 +300,6 @@ fi
 
 # Generation auto-signed certificate if not exists
 if type openssl >/dev/null 2>&1 && [ ! -f "%{_localstatedir}/ossec/etc/sslmanager.key" ] && [ ! -f "%{_localstatedir}/ossec/etc/sslmanager.cert" ]; then
-  echo "Generating self-signed certificate for ossec-authd"
   openssl req -x509 -batch -nodes -days 365 -newkey rsa:2048 -subj "/C=US/ST=California/CN=Wazuh/" -keyout %{_localstatedir}/ossec/etc/sslmanager.key -out %{_localstatedir}/ossec/etc/sslmanager.cert
   chmod 640 %{_localstatedir}/ossec/etc/sslmanager.key
   chmod 640 %{_localstatedir}/ossec/etc/sslmanager.cert
@@ -331,17 +329,10 @@ if [ ${add_selinux} == "yes" ]; then
   if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
     if [ $(getenforce) !=  "Disabled" ]; then
       if ! (semodule -l | grep wazuh > /dev/null); then
-        echo "Installing Wazuh policy for SELinux."
         semodule -i %{_localstatedir}/ossec/var/selinux/wazuh.pp
         semodule -e wazuh
-      else
-        echo "Skipping installation of Wazuh policy for SELinux: module already installed."
       fi
-    else
-      echo "SELinux is disabled. Not adding Wazuh policy."
     fi
-  else
-    echo "SELinux is not installed. Not adding Wazuh policy."
   fi
 elif [ ${add_selinux} == "no" ]; then
   # SELINUX Policy for CentOS 5 and RHEL 5 to use the Wazuh Lib

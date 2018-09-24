@@ -218,17 +218,10 @@ if [ ${add_selinux} == "yes" ]; then
   if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
     if [ $(getenforce) !=  "Disabled" ]; then
       if ! (semodule -l | grep wazuh > /dev/null); then
-        echo "Installing Wazuh policy for SELinux."
         semodule -i %{_localstatedir}/ossec/var/selinux/wazuh.pp
         semodule -e wazuh
-      else
-        echo "Skipping installation of Wazuh policy for SELinux: module already installed."
       fi
-    else
-      echo "SELinux is disabled. Not adding Wazuh policy."
     fi
-  else
-    echo "SELinux is not installed. Not adding Wazuh policy."
   fi
 elif [ ${add_selinux} == "no" ]; then
   # SELINUX Policy for CentOS 5 and RHEL 5 to use the Wazuh Lib
