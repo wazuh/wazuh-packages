@@ -366,6 +366,7 @@ rm -fr %{buildroot}
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/src/*
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec/var
 %dir %attr(770,root,ossec) %{_localstatedir}/ossec/var/incoming
+%dir %attr(770,root,ossec) %{_localstatedir}/ossec/var/multigroups
 %dir %attr(770,root,ossec) %{_localstatedir}/ossec/var/run
 %dir %attr(770,root,ossec) %{_localstatedir}/ossec/var/selinux
 %attr(640,root,ossec) %{_localstatedir}/ossec/var/selinux/*
