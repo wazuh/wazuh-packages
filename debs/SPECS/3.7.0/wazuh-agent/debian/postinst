@@ -115,6 +115,13 @@ case "$1" in
         rm -rf ${WAZUH_TMP_DIR}
     fi
 
+    # Delete installation scripts
+    if [ -d ${SCRIPTS_DIR} ]; then
+        rm -f ${DIR}/tmp/add_localfiles.sh gen_ossec.sh
+        rm -rf ${DIR}/tmp/src
+        rm -rf ${DIR}/tmp/etc
+    fi
+
     if cat ${DIR}/etc/ossec.conf | grep -o -P '(?<=<server-ip>).*(?=</server-ip>)' | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' > /dev/null 2>&1; then
       service wazuh-agent restart || :
     fi
@@ -123,13 +130,6 @@ case "$1" in
     fi
     if cat ${DIR}/etc/ossec.conf | grep -o -P '(?<=<address>)(?!MANAGER_IP).*(?=</address>)' > /dev/null 2>&1; then
       service wazuh-agent restart || :
-    fi
-
-    # Delete installation scripts
-    if [ -d ${SCRIPTS_DIR} ]; then
-        rm -f ${DIR}/tmp/add_localfiles.sh gen_ossec.sh
-        rm -rf ${DIR}/tmp/src
-        rm -rf ${DIR}/tmp/etc
     fi
 
     # Fix /etc/ossec-init.conf

@@ -260,6 +260,13 @@ case "$1" in
         echo "SELinux is not installed. Not adding Wazuh policy."
     fi
 
+    # Delete installation scripts
+    if [ -d ${SCRIPTS_DIR} ]; then
+        rm -f ${DIR}/tmp/add_localfiles.sh gen_ossec.sh
+        rm -rf ${DIR}/tmp/src
+        rm -rf ${DIR}/tmp/etc
+    fi
+
     # Service
     if [ -x /etc/init.d/wazuh-manager ]; then
         if [ -d /run/systemd/system ]; then
@@ -285,13 +292,6 @@ case "$1" in
     # Fix /etc/ossec-init.conf
     chmod 640 /etc/ossec-init.conf
     chown root:ossec /etc/ossec-init.conf
-
-    # Delete installation scripts
-    if [ -d ${SCRIPTS_DIR} ]; then
-        rm -f ${DIR}/tmp/add_localfiles.sh gen_ossec.sh
-        rm -rf ${DIR}/tmp/src
-        rm -rf ${DIR}/tmp/etc
-    fi
 
     ;;
 
