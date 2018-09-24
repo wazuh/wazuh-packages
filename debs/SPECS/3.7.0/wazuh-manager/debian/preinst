@@ -39,10 +39,6 @@ case "$1" in
         # Stop API service if it's running
         if ps aux | grep "${DIR}/api/app.js" | grep -v grep > /dev/null 2>&1; then
            touch ${WAZUH_TMP_DIR}/wazuh-api.restart
-           echo "-----------------------------------------------------------------------------------------------"
-           echo "  The service wazuh-api needs to be stopped during the manager upgrade.                        "
-           echo "  It will be started again after finish the process.                                           "
-           echo "-----------------------------------------------------------------------------------------------"
            if [ -n "$(ps -e | grep -E ^\ *1\ .*systemd$)" ]; then
               systemctl --quiet stop wazuh-api.service
            else
