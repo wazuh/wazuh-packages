@@ -83,6 +83,7 @@ case "$1" in
     fi
     chmod 660 ${DIR}/etc/shared/*
     chown -R root:ossec ${DIR}/etc/shared/
+    chown root:ossec ${DIR}/log/ossec.log ${DIR}/log/ossec.json
 
     # Check if SELinux is installed and enabled
     if command -v getenforce 2>/dev/null && command -v semodule 2>/dev/null; then
