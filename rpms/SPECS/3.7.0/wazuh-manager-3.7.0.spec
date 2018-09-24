@@ -275,7 +275,8 @@ if [ $1 = 1 ]; then
   touch %{_localstatedir}/ossec/logs/integrations.log
   chown ossec:ossec %{_localstatedir}/ossec/logs/active-responses.log 
   chown ossecm:ossec %{_localstatedir}/ossec/logs/integrations.log
-  chmod 0660 %{_localstatedir}/ossec/logs/active-responses.log %{_localstatedir}/ossec/logs/integrations.log
+  chmod 0660 %{_localstatedir}/ossec/logs/active-responses.log 
+  chmod 0640 %{_localstatedir}/ossec/logs/integrations.log
 
   # Add default local_files to ossec.conf
   %{_localstatedir}/ossec/tmp/add_localfiles.sh %{_localstatedir}/ossec >> %{_localstatedir}/ossec/etc/ossec.conf
@@ -522,7 +523,7 @@ rm -fr %{buildroot}
 %attr(750, root, root) %{_localstatedir}/ossec/lib/*
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/logs
 %attr(660, ossec, ossec)  %ghost %{_localstatedir}/ossec/logs/active-responses.log
-%attr(660, ossecm, ossec) %ghost %{_localstatedir}/ossec/logs/integrations.log
+%attr(640, ossecm, ossec) %ghost %{_localstatedir}/ossec/logs/integrations.log
 %attr(660, ossec, ossec) %ghost %{_localstatedir}/ossec/logs/ossec.log
 %attr(660, ossec, ossec) %ghost %{_localstatedir}/ossec/logs/ossec.json
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/logs/archives
