@@ -34,10 +34,10 @@ case "$1" in
       # Save the conffiles
       mkdir -p ${DIR}/tmp/conffiles
 
-      cp ${DIR}/etc/client.keys ${DIR}/tmp/conffiles
-      cp ${DIR}/etc/local_internal_options.conf ${DIR}/tmp/conffiles
-      cp ${DIR}/etc/ossec.conf ${DIR}/tmp/conffiles
-      cp -r ${DIR}/etc/shared ${DIR}/tmp/conffiles
+      cp -p ${DIR}/etc/client.keys ${DIR}/tmp/conffiles
+      cp -p ${DIR}/etc/local_internal_options.conf ${DIR}/tmp/conffiles
+      cp -p ${DIR}/etc/ossec.conf ${DIR}/tmp/conffiles
+      cp -pr ${DIR}/etc/shared ${DIR}/tmp/conffiles
 
       if [ -d ${DIR}/etc/shared/ ]; then
         rm -rf ${DIR}/etc/shared/

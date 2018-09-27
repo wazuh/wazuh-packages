@@ -35,14 +35,14 @@ case "$1" in
       # Save the conffiles
       mkdir -p ${DIR}/tmp/conffiles
 
-      cp ${DIR}/etc/client.keys ${DIR}/tmp/conffiles
-      cp ${DIR}/etc/local_internal_options.conf ${DIR}/tmp/conffiles
-      cp ${DIR}/etc/ossec.conf ${DIR}/tmp/conffiles
-      cp -r ${DIR}/etc/decoders ${DIR}/tmp/conffiles
-      cp -r ${DIR}/etc/lists ${DIR}/tmp/conffiles
-      cp -r ${DIR}/etc/rules ${DIR}/tmp/conffiles
+      cp -p ${DIR}/etc/client.keys ${DIR}/tmp/conffiles
+      cp -p ${DIR}/etc/local_internal_options.conf ${DIR}/tmp/conffiles
+      cp -p ${DIR}/etc/ossec.conf ${DIR}/tmp/conffiles
+      cp -pr ${DIR}/etc/decoders ${DIR}/tmp/conffiles
+      cp -pr ${DIR}/etc/lists ${DIR}/tmp/conffiles
+      cp -pr ${DIR}/etc/rules ${DIR}/tmp/conffiles
       mkdir -p ${DIR}/tmp/conffiles/shared/default
-      cp ${DIR}/etc/shared/default/agent.conf ${DIR}/tmp/conffiles/shared/default
+      cp -p ${DIR}/etc/shared/default/agent.conf ${DIR}/tmp/conffiles/shared/default
       
     ;;
 
