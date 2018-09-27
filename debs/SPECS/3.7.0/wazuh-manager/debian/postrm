@@ -52,9 +52,11 @@ case "$1" in
     fi
 
     # Move files from ${DIR}/tmp to ${DIR}/etc
-    mv ${DIR}/tmp/conffiles/shared/default/agent.conf ${DIR}/etc/shared/default/agent.conf.save
+    if [ -f ${DIR}/tmp/conffiles/shared/default/agent.conf ]; then
+        mv ${DIR}/tmp/conffiles/shared/default/agent.conf ${DIR}/etc/shared/default/agent.conf.save
+    fi
     rm -rf ${DIR}/tmp/conffiles/shared/
-    mv ${DIR}/tmp/conffiles/* ${DIR}/etc
+    cp -Rf ${DIR}/tmp/conffiles/* ${DIR}/etc
     rm -rf ${DIR}/tmp/conffiles
 
     # Rename the files
