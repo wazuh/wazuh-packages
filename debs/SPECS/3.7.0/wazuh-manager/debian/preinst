@@ -4,8 +4,8 @@
 set -e
 
 # configuration variables
-WAZUH_TMP_DIR="/tmp/wazuh-manager"
 DIR="/var/ossec"
+WAZUH_TMP_DIR="${DIR}/tmp/installation_files"
 
 # environment configuration
 if [ ! -d ${WAZUH_TMP_DIR} ]; then
@@ -17,7 +17,10 @@ fi
 
 case "$1" in
     install|upgrade)
-
+        
+        if [ ! -z "$2" ] && [ ! -f ${DIR}/etc/ossec.conf ] ; then
+            touch ${WAZUH_TMP_DIR}/create_conf
+        fi
         # Force deleting the old ossec-init.conf and link
         rm -f /etc/ossec-init.conf
 
@@ -36,10 +39,6 @@ case "$1" in
         # Stop API service if it's running
         if ps aux | grep "${DIR}/api/app.js" | grep -v grep > /dev/null 2>&1; then
            touch ${WAZUH_TMP_DIR}/wazuh-api.restart
-           echo "-----------------------------------------------------------------------------------------------"
-           echo "  The service wazuh-api needs to be stopped during the manager upgrade.                        "
-           echo "  It will be started again after finish the process.                                           "
-           echo "-----------------------------------------------------------------------------------------------"
            if [ -n "$(ps -e | grep -E ^\ *1\ .*systemd$)" ]; then
               systemctl --quiet stop wazuh-api.service
            else

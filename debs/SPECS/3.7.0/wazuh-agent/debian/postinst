@@ -13,7 +13,7 @@ case "$1" in
     USER="ossec"
     GROUP="ossec"
     WAZUH_TMP_DIR="${DIR}/tmp/installation_files"
-    SCRIPTS_DIR="/usr/share/wazuh-agent/scripts/tmp"
+    SCRIPTS_DIR="${DIR}/tmp"
 
     OSMYSHELL="/sbin/nologin"
 
@@ -34,8 +34,8 @@ case "$1" in
     chown root:${GROUP} ${DIR}/etc/ossec-init.conf
     chmod 640 ${DIR}/etc/ossec-init.conf
 
-    if [ -z "$2" ]; then
-
+    if [ -z "$2" ] || [ -f ${WAZUH_TMP_DIR}/create_conf ] ; then
+    
         ${SCRIPTS_DIR}/gen_ossec.sh conf agent ${OS} ${VER} > ${DIR}/etc/ossec.conf
         ${SCRIPTS_DIR}/add_localfiles.sh >> ${DIR}/etc/ossec.conf
 
@@ -83,22 +83,16 @@ case "$1" in
     fi
     chmod 660 ${DIR}/etc/shared/*
     chown -R root:ossec ${DIR}/etc/shared/
+    chown root:ossec ${DIR}/logs/ossec.log ${DIR}/logs/ossec.json
 
     # Check if SELinux is installed and enabled
-    if command -v getenforce 2>/dev/null && command -v semodule 2>/dev/null; then
+    if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
         if [ $(getenforce) !=  "Disabled" ]; then
             if ! (semodule -l | grep wazuh > /dev/null); then
-            echo "Installing Wazuh policy for SELinux."
-            semodule -i ${DIR}/var/selinux/wazuh.pp
-            semodule -e wazuh
-            else
-              echo "Skipping installation of Wazuh policy for SELinux: module already installed."
+                semodule -i ${DIR}/var/selinux/wazuh.pp
+                semodule -e wazuh
             fi
-        else
-            echo "SELinux is disabled. Not adding Wazuh policy."
         fi
-    else
-        echo "SELinux is not installed. Not adding Wazuh policy."
     fi
 
     # Service
@@ -114,6 +108,13 @@ case "$1" in
         rm -rf ${WAZUH_TMP_DIR}
     fi
 
+    # Delete installation scripts
+    if [ -d ${SCRIPTS_DIR} ]; then
+        rm -f ${DIR}/tmp/add_localfiles.sh gen_ossec.sh
+        rm -rf ${DIR}/tmp/src
+        rm -rf ${DIR}/tmp/etc
+    fi
+
     if cat ${DIR}/etc/ossec.conf | grep -o -P '(?<=<server-ip>).*(?=</server-ip>)' | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' > /dev/null 2>&1; then
       service wazuh-agent restart || :
     fi
@@ -122,10 +123,6 @@ case "$1" in
     fi
     if cat ${DIR}/etc/ossec.conf | grep -o -P '(?<=<address>)(?!MANAGER_IP).*(?=</address>)' > /dev/null 2>&1; then
       service wazuh-agent restart || :
-    fi
-
-    if [ -d /usr/share/wazuh-agent ]; then
-        rm -rf /usr/share/wazuh-agent
     fi
 
     # Fix /etc/ossec-init.conf

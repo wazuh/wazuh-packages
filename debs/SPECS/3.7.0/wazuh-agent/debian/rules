@@ -64,28 +64,28 @@ override_dh_install:
 	cp src/init/ossec-hids-debian.init ${TARGET_DIR}/etc/init.d/wazuh-agent
 
 	# Generating permission restoration file for postinstall
-	mkdir -p ${TARGET_DIR}/usr/share/wazuh-agent/scripts/tmp/
-	./gen_permissions.sh $(INSTALLATION_DIR)/ ${TARGET_DIR}/usr/share/wazuh-agent/scripts/tmp/restore-permissions.sh
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_DIR)/tmp/
+	./gen_permissions.sh $(INSTALLATION_DIR)/ ${TARGET_DIR}$(INSTALLATION_DIR)/tmp/restore-permissions.sh
 
 	# Copying to target
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_DIR)/
 	cp -r $(INSTALLATION_DIR)/. $(TARGET_DIR)$(INSTALLATION_DIR)/
 
 	# Copying install scripts to /usr/share
-	mkdir -p ${TARGET_DIR}/usr/share/wazuh-agent/scripts/tmp/
-	cp gen_ossec.sh ${TARGET_DIR}/usr/share/wazuh-agent/scripts/tmp/
-	cp add_localfiles.sh ${TARGET_DIR}/usr/share/wazuh-agent/scripts/tmp/
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_DIR)/tmp/
+	cp gen_ossec.sh ${TARGET_DIR}$(INSTALLATION_DIR)/tmp/
+	cp add_localfiles.sh ${TARGET_DIR}$(INSTALLATION_DIR)/tmp/
 
-	mkdir -p ${TARGET_DIR}/usr/share/wazuh-agent/scripts/tmp/src
-	cp src/VERSION ${TARGET_DIR}/usr/share/wazuh-agent/scripts/tmp/src/
-	cp src/REVISION ${TARGET_DIR}/usr/share/wazuh-agent/scripts/tmp/src/
-	cp src/LOCATION ${TARGET_DIR}/usr/share/wazuh-agent/scripts/tmp/src/
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_DIR)/tmp/src
+	cp src/VERSION ${TARGET_DIR}$(INSTALLATION_DIR)/tmp/src/
+	cp src/REVISION ${TARGET_DIR}$(INSTALLATION_DIR)/tmp/src/
+	cp src/LOCATION ${TARGET_DIR}$(INSTALLATION_DIR)/tmp/src/
 
-	mkdir -p ${TARGET_DIR}/usr/share/wazuh-agent/scripts/tmp/src/init
-	cp -r src/init/*  ${TARGET_DIR}/usr/share/wazuh-agent/scripts/tmp/src/init
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_DIR)/tmp/src/init
+	cp -r src/init/*  ${TARGET_DIR}$(INSTALLATION_DIR)/tmp/src/init
 
-	mkdir -p ${TARGET_DIR}/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic
-	cp -r etc/templates/config/generic/* ${TARGET_DIR}/usr/share/wazuh-agent/scripts/tmp/etc/templates/config/generic
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_DIR)/tmp/etc/templates/config/generic
+	cp -r etc/templates/config/generic/* ${TARGET_DIR}$(INSTALLATION_DIR)/tmp/etc/templates/config/generic
 
 	# Copying systemd file
 	mkdir -p ${TARGET_DIR}/etc/
@@ -102,4 +102,3 @@ override_dh_strip:
 	dh_strip --no-automatic-dbgsym
 
 .PHONY: override_dh_strip override_dh_auto_clean override_dh_auto_build override_dh_auto_configure
-

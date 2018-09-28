@@ -30,6 +30,15 @@ case "$1" in
       if [ -d ${DIR}/queue/ ]; then
         rm -rf ${DIR}/queue/
       fi
+      
+      # Save the conffiles
+      mkdir -p ${DIR}/tmp/conffiles
+
+      cp -p ${DIR}/etc/client.keys ${DIR}/tmp/conffiles
+      cp -p ${DIR}/etc/local_internal_options.conf ${DIR}/tmp/conffiles
+      cp -p ${DIR}/etc/ossec.conf ${DIR}/tmp/conffiles
+      cp -pr ${DIR}/etc/shared ${DIR}/tmp/conffiles
+
       if [ -d ${DIR}/etc/shared/ ]; then
         rm -rf ${DIR}/etc/shared/
       fi

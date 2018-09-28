@@ -12,9 +12,9 @@ case "$1" in
     USER_MAIL="ossecm"
     USER_REM="ossecr"
     GROUP="ossec"
-    WAZUH_TMP_DIR="/tmp/wazuh-manager"
+    WAZUH_TMP_DIR="${DIR}/tmp/installation_files"
     OSMYSHELL="/sbin/nologin"
-    SCRIPTS_DIR="/usr/share/wazuh-manager/scripts/tmp"
+    SCRIPTS_DIR="${DIR}/tmp"
 
     if [ ! -f ${OSMYSHELL} ]; then
         if [ -f "/bin/false" ]; then
@@ -39,7 +39,7 @@ case "$1" in
     chown root:${GROUP} ${DIR}/etc/ossec-init.conf
     chmod 640 ${DIR}/etc/ossec-init.conf
 
-    if [ -z "$2" ] ; then
+    if [ -z "$2" ] || [ -f ${WAZUH_TMP_DIR}/create_conf ] ; then
 
         ${SCRIPTS_DIR}/gen_ossec.sh conf manager ${OS} ${VER} > ${DIR}/etc/ossec.conf
         ${SCRIPTS_DIR}/add_localfiles.sh >> ${DIR}/etc/ossec.conf
@@ -92,7 +92,6 @@ case "$1" in
             cp $passlist $passlist.bak
             base64 $passlist.bak > $passlist
             if [ $? = 0 ]; then
-                echo "Agentless passlist encoded successfully."
                 rm -f $passlist.bak
             else
                 echo "ERROR: Couldn't encode Agentless passlist."
@@ -126,7 +125,6 @@ case "$1" in
 
     # Generation auto-signed certificate if not exists
     if type openssl >/dev/null 2>&1 && [ ! -f "${DIR}/etc/sslmanager.key" ] && [ ! -f "${DIR}/etc/sslmanager.cert" ]; then
-        echo "Generating self-signed certificate for ossec-authd"
         openssl req -x509 -batch -nodes -days 365 -newkey rsa:2048 -subj "/C=US/ST=California/CN=Wazuh/" -keyout ${DIR}/etc/sslmanager.key -out ${DIR}/etc/sslmanager.cert
         chmod 640 ${DIR}/etc/sslmanager.key
         chmod 640 ${DIR}/etc/sslmanager.cert
@@ -213,7 +211,7 @@ case "$1" in
     chmod 660 ${DIR}/etc/lists/amazon/*
     chmod 770 ${DIR}/etc/shared/default
 
-    chown -R ossec:ossec ${DIR}/etc/client.keys
+    chown -R root:ossec ${DIR}/etc/client.keys
     chown -R ossec:ossec ${DIR}/etc/lists/*
     chown -R ossec:ossec ${DIR}/etc/decoders/*
     chown -R ossec:ossec ${DIR}/etc/rules/*
@@ -244,20 +242,20 @@ case "$1" in
     fi
 
     # Check if SELinux is installed and enabled
-    if command -v getenforce 2>/dev/null && command -v semodule 2>/dev/null; then
+    if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
         if [ $(getenforce) !=  "Disabled" ]; then
             if ! (semodule -l | grep wazuh > /dev/null); then
-            echo "Installing Wazuh policy for SELinux."
-            semodule -i ${DIR}/var/selinux/wazuh.pp
-            semodule -e wazuh
-            else
-              echo "Skipping installation of Wazuh policy for SELinux: module already installed."
+                semodule -i ${DIR}/var/selinux/wazuh.pp
+                semodule -e wazuh
             fi
-        else
-            echo "SELinux is disabled. Not adding Wazuh policy."
         fi
-    else
-        echo "SELinux is not installed. Not adding Wazuh policy."
+    fi
+
+    # Delete installation scripts
+    if [ -d ${SCRIPTS_DIR} ]; then
+        rm -f ${DIR}/tmp/add_localfiles.sh gen_ossec.sh
+        rm -rf ${DIR}/tmp/src
+        rm -rf ${DIR}/tmp/etc
     fi
 
     # Service
@@ -285,14 +283,6 @@ case "$1" in
     # Fix /etc/ossec-init.conf
     chmod 640 /etc/ossec-init.conf
     chown root:ossec /etc/ossec-init.conf
-
-    if [ -d /usr/share/wazuh-manager ]; then
-        rm -rf /usr/share/wazuh-manager
-    fi
-
-    if [ -d /usr/share/wazuh-agent ]; then
-        rm -rf /usr/share/wazuh-agent
-    fi
 
     ;;
 

@@ -4,9 +4,11 @@
 
 set -e
 
+DIR="/var/ossec"
+WAZUH_TMP_DIR="${DIR}/tmp/installation_files"
+
 case "$1" in
-    purge|remove|failed-upgrade|abort-install|abort-upgrade|disappear)
-    action="$1"
+    remove|failed-upgrade|abort-install|abort-upgrade|disappear)
     
 	if getent passwd | grep -q "^ossec" ; then
 		deluser ossec > /dev/null 2>&1
@@ -22,14 +24,31 @@ case "$1" in
         rm -f /etc/ossec-init.conf
     fi
 
+    if [ -d ${WAZUH_TMP_DIR} ]; then
+        rm -rf ${WAZUH_TMP_DIR}
+    fi
+
 	update-rc.d -f wazuh-agent remove
 
-    if [ -d /run/systemd/system ] && [ "$action" != "purge" ]; then
+    if [ -d /run/systemd/system ] ; then
         systemctl disable wazuh-agent > /dev/null 2>&1
         systemctl daemon-reload
         systemctl reset-failed
     fi
 
+    # Back up the old configuration files as .save
+    if [ ! -d ${DIR}/etc ]; then
+        mkdir -p ${DIR}/etc
+    fi
+
+    mv ${DIR}/tmp/conffiles/* ${DIR}/etc
+    rm -rf ${DIR}/tmp/conffiles
+    find /var/ossec/etc/ -type f -exec mv {} {}.save \;
+
+    ;;
+
+    purge)
+        rm -rf ${DIR}/*
     ;;
 
     upgrade)

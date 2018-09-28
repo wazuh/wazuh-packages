@@ -10,11 +10,11 @@ case "$1" in
     OS=$(lsb_release -si)
     DIR="/var/ossec"
     WAZUH_API_DIR="${DIR}/api"
-    WAZUH_TMP_DIR="/tmp/wazuh-api"
+    WAZUH_TMP_DIR="${DIR}/tmp/api_installation_files"
     USER="ossec"
     GROUP="ossec"
     OSMYSHELL="/sbin/nologin"
-    SCRIPTS_DIR="/usr/share/wazuh-api/scripts/tmp"
+    SCRIPTS_DIR="${DIR}/tmp/api_scripts"
 
     if [ ! -f ${OSMYSHELL} ]; then
         if [ -f "/bin/false" ]; then
@@ -52,6 +52,11 @@ case "$1" in
         rm -r ${WAZUH_TMP_DIR}
     fi
 
+    # Remove installation scripts directory
+    if [ -d ${SCRIPTS_DIR} ]; then
+        rm -rf ${SCRIPTS_DIR}
+    fi
+
     ${WAZUH_API_DIR}/scripts/install_daemon.sh
 
     if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
@@ -63,10 +68,6 @@ case "$1" in
     # Delete old api framework (new is included with wazuh-manager in /var/ossec/framework)
     if [ -d ${WAZUH_API_DIR}/framework ]; then
         rm -rf ${WAZUH_API_DIR}/framework
-    fi
-
-    if [ -d /usr/share/wazuh-api ]; then
-        rm -rf /usr/share/wazuh-api
     fi
 
     ;;
