@@ -41,8 +41,12 @@ case "$1" in
         mkdir -p ${DIR}/etc
     fi
 
-    mv ${DIR}/tmp/conffiles/* ${DIR}/etc
+    # If the directory is not empty, copy the files into ${DIR}/etc
+    if [ "$(ls -A ${DIR}/tmp/conffiles)" ]; then
+        mv ${DIR}/tmp/conffiles/* ${DIR}/etc
+    fi
     rm -rf ${DIR}/tmp/conffiles
+    # Rename the files
     find /var/ossec/etc/ -type f -exec mv {} {}.save \;
 
     ;;

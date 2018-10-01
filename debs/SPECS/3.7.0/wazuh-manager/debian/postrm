@@ -56,7 +56,11 @@ case "$1" in
         mv ${DIR}/tmp/conffiles/shared/default/agent.conf ${DIR}/etc/shared/default/agent.conf.save
     fi
     rm -rf ${DIR}/tmp/conffiles/shared/
-    cp -Rf ${DIR}/tmp/conffiles/* ${DIR}/etc
+    
+    # If the directory is not empty, copy the files into ${DIR}/etc
+    if [ "$(ls -A ${DIR}/tmp/conffiles)" ]; then
+        cp -Rf ${DIR}/tmp/conffiles/* ${DIR}/etc
+    fi
     rm -rf ${DIR}/tmp/conffiles
 
     # Rename the files
