@@ -62,6 +62,7 @@ case "$1" in
         cp -Rf ${DIR}/tmp/conffiles/* ${DIR}/etc
     fi
     rm -rf ${DIR}/tmp/conffiles
+    rm -rf ${DIR}/tmp
 
     # Rename the files
     find /var/ossec/etc/ -type f ! -name *shared* -exec mv {} {}.save \;

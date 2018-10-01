@@ -46,6 +46,8 @@ case "$1" in
         mv ${DIR}/tmp/conffiles/* ${DIR}/etc
     fi
     rm -rf ${DIR}/tmp/conffiles
+    rm -rf ${DIR}/tmp
+    
     # Rename the files
     find /var/ossec/etc/ -type f -exec mv {} {}.save \;
 
