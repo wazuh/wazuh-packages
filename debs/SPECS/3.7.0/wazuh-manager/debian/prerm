@@ -32,17 +32,42 @@ case "$1" in
       rm -rf ${DIR}/var/*
       rm -rf ${DIR}/framework/*
       
-      # Save the conffiles
+      # Save the configuration files in ${DIR}/tmp/conffiles
       mkdir -p ${DIR}/tmp/conffiles
-
-      cp -p ${DIR}/etc/client.keys ${DIR}/tmp/conffiles
-      cp -p ${DIR}/etc/local_internal_options.conf ${DIR}/tmp/conffiles
-      cp -p ${DIR}/etc/ossec.conf ${DIR}/tmp/conffiles
-      cp -pr ${DIR}/etc/decoders ${DIR}/tmp/conffiles
-      cp -pr ${DIR}/etc/lists ${DIR}/tmp/conffiles
-      cp -pr ${DIR}/etc/rules ${DIR}/tmp/conffiles
+      
+      # Save the client.keys
+      if [ -f ${DIR}/etc/client.keys ]; then
+        cp -p ${DIR}/etc/client.keys ${DIR}/tmp/conffiles
+      fi
+      # Save the local_internal_options.conf
+      if [ -f ${DIR}/etc/local_internal_options.conf ]; then
+        cp -p ${DIR}/etc/local_internal_options.conf ${DIR}/tmp/conffiles
+      fi
+      # Save the ossec.conf
+      if [ -f ${DIR}/etc/ossec.conf ]; then
+        cp -p ${DIR}/etc/ossec.conf ${DIR}/tmp/conffiles
+      fi
+      # Save the local decoders
+      if [ -d ${DIR}/etc/decoders ]; then
+        cp -pr ${DIR}/etc/decoders ${DIR}/tmp/conffiles
+      fi
+      # Save the lists
+      if [ -d ${DIR}/etc/lists ]; then
+        cp -pr ${DIR}/etc/lists ${DIR}/tmp/conffiles
+      fi
+      # Save the rootcheck files
+      if [ -d ${DIR}/etc/rootcheck ]; then
+        cp -pr ${DIR}/etc/rootcheck ${DIR}/tmp/conffiles
+      fi
+      # Save the local rules
+      if [ -d ${DIR}/etc/rules ]; then
+        cp -pr ${DIR}/etc/rules ${DIR}/tmp/conffiles
+      fi
+      # Save the agent.conf from the group default
       mkdir -p ${DIR}/tmp/conffiles/shared/default
-      cp -p ${DIR}/etc/shared/default/agent.conf ${DIR}/tmp/conffiles/shared/default
+      if [ -f ${DIR}/etc/shared/default/agent.conf ]; then
+        cp -p ${DIR}/etc/shared/default/agent.conf ${DIR}/tmp/conffiles/shared/default
+      fi
       
     ;;
 
