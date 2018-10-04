@@ -109,9 +109,21 @@ case "$1" in
     rm -f ${DIR}/var/db/.profile.db* || true
     rm -f ${DIR}/var/db/agents/* || true
 
-    # Remove existing SQLite databases for Wazuh DB
-    rm -f ${DIR}/queue/db/*.db*
-    rm -f ${DIR}/queue/db/.template.db
+    # Remove existing SQLite databases for Wazuh DB when upgrading
+    # Wazuh only if upgrading from 3.2..3.6
+    if [ ! -z $2 ]; then
+
+        PREVIOUS_VERSION=$(echo $2 | cut -d"-" -f1)
+
+        # Get the major and minor version
+        MAJOR=$(echo $PREVIOUS_VERSION | cut -d. -f1)
+        MINOR=$(echo $PREVIOUS_VERSION | cut -d. -f2)
+
+        if [ $MAJOR = 3 ] && [ $MINOR -lt 7 ]; then
+            rm -f ${DIR}/queue/db/*.db*
+            rm -f ${DIR}/queue/db/.template.db
+        fi
+    fi
 
     # Restoring file permissions
     . ${SCRIPTS_DIR}/restore-permissions.sh
