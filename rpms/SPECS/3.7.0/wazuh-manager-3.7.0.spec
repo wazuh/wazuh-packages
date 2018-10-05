@@ -175,9 +175,25 @@ rm -f %{_localstatedir}/ossec/var/db/cluster.db* || true
 rm -f %{_localstatedir}/ossec/var/db/.profile.db* || true
 rm -f %{_localstatedir}/ossec/var/db/agents/* || true
 
-# Remove existing SQLite databases for Wazuh DB
-rm -f %{_localstatedir}/ossec/queue/db/*.db*
-rm -f %{_localstatedir}/ossec/queue/db/.template.db
+
+# Remove existing SQLite databases for Wazuh DB when upgrading
+# Wazuh only if upgrading from 3.2..3.6
+if [ $1 = 2 ]; then
+  
+  # Import the variables from ossec-init.conf file
+  if [ -f %{_sysconfdir}/ossec-init.conf ]; then
+    . %{_sysconfdir}/ossec-init.conf
+  fi
+  
+  # Get the major and minor version
+  MAJOR=$(echo $VERSION | cut -dv -f2 | cut -d. -f1)
+  MINOR=$(echo $VERSION | cut -d. -f2)
+
+  if [ $MAJOR = 3 ] && [ $MINOR -lt 7 ]; then
+    rm -f %{_localstatedir}/ossec/queue/db/*.db*
+    rm -f %{_localstatedir}/ossec/queue/db/.template.db
+  fi
+fi
 
 # Delete old service
 if [ -f /etc/init.d/ossec ]; then
@@ -535,7 +551,6 @@ rm -fr %{buildroot}
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/queue/fts
 %dir %attr(770, ossecr, ossec) %{_localstatedir}/ossec/queue/rids
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/queue/rootcheck
-%dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/queue/syscheck
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/queue/ossec
 %dir %attr(760, root, ossec) %{_localstatedir}/ossec/queue/vulnerabilities
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset

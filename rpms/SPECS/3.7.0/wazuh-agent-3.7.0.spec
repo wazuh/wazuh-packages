@@ -348,7 +348,6 @@ rm -fr %{buildroot}
 %dir %attr(750,ossec,ossec) %{_localstatedir}/ossec/queue/diff
 %dir %attr(770,ossec,ossec) %{_localstatedir}/ossec/queue/alerts
 %dir %attr(750,ossec,ossec) %{_localstatedir}/ossec/queue/rids
-%dir %attr(750,ossec,ossec) %{_localstatedir}/ossec/queue/syscheck
 %dir %attr(1750,root,ossec) %{_localstatedir}/ossec/tmp
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/add_localfiles.sh
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/gen_ossec.sh
