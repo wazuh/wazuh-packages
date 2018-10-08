@@ -140,7 +140,7 @@ fi
 
 # Ensure that the wazuh-manager is stopped
 if [ -d %{_localstatedir}/ossec ] && [ -f %{_localstatedir}/ossec/bin/ossec-control ] ; then
-  %{_localstatedir}/ossec/bin/ossec-control stop
+  %{_localstatedir}/ossec/bin/ossec-control stop > /dev/null 2>&1
 fi
 
 if ! id -g ossec > /dev/null 2>&1; then
@@ -366,7 +366,7 @@ rm -rf %{_localstatedir}/ossec/tmp/src
 rm -rf %{_localstatedir}/ossec/tmp/etc
 
 if %{_localstatedir}/ossec/bin/ossec-logtest 2>/dev/null ; then
-  /sbin/service wazuh-manager restart 2>&1
+  /sbin/service wazuh-manager restart > /dev/null 2>&1
 else
   echo "================================================================================================================"
   echo "Something in your actual rules configuration is wrong, please review your configuration and restart the service."
@@ -377,12 +377,12 @@ fi
 
 if [ $1 = 0 ]; then
 
-  /sbin/service wazuh-manager stop || :
-  %{_localstatedir}/ossec/bin/ossec-control stop 2>/dev/null
-  /sbin/chkconfig wazuh-manager off
+  /sbin/service wazuh-manager stop > /dev/null 2>&1 || :
+  %{_localstatedir}/ossec/bin/ossec-control stop > /dev/null 2>&1
+  /sbin/chkconfig wazuh-manager off > /dev/null 2>&1
   /sbin/chkconfig --del wazuh-manager
 
-  /sbin/service wazuh-manager stop || :
+  /sbin/service wazuh-manager stop > /dev/null 2>&1 || :
 
   # Check if Wazuh SELinux policy is installed
   if [ -r "/etc/centos-release" ]; then
@@ -437,6 +437,36 @@ if [ $1 == 0 ];then
   # Remove the ossec group if it exists
   if id -g ossec > /dev/null 2>&1; then
     groupdel ossec
+  fi
+fi
+
+# If the package is been downgraded
+if [ $1 == 1 ]; then
+  # Load the ossec-init.conf file to get the current version
+  . /etc/ossec-init.conf
+
+  # Get the major and minor version
+  MAJOR=$(echo $VERSION | cut -dv -f2 | cut -d. -f1)
+  MINOR=$(echo $VERSION | cut -d. -f2)
+
+  # Restore the configuration files from the .rpmsave file
+  if [ $MAJOR = 3 ] && [ $MINOR -lt 7 ]; then
+    # Restore client.keys file
+    if [ -f %{_localstatedir}/ossec/etc/client.keys.rpmsave ]; then
+      mv %{_localstatedir}/ossec/etc/client.keys.rpmsave %{_localstatedir}/ossec/etc/client.keys
+      chmod 640 %{_localstatedir}/ossec/etc/client.keys
+      chown root:ossec %{_localstatedir}/ossec/etc/client.keys
+    fi
+    # Restore the ossec.conf file
+    if [ -f %{_localstatedir}/ossec/etc/ossec.conf.rpmsave ]; then
+      mv %{_localstatedir}/ossec/etc/ossec.conf.rpmsave %{_localstatedir}/ossec/etc/ossec.conf
+      chmod 640 %{_localstatedir}/ossec/etc/ossec.conf
+      chown root:ossec %{_localstatedir}/ossec/etc/ossec.conf
+    fi
+    # Restart the manager
+    if %{_localstatedir}/ossec/bin/ossec-logtest 2>/dev/null ; then
+      /sbin/service wazuh-manager restart > /dev/null 2>&1
+    fi
   fi
 fi
 
