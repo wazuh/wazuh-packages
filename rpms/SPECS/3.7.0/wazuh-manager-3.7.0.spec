@@ -379,7 +379,7 @@ if [ $1 = 0 ]; then
 
   /sbin/service wazuh-manager stop > /dev/null 2>&1 || :
   %{_localstatedir}/ossec/bin/ossec-control stop > /dev/null 2>&1
-  /sbin/chkconfig wazuh-manager off
+  /sbin/chkconfig wazuh-manager off > /dev/null 2>&1
   /sbin/chkconfig --del wazuh-manager
 
   /sbin/service wazuh-manager stop > /dev/null 2>&1 || :

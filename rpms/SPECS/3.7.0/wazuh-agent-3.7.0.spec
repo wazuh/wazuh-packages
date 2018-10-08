@@ -252,7 +252,7 @@ if [ $1 = 0 ]; then
 
   /sbin/service wazuh-agent stop > /dev/null 2>&1 || :
   %{_localstatedir}/ossec/bin/ossec-control stop > /dev/null 2>&1
-  /sbin/chkconfig wazuh-agent off
+  /sbin/chkconfig wazuh-agent off > /dev/null 2>&1
   /sbin/chkconfig --del wazuh-agent
 
   # Check if Wazuh SELinux policy is installed
