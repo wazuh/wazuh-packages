@@ -449,11 +449,20 @@ if [ $1 == 1 ]; then
   MAJOR=$(echo $VERSION | cut -dv -f2 | cut -d. -f1)
   MINOR=$(echo $VERSION | cut -d. -f2)
 
-  # Restore the client.keys from the .rpmsave file
-  if [ $MAJOR = 3 ] && [ $MINOR -lt 7 ] && [ -f %{_localstatedir}/ossec/etc/client.keys.rpmsave ] ; then
-    mv %{_localstatedir}/ossec/etc/client.keys.rpmsave %{_localstatedir}/ossec/etc/client.keys
-    chmod 640 %{_localstatedir}/ossec/etc/client.keys
-    chown root:ossec %{_localstatedir}/ossec/etc/client.keys
+  # Restore the configuration files from the .rpmsave file
+  if [ $MAJOR = 3 ] && [ $MINOR -lt 7 ]; then
+    # Restore client.keys file
+    if [ -f %{_localstatedir}/ossec/etc/client.keys.rpmsave ]; then
+      mv %{_localstatedir}/ossec/etc/client.keys.rpmsave %{_localstatedir}/ossec/etc/client.keys
+      chmod 640 %{_localstatedir}/ossec/etc/client.keys
+      chown root:ossec %{_localstatedir}/ossec/etc/client.keys
+    fi
+    # Restore the ossec.conf file
+    if [ -f %{_localstatedir}/ossec/etc/ossec.conf.rpmsave ]; then
+      mv %{_localstatedir}/ossec/etc/ossec.conf.rpmsave %{_localstatedir}/ossec/etc/ossec.conf
+      chmod 640 %{_localstatedir}/ossec/etc/ossec.conf
+      chown root:ossec %{_localstatedir}/ossec/etc/ossec.conf
+    fi
   fi
 fi
 
