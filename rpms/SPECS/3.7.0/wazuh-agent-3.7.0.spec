@@ -187,7 +187,7 @@ if [ $1 = 1 ]; then
   if [ -d /run/systemd/system ]; then
     install -m 644 %{_localstatedir}/ossec/tmp/src/systemd/wazuh-agent.service /etc/systemd/system/
     systemctl daemon-reload
-    systemctl stop wazuh-agent
+    systemctl stop wazuh-agent 
     systemctl enable wazuh-agent > /dev/null 2>&1
   fi
 
@@ -235,23 +235,23 @@ elif [ ${add_selinux} == "no" ]; then
 fi
 
 if cat %{_localstatedir}/ossec/etc/ossec.conf | grep -o -P '(?<=<server-ip>).*(?=</server-ip>)' | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' > /dev/null 2>&1; then
-   /sbin/service wazuh-agent restart || :
+   /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
 fi
 
 if cat %{_localstatedir}/ossec/etc/ossec.conf | grep -o -P '(?<=<server-hostname>).*(?=</server-hostname>)' > /dev/null 2>&1; then
-   /sbin/service wazuh-agent restart || :
+   /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
 fi
 
 if cat %{_localstatedir}/ossec/etc/ossec.conf | grep -o -P '(?<=<address>).*(?=</address>)' | grep -v 'MANAGER_IP' > /dev/null 2>&1; then
-   /sbin/service wazuh-agent restart || :
+   /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
 fi
 
 %preun
 
 if [ $1 = 0 ]; then
 
-  /sbin/service wazuh-agent stop || :
-  %{_localstatedir}/ossec/bin/ossec-control stop 2>/dev/null
+  /sbin/service wazuh-agent stop > /dev/null 2>&1 || :
+  %{_localstatedir}/ossec/bin/ossec-control stop > /dev/null 2>&1
   /sbin/chkconfig wazuh-agent off
   /sbin/chkconfig --del wazuh-agent
 
@@ -329,6 +329,18 @@ if [ $1 == 1 ]; then
       mv %{_localstatedir}/ossec/etc/ossec.conf.rpmsave %{_localstatedir}/ossec/etc/ossec.conf
       chmod 640 %{_localstatedir}/ossec/etc/ossec.conf
       chown root:ossec %{_localstatedir}/ossec/etc/ossec.conf
+    fi
+    # Restart the agent
+    if cat %{_localstatedir}/ossec/etc/ossec.conf | grep -o -P '(?<=<server-ip>).*(?=</server-ip>)' | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' > /dev/null 2>&1; then
+      /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
+    fi
+
+    if cat %{_localstatedir}/ossec/etc/ossec.conf | grep -o -P '(?<=<server-hostname>).*(?=</server-hostname>)' > /dev/null 2>&1; then
+      /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
+    fi
+
+    if cat %{_localstatedir}/ossec/etc/ossec.conf | grep -o -P '(?<=<address>).*(?=</address>)' | grep -v 'MANAGER_IP' > /dev/null 2>&1; then
+      /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
     fi
   fi
 fi
