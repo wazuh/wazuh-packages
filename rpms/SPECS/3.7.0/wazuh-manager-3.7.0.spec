@@ -440,6 +440,23 @@ if [ $1 == 0 ];then
   fi
 fi
 
+# If the package is been downgraded
+if [ $1 == 1 ]; then
+  # Load the ossec-init.conf file to get the current version
+  . /etc/ossec-init.conf
+
+  # Get the major and minor version
+  MAJOR=$(echo $VERSION | cut -dv -f2 | cut -d. -f1)
+  MINOR=$(echo $VERSION | cut -d. -f2)
+
+  # Restore the client.keys from the .rpmsave file
+  if [ $MAJOR = 3 ] && [ $MINOR -lt 7 ] && [ -f %{_localstatedir}/ossec/etc/client.keys.rpmsave ] ; then
+    mv %{_localstatedir}/ossec/etc/client.keys.rpmsave %{_localstatedir}/ossec/etc/client.keys
+    chmod 640 %{_localstatedir}/ossec/etc/client.keys
+    chown root:ossec %{_localstatedir}/ossec/etc/client.keys
+  fi
+fi
+
 %triggerin -- glibc
 [ -r %{_sysconfdir}/localtime ] && cp -fpL %{_sysconfdir}/localtime %{_localstatedir}/ossec/etc
  chown root:ossec %{_localstatedir}/ossec/etc/localtime
