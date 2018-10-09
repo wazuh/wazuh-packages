@@ -13,6 +13,18 @@ case "$1" in
         kill -9 `ps -ef | grep "${DIR}/api/app.js" | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
     fi
 
+    # If the host uses systemd, disable the service and
+    # remove it from /etc/systemd/system/
+    if [ -d /run/systemd/system ] ; then
+        systemctl disable wazuh-manager > /dev/null 2>&1
+        rm -f /etc/systemd/system/wazuh-manager.service
+        systemctl daemon-reload
+        systemctl reset-failed
+    fi
+    
+	update-rc.d -f wazuh-manager remove
+    rm -f /etc/init.d/wazuh-manager
+
   	if getent passwd | grep -q "^ossecr" ; then
   		deluser ossecr  > /dev/null 2>&1
   	fi
@@ -36,14 +48,6 @@ case "$1" in
 
     if [ -d ${WAZUH_TMP_DIR} ]; then
         rm -rf ${WAZUH_TMP_DIR}
-    fi
-
-	update-rc.d -f wazuh-manager remove
-
-    if [ -d /run/systemd/system ] ; then
-        systemctl disable wazuh-manager > /dev/null 2>&1
-        systemctl daemon-reload
-        systemctl reset-failed
     fi
 
     # Back up the old configuration files as .save

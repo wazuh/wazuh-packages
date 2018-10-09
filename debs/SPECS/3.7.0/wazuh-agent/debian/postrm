@@ -10,6 +10,18 @@ WAZUH_TMP_DIR="${DIR}/tmp/installation_files"
 case "$1" in
     remove|failed-upgrade|abort-install|abort-upgrade|disappear)
     
+    # If the host uses systemd, disable the service and
+    # remove it from /etc/systemd/system/
+    if [ -d /run/systemd/system ] ; then
+        systemctl disable wazuh-agent > /dev/null 2>&1
+        rm -f /etc/systemd/system/wazuh-agent.service
+        systemctl daemon-reload
+        systemctl reset-failed
+    fi
+
+	update-rc.d -f wazuh-agent remove
+    rm -f /etc/init.d/wazuh-agent
+
 	if getent passwd | grep -q "^ossec" ; then
 		deluser ossec > /dev/null 2>&1
 	fi
@@ -26,14 +38,6 @@ case "$1" in
 
     if [ -d ${WAZUH_TMP_DIR} ]; then
         rm -rf ${WAZUH_TMP_DIR}
-    fi
-
-	update-rc.d -f wazuh-agent remove
-
-    if [ -d /run/systemd/system ] ; then
-        systemctl disable wazuh-agent > /dev/null 2>&1
-        systemctl daemon-reload
-        systemctl reset-failed
     fi
 
     # Back up the old configuration files as .save
