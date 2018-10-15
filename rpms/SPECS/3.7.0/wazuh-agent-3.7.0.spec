@@ -73,6 +73,7 @@ echo 'USER_ENABLE_ACTIVE_RESPONSE="y"' >> ./etc/preloaded-vars.conf
 echo 'USER_ENABLE_SYSCHECK="y"' >> ./etc/preloaded-vars.conf
 echo 'USER_ENABLE_ROOTCHECK="y"' >> ./etc/preloaded-vars.conf
 echo 'USER_ENABLE_OPENSCAP="y"' >> ./etc/preloaded-vars.conf
+echo 'USER_ENABLE_SYSCOLLECTOR="y"' >> ./etc/preloaded-vars.conf
 echo 'USER_ENABLE_CISCAT="y"' >> ./etc/preloaded-vars.conf
 echo 'USER_UPDATE="n"' >> ./etc/preloaded-vars.conf
 echo 'USER_AGENT_SERVER_IP="MANAGER_IP"' >> ./etc/preloaded-vars.conf
