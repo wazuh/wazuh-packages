@@ -540,6 +540,7 @@ rm -fr %{buildroot}
 %attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/amazon/*
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/etc/shared
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/etc/shared/default
+%attr(660, ossec, ossec) %{_localstatedir}/ossec/etc/shared/agent-template.conf
 %attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/shared/default/*
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/etc/rootcheck
 %attr(660, root, ossec) %{_localstatedir}/ossec/etc/rootcheck/*.txt
