@@ -248,10 +248,13 @@ fi
 
 %preun
 
+# If the package is been uninstalled
 if [ $1 = 0 ]; then
-
+  # Stop the wazuh-manager
   /sbin/service wazuh-agent stop > /dev/null 2>&1 || :
   %{_localstatedir}/ossec/bin/ossec-control stop > /dev/null 2>&1
+
+  # Delete the service using chkconfig
   /sbin/chkconfig wazuh-agent off > /dev/null 2>&1
   /sbin/chkconfig --del wazuh-agent
 
@@ -304,6 +307,14 @@ if [ $1 == 0 ];then
   # Remove the ossec group if it exists
   if id -g ossec > /dev/null 2>&1; then
     groupdel ossec
+  fi
+
+  # If the host uses systemd, remove the service
+  if command -v systemctl >/dev/null; then
+    systemctl disable wazuh-agent
+    rm -f /etc/systemd/system/wazuh-agent.service
+    systemctl reset-failed
+    systemctl daemon-reload
   fi
 fi
 

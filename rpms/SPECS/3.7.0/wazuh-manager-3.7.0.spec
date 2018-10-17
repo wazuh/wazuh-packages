@@ -375,14 +375,15 @@ fi
 
 %preun
 
+# If the package is been uninstalled
 if [ $1 = 0 ]; then
-
+  # Stop the wazuh-manager
   /sbin/service wazuh-manager stop > /dev/null 2>&1 || :
   %{_localstatedir}/ossec/bin/ossec-control stop > /dev/null 2>&1
+
+  # Delete the service using chkconfig
   /sbin/chkconfig wazuh-manager off > /dev/null 2>&1
   /sbin/chkconfig --del wazuh-manager
-
-  /sbin/service wazuh-manager stop > /dev/null 2>&1 || :
 
   # Check if Wazuh SELinux policy is installed
   if [ -r "/etc/centos-release" ]; then
@@ -437,6 +438,14 @@ if [ $1 == 0 ];then
   # Remove the ossec group if it exists
   if id -g ossec > /dev/null 2>&1; then
     groupdel ossec
+  fi
+
+  # If the host uses systemd, remove the service
+  if command -v systemctl >/dev/null; then
+    systemctl disable wazuh-manager
+    rm -f /etc/systemd/system/wazuh-manager.service
+    systemctl reset-failed
+    systemctl daemon-reload
   fi
 fi
 
@@ -634,7 +643,6 @@ rm -fr %{buildroot}
 %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/template*  
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/content
 %attr(640, root, ossec) %{_localstatedir}/ossec/wodles/oscap/content/*
-
 %{_initrddir}/*
 
 %changelog
