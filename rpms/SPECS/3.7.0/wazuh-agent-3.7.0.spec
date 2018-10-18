@@ -250,7 +250,7 @@ fi
 
 # If the package is been uninstalled
 if [ $1 = 0 ]; then
-  # Stop the wazuh-manager
+  # Stop the wazuh-agent
   /sbin/service wazuh-agent stop > /dev/null 2>&1 || :
   %{_localstatedir}/ossec/bin/ossec-control stop > /dev/null 2>&1
 
@@ -313,8 +313,8 @@ if [ $1 == 0 ];then
   if command -v systemctl >/dev/null; then
     systemctl disable wazuh-agent
     rm -f /etc/systemd/system/wazuh-agent.service
-    systemctl reset-failed
     systemctl daemon-reload
+    systemctl reset-failed
   fi
 fi
 

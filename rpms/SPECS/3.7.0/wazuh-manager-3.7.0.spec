@@ -444,8 +444,8 @@ if [ $1 == 0 ];then
   if command -v systemctl >/dev/null; then
     systemctl disable wazuh-manager
     rm -f /etc/systemd/system/wazuh-manager.service
-    systemctl reset-failed
     systemctl daemon-reload
+    systemctl reset-failed
   fi
 fi
 
