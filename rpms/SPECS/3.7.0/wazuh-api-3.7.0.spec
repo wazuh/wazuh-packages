@@ -15,7 +15,7 @@ Requires(preun):  /sbin/chkconfig /sbin/service
 Requires(postun): /sbin/service
 
 Requires: nodejs >= 4.6
-Requires: wazuh-manager >= 3.7.0
+Requires: wazuh-manager = 3.7.0
 BuildRequires: nodejs >= 4.6
 ExclusiveOS: linux
 
