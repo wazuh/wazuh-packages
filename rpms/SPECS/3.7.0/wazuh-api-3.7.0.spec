@@ -83,21 +83,20 @@ if [ -d ${API_PATH_BACKUP} ]; then
   rm -rf ${API_PATH_BACKUP}
 fi
 
-#veriy python version
+# Verify if Python is installed and its version
 if python -V >/dev/null 2>&1; then
    python_version=$(python -c 'import sys; print(".".join(map(str, sys.version_info[:3])))' | cut -c1-3)
    if [ ! $python_version == '2.7' ]; then
-      echo "Warning: Minimal supported version is 2.7"
+      echo "Warning: Minimal supported version is 2.7."
    fi
 else
-   echo "Warning: You need python 2.7 or above"
+   echo "Warning: You need Python 2.7 or greater."
 fi
 
+# Restart the Wazuh API service
 if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
-  systemctl stop wazuh-api.service
   systemctl daemon-reload
   systemctl restart wazuh-api.service
-
 elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
   service wazuh-api restart
 fi
