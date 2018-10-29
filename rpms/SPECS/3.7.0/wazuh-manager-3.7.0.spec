@@ -115,6 +115,9 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/cento
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/fedora
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/rhel
 
+# Add SUSE initscript
+cp -rp src/init/ossec-hids-suse.init ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/init/
+
 # Copy scap templates
 cp -rp  etc/templates/config/generic/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/generic
 cp -rp  etc/templates/config/centos/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/centos
@@ -225,6 +228,14 @@ fi
 
 # If the package is being installed 
 if [ $1 = 1 ]; then
+  # If the package is been installed in a SUSE hosts, install its init file
+  if [ -f /etc/os-release ]; then
+    sles=$(grep "\"sles" /etc/os-release)
+    if [ ! -z "$sles" ]; then
+      install -m 755 %{_localstatedir}/ossec/tmp/src/init/ossec-hids-suse.init /etc/rc.d/wazuh-manager
+    fi
+  fi
+
   # Generating ossec.conf file
   . %{_localstatedir}/ossec/tmp/src/init/dist-detect.sh
   %{_localstatedir}/ossec/tmp/gen_ossec.sh conf manager ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir}/ossec > %{_localstatedir}/ossec/etc/ossec.conf
