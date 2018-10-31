@@ -302,8 +302,15 @@ if [ $1 = 1 ]; then
   # If systemd is installed, add the wazuh-manager.service file to systemd files directory
   if [ -d /run/systemd/system ]; then
     install -m 644 %{_localstatedir}/ossec/tmp/src/systemd/wazuh-manager.service /etc/systemd/system/
+
+    # Fix for Fedora 28
+    # Check if SELinux is installed. If it is installed, restore the context of the .service file
+    if [ "${DIST_NAME}" == "fedora" -a "${DIST_VER}" == "28" ]; then
+      if command -v restorecon > /dev/null 2>&1 ; then
+        restorecon -v /etc/systemd/system/wazuh-manager.service
+      fi
+    fi
     systemctl daemon-reload
-    systemctl stop wazuh-manager
     systemctl enable wazuh-manager > /dev/null 2>&1
   fi
 
