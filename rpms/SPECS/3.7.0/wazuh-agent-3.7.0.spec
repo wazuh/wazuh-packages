@@ -197,6 +197,7 @@ if [ $1 = 1 ]; then
       fi
     fi
     systemctl daemon-reload
+    systemctl stop wazuh-agent
     systemctl enable wazuh-agent > /dev/null 2>&1
   fi
 

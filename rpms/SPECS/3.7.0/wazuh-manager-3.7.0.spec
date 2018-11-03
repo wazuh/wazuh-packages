@@ -311,6 +311,7 @@ if [ $1 = 1 ]; then
       fi
     fi
     systemctl daemon-reload
+    systemctl stop wazuh-manager
     systemctl enable wazuh-manager > /dev/null 2>&1
   fi
 
