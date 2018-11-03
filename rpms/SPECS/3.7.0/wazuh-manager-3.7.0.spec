@@ -411,7 +411,7 @@ if [ $1 = 0 ]; then
     if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
       if [ $(getenforce) != "Disabled" ]; then
         if (semodule -l | grep wazuh > /dev/null); then
-          semodule -r wazuh
+          semodule -r wazuh > /dev/null
         fi
       fi
     fi
