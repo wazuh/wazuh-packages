@@ -185,10 +185,19 @@ if [ $1 = 1 ]; then
   /sbin/chkconfig --add wazuh-agent
   /sbin/chkconfig wazuh-agent on
 
+  # If systemd is installed, add the wazuh-agent.service file to systemd files directory
   if [ -d /run/systemd/system ]; then
     install -m 644 %{_localstatedir}/ossec/tmp/src/systemd/wazuh-agent.service /etc/systemd/system/
+
+    # Fix for Fedora 28
+    # Check if SELinux is installed. If it is installed, restore the context of the .service file
+    if [ "${DIST_NAME}" == "fedora" -a "${DIST_VER}" == "28" ]; then
+      if command -v restorecon > /dev/null 2>&1 ; then
+        restorecon -v /etc/systemd/system/wazuh-agent.service > /dev/null 2>&1
+      fi
+    fi
     systemctl daemon-reload
-    systemctl stop wazuh-agent 
+    systemctl stop wazuh-agent
     systemctl enable wazuh-agent > /dev/null 2>&1
   fi
 
