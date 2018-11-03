@@ -53,6 +53,20 @@ cp CHANGELOG.md CHANGELOG
 exit 0
 %pre
 
+# Upgrading
+if [ $1 = 2 ]; then
+
+  # Stop services
+  if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
+    systemctl stop wazuh-api.service
+  elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
+    /etc/init.d/wazuh-api stop
+  fi
+
+fi
+
+
+# Installing
 if [ $1 = 1 ]; then
 
   API_PATH="${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api"
@@ -71,9 +85,7 @@ fi
 
 %post
 
-if [ $1 = 1 ]; then
-  %{_localstatedir}/ossec/api/scripts/install_daemon.sh
-fi
+%{_localstatedir}/ossec/api/scripts/install_daemon.sh > /dev/null 2>&1
 
 API_PATH="${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api"
 API_PATH_BACKUP="${RPM_BUILD_ROOT}%{_localstatedir}/ossec/~api"
@@ -96,9 +108,9 @@ fi
 # Restart the Wazuh API service
 if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
   systemctl daemon-reload
-  systemctl restart wazuh-api.service
+  systemctl start wazuh-api.service
 elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
-  service wazuh-api restart
+  /etc/init.d/wazuh-api restart || true
 fi
 
 %preun
@@ -153,7 +165,7 @@ rm -fr %{buildroot}
 %attr(660, ossec, ossec) %ghost %{_localstatedir}/ossec/logs/api.log
 
 %changelog
-* Fri Sep 7 2018 support <info@wazuh.com> - 3.7.0
+* Sun Nov 5 2018 support <info@wazuh.com> - 3.7.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Sep 3 2018 support <info@wazuh.com> - 3.6.1
 - More info: https://documentation.wazuh.com/current/release-notes/
