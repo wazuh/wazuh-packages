@@ -59,8 +59,10 @@ if [ $1 = 2 ]; then
   # Stop services
   if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
     systemctl stop wazuh-api.service
+  elif [ -x /etc/rc.d/init.d/wazuh-api ] ; then
+    /etc/rc.d/init.d/wazuh-api stop  > /dev/null || true
   elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
-    /etc/init.d/wazuh-api stop
+    /etc/init.d/wazuh-api stop > /dev/null
   fi
 
 fi
@@ -109,8 +111,10 @@ fi
 if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
   systemctl daemon-reload
   systemctl start wazuh-api.service
+elif [ -x /etc/rc.d/init.d/wazuh-api ] ; then
+  /etc/rc.d/init.d/wazuh-api restart > /dev/null || true  
 elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
-  /etc/init.d/wazuh-api restart || true
+  /etc/init.d/wazuh-api restart > /dev/null || true
 fi
 
 %preun
@@ -125,6 +129,8 @@ if [ $1 = 0 ]; then
   if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
     service wazuh-api stop
     chkconfig wazuh-api off
+    chkconfig --del wazuh-api
+    rm -f /etc/rc.d/init.d/wazuh-api || true
   fi
 fi
 
