@@ -35,7 +35,7 @@ case "$1" in
     fi
 
     # Restore /var/ossec permissions
-    if [ -f ${SCRIPTS_DIR}/restore-permissions.sh ]
+    if [ -f ${SCRIPTS_DIR}/restore-permissions.sh ]; then
       . ${SCRIPTS_DIR}/restore-permissions.sh
     fi
     
