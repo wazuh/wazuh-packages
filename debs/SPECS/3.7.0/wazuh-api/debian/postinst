@@ -35,9 +35,11 @@ case "$1" in
     fi
 
     # Restore /var/ossec permissions
-    . ${SCRIPTS_DIR}/restore-permissions.sh
-
-    #verify python version
+    if [ -f ${SCRIPTS_DIR}/restore-permissions.sh ]
+      . ${SCRIPTS_DIR}/restore-permissions.sh
+    fi
+    
+    # Verify python version
     if python -V >/dev/null 2>&1; then
       python_version=$(python -c 'import sys; print(".".join(map(str, sys.version_info[:3])))' | cut -c1-3)
       if [ ! $python_version == '2.7' ]; then
