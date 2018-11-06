@@ -296,6 +296,13 @@ if [ $1 = 0 ]; then
       fi
     fi
   fi
+
+  # Remove the wazuh-agent.service file
+  rm -f /etc/systemd/system/wazuh-agent.service
+  # Remove the socket files from the agent
+  find /var/ossec/queue/ -type s -exec rm -f {} \;
+  # Remove the unnecessary files from the agent
+  find /var/ossec/queue/ -type f -exec rm -f {} \;
 fi
 
 %triggerin -- glibc

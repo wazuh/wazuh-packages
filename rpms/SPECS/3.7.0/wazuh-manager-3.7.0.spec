@@ -425,6 +425,23 @@ if [ $1 = 0 ]; then
     fi
   fi
 
+  # Remove the stats 
+  rm -rf %{_localstatedir}/ossec/stats/* 
+  # Remove the databases and the .template.db
+  find %{_localstatedir}/ossec/var/db -type f -exec rm -f {} \; 
+  find %{_localstatedir}/ossec/queue/db -type f -exec rm -f {} \;
+  rm -f %{_localstatedir}/ossec/var/db/.template.db
+  # Remove the merged.mg file
+  rm -f %{_localstatedir}/ossec/etc/shared/default/merged.mg
+  # Remove all the unused sockets files, db files, etc.
+  rm -rf %{_localstatedir}/ossec/queue/{agent-info,agent-groups,agentless,alerts,cluster}/*
+  rm -rf %{_localstatedir}/ossec/queue/{diff,fts,rids,rootcheck,ossec,vulnerabilities}/*
+  # Remove the active response file
+  rm -f %{_localstatedir}/ossec/etc/shared/ar.conf 
+  # Remove all the unncessary files from %{_localstatedir}/ossec/var except wazuh.pp
+  find %{_localstatedir}/ossec/var/ ! -name *wazuh.pp -type f -exec rm -f {} \;
+  # Remove the service files
+  rm -f /etc/systemd/system/wazuh-manager.service
 fi
 
 %postun
