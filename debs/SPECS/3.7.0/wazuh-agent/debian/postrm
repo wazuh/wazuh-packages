@@ -28,13 +28,14 @@ case "$1" in
         rm -rf ${WAZUH_TMP_DIR}
     fi
 
-	update-rc.d -f wazuh-agent remove
 
     if [ -d /run/systemd/system ] ; then
         systemctl disable wazuh-agent > /dev/null 2>&1
         systemctl daemon-reload
         systemctl reset-failed
     fi
+
+    update-rc.d -f wazuh-agent remove
 
     # Back up the old configuration files as .save
     if [ ! -d ${DIR}/etc ]; then
