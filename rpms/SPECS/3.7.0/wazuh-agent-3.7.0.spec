@@ -315,6 +315,12 @@ if [ $1 == 0 ];then
   if id -g ossec > /dev/null 2>&1; then
     groupdel ossec
   fi
+  
+  # Remove lingering folders and files
+  rm -rf %{_localstatedir}/ossec/etc/shared/
+  rm -rf %{_localstatedir}/ossec/queue/
+  rm -rf %{_localstatedir}/ossec/var/
+  
 fi
 
 # If the package is been downgraded
