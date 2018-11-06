@@ -425,6 +425,8 @@ if [ $1 = 0 ]; then
     fi
   fi
 
+  # Remove framework's .pyc files 
+  find %{_localstatedir}/ossec/framework -name *.pyc -exec rm -f {} \; 
   # Remove the stats 
   rm -rf %{_localstatedir}/ossec/stats/* 
   # Remove the databases and the .template.db
