@@ -429,17 +429,13 @@ if [ $1 = 0 ]; then
   find %{_localstatedir}/ossec/framework -name *.pyc -exec rm -f {} \; 
   # Remove the stats 
   rm -rf %{_localstatedir}/ossec/stats/* 
-  # Remove the databases and the .template.db
-  find %{_localstatedir}/ossec/var/db -type f -exec rm -f {} \; 
-  find %{_localstatedir}/ossec/queue/db -type f -exec rm -f {} \;
-  rm -f %{_localstatedir}/ossec/var/db/.template.db
-  # Remove the merged.mg file
-  rm -f %{_localstatedir}/ossec/etc/shared/default/merged.mg
-  # Remove all the unused sockets files, db files, etc.
+  # Remove the databases, merged file and the active response file
+  find %{_localstatedir}/ossec/{var,queue}/db -type f -exec rm -f {} \; 
+  rm -f %{_localstatedir}/ossec/var/db/.template.db %{_localstatedir}/ossec/etc/shared/default/merged.mg
+  rm -f %{_localstatedir}/ossec/etc/shared/ar.conf 
+  # Remove all the unused sockets files, agent-info files, groups, etc.
   rm -rf %{_localstatedir}/ossec/queue/{agent-info,agent-groups,agentless,alerts,cluster}/*
   rm -rf %{_localstatedir}/ossec/queue/{diff,fts,rids,rootcheck,ossec,vulnerabilities}/*
-  # Remove the active response file
-  rm -f %{_localstatedir}/ossec/etc/shared/ar.conf 
   # Remove all the unncessary files from %{_localstatedir}/ossec/var except wazuh.pp
   find %{_localstatedir}/ossec/var/ ! -name *wazuh.pp -type f -exec rm -f {} \;
   # Remove the service files
