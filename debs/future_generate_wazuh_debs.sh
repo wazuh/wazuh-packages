@@ -48,7 +48,7 @@ build_deb() {
     fi
     
     if [[ "$CURRENT_VERSION" != "$VERSION" ]] ; then
-      $SHORT_CURRENT_VERSION = $(echo $CURRENT_VERSION | cut -d'.' -f 1,2)
+      SHORT_CURRENT_VERSION=$(echo $CURRENT_VERSION | cut -d'.' -f 1,2)
       echo "Current version -> $CURRENT_VERSION"
       echo "Short current version -> $SHORT_CURRENT_VERSION"
       echo "Target version -> $VERSION"
