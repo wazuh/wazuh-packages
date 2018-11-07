@@ -53,6 +53,10 @@ case "$1" in
     # Delete tmp directory
     if [ -d ${WAZUH_TMP_DIR} ]; then
         rm -r ${WAZUH_TMP_DIR}
+        # If the parent directory is empty, delete it
+        if [ -z "$(ls -A ${WAZUH_GLOBAL_TMP_DIR})" ]; then 
+            rm -rf ${WAZUH_GLOBAL_TMP_DIR}
+        fi
     fi
 
     # Remove installation scripts directory
