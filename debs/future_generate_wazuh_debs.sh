@@ -52,17 +52,17 @@ build_deb() {
       echo "v$VERSION" >  ${SOURCES_DIRECTORY}/src/VERSION
       cp -rp SPECS/$CURRENT_VERSION SPECS/$VERSION
       sed -i "1s/^/ -- Wazuh, Inc <info@wazuh.com> Fri, 9 Sep 2018 11:00:00 +0000\n\n/" SPECS/$VERSION/wazuh-manager/debian/changelog
-      sed -i "1s/^/  * More info: https://documentation.wazuh.com/current/release-notes/\n\n/" SPECS/$VERSION/wazuh-manager/debian/changelog
+      sed -i "1s_^_  * More info: https://documentation.wazuh.com/current/release-notes/\n\n_" SPECS/$VERSION/wazuh-manager/debian/changelog
       sed -i "1s/^/wazuh-manager (${VERSION}-RELEASE) stable; urgency=low\n\n/" SPECS/$VERSION/wazuh-manager/debian/changelog
       sed -i "s:make -C src deps:make -C src deps RESOURCE_URL=https://packages.wazuh.com/deps/${SHORT_CURRENT_VERSION}:" SPECS/$VERSION/wazuh-manager/debian/rules
 
       sed -i "1s/^/ -- Wazuh, Inc <info@wazuh.com> Fri, 9 Sep 2018 11:00:00 +0000\n\n/" SPECS/$VERSION/wazuh-agent/debian/changelog
-      sed -i "1s/^/  * More info: https://documentation.wazuh.com/current/release-notes/\n\n/" SPECS/$VERSION/wazuh-agent/debian/changelog
+      sed -i "1s_^_  * More info: https://documentation.wazuh.com/current/release-notes/\n\n_" SPECS/$VERSION/wazuh-agent/debian/changelog
       sed -i "1s/^/wazuh-agent (${VERSION}-RELEASE) stable; urgency=low\n\n/" SPECS/$VERSION/wazuh-agent/debian/changelog
       sed -i "s:make -C src deps:make -C src deps RESOURCE_URL=https://packages.wazuh.com/deps/${SHORT_CURRENT_VERSION}:" SPECS/$VERSION/wazuh-agent/debian/rules
 
       sed -i "1s/^/ -- Wazuh, Inc <info@wazuh.com> Fri, 9 Sep 2018 11:00:00 +0000\n\n/" SPECS/$VERSION/wazuh-api/debian/changelog
-      sed -i "1s/^/  * More info: https://documentation.wazuh.com/current/release-notes/\n\n/" SPECS/$VERSION/wazuh-api/debian/changelog
+      sed -i "1s_^_  * More info: https://documentation.wazuh.com/current/release-notes/\n\n_" SPECS/$VERSION/wazuh-api/debian/changelog
       sed -i "1s/^/wazuh-api (${VERSION}-RELEASE) stable; urgency=low\n\n/" SPECS/$VERSION/wazuh-api/debian/changelog
       sed -i "s:make -C src deps:make -C src deps RESOURCE_URL=https://packages.wazuh.com/deps/${SHORT_CURRENT_VERSION}:" SPECS/$VERSION/wazuh-api/debian/rules
     fi
