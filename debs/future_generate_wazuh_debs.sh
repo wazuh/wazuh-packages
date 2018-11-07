@@ -6,6 +6,7 @@ OUTDIR="${HOME}/unstable/futures/apt/"
 BRANCH="master"
 REVISION="1"
 TARGET=""
+TARGET_VERSION=""
 JOBS="4"
 INSTALLATION_PATH="/var/ossec"
 DEB_AMD64_BUILDER="deb_builder_amd64"
@@ -78,7 +79,7 @@ build() {
     if [[ "$TARGET" = "api" ]]; then
 
         SOURCE_REPOSITORY="https://github.com/wazuh/wazuh-api"
-        build_deb ${DEB_AMD64_BUILDER} ${DEB_AMD64_BUILDER_DOCKERFILE} || exit 1
+        build_deb ${DEB_AMD64_BUILDER} ${DEB_AMD64_BUILDER_DOCKERFILE} ${TARGET_VERSION} || exit 1
 
     elif [[ "$TARGET" = "manager" ]] || [[ "$TARGET" = "agent" ]]; then
 
@@ -110,6 +111,7 @@ help() {
     echo "Usage: $0 [OPTIONS]"
     echo
     echo "    -b, --branch <branch>     Select Git branch or tag [$BRANCH]."
+    echo "    -v, --version <version>   Define target version to build."
     echo "    -h, --help                Show this help."
     echo "    -t, --target              Target package to build: manager, api or agent."
     echo "    -a, --architecture        Target architecture of the package."
@@ -130,8 +132,16 @@ main() {
             if [ -n "$2" ]
             then
                 BRANCH="$(echo $2 | cut -d'/' -f2)"
-                BUILD="yes"
                 shift 2
+            else
+                help 1
+            fi
+            ;;
+        "-v"|"--version")
+            if [ -n "$4" ]
+            then
+                TARGET_VERSION=$4
+                BUILD="yes"
             else
                 help 1
             fi
