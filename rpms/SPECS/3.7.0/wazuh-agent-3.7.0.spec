@@ -295,7 +295,13 @@ if [ $1 = 0 ]; then
       fi
     fi
   fi
+  
+  # Remove the wazuh-agent.service file
+  rm -f /etc/systemd/system/wazuh-agent.service
+  
 fi
+
+
 
 %triggerin -- glibc
 [ -r %{_sysconfdir}/localtime ] && cp -fpL %{_sysconfdir}/localtime %{_localstatedir}/ossec/etc

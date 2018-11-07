@@ -424,6 +424,9 @@ if [ $1 = 0 ]; then
     fi
   fi
 
+  # Remove the service files
+  rm -f /etc/systemd/system/wazuh-manager.service
+  
 fi
 
 %postun
