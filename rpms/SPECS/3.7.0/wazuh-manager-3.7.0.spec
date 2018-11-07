@@ -450,11 +450,27 @@ if [ $1 == 0 ];then
     groupdel ossec
   fi
   
+  # Backup agents centralized configuration (etc/shared)
+  if [ -d %{_localstatedir}/ossec/etc/shared ]; then
+      rm -rf %{_localstatedir}/ossec/etc/shared.save/
+      mv %{_localstatedir}/ossec/etc/shared/ %{_localstatedir}/ossec/etc/shared.save/
+  fi
+
+  # Backup registration service certificates (sslmanager.cert,sslmanager.key)
+  if [ -f %{_localstatedir}/ossec/etc/sslmanager.cert ]; then
+      mv %{_localstatedir}/ossec/etc/sslmanager.cert %{_localstatedir}/ossec/etc/sslmanager.cert.save
+  fi
+  if [ -f %{_localstatedir}/ossec/etc/sslmanager.key ]; then
+      mv %{_localstatedir}/ossec/etc/sslmanager.key %{_localstatedir}/ossec/etc/sslmanager.key.save
+  fi
+    
   # Remove lingering folders and files
   rm -rf %{_localstatedir}/ossec/queue/
   rm -rf %{_localstatedir}/ossec/framework/
   rm -rf %{_localstatedir}/ossec/stats/
   rm -rf %{_localstatedir}/ossec/var/
+  rm -rf %{_localstatedir}/ossec/bin/
+  rm -rf %{_localstatedir}/ossec/logs/
   
 fi
 

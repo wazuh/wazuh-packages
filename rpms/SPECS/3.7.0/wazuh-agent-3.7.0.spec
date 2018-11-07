@@ -325,6 +325,9 @@ if [ $1 == 0 ];then
   rm -rf %{_localstatedir}/ossec/etc/shared/
   rm -rf %{_localstatedir}/ossec/queue/
   rm -rf %{_localstatedir}/ossec/var/
+  rm -rf %{_localstatedir}/ossec/bin/
+  rm -rf %{_localstatedir}/ossec/logs/
+  rm -rf %{_localstatedir}/ossec/backup/
   
 fi
 
