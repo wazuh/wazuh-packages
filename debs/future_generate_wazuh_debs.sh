@@ -142,6 +142,7 @@ main() {
             then
                 TARGET_VERSION=$4
                 BUILD="yes"
+                shift 2
             else
                 help 1
             fi
