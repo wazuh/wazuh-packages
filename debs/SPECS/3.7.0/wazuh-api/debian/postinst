@@ -10,11 +10,12 @@ case "$1" in
     OS=$(lsb_release -si)
     DIR="/var/ossec"
     WAZUH_API_DIR="${DIR}/api"
-    WAZUH_TMP_DIR="${DIR}/tmp/api_installation_files"
+    WAZUH_GLOBAL_TMP_DIR="${DIR}/packages_files"
+    WAZUH_TMP_DIR="${WAZUH_GLOBAL_TMP_DIR}/api_config_files"
     USER="ossec"
     GROUP="ossec"
     OSMYSHELL="/sbin/nologin"
-    SCRIPTS_DIR="${DIR}/tmp/api_scripts"
+    SCRIPTS_DIR="${WAZUH_GLOBAL_TMP_DIR}/api_installation_scripts"
 
     if [ ! -f ${OSMYSHELL} ]; then
         if [ -f "/bin/false" ]; then
@@ -49,14 +50,19 @@ case "$1" in
       echo "Warning: Minimal supported version is 2.7"
     fi
 
+    # Remove installation scripts directory
+    if [ -d ${SCRIPTS_DIR} ]; then
+        rm -rf ${SCRIPTS_DIR}
+    fi
+
     # Delete tmp directory
     if [ -d ${WAZUH_TMP_DIR} ]; then
         rm -r ${WAZUH_TMP_DIR}
     fi
 
-    # Remove installation scripts directory
-    if [ -d ${SCRIPTS_DIR} ]; then
-        rm -rf ${SCRIPTS_DIR}
+    # If the parent directory is empty, delete it
+    if [ -z "$(ls -A ${WAZUH_GLOBAL_TMP_DIR})" ]; then 
+        rm -rf ${WAZUH_GLOBAL_TMP_DIR}
     fi
 
     ${WAZUH_API_DIR}/scripts/install_daemon.sh

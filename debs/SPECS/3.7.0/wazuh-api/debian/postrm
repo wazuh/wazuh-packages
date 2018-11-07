@@ -5,7 +5,7 @@
 
 DIR="/var/ossec"
 WAZUH_API_DIR="${DIR}/api"
-WAZUH_TMP_DIR="${DIR}/tmp/api_installation_files"
+WAZUH_TMP_DIR="${DIR}/packages_files/api_config_files"
 
 set -e
 

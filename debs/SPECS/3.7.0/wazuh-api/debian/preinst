@@ -7,7 +7,7 @@ set -e
 
 # configuration variables
 DIR="/var/ossec"
-WAZUH_TMP_DIR="${DIR}/tmp/api_installation_files"
+WAZUH_TMP_DIR="${DIR}/packages_files/api_config_files"
 
 # environment configuration
 if [ ! -d ${WAZUH_TMP_DIR} ]; then

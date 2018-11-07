@@ -12,9 +12,10 @@ case "$1" in
     USER_MAIL="ossecm"
     USER_REM="ossecr"
     GROUP="ossec"
-    WAZUH_TMP_DIR="${DIR}/tmp/installation_files"
+    WAZUH_GLOBAL_TMP_DIR="${DIR}/packages_files"
+    WAZUH_TMP_DIR="${WAZUH_GLOBAL_TMP_DIR}/manager_config_files"
     OSMYSHELL="/sbin/nologin"
-    SCRIPTS_DIR="${DIR}/tmp"
+    SCRIPTS_DIR="${WAZUH_GLOBAL_TMP_DIR}/manager_installation_scripts"
 
     if [ ! -f ${OSMYSHELL} ]; then
         if [ -f "/bin/false" ]; then
@@ -212,7 +213,6 @@ case "$1" in
     if [ -d ${WAZUH_TMP_DIR}/group ]; then
         cp -rfp ${WAZUH_TMP_DIR}/group/* ${DIR}/etc/shared
         rm -rf ${WAZUH_TMP_DIR}/group/
-
     fi
 
     # More files
@@ -263,13 +263,6 @@ case "$1" in
         fi
     fi
 
-    # Delete installation scripts
-    if [ -d ${SCRIPTS_DIR} ]; then
-        rm -f ${DIR}/tmp/add_localfiles.sh gen_ossec.sh
-        rm -rf ${DIR}/tmp/src
-        rm -rf ${DIR}/tmp/etc
-    fi
-
     # Service
     if [ -x /etc/init.d/wazuh-manager ]; then
         if [ -d /run/systemd/system ]; then
@@ -287,9 +280,20 @@ case "$1" in
             echo "================================================================================================================"
         fi
     fi
+
+    # Delete installation scripts
+    if [ -d ${SCRIPTS_DIR} ]; then
+        rm -rf ${SCRIPTS_DIR}
+    fi
+
     # Delete tmp directory
     if [ -d ${WAZUH_TMP_DIR} ]; then
         rm -r ${WAZUH_TMP_DIR}
+    fi
+
+    # If the parent directory is empty, delete it
+    if [ -z "$(ls -A ${WAZUH_GLOBAL_TMP_DIR})" ]; then 
+        rm -rf ${WAZUH_GLOBAL_TMP_DIR}
     fi
 
     # Fix /etc/ossec-init.conf

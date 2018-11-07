@@ -5,7 +5,7 @@
 set -e
 
 DIR="/var/ossec"
-WAZUH_TMP_DIR="${DIR}/tmp/installation_files"
+WAZUH_TMP_DIR="${DIR}/packages_files/agent_config_files"
 
 case "$1" in
     remove|failed-upgrade|abort-install|abort-upgrade|disappear)

@@ -20,6 +20,7 @@ export TARGET_DIR=${CURDIR}/debian/wazuh-manager
 
 # Package build options
 export INSTALLATION_DIR="/var/ossec"
+export INSTALLATION_SCRIPTS_DIR="${INSTALLATION_DIR}/packages_files/manager_installation_scripts"
 export JOBS="5"
 
 %:
@@ -69,27 +70,27 @@ override_dh_install:
 	cp src/init/ossec-hids-debian.init ${TARGET_DIR}/etc/init.d/wazuh-manager
 
 	# Generating permission restoration file for postinstall
-	mkdir -p ${TARGET_DIR}$(INSTALLATION_DIR)/tmp/
-	./gen_permissions.sh $(INSTALLATION_DIR)/ ${TARGET_DIR}$(INSTALLATION_DIR)/tmp/restore-permissions.sh
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/
+	./gen_permissions.sh $(INSTALLATION_DIR)/ ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/restore-permissions.sh
 
 	# Copying to target
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_DIR)/
 	cp -r $(INSTALLATION_DIR)/. $(TARGET_DIR)$(INSTALLATION_DIR)/
 
-	mkdir -p ${TARGET_DIR}$(INSTALLATION_DIR)/tmp/
-	cp gen_ossec.sh ${TARGET_DIR}$(INSTALLATION_DIR)/tmp/
-	cp add_localfiles.sh ${TARGET_DIR}$(INSTALLATION_DIR)/tmp/
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/
+	cp gen_ossec.sh ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/
+	cp add_localfiles.sh ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/
 
-	mkdir -p ${TARGET_DIR}$(INSTALLATION_DIR)/tmp/src
-	cp src/VERSION ${TARGET_DIR}$(INSTALLATION_DIR)/tmp/src/
-	cp src/REVISION ${TARGET_DIR}$(INSTALLATION_DIR)/tmp/src/
-	cp src/LOCATION ${TARGET_DIR}$(INSTALLATION_DIR)/tmp/src/
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src
+	cp src/VERSION ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/
+	cp src/REVISION ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/
+	cp src/LOCATION ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/
 
-	mkdir -p ${TARGET_DIR}$(INSTALLATION_DIR)/tmp/src/init
-	cp -r src/init/*  ${TARGET_DIR}$(INSTALLATION_DIR)/tmp/src/init
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/init
+	cp -r src/init/*  ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/init
 
-	mkdir -p ${TARGET_DIR}$(INSTALLATION_DIR)/tmp/etc/templates/config/generic
-	cp -r etc/templates/config/generic/* ${TARGET_DIR}$(INSTALLATION_DIR)/tmp/etc/templates/config/generic
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/etc/templates/config/generic
+	cp -r etc/templates/config/generic/* ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/etc/templates/config/generic
 
 	# Copying systemd file
 	mkdir -p ${TARGET_DIR}/etc/

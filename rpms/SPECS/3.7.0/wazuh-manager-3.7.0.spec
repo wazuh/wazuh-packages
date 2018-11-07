@@ -103,31 +103,31 @@ install -m 0640 wodles/oscap/content/*fedora* ${RPM_BUILD_ROOT}%{_localstatedir}
 cp CHANGELOG.md CHANGELOG
 
 # Add configuration scripts
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/
-cp gen_ossec.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/
-cp add_localfiles.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/
+cp gen_ossec.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/
+cp add_localfiles.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/
 
 # Templates for initscript
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/init
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/systemd
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/generic
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/centos
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/fedora
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/rhel
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/init
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/systemd
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/generic
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/centos
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/fedora
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/rhel
 
 # Copy scap templates
-cp -rp  etc/templates/config/generic/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/generic
-cp -rp  etc/templates/config/centos/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/centos
-cp -rp  etc/templates/config/fedora/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/fedora
-cp -rp  etc/templates/config/rhel/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/rhel
+cp -rp  etc/templates/config/generic/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/generic
+cp -rp  etc/templates/config/centos/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/centos
+cp -rp  etc/templates/config/fedora/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/fedora
+cp -rp  etc/templates/config/rhel/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/rhel
 
-install -m 0640 src/init/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/init
+install -m 0640 src/init/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/init
 
 # Add installation scripts
-cp src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/
-cp src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/
-cp src/LOCATION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/
-cp -r src/systemd/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/systemd
+cp src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/
+cp src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/
+cp src/LOCATION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/
+cp -r src/systemd/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/systemd
 
 rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/sslmanager*
 
@@ -226,8 +226,8 @@ fi
 # If the package is being installed 
 if [ $1 = 1 ]; then
   # Generating ossec.conf file
-  . %{_localstatedir}/ossec/tmp/src/init/dist-detect.sh
-  %{_localstatedir}/ossec/tmp/gen_ossec.sh conf manager ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir}/ossec > %{_localstatedir}/ossec/etc/ossec.conf
+  . %{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/init/dist-detect.sh
+  %{_localstatedir}/ossec/packages_files/manager_installation_scripts/gen_ossec.sh conf manager ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir}/ossec > %{_localstatedir}/ossec/etc/ossec.conf
   chown root:ossec %{_localstatedir}/ossec/etc/ossec.conf
   chmod 0640 %{_localstatedir}/ossec/etc/ossec.conf
 
@@ -295,13 +295,13 @@ if [ $1 = 1 ]; then
   chmod 0640 %{_localstatedir}/ossec/logs/integrations.log
 
   # Add default local_files to ossec.conf
-  %{_localstatedir}/ossec/tmp/add_localfiles.sh %{_localstatedir}/ossec >> %{_localstatedir}/ossec/etc/ossec.conf
+  %{_localstatedir}/ossec/packages_files/manager_installation_scripts/add_localfiles.sh %{_localstatedir}/ossec >> %{_localstatedir}/ossec/etc/ossec.conf
    /sbin/chkconfig --add wazuh-manager
    /sbin/chkconfig wazuh-manager on
 
   # If systemd is installed, add the wazuh-manager.service file to systemd files directory
   if [ -d /run/systemd/system ]; then
-    install -m 644 %{_localstatedir}/ossec/tmp/src/systemd/wazuh-manager.service /etc/systemd/system/
+    install -m 644 %{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/systemd/wazuh-manager.service /etc/systemd/system/
 
     # Fix for Fedora 28
     # Check if SELinux is installed. If it is installed, restore the context of the .service file
@@ -370,9 +370,8 @@ elif [ ${add_selinux} == "no" ]; then
   fi
 fi
 
-rm -f %{_localstatedir}/ossec/tmp/add_localfiles.sh
-rm -rf %{_localstatedir}/ossec/tmp/src
-rm -rf %{_localstatedir}/ossec/tmp/etc
+# Delete the installation files used to configure the manager
+rm -rf %{_localstatedir}/ossec/packages_files
 
 if %{_localstatedir}/ossec/bin/ossec-logtest 2>/dev/null ; then
   /sbin/service wazuh-manager restart > /dev/null 2>&1
@@ -587,6 +586,28 @@ rm -fr %{buildroot}
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/logs/cluster
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/logs/firewall
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/logs/ossec
+%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/packages_files
+%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/packages_files/manager_installation_scripts
+%attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/packages_files/manager_installation_scripts/add_localfiles.sh
+%attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/packages_files/manager_installation_scripts/gen_ossec.sh
+%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/
+%attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/LOCATION
+%attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/REVISION
+%attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/VERSION
+%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/init/
+%attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/init/*
+%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/systemd/
+%attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/systemd/*
+%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates
+%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config
+%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/generic
+%attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/generic/*
+%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/centos
+%attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/centos/*
+%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/fedora
+%attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/fedora/*
+%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/rhel
+%attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/rhel/*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/queue
 %attr(600, root, ossec) %ghost %{_localstatedir}/ossec/queue/agents-timestamp
 %dir %attr(770, ossecr, ossec) %{_localstatedir}/ossec/queue/agent-info
@@ -611,26 +632,6 @@ rm -fr %{buildroot}
 %dir %attr(700, root, ossec) %{_localstatedir}/ossec/.ssh
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/stats
 %dir %attr(1750, root, ossec) %{_localstatedir}/ossec/tmp
-%attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/add_localfiles.sh
-%attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/gen_ossec.sh
-%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/src/
-%attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/src/LOCATION
-%attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/src/REVISION
-%attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/src/VERSION
-%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/src/init/
-%attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/src/init/*
-%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/src/systemd/
-%attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/src/systemd/*
-%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates
-%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config
-%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/generic
-%attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/generic/*
-%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/centos
-%attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/centos/*
-%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/fedora
-%attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/fedora/*
-%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/rhel
-%attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/rhel/*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/var
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/var/db
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/var/db/agents
