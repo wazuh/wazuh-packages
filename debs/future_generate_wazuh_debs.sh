@@ -49,6 +49,9 @@ build_deb() {
     
     if [[ "$CURRENT_VERSION" != "$VERSION" ]] ; then
       $SHORT_CURRENT_VERSION = $(echo $CURRENT_VERSION | cut -d'.' -f 1,2)
+      echo "Current version -> $CURRENT_VERSION"
+      echo "Short current version -> $SHORT_CURRENT_VERSION"
+      echo "Target version -> $VERSION"
       echo "v$VERSION" >  ${SOURCES_DIRECTORY}/src/VERSION
       cp -rp SPECS/$CURRENT_VERSION SPECS/$VERSION
       sed -i "1s|^| -- Wazuh, Inc <info@wazuh.com> Fri, 9 Sep 2018 11:00:00 +0000\n\n|" SPECS/$VERSION/wazuh-manager/debian/changelog
