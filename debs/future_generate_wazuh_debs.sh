@@ -48,10 +48,17 @@ build_deb() {
     fi
     
     if [[ "$CURRENT_VERSION" != "$VERSION" ]] ; then
+      $SHORT_CURRENT_VERSION = $(echo $CURRENT_VERSION | cut -d'.' -f 1,2)
       echo "v$VERSION" >  ${SOURCES_DIRECTORY}/src/VERSION
       cp -rp SPECS/$CURRENT_VERSION SPECS/$VERSION
-      sed -i "1s/^/wazuh-manager (${VERSION}-RELEASE) stable; urgency=low/" SPECS/$VERSION/changelog
-      sed -i 's:make -C src deps:make -C src deps RESOURCE_URL=https://packages.wazuh.com/deps/3.8:' SPECS/$VERSION/rules
+      sed -i "1s/^/wazuh-manager (${VERSION}-RELEASE) stable; urgency=low/" SPECS/$VERSION/wazuh-manager/debian/changelog
+      sed -i "s:make -C src deps:make -C src deps RESOURCE_URL=https://packages.wazuh.com/deps/${SHORT_CURRENT_VERSION}:" SPECS/$VERSION/wazuh-manager/debian/rules
+
+      sed -i "1s/^/wazuh-agent (${VERSION}-RELEASE) stable; urgency=low/" SPECS/$VERSION/wazuh-agent/debian/changelog
+      sed -i "s:make -C src deps:make -C src deps RESOURCE_URL=https://packages.wazuh.com/deps/${SHORT_CURRENT_VERSION}:" SPECS/$VERSION/wazuh-agent/debian/rules
+
+      sed -i "1s/^/wazuh-api (${VERSION}-RELEASE) stable; urgency=low/" SPECS/$VERSION/wazuh-api/debian/changelog
+      sed -i "s:make -C src deps:make -C src deps RESOURCE_URL=https://packages.wazuh.com/deps/${SHORT_CURRENT_VERSION}:" SPECS/$VERSION/wazuh-api/debian/rules
     fi
 
     # Copy the "specs" files for the Debian package
@@ -97,7 +104,7 @@ build() {
             echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too) or i386."
             exit 1
         fi
-        build_deb ${BUILD_NAME} ${FILE_PATH}|| exit 1
+        build_deb ${BUILD_NAME} ${FILE_PATH} ${TARGET_VERSION}|| exit 1
     else
         echo "Invalid target. Choose: manager, agent or api."
         exit 1
