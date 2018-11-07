@@ -7,6 +7,7 @@ OUTDIR="${HOME}/3.x/yum-dev/"
 BRANCH="master"
 RELEASE="1"
 TARGET=""
+TARGET_VERSION=""
 JOBS="4"
 RPM_X86_BUILDER="rpm_builder_x86"
 RPM_I386_BUILDER="rpm_builder_i386"
@@ -91,7 +92,7 @@ build() {
     if [[ "$TARGET" = "api" ]]; then
 
         SOURCE_REPOSITORY="https://github.com/wazuh/wazuh-api"
-        build_rpm ${RPM_X86_BUILDER} ${RPM_BUILDER_DOCKERFILE}/x86_64 || exit 1
+        build_rpm ${RPM_X86_BUILDER} ${RPM_BUILDER_DOCKERFILE}/x86_64 ${TARGET_VERSION} || exit 1
 
     elif [[ "$TARGET" = "manager" ]] || [[ "$TARGET" = "agent" ]]; then
 
@@ -115,7 +116,7 @@ build() {
             BUILD_NAME="${RPM_I386_BUILDER}"
             FILE_PATH="${RPM_BUILDER_DOCKERFILE}/$ARCHITECTURE"
         fi
-        build_rpm ${BUILD_NAME} ${FILE_PATH}|| exit 1
+        build_rpm ${BUILD_NAME} ${FILE_PATH} ${TARGET_VERSION}|| exit 1
     else
         echo "Invalid target. Choose: manager, agent or api."
         exit 1
