@@ -15,7 +15,7 @@ case "$1" in
     USER="ossec"
     GROUP="ossec"
     OSMYSHELL="/sbin/nologin"
-    SCRIPTS_DIR="${DIR}/tmp/api_scripts"
+    SCRIPTS_DIR="${WAZUH_GLOBAL_TMP_DIR}/api_installation_scripts"
 
     if [ ! -f ${OSMYSHELL} ]; then
         if [ -f "/bin/false" ]; then

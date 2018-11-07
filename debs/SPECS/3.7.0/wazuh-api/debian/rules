@@ -20,6 +20,7 @@ export TARGET_DIR=${CURDIR}/debian/wazuh-api
 
 # Package build options
 export INSTALLATION_DIR="/var/ossec"
+export INSTALLATION_SCRIPTS_DIR="${INSTALLATION_DIR}/packages_files/api_installation_scripts"
 export JOBS="5"
 
 %:
@@ -56,9 +57,9 @@ override_dh_auto_install:
 	cp ./scripts/wazuh-api.service $(TARGET_DIR)/etc/systemd/system
 
 	# Generating permission restoration file for postinstall
-	mkdir -p ${TARGET_DIR}$(INSTALLATION_DIR)/tmp/api_scripts/
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/
 	# Generating permission restoration file for postinstall
-	./gen_permissions.sh "$(INSTALLATION_DIR)/api/ $(INSTALLATION_DIR)/logs/*" ${TARGET_DIR}$(INSTALLATION_DIR)/tmp/api_scripts/restore-permissions.sh
+	./gen_permissions.sh "$(INSTALLATION_DIR)/api/ $(INSTALLATION_DIR)/logs/*" ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/restore-permissions.sh
 
 
 override_dh_auto_clean:
