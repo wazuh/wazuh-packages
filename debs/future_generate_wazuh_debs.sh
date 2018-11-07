@@ -110,7 +110,7 @@ build() {
             echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too) or i386."
             exit 1
         fi
-        build_deb ${BUILD_NAME} ${FILE_PATH} ${TARGET_VERSION}|| exit 1
+        build_deb ${BUILD_NAME} ${FILE_PATH} ${TARGET_VERSION} || exit 1
     else
         echo "Invalid target. Choose: manager, agent or api."
         exit 1
@@ -151,9 +151,9 @@ main() {
             fi
             ;;
         "-v"|"--version")
-            if [ -n "$4" ]
+            if [ -n "$2" ]
             then
-                TARGET_VERSION=$4
+                TARGET_VERSION="$2"
                 BUILD="yes"
                 shift 2
             else
