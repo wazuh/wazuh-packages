@@ -59,13 +59,15 @@ build_rpm() {
       mv SPECS/$VERSION/wazuh-agent-$CURRENT_VERSION.spec SPECS/$VERSION/wazuh-agent-$VERSION.spec
       mv SPECS/$VERSION/wazuh-api-$CURRENT_VERSION.spec SPECS/$VERSION/wazuh-api-$VERSION.spec
 
-      sed -i "s|Version: ${CURRENT_VERSION}|Version: ${VERSION}|" SPECS/$VERSION/wazuh-manager-$VERSION.spec
-      sed -i "s|make deps\n|make deps RESOURCES_URL=https://packages.wazuh.com/deps/${SHORT_CURRENT_VERSION}|" SPECS/$VERSION/wazuh-manager-$VERSION.spec
+      sed -i "s|${CURRENT_VERSION}|${VERSION}|" SPECS/$VERSION/wazuh-manager-$VERSION.spec
+      sed -i "s|make deps RESOURCE.*|make deps RESOURCES_URL=http://packages.wazuh.com/deps/${SHORT_CURRENT_VERSION}|" SPECS/$VERSION/wazuh-manager-$VERSION.spec
+      sed -i "0,/make deps/s||make deps RESOURCES_URL=https://packages.wazuh.com/deps/${SHORT_CURRENT_VERSION}|" SPECS/$VERSION/wazuh-manager-$VERSION.spec
 
-      sed -i "s|Version: ${CURRENT_VERSION}|Version: ${VERSION}|" SPECS/$VERSION/wazuh-agent-$VERSION.spec
-      sed -i "s|make deps\n|make deps RESOURCES_URL=https://packages.wazuh.com/deps/${SHORT_CURRENT_VERSION}|" SPECS/$VERSION/wazuh-agent-$VERSION.spec
+      sed -i "s|${CURRENT_VERSION}|${VERSION}|" SPECS/$VERSION/wazuh-agent-$VERSION.spec
+      sed -i "s|make deps RESOURCE.*|make deps RESOURCES_URL=http://packages.wazuh.com/deps/${SHORT_CURRENT_VERSION}|" SPECS/$VERSION/wazuh-agent-$VERSION.spec
+      sed -i "0,/make deps/s||make deps RESOURCES_URL=https://packages.wazuh.com/deps/${SHORT_CURRENT_VERSION}|" SPECS/$VERSION/wazuh-agent-$VERSION.spec
 
-      sed -i "s|Version: ${CURRENT_VERSION}|Version: ${VERSION}|" SPECS/$VERSION/wazuh-api-$VERSION.spec
+      sed -i "s|${CURRENT_VERSION}|${VERSION}|" SPECS/$VERSION/wazuh-api-$VERSION.spec
     fi
     
     cp SPECS/$VERSION/wazuh-$TARGET-$VERSION.spec ${DOCKERFILE_PATH}/wazuh.spec
