@@ -183,12 +183,12 @@ rm -f %{_localstatedir}/ossec/var/db/agents/* || true
 # Remove existing SQLite databases for Wazuh DB when upgrading
 # Wazuh only if upgrading from 3.2..3.6
 if [ $1 = 2 ]; then
-  
+
   # Import the variables from ossec-init.conf file
   if [ -f %{_sysconfdir}/ossec-init.conf ]; then
     . %{_sysconfdir}/ossec-init.conf
   fi
-  
+
   # Get the major and minor version
   MAJOR=$(echo $VERSION | cut -dv -f2 | cut -d. -f1)
   MINOR=$(echo $VERSION | cut -d. -f2)
@@ -226,13 +226,16 @@ if [ $1 = 2 ]; then
 fi
 %post
 
-# If the package is being installed 
+# If the package is being installed
 if [ $1 = 1 ]; then
   # If the package is been installed in a SUSE hosts, install its init file
   if [ -f /etc/os-release ]; then
     sles=$(grep "\"sles" /etc/os-release)
     if [ ! -z "$sles" ]; then
-      install -m 755 %{_localstatedir}/ossec/tmp/src/init/ossec-hids-suse.init /etc/rc.d/wazuh-manager
+      if [ -f /etc/init.d/init.d/wazuh-manager ]; then
+        rm -rf /etc/init.d/init.d/
+      fi
+      install -m 755 %{_localstatedir}/ossec/tmp/src/init/ossec-hids-suse.init /etc/init.d/wazuh-manager
     fi
   fi
 
@@ -298,11 +301,11 @@ if [ $1 = 1 ]; then
     fi
   fi
 
-  touch %{_localstatedir}/ossec/logs/active-responses.log 
+  touch %{_localstatedir}/ossec/logs/active-responses.log
   touch %{_localstatedir}/ossec/logs/integrations.log
-  chown ossec:ossec %{_localstatedir}/ossec/logs/active-responses.log 
+  chown ossec:ossec %{_localstatedir}/ossec/logs/active-responses.log
   chown ossecm:ossec %{_localstatedir}/ossec/logs/integrations.log
-  chmod 0660 %{_localstatedir}/ossec/logs/active-responses.log 
+  chmod 0660 %{_localstatedir}/ossec/logs/active-responses.log
   chmod 0640 %{_localstatedir}/ossec/logs/integrations.log
 
   # Add default local_files to ossec.conf
@@ -400,7 +403,7 @@ if [ $1 = 0 ]; then
   if [ -r "/etc/centos-release" ]; then
     DIST_NAME="centos"
     DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.[0-9]{1,2}.*/\1/p' /etc/centos-release`
-  
+
   elif [ -r "/etc/redhat-release" ]; then
     DIST_NAME="rhel"
     DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.[0-9]{1,2}.*/\1/p' /etc/redhat-release`
@@ -416,7 +419,7 @@ if [ $1 = 0 ]; then
   if [ "${DIST_NAME}" == "centos" -a "${DIST_VER}" == "5" ] || [ "${DIST_NAME}" == "rhel" -a "${DIST_VER}" == "5" ] || [ "${DIST_NAME}" == "suse" -a "${DIST_VER}" == "11" ] ; then
     add_selinux="no"
   fi
-  
+
   # If it is a valid system, remove the policy if it is installed
   if [ ${add_selinux} == "yes" ]; then
     if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
@@ -644,7 +647,7 @@ rm -fr %{buildroot}
 %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/docker/*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap
 %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/oscap.*
-%attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/template*  
+%attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/template*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/content
 %attr(640, root, ossec) %{_localstatedir}/ossec/wodles/oscap/content/*
 
