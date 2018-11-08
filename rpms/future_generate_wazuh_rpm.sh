@@ -3,7 +3,7 @@
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ARCHITECTURE="x86_64"
 LEGACY="no"
-OUTDIR="${HOME}/3.x/yum-dev/"
+OUTDIR="${HOME}/unstable/futures/yum/"
 BRANCH="master"
 RELEASE="1"
 TARGET=""
