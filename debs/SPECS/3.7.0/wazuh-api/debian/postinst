@@ -65,7 +65,7 @@ case "$1" in
         rm -rf ${WAZUH_GLOBAL_TMP_DIR}
     fi
 
-    ${WAZUH_API_DIR}/scripts/install_daemon.sh
+    ${WAZUH_API_DIR}/scripts/install_daemon.sh > /dev/null
 
     if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
         systemctl restart wazuh-api.service 
