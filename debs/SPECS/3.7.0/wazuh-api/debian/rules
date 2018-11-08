@@ -46,6 +46,9 @@ override_dh_auto_install:
 	# Remove the httpaswd file
 	rm -f $(INSTALLATION_DIR)/api/configuration/auth/htpasswd
 
+	# Remove the api.log file
+	rm -f $(INSTALLATION_DIR)/logs/api.log
+	
 	# Copying $(INSTALLATION_DIR)/api files to package target
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_DIR)/
 	mkdir -p ${TARGET_DIR}/etc/
