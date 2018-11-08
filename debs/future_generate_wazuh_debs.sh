@@ -69,7 +69,7 @@ build_deb() {
       sed -i "1s|^|  * More info: https://documentation.wazuh.com/current/release-notes/\n\n|" SPECS/$VERSION/wazuh-api/debian/changelog
       sed -i "1s|^|wazuh-api (${VERSION}-RELEASE) stable; urgency=low\n\n|" SPECS/$VERSION/wazuh-api/debian/changelog
 
-      sed -i "s|${CURRENT_VERSION}|${SHORT_VERSION}|g" SPECS/$VERSION/wazuh-api/debian/control
+      sed -i "s|${SHORT_CURRENT_VERSION}|${SHORT_VERSION}|g" SPECS/$VERSION/wazuh-api/debian/control
     fi
 
     # Copy the "specs" files for the Debian package
