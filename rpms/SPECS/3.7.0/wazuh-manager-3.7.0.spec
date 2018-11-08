@@ -147,7 +147,9 @@ if [ -d %{_localstatedir}/ossec ] && [ -f %{_localstatedir}/ossec/bin/ossec-cont
   %{_localstatedir}/ossec/bin/ossec-control stop > /dev/null 2>&1
 fi
 
-if ! id -g ossec > /dev/null 2>&1; then
+if command -v getent > /dev/null 2>&1 && ! getent group ossec > /dev/null 2>&1; then
+  groupadd -r ossec
+elif ! id -g ossec > /dev/null 2>&1; then
   groupadd -r ossec
 fi
 
@@ -439,19 +441,30 @@ fi
 if [ $1 == 0 ];then
   # Remove the ossecr user if it exists
   if id -u ossecr > /dev/null 2>&1; then
-    userdel ossecr
+    userdel ossecr >/dev/null 2>&1
   fi
   # Remove the ossecm user if it exists
   if id -u ossecm > /dev/null 2>&1; then
-    userdel ossecm
+    userdel ossecm >/dev/null 2>&1
   fi
   # Remove the ossec user if it exists
   if id -u ossec > /dev/null 2>&1; then
-    userdel ossec
+    userdel ossec >/dev/null 2>&1
   fi
   # Remove the ossec group if it exists
-  if id -g ossec > /dev/null 2>&1; then
-    groupdel ossec
+  if command -v getent > /dev/null 2>&1 && getent group ossec > /dev/null 2>&1; then
+    groupdel ossec >/dev/null 2>&1
+  else
+    if id -g ossec > /dev/null 2>&1; then
+      groupdel ossec >/dev/null 2>&1
+    fi
+  fi
+  # Remove the service file for SUSE hosts
+  if [ -f /etc/os-release ]; then
+    sles=$(grep "\"sles" /etc/os-release)
+    if [ ! -z "$sles" ]; then
+      rm -f /etc/init.d/wazuh-manager
+    fi
   fi
 fi
 

@@ -131,7 +131,9 @@ cp -r src/systemd/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/systemd
 exit 0
 %pre
 
-if ! id -g ossec > /dev/null 2>&1; then
+if command -v getent > /dev/null 2>&1 && ! getent group ossec > /dev/null 2>&1; then
+  groupadd -r ossec
+elif ! id -g ossec > /dev/null 2>&1; then
   groupadd -r ossec
 fi
 if ! id -u ossec > /dev/null 2>&1; then
@@ -165,7 +167,7 @@ if [ $1 = 1 ]; then
   if [ -f /etc/os-release ]; then
     sles=$(grep "\"sles" /etc/os-release)
     if [ ! -z "$sles" ]; then
-      if [ -f /etc/init.d/init.d/wazuh-manager ]; then
+      if [ -f /etc/init.d/init.d/wazuh-agent ]; then
         rm -rf /etc/init.d/init.d/
       fi
       install -m 755 %{_localstatedir}/ossec/tmp/src/init/ossec-hids-suse.init /etc/init.d/wazuh-agent
@@ -293,6 +295,14 @@ if [ $1 = 0 ]; then
       fi
     fi
   fi
+
+  # Remove the service file for SUSE hosts
+  if [ -f /etc/os-release ]; then
+    sles=$(grep "\"sles" /etc/os-release)
+    if [ ! -z "$sles" ]; then
+      rm -f /etc/init.d/wazuh-agent
+    fi
+  fi
 fi
 
 %triggerin -- glibc
@@ -306,11 +316,15 @@ fi
 if [ $1 == 0 ];then
   # Remove the ossec user if it exists
   if id -u ossec > /dev/null 2>&1; then
-    userdel ossec
+    userdel ossec >/dev/null 2>&1
   fi
   # Remove the ossec group if it exists
-  if id -g ossec > /dev/null 2>&1; then
-    groupdel ossec
+  if command -v getent > /dev/null 2>&1 && getent group ossec > /dev/null 2>&1; then
+    groupdel ossec >/dev/null 2>&1
+  else
+    if id -g ossec > /dev/null 2>&1; then
+      groupdel ossec >/dev/null 2>&1
+    fi
   fi
 fi
 
