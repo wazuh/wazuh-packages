@@ -168,7 +168,11 @@ if [ $1 = 1 ]; then
     sles=$(grep "\"sles" /etc/os-release)
     if [ ! -z "$sles" ]; then
       if [ -f /etc/init.d/init.d/wazuh-agent ]; then
-        rm -rf /etc/init.d/init.d/
+        rm -f /etc/init.d/init.d/wazuh-agent
+        # Delete the directory if it is empty
+        if [ -z "$(ls -A /etc/init.d/init.d/)" ]; then
+          rm -rf /etc/init.d/init.d/
+        fi
       fi
       install -m 755 %{_localstatedir}/ossec/tmp/src/init/ossec-hids-suse.init /etc/init.d/wazuh-agent
     fi
