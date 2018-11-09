@@ -224,9 +224,9 @@ fi
 %post
 
 # If the package is being installed 
+. %{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/init/dist-detect.sh
 if [ $1 = 1 ]; then
   # Generating ossec.conf file
-  . %{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/init/dist-detect.sh
   %{_localstatedir}/ossec/packages_files/manager_installation_scripts/gen_ossec.sh conf manager ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir}/ossec > %{_localstatedir}/ossec/etc/ossec.conf
   chown root:ossec %{_localstatedir}/ossec/etc/ossec.conf
   chmod 0640 %{_localstatedir}/ossec/etc/ossec.conf

@@ -157,6 +157,7 @@ if [ $1 = 2 ]; then
 fi
 
 %post
+. %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/init/dist-detect.sh
 # If the package is being installed 
 if [ $1 = 1 ]; then
   if [ -f /etc/os-release ]; then
@@ -171,7 +172,6 @@ if [ $1 = 1 ]; then
   chmod 0660 %{_localstatedir}/ossec/logs/active-responses.log
 
   # Generating osse.conf file
-  . %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/init/dist-detect.sh
   %{_localstatedir}/ossec/packages_files/agent_installation_scripts/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir}/ossec > %{_localstatedir}/ossec/etc/ossec.conf
   chown root:ossec %{_localstatedir}/ossec/etc/ossec.conf
   chmod 0640 %{_localstatedir}/ossec/etc/ossec.conf
