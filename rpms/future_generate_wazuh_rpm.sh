@@ -44,9 +44,10 @@ build_rpm() {
 
     if [[ "$TARGET" != "api" ]]; then
         CURRENT_VERSION=$(cat ${SOURCES_DIRECTORY}/src/VERSION | cut -d 'v' -f 2)
+        echo "v$VERSION" >  ${SOURCES_DIRECTORY}/src/VERSION || exit 1
     else
         CURRENT_VERSION=$(grep version ${SOURCES_DIRECTORY}/package.json | cut -d '"' -f 4)
-        sed -i "s|${CURRENT_VERSION}|${VERSION}|" ${SOURCES_DIRECTORY}/packages.json
+        sed -i "s|${CURRENT_VERSION}|${VERSION}|" ${SOURCES_DIRECTORY}/package.json || exit 1
     fi
 
     if [[ "$CURRENT_VERSION" != "$VERSION" ]] ; then
@@ -54,7 +55,7 @@ build_rpm() {
       echo "Current version -> $CURRENT_VERSION"
       echo "Short current version -> $SHORT_CURRENT_VERSION"
       echo "Target version -> $VERSION"
-      echo "v$VERSION" >  ${SOURCES_DIRECTORY}/src/VERSION
+      
       cp -rp SPECS/$CURRENT_VERSION SPECS/$VERSION
       mv SPECS/$VERSION/wazuh-manager-$CURRENT_VERSION.spec SPECS/$VERSION/wazuh-manager-$VERSION.spec
       mv SPECS/$VERSION/wazuh-agent-$CURRENT_VERSION.spec SPECS/$VERSION/wazuh-agent-$VERSION.spec

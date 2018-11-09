@@ -42,10 +42,11 @@ build_deb() {
     if [[ "$TARGET" != "api" ]]; then
         # Review " in this command
         CURRENT_VERSION=$(cat ${SOURCES_DIRECTORY}/src/VERSION | cut -d 'v' -f 2)
+        echo "v$VERSION" >  ${SOURCES_DIRECTORY}/src/VERSION || exit 1
     else
         # Review " in this command
         CURRENT_VERSION=$(grep version ${SOURCES_DIRECTORY}/package.json | cut -d '"' -f 4)
-        sed -i "s|${CURRENT_VERSION}|${VERSION}|" ${SOURCES_DIRECTORY}/packages.json
+        sed -i "s|${CURRENT_VERSION}|${VERSION}|" ${SOURCES_DIRECTORY}/package.json || exit 1
     fi
     
     if [[ "$CURRENT_VERSION" != "$VERSION" ]] ; then
@@ -54,7 +55,7 @@ build_deb() {
       echo "Current version -> $CURRENT_VERSION"
       echo "Short current version -> $SHORT_CURRENT_VERSION"
       echo "Target version -> $VERSION"
-      echo "v$VERSION" >  ${SOURCES_DIRECTORY}/src/VERSION
+      
       cp -rp SPECS/$CURRENT_VERSION SPECS/$VERSION
       sed -i "1s|^| -- Wazuh, Inc <info@wazuh.com> Fri, 9 Sep 2018 11:00:00 +0000\n\n|" SPECS/$VERSION/wazuh-manager/debian/changelog
       sed -i "1s|^|  * More info: https://documentation.wazuh.com/current/release-notes/\n\n|" SPECS/$VERSION/wazuh-manager/debian/changelog
