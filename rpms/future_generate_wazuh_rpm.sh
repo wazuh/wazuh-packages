@@ -46,6 +46,7 @@ build_rpm() {
         CURRENT_VERSION=$(cat ${SOURCES_DIRECTORY}/src/VERSION | cut -d 'v' -f 2)
     else
         CURRENT_VERSION=$(grep version ${SOURCES_DIRECTORY}/package.json | cut -d '"' -f 4)
+        sed -i "s|${CURRENT_VERSION}|${VERSION}|" ${SOURCES_DIRECTORY}/packages.json
     fi
 
     if [[ "$CURRENT_VERSION" != "$VERSION" ]] ; then

@@ -45,6 +45,7 @@ build_deb() {
     else
         # Review " in this command
         CURRENT_VERSION=$(grep version ${SOURCES_DIRECTORY}/package.json | cut -d '"' -f 4)
+        sed -i "s|${CURRENT_VERSION}|${VERSION}|" ${SOURCES_DIRECTORY}/packages.json
     fi
     
     if [[ "$CURRENT_VERSION" != "$VERSION" ]] ; then
