@@ -145,7 +145,7 @@ case "$1" in
 
     # Move existing agent.conf to new target
     if [ -f "${DIR}/etc/shared/agent.conf" ]; then
-        mv "${DIR}/etc/shared/agent.conf" "${DIR}/etc/shared/default/agent.conf "
+        mv "${DIR}/etc/shared/agent.conf" "${DIR}/etc/shared/default/agent.conf"
     fi
 
     # For the etc dir
