@@ -213,6 +213,7 @@ function main() {
       build_container $TARGET $VERSION $ARCHITECTURE $CONTAINER_NAME $DOCKERFILE_PATH || exit 1
       build_package $TARGET $VERSION $REVISION $ARCHITECTURE $DESTINATION $CONTAINER_NAME $DOCKERFILE_PATH $JOBS $INSTALLATION_PATH || exit 1
     else
+      echo "ERROR: Need more parameters"
       help 1
     fi
 
