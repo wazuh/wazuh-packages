@@ -171,6 +171,7 @@ if [ -d ${DIR}/var/db/agents ]; then
 fi
 
 # Remove existing SQLite databases
+rm -f %{_localstatedir}/ossec/var/db/template.db* || true
 rm -f %{_localstatedir}/ossec/var/db/global.db* || true
 rm -f %{_localstatedir}/ossec/var/db/cluster.db* || true
 rm -f %{_localstatedir}/ossec/var/db/.profile.db* || true
