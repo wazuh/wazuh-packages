@@ -18,71 +18,74 @@ To build a Wazuh package you need to install the following tools:
   
 ## Building RPM packages
 
-To build an RPM package, you need to download this repository and use the `generate_wazuh_rpm.sh` script. This script will download the source code from the [wazuh/wazuh](https://github.com/wazuh/wazuh) repository or the [wazuh/wazuh-api](https://github.com/wazuh/wazuh-api) (depending on which package do you want to build), select automatically the RPM spec file, build a Docker image with all the necessary tools to build the RPM package and run a Docker container from that image that will generate the `.src.rpm` and `.rpm` packages. These packages will be stored by default in `$HOME/3.x/yum-dev`.
+To build an RPM package, you need to download this repository and use the `generate_wazuh_rpm.sh` script. This script will download the source code from the [wazuh/wazuh](https://github.com/wazuh/wazuh) repository or the [wazuh/wazuh-api](https://github.com/wazuh/wazuh-api) (depending on which package do you want to build), select automatically the RPM spec file, build a Docker image with all the necessary tools to build the RPM package and run a Docker container from that image that will generate the `.src.rpm` and `.rpm` packages.
 
 1. Download this repository and go to the rpm directory:
     ```bash
     $ git clone https://github.com/wazuh/wazuh-packages && cd wazuh-packages/rpms
     ```
 
-2. Execute the `generate_wazuh_rpm.sh` script to build the package. There are multiple parameters to select which package is going to be built, its architecture, etc. Here you can see all the different parameters:
+2. Execute the `generate_rpm_package.sh` script to build the package. There are multiple parameters to select which package is going to be built, its architecture, etc. Here you can see all the different parameters:
     ```shellsession
-    # ./generate_wazuh_rpm.sh -h
+    #./generate_rpm_package.sh -h
 
-    Usage: ./generate_wazuh_rpm.sh [OPTIONS]
+    Usage: ./generate_rpm_package.sh [OPTIONS]
 
-        -b, --branch <branch>     Select Git branch [master].
+        -b, --branch <branch>     [Required] Select Git branch or tag e.g. 
+        -d, --destination <path>  [Required] Set the destination path of package.
+        -t, --target <target>     [Required] Target package to build [manager/api/agent].
+        -a, --architecture <arch> [Required] Target architecture of the package [x86_64/i386].
+        -r, --revision <rev>      [Required] Package revision that append to version e.g. x.x.x-rev
+        -l, --legacy              [Optional] Build package for CentOS 5.
+        -j, --jobs <number>       [Optional] Number of parallel jobs when compiling.
+        -p, --path <path>         [Optional] Installation path for the package. By default: /var.
         -h, --help                Show this help.
-        -t, --target              Target package to build: manager, api or agent.
-        -a, --architecture        Target architecture of the package.
-        -j, --jobs                Change number of parallel jobs when compiling the manager or agent.
-        -l, --legacy              Build the package for CentOS 5.
-        -r, --release             Package release.
-        -p, --path                Installation path for the package. By default: /var.
     ```
-    * To build a wazuh-manager package for x86_64:  
-        `# ./generate_wazuh_rpm.sh -b v3.4.0 -t manager -a x86_64`.
-    * To build a wazuh-agent package for i386 with `-j15` and release 3:  
-        `# ./generate_wazuh_rpm.sh -b v3.4.0 -t agent -a x86_64 -j 15 -r 3`.
-    * To build a wazuh-api package from branch 3.6:  
-        `# ./generate_wazuh_rpm.sh -b 3.6 -t api`.
-    * To build a wazuh-manager package for x86_64 in a different directory:  
-        `# ./generate_wazuh_rpm.sh -b v3.4.0 -t manager -a x86_64 -p /opt`.
-3. When the execution finish, you can find your `.src.rpm` and the `.rpm` packages in `$HOME/3.x/yum-dev`.
+    * To build a wazuh-manager package in /tmp for x86_64 and revision 3401:
+        `# ./generate_rpm_package.sh -b v3.4.0 -d /tmp -t manager -a x86_64 -r 3401`.
+    * To build a wazuh-agent package in /tmp for i386 with `-j15` and revision 3:
+        `# ./generate_rpm_package.sh -b v3.4.0 -d /tmp -t agent -a x86_64 -j 15 -r 3`.
+    * To build a wazuh-api package in /tmp from branch 3.6:
+        `# ./generate_rpm_package.sh -b 3.6 -d /tmp -t api -a x86_64 -r 0`.
+    * To build a wazuh-manager package in /tmp for x86_64 in a different directory:
+        `# ./generate_rpm_package.sh -b v3.4.0 -d /tmp -t manager -a x86_64 -r 0 -p /opt`.
+3. When the execution finish, you can find your `.src.rpm` and the `.rpm` packages in specified folder.
 
 
 ## Building DEB packages
 
-Building a .deb package is pretty similar to build a .rpm package. You need to download the repository and execute the `generate_wazuh_debs.sh` script. This will create the docker image, choose the needed files to build the package and build it. These packages will be stored by default in `$HOME/3.x/apt-dev`.
+Building a .deb package is pretty similar to build a .rpm package. You need to download the repository and execute the `generate_debian_package.sh` script. This will create the docker image, choose the needed files to build the package and build it.
 
 1. Download this repository and go to the debs directory:
     ```bash
     $ git clone https://github.com/wazuh/wazuh-packages && cd wazuh-packages/debs
     ```
 
-2. Execute the `generate_wazuh_debs.sh` script to built the package. There are multiple parameters to select which package is going to be build, its architecture, etc. Here you can see all the different parameters:
+2. Execute the `generate_debian_package.sh` script to built the package. There are multiple parameters to select which package is going to be build, its architecture, etc. Here you can see all the different parameters:
       ```shellsession
-      # ./generate_wazuh_debs.sh -h
+      #./generate_debian_package.sh -h
 
-      Usage: ./generate_wazuh_debs.sh [OPTIONS]
-    
-        -b, --branch <branch>     Select Git branch or tag [master].
-        -h, --help                Show this help.
-        -t, --target              Target package to build: manager, api or agent.
-        -a, --architecture        Target architecture of the package.
-        -j, --jobs                Change number of parallel jobs when compiling the manager or agent.
-        -r, --revision            Package revision.
-        -p, --path                Installation path for the package. By default: /var/ossec.
+      Usage: ./generate_debian_package.sh [OPTIONS]
+
+          -b, --branch <branch>     [Required] Select Git branch or tag e.g. 
+          -d, --destination <path>  [Required] Set the destination path of package.
+          -t, --target <target>     [Required] Target package to build [manager/api/agent].
+          -a, --architecture <arch> [Required] Target architecture of the package [amd64/i386].
+          -r, --revision <rev>      [Required] Package revision that append to version e.g. x.x.x-rev
+          -j, --jobs <number>       [Optional] Number of parallel jobs when compiling.
+          -p, --path <path>         [Optional] Installation path for the package. By default: /var/ossec.
+          -h, --help                Show this help.
+
       ```
-    * To build a wazuh-manager package for amd64 (x86_64):  
-        `# ./generate_wazuh_debs.sh -b 3.4 -t manager`.
-    * To build a wazuh-agent package for i386 with release 2:  
-        `# ./generate_wazuh_debs.sh -b v3.5.0 -t agent -a i386 -r 2`.
-    * To build a wazuh-api package from branch 3.6:  
-        `# ./generate_wazuh_debs.sh -b 3.6 -t api`.
-    * To build a wazuh-manager package for amd64 (x86_64) in a different directory:  
-        `# ./generate_wazuh_debs.sh -b 3.4 -t manager -p /opt/ossec`.
-3. When the execution finish, you can find your `.deb` packages in `$HOME/3.x/apt-dev`.
+    * To build a wazuh-manager package in /tmp for amd64 (x86_64):
+        `# ./generate_debian_package.sh -b 3.4 -d /tmp -t manager -a amd64 -r 0`.
+    * To build a wazuh-agent package in `/home/ec2-user` for i386 with release 2:
+        `# ./generate_debian_package.sh -b v3.5.0 -d /home/ec2-user -t agent -a i386 -r 2`.
+    * To build a wazuh-api package in /tmp from branch 3.6:
+        `# ./generate_debian_package.sh -b 3.6 -d /tmp -t api -a amd64 -r 0`.
+    * To build a wazuh-manager package in /tmp for amd64 (x86_64) in a different directory:
+        `# ./generate_debian_package.sh -b 3.4 -d /tmp -t manager -a amd64 -r 0 -p /opt/ossec`.
+3. When the execution finish, you can find your `.deb` packages in specified folder.
 
 ## Contribute
 
