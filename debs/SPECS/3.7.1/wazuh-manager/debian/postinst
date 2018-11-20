@@ -105,6 +105,7 @@ case "$1" in
     fi
 
     # Remove existing SQLite databases
+    rm -f ${DIR}/var/db/.template.db* || true
     rm -f ${DIR}/var/db/global.db* || true
     rm -f ${DIR}/var/db/cluster.db* || true
     rm -f ${DIR}/var/db/.profile.db* || true
@@ -145,7 +146,7 @@ case "$1" in
 
     # Move existing agent.conf to new target
     if [ -f "${DIR}/etc/shared/agent.conf" ]; then
-        mv "${DIR}/etc/shared/agent.conf" "${DIR}/etc/shared/default/agent.conf "
+        mv "${DIR}/etc/shared/agent.conf" "${DIR}/etc/shared/default/agent.conf"
     fi
 
     # For the etc dir
