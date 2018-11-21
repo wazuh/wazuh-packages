@@ -20,7 +20,7 @@ build_dir=/build_wazuh
 source_dir=${build_dir}/source_wazuh
 
 # Generating directory structure to build the .deb package
-cd ${build_dir}/${build_target} && tar -czvf ${package_full_name}.orig.tar.gz "${package_full_name}"
+cd ${build_dir}/${build_target} && tar -czf ${package_full_name}.orig.tar.gz "${package_full_name}"
 cp -pr /${build_target}/debian ${build_dir}/${build_target}/${package_full_name}/debian
 
 # Configure the package with the different parameters
@@ -28,7 +28,7 @@ sed -i "s:RELEASE:${package_release}:g" ${build_dir}/${build_target}/${package_f
 sed -i "s:export JOBS=.*:export JOBS=${jobs}:g" ${build_dir}/${build_target}/${package_full_name}/debian/rules
 sed -i "s:export INSTALLATION_DIR=.*:export INSTALLATION_DIR=${dir_path}:g" ${build_dir}/${build_target}/${package_full_name}/debian/rules
 sed -i "s:DIR=\"/var/ossec\":DIR=\"${dir_path}\":g" ${build_dir}/${build_target}/${package_full_name}/debian/{preinst,postinst,prerm,postrm}
-if [ "${build_target}" == "api" ]; then 
+if [ "${build_target}" == "api" ]; then
     sed -i "s:DIR=\"/var/ossec\":DIR=\"${dir_path}\":g" ${build_dir}/${build_target}/${package_full_name}/debian/wazuh-api.init
 fi
 

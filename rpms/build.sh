@@ -19,7 +19,7 @@ mkdir -p ${rpm_build_dir}/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
 # Generating source tar.gz
 package_name=wazuh-${build_target}-${wazuh_version}
-cd ${build_dir} && tar cvzf "${rpm_build_dir}/SOURCES/${package_name}.tar.gz" "${package_name}"
+cd ${build_dir} && tar czf "${rpm_build_dir}/SOURCES/${package_name}.tar.gz" "${package_name}"
 
 # Including spec file
 mv ${build_dir}/wazuh.spec ${rpm_build_dir}/SPECS/${package_name}.spec
