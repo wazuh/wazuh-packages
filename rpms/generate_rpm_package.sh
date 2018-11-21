@@ -13,7 +13,8 @@ API_SOURCE_REPOSITORY="https://github.com/wazuh/wazuh-api"
 WAZUH_SOURCE_REPOSITORY="https://github.com/wazuh/wazuh"
 BRAND="wazuh"
 PACKAGE_EXTENSION="rpm"
-
+LEGACY_TAR_FILE="${LEGACY_RPM_BUILDER_DOCKERFILE}/i386/centos-5-i386.tar.gz"
+TAR_URL="https://packages-dev.wazuh.com/utils/centos-5-i386-build/centos-5-i386.tar.gz"
 
 
 function build_package() {
@@ -26,7 +27,7 @@ function build_package() {
     local DOCKERFILE_PATH="$7"
     local JOBS="$8"
     local INSTALLATION_PATH="$9"
-    
+
     # Build the RPM package with a Docker container
     docker run -t --rm -v ${DESTINATION}:/var/local/wazuh \
         -v ${SOURCES_DIRECTORY}:/build_wazuh/wazuh-${TARGET}-${VERSION} \
@@ -53,8 +54,13 @@ function build_container() {
 
     # Copy the necessary files
     cp build.sh ${DOCKERFILE_PATH}
-    
+
     cp SPECS/$VERSION/wazuh-$TARGET-$VERSION.spec ${DOCKERFILE_PATH}/wazuh.spec
+
+    # Download the legacy tar file if it is needed
+    if [ "${CONTAINER_NAME}" == "${LEGACY_RPM_I386_BUILDER}" ] && [ ! -f "${LEGACY_TAR_FILE}" ]; then
+        ${DOWNLOAD_TAR}
+    fi
 
     # Build the Docker image
     docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH}

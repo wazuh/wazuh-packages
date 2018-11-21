@@ -14,6 +14,8 @@ RPM_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/6"
 LEGACY_RPM_X86_BUILDER="rpm_legacy_builder_x86"
 LEGACY_RPM_I386_BUILDER="rpm_legacy_builder_i386"
 LEGACY_RPM_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/5"
+LEGACY_TAR_FILE="${LEGACY_RPM_BUILDER_DOCKERFILE}/i386/centos-5-i386.tar.gz"
+TAR_URL="https://packages-dev.wazuh.com/utils/centos-5-i386-build/centos-5-i386.tar.gz"
 INSTALLATION_PATH="/var"
 
 if [ -z "$OUTDIR" ]
@@ -28,15 +30,21 @@ then
     fi
 fi
 
+if command -v curl > /dev/null 2>&1 ; then
+    DOWNLOAD_TAR="curl ${TAR_URL} -o ${LEGACY_TAR_FILE}"
+elif command -v wget > /dev/null 2>&1 ; then
+    DOWNLOAD_TAR="wget ${TAR_URL} -o ${LEGACY_TAR_FILE}"
+fi
+
 build_rpm() {
     CONTAINER_NAME="$1"
     DOCKERFILE_PATH="$2"
 
-    SOURCES_DIRECTORY="/tmp/wazuh-builder/sources-$(( ( RANDOM % 1000000 )  + 1 ))" 
+    SOURCES_DIRECTORY="/tmp/wazuh-builder/sources-$(( ( RANDOM % 1000000 )  + 1 ))"
 
     # Download the sources
     git clone ${SOURCE_REPOSITORY} -b $BRANCH ${SOURCES_DIRECTORY} --depth=1 --single-branch
-    
+
     # Copy the necessary files
     cp build.sh ${DOCKERFILE_PATH}
 
@@ -45,9 +53,13 @@ build_rpm() {
     else
         VERSION="$(grep version ${SOURCES_DIRECTORY}/package.json | cut -d '"' -f 4)"
     fi
-    
+
     cp SPECS/$VERSION/wazuh-$TARGET-$VERSION.spec ${DOCKERFILE_PATH}/wazuh.spec
 
+    # Download the legacy tar file if it is needed
+    if [ "${CONTAINER_NAME}" == "${LEGACY_RPM_I386_BUILDER}" ] && [ ! -f "${LEGACY_TAR_FILE}" ]; then
+        ${DOWNLOAD_TAR}
+    fi
     # Build the Docker image
     docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH}
 
