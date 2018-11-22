@@ -52,7 +52,7 @@ make clean
 
 %if 0%{?el} >= 6 || 0%{?rhel} >= 6
     make deps
-    make -j%{_threads} TARGET=agent USE_SELINUX=yes PREFIX=%{_localstatedir}/ossec 
+    make -j%{_threads} TARGET=agent USE_SELINUX=yes PREFIX=%{_localstatedir}/ossec
 %else
     make deps RESOURCES_URL=http://packages.wazuh.com/deps/3.7
     make -j%{_threads} TARGET=agent USE_AUDIT=no USE_SELINUX=yes USE_EXEC_ENVIRON=no PREFIX=%{_localstatedir}/ossec
@@ -157,9 +157,10 @@ if [ $1 = 2 ]; then
 fi
 
 %post
-. %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/init/dist-detect.sh
-# If the package is being installed 
+# If the package is being installed
 if [ $1 = 1 ]; then
+  . %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/init/dist-detect.sh
+
   if [ -f /etc/os-release ]; then
     sles=$(grep "\"sles" /etc/os-release)
     if [ ! -z "$sles" ]; then
@@ -216,32 +217,24 @@ if [ $1 = 2 ]; then
   fi
 fi
 
-# The check for SELinux is not executed in the legacy OS.
-add_selinux="yes"
-if [ "${DIST_NAME}" == "centos" -a "${DIST_VER}" == "5" ] || [ "${DIST_NAME}" == "rhel" -a "${DIST_VER}" == "5" ] || [ "${DIST_NAME}" == "suse" -a "${DIST_VER}" == "11" ] ; then
-  add_selinux="no"
+# Add the SELinux policy
+if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
+  if [ $(getenforce) != "Disabled" ]; then
+    if ! (semodule -l | grep wazuh > /dev/null); then
+      semodule -i %{_localstatedir}/ossec/var/selinux/wazuh.pp
+      semodule -e wazuh
+    fi
+  fi
 fi
 
-# Check if SELinux is installed and enabled
-if [ ${add_selinux} == "yes" ]; then
-  if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
+ # SELINUX Policy for CentOS 5 and RHEL 5 to use the Wazuh Lib
+%if 0%{?el} == 5 || 0%{?rhel} == 5
+  if command -v getenforce > /dev/null 2>&1; then
     if [ $(getenforce) !=  "Disabled" ]; then
-      if ! (semodule -l | grep wazuh > /dev/null); then
-        semodule -i %{_localstatedir}/ossec/var/selinux/wazuh.pp
-        semodule -e wazuh
-      fi
+      chcon -t textrel_shlib_t  %{_localstatedir}/ossec/lib/libwazuhext.so
     fi
   fi
-elif [ ${add_selinux} == "no" ]; then
-  # SELINUX Policy for CentOS 5 and RHEL 5 to use the Wazuh Lib
-  if [ "${DIST_NAME}" != "suse" ]; then
-    if command -v getenforce > /dev/null 2>&1; then
-      if [ $(getenforce) !=  "Disabled" ]; then
-        chcon -t textrel_shlib_t  %{_localstatedir}/ossec/lib/libwazuhext.so
-      fi
-    fi
-  fi
-fi
+%endif
 
 if cat %{_localstatedir}/ossec/etc/ossec.conf | grep -o -P '(?<=<server-ip>).*(?=</server-ip>)' | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' > /dev/null 2>&1; then
    /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
@@ -264,44 +257,19 @@ if [ $1 = 0 ]; then
   /sbin/chkconfig wazuh-agent off > /dev/null 2>&1
   /sbin/chkconfig --del wazuh-agent
 
-  # Check if Wazuh SELinux policy is installed
-  if [ -r "/etc/centos-release" ]; then
-    DIST_NAME="centos"
-    DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.[0-9]{1,2}.*/\1/p' /etc/centos-release`
-  
-  elif [ -r "/etc/redhat-release" ]; then
-    DIST_NAME="rhel"
-    DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.[0-9]{1,2}.*/\1/p' /etc/redhat-release`
-  elif [ -r "/etc/SuSE-release" ]; then
-    DIST_NAME="suse"
-    DIST_VER=`sed -rn 's/.*VERSION = ([0-9]{1,2}).*/\1/p' /etc/SuSE-release`
-  else
-    DIST_NAME=""
-    DIST_VER=""
-  fi
-
-  add_selinux="yes"
-  if [ "${DIST_NAME}" == "centos" -a "${DIST_VER}" == "5" ] || [ "${DIST_NAME}" == "rhel" -a "${DIST_VER}" == "5" ] || [ "${DIST_NAME}" == "suse" -a "${DIST_VER}" == "11" ] ; then
-    add_selinux="no"
-  fi
-  
-  # If it is a valid system, remove the policy if it is installed
-  if [ ${add_selinux} == "yes" ]; then
-    if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
-      if [ $(getenforce) !=  "Disabled" ]; then
-        if (semodule -l | grep wazuh > /dev/null); then
-          semodule -r wazuh > /dev/null
-        fi
+  # Remove the SELinux policy
+  if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
+    if [ $(getenforce) != "Disabled" ]; then
+      if (semodule -l | grep wazuh > /dev/null); then
+        semodule -r wazuh > /dev/null
       fi
     fi
   fi
-  
+
   # Remove the wazuh-agent.service file
   rm -f /etc/systemd/system/wazuh-agent.service
-  
+
 fi
-
-
 
 %triggerin -- glibc
 [ -r %{_sysconfdir}/localtime ] && cp -fpL %{_sysconfdir}/localtime %{_localstatedir}/ossec/etc
@@ -320,7 +288,7 @@ if [ $1 == 0 ];then
   if id -g ossec > /dev/null 2>&1; then
     groupdel ossec
   fi
-  
+
   # Remove lingering folders and files
   rm -rf %{_localstatedir}/ossec/etc/shared/
   rm -rf %{_localstatedir}/ossec/queue/
@@ -328,7 +296,7 @@ if [ $1 == 0 ];then
   rm -rf %{_localstatedir}/ossec/bin/
   rm -rf %{_localstatedir}/ossec/logs/
   rm -rf %{_localstatedir}/ossec/backup/
-  
+
 fi
 
 # If the package is been downgraded
