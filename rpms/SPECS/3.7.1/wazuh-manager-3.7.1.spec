@@ -347,10 +347,8 @@ chown ossecr:ossec %{_localstatedir}/ossec/queue/agent-info/* 2>/dev/null || tru
 # Add the SELinux policy
 if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
   if [ $(getenforce) != "Disabled" ]; then
-    if ! (semodule -l | grep wazuh > /dev/null); then
-      semodule -i %{_localstatedir}/ossec/var/selinux/wazuh.pp
-      semodule -e wazuh
-    fi
+    semodule -i %{_localstatedir}/ossec/var/selinux/wazuh.pp
+    semodule -e wazuh
   fi
 fi
 

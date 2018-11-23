@@ -36,7 +36,7 @@ case "$1" in
     chmod 640 ${DIR}/etc/ossec-init.conf
 
     if [ -z "$2" ] || [ -f ${WAZUH_TMP_DIR}/create_conf ] ; then
-    
+
         ${SCRIPTS_DIR}/gen_ossec.sh conf agent ${OS} ${VER} > ${DIR}/etc/ossec.conf
         ${SCRIPTS_DIR}/add_localfiles.sh >> ${DIR}/etc/ossec.conf
 
@@ -89,10 +89,8 @@ case "$1" in
     # Check if SELinux is installed and enabled
     if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
         if [ $(getenforce) !=  "Disabled" ]; then
-            if ! (semodule -l | grep wazuh > /dev/null); then
-                semodule -i ${DIR}/var/selinux/wazuh.pp
-                semodule -e wazuh
-            fi
+            semodule -i ${DIR}/var/selinux/wazuh.pp
+            semodule -e wazuh
         fi
     fi
 
@@ -113,9 +111,9 @@ case "$1" in
     if [ -d ${WAZUH_TMP_DIR} ]; then
         rm -rf ${WAZUH_TMP_DIR}
     fi
-    
+
     # If the parent directory is empty, delete it
-    if [ -z "$(ls -A ${WAZUH_GLOBAL_TMP_DIR})" ]; then 
+    if [ -z "$(ls -A ${WAZUH_GLOBAL_TMP_DIR})" ]; then
         rm -rf ${WAZUH_GLOBAL_TMP_DIR}
     fi
 
