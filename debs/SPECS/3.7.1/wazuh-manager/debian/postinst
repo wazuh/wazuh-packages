@@ -1,5 +1,5 @@
 #!/bin/sh
-# postinst script for Wazuh 
+# postinst script for Wazuh
 # Wazuh, Inc 2016
 set -e
 case "$1" in
@@ -257,10 +257,8 @@ case "$1" in
     # Check if SELinux is installed and enabled
     if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
         if [ $(getenforce) !=  "Disabled" ]; then
-            if ! (semodule -l | grep wazuh > /dev/null); then
-                semodule -i ${DIR}/var/selinux/wazuh.pp
-                semodule -e wazuh
-            fi
+            semodule -i ${DIR}/var/selinux/wazuh.pp
+            semodule -e wazuh
         fi
     fi
 
@@ -293,7 +291,7 @@ case "$1" in
     fi
 
     # If the parent directory is empty, delete it
-    if [ -z "$(ls -A ${WAZUH_GLOBAL_TMP_DIR})" ]; then 
+    if [ -z "$(ls -A ${WAZUH_GLOBAL_TMP_DIR})" ]; then
         rm -rf ${WAZUH_GLOBAL_TMP_DIR}
     fi
 
