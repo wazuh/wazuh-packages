@@ -1,6 +1,6 @@
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-manager
-Version:     3.7.0
+Version:     3.7.1
 Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
@@ -115,9 +115,6 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_install
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/fedora
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/rhel
 
-# Add SUSE initscript
-cp -rp src/init/ossec-hids-suse.init ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/init/
-
 # Copy scap templates
 cp -rp  etc/templates/config/generic/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/generic
 cp -rp  etc/templates/config/centos/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/centos
@@ -147,9 +144,7 @@ if [ -d %{_localstatedir}/ossec ] && [ -f %{_localstatedir}/ossec/bin/ossec-cont
   %{_localstatedir}/ossec/bin/ossec-control stop > /dev/null 2>&1
 fi
 
-if command -v getent > /dev/null 2>&1 && ! getent group ossec > /dev/null 2>&1; then
-  groupadd -r ossec
-elif ! id -g ossec > /dev/null 2>&1; then
+if ! id -g ossec > /dev/null 2>&1; then
   groupadd -r ossec
 fi
 
@@ -176,7 +171,6 @@ if [ -d ${DIR}/var/db/agents ]; then
 fi
 
 # Remove existing SQLite databases
-rm -f %{_localstatedir}/ossec/var/db/.template.db* || true
 rm -f %{_localstatedir}/ossec/var/db/global.db* || true
 rm -f %{_localstatedir}/ossec/var/db/cluster.db* || true
 rm -f %{_localstatedir}/ossec/var/db/.profile.db* || true
@@ -230,22 +224,8 @@ fi
 %post
 
 # If the package is being installed
-. %{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/init/dist-detect.sh
 if [ $1 = 1 ]; then
-  # If the package is been installed in a SUSE hosts, install its init file
-  if [ -f /etc/os-release ]; then
-    sles=$(grep "\"sles" /etc/os-release)
-    if [ ! -z "$sles" ]; then
-      if [ -f /etc/init.d/init.d/wazuh-manager ]; then
-        rm -f /etc/init.d/init.d/wazuh-manager
-        # Delete the directory if it is empty
-        if [ -z "$(ls -A /etc/init.d/init.d/)" ]; then
-          rm -rf /etc/init.d/init.d/
-        fi
-      fi
-      install -m 755 %{_localstatedir}/ossec/tmp/src/init/ossec-hids-suse.init /etc/init.d/wazuh-manager
-    fi
-  fi
+  . %{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/init/dist-detect.sh
 
   # Generating ossec.conf file
   %{_localstatedir}/ossec/packages_files/manager_installation_scripts/gen_ossec.sh conf manager ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir}/ossec > %{_localstatedir}/ossec/etc/ossec.conf
@@ -364,32 +344,24 @@ fi
 chmod 0660 %{_localstatedir}/ossec/queue/agent-info/* 2>/dev/null || true
 chown ossecr:ossec %{_localstatedir}/ossec/queue/agent-info/* 2>/dev/null || true
 
-# The check for SELinux is not executed in the legacy OS.
-add_selinux="yes"
-if [ "${DIST_NAME}" == "centos" -a "${DIST_VER}" == "5" ] || [ "${DIST_NAME}" == "rhel" -a "${DIST_VER}" == "5" ] || [ "${DIST_NAME}" == "suse" -a "${DIST_VER}" == "11" ] ; then
-  add_selinux="no"
+# Add the SELinux policy
+if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
+  if [ $(getenforce) != "Disabled" ]; then
+    if ! (semodule -l | grep wazuh > /dev/null); then
+      semodule -i %{_localstatedir}/ossec/var/selinux/wazuh.pp
+      semodule -e wazuh
+    fi
+  fi
 fi
 
-# Check if SELinux is installed and enabled
-if [ ${add_selinux} == "yes" ]; then
-  if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
+ # SELINUX Policy for CentOS 5 and RHEL 5 to use the Wazuh Lib
+%if 0%{?el} == 5 || 0%{?rhel} == 5
+  if command -v getenforce > /dev/null 2>&1; then
     if [ $(getenforce) !=  "Disabled" ]; then
-      if ! (semodule -l | grep wazuh > /dev/null); then
-        semodule -i %{_localstatedir}/ossec/var/selinux/wazuh.pp
-        semodule -e wazuh
-      fi
+      chcon -t textrel_shlib_t  %{_localstatedir}/ossec/lib/libwazuhext.so
     fi
   fi
-elif [ ${add_selinux} == "no" ]; then
-  # SELINUX Policy for CentOS 5 and RHEL 5 to use the Wazuh Lib
-  if [ "${DIST_NAME}" != "suse" ]; then
-    if command -v getenforce > /dev/null 2>&1; then
-      if [ $(getenforce) !=  "Disabled" ]; then
-        chcon -t textrel_shlib_t  %{_localstatedir}/ossec/lib/libwazuhext.so
-      fi
-    fi
-  fi
-fi
+%endif
 
 # Delete the installation files used to configure the manager
 rm -rf %{_localstatedir}/ossec/packages_files
@@ -413,34 +385,11 @@ if [ $1 = 0 ]; then
 
   /sbin/service wazuh-manager stop > /dev/null 2>&1 || :
 
-  # Check if Wazuh SELinux policy is installed
-  if [ -r "/etc/centos-release" ]; then
-    DIST_NAME="centos"
-    DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.[0-9]{1,2}.*/\1/p' /etc/centos-release`
-
-  elif [ -r "/etc/redhat-release" ]; then
-    DIST_NAME="rhel"
-    DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.[0-9]{1,2}.*/\1/p' /etc/redhat-release`
-  elif [ -r "/etc/SuSE-release" ]; then
-    DIST_NAME="suse"
-    DIST_VER=`sed -rn 's/.*VERSION = ([0-9]{1,2}).*/\1/p' /etc/SuSE-release`
-  else
-    DIST_NAME=""
-    DIST_VER=""
-  fi
-
-  add_selinux="yes"
-  if [ "${DIST_NAME}" == "centos" -a "${DIST_VER}" == "5" ] || [ "${DIST_NAME}" == "rhel" -a "${DIST_VER}" == "5" ] || [ "${DIST_NAME}" == "suse" -a "${DIST_VER}" == "11" ] ; then
-    add_selinux="no"
-  fi
-
-  # If it is a valid system, remove the policy if it is installed
-  if [ ${add_selinux} == "yes" ]; then
-    if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
-      if [ $(getenforce) != "Disabled" ]; then
-        if (semodule -l | grep wazuh > /dev/null); then
-          semodule -r wazuh > /dev/null
-        fi
+  # Remove the SELinux policy
+  if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
+    if [ $(getenforce) != "Disabled" ]; then
+      if (semodule -l | grep wazuh > /dev/null); then
+        semodule -r wazuh > /dev/null
       fi
     fi
   fi
@@ -456,30 +405,19 @@ fi
 if [ $1 == 0 ];then
   # Remove the ossecr user if it exists
   if id -u ossecr > /dev/null 2>&1; then
-    userdel ossecr >/dev/null 2>&1
+    userdel ossecr
   fi
   # Remove the ossecm user if it exists
   if id -u ossecm > /dev/null 2>&1; then
-    userdel ossecm >/dev/null 2>&1
+    userdel ossecm
   fi
   # Remove the ossec user if it exists
   if id -u ossec > /dev/null 2>&1; then
-    userdel ossec >/dev/null 2>&1
+    userdel ossec
   fi
   # Remove the ossec group if it exists
-  if command -v getent > /dev/null 2>&1 && getent group ossec > /dev/null 2>&1; then
-    groupdel ossec >/dev/null 2>&1
-  else
-    if id -g ossec > /dev/null 2>&1; then
-      groupdel ossec >/dev/null 2>&1
-    fi
-  fi
-  # Remove the service file for SUSE hosts
-  if [ -f /etc/os-release ]; then
-    sles=$(grep "\"sles" /etc/os-release)
-    if [ ! -z "$sles" ]; then
-      rm -f /etc/init.d/wazuh-manager
-    fi
+  if id -g ossec > /dev/null 2>&1; then
+    groupdel ossec
   fi
 
   # Backup agents centralized configuration (etc/shared)
@@ -505,8 +443,6 @@ if [ $1 == 0 ];then
   rm -rf %{_localstatedir}/ossec/logs/
 
 fi
-
-
 
 # If the package is been downgraded
 if [ $1 == 1 ]; then
@@ -709,7 +645,9 @@ rm -fr %{buildroot}
 %{_initrddir}/*
 
 %changelog
-* Fri Sep 7 2018 support <info@wazuh.com> - 3.7.0
+* Mon Nov 12 2018 support <info@wazuh.com> - 3.7.1
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Sat Nov 10 2018 support <info@wazuh.com> - 3.7.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Sep 3 2018 support <info@wazuh.com> - 3.6.1
 - More info: https://documentation.wazuh.com/current/release-notes/
