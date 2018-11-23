@@ -83,6 +83,7 @@ echo 'USER_SERVER_IP="MANAGER_IP"' >> ./etc/preloaded-vars.conf
 echo 'USER_CA_STORE="/path/to/my_cert.pem"' >> ./etc/preloaded-vars.conf
 echo 'USER_GENERATE_AUTHD_CERT="y"' >> ./etc/preloaded-vars.conf
 echo 'USER_AUTO_START="n"' >> ./etc/preloaded-vars.conf
+echo 'USER_CREATE_SSL_CERT="n"' >> ./etc/preloaded-vars.conf
 ./install.sh
 
 # Create directories
@@ -128,8 +129,6 @@ cp src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_i
 cp src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/
 cp src/LOCATION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/
 cp -r src/systemd/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/systemd
-
-rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/etc/sslmanager*
 
 exit 0
 %pre
