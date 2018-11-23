@@ -2,8 +2,8 @@
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "BraulioV/CentOS-5-i386"
-  config.vm.box_version = "1.0.0"
+  config.vm.box = "wazuh/CentOS-5-i386"
+  config.vm.box_url = "https://packages-dev.wazuh.com/utils/vagrant/centos/5/i386/CentOS-5-i386.box"
 
   config.vm.provider "virtualbox" do |vb|
     vb.memory = 2048
