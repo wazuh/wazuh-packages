@@ -115,6 +115,9 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_install
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/fedora
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/rhel
 
+# Add SUSE initscript
+cp -rp src/init/ossec-hids-suse.init ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/init/
+
 # Copy scap templates
 cp -rp  etc/templates/config/generic/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/generic
 cp -rp  etc/templates/config/centos/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/centos
@@ -144,26 +147,23 @@ if [ -d %{_localstatedir}/ossec ] && [ -f %{_localstatedir}/ossec/bin/ossec-cont
   %{_localstatedir}/ossec/bin/ossec-control stop > /dev/null 2>&1
 fi
 
-if ! id -g ossec > /dev/null 2>&1; then
+# Create the ossec group if it doesn't exists
+if command -v getent > /dev/null 2>&1 && ! getent group ossec > /dev/null 2>&1; then
+  groupadd -r ossec
+elif ! id -g ossec > /dev/null 2>&1; then
   groupadd -r ossec
 fi
-
+# Create the ossec user if it doesn't exists
 if ! id -u ossec > /dev/null 2>&1; then
-  useradd -g ossec -G ossec       \
-        -d %{_localstatedir}/ossec \
-        -r -s /sbin/nologin ossec
+  useradd -g ossec -G ossec -d %{_localstatedir}/ossec -r -s /sbin/nologin ossec
 fi
-
+# Create the ossecr user if it doesn't exists
 if ! id -u ossecr > /dev/null 2>&1; then
-  useradd -g ossec -G ossec       \
-        -d %{_localstatedir}/ossec \
-        -r -s /sbin/nologin ossecr
+  useradd -g ossec -G ossec -d %{_localstatedir}/ossec -r -s /sbin/nologin ossecr
 fi
-
+# Create the ossecm user if it doesn't exists
 if ! id -u ossecm > /dev/null 2>&1; then
-  useradd -g ossec -G ossec       \
-        -d %{_localstatedir}/ossec \
-        -r -s /sbin/nologin ossecm
+  useradd -g ossec -G ossec -d %{_localstatedir}/ossec -r -s /sbin/nologin ossecm
 fi
 
 if [ -d ${DIR}/var/db/agents ]; then
@@ -226,6 +226,23 @@ fi
 # If the package is being installed
 if [ $1 = 1 ]; then
   . %{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/init/dist-detect.sh
+
+  sles=""
+  if [ -f /etc/os-release ]; then
+    sles=$(grep "\"sles" /etc/os-release)
+  elif [ -f /etc/SuSE-release ]; then
+    sles=$(grep "SUSE Linux Enterprise Server" /etc/SuSE-release)
+  fi
+  if [ ! -z "$sles" ]; then
+    if [ -f /etc/init.d/init.d/wazuh-manager ]; then
+      rm -f /etc/init.d/init.d/wazuh-manager
+      # Delete the directory if it is empty
+      if [ -z "$(ls -A /etc/init.d/init.d/)" ]; then
+        rm -rf /etc/init.d/init.d/
+      fi
+    fi
+    install -m 755 %{_localstatedir}/ossec/tmp/src/init/ossec-hids-suse.init /etc/init.d/wazuh-manager
+  fi
 
   # Generating ossec.conf file
   %{_localstatedir}/ossec/packages_files/manager_installation_scripts/gen_ossec.sh conf manager ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir}/ossec > %{_localstatedir}/ossec/etc/ossec.conf
@@ -392,6 +409,16 @@ if [ $1 = 0 ]; then
         semodule -r wazuh > /dev/null
       fi
     fi
+  fi
+
+  # Remove the service file for SUSE hosts
+  if [ -f /etc/os-release ]; then
+    sles=$(grep "\"sles" /etc/os-release)
+  elif [ -f /etc/SuSE-release ]; then
+    sles=$(grep "SUSE Linux Enterprise Server" /etc/SuSE-release)
+  fi
+  if [ ! -z "$sles" ]; then
+    rm -f /etc/init.d/wazuh-manager
   fi
 
   # Remove the service files

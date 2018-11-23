@@ -232,19 +232,21 @@ fi
 # If the package is being installed
 . %{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/init/dist-detect.sh
 if [ $1 = 1 ]; then
-  # If the package is been installed in a SUSE hosts, install its init file
+  sles=""
   if [ -f /etc/os-release ]; then
     sles=$(grep "\"sles" /etc/os-release)
-    if [ ! -z "$sles" ]; then
-      if [ -f /etc/init.d/init.d/wazuh-manager ]; then
-        rm -f /etc/init.d/init.d/wazuh-manager
-        # Delete the directory if it is empty
-        if [ -z "$(ls -A /etc/init.d/init.d/)" ]; then
-          rm -rf /etc/init.d/init.d/
-        fi
+  elif [ -f /etc/SuSE-release ]; then
+    sles=$(grep "SUSE Linux Enterprise Server" /etc/SuSE-release)
+  fi
+  if [ ! -z "$sles" ]; then
+    if [ -f /etc/init.d/init.d/wazuh-manager ]; then
+      rm -f /etc/init.d/init.d/wazuh-manager
+      # Delete the directory if it is empty
+      if [ -z "$(ls -A /etc/init.d/init.d/)" ]; then
+        rm -rf /etc/init.d/init.d/
       fi
-      install -m 755 %{_localstatedir}/ossec/tmp/src/init/ossec-hids-suse.init /etc/init.d/wazuh-manager
     fi
+    install -m 755 %{_localstatedir}/ossec/tmp/src/init/ossec-hids-suse.init /etc/init.d/wazuh-manager
   fi
 
   # Generating ossec.conf file
@@ -445,6 +447,16 @@ if [ $1 = 0 ]; then
     fi
   fi
 
+  # Remove the service file for SUSE hosts
+  if [ -f /etc/os-release ]; then
+    sles=$(grep "\"sles" /etc/os-release)
+  elif [ -f /etc/SuSE-release ]; then
+    sles=$(grep "SUSE Linux Enterprise Server" /etc/SuSE-release)
+  fi
+  if [ ! -z "$sles" ]; then
+    rm -f /etc/init.d/wazuh-manager
+  fi
+
   # Remove the service files
   rm -f /etc/systemd/system/wazuh-manager.service
 
@@ -472,13 +484,6 @@ if [ $1 == 0 ];then
   else
     if id -g ossec > /dev/null 2>&1; then
       groupdel ossec >/dev/null 2>&1
-    fi
-  fi
-  # Remove the service file for SUSE hosts
-  if [ -f /etc/os-release ]; then
-    sles=$(grep "\"sles" /etc/os-release)
-    if [ ! -z "$sles" ]; then
-      rm -f /etc/init.d/wazuh-manager
     fi
   fi
 

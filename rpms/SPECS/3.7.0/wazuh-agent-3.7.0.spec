@@ -165,18 +165,21 @@ fi
 . %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/init/dist-detect.sh
 # If the package is being installed
 if [ $1 = 1 ]; then
+  sles=""
   if [ -f /etc/os-release ]; then
     sles=$(grep "\"sles" /etc/os-release)
-    if [ ! -z "$sles" ]; then
-      if [ -f /etc/init.d/init.d/wazuh-agent ]; then
-        rm -f /etc/init.d/init.d/wazuh-agent
-        # Delete the directory if it is empty
-        if [ -z "$(ls -A /etc/init.d/init.d/)" ]; then
-          rm -rf /etc/init.d/init.d/
-        fi
+  elif [ -f /etc/SuSE-release ]; then
+    sles=$(grep "SUSE Linux Enterprise Server" /etc/SuSE-release)
+  fi
+  if [ ! -z "$sles" ]; then
+    if [ -f /etc/init.d/init.d/wazuh-agent ]; then
+      rm -f /etc/init.d/init.d/wazuh-agent
+      # Delete the directory if it is empty
+      if [ -z "$(ls -A /etc/init.d/init.d/)" ]; then
+        rm -rf /etc/init.d/init.d/
       fi
-      install -m 755 %{_localstatedir}/ossec/tmp/src/init/ossec-hids-suse.init /etc/init.d/wazuh-agent
     fi
+    install -m 755 %{_localstatedir}/ossec/tmp/src/init/ossec-hids-suse.init /etc/init.d/wazuh-agent
   fi
 
   touch %{_localstatedir}/ossec/logs/active-responses.log
@@ -311,9 +314,11 @@ if [ $1 = 0 ]; then
   # Remove the service file for SUSE hosts
   if [ -f /etc/os-release ]; then
     sles=$(grep "\"sles" /etc/os-release)
-    if [ ! -z "$sles" ]; then
-      rm -f /etc/init.d/wazuh-agent
-    fi
+  elif [ -f /etc/SuSE-release ]; then
+    sles=$(grep "SUSE Linux Enterprise Server" /etc/SuSE-release)
+  fi
+  if [ ! -z "$sles" ]; then
+    rm -f /etc/init.d/wazuh-agent
   fi
 
   # Remove the wazuh-agent.service file
