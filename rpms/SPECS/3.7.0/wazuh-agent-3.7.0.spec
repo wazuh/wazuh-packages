@@ -112,7 +112,7 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installat
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/rhel
 
 # Add SUSE initscript
-cp -rp src/init/ossec-hids-suse.init ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/init/
+cp -rp src/init/ossec-hids-suse.init ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/init/
 
 # Copy scap templates
 cp -rp  etc/templates/config/generic/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/generic
@@ -179,7 +179,7 @@ if [ $1 = 1 ]; then
         rm -rf /etc/init.d/init.d/
       fi
     fi
-    install -m 755 %{_localstatedir}/ossec/tmp/src/init/ossec-hids-suse.init /etc/init.d/wazuh-agent
+    install -m 755 %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/init/ossec-hids-suse.init /etc/init.d/wazuh-agent
   fi
 
   touch %{_localstatedir}/ossec/logs/active-responses.log
