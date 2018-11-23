@@ -173,13 +173,6 @@ if [ $1 = 1 ]; then
     sles=$(grep "SUSE Linux Enterprise Server" /etc/SuSE-release)
   fi
   if [ ! -z "$sles" ]; then
-    if [ -f /etc/init.d/init.d/wazuh-agent ]; then
-      rm -f /etc/init.d/init.d/wazuh-agent
-      # Delete the directory if it is empty
-      if [ -z "$(ls -A /etc/init.d/init.d/)" ]; then
-        rm -rf /etc/init.d/init.d/
-      fi
-    fi
     install -m 755 %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/init/ossec-hids-suse.init /etc/init.d/wazuh-agent
   fi
 
@@ -305,11 +298,13 @@ fi
 if [ $1 == 0 ];then
   # Remove the ossec user if it exists
   if id -u ossec > /dev/null 2>&1; then
-    userdel ossec
+    userdel ossec >/dev/null 2>&1
   fi
   # Remove the ossec group if it exists
-  if id -g ossec > /dev/null 2>&1; then
-    groupdel ossec
+  if command -v getent > /dev/null 2>&1 && getent group ossec > /dev/null 2>&1; then
+    groupdel ossec >/dev/null 2>&1
+  elif id -g ossec > /dev/null 2>&1; then
+    groupdel ossec >/dev/null 2>&1
   fi
 
   # Remove lingering folders and files
