@@ -130,6 +130,15 @@ case "$1" in
     # Restoring file permissions
     . ${SCRIPTS_DIR}/restore-permissions.sh
 
+    # Restore sslmanager.key and sslmanager.cert
+    if [ -f ${WAZUH_TMP_DIR}/sslmanager.cert ]; then
+        mv ${WAZUH_TMP_DIR}/sslmanager.cert ${DIR}/etc/sslmanager.cert
+    fi
+
+    # Restore ossec.conf configuration
+    if [ -f ${WAZUH_TMP_DIR}/sslmanager.key ]; then
+        mv ${WAZUH_TMP_DIR}/sslmanager.key ${DIR}/etc/sslmanager.key
+    fi
 
     # Correct permission on existing certificates
     if [ -f "${DIR}/etc/sslmanager.key" ] && [ -f "${DIR}/etc/sslmanager.cert" ]; then
