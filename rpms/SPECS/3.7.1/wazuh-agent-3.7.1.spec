@@ -111,6 +111,9 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installat
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/fedora
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/rhel
 
+# Add SUSE initscript
+cp -rp src/init/ossec-hids-suse.init ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/init/
+
 # Copy scap templates
 cp -rp  etc/templates/config/generic/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/generic
 cp -rp  etc/templates/config/centos/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/centos
@@ -128,13 +131,15 @@ cp -r src/systemd/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agen
 exit 0
 %pre
 
-if ! id -g ossec > /dev/null 2>&1; then
+# Create the ossec group if it doesn't exists
+if command -v getent > /dev/null 2>&1 && ! getent group ossec > /dev/null 2>&1; then
+  groupadd -r ossec
+elif ! id -g ossec > /dev/null 2>&1; then
   groupadd -r ossec
 fi
+# Create the ossec user if it doesn't exists
 if ! id -u ossec > /dev/null 2>&1; then
-  useradd -g ossec -G ossec       \
-        -d %{_localstatedir}/ossec \
-        -r -s /sbin/nologin ossec
+  useradd -g ossec -G ossec -d %{_localstatedir}/ossec -r -s /sbin/nologin ossec
 fi
 
 # Delete old service
@@ -161,11 +166,14 @@ fi
 if [ $1 = 1 ]; then
   . %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/init/dist-detect.sh
 
+  sles=""
   if [ -f /etc/os-release ]; then
     sles=$(grep "\"sles" /etc/os-release)
-    if [ ! -z "$sles" ]; then
-      install -m 755 %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/init/ossec-hids-suse.init /etc/rc.d/wazuh-agent
-    fi
+  elif [ -f /etc/SuSE-release ]; then
+    sles=$(grep "SUSE Linux Enterprise Server" /etc/SuSE-release)
+  fi
+  if [ ! -z "$sles" ]; then
+    install -m 755 %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/init/ossec-hids-suse.init /etc/init.d/wazuh-agent
   fi
 
   touch %{_localstatedir}/ossec/logs/active-responses.log
@@ -263,7 +271,15 @@ if [ $1 = 0 ]; then
       fi
     fi
   fi
-
+  # Remove the service file for SUSE hosts
+  if [ -f /etc/os-release ]; then
+    sles=$(grep "\"sles" /etc/os-release)
+  elif [ -f /etc/SuSE-release ]; then
+    sles=$(grep "SUSE Linux Enterprise Server" /etc/SuSE-release)
+  fi
+  if [ ! -z "$sles" ]; then
+    rm -f /etc/init.d/wazuh-agent
+  fi
   # Remove the wazuh-agent.service file
   rm -f /etc/systemd/system/wazuh-agent.service
 
@@ -280,11 +296,13 @@ fi
 if [ $1 == 0 ];then
   # Remove the ossec user if it exists
   if id -u ossec > /dev/null 2>&1; then
-    userdel ossec
+    userdel ossec >/dev/null 2>&1
   fi
   # Remove the ossec group if it exists
-  if id -g ossec > /dev/null 2>&1; then
-    groupdel ossec
+  if command -v getent > /dev/null 2>&1 && getent group ossec > /dev/null 2>&1; then
+    groupdel ossec >/dev/null 2>&1
+  elif id -g ossec > /dev/null 2>&1; then
+    groupdel ossec >/dev/null 2>&1
   fi
 
   # Remove lingering folders and files

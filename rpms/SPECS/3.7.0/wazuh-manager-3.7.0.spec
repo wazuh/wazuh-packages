@@ -115,6 +115,9 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_install
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/fedora
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/rhel
 
+# Add SUSE initscript
+cp -rp src/init/ossec-hids-suse.init ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/init/
+
 # Copy scap templates
 cp -rp  etc/templates/config/generic/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/generic
 cp -rp  etc/templates/config/centos/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/centos
@@ -144,7 +147,9 @@ if [ -d %{_localstatedir}/ossec ] && [ -f %{_localstatedir}/ossec/bin/ossec-cont
   %{_localstatedir}/ossec/bin/ossec-control stop > /dev/null 2>&1
 fi
 
-if ! id -g ossec > /dev/null 2>&1; then
+if command -v getent > /dev/null 2>&1 && ! getent group ossec > /dev/null 2>&1; then
+  groupadd -r ossec
+elif ! id -g ossec > /dev/null 2>&1; then
   groupadd -r ossec
 fi
 
@@ -181,12 +186,12 @@ rm -f %{_localstatedir}/ossec/var/db/agents/* || true
 # Remove existing SQLite databases for Wazuh DB when upgrading
 # Wazuh only if upgrading from 3.2..3.6
 if [ $1 = 2 ]; then
-  
+
   # Import the variables from ossec-init.conf file
   if [ -f %{_sysconfdir}/ossec-init.conf ]; then
     . %{_sysconfdir}/ossec-init.conf
   fi
-  
+
   # Get the major and minor version
   MAJOR=$(echo $VERSION | cut -dv -f2 | cut -d. -f1)
   MINOR=$(echo $VERSION | cut -d. -f2)
@@ -224,9 +229,19 @@ if [ $1 = 2 ]; then
 fi
 %post
 
-# If the package is being installed 
+# If the package is being installed
 . %{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/init/dist-detect.sh
 if [ $1 = 1 ]; then
+  sles=""
+  if [ -f /etc/os-release ]; then
+    sles=$(grep "\"sles" /etc/os-release)
+  elif [ -f /etc/SuSE-release ]; then
+    sles=$(grep "SUSE Linux Enterprise Server" /etc/SuSE-release)
+  fi
+  if [ ! -z "$sles" ]; then
+    install -m 755 %{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/init/ossec-hids-suse.init /etc/init.d/wazuh-manager
+  fi
+
   # Generating ossec.conf file
   %{_localstatedir}/ossec/packages_files/manager_installation_scripts/gen_ossec.sh conf manager ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir}/ossec > %{_localstatedir}/ossec/etc/ossec.conf
   chown root:ossec %{_localstatedir}/ossec/etc/ossec.conf
@@ -288,11 +303,11 @@ if [ $1 = 1 ]; then
     fi
   fi
 
-  touch %{_localstatedir}/ossec/logs/active-responses.log 
+  touch %{_localstatedir}/ossec/logs/active-responses.log
   touch %{_localstatedir}/ossec/logs/integrations.log
-  chown ossec:ossec %{_localstatedir}/ossec/logs/active-responses.log 
+  chown ossec:ossec %{_localstatedir}/ossec/logs/active-responses.log
   chown ossecm:ossec %{_localstatedir}/ossec/logs/integrations.log
-  chmod 0660 %{_localstatedir}/ossec/logs/active-responses.log 
+  chmod 0660 %{_localstatedir}/ossec/logs/active-responses.log
   chmod 0640 %{_localstatedir}/ossec/logs/integrations.log
 
   # Add default local_files to ossec.conf
@@ -397,7 +412,7 @@ if [ $1 = 0 ]; then
   if [ -r "/etc/centos-release" ]; then
     DIST_NAME="centos"
     DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.[0-9]{1,2}.*/\1/p' /etc/centos-release`
-  
+
   elif [ -r "/etc/redhat-release" ]; then
     DIST_NAME="rhel"
     DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.[0-9]{1,2}.*/\1/p' /etc/redhat-release`
@@ -413,7 +428,7 @@ if [ $1 = 0 ]; then
   if [ "${DIST_NAME}" == "centos" -a "${DIST_VER}" == "5" ] || [ "${DIST_NAME}" == "rhel" -a "${DIST_VER}" == "5" ] || [ "${DIST_NAME}" == "suse" -a "${DIST_VER}" == "11" ] ; then
     add_selinux="no"
   fi
-  
+
   # If it is a valid system, remove the policy if it is installed
   if [ ${add_selinux} == "yes" ]; then
     if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
@@ -425,9 +440,19 @@ if [ $1 = 0 ]; then
     fi
   fi
 
+  # Remove the service file for SUSE hosts
+  if [ -f /etc/os-release ]; then
+    sles=$(grep "\"sles" /etc/os-release)
+  elif [ -f /etc/SuSE-release ]; then
+    sles=$(grep "SUSE Linux Enterprise Server" /etc/SuSE-release)
+  fi
+  if [ ! -z "$sles" ]; then
+    rm -f /etc/init.d/wazuh-manager
+  fi
+
   # Remove the service files
   rm -f /etc/systemd/system/wazuh-manager.service
-  
+
 fi
 
 %postun
@@ -436,21 +461,23 @@ fi
 if [ $1 == 0 ];then
   # Remove the ossecr user if it exists
   if id -u ossecr > /dev/null 2>&1; then
-    userdel ossecr
+    userdel ossecr >/dev/null 2>&1
   fi
   # Remove the ossecm user if it exists
   if id -u ossecm > /dev/null 2>&1; then
-    userdel ossecm
+    userdel ossecm >/dev/null 2>&1
   fi
   # Remove the ossec user if it exists
   if id -u ossec > /dev/null 2>&1; then
-    userdel ossec
+    userdel ossec >/dev/null 2>&1
   fi
   # Remove the ossec group if it exists
-  if id -g ossec > /dev/null 2>&1; then
-    groupdel ossec
+  if command -v getent > /dev/null 2>&1 && getent group ossec > /dev/null 2>&1; then
+    groupdel ossec >/dev/null 2>&1
+  elif id -g ossec > /dev/null 2>&1; then
+    groupdel ossec >/dev/null 2>&1
   fi
-  
+
   # Backup agents centralized configuration (etc/shared)
   if [ -d %{_localstatedir}/ossec/etc/shared ]; then
       rm -rf %{_localstatedir}/ossec/etc/shared.save/
@@ -464,7 +491,7 @@ if [ $1 == 0 ];then
   if [ -f %{_localstatedir}/ossec/etc/sslmanager.key ]; then
       mv %{_localstatedir}/ossec/etc/sslmanager.key %{_localstatedir}/ossec/etc/sslmanager.key.save
   fi
-    
+
   # Remove lingering folders and files
   rm -rf %{_localstatedir}/ossec/queue/
   rm -rf %{_localstatedir}/ossec/framework/
@@ -472,7 +499,7 @@ if [ $1 == 0 ];then
   rm -rf %{_localstatedir}/ossec/var/
   rm -rf %{_localstatedir}/ossec/bin/
   rm -rf %{_localstatedir}/ossec/logs/
-  
+
 fi
 
 
@@ -671,7 +698,7 @@ rm -fr %{buildroot}
 %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/docker/*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap
 %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/oscap.*
-%attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/template*  
+%attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/template*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/content
 %attr(640, root, ossec) %{_localstatedir}/ossec/wodles/oscap/content/*
 
