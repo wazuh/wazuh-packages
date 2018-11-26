@@ -1,5 +1,5 @@
 #!/bin/sh
-# preinst script for Wazuh 
+# preinst script for Wazuh
 
 set -e
 
@@ -10,14 +10,14 @@ WAZUH_TMP_DIR="${DIR}/packages_files/manager_config_files"
 # environment configuration
 if [ ! -d ${WAZUH_TMP_DIR} ]; then
     mkdir -p ${WAZUH_TMP_DIR}
-else 
+else
     rm -rf ${WAZUH_TMP_DIR}
     mkdir -p ${WAZUH_TMP_DIR}
 fi
 
 case "$1" in
     install|upgrade)
-        
+
         if [ ! -z "$2" ] && [ ! -f ${DIR}/etc/ossec.conf ] ; then
             touch ${WAZUH_TMP_DIR}/create_conf
         fi
@@ -104,6 +104,14 @@ case "$1" in
 
         if [ -f ${DIR}/etc/ossec.conf ]; then
             cp -p ${DIR}/etc/ossec.conf ${WAZUH_TMP_DIR}/ossec.conf
+        fi
+
+        if [ -f ${DIR}/etc/sslmanager.cert ]; then
+          cp -p ${DIR}/etc/sslmanager.cert ${WAZUH_TMP_DIR}/sslmanager.cert
+        fi
+
+        if [ -f ${DIR}/etc/sslmanager.key ]; then
+          cp -p ${DIR}/etc/sslmanager.key ${WAZUH_TMP_DIR}/sslmanager.key
         fi
 
         if [ -d ${DIR}/var/db/agents ]; then
