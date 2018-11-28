@@ -353,22 +353,35 @@ fi
 chmod 0660 %{_localstatedir}/ossec/queue/agent-info/* 2>/dev/null || true
 chown ossecr:ossec %{_localstatedir}/ossec/queue/agent-info/* 2>/dev/null || true
 
-# Add the SELinux policy
-if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
-  if [ $(getenforce) != "Disabled" ]; then
-    semodule -i %{_localstatedir}/ossec/var/selinux/wazuh.pp
-    semodule -e wazuh
+# CentOS
+if [ -r "/etc/centos-release" ]; then
+  DIST_NAME="centos"
+  DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.[0-9]{1,2}.*/\1/p' /etc/centos-release`
+# RedHat
+elif [ -r "/etc/redhat-release" ]; then
+  if grep -q "CentOS" /etc/redhat-release; then
+      DIST_NAME="centos"
+  else
+      DIST_NAME="rhel"
   fi
+  DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.[0-9]{1,2}.*/\1/p' /etc/redhat-release`
 fi
 
- # SELINUX Policy for CentOS 5 and RHEL 5 to use the Wazuh Lib
-%if 0%{?el} == 5 || 0%{?rhel} == 5
+if ([ "X${DIST_NAME}" = "Xrhel" ] || [ "X${DIST_NAME}" = "Xcentos" ] || [ "X${DIST_NAME}" = "XCentOS" ]) && [ "${DIST_VER}" == "5" ]; then
   if command -v getenforce > /dev/null 2>&1; then
     if [ $(getenforce) !=  "Disabled" ]; then
       chcon -t textrel_shlib_t  %{_localstatedir}/ossec/lib/libwazuhext.so
     fi
   fi
-%endif
+else
+  # Add the SELinux policy
+  if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
+    if [ $(getenforce) != "Disabled" ]; then
+      semodule -i %{_localstatedir}/ossec/var/selinux/wazuh.pp
+      semodule -e wazuh
+    fi
+  fi
+fi
 
 # Delete the installation files used to configure the manager
 rm -rf %{_localstatedir}/ossec/packages_files
