@@ -1,5 +1,5 @@
 #!/bin/sh
-# postinst script for Wazuh 
+# postinst script for Wazuh
 # Wazuh, Inc 2016
 set -e
 case "$1" in
@@ -130,6 +130,15 @@ case "$1" in
     # Restoring file permissions
     . ${SCRIPTS_DIR}/restore-permissions.sh
 
+    # Restore sslmanager.key and sslmanager.cert
+    if [ -f ${WAZUH_TMP_DIR}/sslmanager.cert ]; then
+        mv ${WAZUH_TMP_DIR}/sslmanager.cert ${DIR}/etc/sslmanager.cert
+    fi
+
+    # Restore ossec.conf configuration
+    if [ -f ${WAZUH_TMP_DIR}/sslmanager.key ]; then
+        mv ${WAZUH_TMP_DIR}/sslmanager.key ${DIR}/etc/sslmanager.key
+    fi
 
     # Correct permission on existing certificates
     if [ -f "${DIR}/etc/sslmanager.key" ] && [ -f "${DIR}/etc/sslmanager.cert" ]; then
@@ -257,10 +266,8 @@ case "$1" in
     # Check if SELinux is installed and enabled
     if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
         if [ $(getenforce) !=  "Disabled" ]; then
-            if ! (semodule -l | grep wazuh > /dev/null); then
-                semodule -i ${DIR}/var/selinux/wazuh.pp
-                semodule -e wazuh
-            fi
+            semodule -i ${DIR}/var/selinux/wazuh.pp
+            semodule -e wazuh
         fi
     fi
 
@@ -293,7 +300,7 @@ case "$1" in
     fi
 
     # If the parent directory is empty, delete it
-    if [ -z "$(ls -A ${WAZUH_GLOBAL_TMP_DIR})" ]; then 
+    if [ -z "$(ls -A ${WAZUH_GLOBAL_TMP_DIR})" ]; then
         rm -rf ${WAZUH_GLOBAL_TMP_DIR}
     fi
 

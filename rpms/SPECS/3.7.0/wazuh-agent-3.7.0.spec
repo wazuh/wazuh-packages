@@ -52,7 +52,7 @@ make clean
 
 %if 0%{?el} >= 6 || 0%{?rhel} >= 6
     make deps
-    make -j%{_threads} TARGET=agent USE_SELINUX=yes PREFIX=%{_localstatedir}/ossec 
+    make -j%{_threads} TARGET=agent USE_SELINUX=yes PREFIX=%{_localstatedir}/ossec
 %else
     make deps RESOURCES_URL=http://packages.wazuh.com/deps/3.7
     make -j%{_threads} TARGET=agent USE_AUDIT=no USE_SELINUX=yes USE_EXEC_ENVIRON=no PREFIX=%{_localstatedir}/ossec
@@ -111,6 +111,9 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installat
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/fedora
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/rhel
 
+# Add SUSE initscript
+cp -rp src/init/ossec-hids-suse.init ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/init/
+
 # Copy scap templates
 cp -rp  etc/templates/config/generic/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/generic
 cp -rp  etc/templates/config/centos/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/centos
@@ -128,7 +131,9 @@ cp -r src/systemd/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agen
 exit 0
 %pre
 
-if ! id -g ossec > /dev/null 2>&1; then
+if command -v getent > /dev/null 2>&1 && ! getent group ossec > /dev/null 2>&1; then
+  groupadd -r ossec
+elif ! id -g ossec > /dev/null 2>&1; then
   groupadd -r ossec
 fi
 if ! id -u ossec > /dev/null 2>&1; then
@@ -158,13 +163,16 @@ fi
 
 %post
 . %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/init/dist-detect.sh
-# If the package is being installed 
+# If the package is being installed
 if [ $1 = 1 ]; then
+  sles=""
   if [ -f /etc/os-release ]; then
     sles=$(grep "\"sles" /etc/os-release)
-    if [ ! -z "$sles" ]; then
-      install -m 755 %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/init/ossec-hids-suse.init /etc/rc.d/wazuh-agent
-    fi
+  elif [ -f /etc/SuSE-release ]; then
+    sles=$(grep "SUSE Linux Enterprise Server" /etc/SuSE-release)
+  fi
+  if [ ! -z "$sles" ]; then
+    install -m 755 %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/init/ossec-hids-suse.init /etc/init.d/wazuh-agent
   fi
 
   touch %{_localstatedir}/ossec/logs/active-responses.log
@@ -268,7 +276,7 @@ if [ $1 = 0 ]; then
   if [ -r "/etc/centos-release" ]; then
     DIST_NAME="centos"
     DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.[0-9]{1,2}.*/\1/p' /etc/centos-release`
-  
+
   elif [ -r "/etc/redhat-release" ]; then
     DIST_NAME="rhel"
     DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.[0-9]{1,2}.*/\1/p' /etc/redhat-release`
@@ -284,7 +292,7 @@ if [ $1 = 0 ]; then
   if [ "${DIST_NAME}" == "centos" -a "${DIST_VER}" == "5" ] || [ "${DIST_NAME}" == "rhel" -a "${DIST_VER}" == "5" ] || [ "${DIST_NAME}" == "suse" -a "${DIST_VER}" == "11" ] ; then
     add_selinux="no"
   fi
-  
+
   # If it is a valid system, remove the policy if it is installed
   if [ ${add_selinux} == "yes" ]; then
     if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
@@ -295,10 +303,19 @@ if [ $1 = 0 ]; then
       fi
     fi
   fi
-  
+
+  # Remove the service file for SUSE hosts
+  if [ -f /etc/os-release ]; then
+    sles=$(grep "\"sles" /etc/os-release)
+  elif [ -f /etc/SuSE-release ]; then
+    sles=$(grep "SUSE Linux Enterprise Server" /etc/SuSE-release)
+  fi
+  if [ ! -z "$sles" ]; then
+    rm -f /etc/init.d/wazuh-agent
+  fi
+
   # Remove the wazuh-agent.service file
   rm -f /etc/systemd/system/wazuh-agent.service
-  
 fi
 
 
@@ -314,13 +331,16 @@ fi
 if [ $1 == 0 ];then
   # Remove the ossec user if it exists
   if id -u ossec > /dev/null 2>&1; then
-    userdel ossec
+    userdel ossec >/dev/null 2>&1
   fi
   # Remove the ossec group if it exists
-  if id -g ossec > /dev/null 2>&1; then
-    groupdel ossec
+  if command -v getent > /dev/null 2>&1 && getent group ossec > /dev/null 2>&1; then
+    groupdel ossec >/dev/null 2>&1
+  elif id -g ossec > /dev/null 2>&1; then
+    groupdel ossec >/dev/null 2>&1
   fi
-  
+
+
   # Remove lingering folders and files
   rm -rf %{_localstatedir}/ossec/etc/shared/
   rm -rf %{_localstatedir}/ossec/queue/
@@ -328,7 +348,7 @@ if [ $1 == 0 ];then
   rm -rf %{_localstatedir}/ossec/bin/
   rm -rf %{_localstatedir}/ossec/logs/
   rm -rf %{_localstatedir}/ossec/backup/
-  
+
 fi
 
 # If the package is been downgraded

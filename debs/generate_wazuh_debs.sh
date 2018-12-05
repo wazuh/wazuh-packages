@@ -32,7 +32,7 @@ build_deb() {
     SOURCES_DIRECTORY="/tmp/wazuh-builder/sources-$(( ( RANDOM % 1000 )  + 1 ))"
 
     # Download the sources
-    git clone ${SOURCE_REPOSITORY} -b $BRANCH ${SOURCES_DIRECTORY} --depth=1 --single-branch
+    git clone ${SOURCE_REPOSITORY} -b $BRANCH ${SOURCES_DIRECTORY} --depth=1 --single-branch -q
     # Copy the necessary files
     cp build.sh ${DOCKERFILE_PATH}
     cp gen_permissions.sh ${SOURCES_DIRECTORY}
@@ -42,7 +42,7 @@ build_deb() {
     else
         VERSION="$(grep version ${SOURCES_DIRECTORY}/package.json | cut -d '"' -f 4)"
     fi
-    
+
     # Copy the "specs" files for the Debian package
     cp -rp SPECS/$VERSION/wazuh-$TARGET ${DOCKERFILE_PATH}/
 
