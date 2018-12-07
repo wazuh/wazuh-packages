@@ -43,6 +43,7 @@ build_deb() {
         # Review " in this command
         CURRENT_VERSION=$(cat ${SOURCES_DIRECTORY}/src/VERSION | cut -d 'v' -f 2)
         echo "v$VERSION" >  ${SOURCES_DIRECTORY}/src/VERSION || exit 1
+        sed -i "s|v${CURRENT_VERSION}|v${VERSION}|g" ${SOURCES_DIRECTORY}/src/update/ruleset/RULESET_VERSION || exit 1
     else
         # Review " in this command
         CURRENT_VERSION=$(grep version ${SOURCES_DIRECTORY}/package.json | cut -d '"' -f 4)
@@ -71,6 +72,7 @@ build_deb() {
       sed -i "1s|^|  * More info: https://documentation.wazuh.com/current/release-notes/\n\n|" SPECS/$VERSION/wazuh-api/debian/changelog
       sed -i "1s|^|wazuh-api (${VERSION}-RELEASE) stable; urgency=low\n\n|" SPECS/$VERSION/wazuh-api/debian/changelog
 
+      sed -i "s|${CURRENT_VERSION}|${VERSION}|g" SPECS/$VERSION/wazuh-api/debian/control
       sed -i "s|${SHORT_CURRENT_VERSION}|${SHORT_VERSION}|g" SPECS/$VERSION/wazuh-api/debian/control
     fi
 
