@@ -45,6 +45,7 @@ build_rpm() {
     if [[ "$TARGET" != "api" ]]; then
         CURRENT_VERSION=$(cat ${SOURCES_DIRECTORY}/src/VERSION | cut -d 'v' -f 2)
         echo "v$VERSION" >  ${SOURCES_DIRECTORY}/src/VERSION || exit 1
+        sed -i "s|v${CURRENT_VERSION}|v${VERSION}|g" ${SOURCES_DIRECTORY}/src/update/ruleset/RULESET_VERSION || exit 1
     else
         CURRENT_VERSION=$(grep version ${SOURCES_DIRECTORY}/package.json | cut -d '"' -f 4)
         sed -i "s|${CURRENT_VERSION}|${VERSION}|" ${SOURCES_DIRECTORY}/package.json || exit 1
