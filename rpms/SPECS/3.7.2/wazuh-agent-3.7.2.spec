@@ -437,6 +437,8 @@ rm -fr %{buildroot}
 
 
 %changelog
+* Mon Dec 10 2018 support <info@wazuh.com> - 3.7.2
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Nov 12 2018 support <info@wazuh.com> - 3.7.1
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Sat Nov 10 2018 support <info@wazuh.com> - 3.7.0
