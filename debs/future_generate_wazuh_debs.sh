@@ -2,7 +2,7 @@
 
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ARCHITECTURE="amd64"
-OUTDIR="${HOME}/development/futures/apt/"
+OUTDIR="${HOME}/futures/apt/"
 BRANCH="master"
 REVISION="1"
 TARGET=""
