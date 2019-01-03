@@ -573,6 +573,8 @@ rm -fr %{buildroot}
 %attr(640, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/audit-*
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/etc/lists/amazon
 %attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/amazon/*
+%dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/etc/lists/security-eventchannel
+%dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/etc/lists/security-eventchannel.cdb
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/etc/shared
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/etc/shared/default
 %attr(660, ossec, ossec) %{_localstatedir}/ossec/etc/shared/agent-template.conf
