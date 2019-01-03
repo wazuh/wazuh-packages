@@ -231,6 +231,8 @@ case "$1" in
     chmod 770 ${DIR}/etc/lists
     chmod 770 ${DIR}/etc/lists/amazon
     chmod 660 ${DIR}/etc/lists/amazon/*
+    chmod 770 ${DIR}/etc/lists/security-eventchannel
+    chmod 770 ${DIR}/etc/lists/security-eventchannel.cdb
     chmod 770 ${DIR}/etc/shared/default
 
     chown -R root:ossec ${DIR}/etc/client.keys
