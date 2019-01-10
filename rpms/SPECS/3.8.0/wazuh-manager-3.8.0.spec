@@ -556,7 +556,7 @@ rm -fr %{buildroot}
 %attr(750, root, root) %{_localstatedir}/ossec/bin/syscheck_update
 %attr(750, root, root) %{_localstatedir}/ossec/bin/update_ruleset
 %attr(750, root, root) %{_localstatedir}/ossec/bin/util.sh
-%attr(750, root, root) %{_localstatedir}/ossec/bin/verify-agent-conf
+%attr(750, root, ossec) %{_localstatedir}/ossec/bin/verify-agent-conf
 %attr(750, root, ossec) %{_localstatedir}/ossec/bin/wazuh-clusterd
 %attr(750, root, root) %{_localstatedir}/ossec/bin/wazuh-db
 %attr(750, root, root) %{_localstatedir}/ossec/bin/wazuh-modulesd
@@ -652,7 +652,7 @@ rm -fr %{buildroot}
 %attr(640, root, ossec) %{_localstatedir}/ossec/ruleset/rules/*
 %dir %attr(700, root, ossec) %{_localstatedir}/ossec/.ssh
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/stats
-%dir %attr(1750, root, ossec) %{_localstatedir}/ossec/tmp
+%dir %attr(1770, root, ossec) %{_localstatedir}/ossec/tmp
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/var
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/var/db
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/var/db/agents
