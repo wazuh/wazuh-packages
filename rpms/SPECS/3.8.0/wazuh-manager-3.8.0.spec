@@ -595,8 +595,8 @@ rm -fr %{buildroot}
 %attr(640, root, ossec) %{_localstatedir}/ossec/framework/wazuh/cluster/dapi/*.py
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/integrations
 %attr(750, root, ossec) %{_localstatedir}/ossec/integrations/*
-%dir %attr(750, root, root) %{_localstatedir}/ossec/lib
-%attr(750, root, root) %{_localstatedir}/ossec/lib/*
+%dir %attr(750, root, ossec) %{_localstatedir}/ossec/lib
+%attr(750, root, ossec) %{_localstatedir}/ossec/lib/*
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/logs
 %attr(660, ossec, ossec)  %ghost %{_localstatedir}/ossec/logs/active-responses.log
 %attr(640, ossecm, ossec) %ghost %{_localstatedir}/ossec/logs/integrations.log
