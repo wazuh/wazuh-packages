@@ -78,7 +78,7 @@ echo 'USER_UPDATE="n"' >> ./etc/preloaded-vars.conf
 echo 'USER_ENABLE_EMAIL="n"' >> ./etc/preloaded-vars.conf
 echo 'USER_WHITE_LIST="n"' >> ./etc/preloaded-vars.conf
 echo 'USER_ENABLE_SYSLOG="y"' >> ./etc/preloaded-vars.conf
-echo 'USER_ENABLE_AUTHD="n"' >> ./etc/preloaded-vars.conf
+echo 'USER_ENABLE_AUTHD="y"' >> ./etc/preloaded-vars.conf
 echo 'USER_SERVER_IP="MANAGER_IP"' >> ./etc/preloaded-vars.conf
 echo 'USER_CA_STORE="/path/to/my_cert.pem"' >> ./etc/preloaded-vars.conf
 echo 'USER_GENERATE_AUTHD_CERT="y"' >> ./etc/preloaded-vars.conf
@@ -556,7 +556,7 @@ rm -fr %{buildroot}
 %attr(750, root, root) %{_localstatedir}/ossec/bin/syscheck_update
 %attr(750, root, root) %{_localstatedir}/ossec/bin/update_ruleset
 %attr(750, root, root) %{_localstatedir}/ossec/bin/util.sh
-%attr(750, root, root) %{_localstatedir}/ossec/bin/verify-agent-conf
+%attr(750, root, ossec) %{_localstatedir}/ossec/bin/verify-agent-conf
 %attr(750, root, ossec) %{_localstatedir}/ossec/bin/wazuh-clusterd
 %attr(750, root, root) %{_localstatedir}/ossec/bin/wazuh-db
 %attr(750, root, root) %{_localstatedir}/ossec/bin/wazuh-modulesd
@@ -595,8 +595,8 @@ rm -fr %{buildroot}
 %attr(640, root, ossec) %{_localstatedir}/ossec/framework/wazuh/cluster/dapi/*.py
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/integrations
 %attr(750, root, ossec) %{_localstatedir}/ossec/integrations/*
-%dir %attr(750, root, root) %{_localstatedir}/ossec/lib
-%attr(750, root, root) %{_localstatedir}/ossec/lib/*
+%dir %attr(750, root, ossec) %{_localstatedir}/ossec/lib
+%attr(750, root, ossec) %{_localstatedir}/ossec/lib/*
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/logs
 %attr(660, ossec, ossec)  %ghost %{_localstatedir}/ossec/logs/active-responses.log
 %attr(640, ossecm, ossec) %ghost %{_localstatedir}/ossec/logs/integrations.log
@@ -652,7 +652,7 @@ rm -fr %{buildroot}
 %attr(640, root, ossec) %{_localstatedir}/ossec/ruleset/rules/*
 %dir %attr(700, root, ossec) %{_localstatedir}/ossec/.ssh
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/stats
-%dir %attr(1750, root, ossec) %{_localstatedir}/ossec/tmp
+%dir %attr(1770, root, ossec) %{_localstatedir}/ossec/tmp
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/var
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/var/db
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/var/db/agents

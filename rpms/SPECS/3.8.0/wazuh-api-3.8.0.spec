@@ -87,7 +87,7 @@ if [ $1 = 1 ]; then
     fi
 
     rm -f %{_localstatedir}/ossec/api/configuration/auth/htpasswd
-    cp -rLfp ${API_PATH} ${API_PATH_BACKUP}
+    cp -rfp ${API_PATH} ${API_PATH_BACKUP}
   fi
 fi
 
