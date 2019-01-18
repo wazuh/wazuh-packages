@@ -49,14 +49,14 @@ build_deb() {
         CURRENT_VERSION=$(grep version ${SOURCES_DIRECTORY}/package.json | cut -d '"' -f 4)
         sed -i "s|${CURRENT_VERSION}|${VERSION}|" ${SOURCES_DIRECTORY}/package.json || exit 1
     fi
-    
+
     if [[ "$CURRENT_VERSION" != "$VERSION" ]] ; then
       SHORT_CURRENT_VERSION=$(echo $CURRENT_VERSION | cut -d'.' -f 1,2)
       SHORT_VERSION=$(echo $VERSION | cut -d'.' -f 1,2)
       echo "Current version -> $CURRENT_VERSION"
       echo "Short current version -> $SHORT_CURRENT_VERSION"
       echo "Target version -> $VERSION"
-      
+
       cp -rp SPECS/$CURRENT_VERSION SPECS/$VERSION
       sed -i "1s|^| -- Wazuh, Inc <info@wazuh.com> Fri, 9 Sep 2018 11:00:00 +0000\n\n|" SPECS/$VERSION/wazuh-manager/debian/changelog
       sed -i "1s|^|  * More info: https://documentation.wazuh.com/current/release-notes/\n\n|" SPECS/$VERSION/wazuh-manager/debian/changelog
@@ -72,8 +72,13 @@ build_deb() {
       sed -i "1s|^|  * More info: https://documentation.wazuh.com/current/release-notes/\n\n|" SPECS/$VERSION/wazuh-api/debian/changelog
       sed -i "1s|^|wazuh-api (${VERSION}-RELEASE) stable; urgency=low\n\n|" SPECS/$VERSION/wazuh-api/debian/changelog
 
+      VERSION_PATCH="${VERSION: -1}"
+      VERSION_PATCH=$((${VERSION_PATCH} + 1))
+      CURRENT_VERSION_PATCH="${CURRENT_VERSION: -1}"
+      CURRENT_VERSION_PATCH=$((${CURRENT_VERSION_PATCH} + 1))
+
       sed -i "s|${CURRENT_VERSION}|${VERSION}|g" SPECS/$VERSION/wazuh-api/debian/control
-      sed -i "s|${SHORT_CURRENT_VERSION}|${SHORT_VERSION}|g" SPECS/$VERSION/wazuh-api/debian/control
+      sed -i "s|(<< ${SHORT_CURRENT_VERSION}.${CURRENT_VERSION_PATCH})|(<< ${SHORT_VERSION}.${VERSION_PATCH})|g" SPECS/$VERSION/wazuh-api/debian/control
     fi
 
     # Copy the "specs" files for the Debian package
