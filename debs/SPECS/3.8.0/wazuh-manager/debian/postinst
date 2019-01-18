@@ -110,6 +110,8 @@ case "$1" in
     rm -f ${DIR}/var/db/cluster.db* || true
     rm -f ${DIR}/var/db/.profile.db* || true
     rm -f ${DIR}/var/db/agents/* || true
+    # Remove Vuln-detector database
+    rm -f ${DIR}/queue/vulnerabilities/cve.db || true
 
     # Remove existing SQLite databases for Wazuh DB when upgrading
     # Wazuh only if upgrading from 3.2..3.6
