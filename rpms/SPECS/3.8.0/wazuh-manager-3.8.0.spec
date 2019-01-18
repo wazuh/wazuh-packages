@@ -174,6 +174,8 @@ rm -f %{_localstatedir}/ossec/var/db/global.db* || true
 rm -f %{_localstatedir}/ossec/var/db/cluster.db* || true
 rm -f %{_localstatedir}/ossec/var/db/.profile.db* || true
 rm -f %{_localstatedir}/ossec/var/db/agents/* || true
+# Remove Vuln-detector database
+rm -f %{_localstatedir}/ossec/queue/vulnerabilities/cve.db || true
 
 
 # Remove existing SQLite databases for Wazuh DB when upgrading
