@@ -1,0 +1,90 @@
+#!/bin/sh
+# postrm script for Wazuh
+# Wazuh, Inc 2016
+set -e
+DIR="/var/ossec"
+WAZUH_TMP_DIR="${DIR}/packages_files/manager_config_files"
+
+case "$1" in
+    remove|failed-upgrade|abort-install|abort-upgrade|disappear)
+
+    # Fix for forcing the stop of the api
+    if ps aux | grep ${DIR}/api/app.js | grep -v grep; then
+        kill -9 `ps -ef | grep "${DIR}/api/app.js" | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
+    fi
+
+  	if getent passwd | grep -q "^ossecr" ; then
+  		deluser ossecr  > /dev/null 2>&1
+  	fi
+  	if getent passwd | grep -q "^ossecm" ; then
+  		deluser ossecm  > /dev/null 2>&1
+  	fi
+  	if getent passwd | grep -q "^ossec" ; then
+  		deluser ossec  > /dev/null 2>&1
+  	fi
+  	if getent group | grep -q "^ossec" ; then
+  		delgroup ossec  > /dev/null 2>&1
+  	fi
+
+    if [ -f /etc/logrotate.d/wazuh-hids ]; then
+      rm -f /etc/logrotate.d/wazuh-hids
+    fi
+
+    if [ -f /etc/ossec-init.conf ]; then
+        rm -f /etc/ossec-init.conf
+    fi
+
+    if [ -d ${WAZUH_TMP_DIR} ]; then
+        rm -rf ${WAZUH_TMP_DIR}
+    fi
+
+
+
+    if [ -d /run/systemd/system ] ; then
+        systemctl disable wazuh-manager > /dev/null 2>&1
+        systemctl daemon-reload
+        systemctl reset-failed
+    fi
+
+    update-rc.d -f wazuh-manager remove
+
+    # Back up the old configuration files as .save
+    if [ ! -d ${DIR}/etc/shared/default ]; then
+        mkdir -p ${DIR}/etc/shared/default
+    fi
+
+    # Move files from ${DIR}/tmp to ${DIR}/etc
+    if [ -f ${DIR}/tmp/conffiles/shared/default/agent.conf ]; then
+        mv ${DIR}/tmp/conffiles/shared/default/agent.conf ${DIR}/etc/shared/default/agent.conf.save
+    fi
+    rm -rf ${DIR}/tmp/conffiles/shared/
+
+    # If the directory is not empty, copy the files into ${DIR}/etc
+    if [ "$(ls -A ${DIR}/tmp/conffiles)" ]; then
+        cp -Rf ${DIR}/tmp/conffiles/* ${DIR}/etc
+    fi
+    rm -rf ${DIR}/tmp/conffiles
+    rm -rf ${DIR}/tmp
+
+    # Rename the files
+    find ${DIR}/etc/ -type f ! -name *shared* -exec mv {} {}.save \;
+
+    ;;
+
+    purge)
+        rm -rf ${DIR}/*
+    ;;
+
+    upgrade)
+
+    ;;
+
+    *)
+        echo "postrm called with unknown argument \`$1'" >&2
+        exit 0
+
+    ;;
+
+esac
+
+exit 0
