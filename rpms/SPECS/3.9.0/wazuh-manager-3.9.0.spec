@@ -598,7 +598,9 @@ rm -fr %{buildroot}
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/integrations
 %attr(750, root, ossec) %{_localstatedir}/ossec/integrations/*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/lib
-%attr(750, root, ossec) %{_localstatedir}/ossec/lib/*
+%attr(750, root, ossec) %{_localstatedir}/ossec/lib/libwazuhext.so
+%{_localstatedir}/ossec/lib/libpython3.7m.so.1.0
+%{_localstatedir}/ossec/lib/python3.7/*
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/logs
 %attr(660, ossec, ossec)  %ghost %{_localstatedir}/ossec/logs/active-responses.log
 %attr(640, ossecm, ossec) %ghost %{_localstatedir}/ossec/logs/integrations.log
@@ -631,6 +633,7 @@ rm -fr %{buildroot}
 %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/fedora/*
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/rhel
 %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/rhel/*
+%{_localstatedir}/ossec/python/*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/queue
 %attr(600, root, ossec) %ghost %{_localstatedir}/ossec/queue/agents-timestamp
 %dir %attr(770, ossecr, ossec) %{_localstatedir}/ossec/queue/agent-info
