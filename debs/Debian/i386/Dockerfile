@@ -7,6 +7,7 @@ RUN apt-get install -y curl gcc-multilib make sudo expect \
     gnupg fakeroot build-essential cdbs devscripts equivs \
     automake autoconf libtool libaudit-dev selinux-basics \
     util-linux
+RUN apt-get build-dep python3.2 -y
 
 # Add the script to build the Debian package
 ADD build.sh /usr/local/bin/build_package

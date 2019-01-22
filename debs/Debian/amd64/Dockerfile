@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y apt-utils
 RUN apt-get install -y curl gcc make sudo expect gnupg fakeroot \
     build-essential cdbs devscripts equivs automake autoconf \
     libtool libaudit-dev selinux-basics
+RUN apt-get build-dep python3.2 -y
 
 # Install NodeJS 6
 RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
