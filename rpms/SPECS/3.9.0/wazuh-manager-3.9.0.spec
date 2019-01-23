@@ -50,7 +50,7 @@ pushd src
 make clean
 
 %if 0%{?el} >= 6 || 0%{?rhel} >= 6
-    make deps
+    make deps PREFIX=%{_localstatedir}/ossec
     make -j%{_threads} TARGET=server USE_SELINUX=yes USE_FRAMEWORK_LIB=yes PREFIX=%{_localstatedir}/ossec
 %else
     make deps RESOURCES_URL=http://packages.wazuh.com/deps/3.9
