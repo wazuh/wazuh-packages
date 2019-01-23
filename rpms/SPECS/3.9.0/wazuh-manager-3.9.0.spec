@@ -587,7 +587,8 @@ rm -fr %{buildroot}
 %attr(640, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/rules/local_rules.xml
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/lib
-%attr(640, root, ossec) %{_localstatedir}/ossec/framework/lib/*
+%attr(750, root, ossec) %{_localstatedir}/ossec/lib/libwazuhext.so
+%{_localstatedir}/ossec/lib/libpython3.7m.so.1.0
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/wazuh
 %attr(640, root, ossec) %{_localstatedir}/ossec/framework/wazuh/*.py
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/wazuh/cluster
@@ -599,8 +600,6 @@ rm -fr %{buildroot}
 %attr(750, root, ossec) %{_localstatedir}/ossec/integrations/*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/lib
 %attr(750, root, ossec) %{_localstatedir}/ossec/lib/libwazuhext.so
-%{_localstatedir}/ossec/lib/libpython3.7m.so.1.0
-%{_localstatedir}/ossec/lib/python3.7/*
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/logs
 %attr(660, ossec, ossec)  %ghost %{_localstatedir}/ossec/logs/active-responses.log
 %attr(640, ossecm, ossec) %ghost %{_localstatedir}/ossec/logs/integrations.log
