@@ -1,5 +1,6 @@
 #!/bin/sh
 # prerm script for Wazuh
+# Wazuh, Inc 2019
 
 set -e
 

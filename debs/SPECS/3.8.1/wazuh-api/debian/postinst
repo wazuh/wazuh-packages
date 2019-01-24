@@ -1,6 +1,6 @@
 #!/bin/bash
-# postinst script for Wazuh 
-# Wazuh, Inc 2016
+# postinst script for Wazuh
+# Wazuh, Inc 2019
 
 set -e
 
@@ -39,7 +39,7 @@ case "$1" in
     if [ -f ${SCRIPTS_DIR}/restore-permissions.sh ]; then
       . ${SCRIPTS_DIR}/restore-permissions.sh
     fi
-    
+
     # Verify python version
     if python -V >/dev/null 2>&1; then
       python_version=$(python -c 'import sys; print(".".join(map(str, sys.version_info[:3])))' | cut -c1-3)
@@ -61,7 +61,7 @@ case "$1" in
     fi
 
     # If the parent directory is empty, delete it
-    if [ -z "$(ls -A ${WAZUH_GLOBAL_TMP_DIR})" ]; then 
+    if [ -z "$(ls -A ${WAZUH_GLOBAL_TMP_DIR})" ]; then
         rm -rf ${WAZUH_GLOBAL_TMP_DIR}
     fi
 

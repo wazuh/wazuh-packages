@@ -1,5 +1,6 @@
 #!/bin/sh
 # preinst script for wazuh-agent
+# Wazuh, Inc 2019
 
 set -e
 
@@ -10,7 +11,7 @@ WAZUH_TMP_DIR="${DIR}/packages_files/agent_config_files"
 # environment configuration
 if [ ! -d ${WAZUH_TMP_DIR} ]; then
     mkdir -p ${WAZUH_TMP_DIR}
-else 
+else
     rm -rf ${WAZUH_TMP_DIR}
     mkdir -p ${WAZUH_TMP_DIR}
 fi
