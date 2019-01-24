@@ -389,6 +389,9 @@ fi
 rm -rf %{_localstatedir}/ossec/packages_files
 
 if %{_localstatedir}/ossec/bin/ossec-logtest 2>/dev/null ; then
+  # Delete the empty agent.conf file and duplicated rootcheck files
+  rm -f %{_localstatedir}/ossec/etc/shared/default/*.rpmnew
+
   /sbin/service wazuh-manager restart > /dev/null 2>&1
 else
   echo "================================================================================================================"
