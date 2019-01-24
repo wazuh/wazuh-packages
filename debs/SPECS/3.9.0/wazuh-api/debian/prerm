@@ -9,7 +9,7 @@ WAZUH_API_DIR="${DIR}/api"
 case "$1" in
     upgrade|deconfigure)
 
-        if ps axu | grep ${WAZUH_API_DIR}/app.js | grep -v grep; then
+        if ps axu | grep ${WAZUH_API_DIR}/app.js | grep -v grep > /dev/null 2>&1; then
             if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
                 systemctl stop wazuh-api.service > /dev/null 2>&1
                 systemctl disable wazuh-api > /dev/null 2>&1
@@ -22,7 +22,7 @@ case "$1" in
 
 
         # Fix for forcing the stop of the api
-        if ps aux | grep ${WAZUH_API_DIR}/app.js | grep -v grep > /dev/null; then
+        if ps aux | grep ${WAZUH_API_DIR}/app.js | grep -v grep > /dev/null 2>&1; then
             kill -9 `ps -ef | grep "${WAZUH_API_DIR}/app.js" | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
         fi
 
@@ -33,7 +33,7 @@ case "$1" in
     remove)
 
 
-        if ps axu | grep ${WAZUH_API_DIR}/app.js | grep -v grep > /dev/null; then
+        if ps axu | grep ${WAZUH_API_DIR}/app.js | grep -v grep > /dev/null 2>&1; then
             if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
                 systemctl stop wazuh-api.service
             fi
@@ -45,7 +45,7 @@ case "$1" in
 
 
         # Fix for forcing the stop of the api
-        if ps aux | grep ${WAZUH_API_DIR}/app.js | grep -v grep > /dev/null; then
+        if ps aux | grep ${WAZUH_API_DIR}/app.js | grep -v grep > /dev/null 2>&1; then
             kill -9 `ps -ef | grep "${WAZUH_API_DIR}/app.js" | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
         fi
 
@@ -59,7 +59,7 @@ case "$1" in
     ;;
 
     failed-upgrade)
-    if ps axu | grep ${WAZUH_API_DIR}/app.js | grep -v grep > /dev/null; then
+    if ps axu | grep ${WAZUH_API_DIR}/app.js | grep -v grep > /dev/null 2>&1; then
         if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
             systemctl stop wazuh-api.service
         fi
