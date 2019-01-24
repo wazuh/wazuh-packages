@@ -201,12 +201,12 @@ function main() {
       if [[ "$TARGET" != "api" ]]; then
         local SOURCE_REPOSITORY="$WAZUH_SOURCE_REPOSITORY"
         # Download the sources
-        git clone ${SOURCE_REPOSITORY} -b $BRANCH ${SOURCES_DIRECTORY} --depth=1 --single-branch
+        git clone ${SOURCE_REPOSITORY} -b $BRANCH ${SOURCES_DIRECTORY} --depth=1 --single-branch -vvvv
         local VERSION="$(cat ${SOURCES_DIRECTORY}/src/VERSION | cut -d 'v' -f 2)"
       else
          local SOURCE_REPOSITORY="$API_SOURCE_REPOSITORY"
          # Download the sources
-         git clone ${SOURCE_REPOSITORY} -b $BRANCH ${SOURCES_DIRECTORY} --depth=1 --single-branch
+         git clone ${SOURCE_REPOSITORY} -b $BRANCH ${SOURCES_DIRECTORY} --depth=1 --single-branch -vvvv
         local VERSION="$(grep version ${SOURCES_DIRECTORY}/package.json | cut -d '"' -f 4)"
       fi
 

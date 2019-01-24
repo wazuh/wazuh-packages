@@ -1,0 +1,33 @@
+This work was packaged for Debian by:
+
+    Wazuh, Inc <info@wazuh.com> on Thu, 24 Jan 2019 09:28:34 +0000
+
+It was downloaded from:
+
+    https://www.wazuh.com
+
+Upstream Authors:
+
+    santiago.bassett@gmail.com
+    pedro@wazuh.com
+    jose@wazuh.com
+    jesus@wazuh.com
+    ernesto@wazuh.com
+    braulio@wazuh.com
+    jose.fernandez@wazuh.com
+    alberto.rodriguez@wazuh.com
+
+Copyright:
+
+    GNU General Public License version 2.
+
+License:
+
+    GNU General Public License version 2.
+
+The Debian packaging is:
+
+    Copyright (C) 2016-2019 Wazuh, Inc <info@wazuh.com>
+
+and is licensed under the GPL version 2,
+see "/usr/share/common-licenses/GPL-2".
