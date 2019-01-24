@@ -1,6 +1,7 @@
 #!/bin/sh
 # postrm script for Wazuh
-# Wazuh, Inc 2019
+# Santiago Bassett <santiago.bassett@gmail.com>
+# 03/25/2014
 
 DIR="/var/ossec"
 WAZUH_API_DIR="${DIR}/api"
@@ -42,7 +43,7 @@ case "$1" in
 
         if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
 
-           if ps axu | grep ${WAZUH_API_DIR}/app.js | grep -v grep; then
+           if ps axu | grep ${WAZUH_API_DIR}/app.js | grep -v grep > /dev/null 2>&1; then
                 service wazuh-api stop
            fi
         fi
