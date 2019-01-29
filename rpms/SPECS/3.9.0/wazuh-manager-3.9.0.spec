@@ -17,20 +17,7 @@ Conflicts:   ossec-hids ossec-hids-agent wazuh-agent wazuh-local
 AutoReqProv: no
 
 Requires: coreutils
-%if 0%{?el} >= 6 || 0%{?rhel} >= 6
-BuildRequires: coreutils glibc-devel automake autoconf libtool policycoreutils-python curl
-%else
-BuildRequires: coreutils glibc-devel automake autoconf libtool policycoreutils curl
-%endif
-
-%if 0%{?fc25}
-BuildRequires: perl
-%endif
-
-%if 0%{?el5}
-BuildRequires: perl
-%endif
-
+BuildRequires: coreutils glibc-devel automake autoconf libtool policycoreutils-python curl perl
 
 ExclusiveOS: linux
 
@@ -49,13 +36,9 @@ pushd src
 # Rebuild for server
 make clean
 
-%if 0%{?el} >= 6 || 0%{?rhel} >= 6
-    make deps PREFIX=%{_localstatedir}/ossec
-    make -j%{_threads} TARGET=server USE_SELINUX=yes USE_FRAMEWORK_LIB=yes PREFIX=%{_localstatedir}/ossec
-%else
-    make deps RESOURCES_URL=http://packages.wazuh.com/deps/3.9
-    make -j%{_threads} TARGET=server USE_AUDIT=no USE_SELINUX=yes USE_FRAMEWORK_LIB=yes USE_EXEC_ENVIRON=no PREFIX=%{_localstatedir}/ossec
-%endif
+# Build Wazuh sources
+make deps PREFIX=%{_localstatedir}/ossec
+make -j%{_threads} TARGET=server USE_SELINUX=yes USE_FRAMEWORK_LIB=yes PREFIX=%{_localstatedir}/ossec
 
 popd
 
@@ -369,19 +352,11 @@ elif [ -r "/etc/redhat-release" ]; then
   DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.*[0-9]{0,2}.*/\1/p' /etc/redhat-release`
 fi
 
-if ([ "X${DIST_NAME}" = "Xrhel" ] || [ "X${DIST_NAME}" = "Xcentos" ] || [ "X${DIST_NAME}" = "XCentOS" ]) && [ "${DIST_VER}" == "5" ]; then
-  if command -v getenforce > /dev/null 2>&1; then
-    if [ $(getenforce) !=  "Disabled" ]; then
-      chcon -t textrel_shlib_t  %{_localstatedir}/ossec/lib/libwazuhext.so
-    fi
-  fi
-else
-  # Add the SELinux policy
-  if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
-    if [ $(getenforce) != "Disabled" ]; then
-      semodule -i %{_localstatedir}/ossec/var/selinux/wazuh.pp
-      semodule -e wazuh
-    fi
+# Add the SELinux policy
+if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
+  if [ $(getenforce) != "Disabled" ]; then
+    semodule -i %{_localstatedir}/ossec/var/selinux/wazuh.pp
+    semodule -e wazuh
   fi
 fi
 
