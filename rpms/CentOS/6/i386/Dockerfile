@@ -7,6 +7,9 @@ RUN yum -y install util-linux-ng centos-release-scl \
     gcc-multilib make git openssh-clients rpm-build \
     sudo gnupg automake autoconf libtool \
     policycoreutils-python yum-utils epel-release
+
+# Warning: this repo has been disabled by the vendor
+RUN mv /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo.old
 RUN yum-builddep python34 -y
 
 # Add the scripts to build the RPM package
