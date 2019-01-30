@@ -6,6 +6,8 @@ RUN apt-get update && apt-get install -y apt-utils
 RUN apt-get install -y curl gcc make sudo expect gnupg fakeroot \
     build-essential cdbs devscripts equivs automake autoconf \
     libtool libaudit-dev selinux-basics
+RUN echo "deb-src http://deb.debian.org/debian wheezy main" >> /etc/apt/sources.list
+RUN apt-get update
 RUN apt-get build-dep python3.2 -y
 
 # Install NodeJS 6
