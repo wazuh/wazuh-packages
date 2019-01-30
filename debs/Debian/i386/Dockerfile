@@ -7,6 +7,10 @@ RUN apt-get install -y curl gcc-multilib make sudo expect \
     gnupg fakeroot build-essential cdbs devscripts equivs \
     automake autoconf libtool libaudit-dev selinux-basics \
     util-linux
+
+# Add Debian's source repository
+RUN echo "deb-src http://deb.debian.org/debian wheezy main" >> /etc/apt/sources.list
+RUN apt-get update
 RUN apt-get build-dep python3.2 -y
 
 # Add the script to build the Debian package
