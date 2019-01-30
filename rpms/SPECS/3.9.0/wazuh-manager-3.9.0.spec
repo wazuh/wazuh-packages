@@ -563,6 +563,8 @@ rm -fr %{buildroot}
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/lib
 %attr(750, root, ossec) %{_localstatedir}/ossec/framework/lib/libsqlite3.so.0
+%dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/scripts
+%attr(640, root, ossec) %{_localstatedir}/ossec/framework/scripts/*.py
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/wazuh
 %attr(640, root, ossec) %{_localstatedir}/ossec/framework/wazuh/*.py
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/wazuh/cluster
