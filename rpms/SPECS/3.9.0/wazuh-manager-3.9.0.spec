@@ -563,6 +563,7 @@ rm -fr %{buildroot}
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/lib
 %attr(750, root, ossec) %{_localstatedir}/ossec/framework/lib/libsqlite3.so.0
+%{_localstatedir}/ossec/framework/python/*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/scripts
 %attr(640, root, ossec) %{_localstatedir}/ossec/framework/scripts/*.py
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/wazuh
@@ -609,7 +610,6 @@ rm -fr %{buildroot}
 %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/fedora/*
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/rhel
 %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/rhel/*
-%{_localstatedir}/ossec/python/*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/queue
 %attr(600, root, ossec) %ghost %{_localstatedir}/ossec/queue/agents-timestamp
 %dir %attr(770, ossecr, ossec) %{_localstatedir}/ossec/queue/agent-info
