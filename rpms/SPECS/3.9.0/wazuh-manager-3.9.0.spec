@@ -652,6 +652,7 @@ rm -fr %{buildroot}
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/docker
 %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/docker/*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap
+%attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/oscap
 %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/oscap.*
 %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/template*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/content
