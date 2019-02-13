@@ -239,6 +239,14 @@ function main() {
         # Download the sources
         git clone ${SOURCE_REPOSITORY} -b $BRANCH ${SOURCES_DIRECTORY} --depth=1 --single-branch -vvvv
         local VERSION="$(cat ${SOURCES_DIRECTORY}/src/VERSION | cut -d 'v' -f 2)"
+        if [[ "$TARGET" == "manager" ]] && [[ "$LEGACY" = true ]]; then
+            local MAJOR_MINOR="$(echo $VERSION | cut -c 2-4)"
+            if [[ "${MAJOR_MINOR}" > "3.9" ]] || [[ "${MAJOR_MINOR}" == "3.9" ]]; then
+                echo "Wazuh Manager is not supported for CentOS 5 from v3.9.0."
+                echo "Version to build: ${VERSION}."
+                exit 1
+            fi
+        fi
       else
          local SOURCE_REPOSITORY="$API_SOURCE_REPOSITORY"
          # Download the sources

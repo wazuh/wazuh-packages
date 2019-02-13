@@ -17,20 +17,7 @@ Conflicts:   ossec-hids ossec-hids-agent wazuh-agent wazuh-local
 AutoReqProv: no
 
 Requires: coreutils
-%if 0%{?el} >= 6 || 0%{?rhel} >= 6
-BuildRequires: coreutils glibc-devel automake autoconf libtool policycoreutils-python curl
-%else
-BuildRequires: coreutils glibc-devel automake autoconf libtool policycoreutils curl
-%endif
-
-%if 0%{?fc25}
-BuildRequires: perl
-%endif
-
-%if 0%{?el5}
-BuildRequires: perl
-%endif
-
+BuildRequires: coreutils glibc-devel automake autoconf libtool policycoreutils-python curl perl
 
 ExclusiveOS: linux
 
@@ -49,13 +36,9 @@ pushd src
 # Rebuild for server
 make clean
 
-%if 0%{?el} >= 6 || 0%{?rhel} >= 6
-    make deps
-    make -j%{_threads} TARGET=server USE_SELINUX=yes USE_FRAMEWORK_LIB=yes PREFIX=%{_localstatedir}/ossec
-%else
-    make deps RESOURCES_URL=http://packages.wazuh.com/deps/3.9
-    make -j%{_threads} TARGET=server USE_AUDIT=no USE_SELINUX=yes USE_FRAMEWORK_LIB=yes USE_EXEC_ENVIRON=no PREFIX=%{_localstatedir}/ossec
-%endif
+# Build Wazuh sources
+make deps PREFIX=%{_localstatedir}/ossec
+make -j%{_threads} TARGET=server USE_SELINUX=yes USE_FRAMEWORK_LIB=yes PREFIX=%{_localstatedir}/ossec
 
 popd
 
@@ -369,19 +352,11 @@ elif [ -r "/etc/redhat-release" ]; then
   DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.*[0-9]{0,2}.*/\1/p' /etc/redhat-release`
 fi
 
-if ([ "X${DIST_NAME}" = "Xrhel" ] || [ "X${DIST_NAME}" = "Xcentos" ] || [ "X${DIST_NAME}" = "XCentOS" ]) && [ "${DIST_VER}" == "5" ]; then
-  if command -v getenforce > /dev/null 2>&1; then
-    if [ $(getenforce) !=  "Disabled" ]; then
-      chcon -t textrel_shlib_t  %{_localstatedir}/ossec/lib/libwazuhext.so
-    fi
-  fi
-else
-  # Add the SELinux policy
-  if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
-    if [ $(getenforce) != "Disabled" ]; then
-      semodule -i %{_localstatedir}/ossec/var/selinux/wazuh.pp
-      semodule -e wazuh
-    fi
+# Add the SELinux policy
+if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
+  if [ $(getenforce) != "Disabled" ]; then
+    semodule -i %{_localstatedir}/ossec/var/selinux/wazuh.pp
+    semodule -e wazuh
   fi
 fi
 
@@ -589,7 +564,10 @@ rm -fr %{buildroot}
 %attr(640, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/rules/local_rules.xml
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/lib
-%attr(640, root, ossec) %{_localstatedir}/ossec/framework/lib/*
+%attr(750, root, ossec) %{_localstatedir}/ossec/framework/lib/libsqlite3.so.0
+%{_localstatedir}/ossec/framework/python/*
+%dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/scripts
+%attr(640, root, ossec) %{_localstatedir}/ossec/framework/scripts/*.py
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/wazuh
 %attr(640, root, ossec) %{_localstatedir}/ossec/framework/wazuh/*.py
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/wazuh/cluster
@@ -600,7 +578,8 @@ rm -fr %{buildroot}
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/integrations
 %attr(750, root, ossec) %{_localstatedir}/ossec/integrations/*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/lib
-%attr(750, root, ossec) %{_localstatedir}/ossec/lib/*
+%attr(750, root, ossec) %{_localstatedir}/ossec/lib/libwazuhext.so
+%{_localstatedir}/ossec/lib/libpython3.7m.so.1.0
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/logs
 %attr(660, ossec, ossec)  %ghost %{_localstatedir}/ossec/logs/active-responses.log
 %attr(640, ossecm, ossec) %ghost %{_localstatedir}/ossec/logs/integrations.log
@@ -675,6 +654,7 @@ rm -fr %{buildroot}
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/docker
 %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/docker/*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap
+%attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/oscap
 %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/oscap.*
 %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/template*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/content

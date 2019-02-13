@@ -104,16 +104,6 @@ if [ -d ${API_PATH_BACKUP} ]; then
   rm -rf ${API_PATH_BACKUP}
 fi
 
-# Verify if Python is installed and its version
-if python -V >/dev/null 2>&1; then
- python_version=$(python -c 'import sys; print(".".join(map(str, sys.version_info[:3])))' | cut -c1-3)
- if [ ! $python_version == '2.7' ]; then
-    echo "Warning: Minimal supported version is 2.7."
- fi
-else
- echo "Warning: You need Python 2.7 or greater."
-fi
-
 %preun
 
 if [ $1 = 0 ]; then
