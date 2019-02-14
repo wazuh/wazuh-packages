@@ -97,17 +97,17 @@ install -m 0640 wodles/oscap/content/*centos* ${RPM_BUILD_ROOT}%{_localstatedir}
 install -m 0640 wodles/oscap/content/*fedora* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 
 # Install configuration assesment files
-install -m 0640 etc/configuration_assesment/rhel/5/cis_rhel5_linux_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration_assesment
-install -m 0640 etc/configuration_assesment/rhel/6/cis_rhel6_linux_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration_assesment
-install -m 0640 etc/configuration_assesment/rhel/7/cis_rhel7_linux_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration_assesment
-install -m 0640 etc/configuration_assesment/rhel/cis_rhel_linux_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration_assesment
-install -m 0640 etc/configuration_assesment/suse/11/cis_sles11_linux_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration_assesment
-install -m 0640 etc/configuration_assesment/suse/12/cis_sles12_linux_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration_assesment
-install -m 0640 etc/configuration_assesment/generic/cis_apache2224_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration_assesment
-install -m 0640 etc/configuration_assesment/generic/cis_mysql5-6_enterprise_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration_assesment
-install -m 0640 etc/configuration_assesment/generic/system_audit_ssh.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration_assesment
-install -m 0640 etc/configuration_assesment/generic/cis_mysql5-6_community_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration_assesment
-install -m 0640 etc/configuration_assesment/generic/system_audit_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration_assesment
+install -m 0640 etc/configuration_assessment/rhel/5/cis_rhel5_linux_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration_assessment
+install -m 0640 etc/configuration_assessment/rhel/6/cis_rhel6_linux_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration_assessment
+install -m 0640 etc/configuration_assessment/rhel/7/cis_rhel7_linux_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration_assessment
+install -m 0640 etc/configuration_assessment/rhel/cis_rhel_linux_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration_assessment
+install -m 0640 etc/configuration_assessment/suse/11/cis_sles11_linux_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration_assessment
+install -m 0640 etc/configuration_assessment/suse/12/cis_sles12_linux_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration_assessment
+install -m 0640 etc/configuration_assessment/generic/cis_apache2224_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration_assessment
+install -m 0640 etc/configuration_assessment/generic/cis_mysql5-6_enterprise_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration_assessment
+install -m 0640 etc/configuration_assessment/generic/system_audit_ssh.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration_assessment
+install -m 0640 etc/configuration_assessment/generic/cis_mysql5-6_community_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration_assessment
+install -m 0640 etc/configuration_assessment/generic/system_audit_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration_assessment
 
 cp CHANGELOG.md CHANGELOG
 
