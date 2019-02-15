@@ -62,9 +62,9 @@ override_dh_install:
 	install -v -m 0640 -o root -g ossec wodles/oscap/content/*ubuntu*.xml $(INSTALLATION_DIR)/wodles/oscap/content/
 
 	# Copying configuration assesment files
-	install -v -m 0640 -o root -g ossec etc/configuration-assessment/debian/cis_debian_linux_rcl.yml $(INSTALLATION_DIR)/ruleset/configuration_assessment/
-	install -v -m 0640 -o root -g ossec etc/configuration-assessment/generic/system_audit_ssh.yml $(INSTALLATION_DIR)/ruleset/configuration_assessment/
-	install -v -m 0640 -o root -g ossec etc/configuration-assessment/generic/system_audit_rcl.yml $(INSTALLATION_DIR)/ruleset/configuration_assessment/
+	install -v -m 0640 -o root -g ossec etc/configuration-assessment/debian/cis_debian_linux_rcl.yml $(INSTALLATION_DIR)/ruleset/configuration-assessment/
+	install -v -m 0640 -o root -g ossec etc/configuration-assessment/generic/system_audit_ssh.yml $(INSTALLATION_DIR)/ruleset/configuration-assessment/
+	install -v -m 0640 -o root -g ossec etc/configuration-assessment/generic/system_audit_rcl.yml $(INSTALLATION_DIR)/ruleset/configuration-assessment/
 
 	# Copying init.d script
 	mkdir -p ${TARGET_DIR}/etc/init.d/
