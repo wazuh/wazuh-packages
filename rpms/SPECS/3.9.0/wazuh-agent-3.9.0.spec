@@ -100,7 +100,6 @@ install -m 0640 wodles/oscap/content/*fedora* ${RPM_BUILD_ROOT}%{_localstatedir}
 install -m 0640 etc/configuration-assessment/rhel/5/cis_rhel5_linux_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment
 install -m 0640 etc/configuration-assessment/rhel/6/cis_rhel6_linux_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment
 install -m 0640 etc/configuration-assessment/rhel/7/cis_rhel7_linux_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment
-install -m 0640 etc/configuration-assessment/rhel/cis_rhel_linux_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment
 install -m 0640 etc/configuration-assessment/suse/11/cis_sles11_linux_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment
 install -m 0640 etc/configuration-assessment/suse/12/cis_sles12_linux_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment
 install -m 0640 etc/configuration-assessment/generic/system_audit_ssh.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment
