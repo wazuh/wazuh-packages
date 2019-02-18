@@ -443,8 +443,8 @@ rm -fr %{buildroot}
 %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap/template*
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap/content
 %attr(640,root,ossec) %{_localstatedir}/ossec/wodles/oscap/content/*
-%dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/ruleset/configuration_assessment
-%attr(640, root, ossec) %{_localstatedir}/ossec/ruleset/configuration_assessment/*
+%dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/ruleset/configuration-assessment
+%attr(640, root, ossec) %{_localstatedir}/ossec/ruleset/configuration-assessment/*
 
 
 %changelog
