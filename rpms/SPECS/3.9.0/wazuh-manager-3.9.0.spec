@@ -629,7 +629,7 @@ rm -fr %{buildroot}
 %dir %attr(760, root, ossec) %{_localstatedir}/ossec/queue/vulnerabilities
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset
 %attr(640, root, ossec) %{_localstatedir}/ossec/ruleset/VERSION
-%dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/ruleset/configuration-assessment
+%dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/ruleset/configuration-assessment
 %attr(640, root, ossec) %{_localstatedir}/ossec/ruleset/configuration-assessment/*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset/decoders
 %attr(640, root, ossec) %{_localstatedir}/ossec/ruleset/decoders/*
