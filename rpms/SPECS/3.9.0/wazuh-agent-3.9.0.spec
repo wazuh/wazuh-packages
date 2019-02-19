@@ -423,6 +423,8 @@ rm -fr %{buildroot}
 %dir %attr(750,ossec,ossec) %{_localstatedir}/ossec/queue/diff
 %dir %attr(770,ossec,ossec) %{_localstatedir}/ossec/queue/alerts
 %dir %attr(750,ossec,ossec) %{_localstatedir}/ossec/queue/rids
+%dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/ruleset/configuration-assessment
+%attr(640, root, ossec) %{_localstatedir}/ossec/ruleset/configuration-assessment/*
 %dir %attr(1770,root,ossec) %{_localstatedir}/ossec/tmp
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec/var
 %dir %attr(770,root,ossec) %{_localstatedir}/ossec/var/incoming
@@ -441,14 +443,16 @@ rm -fr %{buildroot}
 %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap/template*
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap/content
 %attr(640,root,ossec) %{_localstatedir}/ossec/wodles/oscap/content/*
-%dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/ruleset/configuration-assessment
-%attr(640, root, ossec) %{_localstatedir}/ossec/ruleset/configuration-assessment/*
 
 
 %changelog
-* Mon Feb 18 2019 support <info@wazuh.com> - 3.9.0
+* Mon Feb 25 2019 support <info@wazuh.com> - 3.9.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Sat Jan 19 2019 support <info@wazuh.com> - 3.8.0
+* Wed Jan 30 2019 support <info@wazuh.com> - 3.8.2
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Thu Jan 24 2019 support <info@wazuh.com> - 3.8.1
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Wed Jan 16 2019 support <info@wazuh.com> - 3.8.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Dec 10 2018 support <info@wazuh.com> - 3.7.2
 - More info: https://documentation.wazuh.com/current/release-notes/
