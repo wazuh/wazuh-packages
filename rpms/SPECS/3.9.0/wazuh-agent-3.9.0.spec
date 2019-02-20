@@ -423,6 +423,7 @@ rm -fr %{buildroot}
 %dir %attr(750,ossec,ossec) %{_localstatedir}/ossec/queue/diff
 %dir %attr(770,ossec,ossec) %{_localstatedir}/ossec/queue/alerts
 %dir %attr(750,ossec,ossec) %{_localstatedir}/ossec/queue/rids
+%dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset/configuration-assessment
 %attr(640, root, ossec) %{_localstatedir}/ossec/ruleset/configuration-assessment/*
 %dir %attr(1770,root,ossec) %{_localstatedir}/ossec/tmp
