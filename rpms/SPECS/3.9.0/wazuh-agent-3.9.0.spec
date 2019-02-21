@@ -100,25 +100,25 @@ install -m 0640 wodles/oscap/content/*fedora* ${RPM_BUILD_ROOT}%{_localstatedir}
 rm -f  ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment/*
 
 # Install configuration assesment files and files templates
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/generic
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/centos/{7,6,5}
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/rhel/{7,6,5}
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/suse/{11,12}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/generic
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/centos/{7,6,5}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/rhel/{7,6,5}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/suse/{11,12}
 
-cp -r etc/configuration-assessment/{generic,rhel,suse} ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment-tmp
+cp -r etc/configuration-assessment/{generic,rhel,suse} ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp
 
-cp etc/templates/config/generic/configuration_assessment.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/generic
+cp etc/templates/config/generic/configuration_assessment.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/generic
 
-cp etc/templates/config/centos/7/configuration_assessment.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/centos/7
-cp etc/templates/config/centos/6/configuration_assessment.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/centos/6
-cp etc/templates/config/centos/5/configuration_assessment.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/centos/5
+cp etc/templates/config/centos/7/configuration_assessment.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/centos/7
+cp etc/templates/config/centos/6/configuration_assessment.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/centos/6
+cp etc/templates/config/centos/5/configuration_assessment.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/centos/5
 
-cp etc/templates/config/rhel/7/configuration_assessment.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/rhel/7
-cp etc/templates/config/rhel/6/configuration_assessment.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/rhel/6
-cp etc/templates/config/rhel/5/configuration_assessment.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/rhel/5
+cp etc/templates/config/rhel/7/configuration_assessment.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/rhel/7
+cp etc/templates/config/rhel/6/configuration_assessment.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/rhel/6
+cp etc/templates/config/rhel/5/configuration_assessment.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/rhel/5
 
-cp etc/templates/config/suse/12/configuration_assessment.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/suse/12
-cp etc/templates/config/suse/11/configuration_assessment.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/suse/11
+cp etc/templates/config/suse/12/configuration_assessment.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/suse/12
+cp etc/templates/config/suse/11/configuration_assessment.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/suse/11
 
 cp CHANGELOG.md CHANGELOG
 
@@ -269,16 +269,15 @@ else
   DIST_NAME="generic"
 fi
 
+CONF_ASSESMENT_DIR="${DIST_NAME}/${DIST_VER}"
+mkdir -p %{_localstatedir}/ossec/ruleset/configuration-assessment
+# Install the configuration files
+while read -r conf_file; do
+    mv %{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/${conf_file} %{_localstatedir}/ossec/ruleset/configuration-assessment
+done < %{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/${CONF_ASSESMENT_DIR}/configuration_assessment.files
+# Delete the temporary directory
+rm -rf %{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp
 
-if [ $1 = 1 ]; then
-  CONF_ASSESMENT_DIR="${DIST_NAME}/${DIST_VER}"
-  mkdir -p %{_localstatedir}/ossec/ruleset/configuration-assessment
-  # Install the configuration files
-  while read -r conf_file; do
-      cp -p %{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/${conf_file} %{_localstatedir}/ossec/ruleset/configuration-assessment
-  done < %{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/${CONF_ASSESMENT_DIR}/configuration_assessment.files
-  rm -rf %{_localstatedir}/ossec/ruleset/configuration-assessment-tmp
-fi
 
 if ([ "X${DIST_NAME}" = "Xrhel" ] || [ "X${DIST_NAME}" = "Xcentos" ] || [ "X${DIST_NAME}" = "XCentOS" ]) && [ "${DIST_VER}" == "5" ]; then
   if command -v getenforce > /dev/null 2>&1; then
@@ -366,7 +365,7 @@ if [ $1 == 0 ];then
   rm -rf %{_localstatedir}/ossec/bin/
   rm -rf %{_localstatedir}/ossec/logs/
   rm -rf %{_localstatedir}/ossec/backup/
-
+  rm -rf %{_localstatedir}/ossec/ruleset/configuration-assessment/
 fi
 
 # If the package is been downgraded
@@ -459,28 +458,28 @@ rm -fr %{buildroot}
 %dir %attr(750,ossec,ossec) %{_localstatedir}/ossec/queue/rids
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/ruleset/
 %dir %attr(750, ossec, ossec) %ghost %{_localstatedir}/ossec/ruleset/configuration-assessment
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-tmp
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/generic
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/generic/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/centos
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/centos/5
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/centos/5/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/centos/6
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/centos/6/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/centos/7
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/centos/7/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/rhel
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/rhel/5
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/rhel/5/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/rhel/6
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/rhel/6/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/rhel/7
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/rhel/7/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/suse
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/suse/11
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/suse/11/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/suse/12
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-tmp/suse/12/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/generic
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/generic/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/centos
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/centos/5
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/centos/5/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/centos/6
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/centos/6/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/centos/7
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/centos/7/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/rhel
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/rhel/5
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/rhel/5/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/rhel/6
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/rhel/6/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/rhel/7
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/rhel/7/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/suse
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/suse/11
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/suse/11/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/suse/12
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/suse/12/*
 %dir %attr(1770,root,ossec) %{_localstatedir}/ossec/tmp
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec/var
 %dir %attr(770,root,ossec) %{_localstatedir}/ossec/var/incoming
