@@ -253,6 +253,10 @@ fi
 if [ -r "/etc/centos-release" ]; then
   DIST_NAME="centos"
   DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.*[0-9]{0,2}.*/\1/p' /etc/centos-release`
+# Fedora
+elif [ -r "/etc/fedora-release" ]; then
+    DIST_NAME="generic"
+    DIST_VER=""
 # RedHat
 elif [ -r "/etc/redhat-release" ]; then
   if grep -q "CentOS" /etc/redhat-release; then
@@ -267,14 +271,15 @@ elif [ -r "/etc/SuSE-release" ]; then
   DIST_VER=`sed -rn 's/.*VERSION = ([0-9]{1,2}).*/\1/p' /etc/SuSE-release`
 else
   DIST_NAME="generic"
+  DIST_VER=""
 fi
 
 CONF_ASSESMENT_DIR="${DIST_NAME}/${DIST_VER}"
 mkdir -p %{_localstatedir}/ossec/ruleset/configuration-assessment
 # Install the configuration files
-while read -r conf_file; do
-    mv %{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/${conf_file} %{_localstatedir}/ossec/ruleset/configuration-assessment
-done < %{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/${CONF_ASSESMENT_DIR}/configuration_assessment.files
+for sca_file in $(cat %{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/${CONF_ASSESMENT_DIR}/configuration_assessment.files); do
+    mv %{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp/${sca_file} %{_localstatedir}/ossec/ruleset/configuration-assessment
+done
 # Delete the temporary directory
 rm -rf %{_localstatedir}/ossec/ruleset/configuration-assessment-%{version}-%{release}-tmp
 
