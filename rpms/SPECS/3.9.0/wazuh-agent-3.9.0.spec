@@ -100,25 +100,25 @@ install -m 0640 wodles/oscap/content/*fedora* ${RPM_BUILD_ROOT}%{_localstatedir}
 rm -f  ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca/*
 
 # Install configuration assesment files and files templates
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/generic
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/centos/{7,6,5}
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/rhel/{7,6,5}
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/suse/{11,12}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/generic
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/{7,6,5}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/{7,6,5}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/suse/{11,12}
 
-cp -r etc/sca/{generic,rhel,suse} ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp
+cp -r etc/sca/{generic,rhel,suse} ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp
 
-cp etc/templates/config/generic/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/generic
+cp etc/templates/config/generic/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/generic
 
-cp etc/templates/config/centos/7/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/centos/7
-cp etc/templates/config/centos/6/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/centos/6
-cp etc/templates/config/centos/5/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/centos/5
+cp etc/templates/config/centos/7/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/7
+cp etc/templates/config/centos/6/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/6
+cp etc/templates/config/centos/5/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/5
 
-cp etc/templates/config/rhel/7/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/rhel/7
-cp etc/templates/config/rhel/6/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/rhel/6
-cp etc/templates/config/rhel/5/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/rhel/5
+cp etc/templates/config/rhel/7/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/7
+cp etc/templates/config/rhel/6/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/6
+cp etc/templates/config/rhel/5/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/5
 
-cp etc/templates/config/suse/12/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/suse/12
-cp etc/templates/config/suse/11/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/suse/11
+cp etc/templates/config/suse/12/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/suse/12
+cp etc/templates/config/suse/11/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/suse/11
 
 cp CHANGELOG.md CHANGELOG
 
@@ -277,11 +277,11 @@ fi
 CONF_ASSESMENT_DIR="${DIST_NAME}/${DIST_VER}"
 mkdir -p %{_localstatedir}/ossec/ruleset/sca
 # Install the configuration files
-for sca_file in $(cat %{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/${CONF_ASSESMENT_DIR}/sca.files); do
-    mv %{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/${sca_file} %{_localstatedir}/ossec/ruleset/sca
+for sca_file in $(cat %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${CONF_ASSESMENT_DIR}/sca.files); do
+  mv %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${sca_file} %{_localstatedir}/ossec/ruleset/sca
 done
 # Delete the temporary directory
-rm -rf %{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp
+rm -rf %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp
 
 
 if ([ "X${DIST_NAME}" = "Xrhel" ] || [ "X${DIST_NAME}" = "Xcentos" ] || [ "X${DIST_NAME}" = "XCentOS" ]) && [ "${DIST_VER}" == "5" ]; then
@@ -463,28 +463,28 @@ rm -fr %{buildroot}
 %dir %attr(750,ossec,ossec) %{_localstatedir}/ossec/queue/rids
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/ruleset/
 %dir %attr(750, ossec, ossec) %ghost %{_localstatedir}/ossec/ruleset/sca
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/generic
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/generic/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/centos
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/centos/5
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/centos/5/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/centos/6
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/centos/6/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/centos/7
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/centos/7/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/rhel
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/rhel/5
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/rhel/5/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/rhel/6
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/rhel/6/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/rhel/7
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/rhel/7/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/suse
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/suse/11
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/suse/11/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/suse/12
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/ruleset/sca-%{version}-%{release}-tmp/suse/12/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/generic
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/generic/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/5
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/5/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/6
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/6/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/7
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/7/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/5
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/5/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/6
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/6/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/7
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/7/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/suse
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/suse/11
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/suse/11/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/suse/12
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/suse/12/*
 %dir %attr(1770,root,ossec) %{_localstatedir}/ossec/tmp
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec/var
 %dir %attr(770,root,ossec) %{_localstatedir}/ossec/var/incoming
