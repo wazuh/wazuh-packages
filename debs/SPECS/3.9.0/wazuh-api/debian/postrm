@@ -43,7 +43,7 @@ case "$1" in
 
         if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
 
-           if ps axu | grep ${WAZUH_API_DIR}/app.js | grep -v grep > /dev/null 2>&1; then
+           if ps axu | grep ${WAZUH_API_DIR}/app.js | grep -v grep > /dev/null ; then
                 service wazuh-api stop
            fi
         fi
