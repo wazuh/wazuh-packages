@@ -388,6 +388,9 @@ fi
 # Delete the installation files used to configure the manager
 rm -rf %{_localstatedir}/ossec/packages_files
 
+# Remove unnecessary files from default group
+rm -f %{_localstatedir}/ossec/etc/shared/default/*.rpmnew
+
 if %{_localstatedir}/ossec/bin/ossec-logtest 2>/dev/null ; then
   /sbin/service wazuh-manager restart > /dev/null 2>&1
 else

@@ -15,7 +15,7 @@ In this repository, you can find the necessary tools to build a Wazuh package fo
 To build a Wazuh package you need to install the following tools:
   - `docker`: [installation guide](https://docs.docker.com/install/linux/docker-ce/centos/) for RPM and [installation guide](https://docs.docker.com/install/linux/docker-ce/debian/) for Debian.
   - `git`: `apt-get install git` for Debian based OS or `yum install git` for RPM based OS.
-  
+
 ## Building RPM packages
 
 To build an RPM package, you need to download this repository and use the `generate_wazuh_rpm.sh` script. This script will download the source code from the [wazuh/wazuh](https://github.com/wazuh/wazuh) repository or the [wazuh/wazuh-api](https://github.com/wazuh/wazuh-api) (depending on which package do you want to build), select automatically the RPM spec file, build a Docker image with all the necessary tools to build the RPM package and run a Docker container from that image that will generate the `.src.rpm` and `.rpm` packages.
@@ -31,7 +31,7 @@ To build an RPM package, you need to download this repository and use the `gener
 
     Usage: ./generate_rpm_package.sh [OPTIONS]
 
-        -b, --branch <branch>     [Required] Select Git branch or tag e.g. 
+        -b, --branch <branch>     [Required] Select Git branch or tag e.g.
         -d, --destination <path>  [Required] Set the destination path of package.
         -t, --target <target>     [Required] Target package to build [manager/api/agent].
         -a, --architecture <arch> [Required] Target architecture of the package [x86_64/i386].
@@ -67,7 +67,7 @@ Building a .deb package is pretty similar to build a .rpm package. You need to d
 
       Usage: ./generate_debian_package.sh [OPTIONS]
 
-          -b, --branch <branch>     [Required] Select Git branch or tag e.g. 
+          -b, --branch <branch>     [Required] Select Git branch or tag e.g.
           -d, --destination <path>  [Required] Set the destination path of package.
           -t, --target <target>     [Required] Target package to build [manager/api/agent].
           -a, --architecture <arch> [Required] Target architecture of the package [amd64/i386].
@@ -93,5 +93,5 @@ If you want to contribute to our project please don't hesitate to send a pull re
 
 ## License and copyright
 
-WAZUH  
-Copyright (C) 2016-2018 Wazuh Inc.  (License GPLv2)
+WAZUH
+Copyright (C) 2016-2019 Wazuh Inc.  (License GPLv2)

@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Wazuh package generator
+# Copyright (C) 2015-2019, Wazuh Inc.
+#
+# This program is a free software; you can redistribute it
+# and/or modify it under the terms of the GNU General Public
+# License (version 2) as published by the FSF - Free Software
+# Foundation.
+
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ARCHITECTURE="x86_64"
 LEGACY="no"
@@ -50,6 +58,15 @@ build_rpm() {
 
     if [[ "$TARGET" != "api" ]]; then
         VERSION="$(cat ${SOURCES_DIRECTORY}/src/VERSION | cut -d 'v' -f 2)"
+
+        if [[ "$TARGET" == "manager" ]] && [[ "$LEGACY" = "yes" ]]; then
+            MAJOR_MINOR="$(echo $VERSION | cut -c 2-4)"
+            if [[ "${MAJOR_MINOR}" > "3.9" ]] || [[ "${MAJOR_MINOR}" == "3.9" ]]; then
+                echo "Wazuh Manager is not supported for CentOS 5 from v3.9.0."
+                echo "Version to build: ${VERSION}."
+                exit 1
+            fi
+        fi
     else
         VERSION="$(grep version ${SOURCES_DIRECTORY}/package.json | cut -d '"' -f 4)"
     fi

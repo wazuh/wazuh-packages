@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Wazuh package generator
+# Copyright (C) 2015-2019, Wazuh Inc.
+#
+# This program is a free software; you can redistribute it
+# and/or modify it under the terms of the GNU General Public
+# License (version 2) as published by the FSF - Free Software
+# Foundation.
+
 # Constants
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 DEB_AMD64_BUILDER="deb_builder_amd64"
@@ -51,7 +59,7 @@ function build_container() {
     # Copy the necessary files
     cp gen_permissions.sh ${SOURCES_DIRECTORY}
     cp build.sh ${DOCKERFILE_PATH}
-    
+
     # Copy the "specs" files for the Debian package
     cp -rp SPECS/$VERSION/wazuh-$TARGET ${DOCKERFILE_PATH}/
 

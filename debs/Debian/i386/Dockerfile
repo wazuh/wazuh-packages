@@ -8,6 +8,11 @@ RUN apt-get install -y curl gcc-multilib make sudo expect \
     automake autoconf libtool libaudit-dev selinux-basics \
     util-linux
 
+# Add Debian's source repository
+RUN echo "deb-src http://deb.debian.org/debian wheezy main" >> /etc/apt/sources.list
+RUN apt-get update
+RUN apt-get build-dep python3.2 -y
+
 # Add the script to build the Debian package
 ADD build.sh /usr/local/bin/build_package
 RUN chmod +x /usr/local/bin/build_package

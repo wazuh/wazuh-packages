@@ -96,6 +96,13 @@ install -m 0640 wodles/oscap/content/*rhel* ${RPM_BUILD_ROOT}%{_localstatedir}/o
 install -m 0640 wodles/oscap/content/*centos* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 install -m 0640 wodles/oscap/content/*fedora* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 
+# Install configuration assesment files
+install -m 0640 etc/configuration-assessment/rhel/5/cis_rhel5_linux_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment
+install -m 0640 etc/configuration-assessment/rhel/6/cis_rhel6_linux_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment
+install -m 0640 etc/configuration-assessment/rhel/7/cis_rhel7_linux_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment
+install -m 0640 etc/configuration-assessment/suse/11/cis_sles11_linux_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment
+install -m 0640 etc/configuration-assessment/suse/12/cis_sles12_linux_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment
+
 cp CHANGELOG.md CHANGELOG
 
 # Add configuration scripts
@@ -416,6 +423,9 @@ rm -fr %{buildroot}
 %dir %attr(750,ossec,ossec) %{_localstatedir}/ossec/queue/diff
 %dir %attr(770,ossec,ossec) %{_localstatedir}/ossec/queue/alerts
 %dir %attr(750,ossec,ossec) %{_localstatedir}/ossec/queue/rids
+%dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset
+%dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset/configuration-assessment
+%attr(640, root, ossec) %{_localstatedir}/ossec/ruleset/configuration-assessment/*
 %dir %attr(1770,root,ossec) %{_localstatedir}/ossec/tmp
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec/var
 %dir %attr(770,root,ossec) %{_localstatedir}/ossec/var/incoming
@@ -437,9 +447,13 @@ rm -fr %{buildroot}
 
 
 %changelog
-* Mon Feb 18 2019 support <info@wazuh.com> - 3.9.0
+* Mon Feb 25 2019 support <info@wazuh.com> - 3.9.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Sat Jan 19 2019 support <info@wazuh.com> - 3.8.0
+* Wed Jan 30 2019 support <info@wazuh.com> - 3.8.2
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Thu Jan 24 2019 support <info@wazuh.com> - 3.8.1
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Wed Jan 16 2019 support <info@wazuh.com> - 3.8.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Dec 10 2018 support <info@wazuh.com> - 3.7.2
 - More info: https://documentation.wazuh.com/current/release-notes/

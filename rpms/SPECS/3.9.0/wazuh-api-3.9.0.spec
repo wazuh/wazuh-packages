@@ -104,16 +104,6 @@ if [ -d ${API_PATH_BACKUP} ]; then
   rm -rf ${API_PATH_BACKUP}
 fi
 
-# Verify if Python is installed and its version
-if python -V >/dev/null 2>&1; then
- python_version=$(python -c 'import sys; print(".".join(map(str, sys.version_info[:3])))' | cut -c1-3)
- if [ ! $python_version == '2.7' ]; then
-    echo "Warning: Minimal supported version is 2.7."
- fi
-else
- echo "Warning: You need Python 2.7 or greater."
-fi
-
 %preun
 
 if [ $1 = 0 ]; then
@@ -181,9 +171,13 @@ rm -fr %{buildroot}
 %attr(660, ossec, ossec) %ghost %{_localstatedir}/ossec/logs/api.log
 
 %changelog
-* Mon Feb 18 2019 support <info@wazuh.com> - 3.9.0
+* Mon Feb 25 2019 support <info@wazuh.com> - 3.9.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Sat Jan 19 2019 support <info@wazuh.com> - 3.8.0
+* Wed Jan 30 2019 support <info@wazuh.com> - 3.8.2
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Thu Jan 24 2019 support <info@wazuh.com> - 3.8.1
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Wed Jan 16 2019 support <info@wazuh.com> - 3.8.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Dec 10 2018 support <info@wazuh.com> - 3.7.2
 - More info: https://documentation.wazuh.com/current/release-notes/
