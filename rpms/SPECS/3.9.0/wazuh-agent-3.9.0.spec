@@ -271,8 +271,13 @@ elif [ -r "/etc/redhat-release" ]; then
   DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.*[0-9]{0,2}.*/\1/p' /etc/redhat-release`
 # SUSE
 elif [ -r "/etc/SuSE-release" ]; then
-  DIST_NAME="sles"
-  DIST_VER=`sed -rn 's/.*VERSION = ([0-9]{1,2}).*/\1/p' /etc/SuSE-release`
+  if grep -q "openSUSE" /etc/SuSE-release; then
+      DIST_NAME="generic"
+      DIST_VER=""
+  else
+      DIST_NAME="sles"
+      DIST_VER=`sed -rn 's/.*VERSION = ([0-9]{1,2}).*/\1/p' /etc/SuSE-release`
+  fi
 else
   DIST_NAME="generic"
   DIST_VER=""
