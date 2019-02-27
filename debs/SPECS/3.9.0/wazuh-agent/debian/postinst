@@ -131,6 +131,25 @@ case "$1" in
     chmod 640 /etc/ossec-init.conf
     chown root:ossec /etc/ossec-init.conf
 
+    if [ -z "$2" ] ; then
+
+        # Auto-register and configuration ossec.conf 
+        # If the client.keys file is empty and the variable WAZUH_MANAGER_IP is defined, run the  script
+        if [ ! -s ${DIR}/etc/client.keys ] && [ ! -z ${WAZUH_MANAGER_IP} ]; then
+            OPTIONS="register ${WAZUH_MANAGER_IP}"
+            if [ ! -z ${WAZUH_AUTH_IP} ]; then
+                OPTIONS="${OPTIONS} registration_address ${WAZUH_AUTH_IP}"
+            fi
+            if [ ! -z ${WAZUH_PASSWORD} ]; then
+                OPTIONS="${OPTIONS} password ${WAZUH_PASSWORD}"
+            fi
+            if [ ! -z ${WAZUH_PROTOCOL} ]; then
+                OPTIONS="${OPTIONS} protocol ${WAZUH_PROTOCOL}"
+            fi
+          ${DIR}/bin/wazuhctl register ${OPTIONS}
+        fi
+    fi
+
     ;;
 
 
