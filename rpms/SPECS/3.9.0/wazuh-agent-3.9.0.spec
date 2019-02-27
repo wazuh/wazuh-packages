@@ -461,8 +461,8 @@ rm -fr %{buildroot}
 %dir %attr(750,ossec,ossec) %{_localstatedir}/ossec/queue/diff
 %dir %attr(770,ossec,ossec) %{_localstatedir}/ossec/queue/alerts
 %dir %attr(750,ossec,ossec) %{_localstatedir}/ossec/queue/rids
-%dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/ruleset/
-%dir %attr(750, ossec, ossec) %ghost %{_localstatedir}/ossec/ruleset/sca
+%dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset/
+%dir %attr(750, root, ossec) %ghost %{_localstatedir}/ossec/ruleset/sca
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/generic
 %attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/generic/*

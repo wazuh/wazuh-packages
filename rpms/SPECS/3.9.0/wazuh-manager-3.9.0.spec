@@ -628,7 +628,7 @@ rm -fr %{buildroot}
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/queue/ossec
 %dir %attr(760, root, ossec) %{_localstatedir}/ossec/queue/vulnerabilities
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset
-%dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/ruleset/sca
+%dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset/sca
 %attr(640, root, ossec) %{_localstatedir}/ossec/ruleset/sca/*
 %attr(640, root, ossec) %{_localstatedir}/ossec/ruleset/VERSION
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset/decoders
