@@ -196,9 +196,17 @@ if [ $1 = 1 ]; then
 
   sles=""
   if [ -f /etc/os-release ]; then
-    sles=$(grep "\"sles" /etc/os-release)
+    if `grep -q "\"sles" /etc/os-release` ; then
+      sles="suse"
+    elif `grep -q -i "\"opensuse" /etc/os-release` ; then
+      sles="opensuse"
+    fi
   elif [ -f /etc/SuSE-release ]; then
-    sles=$(grep "SUSE Linux Enterprise Server" /etc/SuSE-release)
+    if `grep -q "SUSE Linux Enterprise Server" /etc/SuSE-release` ; then
+      sles="suse"
+    elif `grep -q -i "opensuse" /etc/SuSE-release` ; then
+      sles="opensuse"
+    fi
   fi
   if [ ! -z "$sles" ]; then
     install -m 755 %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/init/ossec-hids-suse.init /etc/init.d/wazuh-agent
