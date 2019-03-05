@@ -246,21 +246,8 @@ if [ $1 = 1 ]; then
     systemctl enable wazuh-agent > /dev/null 2>&1
   fi
 
-  # Auto-register and configuration ossec.conf 
-  # If the client.keys file is empty and the variable WAZUH_MANAGER_IP is defined, run the  script
-  if [ ! -s %{_localstatedir}/ossec/etc/client.keys ] && [ ! -z ${WAZUH_MANAGER_IP} ]; then
-      OPTIONS="register ${WAZUH_MANAGER_IP}"
-      if [ ! -z ${WAZUH_AUTH_IP} ]; then
-          OPTIONS="${OPTIONS} registration_address ${WAZUH_AUTH_IP}"
-      fi
-      if [ ! -z ${WAZUH_PASSWORD} ]; then
-          OPTIONS="${OPTIONS} password ${WAZUH_PASSWORD}"
-      fi
-      if [ ! -z ${WAZUH_PROTOCOL} ]; then
-          OPTIONS="${OPTIONS} protocol ${WAZUH_PROTOCOL}"
-      fi
-    %{_localstatedir}/ossec/bin/wazuhctl register ${OPTIONS}
-  fi
+  # Auto-register and configuration ossec.conf. Only new installations
+  %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/init/register_configure_agent.sh
 
 fi
 

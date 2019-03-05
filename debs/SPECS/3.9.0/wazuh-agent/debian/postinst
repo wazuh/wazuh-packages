@@ -102,6 +102,11 @@ case "$1" in
         update-rc.d wazuh-agent defaults > /dev/null 2>&1
     fi
 
+    # Auto-register and configuration ossec.conf. Only new installations
+    if [ -z "$2" ] ; then
+        ${SCRIPTS_DIR}/src/init/register_configure_agent.sh
+    fi
+
     # Delete installation scripts
     if [ -d ${SCRIPTS_DIR} ]; then
         rm -rf ${SCRIPTS_DIR}
@@ -130,25 +135,6 @@ case "$1" in
     # Fix /etc/ossec-init.conf
     chmod 640 /etc/ossec-init.conf
     chown root:ossec /etc/ossec-init.conf
-
-    if [ -z "$2" ] ; then
-
-        # Auto-register and configuration ossec.conf 
-        # If the client.keys file is empty and the variable WAZUH_MANAGER_IP is defined, run the  script
-        if [ ! -s ${DIR}/etc/client.keys ] && [ ! -z ${WAZUH_MANAGER_IP} ]; then
-            OPTIONS="register ${WAZUH_MANAGER_IP}"
-            if [ ! -z ${WAZUH_AUTH_IP} ]; then
-                OPTIONS="${OPTIONS} registration_address ${WAZUH_AUTH_IP}"
-            fi
-            if [ ! -z ${WAZUH_PASSWORD} ]; then
-                OPTIONS="${OPTIONS} password ${WAZUH_PASSWORD}"
-            fi
-            if [ ! -z ${WAZUH_PROTOCOL} ]; then
-                OPTIONS="${OPTIONS} protocol ${WAZUH_PROTOCOL}"
-            fi
-          ${DIR}/bin/wazuhctl register ${OPTIONS}
-        fi
-    fi
 
     ;;
 
