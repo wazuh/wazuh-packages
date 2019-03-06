@@ -246,8 +246,8 @@ if [ $1 = 1 ]; then
     systemctl enable wazuh-agent > /dev/null 2>&1
   fi
 
-  # Auto-register and configuration ossec.conf. Only new installations
-  %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/init/register_configure_agent.sh
+  # Register and configure agent if Wazuh environment variables are defined
+  %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/init/register_configure_agent.sh > /dev/null
 
 fi
 
@@ -294,15 +294,14 @@ else
   DIST_VER=""
 fi
 
-CONF_ASSESMENT_DIR="${DIST_NAME}/${DIST_VER}"
+SCA_DIR="${DIST_NAME}/${DIST_VER}"
 mkdir -p %{_localstatedir}/ossec/ruleset/sca
 # Install the configuration files
-for sca_file in $(cat %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${CONF_ASSESMENT_DIR}/sca.files); do
+for sca_file in $(cat %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${SCA_DIR}/sca.files); do
   mv %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${sca_file} %{_localstatedir}/ossec/ruleset/sca
 done
 # Delete the temporary directory
 rm -rf %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp
-
 
 if ([ "X${DIST_NAME}" = "Xrhel" ] || [ "X${DIST_NAME}" = "Xcentos" ] || [ "X${DIST_NAME}" = "XCentOS" ]) && [ "${DIST_VER}" == "5" ]; then
   if command -v getenforce > /dev/null 2>&1; then

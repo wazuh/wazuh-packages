@@ -102,9 +102,9 @@ case "$1" in
         update-rc.d wazuh-agent defaults > /dev/null 2>&1
     fi
 
-    # Auto-register and configuration ossec.conf. Only new installations
+    # Register and configure agent if Wazuh environment variables are defined
     if [ -z "$2" ] ; then
-        ${SCRIPTS_DIR}/src/init/register_configure_agent.sh
+        ${SCRIPTS_DIR}/src/init/register_configure_agent.sh > /dev/null
     fi
 
     # Delete installation scripts
