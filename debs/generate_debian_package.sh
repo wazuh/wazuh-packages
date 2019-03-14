@@ -32,12 +32,14 @@ function build_package() {
     local DOCKERFILE_PATH="$7"
     local JOBS="$8"
     local INSTALLATION_PATH="$9"
+    local DEBUG="${10}"
 
     # Build the Debian package with a Docker container
     docker run -t --rm -v ${DESTINATION}:/var/local/wazuh \
         -v ${SOURCES_DIRECTORY}:/build_wazuh/${TARGET}/wazuh-${TARGET}-${VERSION} \
         -v ${DOCKERFILE_PATH}/wazuh-${TARGET}:/${TARGET} \
-        ${CONTAINER_NAME} ${TARGET} ${VERSION} ${ARCHITECTURE} ${REVISION} ${JOBS} ${INSTALLATION_PATH} || exit 1
+        ${CONTAINER_NAME} ${TARGET} ${VERSION} ${ARCHITECTURE} \
+        ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} || exit 1
 
     # Clean the files
     rm -rf ${DOCKERFILE_PATH}/{*.sh,*.tar.gz,wazuh-*} ${SOURCES_DIRECTORY}
@@ -74,12 +76,13 @@ function help() {
     echo "Usage: $0 [OPTIONS]"
     echo
     echo "    -b, --branch <branch>     [Required] Select Git branch or tag e.g. $BRANCH"
-    echo "    -d, --destination <path>  [Required] Set the destination path of package."
+    echo "    -s, --store <path>        [Required] Set the destination path of package."
     echo "    -t, --target <target>     [Required] Target package to build [manager/api/agent]."
     echo "    -a, --architecture <arch> [Required] Target architecture of the package [amd64/i386]."
     echo "    -r, --revision <rev>      [Required] Package revision that append to version e.g. x.x.x-rev"
     echo "    -j, --jobs <number>       [Optional] Number of parallel jobs when compiling."
     echo "    -p, --path <path>         [Optional] Installation path for the package. By default: /var/ossec."
+    echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
     echo "    -h, --help                Show this help."
     echo
     exit $1
@@ -99,6 +102,7 @@ function main() {
     local SOURCE_REPOSITORY=""
     local CONTAINER_NAME=""
     local DOCKERFILE_PATH=""
+    local DEBUG="no"
 
     local HAVE_BRANCH=false
     local HAVE_DESTINATION=false
@@ -119,7 +123,7 @@ function main() {
                 help 1
             fi
             ;;
-        "-d"|"--destination")
+        "-s"|"--store")
             if [ -n "$2" ]
             then
                 if [[ "${2: -1}" != "/" ]]; then
@@ -200,6 +204,10 @@ function main() {
         "-h"|"--help")
             help 0
             ;;
+        "-d"|"--debug")
+            DEBUG="yes"
+            shift 1
+            ;;
         *)
             help 1
         esac
@@ -219,7 +227,7 @@ function main() {
       fi
 
       build_container $TARGET $VERSION $ARCHITECTURE $CONTAINER_NAME $DOCKERFILE_PATH || exit 1
-      build_package $TARGET $VERSION $REVISION $ARCHITECTURE $DESTINATION $CONTAINER_NAME $DOCKERFILE_PATH $JOBS $INSTALLATION_PATH || exit 1
+      build_package $TARGET $VERSION $REVISION $ARCHITECTURE $DESTINATION $CONTAINER_NAME $DOCKERFILE_PATH $JOBS $INSTALLATION_PATH $DEBUG || exit 1
     else
       echo "ERROR: Need more parameters"
       help 1

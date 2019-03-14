@@ -23,7 +23,6 @@ BRAND="wazuh"
 PACKAGE_EXTENSION="rpm"
 LEGACY_TAR_FILE="${LEGACY_RPM_BUILDER_DOCKERFILE}/i386/centos-5-i386.tar.gz"
 TAR_URL="https://packages-dev.wazuh.com/utils/centos-5-i386-build/centos-5-i386.tar.gz"
-DEBUG="no"
 
 if command -v curl > /dev/null 2>&1 ; then
     DOWNLOAD_TAR="curl ${TAR_URL} -o ${LEGACY_TAR_FILE} -s"
@@ -121,6 +120,7 @@ function main() {
     local SOURCE_REPOSITORY=""
     local CONTAINER_NAME=""
     local DOCKERFILE_PATH=""
+    local DEBUG="no"
 
     local HAVE_BRANCH=false
     local HAVE_DESTINATION=false
@@ -270,7 +270,7 @@ function main() {
       fi
 
       build_container $TARGET $VERSION $ARCHITECTURE $CONTAINER_NAME $DOCKERFILE_PATH || exit 1
-      build_package $TARGET $VERSION $REVISION $ARCHITECTURE $DESTINATION $CONTAINER_NAME $DOCKERFILE_PATH $JOBS $INSTALLATION_PATH || exit 1
+      build_package $TARGET $VERSION $REVISION $ARCHITECTURE $DESTINATION $CONTAINER_NAME $DOCKERFILE_PATH $JOBS $INSTALLATION_PATH $DEBUG || exit 1
     else
       echo "ERROR: Need more parameters"
       help 1

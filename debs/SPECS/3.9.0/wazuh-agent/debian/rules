@@ -22,6 +22,7 @@ export TARGET_DIR=${CURDIR}/debian/wazuh-agent
 export INSTALLATION_DIR="/var/ossec"
 export INSTALLATION_SCRIPTS_DIR="${INSTALLATION_DIR}/packages_files/agent_installation_scripts"
 export JOBS="5"
+export DEBUG_ENABLED="no"
 
 %:
 	dh $@
@@ -38,7 +39,7 @@ override_dh_install:
 
 	# Build the binaries
 	make -C src deps
-	make -j$(JOBS) -C src/ TARGET=agent USE_SELINUX=yes PREFIX=$(INSTALLATION_DIR)
+	make -j$(JOBS) -C src/ TARGET=agent USE_SELINUX=yes PREFIX=$(INSTALLATION_DIR) DEBUG=$(DEBUG_ENABLED)
 
 	USER_LANGUAGE="en" \
 	USER_NO_STOP="y" \
