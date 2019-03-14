@@ -96,7 +96,7 @@ function main() {
     local TARGET=""                       # Compilation target.
     local ARCHITECTURE=""                 # Architecture of the target package.
     local REVISION=""                     # Aditional name of package.
-    local JOBS="1"                        # Compilation jobs.
+    local JOBS="2"                        # Compilation jobs.
     local INSTALLATION_PATH="/var/ossec"  # Path where package will be installed bu default.
     local VERSION=""
     local SOURCE_REPOSITORY=""
