@@ -34,21 +34,21 @@ To build an RPM package, you need to download this repository and use the `gener
         -b, --branch <branch>     [Required] Select Git branch [master]. By default: master.
         -t, --target              [Required] Target package to build: manager, api or agent.
         -a, --architecture        [Optional] Target architecture of the package. By default: x86_64
-        -j, --jobs                [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 4.
+        -j, --jobs                [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 2.
         -l, --legacy              [Optional] Build the package for CentOS 5.
         -r, --release             [Optional] Package release. By default: 1.
         -p, --path                [Optional] Installation path for the package. By default: /var.
         -d, --debug               [Optional] Build the binaries with debug symbols. By default: no.
         -h, --help                Show this help.
     ```
-    * To build a wazuh-manager package in /tmp for x86_64 and revision 3401:
-        `# ./generate_rpm_package.sh -b v3.8.2 -d /tmp -t manager -a x86_64 -r 3401`.
-    * To build a wazuh-agent package in /tmp for i386 with `-j15` and revision 3:
+    * To build a wazuh-manager package for x86_64, revision 3821 and store it in `/tmp`:
+        `# ./generate_rpm_package.sh -b v3.8.2 -d /tmp -t manager -a x86_64 -r 3821`.
+    * To build a wazuh-agent package for i386 with `-j15`, revision 3 and store it in `/tmp`:
         `# ./generate_rpm_package.sh -b v3.8.2 -d /tmp -t agent -a x86_64 -j 15 -r 3`.
-    * To build a wazuh-api package in /tmp from branch 3.6:
+    * To build a wazuh-api package from branch 3.9 and store it in `/tmp`:
         `# ./generate_rpm_package.sh -b 3.9 -d /tmp -t api -a x86_64 -r 0`.
-    * To build a wazuh-manager package in /tmp for x86_64 in a different directory:
-        `# ./generate_rpm_package.sh -b v3.8.2 -d /tmp -t manager -a x86_64 -r 0 -p /opt`.
+    * To build a wazuh-manager x86_64 package for `/opt/ossec` directory and store it in `/tmp`:
+        `# ./generate_rpm_package.sh -b v3.8.2 -d /tmp -t manager -a x86_64 -r 0.1 -p /opt`.
 3. When the execution finish, you can find your `.src.rpm` and the `.rpm` packages in specified folder.
 
 
@@ -78,19 +78,19 @@ Building a .deb package is pretty similar to build a .rpm package. You need to d
           -h, --help                Show this help.
 
       ```
-    * To build a wazuh-manager package in /tmp for amd64 (x86_64):
+    * To build a wazuh-manager package for amd64 (x86_64) and store it in `/tmp`:
         `# ./generate_debian_package.sh -b 3.9 -d /tmp -t manager -a amd64 -r 0`.
     * To build a wazuh-agent package in `/home/ec2-user` for i386 with release 2:
         `# ./generate_debian_package.sh -b v3.8.2 -d /home/ec2-user -t agent -a i386 -r 2`.
-    * To build a wazuh-api package in /tmp from branch 3.6:
+    * To build a wazuh-api package from branch 3.9 and store it in `/tmp`:
         `# ./generate_debian_package.sh -b 3.9 -d /tmp -t api -a amd64 -r 0`.
-    * To build a wazuh-manager package in /tmp for amd64 (x86_64) in a different directory:
+    * To build a wazuh-manager amd64 (x86_64) package for `/opt/ossec` directory and store it in `/tmp`:
         `# ./generate_debian_package.sh -b 3.9 -d /tmp -t manager -a amd64 -r 0 -p /opt/ossec`.
 3. When the execution finish, you can find your `.deb` packages in specified folder.
 
 ## Contribute
 
-If you want to contribute to our project please don't hesitate to send a pull request. You can also join our users [mailing list](https://groups.google.com/d/forum/wazuh), by sending an email to [wazuh+subscribe@googlegroups.com](mailto:wazuh+subscribe@googlegroups.com), to ask questions and participate in discussions.
+If you want to contribute to our project please don't hesitate to send a pull request. You can also join our users [mailing list](https://groups.google.com/d/forum/wazuh) by sending an email to [wazuh+subscribe@googlegroups.com](mailto:wazuh+subscribe@googlegroups.com) to ask questions and participate in discussions.
 
 ## License and copyright
 
