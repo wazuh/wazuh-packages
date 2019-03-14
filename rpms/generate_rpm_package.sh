@@ -23,6 +23,7 @@ BRAND="wazuh"
 PACKAGE_EXTENSION="rpm"
 LEGACY_TAR_FILE="${LEGACY_RPM_BUILDER_DOCKERFILE}/i386/centos-5-i386.tar.gz"
 TAR_URL="https://packages-dev.wazuh.com/utils/centos-5-i386-build/centos-5-i386.tar.gz"
+DEBUG="no"
 
 if command -v curl > /dev/null 2>&1 ; then
     DOWNLOAD_TAR="curl ${TAR_URL} -o ${LEGACY_TAR_FILE} -s"
@@ -41,6 +42,7 @@ function build_package() {
     local DOCKERFILE_PATH="$7"
     local JOBS="$8"
     local INSTALLATION_PATH="$9"
+    local DEBUG="${10}"
 
     # Download the legacy tar file if it is needed
     if [ "${CONTAINER_NAME}" == "${LEGACY_RPM_I386_BUILDER}" ] && [ ! -f "${LEGACY_TAR_FILE}" ]; then
@@ -51,7 +53,7 @@ function build_package() {
     docker run -t --rm -v ${DESTINATION}:/var/local/wazuh \
         -v ${SOURCES_DIRECTORY}:/build_wazuh/wazuh-${TARGET}-${VERSION} \
         ${CONTAINER_NAME} ${TARGET} ${VERSION} ${ARCHITECTURE} \
-        ${JOBS} ${REVISION} ${INSTALLATION_PATH} || exit 1
+        ${JOBS} ${REVISION} ${INSTALLATION_PATH} ${DEBUG} || exit 1
 
     # Clean the files
     rm -rf ${DOCKERFILE_PATH}/{*.sh,*.spec} ${SOURCES_DIRECTORY}
@@ -92,13 +94,14 @@ function help() {
     echo "Usage: $0 [OPTIONS]"
     echo
     echo "    -b, --branch <branch>     [Required] Select Git branch or tag e.g. $BRANCH"
-    echo "    -d, --destination <path>  [Required] Set the destination path of package."
+    echo "    -s, --store <path>        [Required] Set the destination path of package."
     echo "    -t, --target <target>     [Required] Target package to build [manager/api/agent]."
     echo "    -a, --architecture <arch> [Required] Target architecture of the package [x86_64/i386]."
     echo "    -r, --revision <rev>      [Required] Package revision that append to version e.g. x.x.x-rev"
     echo "    -l, --legacy              [Optional] Build package for CentOS 5."
     echo "    -j, --jobs <number>       [Optional] Number of parallel jobs when compiling."
     echo "    -p, --path <path>         [Optional] Installation path for the package. By default: /var."
+    echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
     echo "    -h, --help                Show this help."
     echo
     exit $1
@@ -139,7 +142,7 @@ function main() {
                 help 1
             fi
             ;;
-        "-d"|"--destination")
+        "-s"|"--store")
             if [ -n "$2" ]
             then
                 if [[ "${2: -1}" != "/" ]]; then
@@ -223,6 +226,10 @@ function main() {
             ;;
         "-h"|"--help")
             help 0
+            ;;
+        "-d"|"--debug")
+            DEBUG="yes"
+            shift 1
             ;;
         *)
             help 1
