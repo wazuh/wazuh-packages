@@ -16,6 +16,7 @@ architecture_target=$3
 threads=$4
 package_release=$5
 directory_base=$6
+debug=$7
 if [ -z "${package_release}" ]; then
     package_release="1"
 fi
@@ -39,6 +40,7 @@ fi
 # Building RPM
 $linux rpmbuild --define "_topdir ${rpm_build_dir}" --define "_threads ${threads}" \
         --define "_release ${package_release}" --define "_localstatedir ${directory_base}" \
-        --target ${architecture_target} -ba ${rpm_build_dir}/SPECS/${package_name}.spec
+        --define "_debugenabled ${debug}" --target ${architecture_target} \
+        -ba ${rpm_build_dir}/SPECS/${package_name}.spec
 
 find ${rpm_build_dir} -name "*.rpm" -exec mv {} /var/local/wazuh \;
