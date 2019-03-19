@@ -293,14 +293,20 @@ fi
 
 CONF_ASSESMENT_DIR="${DIST_NAME}/${DIST_VER}"
 mkdir -p %{_localstatedir}/ossec/ruleset/sca
+
 # Install the configuration files
-for sca_file in $(cat %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${CONF_ASSESMENT_DIR}/sca.files); do
-  mv %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${sca_file} %{_localstatedir}/ossec/ruleset/sca
-done
-# Delete the temporary directory
-rm -rf %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp
+if [ -r %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${CONF_ASSESMENT_DIR}/sca.files ]; then
+
+  for sca_file in $(cat %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${CONF_ASSESMENT_DIR}/sca.files); do
+    mv %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${sca_file} %{_localstatedir}/ossec/ruleset/sca
+  done
+  # Delete the temporary directory
+  rm -rf %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp
+
+fi
 
 
+# Set the proper selinux context
 if ([ "X${DIST_NAME}" = "Xrhel" ] || [ "X${DIST_NAME}" = "Xcentos" ] || [ "X${DIST_NAME}" = "XCentOS" ]) && [ "${DIST_VER}" == "5" ]; then
   if command -v getenforce > /dev/null 2>&1; then
     if [ $(getenforce) !=  "Disabled" ]; then
