@@ -319,7 +319,8 @@ else
   fi
 fi
 
-if [ -s ${DIR}/etc/client.keys ]; then
+if [ -s %{_localstatedir}/ossec/etc/client.keys ]; then
+
   if cat %{_localstatedir}/ossec/etc/ossec.conf | grep -o -P '(?<=<server-ip>).*(?=</server-ip>)' | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' > /dev/null 2>&1; then
     /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
   fi
@@ -331,6 +332,7 @@ if [ -s ${DIR}/etc/client.keys ]; then
   if cat %{_localstatedir}/ossec/etc/ossec.conf | grep -o -P '(?<=<address>).*(?=</address>)' | grep -v 'MANAGER_IP' > /dev/null 2>&1; then
     /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
   fi
+
 fi
 
 %preun
