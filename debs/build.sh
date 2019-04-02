@@ -17,6 +17,7 @@ architecture_target=$3
 package_release=$4
 jobs=$5
 dir_path=$6
+debug=$7
 package_full_name="wazuh-${build_target}-${wazuh_version}"
 
 if [ -z "${package_release}" ]; then
@@ -34,6 +35,7 @@ cp -pr /${build_target}/debian ${build_dir}/${build_target}/${package_full_name}
 # Configure the package with the different parameters
 sed -i "s:RELEASE:${package_release}:g" ${build_dir}/${build_target}/${package_full_name}/debian/changelog
 sed -i "s:export JOBS=.*:export JOBS=${jobs}:g" ${build_dir}/${build_target}/${package_full_name}/debian/rules
+sed -i "s:export DEBUG_ENABLED=.*:export DEBUG_ENABLED=${debug}:g" ${build_dir}/${build_target}/${package_full_name}/debian/rules
 sed -i "s:export INSTALLATION_DIR=.*:export INSTALLATION_DIR=${dir_path}:g" ${build_dir}/${build_target}/${package_full_name}/debian/rules
 sed -i "s:DIR=\"/var/ossec\":DIR=\"${dir_path}\":g" ${build_dir}/${build_target}/${package_full_name}/debian/{preinst,postinst,prerm,postrm}
 if [ "${build_target}" == "api" ]; then

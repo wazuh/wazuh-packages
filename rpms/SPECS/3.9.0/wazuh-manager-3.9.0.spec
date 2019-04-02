@@ -38,7 +38,7 @@ make clean
 
 # Build Wazuh sources
 make deps PREFIX=%{_localstatedir}/ossec
-make -j%{_threads} TARGET=server USE_SELINUX=yes USE_FRAMEWORK_LIB=yes PREFIX=%{_localstatedir}/ossec
+make -j%{_threads} TARGET=server USE_SELINUX=yes USE_FRAMEWORK_LIB=yes PREFIX=%{_localstatedir}/ossec DEBUG=%{_debugenabled}
 
 popd
 
@@ -555,7 +555,6 @@ rm -fr %{buildroot}
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/etc/decoders
 %attr(640, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/decoders/local_decoder.xml
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/etc/lists
-%attr(640, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/audit-*
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/etc/lists/amazon
 %attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/amazon/*
 %attr(640, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/audit-keys

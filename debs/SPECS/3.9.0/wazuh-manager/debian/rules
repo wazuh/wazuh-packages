@@ -22,6 +22,7 @@ export TARGET_DIR=${CURDIR}/debian/wazuh-manager
 export INSTALLATION_DIR="/var/ossec"
 export INSTALLATION_SCRIPTS_DIR="${INSTALLATION_DIR}/packages_files/manager_installation_scripts"
 export JOBS="5"
+export DEBUG_ENABLED="no"
 
 %:
 	dh $@
@@ -37,7 +38,7 @@ override_dh_install:
 	rm -rf $(INSTALLATION_DIR)/
 	# Build the binaries
 	make -C src deps PREFIX=$(INSTALLATION_DIR)
-	make -j$(JOBS) -C src/ TARGET=server USE_SELINUX=yes PREFIX=$(INSTALLATION_DIR)
+	make -j$(JOBS) -C src/ TARGET=server USE_SELINUX=yes PREFIX=$(INSTALLATION_DIR) DEBUG=$(DEBUG_ENABLED)
 
 	USER_LANGUAGE="en" \
 	USER_NO_STOP="y" \
@@ -98,7 +99,7 @@ override_dh_install:
 
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/etc/templates/config/ubuntu
 	cp -r etc/templates/config/ubuntu ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/etc/templates/config/
-	
+
 	# Copying systemd file
 	mkdir -p ${TARGET_DIR}/etc/
 	mkdir -p ${TARGET_DIR}/etc/systemd/
