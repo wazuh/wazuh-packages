@@ -368,6 +368,16 @@ if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&
   fi
 fi
 
+# Fix duplicated ID issue error
+RULES_DIR=%{_localstatedir}/ossec/ruleset/rules
+OLD_RULES="${RULES_DIR}/0520-vulnerability-detector.xml ${RULES_DIR}/0565-ms_ipsec_rules_json.xml"
+
+for rules_file in ${OLD_RULES}; do
+  if [ -f ${rules_file} ]; then
+    mv ${rules_file} ${rules_file}.old
+  fi
+done
+
 # Delete the installation files used to configure the manager
 rm -rf %{_localstatedir}/ossec/packages_files
 
@@ -378,6 +388,13 @@ else
   echo "Something in your actual rules configuration is wrong, please review your configuration and restart the service."
   echo "================================================================================================================"
 fi
+
+# Restore the old files
+for rules_file in ${OLD_RULES}; do
+  if [ -f ${rules_file}.old ]; then
+    mv ${rules_file}.old ${rules_file}
+  fi
+done
 
 %preun
 
