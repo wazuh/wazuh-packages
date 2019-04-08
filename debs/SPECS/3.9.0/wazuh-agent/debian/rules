@@ -96,6 +96,18 @@ override_dh_install:
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/etc/templates/config/ubuntu
 	cp -r etc/templates/config/ubuntu ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/etc/templates/config/
 
+	# Clean the preinstalled configuration assesment files
+	rm -rf $(TARGET_DIR)$(INSTALLATION_DIR)/ruleset/sca/*
+
+	# Install configuration assesment files and files templates
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/{generic,debian,ubuntu}
+
+	cp -r etc/sca/debian ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca
+	cp -r etc/sca/generic ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca
+	cp etc/templates/config/generic/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/generic
+	cp etc/templates/config/debian/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian
+	cp etc/templates/config/ubuntu/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/ubuntu
+
 	# Copying systemd file
 	mkdir -p ${TARGET_DIR}/etc/
 	mkdir -p ${TARGET_DIR}/etc/systemd/
