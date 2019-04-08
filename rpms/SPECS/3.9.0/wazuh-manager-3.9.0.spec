@@ -641,7 +641,6 @@ rm -fr %{buildroot}
 %dir %attr(770, ossecr, ossec) %{_localstatedir}/ossec/queue/agent-info
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/queue/agent-groups
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/queue/agentless
-%dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/queue/agents
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/queue/alerts
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/queue/cluster
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/queue/db
