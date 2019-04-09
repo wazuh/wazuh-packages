@@ -74,7 +74,14 @@ case "$1" in
 
         . ${SCRIPTS_DIR}/src/init/dist-detect.sh
 
-        if [ "DIST_NAME" != "debian" ] && [ "DIST_NAME" != "ubuntu" ]; then
+        if [ "${DIST_NAME}" = "debian" ]; then
+            if [ "${DIST_VER}" = "9" ]; then
+                DIST_VER=""
+            fi
+        elif [ "${DIST_NAME}" = "ubuntu" ]; then
+            DIST_NAME="debian"
+            DIST_VER=""
+        else
             DIST_NAME="generic"
             DIST_VER=""
         fi
@@ -88,6 +95,9 @@ case "$1" in
             for sca_file in $(cat ${CONF_ASSESMENT_DIR}/sca.files); do
                 mv ${SCA_FILES_DIR}/${sca_file} ${DIR}/ruleset/sca
             done
+            # Set correct permissions, owner and group
+            chmod 640 ${DIR}/ruleset/sca/*
+            chown root:${GROUP} ${DIR}/ruleset/sca/*
             # Delete the temporary directory
             rm -rf ${SCA_FILES_DIR}
 
