@@ -64,7 +64,7 @@ case "$1" in
     if [ -f ${WAZUH_TMP_DIR}/ossec.conf ]; then
         mv ${WAZUH_TMP_DIR}/ossec.conf ${DIR}/etc/ossec.conf
     fi
-    # Restore client.keys configuration
+    # Restore internal options configuration
     if [ -f ${WAZUH_TMP_DIR}/local_internal_options.conf ]; then
         mv ${WAZUH_TMP_DIR}/local_internal_options.conf ${DIR}/etc/local_internal_options.conf
     fi
@@ -138,6 +138,11 @@ case "$1" in
         update-rc.d wazuh-agent defaults > /dev/null 2>&1
     fi
 
+    # Register and configure agent if Wazuh environment variables are defined
+    if [ -z "$2" ] ; then
+        ${SCRIPTS_DIR}/src/init/register_configure_agent.sh > /dev/null || :
+    fi
+
     # Delete installation scripts
     if [ -d ${SCRIPTS_DIR} ]; then
         rm -rf ${SCRIPTS_DIR}
@@ -153,16 +158,17 @@ case "$1" in
         rm -rf ${WAZUH_GLOBAL_TMP_DIR}
     fi
 
-    if cat ${DIR}/etc/ossec.conf | grep -o -P '(?<=<server-ip>).*(?=</server-ip>)' | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' > /dev/null 2>&1; then
-      service wazuh-agent restart || :
+    if [ -s ${DIR}/etc/client.keys ]; then
+        if cat ${DIR}/etc/ossec.conf | grep -o -P '(?<=<server-ip>).*(?=</server-ip>)' | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' > /dev/null 2>&1; then
+        service wazuh-agent restart || :
+        fi
+        if cat ${DIR}/etc/ossec.conf | grep -o -P '(?<=<server-hostname>).*(?=</server-hostname>)' > /dev/null 2>&1; then
+        service wazuh-agent restart || :
+        fi
+        if cat ${DIR}/etc/ossec.conf | grep -o -P '(?<=<address>)(?!MANAGER_IP).*(?=</address>)' > /dev/null 2>&1; then
+        service wazuh-agent restart || :
+        fi
     fi
-    if cat ${DIR}/etc/ossec.conf | grep -o -P '(?<=<server-hostname>).*(?=</server-hostname>)' > /dev/null 2>&1; then
-      service wazuh-agent restart || :
-    fi
-    if cat ${DIR}/etc/ossec.conf | grep -o -P '(?<=<address>)(?!MANAGER_IP).*(?=</address>)' > /dev/null 2>&1; then
-      service wazuh-agent restart || :
-    fi
-
     # Fix /etc/ossec-init.conf
     chmod 640 /etc/ossec-init.conf
     chown root:ossec /etc/ossec-init.conf

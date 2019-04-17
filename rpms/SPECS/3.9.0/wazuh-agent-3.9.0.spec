@@ -246,6 +246,9 @@ if [ $1 = 1 ]; then
     systemctl enable wazuh-agent > /dev/null 2>&1
   fi
 
+  # Register and configure agent if Wazuh environment variables are defined
+  %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/init/register_configure_agent.sh > /dev/null || :
+
 fi
 
 if [ ! -d /run/systemd/system ]; then
@@ -291,7 +294,7 @@ else
   DIST_VER=""
 fi
 
-CONF_ASSESMENT_DIR="${DIST_NAME}/${DIST_VER}"
+SCA_DIR="${DIST_NAME}/${DIST_VER}"
 mkdir -p %{_localstatedir}/ossec/ruleset/sca
 
 # Install the configuration files
@@ -323,16 +326,20 @@ else
   fi
 fi
 
-if cat %{_localstatedir}/ossec/etc/ossec.conf | grep -o -P '(?<=<server-ip>).*(?=</server-ip>)' | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' > /dev/null 2>&1; then
-   /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
-fi
+if [ -s %{_localstatedir}/ossec/etc/client.keys ]; then
 
-if cat %{_localstatedir}/ossec/etc/ossec.conf | grep -o -P '(?<=<server-hostname>).*(?=</server-hostname>)' > /dev/null 2>&1; then
-   /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
-fi
+  if cat %{_localstatedir}/ossec/etc/ossec.conf | grep -o -P '(?<=<server-ip>).*(?=</server-ip>)' | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' > /dev/null 2>&1; then
+    /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
+  fi
 
-if cat %{_localstatedir}/ossec/etc/ossec.conf | grep -o -P '(?<=<address>).*(?=</address>)' | grep -v 'MANAGER_IP' > /dev/null 2>&1; then
-   /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
+  if cat %{_localstatedir}/ossec/etc/ossec.conf | grep -o -P '(?<=<server-hostname>).*(?=</server-hostname>)' > /dev/null 2>&1; then
+    /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
+  fi
+
+  if cat %{_localstatedir}/ossec/etc/ossec.conf | grep -o -P '(?<=<address>).*(?=</address>)' | grep -v 'MANAGER_IP' > /dev/null 2>&1; then
+    /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
+  fi
+
 fi
 
 %preun
