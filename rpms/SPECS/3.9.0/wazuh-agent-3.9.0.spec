@@ -97,7 +97,7 @@ install -m 0640 wodles/oscap/content/*centos* ${RPM_BUILD_ROOT}%{_localstatedir}
 install -m 0640 wodles/oscap/content/*fedora* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 
 # Clean the preinstalled configuration assesment files
-rm -f  ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca/*
+rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca/*
 
 # Install configuration assesment files and files templates
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/generic
@@ -298,11 +298,14 @@ SCA_DIR="${DIST_NAME}/${DIST_VER}"
 mkdir -p %{_localstatedir}/ossec/ruleset/sca
 
 # Install the configuration files
-if [ -r %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${CONF_ASSESMENT_DIR}/sca.files ]; then
+if [ -r %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${SCA_DIR}/sca.files ]; then
 
-  for sca_file in $(cat %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${CONF_ASSESMENT_DIR}/sca.files); do
+  for sca_file in $(cat %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${SCA_DIR}/sca.files); do
     mv %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${sca_file} %{_localstatedir}/ossec/ruleset/sca
   done
+  # Fix sca permissions, group and owner
+  chmod 640 %{_localstatedir}/ossec/ruleset/sca/*
+  chown root:ossec %{_localstatedir}/ossec/ruleset/sca/*
   # Delete the temporary directory
   rm -rf %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp
 
@@ -493,7 +496,7 @@ rm -fr %{buildroot}
 %dir %attr(770,ossec,ossec) %{_localstatedir}/ossec/queue/alerts
 %dir %attr(750,ossec,ossec) %{_localstatedir}/ossec/queue/rids
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset/
-%dir %attr(750, root, ossec) %ghost %{_localstatedir}/ossec/ruleset/sca
+%dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset/sca
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/generic
 %attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/generic/*

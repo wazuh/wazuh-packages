@@ -556,7 +556,7 @@ rm -fr %{buildroot}
 %attr(750, root, root) %{_localstatedir}/ossec/bin/rootcheck_control
 %attr(750, root, root) %{_localstatedir}/ossec/bin/syscheck_control
 %attr(750, root, root) %{_localstatedir}/ossec/bin/syscheck_update
-%attr(750, root, root) %{_localstatedir}/ossec/bin/update_ruleset
+%attr(750, root, ossec) %{_localstatedir}/ossec/bin/update_ruleset
 %attr(750, root, root) %{_localstatedir}/ossec/bin/util.sh
 %attr(750, root, ossec) %{_localstatedir}/ossec/bin/verify-agent-conf
 %attr(750, root, ossec) %{_localstatedir}/ossec/bin/wazuh-clusterd
