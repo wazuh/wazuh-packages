@@ -97,7 +97,7 @@ install -m 0640 wodles/oscap/content/*centos* ${RPM_BUILD_ROOT}%{_localstatedir}
 install -m 0640 wodles/oscap/content/*fedora* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 
 # Clean the preinstalled configuration assesment files
-rm -f  ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca/*
+rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca/*
 
 # Install configuration assesment files and files templates
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/generic
