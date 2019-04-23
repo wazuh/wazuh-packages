@@ -54,8 +54,12 @@ make clean
     make deps
     make -j%{_threads} TARGET=agent USE_SELINUX=yes PREFIX=%{_localstatedir}/ossec
 %else
-    make deps RESOURCES_URL=http://packages.wazuh.com/deps/3.9
-    make -j%{_threads} TARGET=agent USE_AUDIT=no USE_SELINUX=yes USE_EXEC_ENVIRON=no PREFIX=%{_localstatedir}/ossec DEBUG=%{_debugenabled}
+    %if %{_architecture} == "i386"
+      make deps RESOURCES_URL=http://packages.wazuh.com/deps/3.9
+      make -j%{_threads} TARGET=agent USE_AUDIT=no USE_SELINUX=yes USE_EXEC_ENVIRON=no PREFIX=%{_localstatedir}/ossec DEBUG=%{_debugenabled} USE_MSGPACK_OPT=no
+    %else
+      make deps RESOURCES_URL=http://packages.wazuh.com/deps/3.9
+      make -j%{_threads} TARGET=agent USE_AUDIT=no USE_SELINUX=yes USE_EXEC_ENVIRON=no PREFIX=%{_localstatedir}/ossec DEBUG=%{_debugenabled} USE_MSGPACK_OPT=yes
 %endif
 
 popd
