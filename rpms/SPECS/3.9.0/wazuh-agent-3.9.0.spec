@@ -56,8 +56,6 @@ make clean
 %else
     %ifnarch x86_64
       MSGPACK="USE_MSGPACK_OPT=no"
-    %else
-      MSGPACK="USE_MSGPACK_OPT=yes"
     %endif
     make deps RESOURCES_URL=http://packages.wazuh.com/deps/3.9
     make -j%{_threads} TARGET=agent USE_AUDIT=no USE_SELINUX=yes USE_EXEC_ENVIRON=no PREFIX=%{_localstatedir}/ossec DEBUG=%{_debugenabled} ${MSGPACK}
