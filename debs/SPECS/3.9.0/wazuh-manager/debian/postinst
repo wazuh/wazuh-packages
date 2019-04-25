@@ -313,6 +313,16 @@ case "$1" in
     chmod 640 /etc/ossec-init.conf
     chown root:ossec /etc/ossec-init.conf
 
+    # Fix python libraries and binaries permissions
+    chmod 755 ${DIR}/framework/python/bin/2to3-3.7
+    chmod 755 ${DIR}/framework/python/bin/pydoc3
+    chmod 755 ${DIR}/framework/python/bin/pydoc3.7
+    chmod 755 ${DIR}/framework/python/bin/python3-config
+    chmod 755 ${DIR}/framework/python/bin/python3.7-config
+    chmod 755 ${DIR}/framework/python/bin/python3.7m-config
+    chmod 555 ${DIR}/framework/python/lib/libpython3.7m.so
+    chmod 555 ${DIR}/framework/python/lib/libpython3.7m.so.1.0
+
     ;;
 
 
