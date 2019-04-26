@@ -22,6 +22,7 @@ export TARGET_DIR=${CURDIR}/debian/wazuh-agent
 export INSTALLATION_DIR="/var/ossec"
 export INSTALLATION_SCRIPTS_DIR="${INSTALLATION_DIR}/packages_files/agent_installation_scripts"
 export JOBS="5"
+export DEBUG_ENABLED="no"
 
 %:
 	dh $@
@@ -38,7 +39,7 @@ override_dh_install:
 
 	# Build the binaries
 	make -C src deps
-	make -j$(JOBS) -C src/ TARGET=agent USE_SELINUX=yes PREFIX=$(INSTALLATION_DIR)
+	make -j$(JOBS) -C src/ TARGET=agent USE_SELINUX=yes PREFIX=$(INSTALLATION_DIR) DEBUG=$(DEBUG_ENABLED)
 
 	USER_LANGUAGE="en" \
 	USER_NO_STOP="y" \
@@ -65,6 +66,9 @@ override_dh_install:
 	mkdir -p ${TARGET_DIR}/etc/init.d/
 	cp src/init/ossec-hids-debian.init ${TARGET_DIR}/etc/init.d/wazuh-agent
 
+	# Clean the preinstalled configuration assesment files
+	rm -rf $(INSTALLATION_DIR)/ruleset/sca/*
+
 	# Generating permission restoration file for postinstall
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)
 	./gen_permissions.sh $(INSTALLATION_DIR)/ ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/restore-permissions.sh
@@ -83,6 +87,21 @@ override_dh_install:
 	cp src/REVISION ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/
 	cp src/LOCATION ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/
 
+	# Install configuration assesment files and files templates
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/generic
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/ubuntu
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian/7
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian/8
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian/9
+
+	cp -r etc/sca/debian ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca
+	cp -r etc/sca/generic ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca
+	cp etc/templates/config/generic/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/generic/
+	cp etc/templates/config/debian/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian/
+	cp etc/templates/config/debian/7/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian/7/
+	cp etc/templates/config/debian/8/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian/8/
+	cp etc/templates/config/ubuntu/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/ubuntu/
+
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/init
 	cp -r src/init/*  ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/init
 
@@ -96,8 +115,6 @@ override_dh_install:
 	cp -r etc/templates/config/ubuntu ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/etc/templates/config/
 
 	# Copying systemd file
-	mkdir -p ${TARGET_DIR}/etc/
-	mkdir -p ${TARGET_DIR}/etc/systemd/
 	mkdir -p ${TARGET_DIR}/etc/systemd/system/
 
 	cp src/systemd/wazuh-agent.service ${TARGET_DIR}/etc/systemd/system/

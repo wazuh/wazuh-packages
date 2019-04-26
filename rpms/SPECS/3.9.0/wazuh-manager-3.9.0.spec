@@ -38,7 +38,7 @@ make clean
 
 # Build Wazuh sources
 make deps PREFIX=%{_localstatedir}/ossec
-make -j%{_threads} TARGET=server USE_SELINUX=yes USE_FRAMEWORK_LIB=yes PREFIX=%{_localstatedir}/ossec
+make -j%{_threads} TARGET=server USE_SELINUX=yes USE_FRAMEWORK_LIB=yes PREFIX=%{_localstatedir}/ossec DEBUG=%{_debugenabled}
 
 popd
 
@@ -213,9 +213,17 @@ if [ $1 = 1 ]; then
 
   sles=""
   if [ -f /etc/os-release ]; then
-    sles=$(grep "\"sles" /etc/os-release)
+    if `grep -q "\"sles" /etc/os-release` ; then
+      sles="suse"
+    elif `grep -q -i "\"opensuse" /etc/os-release` ; then
+      sles="opensuse"
+    fi
   elif [ -f /etc/SuSE-release ]; then
-    sles=$(grep "SUSE Linux Enterprise Server" /etc/SuSE-release)
+    if `grep -q "SUSE Linux Enterprise Server" /etc/SuSE-release` ; then
+      sles="suse"
+    elif `grep -q -i "opensuse" /etc/SuSE-release` ; then
+      sles="opensuse"
+    fi
   fi
   if [ ! -z "$sles" ]; then
     install -m 755 %{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/init/ossec-hids-suse.init /etc/init.d/wazuh-manager
@@ -360,6 +368,16 @@ if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&
   fi
 fi
 
+# Fix duplicated ID issue error
+RULES_DIR=%{_localstatedir}/ossec/ruleset/rules
+OLD_RULES="${RULES_DIR}/0520-vulnerability-detector.xml ${RULES_DIR}/0565-ms_ipsec_rules_json.xml"
+
+for rules_file in ${OLD_RULES}; do
+  if [ -f ${rules_file} ]; then
+    mv ${rules_file} ${rules_file}.old
+  fi
+done
+
 # Delete the installation files used to configure the manager
 rm -rf %{_localstatedir}/ossec/packages_files
 
@@ -370,6 +388,13 @@ else
   echo "Something in your actual rules configuration is wrong, please review your configuration and restart the service."
   echo "================================================================================================================"
 fi
+
+# Restore the old files
+for rules_file in ${OLD_RULES}; do
+  if [ -f ${rules_file}.old ]; then
+    mv ${rules_file}.old ${rules_file}
+  fi
+done
 
 %preun
 
@@ -531,7 +556,7 @@ rm -fr %{buildroot}
 %attr(750, root, root) %{_localstatedir}/ossec/bin/rootcheck_control
 %attr(750, root, root) %{_localstatedir}/ossec/bin/syscheck_control
 %attr(750, root, root) %{_localstatedir}/ossec/bin/syscheck_update
-%attr(750, root, root) %{_localstatedir}/ossec/bin/update_ruleset
+%attr(750, root, ossec) %{_localstatedir}/ossec/bin/update_ruleset
 %attr(750, root, root) %{_localstatedir}/ossec/bin/util.sh
 %attr(750, root, ossec) %{_localstatedir}/ossec/bin/verify-agent-conf
 %attr(750, root, ossec) %{_localstatedir}/ossec/bin/wazuh-clusterd
@@ -547,7 +572,6 @@ rm -fr %{buildroot}
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/etc/decoders
 %attr(640, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/decoders/local_decoder.xml
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/etc/lists
-%attr(640, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/audit-*
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/etc/lists/amazon
 %attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/amazon/*
 %attr(640, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/audit-keys
@@ -617,7 +641,6 @@ rm -fr %{buildroot}
 %dir %attr(770, ossecr, ossec) %{_localstatedir}/ossec/queue/agent-info
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/queue/agent-groups
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/queue/agentless
-%dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/queue/agents
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/queue/alerts
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/queue/cluster
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/queue/db
@@ -628,8 +651,8 @@ rm -fr %{buildroot}
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/queue/ossec
 %dir %attr(760, root, ossec) %{_localstatedir}/ossec/queue/vulnerabilities
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset
-%dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset/configuration-assessment
-%attr(640, root, ossec) %{_localstatedir}/ossec/ruleset/configuration-assessment/*
+%dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset/sca
+%attr(640, root, ossec) %{_localstatedir}/ossec/ruleset/sca/*
 %attr(640, root, ossec) %{_localstatedir}/ossec/ruleset/VERSION
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset/decoders
 %attr(640, root, ossec) %{_localstatedir}/ossec/ruleset/decoders/*

@@ -14,7 +14,8 @@ OUTDIR="${HOME}/3.x/apt-dev/"
 BRANCH="master"
 REVISION="1"
 TARGET=""
-JOBS="4"
+JOBS="2"
+DEBUG="no"
 INSTALLATION_PATH="/var/ossec"
 DEB_AMD64_BUILDER="deb_builder_amd64"
 DEB_I386_BUILDER="deb_builder_i386"
@@ -61,7 +62,8 @@ build_deb() {
     docker run -t --rm -v $OUTDIR:/var/local/wazuh \
         -v ${SOURCES_DIRECTORY}:/build_wazuh/$TARGET/wazuh-$TARGET-$VERSION \
         -v ${DOCKERFILE_PATH}/wazuh-$TARGET:/$TARGET \
-        ${CONTAINER_NAME} $TARGET $VERSION $ARCHITECTURE $REVISION $JOBS $INSTALLATION_PATH || exit 1
+        ${CONTAINER_NAME} $TARGET $VERSION $ARCHITECTURE \
+        $REVISION $JOBS $INSTALLATION_PATH $DEBUG || exit 1
 
     # Clean the files
     rm -rf ${DOCKERFILE_PATH}/{*.sh,*.tar.gz,wazuh-*} ${SOURCES_DIRECTORY}
@@ -107,13 +109,14 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -b, --branch <branch>     Select Git branch or tag [$BRANCH]."
+    echo "    -b, --branch <branch>     [Required] Select Git branch [$BRANCH]. By default: master."
+    echo "    -t, --target              [Required] Target package to build: manager, api or agent."
+    echo "    -a, --architecture        [Optional] Target architecture of the package. By default: x86_64"
+    echo "    -j, --jobs                [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 4."
+    echo "    -r, --release             [Optional] Package release. By default: 1."
+    echo "    -p, --path                [Optional] Installation path for the package. By default: /var/ossec."
+    echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
     echo "    -h, --help                Show this help."
-    echo "    -t, --target              Target package to build: manager, api or agent."
-    echo "    -a, --architecture        Target architecture of the package."
-    echo "    -j, --jobs                Change number of parallel jobs when compiling the manager or agent."
-    echo "    -r, --revision            Package revision."
-    echo "    -p, --path                Installation path for the package. By default: /var/ossec."
     echo
     exit $1
 }
@@ -181,6 +184,10 @@ main() {
             else
                 help 1
             fi
+            ;;
+        "-d"|"--debug")
+            DEBUG="yes"
+            shift 1
             ;;
         *)
             help 1

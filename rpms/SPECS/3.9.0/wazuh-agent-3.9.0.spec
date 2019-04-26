@@ -54,8 +54,12 @@ make clean
     make deps
     make -j%{_threads} TARGET=agent USE_SELINUX=yes PREFIX=%{_localstatedir}/ossec
 %else
+    %ifnarch x86_64
+      MSGPACK="USE_MSGPACK_OPT=no"
+    %endif
     make deps RESOURCES_URL=http://packages.wazuh.com/deps/3.9
-    make -j%{_threads} TARGET=agent USE_AUDIT=no USE_SELINUX=yes USE_EXEC_ENVIRON=no PREFIX=%{_localstatedir}/ossec
+    make -j%{_threads} TARGET=agent USE_AUDIT=no USE_SELINUX=yes USE_EXEC_ENVIRON=no PREFIX=%{_localstatedir}/ossec DEBUG=%{_debugenabled} ${MSGPACK}
+
 %endif
 
 popd
@@ -96,12 +100,29 @@ install -m 0640 wodles/oscap/content/*rhel* ${RPM_BUILD_ROOT}%{_localstatedir}/o
 install -m 0640 wodles/oscap/content/*centos* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 install -m 0640 wodles/oscap/content/*fedora* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 
-# Install configuration assesment files
-install -m 0640 etc/configuration-assessment/rhel/5/cis_rhel5_linux_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment
-install -m 0640 etc/configuration-assessment/rhel/6/cis_rhel6_linux_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment
-install -m 0640 etc/configuration-assessment/rhel/7/cis_rhel7_linux_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment
-install -m 0640 etc/configuration-assessment/suse/11/cis_sles11_linux_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment
-install -m 0640 etc/configuration-assessment/suse/12/cis_sles12_linux_rcl.yml ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/configuration-assessment
+# Clean the preinstalled configuration assesment files
+rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca/*
+
+# Install configuration assesment files and files templates
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/generic
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/{7,6,5}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/{7,6,5}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles/{11,12}
+
+cp -r etc/sca/{generic,rhel,sles} ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp
+
+cp etc/templates/config/generic/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/generic
+
+cp etc/templates/config/centos/7/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/7
+cp etc/templates/config/centos/6/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/6
+cp etc/templates/config/centos/5/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/5
+
+cp etc/templates/config/rhel/7/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/7
+cp etc/templates/config/rhel/6/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/6
+cp etc/templates/config/rhel/5/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/5
+
+cp etc/templates/config/sles/12/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles/12
+cp etc/templates/config/sles/11/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles/11
 
 cp CHANGELOG.md CHANGELOG
 
@@ -117,6 +138,8 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installat
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/centos
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/fedora
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/rhel
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/suse
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/sles
 
 # Add SUSE initscript
 cp -rp src/init/ossec-hids-suse.init ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/init/
@@ -126,6 +149,8 @@ cp -rp  etc/templates/config/generic/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/
 cp -rp  etc/templates/config/centos/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/centos
 cp -rp  etc/templates/config/fedora/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/fedora
 cp -rp  etc/templates/config/rhel/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/rhel
+cp -rp  etc/templates/config/suse/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/suse
+cp -rp  etc/templates/config/sles/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/sles
 
 install -m 0640 src/init/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/init
 
@@ -175,9 +200,17 @@ if [ $1 = 1 ]; then
 
   sles=""
   if [ -f /etc/os-release ]; then
-    sles=$(grep "\"sles" /etc/os-release)
+    if `grep -q "\"sles" /etc/os-release` ; then
+      sles="suse"
+    elif `grep -q -i "\"opensuse" /etc/os-release` ; then
+      sles="opensuse"
+    fi
   elif [ -f /etc/SuSE-release ]; then
-    sles=$(grep "SUSE Linux Enterprise Server" /etc/SuSE-release)
+    if `grep -q "SUSE Linux Enterprise Server" /etc/SuSE-release` ; then
+      sles="suse"
+    elif `grep -q -i "opensuse" /etc/SuSE-release` ; then
+      sles="opensuse"
+    fi
   fi
   if [ ! -z "$sles" ]; then
     install -m 755 %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/init/ossec-hids-suse.init /etc/init.d/wazuh-agent
@@ -217,6 +250,9 @@ if [ $1 = 1 ]; then
     systemctl enable wazuh-agent > /dev/null 2>&1
   fi
 
+  # Register and configure agent if Wazuh environment variables are defined
+  %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/init/register_configure_agent.sh > /dev/null || :
+
 fi
 
 if [ ! -d /run/systemd/system ]; then
@@ -236,6 +272,10 @@ fi
 if [ -r "/etc/centos-release" ]; then
   DIST_NAME="centos"
   DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.*[0-9]{0,2}.*/\1/p' /etc/centos-release`
+# Fedora
+elif [ -r "/etc/fedora-release" ]; then
+    DIST_NAME="generic"
+    DIST_VER=""
 # RedHat
 elif [ -r "/etc/redhat-release" ]; then
   if grep -q "CentOS" /etc/redhat-release; then
@@ -244,8 +284,39 @@ elif [ -r "/etc/redhat-release" ]; then
       DIST_NAME="rhel"
   fi
   DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.*[0-9]{0,2}.*/\1/p' /etc/redhat-release`
+# SUSE
+elif [ -r "/etc/SuSE-release" ]; then
+  if grep -q "openSUSE" /etc/SuSE-release; then
+      DIST_NAME="generic"
+      DIST_VER=""
+  else
+      DIST_NAME="sles"
+      DIST_VER=`sed -rn 's/.*VERSION = ([0-9]{1,2}).*/\1/p' /etc/SuSE-release`
+  fi
+else
+  DIST_NAME="generic"
+  DIST_VER=""
 fi
 
+SCA_DIR="${DIST_NAME}/${DIST_VER}"
+mkdir -p %{_localstatedir}/ossec/ruleset/sca
+
+# Install the configuration files
+if [ -r %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${SCA_DIR}/sca.files ]; then
+
+  for sca_file in $(cat %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${SCA_DIR}/sca.files); do
+    mv %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${sca_file} %{_localstatedir}/ossec/ruleset/sca
+  done
+  # Fix sca permissions, group and owner
+  chmod 640 %{_localstatedir}/ossec/ruleset/sca/*
+  chown root:ossec %{_localstatedir}/ossec/ruleset/sca/*
+  # Delete the temporary directory
+  rm -rf %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp
+
+fi
+
+
+# Set the proper selinux context
 if ([ "X${DIST_NAME}" = "Xrhel" ] || [ "X${DIST_NAME}" = "Xcentos" ] || [ "X${DIST_NAME}" = "XCentOS" ]) && [ "${DIST_VER}" == "5" ]; then
   if command -v getenforce > /dev/null 2>&1; then
     if [ $(getenforce) !=  "Disabled" ]; then
@@ -262,16 +333,20 @@ else
   fi
 fi
 
-if cat %{_localstatedir}/ossec/etc/ossec.conf | grep -o -P '(?<=<server-ip>).*(?=</server-ip>)' | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' > /dev/null 2>&1; then
-   /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
-fi
+if [ -s %{_localstatedir}/ossec/etc/client.keys ]; then
 
-if cat %{_localstatedir}/ossec/etc/ossec.conf | grep -o -P '(?<=<server-hostname>).*(?=</server-hostname>)' > /dev/null 2>&1; then
-   /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
-fi
+  if cat %{_localstatedir}/ossec/etc/ossec.conf | grep -o -P '(?<=<server-ip>).*(?=</server-ip>)' | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' > /dev/null 2>&1; then
+    /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
+  fi
 
-if cat %{_localstatedir}/ossec/etc/ossec.conf | grep -o -P '(?<=<address>).*(?=</address>)' | grep -v 'MANAGER_IP' > /dev/null 2>&1; then
-   /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
+  if cat %{_localstatedir}/ossec/etc/ossec.conf | grep -o -P '(?<=<server-hostname>).*(?=</server-hostname>)' > /dev/null 2>&1; then
+    /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
+  fi
+
+  if cat %{_localstatedir}/ossec/etc/ossec.conf | grep -o -P '(?<=<address>).*(?=</address>)' | grep -v 'MANAGER_IP' > /dev/null 2>&1; then
+    /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
+  fi
+
 fi
 
 %preun
@@ -332,7 +407,7 @@ if [ $1 == 0 ];then
   rm -rf %{_localstatedir}/ossec/bin/
   rm -rf %{_localstatedir}/ossec/logs/
   rm -rf %{_localstatedir}/ossec/backup/
-
+  rm -rf %{_localstatedir}/ossec/ruleset/sca/
 fi
 
 # If the package is been downgraded
@@ -416,16 +491,38 @@ rm -fr %{buildroot}
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/centos/*
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/fedora/*
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/rhel/*
+%attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/sles/*
+%attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/suse/*
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/*
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec/queue
-%dir %attr(750,ossec,ossec) %{_localstatedir}/ossec/queue/agents
 %dir %attr(770,ossec,ossec) %{_localstatedir}/ossec/queue/ossec
 %dir %attr(750,ossec,ossec) %{_localstatedir}/ossec/queue/diff
 %dir %attr(770,ossec,ossec) %{_localstatedir}/ossec/queue/alerts
 %dir %attr(750,ossec,ossec) %{_localstatedir}/ossec/queue/rids
-%dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset
-%dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset/configuration-assessment
-%attr(640, root, ossec) %{_localstatedir}/ossec/ruleset/configuration-assessment/*
+%dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset/
+%dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset/sca
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/generic
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/generic/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/5
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/5/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/6
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/6/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/7
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/7/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/5
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/5/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/6
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/6/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/7
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/7/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles/11
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles/11/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles/12
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles/12/*
 %dir %attr(1770,root,ossec) %{_localstatedir}/ossec/tmp
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec/var
 %dir %attr(770,root,ossec) %{_localstatedir}/ossec/var/incoming

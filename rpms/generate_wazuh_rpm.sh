@@ -15,7 +15,8 @@ OUTDIR="${HOME}/3.x/yum-dev/"
 BRANCH="master"
 RELEASE="1"
 TARGET=""
-JOBS="4"
+JOBS="2"
+DEBUG="no"
 RPM_X86_BUILDER="rpm_builder_x86"
 RPM_I386_BUILDER="rpm_builder_i386"
 RPM_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/6"
@@ -84,7 +85,7 @@ build_rpm() {
     docker run -t --rm -v $OUTDIR:/var/local/wazuh \
         -v ${SOURCES_DIRECTORY}:/build_wazuh/wazuh-$TARGET-$VERSION \
         ${CONTAINER_NAME} $TARGET $VERSION $ARCHITECTURE \
-        $JOBS $RELEASE ${INSTALLATION_PATH} || exit 1
+        $JOBS $RELEASE ${INSTALLATION_PATH} ${DEBUG} || exit 1
 
     # Clean the files
     rm -rf ${DOCKERFILE_PATH}/{*.sh,*.spec} ${SOURCES_DIRECTORY}
@@ -136,14 +137,15 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -b, --branch <branch>     Select Git branch [$BRANCH]."
+    echo "    -b, --branch <branch>     [Required] Select Git branch [$BRANCH]. By default: master."
+    echo "    -t, --target              [Required] Target package to build: manager, api or agent."
+    echo "    -a, --architecture        [Optional] Target architecture of the package. By default: x86_64"
+    echo "    -j, --jobs                [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 4."
+    echo "    -l, --legacy              [Optional] Build the package for CentOS 5."
+    echo "    -r, --release             [Optional] Package release. By default: 1."
+    echo "    -p, --path                [Optional] Installation path for the package. By default: /var."
+    echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
     echo "    -h, --help                Show this help."
-    echo "    -t, --target              Target package to build: manager, api or agent."
-    echo "    -a, --architecture        Target architecture of the package."
-    echo "    -j, --jobs                Change number of parallel jobs when compiling the manager or agent."
-    echo "    -l, --legacy              Build the package for CentOS 5."
-    echo "    -r, --release             Package release."
-    echo "    -p, --path                Installation path for the package. By default: /var."
     echo
     exit $1
 }
@@ -214,6 +216,10 @@ main() {
             ;;
         "-l"|"--legacy")
             LEGACY="yes"
+            shift 1
+            ;;
+        "-d"|"--debug")
+            DEBUG="yes"
             shift 1
             ;;
         *)
