@@ -1,3 +1,15 @@
+Wazuh
+=====
+
+[![Slack](https://img.shields.io/badge/slack-join-blue.svg)](https://wazuh.com/community/join-us-on-slack/)
+[![Email](https://img.shields.io/badge/email-join-blue.svg)](https://groups.google.com/forum/#!forum/wazuh)
+[![Documentation](https://img.shields.io/badge/docs-view-green.svg)](https://documentation.wazuh.com)
+[![Documentation](https://img.shields.io/badge/web-view-green.svg)](https://wazuh.com)
+
+Wazuh is an Open Source Host-based Intrusion Detection System that performs log analysis, file integrity monitoring, policy monitoring, rootkit detection, real-time alerting, active response, vulnerability detector, etc.
+
+In this repository, you can find the necessary tools to build a Wazuh package for Debian based OS.
+
 ## Tools needed to build the package
 
 To build a Wazuh package you need to install the following tools:
