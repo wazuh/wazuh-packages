@@ -262,6 +262,9 @@ fi
 # Delete the installation files used to configure the agent
 rm -rf %{_localstatedir}/ossec/packages_files
 
+# Remove unnecessary files from shared directory
+rm -f %{_localstatedir}/ossec/etc/shared/*.rpmnew
+
 if [ $1 = 2 ]; then
   if [ -f %{_localstatedir}/ossec/etc/ossec.bck ]; then
       mv %{_localstatedir}/ossec/etc/ossec.bck %{_localstatedir}/ossec/etc/ossec.conf
