@@ -49,7 +49,7 @@ To build an OSX package, you need to download this repository and use the `gener
          
 **important detail:** the building of certain branches fails due to incorrect values on the `VERSION` file on the source which generate missing specs. To make a correct building it is recommended to use exacts tags instead of branches. For example, to build a package for Wazuh 3.7 you should use ``` -v v3.7.2 ```
 
-3. When the execution finish, you can find your `.pkg` packages in specified folder (with parameter -s), by default in the script path.
+3. When the execution finishes, you can find your `.pkg` packages in specified folder (with parameter -s), by default in the script path.
 
 
 

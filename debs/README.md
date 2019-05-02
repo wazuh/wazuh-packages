@@ -50,7 +50,7 @@ Building a .deb package is pretty similar to build a .rpm package. You need to d
         `# ./generate_debian_package.sh -b 3.9 -s /tmp -t api -a amd64 -r 0`.
     * To build a wazuh-manager amd64 (x86_64) package for `/opt/ossec` directory and store it in `/tmp`:
         `# ./generate_debian_package.sh -b 3.9 -s /tmp -t manager -a amd64 -r 0 -p /opt/ossec`.
-3. When the execution finish, you can find your `.deb` packages in specified folder.
+3. When the execution finishes, you can find your `.deb` packages in specified folder.
 
 ## Contribute
 
