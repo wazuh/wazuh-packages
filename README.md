@@ -10,9 +10,10 @@ Wazuh is an Open Source Host-based Intrusion Detection System that performs log 
 
 In this repository, you can find the necessary tools to build a Wazuh package for Debian based OS (.deb), RPM based OS package (.rpm), MacOS (.macos) and AIX (.aix)
 
-## [RPM](/rpms/README.md)
-## [Debian](/debs/README.md)
-## [MacOS](/macos/README.md)
+- [RPM](/rpms/README.md)
+- [Debian](/debs/README.md)
+- [MacOS](/macos/README.md)
+- [AIX](/aix/README.md)
 
 ## Contribute
 
