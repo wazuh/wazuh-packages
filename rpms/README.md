@@ -13,8 +13,8 @@ In this repository, you can find the necessary tools to build a Wazuh package fo
 ## Tools needed to build the package
 
 To build a Wazuh package you need to install the following tools:
-  - `docker`: [installation guide](https://docs.docker.com/install/linux/docker-ce/centos/) for RPM and [installation guide](https://docs.docker.com/install/linux/docker-ce/debian/) for Debian.
-  - `git`: `apt-get install git` for Debian based OS or `yum install git` for RPM based OS.
+  - `docker`: [installation guide](https://docs.docker.com/install/linux/docker-ce/centos/).
+  - `git`: `yum install git`.
 
 ## Building RPM packages
 
