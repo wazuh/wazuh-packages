@@ -57,7 +57,6 @@ rmdir %{_localstatedir}/ossec/framework
 mkdir -p ${RPM_BUILD_ROOT}%{_initrddir}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api
 cp -pr %{_localstatedir}/ossec/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/
-cp CHANGELOG.md CHANGELOG
 
 exit 0
 %pre
@@ -139,7 +138,6 @@ rm -fr %{buildroot}
 
 %files
 %defattr(-,root,root)
-%doc CHANGELOG
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/api
 %attr(750, root, ossec) %{_localstatedir}/ossec/api/app.js
 %attr(640, root, ossec) %{_localstatedir}/ossec/api/package.json
