@@ -47,6 +47,12 @@ To build an AIX package, you need to download this repository and use the `gener
     
 3. When the execution finishes, you can find your `.ppc.rpm` package in specified folder.
 
+## More Packages
+
+- [RPM](/rpms/README.md)
+- [Debian](/debs/README.md)
+- [MacOS](/macos/README.md)
+
 ## Contribute
 
 If you want to contribute to our project please don't hesitate to send a pull request. You can also join our users [mailing list](https://groups.google.com/d/forum/wazuh) by sending an email to [wazuh+subscribe@googlegroups.com](mailto:wazuh+subscribe@googlegroups.com) to ask questions and participate in discussions.

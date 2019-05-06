@@ -52,6 +52,12 @@ Building a .deb package is pretty similar to build a .rpm package. You need to d
         `# ./generate_debian_package.sh -b 3.9 -s /tmp -t manager -a amd64 -r 0 -p /opt/ossec`.
 3. When the execution finishes, you can find your `.deb` packages in specified folder.
 
+## More Packages
+
+- [RPM](/rpms/README.md)
+- [MacOS](/macos/README.md)
+- [AIX](/aix/README.md)
+
 ## Contribute
 
 If you want to contribute to our project please don't hesitate to send a pull request. You can also join our users [mailing list](https://groups.google.com/d/forum/wazuh) by sending an email to [wazuh+subscribe@googlegroups.com](mailto:wazuh+subscribe@googlegroups.com) to ask questions and participate in discussions.

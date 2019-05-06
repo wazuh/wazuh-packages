@@ -61,6 +61,11 @@ The `package_files` contains some files used by the Buildpackages tool to genera
 
 The specs folder contains the pkgproj files which are used to generate the wazuh-agent.pkgproj file. Sometimes a spec file (pkgproj) for certain version is missing and then, the `generate_wazuh_packages.sh` script generates it based on the most recent version. If that doesn't work maybe it could be because the most recent version has changes that don't work for the compiled one. In this case, a possible solution would be to manually copy the immediately preceding version of the spec and change the version to the right one (Attention: you must change the version in different parts of the file). 
 
+## More Packages
+
+- [RPM](/rpms/README.md)
+- [Debian](/debs/README.md)
+- [AIX](/aix/README.md)
 
 ## Contribute
 
