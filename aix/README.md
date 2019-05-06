@@ -10,18 +10,15 @@ Wazuh is an Open Source Host-based Intrusion Detection System that performs log 
 
 In this repository, you can find the necessary tools to build a Wazuh package for AIX.
 
-## Tools needed to build the package
-
-To build a Wazuh package you need to install the following tools:
-  - `git` : `yum install git`.
-
 ## Building RPM packages
 
-To build an AIX package, you need to download this repository and use the `generate_wazuh_rpm.sh` script. This script will download the source code from the [wazuh/wazuh](https://github.com/wazuh/wazuh) repository, and generate the `.ppc.rpm` package.
+To build an AIX package, you need to download this repository and use the `generate_wazuh_packages.sh` script. This script will download the source code from the [wazuh/wazuh](https://github.com/wazuh/wazuh) repository, and generate the `.ppc.rpm` package.
 
 1. Download this repository and go to the rpm directory:
     ```bash
-    $ git clone https://github.com/wazuh/wazuh-packages && cd wazuh-packages/aix
+    $ curl -L https://github.com/wazuh/wazuh-packages/tarball/master | tar zx 
+    $ cd wazuh-wazuh-packages-*
+    $ cd aix
     ```
 
 2. Execute the `generate_rpm_package.sh` script to build the package. There are multiple parameters to select which package is going to be built, its architecture, etc. Here you can see all the different parameters:
