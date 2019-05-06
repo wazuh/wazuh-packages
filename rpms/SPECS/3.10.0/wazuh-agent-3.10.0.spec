@@ -124,8 +124,6 @@ cp etc/templates/config/rhel/5/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/osse
 cp etc/templates/config/sles/12/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles/12
 cp etc/templates/config/sles/11/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles/11
 
-cp CHANGELOG.md CHANGELOG
-
 # Add configuration scripts
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/
 cp gen_ossec.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/
@@ -457,7 +455,6 @@ rm -fr %{buildroot}
 
 %files
 %defattr(-,root,root)
-%doc BUGS CONFIG CONTRIBUTORS INSTALL LICENSE README.md CHANGELOG
 %{_initrddir}/*
 %attr(640,root,ossec) %verify(not md5 size mtime) %{_sysconfdir}/ossec-init.conf
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec
