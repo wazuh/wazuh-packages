@@ -1,0 +1,118 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Sample debian/rules that uses debhelper.
+#
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+#
+# Modified to make a template file for a multi-binary package with separated
+# build-arch and build-indep targets  by Bill Allombert 2001
+
+# Uncomment this to turn on verbose mode.
+export DH_VERBOSE=1
+
+# This has to be exported to make some magic below work.
+export DH_OPTIONS
+
+export TARGET_DIR=${CURDIR}/debian/wazuh-manager
+
+# Package build options
+export INSTALLATION_DIR="/var/ossec"
+export INSTALLATION_SCRIPTS_DIR="${INSTALLATION_DIR}/packages_files/manager_installation_scripts"
+export JOBS="5"
+export DEBUG_ENABLED="no"
+
+%:
+	dh $@
+
+override_dh_shlibdeps:
+
+override_dh_auto_configure:
+
+override_dh_auto_install:
+
+override_dh_install:
+
+	rm -rf $(INSTALLATION_DIR)/
+	# Build the binaries
+	make -C src deps PREFIX=$(INSTALLATION_DIR)
+	make -j$(JOBS) -C src/ TARGET=server USE_SELINUX=yes PREFIX=$(INSTALLATION_DIR) DEBUG=$(DEBUG_ENABLED)
+
+	USER_LANGUAGE="en" \
+	USER_NO_STOP="y" \
+	USER_INSTALL_TYPE="server" \
+	USER_DIR="$(INSTALLATION_DIR)" \
+	USER_DELETE_DIR="y" \
+	USER_ENABLE_ACTIVE_RESPONSE="y" \
+	USER_ENABLE_SYSCHECK="y" \
+	USER_ENABLE_ROOTCHECK="y" \
+	USER_ENABLE_OPENSCAP="y" \
+	USER_ENABLE_CISCAT="y" \
+	USER_ENABLE_SYSCOLLECTOR="y" \
+	USER_UPDATE="n" \
+	USER_ENABLE_EMAIL="n" \
+	USER_WHITE_LIST="n" \
+	USER_ENABLE_SYSLOG="y" \
+	USER_ENABLE_AUTHD="y" \
+	USER_SERVER_IP="MANAGER_IP" \
+	USER_CA_STORE="/path/to/my_cert.pem" \
+	USER_GENERATE_AUTHD_CERT="y" \
+	USER_AUTO_START="n" \
+	USER_CREATE_SSL_CERT="n" \
+	./install.sh
+
+	# Copying debian & ubuntu OSCAP xml files
+	install -v -m 0640 -o root -g ossec wodles/oscap/content/*debian*.xml $(INSTALLATION_DIR)/wodles/oscap/content/
+	install -v -m 0640 -o root -g ossec wodles/oscap/content/*ubuntu*.xml $(INSTALLATION_DIR)/wodles/oscap/content/
+
+	# Copying init.d script
+	mkdir -p ${TARGET_DIR}/etc/init.d/
+	cp src/init/ossec-hids-debian.init ${TARGET_DIR}/etc/init.d/wazuh-manager
+
+	# Generating permission restoration file for postinstall
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/
+	./gen_permissions.sh $(INSTALLATION_DIR)/ ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/restore-permissions.sh
+
+	# Copying to target
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_DIR)/
+	cp -r $(INSTALLATION_DIR)/. $(TARGET_DIR)$(INSTALLATION_DIR)/
+
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/
+	cp gen_ossec.sh ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/
+	cp add_localfiles.sh ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/
+
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src
+	cp src/VERSION ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/
+	cp src/REVISION ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/
+	cp src/LOCATION ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/
+
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/init
+	cp -r src/init/*  ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/init
+
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/etc/templates/config/generic
+	cp -r etc/templates/config/generic ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/etc/templates/config/
+
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/etc/templates/config/debian
+	cp -r etc/templates/config/debian ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/etc/templates/config/
+
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/etc/templates/config/ubuntu
+	cp -r etc/templates/config/ubuntu ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/etc/templates/config/
+
+	# Copying systemd file
+	mkdir -p ${TARGET_DIR}/etc/
+	mkdir -p ${TARGET_DIR}/etc/systemd/
+	mkdir -p ${TARGET_DIR}/etc/systemd/system/
+
+	cp src/systemd/wazuh-manager.service ${TARGET_DIR}/etc/systemd/system/
+
+
+
+override_dh_auto_clean:
+	$(MAKE) -C src clean
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym
+
+.PHONY: override_dh_strip override_dh_auto_clean override_dh_auto_build override_dh_auto_configure

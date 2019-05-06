@@ -1,0 +1,57 @@
+#!/bin/sh
+# preinst script for Wazuh 
+# Santiago Bassett <info@wazuh.com>
+# 03/25/2014
+
+set -e
+
+# configuration variables
+DIR="/var/ossec"
+WAZUH_TMP_DIR="${DIR}/packages_files/api_config_files"
+
+# environment configuration
+if [ ! -d ${WAZUH_TMP_DIR} ]; then
+    mkdir -p ${WAZUH_TMP_DIR}
+else 
+    rm -rf ${WAZUH_TMP_DIR}
+    mkdir -p ${WAZUH_TMP_DIR}
+fi
+
+case "$1" in
+    install|upgrade)
+
+      if [ -z "$2" ]; then
+      API_PATH="${DIR}/api"
+      API_PATH_BACKUP="${DIR}/~api"
+
+        if [ -e ${API_PATH} ]; then
+          if [ -e ${API_PATH_BACKUP} ]; then
+              rm -rf ${API_PATH_BACKUP}
+          fi
+
+          cp -rfp ${API_PATH} ${API_PATH_BACKUP}
+
+          API_OLD_VERSION=`cat ${API_PATH_BACKUP}\/package.json | grep "version\":" | grep -P "\d+(?:\.\d+){0,2}" -o`
+          if [ "X${API_OLD_VERSION}" = "X1.3.0" ]; then
+              rm -rf ${API_PATH}/configuration
+              cp -rfp ${API_PATH_BACKUP}/configuration ${API_PATH}/configuration
+          elif [ "X${API_OLD_VERSION}" = "X1.1" ] || [ "X${API_OLD_VERSION}" = "X1.2.0" ] || [ "X${API_OLD_VERSION}" = "X1.2.1" ]; then
+              cp -rfp ${API_PATH_BACKUP}/ssl/htpasswd ${API_PATH}/configuration/auth/user
+              cp -p ${API_PATH_BACKUP}/ssl/*.key $API_PATH_BACKUP/ssl/*.crt ${API_PATH}/configuration/ssl/
+          fi
+      fi
+    fi
+    if [ -d ${DIR}/api/configuration ]; then
+        cp -rp ${DIR}/api/ ${WAZUH_TMP_DIR}/
+    fi
+    ;;
+
+    *)
+        echo "preinst called with unknown argument \`$1'" >&2
+        exit 1
+
+    ;;
+
+esac
+
+exit 0
