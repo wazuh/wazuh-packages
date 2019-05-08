@@ -56,6 +56,8 @@ To build an RPM package, you need to download this repository and use the `gener
 - [Debian](/debs/README.md)
 - [MacOS](/macos/README.md)
 - [AIX](/aix/README.md)
+- [KibanaApp](/wazuhapp/README.md)
+- [SplunkApp](/splunkapp/README.md)
 
 ## Contribute
 
