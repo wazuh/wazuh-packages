@@ -66,6 +66,7 @@ The specs folder contains the pkgproj files which are used to generate the wazuh
 - [RPM](/rpms/README.md)
 - [Debian](/debs/README.md)
 - [AIX](/aix/README.md)
+- [OVA](/splunkapp/README.md)
 - [KibanaApp](/wazuhapp/README.md)
 - [SplunkApp](/splunkapp/README.md)
 

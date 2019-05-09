@@ -52,6 +52,7 @@ To build an AIX package, you need to download this repository and use the `gener
 - [RPM](/rpms/README.md)
 - [Debian](/debs/README.md)
 - [MacOS](/macos/README.md)
+- [OVA](/splunkapp/README.md)
 - [KibanaApp](/wazuhapp/README.md)
 - [SplunkApp](/splunkapp/README.md)
 
