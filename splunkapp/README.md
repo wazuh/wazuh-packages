@@ -22,7 +22,7 @@ To build a Splunk app package, you need to download this repository and use the 
 
 1. Download this repository and go to the splunkapp directory:
     ```bash
-    $ git clone https://github.com/wazuh/wazuh-installers && cd wazuh-installers/splunkapp
+    $ git clone https://github.com/wazuh/wazuh-packages && cd wazuh-packages/splunkapp
     ```
 
 2. Execute the `generate_wazuh_splunk_app.sh` script to build the package. There are multiple parameters to select: which version of the app is going to be built, where is going to be stored in, etc. Here you can see all the different parameters:

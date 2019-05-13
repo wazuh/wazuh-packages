@@ -13,7 +13,7 @@ In this repository, you can find the necessary tools to build a Wazuh package fo
 ## Tools needed to build the package
 
 To build a Wazuh package you need to install the following tools:
-  - [Packages](http://s.sudre.free.fr/Software/Packages/about.html): You can install this on OSX using the generate_wazuh_packages.sh script in this repo.
+- [Packages](http://s.sudre.free.fr/Software/Packages/about.html): You can install this on OSX using the generate_wazuh_packages.sh script in this repo.
   - `git`: on OSX install with homebrew use `brew install git`
 
 ## Building OSX packages
@@ -22,21 +22,21 @@ To build an OSX package, you need to download this repository and use the `gener
 
 1. Download this repository and go to the rpm directory:
     ```bash
-    $ git clone https://github.com/wazuh/wazuh-installers && cd wazuh-installers/osx
+    $ git clone https://github.com/wazuh/wazuh-packages && cd wazuh-packages/macos
     ```
 
 2. Execute the `generate_wazuh_package.sh` script to build the package. There are multiple parameters for selecting which package is going to be built, such as install destination, etc. Also you can install `Packages` using the script. Here you can see all the different parameters:
     ```shellsession
     #macos:osx vagrant$ ./generate_wazuh_packages.sh -h
     
-     Usage: ./generate_wazuh_packages.sh [OPTIONS]
-
-    -b, --branch <branch>     [Required] Select Git branch or tag e.g. 
-    -d, --destination <path>  [Required] Set the destination absolute path of package.
-    -j, --jobs <number>       [Optional] Number of parallel jobs when compiling.
-    -r, --revision <rev>      [Optional] Package revision that append to version e.g. x.x.x-rev
-    -h, --help                [  Util  ] Show this help.
-    -i, --install-deps        [  Util  ] Install build dependencies (Packages).
+    Usage: $0 [OPTIONS]
+        -b, --branch <branch>     [Required] Select Git branch or tag e.g. $BRANCH"
+        -s, --store-path <path>   [Optional] Set the destination absolute path of package."
+        -j, --jobs <number>       [Optional] Number of parallel jobs when compiling."
+        -r, --revision <rev>      [Optional] Package revision that append to version e.g. x.x.x-rev"
+        -h, --help                [  Util  ] Show this help."
+        -i, --install-deps        [  Util  ] Install build dependencies (Packages)."
+        -x, --install-xcode       [  Util  ] Install X-Code and brew. Can't be executed as root."
 
     ```
     * To build a wazuh-agent package for tag v3.7.2 with 4 jobs:

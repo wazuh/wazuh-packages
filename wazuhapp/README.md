@@ -22,7 +22,7 @@ To build a Kibana app package, you need to download this repository and use the 
 
 1. Download this repository and go to the wazuhapp directory:
     ```bash
-    $ git clone https://github.com/wazuh/wazuh-installers && cd wazuh-installers/wazuhapp
+    $ git clone https://github.com/wazuh/wazuh-packages && cd wazuh-packages/wazuhapp
     ```
 
 2. Execute the `generate_wazuh_app.sh` script to build the package. There are multiple parameters to select: which version of the app is going to be built, where is going to be stored in, etc. Here you can see all the different parameters:

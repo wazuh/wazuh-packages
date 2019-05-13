@@ -1,22 +1,27 @@
-Wazuh generate OVA
-====
+Wazuh
+=====
 
-[![Slack](https://img.shields.io/badge/slack-join-blue.svg)](https://wazuh.com/community/join-us-on-slack/) [![Email](https://img.shields.io/badge/email-join-blue.svg)](https://groups.google.com/forum/#!forum/wazuh) [![Documentation](https://img.shields.io/badge/docs-view-green.svg)](https://documentation.wazuh.com) [![Documentation](https://img.shields.io/badge/web-view-green.svg)](https://wazuh.com)
+[![Slack](https://img.shields.io/badge/slack-join-blue.svg)](https://wazuh.com/community/join-us-on-slack/)
+[![Email](https://img.shields.io/badge/email-join-blue.svg)](https://groups.google.com/forum/#!forum/wazuh)
+[![Documentation](https://img.shields.io/badge/docs-view-green.svg)](https://documentation.wazuh.com)
+[![Documentation](https://img.shields.io/badge/web-view-green.svg)](https://wazuh.com)
 
 Wazuh is an Open Source Host-based Intrusion Detection System that performs log analysis, file integrity monitoring, policy monitoring, rootkit detection, real-time alerting, active response, vulnerability detector, etc.
-
 
 In this repository, you can find the necessary tools to build your own OVA file with all Wazuh componets installed.
 
 ## Tools needed to build the OVA:
-+ Virtual Box and Vagrant are needed to create a Centos 7 virtual machine and install on it all the components with the `provision.sh` script.
 
-+ Python installed.
+To build an OVA you need to install the following tools:
+- `Virtual Box`: [instalation guide](https://www.virtualbox.org/manual/UserManual.html#installation)
+- `Vagrant`: [instalation guide](https://www.vagrantup.com/docs/installation/)
+- `Git`:  [installation guide](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git). 
+- `Python`
 
 
 ## Building OVA file:
 
-Run the `generate_ova.sh` script to generate the OVA file. Those are the parameters: 
+To generate the ova file, you need to download this repository and use the `generate_ova.sh` script. This script will create a vagrant box and provision it to be ready to use wazuh, as specified on provision.sh, and then export it to an Ova file.
 
 ```shellsesion
 
@@ -33,9 +38,9 @@ Run the `generate_ova.sh` script to generate the OVA file. Those are the paramet
 ```
 
   
- To build an OVA with the desired package:
+ To build an OVA with versiohn 3.9.0 using elastic 6.2.2 and the stable repositories you can use:
 
-      #./generate_ova.sh -b -v 3.9.0 -e 6.6.2 -r [stable/unstable]
+      #./generate_ova.sh -b -v 3.9.0 -e 6.6.2 -r stable
     
    * **Stable:** The OVA uses released packages.
    * **Unstable:** The OVA uses unstable packages.
