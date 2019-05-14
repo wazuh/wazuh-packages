@@ -57,7 +57,7 @@ Building a .deb package is pretty similar to build a .rpm package. You need to d
 - [RPM](/rpms/README.md)
 - [MacOS](/macos/README.md)
 - [AIX](/aix/README.md)
-- [OVA](/splunkapp/README.md)
+- [OVA](/ova/README.md)
 - [KibanaApp](/wazuhapp/README.md)
 - [SplunkApp](/splunkapp/README.md)
 

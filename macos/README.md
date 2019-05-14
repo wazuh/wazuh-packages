@@ -14,7 +14,7 @@ In this repository, you can find the necessary tools to build a Wazuh package fo
 
 To build a Wazuh package you need to install the following tools:
 - [Packages](http://s.sudre.free.fr/Software/Packages/about.html): You can install this on OSX using the generate_wazuh_packages.sh script in this repo.
-  - `git`: on OSX install with homebrew use `brew install git`
+- `git`: on OSX install with homebrew use `brew install git`
 
 ## Building OSX packages
 
@@ -66,7 +66,7 @@ The specs folder contains the pkgproj files which are used to generate the wazuh
 - [RPM](/rpms/README.md)
 - [Debian](/debs/README.md)
 - [AIX](/aix/README.md)
-- [OVA](/splunkapp/README.md)
+- [OVA](/ova/README.md)
 - [KibanaApp](/wazuhapp/README.md)
 - [SplunkApp](/splunkapp/README.md)
 

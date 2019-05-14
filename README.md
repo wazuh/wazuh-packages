@@ -14,7 +14,7 @@ In this repository, you can find the necessary tools to build a Wazuh package fo
 - [Debian](/debs/README.md)
 - [MacOS](/macos/README.md)
 - [AIX](/aix/README.md)
-- [OVA](/splunkapp/README.md)
+- [OVA](/ova/README.md)
 - [KibanaApp](/wazuhapp/README.md)
 - [SplunkApp](/splunkapp/README.md)
 

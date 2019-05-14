@@ -53,7 +53,7 @@ To build a Splunk app package, you need to download this repository and use the 
 - [Debian](/debs/README.md)
 - [MacOS](/macos/README.md)
 - [AIX](/aix/README.md)
-- [OVA](/splunkapp/README.md)
+- [OVA](/ova/README.md)
 - [KibanaApp](/wazuhapp/README.md)
 
 ## Contribute
