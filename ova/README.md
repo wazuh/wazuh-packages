@@ -53,6 +53,7 @@ To generate the ova file, you need to download this repository and use the `gene
 - [AIX](/aix/README.md)
 - [KibanaApp](/wazuhapp/README.md)
 - [SplunkApp](/splunkapp/README.md)
+- [WPK](/wpk/README.md)
 
 ## Contribute
 

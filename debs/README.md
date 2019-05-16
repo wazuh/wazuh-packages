@@ -60,6 +60,7 @@ Building a .deb package is pretty similar to build a .rpm package. You need to d
 - [OVA](/ova/README.md)
 - [KibanaApp](/wazuhapp/README.md)
 - [SplunkApp](/splunkapp/README.md)
+- [WPK](/wpk/README.md)
 
 ## Contribute
 

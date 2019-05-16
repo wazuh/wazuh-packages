@@ -55,6 +55,7 @@ To build an AIX package, you need to download this repository and use the `gener
 - [OVA](/ova/README.md)
 - [KibanaApp](/wazuhapp/README.md)
 - [SplunkApp](/splunkapp/README.md)
+- [WPK](/wpk/README.md)
 
 ## Contribute
 
