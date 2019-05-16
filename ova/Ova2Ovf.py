@@ -13,11 +13,13 @@ import hashlib
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("srcfile", type=str)
-parser.add_argument("destfile", type=str)
+parser.add_argument('-s', '--srcfile', help="Source VirtualBox Ova", type=str, dest='srcfile')
+parser.add_argument('-d', '--destfile', help="Modified Ova", type=str, dest='destfile')
 args = parser.parse_args()
-print(args.srcfile)
 
+if not args.srcfile or not args.destfile:
+    print("Source Ova and Destination Ova are needed")
+    exit
 
 srcfile = args.srcfile
 fileName, fileExtension = os.path.splitext(srcfile)
@@ -54,7 +56,7 @@ with open(ovaF, 'wb') as nfp:
     nfp.write(fp.encode('utf8'))
 
 # Create new .ova
-tar = tarfile.open(destfile, "w")
-for name in ovaFiles:
-    tar.add(name)
-tar.close()
+with tarfile.open(destfile, "w") as t:
+    for name in ovaFiles:
+        t.add(name)
+

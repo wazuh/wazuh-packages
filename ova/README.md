@@ -28,12 +28,12 @@ To generate the ova file, you need to download this repository and use the `gene
 # ./generate_ova.sh -h
 
   OPTIONS:
-      -b,--build            [Required] Build the OVA and OVF.
-      -v,--version          [Required] Version of wazuh to install on VM.
-      -e,--elastic-version  [Required] Elastic version to download inside VM.
-      -r,--repository       [Required] Status of the packages [stable/unstable]
-      -c,--clean            [Optional] Clean the local machine.
-      -h,--help             [  Util  ] Show this help.
+      -b, --build            [Required] Build the OVA and OVF.
+      -v, --version          [Required] Version of wazuh to install on VM.
+      -e, --elastic-version  [Required] Elastic version to download inside VM.
+      -r, --repository       [Required] Status of the packages [stable/unstable]
+      -c, --clean            [Optional] Clean the local machine.
+      -h, --help             [  Util  ] Show this help.
 
 ```
 

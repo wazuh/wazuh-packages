@@ -30,13 +30,13 @@ function help() {
 
   OPTIONS:
   echo
-  echo "  -b,--build            [Required] Build the OVA and OVF."
-  echo "  -v,--version          [Required] Version of wazuh to install on VM."
-  echo "  -e,--elastic-version  [Required] Elastic version to download inside VM."
-  echo "  -r,--repository       [Required] Status of the packages [stable/unstable]"
-  echo "  -d,--directory        [Optional] Where will be installed manager. Default /var/ossec"
-  echo "  -c,--clean            [Optional] Clean the local machine."
-  echo "  -h,--help             [  Util  ] Show this help."
+  echo "  -b, --build            [Required] Build the OVA and OVF."
+  echo "  -v, --version          [Required] Version of wazuh to install on VM."
+  echo "  -e, --elastic-version  [Required] Elastic version to download inside VM."
+  echo "  -r, --repository       [Required] Status of the packages [stable/unstable]"
+  echo "  -d, --directory        [Optional] Where will be installed manager. Default /var/ossec"
+  echo "  -c, --clean            [Optional] Clean the local machine."
+  echo "  -h, --help             [  Util  ] Show this help."
   echo
   exit $1
 }
@@ -75,7 +75,7 @@ function build_ova() {
 
   tar -xvf ${OVA_VM}
 
-  python Ova2Ovf.py ${OVA_VM} ${OVA_FIXED}
+  python Ova2Ovf.py -s ${OVA_VM} -d ${OVA_FIXED}
 
   rm -f ${OVA_VM} ${OVF_VM} ${OVA_VMDK}
   mv ${OVA_FIXED} ${OVA_VM}
@@ -87,7 +87,7 @@ function check_version() {
   elif [ "$3" == "unstable" ]; then
     FLAG=$(curl -Is https://packages-dev.wazuh.com/pre-release/app/kibana/wazuhapp-${1}_${2}.zip | grep -i Content-Length)
   else
-    echo "Error, repository value must take \"stable\" or \"unstable\" value."
+    echo "Error, repository value must take 'stable' or 'unstable' value."
     exit
   fi
 }
@@ -103,16 +103,16 @@ function main() {
   export DIRECTORY="/var/ossec"
   while [ -n "$1" ]; do
     case $1 in
-    -h | --help)
+    "-h" | "--help")
       help 0
       ;;
 
-    -b | --build)
+    "-b" | "--build")
       local BUILD=true
       shift 1
       ;;
 
-    -v | --version)
+    "-v" | "--version")
       if [ -n "$2" ]; then
         export OVA_WAZUH_VERSION="$2"
         local WAZUH_VERSION="$2"
@@ -124,7 +124,7 @@ function main() {
       shift 2
       ;;
 
-    -e | --elastic-version)
+    "-e" | "--elastic-version")
       if [ -n "$2" ]; then
         export OVA_ELK_VERSION="$2"
         local ELK_VERSION="$2"
@@ -136,7 +136,7 @@ function main() {
       shift 2
       ;;
 
-    -r | --repository)
+    "-r" | "--repository")
       if [ -n "$2" ]; then
         export STATUS_PACKAGES="$2"
         local STATUS="$2"
@@ -148,7 +148,7 @@ function main() {
       shift 2
       ;;
 
-    -d | --directory)
+    "-d" | "--directory")
       if [ -n "$2" ]; then
         DIRECTORY="$2"
       else
@@ -158,9 +158,12 @@ function main() {
       shift 2
       ;;
 
-    -c | --clean)
+    "-c" | "--clean")
       clean
       exit 0
+      ;;
+    *)
+      help 1
       ;;
     esac
   done
