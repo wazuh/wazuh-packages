@@ -8,6 +8,7 @@ OUT_NAME=$3
 PKG_NAME=$4
 HAVE_PKG_NAME=false
 if [ -n $4 ]
+then
     HAVE_PKG_NAME=true
 fi
 
