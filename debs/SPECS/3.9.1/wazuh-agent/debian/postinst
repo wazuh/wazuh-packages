@@ -79,8 +79,13 @@ case "$1" in
                 DIST_VER=""
             fi
         elif [ "${DIST_NAME}" = "ubuntu" ]; then
-            DIST_NAME="debian"
-            DIST_VER=""
+            if [ "${DIST_VER}" != "14" ] || [ "${DIST_SUBVER}" != "04" ]; then
+                DIST_NAME="ubuntu"
+                DIST_VER=""
+            else
+                DIST_NAME="ubuntu"
+                DIST_VER="14_04"
+            fi
         else
             DIST_NAME="generic"
             DIST_VER=""
