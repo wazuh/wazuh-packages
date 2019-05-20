@@ -8,17 +8,17 @@ Wazuh
 
 Wazuh is an Open Source Host-based Intrusion Detection System that performs log analysis, file integrity monitoring, policy monitoring, rootkit detection, real-time alerting, active response, vulnerability detector, etc.
 
-In this repository, you can find the necessary tools to build a Wazuh package for OSX.
+In this repository, you can find the necessary tools to build a Wazuh package for macOS.
 
 ## Tools needed to build the package
 
 To build a Wazuh package you need to install the following tools:
-- [Packages](http://s.sudre.free.fr/Software/Packages/about.html): You can install this on OSX using the generate_wazuh_packages.sh script in this repo.
-- `git`: on OSX install with homebrew use `brew install git`
+- [Packages](http://s.sudre.free.fr/Software/Packages/about.html): You can install this on macOS using the generate_wazuh_packages.sh script in this repo.
+- `git`: on macOS install with homebrew use `brew install git`
 
-## Building OSX packages
+## Building macOS packages
 
-To build an OSX package, you need to download this repository and use the `generate_wazuh_packages.sh` script. This script will download the source code from the [wazuh/wazuh](https://github.com/wazuh/wazuh) repository and automatize the package generation.
+To build an macOS package, you need to download this repository and use the `generate_wazuh_packages.sh` script. This script will download the source code from the [wazuh/wazuh](https://github.com/wazuh/wazuh) repository and automatize the package generation.
 
 1. Download this repository and go to the rpm directory:
     ```bash
@@ -55,7 +55,7 @@ To build an OSX package, you need to download this repository and use the `gener
 
 # Aditional information
 
-Use the `generate_wazuh_packages.sh` script for build packages for OSX.
+Use the `generate_wazuh_packages.sh` script for build packages for macOS.
 
 The `package_files` contains some files used by the Buildpackages tool to generate the package. The most important file is wazuh-agent-pkgproj, which is used by Buildpackages to generate the package and have to be updated by the script with the specs and default Wazuh configurations. Also, there are two scripts, `postinstall.sh` and `preinstall.sh` that are loaded in the package to be executed during the installation.
 
