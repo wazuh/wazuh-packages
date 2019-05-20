@@ -56,19 +56,19 @@ To build  a WPK package, it is necessary to generate a X509 certificate and CA, 
     ```
     * To build the WPK package for linux called linux-3_9_0.wpk from tag v3.9.0 and store it in /home/wpk, while having the keys stored in /tmp/keys
 
-        ```bash
+        ```shellsession
         # ./generate_wpk_package.sh -t linux -b v3.9.0 -d /home/wpk -k /tmp/keys -o linux-3_9_0.wpk
         ```
     * To build the WPK package for linux called linux-3_8.wpk from branch 3.8 and store it in /home/wpk, while having the keys stored in /tmp/keys
 
-        ```bash
+        ```shellsession
         # ./generate_wpk_package.sh -t linux -b 3.8 -d /home/wpk -k /tmp/keys -o linux-3_8.wpk
         ```
     For windows packages it is necessary to have a msi package, you can find the latest packages here: [wazuh packages](https://documentation.wazuh.com/current/installation-guide/packages-list/index.html#packages)
 
     * To build the WPK package for windows called windows-3_9_0.wpk from tag v3.9.0 and store it in /home/wpk, while having the keys stored in /tmp/keys and the msi stored in /tmp/msi/wazuh-agent-3.9.0-1.msi
-        ```bash
-        # /generate_wpk_package.sh -t windows -b v3.9.0 -d /wpk -k /wazuh-installers/wpk-docker -o windows-3_9_0.wpk -pd wazuh-agent-3.9.0-1.msi
+        ```shellsession
+        # /generate_wpk_package.sh -t windows -b v3.9.0 -d home/wpk -k /tmp/keys -o windows-3_9_0.wpk -pd /tmp/msi/wazuh-agent-3.9.0-1.msi
         ```
     3. Once the execution finishes, you will find your `.zip` package in the specified folder.
 
