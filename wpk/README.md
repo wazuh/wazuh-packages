@@ -76,7 +76,7 @@ To build  a WPK package, it is necessary to generate a X509 certificate and CA, 
 
 - [RPM](/rpms/README.md)
 - [Debian](/debs/README.md)
-- [MacOS](/macos/README.md)
+- [macOS](/macos/README.md)
 - [AIX](/aix/README.md)
 - [OVA](/ova/README.md)
 - [KibanaApp](/wazuhapp/README.md)

@@ -49,7 +49,7 @@ To generate the ova file, you need to download this repository and use the `gene
 
 - [RPM](/rpms/README.md)
 - [Debian](/debs/README.md)
-- [MacOS](/macos/README.md)
+- [macOS](/macos/README.md)
 - [AIX](/aix/README.md)
 - [KibanaApp](/wazuhapp/README.md)
 - [SplunkApp](/splunkapp/README.md)
