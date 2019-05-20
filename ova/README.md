@@ -16,7 +16,7 @@ To build an OVA you need to install the following tools:
 - `Virtual Box`: [instalation guide](https://www.virtualbox.org/manual/UserManual.html#installation)
 - `Vagrant`: [instalation guide](https://www.vagrantup.com/docs/installation/)
 - `Git`:  [installation guide](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git). 
-- `Python`
+- `Python`: [installation guide](https://www.python.org/download/releases/2.7/)
 
 
 ## Building OVA file:
@@ -38,7 +38,7 @@ To generate the ova file, you need to download this repository and use the `gene
 ```
 
   
- To build an OVA with versiohn 3.9.0 using elastic 6.2.2 and the stable repositories you can use:
+ To build an OVA with versiohn 3.9.0 using elastic 6.6.2 and the stable repositories you can use:
 
       #./generate_ova.sh -b -v 3.9.0 -e 6.6.2 -r stable
     
