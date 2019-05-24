@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# Program to build the Wazuh WPK packages
+# Wazuh package generator
+# Copyright (C) 2015-2019, Wazuh Inc.
+#
+# This program is a free software; you can redistribute it
+# and/or modify it under the terms of the GNU General Public
+# License (version 2) as published by the FSF - Free Software
+# Foundation.
+
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 LINUX_BUILDER="unified_linux_wpk_builder"
 LINUX_BUILDER_DOCKERFILE="${CURRENT_PATH}/unified/linux"

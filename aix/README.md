@@ -1,18 +1,11 @@
-Wazuh
-=====
-
-[![Slack](https://img.shields.io/badge/slack-join-blue.svg)](https://wazuh.com/community/join-us-on-slack/)
-[![Email](https://img.shields.io/badge/email-join-blue.svg)](https://groups.google.com/forum/#!forum/wazuh)
-[![Documentation](https://img.shields.io/badge/docs-view-green.svg)](https://documentation.wazuh.com)
-[![Documentation](https://img.shields.io/badge/web-view-green.svg)](https://wazuh.com)
-
-Wazuh is an Open Source Host-based Intrusion Detection System that performs log analysis, file integrity monitoring, policy monitoring, rootkit detection, real-time alerting, active response, vulnerability detector, etc.
+Wazuh RPM packages for IBM AIX
+==============================
 
 In this repository, you can find the necessary tools to build a Wazuh package for AIX.
 
 ## Building RPM packages
 
-To build an AIX package, you need to download this repository and use the `generate_wazuh_packages.sh` script. This script will download the source code from the [wazuh/wazuh](https://github.com/wazuh/wazuh) repository, and generate the `.ppc.rpm` package.
+To build an AIX package, you need to download this repository and use the `generate_wazuh_packages.sh` script. This script will download the source code from the [wazuh/wazuh](https://github.com/wazuh/wazuh) repository, and generate the `.ppc.rpm` package. In addition, you can install the build dependencies with this script.
 
 1. Download this repository and go to the rpm directory:
     ```bash
@@ -23,7 +16,7 @@ To build an AIX package, you need to download this repository and use the `gener
 
 2. Execute the `generate_rpm_package.sh` script to build the package. There are multiple parameters to select which package is going to be built, its architecture, etc. Here you can see all the different parameters:
     ```shellsession
-    #./generate_package.sh -h
+    # ./generate_package.sh -h
 
     Usage: ./generate_rpm.sh [OPTIONS]
 
@@ -59,7 +52,7 @@ To build an AIX package, you need to download this repository and use the `gener
 
 ## Contribute
 
-If you want to contribute to our project please don't hesitate to send a pull request. You can also join our users [mailing list](https://groups.google.com/d/forum/wazuh) by sending an email to [wazuh+subscribe@googlegroups.com](mailto:wazuh+subscribe@googlegroups.com) to ask questions and participate in discussions.
+If you want to contribute to our project please don't hesitate to send a pull request. You can also join our users [mailing list](https://groups.google.com/d/forum/wazuh) by sending an email to [wazuh+subscribe@googlegroups.com](mailto:wazuh+subscribe@googlegroups.com)or join to our Slack channel by filling this [form](https://wazuh.com/community/join-us-on-slack/) to ask questions and participate in discussions.
 
 ## License and copyright
 

@@ -1,10 +1,13 @@
 #!/usr/bin/env python
-
-# Neova Health
-# Helper script to convert VBox .ova export for import to VMWare ESXi
-# usage:
-#        python2.7 Ova2Ovf.py some-vbox-export.ova
+# Copyright (C) 2019, Wazuh Inc.
+#
+# Ova2Ovf.py        Helper script to convert VBox .ova export 
+#                   for import to VMWare ESXi
+#
+# Original author: eshizhan https://github.com/eshizhan
+# Author: Neova Health 
 # forked from : https://gist.github.com/eshizhan/6650285
+# Modified by Wazuh, Inc
 
 import sys
 import tarfile

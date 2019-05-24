@@ -1,14 +1,7 @@
-Wazuh
-=====
+Wazuh Splunk App package
+========================
 
-[![Slack](https://img.shields.io/badge/slack-join-blue.svg)](https://wazuh.com/community/join-us-on-slack/)
-[![Email](https://img.shields.io/badge/email-join-blue.svg)](https://groups.google.com/forum/#!forum/wazuh)
-[![Documentation](https://img.shields.io/badge/docs-view-green.svg)](https://documentation.wazuh.com)
-[![Documentation](https://img.shields.io/badge/web-view-green.svg)](https://wazuh.com)
-
-Wazuh is an Open Source Host-based Intrusion Detection System that performs log analysis, file integrity monitoring, policy monitoring, rootkit detection, real-time alerting, active response, vulnerability detector, etc.
-
-In this repository, you can find the necessary tools to build a Wazuh Splunk app package.
+In this repository, you can find the necessary tools to build a Wazuh Splunk App package.
 
 ## Tools needed to build the package
 
@@ -27,7 +20,7 @@ To build a Splunk app package, you need to download this repository and use the 
 
 2. Execute the `generate_wazuh_splunk_app.sh` script to build the package. There are multiple parameters to select: which version of the app is going to be built, where is going to be stored in, etc. Here you can see all the different parameters:
     ```shellsession
-    $./generate_wazuh_splunk_app.sh -h
+    $ ./generate_wazuh_splunk_app.sh -h
 
     Usage: generate_wazuh_splunk_app.sh [OPTIONS]
 
@@ -39,11 +32,11 @@ To build a Splunk app package, you need to download this repository and use the 
     ```
     * To build the app package for version 3.8.2, using Splunk with version 7.2.3, revision myrev and store it in `/splunk-app` you can either use:
 
-            # ./generate_wazuh_splunk_app.sh -b v3.8.1-7.2.3 -d /splunk-app -r myrev.
-            # ./generate_wazuh_splunk_app.sh -b 3.8.2 -d /splunk-app -r no -sp 7.2.3
+            # ./generate_wazuh_splunk_app.sh -b v3.8.1-7.2.3 -s /splunk-app -r myrev.
+            # ./generate_wazuh_splunk_app.sh -b 3.8.2 -s /splunk-app -r no -sp 7.2.3
     * If no Splunk version is indicated the package generated will contain the latest version of the app for a given branch.
 
-            # ./generate_wazuh_splunk_app.sh -b 3.8 -d /splunk-app -r myrev
+            # ./generate_wazuh_splunk_app.sh -b 3.8 -s /splunk-app -r myrev
         
 3. Once the execution finishes, you will find your `.taz.gz` package in the specified folder or in /tmp/splunk-app if no folder was specified.
 
@@ -59,7 +52,7 @@ To build a Splunk app package, you need to download this repository and use the 
 
 ## Contribute
 
-If you want to contribute to our project please don't hesitate to send a pull request. You can also join our users [mailing list](https://groups.google.com/d/forum/wazuh) by sending an email to [wazuh+subscribe@googlegroups.com](mailto:wazuh+subscribe@googlegroups.com) to ask questions and participate in discussions.
+If you want to contribute to our project please don't hesitate to send a pull request. You can also join our users [mailing list](https://groups.google.com/d/forum/wazuh) by sending an email to [wazuh+subscribe@googlegroups.com](mailto:wazuh+subscribe@googlegroups.com)or join to our Slack channel by filling this [form](https://wazuh.com/community/join-us-on-slack/) to ask questions and participate in discussions.
 
 ## License and copyright
 

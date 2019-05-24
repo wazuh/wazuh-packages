@@ -1,12 +1,5 @@
-Wazuh
-=====
-
-[![Slack](https://img.shields.io/badge/slack-join-blue.svg)](https://wazuh.com/community/join-us-on-slack/)
-[![Email](https://img.shields.io/badge/email-join-blue.svg)](https://groups.google.com/forum/#!forum/wazuh)
-[![Documentation](https://img.shields.io/badge/docs-view-green.svg)](https://documentation.wazuh.com)
-[![Documentation](https://img.shields.io/badge/web-view-green.svg)](https://wazuh.com)
-
-Wazuh is an Open Source Host-based Intrusion Detection System that performs log analysis, file integrity monitoring, policy monitoring, rootkit detection, real-time alerting, active response, vulnerability detector, etc.
+Wazuh DEB packages
+==================
 
 In this repository, you can find the necessary tools to build a Wazuh package for Debian based OS.
 
@@ -27,7 +20,7 @@ Building a .deb package is pretty similar to build a .rpm package. You need to d
 
 2. Execute the `generate_debian_package.sh` script to built the package. There are multiple parameters to select which package is going to be build, its architecture, etc. Here you can see all the different parameters:
       ```shellsession
-      #./generate_debian_package.sh -h
+      # ./generate_debian_package.sh -h
 
       Usage: ./generate_debian_package.sh [OPTIONS]
 
@@ -44,8 +37,8 @@ Building a .deb package is pretty similar to build a .rpm package. You need to d
       ```
     * To build a wazuh-manager package for amd64 (x86_64) and store it in `/tmp`:
         `# ./generate_debian_package.sh -b 3.9 -s /tmp -t manager -a amd64 -r 0`.
-    * To build a wazuh-agent package in `/home/ec2-user` for i386 with release 2:
-        `# ./generate_debian_package.sh -b v3.8.2 -s /home/ec2-user -t agent -a i386 -r 2`.
+    * To build a wazuh-agent package in `/home/user` for i386 with release 2:
+        `# ./generate_debian_package.sh -b v3.8.2 -s /home/user -t agent -a i386 -r 2`.
     * To build a wazuh-api package from branch 3.9 and store it in `/tmp`:
         `# ./generate_debian_package.sh -b 3.9 -s /tmp -t api -a amd64 -r 0`.
     * To build a wazuh-manager amd64 (x86_64) package for `/opt/ossec` directory and store it in `/tmp`:
@@ -64,7 +57,7 @@ Building a .deb package is pretty similar to build a .rpm package. You need to d
 
 ## Contribute
 
-If you want to contribute to our project please don't hesitate to send a pull request. You can also join our users [mailing list](https://groups.google.com/d/forum/wazuh) by sending an email to [wazuh+subscribe@googlegroups.com](mailto:wazuh+subscribe@googlegroups.com) to ask questions and participate in discussions.
+If you want to contribute to our project please don't hesitate to send a pull request. You can also join our users [mailing list](https://groups.google.com/d/forum/wazuh) by sending an email to [wazuh+subscribe@googlegroups.com](mailto:wazuh+subscribe@googlegroups.com)or join to our Slack channel by filling this [form](https://wazuh.com/community/join-us-on-slack/) to ask questions and participate in discussions.
 
 ## License and copyright
 
