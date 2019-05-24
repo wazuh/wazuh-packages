@@ -1,6 +1,6 @@
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-manager
-Version:     3.9.0
+Version:     3.10.0
 Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
@@ -83,8 +83,6 @@ install -m 0640 wodles/oscap/content/*redhat* ${RPM_BUILD_ROOT}%{_localstatedir}
 install -m 0640 wodles/oscap/content/*rhel* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 install -m 0640 wodles/oscap/content/*centos* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 install -m 0640 wodles/oscap/content/*fedora* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
-
-cp CHANGELOG.md CHANGELOG
 
 # Add configuration scripts
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/
@@ -521,7 +519,6 @@ rm -fr %{buildroot}
 
 %files
 %defattr(-,root,root)
-%doc BUGS CONFIG CONTRIBUTORS INSTALL LICENSE README.md CHANGELOG
 %attr(640, root, ossec) %verify(not md5 size mtime) %{_sysconfdir}/ossec-init.conf
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec
 %attr(750, root, ossec) %{_localstatedir}/ossec/agentless
@@ -691,6 +688,8 @@ rm -fr %{buildroot}
 %{_initrddir}/*
 
 %changelog
+* Mon May 6 2019 support <info@wazuh.com> - 3.10.0
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Feb 25 2019 support <info@wazuh.com> - 3.9.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Wed Jan 30 2019 support <info@wazuh.com> - 3.8.2
