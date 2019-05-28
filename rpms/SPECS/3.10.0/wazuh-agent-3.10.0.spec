@@ -234,8 +234,14 @@ if [ $1 = 1 ]; then
 
   # If systemd is installed, add the wazuh-agent.service file to systemd files directory
   if [ -d /run/systemd/system ]; then
-    install -m 644 %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/systemd/wazuh-agent.service /etc/systemd/system/
-
+  
+    # Fix for RHEL 8
+    # Service must be installed in /usr/lib/systemd/system/
+    if [ "${DIST_NAME}" == "rhel" -a "${DIST_VER}" == "8" ]; then
+      install -m 644 %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/systemd/wazuh-agent.service /usr/lib/systemd/system/
+    else  
+      install -m 644 %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/systemd/wazuh-agent.service /etc/systemd/system/
+    fi
     # Fix for Fedora 28
     # Check if SELinux is installed. If it is installed, restore the context of the .service file
     if [ "${DIST_NAME}" == "fedora" -a "${DIST_VER}" == "28" ]; then
