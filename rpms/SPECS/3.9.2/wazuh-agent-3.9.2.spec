@@ -383,7 +383,12 @@ if [ $1 = 0 ]; then
     rm -f /etc/init.d/wazuh-agent
   fi
   # Remove the wazuh-agent.service file
-  rm -f /etc/systemd/system/wazuh-agent.service
+  # RHEL 8 service located in /usr/lib/systemd/system/ 
+  if [ -f /usr/lib/systemd/system/wazuh-agent.service ]; then
+    rm -f /usr/lib/systemd/system/wazuh-agent.service
+  else
+    rm -f /etc/systemd/system/wazuh-agent.service
+  fi
 
 fi
 

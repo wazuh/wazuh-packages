@@ -435,7 +435,12 @@ if [ $1 = 0 ]; then
   fi
 
   # Remove the service files
-  rm -f /etc/systemd/system/wazuh-manager.service
+  # RHEL 8 service located in /usr/lib/systemd/system/
+  if [ -f /usr/lib/systemd/system/wazuh-manager.service ]; then
+    rm -f /usr/lib/systemd/system/wazuh-manager.service
+  else
+    rm -f /etc/systemd/system/wazuh-manager.service
+  fi
 
 fi
 
