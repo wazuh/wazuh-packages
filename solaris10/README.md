@@ -1,4 +1,4 @@
-Wazuh RPM packages
+Wazuh Solaris10 packages
 ==================
 
 In this repository, you can find the necessary tools to build a Wazuh package for Solaris 10.
@@ -38,10 +38,8 @@ To build a Solaris 10 package, you need to download this repository and use the 
         `# ./generate_rpm_package.sh -u`.
     * To download the sources from tag v3.9.0:
         `# ./generate_rpm_package.sh -d v3.9.0`.
-    * To build a wazuh-agent package from tag v3.9.0:
+    * To build a wazuh-agent package from th downloaded sources:
         `# ./generate_rpm_package.sh -b v3.9.0`.
-    * To build a wazuh-api package from branch 3.9 and store it in `/tmp`:
-        `# ./generate_rpm_package.sh -d v3.9.0 -b v3.9.0  /tmp`.
     
 3. When the execution finishes, you can find your `.src.rpm` and the `.rpm` packages in specified folder.
 
