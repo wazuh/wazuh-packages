@@ -63,6 +63,7 @@ The specs folder contains the `pkgproj` files which are used to generate the `wa
 - [KibanaApp](/wazuhapp/README.md)
 - [SplunkApp](/splunkapp/README.md)
 - [WPK](/wpk/README.md)
+- [Solaris10](/solaris10/README.md)
 
 ## Contribute
 

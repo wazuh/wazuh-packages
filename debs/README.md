@@ -54,6 +54,7 @@ Building a .deb package is pretty similar to build a .rpm package. You need to d
 - [KibanaApp](/wazuhapp/README.md)
 - [SplunkApp](/splunkapp/README.md)
 - [WPK](/wpk/README.md)
+- [Solaris10](/solaris10/README.md)
 
 ## Contribute
 

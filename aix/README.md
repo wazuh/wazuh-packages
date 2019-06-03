@@ -49,6 +49,7 @@ To build an AIX package, you need to download this repository and use the `gener
 - [KibanaApp](/wazuhapp/README.md)
 - [SplunkApp](/splunkapp/README.md)
 - [WPK](/wpk/README.md)
+- [Solaris10](/solaris10/README.md)
 
 ## Contribute
 

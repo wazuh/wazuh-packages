@@ -42,6 +42,7 @@ dependencies(){
     pkgutil -y -i git
     pkgutil -y -i make
     pkgutil -y -i automake
+    pkgutil -y -i gmake
     pkgutil -y -i autoconf
     pkgutil -y -i libtool
     pkgutil -y -i wget
@@ -233,8 +234,8 @@ show_help()
     -b   | --build              Build deb packages.
     -c   | --clean              Clean all. Even installation files.
   USAGE EXAMPLE:
-    ./generate_solaris10-i386_package.sh [option] [branch_tag] [Installation dir]
-    ./generate_solaris10-i386_package.sh -d branches/3.3 var
+    ./generate_solaris10-i386_package.sh [option] [branch_tag]
+    ./generate_solaris10-i386_package.sh -d branches/3.3
     "
 }
 
