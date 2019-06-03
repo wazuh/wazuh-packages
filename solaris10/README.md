@@ -38,7 +38,7 @@ To build a Solaris 10 package, you need to download this repository and use the 
         `# ./generate_rpm_package.sh -u`.
     * To download the sources from tag v3.9.0:
         `# ./generate_rpm_package.sh -d v3.9.0`.
-    * To build a wazuh-agent package from th downloaded sources:
+    * To build a wazuh-agent package from the downloaded v3.9.0 sources:
         `# ./generate_rpm_package.sh -b v3.9.0`.
     
 3. When the execution finishes, you can find your `.src.rpm` and the `.rpm` packages in specified folder.
