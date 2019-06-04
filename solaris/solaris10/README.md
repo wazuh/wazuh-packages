@@ -52,6 +52,8 @@ To build a Solaris 10 package, you need to download this repository and use the 
 - [OVA](/ova/README.md)
 - [KibanaApp](/wazuhapp/README.md)
 - [SplunkApp](/splunkapp/README.md)
+- [Solaris Vagrant](/solaris/packer/README.md)
+
 
 ## Contribute
 
