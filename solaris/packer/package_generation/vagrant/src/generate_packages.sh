@@ -37,11 +37,7 @@ VERSION=`cat ${BUILD_PATH}/$SOLARIS_VERSION/wazuh/src/VERSION`
 
 echo "Coping package to shared folder"
 
-if [[ ${SOLARIS_VERSION} == "solaris11" ]]
-then
-    cp wazuh-agent_$VERSION-sol11-i386.p5p /tmp/shared
-else
-    cp wazuh-agent_$VERSION-sol10-i386.pkg /tmp/shared
-fi
+cp wazuh-agent_$VERSION-sol10-i386.pkg /tmp/shared
+
 
 exit 0

@@ -6,8 +6,8 @@ In this repository, you can find the necessary tools to build your own OVA file 
 ## Tools needed to build the OVA:
 
 To build an OVA you need to install the following tools:
-- `Virtual Box`: [instalation guide](https://www.virtualbox.org/manual/UserManual.html#installation)
-- `Vagrant`: [instalation guide](https://www.vagrantup.com/docs/installation/)
+- `Virtual Box`: [installation guide](https://www.virtualbox.org/manual/UserManual.html#installation)
+- `Vagrant`: [installation guide](https://www.vagrantup.com/docs/installation/)
 - `Git`:  [installation guide](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git). 
 - `Python`: [installation guide](https://www.python.org/download/releases/2.7/)
 
@@ -45,6 +45,8 @@ To build an OVA with versiohn 3.9.0 using elastic 6.6.2 and the stable repositor
 - [SplunkApp](/splunkapp/README.md)
 - [WPK](/wpk/README.md)
 - [Solaris10](/solaris/solaris10/README.md)
+- ["Solaris Vagrant"](/solaris/solaris10/packer)
+
 
 ## Contribute
 

@@ -46,6 +46,7 @@ To build a Kibana app package, you need to download this repository and use the 
 - [KibanaApp](/wazuhapp/README.md)
 - [WPK](/wpk/README.md)
 - [Solaris10](/solaris/solaris10/README.md)
+- ["Solaris Vagrant"](/solaris/solaris10/packer)
 
 
 ## Contribute
