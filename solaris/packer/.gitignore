@@ -1,0 +1,9 @@
+packer/*.iso
+packer/builds
+vagrantfiles/solaris10/*
+vagrantfiles/solaris11/*
+package_generation/.vagrant/
+package_generation/PackageGenerationSolaris.retry
+package_generation/vagrant/src/solaris10
+package_generation/vagrant/src/solaris11
+package_generation/vagrant/.vagrant
