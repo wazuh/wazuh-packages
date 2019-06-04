@@ -4,6 +4,7 @@
 require 'getoptlong'
 
 os = {
+        'solaris11'   => {'box' => 'wazuh/solaris11',          'ip' => '172.16.1.44'},
         'solaris10'   => {'box' => 'wazuh/solaris10',          'ip' => '172.16.1.45'},
 }
 
@@ -54,15 +55,14 @@ opts.each do |opt, arg|
 
         -- CUSTOM USE OF VAGRANT FOR THIS MACHINE --
 
-        vagrant [OPTION] ... up X
-        To bring up a Solaris machine, X must be solaris10 both.
+        vagrant [OPTION] ... up X    
+        To bring up a Solaris machine, X must be solaris10 or solaris11 or both.
 
         vagrant [OPTION] ... ssh/provision/delete
-
+        
         Example:
-
-        vagrant --branch-tag=v3.7.2 --ram=1024 --cpus=4 up solaris10
-
+        vagrant --branch-tag=v3.7.2 --ram=1024 --cpus=4 up solaris10 solaris11
+       
         -h, --help:
         Show help
 
@@ -108,8 +108,10 @@ Vagrant.configure("2") do |config|
     os.each do |key, value|
         config.vm.define "#{key}" do |node|
           node.vm.box = "#{value['box']}"
-          if key == "solaris10"
-            node.vm.box_url = 'https://packages-dev.wazuh.com/utils/vagrant/solaris/10/solaris10.box'
+          if key == "solaris11"
+            node.vm.box_url = 'https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/utils/vagrant/solaris/11/i386/solaris11.3.box'
+          elsif key == "solaris10"
+            node.vm.box_url = 'https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/utils/vagrant/solaris/10/solaris10.box'
           end
 
           node.vm.network :private_network, ip: "#{value['ip']}"
