@@ -1,50 +1,110 @@
-# SOLARIS 10&11 TOOLS
+Automated Wazuh Solaris10 packages using vagrant
+==================
 
-## Packer: JSON & scripts
+In this repository, you can find the necessary tools to build a Wazuh package for Solaris 10 using vagrant.
 
-Use these JSON files and scripts to build new Vagrant boxes with [packer](https://www.packer.io/) 
+## Tools needed to build the package
 
-You can also download the Vagrant boxes from our repo.
-
-## Solaris 10
-
-["Solaris10 vagrant box"](https://packages-dev.wazuh.com/utils/vagrant/solaris/10/solaris10.box)
-
-or put that in a Vagrantfile:
-
-```
-Vagrant.configure("2") do |config|
-  config.vm.box = "wazuh/solaris10U11.box"
-  config.vm.box_url = "packages-dev.wazuh.com/utils/vagrant/solaris/11/i386/solaris11.3.box"
-end
-```
-
-## Testing generated boxes.
-
-```
-# solaris 10
-
-vagrant box add solaris10wazuh solaris10.box
-mkdir solaris10 && cd solaris10
-vagrant init solaris10wazuh
-vagrant up
-vagrant ssh
-
-```
-based on [this work](https://github.com/BigAl/solaris-packer).
-
-Jenkins uses that folder for the Solaris package generation. There are two Vagrantfiles which accepts an argument for provisioning that specifies the version of the package needed to be generated. Also, there are two scripts for the provision of the machine inside the src folder (which will be a shared folder).
+To build a Wazuh package you need to install the following tools:
+- `Virtual Box`: [instalation guide](https://www.virtualbox.org/manual/UserManual.html#installation)
+- `Vagrant`: [instalation guide](https://www.vagrantup.com/docs/installation/)
+- `Git`:  [installation guide](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git). 
 
 
-In order to manually generate packages using this tools you have to:
+## Building Solaris10 packages
 
-- Create a directory for the building process, for example `mkdir building && cd building`
-- Create a `src` directory inside it. `mkdir src`
-- Clone wazuh installers and put solaris11 or solaris10 (or both) inside src:
-```
-git clone git@github.com:wazuh/wazuh-installers.git
-mv wazuh-installers/solaris/solaris1* src 
-rm -rf wazuh-installers/ 
-```
-- Bring up a virtual machine with vagrant using the following parameters: `vagrant --branch-tag=v3.9.0-rc7 up solaris10`
+To build a Solaris 10 package using vagrant, you need to download this repository copy the `Solaris10` directory into `packer/package_generation/vagrant/src` and run vagrant up. This will download a Solaris10 `vagrant box` and create a virtual machine where the `.pkg` package will be generated.
+
+1. Download this repository and go to the rpm directory:
+    ```bash
+    $ git clone https://github.com/wazuh/wazuh-packages
+    $ cp -r wazuh-packages/solaris/solaris10 wazuh-packages/solaris/packer/package_generation/vagrant/src
+    $ cd wazuh-packages/solaris/packer/package_generation/vagrant
+    ```
+
+2. Bring the machine up `vagrant [OPTION] ... up solaris10`:
+    ```shellsession
+      # vagrant -h up
+
+       -- CUSTOM USE OF VAGRANT FOR THIS MACHINE --
+
+        vagrant [OPTION] ... up solaris10
+
+        vagrant [OPTION] ... ssh/provision/delete
+
+        Example:
+
+        vagrant --branch-tag=v3.7.2 --ram=1024 --cpus=4 up solaris10 
+
+        -h, --help:
+        Show help
+
+        --branch-tag x, -b x:
+        Generate package for branch/tag x
+
+        --ram x
+        Select the amount of ram asigned to the new machine.
+
+        --cpus x
+        Select the number of CPUs asigned to the new machine.
+
+        -- DEFAULT USE OF VAGRANT (FOR ALL MACHINES) --
+
+    Usage: vagrant [options] <command> [<args>]
+
+        -v, --version                    Print the version and exit.
+        -h, --help                       Print this help.
+
+    Common commands:
+        box             manages boxes: installation, removal, etc.
+        cloud           manages everything related to Vagrant Cloud
+        destroy         stops and deletes all traces of the vagrant machine
+        global-status   outputs status Vagrant environments for this user
+        halt            stops the vagrant machine
+        help            shows the help for a subcommand
+        init            initializes a new Vagrant environment by creating a Vagrantfile
+        login
+        package         packages a running vagrant environment into a box
+        plugin          manages plugins: install, uninstall, update, etc.
+        port            displays information about guest port mappings
+        powershell      connects to machine via powershell remoting
+        provision       provisions the vagrant machine
+        push            deploys code in this environment to a configured destination
+        rdp             connects to machine via RDP
+        reload          restarts vagrant machine, loads new Vagrantfile configuration
+        resume          resume a suspended vagrant machine
+        scp             copies data into a box via SCP
+        snapshot        manages snapshots: saving, restoring, etc.
+        ssh             connects to machine via SSH
+        ssh-config      outputs OpenSSH valid configuration to connect to the machine
+        status          outputs status of the vagrant machine
+        suspend         suspends the machine
+        up              starts and provisions the vagrant environment
+        upload          upload to machine via communicator
+        validate        validates the Vagrantfile
+        vbguest         plugin: vagrant-vbguest: install VirtualBox Guest Additions to the machine
+        version         prints current and latest Vagrant version
+        winrm           executes commands on a machine via WinRM
+        winrm-config    outputs WinRM configuration to connect to the machine
+    ```
+    * To build a wazuh-agent package from branch v3.9.0 sources:
+        `# vagrant --branch-tag=v3.9.0 up solaris10`.
+    
+3. After the virtual machine finishes generating the package you can find it in `src`.
+
+4. Run `vagrant halt solaris10` to stop the machine or `vagrant destroy solaris10` to completely delete it.
+
+## More Packages
+
+- [RPM](/rpms/README.md)
+- [Debian](/debs/README.md)
+- [macOS](/macos/README.md)
+- [AIX](/aix/README.md)
+- [OVA](/ova/README.md)
+- [KibanaApp](/wazuhapp/README.md)
+- [SplunkApp](/splunkapp/README.md)
+
+## Contribute
+
+If you want to contribute to our project please don't hesitate to send a pull request. You can also join our users [mailing list](https://groups.google.com/d/forum/wazuh) by sending an email to [wazuh+subscribe@googlegroups.com](mailto:wazuh+subscribe@googlegroups.com)or join to our Slack channel by filling this [form](https://wazuh.com/community/join-us-on-slack/) to ask questions and participate in discussions.
 
