@@ -76,7 +76,7 @@ main() {
           cd ${OUTDIR}
           cp /$DIRECTORY/src/win32/{upgrade.bat,do_upgrade.ps1} .
           cp /var/pkg/${PKG_NAME} ${OUTDIR}
-          wpkpack $OUTPUT $WPKCERT $WPKEY ${PKG_NAME} upgrade.bat do_upgrade.ps1
+          wpkpack $OUTPUT $WPKCERT $WPKEY ${PKG_NAME} upgrade.bat do_upgrade.ps1         
           rm -f upgrade.bat do_upgrade.ps1 ${PKG_NAME}
       else
           echo "ERROR: MSI package is needed to build the Windows WPK"
@@ -85,6 +85,7 @@ main() {
     echo "PACKED FILE -> $OUTPUT"
     # Update versions file
     cd ${OUTDIR}
+    sha512sum "${OUTPUT}" > "${OUTPUT}".sha512 
     gen_versions ${OUTPUT} ${SHORT_VERSION}
 }
 

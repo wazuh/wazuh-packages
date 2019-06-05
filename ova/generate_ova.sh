@@ -29,7 +29,7 @@ function help() {
   echo "  -r, --repository       [Required] Status of the packages [stable/unstable]"
   echo "  -d, --directory        [Optional] Where will be installed manager. Default /var/ossec"
   echo "  -c, --clean            [Optional] Clean the local machine."
-  echo "    -k, --checksum       [Optional] Generate checksum"
+  echo "  -k, --checksum         [Optional] Generate checksum"
   echo "  -h, --help             [  Util  ] Show this help."
   echo
   exit $1
@@ -87,8 +87,7 @@ function check_version() {
 }
 
 function generate_checksum() {
-    ova_name=`echo ${${OVA_VM}} | rev | cut -c 5- | rev`
-    shasum  -a512 "${DESTINATION}/${ova_name}.ova" > "${DESTINATION}/${ova_name}.sum"
+    shasum  -a512 "${DESTINATION}/${ova_name}" > "${DESTINATION}/${ova_name}.sha512"
 }
 
 function main() {

@@ -4,7 +4,10 @@ build_package() {
     
     cd /pkg
     tar -zcvf ${wazuh_splunk_pkg_name} SplunkAppForWazuh
-    mv ${wazuh_splunk_pkg_name} ../wazuh_splunk_app
+    if [[ $4 == "yes"]]; then
+         sha512sum "${wazuh_splunk_pkg_name}" > "${wazuh_splunk_pkg_name}".sha512
+    fi
+    mv ${wazuh_splunk_pkg_name}.* ../wazuh_splunk_app
     cd ..
 }
 if [ $3 == "" ]; then

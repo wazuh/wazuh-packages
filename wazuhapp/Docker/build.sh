@@ -34,12 +34,18 @@ build_package(){
     yarn
     yarn build
 
-    find /source/build/ -name wazuh* -exec cp {} /wazuh_app/${wazuh_app_pkg_name} \;
+    if [[ "${checksum}" == "yes" ]]; then
+        find /source/build/ -name "*.zip" -exec bash -c 'sha512sum "$1" > "$1".sha512' bash {} \;
+        find /source/build/ -name "*.zip.sha512" -exec mv {} /wazuh_app \;
+    fi
+
+    find /source/build/ -name "*.zip" -exec cp {} /wazuh_app \;
 }
 
 wazuh_version=$1
 kibana_version=$2
 app_revision=$3
+checksum =$4
 
 install_dependencies
 build_package

@@ -32,6 +32,7 @@ help() {
     echo "    -b, --branch <branch>     [Required] Select Git branch or tag e.g. 3.8 or v3.8.1-7.2.3"
     echo "    -s, --store <directory>   [Optional] Destination directory by default /tmp/splunk-app"
     echo "    -r, --revision            [Optional] Package revision that append to version e.g. x.x.x-y.y.y-rev"
+    echo "    -k, --checksum            [Optional] Generate checksum"
     echo "    -h, --help                Show this help."
     echo
     exit $1
@@ -44,7 +45,7 @@ build_package() {
     # Build the Docker image
     docker build -t ${CONTAINER_NAME} ./Docker/
     # Run Docker and build package
-    docker run -t --rm -v "${TMP_DIRECTORY}":/pkg -v "${DESTINATION}":/wazuh_splunk_app ${CONTAINER_NAME} ${wazuh_version} ${splunk_version} ${REVISION} || exit 1
+    docker run -t --rm -v "${TMP_DIRECTORY}":/pkg -v "${DESTINATION}":/wazuh_splunk_app ${CONTAINER_NAME} ${wazuh_version} ${splunk_version} ${REVISION} ${cheksum}|| exit 1
     if [ "$?" = "0" ]; then
         delete_sources 0
     else
@@ -83,6 +84,7 @@ delete_sources(){
 }
 
 main() {
+    cheksum="no"
     # Reading command line arguments
     while [ -n "$1" ]
         do
@@ -115,7 +117,7 @@ main() {
             "-sp"|"--splunk")
                 if [ -n "$2" ]; then
                     SPLUNK_VERSION=$2
-                    HAVE_VERSION=truei
+                    HAVE_VERSION=true
                     BRANCH_TAG="v${BRANCH_TAG}-${SPLUNK_VERSION}"
                     shift 2
                 else
@@ -130,6 +132,10 @@ main() {
                 else
                     help 1 
                 fi
+                ;;
+            "-k" | "--checksum")
+                cheksum="yes"
+                shift 1
                 ;;
             *)
                 help 1  

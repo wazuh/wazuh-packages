@@ -236,6 +236,7 @@ function main() {
         "-k" | "--checksum")
             cheksum="yes"
             shift 1
+            ;;
         *)
             help 1
         esac

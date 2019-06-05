@@ -57,6 +57,9 @@ function build_package() {
     # create package
     if packagesbuild ${AGENT_PKG_FILE} --build-folder ${DESTINATION} ; then
         echo "The wazuh agent package for MacOS X has been successfully built."
+        if [[ "${cheksum}" = "yes" ]]; then
+            shasum  -a512 ${DESTINATION}/${pkg_name} > ${DESTINATION}/${pkg_name}.sha51
+        fi
         clean_and_exit 0
     else
         echo "ERROR: something went wrong while building the package."
@@ -162,11 +165,6 @@ function check_root() {
     fi
 }
 
-function generate_checksum() {
-    pkg_name=`echo ${AGENT_PKG_FILE} | rev | cut -c 5- | rev`
-    shasum  -a512 ${DESTINATION}/${pkg_name}.pkg > ${DESTINATION}/${pkg_name}.sum
-}
-
 function main() {
 
     BUILD="no"
@@ -245,9 +243,6 @@ function main() {
         get_pkgproj_specs
         build_package
         "${CURRENT_PATH}/uninstall.sh"
-        if [[ "${cheksum}" = "yes" ]]; then
-            generate_checksum
-        fi
     else
         echo "The branch has not been specified. No package will be generated."
         help 1

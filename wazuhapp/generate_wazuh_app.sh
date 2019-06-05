@@ -22,6 +22,7 @@ help() {
     echo "    -b, --branch <branch>     [Required] Select Git branch or tag e.g. 3.8-6.7 or v3.7.2-6.5.4"
     echo "    -s, --store <path>        [Optional] Set the destination path of package, by defauly /tmp/wazuh-app."
     echo "    -r, --revision <rev>      [Optional] Package revision that append to version e.g. x.x.x-rev"
+    echo "    -k, --checksum            [Optional] Generate checksum"
     echo "    -h, --help                Show this help."
     echo
     exit $1
@@ -32,7 +33,7 @@ build_package(){
     # Build the Docker image
     docker build -t ${CONTAINER_NAME} ./Docker/
     # Build the Wazuh Kibana app package using the build docker image
-    docker run --rm -t  -v ${TMP_DIR}:/source -v "${DESTINATION}":/wazuh_app ${CONTAINER_NAME} ${wazuh_version} ${kibana_version} ${app_revision} 
+    docker run --rm -t  -v ${TMP_DIR}:/source -v "${DESTINATION}":/wazuh_app ${CONTAINER_NAME} ${wazuh_version} ${kibana_version} ${app_revision} ${checksum}
     if [ "$?" = "0" ]; then
         delete_sources 0
     else
@@ -65,7 +66,7 @@ delete_sources(){
 }
 
 main(){
-
+    cheksum="no"
     while [ -n "$1" ]
     do
         case "$1" in
@@ -99,6 +100,10 @@ main(){
             else
                 READY_TO_RELEASE="yes"
             fi
+            ;;
+        "-k" | "--checksum")
+            cheksum="yes"
+            shift 1
             ;;
         "-h"|"--help")
             help 0

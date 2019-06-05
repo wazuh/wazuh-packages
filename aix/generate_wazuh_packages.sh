@@ -195,7 +195,10 @@ build_package() {
   fi
 
   rpm_file=${package_name}-${package_release}.aix${aix_major}.${aix_minor}.ppc.rpm
-  mv ${rpm_build_dir}/RPMS/ppc/${rpm_file} ${target_dir}
+  if [[ "${cheksum}" = "yes" ]]; then
+      sha512sum "${rpm_file}" > "${rpm_file}".sha512
+  fi
+  mv ${rpm_build_dir}/RPMS/ppc/${rpm_file}.* ${target_dir}
 
   if [ -f ${target_dir}/${rpm_file} ]; then
     echo "Your package ${rpm_file} is stored in ${target_dir}"
@@ -205,10 +208,6 @@ build_package() {
   fi
 
   return 0
-}
-
-generate_checksum() {
-  sha512sum "${target_dir}/${package_name}-${package_release}.aix${aix_major}.${aix_minor}.ppc.rpm" > "${target_dir}/${package_name}-${package_release}.aix${aix_major}.${aix_minor}.sum"
 }
 
 # Main function, processes user input
@@ -277,9 +276,6 @@ main() {
 
   if [[ "${build_rpm}" = "yes" ]]; then
     build_package || exit 1
-    if [[ "${cheksum}" = "yes" ]]; then
-      generate_checksum
-    fi
   fi
   
   return 0
