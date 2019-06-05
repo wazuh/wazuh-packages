@@ -36,6 +36,7 @@ show_help() {
   echo "    -b <branch> Select Git branch. Example v3.5.0"
   echo "    -s <rpm_directory> Directory to store the resulting RPM package. By default: /tmp/build"
   echo "    -p <rpm_home> Installation path for the package. By default: /var"
+  echo "    -k, --checksum Generate checksum"
   echo "    -h Shows this help"
   echo
   exit $1
@@ -206,6 +207,10 @@ build_package() {
   return 0
 }
 
+generate_checksum() {
+  sha512sum "${target_dir}/${package_name}-${package_release}.aix${aix_major}.${aix_minor}.ppc.rpm" > "${target_dir}/${package_name}-${package_release}.aix${aix_major}.${aix_minor}.sum"
+}
+
 # Main function, processes user input
 main() {
   # If the script is called without arguments
@@ -216,6 +221,7 @@ main() {
 
   build_env="no"
   build_rpm="no"
+  cheksum="no"
 
   while [ -n "$1" ]
   do
@@ -256,6 +262,10 @@ main() {
               show_help 1
           fi
         ;;
+        "-k" | "--checksum")
+          cheksum="yes"
+          shift 1
+        ;;
         *)
           show_help 1
     esac
@@ -267,8 +277,11 @@ main() {
 
   if [[ "${build_rpm}" = "yes" ]]; then
     build_package || exit 1
+    if [[ "${cheksum}" = "yes" ]]; then
+      generate_checksum
+    fi
   fi
-
+  
   return 0
 }
 

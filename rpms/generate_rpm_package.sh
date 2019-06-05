@@ -52,7 +52,7 @@ function build_package() {
     docker run -t --rm -v ${DESTINATION}:/var/local/wazuh \
         -v ${SOURCES_DIRECTORY}:/build_wazuh/wazuh-${TARGET}-${VERSION} \
         ${CONTAINER_NAME} ${TARGET} ${VERSION} ${ARCHITECTURE} \
-        ${JOBS} ${REVISION} ${INSTALLATION_PATH} ${DEBUG} || exit 1
+        ${JOBS} ${REVISION} ${INSTALLATION_PATH} ${DEBUG} ${cheksum}|| exit 1
 
     # Clean the files
     rm -rf ${DOCKERFILE_PATH}/{*.sh,*.spec} ${SOURCES_DIRECTORY}
@@ -101,6 +101,7 @@ function help() {
     echo "    -j, --jobs <number>       [Optional] Number of parallel jobs when compiling."
     echo "    -p, --path <path>         [Optional] Installation path for the package. By default: /var."
     echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
+    echo "    -k, --checksum            [Optional] Generate checksum"
     echo "    -h, --help                Show this help."
     echo
     exit $1
@@ -121,6 +122,7 @@ function main() {
     local CONTAINER_NAME=""
     local DOCKERFILE_PATH=""
     local DEBUG="no"
+    local cheksum="no"
 
     local HAVE_BRANCH=false
     local HAVE_DESTINATION=false
@@ -231,6 +233,9 @@ function main() {
             DEBUG="yes"
             shift 1
             ;;
+        "-k" | "--checksum")
+            cheksum="yes"
+            shift 1
         *)
             help 1
         esac

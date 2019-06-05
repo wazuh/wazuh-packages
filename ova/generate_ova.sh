@@ -29,6 +29,7 @@ function help() {
   echo "  -r, --repository       [Required] Status of the packages [stable/unstable]"
   echo "  -d, --directory        [Optional] Where will be installed manager. Default /var/ossec"
   echo "  -c, --clean            [Optional] Clean the local machine."
+  echo "    -k, --checksum       [Optional] Generate checksum"
   echo "  -h, --help             [  Util  ] Show this help."
   echo
   exit $1
@@ -85,6 +86,11 @@ function check_version() {
   fi
 }
 
+function generate_checksum() {
+    ova_name=`echo ${${OVA_VM}} | rev | cut -c 5- | rev`
+    shasum  -a512 "${DESTINATION}/${ova_name}.ova" > "${DESTINATION}/${ova_name}.sum"
+}
+
 function main() {
   local BUILD=false
   local HAVE_VERSION=false
@@ -93,6 +99,7 @@ function main() {
   local WAZUH_VERSION=""
   local ELK_VERSION=""
   local STATUS=""
+  Local cheksum="no"
   export DIRECTORY="/var/ossec"
   while [ -n "$1" ]; do
     case $1 in
@@ -155,6 +162,10 @@ function main() {
       clean
       exit 0
       ;;
+    "-k" | "--checksum")
+       cheksum="yes"
+       shift 1
+      ;;
     *)
       help 1
       ;;
@@ -167,6 +178,9 @@ function main() {
       local OVA_VERSION="${WAZUH_VERSION}_${ELK_VERSION}"
       echo "Version to build: ${WAZUH_VERSION}-${ELK_VERSION} with ${STATUS} repository."
       build_ova ${WAZUH_VERSION} ${OVA_VERSION}
+      if [[ "${cheksum}" = "yes" ]]; then
+        generate_checksum
+      fi
     else
       echo "Error version ${WAZUH_VERSION}-${ELK_VERSION} not supported."
     fi

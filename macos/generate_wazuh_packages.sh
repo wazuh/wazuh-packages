@@ -21,7 +21,7 @@ BRANCH_TAG="master"                   # Branch that will be downloaded to build 
 DESTINATION=${CURRENT_PATH}           # Where package will be stored.
 JOBS="2"                              # Compilation jobs.
 DEBUG="no"                            # Enables the full log by using `set -exf`.
-
+cheksum="no"
 function clean_and_exit() {
     exit_code=$1
     rm -f ${AGENT_PKG_FILE} ${CURRENT_PATH}/package_files/*.sh
@@ -72,9 +72,11 @@ function help() {
     echo "    -s, --store-path <path>   [Optional] Set the destination absolute path of package."
     echo "    -j, --jobs <number>       [Optional] Number of parallel jobs when compiling."
     echo "    -r, --revision <rev>      [Optional] Package revision that append to version e.g. x.x.x-rev"
+    echo "    -k, --checksum            [Optional] Generate checksum"
     echo "    -h, --help                [  Util  ] Show this help."
     echo "    -i, --install-deps        [  Util  ] Install build dependencies (Packages)."
     echo "    -x, --install-xcode       [  Util  ] Install X-Code and brew. Can't be executed as root."
+    echo "    -k, --checksum            [Optional] Generate checksum"
     echo
     exit "$1"
 }
@@ -160,6 +162,11 @@ function check_root() {
     fi
 }
 
+function generate_checksum() {
+    pkg_name=`echo ${AGENT_PKG_FILE} | rev | cut -c 5- | rev`
+    shasum  -a512 ${DESTINATION}/${pkg_name}.pkg > ${DESTINATION}/${pkg_name}.sum
+}
+
 function main() {
 
     BUILD="no"
@@ -218,6 +225,9 @@ function main() {
             DEBUG="yes"
             shift 1
             ;;
+        "-k" | "--checksum")
+            cheksum="yes"
+            shift 1
         *)
             help 1
         esac
@@ -235,6 +245,9 @@ function main() {
         get_pkgproj_specs
         build_package
         "${CURRENT_PATH}/uninstall.sh"
+        if [[ "${cheksum}" = "yes" ]]; then
+            generate_checksum
+        fi
     else
         echo "The branch has not been specified. No package will be generated."
         help 1

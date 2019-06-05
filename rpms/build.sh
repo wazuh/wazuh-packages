@@ -17,6 +17,7 @@ threads=$4
 package_release=$5
 directory_base=$6
 debug=$7
+cheksum=$8
 if [ -z "${package_release}" ]; then
     package_release="1"
 fi
@@ -44,3 +45,5 @@ $linux rpmbuild --define "_topdir ${rpm_build_dir}" --define "_threads ${threads
         -ba ${rpm_build_dir}/SPECS/${package_name}.spec
 
 find ${rpm_build_dir} -name "*.rpm" -exec mv {} /var/local/wazuh \;
+
+sha512sum "/var/local/wazuh/${package_name}-${package_release}.aix${aix_major}.${aix_minor}.ppc.rpm" > "/var/local/wazuh/${package_name}-${package_release}.aix${aix_major}.${aix_minor}.sum"

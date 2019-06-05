@@ -145,6 +145,7 @@ help() {
     echo "    -r, --release             [Optional] Package release. By default: 1."
     echo "    -p, --path                [Optional] Installation path for the package. By default: /var."
     echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
+    echo "    -k, --checksum            [Optional] Generate checksum"
     echo "    -h, --help                Show this help."
     echo
     exit $1
