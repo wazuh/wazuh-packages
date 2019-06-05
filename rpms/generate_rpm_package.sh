@@ -42,6 +42,7 @@ function build_package() {
     local JOBS="$8"
     local INSTALLATION_PATH="$9"
     local DEBUG="${10}"
+    local CHECKSUM="${11}"
 
     # Download the legacy tar file if it is needed
     if [ "${CONTAINER_NAME}" == "${LEGACY_RPM_I386_BUILDER}" ] && [ ! -f "${LEGACY_TAR_FILE}" ]; then
@@ -52,7 +53,7 @@ function build_package() {
     docker run -t --rm -v ${DESTINATION}:/var/local/wazuh \
         -v ${SOURCES_DIRECTORY}:/build_wazuh/wazuh-${TARGET}-${VERSION} \
         ${CONTAINER_NAME} ${TARGET} ${VERSION} ${ARCHITECTURE} \
-        ${JOBS} ${REVISION} ${INSTALLATION_PATH} ${DEBUG} ${cheksum}|| exit 1
+        ${JOBS} ${REVISION} ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM}|| exit 1
 
     # Clean the files
     rm -rf ${DOCKERFILE_PATH}/{*.sh,*.spec} ${SOURCES_DIRECTORY}
@@ -122,7 +123,7 @@ function main() {
     local CONTAINER_NAME=""
     local DOCKERFILE_PATH=""
     local DEBUG="no"
-    local cheksum="no"
+    local CHECKSUM="no"
 
     local HAVE_BRANCH=false
     local HAVE_DESTINATION=false
@@ -234,7 +235,7 @@ function main() {
             shift 1
             ;;
         "-k" | "--checksum")
-            cheksum="yes"
+            CHECKSUM="yes"
             shift 1
             ;;
         *)
@@ -276,7 +277,7 @@ function main() {
       fi
 
       build_container $TARGET $VERSION $ARCHITECTURE $CONTAINER_NAME $DOCKERFILE_PATH || exit 1
-      build_package $TARGET $VERSION $REVISION $ARCHITECTURE $DESTINATION $CONTAINER_NAME $DOCKERFILE_PATH $JOBS $INSTALLATION_PATH $DEBUG || exit 1
+      build_package $TARGET $VERSION $REVISION $ARCHITECTURE $DESTINATION $CONTAINER_NAME $DOCKERFILE_PATH $JOBS $INSTALLATION_PATH $DEBUG $checksum || exit 1
     else
       echo "ERROR: Need more parameters"
       help 1
