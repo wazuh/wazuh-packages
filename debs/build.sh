@@ -18,6 +18,7 @@ package_release=$4
 jobs=$5
 dir_path=$6
 debug=$7
+checksum=$8
 package_full_name="wazuh-${build_target}-${wazuh_version}"
 
 if [ -z "${package_release}" ]; then
@@ -51,6 +52,11 @@ if [[ "${architecture_target}" == "amd64" ]]; then
     debuild -b -uc -us
 else
     linux32 debuild -ai386 -b -uc -us
+fi
+
+if [[ "${checksum}" == "yes" ]]; then
+    find ${build_dir} -name "*.deb" -exec bash -c 'sha512sum "$1" > "$1".sum' bash {} \;
+    find ${build_dir} -name "*.deb.sum" -exec mv {} /var/local/wazuh \;
 fi
 
 find ${build_dir} -name "*.deb" -exec mv {} /var/local/wazuh \;
