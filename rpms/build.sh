@@ -44,7 +44,7 @@ $linux rpmbuild --define "_topdir ${rpm_build_dir}" --define "_threads ${threads
         --define "_debugenabled ${debug}" --target ${architecture_target} \
         -ba ${rpm_build_dir}/SPECS/${package_name}.spec
 
-if [ ${cheksum} == "yes"]
+if [[ "${checksum}" == "yes" ]]; then
     find ${build_dir} -name "*.rpm" -exec bash -c 'sha512sum "$1" > "$1".sha512' bash {} \;
     find ${build_dir} -name "*.rpm.sha512" -exec mv {} /var/local/wazuh \;
 fi
