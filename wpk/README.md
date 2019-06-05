@@ -82,6 +82,7 @@ To build  a WPK package, it is necessary to generate a X509 certificate and CA, 
 - [KibanaApp](/wazuhapp/README.md)
 - [SplunkApp](/splunkapp/README.md)
 - [Solaris10](/solaris/solaris10/README.md)
+- [Solaris 11](/solaris/solaris11/README.md)
 - [Solaris Vagrant](/solaris/packer/README.md)
 
 ## Contribute

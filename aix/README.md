@@ -50,6 +50,7 @@ To build an AIX package, you need to download this repository and use the `gener
 - [SplunkApp](/splunkapp/README.md)
 - [WPK](/wpk/README.md)
 - [Solaris10](/solaris/solaris10/README.md)
+- [Solaris 11](/solaris/solaris11/README.md)
 - [Solaris Vagrant](/solaris/packer/README.md)
 
 

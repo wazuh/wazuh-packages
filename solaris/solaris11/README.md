@@ -1,7 +1,7 @@
-Wazuh Solaris10 packages
+Wazuh Solaris11 packages
 ==================
 
-In this repository, you can find the necessary tools to build a Wazuh package for Solaris 10.
+In this repository, you can find the necessary tools to build a Wazuh package for Solaris 11.
 
 ## Tools needed to build the package
 
@@ -10,28 +10,30 @@ To build a Wazuh package you need to install the following tools:
 
 ## Building RPM packages
 
-To build a Solaris 10 package, you need to download this repository and use the `generate_wazuh_packages.sh` script. This script will download the source code from the [wazuh/wazuh](https://github.com/wazuh/wazuh) repository and generate a `.pkg` package.
+To build a Solaris 10 package, you need to download this repository and use the `generate_wazuh_packages.sh` script. This script will download the source code from the [wazuh/wazuh](https://github.com/wazuh/wazuh) repository and generate a `.p5p` package.
 
 1. Download this repository and go to the `solaris/solaris10` directory:
     ```bash
-    $ git clone https://github.com/wazuh/wazuh-packages && cd wazuh-packages/solaris/solaris10
+    $ git clone https://github.com/wazuh/wazuh-packages && cd wazuh-packages/solaris/solaris11
     ```
 
 2. Execute the `generate_wazuh_packages.sh` script to build the package. Here you can see all the different parameters:
     ```shellsession
     # ./generate_wazuh_packages.sh -h
 
-    Usage: ./generate_wazuh_rpm.sh [OPTIONS]
+    This scripts build wazuh package for Solaris 11 Intel based architecture.
+    USAGE: Command line options available:
+        -h   | --help         Displays this help.
+        -d   | --download     Download Wazuh repository.
+        -b   | --build        Builds Solaris11 packages.
+        -u   | --utils        Download and install utilities and dependencies.
+        -c   | --clean-all    Clean sources, local respository and generated files.
 
-    USAGE: Command line arguments available:
-        -h   | --help               Displays this help.
-        -d   | --download           Download source file and prepares source directories.
-        -u   | --utils              Download and install all dependencies.
-        -b   | --build              Build deb packages.
-        -c   | --clean              Clean all. Even installation files.
     USAGE EXAMPLE:
-        ./generate_solaris10-i386_package.sh [option] [branch_tag] [Installation dir]
-        ./generate_solaris10-i386_package.sh -d branches/3.3 var
+    --------------
+        # ./generate_solaris11-i386_package.sh [option] [branch_tag]
+        # ./generate_solaris11-i386_package.sh -d branches/3.3
+        # ./generate_solaris11-i386_package.sh -b branches/3.3
     ```
 
     * To install the needed dependencies:
@@ -41,7 +43,7 @@ To build a Solaris 10 package, you need to download this repository and use the 
     * To build a wazuh-agent package from the downloaded v3.9.0 sources:
         `# ./generate_wazuh_packages.sh -b v3.9.0`.
     
-3. When the execution finishes, you can find your `.pkg` in the ame directory where the sources are.
+3. When the execution finishes, you can find your `.p5p` in the ame directory where the sources are.
 
 ## More Packages
 
@@ -52,7 +54,7 @@ To build a Solaris 10 package, you need to download this repository and use the 
 - [OVA](/ova/README.md)
 - [KibanaApp](/wazuhapp/README.md)
 - [SplunkApp](/splunkapp/README.md)
-- [Solaris 11](/solaris/solaris11/README.md)
+- [Solaris 10](/solaris/solaris10/README.md)
 - [Solaris Vagrant](/solaris/packer/README.md)
 
 
