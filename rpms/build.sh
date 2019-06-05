@@ -17,7 +17,7 @@ threads=$4
 package_release=$5
 directory_base=$6
 debug=$7
-CHECKSUM=$8
+checksum=$8
 if [ -z "${package_release}" ]; then
     package_release="1"
 fi
@@ -44,7 +44,7 @@ $linux rpmbuild --define "_topdir ${rpm_build_dir}" --define "_threads ${threads
         --define "_debugenabled ${debug}" --target ${architecture_target} \
         -ba ${rpm_build_dir}/SPECS/${package_name}.spec
 
-if [[ "${CHECKSUM}" == "yes" ]]; then
+if [[ "${checksum}" == "yes" ]]; then
     find ${build_dir} -name "*.rpm" -exec bash -c 'sha512sum "$1" > "$1".sha512' bash {} \;
     find ${build_dir} -name "*.rpm.sha512" -exec mv {} /var/local/wazuh \;
 fi
