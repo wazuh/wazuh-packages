@@ -118,7 +118,7 @@ To do this you will need the following dependencies in adition of the previously
 - [KibanaApp](/wazuhapp/README.md)
 - [SplunkApp](/splunkapp/README.md)
 - [Solaris10](/solaris/solaris10/README.md)
- 
+- [Solaris 11](/solaris/solaris11/README.md) 
 
 ## Contribute
 
