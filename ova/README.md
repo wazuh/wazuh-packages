@@ -44,6 +44,10 @@ To build an OVA with versiohn 3.9.0 using elastic 6.6.2 and the stable repositor
 - [KibanaApp](/wazuhapp/README.md)
 - [SplunkApp](/splunkapp/README.md)
 - [WPK](/wpk/README.md)
+- [Solaris10](/solaris/solaris10/README.md)
+- [Solaris11](/solaris/solaris11/README.md)
+- [Solaris Vagrant](/solaris/packer/README.md)
+- [HP-UX](/hpux/README.md)
 
 ## Contribute
 

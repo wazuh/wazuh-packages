@@ -17,6 +17,11 @@ In this repository, you can find the necessary tools to build a Wazuh package fo
 - [OVA](/ova/README.md)
 - [KibanaApp](/wazuhapp/README.md)
 - [SplunkApp](/splunkapp/README.md)
+- [Solaris10](/solaris/solaris10/README.md)
+- [Solaris11](/solaris/solaris11/README.md)
+- [Solaris Vagrant](/solaris/packer/README.md)
+- [HP-UX](/hpux/README.md)
+
 
 ## Contribute
 
