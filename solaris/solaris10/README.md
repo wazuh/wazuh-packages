@@ -41,7 +41,7 @@ To build a Solaris 10 package, you need to download this repository and use the 
     * To build a wazuh-agent package from the downloaded v3.9.0 sources:
         `# ./generate_wazuh_packages.sh -b v3.9.0`.
     
-3. When the execution finishes, you can find your `.pkg` in the ame directory where the sources are.
+3. When the execution finishes, you can find your `.pkg` in the same directory where the sources are.
 
 ## More Packages
 
