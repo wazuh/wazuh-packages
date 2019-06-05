@@ -231,7 +231,7 @@ show_help()
     -h   | --help               Displays this help.
     -d   | --download           Download source file and prepares source directories.
     -u   | --utils              Download and install all dependencies.
-    -b   | --build              Build deb packages.
+    -b   | --build              Build Solaris 10 packages.
     -c   | --clean              Clean all. Even installation files.
   USAGE EXAMPLE:
     ./generate_solaris10-i386_package.sh [option] [branch_tag]

@@ -8,7 +8,7 @@ In this repository, you can find the necessary tools to build a Wazuh package fo
 To build a Wazuh package you need to install the following tools:
   - `git`: `pkgutil -i git`.
 
-## Building Solaris11 packages
+## Building Solaris10 packages
 
 To build a Solaris 10 package, you need to download this repository and use the `generate_wazuh_packages.sh` script. This script will download the source code from the [wazuh/wazuh](https://github.com/wazuh/wazuh) repository and generate a `.pkg` package.
 
@@ -27,7 +27,7 @@ To build a Solaris 10 package, you need to download this repository and use the 
         -h   | --help               Displays this help.
         -d   | --download           Download source file and prepares source directories.
         -u   | --utils              Download and install all dependencies.
-        -b   | --build              Build deb packages.
+        -b   | --build              Build Solaris 10 packages.
         -c   | --clean              Clean all. Even installation files.
     USAGE EXAMPLE:
         ./generate_solaris10-i386_package.sh [option] [branch_tag] [Installation dir]

@@ -10,9 +10,9 @@ To build a Wazuh package you need to install the following tools:
 
 ## Building Solaris11 packages
 
-To build a Solaris 10 package, you need to download this repository and use the `generate_wazuh_packages.sh` script. This script will download the source code from the [wazuh/wazuh](https://github.com/wazuh/wazuh) repository and generate a `.p5p` package.
+To build a Solaris 11 package, you need to download this repository and use the `generate_wazuh_packages.sh` script. This script will download the source code from the [wazuh/wazuh](https://github.com/wazuh/wazuh) repository and generate a `.p5p` package.
 
-1. Download this repository and go to the `solaris/solaris10` directory:
+1. Download this repository and go to the `solaris/solaris11` directory:
     ```bash
     $ git clone https://github.com/wazuh/wazuh-packages && cd wazuh-packages/solaris/solaris11
     ```
