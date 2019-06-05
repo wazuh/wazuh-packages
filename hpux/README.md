@@ -1,102 +1,59 @@
-# HOWTO compile Wazuh Agent on HP-UX
+Wazuh HP-UX packages
+==================
+
+In this repository, you can find the necessary tools to build a Wazuh package for HP-UX.
+
+## Tools needed to build the package
+
+To build a Wazuh package you need to install the following tools:
+  - `gcc`: [download](http://hpux.connect.org.uk/hppd/cgi-bin/search?term=gcc&Search=Search).
+  - `depothelper`: [download](http://hpux.connect.org.uk/hppd/hpux/Sysadmin/depothelper-2.20/).
 
 
-## 1. Requirements:
 
-First we need gcc, gmake, ginstall and many other gnu tools.
-The best to get this software is using the gnu repository of http://hpux.connect.org.uk/
+## Building HP-UX packages
 
-The maintainer made a tool called depothelper that you can get here:
-http://hpux.connect.org.uk/hppd/hpux/Sysadmin/depothelper-2.10/
+To build a HP-UX package, you need to download this repository and use the `generate_wazuh_packages.sh` script. This script will download the source code from the [wazuh/wazuh](https://github.com/wazuh/wazuh) repository and generate a `tar`package.
 
-http://hpux.connect.org.uk/ftp/hpux/Sysadmin/depothelper-2.10/depothelper-2.10-hppa_32-11.31.depot.gz
+1. Download this repository and go to the hpux directory:
+    ```bash
+    $ curl -L https://github.com/wazuh/wazuh-packages/tarball/master | tar zx 
+    $ cd wazuh-wazuh-packages-*
+    $ cd hpux
+    ```
 
-Download depothelper and scp-it to your HP-UX machine
+2. Execute the `generate_wazuh_packages.sh` script to build the package. There are multiple parameters to select which package is going to be built, its architecture, etc. Here you can see all the different parameters:
+    ```shellsession
+    # ./generate_wazuh_packages.sh -h
+    This scripts build wazuh package for HPUX.
+    USAGE: Command line options available:
+        -h   | --help       Displays this help.
+        -d   | --download   Download Wazuh repository.
+        -b   | --build      Builds HPUX package.
+        -u   | --utils      Download and install utilities and dependencies.
+        -c   | --clean-all  Clean sources and generated files.
 
-```
-wget http://hpux.connect.org.uk/ftp/hpux/Sysadmin/depothelper-2.10/depothelper-2.10-hppa_32-11.31.depot.gz
-gunzip depothelper-2.10-hppa_32-11.31.depot.gz
-```
+    USAGE EXAMPLE:
+    --------------
+        ./generate_wazuh_packages.sh [option] [branch_tag] [revision]
+        ./generate_wazuh_packages.sh -d branches/3.3 1
+  "
+    ```
+    * To install the needed dependencies:
+        `# ./generate_wazuh_packages.sh -u`.
+    * To download the sources from tag v3.9.0:
+        `# ./generate_wazuh_packages.sh -d v3.9.0`.
+    * To build a wazuh-agent package from the downloaded v3.9.0 sources:
+        `# ./generate_wazuh_packages.sh -b v3.9.0`.
 
-Install it (you must be root):
-```
-swinstall -s /path/to/qyqak/depothelper-2.10-hppa_32-11.31.depot \*
-````
+3. When the execution finishes, you can find your `tar` in the same directory where the sources are.
 
-Install required packages
-```
-/usr/local/bin/depothelper curl
-/usr/local/bin/depothelper unzip
-/usr/local/bin/depothelper gcc
-/usr/local/bin/depothelper make
-/usr/local/bin/depothelper coreutils
-/usr/local/bin/depothelper perl
-```
+## More Packages
 
-## 2. Download and extract Wazuh
-
-```
-cd /tmp
-/usr/local/bin/curl -k -L -O https://github.com/wazuh/wazuh/archive/3.2.zip
-/usr/local/bin/unzip 3.2.zip
-```
-
-## 3. Compile & Install Wazuh
-
-```
-cd /tmp/wazuh-3.2
-/usr/local/bin/gmake -C src TARGET=agent
-sh install.sh
-```
-
-If you want a faster way, you can specify the flags
-
-```
-echo USER_LANGUAGE="en" > wazuh/etc/preloaded-vars.conf
-echo USER_NO_STOP="y" >> wazuh/etc/preloaded-vars.conf
-echo USER_INSTALL_TYPE="agent" >> wazuh/etc/preloaded-vars.conf
-echo USER_DIR="/var/ossec" >> wazuh/etc/preloaded-vars.conf
-echo USER_DELETE_DIR="y" >> wazuh/etc/preloaded-vars.conf
-echo USER_CLEANINSTALL="y" >> wazuh/etc/preloaded-vars.conf
-echo USER_BINARYINSTALL="y" >> wazuh/etc/preloaded-vars.conf
-echo USER_AGENT_SERVER_IP="MANAGER_IP" >> wazuh/etc/preloaded-vars.conf
-echo USER_ENABLE_SYSCHECK="y" >> wazuh/etc/preloaded-vars.conf
-echo USER_ENABLE_ROOTCHECK="y" >> wazuh/etc/preloaded-vars.conf
-echo USER_ENABLE_OPENSCAP="y" >> wazuh/etc/preloaded-vars.conf
-echo USER_ENABLE_ACTIVE_RESPONSE="y" >> wazuh/etc/preloaded-vars.conf
-echo USER_CA_STORE="/path/to/my_cert.pem" >> wazuh/etc/preloaded-vars.conf
-```
-
-## 4. Generate .tar file
-
-
-```
-rm /var/ossec/wodles/oscap/content/*.xml
-tar -cvf /tmp/wazuh-agent-3.2.2-1-hpux-11v3-ia64.tar /var/ossec/ /etc/ossec-init.conf /sbin/init.d/wazuh-agent /sbin/rc2.d/S97wazuh-agent /sbin/rc3.d/S97wazuh-agent
-```
-
-## 5. [Optional] Uninstall the agent
-
-```
-/var/ossec/bin/ossec-control stop
-rm -rf /var/ossec/
-rm /etc/ossec-init.conf
-rm /sbin/init.d/wazuh-agent
-rm /sbin/rc2.d/S97wazuh-agent
-rm /sbin/rc3.d/S97wazuh-agent
-userdel ossec
-groupdel ossec
-```
-
-
-## 6. [Optional] Useful packages
-
-You can add optional packages (bash, vim, ...)
-
-```
-/usr/local/bin/depothelper bash
-/usr/local/bin/depothelper vim
-/usr/local/bin/depothelper gdb
-
-alias vim=/usr/local/bin/vim
-```
+- [Debian](/debs/README.md)
+- [macOS](/macos/README.md)
+- [AIX](/aix/README.md)
+- [OVA](/ova/README.md)
+- [KibanaApp](/wazuhapp/README.md)
+- [SplunkApp](/splunkapp/README.md)
+- [WPK](/wpk/README.md)
