@@ -10,7 +10,7 @@ build_package() {
     mv ${wazuh_splunk_pkg_name}.* ../wazuh_splunk_app
     cd ..
 }
-if [ $3 == "" ]; then
+if [ $REVISION == "" ]; then
     wazuh_splunk_pkg_name="SplunkAppForWazuh_v${wazuh_version}_${splunk_version}.tar.gz"
 else
     wazuh_splunk_pkg_name="SplunkAppForWazuh_v${wazuh_version}_${splunk_version}_${REVISION}.tar.gz"
