@@ -17,7 +17,7 @@ threads=$4
 package_release=$5
 directory_base=$6
 debug=$7
-cheksum=$8
+checksum=$8
 if [ -z "${package_release}" ]; then
     package_release="1"
 fi
