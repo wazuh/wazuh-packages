@@ -87,7 +87,7 @@ main() {
     # Update versions file
     cd ${OUTDIR}
     if [ ${CHECKSUM} == "yes" ]; then
-        sha512sum "${OUTPUT}" > "${OUTPUT}".sha512
+        sha512sum "${OUTPUT}" > "${OUTPUT}.sha512"
     fi
     gen_versions ${OUTPUT} ${SHORT_VERSION}
 }
