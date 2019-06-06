@@ -46,6 +46,7 @@ To build a Kibana app package, you need to download this repository and use the 
 - [KibanaApp](/wazuhapp/README.md)
 - [WPK](/wpk/README.md)
 - [Solaris](/solaris/README.md)
+- [HP-UX](/hpux/README.md)
 
 ## Contribute
 

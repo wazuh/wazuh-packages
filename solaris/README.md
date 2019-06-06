@@ -8,6 +8,17 @@ In this repository, you can find the necessary tools to build a Wazuh package fo
 - [Automated Solaris package generation using vagrant](/solaris/package_generation/README.md)
 - [Vagrantbox using packer](/solaris/packer/README.md)
 
+## More Packages
+
+- [RPM](/rpms/README.md)
+- [Debian](/debs/README.md)
+- [macOS](/macos/README.md)
+- [AIX](/aix/README.md)
+- [OVA](/ova/README.md)
+- [KibanaApp](/wazuhapp/README.md)
+- [SplunkApp](/splunkapp/README.md)
+- [Solaris](/solaris/README.md)
+- [HP-UX](/hpux/README.md)
 
 ## Contribute
 

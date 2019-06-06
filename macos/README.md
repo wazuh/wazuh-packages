@@ -64,6 +64,7 @@ The specs folder contains the `pkgproj` files which are used to generate the `wa
 - [SplunkApp](/splunkapp/README.md)
 - [WPK](/wpk/README.md)
 - [Solaris](/solaris/README.md)
+- [HP-UX](/hpux/README.md)
 
 ## Contribute
 

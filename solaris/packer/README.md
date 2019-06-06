@@ -28,8 +28,7 @@ To build a Wazuh package you need to install the following tools:
 - [KibanaApp](/wazuhapp/README.md)
 - [SplunkApp](/splunkapp/README.md)
 - [Solaris](/solaris/README.md)
-
-
+- [HP-UX](/hpux/README.md)
 
 ## References
 

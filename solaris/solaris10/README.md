@@ -50,6 +50,7 @@ To build a Solaris 10 package, you need to download this repository and use the 
 - [KibanaApp](/wazuhapp/README.md)
 - [SplunkApp](/splunkapp/README.md)
 - [Solaris](/solaris/README.md)
+- [HP-UX](/hpux/README.md)
 
 
 

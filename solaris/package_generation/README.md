@@ -105,6 +105,7 @@ To build a Solaris package using vagrant, you need to download this repository c
 - [KibanaApp](/wazuhapp/README.md)
 - [SplunkApp](/splunkapp/README.md)
 - [Solaris](/solaris/README.md)
+- [HP-UX](/hpux/README.md)
 
 
 ## Contribute
