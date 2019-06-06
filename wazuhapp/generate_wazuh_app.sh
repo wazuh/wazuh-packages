@@ -33,7 +33,7 @@ build_package(){
     # Build the Docker image
     docker build -t ${CONTAINER_NAME} ./Docker/
     # Build the Wazuh Kibana app package using the build docker image
-    docker run --rm -t  -v ${TMP_DIR}:/source -v "${DESTINATION}":/wazuh_app ${CONTAINER_NAME} ${wazuh_version} ${kibana_version} ${app_revision} ${checksum}
+    docker run --rm -t  -v ${TMP_DIR}:/source -v "${DESTINATION}":/wazuh_app ${CONTAINER_NAME} ${wazuh_version} ${kibana_version} ${APP_REVISION} ${CHECKSUM}
     if [ "$?" = "0" ]; then
         delete_sources 0
     else
@@ -45,7 +45,7 @@ build_package(){
 compute_version_revision(){
 
   wazuh_version=$(python -c 'import json; f=open("package.json"); pkg=json.load(f); f.close(); print pkg["version"]')
-  app_revision=$REVISION
+  APP_REVISION=$REVISION
   kibana_version=$(python -c 'import json; f=open("package.json"); pkg=json.load(f); f.close(); print pkg["kibana"]["version"]')
 
   return 0
@@ -66,7 +66,7 @@ delete_sources(){
 }
 
 main(){
-    cheksum="no"
+    CHECKSUM="no"
     while [ -n "$1" ]
     do
         case "$1" in
@@ -102,7 +102,7 @@ main(){
             fi
             ;;
         "-k" | "--checksum")
-            cheksum="yes"
+            CHECKSUM="yes"
             shift 1
             ;;
         "-h"|"--help")
@@ -117,7 +117,7 @@ main(){
 
         if download_sources; then
             build_package
-        else 
+        else
             delete_sources 1
         fi
 

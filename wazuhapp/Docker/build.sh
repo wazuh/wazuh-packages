@@ -9,9 +9,9 @@ install_dependencies (){
     }||{
         node_version="8.14.0"
     }
-    
+
     n ${node_version}
-    
+
     installed_node_version="$(node -v)"
 
     if [[ "${installed_node_version}" == "v${node_version}" ]]; then
@@ -35,8 +35,9 @@ build_package(){
     yarn build
 
     if [[ "${checksum}" == "yes" ]]; then
-        find /source/build/ -name "*.zip" -exec bash -c 'sha512sum "$1" > "$1".sha512' bash {} \;
-        find /source/build/ -name "*.zip.sha512" -exec mv {} /wazuh_app \;
+        find ${build_dir} -name "*.zip" -exec bash -c 'sha512sum {} > {}.sha512' \; -exec mv {} {}.sha512 /var/local/wazuh \;
+    else
+        find ${build_dir} -name "*.zip" -exec mv {} /var/local/wazuh \;
     fi
 
     find /source/build/ -name "*.zip" -exec cp {} /wazuh_app \;
