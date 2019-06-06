@@ -25,7 +25,7 @@ REPOSITORY="wazuh-splunk"
 scriptpath=$( cd $(dirname $0) ; pwd -P )
 
 help() {
-    
+
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
@@ -45,7 +45,7 @@ build_package() {
     # Build the Docker image
     docker build -t ${CONTAINER_NAME} ./Docker/
     # Run Docker and build package
-    docker run -t --rm -v "${TMP_DIRECTORY}":/pkg -v "${DESTINATION}":/wazuh_splunk_app ${CONTAINER_NAME} ${wazuh_version} ${splunk_version} ${REVISION} ${cheksum}|| exit 1
+    docker run -t --rm -v "${TMP_DIRECTORY}":/pkg -v "${DESTINATION}":/wazuh_splunk_app ${CONTAINER_NAME} ${WAZUH_VERSION} ${SPLUNK_VERSION} ${REVISION} ${CHECKSUM}|| exit 1
     if [ "$?" = "0" ]; then
         delete_sources 0
     else
@@ -56,8 +56,8 @@ build_package() {
 
 compute_version_revision() {
 
-    wazuh_version=$(cat SplunkAppForWazuh/default/package.conf | grep version -m 1  | cut -d' ' -f 3)
-    splunk_version=$(cat SplunkAppForWazuh/default/package.conf | grep version -m 3  | cut -d ' ' -f 3| head -n 3 | tail -1)
+    WAZUH_VERSION=$(cat SplunkAppForWazuh/default/package.conf | grep version -m 1  | cut -d' ' -f 3)
+    SPLUNK_VERSION=$(cat SplunkAppForWazuh/default/package.conf | grep version -m 3  | cut -d ' ' -f 3| head -n 3 | tail -1)
 
     return 0
 }
@@ -84,13 +84,13 @@ delete_sources(){
 }
 
 main() {
-    cheksum="no"
+    CHECKSUM="no"
     # Reading command line arguments
     while [ -n "$1" ]
         do
             case "$1" in
             "-h"|"--help")
-                help 0 
+                help 0
             ;;
             "-b"|"--branch")
                 if [ -n "$2" ]; then
@@ -98,7 +98,7 @@ main() {
                     HAVE_BRANCH=true
                     shift 2
                 else
-                    help 1 
+                    help 1
                 fi
                 ;;
             "-s"|"--store")
@@ -111,7 +111,7 @@ main() {
                     HAVE_DESTINATION=true
                     shift 2
                 else
-                    help 1 
+                    help 1
                 fi
                 ;;
             "-sp"|"--splunk")
@@ -121,25 +121,25 @@ main() {
                     BRANCH_TAG="v${BRANCH_TAG}-${SPLUNK_VERSION}"
                     shift 2
                 else
-                    help 1 
+                    help 1
                 fi
-                
+
                 ;;
             "-r"|"--revision")
                 if [ -n "$2" ]; then
                     REVISION="$2"
                     shift 2
                 else
-                    help 1 
+                    help 1
                 fi
                 ;;
             "-k" | "--checksum")
-                cheksum="yes"
+                CHECKSUM="yes"
                 shift 1
                 ;;
             *)
-                help 1  
-            esac             
+                help 1
+            esac
         done
 
     if [[ "$HAVE_BRANCH" == true ]] ; then
@@ -148,8 +148,8 @@ main() {
             exit 1
         fi
         build_package
-    else 
-        help 1 
+    else
+        help 1
     fi
 }
 

@@ -4,7 +4,7 @@ build_package() {
 
     cd /pkg
     tar -zcvf ${wazuh_splunk_pkg_name} SplunkAppForWazuh
-    if [[ $checksum == "yes"]]; then
+    if [[ $CHECKSUM == "yes"]]; then
          sha512sum "${wazuh_splunk_pkg_name}" > "${wazuh_splunk_pkg_name}".sha512
     fi
     mv ${wazuh_splunk_pkg_name}.* ../wazuh_splunk_app
@@ -19,5 +19,5 @@ fi
 WAZUH_VERSION=$1
 SPLUNK_VERSION=$2
 REVISION=$3
-checksum=$4
+CHECKSUM=$4
 build_package
