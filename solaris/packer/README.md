@@ -1,7 +1,7 @@
-Automated Wazuh Solaris10 packages using vagrant
+Automated Wazuh Solaris packages using vagrant
 ==================
 
-In this repository, you can find the necessary tools to build a Wazuh package for Solaris 10 using vagrant.
+In this repository, you can find the necessary tools to build a Wazuh package for Solaris 10 and 11 using vagrant.
 
 ## Tools needed to build the package
 
@@ -13,7 +13,7 @@ To build a Wazuh package you need to install the following tools:
 
 ## Building Solaris10 packages
 
-To build a Solaris 10 package using vagrant, you need to download this repository copy the `Solaris10` directory into `packer/package_generation/vagrant/src` and run vagrant up. This will download a Solaris10 `vagrant box` and create a virtual machine where the `.pkg` package will be generated.
+To build a Solaris package using vagrant, you need to download this repository copy the `Solaris10` directory into `packer/package_generation/vagrant/src` and run vagrant up. This will download a Solaris10 `vagrant box` and create a virtual machine where the `.pkg` or `p5p` package will be generated.
 
 1. Download this repository and go to the rpm directory:
     ```bash
@@ -22,7 +22,7 @@ To build a Solaris 10 package using vagrant, you need to download this repositor
     $ cd wazuh-packages/solaris/packer/package_generation/vagrant
     ```
 
-2. Bring the machine up `vagrant [OPTION] ... up solaris10`:
+2. Bring the machine up `vagrant [OPTION] ... up solaris10/solaris11`:
     ```shellsession
       # vagrant -h up
 
@@ -92,7 +92,7 @@ To build a Solaris 10 package using vagrant, you need to download this repositor
     
 3. After the virtual machine finishes generating the package you can find it in `src`.
 
-4. Run `vagrant halt solaris10` to stop the machine or `vagrant destroy solaris10` to completely delete it.
+4. Run `vagrant halt solaris10/solaris11` to stop the machine or `vagrant destroy solaris10/solaris11` to completely delete it.
 
 In case you want to generate your own vagrant box for Solaris10 you can use the scripts within the packer directory:
 
