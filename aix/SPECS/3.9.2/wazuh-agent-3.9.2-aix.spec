@@ -142,6 +142,8 @@ if [ $1 = 1 ]; then
   touch %{_localstatedir}/ossec/logs/active-responses.log
   chown ossec:ossec %{_localstatedir}/ossec/logs/active-responses.log
   chmod 0660 %{_localstatedir}/ossec/logs/active-responses.log
+
+  %{_localstatedir}/ossec/tmp/src/init/register_configure_agent.sh > /dev/null || :
 fi
 
 rm -rf %{_localstatedir}/ossec/tmp/etc
