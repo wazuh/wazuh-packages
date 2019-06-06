@@ -63,7 +63,7 @@ build_deb() {
         -v ${SOURCES_DIRECTORY}:/build_wazuh/$TARGET/wazuh-$TARGET-$VERSION \
         -v ${DOCKERFILE_PATH}/wazuh-$TARGET:/$TARGET \
         ${CONTAINER_NAME} $TARGET $VERSION $ARCHITECTURE \
-        $REVISION $JOBS $INSTALLATION_PATH $DEBUG || exit 1
+        $REVISION $JOBS $INSTALLATION_PATH $DEBUG $CHECKSUM || exit 1
 
     # Clean the files
     rm -rf ${DOCKERFILE_PATH}/{*.sh,*.tar.gz,wazuh-*} ${SOURCES_DIRECTORY}
@@ -116,6 +116,7 @@ help() {
     echo "    -r, --release             [Optional] Package release. By default: 1."
     echo "    -p, --path                [Optional] Installation path for the package. By default: /var/ossec."
     echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
+    echo "    -k, --checksum            [Optional] Generate checksum"
     echo "    -h, --help                Show this help."
     echo
     exit $1
@@ -124,6 +125,7 @@ help() {
 
 main() {
     BUILD="no"
+    CHECKSUM="yes"
     while [ -n "$1" ]
     do
         case "$1" in
@@ -187,6 +189,10 @@ main() {
             ;;
         "-d"|"--debug")
             DEBUG="yes"
+            shift 1
+            ;;
+        "-k"|"--checksum")
+            CHECKSUM="yes"
             shift 1
             ;;
         *)
