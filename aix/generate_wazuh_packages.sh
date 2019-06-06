@@ -195,10 +195,11 @@ build_package() {
   fi
 
   rpm_file=${package_name}-${package_release}.aix${aix_major}.${aix_minor}.ppc.rpm
+
   if [[ "${checksum}" == "yes" ]]; then
-    find ${build_dir} -name "*.ppc.rpm" -exec bash -c 'sha512sum {} > {}.sha512' \; -exec mv {} {}.sha512 /var/local/wazuh \;
+    find "${rpm_build_dir}/RPMS/ppc/" -name "*.ppc.rpm" -exec bash -c 'sha512sum {} > {}.sha512' \; -exec mv {} {}.sha512 ${target_dir} \;
   else
-    find ${build_dir} -name "*.ppc.rpm" -exec mv {} /var/local/wazuh \;
+    find "${rpm_build_dir}/RPMS/ppc/" -name "*.ppc.rpm" -exec mv {} ${target_dir} \;
   fi
 
   if [ -f ${target_dir}/${rpm_file} ]; then
