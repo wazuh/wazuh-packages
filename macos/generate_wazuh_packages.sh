@@ -75,10 +75,11 @@ function help() {
     echo "    -s, --store-path <path>   [Optional] Set the destination absolute path of package."
     echo "    -j, --jobs <number>       [Optional] Number of parallel jobs when compiling."
     echo "    -r, --revision <rev>      [Optional] Package revision that append to version e.g. x.x.x-rev"
+    echo "    -k, --checksum            [Optional] Generate checksum"
     echo "    -h, --help                [  Util  ] Show this help."
     echo "    -i, --install-deps        [  Util  ] Install build dependencies (Packages)."
     echo "    -x, --install-xcode       [  Util  ] Install X-Code and brew. Can't be executed as root."
-    echo "    -k, --checksum            [Optional] Generate checksum"
+
     echo
     exit "$1"
 }
