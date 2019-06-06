@@ -14,6 +14,7 @@ set -exf
 install_path="/var/ossec"
 wazuh_branch="master"
 target_dir="/tmp/build"
+compute_checksums="no"
 
 # Check if running as root
 if [[ $EUID -ne 0 ]]; then
@@ -36,7 +37,7 @@ show_help() {
   echo "    -b <branch> Select Git branch. Example v3.5.0"
   echo "    -s <rpm_directory> Directory to store the resulting RPM package. By default: /tmp/build"
   echo "    -p <rpm_home> Installation path for the package. By default: /var"
-  echo "    -k, --checksum Generate checksum"
+  echo "    -k, --checksum Compute the SHA512 checksum of the RPM package."
   echo "    -h Shows this help"
   echo
   exit $1
@@ -195,15 +196,13 @@ build_package() {
   fi
 
   rpm_file=${package_name}-${package_release}.aix${aix_major}.${aix_minor}.ppc.rpm
-
-  if [[ "${checksum}" == "yes" ]]; then
-    find "${rpm_build_dir}/RPMS/ppc/" -name "*.ppc.rpm" -exec bash -c 'sha512sum {} > {}.sha512' \; -exec mv {} {}.sha512 ${target_dir} \;
-  else
-    find "${rpm_build_dir}/RPMS/ppc/" -name "*.ppc.rpm" -exec mv {} ${target_dir} \;
-  fi
+  find "${rpm_build_dir}/RPMS/ppc/" -name "*.ppc.rpm" -exec mv {} ${target_dir} \;
 
   if [ -f ${target_dir}/${rpm_file} ]; then
     echo "Your package ${rpm_file} is stored in ${target_dir}"
+    if [[ "${compute_checksums}" = "yes" ]]; then
+      cd ${target_dir} && /usr/local/scripts/shasum -a 512 ${rpm_file} > ${rpm_file}.sha512
+    fi
   else
     echo "Error: RPM package could not be created"
     exit 1
@@ -222,7 +221,6 @@ main() {
 
   build_env="no"
   build_rpm="no"
-  checksum="no"
 
   while [ -n "$1" ]
   do
@@ -264,7 +262,7 @@ main() {
           fi
         ;;
         "-k" | "--checksum")
-          checksum="yes"
+          compute_checksums="yes"
           shift 1
         ;;
         *)
