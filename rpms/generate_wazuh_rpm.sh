@@ -85,7 +85,7 @@ build_rpm() {
     docker run -t --rm -v $OUTDIR:/var/local/wazuh \
         -v ${SOURCES_DIRECTORY}:/build_wazuh/wazuh-$TARGET-$VERSION \
         ${CONTAINER_NAME} $TARGET $VERSION $ARCHITECTURE \
-        $JOBS $RELEASE ${INSTALLATION_PATH} ${DEBUG} || exit 1
+        $JOBS $RELEASE ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM}|| exit 1
 
     # Clean the files
     rm -rf ${DOCKERFILE_PATH}/{*.sh,*.spec} ${SOURCES_DIRECTORY}
@@ -154,6 +154,7 @@ help() {
 
 main() {
     BUILD="no"
+    CHECKSUM="yes"
     while [ -n "$1" ]
     do
         case "$1" in
@@ -221,6 +222,10 @@ main() {
             ;;
         "-d"|"--debug")
             DEBUG="yes"
+            shift 1
+            ;;
+        "-k"|"--checksum")
+            CHECKSUM="yes"
             shift 1
             ;;
         *)
