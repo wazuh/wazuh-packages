@@ -86,9 +86,7 @@ function check_version() {
   fi
 }
 
-function generate_checksum() {
-    shasum  -a512 "${DESTINATION}/${ova_name}" > "${DESTINATION}/${ova_name}.sha512"
-}
+
 
 function main() {
   local BUILD=false
@@ -98,7 +96,7 @@ function main() {
   local WAZUH_VERSION=""
   local ELK_VERSION=""
   local STATUS=""
-  local cheksum="no"
+  local checksum="no"
   export DIRECTORY="/var/ossec"
   while [ -n "$1" ]; do
     case $1 in
@@ -162,7 +160,7 @@ function main() {
       exit 0
       ;;
     "-k" | "--checksum")
-       cheksum="yes"
+       checksum="yes"
        shift 1
       ;;
     *)
@@ -177,8 +175,8 @@ function main() {
       local OVA_VERSION="${WAZUH_VERSION}_${ELK_VERSION}"
       echo "Version to build: ${WAZUH_VERSION}-${ELK_VERSION} with ${STATUS} repository."
       build_ova ${WAZUH_VERSION} ${OVA_VERSION}
-      if [[ "${cheksum}" = "yes" ]]; then
-        generate_checksum
+      if [[ "${checksum}" == "yes" ]]; then
+        sha512sum "${DESTINATION}/${ova_name}" > "${DESTINATION}/${ova_name}.sha512"
       fi
     else
       echo "Error version ${WAZUH_VERSION}-${ELK_VERSION} not supported."
