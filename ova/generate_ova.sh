@@ -98,7 +98,7 @@ function main() {
   local WAZUH_VERSION=""
   local ELK_VERSION=""
   local STATUS=""
-  Local cheksum="no"
+  local cheksum="no"
   export DIRECTORY="/var/ossec"
   while [ -n "$1" ]; do
     case $1 in
