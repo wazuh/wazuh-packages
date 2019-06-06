@@ -5,9 +5,10 @@ REPOSITORY="https://github.com/wazuh/wazuh.git"
 BRANCH=$1
 JOBS=$2
 OUT_NAME=$3
-PKG_NAME=$4
+CHECKSUM =$4
+PKG_NAME=$5
 HAVE_PKG_NAME=false
-if [ -n $4 ]
+if [ -n $5 ]
 then
     HAVE_PKG_NAME=true
 fi
@@ -76,7 +77,7 @@ main() {
           cd ${OUTDIR}
           cp /$DIRECTORY/src/win32/{upgrade.bat,do_upgrade.ps1} .
           cp /var/pkg/${PKG_NAME} ${OUTDIR}
-          wpkpack $OUTPUT $WPKCERT $WPKEY ${PKG_NAME} upgrade.bat do_upgrade.ps1         
+          wpkpack $OUTPUT $WPKCERT $WPKEY ${PKG_NAME} upgrade.bat do_upgrade.ps1
           rm -f upgrade.bat do_upgrade.ps1 ${PKG_NAME}
       else
           echo "ERROR: MSI package is needed to build the Windows WPK"
@@ -85,7 +86,9 @@ main() {
     echo "PACKED FILE -> $OUTPUT"
     # Update versions file
     cd ${OUTDIR}
-    sha512sum "${OUTPUT}" > "${OUTPUT}".sha512 
+    if [ ${CHECKSUM} == "yes" ]; then
+        sha512sum "${OUTPUT}" > "${OUTPUT}".sha512
+    fi
     gen_versions ${OUTPUT} ${SHORT_VERSION}
 }
 
@@ -93,7 +96,7 @@ clean() {
     rm -rf doc wodles/oscap/content/* gen_ossec.sh add_localfiles.sh Jenkinsfile*
     rm -rf src/{addagent,analysisd,client-agent,config,error_messages,external/*,headers,logcollector,monitord,os_auth,os_crypto,os_csyslogd,os_dbdos_execd}
     rm -rf src/{os_integrator,os_maild,os_netos_regex,os_xml,os_zlib,remoted,reportd,shared,syscheckd,tests,update,wazuh_db,wazuh_modules}
-  
+
     if [[ "${BUILD_TARGET}" != "winagent" ]]; then
         rm -rf src/win32
     fi

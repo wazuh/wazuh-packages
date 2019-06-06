@@ -25,9 +25,10 @@ function build_wpk_windows() {
   local JOBS="$5"
   local PACKAGE_NAME="$6"
   local OUT_NAME="$7"
+  local CHECKSUM="$8"
 
   docker run -t --rm -v ${KEYDIR}:/etc/wazuh -v ${DESTINATION}:/var/local/wazuh -v ${PKG_PATH}:/var/pkg\
-      ${CONTAINER_NAME} ${BRANCH} ${JOBS} ${OUT_NAME} ${PACKAGE_NAME}
+      ${CONTAINER_NAME} ${BRANCH} ${JOBS} ${OUT_NAME} ${CHECKSUM} ${PACKAGE_NAME}
 
   return $?
 }
@@ -39,9 +40,10 @@ function build_wpk_linux() {
   local CONTAINER_NAME="$4"
   local JOBS="$5"
   local OUT_NAME="$6"
+  local CHECKSUM="$7"
 
   docker run -t --rm -v ${KEYDIR}:/etc/wazuh -v ${DESTINATION}:/var/local/wazuh \
-      ${CONTAINER_NAME} ${BRANCH} ${JOBS} ${OUT_NAME}
+      ${CONTAINER_NAME} ${BRANCH} ${JOBS} ${OUT_NAME} ${CHECKSUM}
 
   return $?
 }
@@ -71,6 +73,7 @@ function help() {
   echo "    -j,   --jobs <number>                       [Optional] Number of parallel jobs when compiling."
   echo "    -pd,  --package-directory <directory>       [Required for windows] Package name to pack on wpk."
   echo "    -o,   --output <name>                       [Required] Name to the output package."
+ echo  "    -c, --checksum                              [Optional] Generate checksum"
   echo "    -h,   --help                                Show this help."
   echo
   exit $1
@@ -89,6 +92,7 @@ function main() {
   local PKG_NAME=""
   local OUT_NAME=""
   local NO_COMPILE=false
+  local CHECKSUM="no"
 
   local HAVE_BRANCH=false
   local HAVE_DESTINATION=false
@@ -195,6 +199,10 @@ function main() {
       "-h"|"--help")
           help 0
           ;;
+      "-c" | "--checksum")
+            CHECKSUM="yes"
+            shift 1
+            ;;
       *)
           help 1
       esac
@@ -206,7 +214,7 @@ function main() {
         if [[ "${HAVE_PKG_NAME}" == true ]]; then
           build_container ${WIN_BUILDER} ${WIN_BUILDER_DOCKERFILE} || exit 1
           local CONTAINER_NAME="${WIN_BUILDER}"
-          build_wpk_windows ${BRANCH} ${DESTINATION} ${KEYDIR} ${CONTAINER_NAME} ${JOBS} ${PKG_NAME} ${OUT_NAME} || exit 1
+          build_wpk_windows ${BRANCH} ${DESTINATION} ${KEYDIR} ${CONTAINER_NAME} ${JOBS} ${PKG_NAME} ${OUT_NAME} ${CHECKSUM}|| exit 1
         else
           echo "ERROR: No msi package name specified for Windows WPK"
           help 1
@@ -214,7 +222,7 @@ function main() {
       else
         build_container ${LINUX_BUILDER} ${LINUX_BUILDER_DOCKERFILE} || exit 1
         local CONTAINER_NAME="${LINUX_BUILDER}"
-        build_wpk_linux ${BRANCH} ${DESTINATION} ${KEYDIR} ${CONTAINER_NAME} ${JOBS} ${OUT_NAME} || exit 1
+        build_wpk_linux ${BRANCH} ${DESTINATION} ${KEYDIR} ${CONTAINER_NAME} ${JOBS} ${OUT_NAME} ${CHECKSUM}|| exit 1
       fi
 
 
