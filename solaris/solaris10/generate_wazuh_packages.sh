@@ -233,9 +233,6 @@ show_help()
     -u   | --utils              Download and install all dependencies.
     -b   | --build              Build Solaris 10 packages.
     -c   | --clean              Clean all. Even installation files.
-  USAGE EXAMPLE:
-    ./generate_solaris10-i386_package.sh [option] [branch_tag]
-    ./generate_solaris10-i386_package.sh -d branches/3.3
     "
 }
 

@@ -28,12 +28,6 @@ To build a Solaris 11 package, you need to download this repository and use the 
         -b   | --build        Builds Solaris11 packages.
         -u   | --utils        Download and install utilities and dependencies.
         -c   | --clean-all    Clean sources, local respository and generated files.
-
-    USAGE EXAMPLE:
-    --------------
-        # ./generate_solaris11-i386_package.sh [option] [branch_tag]
-        # ./generate_solaris11-i386_package.sh -d branches/3.3
-        # ./generate_solaris11-i386_package.sh -b branches/3.3
     ```
 
     * To install the needed dependencies:
@@ -43,7 +37,7 @@ To build a Solaris 11 package, you need to download this repository and use the 
     * To build a wazuh-agent package from the downloaded v3.9.0 sources:
         `# ./generate_wazuh_packages.sh -b v3.9.0`.
     
-3. When the execution finishes, you can find your `.p5p` in the same directory where the sources are.
+3. When the execution finishes, you can find your `.p5p` in the same directory where the sources are located.
 
 ## More Packages
 

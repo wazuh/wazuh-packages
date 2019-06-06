@@ -220,12 +220,6 @@ show_help()
     -b   | --build        Builds Solaris11 packages.
     -u   | --utils        Download and install utilities and dependencies.
     -c   | --clean-all    Clean sources, local respository and generated files.
-
-  USAGE EXAMPLE:
-  --------------
-    # ./generate_solaris11-i386_package.sh [option] [branch_tag]
-    # ./generate_solaris11-i386_package.sh -d branches/3.3
-    # ./generate_solaris11-i386_package.sh -b branches/3.3
   "
 }
 

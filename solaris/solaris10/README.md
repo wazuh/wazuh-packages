@@ -29,9 +29,6 @@ To build a Solaris 10 package, you need to download this repository and use the 
         -u   | --utils              Download and install all dependencies.
         -b   | --build              Build Solaris 10 packages.
         -c   | --clean              Clean all. Even installation files.
-    USAGE EXAMPLE:
-        ./generate_solaris10-i386_package.sh [option] [branch_tag] [Installation dir]
-        ./generate_solaris10-i386_package.sh -d branches/3.3 var
     ```
 
     * To install the needed dependencies:
@@ -41,7 +38,7 @@ To build a Solaris 10 package, you need to download this repository and use the 
     * To build a wazuh-agent package from the downloaded v3.9.0 sources:
         `# ./generate_wazuh_packages.sh -b v3.9.0`.
     
-3. When the execution finishes, you can find your `.pkg` in the same directory where the sources are.
+3. When the execution finishes, you can find your `.pkg` in the same directory where the sources are located.
 
 ## More Packages
 
