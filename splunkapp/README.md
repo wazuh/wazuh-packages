@@ -7,8 +7,8 @@ In this repository, you can find the necessary tools to build a Wazuh Splunk App
 
 To build a Wazuh Splunk app package you need to install the following tools:
   - `docker`: [installation guide](https://docs.docker.com/install/linux/docker-ce/centos/) for RPM and [installation guide](https://docs.docker.com/install/linux/docker-ce/debian/) for Debian.
-- `git`:  [installation guide](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git). 
-  
+- `git`:  [installation guide](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git).
+
 ## Building Wazuh Splunk app packages
 
 To build a Splunk app package, you need to download this repository and use the `generate_wazuh_splunk_app.sh` script. This script will download the source code from the [wazuh/wazuh-splunk](https://github.com/wazuh/wazuh-splunk) repository, build a Docker image with all the necessary tools to build the app package and run a Docker container from that image that will generate a `.tar.gz` package.
@@ -28,7 +28,7 @@ To build a Splunk app package, you need to download this repository and use the 
         -s, --store <directory>   [Optional] Destination directory by default /tmp/splunk-app
         -r, --revision            [Optional] Package revision that append to version e.g. x.x.x-y.y.y-rev
         -h, --help                Show this help.
-                    
+
     ```
     * To build the app package for version 3.8.2, using Splunk with version 7.2.3, revision myrev and store it in `/splunk-app` you can either use:
 
@@ -37,7 +37,7 @@ To build a Splunk app package, you need to download this repository and use the 
     * If no Splunk version is indicated the package generated will contain the latest version of the app for a given branch.
 
             # ./generate_wazuh_splunk_app.sh -b 3.8 -s /splunk-app -r myrev
-        
+
 3. Once the execution finishes, you will find your `.taz.gz` package in the specified folder or in /tmp/splunk-app if no folder was specified.
 
 ## More Packages
@@ -49,10 +49,7 @@ To build a Splunk app package, you need to download this repository and use the 
 - [OVA](/ova/README.md)
 - [KibanaApp](/wazuhapp/README.md)
 - [WPK](/wpk/README.md)
-- [Solaris10](/solaris/solaris10/README.md)
-- [Solaris 11](/solaris/solaris11/README.md)
-- [Solaris Vagrant](/solaris/packer/README.md)
-
+- [Solaris](/solaris/README.md)
 
 ## Contribute
 

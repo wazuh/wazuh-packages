@@ -36,7 +36,7 @@ To build a Solaris 11 package, you need to download this repository and use the 
         `# ./generate_wazuh_packages.sh -d v3.9.0`.
     * To build a wazuh-agent package from the downloaded v3.9.0 sources:
         `# ./generate_wazuh_packages.sh -b v3.9.0`.
-    
+
 3. When the execution finishes, you can find your `.p5p` in the same directory where the sources are located.
 
 ## More Packages
@@ -48,8 +48,8 @@ To build a Solaris 11 package, you need to download this repository and use the 
 - [OVA](/ova/README.md)
 - [KibanaApp](/wazuhapp/README.md)
 - [SplunkApp](/splunkapp/README.md)
-- [Solaris 10](/solaris/solaris10/README.md)
-- [Solaris Vagrant](/solaris/packer/README.md)
+- [Solaris](/solaris/README.md)
+
 
 
 ## Contribute

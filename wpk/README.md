@@ -1,17 +1,10 @@
-Wazuh
+WPK package
 =====
-
-[![Slack](https://img.shields.io/badge/slack-join-blue.svg)](https://wazuh.com/community/join-us-on-slack/)
-[![Email](https://img.shields.io/badge/email-join-blue.svg)](https://groups.google.com/forum/#!forum/wazuh)
-[![Documentation](https://img.shields.io/badge/docs-view-green.svg)](https://documentation.wazuh.com)
-[![Documentation](https://img.shields.io/badge/web-view-green.svg)](https://wazuh.com)
-
-Wazuh is an Open Source Host-based Intrusion Detection System that performs log analysis, file integrity monitoring, policy monitoring, rootkit detection, real-time alerting, active response, vulnerability detector, etc.
 
 In this repository, you can find the necessary tools to build a WPK package.
 
 ## Tools needed to build the package
-- `docker`: [installation guide](https://docs.docker.com/install) 
+- `docker`: [installation guide](https://docs.docker.com/install)
 
 ## Building WPK packages
 
@@ -81,9 +74,7 @@ To build  a WPK package, it is necessary to generate a X509 certificate and CA, 
 - [OVA](/ova/README.md)
 - [KibanaApp](/wazuhapp/README.md)
 - [SplunkApp](/splunkapp/README.md)
-- [Solaris10](/solaris/solaris10/README.md)
-- [Solaris 11](/solaris/solaris11/README.md)
-- [Solaris Vagrant](/solaris/packer/README.md)
+- [Solaris](/solaris/README.md)
 
 ## Contribute
 
