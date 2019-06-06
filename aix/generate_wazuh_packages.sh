@@ -195,10 +195,11 @@ build_package() {
   fi
 
   rpm_file=${package_name}-${package_release}.aix${aix_major}.${aix_minor}.ppc.rpm
-  if [[ "${cheksum}" = "yes" ]]; then
-      sha512sum "${rpm_file}" > "${rpm_file}".sha512
+  if [[ "${checksum}" == "yes" ]]; then
+    find ${build_dir} -name "*.ppc.rpm" -exec bash -c 'sha512sum {} > {}.sha512' \; -exec mv {} {}.sha512 /var/local/wazuh \;
+  else
+    find ${build_dir} -name "*.ppc.rpm" -exec mv {} /var/local/wazuh \;
   fi
-  mv ${rpm_build_dir}/RPMS/ppc/${rpm_file}.* ${target_dir}
 
   if [ -f ${target_dir}/${rpm_file} ]; then
     echo "Your package ${rpm_file} is stored in ${target_dir}"
@@ -220,7 +221,7 @@ main() {
 
   build_env="no"
   build_rpm="no"
-  cheksum="no"
+  checksum="no"
 
   while [ -n "$1" ]
   do
@@ -262,7 +263,7 @@ main() {
           fi
         ;;
         "-k" | "--checksum")
-          cheksum="yes"
+          checksum="yes"
           shift 1
         ;;
         *)
@@ -277,7 +278,7 @@ main() {
   if [[ "${build_rpm}" = "yes" ]]; then
     build_package || exit 1
   fi
-  
+
   return 0
 }
 
