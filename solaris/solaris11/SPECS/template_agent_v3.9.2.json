@@ -1623,7 +1623,7 @@
         "prot": "-rwxr-x---",
         "type": "file",
         "user": "root"
-    }
+    },
         "/var/ossec/ruleset/sca/cis_solaris11_rcl.yml": {
         "class": "static",
         "group": "ossec",
