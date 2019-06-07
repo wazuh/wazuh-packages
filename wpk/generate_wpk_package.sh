@@ -73,7 +73,7 @@ function help() {
   echo "    -j,   --jobs <number>                       [Optional] Number of parallel jobs when compiling."
   echo "    -pd,  --package-directory <directory>       [Required for windows] Package name to pack on wpk."
   echo "    -o,   --output <name>                       [Required] Name to the output package."
- echo  "    -c, --checksum                              [Optional] Generate checksum"
+  echo "    -c,   --checksum                            [Optional] Generate checksum"
   echo "    -h,   --help                                Show this help."
   echo
   exit $1

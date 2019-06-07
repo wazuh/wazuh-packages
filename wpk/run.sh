@@ -5,7 +5,7 @@ REPOSITORY="https://github.com/wazuh/wazuh.git"
 BRANCH=$1
 JOBS=$2
 OUT_NAME=$3
-CHECKSUM =$4
+CHECKSUM=$4
 PKG_NAME=$5
 HAVE_PKG_NAME=false
 if [ -n $5 ]
@@ -86,10 +86,10 @@ main() {
     echo "PACKED FILE -> $OUTPUT"
     # Update versions file
     cd ${OUTDIR}
-    if [ ${CHECKSUM} == "yes" ]; then
-        sha512sum "${OUTPUT}" > "${OUTPUT}.sha512"
-    fi
     gen_versions ${OUTPUT} ${SHORT_VERSION}
+    if [[ ${CHECKSUM} == "yes" ]]; then
+        sha512sum "${OUT_NAME}" > "${OUT_NAME}.sha512"
+    fi
 }
 
 clean() {
