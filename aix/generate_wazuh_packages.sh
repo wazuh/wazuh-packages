@@ -196,7 +196,7 @@ build_package() {
   fi
 
   rpm_file=${package_name}-${package_release}.aix${aix_major}.${aix_minor}.ppc.rpm
-  find "${rpm_build_dir}/RPMS/ppc/" -name "*.ppc.rpm" -exec mv {} ${target_dir} \;
+  mv ${rpm_build_dir}/RPMS/ppc/${rpm_file} ${target_dir}
 
   if [ -f ${target_dir}/${rpm_file} ]; then
     echo "Your package ${rpm_file} is stored in ${target_dir}"
