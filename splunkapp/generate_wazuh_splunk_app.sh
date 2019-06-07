@@ -20,6 +20,8 @@ DESTINATION="/tmp/splunk-app/"
 REVISION=" "
 TMP_DIRECTORY="/tmp/wazuh-splunk-$(( ( RANDOM % 1000000 )  + 1 ))"
 REPOSITORY="wazuh-splunk"
+WAZUH_VERSION=""
+SPLUNK_VERSION=""
 
 # load config data
 scriptpath=$( cd $(dirname $0) ; pwd -P )
@@ -45,7 +47,9 @@ build_package() {
     # Build the Docker image
     docker build -t ${CONTAINER_NAME} ./Docker/
     # Run Docker and build package
-    docker run -t --rm -v "${TMP_DIRECTORY}":/pkg -v "${DESTINATION}":/wazuh_splunk_app ${CONTAINER_NAME} ${WAZUH_VERSION} ${SPLUNK_VERSION} ${REVISION} ${CHECKSUM}|| exit 1
+    docker run -t --rm -v "${TMP_DIRECTORY}":/pkg -v "${DESTINATION}":/wazuh_splunk_app ${CONTAINER_NAME} \
+            ${WAZUH_VERSION} ${SPLUNK_VERSION} ${REVISION} ${CHECKSUM}|| exit 1
+
     if [ "$?" = "0" ]; then
         delete_sources 0
     else
@@ -144,10 +148,10 @@ main() {
 
     if [[ "$HAVE_BRANCH" == true ]] ; then
         if ! download_source ; then
-            delete_sources
-            exit 1
+            delete_sources 1
         fi
         build_package
+        delete_sources 0
     else
         help 1
     fi

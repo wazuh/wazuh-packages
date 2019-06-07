@@ -33,7 +33,9 @@ build_package(){
     # Build the Docker image
     docker build -t ${CONTAINER_NAME} ./Docker/
     # Build the Wazuh Kibana app package using the build docker image
-    docker run --rm -t  -v ${TMP_DIR}:/source -v "${DESTINATION}":/wazuh_app ${CONTAINER_NAME} ${wazuh_version} ${kibana_version} ${APP_REVISION} ${CHECKSUM}
+    docker run --rm -t  -v ${TMP_DIR}:/source -v "${DESTINATION}":/wazuh_app ${CONTAINER_NAME} ${WAZUH_VERSION} \
+        ${KIBANA_VERSION} ${APP_REVISION} ${CHECKSUM}
+
     if [ "$?" = "0" ]; then
         delete_sources 0
     else
@@ -44,9 +46,9 @@ build_package(){
 
 compute_version_revision(){
 
-  wazuh_version=$(python -c 'import json; f=open("package.json"); pkg=json.load(f); f.close(); print pkg["version"]')
+  WAZUH_VERSION=$(python -c 'import json; f=open("package.json"); pkg=json.load(f); f.close(); print(pkg["version"])')
   APP_REVISION=$REVISION
-  kibana_version=$(python -c 'import json; f=open("package.json"); pkg=json.load(f); f.close(); print pkg["kibana"]["version"]')
+  KIBANA_VERSION=$(python -c 'import json; f=open("package.json"); pkg=json.load(f); f.close(); print(pkg["kibana"]["version"])')
 
   return 0
 }
@@ -95,10 +97,9 @@ main(){
         "-r"|"--revision")
             if [ -n "$2" ]; then
                 REVISION="$2"
-                READY_TO_RELEASE="no"
                 shift 2
             else
-                READY_TO_RELEASE="yes"
+                help 1
             fi
             ;;
         "-k" | "--checksum")
@@ -117,6 +118,7 @@ main(){
 
         if download_sources; then
             build_package
+            delete_sources 0
         else
             delete_sources 1
         fi

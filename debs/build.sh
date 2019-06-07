@@ -55,7 +55,7 @@ else
 fi
 
 if [[ "${checksum}" == "yes" ]]; then
-    find ${build_dir} -name "*.deb" -exec bash -c 'sha512sum {} > {}.sha512' \; -exec mv {} {}.sha512 /var/local/wazuh \;
+    find ${build_dir} -name "*.deb" -exec bash -c 'cd $(dirname {}) && sha512sum $(basename {}) > {}.sha512' \; -exec mv {} {}.sha512 /var/local/wazuh \;
 else
     find ${build_dir} -name "*.deb" -exec mv {} /var/local/wazuh \;
 fi

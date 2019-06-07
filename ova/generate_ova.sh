@@ -176,7 +176,7 @@ function main() {
       echo "Version to build: ${WAZUH_VERSION}-${ELK_VERSION} with ${STATUS} repository."
       build_ova ${WAZUH_VERSION} ${OVA_VERSION}
       if [[ "${checksum}" == "yes" ]]; then
-        sha512sum "${DESTINATION}/${ova_name}" > "${DESTINATION}/${ova_name}.sha512"
+        cd ${DESTINATION} && sha512sum "${ova_name}" > "${DESTINATION}/${ova_name}.sha512"
       fi
     else
       echo "Error version ${WAZUH_VERSION}-${ELK_VERSION} not supported."
