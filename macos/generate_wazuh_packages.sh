@@ -80,7 +80,6 @@ function help() {
     echo "    -h, --help                [  Util  ] Show this help."
     echo "    -i, --install-deps        [  Util  ] Install build dependencies (Packages)."
     echo "    -x, --install-xcode       [  Util  ] Install X-Code and brew. Can't be executed as root."
-
     echo
     exit "$1"
 }
