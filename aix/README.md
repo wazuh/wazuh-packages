@@ -9,7 +9,7 @@ To build an AIX package, you need to download this repository and use the `gener
 
 1. Download this repository and go to the rpm directory:
     ```bash
-    $ curl -L https://github.com/wazuh/wazuh-packages/tarball/master | tar zx 
+    $ curl -L https://github.com/wazuh/wazuh-packages/tarball/master | tar zx
     $ cd wazuh-wazuh-packages-*
     $ cd aix
     ```
@@ -21,7 +21,7 @@ To build an AIX package, you need to download this repository and use the `gener
     Usage: ./generate_rpm.sh [OPTIONS]
 
         Usage: $0 [OPTIONS]"
-  
+
             -e Install all the packages necessaries to build the RPM package"
             -b <branch> Select Git branch. Example v3.5.0"
             -s <rpm_directory> Directory to store the resulting RPM package. By default: /tmp/build"
@@ -37,7 +37,7 @@ To build an AIX package, you need to download this repository and use the `gener
     * To install the dependencies, build a wazuh-agent package for version 3.8.2, revision 3821 and store it in `/tmp`:
 
         `# ./generate_package.sh -b v3.8.2 -s /tmp -a x86_64 -r 3821`.
-    
+
 3. When the execution finishes, you can find your `.ppc.rpm` package in specified folder.
 
 ## More Packages
@@ -49,9 +49,7 @@ To build an AIX package, you need to download this repository and use the `gener
 - [KibanaApp](/wazuhapp/README.md)
 - [SplunkApp](/splunkapp/README.md)
 - [WPK](/wpk/README.md)
-- [Solaris10](/solaris/solaris10/README.md)
-- [Solaris11](/solaris/solaris11/README.md)
-- [Solaris Vagrant](/solaris/packer/README.md)
+- [Solaris](/solaris/README.md)
 - [HP-UX](/hpux/README.md)
 
 ## Contribute

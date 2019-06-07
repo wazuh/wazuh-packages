@@ -17,7 +17,7 @@ To build a HP-UX package, you need to download this repository and use the `gene
 
 1. Download this repository and go to the hpux directory:
     ```bash
-    $ curl -L https://github.com/wazuh/wazuh-packages/tarball/master | tar zx 
+    $ curl -L https://github.com/wazuh/wazuh-packages/tarball/master | tar zx
     $ cd wazuh-wazuh-packages-*
     $ cd hpux
     ```
@@ -57,6 +57,4 @@ To build a HP-UX package, you need to download this repository and use the `gene
 - [KibanaApp](/wazuhapp/README.md)
 - [SplunkApp](/splunkapp/README.md)
 - [WPK](/wpk/README.md)
-- [Solaris10](/solaris/solaris10/README.md)
-- [Solaris11](/solaris/solaris11/README.md)
-- [Solaris Vagrant](/solaris/packer/README.md)
+- [Solaris](/solaris/README.md)
