@@ -62,7 +62,7 @@ chmod 440 ${DIR}/etc/local_internal_options.conf > /dev/null 2>&1
 chmod 440 ${DIR}/etc/client.keys > /dev/null 2>&1
 chmod -R 770 ${DIR}/etc/shared # ossec must be able to write to it
 chmod 550 ${DIR}/agentless/*
-chmod 700 ${DIR}/.ssh
+chmod 750 ${DIR}/.ssh
 
 # For the /var/run
 chmod 770 ${DIR}/var/run

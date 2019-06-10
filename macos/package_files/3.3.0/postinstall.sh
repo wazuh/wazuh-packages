@@ -73,7 +73,7 @@ chown root:${GROUP} ${DIR}etc/ossec.conf
 chmod 640 ${DIR}etc/ossec.conf
 
 
-chmod 700 ${DIR}.ssh
+chmod 750 ${DIR}.ssh
 
 # For the /var/run
 chmod -R 770 ${DIR}var/*

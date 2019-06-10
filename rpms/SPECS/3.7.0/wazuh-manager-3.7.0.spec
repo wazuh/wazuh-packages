@@ -676,7 +676,7 @@ rm -fr %{buildroot}
 %attr(640, root, ossec) %{_localstatedir}/ossec/ruleset/decoders/*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset/rules
 %attr(640, root, ossec) %{_localstatedir}/ossec/ruleset/rules/*
-%dir %attr(700, root, ossec) %{_localstatedir}/ossec/.ssh
+%dir %attr(750, root, ossec) %{_localstatedir}/ossec/.ssh
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/stats
 %dir %attr(1750, root, ossec) %{_localstatedir}/ossec/tmp
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/var

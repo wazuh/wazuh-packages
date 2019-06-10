@@ -10,7 +10,7 @@
     "/var/ossec/.ssh": {
         "class": "static",
         "group": "ossec",
-        "mode": "0700",
+        "mode": "0750",
         "prot": "drwx------",
         "type": "directory",
         "user": "root"
