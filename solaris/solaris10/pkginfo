@@ -1,0 +1,12 @@
+NAME=Wazuh - Improved OSSEC agent for Intrusion Detection, File Integrity Monitoring, Policy Monitoring and Rootkits Detection.
+PKG="wazuh-agent"
+VERSION="3.6.0"
+ARCH="i386"
+CLASSES="none"
+CATEGORY="system"
+VENDOR="Wazuh, Inc <support@wazuh.com>"
+PSTAMP="31Aug2018"
+EMAIL="support@wazuh.com"
+ISTATES="S s 1 2 3"
+RSTATES="S s 1 2 3"
+BASEDIR="/var/ossec/"
