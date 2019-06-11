@@ -37,6 +37,7 @@ function build_package() {
 
     # Build the Debian package with a Docker container
     docker run -t --rm -v ${DESTINATION}:/var/local/wazuh \
+        -v ${DESTINATION}/checksum:/var/local/wazuh/checksum \
         -v ${SOURCES_DIRECTORY}:/build_wazuh/${TARGET}/wazuh-${TARGET}-${VERSION} \
         -v ${DOCKERFILE_PATH}/wazuh-${TARGET}:/${TARGET} \
         ${CONTAINER_NAME} ${TARGET} ${VERSION} ${ARCHITECTURE} \
