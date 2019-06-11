@@ -375,7 +375,7 @@ rm -fr %{buildroot}
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/wodles/aws
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/wodles/oscap
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/wodles/oscap/content
-%attr(750,root,ossec) %dir %{_localstatedir}/ossec/.ssh
+%attr(700,root,ossec) %dir %{_localstatedir}/ossec/.ssh
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/active-response
 %attr(750,root,ossec) %dir %{_localstatedir}/ossec/active-response/bin
 %attr(770,root,ossec) %dir %{_localstatedir}/ossec/etc/shared
