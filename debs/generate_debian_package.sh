@@ -33,13 +33,15 @@ function build_package() {
     local JOBS="$8"
     local INSTALLATION_PATH="$9"
     local DEBUG="${10}"
+    local CHECKSUM="${11}"
 
     # Build the Debian package with a Docker container
     docker run -t --rm -v ${DESTINATION}:/var/local/wazuh \
+        -v ${DESTINATION}/checksum:/var/local/wazuh/checksum \
         -v ${SOURCES_DIRECTORY}:/build_wazuh/${TARGET}/wazuh-${TARGET}-${VERSION} \
         -v ${DOCKERFILE_PATH}/wazuh-${TARGET}:/${TARGET} \
         ${CONTAINER_NAME} ${TARGET} ${VERSION} ${ARCHITECTURE} \
-        ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} || exit 1
+        ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM}|| exit 1
 
     # Clean the files
     rm -rf ${DOCKERFILE_PATH}/{*.sh,*.tar.gz,wazuh-*} ${SOURCES_DIRECTORY}
@@ -83,6 +85,7 @@ function help() {
     echo "    -j, --jobs <number>       [Optional] Number of parallel jobs when compiling."
     echo "    -p, --path <path>         [Optional] Installation path for the package. By default: /var/ossec."
     echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
+    echo "    -k, --checksum            [Optional] Generate checksum file for the generated package."
     echo "    -h, --help                Show this help."
     echo
     exit $1
@@ -103,6 +106,7 @@ function main() {
     local CONTAINER_NAME=""
     local DOCKERFILE_PATH=""
     local DEBUG="no"
+    local CHECKSUM="no"
 
     local HAVE_BRANCH=false
     local HAVE_DESTINATION=false
@@ -208,6 +212,10 @@ function main() {
             DEBUG="yes"
             shift 1
             ;;
+        "-k"|"--checksum")
+            CHECKSUM="yes"
+            shift 1
+            ;;
         *)
             help 1
         esac
@@ -227,7 +235,7 @@ function main() {
       fi
 
       build_container $TARGET $VERSION $ARCHITECTURE $CONTAINER_NAME $DOCKERFILE_PATH || exit 1
-      build_package $TARGET $VERSION $REVISION $ARCHITECTURE $DESTINATION $CONTAINER_NAME $DOCKERFILE_PATH $JOBS $INSTALLATION_PATH $DEBUG || exit 1
+      build_package $TARGET $VERSION $REVISION $ARCHITECTURE $DESTINATION $CONTAINER_NAME $DOCKERFILE_PATH $JOBS $INSTALLATION_PATH $DEBUG $CHECKSUM || exit 1
     else
       echo "ERROR: Need more parameters"
       help 1
