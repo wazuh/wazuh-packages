@@ -88,8 +88,8 @@ main() {
     cd ${OUTDIR}
     gen_versions ${OUTPUT} ${SHORT_VERSION}
     if [[ ${CHECKSUM} == "yes" ]]; then
-        mkdir -p ../checksum/
-        sha512sum "${OUT_NAME}" > "../checksum/${OUT_NAME}.sha512"
+        mkdir -p checksum/
+        sha512sum "${OUT_NAME}" > "checksum/${OUT_NAME}.sha512"
     fi
 }
 
