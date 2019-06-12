@@ -49,9 +49,15 @@ function build_package() {
         ${DOWNLOAD_TAR}
     fi
 
+    local CHECKSUM_PATH="../checksum"
+
+    if [ "${LEGACY}" == "yes" ]; then
+        CHECKSUM_PATH="../../../checksum"
+    fi
+
     # Build the RPM package with a Docker container
     docker run -t --rm -v ${DESTINATION}:/var/local/wazuh \
-        -v ${DESTINATION}/../checksum:/var/local/wazuh/checksum \
+        -v ${DESTINATION}/${CHECKSUM_PATH}:/var/local/wazuh/checksum \
         -v ${SOURCES_DIRECTORY}:/build_wazuh/wazuh-${TARGET}-${VERSION} \
         ${CONTAINER_NAME} ${TARGET} ${VERSION} ${ARCHITECTURE} \
         ${JOBS} ${REVISION} ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM}|| exit 1
