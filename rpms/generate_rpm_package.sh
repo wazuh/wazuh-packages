@@ -51,6 +51,7 @@ function build_package() {
 
     # Build the RPM package with a Docker container
     docker run -t --rm -v ${DESTINATION}:/var/local/wazuh \
+        -v ${DESTINATION}/../checksum:/var/local/wazuh/checksum \
         -v ${SOURCES_DIRECTORY}:/build_wazuh/wazuh-${TARGET}-${VERSION} \
         ${CONTAINER_NAME} ${TARGET} ${VERSION} ${ARCHITECTURE} \
         ${JOBS} ${REVISION} ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM}|| exit 1
