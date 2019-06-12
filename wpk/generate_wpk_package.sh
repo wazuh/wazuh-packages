@@ -27,8 +27,11 @@ function build_wpk_windows() {
   local OUT_NAME="$7"
   local CHECKSUM="$8"
 
+  local CHECKSUM_PARENT=(${DESTINATION//pre-release })
+  local CHECKSUM_PATH="${CHECKSUM_PARENT}/pre-release/checksum"
+
   docker run -t --rm -v ${KEYDIR}:/etc/wazuh -v ${DESTINATION}:/var/local/wazuh -v ${PKG_PATH}:/var/pkg\
-      -v ${DESTINATION}/../checksum:/var/local/wazuh/checksum \
+      -v ${CHECKSUM_PATH}:/var/local/wazuh/checksum \
       ${CONTAINER_NAME} ${BRANCH} ${JOBS} ${OUT_NAME} ${CHECKSUM} ${PACKAGE_NAME}
 
   return $?
