@@ -59,6 +59,7 @@ function build_package() {
         echo "The wazuh agent package for MacOS X has been successfully built."
         if [[ "${CHECKSUM}" = "yes" ]]; then
             pkg_name="wazuh-agent-${VERSION}-${REVISION}.pkg"
+            mkdir -p ${DESTINATION}/../checksum/
             shasum -a512 ${DESTINATION}/${pkg_name} > ${DESTINATION}/../checksum/${pkg_name}.sha512
         fi
         clean_and_exit 0
