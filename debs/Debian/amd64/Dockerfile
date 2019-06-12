@@ -26,6 +26,7 @@ RUN apt-get update && apt-get build-dep python3.2 -y && \
 # Add the volumes
 VOLUME /var/local/wazuh
 VOLUME /etc/wazuh
+VOLUME /etc/wazuh/checksum
 
 # Set the entrypoint
 ENTRYPOINT ["/usr/local/bin/build_package"]
