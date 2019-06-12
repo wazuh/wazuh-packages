@@ -27,7 +27,7 @@ function build_wpk_windows() {
   local OUT_NAME="$7"
   local CHECKSUM="$8"
 
-  local CHECKSUM_PARENT=(${DESTINATION//pre-release })
+  local CHECKSUM_PARENT=(${DESTINATION//pre-release/ })
   local CHECKSUM_PATH="${CHECKSUM_PARENT}/pre-release/checksum"
 
   echo $CHECKSUM_PATH

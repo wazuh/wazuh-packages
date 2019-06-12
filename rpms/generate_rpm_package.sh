@@ -49,7 +49,7 @@ function build_package() {
         ${DOWNLOAD_TAR}
     fi
 
-    local CHECKSUM_PARENT=(${DESTINATION//pre-release })
+    local CHECKSUM_PARENT=(${DESTINATION//pre-release/ })
     local CHECKSUM_PATH="${CHECKSUM_PARENT}/pre-release/checksum"
 
     # Build the RPM package with a Docker container
