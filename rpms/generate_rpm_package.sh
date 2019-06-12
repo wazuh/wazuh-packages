@@ -50,7 +50,7 @@ function build_package() {
     fi
 
     local CHECKSUM_PARENT=(${DESTINATION//pre-release })
-    local CHECKSUM_PATH="${CHECKSUM_PARENT}/checksum"
+    local CHECKSUM_PATH="${CHECKSUM_PARENT}/pre-release/checksum"
 
     # Build the RPM package with a Docker container
     docker run -t --rm -v ${DESTINATION}:/var/local/wazuh \
