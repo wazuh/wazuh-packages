@@ -52,6 +52,7 @@ function build_package() {
     local CHECKSUM_PATH="../checksum"
 
     if [ "${LEGACY}" == "yes" ]; then
+        mkdir ${DESTINATION}/${CHECKSUM_PATH}
         CHECKSUM_PATH="../../../checksum"
     fi
 
