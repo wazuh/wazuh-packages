@@ -16,4 +16,5 @@ ADD run.sh /usr/local/bin/run
 ADD gen_versions.sh /usr/local/bin/gen_versions
 VOLUME /var/local/wazuh
 VOLUME /etc/wazuh
+VOLUME /etc/wazuh/checksum
 ENTRYPOINT ["/usr/local/bin/run"]

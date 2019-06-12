@@ -28,6 +28,7 @@ function build_wpk_windows() {
   local CHECKSUM="$8"
 
   docker run -t --rm -v ${KEYDIR}:/etc/wazuh -v ${DESTINATION}:/var/local/wazuh -v ${PKG_PATH}:/var/pkg\
+      -v ${DESTINATION}/../checksum:/var/local/wazuh/checksum \
       ${CONTAINER_NAME} ${BRANCH} ${JOBS} ${OUT_NAME} ${CHECKSUM} ${PACKAGE_NAME}
 
   return $?
