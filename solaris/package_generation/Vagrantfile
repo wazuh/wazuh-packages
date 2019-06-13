@@ -105,7 +105,7 @@ opts.each do |opt, arg|
      when '--checksum'
         checksum="yes"
         if arg == ''
-            puts "Missing ram argument (try --help)"
+            puts "Missing checksum argument (try --help)"
             exit 0
         else
         checksum_path=arg
