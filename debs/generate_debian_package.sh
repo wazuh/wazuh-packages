@@ -21,7 +21,7 @@ DEB_AMD64_BUILDER="deb_builder_amd64"
 DEB_I386_BUILDER="deb_builder_i386"
 DEB_AMD64_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/amd64"
 DEB_I386_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/i386"
-CHECKSUM="no"
+CHECKSUMDIR="/tmp/checksum"
 
 clean() {
     exit_code=$1
@@ -56,12 +56,9 @@ build_deb() {
     # Build the Docker image
     docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH}
 
-    local CHECKSUM_PARENT=(${OUTDIR//pre-release/ })
-    local CHECKSUM_PATH="${CHECKSUM_PARENT}pre-release/checksum"
-
     # Build the Debian package with a Docker container
     docker run -t --rm -v ${OUTDIR}:/var/local/wazuh \
-        -v ${CHECKSUM_PATH}:/var/local/wazuh/checksum \
+        -v ${CHECKSUMDIR}:/var/local/wazuh/checksum \
         -v ${SOURCES_DIRECTORY}:/build_wazuh/${TARGET}/wazuh-${TARGET}-${VERSION} \
         -v ${DOCKERFILE_PATH}/wazuh-${TARGET}:/${TARGET} \
         ${CONTAINER_NAME} ${TARGET} ${VERSION} ${ARCHITECTURE} \
@@ -185,8 +182,12 @@ main() {
             shift 1
             ;;
         "-k"|"--checksum")
-            CHECKSUM="yes"
-            shift 1
+            if [ -n "$2" ]; then
+                CHECKSUMDIR="$2"
+                shift 2
+            else
+                help 1
+            fi
             ;;
         "-s"|"--store")
             if [ -n "$2" ]; then
