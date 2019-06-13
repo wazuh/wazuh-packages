@@ -80,7 +80,7 @@ build_rpm() {
     # Build the Docker image
     docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH}
 
-    local CHECKSUM_PARENT=(${DESTINATION//pre-release/ })
+    local CHECKSUM_PARENT=(${OUTDIR//pre-release/ })
     local CHECKSUM_PATH="${CHECKSUM_PARENT}pre-release/checksum"
 
     # Build the RPM package with a Docker container
