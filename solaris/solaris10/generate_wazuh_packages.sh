@@ -224,6 +224,11 @@ build(){
     package
 }
 
+checksum(){
+    VERSION=`cat $SOURCE/src/VERSION`
+    digest -v -a sha512 "wazuh-agent_$VERSION-sol10-$ARCH.pkg" > digest-listing
+}
+
 show_help()
 {
   echo "
@@ -232,6 +237,7 @@ show_help()
     -d   | --download           Download source file and prepares source directories.
     -u   | --utils              Download and install all dependencies.
     -b   | --build              Build Solaris 10 packages.
+    -k   | --checksum           generate checksum
     -c   | --clean              Clean all. Even installation files.
     "
 }
@@ -254,6 +260,10 @@ case $key in
     ;;
   -u|--utils)
     dependencies
+    exit 0
+    ;;
+  -k|--checksum)
+    checksum
     exit 0
     ;;
   -c|--clean)
