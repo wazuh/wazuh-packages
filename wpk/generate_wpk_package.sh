@@ -28,9 +28,7 @@ function build_wpk_windows() {
   local CHECKSUM="$8"
 
   local CHECKSUM_PARENT=(${DESTINATION//pre-release/ })
-  local CHECKSUM_PATH="${CHECKSUM_PARENT}/pre-release/checksum"
-
-  echo $CHECKSUM_PATH
+  local CHECKSUM_PATH="${CHECKSUM_PARENT}pre-release/checksum"
 
   docker run -t --rm -v ${KEYDIR}:/etc/wazuh -v ${DESTINATION}:/var/local/wazuh -v ${PKG_PATH}:/var/pkg\
       -v ${CHECKSUM_PATH}:/var/local/wazuh/checksum \
@@ -48,7 +46,11 @@ function build_wpk_linux() {
   local OUT_NAME="$6"
   local CHECKSUM="$7"
 
+  local CHECKSUM_PARENT=(${DESTINATION//pre-release/ })
+  local CHECKSUM_PATH="${CHECKSUM_PARENT}pre-release/checksum"
+
   docker run -t --rm -v ${KEYDIR}:/etc/wazuh -v ${DESTINATION}:/var/local/wazuh \
+      -v ${CHECKSUM_PATH}:/var/local/wazuh/checksum \
       ${CONTAINER_NAME} ${BRANCH} ${JOBS} ${OUT_NAME} ${CHECKSUM}
 
   return $?

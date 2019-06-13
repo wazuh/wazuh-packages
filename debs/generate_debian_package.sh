@@ -8,81 +8,112 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-# Constants
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
+ARCHITECTURE="amd64"
+OUTDIR="${HOME}/3.x/apt-dev/"
+BRANCH="master"
+REVISION="1"
+TARGET=""
+JOBS="2"
+DEBUG="no"
+INSTALLATION_PATH="/var/ossec"
 DEB_AMD64_BUILDER="deb_builder_amd64"
 DEB_I386_BUILDER="deb_builder_i386"
 DEB_AMD64_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/amd64"
 DEB_I386_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/i386"
-SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
-API_SOURCE_REPOSITORY="https://github.com/wazuh/wazuh-api"
-WAZUH_SOURCE_REPOSITORY="https://github.com/wazuh/wazuh"
-BRAND="wazuh"
-PACKAGE_EXTENSION="deb"
+CHECKSUM="no"
 
-
-
-function build_package() {
-    local TARGET="$1"
-    local VERSION="$2"
-    local REVISION="$3"
-    local ARCHITECTURE="$4"
-    local DESTINATION="$5"
-    local CONTAINER_NAME="$6"
-    local DOCKERFILE_PATH="$7"
-    local JOBS="$8"
-    local INSTALLATION_PATH="$9"
-    local DEBUG="${10}"
-    local CHECKSUM="${11}"
-
-    # Build the Debian package with a Docker container
-    docker run -t --rm -v ${DESTINATION}:/var/local/wazuh \
-        -v ${DESTINATION}/../checksum:/var/local/wazuh/checksum \
-        -v ${SOURCES_DIRECTORY}:/build_wazuh/${TARGET}/wazuh-${TARGET}-${VERSION} \
-        -v ${DOCKERFILE_PATH}/wazuh-${TARGET}:/${TARGET} \
-        ${CONTAINER_NAME} ${TARGET} ${VERSION} ${ARCHITECTURE} \
-        ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM}|| exit 1
+clean() {
+    exit_code=$1
 
     # Clean the files
     rm -rf ${DOCKERFILE_PATH}/{*.sh,*.tar.gz,wazuh-*} ${SOURCES_DIRECTORY}
 
-    echo "Package ${BRAND}-${TARGET}_${VERSION}-${REVISION}_${ARCHITECTURE}.${PACKAGE_EXTENSION} added to $DESTINATION."
-
-    return 0
+    exit ${exit_code}
 }
 
+build_deb() {
+    CONTAINER_NAME="$1"
+    DOCKERFILE_PATH="$2"
 
+    SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
 
-function build_container() {
-    local TARGET="$1"
-    local VERSION="$2"
-    local ARCHITECTURE="$3"
-    local CONTAINER_NAME="$4"
-    local DOCKERFILE_PATH="$5"
-
+    # Download the sources
+    git clone ${SOURCE_REPOSITORY} -b ${BRANCH} ${SOURCES_DIRECTORY} --depth=1 --single-branch -q
     # Copy the necessary files
-    cp gen_permissions.sh ${SOURCES_DIRECTORY}
     cp build.sh ${DOCKERFILE_PATH}
+    cp gen_permissions.sh ${SOURCES_DIRECTORY}
+
+    if [[ "${TARGET}" != "api" ]]; then
+        VERSION="$(cat ${SOURCES_DIRECTORY}/src/VERSION | cut -d 'v' -f 2)"
+    else
+        VERSION="$(grep version ${SOURCES_DIRECTORY}/package.json | cut -d '"' -f 4)"
+    fi
 
     # Copy the "specs" files for the Debian package
-    cp -rp SPECS/$VERSION/wazuh-$TARGET ${DOCKERFILE_PATH}/
+    cp -rp SPECS/${VERSION}/wazuh-${TARGET} ${DOCKERFILE_PATH}/
 
     # Build the Docker image
     docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH}
 
+    local CHECKSUM_PARENT=(${DESTINATION//pre-release/ })
+    local CHECKSUM_PATH="${CHECKSUM_PARENT}pre-release/checksum"
+
+    # Build the Debian package with a Docker container
+    docker run -t --rm -v ${OUTDIR}:/var/local/wazuh \
+        -v ${CHECKSUM_PATH}:/var/local/wazuh/checksum \
+        -v ${SOURCES_DIRECTORY}:/build_wazuh/${TARGET}/wazuh-${TARGET}-${VERSION} \
+        -v ${DOCKERFILE_PATH}/wazuh-${TARGET}:/${TARGET} \
+        ${CONTAINER_NAME} ${TARGET} ${VERSION} ${ARCHITECTURE} \
+        ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM}
+
+    echo "Package $(ls ${OUTDIR} -Art | tail -n 1) added to ${OUTDIR}."
+
     return 0
 }
 
-function help() {
+build() {
+
+    if [[ "${TARGET}" = "api" ]]; then
+
+        SOURCE_REPOSITORY="https://github.com/wazuh/wazuh-api"
+        build_deb ${DEB_AMD64_BUILDER} ${DEB_AMD64_BUILDER_DOCKERFILE} || exit 1
+
+    elif [[ "${TARGET}" = "manager" ]] || [[ "${TARGET}" = "agent" ]]; then
+
+        SOURCE_REPOSITORY="https://github.com/wazuh/wazuh"
+        BUILD_NAME=""
+        FILE_PATH=""
+        if [[ "${ARCHITECTURE}" = "x86_64" ]] || [[ "${ARCHITECTURE}" = "amd64" ]]; then
+            ARCHITECTURE="amd64"
+            BUILD_NAME="${DEB_AMD64_BUILDER}"
+            FILE_PATH="${DEB_AMD64_BUILDER_DOCKERFILE}"
+        elif [[ "${ARCHITECTURE}" = "i386" ]]; then
+            BUILD_NAME="${DEB_I386_BUILDER}"
+            FILE_PATH="${DEB_I386_BUILDER_DOCKERFILE}"
+        else
+            echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too) or i386."
+            exit 1
+        fi
+        build_deb ${BUILD_NAME} ${FILE_PATH} || clean 1
+    else
+        echo "Invalid target. Choose: manager, agent or api."
+        clean 1
+    fi
+
+    return 0
+}
+
+help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -b, --branch <branch>     [Required] Select Git branch or tag e.g. $BRANCH"
-    echo "    -s, --store <path>        [Required] Set the destination path of package."
-    echo "    -t, --target <target>     [Required] Target package to build [manager/api/agent]."
-    echo "    -a, --architecture <arch> [Required] Target architecture of the package [amd64/i386]."
-    echo "    -r, --revision <rev>      [Required] Package revision that append to version e.g. x.x.x-rev"
-    echo "    -j, --jobs <number>       [Optional] Number of parallel jobs when compiling."
+    echo "    -b, --branch <branch>     [Required] Select Git branch [${BRANCH}]. By default: master."
+    echo "    -t, --target <target>     [Required] Target package to build: manager, api or agent."
+    echo "    -a, --architecture <arch> [Optional] Target architecture of the package. By default: x86_64"
+    echo "    -j, --jobs <number>       [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 4."
+    echo "    -r, --revision <rev>      [Optional] Package revision. By default: 1."
+    echo "    -s, --store <path>        [Optional] Set the directory where the package will be stored. By default: ${HOME}/3.x/apt-dev/"
     echo "    -p, --path <path>         [Optional] Installation path for the package. By default: /var/ossec."
     echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
     echo "    -k, --checksum            [Optional] Generate checksum file for the generated package."
@@ -92,114 +123,15 @@ function help() {
 }
 
 
-function main() {
-    # Variables that can change
-    local BRANCH=""                       # Branch that will be downloaded to build package.
-    local DESTINATION=""                  # Where package will be stored.
-    local TARGET=""                       # Compilation target.
-    local ARCHITECTURE=""                 # Architecture of the target package.
-    local REVISION=""                     # Aditional name of package.
-    local JOBS="2"                        # Compilation jobs.
-    local INSTALLATION_PATH="/var/ossec"  # Path where package will be installed bu default.
-    local VERSION=""
-    local SOURCE_REPOSITORY=""
-    local CONTAINER_NAME=""
-    local DOCKERFILE_PATH=""
-    local DEBUG="no"
-    local CHECKSUM="no"
-
-    local HAVE_BRANCH=false
-    local HAVE_DESTINATION=false
-    local HAVE_TARGET=false
-    local HAVE_ARCHITECTURE=false
-    local HAVE_REVISION=false
+main() {
+    BUILD="no"
     while [ -n "$1" ]
     do
         case "$1" in
         "-b"|"--branch")
-            if [ -n "$2" ]
-            then
-#                BRANCH="$(echo $2 | cut -d'/' -f2)"
-                local BRANCH="$2"
-                local HAVE_BRANCH=true
-                shift 2
-            else
-                help 1
-            fi
-            ;;
-        "-s"|"--store")
-            if [ -n "$2" ]
-            then
-                if [[ "${2: -1}" != "/" ]]; then
-                  local DESTINATION="$2/"
-                else
-                  local DESTINATION="$2"
-                fi
-                local HAVE_DESTINATION=true
-                shift 2
-            else
-                help 1
-            fi
-            ;;
-        "-t"|"--target")
-            if [ -n "$2" ]
-            then
-                if [[ "$2" == "manager" ]] || [[ "$2" == "agent" ]] || [[ "$2" == "api" ]]; then
-                  local TARGET="$2"
-                  local HAVE_TARGET=true
-                  shift 2
-                else
-                  help 1
-                fi
-            else
-                help 1
-            fi
-            ;;
-        "-a"|"--architecture")
-            if [ -n "$2" ]
-            then
-                if [[ "$2" == "x86_64" ]] || [[ "$2" == "amd64" ]]; then
-                  local ARCHITECTURE="amd64"
-                  local CONTAINER_NAME="$DEB_AMD64_BUILDER"
-                  local DOCKERFILE_PATH="$DEB_AMD64_BUILDER_DOCKERFILE"
-                  local HAVE_ARCHITECTURE=true
-                elif [[ "$2" == "i386" ]]; then
-                  local ARCHITECTURE="i386"
-                  local CONTAINER_NAME="$DEB_I386_BUILDER"
-                  local DOCKERFILE_PATH="$DEB_I386_BUILDER_DOCKERFILE"
-                  local HAVE_ARCHITECTURE=true
-                else
-                  echo "Invalid architecture. Choose: amd64 (x86_64 is accepted too) or i386."
-                  help 1
-                fi
-                shift 2
-            else
-                help 1
-            fi
-            ;;
-        "-r"|"--revision")
-            if [ -n "$2" ]
-            then
-                local REVISION="$2"
-                local HAVE_REVISION=true
-                shift 2
-            else
-                help 1
-            fi
-            ;;
-        "-j"|"--jobs")
-            if [ -n "$2" ]
-            then
-                local JOBS="$2"
-                shift 2
-            else
-                help 1
-            fi
-            ;;
-        "-p"|"--path")
-            if [ -n "$2" ]
-            then
-                local INSTALLATION_PATH="$2"
+            if [ -n "$2" ]; then
+                BRANCH="$(echo $2 | cut -d'/' -f2)"
+                BUILD="yes"
                 shift 2
             else
                 help 1
@@ -207,6 +139,46 @@ function main() {
             ;;
         "-h"|"--help")
             help 0
+            ;;
+        "-t"|"--target")
+            if [ -n "$2" ]; then
+                TARGET="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
+        "-a"|"--architecture")
+            if [ -n "$2" ]; then
+                ARCHITECTURE="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
+        "-j"|"--jobs")
+            if [ -n "$2" ]; then
+                JOBS="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
+        "-r"|"--revision")
+            if [ -n "$2" ]; then
+                REVISION="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
+        "-p"|"--path")
+            if [ -n "$2" ]; then
+                INSTALLATION_PATH="$2"
+                shift 2
+            else
+                help 1
+            fi
             ;;
         "-d"|"--debug")
             DEBUG="yes"
@@ -216,33 +188,25 @@ function main() {
             CHECKSUM="yes"
             shift 1
             ;;
+        "-s"|"--store")
+            if [ -n "$2" ]; then
+                OUTDIR="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
         *)
             help 1
         esac
     done
 
-    if [[ "$HAVE_BRANCH" == true ]] && [[ "$HAVE_DESTINATION" == true ]] && [[ "$HAVE_TARGET" == true ]] && [[ "$HAVE_ARCHITECTURE" == true ]] && [[ "$HAVE_REVISION" == true ]]; then
-      if [[ "$TARGET" != "api" ]]; then
-        local SOURCE_REPOSITORY="$WAZUH_SOURCE_REPOSITORY"
-        # Download the sources
-        git clone ${SOURCE_REPOSITORY} -b $BRANCH ${SOURCES_DIRECTORY} --depth=1 --single-branch -vvvv
-        local VERSION="$(cat ${SOURCES_DIRECTORY}/src/VERSION | cut -d 'v' -f 2)"
-      else
-         local SOURCE_REPOSITORY="$API_SOURCE_REPOSITORY"
-         # Download the sources
-         git clone ${SOURCE_REPOSITORY} -b $BRANCH ${SOURCES_DIRECTORY} --depth=1 --single-branch -vvvv
-        local VERSION="$(grep version ${SOURCES_DIRECTORY}/package.json | cut -d '"' -f 4)"
-      fi
-
-      build_container $TARGET $VERSION $ARCHITECTURE $CONTAINER_NAME $DOCKERFILE_PATH || exit 1
-      build_package $TARGET $VERSION $REVISION $ARCHITECTURE $DESTINATION $CONTAINER_NAME $DOCKERFILE_PATH $JOBS $INSTALLATION_PATH $DEBUG $CHECKSUM || exit 1
-    else
-      echo "ERROR: Need more parameters"
-      help 1
+    if [[ "$BUILD" != "no" ]]; then
+        build || exit 1
     fi
 
 
-    return 0
+    clean 0
 }
 
 main "$@"
