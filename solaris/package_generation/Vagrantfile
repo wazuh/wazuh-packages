@@ -38,6 +38,7 @@ opts = GetoptLong.new(
   [ '--branch-tag', '-b', GetoptLong::REQUIRED_ARGUMENT ],
   [ '--ram', GetoptLong::OPTIONAL_ARGUMENT ],
   [ '--cpus', GetoptLong::OPTIONAL_ARGUMENT ],
+  [ '--checksum', GetoptLong::OPTIONAL_ARGUMENT ],
 )
 
 ###################################################
@@ -102,6 +103,11 @@ opts.each do |opt, arg|
         end
      when '--checksum'
         checksum="yes"
+        if arg == ''
+            puts "Missing ram argument (try --help)"
+            exit 0
+        else
+        checksum_path=arg
         end
     end
 end
@@ -127,7 +133,7 @@ Vagrant.configure("2") do |config|
           end
 
           config.vm.synced_folder "src/", "/tmp/shared"
-          node.vm.provision "shell", path: "src/generate_packages.sh", env: {"BRANCH_TAG" => "#{branch_tag}", "SOLARIS_VERSION" => "#{key}","CHECKSUM" => "#{checksum}" }
+          node.vm.provision "shell", path: "src/generate_packages.sh", env: {"BRANCH_TAG" => "#{branch_tag}", "SOLARIS_VERSION" => "#{key}","CHECKSUM" => "#{checksum}" , "CHECKSUM_PATH" => "#{checksum_path}"}
         end
     end
 end

@@ -34,7 +34,7 @@ echo "Generating Wazuh package"
 ./generate_wazuh_packages.sh -b ${BRANCH_TAG}
 
 if [ ${CHECKSUM}=="yes"]; then
-    ./generate_wazuh_packages.sh -k
+    ./generate_wazuh_packages.sh -k ${CHECKSUM_PATH}
 fi
 
 VERSION=`cat ${BUILD_PATH}/$SOLARIS_VERSION/wazuh/src/VERSION`
