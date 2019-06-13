@@ -78,6 +78,9 @@ opts.each do |opt, arg|
         --cpus x
         Select the number of CPUs asigned to the new machine.
 
+        --checksum x
+        Select a path to generate checksum file for the package there.
+
         -- DEFAULT USE OF VAGRANT (FOR ALL MACHINES) --
 
         EOF

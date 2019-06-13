@@ -33,7 +33,7 @@ echo "downloading wazuh source"
 echo "Generating Wazuh package"
 ./generate_wazuh_packages.sh -b ${BRANCH_TAG}
 
-if [ ${CHECKSUM}=="yes"]; then
+if [ "${CHECKSUM}" == "yes" ]; then
     ./generate_wazuh_packages.sh -k ${CHECKSUM_PATH}
 fi
 
