@@ -22,6 +22,7 @@ DEB_I386_BUILDER="deb_builder_i386"
 DEB_AMD64_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/amd64"
 DEB_I386_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/i386"
 CHECKSUMDIR="/tmp/checksum"
+CHECKSUM="no"
 
 clean() {
     exit_code=$1
@@ -184,6 +185,7 @@ main() {
         "-k"|"--checksum")
             if [ -n "$2" ]; then
                 CHECKSUMDIR="$2"
+                CHECKSUM="yes"
                 shift 2
             else
                 help 1

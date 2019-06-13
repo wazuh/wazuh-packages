@@ -27,6 +27,8 @@ LEGACY_RPM_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/5"
 LEGACY_TAR_FILE="${LEGACY_RPM_BUILDER_DOCKERFILE}/i386/centos-5-i386.tar.gz"
 TAR_URL="https://packages-dev.wazuh.com/utils/centos-5-i386-build/centos-5-i386.tar.gz"
 INSTALLATION_PATH="/var"
+CHECKSUMDIR="/tmp/checksum"
+CHECKSUM="no"
 
 if command -v curl > /dev/null 2>&1 ; then
     DOWNLOAD_TAR="curl ${TAR_URL} -o ${LEGACY_TAR_FILE} -s"
@@ -80,12 +82,9 @@ build_rpm() {
     # Build the Docker image
     docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH}
 
-    local CHECKSUM_PARENT=(${OUTDIR//pre-release/ })
-    local CHECKSUM_PATH="${CHECKSUM_PARENT}pre-release/checksum"
-
     # Build the RPM package with a Docker container
     docker run -t --rm -v ${OUTDIR}:/var/local/wazuh \
-        -v ${CHECKSUM_PATH}:/var/local/wazuh/checksum \
+        -v ${CHECKSUMDIR}:/var/local/wazuh/checksum \
         -v ${SOURCES_DIRECTORY}:/build_wazuh/wazuh-${TARGET}-${VERSION} \
         ${CONTAINER_NAME} ${TARGET} ${VERSION} ${ARCHITECTURE} \
         $JOBS ${RELEASE} ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM}
@@ -216,9 +215,14 @@ main() {
             DEBUG="yes"
             shift 1
             ;;
-        "-k" | "--checksum")
-            CHECKSUM="yes"
-            shift 1
+        "-k"|"--checksum")
+            if [ -n "$2" ]; then
+                CHECKSUMDIR="$2"
+                CHECKSUM="yes"
+                shift 2
+            else
+                help 1
+            fi
             ;;
         "-s"|"--store")
             if [ -n "$2" ]; then

@@ -21,7 +21,9 @@ BRANCH_TAG="master"                   # Branch that will be downloaded to build 
 DESTINATION=${CURRENT_PATH}           # Where package will be stored.
 JOBS="2"                              # Compilation jobs.
 DEBUG="no"                            # Enables the full log by using `set -exf`.
+CHECKSUMDIR="/tmp/checksum"
 CHECKSUM="no"
+
 function clean_and_exit() {
     exit_code=$1
     rm -f ${AGENT_PKG_FILE} ${CURRENT_PATH}/package_files/*.sh
@@ -59,8 +61,8 @@ function build_package() {
         echo "The wazuh agent package for MacOS X has been successfully built."
         if [[ "${CHECKSUM}" = "yes" ]]; then
             pkg_name="wazuh-agent-${VERSION}-${REVISION}.pkg"
-            mkdir -p ${DESTINATION}/../checksum/
-            shasum -a512 ${DESTINATION}/${pkg_name} > ${DESTINATION}/../checksum/${pkg_name}.sha512
+            mkdir -p ${CHECKSUMDIR}
+            shasum -a512 "${DESTINATION}/${pkg_name}" > "${CHECKSUMDIR}/${pkg_name}.sha512"
         fi
         clean_and_exit 0
     else
@@ -224,9 +226,14 @@ function main() {
             DEBUG="yes"
             shift 1
             ;;
-        "-k" | "--checksum")
-            CHECKSUM="yes"
-            shift 1
+        "-k"|"--checksum")
+            if [ -n "$2" ]; then
+                CHECKSUMDIR="$2"
+                CHECKSUM="yes"
+                shift 2
+            else
+                help 1
+            fi
             ;;
         *)
             help 1

@@ -14,7 +14,7 @@ LINUX_BUILDER="unified_linux_wpk_builder"
 LINUX_BUILDER_DOCKERFILE="${CURRENT_PATH}/unified/linux"
 WIN_BUILDER="windows_wpk_builder"
 WIN_BUILDER_DOCKERFILE="${CURRENT_PATH}/windows"
-
+CHECKSUM="no"
 
 
 function build_wpk_windows() {
@@ -27,11 +27,8 @@ function build_wpk_windows() {
   local OUT_NAME="$7"
   local CHECKSUM="$8"
 
-  local CHECKSUM_PARENT=(${DESTINATION//pre-release/ })
-  local CHECKSUM_PATH="${CHECKSUM_PARENT}pre-release/checksum"
-
   docker run -t --rm -v ${KEYDIR}:/etc/wazuh -v ${DESTINATION}:/var/local/wazuh -v ${PKG_PATH}:/var/pkg\
-      -v ${CHECKSUM_PATH}:/var/local/wazuh/checksum \
+      -v ${CHECKSUMDIR}:/var/local/wazuh/checksum \
       ${CONTAINER_NAME} ${BRANCH} ${JOBS} ${OUT_NAME} ${CHECKSUM} ${PACKAGE_NAME}
 
   return $?
@@ -46,11 +43,8 @@ function build_wpk_linux() {
   local OUT_NAME="$6"
   local CHECKSUM="$7"
 
-  local CHECKSUM_PARENT=(${DESTINATION//pre-release/ })
-  local CHECKSUM_PATH="${CHECKSUM_PARENT}pre-release/checksum"
-
   docker run -t --rm -v ${KEYDIR}:/etc/wazuh -v ${DESTINATION}:/var/local/wazuh \
-      -v ${CHECKSUM_PATH}:/var/local/wazuh/checksum \
+      -v ${CHECKSUMDIR}:/var/local/wazuh/checksum \
       ${CONTAINER_NAME} ${BRANCH} ${JOBS} ${OUT_NAME} ${CHECKSUM}
 
   return $?
@@ -100,7 +94,7 @@ function main() {
   local PKG_NAME=""
   local OUT_NAME=""
   local NO_COMPILE=false
-  local CHECKSUM="no"
+  local CHECKSUMDIR="/tmp/checksum"
 
   local HAVE_BRANCH=false
   local HAVE_DESTINATION=false
@@ -207,9 +201,14 @@ function main() {
       "-h"|"--help")
           help 0
           ;;
-      "-c" | "--checksum")
-            CHECKSUM="yes"
-            shift 1
+      "-c"|"--checksum")
+            if [ -n "$2" ]; then
+                CHECKSUMDIR="$2"
+                CHECKSUM="yes"
+                shift 2
+            else
+                help 1
+            fi
             ;;
       *)
           help 1
