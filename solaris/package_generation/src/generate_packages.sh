@@ -21,7 +21,7 @@ echo "Entering build directory"
 cd ${BUILD_PATH}
 
 echo "Coping files from shared folder"
-cp -r /tmp/shared/${SOLARIS_VERSION} . 
+cp -r /tmp/shared/${SOLARIS_VERSION} .
 chmod +x ${SOLARIS_VERSION}/*.sh
 
 
@@ -32,6 +32,10 @@ echo "downloading wazuh source"
 
 echo "Generating Wazuh package"
 ./generate_wazuh_packages.sh -b ${BRANCH_TAG}
+
+if [ ${CHECKSUM}=="yes"]; then
+    ./generate_wazuh_packages.sh -k
+fi
 
 VERSION=`cat ${BUILD_PATH}/$SOLARIS_VERSION/wazuh/src/VERSION`
 
