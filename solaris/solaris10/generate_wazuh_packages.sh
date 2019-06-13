@@ -225,8 +225,7 @@ build(){
 }
 
 checksum(){
-    VERSION=`cat $SOURCE/src/VERSION`
-    digest -v -a sha512 "wazuh-agent_$VERSION-sol10-$ARCH.pkg" > digest-listing
+    find . -name '*.pkg' -exec /opt/csw/gnu/sha512sum '{}' \;
 }
 
 show_help()

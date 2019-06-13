@@ -209,6 +209,9 @@ clean() {
     rm -f pack
 }
 
+checksum(){
+    find . -name '*.p5p' -exec /opt/csw/gnu/sha512sum '{}' \;
+}
 
 show_help()
 {
@@ -219,6 +222,7 @@ show_help()
     -d   | --download     Download Wazuh repository.
     -b   | --build        Builds Solaris11 packages.
     -u   | --utils        Download and install utilities and dependencies.
+    -k   | --checksum           generate checksum
     -c   | --clean-all    Clean sources, local respository and generated files.
   "
 }
@@ -240,11 +244,15 @@ case $key in
     create_package
     exit 0
     ;;
-    -u|--utils)
+  -u|--utils)
     utils_and_dependencies
     exit 0
     ;;
-    -c|--clean-all)
+  -k|--checksum)
+    checksum
+    exit 0
+    ;;
+  -c|--clean-all)
     clean
     exit 0
     ;;
