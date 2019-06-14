@@ -107,7 +107,6 @@ opts.each do |opt, arg|
         end
      when '--checksum'
         checksum="yes"
-        end
     end
 end
 
