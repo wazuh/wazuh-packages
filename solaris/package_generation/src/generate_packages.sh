@@ -33,6 +33,8 @@ echo "downloading wazuh source"
 echo "Generating Wazuh package"
 ./generate_wazuh_packages.sh -b ${BRANCH_TAG}
 
+VERSION=`cat ${BUILD_PATH}/$SOLARIS_VERSION/wazuh/src/VERSION`
+
 package_filename="wazuh-agent_${VERSION}-sol10-i386.pkg"
 
 if [[ ${SOLARIS_VERSION} == "solaris11" ]]
@@ -44,8 +46,6 @@ if [ "${CHECKSUM}" == "yes" ]; then
     ./generate_wazuh_packages.sh -k
     cp "${package_filename}.sha512" /tmp/shared
 fi
-
-VERSION=`cat ${BUILD_PATH}/$SOLARIS_VERSION/wazuh/src/VERSION`
 
 echo "Coping package to shared folder"
 
