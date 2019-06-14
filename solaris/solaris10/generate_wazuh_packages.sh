@@ -7,7 +7,6 @@
 
 # CONFIGURATION VARIABLES
 BRANCH="$(echo "$2" | cut -d "/" -f2)"
-CHECKSUM_PATH="$(echo "$2" | cut -d "/" -f2)"
 PATH=$PATH:/opt/csw/bin:/usr/sfw/bin
 VERSION=""
 CURRENT_PATH=`pwd`
@@ -226,7 +225,10 @@ build(){
 }
 
 checksum(){
-    find . -name '*.pkg' -exec /opt/csw/gnu/sha512sum "${CHECKSUM_PATH}/{}" \;
+    ls | grep .pkg | while read line
+    do
+        /opt/csw/gnu/sha512sum "$line" > "${line}.sha512"
+    done
 }
 
 show_help()
