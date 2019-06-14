@@ -210,7 +210,7 @@ clean() {
 }
 
 checksum(){
-    ls | grep .pkg | while read line
+    ls | grep .p5p | while read line
     do
         /opt/csw/gnu/sha512sum "$line" > "${line}.sha512"
     done

@@ -78,8 +78,8 @@ opts.each do |opt, arg|
         --cpus x
         Select the number of CPUs asigned to the new machine.
 
-        --checksum x
-        Select a path to generate checksum file for the package there.
+        --checksum
+        Generate checksum for the packages in the folder.
 
         -- DEFAULT USE OF VAGRANT (FOR ALL MACHINES) --
 
@@ -107,11 +107,6 @@ opts.each do |opt, arg|
         end
      when '--checksum'
         checksum="yes"
-        if arg == ''
-            puts "Missing checksum argument (try --help)"
-            exit 0
-        else
-        checksum_path=arg
         end
     end
 end
@@ -137,7 +132,7 @@ Vagrant.configure("2") do |config|
           end
 
           config.vm.synced_folder "src/", "/tmp/shared"
-          node.vm.provision "shell", path: "src/generate_packages.sh", env: {"BRANCH_TAG" => "#{branch_tag}", "SOLARIS_VERSION" => "#{key}","CHECKSUM" => "#{checksum}" , "CHECKSUM_PATH" => "#{checksum_path}"}
+          node.vm.provision "shell", path: "src/generate_packages.sh", env: {"BRANCH_TAG" => "#{branch_tag}", "SOLARIS_VERSION" => "#{key}","CHECKSUM" => "#{checksum}"}
         end
     end
 end
