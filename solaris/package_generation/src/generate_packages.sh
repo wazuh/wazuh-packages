@@ -47,7 +47,7 @@ if [ "${CHECKSUM}" == "yes" ]; then
     cp "${package_filename}.sha512" /tmp/shared
 fi
 
-echo "Coping package to shared folder"
+echo "Copying package to shared folder"
 
 cp "$package_filename" /tmp/shared
 
