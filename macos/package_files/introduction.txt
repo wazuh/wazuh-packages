@@ -1,9 +1,0 @@
-Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring.
-
-Wazuh is fully open source and free for your use. You can tailor it for your security needs through its extensive configuration options, adding your custom alert rules and writing scripts that take actions in response to security alerts.
-
-This package will install Wazuh agent component in your OS X system.
-
-More information can be found at: 
-
-https://www.wazuh.com
