@@ -6,7 +6,6 @@
 
 REPOSITORY="https://github.com/wazuh/wazuh"
 BRANCH="$(echo "$2" | cut -d "/" -f2)"
-CHECKSUM_PATH="$(echo "$2" | cut -d "/" -f2)"
 INSTALL="/var/ossec"
 THREADS="6"
 PROFILE="agent"
@@ -211,7 +210,10 @@ clean() {
 }
 
 checksum(){
-    find . -name '*.p5p' -exec /opt/csw/gnu/sha512sum "~{CHECKSUM_PATH}/{}" \;
+    ls | grep .pkg | while read line
+    do
+        /opt/csw/gnu/sha512sum "$line" > "${line}.sha512"
+    done
 }
 
 show_help()
