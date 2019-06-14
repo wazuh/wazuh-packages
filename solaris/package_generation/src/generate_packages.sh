@@ -33,11 +33,11 @@ echo "downloading wazuh source"
 echo "Generating Wazuh package"
 ./generate_wazuh_packages.sh -b ${BRANCH_TAG}
 
-package_filename="wazuh-agent_$VERSION-sol10-i386.pkg"
+package_filename="wazuh-agent_${VERSION}-sol10-i386.pkg"
 
 if [[ ${SOLARIS_VERSION} == "solaris11" ]]
 then
-    package_filename="wazuh-agent_$VERSION-sol11-i386.p5p"
+    package_filename="wazuh-agent_${VERSION}-sol11-i386.p5p"
 fi
 
 if [ "${CHECKSUM}" == "yes" ]; then
