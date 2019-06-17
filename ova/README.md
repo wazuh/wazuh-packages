@@ -46,6 +46,7 @@ To build an OVA with versiohn 3.9.0 using elastic 6.6.2 and the stable repositor
 - [WPK](/wpk/README.md)
 - [Solaris](/solaris/README.md)
 - [HP-UX](/hpux/README.md)
+- [Windows MSI](/windows/README.md)
 
 ## Contribute
 

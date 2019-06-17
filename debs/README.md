@@ -56,6 +56,7 @@ Building a .deb package is pretty similar to build a .rpm package. You need to d
 - [WPK](/wpk/README.md)
 - [Solaris](/solaris/README.md)
 - [HP-UX](/hpux/README.md)
+- [Windows MSI](/windows/README.md)
 
 ## Contribute
 

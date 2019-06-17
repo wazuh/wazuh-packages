@@ -55,6 +55,7 @@ To build an RPM package, you need to download this repository and use the `gener
 - [WPK](/wpk/README.md)
 - [Solaris](/solaris/README.md)
 - [HP-UX](/hpux/README.md)
+- [Windows MSI](/windows/README.md)
 
 ## Contribute
 

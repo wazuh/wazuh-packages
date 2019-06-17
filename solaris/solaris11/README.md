@@ -50,6 +50,7 @@ To build a Solaris 11 package, you need to download this repository and use the 
 - [SplunkApp](/splunkapp/README.md)
 - [Solaris](/solaris/README.md)
 - [HP-UX](/hpux/README.md)
+- [Windows MSI](/windows/README.md)
 
 ## Contribute
 
