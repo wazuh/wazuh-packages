@@ -8,8 +8,6 @@
 # Foundation.
 set -exf
 wazuh_version=$1
-rm -rf /home/wazuh_msi/output/*
-ls /home/wazuh_msi/output
 git clone https://github.com/wazuh/wazuh.git
 
 cd wazuh/src

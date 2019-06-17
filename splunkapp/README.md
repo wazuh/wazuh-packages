@@ -51,6 +51,7 @@ To build a Splunk app package, you need to download this repository and use the 
 - [WPK](/wpk/README.md)
 - [Solaris](/solaris/README.md)
 - [HP-UX](/hpux/README.md)
+- [Windows MSI](/windows/README.md)
 
 ## Contribute
 

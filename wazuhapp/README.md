@@ -33,7 +33,7 @@ To build a Kibana app package, you need to download this repository and use the 
     * To build the app package from branch 3.8-6.7, revision myrev and store it in `/wazuh-app` you can use:
 
             # ./generate_wazuh_app.sh -b 3.8-6.7 -s /wazuh-app -r myrev
-                    
+
 3. Once the execution finishes, you will find your `.zip` package in the specified folder or in `/tmp/wazuh-app` if no folder was specified.
 
 ## More Packages
@@ -47,6 +47,7 @@ To build a Kibana app package, you need to download this repository and use the 
 - [WPK](/wpk/README.md)
 - [Solaris](/solaris/README.md)
 - [HP-UX](/hpux/README.md)
+- [Windows MSI](/windows/README.md)
 
 ## Contribute
 

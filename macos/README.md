@@ -65,6 +65,7 @@ The specs folder contains the `pkgproj` files which are used to generate the `wa
 - [WPK](/wpk/README.md)
 - [Solaris](/solaris/README.md)
 - [HP-UX](/hpux/README.md)
+- [Windows MSI](/windows/README.md)
 
 ## Contribute
 
