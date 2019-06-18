@@ -470,7 +470,7 @@ rm -fr %{buildroot}
 %attr(640,root,ossec) %verify(not md5 size mtime) %{_sysconfdir}/ossec-init.conf
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec
 %attr(750,root,ossec) %{_localstatedir}/ossec/agentless
-%dir %attr(700,root,ossec) %{_localstatedir}/ossec/.ssh
+%dir %attr(750,root,ossec) %{_localstatedir}/ossec/.ssh
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec/active-response
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec/active-response/bin
 %attr(750,root,ossec) %{_localstatedir}/ossec/active-response/bin/*
