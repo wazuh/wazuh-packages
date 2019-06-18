@@ -55,10 +55,10 @@ param (
 
 
          if(($SIGN.isPresent)) {
-            if(Test-Path  "C:\Program Files (x86)\Windows Kits\${WIN_VERSION}\bin\x86"){
-                Set-Location -Path "C:\Program Files (x86)\Windows Kits\${WIN_VERSION}\bin\x86"
-                .\signtool.exe sign /a /tr http://rfc3161timestamp.globalsign.com/advanced /td SHA256 "$DESTINATION\wazuh\src\win32\*.exe"
-                .\signtool.exe sign /a /tr http://rfc3161timestamp.globalsign.com/advanced /td SHA256 "$DESTINATION\wazuh\src\win32\InstallerScripts.vbs"
+            $path_sign=(Get-ChildItem -Path 'C:\Program Files (x86)\Windows Kits\' -Recurse -Include signtool.exe)| %{$_.FullName}
+            if($path_sign.Count -ne 0){
+                & $path_sign[0] sign /a /tr http://rfc3161timestamp.globalsign.com/advanced /td SHA256 "$DESTINATION\wazuh\src\win32\*.exe"
+                & $path_sign[0] sign /a /tr http://rfc3161timestamp.globalsign.com/advanced /td SHA256 "$DESTINATION\wazuh\src\win32\InstallerScripts.vbs"
             }
             else{
                 "Windows SDK is needed  to sign package https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk"
@@ -71,9 +71,8 @@ param (
         .\wix\light.exe "wazuh-installer.wixobj" -out "$DESTINATION\$MSI_NAME"  -ext WixUtilExtension -ext WixUiExtension
 
         if(($SIGN.isPresent)) {
-            if(Test-Path  "C:\Program Files (x86)\Windows Kits\${WIN_VERSION}\bin\x86"){
-                Set-Location -Path 'C:\Program Files (x86)\Windows Kits\10\bin\x86'
-                .\signtool.exe sign /a /tr http://rfc3161timestamp.globalsign.com/advanced /d "$MSI_NAME" /td SHA256 "$Destination\$MSI_NAME"
+            if($path_sign.Count -ne 0){
+                & $path_sign[0] sign /a /tr http://rfc3161timestamp.globalsign.com/advanced /d "$MSI_NAME" /td SHA256 "$Destination\$MSI_NAME"
             }
             else{
                 "Windows SDK is needed  to sign package https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk"
@@ -82,10 +81,10 @@ param (
 
         Set-Location -Path $DESTINATION
         if(!($CHECKSUM -eq "")) {
-            Set-Content -Path "$CHECKSUM\$MSI_NAME.sha512" -Value (Get-FileHash -Path "$DESTINATION\$MSI_NAME" -Algorithm SHA512)
-            $SHA512=Get-Content -Path "$CHECKSUM\$MSI_NAME.sha512"
-            $SHA512=$SHA512 -replace "@{Algorithm=SHA256; Hash=","" -replace "; Path=", " "
-            Set-Content -Path "$CHECKSUM\$MSI_NAME.sha512" -Value  $SHA512
+            Set-Content -Path "$CHECKSUM\$MSI_NAME.sha512" -NoNewline -Value (Get-FileHash -Path "$DESTINATION\$MSI_NAME" -Algorithm SHA512).Hash
+            Add-Content -Path "$CHECKSUM\$MSI_NAME.sha512" -NoNewline -Value "    "
+            Add-Content -Path "$CHECKSUM\$MSI_NAME.sha512" -NoNewline -Value (Get-FileHash -Path "$DESTINATION\$MSI_NAME" -Algorithm SHA512).Path
+
         }
         Remove-Item .\wazuh\ -Recurse
 
