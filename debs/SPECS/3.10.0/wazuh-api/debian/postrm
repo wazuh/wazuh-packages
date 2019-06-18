@@ -30,7 +30,7 @@ case "$1" in
         fi
 
         if [ -d ${WAZUH_TMP_DIR} ]; then
-            rm -rf ${WAZUH_TMP_DIR}
+            rm -rf ${WAZUH_TMP_DIR} || true
         fi
     ;;
     purge)
