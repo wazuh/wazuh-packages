@@ -760,37 +760,6 @@
 				<key>RESOURCES</key>
 				<array/>
 			</dict>
-			<key>PACKAGE_SETTINGS</key>
-			<dict>
-				<key>AUTHENTICATION</key>
-				<integer>1</integer>
-				<key>CONCLUSION_ACTION</key>
-				<integer>0</integer>
-				<key>FOLLOW_SYMBOLIC_LINKS</key>
-				<false/>
-				<key>IDENTIFIER</key>
-				<string>com.wazuh.pkg.wazuh-agent</string>
-				<key>LOCATION</key>
-				<integer>0</integer>
-				<key>NAME</key>
-				<string>agent</string>
-				<key>OVERWRITE_PERMISSIONS</key>
-				<false/>
-				<key>PAYLOAD_SIZE</key>
-				<integer>-1</integer>
-				<key>RELOCATABLE</key>
-				<false/>
-				<key>USE_HFS+_COMPRESSION</key>
-				<false/>
-				<key>VERSION</key>
-				<string>3.9.3-1</string>
-			</dict>
-			<key>TYPE</key>
-			<integer>0</integer>
-			<key>UUID</key>
-			<string>7BC88EDC-74AB-498A-992B-DE940686D898</string>
-		</dict>
-		<dict>
 			<key>MUST-CLOSE-APPLICATION-ITEMS</key>
 			<array/>
 			<key>MUST-CLOSE-APPLICATIONS</key>
@@ -1330,11 +1299,11 @@
 				<key>FOLLOW_SYMBOLIC_LINKS</key>
 				<false/>
 				<key>IDENTIFIER</key>
-				<string>com.wazuh.pkg.wazuh-agent-etc</string>
+				<string>com.wazuh.pkg.wazuh-agent</string>
 				<key>LOCATION</key>
 				<integer>0</integer>
 				<key>NAME</key>
-				<string>etc</string>
+				<string>agent</string>
 				<key>OVERWRITE_PERMISSIONS</key>
 				<false/>
 				<key>PAYLOAD_SIZE</key>
@@ -1349,7 +1318,7 @@
 			<key>TYPE</key>
 			<integer>0</integer>
 			<key>UUID</key>
-			<string>A5AA4D1A-1D95-443E-A576-E14E52D18B1C</string>
+			<string>7BC88EDC-74AB-498A-992B-DE940686D898</string>
 		</dict>
 	</array>
 	<key>PROJECT</key>
