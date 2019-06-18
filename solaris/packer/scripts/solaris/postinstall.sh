@@ -33,7 +33,7 @@ echo 'vagrant ALL=(ALL) NOPASSWD: ALL' >> /etc/opt/csw/sudoers
 # you can replace this key-pair with your own generated ssh key-pair
 echo "Setting the vagrant ssh pub key"
 mkdir /export/home/vagrant/.ssh
-chmod 700 /export/home/vagrant/.ssh
+chmod 750 /export/home/vagrant/.ssh
 touch /export/home/vagrant/.ssh/authorized_keys
 if [ -f /usr/sfw/bin/wget ] ; then
   /usr/sfw/bin/wget --no-check-certificate https://raw.githubusercontent.com/hashicorp/vagrant/master/keys/vagrant.pub -O /export/home/vagrant/.ssh/authorized_keys

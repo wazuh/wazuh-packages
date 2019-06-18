@@ -80,7 +80,7 @@ build_rpm() {
         ${DOWNLOAD_TAR}
     fi
     # Build the Docker image
-    docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH}
+    docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || exit 1
 
     # Build the RPM package with a Docker container
     docker run -t --rm -v ${OUTDIR}:/var/local/wazuh \

@@ -55,7 +55,7 @@ build_deb() {
     cp -rp SPECS/${VERSION}/wazuh-${TARGET} ${DOCKERFILE_PATH}/
 
     # Build the Docker image
-    docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH}
+    docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || exit 1
 
     # Build the Debian package with a Docker container
     docker run -t --rm -v ${OUTDIR}:/var/local/wazuh \
