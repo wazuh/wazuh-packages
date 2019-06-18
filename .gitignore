@@ -1,2 +1,4 @@
 
 *.msi
+*.sha512
+*.wixpdb
