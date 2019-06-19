@@ -76,9 +76,9 @@ build() {
         SOURCE_REPOSITORY="https://github.com/wazuh/wazuh-api"
         if [[ "${ARCHITECTURE}" = "ppc64le" ]]; then
 	    build_deb ${DEB_PPC64LE_BUILDER} ${DEB_PPC64LE_BUILDER_DOCKERFILE} || exit 1
-    	else
+        else
 	    build_deb ${DEB_AMD64_BUILDER} ${DEB_AMD64_BUILDER_DOCKERFILE} || exit 1
-	fi
+        fi
     elif [[ "${TARGET}" = "manager" ]] || [[ "${TARGET}" = "agent" ]]; then
 
         SOURCE_REPOSITORY="https://github.com/wazuh/wazuh"
