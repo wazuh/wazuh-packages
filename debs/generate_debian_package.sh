@@ -91,7 +91,7 @@ build() {
         elif [[ "${ARCHITECTURE}" = "i386" ]]; then
             BUILD_NAME="${DEB_I386_BUILDER}"
             FILE_PATH="${DEB_I386_BUILDER_DOCKERFILE}"
-	elif [[  "${ARCHITECTURE}" = "ppc64le" ]]; then
+        elif [[  "${ARCHITECTURE}" = "ppc64le" ]]; then
             BUILD_NAME="${DEB_PPC64LE_BUILDER}"
             FILE_PATH="${DEB_PPC64LE_BUILDER_DOCKERFILE}"
         else
