@@ -34,15 +34,21 @@ To build an MSI package, you need to download this repository and execute the `g
         -SIGN                           [Optional] Sign packages
         -help                           Show this help.
 ```
+
+By default PowerShell doesnt allow the execution of scripts, to execute this script you will have to either change the execution policy of your system or change it temporarily wile the script is runinig by runinig the script like this:
+```shellsession
+PowerShell.exe -ExecutionPolicy Bypass -File .\generate_wazuh_msi.ps1
+```
+
 * To build a wazuh msi package for tag v3.9.2, revision my_rev and store it in  `C:\\Users\myuser\desktop`:
 
-        `.\generate_wazuh_msi.ps1 -BRANCH_TAG v3.9.2 -REVISION my_rev -DESTINATION /C:\\Users\myuser\desktop`.
+        `PowerShell.exe -ExecutionPolicy Bypass -File .\generate_wazuh_msi.ps1 -BRANCH_TAG v3.9.2 -REVISION my_rev -DESTINATION /C:\\Users\myuser\desktop`.
 
 * To build a wazuh msi package for tag v3.9.2, revision my_rev and store it in  `C:\\Users\myuser\desktop`, sign the package and generate the sha512 checksum of the package in `C:\\Users\myuser\desktop\checksum` :
 
-        `.\generate_wazuh_msi.ps1 -BRANCH_TAG v3.9.2 -REVISION my_rev -DESTINATION /C:\\Users\myuser\desktop -CHECKSUM C:\\Users\myuser\desktop\checksum -SIGN`.
+        `PowerShell.exe -ExecutionPolicy Bypass -File .\generate_wazuh_msi.ps1 -BRANCH_TAG v3.9.2 -REVISION my_rev -DESTINATION /C:\\Users\myuser\desktop -CHECKSUM C:\\Users\myuser\desktop\checksum -SIGN`.
 
-3. When the execution finishes, you can find your `.msi` package in the spacified folder.
+3. When the execution finishes, you can find your `.msi` package in the specified folder.
 
 ## More Packages
 
