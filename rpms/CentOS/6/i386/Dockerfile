@@ -6,7 +6,8 @@ RUN sed -i 's/$basearch/i386/g' /etc/yum.repos.d/CentOS-Base.repo
 RUN yum -y install util-linux-ng centos-release-scl \
     gcc-multilib make git openssh-clients rpm-build \
     sudo gnupg automake autoconf libtool \
-    policycoreutils-python yum-utils epel-release
+    policycoreutils-python yum-utils epel-release \
+    redhat-rpm-config rpm-devel
 
 RUN yum-builddep python34 -y
 

@@ -32,6 +32,7 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 ./gen_ossec.sh conf manager centos %rhel %{_localstatedir}/ossec > etc/ossec-server.conf
 ./gen_ossec.sh init manager %{_localstatedir}/ossec > ossec-init.conf
 
+%build
 pushd src
 # Rebuild for server
 make clean
@@ -113,6 +114,10 @@ cp src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_i
 cp src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/
 cp src/LOCATION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/
 cp -r src/systemd/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/systemd
+
+if [ %{_debugenabled} == "yes" ]; then
+  %{_rpmconfigdir}/find-debuginfo.sh
+fi
 
 exit 0
 %pre
