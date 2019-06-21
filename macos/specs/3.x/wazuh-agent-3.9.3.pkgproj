@@ -897,69 +897,6 @@
 									<integer>0</integer>
 								</dict>
 								<key>PACKAGE_UUID</key>
-								<string>A5AA4D1A-1D95-443E-A576-E14E52D18B1C</string>
-								<key>REQUIREMENTS</key>
-								<array>
-									<dict>
-										<key>BEHAVIOR</key>
-										<integer>1</integer>
-										<key>DICTIONARY</key>
-										<dict>
-											<key>IC_REQUIREMENT_FILES_CONDITION</key>
-											<integer>1</integer>
-											<key>IC_REQUIREMENT_FILES_DISK_TYPE</key>
-											<integer>0</integer>
-											<key>IC_REQUIREMENT_FILES_LIST</key>
-											<array>
-												<string>/Library/Ossec</string>
-											</array>
-											<key>IC_REQUIREMENT_FILES_SELECTOR</key>
-											<integer>0</integer>
-										</dict>
-										<key>IDENTIFIER</key>
-										<string>fr.whitebox.Packages.requirement.files</string>
-										<key>MESSAGE</key>
-										<array>
-											<dict>
-												<key>LANGUAGE</key>
-												<string>English</string>
-												<key>VALUE</key>
-												<string>An existing Wazuh Agent installation has been detected.</string>
-											</dict>
-										</array>
-										<key>NAME</key>
-										<string>Files</string>
-										<key>STATE</key>
-										<true/>
-									</dict>
-								</array>
-								<key>TITLE</key>
-								<array>
-									<dict>
-										<key>LANGUAGE</key>
-										<string>English</string>
-										<key>VALUE</key>
-										<string>Default configuration</string>
-									</dict>
-								</array>
-								<key>TOOLTIP</key>
-								<array/>
-								<key>TYPE</key>
-								<integer>0</integer>
-								<key>UUID</key>
-								<string>01DF23B5-1CF4-4D37-A77A-2930812FB2DB</string>
-							</dict>
-							<dict>
-								<key>DESCRIPTION</key>
-								<array/>
-								<key>OPTIONS</key>
-								<dict>
-									<key>HIDDEN</key>
-									<false/>
-									<key>STATE</key>
-									<integer>0</integer>
-								</dict>
-								<key>PACKAGE_UUID</key>
 								<string>7BC88EDC-74AB-498A-992B-DE940686D898</string>
 								<key>REQUIREMENTS</key>
 								<array/>

@@ -17,6 +17,10 @@ else
     launchctl setenv WAZUH_PKG_UPGRADE true
 fi
 
+if [ WAZUH_PKG_UPGRADE ]; then
+    cp -r /Library/Ossec/etc /Library/Ossec/package_files
+fi
+
 if [[ ! -f "/usr/bin/dscl" ]]
   then
   echo "Error: I couldn't find dscl, dying here";
