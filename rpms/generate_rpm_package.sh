@@ -11,7 +11,7 @@
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ARCHITECTURE="x86_64"
 LEGACY="no"
-OUTDIR="${HOME}/3.x/yum-dev/"
+OUTDIR="${CURRENT_PATH}/output/"
 BRANCH="master"
 RELEASE="1"
 TARGET=""

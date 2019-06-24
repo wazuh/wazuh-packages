@@ -10,7 +10,7 @@
 
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ARCHITECTURE="amd64"
-OUTDIR="${HOME}/3.x/apt-dev/"
+OUTDIR="${CURRENT_PATH}/output/"
 BRANCH="master"
 REVISION="1"
 TARGET=""
