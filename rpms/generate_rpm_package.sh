@@ -133,13 +133,13 @@ help() {
     echo
     echo "    -b, --branch <branch>     [Required] Select Git branch or tag e.g. $BRANCH"
     echo "    -t, --target <target>     [Required] Target package to build [manager/api/agent]."
-    echo "    -a, --architecture <arch> [Required] Target architecture of the package [x86_64/i386]."
-    echo "    -r, --revision <rev>      [Required] Package revision that append to version e.g. x.x.x-rev"
+    echo "    -a, --architecture <arch> [Optional] Target architecture of the package [x86_64/i386]."
+    echo "    -r, --revision <rev>      [Optional] Package revision that append to version e.g. x.x.x-rev"
     echo "    -l, --legacy              [Optional] Build package for CentOS 5."
-    echo "    -s, --store <path>        [Required] Set the destination path of package."
+    echo "    -s, --store <path>        [Optional] Set the destination path of package."
     echo "    -j, --jobs <number>       [Optional] Number of parallel jobs when compiling."
     echo "    -p, --path <path>         [Optional] Installation path for the package. By default: /var."
-    echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
+    echo "    -d, --debug               [Optional] Build the binaries with debug symbols and create debuginfo packages. By default: no."
     echo "    -h, --help                Show this help."
     echo
     exit $1

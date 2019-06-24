@@ -42,6 +42,10 @@ if [ "${build_target}" == "api" ]; then
     sed -i "s:DIR=\"/var/ossec\":DIR=\"${dir_path}\":g" ${build_dir}/${build_target}/${package_full_name}/debian/wazuh-api.init
 fi
 
+if [[ "${debug}" == "yes" ]]; then
+    sed -i "s:dh_strip --no-automatic-dbgsym::g" ${build_dir}/${build_target}/${package_full_name}/debian/rules
+fi
+
 # Installing build dependencies
 cd ${build_dir}/${build_target}/${package_full_name}
 mk-build-deps -ir -t "apt-get -o Debug::pkgProblemResolver=yes -y"
