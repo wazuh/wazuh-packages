@@ -239,7 +239,7 @@ show_help()
     -d   | --download           Download source file and prepares source directories.
     -u   | --utils              Download and install all dependencies.
     -b   | --build              Build Solaris 10 packages.
-    -k   | --checksum           generate checksum
+    -k   | --checksum           Generate checksum
     -c   | --clean              Clean all. Even installation files.
     "
 }

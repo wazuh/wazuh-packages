@@ -225,7 +225,7 @@ show_help()
     -d   | --download     Download Wazuh repository.
     -b   | --build        Builds Solaris11 packages.
     -u   | --utils        Download and install utilities and dependencies.
-    -k   | --checksum           generate checksum
+    -k   | --checksum     Generate checksum
     -c   | --clean-all    Clean sources, local respository and generated files.
   "
 }
