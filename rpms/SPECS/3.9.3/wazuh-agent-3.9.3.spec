@@ -18,17 +18,9 @@ AutoReqProv: no
 
 Requires: coreutils
 %if 0%{?el} >= 6 || 0%{?rhel} >= 6
-BuildRequires: coreutils glibc-devel automake autoconf libtool policycoreutils-python
+BuildRequires: coreutils glibc-devel automake autoconf libtool policycoreutils-python perl
 %else
-BuildRequires: coreutils glibc-devel automake autoconf libtool policycoreutils
-%endif
-
-%if 0%{?fc25}
-BuildRequires: perl
-%endif
-
-%if 0%{?el5}
-BuildRequires: perl
+BuildRequires: coreutils glibc-devel automake autoconf libtool policycoreutils perl
 %endif
 
 ExclusiveOS: linux
@@ -46,13 +38,14 @@ echo "Vendor is %_vendor"
 ./gen_ossec.sh conf agent centos %rhel %{_localstatedir}/ossec > etc/ossec-agent.conf
 ./gen_ossec.sh init agent %{_localstatedir}/ossec > ossec-init.conf
 
+%build
 pushd src
 # Rebuild for agent
 make clean
 
 %if 0%{?el} >= 6 || 0%{?rhel} >= 6
     make deps
-    make -j%{_threads} TARGET=agent USE_SELINUX=yes PREFIX=%{_localstatedir}/ossec
+    make -j%{_threads} TARGET=agent USE_SELINUX=yes PREFIX=%{_localstatedir}/ossec DEBUG=%{_debugenabled}
 %else
     %ifnarch x86_64
       MSGPACK="USE_MSGPACK_OPT=no"
@@ -158,6 +151,9 @@ cp src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_in
 cp src/LOCATION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/
 cp -r src/systemd/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/systemd
 
+if [ %{_debugenabled} == "yes" ]; then
+  %{_rpmconfigdir}/find-debuginfo.sh
+fi
 exit 0
 %pre
 

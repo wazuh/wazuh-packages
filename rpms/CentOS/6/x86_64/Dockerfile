@@ -4,7 +4,7 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-6
 RUN yum -y install centos-release-scl gcc make git \
     openssh-clients rpm-build sudo gnupg \
     automake autoconf libtool policycoreutils-python \
-    yum-utils epel-release
+    yum-utils epel-release redhat-rpm-config rpm-devel
 
 # Warning: this repo has been disabled by the vendor
 RUN mv /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo.old
