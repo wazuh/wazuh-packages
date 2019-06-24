@@ -25,10 +25,10 @@ Building a .deb package is pretty similar to build a .rpm package. You need to d
       Usage: ./generate_debian_package.sh [OPTIONS]
 
           -b, --branch <branch>     [Required] Select Git branch or tag e.g.
-          -s, --store <path>        [Required] Set the destination path of package.
+          -s, --store <path>        [Optional] Set the destination path of package.
           -t, --target <target>     [Required] Target package to build [manager/api/agent].
-          -a, --architecture <arch> [Required] Target architecture of the package [amd64/i386].
-          -r, --revision <rev>      [Required] Package revision that append to version e.g. x.x.x-rev
+          -a, --architecture <arch> [Optional] Target architecture of the package [amd64/i386].
+          -r, --revision <rev>      [Optional] Package revision that append to version e.g. x.x.x-rev
           -j, --jobs <number>       [Optional] Number of parallel jobs when compiling.
           -p, --path <path>         [Optional] Installation path for the package. By default: /var/ossec.
           -d, --debug               [Optional] Build the binaries with debug symbols. By default: no.
