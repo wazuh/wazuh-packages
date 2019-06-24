@@ -87,7 +87,7 @@ build_rpm() {
         -v ${CHECKSUMDIR}:/var/local/wazuh/checksum \
         -v ${SOURCES_DIRECTORY}:/build_wazuh/wazuh-${TARGET}-${VERSION} \
         ${CONTAINER_NAME} ${TARGET} ${VERSION} ${ARCHITECTURE} \
-        $JOBS ${RELEASE} ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM}
+        $JOBS ${RELEASE} ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM} || exit 1
 
     echo "Package $(ls ${OUTDIR} -Art | tail -n 1) added to ${OUTDIR}."
 
