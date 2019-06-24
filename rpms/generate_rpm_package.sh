@@ -221,7 +221,8 @@ main() {
                 CHECKSUM="yes"
                 shift 2
             else
-                help 1
+                CHECKSUM="yes"
+                shift 1
             fi
             ;;
         "-s"|"--store")
