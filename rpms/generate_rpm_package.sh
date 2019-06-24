@@ -142,12 +142,8 @@ help() {
     echo "    -s, --store <path>        [Optional] Set the destination path of package."
     echo "    -j, --jobs <number>       [Optional] Number of parallel jobs when compiling."
     echo "    -p, --path <path>         [Optional] Installation path for the package. By default: /var."
-<<<<<<< HEAD
-    echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
-    echo "    -k, --checksum            [Optional] Generate checksum"
-=======
     echo "    -d, --debug               [Optional] Build the binaries with debug symbols and create debuginfo packages. By default: no."
->>>>>>> master
+    echo "    -k, --checksum            [Optional] Generate checksum" 
     echo "    -h, --help                Show this help."
     echo
     exit $1
