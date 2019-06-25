@@ -18,7 +18,17 @@ else
 fi
 
 if [ WAZUH_PKG_UPGRADE ]; then
-    cp -r /Library/Ossec/etc /Library/Ossec/package_files
+    mkdir /Library/Ossec/package_files/
+    cp -rf /Library/Ossec/etc/{ossec.conf,client.keys,local_internal_options.conf,shared} /Library/Ossec/package_files/
+fi
+
+if [ WAZUH_PKG_UPGRADE ]; then
+    VERSION=`pkgutil --info com.wazuh.pkg.wazuh-agent | grep version |  cut -d" " -f2- | rev|cut -d"-" -f2- | rev`
+    VERSION=`echo "${VERSION//.}"`
+    echo "*************************************************************"
+    if [ $VERSION -lt 393 ]; then
+        pkgutil --forget com.wazuh.pkg.wazuh-agent-etc
+    fi
 fi
 
 if [[ ! -f "/usr/bin/dscl" ]]

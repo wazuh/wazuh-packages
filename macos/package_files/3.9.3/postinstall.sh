@@ -14,6 +14,11 @@ DIR="/Library/Ossec"
 INSTALLATION_SCRIPTS_DIR="${DIR}/packages_files/agent_installation_scripts"
 SCA_FILES_DIR="${INSTALLATION_SCRIPTS_DIR}/sca"
 
+if [ -d $DIR/package_files ]; then
+    rm -rf /Library/Ossec/etc/{ossec.conf,client.keys,local_internal_options.conf,shared}
+    cp -rf  /Library/Ossec/package_files/* /Library/Ossec/etc/
+    rm -rf /Library/Ossec/package_files/
+fi
 # Default for all directories
 chmod -R 750 ${DIR}/
 chown -R root:${GROUP} ${DIR}/
