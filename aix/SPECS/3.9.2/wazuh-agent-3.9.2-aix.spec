@@ -144,7 +144,11 @@ if [ $1 = 1 ]; then
   chmod 0660 %{_localstatedir}/ossec/logs/active-responses.log
 
   %{_localstatedir}/ossec/tmp/src/init/register_configure_agent.sh > /dev/null || :
+
 fi
+
+ln -fs /etc/rc.d/init.d/wazuh-agent /etc/rc.d/rc2.d/S97wazuh-agent
+ln -fs /etc/rc.d/init.d/wazuh-agent /etc/rc.d/rc3.d/S97wazuh-agent
 
 rm -rf %{_localstatedir}/ossec/tmp/etc
 rm -rf %{_localstatedir}/ossec/tmp/src
