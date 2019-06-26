@@ -84,7 +84,7 @@ build_rpm() {
 
     # Build the RPM package with a Docker container
     docker run -t --rm -v ${OUTDIR}:/var/local/wazuh \
-        -v ${CHECKSUMDIR}:/var/local/wazuh/checksum \
+        -v ${CHECKSUMDIR}:/var/local/checksum \
         -v ${SOURCES_DIRECTORY}:/build_wazuh/wazuh-${TARGET}-${VERSION} \
         ${CONTAINER_NAME} ${TARGET} ${VERSION} ${ARCHITECTURE} \
         $JOBS ${RELEASE} ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM} || exit 1
@@ -143,7 +143,7 @@ help() {
     echo "    -j, --jobs <number>       [Optional] Number of parallel jobs when compiling."
     echo "    -p, --path <path>         [Optional] Installation path for the package. By default: /var."
     echo "    -d, --debug               [Optional] Build the binaries with debug symbols and create debuginfo packages. By default: no."
-    echo "    -k, --checksum            [Optional] Generate checksum" 
+    echo "    -k, --checksum            [Optional] Generate checksum"
     echo "    -h, --help                Show this help."
     echo
     exit $1
@@ -238,6 +238,23 @@ main() {
             help 1
         esac
     done
+
+    # Relative to absolute path
+    if [[ ${OUTDIR} != '/'* ]];
+    then
+        if [ "${CHECKSUMDIR}" == "${CURRENT_PATH}/output/" ];
+        then
+            echo "equals"
+            CHECKSUMDIR="${CURRENT_PATH}/${OUTDIR}"
+        fi
+        OUTDIR="${CURRENT_PATH}/${OUTDIR}"
+    fi
+
+    if [[ ${CHECKSUMDIR} != '/'* ]];
+    then
+        CHECKSUMDIR="${CURRENT_PATH}/${CHECKSUMDIR}"
+    fi
+
 
     if [[ "${USER_PATH}" == "no" ]] && [[ "${LEGACY}" == "yes" ]]; then
         OUTDIR="${OUTDIR}/5/${ARCHITECTURE}"

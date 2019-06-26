@@ -52,7 +52,7 @@ $linux rpmbuild --define "_topdir ${rpm_build_dir}" --define "_threads ${threads
         -ba ${rpm_build_dir}/SPECS/${package_name}.spec
 
 if [[ "${checksum}" == "yes" ]]; then
-    find ${build_dir} -name "*.rpm" -exec bash -c 'sha512sum $0 > /var/local/wazuh/checksum/"$(basename -- $0)".sha512' {} \; -exec mv {} /var/local/wazuh \;
+    find ${build_dir} -name "*.rpm" -exec bash -c 'sha512sum $0 > /var/local/checksum/"$(basename -- $0)".sha512' {} \; -exec mv {} /var/local/wazuh \;
 else
     find ${build_dir} -name "*.rpm" -exec mv {} /var/local/wazuh \;
 fi
