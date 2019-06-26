@@ -34,13 +34,12 @@ To build an macOS package, you need to download this repository and use the `gen
 
     ```
     * To build a wazuh-agent package for tag v3.7.2 with 4 jobs:
-
         `# sudo ./generate_wazuh_packages.sh -b v3.7.2 -j 4`.
+
     * To install `Packages` tool:
-
         `# sudo ./generate_wazuh_packages.sh -i `.
-    * To install `brew` and `X-Code` tool:
 
+    * To install `brew` and `X-Code` tool:
         `$ ./generate_wazuh_packages.sh -x`.
 
 3. When the execution finishes, you can find your `.pkg` packages in specified folder (with parameter `-s`), by default in the script path.

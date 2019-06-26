@@ -27,11 +27,11 @@ To build a HP-UX package, you need to download this repository and use the `gene
     # ./generate_wazuh_packages.sh -h
     This scripts build wazuh package for HPUX.
     USAGE: Command line options available:
-        -h   | --help       Displays this help.
-        -d   | --download   Download Wazuh repository.
-        -b   | --build      Builds HPUX package.
-        -u   | --utils      Download and install utilities and dependencies.
-        -c   | --clean-all  Clean sources and generated files.
+        -h, --help       Displays this help.
+        -d, --download   Download Wazuh repository.
+        -b, --build      Builds HPUX package.
+        -u, --utils      Download and install utilities and dependencies.
+        -c, --clean-all  Clean sources and generated files.
 
     USAGE EXAMPLE:
     --------------

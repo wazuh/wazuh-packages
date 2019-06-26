@@ -23,11 +23,11 @@ To build a Solaris 11 package, you need to download this repository and use the 
 
     This scripts build wazuh package for Solaris 11 Intel based architecture.
     USAGE: Command line options available:
-        -h   | --help         Displays this help.
-        -d   | --download     Download Wazuh repository.
-        -b   | --build        Builds Solaris11 packages.
-        -u   | --utils        Download and install utilities and dependencies.
-        -c   | --clean-all    Clean sources, local respository and generated files.
+        -h, --help         Displays this help.
+        -d, --download     Download Wazuh repository.
+        -b, --build        Builds Solaris11 packages.
+        -u, --utils        Download and install utilities and dependencies.
+        -c, --clean-all    Clean sources, local respository and generated files.
     ```
 
     * To install the needed dependencies:
