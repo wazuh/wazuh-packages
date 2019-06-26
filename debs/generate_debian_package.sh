@@ -59,7 +59,7 @@ build_deb() {
 
     # Build the Debian package with a Docker container
     docker run -t --rm -v ${OUTDIR}:/var/local/wazuh \
-        -v ${CHECKSUMDIR}:/var/local/wazuh/checksum \
+        -v ${CHECKSUMDIR}:/var/local/checksum \
         -v ${SOURCES_DIRECTORY}:/build_wazuh/${TARGET}/wazuh-${TARGET}-${VERSION} \
         -v ${DOCKERFILE_PATH}/wazuh-${TARGET}:/${TARGET} \
         ${CONTAINER_NAME} ${TARGET} ${VERSION} ${ARCHITECTURE} \
@@ -205,12 +205,31 @@ main() {
         esac
     done
 
+    # Relative to absolute path
+    if [[ ${OUTDIR} != '/'* ]];
+    then
+        if [ "${CHECKSUMDIR}" == "${CURRENT_PATH}/output/" ];
+        then
+            echo "equals"
+            CHECKSUMDIR="${CURRENT_PATH}/${OUTDIR}"
+        fi
+        OUTDIR="${CURRENT_PATH}/${OUTDIR}"
+    fi
+
+    if [[ ${CHECKSUMDIR} != '/'* ]];
+    then
+        CHECKSUMDIR="${CURRENT_PATH}/${CHECKSUMDIR}"
+    fi
+
     if [[ "$BUILD" != "no" ]]; then
         build || exit 1
     fi
 
 
+
     clean 0
 }
+
+
 
 main "$@"
