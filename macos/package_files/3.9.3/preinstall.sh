@@ -18,15 +18,15 @@ else
 fi
 
 if [ WAZUH_PKG_UPGRADE ]; then
-    mkdir /Library/Ossec/package_files/
-    cp -rf /Library/Ossec/etc/{ossec.conf,client.keys,local_internal_options.conf,shared} /Library/Ossec/config_files/
+    mkdir /Library/Ossec/config_files/
+    cp -r /Library/Ossec/etc/{ossec.conf,client.keys,local_internal_options.conf,shared} /Library/Ossec/config_files/
 fi
 
 if [ WAZUH_PKG_UPGRADE ]; then
     VERSION=`pkgutil --info com.wazuh.pkg.wazuh-agent | grep version |  cut -d" " -f2- | rev|cut -d"-" -f2- | rev`
-    MAJOR=echo $VERSION|cut -d"." -f1
-    MINOR=echo $VERSION|cut -d"." -f2
-    CHANGE=echo $VERSION|cut -d"." -f3
+    MAJOR=`echo $VERSION|cut -d"." -f1`
+    MINOR=`echo $VERSION|cut -d"." -f2`
+    CHANGE=`echo $VERSION|cut -d"." -f3`
     if [ $MAJOR -lt 3 ]; then
         pkgutil --forget com.wazuh.pkg.wazuh-agent-etc
     elif [ $MINOR -lt 9 ]; then
