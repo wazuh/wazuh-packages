@@ -26,13 +26,13 @@ if [ WAZUH_PKG_UPGRADE ]; then
     VERSION=`pkgutil --info com.wazuh.pkg.wazuh-agent | grep version |  cut -d" " -f2- | rev|cut -d"-" -f2- | rev`
     MAJOR=`echo $VERSION|cut -d"." -f1`
     MINOR=`echo $VERSION|cut -d"." -f2`
-    CHANGE=`echo $VERSION|cut -d"." -f3`
+    PATCH=`echo $VERSION|cut -d"." -f3`
     if [ $MAJOR -lt 3 ]; then
         pkgutil --forget com.wazuh.pkg.wazuh-agent-etc
     elif [ $MINOR -lt 9 ]; then
         pkgutil --forget com.wazuh.pkg.wazuh-agent-etc
     else
-        if [ $CHANGE -lt 3 ]; then
+        if [ $PATCH -lt 3 ]; then
             pkgutil --forget com.wazuh.pkg.wazuh-agent-etc
         fi
     fi
