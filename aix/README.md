@@ -22,11 +22,11 @@ To build an AIX package, you need to download this repository and use the `gener
 
         Usage: $0 [OPTIONS]"
 
-            -b, --branch <branch>              Select Git branch or tag e.g. $BRANCH
-            -e, --environment                  Install all the packages necessaries to build the RPM package
+            -b, --branch <branch>               Select Git branch or tag e.g. $BRANCH
+            -e, --environment                   Install all the packages necessaries to build the RPM package
             -s, --store  <rpm_directory>        Directory to store the resulting RPM package. By default: /tmp/build
-            -p, --install-path <rpm_home>      Installation path for the package. By default: /var
-            -h, --help                         Shows this help
+            -p, --install-path <rpm_home>       Installation path for the package. By default: /var
+            -h, --help                          Shows this help
     ```
     * To install all the dependencies necessaries to build the RPM package:
 
