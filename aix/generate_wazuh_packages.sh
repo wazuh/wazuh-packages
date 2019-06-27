@@ -11,11 +11,12 @@
 set -exf
 
 # Script configuration variables
+current_path="$( cd $(dirname $0) ; pwd -P )"
 install_path="/var/ossec"
 wazuh_branch="master"
-target_dir="/tmp/build"
+target_dir="${current_path}/output/"
 compute_checksums="no"
-
+checksum_dir="${target_dir}"
 # Check if running as root
 if [[ $EUID -ne 0 ]]; then
  echo "This script must be run as root"
@@ -201,7 +202,7 @@ build_package() {
   if [ -f ${target_dir}/${rpm_file} ]; then
     echo "Your package ${rpm_file} is stored in ${target_dir}"
     if [[ "${compute_checksums}" = "yes" ]]; then
-      cd ${target_dir} && /usr/local/scripts/shasum -a 512 ${rpm_file} > ${rpm_file}.sha512
+      cd ${target_dir} && /usr/local/scripts/shasum -a 512 ${rpm_file} > "${checksum_dir}${rpm_file}.sha512"
     fi
   else
     echo "Error: RPM package could not be created"
@@ -262,13 +263,41 @@ main() {
           fi
         ;;
         "-k" | "--checksum")
-          compute_checksums="yes"
+            if [ -n "$2" ]; then
+                checksum_dir="$2"
+                compute_checksums="yes"
+                shift 2
+            else
+                compute_checksums="yes"
+                checksum_dir="$2"
+                shift 1
+            fi
           shift 1
         ;;
         *)
           show_help 1
     esac
   done
+
+  if [[ "${CHECKSUMDIR}" == "" ]];then
+    CHECKSUMDIR=DESTINATION
+  fi
+
+  # Relative to absolute path
+  if [[ ${OUTDIR} != '/'* ]];
+    then
+        if [ "${CHECKSUMDIR}" == "${CURRENT_PATH}/output/" ];
+        then
+            echo "equals"
+            CHECKSUMDIR="${CURRENT_PATH}/${OUTDIR}"
+        fi
+        OUTDIR="${CURRENT_PATH}/${OUTDIR}"
+    fi
+
+    if [[ ${CHECKSUMDIR} != '/'* ]];
+    then
+        CHECKSUMDIR="${CURRENT_PATH}/${CHECKSUMDIR}"
+    fi
 
   if [[ "${build_env}" = "yes" ]]; then
     build_environment || exit 1
