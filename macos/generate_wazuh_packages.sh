@@ -18,10 +18,10 @@ INSTALLATION_PATH="/Library/Ossec"    # Installation path
 VERSION=""                            # Default VERSION (branch/tag)
 REVISION="1"                          # Package revision.
 BRANCH_TAG="master"                   # Branch that will be downloaded to build package.
-DESTINATION=${CURRENT_PATH}           # Where package will be stored.
+DESTINATION="${CURRENT_PATH}/output/" # Where package will be stored.
 JOBS="2"                              # Compilation jobs.
 DEBUG="no"                            # Enables the full log by using `set -exf`.
-CHECKSUMDIR="/tmp/checksum"
+CHECKSUMDIR="${DESTINATION}"
 CHECKSUM="no"
 
 function clean_and_exit() {
@@ -79,7 +79,7 @@ function help() {
     echo "    -s, --store-path <path>   [Optional] Set the destination absolute path of package."
     echo "    -j, --jobs <number>       [Optional] Number of parallel jobs when compiling."
     echo "    -r, --revision <rev>      [Optional] Package revision that append to version e.g. x.x.x-rev"
-    echo "    -k, --checksum            [Optional] Generate checksum"
+    echo "    -k, --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
     echo "    -h, --help                [  Util  ] Show this help."
     echo "    -i, --install-deps        [  Util  ] Install build dependencies (Packages)."
     echo "    -x, --install-xcode       [  Util  ] Install X-Code and brew. Can't be executed as root."
@@ -232,7 +232,8 @@ function main() {
                 CHECKSUM="yes"
                 shift 2
             else
-                help 1
+                CHECKSUM="yes"
+                shift 1
             fi
             ;;
         *)
@@ -245,6 +246,21 @@ function main() {
     fi
 
     testdep
+
+    # Relative to absolute path
+    if [[ ${DESTINATION} != '/'* ]];
+    then
+        if [ "${CHECKSUMDIR}" == "${CURRENT_PATH}/output/" ];
+        then
+            CHECKSUMDIR="${CURRENT_PATH}/${DESTINATION}"
+        fi
+        DESTINATION="${CURRENT_PATH}/${DESTINATION}"
+    fi
+
+    if [[ ${CHECKSUMDIR} != '/'* ]];
+    then
+        CHECKSUMDIR="${CURRENT_PATH}/${CHECKSUMDIR}"
+    fi
 
     if [[ "$BUILD" != "no" ]]; then
         check_root
