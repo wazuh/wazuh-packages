@@ -143,7 +143,7 @@ function main() {
 
     "-d" | "--directory")
       if [ -n "$2" ]; then
-        DIRECTORY="$2"
+        export DIRECTORY="$2"
       else
         echo "ERROR: Need directory to build."
         help 1
