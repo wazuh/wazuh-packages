@@ -28,7 +28,7 @@ function build_wpk_windows() {
   local CHECKSUM="$8"
 
   docker run -t --rm -v ${KEYDIR}:/etc/wazuh -v ${DESTINATION}:/var/local/wazuh -v ${PKG_PATH}:/var/pkg\
-      -v ${CHECKSUMDIR}:/var/local/wazuh/checksum \
+      -v ${CHECKSUMDIR}:/var/local/checksum \
       ${CONTAINER_NAME} ${BRANCH} ${JOBS} ${OUT_NAME} ${CHECKSUM} ${PACKAGE_NAME}
 
   return $?
@@ -44,7 +44,7 @@ function build_wpk_linux() {
   local CHECKSUM="$7"
 
   docker run -t --rm -v ${KEYDIR}:/etc/wazuh -v ${DESTINATION}:/var/local/wazuh \
-      -v ${CHECKSUMDIR}:/var/local/wazuh/checksum \
+      -v ${CHECKSUMDIR}:/var/local/checksum \
       ${CONTAINER_NAME} ${BRANCH} ${JOBS} ${OUT_NAME} ${CHECKSUM}
 
   return $?
@@ -86,7 +86,7 @@ function help() {
 function main() {
   local TARGET=""
   local BRANCH=""
-  local DESTINATION=""
+  local DESTINATION="${CURRENT_PATH}/output"
   local KEYDIR=""
   local ARCHITECTURE="x86_64"
   local JOBS="4"
@@ -94,7 +94,7 @@ function main() {
   local PKG_NAME=""
   local OUT_NAME=""
   local NO_COMPILE=false
-  local CHECKSUMDIR="/tmp/checksum"
+  local CHECKSUMDIR="${DESTINATION}"
 
   local HAVE_BRANCH=false
   local HAVE_DESTINATION=false
@@ -203,17 +203,39 @@ function main() {
           ;;
       "-c"|"--checksum")
             if [ -n "$2" ]; then
-                CHECKSUMDIR="$2"
-                CHECKSUM="yes"
+                local CHECKSUMDIR="$2"
+                local CHECKSUM="yes"
                 shift 2
             else
-                help 1
+                local CHECKSUM="yes"
+                local CHECKSUMDIR=""
+                shift 1
             fi
             ;;
       *)
           help 1
       esac
   done
+
+  if [[ "${CHECKSUMDIR}" == '' ]];then
+    CHECKSUMDIR=DESTINATION
+  fi
+
+    # Relative to absolute path
+    if [[ ${OUTDIR} != '/'* ]];
+    then
+        if [ "${CHECKSUMDIR}" == "${CURRENT_PATH}/output/" ];
+        then
+            CHECKSUMDIR="${CURRENT_PATH}/${OUTDIR}"
+        fi
+        OUTDIR="${CURRENT_PATH}/${OUTDIR}"
+    fi
+
+    if [[ ${CHECKSUMDIR} != '/'* ]];
+    then
+        CHECKSUMDIR="${CURRENT_PATH}/${CHECKSUMDIR}"
+    fi
+
 
   if [[ "$HAVE_TARGET" == true ]] && [[ "$HAVE_BRANCH" == true ]] && [[ "$HAVE_DESTINATION" == true ]] && [[ "$HAVE_KEYDIR" == true ]] && [[ "$HAVE_OUT_NAME" == true ]]; then
 
