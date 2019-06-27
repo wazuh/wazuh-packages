@@ -284,19 +284,19 @@ main() {
   fi
 
   # Relative to absolute path
-  if [[ ${OUTDIR} != '/'* ]];
+  if [[ ${outdir} != '/'* ]];
     then
-        if [ "${CHECKSUMDIR}" == "${CURRENT_PATH}/output/" ];
+        if [ "${checksum_dir}" == "${current_path}/output/" ];
         then
             echo "equals"
-            CHECKSUMDIR="${CURRENT_PATH}/${OUTDIR}"
+            CHECKSUMDIR="${current_path}/${outdir}"
         fi
-        OUTDIR="${CURRENT_PATH}/${OUTDIR}"
+        OUTDIR="${current_path}/${outdir}"
     fi
 
-    if [[ ${CHECKSUMDIR} != '/'* ]];
+    if [[ ${checksum_dir} != '/'* ]];
     then
-        CHECKSUMDIR="${CURRENT_PATH}/${CHECKSUMDIR}"
+        checksum_dir="${current_path}/${checksum_dir}"
     fi
 
   if [[ "${build_env}" = "yes" ]]; then
