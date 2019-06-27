@@ -19,7 +19,7 @@ To build an macOS package, you need to download this repository and use the `gen
     $ git clone https://github.com/wazuh/wazuh-packages && cd wazuh-packages/macos
     ```
 
-2. Execute the `generate_wazuh_package.sh` script to build the package. There are multiple parameters for selecting which package is going to be built, such as install destination, etc. Also you can install `Packages` using the script. Here you can see all the different parameters:
+2. Execute the `generate_wazuh_packages.sh` script to build the package. There are multiple parameters for selecting which package is going to be built, such as install destination, etc. Also you can install `Packages` using the script. Here you can see all the different parameters:
     ```shellsession
     $ ./generate_wazuh_packages.sh -h
 

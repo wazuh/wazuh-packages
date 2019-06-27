@@ -30,13 +30,13 @@ To build an AIX package, you need to download this repository and use the `gener
     ```
     * To install all the dependencies necessaries to build the RPM package:
 
-        `# ./generate_package.sh -e`
+        `# ./generate_wazuh_packages.sh -e`
     * To build a wazuh-agent package for version 3.8.2, revision 3821 and store it in `/tmp`:
 
-        `# ./generate_package.sh -b v3.8.2 -s /tmp -a x86_64 -r 3821`.
+        `# ./generate_wazuh_packages.sh -b v3.8.2 -s /tmp -a x86_64 -r 3821`.
     * To install the dependencies, build a wazuh-agent package for version 3.8.2, revision 3821 and store it in `/tmp`:
 
-        `# ./generate_package.sh -b v3.8.2 -s /tmp -a x86_64 -r 3821`.
+        `# ./generate_wazuh_packages.sh -b v3.8.2 -s /tmp -a x86_64 -r 3821`.
 
 3. When the execution finishes, you can find your `.ppc.rpm` package in specified folder.
 
