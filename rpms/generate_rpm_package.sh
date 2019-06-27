@@ -244,7 +244,6 @@ main() {
     then
         if [ "${CHECKSUMDIR}" == "${CURRENT_PATH}/output/" ];
         then
-            echo "equals"
             CHECKSUMDIR="${CURRENT_PATH}/${OUTDIR}"
         fi
         OUTDIR="${CURRENT_PATH}/${OUTDIR}"
