@@ -121,9 +121,9 @@ installation(){
     arch="$(uname -p)"
     # Build the binaries
     if [ "$arch" == "sparc" ]; then
-        gmake -j $THREADS TARGET=agent PREFIX=$INSTALL USE_SELINUX=no USE_BIG_ENDIAN=yes
+        gmake -j $THREADS TARGET=agent PREFIX=$INSTALL USE_SELINUX=no USE_BIG_ENDIAN=yes DISABLE_SHARED=yes
     else
-        gmake -j $THREADS TARGET=agent PREFIX=$INSTALL USE_SELINUX=no
+        gmake -j $THREADS TARGET=agent PREFIX=$INSTALL USE_SELINUX=no DISABLE_SHARED=yes
     fi
 
     cd $SOURCE

@@ -31,7 +31,7 @@ To build an RPM package, you need to download this repository and use the `gener
         -l, --legacy              [Optional] Build the package for CentOS 5.
         -r, --release             [Optional] Package release. By default: 1.
         -p, --path                [Optional] Installation path for the package. By default: /var.
-        -d, --debug               [Optional] Build the binaries with debug symbols. By default: no.
+        -d, --debug               [Optional] Build the binaries with debug symbols and create debuginfo packages. By default: no.
         -h, --help                Show this help.
     ```
     * To build a wazuh-manager package for x86_64, revision 3821 and store it in `/tmp`:
@@ -42,6 +42,9 @@ To build an RPM package, you need to download this repository and use the `gener
         `# ./generate_rpm_package.sh -b 3.9 -s /tmp -t api -a x86_64 -r 0`.
     * To build a wazuh-manager x86_64 package for `/opt/ossec` directory and store it in `/tmp`:
         `# ./generate_rpm_package.sh -b v3.8.2 -s /tmp -t manager -a x86_64 -r 0.1 -p /opt`.
+
+    If you build a package using `-d` parameter, you need to install the `wazuh-xxxxx` and the `wazuh-xxxxx-debuginfo` package in order to install the debugging symbols of the package if you want to debug the binaries using `gdb` for example.
+
 3. When the execution finishes, you can find your `.src.rpm` and the `.rpm` packages in specified folder.
 
 ## More Packages

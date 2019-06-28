@@ -45,6 +45,10 @@ if [ "${build_target}" == "api" ]; then
     fi
 fi
 
+if [[ "${debug}" == "yes" ]]; then
+    sed -i "s:dh_strip --no-automatic-dbgsym::g" ${build_dir}/${build_target}/${package_full_name}/debian/rules
+fi
+
 # Installing build dependencies
 cd ${build_dir}/${build_target}/${package_full_name}
 mk-build-deps -ir -t "apt-get -o Debug::pkgProblemResolver=yes -y"

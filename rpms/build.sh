@@ -17,8 +17,15 @@ threads=$4
 package_release=$5
 directory_base=$6
 debug=$7
+
+disable_debug_flag='%debug_package %{nil}'
+
 if [ -z "${package_release}" ]; then
     package_release="1"
+fi
+
+if [ "${debug}" == "no" ]; then
+    echo ${disable_debug_flag} > /etc/rpm/macros
 fi
 
 # Build directories
