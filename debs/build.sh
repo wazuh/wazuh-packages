@@ -40,6 +40,9 @@ sed -i "s:export INSTALLATION_DIR=.*:export INSTALLATION_DIR=${dir_path}:g" ${bu
 sed -i "s:DIR=\"/var/ossec\":DIR=\"${dir_path}\":g" ${build_dir}/${build_target}/${package_full_name}/debian/{preinst,postinst,prerm,postrm}
 if [ "${build_target}" == "api" ]; then
     sed -i "s:DIR=\"/var/ossec\":DIR=\"${dir_path}\":g" ${build_dir}/${build_target}/${package_full_name}/debian/wazuh-api.init
+    if [ "${architecture_target}" == "ppc64le" ]; then
+        sed -i "s: nodejs (>= 4.6), npm,::g" ${build_dir}/${build_target}/${package_full_name}/debian/control
+    fi
 fi
 
 if [[ "${debug}" == "yes" ]]; then
@@ -51,8 +54,9 @@ cd ${build_dir}/${build_target}/${package_full_name}
 mk-build-deps -ir -t "apt-get -o Debug::pkgProblemResolver=yes -y"
 
 # Build package
-if [[ "${architecture_target}" == "amd64" ]]; then
+if [[ "${architecture_target}" == "amd64" ]] ||  [[ "${architecture_target}" == "ppc64le" ]] ; then
     debuild -b -uc -us
+
 else
     linux32 debuild -ai386 -b -uc -us
 fi

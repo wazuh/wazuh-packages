@@ -19,8 +19,10 @@ DEBUG="no"
 INSTALLATION_PATH="/var/ossec"
 DEB_AMD64_BUILDER="deb_builder_amd64"
 DEB_I386_BUILDER="deb_builder_i386"
+DEB_PPC64LE_BUILDER="deb_builder_ppc64le"
 DEB_AMD64_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/amd64"
 DEB_I386_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/i386"
+DEB_PPC64LE_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/ppc64le"
 
 clean() {
     exit_code=$1
@@ -72,8 +74,11 @@ build() {
     if [[ "${TARGET}" = "api" ]]; then
 
         SOURCE_REPOSITORY="https://github.com/wazuh/wazuh-api"
-        build_deb ${DEB_AMD64_BUILDER} ${DEB_AMD64_BUILDER_DOCKERFILE} || exit 1
-
+        if [[ "${ARCHITECTURE}" = "ppc64le" ]]; then
+	    build_deb ${DEB_PPC64LE_BUILDER} ${DEB_PPC64LE_BUILDER_DOCKERFILE} || exit 1
+        else
+	    build_deb ${DEB_AMD64_BUILDER} ${DEB_AMD64_BUILDER_DOCKERFILE} || exit 1
+        fi
     elif [[ "${TARGET}" = "manager" ]] || [[ "${TARGET}" = "agent" ]]; then
 
         SOURCE_REPOSITORY="https://github.com/wazuh/wazuh"
@@ -86,8 +91,11 @@ build() {
         elif [[ "${ARCHITECTURE}" = "i386" ]]; then
             BUILD_NAME="${DEB_I386_BUILDER}"
             FILE_PATH="${DEB_I386_BUILDER_DOCKERFILE}"
+        elif [[  "${ARCHITECTURE}" = "ppc64le" ]]; then
+            BUILD_NAME="${DEB_PPC64LE_BUILDER}"
+            FILE_PATH="${DEB_PPC64LE_BUILDER_DOCKERFILE}"
         else
-            echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too) or i386."
+            echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too) or i386 or ppc64le."
             exit 1
         fi
         build_deb ${BUILD_NAME} ${FILE_PATH} || clean 1
