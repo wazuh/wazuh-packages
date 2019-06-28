@@ -17,7 +17,7 @@ RUN echo "deb http://deb.debian.org/debian stretch main contrib non-free" >> /et
     libdb5.3 libdb5.3 libssl1.0.2
 
 # Add Debian's source repository and, Install NodeJS 10
-RUN apt-get update &&  apt-get build-dep python3 -y &&\
+RUN apt-get update &&  apt-get build-dep python3.5 -y &&\
     wget https://nodejs.org/dist/v10.16.0/node-v10.16.0-linux-ppc64le.tar.xz && \
     mkdir -p /usr/local/lib/nodejs &&\
     tar -xJvf node-v10.16.0-linux-ppc64le.tar.xz -C /usr/local/lib/nodejs &&\
