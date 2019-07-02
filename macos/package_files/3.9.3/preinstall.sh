@@ -18,13 +18,12 @@ else
 fi
 
 if [ WAZUH_PKG_UPGRADE ]; then
-    mkdir -p $DIR/config_files/
+    mkdir -p ${DIR}/config_files/
     cp -r $DIR/etc/{ossec.conf,client.keys,local_internal_options.conf,shared} $DIR/config_files/
 fi
 
 if [ WAZUH_PKG_UPGRADE ]; then
-    ETC_PKG=`pkgutil --pkgs | grep -i wazuh-etc`
-    if [ -z "$ETC_PKG" ]; then
+    if [ pkgutil --pkgs | grep -i wazuh-etc > /dev/null 2&>1 ]; then
         pkgutil --forget com.wazuh.pkg.wazuh-agent-etc
     fi
 fi
