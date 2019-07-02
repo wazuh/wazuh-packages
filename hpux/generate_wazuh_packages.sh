@@ -122,7 +122,7 @@ compile() {
     gmake deps RESOURCES_URL=http://packages.wazuh.com/deps/$major.$minor
   fi
 
-  gmake TARGET=agent USE_SELINUX=no DISABLE_SHARED=yes 
+  gmake TARGET=agent USE_SELINUX=no DISABLE_SHARED=yes
   bash $SOURCE/install.sh
   cd $current_path
 }
@@ -151,11 +151,11 @@ show_help()
   echo "
   This scripts build wazuh package for HPUX.
   USAGE: Command line options available:
-    -h   | --help       Displays this help.
-    -d   | --download   Download Wazuh repository.
-    -b   | --build      Builds HPUX package.
-    -u   | --utils      Download and install utilities and dependencies.
-    -c   | --clean-all  Clean sources and generated files.
+    -h, --help       Displays this help.
+    -d, --download   Download Wazuh repository.
+    -b, --build      Builds HPUX package.
+    -u, --utils      Download and install utilities and dependencies.
+    -c, --clean-all  Clean sources and generated files.
 
   USAGE EXAMPLE:
   --------------

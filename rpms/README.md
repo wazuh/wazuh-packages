@@ -11,7 +11,7 @@ To build a Wazuh package you need to install the following tools:
 
 ## Building RPM packages
 
-To build an RPM package, you need to download this repository and use the `generate_wazuh_rpm.sh` script. This script will download the source code from the [wazuh/wazuh](https://github.com/wazuh/wazuh) repository or the [wazuh/wazuh-api](https://github.com/wazuh/wazuh-api) (depending on which package do you want to build), select automatically the RPM spec file, build a Docker image with all the necessary tools to build the RPM package and run a Docker container from that image that will generate the `.src.rpm` and `.rpm` packages.
+To build an RPM package, you need to download this repository and use the `generate_rpm_package.sh` script. This script will download the source code from the [wazuh/wazuh](https://github.com/wazuh/wazuh) repository or the [wazuh/wazuh-api](https://github.com/wazuh/wazuh-api) (depending on which package do you want to build), select automatically the RPM spec file, build a Docker image with all the necessary tools to build the RPM package and run a Docker container from that image that will generate the `.src.rpm` and `.rpm` packages.
 
 1. Download this repository and go to the rpm directory:
     ```bash

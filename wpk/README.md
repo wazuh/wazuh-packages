@@ -31,7 +31,7 @@ To build  a WPK package, it is necessary to generate a X509 certificate and CA, 
     ```shellsession
     # openssl x509 -req -days 365 -in wpkcert.csr -CA wpk_root.pem -CAkey wpk_root.key -out wpkcert.pem -CAcreateserial
     ```
-3. Execute the `generate_wazuh_app.sh` script to build the package. There are multiple parameters to select, Here you can see all the different parameters:
+3. Execute the `generate_wpk_package.sh` script to build the package. There are multiple parameters to select, Here you can see all the different parameters:
     ```shellsession
     $ ./generate_wpk_package.sh -h
 

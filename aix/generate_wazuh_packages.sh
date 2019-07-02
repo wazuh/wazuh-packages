@@ -32,11 +32,11 @@ show_help() {
   echo
   echo "Usage: $0 [OPTIONS]"
   echo
-  echo "    -e Install all the packages necessaries to build the RPM package"
-  echo "    -b <branch> Select Git branch. Example v3.5.0"
-  echo "    -s <rpm_directory> Directory to store the resulting RPM package. By default: /tmp/build"
-  echo "    -p <rpm_home> Installation path for the package. By default: /var"
-  echo "    -h Shows this help"
+  echo "    -b, --branch <branch>               Select Git branch or tag e.g. $BRANCH"
+  echo "    -e, --environment                   Install all the packages necessaries to build the RPM package"
+  echo "    -s, --store  <rpm_directory>        Directory to store the resulting RPM package. By default: /tmp/build"
+  echo "    -p, --install-path <rpm_home>       Installation path for the package. By default: /var"
+  echo "    -h, --help                          Shows this help"
   echo
   exit $1
 }
@@ -220,7 +220,7 @@ main() {
   while [ -n "$1" ]
   do
     case $1 in
-        "-b")
+        "-b"|"--branch")
           if [ -n "$2" ]
           then
               wazuh_branch="$2"
@@ -230,15 +230,15 @@ main() {
               show_help 1
           fi
         ;;
-        "-h")
+        "-h"|"--help")
           show_help
           exit 0
         ;;
-        "-e")
+        "-e"|"--environment" )
           build_environment
           exit 0
         ;;
-        "-p")
+        "-p"|"--install-path")
           if [ -n "$2" ]
           then
               install_path="$2"
@@ -247,7 +247,7 @@ main() {
               show_help 1
           fi
         ;;
-        "-s")
+        "-s"|"--store")
           if [ -n "$2" ]
           then
               target_dir="$2"
