@@ -19,12 +19,12 @@ fi
 
 if [ WAZUH_PKG_UPGRADE ]; then
     mkdir -p $DIR/config_files/
-    cp -r $DIR/etc/{ossec.conf,client.keys,local_internal_options.conf,shared} /Library/Ossec/config_files/
+    cp -r $DIR/etc/{ossec.conf,client.keys,local_internal_options.conf,shared} $DIR/config_files/
 fi
 
 if [ WAZUH_PKG_UPGRADE ]; then
     ETC_PKG=`pkgutil --pkgs | grep -i wazuh-etc`
-    if [ $ETC_PKG=="" ]; then
+    if [ -z "$ETC_PKG" ]; then
         pkgutil --forget com.wazuh.pkg.wazuh-agent-etc
     fi
 fi
@@ -76,8 +76,8 @@ if [[ ${new_uid} != ${new_gid} ]]
 fi
 
 # Stops the agent before upgrading it
-if [ -f /Library/Ossec/bin/ossec-control ]; then
-    /Library/Ossec/bin/ossec-control stop
+if [ -f $DIR/bin/ossec-control ]; then
+    $DIR/bin/ossec-control stop
 fi
 
 # Creating the group
