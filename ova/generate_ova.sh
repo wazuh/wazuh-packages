@@ -47,11 +47,21 @@ function build_ova() {
   local OVF_VM="wazuh${OVA_VERSION}.ovf"
   local OVA_FIXED="wazuh${OVA_VERSION}-fixed.ova"
   local OVA_VMDK="wazuh${OVA_VERSION}-disk001.vmdk"
+  local ELK_MAJOR=`echo ${ELK_VERSION}|cut -d"." -f1`
 
   if [ -e "${OVA_VM}" ] || [ -e "${OVA_VM}" ]; then
-    echo "ERROR: files $OVA_VM and/or $OVF_VM already exists. Please remove them with -c option."
+    echo "ERROR: files ${OVA_VM} and/or ${OVF_VM} already exists. Please remove them with -c option."
     exit 1
   fi
+
+  #Download filebeat.yml and enable geoip
+
+  curl -so Config_files/filebeat.yml https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSION}-rc2/extensions/filebeat/7.x/filebeat.yml
+
+  if [ ${ELK_MAJOR} -eq 7 ]; then 
+      sed -i "s|#pipeline: geoip|pipeline: geoip|" Config_files/filebeat.yml
+  fi
+  
 
   # Vagrant will provision the VM with all the software. (See vagrant file)
   vagrant destroy -f
