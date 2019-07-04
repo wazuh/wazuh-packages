@@ -163,7 +163,8 @@ package(){
     cd ${CURRENT_PATH}
     find /var/ossec | awk 'length > 0' > "wazuh-agent_$VERSION.list"
     ver=`echo $VERSION | cut -d'v' -f 2`
-    sed "s:VERSION=\".*\":VERSION=\"$ver\":g" pkginfo > pkginfo.new && mv pkginfo.new pkginfo
+    sed  "s:ARCH=:ARCH=\"${ARCH}\":g" pkginfo > pkginfo.new && mv pkginfo.new pkginfo
+    sed  "s:VERSION=\".*\":VERSION=\"$ver\":g" pkginfo > pkginfo.new && mv pkginfo.new pkginfo
     echo "i pkginfo=pkginfo" > "wazuh-agent_$VERSION.proto"
     echo "i checkinstall=checkinstall.sh" >> "wazuh-agent_$VERSION.proto"
     echo "i preinstall=preinstall.sh" >> "wazuh-agent_$VERSION.proto"
