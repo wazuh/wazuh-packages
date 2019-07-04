@@ -15,17 +15,13 @@ install_elasticsearch(){
 install_filebeat_7(){
 
     yum install filebeat-${ELK_VERSION} -y
-    status_code=$(curl --write-out %{http_code} --silent --output /dev/null https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSION}/extensions/filebeat/7.x/filebeat.yml)
-
-    cp -f /vagrant/Config_files/filebeat.yml /etc/filebeat/filebeat.yml
+    cp -f ${config_files}/filebeat.yml /etc/filebeat/filebeat.yml
 
     sed -i "s/YOUR_ELASTIC_SERVER_IP/localhost/" /etc/filebeat/filebeat.yml
     chmod go+r /etc/filebeat/filebeat.yml
-    status_code=$(curl --write-out %{http_code} --silent --output /dev/null https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSION}/extensions/elasticsearch/7.x/wazuh-template.json)
-    
     curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSION}/extensions/elasticsearch/7.x/wazuh-template.json
     chmod go+r /etc/filebeat/wazuh-template.json
-    
+
     if  [ ${ELK_MINOR} -eq 2 ]; then
         curl -s https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/utils/wazuh-filebeat-module.tar.gz | tar -xvz --no-same-owner -C /usr/share/filebeat/module --owner=0
     fi
@@ -36,12 +32,12 @@ install_filebeat_7(){
 }
 configure_elasticsearch(){
 
-    cp -f /vagrant/Config_files/elasticsearch.yml /etc/elasticsearch/elasticsearch.yml
+    cp -f ${config_files}/elasticsearch.yml /etc/elasticsearch/elasticsearch.yml
 }
 
 configure_jvm_elastic(){
 
-    cp -f /vagrant/Config_files/elasticsearch.jvm /etc/elasticsearch/jvm.options
+    cp -f ${config_files}/elasticsearch.jvm /etc/elasticsearch/jvm.options
 }
 
 configure_RAM(){
@@ -56,8 +52,8 @@ configure_RAM(){
 configure_limitMEMLOCK(){
 
     mkdir -p /etc/systemd/system/elasticsearch.service.d/
-    cp -f /vagrant/Config_files/elasticsearch.conf /etc/systemd/system/elasticsearch.service.d/elasticsearch.conf
-    
+    cp -f ${config_files}/elasticsearch.conf /etc/systemd/system/elasticsearch.service.d/elasticsearch.conf
+
     systemctl daemon-reload
     systemctl start elasticsearch.service
 }
@@ -71,13 +67,13 @@ configure_kibana(){
 
     openssl req -x509 -batch -nodes -days 3650 -newkey rsa:2048 -keyout /etc/kibana/kibana.key -out /etc/kibana/kibana.cert
 
-    cp -f /vagrant/Config_files/kibana.yml  /etc/kibana/kibana.yml 
+    cp -f ${config_files}/kibana.yml  /etc/kibana/kibana.yml
 
     # Allow Kibana to listen on port 443
     setcap 'CAP_NET_BIND_SERVICE=+eip' /usr/share/kibana/node/bin/node
 
     # Configuring Kibana default settings
-    cp -f /vagrant/Config_files/kibana  /etc/default/kibana
+    cp -f ${config_files}/kibana  /etc/default/kibana
 }
 
 install_kibana_app(){
@@ -107,7 +103,7 @@ install_kibana_app(){
             sleep 2
         fi
     done
-    
+
 }
 
 configure_kibana_app(){
@@ -116,8 +112,8 @@ configure_kibana_app(){
     api_config="/tmp/api_config.json"
     api_time=$(($(date +%s%N)/1000000))
 
-    cp -f /vagrant/Config_files/api_config.json  ${api_config}
-    
+    cp -f ${config_files}/api_config.json  ${api_config}
+
     sed -i "s/\"manager\": \"wazuh-manager\",/\"manager\": \"$(hostname)\",/" ${api_config}
     curl -s -XPUT "http://localhost:9200/.wazuh/_doc/${api_time}" -H 'Content-Type: application/json' -d@${api_config}
     rm -f ${api_config}
@@ -126,9 +122,9 @@ configure_kibana_app(){
     default_index="/tmp/default_index.json"
     wazuh_major=`echo ${WAZUH_VERSION} | cut -d'.' -f 1`
 
-    cp -f /vagrant/Config_files/default_index.json  ${default_index}
+    cp -f ${config_files}/default_index.json  ${default_index}
     sed -i "s/{wazuh_major}/${wazuh_major}/g"
-   
+
     curl -k -POST "https://localhost/api/kibana/settings" -H "Content-Type: application/json" -H "kbn-xsrf: true" -d@${default_index}
     rm -f ${default_index}
 
@@ -145,15 +141,15 @@ enable_geo_ip_7(){
 
     # Enable GeoIP
     geoip="/tmp/geoip.json"
-    cp -f /vagrant/Config_files/geoip.json  ${geoip}
-    
+    cp -f ${config_files}/geoip.json  ${geoip}
+
     curl -X PUT "localhost:9200/_ingest/pipeline/geoip" -H 'Content-Type: application/json' -d@${geoip}
 
     systemctl restart filebeat
 }
 
 install_jdk_6(){
-    
+
     yum install -y java-1.8.0-openjdk
 }
 
@@ -182,11 +178,11 @@ install_logstash_6(){
 configure_logstash_6(){
 
     # Configuring logstash.yml
-    cp -f /vagrant/Config_files/logstash.yml /etc/logstash/logstash.yml
+    cp -f ${config_files}/logstash.yml /etc/logstash/logstash.yml
 
     # Configuring jvm.options
-    cp -f /vagrant/Config_files/logstash.jvm /etc/logstash/jvm.options
-    
+    cp -f ${config_files}/logstash.jvm /etc/logstash/jvm.options
+
     # Configuring RAM memory in jvm.options
     ram_gb=$(free -g | awk '/^Mem:/{print $2}')
     ram=$(( ${ram_gb} / 8 ))

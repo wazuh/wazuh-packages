@@ -55,13 +55,11 @@ function build_ova() {
   fi
 
   #Download filebeat.yml and enable geoip
-
-  curl -so Config_files/filebeat.yml https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSION}-rc2/extensions/filebeat/7.x/filebeat.yml
-
-  if [ ${ELK_MAJOR} -eq 7 ]; then 
+  if [ ${ELK_MAJOR} -eq 7 ]; then
+      curl -so Config_files/filebeat.yml https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSION}/extensions/filebeat/7.x/filebeat.yml
       sed -i "s|#pipeline: geoip|pipeline: geoip|" Config_files/filebeat.yml
   fi
-  
+
 
   # Vagrant will provision the VM with all the software. (See vagrant file)
   vagrant destroy -f

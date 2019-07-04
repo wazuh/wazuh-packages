@@ -8,9 +8,10 @@ STATUS_PACKAGES=$3
 DIRECTORY=$4
 ELK_MAJOR=`echo ${ELK_VERSION}|cut -d"." -f1`
 ELK_MINOR=`echo ${ELK_VERSION}|cut -d"." -f2`
+config_files="/vagrant/config_files"
 
-source /vagrant/Libraries/wazuh_functions.sh
-source /vagrant/Libraries/elastic_functions.sh
+source /vagrant/libraries/wazuh_functions.sh
+source /vagrant/libraries/elastic_functions.sh
 
 # Setting wazuh default root password
 yes wazuh | passwd root
