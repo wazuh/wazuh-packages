@@ -23,7 +23,7 @@ if [ $(launchctl getenv WAZUH_PKG_UPGRADE) = true ]; then
 fi
 
 if [ $(launchctl getenv WAZUH_PKG_UPGRADE) = true ]; then
-    if [ `pkgutil --pkgs | grep -i wazuh-agent-etc` > /dev/null 2>&1 ]; then
+    if [ $(pkgutil --pkgs | grep -i wazuh-agent-etc) > /dev/null 2>&1 ]; then
         pkgutil --forget com.wazuh.pkg.wazuh-agent-etc
     fi
 fi
