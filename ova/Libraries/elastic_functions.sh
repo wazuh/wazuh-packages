@@ -1,3 +1,8 @@
+etc_elastic="/etc/elasticsearch"
+etc_filebeat="/etc/filebeat"
+etc_kibana="/etc/kibana"
+usr_kibana="/usr/share/kibana"
+
 set_elastic_repository(){
 
     rpm --import https://packages.elastic.co/GPG-KEY-elasticsearch
@@ -15,12 +20,12 @@ install_elasticsearch(){
 install_filebeat_7(){
 
     yum install filebeat-${ELK_VERSION} -y
-    cp -f ${config_files}/filebeat.yml /etc/filebeat/filebeat.yml
+    cp -f ${config_files}/filebeat.yml ${etc_filebeat}/filebeat.yml
 
-    sed -i "s/YOUR_ELASTIC_SERVER_IP/localhost/" /etc/filebeat/filebeat.yml
-    chmod go+r /etc/filebeat/filebeat.yml
-    curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSION}/extensions/elasticsearch/7.x/wazuh-template.json
-    chmod go+r /etc/filebeat/wazuh-template.json
+    sed -i "s/YOUR_ELASTIC_SERVER_IP/localhost/" ${etc_filebeat}/filebeat.yml
+    chmod go+r ${etc_filebeat}/filebeat.yml
+    curl -so ${etc_filebeat}/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSION}/extensions/elasticsearch/7.x/wazuh-template.json
+    chmod go+r ${etc_filebeat}/wazuh-template.json
 
     if  [ ${ELK_MINOR} -eq 2 ]; then
         curl -s https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/utils/wazuh-filebeat-module.tar.gz | tar -xvz --no-same-owner -C /usr/share/filebeat/module --owner=0
@@ -32,12 +37,12 @@ install_filebeat_7(){
 }
 configure_elasticsearch(){
 
-    cp -f ${config_files}/elasticsearch.yml /etc/elasticsearch/elasticsearch.yml
+    cp -f ${config_files}/elasticsearch.yml ${etc_elastic}/elasticsearch.yml
 }
 
 configure_jvm_elastic(){
 
-    cp -f ${config_files}/elasticsearch.jvm /etc/elasticsearch/jvm.options
+    cp -f ${config_files}/elasticsearch.jvm ${etc_elastic}/jvm.options
 }
 
 configure_RAM(){
@@ -45,8 +50,8 @@ configure_RAM(){
     ram_gb=$(free -g | awk '/^Mem:/{print $2}')
     ram=$(( ${ram_gb} / 2 ))
     if [ ${ram} -eq "0" ]; then ram=1; fi
-    sed -i "s/-Xms16g/-Xms${ram}g/" /etc/elasticsearch/jvm.options
-    sed -i "s/-Xmx16g/-Xms${ram}g/" /etc/elasticsearch/jvm.options
+    sed -i "s/-Xms16g/-Xms${ram}g/" ${etc_elastic}/jvm.options
+    sed -i "s/-Xmx16g/-Xms${ram}g/" ${etc_elastic}/jvm.options
 }
 
 configure_limitMEMLOCK(){
@@ -65,12 +70,12 @@ install_kibana(){
 
 configure_kibana(){
 
-    openssl req -x509 -batch -nodes -days 3650 -newkey rsa:2048 -keyout /etc/kibana/kibana.key -out /etc/kibana/kibana.cert
+    openssl req -x509 -batch -nodes -days 3650 -newkey rsa:2048 -keyout ${etc_kibana}/kibana.key -out ${etc_kibana}/kibana.cert
 
-    cp -f ${config_files}/kibana.yml  /etc/kibana/kibana.yml
+    cp -f ${config_files}/kibana.yml  ${etc_kibana}/kibana.yml
 
     # Allow Kibana to listen on port 443
-    setcap 'CAP_NET_BIND_SERVICE=+eip' /usr/share/kibana/node/bin/node
+    setcap 'CAP_NET_BIND_SERVICE=+eip' ${usr_kibana}/node/bin/node
 
     # Configuring Kibana default settings
     cp -f ${config_files}/kibana  /etc/default/kibana
@@ -79,12 +84,12 @@ configure_kibana(){
 install_kibana_app(){
     if [ "${STATUS_PACKAGES}" == "stable" ]; then
         #Wazuh-app production repository
-        sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip
+        sudo -u kibana ${usr_kibana}/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip
     fi
 
     if [ "${STATUS_PACKAGES}" == "unstable" ]; then
         # Wazuh-app pre-release repository
-        sudo -u kibana NODE_OPTIONS="--max-old-space-size=3072" /usr/share/kibana/bin/kibana-plugin install https://packages-dev.wazuh.com/pre-release/app/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip
+        sudo -u kibana NODE_OPTIONS="--max-old-space-size=3072" ${usr_kibana}/bin/kibana-plugin install https://packages-dev.wazuh.com/pre-release/app/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip
     fi
 
     systemctl daemon-reload
