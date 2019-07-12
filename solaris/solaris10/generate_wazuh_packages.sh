@@ -11,7 +11,7 @@ PATH=$PATH:/opt/csw/bin:/usr/sfw/bin
 VERSION=""
 CURRENT_PATH=`pwd`
 REPOSITORY="https://github.com/wazuh/wazuh"
-ARCH=`uname -a | cut -d " " -f 6`
+ARCH=`uname -p`
 INSTALL="/var/ossec"
 THREADS=4
 PROFILE=agent
@@ -120,7 +120,7 @@ installation(){
     fi
     arch="$(uname -p)"
     # Build the binaries
-    if [ "$arch" == "sparc" ]; then
+    if [ "$arch" = "sparc" ]; then
         gmake -j $THREADS TARGET=agent PREFIX=$INSTALL USE_SELINUX=no USE_BIG_ENDIAN=yes DISABLE_SHARED=yes
     else
         gmake -j $THREADS TARGET=agent PREFIX=$INSTALL USE_SELINUX=no DISABLE_SHARED=yes
