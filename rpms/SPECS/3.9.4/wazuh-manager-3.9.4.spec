@@ -705,7 +705,7 @@ rm -fr %{buildroot}
 %{_initrddir}/*
 
 %changelog
-* Tue Jun 12 2019 support <info@wazuh.com> - 3.9.4
+* Tue Jul 12 2019 support <info@wazuh.com> - 3.9.4
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Tue Jun 11 2019 support <info@wazuh.com> - 3.9.3
 - More info: https://documentation.wazuh.com/current/release-notes/
