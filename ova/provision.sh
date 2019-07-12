@@ -27,5 +27,3 @@ yum install openssl -y
 install_wazuh
 
 elastic_stack_${ELK_MAJOR}
-
-rm -rf /vagrant
