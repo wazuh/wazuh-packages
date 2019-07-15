@@ -17,6 +17,17 @@ else
     launchctl setenv WAZUH_PKG_UPGRADE true
 fi
 
+if [ $(launchctl getenv WAZUH_PKG_UPGRADE) = true ]; then
+    mkdir -p ${DIR}/config_files/
+    cp -r ${DIR}/etc/{ossec.conf,client.keys,local_internal_options.conf,shared} ${DIR}/config_files/
+fi
+
+if [ $(launchctl getenv WAZUH_PKG_UPGRADE) = true ]; then
+    if pkgutil --pkgs | grep -i wazuh-agent-etc > /dev/null 2>&1 ; then
+        pkgutil --forget com.wazuh.pkg.wazuh-agent-etc
+    fi
+fi
+
 if [[ ! -f "/usr/bin/dscl" ]]
   then
   echo "Error: I couldn't find dscl, dying here";
@@ -64,8 +75,8 @@ if [[ ${new_uid} != ${new_gid} ]]
 fi
 
 # Stops the agent before upgrading it
-if [ -f /Library/Ossec/bin/ossec-control ]; then
-    /Library/Ossec/bin/ossec-control stop
+if [ -f ${DIR}/bin/ossec-control ]; then
+    ${DIR}/bin/ossec-control stop
 fi
 
 # Creating the group

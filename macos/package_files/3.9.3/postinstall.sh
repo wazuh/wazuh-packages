@@ -14,6 +14,12 @@ DIR="/Library/Ossec"
 INSTALLATION_SCRIPTS_DIR="${DIR}/packages_files/agent_installation_scripts"
 SCA_FILES_DIR="${INSTALLATION_SCRIPTS_DIR}/sca"
 
+if [ $(launchctl getenv WAZUH_PKG_UPGRADE) = true ]; then
+    rm -rf ${DIR}/etc/{ossec.conf,client.keys,local_internal_options.conf,shared}
+    cp -rf ${DIR}/config_files/{ossec.conf,client.keys,local_internal_options.conf,shared} ${DIR}/etc/
+    rm -rf ${DIR}/config_files/
+fi
+
 # Default for all directories
 chmod -R 750 ${DIR}/
 chown -R root:${GROUP} ${DIR}/
