@@ -36,7 +36,7 @@ case "$1" in
     update-rc.d -f wazuh-manager remove
 
     # Back up the old configuration files as .save
-        if [ ! -d ${DIR}/etc/shared/default ]; then
+    if [ ! -d ${DIR}/etc/shared/default ]; then
         mkdir -p ${DIR}/etc/shared/default
     fi
 
