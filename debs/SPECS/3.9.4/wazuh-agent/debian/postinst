@@ -75,7 +75,7 @@ case "$1" in
         . ${SCRIPTS_DIR}/src/init/dist-detect.sh
 
         if [ "${DIST_NAME}" = "debian" ]; then
-            if [ "${DIST_VER}" = "9" ]; then
+            if [ "${DIST_VER}" = "9" ] || [ "${DIST_VER}" = "10" ]; then
                 DIST_VER=""
             fi
         elif [ "${DIST_NAME}" = "ubuntu" ]; then
