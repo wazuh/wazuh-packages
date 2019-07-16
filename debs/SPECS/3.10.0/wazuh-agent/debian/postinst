@@ -75,7 +75,7 @@ case "$1" in
         . ${SCRIPTS_DIR}/src/init/dist-detect.sh
 
         if [ "${DIST_NAME}" = "debian" ]; then
-            if [ "${DIST_VER}" = "9" ]; then
+            if [ "${DIST_VER}" = "9" ] || [ "${DIST_VER}" = "10" ]; then
                 DIST_VER=""
             fi
         elif [ "${DIST_NAME}" = "ubuntu" ]; then
@@ -98,18 +98,19 @@ case "$1" in
         mkdir -p ${DIR}/ruleset/sca
 
         # Install the configuration files needed for this hosts
-        if [ -r ${CONF_ASSESMENT_DIR}/sca.files ]; then
-
-            for sca_file in $(cat ${CONF_ASSESMENT_DIR}/sca.files); do
-                mv ${SCA_FILES_DIR}/${sca_file} ${DIR}/ruleset/sca
-            done
-            # Set correct permissions, owner and group
-            chmod 640 ${DIR}/ruleset/sca/*
-            chown root:${GROUP} ${DIR}/ruleset/sca/*
-            # Delete the temporary directory
-            rm -rf ${SCA_FILES_DIR}
-
+        if [ ! -d ${CONF_ASSESMENT_DIR} ]; then
+            CONF_ASSESMENT_DIR="${SCA_FILES_DIR}/generic"
         fi
+
+        for sca_file in $(cat ${CONF_ASSESMENT_DIR}/sca.files); do
+            mv ${SCA_FILES_DIR}/${sca_file} ${DIR}/ruleset/sca
+        done
+        # Set correct permissions, owner and group
+        chmod 640 ${DIR}/ruleset/sca/*
+        chown root:${GROUP} ${DIR}/ruleset/sca/*
+        # Delete the temporary directory
+        rm -rf ${SCA_FILES_DIR}
+
     fi
 
     # logrotate configuration file
