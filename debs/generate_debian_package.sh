@@ -25,6 +25,8 @@ DEB_I386_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/i386"
 DEB_PPC64LE_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/ppc64le"
 
 clean() {
+
+
     exit_code=$1
 
     # Clean the files

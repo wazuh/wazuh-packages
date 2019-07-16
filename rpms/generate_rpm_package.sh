@@ -35,6 +35,8 @@ elif command -v wget > /dev/null 2>&1 ; then
 fi
 
 clean() {
+
+
     exit_code=$1
 
     # Clean the files
