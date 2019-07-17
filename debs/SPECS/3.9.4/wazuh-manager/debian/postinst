@@ -232,11 +232,13 @@ case "$1" in
     chmod 770 ${DIR}/etc/lists
     chmod 770 ${DIR}/etc/lists/amazon
     chmod 660 ${DIR}/etc/lists/amazon/*
-    chmod 640 ${DIR}/etc/lists/audit-keys
-    chmod 640 ${DIR}/etc/lists/audit-keys.cdb
-    chmod 640 ${DIR}/etc/lists/security-eventchannel
-    chmod 640 ${DIR}/etc/lists/security-eventchannel.cdb
+    chmod 660 ${DIR}/etc/lists/audit-keys
+    chmod 660 ${DIR}/etc/lists/audit-keys.cdb
+    chmod 660 ${DIR}/etc/lists/security-eventchannel
+    chmod 660 ${DIR}/etc/lists/security-eventchannel.cdb
     chmod 770 ${DIR}/etc/shared/default
+    chmod 660 ${DIR}/etc/decoders/*
+    chmod 660 ${DIR}/etc/rules/*
 
     chown -R root:ossec ${DIR}/etc/client.keys
     chown -R ossec:ossec ${DIR}/etc/lists/*

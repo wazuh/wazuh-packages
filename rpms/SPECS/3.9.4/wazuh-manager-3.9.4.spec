@@ -581,20 +581,20 @@ rm -fr %{buildroot}
 %attr(750, root, root) %{_localstatedir}/ossec/bin/wazuh-modulesd
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/etc
 %attr(640, root, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/ossec.conf
-%attr(640, root, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/client.keys
+%attr(660, root, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/client.keys
 %attr(640, root, ossec) %{_localstatedir}/ossec/etc/internal_options*
 %attr(640, root, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/local_internal_options.conf
 %{_localstatedir}/ossec/etc/ossec-init.conf
 %attr(640, root, ossec) %{_localstatedir}/ossec/etc/localtime
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/etc/decoders
-%attr(640, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/decoders/local_decoder.xml
+%attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/decoders/local_decoder.xml
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/etc/lists
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/etc/lists/amazon
 %attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/amazon/*
-%attr(640, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/audit-keys
-%attr(640, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/audit-keys.cdb
-%attr(640, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/security-eventchannel
-%attr(640, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/security-eventchannel.cdb
+%attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/audit-keys
+%attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/audit-keys.cdb
+%attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/security-eventchannel
+%attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/security-eventchannel.cdb
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/etc/shared
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/etc/shared/default
 %attr(660, ossec, ossec) %{_localstatedir}/ossec/etc/shared/agent-template.conf
@@ -602,7 +602,7 @@ rm -fr %{buildroot}
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/etc/rootcheck
 %attr(660, root, ossec) %{_localstatedir}/ossec/etc/rootcheck/*.txt
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/etc/rules
-%attr(640, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/rules/local_rules.xml
+%attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/rules/local_rules.xml
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/lib
 %attr(750, root, ossec) %{_localstatedir}/ossec/framework/lib/libsqlite3.so.0
