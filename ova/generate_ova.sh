@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Program to build the Wazuh Virtual Machine
 # Wazuh package generator
@@ -41,13 +41,13 @@ function clean() {
 }
 
 function build_ova() {
-  local WAZUH_VERSION="$1"
-  local OVA_VERSION="$2"
-  local OVA_VM="wazuh${OVA_VERSION}.ova"
-  local OVF_VM="wazuh${OVA_VERSION}.ovf"
-  local OVA_FIXED="wazuh${OVA_VERSION}-fixed.ova"
-  local OVA_VMDK="wazuh${OVA_VERSION}-disk001.vmdk"
-  local ELK_MAJOR=`echo ${ELK_VERSION}|cut -d"." -f1`
+  WAZUH_VERSION="$1"
+  OVA_VERSION="$2"
+  OVA_VM="wazuh${OVA_VERSION}.ova"
+  OVF_VM="wazuh${OVA_VERSION}.ovf"
+  OVA_FIXED="wazuh${OVA_VERSION}-fixed.ova"
+  OVA_VMDK="wazuh${OVA_VERSION}-disk001.vmdk"
+  ELK_MAJOR=`echo ${ELK_VERSION}|cut -d"." -f1`
 
   if [ -e "${OVA_VM}" ] || [ -e "${OVA_VM}" ]; then
     echo "ERROR: files ${OVA_VM} and/or ${OVF_VM} already exists. Please remove them with -c option."

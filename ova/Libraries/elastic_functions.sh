@@ -23,9 +23,7 @@ install_filebeat_7(){
     cp -f ${config_files}/filebeat.yml ${etc_filebeat}/filebeat.yml
 
     sed -i "s/YOUR_ELASTIC_SERVER_IP/localhost/" ${etc_filebeat}/filebeat.yml
-    chmod go+r ${etc_filebeat}/filebeat.yml
     curl -so ${etc_filebeat}/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSION}/extensions/elasticsearch/7.x/wazuh-template.json
-    chmod go+r ${etc_filebeat}/wazuh-template.json
 
     if  [ ${ELK_MINOR} -eq 2 ]; then
         curl -s https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/utils/wazuh-filebeat-module.tar.gz | tar -xvz --no-same-owner -C /usr/share/filebeat/module --owner=0
@@ -82,12 +80,12 @@ configure_kibana(){
 }
 
 install_kibana_app(){
-    if [ "${STATUS_PACKAGES}" == "stable" ]; then
+    if [ "${STATUS_PACKAGES}" = "stable" ]; then
         #Wazuh-app production repository
         sudo -u kibana ${usr_kibana}/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip
     fi
 
-    if [ "${STATUS_PACKAGES}" == "unstable" ]; then
+    if [ "${STATUS_PACKAGES}" = "unstable" ]; then
         # Wazuh-app pre-release repository
         sudo -u kibana NODE_OPTIONS="--max-old-space-size=3072" ${usr_kibana}/bin/kibana-plugin install https://packages-dev.wazuh.com/pre-release/app/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip
     fi
@@ -96,19 +94,10 @@ install_kibana_app(){
     systemctl enable kibana.service
     systemctl start kibana
 
-    while true; do
-
-        STATUS=$(curl -XGET https://localhost/status -I -s -k | grep HTTP)
-        if [[ "$STATUS" == *"200"* ]]; then
-
-            echo "Kibana is running."
-            break
-        else
-            echo "Waiting for Kibana"
-            sleep 2
-        fi
+    until $(curl "localhost:9200/?pretty" --max-time 2 --silent --output /dev/null); do
+        echo "Waiting for Elasticsearch..."
+        sleep 2
     done
-
 }
 
 configure_kibana_app(){
@@ -173,7 +162,7 @@ insert_elasticsearch_template_6(){
 
 install_logstash_6(){
 
-    yum install logstash-${2} -y
+    yum install logstash-${ELK_VERSION} -y
     curl -so /etc/logstash/conf.d/01-wazuh.conf https://raw.githubusercontent.com/wazuh/wazuh/${repo_branch}/extensions/logstash/01-wazuh-local.conf
     usermod -a -G ossec logstash
     systemctl daemon-reload
