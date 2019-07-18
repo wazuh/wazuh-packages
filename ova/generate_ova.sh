@@ -1,4 +1,5 @@
 #!/bin/sh
+set -exf
 
 # Program to build the Wazuh Virtual Machine
 # Wazuh package generator
@@ -19,9 +20,9 @@ scriptpath=$(
   pwd -P
 )
 
-function help() {
+help () {
 
-  OPTIONS:
+  echo "OPTIONS:"
   echo
   echo "  -b, --build            [Required] Build the OVA and OVF."
   echo "  -v, --version          [Required] Version of wazuh to install on VM."
@@ -34,13 +35,13 @@ function help() {
   exit $1
 }
 
-function clean() {
+clean() {
   rm -f ${scriptpath}/*.ova ${scriptpath}/*.ovf ${scriptpath}/*.mf ${scriptpath}/*.vmdk
   vagrant destroy -f
   return 0
 }
 
-function build_ova() {
+build_ova() {
   WAZUH_VERSION="$1"
   OVA_VERSION="$2"
   OVA_VM="wazuh${OVA_VERSION}.ova"
@@ -56,8 +57,8 @@ function build_ova() {
 
   #Download filebeat.yml and enable geoip
   if [ ${ELK_MAJOR} -eq 7 ]; then
-      curl -so Config_files/filebeat.yml https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSION}/extensions/filebeat/7.x/filebeat.yml
-      sed -i "s|#pipeline: geoip|pipeline: geoip|" Config_files/filebeat.yml
+      curl -so config_files/filebeat.yml https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSION}/extensions/filebeat/7.x/filebeat.yml
+      sed -i "s|#pipeline: geoip|pipeline: geoip|" config_files/filebeat.yml
   fi
 
 
@@ -82,10 +83,10 @@ function build_ova() {
   mv ${OVA_FIXED} ${OVA_VM}
 }
 
-function check_version() {
-  if [ "$3" == "stable" ]; then
+check_version() {
+  if [ "$3" = "stable" ]; then
     FLAG=$(git ls-remote --tags https://github.com/wazuh/wazuh-kibana-app | grep ${1}-${2})
-  elif [ "$3" == "unstable" ]; then
+  elif [ "$3" = "unstable" ]; then
     FLAG=$(curl -Is https://packages-dev.wazuh.com/pre-release/app/kibana/wazuhapp-${1}_${2}.zip | grep -i Content-Length)
   else
     echo "Error, repository value must take 'stable' or 'unstable' value."
@@ -93,14 +94,14 @@ function check_version() {
   fi
 }
 
-function main() {
-  local BUILD=false
-  local HAVE_VERSION=false
-  local HAVE_ELK_VERSION=false
+main() {
+ BUILD=false
+ HAVE_VERSION=false
+ HAVE_ELK_VERSION=false
 
-  local WAZUH_VERSION=""
-  local ELK_VERSION=""
-  local STATUS=""
+ WAZUH_VERSION=""
+ ELK_VERSION=""
+ STATUS=""
   export DIRECTORY="/var/ossec"
   while [ -n "$1" ]; do
     case $1 in
@@ -109,15 +110,15 @@ function main() {
       ;;
 
     "-b" | "--build")
-      local BUILD=true
+     BUILD=true
       shift 1
       ;;
 
     "-v" | "--version")
       if [ -n "$2" ]; then
         export OVA_WAZUH_VERSION="$2"
-        local WAZUH_VERSION="$2"
-        local HAVE_VERSION=true
+       WAZUH_VERSION="$2"
+       HAVE_VERSION=true
       else
         echo "ERROR Need wazuh version."
         help 1
@@ -128,8 +129,8 @@ function main() {
     "-e" | "--elastic-version")
       if [ -n "$2" ]; then
         export OVA_ELK_VERSION="$2"
-        local ELK_VERSION="$2"
-        local HAVE_ELK_VERSION=true
+       ELK_VERSION="$2"
+       HAVE_ELK_VERSION=true
       else
         echo "ERROR: Need elastic version."
         help 1
@@ -140,8 +141,8 @@ function main() {
     "-r" | "--repository")
       if [ -n "$2" ]; then
         export STATUS_PACKAGES="$2"
-        local STATUS="$2"
-        local HAVE_STATUS=true
+       STATUS="$2"
+       HAVE_STATUS=true
       else
         echo "ERROR: Need Status of the packages."
         help 1
@@ -169,10 +170,10 @@ function main() {
     esac
   done
 
-  if [[ "${BUILD}" == true ]] && [[ "${HAVE_VERSION}" == true ]] && [[ "${HAVE_ELK_VERSION}" == true ]] && [[ "${HAVE_STATUS}" == true ]]; then
+  if [ "${BUILD}" = true ] && [ "${HAVE_VERSION}" = true ] && [ "${HAVE_ELK_VERSION}" = true ] && [ "${HAVE_STATUS}" = true ]; then
     check_version ${WAZUH_VERSION} ${ELK_VERSION} ${STATUS}
     if [ -n "${FLAG}" ]; then
-      local OVA_VERSION="${WAZUH_VERSION}_${ELK_VERSION}"
+      OVA_VERSION="${WAZUH_VERSION}_${ELK_VERSION}"
       echo "Version to build: ${WAZUH_VERSION}-${ELK_VERSION} with ${STATUS} repository."
       build_ova ${WAZUH_VERSION} ${OVA_VERSION}
     else

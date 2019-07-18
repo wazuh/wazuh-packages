@@ -94,8 +94,8 @@ install_kibana_app(){
     systemctl enable kibana.service
     systemctl start kibana
 
-    until $(curl "localhost:9200/?pretty" --max-time 2 --silent --output /dev/null); do
-        echo "Waiting for Elasticsearch..."
+    until [[ "$(curl -XGET https://localhost/status -I -s -k | grep HTTP)" == *"200"* ]]; do
+        echo "Waiting for Kibana..."
         sleep 2
     done
 }

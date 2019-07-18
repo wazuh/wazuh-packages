@@ -9,12 +9,12 @@ install_wazuh() {
 }
 
 set_wazuh_repository(){
-    if [ "${STATUS_PACKAGES}" == "stable" ]; then
+    if [ "${STATUS_PACKAGES}" = "stable" ]; then
         # Wazuh production repository
         echo -e '[wazuh_repo]\ngpgcheck=1\ngpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=Wazuh repository \nbaseurl=https://packages.wazuh.com/3.x/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo
     fi
 
-    if [ "${STATUS_PACKAGES}" == "unstable" ]; then
+    if [ "${STATUS_PACKAGES}" = "unstable" ]; then
         # Wazuh pre-release repository
         echo -e '[wazuh_repo_dev]\ngpgcheck=1\ngpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages-dev.wazuh.com/pre-release/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo
     fi
@@ -62,7 +62,7 @@ delete_logs(){
     systemctl stop wazuh-manager
     systemctl stop wazuh-api
 
-    find ${DIRECTORY}/logs -name *.log -exec : > {} \;
+    find ${DIRECTORY}/logs -name \(*.log -o *.json \) -exec : > {} \;
     rm -rf ${DIRECTORY}/logs/{archives,alerts,cluster,firewall,ossec}/*
     rm -rf ${DIRECTORY}}/stats/*
 
