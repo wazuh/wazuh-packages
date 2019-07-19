@@ -186,6 +186,7 @@ case "$1" in
     chmod -R 770 ${DIR}/var
     chmod 750 ${DIR}/var
     chown -R root:${GROUP} ${DIR}/var
+    chown -R ${USER}:${GROUP} ${DIR}/var/multigroups
     chmod 770 ${DIR}/var/selinux > /dev/null 2>&1 || true
     chmod -R 640 ${DIR}/var/selinux/* > /dev/null 2>&1 || true
     chmod 770 ${DIR}/var/db > /dev/null 2>&1 || true
