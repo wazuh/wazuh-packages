@@ -101,7 +101,7 @@ case "$1" in
         fi
     else
         ${SCRIPTS_DIR}/gen_ossec.sh conf manager ${OS} ${VER} > ${DIR}/etc/ossec.conf.new
-        chmod 640 ${DIR}/etc/ossec.conf.new
+        chmod 660 ${DIR}/etc/ossec.conf.new
     fi
 
     # Remove existing SQLite databases
