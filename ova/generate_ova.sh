@@ -21,6 +21,7 @@ scriptpath=$(
 
 help () {
 
+  echo
   echo "Usage: $0 [OPTIONS]"
   echo
   echo "  -b, --build            [Required] Build the OVA and OVF."
