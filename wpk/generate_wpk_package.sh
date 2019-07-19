@@ -17,6 +17,7 @@ WIN_BUILDER_DOCKERFILE="${CURRENT_PATH}/windows"
 
 
 
+
 function build_wpk_windows() {
   local BRANCH="$1"
   local DESTINATION="$2"

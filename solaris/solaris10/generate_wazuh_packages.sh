@@ -5,6 +5,7 @@
 # Wazuh Solaris 10 i386 Package builder.
 
 
+
 # CONFIGURATION VARIABLES
 BRANCH="$(echo "$2" | cut -d "/" -f2)"
 PATH=$PATH:/opt/csw/bin:/usr/sfw/bin
