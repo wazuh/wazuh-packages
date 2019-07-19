@@ -10,8 +10,8 @@
     "/var/ossec/.ssh": {
         "class": "static",
         "group": "ossec",
-        "mode": "0750",
-        "prot": "drwx------",
+        "mode": "0770",
+        "prot": "drwxrwx---",
         "type": "directory",
         "user": "root"
     },
@@ -419,8 +419,8 @@
     "/var/ossec/etc/ossec.conf": {
         "class": "static",
         "group": "ossec",
-        "mode": "0640",
-        "prot": "-rw-r-----",
+        "mode": "0660",
+        "prot": "-rw-rw----",
         "type": "file",
         "user": "root"
     },
@@ -1032,6 +1032,14 @@
         "type": "directory",
         "user": "ossec"
     },
+    "/var/ossec/queue/alerts/cfgaq": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0660",
+        "prot": "-rw-rw----",
+        "type": "file",
+        "user": "root"
+    },
     "/var/ossec/queue/alerts/execq": {
         "class": "dynamic",
         "group": "ossec",
@@ -1613,6 +1621,14 @@
         "group": "ossec",
         "mode": "0750",
         "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+        "/var/ossec/ruleset/sca/cis_solaris11_rcl.yml": {
+        "class": "static",
+        "group": "ossec",
+        "mode": "0640",
+        "prot": "-rwxr-----",
         "type": "file",
         "user": "root"
     }
