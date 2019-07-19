@@ -1,5 +1,4 @@
 #!/bin/sh
-set -exf
 
 # Program to build the Wazuh Virtual Machine
 # Wazuh package generator
@@ -22,7 +21,7 @@ scriptpath=$(
 
 help () {
 
-  echo "OPTIONS:"
+  echo "Usage: $0 [OPTIONS]"
   echo
   echo "  -b, --build            [Required] Build the OVA and OVF."
   echo "  -v, --version          [Required] Version of wazuh to install on VM."
@@ -57,8 +56,8 @@ build_ova() {
 
   #Download filebeat.yml and enable geoip
   if [ ${ELK_MAJOR} -eq 7 ]; then
-      curl -so config_files/filebeat.yml https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSION}/extensions/filebeat/7.x/filebeat.yml
-      sed -i "s|#pipeline: geoip|pipeline: geoip|" config_files/filebeat.yml
+      curl -so Config_files/filebeat.yml https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSION}/extensions/filebeat/7.x/filebeat.yml
+      sed -i "s|#pipeline: geoip|pipeline: geoip|" Config_files/filebeat.yml
   fi
 
 
