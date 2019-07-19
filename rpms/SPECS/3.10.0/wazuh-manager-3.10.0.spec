@@ -579,7 +579,7 @@ rm -fr %{buildroot}
 %attr(750, root, root) %{_localstatedir}/ossec/bin/wazuh-db
 %attr(750, root, root) %{_localstatedir}/ossec/bin/wazuh-modulesd
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/etc
-%attr(640, root, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/ossec.conf
+%attr(660, root, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/ossec.conf
 %attr(660, root, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/client.keys
 %attr(640, root, ossec) %{_localstatedir}/ossec/etc/internal_options*
 %attr(640, root, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/local_internal_options.conf
@@ -674,14 +674,14 @@ rm -fr %{buildroot}
 %attr(640, root, ossec) %{_localstatedir}/ossec/ruleset/decoders/*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset/rules
 %attr(640, root, ossec) %{_localstatedir}/ossec/ruleset/rules/*
-%dir %attr(750, root, ossec) %{_localstatedir}/ossec/.ssh
+%dir %attr(770, root, ossec) %{_localstatedir}/ossec/.ssh
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/stats
 %dir %attr(1770, root, ossec) %{_localstatedir}/ossec/tmp
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/var
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/var/db
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/var/db/agents
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/var/download
-%dir %attr(770, root, ossec) %{_localstatedir}/ossec/var/multigroups
+%dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/var/multigroups
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/var/run
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/var/selinux
 %attr(640, root, ossec) %{_localstatedir}/ossec/var/selinux/*

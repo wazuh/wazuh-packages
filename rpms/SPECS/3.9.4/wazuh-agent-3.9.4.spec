@@ -308,7 +308,7 @@ SCA_TMP_DIR="%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${SCA_DIR
 
 # Install the configuration files
 if [ ! -d ${SCA_TMP_DIR} ]; then
-  SCA_TMP_DIR="%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/generic" 
+  SCA_TMP_DIR="%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/generic"
 fi
 
 SCA_TMP_FILE="${SCA_TMP_DIR}/sca.files"
@@ -469,7 +469,7 @@ rm -fr %{buildroot}
 %attr(640,root,ossec) %verify(not md5 size mtime) %{_sysconfdir}/ossec-init.conf
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec
 %attr(750,root,ossec) %{_localstatedir}/ossec/agentless
-%dir %attr(750,root,ossec) %{_localstatedir}/ossec/.ssh
+%dir %attr(770,root,ossec) %{_localstatedir}/ossec/.ssh
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec/active-response
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec/active-response/bin
 %attr(750,root,ossec) %{_localstatedir}/ossec/active-response/bin/*
@@ -481,7 +481,7 @@ rm -fr %{buildroot}
 %attr(640,root,ossec) %{_localstatedir}/ossec/etc/internal_options*
 %attr(640,root,ossec) %{_localstatedir}/ossec/etc/localtime
 %attr(640,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/local_internal_options.conf
-%attr(640,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/ossec.conf
+%attr(660,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/ossec.conf
 %{_localstatedir}/ossec/etc/ossec-init.conf
 %attr(640,root,ossec) %{_localstatedir}/ossec/etc/wpk_root.pem
 %dir %attr(770,root,ossec) %{_localstatedir}/ossec/etc/shared
