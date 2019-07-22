@@ -296,6 +296,20 @@ elif [ -r "/etc/SuSE-release" ]; then
       DIST_NAME="sles"
       DIST_VER=`sed -rn 's/.*VERSION = ([0-9]{1,2}).*/\1/p' /etc/SuSE-release`
   fi
+if [ -r "/etc/os-release" ]; then
+  . /etc/os-release
+  DIST_NAME=$ID
+  DIST_VER=$(echo $VERSION_ID | sed -rn 's/[^0-9]*([0-9]+).*/\1/p')
+  if [ "X$DIST_VER" = "X" ]; then
+      DIST_VER="0"
+  fi
+  if [ "$DIST_NAME" = "amzn" ] && [ "$DIST_VER" != "2" ]; then
+      DIST_VER="1"
+  fi
+  DIST_SUBVER=$(echo $VERSION_ID | sed -rn 's/[^0-9]*[0-9]+\.([0-9]+).*/\1/p')
+  if [ "X$DIST_SUBVER" = "X" ]; then
+      DIST_SUBVER="0"
+  fi
 else
   DIST_NAME="generic"
   DIST_VER=""
@@ -308,7 +322,7 @@ SCA_TMP_DIR="%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${SCA_DIR
 
 # Install the configuration files
 if [ ! -d ${SCA_TMP_DIR} ]; then
-  SCA_TMP_DIR="%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/generic" 
+  SCA_TMP_DIR="%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/generic"
 fi
 
 SCA_TMP_FILE="${SCA_TMP_DIR}/sca.files"
