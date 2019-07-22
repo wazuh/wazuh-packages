@@ -168,9 +168,9 @@ insert_elasticsearch_template_6(){
 
     # Insert the template
     if curl -f ${RAW_TEMPLATE_URL1} -so template.json ; then
-        echo "Downloading elastic-template for wazuh v${WAZUH_VERSION} and elastic ${ELK_VERSION}"
+        echo "Downloading Elastic-template for Wazuh v${WAZUH_VERSION} and Elastic ${ELK_VERSION}"
     elif curl -f ${RAW_TEMPLATE_URL2} -so template.json ; then
-        echo "Downloading elastic-template for wazuh v${WAZUH_VERSION} and elastic ${ELK_VERSION}"
+        echo "Downloading Elastic-template for Wazuh v${WAZUH_VERSION} and Elastic ${ELK_VERSION}"
     else
         exit 1
     fi
