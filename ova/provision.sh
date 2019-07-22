@@ -1,4 +1,5 @@
 #/bin/bash
+set -exf
 # Variables
 repo_branch=$(echo "$1" | cut -c1-3)
 repo_baseurl=$(echo "$1" | cut -c1-2)
@@ -8,7 +9,7 @@ STATUS_PACKAGES=$3
 DIRECTORY=$4
 ELK_MAJOR=`echo ${ELK_VERSION}|cut -d"." -f1`
 ELK_MINOR=`echo ${ELK_VERSION}|cut -d"." -f2`
-config_files="/vagrant/config_files"
+config_files="/vagrant/Config_files"
 
 . /vagrant/Libraries/wazuh_functions.sh
 . /vagrant/Libraries/elastic_functions.sh
@@ -27,3 +28,4 @@ yum install openssl -y
 install_wazuh
 
 elastic_stack_${ELK_MAJOR}
+

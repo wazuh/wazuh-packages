@@ -9,6 +9,7 @@ install_wazuh() {
 }
 
 set_wazuh_repository(){
+
     if [ "${STATUS_PACKAGES}" = "stable" ]; then
         # Wazuh production repository
         echo -e '[wazuh_repo]\ngpgcheck=1\ngpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=Wazuh repository \nbaseurl=https://packages.wazuh.com/3.x/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo
@@ -21,11 +22,13 @@ set_wazuh_repository(){
 }
 
 install_nodejs(){
+
     curl --silent --location https://rpm.nodesource.com/setup_8.x | bash -
     yum install nodejs -y
 }
 
 configure_manager(){
+
     manager_config="${DIRECTORY}/etc/ossec.conf"
 
     # Disabling agent components and cleaning configuration file
@@ -48,6 +51,7 @@ configure_manager(){
 }
 
 configure_api(){
+
     # Configuring Wazuh API user and password
     cd ${DIRECTORY}/api/configuration/auth
     node htpasswd -b -c user foo bar
@@ -59,11 +63,11 @@ configure_api(){
 }
 
 delete_logs(){
+
     systemctl stop wazuh-manager
     systemctl stop wazuh-api
 
-    find ${DIRECTORY}/logs -name \(*.log -o *.json \) -exec : > {} \;
+    find ./ -type f \( -iname \*.log -o -iname \*.json \) -exec : > {} \;
     rm -rf ${DIRECTORY}/logs/{archives,alerts,cluster,firewall,ossec}/*
     rm -rf ${DIRECTORY}}/stats/*
-
 }
