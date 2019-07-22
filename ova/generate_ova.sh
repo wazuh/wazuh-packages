@@ -36,6 +36,7 @@ help () {
 }
 
 clean() {
+
     echo "Starting cleaninig task"
     exit_code=$1
     vagrant destroy -f
@@ -50,6 +51,7 @@ clean() {
 }
 
 build_ova() {
+
     WAZUH_VERSION="$1"
     OVA_VERSION="$2"
     OVA_VM="wazuh${OVA_VERSION}.ova"

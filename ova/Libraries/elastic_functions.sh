@@ -2,12 +2,13 @@ etc_elastic="/etc/elasticsearch"
 etc_filebeat="/etc/filebeat"
 etc_kibana="/etc/kibana"
 usr_kibana="/usr/share/kibana"
+RAW_TEMPLATE_URL1="https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSION}/extensions/elasticsearch/wazuh-elastic6-template-alerts.json"
+RAW_TEMPLATE_URL2="https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSION}/extensions/elasticsearch/${ELK_MAJOR}.x/wazuh-template.json"
 
 set_elastic_repository(){
 
     rpm --import https://packages.elastic.co/GPG-KEY-elasticsearch
     echo -e "[elasticsearch-${ELK_MAJOR}.x]\nname=Elasticsearch repository for ${ELK_MAJOR}.x packages\nbaseurl=https://artifacts.elastic.co/packages/${ELK_MAJOR}.x/yum\ngpgcheck=1\ngpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch\nenabled=1\nautorefresh=1\ntype=rpm-md" | tee /etc/yum.repos.d/elastic.repo
-
 }
 
 install_elasticsearch(){
@@ -15,7 +16,6 @@ install_elasticsearch(){
     yum install elasticsearch-${ELK_VERSION} -y
     systemctl daemon-reload
     systemctl enable elasticsearch.service
-
 }
 
 install_filebeat_7(){
@@ -24,7 +24,7 @@ install_filebeat_7(){
     cp -f ${config_files}/filebeat.yml ${etc_filebeat}/filebeat.yml
 
     sed -i "s/YOUR_ELASTIC_SERVER_IP/localhost/" ${etc_filebeat}/filebeat.yml
-    curl -f -so ${etc_filebeat}/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSION}/extensions/elasticsearch/7.x/wazuh-template.json
+    curl -f ${RAW_TEMPLATE_URL2} -so ${etc_filebeat}/wazuh-template.json
 
     # if [ ${ELK_MINOR} -eq 2 ]; then
     #     curl -f -s https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/utils/wazuh-filebeat-module.tar.gz | tar -xvz --no-same-owner -C /usr/share/filebeat/module --owner=0
@@ -167,31 +167,13 @@ insert_elasticsearch_template_6(){
     done
 
     # Insert the template
-    if [ ${wazuh_major} -ge 3 ]; then
-        if [ ${wazuh_major} -eq 3 ]; then
-            if [ ${wazuh_minor} -ge 9 ]; then
-                if [ ${wazuh_minor} -eq 9 ]; then
-                    if [ ${wazuh_changes} -eq 0 ]; then
-                        curl -f https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSION}/extensions/elasticsearch/wazuh-elastic6-template-alerts.json -so template.json
-                    else
-                        curl -f https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSION}/extensions/elasticsearch/6.x/wazuh-template.json -so template.json
-                    fi
-                else
-                    curl -f https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSION}/extensions/elasticsearch/6.x/wazuh-template.json -so template.json
-                fi
-
-            else
-                curl -f https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSION}/extensions/elasticsearch/wazuh-elastic6-template-alerts.json -so template.json
-            fi
-        else
-            curl -f https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSION}/extensions/elasticsearch/6.x/wazuh-template.json -so template.json
-        fi
+    if curl -f ${RAW_TEMPLATE_URL1} -so template.json ; then
+        echo "Downloading elastic-template for wazuh v${WAZUH_VERSION} and elastic ${ELK_VERSION}"
+    elif curl -f ${RAW_TEMPLATE_URL2} -so template.json ; then
+        echo "Downloading elastic-template for wazuh v${WAZUH_VERSION} and elastic ${ELK_VERSION}"
     else
-        curl -f https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSION}/extensions/elasticsearch/wazuh-elastic6-template-alerts.json -so template.json
+        exit 1
     fi
-
-
-
 
     sed -i 's#"index.refresh_interval": "5s"#"index.refresh_interval": "5s",\n    "number_of_shards": 1,\n    "number_of_replicas":0#g' template.json
     curl -f -s -XPUT "http://localhost:9200/_template/wazuh" -H 'Content-Type: application/json' -d @template.json
