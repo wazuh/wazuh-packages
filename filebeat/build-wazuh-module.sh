@@ -34,7 +34,7 @@ Content:
 # Edit these env variables at your own
 W_BASE_DIR="/tmp/filebeat-wazuh"
 W_BEATS_BRANCH="v7.2.0"
-W_WAZUH_BRANCH="filebeat-module"
+W_WAZUH_BRANCH="v3.9.4"
 GO_VERSION="1.12.4"
 
 # Clean previous building attempts
