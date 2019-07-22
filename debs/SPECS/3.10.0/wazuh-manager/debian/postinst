@@ -101,7 +101,7 @@ case "$1" in
         fi
     else
         ${SCRIPTS_DIR}/gen_ossec.sh conf manager ${OS} ${VER} > ${DIR}/etc/ossec.conf.new
-        chmod 640 ${DIR}/etc/ossec.conf.new
+        chmod 660 ${DIR}/etc/ossec.conf.new
     fi
 
     # Remove existing SQLite databases
@@ -186,6 +186,7 @@ case "$1" in
     chmod -R 770 ${DIR}/var
     chmod 750 ${DIR}/var
     chown -R root:${GROUP} ${DIR}/var
+    chown -R ${USER}:${GROUP} ${DIR}/var/multigroups
     chmod 770 ${DIR}/var/selinux > /dev/null 2>&1 || true
     chmod -R 640 ${DIR}/var/selinux/* > /dev/null 2>&1 || true
     chmod 770 ${DIR}/var/db > /dev/null 2>&1 || true
@@ -232,11 +233,13 @@ case "$1" in
     chmod 770 ${DIR}/etc/lists
     chmod 770 ${DIR}/etc/lists/amazon
     chmod 660 ${DIR}/etc/lists/amazon/*
-    chmod 640 ${DIR}/etc/lists/audit-keys
-    chmod 640 ${DIR}/etc/lists/audit-keys.cdb
-    chmod 640 ${DIR}/etc/lists/security-eventchannel
-    chmod 640 ${DIR}/etc/lists/security-eventchannel.cdb
+    chmod 660 ${DIR}/etc/lists/audit-keys
+    chmod 660 ${DIR}/etc/lists/audit-keys.cdb
+    chmod 660 ${DIR}/etc/lists/security-eventchannel
+    chmod 660 ${DIR}/etc/lists/security-eventchannel.cdb
     chmod 770 ${DIR}/etc/shared/default
+    chmod 660 ${DIR}/etc/decoders/*
+    chmod 660 ${DIR}/etc/rules/*
 
     chown -R root:ossec ${DIR}/etc/client.keys
     chown -R ossec:ossec ${DIR}/etc/lists/*

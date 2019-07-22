@@ -234,7 +234,6 @@ if [ $1 = 1 ]; then
   # Generating ossec.conf file
   %{_localstatedir}/ossec/packages_files/manager_installation_scripts/gen_ossec.sh conf manager ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir}/ossec > %{_localstatedir}/ossec/etc/ossec.conf
   chown root:ossec %{_localstatedir}/ossec/etc/ossec.conf
-  chmod 0640 %{_localstatedir}/ossec/etc/ossec.conf
 
   ETC_DECODERS="%{_localstatedir}/ossec/etc/decoders"
   ETC_RULES="%{_localstatedir}/ossec/etc/rules"
@@ -328,6 +327,8 @@ if [ $1 = 1 ]; then
   fi
 
 fi
+
+chmod 0660 %{_localstatedir}/ossec/etc/ossec.conf
 
 if [ -f "%{_localstatedir}/ossec/etc/shared/agent.conf" ]; then
 mv "%{_localstatedir}/ossec/etc/shared/agent.conf" "%{_localstatedir}/ossec/etc/shared/default/agent.conf"
@@ -579,21 +580,21 @@ rm -fr %{buildroot}
 %attr(750, root, root) %{_localstatedir}/ossec/bin/wazuh-db
 %attr(750, root, root) %{_localstatedir}/ossec/bin/wazuh-modulesd
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/etc
-%attr(640, root, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/ossec.conf
+%attr(660, root, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/ossec.conf
 %attr(640, root, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/client.keys
 %attr(640, root, ossec) %{_localstatedir}/ossec/etc/internal_options*
 %attr(640, root, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/local_internal_options.conf
 %{_localstatedir}/ossec/etc/ossec-init.conf
 %attr(640, root, ossec) %{_localstatedir}/ossec/etc/localtime
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/etc/decoders
-%attr(640, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/decoders/local_decoder.xml
+%attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/decoders/local_decoder.xml
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/etc/lists
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/etc/lists/amazon
 %attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/amazon/*
-%attr(640, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/audit-keys
-%attr(640, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/audit-keys.cdb
-%attr(640, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/security-eventchannel
-%attr(640, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/security-eventchannel.cdb
+%attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/audit-keys
+%attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/audit-keys.cdb
+%attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/security-eventchannel
+%attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/lists/security-eventchannel.cdb
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/etc/shared
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/etc/shared/default
 %attr(660, ossec, ossec) %{_localstatedir}/ossec/etc/shared/agent-template.conf
@@ -601,7 +602,7 @@ rm -fr %{buildroot}
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/etc/rootcheck
 %attr(660, root, ossec) %{_localstatedir}/ossec/etc/rootcheck/*.txt
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/etc/rules
-%attr(640, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/rules/local_rules.xml
+%attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/ossec/etc/rules/local_rules.xml
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/lib
 %attr(750, root, ossec) %{_localstatedir}/ossec/framework/lib/libsqlite3.so.0
@@ -674,14 +675,14 @@ rm -fr %{buildroot}
 %attr(640, root, ossec) %{_localstatedir}/ossec/ruleset/decoders/*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset/rules
 %attr(640, root, ossec) %{_localstatedir}/ossec/ruleset/rules/*
-%dir %attr(750, root, ossec) %{_localstatedir}/ossec/.ssh
+%dir %attr(770, root, ossec) %{_localstatedir}/ossec/.ssh
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/stats
 %dir %attr(1770, root, ossec) %{_localstatedir}/ossec/tmp
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/var
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/var/db
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/var/db/agents
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/var/download
-%dir %attr(770, root, ossec) %{_localstatedir}/ossec/var/multigroups
+%dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/var/multigroups
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/var/run
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/var/selinux
 %attr(640, root, ossec) %{_localstatedir}/ossec/var/selinux/*

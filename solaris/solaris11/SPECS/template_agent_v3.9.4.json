@@ -10,8 +10,8 @@
     "/var/ossec/.ssh": {
         "class": "static",
         "group": "ossec",
-        "mode": "0750",
-        "prot": "drwx------",
+        "mode": "0770",
+        "prot": "drwxrwx---",
         "type": "directory",
         "user": "root"
     },
@@ -419,8 +419,8 @@
     "/var/ossec/etc/ossec.conf": {
         "class": "static",
         "group": "ossec",
-        "mode": "0640",
-        "prot": "-rw-r-----",
+        "mode": "0660",
+        "prot": "-rw-rw----",
         "type": "file",
         "user": "root"
     },
