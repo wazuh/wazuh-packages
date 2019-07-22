@@ -75,7 +75,7 @@ fi
 
 # Installing
 if [ $1 = 1 ]; then
-
+  cat slkdjadjslasjdjdkljasdkljadkla
   API_PATH="${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api"
   API_PATH_BACKUP="${RPM_BUILD_ROOT}%{_localstatedir}/ossec/~api"
 
