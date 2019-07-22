@@ -46,7 +46,6 @@ clean() {
     else
         rm -f ${OVA_VM} ${OVF_VM} ${OVA_VMDK} ${OVA_FIXED}
     fi
-    vboxmanage unregistervm vm_wazuh
     exit ${exit_code}
 }
 
@@ -60,8 +59,7 @@ build_ova() {
     ELK_MAJOR=`echo ${ELK_VERSION}|cut -d"." -f1`
 
     if [ -e "${OVA_VM}" ] || [ -e "${OVA_VM}" ]; then
-        echo "ERROR: files ${OVA_VM} and/or ${OVF_VM} already exists. Please remove them with -c option."
-        clean 1
+        rm -f ${OVA_VM} ${OVF_VM}
     fi
 
     #Download filebeat.yml and enable geoip

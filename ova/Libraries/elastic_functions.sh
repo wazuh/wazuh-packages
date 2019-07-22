@@ -157,15 +157,44 @@ install_jdk_6(){
 
 insert_elasticsearch_template_6(){
 
-  until $(curl "localhost:9200/?pretty" --max-time 2 --silent --output /dev/null); do
-    echo "Waiting for Elasticsearch..."
-    sleep 2
-  done
+    wazuh_major=`echo ${WAZUH_VERSION} | cut -d'.' -f 1`
+    wazuh_minor=`echo ${WAZUH_VERSION} | cut -d'.' -f 2`
+    wazuh_changes=`echo ${WAZUH_VERSION} | cut -d'.' -f 3`
 
-  # Insert the template
-  curl -f https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSION}/extensions/elasticsearch/wazuh-elastic6-template-alerts.json -so template.json
-  sed -i 's#"index.refresh_interval": "5s"#"index.refresh_interval": "5s",\n    "number_of_shards": 1,\n    "number_of_replicas":0#g' template.json
-  curl -f -s -XPUT "http://localhost:9200/_template/wazuh" -H 'Content-Type: application/json' -d @template.json
+    until $(curl "localhost:9200/?pretty" --max-time 2 --silent --output /dev/null); do
+        echo "Waiting for Elasticsearch..."
+        sleep 2
+    done
+
+    # Insert the template
+    if [ ${wazuh_major} -ge 3 ]; then
+        if [ ${wazuh_major} -eq 3 ]; then
+            if [ ${wazuh_minor} -ge 9 ]; then
+                if [ ${wazuh_minor} -eq 9 ]; then
+                    if [ ${wazuh_changes} -eq 0 ]; then
+                        curl -f https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSION}/extensions/elasticsearch/wazuh-elastic6-template-alerts.json -so template.json
+                    else
+                        curl -f https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSION}/extensions/elasticsearch/6.x/wazuh-template.json -so template.json
+                    fi
+                else
+                    curl -f https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSION}/extensions/elasticsearch/6.x/wazuh-template.json -so template.json
+                fi
+
+            else
+                curl -f https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSION}/extensions/elasticsearch/wazuh-elastic6-template-alerts.json -so template.json
+            fi
+        else
+            curl -f https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSION}/extensions/elasticsearch/6.x/wazuh-template.json -so template.json
+        fi
+    else
+        curl -f https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSION}/extensions/elasticsearch/wazuh-elastic6-template-alerts.json -so template.json
+    fi
+
+
+
+
+    sed -i 's#"index.refresh_interval": "5s"#"index.refresh_interval": "5s",\n    "number_of_shards": 1,\n    "number_of_replicas":0#g' template.json
+    curl -f -s -XPUT "http://localhost:9200/_template/wazuh" -H 'Content-Type: application/json' -d @template.json
 }
 
 install_logstash_6(){
