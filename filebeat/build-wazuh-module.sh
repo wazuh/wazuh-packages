@@ -77,7 +77,8 @@ rm -rf /tmp/wazuh
 # Generate production files for Wazuh module
 make update > /dev/null 2>&1
 cd build/package/module
-tar -czvf wazuh.tar.gz --owner=0 --group=0 wazuh/* > /dev/null 2>&1
+sudo chown root:root -R wazuh/
+tar -czvf wazuh.tar.gz wazuh/* > /dev/null 2>&1
 
 # Move final package to /tmp/wazuh.tar.gz
 mv $W_BASE_DIR/src/github.com/elastic/beats/filebeat/build/package/module/wazuh.tar.gz /tmp
@@ -85,8 +86,9 @@ mv $W_BASE_DIR/src/github.com/elastic/beats/filebeat/build/package/module/wazuh.
 # Optional. Upload the module to Amazon S3
 #S3_PATH="packages-dev.wazuh.com/utils"
 #S3_TIMESTAMP=$(date +%s)
-#S3_FILENAME="wazuh-filebeat.$S3_TIMESTAMP.tar.gz"
+#S3_FILENAME="wazuh-filebeat-0.1-rc1.tar.gz"
 #cd /tmp
 #aws s3 cp /tmp/wazuh.tar.gz s3://"$S3_PATH/$S3_FILENAME" --acl public-read
+#echo "s3://$S3_PATH/$S3_FILENAME"
 
 exit 0
