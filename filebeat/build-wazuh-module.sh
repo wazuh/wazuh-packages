@@ -34,7 +34,8 @@ Content:
 # Edit these env variables at your own
 W_BASE_DIR="/tmp/filebeat-wazuh"
 W_BEATS_BRANCH="v7.2.0"
-W_WAZUH_BRANCH="v3.9.4"
+W_WAZUH_BRANCH="3.9"
+W_FILENAME="wazuh-filebeat-0.1.tar.gz"
 GO_VERSION="1.12.4"
 
 # Clean previous building attempts
@@ -78,17 +79,15 @@ rm -rf /tmp/wazuh
 make update > /dev/null 2>&1
 cd build/package/module
 sudo chown root:root -R wazuh/
-tar -czvf wazuh.tar.gz wazuh/* > /dev/null 2>&1
+tar -czvf $W_FILENAME wazuh/* > /dev/null 2>&1
 
-# Move final package to /tmp/wazuh.tar.gz
-mv $W_BASE_DIR/src/github.com/elastic/beats/filebeat/build/package/module/wazuh.tar.gz /tmp
+# Move final package to /tmp/$W_FILENAME
+mv $W_BASE_DIR/src/github.com/elastic/beats/filebeat/build/package/module/$W_FILENAME /tmp
 
 # Optional. Upload the module to Amazon S3
-#S3_PATH="packages-dev.wazuh.com/utils"
-#S3_TIMESTAMP=$(date +%s)
-#S3_FILENAME="wazuh-filebeat-0.1-rc1.tar.gz"
-#cd /tmp
-#aws s3 cp /tmp/wazuh.tar.gz s3://"$S3_PATH/$S3_FILENAME" --acl public-read
-#echo "s3://$S3_PATH/$S3_FILENAME"
+S3_PATH="packages-dev.wazuh.com/3.x/filebeat"
+S3_FILENAME="wazuh-filebeat-0.1.tar.gz"
+cd /tmp
+aws s3 cp /tmp/"$W_FILENAME" s3://"$S3_PATH/$W_FILENAME" --acl public-read
 
 exit 0
