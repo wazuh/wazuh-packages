@@ -122,7 +122,6 @@ fi
 exit 0
 %pre
 set -exf
-cat non_existent_file
 # Stop Authd if it is running
 if ps aux | grep %{_localstatedir}/ossec/bin/ossec-authd | grep -v grep > /dev/null 2>&1; then
    kill `ps -ef | grep '%{_localstatedir}/ossec/bin/ossec-authd' | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
