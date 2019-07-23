@@ -1,0 +1,3 @@
+path.data: /var/lib/logstash
+path.logs: /var/log/logstash
+path.config: /etc/logstash/conf.d/*.conf

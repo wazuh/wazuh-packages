@@ -1,0 +1,5 @@
+server.port: 443
+server.host: "0.0.0.0"
+server.ssl.enabled: true
+server.ssl.key: /etc/kibana/kibana.key
+server.ssl.certificate: /etc/kibana/kibana.cert

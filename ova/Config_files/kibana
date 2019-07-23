@@ -1,0 +1,7 @@
+ser="kibana"
+group="kibana"
+chroot="/"
+chdir="/"
+nice=""
+KILL_ON_STOP_TIMEOUT=0
+NODE_OPTIONS="--max-old-space-size=4096"
