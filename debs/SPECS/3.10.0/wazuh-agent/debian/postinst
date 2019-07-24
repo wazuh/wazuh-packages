@@ -43,7 +43,7 @@ case "$1" in
 
     else
         ${SCRIPTS_DIR}/gen_ossec.sh conf agent ${OS} ${VER} > ${DIR}/etc/ossec.conf.new
-        chmod 640 ${DIR}/etc/ossec.conf.new
+        chmod 660 ${DIR}/etc/ossec.conf.new
     fi
 
     # Restore /var/ossec permissions
@@ -130,6 +130,9 @@ case "$1" in
     chmod 660 ${DIR}/etc/shared/*
     chown -R root:ossec ${DIR}/etc/shared/
     chown root:ossec ${DIR}/logs/ossec.log ${DIR}/logs/ossec.json
+
+    chmod 660 ${DIR}/etc/ossec.conf
+    chown -R root:ossec ${DIR}/etc/ossec.conf
 
     # Check if SELinux is installed and enabled
     if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
