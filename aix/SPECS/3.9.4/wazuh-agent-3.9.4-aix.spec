@@ -118,7 +118,6 @@ if [ $1 = 1 ]; then
   . %{_localstatedir}/ossec/tmp/src/init/dist-detect.sh
   %{_localstatedir}/ossec/tmp/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir}/ossec > %{_localstatedir}/ossec/etc/ossec.conf
   chown root:ossec %{_localstatedir}/ossec/etc/ossec.conf
-  chmod 0640 %{_localstatedir}/ossec/etc/ossec.conf
 
   # Add default local_files to ossec.conf
   %{_localstatedir}/ossec/tmp/add_localfiles.sh %{_localstatedir}/ossec >> %{_localstatedir}/ossec/etc/ossec.conf
@@ -154,6 +153,7 @@ rm -rf %{_localstatedir}/ossec/tmp/etc
 rm -rf %{_localstatedir}/ossec/tmp/src
 rm -f %{_localstatedir}/ossec/tmp/add_localfiles.sh
 
+chmod 0660 %{_localstatedir}/ossec/etc/ossec.conf
 
 # Restart wazuh-agent when manager settings are in place
 if grep '<server-ip>.*</server-ip>' %{_localstatedir}/ossec/etc/ossec.conf | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' > /dev/null 2>&1; then
