@@ -46,7 +46,7 @@ configure_manager(){
     # Configuring registration service
     sed -i '/<auth>/,/<\/auth>/d' ${manager_config}
 
-    echo ${config_files}/ossec.conf >> ${manager_config}
+    cat ${config_files}/ossec.conf >> ${manager_config}
 }
 
 configure_api(){

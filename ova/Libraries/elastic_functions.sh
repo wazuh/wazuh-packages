@@ -55,7 +55,7 @@ configure_RAM(){
     fi
 
     sed -i "s/-Xms16g/-Xms${ram}g/" ${etc_elastic}/jvm.options
-    sed -i "s/-Xmx16g/-Xms${ram}g/" ${etc_elastic}/jvm.options
+    sed -i "s/-Xmx16g/-Xmx${ram}g/" ${etc_elastic}/jvm.options
 }
 
 configure_limitMEMLOCK(){
@@ -205,7 +205,7 @@ configure_logstash_6(){
     fi
 
     sed -i "s/-Xms2g/-Xms${ram}g/" /etc/logstash/jvm.options
-    sed -i "s/-Xmx2g/-Xms${ram}g/" /etc/logstash/jvm.options
+    sed -i "s/-Xmx2g/-Xmx${ram}g/" /etc/logstash/jvm.options
 
     systemctl daemon-reload
     systemctl enable logstash.service
