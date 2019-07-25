@@ -8,7 +8,7 @@ RAW_TEMPLATE_URL2="https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSIO
 set_elastic_repository(){
 
     rpm --import https://packages.elastic.co/GPG-KEY-elasticsearch
-    echo -e "[elasticsearch-${ELK_MAJOR}.x]\nname=Elasticsearch repository for ${ELK_MAJOR}.x packages\nbaseurl=https://artifacts.elastic.co/packages/${ELK_MAJOR}.x/yum\ngpgcheck=1\ngpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch\nenabled=1\nautorefresh=1\ntype=rpm-md" | tee /etc/yum.repos.d/elastic.repo
+    echo -e "[elasticsearch-${ELK_MAJOR}.x]\nname=Elasticsearch repository for ${ELK_MAJOR}.x packages\nbaseurl=https://artifacts.elastic.co/packages/${ELK_MAJOR}.x/yum\ngpgcheck=1\ngpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch\nenabled=1\nautorefresh=1\ntype=rpm-md" | tee -a /etc/yum.repos.d/elastic.repo
 }
 
 install_elasticsearch(){
@@ -215,8 +215,12 @@ configure_logstash_6(){
 disable_repos_and_clean(){
 
     # Disable repositories
-    sed -i "s/^enabled=1/enabled=0/" /etc/yum.repos.d/elastic.repo
-    sed -i "s/^enabled=1/enabled=0/" /etc/yum.repos.d/wazuh.repo
+    yum-config-manager --disable elasticsearch-${ELK_MAJOR}.x
+    if [ "${STATUS_PACKAGES}" = "stable" ]; then
+        yum-config-manager --disable wazuh_repo
+    else
+        yum-config-manager --disable wazuh_repo_dev
+    fi
 
     # Cleaning tasks
     yum clean all && rm -rf /var/cache/yum
