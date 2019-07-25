@@ -214,6 +214,11 @@ configure_logstash_6(){
 
 disable_repos_and_clean(){
 
+    # Set Wazuh production repository
+    if [ "${STATUS_PACKAGES}" = "unstable" ]; then
+        echo -e '[wazuh_repo]\ngpgcheck=1\ngpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=Wazuh repository \nbaseurl=https://packages.wazuh.com/3.x/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo
+    fi
+
     # Disable repositories
     sed -i "s/^enabled=1/enabled=0/" /etc/yum.repos.d/elastic.repo
     sed -i "s/^enabled=1/enabled=0/" /etc/yum.repos.d/wazuh.repo
