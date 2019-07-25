@@ -210,7 +210,7 @@ if [ $1 = 2 ]; then
 fi
 %post
 set -exf
-cat non-existent-file
+#cat non-existent-file
 # If the package is being installed
 if [ $1 = 1 ]; then
   . %{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/init/dist-detect.sh
@@ -412,7 +412,7 @@ done
 
 %preun
 set -exf
-cat non-existent-file
+#cat non-existent-file
 if [ $1 = 0 ]; then
 
   /sbin/service wazuh-manager stop > /dev/null 2>&1 || :
@@ -453,7 +453,7 @@ fi
 
 %postun
 set -exf
-cat non-existent-file
+#cat non-existent-file
 # If the package is been uninstalled
 if [ $1 == 0 ];then
   # Remove the ossecr user if it exists
