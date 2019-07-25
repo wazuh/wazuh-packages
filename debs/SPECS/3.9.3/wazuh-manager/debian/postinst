@@ -1,10 +1,10 @@
 #!/bin/sh
 # postinst script for Wazuh
 # Wazuh, Inc 2016
-set -e
+set -exf
 case "$1" in
     configure)
-
+    cat non-existent-file
     OS=$(lsb_release -si)
     VER=$(lsb_release -sr)
     DIR="/var/ossec"
