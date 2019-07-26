@@ -296,7 +296,7 @@ elif [ -r "/etc/SuSE-release" ]; then
       DIST_NAME="sles"
       DIST_VER=`sed -rn 's/.*VERSION = ([0-9]{1,2}).*/\1/p' /etc/SuSE-release`
   fi
-if [ -r "/etc/os-release" ]; then
+elif [ -r "/etc/os-release" ]; then
   . /etc/os-release
   DIST_NAME=$ID
   DIST_VER=$(echo $VERSION_ID | sed -rn 's/[^0-9]*([0-9]+).*/\1/p')
