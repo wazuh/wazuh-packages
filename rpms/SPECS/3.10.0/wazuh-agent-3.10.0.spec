@@ -315,26 +315,32 @@ else
   DIST_VER=""
 fi
 
-SCA_DIR="${DIST_NAME}/${DIST_VER}"
 mkdir -p %{_localstatedir}/ossec/ruleset/sca
 
-SCA_TMP_DIR="%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${SCA_DIR}"
+SCA_DIR="${DIST_NAME}/${DIST_VER}"
+SCA_BASE_DIR="%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp"
+SCA_TMP_DIR="${SCA_BASE_DIR}/${SCA_DIR}"
 
 # Install the configuration files
 if [ ! -d ${SCA_TMP_DIR} ]; then
-  SCA_TMP_DIR="%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/generic"
+  SCA_TMP_DIR="${SCA_BASE_DIR}/generic"
 fi
 
 SCA_TMP_FILE="${SCA_TMP_DIR}/sca.files"
 
-for sca_file in $(cat ${SCA_TMP_FILE}); do
-  mv %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${sca_file} %{_localstatedir}/ossec/ruleset/sca
-done
-# Fix sca permissions, group and owner
-chmod 640 %{_localstatedir}/ossec/ruleset/sca/*
-chown root:ossec %{_localstatedir}/ossec/ruleset/sca/*
-# Delete the temporary directory
-rm -rf %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp
+if [ -d ${SCA_TMP_DIR} ] && [ -r ${SCA_TMP_FILE} ]; then
+
+  rm -f %{_localstatedir}/ossec/ruleset/sca/* || true
+
+  for sca_file in $(cat ${SCA_TMP_FILE}); do
+    mv ${SCA_BASE_DIR}/${sca_file} %{_localstatedir}/ossec/ruleset/sca
+  done
+  # Fix sca permissions, group and owner
+  chmod 640 %{_localstatedir}/ossec/ruleset/sca/*
+  chown root:ossec %{_localstatedir}/ossec/ruleset/sca/*
+  # Delete the temporary directory
+  rm -rf ${SCA_BASE_DIR}
+fi
 
 # Set the proper selinux context
 if ([ "X${DIST_NAME}" = "Xrhel" ] || [ "X${DIST_NAME}" = "Xcentos" ] || [ "X${DIST_NAME}" = "XCentOS" ]) && [ "${DIST_VER}" == "5" ]; then
