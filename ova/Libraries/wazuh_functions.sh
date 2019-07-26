@@ -69,7 +69,7 @@ delete_logs(){
     systemctl stop wazuh-manager
     systemctl stop wazuh-api
 
-    find ${DIRECTORY}/logs -type f \( -iname \*.log -o -iname \*.json \) -exec : > {} \;
+    find ${DIRECTORY}/logs -type f \( -iname \*.log -o -iname \*.json \) -exec truncate -s 0 `echo {}` \;
     rm -rf ${DIRECTORY}/logs/{archives,alerts,cluster,firewall,ossec}/*
     rm -rf ${DIRECTORY}}/stats/*
 }
