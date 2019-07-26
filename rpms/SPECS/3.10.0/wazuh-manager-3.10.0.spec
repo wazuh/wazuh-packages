@@ -445,16 +445,20 @@ fi
 SCA_TMP_FILE="${SCA_TMP_DIR}/sca.files"
 SCA_MANAGER_ALL_FILES="${SCA_TMP_DIR}/sca.files"
 
-for sca_file in $(cat ${SCA_TMP_FILE}); do
-  mv %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${sca_file} %{_localstatedir}/ossec/ruleset/sca
-done
+if [ -r ${SCA_TMP_FILE} ]; then
+  for sca_file in $(cat ${SCA_TMP_FILE}); do
+    mv %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${sca_file} %{_localstatedir}/ossec/ruleset/sca
+  done
+fi
 
-for sca_file in $(cat ${SCA_BASE_DIR}/generic/sca.manager.files); do
-  filename=$(basename ${sca_file})
-  if [ -f "%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${sca_file}" ] && [ ! -f "%{_localstatedir}/ossec/ruleset/sca/${filename}" ]; then
-    mv %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${sca_file} %{_localstatedir}/ossec/ruleset/sca/${filename}.disabled
-  fi
-done
+if [ -r ${SCA_BASE_DIR}/generic/sca.manager.files ]; then
+  for sca_file in $(cat ${SCA_BASE_DIR}/generic/sca.manager.files); do
+    filename=$(basename ${sca_file})
+    if [ -f "%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${sca_file}" ] && [ ! -f "%{_localstatedir}/ossec/ruleset/sca/${filename}" ]; then
+      mv %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${sca_file} %{_localstatedir}/ossec/ruleset/sca/${filename}.disabled
+    fi
+  done
+fi
 
 # Fix sca permissions, group and owner
 chmod 640 %{_localstatedir}/ossec/ruleset/sca/*
