@@ -49,6 +49,7 @@ configure_manager(){
     sed -i '/<auth>/,/<\/auth>/d' ${manager_config}
 
     cat ${config_files}/ossec.conf >> ${manager_config}
+    sed -i "s/INSTALLATION_DIRECTORY/${DIRECTORY}/" ${manager_config}
 }
 
 configure_api(){
