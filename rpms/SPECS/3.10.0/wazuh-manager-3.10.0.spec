@@ -445,13 +445,14 @@ fi
 SCA_TMP_FILE="${SCA_TMP_DIR}/sca.files"
 SCA_MANAGER_ALL_FILES="${SCA_TMP_DIR}/sca.files"
 
-if [ -r ${SCA_TMP_FILE} ]; then
+if [ -r ${SCA_TMP_FILE} ] && [ -r ${SCA_BASE_DIR}/generic/sca.manager.files ]; then
+
+  rm -f %{_localstatedir}/ossec/ruleset/sca/* || true
+
   for sca_file in $(cat ${SCA_TMP_FILE}); do
     mv %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${sca_file} %{_localstatedir}/ossec/ruleset/sca
   done
-fi
 
-if [ -r ${SCA_BASE_DIR}/generic/sca.manager.files ]; then
   for sca_file in $(cat ${SCA_BASE_DIR}/generic/sca.manager.files); do
     filename=$(basename ${sca_file})
     if [ -f "%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${sca_file}" ] && [ ! -f "%{_localstatedir}/ossec/ruleset/sca/${filename}" ]; then
@@ -589,6 +590,7 @@ if [ $1 == 0 ];then
   rm -rf %{_localstatedir}/ossec/var/
   rm -rf %{_localstatedir}/ossec/bin/
   rm -rf %{_localstatedir}/ossec/logs/
+  rm -rf %{_localstatedir}/ossec/ruleset/
 
 fi
 
