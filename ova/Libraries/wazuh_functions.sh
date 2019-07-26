@@ -42,6 +42,8 @@ configure_manager(){
     sed -i '/<!--.*-->/d' ${manager_config}
     sed -i '/<!--/,/-->/d' ${manager_config}
     sed -i '/^$/d' ${manager_config}
+    # Remove empty ossec_config blocks
+    sed 'ossec_config/{N;ossec_config/d}' ${manager_config}
 
     # Configuring registration service
     sed -i '/<auth>/,/<\/auth>/d' ${manager_config}
