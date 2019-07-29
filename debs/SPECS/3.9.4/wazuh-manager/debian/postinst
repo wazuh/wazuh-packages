@@ -230,6 +230,9 @@ case "$1" in
     # More files
     touch ${DIR}/etc/client.keys
 
+    # Restore file permissions after upgrading
+    chmod 0660 ${DIR}/etc/ossec.conf
+
     chmod 770 ${DIR}/etc/lists
     chmod 770 ${DIR}/etc/lists/amazon
     chmod 660 ${DIR}/etc/lists/amazon/*
