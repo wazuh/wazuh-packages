@@ -121,7 +121,7 @@ fi
 
 exit 0
 %pre
-set -exf 
+set -exf
 # Stop Authd if it is running
 if ps aux | grep %{_localstatedir}/ossec/bin/ossec-authd | grep -v grep > /dev/null 2>&1; then
    kill `ps -ef | grep '%{_localstatedir}/ossec/bin/ossec-authd' | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
@@ -453,7 +453,7 @@ fi
 
 %postun
 set -exf
-#cat non-existent-file
+cat non-existent-file
 # If the package is been uninstalled
 if [ $1 == 0 ];then
   # Remove the ossecr user if it exists
