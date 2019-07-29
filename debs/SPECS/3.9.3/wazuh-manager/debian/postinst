@@ -1,7 +1,7 @@
 #!/bin/sh
 # postinst script for Wazuh
 # Wazuh, Inc 2016
-set -exf
+set -e
 case "$1" in
     configure)
     #cat non-existent-file

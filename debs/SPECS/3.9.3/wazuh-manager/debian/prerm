@@ -13,7 +13,7 @@ case "$1" in
     ;;
 
     remove)
-      #cat non-existent-file
+      cat non-existent-file
       if [ -n "$(ps -e | grep -E ^\ *1\ .*systemd$)" ]; then
         systemctl stop wazuh-manager
       fi
