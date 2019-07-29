@@ -42,11 +42,14 @@ configure_manager(){
     sed -i '/<!--.*-->/d' ${manager_config}
     sed -i '/<!--/,/-->/d' ${manager_config}
     sed -i '/^$/d' ${manager_config}
+    # Remove empty ossec_config blocks
+    sed -i '1b;/<ossec_config>/,/<\/ossec_config>/d' ${manager_config}
 
     # Configuring registration service
     sed -i '/<auth>/,/<\/auth>/d' ${manager_config}
 
-    echo ${config_files}/ossec.conf >> ${manager_config}
+    cat ${config_files}/ossec.conf >> ${manager_config}
+    sed -i "s|INSTALLATION_DIRECTORY|${DIRECTORY}|" ${manager_config}
 }
 
 configure_api(){
@@ -66,7 +69,7 @@ delete_logs(){
     systemctl stop wazuh-manager
     systemctl stop wazuh-api
 
-    find ./ -type f \( -iname \*.log -o -iname \*.json \) -exec : > {} \;
+    find ${DIRECTORY}/logs -type f \( -iname \*.log -o -iname \*.json \) -exec truncate -s 0 {} \;
     rm -rf ${DIRECTORY}/logs/{archives,alerts,cluster,firewall,ossec}/*
     rm -rf ${DIRECTORY}}/stats/*
 }

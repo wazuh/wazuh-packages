@@ -55,7 +55,7 @@ configure_RAM(){
     fi
 
     sed -i "s/-Xms16g/-Xms${ram}g/" ${etc_elastic}/jvm.options
-    sed -i "s/-Xmx16g/-Xms${ram}g/" ${etc_elastic}/jvm.options
+    sed -i "s/-Xmx16g/-Xmx${ram}g/" ${etc_elastic}/jvm.options
 }
 
 configure_limitMEMLOCK(){
@@ -205,7 +205,7 @@ configure_logstash_6(){
     fi
 
     sed -i "s/-Xms2g/-Xms${ram}g/" /etc/logstash/jvm.options
-    sed -i "s/-Xmx2g/-Xms${ram}g/" /etc/logstash/jvm.options
+    sed -i "s/-Xmx2g/-Xmx${ram}g/" /etc/logstash/jvm.options
 
     systemctl daemon-reload
     systemctl enable logstash.service
@@ -213,6 +213,11 @@ configure_logstash_6(){
 }
 
 disable_repos_and_clean(){
+
+    # Set Wazuh production repository
+    if [ "${STATUS_PACKAGES}" = "unstable" ]; then
+        echo -e '[wazuh_repo]\ngpgcheck=1\ngpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=Wazuh repository \nbaseurl=https://packages.wazuh.com/3.x/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo
+    fi
 
     # Disable repositories
     yum-config-manager --disable elasticsearch-${ELK_MAJOR}.x
