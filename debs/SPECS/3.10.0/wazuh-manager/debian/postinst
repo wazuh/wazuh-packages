@@ -108,7 +108,7 @@ case "$1" in
     rm -f ${DIR}/var/db/global.db* || true
     rm -f ${DIR}/var/db/cluster.db* || true
     rm -f ${DIR}/var/db/.profile.db* || true
-    rm -f ${DIR}/var/db/agents/* || true
+    find ${DIR}/var/db/agents -maxdepth 1 -exec rm -f {} \; || true
     # Remove Vuln-detector database
     rm -f ${DIR}/queue/vulnerabilities/cve.db || true
 
@@ -188,9 +188,9 @@ case "$1" in
     chown -R root:${GROUP} ${DIR}/var
     chown -R ${USER}:${GROUP} ${DIR}/var/multigroups
     chmod 770 ${DIR}/var/selinux > /dev/null 2>&1 || true
-    chmod -R 640 ${DIR}/var/selinux/* > /dev/null 2>&1 || true
+    find ${DIR}/var/selinux -maxdepth 1 -exec chmod -R 640 -rf {} \; || true
     chmod 770 ${DIR}/var/db > /dev/null 2>&1 || true
-    chmod -R 660 ${DIR}/var/db/* > /dev/null 2>&1 || true
+    find ${DIR}/var/db -maxdepth 1 -exec chmod -R 660 -rf {} \; || true
     chmod 660 ${DIR}/var/db/.profile.db > /dev/null 2>&1 || true
     chmod 770 ${DIR}/var/db/agents > /dev/null 2>&1 || true
     # Restore client.keys configuration
@@ -223,7 +223,7 @@ case "$1" in
 
     # Restore group files
     if [ -d ${WAZUH_TMP_DIR}/group ]; then
-        cp -rfp ${WAZUH_TMP_DIR}/group/* ${DIR}/etc/shared
+        find ${WAZUH_TMP_DIR}/group -maxdepth 1 -exec cp -rfp {} ${DIR}/etc/shared \;
         rm -rf ${WAZUH_TMP_DIR}/group/
     fi
 
@@ -235,20 +235,19 @@ case "$1" in
 
     chmod 770 ${DIR}/etc/lists
     chmod 770 ${DIR}/etc/lists/amazon
-    chmod 660 ${DIR}/etc/lists/amazon/*
+    find ${DIR}/etc/lists/amazon -maxdepth 1 -exec chmod 660 {} \;
     chmod 660 ${DIR}/etc/lists/audit-keys
     chmod 660 ${DIR}/etc/lists/audit-keys.cdb
     chmod 660 ${DIR}/etc/lists/security-eventchannel
     chmod 660 ${DIR}/etc/lists/security-eventchannel.cdb
     chmod 770 ${DIR}/etc/shared/default
-    chmod 660 ${DIR}/etc/decoders/*
-    chmod 660 ${DIR}/etc/rules/*
+    find ${DIR}/etc/decoders -maxdepth 1 -exec chmod 660 {} \;
+    find ${DIR}/etc/rules -maxdepth 1 -exec chmod 660 {} \;
 
-    chown -R root:ossec ${DIR}/etc/client.keys
-    chown -R ossec:ossec ${DIR}/etc/lists/*
-    chown -R ossec:ossec ${DIR}/etc/decoders/*
-    chown -R ossec:ossec ${DIR}/etc/rules/*
-    chown -R ossec:ossec ${DIR}/etc/shared/*
+    find ${DIR}/etc/lists -maxdepth 1 -exec chown -R ossec:ossec {} \;
+    find ${DIR}/etc/decoders -maxdepth 1 -exec chown -R ossec:ossec {} \;
+    find ${DIR}/etc/rules -maxdepth 1 -exec chown -R ossec:ossec {} \;
+    find ${DIR}/etc/shared -maxdepth 1 -exec chown -R ossec:ossec {} \;
     if [ -f ${DIR}/etc/shared/ar.conf ]; then
         chown root:ossec ${DIR}/etc/shared/ar.conf
     fi

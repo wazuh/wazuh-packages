@@ -48,7 +48,7 @@ case "$1" in
 
     # If the directory is not empty, copy the files into ${DIR}/etc
     if [ "$(ls -A ${DIR}/tmp/conffiles)" ]; then
-        cp -Rf ${DIR}/tmp/conffiles/* ${DIR}/etc
+        find ${DIR}/tmp/conffiles -maxdepth 1 -exec  cp -Rf {} ${DIR}/etc \;
     fi
     rm -rf ${DIR}/tmp/conffiles
     rm -rf ${DIR}/tmp
@@ -71,7 +71,7 @@ case "$1" in
     if getent group | grep -q "^ossec" ; then
         delgroup ossec  > /dev/null 2>&1
     fi
-    rm -rf ${DIR}/*
+    find ${DIR} -maxdepth 1 -exec rm -rf {} \;
     ;;
 
     upgrade)

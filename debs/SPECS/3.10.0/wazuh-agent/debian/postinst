@@ -106,8 +106,8 @@ case "$1" in
             mv ${SCA_FILES_DIR}/${sca_file} ${DIR}/ruleset/sca
         done
         # Set correct permissions, owner and group
-        chmod 640 ${DIR}/ruleset/sca/*
-        chown root:${GROUP} ${DIR}/ruleset/sca/*
+        find ${DIR}/ruleset/sca -maxdepth 1 -exec chmod 640 {} \;
+        find ${DIR}/ruleset/sca -maxdepth 1 -exec chown root:${GROUP} {} \;
         # Delete the temporary directory
         rm -rf ${SCA_FILES_DIR}
 
@@ -122,12 +122,10 @@ case "$1" in
 
     # Restore group files
     if [ -d ${WAZUH_TMP_DIR}/group ]; then
-        for file in ${WAZUH_TMP_DIR}/group/* ; do
-            mv ${file} ${DIR}/etc/shared/
-        done
+        find ${WAZUH_TMP_DIR}/group -maxdepth 1 -type f -exec mv {} ${DIR}/etc/shared/ \;
         rm -rf ${WAZUH_TMP_DIR}/group
     fi
-    chmod 660 ${DIR}/etc/shared/*
+    find ${DIR}/etc/shared -maxdepth 1 -exec chmod 660 {} \;
     chown -R root:ossec ${DIR}/etc/shared/
     chown root:ossec ${DIR}/logs/ossec.log ${DIR}/logs/ossec.json
 

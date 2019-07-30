@@ -115,7 +115,7 @@ case "$1" in
         fi
 
         if [ -d ${DIR}/var/db/agents ]; then
-          rm -f ${DIR}/var/db/agents/*
+          find ${DIR}/var/db/agents -maxdepth 1 -exec  rm -f {} ${DIR}/etc \;
         fi
     ;;
 
