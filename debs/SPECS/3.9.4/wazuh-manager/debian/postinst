@@ -235,20 +235,20 @@ case "$1" in
 
     chmod 770 ${DIR}/etc/lists
     chmod 770 ${DIR}/etc/lists/amazon
-    find ${DIR}/etc/lists/amazon -maxdepth 1 -type f exec chmod 660 {} \;
+    find ${DIR}/etc/lists/amazon -maxdepth 1 -exec chmod 660 {} \;
     chmod 660 ${DIR}/etc/lists/audit-keys
     chmod 660 ${DIR}/etc/lists/audit-keys.cdb
     chmod 660 ${DIR}/etc/lists/security-eventchannel
     chmod 660 ${DIR}/etc/lists/security-eventchannel.cdb
     chmod 770 ${DIR}/etc/shared/default
-    chmod 660 ${DIR}/etc/decoders/*
-    chmod 660 ${DIR}/etc/rules/*
+    find ${DIR}/etc/decoders -maxdepth 1 -exec chmod 660 {} \;
+    find ${DIR}/etc/rules -maxdepth 1 -exec chmod 660 {} \;
 
     chown -R root:ossec ${DIR}/etc/client.keys
-    chown -R ossec:ossec ${DIR}/etc/lists/*
-    chown -R ossec:ossec ${DIR}/etc/decoders/*
-    chown -R ossec:ossec ${DIR}/etc/rules/*
-    chown -R ossec:ossec ${DIR}/etc/shared/*
+    find ${DIR}/etc/lists -maxdepth 1 -exec chown -R ossec:ossec {} \;
+    find ${DIR}/etc/decoders -maxdepth 1 -exec chown -R ossec:ossec {} \;
+    find ${DIR}/etc/rules -maxdepth 1 -exec chown -R ossec:ossec {} \;
+    find ${DIR}/etc/shared -maxdepth 1 -exec chown -R ossec:ossec {} \;
     if [ -f ${DIR}/etc/shared/ar.conf ]; then
         chown root:ossec ${DIR}/etc/shared/ar.conf
     fi
