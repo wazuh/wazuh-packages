@@ -100,7 +100,6 @@ clean() {
     rm -rf src/*.a
     rm -rf etc/{decoders,lists,rules}
 
-    find etc/templates/* -maxdepth 0 -not -name "en" | xargs rm -rf
 }
 
 preload() {
