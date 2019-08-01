@@ -188,9 +188,9 @@ case "$1" in
     chown -R root:${GROUP} ${DIR}/var
     chown -R ${USER}:${GROUP} ${DIR}/var/multigroups
     chmod 770 ${DIR}/var/selinux > /dev/null 2>&1 || true
-    find ${DIR}/var/selinux -maxdepth 1 -exec chmod -R 640 -rf {} \; || true
+    find ${DIR}/var/selinux -maxdepth 1 -exec chmod -R 640 \; || true
     chmod 770 ${DIR}/var/db > /dev/null 2>&1 || true
-    find ${DIR}/var/db -maxdepth 1 -exec chmod -R 660 -rf {} \; || true
+    find ${DIR}/var/db -maxdepth 1 -exec chmod -R 660 \; || true
     chmod 660 ${DIR}/var/db/.profile.db > /dev/null 2>&1 || true
     chmod 770 ${DIR}/var/db/agents > /dev/null 2>&1 || true
     # Restore client.keys configuration
