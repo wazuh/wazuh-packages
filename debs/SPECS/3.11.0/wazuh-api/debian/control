@@ -8,5 +8,5 @@ Homepage: http://www.wazuh.com
 
 Package: wazuh-api
 Architecture: any
-Depends: ${shlibs:Depends}, npm, nodejs (>= 4.6.1), wazuh-manager (>= 3.10.0), wazuh-manager (<< 3.10.1), curl
+Depends: ${shlibs:Depends}, npm, nodejs (>= 4.6.1), wazuh-manager (>= 3.11.0), wazuh-manager (<< 3.10.1), curl
 Description: Wazuh API is an open source RESTful API to interact with Wazuh from your own application or with a simple web browser or tools like cURL.

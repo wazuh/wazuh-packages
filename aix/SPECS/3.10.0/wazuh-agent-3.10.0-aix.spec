@@ -22,7 +22,7 @@ Wazuh is an open source security monitoring solution for threat detection, integ
 %prep
 %setup -q
 ./gen_ossec.sh init agent %{_localstatedir}/ossec > ossec-init.conf
-cd src && gmake clean && gmake deps RESOURCES_URL=http://packages.wazuh.com/deps/3.9
+cd src && gmake clean && gmake deps RESOURCES_URL=http://packages.wazuh.com/deps/3.10
 gmake TARGET=agent USE_SELINUX=no PREFIX=%{_localstatedir}/ossec DISABLE_SHARED=yes DISABLE_SYSC=yes
 cd ..
 
