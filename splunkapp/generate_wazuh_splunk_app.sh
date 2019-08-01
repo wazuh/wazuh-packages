@@ -25,7 +25,7 @@ REPOSITORY="wazuh-splunk"
 scriptpath=$( cd $(dirname $0) ; pwd -P )
 
 help() {
-    
+
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
@@ -63,7 +63,7 @@ compute_version_revision() {
 
 download_source() {
 
-    if git clone https://github.com/wazuh/${REPOSITORY} -b ${BRANCH_TAG} ${TMP_DIRECTORY} --depth=1 --single-branch -q ; then
+    if git clone https://github.com/wazuh/${REPOSITORY} -b ${BRANCH_TAG} ${TMP_DIRECTORY} --depth=1 --single-branch; then
         cd ${TMP_DIRECTORY}
         compute_version_revision
         cd -
@@ -88,7 +88,7 @@ main() {
         do
             case "$1" in
             "-h"|"--help")
-                help 0 
+                help 0
             ;;
             "-b"|"--branch")
                 if [ -n "$2" ]; then
@@ -96,7 +96,7 @@ main() {
                     HAVE_BRANCH=true
                     shift 2
                 else
-                    help 1 
+                    help 1
                 fi
                 ;;
             "-s"|"--store")
@@ -109,7 +109,7 @@ main() {
                     HAVE_DESTINATION=true
                     shift 2
                 else
-                    help 1 
+                    help 1
                 fi
                 ;;
             "-sp"|"--splunk")
@@ -119,21 +119,21 @@ main() {
                     BRANCH_TAG="v${BRANCH_TAG}-${SPLUNK_VERSION}"
                     shift 2
                 else
-                    help 1 
+                    help 1
                 fi
-                
+
                 ;;
             "-r"|"--revision")
                 if [ -n "$2" ]; then
                     REVISION="$2"
                     shift 2
                 else
-                    help 1 
+                    help 1
                 fi
                 ;;
             *)
-                help 1  
-            esac             
+                help 1
+            esac
         done
 
     if [[ "$HAVE_BRANCH" == true ]] ; then
@@ -142,8 +142,8 @@ main() {
             exit 1
         fi
         build_package
-    else 
-        help 1 
+    else
+        help 1
     fi
 }
 
