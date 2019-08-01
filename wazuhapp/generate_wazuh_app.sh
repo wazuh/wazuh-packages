@@ -52,7 +52,7 @@ compute_version_revision(){
 
 download_sources(){
 
-    git clone https://github.com/wazuh/wazuh-kibana-app -b ${BRANCH_TAG} --single-branch --depth=1 ${TMP_DIR}
+    git clone https://github.com/wazuh/wazuh-kibana-app -b ${BRANCH_TAG} --depth=1 ${TMP_DIR}
     cd "${TMP_DIR}"
     compute_version_revision
     cd -

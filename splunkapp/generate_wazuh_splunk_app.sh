@@ -63,7 +63,7 @@ compute_version_revision() {
 
 download_source() {
 
-    if git clone https://github.com/wazuh/${REPOSITORY} -b ${BRANCH_TAG} ${TMP_DIRECTORY} --depth=1 --single-branch; then
+    if git clone https://github.com/wazuh/${REPOSITORY} -b ${BRANCH_TAG} ${TMP_DIRECTORY} --depth=1; then
         cd ${TMP_DIRECTORY}
         compute_version_revision
         cd -
