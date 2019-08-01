@@ -100,6 +100,8 @@ clean() {
     rm -rf src/*.a
     rm -rf etc/{decoders,lists,rules}
 
+    find etc/templates/config -not -name "sca.files" -delete 2>/dev/null
+    find etc/templates/* -maxdepth 0 -not -name "en" -not -name "config" | xargs rm -rf
 }
 
 preload() {
