@@ -31,7 +31,7 @@ INSTALLATION_PATH="/var"
 if command -v curl > /dev/null 2>&1 ; then
     DOWNLOAD_TAR="curl ${TAR_URL} -o ${LEGACY_TAR_FILE} -s"
 elif command -v wget > /dev/null 2>&1 ; then
-    DOWNLOAD_TAR="wget ${TAR_URL} -o ${LEGACY_TAR_FILE}"
+    DOWNLOAD_TAR="wget ${TAR_URL} -o ${LEGACY_TAR_FILE} -q"
 fi
 
 clean() {
