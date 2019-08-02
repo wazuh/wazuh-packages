@@ -25,7 +25,7 @@ REPOSITORY="wazuh-splunk"
 scriptpath=$( cd $(dirname $0) ; pwd -P )
 
 help() {
-    
+
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
@@ -88,15 +88,20 @@ main() {
         do
             case "$1" in
             "-h"|"--help")
-                help 0 
+                help 0
             ;;
             "-b"|"--branch")
                 if [ -n "$2" ]; then
-                    BRANCH_TAG="$(echo $2 | cut -d'/' -f2)"
-                    HAVE_BRANCH=true
-                    shift 2
+                    if [[ `curl https://api.github.com/repos/wazuh/wazuh-api/branches` =~ "$2" ]] || [[ `curl https://api.github.com/repos/wazuh/wazuh-api/tags` =~ "$2" ]]; then
+                        BRANCH_TAG="$(echo $2 | cut -d'/' -f2)"
+                        HAVE_BRANCH=true
+                        shift 2
+                    else
+                        echo "No valid git branch or tag"
+                        help 1
+                    fi
                 else
-                    help 1 
+                    help 1
                 fi
                 ;;
             "-s"|"--store")
@@ -109,7 +114,7 @@ main() {
                     HAVE_DESTINATION=true
                     shift 2
                 else
-                    help 1 
+                    help 1
                 fi
                 ;;
             "-sp"|"--splunk")
@@ -119,21 +124,21 @@ main() {
                     BRANCH_TAG="v${BRANCH_TAG}-${SPLUNK_VERSION}"
                     shift 2
                 else
-                    help 1 
+                    help 1
                 fi
-                
+
                 ;;
             "-r"|"--revision")
                 if [ -n "$2" ]; then
                     REVISION="$2"
                     shift 2
                 else
-                    help 1 
+                    help 1
                 fi
                 ;;
             *)
-                help 1  
-            esac             
+                help 1
+            esac
         done
 
     if [[ "$HAVE_BRANCH" == true ]] ; then
@@ -142,8 +147,8 @@ main() {
             exit 1
         fi
         build_package
-    else 
-        help 1 
+    else
+        help 1
     fi
 }
 
