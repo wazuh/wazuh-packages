@@ -32,7 +32,7 @@ build_package(){
     # Build the Docker image
     docker build -t ${CONTAINER_NAME} ./Docker/
     # Build the Wazuh Kibana app package using the build docker image
-    docker run --rm -t  -v ${TMP_DIR}:/source -v "${DESTINATION}":/wazuh_app ${CONTAINER_NAME} ${wazuh_version} ${kibana_version} ${app_revision} 
+    docker run --rm -t  -v ${TMP_DIR}:/source -v "${DESTINATION}":/wazuh_app ${CONTAINER_NAME} ${wazuh_version} ${kibana_version} ${app_revision}
     if [ "$?" = "0" ]; then
         delete_sources 0
     else
@@ -71,9 +71,14 @@ main(){
         case "$1" in
         "-b"|"--branch")
             if [ -n "$2" ]; then
-                HAVE_BRANCH=true
-                BRANCH_TAG="$(echo "$2" | cut -d "/" -f2)"
-                shift 2
+                if [[ `curl https://api.github.com/repos/wazuh/wazuh-api/branches` =~ "$2" ]] || [[ `curl https://api.github.com/repos/wazuh/wazuh-api/tags` =~ "$2" ]]; then
+                    HAVE_BRANCH=true
+                    BRANCH_TAG="$(echo "$2" | cut -d "/" -f2)"
+                    shift 2
+                else
+                    echo "No valid git branch or tag"
+                    help 1
+                fi
             else
                 help 1
             fi
@@ -112,7 +117,7 @@ main(){
 
         if download_sources; then
             build_package
-        else 
+        else
             delete_sources 1
         fi
 
