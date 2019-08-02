@@ -223,9 +223,14 @@ main() {
         "-b"|"--branch")
           if [ -n "$2" ]
           then
-              wazuh_branch="$2"
-              build_rpm="yes"
-              shift 2
+              if [[ `curl https://api.github.com/repos/wazuh/wazuh-api/branches` =~ "$2" ]] || [[ `curl https://api.github.com/repos/wazuh/wazuh-api/tags` =~ "$2" ]]; then
+                wazuh_branch="$2"
+                build_rpm="yes"
+                shift 2
+            else
+                echo "No valid git branch or tag"
+                show_help 1
+            fi
           else
               show_help 1
           fi

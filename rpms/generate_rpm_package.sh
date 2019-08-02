@@ -159,6 +159,7 @@ main() {
                     shift 2
                 else
                     echo "No valid git branch or tag"
+                    help 1
                 fi
             else
                 help 1
