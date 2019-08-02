@@ -13,7 +13,7 @@ ARCHITECTURE="x86_64"
 LEGACY="no"
 OUTDIR="${HOME}/3.x/yum-dev/"
 BRANCH="master"
-RELEASE="1"
+REVISION="1"
 TARGET=""
 JOBS="2"
 DEBUG="no"
@@ -84,7 +84,7 @@ build_rpm() {
     docker run -t --rm -v ${OUTDIR}:/var/local/wazuh \
         -v ${SOURCES_DIRECTORY}:/build_wazuh/wazuh-${TARGET}-${VERSION} \
         ${CONTAINER_NAME} ${TARGET} ${VERSION} ${ARCHITECTURE} \
-        $JOBS ${RELEASE} ${INSTALLATION_PATH} ${DEBUG} || exit 1
+        $JOBS ${REVISION} ${INSTALLATION_PATH} ${DEBUG} || exit 1
 
     echo "Package $(ls ${OUTDIR} -Art | tail -n 1) added to ${OUTDIR}."
 
@@ -104,11 +104,11 @@ build() {
         BUILD_NAME=""
         FILE_PATH=""
         if [[ "${LEGACY}" = "yes" ]] && [[ "${ARCHITECTURE}" = "x86_64" ]]; then
-            RELEASE="${RELEASE}.el5"
+            REVISION="${REVISION}.el5"
             BUILD_NAME="${LEGACY_RPM_X86_BUILDER}"
             FILE_PATH="${LEGACY_RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
         elif [[ "${LEGACY}" = "yes" ]] && [[ "${ARCHITECTURE}" = "i386" ]]; then
-            RELEASE="${RELEASE}.el5"
+            REVISION="${REVISION}.el5"
             BUILD_NAME="${LEGACY_RPM_I386_BUILDER}"
             FILE_PATH="${LEGACY_RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
         elif [[ "${LEGACY}" = "no" ]] && [[ "${ARCHITECTURE}" = "x86_64" ]]; then
@@ -153,9 +153,13 @@ main() {
         case "$1" in
         "-b"|"--branch")
             if [ -n "$2" ]; then
-                BRANCH="$2"
-                BUILD="yes"
-                shift 2
+                if [[ `curl https://api.github.com/repos/wazuh/wazuh-api/branches` =~ "$2" ]] || [[ `curl https://api.github.com/repos/wazuh/wazuh-api/tags` =~ "$2" ]]; then
+                    BRANCH="$2"
+                    BUILD="yes"
+                    shift 2
+                else
+                    echo "No valid git branch or tag"
+                fi
             else
                 help 1
             fi
@@ -165,16 +169,25 @@ main() {
             ;;
         "-t"|"--target")
             if [ -n "$2" ]; then
-                TARGET="$2"
-                shift 2
+                if [[ "$2" == "agent" ]] || [[ "$2" == "manager" ]] || [[ "$2" == "api" ]]; then
+                    TARGET="$2"
+                    shift 2
+                else
+                    echo "Target must be manager, agent or api"
+                    help 1
+                fi
             else
                 help 1
             fi
             ;;
         "-a"|"--architecture")
             if [ -n "$2" ]; then
-                ARCHITECTURE="$2"
-                shift 2
+                if [[ "$2" == "x86_64" ]] || [[ "$2" == "amd64" ]]; then
+                    ARCHITECTURE="$2"
+                    shift 2
+                else
+                    echo "Architecture must be x86_64 or amd64"
+                    help 1
             else
                 help 1
             fi
@@ -187,9 +200,9 @@ main() {
                 help 1
             fi
             ;;
-        "-r"|"--release")
+        "-r"|"--revision")
             if [ -n "$2" ]; then
-                RELEASE="$2"
+                REVISION="$2"
                 shift 2
             else
                 help 1
