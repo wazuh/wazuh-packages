@@ -101,10 +101,15 @@ function main() {
   do
       case "$1" in
       "-t"|"--target-system")
-          if [[ -n "$2" ]] && [[ "$2" == "linux" || "$2" == "windows" ]]; then
-            local TARGET="$2"
-            local HAVE_TARGET=true
-            shift 2
+          if [[ -n "$2" ]]; then
+            if [[ "$2" == "linux" || "$2" == "windows" ]]; then
+                local TARGET="$2"
+                local HAVE_TARGET=true
+                shift 2
+            else
+                echo "Target system must be linux or windows"
+                help 1
+            fi
           else
             echo "ERROR: Missing target system."
             help 1
@@ -112,9 +117,14 @@ function main() {
           ;;
       "-b"|"--branch")
           if [[ -n "$2" ]]; then
-              local BRANCH="$(echo $2 | cut -d'/' -f2)"
-              local HAVE_BRANCH=true
-              shift 2
+            if [[ `curl https://api.github.com/repos/wazuh/wazuh-api/branches` =~ "$2" ]] || [[ `curl https://api.github.com/repos/wazuh/wazuh-api/tags` =~ "$2" ]]; then
+                local BRANCH="$(echo $2 | cut -d'/' -f2)"
+                local HAVE_BRANCH=true
+                shift 2
+            else
+                echo "No valid git branch or tag"
+                help 1
+            fi
           else
               echo "ERROR: Missing branch."
               help 1
@@ -152,8 +162,13 @@ function main() {
           ;;
       "-a"|"--architecture")
           if [[ -n "$2" ]]; then
-            local ARCHITECTURE="$2"
-            shift 2
+             if [[ "$2" == "x86_64" ]] || [[ "$2" == "amd64" ]]; then
+                ARCHITECTURE="$2"
+                shift 2
+            else
+                echo "Architecture must be x86_64 or amd64"
+                help 1
+            fi
           else
             echo "ERROR: Missing architecture."
             help 1
