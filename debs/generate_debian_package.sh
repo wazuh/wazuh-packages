@@ -132,14 +132,9 @@ main() {
         case "$1" in
         "-b"|"--branch")
             if [ -n "$2" ]; then
-                if [[ `curl https://api.github.com/repos/wazuh/wazuh-api/branches` =~ "$2" ]] || [[ `curl https://api.github.com/repos/wazuh/wazuh-api/tags` =~ "$2" ]]; then
-                    BRANCH="$2"
-                    BUILD="yes"
-                    shift 2
-                else
-                    echo "No valid git branch or tag"
-                    help 1
-                fi
+                BRANCH="$2"
+                BUILD="yes"
+                shift 2
             else
                 help 1
             fi
@@ -149,20 +144,15 @@ main() {
             ;;
         "-t"|"--target")
             if [ -n "$2" ]; then
-                if [[ "$2" == "agent" ]] || [[ "$2" == "manager" ]] || [[ "$2" == "api" ]]; then
-                    TARGET="$2"
-                    shift 2
-                else
-                    echo "Target must be manager, agent or api"
-                    help 1
-                fi
+                TARGET="$2"
+                shift 2
             else
                 help 1
             fi
             ;;
         "-a"|"--architecture")
             if [ -n "$2" ]; then
-                if [[ "$2" == "x86_64" ]] || [[ "$2" == "amd64" ]]; then
+                if [[ "$2" == "i386" ]] || [[ "$2" == "amd64" ]|| [[ "$2" == "amd64" ]]; then
                     ARCHITECTURE="$2"
                     shift 2
                 else

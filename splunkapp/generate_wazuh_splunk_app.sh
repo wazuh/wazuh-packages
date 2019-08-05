@@ -92,14 +92,9 @@ main() {
             ;;
             "-b"|"--branch")
                 if [ -n "$2" ]; then
-                    if [[ `curl https://api.github.com/repos/wazuh/wazuh-api/branches` =~ "$2" ]] || [[ `curl https://api.github.com/repos/wazuh/wazuh-api/tags` =~ "$2" ]]; then
-                        BRANCH_TAG="$(echo $2 | cut -d'/' -f2)"
-                        HAVE_BRANCH=true
-                        shift 2
-                    else
-                        echo "No valid git branch or tag"
-                        help 1
-                    fi
+                    BRANCH_TAG="$(echo $2 | cut -d'/' -f2)"
+                    HAVE_BRANCH=true
+                    shift 2
                 else
                     help 1
                 fi
