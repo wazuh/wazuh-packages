@@ -93,6 +93,10 @@ build_rpm() {
 
 build() {
 
+    if [[ ${ARCHITECTURE} = "amd64" ]] || [[ ${ARCHITECTURE}="x86_64" ]]; then
+        ARCHITECTURE="x86_64"
+    fi
+
     if [[ "${TARGET}" = "api" ]]; then
 
         SOURCE_REPOSITORY="https://github.com/wazuh/wazuh-api"
@@ -103,20 +107,28 @@ build() {
         SOURCE_REPOSITORY="https://github.com/wazuh/wazuh"
         BUILD_NAME=""
         FILE_PATH=""
-        if [[ "${LEGACY}" = "yes" ]] && [[ "${ARCHITECTURE}" = "x86_64" ]]; then
-            REVISION="${REVISION}.el5"
-            BUILD_NAME="${LEGACY_RPM_X86_BUILDER}"
-            FILE_PATH="${LEGACY_RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
-        elif [[ "${LEGACY}" = "yes" ]] && [[ "${ARCHITECTURE}" = "i386" ]]; then
-            REVISION="${REVISION}.el5"
-            BUILD_NAME="${LEGACY_RPM_I386_BUILDER}"
-            FILE_PATH="${LEGACY_RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
-        elif [[ "${LEGACY}" = "no" ]] && [[ "${ARCHITECTURE}" = "x86_64" ]]; then
-            BUILD_NAME="${RPM_X86_BUILDER}"
-            FILE_PATH="${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
+
+        if [[ ${ARCHITECTURE}="x86_64" ]]; then
+            if [[ "${LEGACY}" = "yes" ]]; then
+                REVISION="${REVISION}.el5"
+                BUILD_NAME="${LEGACY_RPM_X86_BUILDER}"
+                FILE_PATH="${LEGACY_RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
+            else
+                BUILD_NAME="${RPM_X86_BUILDER}"
+                FILE_PATH="${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
+            fi
+        elif [[ ${ARCHITECTURE}="i386" ]]; then
+            if [[ "${LEGACY}" = "yes" ]]; then
+                REVISION="${REVISION}.el5"
+                BUILD_NAME="${LEGACY_RPM_I386_BUILDER}"
+                FILE_PATH="${LEGACY_RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
+            else
+                BUILD_NAME="${RPM_I386_BUILDER}"
+                FILE_PATH="${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
+            fi
         else
-            BUILD_NAME="${RPM_I386_BUILDER}"
-            FILE_PATH="${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
+            echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too) or i386"
+            clean 1
         fi
         build_rpm ${BUILD_NAME} ${FILE_PATH} || clean 1
     else
@@ -173,12 +185,8 @@ main() {
             ;;
         "-a"|"--architecture")
             if [ -n "$2" ]; then
-                if [[ "$2" == "x86_64" ]] || [[ "$2" == "i386" ]]; then
-                    ARCHITECTURE="$2"
-                    shift 2
-                else
-                    echo "Architecture must be x86_64 or i386"
-                    help 1
+                ARCHITECTURE="$2"
+                shift 2
             else
                 help 1
             fi
