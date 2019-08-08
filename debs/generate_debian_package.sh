@@ -96,7 +96,7 @@ build() {
             FILE_PATH="${DEB_PPC64LE_BUILDER_DOCKERFILE}"
         else
             echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too) or i386 or ppc64le."
-            exit 1
+            clean 1
         fi
         build_deb ${BUILD_NAME} ${FILE_PATH} || clean 1
     else
@@ -132,7 +132,7 @@ main() {
         case "$1" in
         "-b"|"--branch")
             if [ -n "$2" ]; then
-                BRANCH="$(echo $2 | cut -d'/' -f2)"
+                BRANCH="$2"
                 BUILD="yes"
                 shift 2
             else
