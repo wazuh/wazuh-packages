@@ -96,7 +96,7 @@ build() {
             FILE_PATH="${DEB_PPC64LE_BUILDER_DOCKERFILE}"
         else
             echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too) or i386 or ppc64le."
-            exit 1
+            clean 1
         fi
         build_deb ${BUILD_NAME} ${FILE_PATH} || clean 1
     else
@@ -152,13 +152,8 @@ main() {
             ;;
         "-a"|"--architecture")
             if [ -n "$2" ]; then
-                if [[ "$2" == "i386" ]] || [[ "$2" == "amd64" ]|| [[ "$2" == "amd64" ]]; then
-                    ARCHITECTURE="$2"
-                    shift 2
-                else
-                    echo "Architecture must be x86_64 or amd64"
-                    help 1
-                fi
+                ARCHITECTURE="$2"
+                shift 2
             else
                 help 1
             fi
