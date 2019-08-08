@@ -93,7 +93,7 @@ build_rpm() {
 
 build() {
 
-    if [[ ${ARCHITECTURE} = "amd64" ]] || [[ ${ARCHITECTURE}="x86_64" ]]; then
+    if [[ ${ARCHITECTURE} = "amd64" ]] || [[ ${ARCHITECTURE} = "x86_64" ]]; then
         ARCHITECTURE="x86_64"
     fi
 
@@ -108,7 +108,7 @@ build() {
         BUILD_NAME=""
         FILE_PATH=""
 
-        if [[ ${ARCHITECTURE}="x86_64" ]]; then
+        if [[ ${ARCHITECTURE} = "x86_64" ]]; then
             if [[ "${LEGACY}" = "yes" ]]; then
                 REVISION="${REVISION}.el5"
                 BUILD_NAME="${LEGACY_RPM_X86_BUILDER}"
@@ -117,7 +117,7 @@ build() {
                 BUILD_NAME="${RPM_X86_BUILDER}"
                 FILE_PATH="${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
             fi
-        elif [[ ${ARCHITECTURE}="i386" ]]; then
+        elif [[ ${ARCHITECTURE} = "i386" ]]; then
             if [[ "${LEGACY}" = "yes" ]]; then
                 REVISION="${REVISION}.el5"
                 BUILD_NAME="${LEGACY_RPM_I386_BUILDER}"
