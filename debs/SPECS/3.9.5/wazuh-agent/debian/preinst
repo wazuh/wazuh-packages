@@ -1,0 +1,74 @@
+#!/bin/sh
+# preinst script for wazuh-agent
+
+set -e
+
+# configuration variables
+DIR="/var/ossec"
+WAZUH_TMP_DIR="${DIR}/packages_files/agent_config_files"
+
+# environment configuration
+if [ ! -d ${WAZUH_TMP_DIR} ]; then
+    mkdir -p ${WAZUH_TMP_DIR}
+else 
+    rm -rf ${WAZUH_TMP_DIR}
+    mkdir -p ${WAZUH_TMP_DIR}
+fi
+
+case "$1" in
+    install|upgrade)
+
+        if [ ! -z "$2" ] && [ ! -f ${DIR}/etc/ossec.conf ] ; then
+            touch ${WAZUH_TMP_DIR}/create_conf
+        fi
+
+        if [ -z "$2" ]
+        then
+            if [ -f ${DIR}/etc/ossec.conf ]; then
+                cp  ${DIR}/etc/ossec.conf  ${DIR}/etc/ossec.conf.deborig
+                chmod 0600 ${DIR}/etc/ossec.conf.deborig
+                chown root:root ${DIR}/etc/ossec.conf.deborig
+                echo "====================================================================================="
+                echo "= Backup from your ossec.conf has been created at ${DIR}/etc/ossec.conf.deborig ="
+                echo "= Please verify your ossec.conf configuration at ${DIR}/etc/ossec.conf          ="
+                echo "====================================================================================="
+            fi
+        fi
+        # Delete old service
+        if [ -f /etc/init.d/ossec ]; then
+            rm /etc/init.d/ossec
+        fi
+        # back up the current user rules
+        if [ -f ${DIR}/etc/client.keys ]; then
+            cp ${DIR}/etc/client.keys ${WAZUH_TMP_DIR}/client.keys
+        fi
+        if [ -f ${DIR}/etc/local_internal_options.conf ]; then
+            cp -p ${DIR}/etc/local_internal_options.conf ${WAZUH_TMP_DIR}/local_internal_options.conf
+        fi
+        if [ -f ${DIR}/etc/ossec.conf ]; then
+            cp -p ${DIR}/etc/ossec.conf ${WAZUH_TMP_DIR}/ossec.conf
+        fi
+
+        if [ -d ${DIR}/etc/shared ]; then
+            files="$(ls -A ${DIR}/etc/shared/*)"
+        fi
+
+        if [ ! -z "$files" ]; then
+            mkdir -p ${WAZUH_TMP_DIR}/group
+            cp -rp ${DIR}/etc/shared/* ${WAZUH_TMP_DIR}/group/
+        fi
+    ;;
+
+    abort-upgrade)
+
+    ;;
+
+    *)
+        echo "preinst called with unknown argument \`$1'" >&2
+        exit 1
+
+    ;;
+
+esac
+
+exit 0
