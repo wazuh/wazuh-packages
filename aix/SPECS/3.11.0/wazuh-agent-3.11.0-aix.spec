@@ -1,6 +1,6 @@
 # Spec file for AIX systems
 Name:        wazuh-agent
-Version:     3.10.0
+Version:     3.11.0
 Release:     1
 License:     GPL
 URL:         https://www.wazuh.com/
@@ -22,7 +22,7 @@ Wazuh is an open source security monitoring solution for threat detection, integ
 %prep
 %setup -q
 ./gen_ossec.sh init agent %{_localstatedir}/ossec > ossec-init.conf
-cd src && gmake clean && gmake deps RESOURCES_URL=http://packages.wazuh.com/deps/3.10
+cd src && gmake clean && gmake deps RESOURCES_URL=http://packages.wazuh.com/deps/3.11
 gmake TARGET=agent USE_SELINUX=no PREFIX=%{_localstatedir}/ossec DISABLE_SHARED=yes DISABLE_SYSC=yes
 cd ..
 
@@ -246,6 +246,8 @@ rm -fr %{buildroot}
 
 
 %changelog
+* Thu Aug 1 2019 support <info@wazuh.com> - 3.11.0
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Jun 11 2019 support <support@wazuh.com> - 3.10.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Jul 12 2019 support <support@wazuh.com> - 3.9.4
