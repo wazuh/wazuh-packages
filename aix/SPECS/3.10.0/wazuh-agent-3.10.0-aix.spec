@@ -70,13 +70,13 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/gener
 cp -pr etc/templates/config/generic/localfile-logs/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/etc/templates/config/generic/localfile-logs
 
 # Support scripts for post installation
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/init
-cp src/init/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/init
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src-%{version}-%{release}/init
+cp src/init/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src-%{version}-%{release}/init
 
 # Add installation scripts
-cp src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/
-cp src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/
-cp src/LOCATION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src/
+cp src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src-%{version}-%{release}/
+cp src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src-%{version}-%{release}/
+cp src/LOCATION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/src-%{version}-%{release}/
 
 exit 0
 
@@ -115,7 +115,7 @@ fi
 if [ $1 = 1 ]; then
 
   # Generating ossec.conf file
-  . %{_localstatedir}/ossec/tmp/src/init/dist-detect.sh
+  . %{_localstatedir}/ossec/tmp/src-%{version}-%{release}/init/dist-detect.sh
   %{_localstatedir}/ossec/tmp/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir}/ossec > %{_localstatedir}/ossec/etc/ossec.conf
   chown root:ossec %{_localstatedir}/ossec/etc/ossec.conf
 
@@ -124,7 +124,7 @@ if [ $1 = 1 ]; then
 
   # Restore Wazuh manager configuration
   if [ -f %{_localstatedir}/ossec/etc/ossec.conf.rpmorig ]; then
-    %{_localstatedir}/ossec/tmp/src/init/replace_manager_ip.sh %{_localstatedir}/ossec/etc/ossec.conf.rpmorig %{_localstatedir}/ossec/etc/ossec.conf
+    %{_localstatedir}/ossec/tmp/src-%{version}-%{release}/init/replace_manager_ip.sh %{_localstatedir}/ossec/etc/ossec.conf.rpmorig %{_localstatedir}/ossec/etc/ossec.conf
   fi
 
   # Fix for AIX: remove syscollector
@@ -142,15 +142,16 @@ if [ $1 = 1 ]; then
   chown ossec:ossec %{_localstatedir}/ossec/logs/active-responses.log
   chmod 0660 %{_localstatedir}/ossec/logs/active-responses.log
 
-  %{_localstatedir}/ossec/tmp/src/init/register_configure_agent.sh > /dev/null || :
 
 fi
+
+%{_localstatedir}/ossec/tmp/src-%{version}-%{release}/init/register_configure_agent.sh > /dev/null || :
 
 ln -fs /etc/rc.d/init.d/wazuh-agent /etc/rc.d/rc2.d/S97wazuh-agent
 ln -fs /etc/rc.d/init.d/wazuh-agent /etc/rc.d/rc3.d/S97wazuh-agent
 
 rm -rf %{_localstatedir}/ossec/tmp/etc
-rm -rf %{_localstatedir}/ossec/tmp/src
+rm -rf %{_localstatedir}/ossec/tmp/src-%{version}-%{release}
 rm -f %{_localstatedir}/ossec/tmp/add_localfiles.sh
 
 chmod 0660 %{_localstatedir}/ossec/etc/ossec.conf
@@ -234,7 +235,7 @@ rm -fr %{buildroot}
 %attr(750,root,system) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/generic/*.template
 %dir %attr(1750,root,ossec) %config(missingok) /var/ossec/tmp/etc/templates/config/generic/localfile-logs
 %attr(750,root,system) %config(missingok) /var/ossec/tmp/etc/templates/config/generic/localfile-logs/*.template
-%attr(750,root,system) %config(missingok) %{_localstatedir}/ossec/tmp/src/*
+%attr(750,root,system) %config(missingok) %{_localstatedir}/ossec/tmp/src-%{version}-%{release}/*
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec/var
 %dir %attr(770,root,ossec) %{_localstatedir}/ossec/var/incoming
 %dir %attr(770,root,ossec) %{_localstatedir}/ossec/var/run
