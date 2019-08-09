@@ -118,38 +118,38 @@ cp etc/templates/config/sles/12/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/oss
 cp etc/templates/config/sles/11/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles/11
 
 # Add configuration scripts
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/
-cp gen_ossec.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/
-cp add_localfiles.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/
+cp gen_ossec.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/
+cp add_localfiles.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/
 
 # Templates for initscript
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/init
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/systemd
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/generic
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/centos
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/fedora
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/rhel
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/suse
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/sles
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/src/init
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/src/systemd
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/etc/templates/config/generic
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/etc/templates/config/centos
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/etc/templates/config/fedora
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/etc/templates/config/rhel
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/etc/templates/config/suse
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/etc/templates/config/sles
 
 # Add SUSE initscript
-cp -rp src/init/ossec-hids-suse.init ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/init/
+cp -rp src/init/ossec-hids-suse.init ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/src/init/
 
 # Copy scap templates
-cp -rp  etc/templates/config/generic/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/generic
-cp -rp  etc/templates/config/centos/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/centos
-cp -rp  etc/templates/config/fedora/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/fedora
-cp -rp  etc/templates/config/rhel/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/rhel
-cp -rp  etc/templates/config/suse/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/suse
-cp -rp  etc/templates/config/sles/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/sles
+cp -rp  etc/templates/config/generic/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/etc/templates/config/generic
+cp -rp  etc/templates/config/centos/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/etc/templates/config/centos
+cp -rp  etc/templates/config/fedora/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/etc/templates/config/fedora
+cp -rp  etc/templates/config/rhel/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/etc/templates/config/rhel
+cp -rp  etc/templates/config/suse/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/etc/templates/config/suse
+cp -rp  etc/templates/config/sles/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/etc/templates/config/sles
 
-install -m 0640 src/init/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/init
+install -m 0640 src/init/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/src/init
 
 # Add installation scripts
-cp src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/
-cp src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/
-cp src/LOCATION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/
-cp -r src/systemd/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/systemd
+cp src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/src/
+cp src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/src/
+cp src/LOCATION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/src/
+cp -r src/systemd/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/src/systemd
 
 if [ %{_debugenabled} == "yes" ]; then
   %{_rpmconfigdir}/find-debuginfo.sh
@@ -182,15 +182,11 @@ if [ $1 = 1 ]; then
     mv %{_localstatedir}/ossec/etc/ossec.conf %{_localstatedir}/ossec/etc/ossec.conf.rpmorig
   fi
 fi
-# Execute this if only when upgrading the package
-if [ $1 = 2 ]; then
-    cp -rp %{_localstatedir}/ossec/etc/ossec.conf %{_localstatedir}/ossec/etc/ossec.bck
-fi
 
 %post
 # If the package is being installed
 if [ $1 = 1 ]; then
-  . %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/init/dist-detect.sh
+  . %{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/src/init/dist-detect.sh
 
   sles=""
   if [ -f /etc/os-release ]; then
@@ -207,7 +203,7 @@ if [ $1 = 1 ]; then
     fi
   fi
   if [ ! -z "$sles" ]; then
-    install -m 755 %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/init/ossec-hids-suse.init /etc/init.d/wazuh-agent
+    install -m 755 %{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/src/init/ossec-hids-suse.init /etc/init.d/wazuh-agent
   fi
 
   touch %{_localstatedir}/ossec/logs/active-responses.log
@@ -215,13 +211,13 @@ if [ $1 = 1 ]; then
   chmod 0660 %{_localstatedir}/ossec/logs/active-responses.log
 
   # Generating osse.conf file
-  %{_localstatedir}/ossec/packages_files/agent_installation_scripts/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir}/ossec > %{_localstatedir}/ossec/etc/ossec.conf
+  %{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir}/ossec > %{_localstatedir}/ossec/etc/ossec.conf
   chown root:ossec %{_localstatedir}/ossec/etc/ossec.conf
 
   # Add default local_files to ossec.conf
-  %{_localstatedir}/ossec/packages_files/agent_installation_scripts/add_localfiles.sh %{_localstatedir}/ossec >> %{_localstatedir}/ossec/etc/ossec.conf
+  %{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/add_localfiles.sh %{_localstatedir}/ossec >> %{_localstatedir}/ossec/etc/ossec.conf
   if [ -f %{_localstatedir}/ossec/etc/ossec.conf.rpmorig ]; then
-      %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/init/replace_manager_ip.sh %{_localstatedir}/ossec/etc/ossec.conf.rpmorig %{_localstatedir}/ossec/etc/ossec.conf
+      %{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/src/init/replace_manager_ip.sh %{_localstatedir}/ossec/etc/ossec.conf.rpmorig %{_localstatedir}/ossec/etc/ossec.conf
   fi
 
   /sbin/chkconfig --add wazuh-agent
@@ -233,9 +229,9 @@ if [ $1 = 1 ]; then
     # Fix for RHEL 8
     # Service must be installed in /usr/lib/systemd/system/
     if [ "${DIST_NAME}" == "rhel" -a "${DIST_VER}" == "8" ]; then
-      install -m 644 %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/systemd/wazuh-agent.service /usr/lib/systemd/system/
+      install -m 644 %{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/src/systemd/wazuh-agent.service /usr/lib/systemd/system/
     else
-      install -m 644 %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/systemd/wazuh-agent.service /etc/systemd/system/
+      install -m 644 %{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/src/systemd/wazuh-agent.service /etc/systemd/system/
     fi
     # Fix for Fedora 28
     # Check if SELinux is installed. If it is installed, restore the context of the .service file
@@ -249,26 +245,20 @@ if [ $1 = 1 ]; then
     systemctl enable wazuh-agent > /dev/null 2>&1
   fi
 
-  # Register and configure agent if Wazuh environment variables are defined
-  %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/init/register_configure_agent.sh > /dev/null || :
-
 fi
+
+# Register and configure agent if Wazuh environment variables are defined
+%{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/src/init/register_configure_agent.sh  || :
 
 if [ ! -d /run/systemd/system ]; then
   update-rc.d wazuh-agent defaults > /dev/null 2>&1
 fi
 
 # Delete the installation files used to configure the agent
-rm -rf %{_localstatedir}/ossec/packages_files
+rm -rf %{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp
 
 # Remove unnecessary files from shared directory
 rm -f %{_localstatedir}/ossec/etc/shared/*.rpmnew
-
-if [ $1 = 2 ]; then
-  if [ -f %{_localstatedir}/ossec/etc/ossec.bck ]; then
-      mv %{_localstatedir}/ossec/etc/ossec.bck %{_localstatedir}/ossec/etc/ossec.conf
-  fi
-fi
 
 # CentOS
 if [ -r "/etc/centos-release" ]; then
@@ -495,17 +485,17 @@ rm -fr %{buildroot}
 %attr(660,root,ossec) %ghost %{_localstatedir}/ossec/logs/ossec.log
 %attr(660,root,ossec) %ghost %{_localstatedir}/ossec/logs/ossec.json
 %dir %attr(750,ossec,ossec) %{_localstatedir}/ossec/logs/ossec
-%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/packages_files
-%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/packages_files/agent_installation_scripts
-%attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/packages_files/agent_installation_scripts/add_localfiles.sh
-%attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/packages_files/agent_installation_scripts/gen_ossec.sh
-%attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/generic/*
-%attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/centos/*
-%attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/fedora/*
-%attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/rhel/*
-%attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/sles/*
-%attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/suse/*
-%attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/*
+%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp
+%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts
+%attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/add_localfiles.sh
+%attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/gen_ossec.sh
+%attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/etc/templates/config/generic/*
+%attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/etc/templates/config/centos/*
+%attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/etc/templates/config/fedora/*
+%attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/etc/templates/config/rhel/*
+%attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/etc/templates/config/sles/*
+%attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/etc/templates/config/suse/*
+%attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/src/*
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec/queue
 %dir %attr(770,ossec,ossec) %{_localstatedir}/ossec/queue/ossec
 %dir %attr(750,ossec,ossec) %{_localstatedir}/ossec/queue/diff
