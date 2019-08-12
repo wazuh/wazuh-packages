@@ -443,7 +443,6 @@ if [ ! -d ${SCA_TMP_DIR} ]; then
 fi
 
 SCA_TMP_FILE="${SCA_TMP_DIR}/sca.files"
-SCA_MANAGER_ALL_FILES="${SCA_TMP_DIR}/sca.files"
 
 if [ -r ${SCA_TMP_FILE} ] && [ -r ${SCA_BASE_DIR}/generic/sca.manager.files ]; then
 
