@@ -32,7 +32,7 @@ build_package(){
     # Build the Docker image
     docker build -t ${CONTAINER_NAME} ./Docker/
     # Build the Wazuh Kibana app package using the build docker image
-    docker run --rm -t  -v ${TMP_DIR}:/source -v "${DESTINATION}":/wazuh_app ${CONTAINER_NAME} ${wazuh_version} ${kibana_version} ${app_revision} 
+    docker run --rm -t  -v ${TMP_DIR}:/source -v "${DESTINATION}":/wazuh_app ${CONTAINER_NAME} ${wazuh_version} ${kibana_version} ${app_revision}
     if [ "$?" = "0" ]; then
         delete_sources 0
     else
@@ -52,7 +52,7 @@ compute_version_revision(){
 
 download_sources(){
 
-    git clone https://github.com/wazuh/wazuh-kibana-app -b ${BRANCH_TAG} --single-branch --depth=1 ${TMP_DIR} -q
+    git clone https://github.com/wazuh/wazuh-kibana-app -b ${BRANCH_TAG} --depth=1 ${TMP_DIR}
     cd "${TMP_DIR}"
     compute_version_revision
     cd -
@@ -112,7 +112,7 @@ main(){
 
         if download_sources; then
             build_package
-        else 
+        else
             delete_sources 1
         fi
 

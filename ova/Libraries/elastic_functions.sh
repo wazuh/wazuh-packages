@@ -8,7 +8,7 @@ RAW_TEMPLATE_URL2="https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSIO
 set_elastic_repository(){
 
     rpm --import https://packages.elastic.co/GPG-KEY-elasticsearch
-    echo -e "[elasticsearch-${ELK_MAJOR}.x]\nname=Elasticsearch repository for ${ELK_MAJOR}.x packages\nbaseurl=https://artifacts.elastic.co/packages/${ELK_MAJOR}.x/yum\ngpgcheck=1\ngpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch\nenabled=1\nautorefresh=1\ntype=rpm-md" | tee /etc/yum.repos.d/elastic.repo
+    echo -e "[elasticsearch-${ELK_MAJOR}.x]\nname=Elasticsearch repository for ${ELK_MAJOR}.x packages\nbaseurl=https://artifacts.elastic.co/packages/${ELK_MAJOR}.x/yum\ngpgcheck=1\ngpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch\nenabled=1\nautorefresh=1\ntype=rpm-md" | tee -a /etc/yum.repos.d/elastic.repo
 }
 
 install_elasticsearch(){
@@ -55,7 +55,7 @@ configure_RAM(){
     fi
 
     sed -i "s/-Xms16g/-Xms${ram}g/" ${etc_elastic}/jvm.options
-    sed -i "s/-Xmx16g/-Xms${ram}g/" ${etc_elastic}/jvm.options
+    sed -i "s/-Xmx16g/-Xmx${ram}g/" ${etc_elastic}/jvm.options
 }
 
 configure_limitMEMLOCK(){
@@ -205,7 +205,7 @@ configure_logstash_6(){
     fi
 
     sed -i "s/-Xms2g/-Xms${ram}g/" /etc/logstash/jvm.options
-    sed -i "s/-Xmx2g/-Xms${ram}g/" /etc/logstash/jvm.options
+    sed -i "s/-Xmx2g/-Xmx${ram}g/" /etc/logstash/jvm.options
 
     systemctl daemon-reload
     systemctl enable logstash.service
@@ -214,9 +214,18 @@ configure_logstash_6(){
 
 disable_repos_and_clean(){
 
+    # Set Wazuh production repository
+    if [ "${STATUS_PACKAGES}" = "unstable" ]; then
+        echo -e '[wazuh_repo]\ngpgcheck=1\ngpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=Wazuh repository \nbaseurl=https://packages.wazuh.com/3.x/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo
+    fi
+
     # Disable repositories
-    sed -i "s/^enabled=1/enabled=0/" /etc/yum.repos.d/elastic.repo
-    sed -i "s/^enabled=1/enabled=0/" /etc/yum.repos.d/wazuh.repo
+    yum-config-manager --disable elasticsearch-${ELK_MAJOR}.x
+    if [ "${STATUS_PACKAGES}" = "stable" ]; then
+        yum-config-manager --disable wazuh_repo
+    else
+        yum-config-manager --disable wazuh_repo_dev
+    fi
 
     # Cleaning tasks
     yum clean all && rm -rf /var/cache/yum

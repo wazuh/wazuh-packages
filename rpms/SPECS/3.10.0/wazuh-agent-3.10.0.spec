@@ -254,8 +254,6 @@ if [ $1 = 1 ]; then
 
 fi
 
-chmod 0660 %{_localstatedir}/ossec/etc/ossec.conf
-
 if [ ! -d /run/systemd/system ]; then
   update-rc.d wazuh-agent defaults > /dev/null 2>&1
 fi
@@ -339,6 +337,9 @@ else
     fi
   fi
 fi
+
+# Restore ossec.conf permissions after upgrading
+chmod 0660 %{_localstatedir}/ossec/etc/ossec.conf
 
 if [ -s %{_localstatedir}/ossec/etc/client.keys ]; then
 

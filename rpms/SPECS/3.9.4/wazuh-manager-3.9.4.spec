@@ -329,8 +329,6 @@ if [ $1 = 1 ]; then
 
 fi
 
-chmod 0660 %{_localstatedir}/ossec/etc/ossec.conf
-
 if [ -f "%{_localstatedir}/ossec/etc/shared/agent.conf" ]; then
 mv "%{_localstatedir}/ossec/etc/shared/agent.conf" "%{_localstatedir}/ossec/etc/shared/default/agent.conf"
 chmod 0660 %{_localstatedir}/ossec/etc/shared/default/agent.conf
@@ -356,6 +354,14 @@ fi
 # Agent info change between 2.1.1 and 3.0.0
 chmod 0660 %{_localstatedir}/ossec/queue/agent-info/* 2>/dev/null || true
 chown ossecr:ossec %{_localstatedir}/ossec/queue/agent-info/* 2>/dev/null || true
+
+# Restore file permissions after upgrading
+chmod 0660 %{_localstatedir}/ossec/etc/ossec.conf
+chmod 0660 %{_localstatedir}/ossec/etc/decoders/*
+chmod 0660 %{_localstatedir}/ossec/etc/rules/*
+chown ossec:ossec %{_localstatedir}/ossec/etc/decoders/*
+chown ossec:ossec %{_localstatedir}/ossec/etc/rules/*
+find %{_localstatedir}/ossec/etc/lists -type f -exec chmod 660 {} \; -exec chown ossec:ossec {} \;
 
 # CentOS
 if [ -r "/etc/centos-release" ]; then
