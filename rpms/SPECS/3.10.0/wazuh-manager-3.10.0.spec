@@ -439,7 +439,7 @@ SCA_TMP_DIR="${SCA_BASE_DIR}/${SCA_DIR}"
 
 # Install the configuration files
 if [ ! -d ${SCA_TMP_DIR} ]; then
-  SCA_TMP_DIR="%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/generic"
+  SCA_TMP_DIR="${SCA_BASE_DIR}/generic"
 fi
 
 SCA_TMP_FILE="${SCA_TMP_DIR}/sca.files"
@@ -449,13 +449,13 @@ if [ -r ${SCA_TMP_FILE} ] && [ -r ${SCA_BASE_DIR}/generic/sca.manager.files ]; t
   rm -f %{_localstatedir}/ossec/ruleset/sca/* || true
 
   for sca_file in $(cat ${SCA_TMP_FILE}); do
-    mv %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${sca_file} %{_localstatedir}/ossec/ruleset/sca
+    mv ${SCA_BASE_DIR}/${sca_file} %{_localstatedir}/ossec/ruleset/sca
   done
 
   for sca_file in $(cat ${SCA_BASE_DIR}/generic/sca.manager.files); do
     filename=$(basename ${sca_file})
-    if [ -f "%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${sca_file}" ] && [ ! -f "%{_localstatedir}/ossec/ruleset/sca/${filename}" ]; then
-      mv %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${sca_file} %{_localstatedir}/ossec/ruleset/sca/${filename}.disabled
+    if [ -f "${SCA_BASE_DIR}/${sca_file}" ] && [ ! -f "%{_localstatedir}/ossec/ruleset/sca/${filename}" ]; then
+      mv ${SCA_BASE_DIR}/${sca_file} %{_localstatedir}/ossec/ruleset/sca/${filename}.disabled
     fi
   done
 fi
@@ -464,7 +464,7 @@ fi
 chmod 640 %{_localstatedir}/ossec/ruleset/sca/*
 chown root:ossec %{_localstatedir}/ossec/ruleset/sca/*
 # Delete the temporary directory
-rm -rf %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp
+rm -rf ${SCA_BASE_DIR}
 
 # Add the SELinux policy
 if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
