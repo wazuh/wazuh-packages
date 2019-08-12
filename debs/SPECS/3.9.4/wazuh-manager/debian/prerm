@@ -6,7 +6,7 @@ DIR="/var/ossec"
 
 case "$1" in
     upgrade|deconfigure)
-      cat non-existent-file
+      #cat non-existent-file
       if [ -f ${DIR}/bin/ossec-control ]; then
         ${DIR}/bin/ossec-control stop > /dev/null 2>&1
       fi
@@ -14,7 +14,7 @@ case "$1" in
     ;;
 
     remove)
-      cat non-existent-file
+      #cat non-existent-file
       if [ -n "$(ps -e | grep -E ^\ *1\ .*systemd$)" ]; then
         systemctl stop wazuh-manager
       fi

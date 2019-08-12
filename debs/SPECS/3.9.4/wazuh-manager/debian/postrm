@@ -7,7 +7,7 @@ WAZUH_TMP_DIR="${DIR}/packages_files/manager_config_files"
 
 case "$1" in
     remove|failed-upgrade|abort-install|abort-upgrade|disappear)
-    cat non-existent-file
+    #cat non-existent-file
     # Fix for forcing the stop of the api
     if ps aux | grep ${DIR}/api/app.js | grep -v grep; then
         kill -9 `ps -ef | grep "${DIR}/api/app.js" | grep -v grep | awk '{print $2}'` > /dev/null 2>&1

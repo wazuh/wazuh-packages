@@ -453,7 +453,7 @@ fi
 
 %postun
 set -exf
-cat non-existent-file
+#cat non-existent-file
 # If the package is been uninstalled
 if [ $1 == 0 ];then
   # Remove the ossecr user if it exists
