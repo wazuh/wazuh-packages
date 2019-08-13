@@ -21,7 +21,7 @@ DEB_AMD64_BUILDER="deb_builder_amd64"
 DEB_I386_BUILDER="deb_builder_i386"
 DEB_AMD64_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/amd64"
 DEB_I386_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/i386"
-CHECKSUMDIR="${OUTDIR}"
+CHECKSUMDIR=""
 CHECKSUM="no"
 
 clean() {
@@ -58,6 +58,12 @@ build_deb() {
     docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || exit 1
 
     # Build the Debian package with a Docker container
+    echo "docker run -t --rm -v ${OUTDIR}:/var/local/wazuh \
+        -v ${CHECKSUMDIR}:/var/local/checksum \
+        -v ${SOURCES_DIRECTORY}:/build_wazuh/${TARGET}/wazuh-${TARGET}-${VERSION} \
+        -v ${DOCKERFILE_PATH}/wazuh-${TARGET}:/${TARGET} \
+        ${CONTAINER_NAME} ${TARGET} ${VERSION} ${ARCHITECTURE} \
+        ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM}"
     docker run -t --rm -v ${OUTDIR}:/var/local/wazuh \
         -v ${CHECKSUMDIR}:/var/local/checksum \
         -v ${SOURCES_DIRECTORY}:/build_wazuh/${TARGET}/wazuh-${TARGET}-${VERSION} \
@@ -205,30 +211,15 @@ main() {
         esac
     done
 
-    # Relative to absolute path
-    if [[ ${OUTDIR} != '/'* ]];
-    then
-        if [ "${CHECKSUMDIR}" == "${CURRENT_PATH}/output/" ];
-        then
-            CHECKSUMDIR="${CURRENT_PATH}/${OUTDIR}"
-        fi
-        OUTDIR="${CURRENT_PATH}/${OUTDIR}"
-    fi
-
-    if [[ ${CHECKSUMDIR} != '/'* ]];
-    then
-        CHECKSUMDIR="${CURRENT_PATH}/${CHECKSUMDIR}"
+    if [ -z "${CHECKSUMDIR}" ]; then
+        CHECKSUMDIR="${OUTDIR}"
     fi
 
     if [[ "$BUILD" != "no" ]]; then
         build || exit 1
     fi
 
-
-
     clean 0
 }
-
-
 
 main "$@"

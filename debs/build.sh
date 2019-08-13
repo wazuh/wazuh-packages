@@ -58,8 +58,11 @@ else
     linux32 debuild -ai386 -b -uc -us
 fi
 
+deb_file="wazuh-${build_target}_${wazuh_version}-${package_release}_${architecture_target}.deb"
+pkg_path="${build_dir}/${build_target}"
+
 if [[ "${checksum}" == "yes" ]]; then
-    find ${build_dir} -name "*.deb" -exec bash -c 'sha512sum $0 > /var/local/checksum/"$(basename -- $0)".sha512' {} \; -exec mv {} /var/local/wazuh \;
-else
-    find ${build_dir} -name "*.deb" -exec mv {} /var/local/wazuh \;
+    cd ${pkg_path} && sha512sum ${deb_file} > /var/local/checksum/${deb_file}.sha512
 fi
+
+mv ${pkg_path}/${deb_file} /var/local/wazuh
