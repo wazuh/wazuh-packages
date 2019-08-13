@@ -1,0 +1,7 @@
+cluster.name: wazuh-cluster
+node.name: ${HOSTNAME}
+path.data: /var/lib/elasticsearch
+path.logs: /var/log/elasticsearch
+bootstrap.memory_lock: true
+network.host: ["127.0.0.1"]
+discovery.zen.minimum_master_nodes: 1

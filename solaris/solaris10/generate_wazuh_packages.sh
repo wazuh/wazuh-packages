@@ -11,7 +11,7 @@ PATH=$PATH:/opt/csw/bin:/usr/sfw/bin
 VERSION=""
 CURRENT_PATH=`pwd`
 REPOSITORY="https://github.com/wazuh/wazuh"
-ARCH=`uname -a | cut -d " " -f 6`
+ARCH=`uname -p`
 INSTALL="/var/ossec"
 THREADS=4
 PROFILE=agent
@@ -120,10 +120,10 @@ installation(){
     fi
     arch="$(uname -p)"
     # Build the binaries
-    if [ "$arch" == "sparc" ]; then
-        gmake -j $THREADS TARGET=agent PREFIX=$INSTALL USE_SELINUX=no USE_BIG_ENDIAN=yes
+    if [ "$arch" = "sparc" ]; then
+        gmake -j $THREADS TARGET=agent PREFIX=$INSTALL USE_SELINUX=no USE_BIG_ENDIAN=yes DISABLE_SHARED=yes
     else
-        gmake -j $THREADS TARGET=agent PREFIX=$INSTALL USE_SELINUX=no
+        gmake -j $THREADS TARGET=agent PREFIX=$INSTALL USE_SELINUX=no DISABLE_SHARED=yes
     fi
 
     cd $SOURCE
@@ -163,7 +163,8 @@ package(){
     cd ${CURRENT_PATH}
     find /var/ossec | awk 'length > 0' > "wazuh-agent_$VERSION.list"
     ver=`echo $VERSION | cut -d'v' -f 2`
-    sed "s:VERSION=\".*\":VERSION=\"$ver\":g" pkginfo > pkginfo.new && mv pkginfo.new pkginfo
+    sed  "s:ARCH=\".*\":ARCH=\"$ARCH\":g" pkginfo > pkginfo.new && mv pkginfo.new pkginfo
+    sed  "s:VERSION=\".*\":VERSION=\"$ver\":g" pkginfo > pkginfo.new && mv pkginfo.new pkginfo
     echo "i pkginfo=pkginfo" > "wazuh-agent_$VERSION.proto"
     echo "i checkinstall=checkinstall.sh" >> "wazuh-agent_$VERSION.proto"
     echo "i preinstall=preinstall.sh" >> "wazuh-agent_$VERSION.proto"
@@ -179,6 +180,7 @@ package(){
     echo $VERSION
     pkgmk -o -r / -d . -f "wazuh-agent_$VERSION.proto"
     pkgtrans -s ${CURRENT_PATH} "wazuh-agent_$VERSION-sol10-$ARCH.pkg" wazuh-agent
+
 }
 
 clean(){
@@ -235,12 +237,12 @@ show_help()
 {
   echo "
   USAGE: Command line arguments available:
-    -h   | --help               Displays this help.
-    -d   | --download           Download source file and prepares source directories.
-    -u   | --utils              Download and install all dependencies.
-    -b   | --build              Build Solaris 10 packages.
-    -k   | --checksum           Generate checksum
-    -c   | --clean              Clean all. Even installation files.
+    -h, --help               Displays this help.
+    -d, --download           Download source file and prepares source directories.
+    -u, --utils              Download and install all dependencies.
+    -b, --build              Build Solaris 10 packages.
+    -k, --checksum           Generate checksum
+    -c, --clean              Clean all. Even installation files.
     "
 }
 

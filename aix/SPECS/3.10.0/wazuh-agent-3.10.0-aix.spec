@@ -22,7 +22,7 @@ Wazuh is an open source security monitoring solution for threat detection, integ
 %prep
 %setup -q
 ./gen_ossec.sh init agent %{_localstatedir}/ossec > ossec-init.conf
-cd src && gmake clean && gmake deps RESOURCES_URL=http://packages.wazuh.com/deps/3.9
+cd src && gmake clean && gmake deps RESOURCES_URL=http://packages.wazuh.com/deps/3.10
 gmake TARGET=agent USE_SELINUX=no PREFIX=%{_localstatedir}/ossec DISABLE_SHARED=yes DISABLE_SYSC=yes
 cd ..
 
@@ -118,7 +118,6 @@ if [ $1 = 1 ]; then
   . %{_localstatedir}/ossec/tmp/src/init/dist-detect.sh
   %{_localstatedir}/ossec/tmp/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir}/ossec > %{_localstatedir}/ossec/etc/ossec.conf
   chown root:ossec %{_localstatedir}/ossec/etc/ossec.conf
-  chmod 0640 %{_localstatedir}/ossec/etc/ossec.conf
 
   # Add default local_files to ossec.conf
   %{_localstatedir}/ossec/tmp/add_localfiles.sh %{_localstatedir}/ossec >> %{_localstatedir}/ossec/etc/ossec.conf
@@ -144,12 +143,17 @@ if [ $1 = 1 ]; then
   chmod 0660 %{_localstatedir}/ossec/logs/active-responses.log
 
   %{_localstatedir}/ossec/tmp/src/init/register_configure_agent.sh > /dev/null || :
+
 fi
+
+ln -fs /etc/rc.d/init.d/wazuh-agent /etc/rc.d/rc2.d/S97wazuh-agent
+ln -fs /etc/rc.d/init.d/wazuh-agent /etc/rc.d/rc3.d/S97wazuh-agent
 
 rm -rf %{_localstatedir}/ossec/tmp/etc
 rm -rf %{_localstatedir}/ossec/tmp/src
 rm -f %{_localstatedir}/ossec/tmp/add_localfiles.sh
 
+chmod 0660 %{_localstatedir}/ossec/etc/ossec.conf
 
 # Restart wazuh-agent when manager settings are in place
 if grep '<server-ip>.*</server-ip>' %{_localstatedir}/ossec/etc/ossec.conf | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' > /dev/null 2>&1; then
@@ -192,7 +196,7 @@ rm -fr %{buildroot}
 
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec
 %attr(750,root,ossec) %{_localstatedir}/ossec/agentless
-%dir %attr(750,root,ossec) %{_localstatedir}/ossec/.ssh
+%dir %attr(770,root,ossec) %{_localstatedir}/ossec/.ssh
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec/active-response
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec/active-response/bin
 %attr(750,root,ossec) %{_localstatedir}/ossec/active-response/bin/*
@@ -203,7 +207,7 @@ rm -fr %{buildroot}
 %attr(640,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/client.keys
 %attr(640,root,ossec) %{_localstatedir}/ossec/etc/internal_options*
 %attr(640,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/local_internal_options.conf
-%attr(640,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/ossec.conf
+%attr(660,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/ossec.conf
 %{_localstatedir}/ossec/etc/ossec-init.conf
 %attr(640,root,ossec) %{_localstatedir}/ossec/etc/wpk_root.pem
 %dir %attr(770,root,ossec) %{_localstatedir}/ossec/etc/shared
@@ -243,6 +247,10 @@ rm -fr %{buildroot}
 
 %changelog
 * Mon Jun 11 2019 support <support@wazuh.com> - 3.10.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Jul 12 2019 support <support@wazuh.com> - 3.9.4
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Jul 02 2019 support <support@wazuh.com> - 3.9.3
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Jun 11 2019 support <support@wazuh.com> - 3.9.2
 - More info: https://documentation.wazuh.com/current/release-notes/

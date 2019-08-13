@@ -24,11 +24,11 @@ To build a Solaris 10 package, you need to download this repository and use the 
     Usage: ./generate_wazuh_packages.sh [OPTIONS]
 
     USAGE: Command line arguments available:
-        -h   | --help               Displays this help.
-        -d   | --download           Download source file and prepares source directories.
-        -u   | --utils              Download and install all dependencies.
-        -b   | --build              Build Solaris 10 packages.
-        -c   | --clean              Clean all. Even installation files.
+        -h, --help               Displays this help.
+        -d, --download           Download source file and prepares source directories.
+        -u, --utils              Download and install all dependencies.
+        -b, --build              Build Solaris 10 packages.
+        -c, --clean              Clean all. Even installation files.
     ```
 
     * To install the needed dependencies:

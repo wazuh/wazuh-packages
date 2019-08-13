@@ -1,0 +1,5 @@
+.vagrant
+Config_files/filebeat.yml
+*.ova
+*.ovf
+*.vmdk

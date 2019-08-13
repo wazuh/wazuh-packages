@@ -217,7 +217,6 @@ if [ $1 = 1 ]; then
   # Generating osse.conf file
   %{_localstatedir}/ossec/packages_files/agent_installation_scripts/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir}/ossec > %{_localstatedir}/ossec/etc/ossec.conf
   chown root:ossec %{_localstatedir}/ossec/etc/ossec.conf
-  chmod 0640 %{_localstatedir}/ossec/etc/ossec.conf
 
   # Add default local_files to ossec.conf
   %{_localstatedir}/ossec/packages_files/agent_installation_scripts/add_localfiles.sh %{_localstatedir}/ossec >> %{_localstatedir}/ossec/etc/ossec.conf
@@ -304,20 +303,23 @@ fi
 SCA_DIR="${DIST_NAME}/${DIST_VER}"
 mkdir -p %{_localstatedir}/ossec/ruleset/sca
 
+SCA_TMP_DIR="%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${SCA_DIR}"
+
 # Install the configuration files
-if [ -r %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${SCA_DIR}/sca.files ]; then
-
-  for sca_file in $(cat %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${SCA_DIR}/sca.files); do
-    mv %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${sca_file} %{_localstatedir}/ossec/ruleset/sca
-  done
-  # Fix sca permissions, group and owner
-  chmod 640 %{_localstatedir}/ossec/ruleset/sca/*
-  chown root:ossec %{_localstatedir}/ossec/ruleset/sca/*
-  # Delete the temporary directory
-  rm -rf %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp
-
+if [ ! -d ${SCA_TMP_DIR} ]; then
+  SCA_TMP_DIR="%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/generic"
 fi
 
+SCA_TMP_FILE="${SCA_TMP_DIR}/sca.files"
+
+for sca_file in $(cat ${SCA_TMP_FILE}); do
+  mv %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${sca_file} %{_localstatedir}/ossec/ruleset/sca
+done
+# Fix sca permissions, group and owner
+chmod 640 %{_localstatedir}/ossec/ruleset/sca/*
+chown root:ossec %{_localstatedir}/ossec/ruleset/sca/*
+# Delete the temporary directory
+rm -rf %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp
 
 # Set the proper selinux context
 if ([ "X${DIST_NAME}" = "Xrhel" ] || [ "X${DIST_NAME}" = "Xcentos" ] || [ "X${DIST_NAME}" = "XCentOS" ]) && [ "${DIST_VER}" == "5" ]; then
@@ -335,6 +337,9 @@ else
     fi
   fi
 fi
+
+# Restore ossec.conf permissions after upgrading
+chmod 0660 %{_localstatedir}/ossec/etc/ossec.conf
 
 if [ -s %{_localstatedir}/ossec/etc/client.keys ]; then
 
@@ -466,7 +471,7 @@ rm -fr %{buildroot}
 %attr(640,root,ossec) %verify(not md5 size mtime) %{_sysconfdir}/ossec-init.conf
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec
 %attr(750,root,ossec) %{_localstatedir}/ossec/agentless
-%dir %attr(750,root,ossec) %{_localstatedir}/ossec/.ssh
+%dir %attr(770,root,ossec) %{_localstatedir}/ossec/.ssh
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec/active-response
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec/active-response/bin
 %attr(750,root,ossec) %{_localstatedir}/ossec/active-response/bin/*
@@ -478,7 +483,7 @@ rm -fr %{buildroot}
 %attr(640,root,ossec) %{_localstatedir}/ossec/etc/internal_options*
 %attr(640,root,ossec) %{_localstatedir}/ossec/etc/localtime
 %attr(640,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/local_internal_options.conf
-%attr(640,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/ossec.conf
+%attr(660,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/ossec.conf
 %{_localstatedir}/ossec/etc/ossec-init.conf
 %attr(640,root,ossec) %{_localstatedir}/ossec/etc/wpk_root.pem
 %dir %attr(770,root,ossec) %{_localstatedir}/ossec/etc/shared

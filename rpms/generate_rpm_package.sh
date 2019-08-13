@@ -13,7 +13,7 @@ ARCHITECTURE="x86_64"
 LEGACY="no"
 OUTDIR="${CURRENT_PATH}/output/"
 BRANCH="master"
-RELEASE="1"
+REVISION="1"
 TARGET=""
 JOBS="2"
 DEBUG="no"
@@ -52,7 +52,7 @@ build_rpm() {
     SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
 
     # Download the sources
-    git clone ${SOURCE_REPOSITORY} -b $BRANCH ${SOURCES_DIRECTORY} --depth=1 --single-branch -q
+    git clone ${SOURCE_REPOSITORY} -b $BRANCH ${SOURCES_DIRECTORY} --depth=1
 
     # Copy the necessary files
     cp build.sh ${DOCKERFILE_PATH}
@@ -87,7 +87,7 @@ build_rpm() {
         -v ${CHECKSUMDIR}:/var/local/checksum \
         -v ${SOURCES_DIRECTORY}:/build_wazuh/wazuh-${TARGET}-${VERSION} \
         ${CONTAINER_NAME} ${TARGET} ${VERSION} ${ARCHITECTURE} \
-        $JOBS ${RELEASE} ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM} || exit 1
+        $JOBS ${REVISION} ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM} || exit 1
 
     echo "Package $(ls ${OUTDIR} -Art | tail -n 1) added to ${OUTDIR}."
 
@@ -96,30 +96,37 @@ build_rpm() {
 
 build() {
 
-    if [[ "${TARGET}" = "api" ]]; then
+    if [[ ${ARCHITECTURE} == "amd64" ]] || [[ ${ARCHITECTURE} == "x86_64" ]]; then
+        ARCHITECTURE="x86_64"
+    fi
+
+    if [[ "${TARGET}" == "api" ]]; then
 
         SOURCE_REPOSITORY="https://github.com/wazuh/wazuh-api"
         build_rpm ${RPM_X86_BUILDER} ${RPM_BUILDER_DOCKERFILE}/x86_64 || exit 1
 
-    elif [[ "${TARGET}" = "manager" ]] || [[ "${TARGET}" = "agent" ]]; then
+    elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]]; then
 
         SOURCE_REPOSITORY="https://github.com/wazuh/wazuh"
         BUILD_NAME=""
         FILE_PATH=""
-        if [[ "${LEGACY}" = "yes" ]] && [[ "${ARCHITECTURE}" = "x86_64" ]]; then
-            RELEASE="${RELEASE}.el5"
+        if [[ "${LEGACY}" == "yes" ]] && [[ "${ARCHITECTURE}" == "x86_64" ]]; then
+            REVISION="${REVISION}.el5"
             BUILD_NAME="${LEGACY_RPM_X86_BUILDER}"
             FILE_PATH="${LEGACY_RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
-        elif [[ "${LEGACY}" = "yes" ]] && [[ "${ARCHITECTURE}" = "i386" ]]; then
-            RELEASE="${RELEASE}.el5"
+        elif [[ "${LEGACY}" == "yes" ]] && [[ "${ARCHITECTURE}" == "i386" ]]; then
+            REVISION="${REVISION}.el5"
             BUILD_NAME="${LEGACY_RPM_I386_BUILDER}"
             FILE_PATH="${LEGACY_RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
-        elif [[ "${LEGACY}" = "no" ]] && [[ "${ARCHITECTURE}" = "x86_64" ]]; then
+        elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "x86_64" ]]; then
             BUILD_NAME="${RPM_X86_BUILDER}"
             FILE_PATH="${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
-        else
+        elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "i386" ]]; then
             BUILD_NAME="${RPM_I386_BUILDER}"
             FILE_PATH="${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
+        else
+            echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too) or i386"
+            clean 1
         fi
         build_rpm ${BUILD_NAME} ${FILE_PATH} || clean 1
     else
@@ -191,9 +198,9 @@ main() {
                 help 1
             fi
             ;;
-        "-r"|"--release")
+        "-r"|"--revision")
             if [ -n "$2" ]; then
-                RELEASE="$2"
+                REVISION="$2"
                 shift 2
             else
                 help 1

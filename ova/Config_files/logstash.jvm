@@ -1,0 +1,12 @@
+-Xms2g
+-Xmx2g
+-XX:+UseParNewGC
+-XX:+UseConcMarkSweepGC
+-XX:CMSInitiatingOccupancyFraction=75
+-XX:+UseCMSInitiatingOccupancyOnly
+-Djava.awt.headless=true
+-Dfile.encoding=UTF-8
+-Djruby.compile.invokedynamic=true
+-Djruby.jit.threshold=0
+-XX:+HeapDumpOnOutOfMemoryError
+-Djava.security.egd=file:/dev/urandom
