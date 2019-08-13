@@ -279,26 +279,6 @@ main() {
     esac
   done
 
-  if [[ "${CHECKSUMDIR}" == "" ]];then
-    CHECKSUMDIR=DESTINATION
-  fi
-
-  # Relative to absolute path
-  if [[ ${outdir} != '/'* ]];
-    then
-        if [ "${checksum_dir}" == "${current_path}/output/" ];
-        then
-            echo "equals"
-            CHECKSUMDIR="${current_path}/${outdir}"
-        fi
-        OUTDIR="${current_path}/${outdir}"
-    fi
-
-    if [[ ${checksum_dir} != '/'* ]];
-    then
-        checksum_dir="${current_path}/${checksum_dir}"
-    fi
-
   if [[ "${build_env}" = "yes" ]]; then
     build_environment || exit 1
   fi
