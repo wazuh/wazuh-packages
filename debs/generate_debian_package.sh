@@ -58,12 +58,6 @@ build_deb() {
     docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || exit 1
 
     # Build the Debian package with a Docker container
-    echo "docker run -t --rm -v ${OUTDIR}:/var/local/wazuh \
-        -v ${CHECKSUMDIR}:/var/local/checksum \
-        -v ${SOURCES_DIRECTORY}:/build_wazuh/${TARGET}/wazuh-${TARGET}-${VERSION} \
-        -v ${DOCKERFILE_PATH}/wazuh-${TARGET}:/${TARGET} \
-        ${CONTAINER_NAME} ${TARGET} ${VERSION} ${ARCHITECTURE} \
-        ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM}"
     docker run -t --rm -v ${OUTDIR}:/var/local/wazuh \
         -v ${CHECKSUMDIR}:/var/local/checksum \
         -v ${SOURCES_DIRECTORY}:/build_wazuh/${TARGET}/wazuh-${TARGET}-${VERSION} \
