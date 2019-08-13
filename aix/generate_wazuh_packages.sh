@@ -16,7 +16,7 @@ install_path="/var/ossec"
 wazuh_branch="master"
 target_dir="${current_path}/output/"
 compute_checksums="no"
-checksum_dir="${target_dir}"
+checksum_dir=""
 # Check if running as root
 if [[ $EUID -ne 0 ]]; then
  echo "This script must be run as root"
@@ -202,7 +202,7 @@ build_package() {
   if [ -f ${target_dir}/${rpm_file} ]; then
     echo "Your package ${rpm_file} is stored in ${target_dir}"
     if [[ "${compute_checksums}" = "yes" ]]; then
-      cd ${target_dir} && /usr/local/scripts/shasum -a 512 ${rpm_file} > "${checksum_dir}${rpm_file}.sha512"
+      cd ${target_dir} && /usr/local/scripts/shasum -a 512 ${rpm_file} > "${checksum_dir}/${rpm_file}.sha512"
     fi
   else
     echo "Error: RPM package could not be created"
@@ -281,6 +281,10 @@ main() {
 
   if [[ "${build_env}" = "yes" ]]; then
     build_environment || exit 1
+  fi
+
+  if [ -z "${checksum_dir}" ]; then
+    checksum_dir="${target_dir}"
   fi
 
   if [[ "${build_rpm}" = "yes" ]]; then
