@@ -27,7 +27,7 @@ LEGACY_RPM_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/5"
 LEGACY_TAR_FILE="${LEGACY_RPM_BUILDER_DOCKERFILE}/i386/centos-5-i386.tar.gz"
 TAR_URL="https://packages-dev.wazuh.com/utils/centos-5-i386-build/centos-5-i386.tar.gz"
 INSTALLATION_PATH="/var"
-CHECKSUMDIR="${OUTDIR}"
+CHECKSUMDIR=""
 CHECKSUM="no"
 
 if command -v curl > /dev/null 2>&1 ; then
@@ -239,24 +239,12 @@ main() {
         esac
     done
 
-    # Relative to absolute path
-    if [[ ${OUTDIR} != '/'* ]];
-    then
-        if [ "${CHECKSUMDIR}" == "${CURRENT_PATH}/output/" ];
-        then
-            CHECKSUMDIR="${CURRENT_PATH}/${OUTDIR}"
-        fi
-        OUTDIR="${CURRENT_PATH}/${OUTDIR}"
-    fi
-
-    if [[ ${CHECKSUMDIR} != '/'* ]];
-    then
-        CHECKSUMDIR="${CURRENT_PATH}/${CHECKSUMDIR}"
-    fi
-
-
     if [[ "${USER_PATH}" == "no" ]] && [[ "${LEGACY}" == "yes" ]]; then
         OUTDIR="${OUTDIR}/5/${ARCHITECTURE}"
+    fi
+
+    if [ -z "${CHECKSUMDIR}" ]; then
+        CHECKSUMDIR="${OUTDIR}"
     fi
 
     if [[ "$BUILD" != "no" ]]; then
