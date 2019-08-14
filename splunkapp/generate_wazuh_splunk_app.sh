@@ -22,7 +22,7 @@ CONTAINER_NAME="wazuh-splunk-app:latest"
 OUTDIR="${CURRENT_PATH}/output/"
 CHECKSUMDIR=""
 REVISION=" "
-SOURCES_DIRECTORY="/tmp/wazuh-splunk-$(( ( RANDOM % 1000000 )  + 1 ))"
+SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
 REPOSITORY="wazuh-splunk"
 WAZUH_VERSION=""
 
@@ -34,7 +34,7 @@ help() {
     echo "    -b, --branch <branch>     [Required] Select Git branch or tag e.g. 3.8 or v3.8.1-7.2.3"
     echo "    -s, --store <directory>   [Optional] Destination directory by default /tmp/splunk-app"
     echo "    -r, --revision            [Optional] Package revision that append to version e.g. x.x.x-y.y.y-rev"
-    echo "    -k, --checksum            [Optional] Generate checksum"
+    echo "    -k, --checksum  <path>    [Optional] Generate checksum"
     echo "    -h, --help                Show this help."
     echo
     exit $1

@@ -1,5 +1,20 @@
 #!/bin/bash
 
+wazuh_version=$1
+kibana_version=$2
+if [ -z $4 ]; then
+    checksum=$3
+else
+    app_revision=$3
+    checksum=$4
+fi
+
+orig_source_dir="/source"
+source_dir="/tmp/source"
+build_dir="${source_dir}/build"
+destination_dir="/wazuh_app"
+checksum_dir="/var/local/checksum"
+
 install_dependencies (){
 
     {
@@ -24,6 +39,7 @@ install_dependencies (){
 build_package(){
 
     unset NODE_ENV
+    cp -r ${orig_source_dir} ${source_dir}
     cd ${source_dir}
     # Set pkg name
     if [ -z ${app_revision} ]; then
@@ -33,26 +49,15 @@ build_package(){
     fi
     yarn
     yarn build
+
+    find ${build_dir} -name "*.zip" -exec mv {} ${destination_dir}/${wazuh_app_pkg_name} \;
+
     if [[ "${checksum}" == "yes" ]]; then
-        find ${build_dir} -name "*.zip" -exec mv {} ${destination_dir}/${wazuh_app_pkg_name} \;
-        find ${destination_dir} -name "*.zip" -exec bash -c 'cd $(dirname {}) && sha512sum $(basename {}) > {}.sha512' \;
-    else
-        find ${build_dir} -name "*.zip" -exec mv {} ${destination_dir}/${wazuh_app_pkg_name} \;
+        cd ${destination_dir} && sha512sum "${wazuh_app_pkg_name}" > "${checksum_dir}/${wazuh_app_pkg_name}".sha512
     fi
+
+    rm -rf ${source_dir}
 }
-
-wazuh_version=$1
-kibana_version=$2
-if [ -z $4 ]; then
-    checksum=$3
-else
-    app_revision=$3
-    checksum=$4
-fi
-
-source_dir="/source"
-build_dir="${source_dir}/build"
-destination_dir="/wazuh_app"
 
 install_dependencies
 build_package
