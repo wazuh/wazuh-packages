@@ -157,7 +157,7 @@ show_help() {
   echo "    -b <branch> Select Git branch. Example v3.5.0"
   echo "    -s <tar_directory> Directory to store the resulting tar package. By default: /tmp/build"
   echo "    -p <tar_home> Installation path for the package. By default: /var"
-  echo "    -k, --checksum Compute the SHA512 checksum of the TAR package."
+  echo "    -c, --checksum Compute the SHA512 checksum of the TAR package."
   echo "    -h Shows this help"
   echo
   exit $1
@@ -219,7 +219,7 @@ main() {
           show_help 1
         fi
       ;;
-      "-k" | "--checksum")
+      "-c" | "--checksum")
           if [ -n "$2" ]; then
             checksum_dir="$2"
             compute_checksums="yes"
@@ -229,7 +229,6 @@ main() {
             checksum_dir="$2"
             shift 1
           fi
-        shift 1
       ;;
       *)
         show_help 1

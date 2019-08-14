@@ -38,7 +38,7 @@ show_help() {
   echo "    -e, --environment                   Install all the packages necessaries to build the RPM package"
   echo "    -s, --store  <rpm_directory>        Directory to store the resulting RPM package. By default: /tmp/build"
   echo "    -p, --install-path <rpm_home>       Installation path for the package. By default: /var"
-  echo "    -k, --checksum                      Compute the SHA512 checksum of the RPM package."
+  echo "    -c, --checksum                      Compute the SHA512 checksum of the RPM package."
   echo "    -h, --help                          Shows this help"
   echo
   exit $1
@@ -262,7 +262,7 @@ main() {
               show_help 1
           fi
         ;;
-        "-k" | "--checksum")
+        "-c" | "--checksum")
             if [ -n "$2" ]; then
                 checksum_dir="$2"
                 compute_checksums="yes"
@@ -272,7 +272,6 @@ main() {
                 checksum_dir="$2"
                 shift 1
             fi
-          shift 1
         ;;
         *)
           show_help 1

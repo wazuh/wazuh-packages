@@ -40,9 +40,8 @@ help () {
     echo "  -e, --elastic-version  [Required] Elastic version to download inside VM."
     echo "  -r, --repository       [Required] Status of the packages [stable/unstable]"
     echo "  -d, --directory        [Optional] Where will be installed manager. Default /var/ossec"
-    echo "  -c, --clean            [Optional] Clean the local machine."
     echo "  -s, --store <path>     [Optional] Set the destination absolute path of package."
-    echo "  -k, --checksum <path>  [Optional] Generate checksum."
+    echo "  -c, --checksum <path>  [Optional] Generate checksum."
     echo "  -h, --help             [  Util  ] Show this help."
     echo
     exit $1
@@ -181,11 +180,7 @@ main() {
                 help 1
             fi
             ;;
-
-        "-c" | "--clean")
-            clean 2
-        ;;
-        "-k"|"--checksum")
+        "-c"|"--checksum")
             if [ -n "$2" ]; then
                 CHECKSUM_DIR="$2"
                 CHECKSUM="yes"

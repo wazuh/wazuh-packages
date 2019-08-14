@@ -79,7 +79,7 @@ function help() {
     echo "    -s, --store-path <path>   [Optional] Set the destination absolute path of package."
     echo "    -j, --jobs <number>       [Optional] Number of parallel jobs when compiling."
     echo "    -r, --revision <rev>      [Optional] Package revision that append to version e.g. x.x.x-rev"
-    echo "    -k, --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
+    echo "    -c, --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
     echo "    -h, --help                [  Util  ] Show this help."
     echo "    -i, --install-deps        [  Util  ] Install build dependencies (Packages)."
     echo "    -x, --install-xcode       [  Util  ] Install X-Code and brew. Can't be executed as root."
@@ -223,7 +223,7 @@ function main() {
             DEBUG="yes"
             shift 1
             ;;
-        "-k"|"--checksum")
+        "-c"|"--checksum")
             if [ -n "$2" ]; then
                 CHECKSUMDIR="$2"
                 CHECKSUM="yes"

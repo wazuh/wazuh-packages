@@ -34,7 +34,7 @@ help() {
     echo "    -b, --branch <branch>     [Required] Select Git branch or tag e.g. 3.8 or v3.8.1-7.2.3"
     echo "    -s, --store <directory>   [Optional] Destination directory by default /tmp/splunk-app"
     echo "    -r, --revision            [Optional] Package revision that append to version e.g. x.x.x-y.y.y-rev"
-    echo "    -k, --checksum  <path>    [Optional] Generate checksum"
+    echo "    -c, --checksum  <path>    [Optional] Generate checksum"
     echo "    -h, --help                Show this help."
     echo
     exit $1
@@ -66,8 +66,6 @@ compute_version_revision() {
 
     WAZUH_VERSION=$(cat ${SOURCES_DIRECTORY}/SplunkAppForWazuh/default/package.conf | grep version -m 1  | cut -d' ' -f 3)
     SPLUNK_VERSION=$(cat ${SOURCES_DIRECTORY}/SplunkAppForWazuh/default/package.conf | grep version -m 3  | cut -d ' ' -f 3| head -n 3 | tail -1)
-cat ${SOURCES_DIRECTORY}/SplunkAppForWazuh/default/package.conf | grep version -m 1  | cut -d' ' -f 3
-    cat ${SOURCES_DIRECTORY}/SplunkAppForWazuh/default/package.conf | grep version -m 3  | cut -d ' ' -f 3| head -n 3 | tail -1
 
     return 0
 }
@@ -125,7 +123,7 @@ main() {
                     help 1
                 fi
                 ;;
-            "-k"|"--checksum")
+            "-c"|"--checksum")
                 if [ -n "$2" ]; then
                     CHECKSUMDIR="$2"
                     CHECKSUM="yes"
