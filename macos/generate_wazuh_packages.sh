@@ -142,7 +142,9 @@ function install_deps() {
 
     hdiutil attach Packages.dmg
 
-    if installer -package /Volumes/Packages\ 1.2.5/packages/Packages.pkg -target / ; then
+    cd /Volumes/Packages*/packages/
+
+    if installer -package Packages.pkg -target / ; then
         echo "Packagesbuild was correctly installed."
     else
         echo "Something went wrong installing packagesbuild."
@@ -185,13 +187,8 @@ function main() {
             ;;
         "-s"|"--store-path")
             if [ -n "$2" ]; then
-              if [[ "${2: -1}" != "/" ]]; then
-                DESTINATION="$2/"
-                echo "INFO: Please write store path without final slash."
-              else
                 DESTINATION="$2"
-              fi
-              shift 2
+                shift 2
             else
                 help 1
             fi
@@ -248,7 +245,7 @@ function main() {
     testdep
 
     if [ -z "${CHECKSUMDIR}" ]; then
-        CHECKSUMDIR="${OUTDIR}"
+        CHECKSUMDIR="${DESTINATION}"
     fi
 
     if [[ "$BUILD" != "no" ]]; then
