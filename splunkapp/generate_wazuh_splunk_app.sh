@@ -39,7 +39,6 @@ help() {
     echo
     exit $1
 
-    exit $1
 }
 
 build_package() {

@@ -8,8 +8,6 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-set -exf
-
 # Script configuration variables
 current_path="$( cd $(dirname $0) ; pwd -P )"
 install_path="/var/ossec"
@@ -38,7 +36,7 @@ show_help() {
   echo "    -e, --environment                   Install all the packages necessaries to build the RPM package"
   echo "    -s, --store  <rpm_directory>        Directory to store the resulting RPM package. By default: /tmp/build"
   echo "    -p, --install-path <rpm_home>       Installation path for the package. By default: /var"
-  echo "    -c, --checksum                      Compute the SHA512 checksum of the RPM package."
+  echo "    -c, --checksum <path>               Compute the SHA512 checksum of the RPM package."
   echo "    -h, --help                          Shows this help"
   echo
   exit $1

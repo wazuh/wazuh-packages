@@ -67,6 +67,7 @@ function build_container() {
 
 
 function help() {
+  echo
   echo "Usage: $0 [OPTIONS]"
   echo
   echo "    -t,   --target-system <target>              [Required] Select target wpk to build [linux/windows]"
