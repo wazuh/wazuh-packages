@@ -12,19 +12,19 @@
 #
 # CONFIGURATION VARIABLES
 #
+
+CURRENT_PATH=$( cd $(dirname $0) ; pwd -P )
+
 BRANCH_TAG=""
 SPLUNK_VERSION=""
 READY_TO_RELEASE=""
 CONTAINER_NAME="wazuh-splunk-app:latest"
-DESTINATION="/tmp/splunk-app/"
+OUTDIR="${CURRENT_PATH}/output/"
+CHECKSUMDIR=""
 REVISION=" "
-TMP_DIRECTORY="/tmp/wazuh-splunk-$(( ( RANDOM % 1000000 )  + 1 ))"
+SOURCES_DIRECTORY="/tmp/wazuh-splunk-$(( ( RANDOM % 1000000 )  + 1 ))"
 REPOSITORY="wazuh-splunk"
 WAZUH_VERSION=""
-SPLUNK_VERSION=""
-
-# load config data
-scriptpath=$( cd $(dirname $0) ; pwd -P )
 
 help() {
 
@@ -47,31 +47,35 @@ build_package() {
     # Build the Docker image
     docker build -t ${CONTAINER_NAME} ./Docker/
     # Run Docker and build package
-    docker run -t --rm -v "${TMP_DIRECTORY}":/pkg -v "${DESTINATION}":/wazuh_splunk_app ${CONTAINER_NAME} \
-            ${WAZUH_VERSION} ${SPLUNK_VERSION} ${REVISION} ${CHECKSUM}|| exit 1
+
+    docker run -t --rm -v ${SOURCES_DIRECTORY}:/pkg \
+            -v ${OUTDIR}:/wazuh_splunk_app \
+            -v ${CHECKSUMDIR}:/var/local/checksum \
+            ${CONTAINER_NAME} ${WAZUH_VERSION} ${SPLUNK_VERSION} ${REVISION} ${CHECKSUM}
+
 
     if [ "$?" = "0" ]; then
-        delete_sources 0
+        clean 0
     else
-        delete_sources 1
+        clean 1
     fi
     return 0
 }
 
 compute_version_revision() {
 
-    WAZUH_VERSION=$(cat SplunkAppForWazuh/default/package.conf | grep version -m 1  | cut -d' ' -f 3)
-    SPLUNK_VERSION=$(cat SplunkAppForWazuh/default/package.conf | grep version -m 3  | cut -d ' ' -f 3| head -n 3 | tail -1)
+    WAZUH_VERSION=$(cat ${SOURCES_DIRECTORY}/SplunkAppForWazuh/default/package.conf | grep version -m 1  | cut -d' ' -f 3)
+    SPLUNK_VERSION=$(cat ${SOURCES_DIRECTORY}/SplunkAppForWazuh/default/package.conf | grep version -m 3  | cut -d ' ' -f 3| head -n 3 | tail -1)
+cat ${SOURCES_DIRECTORY}/SplunkAppForWazuh/default/package.conf | grep version -m 1  | cut -d' ' -f 3
+    cat ${SOURCES_DIRECTORY}/SplunkAppForWazuh/default/package.conf | grep version -m 3  | cut -d ' ' -f 3| head -n 3 | tail -1
 
     return 0
 }
 
 download_source() {
 
-    if git clone https://github.com/wazuh/${REPOSITORY} -b ${BRANCH_TAG} ${TMP_DIRECTORY} --depth=1; then
-        cd ${TMP_DIRECTORY}
+    if git clone https://github.com/wazuh/${REPOSITORY} -b ${BRANCH_TAG} ${SOURCES_DIRECTORY} --depth=1; then
         compute_version_revision
-        cd -
     else
         echo "Error: Source code from ${BRANCH_TAG} could not be downloaded"
         exit 1
@@ -80,10 +84,10 @@ download_source() {
     return 0
 }
 
-delete_sources(){
+clean(){
 
     exit_code=$1
-    rm -rf ${TMP_DIRECTORY}
+    rm -rf ${SOURCES_DIRECTORY}
     exit ${exit_code}
 }
 
@@ -107,27 +111,11 @@ main() {
                 ;;
             "-s"|"--store")
                 if [ -n "$2" ]; then
-                    if [[ "${2: -1}" != "/" ]]; then
-                    DESTINATION="$2/"
-                    else
-                    DESTINATION="$2"
-                    fi
-                    HAVE_DESTINATION=true
+                    OUTDIR="$2"
                     shift 2
                 else
                     help 1
                 fi
-                ;;
-            "-sp"|"--splunk")
-                if [ -n "$2" ]; then
-                    SPLUNK_VERSION=$2
-                    HAVE_VERSION=true
-                    BRANCH_TAG="v${BRANCH_TAG}-${SPLUNK_VERSION}"
-                    shift 2
-                else
-                    help 1
-                fi
-
                 ;;
             "-r"|"--revision")
                 if [ -n "$2" ]; then
@@ -137,21 +125,31 @@ main() {
                     help 1
                 fi
                 ;;
-            "-k" | "--checksum")
-                CHECKSUM="yes"
-                shift 1
+            "-k"|"--checksum")
+                if [ -n "$2" ]; then
+                    CHECKSUMDIR="$2"
+                    CHECKSUM="yes"
+                    shift 2
+                else
+                    CHECKSUM="yes"
+                    shift 1
+                fi
                 ;;
             *)
                 help 1
             esac
         done
 
+    if [ -z "${CHECKSUMDIR}" ]; then
+        CHECKSUMDIR="${OUTDIR}"
+    fi
+
     if [[ "$HAVE_BRANCH" == true ]] ; then
         if ! download_source ; then
-            delete_sources 1
+            clean 1
         fi
         build_package
-        delete_sources 0
+        clean 0
     else
         help 1
     fi

@@ -1,35 +1,36 @@
 #!/bin/bash
 
-build_package() {
-
-    cd ${build_dir}
-
-    if [ -z ${REVISION} ]; then
-        wazuh_splunk_pkg_name="SplunkAppForWazuh_v${WAZUH_VERSION}_${SPLUNK_VERSION}.tar.gz"
-    else
-        wazuh_splunk_pkg_name="SplunkAppForWazuh_v${WAZUH_VERSION}_${SPLUNK_VERSION}_${REVISION}.tar.gz"
-    fi
-
-    tar -zcf ${wazuh_splunk_pkg_name} SplunkAppForWazuh
-
-    if [[ ${CHECKSUM} == "yes" ]]; then
-         sha512sum "${wazuh_splunk_pkg_name}" > "${destination_dir}/${wazuh_splunk_pkg_name}".sha512
-    fi
-
-    mv ${wazuh_splunk_pkg_name} ${destination_dir}
-}
-
-
-WAZUH_VERSION=$1
-SPLUNK_VERSION=$2
+wazuh_version=$1
+splunk_version=$2
 if [ -z $4 ]; then
-    CHECKSUM=$3
+    checksum=$3
 else
-    REVISION=$3
-    CHECKSUM=$4
+    revision=$3
+    checksum=$4
 fi
 
 build_dir="/pkg"
 destination_dir="/wazuh_splunk_app"
+checksum_dir="/var/local/checksum"
+
+
+build_package() {
+
+    cd ${build_dir}
+
+    if [ -z ${revision} ]; then
+        wazuh_splunk_pkg_name="SplunkAppForWazuh_v${wazuh_version}_${splunk_version}.tar.gz"
+    else
+        wazuh_splunk_pkg_name="SplunkAppForWazuh_v${wazuh_version}_${splunk_version}_${revision}.tar.gz"
+    fi
+
+    tar -zcf ${wazuh_splunk_pkg_name} SplunkAppForWazuh
+
+    mv ${wazuh_splunk_pkg_name} ${destination_dir}
+
+    if [[ ${checksum} == "yes" ]]; then
+        cd ${destination_dir} && sha512sum "${wazuh_splunk_pkg_name}" > "${checksum_dir}/${wazuh_splunk_pkg_name}".sha512
+    fi
+}
 
 build_package
