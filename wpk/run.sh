@@ -26,7 +26,6 @@ main() {
     git clone $REPOSITORY $DIRECTORY || exit 1
     cd $DIRECTORY
     git checkout $BRANCH
-    pwd
 
     # Get info
     . src/init/dist-detect.sh

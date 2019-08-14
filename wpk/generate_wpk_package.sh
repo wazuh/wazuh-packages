@@ -26,6 +26,7 @@ function build_wpk_windows() {
   local PACKAGE_NAME="$6"
   local OUT_NAME="$7"
   local CHECKSUM="$8"
+  local CHECKSUMDIR="$9"
 
   docker run -t --rm -v ${KEYDIR}:/etc/wazuh -v ${DESTINATION}:/var/local/wazuh -v ${PKG_PATH}:/var/pkg\
       -v ${CHECKSUMDIR}:/var/local/checksum \
@@ -42,6 +43,7 @@ function build_wpk_linux() {
   local JOBS="$5"
   local OUT_NAME="$6"
   local CHECKSUM="$7"
+  local CHECKSUMDIR="$8"
 
   docker run -t --rm -v ${KEYDIR}:/etc/wazuh -v ${DESTINATION}:/var/local/wazuh \
       -v ${CHECKSUMDIR}:/var/local/checksum \
@@ -82,6 +84,15 @@ function help() {
 }
 
 
+function clean() {
+  local DOCKERFILE_PATH="$1"
+  local exit_code="$2"
+
+  rm -f ${DOCKERFILE_PATH}/*.sh ${DOCKERFILE_PATH}/wpkpack.py
+
+  return 0
+}
+
 
 function main() {
   local TARGET=""
@@ -94,7 +105,7 @@ function main() {
   local PKG_NAME=""
   local OUT_NAME=""
   local NO_COMPILE=false
-  local CHECKSUMDIR="${DESTINATION}"
+  local CHECKSUMDIR=""
 
   local HAVE_BRANCH=false
   local HAVE_DESTINATION=false
@@ -133,13 +144,8 @@ function main() {
           ;;
       "-d"|"--destination")
           if [[ -n "$2" ]]; then
-              if [[ "${2: -1}" != "/" ]]; then
-                local DESTINATION="$2/"
-                local HAVE_DESTINATION=true
-              else
-                local DESTINATION="$2"
-                local HAVE_DESTINATION=true
-              fi
+            local DESTINATION="$2"
+            local HAVE_DESTINATION=true
             shift 2
           else
             echo "ERROR: Missing destination directory."
@@ -227,45 +233,28 @@ function main() {
       esac
   done
 
-  if [[ "${CHECKSUMDIR}" == '' ]];then
-    CHECKSUMDIR=DESTINATION
+  if [ -z "${CHECKSUMDIR}" ]; then
+    local CHECKSUMDIR="${DESTINATION}"
   fi
 
-    # Relative to absolute path
-    if [[ ${OUTDIR} != '/'* ]];
-    then
-        if [ "${CHECKSUMDIR}" == "${CURRENT_PATH}/output/" ];
-        then
-            CHECKSUMDIR="${CURRENT_PATH}/${OUTDIR}"
-        fi
-        OUTDIR="${CURRENT_PATH}/${OUTDIR}"
-    fi
-
-    if [[ ${CHECKSUMDIR} != '/'* ]];
-    then
-        CHECKSUMDIR="${CURRENT_PATH}/${CHECKSUMDIR}"
-    fi
-
-
   if [[ "$HAVE_TARGET" == true ]] && [[ "$HAVE_BRANCH" == true ]] && [[ "$HAVE_DESTINATION" == true ]] && [[ "$HAVE_KEYDIR" == true ]] && [[ "$HAVE_OUT_NAME" == true ]]; then
-
+    set -ex
       if [[ "${TARGET}" == "windows" ]]; then
         if [[ "${HAVE_PKG_NAME}" == true ]]; then
-          build_container ${WIN_BUILDER} ${WIN_BUILDER_DOCKERFILE} || exit 1
+          build_container ${WIN_BUILDER} ${WIN_BUILDER_DOCKERFILE} || clean ${WIN_BUILDER_DOCKERFILE} 1
           local CONTAINER_NAME="${WIN_BUILDER}"
-          build_wpk_windows ${BRANCH} ${DESTINATION} ${KEYDIR} ${CONTAINER_NAME} ${JOBS} ${PKG_NAME} ${OUT_NAME} ${CHECKSUM}|| exit 1
+          build_wpk_windows ${BRANCH} ${DESTINATION} ${KEYDIR} ${CONTAINER_NAME} ${JOBS} ${PKG_NAME} ${OUT_NAME} ${CHECKSUM} ${CHECKSUMDIR} || clean ${WIN_BUILDER_DOCKERFILE} 1
+          clean ${WIN_BUILDER_DOCKERFILE} 0
         else
           echo "ERROR: No msi package name specified for Windows WPK"
           help 1
         fi
       else
-        build_container ${LINUX_BUILDER} ${LINUX_BUILDER_DOCKERFILE} || exit 1
+        build_container ${LINUX_BUILDER} ${LINUX_BUILDER_DOCKERFILE} || clean ${LINUX_BUILDER_DOCKERFILE} 1
         local CONTAINER_NAME="${LINUX_BUILDER}"
-        build_wpk_linux ${BRANCH} ${DESTINATION} ${KEYDIR} ${CONTAINER_NAME} ${JOBS} ${OUT_NAME} ${CHECKSUM}|| exit 1
+        build_wpk_linux ${BRANCH} ${DESTINATION} ${KEYDIR} ${CONTAINER_NAME} ${JOBS} ${OUT_NAME} ${CHECKSUM} ${CHECKSUMDIR} || clean ${LINUX_BUILDER_DOCKERFILE} 1
+        clean ${LINUX_BUILDER_DOCKERFILE} 0
       fi
-
-
-
   else
     echo "ERROR: Need more parameters"
     help 1
