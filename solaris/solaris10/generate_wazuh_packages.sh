@@ -6,10 +6,10 @@
 
 
 # CONFIGURATION VARIABLES
-BRANCH="$(echo "$2" | cut -d "/" -f2)"
+wazuh_branch="$(echo "$2" | cut -d "/" -f2)"
 PATH=$PATH:/opt/csw/bin:/usr/sfw/bin
 VERSION=""
-CURRENT_PATH=`pwd`
+CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 REPOSITORY="https://github.com/wazuh/wazuh"
 ARCH=`uname -p`
 install_path="/var/ossec"
@@ -21,8 +21,8 @@ CONFIG="$SOURCE/etc/preloaded-vars.conf"
 target_dir="${CURRENT_PATH}/output"
 
 
-if [ -z "$BRANCH" ]; then
-    BRANCH="master"
+if [ -z "${wazuh_branch}" ]; then
+    wazuh_branch="master"
 fi
 
 if [ -z "$ARCH" ]; then
@@ -148,7 +148,7 @@ clone(){
     cd ${CURRENT_PATH}
     git clone $REPOSITORY ${SOURCE}
     cd $SOURCE
-    git checkout $BRANCH
+    git checkout $wazuh_branch
     cp ${CURRENT_PATH}/solaris10_patch.sh ${CURRENT_PATH}/wazuh
     compute_version_revision
 }
@@ -230,7 +230,7 @@ show_help() {
   echo
   echo "Usage: $0 [OPTIONS]"
   echo
-  echo "    -b, --branch <branch>               Select Git branch or tag e.g. $BRANCH"
+  echo "    -b, --branch <branch>               Select Git branch or tag e.g. $wazuh_branch"
   echo "    -e, --environment                   Install all the packages necessaries to build the pkg package"
   echo "    -s, --store  <pkg_directory>        Directory to store the resulting pkg package. By default: /tmp/build"
   echo "    -p, --install-path <pkg_home>       Installation path for the package. By default: /var"
