@@ -12,7 +12,7 @@ GROUP="ossec"
 USER="ossec"
 DIR="/Library/Ossec"
 INSTALLATION_SCRIPTS_DIR="${DIR}/packages_files/agent_installation_scripts"
-SCA_FILES_DIR="${INSTALLATION_SCRIPTS_DIR}/sca"
+SCA_BASE_DIR="${INSTALLATION_SCRIPTS_DIR}/sca"
 
 if [ $(launchctl getenv WAZUH_PKG_UPGRADE) = true ]; then
     rm -rf ${DIR}/etc/{ossec.conf,client.keys,local_internal_options.conf,shared}
@@ -78,33 +78,31 @@ fi
 
 launchctl unsetenv WAZUH_PKG_UPGRADE
 
-# Install the SCA files
-if [ -d "${SCA_FILES_DIR}" ]; then
+SCA_DIR="${DIST_NAME}/${DIST_VER}"
+mkdir -p ${DIR}/ruleset/sca
 
-    if [ "${DIST_NAME}" = "darwin" ]; then
-        if [ "${DIST_VER}" != "15" ] && [ "${DIST_VER}" != "16" ] && [ "${DIST_VER}" != "17" ]; then
-            DIST_VER=""
-        fi
-    else
-        DIST_NAME="generic"
-        DIST_VER=""
-    fi
+SCA_TMP_DIR="${SCA_BASE_DIR}/${SCA_DIR}"
 
-    CONF_ASSESMENT_DIR="${SCA_FILES_DIR}/${DIST_NAME}/${DIST_VER}"
-    mkdir -p ${DIR}/ruleset/sca
+# Install the configuration files needed for this hosts
+if [ -r "${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}/${DIST_SUBVER}/sca.files" ]; then
+  SCA_TMP_DIR="${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}/${DIST_SUBVER}"
+elif [ -r "${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}/sca.files" ]; then
+  SCA_TMP_DIR="${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}"
+elif [ -r "${SCA_BASE_DIR}/${DIST_NAME}/sca.files" ]; then
+  SCA_TMP_DIR="${SCA_BASE_DIR}/${DIST_NAME}"
+else
+  SCA_TMP_DIR="${SCA_BASE_DIR}/generic"
+fi
 
-    # Install the configuration files needed for this hosts
-    if [ -r ${CONF_ASSESMENT_DIR}/sca.files ]; then
+SCA_TMP_FILE="${SCA_TMP_DIR}/sca.files"
 
-        for sca_file in $(cat ${CONF_ASSESMENT_DIR}/sca.files); do
-            mv ${SCA_FILES_DIR}/${sca_file} ${DIR}/ruleset/sca
-        done
-        # Set correct permissions, owner and group
-        find ${DIR}/ruleset/sca/ -type f -exec chmod 640 {} \;
-        chown -R root:${GROUP} ${DIR}/ruleset/sca
-        # Delete the temporary directory
-        rm -rf ${SCA_FILES_DIR}
-    fi
+if [ -r ${SCA_TMP_FILE} ]; then
+
+  rm -f ${DIR}/ruleset/sca/* || true
+
+  for sca_file in $(cat ${SCA_TMP_FILE}); do
+    mv ${SCA_BASE_DIR}/${sca_file} ${DIR}/ruleset/sca
+  done
 fi
 
 # Register and configure agent if Wazuh environment variables are defined

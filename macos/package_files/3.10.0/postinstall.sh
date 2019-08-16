@@ -105,35 +105,6 @@ if [ -r ${SCA_TMP_FILE} ]; then
   done
 fi
 
-# # Install the SCA files
-# if [ -d "${SCA_FILES_DIR}" ]; then
-
-#     if [ "${DIST_NAME}" = "darwin" ]; then
-#         if [ "${DIST_VER}" != "15" ] && [ "${DIST_VER}" != "16" ] && [ "${DIST_VER}" != "17" ]; then
-#             DIST_VER=""
-#         fi
-#     else
-#         DIST_NAME="generic"
-#         DIST_VER=""
-#     fi
-
-#     CONF_ASSESMENT_DIR="${SCA_FILES_DIR}/${DIST_NAME}/${DIST_VER}"
-#     mkdir -p ${DIR}/ruleset/sca
-
-#     # Install the configuration files needed for this hosts
-#     if [ -r ${CONF_ASSESMENT_DIR}/sca.files ]; then
-
-#         for sca_file in $(cat ${CONF_ASSESMENT_DIR}/sca.files); do
-#             mv ${SCA_FILES_DIR}/${sca_file} ${DIR}/ruleset/sca
-#         done
-#         # Set correct permissions, owner and group
-#         find ${DIR}/ruleset/sca/ -type f -exec chmod 640 {} \;
-#         chown -R root:${GROUP} ${DIR}/ruleset/sca
-#         # Delete the temporary directory
-#         rm -rf ${SCA_FILES_DIR}
-#     fi
-# fi
-
 # Register and configure agent if Wazuh environment variables are defined
 ${INSTALLATION_SCRIPTS_DIR}/src/init/register_configure_agent.sh > /dev/null || :
 

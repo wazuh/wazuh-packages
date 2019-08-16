@@ -79,6 +79,9 @@ cp -pr %{_localstatedir}/ossec/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/
 install -m 0640 ossec-init.conf ${RPM_BUILD_ROOT}%{_sysconfdir}
 install -m 0755 src/init/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-manager
 
+# Clean the preinstalled configuration assesment files
+rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca/*
+
 # Install oscap files
 install -m 0640 wodles/oscap/content/*redhat* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 install -m 0640 wodles/oscap/content/*rhel* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
@@ -97,6 +100,52 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_install
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/centos
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/fedora
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/etc/templates/config/rhel
+
+# Install configuration assesment files and files templates
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/{applications,generic}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/amzn/{1,2}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/{7,6,5}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/darwin/{15,16,17}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/debian/{7,8,9}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/ubuntu/{12,14,16}/04
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/{7,6,5}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles/{11,12}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/suse/{11,12}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sunos
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/windows
+
+cp -r etc/sca/{applications,generic,darwin,debian,rhel,sles,sunos,windows} ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp
+
+cp etc/templates/config/generic/{sca.files,sca.manager.files} ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/generic
+
+cp etc/templates/config/amzn/1/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/amzn/1
+cp etc/templates/config/amzn/2/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/amzn/2
+
+cp etc/templates/config/centos/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos
+cp etc/templates/config/centos/6/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/6
+cp etc/templates/config/centos/5/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/5
+
+cp etc/templates/config/darwin/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/darwin
+cp etc/templates/config/darwin/15/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/darwin/15
+cp etc/templates/config/darwin/16/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/darwin/16
+
+cp etc/templates/config/rhel/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel
+cp etc/templates/config/rhel/6/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/6
+cp etc/templates/config/rhel/5/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/5
+
+cp etc/templates/config/sles/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles
+cp etc/templates/config/sles/11/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles/11
+
+cp etc/templates/config/suse/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/suse
+cp etc/templates/config/suse/11/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/suse/11
+
+cp etc/templates/config/ubuntu/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/ubuntu
+cp etc/templates/config/ubuntu/12/04/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/ubuntu/12/04
+cp etc/templates/config/ubuntu/14/04/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/ubuntu/14/04
+
+cp etc/templates/config/debian/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/debian
+cp etc/templates/config/debian/7/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/debian/7
+cp etc/templates/config/debian/8/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/debian/8
 
 # Add SUSE initscript
 cp -rp src/init/ossec-hids-suse.init ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/init/
@@ -367,6 +416,10 @@ find %{_localstatedir}/ossec/etc/lists -type f -exec chmod 660 {} \; -exec chown
 if [ -r "/etc/centos-release" ]; then
   DIST_NAME="centos"
   DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.*[0-9]{0,2}.*/\1/p' /etc/centos-release`
+# Fedora
+elif [ -r "/etc/fedora-release" ]; then
+    DIST_NAME="generic"
+    DIST_VER=""
 # RedHat
 elif [ -r "/etc/redhat-release" ]; then
   if grep -q "CentOS" /etc/redhat-release; then
@@ -375,7 +428,74 @@ elif [ -r "/etc/redhat-release" ]; then
       DIST_NAME="rhel"
   fi
   DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.*[0-9]{0,2}.*/\1/p' /etc/redhat-release`
+# SUSE
+elif [ -r "/etc/SuSE-release" ]; then
+  if grep -q "openSUSE" /etc/SuSE-release; then
+      DIST_NAME="generic"
+      DIST_VER=""
+  else
+      DIST_NAME="sles"
+      DIST_VER=`sed -rn 's/.*VERSION = ([0-9]{1,2}).*/\1/p' /etc/SuSE-release`
+  fi
+elif [ -r "/etc/os-release" ]; then
+  . /etc/os-release
+  DIST_NAME=$ID
+  DIST_VER=$(echo $VERSION_ID | sed -rn 's/[^0-9]*([0-9]+).*/\1/p')
+  if [ "X$DIST_VER" = "X" ]; then
+      DIST_VER="0"
+  fi
+  if [ "$DIST_NAME" = "amzn" ] && [ "$DIST_VER" != "2" ]; then
+      DIST_VER="1"
+  fi
+  DIST_SUBVER=$(echo $VERSION_ID | sed -rn 's/[^0-9]*[0-9]+\.([0-9]+).*/\1/p')
+  if [ "X$DIST_SUBVER" = "X" ]; then
+      DIST_SUBVER="0"
+  fi
+else
+  DIST_NAME="generic"
+  DIST_VER=""
 fi
+
+SCA_DIR="${DIST_NAME}/${DIST_VER}"
+SCA_BASE_DIR="%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp"
+mkdir -p %{_localstatedir}/ossec/ruleset/sca
+
+SCA_TMP_DIR="${SCA_BASE_DIR}/${SCA_DIR}"
+
+# Install the configuration files needed for this hosts
+if [ -r "${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}/${DIST_SUBVER}/sca.files" ]; then
+  SCA_TMP_DIR="${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}/${DIST_SUBVER}"
+elif [ -r "${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}/sca.files" ]; then
+  SCA_TMP_DIR="${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}"
+elif [ -r "${SCA_BASE_DIR}/${DIST_NAME}/sca.files" ]; then
+  SCA_TMP_DIR="${SCA_BASE_DIR}/${DIST_NAME}"
+else
+  SCA_TMP_DIR="${SCA_BASE_DIR}/generic"
+fi
+
+SCA_TMP_FILE="${SCA_TMP_DIR}/sca.files"
+
+if [ -r ${SCA_TMP_FILE} ] && [ -r ${SCA_BASE_DIR}/generic/sca.manager.files ]; then
+
+  rm -f %{_localstatedir}/ossec/ruleset/sca/* || true
+
+  for sca_file in $(cat ${SCA_TMP_FILE}); do
+    mv ${SCA_BASE_DIR}/${sca_file} %{_localstatedir}/ossec/ruleset/sca
+  done
+
+  for sca_file in $(cat ${SCA_BASE_DIR}/generic/sca.manager.files); do
+    filename=$(basename ${sca_file})
+    if [ -f "${SCA_BASE_DIR}/${sca_file}" ] && [ ! -f "%{_localstatedir}/ossec/ruleset/sca/${filename}" ]; then
+      mv ${SCA_BASE_DIR}/${sca_file} %{_localstatedir}/ossec/ruleset/sca/${filename}.disabled
+    fi
+  done
+fi
+
+# Fix sca permissions, group and owner
+chmod 640 %{_localstatedir}/ossec/ruleset/sca/*
+chown root:ossec %{_localstatedir}/ossec/ruleset/sca/*
+# Delete the temporary directory
+rm -rf ${SCA_BASE_DIR}
 
 # Add the SELinux policy
 if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
