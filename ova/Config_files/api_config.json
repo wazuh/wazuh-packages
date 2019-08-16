@@ -1,0 +1,22 @@
+{
+    "api_user": "foo",
+    "api_password": "YmFy",
+    "url": "https://localhost",
+    "api_port": "55000",
+    "insecure": "true",
+    "component": "API",
+    "cluster_info": {
+        "manager": "wazuh-manager",
+        "cluster": "disabled",
+        "status": "disabled"
+    },
+    "extensions": {
+        "oscap": true,
+        "audit": true,
+        "pci": true,
+        "aws": true,
+        "virustotal": true,
+        "gdpr": true,
+        "ciscat": true
+    }
+}

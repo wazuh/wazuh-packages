@@ -223,9 +223,9 @@ main() {
         "-b"|"--branch")
           if [ -n "$2" ]
           then
-              wazuh_branch="$2"
-              build_rpm="yes"
-              shift 2
+            wazuh_branch="$2"
+            build_rpm="yes"
+            shift 2
           else
               show_help 1
           fi

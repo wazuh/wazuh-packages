@@ -40,7 +40,7 @@ build_deb() {
     SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
 
     # Download the sources
-    git clone ${SOURCE_REPOSITORY} -b ${BRANCH} ${SOURCES_DIRECTORY} --depth=1 --single-branch -q
+    git clone ${SOURCE_REPOSITORY} -b ${BRANCH} ${SOURCES_DIRECTORY} --depth=1
     # Copy the necessary files
     cp build.sh ${DOCKERFILE_PATH}
     cp gen_permissions.sh ${SOURCES_DIRECTORY}
@@ -96,7 +96,7 @@ build() {
             FILE_PATH="${DEB_PPC64LE_BUILDER_DOCKERFILE}"
         else
             echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too) or i386 or ppc64le."
-            exit 1
+            clean 1
         fi
         build_deb ${BUILD_NAME} ${FILE_PATH} || clean 1
     else
@@ -132,7 +132,7 @@ main() {
         case "$1" in
         "-b"|"--branch")
             if [ -n "$2" ]; then
-                BRANCH="$(echo $2 | cut -d'/' -f2)"
+                BRANCH="$2"
                 BUILD="yes"
                 shift 2
             else
