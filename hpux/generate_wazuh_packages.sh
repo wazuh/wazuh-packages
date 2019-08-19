@@ -6,21 +6,17 @@
 # Wazuh HP-UX Package builder.
 
 
-BRANCH="$(echo "$2" | cut -d "/" -f2)"
-REVISION="$3"
-if [[ -z "$REVISION" ]]; then
-    REVISION="1"
-fi
-INSTALL="/var/ossec"
+install_path="/var/ossec"
 current_path=`pwd`
-SOURCE=${current_path}/wazuh-sources
-CONFIG="$SOURCE/etc/preloaded-vars.conf"
-VERSION=""
-echo "Selected branch: $BRANCH"
-echo "Selected installation path: $INSTALL"
+source_directory=${current_path}/wazuh-sources
+configuration_file="${source_directory}/etc/preloaded-vars.conf"
 PATH=$PATH:/usr/local/bin
+target_dir="${current_path}/output"
+checksum_dir=""
+wazuh_version=""
+wazuh_revision="1"
 
-utils_and_dependencies() {
+build_environment() {
 
   # Resizing partitions for Site Ox boxes (used by Wazuh team)
   if grep 'siteox.com' /etc/motd > /dev/null 2>&1; then
@@ -56,50 +52,42 @@ utils_and_dependencies() {
 }
 
 config() {
-  echo USER_LANGUAGE="en" > $CONFIG
-  echo USER_NO_STOP="y" >> $CONFIG
-  echo USER_INSTALL_TYPE="agent" >> $CONFIG
-  echo USER_DIR=$INSTALL >> $CONFIG
-  echo USER_DELETE_DIR="y" >> $CONFIG
-  echo USER_CLEANINSTALL="y" >> $CONFIG
-  echo USER_BINARYINSTALL="y" >> $CONFIG
-  echo USER_AGENT_SERVER_IP="MANAGER_IP" >> $CONFIG
-  echo USER_ENABLE_SYSCHECK="y" >> $CONFIG
-  echo USER_ENABLE_ROOTCHECK="y" >> $CONFIG
-  echo USER_ENABLE_OPENSCAP="y" >> $CONFIG
-  echo USER_ENABLE_ACTIVE_RESPONSE="y" >> $CONFIG
-  echo USER_CA_STORE="n" >> $CONFIG
+  echo USER_LANGUAGE="en" > ${configuration_file}
+  echo USER_NO_STOP="y" >> ${configuration_file}
+  echo USER_INSTALL_TYPE="agent" >> ${configuration_file}
+  echo USER_DIR=${install_path} >> ${configuration_file}
+  echo USER_DELETE_DIR="y" >> ${configuration_file}
+  echo USER_CLEANINSTALL="y" >> ${configuration_file}
+  echo USER_BINARYINSTALL="y" >> ${configuration_file}
+  echo USER_AGENT_SERVER_IP="MANAGER_IP" >> ${configuration_file}
+  echo USER_ENABLE_SYSCHECK="y" >> ${configuration_file}
+  echo USER_ENABLE_ROOTCHECK="y" >> ${configuration_file}
+  echo USER_ENABLE_OPENSCAP="y" >> ${configuration_file}
+  echo USER_ENABLE_ACTIVE_RESPONSE="y" >> ${configuration_file}
+  echo USER_CA_STORE="n" >> ${configuration_file}
 }
 
 compute_version_revision()
 {
-    wazuh_version=$(cat ${SOURCE}/src/VERSION | cut -d "-" -f1 | cut -c 2-)
-    revision="$(cat ${SOURCE}/src/REVISION)"
+  wazuh_version=$(cat ${SOURCE}/src/VERSION | cut -d "-" -f1 | cut -c 2-)
 
-    if [ "${READY_TO_RELEASE}" == "yes" ]; then
-        revision="${OPTIONAL_REVISION}"
-    else
-        revision="0.${revision}dev"
-    fi
+  echo ${wazuh_version} > /tmp/VERSION
+  echo ${wazuh_revision} > /tmp/REVISION
 
-    echo $wazuh_version > /tmp/VERSION
-    echo $revision > /tmp/REVISION
-
-    return 0
+  return 0
 }
 
 download_source() {
   echo " Downloading source"
-  #Download source
-  /usr/local/bin/curl -k -L -O https://github.com/wazuh/wazuh/archive/$BRANCH.zip
-  /usr/local/bin/unzip $BRANCH.zip
-  mv wazuh-* $SOURCE
+  /usr/local/bin/curl -k -L -O https://github.com/wazuh/wazuh/archive/${wazuh_branch}.zip
+  /usr/local/bin/unzip ${wazuh_branch}.zip
+  mv wazuh-* ${source_directory}
   compute_version_revision
 }
 
 check_version(){
-  VERSION=`cat $SOURCE/src/VERSION`
-  number_version=`echo "$VERSION" | cut -d v -f 2`
+  wazuh_version=`cat ${source_directory}/src/VERSION`
+  number_version=`echo "${wazuh_version}" | cut -d v -f 2`
   major=`echo $number_version | cut -d . -f 1`
   minor=`echo $number_version | cut -d . -f 2`
   if [ "$major" -eq "3" ]; then
@@ -115,7 +103,7 @@ check_version(){
 compile() {
   echo "Compiling code"
   # Compile and install wazuh
-  cd $SOURCE/src
+  cd ${source_directory}/src
   config
   check_version
   if [ "$deps_version" = "true" ]; then
@@ -123,72 +111,142 @@ compile() {
   fi
 
   gmake TARGET=agent USE_SELINUX=no DISABLE_SHARED=yes
-  bash $SOURCE/install.sh
+  bash ${source_directory}/install.sh
   cd $current_path
 }
 
 create_package() {
   echo "Creating package"
+
+  if [ ! -d ${target_dir} ]; then
+    mkdir -p ${target_dir}
+  fi
+
   #Build package
   VERSION=`cat /tmp/VERSION`
-  rm $INSTALL/wodles/oscap/content/*.xml
-  tar cvpf /tmp/wazuh-agent-$VERSION-$REVISION-hpux-11v3-ia64.tar $INSTALL /etc/ossec-init.conf /sbin/init.d/wazuh-agent /sbin/rc2.d/S97wazuh-agent /sbin/rc3.d/S97wazuh-agent
+  rm ${install_path}/wodles/oscap/content/*.xml
+  pkg_name="wazuh-agent-${wazuh_version}-${wazuh_revision}-hpux-11v3-ia64.tar"
+  tar cvpf ${target_dir}/${pkg_name} ${install_path} /etc/ossec-init.conf /sbin/init.d/wazuh-agent /sbin/rc2.d/S97wazuh-agent /sbin/rc3.d/S97wazuh-agent
+
+  if [ "${compute_checksums}" = "yes" ]; then
+    cd ${target_dir}
+    pkg_checksum="$(openssl dgst -sha512 ${pkg_name})"
+    echo "${pkg_checksum}  ${pkg_name}" > ${checksum_dir}/${pkg_name}.sha512
+  fi
 }
 
 #Uninstall agent.
 
 clean() {
-  $INSTALL/bin/ossec-control stop
-  rm -rf $INSTALL
+  exit_code=$1
+  ${install_path}/bin/ossec-control stop
+  rm -rf ${install_path}
   rm /etc/ossec-init.conf
   find /sbin -name "*wazuh-agent*" -exec rm {} \;
   userdel ossec
   groupdel ossec
+
+  exit ${exit_code}
 }
 
-show_help()
-{
-  echo "
-  This scripts build wazuh package for HPUX.
-  USAGE: Command line options available:
-    -h, --help       Displays this help.
-    -d, --download   Download Wazuh repository.
-    -b, --build      Builds HPUX package.
-    -u, --utils      Download and install utilities and dependencies.
-    -c, --clean-all  Clean sources and generated files.
-
-  USAGE EXAMPLE:
-  --------------
-    ./generate_wazuh_packages.sh [option] [branch_tag] [revision]
-    ./generate_wazuh_packages.sh -d branches/3.3 1
-  "
+show_help() {
+  echo
+  echo "Usage: $0 [OPTIONS]"
+  echo
+  echo "    -e Install all the packages necessaries to build the TAR package"
+  echo "    -b <branch> Select Git branch. Example v3.5.0"
+  echo "    -s <tar_directory> Directory to store the resulting tar package. By default, an output folder will be created."
+  echo "    -p <tar_home> Installation path for the package. By default: /var"
+  echo "    -c, --checksum Compute the SHA512 checksum of the TAR package."
+  echo "    -h Shows this help"
+  echo
+  exit $1
 }
 
-# Reading command line arguments
-key="$1"
-case $key in
-  -h|--help)
-    show_help
-    exit 0
-    ;;
-  -d|--download)
-    download_source
-    exit 0
-    ;;
-  -b|--build)
-    compile
-    create_package
-    exit 0
-    ;;
-  -u|--utils)
-    utils_and_dependencies
-    exit 0
-    ;;
-    -c|--clean-all)
-    clean
-    exit 0
-    ;;
-  *)
-esac
+build_package() {
+  download_source
+  compile
+  create_package
+}
 
-return 0
+# Main function, processes user input
+main() {
+  # If the script is called without arguments
+  # show the help
+  if [[ -z $1 ]] ; then
+    show_help 0
+  fi
+
+  build_env="no"
+  build_pkg="no"
+
+  while [ -n "$1" ]
+  do
+    case $1 in
+      "-b")
+        if [ -n "$2" ]
+        then
+          wazuh_branch="$2"
+          build_pkg="yes"
+          shift 2
+        else
+          show_help 1
+        fi
+      ;;
+      "-h")
+        show_help
+        exit 0
+      ;;
+      "-e")
+        build_environment
+        exit 0
+      ;;
+      "-p")
+        if [ -n "$2" ]
+        then
+          install_path="$2"
+          shift 2
+        else
+          show_help 1
+        fi
+      ;;
+      "-s")
+        if [ -n "$2" ]
+        then
+          target_dir="$2"
+          shift 2
+        else
+          show_help 1
+        fi
+      ;;
+      "-c" | "--checksum")
+          if [ -n "$2" ]; then
+            checksum_dir="$2"
+            compute_checksums="yes"
+            shift 2
+          else
+            compute_checksums="yes"
+            shift 1
+          fi
+      ;;
+      *)
+        show_help 1
+    esac
+  done
+
+  if [[ "${build_env}" = "yes" ]]; then
+    build_environment || exit 1
+  fi
+
+  if [ -z "${checksum_dir}" ]; then
+    checksum_dir="${target_dir}"
+  fi
+
+  if [[ "${build_pkg}" = "yes" ]]; then
+    build_package || clean 1
+  fi
+
+  return 0
+}
+
+main
