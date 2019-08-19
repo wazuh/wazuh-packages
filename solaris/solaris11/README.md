@@ -23,10 +23,10 @@ To build a Solaris 11 package, you need to download this repository and use the 
 
     Usage: ./generate_wazuh_packages.sh [OPTIONS]
 
-        -b, --branch <branch>               Select Git branch or tag e.g. master
-        -e, --environment                   Install all the packages necessaries to build the pkg package
-        -s, --store  <pkg_directory>        Directory to store the resulting pkg package. By default: /tmp/build
-        -p, --install-path <pkg_home>       Installation path for the package. By default: /var
+        -b, --branch <branch>               Select Git branch or tag e.g. master.
+        -e, --environment                   Install all the packages necessaries to build the pkg package.
+        -s, --store  <pkg_directory>        Directory to store the resulting pkg package.  By default, an output folder will be created.
+        -p, --install-path <pkg_home>       Installation path for the package. By default: /var.
         -c, --checksum                      Compute the SHA512 checksum of the pkg package.
         -h, --help                          Shows this help.
     ```
