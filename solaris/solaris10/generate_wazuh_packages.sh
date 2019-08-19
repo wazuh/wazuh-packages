@@ -305,7 +305,6 @@ main() {
                 shift 2
             else
                 compute_checksums="yes"
-                checksum_dir="$2"
                 shift 1
             fi
         ;;
