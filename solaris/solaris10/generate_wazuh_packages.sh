@@ -232,7 +232,7 @@ show_help() {
   echo
   echo "    -b, --branch <branch>               Select Git branch or tag e.g. $wazuh_branch"
   echo "    -e, --environment                   Install all the packages necessaries to build the pkg package"
-  echo "    -s, --store  <pkg_directory>        Directory to store the resulting pkg package. By default: /tmp/build"
+  echo "    -s, --store  <pkg_directory>        Directory to store the resulting pkg package. By default, an output folder will be created.
   echo "    -p, --install-path <pkg_home>       Installation path for the package. By default: /var"
   echo "    -c, --checksum                      Compute the SHA512 checksum of the pkg package."
   echo "    -h, --help                          Shows this help"
