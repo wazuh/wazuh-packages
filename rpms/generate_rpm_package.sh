@@ -146,7 +146,7 @@ help() {
     echo "    -a, --architecture <arch> [Optional] Target architecture of the package [x86_64/i386]."
     echo "    -r, --revision <rev>      [Optional] Package revision that append to version e.g. x.x.x-rev"
     echo "    -l, --legacy              [Optional] Build package for CentOS 5."
-    echo "    -s, --store <path>        [Optional] Set the destination path of package."
+    echo "    -s, --store <path>        [Optional] Set the destination path of package. By default, an output folder will be created."
     echo "    -j, --jobs <number>       [Optional] Number of parallel jobs when compiling."
     echo "    -p, --path <path>         [Optional] Installation path for the package. By default: /var."
     echo "    -d, --debug               [Optional] Build the binaries with debug symbols and create debuginfo packages. By default: no."
