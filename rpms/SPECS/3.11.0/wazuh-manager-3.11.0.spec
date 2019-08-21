@@ -228,6 +228,8 @@ if [ $1 = 2 ]; then
   if [ $MAJOR = 3 ] && [ $MINOR -lt 7 ]; then
     rm -f %{_localstatedir}/ossec/queue/db/*.db*
     rm -f %{_localstatedir}/ossec/queue/db/.template.db
+  elif [ $MAJOR = 3 ] && [ $MINOR = 9 ]; then
+    find %{_localstatedir}/ossec/ruleset/sca -type f > %{_localstatedir}/ossec/old_sca.files
   fi
 fi
 
@@ -535,6 +537,14 @@ for rules_file in ${OLD_RULES}; do
     mv ${rules_file}.old ${rules_file}
   fi
 done
+
+if [ -f %{_localstatedir}/ossec/old_sca.files ]; then
+  for old_sca_file in $(cat %{_localstatedir}/ossec/old_sca.files); do
+    touch ${old_sca_file}
+  done
+
+  rm -f %{_localstatedir}/ossec/old_sca.files
+fi
 
 %preun
 
