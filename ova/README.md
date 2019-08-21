@@ -30,7 +30,7 @@ OPTIONS:
 
 To build an OVA with version 3.9.0 using elastic 6.6.2 and the stable repositories you can use:
 
-`# ./generate_ova.sh -b -v 3.9.0 -e 6.6.2 -r stable`
+`# ./generate_ova.sh -b -v 3.9.5 -e 7.3.0 -r stable`
 
    * **Stable:** The OVA uses released packages.
    * **Unstable:** The OVA uses unstable packages.
