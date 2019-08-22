@@ -248,7 +248,7 @@ if [ $1 = 1 ]; then
 fi
 
 # Register and configure agent if Wazuh environment variables are defined
-%{_localstatedir}/ossec/packages_files-%{version}-%{release}-tmp/agent_installation_scripts/src/init/register_configure_agent.sh  || :
+%{_localstatedir}/ossec/bin/register_configure_agent.sh  || :
 
 if [ ! -d /run/systemd/system ]; then
   update-rc.d wazuh-agent defaults > /dev/null 2>&1
