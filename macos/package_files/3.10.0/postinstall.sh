@@ -108,7 +108,7 @@ if [ -d "${SCA_FILES_DIR}" ]; then
 fi
 
 # Register and configure agent if Wazuh environment variables are defined
-${INSTALLATION_SCRIPTS_DIR}/src/init/register_configure_agent.sh > /dev/null || :
+${DIR}/bin/register_configure_agent.sh > /dev/null || :
 
 # Install the service
 ${INSTALLATION_SCRIPTS_DIR}/src/init/darwin-init.sh
