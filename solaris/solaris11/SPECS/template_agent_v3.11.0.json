@@ -343,6 +343,14 @@
         "type": "file",
         "user": "root"
     },
+    "/var/ossec/bin/register_configure_agent.sh": {
+        "class": "static",
+        "group": "root",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
     "/var/ossec/bin/util.sh": {
         "class": "static",
         "group": "root",
