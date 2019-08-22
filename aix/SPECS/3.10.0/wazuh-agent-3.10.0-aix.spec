@@ -145,7 +145,7 @@ if [ $1 = 1 ]; then
 
 fi
 
-%{_localstatedir}/ossec/tmp/src-%{version}-%{release}/init/register_configure_agent.sh > /dev/null || :
+%{_localstatedir}/ossec/bin/register_configure_agent.sh > /dev/null || :
 
 ln -fs /etc/rc.d/init.d/wazuh-agent /etc/rc.d/rc2.d/S97wazuh-agent
 ln -fs /etc/rc.d/init.d/wazuh-agent /etc/rc.d/rc3.d/S97wazuh-agent
