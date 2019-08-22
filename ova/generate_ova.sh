@@ -200,13 +200,22 @@ main() {
         CHECKSUM_DIR="${OUTPUT_DIR}"
     fi
 
-    if [[ "${BUILD}" == true ]] && [[ "${HAVE_VERSION}" == true ]] && [[ "${HAVE_ELK_VERSION}" == true ]] && [[ "${HAVE_STATUS}" == true ]]; then
+    echo "${BUILD}"
+    echo "${HAVE_VERSION}"
+    echo "${HAVE_ELK_VERSION}"
+    echo "${HAVE_STATUS}"
+
+    if [ "${BUILD}" = true ]] && [ "${HAVE_VERSION}" = true ] && [ "${HAVE_ELK_VERSION}" = true ] && [ "${HAVE_STATUS}" = true ]; then
         check_version ${WAZUH_VERSION} ${ELK_VERSION} ${STATUS}
         OVA_VERSION="${WAZUH_VERSION}_${ELK_VERSION}"
 
         echo "Version to build: ${WAZUH_VERSION}-${ELK_VERSION} with ${STATUS} repository."
         build_ova ${WAZUH_VERSION} ${OVA_VERSION}
     else
+        echo "${BUILD}"
+        echo "${HAVE_VERSION}"
+        echo "${HAVE_ELK_VERSION}"
+        echo "${HAVE_STATUS}"
         echo "ERROR: Need more parameters."
         help 1
     fi
