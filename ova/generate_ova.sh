@@ -91,7 +91,7 @@ build_ova() {
     mkdir -p ${OUTPUT_DIR}
     mv ${OVA_FIXED} ${OUTPUT_DIR}/${OVA_VM}
 
-    if [[ "${CHECKSUM}" == "yes" ]]; then
+    if [ "${CHECKSUM}" = "yes" ]; then
         mkdir -p ${CHECKSUM_DIR}
         cd ${OUTPUT_DIR} && sha512sum "${OVA_VM}" > "${CHECKSUM_DIR}/${OVA_VM}.sha512"
     fi
@@ -200,7 +200,7 @@ main() {
         CHECKSUM_DIR="${OUTPUT_DIR}"
     fi
 
-    if [[ "${BUILD}" == true ]] && [[ "${HAVE_VERSION}" == true ]] && [[ "${HAVE_ELK_VERSION}" == true ]] && [[ "${HAVE_STATUS}" == true ]]; then
+    if [ "${BUILD}" = true ] && [ "${HAVE_VERSION}" = true ] && [ "${HAVE_ELK_VERSION}" = true ] && [ "${HAVE_STATUS}" = true ]; then
         check_version ${WAZUH_VERSION} ${ELK_VERSION} ${STATUS}
         OVA_VERSION="${WAZUH_VERSION}_${ELK_VERSION}"
 
