@@ -53,6 +53,9 @@ case "$1" in
     rm -rf ${DIR}/tmp/conffiles
     rm -rf ${DIR}/tmp
 
+    # Delete old .save
+    find ${DIR}/etc/ -type f  -name "*save" -exec rm -f {} \;
+
     # Rename the files
     find ${DIR}/etc/ -type f ! -name *shared* -exec mv {} {}.save \;
 
