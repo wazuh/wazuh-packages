@@ -98,12 +98,12 @@ compile() {
 
     arch="$(uname -p)"
     # Build the binaries
-    if [ "$arch" == "sparc" ]; then
+    if [ "$arch" = "sparc" ]; then
         gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no USE_BIG_ENDIAN=yes
     else
         gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no
     fi
-    gmake -j $THREADS TARGET=$TARGET
+
     $SOURCE/install.sh
 }
 
