@@ -2,9 +2,6 @@ FROM debian:7
 
 ENV DEBIAN_FRONTEND noninteractive
 
-# Add the script to build the Debian package
-ADD build.sh /usr/local/bin/build_package
-
 # Installing necessary packages
 RUN echo "deb http://archive.debian.org/debian/ wheezy contrib main non-free" > /etc/apt/sources.list && \
     echo "deb-src http://archive.debian.org/debian/ wheezy contrib main non-free" >> /etc/apt/sources.list && \
@@ -18,14 +15,18 @@ RUN echo "deb http://archive.debian.org/debian/ wheezy contrib main non-free" > 
 
 # Add Debian's source repository and, Install NodeJS 6
 RUN apt-get update && apt-get build-dep python3.2 -y && \
-    curl -sL https://deb.nodesource.com/setup_6.x | bash - && \
-    chmod +x /usr/local/bin/build_package && \
-    useradd -ms /bin/bash wazuh-builder
-
+    curl -sL https://deb.nodesource.com/setup_6.x | bash -
 
 # Add the volumes
 VOLUME /var/local/wazuh
 VOLUME /etc/wazuh
+VOLUME /etc/wazuh/checksum
+
+# Add the script to build the Debian package
+ADD build.sh /usr/local/bin/build_package
+
+RUN chmod +x /usr/local/bin/build_package && \
+    useradd -ms /bin/bash wazuh-builder
 
 # Set the entrypoint
 ENTRYPOINT ["/usr/local/bin/build_package"]

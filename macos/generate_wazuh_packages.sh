@@ -18,9 +18,11 @@ INSTALLATION_PATH="/Library/Ossec"    # Installation path
 VERSION=""                            # Default VERSION (branch/tag)
 REVISION="1"                          # Package revision.
 BRANCH_TAG="master"                   # Branch that will be downloaded to build package.
-DESTINATION=${CURRENT_PATH}           # Where package will be stored.
+DESTINATION="${CURRENT_PATH}/output/" # Where package will be stored.
 JOBS="2"                              # Compilation jobs.
 DEBUG="no"                            # Enables the full log by using `set -exf`.
+CHECKSUMDIR=""
+CHECKSUM="no"
 
 function clean_and_exit() {
     exit_code=$1
@@ -57,6 +59,11 @@ function build_package() {
     # create package
     if packagesbuild ${AGENT_PKG_FILE} --build-folder ${DESTINATION} ; then
         echo "The wazuh agent package for MacOS X has been successfully built."
+        if [[ "${CHECKSUM}" == "yes" ]]; then
+            pkg_name="wazuh-agent-${VERSION}-${REVISION}.pkg"
+            mkdir -p ${CHECKSUMDIR}
+            cd ${DESTINATION} && shasum -a512 "${pkg_name}" > "${CHECKSUMDIR}/${pkg_name}.sha512"
+        fi
         clean_and_exit 0
     else
         echo "ERROR: something went wrong while building the package."
@@ -72,6 +79,7 @@ function help() {
     echo "    -s, --store-path <path>   [Optional] Set the destination absolute path of package."
     echo "    -j, --jobs <number>       [Optional] Number of parallel jobs when compiling."
     echo "    -r, --revision <rev>      [Optional] Package revision that append to version e.g. x.x.x-rev"
+    echo "    -c, --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
     echo "    -h, --help                [  Util  ] Show this help."
     echo "    -i, --install-deps        [  Util  ] Install build dependencies (Packages)."
     echo "    -x, --install-xcode       [  Util  ] Install X-Code and brew. Can't be executed as root."
@@ -134,7 +142,9 @@ function install_deps() {
 
     hdiutil attach Packages.dmg
 
-    if installer -package /Volumes/Packages\ 1.2.5/packages/Packages.pkg -target / ; then
+    cd /Volumes/Packages*/packages/
+
+    if installer -package Packages.pkg -target / ; then
         echo "Packagesbuild was correctly installed."
     else
         echo "Something went wrong installing packagesbuild."
@@ -177,13 +187,8 @@ function main() {
             ;;
         "-s"|"--store-path")
             if [ -n "$2" ]; then
-              if [[ "${2: -1}" != "/" ]]; then
-                DESTINATION="$2/"
-                echo "INFO: Please write store path without final slash."
-              else
                 DESTINATION="$2"
-              fi
-              shift 2
+                shift 2
             else
                 help 1
             fi
@@ -218,6 +223,16 @@ function main() {
             DEBUG="yes"
             shift 1
             ;;
+        "-c"|"--checksum")
+            if [ -n "$2" ]; then
+                CHECKSUMDIR="$2"
+                CHECKSUM="yes"
+                shift 2
+            else
+                CHECKSUM="yes"
+                shift 1
+            fi
+            ;;
         *)
             help 1
         esac
@@ -228,6 +243,10 @@ function main() {
     fi
 
     testdep
+
+    if [ -z "${CHECKSUMDIR}" ]; then
+        CHECKSUMDIR="${DESTINATION}"
+    fi
 
     if [[ "$BUILD" != "no" ]]; then
         check_root

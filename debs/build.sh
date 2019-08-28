@@ -18,6 +18,7 @@ package_release=$4
 jobs=$5
 dir_path=$6
 debug=$7
+checksum=$8
 package_full_name="wazuh-${build_target}-${wazuh_version}"
 
 if [ -z "${package_release}" ]; then
@@ -61,4 +62,11 @@ else
     linux32 debuild -ai386 -b -uc -us
 fi
 
-find ${build_dir} -name "*.deb" -exec mv {} /var/local/wazuh \;
+deb_file="wazuh-${build_target}_${wazuh_version}-${package_release}_${architecture_target}.deb"
+pkg_path="${build_dir}/${build_target}"
+
+if [[ "${checksum}" == "yes" ]]; then
+    cd ${pkg_path} && sha512sum ${deb_file} > /var/local/checksum/${deb_file}.sha512
+fi
+
+mv ${pkg_path}/${deb_file} /var/local/wazuh

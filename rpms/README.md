@@ -20,18 +20,20 @@ To build an RPM package, you need to download this repository and use the `gener
 
 2. Execute the `generate_rpm_package.sh` script to build the package. There are multiple parameters to select which package is going to be built, its architecture, etc. Here you can see all the different parameters:
     ```shellsession
-    # ./generate_rpm_package.sh -h
+    #  ./generate_rpm_package.sh -h
 
-    Usage: ./generate_wazuh_rpm.sh [OPTIONS]
+    Usage: ./generate_rpm_package.sh [OPTIONS]
 
-        -b, --branch <branch>     [Required] Select Git branch [master]. By default: master.
-        -t, --target              [Required] Target package to build: manager, api or agent.
-        -a, --architecture        [Optional] Target architecture of the package. By default: x86_64
-        -j, --jobs                [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 2.
-        -l, --legacy              [Optional] Build the package for CentOS 5.
-        -r, --release             [Optional] Package release. By default: 1.
-        -p, --path                [Optional] Installation path for the package. By default: /var.
+        -b, --branch <branch>     [Required] Select Git branch or tag e.g. master
+        -t, --target <target>     [Required] Target package to build [manager/api/agent].
+        -a, --architecture <arch> [Optional] Target architecture of the package [x86_64/i386].
+        -r, --revision <rev>      [Optional] Package revision that append to version e.g. x.x.x-rev
+        -l, --legacy              [Optional] Build package for CentOS 5.
+        -s, --store <path>        [Optional] Set the destination path of package.
+        -j, --jobs <number>       [Optional] Number of parallel jobs when compiling.
+        -p, --path <path>         [Optional] Installation path for the package. By default: /var.
         -d, --debug               [Optional] Build the binaries with debug symbols and create debuginfo packages. By default: no.
+        -c, --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package).
         -h, --help                Show this help.
     ```
     * To build a wazuh-manager package for x86_64, revision 3821 and store it in `/tmp`:

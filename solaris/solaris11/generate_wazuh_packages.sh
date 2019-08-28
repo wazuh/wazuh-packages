@@ -5,18 +5,21 @@
 # Wazuh Solaris 11 Package builder.
 
 REPOSITORY="https://github.com/wazuh/wazuh"
-BRANCH="$(echo "$2" | cut -d "/" -f2)"
-INSTALL="/var/ossec"
-THREADS="6"
-PROFILE="agent"
+wazuh_branch="master"
+install_path="/var/ossec"
+THREADS="4"
+TARGET="agent"
 PATH=$PATH:/opt/csw/bin/
-current_path=`pwd`
+current_path="$( cd $(dirname $0) ; pwd -P )"
 arch=`uname -p`
-SOURCE=${current_path}/wazuh
+SOURCE=${current_path}/repository
 CONFIG="$SOURCE/etc/preloaded-vars.conf"
 VERSION=""
+target_dir="${current_path}/output"
+checksum_dir=""
+compute_checksums="no"
 
-utils_and_dependencies() {
+build_environment() {
     echo "Installing dependencies."
 
     #Install pkgutil an update
@@ -43,12 +46,6 @@ compute_version_revision()
     wazuh_version=$(cat ${SOURCE}/src/VERSION | cut -d "-" -f1 | cut -c 2-)
     revision="$(cat ${SOURCE}/src/REVISION)"
 
-    if [ "${READY_TO_RELEASE}" == "yes" ]; then
-        revision="${OPTIONAL_REVISION}"
-    else
-        revision="0.${revision}dev"
-    fi
-
     echo $wazuh_version > /tmp/VERSION
     echo $revision > /tmp/REVISION
 
@@ -58,11 +55,11 @@ compute_version_revision()
 download_source() {
 
     cd ${current_path}
-    git clone $REPOSITORY
+    git clone $REPOSITORY $SOURCE
 
-    if [[ "${BRANCH}" != "trunk" ]] || [[ "${BRANCH}" != "master" ]]; then
+    if [[ "${wazuh_branch}" != "trunk" ]] || [[ "${wazuh_branch}" != "master" ]]; then
         cd $SOURCE
-        git checkout $BRANCH
+        git checkout $wazuh_branch
     fi
     cd ${current_path}
     compute_version_revision
@@ -102,11 +99,11 @@ compile() {
     arch="$(uname -p)"
     # Build the binaries
     if [ "$arch" == "sparc" ]; then
-        gmake -j $THREADS TARGET=agent PREFIX=$INSTALL USE_SELINUX=no USE_BIG_ENDIAN=yes
+        gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no USE_BIG_ENDIAN=yes
     else
-        gmake -j $THREADS TARGET=agent PREFIX=$INSTALL USE_SELINUX=no
+        gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no
     fi
-    gmake -j $THREADS TARGET=$PROFILE
+    gmake -j $THREADS TARGET=$TARGET
     $SOURCE/install.sh
 }
 
@@ -125,8 +122,8 @@ create_package() {
     echo "Building the package wazuh-agent_$VERSION-sol11-${arch}.p5p"
 
     # Package generation process
-    svcbundle -o wazuh-agent.xml -s service-name=application/wazuh-agent -s start-method="/var/ossec/bin/ossec-control start" -s stop-method="/var/ossec/bin/ossec-control stop"
-    pkgsend generate /var/ossec | pkgfmt > wazuh-agent.p5m.1
+    svcbundle -o wazuh-agent.xml -s service-name=application/wazuh-agent -s start-method="${install_path}/bin/ossec-control start" -s stop-method="${install_path}/bin/ossec-control stop"
+    pkgsend generate ${install_path} | pkgfmt > wazuh-agent.p5m.1
     python solaris_fix.py -t SPECS/template_agent_${VERSION}.json -p wazuh-agent.p5m.1 # Fix p5m.1 file
     mv wazuh-agent.p5m.1.aux.fixed wazuh-agent.p5m.1
 
@@ -146,19 +143,26 @@ create_package() {
     echo "group groupname=ossec" >> wazuh-agent.p5m.1
     echo "user username=ossec group=ossec" >> wazuh-agent.p5m.1
     pkgmogrify -DARCH=`uname -p` wazuh-agent.p5m.1 wazuh-agent.mog | pkgfmt > wazuh-agent.p5m.2
-    pkgdepend generate -md /var/ossec -d /etc/init.d -d /etc/rc2.d -d /etc/rc3.d wazuh-agent.p5m.2 > wazuh-agent.p5m.3
-    pkgdepend resolve -m wazuh-agent.p5m.3
-    pkgsend -s http://localhost:9001 publish -d /var/ossec -d /etc/init.d -d /etc/rc2.d -d /etc/rc3.d wazuh-agent.p5m.3.res > pack
+    pkgsend -s http://localhost:9001 publish -d ${install_path} -d /etc/init.d -d /etc/rc2.d -d /etc/rc3.d wazuh-agent.p5m.2 > pack
     package=`cat pack | grep wazuh | cut -c 13-` # This extracts the name of the package generated in the previous step
     rm -f *.p5p
-    pkgrecv -s http://localhost:9001 -a -d wazuh-agent_$VERSION-sol11-${arch}.p5p $package
+    pkg_name="wazuh-agent_$VERSION-sol11-${arch}.p5p"
+    pkgrecv -s http://localhost:9001 -a -d ${pkg_name} $package
+
+    mkdir -p ${target_dir}
+
+    mv -f ${pkg_name} ${target_dir}
+
+    if [ "${compute_checksums}" = "yes" ]; then
+        cd ${target_dir} && /opt/csw/gnu/sha512sum "${pkg_name}" > "${checksum_dir}/${pkg_name}.sha512"
+    fi
 }
 
 config() {
     echo USER_LANGUAGE="en" > $CONFIG
     echo USER_NO_STOP="y" >> $CONFIG
     echo USER_INSTALL_TYPE="agent" >> $CONFIG
-    echo USER_DIR=/var/ossec >> $CONFIG
+    echo USER_DIR=${install_path} >> $CONFIG
     echo USER_DELETE_DIR="y" >> $CONFIG
     echo USER_CLEANINSTALL="y" >> $CONFIG
     echo USER_BINARYINSTALL="y" >> $CONFIG
@@ -197,7 +201,6 @@ clean() {
     rm -rf ${SOURCE}
     cd ${current_path}
     uninstall
-    rm -f ${current_path}/wazuh-agent_$VERSION-sol11-${arch}.p5p
     pkg unset-publisher wazuh
     zfs destroy rpool/wazuh
     umount /wazuh
@@ -210,45 +213,107 @@ clean() {
 }
 
 
-show_help()
-{
-  echo "
-  This scripts build wazuh package for Solaris 11 Intel based architecture.
-  USAGE: Command line options available:
-    -h, --help         Displays this help.
-    -d, --download     Download Wazuh repository.
-    -b, --build        Builds Solaris11 packages.
-    -u, --utils        Download and install utilities and dependencies.
-    -c, --clean-all    Clean sources, local respository and generated files.
-  "
+show_help() {
+  echo
+  echo "Usage: $0 [OPTIONS]"
+  echo
+  echo "    -b, --branch <branch>               Select Git branch or tag e.g. $wazuh_branch."
+  echo "    -e, --environment                   Install all the packages necessaries to build the pkg package."
+  echo "    -s, --store  <pkg_directory>        Directory to store the resulting pkg package. By default, an output folder will be created."
+  echo "    -p, --install-path <pkg_home>       Installation path for the package. By default: /var."
+  echo "    -c, --checksum                      Compute the SHA512 checksum of the pkg package."
+  echo "    -h, --help                          Shows this help."
+  echo
+  exit $1
 }
 
-# Reading command line arguments
-key="$1"
-case $key in
-  -h|--help)
-    show_help
-    exit 0
-    ;;
-  -d|--download)
+build_package() {
     download_source
-    exit 0
-    ;;
-  -b|--build)
     create_repo
     compile
     create_package
-    exit 0
-    ;;
-    -u|--utils)
-    utils_and_dependencies
-    exit 0
-    ;;
-    -c|--clean-all)
     clean
     exit 0
-    ;;
-  *)
-esac
+}
 
-exit 0
+# Main function, processes user input
+main() {
+  # If the script is called without arguments
+  # show the help
+  if [[ -z $1 ]] ; then
+    show_help 0
+  fi
+
+  build_env="no"
+  build_pkg="no"
+
+  while [ -n "$1" ]
+  do
+    case $1 in
+        "-b"|"--branch")
+            if [ -n "$2" ]
+            then
+                wazuh_branch="$2"
+                build_pkg="yes"
+                shift 2
+            else
+                show_help 1
+            fi
+        ;;
+        "-h"|"--help")
+            show_help
+            exit 0
+        ;;
+        "-e"|"--environment" )
+            build_environment
+            exit 0
+        ;;
+        "-p"|"--install-path")
+            if [ -n "$2" ]
+            then
+                install_path="$2"
+                shift 2
+            else
+                show_help 1
+            fi
+        ;;
+        "-s"|"--store")
+            if [ -n "$2" ]
+            then
+                target_dir="$2"
+                shift 2
+            else
+                show_help 1
+            fi
+        ;;
+        "-c" | "--checksum")
+            if [ -n "$2" ]; then
+                checksum_dir="$2"
+                compute_checksums="yes"
+                shift 2
+            else
+                compute_checksums="yes"
+                shift 1
+            fi
+        ;;
+        *)
+          show_help 1
+    esac
+  done
+
+  if [[ "${build_env}" = "yes" ]]; then
+    build_environment || exit 1
+  fi
+
+  if [ -z "${checksum_dir}" ]; then
+    checksum_dir="${target_dir}"
+  fi
+
+  if [[ "${build_pkg}" = "yes" ]]; then
+    build_package || exit 1
+  fi
+
+  return 0
+}
+
+main "$@"

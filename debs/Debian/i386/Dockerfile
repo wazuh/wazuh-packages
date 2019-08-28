@@ -2,9 +2,6 @@ FROM i386/debian:7
 
 ENV DEBIAN_FRONTEND noninteractive
 
-# Add the script to build the Debian package
-ADD build.sh /usr/local/bin/build_package
-
 # Installing necessary packages
 RUN echo "deb http://archive.debian.org/debian/ wheezy contrib main non-free" > /etc/apt/sources.list && \
     echo "deb-src http://archive.debian.org/debian/ wheezy contrib main non-free" >> /etc/apt/sources.list && \
@@ -17,13 +14,18 @@ RUN echo "deb http://archive.debian.org/debian/ wheezy contrib main non-free" > 
     libssl1.0.0=1.0.1e-2+deb7u20
 
 # Add Debian's source repository
-RUN apt-get update && apt-get build-dep python3.2 -y && \
-    chmod +x /usr/local/bin/build_package && \
+RUN apt-get update && apt-get build-dep python3.2 -y
+
+# Add the script to build the Debian package
+ADD build.sh /usr/local/bin/build_package
+
+RUN chmod +x /usr/local/bin/build_package && \
     useradd -ms /bin/bash wazuh-builder
 
 # Add the volumes
 VOLUME /var/local/wazuh
 VOLUME /etc/wazuh
+VOLUME /etc/wazuh/checksum
 
 # Set the entrypoint
 ENTRYPOINT ["/usr/local/bin/build_package"]

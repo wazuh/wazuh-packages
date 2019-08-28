@@ -28,6 +28,7 @@ To build an macOS package, you need to download this repository and use the `gen
         -s, --store-path <path>   [Optional] Set the destination absolute path of package."
         -j, --jobs <number>       [Optional] Number of parallel jobs when compiling."
         -r, --revision <rev>      [Optional] Package revision that append to version e.g. x.x.x-rev"
+        -c, --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package).
         -h, --help                [  Util  ] Show this help."
         -i, --install-deps        [  Util  ] Install build dependencies (Packages)."
         -x, --install-xcode       [  Util  ] Install X-Code and brew. Can't be executed as root."
