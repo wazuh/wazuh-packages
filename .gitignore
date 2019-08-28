@@ -1,6 +1,6 @@
 *.pem
 .vagrant
-Config_files/filebeat.yml
+ova/Config_files/filebeat.yml
 *.ova
 *.ovf
 *.vmdk
