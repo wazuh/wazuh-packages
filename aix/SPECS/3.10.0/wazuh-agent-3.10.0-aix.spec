@@ -246,9 +246,11 @@ rm -fr %{buildroot}
 
 
 %changelog
-* Mon Jun 11 2019 support <support@wazuh.com> - 3.10.0
+* Thu Aug 29 2019 support <support@wazuh.com> - 3.10.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Mon Jul 12 2019 support <support@wazuh.com> - 3.9.4
+* Thu Aug 8 2019 support <info@wazuh.com> - 3.9.5
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Tue Jul 12 2019 support <info@wazuh.com> - 3.9.4
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Jul 02 2019 support <support@wazuh.com> - 3.9.3
 - More info: https://documentation.wazuh.com/current/release-notes/
