@@ -11,9 +11,9 @@
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ARCHITECTURE="x86_64"
 LEGACY="no"
-OUTDIR="${HOME}/3.x/yum-dev/"
+OUTDIR="${CURRENT_PATH}/output/"
 BRANCH="master"
-RELEASE="1"
+REVISION="1"
 TARGET=""
 JOBS="2"
 DEBUG="no"
@@ -27,6 +27,8 @@ LEGACY_RPM_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/5"
 LEGACY_TAR_FILE="${LEGACY_RPM_BUILDER_DOCKERFILE}/i386/centos-5-i386.tar.gz"
 TAR_URL="https://packages-dev.wazuh.com/utils/centos-5-i386-build/centos-5-i386.tar.gz"
 INSTALLATION_PATH="/var"
+CHECKSUMDIR=""
+CHECKSUM="no"
 
 if command -v curl > /dev/null 2>&1 ; then
     DOWNLOAD_TAR="curl ${TAR_URL} -o ${LEGACY_TAR_FILE} -s"
@@ -50,7 +52,7 @@ build_rpm() {
     SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
 
     # Download the sources
-    git clone ${SOURCE_REPOSITORY} -b $BRANCH ${SOURCES_DIRECTORY} --depth=1 --single-branch -q
+    git clone ${SOURCE_REPOSITORY} -b $BRANCH ${SOURCES_DIRECTORY} --depth=1
 
     # Copy the necessary files
     cp build.sh ${DOCKERFILE_PATH}
@@ -82,9 +84,10 @@ build_rpm() {
 
     # Build the RPM package with a Docker container
     docker run -t --rm -v ${OUTDIR}:/var/local/wazuh \
+        -v ${CHECKSUMDIR}:/var/local/checksum \
         -v ${SOURCES_DIRECTORY}:/build_wazuh/wazuh-${TARGET}-${VERSION} \
         ${CONTAINER_NAME} ${TARGET} ${VERSION} ${ARCHITECTURE} \
-        $JOBS ${RELEASE} ${INSTALLATION_PATH} ${DEBUG} || exit 1
+        $JOBS ${REVISION} ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM} || exit 1
 
     echo "Package $(ls ${OUTDIR} -Art | tail -n 1) added to ${OUTDIR}."
 
@@ -93,30 +96,37 @@ build_rpm() {
 
 build() {
 
-    if [[ "${TARGET}" = "api" ]]; then
+    if [[ ${ARCHITECTURE} == "amd64" ]] || [[ ${ARCHITECTURE} == "x86_64" ]]; then
+        ARCHITECTURE="x86_64"
+    fi
+
+    if [[ "${TARGET}" == "api" ]]; then
 
         SOURCE_REPOSITORY="https://github.com/wazuh/wazuh-api"
         build_rpm ${RPM_X86_BUILDER} ${RPM_BUILDER_DOCKERFILE}/x86_64 || exit 1
 
-    elif [[ "${TARGET}" = "manager" ]] || [[ "${TARGET}" = "agent" ]]; then
+    elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]]; then
 
         SOURCE_REPOSITORY="https://github.com/wazuh/wazuh"
         BUILD_NAME=""
         FILE_PATH=""
-        if [[ "${LEGACY}" = "yes" ]] && [[ "${ARCHITECTURE}" = "x86_64" ]]; then
-            RELEASE="${RELEASE}.el5"
+        if [[ "${LEGACY}" == "yes" ]] && [[ "${ARCHITECTURE}" == "x86_64" ]]; then
+            REVISION="${REVISION}.el5"
             BUILD_NAME="${LEGACY_RPM_X86_BUILDER}"
             FILE_PATH="${LEGACY_RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
-        elif [[ "${LEGACY}" = "yes" ]] && [[ "${ARCHITECTURE}" = "i386" ]]; then
-            RELEASE="${RELEASE}.el5"
+        elif [[ "${LEGACY}" == "yes" ]] && [[ "${ARCHITECTURE}" == "i386" ]]; then
+            REVISION="${REVISION}.el5"
             BUILD_NAME="${LEGACY_RPM_I386_BUILDER}"
             FILE_PATH="${LEGACY_RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
-        elif [[ "${LEGACY}" = "no" ]] && [[ "${ARCHITECTURE}" = "x86_64" ]]; then
+        elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "x86_64" ]]; then
             BUILD_NAME="${RPM_X86_BUILDER}"
             FILE_PATH="${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
-        else
+        elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "i386" ]]; then
             BUILD_NAME="${RPM_I386_BUILDER}"
             FILE_PATH="${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
+        else
+            echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too) or i386"
+            clean 1
         fi
         build_rpm ${BUILD_NAME} ${FILE_PATH} || clean 1
     else
@@ -136,10 +146,11 @@ help() {
     echo "    -a, --architecture <arch> [Optional] Target architecture of the package [x86_64/i386]."
     echo "    -r, --revision <rev>      [Optional] Package revision that append to version e.g. x.x.x-rev"
     echo "    -l, --legacy              [Optional] Build package for CentOS 5."
-    echo "    -s, --store <path>        [Optional] Set the destination path of package."
+    echo "    -s, --store <path>        [Optional] Set the destination path of package. By default, an output folder will be created."
     echo "    -j, --jobs <number>       [Optional] Number of parallel jobs when compiling."
     echo "    -p, --path <path>         [Optional] Installation path for the package. By default: /var."
     echo "    -d, --debug               [Optional] Build the binaries with debug symbols and create debuginfo packages. By default: no."
+    echo "    -c, --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
     echo "    -h, --help                Show this help."
     echo
     exit $1
@@ -187,9 +198,9 @@ main() {
                 help 1
             fi
             ;;
-        "-r"|"--release")
+        "-r"|"--revision")
             if [ -n "$2" ]; then
-                RELEASE="$2"
+                REVISION="$2"
                 shift 2
             else
                 help 1
@@ -211,6 +222,16 @@ main() {
             DEBUG="yes"
             shift 1
             ;;
+        "-c"|"--checksum")
+            if [ -n "$2" ]; then
+                CHECKSUMDIR="$2"
+                CHECKSUM="yes"
+                shift 2
+            else
+                CHECKSUM="yes"
+                shift 1
+            fi
+            ;;
         "-s"|"--store")
             if [ -n "$2" ]; then
                 OUTDIR="$2"
@@ -227,6 +248,10 @@ main() {
 
     if [[ "${USER_PATH}" == "no" ]] && [[ "${LEGACY}" == "yes" ]]; then
         OUTDIR="${OUTDIR}/5/${ARCHITECTURE}"
+    fi
+
+    if [ -z "${CHECKSUMDIR}" ]; then
+        CHECKSUMDIR="${OUTDIR}"
     fi
 
     if [[ "$BUILD" != "no" ]]; then

@@ -6,22 +6,23 @@
 
 
 # CONFIGURATION VARIABLES
-BRANCH="$(echo "$2" | cut -d "/" -f2)"
+wazuh_branch="$(echo "$2" | cut -d "/" -f2)"
 PATH=$PATH:/opt/csw/bin:/usr/sfw/bin
 VERSION=""
-CURRENT_PATH=`pwd`
+CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 REPOSITORY="https://github.com/wazuh/wazuh"
 ARCH=`uname -p`
-INSTALL="/var/ossec"
+install_path="/var/ossec"
 THREADS=4
 PROFILE=agent
 deps_version="false"
-SOURCE=${CURRENT_PATH}/wazuh
+SOURCE=${CURRENT_PATH}/repository
 CONFIG="$SOURCE/etc/preloaded-vars.conf"
+target_dir="${CURRENT_PATH}/output"
 
 
-if [ -z "$BRANCH" ]; then
-    BRANCH="master"
+if [ -z "${wazuh_branch}" ]; then
+    wazuh_branch="master"
 fi
 
 if [ -z "$ARCH" ]; then
@@ -30,7 +31,7 @@ fi
 
 
 
-dependencies(){
+build_environment(){
     cd ${CURRENT_PATH}
 
     # Download and install package manager
@@ -81,7 +82,7 @@ config(){
     echo USER_LANGUAGE="en" > $CONFIG
     echo USER_NO_STOP="y" >> $CONFIG
     echo USER_INSTALL_TYPE="agent" >> $CONFIG
-    echo USER_DIR=$INSTALL >> $CONFIG
+    echo USER_DIR=${install_path} >> $CONFIG
     echo USER_DELETE_DIR="y" >> $CONFIG
     echo USER_CLEANINSTALL="y" >> $CONFIG
     echo USER_BINARYINSTALL="y" >> $CONFIG
@@ -91,7 +92,6 @@ config(){
     echo USER_ENABLE_OPENSCAP="y" >> $CONFIG
     echo USER_ENABLE_ACTIVE_RESPONSE="y" >> $CONFIG
     echo USER_CA_STORE="/path/to/my_cert.pem" >> $CONFIG
-    echo USER_DIR=$INSTALL >> $CONFIG
 }
 
 check_version(){
@@ -121,9 +121,9 @@ installation(){
     arch="$(uname -p)"
     # Build the binaries
     if [ "$arch" = "sparc" ]; then
-        gmake -j $THREADS TARGET=agent PREFIX=$INSTALL USE_SELINUX=no USE_BIG_ENDIAN=yes DISABLE_SHARED=yes
+        gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no USE_BIG_ENDIAN=yes DISABLE_SHARED=yes
     else
-        gmake -j $THREADS TARGET=agent PREFIX=$INSTALL USE_SELINUX=no DISABLE_SHARED=yes
+        gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no DISABLE_SHARED=yes
     fi
 
     cd $SOURCE
@@ -138,12 +138,6 @@ compute_version_revision()
     wazuh_version=$(cat ${SOURCE}/src/VERSION | cut -d "-" -f1 | cut -c 2-)
     revision="$(cat ${SOURCE}/src/REVISION)"
 
-    if [ "${READY_TO_RELEASE}" == "yes" ]; then
-        revision="${OPTIONAL_REVISION}"
-    else
-        revision="0.${revision}dev"
-    fi
-
     echo $wazuh_version > /tmp/VERSION
     echo $revision > /tmp/REVISION
 
@@ -152,16 +146,16 @@ compute_version_revision()
 
 clone(){
     cd ${CURRENT_PATH}
-    git clone $REPOSITORY
+    git clone $REPOSITORY ${SOURCE}
     cd $SOURCE
-    git checkout $BRANCH
+    git checkout $wazuh_branch
     cp ${CURRENT_PATH}/solaris10_patch.sh ${CURRENT_PATH}/wazuh
     compute_version_revision
 }
 
 package(){
     cd ${CURRENT_PATH}
-    find /var/ossec | awk 'length > 0' > "wazuh-agent_$VERSION.list"
+    find ${install_path} | awk 'length > 0' > "wazuh-agent_$VERSION.list"
     ver=`echo $VERSION | cut -d'v' -f 2`
     sed  "s:ARCH=\".*\":ARCH=\"$ARCH\":g" pkginfo > pkginfo.new && mv pkginfo.new pkginfo
     sed  "s:VERSION=\".*\":VERSION=\"$ver\":g" pkginfo > pkginfo.new && mv pkginfo.new pkginfo
@@ -179,24 +173,29 @@ package(){
 
     echo $VERSION
     pkgmk -o -r / -d . -f "wazuh-agent_$VERSION.proto"
-    pkgtrans -s ${CURRENT_PATH} "wazuh-agent_$VERSION-sol10-$ARCH.pkg" wazuh-agent
+    pkg_name="wazuh-agent_$VERSION-sol10-$ARCH.pkg"
+    pkgtrans -s ${CURRENT_PATH} "${pkg_name}" wazuh-agent
 
+    mkdir -p ${target_dir}
+
+    mv -f ${pkg_name} ${target_dir}
+
+    if [ "${compute_checksums}" = "yes" ]; then
+        cd ${target_dir} && /opt/csw/gnu/sha512sum "${pkg_name}" > "${checksum_dir}/${pkg_name}.sha512"
+    fi
 }
 
 clean(){
     cd ${CURRENT_PATH}
-    rm -rf ${CURRENT_PATH}/wazuh*
-    rm -f wazuh-agent*
+    rm -rf ${SOURCE}
+    rm -rf wazuh-agent wazuh *.list *proto
     rm -f /etc/ossec-init.conf
     rm *.new
 
     ## Stop and remove application
-    /var/ossec/bin/ossec-control stop
-    rm -r /var/ossec*
+    ${install_path}/bin/ossec-control stop
+    rm -r ${install_path}*
     rm /etc/ossec-init.conf
-
-    ## stop and unload dispatcher
-    # /bin/launchctl unload /Library/LaunchDaemons/com.wazuh.agent.plist
 
     # remove launchdaemons
     rm -f /etc/init.d/wazuh-agent
@@ -226,43 +225,107 @@ build(){
     package
 }
 
-show_help()
-{
-  echo "
-  USAGE: Command line arguments available:
-    -h, --help               Displays this help.
-    -d, --download           Download source file and prepares source directories.
-    -u, --utils              Download and install all dependencies.
-    -b, --build              Build Solaris 10 packages.
-    -c, --clean              Clean all. Even installation files.
-    "
+
+show_help() {
+  echo
+  echo "Usage: $0 [OPTIONS]"
+  echo
+  echo "    -b, --branch <branch>               Select Git branch or tag e.g. $wazuh_branch"
+  echo "    -e, --environment                   Install all the packages necessaries to build the pkg package"
+  echo "    -s, --store  <pkg_directory>        Directory to store the resulting pkg package. By default, an output folder will be created."
+  echo "    -p, --install-path <pkg_home>       Installation path for the package. By default: /var"
+  echo "    -c, --checksum                      Compute the SHA512 checksum of the pkg package."
+  echo "    -h, --help                          Shows this help"
+  echo
+  exit $1
 }
 
-
-# Reading command line arguments
-key="$1"
-case $key in
-  -h|--help)
-    show_help
-    exit 0
-    ;;
-  -d|--download)
+build_package(){
     clone
-    exit 0
-    ;;
-  -b|--build)
     build
-    exit 0
-    ;;
-  -u|--utils)
-    dependencies
-    exit 0
-    ;;
-  -c|--clean)
     clean
-    exit 0
-    ;;
-  *)
-esac
 
-return 0
+    return 0
+}
+
+# Main function, processes user input
+main() {
+  # If the script is called without arguments
+  # show the help
+  if [[ -z $1 ]] ; then
+    show_help 0
+  fi
+
+  build_env="no"
+  build_pkg="no"
+
+  while [ -n "$1" ]
+  do
+    case $1 in
+        "-b"|"--branch")
+            if [ -n "$2" ]
+            then
+                wazuh_branch="$2"
+                build_pkg="yes"
+                shift 2
+            else
+                show_help 1
+            fi
+        ;;
+        "-h"|"--help")
+            show_help
+            exit 0
+        ;;
+        "-e"|"-u"|"--environment" )
+            build_environment
+            exit 0
+        ;;
+        "-p"|"--install-path")
+            if [ -n "$2" ]
+            then
+                install_path="$2"
+                shift 2
+            else
+                show_help 1
+            fi
+        ;;
+        "-s"|"--store")
+            if [ -n "$2" ]
+            then
+                target_dir="$2"
+                shift 2
+            else
+                show_help 1
+            fi
+        ;;
+        "-c" | "--checksum")
+            if [ -n "$2" ]; then
+                checksum_dir="$2"
+                compute_checksums="yes"
+                shift 2
+            else
+                compute_checksums="yes"
+                shift 1
+            fi
+        ;;
+        *)
+          show_help 1
+    esac
+  done
+
+  if [[ "${build_env}" = "yes" ]]; then
+    build_environment || exit 1
+  fi
+
+  if [ -z "${checksum_dir}" ]; then
+    checksum_dir="${target_dir}"
+  fi
+
+  if [[ "${build_pkg}" = "yes" ]]; then
+    build_package || exit 1
+  fi
+
+  return 0
+}
+
+main "$@"

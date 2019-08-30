@@ -9,10 +9,15 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
+CURRENT_PATH=$( cd $(dirname $0) ; pwd -P )
+
 CONTAINER_NAME="wazuh-app:latest"
-DESTINATION="/tmp/wazuh-app"
 REVISION=""
-TMP_DIR="/tmp/build_wazuhapp/app/"
+SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
+OUTDIR="${CURRENT_PATH}/output/"
+CHECKSUMDIR=""
+WAZUH_VERSION=""
+KIBANA_VERSION=""
 
 help() {
 
@@ -22,6 +27,7 @@ help() {
     echo "    -b, --branch <branch>     [Required] Select Git branch or tag e.g. 3.8-6.7 or v3.7.2-6.5.4"
     echo "    -s, --store <path>        [Optional] Set the destination path of package, by defauly /tmp/wazuh-app."
     echo "    -r, --revision <rev>      [Optional] Package revision that append to version e.g. x.x.x-rev"
+    echo "    -c, --checksum <path>     [Optional] Generate checksum"
     echo "    -h, --help                Show this help."
     echo
     exit $1
@@ -32,40 +38,46 @@ build_package(){
     # Build the Docker image
     docker build -t ${CONTAINER_NAME} ./Docker/
     # Build the Wazuh Kibana app package using the build docker image
-    docker run --rm -t  -v ${TMP_DIR}:/source -v "${DESTINATION}":/wazuh_app ${CONTAINER_NAME} ${wazuh_version} ${kibana_version} ${app_revision} 
+    docker run --rm -t  -v ${SOURCES_DIRECTORY}:/source \
+        -v "${OUTDIR}":/wazuh_app \
+        -v ${CHECKSUMDIR}:/var/local/checksum \
+        ${CONTAINER_NAME} ${WAZUH_VERSION} ${KIBANA_VERSION} ${REVISION} ${CHECKSUM}
+
     if [ "$?" = "0" ]; then
-        delete_sources 0
+        clean 0
     else
-        delete_sources 1
+        clean 1
     fi
     return 0
 }
 
 compute_version_revision(){
 
-  wazuh_version=$(python -c 'import json; f=open("package.json"); pkg=json.load(f); f.close(); print pkg["version"]')
-  app_revision=$REVISION
-  kibana_version=$(python -c 'import json; f=open("package.json"); pkg=json.load(f); f.close(); print pkg["kibana"]["version"]')
+    cd "${SOURCES_DIRECTORY}"
 
-  return 0
+    WAZUH_VERSION=$(python -c 'import json; f=open("package.json"); pkg=json.load(f); f.close(); print(pkg["version"])')
+    KIBANA_VERSION=$(python -c 'import json; f=open("package.json"); pkg=json.load(f); f.close(); print(pkg["kibana"]["version"])')
+
+    cd -
+
+    return 0
 }
 
 download_sources(){
 
-    git clone https://github.com/wazuh/wazuh-kibana-app -b ${BRANCH_TAG} --single-branch --depth=1 ${TMP_DIR} -q
-    cd "${TMP_DIR}"
+    git clone https://github.com/wazuh/wazuh-kibana-app -b ${BRANCH_TAG} --depth=1 ${SOURCES_DIRECTORY}
+
     compute_version_revision
-    cd -
 }
-delete_sources(){
+clean(){
 
     exit_code=$1
-    rm -rf ${TMP_DIR}
+    rm -rf ${SOURCES_DIRECTORY}
     exit ${exit_code}
 }
 
 main(){
-
+    CHECKSUM="no"
     while [ -n "$1" ]
     do
         case "$1" in
@@ -79,13 +91,8 @@ main(){
             fi
             ;;
         "-s"|"--store")
-            if [ -n "$2" ]
-            then
-                if [[ "${2: -1}" != "/" ]]; then
-                DESTINATION="$2/"
-                else
-                DESTINATION="$2"
-                fi
+            if [ -n "$2" ]; then
+                OUTDIR="$2"
                 shift 2
             else
                 help 1
@@ -94,10 +101,19 @@ main(){
         "-r"|"--revision")
             if [ -n "$2" ]; then
                 REVISION="$2"
-                READY_TO_RELEASE="no"
                 shift 2
             else
-                READY_TO_RELEASE="yes"
+                help 1
+            fi
+            ;;
+        "-c"|"--checksum")
+            if [ -n "$2" ]; then
+                CHECKSUMDIR="$2"
+                CHECKSUM="yes"
+                shift 2
+            else
+                CHECKSUM="yes"
+                shift 1
             fi
             ;;
         "-h"|"--help")
@@ -108,12 +124,17 @@ main(){
         esac
     done
 
+    if [ -z "${CHECKSUMDIR}" ]; then
+        CHECKSUMDIR="${OUTDIR}"
+    fi
+
     if [[ ${HAVE_BRANCH} == true ]]; then
 
         if download_sources; then
             build_package
-        else 
-            delete_sources 1
+            clean 0
+        else
+            clean 1
         fi
 
     else

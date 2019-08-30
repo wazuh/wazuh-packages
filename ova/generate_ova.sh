@@ -19,6 +19,17 @@ scriptpath=$(
     pwd -P
 )
 
+OUTPUT_DIR="${scriptpath}/output"
+CHECKSUM_DIR=""
+BUILD=false
+HAVE_VERSION=false
+HAVE_ELK_VERSION=false
+
+WAZUH_VERSION=""
+ELK_VERSION=""
+STATUS=""
+CHECKSUM="no"
+
 help () {
 
     echo
@@ -29,31 +40,25 @@ help () {
     echo "  -e, --elastic-version  [Required] Elastic version to download inside VM."
     echo "  -r, --repository       [Required] Status of the packages [stable/unstable]"
     echo "  -d, --directory        [Optional] Where will be installed manager. Default /var/ossec"
-    echo "  -c, --clean            [Optional] Clean the local machine."
+    echo "  -s, --store <path>     [Optional] Set the destination absolute path of package."
+    echo "  -c, --checksum <path>  [Optional] Generate checksum."
     echo "  -h, --help             [  Util  ] Show this help."
     echo
     exit $1
 }
 
 clean() {
-
-    echo "Starting cleaninig task"
     exit_code=$1
+
+    cd ${scriptpath}
     vagrant destroy -f
-    rm -f Libraries/filebeat.yml
-    if [ $exit_code -eq 0 ]; then
-        rm -f ${OVA_VM} ${OVF_VM} ${OVA_VMDK}
-        mv ${OVA_FIXED} ${OVA_VM}
-    else
-        rm -f ${OVA_VM} ${OVF_VM} ${OVA_VMDK} ${OVA_FIXED}
-    fi
+    rm -f ${OVA_VM} ${OVF_VM} ${OVA_VMDK} ${OVA_FIXED} Config_files/filebeat.yml
+
     exit ${exit_code}
 }
 
 build_ova() {
 
-    WAZUH_VERSION="$1"
-    OVA_VERSION="$2"
     OVA_VM="wazuh${OVA_VERSION}.ova"
     OVF_VM="wazuh${OVA_VERSION}.ovf"
     OVA_FIXED="wazuh${OVA_VERSION}-fixed.ova"
@@ -83,6 +88,14 @@ build_ova() {
 
     python Ova2Ovf.py -s ${OVA_VM} -d ${OVA_FIXED}
 
+    mkdir -p ${OUTPUT_DIR}
+    mv ${OVA_FIXED} ${OUTPUT_DIR}/${OVA_VM}
+
+    if [ "${CHECKSUM}" = "yes" ]; then
+        mkdir -p ${CHECKSUM_DIR}
+        cd ${OUTPUT_DIR} && sha512sum "${OVA_VM}" > "${CHECKSUM_DIR}/${OVA_VM}.sha512"
+    fi
+
     # Cleaning tasks
     clean 0
     }
@@ -101,13 +114,6 @@ build_ova() {
 
 main() {
 
-    BUILD=false
-    HAVE_VERSION=false
-    HAVE_ELK_VERSION=false
-
-    WAZUH_VERSION=""
-    ELK_VERSION=""
-    STATUS=""
     export DIRECTORY="/var/ossec"
     while [ -n "$1" ]; do
         case $1 in
@@ -153,7 +159,7 @@ main() {
                 echo "ERROR: package repository is needed_."
                 help 1
             fi
-        shift 2
+            shift 2
         ;;
 
         "-d" | "--directory")
@@ -166,8 +172,23 @@ main() {
             shift 2
         ;;
 
-        "-c" | "--clean")
-            clean 2
+        "-s"|"--store-path")
+            if [ -n "$2" ]; then
+                OUTPUT_DIR="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
+        "-c"|"--checksum")
+            if [ -n "$2" ]; then
+                CHECKSUM_DIR="$2"
+                CHECKSUM="yes"
+                shift 2
+            else
+                CHECKSUM="yes"
+                shift 1
+            fi
         ;;
         *)
             help 1
@@ -175,9 +196,14 @@ main() {
         esac
     done
 
+    if [ -z "${CHECKSUM_DIR}" ]; then
+        CHECKSUM_DIR="${OUTPUT_DIR}"
+    fi
+
     if [ "${BUILD}" = true ] && [ "${HAVE_VERSION}" = true ] && [ "${HAVE_ELK_VERSION}" = true ] && [ "${HAVE_STATUS}" = true ]; then
         check_version ${WAZUH_VERSION} ${ELK_VERSION} ${STATUS}
         OVA_VERSION="${WAZUH_VERSION}_${ELK_VERSION}"
+
         echo "Version to build: ${WAZUH_VERSION}-${ELK_VERSION} with ${STATUS} repository."
         build_ova ${WAZUH_VERSION} ${OVA_VERSION}
     else

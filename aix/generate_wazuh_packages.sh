@@ -8,13 +8,13 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-set -exf
-
 # Script configuration variables
+current_path="$( cd $(dirname $0) ; pwd -P )"
 install_path="/var/ossec"
 wazuh_branch="master"
-target_dir="/tmp/build"
-
+target_dir="${current_path}/output/"
+compute_checksums="no"
+checksum_dir=""
 # Check if running as root
 if [[ $EUID -ne 0 ]]; then
  echo "This script must be run as root"
@@ -36,6 +36,7 @@ show_help() {
   echo "    -e, --environment                   Install all the packages necessaries to build the RPM package"
   echo "    -s, --store  <rpm_directory>        Directory to store the resulting RPM package. By default: /tmp/build"
   echo "    -p, --install-path <rpm_home>       Installation path for the package. By default: /var"
+  echo "    -c, --checksum <path>               Compute the SHA512 checksum of the RPM package."
   echo "    -h, --help                          Shows this help"
   echo
   exit $1
@@ -198,6 +199,9 @@ build_package() {
 
   if [ -f ${target_dir}/${rpm_file} ]; then
     echo "Your package ${rpm_file} is stored in ${target_dir}"
+    if [[ "${compute_checksums}" = "yes" ]]; then
+      cd ${target_dir} && /usr/local/scripts/shasum -a 512 ${rpm_file} > "${checksum_dir}/${rpm_file}.sha512"
+    fi
   else
     echo "Error: RPM package could not be created"
     exit 1
@@ -223,9 +227,9 @@ main() {
         "-b"|"--branch")
           if [ -n "$2" ]
           then
-              wazuh_branch="$2"
-              build_rpm="yes"
-              shift 2
+            wazuh_branch="$2"
+            build_rpm="yes"
+            shift 2
           else
               show_help 1
           fi
@@ -256,6 +260,16 @@ main() {
               show_help 1
           fi
         ;;
+        "-c" | "--checksum")
+            if [ -n "$2" ]; then
+                checksum_dir="$2"
+                compute_checksums="yes"
+                shift 2
+            else
+                compute_checksums="yes"
+                shift 1
+            fi
+        ;;
         *)
           show_help 1
     esac
@@ -263,6 +277,10 @@ main() {
 
   if [[ "${build_env}" = "yes" ]]; then
     build_environment || exit 1
+  fi
+
+  if [ -z "${checksum_dir}" ]; then
+    checksum_dir="${target_dir}"
   fi
 
   if [[ "${build_rpm}" = "yes" ]]; then

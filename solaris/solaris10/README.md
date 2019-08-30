@@ -23,18 +23,16 @@ To build a Solaris 10 package, you need to download this repository and use the 
 
     Usage: ./generate_wazuh_packages.sh [OPTIONS]
 
-    USAGE: Command line arguments available:
-        -h, --help               Displays this help.
-        -d, --download           Download source file and prepares source directories.
-        -u, --utils              Download and install all dependencies.
-        -b, --build              Build Solaris 10 packages.
-        -c, --clean              Clean all. Even installation files.
+        -b, --branch <branch>               Select Git branch or tag e.g. master
+        -e, --environment                   Install all the packages necessaries to build the pkg package
+        -s, --store  <pkg_directory>        Directory to store the resulting pkg package. By default, an output folder will be created.
+        -p, --install-path <pkg_home>       Installation path for the package. By default: /var
+        -c, --checksum                      Compute the SHA512 checksum of the pkg package.
+        -h, --help                          Shows this help
     ```
 
     * To install the needed dependencies:
-        `# ./generate_wazuh_packages.sh -u`.
-    * To download the sources from tag v3.9.0:
-        `# ./generate_wazuh_packages.sh -d v3.9.0`.
+        `# ./generate_wazuh_packages.sh -e`.
     * To build a wazuh-agent package from the downloaded v3.9.0 sources:
         `# ./generate_wazuh_packages.sh -b v3.9.0`.
 

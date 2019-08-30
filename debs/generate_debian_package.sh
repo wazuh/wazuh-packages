@@ -10,7 +10,7 @@
 
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ARCHITECTURE="amd64"
-OUTDIR="${HOME}/3.x/apt-dev/"
+OUTDIR="${CURRENT_PATH}/output/"
 BRANCH="master"
 REVISION="1"
 TARGET=""
@@ -22,6 +22,8 @@ DEB_I386_BUILDER="deb_builder_i386"
 DEB_PPC64LE_BUILDER="deb_builder_ppc64le"
 DEB_AMD64_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/amd64"
 DEB_I386_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/i386"
+CHECKSUMDIR=""
+CHECKSUM="no"
 DEB_PPC64LE_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/ppc64le"
 
 clean() {
@@ -40,7 +42,7 @@ build_deb() {
     SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
 
     # Download the sources
-    git clone ${SOURCE_REPOSITORY} -b ${BRANCH} ${SOURCES_DIRECTORY} --depth=1 --single-branch -q
+    git clone ${SOURCE_REPOSITORY} -b ${BRANCH} ${SOURCES_DIRECTORY} --depth=1
     # Copy the necessary files
     cp build.sh ${DOCKERFILE_PATH}
     cp gen_permissions.sh ${SOURCES_DIRECTORY}
@@ -59,10 +61,11 @@ build_deb() {
 
     # Build the Debian package with a Docker container
     docker run -t --rm -v ${OUTDIR}:/var/local/wazuh \
+        -v ${CHECKSUMDIR}:/var/local/checksum \
         -v ${SOURCES_DIRECTORY}:/build_wazuh/${TARGET}/wazuh-${TARGET}-${VERSION} \
         -v ${DOCKERFILE_PATH}/wazuh-${TARGET}:/${TARGET} \
         ${CONTAINER_NAME} ${TARGET} ${VERSION} ${ARCHITECTURE} \
-        ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} || exit 1
+        ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM} || exit 1
 
     echo "Package $(ls ${OUTDIR} -Art | tail -n 1) added to ${OUTDIR}."
 
@@ -96,7 +99,7 @@ build() {
             FILE_PATH="${DEB_PPC64LE_BUILDER_DOCKERFILE}"
         else
             echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too) or i386 or ppc64le."
-            exit 1
+            clean 1
         fi
         build_deb ${BUILD_NAME} ${FILE_PATH} || clean 1
     else
@@ -119,6 +122,7 @@ help() {
     echo "    -s, --store <path>        [Optional] Set the directory where the package will be stored. By default: ${HOME}/3.x/apt-dev/"
     echo "    -p, --path <path>         [Optional] Installation path for the package. By default: /var/ossec."
     echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
+    echo "    -c, --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
     echo "    -h, --help                Show this help."
     echo
     exit $1
@@ -132,7 +136,7 @@ main() {
         case "$1" in
         "-b"|"--branch")
             if [ -n "$2" ]; then
-                BRANCH="$(echo $2 | cut -d'/' -f2)"
+                BRANCH="$2"
                 BUILD="yes"
                 shift 2
             else
@@ -186,6 +190,16 @@ main() {
             DEBUG="yes"
             shift 1
             ;;
+        "-c"|"--checksum")
+            if [ -n "$2" ]; then
+                CHECKSUMDIR="$2"
+                CHECKSUM="yes"
+                shift 2
+            else
+                CHECKSUM="yes"
+                shift 1
+            fi
+            ;;
         "-s"|"--store")
             if [ -n "$2" ]; then
                 OUTDIR="$2"
@@ -199,10 +213,13 @@ main() {
         esac
     done
 
+    if [ -z "${CHECKSUMDIR}" ]; then
+        CHECKSUMDIR="${OUTDIR}"
+    fi
+
     if [[ "$BUILD" != "no" ]]; then
         build || exit 1
     fi
-
 
     clean 0
 }
