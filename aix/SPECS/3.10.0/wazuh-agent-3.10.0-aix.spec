@@ -169,8 +169,15 @@ fi
 
 %preun
 
+/etc/rc.d/init.d/wazuh-agent stop > /dev/null 2>&1 || :
+
 if [ $1 = 0 ]; then
-  /etc/rc.d/init.d/wazuh-agent stop > /dev/null 2>&1 || :
+
+  rm -f %{_localstatedir}/ossec/queue/ossec/*
+  rm -f %{_localstatedir}/ossec/queue/diff/*
+  rm -f %{_localstatedir}/ossec/queue/alerts/*
+  rm -f %{_localstatedir}/ossec/queue/rids/*
+
 fi
 
 
@@ -183,9 +190,6 @@ if [ $1 = 0 ];then
   fi
   if grep "^ossec:" /etc/group > /dev/null 2>&1; then
     rmgroup ossec
-  fi
-  if [ -d %{_localstatedir}/ossec/queue ]; then
-      rm -rf %{_localstatedir}/ossec/queue
   fi
 fi
 
