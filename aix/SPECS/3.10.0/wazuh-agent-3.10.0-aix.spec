@@ -177,12 +177,15 @@ fi
 %postun
 
 # Remove ossec user and group
-if [ $1 == 0 ];then
+if [ $1 = 0 ];then
   if grep "^ossec" /etc/passwd > /dev/null 2>&1; then
     userdel ossec
   fi
   if grep "^ossec:" /etc/group > /dev/null 2>&1; then
     rmgroup ossec
+  fi
+  if [ -d %{_localstatedir}/ossec/queue ]; then
+      rm -rf %{_localstatedir}/ossec/queue
   fi
 fi
 
