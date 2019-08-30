@@ -184,7 +184,7 @@ fi
 %postun
 
 # Remove ossec user and group
-if [ $1 == 0 ];then
+if [ $1 = 0 ];then
   if grep "^ossec" /etc/passwd > /dev/null 2>&1; then
     userdel ossec
   fi
