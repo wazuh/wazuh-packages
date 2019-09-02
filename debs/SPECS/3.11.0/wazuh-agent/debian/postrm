@@ -23,7 +23,7 @@ case "$1" in
     fi
 
 
-    if [ -d /run/systemd/system ] ; then
+    if [ ! -z "$(file /sbin/init |grep "systemd")" ]; then
         systemctl disable wazuh-agent > /dev/null 2>&1
         systemctl daemon-reload
         systemctl reset-failed
@@ -57,7 +57,7 @@ case "$1" in
         delgroup ossec > /dev/null 2>&1
     fi
     rm -rf ${DIR}/*
-    
+
     ;;
 
     upgrade)
