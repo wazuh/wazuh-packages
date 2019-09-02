@@ -52,6 +52,9 @@ case "$1" in
     fi
     rm -rf ${DIR}/tmp/conffiles
     rm -rf ${DIR}/tmp
+    rm -rf ${DIR}/logs
+    rm -rf ${DIR}/ruleset
+    rm -rf ${DIR}/var
 
     # Delete old .save
     find ${DIR}/etc/ -type f  -name "*save" -exec rm -f {} \;
