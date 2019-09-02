@@ -169,15 +169,24 @@ fi
 
 %preun
 
+/etc/rc.d/init.d/wazuh-agent stop > /dev/null 2>&1 || :
+
 if [ $1 = 0 ]; then
-  /etc/rc.d/init.d/wazuh-agent stop > /dev/null 2>&1 || :
+
+  rm -f %{_localstatedir}/ossec/queue/ossec/*
+  rm -f %{_localstatedir}/ossec/queue/ossec/.agent_info || :
+  rm -f %{_localstatedir}/ossec/queue/ossec/.wait || :
+  rm -f %{_localstatedir}/ossec/queue/diff/*
+  rm -f %{_localstatedir}/ossec/queue/alerts/*
+  rm -f %{_localstatedir}/ossec/queue/rids/*
+
 fi
 
 
 %postun
 
 # Remove ossec user and group
-if [ $1 == 0 ];then
+if [ $1 = 0 ];then
   if grep "^ossec" /etc/passwd > /dev/null 2>&1; then
     userdel ossec
   fi
