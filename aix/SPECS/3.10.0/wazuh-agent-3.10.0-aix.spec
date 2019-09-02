@@ -174,6 +174,8 @@ fi
 if [ $1 = 0 ]; then
 
   rm -f %{_localstatedir}/ossec/queue/ossec/*
+  rm -f %{_localstatedir}/ossec/queue/ossec/.agent_info || :
+  rm -f %{_localstatedir}/ossec/queue/ossec/.wait || :
   rm -f %{_localstatedir}/ossec/queue/diff/*
   rm -f %{_localstatedir}/ossec/queue/alerts/*
   rm -f %{_localstatedir}/ossec/queue/rids/*
