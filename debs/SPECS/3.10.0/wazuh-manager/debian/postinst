@@ -231,6 +231,13 @@ case "$1" in
     # More files
     touch ${DIR}/etc/client.keys
 
+    touch ${DIR}/logs/active-responses.log
+    touch ${DIR}/logs/integrations.log
+    chown ossec:ossec ${DIR}/logs/active-responses.log
+    chown ossecm:ossec ${DIR}/logs/integrations.log
+    chmod 0660 ${DIR}/logs/active-responses.log
+    chmod 0640 ${DIR}/logs/integrations.log
+
     # Restore file permissions after upgrading
     chmod 0660 ${DIR}/etc/ossec.conf
 
