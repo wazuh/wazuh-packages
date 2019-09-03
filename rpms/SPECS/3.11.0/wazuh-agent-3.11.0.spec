@@ -437,6 +437,9 @@ if [ $1 = 0 ]; then
     rm -f /etc/systemd/system/wazuh-agent.service
   fi
 
+  # Remove SCA files
+  rm -f %{_localstatedir}/ossec/ruleset/sca/*
+
 fi
 
 %triggerin -- glibc
@@ -466,7 +469,8 @@ if [ $1 == 0 ];then
   rm -rf %{_localstatedir}/ossec/bin/
   rm -rf %{_localstatedir}/ossec/logs/
   rm -rf %{_localstatedir}/ossec/backup/
-  rm -rf %{_localstatedir}/ossec/ruleset/sca/
+  rm -rf %{_localstatedir}/ossec/ruleset/
+  rm -rf %{_localstatedir}/ossec/tmp
 fi
 
 # If the package is been downgraded

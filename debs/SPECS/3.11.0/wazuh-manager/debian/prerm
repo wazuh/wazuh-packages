@@ -31,10 +31,10 @@ case "$1" in
       rm -rf ${DIR}/queue/*
       rm -rf ${DIR}/var/*
       rm -rf ${DIR}/framework/*
-      
+
       # Save the configuration files in ${DIR}/tmp/conffiles
       mkdir -p ${DIR}/tmp/conffiles
-      
+
       # Save the client.keys
       if [ -f ${DIR}/etc/client.keys ]; then
         cp -p ${DIR}/etc/client.keys ${DIR}/tmp/conffiles
@@ -68,7 +68,7 @@ case "$1" in
       if [ -f ${DIR}/etc/shared/default/agent.conf ]; then
         cp -p ${DIR}/etc/shared/default/agent.conf ${DIR}/tmp/conffiles/shared/default
       fi
-      
+
     ;;
 
     failed-upgrade)

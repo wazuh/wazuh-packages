@@ -193,6 +193,8 @@ if [ $1 = 0 ];then
   if grep "^ossec:" /etc/group > /dev/null 2>&1; then
     rmgroup ossec
   fi
+
+  rm -rf %{_localstatedir}/ossec/ruleset
 fi
 
 

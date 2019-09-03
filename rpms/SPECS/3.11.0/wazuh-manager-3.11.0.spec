@@ -584,6 +584,9 @@ if [ $1 = 0 ]; then
     rm -f /etc/systemd/system/wazuh-manager.service
   fi
 
+  # Remove SCA files
+  rm -f %{_localstatedir}/ossec/ruleset/sca/*
+
 fi
 
 %postun
@@ -630,6 +633,7 @@ if [ $1 == 0 ];then
   rm -rf %{_localstatedir}/ossec/var/
   rm -rf %{_localstatedir}/ossec/bin/
   rm -rf %{_localstatedir}/ossec/logs/
+  rm -rf %{_localstatedir}/ossec/tmp
 
 fi
 
