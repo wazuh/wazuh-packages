@@ -104,7 +104,7 @@ compile() {
         gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no
     fi
 
-    $SOURCE/install.sh
+    DISABLE_SHARED=yes .$SOURCE/install.sh
 }
 
 create_package() {
