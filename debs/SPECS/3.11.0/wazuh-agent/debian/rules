@@ -66,6 +66,14 @@ override_dh_install:
 	mkdir -p ${TARGET_DIR}/etc/init.d/
 	cp src/init/ossec-hids-debian.init ${TARGET_DIR}/etc/init.d/wazuh-agent
 
+	# Remove preinstalled log files
+	rm -rf $(INSTALLATION_DIR)/logs/*.log
+	rm -rf $(INSTALLATION_DIR)/logs/*.json
+
+	# Clean the preinstalled configuration assesment files
+	rm -rf ${TARGET_DIR}$(INSTALLATION_DIR)/ruleset/sca
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_DIR)/ruleset/sca
+
 	# Generating permission restoration file for postinstall
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)
 	./gen_permissions.sh $(INSTALLATION_DIR)/ ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/restore-permissions.sh
@@ -83,10 +91,6 @@ override_dh_install:
 	cp src/VERSION ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/
 	cp src/REVISION ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/
 	cp src/LOCATION ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/
-
-	# Clean the preinstalled configuration assesment files
-	rm -rf ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/ruleset/sca
-	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/ruleset/sca
 
 	# Install configuration assesment files and files templates
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/applications

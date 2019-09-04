@@ -125,10 +125,12 @@ case "$1" in
     fi
     chmod 660 ${DIR}/etc/shared/*
     chown -R root:ossec ${DIR}/etc/shared/
-    chown root:ossec ${DIR}/logs/ossec.log ${DIR}/logs/ossec.json
-
     chmod 660 ${DIR}/etc/ossec.conf
     chown -R root:ossec ${DIR}/etc/ossec.conf
+
+    touch ${DIR}/logs/active-responses.log
+    chown ossec:ossec ${DIR}/logs/active-responses.log
+    chmod 0660 ${DIR}/logs/active-responses.log
 
     # Check if SELinux is installed and enabled
     if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
