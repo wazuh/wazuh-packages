@@ -189,13 +189,13 @@ clean(){
     cd ${CURRENT_PATH}
     rm -rf ${SOURCE}
     rm -rf wazuh-agent wazuh *.list *proto
-    rm -f /etc/ossec-init.conf
     rm -f *.new
 
     ## Stop and remove application
     ${install_path}/bin/ossec-control stop
     rm -r ${install_path}*
- 
+    rm -f /etc/ossec-init.conf
+    
      # remove launchdaemons
     rm -f /etc/init.d/wazuh-agent
     rm -f /etc/rc2.d/S97wazuh-agent
