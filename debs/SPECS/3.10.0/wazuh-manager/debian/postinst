@@ -16,6 +16,7 @@ case "$1" in
     WAZUH_TMP_DIR="${WAZUH_GLOBAL_TMP_DIR}/manager_config_files"
     OSMYSHELL="/sbin/nologin"
     SCRIPTS_DIR="${WAZUH_GLOBAL_TMP_DIR}/manager_installation_scripts"
+    SCA_BASE_DIR="${SCRIPTS_DIR}/sca"
 
     if [ ! -f ${OSMYSHELL} ]; then
         if [ -f "/bin/false" ]; then
@@ -230,6 +231,13 @@ case "$1" in
     # More files
     touch ${DIR}/etc/client.keys
 
+    touch ${DIR}/logs/active-responses.log
+    touch ${DIR}/logs/integrations.log
+    chown ossec:ossec ${DIR}/logs/active-responses.log
+    chown ossecm:ossec ${DIR}/logs/integrations.log
+    chmod 0660 ${DIR}/logs/active-responses.log
+    chmod 0640 ${DIR}/logs/integrations.log
+
     # Restore file permissions after upgrading
     chmod 0660 ${DIR}/etc/ossec.conf
 
@@ -280,6 +288,53 @@ case "$1" in
             semodule -i ${DIR}/var/selinux/wazuh.pp
             semodule -e wazuh
         fi
+    fi
+
+    # Install the SCA files
+    if [ -d "${SCA_BASE_DIR}" ]; then
+
+        . ${SCRIPTS_DIR}/src/init/dist-detect.sh
+
+        SCA_DIR="${DIST_NAME}/${DIST_VER}"
+
+        SCA_TMP_DIR="${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}"
+        mkdir -p ${DIR}/ruleset/sca
+
+        # Install the configuration files needed for this hosts
+        if [ -r "${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}/${DIST_SUBVER}/sca.files" ]; then
+            SCA_TMP_DIR="${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}/${DIST_SUBVER}"
+        elif [ -r "${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}/sca.files" ]; then
+            SCA_TMP_DIR="${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}"
+        elif [ -r "${SCA_BASE_DIR}/${DIST_NAME}/sca.files" ]; then
+            SCA_TMP_DIR="${SCA_BASE_DIR}/${DIST_NAME}"
+        else
+            SCA_TMP_DIR="${SCA_BASE_DIR}/generic"
+        fi
+
+        SCA_TMP_FILE="${SCA_TMP_DIR}/sca.files"
+
+        if [ -r ${SCA_TMP_FILE} ] && [ -r ${SCA_BASE_DIR}/generic/sca.manager.files ]; then
+
+            rm -f ${DIR}/ruleset/sca/* || true
+
+            for sca_file in $(cat ${SCA_TMP_FILE}); do
+                mv ${SCA_BASE_DIR}/${sca_file} ${DIR}/ruleset/sca
+            done
+
+            for sca_file in $(cat ${SCA_BASE_DIR}/generic/sca.manager.files); do
+                filename=$(basename ${sca_file})
+                if [ -f "${SCA_BASE_DIR}/${sca_file}" ] && [ ! -f "${DIR}/ruleset/sca/${filename}" ]; then
+                    mv ${SCA_BASE_DIR}/${sca_file} ${DIR}/ruleset/sca/${filename}.disabled
+                fi
+            done
+        fi
+
+        # Set correct permissions, owner and group
+        chmod 640 ${DIR}/ruleset/sca/*
+        chown root:${GROUP} ${DIR}/ruleset/sca/*
+        # Delete the temporary directory
+        rm -rf ${SCA_BASE_DIR}
+
     fi
 
     # Service

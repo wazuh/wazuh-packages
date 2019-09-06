@@ -22,18 +22,18 @@ Building a .deb package is pretty similar to build a .rpm package. You need to d
       ```shellsession
       # ./generate_debian_package.sh -h
 
-      Usage: ./generate_debian_package.sh [OPTIONS]
+        Usage: ./generate_debian_package.sh [OPTIONS]
 
-          -b, --branch <branch>     [Required] Select Git branch or tag e.g.
-          -s, --store <path>        [Optional] Set the destination path of package.
-          -t, --target <target>     [Required] Target package to build [manager/api/agent].
-          -a, --architecture <arch> [Optional] Target architecture of the package [amd64/i386].
-          -r, --revision <rev>      [Optional] Package revision that append to version e.g. x.x.x-rev
-          -j, --jobs <number>       [Optional] Number of parallel jobs when compiling.
-          -p, --path <path>         [Optional] Installation path for the package. By default: /var/ossec.
-          -d, --debug               [Optional] Build the binaries with debug symbols. By default: no.
-          -h, --help                Show this help.
-
+            -b, --branch <branch>     [Required] Select Git branch [master]. By default: master.
+            -t, --target <target>     [Required] Target package to build: manager, api or agent.
+            -a, --architecture <arch> [Optional] Target architecture of the package. By default: x86_64
+            -j, --jobs <number>       [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 4.
+            -r, --revision <rev>      [Optional] Package revision. By default: 1.
+            -s, --store <path>        [Optional] Set the directory where the package will be stored. By default, an output folder will be created.
+            -p, --path <path>         [Optional] Installation path for the package. By default: /var/ossec.
+            -d, --debug               [Optional] Build the binaries with debug symbols. By default: no.
+            -c, --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package).
+            -h, --help                Show this help.
       ```
     * To build a wazuh-manager package for amd64 (x86_64) and store it in `/tmp`:
         `# ./generate_debian_package.sh -b 3.9 -s /tmp -t manager -a amd64 -r 0`.

@@ -169,21 +169,32 @@ fi
 
 %preun
 
+/etc/rc.d/init.d/wazuh-agent stop > /dev/null 2>&1 || :
+
 if [ $1 = 0 ]; then
-  /etc/rc.d/init.d/wazuh-agent stop > /dev/null 2>&1 || :
+
+  rm -f %{_localstatedir}/ossec/queue/ossec/*
+  rm -f %{_localstatedir}/ossec/queue/ossec/.agent_info || :
+  rm -f %{_localstatedir}/ossec/queue/ossec/.wait || :
+  rm -f %{_localstatedir}/ossec/queue/diff/*
+  rm -f %{_localstatedir}/ossec/queue/alerts/*
+  rm -f %{_localstatedir}/ossec/queue/rids/*
+
 fi
 
 
 %postun
 
 # Remove ossec user and group
-if [ $1 == 0 ];then
+if [ $1 = 0 ];then
   if grep "^ossec" /etc/passwd > /dev/null 2>&1; then
     userdel ossec
   fi
   if grep "^ossec:" /etc/group > /dev/null 2>&1; then
     rmgroup ossec
   fi
+
+  rm -rf %{_localstatedir}/ossec/ruleset
 fi
 
 
@@ -246,9 +257,11 @@ rm -fr %{buildroot}
 
 
 %changelog
-* Thu Aug 1 2019 support <info@wazuh.com> - 3.11.0
+* Thu Aug 29 2019 support <info@wazuh.com> - 3.11.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Mon Jun 11 2019 support <support@wazuh.com> - 3.10.0
+* Mon Aug 26 2019 support <support@wazuh.com> - 3.10.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Aug 8 2019 support <support@wazuh.com> - 3.9.5
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Jul 12 2019 support <support@wazuh.com> - 3.9.4
 - More info: https://documentation.wazuh.com/current/release-notes/

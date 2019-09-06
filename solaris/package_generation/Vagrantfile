@@ -38,6 +38,7 @@ opts = GetoptLong.new(
   [ '--branch-tag', '-b', GetoptLong::REQUIRED_ARGUMENT ],
   [ '--ram', GetoptLong::OPTIONAL_ARGUMENT ],
   [ '--cpus', GetoptLong::OPTIONAL_ARGUMENT ],
+  [ '--checksum', GetoptLong::OPTIONAL_ARGUMENT ],
 )
 
 ###################################################
@@ -47,6 +48,8 @@ opts = GetoptLong.new(
 branch_tag="master"
 ram="1024"
 cpus="1"
+checksum="no"
+checksum_path=""
 
 opts.each do |opt, arg|
     case opt
@@ -55,14 +58,14 @@ opts.each do |opt, arg|
 
         -- CUSTOM USE OF VAGRANT FOR THIS MACHINE --
 
-        vagrant [OPTION] ... up X    
+        vagrant [OPTION] ... up X
         To bring up a Solaris machine, X must be solaris10 or solaris11 or both.
 
         vagrant [OPTION] ... ssh/provision/delete
-        
+
         Example:
         vagrant --branch-tag=v3.7.2 --ram=1024 --cpus=4 up solaris10 solaris11
-       
+
         -h, --help:
         Show help
 
@@ -74,6 +77,9 @@ opts.each do |opt, arg|
 
         --cpus x
         Select the number of CPUs asigned to the new machine.
+
+        --checksum
+        Generate checksum for the packages in the folder.
 
         -- DEFAULT USE OF VAGRANT (FOR ALL MACHINES) --
 
@@ -99,6 +105,8 @@ opts.each do |opt, arg|
         else
             cpus=arg
         end
+     when '--checksum'
+        checksum="yes"
     end
 end
 
@@ -123,7 +131,7 @@ Vagrant.configure("2") do |config|
           end
 
           config.vm.synced_folder "src/", "/tmp/shared"
-          node.vm.provision "shell", path: "src/generate_packages.sh", env: {"BRANCH_TAG" => "#{branch_tag}", "SOLARIS_VERSION" => "#{key}" }
+          node.vm.provision "shell", path: "src/generate_packages.sh", env: {"BRANCH_TAG" => "#{branch_tag}", "SOLARIS_VERSION" => "#{key}","CHECKSUM" => "#{checksum}"}
         end
     end
 end

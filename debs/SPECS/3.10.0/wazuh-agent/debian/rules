@@ -66,11 +66,17 @@ override_dh_install:
 	mkdir -p ${TARGET_DIR}/etc/init.d/
 	cp src/init/ossec-hids-debian.init ${TARGET_DIR}/etc/init.d/wazuh-agent
 
-	# Clean the preinstalled configuration assesment files
-	rm -rf $(INSTALLATION_DIR)/ruleset/sca/*
-
 	# Generating permission restoration file for postinstall
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)
+
+	# Remove preinstalled log files
+	rm -rf $(INSTALLATION_DIR)/logs/*.log
+	rm -rf $(INSTALLATION_DIR)/logs/*.json
+
+	# Clean the preinstalled configuration assesment files
+	rm -rf ${TARGET_DIR}$(INSTALLATION_DIR)/ruleset/sca
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_DIR)/ruleset/sca
+
 	./gen_permissions.sh $(INSTALLATION_DIR)/ ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/restore-permissions.sh
 
 	# Copying to target
@@ -88,23 +94,64 @@ override_dh_install:
 	cp src/LOCATION ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/
 
 	# Install configuration assesment files and files templates
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/applications
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/generic
-	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/ubuntu
-	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/ubuntu/12_04
-	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/ubuntu/14_04
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/amzn/1
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/amzn/2
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/centos/5
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/centos/6
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/centos/7
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/15
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/16
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian/7
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian/8
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian/9
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/rhel/5
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/rhel/6
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/rhel/7
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/sles/11
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/sles/12
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/sunos
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/suse/11
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/suse/12
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/ubuntu/12/04
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/ubuntu/14/04
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/ubuntu/16/04
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/windows
 
-	cp -r etc/sca/debian ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca
-	cp -r etc/sca/generic ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca
-	cp etc/templates/config/generic/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/generic/
-	cp etc/templates/config/debian/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian/
-	cp etc/templates/config/debian/7/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian/7/
-	cp etc/templates/config/debian/8/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian/8/
-	cp etc/templates/config/ubuntu/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/ubuntu/
-	cp etc/templates/config/ubuntu/12/04/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/ubuntu/12_04
-	cp etc/templates/config/ubuntu/14/04/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/ubuntu/14_04
+	cp -r etc/sca/* ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca
+
+	cp etc/templates/config/generic/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/generic
+	cp etc/templates/config/generic/sca.manager.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/generic
+
+	cp etc/templates/config/amzn/1/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/amzn/1
+	cp etc/templates/config/amzn/2/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/amzn/2
+
+	cp etc/templates/config/darwin/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin
+	cp etc/templates/config/darwin/15/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/15
+	cp etc/templates/config/darwin/16/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/16
+
+	cp etc/templates/config/debian/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian
+	cp etc/templates/config/debian/7/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian/7
+	cp etc/templates/config/debian/8/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian/8
+
+	cp etc/templates/config/centos/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/centos
+	cp etc/templates/config/centos/6/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/centos/6
+	cp etc/templates/config/centos/5/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/centos/5
+
+	cp etc/templates/config/rhel/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/rhel
+	cp etc/templates/config/rhel/6/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/rhel/6
+	cp etc/templates/config/rhel/5/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/rhel/5
+
+	cp etc/templates/config/sles/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/sles
+	cp etc/templates/config/sles/11/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/sles/11
+
+	cp etc/templates/config/suse/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/suse
+	cp etc/templates/config/suse/11/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/suse/11
+
+	cp etc/templates/config/ubuntu/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/ubuntu
+	cp etc/templates/config/ubuntu/12/04/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/ubuntu/12/04
+	cp etc/templates/config/ubuntu/14/04/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/ubuntu/14/04
 
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/init
 	cp -r src/init/*  ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/init

@@ -16,17 +16,16 @@ To build an AIX package, you need to download this repository and use the `gener
 
 2. Execute the `generate_wazuh_packages.sh` script to build the package. There are multiple parameters to select which package is going to be built, its architecture, etc. Here you can see all the different parameters:
     ```shellsession
-    # ./generate_package.sh -h
+    # ./generate_wazuh_packages.sh -h
 
-    Usage: ./generate_rpm.sh [OPTIONS]
+    Usage: ./generate_wazuh_packages.sh [OPTIONS]
 
-        Usage: $0 [OPTIONS]"
-
-            -b, --branch <branch>               Select Git branch or tag e.g. $BRANCH
-            -e, --environment                   Install all the packages necessaries to build the RPM package
-            -s, --store  <rpm_directory>        Directory to store the resulting RPM package. By default: /tmp/build
-            -p, --install-path <rpm_home>       Installation path for the package. By default: /var
-            -h, --help                          Shows this help
+        -b, --branch <branch>               Select Git branch or tag e.g.
+        -e, --environment                   Install all the packages necessaries to build the RPM package
+        -s, --store  <rpm_directory>        Directory to store the resulting RPM package. By default: /tmp/build
+        -p, --install-path <rpm_home>       Installation path for the package. By default: /var
+        -c, --checksum                      Compute the SHA512 checksum of the RPM package.
+        -h, --help                          Shows this help
     ```
     * To install all the dependencies necessaries to build the RPM package:
 

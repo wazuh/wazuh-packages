@@ -30,7 +30,7 @@ case "$1" in
       if [ -d ${DIR}/queue/ ]; then
         rm -rf ${DIR}/queue/
       fi
-      
+
       # Save the conffiles
       mkdir -p ${DIR}/tmp/conffiles
       # Save the client.keys
