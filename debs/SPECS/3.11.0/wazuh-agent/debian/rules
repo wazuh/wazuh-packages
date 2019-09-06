@@ -16,11 +16,11 @@ export DH_VERBOSE=1
 # This has to be exported to make some magic below work.
 export DH_OPTIONS
 
-export TARGET_DIR=${CURDIR}/debian/wazuh-agent
+export TARGET_DIR=${CURDIR}/debian/wazuh-manager
 
 # Package build options
 export INSTALLATION_DIR="/var/ossec"
-export INSTALLATION_SCRIPTS_DIR="${INSTALLATION_DIR}/packages_files/agent_installation_scripts"
+export INSTALLATION_SCRIPTS_DIR="${INSTALLATION_DIR}/packages_files/manager_installation_scripts"
 export JOBS="5"
 export DEBUG_ENABLED="no"
 
@@ -36,14 +36,13 @@ override_dh_auto_install:
 override_dh_install:
 
 	rm -rf $(INSTALLATION_DIR)/
-
 	# Build the binaries
-	make -C src deps
-	make -j$(JOBS) -C src/ TARGET=agent USE_SELINUX=yes PREFIX=$(INSTALLATION_DIR) DEBUG=$(DEBUG_ENABLED)
+	make -C src deps PREFIX=$(INSTALLATION_DIR)
+	make -j$(JOBS) -C src/ TARGET=server USE_SELINUX=yes PREFIX=$(INSTALLATION_DIR) DEBUG=$(DEBUG_ENABLED)
 
 	USER_LANGUAGE="en" \
 	USER_NO_STOP="y" \
-	USER_INSTALL_TYPE="agent" \
+	USER_INSTALL_TYPE="server" \
 	USER_DIR="$(INSTALLATION_DIR)" \
 	USER_DELETE_DIR="y" \
 	USER_ENABLE_ACTIVE_RESPONSE="y" \
@@ -53,9 +52,15 @@ override_dh_install:
 	USER_ENABLE_CISCAT="y" \
 	USER_ENABLE_SYSCOLLECTOR="y" \
 	USER_UPDATE="n" \
-	USER_AGENT_SERVER_IP="MANAGER_IP" \
+	USER_ENABLE_EMAIL="n" \
+	USER_WHITE_LIST="n" \
+	USER_ENABLE_SYSLOG="y" \
+	USER_ENABLE_AUTHD="y" \
+	USER_SERVER_IP="MANAGER_IP" \
 	USER_CA_STORE="/path/to/my_cert.pem" \
+	USER_GENERATE_AUTHD_CERT="y" \
 	USER_AUTO_START="n" \
+	USER_CREATE_SSL_CERT="n" \
 	./install.sh
 
 	# Copying debian & ubuntu OSCAP xml files
@@ -64,7 +69,10 @@ override_dh_install:
 
 	# Copying init.d script
 	mkdir -p ${TARGET_DIR}/etc/init.d/
-	cp src/init/ossec-hids-debian.init ${TARGET_DIR}/etc/init.d/wazuh-agent
+	cp src/init/ossec-hids-debian.init ${TARGET_DIR}/etc/init.d/wazuh-manager
+
+	# Generating permission restoration file for postinstall
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/
 
 	# Remove preinstalled log files
 	rm -rf $(INSTALLATION_DIR)/logs/*.log
@@ -74,15 +82,12 @@ override_dh_install:
 	rm -rf ${TARGET_DIR}$(INSTALLATION_DIR)/ruleset/sca
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_DIR)/ruleset/sca
 
-	# Generating permission restoration file for postinstall
-	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)
 	./gen_permissions.sh $(INSTALLATION_DIR)/ ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/restore-permissions.sh
 
 	# Copying to target
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_DIR)/
 	cp -r $(INSTALLATION_DIR)/. $(TARGET_DIR)$(INSTALLATION_DIR)/
 
-	# Copying install scripts to /usr/share
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/
 	cp gen_ossec.sh ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/
 	cp add_localfiles.sh ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/
@@ -91,6 +96,18 @@ override_dh_install:
 	cp src/VERSION ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/
 	cp src/REVISION ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/
 	cp src/LOCATION ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/
+
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/init
+	cp -r src/init/*  ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/init
+
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/etc/templates/config/generic
+	cp -r etc/templates/config/generic ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/etc/templates/config/
+
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/etc/templates/config/debian
+	cp -r etc/templates/config/debian ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/etc/templates/config/
+
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/etc/templates/config/ubuntu
+	cp -r etc/templates/config/ubuntu ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/etc/templates/config/
 
 	# Install configuration assesment files and files templates
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/applications
@@ -152,26 +169,18 @@ override_dh_install:
 	cp etc/templates/config/ubuntu/12/04/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/ubuntu/12/04
 	cp etc/templates/config/ubuntu/14/04/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/ubuntu/14/04
 
-	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/init
-	cp -r src/init/*  ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/init
-
-	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/etc/templates/config/generic
-	cp -r etc/templates/config/generic ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/etc/templates/config/
-
-	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/etc/templates/config/debian
-	cp -r etc/templates/config/debian ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/etc/templates/config/
-
-	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/etc/templates/config/ubuntu
-	cp -r etc/templates/config/ubuntu ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/etc/templates/config/
 
 	# Copying systemd file
+	mkdir -p ${TARGET_DIR}/etc/
+	mkdir -p ${TARGET_DIR}/etc/systemd/
 	mkdir -p ${TARGET_DIR}/etc/systemd/system/
 
-	cp src/systemd/wazuh-agent.service ${TARGET_DIR}/etc/systemd/system/
+	cp src/systemd/wazuh-manager.service ${TARGET_DIR}/etc/systemd/system/
+
+
 
 override_dh_auto_clean:
 	$(MAKE) -C src clean
-
 
 override_dh_strip:
 	dh_strip --no-automatic-dbgsym
