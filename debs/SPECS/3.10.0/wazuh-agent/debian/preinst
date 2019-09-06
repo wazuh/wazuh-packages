@@ -10,13 +10,14 @@ WAZUH_TMP_DIR="${DIR}/packages_files/agent_config_files"
 # environment configuration
 if [ ! -d ${WAZUH_TMP_DIR} ]; then
     mkdir -p ${WAZUH_TMP_DIR}
-else 
+else
     rm -rf ${WAZUH_TMP_DIR}
     mkdir -p ${WAZUH_TMP_DIR}
 fi
 
 case "$1" in
     install|upgrade)
+        #cat non_existent_file
 
         if [ ! -z "$2" ] && [ ! -f ${DIR}/etc/ossec.conf ] ; then
             touch ${WAZUH_TMP_DIR}/create_conf
