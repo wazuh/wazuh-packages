@@ -106,16 +106,16 @@ fi
 
 # Generate and enable a new SSL certificate for clean installs
 if [ $1 = 1 ] && command -v openssl > /dev/null 2>&1; then
-  HTTPS="Y" \
-  PASSWORD="wazuh" \
-  COUNTRY="XX" \
-  STATE="XX" \
-  LOCALITY="XX" \
-  ORG_NAME="XX" \
-  ORG_UNIT="XX" \
-  COMMON_NAME="XX" \
+  HTTPS="Y"
+  PASSWORD="wazuh"
+  COUNTRY="XX"
+  STATE="XX"
+  LOCALITY="XX"
+  ORG_NAME="XX"
+  ORG_UNIT="XX"
+  COMMON_NAME="XX"
   . %{_localstatedir}/ossec/api/scripts/configure_api.sh
-  change_https
+  change_https > /dev/null 2>&1
 fi
 
 %preun

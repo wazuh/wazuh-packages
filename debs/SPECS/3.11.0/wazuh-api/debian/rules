@@ -37,8 +37,8 @@ override_dh_auto_install:
 	groupadd ossec
 	useradd ossec -g ossec
 
-	# Installing api by its own script
-	DIRECTORY="$(INSTALLATION_DIR)" ./install_api.sh
+	# Installing api by its own script with HTTPS disabled
+	DIRECTORY="$(INSTALLATION_DIR)" DISABLE_HTTPS=Y  ./install_api.sh
 	
 	# Remove "fake" framework directory
 	rmdir $(INSTALLATION_DIR)/framework
