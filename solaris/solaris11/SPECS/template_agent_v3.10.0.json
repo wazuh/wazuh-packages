@@ -664,22 +664,6 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/lib": {
-        "class": "static",
-        "group": "ossec",
-        "mode": "0750",
-        "prot": "drwxr-x---",
-        "type": "directory",
-        "user": "root"
-    },
-    "/var/ossec/lib/libwazuhext.so": {
-        "class": "static",
-        "group": "ossec",
-        "mode": "0750",
-        "prot": "-rwxr-x---",
-        "type": "file",
-        "user": "root"
-    },
     "/var/ossec/logs": {
         "class": "static",
         "group": "ossec",

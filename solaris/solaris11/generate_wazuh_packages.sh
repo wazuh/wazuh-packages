@@ -72,9 +72,11 @@ check_version(){
     if [ "${major_version}" -eq "3" ]; then
         if [ "${minor_version}" -ge "5" ]; then
             deps_version="true"
+            disa_share="true"
         fi
     elif [ "${major_version}" -gt "3" ]; then
         deps_version="true"
+        disa_share="true"
     fi
 }
 
@@ -99,12 +101,20 @@ compile() {
     arch="$(uname -p)"
     # Build the binaries
     if [ "$arch" = "sparc" ]; then
-        gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no USE_BIG_ENDIAN=yes
+        if [ "${disa_share}" == "true" ]; then
+            gmake -j $THREADS TARGET=agent DISABLE_SHARED=yes PREFIX=${install_path} USE_SELINUX=no USE_BIG_ENDIAN=yes || exit 1
+        else
+            gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no USE_BIG_ENDIAN=yes || exit 1
+        fi
     else
-        gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no
+        if [ "${disa_share}" == "true" ]; then
+            gmake -j $THREADS TARGET=agent DISABLE_SHARED=yes PREFIX=${install_path} USE_SELINUX=no || exit 1
+        else
+            gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no || exit 1
+        fi      
     fi
 
-    DISABLE_SHARED=yes .$SOURCE/install.sh
+    $SOURCE/install.sh || exit 1
 }
 
 create_package() {
@@ -316,4 +326,4 @@ main() {
   return 0
 }
 
-main "$@"
+main "$@" 
