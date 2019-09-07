@@ -125,9 +125,9 @@ cp etc/templates/config/centos/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/osse
 cp etc/templates/config/centos/6/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/6
 cp etc/templates/config/centos/5/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/5
 
-cp etc/templates/config/darwin/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/darwin
 cp etc/templates/config/darwin/15/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/darwin/15
 cp etc/templates/config/darwin/16/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/darwin/16
+cp etc/templates/config/darwin/17/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/darwin/17
 
 cp etc/templates/config/rhel/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel
 cp etc/templates/config/rhel/6/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/6
