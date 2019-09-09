@@ -66,6 +66,9 @@ override_dh_install:
 	mkdir -p ${TARGET_DIR}/etc/init.d/
 	cp src/init/ossec-hids-debian.init ${TARGET_DIR}/etc/init.d/wazuh-agent
 
+	# Generating permission restoration file for postinstall
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)
+
 	# Remove preinstalled log files
 	rm -rf $(INSTALLATION_DIR)/logs/*.log
 	rm -rf $(INSTALLATION_DIR)/logs/*.json
@@ -74,8 +77,6 @@ override_dh_install:
 	rm -rf ${TARGET_DIR}$(INSTALLATION_DIR)/ruleset/sca
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_DIR)/ruleset/sca
 
-	# Generating permission restoration file for postinstall
-	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)
 	./gen_permissions.sh $(INSTALLATION_DIR)/ ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/restore-permissions.sh
 
 	# Copying to target
@@ -102,6 +103,8 @@ override_dh_install:
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/centos/7
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/15
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/16
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/17
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/18
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian/7
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian/8
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian/9
@@ -126,9 +129,10 @@ override_dh_install:
 	cp etc/templates/config/amzn/1/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/amzn/1
 	cp etc/templates/config/amzn/2/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/amzn/2
 
-	cp etc/templates/config/darwin/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin
 	cp etc/templates/config/darwin/15/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/15
 	cp etc/templates/config/darwin/16/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/16
+	cp etc/templates/config/darwin/17/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/17
+	cp etc/templates/config/darwin/18/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/18
 
 	cp etc/templates/config/debian/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian
 	cp etc/templates/config/debian/7/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian/7
