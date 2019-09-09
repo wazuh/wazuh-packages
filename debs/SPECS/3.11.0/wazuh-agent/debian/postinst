@@ -140,7 +140,7 @@ case "$1" in
 
     # Service
     if [ -f /etc/init.d/wazuh-agent ]; then
-        if [ -d /run/systemd/system ]; then
+        if [ ! -z "$(file /sbin/init |grep "systemd")" ]; then
           systemctl enable wazuh-agent > /dev/null 2>&1
         fi
         update-rc.d wazuh-agent defaults > /dev/null 2>&1
