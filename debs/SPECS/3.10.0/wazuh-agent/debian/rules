@@ -77,6 +77,9 @@ override_dh_install:
 	rm -rf ${TARGET_DIR}$(INSTALLATION_DIR)/ruleset/sca
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_DIR)/ruleset/sca
 
+	# Copying ossec-init.conf
+	cp /etc/ossec-init.conf ${TARGET_DIR}/etc
+
 	./gen_permissions.sh $(INSTALLATION_DIR)/ ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/restore-permissions.sh
 
 	# Copying to target
@@ -92,6 +95,8 @@ override_dh_install:
 	cp src/VERSION ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/
 	cp src/REVISION ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/
 	cp src/LOCATION ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/
+
+
 
 	# Install configuration assesment files and files templates
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/applications
@@ -169,6 +174,8 @@ override_dh_install:
 	mkdir -p ${TARGET_DIR}/etc/systemd/system/
 
 	cp src/systemd/wazuh-agent.service ${TARGET_DIR}/etc/systemd/system/
+
+
 
 override_dh_auto_clean:
 	$(MAKE) -C src clean

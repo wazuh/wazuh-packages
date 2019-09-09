@@ -32,6 +32,9 @@ case "$1" in
         adduser --system --home ${DIR} --shell ${OSMYSHELL} --ingroup ${GROUP} ${USER} > /dev/null 2>&1
     fi
 
+    #${SCRIPTS_DIR}/gen_ossec.sh init agent ${DIR} > ${DIR}/etc/ossec-init.conf
+    #chown root:${GROUP} ${DIR}/etc/ossec-init.conf
+    #chmod 640 ${DIR}/etc/ossec-init.conf
 
     if [ -z "$2" ] || [ -f ${WAZUH_TMP_DIR}/create_conf ] ; then
 
@@ -176,6 +179,9 @@ case "$1" in
         service wazuh-agent restart || :
         fi
     fi
+    # Fix /etc/ossec-init.conf
+    #chmod 640 /etc/ossec-init.conf
+    #chown root:ossec /etc/ossec-init.conf
 
     ;;
 

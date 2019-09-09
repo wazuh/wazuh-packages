@@ -37,10 +37,6 @@ case "$1" in
         adduser --system --home ${DIR} --shell ${OSMYSHELL} --ingroup ${GROUP} ${USER_REM} > /dev/null 2>&1
     fi
 
-    ${SCRIPTS_DIR}/gen_ossec.sh init manager ${DIR}
-    #chown root:${GROUP} ${DIR}/etc/ossec-init.conf
-    #chmod 640 ${DIR}/etc/ossec-init.conf
-
     if [ -z "$2" ] || [ -f ${WAZUH_TMP_DIR}/create_conf ] ; then
 
         ${SCRIPTS_DIR}/gen_ossec.sh conf manager ${OS} ${VER} > ${DIR}/etc/ossec.conf
@@ -369,10 +365,6 @@ case "$1" in
     if [ -z "$(ls -A ${WAZUH_GLOBAL_TMP_DIR})" ]; then
         rm -rf ${WAZUH_GLOBAL_TMP_DIR}
     fi
-
-    # Fix /etc/ossec-init.conf
-    #chmod 640 /etc/ossec-init.conf
-    #chown root:ossec /etc/ossec-init.conf
 
     # Fix python libraries and binaries permissions
     chmod 755 ${DIR}/framework/python/bin/2to3-3.7

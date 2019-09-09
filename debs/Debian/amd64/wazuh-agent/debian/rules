@@ -66,6 +66,9 @@ override_dh_install:
 	mkdir -p ${TARGET_DIR}/etc/init.d/
 	cp src/init/ossec-hids-debian.init ${TARGET_DIR}/etc/init.d/wazuh-agent
 
+	# Generating permission restoration file for postinstall
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)
+
 	# Remove preinstalled log files
 	rm -rf $(INSTALLATION_DIR)/logs/*.log
 	rm -rf $(INSTALLATION_DIR)/logs/*.json
@@ -74,11 +77,6 @@ override_dh_install:
 	rm -rf ${TARGET_DIR}$(INSTALLATION_DIR)/ruleset/sca
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_DIR)/ruleset/sca
 
-	# Copying ossec-init.conf
-	${SCRIPTS_DIR}/gen_ossec.sh init agent ${DIR} > ${DIR}/etc/ossec-init.conf
-
-	# Generating permission restoration file for postinstall
-	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)
 	./gen_permissions.sh $(INSTALLATION_DIR)/ ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/restore-permissions.sh
 
 	# Copying to target
@@ -94,6 +92,11 @@ override_dh_install:
 	cp src/VERSION ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/
 	cp src/REVISION ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/
 	cp src/LOCATION ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/
+
+	# Copying ossec-init.conf
+	cp /etc/ossec-init.conf ${TARGET_DIR}/etc
+	chmod 640 /etc/ossec-init.conf
+    chown root:ossec /etc/ossec-init.conf
 
 	# Install configuration assesment files and files templates
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/applications
@@ -171,6 +174,8 @@ override_dh_install:
 	mkdir -p ${TARGET_DIR}/etc/systemd/system/
 
 	cp src/systemd/wazuh-agent.service ${TARGET_DIR}/etc/systemd/system/
+
+
 
 override_dh_auto_clean:
 	$(MAKE) -C src clean
