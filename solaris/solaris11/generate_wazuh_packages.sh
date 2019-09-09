@@ -11,7 +11,7 @@ THREADS="4"
 TARGET="agent"
 PATH=$PATH:/opt/csw/bin/
 current_path="$( cd $(dirname $0) ; pwd -P )"
-share_lib="no"
+shared_lib="no"
 arch=`uname -p`
 SOURCE=${current_path}/repository
 CONFIG="$SOURCE/etc/preloaded-vars.conf"
@@ -75,11 +75,11 @@ check_version(){
             deps_version="true"
         fi
         if [ "${minor_version}" -ge "10" ]; then
-            share_lib="yes"
+            shared_lib="yes"
         fi
     elif [ "${major_version}" -gt "3" ]; then
         deps_version="true"
-        share_lib="yes"
+        shared_lib="yes"
     fi
 }
 
@@ -104,12 +104,12 @@ compile() {
     arch="$(uname -p)"
     # Build the binaries
     if [ "$arch" = "sparc" ]; then
-        gmake -j $THREADS TARGET=agent DISABLE_SHARED=${share_lib} PREFIX=${install_path} USE_SELINUX=no USE_BIG_ENDIAN=yes || exit 1
+        gmake -j $THREADS TARGET=agent DISABLE_SHARED=${shared_lib} PREFIX=${install_path} USE_SELINUX=no USE_BIG_ENDIAN=yes || exit 1
     else
-        gmake -j $THREADS TARGET=agent DISABLE_SHARED=${share_lib} PREFIX=${install_path} USE_SELINUX=no || exit 1   
+        gmake -j $THREADS TARGET=agent DISABLE_SHARED=${shared_lib} PREFIX=${install_path} USE_SELINUX=no || exit 1   
     fi
 
-    DISABLE_SHARED=${share_lib} .$SOURCE/install.sh || exit 1
+    DISABLE_SHARED=${shared_lib} .$SOURCE/install.sh || exit 1
 }
 
 create_package() {
