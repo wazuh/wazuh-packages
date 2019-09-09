@@ -157,6 +157,8 @@ package(){
     cd ${CURRENT_PATH}
     find ${install_path} | awk 'length > 0' > "wazuh-agent_$VERSION.list"
     ver=`echo $VERSION | cut -d'v' -f 2`
+    sed  "s:ARCH:$(uname -p):g" pkginfo > checkinstall.sh.new && mv checkinstall.sh.new checkinstall.sh
+    sed  "s:ARCH=\".*\":ARCH=\"$ARCH\":g" pkginfo > pkginfo.new && mv pkginfo.new pkginfo
     sed  "s:ARCH=\".*\":ARCH=\"$ARCH\":g" pkginfo > pkginfo.new && mv pkginfo.new pkginfo
     sed  "s:VERSION=\".*\":VERSION=\"$ver\":g" pkginfo > pkginfo.new && mv pkginfo.new pkginfo
     echo "i pkginfo=pkginfo" > "wazuh-agent_$VERSION.proto"
