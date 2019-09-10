@@ -109,7 +109,7 @@ compile() {
         gmake -j $THREADS TARGET=agent DISABLE_SHARED=${shared_lib} PREFIX=${install_path} USE_SELINUX=no || exit 1   
     fi
 
-    DISABLE_SHARED=${shared_lib} .$SOURCE/install.sh || exit 1
+    DISABLE_SHARED=${shared_lib} $SOURCE/install.sh || exit 1
 }
 
 create_package() {
