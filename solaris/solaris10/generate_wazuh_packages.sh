@@ -157,7 +157,7 @@ package(){
     cd ${CURRENT_PATH}
     find ${install_path} | awk 'length > 0' > "wazuh-agent_$VERSION.list"
     ver=`echo $VERSION | cut -d'v' -f 2`
-    sed  "s:ARCH:$(uname -p):g" pkginfo > checkinstall.sh.new && mv checkinstall.sh.new checkinstall.sh
+    sed  "s:ARCH:$ARCH:g" checkinstall > checkinstall.sh.new && mv checkinstall.sh.new checkinstall.sh
     sed  "s:ARCH=\".*\":ARCH=\"$ARCH\":g" pkginfo > pkginfo.new && mv pkginfo.new pkginfo
     sed  "s:ARCH=\".*\":ARCH=\"$ARCH\":g" pkginfo > pkginfo.new && mv pkginfo.new pkginfo
     sed  "s:VERSION=\".*\":VERSION=\"$ver\":g" pkginfo > pkginfo.new && mv pkginfo.new pkginfo
@@ -172,6 +172,7 @@ package(){
     echo "s none /etc/rc2.d/S97wazuh-agent=/etc/init.d/wazuh-agent" >> "wazuh-agent_$VERSION.proto"
     echo "s none /etc/rc3.d/S97wazuh-agent=/etc/init.d/wazuh-agent" >> "wazuh-agent_$VERSION.proto"
     cat "wazuh-agent_$VERSION.list" | pkgproto >> "wazuh-agent_$VERSION.proto"
+    sed  "s:$ARCH:ARCH:g" checkinstall > checkinstall.sh.new && mv checkinstall.sh.new checkinstall.sh
 
     echo $VERSION
     pkgmk -o -r / -d . -f "wazuh-agent_$VERSION.proto"
