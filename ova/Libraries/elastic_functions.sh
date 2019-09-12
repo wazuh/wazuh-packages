@@ -252,6 +252,5 @@ elastic_stack_7(){
     configure_kibana
     install_kibana_app
     configure_kibana_app
-    enable_geo_ip_7
     disable_repos_and_clean
 }
