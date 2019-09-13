@@ -25,7 +25,7 @@ To build a Splunk app package, you need to download this repository and use the 
     Usage: ./generate_wazuh_splunk_app.sh [OPTIONS]
 
         -b, --branch <branch>     [Required] Select Git branch or tag e.g. 3.8 or v3.8.1-7.2.3
-        -s, --store <directory>   [Optional] Destination directory by default /tmp/splunk-app
+        -s, --store <directory>   [Optional] Destination directory by default /path/to/generate_wazuh_app.sh/output
         -r, --revision            [Optional] Package revision that append to version e.g. x.x.x-y.y.y-rev
         -c, --checksum  <path>    [Optional] Generate checksum
         -h, --help                Show this help.
