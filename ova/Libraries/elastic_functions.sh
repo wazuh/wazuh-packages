@@ -139,17 +139,6 @@ configure_kibana_app(){
     fi
 }
 
-enable_geo_ip_7(){
-
-    # Enable GeoIP
-    geoip="/tmp/geoip.json"
-    cp -f ${config_files}/geoip.json ${geoip}
-
-    curl -f -X PUT "localhost:9200/_ingest/pipeline/geoip" -H 'Content-Type: application/json' -d@${geoip}
-
-    systemctl restart filebeat
-}
-
 install_jdk_6(){
 
     yum install -y java-1.8.0-openjdk
@@ -263,6 +252,5 @@ elastic_stack_7(){
     configure_kibana
     install_kibana_app
     configure_kibana_app
-    enable_geo_ip_7
     disable_repos_and_clean
 }

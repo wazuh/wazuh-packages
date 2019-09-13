@@ -1,7 +1,7 @@
 # cat checkinstall
 #!/bin/sh
 
-expected_platform="i386"
+expected_platform="ARCH"
 platform=`uname -p`
 if [ ${platform} != ${expected_platform} ]; then
         echo "This package must be installed on ${expected_platform}"
