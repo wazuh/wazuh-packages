@@ -183,6 +183,8 @@ fi
 exit 0
 %pre
 
+#cat nonexistent-file
+
 # Create the ossec group if it doesn't exists
 if command -v getent > /dev/null 2>&1 && ! getent group ossec > /dev/null 2>&1; then
   groupadd -r ossec
