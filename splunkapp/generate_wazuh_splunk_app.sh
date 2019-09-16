@@ -32,7 +32,7 @@ help() {
     echo "Usage: $0 [OPTIONS]"
     echo
     echo "    -b, --branch <branch>     [Required] Select Git branch or tag e.g. 3.8 or v3.8.1-7.2.3"
-    echo "    -s, --store <directory>   [Optional] Destination directory by default /path/to/generate_wazuh_app.sh/output"
+    echo "    -s, --store <directory>   [Optional] Destination directory by default ${CURRENT_PATH}/output"
     echo "    -r, --revision            [Optional] Package revision that append to version e.g. x.x.x-y.y.y-rev"
     echo "    -c, --checksum  <path>    [Optional] Generate checksum"
     echo "    -h, --help                Show this help."
