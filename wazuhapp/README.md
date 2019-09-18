@@ -25,7 +25,7 @@ To build a Kibana app package, you need to download this repository and use the 
     Usage: ./generate_wazuh_app.sh [OPTIONS]
 
         -b, --branch <branch>     [Required] Select Git branch or tag e.g. 3.8-6.7 or v3.7.2-6.5.4
-        -s, --store <path>        [Optional] Set the destination path of package, by defauly /tmp/wazuh-app.
+        -s, --store <path>        [Optional] Set the destination path of package, by defauly splunkapp/output/
         -r, --revision <rev>      [Optional] Package revision that append to version e.g. x.x.x-rev
         -c, --checksum <path>     [Optional] Generate checksum
         -h, --help                Show this help.
