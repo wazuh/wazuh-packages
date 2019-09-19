@@ -7,13 +7,12 @@ RUN apt-get update && \
       curl && \
     curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
     python get-pip.py && \
-    pip install --upgrade cryptography && \
-    mkdir -p ~/.ssh && \
-    ssh-keyscan github.com >> ~/.ssh/known_hosts
+    pip install --upgrade cryptography 
 
 ADD wpkpack.py /usr/local/bin/wpkpack
 ADD run.sh /usr/local/bin/run
 ADD gen_versions.sh /usr/local/bin/gen_versions
 VOLUME /var/local/wazuh
 VOLUME /etc/wazuh
+VOLUME /etc/wazuh/checksum
 ENTRYPOINT ["/usr/local/bin/run"]

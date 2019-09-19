@@ -18,17 +18,9 @@ AutoReqProv: no
 
 Requires: coreutils
 %if 0%{?el} >= 6 || 0%{?rhel} >= 6
-BuildRequires: coreutils glibc-devel automake autoconf libtool policycoreutils-python
+BuildRequires: coreutils glibc-devel automake autoconf libtool policycoreutils-python perl
 %else
-BuildRequires: coreutils glibc-devel automake autoconf libtool policycoreutils
-%endif
-
-%if 0%{?fc25}
-BuildRequires: perl
-%endif
-
-%if 0%{?el5}
-BuildRequires: perl
+BuildRequires: coreutils glibc-devel automake autoconf libtool policycoreutils perl
 %endif
 
 ExclusiveOS: linux
@@ -46,18 +38,19 @@ echo "Vendor is %_vendor"
 ./gen_ossec.sh conf agent centos %rhel %{_localstatedir}/ossec > etc/ossec-agent.conf
 ./gen_ossec.sh init agent %{_localstatedir}/ossec > ossec-init.conf
 
+%build
 pushd src
 # Rebuild for agent
 make clean
 
 %if 0%{?el} >= 6 || 0%{?rhel} >= 6
     make deps
-    make -j%{_threads} TARGET=agent USE_SELINUX=yes PREFIX=%{_localstatedir}/ossec
+    make -j%{_threads} TARGET=agent USE_SELINUX=yes PREFIX=%{_localstatedir}/ossec DEBUG=%{_debugenabled}
 %else
     %ifnarch x86_64
       MSGPACK="USE_MSGPACK_OPT=no"
     %endif
-    make deps RESOURCES_URL=http://packages.wazuh.com/deps/3.9
+    make deps RESOURCES_URL=http://packages.wazuh.com/deps/3.10
     make -j%{_threads} TARGET=agent USE_AUDIT=no USE_SELINUX=yes USE_EXEC_ENVIRON=no PREFIX=%{_localstatedir}/ossec DEBUG=%{_debugenabled} ${MSGPACK}
 
 %endif
@@ -104,25 +97,51 @@ install -m 0640 wodles/oscap/content/*fedora* ${RPM_BUILD_ROOT}%{_localstatedir}
 rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca/*
 
 # Install configuration assesment files and files templates
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/generic
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/{applications,generic}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/amzn/{1,2}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/{7,6,5}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/darwin/{15,16,17,18}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/debian/{7,8,9}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/ubuntu/{12,14,16}/04
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/{7,6,5}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles/{11,12}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/suse/{11,12}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sunos
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/windows
 
-cp -r etc/sca/{generic,rhel,sles} ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp
+cp -r etc/sca/{applications,generic,darwin,debian,rhel,sles,sunos,windows} ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp
 
 cp etc/templates/config/generic/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/generic
 
-cp etc/templates/config/centos/7/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/7
+cp etc/templates/config/amzn/1/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/amzn/1
+cp etc/templates/config/amzn/2/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/amzn/2
+
+cp etc/templates/config/centos/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos
 cp etc/templates/config/centos/6/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/6
 cp etc/templates/config/centos/5/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/5
 
-cp etc/templates/config/rhel/7/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/7
+cp etc/templates/config/darwin/15/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/darwin/15
+cp etc/templates/config/darwin/16/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/darwin/16
+cp etc/templates/config/darwin/17/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/darwin/17
+cp etc/templates/config/darwin/18/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/darwin/18
+
+cp etc/templates/config/rhel/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel
 cp etc/templates/config/rhel/6/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/6
 cp etc/templates/config/rhel/5/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/5
 
-cp etc/templates/config/sles/12/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles/12
+cp etc/templates/config/sles/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles
 cp etc/templates/config/sles/11/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles/11
+
+cp etc/templates/config/suse/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/suse
+cp etc/templates/config/suse/11/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/suse/11
+
+cp etc/templates/config/ubuntu/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/ubuntu
+cp etc/templates/config/ubuntu/12/04/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/ubuntu/12/04
+cp etc/templates/config/ubuntu/14/04/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/ubuntu/14/04
+
+cp etc/templates/config/debian/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/debian
+cp etc/templates/config/debian/7/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/debian/7
+cp etc/templates/config/debian/8/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/debian/8
 
 # Add configuration scripts
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/
@@ -158,6 +177,9 @@ cp src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_in
 cp src/LOCATION ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/
 cp -r src/systemd/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/systemd
 
+if [ %{_debugenabled} == "yes" ]; then
+  %{_rpmconfigdir}/find-debuginfo.sh
+fi
 exit 0
 %pre
 
@@ -221,7 +243,6 @@ if [ $1 = 1 ]; then
   # Generating osse.conf file
   %{_localstatedir}/ossec/packages_files/agent_installation_scripts/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir}/ossec > %{_localstatedir}/ossec/etc/ossec.conf
   chown root:ossec %{_localstatedir}/ossec/etc/ossec.conf
-  chmod 0640 %{_localstatedir}/ossec/etc/ossec.conf
 
   # Add default local_files to ossec.conf
   %{_localstatedir}/ossec/packages_files/agent_installation_scripts/add_localfiles.sh %{_localstatedir}/ossec >> %{_localstatedir}/ossec/etc/ossec.conf
@@ -234,12 +255,12 @@ if [ $1 = 1 ]; then
 
   # If systemd is installed, add the wazuh-agent.service file to systemd files directory
   if [ -d /run/systemd/system ]; then
-  
+
     # Fix for RHEL 8
     # Service must be installed in /usr/lib/systemd/system/
     if [ "${DIST_NAME}" == "rhel" -a "${DIST_VER}" == "8" ]; then
       install -m 644 %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/systemd/wazuh-agent.service /usr/lib/systemd/system/
-    else  
+    else
       install -m 644 %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/systemd/wazuh-agent.service /etc/systemd/system/
     fi
     # Fix for Fedora 28
@@ -300,28 +321,52 @@ elif [ -r "/etc/SuSE-release" ]; then
       DIST_NAME="sles"
       DIST_VER=`sed -rn 's/.*VERSION = ([0-9]{1,2}).*/\1/p' /etc/SuSE-release`
   fi
+elif [ -r "/etc/os-release" ]; then
+  . /etc/os-release
+  DIST_NAME=$ID
+  DIST_VER=$(echo $VERSION_ID | sed -rn 's/[^0-9]*([0-9]+).*/\1/p')
+  if [ "X$DIST_VER" = "X" ]; then
+      DIST_VER="0"
+  fi
+  if [ "$DIST_NAME" = "amzn" ] && [ "$DIST_VER" != "2" ]; then
+      DIST_VER="1"
+  fi
+  DIST_SUBVER=$(echo $VERSION_ID | sed -rn 's/[^0-9]*[0-9]+\.([0-9]+).*/\1/p')
+  if [ "X$DIST_SUBVER" = "X" ]; then
+      DIST_SUBVER="0"
+  fi
 else
   DIST_NAME="generic"
   DIST_VER=""
 fi
 
 SCA_DIR="${DIST_NAME}/${DIST_VER}"
+SCA_BASE_DIR="%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp"
 mkdir -p %{_localstatedir}/ossec/ruleset/sca
 
-# Install the configuration files
-if [ -r %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${SCA_DIR}/sca.files ]; then
+SCA_TMP_DIR="${SCA_BASE_DIR}/${SCA_DIR}"
 
-  for sca_file in $(cat %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${SCA_DIR}/sca.files); do
-    mv %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/${sca_file} %{_localstatedir}/ossec/ruleset/sca
-  done
-  # Fix sca permissions, group and owner
-  chmod 640 %{_localstatedir}/ossec/ruleset/sca/*
-  chown root:ossec %{_localstatedir}/ossec/ruleset/sca/*
-  # Delete the temporary directory
-  rm -rf %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp
-
+# Install the configuration files needed for this hosts
+if [ -r "${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}/${DIST_SUBVER}/sca.files" ]; then
+  SCA_TMP_DIR="${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}/${DIST_SUBVER}"
+elif [ -r "${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}/sca.files" ]; then
+  SCA_TMP_DIR="${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}"
+elif [ -r "${SCA_BASE_DIR}/${DIST_NAME}/sca.files" ]; then
+  SCA_TMP_DIR="${SCA_BASE_DIR}/${DIST_NAME}"
+else
+  SCA_TMP_DIR="${SCA_BASE_DIR}/generic"
 fi
 
+SCA_TMP_FILE="${SCA_TMP_DIR}/sca.files"
+
+if [ -r ${SCA_TMP_FILE} ]; then
+
+  rm -f %{_localstatedir}/ossec/ruleset/sca/* || true
+
+  for sca_file in $(cat ${SCA_TMP_FILE}); do
+    mv ${SCA_BASE_DIR}/${sca_file} %{_localstatedir}/ossec/ruleset/sca
+  done
+fi
 
 # Set the proper selinux context
 if ([ "X${DIST_NAME}" = "Xrhel" ] || [ "X${DIST_NAME}" = "Xcentos" ] || [ "X${DIST_NAME}" = "XCentOS" ]) && [ "${DIST_VER}" == "5" ]; then
@@ -339,6 +384,9 @@ else
     fi
   fi
 fi
+
+# Restore ossec.conf permissions after upgrading
+chmod 0660 %{_localstatedir}/ossec/etc/ossec.conf
 
 if [ -s %{_localstatedir}/ossec/etc/client.keys ]; then
 
@@ -383,12 +431,15 @@ if [ $1 = 0 ]; then
     rm -f /etc/init.d/wazuh-agent
   fi
   # Remove the wazuh-agent.service file
-  # RHEL 8 service located in /usr/lib/systemd/system/ 
+  # RHEL 8 service located in /usr/lib/systemd/system/
   if [ -f /usr/lib/systemd/system/wazuh-agent.service ]; then
     rm -f /usr/lib/systemd/system/wazuh-agent.service
   else
     rm -f /etc/systemd/system/wazuh-agent.service
   fi
+
+  # Remove SCA files
+  rm -f %{_localstatedir}/ossec/ruleset/sca/*
 
 fi
 
@@ -419,7 +470,8 @@ if [ $1 == 0 ];then
   rm -rf %{_localstatedir}/ossec/bin/
   rm -rf %{_localstatedir}/ossec/logs/
   rm -rf %{_localstatedir}/ossec/backup/
-  rm -rf %{_localstatedir}/ossec/ruleset/sca/
+  rm -rf %{_localstatedir}/ossec/ruleset/
+  rm -rf %{_localstatedir}/ossec/tmp
 fi
 
 # If the package is been downgraded
@@ -470,7 +522,7 @@ rm -fr %{buildroot}
 %attr(640,root,ossec) %verify(not md5 size mtime) %{_sysconfdir}/ossec-init.conf
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec
 %attr(750,root,ossec) %{_localstatedir}/ossec/agentless
-%dir %attr(700,root,ossec) %{_localstatedir}/ossec/.ssh
+%dir %attr(770,root,ossec) %{_localstatedir}/ossec/.ssh
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec/active-response
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec/active-response/bin
 %attr(750,root,ossec) %{_localstatedir}/ossec/active-response/bin/*
@@ -482,7 +534,7 @@ rm -fr %{buildroot}
 %attr(640,root,ossec) %{_localstatedir}/ossec/etc/internal_options*
 %attr(640,root,ossec) %{_localstatedir}/ossec/etc/localtime
 %attr(640,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/local_internal_options.conf
-%attr(640,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/ossec.conf
+%attr(660,root,ossec) %config(noreplace) %{_localstatedir}/ossec/etc/ossec.conf
 %{_localstatedir}/ossec/etc/ossec-init.conf
 %attr(640,root,ossec) %{_localstatedir}/ossec/etc/wpk_root.pem
 %dir %attr(770,root,ossec) %{_localstatedir}/ossec/etc/shared
@@ -513,16 +565,41 @@ rm -fr %{buildroot}
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset/
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset/sca
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/applications
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/applications/*
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/generic
 %attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/generic/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/amzn
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/amzn/1
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/amzn/1/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/amzn/2
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/amzn/2/*
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/sca.files
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/5
 %attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/5/*
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/6
 %attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/6/*
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/7
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/centos/7/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/darwin
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/darwin/15
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/darwin/15/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/darwin/16
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/darwin/16/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/darwin/17
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/darwin/17/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/darwin/18
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/darwin/18/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/debian
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/debian/sca.files
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/debian/*yml
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/debian/7
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/debian/7/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/debian/8
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/debian/8/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/debian/9
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/sca.files
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/5
 %attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/5/*
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/6
@@ -530,10 +607,28 @@ rm -fr %{buildroot}
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/7
 %attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/rhel/7/*
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles/sca.files
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles/11
 %attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles/11/*
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles/12
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles/12/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles/12/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sunos
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sunos/*
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/suse/sca.files
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/suse/11
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/suse/11/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/suse/12
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/ubuntu/sca.files
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/ubuntu/12
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/ubuntu/12/04
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/ubuntu/12/04/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/ubuntu/14
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/ubuntu/14/04
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/ubuntu/14/04/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/ubuntu/16
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/ubuntu/16/04
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/windows
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/windows/*
 %dir %attr(1770,root,ossec) %{_localstatedir}/ossec/tmp
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec/var
 %dir %attr(770,root,ossec) %{_localstatedir}/ossec/var/incoming
@@ -555,7 +650,17 @@ rm -fr %{buildroot}
 
 
 %changelog
-* Mon May 6 2019 support <info@wazuh.com> - 3.10.0
+* Mon Aug 26 2019 support <support@wazuh.com> - 3.10.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Thu Aug 8 2019 support <info@wazuh.com> - 3.9.5
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Tue Jul 12 2019 support <info@wazuh.com> - 3.9.4
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Tue Jun 11 2019 support <info@wazuh.com> - 3.9.3
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Jun 6 2019 support <info@wazuh.com> - 3.9.2
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon May 6 2019 support <info@wazuh.com> - 3.9.1
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Feb 25 2019 support <info@wazuh.com> - 3.9.0
 - More info: https://documentation.wazuh.com/current/release-notes/

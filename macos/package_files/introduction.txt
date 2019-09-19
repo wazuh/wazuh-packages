@@ -4,6 +4,6 @@ Wazuh is fully open source and free for your use. You can tailor it for your sec
 
 This package will install Wazuh agent component in your OS X system.
 
-More information can be found at: 
+More information can be found at:
 
 https://www.wazuh.com

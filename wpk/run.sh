@@ -5,9 +5,10 @@ REPOSITORY="https://github.com/wazuh/wazuh.git"
 BRANCH=$1
 JOBS=$2
 OUT_NAME=$3
-PKG_NAME=$4
+CHECKSUM=$4
+PKG_NAME=$5
 HAVE_PKG_NAME=false
-if [ -n $4 ]
+if [ -n $5 ]
 then
     HAVE_PKG_NAME=true
 fi
@@ -16,6 +17,7 @@ fi
 WPKCERT="/etc/wazuh/wpkcert.pem"
 WPKEY="/etc/wazuh/wpkcert.key"
 OUTDIR="/var/local/wazuh"
+CHECKSUMDIR="/var/local/checksum"
 
 main() {
 
@@ -24,7 +26,6 @@ main() {
     git clone $REPOSITORY $DIRECTORY || exit 1
     cd $DIRECTORY
     git checkout $BRANCH
-    pwd
 
     # Get info
     . src/init/dist-detect.sh
@@ -86,13 +87,17 @@ main() {
     # Update versions file
     cd ${OUTDIR}
     gen_versions ${OUTPUT} ${SHORT_VERSION}
+    if [[ ${CHECKSUM} == "yes" ]]; then
+        mkdir -p ${CHECKSUMDIR}
+        sha512sum "${OUT_NAME}" > "${CHECKSUMDIR}/${OUT_NAME}.sha512"
+    fi
 }
 
 clean() {
     rm -rf doc wodles/oscap/content/* gen_ossec.sh add_localfiles.sh Jenkinsfile*
     rm -rf src/{addagent,analysisd,client-agent,config,error_messages,external/*,headers,logcollector,monitord,os_auth,os_crypto,os_csyslogd,os_dbdos_execd}
     rm -rf src/{os_integrator,os_maild,os_netos_regex,os_xml,os_zlib,remoted,reportd,shared,syscheckd,tests,update,wazuh_db,wazuh_modules}
-  
+
     if [[ "${BUILD_TARGET}" != "winagent" ]]; then
         rm -rf src/win32
     fi
@@ -100,7 +105,8 @@ clean() {
     rm -rf src/*.a
     rm -rf etc/{decoders,lists,rules}
 
-    find etc/templates/* -maxdepth 0 -not -name "en" | xargs rm -rf
+    find etc/templates/config -not -name "sca.files" -delete 2>/dev/null
+    find etc/templates/* -maxdepth 0 -not -name "en" -not -name "config" | xargs rm -rf
 }
 
 preload() {

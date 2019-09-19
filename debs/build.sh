@@ -18,6 +18,7 @@ package_release=$4
 jobs=$5
 dir_path=$6
 debug=$7
+checksum=$8
 package_full_name="wazuh-${build_target}-${wazuh_version}"
 
 if [ -z "${package_release}" ]; then
@@ -40,6 +41,13 @@ sed -i "s:export INSTALLATION_DIR=.*:export INSTALLATION_DIR=${dir_path}:g" ${bu
 sed -i "s:DIR=\"/var/ossec\":DIR=\"${dir_path}\":g" ${build_dir}/${build_target}/${package_full_name}/debian/{preinst,postinst,prerm,postrm}
 if [ "${build_target}" == "api" ]; then
     sed -i "s:DIR=\"/var/ossec\":DIR=\"${dir_path}\":g" ${build_dir}/${build_target}/${package_full_name}/debian/wazuh-api.init
+    if [ "${architecture_target}" == "ppc64le" ]; then
+        sed -i "s: nodejs (>= 4.6), npm,::g" ${build_dir}/${build_target}/${package_full_name}/debian/control
+    fi
+fi
+
+if [[ "${debug}" == "yes" ]]; then
+    sed -i "s:dh_strip --no-automatic-dbgsym::g" ${build_dir}/${build_target}/${package_full_name}/debian/rules
 fi
 
 # Installing build dependencies
@@ -47,10 +55,18 @@ cd ${build_dir}/${build_target}/${package_full_name}
 mk-build-deps -ir -t "apt-get -o Debug::pkgProblemResolver=yes -y"
 
 # Build package
-if [[ "${architecture_target}" == "amd64" ]]; then
+if [[ "${architecture_target}" == "amd64" ]] ||  [[ "${architecture_target}" == "ppc64le" ]] ; then
     debuild -b -uc -us
+
 else
     linux32 debuild -ai386 -b -uc -us
 fi
 
-find ${build_dir} -name "*.deb" -exec mv {} /var/local/wazuh \;
+deb_file="wazuh-${build_target}_${wazuh_version}-${package_release}_${architecture_target}.deb"
+pkg_path="${build_dir}/${build_target}"
+
+if [[ "${checksum}" == "yes" ]]; then
+    cd ${pkg_path} && sha512sum ${deb_file} > /var/local/checksum/${deb_file}.sha512
+fi
+
+mv ${pkg_path}/${deb_file} /var/local/wazuh

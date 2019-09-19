@@ -9,35 +9,34 @@ To build an AIX package, you need to download this repository and use the `gener
 
 1. Download this repository and go to the rpm directory:
     ```bash
-    $ curl -L https://github.com/wazuh/wazuh-packages/tarball/master | tar zx 
+    $ curl -L https://github.com/wazuh/wazuh-packages/tarball/master | tar zx
     $ cd wazuh-wazuh-packages-*
     $ cd aix
     ```
 
-2. Execute the `generate_rpm_package.sh` script to build the package. There are multiple parameters to select which package is going to be built, its architecture, etc. Here you can see all the different parameters:
+2. Execute the `generate_wazuh_packages.sh` script to build the package. There are multiple parameters to select which package is going to be built, its architecture, etc. Here you can see all the different parameters:
     ```shellsession
-    # ./generate_package.sh -h
+    # ./generate_wazuh_packages.sh -h
 
-    Usage: ./generate_rpm.sh [OPTIONS]
+    Usage: ./generate_wazuh_packages.sh [OPTIONS]
 
-        Usage: $0 [OPTIONS]"
-  
-            -e Install all the packages necessaries to build the RPM package"
-            -b <branch> Select Git branch. Example v3.5.0"
-            -s <rpm_directory> Directory to store the resulting RPM package. By default: /tmp/build"
-            -p <rpm_home> Installation path for the package. By default: /var"
-            -h Shows this help"
+        -b, --branch <branch>               Select Git branch or tag e.g.
+        -e, --environment                   Install all the packages necessaries to build the RPM package
+        -s, --store  <rpm_directory>        Directory to store the resulting RPM package. By default: /tmp/build
+        -p, --install-path <rpm_home>       Installation path for the package. By default: /var
+        -c, --checksum                      Compute the SHA512 checksum of the RPM package.
+        -h, --help                          Shows this help
     ```
     * To install all the dependencies necessaries to build the RPM package:
 
-        `# ./generate_package.sh -e`
+        `# ./generate_wazuh_packages.sh -e`
     * To build a wazuh-agent package for version 3.8.2, revision 3821 and store it in `/tmp`:
 
-        `# ./generate_package.sh -b v3.8.2 -s /tmp -a x86_64 -r 3821`.
+        `# ./generate_wazuh_packages.sh -b v3.8.2 -s /tmp -a x86_64 -r 3821`.
     * To install the dependencies, build a wazuh-agent package for version 3.8.2, revision 3821 and store it in `/tmp`:
 
-        `# ./generate_package.sh -b v3.8.2 -s /tmp -a x86_64 -r 3821`.
-    
+        `# ./generate_wazuh_packages.sh -b v3.8.2 -s /tmp -a x86_64 -r 3821`.
+
 3. When the execution finishes, you can find your `.ppc.rpm` package in specified folder.
 
 ## More Packages
@@ -49,6 +48,8 @@ To build an AIX package, you need to download this repository and use the `gener
 - [KibanaApp](/wazuhapp/README.md)
 - [SplunkApp](/splunkapp/README.md)
 - [WPK](/wpk/README.md)
+- [Solaris](/solaris/README.md)
+- [HP-UX](/hpux/README.md)
 
 ## Contribute
 

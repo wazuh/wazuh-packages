@@ -17,8 +17,16 @@ threads=$4
 package_release=$5
 directory_base=$6
 debug=$7
+checksum=$8
+
+disable_debug_flag='%debug_package %{nil}'
+
 if [ -z "${package_release}" ]; then
     package_release="1"
+fi
+
+if [ "${debug}" == "no" ]; then
+    echo ${disable_debug_flag} > /etc/rpm/macros
 fi
 
 # Build directories
@@ -43,4 +51,11 @@ $linux rpmbuild --define "_topdir ${rpm_build_dir}" --define "_threads ${threads
         --define "_debugenabled ${debug}" --target ${architecture_target} \
         -ba ${rpm_build_dir}/SPECS/${package_name}.spec
 
-find ${rpm_build_dir} -name "*.rpm" -exec mv {} /var/local/wazuh \;
+rpm_file="wazuh-${build_target}-${wazuh_version}-${package_release}.${architecture_target}.rpm"
+pkg_path="${rpm_build_dir}/RPMS/${architecture_target}"
+
+if [[ "${checksum}" == "yes" ]]; then
+    cd ${pkg_path} && sha512sum ${rpm_file} > /var/local/checksum/${rpm_file}.sha512
+fi
+
+mv ${pkg_path}/${rpm_file} /var/local/wazuh

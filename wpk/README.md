@@ -1,17 +1,10 @@
-Wazuh
+WPK package
 =====
-
-[![Slack](https://img.shields.io/badge/slack-join-blue.svg)](https://wazuh.com/community/join-us-on-slack/)
-[![Email](https://img.shields.io/badge/email-join-blue.svg)](https://groups.google.com/forum/#!forum/wazuh)
-[![Documentation](https://img.shields.io/badge/docs-view-green.svg)](https://documentation.wazuh.com)
-[![Documentation](https://img.shields.io/badge/web-view-green.svg)](https://wazuh.com)
-
-Wazuh is an Open Source Host-based Intrusion Detection System that performs log analysis, file integrity monitoring, policy monitoring, rootkit detection, real-time alerting, active response, vulnerability detector, etc.
 
 In this repository, you can find the necessary tools to build a WPK package.
 
 ## Tools needed to build the package
-- `docker`: [installation guide](https://docs.docker.com/install) 
+- `docker`: [installation guide](https://docs.docker.com/install)
 
 ## Building WPK packages
 
@@ -38,20 +31,21 @@ To build  a WPK package, it is necessary to generate a X509 certificate and CA, 
     ```shellsession
     # openssl x509 -req -days 365 -in wpkcert.csr -CA wpk_root.pem -CAkey wpk_root.key -out wpkcert.pem -CAcreateserial
     ```
-3. Execute the `generate_wazuh_app.sh` script to build the package. There are multiple parameters to select, Here you can see all the different parameters:
+3. Execute the `generate_wpk_package.sh` script to build the package. There are multiple parameters to select, Here you can see all the different parameters:
     ```shellsession
     $ ./generate_wpk_package.sh -h
 
-    Usage: /wazuh-installers/wpk-docker/generate_wpk_package.sh [OPTIONS]
+    Usage: ./generate_wpk_package.sh [OPTIONS]
 
         -t,   --target-system <target>              [Required] Select target wpk to build [linux/windows]
         -b,   --branch <branch>                     [Required] Select Git branch or tag e.g.
         -d,   --destination <path>                  [Required] Set the destination path of package.
-        -k,   --key-dir <arch>                      [Required] Set the WPK key path to sign package.
+        -k,   --key-dir <path>                      [Required] Set the WPK key path to sign package.
         -a,   --architecture <arch>                 [Optional] Target architecture of the package [x86_64].
         -j,   --jobs <number>                       [Optional] Number of parallel jobs when compiling.
-        -pd,  --package-directory <directory>       [Required for windows] Path to the package name to pack on wpk.
+        -pd,  --package-directory <directory>       [Required for windows] Package name to pack on wpk.
         -o,   --output <name>                       [Required] Name to the output package.
+        -c,   --checksum                            [Optional] Generate checksum.
         -h,   --help                                Show this help.
     ```
     * To build the WPK package for linux called linux-3_9_0.wpk from tag v3.9.0 and store it in /home/wpk, while having the keys stored in /tmp/keys
@@ -81,6 +75,8 @@ To build  a WPK package, it is necessary to generate a X509 certificate and CA, 
 - [OVA](/ova/README.md)
 - [KibanaApp](/wazuhapp/README.md)
 - [SplunkApp](/splunkapp/README.md)
+- [Solaris](/solaris/README.md)
+- [HP-UX](/hpux/README.md)
 
 ## Contribute
 

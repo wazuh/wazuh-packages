@@ -7,8 +7,8 @@ In this repository, you can find the necessary tools to build a Wazuh Kibana App
 
 To build a Wazuh Kibana app package you need to install the following tools:
   - `docker`: [installation guide](https://docs.docker.com/install/linux/docker-ce/centos/) for RPM and [installation guide](https://docs.docker.com/install/linux/docker-ce/debian/) for Debian.
-- `git`:  [installation guide](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git). 
-  
+- `git`:  [installation guide](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git).
+
 ## Building Wazuh Kibana app packages
 
 To build a Kibana app package, you need to download this repository and use the `generate_wazuh_app.sh` script. This script will download the source code from the [wazuh/wazuh-kibana-app](https://github.com/wazuh/wazuh-kibana-app) repository, build a Docker image with all the necessary tools to build the app package and run a Docker container from that image that will generate a `.zip` package.
@@ -24,16 +24,17 @@ To build a Kibana app package, you need to download this repository and use the 
 
     Usage: ./generate_wazuh_app.sh [OPTIONS]
 
-        -b, --branch <branch>     [Required] Select Git branch or tag e.g. 3.8-6.7 or v3.7.2-6.5.4 
-        -s, --store <path>        [Optional] Set the destination path of package, by defauly /tmp/wazuh-app.
+        -b, --branch <branch>     [Required] Select Git branch or tag e.g. 3.8-6.7 or v3.7.2-6.5.4
+        -s, --store <path>        [Optional] Set the destination path of package, by defauly splunkapp/output/
         -r, --revision <rev>      [Optional] Package revision that append to version e.g. x.x.x-rev
+        -c, --checksum <path>     [Optional] Generate checksum
         -h, --help                Show this help.
-        
+
     ```
     * To build the app package from branch 3.8-6.7, revision myrev and store it in `/wazuh-app` you can use:
 
-            # ./generate_wazuh_app.sh -b 3.8-6.7 -d /wazuh-app -r myrev
-                    
+            # ./generate_wazuh_app.sh -b 3.8-6.7 -s /wazuh-app -r myrev
+
 3. Once the execution finishes, you will find your `.zip` package in the specified folder or in `/tmp/wazuh-app` if no folder was specified.
 
 ## More Packages
@@ -45,7 +46,8 @@ To build a Kibana app package, you need to download this repository and use the 
 - [OVA](/ova/README.md)
 - [KibanaApp](/wazuhapp/README.md)
 - [WPK](/wpk/README.md)
-
+- [Solaris](/solaris/README.md)
+- [HP-UX](/hpux/README.md)
 
 ## Contribute
 

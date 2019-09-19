@@ -6,9 +6,9 @@ In this repository, you can find the necessary tools to build your own OVA file 
 ## Tools needed to build the OVA:
 
 To build an OVA you need to install the following tools:
-- `Virtual Box`: [instalation guide](https://www.virtualbox.org/manual/UserManual.html#installation)
-- `Vagrant`: [instalation guide](https://www.vagrantup.com/docs/installation/)
-- `Git`:  [installation guide](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git). 
+- `Virtual Box`: [installation guide](https://www.virtualbox.org/manual/UserManual.html#installation)
+- `Vagrant`: [installation guide](https://www.vagrantup.com/docs/installation/)
+- `Git`:  [installation guide](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git).
 - `Python`: [installation guide](https://www.python.org/download/releases/2.7/)
 
 
@@ -16,7 +16,7 @@ To build an OVA you need to install the following tools:
 
 To generate the ova file, you need to download this repository and use the `generate_ova.sh` script. This script will create a vagrant box and provision it to be ready to use wazuh, as specified on provision.sh, and then export it to an Ova file.
 
-```shellsession       
+```shellsession
 # ./generate_ova.sh -h
 
 OPTIONS:
@@ -27,11 +27,11 @@ OPTIONS:
       -c, --clean            [Optional] Clean the local machine.
       -h, --help             [  Util  ] Show this help.
 ```
-  
-To build an OVA with versiohn 3.9.0 using elastic 6.6.2 and the stable repositories you can use:
 
-`# ./generate_ova.sh -b -v 3.9.0 -e 6.6.2 -r stable`
-    
+To build an OVA with version 3.9.0 using elastic 6.6.2 and the stable repositories you can use:
+
+`# ./generate_ova.sh -b -v 3.9.5 -e 7.3.0 -r stable`
+
    * **Stable:** The OVA uses released packages.
    * **Unstable:** The OVA uses unstable packages.
 
@@ -44,6 +44,8 @@ To build an OVA with versiohn 3.9.0 using elastic 6.6.2 and the stable repositor
 - [KibanaApp](/wazuhapp/README.md)
 - [SplunkApp](/splunkapp/README.md)
 - [WPK](/wpk/README.md)
+- [Solaris](/solaris/README.md)
+- [HP-UX](/hpux/README.md)
 
 ## Contribute
 
