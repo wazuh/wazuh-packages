@@ -281,7 +281,9 @@ rm -fr %{buildroot}
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Wed Nov 7 2018 support <support@wazuh.com> - 3.7.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Wed Sep 7 2018 support <support@wazuh.com> - 3.6.0
+* Mon Sep 10 2018 support <info@wazuh.com> - 3.6.1
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Fri Sep 7 2018 support <support@wazuh.com> - 3.6.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Wed Jul 25 2018 support <support@wazuh.com> - 3.5.0
 - More info: https://documentation.wazuh.com/current/release-notes/
