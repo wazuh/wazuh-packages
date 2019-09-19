@@ -1,6 +1,6 @@
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-manager
-Version:     3.11.0
+Version:     3.10.1
 Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
@@ -229,6 +229,7 @@ if [ $1 = 2 ]; then
   if [ $MAJOR = 3 ] && [ $MINOR -lt 7 ]; then
     rm -f %{_localstatedir}/ossec/queue/db/*.db*
     rm -f %{_localstatedir}/ossec/queue/db/.template.db
+
   elif [ $MAJOR = 3 ] && [ $MINOR = 9 ]; then
     find %{_localstatedir}/ossec/ruleset/sca -type f > %{_localstatedir}/ossec/old_sca.files
   fi
@@ -634,6 +635,7 @@ if [ $1 == 0 ];then
   rm -rf %{_localstatedir}/ossec/var/
   rm -rf %{_localstatedir}/ossec/bin/
   rm -rf %{_localstatedir}/ossec/logs/
+  rm -rf %{_localstatedir}/ossec/ruleset/
   rm -rf %{_localstatedir}/ossec/tmp
 
 fi
@@ -911,8 +913,6 @@ rm -fr %{buildroot}
 %{_initrddir}/*
 
 %changelog
-* Fri Sep 20 2019 support <info@wazuh.com> - 3.11.0
-- More info: https://documentation.wazuh.com/current/release-notes/
 * Thu Sep 19 2019 support <support@wazuh.com> - 3.10.1
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Aug 26 2019 support <support@wazuh.com> - 3.10.0
