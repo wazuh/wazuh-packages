@@ -1,6 +1,6 @@
 Summary:     Wazuh API is an open source RESTful API to interact with Wazuh from your own application or with a simple web browser or tools like cURL
 Name:        wazuh-api
-Version:     3.11.0
+Version:     3.10.1
 Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
@@ -15,7 +15,7 @@ Requires(preun):  /sbin/chkconfig /sbin/service
 Requires(postun): /sbin/service
 
 Requires: nodejs >= 4.6
-Requires: wazuh-manager = 3.11.0
+Requires: wazuh-manager = 3.10.1
 BuildRequires: nodejs >= 4.6
 ExclusiveOS: linux
 
@@ -169,8 +169,6 @@ rm -fr %{buildroot}
 %attr(660, ossec, ossec) %ghost %{_localstatedir}/ossec/logs/api.log
 
 %changelog
-* Fri Sep 20 2019 support <info@wazuh.com> - 3.11.0
-- More info: https://documentation.wazuh.com/current/release-notes/
 * Thu Sep 19 2019 support <support@wazuh.com> - 3.10.1
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Aug 26 2019 support <support@wazuh.com> - 3.10.0
