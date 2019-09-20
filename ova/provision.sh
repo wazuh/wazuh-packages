@@ -31,3 +31,7 @@ elastic_stack_${ELK_MAJOR}
 
 rm -rf /vagrant
 
+systemctl stop kibana
+systemctl stop  elasticsearch
+systemctl stop wazuh-manager
+systemctl stop wazuh-api
