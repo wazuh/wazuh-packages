@@ -169,6 +169,8 @@ rm -fr %{buildroot}
 %attr(660, ossec, ossec) %ghost %{_localstatedir}/ossec/logs/api.log
 
 %changelog
+* Mon Sep 23 2019 support <support@wazuh.com> - 3.10.2
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Thu Sep 19 2019 support <support@wazuh.com> - 3.10.1
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Aug 26 2019 support <support@wazuh.com> - 3.10.0
