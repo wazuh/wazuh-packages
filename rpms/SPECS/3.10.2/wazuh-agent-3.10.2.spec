@@ -1,6 +1,6 @@
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-agent
-Version:     3.11.0
+Version:     3.10.2
 Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
@@ -50,7 +50,7 @@ make clean
     %ifnarch x86_64
       MSGPACK="USE_MSGPACK_OPT=no"
     %endif
-    make deps RESOURCES_URL=http://packages.wazuh.com/deps/3.9
+    make deps RESOURCES_URL=http://packages.wazuh.com/deps/3.10
     make -j%{_threads} TARGET=agent USE_AUDIT=no USE_SELINUX=yes USE_EXEC_ENVIRON=no PREFIX=%{_localstatedir}/ossec DEBUG=%{_debugenabled} ${MSGPACK}
 
 %endif
@@ -650,8 +650,6 @@ rm -fr %{buildroot}
 
 
 %changelog
-* Mon Oct 7 2019 support <info@wazuh.com> - 3.11.0
-- More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Sep 23 2019 support <support@wazuh.com> - 3.10.2
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Thu Sep 19 2019 support <support@wazuh.com> - 3.10.1
