@@ -35,18 +35,18 @@ build_environment() {
 
   #Install dependencies
   swinstall -s $current_path/depothelper-2.10-hppa_32-11.31.depot \*
-  /usr/local/bin/depothelper curl
-  /usr/local/bin/depothelper unzip
-  /usr/local/bin/depothelper gcc
-  /usr/local/bin/depothelper make
-  /usr/local/bin/depothelper bash
-  /usr/local/bin/depothelper gzip
-  /usr/local/bin/depothelper automake
-  /usr/local/bin/depothelper autoconf
-  /usr/local/bin/depothelper libtool
-  /usr/local/bin/depothelper coreutils
-  /usr/local/bin/depothelper gdb
-  /usr/local/bin/depothelper perl-5.10.1
+  /usr/local/bin/depothelper -f curl
+  /usr/local/bin/depothelper -f unzip
+  /usr/local/bin/depothelper -f gcc
+  /usr/local/bin/depothelper -f make
+  /usr/local/bin/depothelper -f bash
+  /usr/local/bin/depothelper -f gzip
+  /usr/local/bin/depothelper -f automake
+  /usr/local/bin/depothelper -f autoconf
+  /usr/local/bin/depothelper -f libtool
+  /usr/local/bin/depothelper -f coreutils
+  /usr/local/bin/depothelper -f gdb
+  /usr/local/bin/depothelper -f perl-5.10.1
   cp /usr/bin/perl /tmp/perl
   cp /usr/local/bin/perl5.10.1 /usr/bin/perl
 }
@@ -69,7 +69,7 @@ config() {
 
 compute_version_revision()
 {
-  wazuh_version=$(cat ${SOURCE}/src/VERSION | cut -d "-" -f1 | cut -c 2-)
+  wazuh_version=$(cat ${source_directory}/src/VERSION | cut -d "-" -f1 | cut -c 2-)
 
   echo ${wazuh_version} > /tmp/VERSION
   echo ${wazuh_revision} > /tmp/REVISION
@@ -125,6 +125,7 @@ create_package() {
   #Build package
   VERSION=`cat /tmp/VERSION`
   rm ${install_path}/wodles/oscap/content/*.xml
+  wazuh_version=`echo "${wazuh_version}" | cut -d v -f 2`
   pkg_name="wazuh-agent-${wazuh_version}-${wazuh_revision}-hpux-11v3-ia64.tar"
   tar cvpf ${target_dir}/${pkg_name} ${install_path} /etc/ossec-init.conf /sbin/init.d/wazuh-agent /sbin/rc2.d/S97wazuh-agent /sbin/rc3.d/S97wazuh-agent
 
@@ -167,6 +168,7 @@ build_package() {
   download_source
   compile
   create_package
+  clean 0
 }
 
 # Main function, processes user input
@@ -249,4 +251,4 @@ main() {
   return 0
 }
 
-main
+main "$@"

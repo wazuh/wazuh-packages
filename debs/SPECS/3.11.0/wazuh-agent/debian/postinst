@@ -125,8 +125,6 @@ case "$1" in
     fi
     chmod 660 ${DIR}/etc/shared/*
     chown -R root:ossec ${DIR}/etc/shared/
-    chown root:ossec ${DIR}/logs/ossec.log ${DIR}/logs/ossec.json
-
     chmod 660 ${DIR}/etc/ossec.conf
     chown -R root:ossec ${DIR}/etc/ossec.conf
 

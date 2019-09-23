@@ -22,8 +22,12 @@ case "$1" in
         rm -rf ${WAZUH_TMP_DIR}
     fi
 
+<<<<<<< HEAD
 
     if [ ! -z "$(file /sbin/init |grep "systemd")" ]; then
+=======
+    if [ -d /run/systemd/system ] ; then
+>>>>>>> e16192ef9ebe2c410f06529c2691d1b566e4ef09
         systemctl disable wazuh-agent > /dev/null 2>&1
         systemctl daemon-reload
         systemctl reset-failed
@@ -42,6 +46,14 @@ case "$1" in
     fi
     rm -rf ${DIR}/tmp/conffiles
     rm -rf ${DIR}/tmp
+    if [ "$1" = "remove" ]; then
+        rm -rf ${DIR}/ruleset
+        rm -rf ${DIR}/var
+        rm -rf ${DIR}/logs
+    fi
+
+    # Delete old .save
+    find ${DIR}/etc/ -type f  -name "*save" -exec rm -f {} \;
 
     # Rename the files
     find ${DIR}/etc/ -type f -exec mv {} {}.save \;

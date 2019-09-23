@@ -2,9 +2,51 @@ wazuh-api (3.11.0-RELEASE) stable; urgency=low
 
   * More info: https://documentation.wazuh.com/current/release-notes/
 
- -- Wazuh, Inc <info@wazuh.com>  Thu, 1 Aug 2019 13:33:00 +0000
+ -- Wazuh, Inc <info@wazuh.com>  Mon, 7 Oct 2019 13:33:00 +0000
+
+wazuh-api (3.10.2-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Mon, 23 Sep 2019 10:19:00 +0000
+
+wazuh-api (3.10.1-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Thu, 19 Sep 2019 13:33:00 +0000
 
 wazuh-api (3.10.0-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Mon, 26 Aug 2019 13:33:00 +0000
+
+wazuh-api (3.9.5-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Thu, 8 Aug 2019 16:31:00 +0000
+
+wazuh-api (3.9.4-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Tue, 12 Jul 2019 16:31:00 +0000
+
+wazuh-api (3.9.3-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Tue, 11 Jun 2019 16:31:00 +0000
+
+wazuh-api (3.9.2-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Mon, 6 Jun 2019 13:33:00 +0000
+
+wazuh-api (3.9.1-RELEASE) stable; urgency=low
 
   * More info: https://documentation.wazuh.com/current/release-notes/
 

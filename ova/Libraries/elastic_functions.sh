@@ -26,9 +26,9 @@ install_filebeat_7(){
     sed -i "s/YOUR_ELASTIC_SERVER_IP/localhost/" ${etc_filebeat}/filebeat.yml
     curl -f ${RAW_TEMPLATE_URL2} -so ${etc_filebeat}/wazuh-template.json
 
-    # if [ ${ELK_MINOR} -eq 2 ]; then
-    #     curl -f -s https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/utils/wazuh-filebeat-module.tar.gz | tar -xvz --no-same-owner -C /usr/share/filebeat/module --owner=0
-    # fi
+    if [ ${ELK_MINOR} -ge 2 ]; then
+        curl -s https://packages.wazuh.com/3.x/filebeat/wazuh-filebeat-0.1.tar.gz | tar -xvz --no-same-owner -C /usr/share/filebeat/module --owner=0
+    fi
 
     systemctl daemon-reload
     systemctl enable filebeat.service
@@ -137,17 +137,6 @@ configure_kibana_app(){
     if [ $ELK_MAJOR -eq "6" ]; then
         curl -f -k -POST "https://localhost/api/telemetry/v1/optIn" -H "Content-Type: application/json" -H "kbn-xsrf: true" -d '{"enabled":false}'
     fi
-}
-
-enable_geo_ip_7(){
-
-    # Enable GeoIP
-    geoip="/tmp/geoip.json"
-    cp -f ${config_files}/geoip.json ${geoip}
-
-    curl -f -X PUT "localhost:9200/_ingest/pipeline/geoip" -H 'Content-Type: application/json' -d@${geoip}
-
-    systemctl restart filebeat
 }
 
 install_jdk_6(){
@@ -263,6 +252,5 @@ elastic_stack_7(){
     configure_kibana
     install_kibana_app
     configure_kibana_app
-    enable_geo_ip_7
     disable_repos_and_clean
 }

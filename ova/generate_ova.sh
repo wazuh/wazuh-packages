@@ -52,7 +52,7 @@ clean() {
 
     cd ${scriptpath}
     vagrant destroy -f
-    rm -f ${OVA_VM} ${OVF_VM} ${OVA_VMDK} ${OVA_FIXED} Libraries/filebeat.yml
+    rm -f ${OVA_VM} ${OVF_VM} ${OVA_VMDK} ${OVA_FIXED} Config_files/filebeat.yml
 
     exit ${exit_code}
 }
@@ -84,6 +84,7 @@ build_ova() {
     # OVA creation with all metadata information.
     vboxmanage export ${VM_EXPORT} -o ${OVA_VM} --vsys 0 --product "Wazuh v${WAZUH_VERSION} OVA" --producturl "https://packages.wazuh.com/vm/wazuh${OVA_VERSION}.ova" --vendor "Wazuh, inc <info@wazuh.com>" --vendorurl "https://wazuh.com" --version "$OVA_VERSION" --description "Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring." || clean 1
 
+    vagrant destroy -f
     tar -xvf ${OVA_VM}
 
     python Ova2Ovf.py -s ${OVA_VM} -d ${OVA_FIXED}
@@ -91,7 +92,7 @@ build_ova() {
     mkdir -p ${OUTPUT_DIR}
     mv ${OVA_FIXED} ${OUTPUT_DIR}/${OVA_VM}
 
-    if [[ "${CHECKSUM}" == "yes" ]]; then
+    if [ "${CHECKSUM}" = "yes" ]; then
         mkdir -p ${CHECKSUM_DIR}
         cd ${OUTPUT_DIR} && sha512sum "${OVA_VM}" > "${CHECKSUM_DIR}/${OVA_VM}.sha512"
     fi
@@ -200,7 +201,7 @@ main() {
         CHECKSUM_DIR="${OUTPUT_DIR}"
     fi
 
-    if [[ "${BUILD}" == true ]] && [[ "${HAVE_VERSION}" == true ]] && [[ "${HAVE_ELK_VERSION}" == true ]] && [[ "${HAVE_STATUS}" == true ]]; then
+    if [ "${BUILD}" = true ] && [ "${HAVE_VERSION}" = true ] && [ "${HAVE_ELK_VERSION}" = true ] && [ "${HAVE_STATUS}" = true ]; then
         check_version ${WAZUH_VERSION} ${ELK_VERSION} ${STATUS}
         OVA_VERSION="${WAZUH_VERSION}_${ELK_VERSION}"
 
