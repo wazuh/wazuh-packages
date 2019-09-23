@@ -339,7 +339,7 @@ case "$1" in
 
     # Service
     if [ -x /etc/init.d/wazuh-manager ]; then
-        if [ -d /run/systemd/system ] ; then
+        if [ -d /run/systemd/system ]; then
             systemctl daemon-reload
             systemctl enable wazuh-manager > /dev/null 2>&1
         fi
