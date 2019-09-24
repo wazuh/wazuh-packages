@@ -59,6 +59,17 @@ build_perl() {
 # Function to build the compilation environment
 build_environment() {
 
+  # Resizing partitions for Site Ox boxes (used by Wazuh team)
+  if grep 'www.siteox.com' /etc/motd > /dev/null 2>&1; then
+    for partition in "/home" "/opt"; do
+      partition_size=$(df -m | grep $partition | awk -F' ' '{print $2}' | cut -d'.' -f1)
+      if [[ ${partition_size} -lt "3000" ]]; then
+        echo "Resizing $partition partition to 3GB"
+        chfs -a size=3G $partition > /dev/null 2>&1
+      fi
+    done
+  fi
+
   rpm="rpm -Uvh --nodeps"
 
   $rpm http://www.oss4aix.org/download/RPMS/autoconf/autoconf-2.69-2.aix5.1.ppc.rpm || true
