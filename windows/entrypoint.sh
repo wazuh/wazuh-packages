@@ -5,6 +5,7 @@ set -ex
 BRANCH=$1
 JOBS=$2
 DEBUG=$3
+REVISION=$4
 
 URL_REPO=https://github.com/wazuh/wazuh/archive/${BRANCH}.zip
 
@@ -15,7 +16,8 @@ wget -O wazuh.zip ${URL_REPO} && unzip wazuh.zip
 FLAGS="-j ${JOBS} "
 
 if [[ "${DEBUG}" = "yes" ]]; then
-    FLAGS+="-g "
+    FLAGS+="-d "
+fi
 
 make -C /wazuh-*/src deps ${FLAGS} 
 make -C /wazuh-*/src TARGET=winagent ${FLAGS} 

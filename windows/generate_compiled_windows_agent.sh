@@ -6,6 +6,7 @@ JOBS="2"
 REVISION="1"
 DEBUG="no"
 OUTDIR="$(pwd)"
+REVISION="1"
 
 DOCKERFILE_PATH="./"
 DOCKER_IMAGE_NAME="compilate_windows_agent"
@@ -20,7 +21,7 @@ generate_compiled_win_agent() {
     fi
 
     docker build -t ${DOCKER_IMAGE_NAME} ./ || exit 1
-    docker run --rm -v ${OUTDIR}:/shared ${DOCKER_IMAGE_NAME} ${BRANCH} ${JOBS} ${DEBUG} || exit 1
+    docker run --rm -v ${OUTDIR}:/shared ${DOCKER_IMAGE_NAME} ${BRANCH} ${JOBS} ${DEBUG} ${REVISION} || exit 1
     echo "Package $(ls ${OUTDIR} -Art | tail -n 1) added to ${OUTDIR}."   
 }
 
@@ -31,6 +32,7 @@ help() {
     echo
     echo "    -b, --branch <branch>     [Required] Select Git branch [${BRANCH}]. By default: master."
     echo "    -j, --jobs <number>       [Optional] Change number of parallel jobs when compiling the Windows agent. By default: 4."
+    echo "    -r, --revision <rev>      [Optional] Package revision. By default: 1."
     echo "    -s, --store <path>        [Optional] Set the directory where the package will be stored. By default the current path"
     echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
     echo "    -h, --help                Show this help."
@@ -59,6 +61,14 @@ main() {
         "-j"|"--jobs")
             if [ -n "$2" ]; then
                 JOBS="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
+        "-r"|"--revision")
+            if [ -n "$2" ]; then
+                REVISION="$2"
                 shift 2
             else
                 help 1
