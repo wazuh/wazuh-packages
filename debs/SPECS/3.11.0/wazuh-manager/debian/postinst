@@ -282,6 +282,10 @@ case "$1" in
         chown ${USER}:${GROUP} ${DIR}/logs/cluster.log
     fi
 
+    touch ${DIR}/logs/active-responses.log
+    chown ossec:ossec ${DIR}/logs/active-responses.log
+    chmod 0660 ${DIR}/logs/active-responses.log
+
     # Check if SELinux is installed and enabled
     if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
         if [ $(getenforce) !=  "Disabled" ]; then
