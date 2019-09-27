@@ -42,8 +42,9 @@ function clean_and_exit() {
 
 function notarize_pkg() {
     # Notarize the macOS package
+    build_timestamp="$(date +"date.%m.%d.%Y.%H.time.%H.%M.%S")"
     if [ "${NOTARIZE}" = "yes" ]; then
-        if sudo xcrun altool --notarize-app --primary-bundle-id "com.wazuh.agent.v${VERSION}.${REVISION}.testwppkg" \
+        if sudo xcrun altool --notarize-app --primary-bundle-id "com.wazuh.agent.v${VERSION}.${REVISION}.${build_timestamp}" \
             --username "${DEVELOPER_ID}" --password "${ALTOOL_PASS}" --file ${DESTINATION}/${pkg_name} > request_info.txt ; then
             echo "The package ${DESTINATION}/${pkg_name} was successfully upload for notarization."
             echo "Waiting to 120s to get the results"
