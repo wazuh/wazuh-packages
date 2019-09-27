@@ -14,6 +14,7 @@ WAZUH_PATH="${SOURCES_DIRECTORY}/wazuh"
 WAZUH_SOURCE_REPOSITORY="https://github.com/wazuh/wazuh"
 AGENT_PKG_FILE="${CURRENT_PATH}/package_files/wazuh-agent.pkgproj"
 export CONFIG="${WAZUH_PATH}/etc/preloaded-vars.conf"
+ENTITLEMENTS_PATH="${CURRENT_PATH}/entitlements.plist"
 INSTALLATION_PATH="/Library/Ossec"    # Installation path
 VERSION=""                            # Default VERSION (branch/tag)
 REVISION="1"                          # Package revision.
@@ -88,7 +89,7 @@ function sign_binaries() {
         security -v unlock-keychain -p "${KC_PASS}" "${KEYCHAIN}" > /dev/null
         # Sign every single binary in Wazuh's installation. This also includes library files.
         for bin in $(find ${INSTALLATION_PATH} -exec file {} \; | grep bit | cut -d: -f1); do
-            codesign -f --sign "${CERT_APPLICATION_ID}" --deep --timestamp  --options=runtime --verbose=4 "${bin}"
+            codesign -f --sign "${CERT_APPLICATION_ID}" --entitlements ${ENTITLEMENTS_PATH} --deep --timestamp  --options=runtime --verbose=4 "${bin}"
         done
         security -v lock-keychain "${KEYCHAIN}" > /dev/null
     fi
