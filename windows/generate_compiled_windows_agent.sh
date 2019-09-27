@@ -2,7 +2,7 @@
 
 CURRENT_PATH=$(pwd)
 BRANCH="master"
-JOBS="2"
+JOBS="4"
 REVISION="1"
 DEBUG="no"
 OUTDIR="$(pwd)"
@@ -22,7 +22,7 @@ generate_compiled_win_agent() {
 
     docker build -t ${DOCKER_IMAGE_NAME} ./ || exit 1
     docker run --rm -v ${OUTDIR}:/shared ${DOCKER_IMAGE_NAME} ${BRANCH} ${JOBS} ${DEBUG} ${REVISION} || exit 1
-    echo "Package $(ls ${OUTDIR} -Art | tail -n 1) added to ${OUTDIR}."   
+    echo "Package $(ls ${OUTDIR} -Art | tail -n 1) added to ${OUTDIR}."
 }
 
 
@@ -42,7 +42,7 @@ help() {
 
 
 main() {
-    BUILD="no"    
+    BUILD="no"
     while [ -n "$1" ]
     do
         case "$1" in
