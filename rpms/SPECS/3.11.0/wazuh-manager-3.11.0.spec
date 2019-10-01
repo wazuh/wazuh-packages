@@ -634,6 +634,7 @@ if [ $1 == 0 ];then
   rm -rf %{_localstatedir}/ossec/var/
   rm -rf %{_localstatedir}/ossec/bin/
   rm -rf %{_localstatedir}/ossec/logs/
+  rm -rf %{_localstatedir}/ossec/ruleset/
   rm -rf %{_localstatedir}/ossec/tmp
 
 fi
