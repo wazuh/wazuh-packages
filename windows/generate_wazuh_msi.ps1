@@ -69,23 +69,23 @@ function BuildWazuhMsi(){
     $MSI_NAME = ComputeMsiName
     Write-Host "MSI_NAME = $MSI_NAME"
 
-	if($SIGN -eq "yes"){
-		# Sign .exe files and the InstallerScripts.vbs
-		Write-Host "Signing .exe files..."
-		& 'signtool.exe' sign /a /tr http://rfc3161timestamp.globalsign.com/advanced /td SHA256 ".\*.exe"
-		Write-Host "Signing .vbs files..."
-		& 'signtool.exe' sign /a /tr http://rfc3161timestamp.globalsign.com/advanced /td SHA256 ".\InstallerScripts.vbs"
+    if($SIGN -eq "yes"){
+        # Sign .exe files and the InstallerScripts.vbs
+        Write-Host "Signing .exe files..."
+        & 'signtool.exe' sign /a /tr http://rfc3161timestamp.globalsign.com/advanced /td SHA256 ".\*.exe"
+        Write-Host "Signing .vbs files..."
+        & 'signtool.exe' sign /a /tr http://rfc3161timestamp.globalsign.com/advanced /td SHA256 ".\InstallerScripts.vbs"
     }
 
-	Write-Host "Building MSI installer..."
+    Write-Host "Building MSI installer..."
 
-	& 'candle.exe' -nologo .\wazuh-installer.wxs -out "wazuh-installer.wixobj" -ext WixUtilExtension -ext WixUiExtension
-	& 'light.exe' ".\wazuh-installer.wixobj" -out $MSI_NAME  -ext WixUtilExtension -ext WixUiExtension
+    & 'candle.exe' -nologo .\wazuh-installer.wxs -out "wazuh-installer.wixobj" -ext WixUtilExtension -ext WixUiExtension
+    & 'light.exe' ".\wazuh-installer.wixobj" -out $MSI_NAME  -ext WixUtilExtension -ext WixUiExtension
 
-	if($SIGN -eq "yes"){
-		# Write-Host "Signing $MSI_NAME..."
-		& 'signtool.exe' sign /a /tr http://rfc3161timestamp.globalsign.com/advanced /d $MSI_NAME /td SHA256 $MSI_NAME
-	}
+    if($SIGN -eq "yes"){
+        # Write-Host "Signing $MSI_NAME..."
+        & 'signtool.exe' sign /a /tr http://rfc3161timestamp.globalsign.com/advanced /d $MSI_NAME /td SHA256 $MSI_NAME
+    }
 }
 
 
