@@ -45,6 +45,21 @@ case "$1" in
         rm -rf ${SCRIPTS_DIR}
     fi
 
+        # Generate and enable a new SSL certificate for clean installs
+    if [ ! -f ${WAZUH_TMP_DIR}/api/configuration/config.js ] && command -v openssl > /dev/null 2>&1; then
+        HTTPS="Y"
+        PASSWORD="wazuh"
+        COUNTRY="XX"
+        STATE="XX"
+        LOCALITY="XX"
+        ORG_NAME="XX"
+        ORG_UNIT="XX"
+        COMMON_NAME="XX"
+        API_PATH=${WAZUH_API_DIR}
+        . ${WAZUH_API_DIR}/scripts/configure_api.sh
+        change_https > /dev/null 2>&1
+    fi
+
     # Delete tmp directory
     if [ -d ${WAZUH_TMP_DIR} ]; then
         rm -r ${WAZUH_TMP_DIR}

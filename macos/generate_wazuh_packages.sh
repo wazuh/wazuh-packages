@@ -8,6 +8,7 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
+
 CURRENT_PATH="$( cd $(dirname ${0}) ; pwd -P )"
 SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
 WAZUH_PATH="${SOURCES_DIRECTORY}/wazuh"

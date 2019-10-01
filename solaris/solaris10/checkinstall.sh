@@ -1,6 +1,7 @@
 # cat checkinstall
 #!/bin/sh
 
+
 expected_platform="ARCH"
 platform=`uname -p`
 if [ ${platform} != ${expected_platform} ]; then
