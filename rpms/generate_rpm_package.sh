@@ -7,7 +7,7 @@
 # and/or modify it under the terms of the GNU General Public
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
-
+set -x
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ARCHITECTURE="x86_64"
 LEGACY="no"
@@ -18,6 +18,7 @@ TARGET=""
 JOBS="2"
 DEBUG="no"
 USER_PATH="no"
+SRC="no"
 RPM_X86_BUILDER="rpm_builder_x86"
 RPM_I386_BUILDER="rpm_builder_i386"
 RPM_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/6"
@@ -87,7 +88,7 @@ build_rpm() {
         -v ${CHECKSUMDIR}:/var/local/checksum \
         -v ${SOURCES_DIRECTORY}:/build_wazuh/wazuh-${TARGET}-${VERSION} \
         ${CONTAINER_NAME} ${TARGET} ${VERSION} ${ARCHITECTURE} \
-        $JOBS ${REVISION} ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM} || exit 1
+        $JOBS ${REVISION} ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM} ${SRC}|| exit 1
 
     echo "Package $(ls ${OUTDIR} -Art | tail -n 1) added to ${OUTDIR}."
 
@@ -240,6 +241,10 @@ main() {
             else
                 help 1
             fi
+            ;;
+        "-src"|"--source")
+            SRC="yes"
+            shift 1
             ;;
         *)
             help 1

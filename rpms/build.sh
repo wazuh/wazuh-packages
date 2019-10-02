@@ -18,6 +18,7 @@ package_release=$5
 directory_base=$6
 debug=$7
 checksum=$8
+src=$9
 
 disable_debug_flag='%debug_package %{nil}'
 
@@ -51,11 +52,15 @@ $linux rpmbuild --define "_topdir ${rpm_build_dir}" --define "_threads ${threads
         --define "_debugenabled ${debug}" --target ${architecture_target} \
         -ba ${rpm_build_dir}/SPECS/${package_name}.spec
 
-rpm_file="wazuh-${build_target}-${wazuh_version}-${package_release}"
-pkg_path="${rpm_build_dir}"
+rpm_file="wazuh-${build_target}-${wazuh_version}-${package_release}*"
+pkg_path="${rpm_build_dir}/RPMS"
 
 if [[ "${checksum}" == "yes" ]]; then
-    cd ${pkg_path} && sha512sum ${rpm_file} > /var/local/checksum/${rpm_file}.sha512
+    find ${pkg_path} -maxdepth 2 -type f -name "${rpm_file}" -exec sh -c 'sha512sum {} > {}.sha512 && mv {}.sha512 /var/local/checksum'  \;
 fi
 
-find ${pkg_path} -maxdepth 3 -type f -name "${rpm_file}*" -exec mv {} /var/local/wazuh \;
+if [ "${src}" == "yes" ]; then
+    pkg_path="${rpm_build_dir}"
+fi
+
+find ${pkg_path} -maxdepth 3 -type f -name "${rpm_file}" -exec mv {} /var/local/wazuh \;
