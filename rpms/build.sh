@@ -51,11 +51,11 @@ $linux rpmbuild --define "_topdir ${rpm_build_dir}" --define "_threads ${threads
         --define "_debugenabled ${debug}" --target ${architecture_target} \
         -ba ${rpm_build_dir}/SPECS/${package_name}.spec
 
-rpm_file="wazuh-${build_target}-${wazuh_version}-${package_release}.${architecture_target}.rpm"
-pkg_path="${rpm_build_dir}/RPMS/${architecture_target}"
+rpm_file="wazuh-${build_target}-${wazuh_version}-${package_release}"
+pkg_path="${rpm_build_dir}"
 
 if [[ "${checksum}" == "yes" ]]; then
     cd ${pkg_path} && sha512sum ${rpm_file} > /var/local/checksum/${rpm_file}.sha512
 fi
 
-mv ${pkg_path}/${rpm_file} /var/local/wazuh
+find ${pkg_path} -maxdepth 3 -type f -name "${rpm_file}*" -exec mv {} /var/local/wazuh \;
