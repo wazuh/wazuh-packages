@@ -7,7 +7,6 @@
 # and/or modify it under the terms of the GNU General Public
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
-set -x
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ARCHITECTURE="x86_64"
 LEGACY="no"
@@ -142,17 +141,18 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -b, --branch <branch>     [Required] Select Git branch or tag e.g. $BRANCH"
-    echo "    -t, --target <target>     [Required] Target package to build [manager/api/agent]."
-    echo "    -a, --architecture <arch> [Optional] Target architecture of the package [x86_64/i386]."
-    echo "    -r, --revision <rev>      [Optional] Package revision that append to version e.g. x.x.x-rev"
-    echo "    -l, --legacy              [Optional] Build package for CentOS 5."
-    echo "    -s, --store <path>        [Optional] Set the destination path of package. By default, an output folder will be created."
-    echo "    -j, --jobs <number>       [Optional] Number of parallel jobs when compiling."
-    echo "    -p, --path <path>         [Optional] Installation path for the package. By default: /var."
-    echo "    -d, --debug               [Optional] Build the binaries with debug symbols and create debuginfo packages. By default: no."
-    echo "    -c, --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
-    echo "    -h, --help                Show this help."
+    echo "    -b,   --branch <branch>     [Required] Select Git branch or tag e.g. $BRANCH"
+    echo "    -t,   --target <target>     [Required] Target package to build [manager/api/agent]."
+    echo "    -a,   --architecture <arch> [Optional] Target architecture of the package [x86_64/i386]."
+    echo "    -r,   --revision <rev>      [Optional] Package revision that append to version e.g. x.x.x-rev"
+    echo "    -l,   --legacy              [Optional] Build package for CentOS 5."
+    echo "    -s,   --store <path>        [Optional] Set the destination path of package. By default, an output folder will be created."
+    echo "    -j,   --jobs <number>       [Optional] Number of parallel jobs when compiling."
+    echo "    -p,   --path <path>         [Optional] Installation path for the package. By default: /var."
+    echo "    -d,   --debug               [Optional] Build the binaries with debug symbols and create debuginfo packages. By default: no."
+    echo "    -c,   --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
+    echo "    -src, --source              [Optional] Generate the source package in the destination directory"
+    echo "    -h,   --help                Show this help."
     echo
     exit $1
 }
