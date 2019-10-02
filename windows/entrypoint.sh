@@ -19,8 +19,10 @@ if [[ "${DEBUG}" = "yes" ]]; then
     FLAGS+="-d "
 fi
 
-make -C /wazuh-*/src deps ${FLAGS} 
-make -C /wazuh-*/src TARGET=winagent ${FLAGS} 
+make -C /wazuh-*/src deps ${FLAGS}
+make -C /wazuh-*/src TARGET=winagent ${FLAGS}
+
+rm -rf /wazuh-*/src/external
 
 # Zip the compiled agent and move it to the shared folder
 zip -r wazuh-${BRANCH}.zip wazuh-*
