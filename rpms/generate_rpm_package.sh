@@ -27,6 +27,7 @@ LEGACY_RPM_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/5"
 LEGACY_TAR_FILE="${LEGACY_RPM_BUILDER_DOCKERFILE}/i386/centos-5-i386.tar.gz"
 TAR_URL="https://packages-dev.wazuh.com/utils/centos-5-i386-build/centos-5-i386.tar.gz"
 INSTALLATION_PATH="/var"
+PACKAGES_BRANCH="master"
 CHECKSUMDIR=""
 CHECKSUM="no"
 
@@ -55,31 +56,8 @@ build_rpm() {
     CONTAINER_NAME="$1"
     DOCKERFILE_PATH="$2"
 
-    SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
-
-    # Download the sources
-    git clone ${SOURCE_REPOSITORY} -b $BRANCH ${SOURCES_DIRECTORY} --depth=1 || return 1
-
     # Copy the necessary files
     cp build.sh ${DOCKERFILE_PATH}
-
-    if [[ "${TARGET}" != "api" ]]; then
-        VERSION="$(cat ${SOURCES_DIRECTORY}/src/VERSION | cut -d 'v' -f 2)"
-        echo "Version is $VERSION"
-        if [[ "${TARGET}" == "manager" ]] && [[ "${LEGACY}" == "yes" ]]; then
-            MAJOR_MINOR="$(echo ${VERSION} | cut -d "v" -f 2)"
-            echo "major minor is $MAJOR_MINOR"
-            if [[ "${MAJOR_MINOR}" > "3.9" ]] || [[ "${MAJOR_MINOR}" == "3.9" ]]; then
-                echo "Wazuh Manager is not supported for CentOS 5 from v3.9.0."
-                echo "Version to build: ${VERSION}."
-                return 1
-            fi
-        fi
-    else
-        VERSION="$(grep version ${SOURCES_DIRECTORY}/package.json | cut -d '"' -f 4)"
-    fi
-
-    cp SPECS/${VERSION}/wazuh-${TARGET}-${VERSION}.spec ${DOCKERFILE_PATH}/wazuh.spec
 
     # Download the legacy tar file if it is needed
     if [ "${CONTAINER_NAME}" = "${LEGACY_RPM_I386_BUILDER}" ] && [ ! -f "${LEGACY_TAR_FILE}" ]; then
@@ -91,9 +69,9 @@ build_rpm() {
     # Build the RPM package with a Docker container
     docker run -t --rm -v ${OUTDIR}:/var/local/wazuh:Z \
         -v ${CHECKSUMDIR}:/var/local/checksum:Z \
-        -v ${SOURCES_DIRECTORY}:/build_wazuh/wazuh-${TARGET}-${VERSION}:Z \
-        ${CONTAINER_NAME} ${TARGET} ${VERSION} ${ARCHITECTURE} \
-        $JOBS ${REVISION} ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM} || return 1
+        ${CONTAINER_NAME} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
+        $JOBS ${REVISION} ${INSTALLATION_PATH} ${DEBUG} \
+        ${CHECKSUM} ${PACKAGES_BRANCH} || exit 1
 
     echo "Package $(ls ${OUTDIR} -Art | tail -n 1) added to ${OUTDIR}."
 
@@ -147,17 +125,18 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -b, --branch <branch>     [Required] Select Git branch or tag e.g. $BRANCH"
-    echo "    -t, --target <target>     [Required] Target package to build [manager/api/agent]."
-    echo "    -a, --architecture <arch> [Optional] Target architecture of the package [x86_64/i386]."
-    echo "    -r, --revision <rev>      [Optional] Package revision that append to version e.g. x.x.x-rev"
-    echo "    -l, --legacy              [Optional] Build package for CentOS 5."
-    echo "    -s, --store <path>        [Optional] Set the destination path of package. By default, an output folder will be created."
-    echo "    -j, --jobs <number>       [Optional] Number of parallel jobs when compiling."
-    echo "    -p, --path <path>         [Optional] Installation path for the package. By default: /var."
-    echo "    -d, --debug               [Optional] Build the binaries with debug symbols and create debuginfo packages. By default: no."
-    echo "    -c, --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
-    echo "    -h, --help                Show this help."
+    echo "    -b, --branch <branch>        [Required] Select Git branch or tag e.g. $BRANCH"
+    echo "    -t, --target <target>        [Required] Target package to build [manager/api/agent]."
+    echo "    -a, --architecture <arch>    [Optional] Target architecture of the package [x86_64/i386]."
+    echo "    -r, --revision <rev>         [Optional] Package revision that append to version e.g. x.x.x-rev"
+    echo "    -l, --legacy                 [Optional] Build package for CentOS 5."
+    echo "    -s, --store <path>           [Optional] Set the destination path of package. By default, an output folder will be created."
+    echo "    -j, --jobs <number>          [Optional] Number of parallel jobs when compiling."
+    echo "    -p, --path <path>            [Optional] Installation path for the package. By default: /var."
+    echo "    -d, --debug                  [Optional] Build the binaries with debug symbols and create debuginfo packages. By default: no."
+    echo "    -c, --checksum <path>        [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
+    echo "    --packages-branch <branch>   [Optional] Select Git branch or tag from wazuh-packages repository. e.g ${PACKAGES_BRANCH}"
+    echo "    -h, --help                   Show this help."
     echo
     exit $1
 }
@@ -245,6 +224,12 @@ main() {
                 shift 2
             else
                 help 1
+            fi
+            ;;
+        "--packages-branch")
+            if [ -n "$2" ]; then
+                PACKAGES_BRANCH="$2"
+                shift 2
             fi
             ;;
         *)
