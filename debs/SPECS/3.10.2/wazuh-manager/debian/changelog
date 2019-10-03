@@ -1,0 +1,202 @@
+wazuh-manager (3.10.2-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Mon, 23 Sep 2019 10:19:00 +0000
+
+wazuh-manager (3.10.1-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Thu, 19 Sep 2019 13:33:00 +0000
+
+wazuh-manager (3.10.0-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Mon, 26 Aug 2019 13:33:00 +0000
+
+wazuh-manager (3.9.5-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Thu, 8 Aug 2019 16:31:00 +0000
+
+wazuh-manager (3.9.4-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Tue, 12 Jul 2019 16:31:00 +0000
+
+wazuh-manager (3.9.3-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Tue, 11 Jun 2019 16:31:00 +0000
+
+wazuh-manager (3.9.2-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Mon, 6 Jun 2019 13:33:00 +0000
+
+wazuh-manager (3.9.1-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Mon, 6 May 2019 13:33:00 +0000
+
+wazuh-manager (3.9.0-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Mon, 25 Feb 2019 11:00:00 +0000
+
+wazuh-manager (3.8.2-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Wed, 30 Jan 2019 11:00:00 +0000
+
+wazuh-manager (3.8.1-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Thu, 24 Jan 2019 09:28:34 +0000
+
+wazuh-manager (3.8.0-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Mon, 16 Jan 2019 11:00:00 +0000
+
+wazuh-manager (3.7.2-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Mon, 10 Dec 2018 11:00:00 +0000
+
+wazuh-manager (3.7.1-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Mon, 12 Nov 2018 11:00:00 +0000
+
+wazuh-manager (3.7.0-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Sat, 10 Nov 2018 11:00:00 +0000
+
+wazuh-manager (3.6.1-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Mon, 3 Sep 2018 11:00:00 +0000
+
+wazuh-manager (3.6.0-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Fri, 24 Aug 2018 11:00:00 +0000
+
+wazuh-manager (3.5.0-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Wed, 25 Jul 2018 20:12:41 +0000
+
+wazuh-manager (3.4.0-1) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Thu, 28 Jun 2018 20:12:41 +0000
+
+wazuh-manager (3.3.1-1) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Thu, 14 Jun 2018 9:29:41 +0000
+
+wazuh-manager (3.3.0-1) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Thu, 07 Jun 2018 10:00:00 +0000
+
+wazuh-manager (3.2.4-1) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Wed, 30 May 2018 12:44:31 +0000
+
+wazuh-manager (3.2.3-1) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Mon, 14 May 2018 12:35:30 +0000
+
+wazuh-manager (3.2.2-1) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Tue, 13 Mar 2018 12:35:30 +0000
+
+wazuh-manager (3.2.1-1) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Wed, 21 Feb 2018 15:26:30 +0000
+
+wazuh-manager (3.2.0-1) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Thu, 11 Dec 2017 15:19:24 +0000
+
+
+wazuh-manager (3.1.0-1) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Mon, 01 Nov 2017 08:00:10 +0000
+
+
+wazuh-manager (3.0.0-2) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Mon, 01 Nov 2017 08:00:10 +0000
+
+wazuh-manager (2.1.1-1) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Mon, 01 Aug 2016 08:43:10 +0000
+
+wazuh-manager (2.1.0-1) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Mon, 01 Jul 2016 08:43:10 +0000
+
+wazuh-manager (2.0.1-1) stable; urgency=low
+
+  * Changed random data generator for a secure OS-provided generator.
+  exi* Changed Windows installer file name (depending on version).
+  * Linux distro detection using standard os-release file.
+  * Changed some URLs to documentation.
+  * Disable synchronization with SQLite databases for Syscheck by default.
+  * Minor changes at Rootcheck formatter for JSON alerts.
+  * Added debugging messages to Integrator logs.
+  * Show agent ID when possible on logs about incorrectly formatted messages.
+  * Use default maximum inotify event queue size.
+  * Show remote IP on encoding format errors when unencrypting messages.
+
+ -- Wazuh, Inc <info@wazuh.com>  Thu, 06 Jun 2017 08:43:10 +0000
+
+wazuh-manager (2.0-1) stable; urgency=low
+
+  * Wazuh-agent - base 2.0
+
+ -- Wazuh, Inc <info@wazuh.com>  Mon, 01 Jul 2016 08:43:10 +0000

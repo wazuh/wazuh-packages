@@ -637,6 +637,7 @@ if [ $1 == 0 ];then
   rm -rf %{_localstatedir}/ossec/var/
   rm -rf %{_localstatedir}/ossec/bin/
   rm -rf %{_localstatedir}/ossec/logs/
+  rm -rf %{_localstatedir}/ossec/ruleset/
   rm -rf %{_localstatedir}/ossec/tmp
 
 fi
@@ -915,9 +916,15 @@ rm -fr %{buildroot}
 %{_initrddir}/*
 
 %changelog
-* Thu Aug 29 2019 support <info@wazuh.com> - 3.11.0
+* Mon Oct 7 2019 support <info@wazuh.com> - 3.11.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Mon Aug 26 2019 support <support@wazuh.com> - 3.10.0
+* Tue Sep 24 2019 support <info@wazuh.com> - 3.10.3
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Sep 23 2019 support <info@wazuh.com> - 3.10.2
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Thu Sep 19 2019 support <info@wazuh.com> - 3.10.1
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Aug 26 2019 support <info@wazuh.com> - 3.10.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Thu Aug 8 2019 support <info@wazuh.com> - 3.9.5
 - More info: https://documentation.wazuh.com/current/release-notes/
