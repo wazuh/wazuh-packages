@@ -60,10 +60,10 @@ build_rpm() {
     if [[ "${TARGET}" != "api" ]]; then
         VERSION="$(cat ${SOURCES_DIRECTORY}/src/VERSION | cut -d 'v' -f 2)"
         echo "Version is $VERSION"
-        if [[ "${TARGET}" == "manager" ]] && [[ "${LEGACY}" == "yes" ]]; then
+        if [[ "${TARGET}" = "manager" ]] && [[ "${LEGACY}" = "yes" ]]; then
             MAJOR_MINOR="$(echo ${VERSION} | cut -d "v" -f 2)"
             echo "major minor is $MAJOR_MINOR"
-            if [[ "${MAJOR_MINOR}" > "3.9" ]] || [[ "${MAJOR_MINOR}" == "3.9" ]]; then
+            if [[ "${MAJOR_MINOR}" > "3.9" ]] || [[ "${MAJOR_MINOR}" = "3.9" ]]; then
                 echo "Wazuh Manager is not supported for CentOS 5 from v3.9.0."
                 echo "Version to build: ${VERSION}."
                 exit 1
@@ -96,32 +96,32 @@ build_rpm() {
 
 build() {
 
-    if [[ ${ARCHITECTURE} == "amd64" ]] || [[ ${ARCHITECTURE} == "x86_64" ]]; then
+    if [[ ${ARCHITECTURE} = "amd64" ]] || [[ ${ARCHITECTURE} = "x86_64" ]]; then
         ARCHITECTURE="x86_64"
     fi
 
-    if [[ "${TARGET}" == "api" ]]; then
+    if [[ "${TARGET}" = "api" ]]; then
 
         SOURCE_REPOSITORY="https://github.com/wazuh/wazuh-api"
         build_rpm ${RPM_X86_BUILDER} ${RPM_BUILDER_DOCKERFILE}/x86_64 || exit 1
 
-    elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]]; then
+    elif [[ "${TARGET}" = "manager" ]] || [[ "${TARGET}" = "agent" ]]; then
 
         SOURCE_REPOSITORY="https://github.com/wazuh/wazuh"
         BUILD_NAME=""
         FILE_PATH=""
-        if [[ "${LEGACY}" == "yes" ]] && [[ "${ARCHITECTURE}" == "x86_64" ]]; then
+        if [[ "${LEGACY}" = "yes" ]] && [[ "${ARCHITECTURE}" = "x86_64" ]]; then
             REVISION="${REVISION}.el5"
             BUILD_NAME="${LEGACY_RPM_X86_BUILDER}"
             FILE_PATH="${LEGACY_RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
-        elif [[ "${LEGACY}" == "yes" ]] && [[ "${ARCHITECTURE}" == "i386" ]]; then
+        elif [[ "${LEGACY}" = "yes" ]] && [[ "${ARCHITECTURE}" = "i386" ]]; then
             REVISION="${REVISION}.el5"
             BUILD_NAME="${LEGACY_RPM_I386_BUILDER}"
             FILE_PATH="${LEGACY_RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
-        elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "x86_64" ]]; then
+        elif [[ "${LEGACY}" = "no" ]] && [[ "${ARCHITECTURE}" = "x86_64" ]]; then
             BUILD_NAME="${RPM_X86_BUILDER}"
             FILE_PATH="${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
-        elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "i386" ]]; then
+        elif [[ "${LEGACY}" = "no" ]] && [[ "${ARCHITECTURE}" = "i386" ]]; then
             BUILD_NAME="${RPM_I386_BUILDER}"
             FILE_PATH="${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
         else
@@ -151,7 +151,7 @@ help() {
     echo "    -p,   --path <path>         [Optional] Installation path for the package. By default: /var."
     echo "    -d,   --debug               [Optional] Build the binaries with debug symbols and create debuginfo packages. By default: no."
     echo "    -c,   --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
-    echo "    -src, --source              [Optional] Generate the source package in the destination directory"
+    echo "    -src                        [Optional] Generate the source package in the destination directory"
     echo "    -h,   --help                Show this help."
     echo
     exit $1
@@ -242,7 +242,7 @@ main() {
                 help 1
             fi
             ;;
-        "-src"|"--source")
+        "--src")
             SRC="yes"
             shift 1
             ;;
@@ -251,7 +251,7 @@ main() {
         esac
     done
 
-    if [[ "${USER_PATH}" == "no" ]] && [[ "${LEGACY}" == "yes" ]]; then
+    if [[ "${USER_PATH}" = "no" ]] && [[ "${LEGACY}" = "yes" ]]; then
         OUTDIR="${OUTDIR}/5/${ARCHITECTURE}"
     fi
 

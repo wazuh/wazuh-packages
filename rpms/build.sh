@@ -8,7 +8,7 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-set -exf
+set -xf
 # Optional package release
 build_target=$1
 wazuh_version=$2
@@ -26,13 +26,19 @@ if [ -z "${package_release}" ]; then
     package_release="1"
 fi
 
-if [ "${debug}" == "no" ]; then
+if [ "${debug}" = "no" ]; then
     echo ${disable_debug_flag} > /etc/rpm/macros
 fi
 
 # Build directories
 build_dir=/build_wazuh
 rpm_build_dir=${build_dir}/rpmbuild
+file_name="wazuh-${build_target}-${wazuh_version}-${package_release}"
+rpm_file="${file_name}.${architecture_target}.rpm"
+src_file="${file_name}.src.rpm"
+pkg_path="${rpm_build_dir}/RPMS/${architecture_target}"
+src_path="${rpm_build_dir}/SRPMS"
+extract_path="${src_path}"
 mkdir -p ${rpm_build_dir}/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
 # Generating source tar.gz
@@ -42,7 +48,7 @@ cd ${build_dir} && tar czf "${rpm_build_dir}/SOURCES/${package_name}.tar.gz" "${
 # Including spec file
 mv ${build_dir}/wazuh.spec ${rpm_build_dir}/SPECS/${package_name}.spec
 
-if [ "${architecture_target}" == "i386" ]; then
+if [ "${architecture_target}" = "i386" ]; then
     linux="linux32"
 fi
 
@@ -52,15 +58,13 @@ $linux rpmbuild --define "_topdir ${rpm_build_dir}" --define "_threads ${threads
         --define "_debugenabled ${debug}" --target ${architecture_target} \
         -ba ${rpm_build_dir}/SPECS/${package_name}.spec
 
-rpm_file="wazuh-${build_target}-${wazuh_version}-${package_release}*"
-pkg_path="${rpm_build_dir}/RPMS"
-
-if [[ "${checksum}" == "yes" ]]; then
-    find ${pkg_path} -maxdepth 2 -type f -name "${rpm_file}" -exec sh -c 'sha512sum {} > {}.sha512 && mv {}.sha512 /var/local/checksum'  \;
+if [[ "${checksum}" = "yes" ]]; then
+    cd ${pkg_path} && sha512sum ${rpm_file} > /var/local/checksum/${rpm_file}.sha512
+    cd ${src_path} && sha512sum ${src_file} > /var/local/checksum/${src_file}.sha512
 fi
 
-if [ "${src}" == "yes" ]; then
-    pkg_path="${rpm_build_dir}"
+if [[ "${src}" = "yes" ]]; then
+    extract_path="${rpm_build_dir}"
 fi
 
-find ${pkg_path} -maxdepth 3 -type f -name "${rpm_file}" -exec mv {} /var/local/wazuh \;
+find ${extract_path} -maxdepth 3 -type f -name "${file_name}*" -exec mv {} /var/local/wazuh \;

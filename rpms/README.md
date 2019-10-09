@@ -34,20 +34,20 @@ To build an RPM package, you need to download this repository and use the `gener
         -p,   --path <path>         [Optional] Installation path for the package. By default: /var.
         -d,   --debug               [Optional] Build the binaries with debug symbols and create debuginfo packages. By default: no.
         -c,   --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package).
-        -src, --source              [Optional] Generate the source package in the destination directory
+        -src                        [Optional] Generate the source package in the destination directory
         -h,   --help                Show this help.
 
     ```
-    * To build a wazuh-manager package for `x86_64`, revision `myrev` and store it in `/tmp`:
-        `# ./generate_rpm_package.sh -b v3.10.2 -s /tmp -t manager -a x86_64 -r myrev`.
-    * To build a wazuh-manager package for `x86_64`, revision `myrev`, store it in `/tmp` and also generate the source package:
-        `# ./generate_rpm_package.sh -b v3.10.2 -s /tmp -t manager -a x86_64 -r myrev -src`.
+    * To build a wazuh-manager package for `x86_64`, revision `2.el6` and store it in `/tmp`:
+        `# ./generate_rpm_package.sh -b v3.10.2 -s /tmp -t manager -a x86_64 -r 2.el6`.
+    * To build a wazuh-manager package for `x86_64`, revision `2.el6`, store it in `/tmp` and also generate the source package:
+        `# ./generate_rpm_package.sh -b v3.10.2 -s /tmp -t manager -a x86_64 -r 2.el6 -src`.
     * To build a wazuh-agent package for `i386` with `-j15`, revision 3 and store it in `/tmp`:
         `# ./generate_rpm_package.sh -b v3.10.2 -s /tmp -t agent -a x86_64 -j 15 -r 3`.
     * To build a wazuh-api package from branch 3.10 and store it in `/tmp`:
         `# ./generate_rpm_package.sh -b 3.10 -s /tmp -t api -a x86_64 -r 0`.
     * To build a wazuh-manager `x86_64` package for `/opt/ossec` directory and store it in `/tmp`:
-        `# ./generate_rpm_package.sh -b v3.10.2 -s /tmp -t manager -a x86_64 -r 0.1 -p /opt`.
+        `# ./generate_rpm_package.sh -b v3.10.2 -s /tmp -t manager -a x86_64 -r 2.el6-p /opt`.
 
     If you build a package using `-d` parameter, you need to install the `wazuh-xxxxx` and the `wazuh-xxxxx-debuginfo` package in order to install the debugging symbols of the package if you want to debug the binaries using `gdb` for example.
 
