@@ -34,7 +34,7 @@ To build an RPM package, you need to download this repository and use the `gener
         -p,   --path <path>         [Optional] Installation path for the package. By default: /var.
         -d,   --debug               [Optional] Build the binaries with debug symbols and create debuginfo packages. By default: no.
         -c,   --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package).
-        -src                        [Optional] Generate the source package in the destination directory
+        --src                       [Optional] Generate the source package in the destination directory
         -h,   --help                Show this help.
 
     ```

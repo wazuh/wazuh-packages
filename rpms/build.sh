@@ -8,7 +8,7 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-set -xf
+set -exf
 # Optional package release
 build_target=$1
 wazuh_version=$2
@@ -63,7 +63,7 @@ if [[ "${checksum}" = "yes" ]]; then
     cd ${src_path} && sha512sum ${src_file} > /var/local/checksum/${src_file}.sha512
 fi
 
-if [[ "${src}" = "yes" ]]; then
+if [[ "${src}" == "yes" ]]; then
     extract_path="${rpm_build_dir}"
 fi
 
