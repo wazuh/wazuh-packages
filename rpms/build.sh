@@ -58,7 +58,7 @@ $linux rpmbuild --define "_topdir ${rpm_build_dir}" --define "_threads ${threads
         --define "_debugenabled ${debug}" --target ${architecture_target} \
         -ba ${rpm_build_dir}/SPECS/${package_name}.spec
 
-if [[ "${checksum}" = "yes" ]]; then
+if [[ "${checksum}" == "yes" ]]; then
     cd ${pkg_path} && sha512sum ${rpm_file} > /var/local/checksum/${rpm_file}.sha512
     cd ${src_path} && sha512sum ${src_file} > /var/local/checksum/${src_file}.sha512
 fi
