@@ -42,38 +42,46 @@ function clean_and_exit() {
 }
 
 function notarize_pkg() {
+
     # Notarize the macOS package
+    sleep_time="120"
     build_timestamp="$(date +"%m%d%Y%H%M%S")"
     if [ "${NOTARIZE}" = "yes" ]; then
         if sudo xcrun altool --notarize-app --primary-bundle-id "com.wazuh.agent.${VERSION}.${REVISION}.${build_timestamp}" \
             --username "${DEVELOPER_ID}" --password "${ALTOOL_PASS}" --file ${DESTINATION}/${pkg_name} > request_info.txt ; then
             echo "The package ${DESTINATION}/${pkg_name} was successfully upload for notarization."
-            echo "Waiting to 120s to get the results"
-            sleep 120
+            echo "Waiting ${sleep_time}s to get the results"
+            sleep ${sleep_time}
 
             uuid="$(grep -i requestuuid request_info.txt | cut -d' ' -f 3)"
 
             # Check notarization status
-            for i in {2..0} ; do
+            xcrun altool --notarization-info ${uuid} -u "${DEVELOPER_ID}" --password "${ALTOOL_PASS}" > request_result.txt
+            until ! grep -qi "in progress" request_result.txt ; do
+                echo "Package is not notarized yet. Waiting ${sleep_time}s"
+                sleep ${sleep_time}
                 xcrun altool --notarization-info ${uuid} -u "${DEVELOPER_ID}" --password "${ALTOOL_PASS}" > request_result.txt
-                if grep "Status: success" request_result.txt > /dev/null 2>&1 ; then
-                    echo "Package is notarized and ready to go."
-                    echo "Adding the ticket to the package."
-                    if xcrun stapler staple -v ${DESTINATION}/${pkg_name} ; then
-                        echo "Ticket added. Ready to release the package."
-                        return 0
-                    else
-                        echo "Something went wrong while adding the package."
-                        clean_and_exit 1
-                    fi
-                else
-                    echo "Package is not notarized. Retries left: $i. "
-                    echo "Retrying in 120s."
-                    sleep 120
-                fi
             done
 
-            clean_and_exit 1
+            echo "Notarization ticket:"
+            cat request_result.txt
+
+            if grep "Status: success" request_result.txt > /dev/null 2>&1 ; then
+                echo "Package is notarized and ready to go."
+                echo "Adding the ticket to the package."
+                if xcrun stapler staple -v ${DESTINATION}/${pkg_name} ; then
+                    echo "Ticket added. Ready to release the package."
+                    return 0
+                else
+                    echo "Something went wrong while adding the package."
+                    clean_and_exit 1
+                fi
+            else
+
+                echo "The package couldn't be notarized."
+                echo "Check notarization ticket for more info."
+                clean_and_exit 1
+            fi
 
         else
             echo "Error while uploading the app to be notarized."
