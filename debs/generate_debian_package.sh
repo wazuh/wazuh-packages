@@ -11,7 +11,7 @@
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ARCHITECTURE="amd64"
 OUTDIR="${CURRENT_PATH}/output/"
-BRANCH="master"
+BRANCH=""
 REVISION="1"
 TARGET=""
 JOBS="2"
