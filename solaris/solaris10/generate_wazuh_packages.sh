@@ -123,7 +123,7 @@ installation(){
     if [ "$arch" = "sparc" ]; then
         gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no USE_BIG_ENDIAN=yes DISABLE_SHARED=yes || exit 1
     else
-        gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no DISABLE_SHARED=yes || exit 1
+        gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no || exit 1
     fi
 
     cd $SOURCE
