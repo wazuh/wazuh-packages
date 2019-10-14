@@ -51,6 +51,8 @@ build_rpm() {
 
     SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
 
+    rm -rf ${SOURCES_DIRECTORY}
+
     # Download the sources
     git clone ${SOURCE_REPOSITORY} -b $BRANCH ${SOURCES_DIRECTORY} --depth=1
 
