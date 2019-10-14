@@ -53,7 +53,6 @@ build_rpm() {
 
     rm -rf ${SOURCES_DIRECTORY}
 
-    if ( $BRANCH ==  )
     # Download the sources
     git clone ${SOURCE_REPOSITORY} -b $BRANCH ${SOURCES_DIRECTORY} --depth=1
 
