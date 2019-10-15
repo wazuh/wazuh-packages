@@ -256,9 +256,6 @@ case "$1" in
     chmod 440 ${DIR}/queue/vulnerabilities/dictionaries/msu.json
     chmod 660 ${DIR}/queue/vulnerabilities/
 
-    chown -R root:ossec ${DIR}/queue/vulnerabilities/dictionaries
-    chown -R root:ossec ${DIR}/queue/vulnerabilities/dictionaries/cpe_helper.json
-    chown -R root:ossec ${DIR}/queue/vulnerabilities/dictionaries/msu.json
     chown -R root:ossec ${DIR}/queue/vulnerabilities/
     chown -R root:ossec ${DIR}/etc/client.keys
     chown -R ossec:ossec ${DIR}/etc/lists/*
