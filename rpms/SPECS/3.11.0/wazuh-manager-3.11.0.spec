@@ -814,7 +814,8 @@ rm -fr %{buildroot}
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/queue/ossec
 %dir %attr(760, root, ossec) %{_localstatedir}/ossec/queue/vulnerabilities
 %dir %attr(0660, root, ossec) %{_localstatedir}/ossec/queue/vulnerabilities/dictionaries
-%attr(0440, root, ossec) %{_localstatedir}/ossec/queue/vulnerabilities/dictionaries/*
+%attr(0440, root, ossec) %{_localstatedir}/ossec/queue/vulnerabilities/dictionaries/cpe_helper.json
+%attr(0440, root, ossec) %{_localstatedir}/ossec/queue/vulnerabilities/dictionaries/msu.json
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset/sca
 %attr(640, root, ossec) %{_localstatedir}/ossec/ruleset/VERSION
