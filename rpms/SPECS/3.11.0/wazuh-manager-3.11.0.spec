@@ -89,7 +89,7 @@ install -m 0640 wodles/oscap/content/*centos* ${RPM_BUILD_ROOT}%{_localstatedir}
 install -m 0640 wodles/oscap/content/*fedora* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 
 # Install Vulnerability Detector files
-install -m 0660 src/wazuh_modules/vulnerability_detector/*.json ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/queue/vulnerabilities/dictionaries
+install -m 0440 src/wazuh_modules/vulnerability_detector/*.json ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/queue/vulnerabilities/dictionaries
 
 # Add configuration scripts
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/
@@ -813,6 +813,7 @@ rm -fr %{buildroot}
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/queue/rootcheck
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/queue/ossec
 %dir %attr(760, root, ossec) %{_localstatedir}/ossec/queue/vulnerabilities
+%dir %attr(0660, root, ossec) %{_localstatedir}/ossec/queue/vulnerabilities/dictionaries
 %attr(0440, root, ossec) %{_localstatedir}/ossec/queue/vulnerabilities/dictionaries/*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset/sca
