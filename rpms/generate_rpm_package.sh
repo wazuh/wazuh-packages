@@ -7,6 +7,7 @@
 # and/or modify it under the terms of the GNU General Public
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
+set -x
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ARCHITECTURE="x86_64"
 LEGACY="no"
@@ -80,14 +81,14 @@ build_rpm() {
         ${DOWNLOAD_TAR}
     fi
     # Build the Docker image
-    docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || exit 1
+    docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || return 1
 
     # Build the RPM package with a Docker container
     docker run -t --rm -v ${OUTDIR}:/var/local/wazuh \
         -v ${CHECKSUMDIR}:/var/local/checksum \
         -v ${SOURCES_DIRECTORY}:/build_wazuh/wazuh-${TARGET}-${VERSION} \
         ${CONTAINER_NAME} ${TARGET} ${VERSION} ${ARCHITECTURE} \
-        $JOBS ${REVISION} ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM} ${SRC}|| exit 1
+        $JOBS ${REVISION} ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM} ${SRC}|| return 1
 
     echo "Package $(ls ${OUTDIR} -Art | tail -n 1) added to ${OUTDIR}."
 
@@ -103,7 +104,7 @@ build() {
     if [[ "${TARGET}" == "api" ]]; then
 
         SOURCE_REPOSITORY="https://github.com/wazuh/wazuh-api"
-        build_rpm ${RPM_X86_BUILDER} ${RPM_BUILDER_DOCKERFILE}/x86_64 || exit 1
+        build_rpm ${RPM_X86_BUILDER} ${RPM_BUILDER_DOCKERFILE}/x86_64 || return 1
 
     elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]]; then
 
@@ -126,12 +127,12 @@ build() {
             FILE_PATH="${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
         else
             echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too) or i386"
-            clean 1
+            return 1
         fi
-        build_rpm ${BUILD_NAME} ${FILE_PATH} || clean 1
+        build_rpm ${BUILD_NAME} ${FILE_PATH} || return 1
     else
         echo "Invalid target. Choose: manager, agent or api."
-        clean 1
+        return 1
     fi
 
     return 0
@@ -151,7 +152,7 @@ help() {
     echo "    -p,   --path <path>         [Optional] Installation path for the package. By default: /var."
     echo "    -d,   --debug               [Optional] Build the binaries with debug symbols and create debuginfo packages. By default: no."
     echo "    -c,   --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
-    echo "    -src                        [Optional] Generate the source package in the destination directory"
+    echo "    --src                        [Optional] Generate the source package in the destination directory"
     echo "    -h,   --help                Show this help."
     echo
     exit $1
