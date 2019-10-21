@@ -11,7 +11,7 @@ RUN echo "deb http://archive.debian.org/debian/ wheezy contrib main non-free" > 
     perl libc-bin=2.13-38+deb7u10 libc6=2.13-38+deb7u10 libc6-dev \
     build-essential cdbs devscripts equivs automake autoconf libtool \
     libaudit-dev selinux-basics util-linux libdb5.1=5.1.29-5 libdb5.1-dev \
-    libssl1.0.0=1.0.1e-2+deb7u20 procps
+    libssl1.0.0=1.0.1e-2+deb7u20 gawk libsigsegv2 procps
 
 # Add Debian's source repository
 RUN apt-get update && apt-get build-dep python3.2 -y
@@ -23,9 +23,8 @@ RUN chmod +x /usr/local/bin/build_package && \
     useradd -ms /bin/bash wazuh-builder
 
 # Add the volumes
-VOLUME /var/local/wazuh
-VOLUME /etc/wazuh
-VOLUME /etc/wazuh/checksum
+RUN mkdir -p /var/local/wazuh
+RUN mkdir -p /etc/wazuh/checksum
 
 # Set the entrypoint
 ENTRYPOINT ["/usr/local/bin/build_package"]
