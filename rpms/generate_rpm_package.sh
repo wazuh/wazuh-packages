@@ -83,9 +83,9 @@ build_rpm() {
     docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || exit 1
 
     # Build the RPM package with a Docker container
-    docker run -t --rm -v ${OUTDIR}:/var/local/wazuh \
-        -v ${CHECKSUMDIR}:/var/local/checksum \
-        -v ${SOURCES_DIRECTORY}:/build_wazuh/wazuh-${TARGET}-${VERSION} \
+    docker run -t --rm -v ${OUTDIR}:/var/local/wazuh:Z \
+        -v ${CHECKSUMDIR}:/var/local/checksum:Z \
+        -v ${SOURCES_DIRECTORY}:/build_wazuh/wazuh-${TARGET}-${VERSION}:Z \
         ${CONTAINER_NAME} ${TARGET} ${VERSION} ${ARCHITECTURE} \
         $JOBS ${REVISION} ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM} || exit 1
 
