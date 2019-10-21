@@ -44,7 +44,7 @@ function clean_and_exit() {
 }
 
 ctrl_c() {
-    clean 0
+    clean_and_exit 0
 }
 
 
