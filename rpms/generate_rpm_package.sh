@@ -86,12 +86,10 @@ build() {
 
     if [[ "${TARGET}" == "api" ]]; then
 
-        SOURCE_REPOSITORY="https://github.com/wazuh/wazuh-api"
         build_rpm ${RPM_X86_BUILDER} ${RPM_BUILDER_DOCKERFILE}/x86_64 || return 1
 
     elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]]; then
 
-        SOURCE_REPOSITORY="https://github.com/wazuh/wazuh"
         BUILD_NAME=""
         FILE_PATH=""
         if [[ "${LEGACY}" == "yes" ]] && [[ "${ARCHITECTURE}" == "x86_64" ]]; then
