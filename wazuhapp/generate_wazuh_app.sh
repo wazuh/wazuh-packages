@@ -38,9 +38,9 @@ build_package(){
     # Build the Docker image
     docker build -t ${CONTAINER_NAME} ./Docker/
     # Build the Wazuh Kibana app package using the build docker image
-    docker run --rm -t  -v ${SOURCES_DIRECTORY}:/source \
-        -v "${OUTDIR}":/wazuh_app \
-        -v ${CHECKSUMDIR}:/var/local/checksum \
+    docker run --rm -t  -v ${SOURCES_DIRECTORY}:/source:Z \
+        -v "${OUTDIR}":/wazuh_app:Z \
+        -v ${CHECKSUMDIR}:/var/local/checksum:Z \
         ${CONTAINER_NAME} ${WAZUH_VERSION} ${KIBANA_VERSION} ${REVISION} ${CHECKSUM}
 
     if [ "$?" = "0" ]; then
