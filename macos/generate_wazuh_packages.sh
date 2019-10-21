@@ -170,6 +170,8 @@ function build_package() {
         echo "ERROR: something went wrong while building the package."
         clean_and_exit 1
     fi
+
+    return 0
 }
 
 function help() {
