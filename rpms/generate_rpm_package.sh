@@ -47,8 +47,8 @@ clean() {
     exit ${exit_code}
 }
 
-function ctrl_c() {
-    clean 0
+ctrl_c() {
+    clean 1
 }
 
 build_rpm() {
@@ -57,13 +57,7 @@ build_rpm() {
 
 
     SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
-    
-    if [ -d ${SOURCES_DIRECTORY} ]; then
-        echo "Removing repository folder."
-        clean 1
-    fi
 
-    rm -rf ${SOURCES_DIRECTORY}
 
     # Download the sources
     git clone ${SOURCE_REPOSITORY} -b $BRANCH ${SOURCES_DIRECTORY} --depth=1
