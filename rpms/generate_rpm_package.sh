@@ -30,6 +30,8 @@ INSTALLATION_PATH="/var"
 CHECKSUMDIR=""
 CHECKSUM="no"
 
+trap ctrl_c INT
+
 if command -v curl > /dev/null 2>&1 ; then
     DOWNLOAD_TAR="curl ${TAR_URL} -o ${LEGACY_TAR_FILE} -s"
 elif command -v wget > /dev/null 2>&1 ; then
@@ -45,11 +47,21 @@ clean() {
     exit ${exit_code}
 }
 
+function ctrl_c() {
+    clean 0
+}
+
 build_rpm() {
     CONTAINER_NAME="$1"
     DOCKERFILE_PATH="$2"
 
+
     SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
+    
+    if [ -d ${SOURCES_DIRECTORY} ]; then
+        echo "Removing repository folder."
+        clean 1
+    fi
 
     rm -rf ${SOURCES_DIRECTORY}
 
@@ -259,6 +271,7 @@ main() {
     if [[ "$BUILD" != "no" ]]; then
         build || exit 1
     fi
+
 
     clean 0
 }
