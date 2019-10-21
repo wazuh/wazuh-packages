@@ -11,18 +11,19 @@ RUN yum install -y sudo ca-certificates make gcc curl initscripts tar \
 
 RUN yum groupinstall -y "Development tools"
 RUN yum install -y zlib-devel bzip2-devel openssl-devel ncurses-devel
-# Install Perl 5.10
+
+# Install Perl 5.10, OpenSSL 1.1.1 and curl
 RUN wget http://www.cpan.org/src/5.0/perl-5.10.1.tar.gz && gunzip perl-5.10.1.tar.gz && \
     tar -xf perl*.tar && cd /perl-5.10.1 && ./Configure -des -Dcc='gcc' && \
     make && make install && ln -fs /usr/local/bin/perl /bin/perl && cd / && rm -rf /perl-5.10.1*
 
-RUN curl -OL http://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/utils/tests/openssl-1.1.1a.tar.gz && \
+RUN curl -OL http://packages-dev.wazuh.com/utils/pkg/openssl-1.1.1a.tar.gz && \
     tar xf openssl-1.1.1a.tar.gz && cd openssl-1.1.1a && \
     CFLAGS="-fPIC" ./config --prefix=/usr/local/ssl --openssldir=/usr/local/ssl shared zlib && \
     make && make install && echo "/usr/local/ssl/lib" > /etc/ld.so.conf.d/openssl-1.1.1a.conf && \
     ldconfig -v && cd / && rm -rf openssl-1.1.1a*
 
-RUN curl -OL https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/utils/tests/curl-7.63.0.tar.gz && \
+RUN curl -OL http://packages-dev.wazuh.com/utils/pkg/curl-7.63.0.tar.gz && \
     tar xf curl-7.63.0.tar.gz && cd curl-7.63.0 && ./configure --with-ssl=/usr/local/ssl && \
     make && make install && cd / && rm -rf curl*
 
