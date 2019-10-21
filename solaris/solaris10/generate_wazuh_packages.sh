@@ -20,6 +20,7 @@ SOURCE=${CURRENT_PATH}/repository
 CONFIG="$SOURCE/etc/preloaded-vars.conf"
 target_dir="${CURRENT_PATH}/output"
 
+trap ctrl_c INT
 
 if [ -z "${wazuh_branch}" ]; then
     wazuh_branch="master"
@@ -206,6 +207,10 @@ clean(){
     ## Remove User and Groups
     userdel ossec
     groupdel ossec
+}
+
+ctrl_c() {
+    clean 0
 }
 
 build(){

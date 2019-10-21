@@ -19,6 +19,8 @@ target_dir="${current_path}/output"
 checksum_dir=""
 compute_checksums="no"
 
+trap ctrl_c INT
+
 build_environment() {
     echo "Installing dependencies."
 
@@ -210,6 +212,10 @@ clean() {
     rm -f wazuh-agent.mog
     rm -f wazuh-agent.mog-aux
     rm -f pack
+}
+
+ctrl_c() {
+    clean 0
 }
 
 

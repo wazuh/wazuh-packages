@@ -37,7 +37,7 @@ clean() {
     exit ${exit_code}
 }
 
-function ctrl_c() {
+ctrl_c() {
     clean 0
 }
 
@@ -46,11 +46,6 @@ build_deb() {
     DOCKERFILE_PATH="$2"
 
     SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
-
-    if [ -d ${SOURCES_DIRECTORY} ]; then
-        echo "Removing repository folder."
-        clean 1
-    fi
 
     # Download the sources
     git clone ${SOURCE_REPOSITORY} -b ${BRANCH} ${SOURCES_DIRECTORY} --depth=1
