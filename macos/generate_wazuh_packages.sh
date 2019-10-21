@@ -126,7 +126,7 @@ function sign_pkg() {
 function build_package() {
 
     # Download source code
-    git clone --depth=1 -b ${BRANCH_TAG} ${WAZUH_SOURCE_REPOSITORY} "${WAZUH_PATH}"
+    git clone --depth=1 -b ${BRANCH_TAG} ${WAZUH_SOURCE_REPOSITORY} "${WAZUH_PATH}" || clean_and_exit 1
 
     get_pkgproj_specs
 
@@ -170,8 +170,6 @@ function build_package() {
         echo "ERROR: something went wrong while building the package."
         clean_and_exit 1
     fi
-
-    return 0
 }
 
 function help() {
