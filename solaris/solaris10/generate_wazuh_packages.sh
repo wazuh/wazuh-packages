@@ -122,15 +122,15 @@ installation(){
     arch="$(uname -p)"
     # Build the binaries
     if [ "$arch" = "sparc" ]; then
-        gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no USE_BIG_ENDIAN=yes DISABLE_SHARED=yes || exit 1
+        gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no USE_BIG_ENDIAN=yes DISABLE_SHARED=yes || return 1
     else
-        gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no DISABLE_SHARED=yes || exit 1
+        gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no DISABLE_SHARED=yes || return 1
     fi
 
     cd $SOURCE
     ${CURRENT_PATH}/solaris10_patch.sh
     config
-    /bin/bash $SOURCE/install.sh || exit 1
+    /bin/bash $SOURCE/install.sh || return 1
     cd ${CURRENT_PATH}
 }
 
@@ -147,11 +147,13 @@ compute_version_revision()
 
 clone(){
     cd ${CURRENT_PATH}
-    git clone $REPOSITORY ${SOURCE} || clean
+    git clone $REPOSITORY ${SOURCE} || return 1
     cd $SOURCE
     git checkout $wazuh_branch
     cp ${CURRENT_PATH}/solaris10_patch.sh ${CURRENT_PATH}/wazuh
     compute_version_revision
+
+    return 0
 }
 
 package(){
