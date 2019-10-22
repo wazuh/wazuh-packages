@@ -28,8 +28,8 @@ function build_wpk_windows() {
   local CHECKSUM="$8"
   local CHECKSUMDIR="$9"
 
-  docker run -t --rm -v ${KEYDIR}:/etc/wazuh -v ${DESTINATION}:/var/local/wazuh -v ${PKG_PATH}:/var/pkg\
-      -v ${CHECKSUMDIR}:/var/local/checksum \
+  docker run -t --rm -v ${KEYDIR}:/etc/wazuh:Z -v ${DESTINATION}:/var/local/wazuh:Z -v ${PKG_PATH}:/var/pkg:Z \
+      -v ${CHECKSUMDIR}:/var/local/checksum:Z \
       ${CONTAINER_NAME} ${BRANCH} ${JOBS} ${OUT_NAME} ${CHECKSUM} ${PACKAGE_NAME}
 
   return $?
@@ -45,8 +45,8 @@ function build_wpk_linux() {
   local CHECKSUM="$7"
   local CHECKSUMDIR="$8"
 
-  docker run -t --rm -v ${KEYDIR}:/etc/wazuh -v ${DESTINATION}:/var/local/wazuh \
-      -v ${CHECKSUMDIR}:/var/local/checksum \
+  docker run -t --rm -v ${KEYDIR}:/etc/wazuh:Z -v ${DESTINATION}:/var/local/wazuh:Z \
+      -v ${CHECKSUMDIR}:/var/local/checksum:Z \
       ${CONTAINER_NAME} ${BRANCH} ${JOBS} ${OUT_NAME} ${CHECKSUM}
 
   return $?
