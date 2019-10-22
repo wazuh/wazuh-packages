@@ -77,6 +77,8 @@ build_deb() {
 
     if [ ${IS_BUILD}=="0" ]
         echo "Package $(ls ${OUTDIR} -Art | tail -n 1) added to ${OUTDIR}."
+    else
+        echo "ERROR. Package not built"
 
     return ${IS_BUILD}
 }
