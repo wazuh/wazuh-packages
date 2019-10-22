@@ -210,7 +210,7 @@ clean(){
 }
 
 ctrl_c() {
-    clean
+    clean 1
 }
 
 build(){
