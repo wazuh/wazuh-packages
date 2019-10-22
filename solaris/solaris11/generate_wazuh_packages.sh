@@ -215,7 +215,7 @@ clean() {
 }
 
 ctrl_c() {
-    clean 0
+    clean 1
 }
 
 
