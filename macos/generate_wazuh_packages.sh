@@ -43,8 +43,8 @@ function clean_and_exit() {
     exit ${exit_code}
 }
 
-ctrl_c() {
-    clean_and_exit 0
+function ctrl_c() {
+    clean_and_exit 1
 }
 
 
