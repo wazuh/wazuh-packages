@@ -245,9 +245,8 @@ show_help() {
 }
 
 build_package(){
-    clone
-    build
-    clean
+    clone || return 1
+    build || return 1
 
     return 0
 }
@@ -326,8 +325,10 @@ main() {
   fi
 
   if [[ "${build_pkg}" = "yes" ]]; then
-    build_package || exit 1
+    build_package || clean 1
   fi
+
+  clean 0
 
   return 0
 }
