@@ -227,7 +227,8 @@ main() {
     fi
 
     if [[ "$BUILD" != "no" ]]; then
-        BUILT=build
+        BUILT=0
+        build || BUILT=1
         clean ${BUILT}
     else
         clean 1
