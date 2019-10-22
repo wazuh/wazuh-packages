@@ -44,11 +44,13 @@ ctrl_c() {
 build_deb() {
     CONTAINER_NAME="$1"
     DOCKERFILE_PATH="$2"
+    # Marks if there is an error in the creation of the package(1) or it's correct(0)
+    IS_BUILD=0
 
     SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
 
     # Download the sources
-    git clone ${SOURCE_REPOSITORY} -b ${BRANCH} ${SOURCES_DIRECTORY} --depth=1 || clean 1
+    git clone ${SOURCE_REPOSITORY} -b ${BRANCH} ${SOURCES_DIRECTORY} --depth=1 || IS_BUILD=1
     # Copy the necessary files
     cp build.sh ${DOCKERFILE_PATH}
     cp gen_permissions.sh ${SOURCES_DIRECTORY}
@@ -63,7 +65,7 @@ build_deb() {
     cp -rp SPECS/${VERSION}/wazuh-${TARGET} ${DOCKERFILE_PATH}/
 
     # Build the Docker image
-    docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || exit 1
+    docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || IS_BUILD=1
 
     # Build the Debian package with a Docker container
     docker run -t --rm -v ${OUTDIR}:/var/local/wazuh \
@@ -71,22 +73,23 @@ build_deb() {
         -v ${SOURCES_DIRECTORY}:/build_wazuh/${TARGET}/wazuh-${TARGET}-${VERSION} \
         -v ${DOCKERFILE_PATH}/wazuh-${TARGET}:/${TARGET} \
         ${CONTAINER_NAME} ${TARGET} ${VERSION} ${ARCHITECTURE} \
-        ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM} || exit 1
+        ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM} || IS_BUILD=1
 
     echo "Package $(ls ${OUTDIR} -Art | tail -n 1) added to ${OUTDIR}."
 
-    return 0
+    return IS_BUILD
 }
 
 build() {
-
+    # Marks if there is an error in the process
+    IS_CORRECT=0
     if [[ "${TARGET}" = "api" ]]; then
 
         SOURCE_REPOSITORY="https://github.com/wazuh/wazuh-api"
         if [[ "${ARCHITECTURE}" = "ppc64le" ]]; then
-	    build_deb ${DEB_PPC64LE_BUILDER} ${DEB_PPC64LE_BUILDER_DOCKERFILE} || exit 1
+	    build_deb ${DEB_PPC64LE_BUILDER} ${DEB_PPC64LE_BUILDER_DOCKERFILE} || IS_CORRECT=1
         else
-	    build_deb ${DEB_AMD64_BUILDER} ${DEB_AMD64_BUILDER_DOCKERFILE} || exit 1
+	    build_deb ${DEB_AMD64_BUILDER} ${DEB_AMD64_BUILDER_DOCKERFILE} || IS_CORRECT=1
         fi
     elif [[ "${TARGET}" = "manager" ]] || [[ "${TARGET}" = "agent" ]]; then
 
@@ -105,15 +108,15 @@ build() {
             FILE_PATH="${DEB_PPC64LE_BUILDER_DOCKERFILE}"
         else
             echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too) or i386 or ppc64le."
-            clean 1
+            IS_CORRECT=1
         fi
-        build_deb ${BUILD_NAME} ${FILE_PATH} || clean 1
+        build_deb ${BUILD_NAME} ${FILE_PATH} || IS_CORRECT=1
     else
         echo "Invalid target. Choose: manager, agent or api."
-        clean 1
+        IS_CORRECT=1
     fi
 
-    return 0
+    return IS_CORRECT
 }
 
 help() {
@@ -224,10 +227,11 @@ main() {
     fi
 
     if [[ "$BUILD" != "no" ]]; then
-        build || exit 1
+        BUILT=build
+        clean ${BUILT}
+    else
+        clean 1
     fi
-
-    clean 0
 }
 
 main "$@"
