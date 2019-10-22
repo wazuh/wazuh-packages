@@ -47,9 +47,9 @@ build_package() {
     docker build -t ${CONTAINER_NAME} ./Docker/
     # Run Docker and build package
 
-    docker run -t --rm -v ${SOURCES_DIRECTORY}:/pkg \
-            -v ${OUTDIR}:/wazuh_splunk_app \
-            -v ${CHECKSUMDIR}:/var/local/checksum \
+    docker run -t --rm -v ${SOURCES_DIRECTORY}:/pkg:Z \
+            -v ${OUTDIR}:/wazuh_splunk_app:Z \
+            -v ${CHECKSUMDIR}:/var/local/checksum:Z \
             ${CONTAINER_NAME} ${WAZUH_VERSION} ${SPLUNK_VERSION} ${REVISION} ${CHECKSUM}
 
 
