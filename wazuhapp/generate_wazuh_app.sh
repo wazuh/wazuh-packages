@@ -11,12 +11,12 @@
 
 CURRENT_PATH=$( cd $(dirname $0) ; pwd -P )
 
-CONTAINER_NAME="wazuh-kibana-app-builder"
 REVISION=""
+BRANCH_TAG=""
+CHECKSUMDIR=""
+CONTAINER_NAME="wazuh-kibana-app-builder"
 SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
 OUTDIR="${CURRENT_PATH}/output/"
-CHECKSUMDIR=""
-BRANCH_TAG=""
 
 trap ctrl_c INT
 
