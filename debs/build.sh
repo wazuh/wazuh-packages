@@ -20,6 +20,7 @@ dir_path=$6
 debug=$7
 checksum=$8
 wazuh_packages_branch=$9
+use_local_specs=${10}
 
 if [ -z "${package_release}" ]; then
     package_release="1"
@@ -42,9 +43,16 @@ sources_dir="${build_dir}/${build_target}/${package_full_name}"
 mkdir -p ${build_dir}/${build_target}
 mv wazuh* ${build_dir}/${build_target}/wazuh-${build_target}-${wazuh_version}
 
-curl -sL https://github.com/wazuh/wazuh-packages/tarball/${wazuh_packages_branch} | tar zx
-cp -pr wazuh*/debs/SPECS/${wazuh_version}/wazuh-${build_target}/debian ${sources_dir}/debian
-cp -p wazuh*/debs/gen_permissions.sh ${sources_dir}
+if [ "${use_local_specs}" = "no" ]; then
+    curl -sL https://github.com/wazuh/wazuh-packages/tarball/${wazuh_packages_branch} | tar zx
+    package_files="wazuh*/debs"
+    specs_path="${package_files}/SPECS"
+else
+    package_files="/specs"
+    specs_path="${package_files}/SPECS"
+fi
+cp -pr ${specs_path}/${wazuh_version}/wazuh-${build_target}/debian ${sources_dir}/debian
+cp -p ${package_files}/gen_permissions.sh ${sources_dir}
 
 # Generating directory structure to build the .deb package
 cd ${build_dir}/${build_target} && tar -czf ${package_full_name}.orig.tar.gz "${package_full_name}"

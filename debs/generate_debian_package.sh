@@ -26,6 +26,8 @@ CHECKSUMDIR=""
 CHECKSUM="no"
 DEB_PPC64LE_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/ppc64le"
 PACKAGES_BRANCH="master"
+USE_LOCAL_SPECS="no"
+LOCAL_SPECS="${CURRENT_PATH}"
 
 trap ctrl_c INT
 
@@ -55,8 +57,10 @@ build_deb() {
     # Build the Debian package with a Docker container
     docker run -t --rm -v ${OUTDIR}:/var/local/wazuh:Z \
         -v ${CHECKSUMDIR}:/var/local/checksum:Z \
+        -v ${LOCAL_SPECS}:/specs:Z \
         ${CONTAINER_NAME} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
-        ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM} ${PACKAGES_BRANCH} || return 1
+        ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} \
+        ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} || return 1
 
     echo "Package $(ls ${OUTDIR} -Art | tail -n 1) added to ${OUTDIR}."
 
@@ -113,6 +117,7 @@ help() {
     echo "    -p, --path <path>         [Optional] Installation path for the package. By default: /var/ossec."
     echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
     echo "    -c, --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
+    echo "    --dev                     [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub."
     echo "    -h, --help                Show this help."
     echo
     exit $1
@@ -203,6 +208,10 @@ main() {
                 PACKAGES_BRANCH="$2"
                 shift 2
             fi
+            ;;
+        "--dev")
+            USE_LOCAL_SPECS="yes"
+            shift 1
             ;;
         *)
             help 1

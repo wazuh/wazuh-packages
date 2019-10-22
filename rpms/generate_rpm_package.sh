@@ -12,7 +12,12 @@ CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ARCHITECTURE="x86_64"
 LEGACY="no"
 OUTDIR="${CURRENT_PATH}/output/"
+<<<<<<< HEAD
 BRANCH=""
+=======
+LOCAL_SPECS="${CURRENT_PATH}/SPECS/"
+BRANCH="master"
+>>>>>>> Added a new parater to use local specs
 REVISION="1"
 TARGET=""
 JOBS="2"
@@ -30,6 +35,7 @@ INSTALLATION_PATH="/var"
 PACKAGES_BRANCH="master"
 CHECKSUMDIR=""
 CHECKSUM="no"
+USE_LOCAL_SPECS="no"
 
 trap ctrl_c INT
 
@@ -69,9 +75,10 @@ build_rpm() {
     # Build the RPM package with a Docker container
     docker run -t --rm -v ${OUTDIR}:/var/local/wazuh:Z \
         -v ${CHECKSUMDIR}:/var/local/checksum:Z \
+        -v ${LOCAL_SPECS}:/specs:Z \
         ${CONTAINER_NAME} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
         $JOBS ${REVISION} ${INSTALLATION_PATH} ${DEBUG} \
-        ${CHECKSUM} ${PACKAGES_BRANCH} || exit 1
+        ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} || return 1
 
     echo "Package $(ls ${OUTDIR} -Art | tail -n 1) added to ${OUTDIR}."
 
@@ -134,6 +141,7 @@ help() {
     echo "    -d, --debug                  [Optional] Build the binaries with debug symbols and create debuginfo packages. By default: no."
     echo "    -c, --checksum <path>        [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
     echo "    --packages-branch <branch>   [Optional] Select Git branch or tag from wazuh-packages repository. e.g ${PACKAGES_BRANCH}"
+    echo "    --dev                        [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub."
     echo "    -h, --help                   Show this help."
     echo
     exit $1
@@ -229,6 +237,10 @@ main() {
                 PACKAGES_BRANCH="$2"
                 shift 2
             fi
+            ;;
+        "--dev")
+            USE_LOCAL_SPECS="yes"
+            shift 1
             ;;
         *)
             help 1

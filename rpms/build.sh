@@ -19,6 +19,7 @@ directory_base=$6
 debug=$7
 checksum=$8
 wazuh_packages_branch=$9
+use_local_specs=${10}
 wazuh_version=""
 
 disable_debug_flag='%debug_package %{nil}'
@@ -49,8 +50,14 @@ package_name=wazuh-${build_target}-${wazuh_version}
 mv wazuh-* ${build_dir}/${package_name}
 
 # Including spec file
-curl -sL https://github.com/wazuh/wazuh-packages/tarball/${wazuh_packages_branch} | tar zx
-mv wazuh*/rpms/SPECS/${wazuh_version}/wazuh-${build_target}-${wazuh_version}.spec ${rpm_build_dir}/SPECS/${package_name}.spec
+if [ "${use_local_specs}" = "no" ]; then
+    curl -sL https://github.com/wazuh/wazuh-packages/tarball/${wazuh_packages_branch} | tar zx
+    specs_path="wazuh*/rpms/SPECS"
+else
+    specs_path="/specs"
+fi
+
+cp ${specs_path}/${wazuh_version}/wazuh-${build_target}-${wazuh_version}.spec ${rpm_build_dir}/SPECS/${package_name}.spec
 
 # Generating source tar.gz
 cd ${build_dir} && tar czf "${rpm_build_dir}/SOURCES/${package_name}.tar.gz" "${package_name}"
