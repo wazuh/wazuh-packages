@@ -82,15 +82,13 @@ build_deb() {
 }
 
 build() {
-    # Marks if there is an error in the process
-    IS_CORRECT=0
     if [[ "${TARGET}" = "api" ]]; then
 
         SOURCE_REPOSITORY="https://github.com/wazuh/wazuh-api"
         if [[ "${ARCHITECTURE}" = "ppc64le" ]]; then
-	    build_deb ${DEB_PPC64LE_BUILDER} ${DEB_PPC64LE_BUILDER_DOCKERFILE} || IS_CORRECT=1
+	    build_deb ${DEB_PPC64LE_BUILDER} ${DEB_PPC64LE_BUILDER_DOCKERFILE} || return 1
         else
-	    build_deb ${DEB_AMD64_BUILDER} ${DEB_AMD64_BUILDER_DOCKERFILE} || IS_CORRECT=1
+	    build_deb ${DEB_AMD64_BUILDER} ${DEB_AMD64_BUILDER_DOCKERFILE} || return 1
         fi
     elif [[ "${TARGET}" = "manager" ]] || [[ "${TARGET}" = "agent" ]]; then
 
@@ -109,15 +107,15 @@ build() {
             FILE_PATH="${DEB_PPC64LE_BUILDER_DOCKERFILE}"
         else
             echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too) or i386 or ppc64le."
-            IS_CORRECT=1
+            return 1
         fi
         build_deb ${BUILD_NAME} ${FILE_PATH} || IS_CORRECT=1
     else
         echo "Invalid target. Choose: manager, agent or api."
-        IS_CORRECT=1
+        return 1
     fi
 
-    return ${IS_CORRECT}
+    return 0
 }
 
 help() {
@@ -228,12 +226,12 @@ main() {
     fi
 
     if [[ "$BUILD" != "no" ]]; then
-        BUILT=0
-        build || BUILT=1
-        clean ${BUILT}
+        build || clean 1
     else
         clean 1
     fi
+
+    clean 0
 }
 
 main "$@"
