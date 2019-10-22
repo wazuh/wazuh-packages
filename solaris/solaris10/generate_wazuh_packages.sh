@@ -147,7 +147,7 @@ compute_version_revision()
 
 clone(){
     cd ${CURRENT_PATH}
-    git clone $REPOSITORY ${SOURCE}
+    git clone $REPOSITORY ${SOURCE} || clean
     cd $SOURCE
     git checkout $wazuh_branch
     cp ${CURRENT_PATH}/solaris10_patch.sh ${CURRENT_PATH}/wazuh
@@ -210,7 +210,7 @@ clean(){
 }
 
 ctrl_c() {
-    clean 0
+    clean
 }
 
 build(){
