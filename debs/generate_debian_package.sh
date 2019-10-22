@@ -77,7 +77,7 @@ build_deb() {
 
     echo "Package $(ls ${OUTDIR} -Art | tail -n 1) added to ${OUTDIR}."
 
-    return IS_BUILD
+    return ${IS_BUILD}
 }
 
 build() {
@@ -116,7 +116,7 @@ build() {
         IS_CORRECT=1
     fi
 
-    return IS_CORRECT
+    return ${IS_CORRECT}
 }
 
 help() {
