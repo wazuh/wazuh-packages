@@ -44,13 +44,13 @@ ctrl_c() {
 build_deb() {
     CONTAINER_NAME="$1"
     DOCKERFILE_PATH="$2"
-    # Marks if there is an error in the creation of the package(1) or it's correct(0)
-    IS_BUILD=0
+
 
     SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
 
     # Download the sources
-    git clone ${SOURCE_REPOSITORY} -b ${BRANCH} ${SOURCES_DIRECTORY} --depth=1 || IS_BUILD=1
+    git clone ${SOURCE_REPOSITORY} -b ${BRANCH} ${SOURCES_DIRECTORY} --depth=1 || return 1
+
     # Copy the necessary files
     cp build.sh ${DOCKERFILE_PATH}
     cp gen_permissions.sh ${SOURCES_DIRECTORY}
@@ -65,7 +65,7 @@ build_deb() {
     cp -rp SPECS/${VERSION}/wazuh-${TARGET} ${DOCKERFILE_PATH}/
 
     # Build the Docker image
-    docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || IS_BUILD=1
+    docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || return 1
 
     # Build the Debian package with a Docker container
     docker run -t --rm -v ${OUTDIR}:/var/local/wazuh \
@@ -73,15 +73,12 @@ build_deb() {
         -v ${SOURCES_DIRECTORY}:/build_wazuh/${TARGET}/wazuh-${TARGET}-${VERSION} \
         -v ${DOCKERFILE_PATH}/wazuh-${TARGET}:/${TARGET} \
         ${CONTAINER_NAME} ${TARGET} ${VERSION} ${ARCHITECTURE} \
-        ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM} || IS_BUILD=1
+        ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM} || return 1
 
-    if [[ ${IS_BUILD}=="0" ]]; then
-        echo "Package $(ls ${OUTDIR} -Art | tail -n 1) added to ${OUTDIR}."
-    else
-        echo "ERROR. Package not built"
-    fi
 
-    return ${IS_BUILD}
+    echo "Package $(ls ${OUTDIR} -Art | tail -n 1) added to ${OUTDIR}."
+
+    return 0
 }
 
 build() {
