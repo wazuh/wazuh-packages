@@ -75,7 +75,7 @@ build_deb() {
         ${CONTAINER_NAME} ${TARGET} ${VERSION} ${ARCHITECTURE} \
         ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM} || IS_BUILD=1
 
-    if [ ${IS_BUILD}=="0" ]
+    if [[ ${IS_BUILD}=="0" ]]; then
         echo "Package $(ls ${OUTDIR} -Art | tail -n 1) added to ${OUTDIR}."
     else
         echo "ERROR. Package not built"
