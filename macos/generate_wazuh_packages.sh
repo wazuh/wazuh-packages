@@ -126,7 +126,7 @@ function sign_pkg() {
 function build_package() {
 
     # Download source code
-    git clone --depth=1 -b ${BRANCH_TAG} ${WAZUH_SOURCE_REPOSITORY} "${WAZUH_PATH}" || clean_and_exit 1
+    git clone --depth=1 -b ${BRANCH_TAG} ${WAZUH_SOURCE_REPOSITORY} "${WAZUH_PATH}"
 
     get_pkgproj_specs
 
