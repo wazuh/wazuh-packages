@@ -38,7 +38,7 @@ clean() {
 }
 
 ctrl_c() {
-    clean 0
+    clean 1
 }
 
 build_deb() {
@@ -48,7 +48,7 @@ build_deb() {
     SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
 
     # Download the sources
-    git clone ${SOURCE_REPOSITORY} -b ${BRANCH} ${SOURCES_DIRECTORY} --depth=1
+    git clone ${SOURCE_REPOSITORY} -b ${BRANCH} ${SOURCES_DIRECTORY} --depth=1 || clean 1
     # Copy the necessary files
     cp build.sh ${DOCKERFILE_PATH}
     cp gen_permissions.sh ${SOURCES_DIRECTORY}

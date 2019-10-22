@@ -60,7 +60,7 @@ build_rpm() {
 
 
     # Download the sources
-    git clone ${SOURCE_REPOSITORY} -b $BRANCH ${SOURCES_DIRECTORY} --depth=1
+    git clone ${SOURCE_REPOSITORY} -b $BRANCH ${SOURCES_DIRECTORY} --depth=1 || clean 1
 
     # Copy the necessary files
     cp build.sh ${DOCKERFILE_PATH}

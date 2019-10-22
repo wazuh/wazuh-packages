@@ -67,7 +67,7 @@ compute_version_revision(){
 
 download_sources(){
 
-    git clone https://github.com/wazuh/wazuh-kibana-app -b ${BRANCH_TAG} --depth=1 ${SOURCES_DIRECTORY}
+    git clone https://github.com/wazuh/wazuh-kibana-app -b ${BRANCH_TAG} --depth=1 ${SOURCES_DIRECTORY} || clean 1
 
     compute_version_revision
 }
@@ -79,7 +79,7 @@ clean(){
 }
 
 ctrl_c() {
-    clean 0
+    clean 1
 }
 
 main(){
