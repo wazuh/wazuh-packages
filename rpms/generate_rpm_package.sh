@@ -55,9 +55,7 @@ build_rpm() {
     CONTAINER_NAME="$1"
     DOCKERFILE_PATH="$2"
 
-
     SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
-
 
     # Download the sources
     git clone ${SOURCE_REPOSITORY} -b $BRANCH ${SOURCES_DIRECTORY} --depth=1 || clean 1
@@ -266,8 +264,6 @@ main() {
         build || exit 1
     fi
 
-
     clean 0
 }
-
 main "$@"
