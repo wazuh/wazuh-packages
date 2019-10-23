@@ -38,7 +38,7 @@ rpm_file="${file_name}.${architecture_target}.rpm"
 src_file="${file_name}.src.rpm"
 pkg_path="${rpm_build_dir}/RPMS/${architecture_target}"
 src_path="${rpm_build_dir}/SRPMS"
-extract_path="${src_path}"
+extract_path="${pkg_path}"
 mkdir -p ${rpm_build_dir}/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
 # Generating source tar.gz
@@ -60,7 +60,9 @@ $linux rpmbuild --define "_topdir ${rpm_build_dir}" --define "_threads ${threads
 
 if [[ "${checksum}" == "yes" ]]; then
     cd ${pkg_path} && sha512sum ${rpm_file} > /var/local/checksum/${rpm_file}.sha512
-    cd ${src_path} && sha512sum ${src_file} > /var/local/checksum/${src_file}.sha512
+    if [[ "${src}" == "yes" ]]; then
+        cd ${src_path} && sha512sum ${src_file} > /var/local/checksum/${src_file}.sha512
+    fi
 fi
 
 if [[ "${src}" == "yes" ]]; then

@@ -7,7 +7,6 @@
 # and/or modify it under the terms of the GNU General Public
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
-set -x
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ARCHITECTURE="x86_64"
 LEGACY="no"
