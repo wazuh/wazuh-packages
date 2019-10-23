@@ -107,7 +107,7 @@ build() {
             echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too) or i386 or ppc64le."
             return 1
         fi
-        build_deb ${BUILD_NAME} ${FILE_PATH} || IS_CORRECT=1
+        build_deb ${BUILD_NAME} ${FILE_PATH} || return 1
     else
         echo "Invalid target. Choose: manager, agent or api."
         return 1
