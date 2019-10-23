@@ -45,7 +45,6 @@ build_deb() {
     CONTAINER_NAME="$1"
     DOCKERFILE_PATH="$2"
 
-
     SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
 
     # Download the sources
