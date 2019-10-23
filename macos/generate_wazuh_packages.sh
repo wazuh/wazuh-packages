@@ -33,6 +33,8 @@ DEVELOPER_ID=""                       # Apple Developer ID.
 ALTOOL_PASS=""                        # Temporary Application password for altool.
 pkg_name=""
 
+trap ctrl_c INT
+
 function clean_and_exit() {
     exit_code=$1
     rm -f ${AGENT_PKG_FILE} ${CURRENT_PATH}/package_files/*.sh
@@ -40,6 +42,11 @@ function clean_and_exit() {
     ${CURRENT_PATH}/uninstall.sh
     exit ${exit_code}
 }
+
+function ctrl_c() {
+    clean_and_exit 1
+}
+
 
 function notarize_pkg() {
 

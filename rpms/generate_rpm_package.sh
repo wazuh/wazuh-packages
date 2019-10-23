@@ -12,7 +12,7 @@ CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ARCHITECTURE="x86_64"
 LEGACY="no"
 OUTDIR="${CURRENT_PATH}/output/"
-BRANCH="master"
+BRANCH=""
 REVISION="1"
 TARGET=""
 JOBS="2"
@@ -30,6 +30,8 @@ INSTALLATION_PATH="/var"
 CHECKSUMDIR=""
 CHECKSUM="no"
 
+trap ctrl_c INT
+
 if command -v curl > /dev/null 2>&1 ; then
     DOWNLOAD_TAR="curl ${TAR_URL} -o ${LEGACY_TAR_FILE} -s"
 elif command -v wget > /dev/null 2>&1 ; then
@@ -45,6 +47,10 @@ clean() {
     exit ${exit_code}
 }
 
+ctrl_c() {
+    clean 1
+}
+
 build_rpm() {
     CONTAINER_NAME="$1"
     DOCKERFILE_PATH="$2"
@@ -52,7 +58,7 @@ build_rpm() {
     SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
 
     # Download the sources
-    git clone ${SOURCE_REPOSITORY} -b $BRANCH ${SOURCES_DIRECTORY} --depth=1
+    git clone ${SOURCE_REPOSITORY} -b $BRANCH ${SOURCES_DIRECTORY} --depth=1 || return 1
 
     # Copy the necessary files
     cp build.sh ${DOCKERFILE_PATH}
@@ -66,7 +72,7 @@ build_rpm() {
             if [[ "${MAJOR_MINOR}" > "3.9" ]] || [[ "${MAJOR_MINOR}" == "3.9" ]]; then
                 echo "Wazuh Manager is not supported for CentOS 5 from v3.9.0."
                 echo "Version to build: ${VERSION}."
-                exit 1
+                return 1
             fi
         fi
     else
@@ -80,14 +86,14 @@ build_rpm() {
         ${DOWNLOAD_TAR}
     fi
     # Build the Docker image
-    docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || exit 1
+    docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || return 1
 
     # Build the RPM package with a Docker container
     docker run -t --rm -v ${OUTDIR}:/var/local/wazuh:Z \
         -v ${CHECKSUMDIR}:/var/local/checksum:Z \
         -v ${SOURCES_DIRECTORY}:/build_wazuh/wazuh-${TARGET}-${VERSION}:Z \
         ${CONTAINER_NAME} ${TARGET} ${VERSION} ${ARCHITECTURE} \
-        $JOBS ${REVISION} ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM} || exit 1
+        $JOBS ${REVISION} ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM} || return 1
 
     echo "Package $(ls ${OUTDIR} -Art | tail -n 1) added to ${OUTDIR}."
 
@@ -103,7 +109,7 @@ build() {
     if [[ "${TARGET}" == "api" ]]; then
 
         SOURCE_REPOSITORY="https://github.com/wazuh/wazuh-api"
-        build_rpm ${RPM_X86_BUILDER} ${RPM_BUILDER_DOCKERFILE}/x86_64 || exit 1
+        build_rpm ${RPM_X86_BUILDER} ${RPM_BUILDER_DOCKERFILE}/x86_64 || return 1
 
     elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]]; then
 
@@ -126,12 +132,12 @@ build() {
             FILE_PATH="${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
         else
             echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too) or i386"
-            clean 1
+            return 1
         fi
-        build_rpm ${BUILD_NAME} ${FILE_PATH} || clean 1
+        build_rpm ${BUILD_NAME} ${FILE_PATH} || return 1
     else
         echo "Invalid target. Choose: manager, agent or api."
-        clean 1
+        return 1
     fi
 
     return 0
@@ -255,10 +261,11 @@ main() {
     fi
 
     if [[ "$BUILD" != "no" ]]; then
-        build || exit 1
+        build || clean 1
+    else
+        clean 1
     fi
 
     clean 0
 }
-
 main "$@"

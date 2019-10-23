@@ -19,6 +19,8 @@ CHECKSUMDIR=""
 WAZUH_VERSION=""
 KIBANA_VERSION=""
 
+trap ctrl_c INT
+
 help() {
 
     echo
@@ -65,15 +67,21 @@ compute_version_revision(){
 
 download_sources(){
 
-    git clone https://github.com/wazuh/wazuh-kibana-app -b ${BRANCH_TAG} --depth=1 ${SOURCES_DIRECTORY}
+    git clone https://github.com/wazuh/wazuh-kibana-app -b ${BRANCH_TAG} --depth=1 ${SOURCES_DIRECTORY} || return 1
 
     compute_version_revision
+
+    return 0
 }
 clean(){
 
     exit_code=$1
     rm -rf ${SOURCES_DIRECTORY}
     exit ${exit_code}
+}
+
+ctrl_c() {
+    clean 1
 }
 
 main(){

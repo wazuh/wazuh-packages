@@ -16,6 +16,7 @@ WIN_BUILDER="windows_wpk_builder"
 WIN_BUILDER_DOCKERFILE="${CURRENT_PATH}/windows"
 CHECKSUM="no"
 
+trap ctrl_c INT
 
 function build_wpk_windows() {
   local BRANCH="$1"
@@ -94,6 +95,9 @@ function clean() {
   return 0
 }
 
+ctrl_c() {
+    clean 1
+}
 
 function main() {
   local TARGET=""

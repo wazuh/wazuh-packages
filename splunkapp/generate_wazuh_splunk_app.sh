@@ -26,6 +26,8 @@ SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
 REPOSITORY="wazuh-splunk"
 WAZUH_VERSION=""
 
+trap ctrl_c INT
+
 help() {
 
     echo
@@ -86,6 +88,10 @@ clean(){
     exit_code=$1
     rm -rf ${SOURCES_DIRECTORY}
     exit ${exit_code}
+}
+
+ctrl_c() {
+    clean 1
 }
 
 main() {
