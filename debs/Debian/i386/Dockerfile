@@ -18,9 +18,7 @@ RUN apt-get update && apt-get build-dep python3.2 -y
 
 # Add the script to build the Debian package
 ADD build.sh /usr/local/bin/build_package
-
-RUN chmod +x /usr/local/bin/build_package && \
-    useradd -ms /bin/bash wazuh-builder
+RUN chmod +x /usr/local/bin/build_package
 
 # Add the volumes
 RUN mkdir -p /var/local/wazuh

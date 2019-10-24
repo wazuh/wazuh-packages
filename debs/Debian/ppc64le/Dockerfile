@@ -24,8 +24,7 @@ RUN apt-get update &&  apt-get build-dep python3.5 -y &&\
     ln -s /usr/local/lib/nodejs/node-v10.16.0-linux-ppc64le/bin/node /usr/bin/node &&\
     ln -s /usr/local/lib/nodejs/node-v10.16.0-linux-ppc64le/bin/npm /usr/bin/npm && \
     ln -s /usr/local/lib/nodejs/node-v10.16.0-linux-ppc64le/bin/npx /usr/bin/npx &&\
-    chmod +x /usr/local/bin/build_package && \
-    useradd -ms /bin/bash wazuh-builder
+    chmod +x /usr/local/bin/build_package
 
 
 # Add the volumes
