@@ -32,7 +32,7 @@ NOTARIZE="no"                         # Notarize the package for macOS Catalina.
 DEVELOPER_ID=""                       # Apple Developer ID.
 ALTOOL_PASS=""                        # Temporary Application password for altool.
 pkg_name=""
-
+set -x
 trap ctrl_c INT
 
 function clean_and_exit() {
@@ -143,7 +143,7 @@ function build_package() {
     packages_script_path=""
 
     # build the sources
-    if [[ "${VERSION}" =~ "^2\." ]]; then
+    if [[ "${VERSION}" =~ ^2\. ]]; then
         packages_script_path="package_files/2.x"
     else
         packages_script_path="package_files/${VERSION}"
