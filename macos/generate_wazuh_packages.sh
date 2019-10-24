@@ -32,7 +32,7 @@ NOTARIZE="no"                         # Notarize the package for macOS Catalina.
 DEVELOPER_ID=""                       # Apple Developer ID.
 ALTOOL_PASS=""                        # Temporary Application password for altool.
 pkg_name=""
-set -x
+
 trap ctrl_c INT
 
 function clean_and_exit() {
