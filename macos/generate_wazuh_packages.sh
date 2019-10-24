@@ -143,7 +143,7 @@ function build_package() {
     packages_script_path=""
 
     # build the sources
-    if [[ "${VERSION}" =~ "2." ]]; then
+    if [[ "${VERSION}" =~ "^2\." ]]; then
         packages_script_path="package_files/2.x"
     else
         packages_script_path="package_files/${VERSION}"
