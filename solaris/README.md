@@ -3,10 +3,13 @@ Solaris packages
 
 In this repository, you can find the necessary tools to build a Wazuh package for solaris 10 and 11, using scripts or automated using vagrant, and the tools to build a solaris 10 and 11 vagrant box:
 
-- [Solaris 10](/solaris/solaris10/README.md)
-- [Solaris 11](/solaris/solaris11/README.md)
 - [Automated Solaris package generation using vagrant](/solaris/package_generation/README.md)
 - [Vagrantbox using packer](/solaris/packer/README.md)
+
+
+## Building Solaris packages
+
+All info is in [Generate-sol-package.](https://documentation.wazuh.com/3.11/packaging/generate-sol-package.html)
 
 ## More Packages
 
