@@ -5,7 +5,7 @@ In this repository, you can find the necessary tools to build a Wazuh package fo
 
 ## Building DEB packages
 
-All info is in [Generate-deb-package.](https://documentation.wazuh.com/3.11/packaging/generate-deb-package)
+All info is in [Generate-deb-package.](https://documentation.wazuh.com/3.11/packaging/generate-deb-package.html)
 
 ## More Packages
 
