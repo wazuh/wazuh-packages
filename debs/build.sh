@@ -39,7 +39,6 @@ build_dir=/build_wazuh
 package_full_name="wazuh-${build_target}-${wazuh_version}"
 sources_dir="${build_dir}/${build_target}/${package_full_name}"
 
-# ${SOURCES_DIRECTORY}:/build_wazuh/${TARGET}/wazuh-${TARGET}-${VERSION} \
 mkdir -p ${build_dir}/${build_target}
 mv wazuh* ${build_dir}/${build_target}/wazuh-${build_target}-${wazuh_version}
 
