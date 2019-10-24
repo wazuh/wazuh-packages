@@ -20,9 +20,5 @@ RUN apt-get update && apt-get build-dep python3.2 -y
 ADD build.sh /usr/local/bin/build_package
 RUN chmod +x /usr/local/bin/build_package
 
-# Add the volumes
-RUN mkdir -p /var/local/wazuh
-RUN mkdir -p /etc/wazuh/checksum
-
 # Set the entrypoint
 ENTRYPOINT ["/usr/local/bin/build_package"]

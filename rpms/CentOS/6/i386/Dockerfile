@@ -15,12 +15,5 @@ RUN yum-builddep python34 -y
 ADD build.sh /usr/local/bin/build_package
 RUN chmod +x /usr/local/bin/build_package
 
-# Create the build directory
-RUN mkdir /build_wazuh
-
-# Add the volumes
-RUN mkdir -p /var/local/wazuh
-RUN mkdir -p /etc/wazuh/checksum
-
 # Set the entrypoint
 ENTRYPOINT ["/usr/local/bin/build_package"]

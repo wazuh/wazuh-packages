@@ -12,12 +12,8 @@ CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ARCHITECTURE="x86_64"
 LEGACY="no"
 OUTDIR="${CURRENT_PATH}/output/"
-<<<<<<< HEAD
-BRANCH=""
-=======
 LOCAL_SPECS="${CURRENT_PATH}/SPECS/"
 BRANCH="master"
->>>>>>> Added a new parater to use local specs
 REVISION="1"
 TARGET=""
 JOBS="2"

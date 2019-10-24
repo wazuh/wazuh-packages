@@ -16,10 +16,6 @@ RUN echo "deb http://archive.debian.org/debian/ wheezy contrib main non-free" > 
 RUN apt-get update && apt-get build-dep python3.2 -y && \
     curl -sL https://deb.nodesource.com/setup_6.x | bash -
 
-# Add the volumes
-RUN mkdir -p /var/local/wazuh
-RUN mkdir -p /etc/wazuh/checksum
-
 # Add the script to build the Debian package
 ADD build.sh /usr/local/bin/build_package
 RUN chmod +x /usr/local/bin/build_package
