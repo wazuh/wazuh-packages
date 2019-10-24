@@ -223,12 +223,18 @@ function main() {
           help 0
           ;;
       "-c"|"--checksum")
-            if [ -n "$2" ]; then
+            if [ "$2" == "-t" ] || [ "$2" == "-a" ] || [ "$2" == "-r" ] || [ "$2" == "-l" ] \
+                    || [ "$2" == "-s" ] || [ "$2" == "-j" ] || [ "$2" == "-s" ] || [ "$2" == "-j" ] \
+                    || [ "$2" == "-p" ] || [ "$2" == "-d" ] || [ "$2" == "-c" ] || [ "$2" == "-h" ]; then
+                local CHECKSUM="yes"
+                local CHECKSUMDIR=""
+                shift 1
+            elif [ -n "$2" ]; then
                 local CHECKSUMDIR="$2"
                 local CHECKSUM="yes"
                 shift 2
             else
-                local CHECKSUM="yes"
+                localCHECKSUM="yes"
                 local CHECKSUMDIR=""
                 shift 1
             fi

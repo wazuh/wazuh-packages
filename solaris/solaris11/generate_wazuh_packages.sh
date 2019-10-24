@@ -293,7 +293,12 @@ main() {
             fi
         ;;
         "-c" | "--checksum")
-            if [ -n "$2" ]; then
+            if [ "$2" == "-t" ] || [ "$2" == "-a" ] || [ "$2" == "-r" ] || [ "$2" == "-l" ] \
+                        || [ "$2" == "-s" ] || [ "$2" == "-j" ] || [ "$2" == "-s" ] || [ "$2" == "-j" ] \
+                        || [ "$2" == "-p" ] || [ "$2" == "-d" ] || [ "$2" == "-c" ] || [ "$2" == "-h" ]; then
+                compute_checksums="yes"
+                shift 1
+            elif [ -n "$2" ]; then
                 checksum_dir="$2"
                 compute_checksums="yes"
                 shift 2
