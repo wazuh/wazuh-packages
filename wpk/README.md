@@ -6,7 +6,7 @@ In this repository, you can find the necessary tools to build a WPK package.
 
 ## Building WPK packages
 
-All info is in [Generate-wpk-package.](https://documentation.wazuh.com/3.11/packaging/generate-wpk-package.html)
+Please, visit the following link for the full WPK packages building documentation: [Generate-wpk-package.](https://documentation.wazuh.com/3.11/packaging/generate-wpk-package.html)
 
 ## More Packages
 

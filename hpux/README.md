@@ -6,7 +6,7 @@ In this repository, you can find the necessary tools to build a Wazuh package fo
 
 ## Building HP-UX packages
 
-All info is in [Generate-hpux-package.](https://documentation.wazuh.com/3.11/packaging/generate-hpux-package.html)
+Please, visit the following link for the full HPUX packages building documentation: [Generate-hpux-package.](https://documentation.wazuh.com/3.11/packaging/generate-hpux-package.html)
 
 ## More Packages
 

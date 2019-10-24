@@ -6,7 +6,7 @@ In this repository, you can find the necessary tools to build your own OVA file 
 
 ## Building OVA file:
 
-All info is in [Generate-ova.](https://documentation.wazuh.com/3.11/packaging/generate-ova.html)
+Please, visit the following link for the full OVA building documentation: [Generate-ova.](https://documentation.wazuh.com/3.11/packaging/generate-ova.html)
 
 ## More Packages
 

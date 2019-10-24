@@ -5,7 +5,7 @@ In this repository, you can find the necessary tools to build a Wazuh Splunk App
 
 ## Building Wazuh Splunk app packages
 
-All info is in [Generate-wazuh-splunk-app.](https://documentation.wazuh.com/3.11/packaging/generate-wazuh-splunk-app.html)
+Please, visit the following link for the full Splunk App packages building documentation: [Generate-wazuh-splunk-app.](https://documentation.wazuh.com/3.11/packaging/generate-wazuh-splunk-app.html)
 
 ## More Packages
 

@@ -3,9 +3,9 @@ Wazuh RPM packages for IBM AIX
 
 In this repository, you can find the necessary tools to build a Wazuh package for AIX.
 
-## Building RPM packages
+## Building AIX packages
 
-All info is in [Generate-aix-package.](https://documentation.wazuh.com/3.11/packaging/generate-aix-package.html)
+Please, visit the following link for the full AIX packages building documentation: [Generate-aix-package.](https://documentation.wazuh.com/3.11/packaging/generate-aix-package.html)
 
 ## More Packages
 

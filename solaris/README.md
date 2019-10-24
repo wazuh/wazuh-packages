@@ -9,7 +9,7 @@ In this repository, you can find the necessary tools to build a Wazuh package fo
 
 ## Building Solaris packages
 
-All info is in [Generate-sol-package.](https://documentation.wazuh.com/3.11/packaging/generate-sol-package.html)
+Please, visit the following link for the full Solaris packages building documentation: [Generate-sol-package.](https://documentation.wazuh.com/3.11/packaging/generate-sol-package.html)
 
 ## More Packages
 

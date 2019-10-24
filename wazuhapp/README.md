@@ -5,7 +5,7 @@ In this repository, you can find the necessary tools to build a Wazuh Kibana App
 
 ## Building Wazuh Kibana app packages
 
-All info is in [Generate-wazuh-kibana-app.](https://documentation.wazuh.com/3.11/packaging/generate-wazuh-kibana-app.html)
+Please, visit the following link for the full Wazuh Kibana plugin packages building documentation: [Generate-wazuh-kibana-app.](https://documentation.wazuh.com/3.11/packaging/generate-wazuh-kibana-app.html)
 
 ## More Packages
 
