@@ -5,7 +5,7 @@ In this repository, you can find the necessary tools to build a Wazuh package fo
 
 ## Building RPM packages
 
-All info is in [Generate-aix-package](https://documentation.wazuh.com/3.11/packaging/generate-aix-package)
+All info is in [Generate-aix-package.](https://documentation.wazuh.com/3.11/packaging/generate-aix-package)
 
 ## More Packages
 
