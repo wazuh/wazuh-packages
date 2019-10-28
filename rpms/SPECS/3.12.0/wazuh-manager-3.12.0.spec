@@ -503,6 +503,20 @@ chown root:ossec %{_localstatedir}/ossec/ruleset/sca/*
 # Delete the temporary directory
 rm -rf ${SCA_BASE_DIR}
 
+# Copy mitre ruleset
+curl -sO https://raw.githubusercontent.com/mitre/cti/master/enterprise-attack/enterprise-attack.json
+mkdir -p %{_localstatedir}/ossec/ruleset/mitre
+cp -pr enterprise-attack.json %{_localstatedir}/ossec/ruleset/mitre/
+
+# Copy the installed files into RPM_BUILD_ROOT directory
+cp -pr %{_localstatedir}/ossec/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/
+install -m 0640 ossec-init.conf ${RPM_BUILD_ROOT}%{_sysconfdir}
+install -m 0755 src/init/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-manager
+
+# Correct MITRE permission
+chmod 750 %{_localstatedir}/ossec/ruleset/mitre/
+chmod 640 %{_localstatedir}/ossec/ruleset/mitre/enterprise-attack.json
+
 # Add the SELinux policy
 if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
   if [ $(getenforce) != "Disabled" ]; then

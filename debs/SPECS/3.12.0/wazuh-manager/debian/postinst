@@ -291,6 +291,15 @@ case "$1" in
     chown ossec:ossec ${DIR}/logs/active-responses.log
     chmod 0660 ${DIR}/logs/active-responses.log
 
+    # Copy mitre ruleset
+    curl -sO https://raw.githubusercontent.com/mitre/cti/master/enterprise-attack/enterprise-attack.json
+    mkdir -p ${DIR}/ruleset/mitre
+    cp enterprise-attack.json ${DIR}/ruleset/mitre/
+
+    # Correct MITRE permission
+    chmod 750 ${DIR}/ruleset/mitre/
+    chmod 640 ${DIR}/ruleset/mitre/enterprise-attack.json
+
     # Check if SELinux is installed and enabled
     if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
         if [ $(getenforce) !=  "Disabled" ]; then
