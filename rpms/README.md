@@ -13,10 +13,15 @@ To build a Wazuh package you need to install the following tools:
 
 To build an RPM package, you need to download this repository and use the `generate_rpm_package.sh` script. This script will download the source code from the [wazuh/wazuh](https://github.com/wazuh/wazuh) repository or the [wazuh/wazuh-api](https://github.com/wazuh/wazuh-api) (depending on which package do you want to build), select automatically the RPM spec file, build a Docker image with all the necessary tools to build the RPM package and run a Docker container from that image that will generate the `.src.rpm` and `.rpm` packages.
 
-1. Download this repository and go to the rpm directory:
-    ```bash
-    $ git clone https://github.com/wazuh/wazuh-packages && cd wazuh-packages/rpms
-    ```
+1. Download this repository and go to the rpms directory:
+    - Using `git`:
+        ```bash
+        $ git clone https://github.com/wazuh/wazuh-packages && cd wazuh-packages/rpms
+        ```
+    - Using `curl`:
+        ```bash
+        $ curl -sL https://github.com/wazuh/wazuh-packages/tarball/master | tar zx && cd wazuh*/rpms
+        ```
 
 2. Execute the `generate_rpm_package.sh` script to build the package. There are multiple parameters to select which package is going to be built, its architecture, etc. Here you can see all the different parameters:
     ```shellsession
@@ -34,6 +39,7 @@ To build an RPM package, you need to download this repository and use the `gener
         -p, --path <path>         [Optional] Installation path for the package. By default: /var.
         -d, --debug               [Optional] Build the binaries with debug symbols and create debuginfo packages. By default: no.
         -c, --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package).
+        --dev                     [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub.
         -h, --help                Show this help.
     ```
     * To build a wazuh-manager package for x86_64, revision 3821 and store it in `/tmp`:

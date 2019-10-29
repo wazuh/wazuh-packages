@@ -8,16 +8,19 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-set -exf
+set -ex
 # Optional package release
 build_target=$1
-wazuh_version=$2
+wazuh_branch=$2
 architecture_target=$3
 threads=$4
 package_release=$5
 directory_base=$6
 debug=$7
 checksum=$8
+wazuh_packages_branch=$9
+use_local_specs=${10}
+wazuh_version=""
 
 disable_debug_flag='%debug_package %{nil}'
 
@@ -25,8 +28,16 @@ if [ -z "${package_release}" ]; then
     package_release="1"
 fi
 
-if [ "${debug}" == "no" ]; then
+if [ "${debug}" = "no" ]; then
     echo ${disable_debug_flag} > /etc/rpm/macros
+fi
+
+if [ ${build_target} = "api" ]; then
+    curl -sL https://github.com/wazuh/wazuh-api/tarball/${wazuh_branch} | tar zx
+    wazuh_version="$(grep version wazuh*/package.json | cut -d '"' -f 4)"
+else
+    curl -sL https://github.com/wazuh/wazuh/tarball/${wazuh_branch} | tar zx
+    wazuh_version="$(cat wazuh*/src/VERSION | cut -d 'v' -f 2)"
 fi
 
 # Build directories
@@ -34,14 +45,25 @@ build_dir=/build_wazuh
 rpm_build_dir=${build_dir}/rpmbuild
 mkdir -p ${rpm_build_dir}/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
-# Generating source tar.gz
+# Prepare the sources directory to build the source tar.gz
 package_name=wazuh-${build_target}-${wazuh_version}
-cd ${build_dir} && tar czf "${rpm_build_dir}/SOURCES/${package_name}.tar.gz" "${package_name}"
+mv wazuh-* ${build_dir}/${package_name}
 
 # Including spec file
-mv ${build_dir}/wazuh.spec ${rpm_build_dir}/SPECS/${package_name}.spec
+if [ "${use_local_specs}" = "no" ]; then
+    curl -sL https://github.com/wazuh/wazuh-packages/tarball/${wazuh_packages_branch} | tar zx
+    specs_path="wazuh*/rpms/SPECS"
+else
+    specs_path="/specs"
+fi
 
-if [ "${architecture_target}" == "i386" ]; then
+cp ${specs_path}/${wazuh_version}/wazuh-${build_target}-${wazuh_version}.spec ${rpm_build_dir}/SPECS/${package_name}.spec
+
+# Generating source tar.gz
+cd ${build_dir} && tar czf "${rpm_build_dir}/SOURCES/${package_name}.tar.gz" "${package_name}"
+
+
+if [ "${architecture_target}" = "i386" ]; then
     linux="linux32"
 fi
 

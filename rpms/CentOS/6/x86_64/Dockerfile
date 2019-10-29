@@ -17,14 +17,5 @@ RUN yum install -y nodejs
 ADD build.sh /usr/local/bin/build_package
 RUN chmod +x /usr/local/bin/build_package
 
-# Create the build directory
-RUN mkdir /build_wazuh
-ADD wazuh.spec /build_wazuh/wazuh.spec
-
-# Add the volumes
-VOLUME /var/local/wazuh
-VOLUME /etc/wazuh
-VOLUME /etc/wazuh/checksum
-
 # Set the entrypoint
 ENTRYPOINT ["/usr/local/bin/build_package"]

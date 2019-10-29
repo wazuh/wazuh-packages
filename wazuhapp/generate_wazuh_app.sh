@@ -11,13 +11,12 @@
 
 CURRENT_PATH=$( cd $(dirname $0) ; pwd -P )
 
-CONTAINER_NAME="wazuh-app:latest"
 REVISION=""
+BRANCH_TAG=""
+CHECKSUMDIR=""
+CONTAINER_NAME="wazuh-kibana-app-builder"
 SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
 OUTDIR="${CURRENT_PATH}/output/"
-CHECKSUMDIR=""
-WAZUH_VERSION=""
-KIBANA_VERSION=""
 
 trap ctrl_c INT
 
@@ -40,43 +39,16 @@ build_package(){
     # Build the Docker image
     docker build -t ${CONTAINER_NAME} ./Docker/
     # Build the Wazuh Kibana app package using the build docker image
-    docker run --rm -t  -v ${SOURCES_DIRECTORY}:/source:Z \
-        -v "${OUTDIR}":/wazuh_app:Z \
+    docker run --rm -t -v "${OUTDIR}":/wazuh_app:Z \
         -v ${CHECKSUMDIR}:/var/local/checksum:Z \
-        ${CONTAINER_NAME} ${WAZUH_VERSION} ${KIBANA_VERSION} ${REVISION} ${CHECKSUM}
+        ${CONTAINER_NAME} ${BRANCH_TAG} ${CHECKSUM} ${REVISION}
 
-    if [ "$?" = "0" ]; then
-        clean 0
-    else
-        clean 1
-    fi
-    return 0
+    return $?
 }
 
-compute_version_revision(){
-
-    cd "${SOURCES_DIRECTORY}"
-
-    WAZUH_VERSION=$(python -c 'import json; f=open("package.json"); pkg=json.load(f); f.close(); print(pkg["version"])')
-    KIBANA_VERSION=$(python -c 'import json; f=open("package.json"); pkg=json.load(f); f.close(); print(pkg["kibana"]["version"])')
-
-    cd -
-
-    return 0
-}
-
-download_sources(){
-
-    git clone https://github.com/wazuh/wazuh-kibana-app -b ${BRANCH_TAG} --depth=1 ${SOURCES_DIRECTORY} || return 1
-
-    compute_version_revision
-
-    return 0
-}
 clean(){
 
     exit_code=$1
-    rm -rf ${SOURCES_DIRECTORY}
     exit ${exit_code}
 }
 
@@ -137,14 +109,8 @@ main(){
     fi
 
     if [[ ${HAVE_BRANCH} == true ]]; then
-
-        if download_sources; then
-            build_package
-            clean 0
-        else
-            clean 1
-        fi
-
+        build_package || clean 1
+        clean 0
     else
         help 1
     fi
