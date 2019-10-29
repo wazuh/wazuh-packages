@@ -7,7 +7,6 @@
 # and/or modify it under the terms of the GNU General Public
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
-
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ARCHITECTURE="x86_64"
 LEGACY="no"
@@ -19,6 +18,7 @@ TARGET=""
 JOBS="2"
 DEBUG="no"
 USER_PATH="no"
+SRC="no"
 RPM_X86_BUILDER="rpm_builder_x86"
 RPM_I386_BUILDER="rpm_builder_i386"
 RPM_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/6"
@@ -73,8 +73,8 @@ build_rpm() {
         -v ${CHECKSUMDIR}:/var/local/checksum:Z \
         -v ${LOCAL_SPECS}:/specs:Z \
         ${CONTAINER_NAME} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
-        $JOBS ${REVISION} ${INSTALLATION_PATH} ${DEBUG} \
-        ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} || return 1
+        ${JOBS} ${REVISION} ${INSTALLATION_PATH} ${DEBUG} \
+        ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} ${SRC} || return 1
 
     echo "Package $(ls ${OUTDIR} -Art | tail -n 1) added to ${OUTDIR}."
 
@@ -138,6 +138,7 @@ help() {
     echo "    -c, --checksum <path>        [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
     echo "    --packages-branch <branch>   [Optional] Select Git branch or tag from wazuh-packages repository. e.g ${PACKAGES_BRANCH}"
     echo "    --dev                        [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub."
+    echo "    --src                        [Optional] Generate the source package in the destination directory."
     echo "    -h, --help                   Show this help."
     echo
     exit $1
@@ -228,10 +229,16 @@ main() {
                 help 1
             fi
             ;;
+        "--src")
+            SRC="yes"
+            shift 1
+            ;;
         "--packages-branch")
             if [ -n "$2" ]; then
                 PACKAGES_BRANCH="$2"
                 shift 2
+            else
+                help 1
             fi
             ;;
         "--dev")
@@ -253,8 +260,6 @@ main() {
 
     if [[ "$BUILD" != "no" ]]; then
         build || clean 1
-    else
-        clean 1
     fi
 
     clean 0

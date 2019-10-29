@@ -20,6 +20,7 @@ debug=$7
 checksum=$8
 wazuh_packages_branch=$9
 use_local_specs=${10}
+src=${11}
 wazuh_version=""
 
 disable_debug_flag='%debug_package %{nil}'
@@ -43,6 +44,12 @@ fi
 # Build directories
 build_dir=/build_wazuh
 rpm_build_dir=${build_dir}/rpmbuild
+file_name="wazuh-${build_target}-${wazuh_version}-${package_release}"
+rpm_file="${file_name}.${architecture_target}.rpm"
+src_file="${file_name}.src.rpm"
+pkg_path="${rpm_build_dir}/RPMS/${architecture_target}"
+src_path="${rpm_build_dir}/SRPMS"
+extract_path="${pkg_path}"
 mkdir -p ${rpm_build_dir}/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
 # Prepare the sources directory to build the source tar.gz
@@ -73,11 +80,15 @@ $linux rpmbuild --define "_topdir ${rpm_build_dir}" --define "_threads ${threads
         --define "_debugenabled ${debug}" --target ${architecture_target} \
         -ba ${rpm_build_dir}/SPECS/${package_name}.spec
 
-rpm_file="wazuh-${build_target}-${wazuh_version}-${package_release}.${architecture_target}.rpm"
-pkg_path="${rpm_build_dir}/RPMS/${architecture_target}"
-
 if [[ "${checksum}" == "yes" ]]; then
     cd ${pkg_path} && sha512sum ${rpm_file} > /var/local/checksum/${rpm_file}.sha512
+    if [[ "${src}" == "yes" ]]; then
+        cd ${src_path} && sha512sum ${src_file} > /var/local/checksum/${src_file}.sha512
+    fi
 fi
 
-mv ${pkg_path}/${rpm_file} /var/local/wazuh
+if [[ "${src}" == "yes" ]]; then
+    extract_path="${rpm_build_dir}"
+fi
+
+find ${extract_path} -maxdepth 3 -type f -name "${file_name}*" -exec mv {} /var/local/wazuh \;
