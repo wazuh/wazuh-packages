@@ -13,10 +13,15 @@ To build a Wazuh package you need to install the following tools:
 
 To build an RPM package, you need to download this repository and use the `generate_rpm_package.sh` script. This script will download the source code from the [wazuh/wazuh](https://github.com/wazuh/wazuh) repository or the [wazuh/wazuh-api](https://github.com/wazuh/wazuh-api) (depending on which package do you want to build), select automatically the RPM spec file, build a Docker image with all the necessary tools to build the RPM package and run a Docker container from that image that will generate the `.rpm` package.
 
-1. Download this repository and go to the rpm directory:
-    ```bash
-    $ git clone https://github.com/wazuh/wazuh-packages && cd wazuh-packages/rpms
-    ```
+1. Download this repository and go to the rpms directory:
+    - Using `git`:
+        ```bash
+        $ git clone https://github.com/wazuh/wazuh-packages && cd wazuh-packages/rpms
+        ```
+    - Using `curl`:
+        ```bash
+        $ curl -sL https://github.com/wazuh/wazuh-packages/tarball/master | tar zx && cd wazuh*/rpms
+        ```
 
 2. Execute the `generate_rpm_package.sh` script to build the package. There are multiple parameters to select which package is going to be built, its architecture, etc. Here you can see all the different parameters:
     ```shellsession
@@ -24,19 +29,20 @@ To build an RPM package, you need to download this repository and use the `gener
 
     Usage: ./generate_rpm_package.sh [OPTIONS]
 
-        -b,   --branch <branch>     [Required] Select Git branch or tag e.g. master
-        -t,   --target <target>     [Required] Target package to build [manager/api/agent].
-        -a,   --architecture <arch> [Optional] Target architecture of the package [x86_64/i386].
-        -r,   --revision <rev>      [Optional] Package revision that append to version e.g. x.x.x-rev
-        -l,   --legacy              [Optional] Build package for CentOS 5.
-        -s,   --store <path>        [Optional] Set the destination path of package. By default, an output folder will be created.
-        -j,   --jobs <number>       [Optional] Number of parallel jobs when compiling.
-        -p,   --path <path>         [Optional] Installation path for the package. By default: /var.
-        -d,   --debug               [Optional] Build the binaries with debug symbols and create debuginfo packages. By default: no.
-        -c,   --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package).
-        --src                       [Optional] Generate the source package in the destination directory
-        -h,   --help                Show this help.
 
+        -b, --branch <branch>     [Required] Select Git branch or tag e.g. master
+        -t, --target <target>     [Required] Target package to build [manager/api/agent].
+        -a, --architecture <arch> [Optional] Target architecture of the package [x86_64/i386].
+        -r, --revision <rev>      [Optional] Package revision that append to version e.g. x.x.x-rev
+        -l, --legacy              [Optional] Build package for CentOS 5.
+        -s, --store <path>        [Optional] Set the destination path of package.
+        -j, --jobs <number>       [Optional] Number of parallel jobs when compiling.
+        -p, --path <path>         [Optional] Installation path for the package. By default: /var.
+        -d, --debug               [Optional] Build the binaries with debug symbols and create debuginfo packages. By default: no.
+        -c, --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package).
+        --dev                     [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub.
+        --src                     [Optional] Generate the source package in the destination directory.
+        -h, --help                Show this help.
     ```
     * To build a wazuh-manager package for `x86_64`, revision `2.el6` and store it in `/tmp`:
         `# ./generate_rpm_package.sh -b v3.10.2 -s /tmp -t manager -a x86_64 -r 2.el6`.

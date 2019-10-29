@@ -1,6 +1,6 @@
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-manager
-Version:     3.10.3
+Version:     3.12.0
 Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
@@ -87,6 +87,9 @@ install -m 0640 wodles/oscap/content/*redhat* ${RPM_BUILD_ROOT}%{_localstatedir}
 install -m 0640 wodles/oscap/content/*rhel* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 install -m 0640 wodles/oscap/content/*centos* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 install -m 0640 wodles/oscap/content/*fedora* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
+
+# Install Vulnerability Detector files
+install -m 0440 src/wazuh_modules/vulnerability_detector/*.json ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/queue/vulnerabilities/dictionaries
 
 # Add configuration scripts
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/
@@ -229,7 +232,6 @@ if [ $1 = 2 ]; then
   if [ $MAJOR = 3 ] && [ $MINOR -lt 7 ]; then
     rm -f %{_localstatedir}/ossec/queue/db/*.db*
     rm -f %{_localstatedir}/ossec/queue/db/.template.db
-
   elif [ $MAJOR = 3 ] && [ $MINOR = 9 ]; then
     find %{_localstatedir}/ossec/ruleset/sca -type f > %{_localstatedir}/ossec/old_sca.files
   fi
@@ -359,9 +361,9 @@ if [ $1 = 1 ]; then
   # If systemd is installed, add the wazuh-manager.service file to systemd files directory
   if [ -d /run/systemd/system ]; then
 
-    # Fix for RHEL 8
+    # Fix for RHEL 8 and CentOS 8
     # Service must be installed in /usr/lib/systemd/system/
-    if [ "${DIST_NAME}" == "rhel" -a "${DIST_VER}" == "8" ]; then
+    if [ "${DIST_NAME}" == "rhel" -a "${DIST_VER}" == "8" ] || [ "${DIST_NAME}" == "centos" -a "${DIST_VER}" == "8" ]; then
       install -m 644 %{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/systemd/wazuh-manager.service /usr/lib/systemd/system/
     else
       install -m 644 %{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/systemd/wazuh-manager.service /etc/systemd/system/
@@ -810,7 +812,10 @@ rm -fr %{buildroot}
 %dir %attr(770, ossecr, ossec) %{_localstatedir}/ossec/queue/rids
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/queue/rootcheck
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/queue/ossec
-%dir %attr(760, root, ossec) %{_localstatedir}/ossec/queue/vulnerabilities
+%dir %attr(660, root, ossec) %{_localstatedir}/ossec/queue/vulnerabilities
+%dir %attr(440, root, ossec) %{_localstatedir}/ossec/queue/vulnerabilities/dictionaries
+%attr(0440, root, ossec) %{_localstatedir}/ossec/queue/vulnerabilities/dictionaries/cpe_helper.json
+%attr(0440, root, ossec) %{_localstatedir}/ossec/queue/vulnerabilities/dictionaries/msu.json
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset/sca
 %attr(640, root, ossec) %{_localstatedir}/ossec/ruleset/VERSION
@@ -913,7 +918,9 @@ rm -fr %{buildroot}
 %{_initrddir}/*
 
 %changelog
-* Tue Sep 24 2019 support <info@wazuh.com> - 3.10.3
+* Tue Oct 23 2019 support <info@wazuh.com> - 3.12.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Oct 7 2019 support <info@wazuh.com> - 3.11.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Sep 23 2019 support <info@wazuh.com> - 3.10.2
 - More info: https://documentation.wazuh.com/current/release-notes/

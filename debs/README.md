@@ -7,16 +7,20 @@ In this repository, you can find the necessary tools to build a Wazuh package fo
 
 To build a Wazuh package you need to install the following tools:
   - `docker`: [installation guide](https://docs.docker.com/install/linux/docker-ce/debian/).
-  - `git`: `apt-get install git`.
 
 ## Building DEB packages
 
 Building a .deb package is pretty similar to build a .rpm package. You need to download the repository and execute the `generate_debian_package.sh` script. This will create the docker image, choose the needed files to build the package and build it.
 
 1. Download this repository and go to the debs directory:
-    ```bash
-    $ git clone https://github.com/wazuh/wazuh-packages && cd wazuh-packages/debs
-    ```
+    - Using `git`:
+        ```bash
+        $ git clone https://github.com/wazuh/wazuh-packages && cd wazuh-packages/debs
+        ```
+    - Using `curl`:
+        ```bash
+        $ curl -sL https://github.com/wazuh/wazuh-packages/tarball/master | tar zx && cd wazuh*/debs
+        ```
 
 2. Execute the `generate_debian_package.sh` script to built the package. There are multiple parameters to select which package is going to be build, its architecture, etc. Here you can see all the different parameters:
       ```shellsession
@@ -33,6 +37,7 @@ Building a .deb package is pretty similar to build a .rpm package. You need to d
             -p, --path <path>         [Optional] Installation path for the package. By default: /var/ossec.
             -d, --debug               [Optional] Build the binaries with debug symbols. By default: no.
             -c, --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package).
+            --dev                     [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub.
             -h, --help                Show this help.
       ```
     * To build a wazuh-manager package for amd64 (x86_64) and store it in `/tmp`:

@@ -427,16 +427,16 @@
     "/var/ossec/etc/ossec.conf.rpmnew": {
         "class": "dynamic",
         "group": "ossec",
-        "mode": "0640",
-        "prot": "-rw-r-----",
+        "mode": "0660",
+        "prot": "-rw-rw----",
         "type": "file",
         "user": "root"
     },
     "/var/ossec/etc/ossec.conf.new": {
         "class": "dynamic",
         "group": "root",
-        "mode": "0640",
-        "prot": "-rw-r-----",
+        "mode": "0660",
+        "prot": "-rw-rw----",
         "type": "file",
         "user": "root"
     },
@@ -486,7 +486,7 @@
         "mode": "0644",
         "prot": "-rw-r--r--",
         "type": "file",
-        "user": "root"
+        "user": "ossec"
     },
     "/var/ossec/etc/shared/cis_debian_linux_rcl.txt": {
         "class": "static",
@@ -494,7 +494,7 @@
         "mode": "0644",
         "prot": "-rw-r--r--",
         "type": "file",
-        "user": "root"
+        "user": "ossec"
     },
     "/var/ossec/etc/shared/cis_mysql5-6_community_rcl.txt": {
         "class": "static",
@@ -502,7 +502,7 @@
         "mode": "0644",
         "prot": "-rw-r--r--",
         "type": "file",
-        "user": "root"
+        "user": "ossec"
     },
     "/var/ossec/etc/shared/cis_mysql5-6_enterprise_rcl.txt": {
         "class": "static",
@@ -510,7 +510,7 @@
         "mode": "0644",
         "prot": "-rw-r--r--",
         "type": "file",
-        "user": "root"
+        "user": "ossec"
     },
     "/var/ossec/etc/shared/cis_rhel5_linux_rcl.txt": {
         "class": "static",
@@ -518,7 +518,7 @@
         "mode": "0644",
         "prot": "-rw-r--r--",
         "type": "file",
-        "user": "root"
+        "user": "ossec"
     },
     "/var/ossec/etc/shared/cis_rhel6_linux_rcl.txt": {
         "class": "static",
@@ -526,7 +526,7 @@
         "mode": "0644",
         "prot": "-rw-r--r--",
         "type": "file",
-        "user": "root"
+        "user": "ossec"
     },
     "/var/ossec/etc/shared/cis_rhel7_linux_rcl.txt": {
         "class": "static",
@@ -534,7 +534,7 @@
         "mode": "0644",
         "prot": "-rw-r--r--",
         "type": "file",
-        "user": "root"
+        "user": "ossec"
     },
     "/var/ossec/etc/shared/cis_rhel_linux_rcl.txt": {
         "class": "static",
@@ -542,7 +542,7 @@
         "mode": "0644",
         "prot": "-rw-r--r--",
         "type": "file",
-        "user": "root"
+        "user": "ossec"
     },
     "/var/ossec/etc/shared/cis_sles11_linux_rcl.txt": {
         "class": "static",
@@ -550,7 +550,7 @@
         "mode": "0644",
         "prot": "-rw-r--r--",
         "type": "file",
-        "user": "root"
+        "user": "ossec"
     },
     "/var/ossec/etc/shared/cis_sles12_linux_rcl.txt": {
         "class": "static",
@@ -558,7 +558,7 @@
         "mode": "0644",
         "prot": "-rw-r--r--",
         "type": "file",
-        "user": "root"
+        "user": "ossec"
     },
     "/var/ossec/etc/shared/cis_win2012r2_domainL1_rcl.txt": {
         "class": "static",
@@ -566,7 +566,7 @@
         "mode": "0644",
         "prot": "-rw-r--r--",
         "type": "file",
-        "user": "root"
+        "user": "ossec"
     },
     "/var/ossec/etc/shared/cis_win2012r2_domainL2_rcl.txt": {
         "class": "static",
@@ -574,7 +574,7 @@
         "mode": "0644",
         "prot": "-rw-r--r--",
         "type": "file",
-        "user": "root"
+        "user": "ossec"
     },
     "/var/ossec/etc/shared/cis_win2012r2_memberL1_rcl.txt": {
         "class": "static",
@@ -582,7 +582,7 @@
         "mode": "0644",
         "prot": "-rw-r--r--",
         "type": "file",
-        "user": "root"
+        "user": "ossec"
     },
     "/var/ossec/etc/shared/cis_win2012r2_memberL2_rcl.txt": {
         "class": "static",
@@ -590,7 +590,7 @@
         "mode": "0644",
         "prot": "-rw-r--r--",
         "type": "file",
-        "user": "root"
+        "user": "ossec"
     },
     "/var/ossec/etc/shared/merged.mg": {
         "class": "dynamic",
@@ -606,7 +606,7 @@
         "mode": "0644",
         "prot": "-rw-r--r--",
         "type": "file",
-        "user": "root"
+        "user": "ossec"
     },
     "/var/ossec/etc/shared/rootkit_trojans.txt": {
         "class": "static",
@@ -614,7 +614,7 @@
         "mode": "0644",
         "prot": "-rw-r--r--",
         "type": "file",
-        "user": "root"
+        "user": "ossec"
     },
     "/var/ossec/etc/shared/system_audit_rcl.txt": {
         "class": "static",
@@ -622,7 +622,7 @@
         "mode": "0644",
         "prot": "-rw-r--r--",
         "type": "file",
-        "user": "root"
+        "user": "ossec"
     },
     "/var/ossec/etc/shared/system_audit_ssh.txt": {
         "class": "static",
@@ -630,7 +630,7 @@
         "mode": "0644",
         "prot": "-rw-r--r--",
         "type": "file",
-        "user": "root"
+        "user": "ossec"
     },
     "/var/ossec/etc/shared/win_applications_rcl.txt": {
         "class": "static",
@@ -638,7 +638,7 @@
         "mode": "0644",
         "prot": "-rw-r--r--",
         "type": "file",
-        "user": "root"
+        "user": "ossec"
     },
     "/var/ossec/etc/shared/win_audit_rcl.txt": {
         "class": "static",
@@ -646,7 +646,7 @@
         "mode": "0644",
         "prot": "-rw-r--r--",
         "type": "file",
-        "user": "root"
+        "user": "ossec"
     },
     "/var/ossec/etc/shared/win_malware_rcl.txt": {
         "class": "static",
@@ -654,7 +654,7 @@
         "mode": "0644",
         "prot": "-rw-r--r--",
         "type": "file",
-        "user": "root"
+        "user": "ossec"
     },
     "/var/ossec/etc/wpk_root.pem": {
         "class": "static",
@@ -1624,7 +1624,7 @@
         "type": "file",
         "user": "root"
     },
-        "/var/ossec/ruleset/sca/cis_solaris11_rcl.yml": {
+    "/var/ossec/ruleset/sca/cis_solaris11_rcl.yml": {
         "class": "static",
         "group": "ossec",
         "mode": "0640",
