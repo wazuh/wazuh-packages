@@ -47,6 +47,7 @@ build_environment() {
   /usr/local/bin/depothelper -f coreutils
   /usr/local/bin/depothelper -f gdb
   /usr/local/bin/depothelper -f perl-5.10.1
+  /usr/local/bin/depothelper -f regex
   cp /usr/bin/perl /tmp/perl
   cp /usr/local/bin/perl5.10.1 /usr/bin/perl
 }
