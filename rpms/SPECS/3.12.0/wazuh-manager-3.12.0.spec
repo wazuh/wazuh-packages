@@ -212,7 +212,6 @@ rm -f %{_localstatedir}/ossec/var/db/global.db* || true
 rm -f %{_localstatedir}/ossec/var/db/cluster.db* || true
 rm -f %{_localstatedir}/ossec/var/db/.profile.db* || true
 rm -f %{_localstatedir}/ossec/var/db/agents/* || true
-rm -f %{_localstatedir}/ossec/var/db/mitre.db* || true
 
 # Remove Vuln-detector database
 rm -f %{_localstatedir}/ossec/queue/vulnerabilities/cve.db || true
