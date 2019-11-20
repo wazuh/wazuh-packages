@@ -2,7 +2,6 @@
 # This program is a free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 param (
-    [string]$READY_TO_RELEASE = "",
     [string]$OPTIONAL_REVISION = "",
     [string]$SIGN = "",
     [string]$WIX_TOOLS_PATH = "",
@@ -30,7 +29,7 @@ if(($help.isPresent)) {
     USAGE:
 
         * WAZUH:
-          $ ./generate_wazuh_msi.ps1  -OPTIONAL_REVISION {{ BRANCH_TAG }} -SIGN {{ yes|no }} -WIX_TOOLS_PATH {{ PATH }} -SIGN_TOOLS_PATH {{ PATH }}
+          $ ./generate_wazuh_msi.ps1  -OPTIONAL_REVISION {{ REVISION }} -SIGN {{ yes|no }} -WIX_TOOLS_PATH {{ PATH }} -SIGN_TOOLS_PATH {{ PATH }}
 
             Build a devel msi:    $ ./generate_wazuh_msi.ps1 -OPTIONAL_REVISION 2 -SIGN no
             Build a prod msi:     $ ./generate_wazuh_msi.ps1 -OPTIONAL_REVISION 1 -SIGN yes -
