@@ -21,6 +21,10 @@ BuildRequires: coreutils glibc-devel automake autoconf libtool policycoreutils-p
 
 ExclusiveOS: linux
 
+
+
+
+
 %description
 Wazuh helps you to gain security visibility into your infrastructure by monitoring
 hosts at an operating system and application level. It provides the following capabilities:
