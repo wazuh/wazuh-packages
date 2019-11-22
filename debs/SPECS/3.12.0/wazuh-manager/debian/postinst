@@ -252,6 +252,11 @@ case "$1" in
     chmod 660 ${DIR}/etc/decoders/*
     chmod 660 ${DIR}/etc/rules/*
 
+    chmod 440 ${DIR}/queue/vulnerabilities/dictionaries/cpe_helper.json
+    chmod 440 ${DIR}/queue/vulnerabilities/dictionaries/msu.json.gz
+    chmod 660 ${DIR}/queue/vulnerabilities/
+
+    chown -R root:ossec ${DIR}/queue/vulnerabilities/
     chown -R root:ossec ${DIR}/etc/client.keys
     chown -R ossec:ossec ${DIR}/etc/lists/*
     chown -R ossec:ossec ${DIR}/etc/decoders/*
@@ -281,6 +286,10 @@ case "$1" in
         chmod 660 ${DIR}/logs/cluster.log
         chown ${USER}:${GROUP} ${DIR}/logs/cluster.log
     fi
+
+    touch ${DIR}/logs/active-responses.log
+    chown ossec:ossec ${DIR}/logs/active-responses.log
+    chmod 0660 ${DIR}/logs/active-responses.log
 
     # Check if SELinux is installed and enabled
     if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then

@@ -1,0 +1,13 @@
+FROM ubuntu:18.04
+
+VOLUME /shared
+
+# Installing necessary packages
+RUN apt-get update && \
+    apt-get install -y gcc-mingw-w64 nsis make wget unzip curl perl binutils zip 
+
+ADD entrypoint.sh /
+
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]

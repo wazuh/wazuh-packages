@@ -20,6 +20,8 @@ target_dir="${current_path}/output"
 checksum_dir=""
 compute_checksums="no"
 
+trap ctrl_c INT
+
 build_environment() {
     echo "Installing dependencies."
 
@@ -100,9 +102,9 @@ compile() {
     arch="$(uname -p)"
     # Build the binaries
     if [ "$arch" = "sparc" ]; then
-        gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no USE_BIG_ENDIAN=yes || exit 1
+        gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no USE_BIG_ENDIAN=yes DISABLE_SHARED=yes || exit 1
     else
-        gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no || exit 1
+        gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no DISABLE_SHARED=yes || exit 1
     fi
 
     $SOURCE/install.sh || exit 1
@@ -211,6 +213,10 @@ clean() {
     rm -f wazuh-agent.mog
     rm -f wazuh-agent.mog-aux
     rm -f pack
+}
+
+ctrl_c() {
+    clean 1
 }
 
 

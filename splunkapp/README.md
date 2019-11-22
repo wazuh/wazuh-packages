@@ -7,16 +7,19 @@ In this repository, you can find the necessary tools to build a Wazuh Splunk App
 
 To build a Wazuh Splunk app package you need to install the following tools:
   - `docker`: [installation guide](https://docs.docker.com/install/linux/docker-ce/centos/) for RPM and [installation guide](https://docs.docker.com/install/linux/docker-ce/debian/) for Debian.
-- `git`:  [installation guide](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git).
 
 ## Building Wazuh Splunk app packages
 
 To build a Splunk app package, you need to download this repository and use the `generate_wazuh_splunk_app.sh` script. This script will download the source code from the [wazuh/wazuh-splunk](https://github.com/wazuh/wazuh-splunk) repository, build a Docker image with all the necessary tools to build the app package and run a Docker container from that image that will generate a `.tar.gz` package.
 
 1. Download this repository and go to the splunkapp directory:
-    ```bash
-    $ git clone https://github.com/wazuh/wazuh-packages && cd wazuh-packages/splunkapp
-    ```
+    - Using `git`:
+        ```bash
+        $ git clone https://github.com/wazuh/wazuh-packages && cd wazuh-packages/splunkapp
+        ```
+    - Using `curl`:
+        ```bash
+        $ curl -sL https://github.com/wazuh/wazuh-packages/tarball/master | tar zx && cd splunkapp
 
 2. Execute the `generate_wazuh_splunk_app.sh` script to build the package. There are multiple parameters to select: which version of the app is going to be built, where is going to be stored in, etc. Here you can see all the different parameters:
     ```shellsession

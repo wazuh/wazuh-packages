@@ -88,6 +88,9 @@ install -m 0640 wodles/oscap/content/*rhel* ${RPM_BUILD_ROOT}%{_localstatedir}/o
 install -m 0640 wodles/oscap/content/*centos* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 install -m 0640 wodles/oscap/content/*fedora* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 
+# Install Vulnerability Detector files
+install -m 0440 src/wazuh_modules/vulnerability_detector/*.json ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/queue/vulnerabilities/dictionaries
+
 # Add configuration scripts
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/
 cp gen_ossec.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/
@@ -358,9 +361,9 @@ if [ $1 = 1 ]; then
   # If systemd is installed, add the wazuh-manager.service file to systemd files directory
   if [ -d /run/systemd/system ]; then
 
-    # Fix for RHEL 8
+    # Fix for RHEL 8 and CentOS 8
     # Service must be installed in /usr/lib/systemd/system/
-    if [ "${DIST_NAME}" == "rhel" -a "${DIST_VER}" == "8" ]; then
+    if [ "${DIST_NAME}" == "rhel" -a "${DIST_VER}" == "8" ] || [ "${DIST_NAME}" == "centos" -a "${DIST_VER}" == "8" ]; then
       install -m 644 %{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/systemd/wazuh-manager.service /usr/lib/systemd/system/
     else
       install -m 644 %{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/systemd/wazuh-manager.service /etc/systemd/system/
@@ -809,7 +812,10 @@ rm -fr %{buildroot}
 %dir %attr(770, ossecr, ossec) %{_localstatedir}/ossec/queue/rids
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/queue/rootcheck
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/queue/ossec
-%dir %attr(760, root, ossec) %{_localstatedir}/ossec/queue/vulnerabilities
+%dir %attr(660, root, ossec) %{_localstatedir}/ossec/queue/vulnerabilities
+%dir %attr(440, root, ossec) %{_localstatedir}/ossec/queue/vulnerabilities/dictionaries
+%attr(0440, root, ossec) %{_localstatedir}/ossec/queue/vulnerabilities/dictionaries/cpe_helper.json
+%attr(0440, root, ossec) %{_localstatedir}/ossec/queue/vulnerabilities/dictionaries/msu.json.gz
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset/sca
 %attr(640, root, ossec) %{_localstatedir}/ossec/ruleset/VERSION
@@ -913,8 +919,6 @@ rm -fr %{buildroot}
 
 %changelog
 * Mon Oct 7 2019 support <info@wazuh.com> - 3.11.0
-- More info: https://documentation.wazuh.com/current/release-notes/
-* Tue Sep 24 2019 support <info@wazuh.com> - 3.10.3
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Sep 23 2019 support <info@wazuh.com> - 3.10.2
 - More info: https://documentation.wazuh.com/current/release-notes/
