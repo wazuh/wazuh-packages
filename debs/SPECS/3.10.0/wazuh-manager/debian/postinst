@@ -4,7 +4,7 @@
 set -e
 case "$1" in
     configure)
-    #cat non-existent-file
+
     OS=$(lsb_release -si)
     VER=$(lsb_release -sr)
     DIR="/var/ossec"

@@ -17,7 +17,7 @@ fi
 
 case "$1" in
     install|upgrade)
-        #cat nonexistent-file
+
         if [ ! -z "$2" ] && [ ! -f ${DIR}/etc/ossec.conf ] ; then
             touch ${WAZUH_TMP_DIR}/create_conf
         fi

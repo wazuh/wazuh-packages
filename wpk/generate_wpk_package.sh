@@ -9,7 +9,6 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 LINUX_BUILDER="unified_linux_wpk_builder"
 LINUX_BUILDER_DOCKERFILE="${CURRENT_PATH}/unified/linux"

@@ -1,7 +1,7 @@
 #!/bin/sh
 # preinst script for Wazuh
 
-set -exf
+set -e
 
 # configuration variables
 DIR="/var/ossec"

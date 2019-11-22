@@ -121,7 +121,7 @@ fi
 
 exit 0
 %pre
-set -exf
+
 # Stop Authd if it is running
 if ps aux | grep %{_localstatedir}/ossec/bin/ossec-authd | grep -v grep > /dev/null 2>&1; then
    kill `ps -ef | grep '%{_localstatedir}/ossec/bin/ossec-authd' | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
@@ -209,8 +209,7 @@ if [ $1 = 2 ]; then
     fi
 fi
 %post
-set -exf
-#cat non-existent-file
+
 # If the package is being installed
 if [ $1 = 1 ]; then
   . %{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/init/dist-detect.sh
@@ -411,8 +410,7 @@ for rules_file in ${OLD_RULES}; do
 done
 
 %preun
-set -exf
-#cat non-existent-file
+
 if [ $1 = 0 ]; then
 
   /sbin/service wazuh-manager stop > /dev/null 2>&1 || :
@@ -452,8 +450,7 @@ if [ $1 = 0 ]; then
 fi
 
 %postun
-set -exf
-#cat non-existent-file
+
 # If the package is been uninstalled
 if [ $1 == 0 ];then
   # Remove the ossecr user if it exists
