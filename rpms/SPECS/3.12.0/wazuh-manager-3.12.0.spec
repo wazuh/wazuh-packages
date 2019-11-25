@@ -915,6 +915,8 @@ rm -fr %{buildroot}
 %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/template*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/content
 %attr(640, root, ossec) %{_localstatedir}/ossec/wodles/oscap/content/*
+%dir %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/gcloud
+%attr(750, root, ossec) %{_localstatedir}/ossec/wodles/gcloud/*
 
 %{_initrddir}/*
 

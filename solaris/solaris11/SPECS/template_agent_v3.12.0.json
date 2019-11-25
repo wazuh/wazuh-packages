@@ -1631,5 +1631,45 @@
         "prot": "-rwxr-----",
         "type": "file",
         "user": "root"
+    },
+    "/var/ossec/wodles/gcloud": {
+        "class": "static",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "drwxr-x---",
+        "type": "directory",
+        "user": "root"
+    },
+    "/var/ossec/wodles/gcloud/gcloud.py": {
+        "class": "static",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/wodles/gcloud/integration.py": {
+        "class": "static",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/wodles/gcloud/tools.py": {
+        "class": "static",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/wodles/gcloud/gcloud": {
+        "class": "static",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
     }
 }

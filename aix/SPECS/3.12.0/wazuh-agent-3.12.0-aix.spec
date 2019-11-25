@@ -254,6 +254,8 @@ rm -fr %{buildroot}
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec/wodles
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/aws
 %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/aws/*
+%dir %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/gcloud
+%attr(750, root, ossec) %{_localstatedir}/ossec/wodles/gcloud/*
 
 
 %changelog
