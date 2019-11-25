@@ -25,6 +25,9 @@ DEB_I386_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/i386"
 CHECKSUMDIR=""
 CHECKSUM="no"
 DEB_PPC64LE_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/ppc64le"
+PACKAGES_BRANCH="master"
+USE_LOCAL_SPECS="no"
+LOCAL_SPECS="${CURRENT_PATH}"
 
 trap ctrl_c INT
 
@@ -45,23 +48,8 @@ build_deb() {
     CONTAINER_NAME="$1"
     DOCKERFILE_PATH="$2"
 
-    SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
-
-    # Download the sources
-    git clone ${SOURCE_REPOSITORY} -b ${BRANCH} ${SOURCES_DIRECTORY} --depth=1 || return 1
-
     # Copy the necessary files
     cp build.sh ${DOCKERFILE_PATH}
-    cp gen_permissions.sh ${SOURCES_DIRECTORY}
-
-    if [[ "${TARGET}" != "api" ]]; then
-        VERSION="$(cat ${SOURCES_DIRECTORY}/src/VERSION | cut -d 'v' -f 2)"
-    else
-        VERSION="$(grep version ${SOURCES_DIRECTORY}/package.json | cut -d '"' -f 4)"
-    fi
-
-    # Copy the "specs" files for the Debian package
-    cp -rp SPECS/${VERSION}/wazuh-${TARGET} ${DOCKERFILE_PATH}/
 
     # Build the Docker image
     docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || return 1
@@ -69,10 +57,10 @@ build_deb() {
     # Build the Debian package with a Docker container
     docker run -t --rm -v ${OUTDIR}:/var/local/wazuh:Z \
         -v ${CHECKSUMDIR}:/var/local/checksum:Z \
-        -v ${SOURCES_DIRECTORY}:/build_wazuh/${TARGET}/wazuh-${TARGET}-${VERSION}:Z \
-        -v ${DOCKERFILE_PATH}/wazuh-${TARGET}:/${TARGET}:Z \
-        ${CONTAINER_NAME} ${TARGET} ${VERSION} ${ARCHITECTURE} \
-        ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM} || return 1
+        -v ${LOCAL_SPECS}:/specs:Z \
+        ${CONTAINER_NAME} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
+        ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} \
+        ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} || return 1
 
     echo "Package $(ls ${OUTDIR} -Art | tail -n 1) added to ${OUTDIR}."
 
@@ -80,17 +68,17 @@ build_deb() {
 }
 
 build() {
-    if [[ "${TARGET}" = "api" ]]; then
 
-        SOURCE_REPOSITORY="https://github.com/wazuh/wazuh-api"
+    if [[ "${TARGET}" == "api" ]]; then
+
         if [[ "${ARCHITECTURE}" = "ppc64le" ]]; then
-	    build_deb ${DEB_PPC64LE_BUILDER} ${DEB_PPC64LE_BUILDER_DOCKERFILE} || return 1
+            build_deb ${DEB_PPC64LE_BUILDER} ${DEB_PPC64LE_BUILDER_DOCKERFILE} || return 1
         else
-	    build_deb ${DEB_AMD64_BUILDER} ${DEB_AMD64_BUILDER_DOCKERFILE} || return 1
+            build_deb ${DEB_AMD64_BUILDER} ${DEB_AMD64_BUILDER_DOCKERFILE} || return 1
         fi
-    elif [[ "${TARGET}" = "manager" ]] || [[ "${TARGET}" = "agent" ]]; then
 
-        SOURCE_REPOSITORY="https://github.com/wazuh/wazuh"
+    elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]]; then
+
         BUILD_NAME=""
         FILE_PATH=""
         if [[ "${ARCHITECTURE}" = "x86_64" ]] || [[ "${ARCHITECTURE}" = "amd64" ]]; then
@@ -129,6 +117,7 @@ help() {
     echo "    -p, --path <path>         [Optional] Installation path for the package. By default: /var/ossec."
     echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
     echo "    -c, --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
+    echo "    --dev                     [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub."
     echo "    -h, --help                Show this help."
     echo
     exit $1
@@ -213,6 +202,16 @@ main() {
             else
                 help 1
             fi
+            ;;
+        "--packages-branch")
+            if [ -n "$2" ]; then
+                PACKAGES_BRANCH="$2"
+                shift 2
+            fi
+            ;;
+        "--dev")
+            USE_LOCAL_SPECS="yes"
+            shift 1
             ;;
         *)
             help 1

@@ -6,6 +6,7 @@ BRANCH=$1
 JOBS=$2
 DEBUG=$3
 REVISION=$4
+ZIP_NAME="compiled_agent.zip"
 
 URL_REPO=https://github.com/wazuh/wazuh/archive/${BRANCH}.zip
 
@@ -25,5 +26,5 @@ make -C /wazuh-*/src TARGET=winagent ${FLAGS}
 rm -rf /wazuh-*/src/external
 
 # Zip the compiled agent and move it to the shared folder
-zip -r wazuh-${BRANCH}.zip wazuh-*
-cp  wazuh-${BRANCH}.zip /shared
+zip -r ${ZIP_NAME} wazuh-*
+cp ${ZIP_NAME} /shared
