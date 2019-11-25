@@ -1,5 +1,5 @@
 WPK package
-=====
+===========
 
 In this repository, you can find the necessary tools to build a WPK package.
 

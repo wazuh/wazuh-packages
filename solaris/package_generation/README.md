@@ -1,5 +1,5 @@
 Automated Wazuh Solaris packages using vagrant
-==================
+==============================================
 
 In this repository, you can find the necessary tools to build a Wazuh package for Solaris 10 and 11 using vagrant.
 

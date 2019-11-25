@@ -1,5 +1,5 @@
 Vagrant Box
-==================
+===========
 
 In this repository, you can find the necessary tools to build a Vagrant box for solaris 10 or 11 using packer.
 
