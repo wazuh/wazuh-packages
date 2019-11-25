@@ -9,15 +9,16 @@ Please, visit the following link for the full Splunk App packages building docum
 
 ## More Packages
 
-- [RPM](/rpms/README.md)
-- [Debian](/debs/README.md)
-- [macOS](/macos/README.md)
 - [AIX](/aix/README.md)
-- [OVA](/ova/README.md)
-- [KibanaApp](/wazuhapp/README.md)
-- [WPK](/wpk/README.md)
-- [Solaris](/solaris/README.md)
+- [Debian](/debs/README.md)
 - [HP-UX](/hpux/README.md)
+- [KibanaApp](/wazuhapp/README.md)
+- [macOS](/macos/README.md)
+- [OVA](/ova/README.md)
+- [RPM](/rpms/README.md)
+- [Solaris](/solaris/README.md)
+- [Windows](/windows/README.md)
+- [WPK](/wpk/README.md)
 
 ## Contribute
 

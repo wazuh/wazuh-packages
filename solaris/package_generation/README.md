@@ -97,15 +97,16 @@ To build a Solaris package using vagrant, you need to download this repository c
 
 ## More Packages
 
-- [RPM](/rpms/README.md)
-- [Debian](/debs/README.md)
-- [macOS](/macos/README.md)
 - [AIX](/aix/README.md)
-- [OVA](/ova/README.md)
-- [KibanaApp](/wazuhapp/README.md)
-- [SplunkApp](/splunkapp/README.md)
-- [Solaris](/solaris/README.md)
+- [Debian](/debs/README.md)
 - [HP-UX](/hpux/README.md)
+- [KibanaApp](/wazuhapp/README.md)
+- [macOS](/macos/README.md)
+- [OVA](/ova/README.md)
+- [RPM](/rpms/README.md)
+- [SplunkApp](/splunkapp/README.md)
+- [Windows](/windows/README.md)
+- [WPK](/wpk/README.md)
 
 
 ## Contribute

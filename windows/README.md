@@ -9,15 +9,16 @@ Please, visit the following link for the full Windows packages building document
 
 ## More Packages
 
-- [RPM](/rpms/README.md)
-- [macOS](/macos/README.md)
 - [AIX](/aix/README.md)
-- [OVA](/ova/README.md)
+- [Debian](/debs/README.md)
+- [HP-UX](/hpux/README.md)
 - [KibanaApp](/wazuhapp/README.md)
+- [macOS](/macos/README.md)
+- [OVA](/ova/README.md)
+- [RPM](/rpms/README.md)
+- [Solaris](/solaris/README.md)
 - [SplunkApp](/splunkapp/README.md)
 - [WPK](/wpk/README.md)
-- [Solaris](/solaris/README.md)
-- [HP-UX](/hpux/README.md)
 
 ## Contribute
 

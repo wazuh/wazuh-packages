@@ -10,15 +10,16 @@ Please, visit the following link for the full macOS packages building documentat
 
 ## More Packages
 
-- [RPM](/rpms/README.md)
-- [Debian](/debs/README.md)
 - [AIX](/aix/README.md)
-- [OVA](/ova/README.md)
-- [KibanaApp](/wazuhapp/README.md)
-- [SplunkApp](/splunkapp/README.md)
-- [WPK](/wpk/README.md)
-- [Solaris](/solaris/README.md)
+- [Debian](/debs/README.md)
 - [HP-UX](/hpux/README.md)
+- [KibanaApp](/wazuhapp/README.md)
+- [OVA](/ova/README.md)
+- [RPM](/rpms/README.md)
+- [Solaris](/solaris/README.md)
+- [SplunkApp](/splunkapp/README.md)
+- [Windows](/windows/README.md)
+- [WPK](/wpk/README.md)
 
 ## Contribute
 
