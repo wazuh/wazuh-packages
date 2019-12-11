@@ -60,7 +60,7 @@ main() {
       fi
 
       # Compile agent
-      make -C src -j $JOBS TARGET=${BUILD_TARGET} || exit 1
+      make -C src -j $JOBS TARGET=${BUILD_TARGET} INSTALLATION_DIR="/opt/ossec" || exit 1
       # Clean unuseful files
       clean
       # Preload vars for installer
