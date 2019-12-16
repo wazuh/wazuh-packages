@@ -21,7 +21,9 @@ USER_PATH="no"
 SRC="no"
 RPM_X86_BUILDER="rpm_builder_x86"
 RPM_I386_BUILDER="rpm_builder_i386"
+RPM_PPC64LE_BUILDER="rpm_builder_ppc64le"
 RPM_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/6"
+RPM_PPC64LE_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/7"
 LEGACY_RPM_X86_BUILDER="rpm_legacy_builder_x86"
 LEGACY_RPM_I386_BUILDER="rpm_legacy_builder_i386"
 LEGACY_RPM_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/5"
@@ -69,7 +71,7 @@ build_rpm() {
     docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || return 1
 
     # Build the RPM package with a Docker container
-    docker run -t --rm -v ${OUTDIR}:/var/local/wazuh:Z \
+    docker run -it -v ${OUTDIR}:/var/local/wazuh:Z \
         -v ${CHECKSUMDIR}:/var/local/checksum:Z \
         -v ${LOCAL_SPECS}:/specs:Z \
         ${CONTAINER_NAME} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
@@ -109,8 +111,11 @@ build() {
         elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "i386" ]]; then
             BUILD_NAME="${RPM_I386_BUILDER}"
             FILE_PATH="${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
+        elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "ppc64le" ]]; then
+            BUILD_NAME="${RPM_PPC64LE_BUILDER}"
+            FILE_PATH="${RPM_PPC64LE_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
         else
-            echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too) or i386"
+            echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too), ppc64le or i386"
             return 1
         fi
         build_rpm ${BUILD_NAME} ${FILE_PATH} || return 1
