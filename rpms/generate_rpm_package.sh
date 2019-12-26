@@ -71,7 +71,7 @@ build_rpm() {
     docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || return 1
 
     # Build the RPM package with a Docker container
-    docker run -it -v ${OUTDIR}:/var/local/wazuh:Z \
+    docker run -t --rm -v ${OUTDIR}:/var/local/wazuh:Z \
         -v ${CHECKSUMDIR}:/var/local/checksum:Z \
         -v ${LOCAL_SPECS}:/specs:Z \
         ${CONTAINER_NAME} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
