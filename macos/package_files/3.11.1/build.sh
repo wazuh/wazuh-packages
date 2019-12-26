@@ -58,7 +58,7 @@ function build() {
     find ${SOURCES_PATH}/src/init/ -name *.sh -type f -exec install -m 0640 {} ${INSTALLATION_SCRIPTS_DIR}/src/init \;
 
     mkdir -p ${INSTALLATION_SCRIPTS_DIR}/sca/generic
-    mkdir -p ${INSTALLATION_SCRIPTS_DIR}/sca/darwin/{15,16,17,18}
+    mkdir -p ${INSTALLATION_SCRIPTS_DIR}/sca/darwin/{15,16,17}
 
     cp -r ${SOURCES_PATH}/etc/sca/darwin ${INSTALLATION_SCRIPTS_DIR}/sca
     cp -r ${SOURCES_PATH}/etc/sca/generic ${INSTALLATION_SCRIPTS_DIR}/sca
