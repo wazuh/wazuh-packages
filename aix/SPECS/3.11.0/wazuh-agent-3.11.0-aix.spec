@@ -169,10 +169,9 @@ fi
 
 %preun
 
-/etc/rc.d/init.d/wazuh-agent stop > /dev/null 2>&1 || :
-
 if [ $1 = 0 ]; then
 
+  /etc/rc.d/init.d/wazuh-agent stop > /dev/null 2>&1 || :
   rm -f %{_localstatedir}/ossec/queue/ossec/*
   rm -f %{_localstatedir}/ossec/queue/ossec/.agent_info || :
   rm -f %{_localstatedir}/ossec/queue/ossec/.wait || :
