@@ -1,15 +1,11 @@
-Solaris packages
-================
+Wazuh Windows packages
+======================
 
-In this repository, you can find the necessary tools to build a Wazuh package for solaris 10 and 11, using scripts or automated using vagrant, and the tools to build a solaris 10 and 11 vagrant box:
+In this repository, you can find the necessary tools to build a Wazuh msi package for Windows.
 
-- [Automated Solaris package generation using vagrant](/solaris/package_generation/README.md)
-- [Vagrantbox using packer](/solaris/packer/README.md)
+## Building Windows packages
 
-
-## Building Solaris packages
-
-Please, visit the following link for the full Solaris packages building documentation: [Generate Wazuh Solaris packages.](https://documentation.wazuh.com/3.11/packaging/generate-sol-package.html)
+Please, visit the following link for the full Windows packages building documentation: [Generate Wazuh Windows packages.](https://documentation.wazuh.com/3.11/packaging/generate-windows-package.html)
 
 ## More Packages
 
@@ -20,8 +16,8 @@ Please, visit the following link for the full Solaris packages building document
 - [macOS](/macos/README.md)
 - [OVA](/ova/README.md)
 - [RPM](/rpms/README.md)
+- [Solaris](/solaris/README.md)
 - [SplunkApp](/splunkapp/README.md)
-- [Windows](/windows/README.md)
 - [WPK](/wpk/README.md)
 
 ## Contribute
