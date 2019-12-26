@@ -13,11 +13,11 @@ RUN yum -y install gcc make git \
     yum-utils epel-release redhat-rpm-config rpm-devel
 
 # Warning: this repo has been disabled by the vendor
-#RUN mv /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo.old
-#RUN yum-builddep python34 -y
+RUN mv /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo.old
+RUN yum-builddep python34 -y
 
-#RUN curl --silent --location https://rpm.nodesource.com/setup_8.x | bash -
-#RUN yum install -y nodejs
+RUN curl --silent --location https://rpm.nodesource.com/setup_8.x | bash -
+RUN yum install -y nodejs
 
 # Add the scripts to build the RPM package
 ADD build.sh /usr/local/bin/build_package
