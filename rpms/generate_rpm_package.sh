@@ -90,8 +90,13 @@ build() {
     fi
 
     if [[ "${TARGET}" == "api" ]]; then
+        if [[ "${ARCHITECTURE}" = "ppc64le" ]]; then
+            build_rpm ${RPM_PPC64LE_BUILDER} ${RPM_PPC64LE_BUILDER_DOCKERFILE}/${ARCHITECTURE} || return 1
+        else
+            build_rpm ${RPM_X86_BUILDER} ${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE} || return 1
+        fi
 
-        build_rpm ${RPM_X86_BUILDER} ${RPM_BUILDER_DOCKERFILE}/x86_64 || return 1
+        
 
     elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]]; then
 
