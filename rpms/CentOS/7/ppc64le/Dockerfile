@@ -17,10 +17,10 @@ RUN mv /etc/yum.repos.d/CentOS-Sources.repo /etc/yum.repos.d/CentOS-Sources.repo
 RUN yum-builddep python34 -y
 
 RUN yum install -y \
-    https://cbs.centos.org/kojifiles/packages/nodejs/8.9.4/2.el7/ppc64le/nodejs-8.9.4-2.el7.ppc64le.rpm \
-    https://cbs.centos.org/kojifiles/packages/nodejs/8.9.4/2.el7/ppc64le/nodejs-devel-8.9.4-2.el7.ppc64le.rpm \
-    https://cbs.centos.org/kojifiles/packages/nodejs/8.9.4/2.el7/ppc64le/npm-5.6.0-1.8.9.4.2.el7.ppc64le.rpm \
-    https://cbs.centos.org/kojifiles/packages/nodejs/8.9.4/2.el7/ppc64le/nodejs-debuginfo-8.9.4-2.el7.ppc64le.rpm
+    https://packages.wazuh.com/utils/nodejs/nodejs-8.9.4-2.el7.ppc64le.rpm \
+    https://packages.wazuh.com/utils/nodejs/nodejs-devel-8.9.4-2.el7.ppc64le.rpm \
+    https://packages.wazuh.com/utils/nodejs/npm-5.6.0-1.8.9.4.2.el7.ppc64le.rpm \
+    https://packages.wazuh.com/utils/nodejs/nodejs-debuginfo-8.9.4-2.el7.ppc64le.rpm
 
 
 # Add the scripts to build the RPM package
