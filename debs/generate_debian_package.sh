@@ -62,7 +62,7 @@ build_deb() {
         ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} \
         ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} || return 1
 
-    echo "Package $(ls ${OUTDIR} -Art | tail -n 1) added to ${OUTDIR}."
+    echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
 
     return 0
 }
