@@ -1,6 +1,6 @@
 Summary:     Wazuh API is an open source RESTful API to interact with Wazuh from your own application or with a simple web browser or tools like cURL
 Name:        wazuh-api
-Version:     3.12.0
+Version:     3.11.2
 Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
@@ -15,7 +15,7 @@ Requires(preun):  /sbin/chkconfig /sbin/service
 Requires(postun): /sbin/service
 
 Requires: nodejs >= 4.6
-Requires: wazuh-manager = 3.12.0
+Requires: wazuh-manager = 3.11.2
 BuildRequires: nodejs >= 4.6
 ExclusiveOS: linux
 
@@ -48,8 +48,7 @@ rm -fr %{buildroot}
 # Create the directories needed to install the wazuh-api
 mkdir -p %{_localstatedir}/ossec/{framework,logs}
 echo 'DIRECTORY="%{_localstatedir}/ossec"' > /etc/ossec-init.conf
-# Install Wazuh API with HTTPS disabled. It will be enabled in post installation
-DISABLE_HTTPS=Y \
+# Install the wazuh-api
 ./install_api.sh --no-service
 # Remove the framework directory
 rmdir %{_localstatedir}/ossec/framework
@@ -102,20 +101,6 @@ API_PATH_BACKUP="${RPM_BUILD_ROOT}%{_localstatedir}/ossec/~api"
 if [ -d ${API_PATH_BACKUP} ]; then
   cp -rfnp ${API_PATH_BACKUP}/configuration ${API_PATH_BACKUP_BACKUP}/configuration
   rm -rf ${API_PATH_BACKUP}
-fi
-
-# Generate and enable a new SSL certificate for clean installs
-if [ $1 = 1 ] && command -v openssl > /dev/null 2>&1; then
-  HTTPS="Y"
-  PASSWORD="wazuh"
-  COUNTRY="XX"
-  STATE="XX"
-  LOCALITY="XX"
-  ORG_NAME="XX"
-  ORG_UNIT="XX"
-  COMMON_NAME="XX"
-  . %{_localstatedir}/ossec/api/scripts/configure_api.sh
-  change_https > /dev/null 2>&1
 fi
 
 %preun
@@ -184,8 +169,6 @@ rm -fr %{buildroot}
 %attr(660, ossec, ossec) %ghost %{_localstatedir}/ossec/logs/api.log
 
 %changelog
-* Tue Jan 7 2020 support <info@wazuh.com> - 3.12.0
-- More info: https://documentation.wazuh.com/current/release-notes/
 * Tue Jan 7 2020 support <info@wazuh.com> - 3.11.2
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Thu Dec 26 2019 support <info@wazuh.com> - 3.11.1

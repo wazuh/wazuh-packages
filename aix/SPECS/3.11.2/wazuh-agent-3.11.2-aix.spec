@@ -1,6 +1,6 @@
 # Spec file for AIX systems
 Name:        wazuh-agent
-Version:     3.12.0
+Version:     3.11.2
 Release:     1
 License:     GPL
 URL:         https://www.wazuh.com/
@@ -253,14 +253,10 @@ rm -fr %{buildroot}
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec/wodles
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/aws
 %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/aws/*
-%dir %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/gcloud
-%attr(750, root, ossec) %{_localstatedir}/ossec/wodles/gcloud/*
 
 
 %changelog
-* Tue Jan 7 2020 support <info@wazuh.com> - 3.12.0
-- More info: https://documentation.wazuh.com/current/release-notes/
-* Tue Jan 2020 support <info@wazuh.com> - 3.11.2
+* Tue Jan 7 2020 support <info@wazuh.com> - 3.11.2
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Thu Dec 26 2019 support <info@wazuh.com> - 3.11.1
 - More info: https://documentation.wazuh.com/current/release-notes/

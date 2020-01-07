@@ -1,6 +1,6 @@
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-manager
-Version:     3.12.0
+Version:     3.11.2
 Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
@@ -216,7 +216,6 @@ rm -f %{_localstatedir}/ossec/var/db/global.db* || true
 rm -f %{_localstatedir}/ossec/var/db/cluster.db* || true
 rm -f %{_localstatedir}/ossec/var/db/.profile.db* || true
 rm -f %{_localstatedir}/ossec/var/db/agents/* || true
-
 # Remove Vuln-detector database
 rm -f %{_localstatedir}/ossec/queue/vulnerabilities/cve.db || true
 
@@ -913,8 +912,6 @@ rm -fr %{buildroot}
 %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/azure/*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/docker
 %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/docker/*
-%dir %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/gcloud
-%attr(750, root, ossec) %{_localstatedir}/ossec/wodles/gcloud/*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap
 %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/oscap
 %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/oscap.*
@@ -922,12 +919,9 @@ rm -fr %{buildroot}
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/content
 %attr(640, root, ossec) %{_localstatedir}/ossec/wodles/oscap/content/*
 
-
 %{_initrddir}/*
 
 %changelog
-* Tue Jan 7 2020 support <info@wazuh.com> - 3.12.0
-- More info: https://documentation.wazuh.com/current/release-notes/
 * Tue Jan 7 2020 support <info@wazuh.com> - 3.11.2
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Thu Dec 26 2019 support <info@wazuh.com> - 3.11.1
