@@ -1,6 +1,6 @@
 #!/bin/ksh
 # preinstall script for wazuh-agent
-# Wazuh, Inc 2017
+# Wazuh, Inc 2015-2020
 
 if [ ! -f /etc/ossec-init.conf ]; then
 	DIR="/var/ossec"

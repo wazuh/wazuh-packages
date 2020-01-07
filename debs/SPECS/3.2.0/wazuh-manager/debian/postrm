@@ -1,6 +1,6 @@
 #!/bin/sh
 # postrm script for Wazuh 
-# Wazuh, Inc 2016
+# Wazuh, Inc 2015-2020
 set -e
 DIR="/var/ossec"
 
