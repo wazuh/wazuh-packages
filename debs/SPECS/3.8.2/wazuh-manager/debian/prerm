@@ -1,6 +1,6 @@
 #!/bin/sh
 # prerm script for wazuh-manager
-# Wazuh, Inc 2019
+# Wazuh, Inc 2015-2020
 
 set -e
 DIR="/var/ossec"

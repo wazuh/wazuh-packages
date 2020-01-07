@@ -260,7 +260,7 @@ rm -fr %{buildroot}
 %changelog
 * Tue Jan 7 2020 support <info@wazuh.com> - 3.12.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Tue Jan 2020 support <info@wazuh.com> - 3.11.2
+* Tue Jan 7 2020 support <info@wazuh.com> - 3.11.2
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Thu Dec 26 2019 support <info@wazuh.com> - 3.11.1
 - More info: https://documentation.wazuh.com/current/release-notes/
