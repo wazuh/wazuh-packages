@@ -76,7 +76,7 @@ build_rpm() {
         -v ${LOCAL_SPECS}:/specs:Z \
         ${CONTAINER_NAME} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
         ${JOBS} ${REVISION} ${INSTALLATION_PATH} ${DEBUG} \
-        ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} ${SRC} || return 1
+        ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} ${SRC} ${LEGACY} || return 1
 
     echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
 

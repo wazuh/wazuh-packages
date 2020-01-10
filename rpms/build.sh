@@ -21,7 +21,9 @@ checksum=$8
 wazuh_packages_branch=$9
 use_local_specs=${10}
 src=${11}
+legacy=${12}
 wazuh_version=""
+rpmbuild="rpmbuild"
 
 disable_debug_flag='%debug_package %{nil}'
 
@@ -74,8 +76,14 @@ if [ "${architecture_target}" = "i386" ]; then
     linux="linux32"
 fi
 
+if [ "${legacy}" = "no" ]; then
+    echo "%_source_filedigest_algorithm 8" >> /root/.rpmmacros
+    echo "%_binary_filedigest_algorithm 8" >> /root/.rpmmacros
+    rpmbuild="/usr/local/bin/rpmbuild"
+fi
+
 # Building RPM
-$linux rpmbuild --define "_topdir ${rpm_build_dir}" --define "_threads ${threads}" \
+$linux $rpmbuild --define "_topdir ${rpm_build_dir}" --define "_threads ${threads}" \
         --define "_release ${package_release}" --define "_localstatedir ${directory_base}" \
         --define "_debugenabled ${debug}" --target ${architecture_target} \
         -ba ${rpm_build_dir}/SPECS/${package_name}.spec
