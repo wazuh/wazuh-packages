@@ -29,11 +29,12 @@ RUN curl -O http://ftp.gnu.org/gnu/autoconf/autoconf-2.69.tar.gz && \
 RUN curl -O http://vault.centos.org/7.7.1908/os/Source/SPackages/libarchive-3.1.2-12.el7.src.rpm && \
     rpmbuild --rebuild libarchive-3.1.2-12.el7.src.rpm && rpm -Uvh /root/rpmbuild/RPMS/x86_64/*
 
-RUN curl -O http://ftp.rpm.org/releases/rpm-4.15.x/rpm-4.15.1.tar.bz2 && \
+RUN curl -O https://packages.wazuh.com/utils/rpm/rpm-4.15.1.tar.bz2 && \
     tar -xjf rpm-4.15.1.tar.bz2 && cd rpm-4.15.1 && \
     ./configure --without-lua && make && make install
 
-RUN cp /var/lib/rpm/Packages /usr/local/var/lib/rpm/Packages && \
+RUN mkdir -p /usr/local/var/lib/rpm && \
+    cp /var/lib/rpm/Packages /usr/local/var/lib/rpm/Packages && \
     /usr/local/bin/rpm --rebuilddb
 
 RUN rm -rf autoconf-* rpm-* libarchive-* /root/rpmbuild
