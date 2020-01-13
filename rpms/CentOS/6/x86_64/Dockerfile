@@ -2,10 +2,10 @@ FROM centos:6
 # Install all the necessary tools to build the packages
 RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-6
 RUN yum install -y centos-release-scl gcc make git \
-    openssh-clients rpm-build sudo gnupg \
+    openssh-clients sudo gnupg \
     automake autoconf libtool policycoreutils-python \
     yum-utils epel-release redhat-rpm-config rpm-devel \
-    autopoint gettext zlib zlib-devel nspr nspr-devel \
+    autopoint gettext nspr nspr-devel \
     nss nss-devel kenel-headers magic magic-devel \
     db4 db4-devel zlib zlib-devel rpm-build bison \
     sharutils bzip2-devel xz-devel lzo-devel \

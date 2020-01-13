@@ -4,13 +4,13 @@ FROM i386/centos:6
 RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-6
 RUN sed -i 's/$basearch/i386/g' /etc/yum.repos.d/CentOS-Base.repo
 RUN yum -y install util-linux-ng centos-release-scl \
-    gcc-multilib make git openssh-clients rpm-build \
+    gcc-multilib make git openssh-clients \
     sudo gnupg automake autoconf libtool \
     policycoreutils-python yum-utils epel-release \
     redhat-rpm-config rpm-devel autopoint gettext \
     zlib zlib-devel nspr nspr-devel \
     nss nss-devel kenel-headers magic magic-devel \
-    db4 db4-devel zlib zlib-devel rpm-build bison \
+    db4 db4-devel rpm-build bison \
     sharutils bzip2-devel xz-devel lzo-devel \
     e2fsprogs-devel libacl-devel libattr-devel \
     openssl-devel libxml2-devel kexec-tools elfutils \
