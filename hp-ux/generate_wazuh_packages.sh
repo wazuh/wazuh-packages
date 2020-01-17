@@ -15,6 +15,8 @@ target_dir="${current_path}/output"
 checksum_dir=""
 wazuh_version=""
 wazuh_revision="1"
+depot_path=""
+
 
 build_environment() {
 
@@ -32,9 +34,16 @@ build_environment() {
   fi
 
   echo "Installing dependencies."
+  depot=""
+  if [ -z "${depot_path}" ]
+  then
+      depot=$current_path/depothelper-2.10-hppa_32-11.31.depot
+  else
+      depot=$depot_path
+  fi
 
   #Install dependencies
-  swinstall -s $current_path/depothelper-2.10-hppa_32-11.31.depot \*
+  swinstall -s $depot \*
   /usr/local/bin/depothelper -f curl
   /usr/local/bin/depothelper -f unzip
   /usr/local/bin/depothelper -f gcc
@@ -160,6 +169,7 @@ show_help() {
   echo "    -s <tar_directory> Directory to store the resulting tar package. By default, an output folder will be created."
   echo "    -p <tar_home> Installation path for the package. By default: /var"
   echo "    -c, --checksum Compute the SHA512 checksum of the TAR package."
+  echo "    -d <path_to_depot>, --depot Change the path to depothelper package (by default current path)."
   echo "    -h Shows this help"
   echo
   exit $1
@@ -231,6 +241,15 @@ main() {
             compute_checksums="yes"
             shift 1
           fi
+      ;;
+      "-d")
+        if [ -n "$2" ]
+        then
+          depot_path="$2"
+          shift 2
+        else
+          show_help 1
+        fi
       ;;
       *)
         show_help 1
