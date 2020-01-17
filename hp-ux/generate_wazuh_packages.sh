@@ -35,7 +35,7 @@ build_environment() {
 
   echo "Installing dependencies."
   depot=""
-  if [ -z "$depot_path" ]
+  if [ -z "${depot_path}" ]
   then
       depot=$current_path/depothelper-2.10-hppa_32-11.31.depot
   else
