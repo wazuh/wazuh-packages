@@ -37,7 +37,8 @@ build_environment(){
 
     # Download and install package manager
     if [ ! -f /opt/csw/bin/pkgutil ]; then
-        pkgadd -d http://get.opencsw.org/now
+        echo action=nocheck > /tmp/opencsw-response.txt
+        pkgadd -a /tmp/opencsw-response.txt -d http://get.opencsw.org/now -n all
     fi
 
     #Download and install tools
@@ -62,7 +63,7 @@ build_environment(){
         gunzip ./perl-5.10.1.tar.gz
         tar xvf perl-5.10.1.tar
         cd perl-5.10.1
-        ./Configure -Dcc=gcc -d -s
+        ./Configure -Dcc=gcc -d -e -s
         gmake clean
         gmake -d -s
         gmake install -d -s
