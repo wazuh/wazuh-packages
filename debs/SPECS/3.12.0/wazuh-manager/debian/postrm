@@ -27,7 +27,7 @@ case "$1" in
 
 
 
-    if [ -d /run/systemd/system ] ; then
+    if [ ! -z "$(file /sbin/init |grep 'systemd')" ]; then
         systemctl disable wazuh-manager > /dev/null 2>&1
         systemctl daemon-reload
         systemctl reset-failed

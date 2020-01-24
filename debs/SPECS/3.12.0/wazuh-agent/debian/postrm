@@ -22,7 +22,7 @@ case "$1" in
         rm -rf ${WAZUH_TMP_DIR}
     fi
 
-    if [ -d /run/systemd/system ] ; then
+    if [ ! -z "$(file /sbin/init |grep 'systemd')" ]; then
         systemctl disable wazuh-agent > /dev/null 2>&1
         systemctl daemon-reload
         systemctl reset-failed
