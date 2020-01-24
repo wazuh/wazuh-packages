@@ -6,7 +6,7 @@ In this repository, you can find the necessary tools to build a Wazuh package fo
 
 ## Building macOS packages
 
-Please, visit the following link for the full macOS packages building documentation: [Generate Wazuh OSX packages.](https://documentation.wazuh.com/3.11/packaging/generate-osx-package.html)
+Please, visit the following link for the full macOS packages building documentation: [Generate Wazuh OSX packages.](https://documentation.wazuh.com/current/packaging/generate-osx-package.html)
 
 ## More Packages
 

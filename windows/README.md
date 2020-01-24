@@ -5,7 +5,7 @@ In this repository, you can find the necessary tools to build a Wazuh msi packag
 
 ## Building Windows packages
 
-Please, visit the following link for the full Windows packages building documentation: [Generate Wazuh Windows packages.](https://documentation.wazuh.com/3.11/packaging/generate-windows-package.html)
+Please, visit the following link for the full Windows packages building documentation: [Generate Wazuh Windows packages.](https://documentation.wazuh.com/current/packaging/generate-windows-package.html)
 
 ## More Packages
 
