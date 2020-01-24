@@ -34,7 +34,7 @@ License:
 
 The Debian packaging is:
 
-    Copyright (C) 2016-2019 Wazuh, Inc <info@wazuh.com>
+    Copyright (C) 2015-2020 Wazuh, Inc <info@wazuh.com>
 
 and is licensed under the GPL version 2,
 see "/usr/share/common-licenses/GPL-2".

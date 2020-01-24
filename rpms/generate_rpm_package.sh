@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Wazuh package generator
-# Copyright (C) 2015-2019, Wazuh Inc.
+# Copyright (C) 2015-2020, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
@@ -76,7 +76,7 @@ build_rpm() {
         -v ${LOCAL_SPECS}:/specs:Z \
         ${CONTAINER_NAME} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
         ${JOBS} ${REVISION} ${INSTALLATION_PATH} ${DEBUG} \
-        ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} ${SRC} || return 1
+        ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} ${SRC} ${LEGACY} || return 1
 
     echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
 
