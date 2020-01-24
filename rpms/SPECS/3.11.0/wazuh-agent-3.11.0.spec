@@ -50,7 +50,7 @@ make clean
     %ifnarch x86_64
       MSGPACK="USE_MSGPACK_OPT=no"
     %endif
-    make deps RESOURCES_URL=http://packages.wazuh.com/deps/3.9
+    make deps RESOURCES_URL=http://packages.wazuh.com/deps/3.11
     make -j%{_threads} TARGET=agent USE_AUDIT=no USE_SELINUX=yes USE_EXEC_ENVIRON=no PREFIX=%{_localstatedir}/ossec DEBUG=%{_debugenabled} ${MSGPACK}
 
 %endif
@@ -256,9 +256,9 @@ if [ $1 = 1 ]; then
   # If systemd is installed, add the wazuh-agent.service file to systemd files directory
   if [ -d /run/systemd/system ]; then
 
-    # Fix for RHEL 8
+    # Fix for RHEL 8 and CentOS 8
     # Service must be installed in /usr/lib/systemd/system/
-    if [ "${DIST_NAME}" == "rhel" -a "${DIST_VER}" == "8" ]; then
+    if [ "${DIST_NAME}" == "rhel" -a "${DIST_VER}" == "8" ] || [ "${DIST_NAME}" == "centos" -a "${DIST_VER}" == "8" ]; then
       install -m 644 %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/systemd/wazuh-agent.service /usr/lib/systemd/system/
     else
       install -m 644 %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/systemd/wazuh-agent.service /etc/systemd/system/
@@ -611,7 +611,7 @@ rm -fr %{buildroot}
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles/11
 %attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles/11/*
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles/12
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles/12/*
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles/12/*
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sunos
 %attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sunos/*
 %attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/suse/sca.files
@@ -652,11 +652,11 @@ rm -fr %{buildroot}
 %changelog
 * Mon Oct 7 2019 support <info@wazuh.com> - 3.11.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Mon Sep 23 2019 support <support@wazuh.com> - 3.10.2
+* Mon Sep 23 2019 support <info@wazuh.com> - 3.10.2
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Thu Sep 19 2019 support <support@wazuh.com> - 3.10.1
+* Thu Sep 19 2019 support <info@wazuh.com> - 3.10.1
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Mon Aug 26 2019 support <support@wazuh.com> - 3.10.0
+* Mon Aug 26 2019 support <info@wazuh.com> - 3.10.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Thu Aug 8 2019 support <info@wazuh.com> - 3.9.5
 - More info: https://documentation.wazuh.com/current/release-notes/

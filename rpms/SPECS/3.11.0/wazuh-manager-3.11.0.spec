@@ -82,11 +82,18 @@ install -m 0755 src/init/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh
 # Clean the preinstalled configuration assesment files
 rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca/*
 
+# Install frameworks sqlite lib
+install -o root -g ossec -m 0750 -d ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/lib
+install -o root -g ossec -m 0640 framework/libsqlite3.so.0 ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/lib/
+
 # Install oscap files
 install -m 0640 wodles/oscap/content/*redhat* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 install -m 0640 wodles/oscap/content/*rhel* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 install -m 0640 wodles/oscap/content/*centos* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 install -m 0640 wodles/oscap/content/*fedora* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
+
+# Install Vulnerability Detector files
+install -m 0440 src/wazuh_modules/vulnerability_detector/*.json ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/queue/vulnerabilities/dictionaries
 
 # Add configuration scripts
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/manager_installation_scripts/
@@ -358,9 +365,9 @@ if [ $1 = 1 ]; then
   # If systemd is installed, add the wazuh-manager.service file to systemd files directory
   if [ -d /run/systemd/system ]; then
 
-    # Fix for RHEL 8
+    # Fix for RHEL 8 and CentOS 8
     # Service must be installed in /usr/lib/systemd/system/
-    if [ "${DIST_NAME}" == "rhel" -a "${DIST_VER}" == "8" ]; then
+    if [ "${DIST_NAME}" == "rhel" -a "${DIST_VER}" == "8" ] || [ "${DIST_NAME}" == "centos" -a "${DIST_VER}" == "8" ]; then
       install -m 644 %{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/systemd/wazuh-manager.service /usr/lib/systemd/system/
     else
       install -m 644 %{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/systemd/wazuh-manager.service /etc/systemd/system/
@@ -634,6 +641,7 @@ if [ $1 == 0 ];then
   rm -rf %{_localstatedir}/ossec/var/
   rm -rf %{_localstatedir}/ossec/bin/
   rm -rf %{_localstatedir}/ossec/logs/
+  rm -rf %{_localstatedir}/ossec/ruleset/
   rm -rf %{_localstatedir}/ossec/tmp
 
 fi
@@ -808,7 +816,10 @@ rm -fr %{buildroot}
 %dir %attr(770, ossecr, ossec) %{_localstatedir}/ossec/queue/rids
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/queue/rootcheck
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/queue/ossec
-%dir %attr(760, root, ossec) %{_localstatedir}/ossec/queue/vulnerabilities
+%dir %attr(660, root, ossec) %{_localstatedir}/ossec/queue/vulnerabilities
+%dir %attr(440, root, ossec) %{_localstatedir}/ossec/queue/vulnerabilities/dictionaries
+%attr(0440, root, ossec) %{_localstatedir}/ossec/queue/vulnerabilities/dictionaries/cpe_helper.json
+%attr(0440, root, ossec) %{_localstatedir}/ossec/queue/vulnerabilities/dictionaries/msu.json.gz
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/ruleset/sca
 %attr(640, root, ossec) %{_localstatedir}/ossec/ruleset/VERSION
@@ -866,7 +877,7 @@ rm -fr %{buildroot}
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles/11
 %attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles/11/*
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles/12
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles/12/*
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sles/12/*
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sunos
 %attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/sunos/*
 %attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/suse/sca.files
@@ -913,11 +924,11 @@ rm -fr %{buildroot}
 %changelog
 * Mon Oct 7 2019 support <info@wazuh.com> - 3.11.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Mon Sep 23 2019 support <support@wazuh.com> - 3.10.2
+* Mon Sep 23 2019 support <info@wazuh.com> - 3.10.2
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Thu Sep 19 2019 support <support@wazuh.com> - 3.10.1
+* Thu Sep 19 2019 support <info@wazuh.com> - 3.10.1
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Mon Aug 26 2019 support <support@wazuh.com> - 3.10.0
+* Mon Aug 26 2019 support <info@wazuh.com> - 3.10.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Thu Aug 8 2019 support <info@wazuh.com> - 3.9.5
 - More info: https://documentation.wazuh.com/current/release-notes/

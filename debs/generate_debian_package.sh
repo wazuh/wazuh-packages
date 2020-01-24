@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Wazuh package generator
-# Copyright (C) 2015-2019, Wazuh Inc.
+# Copyright (C) 2015-2020, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
@@ -11,7 +11,7 @@
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ARCHITECTURE="amd64"
 OUTDIR="${CURRENT_PATH}/output/"
-BRANCH="master"
+BRANCH=""
 REVISION="1"
 TARGET=""
 JOBS="2"
@@ -25,6 +25,11 @@ DEB_I386_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/i386"
 CHECKSUMDIR=""
 CHECKSUM="no"
 DEB_PPC64LE_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/ppc64le"
+PACKAGES_BRANCH="master"
+USE_LOCAL_SPECS="no"
+LOCAL_SPECS="${CURRENT_PATH}"
+
+trap ctrl_c INT
 
 clean() {
     exit_code=$1
@@ -35,56 +40,45 @@ clean() {
     exit ${exit_code}
 }
 
+ctrl_c() {
+    clean 1
+}
+
 build_deb() {
     CONTAINER_NAME="$1"
     DOCKERFILE_PATH="$2"
 
-    SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
-
-    # Download the sources
-    git clone ${SOURCE_REPOSITORY} -b ${BRANCH} ${SOURCES_DIRECTORY} --depth=1
     # Copy the necessary files
     cp build.sh ${DOCKERFILE_PATH}
-    cp gen_permissions.sh ${SOURCES_DIRECTORY}
-
-    if [[ "${TARGET}" != "api" ]]; then
-        VERSION="$(cat ${SOURCES_DIRECTORY}/src/VERSION | cut -d 'v' -f 2)"
-    else
-        VERSION="$(grep version ${SOURCES_DIRECTORY}/package.json | cut -d '"' -f 4)"
-    fi
-
-    # Copy the "specs" files for the Debian package
-    cp -rp SPECS/${VERSION}/wazuh-${TARGET} ${DOCKERFILE_PATH}/
 
     # Build the Docker image
-    docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || exit 1
+    docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || return 1
 
     # Build the Debian package with a Docker container
-    docker run -t --rm -v ${OUTDIR}:/var/local/wazuh \
-        -v ${CHECKSUMDIR}:/var/local/checksum \
-        -v ${SOURCES_DIRECTORY}:/build_wazuh/${TARGET}/wazuh-${TARGET}-${VERSION} \
-        -v ${DOCKERFILE_PATH}/wazuh-${TARGET}:/${TARGET} \
-        ${CONTAINER_NAME} ${TARGET} ${VERSION} ${ARCHITECTURE} \
-        ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} ${CHECKSUM} || exit 1
+    docker run -t --rm -v ${OUTDIR}:/var/local/wazuh:Z \
+        -v ${CHECKSUMDIR}:/var/local/checksum:Z \
+        -v ${LOCAL_SPECS}:/specs:Z \
+        ${CONTAINER_NAME} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
+        ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} \
+        ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} || return 1
 
-    echo "Package $(ls ${OUTDIR} -Art | tail -n 1) added to ${OUTDIR}."
+    echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
 
     return 0
 }
 
 build() {
 
-    if [[ "${TARGET}" = "api" ]]; then
+    if [[ "${TARGET}" == "api" ]]; then
 
-        SOURCE_REPOSITORY="https://github.com/wazuh/wazuh-api"
         if [[ "${ARCHITECTURE}" = "ppc64le" ]]; then
-	    build_deb ${DEB_PPC64LE_BUILDER} ${DEB_PPC64LE_BUILDER_DOCKERFILE} || exit 1
+            build_deb ${DEB_PPC64LE_BUILDER} ${DEB_PPC64LE_BUILDER_DOCKERFILE} || return 1
         else
-	    build_deb ${DEB_AMD64_BUILDER} ${DEB_AMD64_BUILDER_DOCKERFILE} || exit 1
+            build_deb ${DEB_AMD64_BUILDER} ${DEB_AMD64_BUILDER_DOCKERFILE} || return 1
         fi
-    elif [[ "${TARGET}" = "manager" ]] || [[ "${TARGET}" = "agent" ]]; then
 
-        SOURCE_REPOSITORY="https://github.com/wazuh/wazuh"
+    elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]]; then
+
         BUILD_NAME=""
         FILE_PATH=""
         if [[ "${ARCHITECTURE}" = "x86_64" ]] || [[ "${ARCHITECTURE}" = "amd64" ]]; then
@@ -99,12 +93,12 @@ build() {
             FILE_PATH="${DEB_PPC64LE_BUILDER_DOCKERFILE}"
         else
             echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too) or i386 or ppc64le."
-            clean 1
+            return 1
         fi
-        build_deb ${BUILD_NAME} ${FILE_PATH} || clean 1
+        build_deb ${BUILD_NAME} ${FILE_PATH} || return 1
     else
         echo "Invalid target. Choose: manager, agent or api."
-        clean 1
+        return 1
     fi
 
     return 0
@@ -123,6 +117,7 @@ help() {
     echo "    -p, --path <path>         [Optional] Installation path for the package. By default: /var/ossec."
     echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
     echo "    -c, --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
+    echo "    --dev                     [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub."
     echo "    -h, --help                Show this help."
     echo
     exit $1
@@ -208,6 +203,16 @@ main() {
                 help 1
             fi
             ;;
+        "--packages-branch")
+            if [ -n "$2" ]; then
+                PACKAGES_BRANCH="$2"
+                shift 2
+            fi
+            ;;
+        "--dev")
+            USE_LOCAL_SPECS="yes"
+            shift 1
+            ;;
         *)
             help 1
         esac
@@ -218,7 +223,9 @@ main() {
     fi
 
     if [[ "$BUILD" != "no" ]]; then
-        build || exit 1
+        build || clean 1
+    else
+        clean 1
     fi
 
     clean 0

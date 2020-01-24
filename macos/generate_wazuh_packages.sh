@@ -1,7 +1,7 @@
 #!/bin/bash
 # Program to build and package OSX wazuh-agent
 # Wazuh package generator
-# Copyright (C) 2015-2019, Wazuh Inc.
+# Copyright (C) 2015-2020, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
@@ -14,6 +14,7 @@ WAZUH_PATH="${SOURCES_DIRECTORY}/wazuh"
 WAZUH_SOURCE_REPOSITORY="https://github.com/wazuh/wazuh"
 AGENT_PKG_FILE="${CURRENT_PATH}/package_files/wazuh-agent.pkgproj"
 export CONFIG="${WAZUH_PATH}/etc/preloaded-vars.conf"
+ENTITLEMENTS_PATH="${CURRENT_PATH}/entitlements.plist"
 INSTALLATION_PATH="/Library/Ossec"    # Installation path
 VERSION=""                            # Default VERSION (branch/tag)
 REVISION="1"                          # Package revision.
@@ -21,8 +22,18 @@ BRANCH_TAG="master"                   # Branch that will be downloaded to build 
 DESTINATION="${CURRENT_PATH}/output/" # Where package will be stored.
 JOBS="2"                              # Compilation jobs.
 DEBUG="no"                            # Enables the full log by using `set -exf`.
-CHECKSUMDIR=""
-CHECKSUM="no"
+CHECKSUMDIR=""                        # Directory to store the checksum of the package.
+CHECKSUM="no"                         # Enables the checksum generation.
+CERT_APPLICATION_ID=""                # Apple Developer ID certificate to sign Apps and binaries.
+CERT_INSTALLER_ID=""                  # Apple Developer ID certificate to sign pkg.
+KEYCHAIN=""                           # Keychain where the Apple Developer ID certificate is.
+KC_PASS=""                            # Password of the keychain.
+NOTARIZE="no"                         # Notarize the package for macOS Catalina.
+DEVELOPER_ID=""                       # Apple Developer ID.
+ALTOOL_PASS=""                        # Temporary Application password for altool.
+pkg_name=""
+
+trap ctrl_c INT
 
 function clean_and_exit() {
     exit_code=$1
@@ -32,7 +43,92 @@ function clean_and_exit() {
     exit ${exit_code}
 }
 
+function ctrl_c() {
+    clean_and_exit 1
+}
+
+
+function notarize_pkg() {
+
+    # Notarize the macOS package
+    sleep_time="120"
+    build_timestamp="$(date +"%m%d%Y%H%M%S")"
+    if [ "${NOTARIZE}" = "yes" ]; then
+        if sudo xcrun altool --notarize-app --primary-bundle-id "com.wazuh.agent.${VERSION}.${REVISION}.${build_timestamp}" \
+            --username "${DEVELOPER_ID}" --password "${ALTOOL_PASS}" --file ${DESTINATION}/${pkg_name} > request_info.txt ; then
+            echo "The package ${DESTINATION}/${pkg_name} was successfully upload for notarization."
+            echo "Waiting ${sleep_time}s to get the results"
+            sleep ${sleep_time}
+
+            uuid="$(grep -i requestuuid request_info.txt | cut -d' ' -f 3)"
+
+            # Check notarization status
+            xcrun altool --notarization-info ${uuid} -u "${DEVELOPER_ID}" --password "${ALTOOL_PASS}" > request_result.txt
+            until ! grep -qi "in progress" request_result.txt ; do
+                echo "Package is not notarized yet. Waiting ${sleep_time}s"
+                sleep ${sleep_time}
+                xcrun altool --notarization-info ${uuid} -u "${DEVELOPER_ID}" --password "${ALTOOL_PASS}" > request_result.txt
+            done
+
+            echo "Notarization ticket:"
+            cat request_result.txt
+
+            if grep "Status: success" request_result.txt > /dev/null 2>&1 ; then
+                echo "Package is notarized and ready to go."
+                echo "Adding the ticket to the package."
+                if xcrun stapler staple -v ${DESTINATION}/${pkg_name} ; then
+                    echo "Ticket added. Ready to release the package."
+                    return 0
+                else
+                    echo "Something went wrong while adding the package."
+                    clean_and_exit 1
+                fi
+            else
+
+                echo "The package couldn't be notarized."
+                echo "Check notarization ticket for more info."
+                clean_and_exit 1
+            fi
+
+        else
+            echo "Error while uploading the app to be notarized."
+            clean_and_exit 1
+        fi
+    fi
+
+    return 0
+}
+
+function sign_binaries() {
+    if [ ! -z "${KEYCHAIN}" ] && [ ! -z "${CERT_APPLICATION_ID}" ] ; then
+        security -v unlock-keychain -p "${KC_PASS}" "${KEYCHAIN}" > /dev/null
+        # Sign every single binary in Wazuh's installation. This also includes library files.
+        for bin in $(find ${INSTALLATION_PATH} -exec file {} \; | grep bit | cut -d: -f1); do
+            codesign -f --sign "${CERT_APPLICATION_ID}" --entitlements ${ENTITLEMENTS_PATH} --deep --timestamp  --options=runtime --verbose=4 "${bin}"
+        done
+        security -v lock-keychain "${KEYCHAIN}" > /dev/null
+    fi
+}
+
+function sign_pkg() {
+    if [ ! -z "${KEYCHAIN}" ] && [ ! -z "${CERT_INSTALLER_ID}" ] ; then
+        # Unlock the keychain to use the certificate
+        security -v unlock-keychain -p "${KC_PASS}" "${KEYCHAIN}"  > /dev/null
+
+        # Sign the package
+        productsign --sign "${CERT_INSTALLER_ID}" --timestamp ${DESTINATION}/${pkg_name} ${DESTINATION}/${pkg_name}.signed
+        mv ${DESTINATION}/${pkg_name}.signed ${DESTINATION}/${pkg_name}
+
+        security -v lock-keychain "${KEYCHAIN}" > /dev/null
+    fi
+}
+
 function build_package() {
+
+    # Download source code
+    git clone --depth=1 -b ${BRANCH_TAG} ${WAZUH_SOURCE_REPOSITORY} "${WAZUH_PATH}"
+
+    get_pkgproj_specs
 
     VERSION=$(cat ${WAZUH_PATH}/src/VERSION | cut -d "-" -f1 | cut -c 2-)
 
@@ -47,7 +143,7 @@ function build_package() {
     packages_script_path=""
 
     # build the sources
-    if [[ "${VERSION}" =~ "2." ]]; then
+    if [[ "${VERSION}" =~ ^2\. ]]; then
         packages_script_path="package_files/2.x"
     else
         packages_script_path="package_files/${VERSION}"
@@ -56,11 +152,16 @@ function build_package() {
     cp ${packages_script_path}/*.sh ${CURRENT_PATH}/package_files/
     ${CURRENT_PATH}/package_files/build.sh "${INSTALLATION_PATH}" "${WAZUH_PATH}" ${JOBS}
 
+    # sign the binaries and the libraries
+    sign_binaries
+
     # create package
     if packagesbuild ${AGENT_PKG_FILE} --build-folder ${DESTINATION} ; then
         echo "The wazuh agent package for MacOS X has been successfully built."
+        pkg_name="wazuh-agent-${VERSION}-${REVISION}.pkg"
+        sign_pkg
+        notarize_pkg
         if [[ "${CHECKSUM}" == "yes" ]]; then
-            pkg_name="wazuh-agent-${VERSION}-${REVISION}.pkg"
             mkdir -p ${CHECKSUMDIR}
             cd ${DESTINATION} && shasum -a512 "${pkg_name}" > "${CHECKSUMDIR}/${pkg_name}.sha512"
         fi
@@ -75,28 +176,26 @@ function help() {
 
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -b, --branch <branch>     [Required] Select Git branch or tag e.g. $BRANCH"
-    echo "    -s, --store-path <path>   [Optional] Set the destination absolute path of package."
-    echo "    -j, --jobs <number>       [Optional] Number of parallel jobs when compiling."
-    echo "    -r, --revision <rev>      [Optional] Package revision that append to version e.g. x.x.x-rev"
-    echo "    -c, --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
-    echo "    -h, --help                [  Util  ] Show this help."
-    echo "    -i, --install-deps        [  Util  ] Install build dependencies (Packages)."
-    echo "    -x, --install-xcode       [  Util  ] Install X-Code and brew. Can't be executed as root."
+    echo "  Build options:"
+    echo "    -b, --branch <branch>         [Required] Select Git branch or tag e.g. $BRANCH"
+    echo "    -s, --store-path <path>       [Optional] Set the destination absolute path of package."
+    echo "    -j, --jobs <number>           [Optional] Number of parallel jobs when compiling."
+    echo "    -r, --revision <rev>          [Optional] Package revision that append to version e.g. x.x.x-rev"
+    echo "    -c, --checksum <path>         [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
+    echo "    -h, --help                    [  Util  ] Show this help."
+    echo "    -i, --install-deps            [  Util  ] Install build dependencies (Packages)."
+    echo "    -x, --install-xcode           [  Util  ] Install X-Code and brew. Can't be executed as root."
+    echo
+    echo "  Signing options:"
+    echo "    --keychain                    [Optional] Keychain where the Certificates are installed."
+    echo "    --keychain-password           [Optional] Password of the keychain."
+    echo "    --application-certificate     [Optional] Apple Developer ID certificate name to sign Apps and binaries."
+    echo "    --installer-certificate       [Optional] Apple Developer ID certificate name to sign pkg."
+    echo "    --notarize                    [Optional] Notarize the package for its distribution on macOS Catalina ."
+    echo "    --developer-id                [Optional] Your Apple Developer ID."
+    echo "    --altool-password             [Optional] Temporary password to use altool from Xcode."
     echo
     exit "$1"
-}
-
-function download_source(){
-
-    mkdir -p "${SOURCES_DIRECTORY}"
-
-    if git clone --depth=1 -b ${BRANCH_TAG} ${WAZUH_SOURCE_REPOSITORY} "${WAZUH_PATH}" ; then
-        echo "Successfully downloaded source code from GitHub from ${BRANCH_TAG}"
-    else
-        echo "Error: Source code from ${BRANCH_TAG} could not be downloaded"
-        exit 1
-    fi
 }
 
 function get_pkgproj_specs() {
@@ -233,6 +332,58 @@ function main() {
                 shift 1
             fi
             ;;
+        "--keychain")
+            if [ -n "$2" ]; then
+                KEYCHAIN="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
+        "--keychain-password")
+            if [ -n "$2" ]; then
+                KC_PASS="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
+        "--application-certificate")
+            if [ -n "$2" ]; then
+                CERT_APPLICATION_ID="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
+        "--installer-certificate")
+            if [ -n "$2" ]; then
+                CERT_INSTALLER_ID="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
+        "--notarize")
+            NOTARIZE="yes"
+            shift 1
+            ;;
+        "--developer-id")
+            if [ -n "$2" ]; then
+                DEVELOPER_ID="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
+        "--altool-password")
+            if [ -n "$2" ]; then
+                ALTOOL_PASS="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
         *)
             help 1
         esac
@@ -250,8 +401,6 @@ function main() {
 
     if [[ "$BUILD" != "no" ]]; then
         check_root
-        download_source
-        get_pkgproj_specs
         build_package
         "${CURRENT_PATH}/uninstall.sh"
     else

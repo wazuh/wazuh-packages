@@ -1,6 +1,6 @@
 #!/bin/sh
 # postinst script for wazuh-agent
-# Wazuh, Inc 2019
+# Wazuh, Inc 2015-2020
 
 set -e
 

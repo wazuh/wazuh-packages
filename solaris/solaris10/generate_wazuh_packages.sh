@@ -20,6 +20,7 @@ SOURCE=${CURRENT_PATH}/repository
 CONFIG="$SOURCE/etc/preloaded-vars.conf"
 target_dir="${CURRENT_PATH}/output"
 
+trap ctrl_c INT
 
 if [ -z "${wazuh_branch}" ]; then
     wazuh_branch="master"
@@ -36,7 +37,8 @@ build_environment(){
 
     # Download and install package manager
     if [ ! -f /opt/csw/bin/pkgutil ]; then
-        pkgadd -d http://get.opencsw.org/now
+        echo action=nocheck > /tmp/opencsw-response.txt
+        pkgadd -a /tmp/opencsw-response.txt -d http://get.opencsw.org/now -n all
     fi
 
     #Download and install tools
@@ -61,7 +63,7 @@ build_environment(){
         gunzip ./perl-5.10.1.tar.gz
         tar xvf perl-5.10.1.tar
         cd perl-5.10.1
-        ./Configure -Dcc=gcc -d -s
+        ./Configure -Dcc=gcc -d -e -s
         gmake clean
         gmake -d -s
         gmake install -d -s
@@ -121,15 +123,15 @@ installation(){
     arch="$(uname -p)"
     # Build the binaries
     if [ "$arch" = "sparc" ]; then
-        gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no USE_BIG_ENDIAN=yes DISABLE_SHARED=yes || exit 1
+        gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no USE_BIG_ENDIAN=yes DISABLE_SHARED=yes || return 1
     else
-        gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no DISABLE_SHARED=yes || exit 1
+        gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no DISABLE_SHARED=yes || return 1
     fi
 
     cd $SOURCE
     ${CURRENT_PATH}/solaris10_patch.sh
     config
-    /bin/bash $SOURCE/install.sh || exit 1
+    /bin/bash $SOURCE/install.sh || return 1
     cd ${CURRENT_PATH}
 }
 
@@ -146,11 +148,13 @@ compute_version_revision()
 
 clone(){
     cd ${CURRENT_PATH}
-    git clone $REPOSITORY ${SOURCE}
+    git clone $REPOSITORY ${SOURCE} || return 1
     cd $SOURCE
     git checkout $wazuh_branch
     cp ${CURRENT_PATH}/solaris10_patch.sh ${CURRENT_PATH}/wazuh
     compute_version_revision
+
+    return 0
 }
 
 package(){
@@ -208,6 +212,10 @@ clean(){
     groupdel ossec
 }
 
+ctrl_c() {
+    clean 1
+}
+
 build(){
 
     cd ${CURRENT_PATH}
@@ -240,9 +248,8 @@ show_help() {
 }
 
 build_package(){
-    clone
-    build
-    clean
+    clone || return 1
+    build || return 1
 
     return 0
 }
@@ -321,8 +328,10 @@ main() {
   fi
 
   if [[ "${build_pkg}" = "yes" ]]; then
-    build_package || exit 1
+    build_package || clean 1
   fi
+
+  clean 0
 
   return 0
 }

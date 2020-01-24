@@ -2,7 +2,7 @@
 
 # Program to build the Wazuh Virtual Machine
 # Wazuh package generator
-# Copyright (C) 2015-2019, Wazuh Inc.
+# Copyright (C) 2015-2020, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
@@ -99,9 +99,9 @@ build_ova() {
 
     # Cleaning tasks
     clean 0
-    }
+}
 
-    check_version() {
+check_version() {
 
     if [ "${STATUS_PACKAGES}" = "stable" ]; then
         curl -Isf https://raw.githubusercontent.com/wazuh/wazuh-kibana-app/v${WAZUH_VERSION}-${ELK_VERSION}/README.md > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${ELK_VERSION} not supported." && exit 1 )

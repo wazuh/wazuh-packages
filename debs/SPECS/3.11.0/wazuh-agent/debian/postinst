@@ -1,6 +1,6 @@
 #!/bin/sh
 # postinst script for wazuh-agent
-# Wazuh, Inc 2016
+# Wazuh, Inc 2015-2020
 
 set -e
 
@@ -127,6 +127,10 @@ case "$1" in
     chown -R root:ossec ${DIR}/etc/shared/
     chmod 660 ${DIR}/etc/ossec.conf
     chown -R root:ossec ${DIR}/etc/ossec.conf
+
+    touch ${DIR}/logs/active-responses.log
+    chown ossec:ossec ${DIR}/logs/active-responses.log
+    chmod 0660 ${DIR}/logs/active-responses.log
 
     # Check if SELinux is installed and enabled
     if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
