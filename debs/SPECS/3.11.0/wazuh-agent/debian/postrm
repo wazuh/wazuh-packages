@@ -23,7 +23,7 @@ case "$1" in
     fi
 
 
-    if [ ! -z "$(file /sbin/init |grep "systemd")" ]; then
+    if [ -d /run/systemd/system ]; then
         systemctl disable wazuh-agent > /dev/null 2>&1
         systemctl daemon-reload
         systemctl reset-failed
