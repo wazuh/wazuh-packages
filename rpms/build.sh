@@ -79,6 +79,11 @@ fi
 if [ "${legacy}" = "no" ]; then
     echo "%_source_filedigest_algorithm 8" >> /root/.rpmmacros
     echo "%_binary_filedigest_algorithm 8" >> /root/.rpmmacros
+    echo " %rhel 6" >> /root/.rpmmacros
+    echo " %centos 6" >> /root/.rpmmacros
+    echo " %centos_ver 6" >> /root/.rpmmacros
+    echo " %dist .el6" >> /root/.rpmmacros
+    echo " %el6 1" >> /root/.rpmmacros
     rpmbuild="/usr/local/bin/rpmbuild"
 fi
 
