@@ -19,10 +19,12 @@ JOBS="2"
 DEBUG="no"
 USER_PATH="no"
 SRC="no"
+RPM_AARCH64_BUILDER="rpm_builder_aarch64"
 RPM_X86_BUILDER="rpm_builder_x86"
 RPM_I386_BUILDER="rpm_builder_i386"
 RPM_PPC64LE_BUILDER="rpm_builder_ppc64le"
 RPM_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/6"
+RPM_AARCH64_DOCKERFILE="${CURRENT_PATH}/amzn/2"
 RPM_PPC64LE_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/7"
 LEGACY_RPM_X86_BUILDER="rpm_legacy_builder_x86"
 LEGACY_RPM_I386_BUILDER="rpm_legacy_builder_i386"
@@ -119,6 +121,9 @@ build() {
         elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "ppc64le" ]]; then
             BUILD_NAME="${RPM_PPC64LE_BUILDER}"
             FILE_PATH="${RPM_PPC64LE_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
+        elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "aarch64" ]]; then
+            BUILD_NAME="${RPM_AARCH64_BUILDER}"
+            FILE_PATH="${RPM_AARCH64_DOCKERFILE}/${ARCHITECTURE}"
         else
             echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too), ppc64le or i386"
             return 1
@@ -138,7 +143,7 @@ help() {
     echo
     echo "    -b, --branch <branch>        [Required] Select Git branch or tag e.g. $BRANCH"
     echo "    -t, --target <target>        [Required] Target package to build [manager/api/agent]."
-    echo "    -a, --architecture <arch>    [Optional] Target architecture of the package [x86_64/i386]."
+    echo "    -a, --architecture <arch>    [Optional] Target architecture of the package [x86_64/i386/aarch64]."
     echo "    -r, --revision <rev>         [Optional] Package revision that append to version e.g. x.x.x-rev"
     echo "    -l, --legacy                 [Optional] Build package for CentOS 5."
     echo "    -s, --store <path>           [Optional] Set the destination path of package. By default, an output folder will be created."
