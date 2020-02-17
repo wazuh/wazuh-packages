@@ -1096,6 +1096,22 @@
         "type": "file",
         "user": "root"
     },
+    "/var/ossec/queue/fim": {
+        "class": "static",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "drwxr-x---",
+        "type": "directory",
+        "user": "ossec"
+    },
+    "/var/ossec/queue/fim/db": {
+        "class": "static",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "drwxr-x---",
+        "type": "directory",
+        "user": "ossec"
+    },
     "/var/ossec/queue/ossec": {
         "class": "static",
         "group": "ossec",
