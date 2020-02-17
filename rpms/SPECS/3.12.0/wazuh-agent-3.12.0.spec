@@ -558,8 +558,6 @@ rm -fr %{buildroot}
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/packages_files/agent_installation_scripts/etc/templates/config/suse/*
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/packages_files/agent_installation_scripts/src/*
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec/queue
-%dir %attr(750,root,ossec) %{_localstatedir}/ossec/queue/fim
-%dir %attr(750,root,ossec) %{_localstatedir}/ossec/queue/fim/db
 %dir %attr(770,ossec,ossec) %{_localstatedir}/ossec/queue/ossec
 %dir %attr(750,ossec,ossec) %{_localstatedir}/ossec/queue/diff
 %dir %attr(770,ossec,ossec) %{_localstatedir}/ossec/queue/alerts
