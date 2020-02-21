@@ -5,7 +5,7 @@ In this repository, you can find the necessary tools to build a Wazuh package fo
 
 ## Building RPM packages
 
-Please, visit the following link for the full RPM packages building documentation: [Creating Wazuh RPM packages.](https://documentation.wazuh.com/current/packaging/generate-rpm-package.html)
+Please, visit the following link for the full RPM packages building documentation: [Creating Wazuh RPM packages.](https://documentation.wazuh.com/current/development/packaging/generate-rpm-package.html)
 
 ## More Packages
 
