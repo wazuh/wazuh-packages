@@ -922,7 +922,7 @@ rm -fr %{buildroot}
 %{_initrddir}/*
 
 %changelog
-* Wed Feb 21 2020 support <info@wazuh.com> - 3.11.4
+* Thu Feb 24 2020 support <info@wazuh.com> - 3.11.4
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Wed Jan 22 2020 support <info@wazuh.com> - 3.11.3
 - More info: https://documentation.wazuh.com/current/release-notes/
