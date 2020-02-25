@@ -7,7 +7,7 @@
 
 # CONFIGURATION VARIABLES
 wazuh_branch="$(echo "$2" | cut -d "/" -f2)"
-PATH=/usr/sfw/bin:$PATH:/opt/csw/bin
+PATH=$PATH:/opt/csw/bin:/usr/sfw/bin
 VERSION=""
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 REPOSITORY="https://github.com/wazuh/wazuh"
@@ -45,13 +45,14 @@ build_environment(){
     pkgutil -y -i git
     pkgutil -y -i make
     pkgutil -y -i automake
-    pkgutil -y -i gmake
     pkgutil -y -i autoconf
     pkgutil -y -i libtool
     pkgutil -y -i wget
     pkgutil -y -i curl
     pkgutil -y -i gcc5core
-
+    /opt/csw/bin/curl -OL http://mirror.opencsw.org/opencsw/allpkgs/gmake-4.2.1%2cREV%3d2016.08.04-SunOS5.10-sparc-CSW.pkg.gz
+    gunzip -f gmake-4.2.1%2cREV%3d2016.08.04-SunOS5.10-sparc-CSW.pkg.gz
+    pkgadd -d gmake-4.2.1%2cREV%3d2016.08.04-SunOS5.10-sparc-CSW.pkg -n all
 
     # Download and install perl5.10
     perl_version=`perl -v | cut -d . -f2 -s | head -n1`
