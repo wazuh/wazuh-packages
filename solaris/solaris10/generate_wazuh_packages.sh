@@ -7,7 +7,7 @@
 
 # CONFIGURATION VARIABLES
 wazuh_branch="$(echo "$2" | cut -d "/" -f2)"
-PATH=$PATH:/opt/csw/bin:/usr/sfw/bin
+PATH=/usr/sfw/bin:$PATH:/opt/csw/bin
 VERSION=""
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 REPOSITORY="https://github.com/wazuh/wazuh"
