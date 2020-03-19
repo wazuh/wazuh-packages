@@ -356,6 +356,11 @@ rm -fr %{buildroot}
 
 /usr/share/wazuh-agent/scripts/tmp/*
 
+%if %{_debugenabled} == "yes"
+/usr/lib/debug/%{_localstatedir}/ossec/*
+/usr/src/debug/%{name}-%{version}/*
+%endif
+
 
 %changelog
 * Thu May 10 2018 support <support@wazuh.com> - 3.2.3

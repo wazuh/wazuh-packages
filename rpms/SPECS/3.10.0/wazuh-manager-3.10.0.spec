@@ -910,6 +910,11 @@ rm -fr %{buildroot}
 %attr(640, root, ossec) %{_localstatedir}/ossec/wodles/oscap/content/*
 
 %{_initrddir}/*
+%if %{_debugenabled} == "yes"
+/usr/lib/debug/%{_localstatedir}/ossec/*
+/usr/src/debug/%{name}-%{version}/*
+%endif
+
 
 %changelog
 * Mon Aug 26 2019 support <support@wazuh.com> - 3.10.0

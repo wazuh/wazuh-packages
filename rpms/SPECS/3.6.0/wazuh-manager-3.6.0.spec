@@ -536,7 +536,7 @@ if [ $1 = 0 ]; then
   if [ -r "/etc/centos-release" ]; then
     DIST_NAME="centos"
     DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.[0-9]{1,2}.*/\1/p' /etc/centos-release`
-  
+
   elif [ -r "/etc/redhat-release" ]; then
     DIST_NAME="rhel"
     DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.[0-9]{1,2}.*/\1/p' /etc/redhat-release`
@@ -552,7 +552,7 @@ if [ $1 = 0 ]; then
   if [ "${DIST_NAME}" == "centos" -a "${DIST_VER}" == "5" ] || [ "${DIST_NAME}" == "rhel" -a "${DIST_VER}" == "5" ] || [ "${DIST_NAME}" == "suse" -a "${DIST_VER}" == "11" ] ; then
     add_selinux="no"
   fi
-  
+
   # If it is a valid system, remove the policy if it is installed
   if [ ${add_selinux} == "yes" ]; then
     if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
@@ -678,6 +678,11 @@ rm -fr %{buildroot}
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/rhel/*
 
 /usr/share/wazuh-manager/scripts/tmp/*
+%if %{_debugenabled} == "yes"
+/usr/lib/debug/%{_localstatedir}/ossec/*
+/usr/src/debug/%{name}-%{version}/*
+%endif
+
 
 %changelog
 * Thu Aug 23 2018 support <support@wazuh.com> - 3.6.0
