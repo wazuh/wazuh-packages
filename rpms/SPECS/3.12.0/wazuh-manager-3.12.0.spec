@@ -686,7 +686,7 @@ fi
 rm -fr %{buildroot}
 
 %files
-%defattr(-,root,root)
+%defattr(-,root,ossec)
 %attr(640, root, ossec) %verify(not md5 size mtime) %{_sysconfdir}/ossec-init.conf
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec
 %attr(750, root, ossec) %{_localstatedir}/ossec/agentless
