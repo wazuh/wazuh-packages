@@ -385,7 +385,7 @@ case "$1" in
 
     # Fix python libraries and binaries permissions
     chown -R root:${OSSEC_GROUP} ${DIR}/framework/python
-    chmod -R o=- ${DIR}/framework/python/*
+    chmod -R o=- ${DIR}/framework/python
 
     ;;
 
