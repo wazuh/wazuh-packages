@@ -184,7 +184,11 @@ rm -fr %{buildroot}
 %attr(660, ossec, ossec) %ghost %{_localstatedir}/ossec/logs/api.log
 
 %changelog
-* Tue Jan 7 2020 support <info@wazuh.com> - 3.12.0
+* Wed Mar 25 2020 support <info@wazuh.com> - 3.12.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Thu Feb 24 2020 support <info@wazuh.com> - 3.11.4
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Wed Jan 22 2020 support <info@wazuh.com> - 3.11.3
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Tue Jan 7 2020 support <info@wazuh.com> - 3.11.2
 - More info: https://documentation.wazuh.com/current/release-notes/
