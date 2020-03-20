@@ -383,10 +383,6 @@ case "$1" in
     chmod 640 /etc/ossec-init.conf
     chown root:ossec /etc/ossec-init.conf
 
-    # Fix python libraries and binaries permissions
-    chown -R root:${OSSEC_GROUP} ${DIR}/framework/python
-    chmod -R o=- ${DIR}/framework/python
-
     ;;
 
 
