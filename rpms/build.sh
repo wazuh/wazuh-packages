@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Wazuh package builder
-# Copyright (C) 2015-2019, Wazuh Inc.
+# Copyright (C) 2015-2020, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
@@ -21,7 +21,9 @@ checksum=$8
 wazuh_packages_branch=$9
 use_local_specs=${10}
 src=${11}
+legacy=${12}
 wazuh_version=""
+rpmbuild="rpmbuild"
 
 disable_debug_flag='%debug_package %{nil}'
 
@@ -74,11 +76,22 @@ if [ "${architecture_target}" = "i386" ]; then
     linux="linux32"
 fi
 
+if [ "${legacy}" = "no" ]; then
+    echo "%_source_filedigest_algorithm 8" >> /root/.rpmmacros
+    echo "%_binary_filedigest_algorithm 8" >> /root/.rpmmacros
+    echo " %rhel 6" >> /root/.rpmmacros
+    echo " %centos 6" >> /root/.rpmmacros
+    echo " %centos_ver 6" >> /root/.rpmmacros
+    echo " %dist .el6" >> /root/.rpmmacros
+    echo " %el6 1" >> /root/.rpmmacros
+    rpmbuild="/usr/local/bin/rpmbuild"
+fi
+
 # Building RPM
-$linux rpmbuild --define "_topdir ${rpm_build_dir}" --define "_threads ${threads}" \
-        --define "_release ${package_release}" --define "_localstatedir ${directory_base}" \
-        --define "_debugenabled ${debug}" --target ${architecture_target} \
-        -ba ${rpm_build_dir}/SPECS/${package_name}.spec
+$linux $rpmbuild --define "_sysconfdir /etc" --define "_topdir ${rpm_build_dir}" \
+        --define "_threads ${threads}" --define "_release ${package_release}" \
+        --define "_localstatedir ${directory_base}" --define "_debugenabled ${debug}" \
+        --target ${architecture_target} -ba ${rpm_build_dir}/SPECS/${package_name}.spec
 
 if [[ "${checksum}" == "yes" ]]; then
     cd ${pkg_path} && sha512sum ${rpm_file} > /var/local/checksum/${rpm_file}.sha512

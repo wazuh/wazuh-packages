@@ -559,6 +559,11 @@ rm -fr %{buildroot}
 /usr/share/wazuh-agent/scripts/tmp/src/init/wazuh/deprecated_ruleset.txt
 /usr/share/wazuh-agent/scripts/tmp/src/init/wazuh/upgrade.py
 /usr/share/wazuh-agent/scripts/tmp/src/init/wazuh/wazuh.sh
+%if %{_debugenabled} == "yes"
+/usr/lib/debug/%{_localstatedir}/ossec/*
+/usr/src/debug/%{name}-%{version}/*
+%endif
+
 
 %changelog
 * Mon Nov 06 2017 support <support@wazuh.com> - 3.0.0

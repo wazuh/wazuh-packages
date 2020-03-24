@@ -603,6 +603,11 @@ rm -fr %{buildroot}
 %attr(750,root,root) %config(missingok) %{_localstatedir}/ossec/tmp/etc/templates/config/rhel/*
 
 /usr/share/wazuh-manager/scripts/tmp/*
+%if %{_debugenabled} == "yes"
+/usr/lib/debug/%{_localstatedir}/ossec/*
+/usr/src/debug/%{name}-%{version}/*
+%endif
+
 
 %changelog
 * Wed May 30 2018 support <support@wazuh.com> - 3.2.4

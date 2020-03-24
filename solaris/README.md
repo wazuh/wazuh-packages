@@ -1,24 +1,28 @@
 Solaris packages
-=====
+================
 
 In this repository, you can find the necessary tools to build a Wazuh package for solaris 10 and 11, using scripts or automated using vagrant, and the tools to build a solaris 10 and 11 vagrant box:
 
-- [Solaris 10](/solaris/solaris10/README.md)
-- [Solaris 11](/solaris/solaris11/README.md)
 - [Automated Solaris package generation using vagrant](/solaris/package_generation/README.md)
 - [Vagrantbox using packer](/solaris/packer/README.md)
 
+
+## Building Solaris packages
+
+Please, visit the following link for the full Solaris packages building documentation: [Generate Wazuh Solaris packages.](https://documentation.wazuh.com/current/development/packaging/generate-sol-package.html)
+
 ## More Packages
 
-- [RPM](/rpms/README.md)
-- [Debian](/debs/README.md)
-- [macOS](/macos/README.md)
 - [AIX](/aix/README.md)
-- [OVA](/ova/README.md)
-- [KibanaApp](/wazuhapp/README.md)
-- [SplunkApp](/splunkapp/README.md)
-- [Solaris](/solaris/README.md)
+- [Debian](/debs/README.md)
 - [HP-UX](/hpux/README.md)
+- [KibanaApp](/wazuhapp/README.md)
+- [macOS](/macos/README.md)
+- [OVA](/ova/README.md)
+- [RPM](/rpms/README.md)
+- [SplunkApp](/splunkapp/README.md)
+- [Windows](/windows/README.md)
+- [WPK](/wpk/README.md)
 
 ## Contribute
 
@@ -27,4 +31,4 @@ If you want to contribute to our project please don't hesitate to send a pull re
 ## License and copyright
 
 WAZUH
-Copyright (C) 2016-2019 Wazuh Inc.  (License GPLv2)
+Copyright (C) 2015-2020 Wazuh Inc.  (License GPLv2)

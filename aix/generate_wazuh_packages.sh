@@ -1,7 +1,7 @@
 #!/bin/ksh
 
 # Script to build Wazuh RPM package for AIX
-# Copyright (C) 2015-2019, Wazuh Inc.
+# Copyright (C) 2015-2020, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
@@ -104,6 +104,8 @@ build_environment() {
   $rpm http://www.oss4aix.org/download/RPMS/sed/sed-4.5-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/wget/wget-1.19.2-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/zlib/zlib-1.2.11-1.aix5.1.ppc.rpm || true
+  $rpm http://www.oss4aix.org/download/RPMS/python/python-2.7.13-1.aix5.1.ppc.rpm || true
+  $rpm http://www.oss4aix.org/download/RPMS/python/python-libs-2.7.13-1.aix5.1.ppc.rpm || true
 
   if [[ "${aix_major}" = "5" ]]; then
     $rpm http://www.oss4aix.org/download/RPMS/gcc/gcc-4.8.2-1.aix5.3.ppc.rpm || true

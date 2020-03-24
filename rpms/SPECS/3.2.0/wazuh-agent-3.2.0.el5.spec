@@ -451,6 +451,11 @@ rm -fr %{buildroot}
 
 
 
+%if %{_debugenabled} == "yes"
+/usr/lib/debug/%{_localstatedir}/ossec/*
+/usr/src/debug/%{name}-%{version}/*
+%endif
+
 
 %changelog
 * Wed Feb 07 2018 support <support@wazuh.com> - 3.2.0

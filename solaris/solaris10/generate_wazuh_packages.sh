@@ -37,20 +37,22 @@ build_environment(){
 
     # Download and install package manager
     if [ ! -f /opt/csw/bin/pkgutil ]; then
-        pkgadd -d http://get.opencsw.org/now
+        echo action=nocheck > /tmp/opencsw-response.txt
+        pkgadd -a /tmp/opencsw-response.txt -d http://get.opencsw.org/now -n all
     fi
 
     #Download and install tools
     pkgutil -y -i git
     pkgutil -y -i make
     pkgutil -y -i automake
-    pkgutil -y -i gmake
     pkgutil -y -i autoconf
     pkgutil -y -i libtool
     pkgutil -y -i wget
     pkgutil -y -i curl
     pkgutil -y -i gcc5core
-
+    /opt/csw/bin/curl -OL http://mirror.opencsw.org/opencsw/allpkgs/gmake-4.2.1%2cREV%3d2016.08.04-SunOS5.10-sparc-CSW.pkg.gz
+    gunzip -f gmake-4.2.1%2cREV%3d2016.08.04-SunOS5.10-sparc-CSW.pkg.gz
+    pkgadd -d gmake-4.2.1%2cREV%3d2016.08.04-SunOS5.10-sparc-CSW.pkg -n all
 
     # Download and install perl5.10
     perl_version=`perl -v | cut -d . -f2 -s | head -n1`
@@ -62,7 +64,7 @@ build_environment(){
         gunzip ./perl-5.10.1.tar.gz
         tar xvf perl-5.10.1.tar
         cd perl-5.10.1
-        ./Configure -Dcc=gcc -d -s
+        ./Configure -Dcc=gcc -d -e -s
         gmake clean
         gmake -d -s
         gmake install -d -s

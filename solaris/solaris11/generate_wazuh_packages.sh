@@ -26,7 +26,8 @@ build_environment() {
 
     #Install pkgutil an update
     if [ ! -f  /opt/csw/bin/pkgutil ]; then
-        pkgadd -d http://get.opencsw.org/now
+        echo action=nocheck > /tmp/opencsw-response.txt
+        pkgadd -a /tmp/opencsw-response.txt -d http://get.opencsw.org/now -n all
         /opt/csw/bin/pkgutil -y -U
     fi
 

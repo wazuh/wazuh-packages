@@ -169,10 +169,9 @@ fi
 
 %preun
 
-/etc/rc.d/init.d/wazuh-agent stop > /dev/null 2>&1 || :
-
 if [ $1 = 0 ]; then
 
+  /etc/rc.d/init.d/wazuh-agent stop > /dev/null 2>&1 || :
   rm -f %{_localstatedir}/ossec/queue/ossec/*
   rm -f %{_localstatedir}/ossec/queue/ossec/.agent_info || :
   rm -f %{_localstatedir}/ossec/queue/ossec/.wait || :
@@ -232,6 +231,8 @@ rm -fr %{buildroot}
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec/queue
 %dir %attr(770,ossec,ossec) %{_localstatedir}/ossec/queue/ossec
 %dir %attr(750,ossec,ossec) %{_localstatedir}/ossec/queue/diff
+%dir %attr(750,ossec,ossec) %{_localstatedir}/ossec/queue/fim
+%dir %attr(750,ossec,ossec) %{_localstatedir}/ossec/queue/fim/db
 %dir %attr(770,ossec,ossec) %{_localstatedir}/ossec/queue/alerts
 %dir %attr(750,ossec,ossec) %{_localstatedir}/ossec/queue/rids
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/ruleset/sca
@@ -259,7 +260,15 @@ rm -fr %{buildroot}
 
 
 %changelog
-* Tue Oct 22 2019 support <info@wazuh.com> - 3.12.0
+* Wed Mar 25 2020 support <info@wazuh.com> - 3.12.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Thu Feb 24 2020 support <info@wazuh.com> - 3.11.4
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Wed Jan 22 2020 support <info@wazuh.com> - 3.11.3
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Tue Jan 7 2020 support <info@wazuh.com> - 3.11.2
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Thu Dec 26 2019 support <info@wazuh.com> - 3.11.1
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Oct 7 2019 support <info@wazuh.com> - 3.11.0
 - More info: https://documentation.wazuh.com/current/release-notes/

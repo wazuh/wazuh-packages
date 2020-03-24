@@ -117,7 +117,7 @@ Vagrant.configure("2") do |config|
         config.vm.define "#{key}" do |node|
           node.vm.box = "#{value['box']}"
           if key == "solaris11"
-            node.vm.box_url = 'https://packages-dev.wazuh.com/utils/vagrant/solaris/11/i386/solaris11.3.box'
+            node.vm.box_url = 'https://packages-dev.wazuh.com/utils/vagrant/solaris/11/solaris11.3.box'
           elsif key == "solaris10"
             node.vm.box_url = 'https://packages-dev.wazuh.com/utils/vagrant/solaris/10/solaris10.box'
           end
