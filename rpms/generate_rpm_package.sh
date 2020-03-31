@@ -7,6 +7,7 @@
 # and/or modify it under the terms of the GNU General Public
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
+
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ARCHITECTURE="x86_64"
 LEGACY="no"
@@ -98,7 +99,7 @@ build() {
             build_rpm ${RPM_X86_BUILDER} ${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE} || return 1
         fi
 
-        
+
 
     elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]]; then
 
@@ -143,7 +144,7 @@ help() {
     echo
     echo "    -b, --branch <branch>        [Required] Select Git branch or tag e.g. $BRANCH"
     echo "    -t, --target <target>        [Required] Target package to build [manager/api/agent]."
-    echo "    -a, --architecture <arch>    [Optional] Target architecture of the package [x86_64/i386/aarch64]."
+    echo "    -a, --architecture <arch>    [Optional] Target architecture of the package [x86_64/i386/ppc64le/aarch64]."
     echo "    -r, --revision <rev>         [Optional] Package revision that append to version e.g. x.x.x-rev"
     echo "    -l, --legacy                 [Optional] Build package for CentOS 5."
     echo "    -s, --store <path>           [Optional] Set the destination path of package. By default, an output folder will be created."
@@ -279,4 +280,5 @@ main() {
 
     clean 0
 }
+
 main "$@"
