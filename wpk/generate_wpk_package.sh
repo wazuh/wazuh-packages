@@ -15,40 +15,44 @@ LINUX_BUILDER_DOCKERFILE="${CURRENT_PATH}/unified/linux"
 WIN_BUILDER="windows_wpk_builder"
 WIN_BUILDER_DOCKERFILE="${CURRENT_PATH}/windows"
 CHECKSUM="no"
+INSTALLATION_PATH="/var"
 
 trap ctrl_c INT
 
 function build_wpk_windows() {
   local BRANCH="$1"
   local DESTINATION="$2"
-  local KEYDIR="$3"
-  local CONTAINER_NAME="$4"
-  local JOBS="$5"
-  local PACKAGE_NAME="$6"
-  local OUT_NAME="$7"
-  local CHECKSUM="$8"
-  local CHECKSUMDIR="$9"
+  local KEYDIR="${3}"
+  local CONTAINER_NAME="${4}"
+  local JOBS="${5}"
+  local PACKAGE_NAME="${6}"
+  local OUT_NAME="${7}"
+  local CHECKSUM="${8}"
+  local CHECKSUMDIR="${9}"
+  local INSTALLATION_PATH="${10}"
+
 
   docker run -t --rm -v ${KEYDIR}:/etc/wazuh:Z -v ${DESTINATION}:/var/local/wazuh:Z -v ${PKG_PATH}:/var/pkg:Z \
       -v ${CHECKSUMDIR}:/var/local/checksum:Z \
-      ${CONTAINER_NAME} ${BRANCH} ${JOBS} ${OUT_NAME} ${CHECKSUM} ${PACKAGE_NAME}
+      ${CONTAINER_NAME} ${BRANCH} ${JOBS} ${OUT_NAME} ${CHECKSUM} ${INSTALLATION_PATH} ${PACKAGE_NAME}
 
   return $?
 }
 
 function build_wpk_linux() {
-  local BRANCH="$1"
-  local DESTINATION="$2"
-  local KEYDIR="$3"
-  local CONTAINER_NAME="$4"
-  local JOBS="$5"
-  local OUT_NAME="$6"
-  local CHECKSUM="$7"
-  local CHECKSUMDIR="$8"
+  local BRANCH="${1}"
+  local DESTINATION="${2}"
+  local KEYDIR="${3}"
+  local CONTAINER_NAME="${4}"
+  local JOBS="${5}"
+  local OUT_NAME="${6}"
+  local CHECKSUM="${7}"
+  local CHECKSUMDIR="${8}"
+  local INSTALLATION_PATH="${9}"
 
   docker run -t --rm -v ${KEYDIR}:/etc/wazuh:Z -v ${DESTINATION}:/var/local/wazuh:Z \
       -v ${CHECKSUMDIR}:/var/local/checksum:Z \
-      ${CONTAINER_NAME} ${BRANCH} ${JOBS} ${OUT_NAME} ${CHECKSUM}
+      ${CONTAINER_NAME} ${BRANCH} ${JOBS} ${OUT_NAME} ${CHECKSUM} ${INSTALLATION_PATH}
 
   return $?
 }
@@ -78,6 +82,7 @@ function help() {
   echo "    -a,   --architecture <arch>                 [Optional] Target architecture of the package [x86_64]."
   echo "    -j,   --jobs <number>                       [Optional] Number of parallel jobs when compiling."
   echo "    -pd,  --package-directory <directory>       [Required for windows] Package name to pack on wpk."
+  echo "    -p,   --path <path>                         [Optional] Installation path for the package. By default: /var."
   echo "    -o,   --output <name>                       [Required] Name to the output package."
   echo "    -c,   --checksum                            [Optional] Generate checksum"
   echo "    -h,   --help                                Show this help."
@@ -195,6 +200,14 @@ function main() {
             help 1
           fi
           ;;
+      "-p"|"--path")
+            if [ -n "$2" ]; then
+                INSTALLATION_PATH="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
       "-pd"|"--package-directory")
           if [ -n "$2" ]
           then
@@ -248,7 +261,7 @@ function main() {
         if [[ "${HAVE_PKG_NAME}" == true ]]; then
           build_container ${WIN_BUILDER} ${WIN_BUILDER_DOCKERFILE} || clean ${WIN_BUILDER_DOCKERFILE} 1
           local CONTAINER_NAME="${WIN_BUILDER}"
-          build_wpk_windows ${BRANCH} ${DESTINATION} ${KEYDIR} ${CONTAINER_NAME} ${JOBS} ${PKG_NAME} ${OUT_NAME} ${CHECKSUM} ${CHECKSUMDIR} || clean ${WIN_BUILDER_DOCKERFILE} 1
+          build_wpk_windows ${BRANCH} ${DESTINATION} ${KEYDIR} ${CONTAINER_NAME} ${JOBS} ${PKG_NAME} ${OUT_NAME} ${CHECKSUM} ${CHECKSUMDIR} ${INSTALLATION_PATH} || clean ${WIN_BUILDER_DOCKERFILE} 1
           clean ${WIN_BUILDER_DOCKERFILE} 0
         else
           echo "ERROR: No msi package name specified for Windows WPK"
@@ -257,7 +270,7 @@ function main() {
       else
         build_container ${LINUX_BUILDER} ${LINUX_BUILDER_DOCKERFILE} || clean ${LINUX_BUILDER_DOCKERFILE} 1
         local CONTAINER_NAME="${LINUX_BUILDER}"
-        build_wpk_linux ${BRANCH} ${DESTINATION} ${KEYDIR} ${CONTAINER_NAME} ${JOBS} ${OUT_NAME} ${CHECKSUM} ${CHECKSUMDIR} || clean ${LINUX_BUILDER_DOCKERFILE} 1
+        build_wpk_linux ${BRANCH} ${DESTINATION} ${KEYDIR} ${CONTAINER_NAME} ${JOBS} ${OUT_NAME} ${CHECKSUM} ${CHECKSUMDIR} ${INSTALLATION_PATH} || clean ${LINUX_BUILDER_DOCKERFILE} 1
         clean ${LINUX_BUILDER_DOCKERFILE} 0
       fi
   else

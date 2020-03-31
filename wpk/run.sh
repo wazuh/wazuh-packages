@@ -6,9 +6,10 @@ BRANCH=$1
 JOBS=$2
 OUT_NAME=$3
 CHECKSUM=$4
-PKG_NAME=$5
+INSTALLATION_PATH=$5
+PKG_NAME=$6
 HAVE_PKG_NAME=false
-if [ -n $5 ]
+if [ -n $6 ]
 then
     HAVE_PKG_NAME=true
 fi
@@ -60,7 +61,7 @@ main() {
       fi
 
       # Compile agent
-      make -C src -j $JOBS TARGET=${BUILD_TARGET} || exit 1
+      make -C src -j $JOBS TARGET=${BUILD_TARGET} PREFIX="${INSTALLATION_PATH}/ossec" || exit 1
       # Clean unuseful files
       clean
       # Preload vars for installer
