@@ -16,13 +16,16 @@ RUN yum install -y gcc make git \
     openssl-devel libxml2-devel kexec-tools elfutils \
     libarchive-devel elfutils-libelf-devel \
     elfutils-libelf patchelf elfutils-devel libgcrypt-devel \
-    libarchive-devel libarchive nodejs bluez-libs-devel bzip2 \
+    libarchive-devel libarchive bluez-libs-devel bzip2 \
     desktop-file-utils expat-devel findutils gcc-c++ gdbm-devel \
     glibc-devel gmp-devel gnupg2 libappstream-glib \
     libffi-devel libtirpc-devel libGL-devel libuuid-devel \
     libX11-devel ncurses-devel pkgconfig readline-devel \
     redhat-rpm-config sqlite-devel gdb tar tcl-devel tix-devel tk-devel \
-    valgrind-devel python-rpm-macros python34
+    valgrind-devel python-rpm-macros python34 nodejs
+
+RUN curl -O https://nodejs.org/dist/v12.16.1/node-v12.16.1-linux-arm64.tar.xz && \
+    tar -xJf node-v12.16.1-linux-arm64.tar.xz && cd node-v12.16* && cp -R * /usr/local/
 
 # Update rpmbuild, rpm and autoconf
 RUN curl -O http://ftp.gnu.org/gnu/autoconf/autoconf-2.69.tar.gz && \
