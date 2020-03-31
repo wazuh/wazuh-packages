@@ -20,11 +20,13 @@ INSTALLATION_PATH="/var/ossec"
 DEB_AMD64_BUILDER="deb_builder_amd64"
 DEB_I386_BUILDER="deb_builder_i386"
 DEB_PPC64LE_BUILDER="deb_builder_ppc64le"
+DEB_AARCH64_BUILDER="deb_builder_aarch64"
 DEB_AMD64_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/amd64"
 DEB_I386_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/i386"
+DEB_PPC64LE_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/ppc64le"
+DEB_AARCH64_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/aarch64"
 CHECKSUMDIR=""
 CHECKSUM="no"
-DEB_PPC64LE_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/ppc64le"
 PACKAGES_BRANCH="master"
 USE_LOCAL_SPECS="no"
 LOCAL_SPECS="${CURRENT_PATH}"
@@ -73,6 +75,8 @@ build() {
 
         if [[ "${ARCHITECTURE}" = "ppc64le" ]]; then
             build_deb ${DEB_PPC64LE_BUILDER} ${DEB_PPC64LE_BUILDER_DOCKERFILE} || return 1
+        elif [[ "${ARCHITECTURE}" = "aarch64" ]]; then
+            build_deb ${DEB_AARCH64_BUILDER} ${DEB_AARCH64_BUILDER_DOCKERFILE} || return 1
         else
             build_deb ${DEB_AMD64_BUILDER} ${DEB_AMD64_BUILDER_DOCKERFILE} || return 1
         fi
@@ -88,9 +92,13 @@ build() {
         elif [[ "${ARCHITECTURE}" = "i386" ]]; then
             BUILD_NAME="${DEB_I386_BUILDER}"
             FILE_PATH="${DEB_I386_BUILDER_DOCKERFILE}"
-        elif [[  "${ARCHITECTURE}" = "ppc64le" ]]; then
+        elif [[ "${ARCHITECTURE}" = "ppc64le" ]]; then
             BUILD_NAME="${DEB_PPC64LE_BUILDER}"
             FILE_PATH="${DEB_PPC64LE_BUILDER_DOCKERFILE}"
+        elif [[ "${ARCHITECTURE}" = "aarch64" ]] || [[ "${ARCHITECTURE}" = "arm64" ]]; then
+            ARCHITECTURE="arm64"
+            BUILD_NAME="${DEB_AARCH64_BUILDER}"
+            FILE_PATH="${DEB_AARCH64_BUILDER_DOCKERFILE}"
         else
             echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too) or i386 or ppc64le."
             return 1
@@ -110,10 +118,10 @@ help() {
     echo
     echo "    -b, --branch <branch>     [Required] Select Git branch [${BRANCH}]. By default: master."
     echo "    -t, --target <target>     [Required] Target package to build: manager, api or agent."
-    echo "    -a, --architecture <arch> [Optional] Target architecture of the package. By default: x86_64"
-    echo "    -j, --jobs <number>       [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 4."
+    echo "    -a, --architecture <arch> [Optional] Target architecture of the package [x86_64/i386/ppc64le/arm64]."
+    echo "    -j, --jobs <number>       [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 2."
     echo "    -r, --revision <rev>      [Optional] Package revision. By default: 1."
-    echo "    -s, --store <path>        [Optional] Set the directory where the package will be stored. By default: ${HOME}/3.x/apt-dev/"
+    echo "    -s, --store <path>        [Optional] Set the destination path of package. By default, an output folder will be created."
     echo "    -p, --path <path>         [Optional] Installation path for the package. By default: /var/ossec."
     echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
     echo "    -c, --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
