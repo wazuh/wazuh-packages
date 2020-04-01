@@ -20,11 +20,13 @@ INSTALLATION_PATH="/var/ossec"
 DEB_AMD64_BUILDER="deb_builder_amd64"
 DEB_I386_BUILDER="deb_builder_i386"
 DEB_PPC64LE_BUILDER="deb_builder_ppc64le"
-DEB_AARCH64_BUILDER="deb_builder_aarch64"
+DEB_ARM64_BUILDER="deb_builder_arm64"
+DEB_ARMHF_BUILDER="deb_builder_armhf"
 DEB_AMD64_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/amd64"
 DEB_I386_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/i386"
 DEB_PPC64LE_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/ppc64le"
-DEB_AARCH64_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/aarch64"
+DEB_ARM64_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/arm64"
+DEB_ARMHF_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/armhf"
 CHECKSUMDIR=""
 CHECKSUM="no"
 PACKAGES_BRANCH="master"
@@ -76,7 +78,7 @@ build() {
         if [[ "${ARCHITECTURE}" = "ppc64le" ]]; then
             build_deb ${DEB_PPC64LE_BUILDER} ${DEB_PPC64LE_BUILDER_DOCKERFILE} || return 1
         elif [[ "${ARCHITECTURE}" = "aarch64" ]]; then
-            build_deb ${DEB_AARCH64_BUILDER} ${DEB_AARCH64_BUILDER_DOCKERFILE} || return 1
+            build_deb ${DEB_ARM64_BUILDER} ${DEB_ARM64_BUILDER_DOCKERFILE} || return 1
         else
             build_deb ${DEB_AMD64_BUILDER} ${DEB_AMD64_BUILDER_DOCKERFILE} || return 1
         fi
@@ -97,10 +99,14 @@ build() {
             FILE_PATH="${DEB_PPC64LE_BUILDER_DOCKERFILE}"
         elif [[ "${ARCHITECTURE}" = "aarch64" ]] || [[ "${ARCHITECTURE}" = "arm64" ]]; then
             ARCHITECTURE="arm64"
-            BUILD_NAME="${DEB_AARCH64_BUILDER}"
-            FILE_PATH="${DEB_AARCH64_BUILDER_DOCKERFILE}"
+            BUILD_NAME="${DEB_ARM64_BUILDER}"
+            FILE_PATH="${DEB_ARM64_BUILDER_DOCKERFILE}"
+        elif [[ "${ARCHITECTURE}" = "arm32" ]] || [[ "${ARCHITECTURE}" = "armhf" ]]; then
+            ARCHITECTURE="armhf"
+            BUILD_NAME="${DEB_ARMHF_BUILDER}"
+            FILE_PATH="${DEB_ARMHF_BUILDER_DOCKERFILE}"
         else
-            echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too) or i386 or ppc64le."
+            echo "Invalid architecture. Choose one of amd64/i386/ppc64le/arm64/arm32."
             return 1
         fi
         build_deb ${BUILD_NAME} ${FILE_PATH} || return 1
@@ -118,7 +124,7 @@ help() {
     echo
     echo "    -b, --branch <branch>     [Required] Select Git branch [${BRANCH}]. By default: master."
     echo "    -t, --target <target>     [Required] Target package to build: manager, api or agent."
-    echo "    -a, --architecture <arch> [Optional] Target architecture of the package [x86_64/i386/ppc64le/arm64]."
+    echo "    -a, --architecture <arch> [Optional] Target architecture of the package [amd64/i386/ppc64le/arm64/armhf]."
     echo "    -j, --jobs <number>       [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 2."
     echo "    -r, --revision <rev>      [Optional] Package revision. By default: 1."
     echo "    -s, --store <path>        [Optional] Set the destination path of package. By default, an output folder will be created."

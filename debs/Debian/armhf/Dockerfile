@@ -1,0 +1,23 @@
+FROM arm32v7/debian:stretch
+
+ENV DEBIAN_FRONTEND noninteractive
+
+# Installing necessary packages
+RUN echo "deb http://deb.debian.org/debian/ stretch contrib main non-free" > /etc/apt/sources.list && \
+    echo "deb-src http://deb.debian.org/debian/ stretch contrib main non-free" >> /etc/apt/sources.list && \
+    apt-get update && apt-get install -y apt-utils && \
+    apt-get install -y --force-yes \
+    curl gcc make sudo expect gnupg fakeroot perl-base \
+    perl libc-bin libc6 libc6-dev \
+    build-essential cdbs devscripts equivs automake autoconf libtool \
+    libaudit-dev selinux-basics util-linux libdb5.1 \
+    libssl1.1 libssl-dev gawk libsigsegv2 procps libc6-armel-cross
+
+RUN apt-get build-dep python3.5 -y
+
+# Add the script to build the Debian package
+ADD build.sh /usr/local/bin/build_package
+RUN chmod +x /usr/local/bin/build_package
+
+# Set the entrypoint
+ENTRYPOINT ["/usr/local/bin/build_package"]
