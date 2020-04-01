@@ -2,14 +2,14 @@
 
 DIRECTORY="wazuh"
 REPOSITORY="https://github.com/wazuh/wazuh.git"
-BRANCH=$1
-JOBS=$2
-OUT_NAME=$3
-CHECKSUM=$4
-INSTALLATION_PATH=$5
-PKG_NAME=$6
+BRANCH=${1}
+JOBS=${2}
+OUT_NAME=${3}
+CHECKSUM=${4}
+DEFAULT_INSTALLATION_PATH=${5}
+PKG_NAME=${6}
 HAVE_PKG_NAME=false
-if [ -n $6 ]
+if [ -n ${6} ]
 then
     HAVE_PKG_NAME=true
 fi
@@ -61,7 +61,7 @@ main() {
       fi
 
       # Compile agent
-      make -C src -j $JOBS TARGET=${BUILD_TARGET} PREFIX="${INSTALLATION_PATH}/ossec" || exit 1
+      make -C src -j $JOBS TARGET=${BUILD_TARGET} PREFIX="${DEFAULT_INSTALLATION_PATH}/ossec" || exit 1
       # Clean unuseful files
       clean
       # Preload vars for installer
@@ -122,7 +122,7 @@ preload() {
     fi
 }
 
-if [ "${BASH_SOURCE[0]}" = "$0" ]
+if [ "${BASH_SOURCE[0]}" = "${0}" ]
 then
     main "$@"
 fi
