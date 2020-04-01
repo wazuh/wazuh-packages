@@ -3,9 +3,6 @@ FROM arm64v8/debian:stretch
 ENV DEBIAN_FRONTEND noninteractive
 ENV PATH /usr/local/lib/nodejs/node-v10.16.0-linux-ppc64le/bin:$PATH
 
-# Add the script to build the Debian package
-ADD build.sh /usr/local/bin/build_package
-
 # Installing necessary packages
 RUN echo "deb http://deb.debian.org/debian stretch main contrib non-free" >> /etc/apt/sources.list && \
     echo "deb-src http://deb.debian.org/debian stretch main contrib non-free" >> /etc/apt/sources.list && \
@@ -25,6 +22,9 @@ RUN apt-get update &&  apt-get build-dep python3.5 -y &&\
     ln -s /usr/local/lib/nodejs/node-v10.16.0-linux-ppc64le/bin/npm /usr/bin/npm && \
     ln -s /usr/local/lib/nodejs/node-v10.16.0-linux-ppc64le/bin/npx /usr/bin/npx &&\
     chmod +x /usr/local/bin/build_package
+
+# Add the script to build the Debian package
+ADD build.sh /usr/local/bin/build_package
 
 # Set the entrypoint
 ENTRYPOINT ["/usr/local/bin/build_package"]
