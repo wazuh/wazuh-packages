@@ -20,11 +20,11 @@ RUN apt-get update &&  apt-get build-dep python3.5 -y &&\
     tar -xJvf node-v10.16.0-linux-ppc64le.tar.xz -C /usr/local/lib/nodejs &&\
     ln -s /usr/local/lib/nodejs/node-v10.16.0-linux-ppc64le/bin/node /usr/bin/node &&\
     ln -s /usr/local/lib/nodejs/node-v10.16.0-linux-ppc64le/bin/npm /usr/bin/npm && \
-    ln -s /usr/local/lib/nodejs/node-v10.16.0-linux-ppc64le/bin/npx /usr/bin/npx &&\
-    chmod +x /usr/local/bin/build_package
+    ln -s /usr/local/lib/nodejs/node-v10.16.0-linux-ppc64le/bin/npx /usr/bin/npx
 
 # Add the script to build the Debian package
 ADD build.sh /usr/local/bin/build_package
+RUN chmod +x /usr/local/bin/build_package
 
 # Set the entrypoint
 ENTRYPOINT ["/usr/local/bin/build_package"]
