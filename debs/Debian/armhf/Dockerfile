@@ -13,7 +13,10 @@ RUN echo "deb http://deb.debian.org/debian/ stretch contrib main non-free" > /et
     libaudit-dev selinux-basics util-linux libdb5.1 \
     libssl1.1 libssl-dev gawk libsigsegv2 procps libc6-armel-cross
 
+# Add Debian's source repository and, Install NodeJS 12
 RUN apt-get build-dep python3.5 -y
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
+    apt-get install -y nodejs
 
 # Add the script to build the Debian package
 ADD build.sh /usr/local/bin/build_package

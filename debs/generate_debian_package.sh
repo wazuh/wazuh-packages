@@ -77,8 +77,10 @@ build() {
 
         if [[ "${ARCHITECTURE}" = "ppc64le" ]]; then
             build_deb ${DEB_PPC64LE_BUILDER} ${DEB_PPC64LE_BUILDER_DOCKERFILE} || return 1
-        elif [[ "${ARCHITECTURE}" = "aarch64" ]]; then
+        elif [[ "${ARCHITECTURE}" = "aarch64" ]] || [[ "${ARCHITECTURE}" = "arm64" ]]; then
             build_deb ${DEB_ARM64_BUILDER} ${DEB_ARM64_BUILDER_DOCKERFILE} || return 1
+        elif [[ "${ARCHITECTURE}" = "arm32" ]] || [[ "${ARCHITECTURE}" = "armhf" ]]; then
+            build_deb ${DEB_ARMHF_BUILDER} ${DEB_ARMHF_BUILDER_DOCKERFILE} || return 1
         else
             build_deb ${DEB_AMD64_BUILDER} ${DEB_AMD64_BUILDER_DOCKERFILE} || return 1
         fi
