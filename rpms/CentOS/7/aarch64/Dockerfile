@@ -24,7 +24,7 @@ RUN yum install -y gcc make git \
     redhat-rpm-config sqlite-devel gdb tar tcl-devel tix-devel tk-devel \
     valgrind-devel python-rpm-macros python34 nodejs
 
-RUN curl -O https://nodejs.org/dist/v12.16.1/node-v12.16.1-linux-arm64.tar.xz && \
+RUN curl -O https://packages.wazuh.com/utils/nodejs/node-v12.16.1-linux-arm64.tar.xz && \
     tar -xJf node-v12.16.1-linux-arm64.tar.xz && cd node-v12.16* && cp -R * /usr/local/
 
 # Update rpmbuild, rpm and autoconf

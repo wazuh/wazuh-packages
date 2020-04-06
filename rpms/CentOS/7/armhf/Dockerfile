@@ -3,8 +3,8 @@ FROM arm32v7/centos:7
 ADD build_deps.sh /build_deps.sh
 RUN sh build_deps.sh
 
-RUN curl -O https://nodejs.org/dist/v12.16.1/node-v12.16.1-linux-armv7l.tar.xz && \
-    tar -xJf node-v12.16.1-linux-armv7l.tar.xz && cd node-v12.16.1-linux-armv7l && cp -R * /usr/local/
+RUN curl -O https://packages.wazuh.com/utils/nodejs/node-v4.9.1-linux-armv7l.tar.xz && \
+    tar -xJf node-v4.9.1-linux-armv7l.tar.xz && cd node-v4.9.1-linux-armv7l && cp -R * /usr/local/
 
 # Update rpmbuild, rpm and autoconf
 RUN curl -O http://ftp.gnu.org/gnu/autoconf/autoconf-2.69.tar.gz && \
@@ -19,7 +19,7 @@ RUN mkdir -p /usr/local/var/lib/rpm && \
     cp /var/lib/rpm/Packages /usr/local/var/lib/rpm/Packages && \
     /usr/local/bin/rpm --rebuilddb
 
-RUN rm -rf autoconf-* rpm-* libarchive-* /root/rpmbuild
+RUN rm -rf autoconf-* rpm-* libarchive-* /root/rpmbuild node-*
 
 # Add the scripts to build the RPM package
 ADD build.sh /usr/local/bin/build_package
