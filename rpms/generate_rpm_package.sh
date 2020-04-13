@@ -36,6 +36,7 @@ PACKAGES_BRANCH="master"
 CHECKSUMDIR=""
 CHECKSUM="no"
 USE_LOCAL_SPECS="no"
+LOCAL_SOURCE_CODE=""
 
 trap ctrl_c INT
 
@@ -69,6 +70,12 @@ build_rpm() {
     if [ "${CONTAINER_NAME}" = "${LEGACY_RPM_I386_BUILDER}" ] && [ ! -f "${LEGACY_TAR_FILE}" ]; then
         ${DOWNLOAD_TAR}
     fi
+
+    # Create an optional parameter to share the local source code as a volume
+    if [ ! -z "${LOCAL_SOURCE_CODE}" ]; then
+        CUSTOM_CODE_VOL="-v ${LOCAL_SOURCE_CODE}:/wazuh-local-src:Z"
+    fi
+
     # Build the Docker image
     docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || return 1
 
@@ -76,9 +83,11 @@ build_rpm() {
     docker run -t --rm -v ${OUTDIR}:/var/local/wazuh:Z \
         -v ${CHECKSUMDIR}:/var/local/checksum:Z \
         -v ${LOCAL_SPECS}:/specs:Z \
+        ${CUSTOM_CODE_VOL} \
         ${CONTAINER_NAME} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
         ${JOBS} ${REVISION} ${INSTALLATION_PATH} ${DEBUG} \
-        ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} ${SRC} ${LEGACY} || return 1
+        ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} ${SRC} \
+        ${LEGACY} ${LOCAL_SOURCE_CODE} || return 1
 
     echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
 
@@ -97,8 +106,6 @@ build() {
         else
             build_rpm ${RPM_X86_BUILDER} ${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE} || return 1
         fi
-
-        
 
     elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]]; then
 
@@ -151,6 +158,7 @@ help() {
     echo "    -p, --path <path>            [Optional] Installation path for the package. By default: /var."
     echo "    -d, --debug                  [Optional] Build the binaries with debug symbols and create debuginfo packages. By default: no."
     echo "    -c, --checksum <path>        [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
+    echo "    --sources <path>             [Optional] Absolute path containing wazuh source code. This option will use local source code instead of downloading it from GitHub."
     echo "    --packages-branch <branch>   [Optional] Select Git branch or tag from wazuh-packages repository. e.g ${PACKAGES_BRANCH}"
     echo "    --dev                        [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub."
     echo "    --src                        [Optional] Generate the source package in the destination directory."
@@ -251,6 +259,14 @@ main() {
         "--packages-branch")
             if [ -n "$2" ]; then
                 PACKAGES_BRANCH="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
+        "--sources")
+            if [ -n "$2" ]; then
+                LOCAL_SOURCE_CODE="$2"
                 shift 2
             else
                 help 1
