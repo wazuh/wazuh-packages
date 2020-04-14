@@ -21,16 +21,21 @@ debug=$7
 checksum=$8
 wazuh_packages_branch=$9
 use_local_specs=${10}
+local_source_code=${11}
 
 if [ -z "${package_release}" ]; then
     package_release="1"
 fi
 
 if [ ${build_target} = "api" ]; then
-    curl -sL https://github.com/wazuh/wazuh-api/tarball/${wazuh_branch} | tar zx
+    if [ -z "${local_source_code}" ]; then
+        curl -sL https://github.com/wazuh/wazuh-api/tarball/${wazuh_branch} | tar zx
+    fi
     wazuh_version="$(grep version wazuh*/package.json | cut -d '"' -f 4)"
 else
-    curl -sL https://github.com/wazuh/wazuh/tarball/${wazuh_branch} | tar zx
+    if [ -z "${local_source_code}" ]; then
+        curl -sL https://github.com/wazuh/wazuh/tarball/${wazuh_branch} | tar zx
+    fi
     wazuh_version="$(cat wazuh*/src/VERSION | cut -d 'v' -f 2)"
 fi
 
@@ -40,7 +45,7 @@ package_full_name="wazuh-${build_target}-${wazuh_version}"
 sources_dir="${build_dir}/${build_target}/${package_full_name}"
 
 mkdir -p ${build_dir}/${build_target}
-mv wazuh* ${build_dir}/${build_target}/wazuh-${build_target}-${wazuh_version}
+cp -R wazuh* ${build_dir}/${build_target}/wazuh-${build_target}-${wazuh_version}
 
 if [ "${use_local_specs}" = "no" ]; then
     curl -sL https://github.com/wazuh/wazuh-packages/tarball/${wazuh_packages_branch} | tar zx
