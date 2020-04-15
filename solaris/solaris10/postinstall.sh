@@ -33,7 +33,6 @@ fi
 # Service
 if [ -f /etc/init.d/wazuh-agent ]; then
         /etc/init.d/wazuh-agent stop > /dev/null 2>&1
-		/etc/init.d/wazuh-agent start > /dev/null 2>&1
 fi
 
 ## Delete tmp directory

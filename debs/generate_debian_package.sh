@@ -32,6 +32,7 @@ CHECKSUM="no"
 PACKAGES_BRANCH="master"
 USE_LOCAL_SPECS="no"
 LOCAL_SPECS="${CURRENT_PATH}"
+LOCAL_SOURCE_CODE=""
 
 trap ctrl_c INT
 
@@ -55,6 +56,11 @@ build_deb() {
     # Copy the necessary files
     cp build.sh ${DOCKERFILE_PATH}
 
+    # Create an optional parameter to share the local source code as a volume
+    if [ ! -z "${LOCAL_SOURCE_CODE}" ]; then
+        CUSTOM_CODE_VOL="-v ${LOCAL_SOURCE_CODE}:/wazuh-local-src:Z"
+    fi
+
     # Build the Docker image
     docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || return 1
 
@@ -62,9 +68,10 @@ build_deb() {
     docker run -t --rm -v ${OUTDIR}:/var/local/wazuh:Z \
         -v ${CHECKSUMDIR}:/var/local/checksum:Z \
         -v ${LOCAL_SPECS}:/specs:Z \
+        ${CUSTOM_CODE_VOL} \
         ${CONTAINER_NAME} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
         ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} \
-        ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} || return 1
+        ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} ${LOCAL_SOURCE_CODE} || return 1
 
     echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
 
@@ -138,6 +145,7 @@ help() {
     echo "    -p, --path <path>         [Optional] Installation path for the package. By default: /var/ossec."
     echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
     echo "    -c, --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
+    echo "    --sources <path>          [Optional] Absolute path containing wazuh source code. This option will use local source code instead of downloading it from GitHub."
     echo "    --dev                     [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub."
     echo "    -h, --help                Show this help."
     echo
@@ -233,6 +241,14 @@ main() {
         "--dev")
             USE_LOCAL_SPECS="yes"
             shift 1
+            ;;
+        "--sources")
+            if [ -n "$2" ]; then
+                LOCAL_SOURCE_CODE="$2"
+                shift 2
+            else
+                help 1
+            fi
             ;;
         *)
             help 1

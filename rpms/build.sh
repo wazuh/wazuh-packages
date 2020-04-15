@@ -22,6 +22,7 @@ wazuh_packages_branch=$9
 use_local_specs=${10}
 src=${11}
 legacy=${12}
+local_source_code=${13}
 wazuh_version=""
 rpmbuild="rpmbuild"
 
@@ -36,10 +37,14 @@ if [ "${debug}" = "no" ]; then
 fi
 
 if [ ${build_target} = "api" ]; then
-    curl -sL https://github.com/wazuh/wazuh-api/tarball/${wazuh_branch} | tar zx
+    if [ -z "${local_source_code}" ]; then
+        curl -sL https://github.com/wazuh/wazuh-api/tarball/${wazuh_branch} | tar zx
+    fi
     wazuh_version="$(grep version wazuh*/package.json | cut -d '"' -f 4)"
 else
-    curl -sL https://github.com/wazuh/wazuh/tarball/${wazuh_branch} | tar zx
+    if [ -z "${local_source_code}" ]; then
+        curl -sL https://github.com/wazuh/wazuh/tarball/${wazuh_branch} | tar zx
+    fi
     wazuh_version="$(cat wazuh*/src/VERSION | cut -d 'v' -f 2)"
 fi
 
@@ -56,7 +61,7 @@ mkdir -p ${rpm_build_dir}/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
 # Prepare the sources directory to build the source tar.gz
 package_name=wazuh-${build_target}-${wazuh_version}
-mv wazuh-* ${build_dir}/${package_name}
+cp -R wazuh-* ${build_dir}/${package_name}
 
 # Including spec file
 if [ "${use_local_specs}" = "no" ]; then
