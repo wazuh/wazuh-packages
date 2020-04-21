@@ -36,17 +36,10 @@ if [ "${debug}" = "no" ]; then
     echo ${disable_debug_flag} > /etc/rpm/macros
 fi
 
-if [ ${build_target} = "api" ]; then
-    if [ -z "${local_source_code}" ]; then
-        curl -sL https://github.com/wazuh/wazuh-api/tarball/${wazuh_branch} | tar zx
-    fi
-    wazuh_version="$(grep version wazuh*/package.json | cut -d '"' -f 4)"
-else
-    if [ -z "${local_source_code}" ]; then
-        curl -sL https://github.com/wazuh/wazuh/tarball/${wazuh_branch} | tar zx
-    fi
-    wazuh_version="$(cat wazuh*/src/VERSION | cut -d 'v' -f 2)"
+if [ -z "${local_source_code}" ]; then
+    curl -sL https://github.com/wazuh/wazuh/tarball/${wazuh_branch} | tar zx
 fi
+wazuh_version="$(cat wazuh*/src/VERSION | cut -d 'v' -f 2)"
 
 # Build directories
 build_dir=/build_wazuh
