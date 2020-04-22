@@ -14,6 +14,7 @@ Requires(post):   /sbin/chkconfig
 Requires(preun):  /sbin/chkconfig /sbin/service
 Requires(postun): /sbin/service /usr/sbin/groupdel /usr/sbin/userdel
 Conflicts:   ossec-hids ossec-hids-agent wazuh-agent wazuh-local
+Obsoletes: wazuh-api <= 4.0.0
 AutoReqProv: no
 
 Requires: coreutils
@@ -78,6 +79,9 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/.ssh
 cp -pr %{_localstatedir}/ossec/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/
 install -m 0640 ossec-init.conf ${RPM_BUILD_ROOT}%{_sysconfdir}
 install -m 0755 src/init/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-manager
+
+# Move migration.py to RPM_BUILD_ROOT
+cp -pr api/scripts/migration.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/scripts/migration.py
 
 # Clean the preinstalled configuration assesment files
 rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca/*
@@ -240,12 +244,40 @@ if [ $1 = 2 ]; then
   elif [ $MAJOR = 3 ] && [ $MINOR = 9 ]; then
     find %{_localstatedir}/ossec/ruleset/sca -type f > %{_localstatedir}/ossec/old_sca.files
   fi
+
+  # Delete old API backups
+  if [ -e %{_localstatedir}/ossec/~api ]; then
+    rm -rf %{_localstatedir}/ossec/~api
+  fi
+
+  # Update Wazuh API 3.x or 2.1 to 4.x
+  if [ $MAJOR = 3 ] || [ $MAJOR = 2 ]; then
+    # Wazuh API is installed
+    if [ -e %{_localstatedir}/ossec/api ]; then
+      # Stop API's services
+      if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
+        systemctl stop wazuh-api.service > /dev/null
+      elif [ -x /etc/rc.d/init.d/wazuh-api ] ; then
+        /etc/rc.d/init.d/wazuh-api stop > /dev/null
+      elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
+        /etc/init.d/wazuh-api stop > /dev/null
+      fi
+      # Delete old Wazuh API service
+      rm /etc/init.d/wazuh-api
+      # Copy configuration files
+      cp -rp %{_localstatedir}/ossec/api %{_localstatedir}/ossec/~api
+    fi
+  elif [ $MAJOR = 4 ]; then
+    # Copy RBAC security database
+    cp -rp %{_localstatedir}/ossec/api/configuration/security %{_localstatedir}/ossec/~api/configuration
+  fi
 fi
 
 # Delete old service
 if [ -f /etc/init.d/ossec ]; then
   rm /etc/init.d/ossec
 fi
+
 # Execute this if only when installing the package
 if [ $1 = 1 ]; then
   if [ -f %{_localstatedir}/ossec/etc/ossec.conf ]; then
@@ -267,6 +299,7 @@ if [ $1 = 2 ]; then
       rm -f  %{_localstatedir}/ossec/etc/shared/default/ar.conf || true
     fi
 fi
+
 %post
 
 # If the package is being installed
@@ -532,6 +565,31 @@ rm -rf %{_localstatedir}/ossec/packages_files
 # Remove unnecessary files from default group
 rm -f %{_localstatedir}/ossec/etc/shared/default/*.rpmnew
 
+# Update Wazuh API 3.x or 2.1 to 4.x
+if [ -e %{_localstatedir}/ossec/~api/configuration/config.js ]; then
+  # Restore API backup files
+  if [ -e %{_localstatedir}/ossec/~api ]; then
+    # Copy configuration files
+    cp -rpf %{_localstatedir}/ossec/~api/configuration/ssl %{_localstatedir}/ossec/api/configuration
+    # Migrate old config.js to 4.x configuration
+    %{_localstatedir}/ossec/framework/python/bin/python3 %{_localstatedir}/ossec/api/scripts/migration.py
+    rm -rf %{_localstatedir}/ossec/~api
+    rm -rf %{_localstatedir}/ossec/api/scripts/migration.py
+    rm -f %{_localstatedir}/ossec/api/configuration/*.rpmsave
+    # Create security folder for RBAC
+    if [ ! -e %{_localstatedir}/ossec/api/configuration/security ]; then
+      mkdir -p %{_localstatedir}/ossec/api/configuration/security
+    fi
+    /sbin/service wazuh-api restart > /dev/null 2>&1
+  fi
+# Update Wazuh API 4.x to 4.y (x < y)
+elif [ -e %{_localstatedir}/ossec/~api/configuration/security ]; then
+  # Create security folder for RBAC
+  if [ ! -e %{_localstatedir}/ossec/api/configuration/security ]; then
+    cp -rp %{_localstatedir}/ossec/~api/configuration/security %{_localstatedir}/ossec/api/configuration
+  fi
+fi
+
 if %{_localstatedir}/ossec/bin/ossec-logtest 2>/dev/null ; then
   /sbin/service wazuh-manager restart > /dev/null 2>&1
 else
@@ -596,7 +654,21 @@ if [ $1 = 0 ]; then
   # Remove SCA files
   rm -f %{_localstatedir}/ossec/ruleset/sca/*
 
+  # Remove Wazuh API
+  if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
+    systemctl stop wazuh-api.service > /dev/null
+    systemctl disable wazuh-api.service > /dev/null
+    rm -f /etc/systemd/system/wazuh-api.service
+  fi
+
+  if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
+    /etc/init.d/wazuh-api stop > /dev/null
+    chkconfig wazuh-api off
+    chkconfig --del wazuh-api
+    rm -f /etc/rc.d/init.d/wazuh-api || true
+  fi
 fi
+
 
 %postun
 
@@ -638,6 +710,7 @@ if [ $1 == 0 ];then
   # Remove lingering folders and files
   rm -rf %{_localstatedir}/ossec/queue/
   rm -rf %{_localstatedir}/ossec/framework/
+  rm -rf %{_localstatedir}/ossec/api/
   rm -rf %{_localstatedir}/ossec/stats/
   rm -rf %{_localstatedir}/ossec/var/
   rm -rf %{_localstatedir}/ossec/bin/
@@ -763,11 +836,11 @@ rm -fr %{buildroot}
 %attr(640, root, ossec) %{_localstatedir}/ossec/framework/scripts/*.py
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/wazuh
 %attr(640, root, ossec) %{_localstatedir}/ossec/framework/wazuh/*.py
-%dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/wazuh/cluster
-%attr(640, root, ossec) %{_localstatedir}/ossec/framework/wazuh/cluster/*.py
-%attr(640, root, ossec) %{_localstatedir}/ossec/framework/wazuh/cluster/*.json
-%dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/wazuh/cluster/dapi
-%attr(640, root, ossec) %{_localstatedir}/ossec/framework/wazuh/cluster/dapi/*.py
+%dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/wazuh/core/cluster
+%attr(640, root, ossec) %{_localstatedir}/ossec/framework/wazuh/core/cluster/*.py
+%attr(640, root, ossec) %{_localstatedir}/ossec/framework/wazuh/core/cluster/*.json
+%dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/wazuh/core/cluster/dapi
+%attr(640, root, ossec) %{_localstatedir}/ossec/framework/wazuh/core/cluster/dapi/*.py
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/integrations
 %attr(750, root, ossec) %{_localstatedir}/ossec/integrations/*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/lib
@@ -927,17 +1000,15 @@ rm -fr %{buildroot}
 
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/api
 %dir %attr(750, root, ossec) %config(noreplace) %{_localstatedir}/ossec/api/configuration
-%dir %attr(750, root, ossec) %config(noreplace) %{_localstatedir}/ossec/api/configuration/security
-%dir %attr(750, root, root) %config(noreplace) %{_localstatedir}/ossec/api/configuration/ssl
 %dir %attr(750, root, root) %{_localstatedir}/ossec/api/scripts
 %dir %attr(750, root, root) %{_localstatedir}/ossec/api/service
 %attr(750, root, ossec) %{_localstatedir}/ossec/api/service/*
-%attr(640, ossec, ossec) %{_localstatedir}/ossec/api/configuration/security/*
-%attr(640, ossec, ossec) %{_localstatedir}/ossec/api/configuration/ssl/*
 %attr(750, root, ossec) %{_localstatedir}/ossec/bin/wazuh-apid
 %attr(640, root, ossec) %{_localstatedir}/ossec/api/configuration/api.yaml
 %attr(660, ossec, ossec) %ghost %{_localstatedir}/ossec/logs/api.log
 %attr(750, root, root) %{_localstatedir}/ossec/api/scripts/*.py
+%attr(750, root, root) %{_localstatedir}/ossec/bin/migration
+%attr(750, root, root) %{_localstatedir}/ossec/bin/configure_api
 
 
 %{_initrddir}/*
