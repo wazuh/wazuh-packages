@@ -14,7 +14,7 @@ Requires(post):   /sbin/chkconfig
 Requires(preun):  /sbin/chkconfig /sbin/service
 Requires(postun): /sbin/service /usr/sbin/groupdel /usr/sbin/userdel
 Conflicts:   ossec-hids ossec-hids-agent wazuh-agent wazuh-local
-Obsoletes: wazuh-api <= 4.0.0
+Obsoletes: wazuh-api
 AutoReqProv: no
 
 Requires: coreutils
@@ -179,6 +179,12 @@ cp -r src/systemd/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/mana
 if [ %{_debugenabled} == "yes" ]; then
   %{_rpmconfigdir}/find-debuginfo.sh
 fi
+
+# Copy Wazuh-API service
+cp api/service/wazuh-api %{_localstatedir}/ossec/api/service
+cp api/service/wazuh-api.service %{_localstatedir}/ossec/api/service
+cp api/service/install_daemon.sh %{_localstatedir}/ossec/api/service
+
 exit 0
 %pre
 
@@ -590,6 +596,9 @@ elif [ -e %{_localstatedir}/ossec/~api/configuration/security ]; then
   fi
 fi
 
+# Install Wazuh-API service
+%{_localstatedir}/ossec/api/service/install_daemon.sh
+
 if %{_localstatedir}/ossec/bin/ossec-logtest 2>/dev/null ; then
   /sbin/service wazuh-manager restart > /dev/null 2>&1
 else
@@ -1000,13 +1009,16 @@ rm -fr %{buildroot}
 
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/api
 %dir %attr(750, root, ossec) %config(noreplace) %{_localstatedir}/ossec/api/configuration
-%dir %attr(750, root, root) %{_localstatedir}/ossec/api/scripts
-%dir %attr(750, root, root) %{_localstatedir}/ossec/api/service
+%dir %attr(750, root, ossec) %{_localstatedir}/ossec/api/scripts
+%dir %attr(750, root, ossec) %{_localstatedir}/ossec/api/service
+%dir %attr(770, root, ossec) %{_localstatedir}/ossec/api/configuration/security
+%dir %attr(770, root, ossec) %{_localstatedir}/ossec/api/configuration/ssl
 %attr(750, root, ossec) %{_localstatedir}/ossec/api/service/*
 %attr(750, root, ossec) %{_localstatedir}/ossec/bin/wazuh-apid
 %attr(640, root, ossec) %{_localstatedir}/ossec/api/configuration/api.yaml
 %attr(660, ossec, ossec) %ghost %{_localstatedir}/ossec/logs/api.log
-%attr(750, root, root) %{_localstatedir}/ossec/api/scripts/*.py
+%attr(750, root, ossec) %{_localstatedir}/ossec/api/scripts/wazuh-apid.py
+%attr(750, root, ossec) %{_localstatedir}/ossec/api/scripts/migration.py
 %attr(750, root, root) %{_localstatedir}/ossec/bin/migration
 %attr(750, root, root) %{_localstatedir}/ossec/bin/configure_api
 
