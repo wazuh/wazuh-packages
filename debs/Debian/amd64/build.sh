@@ -27,17 +27,10 @@ if [ -z "${package_release}" ]; then
     package_release="1"
 fi
 
-if [ ${build_target} = "api" ]; then
-    if [ -z "${local_source_code}" ]; then
-        curl -sL https://github.com/wazuh/wazuh-api/tarball/${wazuh_branch} | tar zx
-    fi
-    wazuh_version="$(grep version wazuh*/package.json | cut -d '"' -f 4)"
-else
-    if [ -z "${local_source_code}" ]; then
-        curl -sL https://github.com/wazuh/wazuh/tarball/${wazuh_branch} | tar zx
-    fi
-    wazuh_version="$(cat wazuh*/src/VERSION | cut -d 'v' -f 2)"
+if [ -z "${local_source_code}" ]; then
+    curl -sL https://github.com/wazuh/wazuh/tarball/${wazuh_branch} | tar zx
 fi
+wazuh_version="$(cat wazuh*/src/VERSION | cut -d 'v' -f 2)"
 
 # Build directories
 build_dir=/build_wazuh
@@ -67,12 +60,6 @@ sed -i "s:export JOBS=.*:export JOBS=${jobs}:g" ${sources_dir}/debian/rules
 sed -i "s:export DEBUG_ENABLED=.*:export DEBUG_ENABLED=${debug}:g" ${sources_dir}/debian/rules
 sed -i "s:export INSTALLATION_DIR=.*:export INSTALLATION_DIR=${dir_path}:g" ${sources_dir}/debian/rules
 sed -i "s:DIR=\"/var/ossec\":DIR=\"${dir_path}\":g" ${sources_dir}/debian/{preinst,postinst,prerm,postrm}
-if [ "${build_target}" == "api" ]; then
-    sed -i "s:DIR=\"/var/ossec\":DIR=\"${dir_path}\":g" ${sources_dir}/debian/wazuh-api.init
-    if [ "${architecture_target}" == "ppc64le" ]; then
-        sed -i "s: nodejs (>= 4.6), npm,::g" ${sources_dir}/debian/control
-    fi
-fi
 
 if [[ "${debug}" == "yes" ]]; then
     sed -i "s:dh_strip --no-automatic-dbgsym::g" ${sources_dir}/debian/rules
@@ -98,3 +85,4 @@ if [[ "${checksum}" == "yes" ]]; then
 fi
 
 mv ${pkg_path}/${deb_file} /var/local/wazuh
+#mv ${pkg_path}/wazuh-manager_3.13.0-1_amd64.deb /var/local/wazuh

@@ -120,7 +120,7 @@ help() {
     echo "    -a, --architecture <arch> [Optional] Target architecture of the package. By default: x86_64"
     echo "    -j, --jobs <number>       [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 4."
     echo "    -r, --revision <rev>      [Optional] Package revision. By default: 1."
-    echo "    -s, --store <path>        [Optional] Set the directory where the package will be stored. By default: ${HOME}/3.x/apt-dev/"
+    echo "    -s, --store <path>        [Optional] Set the directory where the package will be stored. By default: ${HOME}/4.x/apt-dev/"
     echo "    -p, --path <path>         [Optional] Installation path for the package. By default: /var/ossec."
     echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
     echo "    -c, --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
