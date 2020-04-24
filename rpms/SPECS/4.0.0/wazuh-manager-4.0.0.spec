@@ -180,11 +180,6 @@ if [ %{_debugenabled} == "yes" ]; then
   %{_rpmconfigdir}/find-debuginfo.sh
 fi
 
-# Copy Wazuh-API service
-cp api/service/wazuh-api %{_localstatedir}/ossec/api/service
-cp api/service/wazuh-api.service %{_localstatedir}/ossec/api/service
-cp api/service/install_daemon.sh %{_localstatedir}/ossec/api/service
-
 exit 0
 %pre
 
@@ -576,12 +571,15 @@ if [ -e %{_localstatedir}/ossec/~api/configuration/config.js ]; then
   # Restore API backup files
   if [ -e %{_localstatedir}/ossec/~api ]; then
     # Copy configuration files
-    cp -rpf %{_localstatedir}/ossec/~api/configuration/ssl %{_localstatedir}/ossec/api/configuration
+    cp -rf %{_localstatedir}/ossec/~api/configuration/ssl %{_localstatedir}/ossec/api/configuration
+    if [ ! -z "$(ls -A %{_localstatedir}/ossec/api/configuration/ssl)" ]; then
+      chown ossec:ossec %{_localstatedir}/ossec/api/configuration/ssl/*
+      chmod 644 %{_localstatedir}/ossec/api/configuration/ssl/*
+    fi
     # Migrate old config.js to 4.x configuration
     %{_localstatedir}/ossec/framework/python/bin/python3 %{_localstatedir}/ossec/api/scripts/migration.py
     rm -rf %{_localstatedir}/ossec/~api
     rm -rf %{_localstatedir}/ossec/api/scripts/migration.py
-    rm -f %{_localstatedir}/ossec/api/configuration/*.rpmsave
     # Create security folder for RBAC
     if [ ! -e %{_localstatedir}/ossec/api/configuration/security ]; then
       mkdir -p %{_localstatedir}/ossec/api/configuration/security
@@ -597,7 +595,7 @@ elif [ -e %{_localstatedir}/ossec/~api/configuration/security ]; then
 fi
 
 # Install Wazuh-API service
-%{_localstatedir}/ossec/api/service/install_daemon.sh
+. %{_localstatedir}/ossec/api/service/install_daemon.sh
 
 if %{_localstatedir}/ossec/bin/ossec-logtest 2>/dev/null ; then
   /sbin/service wazuh-manager restart > /dev/null 2>&1
