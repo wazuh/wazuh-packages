@@ -100,7 +100,14 @@ build() {
         ARCHITECTURE="x86_64"
     fi
 
-    if [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]]; then
+    if [[ "${TARGET}" == "api" ]]; then
+        if [[ "${ARCHITECTURE}" = "ppc64le" ]]; then
+            build_rpm ${RPM_PPC64LE_BUILDER} ${RPM_PPC64LE_BUILDER_DOCKERFILE}/${ARCHITECTURE} || return 1
+        else
+            build_rpm ${RPM_X86_BUILDER} ${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE} || return 1
+        fi
+
+    elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]]; then
 
         BUILD_NAME=""
         FILE_PATH=""
@@ -130,7 +137,7 @@ build() {
         fi
         build_rpm ${BUILD_NAME} ${FILE_PATH} || return 1
     else
-        echo "Invalid target. Choose: manager or agent."
+        echo "Invalid target. Choose: manager, agent or api."
         return 1
     fi
 
@@ -142,7 +149,7 @@ help() {
     echo "Usage: $0 [OPTIONS]"
     echo
     echo "    -b, --branch <branch>        [Required] Select Git branch or tag e.g. $BRANCH"
-    echo "    -t, --target <target>        [Required] Target package to build [manager/agent]."
+    echo "    -t, --target <target>        [Required] Target package to build [manager/api/agent]."
     echo "    -a, --architecture <arch>    [Optional] Target architecture of the package [x86_64/i386/aarch64]."
     echo "    -r, --revision <rev>         [Optional] Package revision that append to version e.g. x.x.x-rev"
     echo "    -l, --legacy                 [Optional] Build package for CentOS 5."
