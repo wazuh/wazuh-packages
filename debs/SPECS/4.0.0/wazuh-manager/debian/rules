@@ -180,9 +180,8 @@ override_dh_install:
 
 	cp src/systemd/wazuh-manager.service ${TARGET_DIR}/etc/systemd/system/
 
-	# Copy API scripts
+	# Make API directory
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/api
-	cp -p api/scripts/migration.py ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/api
 
 	# Copy API service files
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/api/service

@@ -353,15 +353,6 @@ case "$1" in
     chmod 750 ${DIR}/api/service/*
     chown root:${GROUP} ${DIR}/api/service/*
 
-    # Migrate API if needed
-    if [ -d ${DIR}/~api ]; then
-      ${DIR}/framework/python/bin/python3 ${SCRIPTS_DIR}/api/migration.py
-      if [ "$(ls -A ${DIR}/~api/configuration/ssl)" ]; then
-        cp -rLfp -fp ${DIR}/~api/configuration/ssl/* ${DIR}/api/configuration/ssl
-      fi
-      rm -rf ${DIR}/~api
-    fi
-
     # API service
     WAZUH_PATH=${DIR} ${DIR}/api/service/install_daemon.sh
 

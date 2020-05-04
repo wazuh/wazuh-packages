@@ -78,16 +78,13 @@ case "$1" in
 
 #            # Update Wazuh API 3.x or 2.1 to 4.x
             if [ $MAJOR = 3 ] || [ $MAJOR = 2 ]; then
-#              # Wazuh API is installed
-#              if [ -e ${DIR}/api ]; then
-#                # Delete old API backups
-#                if [ -e ${DIR}/~api ]; then
-#                  rm -rf ${DIR}/~api
-#                fi
-#                mkdir -p ${DIR}/~api
-#                # Copy configuration files
-#                cp -rp ${DIR}/api/* ${DIR}/~api
-#              fi
+              # Wazuh API is installed
+              if [ -e ${DIR}/api ]; then
+                # Delete old API backups
+                if [ -e ${DIR}/~api ]; then
+                  rm -rf ${DIR}/~api
+                fi
+              fi
               if [ -e ${DIR}/framework/wazuh/cluster ]; then
                 rm -rf ${DIR}/framework/wazuh/cluster/*
               fi
