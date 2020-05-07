@@ -213,18 +213,17 @@ case "$1" in
     if [ -f ${WAZUH_TMP_DIR}/local_decoder.xml ]; then
         mv ${WAZUH_TMP_DIR}/local_decoder.xml ${DIR}/etc/decoders/local_decoder.xml
     fi
-    # Migrate API
-    if [ -f ${WAZUH_TMP_DIR}/local_decoder.xml ]; then
-        mv ${WAZUH_TMP_DIR}/local_decoder.xml ${DIR}/etc/decoders/local_decoder.xml
-    fi
-    if [ -f ${WAZUH_TMP_DIR}/wazuh-api.restart ]; then
-        service wazuh-api start > /dev/null 2>&1 || true
-    fi
 
     # Restore group files
     if [ -d ${WAZUH_TMP_DIR}/group ]; then
         cp -rfp ${WAZUH_TMP_DIR}/group/* ${DIR}/etc/shared
         rm -rf ${WAZUH_TMP_DIR}/group/
+    fi
+
+    # Restore RBAC database
+    if [ -f ${WAZUH_TMP_DIR}/rbac.db ]; then
+        cp -fp ${WAZUH_TMP_DIR}/rbac.db ${DIR}/api/configuration/security/rbac.db
+        rm -rf ${WAZUH_TMP_DIR}/rbac.db
     fi
 
     # More files
