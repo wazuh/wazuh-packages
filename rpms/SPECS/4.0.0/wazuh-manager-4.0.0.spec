@@ -13,8 +13,7 @@ Requires(pre):    /usr/sbin/groupadd /usr/sbin/useradd
 Requires(post):   /sbin/chkconfig
 Requires(preun):  /sbin/chkconfig /sbin/service
 Requires(postun): /sbin/service /usr/sbin/groupdel /usr/sbin/userdel
-Conflicts:   ossec-hids ossec-hids-agent wazuh-agent wazuh-local
-Obsoletes: wazuh-api
+Conflicts:   ossec-hids ossec-hids-agent wazuh-agent wazuh-local wazuh-api
 AutoReqProv: no
 
 Requires: coreutils
@@ -79,9 +78,6 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/.ssh
 cp -pr %{_localstatedir}/ossec/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/
 install -m 0640 ossec-init.conf ${RPM_BUILD_ROOT}%{_sysconfdir}
 install -m 0755 src/init/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-manager
-
-# Move migration.py to RPM_BUILD_ROOT
-cp -pr api/scripts/migration.py ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/scripts/migration.py
 
 # Clean the preinstalled configuration assesment files
 rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca/*
@@ -250,28 +246,20 @@ if [ $1 = 2 ]; then
   if [ -e %{_localstatedir}/ossec/~api ]; then
     rm -rf %{_localstatedir}/ossec/~api
   fi
+fi
 
-  # Update Wazuh API 3.x or 2.1 to 4.x
-  if [ $MAJOR = 3 ] || [ $MAJOR = 2 ]; then
-    # Wazuh API is installed
-    if [ -e %{_localstatedir}/ossec/api ]; then
-      # Stop API's services
-      if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
-        systemctl stop wazuh-api.service > /dev/null
-      elif [ -x /etc/rc.d/init.d/wazuh-api ] ; then
-        /etc/rc.d/init.d/wazuh-api stop > /dev/null
-      elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
-        /etc/init.d/wazuh-api stop > /dev/null
-      fi
-      # Delete old Wazuh API service
-      rm /etc/init.d/wazuh-api
-      # Copy configuration files
-      cp -rp %{_localstatedir}/ossec/api %{_localstatedir}/ossec/~api
-    fi
-  elif [ $MAJOR = 4 ]; then
-    # Copy RBAC security database
-    cp -rp %{_localstatedir}/ossec/api/configuration/security %{_localstatedir}/ossec/~api/configuration
+# Wazuh API is installed
+if [ -e %{_localstatedir}/ossec/api ]; then
+  # Stop API's services
+  if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
+    systemctl stop wazuh-api.service > /dev/null
+  elif [ -x /etc/rc.d/init.d/wazuh-api ] ; then
+    /etc/rc.d/init.d/wazuh-api stop > /dev/null
+  elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
+    /etc/init.d/wazuh-api stop > /dev/null
   fi
+  # Delete old Wazuh API service
+  rm /etc/init.d/wazuh-api
 fi
 
 # Delete old service
@@ -566,39 +554,12 @@ rm -rf %{_localstatedir}/ossec/packages_files
 # Remove unnecessary files from default group
 rm -f %{_localstatedir}/ossec/etc/shared/default/*.rpmnew
 
-# Update Wazuh API 3.x or 2.1 to 4.x
-if [ -e %{_localstatedir}/ossec/~api/configuration/config.js ]; then
-  # Restore API backup files
-  if [ -e %{_localstatedir}/ossec/~api ]; then
-    # Copy configuration files
-    cp -rf %{_localstatedir}/ossec/~api/configuration/ssl %{_localstatedir}/ossec/api/configuration
-    if [ ! -z "$(ls -A %{_localstatedir}/ossec/api/configuration/ssl)" ]; then
-      chown ossec:ossec %{_localstatedir}/ossec/api/configuration/ssl/*
-      chmod 644 %{_localstatedir}/ossec/api/configuration/ssl/*
-    fi
-    # Migrate old config.js to 4.x configuration
-    %{_localstatedir}/ossec/framework/python/bin/python3 %{_localstatedir}/ossec/api/scripts/migration.py
-    rm -rf %{_localstatedir}/ossec/~api
-    rm -rf %{_localstatedir}/ossec/api/scripts/migration.py
-    # Create security folder for RBAC
-    if [ ! -e %{_localstatedir}/ossec/api/configuration/security ]; then
-      mkdir -p %{_localstatedir}/ossec/api/configuration/security
-    fi
-    /sbin/service wazuh-api restart > /dev/null 2>&1
-  fi
-# Update Wazuh API 4.x to 4.y (x < y)
-elif [ -e %{_localstatedir}/ossec/~api/configuration/security ]; then
-  # Create security folder for RBAC
-  if [ ! -e %{_localstatedir}/ossec/api/configuration/security ]; then
-    cp -rp %{_localstatedir}/ossec/~api/configuration/security %{_localstatedir}/ossec/api/configuration
-  fi
-fi
-
 # Install Wazuh-API service
 . %{_localstatedir}/ossec/api/service/install_daemon.sh
 
 if %{_localstatedir}/ossec/bin/ossec-logtest 2>/dev/null ; then
   /sbin/service wazuh-manager restart > /dev/null 2>&1
+  /sbin/service wazuh-api restart > /dev/null 2>&1
 else
   echo "================================================================================================================"
   echo "Something in your actual rules configuration is wrong, please review your configuration and restart the service."
@@ -1007,17 +968,17 @@ rm -fr %{buildroot}
 
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/api
 %dir %attr(750, root, ossec) %config(noreplace) %{_localstatedir}/ossec/api/configuration
-%dir %attr(750, root, ossec) %{_localstatedir}/ossec/api/scripts
-%dir %attr(750, root, ossec) %{_localstatedir}/ossec/api/service
-%dir %attr(770, root, ossec) %{_localstatedir}/ossec/api/configuration/security
-%dir %attr(770, root, ossec) %{_localstatedir}/ossec/api/configuration/ssl
+%dir %attr(750, root, ossec) %config(noreplace) %{_localstatedir}/ossec/api/scripts
+%dir %attr(750, root, ossec) %config(noreplace) %{_localstatedir}/ossec/api/service
+%dir %attr(770, root, ossec) %config(noreplace) %{_localstatedir}/ossec/api/configuration/security
+%dir %attr(770, root, ossec) %config(noreplace) %{_localstatedir}/ossec/api/configuration/ssl
 %attr(750, root, ossec) %{_localstatedir}/ossec/api/service/*
+
+%attr(750, root, root) %{_localstatedir}/ossec/bin/migration
 %attr(750, root, ossec) %{_localstatedir}/ossec/bin/wazuh-apid
-%attr(640, root, ossec) %{_localstatedir}/ossec/api/configuration/api.yaml
+%attr(640, root, ossec) %config(noreplace) %{_localstatedir}/ossec/api/configuration/api.yaml
 %attr(660, ossec, ossec) %ghost %{_localstatedir}/ossec/logs/api.log
 %attr(750, root, ossec) %{_localstatedir}/ossec/api/scripts/wazuh-apid.py
-%attr(750, root, ossec) %{_localstatedir}/ossec/api/scripts/migration.py
-%attr(750, root, root) %{_localstatedir}/ossec/bin/migration
 %attr(750, root, root) %{_localstatedir}/ossec/bin/configure_api
 
 
@@ -1029,6 +990,8 @@ rm -fr %{buildroot}
 
 
 %changelog
+* Wed May 15 2020 support <info@wazuh.com> - 4.0.0
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Wed May 13 2020 support <info@wazuh.com> - 3.12.3
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Thu Apr 9 2020 support <info@wazuh.com> - 3.12.2
