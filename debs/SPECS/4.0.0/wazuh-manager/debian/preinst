@@ -38,6 +38,16 @@ case "$1" in
             echo "====================================================================================="
           fi
         fi
+
+        # Stop Wazuh service if we are upgrading and it's running
+        if [ ! -z "$2" ]; then
+          if [ -n "$(ps -e | grep -E ^\ *1\ .*systemd$)" ]; then
+              systemctl --quiet stop wazuh-manager.service
+          else
+              service wazuh-manager stop
+          fi
+        fi
+
         # Stop API service if it's running
         if ps aux | grep "${DIR}/api/app.js" | grep -v grep > /dev/null 2>&1; then
            touch ${WAZUH_TMP_DIR}/wazuh-api.restart

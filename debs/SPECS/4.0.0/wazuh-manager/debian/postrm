@@ -9,8 +9,18 @@ case "$1" in
     remove|failed-upgrade|abort-install|abort-upgrade|disappear)
 
     # Fix for forcing the stop of the api
-    if ps aux | grep ${DIR}/api/app.js | grep -v grep; then
-        kill -9 `ps -ef | grep "${DIR}/api/app.js" | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
+    if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
+            systemctl stop wazuh-api > /dev/null 2>&1
+            systemctl disable wazuh-api > /dev/null 2>&1
+            systemctl daemon-reload > /dev/null 2>&1
+    fi
+
+    if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
+        service wazuh-api stop
+    fi
+
+    if [ -f /etc/init.d/wazuh-api ]; then
+        rm -f /etc/init.d/wazuh-api
     fi
 
     if [ -f /etc/logrotate.d/wazuh-hids ]; then
@@ -29,6 +39,7 @@ case "$1" in
 
     if [ -d /run/systemd/system ] ; then
         systemctl disable wazuh-manager > /dev/null 2>&1
+        systemctl disable wazuh-api > /dev/null 2>&1
         systemctl daemon-reload
         systemctl reset-failed
     fi
@@ -60,9 +71,11 @@ case "$1" in
 
     # Delete old .save
     find ${DIR}/etc/ -type f  -name "*save" -exec rm -f {} \;
+    find ${DIR}/api/ -type f  -name "*save" -exec rm -f {} \;
 
     # Rename the files
     find ${DIR}/etc/ -type f ! -name *shared* -exec mv {} {}.save \;
+    find ${DIR}/api/ -type f ! -name *shared* -exec mv {} {}.save \;
 
     ;;
 

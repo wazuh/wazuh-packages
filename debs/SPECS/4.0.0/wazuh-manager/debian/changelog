@@ -2,7 +2,7 @@ wazuh-manager (4.0.0-RELEASE) stable; urgency=low
 
   * More info: https://documentation.wazuh.com/current/release-notes/
 
- -- Wazuh, Inc <info@wazuh.com>  Thu, 15 May 2020 10:05:02 +0000
+ -- Wazuh, Inc <info@wazuh.com>  Fri, 15 May 2020 10:05:02 +0000
 
 wazuh-manager (3.13.0-RELEASE) stable; urgency=low
 
