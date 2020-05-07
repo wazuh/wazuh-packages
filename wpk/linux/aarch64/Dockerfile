@@ -1,0 +1,21 @@
+FROM arm64v8/centos:7
+
+# Enable EPEL
+RUN yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+
+# Install all the necessary tools to build the packages
+RUN yum install -y gcc make git sudo gnupg openssl \
+    automake autoconf libtool policycoreutils-python \
+    findutils gcc-c++ glibc-devel gnupg2 openssl openssl-devel \
+    libffi-devel pkgconfig readline-devel \
+    sqlite-devel gdb tar tcl-devel tix-devel tk-devel \
+    valgrind-devel python-rpm-macros python python-devel
+
+RUN curl https://bootstrap.pypa.io/get-pip.py | python -
+
+RUN pip install --upgrade cryptography
+
+ADD wpkpack.py /usr/local/bin/wpkpack
+ADD run.sh /usr/local/bin/run
+ADD gen_versions.sh /usr/local/bin/gen_versions
+ENTRYPOINT ["/usr/local/bin/run"]
