@@ -179,6 +179,18 @@ fi
 exit 0
 %pre
 
+# Wazuh API is installed
+if [ -e %{_localstatedir}/ossec/api ]; then
+  # Stop API's services
+  if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
+    systemctl stop wazuh-api.service > /dev/null
+  elif [ -x /etc/rc.d/init.d/wazuh-api ] ; then
+    /etc/rc.d/init.d/wazuh-api stop > /dev/null
+  elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
+    /etc/init.d/wazuh-api stop > /dev/null
+  fi
+fi
+
 # Stop Authd if it is running
 if ps aux | grep %{_localstatedir}/ossec/bin/ossec-authd | grep -v grep > /dev/null 2>&1; then
    kill `ps -ef | grep '%{_localstatedir}/ossec/bin/ossec-authd' | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
@@ -248,20 +260,6 @@ if [ $1 = 2 ]; then
   fi
 fi
 
-# Wazuh API is installed
-if [ -e %{_localstatedir}/ossec/api ]; then
-  # Stop API's services
-  if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
-    systemctl stop wazuh-api.service > /dev/null
-  elif [ -x /etc/rc.d/init.d/wazuh-api ] ; then
-    /etc/rc.d/init.d/wazuh-api stop > /dev/null
-  elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
-    /etc/init.d/wazuh-api stop > /dev/null
-  fi
-  # Delete old Wazuh API service
-  rm /etc/init.d/wazuh-api
-fi
-
 # Delete old service
 if [ -f /etc/init.d/ossec ]; then
   rm /etc/init.d/ossec
@@ -287,6 +285,20 @@ if [ $1 = 2 ]; then
       rm -f  %{_localstatedir}/ossec/etc/shared/merged.mg || true
       rm -f  %{_localstatedir}/ossec/etc/shared/default/ar.conf || true
     fi
+fi
+
+# Delete 3.X Wazuh API service
+if [ $MAJOR = 3 ] && [ -e %{_localstatedir}/ossec/api ]; then
+  if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
+    systemctl disable wazuh-api.service > /dev/null
+    rm -f /etc/systemd/system/wazuh-api.service
+  fi
+
+  if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
+    chkconfig wazuh-api off
+    chkconfig --del wazuh-api
+    rm -f /etc/rc.d/init.d/wazuh-api || true
+  fi
 fi
 
 %post
@@ -734,6 +746,15 @@ rm -fr %{buildroot}
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/active-response
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/active-response/bin
 %attr(750, root, ossec) %{_localstatedir}/ossec/active-response/bin/*
+%dir %attr(750, root, ossec) %{_localstatedir}/ossec/api
+%dir %attr(750, root, ossec) %config(noreplace) %{_localstatedir}/ossec/api/configuration
+%attr(640, root, ossec) %config(noreplace) %{_localstatedir}/ossec/api/configuration/api.yaml
+%dir %attr(770, root, ossec) %config(noreplace) %{_localstatedir}/ossec/api/configuration/security
+%dir %attr(770, root, ossec) %config(noreplace) %{_localstatedir}/ossec/api/configuration/ssl
+%dir %attr(750, root, ossec) %config(noreplace) %{_localstatedir}/ossec/api/scripts
+%attr(750, root, ossec) %{_localstatedir}/ossec/api/scripts/wazuh-apid.py
+%dir %attr(750, root, ossec) %config(noreplace) %{_localstatedir}/ossec/api/service
+%attr(750, root, ossec) %{_localstatedir}/ossec/api/service/*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/backup
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/backup/agents
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/backup/groups
@@ -743,8 +764,10 @@ rm -fr %{buildroot}
 %attr(750, root, ossec) %{_localstatedir}/ossec/bin/agent_groups
 %attr(750, root, ossec) %{_localstatedir}/ossec/bin/agent_upgrade
 %attr(750, root, root) %{_localstatedir}/ossec/bin/clear_stats
+%attr(750, root, root) %{_localstatedir}/ossec/bin/configure_api
 %attr(750, root, ossec) %{_localstatedir}/ossec/bin/cluster_control
 %attr(750, root, root) %{_localstatedir}/ossec/bin/manage_agents
+%attr(750, root, root) %{_localstatedir}/ossec/bin/migration
 %attr(750, root, root) %{_localstatedir}/ossec/bin/ossec-agentlessd
 %attr(750, root, root) %{_localstatedir}/ossec/bin/ossec-analysisd
 %attr(750, root, root) %{_localstatedir}/ossec/bin/ossec-authd
@@ -768,6 +791,7 @@ rm -fr %{buildroot}
 %attr(750, root, ossec) %{_localstatedir}/ossec/bin/update_ruleset
 %attr(750, root, root) %{_localstatedir}/ossec/bin/util.sh
 %attr(750, root, ossec) %{_localstatedir}/ossec/bin/verify-agent-conf
+%attr(750, root, ossec) %{_localstatedir}/ossec/bin/wazuh-apid
 %attr(750, root, ossec) %{_localstatedir}/ossec/bin/wazuh-clusterd
 %attr(750, root, root) %{_localstatedir}/ossec/bin/wazuh-db
 %attr(750, root, root) %{_localstatedir}/ossec/bin/wazuh-modulesd
@@ -815,6 +839,7 @@ rm -fr %{buildroot}
 %attr(750, root, ossec) %{_localstatedir}/ossec/lib/libwazuhext.so
 %{_localstatedir}/ossec/lib/libpython3.7m.so.1.0
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/logs
+%attr(660, ossec, ossec) %ghost %{_localstatedir}/ossec/logs/api.log
 %attr(660, ossec, ossec)  %ghost %{_localstatedir}/ossec/logs/active-responses.log
 %attr(640, ossecm, ossec) %ghost %{_localstatedir}/ossec/logs/integrations.log
 %attr(660, ossec, ossec) %ghost %{_localstatedir}/ossec/logs/ossec.log
@@ -966,22 +991,6 @@ rm -fr %{buildroot}
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/content
 %attr(640, root, ossec) %{_localstatedir}/ossec/wodles/oscap/content/*
 
-%dir %attr(750, root, ossec) %{_localstatedir}/ossec/api
-%dir %attr(750, root, ossec) %config(noreplace) %{_localstatedir}/ossec/api/configuration
-%dir %attr(750, root, ossec) %config(noreplace) %{_localstatedir}/ossec/api/scripts
-%dir %attr(750, root, ossec) %config(noreplace) %{_localstatedir}/ossec/api/service
-%dir %attr(770, root, ossec) %config(noreplace) %{_localstatedir}/ossec/api/configuration/security
-%dir %attr(770, root, ossec) %config(noreplace) %{_localstatedir}/ossec/api/configuration/ssl
-%attr(750, root, ossec) %{_localstatedir}/ossec/api/service/*
-
-%attr(750, root, root) %{_localstatedir}/ossec/bin/migration
-%attr(750, root, ossec) %{_localstatedir}/ossec/bin/wazuh-apid
-%attr(640, root, ossec) %config(noreplace) %{_localstatedir}/ossec/api/configuration/api.yaml
-%attr(660, ossec, ossec) %ghost %{_localstatedir}/ossec/logs/api.log
-%attr(750, root, ossec) %{_localstatedir}/ossec/api/scripts/wazuh-apid.py
-%attr(750, root, root) %{_localstatedir}/ossec/bin/configure_api
-
-
 %{_initrddir}/*
 %if %{_debugenabled} == "yes"
 /usr/lib/debug/%{_localstatedir}/ossec/*
@@ -990,7 +999,9 @@ rm -fr %{buildroot}
 
 
 %changelog
-* Wed May 15 2020 support <info@wazuh.com> - 4.0.0
+* Tue Jun 16 2020 support <info@wazuh.com> - 4.0.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Tue May 19 2020 support <info@wazuh.com> - 3.13.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Wed May 13 2020 support <info@wazuh.com> - 3.12.3
 - More info: https://documentation.wazuh.com/current/release-notes/

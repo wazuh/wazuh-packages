@@ -50,7 +50,7 @@ make clean
     %ifnarch x86_64
       MSGPACK="USE_MSGPACK_OPT=no"
     %endif
-    make deps RESOURCES_URL=http://packages.wazuh.com/deps/3.12
+    make deps RESOURCES_URL=http://packages.wazuh.com/deps/4.0
     make -j%{_threads} TARGET=agent USE_AUDIT=no USE_SELINUX=yes USE_EXEC_ENVIRON=no PREFIX=%{_localstatedir}/ossec DEBUG=%{_debugenabled} ${MSGPACK}
 
 %endif
@@ -659,6 +659,10 @@ rm -fr %{buildroot}
 
 
 %changelog
+* Tue Jun 16 2020 support <info@wazuh.com> - 4.0.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Tue May 19 2020 support <info@wazuh.com> - 3.13.0
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Wed May 13 2020 support <info@wazuh.com> - 3.12.3
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Thu Apr 9 2020 support <info@wazuh.com> - 3.12.2
