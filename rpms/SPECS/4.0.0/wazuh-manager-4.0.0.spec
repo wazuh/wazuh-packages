@@ -13,7 +13,8 @@ Requires(pre):    /usr/sbin/groupadd /usr/sbin/useradd
 Requires(post):   /sbin/chkconfig
 Requires(preun):  /sbin/chkconfig /sbin/service
 Requires(postun): /sbin/service /usr/sbin/groupdel /usr/sbin/userdel
-Conflicts:   ossec-hids ossec-hids-agent wazuh-agent wazuh-local wazuh-api
+Conflicts:   ossec-hids ossec-hids-agent wazuh-agent wazuh-local
+Obsoletes: wazuh-api
 AutoReqProv: no
 
 Requires: coreutils
@@ -634,19 +635,11 @@ if [ $1 = 0 ]; then
   # Remove SCA files
   rm -f %{_localstatedir}/ossec/ruleset/sca/*
 
-  # Remove Wazuh API
-  if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
-    systemctl stop wazuh-api.service > /dev/null
-    systemctl disable wazuh-api.service > /dev/null
-    rm -f /etc/systemd/system/wazuh-api.service
-  fi
-
-  if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
-    /etc/init.d/wazuh-api stop > /dev/null
-    chkconfig wazuh-api off
-    chkconfig --del wazuh-api
-    rm -f /etc/rc.d/init.d/wazuh-api || true
-  fi
+  # Remove Wazuh API service
+  /etc/init.d/wazuh-api stop > /dev/null
+  chkconfig wazuh-api off
+  chkconfig --del wazuh-api
+  rm -f /etc/rc.d/init.d/wazuh-api || true
 fi
 
 
