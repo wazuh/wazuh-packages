@@ -14,6 +14,11 @@ then
     HAVE_PKG_NAME=true
 fi
 
+if command -v python3 > /dev/null ; then 
+    PYTHON="python3 /usr/local/bin/wpkpack"
+else
+    PYTHON="wpkpack"
+fi
 
 WPKCERT="/etc/wazuh/wpkcert.pem"
 WPKEY="/etc/wazuh/wpkcert.key"
@@ -70,7 +75,7 @@ main() {
 
     # Compress and sign package
     if [ "${DIST_NAME}" = "centos" ]; then
-        wpkpack $OUTPUT $WPKCERT $WPKEY *
+        ${PYTHON} wpkpack $OUTPUT $WPKCERT $WPKEY *
     else
 
       if [ "${HAVE_PKG_NAME}" == true ]; then

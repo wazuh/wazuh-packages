@@ -313,4 +313,8 @@ http://mirror.centos.org/altarch/7/os/armhfp/Packages/mesa-libGL-18.3.4-5.el7.ar
 http://mirror.centos.org/altarch/7/os/armhfp/Packages/mesa-libGL-devel-18.3.4-5.el7.armv7hl.rpm \
 http://mirror.centos.org/altarch/7/os/armhfp/Packages/gl-manpages-1.1-7.20130122.el7.noarch.rpm \
 http://mirror.centos.org/altarch/7/os/armhfp/Packages/libICE-1.0.9-9.el7.armv7hl.rpm \
-http://mirror.centos.org/altarch/7/os/armhfp/Packages/libICE-devel-1.0.9-9.el7.armv7hl.rpm
+http://mirror.centos.org/altarch/7/os/armhfp/Packages/libICE-devel-1.0.9-9.el7.armv7hl.rpm \
+http://mirror.centos.org/altarch/7/os/armhfp/Packages/python-devel-2.7.5-88.el7.armv7hl.rpm \
+http://mirror.centos.org/altarch/7/os/armhfp/Packages/python-2.7.5-88.el7.armv7hl.rpm \
+http://mirror.centos.org/altarch/7/os/armhfp/Packages/python2-rpm-macros-3-32.el7.noarch.rpm \
+http://mirror.centos.org/altarch/7/os/armhfp/Packages/python-libs-2.7.5-88.el7.armv7hl.rpm

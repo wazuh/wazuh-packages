@@ -3,13 +3,13 @@ FROM arm32v7/centos:7
 ADD build_deps.sh /build_deps.sh
 RUN sh build_deps.sh
 
-RUN curl -O https://www.openssl.org/source/openssl-1.1.1g.tar.gz && \
-    tar -xzf openssl-1.1.1g.tar.gz && cd openssl* && \
-    linux32 ./config -Wl,--enable-new-dtags,-rpath,'$(LIBRPATH)' && \
-    linux32 make -j $(nproc) && make install && make install
+RUN curl https://bootstrap.pypa.io/get-pip.py | python2.7 -
+RUN pip2 install cryptography
+
 
 ADD wpkpack.py /usr/local/bin/wpkpack
 ADD run.sh /usr/local/bin/run
+ADD entrypoint.sh /usr/local/bin/entrypoint
 ADD gen_versions.sh /usr/local/bin/gen_versions
 
-ENTRYPOINT ["linux32 /usr/local/bin/run"]
+ENTRYPOINT ["/usr/local/bin/entrypoint"]

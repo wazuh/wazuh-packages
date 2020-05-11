@@ -69,8 +69,6 @@ function build_container() {
 
   cp run.sh wpkpack.py gen_versions.sh ${DOCKERFILE_PATH}
   docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH}
-
-  return 0
 }
 
 
