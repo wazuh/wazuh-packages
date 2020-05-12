@@ -156,9 +156,7 @@ rm -fr %{buildroot}
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/api
 %attr(750, root, ossec) %{_localstatedir}/ossec/api/app.js
 %attr(640, root, ossec) %{_localstatedir}/ossec/api/package.json
-%if %{_arch} != "arm"
 %attr(644, root, root) %{_localstatedir}/ossec/api/package-lock.json
-%endif
 %dir %attr(750, root, ossec) %config(noreplace) %{_localstatedir}/ossec/api/configuration
 %attr(740, root, ossec) %config(noreplace) %{_localstatedir}/ossec/api/configuration/config.js
 %attr(750, root, root) %{_localstatedir}/ossec/api/configuration/preloaded_vars.conf
