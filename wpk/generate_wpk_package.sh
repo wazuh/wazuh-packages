@@ -10,8 +10,12 @@
 # Foundation.
 
 CURRENT_PATH="$( cd $(dirname ${0}) ; pwd -P )"
-LINUX_BUILDER="unified_linux_wpk_builder"
-LINUX_BUILDER_DOCKERFILE="${CURRENT_PATH}/unified/linux"
+LINUX_BUILDER_AMD64="linux_wpk_builder_amd64"
+LINUX_BUILDER_AMD64_DOCKERFILE="${CURRENT_PATH}/linux/amd64"
+LINUX_BUILDER_AARCH64="linux_wpk_builder_aarch64"
+LINUX_BUILDER_AARCH64_DOCKERFILE="${CURRENT_PATH}/linux/aarch64"
+LINUX_BUILDER_ARMV7HL="linux_wpk_builder_armv7hl"
+LINUX_BUILDER_ARMV7HL_DOCKERFILE="${CURRENT_PATH}/linux/armv7hl"
 WIN_BUILDER="windows_wpk_builder"
 WIN_BUILDER_DOCKERFILE="${CURRENT_PATH}/windows"
 CHECKSUM="no"
@@ -65,8 +69,6 @@ function build_container() {
 
   cp run.sh wpkpack.py gen_versions.sh ${DOCKERFILE_PATH}
   docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH}
-
-  return 0
 }
 
 
@@ -109,7 +111,7 @@ function main() {
   local BRANCH=""
   local DESTINATION="${CURRENT_PATH}/output"
   local KEYDIR=""
-  local ARCHITECTURE="x86_64"
+  local ARCHITECTURE="amd64"
   local JOBS="4"
   local CONTAINER_NAME=""
   local PKG_NAME=""
@@ -123,6 +125,8 @@ function main() {
   local HAVE_KEYDIR=false
   local HAVE_PKG_NAME=false
   local HAVE_OUT_NAME=false
+  local LINUX_BUILDER="${LINUX_BUILDER_AMD64}"
+  local LINUX_BUILDER_DOCKERFILE="${LINUX_BUILDER_AMD64_DOCKERFILE}"
 
   while [ -n "${1}" ]
   do
@@ -179,13 +183,25 @@ function main() {
           ;;
       "-a"|"--architecture")
           if [[ -n "${2}" ]]; then
-             if [[ "${2}" == "x86_64" ]] || [[ "${2}" == "amd64" ]]; then
-                ARCHITECTURE="${2}"
-                shift 2
-            else
-                echo "Architecture must be x86_64 or amd64"
-                help 1
-            fi
+              if [[ "${2}" == "x86_64" ]] || [[ "${2}" == "amd64" ]]; then
+                  local ARCHITECTURE="amd64"
+                  local LINUX_BUILDER="${LINUX_BUILDER_AMD64}"
+                  local LINUX_BUILDER_DOCKERFILE="${LINUX_BUILDER_AMD64_DOCKERFILE}"
+                  shift 2
+              elif [[ "${2}" == "aarch64" ]]; then
+                  local ARCHITECTURE="${2}"
+                  local LINUX_BUILDER="${LINUX_BUILDER_AARCH64}"
+                  local LINUX_BUILDER_DOCKERFILE="${LINUX_BUILDER_AARCH64_DOCKERFILE}"
+                  shift 2
+              elif [[ "${2}" == "armv7hl" ]]; then
+                  local ARCHITECTURE="${2}"
+                  local LINUX_BUILDER="${LINUX_BUILDER_ARMV7HL}"
+                  local LINUX_BUILDER_DOCKERFILE="${LINUX_BUILDER_ARMV7HL_DOCKERFILE}"
+                  shift 2
+              else
+                  echo "Architecture must be x86_64/amd64, aarch64 or armv7hl"
+                  help 1
+              fi
           else
             echo "ERROR: Missing architecture."
             help 1
@@ -256,7 +272,6 @@ function main() {
   fi
 
   if [[ "$HAVE_TARGET" == true ]] && [[ "$HAVE_BRANCH" == true ]] && [[ "$HAVE_DESTINATION" == true ]] && [[ "$HAVE_KEYDIR" == true ]] && [[ "$HAVE_OUT_NAME" == true ]]; then
-    set -ex
       if [[ "${TARGET}" == "windows" ]]; then
         if [[ "${HAVE_PKG_NAME}" == true ]]; then
           build_container ${WIN_BUILDER} ${WIN_BUILDER_DOCKERFILE} || clean ${WIN_BUILDER_DOCKERFILE} 1
