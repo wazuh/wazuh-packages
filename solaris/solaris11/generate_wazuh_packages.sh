@@ -38,6 +38,9 @@ build_environment() {
         ln -sf /opt/csw/bin/python2.7 /usr/bin/python
     fi
 
+    #Install headers
+    pkg install system/header
+
     #Install tools
     /opt/csw/bin/pkgutil -y -i git
     /opt/csw/bin/pkgutil -y -i gmake

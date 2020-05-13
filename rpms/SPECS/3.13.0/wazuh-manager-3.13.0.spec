@@ -38,7 +38,7 @@ pushd src
 make clean
 
 # Build Wazuh sources
-make deps PREFIX=%{_localstatedir}/ossec RESOURCES_URL=https://packages-dev.wazuh.com/deps/4.0
+make deps PREFIX=%{_localstatedir}/ossec RESOURCES_URL=https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/deps/4.0
 make -j%{_threads} TARGET=server USE_SELINUX=yes USE_FRAMEWORK_LIB=yes PREFIX=%{_localstatedir}/ossec DEBUG=%{_debugenabled}
 
 popd
@@ -902,6 +902,7 @@ rm -fr %{buildroot}
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/var
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/var/db
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/var/db/agents
+%attr(660, root, ossec) %{_localstatedir}/ossec/var/db/mitre.db
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/var/download
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/var/multigroups
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/var/run
