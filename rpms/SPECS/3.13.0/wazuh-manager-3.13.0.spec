@@ -38,7 +38,7 @@ pushd src
 make clean
 
 # Build Wazuh sources
-make deps PREFIX=%{_localstatedir}/ossec
+make deps PREFIX=%{_localstatedir}/ossec RESOURCES_URL=https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/deps/4.0
 make -j%{_threads} TARGET=server USE_SELINUX=yes USE_FRAMEWORK_LIB=yes PREFIX=%{_localstatedir}/ossec DEBUG=%{_debugenabled}
 
 popd
