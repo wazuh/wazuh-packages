@@ -86,6 +86,9 @@ rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca/*
 install -o root -g ossec -m 0750 -d ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/lib
 install -o root -g ossec -m 0640 framework/libsqlite3.so.0 ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/lib/
 
+# Remove OpenSCAP policies
+rm -rf ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content/*
+
 # Install Vulnerability Detector files
 install -m 0440 src/wazuh_modules/vulnerability_detector/*.json ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/queue/vulnerabilities/dictionaries
 
@@ -485,7 +488,9 @@ if [ -r ${SCA_TMP_FILE} ] && [ -r ${SCA_BASE_DIR}/generic/sca.manager.files ]; t
   rm -f %{_localstatedir}/ossec/ruleset/sca/* || true
 
   for sca_file in $(cat ${SCA_TMP_FILE}); do
-    mv ${SCA_BASE_DIR}/${sca_file} %{_localstatedir}/ossec/ruleset/sca
+    if [ -f ${SCA_BASE_DIR}/${sca_file} ]; then
+      mv ${SCA_BASE_DIR}/${sca_file} %{_localstatedir}/ossec/ruleset/sca
+    fi
   done
 
   for sca_file in $(cat ${SCA_BASE_DIR}/generic/sca.manager.files); do

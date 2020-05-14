@@ -359,7 +359,9 @@ if [ -r ${SCA_TMP_FILE} ]; then
   rm -f %{_localstatedir}/ossec/ruleset/sca/* || true
 
   for sca_file in $(cat ${SCA_TMP_FILE}); do
-    mv ${SCA_BASE_DIR}/${sca_file} %{_localstatedir}/ossec/ruleset/sca
+    if [ -f ${SCA_BASE_DIR}/${sca_file} ]; then
+      mv ${SCA_BASE_DIR}/${sca_file} %{_localstatedir}/ossec/ruleset/sca
+    fi
   done
 fi
 
