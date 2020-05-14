@@ -69,7 +69,7 @@ echo 'USER_DELETE_DIR="y"' >> ./etc/preloaded-vars.conf
 echo 'USER_ENABLE_ACTIVE_RESPONSE="y"' >> ./etc/preloaded-vars.conf
 echo 'USER_ENABLE_SYSCHECK="y"' >> ./etc/preloaded-vars.conf
 echo 'USER_ENABLE_ROOTCHECK="y"' >> ./etc/preloaded-vars.conf
-echo 'USER_ENABLE_OPENSCAP="y"' >> ./etc/preloaded-vars.conf
+echo 'USER_ENABLE_OPENSCAP="n"' >> ./etc/preloaded-vars.conf
 echo 'USER_ENABLE_SYSCOLLECTOR="y"' >> ./etc/preloaded-vars.conf
 echo 'USER_ENABLE_CISCAT="y"' >> ./etc/preloaded-vars.conf
 echo 'USER_UPDATE="n"' >> ./etc/preloaded-vars.conf
@@ -87,14 +87,9 @@ cp -pr %{_localstatedir}/ossec/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/
 install -m 0640 ossec-init.conf ${RPM_BUILD_ROOT}%{_sysconfdir}
 install -m 0755 src/init/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-agent
 
-# Install oscap files
-install -m 0640 wodles/oscap/content/*redhat* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
-install -m 0640 wodles/oscap/content/*rhel* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
-install -m 0640 wodles/oscap/content/*centos* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
-install -m 0640 wodles/oscap/content/*fedora* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
-
 # Clean the preinstalled configuration assesment files
 rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca/*
+rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content/*
 
 # Install configuration assesment files and files templates
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/{applications,generic}
@@ -650,7 +645,6 @@ rm -fr %{buildroot}
 %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap/oscap.py
 %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap/template*
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap/content
-%attr(640,root,ossec) %{_localstatedir}/ossec/wodles/oscap/content/*
 
 %if %{_debugenabled} == "yes"
 /usr/lib/debug/%{_localstatedir}/ossec/*

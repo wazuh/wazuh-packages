@@ -55,7 +55,7 @@ echo 'USER_DELETE_DIR="y"' >> ./etc/preloaded-vars.conf
 echo 'USER_ENABLE_ACTIVE_RESPONSE="y"' >> ./etc/preloaded-vars.conf
 echo 'USER_ENABLE_SYSCHECK="y"' >> ./etc/preloaded-vars.conf
 echo 'USER_ENABLE_ROOTCHECK="y"' >> ./etc/preloaded-vars.conf
-echo 'USER_ENABLE_OPENSCAP="y"' >> ./etc/preloaded-vars.conf
+echo 'USER_ENABLE_OPENSCAP="n"' >> ./etc/preloaded-vars.conf
 echo 'USER_ENABLE_CISCAT="y"' >> ./etc/preloaded-vars.conf
 echo 'USER_ENABLE_SYSCOLLECTOR="y"' >> ./etc/preloaded-vars.conf
 echo 'USER_UPDATE="n"' >> ./etc/preloaded-vars.conf
@@ -85,12 +85,6 @@ rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca/*
 # Install frameworks sqlite lib
 install -o root -g ossec -m 0750 -d ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/lib
 install -o root -g ossec -m 0640 framework/libsqlite3.so.0 ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/lib/
-
-# Install oscap files
-install -m 0640 wodles/oscap/content/*redhat* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
-install -m 0640 wodles/oscap/content/*rhel* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
-install -m 0640 wodles/oscap/content/*centos* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
-install -m 0640 wodles/oscap/content/*fedora* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 
 # Install Vulnerability Detector files
 install -m 0440 src/wazuh_modules/vulnerability_detector/*.json ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/queue/vulnerabilities/dictionaries
@@ -924,8 +918,6 @@ rm -fr %{buildroot}
 %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/oscap.*
 %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/template*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/content
-%attr(640, root, ossec) %{_localstatedir}/ossec/wodles/oscap/content/*
-
 
 %{_initrddir}/*
 %if %{_debugenabled} == "yes"
