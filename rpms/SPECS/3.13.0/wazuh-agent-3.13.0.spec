@@ -44,7 +44,7 @@ pushd src
 make clean
 
 %if 0%{?el} >= 6 || 0%{?rhel} >= 6
-    make deps make -C src deps PREFIX=$(INSTALLATION_DIR) RESOURCES_URL=https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/deps/4.0
+    make deps PREFIX=$(INSTALLATION_DIR) RESOURCES_URL=https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/deps/4.0
     make -j%{_threads} TARGET=agent USE_SELINUX=yes PREFIX=%{_localstatedir}/ossec DEBUG=%{_debugenabled}
 %else
     %ifnarch x86_64
