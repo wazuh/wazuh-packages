@@ -5,7 +5,7 @@ ENV DEBIAN_FRONTEND noninteractive
 # Installing necessary packages
 RUN echo "deb http://deb.debian.org/debian/ stretch contrib main non-free" > /etc/apt/sources.list && \
     echo "deb-src http://deb.debian.org/debian/ stretch contrib main non-free" >> /etc/apt/sources.list && \
-    apt-get update && apt-get install -y apt-utils && \
+    apt-get update && apt-get install -y apt=1.4.9 apt-utils --allow-downgrades && \
     apt-get install -y --force-yes \
     curl gcc make sudo expect gnupg fakeroot perl-base \
     perl libc-bin libc6 libc6-dev \
