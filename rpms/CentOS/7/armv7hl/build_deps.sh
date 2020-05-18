@@ -42,7 +42,7 @@ ${rpm_url}/file-5.11-36.el7.armv7hl.rpm \
 ${rpm_url}/findutils-4.5.11-6.el7.armv7hl.rpm \
 ${rpm_url}/fipscheck-lib-1.4.1-6.el7.armv7hl.rpm \
 ${rpm_url}/gawk-4.0.2-4.el7_3.1.armv7hl.rpm \
-${rpm_url}/gcc-c++-4.8.5-39.el7.armv7hl.rpm \
+${rpm_url}/gcc-c%2B%2B-4.8.5-39.el7.armv7hl.rpm \
 ${rpm_url}/gcc-4.8.5-39.el7.armv7hl.rpm \
 ${rpm_url}/gdb-7.6.1-119.el7.armv7hl.rpm \
 ${rpm_url}/gdbm-devel-1.10-8.el7.armv7hl.rpm \
@@ -62,7 +62,7 @@ ${rpm_url}/gzip-1.5-10.el7.armv7hl.rpm \
 ${rpm_url}/info-5.1-5.el7.armv7hl.rpm \
 ${rpm_url}/json-glib-1.4.2-2.el7.armv7hl.rpm \
 ${rpm_url}/kexec-tools-2.0.15-43.el7.armv7hl.rpm \
-${rpm_url}/krb5-devel-1.15.1-46.el7.armv7hl.rpm\
+${rpm_url}/krb5-devel-1.15.1-46.el7.armv7hl.rpm \
 ${rpm_url}/krb5-libs-1.15.1-46.el7.armv7hl.rpm \
 ${rpm_url}/less-458-9.el7.armv7hl.rpm \
 ${rpm_url}/libX11-devel-1.6.7-2.el7.armv7hl.rpm \
@@ -95,7 +95,7 @@ ${rpm_url}/libgpg-error-devel-1.12-3.el7.armv7hl.rpm \
 ${rpm_url}/libgpg-error-1.12-3.el7.armv7hl.rpm \
 ${rpm_url}/libicu-50.2-3.el7.armv7hl.rpm \
 ${rpm_url}/libmpc-1.0.1-3.el7.armv7hl.rpm \
-${rpm_url}/libselinux-python-2.5-15.el7.armv7hl.rpm\
+${rpm_url}/libselinux-python-2.5-15.el7.armv7hl.rpm \
 ${rpm_url}/libsemanage-python-2.5-14.el7.armv7hl.rpm \
 ${rpm_url}/libsepol-2.5-10.el7.armv7hl.rpm \
 ${rpm_url}/libsoup-2.62.2-2.el7.armv7hl.rpm \
