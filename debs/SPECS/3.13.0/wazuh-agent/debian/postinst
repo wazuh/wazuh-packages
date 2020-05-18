@@ -153,6 +153,7 @@ case "$1" in
         ${SCRIPTS_DIR}/src/init/register_configure_agent.sh > /dev/null || :
     fi
 
+    # Restore OpenSCAP policies files
     if [ -d ${WAZUH_TMP_DIR}/oscap ]; then
         cp ${WAZUH_TMP_DIR}/oscap/* ${DIR}/wodles/oscap/content/
     fi

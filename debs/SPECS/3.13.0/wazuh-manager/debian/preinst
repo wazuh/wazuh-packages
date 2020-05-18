@@ -117,6 +117,20 @@ case "$1" in
         if [ -d ${DIR}/var/db/agents ]; then
           rm -f ${DIR}/var/db/agents/*
         fi
+
+        # Backup the OpenSCAP policies if the module is enabled
+        if [ ! -z "$2" ]; then
+            start_config="$(grep -n '<wodle name="open-scap">' ${WAZUH_TMP_DIR}/ossec.conf | cut -d':' -f 1)"
+            end_config="$(sed -n '/open-scap/,$p' ${WAZUH_TMP_DIR}/ossec.conf | grep -n '</wodle>' | head -n1 | cut -d':' -f 1)"
+            end_config="$((start_config + end_config))"
+            if [ -n "${start_config}" ] && [ -n "${end_config}" ]; then
+                sed -n "${start_config},${end_config}p" ${WAZUH_TMP_DIR}/ossec.conf | grep "disabled>no"
+                if [ $? = 0 ]; then
+                    mkdir -p ${WAZUH_TMP_DIR}/oscap/
+                    cp ${DIR}/wodles/oscap/content/* ${WAZUH_TMP_DIR}/oscap/
+                fi
+            fi
+        fi
     ;;
 
     abort-upgrade)

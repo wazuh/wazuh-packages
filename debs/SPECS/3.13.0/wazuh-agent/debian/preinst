@@ -58,6 +58,7 @@ case "$1" in
             cp -rp ${DIR}/etc/shared/* ${WAZUH_TMP_DIR}/group/
         fi
 
+        # Backup the OpenSCAP policies if the module is enabled
         if [ ! -z "$2" ]; then
             start_config="$(grep -n '<wodle name="open-scap">' ${WAZUH_TMP_DIR}/ossec.conf | cut -d':' -f 1)"
             end_config="$(sed -n '/open-scap/,$p' ${WAZUH_TMP_DIR}/ossec.conf | grep -n '</wodle>' | head -n1 | cut -d':' -f 1)"
