@@ -86,8 +86,12 @@ rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca/*
 install -o root -g ossec -m 0750 -d ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/lib
 install -o root -g ossec -m 0640 framework/libsqlite3.so.0 ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/lib/
 
-# Remove OpenSCAP policies
-rm -rf ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content/*
+# Install oscap files
+install -m 0640 wodles/oscap/content/*redhat* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
+install -m 0640 wodles/oscap/content/*rhel* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
+install -m 0640 wodles/oscap/content/*centos* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
+install -m 0640 wodles/oscap/content/*fedora* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
+
 
 # Install Vulnerability Detector files
 install -m 0440 src/wazuh_modules/vulnerability_detector/*.json ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/queue/vulnerabilities/dictionaries
@@ -525,6 +529,22 @@ for rules_file in ${OLD_RULES}; do
   fi
 done
 
+if [ $1 = 2 ]; then
+  # Remove OpenSCAP policies if the module is disabled
+  start_config="$(grep -n '<wodle name="open-scap">' %{_localstatedir}/ossec/etc/ossec.conf | cut -d':' -f 1)"
+  end_config="$(sed -n '/open-scap/,$p' %{_localstatedir}/ossec/etc/ossec.conf | grep -n '</wodle>' | head -n1 | cut -d':' -f 1)"
+  end_config="$((start_config + end_config))"
+  if [ -n "${start_config}" ] && [ -n "${end_config}" ]; then
+    sed -n "${start_config},${end_config}p" %{_localstatedir}/ossec/etc/ossec.conf | grep "disabled>yes" > /dev/null
+    if [ $? = 0 ]; then
+      rm -f %{_localstatedir}/ossec/wodles/oscap/content/*redhat*
+      rm -f %{_localstatedir}/ossec/wodles/oscap/content/*rhel*
+      rm -f %{_localstatedir}/ossec/wodles/oscap/content/*centos*
+      rm -f %{_localstatedir}/ossec/wodles/oscap/content/*fedora*
+    fi
+  fi
+fi
+
 # Delete the installation files used to configure the manager
 rm -rf %{_localstatedir}/ossec/packages_files
 
@@ -923,6 +943,7 @@ rm -fr %{buildroot}
 %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/oscap.*
 %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/template*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/content
+%attr(640, root, ossec) %ghost %{_localstatedir}/ossec/wodles/oscap/content/*
 
 %{_initrddir}/*
 %if %{_debugenabled} == "yes"
