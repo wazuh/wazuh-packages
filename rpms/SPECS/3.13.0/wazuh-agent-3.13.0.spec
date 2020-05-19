@@ -89,7 +89,13 @@ install -m 0755 src/init/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh
 
 # Clean the preinstalled configuration assesment files
 rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca/*
-rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content/*
+
+# Add OpenSCAP policies
+install -m 0640 wodles/oscap/content/*redhat* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
+install -m 0640 wodles/oscap/content/*rhel* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
+install -m 0640 wodles/oscap/content/*centos* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
+install -m 0640 wodles/oscap/content/*fedora* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
+
 
 # Install configuration assesment files and files templates
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/{applications,generic}
@@ -205,7 +211,7 @@ if [ $1 = 1 ]; then
 fi
 # Execute this if only when upgrading the package
 if [ $1 = 2 ]; then
-    cp -rp %{_localstatedir}/ossec/etc/ossec.conf %{_localstatedir}/ossec/etc/ossec.bck
+  cp -rp %{_localstatedir}/ossec/etc/ossec.conf %{_localstatedir}/ossec/etc/ossec.bck
 fi
 
 %post
@@ -378,6 +384,22 @@ else
     if [ $(getenforce) != "Disabled" ]; then
       semodule -i %{_localstatedir}/ossec/var/selinux/wazuh.pp
       semodule -e wazuh
+    fi
+  fi
+fi
+
+if [ $1 = 2 ]; then
+  # Remove OpenSCAP policies if the module is disabled
+  start_config="$(grep -n '<wodle name="open-scap">' %{_localstatedir}/ossec/etc/ossec.conf | cut -d':' -f 1)"
+  end_config="$(sed -n '/open-scap/,$p' %{_localstatedir}/ossec/etc/ossec.conf | grep -n '</wodle>' | head -n1 | cut -d':' -f 1)"
+  end_config="$((start_config + end_config))"
+  if [ -n "${start_config}" ] && [ -n "${end_config}" ]; then
+    sed -n "${start_config},${end_config}p" %{_localstatedir}/ossec/etc/ossec.conf | grep "disabled>yes" > /dev/null
+    if [ $? = 0 ]; then
+      rm -f %{_localstatedir}/ossec/wodles/oscap/content/*redhat*
+      rm -f %{_localstatedir}/ossec/wodles/oscap/content/*rhel*
+      rm -f %{_localstatedir}/ossec/wodles/oscap/content/*centos*
+      rm -f %{_localstatedir}/ossec/wodles/oscap/content/*fedora*
     fi
   fi
 fi
@@ -647,6 +669,7 @@ rm -fr %{buildroot}
 %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap/oscap.py
 %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap/template*
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap/content
+%attr(640, root, ossec) %ghost %{_localstatedir}/ossec/wodles/oscap/content/*
 
 %if %{_debugenabled} == "yes"
 /usr/lib/debug/%{_localstatedir}/ossec/*
