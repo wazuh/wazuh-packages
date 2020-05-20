@@ -228,6 +228,11 @@ case "$1" in
         rm -rf ${WAZUH_TMP_DIR}/group/
     fi
 
+    # Restore OpenSCAP policies files
+    if [ -d ${WAZUH_TMP_DIR}/oscap ]; then
+        cp ${WAZUH_TMP_DIR}/oscap/* ${DIR}/wodles/oscap/content/
+    fi
+
     # More files
     touch ${DIR}/etc/client.keys
 
