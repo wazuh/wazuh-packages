@@ -69,7 +69,7 @@ echo 'USER_DELETE_DIR="y"' >> ./etc/preloaded-vars.conf
 echo 'USER_ENABLE_ACTIVE_RESPONSE="y"' >> ./etc/preloaded-vars.conf
 echo 'USER_ENABLE_SYSCHECK="y"' >> ./etc/preloaded-vars.conf
 echo 'USER_ENABLE_ROOTCHECK="y"' >> ./etc/preloaded-vars.conf
-echo 'USER_ENABLE_OPENSCAP="y"' >> ./etc/preloaded-vars.conf
+echo 'USER_ENABLE_OPENSCAP="n"' >> ./etc/preloaded-vars.conf
 echo 'USER_ENABLE_SYSCOLLECTOR="y"' >> ./etc/preloaded-vars.conf
 echo 'USER_ENABLE_CISCAT="y"' >> ./etc/preloaded-vars.conf
 echo 'USER_UPDATE="n"' >> ./etc/preloaded-vars.conf
@@ -87,14 +87,15 @@ cp -pr %{_localstatedir}/ossec/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/
 install -m 0640 ossec-init.conf ${RPM_BUILD_ROOT}%{_sysconfdir}
 install -m 0755 src/init/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-agent
 
-# Install oscap files
+# Clean the preinstalled configuration assesment files
+rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca/*
+
+# Add OpenSCAP policies
 install -m 0640 wodles/oscap/content/*redhat* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 install -m 0640 wodles/oscap/content/*rhel* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 install -m 0640 wodles/oscap/content/*centos* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 install -m 0640 wodles/oscap/content/*fedora* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 
-# Clean the preinstalled configuration assesment files
-rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca/*
 
 # Install configuration assesment files and files templates
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/{applications,generic}
@@ -210,7 +211,7 @@ if [ $1 = 1 ]; then
 fi
 # Execute this if only when upgrading the package
 if [ $1 = 2 ]; then
-    cp -rp %{_localstatedir}/ossec/etc/ossec.conf %{_localstatedir}/ossec/etc/ossec.bck
+  cp -rp %{_localstatedir}/ossec/etc/ossec.conf %{_localstatedir}/ossec/etc/ossec.bck
 fi
 
 %post
@@ -364,7 +365,9 @@ if [ -r ${SCA_TMP_FILE} ]; then
   rm -f %{_localstatedir}/ossec/ruleset/sca/* || true
 
   for sca_file in $(cat ${SCA_TMP_FILE}); do
-    mv ${SCA_BASE_DIR}/${sca_file} %{_localstatedir}/ossec/ruleset/sca
+    if [ -f ${SCA_BASE_DIR}/${sca_file} ]; then
+      mv ${SCA_BASE_DIR}/${sca_file} %{_localstatedir}/ossec/ruleset/sca
+    fi
   done
 fi
 
@@ -381,6 +384,42 @@ else
     if [ $(getenforce) != "Disabled" ]; then
       semodule -i %{_localstatedir}/ossec/var/selinux/wazuh.pp
       semodule -e wazuh
+    fi
+  fi
+fi
+
+if [ $1 = 2 ]; then
+  # Remove OpenSCAP policies if the module is disabled
+  if stat %{_localstatedir}/ossec/wodles/oscap/content/* > /dev/null ; then
+    if grep -E -n '<wodle.*name="open-scap".*>' %{_localstatedir}/ossec/etc/ossec.conf > /dev/null ; then
+      is_disabled="no"
+    else
+      is_disabled="yes"
+    fi
+
+    end_config_limit="99999999"
+    for start_config in $(grep -E -n '<wodle.*name="open-scap".*>'  %{_localstatedir}/ossec/etc/ossec.conf | cut -d':' -f 1); do
+      end_config="$(sed -n "${start_config},${end_config_limit}p"  %{_localstatedir}/ossec/etc/ossec.conf | sed -n '/open-scap/,$p' | grep -n '</wodle>' | head -n 1 | cut -d':' -f 1)"
+      end_config="$((start_config + end_config))"
+
+      if [ -n "${start_config}" ] && [ -n "${end_config}" ]; then
+        open_scap_conf="$(sed -n "${start_config},${end_config}p"  %{_localstatedir}/ossec/etc/ossec.conf)"
+
+        for line in $(echo ${open_scap_conf} | grep -n '<disabled>' | cut -d':' -f 1); do
+          # Check if OpenSCAP is enabled
+          if echo ${open_scap_conf} | sed -n ${line}p | grep "disabled>no" > /dev/null ; then
+            is_disabled="no"
+
+          # Check if OpenSCAP is disabled
+          elif echo ${open_scap_conf} | sed -n ${line}p | grep "disabled>yes" > /dev/null; then
+            is_disabled="yes"
+          fi
+        done
+      fi
+    done
+
+    if [ "${is_disabled}" = "yes" ]; then
+        rm -f %{_localstatedir}/ossec/wodles/oscap/content/*
     fi
   fi
 fi
@@ -650,7 +689,7 @@ rm -fr %{buildroot}
 %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap/oscap.py
 %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap/template*
 %dir %attr(750,root,ossec) %{_localstatedir}/ossec/wodles/oscap/content
-%attr(640,root,ossec) %{_localstatedir}/ossec/wodles/oscap/content/*
+%attr(640, root, ossec) %ghost %{_localstatedir}/ossec/wodles/oscap/content/*
 
 %if %{_debugenabled} == "yes"
 /usr/lib/debug/%{_localstatedir}/ossec/*
