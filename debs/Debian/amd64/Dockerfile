@@ -16,6 +16,9 @@ RUN echo "deb http://archive.debian.org/debian/ wheezy contrib main non-free" > 
 RUN apt-get update && apt-get build-dep python3.2 -y && \
     curl -sL https://deb.nodesource.com/setup_6.x | bash -
 
+RUN sed -i 's:https:http:g' /etc/apt/sources.list.d/nodesource.list && \
+    apt-get update && apt-get install nodejs -y
+
 # Add the script to build the Debian package
 ADD build.sh /usr/local/bin/build_package
 RUN chmod +x /usr/local/bin/build_package
