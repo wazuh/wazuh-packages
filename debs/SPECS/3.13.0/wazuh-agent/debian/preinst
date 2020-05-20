@@ -10,7 +10,7 @@ WAZUH_TMP_DIR="${DIR}/packages_files/agent_config_files"
 # environment configuration
 if [ ! -d ${WAZUH_TMP_DIR} ]; then
     mkdir -p ${WAZUH_TMP_DIR}
-else 
+else
     rm -rf ${WAZUH_TMP_DIR}
     mkdir -p ${WAZUH_TMP_DIR}
 fi
@@ -61,14 +61,14 @@ case "$1" in
         # Backup the OpenSCAP policies if the module is enabled
         if [ ! -z "$2" ]; then
             if stat ${DIR}/wodles/oscap/content/* > /dev/null ; then
-                if grep -n '<wodle name="open-scap">' ${DIR}/etc/ossec.conf > /dev/null ; then
+                if grep -E -n '<wodle.*name="open-scap".*>' ${DIR}/etc/ossec.conf > /dev/null ; then
                     is_disabled="no"
                 else
                     is_disabled="yes"
                 fi
 
                 end_config_limit="99999999"
-                for start_config in $(grep -n '<wodle name="open-scap">'  ${DIR}/etc/ossec.conf | cut -d':' -f 1); do
+                for start_config in $(grep -E -n '<wodle.*name="open-scap".*>'  ${DIR}/etc/ossec.conf | cut -d':' -f 1); do
                     end_config="$(sed -n "${start_config},${end_config_limit}p"  ${DIR}/etc/ossec.conf | sed -n '/open-scap/,$p' | grep -n '</wodle>' | head -n 1 | cut -d':' -f 1)"
                     end_config="$((start_config + end_config))"
 
