@@ -531,16 +531,36 @@ done
 
 if [ $1 = 2 ]; then
   # Remove OpenSCAP policies if the module is disabled
-  start_config="$(grep -n '<wodle name="open-scap">' %{_localstatedir}/ossec/etc/ossec.conf | cut -d':' -f 1)"
-  end_config="$(sed -n '/open-scap/,$p' %{_localstatedir}/ossec/etc/ossec.conf | grep -n '</wodle>' | head -n1 | cut -d':' -f 1)"
-  end_config="$((start_config + end_config))"
-  if [ -n "${start_config}" ] && [ -n "${end_config}" ]; then
-    sed -n "${start_config},${end_config}p" %{_localstatedir}/ossec/etc/ossec.conf | grep "disabled>yes" > /dev/null
-    if [ $? = 0 ]; then
-      rm -f %{_localstatedir}/ossec/wodles/oscap/content/*redhat*
-      rm -f %{_localstatedir}/ossec/wodles/oscap/content/*rhel*
-      rm -f %{_localstatedir}/ossec/wodles/oscap/content/*centos*
-      rm -f %{_localstatedir}/ossec/wodles/oscap/content/*fedora*
+  if stat %{_localstatedir}/ossec/wodles/oscap/content/* > /dev/null ; then
+    if grep -E -n '<wodle.*name="open-scap".*>' %{_localstatedir}/ossec/etc/ossec.conf > /dev/null ; then
+      is_disabled="no"
+    else
+      is_disabled="yes"
+    fi
+
+    end_config_limit="99999999"
+    for start_config in $(grep -E -n '<wodle.*name="open-scap".*>'  %{_localstatedir}/ossec/etc/ossec.conf | cut -d':' -f 1); do
+      end_config="$(sed -n "${start_config},${end_config_limit}p"  %{_localstatedir}/ossec/etc/ossec.conf | sed -n '/open-scap/,$p' | grep -n '</wodle>' | head -n 1 | cut -d':' -f 1)"
+      end_config="$((start_config + end_config))"
+
+      if [ -n "${start_config}" ] && [ -n "${end_config}" ]; then
+        open_scap_conf="$(sed -n "${start_config},${end_config}p"  %{_localstatedir}/ossec/etc/ossec.conf)"
+
+        for line in $(echo ${open_scap_conf} | grep -n '<disabled>' | cut -d':' -f 1); do
+          # Check if OpenSCAP is enabled
+          if echo ${open_scap_conf} | sed -n ${line}p | grep "disabled>no" > /dev/null ; then
+            is_disabled="no"
+
+          # Check if OpenSCAP is disabled
+          elif echo ${open_scap_conf} | sed -n ${line}p | grep "disabled>yes" > /dev/null; then
+            is_disabled="yes"
+          fi
+        done
+      fi
+    done
+
+    if [ "${is_disabled}" = "yes" ]; then
+        rm -f %{_localstatedir}/ossec/wodles/oscap/content/*
     fi
   fi
 fi
