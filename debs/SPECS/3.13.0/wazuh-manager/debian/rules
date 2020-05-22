@@ -15,8 +15,9 @@ export DH_VERBOSE=1
 
 # This has to be exported to make some magic below work.
 export DH_OPTIONS
+export PKG_DIR=debian/wazuh-manager
 
-export TARGET_DIR=${CURDIR}/debian/wazuh-manager
+export TARGET_DIR=${CURDIR}/${PKG_DIR}
 
 # Package build options
 export INSTALLATION_DIR="/var/ossec"
@@ -185,6 +186,6 @@ override_dh_auto_clean:
 	$(MAKE) -C src clean
 
 override_dh_strip:
-	dh_strip --no-automatic-dbgsym
+	dh_strip --no-automatic-dbgsym --exclude=dh_strip --no-automatic-dbgsym --exclude=${PKG_DIR}${INSTALLATION_DIR}/framework/python
 
 .PHONY: override_dh_strip override_dh_auto_clean override_dh_auto_build override_dh_auto_configure
