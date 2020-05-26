@@ -16,6 +16,7 @@ REVISION="1"
 TARGET=""
 JOBS="2"
 DEBUG="no"
+BUILD_DOCKER="yes"
 INSTALLATION_PATH="/var/ossec"
 DEB_AMD64_BUILDER="deb_builder_amd64"
 DEB_I386_BUILDER="deb_builder_i386"
@@ -62,7 +63,9 @@ build_deb() {
     fi
 
     # Build the Docker image
+    if [[ ${BUILD_DOCKER} == "yes" ]]; then
     docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || return 1
+    fi
 
     # Build the Debian package with a Docker container
     docker run -t --rm -v ${OUTDIR}:/var/local/wazuh:Z \
@@ -145,6 +148,7 @@ help() {
     echo "    -p, --path <path>         [Optional] Installation path for the package. By default: /var/ossec."
     echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
     echo "    -c, --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
+    echo "    --dont-build-docker   [Optional] Locally built docker image will be used instead of generating a new one."
     echo "    --sources <path>          [Optional] Absolute path containing wazuh source code. This option will use local source code instead of downloading it from GitHub."
     echo "    --dev                     [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub."
     echo "    -h, --help                Show this help."
@@ -223,6 +227,10 @@ main() {
                 CHECKSUM="yes"
                 shift 1
             fi
+            ;;
+        "--dont-build-docker")
+            BUILD_DOCKER="no"
+            shift 1
             ;;
         "-s"|"--store")
             if [ -n "$2" ]; then
