@@ -148,7 +148,7 @@ help() {
     echo "    -p, --path <path>         [Optional] Installation path for the package. By default: /var/ossec."
     echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
     echo "    -c, --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
-    echo "    -z, --dont-build-docker   [Optional] Locally built docker image will be used instead of generating a new one."
+    echo "    --dont-build-docker   [Optional] Locally built docker image will be used instead of generating a new one."
     echo "    --sources <path>          [Optional] Absolute path containing wazuh source code. This option will use local source code instead of downloading it from GitHub."
     echo "    --dev                     [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub."
     echo "    -h, --help                Show this help."
@@ -228,7 +228,7 @@ main() {
                 shift 1
             fi
             ;;
-        "-z"|"--dont-build-docker")
+        "--dont-build-docker")
             BUILD_DOCKER="no"
             shift 1
             ;;

@@ -176,7 +176,7 @@ help() {
     echo "    -p, --path <path>            [Optional] Installation path for the package. By default: /var."
     echo "    -d, --debug                  [Optional] Build the binaries with debug symbols and create debuginfo packages. By default: no."
     echo "    -c, --checksum <path>        [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
-    echo "    -z, --dont-build-docker      [Optional] Locally built docker image will be used instead of generating a new one."
+    echo "    --dont-build-docker      [Optional] Locally built docker image will be used instead of generating a new one."
     echo "    --sources <path>             [Optional] Absolute path containing wazuh source code. This option will use local source code instead of downloading it from GitHub."
     echo "    --packages-branch <branch>   [Optional] Select Git branch or tag from wazuh-packages repository. e.g ${PACKAGES_BRANCH}"
     echo "    --dev                        [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub."
@@ -252,7 +252,7 @@ main() {
             DEBUG="yes"
             shift 1
             ;;
-        "-z"|"--dont-build-docker")
+        "--dont-build-docker")
             BUILD_DOCKER="no"
             shift 1
             ;;
