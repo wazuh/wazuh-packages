@@ -77,7 +77,7 @@ cp ${specs_path}/${wazuh_version}/wazuh-${build_target}-${wazuh_version}.spec ${
 cd ${build_dir} && tar czf "${rpm_build_dir}/SOURCES/${package_name}.tar.gz" "${package_name}"
 
 
-if [ "${architecture_target}" = "i386" ]; then
+if [ "${architecture_target}" = "i386" ] || [ "${architecture_target}" = "armv7hl" ]; then
     linux="linux32"
 fi
 
