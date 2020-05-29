@@ -798,9 +798,6 @@ rm -fr %{buildroot}
 %attr(750, root, ossec) %{_localstatedir}/ossec/framework/lib/libsqlite3.so.0
 %dir %attr(0750, root, ossec) %{_localstatedir}/ossec/framework/python
 %{_localstatedir}/ossec/framework/python/*
-%attr(0777, root, ossec) %{_localstatedir}/ossec/framework/python/bin/2to3
-%attr(0777, root, ossec) %{_localstatedir}/ossec/framework/python/bin/pydoc3
-%attr(0777, root, ossec) %{_localstatedir}/ossec/framework/python/bin/python3.8-config
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/scripts
 %attr(640, root, ossec) %{_localstatedir}/ossec/framework/scripts/*.py
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/wazuh

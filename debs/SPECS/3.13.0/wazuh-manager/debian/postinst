@@ -392,9 +392,9 @@ case "$1" in
     chmod 750 /var/ossec/framework/python/bin/2to3-3.8
     chmod 750 /var/ossec/framework/python/bin/pydoc3.8
     chmod 750 /var/ossec/framework/python/bin/python3-config
-    chmod 750 /var/ossec/framework/python/lib/pkgconfig/python-3.8-embed.pc
-    chmod 750 /var/ossec/framework/python/lib/pkgconfig/python-3.8.pc
-    chmod 750 /var/ossec/framework/python/lib/pkgconfig/python3.pc
+    chmod 0640 /var/ossec/framework/python/lib/pkgconfig/python-3.8-embed.pc
+    chmod 0640 /var/ossec/framework/python/lib/pkgconfig/python-3.8.pc
+    chmod 0640 /var/ossec/framework/python/lib/pkgconfig/python3.pc
 
     ;;
 
