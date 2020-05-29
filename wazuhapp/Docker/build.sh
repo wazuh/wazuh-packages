@@ -6,7 +6,8 @@ wazuh_branch=$1
 checksum=$2
 app_revision=$3
 
-source_dir="/tmp/source"
+kibana_dir="/tmp/source"
+source_dir="${kibana_dir}/plugins/wazuh"
 build_dir="${source_dir}/build"
 destination_dir="/wazuh_app"
 checksum_dir="/var/local/checksum"
@@ -18,7 +19,18 @@ download_sources() {
         echo "Error downloading the source code from GitHub."
         exit 1
     fi
-    mv wazuh-* ${source_dir}
+    IFS='-' tokens=( ${wazuh_branch} )
+    if ! curl -L https://github.com/elastic/kibana/tarball/v${tokens[1]} | tar zx ; then
+        echo "Error downloading Kibana source code from GitHub."
+        exit 1
+    fi
+    unset IFS
+    mv elastic-* kibana_source
+    mkdir -p kibana_source/plugins/wazuh
+    mv wazuh-* wazuh_source
+    mv wazuh_source/* kibana_source/plugins/wazuh
+    mv kibana_source ${kibana_dir}
+
     wazuh_version=$(python -c 'import json, os; f=open(os.environ["package_json"]); pkg=json.load(f); f.close(); print(pkg["version"])')
     kibana_version=$(python -c 'import json, os; f=open(os.environ["package_json"]); pkg=json.load(f); f.close(); print(pkg["kibana"]["version"])')
 }
