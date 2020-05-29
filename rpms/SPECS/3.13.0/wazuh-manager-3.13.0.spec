@@ -798,15 +798,6 @@ rm -fr %{buildroot}
 %attr(750, root, ossec) %{_localstatedir}/ossec/framework/lib/libsqlite3.so.0
 %dir %attr(0755, root, ossec) %{_localstatedir}/ossec/framework/python
 %{_localstatedir}/ossec/framework/python/*
-%attr(1777, root, ossec) %{_localstatedir}/ossec/framework/python/bin/pydoc3.8
-%attr(1777, root, ossec) %{_localstatedir}/ossec/framework/python/bin/pydoc3
-%attr(1777, root, ossec) %{_localstatedir}/ossec/framework/python/bin/2to3
-%attr(1777, root, ossec) %{_localstatedir}/ossec/framework/python/bin/2to3-3.8
-%attr(1777, root, ossec) %{_localstatedir}/ossec/framework/python/bin/python3-config
-%attr(1777, root, ossec) %{_localstatedir}/ossec/framework/python/bin/python3.8-config
-%attr(1777, root, ossec) %{_localstatedir}/ossec/framework/python/lib/pkgconfig/python-3.8-embed.pc
-%attr(1777, root, ossec) %{_localstatedir}/ossec/framework/python/lib/pkgconfig/python-3.8.pc
-%attr(1777, root, ossec) %{_localstatedir}/ossec/framework/python/lib/pkgconfig/python3-embed.pc
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/scripts
 %attr(640, root, ossec) %{_localstatedir}/ossec/framework/scripts/*.py
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/wazuh
