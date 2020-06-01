@@ -83,10 +83,6 @@ install -m 0755 src/init/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh
 # Clean the preinstalled configuration assesment files
 rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca/*
 
-# Install frameworks sqlite lib
-install -o root -g ossec -m 0750 -d ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/lib
-install -o root -g ossec -m 0640 framework/libsqlite3.so.0 ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/lib/
-
 # Install oscap files
 install -m 0640 wodles/oscap/content/*redhat* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 install -m 0640 wodles/oscap/content/*rhel* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
@@ -830,7 +826,7 @@ rm -fr %{buildroot}
 %attr(750, root, ossec) %{_localstatedir}/ossec/integrations/*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/lib
 %attr(750, root, ossec) %{_localstatedir}/ossec/lib/libwazuhext.so
-%{_localstatedir}/ossec/lib/libpython3.7m.so.1.0
+%{_localstatedir}/ossec/lib/libpython3.8.so.1.0
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/logs
 %attr(660, ossec, ossec) %ghost %{_localstatedir}/ossec/logs/api.log
 %attr(660, ossec, ossec)  %ghost %{_localstatedir}/ossec/logs/active-responses.log
@@ -960,6 +956,7 @@ rm -fr %{buildroot}
 %attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/windows/*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/var
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/var/db
+%attr(660, root, ossec) %{_localstatedir}/ossec/var/db/mitre.db
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/var/db/agents
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/var/download
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/var/multigroups
