@@ -117,7 +117,7 @@ build() {
         elif [[ "${ARCHITECTURE}" = "aarch64" ]]; then
             build_rpm ${RPM_AARCH64_BUILDER} ${RPM_AARCH64_BUILDER_DOCKERFILE}/${ARCHITECTURE} || return 1
         elif [[ "${ARCHITECTURE}" = "armv7hl" ]]; then
-            build_rpm ${RPM_AARCH64_BUILDER} ${RPM_AARCH64_BUILDER_DOCKERFILE}/${ARCHITECTURE} || return 1
+            build_rpm ${RPM_ARMV7HL_BUILDER} ${RPM_ARMV7HL_BUILDER_DOCKERFILE}/${ARCHITECTURE} || return 1
         else
             build_rpm ${RPM_X86_BUILDER} ${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE} || return 1
         fi
