@@ -7,6 +7,7 @@
 # and/or modify it under the terms of the GNU General Public
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
+
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ARCHITECTURE="x86_64"
 LEGACY="no"
@@ -17,14 +18,17 @@ REVISION="1"
 TARGET=""
 JOBS="2"
 DEBUG="no"
+BUILD_DOCKER="yes"
 USER_PATH="no"
 SRC="no"
 RPM_AARCH64_BUILDER="rpm_builder_aarch64"
+RPM_ARMV7HL_BUILDER="rpm_builder_armv7hl"
 RPM_X86_BUILDER="rpm_builder_x86"
 RPM_I386_BUILDER="rpm_builder_i386"
 RPM_PPC64LE_BUILDER="rpm_builder_ppc64le"
 RPM_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/6"
-RPM_AARCH64_DOCKERFILE="${CURRENT_PATH}/amzn/2"
+RPM_AARCH64_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/7"
+RPM_ARMV7HL_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/7"
 RPM_PPC64LE_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/7"
 LEGACY_RPM_X86_BUILDER="rpm_legacy_builder_x86"
 LEGACY_RPM_I386_BUILDER="rpm_legacy_builder_i386"
@@ -77,7 +81,9 @@ build_rpm() {
     fi
 
     # Build the Docker image
-    docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || return 1
+    if [[ ${BUILD_DOCKER} == "yes" ]]; then
+      docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || return 1
+    fi
 
     # Build the RPM package with a Docker container
     docker run -t --rm -v ${OUTDIR}:/var/local/wazuh:Z \
@@ -98,11 +104,20 @@ build() {
 
     if [[ ${ARCHITECTURE} == "amd64" ]] || [[ ${ARCHITECTURE} == "x86_64" ]]; then
         ARCHITECTURE="x86_64"
+    elif [[ ${ARCHITECTURE} == "arm64" ]] || [[ ${ARCHITECTURE} == "aarch64" ]]; then
+        ARCHITECTURE="aarch64"
+    elif [[ ${ARCHITECTURE} == "arm32" ]] || [[ ${ARCHITECTURE} == "armhf" ]] || \
+        [[ ${ARCHITECTURE} == "armhfp" ]] || [[ ${ARCHITECTURE} == "armv7hl" ]] ; then
+        ARCHITECTURE="armv7hl"
     fi
 
     if [[ "${TARGET}" == "api" ]]; then
         if [[ "${ARCHITECTURE}" = "ppc64le" ]]; then
             build_rpm ${RPM_PPC64LE_BUILDER} ${RPM_PPC64LE_BUILDER_DOCKERFILE}/${ARCHITECTURE} || return 1
+        elif [[ "${ARCHITECTURE}" = "aarch64" ]]; then
+            build_rpm ${RPM_AARCH64_BUILDER} ${RPM_AARCH64_BUILDER_DOCKERFILE}/${ARCHITECTURE} || return 1
+        elif [[ "${ARCHITECTURE}" = "armv7hl" ]]; then
+            build_rpm ${RPM_ARMV7HL_BUILDER} ${RPM_ARMV7HL_BUILDER_DOCKERFILE}/${ARCHITECTURE} || return 1
         else
             build_rpm ${RPM_X86_BUILDER} ${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE} || return 1
         fi
@@ -130,7 +145,10 @@ build() {
             FILE_PATH="${RPM_PPC64LE_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
         elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "aarch64" ]]; then
             BUILD_NAME="${RPM_AARCH64_BUILDER}"
-            FILE_PATH="${RPM_AARCH64_DOCKERFILE}/${ARCHITECTURE}"
+            FILE_PATH="${RPM_AARCH64_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
+        elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "armv7hl" ]]; then
+            BUILD_NAME="${RPM_ARMV7HL_BUILDER}"
+            FILE_PATH="${RPM_ARMV7HL_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
         else
             echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too), ppc64le or i386"
             return 1
@@ -150,7 +168,7 @@ help() {
     echo
     echo "    -b, --branch <branch>        [Required] Select Git branch or tag e.g. $BRANCH"
     echo "    -t, --target <target>        [Required] Target package to build [manager/api/agent]."
-    echo "    -a, --architecture <arch>    [Optional] Target architecture of the package [x86_64/i386/aarch64]."
+    echo "    -a, --architecture <arch>    [Optional] Target architecture of the package [x86_64/i386/ppc64le/aarch64/armv7hl]."
     echo "    -r, --revision <rev>         [Optional] Package revision that append to version e.g. x.x.x-rev"
     echo "    -l, --legacy                 [Optional] Build package for CentOS 5."
     echo "    -s, --store <path>           [Optional] Set the destination path of package. By default, an output folder will be created."
@@ -158,6 +176,7 @@ help() {
     echo "    -p, --path <path>            [Optional] Installation path for the package. By default: /var."
     echo "    -d, --debug                  [Optional] Build the binaries with debug symbols and create debuginfo packages. By default: no."
     echo "    -c, --checksum <path>        [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
+    echo "    --dont-build-docker      [Optional] Locally built docker image will be used instead of generating a new one."
     echo "    --sources <path>             [Optional] Absolute path containing wazuh source code. This option will use local source code instead of downloading it from GitHub."
     echo "    --packages-branch <branch>   [Optional] Select Git branch or tag from wazuh-packages repository. e.g ${PACKAGES_BRANCH}"
     echo "    --dev                        [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub."
@@ -233,6 +252,10 @@ main() {
             DEBUG="yes"
             shift 1
             ;;
+        "--dont-build-docker")
+            BUILD_DOCKER="no"
+            shift 1
+            ;;
         "-c"|"--checksum")
             if [ -n "$2" ]; then
                 CHECKSUMDIR="$2"
@@ -295,4 +318,5 @@ main() {
 
     clean 0
 }
+
 main "$@"

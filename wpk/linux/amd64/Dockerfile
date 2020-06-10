@@ -12,6 +12,4 @@ RUN yum install -y automake autoconf libtool
 ADD wpkpack.py /usr/local/bin/wpkpack
 ADD run.sh /usr/local/bin/run
 ADD gen_versions.sh /usr/local/bin/gen_versions
-VOLUME /var/local/wazuh
-VOLUME /etc/wazuh
 ENTRYPOINT ["/usr/local/bin/run"]

@@ -15,6 +15,7 @@ RUN echo "deb http://archive.debian.org/debian/ wheezy contrib main non-free" > 
 
 # Add Debian's source repository
 RUN apt-get update && apt-get build-dep python3.2 -y
+RUN sed -i "s;/\* To add :#define SO_REUSEPORT 15 \*/;#define SO_REUSEPORT 15;g" /usr/include/asm-generic/socket.h
 
 # Add the script to build the Debian package
 ADD build.sh /usr/local/bin/build_package
