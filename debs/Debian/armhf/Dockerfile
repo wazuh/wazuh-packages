@@ -3,10 +3,9 @@ FROM arm32v7/debian:stretch
 ENV DEBIAN_FRONTEND noninteractive
 
 # Installing necessary packages
-RUN echo "deb http://deb.debian.org/debian/ stretch contrib main non-free" > /etc/apt/sources.list && \
-    echo "deb-src http://deb.debian.org/debian/ stretch contrib main non-free" >> /etc/apt/sources.list && \
-    apt-get update && apt-get install -y apt=1.4.9 apt-utils --allow-downgrades && \
-    apt-get install -y --force-yes \
+RUN echo "deb http://deb.debian.org/debian stretch contrib non-free" >> /etc/apt/sources.list && \
+    echo "deb-src http://deb.debian.org/debian stretch main contrib non-free" >> /etc/apt/sources.list && \
+    apt-get update && apt-get install -y apt-utils \
     curl gcc make sudo expect gnupg fakeroot perl-base \
     perl libc-bin libc6 libc6-dev \
     build-essential cdbs devscripts equivs automake autoconf libtool \
