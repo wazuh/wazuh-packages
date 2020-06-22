@@ -31,9 +31,9 @@ build_environment() {
         /opt/csw/bin/pkgutil -y -U
     fi
 
-    python -V | grep "2.7"
+    python_version=$(python --version 2>&1)
     # Install python 2.7
-    if [[ "$?" != "0" ]] ; then
+    if [[ "$?" != "0" ]] || [[ $python_version != *"2.7"* ]]; then
         /opt/csw/bin/pkgutil -y -i python27
         ln -sf /opt/csw/bin/python2.7 /usr/bin/python
     fi
