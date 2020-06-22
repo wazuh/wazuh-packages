@@ -11,39 +11,57 @@ source_dir="${kibana_dir}/plugins/wazuh"
 build_dir="${source_dir}/build"
 destination_dir="/wazuh_app"
 checksum_dir="/var/local/checksum"
+github_raw_url="https://raw.githubusercontent.com/wazuh/wazuh-kibana-app"
+package_json_url="${github_raw_url}/${wazuh_branch}/package.json"
 
 export package_json="${source_dir}/package.json"
 
+wazuh_version=""
+kibana_version=""
+node_version=""
+
+prepare_env() {
+    echo "Download package.json"
+
+    if ! curl -O ${package_json_url} ; then
+        echo "Error downloading package.json from GitHub."
+        exit 1
+    fi
+
+    wazuh_version=$(python -c 'import json, os; f=open("/package.json"); pkg=json.load(f); f.close(); print(pkg["version"])')
+    kibana_version=$(python -c 'import json, os; f=open("/package.json"); pkg=json.load(f); f.close(); print(pkg["kibana"]["version"])')
+
+    {
+        node_version=$(python -c 'import json, os; f=open("/package.json"); pkg=json.load(f); f.close(); print(pkg["node_build"])')
+    }||{
+        node_version=$(python -c 'import json, os; f=open("/package.json"); pkg=json.load(f); f.close(); print(pkg["node"])')
+    }||{
+        node_version="8.14.0"
+    }
+
+}
+
 download_sources() {
+
     if ! curl -L https://github.com/wazuh/wazuh-kibana-app/tarball/${wazuh_branch} | tar zx ; then
         echo "Error downloading the source code from GitHub."
         exit 1
     fi
-    IFS='-' tokens=( ${wazuh_branch} )
-    if ! curl -L https://github.com/elastic/kibana/tarball/v${tokens[1]} | tar zx ; then
+
+    if ! curl -L https://github.com/elastic/kibana/tarball/v${kibana_version} | tar zx ; then
         echo "Error downloading Kibana source code from GitHub."
         exit 1
     fi
-    unset IFS
+
     mv elastic-* kibana_source
     mkdir -p kibana_source/plugins/wazuh
     mv wazuh-* wazuh_source
     mv wazuh_source/* kibana_source/plugins/wazuh
     mv kibana_source ${kibana_dir}
 
-    wazuh_version=$(python -c 'import json, os; f=open(os.environ["package_json"]); pkg=json.load(f); f.close(); print(pkg["version"])')
-    kibana_version=$(python -c 'import json, os; f=open(os.environ["package_json"]); pkg=json.load(f); f.close(); print(pkg["kibana"]["version"])')
 }
 
 install_dependencies (){
-
-    {
-        node_version=$(python -c 'import json, os; f=open(os.environ["package_json"]); pkg=json.load(f); f.close(); print(pkg["node_build"])')
-    }||{
-        node_version=$(python -c 'import json, os; f=open(os.environ["package_json"]); pkg=json.load(f); f.close(); print(pkg["node"])')
-    }||{
-        node_version="8.14.0"
-    }
 
     n ${node_version}
 
@@ -82,6 +100,7 @@ build_package(){
     exit 0
 }
 
+prepare_env
 download_sources
 install_dependencies
 build_package

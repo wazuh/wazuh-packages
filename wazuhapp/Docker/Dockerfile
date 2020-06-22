@@ -15,4 +15,3 @@ RUN mkdir /wazuh_app /source
 
 # Set the entrypoint/
 ENTRYPOINT ["/build.sh"]
-
