@@ -53,7 +53,7 @@ download_sources() {
     mv elastic-* kibana_source
     mkdir -p kibana_source/plugins
 
-    if ! git clone https://github.com/wazuh/wazuh-kibana-app.git --branch ${wazuh_branch} --single-branch kibana_source/plugins/wazuh ; then
+    if ! git clone https://github.com/wazuh/wazuh-kibana-app.git --branch ${wazuh_branch} --depth=1 kibana_source/plugins/wazuh ; then
         echo "Error downloading the source code from GitHub."
         exit 1
     fi
