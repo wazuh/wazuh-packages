@@ -1,0 +1,78 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Sample debian/rules that uses debhelper.
+#
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+#
+# Modified to make a template file for a multi-binary package with separated
+# build-arch and build-indep targets  by Bill Allombert 2001
+
+# Uncomment this to turn on verbose mode.
+export DH_VERBOSE=1
+
+# This has to be exported to make some magic below work.
+export DH_OPTIONS
+
+export TARGET_DIR=${CURDIR}/debian/wazuh-api
+
+# Package build options
+export INSTALLATION_DIR="/var/ossec"
+export INSTALLATION_SCRIPTS_DIR="${INSTALLATION_DIR}/packages_files/api_installation_scripts"
+export JOBS="5"
+
+%:
+	dh $@ --with-systemd
+
+override_dh_auto_configure:
+
+override_dh_auto_install:
+
+	# Creating needeed files and directories (and group)
+	touch /etc/ossec-init.conf
+	mkdir -p $(INSTALLATION_DIR)/framework
+	mkdir -p $(INSTALLATION_DIR)/logs
+	groupadd ossec
+	useradd ossec -g ossec
+
+	# Installing api by its own script with HTTPS disabled
+	DIRECTORY="$(INSTALLATION_DIR)" DISABLE_HTTPS=Y ./install_api.sh
+	
+	# Remove "fake" framework directory
+	rmdir $(INSTALLATION_DIR)/framework
+
+	# Remove the httpaswd file
+	rm -f $(INSTALLATION_DIR)/api/configuration/auth/htpasswd
+
+	# Remove the api.log file
+	rm -f $(INSTALLATION_DIR)/logs/api.log
+	
+	# Copying $(INSTALLATION_DIR)/api files to package target
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_DIR)/
+	mkdir -p ${TARGET_DIR}/etc/
+	mkdir -p ${TARGET_DIR}/etc/systemd
+	mkdir -p ${TARGET_DIR}/etc/systemd/system
+
+	cp -r $(INSTALLATION_DIR)/* $(TARGET_DIR)$(INSTALLATION_DIR)/
+	sed -i "s:^ExecStart=.*:ExecStart=/usr/bin/nodejs $(INSTALLATION_DIR)/api/app.js:g" ./scripts/wazuh-api.service
+	cp ./scripts/wazuh-api.service $(TARGET_DIR)/etc/systemd/system
+
+	# Generating permission restoration file for postinstall
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/
+	# Generating permission restoration file for postinstall
+	./gen_permissions.sh "$(INSTALLATION_DIR)/api/ $(INSTALLATION_DIR)/logs/*" ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/restore-permissions.sh
+
+
+override_dh_auto_clean:
+	# $(MAKE) clean
+	rm -rf ${PREFIX}/node_modules
+	rm -rf node_modules
+	rm -rf ${PREFIX}/framework/lib
+
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym
+
+.PHONY: override_dh_strip override_dh_auto_clean override_dh_auto_build override_dh_auto_configure
