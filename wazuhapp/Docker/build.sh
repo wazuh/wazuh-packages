@@ -43,10 +43,7 @@ prepare_env() {
 
 download_sources() {
 
-    if ! curl -L https://github.com/wazuh/wazuh-kibana-app/tarball/${wazuh_branch} | tar zx ; then
-        echo "Error downloading the source code from GitHub."
-        exit 1
-    fi
+
 
     if ! curl -L https://github.com/elastic/kibana/tarball/v${kibana_version} | tar zx ; then
         echo "Error downloading Kibana source code from GitHub."
@@ -54,11 +51,14 @@ download_sources() {
     fi
 
     mv elastic-* kibana_source
-    mkdir -p kibana_source/plugins/wazuh
-    mv wazuh-* wazuh_source
-    mv wazuh_source/* kibana_source/plugins/wazuh
-    mv kibana_source ${kibana_dir}
+    mkdir -p kibana_source/plugins
 
+    if ! git clone https://github.com/wazuh/wazuh-kibana-app.git --branch ${wazuh_branch} --single-branch kibana_source/plugins/wazuh ; then
+        echo "Error downloading the source code from GitHub."
+        exit 1
+    fi
+
+    mv kibana_source ${kibana_dir}
 }
 
 install_dependencies (){
