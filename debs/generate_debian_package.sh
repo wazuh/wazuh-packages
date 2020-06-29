@@ -14,6 +14,7 @@ OUTDIR="${CURRENT_PATH}/output/"
 BRANCH=""
 REVISION="1"
 TARGET=""
+DATABASE_OUTPUT=""
 JOBS="2"
 DEBUG="no"
 BUILD_DOCKER="yes"
@@ -74,7 +75,7 @@ build_deb() {
         ${CUSTOM_CODE_VOL} \
         ${CONTAINER_NAME} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
         ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} \
-        ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} ${LOCAL_SOURCE_CODE} || return 1
+        ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} ${LOCAL_SOURCE_CODE} ${DATABASE_OUTPUT}|| return 1
 
     echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
 
@@ -147,6 +148,7 @@ help() {
     echo "    -s, --store <path>        [Optional] Set the destination path of package. By default, an output folder will be created."
     echo "    -p, --path <path>         [Optional] Installation path for the package. By default: /var/ossec."
     echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
+    echo "    --database <mysql/pgsql>  [Optional] Build with database output support for mysql or pgsql."
     echo "    -c, --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
     echo "    --dont-build-docker   [Optional] Locally built docker image will be used instead of generating a new one."
     echo "    --sources <path>          [Optional] Absolute path containing wazuh source code. This option will use local source code instead of downloading it from GitHub."
@@ -209,6 +211,14 @@ main() {
         "-p"|"--path")
             if [ -n "$2" ]; then
                 INSTALLATION_PATH="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
+        "--database")
+            if [ -n "$2" ]; then
+                DATABASE_OUTPUT="$2"
                 shift 2
             else
                 help 1

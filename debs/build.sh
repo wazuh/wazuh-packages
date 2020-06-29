@@ -22,10 +22,16 @@ checksum=$8
 wazuh_packages_branch=$9
 use_local_specs=${10}
 local_source_code=${11}
+database_output=${12}
 
 if [ -z "${package_release}" ]; then
     package_release="1"
 fi
+
+if [ -z "${database_output}" ]; then
+    database_output=' '
+fi
+
 
 if [ ${build_target} = "api" ]; then
     if [ -z "${local_source_code}" ]; then
@@ -63,6 +69,7 @@ cd ${build_dir}/${build_target} && tar -czf ${package_full_name}.orig.tar.gz "${
 
 # Configure the package with the different parameters
 sed -i "s:RELEASE:${package_release}:g" ${sources_dir}/debian/changelog
+sed -i "s:export DATABASE_OUTPUT=.*:export DATABASE_OUTPUT=${database_output}:g" ${sources_dir}/debian/rules
 sed -i "s:export JOBS=.*:export JOBS=${jobs}:g" ${sources_dir}/debian/rules
 sed -i "s:export DEBUG_ENABLED=.*:export DEBUG_ENABLED=${debug}:g" ${sources_dir}/debian/rules
 sed -i "s:export INSTALLATION_DIR=.*:export INSTALLATION_DIR=${dir_path}:g" ${sources_dir}/debian/rules
