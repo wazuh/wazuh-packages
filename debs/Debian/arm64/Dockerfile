@@ -10,7 +10,8 @@ RUN echo "deb http://deb.debian.org/debian stretch contrib non-free" >> /etc/apt
     perl-base perl wget libc-bin libc6 libc6-dev \
     build-essential cdbs devscripts equivs automake \
     autoconf libtool libaudit-dev selinux-basics \
-    libdb5.3 libdb5.3 libssl1.0.2 gawk libsigsegv2
+    libdb5.3 libdb5.3 libssl1.0.2 gawk libsigsegv2 \
+    libmysqlclient-dev libpq-dev
 
 # Add Debian's source repository and, Install NodeJS 12
 RUN apt-get update &&  apt-get build-dep python3.5 -y

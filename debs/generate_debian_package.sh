@@ -14,7 +14,6 @@ OUTDIR="${CURRENT_PATH}/output/"
 BRANCH=""
 REVISION="1"
 TARGET=""
-DATABASE_OUTPUT=""
 JOBS="2"
 DEBUG="no"
 BUILD_DOCKER="yes"
@@ -35,6 +34,7 @@ PACKAGES_BRANCH="master"
 USE_LOCAL_SPECS="no"
 LOCAL_SPECS="${CURRENT_PATH}"
 LOCAL_SOURCE_CODE=""
+DATABASE_OUTPUT=""
 
 trap ctrl_c INT
 
@@ -75,7 +75,7 @@ build_deb() {
         ${CUSTOM_CODE_VOL} \
         ${CONTAINER_NAME} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
         ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} \
-        ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} ${LOCAL_SOURCE_CODE} ${DATABASE_OUTPUT}|| return 1
+        ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} "${LOCAL_SOURCE_CODE}" "${DATABASE_OUTPUT}" || return 1
 
     echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
 
