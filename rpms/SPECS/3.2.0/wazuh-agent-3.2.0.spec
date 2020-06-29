@@ -42,9 +42,9 @@ pushd src
 make clean
 
 %if 0%{?rhel} >= 6
-    make -j%{_threads} TARGET=agent
+    make -j%{_threads} %{_databaseoutput} TARGET=agent
 %else
-    make -j%{_threads} TARGET=agent DISABLE_SYSC=yes
+    make -j%{_threads} %{_databaseoutput} TARGET=agent DISABLE_SYSC=yes
 %endif
 
 popd

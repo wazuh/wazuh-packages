@@ -23,6 +23,7 @@ use_local_specs=${10}
 src=${11}
 legacy=${12}
 local_source_code=${13}
+database_output=${14}
 wazuh_version=""
 rpmbuild="rpmbuild"
 
@@ -30,6 +31,10 @@ disable_debug_flag='%debug_package %{nil}'
 
 if [ -z "${package_release}" ]; then
     package_release="1"
+fi
+
+if [ -z "${database_output}" ]; then
+    database_output=' '
 fi
 
 if [ "${debug}" = "no" ]; then
@@ -96,7 +101,8 @@ fi
 $linux $rpmbuild --define "_sysconfdir /etc" --define "_topdir ${rpm_build_dir}" \
         --define "_threads ${threads}" --define "_release ${package_release}" \
         --define "_localstatedir ${directory_base}" --define "_debugenabled ${debug}" \
-        --target ${architecture_target} -ba ${rpm_build_dir}/SPECS/${package_name}.spec
+        --define "databaseoutput ${database_output}" --target ${architecture_target} \
+        -ba ${rpm_build_dir}/SPECS/${package_name}.spec
 
 if [[ "${checksum}" == "yes" ]]; then
     cd ${pkg_path} && sha512sum ${rpm_file} > /var/local/checksum/${rpm_file}.sha512

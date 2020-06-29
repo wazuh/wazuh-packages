@@ -42,7 +42,7 @@ pushd src
 
 # Rebuild for agent
 make clean
-make -j%{_threads} TARGET=agent
+make -j%{_threads} %{_databaseoutput} TARGET=agent
 
 popd
 

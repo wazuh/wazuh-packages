@@ -40,7 +40,7 @@ make clean
 
 # Build Wazuh sources
 make deps PREFIX=%{_localstatedir}/ossec
-make -j%{_threads} TARGET=server USE_SELINUX=yes USE_FRAMEWORK_LIB=yes PREFIX=%{_localstatedir}/ossec DEBUG=%{_debugenabled}
+make -j%{_threads} %{_databaseoutput} TARGET=server USE_SELINUX=yes USE_FRAMEWORK_LIB=yes PREFIX=%{_localstatedir}/ossec DEBUG=%{_debugenabled}
 
 popd
 

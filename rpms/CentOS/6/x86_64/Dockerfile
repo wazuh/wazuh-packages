@@ -2,7 +2,7 @@ FROM centos:6
 # Install all the necessary tools to build the packages
 RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-6
 RUN yum install -y centos-release-scl gcc make git \
-    openssh-clients sudo gnupg \
+    openssh-clients sudo gnupg mysql-devel postgresql-devel \
     automake autoconf libtool policycoreutils-python \
     yum-utils epel-release redhat-rpm-config rpm-devel \
     autopoint gettext nspr nspr-devel \

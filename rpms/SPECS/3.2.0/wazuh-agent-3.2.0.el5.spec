@@ -40,7 +40,7 @@ echo "Vendor is %_vendor"
 pushd src
 # Rebuild for agent
 make clean
-make -j%{_threads} TARGET=agent DISABLE_SYSC=yes
+make -j%{_threads} %{_databaseoutput} TARGET=agent DISABLE_SYSC=yes
 
 popd
 

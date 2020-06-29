@@ -41,6 +41,7 @@ CHECKSUMDIR=""
 CHECKSUM="no"
 USE_LOCAL_SPECS="no"
 LOCAL_SOURCE_CODE=""
+DATABASE_OUTPUT=""
 
 trap ctrl_c INT
 
@@ -175,8 +176,9 @@ help() {
     echo "    -j, --jobs <number>          [Optional] Number of parallel jobs when compiling."
     echo "    -p, --path <path>            [Optional] Installation path for the package. By default: /var."
     echo "    -d, --debug                  [Optional] Build the binaries with debug symbols and create debuginfo packages. By default: no."
+    echo "    --database <mysql/pgsql>     [Optional] Build with database output support for mysql or pgsql."
     echo "    -c, --checksum <path>        [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
-    echo "    --dont-build-docker      [Optional] Locally built docker image will be used instead of generating a new one."
+    echo "    --dont-build-docker          [Optional] Locally built docker image will be used instead of generating a new one."
     echo "    --sources <path>             [Optional] Absolute path containing wazuh source code. This option will use local source code instead of downloading it from GitHub."
     echo "    --packages-branch <branch>   [Optional] Select Git branch or tag from wazuh-packages repository. e.g ${PACKAGES_BRANCH}"
     echo "    --dev                        [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub."
@@ -231,6 +233,14 @@ main() {
         "-r"|"--revision")
             if [ -n "$2" ]; then
                 REVISION="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
+         "--database")
+            if [ -n "$2" ]; then
+                DATABASE_OUTPUT="$2"
                 shift 2
             else
                 help 1

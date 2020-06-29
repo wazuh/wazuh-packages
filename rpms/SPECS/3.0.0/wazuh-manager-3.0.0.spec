@@ -46,7 +46,7 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 pushd src
 # Rebuild for server
 make clean
-make -j%{_threads} TARGET=server
+make -j%{_threads} %{_databaseoutput} TARGET=server
 
 popd
 
