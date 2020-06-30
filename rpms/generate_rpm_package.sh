@@ -41,7 +41,7 @@ CHECKSUMDIR=""
 CHECKSUM="no"
 USE_LOCAL_SPECS="no"
 LOCAL_SOURCE_CODE=""
-DATABASE_OUTPUT=""
+DATABASE_OUTPUT="None"
 
 trap ctrl_c INT
 
@@ -94,7 +94,7 @@ build_rpm() {
         ${CONTAINER_NAME} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
         ${JOBS} ${REVISION} ${INSTALLATION_PATH} ${DEBUG} \
         ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} ${SRC} \
-        ${LEGACY} ${LOCAL_SOURCE_CODE} || return 1
+        ${LEGACY} "${LOCAL_SOURCE_CODE}" "${DATABASE_OUTPUT}" || return 1
 
     echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
 

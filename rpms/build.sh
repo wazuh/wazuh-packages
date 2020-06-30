@@ -34,7 +34,7 @@ if [ -z "${package_release}" ]; then
 fi
 
 if [ -z "${database_output}" ]; then
-    database_output=' '
+    database_output="None"
 fi
 
 if [ "${debug}" = "no" ]; then
@@ -101,7 +101,7 @@ fi
 $linux $rpmbuild --define "_sysconfdir /etc" --define "_topdir ${rpm_build_dir}" \
         --define "_threads ${threads}" --define "_release ${package_release}" \
         --define "_localstatedir ${directory_base}" --define "_debugenabled ${debug}" \
-        --define "databaseoutput ${database_output}" --target ${architecture_target} \
+        --define "_databaseoutput ${database_output}" --target ${architecture_target} \
         -ba ${rpm_build_dir}/SPECS/${package_name}.spec
 
 if [[ "${checksum}" == "yes" ]]; then

@@ -37,7 +37,7 @@ override_dh_install:
 	rm -rf $(INSTALLATION_DIR)/
 	# Build the binaries
 	make -C src deps
-	make -j$(JOBS) -C src/ TARGET=server USE_SELINUX=yes PREFIX=$(INSTALLATION_DIR) ${DATABASE_OUTPUT}
+	make -j$(JOBS) -C src/ TARGET=server USE_SELINUX=yes PREFIX=$(INSTALLATION_DIR) DATABASE=${DATABASE_OUTPUT}
 
 	USER_LANGUAGE="en" \
 	USER_NO_STOP="y" \

@@ -51,9 +51,9 @@ pushd src
 make clean
 
 %if 0%{?el} >= 6 || 0%{?rhel} >= 6
-    make -j%{_threads} %{_databaseoutput} TARGET=agent USE_SELINUX=yes PREFIX=%{_localstatedir}/ossec
+    make -j%{_threads} DATABASE=%{_databaseoutput} TARGET=agent USE_SELINUX=yes PREFIX=%{_localstatedir}/ossec
 %else
-    make -j%{_threads} %{_databaseoutput} TARGET=agent DISABLE_SYSC=yes USE_AUDIT=no USE_SELINUX=yes PREFIX=%{_localstatedir}/ossec
+    make -j%{_threads} DATABASE=%{_databaseoutput} TARGET=agent DISABLE_SYSC=yes USE_AUDIT=no USE_SELINUX=yes PREFIX=%{_localstatedir}/ossec
 %endif
 
 popd

@@ -44,9 +44,9 @@ pushd src
 make clean
 
 %if 0%{?rhel} >= 6
-    make -j%{_threads} %{_databaseoutput} TARGET=server
+    make -j%{_threads} DATABASE=%{_databaseoutput} TARGET=server
 %else
-    make -j%{_threads} %{_databaseoutput} TARGET=server DISABLE_SYSC=yes
+    make -j%{_threads} DATABASE=%{_databaseoutput} TARGET=server DISABLE_SYSC=yes
 %endif
 
 popd

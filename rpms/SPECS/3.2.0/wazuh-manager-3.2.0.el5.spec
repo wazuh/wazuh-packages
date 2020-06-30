@@ -70,7 +70,7 @@ pushd src
 # Rebuild for server
 make clean
 
-make -j%{_threads} %{_databaseoutput} TARGET=server DISABLE_SYSC=yes
+make -j%{_threads} DATABASE=%{_databaseoutput} TARGET=server DISABLE_SYSC=yes
 
 
 popd
