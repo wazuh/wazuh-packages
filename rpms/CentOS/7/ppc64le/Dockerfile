@@ -9,7 +9,8 @@ RUN mv /etc/yum.repos.d/CentOS-SCLo-scl.repo /etc/yum.repos.d/CentOS-SCLo-scl.re
 
 RUN yum -y install gcc make git \
     openssh-clients rpm-build sudo gnupg \
-    automake autoconf libtool policycoreutils-python mysql-devel postgresql-devel \
+    automake autoconf libtool policycoreutils-python \
+    mysql-devel postgresql-devel \
     yum-utils epel-release redhat-rpm-config rpm-devel
 
 # Warning: this repo has been disabled by the vendor
