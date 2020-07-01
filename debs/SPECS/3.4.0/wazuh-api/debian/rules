@@ -17,6 +17,7 @@ export DH_VERBOSE=1
 export DH_OPTIONS
 
 export TARGET_DIR=${CURDIR}/debian/wazuh-api
+export DATABASE_OUTPUT='None'
 
 # Package build options
 export INSTALLATION_DIR="/var/ossec"

@@ -52,10 +52,10 @@ make clean
 
 %if 0%{?el} >= 6 || 0%{?rhel} >= 6
     make deps
-    make -j%{_threads} DATABASE=%{_databaseoutput} TARGET=agent USE_SELINUX=yes PREFIX=%{_localstatedir}/ossec
+    make -j%{_threads} TARGET=agent USE_SELINUX=yes PREFIX=%{_localstatedir}/ossec
 %else
     make deps RESOURCES_URL=http://packages.wazuh.com/deps/3.5
-    make -j%{_threads} DATABASE=%{_databaseoutput} TARGET=agent USE_AUDIT=no USE_SELINUX=yes USE_EXEC_ENVIRON=no PREFIX=%{_localstatedir}/ossec
+    make -j%{_threads} TARGET=agent USE_AUDIT=no USE_SELINUX=yes USE_EXEC_ENVIRON=no PREFIX=%{_localstatedir}/ossec
 %endif
 
 popd

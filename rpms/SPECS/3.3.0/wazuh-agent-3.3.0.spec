@@ -47,9 +47,9 @@ pushd src
 make clean
 
 %if 0%{?el} >= 6 || 0%{?rhel} >= 6
-    make -j%{_threads} DATABASE=%{_databaseoutput} TARGET=agent PREFIX=%{_localstatedir}/ossec
+    make -j%{_threads} TARGET=agent PREFIX=%{_localstatedir}/ossec
 %else
-    make -j%{_threads} DATABASE=%{_databaseoutput} TARGET=agent DISABLE_SYSC=yes PREFIX=%{_localstatedir}/ossec
+    make -j%{_threads} TARGET=agent DISABLE_SYSC=yes PREFIX=%{_localstatedir}/ossec
 %endif
 
 popd
