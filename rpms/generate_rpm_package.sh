@@ -77,7 +77,7 @@ build_rpm() {
     fi
 
     # Create an optional parameter to share the local source code as a volume
-    if [ "${LOCAL_SOURCE_CODE}" != 'No' ]; then
+    if [ "${LOCAL_SOURCE_CODE}" != 'no' ]; then
         CUSTOM_CODE_VOL="-v ${LOCAL_SOURCE_CODE}:/wazuh-local-src:Z"
     fi
 
