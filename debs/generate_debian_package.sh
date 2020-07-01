@@ -33,7 +33,7 @@ CHECKSUM="no"
 PACKAGES_BRANCH="master"
 USE_LOCAL_SPECS="no"
 LOCAL_SPECS="${CURRENT_PATH}"
-LOCAL_SOURCE_CODE=""
+LOCAL_SOURCE_CODE="No"
 DATABASE_OUTPUT="None"
 
 trap ctrl_c INT
@@ -59,7 +59,7 @@ build_deb() {
     cp build.sh ${DOCKERFILE_PATH}
 
     # Create an optional parameter to share the local source code as a volume
-    if [ ! -z "${LOCAL_SOURCE_CODE}" ]; then
+    if [ "${LOCAL_SOURCE_CODE}" != 'No' ]; then
         CUSTOM_CODE_VOL="-v ${LOCAL_SOURCE_CODE}:/wazuh-local-src:Z"
     fi
 
@@ -75,7 +75,8 @@ build_deb() {
         ${CUSTOM_CODE_VOL} \
         ${CONTAINER_NAME} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
         ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} \
-        ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} "${LOCAL_SOURCE_CODE}" "DATABASE=${DATABASE_OUTPUT}" || return 1
+        ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} \
+        ${LOCAL_SOURCE_CODE} DATABASE=${DATABASE_OUTPUT} || return 1
 
     echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
 
