@@ -64,7 +64,7 @@ cd ${build_dir}/${build_target} && tar -czf ${package_full_name}.orig.tar.gz "${
 
 # Configure the package with the different parameters
 sed -i "s:RELEASE:${package_release}:g" ${sources_dir}/debian/changelog
-sed -i "s:export DATABASE_OUTPUT=.*:export DATABASE_OUTPUT=DATABASE=${database_output}:g" ${sources_dir}/debian/rules
+sed -i "s:export DATABASE_OUTPUT=.*:export DATABASE_OUTPUT=\"DATABASE='${database_output}'\":g" ${sources_dir}/debian/rules
 sed -i "s:export JOBS=.*:export JOBS=${jobs}:g" ${sources_dir}/debian/rules
 sed -i "s:export DEBUG_ENABLED=.*:export DEBUG_ENABLED=${debug}:g" ${sources_dir}/debian/rules
 sed -i "s:export INSTALLATION_DIR=.*:export INSTALLATION_DIR=${dir_path}:g" ${sources_dir}/debian/rules
