@@ -33,7 +33,7 @@ CHECKSUM="no"
 PACKAGES_BRANCH="master"
 USE_LOCAL_SPECS="no"
 LOCAL_SPECS="${CURRENT_PATH}"
-LOCAL_SOURCE_CODE="No"
+LOCAL_SOURCE_CODE="no"
 DATABASE_OUTPUT="None"
 
 trap ctrl_c INT
@@ -59,7 +59,7 @@ build_deb() {
     cp build.sh ${DOCKERFILE_PATH}
 
     # Create an optional parameter to share the local source code as a volume
-    if [ "${LOCAL_SOURCE_CODE}" != 'No' ]; then
+    if [ "${LOCAL_SOURCE_CODE}" != 'no' ]; then
         CUSTOM_CODE_VOL="-v ${LOCAL_SOURCE_CODE}:/wazuh-local-src:Z"
     fi
 

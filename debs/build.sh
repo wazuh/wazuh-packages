@@ -29,12 +29,12 @@ if [ -z "${package_release}" ]; then
 fi
 
 if [ ${build_target} = "api" ]; then
-    if [ "${local_source_code}" = 'No' ]; then
+    if [ "${local_source_code}" = 'no' ]; then
         curl -sL https://github.com/wazuh/wazuh-api/tarball/${wazuh_branch} | tar zx
     fi
     wazuh_version="$(grep version wazuh*/package.json | cut -d '"' -f 4)"
 else
-    if [ "${local_source_code}" = 'No' ]; then
+    if [ "${local_source_code}" = 'no' ]; then
         curl -sL https://github.com/wazuh/wazuh/tarball/${wazuh_branch} | tar zx
     fi
     wazuh_version="$(cat wazuh*/src/VERSION | cut -d 'v' -f 2)"
