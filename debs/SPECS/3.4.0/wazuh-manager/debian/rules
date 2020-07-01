@@ -21,6 +21,7 @@ export TARGET_DIR=${CURDIR}/debian/wazuh-manager
 # Package build options
 export INSTALLATION_DIR="/var/ossec"
 export JOBS="5"
+export DATABASE_OUTPUT='None'
 
 %:
 	dh $@
