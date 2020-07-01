@@ -7,7 +7,7 @@ RUN yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.n
 RUN yum install -y gcc make git \
     openssh-clients sudo gnupg file-devel\
     automake autoconf libtool policycoreutils-python \
-    yum-utils system-rpm-config rpm-devel \
+    yum-utils system-rpm-config rpm-devel mysql-devel postgresql-devel \
     gettext nspr nspr-devel \
     nss nss-devel libdb libdb-devel \
     zlib zlib-devel rpm-build bison \

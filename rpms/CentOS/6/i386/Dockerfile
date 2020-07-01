@@ -4,7 +4,7 @@ FROM i386/centos:6
 RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-6
 RUN sed -i 's/$basearch/i386/g' /etc/yum.repos.d/CentOS-Base.repo
 RUN yum -y install util-linux-ng centos-release-scl \
-    gcc-multilib make git openssh-clients \
+    gcc-multilib make git openssh-clients mysql-devel postgresql-devel \
     sudo gnupg automake autoconf libtool \
     policycoreutils-python yum-utils epel-release \
     redhat-rpm-config rpm-devel autopoint gettext \

@@ -23,6 +23,7 @@ use_local_specs=${10}
 src=${11}
 legacy=${12}
 local_source_code=${13}
+database_output=${14}
 wazuh_version=""
 rpmbuild="rpmbuild"
 
@@ -37,12 +38,12 @@ if [ "${debug}" = "no" ]; then
 fi
 
 if [ ${build_target} = "api" ]; then
-    if [ -z "${local_source_code}" ]; then
+    if [ "${local_source_code}" = 'no' ]; then
         curl -sL https://github.com/wazuh/wazuh-api/tarball/${wazuh_branch} | tar zx
     fi
     wazuh_version="$(grep version wazuh*/package.json | cut -d '"' -f 4)"
 else
-    if [ -z "${local_source_code}" ]; then
+    if [ "${local_source_code}" = 'no' ]; then
         curl -sL https://github.com/wazuh/wazuh/tarball/${wazuh_branch} | tar zx
     fi
     wazuh_version="$(cat wazuh*/src/VERSION | cut -d 'v' -f 2)"
@@ -96,7 +97,8 @@ fi
 $linux $rpmbuild --define "_sysconfdir /etc" --define "_topdir ${rpm_build_dir}" \
         --define "_threads ${threads}" --define "_release ${package_release}" \
         --define "_localstatedir ${directory_base}" --define "_debugenabled ${debug}" \
-        --target ${architecture_target} -ba ${rpm_build_dir}/SPECS/${package_name}.spec
+        --define "_databaseoutput ${database_output}" --target ${architecture_target} \
+        -ba ${rpm_build_dir}/SPECS/${package_name}.spec
 
 if [[ "${checksum}" == "yes" ]]; then
     cd ${pkg_path} && sha512sum ${rpm_file} > /var/local/checksum/${rpm_file}.sha512
