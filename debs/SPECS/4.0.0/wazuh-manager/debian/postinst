@@ -178,6 +178,11 @@ case "$1" in
         chown root:${GROUP} ${DIR}/etc/backup_ruleset
     fi
 
+    # "Restore the old cluster.json"
+    if [ -f "${WAZUH_TMP_DIR}/cluster.json" ]; then
+        mv "${WAZUH_TMP_DIR}/cluster.json" "${DIR}/framework/wazuh/cluster/cluster.json.old"
+    fi
+
     # For the /var/run and global-db
     chmod -R 770 ${DIR}/var
     chmod 750 ${DIR}/var
@@ -213,6 +218,9 @@ case "$1" in
     if [ -f ${WAZUH_TMP_DIR}/local_decoder.xml ]; then
         mv ${WAZUH_TMP_DIR}/local_decoder.xml ${DIR}/etc/decoders/local_decoder.xml
     fi
+    if [ -f ${WAZUH_TMP_DIR}/wazuh-api.restart ]; then
+        service wazuh-api start > /dev/null 2>&1 || true
+    fi
 
     # Restore group files
     if [ -d ${WAZUH_TMP_DIR}/group ]; then
@@ -220,10 +228,9 @@ case "$1" in
         rm -rf ${WAZUH_TMP_DIR}/group/
     fi
 
-    # Restore RBAC database
-    if [ -f ${WAZUH_TMP_DIR}/rbac.db ]; then
-        cp -fp ${WAZUH_TMP_DIR}/rbac.db ${DIR}/api/configuration/security/rbac.db
-        rm -rf ${WAZUH_TMP_DIR}/rbac.db
+    # Restore OpenSCAP policies files
+    if [ -d ${WAZUH_TMP_DIR}/oscap ]; then
+        cp ${WAZUH_TMP_DIR}/oscap/* ${DIR}/wodles/oscap/content/
     fi
 
     # More files
@@ -344,17 +351,6 @@ case "$1" in
 
     fi
 
-    # Copy API service files
-    if [ ! -d ${DIR}/api/service ]; then
-      mkdir -p ${DIR}/api/service
-    fi
-    cp -fp ${SCRIPTS_DIR}/api/service/* ${DIR}/api/service
-    chmod 750 ${DIR}/api/service/*
-    chown root:${GROUP} ${DIR}/api/service/*
-
-    # API service
-    WAZUH_PATH=${DIR} ${DIR}/api/service/install_daemon.sh
-
     # Service
     if [ -x /etc/init.d/wazuh-manager ]; then
         if [ -d /run/systemd/system ]; then
@@ -366,7 +362,6 @@ case "$1" in
 
         if ${DIR}/bin/ossec-logtest -t 2>/dev/null ; then
             service wazuh-manager restart
-            service wazuh-api restart
         else
             echo "================================================================================================================"
             echo "Something in your actual rules configuration is wrong, please review your configuration and restart the service."
@@ -392,6 +387,14 @@ case "$1" in
     # Fix /etc/ossec-init.conf
     chmod 640 /etc/ossec-init.conf
     chown root:ossec /etc/ossec-init.conf
+
+    # Fix Python permissions
+    chmod 750 /var/ossec/framework/python/bin/2to3-3.8
+    chmod 750 /var/ossec/framework/python/bin/pydoc3.8
+    chmod 750 /var/ossec/framework/python/bin/python3-config
+    chmod 0640 /var/ossec/framework/python/lib/pkgconfig/python-3.8-embed.pc
+    chmod 0640 /var/ossec/framework/python/lib/pkgconfig/python-3.8.pc
+    chmod 0640 /var/ossec/framework/python/lib/pkgconfig/python3.pc
 
     ;;
 

@@ -16,12 +16,10 @@ case "$1" in
 
       if [ -n "$(ps -e | grep -E ^\ *1\ .*systemd$)" ]; then
         systemctl stop wazuh-manager
-        systemctl stop wazuh-api
       fi
 
       if [ -n "$(ps -e | grep -E ^\ *1\ .*init$)" ]; then
         service wazuh-manager stop
-        service wazuh-api stop
       fi
 
       if [ -f ${DIR}/bin/ossec-control ]; then
