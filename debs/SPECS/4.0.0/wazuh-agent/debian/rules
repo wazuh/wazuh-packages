@@ -58,9 +58,8 @@ override_dh_install:
 	USER_AUTO_START="n" \
 	./install.sh
 
-	# Copying debian & ubuntu OSCAP xml files
-	install -v -m 0640 -o root -g ossec wodles/oscap/content/*debian*.xml $(INSTALLATION_DIR)/wodles/oscap/content/
-	install -v -m 0640 -o root -g ossec wodles/oscap/content/*ubuntu*.xml $(INSTALLATION_DIR)/wodles/oscap/content/
+	# Remove OpenSCAP policies
+	rm -rf $(INSTALLATION_DIR)/wodles/oscap/content/*
 
 	# Copying init.d script
 	mkdir -p ${TARGET_DIR}/etc/init.d/

@@ -8,11 +8,10 @@ WAZUH_TMP_DIR="${DIR}/packages_files/manager_config_files"
 case "$1" in
     remove|failed-upgrade|abort-install|abort-upgrade|disappear)
 
-    # Fix for forcing the stop of the api
     if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
-            systemctl stop wazuh-api > /dev/null 2>&1
-            systemctl disable wazuh-api > /dev/null 2>&1
-            systemctl daemon-reload > /dev/null 2>&1
+        systemctl stop wazuh-api > /dev/null 2>&1
+        systemctl disable wazuh-api > /dev/null 2>&1
+        systemctl daemon-reload > /dev/null 2>&1
     fi
 
     if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
@@ -34,8 +33,6 @@ case "$1" in
     if [ -d ${WAZUH_TMP_DIR} ]; then
         rm -rf ${WAZUH_TMP_DIR}
     fi
-
-
 
     if [ -d /run/systemd/system ] ; then
         systemctl disable wazuh-manager > /dev/null 2>&1

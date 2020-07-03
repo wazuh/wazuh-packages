@@ -56,7 +56,7 @@ echo 'USER_DELETE_DIR="y"' >> ./etc/preloaded-vars.conf
 echo 'USER_ENABLE_ACTIVE_RESPONSE="y"' >> ./etc/preloaded-vars.conf
 echo 'USER_ENABLE_SYSCHECK="y"' >> ./etc/preloaded-vars.conf
 echo 'USER_ENABLE_ROOTCHECK="y"' >> ./etc/preloaded-vars.conf
-echo 'USER_ENABLE_OPENSCAP="y"' >> ./etc/preloaded-vars.conf
+echo 'USER_ENABLE_OPENSCAP="n"' >> ./etc/preloaded-vars.conf
 echo 'USER_ENABLE_CISCAT="y"' >> ./etc/preloaded-vars.conf
 echo 'USER_ENABLE_SYSCOLLECTOR="y"' >> ./etc/preloaded-vars.conf
 echo 'USER_UPDATE="n"' >> ./etc/preloaded-vars.conf
@@ -88,6 +88,7 @@ install -m 0640 wodles/oscap/content/*redhat* ${RPM_BUILD_ROOT}%{_localstatedir}
 install -m 0640 wodles/oscap/content/*rhel* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 install -m 0640 wodles/oscap/content/*centos* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
 install -m 0640 wodles/oscap/content/*fedora* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
+
 
 # Install Vulnerability Detector files
 install -m 0440 src/wazuh_modules/vulnerability_detector/*.json ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/queue/vulnerabilities/dictionaries
@@ -172,7 +173,6 @@ cp -r src/systemd/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/packages_files/mana
 if [ %{_debugenabled} == "yes" ]; then
   %{_rpmconfigdir}/find-debuginfo.sh
 fi
-
 exit 0
 %pre
 
@@ -261,7 +261,6 @@ fi
 if [ -f /etc/init.d/ossec ]; then
   rm /etc/init.d/ossec
 fi
-
 # Execute this if only when installing the package
 if [ $1 = 1 ]; then
   if [ -f %{_localstatedir}/ossec/etc/ossec.conf ]; then
@@ -522,7 +521,9 @@ if [ -r ${SCA_TMP_FILE} ] && [ -r ${SCA_BASE_DIR}/generic/sca.manager.files ]; t
   rm -f %{_localstatedir}/ossec/ruleset/sca/* || true
 
   for sca_file in $(cat ${SCA_TMP_FILE}); do
-    mv ${SCA_BASE_DIR}/${sca_file} %{_localstatedir}/ossec/ruleset/sca
+    if [ -f ${SCA_BASE_DIR}/${sca_file} ]; then
+      mv ${SCA_BASE_DIR}/${sca_file} %{_localstatedir}/ossec/ruleset/sca
+    fi
   done
 
   for sca_file in $(cat ${SCA_BASE_DIR}/generic/sca.manager.files); do
@@ -557,6 +558,42 @@ for rules_file in ${OLD_RULES}; do
   fi
 done
 
+if [ $1 = 2 ]; then
+  # Remove OpenSCAP policies if the module is disabled
+  if stat %{_localstatedir}/ossec/wodles/oscap/content/* > /dev/null ; then
+    if grep -E -n '<wodle.*name="open-scap".*>' %{_localstatedir}/ossec/etc/ossec.conf > /dev/null ; then
+      is_disabled="no"
+    else
+      is_disabled="yes"
+    fi
+
+    end_config_limit="99999999"
+    for start_config in $(grep -E -n '<wodle.*name="open-scap".*>'  %{_localstatedir}/ossec/etc/ossec.conf | cut -d':' -f 1); do
+      end_config="$(sed -n "${start_config},${end_config_limit}p"  %{_localstatedir}/ossec/etc/ossec.conf | sed -n '/open-scap/,$p' | grep -n '</wodle>' | head -n 1 | cut -d':' -f 1)"
+      end_config="$((start_config + end_config))"
+
+      if [ -n "${start_config}" ] && [ -n "${end_config}" ]; then
+        open_scap_conf="$(sed -n "${start_config},${end_config}p"  %{_localstatedir}/ossec/etc/ossec.conf)"
+
+        for line in $(echo ${open_scap_conf} | grep -n '<disabled>' | cut -d':' -f 1); do
+          # Check if OpenSCAP is enabled
+          if echo ${open_scap_conf} | sed -n ${line}p | grep "disabled>no" > /dev/null ; then
+            is_disabled="no"
+
+          # Check if OpenSCAP is disabled
+          elif echo ${open_scap_conf} | sed -n ${line}p | grep "disabled>yes" > /dev/null; then
+            is_disabled="yes"
+          fi
+        done
+      fi
+    done
+
+    if [ "${is_disabled}" = "yes" ]; then
+        rm -f %{_localstatedir}/ossec/wodles/oscap/content/*
+    fi
+  fi
+fi
+
 # Delete the installation files used to configure the manager
 rm -rf %{_localstatedir}/ossec/packages_files
 
@@ -565,6 +602,7 @@ rm -f %{_localstatedir}/ossec/etc/shared/default/*.rpmnew
 
 # Install Wazuh-API service
 . %{_localstatedir}/ossec/api/service/install_daemon.sh
+
 
 if %{_localstatedir}/ossec/bin/ossec-logtest 2>/dev/null ; then
   /sbin/service wazuh-manager restart > /dev/null 2>&1
@@ -637,7 +675,6 @@ if [ $1 = 0 ]; then
   chkconfig --del wazuh-api
   rm -f /etc/rc.d/init.d/wazuh-api || true
 fi
-
 
 %postun
 
@@ -753,8 +790,8 @@ rm -fr %{buildroot}
 %attr(750, root, ossec) %{_localstatedir}/ossec/bin/agent_groups
 %attr(750, root, ossec) %{_localstatedir}/ossec/bin/agent_upgrade
 %attr(750, root, root) %{_localstatedir}/ossec/bin/clear_stats
-%attr(750, root, root) %{_localstatedir}/ossec/bin/configure_api
 %attr(750, root, ossec) %{_localstatedir}/ossec/bin/cluster_control
+%attr(750, root, root) %{_localstatedir}/ossec/bin/configure_api
 %attr(750, root, root) %{_localstatedir}/ossec/bin/manage_agents
 %attr(750, root, root) %{_localstatedir}/ossec/bin/migration
 %attr(750, root, root) %{_localstatedir}/ossec/bin/ossec-agentlessd
@@ -828,8 +865,8 @@ rm -fr %{buildroot}
 %attr(750, root, ossec) %{_localstatedir}/ossec/lib/libwazuhext.so
 %{_localstatedir}/ossec/lib/libpython3.8.so.1.0
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/logs
-%attr(660, ossec, ossec) %ghost %{_localstatedir}/ossec/logs/api.log
 %attr(660, ossec, ossec)  %ghost %{_localstatedir}/ossec/logs/active-responses.log
+%attr(660, ossec, ossec) %ghost %{_localstatedir}/ossec/logs/api.log
 %attr(640, ossecm, ossec) %ghost %{_localstatedir}/ossec/logs/integrations.log
 %attr(660, ossec, ossec) %ghost %{_localstatedir}/ossec/logs/ossec.log
 %attr(660, ossec, ossec) %ghost %{_localstatedir}/ossec/logs/ossec.json
@@ -956,8 +993,8 @@ rm -fr %{buildroot}
 %attr(640, root, ossec) %config(missingok) %{_localstatedir}/ossec/tmp/sca-%{version}-%{release}-tmp/windows/*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/var
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/var/db
-%attr(660, root, ossec) %{_localstatedir}/ossec/var/db/mitre.db
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/var/db/agents
+%attr(660, root, ossec) %{_localstatedir}/ossec/var/db/mitre.db
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/var/download
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/var/multigroups
 %dir %attr(770, root, ossec) %{_localstatedir}/ossec/var/run
@@ -979,7 +1016,7 @@ rm -fr %{buildroot}
 %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/oscap.*
 %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/template*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/wodles/oscap/content
-%attr(640, root, ossec) %{_localstatedir}/ossec/wodles/oscap/content/*
+%attr(640, root, ossec) %ghost %{_localstatedir}/ossec/wodles/oscap/content/*
 
 %{_initrddir}/*
 %if %{_debugenabled} == "yes"
@@ -989,7 +1026,7 @@ rm -fr %{buildroot}
 
 
 %changelog
-* Tue Jun 16 2020 support <info@wazuh.com> - 4.0.0
+* Sun Aug 02 2020 support <info@wazuh.com> - 4.0.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Tue May 19 2020 support <info@wazuh.com> - 3.13.0
 - More info: https://documentation.wazuh.com/current/release-notes/
