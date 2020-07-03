@@ -14,6 +14,7 @@ Requires(post):   /sbin/chkconfig
 Requires(preun):  /sbin/chkconfig /sbin/service
 Requires(postun): /sbin/service /usr/sbin/groupdel /usr/sbin/userdel
 Conflicts:   ossec-hids ossec-hids-agent wazuh-agent wazuh-local
+Obsoletes: wazuh-api
 AutoReqProv: no
 
 Requires: coreutils
@@ -81,10 +82,6 @@ install -m 0755 src/init/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh
 
 # Clean the preinstalled configuration assesment files
 rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/ruleset/sca/*
-
-# Install frameworks sqlite lib
-install -o root -g ossec -m 0750 -d ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/lib
-install -o root -g ossec -m 0640 framework/libsqlite3.so.0 ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/lib/
 
 # Install oscap files
 install -m 0640 wodles/oscap/content/*redhat* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/wodles/oscap/content
@@ -179,6 +176,18 @@ fi
 exit 0
 %pre
 
+# Wazuh API is installed
+if [ -e %{_localstatedir}/ossec/api ]; then
+  # Stop API's services
+  if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
+    systemctl stop wazuh-api.service > /dev/null
+  elif [ -x /etc/rc.d/init.d/wazuh-api ] ; then
+    /etc/rc.d/init.d/wazuh-api stop > /dev/null
+  elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
+    /etc/init.d/wazuh-api stop > /dev/null
+  fi
+fi
+
 # Stop Authd if it is running
 if ps aux | grep %{_localstatedir}/ossec/bin/ossec-authd | grep -v grep > /dev/null 2>&1; then
    kill `ps -ef | grep '%{_localstatedir}/ossec/bin/ossec-authd' | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
@@ -241,6 +250,11 @@ if [ $1 = 2 ]; then
   elif [ $MAJOR = 3 ] && [ $MINOR = 9 ]; then
     find %{_localstatedir}/ossec/ruleset/sca -type f > %{_localstatedir}/ossec/old_sca.files
   fi
+
+  # Delete old API backups
+  if [ -e %{_localstatedir}/ossec/~api ]; then
+    rm -rf %{_localstatedir}/ossec/~api
+  fi
 fi
 
 # Delete old service
@@ -268,6 +282,21 @@ if [ $1 = 2 ]; then
       rm -f  %{_localstatedir}/ossec/etc/shared/default/ar.conf || true
     fi
 fi
+
+# Delete 3.X Wazuh API service
+if [ $MAJOR = 3 ] && [ -e %{_localstatedir}/ossec/api ]; then
+  if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
+    systemctl disable wazuh-api.service > /dev/null
+    rm -f /etc/systemd/system/wazuh-api.service
+  fi
+
+  if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
+    chkconfig wazuh-api off
+    chkconfig --del wazuh-api
+    rm -f /etc/rc.d/init.d/wazuh-api || true
+  fi
+fi
+
 %post
 
 # If the package is being installed
@@ -571,8 +600,13 @@ rm -rf %{_localstatedir}/ossec/packages_files
 # Remove unnecessary files from default group
 rm -f %{_localstatedir}/ossec/etc/shared/default/*.rpmnew
 
+# Install Wazuh-API service
+. %{_localstatedir}/ossec/api/service/install_daemon.sh
+
+
 if %{_localstatedir}/ossec/bin/ossec-logtest 2>/dev/null ; then
   /sbin/service wazuh-manager restart > /dev/null 2>&1
+  /sbin/service wazuh-api restart > /dev/null 2>&1
 else
   echo "================================================================================================================"
   echo "Something in your actual rules configuration is wrong, please review your configuration and restart the service."
@@ -635,6 +669,11 @@ if [ $1 = 0 ]; then
   # Remove SCA files
   rm -f %{_localstatedir}/ossec/ruleset/sca/*
 
+  # Remove Wazuh API service
+  /etc/init.d/wazuh-api stop > /dev/null
+  chkconfig wazuh-api off
+  chkconfig --del wazuh-api
+  rm -f /etc/rc.d/init.d/wazuh-api || true
 fi
 
 %postun
@@ -677,6 +716,7 @@ if [ $1 == 0 ];then
   # Remove lingering folders and files
   rm -rf %{_localstatedir}/ossec/queue/
   rm -rf %{_localstatedir}/ossec/framework/
+  rm -rf %{_localstatedir}/ossec/api/
   rm -rf %{_localstatedir}/ossec/stats/
   rm -rf %{_localstatedir}/ossec/var/
   rm -rf %{_localstatedir}/ossec/bin/
@@ -732,6 +772,15 @@ rm -fr %{buildroot}
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/active-response
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/active-response/bin
 %attr(750, root, ossec) %{_localstatedir}/ossec/active-response/bin/*
+%dir %attr(750, root, ossec) %{_localstatedir}/ossec/api
+%dir %attr(750, root, ossec) %config(noreplace) %{_localstatedir}/ossec/api/configuration
+%attr(640, root, ossec) %config(noreplace) %{_localstatedir}/ossec/api/configuration/api.yaml
+%dir %attr(770, root, ossec) %config(noreplace) %{_localstatedir}/ossec/api/configuration/security
+%dir %attr(770, root, ossec) %config(noreplace) %{_localstatedir}/ossec/api/configuration/ssl
+%dir %attr(750, root, ossec) %config(noreplace) %{_localstatedir}/ossec/api/scripts
+%attr(750, root, ossec) %{_localstatedir}/ossec/api/scripts/wazuh-apid.py
+%dir %attr(750, root, ossec) %config(noreplace) %{_localstatedir}/ossec/api/service
+%attr(750, root, ossec) %{_localstatedir}/ossec/api/service/*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/backup
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/backup/agents
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/backup/groups
@@ -742,7 +791,9 @@ rm -fr %{buildroot}
 %attr(750, root, ossec) %{_localstatedir}/ossec/bin/agent_upgrade
 %attr(750, root, root) %{_localstatedir}/ossec/bin/clear_stats
 %attr(750, root, ossec) %{_localstatedir}/ossec/bin/cluster_control
+%attr(750, root, root) %{_localstatedir}/ossec/bin/configure_api
 %attr(750, root, root) %{_localstatedir}/ossec/bin/manage_agents
+%attr(750, root, root) %{_localstatedir}/ossec/bin/migration
 %attr(750, root, root) %{_localstatedir}/ossec/bin/ossec-agentlessd
 %attr(750, root, root) %{_localstatedir}/ossec/bin/ossec-analysisd
 %attr(750, root, root) %{_localstatedir}/ossec/bin/ossec-authd
@@ -766,6 +817,7 @@ rm -fr %{buildroot}
 %attr(750, root, ossec) %{_localstatedir}/ossec/bin/update_ruleset
 %attr(750, root, root) %{_localstatedir}/ossec/bin/util.sh
 %attr(750, root, ossec) %{_localstatedir}/ossec/bin/verify-agent-conf
+%attr(750, root, ossec) %{_localstatedir}/ossec/bin/wazuh-apid
 %attr(750, root, ossec) %{_localstatedir}/ossec/bin/wazuh-clusterd
 %attr(750, root, root) %{_localstatedir}/ossec/bin/wazuh-db
 %attr(750, root, root) %{_localstatedir}/ossec/bin/wazuh-modulesd
@@ -796,17 +848,17 @@ rm -fr %{buildroot}
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/lib
 %attr(750, root, ossec) %{_localstatedir}/ossec/framework/lib/libsqlite3.so.0
-%dir %attr(0750, root, ossec) %{_localstatedir}/ossec/framework/python
+%dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/python
 %{_localstatedir}/ossec/framework/python/*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/scripts
 %attr(640, root, ossec) %{_localstatedir}/ossec/framework/scripts/*.py
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/wazuh
 %attr(640, root, ossec) %{_localstatedir}/ossec/framework/wazuh/*.py
-%dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/wazuh/cluster
-%attr(640, root, ossec) %{_localstatedir}/ossec/framework/wazuh/cluster/*.py
-%attr(640, root, ossec) %{_localstatedir}/ossec/framework/wazuh/cluster/*.json
-%dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/wazuh/cluster/dapi
-%attr(640, root, ossec) %{_localstatedir}/ossec/framework/wazuh/cluster/dapi/*.py
+%dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/wazuh/core/cluster
+%attr(640, root, ossec) %{_localstatedir}/ossec/framework/wazuh/core/cluster/*.py
+%attr(640, root, ossec) %{_localstatedir}/ossec/framework/wazuh/core/cluster/*.json
+%dir %attr(750, root, ossec) %{_localstatedir}/ossec/framework/wazuh/core/cluster/dapi
+%attr(640, root, ossec) %{_localstatedir}/ossec/framework/wazuh/core/cluster/dapi/*.py
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/integrations
 %attr(750, root, ossec) %{_localstatedir}/ossec/integrations/*
 %dir %attr(750, root, ossec) %{_localstatedir}/ossec/lib
@@ -814,6 +866,7 @@ rm -fr %{buildroot}
 %{_localstatedir}/ossec/lib/libpython3.8.so.1.0
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/logs
 %attr(660, ossec, ossec)  %ghost %{_localstatedir}/ossec/logs/active-responses.log
+%attr(660, ossec, ossec) %ghost %{_localstatedir}/ossec/logs/api.log
 %attr(640, ossecm, ossec) %ghost %{_localstatedir}/ossec/logs/integrations.log
 %attr(660, ossec, ossec) %ghost %{_localstatedir}/ossec/logs/ossec.log
 %attr(660, ossec, ossec) %ghost %{_localstatedir}/ossec/logs/ossec.json
@@ -975,7 +1028,9 @@ rm -fr %{buildroot}
 %changelog
 * Sun Aug 02 2020 support <info@wazuh.com> - 4.0.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Thu May 14 2020 support <info@wazuh.com> - 3.13.0
+* Tue May 19 2020 support <info@wazuh.com> - 3.13.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Wed May 13 2020 support <info@wazuh.com> - 3.12.3
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Thu Apr 9 2020 support <info@wazuh.com> - 3.12.2
 - More info: https://documentation.wazuh.com/current/release-notes/

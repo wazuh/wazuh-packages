@@ -180,6 +180,15 @@ override_dh_install:
 
 	cp src/systemd/wazuh-manager.service ${TARGET_DIR}/etc/systemd/system/
 
+	# Make API directory
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/api
+
+	# Copy API service files
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/api/service
+	cp -p api/service/wazuh-api ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/api/service
+	cp -p api/service/wazuh-api.service ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/api/service
+	cp -p api/service/install_daemon.sh ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/api/service
+
 
 
 override_dh_auto_clean:
