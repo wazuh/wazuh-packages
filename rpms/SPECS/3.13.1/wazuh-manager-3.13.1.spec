@@ -531,8 +531,8 @@ done
 
 if [ $1 = 2 ]; then
   # Remove OpenSCAP policies if the module is disabled
-  if stat %{_localstatedir}/ossec/wodles/oscap/content/* > /dev/null ; then
-    if grep -E -n '<wodle.*name="open-scap".*>' %{_localstatedir}/ossec/etc/ossec.conf > /dev/null ; then
+  if stat %{_localstatedir}/ossec/wodles/oscap/content/* > /dev/null 2>&1; then
+    if grep -E -n '<wodle.*name="open-scap".*>' %{_localstatedir}/ossec/etc/ossec.conf > /dev/null 2>&1; then
       is_disabled="no"
     else
       is_disabled="yes"
@@ -548,11 +548,11 @@ if [ $1 = 2 ]; then
 
         for line in $(echo ${open_scap_conf} | grep -n '<disabled>' | cut -d':' -f 1); do
           # Check if OpenSCAP is enabled
-          if echo ${open_scap_conf} | sed -n ${line}p | grep "disabled>no" > /dev/null ; then
+          if echo ${open_scap_conf} | sed -n ${line}p | grep "disabled>no" > /dev/null 2>&1; then
             is_disabled="no"
 
           # Check if OpenSCAP is disabled
-          elif echo ${open_scap_conf} | sed -n ${line}p | grep "disabled>yes" > /dev/null; then
+          elif echo ${open_scap_conf} | sed -n ${line}p | grep "disabled>yes" > /dev/null 2>&1; then
             is_disabled="yes"
           fi
         done
