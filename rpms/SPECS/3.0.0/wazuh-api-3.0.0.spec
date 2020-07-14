@@ -34,27 +34,27 @@ rm -fr %{buildroot}
 
 mkdir -p ${RPM_BUILD_ROOT}%{_initrddir}
 #Folders
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/{configuration,controllers,examples,helpers,models,scripts}
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/configuration/{auth,ssl}
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/node_modules
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/api
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/api/{configuration,controllers,examples,helpers,models,scripts}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/api/configuration/{auth,ssl}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/api/node_modules
 #Files
-install -m 0400 package.json ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api
-install -m 0500 app.js ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api
-install -m 0500 configuration/config.js ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/configuration
-install -m 0500 configuration/preloaded_vars.conf ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/configuration
-install -m 0500 configuration/auth/user  ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/configuration/auth
-install -m 0500 controllers/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/controllers
-install -m 0500 examples/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/examples
-install -m 0500 helpers/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/helpers
-install -m 0500 models/*  ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/models
-install -m 0500 scripts/bump_version.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/scripts
-install -m 0500 scripts/configure_api.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/scripts
-install -m 0500 scripts/install_daemon.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/scripts
-install -m 0400 scripts/wazuh-api ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/scripts
-install -m 0400 scripts/wazuh-api.service  ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/scripts
+install -m 0400 package.json ${RPM_BUILD_ROOT}%{_localstatedir}/api
+install -m 0500 app.js ${RPM_BUILD_ROOT}%{_localstatedir}/api
+install -m 0500 configuration/config.js ${RPM_BUILD_ROOT}%{_localstatedir}/api/configuration
+install -m 0500 configuration/preloaded_vars.conf ${RPM_BUILD_ROOT}%{_localstatedir}/api/configuration
+install -m 0500 configuration/auth/user  ${RPM_BUILD_ROOT}%{_localstatedir}/api/configuration/auth
+install -m 0500 controllers/* ${RPM_BUILD_ROOT}%{_localstatedir}/api/controllers
+install -m 0500 examples/* ${RPM_BUILD_ROOT}%{_localstatedir}/api/examples
+install -m 0500 helpers/* ${RPM_BUILD_ROOT}%{_localstatedir}/api/helpers
+install -m 0500 models/*  ${RPM_BUILD_ROOT}%{_localstatedir}/api/models
+install -m 0500 scripts/bump_version.sh ${RPM_BUILD_ROOT}%{_localstatedir}/api/scripts
+install -m 0500 scripts/configure_api.sh ${RPM_BUILD_ROOT}%{_localstatedir}/api/scripts
+install -m 0500 scripts/install_daemon.sh ${RPM_BUILD_ROOT}%{_localstatedir}/api/scripts
+install -m 0400 scripts/wazuh-api ${RPM_BUILD_ROOT}%{_localstatedir}/api/scripts
+install -m 0400 scripts/wazuh-api.service  ${RPM_BUILD_ROOT}%{_localstatedir}/api/scripts
 
-cp -r node_modules/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api/node_modules/
+cp -r node_modules/* ${RPM_BUILD_ROOT}%{_localstatedir}/api/node_modules/
 
 cp CHANGELOG.md CHANGELOG
 
@@ -62,8 +62,8 @@ exit 0
 %pre
 
 if [ $1 = 1 ]; then
-  API_PATH="${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api"
-  API_PATH_BACKUP="${RPM_BUILD_ROOT}%{_localstatedir}/ossec/~api"
+  API_PATH="${RPM_BUILD_ROOT}%{_localstatedir}/api"
+  API_PATH_BACKUP="${RPM_BUILD_ROOT}%{_localstatedir}/~api"
 
   if [ -e ${API_PATH} ]; then
     if [ -e ${API_PATH_BACKUP} ]; then
@@ -144,30 +144,30 @@ rm -fr %{buildroot}
 %files
 %defattr(-,root,root)
 %doc CHANGELOG
-%attr(750,root,ossec) %dir %{_localstatedir}/ossec/api
-%attr(750,root,ossec) %config(noreplace) %dir %{_localstatedir}/ossec/api/configuration
-%attr(750,root,ossec) %dir %{_localstatedir}/ossec/api/controllers
-%attr(750,root,ossec) %dir %{_localstatedir}/ossec/api/examples
-%attr(750,root,ossec) %dir %{_localstatedir}/ossec/api/helpers
-%attr(750,root,ossec) %dir %{_localstatedir}/ossec/api/models
-%attr(750,root,root) %dir %{_localstatedir}/ossec/api/scripts
-%attr(750,root,root) %config(noreplace) %dir %{_localstatedir}/ossec/api/configuration/auth
-%attr(750,root,root) %config(noreplace) %dir %{_localstatedir}/ossec/api/configuration/ssl
-%attr(750,root,ossec) %dir %{_localstatedir}/ossec/api/node_modules
+%attr(750,root,ossec) %dir %{_localstatedir}/api
+%attr(750,root,ossec) %config(noreplace) %dir %{_localstatedir}/api/configuration
+%attr(750,root,ossec) %dir %{_localstatedir}/api/controllers
+%attr(750,root,ossec) %dir %{_localstatedir}/api/examples
+%attr(750,root,ossec) %dir %{_localstatedir}/api/helpers
+%attr(750,root,ossec) %dir %{_localstatedir}/api/models
+%attr(750,root,root) %dir %{_localstatedir}/api/scripts
+%attr(750,root,root) %config(noreplace) %dir %{_localstatedir}/api/configuration/auth
+%attr(750,root,root) %config(noreplace) %dir %{_localstatedir}/api/configuration/ssl
+%attr(750,root,ossec) %dir %{_localstatedir}/api/node_modules
 
-%attr(640,root,ossec) %{_localstatedir}/ossec/api/package.json
-%attr(750,root,ossec) %{_localstatedir}/ossec/api/app.js
-%attr(740,root,ossec) %config(noreplace) %{_localstatedir}/ossec/api/configuration/config.js
-%attr(750,root,root) %{_localstatedir}/ossec/api/configuration/preloaded_vars.conf
-%attr(750,root,root) %config(noreplace) %{_localstatedir}/ossec/api/configuration/auth/user
-%attr(750,root,ossec) %{_localstatedir}/ossec/api/controllers/*
-%attr(750,root,ossec) %{_localstatedir}/ossec/api/examples/*
-%attr(750,root,ossec) %{_localstatedir}/ossec/api/helpers/*
-%attr(750,root,ossec) %{_localstatedir}/ossec/api/models/*
-%attr(750,root,root) %{_localstatedir}/ossec/api/scripts/*.sh
-%attr(640,root,root) %{_localstatedir}/ossec/api/scripts/wazuh-api
-%attr(640,root,root) %{_localstatedir}/ossec/api/scripts/wazuh-api.service
-%attr(750,ossec,ossec) %{_localstatedir}/ossec/api/node_modules/*
+%attr(640,root,ossec) %{_localstatedir}/api/package.json
+%attr(750,root,ossec) %{_localstatedir}/api/app.js
+%attr(740,root,ossec) %config(noreplace) %{_localstatedir}/api/configuration/config.js
+%attr(750,root,root) %{_localstatedir}/api/configuration/preloaded_vars.conf
+%attr(750,root,root) %config(noreplace) %{_localstatedir}/api/configuration/auth/user
+%attr(750,root,ossec) %{_localstatedir}/api/controllers/*
+%attr(750,root,ossec) %{_localstatedir}/api/examples/*
+%attr(750,root,ossec) %{_localstatedir}/api/helpers/*
+%attr(750,root,ossec) %{_localstatedir}/api/models/*
+%attr(750,root,root) %{_localstatedir}/api/scripts/*.sh
+%attr(640,root,root) %{_localstatedir}/api/scripts/wazuh-api
+%attr(640,root,root) %{_localstatedir}/api/scripts/wazuh-api.service
+%attr(750,ossec,ossec) %{_localstatedir}/api/node_modules/*
 %changelog
 * Fri May 26 2017 support <support@wazuh.com> - 2.0.1
 - Issue when basic-auth is disabled.
