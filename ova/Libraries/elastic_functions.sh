@@ -80,6 +80,7 @@ configure_kibana(){
 
     # Allow Kibana to listen on port 443
     setcap 'CAP_NET_BIND_SERVICE=+eip' ${usr_kibana}/node/bin/node
+    cp -f ${config_files}/kibana.service /etc/systemd/system/kibana.service
 
     # Configuring Kibana default settings
     cp -f ${config_files}/kibana  /etc/default/kibana
