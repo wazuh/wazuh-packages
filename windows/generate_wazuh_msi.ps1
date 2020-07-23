@@ -13,7 +13,7 @@ $MSI_NAME = ""
 $VERSION = ""
 $CANDLE_EXE = "candle.exe"
 $LIGHT_EXE = "light.exe"
-$SIGNTOOL_EXE = "signtool.exe"
+$SIGNTOOL_EXE = "DigiCertUtil.exe"
 
 if(($help.isPresent)) {
     "
@@ -73,9 +73,9 @@ function BuildWazuhMsi(){
     if($SIGN -eq "yes"){
         # Sign .exe files and the InstallerScripts.vbs
         Write-Host "Signing .exe files..."
-        & $SIGNTOOL_EXE sign /a /tr http://rfc3161timestamp.globalsign.com/advanced /td SHA256 ".\*.exe"
+        & $SIGNTOOL_EXE sign /noInput /kernelDriverSigning ".\*.exe"
         Write-Host "Signing .vbs files..."
-        & $SIGNTOOL_EXE sign /a /tr http://rfc3161timestamp.globalsign.com/advanced /td SHA256 ".\InstallerScripts.vbs"
+        & $SIGNTOOL_EXE sign /noInput /kernelDriverSigning ".\InstallerScripts.vbs"
     }
 
     Write-Host "Building MSI installer..."
@@ -85,7 +85,7 @@ function BuildWazuhMsi(){
 
     if($SIGN -eq "yes"){
         Write-Host "Signing $MSI_NAME..."
-        & $SIGNTOOL_EXE sign /a /tr http://rfc3161timestamp.globalsign.com/advanced /d $MSI_NAME /td SHA256 $MSI_NAME
+        & $SIGNTOOL_EXE sign /noInput /kernelDriverSigning $MSI_NAME
     }
 }
 
