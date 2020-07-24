@@ -73,9 +73,9 @@ function BuildWazuhMsi(){
     if($SIGN -eq "yes"){
         # Sign .exe files and the InstallerScripts.vbs
         Write-Host "Signing .exe files..."
-        & $SIGNTOOL_EXE sign /noInput /kernelDriverSigning ".\*.exe"
+        & $SIGNTOOL_EXE sign /noInput ".\*.exe"
         Write-Host "Signing .vbs files..."
-        & $SIGNTOOL_EXE sign /noInput /kernelDriverSigning ".\InstallerScripts.vbs"
+        & $SIGNTOOL_EXE sign /noInput ".\InstallerScripts.vbs"
     }
 
     Write-Host "Building MSI installer..."
@@ -85,7 +85,7 @@ function BuildWazuhMsi(){
 
     if($SIGN -eq "yes"){
         Write-Host "Signing $MSI_NAME..."
-        & $SIGNTOOL_EXE sign /noInput /kernelDriverSigning $MSI_NAME
+        & $SIGNTOOL_EXE sign /noInput $MSI_NAME
     }
 }
 
