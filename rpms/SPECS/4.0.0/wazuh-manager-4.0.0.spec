@@ -874,6 +874,7 @@ rm -fr %{buildroot}
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/queue/fts
 %dir %attr(770, ossecr, ossec) %{_localstatedir}/ossec/queue/rids
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/queue/rootcheck
+%dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/queue/tasks
 %dir %attr(770, ossec, ossec) %{_localstatedir}/ossec/queue/ossec
 %dir %attr(660, root, ossec) %{_localstatedir}/ossec/queue/vulnerabilities
 %dir %attr(440, root, ossec) %{_localstatedir}/ossec/queue/vulnerabilities/dictionaries
