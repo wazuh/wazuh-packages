@@ -19,9 +19,9 @@ libraries_files="/vagrant/Libraries/"
 
 cp ${libraries_files}/"automatic_set_ram.sh" ${automatic_set_ram_location}
 chmod +x "${automatic_set_ram_location}/${automatic_set_ram}"
-echo "@reboot . /etc/automatic_set_ram.sh" >> mycron
-crontab mycron
-rm -rf mycron
+echo "@reboot . /etc/automatic_set_ram.sh" >> ram_cron
+crontab ram_cron
+rm -rf ram_cron
 
 # Setting wazuh default root password
 yes wazuh | passwd root
