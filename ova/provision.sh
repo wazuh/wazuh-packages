@@ -10,9 +10,18 @@ DIRECTORY=$4
 ELK_MAJOR=`echo ${ELK_VERSION}|cut -d"." -f1`
 ELK_MINOR=`echo ${ELK_VERSION}|cut -d"." -f2`
 config_files="/vagrant/Config_files"
+automatic_set_ram_location="/etc/"
+libraries_files="/vagrant/Libraries/"
 
-. /vagrant/Libraries/wazuh_functions.sh
-. /vagrant/Libraries/elastic_functions.sh
+
+. ${libraries_files}wazuh_functions.sh
+. ${libraries_files}elastic_functions.sh
+
+cp ${libraries_files}/"automatic_set_ram.sh" ${automatic_set_ram_location}
+chmod +x "${automatic_set_ram_location}/${automatic_set_ram}"
+echo "@reboot . /etc/automatic_set_ram.sh" >> mycron
+crontab mycron
+rm -rf mycron
 
 # Setting wazuh default root password
 yes wazuh | passwd root
