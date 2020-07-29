@@ -5,22 +5,16 @@ usr_kibana="/usr/share/kibana"
 RAW_TEMPLATE_URL1="https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSION}/extensions/elasticsearch/wazuh-elastic6-template-alerts.json"
 RAW_TEMPLATE_URL2="https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSION}/extensions/elasticsearch/${ELK_MAJOR}.x/wazuh-template.json"
 
-set_elastic_repository(){
-
-    rpm --import https://packages.elastic.co/GPG-KEY-elasticsearch
-    echo -e "[elasticsearch-${ELK_MAJOR}.x]\nname=Elasticsearch repository for ${ELK_MAJOR}.x packages\nbaseurl=https://artifacts.elastic.co/packages/${ELK_MAJOR}.x/yum\ngpgcheck=1\ngpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch\nenabled=1\nautorefresh=1\ntype=rpm-md" | tee -a /etc/yum.repos.d/elastic.repo
-}
-
 install_elasticsearch(){
 
-    yum install elasticsearch-${ELK_VERSION} -y
+    yum install https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-oss-${ELK_VERSION}-x86_64.rpm -y
     systemctl daemon-reload
     systemctl enable elasticsearch.service
 }
 
 install_filebeat_7(){
 
-    yum install filebeat-${ELK_VERSION} -y
+    yum install https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-oss-${ELK_VERSION}-x86_64.rpm -y
     cp -f ${config_files}/filebeat.yml ${etc_filebeat}/filebeat.yml
 
     sed -i "s/YOUR_ELASTIC_SERVER_IP/localhost/" ${etc_filebeat}/filebeat.yml
@@ -69,7 +63,7 @@ configure_limitMEMLOCK(){
 
 install_kibana(){
 
-    yum install kibana-${ELK_VERSION} -y
+    yum install https://artifacts.elastic.co/downloads/kibana/kibana-oss-${ELK_VERSION}-x86_64.rpm -y
 }
 
 configure_kibana(){
@@ -223,7 +217,6 @@ disable_repos_and_clean(){
 }
 elastic_stack_6(){
 
-    set_elastic_repository
     install_jdk_6
     install_elasticsearch
     configure_elasticsearch
@@ -242,7 +235,6 @@ elastic_stack_6(){
 
 elastic_stack_7(){
 
-    set_elastic_repository
     install_filebeat_7
     install_elasticsearch
     configure_elasticsearch
