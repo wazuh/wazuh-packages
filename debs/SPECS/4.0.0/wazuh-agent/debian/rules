@@ -61,6 +61,9 @@ override_dh_install:
 	# Remove OpenSCAP policies
 	rm -rf $(INSTALLATION_DIR)/wodles/oscap/content/*
 
+	# Install auto-deploy script in bin
+	install -m 0750 src/init/register_configure_agent.sh $(INSTALLATION_DIR)/bin
+
 	# Copying init.d script
 	mkdir -p ${TARGET_DIR}/etc/init.d/
 	cp src/init/ossec-hids-debian.init ${TARGET_DIR}/etc/init.d/wazuh-agent
