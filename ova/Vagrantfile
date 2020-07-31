@@ -7,8 +7,8 @@ Vagrant.configure("2") do |config|
 
   config.vm.provider "virtualbox" do |vb|
     vb.name = "vm_wazuh"
-    vb.memory = "4096"
+    vb.memory = "5120"
     vb.cpus = "4"
   end
-  config.vm.provision :shell, path: "provision.sh", :args => "#{ENV['OVA_WAZUH_VERSION']} #{ENV['OVA_ELK_VERSION']}  #{ENV['STATUS_PACKAGES']} #{ENV['DIRECTORY']}"
+  config.vm.provision :shell, path: "provision.sh", :args => "-d"
 end
