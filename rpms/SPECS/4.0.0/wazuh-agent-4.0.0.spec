@@ -86,6 +86,7 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.ssh
 cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
 install -m 0640 ossec-init.conf ${RPM_BUILD_ROOT}%{_sysconfdir}
 install -m 0755 src/init/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-agent
+install -m 0750 src/init/register_configure_agent.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
 
 # Clean the preinstalled configuration assesment files
 rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ruleset/sca/*
@@ -209,10 +210,6 @@ if [ $1 = 1 ]; then
     mv %{_localstatedir}/etc/ossec.conf %{_localstatedir}/etc/ossec.conf.rpmorig
   fi
 fi
-# Execute this if only when upgrading the package
-if [ $1 = 2 ]; then
-  cp -rp %{_localstatedir}/etc/ossec.conf %{_localstatedir}/etc/ossec.bck
-fi
 
 %post
 # If the package is being installed
@@ -275,10 +272,13 @@ if [ $1 = 1 ]; then
     systemctl stop wazuh-agent
     systemctl enable wazuh-agent > /dev/null 2>&1
   fi
+fi
 
+if [ $1 = 1 ]; then
   # Register and configure agent if Wazuh environment variables are defined
-  %{_localstatedir}/packages_files/agent_installation_scripts/src/init/register_configure_agent.sh > /dev/null || :
-
+  %{_localstatedir}/ossec/bin/register_configure_agent.sh > /dev/null || :
+else
+  %{_localstatedir}/ossec/bin/register_configure_agent.sh upgrade > /dev/null || :
 fi
 
 if [ ! -d /run/systemd/system ]; then
@@ -290,12 +290,6 @@ rm -rf %{_localstatedir}/packages_files
 
 # Remove unnecessary files from shared directory
 rm -f %{_localstatedir}/etc/shared/*.rpmnew
-
-if [ $1 = 2 ]; then
-  if [ -f %{_localstatedir}/etc/ossec.bck ]; then
-      mv %{_localstatedir}/etc/ossec.bck %{_localstatedir}/etc/ossec.conf
-  fi
-fi
 
 # CentOS
 if [ -r "/etc/centos-release" ]; then
@@ -390,8 +384,8 @@ fi
 
 if [ $1 = 2 ]; then
   # Remove OpenSCAP policies if the module is disabled
-  if stat %{_localstatedir}/wodles/oscap/content/* > /dev/null ; then
-    if grep -E -n '<wodle.*name="open-scap".*>' %{_localstatedir}/etc/ossec.conf > /dev/null ; then
+  if stat %{_localstatedir}/ossec/wodles/oscap/content/* > /dev/null 2>&1; then
+    if grep -E -n '<wodle.*name="open-scap".*>' %{_localstatedir}/ossec/etc/ossec.conf > /dev/null ; then
       is_disabled="no"
     else
       is_disabled="yes"
@@ -427,20 +421,16 @@ fi
 # Restore ossec.conf permissions after upgrading
 chmod 0660 %{_localstatedir}/etc/ossec.conf
 
-if [ -s %{_localstatedir}/etc/client.keys ]; then
+if cat %{_localstatedir}/ossec/etc/ossec.conf | grep -o -P '(?<=<server-ip>).*(?=</server-ip>)' | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' > /dev/null 2>&1; then
+  /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
+fi
 
-  if cat %{_localstatedir}/etc/ossec.conf | grep -o -P '(?<=<server-ip>).*(?=</server-ip>)' | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' > /dev/null 2>&1; then
-    /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
-  fi
+if cat %{_localstatedir}/ossec/etc/ossec.conf | grep -o -P '(?<=<server-hostname>).*(?=</server-hostname>)' > /dev/null 2>&1; then
+  /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
+fi
 
-  if cat %{_localstatedir}/etc/ossec.conf | grep -o -P '(?<=<server-hostname>).*(?=</server-hostname>)' > /dev/null 2>&1; then
-    /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
-  fi
-
-  if cat %{_localstatedir}/etc/ossec.conf | grep -o -P '(?<=<address>).*(?=</address>)' | grep -v 'MANAGER_IP' > /dev/null 2>&1; then
-    /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
-  fi
-
+if cat %{_localstatedir}/ossec/etc/ossec.conf | grep -o -P '(?<=<address>).*(?=</address>)' | grep -v 'MANAGER_IP' > /dev/null 2>&1; then
+  /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
 fi
 
 %preun
