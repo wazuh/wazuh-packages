@@ -60,7 +60,7 @@ case "$1" in
 
         # Backup the OpenSCAP policies if the module is enabled
         if [ ! -z "$2" ]; then
-            if stat ${DIR}/wodles/oscap/content/* > /dev/null ; then
+            if stat ${DIR}/wodles/oscap/content/* > /dev/null 2>&1; then
                 if grep -E -n '<wodle.*name="open-scap".*>' ${DIR}/etc/ossec.conf > /dev/null ; then
                     is_disabled="no"
                 else

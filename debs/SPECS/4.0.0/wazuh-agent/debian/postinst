@@ -155,7 +155,7 @@ case "$1" in
 
     # Restore OpenSCAP policies files
     if [ -d ${WAZUH_TMP_DIR}/oscap ]; then
-        cp ${WAZUH_TMP_DIR}/oscap/* ${DIR}/wodles/oscap/content/
+        cp -R ${WAZUH_TMP_DIR}/oscap/* ${DIR}/wodles/oscap/content/
     fi
 
     # Delete installation scripts

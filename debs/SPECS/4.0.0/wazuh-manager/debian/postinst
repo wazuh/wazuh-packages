@@ -220,6 +220,11 @@ case "$1" in
         rm -rf ${WAZUH_TMP_DIR}/group/
     fi
 
+    # Restore OpenSCAP policies files
+    if [ -d ${WAZUH_TMP_DIR}/oscap ]; then
+        cp -R ${WAZUH_TMP_DIR}/oscap/* ${DIR}/wodles/oscap/content/
+    fi
+
     # Restore RBAC database
     if [ -f ${WAZUH_TMP_DIR}/rbac.db ]; then
         cp -fp ${WAZUH_TMP_DIR}/rbac.db ${DIR}/api/configuration/security/rbac.db
