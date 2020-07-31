@@ -42,6 +42,9 @@ function build() {
     echo "Running install script"
     ${SOURCES_PATH}/install.sh
 
+    # Install the auto-deploy script in bin
+    install -m 0750 src/init/register_configure_agent.sh ${DESTINATION_PATH}/bin
+
     find ${DESTINATION_PATH}/ruleset/sca/ -type f -exec rm -f {} \;
 
     # Add the auxiliar script used while installing the package

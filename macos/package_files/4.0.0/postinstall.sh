@@ -76,7 +76,7 @@ if [ "${upgrade}" = "false" ]; then
     chmod 0640 ${DIR}/etc/ossec.conf
 fi
 
-launchctl unsetenv WAZUH_PKG_UPGRADE
+
 
 SCA_DIR="${DIST_NAME}/${DIST_VER}"
 mkdir -p ${DIR}/ruleset/sca
@@ -106,7 +106,13 @@ if [ -r ${SCA_TMP_FILE} ]; then
 fi
 
 # Register and configure agent if Wazuh environment variables are defined
-${INSTALLATION_SCRIPTS_DIR}/src/init/register_configure_agent.sh > /dev/null || :
+if [ "${upgrade}" = "false" ]; then
+  ${DIR}/bin/register_configure_agent.sh > /dev/null || :
+else
+  ${DIR}/bin/register_configure_agent.sh "upgrade" > /dev/null || :
+fi
+
+launchctl unsetenv WAZUH_PKG_UPGRADE
 
 # Install the service
 ${INSTALLATION_SCRIPTS_DIR}/src/init/darwin-init.sh
