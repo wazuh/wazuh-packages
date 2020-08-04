@@ -37,7 +37,7 @@ fi
 #Create ossec user. Assign it to ossec group.
 if ! id -u ossec > /dev/null 2>&1; then
   useradd -g ossec -G ossec       \
-        -d %{_localstatedir}/ossec \
+        -d %{_localstatedir} \
         -r -s /sbin/nologin ossec
 fi
 
@@ -46,17 +46,17 @@ fi
 rm -fr %{buildroot}
 
 # Create the directories needed to install the wazuh-api
-mkdir -p %{_localstatedir}/ossec/{framework,logs}
-echo 'DIRECTORY="%{_localstatedir}/ossec"' > /etc/ossec-init.conf
+mkdir -p %{_localstatedir}/{framework,logs}
+echo 'DIRECTORY="%{_localstatedir}"' > /etc/ossec-init.conf
 # Install the wazuh-api
 ./install_api.sh --no-service
 # Remove the framework directory
-rmdir %{_localstatedir}/ossec/framework
+rmdir %{_localstatedir}/framework
 
 # Add the files for the package
 mkdir -p ${RPM_BUILD_ROOT}%{_initrddir}
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api
-cp -pr %{_localstatedir}/ossec/* ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/api
+cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
 
 exit 0
 %pre
@@ -76,8 +76,8 @@ fi
 # Installing
 if [ $1 = 1 ]; then
 
-  API_PATH="${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api"
-  API_PATH_BACKUP="${RPM_BUILD_ROOT}%{_localstatedir}/ossec/~api"
+  API_PATH="${RPM_BUILD_ROOT}%{_localstatedir}/api"
+  API_PATH_BACKUP="${RPM_BUILD_ROOT}%{_localstatedir}/~api"
 
   if [ -e ${API_PATH} ]; then
 
@@ -85,7 +85,7 @@ if [ $1 = 1 ]; then
       rm -rf ${API_PATH_BACKUP}
     fi
 
-    rm -f %{_localstatedir}/ossec/api/configuration/auth/htpasswd
+    rm -f %{_localstatedir}/api/configuration/auth/htpasswd
     cp -rfp ${API_PATH} ${API_PATH_BACKUP}
   fi
 fi
@@ -93,10 +93,10 @@ fi
 %post
 
 # Install daemon. It will load new daemon (SysV and Systemctl) and start the service.
-%{_localstatedir}/ossec/api/scripts/install_daemon.sh > /dev/null
+%{_localstatedir}/api/scripts/install_daemon.sh > /dev/null
 
-API_PATH="${RPM_BUILD_ROOT}%{_localstatedir}/ossec/api"
-API_PATH_BACKUP="${RPM_BUILD_ROOT}%{_localstatedir}/ossec/~api"
+API_PATH="${RPM_BUILD_ROOT}%{_localstatedir}/api"
+API_PATH_BACKUP="${RPM_BUILD_ROOT}%{_localstatedir}/~api"
 
 if [ -d ${API_PATH_BACKUP} ]; then
   cp -rfnp ${API_PATH_BACKUP}/configuration ${API_PATH_BACKUP_BACKUP}/configuration
@@ -138,35 +138,35 @@ rm -fr %{buildroot}
 
 %files
 %defattr(-,root,root)
-%dir %attr(750, root, ossec) %{_localstatedir}/ossec/api
-%attr(750, root, ossec) %{_localstatedir}/ossec/api/app.js
-%attr(640, root, ossec) %{_localstatedir}/ossec/api/package.json
-%attr(644, root, root) %{_localstatedir}/ossec/api/package-lock.json
-%dir %attr(750, root, ossec) %config(noreplace) %{_localstatedir}/ossec/api/configuration
-%attr(740, root, ossec) %config(noreplace) %{_localstatedir}/ossec/api/configuration/config.js
-%attr(750, root, root) %{_localstatedir}/ossec/api/configuration/preloaded_vars.conf
-%dir %attr(750, root, root) %config(noreplace) %{_localstatedir}/ossec/api/configuration/auth
-%{_localstatedir}/ossec/api/configuration/auth/htpasswd
-%attr(660, root, root) %config(noreplace) %{_localstatedir}/ossec/api/configuration/auth/user
-%dir %attr(750, root, root) %config(noreplace) %{_localstatedir}/ossec/api/configuration/ssl
-%dir %attr(750, root, ossec) %{_localstatedir}/ossec/api/controllers
-%attr(750, root, ossec) %{_localstatedir}/ossec/api/controllers/*
-%dir %attr(750, root, ossec) %{_localstatedir}/ossec/api/examples
-%attr(750, root, ossec) %{_localstatedir}/ossec/api/examples/*
-%dir %attr(750, root, ossec) %{_localstatedir}/ossec/api/helpers
-%attr(750, root, ossec) %{_localstatedir}/ossec/api/helpers/*
-%dir %attr(750, root, ossec) %{_localstatedir}/ossec/api/models
-%attr(750, root, ossec) %{_localstatedir}/ossec/api/models/*
-%dir %attr(750, root, root) %{_localstatedir}/ossec/api/scripts
-%attr(750, root, root) %{_localstatedir}/ossec/api/scripts/*.sh
-%attr(640, root, root) %{_localstatedir}/ossec/api/scripts/wazuh-api
-%attr(640, root, root) %{_localstatedir}/ossec/api/scripts/wazuh-api.service
-%dir %attr(750, root, ossec) %{_localstatedir}/ossec/api/node_modules
-%attr(750, ossec, ossec) %{_localstatedir}/ossec/api/node_modules/*
-%dir %attr(750, root, ossec) %{_localstatedir}/ossec/api/node_modules/.bin
-%{_localstatedir}/ossec/api/node_modules/.bin/*
-%dir %attr(750, ossec, ossec) %{_localstatedir}/ossec/logs/api
-%attr(660, ossec, ossec) %ghost %{_localstatedir}/ossec/logs/api.log
+%dir %attr(750, root, ossec) %{_localstatedir}/api
+%attr(750, root, ossec) %{_localstatedir}/api/app.js
+%attr(640, root, ossec) %{_localstatedir}/api/package.json
+%attr(644, root, root) %{_localstatedir}/api/package-lock.json
+%dir %attr(750, root, ossec) %config(noreplace) %{_localstatedir}/api/configuration
+%attr(740, root, ossec) %config(noreplace) %{_localstatedir}/api/configuration/config.js
+%attr(750, root, root) %{_localstatedir}/api/configuration/preloaded_vars.conf
+%dir %attr(750, root, root) %config(noreplace) %{_localstatedir}/api/configuration/auth
+%{_localstatedir}/api/configuration/auth/htpasswd
+%attr(660, root, root) %config(noreplace) %{_localstatedir}/api/configuration/auth/user
+%dir %attr(750, root, root) %config(noreplace) %{_localstatedir}/api/configuration/ssl
+%dir %attr(750, root, ossec) %{_localstatedir}/api/controllers
+%attr(750, root, ossec) %{_localstatedir}/api/controllers/*
+%dir %attr(750, root, ossec) %{_localstatedir}/api/examples
+%attr(750, root, ossec) %{_localstatedir}/api/examples/*
+%dir %attr(750, root, ossec) %{_localstatedir}/api/helpers
+%attr(750, root, ossec) %{_localstatedir}/api/helpers/*
+%dir %attr(750, root, ossec) %{_localstatedir}/api/models
+%attr(750, root, ossec) %{_localstatedir}/api/models/*
+%dir %attr(750, root, root) %{_localstatedir}/api/scripts
+%attr(750, root, root) %{_localstatedir}/api/scripts/*.sh
+%attr(640, root, root) %{_localstatedir}/api/scripts/wazuh-api
+%attr(640, root, root) %{_localstatedir}/api/scripts/wazuh-api.service
+%dir %attr(750, root, ossec) %{_localstatedir}/api/node_modules
+%attr(750, ossec, ossec) %{_localstatedir}/api/node_modules/*
+%dir %attr(750, root, ossec) %{_localstatedir}/api/node_modules/.bin
+%{_localstatedir}/api/node_modules/.bin/*
+%dir %attr(750, ossec, ossec) %{_localstatedir}/logs/api
+%attr(660, ossec, ossec) %ghost %{_localstatedir}/logs/api.log
 
 %changelog
 * Mon Aug 26 2019 support <support@wazuh.com> - 3.10.0

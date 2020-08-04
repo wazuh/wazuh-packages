@@ -12,7 +12,7 @@ RUN yum install -y centos-release-scl gcc make git \
     e2fsprogs-devel libacl-devel libattr-devel \
     openssl-devel libxml2-devel kexec-tools elfutils \
     libarchive-devel elfutils-libelf-devel \
-    elfutils-libelf patchelf elfutils-devel libgcrypt-devel 
+    elfutils-libelf patchelf elfutils-devel libgcrypt-devel
 
 # Warning: this repo has been disabled by the vendor
 RUN mv /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo.old
