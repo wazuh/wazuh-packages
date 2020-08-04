@@ -178,10 +178,11 @@ cp src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installa
 cp src/LOCATION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/src/
 cp -r src/systemd/* ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/src/systemd
 
-if [ %{_debugenabled} == "yes" ]; then
+if [ %{_debugenabled} = "yes" ]; then
   %{_rpmconfigdir}/find-debuginfo.sh
 fi
 exit 0
+
 %pre
 
 # Create the ossec group if it doesn't exists
@@ -195,24 +196,6 @@ if ! id -u ossec > /dev/null 2>&1; then
   useradd -g ossec -G ossec -d %{_localstatedir} -r -s /sbin/nologin ossec
 fi
 
-# Delete old service
-if [ -f /etc/init.d/ossec ]; then
-  rm /etc/init.d/ossec
-fi
-# Execute this if only when installing the package
-if [ $1 = 1 ]; then
-  if [ -f %{_localstatedir}/etc/ossec.conf ]; then
-    echo "====================================================================================="
-    echo "= Backup from your ossec.conf has been created at %{_localstatedir}/etc/ossec.conf.rpmorig ="
-    echo "= Please verify your ossec.conf configuration at %{_localstatedir}/etc/ossec.conf          ="
-    echo "====================================================================================="
-    mv %{_localstatedir}/etc/ossec.conf %{_localstatedir}/etc/ossec.conf.rpmorig
-  fi
-fi
-# Execute this if only when upgrading the package
-if [ $1 = 2 ]; then
-  cp -rp %{_localstatedir}/etc/ossec.conf %{_localstatedir}/etc/ossec.bck
-fi
 
 %post
 # If the package is being installed
@@ -246,43 +229,17 @@ if [ $1 = 1 ]; then
   chown root:ossec %{_localstatedir}/etc/ossec.conf
 
   # Add default local_files to ossec.conf
-  %{_localstatedir}/packages_files/agent_installation_scripts/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
-  if [ -f %{_localstatedir}/etc/ossec.conf.rpmorig ]; then
-      %{_localstatedir}/packages_files/agent_installation_scripts/src/init/replace_manager_ip.sh %{_localstatedir}/etc/ossec.conf.rpmorig %{_localstatedir}/etc/ossec.conf
-  fi
+  %{_localstatedir}/packages_files/agent_installation_scripts/add_localfiles.sh %{_localstatedir}/ossec >> %{_localstatedir}/etc/ossec.conf
 
-  /sbin/chkconfig --add wazuh-agent
-  /sbin/chkconfig wazuh-agent on
 
   # If systemd is installed, add the wazuh-agent.service file to systemd files directory
   if [ -d /run/systemd/system ]; then
-
-    # Fix for RHEL 8 and CentOS 8
-    # Service must be installed in /usr/lib/systemd/system/
-    if [ "${DIST_NAME}" == "rhel" -a "${DIST_VER}" == "8" ] || [ "${DIST_NAME}" == "centos" -a "${DIST_VER}" == "8" ]; then
-      install -m 644 %{_localstatedir}/packages_files/agent_installation_scripts/src/systemd/wazuh-agent.service /usr/lib/systemd/system/
-    else
-      install -m 644 %{_localstatedir}/packages_files/agent_installation_scripts/src/systemd/wazuh-agent.service /etc/systemd/system/
-    fi
-    # Fix for Fedora 28
-    # Check if SELinux is installed. If it is installed, restore the context of the .service file
-    if [ "${DIST_NAME}" == "fedora" -a "${DIST_VER}" == "28" ]; then
-      if command -v restorecon > /dev/null 2>&1 ; then
-        restorecon -v /etc/systemd/system/wazuh-agent.service > /dev/null 2>&1
-      fi
-    fi
-    systemctl daemon-reload
-    systemctl stop wazuh-agent
-    systemctl enable wazuh-agent > /dev/null 2>&1
+    install -m 644 %{_localstatedir}/packages_files/agent_installation_scripts/src/systemd/wazuh-agent.service /usr/lib/systemd/system/
   fi
 
   # Register and configure agent if Wazuh environment variables are defined
   %{_localstatedir}/packages_files/agent_installation_scripts/src/init/register_configure_agent.sh > /dev/null || :
 
-fi
-
-if [ ! -d /run/systemd/system ]; then
-  update-rc.d wazuh-agent defaults > /dev/null 2>&1
 fi
 
 # Delete the installation files used to configure the agent
@@ -291,11 +248,6 @@ rm -rf %{_localstatedir}/packages_files
 # Remove unnecessary files from shared directory
 rm -f %{_localstatedir}/etc/shared/*.rpmnew
 
-if [ $1 = 2 ]; then
-  if [ -f %{_localstatedir}/etc/ossec.bck ]; then
-      mv %{_localstatedir}/etc/ossec.bck %{_localstatedir}/etc/ossec.conf
-  fi
-fi
 
 # CentOS
 if [ -r "/etc/centos-release" ]; then
@@ -427,22 +379,6 @@ fi
 # Restore ossec.conf permissions after upgrading
 chmod 0660 %{_localstatedir}/etc/ossec.conf
 
-if [ -s %{_localstatedir}/etc/client.keys ]; then
-
-  if cat %{_localstatedir}/etc/ossec.conf | grep -o -P '(?<=<server-ip>).*(?=</server-ip>)' | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' > /dev/null 2>&1; then
-    /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
-  fi
-
-  if cat %{_localstatedir}/etc/ossec.conf | grep -o -P '(?<=<server-hostname>).*(?=</server-hostname>)' > /dev/null 2>&1; then
-    /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
-  fi
-
-  if cat %{_localstatedir}/etc/ossec.conf | grep -o -P '(?<=<address>).*(?=</address>)' | grep -v 'MANAGER_IP' > /dev/null 2>&1; then
-    /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
-  fi
-
-fi
-
 %preun
 
 if [ $1 = 0 ]; then
@@ -469,12 +405,9 @@ if [ $1 = 0 ]; then
   if [ ! -z "$sles" ]; then
     rm -f /etc/init.d/wazuh-agent
   fi
-  # Remove the wazuh-agent.service file
-  # RHEL 8 service located in /usr/lib/systemd/system/
+
   if [ -f /usr/lib/systemd/system/wazuh-agent.service ]; then
     rm -f /usr/lib/systemd/system/wazuh-agent.service
-  else
-    rm -f /etc/systemd/system/wazuh-agent.service
   fi
 
   # Remove SCA files
@@ -490,7 +423,7 @@ fi
 %postun
 
 # If the package is been uninstalled
-if [ $1 == 0 ];then
+if [ $1 = 0 ];then
   # Remove the ossec user if it exists
   if id -u ossec > /dev/null 2>&1; then
     userdel ossec >/dev/null 2>&1
@@ -514,7 +447,7 @@ if [ $1 == 0 ];then
 fi
 
 # If the package is been downgraded
-if [ $1 == 1 ]; then
+if [ $1 = 1 ]; then
   # Load the ossec-init.conf file to get the current version
   . /etc/ossec-init.conf
 
@@ -535,18 +468,6 @@ if [ $1 == 1 ]; then
       mv %{_localstatedir}/etc/ossec.conf.rpmsave %{_localstatedir}/etc/ossec.conf
       chmod 640 %{_localstatedir}/etc/ossec.conf
       chown root:ossec %{_localstatedir}/etc/ossec.conf
-    fi
-    # Restart the agent
-    if cat %{_localstatedir}/etc/ossec.conf | grep -o -P '(?<=<server-ip>).*(?=</server-ip>)' | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' > /dev/null 2>&1; then
-      /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
-    fi
-
-    if cat %{_localstatedir}/etc/ossec.conf | grep -o -P '(?<=<server-hostname>).*(?=</server-hostname>)' > /dev/null 2>&1; then
-      /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
-    fi
-
-    if cat %{_localstatedir}/etc/ossec.conf | grep -o -P '(?<=<address>).*(?=</address>)' | grep -v 'MANAGER_IP' > /dev/null 2>&1; then
-      /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
     fi
   fi
 fi

@@ -174,12 +174,12 @@ cp src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_instal
 cp src/LOCATION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/src/
 cp -r src/systemd/* ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/src/systemd
 
-if [ %{_debugenabled} == "yes" ]; then
+if [ %{_debugenabled} = "yes" ]; then
   %{_rpmconfigdir}/find-debuginfo.sh
 fi
 exit 0
-%pre
 
+%pre
 # Wazuh API is installed
 if [ -e %{_localstatedir}/api ]; then
   # Stop API's services
@@ -190,16 +190,6 @@ if [ -e %{_localstatedir}/api ]; then
   elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
     /etc/init.d/wazuh-api stop > /dev/null
   fi
-fi
-
-# Stop Authd if it is running
-if ps aux | grep %{_localstatedir}/bin/ossec-authd | grep -v grep > /dev/null 2>&1; then
-   kill `ps -ef | grep '%{_localstatedir}/bin/ossec-authd' | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
-fi
-
-# Ensure that the wazuh-manager is stopped
-if [ -d %{_localstatedir} ] && [ -f %{_localstatedir}/bin/ossec-control ] ; then
-  %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
 fi
 
 # Create the ossec group if it doesn't exists
@@ -265,19 +255,9 @@ fi
 if [ -f /etc/init.d/ossec ]; then
   rm /etc/init.d/ossec
 fi
-# Execute this if only when installing the package
-if [ $1 = 1 ]; then
-  if [ -f %{_localstatedir}/etc/ossec.conf ]; then
-    echo "====================================================================================="
-    echo "= Backup from your ossec.conf has been created at %{_localstatedir}/etc/ossec.conf.rpmorig ="
-    echo "= Please verify your ossec.conf configuration at %{_localstatedir}/etc/ossec.conf          ="
-    echo "====================================================================================="
-    mv %{_localstatedir}/etc/ossec.conf %{_localstatedir}/etc/ossec.conf.rpmorig
-  fi
-fi
+
 # Execute this if only when upgrading the package
 if [ $1 = 2 ]; then
-    cp -rp %{_localstatedir}/etc/ossec.conf %{_localstatedir}/etc/ossec.bck
     cp -rp %{_localstatedir}/etc/shared %{_localstatedir}/backup/
     if [ ! -d %{_localstatedir}/etc/shared/default ]; then
       mkdir  %{_localstatedir}/etc/shared/default
@@ -288,7 +268,7 @@ if [ $1 = 2 ]; then
 fi
 
 # Delete 3.X Wazuh API service
-if [ $MAJOR = 3 ] && [ -e %{_localstatedir}/api ]; then
+if [ "$MAJOR" = "3" ] && [ -e %{_localstatedir}/api ]; then
   if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
     systemctl disable wazuh-api.service > /dev/null
     rm -f /etc/systemd/system/wazuh-api.service
@@ -347,30 +327,6 @@ if [ $1 = 1 ]; then
     mv "%{_localstatedir}/rules/local_rules.xml" $ETC_RULES
   fi
 
-  # Creating backup directory
-  if [ -d "%{_localstatedir}/etc/wazuh_decoders" ]; then
-    BACKUP_RULESET="%{_localstatedir}/etc/backup_ruleset"
-    mkdir $BACKUP_RULESET > /dev/null 2>&1
-    chmod 750 $BACKUP_RULESET > /dev/null 2>&1
-    chown root:ossec $BACKUP_RULESET > /dev/null 2>&1
-    # Backup decoders: Wazuh v1.0.1 to v1.1.1
-    old_decoders="ossec_decoders wazuh_decoders"
-    for old_decoder in $old_decoders
-    do
-      if [ -d "%{_localstatedir}/etc/$old_decoder" ]; then
-        mv "%{_localstatedir}/etc/$old_decoder" $BACKUP_RULESET
-      fi
-    done
-
-    # Backup decoders: Wazuh v1.0 and OSSEC
-    if [ -f "%{_localstatedir}/etc/decoder.xml" ]; then
-      mv "%{_localstatedir}/etc/decoder.xml" $BACKUP_RULESET
-    fi
-    if [ -d "%{_localstatedir}/rules" ]; then
-      # Backup rules: All versions
-      mv "%{_localstatedir}/rules" $BACKUP_RULESET
-    fi
-  fi
   passlist="%{_localstatedir}/agentless/.passlist"
 
   if [ -f $passlist ] && ! base64 -d $passlist > /dev/null 2>&1; then
@@ -393,40 +349,19 @@ if [ $1 = 1 ]; then
   chmod 0640 %{_localstatedir}/logs/integrations.log
 
   # Add default local_files to ossec.conf
-  %{_localstatedir}/packages_files/manager_installation_scripts/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
-   /sbin/chkconfig --add wazuh-manager
-   /sbin/chkconfig wazuh-manager on
+  %{_localstatedir}/ossec/packages_files/manager_installation_scripts/add_localfiles.sh %{_localstatedir}/ossec >> %{_localstatedir}/ossec/etc/ossec.conf
 
   # If systemd is installed, add the wazuh-manager.service file to systemd files directory
   if [ -d /run/systemd/system ]; then
-
-    # Fix for RHEL 8 and CentOS 8
-    # Service must be installed in /usr/lib/systemd/system/
-    if [ "${DIST_NAME}" == "rhel" -a "${DIST_VER}" == "8" ] || [ "${DIST_NAME}" == "centos" -a "${DIST_VER}" == "8" ]; then
-      install -m 644 %{_localstatedir}/packages_files/manager_installation_scripts/src/systemd/wazuh-manager.service /usr/lib/systemd/system/
-    else
-      install -m 644 %{_localstatedir}/packages_files/manager_installation_scripts/src/systemd/wazuh-manager.service /etc/systemd/system/
-    fi
-
-    # Fix for Fedora 28
-    # Check if SELinux is installed. If it is installed, restore the context of the .service file
-    if [ "${DIST_NAME}" == "fedora" -a "${DIST_VER}" == "28" ]; then
-      if command -v restorecon > /dev/null 2>&1 ; then
-        restorecon -v /etc/systemd/system/wazuh-manager.service > /dev/null 2>&1
-      fi
-    fi
-    systemctl daemon-reload
-    systemctl stop wazuh-manager
-    systemctl enable wazuh-manager > /dev/null 2>&1
+    install -m 644 %{_localstatedir}/ossec/packages_files/manager_installation_scripts/src/systemd/wazuh-manager.service /usr/lib/systemd/system/
   fi
-
 fi
 
 
 if [ -f "%{_localstatedir}/etc/shared/agent.conf" ]; then
-mv "%{_localstatedir}/etc/shared/agent.conf" "%{_localstatedir}/etc/shared/default/agent.conf"
-chmod 0660 %{_localstatedir}/etc/shared/default/agent.conf
-chown ossec:ossec %{_localstatedir}/etc/shared/default/agent.conf
+  mv "%{_localstatedir}/etc/shared/agent.conf" "%{_localstatedir}/etc/shared/default/agent.conf"
+  chmod 0660 %{_localstatedir}/etc/shared/default/agent.conf
+  chown ossec:ossec %{_localstatedir}/etc/shared/default/agent.conf
 fi
 
 # Generation auto-signed certificate if not exists
@@ -439,11 +374,6 @@ fi
 rm %{_localstatedir}/etc/shared/ar.conf  >/dev/null 2>&1 || true
 rm %{_localstatedir}/etc/shared/merged.mg  >/dev/null 2>&1 || true
 
-if [ $1 = 2 ]; then
-  if [ -f %{_localstatedir}/etc/ossec.bck ]; then
-      mv %{_localstatedir}/etc/ossec.bck %{_localstatedir}/etc/ossec.conf
-  fi
-fi
 
 # Agent info change between 2.1.1 and 3.0.0
 chmod 0660 %{_localstatedir}/queue/agent-info/* 2>/dev/null || true
@@ -608,15 +538,6 @@ rm -f %{_localstatedir}/etc/shared/default/*.rpmnew
 . %{_localstatedir}/api/service/install_daemon.sh
 
 
-if %{_localstatedir}/bin/ossec-logtest 2>/dev/null ; then
-  /sbin/service wazuh-manager restart > /dev/null 2>&1
-  /sbin/service wazuh-api restart > /dev/null 2>&1
-else
-  echo "================================================================================================================"
-  echo "Something in your actual rules configuration is wrong, please review your configuration and restart the service."
-  echo "================================================================================================================"
-fi
-
 # Restore the old files
 for rules_file in ${OLD_RULES}; do
   if [ -f ${rules_file}.old ]; then
@@ -666,8 +587,6 @@ if [ $1 = 0 ]; then
   # RHEL 8 service located in /usr/lib/systemd/system/
   if [ -f /usr/lib/systemd/system/wazuh-manager.service ]; then
     rm -f /usr/lib/systemd/system/wazuh-manager.service
-  else
-    rm -f /etc/systemd/system/wazuh-manager.service
   fi
 
   # Remove SCA files
@@ -683,7 +602,7 @@ fi
 %postun
 
 # If the package is been uninstalled
-if [ $1 == 0 ];then
+if [ $1 = 0 ];then
   # Remove the ossecr user if it exists
   if id -u ossecr > /dev/null 2>&1; then
     userdel ossecr >/dev/null 2>&1
@@ -731,7 +650,7 @@ if [ $1 == 0 ];then
 fi
 
 # If the package is been downgraded
-if [ $1 == 1 ]; then
+if [ $1 = 1 ]; then
   # Load the ossec-init.conf file to get the current version
   . /etc/ossec-init.conf
 
@@ -752,10 +671,6 @@ if [ $1 == 1 ]; then
       mv %{_localstatedir}/etc/ossec.conf.rpmsave %{_localstatedir}/etc/ossec.conf
       chmod 640 %{_localstatedir}/etc/ossec.conf
       chown root:ossec %{_localstatedir}/etc/ossec.conf
-    fi
-    # Restart the manager
-    if %{_localstatedir}/bin/ossec-logtest 2>/dev/null ; then
-      /sbin/service wazuh-manager restart > /dev/null 2>&1
     fi
   fi
 fi
