@@ -81,8 +81,8 @@ install -m 0640 ossec-init.conf ${RPM_BUILD_ROOT}%{_sysconfdir}
 install -m 0755 src/init/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-manager
 
 # Install frameworks sqlite lib
-install -o root -g ossec -m 0750 -d ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/lib
-install -o root -g ossec -m 0640 framework/libsqlite3.so.0 ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/framework/lib/
+install -o root -g ossec -m 0750 -d ${RPM_BUILD_ROOT}%{_localstatedir}/framework/lib
+install -o root -g ossec -m 0640 framework/libsqlite3.so.0 ${RPM_BUILD_ROOT}%{_localstatedir}/framework/lib/
 
 # Clean the preinstalled configuration assesment files
 rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ruleset/sca/*
