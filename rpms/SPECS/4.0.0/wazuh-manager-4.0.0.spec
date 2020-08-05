@@ -168,18 +168,6 @@ fi
 exit 0
 
 %pre
-# Wazuh API is installed
-if [ -e %{_localstatedir}/api ]; then
-  # Stop API's services
-  if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
-    systemctl stop wazuh-api.service > /dev/null
-  elif [ -x /etc/rc.d/init.d/wazuh-api ] ; then
-    /etc/rc.d/init.d/wazuh-api stop > /dev/null
-  elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
-    /etc/init.d/wazuh-api stop > /dev/null
-  fi
-fi
-
 # Create the ossec group if it doesn't exists
 if command -v getent > /dev/null 2>&1 && ! getent group ossec > /dev/null 2>&1; then
   groupadd -r ossec
@@ -213,31 +201,29 @@ rm -f %{_localstatedir}/var/db/agents/* || true
 rm -f %{_localstatedir}/queue/vulnerabilities/cve.db || true
 
 # Delete old API backups
-if [ $1 = 2 ] && [ -e %{_localstatedir}/~api ]; then
-  rm -rf %{_localstatedir}/~api
-fi
-
-
-# Import the variables from ossec-init.conf file
-if [ -f %{_sysconfdir}/ossec-init.conf ]; then
-  . %{_sysconfdir}/ossec-init.conf
-fi
-
-# Get the major and minor version
-MAJOR=$(echo $VERSION | cut -dv -f2 | cut -d. -f1)
-MINOR=$(echo $VERSION | cut -d. -f2)
-
-# Delete 3.X Wazuh API service
-if [ "$MAJOR" = "3" ] && [ -e %{_localstatedir}/api ]; then
-  if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
-    systemctl disable wazuh-api.service > /dev/null
-    rm -f /etc/systemd/system/wazuh-api.service
+if [ $1 = 2 ]; then
+  if [ -e %{_localstatedir}/~api ]; then
+    rm -rf %{_localstatedir}/~api
   fi
+  # Import the variables from ossec-init.conf file
+  . %{_sysconfdir}/ossec-init.conf
 
-  if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
-    chkconfig wazuh-api off
-    chkconfig --del wazuh-api
-    rm -f /etc/rc.d/init.d/wazuh-api || true
+  # Get the major and minor version
+  MAJOR=$(echo $VERSION | cut -dv -f2 | cut -d. -f1)
+  MINOR=$(echo $VERSION | cut -d. -f2)
+
+  # Delete 3.X Wazuh API service
+  if [ "$MAJOR" = "3" ] && [ -e %{_localstatedir}/api ]; then
+    if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
+      systemctl disable wazuh-api.service > /dev/null
+      rm -f /etc/systemd/system/wazuh-api.service
+    fi
+
+    if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
+      chkconfig wazuh-api off
+      chkconfig --del wazuh-api
+      rm -f /etc/rc.d/init.d/wazuh-api || true
+    fi
   fi
 fi
 
