@@ -33,8 +33,6 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 %prep
 %setup -q
 
-echo "Vendor is %_vendor"
-
 ./gen_ossec.sh conf agent centos %rhel %{_localstatedir} > etc/ossec-agent.conf
 ./gen_ossec.sh init agent %{_localstatedir} > ossec-init.conf
 
@@ -85,17 +83,9 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.ssh
 # Copy the installed files into RPM_BUILD_ROOT directory
 cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
 install -m 0640 ossec-init.conf ${RPM_BUILD_ROOT}%{_sysconfdir}
-install -m 0755 src/init/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-agent
 
 # Clean the preinstalled configuration assesment files
 rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ruleset/sca/*
-
-# Add OpenSCAP policies
-install -m 0640 wodles/oscap/content/*redhat* ${RPM_BUILD_ROOT}%{_localstatedir}/wodles/oscap/content
-install -m 0640 wodles/oscap/content/*rhel* ${RPM_BUILD_ROOT}%{_localstatedir}/wodles/oscap/content
-install -m 0640 wodles/oscap/content/*centos* ${RPM_BUILD_ROOT}%{_localstatedir}/wodles/oscap/content
-install -m 0640 wodles/oscap/content/*fedora* ${RPM_BUILD_ROOT}%{_localstatedir}/wodles/oscap/content
-
 
 # Install configuration assesment files and files templates
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/{applications,generic}
@@ -229,17 +219,12 @@ if [ $1 = 1 ]; then
   chown root:ossec %{_localstatedir}/etc/ossec.conf
 
   # Add default local_files to ossec.conf
-  %{_localstatedir}/packages_files/agent_installation_scripts/add_localfiles.sh %{_localstatedir}/ossec >> %{_localstatedir}/etc/ossec.conf
-
+  %{_localstatedir}/packages_files/agent_installation_scripts/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
 
   # If systemd is installed, add the wazuh-agent.service file to systemd files directory
   if [ -d /run/systemd/system ]; then
     install -m 644 %{_localstatedir}/packages_files/agent_installation_scripts/src/systemd/wazuh-agent.service /usr/lib/systemd/system/
   fi
-
-  # Register and configure agent if Wazuh environment variables are defined
-  %{_localstatedir}/packages_files/agent_installation_scripts/src/init/register_configure_agent.sh > /dev/null || :
-
 fi
 
 # Delete the installation files used to configure the agent
@@ -340,42 +325,6 @@ else
   fi
 fi
 
-if [ $1 = 2 ]; then
-  # Remove OpenSCAP policies if the module is disabled
-  if stat %{_localstatedir}/wodles/oscap/content/* > /dev/null ; then
-    if grep -E -n '<wodle.*name="open-scap".*>' %{_localstatedir}/etc/ossec.conf > /dev/null ; then
-      is_disabled="no"
-    else
-      is_disabled="yes"
-    fi
-
-    end_config_limit="99999999"
-    for start_config in $(grep -E -n '<wodle.*name="open-scap".*>'  %{_localstatedir}/etc/ossec.conf | cut -d':' -f 1); do
-      end_config="$(sed -n "${start_config},${end_config_limit}p"  %{_localstatedir}/etc/ossec.conf | sed -n '/open-scap/,$p' | grep -n '</wodle>' | head -n 1 | cut -d':' -f 1)"
-      end_config="$((start_config + end_config))"
-
-      if [ -n "${start_config}" ] && [ -n "${end_config}" ]; then
-        open_scap_conf="$(sed -n "${start_config},${end_config}p"  %{_localstatedir}/etc/ossec.conf)"
-
-        for line in $(echo ${open_scap_conf} | grep -n '<disabled>' | cut -d':' -f 1); do
-          # Check if OpenSCAP is enabled
-          if echo ${open_scap_conf} | sed -n ${line}p | grep "disabled>no" > /dev/null ; then
-            is_disabled="no"
-
-          # Check if OpenSCAP is disabled
-          elif echo ${open_scap_conf} | sed -n ${line}p | grep "disabled>yes" > /dev/null; then
-            is_disabled="yes"
-          fi
-        done
-      fi
-    done
-
-    if [ "${is_disabled}" = "yes" ]; then
-        rm -f %{_localstatedir}/wodles/oscap/content/*
-    fi
-  fi
-fi
-
 # Restore ossec.conf permissions after upgrading
 chmod 0660 %{_localstatedir}/etc/ossec.conf
 
@@ -446,39 +395,11 @@ if [ $1 = 0 ];then
   rm -rf %{_localstatedir}/tmp
 fi
 
-# If the package is been downgraded
-if [ $1 = 1 ]; then
-  # Load the ossec-init.conf file to get the current version
-  . /etc/ossec-init.conf
-
-  # Get the major and minor version
-  MAJOR=$(echo $VERSION | cut -dv -f2 | cut -d. -f1)
-  MINOR=$(echo $VERSION | cut -d. -f2)
-
-  # Restore the configuration files from the .rpmsave file
-  if [ $MAJOR = 3 ] && [ $MINOR -lt 7 ]; then
-    # Restore client.keys file
-    if [ -f %{_localstatedir}/etc/client.keys.rpmsave ]; then
-      mv %{_localstatedir}/etc/client.keys.rpmsave %{_localstatedir}/etc/client.keys
-      chmod 640 %{_localstatedir}/etc/client.keys
-      chown root:ossec %{_localstatedir}/etc/client.keys
-    fi
-    # Restore the ossec.conf file
-    if [ -f %{_localstatedir}/etc/ossec.conf.rpmsave ]; then
-      mv %{_localstatedir}/etc/ossec.conf.rpmsave %{_localstatedir}/etc/ossec.conf
-      chmod 640 %{_localstatedir}/etc/ossec.conf
-      chown root:ossec %{_localstatedir}/etc/ossec.conf
-    fi
-  fi
-fi
-
-
 %clean
 rm -fr %{buildroot}
 
 %files
 %defattr(-,root,root)
-%{_initrddir}/*
 %attr(640,root,ossec) %verify(not md5 size mtime) %{_sysconfdir}/ossec-init.conf
 %dir %attr(750,root,ossec) %{_localstatedir}
 %attr(750,root,ossec) %{_localstatedir}/agentless
@@ -606,11 +527,6 @@ rm -fr %{buildroot}
 %attr(750,root,ossec) %{_localstatedir}/wodles/docker/*
 %dir %attr(750, root, ossec) %{_localstatedir}/wodles/gcloud
 %attr(750, root, ossec) %{_localstatedir}/wodles/gcloud/*
-%dir %attr(750,root,ossec) %{_localstatedir}/wodles/oscap
-%attr(750,root,ossec) %{_localstatedir}/wodles/oscap/oscap.py
-%attr(750,root,ossec) %{_localstatedir}/wodles/oscap/template*
-%dir %attr(750,root,ossec) %{_localstatedir}/wodles/oscap/content
-%attr(640, root, ossec) %ghost %{_localstatedir}/wodles/oscap/content/*
 
 %if %{_debugenabled} == "yes"
 /usr/lib/debug/%{_localstatedir}/*
@@ -631,7 +547,7 @@ rm -fr %{buildroot}
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Wed Mar 25 2020 support <info@wazuh.com> - 3.12.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Thu Feb 24 2020 support <info@wazuh.com> - 3.11.4
+* Mon Feb 24 2020 support <info@wazuh.com> - 3.11.4
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Wed Jan 22 2020 support <info@wazuh.com> - 3.11.3
 - More info: https://documentation.wazuh.com/current/release-notes/
@@ -649,11 +565,11 @@ rm -fr %{buildroot}
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Thu Aug 8 2019 support <info@wazuh.com> - 3.9.5
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Tue Jul 12 2019 support <info@wazuh.com> - 3.9.4
+* Fri Jul 12 2019 support <info@wazuh.com> - 3.9.4
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Tue Jun 11 2019 support <info@wazuh.com> - 3.9.3
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Mon Jun 6 2019 support <info@wazuh.com> - 3.9.2
+* Thu Jun 6 2019 support <info@wazuh.com> - 3.9.2
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon May 6 2019 support <info@wazuh.com> - 3.9.1
 - More info: https://documentation.wazuh.com/current/release-notes/
