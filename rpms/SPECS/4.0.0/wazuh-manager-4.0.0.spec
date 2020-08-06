@@ -77,7 +77,10 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.ssh
 
 # Copy the installed files into RPM_BUILD_ROOT directory
 cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
+mkdir -p ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
 install -m 0640 ossec-init.conf ${RPM_BUILD_ROOT}%{_sysconfdir}
+install -m 0755 src/init/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-manager
+install -m 0644 src/systemd/wazuh-manager.service ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
 
 # Clean the preinstalled configuration assesment files
 rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ruleset/sca/*
@@ -92,7 +95,6 @@ cp add_localfiles.sh ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_i
 
 # Templates for initscript
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/src/init
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/src/systemd
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/generic
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/centos
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/fedora
@@ -160,7 +162,6 @@ install -m 0640 src/init/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/
 cp src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/src/
 cp src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/src/
 cp src/LOCATION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/src/
-cp -r src/systemd/* ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/src/systemd
 
 if [ %{_debugenabled} = "yes" ]; then
   %{_rpmconfigdir}/find-debuginfo.sh
@@ -229,27 +230,24 @@ fi
 
 %post
 
-# If the package is being installed
+# Fresh install code block
 if [ $1 = 1 ]; then
-  . %{_localstatedir}/packages_files/manager_installation_scripts/src/init/dist-detect.sh
-
   sles=""
-  if [ -f /etc/os-release ]; then
+  if [ -f /etc/SuSE-release ]; then
+    sles="suse"
+  elif [ -f /etc/os-release ]; then
     if `grep -q "\"sles" /etc/os-release` ; then
       sles="suse"
     elif `grep -q -i "\"opensuse" /etc/os-release` ; then
       sles="opensuse"
     fi
-  elif [ -f /etc/SuSE-release ]; then
-    if `grep -q "SUSE Linux Enterprise Server" /etc/SuSE-release` ; then
-      sles="suse"
-    elif `grep -q -i "opensuse" /etc/SuSE-release` ; then
-      sles="opensuse"
-    fi
   fi
+
   if [ ! -z "$sles" ]; then
     install -m 755 %{_localstatedir}/packages_files/manager_installation_scripts/src/init/ossec-hids-suse.init /etc/init.d/wazuh-manager
   fi
+
+  . %{_localstatedir}/packages_files/manager_installation_scripts/src/init/dist-detect.sh
 
   # Generating ossec.conf file
   %{_localstatedir}/packages_files/manager_installation_scripts/gen_ossec.sh conf manager ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir} > %{_localstatedir}/etc/ossec.conf
@@ -263,11 +261,6 @@ if [ $1 = 1 ]; then
 
   # Add default local_files to ossec.conf
   %{_localstatedir}/packages_files/manager_installation_scripts/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
-
-  # If systemd is installed, add the wazuh-manager.service file to systemd files directory
-  if [ -d /run/systemd/system ]; then
-    install -m 644 %{_localstatedir}/packages_files/manager_installation_scripts/src/systemd/wazuh-manager.service /usr/lib/systemd/system/
-  fi
 fi
 
 # Generation auto-signed certificate if not exists
@@ -279,19 +272,6 @@ fi
 
 rm -f %{_localstatedir}/etc/shared/ar.conf  >/dev/null 2>&1
 rm -f %{_localstatedir}/etc/shared/merged.mg  >/dev/null 2>&1
-
-
-# Agent info change between 2.1.1 and 3.0.0
-chmod 0660 %{_localstatedir}/queue/agent-info/* 2>/dev/null || true
-chown ossecr:ossec %{_localstatedir}/queue/agent-info/* 2>/dev/null || true
-
-# Restore file permissions after upgrading
-chmod 0660 %{_localstatedir}/etc/ossec.conf
-chmod 0660 %{_localstatedir}/etc/decoders/*
-chmod 0660 %{_localstatedir}/etc/rules/*
-chown ossec:ossec %{_localstatedir}/etc/decoders/*
-chown ossec:ossec %{_localstatedir}/etc/rules/*
-find %{_localstatedir}/etc/lists -type f -exec chmod 660 {} \; -exec chown ossec:ossec {} \;
 
 # CentOS
 if [ -r "/etc/centos-release" ]; then
@@ -396,14 +376,29 @@ rm -f %{_localstatedir}/etc/shared/default/*.rpmnew
 
 %preun
 
+# Stop the services before upgrading/uninstalling the package
+# Check for systemd
+if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
+  systemctl stop wazuh-manager > /dev/null 2>&1
+# Check for SysV
+elif command -v service > /dev/null 2>&1; then
+  service wazuh-manager stop > /dev/null 2>&1
+# Anything else
+else
+  %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
+fi
+
 if [ $1 = 0 ]; then
 
-  /sbin/service wazuh-manager stop > /dev/null 2>&1 || :
-  %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
-  /sbin/chkconfig wazuh-manager off > /dev/null 2>&1
-  /sbin/chkconfig --del wazuh-manager
-
-  /sbin/service wazuh-manager stop > /dev/null 2>&1 || :
+  # Check for systemd
+  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
+    systemctl disable wazuh-manager > /dev/null 2>&1
+    systemctl daemon-reload > /dev/null 2>&1
+  # Check for SysV
+  elif command -v service > /dev/null 2>&1; then
+    chkconfig wazuh-manager off > /dev/null 2>&1
+    chkconfig --del wazuh-manager > /dev/null 2>&1
+  fi
 
   # Remove the SELinux policy
   if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
@@ -412,22 +407,6 @@ if [ $1 = 0 ]; then
         semodule -r wazuh > /dev/null
       fi
     fi
-  fi
-
-  # Remove the service file for SUSE hosts
-  if [ -f /etc/os-release ]; then
-    sles=$(grep "\"sles" /etc/os-release)
-  elif [ -f /etc/SuSE-release ]; then
-    sles=$(grep "SUSE Linux Enterprise Server" /etc/SuSE-release)
-  fi
-  if [ ! -z "$sles" ]; then
-    rm -f /etc/init.d/wazuh-manager
-  fi
-
-  # Remove the service files
-  # RHEL 8 service located in /usr/lib/systemd/system/
-  if [ -f /usr/lib/systemd/system/wazuh-manager.service ]; then
-    rm -f /usr/lib/systemd/system/wazuh-manager.service
   fi
 
   # Remove SCA files
@@ -493,6 +472,8 @@ fi
 rm -fr %{buildroot}
 
 %files
+%{_initrddir}/wazuh-manager
+/usr/lib/systemd/system/wazuh-manager.service
 %defattr(-,root,ossec)
 %attr(640, root, ossec) %verify(not md5 size mtime) %{_sysconfdir}/ossec-init.conf
 %dir %attr(750, root, ossec) %{_localstatedir}
@@ -609,8 +590,6 @@ rm -fr %{buildroot}
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/src/VERSION
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/src/init/
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/src/init/*
-%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/src/systemd/
-%attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/src/systemd/*
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/etc/templates
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/generic
@@ -736,7 +715,6 @@ rm -fr %{buildroot}
 %dir %attr(750, root, ossec) %{_localstatedir}/wodles/gcloud
 %attr(750, root, ossec) %{_localstatedir}/wodles/gcloud/*
 
-%{_initrddir}/*
 %if %{_debugenabled} == "yes"
 /usr/lib/debug/%{_localstatedir}/*
 /usr/src/debug/%{name}-%{version}/*

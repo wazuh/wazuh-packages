@@ -82,7 +82,10 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.ssh
 
 # Copy the installed files into RPM_BUILD_ROOT directory
 cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
+mkdir -p ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
 install -m 0640 ossec-init.conf ${RPM_BUILD_ROOT}%{_sysconfdir}
+install -m 0755 src/init/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-agent
+install -m 0644 src/systemd/wazuh-agent.service ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
 
 # Clean the preinstalled configuration assesment files
 rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ruleset/sca/*
@@ -141,7 +144,6 @@ cp add_localfiles.sh ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_ins
 
 # Templates for initscript
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/src/init
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/src/systemd
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/generic
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/centos
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/fedora
@@ -166,7 +168,6 @@ install -m 0640 src/init/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/
 cp src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/src/
 cp src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/src/
 cp src/LOCATION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/src/
-cp -r src/systemd/* ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/src/systemd
 
 if [ %{_debugenabled} = "yes" ]; then
   %{_rpmconfigdir}/find-debuginfo.sh
@@ -190,22 +191,18 @@ fi
 %post
 # If the package is being installed
 if [ $1 = 1 ]; then
-  . %{_localstatedir}/packages_files/agent_installation_scripts/src/init/dist-detect.sh
 
   sles=""
-  if [ -f /etc/os-release ]; then
+  if [ -f /etc/SuSE-release ]; then
+    sles="suse"
+  elif [ -f /etc/os-release ]; then
     if `grep -q "\"sles" /etc/os-release` ; then
       sles="suse"
     elif `grep -q -i "\"opensuse" /etc/os-release` ; then
       sles="opensuse"
     fi
-  elif [ -f /etc/SuSE-release ]; then
-    if `grep -q "SUSE Linux Enterprise Server" /etc/SuSE-release` ; then
-      sles="suse"
-    elif `grep -q -i "opensuse" /etc/SuSE-release` ; then
-      sles="opensuse"
-    fi
   fi
+
   if [ ! -z "$sles" ]; then
     install -m 755 %{_localstatedir}/packages_files/agent_installation_scripts/src/init/ossec-hids-suse.init /etc/init.d/wazuh-agent
   fi
@@ -214,17 +211,14 @@ if [ $1 = 1 ]; then
   chown ossec:ossec %{_localstatedir}/logs/active-responses.log
   chmod 0660 %{_localstatedir}/logs/active-responses.log
 
+  . %{_localstatedir}/packages_files/agent_installation_scripts/src/init/dist-detect.sh
+
   # Generating osse.conf file
   %{_localstatedir}/packages_files/agent_installation_scripts/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir} > %{_localstatedir}/etc/ossec.conf
   chown root:ossec %{_localstatedir}/etc/ossec.conf
 
   # Add default local_files to ossec.conf
   %{_localstatedir}/packages_files/agent_installation_scripts/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
-
-  # If systemd is installed, add the wazuh-agent.service file to systemd files directory
-  if [ -d /run/systemd/system ]; then
-    install -m 644 %{_localstatedir}/packages_files/agent_installation_scripts/src/systemd/wazuh-agent.service /usr/lib/systemd/system/
-  fi
 fi
 
 # Delete the installation files used to configure the agent
@@ -330,12 +324,29 @@ chmod 0660 %{_localstatedir}/etc/ossec.conf
 
 %preun
 
+# Stop the services before upgrading/uninstalling the package
+# Check for systemd
+if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
+  systemctl stop wazuh-agent > /dev/null 2>&1
+# Check for SysV
+elif command -v service > /dev/null 2>&1; then
+  service wazuh-agent stop > /dev/null 2>&1
+# Anything else
+else
+  %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
+fi
+
 if [ $1 = 0 ]; then
 
-  /sbin/service wazuh-agent stop > /dev/null 2>&1 || :
-  %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
-  /sbin/chkconfig wazuh-agent off > /dev/null 2>&1
-  /sbin/chkconfig --del wazuh-agent
+  # Check for systemd
+  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
+    systemctl disable wazuh-agent > /dev/null 2>&1
+    systemctl daemon-reload > /dev/null 2>&1
+  # Check for SysV
+  elif command -v service > /dev/null 2>&1; then
+    chkconfig wazuh-agent off > /dev/null 2>&1
+    chkconfig --del wazuh-agent > /dev/null 2>&1
+  fi
 
   # Remove the SELinux policy
   if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
@@ -353,10 +364,6 @@ if [ $1 = 0 ]; then
   fi
   if [ ! -z "$sles" ]; then
     rm -f /etc/init.d/wazuh-agent
-  fi
-
-  if [ -f /usr/lib/systemd/system/wazuh-agent.service ]; then
-    rm -f /usr/lib/systemd/system/wazuh-agent.service
   fi
 
   # Remove SCA files
@@ -399,6 +406,8 @@ fi
 rm -fr %{buildroot}
 
 %files
+%{_initrddir}/wazuh-agent
+/usr/lib/systemd/system/wazuh-agent.service
 %defattr(-,root,root)
 %attr(640,root,ossec) %verify(not md5 size mtime) %{_sysconfdir}/ossec-init.conf
 %dir %attr(750,root,ossec) %{_localstatedir}
