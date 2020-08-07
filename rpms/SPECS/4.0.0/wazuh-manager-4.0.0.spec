@@ -192,6 +192,11 @@ if [ -e %{_localstatedir}/api ]; then
   fi
 fi
 
+# Ensure old API node process is not running
+if ps aux | grep ${_localstatedir}/api/app.js | grep -v grep > /dev/null 2>&1; then
+  kill -9 `ps -ef | grep "${_localstatedir}/api/app.js" | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
+fi
+
 # Stop Authd if it is running
 if ps aux | grep %{_localstatedir}/bin/ossec-authd | grep -v grep > /dev/null 2>&1; then
    kill `ps -ef | grep '%{_localstatedir}/bin/ossec-authd' | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
