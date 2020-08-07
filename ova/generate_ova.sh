@@ -23,11 +23,11 @@ OUTPUT_DIR="${scriptpath}/output"
 CHECKSUM_DIR=""
 HAVE_VERSION=false
 HAVE_OPENDISTRO_VERSION=false
-HAVE_FILEBEAT_VERSION=false
+HAVE_ELK_VERSION=false
 
 WAZUH_VERSION=""
 OPENDISTRO_VERSION=""
-FILEBEAT_VERSION=""
+ELK_VERSION=""
 STATUS=""
 CHECKSUM="no"
 
@@ -38,7 +38,7 @@ help () {
     echo
     echo "  -v, --version          [Required] Version of wazuh to install on VM."
     echo "  -o, --opendistro       [Required] Version of opendistro"
-    echo "  -f, --filebeat         [Required] Filebeat version to download inside VM."
+    echo "  -e, --elasticsearch         [Required] Filebeat version to download inside VM."
     echo "  -r, --repository       [Required] Status of the packages [prod/dev]"
     echo "  -s, --store <path>     [Optional] Set the destination absolute path of package."
     echo "  -c, --checksum <path>  [Optional] Generate checksum."
@@ -63,7 +63,7 @@ build_ova() {
     OVF_VM="wazuh${OVA_VERSION}.ovf"
     OVA_FIXED="wazuh${OVA_VERSION}-fixed.ova"
     OVA_VMDK="wazuh${OVA_VERSION}-disk001.vmdk"
-    ELK_MAJOR=`echo ${FILEBEAT_VERSION}|cut -d"." -f1`
+    ELK_MAJOR=`echo ${ELK_VERSION}|cut -d"." -f1`
 
 
     if [ -e "${OVA_VM}" ] || [ -e "${OVA_VM}" ]; then
@@ -104,10 +104,10 @@ build_ova() {
 
 check_version() {
 
-    if [ "${STATUS_PACKAGES}" = "prod" ]; then
-        curl -Isf https://raw.githubusercontent.com/wazuh/wazuh-kibana-app/v${WAZUH_VERSION}-${FILEBEAT_VERSION}/README.md > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${FILEBEAT_VERSION} not supported." && exit 1 )
-    elif [ "${STATUS_PACKAGES}" = "dev" ]; then
-        curl -Isf https://packages-dev.wazuh.com/pre-release/app/kibana/wazuhapp-${WAZUH_VERSION}_${FILEBEAT_VERSION}.zip > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${FILEBEAT_VERSION} not supported." && exit 1 )
+    if [ "${STATUS}" = "prod" ]; then
+        curl -Isf https://raw.githubusercontent.com/wazuh/wazuh-kibana-app/v${WAZUH_VERSION}-${ELK_VERSION}/README.md > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${ELK_VERSION} not supported." && exit 1 )
+    elif [ "${STATUS}" = "dev" ]; then
+        curl -Isf https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${ELK_VERSION} not supported." && exit 1 )
     else
         echo "Error, repository value must take 'prod' or 'dev' value."
         exit
@@ -147,13 +147,13 @@ main() {
             shift 2
         ;;
 
-        "-f" | "--filebeat")
+        "-e" | "--elasticsearch")
             if [ -n "$2" ]; then
-                export OVA_FILEBEAT_VERSION="$2"
-                FILEBEAT_VERSION="$2"
-                HAVE_FILEBEAT_VERSION=true
+                export OVA_ELK_VERSION="$2"
+                ELK_VERSION="$2"
+                HAVE_ELK_VERSION=true
             else
-                echo "ERROR: Need filebeat version."
+                echo "ERROR: Need elk version."
                 help 1
             fi
             shift 2
@@ -161,7 +161,7 @@ main() {
 
         "-r" | "--repository")
             if [ -n "$2" ]; then
-                export STATUS_PACKAGES="$2"
+                export OVA_STATUS_PACKAGES="$2"
                 STATUS="$2"
                 HAVE_STATUS=true
             else
@@ -198,8 +198,8 @@ main() {
     if [ -z "${CHECKSUM_DIR}" ]; then
         CHECKSUM_DIR="${OUTPUT_DIR}"
     fi
-    if  [ "${HAVE_VERSION}" = true ] && [ "${HAVE_FILEBEAT_VERSION}" = true ] && [ "${HAVE_STATUS}" = true ] && [ "${HAVE_OPENDISTRO_VERSION}" = true ]; then
-        check_version ${WAZUH_VERSION} ${FILEBEAT_VERSION} ${STATUS}
+    if  [ "${HAVE_VERSION}" = true ] && [ "${HAVE_ELK_VERSION}" = true ] && [ "${HAVE_STATUS}" = true ] && [ "${HAVE_OPENDISTRO_VERSION}" = true ]; then
+        check_version ${WAZUH_VERSION} ${ELK_VERSION} ${STATUS}
         OVA_VERSION="${WAZUH_VERSION}_${OPENDISTRO_VERSION}"
 
         echo "Version to build: ${WAZUH_VERSION}-${OPENDISTRO_VERSION} with ${STATUS} repository."

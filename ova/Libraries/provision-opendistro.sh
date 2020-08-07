@@ -4,6 +4,7 @@ debug='> /dev/null 2>&1'
 sys_type="yum"
 
 logger() {
+
     echo $1
 }
 
@@ -48,6 +49,7 @@ startService() {
 
 ## Show script usage
 getHelp() {
+
    echo ""
    echo "Usage: $0 arguments"
    echo -e "\t-d   | --debug Shows the complete installation output"
@@ -76,9 +78,18 @@ installPrerequisites() {
 
 ## Add the Wazuh repository
 addWazuhrepo() {
+
     logger "Adding the Wazuh repository..."
     eval "rpm --import https://packages.wazuh.com/key/GPG-KEY-WAZUH $debug"
-    eval "echo -e '[wazuh_trash]\ngpgcheck=1\ngpgkey=https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages-dev.wazuh.com/trash/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh_pre.repo $debug"
+    # eval "echo -e '[wazuh_trash]\ngpgcheck=1\ngpgkey=https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages-dev.wazuh.com/trash/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh_pre.repo $debug"
+    if [ "${STATUS_PACKAGES}" = "prod" ]; then
+      logger "Adding production repository..."
+      eval "echo -e '[wazuh_repo]\ngpgcheck=1\ngpgkey=https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages.wazuh.com/3.x/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo $debug"
+    elif [ "${STATUS_PACKAGES}" = "dev" ]; then
+      logger "Adding development repository..."
+
+      eval "echo -e '[wazuh_pre-release]\ngpgcheck=1\ngpgkey=https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages-dev.wazuh.com/pre-release/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh_pre.repo $debug"
+    fi
 
     if [  "$?" != 0  ]
     then
@@ -91,6 +102,8 @@ addWazuhrepo() {
 
 ## Wazuh manager
 installWazuh() {
+
+
     logger "Installing the Wazuh manager..."
     eval "$sys_type install wazuh-manager-${WAZUH_VERSION} -y -q $debug"
     if [  "$?" != 0  ]
@@ -104,6 +117,7 @@ installWazuh() {
 
 ## Elasticsearch
 installElasticsearch() {
+    sleep 1000
     logger "Installing Open Distro for Elasticsearch..."
     eval "$sys_type install opendistroforelasticsearch-${OPENDISTRO_VERSION} -y -q $debug"
 
@@ -212,6 +226,16 @@ installKibana() {
     else
         eval "curl -so /etc/kibana/kibana.yml https://raw.githubusercontent.com/wazuh/wazuh/new-documentation-templates/extensions/kibana/7.x/kibana_all_in_one.yml --max-time 300 $debug"
         eval "cd /usr/share/kibana $debug"
+
+
+
+        if [ "${STATUS_PACKAGES}" = "prod" ]; then
+          eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages-dev.wazuh.com/Backups/staging/app/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip $debug"
+        elif [ "${STATUS_PACKAGES}" = "dev" ]; then
+          eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip $debug"
+        fi
+
+
         eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages-dev.wazuh.com/trash/app/kibana/wazuhapp-4.0.0_7.8.0.zip $debug"
         if [  "$?" != 0  ]
         then
@@ -231,6 +255,7 @@ installKibana() {
 
 ## Health check
 healthCheck() {
+
     cores=$(cat /proc/cpuinfo | grep processor | wc -l)
     ram_gb=$(free -m | awk '/^Mem:/{print $2}')
 
@@ -244,6 +269,7 @@ healthCheck() {
 }
 
 checkInstallation() {
+
     logger "Checking the installation..."
     eval "curl -XGET https://localhost:9200 -uadmin:admin -k --max-time 300 $debug"
     if [  "$?" != 0  ]

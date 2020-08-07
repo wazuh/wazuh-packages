@@ -14,6 +14,7 @@ config_files="/vagrant/Config_files"
 automatic_set_ram_location="/etc/"
 libraries_files="/vagrant/Libraries/"
 
+echo "${STATUS_PACKAGES}"
 . /vagrant/Libraries/provision-opendistro.sh
 
 
@@ -28,8 +29,6 @@ echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 # Dependences
 yum install openssl -y
 
-
-healthCheck
 installPrerequisites
 addWazuhrepo
 installWazuh
