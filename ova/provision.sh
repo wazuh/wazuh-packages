@@ -36,6 +36,7 @@ installElasticsearch
 installFilebeat
 installKibana
 checkInstallation
+cleanInstall
 
 rm -rf /vagrant
 

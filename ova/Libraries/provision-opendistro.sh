@@ -88,7 +88,7 @@ addWazuhrepo() {
     elif [ "${STATUS_PACKAGES}" = "dev" ]; then
       logger "Adding development repository..."
 
-      eval "echo -e '[wazuh_pre-release]\ngpgcheck=1\ngpgkey=https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages-dev.wazuh.com/pre-release/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh_pre.repo $debug"
+      eval "echo -e '[wazuh_pre-release]\ngpgcheck=1\ngpgkey=https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages-dev.wazuh.com/pre-release/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo $debug"
     fi
 
     if [  "$?" != 0  ]
@@ -116,9 +116,9 @@ installWazuh() {
 }
 
 ## Elasticsearch
-installElasticsearch() {
-    sleep 1000
+asticsearch() {
     logger "Installing Open Distro for Elasticsearch..."
+    eval "curl https://d3g5vo6xdbdb9a.cloudfront.net/yum/opendistroforelasticsearch-artifacts.repo -o /etc/yum.repos.d/opendistroforelasticsearch-artifacts.repo"
     eval "$sys_type install opendistroforelasticsearch-${OPENDISTRO_VERSION} -y -q $debug"
 
     if [  "$?" != 0  ]
@@ -294,4 +294,11 @@ checkInstallation() {
     done
     echo $'\nInstallation finished'
     exit 0;
+}
+
+cleanInstall(){
+
+    eval "rm -rf /etc/yum.repos.d/adoptopenjdk.repo"
+    eval "rm -rf /etc/yum.repos.d/opendistroforelasticsearch-artifacts.repo"
+    eval "rm -rf  /etc/yum.repos.d/wazuh.repo"
 }
