@@ -37,57 +37,11 @@ case "$1" in
         adduser --system --home ${DIR} --shell ${OSMYSHELL} --ingroup ${GROUP} ${USER_REM} > /dev/null 2>&1
     fi
 
-    ${SCRIPTS_DIR}/gen_ossec.sh init manager ${DIR} > ${DIR}/etc/ossec-init.conf
-    chown root:${GROUP} ${DIR}/etc/ossec-init.conf
-    chmod 640 ${DIR}/etc/ossec-init.conf
-
     if [ -z "$2" ] || [ -f ${WAZUH_TMP_DIR}/create_conf ] ; then
 
         ${SCRIPTS_DIR}/gen_ossec.sh conf manager ${OS} ${VER} > ${DIR}/etc/ossec.conf
         ${SCRIPTS_DIR}/add_localfiles.sh >> ${DIR}/etc/ossec.conf
 
-        ETC_DECODERS="${DIR}/etc/decoders"
-        ETC_RULES="${DIR}/etc/rules"
-
-        # Moving local_decoder
-        if [ -f "${DIR}/etc/local_decoder.xml" ]; then
-            if [ -s "${DIR}/etc/local_decoder.xml" ]; then
-                mv "${DIR}/etc/local_decoder.xml" $ETC_DECODERS
-            else
-                # it is empty
-                rm -f "${DIR}/etc/local_decoder.xml"
-            fi
-        fi
-
-        # Moving local_rules
-        if [ -f "${DIR}/rules/local_rules.xml" ]; then
-            mv "${DIR}/rules/local_rules.xml" $ETC_RULES
-        fi
-        # Creating backup directory
-        if [ -d "${DIR}/etc/wazuh_decoders" ]; then
-            BACKUP_RULESET="${DIR}/etc/backup_ruleset"
-            mkdir $BACKUP_RULESET > /dev/null 2>&1
-            chmod 750 $BACKUP_RULESET > /dev/null 2>&1
-            chown root:ossec $BACKUP_RULESET > /dev/null 2>&1
-
-            # Backup decoders: Wazuh v1.0.1 to v1.1.1
-            old_decoders="ossec_decoders wazuh_decoders"
-            for old_decoder in $old_decoders
-            do
-                if [ -d "${DIR}/etc/$old_decoder" ]; then
-                    mv "${DIR}/etc/$old_decoder" $BACKUP_RULESET
-                fi
-            done
-
-            # Backup decoders: Wazuh v1.0 and OSSEC
-            if [ -f "${DIR}/etc/decoder.xml" ]; then
-                mv "${DIR}/etc/decoder.xml" $BACKUP_RULESET
-            fi
-            if [ -d "${DIR}/rules" ]; then
-                # Backup rules: All versions
-                mv "${DIR}/rules" $BACKUP_RULESET
-            fi
-        fi
         passlist="${DIR}/agentless/.passlist"
 
         if [ -f $passlist ] && ! base64 -d $passlist > /dev/null 2>&1; then
@@ -113,51 +67,14 @@ case "$1" in
     # Remove Vuln-detector database
     rm -f ${DIR}/queue/vulnerabilities/cve.db || true
 
-    # Remove existing SQLite databases for Wazuh DB when upgrading
-    # Wazuh only if upgrading from 3.2..3.6
-    if [ ! -z $2 ]; then
-
-        PREVIOUS_VERSION=$(echo $2 | cut -d"-" -f1)
-
-        # Get the major and minor version
-        MAJOR=$(echo $PREVIOUS_VERSION | cut -d. -f1)
-        MINOR=$(echo $PREVIOUS_VERSION | cut -d. -f2)
-
-        if [ $MAJOR = 3 ] && [ $MINOR -lt 7 ]; then
-            rm -f ${DIR}/queue/db/*.db*
-            rm -f ${DIR}/queue/db/.template.db
-        fi
-    fi
-
     # Restoring file permissions
-    . ${SCRIPTS_DIR}/restore-permissions.sh
-
-    # Restore sslmanager.key and sslmanager.cert
-    if [ -f ${WAZUH_TMP_DIR}/sslmanager.cert ]; then
-        mv ${WAZUH_TMP_DIR}/sslmanager.cert ${DIR}/etc/sslmanager.cert
-    fi
-
-    # Restore ossec.conf configuration
-    if [ -f ${WAZUH_TMP_DIR}/sslmanager.key ]; then
-        mv ${WAZUH_TMP_DIR}/sslmanager.key ${DIR}/etc/sslmanager.key
-    fi
-
-    # Correct permission on existing certificates
-    if [ -f "${DIR}/etc/sslmanager.key" ] && [ -f "${DIR}/etc/sslmanager.cert" ]; then
-        chmod 640 ${DIR}/etc/sslmanager.key
-        chmod 640 ${DIR}/etc/sslmanager.cert
-    fi
+    ${SCRIPTS_DIR}/restore-permissions.sh > /dev/null 2>&1 || true
 
     # Generation auto-signed certificate if not exists
     if type openssl >/dev/null 2>&1 && [ ! -f "${DIR}/etc/sslmanager.key" ] && [ ! -f "${DIR}/etc/sslmanager.cert" ]; then
         openssl req -x509 -batch -nodes -days 365 -newkey rsa:2048 -subj "/C=US/ST=California/CN=Wazuh/" -keyout ${DIR}/etc/sslmanager.key -out ${DIR}/etc/sslmanager.cert 2>/dev/null
         chmod 640 ${DIR}/etc/sslmanager.key
         chmod 640 ${DIR}/etc/sslmanager.cert
-    fi
-
-    # Move existing agent.conf to new target
-    if [ -f "${DIR}/etc/shared/agent.conf" ]; then
-        mv "${DIR}/etc/shared/agent.conf" "${DIR}/etc/shared/default/agent.conf"
     fi
 
     # For the etc dir
@@ -171,11 +88,6 @@ case "$1" in
         cp -p /etc/TIMEZONE ${DIR}/etc/;
         chmod 640 ${DIR}/etc/TIMEZONE
         chown root:${GROUP} ${DIR}/etc/localtime
-    fi
-
-    if [ -d "${DIR}/etc/backup_ruleset" ]; then
-        chmod 750 -R ${DIR}/etc/backup_ruleset
-        chown root:${GROUP} ${DIR}/etc/backup_ruleset
     fi
 
     # For the /var/run and global-db
@@ -264,21 +176,6 @@ case "$1" in
         chown root:ossec ${DIR}/etc/shared/ar.conf
     fi
 
-    # Delete old service
-    if [ -e /etc/init.d/ossec ]; then
-        rm -f /etc/init.d/ossec
-    fi
-    if [ -e /etc/init.d/ossec-hids ]; then
-        rm -f /etc/init.d/ossec-hids
-    fi
-
-    # logrotate configuration file
-    if [ -d /etc/logrotate.d/ ]; then
-        if [ -e /etc/logrotate.d/wazuh-hids ]; then
-            rm -f /etc/logrotate.d/wazuh-hids
-        fi
-    fi
-
     # create cluster.log file if not exists
     if [ -f ${DIR}/logs/cluster.log ]; then
         chmod 660 ${DIR}/logs/cluster.log
@@ -344,36 +241,6 @@ case "$1" in
 
     fi
 
-    # Copy API service files
-    if [ ! -d ${DIR}/api/service ]; then
-      mkdir -p ${DIR}/api/service
-    fi
-    cp -fp ${SCRIPTS_DIR}/api/service/* ${DIR}/api/service
-    chmod 750 ${DIR}/api/service/*
-    chown root:${GROUP} ${DIR}/api/service/*
-
-    # API service
-    WAZUH_PATH=${DIR} ${DIR}/api/service/install_daemon.sh
-
-    # Service
-    if [ -x /etc/init.d/wazuh-manager ]; then
-        if [ -d /run/systemd/system ]; then
-            systemctl daemon-reload
-            systemctl enable wazuh-manager > /dev/null 2>&1
-        fi
-
-        update-rc.d wazuh-manager defaults > /dev/null 2>&1
-
-        if ${DIR}/bin/ossec-logtest -t 2>/dev/null ; then
-            service wazuh-manager restart
-            service wazuh-api restart
-        else
-            echo "================================================================================================================"
-            echo "Something in your actual rules configuration is wrong, please review your configuration and restart the service."
-            echo "================================================================================================================"
-        fi
-    fi
-
     # Delete installation scripts
     if [ -d ${SCRIPTS_DIR} ]; then
         rm -rf ${SCRIPTS_DIR}
@@ -394,12 +261,12 @@ case "$1" in
     chown root:ossec /etc/ossec-init.conf
 
     # Fix Python permissions
-    chmod 750 /var/ossec/framework/python/bin/2to3-3.8
-    chmod 750 /var/ossec/framework/python/bin/pydoc3.8
-    chmod 750 /var/ossec/framework/python/bin/python3-config
-    chmod 0640 /var/ossec/framework/python/lib/pkgconfig/python-3.8-embed.pc
-    chmod 0640 /var/ossec/framework/python/lib/pkgconfig/python-3.8.pc
-    chmod 0640 /var/ossec/framework/python/lib/pkgconfig/python3.pc
+    chmod 750 ${DIR}/framework/python/bin/2to3-3.8
+    chmod 750 ${DIR}/framework/python/bin/pydoc3.8
+    chmod 750 ${DIR}/framework/python/bin/python3-config
+    chmod 0640 ${DIR}/framework/python/lib/pkgconfig/python-3.8-embed.pc
+    chmod 0640 ${DIR}/framework/python/lib/pkgconfig/python-3.8.pc
+    chmod 0640 ${DIR}/framework/python/lib/pkgconfig/python3.pc
 
     ;;
 
