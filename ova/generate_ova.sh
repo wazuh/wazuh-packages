@@ -27,6 +27,7 @@ HAVE_ELK_VERSION=false
 
 WAZUH_VERSION=""
 OPENDISTRO_VERSION=""
+BRANCH="new-documentation-templates"
 ELK_VERSION=""
 STATUS=""
 CHECKSUM="no"
@@ -35,11 +36,11 @@ help () {
 
     echo
     echo "Usage: $0 [OPTIONS]"
-    echo
     echo "  -v, --version          [Required] Version of wazuh to install on VM."
     echo "  -o, --opendistro       [Required] Version of opendistro"
-    echo "  -e, --elasticsearch         [Required] Filebeat version to download inside VM."
+    echo "  -e, --elasticsearch    [Required] Filebeat version to download inside VM."
     echo "  -r, --repository       [Required] Status of the packages [prod/dev]"
+    echo "  -b, --branch           [Optional] Branch of the Wazuh repository"
     echo "  -s, --store <path>     [Optional] Set the destination absolute path of package."
     echo "  -c, --checksum <path>  [Optional] Generate checksum."
     echo "  -h, --help             [  Util  ] Show this help."
@@ -64,6 +65,8 @@ build_ova() {
     OVA_FIXED="wazuh${OVA_VERSION}-fixed.ova"
     OVA_VMDK="wazuh${OVA_VERSION}-disk001.vmdk"
     ELK_MAJOR=`echo ${ELK_VERSION}|cut -d"." -f1`
+    export OVA_BRANCH="$BRANCH"
+
 
 
     if [ -e "${OVA_VM}" ] || [ -e "${OVA_VM}" ]; then
@@ -170,7 +173,16 @@ main() {
             fi
             shift 2
         ;;
-
+        "-b"|"--branch")
+            if [ -n "$2" ]; then
+                export OVA_BRANCH="$2"
+                BRANCH="$2"
+                shift 2
+            else
+                export OVA_BRANCH="$BRANCH"
+                help 1
+            fi
+            ;;
         "-s"|"--store-path")
             if [ -n "$2" ]; then
                 OUTPUT_DIR="$2"
@@ -202,7 +214,7 @@ main() {
         check_version ${WAZUH_VERSION} ${ELK_VERSION} ${STATUS}
         OVA_VERSION="${WAZUH_VERSION}_${OPENDISTRO_VERSION}"
 
-        echo "Version to build: ${WAZUH_VERSION}-${OPENDISTRO_VERSION} with ${STATUS} repository."
+        echo "Version to build: ${WAZUH_VERSION}-${OPENDISTRO_VERSION} with ${STATUS} repository and ${BRANCH} branch"
         build_ova ${WAZUH_VERSION} ${OVA_VERSION}
     else
         echo "ERROR: Need more parameters."

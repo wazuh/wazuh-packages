@@ -81,14 +81,16 @@ addWazuhrepo() {
 
     logger "Adding the Wazuh repository..."
     eval "rpm --import https://packages.wazuh.com/key/GPG-KEY-WAZUH $debug"
-    # eval "echo -e '[wazuh_trash]\ngpgcheck=1\ngpgkey=https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages-dev.wazuh.com/trash/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh_pre.repo $debug"
     if [ "${STATUS_PACKAGES}" = "prod" ]; then
       logger "Adding production repository..."
-      eval "echo -e '[wazuh_repo]\ngpgcheck=1\ngpgkey=https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages.wazuh.com/3.x/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo $debug"
+      # Temporal repository
+      eval "echo -e '[wazuh_trash]\ngpgcheck=1\ngpgkey=https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages-dev.wazuh.com/trash/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh_pre.repo $debug"
+      #eval "echo -e '[wazuh_repo]\ngpgcheck=1\ngpgkey=https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages.wazuh.com/3.x/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo $debug"
     elif [ "${STATUS_PACKAGES}" = "dev" ]; then
       logger "Adding development repository..."
-
-      eval "echo -e '[wazuh_pre-release]\ngpgcheck=1\ngpgkey=https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages-dev.wazuh.com/pre-release/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo $debug"
+      # Temporal repository
+      eval "echo -e '[wazuh_trash]\ngpgcheck=1\ngpgkey=https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages-dev.wazuh.com/trash/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh_pre.repo $debug"
+      #eval "echo -e '[wazuh_pre-release]\ngpgcheck=1\ngpgkey=https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages-dev.wazuh.com/pre-release/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo $debug"
     fi
 
     if [  "$?" != 0  ]
@@ -116,9 +118,9 @@ installWazuh() {
 }
 
 ## Elasticsearch
-asticsearch() {
+installElasticsearch() {
     logger "Installing Open Distro for Elasticsearch..."
-    eval "curl https://d3g5vo6xdbdb9a.cloudfront.net/yum/opendistroforelasticsearch-artifacts.repo -o /etc/yum.repos.d/opendistroforelasticsearch-artifacts.repo"
+  #  eval "curl https://d3g5vo6xdbdb9a.cloudfront.net/yum/opendistroforelasticsearch-artifacts.repo -o /etc/yum.repos.d/opendistroforelasticsearch-artifacts.repo"
     eval "$sys_type install opendistroforelasticsearch-${OPENDISTRO_VERSION} -y -q $debug"
 
     if [  "$?" != 0  ]
@@ -130,18 +132,18 @@ asticsearch() {
 
         logger "Configuring Elasticsearch..."
 
-        eval "curl -so /etc/elasticsearch/elasticsearch.yml https://raw.githubusercontent.com/wazuh/wazuh/new-documentation-templates/extensions/elasticsearch/7.x/elasticsearch_all_in_one.yml --max-time 300 $debug"
-        eval "curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml https://raw.githubusercontent.com/wazuh/wazuh/new-documentation-templates/extensions/elasticsearch/roles/roles.yml --max-time 300 $debug"
-        eval "curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml https://raw.githubusercontent.com/wazuh/wazuh/new-documentation-templates/extensions/elasticsearch/roles/roles_mapping.yml --max-time 300 $debug"
-        eval "curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml https://raw.githubusercontent.com/wazuh/wazuh/new-documentation-templates/extensions/elasticsearch/roles/internal_users.yml --max-time 300 $debug"
-        eval "rm /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem -f $debug"
-        eval "mkdir /etc/elasticsearch/certs $debug"
-        eval "cd /etc/elasticsearch/certs $debug"
-        eval "curl -so /etc/elasticsearch/certs/search-guard-tlstool-1.8.zip https://maven.search-guard.com/search-guard-tlstool/1.8/search-guard-tlstool-1.8.zip --max-time 300 $debug"
-        eval "unzip search-guard-tlstool-1.8.zip -d searchguard $debug"
-        eval "curl -so /etc/elasticsearch/certs/searchguard/search-guard.yml https://raw.githubusercontent.com/wazuh/wazuh/new-documentation-templates/extensions/searchguard/search-guard-aio.yml --max-time 300 $debug"
-        eval "chmod +x searchguard/tools/sgtlstool.sh $debug"
-        eval "./searchguard/tools/sgtlstool.sh -c ./searchguard/search-guard.yml -ca -crt -t /etc/elasticsearch/certs/ $debug"
+        eval "curl -so /etc/elasticsearch/elasticsearch.yml https://raw.githubusercontent.com/wazuh/wazuh/${BRANCH}/extensions/elasticsearch/7.x/elasticsearch_all_in_one.yml --max-time 300"
+        eval "curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml https://raw.githubusercontent.com/wazuh/wazuh/${BRANCH}/extensions/elasticsearch/roles/roles.yml --max-time 300 "
+        eval "curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml https://raw.githubusercontent.com/wazuh/wazuh/${BRANCH}/extensions/elasticsearch/roles/roles_mapping.yml --max-time 300 "
+        eval "curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml https://raw.githubusercontent.com/wazuh/wazuh/${BRANCH}/extensions/elasticsearch/roles/internal_users.yml --max-time 300 "
+        eval "rm /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem -f "
+        eval "mkdir /etc/elasticsearch/certs "
+        eval "cd /etc/elasticsearch/certs "
+        eval "curl -so /etc/elasticsearch/certs/search-guard-tlstool-1.8.zip https://maven.search-guard.com/search-guard-tlstool/1.8/search-guard-tlstool-1.8.zip --max-time 300 "
+        eval "unzip search-guard-tlstool-1.8.zip -d searchguard "
+        eval "curl -so /etc/elasticsearch/certs/searchguard/search-guard.yml https://raw.githubusercontent.com/wazuh/wazuh/${BRANCH}/extensions/searchguard/search-guard-aio.yml --max-time 300 "
+        eval "chmod +x searchguard/tools/sgtlstool.sh "
+        eval "./searchguard/tools/sgtlstool.sh -c ./searchguard/search-guard.yml -ca -crt -t /etc/elasticsearch/certs/ $debug "
         if [  "$?" != 0  ]
         then
             echo "Error: certificates were not created"
@@ -188,8 +190,9 @@ asticsearch() {
 
 ## Filebeat
 installFilebeat() {
-
     logger "Installing Filebeat..."
+
+    #eval "echo -e '[elasticsearch-7.x]\nname=Elasticsearch repository for 7.x packages\nbaseurl=https://artifacts.elastic.co/packages/7.x/yum\ngpgcheck=1\ngpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch\nenabled=1\nautorefresh=1\ntype=rpm-md' | tee /etc/yum.repos.d/elastic.repo"
 
     eval "$sys_type install filebeat-"${ELK_VERSION}" -y -q  $debug"
     if [  "$?" != 0  ]
@@ -197,15 +200,14 @@ installFilebeat() {
         echo "Error: Filebeat installation failed"
         exit 1;
     else
-        eval "curl -so /etc/filebeat/filebeat.yml https://raw.githubusercontent.com/wazuh/wazuh/new-documentation-templates/extensions/filebeat/7.x/filebeat_all_in_one.yml --max-time 300  $debug"
-        eval "curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/v3.13.1/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300 $debug"
+        eval "curl -so /etc/filebeat/filebeat.yml https://raw.githubusercontent.com/wazuh/wazuh/${BRANCH}/extensions/filebeat/7.x/filebeat_all_in_one.yml --max-time 300  $debug"
+        eval "curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/${BRANCH}/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300 $debug"
         eval "chmod go+r /etc/filebeat/wazuh-template.json $debug"
         eval "curl -s https://packages.wazuh.com/3.x/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module $debug"
         eval "mkdir /etc/filebeat/certs $debug"
         eval "cp /etc/elasticsearch/certs/root-ca.pem /etc/filebeat/certs/ $debug"
         ls mv /etc/elasticsearch/certs/
         eval "mv /etc/elasticsearch/certs/filebeat* /etc/filebeat/certs/ $debug"
-
         # Start Filebeat
         startService "filebeat"
 
@@ -215,16 +217,16 @@ installFilebeat() {
 
 ## Kibana
 installKibana() {
+  #  eval "curl https://d3g5vo6xdbdb9a.cloudfront.net/yum/opendistroforelasticsearch-artifacts.repo -o /etc/yum.repos.d/opendistroforelasticsearch-artifacts.repo"
 
     logger "Installing Open Distro for Kibana..."
-
     eval "$sys_type install opendistroforelasticsearch-kibana-${OPENDISTRO_VERSION} -y -q $debug"
     if [  "$?" != 0  ]
     then
         echo "Error: Kibana installation failed"
         exit 1;
     else
-        eval "curl -so /etc/kibana/kibana.yml https://raw.githubusercontent.com/wazuh/wazuh/new-documentation-templates/extensions/kibana/7.x/kibana_all_in_one.yml --max-time 300 $debug"
+        eval "curl -so /etc/kibana/kibana.yml https://raw.githubusercontent.com/wazuh/wazuh/${BRANCH}/extensions/kibana/7.x/kibana_all_in_one.yml --max-time 300 $debug"
         eval "cd /usr/share/kibana $debug"
 
 
