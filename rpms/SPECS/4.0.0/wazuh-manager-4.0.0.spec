@@ -169,6 +169,7 @@ fi
 exit 0
 
 %pre
+
 # Create the ossec group if it doesn't exists
 if command -v getent > /dev/null 2>&1 && ! getent group ossec > /dev/null 2>&1; then
   groupadd -r ossec
@@ -203,7 +204,7 @@ rm -f %{_localstatedir}/queue/vulnerabilities/cve.db || true
 
 # Delete old API backups
 if [ $1 = 2 ]; then
-  if [ -e %{_localstatedir}/~api ]; then
+  if [ -d %{_localstatedir}/~api ]; then
     rm -rf %{_localstatedir}/~api
   fi
   # Import the variables from ossec-init.conf file
@@ -214,15 +215,17 @@ if [ $1 = 2 ]; then
   MINOR=$(echo $VERSION | cut -d. -f2)
 
   # Delete 3.X Wazuh API service
-  if [ "$MAJOR" = "3" ] && [ -e %{_localstatedir}/api ]; then
-    if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
-      systemctl disable wazuh-api.service > /dev/null
+  if [ "$MAJOR" = "3" ] && [ -d %{_localstatedir}/api ]; then
+    if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
+      systemctl stop wazuh-api.service > /dev/null 2>&1
+      systemctl disable wazuh-api.service > /dev/null 2>&1
       rm -f /etc/systemd/system/wazuh-api.service
     fi
 
-    if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
-      chkconfig wazuh-api off
-      chkconfig --del wazuh-api
+    if command -v service > /dev/null 2>&1; then
+      service wazuh-api stop > /dev/null 2>&1
+      chkconfig wazuh-api off > /dev/null 2>&1
+      chkconfig --del wazuh-api > /dev/null 2>&1
       rm -f /etc/rc.d/init.d/wazuh-api || true
     fi
   fi

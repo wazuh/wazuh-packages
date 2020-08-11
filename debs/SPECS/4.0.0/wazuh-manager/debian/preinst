@@ -20,6 +20,35 @@ fi
 case "$1" in
     install|upgrade)
 
+        # Delete old API backups
+        if [ "$1" = "upgrade" ]; then
+            if [ -d ${DIR}/~api ]; then
+                rm -rf ${DIR}/~api
+            fi
+            # Import the variables from ossec-init.conf file
+            . /etc/ossec-init.conf
+
+            # Get the major and minor version
+            MAJOR=$(echo $VERSION | cut -dv -f2 | cut -d. -f1)
+            MINOR=$(echo $VERSION | cut -d. -f2)
+
+            # Delete 3.X Wazuh API service
+            if [ "$MAJOR" = "3" ] && [ -d ${DIR}/api ]; then
+                if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
+                    systemctl stop wazuh-api.service > /dev/null 2>&1
+                    systemctl disable wazuh-api.service > /dev/null 2>&1
+                    rm -f /etc/systemd/system/wazuh-api.service
+                fi
+
+                if command -v service > /dev/null 2>&1; then
+                    service wazuh-api stop > /dev/null 2>&1
+                    chkconfig wazuh-api off > /dev/null 2>&1
+                    chkconfig --del wazuh-api > /dev/null 2>&1
+                    rm -f /etc/rc.d/init.d/wazuh-api || true
+                fi
+            fi
+        fi
+
         if [ ! -z "$2" ] && [ ! -f ${DIR}/etc/ossec.conf ] ; then
             touch ${WAZUH_TMP_DIR}/create_conf
         fi
