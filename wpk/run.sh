@@ -2,17 +2,17 @@
 
 DIRECTORY="wazuh"
 REPOSITORY="https://github.com/wazuh/wazuh.git"
-BRANCH=${1}
-JOBS=${2}
-OUT_NAME=${3}
-CHECKSUM=${4}
-INSTALLATION_PATH=${5}
-PKG_NAME=${6}
+REFERENCE=""
+JOBS="4"
+OUT_NAME=""
+CHECKSUM="no"
+INSTALLATION_PATH="/var"
+PKG_NAME=""
 HAVE_PKG_NAME=false
-if [ -n ${6} ]
-then
-    HAVE_PKG_NAME=true
-fi
+WPKCERT="/etc/wazuh/wpkcert.pem"
+WPKKEY="/etc/wazuh/wpkcert.key"
+OUTDIR="/var/local/wazuh"
+CHECKSUMDIR="/var/local/checksum"
 
 if command -v python3 > /dev/null ; then 
     PYTHON="python3"
@@ -20,18 +20,107 @@ else
     PYTHON=""
 fi
 
-WPKCERT="/etc/wazuh/wpkcert.pem"
-WPKEY="/etc/wazuh/wpkcert.key"
-OUTDIR="/var/local/wazuh"
-CHECKSUMDIR="/var/local/checksum"
+help() {
+    echo
+    echo "Usage: ${0} [OPTIONS]"
+    echo "It is required to use -k or -wk, -wc parameters"
+    echo
+    echo "    -b,   --branch <branch>      [Required] Select Git branch or tag e.g. master"
+    echo "    -o,   --output <name>        [Required] Name to the output package."
+    echo "    -pn,  --package-name <name>  [Required for windows] Package name to pack on wpk."
+    echo "    -p,   --path <path>          [Optional] Installation path for the package. By default: /var."
+    echo "    -j,   --jobs <number>        [Optional] Number of parallel jobs when compiling."
+    echo "    -c,   --checksum             [Optional] Generate checksum"
+    echo "    -wk,  --wpk-key              [Optional] AWS Secrets manager Name/ARN to get WPK private key."
+    echo "    -wc,  --wpk-cert             [Optional] AWS secrets manager Name/ARN to get WPK certificate."
+    echo "    -h,   --help                 Show this help."
+    echo
+    exit ${1}
+}
 
 main() {
+
+    while [ -n "${1}" ]
+    do
+        case "${1}" in
+        "-b"|"--branch")
+            if [[ -n "${2}" ]]; then
+                REFERENCE="$(echo ${2} | cut -d'/' -f2)"
+                shift 2
+            else
+                echo "ERROR: Missing branch."
+                help 1
+            fi
+            ;;
+        "-o"|"--output")
+            if [ -n "${2}" ]; then
+                OUT_NAME="${2}"
+                shift 2
+            else
+                echo "ERROR: Missing output name."
+                help 1
+            fi
+            ;;
+        "-p"|"--path")
+            if [ -n "${2}" ]; then
+                INSTALLATION_PATH="${2}"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
+        "-pn"|"--package-name")
+            if [ -n "${2}" ]; then
+                PKG_NAME="${2}"
+                HAVE_PKG_NAME=true
+                shift 2
+            fi
+            ;;
+        "-j"|"--jobs")
+            if [[ -n "${2}" ]]; then
+                JOBS="${2}"
+                shift 2
+            fi
+            ;;
+        "-c"|"--checksum")
+            CHECKSUM="yes"
+            shift 1
+            ;;
+        "-wk"|"--wpk-key")
+            if [ -n "${2}" ]; then
+                AWS_WPK_KEY="${2}"
+                shift 2
+            fi
+            ;;
+        "-wc"|"--wpk-cert")
+            if [ -n "${2}" ]; then
+                AWS_WPK_CERT="${2}"
+                shift 2
+            fi
+            ;;
+        "-h"|"--help")
+            help 0
+            ;;
+        *)
+            help 1
+        esac
+    done
+
+    if [ -n "${AWS_WPK_CERT}" ] && [ -n "${AWS_WPK_KEY}" ]; then
+        aws secretsmanager get-secret-value --secret-id ${AWS_WPK_CERT} | jq . > wpkcert.pem.json
+        jq .SecretString wpkcert.pem.json | tr -d '"' | sed 's|\\n|\n|g' > ${WPKCERT}
+        rm -f wpkcert.pem.json
+        aws secretsmanager get-secret-value --secret-id ${AWS_WPK_KEY} | jq . > wpkcert.key.json
+        jq .SecretString wpkcert.key.json | tr -d '"' | sed 's|\\n|\n|g' > ${WPKKEY}
+        rm -f wpkcert.key.json
+    fi
+
 
     NO_COMPILE=false
     # Get Wazuh
     git clone $REPOSITORY $DIRECTORY || exit 1
     cd $DIRECTORY
-    git checkout $BRANCH
+    git checkout $REFERENCE
 
     # Get info
     . src/init/dist-detect.sh
@@ -61,7 +150,7 @@ main() {
 
     if [ "${NO_COMPILE}" == false ]; then
       # Execute gmake deps if the version is greater or equal to 3.5
-      if [ $MAJOR -ge 3 ] && [ $MINOR -ge 5 ]; then
+      if [ $MAJOR -ge 3 ]; then
           make -C src deps
       fi
 
@@ -75,18 +164,19 @@ main() {
 
     # Compress and sign package
     if [ "${DIST_NAME}" = "centos" ]; then
-        ${PYTHON} /usr/local/bin/wpkpack $OUTPUT $WPKCERT $WPKEY *
+        ${PYTHON} /usr/local/bin/wpkpack $OUTPUT $WPKCERT $WPKKEY *
     else
 
       if [ "${HAVE_PKG_NAME}" == true ]; then
-          echo "wpkpack $OUTPUT $WPKCERT $WPKEY ${PKG_NAME} upgrade.bat do_upgrade.ps1"
+          echo "wpkpack $OUTPUT $WPKCERT $WPKKEY ${PKG_NAME} upgrade.bat do_upgrade.ps1"
           cd ${OUTDIR}
           cp /$DIRECTORY/src/win32/{upgrade.bat,do_upgrade.ps1} .
           cp /var/pkg/${PKG_NAME} ${OUTDIR}
-          wpkpack $OUTPUT $WPKCERT $WPKEY ${PKG_NAME} upgrade.bat do_upgrade.ps1
+          wpkpack $OUTPUT $WPKCERT $WPKKEY ${PKG_NAME} upgrade.bat do_upgrade.ps1
           rm -f upgrade.bat do_upgrade.ps1 ${PKG_NAME}
       else
           echo "ERROR: MSI package is needed to build the Windows WPK"
+          help 1
       fi
     fi
     echo "PACKED FILE -> $OUTPUT"

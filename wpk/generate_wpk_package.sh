@@ -20,47 +20,70 @@ WIN_BUILDER="windows_wpk_builder"
 WIN_BUILDER_DOCKERFILE="${CURRENT_PATH}/windows"
 CHECKSUM="no"
 INSTALLATION_PATH="/var"
+KEYDIR=""
 
 trap ctrl_c INT
+
 
 function build_wpk_windows() {
   local BRANCH="${1}"
   local DESTINATION="${2}"
-  local KEYDIR="${3}"
-  local CONTAINER_NAME="${4}"
-  local JOBS="${5}"
-  local PACKAGE_NAME="${6}"
-  local OUT_NAME="${7}"
-  local CHECKSUM="${8}"
-  local CHECKSUMDIR="${9}"
-  local INSTALLATION_PATH="${10}"
-
-
-  docker run -t --rm -v ${KEYDIR}:/etc/wazuh:Z -v ${DESTINATION}:/var/local/wazuh:Z -v ${PKG_PATH}:/var/pkg:Z \
-      -v ${CHECKSUMDIR}:/var/local/checksum:Z \
-      ${CONTAINER_NAME} ${BRANCH} ${JOBS} ${OUT_NAME} ${CHECKSUM} ${INSTALLATION_PATH} ${PACKAGE_NAME}
-
-  return $?
-}
-
-function build_wpk_linux() {
-  local BRANCH="${1}"
-  local DESTINATION="${2}"
-  local KEYDIR="${3}"
-  local CONTAINER_NAME="${4}"
-  local JOBS="${5}"
+  local CONTAINER_NAME="${3}"
+  local JOBS="${4}"
+  local PACKAGE_NAME="${5}"
   local OUT_NAME="${6}"
   local CHECKSUM="${7}"
   local CHECKSUMDIR="${8}"
   local INSTALLATION_PATH="${9}"
+  local WPK_KEY="${10}"
+  local WPK_CERT="${11}"
 
-  docker run -t --rm -v ${KEYDIR}:/etc/wazuh:Z -v ${DESTINATION}:/var/local/wazuh:Z \
+  if [[ -n "${CHECKSUM}" ]]; then
+    CHECKSUM_FLAG="-c"
+  fi
+  if [[ -n "${WPK_KEY}" ]]; then
+    WPK_KEY_FLAG="-wk ${WPK_KEY}"
+  fi
+  if [[ -n "${WPK_CERT}" ]]; then
+    WPK_CERT_FLAG="-wc ${WPK_CERT}"
+  fi
+
+  docker run -t --rm -v ${KEYDIR}:/etc/wazuh:Z -v ${DESTINATION}:/var/local/wazuh:Z -v ${PKG_PATH}:/var/pkg:Z \
       -v ${CHECKSUMDIR}:/var/local/checksum:Z \
-      ${CONTAINER_NAME} ${BRANCH} ${JOBS} ${OUT_NAME} ${CHECKSUM} ${INSTALLATION_PATH}
+      ${CONTAINER_NAME} -b ${BRANCH} -j ${JOBS} -o ${OUT_NAME} -p ${INSTALLATION_PATH} ${WPK_KEY_FLAG} ${WPK_CERT_FLAG} -pn ${PACKAGE_NAME} ${CHECKSUM_FLAG}
 
   return $?
 }
 
+
+function build_wpk_linux() {
+  local BRANCH="${1}"
+  local DESTINATION="${2}"
+  local CONTAINER_NAME="${3}"
+  local JOBS="${4}"
+  local OUT_NAME="${5}"
+  local CHECKSUM="${6}"
+  local CHECKSUMDIR="${7}"
+  local INSTALLATION_PATH="${8}"
+  local WPK_KEY="${9}"
+  local WPK_CERT="${10}"
+
+  if [[ -n "${CHECKSUM}" ]]; then
+    CHECKSUM_FLAG="-c"
+  fi
+  if [[ -n "${WPK_KEY}" ]]; then
+    WPK_KEY_FLAG="-wk ${WPK_KEY}"
+  fi
+  if [[ -n "${WPK_CERT}" ]]; then
+    WPK_CERT_FLAG="-wc ${WPK_CERT}"
+  fi
+
+  docker run -t --rm -v ${KEYDIR}:/etc/wazuh:Z -v ${DESTINATION}:/var/local/wazuh:Z \
+      -v ${CHECKSUMDIR}:/var/local/checksum:Z \
+      ${CONTAINER_NAME} -b ${BRANCH} -j ${JOBS} -o ${OUT_NAME} -p ${INSTALLATION_PATH} ${WPK_KEY_FLAG} ${WPK_CERT_FLAG} ${CHECKSUM_FLAG}
+
+  return $?
+}
 
 
 function build_container() {
@@ -72,22 +95,24 @@ function build_container() {
 }
 
 
-
 function help() {
   echo
   echo "Usage: ${0} [OPTIONS]"
+  echo "It is required to use -k or -wk, -wc parameters"
   echo
-  echo "    -t,   --target-system <target>              [Required] Select target wpk to build [linux/windows]"
-  echo "    -b,   --branch <branch>                     [Required] Select Git branch or tag e.g. $BRANCH"
-  echo "    -d,   --destination <path>                  [Required] Set the destination path of package."
-  echo "    -k,   --key-dir <arch>                      [Required] Set the WPK key path to sign package."
-  echo "    -a,   --architecture <arch>                 [Optional] Target architecture of the package [x86_64]."
-  echo "    -j,   --jobs <number>                       [Optional] Number of parallel jobs when compiling."
-  echo "    -pd,  --package-directory <directory>       [Required for windows] Package name to pack on wpk."
-  echo "    -p,   --path <path>                         [Optional] Installation path for the package. By default: /var."
-  echo "    -o,   --output <name>                       [Required] Name to the output package."
-  echo "    -c,   --checksum                            [Optional] Generate checksum"
-  echo "    -h,   --help                                Show this help."
+  echo "    -t,   --target-system <target> [Required] Select target wpk to build [linux/windows]"
+  echo "    -b,   --branch <branch>        [Required] Select Git branch or tag e.g. $BRANCH"
+  echo "    -d,   --destination <path>     [Required] Set the destination path of package."
+  echo "    -pn,  --package-name <name>    [Required for windows] Package name to pack on wpk."
+  echo "    -o,   --output <name>          [Required] Name to the output package."
+  echo "    -k,   --key-dir <arch>         [Optional] Set the WPK key path to sign package."
+  echo "    -wk,  --wpk-key                [Optional] AWS Secrets manager Name/ARN to get WPK private key."
+  echo "    -wc,  --wpk-cert               [Optional] AWS secrets manager Name/ARN to get WPK certificate."
+  echo "    -a,   --architecture <arch>    [Optional] Target architecture of the package [x86_64]."
+  echo "    -j,   --jobs <number>          [Optional] Number of parallel jobs when compiling."
+  echo "    -p,   --path <path>            [Optional] Installation path for the package. By default: /var."
+  echo "    -c,   --checksum <path>        [Optional] Generate checksum on the desired path."
+  echo "    -h,   --help                   Show this help."
   echo
   exit ${1}
 }
@@ -102,15 +127,16 @@ function clean() {
   return 0
 }
 
+
 ctrl_c() {
     clean 1
 }
+
 
 function main() {
   local TARGET=""
   local BRANCH=""
   local DESTINATION="${CURRENT_PATH}/output"
-  local KEYDIR=""
   local ARCHITECTURE="amd64"
   local JOBS="4"
   local CONTAINER_NAME=""
@@ -118,6 +144,8 @@ function main() {
   local OUT_NAME=""
   local NO_COMPILE=false
   local CHECKSUMDIR=""
+  local WPK_KEY=""
+  local WPK_CERT=""
 
   local HAVE_BRANCH=false
   local HAVE_DESTINATION=false
@@ -125,6 +153,8 @@ function main() {
   local HAVE_KEYDIR=false
   local HAVE_PKG_NAME=false
   local HAVE_OUT_NAME=false
+  local HAVE_WPK_KEY=false
+  local HAVE_WPK_CERT=false
   local LINUX_BUILDER="${LINUX_BUILDER_AMD64}"
   local LINUX_BUILDER_DOCKERFILE="${LINUX_BUILDER_AMD64_DOCKERFILE}"
 
@@ -169,16 +199,13 @@ function main() {
       "-k"|"--key-dir")
           if [[ -n "${2}" ]]; then
               if [[ "${2: -1}" != "/" ]]; then
-                local KEYDIR="${2}/"
+                KEYDIR="${2}/"
                 local HAVE_KEYDIR=true
               else
-                local KEYDIR="${2}"
+                KEYDIR="${2}"
                 local HAVE_KEYDIR=true
               fi
             shift 2
-          else
-            echo "ERROR: Missing key directory."
-            help 1
           fi
           ;;
       "-a"|"--architecture")
@@ -248,35 +275,55 @@ function main() {
             help 1
           fi
           ;;
+      "-wk"|"--wpk-key")
+          if [ -n "${2}" ]
+          then
+            local HAVE_WPK_KEY=true
+            local WPK_KEY="${2}"
+            shift 2
+          fi
+          ;;
+      "-wc"|"--wpk-cert")
+          if [ -n "${2}" ]
+          then
+            local HAVE_WPK_CERT=true
+            local WPK_CERT="${2}"
+            shift 2
+          fi
+          ;;
+      "-c"|"--checksum")
+          if [ -n "${2}" ]; then
+              local CHECKSUMDIR="${2}"
+              local CHECKSUM="yes"
+              shift 2
+          else
+              local CHECKSUM="yes"
+              shift 1
+          fi
+          ;;
       "-h"|"--help")
           help 0
           ;;
-      "-c"|"--checksum")
-            if [ -n "${2}" ]; then
-                local CHECKSUMDIR="${2}"
-                local CHECKSUM="yes"
-                shift 2
-            else
-                local CHECKSUM="yes"
-                local CHECKSUMDIR=""
-                shift 1
-            fi
-            ;;
       *)
           help 1
       esac
   done
 
+  if [[ "${HAVE_KEYDIR}" == false && ("${HAVE_WPK_KEY}" == false || "${HAVE_WPK_CERT}" == false) ]]; then
+    echo "ERROR: Option -k or -wk, -wc must be set."
+    help 1
+  fi
+
   if [ -z "${CHECKSUMDIR}" ]; then
     local CHECKSUMDIR="${DESTINATION}"
   fi
 
-  if [[ "$HAVE_TARGET" == true ]] && [[ "$HAVE_BRANCH" == true ]] && [[ "$HAVE_DESTINATION" == true ]] && [[ "$HAVE_KEYDIR" == true ]] && [[ "$HAVE_OUT_NAME" == true ]]; then
+  if [[ "${HAVE_TARGET}" == true ]] && [[ "${HAVE_BRANCH}" == true ]] && [[ "${HAVE_DESTINATION}" == true ]] && [[ "${HAVE_OUT_NAME}" == true ]]; then
       if [[ "${TARGET}" == "windows" ]]; then
         if [[ "${HAVE_PKG_NAME}" == true ]]; then
           build_container ${WIN_BUILDER} ${WIN_BUILDER_DOCKERFILE} || clean ${WIN_BUILDER_DOCKERFILE} 1
           local CONTAINER_NAME="${WIN_BUILDER}"
-          build_wpk_windows ${BRANCH} ${DESTINATION} ${KEYDIR} ${CONTAINER_NAME} ${JOBS} ${PKG_NAME} ${OUT_NAME} ${CHECKSUM} ${CHECKSUMDIR} ${INSTALLATION_PATH} || clean ${WIN_BUILDER_DOCKERFILE} 1
+          build_wpk_windows ${BRANCH} ${DESTINATION} ${CONTAINER_NAME} ${JOBS} ${PKG_NAME} ${OUT_NAME} ${CHECKSUM} ${CHECKSUMDIR} ${INSTALLATION_PATH} || clean ${WIN_BUILDER_DOCKERFILE} 1
           clean ${WIN_BUILDER_DOCKERFILE} 0
         else
           echo "ERROR: No msi package name specified for Windows WPK"
@@ -285,7 +332,7 @@ function main() {
       else
         build_container ${LINUX_BUILDER} ${LINUX_BUILDER_DOCKERFILE} || clean ${LINUX_BUILDER_DOCKERFILE} 1
         local CONTAINER_NAME="${LINUX_BUILDER}"
-        build_wpk_linux ${BRANCH} ${DESTINATION} ${KEYDIR} ${CONTAINER_NAME} ${JOBS} ${OUT_NAME} ${CHECKSUM} ${CHECKSUMDIR} ${INSTALLATION_PATH} || clean ${LINUX_BUILDER_DOCKERFILE} 1
+        build_wpk_linux ${BRANCH} ${DESTINATION} ${CONTAINER_NAME} ${JOBS} ${OUT_NAME} ${CHECKSUM} ${CHECKSUMDIR} ${INSTALLATION_PATH} || clean ${LINUX_BUILDER_DOCKERFILE} 1
         clean ${LINUX_BUILDER_DOCKERFILE} 0
       fi
   else
