@@ -12,7 +12,7 @@ In this repository, you can find the necessary tools to build a Wazuh package fo
 
 - [AIX](/aix/README.md)
 - [Debian](/debs/README.md)
-- [HP-UX](/hpux/README.md)
+- [HP-UX](/hp-ux/README.md)
 - [KibanaApp](/wazuhapp/README.md)
 - [macOS](/macos/README.md)
 - [OVA](/ova/README.md)
