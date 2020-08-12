@@ -37,6 +37,10 @@ case "$1" in
         adduser --system --home ${DIR} --shell ${OSMYSHELL} --ingroup ${GROUP} ${USER_REM} > /dev/null 2>&1
     fi
 
+    if [ -f ${SCRIPTS_DIR}/ossec-init.conf ] ; then
+        cp ${SCRIPTS_DIR}/ossec-init.conf /etc/ossec-init.conf
+    fi
+
     if [ -z "$2" ] || [ -f ${WAZUH_TMP_DIR}/create_conf ] ; then
 
         ${SCRIPTS_DIR}/gen_ossec.sh conf manager ${OS} ${VER} > ${DIR}/etc/ossec.conf
@@ -67,14 +71,9 @@ case "$1" in
     # Remove Vuln-detector database
     rm -f ${DIR}/queue/vulnerabilities/cve.db || true
 
-    # Restoring file permissions
-    ${SCRIPTS_DIR}/restore-permissions.sh > /dev/null 2>&1 || true
-
     # Generation auto-signed certificate if not exists
     if type openssl >/dev/null 2>&1 && [ ! -f "${DIR}/etc/sslmanager.key" ] && [ ! -f "${DIR}/etc/sslmanager.cert" ]; then
         openssl req -x509 -batch -nodes -days 365 -newkey rsa:2048 -subj "/C=US/ST=California/CN=Wazuh/" -keyout ${DIR}/etc/sslmanager.key -out ${DIR}/etc/sslmanager.cert 2>/dev/null
-        chmod 640 ${DIR}/etc/sslmanager.key
-        chmod 640 ${DIR}/etc/sslmanager.cert
     fi
 
     # For the etc dir
@@ -90,17 +89,6 @@ case "$1" in
         chown root:${GROUP} ${DIR}/etc/localtime
     fi
 
-    # For the /var/run and global-db
-    chmod -R 770 ${DIR}/var
-    chmod 750 ${DIR}/var
-    chown -R root:${GROUP} ${DIR}/var
-    chown -R ${USER}:${GROUP} ${DIR}/var/multigroups
-    chmod 770 ${DIR}/var/selinux > /dev/null 2>&1 || true
-    chmod -R 640 ${DIR}/var/selinux/* > /dev/null 2>&1 || true
-    chmod 770 ${DIR}/var/db > /dev/null 2>&1 || true
-    chmod -R 660 ${DIR}/var/db/* > /dev/null 2>&1 || true
-    chmod 660 ${DIR}/var/db/.profile.db > /dev/null 2>&1 || true
-    chmod 770 ${DIR}/var/db/agents > /dev/null 2>&1 || true
     # Restore client.keys configuration
     if [ -f ${WAZUH_TMP_DIR}/client.keys ]; then
         mv ${WAZUH_TMP_DIR}/client.keys ${DIR}/etc/client.keys
@@ -148,43 +136,10 @@ case "$1" in
     chmod 0660 ${DIR}/logs/active-responses.log
     chmod 0640 ${DIR}/logs/integrations.log
 
-    # Restore file permissions after upgrading
-    chmod 0660 ${DIR}/etc/ossec.conf
 
-    chmod 770 ${DIR}/etc/lists
-    chmod 770 ${DIR}/etc/lists/amazon
-    chmod 660 ${DIR}/etc/lists/amazon/*
-    chmod 660 ${DIR}/etc/lists/audit-keys
-    chmod 660 ${DIR}/etc/lists/audit-keys.cdb
-    chmod 660 ${DIR}/etc/lists/security-eventchannel
-    chmod 660 ${DIR}/etc/lists/security-eventchannel.cdb
-    chmod 770 ${DIR}/etc/shared/default
-    chmod 660 ${DIR}/etc/decoders/*
-    chmod 660 ${DIR}/etc/rules/*
-
-    chmod 440 ${DIR}/queue/vulnerabilities/dictionaries/cpe_helper.json
-    chmod 440 ${DIR}/queue/vulnerabilities/dictionaries/msu.json.gz
-    chmod 660 ${DIR}/queue/vulnerabilities/
-
-    chown -R root:ossec ${DIR}/queue/vulnerabilities/
-    chown -R root:ossec ${DIR}/etc/client.keys
-    chown -R ossec:ossec ${DIR}/etc/lists/*
-    chown -R ossec:ossec ${DIR}/etc/decoders/*
-    chown -R ossec:ossec ${DIR}/etc/rules/*
-    chown -R ossec:ossec ${DIR}/etc/shared/*
     if [ -f ${DIR}/etc/shared/ar.conf ]; then
         chown root:ossec ${DIR}/etc/shared/ar.conf
     fi
-
-    # create cluster.log file if not exists
-    if [ -f ${DIR}/logs/cluster.log ]; then
-        chmod 660 ${DIR}/logs/cluster.log
-        chown ${USER}:${GROUP} ${DIR}/logs/cluster.log
-    fi
-
-    touch ${DIR}/logs/active-responses.log
-    chown ossec:ossec ${DIR}/logs/active-responses.log
-    chmod 0660 ${DIR}/logs/active-responses.log
 
     # Check if SELinux is installed and enabled
     if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
@@ -260,13 +215,8 @@ case "$1" in
     chmod 640 /etc/ossec-init.conf
     chown root:ossec /etc/ossec-init.conf
 
-    # Fix Python permissions
-    chmod 750 ${DIR}/framework/python/bin/2to3-3.8
-    chmod 750 ${DIR}/framework/python/bin/pydoc3.8
-    chmod 750 ${DIR}/framework/python/bin/python3-config
-    chmod 0640 ${DIR}/framework/python/lib/pkgconfig/python-3.8-embed.pc
-    chmod 0640 ${DIR}/framework/python/lib/pkgconfig/python-3.8.pc
-    chmod 0640 ${DIR}/framework/python/lib/pkgconfig/python3.pc
+    # Restoring file permissions
+    ${SCRIPTS_DIR}/restore-permissions.sh > /dev/null 2>&1 || true
 
     ;;
 

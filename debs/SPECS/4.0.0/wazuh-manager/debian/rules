@@ -71,9 +71,6 @@ override_dh_install:
 	mkdir -p ${TARGET_DIR}/usr/lib/systemd/system/
 	install -m 0644 src/systemd/wazuh-manager.service ${TARGET_DIR}/usr/lib/systemd/system/
 
-	# Copy ossec-init.conf
-	cp /etc/ossec-init.conf ${TARGET_DIR}/etc
-
 	# Generating permission restoration file for postinstall
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/
 
@@ -174,6 +171,19 @@ override_dh_install:
 	cp etc/templates/config/ubuntu/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/ubuntu
 	cp etc/templates/config/ubuntu/12/04/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/ubuntu/12/04
 	cp etc/templates/config/ubuntu/14/04/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/ubuntu/14/04
+
+	# Copy ossec-init.conf
+	cp /etc/ossec-init.conf ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)
+
+override_dh_fixperms:
+	dh_fixperms
+	# Fix Python permissions
+	chmod 0750 ${TARGET_DIR}$(INSTALLATION_DIR)/framework/python/bin/2to3-3.8
+	chmod 0750 ${TARGET_DIR}$(INSTALLATION_DIR)/framework/python/bin/pydoc3.8
+	chmod 0750 ${TARGET_DIR}$(INSTALLATION_DIR)/framework/python/bin/python3-config
+	chmod 0640 ${TARGET_DIR}$(INSTALLATION_DIR)/framework/python/lib/pkgconfig/python-3.8-embed.pc
+	chmod 0640 ${TARGET_DIR}$(INSTALLATION_DIR)/framework/python/lib/pkgconfig/python-3.8.pc
+	chmod 0640 ${TARGET_DIR}$(INSTALLATION_DIR)/framework/python/lib/pkgconfig/python3.pc
 
 override_dh_auto_clean:
 	$(MAKE) -C src clean

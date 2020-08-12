@@ -34,16 +34,16 @@ case "$1" in
 
             # Delete 3.X Wazuh API service
             if [ "$MAJOR" = "3" ] && [ -d ${DIR}/api ]; then
-                if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
+                if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && \
+                  systemctl list-unit-files --type service | grep wazuh-api; then
                     systemctl stop wazuh-api.service > /dev/null 2>&1
                     systemctl disable wazuh-api.service > /dev/null 2>&1
-                    rm -f /etc/systemd/system/wazuh-api.service
+                    rm -f /etc/systemd/system/wazuh-api.service || true
                 fi
 
-                if command -v service > /dev/null 2>&1; then
+                if command -v service > /dev/null 2>&1 && service status wazuh-api > /dev/null 2>&1 ; then
                     service wazuh-api stop > /dev/null 2>&1
-                    chkconfig wazuh-api off > /dev/null 2>&1
-                    chkconfig --del wazuh-api > /dev/null 2>&1
+                    update-rc.d wazuh-api remove > /dev/null 2>&1
                     rm -f /etc/rc.d/init.d/wazuh-api || true
                 fi
             fi

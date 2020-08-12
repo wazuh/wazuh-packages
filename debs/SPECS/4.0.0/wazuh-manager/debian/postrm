@@ -32,7 +32,7 @@ case "$1" in
         fi
 
         # If the directory is not empty, copy the files into ${DIR}/etc
-        if [ "$(ls -A ${DIR}/tmp/conffiles)" ]; then
+        if ls -A ${DIR}/tmp/conffiles > /dev/null 2>&1 ; then
             cp -Rf ${DIR}/tmp/conffiles/* ${DIR}/etc
         fi
         rm -rf ${DIR}/tmp

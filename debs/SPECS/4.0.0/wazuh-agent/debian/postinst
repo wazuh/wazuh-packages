@@ -32,6 +32,10 @@ case "$1" in
         adduser --system --home ${DIR} --shell ${OSMYSHELL} --ingroup ${GROUP} ${USER} > /dev/null 2>&1
     fi
 
+    if [ -f ${SCRIPTS_DIR}/ossec-init.conf ] ; then
+        cp ${SCRIPTS_DIR}/ossec-init.conf /etc/ossec-init.conf
+    fi
+
     if [ -z "$2" ] || [ -f ${WAZUH_TMP_DIR}/create_conf ] ; then
 
         ${SCRIPTS_DIR}/gen_ossec.sh conf agent ${OS} ${VER} > ${DIR}/etc/ossec.conf
@@ -41,9 +45,6 @@ case "$1" in
         ${SCRIPTS_DIR}/gen_ossec.sh conf agent ${OS} ${VER} > ${DIR}/etc/ossec.conf.new
         chmod 660 ${DIR}/etc/ossec.conf.new
     fi
-
-    # Restoring file permissions
-    ${SCRIPTS_DIR}/restore-permissions.sh > /dev/null 2>&1 || true
 
     # For the etc dir
     if [ -f /etc/localtime ]; then
@@ -112,10 +113,6 @@ case "$1" in
         done
         rm -rf ${WAZUH_TMP_DIR}/group
     fi
-    chmod 660 ${DIR}/etc/shared/*
-    chown -R root:ossec ${DIR}/etc/shared/
-    chmod 660 ${DIR}/etc/ossec.conf
-    chown -R root:ossec ${DIR}/etc/ossec.conf
 
     touch ${DIR}/logs/active-responses.log
     chown ossec:ossec ${DIR}/logs/active-responses.log
@@ -143,6 +140,9 @@ case "$1" in
     if [ -z "$(ls -A ${WAZUH_GLOBAL_TMP_DIR})" ]; then
         rm -rf ${WAZUH_GLOBAL_TMP_DIR}
     fi
+
+    # Restoring file permissions
+    ${SCRIPTS_DIR}/restore-permissions.sh > /dev/null 2>&1 || true
 
     # Fix /etc/ossec-init.conf
     chmod 640 /etc/ossec-init.conf
