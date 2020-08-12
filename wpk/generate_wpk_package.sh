@@ -10,8 +10,8 @@
 # Foundation.
 
 CURRENT_PATH="$( cd $(dirname ${0}) ; pwd -P )"
-LINUX_BUILDER_AMD64="linux_wpk_builder_amd64"
-LINUX_BUILDER_AMD64_DOCKERFILE="${CURRENT_PATH}/linux/amd64"
+LINUX_BUILDER_X86_64="linux_wpk_builder_x86_64"
+LINUX_BUILDER_X86_64_DOCKERFILE="${CURRENT_PATH}/linux/x86_64"
 LINUX_BUILDER_AARCH64="linux_wpk_builder_aarch64"
 LINUX_BUILDER_AARCH64_DOCKERFILE="${CURRENT_PATH}/linux/aarch64"
 LINUX_BUILDER_ARMV7HL="linux_wpk_builder_armv7hl"
@@ -35,22 +35,23 @@ function build_wpk_windows() {
   local CHECKSUM="${7}"
   local CHECKSUMDIR="${8}"
   local INSTALLATION_PATH="${9}"
-  local WPK_KEY="${10}"
-  local WPK_CERT="${11}"
+  local AWS_REGION="${10}"
+  local WPK_KEY="${11}"
+  local WPK_CERT="${12}"
 
-  if [[ -n "${CHECKSUM}" ]]; then
+  if [ -n "${CHECKSUM}" ]; then
     CHECKSUM_FLAG="-c"
   fi
-  if [[ -n "${WPK_KEY}" ]]; then
+  if [ -n "${WPK_KEY}" ]; then
     WPK_KEY_FLAG="-wk ${WPK_KEY}"
   fi
-  if [[ -n "${WPK_CERT}" ]]; then
+  if [ -n "${WPK_CERT}" ]; then
     WPK_CERT_FLAG="-wc ${WPK_CERT}"
   fi
 
   docker run -t --rm -v ${KEYDIR}:/etc/wazuh:Z -v ${DESTINATION}:/var/local/wazuh:Z -v ${PKG_PATH}:/var/pkg:Z \
       -v ${CHECKSUMDIR}:/var/local/checksum:Z \
-      ${CONTAINER_NAME} -b ${BRANCH} -j ${JOBS} -o ${OUT_NAME} -p ${INSTALLATION_PATH} ${WPK_KEY_FLAG} ${WPK_CERT_FLAG} -pn ${PACKAGE_NAME} ${CHECKSUM_FLAG}
+      ${CONTAINER_NAME} -b ${BRANCH} -j ${JOBS} -o ${OUT_NAME} -p ${INSTALLATION_PATH} -wr ${AWS_REGION} ${WPK_KEY_FLAG} ${WPK_CERT_FLAG} -pn ${PACKAGE_NAME} ${CHECKSUM_FLAG}
 
   return $?
 }
@@ -65,22 +66,23 @@ function build_wpk_linux() {
   local CHECKSUM="${6}"
   local CHECKSUMDIR="${7}"
   local INSTALLATION_PATH="${8}"
-  local WPK_KEY="${9}"
-  local WPK_CERT="${10}"
+  local AWS_REGION="${9}"
+  local WPK_KEY="${10}"
+  local WPK_CERT="${11}"
 
-  if [[ -n "${CHECKSUM}" ]]; then
+  if [ -n "${CHECKSUM}" ]; then
     CHECKSUM_FLAG="-c"
   fi
-  if [[ -n "${WPK_KEY}" ]]; then
+  if [ -n "${WPK_KEY}" ]; then
     WPK_KEY_FLAG="-wk ${WPK_KEY}"
   fi
-  if [[ -n "${WPK_CERT}" ]]; then
+  if [ -n "${WPK_CERT}" ]; then
     WPK_CERT_FLAG="-wc ${WPK_CERT}"
   fi
 
   docker run -t --rm -v ${KEYDIR}:/etc/wazuh:Z -v ${DESTINATION}:/var/local/wazuh:Z \
       -v ${CHECKSUMDIR}:/var/local/checksum:Z \
-      ${CONTAINER_NAME} -b ${BRANCH} -j ${JOBS} -o ${OUT_NAME} -p ${INSTALLATION_PATH} ${WPK_KEY_FLAG} ${WPK_CERT_FLAG} ${CHECKSUM_FLAG}
+      ${CONTAINER_NAME} -b ${BRANCH} -j ${JOBS} -o ${OUT_NAME} -p ${INSTALLATION_PATH} -wr ${AWS_REGION} ${WPK_KEY_FLAG} ${WPK_CERT_FLAG} ${CHECKSUM_FLAG}
 
   return $?
 }
@@ -108,6 +110,7 @@ function help() {
   echo "    -k,   --key-dir <arch>         [Optional] Set the WPK key path to sign package."
   echo "    -wk,  --wpk-key                [Optional] AWS Secrets manager Name/ARN to get WPK private key."
   echo "    -wc,  --wpk-cert               [Optional] AWS secrets manager Name/ARN to get WPK certificate."
+  echo "    -wr,  --wpk-key-region         [Optional] AWS Region where secrets are stored."
   echo "    -a,   --architecture <arch>    [Optional] Target architecture of the package [x86_64]."
   echo "    -j,   --jobs <number>          [Optional] Number of parallel jobs when compiling."
   echo "    -p,   --path <path>            [Optional] Installation path for the package. By default: /var."
@@ -137,7 +140,7 @@ function main() {
   local TARGET=""
   local BRANCH=""
   local DESTINATION="${CURRENT_PATH}/output"
-  local ARCHITECTURE="amd64"
+  local ARCHITECTURE="x86_64"
   local JOBS="4"
   local CONTAINER_NAME=""
   local PKG_NAME=""
@@ -146,6 +149,7 @@ function main() {
   local CHECKSUMDIR=""
   local WPK_KEY=""
   local WPK_CERT=""
+  local AWS_REGION="us-east-1"
 
   local HAVE_BRANCH=false
   local HAVE_DESTINATION=false
@@ -155,14 +159,14 @@ function main() {
   local HAVE_OUT_NAME=false
   local HAVE_WPK_KEY=false
   local HAVE_WPK_CERT=false
-  local LINUX_BUILDER="${LINUX_BUILDER_AMD64}"
-  local LINUX_BUILDER_DOCKERFILE="${LINUX_BUILDER_AMD64_DOCKERFILE}"
+  local LINUX_BUILDER="${LINUX_BUILDER_X86_64}"
+  local LINUX_BUILDER_DOCKERFILE="${LINUX_BUILDER_X86_64_DOCKERFILE}"
 
   while [ -n "${1}" ]
   do
       case "${1}" in
       "-t"|"--target-system")
-          if [[ -n "${2}" ]]; then
+          if [ -n "${2}" ]; then
             if [[ "${2}" == "linux" || "${2}" == "windows" ]]; then
                 local TARGET="${2}"
                 local HAVE_TARGET=true
@@ -177,7 +181,7 @@ function main() {
           fi
           ;;
       "-b"|"--branch")
-          if [[ -n "${2}" ]]; then
+          if [ -n "${2}" ]; then
             local BRANCH="$(echo ${2} | cut -d'/' -f2)"
             local HAVE_BRANCH=true
             shift 2
@@ -187,7 +191,7 @@ function main() {
           fi
           ;;
       "-d"|"--destination")
-          if [[ -n "${2}" ]]; then
+          if [ -n "${2}" ]; then
             local DESTINATION="${2}"
             local HAVE_DESTINATION=true
             shift 2
@@ -197,7 +201,7 @@ function main() {
           fi
           ;;
       "-k"|"--key-dir")
-          if [[ -n "${2}" ]]; then
+          if [ -n "${2}" ]; then
               if [[ "${2: -1}" != "/" ]]; then
                 KEYDIR="${2}/"
                 local HAVE_KEYDIR=true
@@ -209,11 +213,11 @@ function main() {
           fi
           ;;
       "-a"|"--architecture")
-          if [[ -n "${2}" ]]; then
+          if [ -n "${2}" ]; then
               if [[ "${2}" == "x86_64" ]] || [[ "${2}" == "amd64" ]]; then
-                  local ARCHITECTURE="amd64"
-                  local LINUX_BUILDER="${LINUX_BUILDER_AMD64}"
-                  local LINUX_BUILDER_DOCKERFILE="${LINUX_BUILDER_AMD64_DOCKERFILE}"
+                  local ARCHITECTURE="x86_64"
+                  local LINUX_BUILDER="${LINUX_BUILDER_X86_64}"
+                  local LINUX_BUILDER_DOCKERFILE="${LINUX_BUILDER_X86_64_DOCKERFILE}"
                   shift 2
               elif [[ "${2}" == "aarch64" ]]; then
                   local ARCHITECTURE="${2}"
@@ -235,7 +239,7 @@ function main() {
           fi
           ;;
       "-j"|"--jobs")
-          if [[ -n "${2}" ]]; then
+          if [ -n "${2}" ]; then
             local JOBS="${2}"
             shift 2
           else
@@ -252,8 +256,7 @@ function main() {
             fi
             ;;
       "-pd"|"--package-directory")
-          if [ -n "${2}" ]
-          then
+          if [ -n "${2}" ]; then
             local HAVE_PKG_NAME=true
             local PKG_NAME="${2}"
             local PKG_PATH=`echo ${PKG_NAME}| rev|cut -d'/' -f2-|rev`
@@ -265,8 +268,7 @@ function main() {
           fi
           ;;
       "-o"|"--output")
-          if [ -n "${2}" ]
-          then
+          if [ -n "${2}" ]; then
             local HAVE_OUT_NAME=true
             local OUT_NAME="${2}"
             shift 2
@@ -276,18 +278,22 @@ function main() {
           fi
           ;;
       "-wk"|"--wpk-key")
-          if [ -n "${2}" ]
-          then
+          if [ -n "${2}" ]; then
             local HAVE_WPK_KEY=true
             local WPK_KEY="${2}"
             shift 2
           fi
           ;;
       "-wc"|"--wpk-cert")
-          if [ -n "${2}" ]
-          then
+          if [ -n "${2}" ]; then
             local HAVE_WPK_CERT=true
             local WPK_CERT="${2}"
+            shift 2
+          fi
+          ;;
+      "-wr"|"--wpk-key-region")
+          if [ -n "${2}" ]; then
+            local AWS_REGION="${2}"
             shift 2
           fi
           ;;
@@ -323,7 +329,7 @@ function main() {
         if [[ "${HAVE_PKG_NAME}" == true ]]; then
           build_container ${WIN_BUILDER} ${WIN_BUILDER_DOCKERFILE} || clean ${WIN_BUILDER_DOCKERFILE} 1
           local CONTAINER_NAME="${WIN_BUILDER}"
-          build_wpk_windows ${BRANCH} ${DESTINATION} ${CONTAINER_NAME} ${JOBS} ${PKG_NAME} ${OUT_NAME} ${CHECKSUM} ${CHECKSUMDIR} ${INSTALLATION_PATH} || clean ${WIN_BUILDER_DOCKERFILE} 1
+          build_wpk_windows ${BRANCH} ${DESTINATION} ${CONTAINER_NAME} ${JOBS} ${PKG_NAME} ${OUT_NAME} ${CHECKSUM} ${CHECKSUMDIR} ${INSTALLATION_PATH} ${AWS_REGION} ${WPK_KEY} ${WPK_CERT} || clean ${WIN_BUILDER_DOCKERFILE} 1
           clean ${WIN_BUILDER_DOCKERFILE} 0
         else
           echo "ERROR: No msi package name specified for Windows WPK"
@@ -332,7 +338,7 @@ function main() {
       else
         build_container ${LINUX_BUILDER} ${LINUX_BUILDER_DOCKERFILE} || clean ${LINUX_BUILDER_DOCKERFILE} 1
         local CONTAINER_NAME="${LINUX_BUILDER}"
-        build_wpk_linux ${BRANCH} ${DESTINATION} ${CONTAINER_NAME} ${JOBS} ${OUT_NAME} ${CHECKSUM} ${CHECKSUMDIR} ${INSTALLATION_PATH} || clean ${LINUX_BUILDER_DOCKERFILE} 1
+        build_wpk_linux ${BRANCH} ${DESTINATION} ${CONTAINER_NAME} ${JOBS} ${OUT_NAME} ${CHECKSUM} ${CHECKSUMDIR} ${INSTALLATION_PATH} ${AWS_REGION} ${WPK_KEY} ${WPK_CERT} || clean ${LINUX_BUILDER_DOCKERFILE} 1
         clean ${LINUX_BUILDER_DOCKERFILE} 0
       fi
   else

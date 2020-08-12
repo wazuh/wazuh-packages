@@ -9,10 +9,13 @@ CHECKSUM="no"
 INSTALLATION_PATH="/var"
 PKG_NAME=""
 HAVE_PKG_NAME=false
-WPKCERT="/etc/wazuh/wpkcert.pem"
-WPKKEY="/etc/wazuh/wpkcert.key"
+AWS_REGION="us-east-1"
+KEYPATH="/etc/wazuh"
+WPKCERT="${KEYPATH}/wpkcert.pem"
+WPKKEY="${KEYPATH}/wpkcert.key"
 OUTDIR="/var/local/wazuh"
 CHECKSUMDIR="/var/local/checksum"
+REVISION="1"
 
 if command -v python3 > /dev/null ; then 
     PYTHON="python3"
@@ -28,11 +31,13 @@ help() {
     echo "    -b,   --branch <branch>      [Required] Select Git branch or tag e.g. master"
     echo "    -o,   --output <name>        [Required] Name to the output package."
     echo "    -pn,  --package-name <name>  [Required for windows] Package name to pack on wpk."
+    echo "    -r,   --revision <rev>       [Optional] Revision of the package. By default: 1."
     echo "    -p,   --path <path>          [Optional] Installation path for the package. By default: /var."
     echo "    -j,   --jobs <number>        [Optional] Number of parallel jobs when compiling."
-    echo "    -c,   --checksum             [Optional] Generate checksum"
+    echo "    -c,   --checksum             [Optional] Whether Generate checksum or not."
     echo "    -wk,  --wpk-key              [Optional] AWS Secrets manager Name/ARN to get WPK private key."
     echo "    -wc,  --wpk-cert             [Optional] AWS secrets manager Name/ARN to get WPK certificate."
+    echo "    -wr,  --wpk-key-region       [Optional] AWS Region where secrets are stored."
     echo "    -h,   --help                 Show this help."
     echo
     exit ${1}
@@ -44,7 +49,7 @@ main() {
     do
         case "${1}" in
         "-b"|"--branch")
-            if [[ -n "${2}" ]]; then
+            if [ -n "${2}" ]; then
                 REFERENCE="$(echo ${2} | cut -d'/' -f2)"
                 shift 2
             else
@@ -61,12 +66,16 @@ main() {
                 help 1
             fi
             ;;
+        "-r"|"--revision")
+            if [ -n "${2}" ]; then
+                REVISION="${2}"
+                shift 2
+            fi
+            ;;
         "-p"|"--path")
             if [ -n "${2}" ]; then
                 INSTALLATION_PATH="${2}"
                 shift 2
-            else
-                help 1
             fi
             ;;
         "-pn"|"--package-name")
@@ -77,7 +86,7 @@ main() {
             fi
             ;;
         "-j"|"--jobs")
-            if [[ -n "${2}" ]]; then
+            if [ -n "${2}" ]; then
                 JOBS="${2}"
                 shift 2
             fi
@@ -98,6 +107,12 @@ main() {
                 shift 2
             fi
             ;;
+      "-wr"|"--wpk-key-region")
+            if [ -n "${2}" ]; then
+                AWS_REGION="${2}"
+                shift 2
+            fi
+          ;;
         "-h"|"--help")
             help 0
             ;;
@@ -107,10 +122,11 @@ main() {
     done
 
     if [ -n "${AWS_WPK_CERT}" ] && [ -n "${AWS_WPK_KEY}" ]; then
-        aws secretsmanager get-secret-value --secret-id ${AWS_WPK_CERT} | jq . > wpkcert.pem.json
+        mkdir -p ${KEYPATH}
+        aws --region=${AWS_REGION} secretsmanager get-secret-value --secret-id ${AWS_WPK_CERT} | jq . > wpkcert.pem.json
         jq .SecretString wpkcert.pem.json | tr -d '"' | sed 's|\\n|\n|g' > ${WPKCERT}
         rm -f wpkcert.pem.json
-        aws secretsmanager get-secret-value --secret-id ${AWS_WPK_KEY} | jq . > wpkcert.key.json
+        aws --region=${AWS_REGION} secretsmanager get-secret-value --secret-id ${AWS_WPK_KEY} | jq . > wpkcert.key.json
         jq .SecretString wpkcert.key.json | tr -d '"' | sed 's|\\n|\n|g' > ${WPKKEY}
         rm -f wpkcert.key.json
     fi
@@ -118,9 +134,9 @@ main() {
 
     NO_COMPILE=false
     # Get Wazuh
-    git clone $REPOSITORY $DIRECTORY || exit 1
-    cd $DIRECTORY
-    git checkout $REFERENCE
+    git clone ${REPOSITORY} ${DIRECTORY} || exit 1
+    cd ${DIRECTORY}
+    git checkout ${REFERENCE}
 
     # Get info
     . src/init/dist-detect.sh
@@ -129,9 +145,9 @@ main() {
     ARCH=$(uname -m)
 
     # Create package
-    if [ -z "$OUTPUT" ]
+    if [ -z "${OUTPUT}" ]
     then
-        if [ "$DIST_NAME" = "centos" ]
+        if [ "${DIST_NAME}" = "centos" ]
         then
             BUILD_TARGET="agent"
             NO_COMPILE=false
@@ -141,7 +157,7 @@ main() {
         fi
         OUTPUT="${OUTDIR}/${OUT_NAME}"
 
-        mkdir -p $OUTDIR
+        mkdir -p ${OUTDIR}
     fi
 
     WAZUH_VERSION=$(cat src/VERSION)
@@ -150,12 +166,12 @@ main() {
 
     if [ "${NO_COMPILE}" == false ]; then
       # Execute gmake deps if the version is greater or equal to 3.5
-      if [ $MAJOR -ge 3 ]; then
+      if [ ${MAJOR} -ge 3 ]; then
           make -C src deps
       fi
 
       # Compile agent
-      make -C src -j $JOBS TARGET=${BUILD_TARGET} PREFIX="${INSTALLATION_PATH}/ossec" || exit 1
+      make -C src -j ${JOBS} TARGET=${BUILD_TARGET} PREFIX="${INSTALLATION_PATH}/ossec" || exit 1
       # Clean unuseful files
       clean
       # Preload vars for installer
@@ -164,25 +180,30 @@ main() {
 
     # Compress and sign package
     if [ "${DIST_NAME}" = "centos" ]; then
-        ${PYTHON} /usr/local/bin/wpkpack $OUTPUT $WPKCERT $WPKKEY *
+        ${PYTHON} /usr/local/bin/wpkpack ${OUTPUT} ${WPKCERT} ${WPKKEY} *
     else
 
       if [ "${HAVE_PKG_NAME}" == true ]; then
-          echo "wpkpack $OUTPUT $WPKCERT $WPKKEY ${PKG_NAME} upgrade.bat do_upgrade.ps1"
+          echo "wpkpack ${OUTPUT} ${WPKCERT} ${WPKKEY} ${PKG_NAME} upgrade.bat do_upgrade.ps1"
           cd ${OUTDIR}
-          cp /$DIRECTORY/src/win32/{upgrade.bat,do_upgrade.ps1} .
+          cp /${DIRECTORY}/src/win32/{upgrade.bat,do_upgrade.ps1} .
           cp /var/pkg/${PKG_NAME} ${OUTDIR}
-          wpkpack $OUTPUT $WPKCERT $WPKKEY ${PKG_NAME} upgrade.bat do_upgrade.ps1
+          wpkpack ${OUTPUT} ${WPKCERT} ${WPKKEY} ${PKG_NAME} upgrade.bat do_upgrade.ps1
           rm -f upgrade.bat do_upgrade.ps1 ${PKG_NAME}
       else
           echo "ERROR: MSI package is needed to build the Windows WPK"
           help 1
       fi
     fi
-    echo "PACKED FILE -> $OUTPUT"
+    echo "PACKED FILE -> ${OUTPUT}"
     # Update versions file
     cd ${OUTDIR}
-    gen_versions ${OUTPUT} ${SHORT_VERSION}
+    if [ ${REVISION} -eq ${REVISION} ] && [ ${REVISION} -ge 1 ] && [ ${REVISION} -le 99 ] 2>/dev/null; then
+        VERSIONS_NAME="versions"
+    else
+        VERSIONS_NAME="versions-${REVISION}"
+    fi
+        gen_versions ${OUTPUT} ${SHORT_VERSION} ${VERSIONS_NAME}
     if [[ ${CHECKSUM} == "yes" ]]; then
         mkdir -p ${CHECKSUMDIR}
         sha512sum "${OUT_NAME}" > "${CHECKSUMDIR}/${OUT_NAME}.sha512"
