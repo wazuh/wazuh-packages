@@ -187,7 +187,7 @@ main() {
           echo "wpkpack ${OUTPUT} ${WPKCERT} ${WPKKEY} ${PKG_NAME} upgrade.bat do_upgrade.ps1"
           cd ${OUTDIR}
           cp /${DIRECTORY}/src/win32/{upgrade.bat,do_upgrade.ps1} .
-          cp /var/pkg/${PKG_NAME} ${OUTDIR}
+          cp /var/pkg/${PKG_NAME} ${OUTDIR} 2>/dev/null
           wpkpack ${OUTPUT} ${WPKCERT} ${WPKKEY} ${PKG_NAME} upgrade.bat do_upgrade.ps1
           rm -f upgrade.bat do_upgrade.ps1 ${PKG_NAME}
       else
@@ -198,7 +198,7 @@ main() {
     echo "PACKED FILE -> ${OUTPUT}"
     # Update versions file
     cd ${OUTDIR}
-    if [ ${REVISION} -eq ${REVISION} ] && [ ${REVISION} -ge 1 ] && [ ${REVISION} -le 99 ] 2>/dev/null; then
+    if [ ${REVISION} -eq ${REVISION} ] 2>/dev/null && [ ${REVISION} -ge 1 ] && [ ${REVISION} -le 99 ]; then
         VERSIONS_NAME="versions"
     else
         VERSIONS_NAME="versions-${REVISION}"
