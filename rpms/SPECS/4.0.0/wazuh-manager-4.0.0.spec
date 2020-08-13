@@ -872,6 +872,7 @@ rm -fr %{buildroot}
 %attr(640, ossecm, ossec) %ghost %{_localstatedir}/logs/integrations.log
 %attr(660, ossec, ossec) %ghost %{_localstatedir}/logs/ossec.log
 %attr(660, ossec, ossec) %ghost %{_localstatedir}/logs/ossec.json
+%dir %attr(750, ossec, ossec) %{_localstatedir}/logs/api
 %dir %attr(750, ossec, ossec) %{_localstatedir}/logs/archives
 %dir %attr(750, ossec, ossec) %{_localstatedir}/logs/alerts
 %dir %attr(750, ossec, ossec) %{_localstatedir}/logs/cluster
