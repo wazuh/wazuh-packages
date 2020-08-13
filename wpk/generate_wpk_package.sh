@@ -20,7 +20,6 @@ WIN_BUILDER="windows_wpk_builder"
 WIN_BUILDER_DOCKERFILE="${CURRENT_PATH}/windows"
 CHECKSUM="no"
 INSTALLATION_PATH="/var"
-KEYDIR=""
 
 trap ctrl_c INT
 
@@ -82,7 +81,7 @@ function build_wpk_linux() {
 
     docker run -t --rm -v ${KEYDIR}:/etc/wazuh:Z -v ${DESTINATION}:/var/local/wazuh:Z \
         -v ${CHECKSUMDIR}:/var/local/checksum:Z \
-        ${CONTAINER_NAME} -b ${BRANCH} -j ${JOBS} -o ${OUT_NAME} -p ${INSTALLATION_PATH} -aws-wpk-key-region ${AWS_REGION} ${WPK_KEY_FLAG} ${WPK_CERT_FLAG} ${CHECKSUM_FLAG}
+        ${CONTAINER_NAME} -b ${BRANCH} -j ${JOBS} -o ${OUT_NAME} -p ${INSTALLATION_PATH} --aws-wpk-key-region ${AWS_REGION} ${WPK_KEY_FLAG} ${WPK_CERT_FLAG} ${CHECKSUM_FLAG}
 
     return $?
 }
@@ -100,7 +99,7 @@ function build_container() {
 function help() {
     echo
     echo "Usage: ${0} [OPTIONS]"
-    echo "It is required to use -k or -wk, -wc parameters"
+    echo "It is required to use -k or --aws-wpk-key, --aws-wpk-cert parameters"
     echo
     echo "    -t,   --target-system <target> [Required] Select target wpk to build [linux/windows]"
     echo "    -b,   --branch <branch>        [Required] Select Git branch or tag e.g. $BRANCH"
@@ -255,15 +254,15 @@ function main() {
                   help 1
               fi
               ;;
-        "-pd"|"--package-directory")
+        "-pn"|"--package-name")
             if [ -n "${2}" ]; then
                 local HAVE_PKG_NAME=true
                 local PKG_NAME="${2}"
-                local PKG_PATH=`echo ${PKG_NAME}| rev|cut -d'/' -f2-|rev`
+                PKG_PATH=`echo ${PKG_NAME}| rev|cut -d'/' -f2-|rev`
                 PKG_NAME=`basename ${PKG_NAME}`
                 shift 2
             else
-                echo "ERROR: Missing package directory"
+                echo "ERROR: Missing package name"
                 help 1
             fi
             ;;

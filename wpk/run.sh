@@ -26,7 +26,7 @@ fi
 help() {
     echo
     echo "Usage: ${0} [OPTIONS]"
-    echo "It is required to use -k or -wk, -wc parameters"
+    echo "It is required to use -k or --aws-wpk-key, --aws-wpk-cert parameters"
     echo
     echo "    -b,   --branch <branch>      [Required] Select Git branch or tag e.g. master"
     echo "    -o,   --output <name>        [Required] Name to the output package."
