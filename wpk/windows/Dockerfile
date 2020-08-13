@@ -8,8 +8,7 @@ RUN apt-get update && \
       jq && \
     curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
     python get-pip.py && \
-    pip install --upgrade cryptography && \
-    pip install awscli
+    pip install --upgrade cryptography awscli
 
 ADD wpkpack.py /usr/local/bin/wpkpack
 ADD run.sh /usr/local/bin/run

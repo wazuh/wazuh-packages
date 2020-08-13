@@ -6,7 +6,7 @@ REFERENCE=""
 JOBS="4"
 OUT_NAME=""
 CHECKSUM="no"
-INSTALLATION_PATH="/var"
+INSTALLATION_PATH="/var/ossec"
 PKG_NAME=""
 HAVE_PKG_NAME=false
 AWS_REGION="us-east-1"
@@ -35,16 +35,15 @@ help() {
     echo "    -p,   --path <path>          [Optional] Installation path for the package. By default: /var."
     echo "    -j,   --jobs <number>        [Optional] Number of parallel jobs when compiling."
     echo "    -c,   --checksum             [Optional] Whether Generate checksum or not."
-    echo "    -wk,  --wpk-key              [Optional] AWS Secrets manager Name/ARN to get WPK private key."
-    echo "    -wc,  --wpk-cert             [Optional] AWS secrets manager Name/ARN to get WPK certificate."
-    echo "    -wr,  --wpk-key-region       [Optional] AWS Region where secrets are stored."
+    echo "    --aws-wpk-key                [Optional] AWS Secrets manager Name/ARN to get WPK private key."
+    echo "    --aws-wpk-cert               [Optional] AWS secrets manager Name/ARN to get WPK certificate."
+    echo "    --aws-wpk-key-region         [Optional] AWS Region where secrets are stored."
     echo "    -h,   --help                 Show this help."
     echo
     exit ${1}
 }
 
 main() {
-
     while [ -n "${1}" ]
     do
         case "${1}" in
@@ -95,19 +94,19 @@ main() {
             CHECKSUM="yes"
             shift 1
             ;;
-        "-wk"|"--wpk-key")
+        "--aws-wpk-key")
             if [ -n "${2}" ]; then
                 AWS_WPK_KEY="${2}"
                 shift 2
             fi
             ;;
-        "-wc"|"--wpk-cert")
+        "--aws-wpk-cert")
             if [ -n "${2}" ]; then
                 AWS_WPK_CERT="${2}"
                 shift 2
             fi
             ;;
-      "-wr"|"--wpk-key-region")
+      "--aws-wpk-key-region")
             if [ -n "${2}" ]; then
                 AWS_REGION="${2}"
                 shift 2
@@ -134,9 +133,8 @@ main() {
 
     NO_COMPILE=false
     # Get Wazuh
-    git clone ${REPOSITORY} ${DIRECTORY} || exit 1
+    git clone ${REPOSITORY} ${DIRECTORY} -b ${REFERENCE} --depth=1 || exit 1
     cd ${DIRECTORY}
-    git checkout ${REFERENCE}
 
     # Get info
     . src/init/dist-detect.sh
@@ -165,17 +163,17 @@ main() {
     MINOR=$(echo ${WAZUH_VERSION} | cut -d. -f2)
 
     if [ "${NO_COMPILE}" == false ]; then
-      # Execute gmake deps if the version is greater or equal to 3.5
-      if [ ${MAJOR} -ge 3 ]; then
-          make -C src deps
-      fi
+        # Execute gmake deps if the version is greater or equal to 3.5
+        if [[ ${MAJOR} -ge 4 || (${MAJOR} -ge 3 && ${MINOR} -ge 5) ]]; then
+            make -C src deps
+        fi
 
-      # Compile agent
-      make -C src -j ${JOBS} TARGET=${BUILD_TARGET} PREFIX="${INSTALLATION_PATH}/ossec" || exit 1
-      # Clean unuseful files
-      clean
-      # Preload vars for installer
-      preload
+        # Compile agent
+        make -C src -j ${JOBS} TARGET=${BUILD_TARGET} PREFIX="${INSTALLATION_PATH}" || exit 1
+        # Clean unuseful files
+        clean
+        # Preload vars for installer
+        preload
     fi
 
     # Compress and sign package

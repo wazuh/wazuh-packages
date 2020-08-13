@@ -6,8 +6,7 @@ RUN yum -y install centos-release-scl epel-release && \
     echo -e "/opt/rh/python27/root/usr/lib64/" | tee  -a /etc/ld.so.conf && \
     ldconfig && \
     pip install --upgrade pip && \
-    pip install --upgrade cryptography && \
-    pip install awscli
+    pip install --upgrade cryptography awscli
 
 RUN yum install -y automake autoconf libtool
 ADD wpkpack.py /usr/local/bin/wpkpack

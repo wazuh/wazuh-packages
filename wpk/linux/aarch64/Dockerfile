@@ -13,8 +13,7 @@ RUN yum install -y gcc make git sudo gnupg openssl \
 
 RUN curl https://bootstrap.pypa.io/get-pip.py | python3 -
 
-RUN pip3 install --upgrade cryptography && \
-    pip3 install awscli
+RUN pip3 install --upgrade cryptography awscli
 
 ADD wpkpack.py /usr/local/bin/wpkpack
 ADD run.sh /usr/local/bin/run
