@@ -126,6 +126,11 @@ case "$1" in
         fi
     fi
 
+    # Register and configure agent if Wazuh environment variables are defined
+    if [ -z "$2" ] ; then
+        ${SCRIPTS_DIR}/src/init/register_configure_agent.sh > /dev/null || :
+    fi
+
     # Delete installation scripts
     if [ -d ${SCRIPTS_DIR} ]; then
         rm -rf ${SCRIPTS_DIR}
