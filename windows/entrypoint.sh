@@ -6,7 +6,7 @@ BRANCH=$1
 JOBS=$2
 DEBUG=$3
 REVISION=$4
-ZIP_NAME="compiled_agent.zip"
+ZIP_NAME="windows_agent_${REVISION}.zip"
 
 URL_REPO=https://github.com/wazuh/wazuh/archive/${BRANCH}.zip
 
