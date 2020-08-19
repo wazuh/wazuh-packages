@@ -359,6 +359,14 @@
         "type": "file",
         "user": "root"
     },
+    "/var/ossec/bin/wazuhctl": {
+        "class": "static",
+        "group": "root",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
     "/var/ossec/etc": {
         "class": "static",
         "group": "ossec",
