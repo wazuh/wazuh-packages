@@ -35,6 +35,7 @@ sed "s:#!/bin/sh:#!/usr/xpg4/bin/sh:g" ./src/init/dist-detect.sh > ./src/init/di
 sed "s:#!/bin/sh:#!/usr/xpg4/bin/sh:g" ./src/init/shared.sh > ./src/init/shared.sh.new && mv ./src/init/shared.sh.new ./src/init/shared.sh && chmod +x ./src/init/shared.sh
 sed "s:#!/bin/sh:#!/usr/xpg4/bin/sh:g" ./src/init/ossec-local.sh > ./src/init/ossec-local.sh.new && mv ./src/init/ossec-local.sh.new ./src/init/ossec-local.sh && chmod +x ./src/init/ossec-local.sh
 sed "s:#!/bin/sh:#!/usr/xpg4/bin/sh:g" ./src/init/ossec-client.sh > ./src/init/ossec-client.sh.new && mv ./src/init/ossec-client.sh.new ./src/init/ossec-client.sh && chmod +x ./src/init/ossec-client.sh
+sed "s:#!/bin/sh:#!/usr/xpg4/bin/sh:g" ./src/init/register_configure_agent.sh > ./src/init/register_configure_agent.sh.new && mv ./src/init/register_configure_agent.sh.new ./src/init/register_configure_agent.sh && chmod +x ./src/init/register_configure_agent.sh
 sed "s:#!/bin/sh:#!/usr/xpg4/bin/sh:g" ./src/init/osx105-addusers.sh > ./src/init/osx105-addusers.sh.new && mv ./src/init/osx105-addusers.sh.new ./src/init/osx105-addusers.sh && chmod +x ./src/init/osx105-addusers.sh
 sed "s:#!/bin/sh:#!/usr/xpg4/bin/sh:g" ./src/init/fw-check.sh > ./src/init/fw-check.sh.new && mv ./src/init/fw-check.sh.new ./src/init/fw-check.sh && chmod +x ./src/init/fw-check.sh
 sed "s:#!/bin/sh:#!/usr/xpg4/bin/sh:g" ./src/init/adduser.sh > ./src/init/adduser.sh.new && mv ./src/init/adduser.sh.new ./src/init/adduser.sh && chmod +x ./src/init/adduser.sh
