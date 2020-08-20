@@ -499,9 +499,7 @@ rm -fr %{buildroot}
 %attr(750, root, ossec) %{_localstatedir}/bin/agent_upgrade
 %attr(750, root, root) %{_localstatedir}/bin/clear_stats
 %attr(750, root, ossec) %{_localstatedir}/bin/cluster_control
-%attr(750, root, root) %{_localstatedir}/bin/configure_api
 %attr(750, root, root) %{_localstatedir}/bin/manage_agents
-%attr(750, root, root) %{_localstatedir}/bin/migration
 %attr(750, root, root) %{_localstatedir}/bin/ossec-agentlessd
 %attr(750, root, root) %{_localstatedir}/bin/ossec-analysisd
 %attr(750, root, root) %{_localstatedir}/bin/ossec-authd
@@ -576,6 +574,7 @@ rm -fr %{buildroot}
 %attr(640, ossecm, ossec) %ghost %{_localstatedir}/logs/integrations.log
 %attr(660, ossec, ossec) %ghost %{_localstatedir}/logs/ossec.log
 %attr(660, ossec, ossec) %ghost %{_localstatedir}/logs/ossec.json
+%dir %attr(750, ossec, ossec) %{_localstatedir}/logs/api
 %dir %attr(750, ossec, ossec) %{_localstatedir}/logs/archives
 %dir %attr(750, ossec, ossec) %{_localstatedir}/logs/alerts
 %dir %attr(750, ossec, ossec) %{_localstatedir}/logs/cluster
