@@ -196,6 +196,9 @@ case "$1" in
 
     fi
 
+    # Restoring file permissions
+    ${SCRIPTS_DIR}/restore-permissions.sh > /dev/null 2>&1 || true
+
     # Delete installation scripts
     if [ -d ${SCRIPTS_DIR} ]; then
         rm -rf ${SCRIPTS_DIR}
@@ -214,9 +217,6 @@ case "$1" in
     # Fix /etc/ossec-init.conf
     chmod 640 /etc/ossec-init.conf
     chown root:ossec /etc/ossec-init.conf
-
-    # Restoring file permissions
-    ${SCRIPTS_DIR}/restore-permissions.sh > /dev/null 2>&1 || true
 
     ;;
 
