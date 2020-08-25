@@ -18,14 +18,13 @@ set -euo pipefail
 find $1 -depth -printf '%m:%u:%g:%p\0' | awk -v RS='\0' -F: '
 BEGIN {
     print "#!/bin/sh";
-    print "set -e";
     q = "\047";
 }
 {
     gsub(q, q q "\\" q);
     f = $0;
     sub(/^[^:]*:[^:]*:[^:]*:/, "", f);
-    print "chown --", q $2 ":" $3 q, q f q;
-    print "chmod", $1, q f q;
+    print "chown --", q $2 ":" $3 q, q f q, " > /dev/null 2>&1 || :";
+    print "chmod", $1, q f q, " > /dev/null 2>&1 || :";
 }' > $2
 chmod +x $2

@@ -58,12 +58,12 @@ override_dh_install:
 	USER_AUTO_START="n" \
 	./install.sh
 
-	# Remove OpenSCAP policies
-	rm -rf $(INSTALLATION_DIR)/wodles/oscap/content/*
-
 	# Copying init.d script
 	mkdir -p ${TARGET_DIR}/etc/init.d/
 	cp src/init/ossec-hids-debian.init ${TARGET_DIR}/etc/init.d/wazuh-agent
+	# Copying systemd file
+	mkdir -p ${TARGET_DIR}/usr/lib/systemd/system/
+	install -m 0644 src/systemd/wazuh-agent.service ${TARGET_DIR}/usr/lib/systemd/system/
 
 	# Generating permission restoration file for postinstall
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)
@@ -169,8 +169,10 @@ override_dh_install:
 
 	# Copying systemd file
 	mkdir -p ${TARGET_DIR}/etc/systemd/system/
-
 	cp src/systemd/wazuh-agent.service ${TARGET_DIR}/etc/systemd/system/
+
+	# Copy ossec-init.conf
+	cp /etc/ossec-init.conf ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)
 
 override_dh_auto_clean:
 	$(MAKE) -C src clean
