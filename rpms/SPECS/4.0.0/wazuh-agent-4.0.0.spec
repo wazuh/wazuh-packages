@@ -86,7 +86,6 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.ssh
 cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
 install -m 0640 ossec-init.conf ${RPM_BUILD_ROOT}%{_sysconfdir}
 install -m 0755 src/init/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-agent
-install -m 0750 src/init/register_configure_agent.sh ${RPM_BUILD_ROOT}%{_localstatedir}/ossec/bin
 
 # Clean the preinstalled configuration assesment files
 rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ruleset/sca/*
@@ -272,13 +271,6 @@ if [ $1 = 1 ]; then
     systemctl stop wazuh-agent
     systemctl enable wazuh-agent > /dev/null 2>&1
   fi
-fi
-
-if [ $1 = 1 ]; then
-  # Register and configure agent if Wazuh environment variables are defined
-  %{_localstatedir}/ossec/bin/register_configure_agent.sh > /dev/null || :
-else
-  %{_localstatedir}/ossec/bin/register_configure_agent.sh upgrade > /dev/null || :
 fi
 
 if [ ! -d /run/systemd/system ]; then
