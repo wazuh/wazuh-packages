@@ -14,7 +14,7 @@ Requires(post):   /sbin/chkconfig
 Requires(preun):  /sbin/chkconfig /sbin/service
 Requires(postun): /sbin/service /usr/sbin/groupdel /usr/sbin/userdel
 Conflicts:   ossec-hids ossec-hids-agent wazuh-agent wazuh-local
-Obsoletes: wazuh-api
+Obsoletes: wazuh-api <= 3.13.1
 AutoReqProv: no
 
 Requires: coreutils
@@ -616,7 +616,6 @@ rm -fr %{buildroot}
 %dir %attr(660, root, ossec) %{_localstatedir}/queue/vulnerabilities
 %dir %attr(440, root, ossec) %{_localstatedir}/queue/vulnerabilities/dictionaries
 %attr(0440, root, ossec) %{_localstatedir}/queue/vulnerabilities/dictionaries/cpe_helper.json
-%attr(0440, root, ossec) %{_localstatedir}/queue/vulnerabilities/dictionaries/msu.json.gz
 %dir %attr(750, root, ossec) %{_localstatedir}/ruleset
 %dir %attr(750, root, ossec) %{_localstatedir}/ruleset/sca
 %attr(640, root, ossec) %{_localstatedir}/ruleset/VERSION
