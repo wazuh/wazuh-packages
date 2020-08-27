@@ -33,8 +33,6 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 %prep
 %setup -q
 
-echo "Vendor is %_vendor"
-
 ./gen_ossec.sh conf agent centos %rhel %{_localstatedir} > etc/ossec-agent.conf
 ./gen_ossec.sh init agent %{_localstatedir} > ossec-init.conf
 
@@ -84,18 +82,13 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.ssh
 
 # Copy the installed files into RPM_BUILD_ROOT directory
 cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
+mkdir -p ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
 install -m 0640 ossec-init.conf ${RPM_BUILD_ROOT}%{_sysconfdir}
 install -m 0755 src/init/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-agent
+install -m 0644 src/systemd/wazuh-agent.service ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
 
 # Clean the preinstalled configuration assesment files
 rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ruleset/sca/*
-
-# Add OpenSCAP policies
-install -m 0640 wodles/oscap/content/*redhat* ${RPM_BUILD_ROOT}%{_localstatedir}/wodles/oscap/content
-install -m 0640 wodles/oscap/content/*rhel* ${RPM_BUILD_ROOT}%{_localstatedir}/wodles/oscap/content
-install -m 0640 wodles/oscap/content/*centos* ${RPM_BUILD_ROOT}%{_localstatedir}/wodles/oscap/content
-install -m 0640 wodles/oscap/content/*fedora* ${RPM_BUILD_ROOT}%{_localstatedir}/wodles/oscap/content
-
 
 # Install configuration assesment files and files templates
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/{applications,generic}
@@ -151,10 +144,8 @@ cp add_localfiles.sh ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_ins
 
 # Templates for initscript
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/src/init
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/src/systemd
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/generic
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/centos
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/fedora
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/rhel
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/suse
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/sles
@@ -165,7 +156,6 @@ cp -rp src/init/ossec-hids-suse.init ${RPM_BUILD_ROOT}%{_localstatedir}/packages
 # Copy scap templates
 cp -rp  etc/templates/config/generic/* ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/generic
 cp -rp  etc/templates/config/centos/* ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/centos
-cp -rp  etc/templates/config/fedora/* ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/fedora
 cp -rp  etc/templates/config/rhel/* ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/rhel
 cp -rp  etc/templates/config/suse/* ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/suse
 cp -rp  etc/templates/config/sles/* ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/sles
@@ -176,12 +166,12 @@ install -m 0640 src/init/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/
 cp src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/src/
 cp src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/src/
 cp src/LOCATION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/src/
-cp -r src/systemd/* ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/src/systemd
 
-if [ %{_debugenabled} == "yes" ]; then
+if [ %{_debugenabled} = "yes" ]; then
   %{_rpmconfigdir}/find-debuginfo.sh
 fi
 exit 0
+
 %pre
 
 # Create the ossec group if it doesn't exists
@@ -195,40 +185,22 @@ if ! id -u ossec > /dev/null 2>&1; then
   useradd -g ossec -G ossec -d %{_localstatedir} -r -s /sbin/nologin ossec
 fi
 
-# Delete old service
-if [ -f /etc/init.d/ossec ]; then
-  rm /etc/init.d/ossec
-fi
-# Execute this if only when installing the package
-if [ $1 = 1 ]; then
-  if [ -f %{_localstatedir}/etc/ossec.conf ]; then
-    echo "====================================================================================="
-    echo "= Backup from your ossec.conf has been created at %{_localstatedir}/etc/ossec.conf.rpmorig ="
-    echo "= Please verify your ossec.conf configuration at %{_localstatedir}/etc/ossec.conf          ="
-    echo "====================================================================================="
-    mv %{_localstatedir}/etc/ossec.conf %{_localstatedir}/etc/ossec.conf.rpmorig
-  fi
-fi
 
 %post
 # If the package is being installed
 if [ $1 = 1 ]; then
-  . %{_localstatedir}/packages_files/agent_installation_scripts/src/init/dist-detect.sh
 
   sles=""
-  if [ -f /etc/os-release ]; then
+  if [ -f /etc/SuSE-release ]; then
+    sles="suse"
+  elif [ -f /etc/os-release ]; then
     if `grep -q "\"sles" /etc/os-release` ; then
       sles="suse"
     elif `grep -q -i "\"opensuse" /etc/os-release` ; then
       sles="opensuse"
     fi
-  elif [ -f /etc/SuSE-release ]; then
-    if `grep -q "SUSE Linux Enterprise Server" /etc/SuSE-release` ; then
-      sles="suse"
-    elif `grep -q -i "opensuse" /etc/SuSE-release` ; then
-      sles="opensuse"
-    fi
   fi
+
   if [ ! -z "$sles" ]; then
     install -m 755 %{_localstatedir}/packages_files/agent_installation_scripts/src/init/ossec-hids-suse.init /etc/init.d/wazuh-agent
   fi
@@ -237,44 +209,17 @@ if [ $1 = 1 ]; then
   chown ossec:ossec %{_localstatedir}/logs/active-responses.log
   chmod 0660 %{_localstatedir}/logs/active-responses.log
 
+  . %{_localstatedir}/packages_files/agent_installation_scripts/src/init/dist-detect.sh
+
   # Generating osse.conf file
   %{_localstatedir}/packages_files/agent_installation_scripts/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir} > %{_localstatedir}/etc/ossec.conf
   chown root:ossec %{_localstatedir}/etc/ossec.conf
 
   # Add default local_files to ossec.conf
   %{_localstatedir}/packages_files/agent_installation_scripts/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
-  if [ -f %{_localstatedir}/etc/ossec.conf.rpmorig ]; then
-      %{_localstatedir}/packages_files/agent_installation_scripts/src/init/replace_manager_ip.sh %{_localstatedir}/etc/ossec.conf.rpmorig %{_localstatedir}/etc/ossec.conf
-  fi
 
-  /sbin/chkconfig --add wazuh-agent
-  /sbin/chkconfig wazuh-agent on
-
-  # If systemd is installed, add the wazuh-agent.service file to systemd files directory
-  if [ -d /run/systemd/system ]; then
-
-    # Fix for RHEL 8 and CentOS 8
-    # Service must be installed in /usr/lib/systemd/system/
-    if [ "${DIST_NAME}" == "rhel" -a "${DIST_VER}" == "8" ] || [ "${DIST_NAME}" == "centos" -a "${DIST_VER}" == "8" ]; then
-      install -m 644 %{_localstatedir}/packages_files/agent_installation_scripts/src/systemd/wazuh-agent.service /usr/lib/systemd/system/
-    else
-      install -m 644 %{_localstatedir}/packages_files/agent_installation_scripts/src/systemd/wazuh-agent.service /etc/systemd/system/
-    fi
-    # Fix for Fedora 28
-    # Check if SELinux is installed. If it is installed, restore the context of the .service file
-    if [ "${DIST_NAME}" == "fedora" -a "${DIST_VER}" == "28" ]; then
-      if command -v restorecon > /dev/null 2>&1 ; then
-        restorecon -v /etc/systemd/system/wazuh-agent.service > /dev/null 2>&1
-      fi
-    fi
-    systemctl daemon-reload
-    systemctl stop wazuh-agent
-    systemctl enable wazuh-agent > /dev/null 2>&1
-  fi
-fi
-
-if [ ! -d /run/systemd/system ]; then
-  update-rc.d wazuh-agent defaults > /dev/null 2>&1
+  # Register and configure agent if Wazuh environment variables are defined
+  %{_localstatedir}/packages_files/agent_installation_scripts/src/init/register_configure_agent.sh > /dev/null || :
 fi
 
 # Delete the installation files used to configure the agent
@@ -374,65 +319,34 @@ else
   fi
 fi
 
-if [ $1 = 2 ]; then
-  # Remove OpenSCAP policies if the module is disabled
-  if stat %{_localstatedir}/ossec/wodles/oscap/content/* > /dev/null 2>&1; then
-    if grep -E -n '<wodle.*name="open-scap".*>' %{_localstatedir}/ossec/etc/ossec.conf > /dev/null ; then
-      is_disabled="no"
-    else
-      is_disabled="yes"
-    fi
-
-    end_config_limit="99999999"
-    for start_config in $(grep -E -n '<wodle.*name="open-scap".*>'  %{_localstatedir}/etc/ossec.conf | cut -d':' -f 1); do
-      end_config="$(sed -n "${start_config},${end_config_limit}p"  %{_localstatedir}/etc/ossec.conf | sed -n '/open-scap/,$p' | grep -n '</wodle>' | head -n 1 | cut -d':' -f 1)"
-      end_config="$((start_config + end_config))"
-
-      if [ -n "${start_config}" ] && [ -n "${end_config}" ]; then
-        open_scap_conf="$(sed -n "${start_config},${end_config}p"  %{_localstatedir}/etc/ossec.conf)"
-
-        for line in $(echo ${open_scap_conf} | grep -n '<disabled>' | cut -d':' -f 1); do
-          # Check if OpenSCAP is enabled
-          if echo ${open_scap_conf} | sed -n ${line}p | grep "disabled>no" > /dev/null ; then
-            is_disabled="no"
-
-          # Check if OpenSCAP is disabled
-          elif echo ${open_scap_conf} | sed -n ${line}p | grep "disabled>yes" > /dev/null; then
-            is_disabled="yes"
-          fi
-        done
-      fi
-    done
-
-    if [ "${is_disabled}" = "yes" ]; then
-        rm -f %{_localstatedir}/wodles/oscap/content/*
-    fi
-  fi
-fi
-
 # Restore ossec.conf permissions after upgrading
 chmod 0660 %{_localstatedir}/etc/ossec.conf
 
-if cat %{_localstatedir}/ossec/etc/ossec.conf | grep -o -P '(?<=<server-ip>).*(?=</server-ip>)' | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' > /dev/null 2>&1; then
-  /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
-fi
-
-if cat %{_localstatedir}/ossec/etc/ossec.conf | grep -o -P '(?<=<server-hostname>).*(?=</server-hostname>)' > /dev/null 2>&1; then
-  /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
-fi
-
-if cat %{_localstatedir}/ossec/etc/ossec.conf | grep -o -P '(?<=<address>).*(?=</address>)' | grep -v 'MANAGER_IP' > /dev/null 2>&1; then
-  /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
-fi
-
 %preun
+
+# Stop the services before upgrading/uninstalling the package
+# Check for systemd
+if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
+  systemctl stop wazuh-agent > /dev/null 2>&1
+# Check for SysV
+elif command -v service > /dev/null 2>&1; then
+  service wazuh-agent stop > /dev/null 2>&1
+# Anything else
+else
+  %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
+fi
 
 if [ $1 = 0 ]; then
 
-  /sbin/service wazuh-agent stop > /dev/null 2>&1 || :
-  %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
-  /sbin/chkconfig wazuh-agent off > /dev/null 2>&1
-  /sbin/chkconfig --del wazuh-agent
+  # Check for systemd
+  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
+    systemctl disable wazuh-agent > /dev/null 2>&1
+    systemctl daemon-reload > /dev/null 2>&1
+  # Check for SysV
+  elif command -v service > /dev/null 2>&1; then
+    chkconfig wazuh-agent off > /dev/null 2>&1
+    chkconfig --del wazuh-agent > /dev/null 2>&1
+  fi
 
   # Remove the SELinux policy
   if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
@@ -451,13 +365,6 @@ if [ $1 = 0 ]; then
   if [ ! -z "$sles" ]; then
     rm -f /etc/init.d/wazuh-agent
   fi
-  # Remove the wazuh-agent.service file
-  # RHEL 8 service located in /usr/lib/systemd/system/
-  if [ -f /usr/lib/systemd/system/wazuh-agent.service ]; then
-    rm -f /usr/lib/systemd/system/wazuh-agent.service
-  else
-    rm -f /etc/systemd/system/wazuh-agent.service
-  fi
 
   # Remove SCA files
   rm -f %{_localstatedir}/ruleset/sca/*
@@ -472,7 +379,7 @@ fi
 %postun
 
 # If the package is been uninstalled
-if [ $1 == 0 ];then
+if [ $1 = 0 ];then
   # Remove the ossec user if it exists
   if id -u ossec > /dev/null 2>&1; then
     userdel ossec >/dev/null 2>&1
@@ -495,51 +402,13 @@ if [ $1 == 0 ];then
   rm -rf %{_localstatedir}/tmp
 fi
 
-# If the package is been downgraded
-if [ $1 == 1 ]; then
-  # Load the ossec-init.conf file to get the current version
-  . /etc/ossec-init.conf
-
-  # Get the major and minor version
-  MAJOR=$(echo $VERSION | cut -dv -f2 | cut -d. -f1)
-  MINOR=$(echo $VERSION | cut -d. -f2)
-
-  # Restore the configuration files from the .rpmsave file
-  if [ $MAJOR = 3 ] && [ $MINOR -lt 7 ]; then
-    # Restore client.keys file
-    if [ -f %{_localstatedir}/etc/client.keys.rpmsave ]; then
-      mv %{_localstatedir}/etc/client.keys.rpmsave %{_localstatedir}/etc/client.keys
-      chmod 640 %{_localstatedir}/etc/client.keys
-      chown root:ossec %{_localstatedir}/etc/client.keys
-    fi
-    # Restore the ossec.conf file
-    if [ -f %{_localstatedir}/etc/ossec.conf.rpmsave ]; then
-      mv %{_localstatedir}/etc/ossec.conf.rpmsave %{_localstatedir}/etc/ossec.conf
-      chmod 640 %{_localstatedir}/etc/ossec.conf
-      chown root:ossec %{_localstatedir}/etc/ossec.conf
-    fi
-    # Restart the agent
-    if cat %{_localstatedir}/etc/ossec.conf | grep -o -P '(?<=<server-ip>).*(?=</server-ip>)' | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' > /dev/null 2>&1; then
-      /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
-    fi
-
-    if cat %{_localstatedir}/etc/ossec.conf | grep -o -P '(?<=<server-hostname>).*(?=</server-hostname>)' > /dev/null 2>&1; then
-      /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
-    fi
-
-    if cat %{_localstatedir}/etc/ossec.conf | grep -o -P '(?<=<address>).*(?=</address>)' | grep -v 'MANAGER_IP' > /dev/null 2>&1; then
-      /sbin/service wazuh-agent restart > /dev/null 2>&1 || :
-    fi
-  fi
-fi
-
-
 %clean
 rm -fr %{buildroot}
 
 %files
+%{_initrddir}/wazuh-agent
+/usr/lib/systemd/system/wazuh-agent.service
 %defattr(-,root,root)
-%{_initrddir}/*
 %attr(640,root,ossec) %verify(not md5 size mtime) %{_sysconfdir}/ossec-init.conf
 %dir %attr(750,root,ossec) %{_localstatedir}
 %attr(750,root,ossec) %{_localstatedir}/agentless
@@ -573,7 +442,6 @@ rm -fr %{buildroot}
 %attr(750,root,root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/gen_ossec.sh
 %attr(750,root,root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/generic/*
 %attr(750,root,root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/centos/*
-%attr(750,root,root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/fedora/*
 %attr(750,root,root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/rhel/*
 %attr(750,root,root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/sles/*
 %attr(750,root,root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/suse/*
@@ -667,11 +535,6 @@ rm -fr %{buildroot}
 %attr(750,root,ossec) %{_localstatedir}/wodles/docker/*
 %dir %attr(750, root, ossec) %{_localstatedir}/wodles/gcloud
 %attr(750, root, ossec) %{_localstatedir}/wodles/gcloud/*
-%dir %attr(750,root,ossec) %{_localstatedir}/wodles/oscap
-%attr(750,root,ossec) %{_localstatedir}/wodles/oscap/oscap.py
-%attr(750,root,ossec) %{_localstatedir}/wodles/oscap/template*
-%dir %attr(750,root,ossec) %{_localstatedir}/wodles/oscap/content
-%attr(640, root, ossec) %ghost %{_localstatedir}/wodles/oscap/content/*
 
 %if %{_debugenabled} == "yes"
 /usr/lib/debug/%{_localstatedir}/*
@@ -692,7 +555,7 @@ rm -fr %{buildroot}
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Wed Mar 25 2020 support <info@wazuh.com> - 3.12.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Thu Feb 24 2020 support <info@wazuh.com> - 3.11.4
+* Mon Feb 24 2020 support <info@wazuh.com> - 3.11.4
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Wed Jan 22 2020 support <info@wazuh.com> - 3.11.3
 - More info: https://documentation.wazuh.com/current/release-notes/
@@ -710,11 +573,11 @@ rm -fr %{buildroot}
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Thu Aug 8 2019 support <info@wazuh.com> - 3.9.5
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Tue Jul 12 2019 support <info@wazuh.com> - 3.9.4
+* Fri Jul 12 2019 support <info@wazuh.com> - 3.9.4
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Tue Jun 11 2019 support <info@wazuh.com> - 3.9.3
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Mon Jun 6 2019 support <info@wazuh.com> - 3.9.2
+* Thu Jun 6 2019 support <info@wazuh.com> - 3.9.2
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon May 6 2019 support <info@wazuh.com> - 3.9.1
 - More info: https://documentation.wazuh.com/current/release-notes/

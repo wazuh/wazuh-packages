@@ -10,60 +10,52 @@ WAZUH_TMP_DIR="${DIR}/packages_files/agent_config_files"
 case "$1" in
     remove|failed-upgrade|abort-install|abort-upgrade|disappear)
 
-    if [ -f /etc/logrotate.d/wazuh-hids ]; then
-        rm -f /etc/logrotate.d/wazuh-hids
-    fi
+        if [ -d ${WAZUH_TMP_DIR} ]; then
+            rm -rf ${WAZUH_TMP_DIR}
+        fi
 
-    if [ -f /etc/ossec-init.conf ]; then
-        rm -f /etc/ossec-init.conf
-    fi
+        # Check for systemd
+        if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
+            systemctl disable wazuh-agent > /dev/null 2>&1
+            systemctl daemon-reload > /dev/null 2>&1
+        # Check for SysV
+        elif command -v service > /dev/null 2>&1; then
+            update-rc.d -f wazuh-agent remove > /dev/null 2>&1
+        fi
 
-    if [ -d ${WAZUH_TMP_DIR} ]; then
-        rm -rf ${WAZUH_TMP_DIR}
-    fi
+        # Back up the old configuration files as .save
+        if [ ! -d ${DIR}/etc ]; then
+            mkdir -p ${DIR}/etc
+        fi
 
-    if [ -d /run/systemd/system ] ; then
-        systemctl disable wazuh-agent > /dev/null 2>&1
-        systemctl daemon-reload
-        systemctl reset-failed
-    fi
+        # If the directory is not empty, copy the files into ${DIR}/etc
+        if ls -A ${DIR}/tmp/conffiles > /dev/null 2>&1 ; then
+            mv ${DIR}/tmp/conffiles/* ${DIR}/etc
+        fi
+        rm -rf ${DIR}/tmp
+        if [ "$1" = "remove" ]; then
+            rm -rf ${DIR}/ruleset
+            rm -rf ${DIR}/var
+            rm -rf ${DIR}/logs
+        fi
 
-    update-rc.d -f wazuh-agent remove
+        # Delete old .save
+        find ${DIR}/etc/ -type f  -name "*save" -exec rm -f {} \;
 
-    # Back up the old configuration files as .save
-    if [ ! -d ${DIR}/etc ]; then
-        mkdir -p ${DIR}/etc
-    fi
+        # Rename the files
+        find ${DIR}/etc/ -type f -exec mv {} {}.save \;
 
-    # If the directory is not empty, copy the files into ${DIR}/etc
-    if [ "$(ls -A ${DIR}/tmp/conffiles)" ]; then
-        mv ${DIR}/tmp/conffiles/* ${DIR}/etc
-    fi
-    rm -rf ${DIR}/tmp/conffiles
-    rm -rf ${DIR}/tmp
-    if [ "$1" = "remove" ]; then
-        rm -rf ${DIR}/ruleset
-        rm -rf ${DIR}/var
-        rm -rf ${DIR}/logs
-    fi
+        ;;
 
-    # Delete old .save
-    find ${DIR}/etc/ -type f  -name "*save" -exec rm -f {} \;
+        purge)
 
-    # Rename the files
-    find ${DIR}/etc/ -type f -exec mv {} {}.save \;
-
-    ;;
-
-    purge)
-
-    if getent passwd | grep -q "^ossec" ; then
-        deluser ossec > /dev/null 2>&1
-    fi
-    if getent group | grep -q "^ossec" ; then
-        delgroup ossec > /dev/null 2>&1
-    fi
-    rm -rf ${DIR}/*
+        if getent passwd | grep -q "^ossec" ; then
+            deluser ossec > /dev/null 2>&1
+        fi
+        if getent group | grep -q "^ossec" ; then
+            delgroup ossec > /dev/null 2>&1
+        fi
+        rm -rf ${DIR}/*
 
     ;;
 
