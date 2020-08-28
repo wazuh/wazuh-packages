@@ -105,13 +105,6 @@ if [ -r ${SCA_TMP_FILE} ]; then
   done
 fi
 
-# Register and configure agent if Wazuh environment variables are defined
-if [ "${upgrade}" = "false" ]; then
-  ${DIR}/bin/register_configure_agent.sh > /dev/null || :
-else
-  ${DIR}/bin/register_configure_agent.sh "upgrade" > /dev/null || :
-fi
-
 launchctl unsetenv WAZUH_PKG_UPGRADE
 
 # Install the service
