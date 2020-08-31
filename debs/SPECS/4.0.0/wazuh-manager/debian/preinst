@@ -20,88 +20,57 @@ fi
 case "$1" in
     install|upgrade)
 
+        # Delete old API backups
+        if [ "$1" = "upgrade" ]; then
+            if [ -d ${DIR}/~api ]; then
+                rm -rf ${DIR}/~api
+            fi
+            # Import the variables from ossec-init.conf file
+            . /etc/ossec-init.conf
+
+            # Get the major and minor version
+            MAJOR=$(echo $VERSION | cut -dv -f2 | cut -d. -f1)
+            MINOR=$(echo $VERSION | cut -d. -f2)
+
+            # Delete 3.X Wazuh API service
+            if [ "$MAJOR" = "3" ] && [ -d ${DIR}/api ]; then
+                if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && \
+                  systemctl list-unit-files --type service | grep wazuh-api; then
+                    systemctl stop wazuh-api.service > /dev/null 2>&1
+                    systemctl disable wazuh-api.service > /dev/null 2>&1
+                    rm -f /etc/systemd/system/wazuh-api.service || true
+                fi
+
+                if command -v service > /dev/null 2>&1 && service status wazuh-api > /dev/null 2>&1 ; then
+                    service wazuh-api stop > /dev/null 2>&1
+                    update-rc.d wazuh-api remove > /dev/null 2>&1
+                    rm -f /etc/rc.d/init.d/wazuh-api || true
+                fi
+            fi
+        fi
+
         if [ ! -z "$2" ] && [ ! -f ${DIR}/etc/ossec.conf ] ; then
             touch ${WAZUH_TMP_DIR}/create_conf
         fi
-        # Force deleting the old ossec-init.conf and link
-        rm -f /etc/ossec-init.conf
 
-        if [ -z "$2" ]; then
-          if [ -f ${DIR}/etc/ossec.conf ]; then
-            cp  ${DIR}/etc/ossec.conf  ${DIR}/etc/ossec.conf.deborig
-            chmod 0600 ${DIR}/etc/ossec.conf.deborig
-            chown root:root ${DIR}/etc/ossec.conf.deborig
-
-            echo "====================================================================================="
-            echo "= Backup from your ossec.conf has been created at ${DIR}/etc/ossec.conf.deborig ="
-            echo "= Please verify your ossec.conf configuration at ${DIR}/etc/ossec.conf          ="
-            echo "====================================================================================="
-          fi
-        fi
-
-        # Stop Wazuh service if we are upgrading and it's running
-        if [ ! -z "$2" ]; then
-          if [ -n "$(ps -e | grep -E ^\ *1\ .*systemd$)" ]; then
-              systemctl --quiet stop wazuh-manager.service
-          else
-              service wazuh-manager stop
-          fi
-        fi
-
-        # Stop API service if it's running
-        if ps aux | grep "${DIR}/api/app.js" | grep -v grep > /dev/null 2>&1; then
-           touch ${WAZUH_TMP_DIR}/wazuh-api.restart
-           if [ -n "$(ps -e | grep -E ^\ *1\ .*systemd$)" ]; then
-              systemctl --quiet stop wazuh-api.service
-           else
-              service wazuh-api stop
-           fi
-        fi
-
-        # Stop Authd if it is running
-        if ps aux | grep ${DIR}/bin/ossec-authd | grep -v grep > /dev/null 2>&1; then
-           kill `ps -ef | grep "${DIR}/bin/ossec-authd" | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
-        fi
-
-        # Fix for forcing the stop of the api
-        if ps aux | grep ${DIR}/api/app.js | grep -v grep > /dev/null 2>&1; then
-            kill -9 `ps -ef | grep "${DIR}/api/app.js" | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
-        fi
-
-        if [ -f ${DIR}/etc/ossec.conf ]; then
-            cp -rp ${DIR}/etc/ossec.conf ${DIR}/etc/ossec.bck
-        fi
-
-        # Backup the agent groups
-        # Prepare the shared files for 3.x versions if you are upgrading from 2.x
-        if [ "$1" = "upgrade" ] ; then
-
-            if [ ! -d ${DIR}/etc/shared/default ]; then
-              mkdir -p  ${DIR}/etc/shared/default
-              chown ossec:ossec ${DIR}/etc/shared/default
-              chmod -R 770 ${DIR}/etc/shared/default
-              find ${DIR}/etc/shared -maxdepth 1 -type f \( -name "*.txt" -o -name "merged.mg" \) -exec cp -rp {} ${DIR}etc/shared/default \;
-              find ${DIR}/etc/shared -maxdepth 1 -type f \( -name "*.txt" -o -name "merged.mg" \) -exec rm {} \;
-            fi
-
-            cp -rp ${DIR}/etc/shared ${WAZUH_TMP_DIR}/group
-
-            # RBAC database
-            if [ -f ${DIR}/api/configuration/security/rbac.db ]; then
-              cp -fp ${DIR}/api/configuration/security/rbac.db ${WAZUH_TMP_DIR}/rbac.db
-            fi
+        # RBAC database
+        if [ "$1" = "upgrade" ] && [ -f ${DIR}/api/configuration/security/rbac.db ]; then
+            cp -fp ${DIR}/api/configuration/security/rbac.db ${WAZUH_TMP_DIR}/rbac.db
         fi
 
         # Delete old service
         if [ -f /etc/init.d/ossec ]; then
           rm /etc/init.d/ossec
         fi
+
         if [ -d ${DIR}/etc/lists ]; then
           cp -rp ${DIR}/etc/lists ${WAZUH_TMP_DIR}/lists
         fi
+
         if [ -f ${DIR}/etc/client.keys ]; then
-          cp -p ${DIR}/etc/client.keys ${WAZUH_TMP_DIR}/client.keys
+            cp -p ${DIR}/etc/client.keys ${WAZUH_TMP_DIR}/client.keys
         fi
+
         if [ -f ${DIR}/etc/local_internal_options.conf ]; then
             cp -p ${DIR}/etc/local_internal_options.conf ${WAZUH_TMP_DIR}/local_internal_options.conf
         fi
@@ -116,14 +85,6 @@ case "$1" in
 
         if [ -f ${DIR}/etc/ossec.conf ]; then
             cp -p ${DIR}/etc/ossec.conf ${WAZUH_TMP_DIR}/ossec.conf
-        fi
-
-        if [ -f ${DIR}/etc/sslmanager.cert ]; then
-          cp -p ${DIR}/etc/sslmanager.cert ${WAZUH_TMP_DIR}/sslmanager.cert
-        fi
-
-        if [ -f ${DIR}/etc/sslmanager.key ]; then
-          cp -p ${DIR}/etc/sslmanager.key ${WAZUH_TMP_DIR}/sslmanager.key
         fi
 
         if [ -d ${DIR}/var/db/agents ]; then

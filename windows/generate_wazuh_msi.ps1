@@ -73,9 +73,9 @@ function BuildWazuhMsi(){
     if($SIGN -eq "yes"){
         # Sign .exe files and the InstallerScripts.vbs
         Write-Host "Signing .exe files..."
-        & $SIGNTOOL_EXE sign /a /tr http://rfc3161timestamp.globalsign.com/advanced /td SHA256 ".\*.exe"
+        & $SIGNTOOL_EXE sign /a /tr http://timestamp.digicert.com /td SHA256 ".\*.exe"
         Write-Host "Signing .vbs files..."
-        & $SIGNTOOL_EXE sign /a /tr http://rfc3161timestamp.globalsign.com/advanced /td SHA256 ".\InstallerScripts.vbs"
+        & $SIGNTOOL_EXE sign /a /tr http://timestamp.digicert.com /td SHA256 ".\InstallerScripts.vbs"
     }
 
     Write-Host "Building MSI installer..."
@@ -85,7 +85,7 @@ function BuildWazuhMsi(){
 
     if($SIGN -eq "yes"){
         Write-Host "Signing $MSI_NAME..."
-        & $SIGNTOOL_EXE sign /a /tr http://rfc3161timestamp.globalsign.com/advanced /d $MSI_NAME /td SHA256 $MSI_NAME
+        & $SIGNTOOL_EXE sign /a /tr http://timestamp.digicert.com /d $MSI_NAME /td SHA256 $MSI_NAME
     }
 }
 

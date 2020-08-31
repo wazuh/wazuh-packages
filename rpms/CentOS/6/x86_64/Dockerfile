@@ -1,7 +1,7 @@
 FROM centos:6
 # Install all the necessary tools to build the packages
 RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-6
-RUN yum install -y centos-release-scl gcc make git \
+RUN yum install -y centos-release-scl gcc make cmake git \
     openssh-clients sudo gnupg \
     automake autoconf libtool policycoreutils-python \
     yum-utils epel-release redhat-rpm-config rpm-devel \
@@ -12,7 +12,7 @@ RUN yum install -y centos-release-scl gcc make git \
     e2fsprogs-devel libacl-devel libattr-devel \
     openssl-devel libxml2-devel kexec-tools elfutils \
     libarchive-devel elfutils-libelf-devel \
-    elfutils-libelf patchelf elfutils-devel libgcrypt-devel 
+    elfutils-libelf patchelf elfutils-devel libgcrypt-devel
 
 # Warning: this repo has been disabled by the vendor
 RUN mv /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo.old

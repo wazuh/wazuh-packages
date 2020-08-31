@@ -4,7 +4,7 @@ FROM arm64v8/centos:7
 RUN yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 
 # Install all the necessary tools to build the packages
-RUN yum install -y gcc make git \
+RUN yum install -y gcc make cmake git \
     openssh-clients sudo gnupg file-devel\
     automake autoconf libtool policycoreutils-python \
     yum-utils system-rpm-config rpm-devel \

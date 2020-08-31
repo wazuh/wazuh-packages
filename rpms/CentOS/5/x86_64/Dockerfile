@@ -5,7 +5,7 @@ COPY CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo
 RUN yum clean all && yum update -y && yum downgrade -y libselinux
 
 # Install sudo, SSH and compilers
-RUN yum install -y sudo ca-certificates make gcc curl initscripts tar \
+RUN yum install -y sudo ca-certificates make cmake gcc curl initscripts tar \
     rpm-build automake autoconf libtool wget libselinux devicemapper \
     libselinux-python krb5-libs policycoreutils checkpolicy
 

@@ -2,65 +2,115 @@
 
 set -ex
 
+# Script parameters
 wazuh_branch=$1
 checksum=$2
 app_revision=$3
 
+# Paths
 kibana_dir="/tmp/source"
 source_dir="${kibana_dir}/plugins/wazuh"
 build_dir="${source_dir}/build"
 destination_dir="/wazuh_app"
 checksum_dir="/var/local/checksum"
 
-export package_json="${source_dir}/package.json"
+# Repositories URLs
+wazuh_app_clone_repo_url="https://github.com/wazuh/wazuh-kibana-app.git"
+wazuh_app_raw_repo_url="https://raw.githubusercontent.com/wazuh/wazuh-kibana-app"
+kibana_app_repo_url="https://github.com/elastic/kibana.git"
+kibana_app_raw_repo_url="https://raw.githubusercontent.com/elastic/kibana"
+wazuh_app_package_json_url="${wazuh_app_raw_repo_url}/${wazuh_branch}/package.json"
 
-download_sources() {
-    if ! curl -L https://github.com/wazuh/wazuh-kibana-app/tarball/${wazuh_branch} | tar zx ; then
-        echo "Error downloading the source code from GitHub."
-        exit 1
-    fi
-    IFS='-' tokens=( ${wazuh_branch} )
-    if ! curl -L https://github.com/elastic/kibana/tarball/v${tokens[1]} | tar zx ; then
-        echo "Error downloading Kibana source code from GitHub."
-        exit 1
-    fi
-    unset IFS
-    mv elastic-* kibana_source
-    mkdir -p kibana_source/plugins/wazuh
-    mv wazuh-* wazuh_source
-    mv wazuh_source/* kibana_source/plugins/wazuh
-    mv kibana_source ${kibana_dir}
+# Script vars
+wazuh_version=""
+kibana_version=""
+wazuh_app_node_version=""
+kibana_yarn_version=""
 
-    wazuh_version=$(python -c 'import json, os; f=open(os.environ["package_json"]); pkg=json.load(f); f.close(); print(pkg["version"])')
-    kibana_version=$(python -c 'import json, os; f=open(os.environ["package_json"]); pkg=json.load(f); f.close(); print(pkg["kibana"]["version"])')
-}
 
-install_dependencies (){
-
-    {
-        node_version=$(python -c 'import json, os; f=open(os.environ["package_json"]); pkg=json.load(f); f.close(); print(pkg["node_build"])')
-    }||{
-        node_version=$(python -c 'import json, os; f=open(os.environ["package_json"]); pkg=json.load(f); f.close(); print(pkg["node"])')
-    }||{
-        node_version="8.14.0"
-    }
+change_node_version () {
+    installed_node_version="$(node -v)"
+    node_version=$1
 
     n ${node_version}
-
-    installed_node_version="$(node -v)"
 
     if [[ "${installed_node_version}" != "v${node_version}" ]]; then
         mv /usr/local/bin/node /usr/bin
         mv /usr/local/bin/npm /usr/bin
         mv /usr/local/bin/npx /usr/bin
     fi
+
+    echo "Using $(node -v) node version"
 }
+
+
+prepare_env() {
+    echo "Downloading package.json from wazuh-kibana app repository"
+    if ! curl $wazuh_app_package_json_url -o "/tmp/package.json" ; then
+        echo "Error downloading package.json from GitHub."
+        exit 1
+    fi
+
+    wazuh_version=$(python -c 'import json, os; f=open("/tmp/package.json"); pkg=json.load(f); f.close();\
+                    print(pkg["version"])')
+    kibana_version=$(python -c 'import json, os; f=open("/tmp/package.json"); pkg=json.load(f); f.close();\
+                     print(pkg["kibana"]["version"])')
+
+    kibana_package_json_url="${kibana_app_raw_repo_url}/v${kibana_version}/package.json"
+
+    echo "Downloading package.json from elastic/kibana repository"
+    if ! curl $kibana_package_json_url -o "/tmp/package.json" ; then
+        echo "Error downloading package.json from GitHub."
+        exit 1
+    fi
+
+    kibana_yarn_version=$(python -c 'import json, os; f=open("/tmp/package.json"); pkg=json.load(f); f.close();\
+                          print(pkg["engines"]["yarn"])')
+
+    {
+        wazuh_app_node_version=$(python -c 'import json, os; f=open("/tmp/package.json"); pkg=json.load(f); f.close();\
+                                 print(pkg["node_build"])')
+    }||{
+        wazuh_app_node_version=$(python -c 'import json, os; f=open("/tmp/package.json"); pkg=json.load(f); f.close();\
+                                 print(pkg["node"])')
+    }||{
+        wazuh_app_node_version="8.14.0"
+    }
+}
+
+
+download_kibana_sources() {
+    if ! git clone $kibana_app_repo_url --branch "v${kibana_version}" --depth=1 kibana_source; then
+        echo "Error downloading Kibana source code from elastic/kibana GitHub repository."
+        exit 1
+    fi
+
+    mkdir -p kibana_source/plugins
+}
+
+
+install_dependencies () {
+    npm install -g "yarn@${kibana_yarn_version}"
+}
+
+
+download_wazuh_app_sources() {
+    if ! git clone $wazuh_app_clone_repo_url --branch ${wazuh_branch} --depth=1 kibana_source/plugins/wazuh ; then
+        echo "Error downloading the source code from wazuh-kibana-app GitHub repository."
+        exit 1
+    fi
+
+    mv kibana_source ${kibana_dir}
+}
+
 
 build_package(){
 
+    change_node_version $wazuh_app_node_version
+
     unset NODE_ENV
 
-    cd ${source_dir}
+    cd $source_dir
 
     # Set pkg name
     if [ -z "${app_revision}" ]; then
@@ -82,6 +132,9 @@ build_package(){
     exit 0
 }
 
-download_sources
+
+prepare_env
+download_kibana_sources
 install_dependencies
+download_wazuh_app_sources
 build_package
