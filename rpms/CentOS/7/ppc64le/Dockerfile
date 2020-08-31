@@ -7,7 +7,7 @@ RUN mv /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo /etc/yum.repos.d/CentOS-SCLo-scl
 RUN mv /etc/yum.repos.d/CentOS-SCLo-scl.repo /etc/yum.repos.d/CentOS-SCLo-scl.repo.old
 
 
-RUN yum -y install gcc make git \
+RUN yum -y install gcc make cmake git \
     openssh-clients rpm-build sudo gnupg \
     automake autoconf libtool policycoreutils-python \
     yum-utils epel-release redhat-rpm-config rpm-devel
