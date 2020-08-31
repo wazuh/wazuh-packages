@@ -16,7 +16,9 @@ DNF_PACKAGE_MANAGER="dnf"
 ZYPPER_PACKAGE_MANAGER="zypper"
 WAZUH_REPO_VERSION_URL="https://raw.githubusercontent.com/wazuh/wazuh/master/src/VERSION"
 PACKAGES_BASE_URL="https://packages.wazuh.com"
-WAZUHCTL="/var/ossec/bin/wazuhctl"
+RED_COLOR="\033[0;31m"
+GREEN_COLOR="\033[0;32m"
+RESET_COLOR="\033[0m"
 
 # Auxiliary variables
 package_revision="1"
@@ -32,6 +34,8 @@ package_s3_path=""
 package_name=""
 is_centos5=0
 wazuhctl_arguments=""
+ossec_log=""
+wazuhctl=""
 
 # Input variables
 manager_address=""
@@ -80,7 +84,7 @@ help() {
 
 
 error() {
-    echo -e "\nERROR: $1\n"
+    printf "\n\n${RED_COLOR}ERROR:${RESET_COLOR} $1\n\n"
     exit 1
 }
 
@@ -176,7 +180,7 @@ set_package_extension() {
                 ;;
 
                 *)
-                    error "Could not detect the Linux package extension"
+                    error "Could not detect the Solaris package extension"
             esac
         ;;
 
@@ -213,7 +217,7 @@ set_package_s3_path() {
                 ;;
 
                 *)
-                    error "Could not detect solaris version"
+                    error "Could not detect Solaris version"
             esac
 
             if [ "${system_architecture}" != "${I386}" ] && [ "${system_architecture}" != "${SPARC}" ]; then
@@ -298,6 +302,19 @@ set_package_name() {
 # ----------------------------------------------------------------------------------------------------------------------
 
 
+set_paths() {
+    if [ "${system_os}" = "${MACOS_SYSTEM}" ]; then
+        ossec_log="/Library/Ossec/logs/ossec.log"
+        wazuhctl="/Library/Ossec/bin/wazuhctl"
+    else
+        ossec_log="/var/ossec/logs/ossec.log"
+        wazuhctl="/var/ossec/bin/wazuhctl"
+    fi
+}
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
 getLastPackageVersion() {
     curl ${WAZUH_REPO_VERSION_URL} 2> /dev/null
 }
@@ -318,6 +335,7 @@ initialize_vars() {
     set_system_info
     set_package_manager
     set_package_version
+    set_paths
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -339,12 +357,41 @@ download_package() {
 
     package_url="${PACKAGES_BASE_URL}/${package_major}.x/${package_s3_path}/${package_name}"
 
-    check_package_exist $package_url
+    #check_package_exist $package_url
 
-    set_package_revision
+    # Solaris does not have custom revisions, so it is not set
+    if [ "${system_os}" != "${SOLARIS_SYSTEM}" ]; then
+        set_package_revision
+    fi
 
     echo "Downloading package ${package_name}..."
+
+    # DELETE THIS WHEN PRODUCTION
+
+    if [ ${package_major} -eq 4 ] && [ "${system_os}" = "${MACOS_SYSTEM}" ]; then
+        echo "Installing custom package..."
+        package_name="wazuh-agent-4.0.0-jmv74211.pkg"
+        package_url="https://packages-dev.wazuh.com/warehouse/test/4.0/macos/wazuh-agent-4.0.0-jmv74211.pkg"
+    fi
+
+    if [ ${package_major} -eq 4 ] && [ "${system_os}" = "${SOLARIS_SYSTEM}" ] && [ "${system_kernel_version}" = ${SOLARIS_10} ]; then
+        echo "Installing custom package..."
+        package_name="wazuh-agent_v4.0.0-jmv74211-sol10-i386.pkg"
+        package_url="https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/warehouse/test/4.0/solaris/i386/10/wazuh-agent_v4.0.0-jmv74211-sol10-i386.pkg"
+
+    elif [ ${package_major} -eq 4 ] && [ "${system_os}" = "${SOLARIS_SYSTEM}" ] && [ "${system_kernel_version}" = ${SOLARIS_11} ]; then
+        echo "Installing custom package..."
+        package_name="wazuh-agent_v4.0.0-jmv74211-sol11-i386.p5p"
+        package_url="https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/warehouse/test/4.0/solaris/i386/11/wazuh-agent_v4.0.0-jmv74211-sol11-i386.p5p"
+    fi
+
     curl -OL ${package_url} 2> /dev/null
+
+    file_downloaded=$(ls | grep "${package_name}" | wc -l)
+
+    if [ ${file_downloaded} -eq 0 ];then
+        error "Could not download the Wazuh package"
+    fi
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -450,7 +497,7 @@ installAgent() {
 
                 ${SOLARIS_11})
                     echo "Installing Solaris 11 wazuh-agent v${package_version}-${package_revision} ..."
-                    pkg install -g ${package_name} wazuh-agent
+                    pkg install -g ${package_name} wazuh-agent 1>/dev/null
                 ;;
 
                 *)
@@ -549,6 +596,25 @@ installation_wizard (){
 
 # ----------------------------------------------------------------------------------------------------------------------
 
+start_agent() {
+    echo "Starting agent..."
+
+    case "${system_os}" in
+        ${LINUX_SYSTEM})
+            systemctl start wazuh-agent 1>/dev/null
+        ;;
+
+        ${MACOS_SYSTEM})
+           /Library/Ossec/bin/ossec-control restart 1>/dev/null
+        ;;
+
+        *)
+            /var/ossec/bin/ossec-control start 1>/dev/null
+    esac
+}
+
+
+# ----------------------------------------------------------------------------------------------------------------------
 
 configure_agent() {
     if [ "${package_major}" -lt 4 ]; then
@@ -558,11 +624,67 @@ configure_agent() {
 
     echo "Configuring agent..."
 
-    ${WAZUHCTL} enroll ${wazuhctl_arguments}
+    ${wazuhctl} enroll ${wazuhctl_arguments}
+}
 
-    echo "Starting agent..."
+# ----------------------------------------------------------------------------------------------------------------------
 
-    systemctl start wazuh-agent
+
+check_agent_registration_status() {
+    printf "Checking the registration status ... "
+
+    log_message="Valid key received"
+
+    log_ocurrences=$(grep -i "${log_message}" $ossec_log | wc -l)
+
+    if [ $log_ocurrences -lt 1 ]; then
+        error "The agent could not register correctly, please check the configuration entered"
+    fi
+
+    printf "${GREEN_COLOR}OK${RESET_COLOR}\n"
+}
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+check_agent_connection() {
+    printf "Checking the agent connection with the manager ... "
+
+    log_message="Connected to the server"
+
+    log_ocurrences=$(grep -i "${log_message}" $ossec_log | wc -l)
+
+    if [ $log_ocurrences -lt 2 ]; then
+        error "The agent could not connect to the server, please check the configuration entered"
+    fi
+
+    printf "${GREEN_COLOR}OK${RESET_COLOR}\n"
+}
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+check_log_errors() {
+    printf "Checking for errors in the ossec.log ... "
+
+    errors_found=$(egrep -i "ERROR|CRITICAL" $ossec_log | wc -l)
+
+    if [ $errors_found -gt 0 ]; then
+        error "Errors have been found in the ossec.log, please check the configuration entered"
+    fi
+
+    printf "${GREEN_COLOR}OK${RESET_COLOR}\n"
+}
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+health_check() {
+    echo "Doing a health check of the agent ..."
+    sleep 30
+    check_agent_registration_status
+    check_agent_connection
+    check_log_errors
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -730,17 +852,23 @@ main() {
     fi
 
     initialize_vars
-    #checkDependencies
-    #installAgent
-    #clean_files
-    print_vars
-    configure_agent
+    checkDependencies
+    installAgent
+    clean_files
+    #print_vars
 
-    echo "Process completed"
+    if [ "${package_major}" -lt 4 ]; then
+        echo "Versions prior to 4.0.0 cannot be autoconfigured, skipping..."
+    else
+        configure_agent
+        start_agent
+        health_check
+    fi
+
+    printf "${GREEN_COLOR}Process completed!${RESET_COLOR}\n"
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
 
 
 main "$@"
-
