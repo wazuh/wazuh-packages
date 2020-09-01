@@ -1,0 +1,74 @@
+#!/bin/sh
+# postrm script for wazuh-agent
+# Wazuh, Inc 2015-2020
+
+set -e
+
+DIR="/var/ossec"
+WAZUH_TMP_DIR="${DIR}/packages_files/agent_config_files"
+
+case "$1" in
+    remove|failed-upgrade|abort-install|abort-upgrade|disappear)
+
+        if [ -d ${WAZUH_TMP_DIR} ]; then
+            rm -rf ${WAZUH_TMP_DIR}
+        fi
+
+        # Check for systemd
+        if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
+            systemctl disable wazuh-agent > /dev/null 2>&1
+            systemctl daemon-reload > /dev/null 2>&1
+        # Check for SysV
+        elif command -v service > /dev/null 2>&1; then
+            update-rc.d -f wazuh-agent remove > /dev/null 2>&1
+        fi
+
+        # Back up the old configuration files as .save
+        if [ ! -d ${DIR}/etc ]; then
+            mkdir -p ${DIR}/etc
+        fi
+
+        # If the directory is not empty, copy the files into ${DIR}/etc
+        if ls -A ${DIR}/tmp/conffiles > /dev/null 2>&1 ; then
+            mv ${DIR}/tmp/conffiles/* ${DIR}/etc
+        fi
+        rm -rf ${DIR}/tmp
+        if [ "$1" = "remove" ]; then
+            rm -rf ${DIR}/ruleset
+            rm -rf ${DIR}/var
+            rm -rf ${DIR}/logs
+        fi
+
+        # Delete old .save
+        find ${DIR}/etc/ -type f  -name "*save" -exec rm -f {} \;
+
+        # Rename the files
+        find ${DIR}/etc/ -type f -exec mv {} {}.save \;
+
+        ;;
+
+        purge)
+
+        if getent passwd | grep -q "^ossec" ; then
+            deluser ossec > /dev/null 2>&1
+        fi
+        if getent group | grep -q "^ossec" ; then
+            delgroup ossec > /dev/null 2>&1
+        fi
+        rm -rf ${DIR}/*
+
+    ;;
+
+    upgrade)
+
+    ;;
+
+    *)
+        echo "postrm called with unknown argument \`$1'" >&2
+        exit 1
+
+    ;;
+
+esac
+
+exit 0
