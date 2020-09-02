@@ -200,6 +200,14 @@ rm -f %{_localstatedir}/var/db/agents/* || true
 # Remove Vuln-detector database
 rm -f %{_localstatedir}/queue/vulnerabilities/cve.db || true
 
+if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
+  systemctl stop wazuh-manager.service > /dev/null 2>&1
+fi
+
+if command -v service > /dev/null 2>&1; then
+  service wazuh-manager stop > /dev/null 2>&1
+fi
+
 # Delete old API backups
 if [ $1 = 2 ]; then
   if [ -d %{_localstatedir}/~api ]; then

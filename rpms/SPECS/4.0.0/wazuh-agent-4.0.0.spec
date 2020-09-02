@@ -185,6 +185,14 @@ if ! id -u ossec > /dev/null 2>&1; then
   useradd -g ossec -G ossec -d %{_localstatedir} -r -s /sbin/nologin ossec
 fi
 
+if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
+  systemctl stop wazuh-agent.service > /dev/null 2>&1
+fi
+
+if command -v service > /dev/null 2>&1; then
+  service wazuh-agent stop > /dev/null 2>&1
+fi
+
 
 %post
 # If the package is being installed
