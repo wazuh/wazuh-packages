@@ -199,6 +199,20 @@ case "$1" in
     # Restoring file permissions
     ${SCRIPTS_DIR}/restore-permissions.sh > /dev/null 2>&1 || true
 
+    # Fix /etc/ossec-init.conf
+    chmod 640 /etc/ossec-init.conf
+    chown root:ossec /etc/ossec-init.conf
+
+    if [ -f ${WAZUH_TMP_DIR}/wazuh.restart ]; then
+        if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 ; then
+            systemctl start wazuh-manager.service > /dev/null 2>&1
+        elif command -v service > /dev/null 2>&1 ; then
+            service wazuh-manager start > /dev/null 2>&1
+        else
+            ${DIR}/bin/ossec-control start > /dev/null 2>&1
+        fi
+    fi
+
     # Delete installation scripts
     if [ -d ${SCRIPTS_DIR} ]; then
         rm -rf ${SCRIPTS_DIR}
@@ -213,11 +227,6 @@ case "$1" in
     if [ -z "$(ls -A ${WAZUH_GLOBAL_TMP_DIR})" ]; then
         rm -rf ${WAZUH_GLOBAL_TMP_DIR}
     fi
-
-    # Fix /etc/ossec-init.conf
-    chmod 640 /etc/ossec-init.conf
-    chown root:ossec /etc/ossec-init.conf
-
     ;;
 
 

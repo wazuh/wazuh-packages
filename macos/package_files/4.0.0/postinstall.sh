@@ -76,8 +76,6 @@ if [ "${upgrade}" = "false" ]; then
     chmod 0640 ${DIR}/etc/ossec.conf
 fi
 
-launchctl unsetenv WAZUH_PKG_UPGRADE
-
 SCA_DIR="${DIST_NAME}/${DIST_VER}"
 mkdir -p ${DIR}/ruleset/sca
 
@@ -114,6 +112,8 @@ ${INSTALLATION_SCRIPTS_DIR}/src/init/darwin-init.sh
 # Remove temporary directory
 rm -rf ${DIR}/packages_files
 
-if [ -n "$(cat ${DIR}/etc/client.keys)" ]; then
+if [ "${upgrade}" = "true" ]; then
     ${DIR}/bin/ossec-control restart
 fi
+
+launchctl unsetenv WAZUH_PKG_UPGRADE

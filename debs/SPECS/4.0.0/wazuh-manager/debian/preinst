@@ -47,6 +47,8 @@ case "$1" in
                     rm -f /etc/rc.d/init.d/wazuh-api || true
                 fi
             fi
+
+            touch ${WAZUH_TMP_DIR}/wazuh.restart
         fi
 
         if [ ! -z "$2" ] && [ ! -f ${DIR}/etc/ossec.conf ] ; then
