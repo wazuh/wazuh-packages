@@ -31,6 +31,12 @@ case "$1" in
             mv ${DIR}/tmp/conffiles/shared/default/agent.conf ${DIR}/etc/shared/default/agent.conf.save
         fi
 
+        # Move files from ${DIR}/tmp to ${DIR}/etc
+        if [ -f ${DIR}/tmp/conffiles/api.yaml ]; then
+            mkdir -p ${DIR}/api/configuration
+            mv ${DIR}/tmp/conffiles/api.yaml ${DIR}/api/configuration/api.yaml
+        fi
+
         # If the directory is not empty, copy the files into ${DIR}/etc
         if ls -A ${DIR}/tmp/conffiles > /dev/null 2>&1 ; then
             cp -Rf ${DIR}/tmp/conffiles/* ${DIR}/etc
@@ -48,7 +54,7 @@ case "$1" in
 
         # Rename the files
         find ${DIR}/etc/ -type f ! -name *shared* -exec mv {} {}.save \;
-        find ${DIR}/api/ -type f ! -name *shared* -exec mv {} {}.save \;
+        find ${DIR}/api/ -type f -exec mv {} {}.save \;
 
     ;;
 
