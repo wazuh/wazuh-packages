@@ -53,7 +53,10 @@ case "$1" in
       if [ -f ${DIR}/etc/shared/default/agent.conf ]; then
         cp -p ${DIR}/etc/shared/default/agent.conf ${DIR}/tmp/conffiles/shared/default
       fi
-
+      # Save the client.keys
+      if [ -f ${DIR}/api/configuration/api.yaml ]; then
+        cp -p ${DIR}/api/configuration/api.yaml ${DIR}/tmp/conffiles
+      fi
     ;;
 
     failed-upgrade)

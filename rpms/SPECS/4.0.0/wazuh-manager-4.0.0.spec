@@ -174,6 +174,17 @@ if command -v getent > /dev/null 2>&1 && ! getent group ossec > /dev/null 2>&1; 
 elif ! id -g ossec > /dev/null 2>&1; then
   groupadd -r ossec
 fi
+
+if [ $1 = 2 ]; then
+  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
+    systemctl stop wazuh-manager.service > /dev/null 2>&1
+  fi
+
+  if command -v service > /dev/null 2>&1; then
+    service wazuh-manager stop > /dev/null 2>&1
+  fi
+fi
+
 # Create the ossec user if it doesn't exists
 if ! id -u ossec > /dev/null 2>&1; then
   useradd -g ossec -G ossec -d %{_localstatedir} -r -s /sbin/nologin ossec
@@ -187,8 +198,8 @@ if ! id -u ossecm > /dev/null 2>&1; then
   useradd -g ossec -G ossec -d %{_localstatedir} -r -s /sbin/nologin ossecm
 fi
 
-if [ -d ${DIR}/var/db/agents ]; then
-  rm -f ${DIR}/var/db/agents/*
+if [ -d %{_localstatedir}/var/db/agents ]; then
+  rm -f %{_localstatedir}/var/db/agents/*
 fi
 
 # Remove existing SQLite databases
@@ -199,14 +210,6 @@ rm -f %{_localstatedir}/var/db/agents/* || true
 
 # Remove Vuln-detector database
 rm -f %{_localstatedir}/queue/vulnerabilities/cve.db || true
-
-if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
-  systemctl stop wazuh-manager.service > /dev/null 2>&1
-fi
-
-if command -v service > /dev/null 2>&1; then
-  service wazuh-manager stop > /dev/null 2>&1
-fi
 
 # Delete old API backups
 if [ $1 = 2 ]; then
