@@ -5,18 +5,6 @@ set -e
 
 DIR="/var/ossec"
 
-# Stop the services before upgrading/uninstalling the package
-# Check for systemd
-if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
-    systemctl stop wazuh-agent > /dev/null 2>&1
-# Check for SysV
-elif command -v service > /dev/null 2>&1; then
-    service wazuh-agent stop > /dev/null 2>&1
-# Anything else
-else
-    ${DIR}/bin/ossec-control stop > /dev/null 2>&1
-fi
-
 case "$1" in
     upgrade|deconfigure)
 
