@@ -30,9 +30,9 @@ build_package() {
     cd ${build_dir}
 
     if [ -z ${revision} ]; then
-        wazuh_splunk_pkg_name="wazuhapp-splunk-${wazuh_version}_${splunk_version}.tar.gz"
+        wazuh_splunk_pkg_name="wazuh_splunk-${wazuh_version}_${splunk_version}.tar.gz"
     else
-        wazuh_splunk_pkg_name="wazuhapp-splunk-${wazuh_version}_${splunk_version}_${revision}.tar.gz"
+        wazuh_splunk_pkg_name="wazuh_splunk-${wazuh_version}_${splunk_version}-${revision}.tar.gz"
     fi
 
     tar -zcf ${wazuh_splunk_pkg_name} SplunkAppForWazuh
