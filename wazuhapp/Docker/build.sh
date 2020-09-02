@@ -116,7 +116,7 @@ build_package(){
     if [ -z "${app_revision}" ]; then
         wazuh_app_pkg_name="wazuh_kibana-${wazuh_version}_${kibana_version}.zip"
     else
-        wazuh_app_pkg_name="wazuh_kibana-${wazuh_version}_${kibana_version}_${app_revision}.zip"
+        wazuh_app_pkg_name="wazuh_kibana-${wazuh_version}_${kibana_version}-${app_revision}.zip"
     fi
 
     # Build the package
