@@ -17,10 +17,7 @@ fi
 
 case "$1" in
     install|upgrade)
-        if [ "$1" = "upgrade" ]; then
-            touch ${WAZUH_TMP_DIR}/wazuh.restart
-        fi
-
+    
         if [ ! -z "$2" ] && [ ! -f ${DIR}/etc/ossec.conf ] ; then
             touch ${WAZUH_TMP_DIR}/create_conf
         fi

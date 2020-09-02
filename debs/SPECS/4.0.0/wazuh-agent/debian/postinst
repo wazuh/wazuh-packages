@@ -138,7 +138,7 @@ case "$1" in
     chmod 640 /etc/ossec-init.conf
     chown root:ossec /etc/ossec-init.conf
 
-    if [ -f ${WAZUH_TMP_DIR}/wazuh.restart ]; then
+    if [ ! -z "$2" ]; then
         if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 ; then
             systemctl start wazuh-manager.service > /dev/null 2>&1
         elif command -v service > /dev/null 2>&1 ; then
