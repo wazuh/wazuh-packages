@@ -91,11 +91,6 @@ if ! grep "^ossec" /etc/passwd > /dev/null 2>&1; then
   /usr/sbin/usermod -G ossec ossec
 fi
 
-# Delete old service
-if [ -f /etc/rc.d/init.d/wazuh-agent ]; then
-  rm /etc/rc.d/init.d/wazuh-agent
-fi
-
 # Remove existent config file and notify user for new installations
 if [ $1 = 1 ]; then
   if [ -f %{_localstatedir}/etc/ossec.conf ]; then
@@ -105,9 +100,9 @@ if [ $1 = 1 ]; then
   fi
 fi
 
-# Make a backup copy of the config file for package upgrades
 if [ $1 = 2 ]; then
-  cp -rp %{_localstatedir}/etc/ossec.conf %{_localstatedir}/etc/ossec.bck
+  touch %{_localstatedir}/tmp/wazuh.restart
+  /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
 fi
 
 %post
@@ -196,6 +191,11 @@ if [ $1 = 0 ];then
   rm -rf %{_localstatedir}/ruleset
 fi
 
+%posttrans
+if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
+  rm -f %{_localstatedir}/tmp/wazuh.restart
+  /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
+fi
 
 %clean
 rm -fr %{buildroot}

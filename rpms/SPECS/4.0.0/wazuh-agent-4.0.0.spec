@@ -185,12 +185,15 @@ if ! id -u ossec > /dev/null 2>&1; then
   useradd -g ossec -G ossec -d %{_localstatedir} -r -s /sbin/nologin ossec
 fi
 
+# Stop the services to upgrade the package
 if [ $1 = 2 ]; then
-  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
+  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-agent > /dev/null 2>&1; then
+    touch %{_localstatedir}/tmp/wazuh.restart
     systemctl stop wazuh-agent.service > /dev/null 2>&1
   fi
 
-  if command -v service > /dev/null 2>&1; then
+  if command -v service > /dev/null 2>&1 && service wazuh-agent status | grep "is running" > /dev/null 2>&1; then
+    touch %{_localstatedir}/tmp/wazuh.restart
     service wazuh-agent stop > /dev/null 2>&1
   fi
 fi
@@ -334,19 +337,19 @@ chmod 0660 %{_localstatedir}/etc/ossec.conf
 
 %preun
 
-# Stop the services before upgrading/uninstalling the package
-# Check for systemd
-if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
-  systemctl stop wazuh-agent > /dev/null 2>&1
-# Check for SysV
-elif command -v service > /dev/null 2>&1; then
-  service wazuh-agent stop > /dev/null 2>&1
-# Anything else
-else
-  %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
-fi
-
 if [ $1 = 0 ]; then
+
+  # Stop the services before uninstall the package
+  # Check for systemd
+  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
+    systemctl stop wazuh-agent > /dev/null 2>&1
+  # Check for SysV
+  elif command -v service > /dev/null 2>&1; then
+    service wazuh-agent stop > /dev/null 2>&1
+  # Anything else
+  else
+    %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
+  fi
 
   # Check for systemd
   if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
@@ -410,6 +413,20 @@ if [ $1 = 0 ];then
   rm -rf %{_localstatedir}/backup/
   rm -rf %{_localstatedir}/ruleset/
   rm -rf %{_localstatedir}/tmp
+fi
+
+# posttrans code is the last thing executed in a install/upgrade
+%posttrans
+if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
+  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 ; then
+    rm -f %{_localstatedir}/tmp/wazuh.restart
+    systemctl restart wazuh-agent.service > /dev/null 2>&1
+  fi
+
+  if command -v service > /dev/null 2>&1; then
+    rm -f %{_localstatedir}/tmp/wazuh.restart
+    service wazuh-agent restart > /dev/null 2>&1
+  fi
 fi
 
 %clean
