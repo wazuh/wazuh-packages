@@ -20,8 +20,16 @@ fi
 case "$1" in
     install|upgrade)
 
-        # Delete old API backups
         if [ "$1" = "upgrade" ]; then
+            if command -v systemctl > /dev/null 2>&1 && systemctl is-active wazuh-manager > /dev/null 2>&1 ; then
+                touch ${WAZUH_TMP_DIR}/wazuh.restart
+                systemctl stop wazuh-manager.service > /dev/null 2>&1
+            elif command -v service > /dev/null 2>&1  && service wazuh-manager status | grep "is running" > /dev/null 2>&1; then
+                touch ${WAZUH_TMP_DIR}/wazuh.restart
+                service wazuh-manager stop
+            fi
+
+            # Delete old API backups
             if [ -d ${DIR}/~api ]; then
                 rm -rf ${DIR}/~api
             fi
