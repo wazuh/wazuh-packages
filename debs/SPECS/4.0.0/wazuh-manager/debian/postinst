@@ -204,15 +204,17 @@ case "$1" in
     chown root:ossec /etc/ossec-init.conf
 
     if [ ! -z "$2" ]; then
-        if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 ; then
-            systemctl try-restart wazuh-manager.service > /dev/null 2>&1
-        elif command -v service > /dev/null 2>&1 ; then
-            if service wazuh-manager status | grep "is running" > /dev/null; then
-                service wazuh-manager restart > /dev/null 2>&1
-            fi
-        else
-            if service wazuh-manager status | grep "is running" > /dev/null; then
-                ${DIR}/bin/ossec-control start > /dev/null 2>&1
+        if [ -f ${WAZUH_TMP_DIR}/wazuh.restart ]
+            if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 ; then
+                systemctl restart wazuh-manager.service > /dev/null 2>&1
+            elif command -v service > /dev/null 2>&1 ; then
+                if service wazuh-manager status | grep "is running" > /dev/null; then
+                    service wazuh-manager restart > /dev/null 2>&1
+                fi
+            else
+                if ${DIR}/bin/ossec-control status | grep "is running" > /dev/null; then
+                    ${DIR}/bin/ossec-control restart > /dev/null 2>&1
+                fi
             fi
         fi
     fi

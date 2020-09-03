@@ -18,6 +18,27 @@ fi
 case "$1" in
     install|upgrade)
     
+        if [ "$1" = "upgrade" ]; then
+            if [ ! -z "$2" ]; then
+                if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 ; then
+                    if systemctl is-active wazuh-agent ; then
+                        touch ${WAZUH_TMP_DIR}/wazuh.restart
+                        systemctl stop wazuh-agent.service > /dev/null 2>&1
+                    fi
+                elif command -v service > /dev/null 2>&1 ; then
+                    if service wazuh-agent status | grep "is running" > /dev/null; then
+                        touch ${WAZUH_TMP_DIR}/wazuh.restart
+                        service wazuh-agent stop > /dev/null 2>&1
+                    fi
+                else
+                    if ${DIR}/bin/ossec-control status | grep "is running" > /dev/null; then
+                        touch ${WAZUH_TMP_DIR}/wazuh.restart
+                        ${DIR}/bin/ossec-control stop > /dev/null 2>&1
+                    fi
+                fi
+            fi
+        fi
+
         if [ ! -z "$2" ] && [ ! -f ${DIR}/etc/ossec.conf ] ; then
             touch ${WAZUH_TMP_DIR}/create_conf
         fi
