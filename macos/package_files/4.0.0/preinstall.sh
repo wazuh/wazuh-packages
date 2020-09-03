@@ -19,6 +19,7 @@ else
         launchctl setenv WAZUH_RESTART true
     else
         launchctl setenv WAZUH_RESTART false
+    fi
 fi
 
 if [ $(launchctl getenv WAZUH_PKG_UPGRADE) = true ]; then

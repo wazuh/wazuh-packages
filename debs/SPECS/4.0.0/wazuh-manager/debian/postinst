@@ -219,9 +219,9 @@ case "$1" in
     fi
 
     # Delete tmp directory
-    # if [ -d ${WAZUH_TMP_DIR} ]; then
-    #     rm -r ${WAZUH_TMP_DIR}
-    # fi
+    if [ -d ${WAZUH_TMP_DIR} ]; then
+        rm -r ${WAZUH_TMP_DIR}
+    fi
 
     # If the parent directory is empty, delete it
     if [ -z "$(ls -A ${WAZUH_GLOBAL_TMP_DIR})" ]; then

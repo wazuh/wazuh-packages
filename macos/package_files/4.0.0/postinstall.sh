@@ -116,7 +116,7 @@ ${INSTALLATION_SCRIPTS_DIR}/src/init/darwin-init.sh
 # Remove temporary directory
 rm -rf ${DIR}/packages_files
 
-if upgrade && restart; then
+if ${upgrade} && ${restart}; then
     ${DIR}/bin/ossec-control restart
 fi
 
