@@ -15,6 +15,11 @@ if [ ! -d ${DIR} ]; then
     launchctl setenv WAZUH_PKG_UPGRADE false
 else
     launchctl setenv WAZUH_PKG_UPGRADE true
+    if ${DIR}/bin/ossec-control status | grep "is running" > /dev/null 2>&1; then
+        launchctl setenv WAZUH_RESTART true
+    else
+        launchctl setenv WAZUH_RESTART false
+    fi
 fi
 
 if [ $(launchctl getenv WAZUH_PKG_UPGRADE) = true ]; then

@@ -15,7 +15,7 @@ RUN yum -y install util-linux-ng centos-release-scl \
     e2fsprogs-devel libacl-devel libattr-devel \
     openssl-devel libxml2-devel kexec-tools elfutils \
     libarchive-devel elfutils-libelf-devel \
-    elfutils-libelf patchelf elfutils-devel libgcrypt-devel 
+    elfutils-libelf patchelf elfutils-devel libgcrypt-devel
 
 RUN yum-builddep python34 -y
 
@@ -26,7 +26,7 @@ RUN curl -O http://ftp.gnu.org/gnu/autoconf/autoconf-2.69.tar.gz && \
 
 RUN curl -O http://vault.centos.org/7.7.1908/os/Source/SPackages/libarchive-3.1.2-12.el7.src.rpm && \
     linux32 rpmbuild --rebuild libarchive-3.1.2-12.el7.src.rpm --target i386 && \
-    rpm -Uvh /root/rpmbuild/RPMS/i386/*
+    rpm -Uvh /root/rpmbuild/RPMS/i386/* --nodeps
 
 RUN curl -O https://packages.wazuh.com/utils/rpm/rpm-4.15.1.tar.bz2 && \
     tar -xjf rpm-4.15.1.tar.bz2 && cd rpm-4.15.1 && \
