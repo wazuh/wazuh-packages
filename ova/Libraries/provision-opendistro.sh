@@ -55,7 +55,7 @@ getHelp() {
    echo -e "\t-d   | --debug Shows the complete installation output"
    echo -e "\t-i   | --ignore-health-check Ignores the health-check"
    echo -e "\t-h   | --help Shows help"
-   exit 1 # Exit script after printing help
+   exit 0 # Exit script after printing help
 }
 
 
@@ -67,8 +67,7 @@ installPrerequisites() {
     eval "$sys_type install adoptopenjdk-11-hotspot -y -q $debug"
     export JAVA_HOME=/usr/
 
-    if [  "$?" != 0  ]
-    then
+    if [  "$?" != 0  ]; then
         echo "Error: Prerequisites could not be installed"
         exit 1;
     else
@@ -83,18 +82,13 @@ addWazuhrepo() {
     eval "rpm --import https://packages.wazuh.com/key/GPG-KEY-WAZUH $debug"
     if [ "${STATUS_PACKAGES}" = "prod" ]; then
       logger "Adding production repository..."
-      # Temporal repository
-      eval "echo -e '[wazuh_trash]\ngpgcheck=1\ngpgkey=https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages-dev.wazuh.com/trash/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh_pre.repo $debug"
-      #eval "echo -e '[wazuh_repo]\ngpgcheck=1\ngpgkey=https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages.wazuh.com/3.x/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo $debug"
+      eval "echo -e '[wazuh_repo]\ngpgcheck=1\ngpgkey=https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages.wazuh.com/3.x/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo $debug"
     elif [ "${STATUS_PACKAGES}" = "dev" ]; then
       logger "Adding development repository..."
-      # Temporal repository
-      eval "echo -e '[wazuh_trash]\ngpgcheck=1\ngpgkey=https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages-dev.wazuh.com/trash/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh_pre.repo $debug"
-      #eval "echo -e '[wazuh_pre-release]\ngpgcheck=1\ngpgkey=https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages-dev.wazuh.com/pre-release/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo $debug"
+      eval "echo -e '[wazuh_pre-release]\ngpgcheck=1\ngpgkey=https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages-dev.wazuh.com/pre-release/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo $debug"
     fi
 
-    if [  "$?" != 0  ]
-    then
+    if [  "$?" != 0  ]; then
         echo "Error: Wazuh repository could not be added"
         exit 1;
     else
@@ -108,8 +102,7 @@ installWazuh() {
 
     logger "Installing the Wazuh manager..."
     eval "$sys_type install wazuh-manager-${WAZUH_VERSION} -y -q $debug"
-    if [  "$?" != 0  ]
-    then
+    if [  "$?" != 0  ]; then
         echo "Error: Wazuh installation failed"
         exit 1;
     else
@@ -123,8 +116,7 @@ installElasticsearch() {
   #  eval "curl https://d3g5vo6xdbdb9a.cloudfront.net/yum/opendistroforelasticsearch-artifacts.repo -o /etc/yum.repos.d/opendistroforelasticsearch-artifacts.repo"
     eval "$sys_type install opendistroforelasticsearch-${OPENDISTRO_VERSION} -y -q $debug"
 
-    if [  "$?" != 0  ]
-    then
+    if [  "$?" != 0  ]; then
         echo "Error: Elasticsearch installation failed"
         exit 1;
     else
@@ -137,15 +129,14 @@ installElasticsearch() {
         eval "curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml https://raw.githubusercontent.com/wazuh/wazuh/${BRANCH}/extensions/elasticsearch/roles/roles_mapping.yml --max-time 300 "
         eval "curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml https://raw.githubusercontent.com/wazuh/wazuh/${BRANCH}/extensions/elasticsearch/roles/internal_users.yml --max-time 300 "
         eval "rm /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem -f "
-        eval "mkdir /etc/elasticsearch/certs "
+        eval "mkdir -p /etc/kibana/certs $debug"
         eval "cd /etc/elasticsearch/certs "
         eval "curl -so /etc/elasticsearch/certs/search-guard-tlstool-1.8.zip https://maven.search-guard.com/search-guard-tlstool/1.8/search-guard-tlstool-1.8.zip --max-time 300 "
         eval "unzip search-guard-tlstool-1.8.zip -d searchguard "
         eval "curl -so /etc/elasticsearch/certs/searchguard/search-guard.yml https://raw.githubusercontent.com/wazuh/wazuh/${BRANCH}/extensions/searchguard/search-guard-aio.yml --max-time 300 "
         eval "chmod +x searchguard/tools/sgtlstool.sh "
         eval "./searchguard/tools/sgtlstool.sh -c ./searchguard/search-guard.yml -ca -crt -t /etc/elasticsearch/certs/ $debug "
-        if [  "$?" != 0  ]
-        then
+        if [  "$?" != 0  ]; then
             echo "Error: certificates were not created"
             exit 1;
         else
@@ -206,7 +197,6 @@ installFilebeat() {
         eval "curl -s https://packages.wazuh.com/3.x/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module $debug"
         eval "mkdir /etc/filebeat/certs $debug"
         eval "cp /etc/elasticsearch/certs/root-ca.pem /etc/filebeat/certs/ $debug"
-        ls mv /etc/elasticsearch/certs/
         eval "mv /etc/elasticsearch/certs/filebeat* /etc/filebeat/certs/ $debug"
         # Start Filebeat
         startService "filebeat"
@@ -221,22 +211,18 @@ installKibana() {
 
     logger "Installing Open Distro for Kibana..."
     eval "$sys_type install opendistroforelasticsearch-kibana-${OPENDISTRO_VERSION} -y -q $debug"
-    if [  "$?" != 0  ]
-    then
+    if [  "$?" != 0  ]; then
         echo "Error: Kibana installation failed"
         exit 1;
     else
         eval "curl -so /etc/kibana/kibana.yml https://raw.githubusercontent.com/wazuh/wazuh/${BRANCH}/extensions/kibana/7.x/kibana_all_in_one.yml --max-time 300 $debug"
         eval "cd /usr/share/kibana $debug"
 
-
-
         if [ "${STATUS_PACKAGES}" = "prod" ]; then
-          eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages-dev.wazuh.com/Backups/staging/app/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip $debug"
+            eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages-dev.wazuh.com/Backups/staging/app/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip $debug"
         elif [ "${STATUS_PACKAGES}" = "dev" ]; then
-          eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip $debug"
+            eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip $debug"
         fi
-
 
         eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages-dev.wazuh.com/trash/app/kibana/wazuhapp-4.0.0_7.8.0.zip $debug"
         if [  "$?" != 0  ]
@@ -258,11 +244,10 @@ installKibana() {
 ## Health check
 healthCheck() {
 
-    cores=$(cat /proc/cpuinfo | grep processor | wc -l)
+    cores=$(nproc)
     ram_gb=$(free -m | awk '/^Mem:/{print $2}')
 
-    if [[ $cores < "2" ]] || [[ $ram_gb < "4096" ]]
-    then
+    if [[ $cores < "2" ]] || [[ $ram_gb < "4096" ]]; then
         echo "The system must have at least 4Gb of RAM and 2 CPUs"
         exit 1;
     else
@@ -274,16 +259,14 @@ checkInstallation() {
 
     logger "Checking the installation..."
     eval "curl -XGET https://localhost:9200 -uadmin:admin -k --max-time 300 $debug"
-    if [  "$?" != 0  ]
-    then
+    if [  "$?" != 0  ]; then
         echo "Error: Elasticsearch was not successfully installed."
-        exit 1;
+        exit 1
     else
         echo "Elasticsearch installation succeeded."
     fi
     eval "filebeat test output $debug"
-    if [  "$?" != 0  ]
-    then
+    if [  "$?" != 0  ]; then
         echo "Error: Filebeat was not successfully installed."
         exit 1;
     else
@@ -303,4 +286,5 @@ cleanInstall(){
     eval "rm -rf /etc/yum.repos.d/adoptopenjdk.repo"
     eval "rm -rf /etc/yum.repos.d/opendistroforelasticsearch-artifacts.repo"
     eval "rm -rf  /etc/yum.repos.d/wazuh.repo"
+    eval "yum clean all"
 }

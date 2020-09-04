@@ -37,10 +37,10 @@ help () {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo "  -v, --version          [Required] Version of wazuh to install on VM."
-    echo "  -o, --opendistro       [Required] Version of opendistro"
-    echo "  -e, --elasticsearch    [Required] Filebeat version to download inside VM."
-    echo "  -r, --repository       [Required] Status of the packages [prod/dev]"
-    echo "  -b, --branch           [Optional] Branch of the Wazuh repository"
+    echo "  -o, --opendistro       [Required] Version of Open Distro for Elasticsearch."
+    echo "  -f, --filebeat         [Required] Filebeat version to download inside VM."
+    echo "  -r, --repository       [Required] Select the software repository [prod/dev]."
+    echo "  -b, --branch           [Optional] Branch/tag of the Wazuh repository."
     echo "  -s, --store <path>     [Optional] Set the destination absolute path of package."
     echo "  -c, --checksum <path>  [Optional] Generate checksum."
     echo "  -h, --help             [  Util  ] Show this help."
@@ -150,7 +150,7 @@ main() {
             shift 2
         ;;
 
-        "-e" | "--elasticsearch")
+        "f" | "--filebeat")
             if [ -n "$2" ]; then
                 export OVA_ELK_VERSION="$2"
                 ELK_VERSION="$2"
