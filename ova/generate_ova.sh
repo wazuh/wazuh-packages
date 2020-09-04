@@ -68,7 +68,6 @@ build_ova() {
     export OVA_BRANCH="$BRANCH"
 
 
-
     if [ -e "${OVA_VM}" ] || [ -e "${OVA_VM}" ]; then
         rm -f ${OVA_VM} ${OVF_VM}
     fi
@@ -106,11 +105,12 @@ build_ova() {
 }
 
 check_version() {
-
+    echo " https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}-1.zip"
     if [ "${STATUS}" = "prod" ]; then
-        curl -Isf https://raw.githubusercontent.com/wazuh/wazuh-kibana-app/v${WAZUH_VERSION}-${ELK_VERSION}/README.md > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${ELK_VERSION} not supported." && exit 1 )
+        major_version="$(echo ${WAZUH_VERSION} | head -c 1)"
+        curl -Isf https://packages.wazuh.com/${major_version}/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${ELK_VERSION} not supported." && exit 1 )
     elif [ "${STATUS}" = "dev" ]; then
-        curl -Isf https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${ELK_VERSION} not supported." && exit 1 )
+        curl -Isf https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-1.zip > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${ELK_VERSION} not supported." && exit 1 )
     else
         echo "Error, repository value must take 'prod' or 'dev' value."
         exit
@@ -150,7 +150,7 @@ main() {
             shift 2
         ;;
 
-        "f" | "--filebeat")
+        "-f" | "--filebeat")
             if [ -n "$2" ]; then
                 export OVA_ELK_VERSION="$2"
                 ELK_VERSION="$2"
