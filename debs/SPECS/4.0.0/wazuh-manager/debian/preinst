@@ -95,6 +95,10 @@ case "$1" in
             cp -p ${DIR}/etc/ossec.conf ${WAZUH_TMP_DIR}/ossec.conf
         fi
 
+        if [ -d ${DIR}/etc/shared ]; then
+            cp -rp ${DIR}/etc/shared ${WAZUH_TMP_DIR}/group
+        fi
+
         if [ -d ${DIR}/var/db/agents ]; then
           rm -f ${DIR}/var/db/agents/*
         fi
