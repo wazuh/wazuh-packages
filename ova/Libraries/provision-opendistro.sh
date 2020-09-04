@@ -14,7 +14,7 @@ startService() {
         systemctl daemon-reload $debug
         systemctl enable $1.service $debug
         systemctl start $1.service $debug
-        if ["$?" != 0]
+        if [ "$?" != 0 ]
         then
             echo "${1^} could not be started."
             exit 1;
@@ -25,7 +25,7 @@ startService() {
         chkconfig $1 on $debug
         service $1 start $debug
         /etc/init.d/$1 start $debug
-        if ["$?" != 0]
+        if [ "$?" != 0 ]
         then
             echo "${1^} could not be started."
             exit 1;
@@ -34,7 +34,7 @@ startService() {
         fi
     elif [ -x /etc/rc.d/init.d/$1 ] ; then
         /etc/rc.d/init.d/$1 start $debug
-        if ["$?" != 0]
+        if [ "$?" != 0 ]
         then
             echo "${1^} could not be started."
             exit 1;
@@ -137,7 +137,7 @@ installElasticsearch() {
         ./searchguard/tools/sgtlstool.sh -c ./searchguard/search-guard.yml -ca -crt -t /etc/elasticsearch/certs/ $debug 
         if f [ "$?" != 0 ]; then
             echo "Error: certificates were not created"
-            exit 1;
+            exit 1; 
         else
             logger "Certificates created"
         fi
@@ -153,8 +153,7 @@ installElasticsearch() {
         sed -i "s/-Xms1g/-Xms${ram}g/" /etc/elasticsearch/jvm.options $debug
         sed -i "s/-Xmx1g/-Xmx${ram}g/" /etc/elasticsearch/jvm.options $debug
         jv=$(java -version 2>&1 | grep -o -m1 '1.8.0' )
-        if [ "$jv" == "1.8.0" ]
-        then
+        if [ "$jv"="1.8.0" ]; then
             ln -s /usr/lib/jvm/java-1.8.0/lib/tools.jar /usr/share/elasticsearch/lib/
             echo "root hard nproc 4096" >> /etc/security/limits.conf
             echo "root soft nproc 4096" >> /etc/security/limits.conf
@@ -183,7 +182,7 @@ installFilebeat() {
     logger "Installing Filebeat..."
 
     $sys_type install filebeat-"${ELK_VERSION}" -y -q  $debug
-    if ["$?" != 0]
+    if [ "$?" != 0 ]
     then
         echo "Error: Filebeat installation failed"
         exit 1;
@@ -225,7 +224,7 @@ installKibana() {
         #sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages-dev.wazuh.com/staging/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip $debug
         
         
-        if ["$?" != 0]
+        if [ "$?" != 0 ]
         then
             echo "Error: Wazuh Kibana plugin could not be installed."
             exit 1;
