@@ -156,7 +156,7 @@ main() {
                 ELK_VERSION="$2"
                 HAVE_ELK_VERSION=true
             else
-                echo "ERROR: Need elk version."
+                echo "ERROR: Need filebeat version."
                 help 1
             fi
             shift 2

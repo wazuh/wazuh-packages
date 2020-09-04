@@ -183,8 +183,6 @@ installElasticsearch() {
 installFilebeat() {
     logger "Installing Filebeat..."
 
-    #eval "echo -e '[elasticsearch-7.x]\nname=Elasticsearch repository for 7.x packages\nbaseurl=https://artifacts.elastic.co/packages/7.x/yum\ngpgcheck=1\ngpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch\nenabled=1\nautorefresh=1\ntype=rpm-md' | tee /etc/yum.repos.d/elastic.repo"
-
     eval "$sys_type install filebeat-"${ELK_VERSION}" -y -q  $debug"
     if [  "$?" != 0  ]
     then
