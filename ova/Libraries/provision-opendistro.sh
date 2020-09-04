@@ -14,7 +14,7 @@ startService() {
         systemctl daemon-reload $debug
         systemctl enable $1.service $debug
         systemctl start $1.service $debug
-        if [  "$?" != 0  ]
+        if ["$?" != 0]
         then
             echo "${1^} could not be started."
             exit 1;
@@ -25,7 +25,7 @@ startService() {
         chkconfig $1 on $debug
         service $1 start $debug
         /etc/init.d/$1 start $debug
-        if [  "$?" != 0  ]
+        if ["$?" != 0]
         then
             echo "${1^} could not be started."
             exit 1;
@@ -34,7 +34,7 @@ startService() {
         fi
     elif [ -x /etc/rc.d/init.d/$1 ] ; then
         /etc/rc.d/init.d/$1 start $debug
-        if [  "$?" != 0  ]
+        if ["$?" != 0]
         then
             echo "${1^} could not be started."
             exit 1;
@@ -55,7 +55,7 @@ getHelp() {
    echo -e "\t-d   | --debug Shows the complete installation output"
    echo -e "\t-i   | --ignore-health-check Ignores the health-check"
    echo -e "\t-h   | --help Shows help"
-   exit 0 # Exit script after printing help
+   exit $1 # Exit script after printing help
 }
 
 
@@ -67,7 +67,7 @@ installPrerequisites() {
     $sys_type install adoptopenjdk-11-hotspot -y -q $debug
     export JAVA_HOME=/usr/
 
-    if [  "$?" != 0  ]; then
+    if f [ "$?" != 0 ]; then
         echo "Error: Prerequisites could not be installed"
         exit 1;
     else
@@ -88,7 +88,7 @@ addWazuhrepo() {
       echo -e '[wazuh_pre-release]\ngpgcheck=1\ngpgkey=https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages-dev.wazuh.com/pre-release/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo $debug
     fi
 
-    if [  "$?" != 0  ]; then
+    if f [ "$?" != 0 ]; then
         echo "Error: Wazuh repository could not be added"
         exit 1;
     else
@@ -102,7 +102,7 @@ installWazuh() {
 
     logger "Installing the Wazuh manager..."
     $sys_type install wazuh-manager-${WAZUH_VERSION} -y -q $debug
-    if [  "$?" != 0  ]; then
+    if f [ "$?" != 0 ]; then
         echo "Error: Wazuh installation failed"
         exit 1;
     else
@@ -115,7 +115,7 @@ installElasticsearch() {
     logger "Installing Open Distro for Elasticsearch..."
     $sys_type install opendistroforelasticsearch-${OPENDISTRO_VERSION} -y -q $debug
 
-    if [  "$?" != 0  ]; then
+    if f [ "$?" != 0 ]; then
         echo "Error: Elasticsearch installation failed"
         exit 1;
     else
@@ -135,7 +135,7 @@ installElasticsearch() {
         curl -so /etc/elasticsearch/certs/searchguard/search-guard.yml https://raw.githubusercontent.com/wazuh/wazuh/${BRANCH}/extensions/searchguard/search-guard-aio.yml --max-time 300 
         chmod +x searchguard/tools/sgtlstool.sh 
         ./searchguard/tools/sgtlstool.sh -c ./searchguard/search-guard.yml -ca -crt -t /etc/elasticsearch/certs/ $debug 
-        if [  "$?" != 0  ]; then
+        if f [ "$?" != 0 ]; then
             echo "Error: certificates were not created"
             exit 1;
         else
@@ -183,7 +183,7 @@ installFilebeat() {
     logger "Installing Filebeat..."
 
     $sys_type install filebeat-"${ELK_VERSION}" -y -q  $debug
-    if [  "$?" != 0  ]
+    if ["$?" != 0]
     then
         echo "Error: Filebeat installation failed"
         exit 1;
@@ -192,7 +192,7 @@ installFilebeat() {
         curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/${BRANCH}/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300 $debug
         chmod go+r /etc/filebeat/wazuh-template.json $debug
         curl -s https://packages.wazuh.com/3.x/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module $debug
-        mkdir /etc/filebeat/certs $debug
+        mkdir -p /etc/filebeat/certs $debug
         cp /etc/elasticsearch/certs/root-ca.pem /etc/filebeat/certs/ $debug
         mv /etc/elasticsearch/certs/filebeat* /etc/filebeat/certs/ $debug
         # Start Filebeat
@@ -207,7 +207,7 @@ installKibana() {
 
     logger "Installing Open Distro for Kibana..."
     $sys_type install opendistroforelasticsearch-kibana-${OPENDISTRO_VERSION} -y -q $debug
-    if [  "$?" != 0  ]; then
+    if f [ "$?" != 0 ]; then
         echo "Error: Kibana installation failed"
         exit 1;
     else
@@ -220,13 +220,17 @@ installKibana() {
             sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip $debug
         fi
 
-        sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages-dev.wazuh.com/trash/app/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip $debug
-        if [  "$?" != 0  ]
+        #sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages-dev.wazuh.com/trash/app/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip $debug
+        #sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}.zip $debug
+        #sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages-dev.wazuh.com/staging/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip $debug
+        
+        
+        if ["$?" != 0]
         then
             echo "Error: Wazuh Kibana plugin could not be installed."
             exit 1;
         fi
-        mkdir /etc/kibana/certs $debug
+        mkdir -p /etc/kibana/certs $debug
         mv /etc/elasticsearch/certs/kibana* /etc/kibana/certs/ $debug
         setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node $debug
 
@@ -255,14 +259,14 @@ checkInstallation() {
 
     logger "Checking the installation..."
     curl -XGET https://localhost:9200 -uadmin:admin -k --max-time 300 $debug
-    if [  "$?" != 0  ]; then
+    if f [ "$?" != 0 ]; then
         echo "Error: Elasticsearch was not successfully installed."
         exit 1
     else
         echo "Elasticsearch installation succeeded."
     fi
     filebeat test output $debug
-    if [  "$?" != 0  ]; then
+    if f [ "$?" != 0 ]; then
         echo "Error: Filebeat was not successfully installed."
         exit 1;
     else
