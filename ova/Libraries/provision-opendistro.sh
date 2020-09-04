@@ -113,7 +113,6 @@ installWazuh() {
 ## Elasticsearch
 installElasticsearch() {
     logger "Installing Open Distro for Elasticsearch..."
-  #  eval "curl https://d3g5vo6xdbdb9a.cloudfront.net/yum/opendistroforelasticsearch-artifacts.repo -o /etc/yum.repos.d/opendistroforelasticsearch-artifacts.repo"
     eval "$sys_type install opendistroforelasticsearch-${OPENDISTRO_VERSION} -y -q $debug"
 
     if [  "$?" != 0  ]; then
