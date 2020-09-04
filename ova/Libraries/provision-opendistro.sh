@@ -205,7 +205,6 @@ installFilebeat() {
 
 ## Kibana
 installKibana() {
-  #  eval "curl https://d3g5vo6xdbdb9a.cloudfront.net/yum/opendistroforelasticsearch-artifacts.repo -o /etc/yum.repos.d/opendistroforelasticsearch-artifacts.repo"
 
     logger "Installing Open Distro for Kibana..."
     eval "$sys_type install opendistroforelasticsearch-kibana-${OPENDISTRO_VERSION} -y -q $debug"
@@ -222,7 +221,7 @@ installKibana() {
             eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip $debug"
         fi
 
-        eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages-dev.wazuh.com/trash/app/kibana/wazuhapp-4.0.0_7.8.0.zip $debug"
+        eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages-dev.wazuh.com/trash/app/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip $debug"
         if [  "$?" != 0  ]
         then
             echo "Error: Wazuh Kibana plugin could not be installed."
