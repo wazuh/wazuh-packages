@@ -112,6 +112,7 @@ installWazuh() {
 
 ## Elasticsearch
 installElasticsearch() {
+
     logger "Installing Open Distro for Elasticsearch..."
     $sys_type install opendistroforelasticsearch-${OPENDISTRO_VERSION} -y -q $debug
 
@@ -128,7 +129,7 @@ installElasticsearch() {
         curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml https://raw.githubusercontent.com/wazuh/wazuh/${BRANCH}/extensions/elasticsearch/roles/roles_mapping.yml --max-time 300
         curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml https://raw.githubusercontent.com/wazuh/wazuh/${BRANCH}/extensions/elasticsearch/roles/internal_users.yml --max-time 300
         rm /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem -f
-        mkdir -p /etc/kibana/certs $debug
+        mkdir -p /etc/elasticsearch/certs $debug
         cd /etc/elasticsearch/certs 
         curl -so /etc/elasticsearch/certs/search-guard-tlstool-1.8.zip https://maven.search-guard.com/search-guard-tlstool/1.8/search-guard-tlstool-1.8.zip --max-time 300 
         unzip search-guard-tlstool-1.8.zip -d searchguard 
