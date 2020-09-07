@@ -149,14 +149,16 @@ installElasticsearch() {
         rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml search-guard-tlstool-1.7.zip -f $debug
 
         # Configure JVM options for Elasticsearch
-        ram_gb=$(free -g | awk '/^Mem:/{print $2}')
-        ram=$(( ${ram_gb} / 2 ))
+        
+        # ram_gb=$(free -g | awk '/^Mem:/{print $2}')
+        # ram=$(( ${ram_gb} / 2 ))
 
-        if [ ${ram} -eq "0" ]; then
-            ram=1;
-        fi
-        sed -i "s/-Xms1g/-Xms${ram}g/" /etc/elasticsearch/jvm.options $debug
-        sed -i "s/-Xmx1g/-Xmx${ram}g/" /etc/elasticsearch/jvm.options $debug
+        # if [ ${ram} -eq "0" ]; then
+        #     ram=1;
+        # fi
+        # sed -i "s/-Xms1g/-Xms${ram}g/" "/etc/elasticsearch/jvm.options" $debug
+        # sed -i "s/-Xmx1g/-Xmx${ram}g/" "/etc/elasticsearch/jvm.options" $debug
+        
         jv=$(java -version 2>&1 | grep -o -m1 '1.8.0' )
         if [ "$jv"="1.8.0" ]; then
             ln -s /usr/lib/jvm/java-1.8.0/lib/tools.jar /usr/share/elasticsearch/lib/
@@ -166,7 +168,7 @@ installElasticsearch() {
             echo "elasticsearch soft nproc 4096" >> /etc/security/limits.conf
             echo "bootstrap.system_call_filter: false" >> /etc/elasticsearch/elasticsearch.yml
         fi
-
+        
         # Start Elasticsearch
         startService "elasticsearch"
         echo "Initializing Elasticsearch..."
