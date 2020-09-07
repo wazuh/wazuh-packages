@@ -67,7 +67,7 @@ installPrerequisites() {
     $sys_type install adoptopenjdk-11-hotspot -y -q $debug
     export JAVA_HOME=/usr/
 
-    if f [ "$?" != 0 ]; then
+    if [ "$?" != 0 ]; then
         echo "Error: Prerequisites could not be installed"
         exit 1;
     else
@@ -88,7 +88,7 @@ addWazuhrepo() {
       echo -e '[wazuh_pre-release]\ngpgcheck=1\ngpgkey=https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages-dev.wazuh.com/pre-release/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo $debug
     fi
 
-    if f [ "$?" != 0 ]; then
+    if [ "$?" != 0 ]; then
         echo "Error: Wazuh repository could not be added"
         exit 1;
     else
@@ -102,7 +102,7 @@ installWazuh() {
 
     logger "Installing the Wazuh manager..."
     $sys_type install wazuh-manager-${WAZUH_VERSION} -y -q $debug
-    if f [ "$?" != 0 ]; then
+    if [ "$?" != 0 ]; then
         echo "Error: Wazuh installation failed"
         exit 1;
     else
@@ -115,7 +115,7 @@ installElasticsearch() {
     logger "Installing Open Distro for Elasticsearch..."
     $sys_type install opendistroforelasticsearch-${OPENDISTRO_VERSION} -y -q $debug
 
-    if f [ "$?" != 0 ]; then
+    if [ "$?" != 0 ]; then
         echo "Error: Elasticsearch installation failed"
         exit 1;
     else
@@ -135,9 +135,9 @@ installElasticsearch() {
         curl -so /etc/elasticsearch/certs/searchguard/search-guard.yml https://raw.githubusercontent.com/wazuh/wazuh/${BRANCH}/extensions/searchguard/search-guard-aio.yml --max-time 300 
         chmod +x searchguard/tools/sgtlstool.sh 
         ./searchguard/tools/sgtlstool.sh -c ./searchguard/search-guard.yml -ca -crt -t /etc/elasticsearch/certs/ $debug 
-        if f [ "$?" != 0 ]; then
+        if [ "$?" != 0 ]; then
             echo "Error: certificates were not created"
-            exit 1; 
+            exit 1
         else
             logger "Certificates created"
         fi
@@ -182,8 +182,7 @@ installFilebeat() {
     logger "Installing Filebeat..."
 
     $sys_type install filebeat-"${ELK_VERSION}" -y -q  $debug
-    if [ "$?" != 0 ]
-    then
+    if [ "$?" != 0 ]; then
         echo "Error: Filebeat installation failed"
         exit 1;
     else
@@ -207,7 +206,7 @@ installKibana() {
     major_version="$(echo ${WAZUH_VERSION} | head -c 1)"
     logger "Installing Open Distro for Kibana..."
     $sys_type install opendistroforelasticsearch-kibana-${OPENDISTRO_VERSION} -y -q $debug
-    if f [ "$?" != 0 ]; then
+    if [ "$?" != 0 ]; then
         echo "Error: Kibana installation failed"
         exit 1;
     else
@@ -260,14 +259,14 @@ checkInstallation() {
 
     logger "Checking the installation..."
     curl -XGET https://localhost:9200 -uadmin:admin -k --max-time 300 $debug
-    if f [ "$?" != 0 ]; then
+    if [ "$?" != 0 ]; then
         echo "Error: Elasticsearch was not successfully installed."
         exit 1
     else
         echo "Elasticsearch installation succeeded."
     fi
     filebeat test output $debug
-    if f [ "$?" != 0 ]; then
+    if [ "$?" != 0 ]; then
         echo "Error: Filebeat was not successfully installed."
         exit 1;
     else
