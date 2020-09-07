@@ -27,7 +27,7 @@ HAVE_ELK_VERSION=false
 
 WAZUH_VERSION=""
 OPENDISTRO_VERSION=""
-BRANCH="new-documentation-templates"
+BRANCH="2205-Open_Distro_installation"
 ELK_VERSION=""
 STATUS=""
 CHECKSUM="no"
