@@ -124,10 +124,14 @@ installElasticsearch() {
 
         logger "Configuring Elasticsearch..."
 
-        curl -so /etc/elasticsearch/elasticsearch.yml https://raw.githubusercontent.com/wazuh/wazuh/${BRANCH}/extensions/elasticsearch/7.x/elasticsearch_all_in_one.yml --max-time 300
-        curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml https://raw.githubusercontent.com/wazuh/wazuh/${BRANCH}/extensions/elasticsearch/roles/roles.yml --max-time 300
-        curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml https://raw.githubusercontent.com/wazuh/wazuh/${BRANCH}/extensions/elasticsearch/roles/roles_mapping.yml --max-time 300
-        curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml https://raw.githubusercontent.com/wazuh/wazuh/${BRANCH}/extensions/elasticsearch/roles/internal_users.yml --max-time 300
+        
+
+
+        curl -so /etc/elasticsearch/elasticsearch.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/${BRANCH}/resources/open-distro/elasticsearch/7.x/elasticsearch_all_in_one.yml --max-time 300
+        
+        curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/${BRANCH}/resources/open-distro/elasticsearch/roles/roles.yml --max-time 300
+        curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/${BRANCH}/resources/open-distro/elasticsearch/roles/roles_mapping.yml --max-time 300
+        curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/${BRANCH}/resources/open-distro/elasticsearch/roles/internal_users.yml --max-time 300
         rm /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem -f
         mkdir -p /etc/elasticsearch/certs $debug
         cd /etc/elasticsearch/certs 
@@ -188,9 +192,13 @@ installFilebeat() {
         exit 1;
     else
         major_version="$(echo ${WAZUH_VERSION} | head -c 1)"
-        curl -so /etc/filebeat/filebeat.yml https://raw.githubusercontent.com/wazuh/wazuh/${BRANCH}/extensions/filebeat/7.x/filebeat_all_in_one.yml --max-time 300  $debug
-        curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/${BRANCH}/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300 $debug
+
+
+
+        curl -so /etc/filebeat/filebeat.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/${BRANCH}/resources/open-distro/filebeat/7.x/filebeat_all_in_one.yml --max-time 300  $debug
+        curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh-documentation/${BRANCH}/resources/open-distro/filebeat/7.x/wazuh-template.json --max-time 300 $debug
         chmod go+r /etc/filebeat/wazuh-template.json $debug
+        
         curl -s https://packages.wazuh.com/${major_version}.x/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module $debug
         mkdir -p /etc/filebeat/certs $debug
         cp /etc/elasticsearch/certs/root-ca.pem /etc/filebeat/certs/ $debug
