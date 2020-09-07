@@ -1,6 +1,6 @@
 #!/bin/bash
 char="#"
-debug='> /dev/null 2>&1'
+debug=''
 sys_type="yum"
 
 logger() {
