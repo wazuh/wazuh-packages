@@ -11,9 +11,9 @@ logger() {
 startService() {
 
     if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
-        systemctl daemon-reload $debug
-        systemctl enable $1.service $debug
-        systemctl start $1.service $debug
+        systemctl daemon-reload 
+        systemctl enable $1.service 
+        systemctl start $1.service 
         if [ "$?" != 0 ]
         then
             echo "${1^} could not be started."
@@ -22,9 +22,9 @@ startService() {
             echo "${1^} started"
         fi
     elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
-        chkconfig $1 on $debug
-        service $1 start $debug
-        /etc/init.d/$1 start $debug
+        chkconfig $1 on 
+        service $1 start 
+        /etc/init.d/$1 start 
         if [ "$?" != 0 ]
         then
             echo "${1^} could not be started."
@@ -33,7 +33,7 @@ startService() {
             echo "${1^} started"
         fi
     elif [ -x /etc/rc.d/init.d/$1 ] ; then
-        /etc/rc.d/init.d/$1 start $debug
+        /etc/rc.d/init.d/$1 start 
         if [ "$?" != 0 ]
         then
             echo "${1^} could not be started."
@@ -62,9 +62,9 @@ getHelp() {
 ## Install the required packages for the installation
 installPrerequisites() {
     logger "Installing all necessary utilities for the installation..."
-    $sys_type install curl unzip wget libcap -y -q $debug
+    $sys_type install curl unzip wget libcap -y -q 
     echo -e '[AdoptOpenJDK] \nname=AdoptOpenJDK \nbaseurl=http://adoptopenjdk.jfrog.io/adoptopenjdk/rpm/centos/$releasever/$basearch\nenabled=1\ngpgcheck=1\ngpgkey=https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public' | tee /etc/yum.repos.d/adoptopenjdk.repo $debug
-    $sys_type install adoptopenjdk-11-hotspot -y -q $debug
+    $sys_type install adoptopenjdk-11-hotspot -y -q 
     export JAVA_HOME=/usr/
 
     if [ "$?" != 0 ]; then
@@ -79,7 +79,7 @@ installPrerequisites() {
 addWazuhrepo() {
     major_version="$(echo ${WAZUH_VERSION} | head -c 1)"
     logger "Adding the Wazuh repository..."
-    rpm --import https://packages.wazuh.com/key/GPG-KEY-WAZUH $debug
+    rpm --import https://packages.wazuh.com/key/GPG-KEY-WAZUH 
     if [ "${STATUS_PACKAGES}" = "prod" ]; then
       logger "Adding production repository..."
       echo -e "[wazuh_repo]\ngpgcheck=1\ngpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages.wazuh.com/${major_version}.x/yum/\nprotect=1" | tee /etc/yum.repos.d/wazuh.repo $debug
@@ -101,7 +101,7 @@ installWazuh() {
 
 
     logger "Installing the Wazuh manager..."
-    $sys_type install wazuh-manager-${WAZUH_VERSION} -y -q $debug
+    $sys_type install wazuh-manager-${WAZUH_VERSION} -y -q 
     if [ "$?" != 0 ]; then
         echo "Error: Wazuh installation failed"
         exit 1;
@@ -114,7 +114,7 @@ installWazuh() {
 installElasticsearch() {
 
     logger "Installing Open Distro for Elasticsearch..."
-    $sys_type install opendistroforelasticsearch-${OPENDISTRO_VERSION} -y -q $debug
+    $sys_type install opendistroforelasticsearch-${OPENDISTRO_VERSION} -y -q 
 
     if [ "$?" != 0 ]; then
         echo "Error: Elasticsearch installation failed"
