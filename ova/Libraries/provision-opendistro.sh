@@ -17,6 +17,7 @@ startService() {
         if [ "$?" != 0 ]
         then
             echo "${1^} could not be started."
+            systemctl status elasticsearch -l
             exit 1;
         else
             echo "${1^} started"
@@ -98,7 +99,7 @@ addWazuhrepo() {
 
 ## Wazuh manager
 installWazuh() {
-
+ # If version is less than 4.0.0 install wazuh api
 
     logger "Installing the Wazuh manager..."
     $sys_type install wazuh-manager-${WAZUH_VERSION} -y -q 
@@ -124,8 +125,6 @@ installElasticsearch() {
 
         logger "Configuring Elasticsearch..."
 
-        
-
 
         curl -so /etc/elasticsearch/elasticsearch.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/${BRANCH}/resources/open-distro/elasticsearch/7.x/elasticsearch_all_in_one.yml --max-time 300
         
@@ -137,7 +136,7 @@ installElasticsearch() {
         cd /etc/elasticsearch/certs 
         curl -so /etc/elasticsearch/certs/search-guard-tlstool-1.8.zip https://maven.search-guard.com/search-guard-tlstool/1.8/search-guard-tlstool-1.8.zip --max-time 300 
         unzip search-guard-tlstool-1.8.zip -d searchguard 
-        curl -so /etc/elasticsearch/certs/searchguard/search-guard.yml https://raw.githubusercontent.com/wazuh/wazuh/${BRANCH}/extensions/searchguard/search-guard-aio.yml --max-time 300 
+        curl -so /etc/elasticsearch/certs/searchguard/search-guard.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/${BRANCH}/resources/open-distro/searchguard/search-guard-aio.yml --max-time 300 
         chmod +x searchguard/tools/sgtlstool.sh 
         ./searchguard/tools/sgtlstool.sh -c ./searchguard/search-guard.yml -ca -crt -t /etc/elasticsearch/certs/ $debug 
         if [ "$?" != 0 ]; then
@@ -150,17 +149,17 @@ installElasticsearch() {
 
         # Configure JVM options for Elasticsearch
         
-        # ram_gb=$(free -g | awk '/^Mem:/{print $2}')
-        # ram=$(( ${ram_gb} / 2 ))
+        ram_gb=$(free -g | awk '/^Mem:/{print $2}')
+        ram=$(( ${ram_gb} / 2 ))
 
-        # if [ ${ram} -eq "0" ]; then
-        #     ram=1;
-        # fi
-        # sed -i "s/-Xms1g/-Xms${ram}g/" "/etc/elasticsearch/jvm.options" $debug
-        # sed -i "s/-Xmx1g/-Xmx${ram}g/" "/etc/elasticsearch/jvm.options" $debug
+        if [ ${ram} -eq "0" ]; then
+            ram=1;
+        fi
+        sed -i "s/-Xms1g/-Xms${ram}g/" "/etc/elasticsearch/jvm.options" $debug
+        sed -i "s/-Xmx1g/-Xmx${ram}g/" "/etc/elasticsearch/jvm.options" $debug
         
         jv=$(java -version 2>&1 | grep -o -m1 '1.8.0' )
-        if [ "$jv"="1.8.0" ]; then
+        if [ "$jv" = "1.8.0" ]; then
             ln -s /usr/lib/jvm/java-1.8.0/lib/tools.jar /usr/share/elasticsearch/lib/
             echo "root hard nproc 4096" >> /etc/security/limits.conf
             echo "root soft nproc 4096" >> /etc/security/limits.conf
@@ -207,7 +206,6 @@ installFilebeat() {
         mv /etc/elasticsearch/certs/filebeat* /etc/filebeat/certs/ $debug
         # Start Filebeat
         startService "filebeat"
-
         logger "Done"
     fi
 }
@@ -221,7 +219,7 @@ installKibana() {
         echo "Error: Kibana installation failed"
         exit 1;
     else
-        curl -so /etc/kibana/kibana.yml https://raw.githubusercontent.com/wazuh/wazuh/${BRANCH}/extensions/kibana/7.x/kibana_all_in_one.yml --max-time 300 $debug
+        curl -so /etc/kibana/kibana.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/${BRANCH}/resources/open-distro/kibana/7.x/kibana_all_in_one.yml --max-time 300 $debug
         cd /usr/share/kibana $debug
 
         if [ "${STATUS_PACKAGES}" = "prod" ]; then
@@ -231,9 +229,9 @@ installKibana() {
         fi
 
         if [ "${STATUS_PACKAGES}" = "prod" ]; then
-            sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/${major_version}.x/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip $debug
+            sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/${major_version}.x/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-1.zip $debug
         elif [ "${STATUS_PACKAGES}" = "dev" ]; then
-            sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip $debug
+            sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-1.zip $debug
         fi        
         
         if [ "$?" != 0 ]
