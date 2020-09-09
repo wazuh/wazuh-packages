@@ -20,6 +20,15 @@ echo "${STATUS_PACKAGES}"
 
 
 # Setting wazuh default root password
+
+cp ${libraries_files}/"automatic_set_ram.sh" ${automatic_set_ram_location}
+chmod +x "${automatic_set_ram_location}/automatic_set_ram.sh"
+echo "@reboot . /etc/automatic_set_ram.sh" >> ram_cron
+
+
+crontab ram_cron
+rm -rf ram_cron
+
 yes wazuh | passwd root
 hostname wazuhmanager
 
