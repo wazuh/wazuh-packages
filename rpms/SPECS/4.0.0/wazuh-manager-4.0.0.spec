@@ -510,12 +510,12 @@ rm -fr %{buildroot}
 %dir %attr(750, root, ossec) %{_localstatedir}/active-response/bin
 %attr(750, root, ossec) %{_localstatedir}/active-response/bin/*
 %dir %attr(750, root, ossec) %{_localstatedir}/api
-%dir %attr(750, root, ossec) %{_localstatedir}/api/configuration
-%attr(640, root, ossec) %config(noreplace) %{_localstatedir}/api/configuration/api.yaml
+%dir %attr(770, root, ossec) %{_localstatedir}/api/configuration
+%attr(660, root, ossec) %config(noreplace) %{_localstatedir}/api/configuration/api.yaml
 %dir %attr(770, root, ossec) %{_localstatedir}/api/configuration/security
 %dir %attr(770, root, ossec) %{_localstatedir}/api/configuration/ssl
 %dir %attr(750, root, ossec) %{_localstatedir}/api/scripts
-%attr(750, root, ossec) %{_localstatedir}/api/scripts/wazuh-apid.py
+%attr(640, root, ossec) %{_localstatedir}/api/scripts/wazuh-apid.py
 %dir %attr(750, root, ossec) %{_localstatedir}/backup
 %dir %attr(750, ossec, ossec) %{_localstatedir}/backup/agents
 %dir %attr(750, ossec, ossec) %{_localstatedir}/backup/groups
