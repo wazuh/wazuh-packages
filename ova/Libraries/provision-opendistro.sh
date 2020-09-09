@@ -78,12 +78,12 @@ installPrerequisites() {
 
 ## Add the Wazuh repository
 addWazuhrepo() {
-    major_version="$(echo ${WAZUH_VERSION} | head -c 1)"
+    WAZUH_MAJOR="$(echo ${WAZUH_VERSION} | head -c 1)"
     logger "Adding the Wazuh repository..."
     rpm --import https://packages.wazuh.com/key/GPG-KEY-WAZUH 
     if [ "${STATUS_PACKAGES}" = "prod" ]; then
       logger "Adding production repository..."
-      echo -e "[wazuh_repo]\ngpgcheck=1\ngpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages.wazuh.com/${major_version}.x/yum/\nprotect=1" | tee /etc/yum.repos.d/wazuh.repo $debug
+      echo -e "[wazuh_repo]\ngpgcheck=1\ngpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages.wazuh.com/${WAZUH_MAJOR}.x/yum/\nprotect=1" | tee /etc/yum.repos.d/wazuh.repo $debug
     elif [ "${STATUS_PACKAGES}" = "dev" ]; then
       logger "Adding development repository..."
       echo -e '[wazuh_pre-release]\ngpgcheck=1\ngpgkey=https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages-dev.wazuh.com/pre-release/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo $debug
@@ -99,7 +99,6 @@ addWazuhrepo() {
 
 ## Wazuh manager
 installWazuh() {
- # If version is less than 4.0.0 install wazuh api
 
     logger "Installing the Wazuh manager..."
     $sys_type install wazuh-manager-${WAZUH_VERSION} -y -q 
@@ -192,7 +191,7 @@ installFilebeat() {
         echo "Error: Filebeat installation failed"
         exit 1;
     else
-        major_version="$(echo ${WAZUH_VERSION} | head -c 1)"
+        WAZUH_MAJOR="$(echo ${WAZUH_VERSION} | head -c 1)"
 
 
 
@@ -200,7 +199,7 @@ installFilebeat() {
         curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh-documentation/${BRANCH}/resources/open-distro/filebeat/7.x/wazuh-template.json --max-time 300 $debug
         chmod go+r /etc/filebeat/wazuh-template.json $debug
         
-        curl -s https://packages.wazuh.com/${major_version}.x/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module $debug
+        curl -s https://packages.wazuh.com/${WAZUH_MAJOR}.x/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module $debug
         mkdir -p /etc/filebeat/certs $debug
         cp /etc/elasticsearch/certs/root-ca.pem /etc/filebeat/certs/ $debug
         mv /etc/elasticsearch/certs/filebeat* /etc/filebeat/certs/ $debug
@@ -212,7 +211,7 @@ installFilebeat() {
 
 ## Kibana
 installKibana() {
-    major_version="$(echo ${WAZUH_VERSION} | head -c 1)"
+    WAZUH_MAJOR="$(echo ${WAZUH_VERSION} | head -c 1)"
     logger "Installing Open Distro for Kibana..."
     $sys_type install opendistroforelasticsearch-kibana-${OPENDISTRO_VERSION} -y -q $debug
     if [ "$?" != 0 ]; then
@@ -223,13 +222,13 @@ installKibana() {
         cd /usr/share/kibana $debug
 
         if [ "${STATUS_PACKAGES}" = "prod" ]; then
-            sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/${major_version}.x/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip $debug
+            sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/${WAZUH_MAJOR}.x/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip $debug
         elif [ "${STATUS_PACKAGES}" = "dev" ]; then
             sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip $debug
         fi
 
         if [ "${STATUS_PACKAGES}" = "prod" ]; then
-            sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/${major_version}.x/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-1.zip $debug
+            sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/${WAZUH_MAJOR}.x/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-1.zip $debug
         elif [ "${STATUS_PACKAGES}" = "dev" ]; then
             sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-1.zip $debug
         fi        

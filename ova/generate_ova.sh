@@ -107,8 +107,8 @@ build_ova() {
 check_version() {
     echo " https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}-1.zip"
     if [ "${STATUS}" = "prod" ]; then
-        major_version="$(echo ${WAZUH_VERSION} | head -c 1)"
-        curl -Isf https://packages.wazuh.com/${major_version}/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${ELK_VERSION} not supported." && exit 1 )
+        WAZUH_MAJOR="$(echo ${WAZUH_VERSION} | head -c 1)"
+        curl -Isf https://packages.wazuh.com/${WAZUH_MAJOR}/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${ELK_VERSION} not supported." && exit 1 )
     elif [ "${STATUS}" = "dev" ]; then
         curl -Isf https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-1.zip > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${ELK_VERSION} not supported." && exit 1 )
     else

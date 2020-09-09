@@ -11,6 +11,7 @@ BRANCH=$5
 DIRECTORY="/var/ossec"
 ELK_MAJOR=`echo ${ELK_VERSION}|cut -d"." -f1`
 ELK_MINOR=`echo ${ELK_VERSION}|cut -d"." -f2`
+
 config_files="/vagrant/Config_files"
 automatic_set_ram_location="/etc/"
 libraries_files="/vagrant/Libraries/"
@@ -53,5 +54,5 @@ rm -rf /vagrant
 systemctl stop kibana
 systemctl filebeat kibana
 systemctl stop  elasticsearch
+systemctl enable wazuh-manager
 systemctl stop wazuh-manager
-systemctl stop wazuh-api
