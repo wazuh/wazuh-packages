@@ -65,7 +65,7 @@ build_ova() {
     OVA_FIXED="wazuh${OVA_VERSION}-fixed.ova"
     OVA_VMDK="wazuh${OVA_VERSION}-disk001.vmdk"
     ELK_MAJOR=`echo ${ELK_VERSION}|cut -d"." -f1`
-    export OVA_BRANCH="$BRANCH"
+    export BRANCH
 
 
     if [ -e "${OVA_VM}" ] || [ -e "${OVA_VM}" ]; then
@@ -175,11 +175,9 @@ main() {
         ;;
         "-b"|"--branch")
             if [ -n "$2" ]; then
-                export OVA_BRANCH="$2"
                 BRANCH="$2"
                 shift 2
             else
-                export OVA_BRANCH="$BRANCH"
                 help 1
             fi
             ;;

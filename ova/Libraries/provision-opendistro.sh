@@ -17,7 +17,6 @@ startService() {
         if [ "$?" != 0 ]
         then
             echo "${1^} could not be started."
-            systemctl status elasticsearch -l
             exit 1;
         else
             echo "${1^} started"
