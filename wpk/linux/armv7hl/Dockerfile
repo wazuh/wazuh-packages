@@ -10,6 +10,5 @@ RUN pip2 install cryptography awscli
 ADD wpkpack.py /usr/local/bin/wpkpack
 ADD run.sh /usr/local/bin/run
 ADD entrypoint.sh /usr/local/bin/entrypoint
-ADD gen_versions.sh /usr/local/bin/gen_versions
 
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
