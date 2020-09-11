@@ -11,5 +11,4 @@ RUN yum -y install centos-release-scl epel-release && \
 RUN yum install -y automake autoconf libtool
 ADD wpkpack.py /usr/local/bin/wpkpack
 ADD run.sh /usr/local/bin/run
-ADD gen_versions.sh /usr/local/bin/gen_versions
 ENTRYPOINT ["/usr/local/bin/run"]

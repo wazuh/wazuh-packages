@@ -17,5 +17,4 @@ RUN pip3 install --upgrade cryptography awscli
 
 ADD wpkpack.py /usr/local/bin/wpkpack
 ADD run.sh /usr/local/bin/run
-ADD gen_versions.sh /usr/local/bin/gen_versions
 ENTRYPOINT ["/usr/local/bin/run"]

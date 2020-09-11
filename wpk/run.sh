@@ -182,9 +182,10 @@ main() {
     else
 
       if [ "${HAVE_PKG_NAME}" == true ]; then
+          CURRENT_DIR=$(pwd)
           echo "wpkpack ${OUTPUT} ${WPKCERT} ${WPKKEY} ${PKG_NAME} upgrade.bat do_upgrade.ps1"
           cd ${OUTDIR}
-          cp /${DIRECTORY}/src/win32/{upgrade.bat,do_upgrade.ps1} .
+          cp ${CURRENT_DIR}/src/win32/{upgrade.bat,do_upgrade.ps1} .
           cp /var/pkg/${PKG_NAME} ${OUTDIR} 2>/dev/null
           wpkpack ${OUTPUT} ${WPKCERT} ${WPKKEY} ${PKG_NAME} upgrade.bat do_upgrade.ps1
           rm -f upgrade.bat do_upgrade.ps1 ${PKG_NAME}
@@ -194,14 +195,7 @@ main() {
       fi
     fi
     echo "PACKED FILE -> ${OUTPUT}"
-    # Update versions file
     cd ${OUTDIR}
-    if [ ${REVISION} -eq ${REVISION} ] 2>/dev/null && [ ${REVISION} -ge 1 ] && [ ${REVISION} -le 99 ]; then
-        VERSIONS_NAME="versions"
-    else
-        VERSIONS_NAME="versions-${REVISION}"
-    fi
-        gen_versions ${OUTPUT} ${SHORT_VERSION} ${VERSIONS_NAME}
     if [[ ${CHECKSUM} == "yes" ]]; then
         mkdir -p ${CHECKSUMDIR}
         sha512sum "${OUT_NAME}" > "${CHECKSUMDIR}/${OUT_NAME}.sha512"
