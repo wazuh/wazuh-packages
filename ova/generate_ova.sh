@@ -166,7 +166,7 @@ main() {
                 export STATUS="$2"
                 HAVE_STATUS=true
             else
-                echo "ERROR: package repository is needed_."
+                echo "ERROR: package repository is needed."
                 help 1
             fi
             shift 2
@@ -177,6 +177,7 @@ main() {
                 BRANCH="$2"
                 shift 2
             else
+                echo "ERROR: Need branch to build."
                 help 1
             fi
             ;;
@@ -185,6 +186,7 @@ main() {
                 OUTPUT_DIR="$2"
                 shift 2
             else
+                echo "ERROR: Need store path"
                 help 1
             fi
             ;;

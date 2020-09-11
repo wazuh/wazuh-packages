@@ -14,8 +14,7 @@ startService() {
         systemctl daemon-reload 
         systemctl enable $1.service 
         systemctl start $1.service 
-        if [ "$?" != 0 ]
-        then
+        if [ "$?" != 0 ]; then
             echo "${1^} could not be started."
             exit 1;
         else
@@ -25,8 +24,7 @@ startService() {
         chkconfig $1 on 
         service $1 start 
         /etc/init.d/$1 start 
-        if [ "$?" != 0 ]
-        then
+        if [ "$?" != 0 ]; then
             echo "${1^} could not be started."
             exit 1;
         else
@@ -34,8 +32,7 @@ startService() {
         fi
     elif [ -x /etc/rc.d/init.d/$1 ] ; then
         /etc/rc.d/init.d/$1 start 
-        if [ "$?" != 0 ]
-        then
+        if [ "$?" != 0 ]; then
             echo "${1^} could not be started."
             exit 1;
         else

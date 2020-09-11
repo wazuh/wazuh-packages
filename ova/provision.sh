@@ -1,5 +1,5 @@
 #/bin/bash
-set -x
+set -exf
 # Variables
 repo_branch=$(echo "$1" | cut -c1-3)
 repo_baseurl=$(echo "$1" | cut -c1-2)
