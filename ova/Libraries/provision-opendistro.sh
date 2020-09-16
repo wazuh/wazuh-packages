@@ -134,6 +134,7 @@ installElasticsearch() {
         curl -so /etc/elasticsearch/certs/searchguard/search-guard.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/${BRANCH}/resources/open-distro/searchguard/search-guard-aio.yml --max-time 300 
         chmod +x searchguard/tools/sgtlstool.sh 
         ./searchguard/tools/sgtlstool.sh -c ./searchguard/search-guard.yml -ca -crt -t /etc/elasticsearch/certs/ $debug 
+
         if [ "$?" != 0 ]; then
             echo "Error: certificates were not created"
             exit 1
@@ -142,19 +143,10 @@ installElasticsearch() {
         fi
         rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml search-guard-tlstool-1.7.zip -f $debug
 
-        # Configure JVM options for Elasticsearch
-        
-        ram_gb=$(free -g | awk '/^Mem:/{print $2}')
-        ram=$(( ${ram_gb} / 2 ))
 
-        if [ ${ram} -eq "0" ]; then
-            ram=1;
-        fi
-        sed -i "s/-Xms1g/-Xms${ram}g/" "/etc/elasticsearch/jvm.options" $debug
-        sed -i "s/-Xmx1g/-Xmx${ram}g/" "/etc/elasticsearch/jvm.options" $debug
-        
-        jv=$(java -version 2>&1 | grep -o -m1 '1.8.0' )
-        if [ "$jv" = "1.8.0" ]; then
+        # # Configure JVM options for Elasticsearch
+        jv=$(java -version 2>&1 | grep -o -m1 '1.8.0') || : 
+        if [ "${jv}" = "1.8.0" ]; then
             ln -s /usr/lib/jvm/java-1.8.0/lib/tools.jar /usr/share/elasticsearch/lib/
             echo "root hard nproc 4096" >> /etc/security/limits.conf
             echo "root soft nproc 4096" >> /etc/security/limits.conf
@@ -162,7 +154,6 @@ installElasticsearch() {
             echo "elasticsearch soft nproc 4096" >> /etc/security/limits.conf
             echo "bootstrap.system_call_filter: false" >> /etc/elasticsearch/elasticsearch.yml
         fi
-        
         # Start Elasticsearch
         startService "elasticsearch"
         echo "Initializing Elasticsearch..."
@@ -189,16 +180,15 @@ installFilebeat() {
     else
         WAZUH_MAJOR="$(echo ${WAZUH_VERSION} | head -c 1)"
 
-
-
         curl -so /etc/filebeat/filebeat.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/${BRANCH}/resources/open-distro/filebeat/7.x/filebeat_all_in_one.yml --max-time 300  $debug
-        curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh-documentation/${BRANCH}/resources/open-distro/filebeat/7.x/wazuh-template.json --max-time 300 $debug
+        curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/master/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300 $debug
         chmod go+r /etc/filebeat/wazuh-template.json $debug
         
-        curl -s https://packages.wazuh.com/${WAZUH_MAJOR}.x/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module $debug
+        curl -s https://packages.wazuh.com/3.x/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module $debug
         mkdir -p /etc/filebeat/certs $debug
         cp /etc/elasticsearch/certs/root-ca.pem /etc/filebeat/certs/ $debug
-        mv /etc/elasticsearch/certs/filebeat* /etc/filebeat/certs/ $debug
+        mv /etc/elasticsearch/certs/filebeat.key /etc/filebeat/certs/ 
+        mv /etc/elasticsearch/certs/filebeat.pem /etc/filebeat/certs/ 
         # Start Filebeat
         startService "filebeat"
         logger "Done"
@@ -215,27 +205,23 @@ installKibana() {
         exit 1;
     else
         curl -so /etc/kibana/kibana.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/${BRANCH}/resources/open-distro/kibana/7.x/kibana_all_in_one.yml --max-time 300 $debug
+        echo "telemetry.enabled: false" >> /etc/kibana/kibana.yml
         cd /usr/share/kibana $debug
 
         if [ "${STATUS_PACKAGES}" = "prod" ]; then
-            sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/${WAZUH_MAJOR}.x/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip $debug
-        elif [ "${STATUS_PACKAGES}" = "dev" ]; then
-            sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip $debug
-        fi
-
-        if [ "${STATUS_PACKAGES}" = "prod" ]; then
-            sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/${WAZUH_MAJOR}.x/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-1.zip $debug
+            sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/${WAZUH_MAJOR}.x/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}.zip $debug
         elif [ "${STATUS_PACKAGES}" = "dev" ]; then
             sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-1.zip $debug
-        fi        
-        
+        fi
+                
         if [ "$?" != 0 ]
         then
             echo "Error: Wazuh Kibana plugin could not be installed."
             exit 1;
         fi
         mkdir -p /etc/kibana/certs $debug
-        mv /etc/elasticsearch/certs/kibana* /etc/kibana/certs/ $debug
+        mv /etc/elasticsearch/certs/kibana.key /etc/kibana/certs/ $debug
+        mv /etc/elasticsearch/certs/kibana.pem /etc/kibana/certs/ $debug
         setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node $debug
 
         # Start Kibana
@@ -282,11 +268,9 @@ checkInstallation() {
         sleep 10
     done
     echo $'\nInstallation finished'
-    exit 0;
 }
 
 cleanInstall(){
-
     rm -rf /etc/yum.repos.d/adoptopenjdk.repo
     rm -rf /etc/yum.repos.d/opendistroforelasticsearch-artifacts.repo
     rm -rf  /etc/yum.repos.d/wazuh.repo

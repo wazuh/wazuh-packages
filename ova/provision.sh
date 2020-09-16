@@ -52,7 +52,8 @@ cleanInstall
 rm -rf /vagrant
 
 systemctl stop kibana
-systemctl filebeat kibana
+systemctl stop filebeat 
 systemctl stop  elasticsearch
 systemctl enable wazuh-manager
+systemctl is-enabled wazuh-manager
 systemctl stop wazuh-manager
