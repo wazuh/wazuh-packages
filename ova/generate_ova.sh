@@ -104,14 +104,13 @@ build_ova() {
 }
 
 check_version() {
-    echo " https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}-1.zip"
     if [ "${STATUS}" = "prod" ]; then
         WAZUH_MAJOR="$(echo ${WAZUH_VERSION} | head -c 1)"
         curl -Isf https://packages.wazuh.com/${WAZUH_MAJOR}/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${ELK_VERSION} not supported." && exit 1 )
     elif [ "${STATUS}" = "dev" ]; then
         curl -Isf https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-1.zip > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${ELK_VERSION} not supported." && exit 1 )
     else
-        echo "Error, repository value must take 'prod' or 'dev' value."
+        logger "Error, repository value must take 'prod' or 'dev' value."
         exit
     fi
 }
@@ -131,7 +130,7 @@ main() {
                 export WAZUH_VERSION="$2"
                 HAVE_VERSION=true
             else
-                echo "ERROR Need wazuh version."
+                logger "ERROR Need wazuh version."
                 help 1
             fi
             shift 2
@@ -142,7 +141,7 @@ main() {
                 export OPENDISTRO_VERSION="$2"
                 HAVE_OPENDISTRO_VERSION=true
             else
-                echo "ERROR Need opendistro version."
+                logger "ERROR Need opendistro version."
                 help 1
             fi
             shift 2
@@ -154,7 +153,7 @@ main() {
                 export ELK_VERSION="$2"
                 HAVE_ELK_VERSION=true
             else
-                echo "ERROR: Need filebeat version."
+                logger "ERROR: Need filebeat version."
                 help 1
             fi
             shift 2
@@ -166,7 +165,7 @@ main() {
                 export STATUS="$2"
                 HAVE_STATUS=true
             else
-                echo "ERROR: package repository is needed."
+                logger "ERROR: package repository is needed."
                 help 1
             fi
             shift 2
@@ -177,7 +176,7 @@ main() {
                 BRANCH="$2"
                 shift 2
             else
-                echo "ERROR: Need branch to build."
+                logger "ERROR: Need branch to build."
                 help 1
             fi
             ;;
@@ -186,7 +185,7 @@ main() {
                 OUTPUT_DIR="$2"
                 shift 2
             else
-                echo "ERROR: Need store path"
+                logger "ERROR: Need store path"
                 help 1
             fi
             ;;
@@ -213,10 +212,10 @@ main() {
         check_version ${WAZUH_VERSION} ${ELK_VERSION} ${STATUS}
         OVA_VERSION="${WAZUH_VERSION}_${OPENDISTRO_VERSION}"
 
-        echo "Version to build: ${WAZUH_VERSION}-${OPENDISTRO_VERSION} with ${STATUS} repository and ${BRANCH} branch"
+        logger "Version to build: ${WAZUH_VERSION}-${OPENDISTRO_VERSION} with ${STATUS} repository and ${BRANCH} branch"
         build_ova ${WAZUH_VERSION} ${OVA_VERSION}
     else
-        echo "ERROR: Need more parameters."
+        logger "ERROR: Need more parameters."
         help 1
     fi
 
