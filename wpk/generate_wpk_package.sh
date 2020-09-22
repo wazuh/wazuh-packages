@@ -91,7 +91,7 @@ function build_container() {
     local CONTAINER_NAME="${1}"
     local DOCKERFILE_PATH="${2}"
 
-    cp run.sh wpkpack.py gen_versions.sh ${DOCKERFILE_PATH}
+    cp run.sh wpkpack.py ${DOCKERFILE_PATH}
     docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH}
 }
 

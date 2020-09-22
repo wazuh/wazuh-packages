@@ -1,6 +1,6 @@
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-manager
-Version:     4.0.0
+Version:     3.13.2
 Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
@@ -14,7 +14,6 @@ Requires(post):   /sbin/chkconfig
 Requires(preun):  /sbin/chkconfig /sbin/service
 Requires(postun): /sbin/service /usr/sbin/groupdel /usr/sbin/userdel
 Conflicts:   ossec-hids ossec-hids-agent wazuh-agent wazuh-local
-Obsoletes: wazuh-api <= 3.13.1
 AutoReqProv: no
 
 Requires: coreutils
@@ -77,13 +76,22 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.ssh
 
 # Copy the installed files into RPM_BUILD_ROOT directory
 cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
-mkdir -p ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
 install -m 0640 ossec-init.conf ${RPM_BUILD_ROOT}%{_sysconfdir}
 install -m 0755 src/init/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-manager
-install -m 0644 src/systemd/wazuh-manager.service ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
 
 # Clean the preinstalled configuration assesment files
 rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ruleset/sca/*
+
+# Install frameworks sqlite lib
+install -o root -g ossec -m 0750 -d ${RPM_BUILD_ROOT}%{_localstatedir}/framework/lib
+install -o root -g ossec -m 0640 framework/libsqlite3.so.0 ${RPM_BUILD_ROOT}%{_localstatedir}/framework/lib/
+
+# Install oscap files
+install -m 0640 wodles/oscap/content/*redhat* ${RPM_BUILD_ROOT}%{_localstatedir}/wodles/oscap/content
+install -m 0640 wodles/oscap/content/*rhel* ${RPM_BUILD_ROOT}%{_localstatedir}/wodles/oscap/content
+install -m 0640 wodles/oscap/content/*centos* ${RPM_BUILD_ROOT}%{_localstatedir}/wodles/oscap/content
+install -m 0640 wodles/oscap/content/*fedora* ${RPM_BUILD_ROOT}%{_localstatedir}/wodles/oscap/content
+
 
 # Install Vulnerability Detector files
 install -m 0440 src/wazuh_modules/vulnerability_detector/*.json ${RPM_BUILD_ROOT}%{_localstatedir}/queue/vulnerabilities/dictionaries
@@ -95,8 +103,10 @@ cp add_localfiles.sh ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_i
 
 # Templates for initscript
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/src/init
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/src/systemd
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/generic
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/centos
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/fedora
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/rhel
 
 # Install configuration assesment files and files templates
@@ -152,6 +162,7 @@ cp -rp src/init/ossec-hids-suse.init ${RPM_BUILD_ROOT}%{_localstatedir}/packages
 # Copy scap templates
 cp -rp  etc/templates/config/generic/* ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/generic
 cp -rp  etc/templates/config/centos/* ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/centos
+cp -rp  etc/templates/config/fedora/* ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/fedora
 cp -rp  etc/templates/config/rhel/* ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/rhel
 
 install -m 0640 src/init/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/src/init
@@ -160,13 +171,23 @@ install -m 0640 src/init/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/
 cp src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/src/
 cp src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/src/
 cp src/LOCATION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/src/
+cp -r src/systemd/* ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/src/systemd
 
-if [ %{_debugenabled} = "yes" ]; then
+if [ %{_debugenabled} == "yes" ]; then
   %{_rpmconfigdir}/find-debuginfo.sh
 fi
 exit 0
-
 %pre
+
+# Stop Authd if it is running
+if ps aux | grep %{_localstatedir}/bin/ossec-authd | grep -v grep > /dev/null 2>&1; then
+   kill `ps -ef | grep '%{_localstatedir}/bin/ossec-authd' | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
+fi
+
+# Ensure that the wazuh-manager is stopped
+if [ -d %{_localstatedir} ] && [ -f %{_localstatedir}/bin/ossec-control ] ; then
+  %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
+fi
 
 # Create the ossec group if it doesn't exists
 if command -v getent > /dev/null 2>&1 && ! getent group ossec > /dev/null 2>&1; then
@@ -174,20 +195,6 @@ if command -v getent > /dev/null 2>&1 && ! getent group ossec > /dev/null 2>&1; 
 elif ! id -g ossec > /dev/null 2>&1; then
   groupadd -r ossec
 fi
-
-# Stop the services to upgrade the package
-if [ $1 = 2 ]; then
-  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-manager > /dev/null 2>&1; then
-    touch %{_localstatedir}/tmp/wazuh.restart
-    systemctl stop wazuh-manager.service > /dev/null 2>&1
-  fi
-
-  if command -v service > /dev/null 2>&1 && service wazuh-manager status | grep "is running" > /dev/null 2>&1; then
-    touch %{_localstatedir}/tmp/wazuh.restart
-    service wazuh-manager stop > /dev/null 2>&1
-  fi
-fi
-
 # Create the ossec user if it doesn't exists
 if ! id -u ossec > /dev/null 2>&1; then
   useradd -g ossec -G ossec -d %{_localstatedir} -r -s /sbin/nologin ossec
@@ -201,8 +208,8 @@ if ! id -u ossecm > /dev/null 2>&1; then
   useradd -g ossec -G ossec -d %{_localstatedir} -r -s /sbin/nologin ossecm
 fi
 
-if [ -d %{_localstatedir}/var/db/agents ]; then
-  rm -f %{_localstatedir}/var/db/agents/*
+if [ -d ${DIR}/var/db/agents ]; then
+  rm -f ${DIR}/var/db/agents/*
 fi
 
 # Remove existing SQLite databases
@@ -214,58 +221,136 @@ rm -f %{_localstatedir}/var/db/agents/* || true
 # Remove Vuln-detector database
 rm -f %{_localstatedir}/queue/vulnerabilities/cve.db || true
 
-# Delete old API backups
+
+# Remove existing SQLite databases for Wazuh DB when upgrading
+# Wazuh only if upgrading from 3.2..3.6
 if [ $1 = 2 ]; then
-  if [ -d %{_localstatedir}/~api ]; then
-    rm -rf %{_localstatedir}/~api
-  fi
+
   # Import the variables from ossec-init.conf file
-  . %{_sysconfdir}/ossec-init.conf
+  if [ -f %{_sysconfdir}/ossec-init.conf ]; then
+    . %{_sysconfdir}/ossec-init.conf
+  fi
 
   # Get the major and minor version
   MAJOR=$(echo $VERSION | cut -dv -f2 | cut -d. -f1)
   MINOR=$(echo $VERSION | cut -d. -f2)
 
-  # Delete 3.X Wazuh API service
-  if [ "$MAJOR" = "3" ] && [ -d %{_localstatedir}/api ]; then
-    if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
-      systemctl stop wazuh-api.service > /dev/null 2>&1
-      systemctl disable wazuh-api.service > /dev/null 2>&1
-      rm -f /etc/systemd/system/wazuh-api.service
-    fi
-
-    if command -v service > /dev/null 2>&1; then
-      service wazuh-api stop > /dev/null 2>&1
-      chkconfig wazuh-api off > /dev/null 2>&1
-      chkconfig --del wazuh-api > /dev/null 2>&1
-      rm -f /etc/rc.d/init.d/wazuh-api || true
-    fi
+  if [ $MAJOR = 3 ] && [ $MINOR -lt 7 ]; then
+    rm -f %{_localstatedir}/queue/db/*.db*
+    rm -f %{_localstatedir}/queue/db/.template.db
+  elif [ $MAJOR = 3 ] && [ $MINOR = 9 ]; then
+    find %{_localstatedir}/ruleset/sca -type f > %{_localstatedir}/old_sca.files
   fi
 fi
 
+# Delete old service
+if [ -f /etc/init.d/ossec ]; then
+  rm /etc/init.d/ossec
+fi
+# Execute this if only when installing the package
+if [ $1 = 1 ]; then
+  if [ -f %{_localstatedir}/etc/ossec.conf ]; then
+    echo "====================================================================================="
+    echo "= Backup from your ossec.conf has been created at %{_localstatedir}/etc/ossec.conf.rpmorig ="
+    echo "= Please verify your ossec.conf configuration at %{_localstatedir}/etc/ossec.conf          ="
+    echo "====================================================================================="
+    mv %{_localstatedir}/etc/ossec.conf %{_localstatedir}/etc/ossec.conf.rpmorig
+  fi
+fi
+# Execute this if only when upgrading the package
+if [ $1 = 2 ]; then
+    cp -rp %{_localstatedir}/etc/ossec.conf %{_localstatedir}/etc/ossec.bck
+    cp -rp %{_localstatedir}/etc/shared %{_localstatedir}/backup/
+    if [ ! -d %{_localstatedir}/etc/shared/default ]; then
+      mkdir  %{_localstatedir}/etc/shared/default
+      cp -rp %{_localstatedir}/backup/shared/* %{_localstatedir}/etc/shared/default || true
+      rm -f  %{_localstatedir}/etc/shared/merged.mg || true
+      rm -f  %{_localstatedir}/etc/shared/default/ar.conf || true
+    fi
+fi
 %post
 
-# Fresh install code block
+# If the package is being installed
 if [ $1 = 1 ]; then
+  . %{_localstatedir}/packages_files/manager_installation_scripts/src/init/dist-detect.sh
+
   sles=""
-  if [ -f /etc/SuSE-release ]; then
-    sles="suse"
-  elif [ -f /etc/os-release ]; then
+  if [ -f /etc/os-release ]; then
     if `grep -q "\"sles" /etc/os-release` ; then
       sles="suse"
     elif `grep -q -i "\"opensuse" /etc/os-release` ; then
       sles="opensuse"
     fi
+  elif [ -f /etc/SuSE-release ]; then
+    if `grep -q "SUSE Linux Enterprise Server" /etc/SuSE-release` ; then
+      sles="suse"
+    elif `grep -q -i "opensuse" /etc/SuSE-release` ; then
+      sles="opensuse"
+    fi
   fi
-
   if [ ! -z "$sles" ]; then
     install -m 755 %{_localstatedir}/packages_files/manager_installation_scripts/src/init/ossec-hids-suse.init /etc/init.d/wazuh-manager
   fi
 
-  . %{_localstatedir}/packages_files/manager_installation_scripts/src/init/dist-detect.sh
-
   # Generating ossec.conf file
   %{_localstatedir}/packages_files/manager_installation_scripts/gen_ossec.sh conf manager ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir} > %{_localstatedir}/etc/ossec.conf
+  chown root:ossec %{_localstatedir}/etc/ossec.conf
+
+  ETC_DECODERS="%{_localstatedir}/etc/decoders"
+  ETC_RULES="%{_localstatedir}/etc/rules"
+
+  # Moving local_decoder
+  if [ -f "%{_localstatedir}/etc/local_decoder.xml" ]; then
+    if [ -s "%{_localstatedir}/etc/local_decoder.xml" ]; then
+      mv "%{_localstatedir}/etc/local_decoder.xml" $ETC_DECODERS
+    else
+      # it is empty
+      rm -f "%{_localstatedir}/etc/local_decoder.xml"
+    fi
+  fi
+
+  # Moving local_rules
+  if [ -f "%{_localstatedir}/rules/local_rules.xml" ]; then
+    mv "%{_localstatedir}/rules/local_rules.xml" $ETC_RULES
+  fi
+
+  # Creating backup directory
+  if [ -d "%{_localstatedir}/etc/wazuh_decoders" ]; then
+    BACKUP_RULESET="%{_localstatedir}/etc/backup_ruleset"
+    mkdir $BACKUP_RULESET > /dev/null 2>&1
+    chmod 750 $BACKUP_RULESET > /dev/null 2>&1
+    chown root:ossec $BACKUP_RULESET > /dev/null 2>&1
+    # Backup decoders: Wazuh v1.0.1 to v1.1.1
+    old_decoders="ossec_decoders wazuh_decoders"
+    for old_decoder in $old_decoders
+    do
+      if [ -d "%{_localstatedir}/etc/$old_decoder" ]; then
+        mv "%{_localstatedir}/etc/$old_decoder" $BACKUP_RULESET
+      fi
+    done
+
+    # Backup decoders: Wazuh v1.0 and OSSEC
+    if [ -f "%{_localstatedir}/etc/decoder.xml" ]; then
+      mv "%{_localstatedir}/etc/decoder.xml" $BACKUP_RULESET
+    fi
+    if [ -d "%{_localstatedir}/rules" ]; then
+      # Backup rules: All versions
+      mv "%{_localstatedir}/rules" $BACKUP_RULESET
+    fi
+  fi
+  passlist="%{_localstatedir}/agentless/.passlist"
+
+  if [ -f $passlist ] && ! base64 -d $passlist > /dev/null 2>&1; then
+    cp $passlist $passlist.bak
+    base64 $passlist.bak > $passlist
+
+    if [ $? = 0 ]; then
+      rm -f $passlist.bak
+    else
+      echo "ERROR: Couldn't encode Agentless passlist."
+      mv $passlist.bak $passlist
+    fi
+  fi
 
   touch %{_localstatedir}/logs/active-responses.log
   touch %{_localstatedir}/logs/integrations.log
@@ -276,6 +361,39 @@ if [ $1 = 1 ]; then
 
   # Add default local_files to ossec.conf
   %{_localstatedir}/packages_files/manager_installation_scripts/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
+   /sbin/chkconfig --add wazuh-manager
+   /sbin/chkconfig wazuh-manager on
+
+  # If systemd is installed, add the wazuh-manager.service file to systemd files directory
+  if [ -d /run/systemd/system ]; then
+
+    # Fix for RHEL 8 and CentOS 8
+    # Service must be installed in /usr/lib/systemd/system/
+    if [ "${DIST_NAME}" == "rhel" -a "${DIST_VER}" == "8" ] || [ "${DIST_NAME}" == "centos" -a "${DIST_VER}" == "8" ]; then
+      install -m 644 %{_localstatedir}/packages_files/manager_installation_scripts/src/systemd/wazuh-manager.service /usr/lib/systemd/system/
+    else
+      install -m 644 %{_localstatedir}/packages_files/manager_installation_scripts/src/systemd/wazuh-manager.service /etc/systemd/system/
+    fi
+
+    # Fix for Fedora 28
+    # Check if SELinux is installed. If it is installed, restore the context of the .service file
+    if [ "${DIST_NAME}" == "fedora" -a "${DIST_VER}" == "28" ]; then
+      if command -v restorecon > /dev/null 2>&1 ; then
+        restorecon -v /etc/systemd/system/wazuh-manager.service > /dev/null 2>&1
+      fi
+    fi
+    systemctl daemon-reload
+    systemctl stop wazuh-manager
+    systemctl enable wazuh-manager > /dev/null 2>&1
+  fi
+
+fi
+
+
+if [ -f "%{_localstatedir}/etc/shared/agent.conf" ]; then
+mv "%{_localstatedir}/etc/shared/agent.conf" "%{_localstatedir}/etc/shared/default/agent.conf"
+chmod 0660 %{_localstatedir}/etc/shared/default/agent.conf
+chown ossec:ossec %{_localstatedir}/etc/shared/default/agent.conf
 fi
 
 # Generation auto-signed certificate if not exists
@@ -285,8 +403,26 @@ if type openssl >/dev/null 2>&1 && [ ! -f "%{_localstatedir}/etc/sslmanager.key"
   chmod 640 %{_localstatedir}/etc/sslmanager.cert
 fi
 
-rm -f %{_localstatedir}/etc/shared/ar.conf  >/dev/null 2>&1
-rm -f %{_localstatedir}/etc/shared/merged.mg  >/dev/null 2>&1
+rm %{_localstatedir}/etc/shared/ar.conf  >/dev/null 2>&1 || true
+rm %{_localstatedir}/etc/shared/merged.mg  >/dev/null 2>&1 || true
+
+if [ $1 = 2 ]; then
+  if [ -f %{_localstatedir}/etc/ossec.bck ]; then
+      mv %{_localstatedir}/etc/ossec.bck %{_localstatedir}/etc/ossec.conf
+  fi
+fi
+
+# Agent info change between 2.1.1 and 3.0.0
+chmod 0660 %{_localstatedir}/queue/agent-info/* 2>/dev/null || true
+chown ossecr:ossec %{_localstatedir}/queue/agent-info/* 2>/dev/null || true
+
+# Restore file permissions after upgrading
+chmod 0660 %{_localstatedir}/etc/ossec.conf
+chmod 0660 %{_localstatedir}/etc/decoders/*
+chmod 0660 %{_localstatedir}/etc/rules/*
+chown ossec:ossec %{_localstatedir}/etc/decoders/*
+chown ossec:ossec %{_localstatedir}/etc/rules/*
+find %{_localstatedir}/etc/lists -type f -exec chmod 660 {} \; -exec chown ossec:ossec {} \;
 
 # CentOS
 if [ -r "/etc/centos-release" ]; then
@@ -383,37 +519,91 @@ if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&
   fi
 fi
 
+# Fix duplicated ID issue error
+RULES_DIR=%{_localstatedir}/ruleset/rules
+OLD_RULES="${RULES_DIR}/0520-vulnerability-detector.xml ${RULES_DIR}/0565-ms_ipsec_rules_json.xml"
+
+for rules_file in ${OLD_RULES}; do
+  if [ -f ${rules_file} ]; then
+    mv ${rules_file} ${rules_file}.old
+  fi
+done
+
+if [ $1 = 2 ]; then
+  # Remove OpenSCAP policies if the module is disabled
+  if stat %{_localstatedir}/wodles/oscap/content/* > /dev/null 2>&1; then
+    if grep -E -n '<wodle.*name="open-scap".*>' %{_localstatedir}/etc/ossec.conf > /dev/null 2>&1; then
+      is_disabled="no"
+    else
+      is_disabled="yes"
+    fi
+
+    end_config_limit="99999999"
+    for start_config in $(grep -E -n '<wodle.*name="open-scap".*>'  %{_localstatedir}/etc/ossec.conf | cut -d':' -f 1); do
+      end_config="$(sed -n "${start_config},${end_config_limit}p"  %{_localstatedir}/etc/ossec.conf | sed -n '/open-scap/,$p' | grep -n '</wodle>' | head -n 1 | cut -d':' -f 1)"
+      end_config="$((start_config + end_config))"
+
+      if [ -n "${start_config}" ] && [ -n "${end_config}" ]; then
+        open_scap_conf="$(sed -n "${start_config},${end_config}p"  %{_localstatedir}/etc/ossec.conf)"
+
+        for line in $(echo ${open_scap_conf} | grep -n '<disabled>' | cut -d':' -f 1); do
+          # Check if OpenSCAP is enabled
+          if echo ${open_scap_conf} | sed -n ${line}p | grep "disabled>no" > /dev/null 2>&1; then
+            is_disabled="no"
+
+          # Check if OpenSCAP is disabled
+          elif echo ${open_scap_conf} | sed -n ${line}p | grep "disabled>yes" > /dev/null 2>&1; then
+            is_disabled="yes"
+          fi
+        done
+      fi
+    done
+
+    if [ "${is_disabled}" = "yes" ]; then
+        rm -f %{_localstatedir}/wodles/oscap/content/*
+    fi
+  fi
+fi
+
 # Delete the installation files used to configure the manager
 rm -rf %{_localstatedir}/packages_files
 
 # Remove unnecessary files from default group
 rm -f %{_localstatedir}/etc/shared/default/*.rpmnew
 
+if %{_localstatedir}/bin/ossec-logtest 2>/dev/null ; then
+  /sbin/service wazuh-manager restart > /dev/null 2>&1
+else
+  echo "================================================================================================================"
+  echo "Something in your actual rules configuration is wrong, please review your configuration and restart the service."
+  echo "================================================================================================================"
+fi
+
+# Restore the old files
+for rules_file in ${OLD_RULES}; do
+  if [ -f ${rules_file}.old ]; then
+    mv ${rules_file}.old ${rules_file}
+  fi
+done
+
+if [ -f %{_localstatedir}/old_sca.files ]; then
+  for old_sca_file in $(cat %{_localstatedir}/old_sca.files); do
+    touch ${old_sca_file}
+  done
+
+  rm -f %{_localstatedir}/old_sca.files
+fi
+
 %preun
 
 if [ $1 = 0 ]; then
 
-  # Stop the services before uninstall the package
-  # Check for systemd
-  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
-    systemctl stop wazuh-manager > /dev/null 2>&1
-  # Check for SysV
-  elif command -v service > /dev/null 2>&1; then
-    service wazuh-manager stop > /dev/null 2>&1
-  # Anything else
-  else
-    %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
-  fi
+  /sbin/service wazuh-manager stop > /dev/null 2>&1 || :
+  %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
+  /sbin/chkconfig wazuh-manager off > /dev/null 2>&1
+  /sbin/chkconfig --del wazuh-manager
 
-  # Check for systemd
-  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
-    systemctl disable wazuh-manager > /dev/null 2>&1
-    systemctl daemon-reload > /dev/null 2>&1
-  # Check for SysV
-  elif command -v service > /dev/null 2>&1; then
-    chkconfig wazuh-manager off > /dev/null 2>&1
-    chkconfig --del wazuh-manager > /dev/null 2>&1
-  fi
+  /sbin/service wazuh-manager stop > /dev/null 2>&1 || :
 
   # Remove the SELinux policy
   if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
@@ -424,14 +614,33 @@ if [ $1 = 0 ]; then
     fi
   fi
 
+  # Remove the service file for SUSE hosts
+  if [ -f /etc/os-release ]; then
+    sles=$(grep "\"sles" /etc/os-release)
+  elif [ -f /etc/SuSE-release ]; then
+    sles=$(grep "SUSE Linux Enterprise Server" /etc/SuSE-release)
+  fi
+  if [ ! -z "$sles" ]; then
+    rm -f /etc/init.d/wazuh-manager
+  fi
+
+  # Remove the service files
+  # RHEL 8 service located in /usr/lib/systemd/system/
+  if [ -f /usr/lib/systemd/system/wazuh-manager.service ]; then
+    rm -f /usr/lib/systemd/system/wazuh-manager.service
+  else
+    rm -f /etc/systemd/system/wazuh-manager.service
+  fi
+
   # Remove SCA files
   rm -f %{_localstatedir}/ruleset/sca/*
+
 fi
 
 %postun
 
 # If the package is been uninstalled
-if [ $1 = 0 ];then
+if [ $1 == 0 ];then
   # Remove the ossecr user if it exists
   if id -u ossecr > /dev/null 2>&1; then
     userdel ossecr >/dev/null 2>&1
@@ -468,26 +677,42 @@ if [ $1 = 0 ];then
   # Remove lingering folders and files
   rm -rf %{_localstatedir}/queue/
   rm -rf %{_localstatedir}/framework/
-  rm -rf %{_localstatedir}/api/
   rm -rf %{_localstatedir}/stats/
   rm -rf %{_localstatedir}/var/
   rm -rf %{_localstatedir}/bin/
   rm -rf %{_localstatedir}/logs/
   rm -rf %{_localstatedir}/ruleset/
   rm -rf %{_localstatedir}/tmp
+
 fi
 
-# posttrans code is the last thing executed in a install/upgrade
-%posttrans
-if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
-  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 ; then
-    rm -f %{_localstatedir}/tmp/wazuh.restart
-    systemctl restart wazuh-manager.service > /dev/null 2>&1
-  fi
+# If the package is been downgraded
+if [ $1 == 1 ]; then
+  # Load the ossec-init.conf file to get the current version
+  . /etc/ossec-init.conf
 
-  if command -v service > /dev/null 2>&1; then
-    rm -f %{_localstatedir}/tmp/wazuh.restart
-    service wazuh-manager restart > /dev/null 2>&1
+  # Get the major and minor version
+  MAJOR=$(echo $VERSION | cut -dv -f2 | cut -d. -f1)
+  MINOR=$(echo $VERSION | cut -d. -f2)
+
+  # Restore the configuration files from the .rpmsave file
+  if [ $MAJOR = 3 ] && [ $MINOR -lt 7 ]; then
+    # Restore client.keys file
+    if [ -f %{_localstatedir}/etc/client.keys.rpmsave ]; then
+      mv %{_localstatedir}/etc/client.keys.rpmsave %{_localstatedir}/etc/client.keys
+      chmod 640 %{_localstatedir}/etc/client.keys
+      chown root:ossec %{_localstatedir}/etc/client.keys
+    fi
+    # Restore the ossec.conf file
+    if [ -f %{_localstatedir}/etc/ossec.conf.rpmsave ]; then
+      mv %{_localstatedir}/etc/ossec.conf.rpmsave %{_localstatedir}/etc/ossec.conf
+      chmod 640 %{_localstatedir}/etc/ossec.conf
+      chown root:ossec %{_localstatedir}/etc/ossec.conf
+    fi
+    # Restart the manager
+    if %{_localstatedir}/bin/ossec-logtest 2>/dev/null ; then
+      /sbin/service wazuh-manager restart > /dev/null 2>&1
+    fi
   fi
 fi
 
@@ -500,8 +725,6 @@ fi
 rm -fr %{buildroot}
 
 %files
-%{_initrddir}/wazuh-manager
-/usr/lib/systemd/system/wazuh-manager.service
 %defattr(-,root,ossec)
 %attr(640, root, ossec) %verify(not md5 size mtime) %{_sysconfdir}/ossec-init.conf
 %dir %attr(750, root, ossec) %{_localstatedir}
@@ -509,13 +732,6 @@ rm -fr %{buildroot}
 %dir %attr(750, root, ossec) %{_localstatedir}/active-response
 %dir %attr(750, root, ossec) %{_localstatedir}/active-response/bin
 %attr(750, root, ossec) %{_localstatedir}/active-response/bin/*
-%dir %attr(750, root, ossec) %{_localstatedir}/api
-%dir %attr(770, root, ossec) %{_localstatedir}/api/configuration
-%attr(660, root, ossec) %config(noreplace) %{_localstatedir}/api/configuration/api.yaml
-%dir %attr(770, root, ossec) %{_localstatedir}/api/configuration/security
-%dir %attr(770, root, ossec) %{_localstatedir}/api/configuration/ssl
-%dir %attr(750, root, ossec) %{_localstatedir}/api/scripts
-%attr(640, root, ossec) %{_localstatedir}/api/scripts/wazuh-apid.py
 %dir %attr(750, root, ossec) %{_localstatedir}/backup
 %dir %attr(750, ossec, ossec) %{_localstatedir}/backup/agents
 %dir %attr(750, ossec, ossec) %{_localstatedir}/backup/groups
@@ -550,7 +766,6 @@ rm -fr %{buildroot}
 %attr(750, root, ossec) %{_localstatedir}/bin/update_ruleset
 %attr(750, root, root) %{_localstatedir}/bin/util.sh
 %attr(750, root, ossec) %{_localstatedir}/bin/verify-agent-conf
-%attr(750, root, ossec) %{_localstatedir}/bin/wazuh-apid
 %attr(750, root, ossec) %{_localstatedir}/bin/wazuh-clusterd
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-db
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-modulesd
@@ -579,17 +794,19 @@ rm -fr %{buildroot}
 %dir %attr(770, root, ossec) %{_localstatedir}/etc/rules
 %attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/etc/rules/local_rules.xml
 %dir %attr(750, root, ossec) %{_localstatedir}/framework
-%dir %attr(750, root, ossec) %{_localstatedir}/framework/python
+%dir %attr(750, root, ossec) %{_localstatedir}/framework/lib
+%attr(750, root, ossec) %{_localstatedir}/framework/lib/libsqlite3.so.0
+%dir %attr(0750, root, ossec) %{_localstatedir}/framework/python
 %{_localstatedir}/framework/python/*
 %dir %attr(750, root, ossec) %{_localstatedir}/framework/scripts
 %attr(640, root, ossec) %{_localstatedir}/framework/scripts/*.py
 %dir %attr(750, root, ossec) %{_localstatedir}/framework/wazuh
 %attr(640, root, ossec) %{_localstatedir}/framework/wazuh/*.py
-%dir %attr(750, root, ossec) %{_localstatedir}/framework/wazuh/core/cluster
-%attr(640, root, ossec) %{_localstatedir}/framework/wazuh/core/cluster/*.py
-%attr(640, root, ossec) %{_localstatedir}/framework/wazuh/core/cluster/*.json
-%dir %attr(750, root, ossec) %{_localstatedir}/framework/wazuh/core/cluster/dapi
-%attr(640, root, ossec) %{_localstatedir}/framework/wazuh/core/cluster/dapi/*.py
+%dir %attr(750, root, ossec) %{_localstatedir}/framework/wazuh/cluster
+%attr(640, root, ossec) %{_localstatedir}/framework/wazuh/cluster/*.py
+%attr(640, root, ossec) %{_localstatedir}/framework/wazuh/cluster/*.json
+%dir %attr(750, root, ossec) %{_localstatedir}/framework/wazuh/cluster/dapi
+%attr(640, root, ossec) %{_localstatedir}/framework/wazuh/cluster/dapi/*.py
 %dir %attr(750, root, ossec) %{_localstatedir}/integrations
 %attr(750, root, ossec) %{_localstatedir}/integrations/*
 %dir %attr(750, root, ossec) %{_localstatedir}/lib
@@ -597,11 +814,9 @@ rm -fr %{buildroot}
 %{_localstatedir}/lib/libpython3.8.so.1.0
 %dir %attr(770, ossec, ossec) %{_localstatedir}/logs
 %attr(660, ossec, ossec)  %ghost %{_localstatedir}/logs/active-responses.log
-%attr(660, ossec, ossec) %ghost %{_localstatedir}/logs/api.log
 %attr(640, ossecm, ossec) %ghost %{_localstatedir}/logs/integrations.log
 %attr(660, ossec, ossec) %ghost %{_localstatedir}/logs/ossec.log
 %attr(660, ossec, ossec) %ghost %{_localstatedir}/logs/ossec.json
-%dir %attr(750, ossec, ossec) %{_localstatedir}/logs/api
 %dir %attr(750, ossec, ossec) %{_localstatedir}/logs/archives
 %dir %attr(750, ossec, ossec) %{_localstatedir}/logs/alerts
 %dir %attr(750, ossec, ossec) %{_localstatedir}/logs/cluster
@@ -617,12 +832,16 @@ rm -fr %{buildroot}
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/src/VERSION
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/src/init/
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/src/init/*
+%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/src/systemd/
+%attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/src/systemd/*
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/etc/templates
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/generic
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/generic/*
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/centos
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/centos/*
+%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/fedora
+%attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/fedora/*
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/rhel
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/rhel/*
 %dir %attr(750, root, ossec) %{_localstatedir}/queue
@@ -639,12 +858,11 @@ rm -fr %{buildroot}
 %dir %attr(750, ossec, ossec) %{_localstatedir}/queue/fts
 %dir %attr(770, ossecr, ossec) %{_localstatedir}/queue/rids
 %dir %attr(750, ossec, ossec) %{_localstatedir}/queue/rootcheck
-%dir %attr(770, ossec, ossec) %{_localstatedir}/queue/tasks
 %dir %attr(770, ossec, ossec) %{_localstatedir}/queue/ossec
 %dir %attr(660, root, ossec) %{_localstatedir}/queue/vulnerabilities
 %dir %attr(440, root, ossec) %{_localstatedir}/queue/vulnerabilities/dictionaries
 %attr(0440, root, ossec) %{_localstatedir}/queue/vulnerabilities/dictionaries/cpe_helper.json
-%attr(0440, root, ossec) %ghost %{_localstatedir}/queue/vulnerabilities/dictionaries/msu.json.gz
+%attr(0440, root, ossec) %{_localstatedir}/queue/vulnerabilities/dictionaries/msu.json.gz
 %dir %attr(750, root, ossec) %{_localstatedir}/ruleset
 %dir %attr(750, root, ossec) %{_localstatedir}/ruleset/sca
 %attr(640, root, ossec) %{_localstatedir}/ruleset/VERSION
@@ -740,7 +958,14 @@ rm -fr %{buildroot}
 %attr(750, root, ossec) %{_localstatedir}/wodles/docker/*
 %dir %attr(750, root, ossec) %{_localstatedir}/wodles/gcloud
 %attr(750, root, ossec) %{_localstatedir}/wodles/gcloud/*
+%dir %attr(750, root, ossec) %{_localstatedir}/wodles/oscap
+%attr(750, root, ossec) %{_localstatedir}/wodles/oscap/oscap
+%attr(750, root, ossec) %{_localstatedir}/wodles/oscap/oscap.*
+%attr(750, root, ossec) %{_localstatedir}/wodles/oscap/template*
+%dir %attr(750, root, ossec) %{_localstatedir}/wodles/oscap/content
+%attr(640, root, ossec) %ghost %{_localstatedir}/wodles/oscap/content/*
 
+%{_initrddir}/*
 %if %{_debugenabled} == "yes"
 /usr/lib/debug/%{_localstatedir}/*
 /usr/src/debug/%{name}-%{version}/*
@@ -748,11 +973,11 @@ rm -fr %{buildroot}
 
 
 %changelog
-* Sun Aug 02 2020 support <info@wazuh.com> - 4.0.0
+* Wed Sep 23 2020 support <info@wazuh.com> - 3.13.2
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Tue May 19 2020 support <info@wazuh.com> - 3.13.0
+* Thu Jul 23 2020 support <info@wazuh.com> - 3.13.1
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Wed May 13 2020 support <info@wazuh.com> - 3.12.3
+* Thu May 14 2020 support <info@wazuh.com> - 3.13.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Thu Apr 9 2020 support <info@wazuh.com> - 3.12.2
 - More info: https://documentation.wazuh.com/current/release-notes/
@@ -760,7 +985,7 @@ rm -fr %{buildroot}
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Wed Mar 25 2020 support <info@wazuh.com> - 3.12.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Mon Feb 24 2020 support <info@wazuh.com> - 3.11.4
+* Thu Feb 24 2020 support <info@wazuh.com> - 3.11.4
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Wed Jan 22 2020 support <info@wazuh.com> - 3.11.3
 - More info: https://documentation.wazuh.com/current/release-notes/
@@ -778,11 +1003,11 @@ rm -fr %{buildroot}
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Thu Aug 8 2019 support <info@wazuh.com> - 3.9.5
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Fri Jul 12 2019 support <info@wazuh.com> - 3.9.4
+* Tue Jul 12 2019 support <info@wazuh.com> - 3.9.4
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Tue Jun 11 2019 support <info@wazuh.com> - 3.9.3
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Thu Jun 6 2019 support <info@wazuh.com> - 3.9.2
+* Mon Jun 6 2019 support <info@wazuh.com> - 3.9.2
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon May 6 2019 support <info@wazuh.com> - 3.9.1
 - More info: https://documentation.wazuh.com/current/release-notes/
