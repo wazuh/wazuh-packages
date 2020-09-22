@@ -92,7 +92,6 @@ build_environment() {
   $rpm http://www.oss4aix.org/download/RPMS/libiconv/libiconv-1.15-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/libidn/libidn-1.33-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/libsigsegv/libsigsegv-2.12-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/libssh2/libssh2-1.8.0-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/libtool/libtool-2.4.6-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/m4/m4-1.4.18-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/make/make-4.2.1-1.aix5.3.ppc.rpm || true
