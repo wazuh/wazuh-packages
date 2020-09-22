@@ -77,7 +77,8 @@ build_environment() {
   $rpm http://www.oss4aix.org/download/RPMS/bash/bash-4.4-4.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/bzip2/bzip2-1.0.6-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/coreutils/coreutils-64bit-8.28-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/curl/curl-7.57.0-1.aix5.1.ppc.rpm || true
+  $rpm http://www.oss4aix.org/download/RPMS/curl/curl-devel-7.72.0-1.aix5.1.ppc.rpm || true
+  $rpm http://www.oss4aix.org/download/RPMS/curl/curl-7.72.0-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/expat/expat-2.2.5-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/expat/expat-devel-2.2.5-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/gettext/gettext-0.17-1.aix5.1.ppc.rpm || true
@@ -105,6 +106,8 @@ build_environment() {
   $rpm http://www.oss4aix.org/download/RPMS/zlib/zlib-1.2.11-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/python/python-2.7.13-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/python/python-libs-2.7.13-1.aix5.1.ppc.rpm || true
+  $rpm http://www.oss4aix.org/download/RPMS/libssh2/libssh2-devel-1.8.2-1.aix5.1.ppc.rpm || true
+  $rpm http://www.oss4aix.org/download/RPMS/libssh2/libssh2-1.8.2-1.aix5.1.ppc.rpm || true
 
   if [[ "${aix_major}" = "5" ]]; then
     $rpm http://www.oss4aix.org/download/RPMS/gcc/gcc-4.8.2-1.aix5.3.ppc.rpm || true
