@@ -205,11 +205,21 @@ if [ -d %{_localstatedir}/var/db/agents ]; then
   rm -f %{_localstatedir}/var/db/agents/*
 fi
 
-# Remove existing SQLite databases
-rm -f %{_localstatedir}/var/db/global.db* || true
+# Remove/relocate existing SQLite databases
 rm -f %{_localstatedir}/var/db/cluster.db* || true
 rm -f %{_localstatedir}/var/db/.profile.db* || true
 rm -f %{_localstatedir}/var/db/agents/* || true
+
+if [ -f %{_localstatedir}/var/db/global.db ]; then
+    cp %{_localstatedir}/var/db/global.db* %{_localstatedir}/queue/db/
+    if [ -f %{_localstatedir}/queue/db/global.db ]; then
+        chmod 640 %{_localstatedir}/queue/db/global.db*
+        chown ossec:ossec %{_localstatedir}/queue/db/global.db*
+        rm -f %{_localstatedir}/var/db/global.db* || true
+    else
+        echo "Unable to move global.db during the upgrade"
+    fi
+fi
 
 # Remove Vuln-detector database
 rm -f %{_localstatedir}/queue/vulnerabilities/cve.db || true
@@ -627,7 +637,6 @@ rm -fr %{buildroot}
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/rhel/*
 %dir %attr(750, root, ossec) %{_localstatedir}/queue
 %attr(600, root, ossec) %ghost %{_localstatedir}/queue/agents-timestamp
-%dir %attr(770, ossecr, ossec) %{_localstatedir}/queue/agent-info
 %dir %attr(770, root, ossec) %{_localstatedir}/queue/agent-groups
 %dir %attr(750, ossec, ossec) %{_localstatedir}/queue/agentless
 %dir %attr(770, ossec, ossec) %{_localstatedir}/queue/alerts
