@@ -19,6 +19,7 @@ PACKAGES_BASE_URL="https://packages.wazuh.com"
 RED_COLOR="\033[0;31m"
 GREEN_COLOR="\033[0;32m"
 RESET_COLOR="\033[0m"
+OSSEC_INIT="/etc/ossec-init.conf"
 
 # Auxiliary variables
 package_revision="1"
@@ -36,6 +37,9 @@ is_centos5=0
 wazuhctl_arguments=""
 ossec_log=""
 wazuhctl=""
+wazuh_agent_already_installed=0
+installed_agent_version=""
+need_upgrade_agent=0
 
 # Input variables
 manager_address=""
@@ -91,6 +95,39 @@ error() {
 # ----------------------------------------------------------------------------------------------------------------------
 
 
+# 1 --> $1 > $2,  -1 --> > $1 < $2,  0 --> $1=$2
+compare_versions() {
+    major_1=$(echo $1 | cut -d . -f 1)
+    minor_1=$(echo $1 | cut -d . -f 2)
+    patch_1=$(echo $1 | cut -d . -f 3)
+
+    major_2=$(echo $2 | cut -d . -f 1)
+    minor_2=$(echo $2 | cut -d . -f 2)
+    patch_2=$(echo $2 | cut -d . -f 3)
+
+    if [ ${major_1} -gt ${major_2} ]; then
+        echo "1" && return 0
+    elif [ ${major_2} -gt ${major_1} ]; then
+        echo "-1" && return 0
+    else
+        if [ ${minor_1} -gt ${minor_2} ]; then
+            echo "1" && return 0
+        elif [ ${minor_2} -gt ${minor_1} ]; then
+            echo "-1" && return 0
+        else
+            if [ ${patch_1} -gt ${patch_2} ]; then
+                echo "1" && return 0
+            elif [ ${patch_2} -gt ${patch_1} ]; then
+                echo "-1" && return 0
+            else
+                echo "0" && return 0
+            fi
+        fi
+    fi
+}
+
+# ----------------------------------------------------------------------------------------------------------------------
+
 set_system_info() {
     system_os=$(uname -s 2>/dev/null || echo undefined)
     system_architecture=$(uname -p 2>/dev/null || echo undefined)
@@ -138,7 +175,7 @@ set_package_manager() {
 
 set_package_version() {
     if [ -z "${package_version}" ]; then
-        package_version=$(getLastPackageVersion)
+        package_version=$(get_last_package_version)
     fi
 
     package_version=$(echo ${package_version} | sed 's/v//g')
@@ -315,14 +352,30 @@ set_paths() {
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-getLastPackageVersion() {
+set_installed_agent_vars() {
+    if [ -f "${OSSEC_INIT}" ]; then
+        wazuh_agent_already_installed=1
+        installed_agent_version=$(grep VERSION /etc/ossec-init.conf | sed 's/VERSION="v//g' | sed 's/"//g')
+
+        compare_result=$(compare_versions "${package_version}" "${installed_agent_version}")
+
+        if [ $compare_result = 1 ]; then
+            need_upgrade_agent=1
+        fi
+    fi
+}
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+get_last_package_version() {
     curl ${WAZUH_REPO_VERSION_URL} 2> /dev/null
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-checkDependencies() {
+check_dependencies() {
     if [ "${package_manager}" = "${APT_PACKAGE_MANAGER}" ];then
         ${APT_PACKAGE_MANAGER} install apt-transport-https lsb-release gnupg2 -y
     fi
@@ -336,6 +389,7 @@ initialize_vars() {
     set_package_manager
     set_package_version
     set_paths
+    set_installed_agent_vars
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -407,7 +461,7 @@ clean_files() {
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-addRepository() {
+add_repository() {
     echo "Adding repository..."
     case "${package_manager}" in
         ${APT_PACKAGE_MANAGER})
@@ -448,10 +502,10 @@ addRepository() {
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-installAgent() {
+install_agent() {
     case "${system_os}" in
         ${LINUX_SYSTEM})
-            addRepository
+            add_repository
             package_revision="*"
             case "${package_manager}" in
                 ${APT_PACKAGE_MANAGER})
@@ -507,23 +561,49 @@ installAgent() {
 
         ${AIX_SYSTEM})
             echo "Installing AIX wazuh-agent v${package_version}-${package_revision} ..."
-            rpm -ivh ${package_name}
+            rpm -ivh ${package_name} 1>/dev/null
         ;;
 
         ${HPUX_SYSTEM})
             groupadd ossec
             useradd -G ossec ossec
             echo "Installing HP-UX wazuh-agent v${package_version}-${package_revision} ..."
-            tar -xvf ${package_name}
+            tar -xvf ${package_name} 1>/dev/null
         ;;
 
         *)
-            error "System not supported for installing the agent"
+            error "System not supported for agent installation"
     esac
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
 
+
+upgrade_agent() {
+    case "${system_os}" in
+        ${LINUX_SYSTEM} | ${MACOS_SYSTEM})
+            echo "Upgrading agent from ${installed_agent_versionv} to v${package_version}"
+            install_agent
+        ;;
+
+        ${AIX_SYSTEM})
+            download_package
+            echo "Upgrading agent from ${installed_agent_versionv} to v${package_version}"
+            rpm -U ${package_name} -y 1>/dev/null
+        ;;
+
+        ${HP-UX})
+            download_package
+            echo "Upgrading agent from ${installed_agent_versionv} to v${package_version}"
+            rpm -U ${package_name} -y 1>/dev/null
+        ;;
+
+
+        *)
+            error "The agent could not be updated. Detected system is not allowed"
+}
+
+# ----------------------------------------------------------------------------------------------------------------------
 
 print_vars() {
     echo "address = ${manager_address}"
@@ -546,7 +626,7 @@ print_vars() {
 
 
 installation_wizard (){
-    current_version=$(getLastPackageVersion)
+    current_version=$(get_last_package_version)
 
     echo
     echo "------------------------------ WAZUH AGENT INSTALLATION WIZARD ------------------------------"
@@ -852,10 +932,17 @@ main() {
     fi
 
     initialize_vars
-    checkDependencies
-    installAgent
-    clean_files
-    #print_vars
+
+    if [ $wazuh_agent_already_installed = 0 ]; then
+        check_dependencies
+        install_agent
+        clean_files
+    elif [ $wazuh_agent_already_installed = 1 ] && [ $need_upgrade_agent = 1 ]; then
+        upgrade_agent
+    else
+        echo "It has been detected that the Wazuh agent is already installed, skipping installation..."
+    fi
+
 
     if [ "${package_major}" -lt 4 ]; then
         echo "Versions prior to 4.0.0 cannot be autoconfigured, skipping..."
