@@ -224,6 +224,11 @@ fi
 # Remove Vuln-detector database
 rm -f %{_localstatedir}/queue/vulnerabilities/cve.db || true
 
+# Remove plain-text agent information if exists (it was migrated to Wazuh DB in v4.1)
+if [ -d %{_localstatedir}/queue/agent-info ]; then
+    rm -rf %{_localstatedir}/queue/agent-info > /dev/null 2>&1
+fi
+
 # Delete old API backups
 if [ $1 = 2 ]; then
   if [ -d %{_localstatedir}/~api ]; then

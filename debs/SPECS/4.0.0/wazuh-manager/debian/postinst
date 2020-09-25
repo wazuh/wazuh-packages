@@ -78,8 +78,14 @@ case "$1" in
             echo "Unable to move global.db during the upgrade"
         fi
     fi
+
     # Remove Vuln-detector database
     rm -f ${DIR}/queue/vulnerabilities/cve.db || true
+
+    # Remove plain-text agent information if exists (it was migrated to Wazuh DB in v4.1)
+    if [ -d ${DIR}/queue/agent-info ]; then
+        rm -rf ${DIR}/queue/agent-info > /dev/null 2>&1
+    fi
 
     # Generation auto-signed certificate if not exists
     if type openssl >/dev/null 2>&1 && [ ! -f "${DIR}/etc/sslmanager.key" ] && [ ! -f "${DIR}/etc/sslmanager.cert" ]; then
