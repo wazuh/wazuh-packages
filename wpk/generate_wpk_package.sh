@@ -19,7 +19,7 @@ LINUX_BUILDER_ARMV7HL_DOCKERFILE="${CURRENT_PATH}/linux/armv7hl"
 WIN_BUILDER="windows_wpk_builder"
 WIN_BUILDER_DOCKERFILE="${CURRENT_PATH}/windows"
 CHECKSUM="no"
-INSTALLATION_PATH="/var"
+INSTALLATION_PATH="/var/ossec"
 
 trap ctrl_c INT
 
@@ -106,13 +106,13 @@ function help() {
     echo "    -d,   --destination <path>     [Required] Set the destination path of package."
     echo "    -pn,  --package-name <name>    [Required for windows] Package name to pack on wpk."
     echo "    -o,   --output <name>          [Required] Name to the output package."
-    echo "    -k,   --key-dir <arch>         [Optional] Set the WPK key path to sign package."
+    echo "    -k,   --key-dir <path>         [Optional] Set the WPK key path to sign package."
     echo "    --aws-wpk-key                  [Optional] AWS Secrets manager Name/ARN to get WPK private key."
     echo "    --aws-wpk-cert                 [Optional] AWS secrets manager Name/ARN to get WPK certificate."
     echo "    --aws-wpk-key-region           [Optional] AWS Region where secrets are stored."
     echo "    -a,   --architecture <arch>    [Optional] Target architecture of the package [x86_64]."
     echo "    -j,   --jobs <number>          [Optional] Number of parallel jobs when compiling."
-    echo "    -p,   --path <path>            [Optional] Installation path for the package. By default: /var."
+    echo "    -p,   --path <path>            [Optional] Installation path for the package. By default: /var/ossec."
     echo "    -c,   --checksum <path>        [Optional] Generate checksum on the desired path."
     echo "    -h,   --help                   Show this help."
     echo
