@@ -211,10 +211,10 @@ rm -f %{_localstatedir}/var/db/.profile.db* || true
 rm -f %{_localstatedir}/var/db/agents/* || true
 
 if [ -f %{_localstatedir}/var/db/global.db ]; then
-    cp %{_localstatedir}/var/db/global.db* %{_localstatedir}/queue/db/
+    cp %{_localstatedir}/var/db/global.db %{_localstatedir}/queue/db/
     if [ -f %{_localstatedir}/queue/db/global.db ]; then
-        chmod 640 %{_localstatedir}/queue/db/global.db*
-        chown ossec:ossec %{_localstatedir}/queue/db/global.db*
+        chmod 640 %{_localstatedir}/queue/db/global.db
+        chown ossec:ossec %{_localstatedir}/queue/db/global.db
         rm -f %{_localstatedir}/var/db/global.db* || true
     else
         echo "Unable to move global.db during the upgrade"

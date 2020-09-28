@@ -69,10 +69,10 @@ case "$1" in
     rm -f ${DIR}/var/db/agents/* || true
 
     if [ -f ${DIR}/var/db/global.db ]; then
-        cp ${DIR}/var/db/global.db* ${DIR}/queue/db/
+        cp ${DIR}/var/db/global.db ${DIR}/queue/db/
         if [ -f ${DIR}/queue/db/global.db ]; then
-            chmod 640 ${DIR}/queue/db/global.db*
-            chown ossec:ossec ${DIR}/queue/db/global.db*
+            chmod 640 ${DIR}/queue/db/global.db
+            chown ossec:ossec ${DIR}/queue/db/global.db
             rm -f ${DIR}/var/db/global.db* || true
         else
             echo "Unable to move global.db during the upgrade"
