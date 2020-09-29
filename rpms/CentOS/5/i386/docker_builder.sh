@@ -14,7 +14,7 @@ name="centos-5-i386"
 target=$(mktemp -d /tmp/mkimage-yum.XXXXXX)
 yum_config="/etc/yum.conf"
 
-packages=("sudo" "ca-certificates" "make" "cmake" "gcc" "curl" "initscripts" \
+packages=("sudo" "ca-certificates" "make" "gcc" "curl" "initscripts" \
           "tar" "rpm-build" "automake" "autoconf" "libtool" "wget" \
           "libselinux" "devicemapper" "libselinux-python" "krb5-libs" \
           "policycoreutils" "checkpolicy" "zlib-devel" "bzip2-devel" \

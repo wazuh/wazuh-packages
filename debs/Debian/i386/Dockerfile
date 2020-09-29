@@ -7,7 +7,7 @@ RUN echo "deb http://archive.debian.org/debian/ wheezy contrib main non-free" > 
     echo "deb-src http://archive.debian.org/debian/ wheezy contrib main non-free" >> /etc/apt/sources.list && \
     apt-get update && apt-get install -y apt-utils && \
     apt-get install -y --force-yes \
-    curl gcc-multilib make cmake sudo expect gnupg fakeroot perl-base=5.14.2-21+deb7u3 \
+    curl gcc-multilib make wget sudo expect gnupg fakeroot perl-base=5.14.2-21+deb7u3 \
     perl libc-bin=2.13-38+deb7u10 libc6=2.13-38+deb7u10 libc6-dev \
     build-essential cdbs devscripts equivs automake autoconf libtool \
     libaudit-dev selinux-basics util-linux libdb5.1=5.1.29-5 libdb5.1-dev \
@@ -16,6 +16,31 @@ RUN echo "deb http://archive.debian.org/debian/ wheezy contrib main non-free" > 
 # Add Debian's source repository
 RUN apt-get update && apt-get build-dep python3.2 -y
 RUN sed -i "s;/\* To add :#define SO_REUSEPORT 15 \*/;#define SO_REUSEPORT 15;g" /usr/include/asm-generic/socket.h
+
+RUN curl -OL https://ftp.gnu.org/gnu/gcc/gcc-5.5.0/gcc-5.5.0.tar.gz && \
+    tar xzf gcc-5.5.0.tar.gz  && \
+    ln -sf gcc-5.5.0 gcc && \
+    cd gcc-5.5.0/ && \
+    ./contrib/download_prerequisites && \
+    cd .. && mkdir gcc-build && cd gcc-build && \
+    ../gcc-5.5.0/configure --prefix=/usr/local/gcc-5.5.0 --enable-languages=c,c++ --disable-multilib --disable-libsanitizer --disable-bootstrap && \
+    make && make install && \
+    echo "export CPLUS_INCLUDE_PATH=/usr/local/gcc-5.5.0/include/c++/5.5.0/" >> /root/.bashrc && \
+    echo "export LD_LIBRARY_PATH=/usr/local/gcc-5.5.0/lib64/" >> /root/.bashrc && \
+    echo "export PATH=/usr/local/gcc-5.5.0/bin:$PATH" >> /root/.bashrc && \
+    rm -rf /usr/bin/cc && rm /usr/bin/c++
+
+RUN curl -OL https://github.com/Kitware/CMake/releases/download/v3.18.3/cmake-3.18.3.tar.gz && \
+    tar -zxvf cmake-3.18.3.tar.gz && \
+    cd cmake-3.18.3 && \
+    export CPLUS_INCLUDE_PATH=/usr/local/gcc-5.5.0/include/c++/5.5.0/ && \
+    export LD_LIBRARY_PATH=/usr/local/gcc-5.5.0/lib64/ && \
+    ./bootstrap CC=/usr/local/gcc-5.5.0/bin/gcc CXX=/usr/local/gcc-5.5.0/bin/g++ && \
+    gmake && gmake install && \
+    ln -s /usr/local/gcc-5.5.0/bin/gcc /usr/bin/cc && \
+    ln -s /usr/local/gcc-5.5.0/bin/g++ /usr/bin/c++
+
+RUN rm -rf gcc-* cmake-*
 
 # Add the script to build the Debian package
 ADD build.sh /usr/local/bin/build_package

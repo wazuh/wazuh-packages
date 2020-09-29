@@ -72,7 +72,7 @@ ${rpm_url}/libacl-devel-2.2.51-15.el7.armv7hl.rpm \
 ${rpm_url}/libacl-2.2.51-15.el7.armv7hl.rpm \
 ${rpm_url}/libappstream-glib-0.7.8-2.el7.armv7hl.rpm \
 ${rpm_url}/libarchive-devel-3.1.2-14.el7_7.armv7hl.rpm \
-${rpm_url}/libarchive-3.1.2-14.el7_7.armv7hl.rpm \
+${rpm_url}/libarchive-3.1.2-14.el7_7.armv7hl.rgetpm \
 ${rpm_url}/libassuan-2.1.0-3.el7.armv7hl.rpm \
 ${rpm_url}/libattr-devel-2.4.46-13.el7.armv7hl.rpm \
 ${rpm_url}/libattr-2.4.46-13.el7.armv7hl.rpm \
@@ -311,6 +311,5 @@ ${rpm_url}/mesa-libGL-18.3.4-7.el7.armv7hl.rpm \
 ${rpm_url}/mesa-libGL-devel-18.3.4-7.el7.armv7hl.rpm \
 ${rpm_url}/gl-manpages-1.1-7.20130122.el7.noarch.rpm \
 ${rpm_url}/libICE-1.0.9-9.el7.armv7hl.rpm \
-${rpm_url}/libICE-devel-1.0.9-9.el7.armv7hl.rpm
-${rpm_url}/cmake3-data-3.17.3-3.el7.noarch.rpm
-${rpm_url}/cmake3-3.17.3-3.el7.armv7hl.rpm
+${rpm_url}/libICE-devel-1.0.9-9.el7.armv7hl.rpm \
+${rpm_url}/wget-1.14-18.el7_6.1.armv7hl.rpm
