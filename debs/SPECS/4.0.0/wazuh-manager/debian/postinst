@@ -69,23 +69,14 @@ case "$1" in
     rm -f ${DIR}/var/db/agents/* || true
 
     if [ -f ${DIR}/var/db/global.db ]; then
-        cp ${DIR}/var/db/global.db ${DIR}/queue/db/
-        if [ -f ${DIR}/queue/db/global.db ]; then
-            chmod 640 ${DIR}/queue/db/global.db
-            chown ossec:ossec ${DIR}/queue/db/global.db
-            rm -f ${DIR}/var/db/global.db* || true
-        else
-            echo "Unable to move global.db during the upgrade"
-        fi
+        mv ${DIR}/var/db/global.db ${DIR}/queue/db/
+        chmod 640 ${DIR}/queue/db/global.db
+        chown ossec:ossec ${DIR}/queue/db/global.db
+        rm -f ${DIR}/var/db/global.db* || true
     fi
 
     # Remove Vuln-detector database
     rm -f ${DIR}/queue/vulnerabilities/cve.db || true
-
-    # Remove plain-text agent information if exists (it was migrated to Wazuh DB in v4.1)
-    if [ -d ${DIR}/queue/agent-info ]; then
-        rm -rf ${DIR}/queue/agent-info > /dev/null 2>&1
-    fi
 
     # Generation auto-signed certificate if not exists
     if type openssl >/dev/null 2>&1 && [ ! -f "${DIR}/etc/sslmanager.key" ] && [ ! -f "${DIR}/etc/sslmanager.cert" ]; then
