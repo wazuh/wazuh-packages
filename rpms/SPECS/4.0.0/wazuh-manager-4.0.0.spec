@@ -201,18 +201,25 @@ if ! id -u ossecm > /dev/null 2>&1; then
   useradd -g ossec -G ossec -d %{_localstatedir} -r -s /sbin/nologin ossecm
 fi
 
-if [ -d %{_localstatedir}/var/db/agents ]; then
-  rm -f %{_localstatedir}/var/db/agents/*
-fi
-
-# Remove existing SQLite databases
-rm -f %{_localstatedir}/var/db/global.db* || true
+# Remove/relocate existing SQLite databases
 rm -f %{_localstatedir}/var/db/cluster.db* || true
 rm -f %{_localstatedir}/var/db/.profile.db* || true
 rm -f %{_localstatedir}/var/db/agents/* || true
 
+if [ -f %{_localstatedir}/var/db/global.db ]; then
+  mv %{_localstatedir}/var/db/global.db %{_localstatedir}/queue/db/
+  chmod 640 %{_localstatedir}/queue/db/global.db
+  chown ossec:ossec %{_localstatedir}/queue/db/global.db
+  rm -f %{_localstatedir}/var/db/global.db* || true
+fi
+
 # Remove Vuln-detector database
 rm -f %{_localstatedir}/queue/vulnerabilities/cve.db || true
+
+# Remove plain-text agent information if exists
+if [ -d %{_localstatedir}/queue/agent-info ]; then
+  rm -rf %{_localstatedir}/queue/agent-info/* > /dev/null 2>&1
+fi
 
 # Delete old API backups
 if [ $1 = 2 ]; then
@@ -627,7 +634,6 @@ rm -fr %{buildroot}
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/rhel/*
 %dir %attr(750, root, ossec) %{_localstatedir}/queue
 %attr(600, root, ossec) %ghost %{_localstatedir}/queue/agents-timestamp
-%dir %attr(770, ossecr, ossec) %{_localstatedir}/queue/agent-info
 %dir %attr(770, root, ossec) %{_localstatedir}/queue/agent-groups
 %dir %attr(750, ossec, ossec) %{_localstatedir}/queue/agentless
 %dir %attr(770, ossec, ossec) %{_localstatedir}/queue/alerts

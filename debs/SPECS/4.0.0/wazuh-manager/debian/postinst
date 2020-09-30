@@ -63,11 +63,18 @@ case "$1" in
         chmod 660 ${DIR}/etc/ossec.conf.new
     fi
 
-    # Remove existing SQLite databases
-    rm -f ${DIR}/var/db/global.db* || true
+    # Remove/relocate existing SQLite databases
     rm -f ${DIR}/var/db/cluster.db* || true
     rm -f ${DIR}/var/db/.profile.db* || true
     rm -f ${DIR}/var/db/agents/* || true
+
+    if [ -f ${DIR}/var/db/global.db ]; then
+        mv ${DIR}/var/db/global.db ${DIR}/queue/db/
+        chmod 640 ${DIR}/queue/db/global.db
+        chown ossec:ossec ${DIR}/queue/db/global.db
+        rm -f ${DIR}/var/db/global.db* || true
+    fi
+
     # Remove Vuln-detector database
     rm -f ${DIR}/queue/vulnerabilities/cve.db || true
 
