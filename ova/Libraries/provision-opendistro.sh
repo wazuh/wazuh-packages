@@ -273,7 +273,6 @@ checkInstallation() {
 
 cleanInstall(){
     rm -rf /etc/yum.repos.d/adoptopenjdk.repo
-    rm -rf /etc/yum.repos.d/opendistroforelasticsearch-artifacts.repo
     rm -rf  /etc/yum.repos.d/wazuh.repo
     yum clean all
 }
