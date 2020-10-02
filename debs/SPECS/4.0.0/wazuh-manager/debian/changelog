@@ -1,14 +1,26 @@
-wazuh-manager (4.0.0-RELEASE) stable; urgency=low
+wazuh-agent (4.0.0-RELEASE) stable; urgency=low
 
   * More info: https://documentation.wazuh.com/current/release-notes/
 
- -- Wazuh, Inc <info@wazuh.com>  Sun, 02 Aug 2020 06:59:39 +0000
+ -- Wazuh, Inc <info@wazuh.com>  Thu, 15 Oct 2020 06:59:39 +0000
 
-wazuh-manager (3.13.0-RELEASE) stable; urgency=low
+ wazuh-agent (3.13.2-RELEASE) stable; urgency=low
 
   * More info: https://documentation.wazuh.com/current/release-notes/
 
- -- Wazuh, Inc <info@wazuh.com>  Thu, 14 May 2020 10:05:02 +0000
+ -- Wazuh, Inc <info@wazuh.com>  Fri, 21 Aug 2020 10:05:02 +0000
+
+ wazuh-agent (3.13.1-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Tue, 14 Jul 2020 10:05:02 +0000
+
+wazuh-agent (3.13.0-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Mon, 29 Jun 2020 10:05:02 +0000
 
 wazuh-manager (3.12.2-RELEASE) stable; urgency=low
 
