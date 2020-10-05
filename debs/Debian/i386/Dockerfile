@@ -7,7 +7,7 @@ RUN echo "deb http://archive.debian.org/debian/ wheezy contrib main non-free" > 
     echo "deb-src http://archive.debian.org/debian/ wheezy contrib main non-free" >> /etc/apt/sources.list && \
     apt-get update && apt-get install -y apt-utils && \
     apt-get install -y --force-yes \
-    curl gcc-multilib make cmake sudo expect gnupg fakeroot perl-base=5.14.2-21+deb7u3 \
+    curl gcc-multilib make cmake sudo expect gnupg perl-base=5.14.2-21+deb7u3 \
     perl libc-bin=2.13-38+deb7u10 libc6=2.13-38+deb7u10 libc6-dev \
     build-essential cdbs devscripts equivs automake autoconf libtool \
     libaudit-dev selinux-basics util-linux libdb5.1=5.1.29-5 libdb5.1-dev \
