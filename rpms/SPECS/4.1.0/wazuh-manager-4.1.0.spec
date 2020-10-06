@@ -183,8 +183,6 @@ if [ $1 = 2 ]; then
   # Check for SysV
   elif command -v service > /dev/null 2>&1 && service wazuh-manager status > /dev/null 2>&1 | grep "is running" > /dev/null 2>&1; then
     service wazuh-manager stop > /dev/null 2>&1
-  else # Anything else
-    %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
   fi
 fi
 
