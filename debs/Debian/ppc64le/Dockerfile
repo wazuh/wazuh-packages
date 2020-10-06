@@ -26,7 +26,7 @@ RUN apt-get update &&  apt-get build-dep python3.5 -y &&\
     ln -s /usr/local/lib/nodejs/node-v10.16.0-linux-ppc64le/bin/npx /usr/bin/npx &&\
     chmod +x /usr/local/bin/build_package
 
-RUN curl -OL https://ftp.gnu.org/gnu/gcc/gcc-5.5.0/gcc-5.5.0.tar.gz && \
+RUN curl -OL http://packages.wazuh.com/utils/gcc/gcc-5.5.0.tar.gz && \
     tar xzf gcc-5.5.0.tar.gz  && \
     ln -sf gcc-5.5.0 gcc && \
     cd gcc-5.5.0/ && \
@@ -34,22 +34,19 @@ RUN curl -OL https://ftp.gnu.org/gnu/gcc/gcc-5.5.0/gcc-5.5.0.tar.gz && \
     cd .. && mkdir gcc-build && cd gcc-build && \
     ../gcc-5.5.0/configure --prefix=/usr/local/gcc-5.5.0 --enable-languages=c,c++ --disable-multilib --disable-libsanitizer --disable-bootstrap && \
     make && make install && \
-    echo "export CPLUS_INCLUDE_PATH=/usr/local/gcc-5.5.0/include/c++/5.5.0/" >> /root/.bashrc && \
-    echo "export LD_LIBRARY_PATH=/usr/local/gcc-5.5.0/lib64/" >> /root/.bashrc && \
-    echo "export PATH=/usr/local/gcc-5.5.0/bin:$PATH" >> /root/.bashrc && \
-    rm -rf /usr/bin/cc && rm /usr/bin/c++
+    rm -rf /usr/bin/cc && rm /usr/bin/c++ && cd / && rm -rf gcc-*
 
-RUN curl -OL https://github.com/Kitware/CMake/releases/download/v3.18.3/cmake-3.18.3.tar.gz && \
+ENV CPLUS_INCLUDE_PATH "/usr/local/gcc-5.5.0/include/c++/5.5.0/"
+ENV LD_LIBRARY_PATH "/usr/local/gcc-5.5.0/lib64/"
+ENV PATH "/usr/local/gcc-5.5.0/bin:${PATH}"
+
+RUN curl -OL http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz && \
     tar -zxvf cmake-3.18.3.tar.gz && \
     cd cmake-3.18.3 && \
-    export CPLUS_INCLUDE_PATH=/usr/local/gcc-5.5.0/include/c++/5.5.0/ && \
-    export LD_LIBRARY_PATH=/usr/local/gcc-5.5.0/lib64/ && \
     ./bootstrap CC=/usr/local/gcc-5.5.0/bin/gcc CXX=/usr/local/gcc-5.5.0/bin/g++ && \
     gmake && gmake install && \
     ln -s /usr/local/gcc-5.5.0/bin/gcc /usr/bin/cc && \
-    ln -s /usr/local/gcc-5.5.0/bin/g++ /usr/bin/c++
-
-RUN rm -rf gcc-* cmake-*
+    ln -s /usr/local/gcc-5.5.0/bin/g++ /usr/bin/c++ && cd / && rm -rf cmake-*
 
 # Set the entrypoint
 ENTRYPOINT ["/usr/local/bin/build_package"]
