@@ -187,14 +187,13 @@ fi
 
 # Stop the services to upgrade the package
 if [ $1 = 2 ]; then
-  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-agent > /dev/null 2>&1; then
-    touch %{_localstatedir}/tmp/wazuh.restart
-    systemctl stop wazuh-agent.service > /dev/null 2>&1
-  fi
-
-  if command -v service > /dev/null 2>&1 && service wazuh-agent status | grep "is running" > /dev/null 2>&1; then
-    touch %{_localstatedir}/tmp/wazuh.restart
+  if command -v service > /dev/null 2>&1 && service wazuh-agent status > /dev/null 2>&1 | grep "is running" > /dev/null 2>&1; then
     service wazuh-agent stop > /dev/null 2>&1
+  elif command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-agent > /dev/null 2>&1; then
+      systemctl stop wazuh-agent > /dev/null 2>&1
+    # Check for SysV
+  else # Anything else
+      %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
   fi
 fi
 
