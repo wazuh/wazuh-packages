@@ -42,6 +42,7 @@ yum install openssl -y
 
 installPrerequisites
 addWazuhrepo
+addElasticRepo
 installWazuh
 installElasticsearch
 installFilebeat

@@ -79,13 +79,14 @@ addWazuhrepo() {
     logger "Adding the Wazuh repository..."
     rpm --import https://packages.wazuh.com/key/GPG-KEY-WAZUH 
     if [ "${STATUS_PACKAGES}" = "prod" ]; then
-      logger "Adding production repository..."
-      echo -e "[wazuh_repo]\ngpgcheck=1\ngpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages.wazuh.com/${WAZUH_MAJOR}.x/yum/\nprotect=1" | tee /etc/yum.repos.d/wazuh.repo 
+        logger "Adding production repository..."
+        rpm --import https://packages.wazuh.com/key/GPG-KEY-WAZUH
+        echo -e "[wazuh_repo]\ngpgcheck=1\ngpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages.wazuh.com/${WAZUH_MAJOR}.x/yum/\nprotect=1" | tee /etc/yum.repos.d/wazuh.repo 
     elif [ "${STATUS_PACKAGES}" = "dev" ]; then
-      logger "Adding development repository..."
-      echo -e '[wazuh_pre-release]\ngpgcheck=1\ngpgkey=https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages-dev.wazuh.com/pre-release/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo 
+        logger "Adding development repository..."
+        rpm --import https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH 
+        echo -e '[wazuh_pre-release]\ngpgcheck=1\ngpgkey=https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages-dev.wazuh.com/pre-release/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo 
     fi
-
     if [ "$?" != 0 ]; then
         logger "Error: Wazuh repository could not be added"
         exit 1;
@@ -93,6 +94,19 @@ addWazuhrepo() {
         logger "Done"
     fi
 }
+
+addElasticRepo(){
+    logger "Adding the Elastic repository..."
+    curl https://d3g5vo6xdbdb9a.cloudfront.net/yum/opendistroforelasticsearch-artifacts.repo -o /etc/yum.repos.d/opendistroforelasticsearch-artifacts.repo
+    if [ "$?" != 0 ]; then
+        logger "Error: Wazuh repository could not be added"
+        exit 1;
+    else
+        logger "Done"
+    fi
+}
+
+
 
 ## Wazuh manager
 installWazuh() {
@@ -273,6 +287,7 @@ checkInstallation() {
 
 cleanInstall(){
     rm -rf /etc/yum.repos.d/adoptopenjdk.repo
-    rm -rf  /etc/yum.repos.d/wazuh.repo
+    rm -rf /etc/yum.repos.d/wazuh.repo
+    rm -rf /etc/yum.repos.d/opendistroforelasticsearch-artifacts.repo
     yum clean all
 }
