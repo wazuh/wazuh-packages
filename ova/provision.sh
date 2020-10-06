@@ -22,7 +22,7 @@ echo "${STATUS_PACKAGES}"
 
 # Setting wazuh default root password
 
-cp ${libraries_files}/"automatic_set_ram.sh" ${automatic_set_ram_location}
+cp ${libraries_files}/automatic_set_ram.sh ${automatic_set_ram_location}
 chmod +x "${automatic_set_ram_location}/automatic_set_ram.sh"
 echo "@reboot . /etc/automatic_set_ram.sh" >> ram_cron
 
@@ -55,6 +55,4 @@ rm -rf /vagrant
 systemctl stop kibana
 systemctl stop filebeat 
 systemctl stop  elasticsearch
-systemctl enable wazuh-manager
-systemctl is-enabled wazuh-manager
 systemctl stop wazuh-manager

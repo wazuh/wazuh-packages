@@ -38,7 +38,7 @@ help () {
     echo "Usage: $0 [OPTIONS]"
     echo "  -v, --version          [Required] Version of wazuh to install on VM."
     echo "  -o, --opendistro       [Required] Version of Open Distro for Elasticsearch."
-    echo "  -f, --filebeat         [Required] Filebeat version to download inside VM."
+    echo "  -f, --filebeat         [Required] Filebeat's version."
     echo "  -r, --repository       [Required] Select the software repository [prod/dev]."
     echo "  -b, --branch           [Optional] Branch/tag of the Wazuh repository."
     echo "  -s, --store <path>     [Optional] Set the destination absolute path of package."
