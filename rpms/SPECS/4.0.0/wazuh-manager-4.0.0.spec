@@ -177,15 +177,14 @@ fi
 
 # Stop the services to upgrade the package
 if [ $1 = 2 ]; then
+  touch %{_localstatedir}/tmp/wazuh.restart
   if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-manager > /dev/null 2>&1; then
-    touch %{_localstatedir}/tmp/wazuh.restart
-    systemctl stop wazuh-manager > /dev/null 2>&1
+    systemctl stop wazuh-manager.service > /dev/null 2>&1
   # Check for SysV
   elif command -v service > /dev/null 2>&1 && service wazuh-manager status > /dev/null 2>&1 | grep "is running" > /dev/null 2>&1; then
-    touch %{_localstatedir}/tmp/wazuh.restart
     service wazuh-manager stop > /dev/null 2>&1
   else # Anything else
-      %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
+    %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
   fi
 fi
 
