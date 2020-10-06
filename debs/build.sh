@@ -85,11 +85,11 @@ mk-build-deps -ir -t "apt-get -o Debug::pkgProblemResolver=yes -y"
 # Build package
 if [[ "${architecture_target}" == "amd64" ]] ||  [[ "${architecture_target}" == "ppc64le" ]] || \
     [[ "${architecture_target}" == "arm64" ]]; then
-    debuild -b -uc -us
+    debuild --rootcmd=sudo -b -uc -us
 elif [[ "${architecture_target}" == "armhf" ]]; then
-    linux32 debuild -b -uc -us
+    linux32 debuild --rootcmd=sudo -b -uc -us
 else
-    linux32 debuild -ai386 -b -uc -us
+    linux32 debuild --rootcmd=sudo -ai386 -b -uc -us
 fi
 
 deb_file="wazuh-${build_target}_${wazuh_version}-${package_release}_${architecture_target}.deb"
