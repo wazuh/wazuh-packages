@@ -493,7 +493,7 @@ if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
   elif command -v service > /dev/null 2>&1; then
     service wazuh-manager restart > /dev/null 2>&1
   else
-    /var/ossec/bin/ossec-control restart > /dev/null 2>&1
+    %{_localstatedir}/bin/ossec-control restart > /dev/null 2>&1
   fi
 fi
 
