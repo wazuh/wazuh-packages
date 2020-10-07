@@ -3,8 +3,8 @@ path_ova=$2
 dest_ova=$3
 ovf_path=$4
 wazuh_version=$5
-elk_version=$6
-file="wazuh${wazuh_version}_${elk_version}"
+opendistro_version=$6
+file="wazuh-${wazuh_version}_${opendistro_version}"
 mkdir -p ${workspace}/new-ova/
 
 
@@ -17,11 +17,11 @@ mv "${workspace}"/new-ova/*.vmdk ${workspace}/new-ova/${file}-disk-1.vmdk
 cp ${ovf_path} ${workspace}/new-ova/${file}.ovf
 
 sed -i "s/{WAZUH_VERSION}/${wazuh_version}/" ${workspace}/new-ova/${file}.ovf
-sed -i "s/{ELASTIC_VERSION}/${elk_version}/" ${workspace}/new-ova/${file}.ovf
+sed -i "s/{OPENDISTRO_VERSION}/${opendistro_version}/" ${workspace}/new-ova/${file}.ovf
 
 echo "OVF changed"
 
-stat --printf=\"%s\" ${workspace}/new-ova/wazuh${wazuh_version}_${elk_version}.ovf
+stat --printf=\"%s\" ${workspace}/new-ova/${file}.ovf
 sed -i 's/{SIZE}/${ovf_size}/' ${workspace}/new-ova/${file}.ovf
 export workspace
 export file
