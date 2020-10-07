@@ -22,6 +22,12 @@ RUN curl -OL http://packages.wazuh.com/utils/curl/curl-7.63.0.tar.gz && \
     tar xf curl-7.63.0.tar.gz && cd curl-7.63.0 && linux32 ./configure --with-ssl=/usr/local/ssl && \
     linux32 make && linux32 make install && cd / && rm -rf curl*
 
+RUN curl -OL http://packages.wazuh.com/utils/cmake/cmake-2.6.4.tar.gz && \
+    tar -zxvf cmake-2.6.4.tar.gz && \
+    cd cmake-2.6.4 && \
+    linux32 ./bootstrap && \
+    linux32 make && linux32 make install && cd / && rm -rf cmake-*
+
 RUN curl -OL http://packages.wazuh.com/utils/gcc/gcc-5.5.0.tar.gz && \
     tar xzf gcc-5.5.0.tar.gz  && \
     ln -sf gcc-5.5.0 gcc && \
@@ -37,12 +43,6 @@ RUN curl -OL http://packages.wazuh.com/utils/gcc/gcc-5.5.0.tar.gz && \
 ENV CPLUS_INCLUDE_PATH "/usr/local/gcc-5.5.0/include/c++/5.5.0/"
 ENV LD_LIBRARY_PATH "/usr/local/gcc-5.5.0/lib64/"
 ENV PATH "/usr/local/gcc-5.5.0/bin:${PATH}"
-
-RUN curl -OL http://packages.wazuh.com/utils/cmake/cmake-2.6.4.tar.gz && \
-    tar -zxvf cmake-2.6.4.tar.gz && \
-    cd cmake-2.6.4 && \
-    linux32 ./bootstrap CC=/usr/local/gcc-5.5.0/bin/gcc CXX=/usr/local/gcc-5.5.0/bin/g++ && \
-    linux32 make && linux32 make install && cd / && rm -rf cmake-*
 
 # Add the scripts to build the RPM package
 ADD build.sh /usr/local/bin/build_package
