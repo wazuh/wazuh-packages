@@ -1,3 +1,5 @@
+#!/bin/sh
+
 etc_elastic="/etc/elasticsearch"
 ram_gb=$(free -m | awk '/^Mem:/{print $2}')
 ram=$(( ${ram_gb} / 2 ))

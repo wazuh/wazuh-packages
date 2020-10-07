@@ -12,12 +12,12 @@ logger() {
 startService() {
     service_name=$1
     if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
-        systemctl daemon-reload 
-        systemctl enable ${service_name}.service 
-        systemctl start ${service_name}.service 
+        systemctl daemon-reload
+        systemctl enable ${service_name}.service
+        systemctl start ${service_name}.service
         if [ "$?" != 0 ]; then
             logger "${1^} could not be started."
-            exit 1;
+            exit 1
         else
             logger "${1^} started"
         fi
@@ -27,16 +27,16 @@ startService() {
         elif command -v update-rc.d > /dev/null 2>&1; then
             update-rc.d ${service_name} defaults
         fi
-        service ${service_name} start 
+        service ${service_name} start
         if [ "$?" != 0 ]; then
             logger "${1^} could not be started."
-            exit 1;
+            exit 1
         else
             logger "${1^} started"
         fi
     else
         logger "Error: ${1^} could not start. No service manager found on the system."
-        exit 1;
+        exit 1
     fi
 }
 
@@ -55,14 +55,14 @@ getHelp() {
 ## Install the required packages for the installation
 installPrerequisites() {
     logger "Installing all necessary utilities for the installation..."
-    $sys_type install curl unzip wget libcap -y -q 
-    echo -e '[AdoptOpenJDK] \nname=AdoptOpenJDK \nbaseurl=http://adoptopenjdk.jfrog.io/adoptopenjdk/rpm/centos/$releasever/$basearch\nenabled=1\ngpgcheck=1\ngpgkey=https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public' | tee /etc/yum.repos.d/adoptopenjdk.repo 
-    $sys_type install adoptopenjdk-11-hotspot -y -q 
+    $sys_type install curl unzip wget libcap -y -q
+    echo -e '[AdoptOpenJDK] \nname=AdoptOpenJDK \nbaseurl=http://adoptopenjdk.jfrog.io/adoptopenjdk/rpm/centos/$releasever/$basearch\nenabled=1\ngpgcheck=1\ngpgkey=https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public' | tee /etc/yum.repos.d/adoptopenjdk.repo
+    $sys_type install adoptopenjdk-11-hotspot -y -q
     export JAVA_HOME=/usr/
 
     if [ "$?" != 0 ]; then
         logger "Error: Prerequisites could not be installed"
-        exit 1;
+        exit 1
     else
         logger "Done"
     fi
@@ -72,17 +72,17 @@ installPrerequisites() {
 addWazuhrepo() {
     WAZUH_MAJOR="$(echo ${WAZUH_VERSION} | head -c 1)"
     logger "Adding the Wazuh repository..."
-    rpm --import https://packages.wazuh.com/key/GPG-KEY-WAZUH 
+    rpm --import https://packages.wazuh.com/key/GPG-KEY-WAZUH
     if [ "${STATUS_PACKAGES}" = "prod" ]; then
         logger "Adding production repository..."
-        echo -e "[wazuh_repo]\ngpgcheck=1\ngpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages.wazuh.com/${WAZUH_MAJOR}.x/yum/\nprotect=1" | tee /etc/yum.repos.d/wazuh.repo 
+        echo -e "[wazuh_repo]\ngpgcheck=1\ngpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages.wazuh.com/${WAZUH_MAJOR}.x/yum/\nprotect=1" | tee /etc/yum.repos.d/wazuh.repo
     elif [ "${STATUS_PACKAGES}" = "dev" ]; then
         logger "Adding development repository..."
-        echo -e '[wazuh_pre-release]\ngpgcheck=1\ngpgkey=https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages-dev.wazuh.com/pre-release/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo 
+        echo -e '[wazuh_pre-release]\ngpgcheck=1\ngpgkey=https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages-dev.wazuh.com/pre-release/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo
     fi
     if [ "$?" != 0 ]; then
         logger "Error: Wazuh repository could not be added"
-        exit 1;
+        exit 1
     else
         logger "Done"
     fi
@@ -93,7 +93,7 @@ addElasticRepo(){
     curl https://d3g5vo6xdbdb9a.cloudfront.net/yum/opendistroforelasticsearch-artifacts.repo -o /etc/yum.repos.d/opendistroforelasticsearch-artifacts.repo
     if [ "$?" != 0 ]; then
         logger "Error: Wazuh repository could not be added"
-        exit 1;
+        exit 1
     else
         logger "Done"
     fi
@@ -105,10 +105,10 @@ addElasticRepo(){
 installWazuh() {
 
     logger "Installing the Wazuh manager..."
-    $sys_type install wazuh-manager-${WAZUH_VERSION} -y -q 
+    $sys_type install wazuh-manager-${WAZUH_VERSION} -y -q
     if [ "$?" != 0 ]; then
         logger "Error: Wazuh installation failed"
-        exit 1;
+        exit 1
     else
         logger "Done"
     fi
@@ -118,11 +118,11 @@ installWazuh() {
 installElasticsearch() {
 
     logger "Installing Open Distro for Elasticsearch..."
-    $sys_type install opendistroforelasticsearch-${OPENDISTRO_VERSION} -y -q 
+    $sys_type install opendistroforelasticsearch-${OPENDISTRO_VERSION} -y -q
 
     if [ "$?" != 0 ]; then
         logger "Error: Elasticsearch installation failed"
-        exit 1;
+        exit 1
     else
         logger "Done"
 
@@ -130,18 +130,18 @@ installElasticsearch() {
 
 
         curl -so /etc/elasticsearch/elasticsearch.yml ${resources_url}/resources/open-distro/elasticsearch/7.x/elasticsearch_all_in_one.yml --max-time 300
-        
+
         curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml ${resources_url}/resources/open-distro/elasticsearch/roles/roles.yml --max-time 300
         curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml ${resources_url}/resources/open-distro/elasticsearch/roles/roles_mapping.yml --max-time 300
         curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml ${resources_url}/resources/open-distro/elasticsearch/roles/internal_users.yml --max-time 300
         rm /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem -f
-        mkdir -p /etc/elasticsearch/certs 
-        cd /etc/elasticsearch/certs 
-        curl -so /etc/elasticsearch/certs/search-guard-tlstool-${searchguard_version}.zip https://maven.search-guard.com/search-guard-tlstool/${searchguard_version}/search-guard-tlstool-${searchguard_version}.zip --max-time 300 
-        unzip search-guard-tlstool-${searchguard_version}.zip -d searchguard 
-        curl -so /etc/elasticsearch/certs/searchguard/search-guard.yml ${resources_url}/resources/open-distro/searchguard/search-guard-aio.yml --max-time 300 
-        chmod +x searchguard/tools/sgtlstool.sh 
-        ./searchguard/tools/sgtlstool.sh -c ./searchguard/search-guard.yml -ca -crt -t /etc/elasticsearch/certs/  
+        mkdir -p /etc/elasticsearch/certs
+        cd /etc/elasticsearch/certs
+        curl -so /etc/elasticsearch/certs/search-guard-tlstool-${searchguard_version}.zip https://maven.search-guard.com/search-guard-tlstool/${searchguard_version}/search-guard-tlstool-${searchguard_version}.zip --max-time 300
+        unzip search-guard-tlstool-${searchguard_version}.zip -d searchguard
+        curl -so /etc/elasticsearch/certs/searchguard/search-guard.yml ${resources_url}/resources/open-distro/searchguard/search-guard-aio.yml --max-time 300
+        chmod +x searchguard/tools/sgtlstool.sh
+        ./searchguard/tools/sgtlstool.sh -c ./searchguard/search-guard.yml -ca -crt -t /etc/elasticsearch/certs/
 
         if [ "$?" != 0 ]; then
             logger "Error: certificates were not created"
@@ -149,11 +149,11 @@ installElasticsearch() {
         else
             logger "Certificates created"
         fi
-        rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml search-guard-tlstool-1.7.zip -f 
+        rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml search-guard-tlstool-1.7.zip -f
 
 
         # # Configure JVM options for Elasticsearch
-        jv=$(java -version 2>&1 | grep -o -m1 '1.8.0') || : 
+        jv=$(java -version 2>&1 | grep -o -m1 '1.8.0') || :
         if [ "${jv}" = "1.8.0" ]; then
             ln -s /usr/lib/jvm/java-1.8.0/lib/tools.jar /usr/share/elasticsearch/lib/
             echo "root hard nproc 4096" >> /etc/security/limits.conf
@@ -170,8 +170,8 @@ installElasticsearch() {
             sleep 10
         done
 
-        cd /usr/share/elasticsearch/plugins/opendistro_security/tools/ 
-        ./securityadmin.sh -cd ../securityconfig/ -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin.key 
+        cd /usr/share/elasticsearch/plugins/opendistro_security/tools/
+        ./securityadmin.sh -cd ../securityconfig/ -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin.key
 
         logger "Done"
     fi
@@ -181,20 +181,20 @@ installElasticsearch() {
 installFilebeat() {
     logger "Installing Filebeat..."
 
-    $sys_type install filebeat-"${ELK_VERSION}" -y -q  
+    $sys_type install filebeat-"${ELK_VERSION}" -y -q
     if [ "$?" != 0 ]; then
         logger "Error: Filebeat installation failed"
-        exit 1;
+        exit 1
     else
         WAZUH_MAJOR="$(echo ${WAZUH_VERSION} | head -c 1)"
 
-        curl -so /etc/filebeat/filebeat.yml ${resources_url}/resources/open-distro/filebeat/7.x/filebeat_all_in_one.yml --max-time 300  
-        curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/master/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300 
-        chmod go+r /etc/filebeat/wazuh-template.json 
-        
-        curl -s https://packages.wazuh.com/3.x/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module 
-        mkdir -p /etc/filebeat/certs 
-        cp /etc/elasticsearch/certs/{root-ca.pem,filebeat.key,filebeat.pem} /etc/filebeat/certs/ 
+        curl -so /etc/filebeat/filebeat.yml ${resources_url}/resources/open-distro/filebeat/7.x/filebeat_all_in_one.yml --max-time 300
+        curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/master/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300
+        chmod go+r /etc/filebeat/wazuh-template.json
+
+        curl -s https://packages.wazuh.com/3.x/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module
+        mkdir -p /etc/filebeat/certs
+        cp /etc/elasticsearch/certs/{root-ca.pem,filebeat.key,filebeat.pem} /etc/filebeat/certs/
         # Start Filebeat
         startService "filebeat"
         logger "Done"
@@ -205,28 +205,28 @@ installFilebeat() {
 installKibana() {
     WAZUH_MAJOR="$(echo ${WAZUH_VERSION} | head -c 1)"
     logger "Installing Open Distro for Kibana..."
-    $sys_type install opendistroforelasticsearch-kibana-${OPENDISTRO_VERSION} -y -q 
+    $sys_type install opendistroforelasticsearch-kibana-${OPENDISTRO_VERSION} -y -q
     if [ "$?" != 0 ]; then
         logger "Error: Kibana installation failed"
-        exit 1;
+        exit 1
     else
-        curl -so /etc/kibana/kibana.yml ${resources_url}/resources/open-distro/kibana/7.x/kibana_all_in_one.yml --max-time 300 
+        curl -so /etc/kibana/kibana.yml ${resources_url}/resources/open-distro/kibana/7.x/kibana_all_in_one.yml --max-time 300
         echo "telemetry.enabled: false" >> /etc/kibana/kibana.yml
 
         if [ "${STATUS_PACKAGES}" = "prod" ]; then
-            sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/${WAZUH_MAJOR}.x/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}.zip 
+            sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/${WAZUH_MAJOR}.x/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}.zip
         elif [ "${STATUS_PACKAGES}" = "dev" ]; then
-            sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-1.zip 
+            sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-1.zip
         fi
-                
+
         if [ "$?" != 0 ]
         then
             logger "Error: Wazuh Kibana plugin could not be installed."
-            exit 1;
+            exit 1
         fi
-        mkdir -p /etc/kibana/certs 
-        mv /etc/elasticsearch/certs/{kibana.key,kibana.pem} /etc/kibana/certs/ 
-        setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node 
+        mkdir -p /etc/kibana/certs
+        mv /etc/elasticsearch/certs/{kibana.key,kibana.pem} /etc/kibana/certs/
+        setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node
 
         # Start Kibana
         startService "kibana"
@@ -243,7 +243,7 @@ healthCheck() {
 
     if [[ $cores -lt 2 ]] || [[ $ram_gb -lt 4096 ]]; then
         logger "The system must have at least 4Gb of RAM and 2 CPUs"
-        exit 1;
+        exit 1
     else
         logger "Starting the installation..."
     fi
@@ -252,17 +252,17 @@ healthCheck() {
 checkInstallation() {
 
     logger "Checking the installation..."
-    curl -XGET https://localhost:9200 -uadmin:admin -k --max-time 300 
+    curl -XGET https://localhost:9200 -uadmin:admin -k --max-time 300
     if [ "$?" != 0 ]; then
         logger "Error: Elasticsearch was not successfully installed."
         exit 1
     else
         logger "Elasticsearch installation succeeded."
     fi
-    filebeat test output 
+    filebeat test output
     if [ "$?" != 0 ]; then
         logger "Error: Filebeat was not successfully installed."
-        exit 1;
+        exit 1
     else
         logger "Filebeat installation succeeded."
     fi

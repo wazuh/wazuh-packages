@@ -60,11 +60,11 @@ clean() {
 
 build_ova() {
 
-    OVA_VM="wazuh${OVA_VERSION}.ova"
-    OVF_VM="wazuh${OVA_VERSION}.ovf"
-    OVA_FIXED="wazuh${OVA_VERSION}-fixed.ova"
-    OVA_VMDK="wazuh${OVA_VERSION}-disk001.vmdk"
-    ELK_MAJOR=`echo ${ELK_VERSION}|cut -d"." -f1`
+    OVA_VM="wazuh-${OVA_VERSION}.ova"
+    OVF_VM="wazuh-${OVA_VERSION}.ovf"
+    OVA_FIXED="wazuh-${OVA_VERSION}-fixed.ova"
+    OVA_VMDK="wazuh-${OVA_VERSION}-disk001.vmdk"
+    ELK_MAJOR=`echo ${ELK_VERSION} | cut -d"." -f1`
     export BRANCH
 
     if [ -e "${OVA_VM}" ] || [ -e "${OVA_VM}" ]; then
@@ -84,7 +84,7 @@ build_ova() {
     vagrant suspend
     VM_EXPORT=$(vboxmanage list vms | grep -i vm_wazuh | cut -d "\"" -f2)
     # OVA creation with all metadata information.
-    vboxmanage export ${VM_EXPORT} -o ${OVA_VM} --vsys 0 --product "Wazuh v${WAZUH_VERSION} OVA" --producturl "https://packages.wazuh.com/vm/wazuh${OVA_VERSION}.ova" --vendor "Wazuh, inc <info@wazuh.com>" --vendorurl "https://wazuh.com" --version "$OVA_VERSION" --description "Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring." || clean 1
+    vboxmanage export ${VM_EXPORT} -o ${OVA_VM} --vsys 0 --product "Wazuh v${WAZUH_VERSION} OVA" --producturl "https://packages.wazuh.com/vm/wazuh-${OVA_VERSION}.ova" --vendor "Wazuh, inc <info@wazuh.com>" --vendorurl "https://wazuh.com" --version "$OVA_VERSION" --description "Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring." || clean 1
 
     vagrant destroy -f
     tar -xvf ${OVA_VM}
@@ -172,7 +172,7 @@ main() {
         ;;
         "-b"|"--branch")
             if [ -n "$2" ]; then
-            
+
                 BRANCH="$2"
                 shift 2
             else
