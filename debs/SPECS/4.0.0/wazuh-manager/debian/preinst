@@ -21,12 +21,13 @@ case "$1" in
     install|upgrade)
 
         if [ "$1" = "upgrade" ]; then
+            touch ${WAZUH_TMP_DIR}/wazuh.restart
             if command -v systemctl > /dev/null 2>&1 && systemctl is-active wazuh-manager > /dev/null 2>&1 ; then
-                touch ${WAZUH_TMP_DIR}/wazuh.restart
                 systemctl stop wazuh-manager.service > /dev/null 2>&1
-            elif command -v service > /dev/null 2>&1  && service wazuh-manager status | grep "is running" > /dev/null 2>&1; then
-                touch ${WAZUH_TMP_DIR}/wazuh.restart
+            elif command -v service > /dev/null 2>&1  && service wazuh-manager status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
                 service wazuh-manager stop
+            else
+                ${DIR}/ossec-control stop > /dev/null 2>&1
             fi
 
             # Delete old API backups

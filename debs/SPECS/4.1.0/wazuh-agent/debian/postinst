@@ -133,7 +133,7 @@ case "$1" in
 
     # Restoring file permissions
     ${SCRIPTS_DIR}/restore-permissions.sh > /dev/null 2>&1 || :
-    
+
     # Fix /etc/ossec-init.conf
     chmod 640 /etc/ossec-init.conf
     chown root:ossec /etc/ossec-init.conf
@@ -144,6 +144,8 @@ case "$1" in
                 systemctl restart wazuh-manager.service > /dev/null 2>&1
             elif command -v service > /dev/null 2>&1 ; then
                 service wazuh-manager restart > /dev/null 2>&1
+            else
+                ${DIR}/bin/ossec-control restart > /dev/null 2>&1
             fi
         fi
     fi

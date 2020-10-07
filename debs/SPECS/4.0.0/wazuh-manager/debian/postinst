@@ -216,6 +216,8 @@ case "$1" in
                 systemctl restart wazuh-manager.service > /dev/null 2>&1
             elif command -v service > /dev/null 2>&1 ; then
                 service wazuh-manager restart > /dev/null 2>&1
+            else
+                ${DIR}/bin/ossec-control restart /dev/null 2>&1
             fi
         fi
     fi
