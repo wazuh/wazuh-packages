@@ -27,9 +27,9 @@ HAVE_ELK_VERSION=false
 
 WAZUH_VERSION=""
 OPENDISTRO_VERSION=""
-BRANCH="2205-Open_Distro_installation"
+BRANCH="master"
 ELK_VERSION=""
-STATUS=""
+PACKAGES_REPOSITORY=""
 CHECKSUM="no"
 
 help () {
@@ -104,10 +104,10 @@ build_ova() {
 }
 
 check_version() {
-    if [ "${STATUS}" = "prod" ]; then
+    if [ "${PACKAGES_REPOSITORY}" = "prod" ]; then
         WAZUH_MAJOR="$(echo ${WAZUH_VERSION} | head -c 1)"
         curl -Isf https://packages.wazuh.com/${WAZUH_MAJOR}/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${ELK_VERSION} not supported." && exit 1 )
-    elif [ "${STATUS}" = "dev" ]; then
+    elif [ "${PACKAGES_REPOSITORY}" = "dev" ]; then
         curl -Isf https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-1.zip > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${ELK_VERSION} not supported." && exit 1 )
     else
         logger "Error, repository value must take 'prod' or 'dev' value."
@@ -162,8 +162,8 @@ main() {
         "-r" | "--repository")
             if [ -n "$2" ]; then
 
-                export STATUS="$2"
-                HAVE_STATUS=true
+                export PACKAGES_REPOSITORY="$2"
+                HAVE_PACKAGES_REPOSITORY=true
             else
                 logger "ERROR: package repository is needed."
                 help 1
@@ -208,11 +208,11 @@ main() {
     if [ -z "${CHECKSUM_DIR}" ]; then
         CHECKSUM_DIR="${OUTPUT_DIR}"
     fi
-    if  [ "${HAVE_VERSION}" = true ] && [ "${HAVE_ELK_VERSION}" = true ] && [ "${HAVE_STATUS}" = true ] && [ "${HAVE_OPENDISTRO_VERSION}" = true ]; then
-        check_version ${WAZUH_VERSION} ${ELK_VERSION} ${STATUS}
+    if  [ "${HAVE_VERSION}" = true ] && [ "${HAVE_ELK_VERSION}" = true ] && [ "${HAVE_PACKAGES_REPOSITORY}" = true ] && [ "${HAVE_OPENDISTRO_VERSION}" = true ]; then
+        check_version ${WAZUH_VERSION} ${ELK_VERSION} ${PACKAGES_REPOSITORY}
         OVA_VERSION="${WAZUH_VERSION}_${OPENDISTRO_VERSION}"
 
-        logger "Version to build: ${WAZUH_VERSION}-${OPENDISTRO_VERSION} with ${STATUS} repository and ${BRANCH} branch"
+        logger "Version to build: ${WAZUH_VERSION}-${OPENDISTRO_VERSION} with ${PACKAGES_REPOSITORY} repository and ${BRANCH} branch"
         build_ova ${WAZUH_VERSION} ${OVA_VERSION}
     else
         logger "ERROR: Need more parameters."
