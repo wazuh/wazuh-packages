@@ -25,7 +25,7 @@ case "$1" in
             elif command -v service > /dev/null 2>&1  && service wazuh-manager status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
                 service wazuh-manager stop > /dev/null 2>&1
             else
-                /var/ossec/bin/ossec-control stop > /dev/null 2>&1
+                ${DIR}/bin/ossec-control stop > /dev/null 2>&1
             fi
         fi
 
