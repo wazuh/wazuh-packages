@@ -33,7 +33,7 @@ RUN curl -OL http://packages.wazuh.com/utils/gcc/gcc-5.5.0.tar.gz && \
     cd gcc-5.5.0/ && \
     linux32 ./contrib/download_prerequisites && \
     cd .. && mkdir gcc-build && cd gcc-build && \
-    linux32 ../gcc-5.5.0/configure --prefix=/usr/local/gcc-5.5.0 --enable-languages=c,c++ --disable-multilib --disable-libsanitizer --disable-bootstrap && \
+    linux32 ../gcc-5.5.0/configure --prefix=/usr/local/gcc-5.5.0 --with-arch=armv7-a --with-float=hard --enable-languages=c,c++ --disable-multilib --disable-libsanitizer --disable-bootstrap && \
     linux32 make && linux32 make install && \
     rm -rf /usr/bin/cc && rm /usr/bin/c++ && \
     ln -s /usr/local/gcc-5.5.0/bin/gcc /usr/bin/cc && \
