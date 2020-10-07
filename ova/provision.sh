@@ -8,16 +8,20 @@ OPENDISTRO_VERSION=$2
 ELK_VERSION=$3
 PACKAGES_REPOSITORY=$4
 BRANCH=$5
+UI_REVISION=$6
 DIRECTORY="/var/ossec"
 ELK_MAJOR=`echo ${ELK_VERSION}|cut -d"." -f1`
 ELK_MINOR=`echo ${ELK_VERSION}|cut -d"." -f2`
 
-config_files="/vagrant/Config_files"
+CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
+config_files="${CURRENT_PATH}/Config_files"
 automatic_set_ram_location="/etc/"
-libraries_files="/vagrant/Libraries/"
+libraries_files="${CURRENT_PATH}/Libraries/"
 
 echo "${PACKAGES_REPOSITORY}"
-. /vagrant/Libraries/provision-opendistro.sh
+
+
+. ${CURRENT_PATH}/Libraries/provision-opendistro.sh
 
 
 # Setting wazuh default root password

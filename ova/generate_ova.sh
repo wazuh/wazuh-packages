@@ -31,6 +31,7 @@ BRANCH="master"
 ELK_VERSION=""
 PACKAGES_REPOSITORY=""
 CHECKSUM="no"
+UI_REVISION="1"
 
 help () {
 
@@ -43,6 +44,7 @@ help () {
     echo "  -b, --branch           [Optional] Branch/tag of the Wazuh repository."
     echo "  -s, --store <path>     [Optional] Set the destination absolute path of package."
     echo "  -c, --checksum <path>  [Optional] Generate checksum."
+    echo "  -u, --ui-revision      [Optional] Revision of the UI package. By default, 1."
     echo "  -h, --help             [  Util  ] Show this help."
     echo
     exit $1
@@ -106,9 +108,13 @@ build_ova() {
 check_version() {
     if [ "${PACKAGES_REPOSITORY}" = "prod" ]; then
         WAZUH_MAJOR="$(echo ${WAZUH_VERSION} | head -c 1)"
-        curl -Isf https://packages.wazuh.com/${WAZUH_MAJOR}/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${ELK_VERSION} not supported." && exit 1 )
+        if [ "${WAZUH_MAJOR}" = "3" ]; then
+            curl -Isf https://packages.wazuh.com/${WAZUH_MAJOR}/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${ELK_VERSION} not supported." && exit 1 )
+        else
+            curl -Isf https://packages.wazuh.com/${WAZUH_MAJOR}/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}-${UI_REVISION}.zip > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${ELK_VERSION}-${UI_REVISION} not supported." && exit 1 )
+        fi
     elif [ "${PACKAGES_REPOSITORY}" = "dev" ]; then
-        curl -Isf https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-1.zip > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${ELK_VERSION} not supported." && exit 1 )
+        curl -Isf https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-${UI_REVISION}.zip > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${ELK_VERSION} not supported." && exit 1 )
     else
         logger "Error, repository value must take 'prod' or 'dev' value."
         exit
@@ -170,6 +176,16 @@ main() {
             fi
             shift 2
         ;;
+
+        "-u" | "--ui")
+            if [ -n "$2" ]; then
+                UI_REVISION="$2"
+            else
+                logger "ERROR: package repository is needed."
+                help 1
+            fi
+            shift 2
+        ;;
         "-b"|"--branch")
             if [ -n "$2" ]; then
 
@@ -209,7 +225,8 @@ main() {
         CHECKSUM_DIR="${OUTPUT_DIR}"
     fi
     if  [ "${HAVE_VERSION}" = true ] && [ "${HAVE_ELK_VERSION}" = true ] && [ "${HAVE_PACKAGES_REPOSITORY}" = true ] && [ "${HAVE_OPENDISTRO_VERSION}" = true ]; then
-        check_version ${WAZUH_VERSION} ${ELK_VERSION} ${PACKAGES_REPOSITORY}
+        export UI_REVISION="${UI_REVISION}"
+        check_version
         OVA_VERSION="${WAZUH_VERSION}_${OPENDISTRO_VERSION}"
 
         logger "Version to build: ${WAZUH_VERSION}-${OPENDISTRO_VERSION} with ${PACKAGES_REPOSITORY} repository and ${BRANCH} branch"

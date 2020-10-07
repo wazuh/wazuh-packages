@@ -212,9 +212,12 @@ installKibana() {
     else
         curl -so /etc/kibana/kibana.yml ${resources_url}/resources/open-distro/kibana/7.x/kibana_all_in_one.yml --max-time 300
         echo "telemetry.enabled: false" >> /etc/kibana/kibana.yml
-
         if [ "${PACKAGES_REPOSITORY}" = "prod" ]; then
-            sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/${WAZUH_MAJOR}.x/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}.zip
+            if [ "${WAZUH_MAJOR}" = "3" ]; then
+                sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/${WAZUH_MAJOR}.x/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}.zip
+            else
+                sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/${WAZUH_MAJOR}/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}-${UI_REVISION}.zip
+            fi
         elif [ "${PACKAGES_REPOSITORY}" = "dev" ]; then
             sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-1.zip
         fi
