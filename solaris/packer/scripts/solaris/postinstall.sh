@@ -22,6 +22,40 @@ rm /usr/bin/perl
 mv /opt/csw/bin/perl5.10.1 /usr/bin/
 mv /usr/bin/perl5.10.1 /usr/bin/perl
 
+# Compile GCC-5.5 and CMake
+curl -sL http://packages.wazuh.com/utils/gcc/gcc-5.5.0.tar.gz | gtar xz
+cd gcc-5.5.0
+curl -sL http://packages.wazuh.com/utils/gcc/mpfr-2.4.2.tar.bz2 | gtar xj 
+mv mpfr-2.4.2 mpfr
+curl -sL http://packages.wazuh.com/utils/gcc/gmp-4.3.2.tar.bz2 | gtar xj 
+mv gmp-4.3.2 gmp
+curl -sL http://packages.wazuh.com/utils/gcc/mpc-0.8.1.tar.gz | gtar xz
+mv mpc-0.8.1 mpc
+curl -sL http://packages.wazuh.com/utils/gcc/isl-0.14.tar.bz2 | gtar xj 
+mv isl-0.14 isl
+cd ..
+unset CPLUS_INCLUDE_PATH
+unset LD_LIBRARY_PATH
+mkdir -p gcc-build
+cd gcc-build
+../gcc-5.5.0/configure --prefix=/usr/local/gcc-5.5.0 --enable-languages=c,c++ --disable-multilib --disable-libsanitizer --disable-bootstrap --with-gnu-as --with-as=/usr/sfw/bin/gas
+gmake && gmake install
+echo "export PATH=/usr/local/gcc-5.5.0/bin/:$PATH" >> /etc/profile
+echo "export CPLUS_INCLUDE_PATH=/usr/local/gcc-5.5.0/include/c++/5.5.0/" >> /etc/profile
+echo "export LD_LIBRARY_PATH=/usr/local/gcc-5.5.0/lib/" >> /etc/profile
+cd .. && rm -rf gcc-5.5.0
+ln -s /usr/local/bin/cmake /usr/bin/cmake
+export PATH=/usr/local/gcc-5.5.0/bin/:$PATH
+export CPLUS_INCLUDE_PATH=/usr/local/gcc-5.5.0/include/c++/5.5.0/
+export LD_LIBRARY_PATH=/usr/local/gcc-5.5.0/lib/
+
+curl -OL http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz | gtar xz
+cd cmake-3.18.2
+./bootstrap CC=/usr/local/gcc-5.5.0/bin/gcc CXX=/usr/local/gcc-5.5.0/bin/g++ 
+gmake && gmake install
+cd .. && rm -rf cmake-3.18.2
+ln -s /usr/local/bin/cmake /usr/bin/cmake
+
 
 # Adds vagrant user to the sudoers as a user that can run any command without being asked to introduce the password
 # Read more: https://www.vagrantup.com/docs/boxes/base.html
