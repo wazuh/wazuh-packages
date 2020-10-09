@@ -192,7 +192,8 @@ installFilebeat() {
         curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/master/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300
         chmod go+r /etc/filebeat/wazuh-template.json
 
-        curl -s https://packages.wazuh.com/3.x/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module
+        curl -s https://packages.wazuh.com/${WAZUH_MAJOR}.x/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module
+
         mkdir -p /etc/filebeat/certs
         cp /etc/elasticsearch/certs/{root-ca.pem,filebeat.key,filebeat.pem} /etc/filebeat/certs/
         # Start Filebeat
