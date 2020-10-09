@@ -351,7 +351,7 @@ if [ $1 = 0 ]; then
   fi
 
   # Check for systemd
-  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-agent > /dev/null 2>&1; then
+  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
     systemctl disable wazuh-agent > /dev/null 2>&1
     systemctl daemon-reload > /dev/null 2>&1
   # Check for SysV
