@@ -487,7 +487,7 @@ if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
   rm -f %{_localstatedir}/tmp/wazuh.restart
   if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 ; then
     systemctl restart wazuh-manager.service > /dev/null 2>&1
-  elif command -v service > /dev/null 2>&1 && service wazuh-agent status 2>/dev/null | grep "running" > /dev/null 2>&1; then
+  elif command -v service > /dev/null 2>&1; then
     service wazuh-manager restart > /dev/null 2>&1
   else
     %{_localstatedir}/bin/ossec-control restart > /dev/null 2>&1
