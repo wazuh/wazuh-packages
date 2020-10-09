@@ -414,7 +414,7 @@ if [ $1 = 0 ]; then
     systemctl disable wazuh-manager > /dev/null 2>&1
     systemctl daemon-reload > /dev/null 2>&1
   # Check for SysV
-  elif command -v service > /dev/null 2>&1 && service wazuh-agent status 2>/dev/null | grep "running" > /dev/null 2>&1; then
+  elif command -v service > /dev/null 2>&1 ; then
     chkconfig wazuh-manager off > /dev/null 2>&1
     chkconfig --del wazuh-manager > /dev/null 2>&1
   fi
