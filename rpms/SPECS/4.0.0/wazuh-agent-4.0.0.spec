@@ -341,13 +341,12 @@ if [ $1 = 0 ]; then
 
   # Stop the services before uninstall the package
   # Check for systemd
-  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
-    systemctl stop wazuh-agent > /dev/null 2>&1
+  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-agent > /dev/null 2>&1; then
+    systemctl stop wazuh-agent.service > /dev/null 2>&1
   # Check for SysV
-  elif command -v service > /dev/null 2>&1; then
+  elif command -v service > /dev/null 2>&1 && service wazuh-agent status 2>/dev/null | grep "running" > /dev/null 2>&1; then
     service wazuh-agent stop > /dev/null 2>&1
-  # Anything else
-  else
+  else # Anything else
     %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
   fi
 
