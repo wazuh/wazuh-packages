@@ -235,7 +235,7 @@ if [ $1 = 2 ]; then
 
   # Delete 3.X Wazuh API service
   if [ "$MAJOR" = "3" ] && [ -d %{_localstatedir}/api ]; then
-    if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-agent > /dev/null 2>&1; then
+    if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 ; then
       systemctl stop wazuh-api.service > /dev/null 2>&1
       systemctl disable wazuh-api.service > /dev/null 2>&1
       rm -f /etc/systemd/system/wazuh-api.service
