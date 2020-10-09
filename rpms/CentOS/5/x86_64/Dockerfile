@@ -30,15 +30,11 @@ RUN curl -OL http://packages.wazuh.com/utils/curl/curl-7.63.0.tar.gz && \
     make && make install && cd / && rm -rf curl*
 
 RUN curl -OL http://packages.wazuh.com/utils/cmake/cmake-2.6.4.tar.gz && \
-    tar -zxvf cmake-2.6.4.tar.gz && \
-    cd cmake-2.6.4 && \
-    ./bootstrap && \
-    make && make install && cd / && rm -rf cmake-*
+    tar -zxvf cmake-2.6.4.tar.gz && cd cmake-2.6.4 && \
+    ./bootstrap && make && make install && cd / && rm -rf cmake-*
 
 RUN curl -OL http://packages.wazuh.com/utils/gcc/gcc-5.5.0.tar.gz && \
-    tar xzf gcc-5.5.0.tar.gz  && \
-    ln -sf gcc-5.5.0 gcc && \
-    cd gcc-5.5.0/ && \
+    tar xzf gcc-5.5.0.tar.gz  && cd gcc-5.5.0/ && \
     ./contrib/download_prerequisites && \
     cd .. && mkdir gcc-build && cd gcc-build && \
     ../gcc-5.5.0/configure --prefix=/usr/local/gcc-5.5.0 --enable-languages=c,c++ --disable-multilib --disable-libsanitizer --disable-bootstrap && \
