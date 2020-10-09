@@ -239,7 +239,7 @@ if [ $1 = 2 ]; then
       systemctl stop wazuh-api.service > /dev/null 2>&1
       systemctl disable wazuh-api.service > /dev/null 2>&1
       rm -f /etc/systemd/system/wazuh-api.service
-    elif command -v service > /dev/null 2>&1 && service wazuh-manager status 2>/dev/null | grep "running" > /dev/null 2>&1; then
+    elif command -v service > /dev/null 2>&1 ; then
       service wazuh-api stop > /dev/null 2>&1
       chkconfig wazuh-api off > /dev/null 2>&1
       chkconfig --del wazuh-api > /dev/null 2>&1
