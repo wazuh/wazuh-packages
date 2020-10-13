@@ -177,14 +177,14 @@ fi
 
 # Stop the services to upgrade the package
 if [ $1 = 2 ]; then
+  touch %{_localstatedir}/tmp/wazuh.restart
   if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-manager > /dev/null 2>&1; then
-    touch %{_localstatedir}/tmp/wazuh.restart
     systemctl stop wazuh-manager.service > /dev/null 2>&1
-  fi
-
-  if command -v service > /dev/null 2>&1 && service wazuh-manager status | grep "is running" > /dev/null 2>&1; then
-    touch %{_localstatedir}/tmp/wazuh.restart
+  # Check for SysV
+  elif command -v service > /dev/null 2>&1 && service wazuh-manager status 2>/dev/null | grep "running" > /dev/null 2>&1; then
     service wazuh-manager stop > /dev/null 2>&1
+  else # Anything else
+    %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
   fi
 fi
 
@@ -235,13 +235,11 @@ if [ $1 = 2 ]; then
 
   # Delete 3.X Wazuh API service
   if [ "$MAJOR" = "3" ] && [ -d %{_localstatedir}/api ]; then
-    if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
+    if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 ; then
       systemctl stop wazuh-api.service > /dev/null 2>&1
       systemctl disable wazuh-api.service > /dev/null 2>&1
       rm -f /etc/systemd/system/wazuh-api.service
-    fi
-
-    if command -v service > /dev/null 2>&1; then
+    elif command -v service > /dev/null 2>&1 ; then
       service wazuh-api stop > /dev/null 2>&1
       chkconfig wazuh-api off > /dev/null 2>&1
       chkconfig --del wazuh-api > /dev/null 2>&1
@@ -402,13 +400,12 @@ if [ $1 = 0 ]; then
 
   # Stop the services before uninstall the package
   # Check for systemd
-  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
-    systemctl stop wazuh-manager > /dev/null 2>&1
+  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-manager > /dev/null 2>&1; then
+    systemctl stop wazuh-manager.service > /dev/null 2>&1
   # Check for SysV
-  elif command -v service > /dev/null 2>&1; then
+  elif command -v service > /dev/null 2>&1 && service wazuh-manager status 2>/dev/null | grep "running" > /dev/null 2>&1; then
     service wazuh-manager stop > /dev/null 2>&1
-  # Anything else
-  else
+  else # Anything else
     %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
   fi
 
@@ -417,7 +414,7 @@ if [ $1 = 0 ]; then
     systemctl disable wazuh-manager > /dev/null 2>&1
     systemctl daemon-reload > /dev/null 2>&1
   # Check for SysV
-  elif command -v service > /dev/null 2>&1; then
+  elif command -v service > /dev/null 2>&1 ; then
     chkconfig wazuh-manager off > /dev/null 2>&1
     chkconfig --del wazuh-manager > /dev/null 2>&1
   fi
@@ -487,14 +484,13 @@ fi
 # posttrans code is the last thing executed in a install/upgrade
 %posttrans
 if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
+  rm -f %{_localstatedir}/tmp/wazuh.restart
   if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 ; then
-    rm -f %{_localstatedir}/tmp/wazuh.restart
     systemctl restart wazuh-manager.service > /dev/null 2>&1
-  fi
-
-  if command -v service > /dev/null 2>&1; then
-    rm -f %{_localstatedir}/tmp/wazuh.restart
+  elif command -v service > /dev/null 2>&1 ; then
     service wazuh-manager restart > /dev/null 2>&1
+  else
+    %{_localstatedir}/bin/ossec-control restart > /dev/null 2>&1
   fi
 fi
 
