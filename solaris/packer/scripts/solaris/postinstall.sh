@@ -2,7 +2,7 @@
 
 # install wazuh dependencies & some important packages
 
-PATH=$PATH:/usr/sfw/bin:/opt/csw/bin
+export PATH="$PATH:/usr/sfw/bin:/opt/csw/bin"
 yes | /usr/sbin/pkgadd -d http://get.opencsw.org/now all
 /opt/csw/bin/pkgutil -U
 
@@ -42,16 +42,15 @@ mkdir -p gcc-build
 cd gcc-build
 # Fix for solaris 10/11
 if [ "$(uname -v)" = "11.3" ]; then
-  #ln -s /opt/csw/bin/gas /usr/sfw/bin/gas
   ../gcc-5.5.0/configure --prefix=/usr/local/gcc-5.5.0 --enable-languages=c,c++ --disable-multilib --disable-libsanitizer --disable-bootstrap --with-ld=/usr/ccs/bin/ld --without-gnu-ld --with-gnu-as --with-as=/opt/csw/bin/gas
   gmake && gmake install
-  echo "export PATH=/usr/local/gcc-5.5.0/bin:/usr/local/bin:/opt/csw/bin/:/usr/bin:/usr/sbin:$PATH" >> /etc/profile
-  export PATH=/usr/local/gcc-5.5.0/bin:/usr/local/bin:/opt/csw/bin/:/usr/bin:/usr/sbin:$PATH
+  echo "export PATH=/usr/local/gcc-5.5.0/bin:/usr/local/bin:/opt/csw/bin:/usr/bin:/usr/sbin:${PATH}" >> /etc/profile
+  export PATH="/usr/local/gcc-5.5.0/bin:/usr/local/bin:/opt/csw/bin:/usr/bin:/usr/sbin:${PATH}"
 else
   ../gcc-5.5.0/configure --prefix=/usr/local/gcc-5.5.0 --enable-languages=c,c++ --disable-multilib --disable-libsanitizer --disable-bootstrap --with-gnu-as --with-as=/usr/sfw/bin/gas
   gmake && gmake install
-  echo "export PATH=/usr/local/gcc-5.5.0/bin/:$PATH" >> /etc/profile
-  export PATH=/usr/local/gcc-5.5.0/bin/:$PATH
+  echo "export PATH=/usr/local/gcc-5.5.0/bin:${PATH}" >> /etc/profile
+  export PATH="/usr/local/gcc-5.5.0/bin:${PATH}"
 fi
 
 echo "export CPLUS_INCLUDE_PATH=/usr/local/gcc-5.5.0/include/c++/5.5.0/" >> /etc/profile
