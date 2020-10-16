@@ -11,7 +11,7 @@ RUN echo "deb http://deb.debian.org/debian stretch main contrib non-free" >> /et
     echo "deb-src http://deb.debian.org/debian stretch main contrib non-free" >> /etc/apt/sources.list && \
     apt-get update && apt-get install -y apt-utils && \
     apt-get install -y --force-yes \
-    curl gcc make cmake sudo expect gnupg fakeroot perl-base perl wget \
+    curl gcc make cmake sudo expect gnupg perl-base perl wget \
     libc-bin libc6 libc6-dev build-essential \
     cdbs devscripts equivs automake autoconf libtool libaudit-dev selinux-basics \
     libdb5.3 libdb5.3 libssl1.0.2 gawk libsigsegv2
