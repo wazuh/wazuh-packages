@@ -4,6 +4,9 @@
 
 if [ "$(uname -v)" = "11.3" ]; then
   export PATH="${PATH}:/usr/sfw/bin:/opt/csw/bin"
+else
+  PATH="${PATH}:/usr/sfw/bin:/opt/csw/bin"
+  export PATH
 fi
 yes | /usr/sbin/pkgadd -d http://get.opencsw.org/now all
 /opt/csw/bin/pkgutil -U
