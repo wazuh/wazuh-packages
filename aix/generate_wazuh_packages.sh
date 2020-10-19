@@ -8,12 +8,15 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
+set -x
+
 # Script configuration variables
 current_path="$( cd $(dirname $0) ; pwd -P )"
 install_path="/var/ossec"
 wazuh_branch="master"
 target_dir="${current_path}/output/"
 compute_checksums="no"
+build_chroot="no"
 checksum_dir=""
 # Check if running as root
 if [[ $EUID -ne 0 ]]; then
@@ -37,9 +40,27 @@ show_help() {
   echo "    -s, --store  <rpm_directory>        Directory to store the resulting RPM package. By default: /tmp/build"
   echo "    -p, --install-path <rpm_home>       Installation path for the package. By default: /var"
   echo "    -c, --checksum <path>               Compute the SHA512 checksum of the RPM package."
+  echo "    -ch, --chroot                       Build package inside chroot on /usr/pkg."
   echo "    -h, --help                          Shows this help"
   echo
   exit $1
+}
+
+build_chroot() {
+  # Preparing chroot environment
+  mkdir -p /usr/pkg/{aix,bin,dev,etc,lib,opt/freeware,proc,sbin,tmp,usr,var}
+
+  cp -R ${current_path}/* /usr/pkg/aix/
+  cp -R /bin/* /usr/pkg/bin/
+  cp -R /dev/* /usr/pkg/dev/
+  cp -R /etc/* /usr/pkg/etc/
+  rsync -v -a --exclude 'nls' /lib/ /usr/pkg/lib/
+  cp -R /opt/freeware/* /usr/pkg/opt/freeware/
+  cp -R /sbin/* /usr/pkg/sbin/
+  cp -R /usr/{bin,ccs,custom,include,lib64,local,sbin,tmp} /usr/pkg/usr/
+  rsync -v -a --exclude 'nls' /usr/lib/ /usr/pkg/usr/lib/
+
+  chroot /usr/pkg/ "/aix/$(basename $0) -c -p ${install_path} -b ${wazuh_branch} -s ${target_dir}"
 }
 
 # Function to install perl 5.10 on AIX 5
@@ -54,6 +75,25 @@ build_perl() {
   cd .. && rm -rf perl-5.10.1*
 
   return 0
+}
+
+# Function to install libssh2 on AIX 5
+build_libssh2() {
+  wget http://packages.wazuh.com/utils/libssh2/libssh2-1.8.2.tar.gz
+  gunzip libssh2-1.8.2.tar.gz && tar -xvf libssh2-1.8.2.tar
+  cd libssh2-1.8.2 && ./configure --prefix=/usr/custom
+  gmake && gmake install
+  cd .. && rm -rf libssh2-1.8.2*
+}
+
+build_curl() {
+  wget http://packages.wazuh.com/utils/curl/curl-7.72.0.tar.gz
+  gunzip curl-7.72.0.tar.gz && tar -xvf curl-7.72.0.tar
+  cd curl-7.72.0 && ./configure --with-libssh2=/usr/custom
+  gmake && gmake install
+  ln -fs /usr/local/bin/curl /bin/curl
+  ln -fs /usr/local/bin/curl /opt/freeware/bin/curl
+  cd .. && rm -rf curl-7.72.0*
 }
 
 # Function to build the compilation environment
@@ -77,8 +117,6 @@ build_environment() {
   $rpm http://www.oss4aix.org/download/RPMS/bash/bash-4.4-4.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/bzip2/bzip2-1.0.6-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/coreutils/coreutils-64bit-8.28-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/curl/curl-devel-7.72.0-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/curl/curl-7.72.0-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/expat/expat-2.2.5-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/expat/expat-devel-2.2.5-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/gettext/gettext-0.17-1.aix5.1.ppc.rpm || true
@@ -97,7 +135,8 @@ build_environment() {
   $rpm http://www.oss4aix.org/download/RPMS/m4/m4-1.4.18-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/make/make-4.2.1-1.aix5.3.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/openldap/openldap-2.4.44-0.1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/openssl/openssl-1.0.2o-1.aix5.1.ppc.rpm || true
+  $rpm http://www.oss4aix.org/download/RPMS/openssl/openssl-1.0.2u-1.aix5.1.ppc.rpm || true
+  $rpm http://www.oss4aix.org/download/RPMS/openssl/openssl-devel-1.0.2u-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/pcre/pcre-8.41-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/pkg-config/pkg-config-0.29.1-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/readline/readline-7.0-3.aix5.1.ppc.rpm || true
@@ -106,8 +145,8 @@ build_environment() {
   $rpm http://www.oss4aix.org/download/RPMS/zlib/zlib-1.2.11-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/python/python-2.7.13-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/python/python-libs-2.7.13-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/libssh2/libssh2-devel-1.8.2-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/libssh2/libssh2-1.8.2-1.aix5.1.ppc.rpm || true
+  $rpm http://www.oss4aix.org/download/RPMS/popt/popt-1.16-2.aix5.1.ppc.rpm || true
+  $rpm http://www.oss4aix.org/download/RPMS/rsync/rsync-3.1.3-1.aix5.1.ppc.rpm || true
 
   if [[ "${aix_major}" = "5" ]]; then
     $rpm http://www.oss4aix.org/download/RPMS/gcc/gcc-4.8.2-1.aix5.3.ppc.rpm || true
@@ -154,6 +193,8 @@ build_environment() {
 
   if [[ "${aix_major}" = "5" ]]; then
     build_perl
+    build_libssh2
+    build_curl
   fi
 
   return 0
@@ -193,7 +234,7 @@ build_package() {
   init_scripts="/etc/rc.d/init.d"
   sysconfdir="/etc"
 
-  rpm --define "_topdir ${rpm_build_dir}" --define "_localstatedir ${directory_base}" \
+  rpm --define '_tmppath /tmp' --define "_topdir ${rpm_build_dir}" --define "_localstatedir ${directory_base}" \
   --define "_init_scripts ${init_scripts}" --define "_sysconfdir ${sysconfdir}" \
   -bb ${rpm_build_dir}/SPECS/${package_name}-aix.spec
 
@@ -285,6 +326,10 @@ main() {
                 shift 1
             fi
         ;;
+        "-ch" | "--chroot")
+            build_chroot="yes"
+            shift 1
+        ;;
         *)
           show_help 1
     esac
@@ -296,6 +341,10 @@ main() {
 
   if [ -z "${checksum_dir}" ]; then
     checksum_dir="${target_dir}"
+  fi
+
+  if [[ "${build_chroot}" = "yes" ]]; then
+    build_chroot || exit 1
   fi
 
   if [[ "${build_rpm}" = "yes" ]]; then
