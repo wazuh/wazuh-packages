@@ -244,8 +244,6 @@ rm -fr %{buildroot}
 %dir %attr(1750,root,ossec) %config(missingok) %{_localstatedir}/tmp/etc/templates/config
 %dir %attr(1750,root,ossec) %config(missingok) %{_localstatedir}/tmp/etc/templates/config/generic
 %attr(750,root,system) %config(missingok) %{_localstatedir}/tmp/etc/templates/config/generic/*.template
-%dir %attr(1750,root,ossec) %config(missingok) /var/ossec/tmp/etc/templates/config/generic/localfile-logs
-%attr(750,root,system) %config(missingok) /var/ossec/tmp/etc/templates/config/generic/localfile-logs/*.template
 %attr(750,root,system) %config(missingok) %{_localstatedir}/tmp/src/*
 %dir %attr(750,root,ossec) %{_localstatedir}/var
 %dir %attr(770,root,ossec) %{_localstatedir}/var/incoming
