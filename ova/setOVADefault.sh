@@ -18,11 +18,11 @@ cp ${ovf_path} ${workspace}/new-ova/${file}.ovf
 
 sed -i "s/{WAZUH_VERSION}/${wazuh_version}/" ${workspace}/new-ova/${file}.ovf
 sed -i "s/{OPENDISTRO_VERSION}/${opendistro_version}/" ${workspace}/new-ova/${file}.ovf
-
 echo "OVF changed"
 
-stat --printf=\"%s\" ${workspace}/new-ova/${file}.ovf
-sed -i 's/{SIZE}/${ovf_size}/' ${workspace}/new-ova/${file}.ovf
+ovf_size=$(stat --printf=%s ${workspace}/new-ova/${file}-disk-1.vmdk)
+sed -i "s/{SIZE}/${ovf_size}/" "${workspace}/new-ova/${file}.ovf"   
+
 export workspace
 export file
 sha_ovf=$(sha1sum ${workspace}/new-ova/${file}.ovf)
@@ -38,3 +38,4 @@ echo "SHA1(${file}.ovf) = ${sha_ovf}" >> ${workspace}/new-ova/${file}.mf
 
 tar -cvf "${dest_ova}" -C "${workspace}/new-ova/" ${file}.ovf ${file}-disk-1.vmdk ${file}.mf
 rm -rf ${workspace}/new-ova/
+
