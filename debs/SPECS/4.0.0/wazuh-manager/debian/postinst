@@ -75,6 +75,21 @@ case "$1" in
         rm -f ${DIR}/var/db/global.db* || true
     fi
 
+    # Delete uncompatible DBs versions
+    if [ ! -z $2 ]; then
+
+        PREVIOUS_VERSION=$(echo $2 | cut -d"-" -f1)
+
+        # Get the major and minor version
+        MAJOR=$(echo $PREVIOUS_VERSION | cut -d. -f1)
+        MINOR=$(echo $PREVIOUS_VERSION | cut -d. -f2)
+
+        if [ $MAJOR = 3 ] && [ $MINOR -lt 7 ]; then
+            rm -f ${DIR}/queue/db/*.db*
+            rm -f ${DIR}/queue/db/.template.db
+        fi
+    fi
+
     # Remove Vuln-detector database
     rm -f ${DIR}/queue/vulnerabilities/cve.db || true
 
