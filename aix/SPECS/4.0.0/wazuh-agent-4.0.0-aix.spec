@@ -83,10 +83,10 @@ exit 0
 %pre
 
 # Create ossec user and group
-if ! grep "^ossec:" /etc/group; then
+if ! grep "^ossec:" /etc/group > /dev/null 2>&1; then
   /usr/bin/mkgroup ossec
 fi
-if ! grep "^ossec" /etc/passwd; then
+if ! grep "^ossec" /etc/passwd > /dev/null 2>&1; then
   /usr/sbin/useradd ossec
   /usr/sbin/usermod -G ossec ossec
 fi
@@ -102,7 +102,7 @@ fi
 
 if [ $1 = 2 ]; then
   touch %{_localstatedir}/tmp/wazuh.restart
-  /etc/rc.d/init.d/wazuh-agent restart || :
+  /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
 fi
 
 %post
@@ -137,7 +137,7 @@ if [ $1 = 1 ]; then
   chown ossec:ossec %{_localstatedir}/logs/active-responses.log
   chmod 0660 %{_localstatedir}/logs/active-responses.log
 
-  %{_localstatedir}/tmp/src/init/register_configure_agent.sh || :
+  %{_localstatedir}/tmp/src/init/register_configure_agent.sh > /dev/null || :
 
 fi
 
@@ -151,14 +151,14 @@ rm -f %{_localstatedir}/tmp/add_localfiles.sh
 chmod 0660 %{_localstatedir}/etc/ossec.conf
 
 # Restart wazuh-agent when manager settings are in place
-if grep '<server-ip>.*</server-ip>' %{_localstatedir}/etc/ossec.conf | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$'; then
-  /etc/rc.d/init.d/wazuh-agent restart || :
+if grep '<server-ip>.*</server-ip>' %{_localstatedir}/etc/ossec.conf | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' > /dev/null 2>&1; then
+  /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
 fi
-if grep '<server-hostname>.*</server-hostname>' %{_localstatedir}/etc/ossec.conf; then
-  /etc/rc.d/init.d/wazuh-agent restart || :
+if grep '<server-hostname>.*</server-hostname>' %{_localstatedir}/etc/ossec.conf > /dev/null 2>&1; then
+  /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
 fi
-if grep '<address>.*</address>' %{_localstatedir}/etc/ossec.conf | grep -v 'MANAGER_IP'; then
-  /etc/rc.d/init.d/wazuh-agent restart || :
+if grep '<address>.*</address>' %{_localstatedir}/etc/ossec.conf | grep -v 'MANAGER_IP' > /dev/null 2>&1; then
+  /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
 fi
 
 
@@ -166,7 +166,7 @@ fi
 
 if [ $1 = 0 ]; then
 
-  /etc/rc.d/init.d/wazuh-agent stop || :
+  /etc/rc.d/init.d/wazuh-agent stop > /dev/null 2>&1 || :
   rm -f %{_localstatedir}/queue/ossec/*
   rm -f %{_localstatedir}/queue/ossec/.agent_info || :
   rm -f %{_localstatedir}/queue/ossec/.wait || :
@@ -181,10 +181,10 @@ fi
 
 # Remove ossec user and group
 if [ $1 = 0 ];then
-  if grep "^ossec" /etc/passwd; then
+  if grep "^ossec" /etc/passwd > /dev/null 2>&1; then
     userdel ossec
   fi
-  if grep "^ossec:" /etc/group; then
+  if grep "^ossec:" /etc/group > /dev/null 2>&1; then
     rmgroup ossec
   fi
 
@@ -194,7 +194,7 @@ fi
 %posttrans
 if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
   rm -f %{_localstatedir}/tmp/wazuh.restart
-  /etc/rc.d/init.d/wazuh-agent restart || :
+  /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
 fi
 
 %clean
