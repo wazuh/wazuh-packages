@@ -8,16 +8,17 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-set -x
-
 # Script configuration variables
 current_path="$( cd $(dirname $0) ; pwd -P )"
 install_path="/var/ossec"
-wazuh_branch="master"
+reference="master"
+revision="1"
 target_dir="${current_path}/output/"
 compute_checksums="no"
 build_chroot="no"
+chroot_path="/usr/pkg"
 checksum_dir=""
+
 # Check if running as root
 if [[ $EUID -ne 0 ]]; then
  echo "This script must be run as root"
@@ -35,32 +36,59 @@ show_help() {
   echo
   echo "Usage: $0 [OPTIONS]"
   echo
-  echo "    -b, --branch <branch>               Select Git branch or tag e.g. $BRANCH"
-  echo "    -e, --environment                   Install all the packages necessaries to build the RPM package"
-  echo "    -s, --store  <rpm_directory>        Directory to store the resulting RPM package. By default: /tmp/build"
-  echo "    -p, --install-path <rpm_home>       Installation path for the package. By default: /var"
-  echo "    -c, --checksum <path>               Compute the SHA512 checksum of the RPM package."
-  echo "    -ch, --chroot                       Build package inside chroot on /usr/pkg."
-  echo "    -h, --help                          Shows this help"
+  echo "    -b,  --branch <branch>               Select Git branch or tag. By default: ${reference}"
+  echo "    -r,  --revision <revision>           Define package revision text/number. By default: ${revision}"
+  echo "    -e,  --environment                   Install all the packages necessaries to build the RPM package"
+  echo "    -s,  --store  <rpm_directory>        Directory to store the resulting RPM package. By default: ${target_dir}"
+  echo "    -p,  --install-path <rpm_home>       Installation path for the package. By default: ${install_path}"
+  echo "    -c,  --checksum <path>               Compute the SHA512 checksum of the RPM package."
+  echo "    -ch, --chroot                        Build package inside chroot on ${chroot_path}"
+  echo "    -h,  --help                          Shows this help"
   echo
   exit $1
 }
 
 build_chroot() {
   # Preparing chroot environment
-  mkdir -p /usr/pkg/{aix,bin,dev,etc,lib,opt/freeware,proc,sbin,tmp,usr,var}
+  mkdir -p ${chroot_path}/aix
+  mkdir -p ${chroot_path}/bin
+  mkdir -p ${chroot_path}/dev
+  mkdir -p ${chroot_path}/etc
+  mkdir -p ${chroot_path}/lib
+  mkdir -p ${chroot_path}/opt/freeware
+  mkdir -p ${chroot_path}/proc
+  mkdir -p ${chroot_path}/sbin
+  mkdir -p ${chroot_path}/tmp
+  mkdir -p ${chroot_path}/usr
+  mkdir -p ${chroot_path}/var
+  mkdir -p ${chroot_path}/usr/bin
+  mkdir -p ${chroot_path}/usr/ccs
+  mkdir -p ${chroot_path}/usr/custom
+  mkdir -p ${chroot_path}/usr/include
+  mkdir -p ${chroot_path}/usr/lib64
+  mkdir -p ${chroot_path}/usr/local
+  mkdir -p ${chroot_path}/usr/sbin
+  mkdir -p ${chroot_path}/usr/tmp
 
-  cp -R ${current_path}/* /usr/pkg/aix/
-  cp -R /bin/* /usr/pkg/bin/
-  cp -R /dev/* /usr/pkg/dev/
-  cp -R /etc/* /usr/pkg/etc/
-  rsync -v -a --exclude 'nls' /lib/ /usr/pkg/lib/
-  cp -R /opt/freeware/* /usr/pkg/opt/freeware/
-  cp -R /sbin/* /usr/pkg/sbin/
-  cp -R /usr/{bin,ccs,custom,include,lib64,local,sbin,tmp} /usr/pkg/usr/
-  rsync -v -a --exclude 'nls' /usr/lib/ /usr/pkg/usr/lib/
+  cp -R ${current_path}/* ${chroot_path}/aix/
+  cp -R /bin/* ${chroot_path}/bin/
+  cp -R /dev/* ${chroot_path}/dev/
+  cp -R /etc/* ${chroot_path}/etc/
+  rsync -v -a --exclude 'nls' /lib/ ${chroot_path}/lib/
+  cp -R /opt/freeware/* ${chroot_path}/opt/freeware/
+  cp -R /sbin/* ${chroot_path}/sbin/
+  cp -R /usr/bin ${chroot_path}/usr/
+  cp -R /usr/ccs ${chroot_path}/usr/
+  cp -R /usr/custom ${chroot_path}/usr/
+  cp -R /usr/include ${chroot_path}/usr/
+  cp -R /usr/lib64 ${chroot_path}/usr/
+  cp -R /usr/lib64 ${chroot_path}/usr/
+  cp -R /usr/local ${chroot_path}/usr/
+  cp -R /usr/sbin ${chroot_path}/usr/
+  cp -R /usr/tmp ${chroot_path}/usr/
+  rsync -v -a --exclude 'nls' /usr/lib/ ${chroot_path}/usr/lib/
 
-  chroot /usr/pkg/ "/aix/$(basename $0) -c -p ${install_path} -b ${wazuh_branch} -s ${target_dir}"
+  chroot ${chroot_path}/ /aix/$(basename $0) -c ${checksum_dir} -p ${install_path} -b ${reference} -s ${target_dir}
 }
 
 # Function to install perl 5.10 on AIX 5
@@ -147,6 +175,7 @@ build_environment() {
   $rpm http://www.oss4aix.org/download/RPMS/python/python-libs-2.7.13-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/popt/popt-1.16-2.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/rsync/rsync-3.1.3-1.aix5.1.ppc.rpm || true
+  $rpm http://www.oss4aix.org/download/RPMS/nano/nano-2.5.3-1.aix5.1.ppc.rpm || true
 
   if [[ "${aix_major}" = "5" ]]; then
     $rpm http://www.oss4aix.org/download/RPMS/gcc/gcc-4.8.2-1.aix5.3.ppc.rpm || true
@@ -202,7 +231,7 @@ build_environment() {
 
 build_package() {
 
-  source_code="https://api.github.com/repos/wazuh/wazuh/tarball/${wazuh_branch}"
+  source_code="https://api.github.com/repos/wazuh/wazuh/tarball/${reference}"
 
   rm -f wazuh.tar.gz && wget -O wazuh.tar.gz --no-check-certificate ${source_code}
   rm -rf wazuh-wazuh-* wazuh-agent-*
@@ -222,19 +251,17 @@ build_package() {
   tar cf ${package_name}.tar ${package_name} && gzip ${package_name}.tar
   mv ${package_name}.tar.gz ${rpm_build_dir}/SOURCES/
 
-  cp SPECS/${wazuh_version}/wazuh-agent-${wazuh_version}-aix.spec ${rpm_build_dir}/SPECS
+  cp ${current_path}/SPECS/${wazuh_version}/wazuh-agent-${wazuh_version}-aix.spec ${rpm_build_dir}/SPECS
 
   if [[ ${aix_major} = "6" ]] && [[ -f /opt/freeware/lib/gcc/powerpc-ibm-aix6.1.1.0/6.3.0/include-fixed/sys/socket.h ]]; then
     ignored_lib=/opt/freeware/lib/gcc/powerpc-ibm-aix6.1.1.0/6.3.0/include-fixed/sys/socket.h
     mv ${ignored_lib} ${ignored_lib}.backup
   fi
 
-  package_release="1"
-  directory_base="/var"
   init_scripts="/etc/rc.d/init.d"
   sysconfdir="/etc"
 
-  rpm --define '_tmppath /tmp' --define "_topdir ${rpm_build_dir}" --define "_localstatedir ${directory_base}" \
+  rpm --define '_tmppath /tmp' --define "_topdir ${rpm_build_dir}" --define "_localstatedir ${install_path}" \
   --define "_init_scripts ${init_scripts}" --define "_sysconfdir ${sysconfdir}" \
   -bb ${rpm_build_dir}/SPECS/${package_name}-aix.spec
 
@@ -242,15 +269,15 @@ build_package() {
     mv ${ignored_lib}.backup ${ignored_lib}
   fi
 
-  # If they exist, remove the installed files in ${directory_base}
-  rm -rf ${directory_base}/ossec /etc/ossec-init.conf
+  # If they exist, remove the installed files in ${install_path}
+  rm -rf ${install_path} /etc/ossec-init.conf
   find /etc/ -name "*wazuh*" -exec rm {} \;
 
   if [ ! -d ${target_dir} ]; then
     mkdir -p ${target_dir}
   fi
 
-  rpm_file=${package_name}-${package_release}.aix${aix_major}.${aix_minor}.ppc.rpm
+  rpm_file=${package_name}-${revision}.aix${aix_major}.${aix_minor}.ppc.rpm
   mv ${rpm_build_dir}/RPMS/ppc/${rpm_file} ${target_dir}
 
   if [ -f ${target_dir}/${rpm_file} ]; then
@@ -283,16 +310,21 @@ main() {
         "-b"|"--branch")
           if [ -n "$2" ]
           then
-            wazuh_branch="$2"
+            reference="$2"
             build_rpm="yes"
             shift 2
           else
               show_help 1
           fi
         ;;
-        "-h"|"--help")
-          show_help
-          exit 0
+        "-r"|"--revision")
+          if [ -n "$2" ]
+          then
+            revision="$2"
+            shift 2
+          else
+              show_help 1
+          fi
         ;;
         "-e"|"--environment" )
           build_environment
@@ -329,6 +361,10 @@ main() {
         "-ch" | "--chroot")
             build_chroot="yes"
             shift 1
+        ;;
+        "-h"|"--help")
+          show_help
+          exit 0
         ;;
         *)
           show_help 1
