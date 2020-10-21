@@ -4,10 +4,10 @@
 require 'getoptlong'
 
 os = {
-    'solaris11' => {'box' => 'wazuh/solaris11', 'ip' => '172.16.1.44', folder => 'solaris11'},
-    'solaris10' => {'box' => 'wazuh/solaris10', 'ip' => '172.16.1.45', folder => 'solaris10'},
-    'testing-10' => {'box' => 'testing/solaris10', 'ip' => '172.16.1.43', folder => 'solaris10'},
-    'testing-11' => {'box' => 'testing/solaris11', 'ip' => '172.16.1.42', folder => 'solaris11'},
+    'solaris11' => {'box' => 'wazuh/solaris11', 'ip' => '172.16.1.44', 'folder' => 'solaris11'},
+    'solaris10' => {'box' => 'wazuh/solaris10', 'ip' => '172.16.1.45', 'folder' => 'solaris10'},
+    'testing-10' => {'box' => 'testing/solaris10', 'ip' => '172.16.1.43', 'folder' => 'solaris10'},
+    'testing-11' => {'box' => 'testing/solaris11', 'ip' => '172.16.1.42', 'folder' => 'solaris11'},
 }
 
 ###################################################
