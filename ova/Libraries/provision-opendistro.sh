@@ -248,6 +248,8 @@ configWazuh() {
 
     sed -i 's/<enabled>.*<\/enabled>/<enabled>no<\/enabled>/' ${manager_config}
     sed -i 's/<disabled>.*<\/disabled>/<disabled>yes<\/disabled>/' ${manager_config}
+    
+    sed -i "s/INSTALLATION_DIRECTORY/\/var\/ossec/g" ${config_files}/ossec.conf
     auth_configuration_with_tags=$(sed -n '/<auth>/I,/<\/auth>/I p' ${config_files}/ossec.conf) 
     auth_configuration=$(echo "${auth_configuration_with_tags}" | tail -n +2 | head -n -1)
     ossec_configuration=$(awk -vauthConf="${auth_configuration}" '/<auth>/{p=1;print;print authConf}/<\/auth>/{p=0}!p' ${manager_config})
