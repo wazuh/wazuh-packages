@@ -3,6 +3,7 @@ char="#"
 sys_type="yum"
 searchguard_version="1.8"
 resources_url=https://raw.githubusercontent.com/wazuh/wazuh-documentation/${BRANCH}
+manager_config="/var/ossec/etc/ossec.conf"
 
 logger() {
 
@@ -10,6 +11,7 @@ logger() {
 }
 
 startService() {
+
     service_name=$1
     if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
         systemctl daemon-reload
@@ -54,6 +56,7 @@ getHelp() {
 
 ## Install the required packages for the installation
 installPrerequisites() {
+
     logger "Installing all necessary utilities for the installation..."
     $sys_type install curl unzip wget libcap -y -q
     echo -e '[AdoptOpenJDK] \nname=AdoptOpenJDK \nbaseurl=http://adoptopenjdk.jfrog.io/adoptopenjdk/rpm/centos/$releasever/$basearch\nenabled=1\ngpgcheck=1\ngpgkey=https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public' | tee /etc/yum.repos.d/adoptopenjdk.repo
@@ -70,6 +73,7 @@ installPrerequisites() {
 
 ## Add the Wazuh repository
 addWazuhrepo() {
+
     WAZUH_MAJOR="$(echo ${WAZUH_VERSION} | head -c 1)"
     logger "Adding the Wazuh repository..."
     rpm --import https://packages.wazuh.com/key/GPG-KEY-WAZUH
@@ -89,8 +93,8 @@ addWazuhrepo() {
 }
 
 addElasticRepo(){
+
     logger "Adding the Elastic repository..."
-    curl https://d3g5vo6xdbdb9a.cloudfront.net/yum/opendistroforelasticsearch-artifacts.repo -o /etc/yum.repos.d/opendistroforelasticsearch-artifacts.repo
     if [ "$?" != 0 ]; then
         logger "Error: Wazuh repository could not be added"
         exit 1
@@ -98,8 +102,6 @@ addElasticRepo(){
         logger "Done"
     fi
 }
-
-
 
 ## Wazuh manager
 installWazuh() {
@@ -179,6 +181,7 @@ installElasticsearch() {
 
 ## Filebeat
 installFilebeat() {
+
     logger "Installing Filebeat..."
 
     $sys_type install filebeat-"${ELK_VERSION}" -y -q
@@ -204,6 +207,7 @@ installFilebeat() {
 
 ## Kibana
 installKibana() {
+
     WAZUH_MAJOR="$(echo ${WAZUH_VERSION} | head -c 1)"
     logger "Installing Open Distro for Kibana..."
     $sys_type install opendistroforelasticsearch-kibana-${OPENDISTRO_VERSION} -y -q
@@ -217,10 +221,10 @@ installKibana() {
             if [ "${WAZUH_MAJOR}" = "3" ]; then
                 sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/${WAZUH_MAJOR}.x/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}.zip
             else
-                sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/${WAZUH_MAJOR}/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}-${UI_REVISION}.zip
+                sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/${WAZUH_MAJOR}/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}-1.zip
             fi
         elif [ "${PACKAGES_REPOSITORY}" = "dev" ]; then
-            sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-1.zip
+            sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-${UI_REVISION}.zip
         fi
 
         if [ "$?" != 0 ]
@@ -237,6 +241,17 @@ installKibana() {
 
         logger "Done"
     fi
+}
+
+
+configWazuh() {
+
+    sed -i 's/<enabled>.*<\/enabled>/<enabled>no<\/enabled>/' ${manager_config}
+    sed -i 's/<disabled>.*<\/disabled>/<disabled>yes<\/disabled>/' ${manager_config}
+    auth_configuration_with_tags=$(sed -n '/<auth>/I,/<\/auth>/I p' ${config_files}/ossec.conf) 
+    auth_configuration=$(echo "${auth_configuration_with_tags}" | tail -n +2 | head -n -1)
+    ossec_configuration=$(awk -vauthConf="${auth_configuration}" '/<auth>/{p=1;print;print authConf}/<\/auth>/{p=0}!p' ${manager_config})
+    echo "${ossec_configuration}" > ${manager_config}
 }
 
 ## Health check
@@ -279,8 +294,8 @@ checkInstallation() {
 }
 
 cleanInstall(){
+
     rm -rf /etc/yum.repos.d/adoptopenjdk.repo
     rm -rf /etc/yum.repos.d/wazuh.repo
-    rm -rf /etc/yum.repos.d/opendistroforelasticsearch-artifacts.repo
     yum clean all
 }
