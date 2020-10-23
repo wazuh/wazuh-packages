@@ -233,6 +233,12 @@ if [ $1 = 2 ]; then
   MAJOR=$(echo $VERSION | cut -dv -f2 | cut -d. -f1)
   MINOR=$(echo $VERSION | cut -d. -f2)
 
+  # Delete uncompatible DBs versions
+  if [ $MAJOR = 3 ] && [ $MINOR -lt 7 ]; then
+    rm -f %{_localstatedir}/queue/db/*.db*
+    rm -f %{_localstatedir}/queue/db/.template.db
+  fi
+
   # Delete 3.X Wazuh API service
   if [ "$MAJOR" = "3" ] && [ -d %{_localstatedir}/api ]; then
     if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
