@@ -51,6 +51,7 @@ installWazuh
 installElasticsearch
 installFilebeat
 installKibana
+configWazuh
 checkInstallation
 cleanInstall
 
