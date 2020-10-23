@@ -387,6 +387,10 @@ main() {
     build_package || exit 1
   fi
 
+  if [[ "${build_chroot}" = "yes" ]]; then
+    rm -rf ${chroot_path} || exit 1
+  fi
+
   return 0
 }
 
