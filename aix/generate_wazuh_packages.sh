@@ -36,14 +36,14 @@ show_help() {
   echo
   echo "Usage: $0 [OPTIONS]"
   echo
-  echo "    -b,  --branch <branch>               Select Git branch or tag. By default: ${reference}"
-  echo "    -r,  --revision <revision>           Define package revision text/number. By default: ${revision}"
-  echo "    -e,  --environment                   Install all the packages necessaries to build the RPM package"
-  echo "    -s,  --store  <rpm_directory>        Directory to store the resulting RPM package. By default: ${target_dir}"
-  echo "    -p,  --install-path <rpm_home>       Installation path for the package. By default: ${install_path}"
-  echo "    -c,  --checksum <path>               Compute the SHA512 checksum of the RPM package."
-  echo "    -ch, --chroot                        Build package inside chroot on ${chroot_path}"
-  echo "    -h,  --help                          Shows this help"
+  echo "    -b,  --branch <branch>        Select Git branch or tag. By default: ${reference}"
+  echo "    -r,  --revision <revision>    Define package revision text/number. By default: ${revision}"
+  echo "    -e,  --environment            Install all the packages necessaries to build the RPM package"
+  echo "    -s,  --store  <path>          Directory to store the resulting RPM package. By default: ${target_dir}"
+  echo "    -p,  --install-path <path>    Installation path for the package. By default: ${install_path}"
+  echo "    -c,  --checksum <path>        Compute the SHA512 checksum of the RPM package."
+  echo "    --chroot                      Create a chroot jail to build the package in ${chroot_path}."
+  echo "    -h,  --help                   Shows this help"
   echo
   exit $1
 }
@@ -358,9 +358,9 @@ main() {
                 shift 1
             fi
         ;;
-        "-ch" | "--chroot")
-            build_chroot="yes"
-            shift 1
+        "--chroot")
+          build_chroot="yes"
+          shift 1
         ;;
         "-h"|"--help")
           show_help
