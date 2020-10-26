@@ -11,10 +11,14 @@
 # Script configuration variables
 current_path="$( cd $(dirname $0) ; pwd -P )"
 install_path="/var/ossec"
-wazuh_branch="master"
+reference="master"
+revision="1"
 target_dir="${current_path}/output/"
 compute_checksums="no"
+build_chroot="no"
+chroot_path="/usr/pkg"
 checksum_dir=""
+
 # Check if running as root
 if [[ $EUID -ne 0 ]]; then
  echo "This script must be run as root"
@@ -32,14 +36,59 @@ show_help() {
   echo
   echo "Usage: $0 [OPTIONS]"
   echo
-  echo "    -b, --branch <branch>               Select Git branch or tag e.g. $BRANCH"
-  echo "    -e, --environment                   Install all the packages necessaries to build the RPM package"
-  echo "    -s, --store  <rpm_directory>        Directory to store the resulting RPM package. By default: /tmp/build"
-  echo "    -p, --install-path <rpm_home>       Installation path for the package. By default: /var"
-  echo "    -c, --checksum <path>               Compute the SHA512 checksum of the RPM package."
-  echo "    -h, --help                          Shows this help"
+  echo "    -b,  --branch <branch>        Select Git branch or tag. By default: ${reference}"
+  echo "    -r,  --revision <revision>    Define package revision text/number. By default: ${revision}"
+  echo "    -e,  --environment            Install all the packages necessaries to build the RPM package"
+  echo "    -s,  --store  <path>          Directory to store the resulting RPM package. By default: ${target_dir}"
+  echo "    -p,  --install-path <path>    Installation path for the package. By default: ${install_path}"
+  echo "    -c,  --checksum <path>        Compute the SHA512 checksum of the RPM package."
+  echo "    --chroot                      Create a chroot jail to build the package in ${chroot_path}."
+  echo "    -h,  --help                   Shows this help"
   echo
   exit $1
+}
+
+build_chroot() {
+  # Preparing chroot environment
+  mkdir -p ${chroot_path}/aix
+  mkdir -p ${chroot_path}/bin
+  mkdir -p ${chroot_path}/dev
+  mkdir -p ${chroot_path}/etc
+  mkdir -p ${chroot_path}/lib
+  mkdir -p ${chroot_path}/opt/freeware
+  mkdir -p ${chroot_path}/proc
+  mkdir -p ${chroot_path}/sbin
+  mkdir -p ${chroot_path}/tmp
+  mkdir -p ${chroot_path}/usr
+  mkdir -p ${chroot_path}/var
+  mkdir -p ${chroot_path}/usr/bin
+  mkdir -p ${chroot_path}/usr/ccs
+  mkdir -p ${chroot_path}/usr/custom
+  mkdir -p ${chroot_path}/usr/include
+  mkdir -p ${chroot_path}/usr/lib64
+  mkdir -p ${chroot_path}/usr/local
+  mkdir -p ${chroot_path}/usr/sbin
+  mkdir -p ${chroot_path}/usr/tmp
+
+  cp -R ${current_path}/* ${chroot_path}/aix/
+  cp -R /bin/* ${chroot_path}/bin/
+  cp -R /dev/* ${chroot_path}/dev/
+  cp -R /etc/* ${chroot_path}/etc/
+  rsync -v -a --exclude 'nls' /lib/ ${chroot_path}/lib/
+  cp -R /opt/freeware/* ${chroot_path}/opt/freeware/
+  cp -R /sbin/* ${chroot_path}/sbin/
+  cp -R /usr/bin ${chroot_path}/usr/
+  cp -R /usr/ccs ${chroot_path}/usr/
+  cp -R /usr/custom ${chroot_path}/usr/
+  cp -R /usr/include ${chroot_path}/usr/
+  cp -R /usr/lib64 ${chroot_path}/usr/
+  cp -R /usr/lib64 ${chroot_path}/usr/
+  cp -R /usr/local ${chroot_path}/usr/
+  cp -R /usr/sbin ${chroot_path}/usr/
+  cp -R /usr/tmp ${chroot_path}/usr/
+  rsync -v -a --exclude 'nls' /usr/lib/ ${chroot_path}/usr/lib/
+
+  chroot ${chroot_path}/ /aix/$(basename $0) -c ${checksum_dir} -p ${install_path} -b ${reference} -s ${target_dir}
 }
 
 # Function to install perl 5.10 on AIX 5
@@ -54,6 +103,25 @@ build_perl() {
   cd .. && rm -rf perl-5.10.1*
 
   return 0
+}
+
+# Function to install libssh2 on AIX 5
+build_libssh2() {
+  wget http://packages.wazuh.com/utils/libssh2/libssh2-1.8.2.tar.gz
+  gunzip libssh2-1.8.2.tar.gz && tar -xvf libssh2-1.8.2.tar
+  cd libssh2-1.8.2 && ./configure --prefix=/usr/custom
+  gmake && gmake install
+  cd .. && rm -rf libssh2-1.8.2*
+}
+
+build_curl() {
+  wget http://packages.wazuh.com/utils/curl/curl-7.72.0.tar.gz
+  gunzip curl-7.72.0.tar.gz && tar -xvf curl-7.72.0.tar
+  cd curl-7.72.0 && ./configure --with-libssh2=/usr/custom
+  gmake && gmake install
+  ln -fs /usr/local/bin/curl /bin/curl
+  ln -fs /usr/local/bin/curl /opt/freeware/bin/curl
+  cd .. && rm -rf curl-7.72.0*
 }
 
 # Function to build the compilation environment
@@ -77,7 +145,6 @@ build_environment() {
   $rpm http://www.oss4aix.org/download/RPMS/bash/bash-4.4-4.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/bzip2/bzip2-1.0.6-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/coreutils/coreutils-64bit-8.28-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/curl/curl-7.57.0-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/expat/expat-2.2.5-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/expat/expat-devel-2.2.5-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/gettext/gettext-0.17-1.aix5.1.ppc.rpm || true
@@ -92,12 +159,12 @@ build_environment() {
   $rpm http://www.oss4aix.org/download/RPMS/libiconv/libiconv-1.15-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/libidn/libidn-1.33-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/libsigsegv/libsigsegv-2.12-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/libssh2/libssh2-1.8.0-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/libtool/libtool-2.4.6-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/m4/m4-1.4.18-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/make/make-4.2.1-1.aix5.3.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/openldap/openldap-2.4.44-0.1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/openssl/openssl-1.0.2o-1.aix5.1.ppc.rpm || true
+  $rpm http://www.oss4aix.org/download/RPMS/openssl/openssl-1.0.2u-1.aix5.1.ppc.rpm || true
+  $rpm http://www.oss4aix.org/download/RPMS/openssl/openssl-devel-1.0.2u-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/pcre/pcre-8.41-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/pkg-config/pkg-config-0.29.1-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/readline/readline-7.0-3.aix5.1.ppc.rpm || true
@@ -106,6 +173,9 @@ build_environment() {
   $rpm http://www.oss4aix.org/download/RPMS/zlib/zlib-1.2.11-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/python/python-2.7.13-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/python/python-libs-2.7.13-1.aix5.1.ppc.rpm || true
+  $rpm http://www.oss4aix.org/download/RPMS/popt/popt-1.16-2.aix5.1.ppc.rpm || true
+  $rpm http://www.oss4aix.org/download/RPMS/rsync/rsync-3.1.3-1.aix5.1.ppc.rpm || true
+  $rpm http://www.oss4aix.org/download/RPMS/nano/nano-2.5.3-1.aix5.1.ppc.rpm || true
 
   if [[ "${aix_major}" = "5" ]]; then
     $rpm http://www.oss4aix.org/download/RPMS/gcc/gcc-4.8.2-1.aix5.3.ppc.rpm || true
@@ -152,6 +222,8 @@ build_environment() {
 
   if [[ "${aix_major}" = "5" ]]; then
     build_perl
+    build_libssh2
+    build_curl
   fi
 
   return 0
@@ -159,7 +231,7 @@ build_environment() {
 
 build_package() {
 
-  source_code="https://api.github.com/repos/wazuh/wazuh/tarball/${wazuh_branch}"
+  source_code="https://api.github.com/repos/wazuh/wazuh/tarball/${reference}"
 
   rm -f wazuh.tar.gz && wget -O wazuh.tar.gz --no-check-certificate ${source_code}
   rm -rf wazuh-wazuh-* wazuh-agent-*
@@ -179,19 +251,17 @@ build_package() {
   tar cf ${package_name}.tar ${package_name} && gzip ${package_name}.tar
   mv ${package_name}.tar.gz ${rpm_build_dir}/SOURCES/
 
-  cp SPECS/${wazuh_version}/wazuh-agent-${wazuh_version}-aix.spec ${rpm_build_dir}/SPECS
+  cp ${current_path}/SPECS/${wazuh_version}/wazuh-agent-${wazuh_version}-aix.spec ${rpm_build_dir}/SPECS
 
   if [[ ${aix_major} = "6" ]] && [[ -f /opt/freeware/lib/gcc/powerpc-ibm-aix6.1.1.0/6.3.0/include-fixed/sys/socket.h ]]; then
     ignored_lib=/opt/freeware/lib/gcc/powerpc-ibm-aix6.1.1.0/6.3.0/include-fixed/sys/socket.h
     mv ${ignored_lib} ${ignored_lib}.backup
   fi
 
-  package_release="1"
-  directory_base="/var"
   init_scripts="/etc/rc.d/init.d"
   sysconfdir="/etc"
 
-  rpm --define "_topdir ${rpm_build_dir}" --define "_localstatedir ${directory_base}" \
+  rpm --define '_tmppath /tmp' --define "_topdir ${rpm_build_dir}" --define "_localstatedir ${install_path}" \
   --define "_init_scripts ${init_scripts}" --define "_sysconfdir ${sysconfdir}" \
   -bb ${rpm_build_dir}/SPECS/${package_name}-aix.spec
 
@@ -199,15 +269,15 @@ build_package() {
     mv ${ignored_lib}.backup ${ignored_lib}
   fi
 
-  # If they exist, remove the installed files in ${directory_base}
-  rm -rf ${directory_base}/ossec /etc/ossec-init.conf
+  # If they exist, remove the installed files in ${install_path}
+  rm -rf ${install_path} /etc/ossec-init.conf
   find /etc/ -name "*wazuh*" -exec rm {} \;
 
   if [ ! -d ${target_dir} ]; then
     mkdir -p ${target_dir}
   fi
 
-  rpm_file=${package_name}-${package_release}.aix${aix_major}.${aix_minor}.ppc.rpm
+  rpm_file=${package_name}-${revision}.aix${aix_major}.${aix_minor}.ppc.rpm
   mv ${rpm_build_dir}/RPMS/ppc/${rpm_file} ${target_dir}
 
   if [ -f ${target_dir}/${rpm_file} ]; then
@@ -240,16 +310,21 @@ main() {
         "-b"|"--branch")
           if [ -n "$2" ]
           then
-            wazuh_branch="$2"
+            reference="$2"
             build_rpm="yes"
             shift 2
           else
               show_help 1
           fi
         ;;
-        "-h"|"--help")
-          show_help
-          exit 0
+        "-r"|"--revision")
+          if [ -n "$2" ]
+          then
+            revision="$2"
+            shift 2
+          else
+              show_help 1
+          fi
         ;;
         "-e"|"--environment" )
           build_environment
@@ -283,6 +358,14 @@ main() {
                 shift 1
             fi
         ;;
+        "--chroot")
+          build_chroot="yes"
+          shift 1
+        ;;
+        "-h"|"--help")
+          show_help
+          exit 0
+        ;;
         *)
           show_help 1
     esac
@@ -296,8 +379,16 @@ main() {
     checksum_dir="${target_dir}"
   fi
 
+  if [[ "${build_chroot}" = "yes" ]]; then
+    build_chroot || exit 1
+  fi
+
   if [[ "${build_rpm}" = "yes" ]]; then
     build_package || exit 1
+  fi
+
+  if [[ "${build_chroot}" = "yes" ]]; then
+    rm -rf ${chroot_path} || exit 1
   fi
 
   return 0
