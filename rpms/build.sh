@@ -22,7 +22,8 @@ wazuh_packages_branch=$9
 use_local_specs=${10}
 src=${11}
 legacy=${12}
-local_source_code=${13}
+future=${13}
+local_source_code=${14}
 wazuh_version=""
 rpmbuild="rpmbuild"
 
@@ -44,6 +45,7 @@ if [ ${build_target} = "api" ]; then
 else
     if [ -z "${local_source_code}" ]; then
         curl -sL https://github.com/wazuh/wazuh/tarball/${wazuh_branch} | tar zx
+        ls
     fi
     wazuh_version="$(cat wazuh*/src/VERSION | cut -d 'v' -f 2)"
 fi
@@ -66,16 +68,37 @@ cp -R wazuh-* ${build_dir}/${package_name}
 # Including spec file
 if [ "${use_local_specs}" = "no" ]; then
     curl -sL https://github.com/wazuh/wazuh-packages/tarball/${wazuh_packages_branch} | tar zx
-    specs_path="wazuh*/rpms/SPECS"
+    specs_path=$(find . -type d -name "SPECS" -path "*rpms*")
 else
     specs_path="/specs"
+fi
+
+if [[ "${future}" == "yes" ]]; then    
+    # PREPARE FUTURE SPECCS
+    base_version=$wazuh_version
+    MAJOR=$(echo $base_version | cut -dv -f2 | cut -d. -f1)
+    MINOR=$(echo $base_version | cut -d. -f2)
+    wazuh_version="${MAJOR}.30.0"
+    file_name="wazuh-${build_target}-${wazuh_version}-${package_release}"
+    old_name="wazuh-${build_target}-${base_version}-${package_release}"
+    package_name=wazuh-${build_target}-${wazuh_version}
+    old_package_name=wazuh-${build_target}-${base_version}
+    cp -r "${specs_path}/${base_version}" "${specs_path}/${wazuh_version}"
+    cd "${specs_path}/${wazuh_version}"
+    rename "${base_version}" "${wazuh_version}" *${base_version}*
+    cd -
+    find "${specs_path}/${wazuh_version}" -type f -exec sed -i "s/${base_version}/${wazuh_version}/g" {} \;
+
+    # PREPARE FUTURE SOURCES
+    mv "${build_dir}/${old_package_name}" "${build_dir}/${package_name}"
+    find "${build_dir}/${package_name}" -name "*VERSION*" -type f -exec sed -i "s/${base_version}/${wazuh_version}/g" {} \;
+    sed -i "s/\$(VERSION)/${MAJOR}.${MINOR}/g" "${build_dir}/${package_name}/src/Makefile"
 fi
 
 cp ${specs_path}/${wazuh_version}/wazuh-${build_target}-${wazuh_version}.spec ${rpm_build_dir}/SPECS/${package_name}.spec
 
 # Generating source tar.gz
 cd ${build_dir} && tar czf "${rpm_build_dir}/SOURCES/${package_name}.tar.gz" "${package_name}"
-
 
 if [ "${architecture_target}" = "i386" ] || [ "${architecture_target}" = "armv7hl" ]; then
     linux="linux32"
