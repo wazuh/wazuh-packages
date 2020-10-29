@@ -34,6 +34,7 @@ PACKAGES_BRANCH="master"
 USE_LOCAL_SPECS="no"
 LOCAL_SPECS="${CURRENT_PATH}"
 LOCAL_SOURCE_CODE=""
+FUTURE="no"
 
 trap ctrl_c INT
 
@@ -74,7 +75,7 @@ build_deb() {
         ${CUSTOM_CODE_VOL} \
         ${CONTAINER_NAME} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
         ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} \
-        ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} ${LOCAL_SOURCE_CODE} || return 1
+        ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} ${FUTURE} ${LOCAL_SOURCE_CODE} || return 1
 
     echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
 
@@ -257,6 +258,10 @@ main() {
             else
                 help 1
             fi
+            ;;
+        "--future")
+            FUTURE="yes"
+            shift 1
             ;;
         *)
             help 1
