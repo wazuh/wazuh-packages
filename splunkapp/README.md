@@ -11,7 +11,7 @@ Please, visit the following link for the full Splunk App packages building docum
 
 - [AIX](/aix/README.md)
 - [Debian](/debs/README.md)
-- [HP-UX](/hpux/README.md)
+- [HP-UX](/hp-ux/README.md)
 - [KibanaApp](/wazuhapp/README.md)
 - [macOS](/macos/README.md)
 - [OVA](/ova/README.md)

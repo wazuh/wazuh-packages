@@ -22,7 +22,7 @@ To build a Wazuh package you need to install the following tools:
 
 - [AIX](/aix/README.md)
 - [Debian](/debs/README.md)
-- [HP-UX](/hpux/README.md)
+- [HP-UX](/hp-ux/README.md)
 - [KibanaApp](/wazuhapp/README.md)
 - [macOS](/macos/README.md)
 - [OVA](/ova/README.md)
