@@ -12,7 +12,7 @@ Please, visit the following link for the full OVA building documentation: [Gener
 
 - [AIX](/aix/README.md)
 - [Debian](/debs/README.md)
-- [HP-UX](/hpux/README.md)
+- [HP-UX](/hp-ux/README.md)
 - [KibanaApp](/wazuhapp/README.md)
 - [macOS](/macos/README.md)
 - [RPM](/rpms/README.md)
