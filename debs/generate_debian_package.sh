@@ -7,7 +7,6 @@
 # and/or modify it under the terms of the GNU General Public
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
-
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ARCHITECTURE="amd64"
 OUTDIR="${CURRENT_PATH}/output/"
@@ -75,7 +74,8 @@ build_deb() {
         ${CUSTOM_CODE_VOL} \
         ${CONTAINER_NAME} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
         ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} \
-        ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} ${FUTURE} ${LOCAL_SOURCE_CODE} || return 1
+        ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} \
+        "${LOCAL_SOURCE_CODE}" ${FUTURE} || return 1
 
     echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
 
@@ -152,7 +152,7 @@ help() {
     echo "    --dont-build-docker       [Optional] Locally built docker image will be used instead of generating a new one."
     echo "    --sources <path>          [Optional] Absolute path containing wazuh source code. This option will use local source code instead of downloading it from GitHub."
     echo "    --dev                     [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub."
-    echo "    --future                  [Optional] Build test future package x.30.0."
+    echo "    --future                  [Optional] Build test future package x.30.0 Used for development purposes."
     echo "    -h, --help                Show this help."
     echo
     exit $1

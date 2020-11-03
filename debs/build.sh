@@ -21,8 +21,8 @@ debug=$7
 checksum=$8
 wazuh_packages_branch=$9
 use_local_specs=${10}
-future=${11}
-local_source_code=${12}
+local_source_code=${11}
+future=${12}
 
 if [ -z "${package_release}" ]; then
     package_release="1"
@@ -69,19 +69,12 @@ if [[ "${future}" == "yes" ]]; then
     old_package_name=wazuh-${build_target}-${base_version}
     sources_dir="${build_dir}/${build_target}/${package_full_name}"
 
-    # PREPARE FUTURE SPECCS
+    # PREPARE FUTURE SPECS AND SOURCES
     cp -r "${specs_path}/${base_version}" "${specs_path}/${wazuh_version}"
-    cd "${specs_path}/${wazuh_version}"
-    rename "${base_version}" "${wazuh_version}" *${base_version}*
-    cd -
-    find "${specs_path}/${wazuh_version}" -type f -exec sed -i "s/${base_version}/${wazuh_version}/g" {} \;
-
-    # PREPARE FUTURE SOURCES
     mv ${build_dir}/${build_target}/${old_package_name} ${build_dir}/${build_target}/${package_full_name}
-    find "${build_dir}/${build_target}/${package_full_name}" -name "*VERSION*" -type f -exec sed -i "s/${base_version}/${wazuh_version}/g" {} \;
+    find "${build_dir}/${package_name}" "${specs_path}/${wazuh_version}" \( -name "*VERSION*" -o -name "*.spec" \) -exec sed -i "s/${base_version}/${wazuh_version}/g" {} \;
     sed -i "s/\$(VERSION)/${MAJOR}.${MINOR}/g" "${build_dir}/${build_target}/${package_full_name}/src/Makefile"
 fi
-ls ${specs_path}
 cp -pr ${specs_path}/${wazuh_version}/wazuh-${build_target}/debian ${sources_dir}/debian
 cp -p ${package_files}/gen_permissions.sh ${sources_dir}
 
