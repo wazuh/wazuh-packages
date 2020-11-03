@@ -94,7 +94,7 @@ build_rpm() {
         ${CONTAINER_NAME} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
         ${JOBS} ${REVISION} ${INSTALLATION_PATH} ${DEBUG} \
         ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} ${SRC} \
-        ${LEGACY} ${FUTURE} ${LOCAL_SOURCE_CODE}|| return 1
+        ${LEGACY} "${LOCAL_SOURCE_CODE}" ${FUTURE} || return 1
 
     echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
 
@@ -182,7 +182,7 @@ help() {
     echo "    --packages-branch <branch>   [Optional] Select Git branch or tag from wazuh-packages repository. e.g ${PACKAGES_BRANCH}"
     echo "    --dev                        [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub."
     echo "    --src                        [Optional] Generate the source package in the destination directory."
-    echo "    --future                     [Optional] Build test future package x.30.0."
+    echo "    --future                     [Optional] Build test future package x.30.0 Used for development purposes."
     echo "    -h, --help                   Show this help."
     echo
     exit $1
