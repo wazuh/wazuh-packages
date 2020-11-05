@@ -22,8 +22,8 @@ wazuh_packages_branch=$9
 use_local_specs=${10}
 src=${11}
 legacy=${12}
-local_source_code=${13}
-future=${14}
+future=${13}
+local_source_code=${14}
 wazuh_version=""
 rpmbuild="rpmbuild"
 
