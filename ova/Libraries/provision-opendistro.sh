@@ -217,6 +217,8 @@ installKibana() {
     else
         curl -so /etc/kibana/kibana.yml ${resources_url}/resources/open-distro/kibana/7.x/kibana_all_in_one.yml --max-time 300
         echo "telemetry.enabled: false" >> /etc/kibana/kibana.yml
+        chown -R kibana:kibana /usr/share/kibana/{optimize,plugins}
+
         if [ "${PACKAGES_REPOSITORY}" = "prod" ]; then
             if [ "${WAZUH_MAJOR}" = "3" ]; then
                 sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/${WAZUH_MAJOR}.x/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}.zip
@@ -233,6 +235,7 @@ installKibana() {
             exit 1
         fi
         mkdir -p /etc/kibana/certs
+        cp /etc/elasticsearch/certs/root-ca.pem /etc/kibana/certs/
         mv /etc/elasticsearch/certs/{kibana.key,kibana.pem} /etc/kibana/certs/
         setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node
 
