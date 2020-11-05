@@ -22,8 +22,8 @@ wazuh_packages_branch=$9
 use_local_specs=${10}
 src=${11}
 legacy=${12}
-future=${13}
-local_source_code=${14}
+local_source_code=${13}
+future=${14}
 wazuh_version=""
 rpmbuild="rpmbuild"
 
@@ -38,12 +38,12 @@ if [ "${debug}" = "no" ]; then
 fi
 
 if [ ${build_target} = "api" ]; then
-    if [ -z "${local_source_code}" ]; then
+    if [ "${local_source_code}" = "no" ]; then
         curl -sL https://github.com/wazuh/wazuh-api/tarball/${wazuh_branch} | tar zx
     fi
     wazuh_version="$(grep version wazuh*/package.json | cut -d '"' -f 4)"
 else
-    if [ -z "${local_source_code}" ]; then
+    if [ "${local_source_code}" = "no" ]; then
         curl -sL https://github.com/wazuh/wazuh/tarball/${wazuh_branch} | tar zx
     fi
     wazuh_version="$(cat wazuh*/src/VERSION | cut -d 'v' -f 2)"

@@ -41,6 +41,7 @@ CHECKSUMDIR=""
 CHECKSUM="no"
 USE_LOCAL_SPECS="no"
 LOCAL_SOURCE_CODE=""
+USE_LOCAL_SOURCE_CODE="no"
 FUTURE="no"
 
 trap ctrl_c INT
@@ -79,6 +80,7 @@ build_rpm() {
     # Create an optional parameter to share the local source code as a volume
     if [ ! -z "${LOCAL_SOURCE_CODE}" ]; then
         CUSTOM_CODE_VOL="-v ${LOCAL_SOURCE_CODE}:/wazuh-local-src:Z"
+        USE_LOCAL_SOURCE_CODE="yes"
     fi
 
     # Build the Docker image
@@ -94,7 +96,7 @@ build_rpm() {
         ${CONTAINER_NAME} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
         ${JOBS} ${REVISION} ${INSTALLATION_PATH} ${DEBUG} \
         ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} ${SRC} \
-        ${LEGACY} ${FUTURE} "${LOCAL_SOURCE_CODE}"|| return 1
+        ${LEGACY} ${USE_LOCAL_SOURCE_CODE} ${FUTURE}|| return 1
 
     echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
 
