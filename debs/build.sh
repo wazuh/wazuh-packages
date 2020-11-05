@@ -21,20 +21,20 @@ debug=$7
 checksum=$8
 wazuh_packages_branch=$9
 use_local_specs=${10}
-future=${11}
-local_source_code=${12}
+local_source_code=${11}
+future=${12}
 
 if [ -z "${package_release}" ]; then
     package_release="1"
 fi
 
 if [ ${build_target} = "api" ]; then
-    if [ -z "${local_source_code}" ]; then
+    if [ "${local_source_code}" = "no" ]; then
         curl -sL https://github.com/wazuh/wazuh-api/tarball/${wazuh_branch} | tar zx
     fi
     wazuh_version="$(grep version wazuh*/package.json | cut -d '"' -f 4)"
 else
-    if [ -z "${local_source_code}" ]; then
+    if [ "${local_source_code}" = "no" ]; then
         curl -sL https://github.com/wazuh/wazuh/tarball/${wazuh_branch} | tar zx
     fi
     wazuh_version="$(cat wazuh*/src/VERSION | cut -d 'v' -f 2)"
