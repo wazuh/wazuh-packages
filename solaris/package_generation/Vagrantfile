@@ -6,8 +6,6 @@ require 'getoptlong'
 os = {
     'solaris11' => {'box' => 'wazuh/solaris11', 'ip' => '172.16.1.44', 'folder' => 'solaris11'},
     'solaris10' => {'box' => 'wazuh/solaris10', 'ip' => '172.16.1.45', 'folder' => 'solaris10'},
-    'testing-10' => {'box' => 'testing/solaris10', 'ip' => '172.16.1.43', 'folder' => 'solaris10'},
-    'testing-11' => {'box' => 'testing/solaris11', 'ip' => '172.16.1.42', 'folder' => 'solaris11'},
 }
 
 ###################################################
@@ -122,10 +120,6 @@ Vagrant.configure("2") do |config|
             node.vm.box_url = 'https://packages-dev.wazuh.com/utils/vagrant/solaris/11/solaris11.3.box'
           elsif key == "solaris10"
             node.vm.box_url = 'https://packages-dev.wazuh.com/utils/vagrant/solaris/10/solaris10.box'
-          elsif key == "testing-10"
-            node.vm.box_url = 'https://ci.wazuh.com/vms/vagrant/solaris/10/i386/solaris10_extra.box'
-          elsif key == "testing-11"
-            node.vm.box_url = 'https://ci.wazuh.com/vms/vagrant/solaris/11/i386/solaris11.3_extra.box'
           end
 
           node.vm.network :private_network, ip: "#{value['ip']}"
