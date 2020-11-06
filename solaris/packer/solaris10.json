@@ -1,8 +1,4 @@
 {
-  "variables": {
-    "iso_location": "{{env `PWD`}}",
-    "vm_name": "packer-solaris10"
-  },
   "builders": [
     {
       "boot_command": [
@@ -41,7 +37,7 @@
         "<f2><wait5>",
         "<f2><wait>",
         "<f2><wait>",
-         "<f2><wait>",    
+        "<f2><wait>",
         "<down>x<f2><wait>",
         "<down>x<f4><wait>",
         "<right>",
@@ -54,24 +50,23 @@
         "<down><down><down><down><down><down><down><down><down><down>",
         "<down><down><down>",
         "x<down>x<down>x<down>x<down>x<down><down>x<down>x<down>x",
-        "<down><down><down><down><down><down><down><down><down><down>",  
-        "<down><down><down><down><down><down><down><down><down><down>", 
-        "<down><down><down><down><down><down><down><down><down><down>",  
-        "<down><down><down><down><down><down><down><down><down><down>", 
-        "<down>x<down><down><down><down><down><down><down><down><down>",
-        "<down><down><down><down><down><down><down><down><down><down>", 
-        "<down><down><down><down><down><down><down><down><down><down>",  
-        "<down><down><down><down><down><down><down><down><down><down>", 
-        "<down><down><down><down><down>x<down>x<down><down><down><down>",
-        "<down><down><down><down><down><down><down><down><down><down>", 
-        "<down><down><down><down><down><down><down><down><down><down>", 
-        "<down><down><down><down><down><down><down><down><down><down>",  
-        "<down><down><down><down><down><down><down><down><down><down>", 
-        "<down><down><down><down>x<down>x<down>x<down>x<down>x<down>x<down>x",
-        "<down><down><down><down><down><down><down><down><down><down>", 
-        "<down><down><down><down><down><down><down><down><down><down>", 
         "<down><down><down><down><down><down><down><down><down><down>",
- 
+        "<down><down><down><down><down><down><down><down><down><down>",
+        "<down><down><down><down><down><down><down><down><down><down>",
+        "<down><down><down><down><down><down><down><down><down><down>",
+        "<down>x<down><down><down><down><down><down><down><down><down>",
+        "<down><down><down><down><down><down><down><down><down><down>",
+        "<down><down><down><down><down><down><down><down><down><down>",
+        "<down><down><down><down><down><down><down><down><down><down>",
+        "<down><down><down><down><down>x<down>x<down><down><down><down>",
+        "<down><down><down><down><down><down><down><down><down><down>",
+        "<down><down><down><down><down><down><down><down><down><down>",
+        "<down><down><down><down><down><down><down><down><down><down>",
+        "<down><down><down><down><down><down><down><down><down><down>",
+        "<down><down><down><down>x<down>x<down>x<down>x<down>x<down>x<down>x",
+        "<down><down><down><down><down><down><down><down><down><down>",
+        "<down><down><down><down><down><down><down><down><down><down>",
+        "<down><down><down><down><down><down><down><down><down><down>",
         "<down><down><down><down><down><down><down><down><down><down>",
         "<down><down><down><down><down><down><down><down><down><down>",
         "<down><down><down><down><down><down><down><down><down><down>",
@@ -85,7 +80,6 @@
         "<down><down><down>x<down>x<down>x<down>x<down>x<down>x<down>x<down>",
         "<down>x<down>x<down>x<down><down><down><down><down><down><down>",
         "<down><down><down>x<down>x<down><down><down><down><down><down>",
-        
         "<f2><wait>",
         "<f2><wait>",
         "<f2><wait>",
@@ -131,13 +125,12 @@
         "svcadm enable ssh<enter><wait>"
       ],
       "boot_wait": "5s",
-      "disk_size": 8192,
-      "post_shutdown_delay":"120s",
+      "disk_size": 81440,
       "guest_os_type": "OpenSolaris_64",
-      "iso_checksum": "c27e5fe2531826192f110e2d9f1f5d73015edac6",
-      "iso_checksum_type": "sha1",
+      "iso_checksum": "sha1:c27e5fe2531826192f110e2d9f1f5d73015edac6",
       "iso_url": "{{user `iso_location`}}/sol-10-u11-ga-x86-dvd.iso",
       "output_directory": "packer-solaris10-virtualbox",
+      "post_shutdown_delay": "120s",
       "shutdown_command": "pfexec /usr/sbin/init 5",
       "ssh_password": "vagrant",
       "ssh_port": 22,
@@ -148,13 +141,13 @@
           "modifyvm",
           "{{.Name}}",
           "--memory",
-          "2048"
+          "8192"
         ],
         [
           "modifyvm",
           "{{.Name}}",
           "--cpus",
-          "2"
+          "8"
         ]
       ],
       "virtualbox_version_file": ".vbox_version",
@@ -170,12 +163,16 @@
   ],
   "provisioners": [
     {
-      "execute_command": "chmod +x {{ .Path }}; export {{.Vars}} && cat {{.Path}} | pfexec su ",
+      "execute_command": "chmod +x {{ .Path }}; export {{.Vars}} \u0026\u0026 cat {{.Path}} | pfexec su ",
       "scripts": [
         "scripts/solaris/vmtools.sh",
         "scripts/solaris/postinstall.sh"
       ],
       "type": "shell"
     }
-  ]
+  ],
+  "variables": {
+    "iso_location": "{{env `PWD`}}",
+    "vm_name": "packer-solaris10"
+  }
 }
