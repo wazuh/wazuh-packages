@@ -21,27 +21,30 @@ scriptpath=$(
 
 OUTPUT_DIR="${scriptpath}/output"
 CHECKSUM_DIR=""
-BUILD=false
 HAVE_VERSION=false
+HAVE_OPENDISTRO_VERSION=false
 HAVE_ELK_VERSION=false
 
 WAZUH_VERSION=""
+OPENDISTRO_VERSION=""
+BRANCH="master"
 ELK_VERSION=""
-STATUS=""
+PACKAGES_REPOSITORY=""
 CHECKSUM="no"
+UI_REVISION="1"
 
 help () {
 
     echo
     echo "Usage: $0 [OPTIONS]"
-    echo
-    echo "  -b, --build            [Required] Build the OVA and OVF."
     echo "  -v, --version          [Required] Version of wazuh to install on VM."
-    echo "  -e, --elastic-version  [Required] Elastic version to download inside VM."
-    echo "  -r, --repository       [Required] Status of the packages [stable/unstable]"
-    echo "  -d, --directory        [Optional] Where will be installed manager. Default /var/ossec"
+    echo "  -o, --opendistro       [Required] Version of Open Distro for Elasticsearch."
+    echo "  -f, --filebeat         [Required] Filebeat's version."
+    echo "  -r, --repository       [Required] Select the software repository [prod/dev]."
+    echo "  -b, --branch           [Optional] Branch/tag of the Wazuh repository."
     echo "  -s, --store <path>     [Optional] Set the destination absolute path of package."
     echo "  -c, --checksum <path>  [Optional] Generate checksum."
+    echo "  -u, --ui-revision      [Optional] Revision of the UI package. By default, 1."
     echo "  -h, --help             [  Util  ] Show this help."
     echo
     exit $1
@@ -59,11 +62,12 @@ clean() {
 
 build_ova() {
 
-    OVA_VM="wazuh${OVA_VERSION}.ova"
-    OVF_VM="wazuh${OVA_VERSION}.ovf"
-    OVA_FIXED="wazuh${OVA_VERSION}-fixed.ova"
-    OVA_VMDK="wazuh${OVA_VERSION}-disk001.vmdk"
-    ELK_MAJOR=`echo ${ELK_VERSION}|cut -d"." -f1`
+    OVA_VM="wazuh-${OVA_VERSION}.ova"
+    OVF_VM="wazuh-${OVA_VERSION}.ovf"
+    OVA_FIXED="wazuh-${OVA_VERSION}-fixed.ova"
+    OVA_VMDK="wazuh-${OVA_VERSION}-disk001.vmdk"
+    ELK_MAJOR=`echo ${ELK_VERSION} | cut -d"." -f1`
+    export BRANCH
 
     if [ -e "${OVA_VM}" ] || [ -e "${OVA_VM}" ]; then
         rm -f ${OVA_VM} ${OVF_VM}
@@ -82,7 +86,7 @@ build_ova() {
     vagrant suspend
     VM_EXPORT=$(vboxmanage list vms | grep -i vm_wazuh | cut -d "\"" -f2)
     # OVA creation with all metadata information.
-    vboxmanage export ${VM_EXPORT} -o ${OVA_VM} --vsys 0 --product "Wazuh v${WAZUH_VERSION} OVA" --producturl "https://packages.wazuh.com/vm/wazuh${OVA_VERSION}.ova" --vendor "Wazuh, inc <info@wazuh.com>" --vendorurl "https://wazuh.com" --version "$OVA_VERSION" --description "Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring." || clean 1
+    vboxmanage export ${VM_EXPORT} -o ${OVA_VM} --vsys 0 --product "Wazuh v${WAZUH_VERSION} OVA" --producturl "https://packages.wazuh.com/vm/wazuh-${OVA_VERSION}.ova" --vendor "Wazuh, inc <info@wazuh.com>" --vendorurl "https://wazuh.com" --version "$OVA_VERSION" --description "Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring." || clean 1
 
     vagrant destroy -f
     tar -xvf ${OVA_VM}
@@ -102,13 +106,17 @@ build_ova() {
 }
 
 check_version() {
-
-    if [ "${STATUS_PACKAGES}" = "stable" ]; then
-        curl -Isf https://raw.githubusercontent.com/wazuh/wazuh-kibana-app/v${WAZUH_VERSION}-${ELK_VERSION}/README.md > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${ELK_VERSION} not supported." && exit 1 )
-    elif [ "${STATUS_PACKAGES}" = "unstable" ]; then
-        curl -Isf https://packages-dev.wazuh.com/pre-release/app/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${ELK_VERSION} not supported." && exit 1 )
+    if [ "${PACKAGES_REPOSITORY}" = "prod" ]; then
+        WAZUH_MAJOR="$(echo ${WAZUH_VERSION} | head -c 1)"
+        if [ "${WAZUH_MAJOR}" = "3" ]; then
+            curl -Isf https://packages.wazuh.com/${WAZUH_MAJOR}/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${ELK_VERSION} not supported." && exit 1 )
+        else
+            curl -Isf https://packages.wazuh.com/${WAZUH_MAJOR}/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}-${UI_REVISION}.zip > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${ELK_VERSION}-${UI_REVISION} not supported." && exit 1 )
+        fi
+    elif [ "${PACKAGES_REPOSITORY}" = "dev" ]; then
+        curl -Isf https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-${UI_REVISION}.zip > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${ELK_VERSION} not supported." && exit 1 )
     else
-        echo "Error, repository value must take 'stable' or 'unstable' value."
+        logger "Error, repository value must take 'prod' or 'dev' value."
         exit
     fi
 }
@@ -122,30 +130,36 @@ main() {
             help 0
         ;;
 
-        "-b" | "--build")
-            BUILD=true
-            shift 1
-        ;;
-
         "-v" | "--version")
             if [ -n "$2" ]; then
-                export OVA_WAZUH_VERSION="$2"
-                WAZUH_VERSION="$2"
+
+                export WAZUH_VERSION="$2"
                 HAVE_VERSION=true
             else
-                echo "ERROR Need wazuh version."
+                logger "ERROR Need wazuh version."
+                help 1
+            fi
+            shift 2
+        ;;
+        "-o" | "--opendistro")
+            if [ -n "$2" ]; then
+
+                export OPENDISTRO_VERSION="$2"
+                HAVE_OPENDISTRO_VERSION=true
+            else
+                logger "ERROR Need opendistro version."
                 help 1
             fi
             shift 2
         ;;
 
-        "-e" | "--elastic-version")
+        "-f" | "--filebeat")
             if [ -n "$2" ]; then
-                export OVA_ELK_VERSION="$2"
-                ELK_VERSION="$2"
+
+                export ELK_VERSION="$2"
                 HAVE_ELK_VERSION=true
             else
-                echo "ERROR: Need elastic version."
+                logger "ERROR: Need filebeat version."
                 help 1
             fi
             shift 2
@@ -153,31 +167,41 @@ main() {
 
         "-r" | "--repository")
             if [ -n "$2" ]; then
-                export STATUS_PACKAGES="$2"
-                STATUS="$2"
-                HAVE_STATUS=true
+
+                export PACKAGES_REPOSITORY="$2"
+                HAVE_PACKAGES_REPOSITORY=true
             else
-                echo "ERROR: package repository is needed_."
+                logger "ERROR: package repository is needed."
                 help 1
             fi
             shift 2
         ;;
 
-        "-d" | "--directory")
+        "-u" | "--ui")
             if [ -n "$2" ]; then
-                export DIRECTORY="$2"
+                UI_REVISION="$2"
             else
-                echo "ERROR: Need directory to build."
+                logger "ERROR: package repository is needed."
                 help 1
             fi
             shift 2
         ;;
+        "-b"|"--branch")
+            if [ -n "$2" ]; then
 
+                BRANCH="$2"
+                shift 2
+            else
+                logger "ERROR: Need branch to build."
+                help 1
+            fi
+            ;;
         "-s"|"--store-path")
             if [ -n "$2" ]; then
                 OUTPUT_DIR="$2"
                 shift 2
             else
+                logger "ERROR: Need store path"
                 help 1
             fi
             ;;
@@ -200,15 +224,15 @@ main() {
     if [ -z "${CHECKSUM_DIR}" ]; then
         CHECKSUM_DIR="${OUTPUT_DIR}"
     fi
+    if  [ "${HAVE_VERSION}" = true ] && [ "${HAVE_ELK_VERSION}" = true ] && [ "${HAVE_PACKAGES_REPOSITORY}" = true ] && [ "${HAVE_OPENDISTRO_VERSION}" = true ]; then
+        export UI_REVISION="${UI_REVISION}"
+        check_version
+        OVA_VERSION="${WAZUH_VERSION}_${OPENDISTRO_VERSION}"
 
-    if [ "${BUILD}" = true ] && [ "${HAVE_VERSION}" = true ] && [ "${HAVE_ELK_VERSION}" = true ] && [ "${HAVE_STATUS}" = true ]; then
-        check_version ${WAZUH_VERSION} ${ELK_VERSION} ${STATUS}
-        OVA_VERSION="${WAZUH_VERSION}_${ELK_VERSION}"
-
-        echo "Version to build: ${WAZUH_VERSION}-${ELK_VERSION} with ${STATUS} repository."
+        logger "Version to build: ${WAZUH_VERSION}-${OPENDISTRO_VERSION} with ${PACKAGES_REPOSITORY} repository and ${BRANCH} branch"
         build_ova ${WAZUH_VERSION} ${OVA_VERSION}
     else
-        echo "ERROR: Need more parameters."
+        logger "ERROR: Need more parameters."
         help 1
     fi
 

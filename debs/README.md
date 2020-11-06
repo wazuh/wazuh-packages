@@ -10,7 +10,7 @@ Please, visit the following link for the full DEB packages building documentatio
 ## More Packages
 
 - [AIX](/aix/README.md)
-- [HP-UX](/hpux/README.md)
+- [HP-UX](/hp-ux/README.md)
 - [KibanaApp](/wazuhapp/README.md)
 - [macOS](/macos/README.md)
 - [OVA](/ova/README.md)

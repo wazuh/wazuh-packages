@@ -14,7 +14,7 @@ Requires(post):   /sbin/chkconfig
 Requires(preun):  /sbin/chkconfig /sbin/service
 Requires(postun): /sbin/service /usr/sbin/groupdel /usr/sbin/userdel
 Conflicts:   ossec-hids ossec-hids-agent wazuh-agent wazuh-local
-Obsoletes: wazuh-api <= 3.13.1
+Obsoletes: wazuh-api <= 3.13.2
 AutoReqProv: no
 
 Requires: coreutils
@@ -177,14 +177,14 @@ fi
 
 # Stop the services to upgrade the package
 if [ $1 = 2 ]; then
+  touch %{_localstatedir}/tmp/wazuh.restart
   if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-manager > /dev/null 2>&1; then
-    touch %{_localstatedir}/tmp/wazuh.restart
     systemctl stop wazuh-manager.service > /dev/null 2>&1
-  fi
-
-  if command -v service > /dev/null 2>&1 && service wazuh-manager status | grep "is running" > /dev/null 2>&1; then
-    touch %{_localstatedir}/tmp/wazuh.restart
+  # Check for SysV
+  elif command -v service > /dev/null 2>&1 && service wazuh-manager status 2>/dev/null | grep "running" > /dev/null 2>&1; then
     service wazuh-manager stop > /dev/null 2>&1
+  else # Anything else
+    %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
   fi
 fi
 
@@ -201,18 +201,25 @@ if ! id -u ossecm > /dev/null 2>&1; then
   useradd -g ossec -G ossec -d %{_localstatedir} -r -s /sbin/nologin ossecm
 fi
 
-if [ -d %{_localstatedir}/var/db/agents ]; then
-  rm -f %{_localstatedir}/var/db/agents/*
-fi
-
-# Remove existing SQLite databases
-rm -f %{_localstatedir}/var/db/global.db* || true
+# Remove/relocate existing SQLite databases
 rm -f %{_localstatedir}/var/db/cluster.db* || true
 rm -f %{_localstatedir}/var/db/.profile.db* || true
 rm -f %{_localstatedir}/var/db/agents/* || true
 
+if [ -f %{_localstatedir}/var/db/global.db ]; then
+  mv %{_localstatedir}/var/db/global.db %{_localstatedir}/queue/db/
+  chmod 640 %{_localstatedir}/queue/db/global.db
+  chown ossec:ossec %{_localstatedir}/queue/db/global.db
+  rm -f %{_localstatedir}/var/db/global.db* || true
+fi
+
 # Remove Vuln-detector database
 rm -f %{_localstatedir}/queue/vulnerabilities/cve.db || true
+
+# Remove plain-text agent information if exists
+if [ -d %{_localstatedir}/queue/agent-info ]; then
+  rm -rf %{_localstatedir}/queue/agent-info/* > /dev/null 2>&1
+fi
 
 # Delete old API backups
 if [ $1 = 2 ]; then
@@ -226,15 +233,19 @@ if [ $1 = 2 ]; then
   MAJOR=$(echo $VERSION | cut -dv -f2 | cut -d. -f1)
   MINOR=$(echo $VERSION | cut -d. -f2)
 
+  # Delete uncompatible DBs versions
+  if [ $MAJOR = 3 ] && [ $MINOR -lt 7 ]; then
+    rm -f %{_localstatedir}/queue/db/*.db*
+    rm -f %{_localstatedir}/queue/db/.template.db
+  fi
+
   # Delete 3.X Wazuh API service
   if [ "$MAJOR" = "3" ] && [ -d %{_localstatedir}/api ]; then
     if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
       systemctl stop wazuh-api.service > /dev/null 2>&1
       systemctl disable wazuh-api.service > /dev/null 2>&1
       rm -f /etc/systemd/system/wazuh-api.service
-    fi
-
-    if command -v service > /dev/null 2>&1; then
+    elif command -v service > /dev/null 2>&1 ; then
       service wazuh-api stop > /dev/null 2>&1
       chkconfig wazuh-api off > /dev/null 2>&1
       chkconfig --del wazuh-api > /dev/null 2>&1
@@ -395,13 +406,12 @@ if [ $1 = 0 ]; then
 
   # Stop the services before uninstall the package
   # Check for systemd
-  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
-    systemctl stop wazuh-manager > /dev/null 2>&1
+  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-manager > /dev/null 2>&1; then
+    systemctl stop wazuh-manager.service > /dev/null 2>&1
   # Check for SysV
-  elif command -v service > /dev/null 2>&1; then
+  elif command -v service > /dev/null 2>&1 && service wazuh-manager status 2>/dev/null | grep "running" > /dev/null 2>&1; then
     service wazuh-manager stop > /dev/null 2>&1
-  # Anything else
-  else
+  else # Anything else
     %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
   fi
 
@@ -480,14 +490,13 @@ fi
 # posttrans code is the last thing executed in a install/upgrade
 %posttrans
 if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
+  rm -f %{_localstatedir}/tmp/wazuh.restart
   if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 ; then
-    rm -f %{_localstatedir}/tmp/wazuh.restart
     systemctl restart wazuh-manager.service > /dev/null 2>&1
-  fi
-
-  if command -v service > /dev/null 2>&1; then
-    rm -f %{_localstatedir}/tmp/wazuh.restart
+  elif command -v service > /dev/null 2>&1; then
     service wazuh-manager restart > /dev/null 2>&1
+  else
+    %{_localstatedir}/bin/ossec-control restart > /dev/null 2>&1
   fi
 fi
 
@@ -627,7 +636,6 @@ rm -fr %{buildroot}
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/rhel/*
 %dir %attr(750, root, ossec) %{_localstatedir}/queue
 %attr(600, root, ossec) %ghost %{_localstatedir}/queue/agents-timestamp
-%dir %attr(770, ossecr, ossec) %{_localstatedir}/queue/agent-info
 %dir %attr(770, root, ossec) %{_localstatedir}/queue/agent-groups
 %dir %attr(750, ossec, ossec) %{_localstatedir}/queue/agentless
 %dir %attr(770, ossec, ossec) %{_localstatedir}/queue/alerts
@@ -747,9 +755,13 @@ rm -fr %{buildroot}
 
 
 %changelog
-* Sun Aug 02 2020 support <info@wazuh.com> - 4.0.0
+* Mon Oct 19 2020 support <info@wazuh.com> - 4.0.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Tue May 19 2020 support <info@wazuh.com> - 3.13.0
+* Fri Aug 21 2020 support <info@wazuh.com> - 3.13.2
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Tue Jul 14 2020 support <info@wazuh.com> - 3.13.1
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Jun 29 2020 support <info@wazuh.com> - 3.13.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Wed May 13 2020 support <info@wazuh.com> - 3.12.3
 - More info: https://documentation.wazuh.com/current/release-notes/

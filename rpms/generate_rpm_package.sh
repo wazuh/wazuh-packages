@@ -41,6 +41,7 @@ CHECKSUMDIR=""
 CHECKSUM="no"
 USE_LOCAL_SPECS="no"
 LOCAL_SOURCE_CODE=""
+FUTURE="no"
 
 trap ctrl_c INT
 
@@ -93,7 +94,7 @@ build_rpm() {
         ${CONTAINER_NAME} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
         ${JOBS} ${REVISION} ${INSTALLATION_PATH} ${DEBUG} \
         ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} ${SRC} \
-        ${LEGACY} ${LOCAL_SOURCE_CODE} || return 1
+        ${LEGACY} ${FUTURE} "${LOCAL_SOURCE_CODE}"|| return 1
 
     echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
 
@@ -176,11 +177,12 @@ help() {
     echo "    -p, --path <path>            [Optional] Installation path for the package. By default: /var/ossec."
     echo "    -d, --debug                  [Optional] Build the binaries with debug symbols and create debuginfo packages. By default: no."
     echo "    -c, --checksum <path>        [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
-    echo "    --dont-build-docker      [Optional] Locally built docker image will be used instead of generating a new one."
+    echo "    --dont-build-docker          [Optional] Locally built docker image will be used instead of generating a new one."
     echo "    --sources <path>             [Optional] Absolute path containing wazuh source code. This option will use local source code instead of downloading it from GitHub."
     echo "    --packages-branch <branch>   [Optional] Select Git branch or tag from wazuh-packages repository. e.g ${PACKAGES_BRANCH}"
     echo "    --dev                        [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub."
     echo "    --src                        [Optional] Generate the source package in the destination directory."
+    echo "    --future                     [Optional] Build test future package x.30.0 Used for development purposes."
     echo "    -h, --help                   Show this help."
     echo
     exit $1
@@ -297,6 +299,10 @@ main() {
             ;;
         "--dev")
             USE_LOCAL_SPECS="yes"
+            shift 1
+            ;;
+        "--future")
+            FUTURE="yes"
             shift 1
             ;;
         *)

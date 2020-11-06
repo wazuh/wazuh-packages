@@ -88,12 +88,12 @@ configure_kibana(){
 
 install_kibana_app(){
 
-    if [ "${STATUS_PACKAGES}" = "stable" ]; then
+    if [ "${PACKAGES_REPOSITORY}" = "prod" ]; then
         #Wazuh-app production repository
         sudo -u kibana ${usr_kibana}/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip
     fi
 
-    if [ "${STATUS_PACKAGES}" = "unstable" ]; then
+    if [ "${PACKAGES_REPOSITORY}" = "dev" ]; then
         # Wazuh-app pre-release repository
         sudo -u kibana ${usr_kibana}/bin/kibana-plugin install https://packages-dev.wazuh.com/pre-release/app/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip
     fi
@@ -204,23 +204,19 @@ configure_logstash_6(){
 
 disable_repos_and_clean(){
 
-    # Set Wazuh production repository
-    if [ "${STATUS_PACKAGES}" = "unstable" ]; then
-        echo -e '[wazuh_repo]\ngpgcheck=1\ngpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=Wazuh repository \nbaseurl=https://packages.wazuh.com/3.x/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo
-    fi
-
     # Disable repositories
     yum-config-manager --disable elasticsearch-${ELK_MAJOR}.x
-    if [ "${STATUS_PACKAGES}" = "stable" ]; then
+    if [ "${PACKAGES_REPOSITORY}" = "prod" ]; then
         yum-config-manager --disable wazuh_repo
     else
-        yum-config-manager --disable wazuh_repo_dev
+        yum-config-manager --disable wazuh_pre_release
     fi
 
     # Cleaning tasks
     yum clean all && rm -rf /var/cache/yum
     userdel -fr vagrant
 }
+
 elastic_stack_6(){
 
     set_elastic_repository

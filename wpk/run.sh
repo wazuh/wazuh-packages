@@ -1,7 +1,7 @@
 #!/bin/bash
-
-DIRECTORY="wazuh"
-REPOSITORY="https://github.com/wazuh/wazuh.git"
+set -x
+DIRECTORY="wazuh*"
+REPOSITORY="https://github.com/wazuh/wazuh"
 REFERENCE=""
 JOBS="4"
 OUT_NAME=""
@@ -133,7 +133,7 @@ main() {
 
     NO_COMPILE=false
     # Get Wazuh
-    git clone ${REPOSITORY} ${DIRECTORY} -b ${REFERENCE} --depth=1 || exit 1
+    curl -sL ${REPOSITORY}/tarball/${REFERENCE} | tar zx
     cd ${DIRECTORY}
 
     # Get info
