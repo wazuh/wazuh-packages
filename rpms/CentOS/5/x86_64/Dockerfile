@@ -16,18 +16,18 @@ RUN yum install -y zlib-devel bzip2-devel openssl-devel ncurses-devel
 RUN curl -OL http://packages.wazuh.com/utils/perl/perl-5.10.1.tar.gz && \
     gunzip perl-5.10.1.tar.gz && tar -xf perl*.tar && \
     cd /perl-5.10.1 && ./Configure -des -Dcc='gcc' && \
-    make && make install && ln -fs /usr/local/bin/perl /bin/perl && \
+    make -j$(nproc) && make install && ln -fs /usr/local/bin/perl /bin/perl && \
     cd / && rm -rf /perl-5.10.1*
 
 RUN curl -OL http://packages.wazuh.com/utils/openssl/openssl-1.1.1a.tar.gz && \
     tar xf openssl-1.1.1a.tar.gz && cd openssl-1.1.1a && \
     CFLAGS="-fPIC" ./config --prefix=/usr/local/ssl --openssldir=/usr/local/ssl shared zlib && \
-    make && make install && echo "/usr/local/ssl/lib" > /etc/ld.so.conf.d/openssl-1.1.1a.conf && \
+    make -j$(nproc) && make install && echo "/usr/local/ssl/lib" > /etc/ld.so.conf.d/openssl-1.1.1a.conf && \
     ldconfig -v && cd / && rm -rf openssl-1.1.1a*
 
 RUN curl -OL http://packages.wazuh.com/utils/curl/curl-7.63.0.tar.gz && \
     tar xf curl-7.63.0.tar.gz && cd curl-7.63.0 && ./configure --with-ssl=/usr/local/ssl && \
-    make && make install && cd / && rm -rf curl*
+    make -j$(nproc) && make install && cd / && rm -rf curl*
 
 RUN curl -OL http://packages.wazuh.com/utils/cmake/cmake-2.6.4.tar.gz && \
     tar -zxvf cmake-2.6.4.tar.gz && cd cmake-2.6.4 && \
