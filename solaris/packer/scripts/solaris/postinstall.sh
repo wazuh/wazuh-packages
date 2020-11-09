@@ -72,7 +72,7 @@ cd .. && rm -rf gcc-*
 curl -sL http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz | gtar xz
 cd cmake-3.18.3
 ./bootstrap CC=/usr/local/gcc-5.5.0/bin/gcc CXX=/usr/local/gcc-5.5.0/bin/g++
-gmake && gmake install
+gmake -j$(nproc) && gmake install
 cd .. && rm -rf cmake-3.18.3
 ln -s /usr/local/bin/cmake /usr/bin/cmake
 
