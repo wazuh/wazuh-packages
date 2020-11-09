@@ -236,7 +236,7 @@ installKibana() {
         fi
         mkdir -p /etc/kibana/certs
         cp /etc/elasticsearch/certs/root-ca.pem /etc/kibana/certs/
-        mv /etc/elasticsearch/certs/{kibana.key,kibana.pem} /etc/kibana/certs/
+        mv /etc/elasticsearch/certs/{kibana_http.key,kibana_http.pem} /etc/kibana/certs/
         setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node
 
         # Start Kibana
