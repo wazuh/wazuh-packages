@@ -10,7 +10,7 @@ RUN apt-get update && \
 RUN curl -OL http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz && \
     tar -zxvf cmake-3.18.3.tar.gz && \
     cd cmake-3.18.3 && \
-    ./bootstrap && make && make install && \
+    ./bootstrap && make -j$(nproc) && make install && \
     ln -s /usr/local/bin/cmake /usr/bin/cmake && cd / && rm -rf cmake-*
 
 ADD entrypoint.sh /
