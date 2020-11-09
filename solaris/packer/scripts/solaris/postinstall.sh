@@ -40,22 +40,19 @@ curl -L http://packages.wazuh.com/utils/gcc/mpc-0.8.1.tar.gz | gtar xz
 mv mpc-0.8.1 mpc
 curl -L http://packages.wazuh.com/utils/gcc/isl-0.14.tar.bz2 | gtar xj
 mv isl-0.14 isl
-cd ..
 unset CPLUS_INCLUDE_PATH
 unset LD_LIBRARY_PATH
-mkdir -p gcc-build
-cd gcc-build
 # Fix for solaris 10/11
 if [ "$(uname -v)" = "11.3" ]; then
-  ../gcc-5.5.0/configure --prefix=/usr/local/gcc-5.5.0 --enable-languages=c,c++ --disable-multilib --disable-libsanitizer --disable-bootstrap --with-ld=/usr/ccs/bin/ld --without-gnu-ld --with-gnu-as --with-as=/opt/csw/bin/gas
-  gmake && gmake install
+  ./configure --prefix=/usr/local/gcc-5.5.0 --enable-languages=c,c++ --disable-multilib --disable-libsanitizer --disable-bootstrap --with-ld=/usr/ccs/bin/ld --without-gnu-ld --with-gnu-as --with-as=/opt/csw/bin/gas
+  gmake -j$(nproc) && gmake install
   echo "export PATH=/usr/local/gcc-5.5.0/bin:/usr/local/bin:/opt/csw/bin:${PATH}" >> /etc/profile
   export PATH="/usr/local/gcc-5.5.0/bin:/usr/local/bin:/opt/csw/bin:${PATH}"
   export CPLUS_INCLUDE_PATH=/usr/local/gcc-5.5.0/include/c++/5.5.0
   export LD_LIBRARY_PATH=/usr/local/gcc-5.5.0/lib
 else
-  ../gcc-5.5.0/configure --prefix=/usr/local/gcc-5.5.0 --enable-languages=c,c++ --disable-multilib --disable-libsanitizer --disable-bootstrap --with-gnu-as --with-as=/usr/sfw/bin/gas
-  gmake && gmake install
+  ./configure --prefix=/usr/local/gcc-5.5.0 --enable-languages=c,c++ --disable-multilib --disable-libsanitizer --disable-bootstrap --with-gnu-as --with-as=/usr/sfw/bin/gas
+  gmake -j$(nproc) && gmake install
   echo "export PATH=/usr/local/gcc-5.5.0/bin:${PATH}" >> /etc/profile
   PATH="/usr/local/gcc-5.5.0/bin:${PATH}"
   export PATH
@@ -67,7 +64,7 @@ fi
 
 echo "export CPLUS_INCLUDE_PATH=/usr/local/gcc-5.5.0/include/c++/5.5.0/" >> /etc/profile
 echo "export LD_LIBRARY_PATH=/usr/local/gcc-5.5.0/lib/" >> /etc/profile
-cd .. && rm -rf gcc-*
+rm -rf gcc-*
 
 curl -sL http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz | gtar xz
 cd cmake-3.18.3
