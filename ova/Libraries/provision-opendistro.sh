@@ -220,10 +220,10 @@ installKibana() {
         chown -R kibana:kibana /usr/share/kibana/{optimize,plugins}
 
         if [ "${PACKAGES_REPOSITORY}" = "prod" ]; then
-            if [ "${WAZUH_MAJOR}" = "3" ]; then
-                sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/${WAZUH_MAJOR}.x/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}.zip
+            if [ "${WAZUH_MAJOR}" -ge "4" ]; then
+                sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/${WAZUH_MAJOR}.x/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-${UI_REVISION}.zip
             else
-                sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/${WAZUH_MAJOR}.x/ui/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}-${UI_REVISION}.zip
+                sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip
             fi
         elif [ "${PACKAGES_REPOSITORY}" = "dev" ]; then
             sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-${UI_REVISION}.zip
@@ -251,9 +251,9 @@ configWazuh() {
 
     sed -i 's/<enabled>.*<\/enabled>/<enabled>no<\/enabled>/' ${manager_config}
     sed -i 's/<disabled>.*<\/disabled>/<disabled>yes<\/disabled>/' ${manager_config}
-    
+
     sed -i "s/INSTALLATION_DIRECTORY/\/var\/ossec/g" ${config_files}/ossec.conf
-    auth_configuration_with_tags=$(sed -n '/<auth>/I,/<\/auth>/I p' ${config_files}/ossec.conf) 
+    auth_configuration_with_tags=$(sed -n '/<auth>/I,/<\/auth>/I p' ${config_files}/ossec.conf)
     auth_configuration=$(echo "${auth_configuration_with_tags}" | tail -n +2 | head -n -1)
     ossec_configuration=$(awk -vauthConf="${auth_configuration}" '/<auth>/{p=1;print;print authConf}/<\/auth>/{p=0}!p' ${manager_config})
     echo "${ossec_configuration}" > ${manager_config}
