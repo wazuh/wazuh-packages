@@ -36,9 +36,9 @@ RUN curl -OL http://packages.wazuh.com/utils/cmake/cmake-2.6.4.tar.gz && \
 RUN curl -OL http://packages.wazuh.com/utils/gcc/gcc-5.5.0.tar.gz && \
     tar xzf gcc-5.5.0.tar.gz  && cd gcc-5.5.0/ && \
     ./contrib/download_prerequisites && \
-    ./configure --prefix=/usr/local/gcc-5.5.0 --enable-languages=c,c++ --disable-multilib --disable-libsanitizer --disable-bootstrap && \
+    ./configure --prefix=/usr/local/gcc-5.5.0 --enable-languages=c,c++ \
+        --disable-multilib --disable-libsanitizer --disable-bootstrap && \
     make -j$(nproc) && make install && \
-    ln -fs /usr/local/gcc-5.5.0/bin/gcc /usr/bin/cc && \
     ln -fs /usr/local/gcc-5.5.0/bin/g++ /usr/bin/c++ && cd / && rm -rf gcc-*
 
 ENV CPLUS_INCLUDE_PATH "/usr/local/gcc-5.5.0/include/c++/5.5.0/"

@@ -20,9 +20,9 @@ RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
 RUN curl -OL http://packages.wazuh.com/utils/gcc/gcc-5.5.0.tar.gz && \
     tar xzf gcc-5.5.0.tar.gz  && cd gcc-5.5.0/ && \
     linux32 ./contrib/download_prerequisites && \
-    linux32 ./configure --prefix=/usr/local/gcc-5.5.0 --enable-languages=c,c++ --disable-multilib --disable-libsanitizer --disable-bootstrap && \
+    linux32 ./configure --prefix=/usr/local/gcc-5.5.0 --enable-languages=c,c++\
+        --disable-multilib --disable-libsanitizer --disable-bootstrap && \
     linux32 make -j$(nproc) && linux32 make install && \
-    ln -fs /usr/local/gcc-5.5.0/bin/gcc /usr/bin/cc && \
     ln -fs /usr/local/gcc-5.5.0/bin/g++ /usr/bin/c++ && cd / && rm -rf gcc-*
 
 ENV CPLUS_INCLUDE_PATH "/usr/local/gcc-5.5.0/include/c++/5.5.0/"
@@ -31,7 +31,8 @@ ENV PATH "/usr/local/gcc-5.5.0/bin:${PATH}"
 
 RUN curl -OL http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz && \
     tar -zxvf cmake-3.18.3.tar.gz && cd cmake-3.18.3 && \
-    linux32 ./bootstrap CC=/usr/local/gcc-5.5.0/bin/gcc CXX=/usr/local/gcc-5.5.0/bin/g++ && \
+    linux32 ./bootstrap --no-system-curl CXX=/usr/local/gcc-5.5.0/bin/g++ \
+        CC=/usr/local/gcc-5.5.0/bin/gcc && \
     linux32 make -j$(nproc) && linux32 make install && \
     ln -s /usr/local/bin/cmake /usr/bin/cmake && cd / && rm -rf cmake-*
 
