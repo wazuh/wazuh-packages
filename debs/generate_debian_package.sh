@@ -33,6 +33,7 @@ PACKAGES_BRANCH="master"
 USE_LOCAL_SPECS="no"
 LOCAL_SPECS="${CURRENT_PATH}"
 LOCAL_SOURCE_CODE=""
+USE_LOCAL_SOURCE_CODE="no"
 FUTURE="no"
 
 trap ctrl_c INT
@@ -60,11 +61,12 @@ build_deb() {
     # Create an optional parameter to share the local source code as a volume
     if [ ! -z "${LOCAL_SOURCE_CODE}" ]; then
         CUSTOM_CODE_VOL="-v ${LOCAL_SOURCE_CODE}:/wazuh-local-src:Z"
+        USE_LOCAL_SOURCE_CODE="yes"
     fi
 
     # Build the Docker image
     if [[ ${BUILD_DOCKER} == "yes" ]]; then
-    docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || return 1
+        docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || return 1
     fi
 
     # Build the Debian package with a Docker container
@@ -75,7 +77,7 @@ build_deb() {
         ${CONTAINER_NAME} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
         ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} \
         ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} \
-        ${FUTURE} ${LOCAL_SOURCE_CODE}|| return 1
+        ${USE_LOCAL_SOURCE_CODE} ${FUTURE}|| return 1
 
     echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
 
