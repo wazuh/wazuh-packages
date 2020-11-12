@@ -26,7 +26,7 @@ RUN curl -OL http://packages.wazuh.com/utils/gcc/gcc-5.5.0.tar.gz && \
     ln -fs /usr/local/gcc-5.5.0/bin/g++ /usr/bin/c++ && cd / && rm -rf gcc-*
 
 ENV CPLUS_INCLUDE_PATH "/usr/local/gcc-5.5.0/include/c++/5.5.0/"
-ENV LD_LIBRARY_PATH "/usr/local/gcc-5.5.0/lib64/"
+ENV LD_LIBRARY_PATH "/usr/local/gcc-5.5.0/lib64:${LD_LIBRARY_PATH}"
 ENV PATH "/usr/local/gcc-5.5.0/bin:${PATH}"
 
 RUN curl -OL http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz && \

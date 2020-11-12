@@ -85,6 +85,8 @@ cd ${build_dir}/${build_target} && tar -czf ${package_full_name}.orig.tar.gz "${
 sed -i "s:RELEASE:${package_release}:g" ${sources_dir}/debian/changelog
 sed -i "s:export JOBS=.*:export JOBS=${jobs}:g" ${sources_dir}/debian/rules
 sed -i "s:export DEBUG_ENABLED=.*:export DEBUG_ENABLED=${debug}:g" ${sources_dir}/debian/rules
+sed -i "s#export PATH=.*#export PATH=/usr/local/gcc-5.5.0/bin:${PATH}#g" ${sources_dir}/debian/rules
+sed -i "s#export LD_LIBRARY_PATH=.*#export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}#g" ${sources_dir}/debian/rules
 sed -i "s:export INSTALLATION_DIR=.*:export INSTALLATION_DIR=${dir_path}:g" ${sources_dir}/debian/rules
 sed -i "s:DIR=\"/var/ossec\":DIR=\"${dir_path}\":g" ${sources_dir}/debian/{preinst,postinst,prerm,postrm}
 if [ "${build_target}" == "api" ]; then
@@ -105,11 +107,11 @@ mk-build-deps -ir -t "apt-get -o Debug::pkgProblemResolver=yes -y"
 # Build package
 if [[ "${architecture_target}" == "amd64" ]] ||  [[ "${architecture_target}" == "ppc64le" ]] || \
     [[ "${architecture_target}" == "arm64" ]]; then
-    debuild --rootcmd=sudo -eLD_LIBRARY_PATH --prepend-path="/usr/local/gcc-5.5.0/bin" -b -uc -us
+    debuild --rootcmd=sudo -b -uc -us
 elif [[ "${architecture_target}" == "armhf" ]]; then
-    linux32 debuild --rootcmd=sudo -eLD_LIBRARY_PATH --prepend-path="/usr/local/gcc-5.5.0/bin" -b -uc -us
+    linux32 debuild --rootcmd=sudo -b -uc -us
 else
-    linux32 debuild --rootcmd=sudo -eLD_LIBRARY_PATH --prepend-path="/usr/local/gcc-5.5.0/bin" -ai386 -b -uc -us
+    linux32 debuild --rootcmd=sudo -ai386 -b -uc -us
 fi
 
 deb_file="wazuh-${build_target}_${wazuh_version}-${package_release}_${architecture_target}.deb"
