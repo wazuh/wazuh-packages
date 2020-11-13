@@ -42,9 +42,15 @@ RUN curl -O http://packages.wazuh.com/utils/rpm/rpm-4.15.1.tar.bz2 && \
     linux32 ./configure --without-lua && linux32 make -j $(nproc) && \
     linux32 make install && cd / && rm -rf rpm-*
 
+RUN echo "%_initddir              %{_sysconfdir}/rc.d/init.d" >> /root/.rpmmacros
+RUN echo "%_initrddir             %{_initddir}" >> /root/.rpmmacros
+RUN echo "%_arch                  armv7hl" >> /root/.rpmmacros
+
 RUN mkdir -p /usr/local/var/lib/rpm && \
     cp /var/lib/rpm/Packages /usr/local/var/lib/rpm/Packages && \
     /usr/local/bin/rpm --rebuilddb && rm -rf /root/rpmbuild
+
+
 
 # Add the scripts to build the RPM package
 ADD build.sh /usr/local/bin/build_package
