@@ -34,10 +34,12 @@ function build() {
 
     configure
 
-    make -C ${SOURCES_PATH}/src deps
+    if [ -z "${USER_BINARYINSTALL}" ]; then
+        make -C ${SOURCES_PATH}/src deps
 
-    echo "Generating Wazuh executables"
-    make -j$JOBS -C ${SOURCES_PATH}/src DYLD_FORCE_FLAT_NAMESPACE=1 TARGET=agent PREFIX=${DESTINATION_PATH} build
+        echo "Generating Wazuh executables"
+        make -j$JOBS -C ${SOURCES_PATH}/src DYLD_FORCE_FLAT_NAMESPACE=1 TARGET=agent PREFIX=${DESTINATION_PATH} build
+    fi
 
     echo "Running install script"
     ${SOURCES_PATH}/install.sh
