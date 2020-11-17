@@ -26,7 +26,7 @@ RUN curl -O http://ftp.gnu.org/gnu/autoconf/autoconf-2.69.tar.gz && \
     gunzip autoconf-2.69.tar.gz && tar xvf autoconf-2.69.tar && \
     cd autoconf-2.69 && ./configure && make && make install
 
-RUN curl -O http://vault.centos.org/7.7.1908/os/Source/SPackages/libarchive-3.1.2-12.el7.src.rpm && \
+RUN curl -O https://packages.wazuh.com/utils/libarchive/libarchive-3.1.2-12.el7.src.rpm && \
     rpmbuild --rebuild libarchive-3.1.2-12.el7.src.rpm && rpm -Uvh /root/rpmbuild/RPMS/x86_64/* --nodeps
 
 RUN curl -O https://packages.wazuh.com/utils/rpm/rpm-4.15.1.tar.bz2 && \
