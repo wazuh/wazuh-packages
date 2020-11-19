@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Tool to build and compress the WPK package
 # Wazuh package generator
