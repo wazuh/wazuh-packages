@@ -1,6 +1,6 @@
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-manager
-Version:     4.1.0
+Version:     4.0.2
 Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
@@ -243,7 +243,7 @@ if [ $1 = 2 ]; then
 
   # Delete 3.X Wazuh API service
   if [ "$MAJOR" = "3" ] && [ -d %{_localstatedir}/api ]; then
-    if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 ; then
+    if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
       systemctl stop wazuh-api.service > /dev/null 2>&1
       systemctl disable wazuh-api.service > /dev/null 2>&1
       rm -f /etc/systemd/system/wazuh-api.service
@@ -422,7 +422,7 @@ if [ $1 = 0 ]; then
     systemctl disable wazuh-manager > /dev/null 2>&1
     systemctl daemon-reload > /dev/null 2>&1
   # Check for SysV
-  elif command -v service > /dev/null 2>&1 ; then
+  elif command -v service > /dev/null 2>&1; then
     chkconfig wazuh-manager off > /dev/null 2>&1
     chkconfig --del wazuh-manager > /dev/null 2>&1
   fi
@@ -495,7 +495,7 @@ if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
   rm -f %{_localstatedir}/tmp/wazuh.restart
   if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 ; then
     systemctl restart wazuh-manager.service > /dev/null 2>&1
-  elif command -v service > /dev/null 2>&1 ; then
+  elif command -v service > /dev/null 2>&1; then
     service wazuh-manager restart > /dev/null 2>&1
   else
     %{_localstatedir}/bin/ossec-control restart > /dev/null 2>&1
@@ -548,7 +548,6 @@ rm -fr %{buildroot}
 %attr(750, root, root) %{_localstatedir}/bin/ossec-integratord
 %attr(750, root, root) %{_localstatedir}/bin/ossec-logcollector
 %attr(750, root, root) %{_localstatedir}/bin/ossec-logtest
-%attr(750, root, root) %{_localstatedir}/bin/wazuh-logtest
 %attr(750, root, root) %{_localstatedir}/bin/ossec-maild
 %attr(750, root, root) %{_localstatedir}/bin/ossec-makelists
 %attr(750, root, root) %{_localstatedir}/bin/ossec-monitord
@@ -649,7 +648,7 @@ rm -fr %{buildroot}
 %dir %attr(750, ossec,ossec) %{_localstatedir}/queue/fim/db
 %dir %attr(750, ossec, ossec) %{_localstatedir}/queue/fts
 %dir %attr(770, ossecr, ossec) %{_localstatedir}/queue/rids
-%dir %attr(770, ossec, ossec) %{_localstatedir}/queue/tasks
+%dir %attr(750, ossec, ossec) %{_localstatedir}/queue/rootcheck
 %dir %attr(770, ossec, ossec) %{_localstatedir}/queue/ossec
 %dir %attr(660, root, ossec) %{_localstatedir}/queue/vulnerabilities
 %dir %attr(440, root, ossec) %{_localstatedir}/queue/vulnerabilities/dictionaries
@@ -758,7 +757,9 @@ rm -fr %{buildroot}
 
 
 %changelog
-* Fri Oct 30 2020 support <info@wazuh.com> - 4.1.0
+* Mon Nov 23 2020 support <info@wazuh.com> - 4.0.2
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Sat Oct 31 2020 support <info@wazuh.com> - 4.0.1
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Oct 19 2020 support <info@wazuh.com> - 4.0.0
 - More info: https://documentation.wazuh.com/current/release-notes/

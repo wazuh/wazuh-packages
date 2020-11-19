@@ -41,6 +41,15 @@ hostname wazuhmanager
 sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/" /etc/ssh/sshd_config
 echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 
+# OVA Welcome message
+cat > /etc/issue << EOF
+
+Welcome to the Wazuh OVA version $WAZUH_VERSION
+Access the Wazuh Web Interface at https://\4{eth0}
+Thank you for using Wazuh!
+
+EOF
+
 # Dependences
 yum install openssl -y
 
