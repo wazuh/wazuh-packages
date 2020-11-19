@@ -11,7 +11,6 @@ set -exf
 DESTINATION_PATH=$1
 SOURCES_PATH=$2
 BUILD_JOBS=$3
-NO_COMPILE=$4
 INSTALLATION_SCRIPTS_DIR=${DESTINATION_PATH}/packages_files/agent_installation_scripts
 
 function configure() {

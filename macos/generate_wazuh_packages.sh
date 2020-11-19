@@ -31,7 +31,6 @@ KC_PASS=""                            # Password of the keychain.
 NOTARIZE="no"                         # Notarize the package for macOS Catalina.
 DEVELOPER_ID=""                       # Apple Developer ID.
 ALTOOL_PASS=""                        # Temporary Application password for altool.
-NO_COMPILE=""                         # Whether compile or not on package build(precompiled binaries).
 pkg_name=""
 
 trap ctrl_c INT
@@ -151,11 +150,7 @@ function build_package() {
     fi
 
     cp ${packages_script_path}/*.sh ${CURRENT_PATH}/package_files/
-    if [ -n "${NO_COMPILE}" ]; then
-        ${CURRENT_PATH}/package_files/build.sh "${INSTALLATION_PATH}" "${WAZUH_PATH}" ${JOBS}
-    else
-        ${CURRENT_PATH}/package_files/build.sh "${INSTALLATION_PATH}" "${WAZUH_PATH}" ${JOBS} ${NO_COMPILE}
-    fi
+    ${CURRENT_PATH}/package_files/build.sh "${INSTALLATION_PATH}" "${WAZUH_PATH}" ${JOBS}
 
     # sign the binaries and the libraries
     sign_binaries
@@ -199,7 +194,6 @@ function help() {
     echo "    --notarize                    [Optional] Notarize the package for its distribution on macOS Catalina ."
     echo "    --developer-id                [Optional] Your Apple Developer ID."
     echo "    --altool-password             [Optional] Temporary password to use altool from Xcode."
-    echo "    --no-compile                  [Optional] Avoid code compilation (precompiled binaries)."
     echo
     exit "$1"
 }
@@ -389,10 +383,6 @@ function main() {
             else
                 help 1
             fi
-            ;;
-        "--no-compile")
-            NO_COMPILE="yes"
-            shift 1
             ;;
         *)
             help 1
