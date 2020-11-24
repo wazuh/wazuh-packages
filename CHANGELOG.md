@@ -1,6 +1,22 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [v4.0.2]
+
+### Added
+
+- Added a new welcome message to Wazuh VM ([#535](https://github.com/wazuh/wazuh-packages/pull/535)).
+
+### Fixed
+
+- Fixed the group of the `ossec.conf` in IBM AIX package ([#541](https://github.com/wazuh/wazuh-packages/pull/541)).
+
+## [v4.0.1]
+
+### Fixed
+
+- Added new SSL certificates to secure Kibana communications and ensure HTTPS access to the UI ([#534](https://github.com/wazuh/wazuh-packages/pull/534)).
+
 ## [v4.0.0]
 
 ### Added
