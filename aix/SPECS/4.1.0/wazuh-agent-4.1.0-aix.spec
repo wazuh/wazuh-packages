@@ -112,7 +112,6 @@ if [ $1 = 1 ]; then
   # Generating ossec.conf file
   . %{_localstatedir}/tmp/src/init/dist-detect.sh
   %{_localstatedir}/tmp/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir} > %{_localstatedir}/etc/ossec.conf
-  chown root:ossec %{_localstatedir}/etc/ossec.conf
 
   # Add default local_files to ossec.conf
   %{_localstatedir}/tmp/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
@@ -140,7 +139,7 @@ if [ $1 = 1 ]; then
   %{_localstatedir}/tmp/src/init/register_configure_agent.sh > /dev/null || :
 
 fi
-
+chown root:ossec %{_localstatedir}/etc/ossec.conf
 ln -fs /etc/rc.d/init.d/wazuh-agent /etc/rc.d/rc2.d/S97wazuh-agent
 ln -fs /etc/rc.d/init.d/wazuh-agent /etc/rc.d/rc3.d/S97wazuh-agent
 
