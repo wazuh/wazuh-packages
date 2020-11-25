@@ -1,5 +1,4 @@
 FROM centos:6
-ENV PATH=/opt/rh/python27/root/usr/bin:$PATH
 
 RUN yum -y install centos-release-scl epel-release && \
     yum -y install gcc make git python34 python34-pip python34-devel python34-cffi \
@@ -17,7 +16,6 @@ RUN yum -y install centos-release-scl epel-release && \
 
 RUN mv /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo.old
 RUN yum-builddep python34 -y
-RUN pip3 install cryptography==2.9.2 awscli
 
 RUN curl -OL http://packages.wazuh.com/utils/gcc/gcc-5.5.0.tar.gz && \
     tar xzf gcc-5.5.0.tar.gz  && cd gcc-5.5.0/ && \
@@ -36,6 +34,14 @@ RUN curl -OL http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz && \
     ./bootstrap --no-system-curl CC=/usr/local/gcc-5.5.0/bin/gcc \
         CXX=/usr/local/gcc-5.5.0/bin/g++ && \
     make -j$(nproc) && make install && cd / && rm -rf cmake-*
+
+RUN curl -OL http://packages.wazuh.com/utils/openssl/openssl-1.1.1a.tar.gz && \
+    tar xf openssl-1.1.1a.tar.gz && cd openssl-1.1.1a && \
+    ./config --prefix=/usr/ --openssldir=/usr/ shared zlib && \
+    make -j$(nproc) && make install && echo "/usr/lib" > /etc/ld.so.conf.d/openssl-1.1.1a.conf && \
+    ldconfig -v && cd / && rm -rf openssl-1.1.1a*
+
+RUN pip3 install cryptography==2.9.2 awscli
 
 ADD wpkpack.py /usr/local/bin/wpkpack
 ADD run.sh /usr/local/bin/run
