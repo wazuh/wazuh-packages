@@ -54,6 +54,13 @@ build_environment(){
     gunzip -f gmake-4.2.1%2cREV%3d2016.08.04-SunOS5.10-sparc-CSW.pkg.gz
     pkgadd -d gmake-4.2.1%2cREV%3d2016.08.04-SunOS5.10-sparc-CSW.pkg -n all
 
+    curl -sL http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz | gtar xz
+    cd cmake-3.18.3
+    ./bootstrap
+    gmake -j$(nproc) && gmake install
+    cd .. && rm -rf cmake-3.18.3
+    ln -s /usr/local/bin/cmake /usr/bin/cmake
+
     # Download and install perl5.10
     perl_version=`perl -v | cut -d . -f2 -s | head -n1`
 

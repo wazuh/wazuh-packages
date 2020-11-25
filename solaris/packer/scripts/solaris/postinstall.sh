@@ -62,8 +62,8 @@ else
   export LD_LIBRARY_PATH
 fi
 
-echo "export CPLUS_INCLUDE_PATH=/usr/local/gcc-5.5.0/include/c++/5.5.0/" >> /etc/profile
-echo "export LD_LIBRARY_PATH=/usr/local/gcc-5.5.0/lib/" >> /etc/profile
+echo "export CPLUS_INCLUDE_PATH=/usr/local/gcc-5.5.0/include/c++/5.5.0" >> /etc/profile
+echo "export LD_LIBRARY_PATH=/usr/local/gcc-5.5.0/lib" >> /etc/profile
 rm -rf gcc-*
 
 curl -sL http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz | gtar xz
