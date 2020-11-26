@@ -14,7 +14,7 @@ name="centos-5-i386"
 target=$(mktemp -d /tmp/mkimage-yum.XXXXXX)
 yum_config="/etc/yum.conf"
 
-packages=("sudo" "ca-certificates" "make" "cmake" "gcc" "curl" "initscripts" \
+packages=("sudo" "ca-certificates" "make" "gcc" "curl" "initscripts" \
           "tar" "rpm-build" "automake" "autoconf" "libtool" "wget" \
           "libselinux" "devicemapper" "libselinux-python" "krb5-libs" \
           "policycoreutils" "checkpolicy" "zlib-devel" "bzip2-devel" \
@@ -49,7 +49,7 @@ done
 yum -c "$yum_config" --installroot="$target" -y clean all
 
 # Install perl 5.10
-wget http://www.cpan.org/src/5.0/perl-5.10.1.tar.gz
+wget http://packages.wazuh.com/utils/perl/perl-5.10.1.tar.gz
 gunzip perl-5.10.1.tar.gz && tar -xvf perl*.tar
 cd perl-5.10.1 && ./Configure -des -Dcc='gcc' -Dprefix="$target"/usr/local
 make && make install && ln -fs "$target"/usr/local/bin/perl "$target"/bin/perl

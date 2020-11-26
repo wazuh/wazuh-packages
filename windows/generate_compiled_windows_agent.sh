@@ -8,7 +8,7 @@ OUTDIR="$(pwd)"
 REVISION="1"
 
 DOCKERFILE_PATH="./"
-DOCKER_IMAGE_NAME="compilate_windows_agent"
+DOCKER_IMAGE_NAME="compile_windows_agent"
 TAG=$1
 
 

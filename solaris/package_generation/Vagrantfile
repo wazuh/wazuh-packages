@@ -4,8 +4,8 @@
 require 'getoptlong'
 
 os = {
-        'solaris11'   => {'box' => 'wazuh/solaris11',          'ip' => '172.16.1.44'},
-        'solaris10'   => {'box' => 'wazuh/solaris10',          'ip' => '172.16.1.45'},
+    'solaris11' => {'box' => 'wazuh/solaris11', 'ip' => '172.16.1.44', 'folder' => 'solaris11'},
+    'solaris10' => {'box' => 'wazuh/solaris10', 'ip' => '172.16.1.45', 'folder' => 'solaris10'},
 }
 
 ###################################################
@@ -96,7 +96,7 @@ opts.each do |opt, arg|
             puts "Missing ram argument (try --help)"
             exit 0
         else
-        ram=arg
+            ram=arg
         end
     when '--cpus'
         if arg == ''
@@ -131,7 +131,7 @@ Vagrant.configure("2") do |config|
           end
 
           config.vm.synced_folder "src/", "/tmp/shared"
-          node.vm.provision "shell", path: "src/generate_packages.sh", env: {"BRANCH_TAG" => "#{branch_tag}", "SOLARIS_VERSION" => "#{key}","CHECKSUM" => "#{checksum}"}
+          node.vm.provision "shell", path: "src/generate_packages.sh", env: {"BRANCH_TAG" => "#{branch_tag}", "SOLARIS_VERSION" => "#{value['folder']}","CHECKSUM" => "#{checksum}"}
         end
     end
 end
