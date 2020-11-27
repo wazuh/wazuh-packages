@@ -548,7 +548,7 @@ rm -fr %{buildroot}
 %attr(750, root, root) %{_localstatedir}/bin/ossec-integratord
 %attr(750, root, root) %{_localstatedir}/bin/ossec-logcollector
 %attr(750, root, root) %{_localstatedir}/bin/ossec-logtest
-%attr(750, root, root) %{_localstatedir}/bin/wazuh-logtest
+%attr(750, root, ossec) %{_localstatedir}/bin/wazuh-logtest
 %attr(750, root, root) %{_localstatedir}/bin/ossec-maild
 %attr(750, root, root) %{_localstatedir}/bin/ossec-makelists
 %attr(750, root, root) %{_localstatedir}/bin/ossec-monitord
