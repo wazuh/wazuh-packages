@@ -621,6 +621,10 @@ rm -fr %{buildroot}
 %attr(750, root, ossec) %{_localstatedir}/integrations/*
 %dir %attr(750, root, ossec) %{_localstatedir}/lib
 %attr(750, root, ossec) %{_localstatedir}/lib/libwazuhext.so
+%attr(750, root, ossec) %{_localstatedir}/lib/libdbsync.so
+%attr(750, root, ossec) %{_localstatedir}/lib/librsync.so
+%attr(750, root, ossec) %{_localstatedir}/lib/libsyscollector.so
+%attr(750, root, ossec) %{_localstatedir}/lib/libsysinfo.so
 %{_localstatedir}/lib/libpython3.8.so.1.0
 %dir %attr(770, ossec, ossec) %{_localstatedir}/logs
 %attr(660, ossec, ossec)  %ghost %{_localstatedir}/logs/active-responses.log
