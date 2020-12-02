@@ -1,5 +1,8 @@
 FROM centos:6
 # Install all the necessary tools to build the packages
+RUN rm /etc/yum.repos.d/* && echo "exactarch=1" >> /etc/yum.conf
+COPY CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo
+RUN yum clean all && yum update -y
 RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-6
 RUN yum install -y centos-release-scl gcc make wget git \
     openssh-clients sudo gnupg \
