@@ -17,8 +17,6 @@ RUN yum install -y centos-release-scl gcc make wget git \
     libarchive-devel elfutils-libelf-devel \
     elfutils-libelf patchelf elfutils-devel libgcrypt-devel
 
-# Warning: this repo has been disabled by the vendor
-RUN mv /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo.old
 RUN yum-builddep python34 -y
 
 RUN curl --silent --location https://rpm.nodesource.com/setup_8.x | bash -
