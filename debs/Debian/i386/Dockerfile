@@ -17,25 +17,6 @@ RUN echo "deb http://archive.debian.org/debian/ wheezy contrib main non-free" > 
 RUN apt-get update && apt-get build-dep python3.2 -y
 RUN sed -i "s;/\* To add :#define SO_REUSEPORT 15 \*/;#define SO_REUSEPORT 15;g" /usr/include/asm-generic/socket.h
 
-RUN curl -OL http://packages.wazuh.com/utils/gcc/gcc-5.5.0.tar.gz && \
-    tar xzf gcc-5.5.0.tar.gz  && cd gcc-5.5.0/ && \
-    linux32 ./contrib/download_prerequisites && \
-    linux32 ./configure --prefix=/usr/local/gcc-5.5.0 --enable-languages=c,c++ \
-        --disable-multilib --disable-libsanitizer --disable-bootstrap && \
-    linux32 make -j$(nproc) && linux32 make install && \
-    ln -fs /usr/local/gcc-5.5.0/bin/g++ /usr/bin/c++ && cd / && rm -rf gcc-*
-
-ENV CPLUS_INCLUDE_PATH "/usr/local/gcc-5.5.0/include/c++/5.5.0/"
-ENV LD_LIBRARY_PATH "/usr/local/gcc-5.5.0/lib:${LD_LIBRARY_PATH}"
-ENV PATH "/usr/local/gcc-5.5.0/bin:${PATH}"
-
-RUN curl -OL http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz && \
-    tar -zxvf cmake-3.18.3.tar.gz && cd cmake-3.18.3 && \
-    linux32 ./bootstrap --no-system-curl CXX=/usr/local/gcc-5.5.0/bin/g++ \
-        CC=/usr/local/gcc-5.5.0/bin/gcc && \
-    linux32 make -j$(nproc) && linux32 make install && \
-    ln -s /usr/local/bin/cmake /usr/bin/cmake && cd / && rm -rf cmake-*
-
 # Add the script to build the Debian package
 ADD build.sh /usr/local/bin/build_package
 RUN chmod +x /usr/local/bin/build_package

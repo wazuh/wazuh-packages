@@ -24,8 +24,6 @@ export INSTALLATION_DIR="/var/ossec"
 export INSTALLATION_SCRIPTS_DIR="${INSTALLATION_DIR}/packages_files/manager_installation_scripts"
 export JOBS="5"
 export DEBUG_ENABLED="no"
-export PATH="${PATH}"
-export LD_LIBRARY_PATH=""
 
 %:
 	dh $@
