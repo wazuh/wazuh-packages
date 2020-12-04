@@ -24,24 +24,6 @@ RUN yum install -y gcc make wget git \
     redhat-rpm-config sqlite-devel gdb tar tcl-devel tix-devel tk-devel \
     valgrind-devel python-rpm-macros python34 nodejs
 
-RUN curl -OL http://packages.wazuh.com/utils/gcc/gcc-5.5.0.tar.gz && \
-    tar xzf gcc-5.5.0.tar.gz  && cd gcc-5.5.0/ && \
-    ./contrib/download_prerequisites && \
-    ./configure --prefix=/usr/local/gcc-5.5.0 --enable-languages=c,c++ --disable-multilib \
-        --disable-libsanitizer --disable-bootstrap && \
-    make -j$(nproc) && make install && \
-    ln -fs /usr/local/gcc-5.5.0/bin/g++ /usr/bin/c++ && cd / && rm -rf gcc-*
-
-ENV CPLUS_INCLUDE_PATH "/usr/local/gcc-5.5.0/include/c++/5.5.0/"
-ENV LD_LIBRARY_PATH "/usr/local/gcc-5.5.0/lib64/"
-ENV PATH "/usr/local/gcc-5.5.0/bin:${PATH}"
-
-RUN curl -OL http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz && \
-    tar -zxf cmake-3.18.3.tar.gz && cd cmake-3.18.3 && \
-    ./bootstrap --no-system-curl CC=/usr/local/gcc-5.5.0/bin/gcc \
-        CXX=/usr/local/gcc-5.5.0/bin/g++ && \
-    make -j$(nproc) && make install && cd / && rm -rf cmake-*
-
 RUN curl -O http://packages.wazuh.com/utils/openssl/openssl-1.1.1a.tar.gz && \
     tar -xzf openssl-1.1.1a.tar.gz && cd openssl* && \
     ./config -Wl,--enable-new-dtags,-rpath,'$(LIBRPATH)' && \
