@@ -1208,99 +1208,11 @@
         "type": "directory",
         "user": "root"
     },
-    "/var/ossec/ruleset/sca/cis_rhel5_linux_rcl.yml": {
-        "class": "dynamic",
-        "group": "ossec",
-        "mode": "0640",
-        "prot": "-rw-r-----",
-        "type": "file",
-        "user": "root"
-    },
-    "/var/ossec/ruleset/sca/cis_rhel6_linux_rcl.yml": {
-        "class": "dynamic",
-        "group": "ossec",
-        "mode": "0640",
-        "prot": "-rw-r-----",
-        "type": "file",
-        "user": "root"
-    },
-    "/var/ossec/ruleset/sca/cis_rhel7_linux_rcl.yml": {
-        "class": "dynamic",
-        "group": "ossec",
-        "mode": "0640",
-        "prot": "-rw-r-----",
-        "type": "file",
-        "user": "root"
-    },
-    "/var/ossec/ruleset/sca/cis_sles11_linux_rcl.yml": {
-        "class": "dynamic",
-        "group": "ossec",
-        "mode": "0640",
-        "prot": "-rw-r-----",
-        "type": "file",
-        "user": "root"
-    },
-    "/var/ossec/ruleset/sca/cis_sles12_linux_rcl.yml": {
-        "class": "dynamic",
-        "group": "ossec",
-        "mode": "0640",
-        "prot": "-rw-r-----",
-        "type": "file",
-        "user": "root"
-    },
-    "/var/ossec/ruleset/sca/cis_debian_linux_rcl.yml": {
-        "class": "dynamic",
-        "group": "ossec",
-        "mode": "0640",
-        "prot": "-rw-r-----",
-        "type": "file",
-        "user": "root"
-    },
-    "/var/ossec/ruleset/sca/cis_debianlinux7-8_L1_rcl.yml": {
-        "class": "dynamic",
-        "group": "ossec",
-        "mode": "0640",
-        "prot": "-rw-r-----",
-        "type": "file",
-        "user": "root"
-    },
-    "/var/ossec/ruleset/sca/cis_debianlinux7-8_L2_rcl.yml": {
-        "class": "dynamic",
-        "group": "ossec",
-        "mode": "0640",
-        "prot": "-rw-r-----",
-        "type": "file",
-        "user": "root"
-    },
-    "/var/ossec/ruleset/sca/cis_solaris11_rcl.yml": {
+    "/var/ossec/ruleset/sca/cis_solaris11.yml": {
         "class": "static",
         "group": "ossec",
         "mode": "0640",
         "prot": "-rwxr-----",
-        "type": "file",
-        "user": "root"
-    },
-    "/var/ossec/ruleset/sca/system_audit_pw.yml": {
-        "class": "static",
-        "group": "ossec",
-        "mode": "0640",
-        "prot": "-rw-r-----",
-        "type": "file",
-        "user": "root"
-    },
-    "/var/ossec/ruleset/sca/system_audit_rcl.yml": {
-        "class": "static",
-        "group": "ossec",
-        "mode": "0640",
-        "prot": "-rw-r-----",
-        "type": "file",
-        "user": "root"
-    },
-    "/var/ossec/ruleset/sca/system_audit_ssh.yml": {
-        "class": "static",
-        "group": "ossec",
-        "mode": "0640",
-        "prot": "-rw-r-----",
         "type": "file",
         "user": "root"
     },
