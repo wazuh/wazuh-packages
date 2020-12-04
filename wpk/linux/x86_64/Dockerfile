@@ -1,8 +1,11 @@
 FROM centos:6
 
-RUN yum -y install centos-release-scl epel-release && \
+RUN rm /etc/yum.repos.d/* && echo "exactarch=1" >> /etc/yum.conf
+COPY CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo
+
+RUN yum -y install epel-release && \
     yum -y install gcc make git python34 python34-pip python34-devel python34-cffi \
-    jq centos-release-scl sudo gnupg automake \
+    jq sudo gnupg automake \
     autoconf wget libtool policycoreutils-python \
     yum-utils epel-release redhat-rpm-config rpm-devel \
     autopoint gettext nspr nspr-devel \
@@ -14,7 +17,6 @@ RUN yum -y install centos-release-scl epel-release && \
     libarchive-devel elfutils-libelf-devel \
     elfutils-libelf patchelf elfutils-devel libgcrypt-devel
 
-RUN mv /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo.old
 RUN yum-builddep python34 -y
 
 RUN curl -OL http://packages.wazuh.com/utils/openssl/openssl-1.1.1a.tar.gz && \
