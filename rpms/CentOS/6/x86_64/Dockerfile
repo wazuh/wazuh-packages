@@ -1,7 +1,11 @@
 FROM centos:6
+
 # Install all the necessary tools to build the packages
+RUN rm /etc/yum.repos.d/* && echo "exactarch=1" >> /etc/yum.conf
+COPY CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo
+RUN yum clean all && yum update -y
 RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-6
-RUN yum install -y centos-release-scl gcc make wget git \
+RUN yum install -y gcc make wget git \
     openssh-clients sudo gnupg \
     automake autoconf libtool policycoreutils-python \
     yum-utils epel-release redhat-rpm-config rpm-devel \
@@ -14,8 +18,6 @@ RUN yum install -y centos-release-scl gcc make wget git \
     libarchive-devel elfutils-libelf-devel \
     elfutils-libelf patchelf elfutils-devel libgcrypt-devel
 
-# Warning: this repo has been disabled by the vendor
-RUN mv /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo.old
 RUN yum-builddep python34 -y
 
 RUN curl --silent --location https://rpm.nodesource.com/setup_8.x | bash -
