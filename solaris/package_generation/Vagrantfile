@@ -123,7 +123,7 @@ Vagrant.configure("2") do |config|
           elsif key == "solaris10"
             node.vm.box_url = 'https://ci.wazuh.com/vms/vagrant/solaris/10/i386/solaris10.box'
           elsif key == "solaris11_cmake"
-            node.vm.box_url = 'https://ci.wazuh.com/vms/vagrant/solaris/10/i386/solaris11.3_cmake.box'
+            node.vm.box_url = 'https://ci.wazuh.com/vms/vagrant/solaris/11/i386/solaris11.3_cmake.box'
           elsif key == "solaris10_cmake"
             node.vm.box_url = 'https://ci.wazuh.com/vms/vagrant/solaris/10/i386/solaris10_cmake.box'
           end
