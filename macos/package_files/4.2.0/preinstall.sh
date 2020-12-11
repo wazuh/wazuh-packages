@@ -15,7 +15,7 @@ if [ ! -d ${DIR} ]; then
     launchctl setenv WAZUH_PKG_UPGRADE false
 else
     launchctl setenv WAZUH_PKG_UPGRADE true
-    if ${DIR}/bin/ossec-control status | grep "is running" > /dev/null 2>&1; then
+    if ${DIR}/bin/wazuh-control status | grep "is running" > /dev/null 2>&1; then
         launchctl setenv WAZUH_RESTART true
     else
         launchctl setenv WAZUH_RESTART false
@@ -80,8 +80,8 @@ if [[ ${new_uid} != ${new_gid} ]]
 fi
 
 # Stops the agent before upgrading it
-if [ -f ${DIR}/bin/ossec-control ]; then
-    ${DIR}/bin/ossec-control stop
+if [ -f ${DIR}/bin/wazuh-control ]; then
+    ${DIR}/bin/wazuh-control stop
 fi
 
 # Creating the group
@@ -150,15 +150,15 @@ fi
 
 StartService ()
 {
-        ${DIRECTORY}/bin/ossec-control start
+        ${DIRECTORY}/bin/wazuh-control start
 }
 StopService ()
 {
-        ${DIRECTORY}/bin/ossec-control stop
+        ${DIRECTORY}/bin/wazuh-control stop
 }
 RestartService ()
 {
-        ${DIRECTORY}/bin/ossec-control restart
+        ${DIRECTORY}/bin/wazuh-control restart
 }
 RunService "$1"
 EOF
@@ -204,12 +204,12 @@ if [ "X${DIRECTORY}" = "X" ]; then
 fi
 
 capture_sigterm() {
-    ${DIRECTORY}/bin/ossec-control stop
+    ${DIRECTORY}/bin/wazuh-control stop
     exit $?
 }
 
-if ! ${DIRECTORY}/bin/ossec-control start; then
-    ${DIRECTORY}/bin/ossec-control stop
+if ! ${DIRECTORY}/bin/wazuh-control start; then
+    ${DIRECTORY}/bin/wazuh-control stop
 fi
 
 while : ; do

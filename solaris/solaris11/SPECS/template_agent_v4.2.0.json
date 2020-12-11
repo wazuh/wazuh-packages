@@ -311,7 +311,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/bin/ossec-control": {
+    "/var/ossec/bin/wazuh-control": {
         "class": "static",
         "group": "root",
         "mode": "0750",
