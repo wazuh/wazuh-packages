@@ -562,7 +562,6 @@ rm -fr %{buildroot}
 %attr(750, root, root) %{_localstatedir}/bin/ossec-reportd
 %attr(750, root, root) %{_localstatedir}/bin/ossec-syscheckd
 %attr(750, root, ossec) %{_localstatedir}/bin/update_ruleset
-%attr(750, root, root) %{_localstatedir}/bin/util.sh
 %attr(750, root, ossec) %{_localstatedir}/bin/verify-agent-conf
 %attr(750, root, ossec) %{_localstatedir}/bin/wazuh-apid
 %attr(750, root, ossec) %{_localstatedir}/bin/wazuh-clusterd
@@ -581,9 +580,7 @@ rm -fr %{buildroot}
 %dir %attr(770, ossec, ossec) %{_localstatedir}/etc/lists/amazon
 %attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/etc/lists/amazon/*
 %attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/etc/lists/audit-keys
-%attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/etc/lists/audit-keys.cdb
 %attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/etc/lists/security-eventchannel
-%attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/etc/lists/security-eventchannel.cdb
 %dir %attr(770, root, ossec) %{_localstatedir}/etc/shared
 %dir %attr(770, ossec, ossec) %{_localstatedir}/etc/shared/default
 %attr(660, ossec, ossec) %{_localstatedir}/etc/shared/agent-template.conf
