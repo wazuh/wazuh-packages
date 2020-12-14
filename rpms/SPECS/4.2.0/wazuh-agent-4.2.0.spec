@@ -198,8 +198,8 @@ if [ $1 = 2 ]; then
   elif command -v service > /dev/null 2>&1 && service wazuh-agent status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
     service wazuh-agent stop > /dev/null 2>&1
     touch %{_localstatedir}/tmp/wazuh.restart
-  elif %{_localstatedir}/bin/ossec-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
-    %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
+  elif %{_localstatedir}/bin/wazuh-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
+    %{_localstatedir}/bin/wazuh-control stop > /dev/null 2>&1
     touch %{_localstatedir}/tmp/wazuh.restart
   fi
 fi
@@ -353,7 +353,7 @@ if [ $1 = 0 ]; then
   elif command -v service > /dev/null 2>&1 && service wazuh-agent status 2>/dev/null | grep "running" > /dev/null 2>&1; then
     service wazuh-agent stop > /dev/null 2>&1
   else # Anything else
-    %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
+    %{_localstatedir}/bin/wazuh-control stop > /dev/null 2>&1
   fi
 
   # Check for systemd
@@ -429,7 +429,7 @@ if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
   elif command -v service > /dev/null 2>&1 && service wazuh-agent status 2>/dev/null | grep "running" > /dev/null 2>&1; then
     service wazuh-agent restart > /dev/null 2>&1
   else
-    %{_localstatedir}/bin/ossec-control restart > /dev/null 2>&1
+    %{_localstatedir}/bin/wazuh-control restart > /dev/null 2>&1
   fi
 fi
 
@@ -710,6 +710,6 @@ rm -fr %{buildroot}
 - Fixed compile errors on macOS.
 - Fixed option -V for Integrator.
 - Exclude symbolic links to directories when sending FIM diffs (by Stephan Joerrens).
-- Fixed daemon list for service reloading at ossec-control.
+- Fixed daemon list for service reloading at wazuh-control.
 - Fixed socket waiting issue on Windows agents.
 - Fixed PCI_DSS definitions grouping issue at Rootcheck controls.

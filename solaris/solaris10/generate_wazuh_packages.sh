@@ -19,6 +19,7 @@ deps_version="false"
 SOURCE=${CURRENT_PATH}/repository
 CONFIG="$SOURCE/etc/preloaded-vars.conf"
 target_dir="${CURRENT_PATH}/output"
+control_binary=""
 
 trap ctrl_c INT
 
@@ -30,7 +31,20 @@ if [ -z "$ARCH" ]; then
     ARCH="i386"
 fi
 
+set_control_binary() {
+  if [ -e ${SOURCE}/src/VERSION ]; then
+    wazuh_version=`cat ${SOURCE}/src/VERSION`
+    number_version=`echo "${wazuh_version}" | cut -d v -f 2`
+    major=`echo $number_version | cut -d . -f 1`
+    minor=`echo $number_version | cut -d . -f 2`
 
+    if [ "$major" -le "4" ] && [ "$minor" -le "1" ]; then
+      control_binary="ossec-control"
+    else
+      control_binary="wazuh-control"
+    fi
+  fi
+}
 
 build_environment(){
     cd ${CURRENT_PATH}
@@ -200,13 +214,17 @@ package(){
 }
 
 clean(){
+    set_control_binary
     cd ${CURRENT_PATH}
     rm -rf ${SOURCE}
     rm -rf wazuh-agent wazuh *.list *proto
     rm -f *.new
 
     ## Stop and remove application
-    ${install_path}/bin/ossec-control stop
+    if [ ! -z $control_binary ]; then
+        ${install_path}/bin/${control_binary} stop
+    fi
+
     rm -r ${install_path}*
     rm -f /etc/ossec-init.conf
 
