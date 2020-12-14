@@ -27,8 +27,6 @@ rm -f ${OSSEC_INIT}
 
 # remove launchdaemons
 rm -f /etc/init.d/wazuh-agent
-rm -f ${OSSEC_INIT}
-
 rm -rf /etc/rc2.d/S97wazuh-agent
 rm -rf /etc/rc3.d/S97wazuh-agent
 

@@ -22,9 +22,7 @@ sudo rm -r /var/ossec*
 sudo rm ${OSSEC_INIT}
 
 # remove launchdaemons
-sudo rm -f ${OSSEC_INIT}/wazuh-agent
-
-sudo rm -f ${OSSEC_INIT}
+sudo rm -f /etc/init.d/wazuh-agent
 
 ## Remove User and Groups
 sudo userdel ossec
