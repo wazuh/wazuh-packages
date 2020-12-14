@@ -303,7 +303,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/bin/ossec-agentd": {
+    "/var/ossec/bin/wazuh-agentd": {
         "class": "static",
         "group": "root",
         "mode": "0750",
@@ -319,7 +319,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/bin/ossec-execd": {
+    "/var/ossec/bin/wazuh-execd": {
         "class": "static",
         "group": "root",
         "mode": "0750",
@@ -327,7 +327,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/bin/ossec-logcollector": {
+    "/var/ossec/bin/wazuh-logcollector": {
         "class": "static",
         "group": "root",
         "mode": "0750",
@@ -335,7 +335,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/bin/ossec-syscheckd": {
+    "/var/ossec/bin/wazuh-syscheckd": {
         "class": "static",
         "group": "root",
         "mode": "0750",
