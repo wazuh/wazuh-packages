@@ -572,7 +572,15 @@ rm -fr %{buildroot}
 %changelog
 * Sat Dec 04 2021 support <info@wazuh.com> - 5.0.0
 - More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Apr 26 2021 support <info@wazuh.com> - 4.2.0
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Fri Oct 30 2020 support <info@wazuh.com> - 4.1.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Nov 30 2020 support <info@wazuh.com> - 4.0.3
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Nov 23 2020 support <info@wazuh.com> - 4.0.2
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Sat Oct 31 2020 support <info@wazuh.com> - 4.0.1
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Oct 19 2020 support <info@wazuh.com> - 4.0.0
 - More info: https://documentation.wazuh.com/current/release-notes/
@@ -652,11 +660,11 @@ rm -fr %{buildroot}
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Wed Feb 07 2018 support <support@wazuh.com> - 3.2.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Thu Dec 21 2017 support <support@wazuh.com> - 3.1.0
+* Tue Dec 19 2017 support <support@wazuh.com> - 3.1.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Nov 06 2017 support <support@wazuh.com> - 3.0.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Mon May 29 2017 support <support@wazuh.com> - 2.0.1
+* Tue Jun 06 2017 support <support@wazuh.com> - 2.0.1
 - Changed random data generator for a secure OS-provided generator.
 - Changed Windows installer file name (depending on version).
 - Linux distro detection using standard os-release file.
