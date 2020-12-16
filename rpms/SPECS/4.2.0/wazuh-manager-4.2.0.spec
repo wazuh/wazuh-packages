@@ -664,7 +664,6 @@ rm -fr %{buildroot}
 %attr(0440, root, ossec) %ghost %{_localstatedir}/queue/vulnerabilities/dictionaries/msu.json.gz
 %dir %attr(750, root, ossec) %{_localstatedir}/ruleset
 %dir %attr(750, root, ossec) %{_localstatedir}/ruleset/sca
-%attr(640, root, ossec) %{_localstatedir}/ruleset/VERSION
 %dir %attr(750, root, ossec) %{_localstatedir}/ruleset/decoders
 %attr(640, root, ossec) %{_localstatedir}/ruleset/decoders/*
 %dir %attr(750, root, ossec) %{_localstatedir}/ruleset/rules
