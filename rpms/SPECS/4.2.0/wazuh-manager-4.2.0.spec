@@ -660,6 +660,7 @@ rm -fr %{buildroot}
 %dir %attr(770, ossec, ossec) %{_localstatedir}/queue/ossec
 %dir %attr(660, root, ossec) %{_localstatedir}/queue/vulnerabilities
 %dir %attr(440, root, ossec) %{_localstatedir}/queue/vulnerabilities/dictionaries
+%dir %attr(750, ossec, ossec) %{_localstatedir}/queue/logcollector
 %attr(0440, root, ossec) %{_localstatedir}/queue/vulnerabilities/dictionaries/cpe_helper.json
 %attr(0440, root, ossec) %ghost %{_localstatedir}/queue/vulnerabilities/dictionaries/msu.json.gz
 %dir %attr(750, root, ossec) %{_localstatedir}/ruleset

@@ -1184,6 +1184,14 @@
         "type": "directory",
         "user": "ossec"
     },
+    "/var/ossec/queue/logcollector": {
+        "class": "static",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "drwxr-x---",
+        "type": "directory",
+        "user": "ossec"
+    },
     "/var/ossec/queue/rids/*": {
         "class": "dynamic",
         "group": "ossec",
