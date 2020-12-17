@@ -234,6 +234,7 @@ rm -fr %{buildroot}
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/fim/db
 %dir %attr(770,ossec,ossec) %{_localstatedir}/queue/alerts
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/rids
+%dir %attr(750,ossec,ossec) %{_localstatedir}/queue/logcollector
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ruleset/sca
 %attr(640, root, ossec) %{_localstatedir}/ruleset/sca/*
 %dir %attr(1750,root,ossec) %{_localstatedir}/tmp
