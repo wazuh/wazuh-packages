@@ -566,7 +566,6 @@ rm -fr %{buildroot}
 %attr(750, root, root) %{_localstatedir}/bin/rootcheck_control
 %attr(750, root, root) %{_localstatedir}/bin/syscheck_control
 %attr(750, root, root) %{_localstatedir}/bin/syscheck_update
-%attr(750, root, ossec) %{_localstatedir}/bin/update_ruleset
 %attr(750, root, root) %{_localstatedir}/bin/util.sh
 %attr(750, root, ossec) %{_localstatedir}/bin/verify-agent-conf
 %attr(750, root, ossec) %{_localstatedir}/bin/wazuh-apid
