@@ -210,9 +210,12 @@ rm -f %{_localstatedir}/var/db/agents/* || true
 
 if [ -f %{_localstatedir}/var/db/global.db ]; then
   mv %{_localstatedir}/var/db/global.db %{_localstatedir}/queue/db/
-  chmod 640 %{_localstatedir}/queue/db/global.db
-  chown ossec:ossec %{_localstatedir}/queue/db/global.db
   rm -f %{_localstatedir}/var/db/global.db* || true
+fi
+
+if [ -f %{_localstatedir}/queue/db/global.db ]; then
+  chmod 640 %{_localstatedir}/queue/db/global.db*
+  chown ossec:ossec %{_localstatedir}/queue/db/global.db*
 fi
 
 # Remove Vuln-detector database
@@ -221,6 +224,10 @@ rm -f %{_localstatedir}/queue/vulnerabilities/cve.db || true
 # Remove plain-text agent information if exists
 if [ -d %{_localstatedir}/queue/agent-info ]; then
   rm -rf %{_localstatedir}/queue/agent-info/* > /dev/null 2>&1
+fi
+
+if [ -d %{_localstatedir}/queue/rootcheck ]; then
+  rm -rf %{_localstatedir}/queue/rootcheck/* > /dev/null 2>&1
 fi
 
 # Delete old API backups
