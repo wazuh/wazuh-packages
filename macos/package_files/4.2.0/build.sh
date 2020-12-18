@@ -62,8 +62,8 @@ function build() {
     mkdir -p ${INSTALLATION_SCRIPTS_DIR}/sca/generic
     mkdir -p ${INSTALLATION_SCRIPTS_DIR}/sca/darwin/{15,16,17,18}
 
-    cp -r ${SOURCES_PATH}/ruleset/sca/darwin ${INSTALLATION_SCRIPTS_DIR}/sca
-    cp -r ${SOURCES_PATH}/ruleset/sca/generic ${INSTALLATION_SCRIPTS_DIR}/sca
+    cp -r ${SOURCES_PATH}/etc/sca/darwin ${INSTALLATION_SCRIPTS_DIR}/sca
+    cp -r ${SOURCES_PATH}/etc/sca/generic ${INSTALLATION_SCRIPTS_DIR}/sca
     cp ${SOURCES_PATH}/etc/templates/config/generic/sca.files ${INSTALLATION_SCRIPTS_DIR}/sca/generic/
     cp ${SOURCES_PATH}/etc/templates/config/darwin/15/sca.files ${INSTALLATION_SCRIPTS_DIR}/sca/darwin/15/
     cp ${SOURCES_PATH}/etc/templates/config/darwin/16/sca.files ${INSTALLATION_SCRIPTS_DIR}/sca/darwin/16/

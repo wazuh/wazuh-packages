@@ -138,7 +138,7 @@ override_dh_install:
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/windows
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sunos/5/11
 
-	cp -r ruleset/sca/* ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca
+	cp -r etc/sca/* ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca
 
 	cp etc/templates/config/generic/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/generic
 	cp etc/templates/config/generic/sca.manager.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/generic

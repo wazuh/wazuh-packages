@@ -112,7 +112,7 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/su
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sunos
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/windows
 
-cp -r ruleset/sca/{applications,generic,darwin,debian,rhel,sles,sunos,windows} ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp
+cp -r etc/sca/{applications,generic,darwin,debian,rhel,sles,sunos,windows} ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp
 
 cp etc/templates/config/generic/{sca.files,sca.manager.files} ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/generic
 
@@ -566,6 +566,7 @@ rm -fr %{buildroot}
 %attr(750, root, root) %{_localstatedir}/bin/rootcheck_control
 %attr(750, root, root) %{_localstatedir}/bin/syscheck_control
 %attr(750, root, root) %{_localstatedir}/bin/syscheck_update
+%attr(750, root, ossec) %{_localstatedir}/bin/update_ruleset
 %attr(750, root, root) %{_localstatedir}/bin/util.sh
 %attr(750, root, ossec) %{_localstatedir}/bin/verify-agent-conf
 %attr(750, root, ossec) %{_localstatedir}/bin/wazuh-apid
@@ -663,6 +664,7 @@ rm -fr %{buildroot}
 %attr(0440, root, ossec) %ghost %{_localstatedir}/queue/vulnerabilities/dictionaries/msu.json.gz
 %dir %attr(750, root, ossec) %{_localstatedir}/ruleset
 %dir %attr(750, root, ossec) %{_localstatedir}/ruleset/sca
+%attr(640, root, ossec) %{_localstatedir}/ruleset/VERSION
 %dir %attr(750, root, ossec) %{_localstatedir}/ruleset/decoders
 %attr(640, root, ossec) %{_localstatedir}/ruleset/decoders/*
 %dir %attr(750, root, ossec) %{_localstatedir}/ruleset/rules
