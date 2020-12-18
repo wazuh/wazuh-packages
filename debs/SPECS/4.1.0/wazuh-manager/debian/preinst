@@ -110,6 +110,10 @@ case "$1" in
         if [ -d ${DIR}/queue/agent-info ]; then
             rm -rf ${DIR}/queue/agent-info/* > /dev/null 2>&1
         fi
+
+        if [ -d ${DIR}/queue/rootcheck ]; then
+            rm -rf ${DIR}/queue/rootcheck/* > /dev/null 2>&1
+        fi
     ;;
 
     abort-upgrade)

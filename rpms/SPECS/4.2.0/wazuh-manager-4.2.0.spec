@@ -233,6 +233,10 @@ if [ -d %{_localstatedir}/queue/agent-info ]; then
   rm -rf %{_localstatedir}/queue/agent-info/* > /dev/null 2>&1
 fi
 
+if [ -d %{_localstatedir}/queue/rootcheck ]; then
+  rm -rf %{_localstatedir}/queue/rootcheck/* > /dev/null 2>&1
+fi
+
 # Delete old API backups
 if [ $1 = 2 ]; then
   if [ -d %{_localstatedir}/~api ]; then
