@@ -70,9 +70,12 @@ case "$1" in
 
     if [ -f ${DIR}/var/db/global.db ]; then
         mv ${DIR}/var/db/global.db ${DIR}/queue/db/
-        chmod 640 ${DIR}/queue/db/global.db
-        chown ossec:ossec ${DIR}/queue/db/global.db
         rm -f ${DIR}/var/db/global.db* || true
+    fi
+
+    if [ -f ${DIR}/queue/db/global.db ]; then
+        chmod 640 ${DIR}/queue/db/global.db*
+        chown ossec:ossec ${DIR}/queue/db/global.db*
     fi
 
     # Delete uncompatible DBs versions
