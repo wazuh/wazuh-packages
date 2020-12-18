@@ -260,9 +260,15 @@ rm -fr %{buildroot}
 
 
 %changelog
-* Fri Dec 10 2021 support <info@wazuh.com> - 4.2.0
+* Mon Apr 26 2021 support <info@wazuh.com> - 4.2.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Fri Oct 30 2020 support <info@wazuh.com> - 4.1.0
+* Tue Jan 19 2021 support <info@wazuh.com> - 4.1.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Nov 30 2020 support <info@wazuh.com> - 4.0.3
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Nov 23 2020 support <info@wazuh.com> - 4.0.2
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Sat Oct 31 2020 support <info@wazuh.com> - 4.0.1
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Oct 19 2020 support <info@wazuh.com> - 4.0.0
 - More info: https://documentation.wazuh.com/current/release-notes/

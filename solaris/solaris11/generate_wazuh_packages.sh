@@ -18,8 +18,24 @@ VERSION=""
 target_dir="${current_path}/output"
 checksum_dir=""
 compute_checksums="no"
+control_binary=""
 
 trap ctrl_c INT
+
+set_control_binary() {
+  if [ -e ${SOURCE}/src/VERSION ]; then
+    wazuh_version=`cat ${SOURCE}/src/VERSION`
+    number_version=`echo "${wazuh_version}" | cut -d v -f 2`
+    major=`echo $number_version | cut -d . -f 1`
+    minor=`echo $number_version | cut -d . -f 2`
+
+    if [ "$major" -le "4" ] && [ "$minor" -le "1" ]; then
+      control_binary="ossec-control"
+    else
+      control_binary="wazuh-control"
+    fi
+  fi
+}
 
 build_environment() {
     echo "Installing dependencies."
@@ -137,8 +153,10 @@ create_package() {
 
     echo "Building the package wazuh-agent_$VERSION-sol11-${arch}.p5p"
 
+    set_control_binary
+
     # Package generation process
-    svcbundle -o wazuh-agent.xml -s service-name=application/wazuh-agent -s start-method="${install_path}/bin/ossec-control start" -s stop-method="${install_path}/bin/ossec-control stop"
+    svcbundle -o wazuh-agent.xml -s service-name=application/wazuh-agent -s start-method="${install_path}/bin/${control_binary} start" -s stop-method="${install_path}/bin/${control_binary} stop"
     pkgsend generate ${install_path} | pkgfmt > wazuh-agent.p5m.1
     python solaris_fix.py -t SPECS/template_agent_${VERSION}.json -p wazuh-agent.p5m.1 # Fix p5m.1 file
     mv wazuh-agent.p5m.1.aux.fixed wazuh-agent.p5m.1

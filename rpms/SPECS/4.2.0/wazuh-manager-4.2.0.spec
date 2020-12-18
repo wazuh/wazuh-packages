@@ -191,8 +191,8 @@ if [ $1 = 2 ]; then
   elif command -v service > /dev/null 2>&1 && service wazuh-manager status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
     service wazuh-manager stop > /dev/null 2>&1
     touch %{_localstatedir}/tmp/wazuh.restart
-  elif %{_localstatedir}/bin/ossec-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
-    %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
+  elif %{_localstatedir}/bin/wazuh-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
+    %{_localstatedir}/bin/wazuh-control stop > /dev/null 2>&1
     touch %{_localstatedir}/tmp/wazuh.restart
   fi
 fi
@@ -428,7 +428,7 @@ if [ $1 = 0 ]; then
   elif command -v service > /dev/null 2>&1 && service wazuh-manager status 2>/dev/null | grep "running" > /dev/null 2>&1; then
     service wazuh-manager stop > /dev/null 2>&1
   else # Anything else
-    %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
+    %{_localstatedir}/bin/wazuh-control stop > /dev/null 2>&1
   fi
 
   # Check for systemd
@@ -512,7 +512,7 @@ if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
   elif command -v service > /dev/null 2>&1 ; then
     service wazuh-manager restart > /dev/null 2>&1
   else
-    %{_localstatedir}/bin/ossec-control restart > /dev/null 2>&1
+    %{_localstatedir}/bin/wazuh-control restart > /dev/null 2>&1
   fi
 fi
 
@@ -552,29 +552,23 @@ rm -fr %{buildroot}
 %attr(750, root, root) %{_localstatedir}/bin/clear_stats
 %attr(750, root, ossec) %{_localstatedir}/bin/cluster_control
 %attr(750, root, root) %{_localstatedir}/bin/manage_agents
-%attr(750, root, root) %{_localstatedir}/bin/ossec-agentlessd
-%attr(750, root, root) %{_localstatedir}/bin/ossec-analysisd
-%attr(750, root, root) %{_localstatedir}/bin/ossec-authd
-%attr(750, root, root) %{_localstatedir}/bin/ossec-control
-%attr(750, root, root) %{_localstatedir}/bin/ossec-csyslogd
-%attr(750, root, root) %{_localstatedir}/bin/ossec-dbd
-%attr(750, root, root) %{_localstatedir}/bin/ossec-execd
-%attr(750, root, root) %{_localstatedir}/bin/ossec-integratord
-%attr(750, root, root) %{_localstatedir}/bin/ossec-logcollector
-%attr(750, root, root) %{_localstatedir}/bin/ossec-logtest
-%attr(750, root, ossec) %{_localstatedir}/bin/wazuh-logtest
-%attr(750, root, root) %{_localstatedir}/bin/ossec-maild
-%attr(750, root, root) %{_localstatedir}/bin/ossec-makelists
-%attr(750, root, root) %{_localstatedir}/bin/ossec-monitord
-%attr(750, root, root) %{_localstatedir}/bin/ossec-regex
-%attr(750, root, root) %{_localstatedir}/bin/ossec-remoted
-%attr(750, root, root) %{_localstatedir}/bin/ossec-reportd
-%attr(750, root, root) %{_localstatedir}/bin/ossec-syscheckd
-%attr(750, root, root) %{_localstatedir}/bin/rootcheck_control
-%attr(750, root, root) %{_localstatedir}/bin/syscheck_control
-%attr(750, root, root) %{_localstatedir}/bin/syscheck_update
+%attr(750, root, root) %{_localstatedir}/bin/wazuh-agentlessd
+%attr(750, root, root) %{_localstatedir}/bin/wazuh-analysisd
+%attr(750, root, root) %{_localstatedir}/bin/wazuh-authd
+%attr(750, root, root) %{_localstatedir}/bin/wazuh-control
+%attr(750, root, root) %{_localstatedir}/bin/wazuh-csyslogd
+%attr(750, root, root) %{_localstatedir}/bin/wazuh-dbd
+%attr(750, root, root) %{_localstatedir}/bin/wazuh-execd
+%attr(750, root, root) %{_localstatedir}/bin/wazuh-integratord
+%attr(750, root, root) %{_localstatedir}/bin/wazuh-logcollector
+%attr(750, root, root) %{_localstatedir}/bin/wazuh-logtest
+%attr(750, root, root) %{_localstatedir}/bin/wazuh-maild
+%attr(750, root, root) %{_localstatedir}/bin/wazuh-monitord
+%attr(750, root, root) %{_localstatedir}/bin/wazuh-regex
+%attr(750, root, root) %{_localstatedir}/bin/wazuh-remoted
+%attr(750, root, root) %{_localstatedir}/bin/wazuh-reportd
+%attr(750, root, root) %{_localstatedir}/bin/wazuh-syscheckd
 %attr(750, root, ossec) %{_localstatedir}/bin/update_ruleset
-%attr(750, root, root) %{_localstatedir}/bin/util.sh
 %attr(750, root, ossec) %{_localstatedir}/bin/verify-agent-conf
 %attr(750, root, ossec) %{_localstatedir}/bin/wazuh-apid
 %attr(750, root, ossec) %{_localstatedir}/bin/wazuh-clusterd
@@ -593,9 +587,7 @@ rm -fr %{buildroot}
 %dir %attr(770, ossec, ossec) %{_localstatedir}/etc/lists/amazon
 %attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/etc/lists/amazon/*
 %attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/etc/lists/audit-keys
-%attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/etc/lists/audit-keys.cdb
 %attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/etc/lists/security-eventchannel
-%attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/etc/lists/security-eventchannel.cdb
 %dir %attr(770, root, ossec) %{_localstatedir}/etc/shared
 %dir %attr(770, ossec, ossec) %{_localstatedir}/etc/shared/default
 %attr(660, ossec, ossec) %{_localstatedir}/etc/shared/agent-template.conf
@@ -780,9 +772,15 @@ rm -fr %{buildroot}
 
 
 %changelog
-* Fri Dec 10 2021 support <info@wazuh.com> - 4.2.0
+* Mon Apr 26 2021 support <info@wazuh.com> - 4.2.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Fri Oct 30 2020 support <info@wazuh.com> - 4.1.0
+* Tue Jan 19 2021 support <info@wazuh.com> - 4.1.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Nov 30 2020 support <info@wazuh.com> - 4.0.3
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Nov 23 2020 support <info@wazuh.com> - 4.0.2
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Sat Oct 31 2020 support <info@wazuh.com> - 4.0.1
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Oct 19 2020 support <info@wazuh.com> - 4.0.0
 - More info: https://documentation.wazuh.com/current/release-notes/

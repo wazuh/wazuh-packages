@@ -16,7 +16,7 @@ checksum_dir=""
 wazuh_version=""
 wazuh_revision="1"
 depot_path=""
-
+control_binary=""
 
 build_environment() {
 
@@ -77,8 +77,7 @@ config() {
   echo USER_CA_STORE="n" >> ${configuration_file}
 }
 
-compute_version_revision()
-{
+compute_version_revision() {
   wazuh_version=$(cat ${source_directory}/src/VERSION | cut -d "-" -f1 | cut -c 2-)
 
   echo ${wazuh_version} > /tmp/VERSION
@@ -95,7 +94,7 @@ download_source() {
   compute_version_revision
 }
 
-check_version(){
+check_version() {
   wazuh_version=`cat ${source_directory}/src/VERSION`
   number_version=`echo "${wazuh_version}" | cut -d v -f 2`
   major=`echo $number_version | cut -d . -f 1`
@@ -108,7 +107,6 @@ check_version(){
     deps_version="true"
   fi
 }
-
 
 compile() {
   echo "Compiling code"
@@ -146,11 +144,31 @@ create_package() {
   fi
 }
 
-#Uninstall agent.
+set_control_binary() {
+  if [ -e ${source_directory}/src/VERSION ]; then
+    wazuh_version=`cat ${source_directory}/src/VERSION`
+    number_version=`echo "${wazuh_version}" | cut -d v -f 2`
+    major=`echo $number_version | cut -d . -f 1`
+    minor=`echo $number_version | cut -d . -f 2`
+
+    if [ "$major" -le "4" ] && [ "$minor" -le "1" ]; then
+      control_binary="ossec-control"
+    else
+      control_binary="wazuh-control"
+    fi
+  fi
+}
+
+# Uninstall agent.
 
 clean() {
   exit_code=$1
-  ${install_path}/bin/ossec-control stop
+  set_control_binary
+
+  if [ ! -z $control_binary ]; then
+    ${install_path}/bin/${control_binary} stop
+  fi
+
   rm -rf ${install_path}
   rm /etc/ossec-init.conf
   find /sbin -name "*wazuh-agent*" -exec rm {} \;

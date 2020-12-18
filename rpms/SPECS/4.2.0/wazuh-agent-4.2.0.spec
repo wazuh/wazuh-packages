@@ -198,8 +198,8 @@ if [ $1 = 2 ]; then
   elif command -v service > /dev/null 2>&1 && service wazuh-agent status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
     service wazuh-agent stop > /dev/null 2>&1
     touch %{_localstatedir}/tmp/wazuh.restart
-  elif %{_localstatedir}/bin/ossec-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
-    %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
+  elif %{_localstatedir}/bin/wazuh-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
+    %{_localstatedir}/bin/wazuh-control stop > /dev/null 2>&1
     touch %{_localstatedir}/tmp/wazuh.restart
   fi
 fi
@@ -353,7 +353,7 @@ if [ $1 = 0 ]; then
   elif command -v service > /dev/null 2>&1 && service wazuh-agent status 2>/dev/null | grep "running" > /dev/null 2>&1; then
     service wazuh-agent stop > /dev/null 2>&1
   else # Anything else
-    %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
+    %{_localstatedir}/bin/wazuh-control stop > /dev/null 2>&1
   fi
 
   # Check for systemd
@@ -429,7 +429,7 @@ if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
   elif command -v service > /dev/null 2>&1 && service wazuh-agent status 2>/dev/null | grep "running" > /dev/null 2>&1; then
     service wazuh-agent restart > /dev/null 2>&1
   else
-    %{_localstatedir}/bin/ossec-control restart > /dev/null 2>&1
+    %{_localstatedir}/bin/wazuh-control restart > /dev/null 2>&1
   fi
 fi
 
@@ -582,9 +582,15 @@ rm -fr %{buildroot}
 
 
 %changelog
-* Fri Dec 10 2021 support <info@wazuh.com> - 4.2.0
+* Mon Apr 26 2021 support <info@wazuh.com> - 4.2.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Fri Oct 30 2020 support <info@wazuh.com> - 4.1.0
+* Tue Jan 19 2021 support <info@wazuh.com> - 4.1.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Nov 30 2020 support <info@wazuh.com> - 4.0.3
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Nov 23 2020 support <info@wazuh.com> - 4.0.2
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Sat Oct 31 2020 support <info@wazuh.com> - 4.0.1
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Oct 19 2020 support <info@wazuh.com> - 4.0.0
 - More info: https://documentation.wazuh.com/current/release-notes/
@@ -664,11 +670,11 @@ rm -fr %{buildroot}
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Wed Feb 07 2018 support <support@wazuh.com> - 3.2.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Thu Dec 21 2017 support <support@wazuh.com> - 3.1.0
+* Tue Dec 19 2017 support <support@wazuh.com> - 3.1.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Nov 06 2017 support <support@wazuh.com> - 3.0.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Mon May 29 2017 support <support@wazuh.com> - 2.0.1
+* Tue Jun 06 2017 support <support@wazuh.com> - 2.0.1
 - Changed random data generator for a secure OS-provided generator.
 - Changed Windows installer file name (depending on version).
 - Linux distro detection using standard os-release file.
@@ -705,6 +711,6 @@ rm -fr %{buildroot}
 - Fixed compile errors on macOS.
 - Fixed option -V for Integrator.
 - Exclude symbolic links to directories when sending FIM diffs (by Stephan Joerrens).
-- Fixed daemon list for service reloading at ossec-control.
+- Fixed daemon list for service reloading at wazuh-control.
 - Fixed socket waiting issue on Windows agents.
 - Fixed PCI_DSS definitions grouping issue at Rootcheck controls.
