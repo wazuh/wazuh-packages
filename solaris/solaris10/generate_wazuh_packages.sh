@@ -151,7 +151,13 @@ installation(){
     fi
 
     cd $SOURCE
-    ${CURRENT_PATH}/solaris10_patch.sh
+
+    # Patch solaris 10 sh files to change the shebang
+    for file in $(find . -name "*.sh");do
+        sed 's:#!/bin/sh:#!/usr/xpg4/bin/sh:g' $file > $file.new
+        mv $file.new $file && chmod +x $file
+    done
+
     config
     /bin/bash $SOURCE/install.sh || return 1
     cd ${CURRENT_PATH}
