@@ -179,7 +179,6 @@ clone(){
     GIT_SSL_NO_VERIFY=true git clone $REPOSITORY ${SOURCE} || return 1
     cd $SOURCE
     git checkout $wazuh_branch
-    cp ${CURRENT_PATH}/solaris10_patch.sh ${CURRENT_PATH}/wazuh
     compute_version_revision
 
     return 0
@@ -259,7 +258,6 @@ build(){
 
     groupadd ossec
     useradd -g ossec ossec
-    chmod +x $SOURCE/solaris10_patch.sh
     installation
     package
 }
