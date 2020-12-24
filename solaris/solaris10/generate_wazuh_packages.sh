@@ -140,7 +140,7 @@ installation(){
     gmake clean
     check_version
     if [ "$deps_version" = "true" ]; then
-        gmake deps
+        gmake deps RESOURCES_URL=http://packages.wazuh.com
     fi
     arch="$(uname -p)"
     # Build the binaries
