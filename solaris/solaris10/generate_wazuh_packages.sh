@@ -20,6 +20,7 @@ SOURCE=${CURRENT_PATH}/repository
 CONFIG="$SOURCE/etc/preloaded-vars.conf"
 target_dir="${CURRENT_PATH}/output"
 control_binary=""
+short_version=""
 
 trap ctrl_c INT
 
@@ -129,6 +130,7 @@ check_version(){
     elif [ "$major" -gt 3 ]; then
         deps_version="true"
     fi
+    short_version="${major}.${minor}"
 }
 
 installation(){
@@ -140,7 +142,7 @@ installation(){
     gmake clean
     check_version
     if [ "$deps_version" = "true" ]; then
-        gmake deps RESOURCES_URL=http://packages.wazuh.com
+        gmake deps RESOURCES_URL=http://packages.wazuh.com/deps/${short_version}
     fi
     arch="$(uname -p)"
     # Build the binaries
