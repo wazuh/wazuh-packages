@@ -176,7 +176,7 @@ compute_version_revision()
 
 clone(){
     cd ${CURRENT_PATH}
-    git clone $REPOSITORY ${SOURCE} || return 1
+    GIT_SSL_NO_VERIFY=true git clone $REPOSITORY ${SOURCE} || return 1
     cd $SOURCE
     git checkout $wazuh_branch
     cp ${CURRENT_PATH}/solaris10_patch.sh ${CURRENT_PATH}/wazuh
