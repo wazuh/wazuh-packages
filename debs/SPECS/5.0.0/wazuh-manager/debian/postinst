@@ -71,6 +71,7 @@ case "$1" in
     if [ -f ${DIR}/var/db/global.db ]; then
         mv ${DIR}/var/db/global.db ${DIR}/queue/db/
         rm -f ${DIR}/var/db/global.db* || true
+        rm -f ${DIR}/var/db/.template.db || true
     fi
 
     if [ -f ${DIR}/queue/db/global.db ]; then
