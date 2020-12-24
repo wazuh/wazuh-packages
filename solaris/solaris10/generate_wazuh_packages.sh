@@ -142,7 +142,7 @@ installation(){
     gmake clean
     check_version
     if [ "$deps_version" = "true" ]; then
-        gmake deps RESOURCES_URL=http://packages.wazuh.com/deps/${short_version}
+        gmake deps
     fi
     arch="$(uname -p)"
     # Build the binaries
@@ -178,7 +178,7 @@ compute_version_revision()
 
 clone(){
     cd ${CURRENT_PATH}
-    GIT_SSL_NO_VERIFY=true git clone $REPOSITORY ${SOURCE} || return 1
+    git clone $REPOSITORY ${SOURCE} || return 1
     cd $SOURCE
     git checkout $wazuh_branch
     compute_version_revision
