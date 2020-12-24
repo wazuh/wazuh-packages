@@ -218,6 +218,7 @@ rm -f %{_localstatedir}/var/db/agents/* || true
 if [ -f %{_localstatedir}/var/db/global.db ]; then
   mv %{_localstatedir}/var/db/global.db %{_localstatedir}/queue/db/
   rm -f %{_localstatedir}/var/db/global.db* || true
+  rm -f %{_localstatedir}/var/db/.template.db || true
 fi
 
 if [ -f %{_localstatedir}/queue/db/global.db ]; then
