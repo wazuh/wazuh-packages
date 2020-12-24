@@ -4,7 +4,7 @@
 OSSEC_INIT="/etc/ossec-init.conf"
 control_binary="wazuh-control"
 
-. /etc/ossec-init.conf
+. ${OSSEC_INIT}
 
 set_control_binary() {
   number_version=`echo "${VERSION}" | cut -d v -f 2`
