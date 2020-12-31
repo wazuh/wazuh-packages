@@ -696,7 +696,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec": {
+    "/var/ossec/logs/wazuh": {
         "class": "static",
         "group": "ossec",
         "mode": "0750",
@@ -720,7 +720,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0750",
@@ -728,7 +728,7 @@
         "type": "directory",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Jan": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Jan": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0750",
@@ -736,7 +736,7 @@
         "type": "directory",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Feb": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Feb": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0750",
@@ -744,7 +744,7 @@
         "type": "directory",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Mar": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Mar": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0750",
@@ -752,7 +752,7 @@
         "type": "directory",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Apr": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Apr": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0750",
@@ -760,7 +760,7 @@
         "type": "directory",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/May": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/May": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0750",
@@ -768,7 +768,7 @@
         "type": "directory",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Jun": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Jun": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0750",
@@ -776,7 +776,7 @@
         "type": "directory",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Jul": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Jul": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0750",
@@ -784,7 +784,7 @@
         "type": "directory",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Aug": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Aug": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0750",
@@ -792,7 +792,7 @@
         "type": "directory",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Sep": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Sep": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0750",
@@ -800,7 +800,7 @@
         "type": "directory",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Oct": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Oct": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0750",
@@ -808,7 +808,7 @@
         "type": "directory",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Nov": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Nov": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0750",
@@ -816,7 +816,7 @@
         "type": "directory",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Dec": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Dec": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0750",
@@ -824,7 +824,7 @@
         "type": "directory",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Jan/ossec-[0-9][0-9].json.gz": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Jan/ossec-[0-9][0-9].json.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -832,7 +832,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Jan/ossec-[0-9][0-9].log.gz": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Jan/ossec-[0-9][0-9].log.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -840,7 +840,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Feb/ossec-[0-9][0-9].json.gz": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Feb/ossec-[0-9][0-9].json.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -848,7 +848,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Feb/ossec-[0-9][0-9].log.gz": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Feb/ossec-[0-9][0-9].log.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -856,7 +856,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Mar/ossec-[0-9][0-9].json.gz": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Mar/ossec-[0-9][0-9].json.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -864,7 +864,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Mar/ossec-[0-9][0-9].log.gz": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Mar/ossec-[0-9][0-9].log.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -872,7 +872,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Apr/ossec-[0-9][0-9].json.gz": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Apr/ossec-[0-9][0-9].json.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -880,7 +880,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Apr/ossec-[0-9][0-9].log.gz": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Apr/ossec-[0-9][0-9].log.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -888,7 +888,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/May/ossec-[0-9][0-9].json.gz": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/May/ossec-[0-9][0-9].json.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -896,7 +896,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/May/ossec-[0-9][0-9].log.gz": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/May/ossec-[0-9][0-9].log.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -904,7 +904,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Jun/ossec-[0-9][0-9].json.gz": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Jun/ossec-[0-9][0-9].json.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -912,7 +912,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Jun/ossec-[0-9][0-9].log.gz": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Jun/ossec-[0-9][0-9].log.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -920,7 +920,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Jul/ossec-[0-9][0-9].json.gz": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Jul/ossec-[0-9][0-9].json.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -928,7 +928,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Jul/ossec-[0-9][0-9].log.gz": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Jul/ossec-[0-9][0-9].log.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -936,7 +936,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Aug/ossec-[0-9][0-9].json.gz": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Aug/ossec-[0-9][0-9].json.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -944,7 +944,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Aug/ossec-[0-9][0-9].log.gz": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Aug/ossec-[0-9][0-9].log.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -952,7 +952,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Sep/ossec-[0-9][0-9].json.gz": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Sep/ossec-[0-9][0-9].json.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -960,7 +960,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Sep/ossec-[0-9][0-9].log.gz": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Sep/ossec-[0-9][0-9].log.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -968,7 +968,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Oct/ossec-[0-9][0-9].json.gz": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Oct/ossec-[0-9][0-9].json.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -976,7 +976,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Oct/ossec-[0-9][0-9].log.gz": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Oct/ossec-[0-9][0-9].log.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -984,7 +984,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Nov/ossec-[0-9][0-9].json.gz": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Nov/ossec-[0-9][0-9].json.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -992,7 +992,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Nov/ossec-[0-9][0-9].log.gz": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Nov/ossec-[0-9][0-9].log.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -1000,7 +1000,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Dec/ossec-[0-9][0-9].json.gz": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Dec/ossec-[0-9][0-9].json.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -1008,7 +1008,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Dec/ossec-[0-9][0-9].log.gz": {
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Dec/ossec-[0-9][0-9].log.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -1112,7 +1112,7 @@
         "type": "directory",
         "user": "ossec"
     },
-    "/var/ossec/queue/ossec": {
+    "/var/ossec/queue/sockets": {
         "class": "static",
         "group": "ossec",
         "mode": "0770",
@@ -1120,7 +1120,7 @@
         "type": "directory",
         "user": "ossec"
     },
-    "/var/ossec/queue/ossec/.*": {
+    "/var/ossec/queue/sockets/.*": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0644",
@@ -1128,7 +1128,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/queue/ossec/logcollector": {
+    "/var/ossec/queue/sockets/logcollector": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0660",
@@ -1136,7 +1136,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/queue/ossec/syscheck": {
+    "/var/ossec/queue/sockets/syscheck": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0660",
@@ -1144,7 +1144,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/queue/ossec/wmodules": {
+    "/var/ossec/queue/sockets/wmodules": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0660",
@@ -1152,7 +1152,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/queue/ossec/queue": {
+    "/var/ossec/queue/sockets/queue": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0660",
@@ -1160,7 +1160,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/queue/ossec/com": {
+    "/var/ossec/queue/sockets/com": {
         "class": "static",
         "group": "ossec",
         "mode": "0660",
@@ -1168,7 +1168,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/queue/ossec/control": {
+    "/var/ossec/queue/sockets/control": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0660",
