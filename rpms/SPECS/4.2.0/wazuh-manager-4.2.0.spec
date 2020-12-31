@@ -263,6 +263,14 @@ if [ $1 = 2 ]; then
   fi
 fi
 
+
+# Moving content of old ossec logs folder to logs/wazuh
+if [ $1 = 2 ]; then
+  if [ $MAJOR -lt 4 ] || [ $MINOR -lt 2 ]; then
+    mv -rf %{_localstatedir}/logs/ossec/* %{_localstatedir}/logs/wazuh/
+  fi
+fi
+
 %post
 
 # Fresh install code block
@@ -509,6 +517,14 @@ if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
   fi
 fi
 
+# Removing old ossec folders
+if [ $1 = 2 ]; then
+  if [ $MAJOR -lt 4 ] || [ $MINOR -lt 2 ]; then
+    rm -rf %{_localstatedir}/logs/ossec
+    rm -rf %{_localstatedir}/queue/ossec
+  fi
+fi
+
 %triggerin -- glibc
 [ -r %{_sysconfdir}/localtime ] && cp -fpL %{_sysconfdir}/localtime %{_localstatedir}/etc
  chown root:ossec %{_localstatedir}/etc/localtime
@@ -617,7 +633,7 @@ rm -fr %{buildroot}
 %dir %attr(750, ossec, ossec) %{_localstatedir}/logs/alerts
 %dir %attr(750, ossec, ossec) %{_localstatedir}/logs/cluster
 %dir %attr(750, ossec, ossec) %{_localstatedir}/logs/firewall
-%dir %attr(750, ossec, ossec) %{_localstatedir}/logs/ossec
+%dir %attr(750, ossec, ossec) %{_localstatedir}/logs/wazuh
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/add_localfiles.sh
@@ -649,7 +665,7 @@ rm -fr %{buildroot}
 %dir %attr(750, ossec, ossec) %{_localstatedir}/queue/fts
 %dir %attr(770, ossecr, ossec) %{_localstatedir}/queue/rids
 %dir %attr(770, ossec, ossec) %{_localstatedir}/queue/tasks
-%dir %attr(770, ossec, ossec) %{_localstatedir}/queue/ossec
+%dir %attr(770, ossec, ossec) %{_localstatedir}/queue/wazuh
 %dir %attr(660, root, ossec) %{_localstatedir}/queue/vulnerabilities
 %dir %attr(440, root, ossec) %{_localstatedir}/queue/vulnerabilities/dictionaries
 %attr(0440, root, ossec) %{_localstatedir}/queue/vulnerabilities/dictionaries/cpe_helper.json
