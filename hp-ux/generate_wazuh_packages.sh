@@ -139,7 +139,7 @@ create_package() {
 
   if [ "${compute_checksums}" = "yes" ]; then
     cd ${target_dir}
-    pkg_checksum="$(openssl dgst -sha512 ${pkg_name} | cut -d'=' -f "2" | cut -b 2-)"
+    pkg_checksum="$(openssl dgst -sha512 ${pkg_name} | cut -d' ' -f "2")"
     echo "${pkg_checksum}  ${pkg_name}" > ${checksum_dir}/${pkg_name}.sha512
   fi
 }
