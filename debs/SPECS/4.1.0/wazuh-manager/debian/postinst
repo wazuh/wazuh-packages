@@ -154,6 +154,12 @@ case "$1" in
         rm -rf ${WAZUH_TMP_DIR}/rbac.db
     fi
 
+    # Restore API configuration file
+    if [ -f ${WAZUH_TMP_DIR}/api.yaml ]; then
+        cp -fp ${WAZUH_TMP_DIR}/api.yaml ${DIR}/api/configuration/api.yaml
+        rm -rf ${WAZUH_TMP_DIR}/api.yaml
+    fi
+
     # More files
     touch ${DIR}/etc/client.keys
 
