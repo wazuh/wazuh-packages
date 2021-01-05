@@ -64,9 +64,14 @@ case "$1" in
             touch ${WAZUH_TMP_DIR}/create_conf
         fi
 
-        # RBAC database
-        if [ "$1" = "upgrade" ] && [ -f ${DIR}/api/configuration/security/rbac.db ]; then
-            cp -fp ${DIR}/api/configuration/security/rbac.db ${WAZUH_TMP_DIR}/rbac.db
+        # RBAC database and API configuration file
+        if [ "$1" = "upgrade" ]; then
+            if [ -f ${DIR}/api/configuration/security/rbac.db ]; then
+                cp -fp ${DIR}/api/configuration/security/rbac.db ${WAZUH_TMP_DIR}/rbac.db
+            fi
+            if [ -f ${DIR}/api/configuration/api.yaml ]; then
+                cp -fp ${DIR}/api/configuration/api.yaml ${WAZUH_TMP_DIR}/api.yaml
+            fi
         fi
 
         # Delete old service
