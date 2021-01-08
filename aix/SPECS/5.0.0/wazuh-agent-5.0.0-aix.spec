@@ -55,7 +55,8 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.ssh
 
 # Copy the files into RPM_BUILD_ROOT directory
 install -m 0640 ossec-init.conf ${RPM_BUILD_ROOT}%{_sysconfdir}
-install -m 0750 src/init/ossec-hids-aix.init ${RPM_BUILD_ROOT}%{_init_scripts}/wazuh-agent
+sed -i "s|WAZUH_HOME|%{_localstatedir}|g" src/init/templates/ossec-hids-aix.init
+install -m 0750 src/init/templates/ossec-hids-aix.init ${RPM_BUILD_ROOT}%{_init_scripts}/wazuh-agent
 cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
 
 # Add configuration scripts
