@@ -242,7 +242,7 @@ if [ $1 = 1 ]; then
   %{_localstatedir}/packages_files/agent_installation_scripts/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
 
   # Register and configure agent if Wazuh environment variables are defined
-  %{_localstatedir}/packages_files/agent_installation_scripts/src/init/register_configure_agent.sh > /dev/null || :
+  %{_localstatedir}/packages_files/agent_installation_scripts/src/init/register_configure_agent.sh %{_localstatedir} > /dev/null || :
 fi
 
 # Delete the installation files used to configure the agent
