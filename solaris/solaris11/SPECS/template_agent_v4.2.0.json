@@ -1112,6 +1112,22 @@
         "type": "directory",
         "user": "ossec"
     },
+    "/var/ossec/queue/syscollector": {
+        "class": "static",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "drwxr-x---",
+        "type": "directory",
+        "user": "ossec"
+    },
+    "/var/ossec/queue/syscollector/db": {
+        "class": "static",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "drwxr-x---",
+        "type": "directory",
+        "user": "ossec"
+    },
     "/var/ossec/queue/ossec": {
         "class": "static",
         "group": "ossec",

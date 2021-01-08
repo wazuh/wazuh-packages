@@ -656,6 +656,8 @@ rm -fr %{buildroot}
 %dir %attr(750, ossec, ossec) %{_localstatedir}/queue/diff
 %dir %attr(750, ossec,ossec) %{_localstatedir}/queue/fim
 %dir %attr(750, ossec,ossec) %{_localstatedir}/queue/fim/db
+%dir %attr(750, ossec,ossec) %{_localstatedir}/queue/syscollector
+%dir %attr(750, ossec,ossec) %{_localstatedir}/queue/syscollector/db
 %dir %attr(750, ossec, ossec) %{_localstatedir}/queue/fts
 %dir %attr(770, ossecr, ossec) %{_localstatedir}/queue/rids
 %dir %attr(770, ossec, ossec) %{_localstatedir}/queue/tasks
