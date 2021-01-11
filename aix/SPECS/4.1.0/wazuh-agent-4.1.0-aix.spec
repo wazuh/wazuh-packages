@@ -172,7 +172,7 @@ if [ $1 = 0 ]; then
   rm -f %{_localstatedir}/queue/diff/*
   rm -f %{_localstatedir}/queue/alerts/*
   rm -f %{_localstatedir}/queue/rids/*
-
+  rm -f %{_localstatedir}/queue/fim/*
 fi
 
 
