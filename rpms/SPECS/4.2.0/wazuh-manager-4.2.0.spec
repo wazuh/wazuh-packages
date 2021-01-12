@@ -159,7 +159,7 @@ cp etc/templates/config/debian/9/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tm
 
 # Add SUSE initscript
 sed -i "s|WAZUH_HOME|%{_localstatedir}|g" src/init/templates/ossec-hids-suse.init
-cp -rp src/init/templates/ossec-hids-suse.init ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/src/init/
+cp -rp src/init/templates/ossec-hids-suse.init ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/src/init/
 
 # Copy scap templates
 cp -rp  etc/templates/config/generic/* ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/generic
