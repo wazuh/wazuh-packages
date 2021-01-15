@@ -180,9 +180,6 @@ override_dh_install:
 	sed -i "s|WAZUH_HOME_TMP|${INSTALLATION_DIR}|g" src/init/templates/wazuh-agent.service
 	cp src/init/templates/wazuh-agent.service ${TARGET_DIR}/etc/systemd/system/
 
-	# Copy ossec-init.conf
-	cp /etc/ossec-init.conf ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)
-
 override_dh_auto_clean:
 	$(MAKE) -C src clean
 

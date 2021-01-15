@@ -407,15 +407,6 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/etc/ossec-init.conf": {
-        "class": "static",
-        "group": "root",
-        "mode": "0777",
-        "prot": "lrwxrwxrwx",
-        "target": "/etc/ossec-init.conf",
-        "type": "link",
-        "user": "root"
-    },
     "/var/ossec/etc/ossec.conf": {
         "class": "static",
         "group": "ossec",
