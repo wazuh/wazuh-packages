@@ -160,7 +160,6 @@ create_package() {
     pkgsend generate ${install_path} | pkgfmt > wazuh-agent.p5m.1
     python solaris_fix.py -t SPECS/template_agent_${VERSION}.json -p wazuh-agent.p5m.1 # Fix p5m.1 file
     mv wazuh-agent.p5m.1.aux.fixed wazuh-agent.p5m.1
-
     # Add the preserve=install-only tag to the configuration files
     for file in etc/ossec.conf etc/local_internal_options.conf etc/client.keys; do
         sed "s:file $file.*:& preserve=install-only:"  wazuh-agent.p5m.1 > wazuh-agent.p5m.1.aux_sed
@@ -170,6 +169,11 @@ create_package() {
     sed "s:target=etc/ossec-init.conf:target=/etc/ossec-init.conf:"  wazuh-agent.p5m.1 > wazuh-agent.p5m.1.aux
     mv wazuh-agent.p5m.1.aux wazuh-agent.p5m.1
     # Add service files
+    echo "file smf_manifest.xml path=lib/svc/manifest/site/post-install.xml owner=root group=sys mode=0744 restart_fmri=svc:/system/manifest-import:default" >> wazuh-agent.p5m.1
+    echo "file script.sh path=var/ossec/script.sh owner=root group=sys mode=0744" >> wazuh-agent.p5m.1
+    echo "file bart.rule path=var/ossec/bart.rule owner=root group=bin mode=0644" >> wazuh-agent.p5m.1
+    echo "dir  path=var/ossec/postaction owner=root group=bin mode=0755" >> wazuh-agent.p5m.1
+    echo "file postinstall.sh path=var/ossec/postaction/postinstall.sh owner=root group=bin mode=0644" >> wazuh-agent.p5m.1
     echo "file wazuh-agent path=etc/init.d/wazuh-agent owner=root group=sys mode=0744" >> wazuh-agent.p5m.1
     echo "file S97wazuh-agent path=etc/rc2.d/S97wazuh-agent owner=root group=sys mode=0744" >> wazuh-agent.p5m.1
     echo "file S97wazuh-agent path=etc/rc3.d/S97wazuh-agent owner=root group=sys mode=0744" >> wazuh-agent.p5m.1
@@ -177,7 +181,7 @@ create_package() {
     echo "group groupname=ossec" >> wazuh-agent.p5m.1
     echo "user username=ossec group=ossec" >> wazuh-agent.p5m.1
     pkgmogrify -DARCH=`uname -p` wazuh-agent.p5m.1 wazuh-agent.mog | pkgfmt > wazuh-agent.p5m.2
-    pkgsend -s http://localhost:9001 publish -d ${install_path} -d /etc/init.d -d /etc/rc2.d -d /etc/rc3.d wazuh-agent.p5m.2 > pack
+    pkgsend -s http://localhost:9001 publish -d ${install_path} -d /etc/init.d -d /etc/rc2.d -d /etc/rc3.d -d ${current_path} wazuh-agent.p5m.2 > pack
     package=`cat pack | grep wazuh | cut -c 13-` # This extracts the name of the package generated in the previous step
     rm -f *.p5p
     pkg_name="wazuh-agent_$VERSION-sol11-${arch}.p5p"
