@@ -7,7 +7,7 @@ if [ ! -f /var/ossec/bin/${control_binary} ]; then
 fi
 
 ## Stop and remove application
-sudo /var/ossec/bin/${control_binary} stop
+sudo ${INSTALL_PATH}/bin/${control_binary} stop
 sudo rm -r /var/ossec*
 
 # remove launchdaemons
