@@ -169,11 +169,8 @@ clean() {
     ${install_path}/bin/${control_binary} stop
   fi
 
-  if [ -f /etc/ossec-init.conf ]; then
-    rm /etc/ossec-init.conf
-  fi
-
   rm -rf ${install_path}
+
   find /sbin -name "*wazuh-agent*" -exec rm {} \;
   userdel ossec
   groupdel ossec

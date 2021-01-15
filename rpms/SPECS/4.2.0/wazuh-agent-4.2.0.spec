@@ -247,11 +247,6 @@ rm -rf %{_localstatedir}/packages_files
 # Remove unnecessary files from shared directory
 rm -f %{_localstatedir}/etc/shared/*.rpmnew
 
-# Remove deprecated ossec-init.conf
-if [ -f %{_sysconfdir}/ossec-init.conf ]; then
-  rm %{_sysconfdir}/ossec-init.conf
-fi
-
 # CentOS
 if [ -r "/etc/centos-release" ]; then
   DIST_NAME="centos"

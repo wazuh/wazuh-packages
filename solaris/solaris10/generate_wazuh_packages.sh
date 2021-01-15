@@ -233,11 +233,6 @@ clean(){
 
     rm -r ${install_path}*
 
-    # Remove deprecated ossec-init.conf
-    if [ -f /etc/ossec-init.conf ]; then
-        rm -f /etc/ossec-init.conf
-    fi
-
     # remove launchdaemons
     rm -f /etc/init.d/wazuh-agent
     rm -f /etc/rc2.d/S97wazuh-agent

@@ -418,11 +418,6 @@ if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&
   fi
 fi
 
-# Remove deprecated ossec-init.conf
-if [ -f %{_sysconfdir}/ossec-init.conf ]; then
-  rm %{_sysconfdir}/ossec-init.conf
-fi
-
 # Delete the installation files used to configure the manager
 rm -rf %{_localstatedir}/packages_files
 
