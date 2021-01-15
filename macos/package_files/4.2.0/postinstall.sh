@@ -64,7 +64,9 @@ chmod 770 ${DIR}/.ssh
 chmod -R 770 ${DIR}/var
 chown -R root:${GROUP} ${DIR}/var
 
-chown root:${GROUP} /etc/ossec-init.conf
+if [ -f /etc/ossec-init.conf ]; then
+    rm /etc/ossec-init.conf
+fi
 
 . ${INSTALLATION_SCRIPTS_DIR}/src/init/dist-detect.sh
 
