@@ -4,10 +4,6 @@
 sudo /Library/Ossec/bin/ossec-control stop
 sudo /bin/rm -r /Library/Ossec*
 
-if [ -f /etc/ossec-init.conf ]; then
-    sudo /bin/rm /etc/ossec-init.conf
-fi
-
 ## stop and unload dispatcher
 #sudo /bin/launchctl unload /Library/LaunchDaemons/com.wazuh.agent.plist
 

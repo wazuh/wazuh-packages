@@ -13,7 +13,6 @@ set_control_binary
 ## Stop and remove application
 sudo /var/ossec/bin/${control_binary} stop
 sudo rm -r /var/ossec*
-sudo rm /etc/ossec-init.conf
 
 # remove launchdaemons
 sudo rm -f /etc/init.d/wazuh-agent

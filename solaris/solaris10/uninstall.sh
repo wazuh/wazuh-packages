@@ -13,8 +13,6 @@ set_control_binary
 ## Stop and remove application
 /var/ossec/bin/${control_binary} 2> /dev/null
 rm -rf /var/ossec/
-rm -f /etc/ossec-init.conf
-
 
 ## stop and unload dispatcher
 #/bin/launchctl unload /Library/LaunchDaemons/com.wazuh.agent.plist
@@ -23,7 +21,6 @@ rm -f /etc/ossec-init.conf
 rm -f /etc/init.d/wazuh-agent
 rm -rf /etc/rc2.d/S97wazuh-agent
 rm -rf /etc/rc3.d/S97wazuh-agent
-
 
 ## Remove User and Groups
 userdel ossec 2> /dev/null

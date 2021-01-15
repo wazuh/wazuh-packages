@@ -112,11 +112,6 @@ case "$1" in
         chown root:${GROUP} ${DIR}/etc/localtime
     fi
 
-    # Remove deprecated ossec-init.conf if exists
-    if [ -f /etc/ossec-init.conf ] ; then
-        rm /etc/ossec-init.conf
-    fi
-
     # Restore client.keys configuration
     if [ -f ${WAZUH_TMP_DIR}/client.keys ]; then
         mv ${WAZUH_TMP_DIR}/client.keys ${DIR}/etc/client.keys
