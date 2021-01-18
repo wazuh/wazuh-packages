@@ -234,6 +234,7 @@ rm -fr %{buildroot}
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/fim/db
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/syscollector
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/syscollector/db
+%attr(640, root,ossec) %{_localstatedir}/queue/syscollector/norm_config.json
 %dir %attr(770,ossec,ossec) %{_localstatedir}/queue/alerts
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/rids
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/logcollector
