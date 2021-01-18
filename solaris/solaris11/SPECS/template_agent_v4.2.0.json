@@ -1128,6 +1128,14 @@
         "type": "directory",
         "user": "ossec"
     },
+    "/var/ossec/queue/syscollector/norm_config.json": {
+        "class": "static",
+        "group": "ossec",
+        "mode": "0640",
+        "prot": "-rw-r-----",
+        "type": "file",
+        "user": "root"
+    },
     "/var/ossec/queue/ossec": {
         "class": "static",
         "group": "ossec",
