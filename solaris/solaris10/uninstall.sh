@@ -11,7 +11,7 @@ set_control_binary() {
 set_control_binary
 
 ## Stop and remove application
-/var/ossec/bin/${control_binary} 2> /dev/null
+/var/ossec/bin/${control_binary} stop
 rm -rf /var/ossec/
 
 ## stop and unload dispatcher
