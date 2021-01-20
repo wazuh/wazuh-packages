@@ -162,23 +162,12 @@ main() {
     MAJOR=$(echo ${WAZUH_VERSION} | cut -dv -f2 | cut -d. -f1)
     MINOR=$(echo ${WAZUH_VERSION} | cut -d. -f2)
 
-    if [ "${NO_COMPILE}" == false ]; then
-        # Execute gmake deps if the version is greater or equal to 3.5
-        if [[ ${MAJOR} -ge 4 || (${MAJOR} -ge 3 && ${MINOR} -ge 5) ]]; then
-            make -C src deps
-        fi
-
-        # Compile agent
-        make -C src -j ${JOBS} TARGET=${BUILD_TARGET} PREFIX="${INSTALLATION_PATH}" || exit 1
-        # Clean unuseful files
-        clean
-        # Preload vars for installer
-        preload
-    fi
-
     # Compress and sign package
     if [ "${DIST_NAME}" = "centos" ]; then
-        ${PYTHON} /usr/local/bin/wpkpack ${OUTPUT} ${WPKCERT} ${WPKKEY} *
+        package_name="wazuh-agent-4.0.4-1.x86_64.rpm"
+        wget "https://packages.wazuh.com/${MAJOR}.x/yum/wazuh-agent-4.0.4-1.x86_64.rpm"
+        cp /scripts/upgrade.sh .
+        ${PYTHON} /usr/local/bin/wpkpack ${OUTPUT} ${WPKCERT} ${WPKKEY} ${package_name} upgrade.sh
     else
 
       if [ "${HAVE_PKG_NAME}" == true ]; then
