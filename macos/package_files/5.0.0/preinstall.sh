@@ -143,10 +143,8 @@ chown root:wheel /Library/StartupItems/WAZUH
 sudo tee /Library/StartupItems/WAZUH/WAZUH <<-'EOF'
 #!/bin/sh
 . /etc/rc.common
-. /etc/ossec-init.conf
-if [ "X${DIRECTORY}" = "X" ]; then
-    DIRECTORY="/Library/Ossec"
-fi
+
+DIRECTORY="/Library/Ossec"
 
 StartService ()
 {
@@ -197,11 +195,7 @@ chmod u=rw-,go=r-- /Library/StartupItems/WAZUH/StartupParameters.plist
 sudo tee /Library/StartupItems/WAZUH/launcher.sh <<-'EOF'
 #!/bin/sh
 
-. /etc/ossec-init.conf
-
-if [ "X${DIRECTORY}" = "X" ]; then
-    DIRECTORY="/Library/Ossec"
-fi
+DIRECTORY="/Library/Ossec"
 
 capture_sigterm() {
     ${DIRECTORY}/bin/ossec-control stop

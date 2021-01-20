@@ -200,7 +200,6 @@ package(){
     echo "i postinstall=postinstall.sh" >> "wazuh-agent_$VERSION.proto"
     echo "i preremove=preremove.sh" >> "wazuh-agent_$VERSION.proto"
     echo "i postremove=postremove.sh" >> "wazuh-agent_$VERSION.proto"
-    echo "f none /etc/ossec-init.conf  0640 root ossec" >> "wazuh-agent_$VERSION.proto"
     echo "f none /etc/init.d/wazuh-agent  0755 root root" >> "wazuh-agent_$VERSION.proto"
     echo "s none /etc/rc2.d/S97wazuh-agent=/etc/init.d/wazuh-agent" >> "wazuh-agent_$VERSION.proto"
     echo "s none /etc/rc3.d/S97wazuh-agent=/etc/init.d/wazuh-agent" >> "wazuh-agent_$VERSION.proto"
@@ -233,9 +232,8 @@ clean(){
     fi
 
     rm -r ${install_path}*
-    rm -f /etc/ossec-init.conf
 
-     # remove launchdaemons
+    # remove launchdaemons
     rm -f /etc/init.d/wazuh-agent
     rm -f /etc/rc2.d/S97wazuh-agent
     rm -f /etc/rc3.d/S97wazuh-agent

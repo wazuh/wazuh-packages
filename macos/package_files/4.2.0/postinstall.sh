@@ -64,8 +64,6 @@ chmod 770 ${DIR}/.ssh
 chmod -R 770 ${DIR}/var
 chown -R root:${GROUP} ${DIR}/var
 
-chown root:${GROUP} /etc/ossec-init.conf
-
 . ${INSTALLATION_SCRIPTS_DIR}/src/init/dist-detect.sh
 
 upgrade=$(launchctl getenv WAZUH_PKG_UPGRADE)

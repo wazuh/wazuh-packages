@@ -3,22 +3,19 @@
 # Wazuh, Inc 2015-2020
 
 if [ ! -f /etc/ossec-init.conf ]; then
-	DIR="/var/ossec"
-	ls -la /var/ossec > /dev/null 2>&1
-    if [ -d  /var/ossec ]; then
-		#upgrade
-        type=upgrade
-
-	else
-		#clean installation
-        type=install
-    fi
-
+  DIR="/var/ossec"
+  ls -la /var/ossec > /dev/null 2>&1
+  if [ -d /var/ossec ]; then
+    #upgrade
+    type=upgrade
+  else
+    #clean installation
+    type=install
+  fi
 else
-	#upgrade
-	DIR=`cat $INSTALLATION_FILE | grep DIRECTORY | cut -d'=' -f2 | cut -d'"' -f2`
-	type=upgrade
-
+  #upgrade
+  DIR=`cat $INSTALLATION_FILE | grep DIRECTORY | cut -d'=' -f2 | cut -d'"' -f2`
+  type=upgrade
 fi
 
 USER="ossec"
