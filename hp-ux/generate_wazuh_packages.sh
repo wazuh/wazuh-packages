@@ -135,7 +135,7 @@ create_package() {
   rm ${install_path}/wodles/oscap/content/*.xml
   wazuh_version=`echo "${wazuh_version}" | cut -d v -f 2`
   pkg_name="wazuh-agent-${wazuh_version}-${wazuh_revision}-hpux-11v3-ia64.tar"
-  tar cvpf ${target_dir}/${pkg_name} ${install_path} /etc/ossec-init.conf /sbin/init.d/wazuh-agent /sbin/rc2.d/S97wazuh-agent /sbin/rc3.d/S97wazuh-agent
+  tar cvpf ${target_dir}/${pkg_name} ${install_path} /sbin/init.d/wazuh-agent /sbin/rc2.d/S97wazuh-agent /sbin/rc3.d/S97wazuh-agent
 
   if [ "${compute_checksums}" = "yes" ]; then
     cd ${target_dir}
@@ -170,7 +170,7 @@ clean() {
   fi
 
   rm -rf ${install_path}
-  rm /etc/ossec-init.conf
+
   find /sbin -name "*wazuh-agent*" -exec rm {} \;
   userdel ossec
   groupdel ossec
