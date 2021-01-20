@@ -252,7 +252,7 @@ if [ $1 = 2 ]; then
     . %{_sysconfdir}/ossec-init.conf
   else
     # Ask wazuh-control the version
-    VERSION=$(%{_localstatedir}/bin/wazuh-control -v)
+    VERSION=$(%{_localstatedir}/bin/wazuh-control info -v)
   fi
 
   # Get the major and minor version
