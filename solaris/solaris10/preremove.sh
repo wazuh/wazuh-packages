@@ -1,21 +1,10 @@
 #!/bin/sh
 # preremove script for wazuh-agent
 
-OSSEC_INIT="/etc/ossec-init.conf"
 control_binary="wazuh-control"
 
-if [ -f ${OSSEC_INIT} ]; then
-  . ${OSSEC_INIT}
-else
-  VERSION=`/var/ossec/bin/${control_binary} -v`
-fi
-
 set_control_binary() {
-  number_version=`echo "${VERSION}" | cut -d v -f 2`
-  major=`echo $number_version | cut -d . -f 1`
-  minor=`echo $number_version | cut -d . -f 2`
-
-  if [ "$major" -le "4" ] && [ "$minor" -le "1" ]; then
+  if [ ! -f /var/ossec/bin/${control_binary} ]; then
     control_binary="ossec-control"
   fi
 }
