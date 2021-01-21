@@ -202,6 +202,9 @@ fi
 
 %post
 # If the package is being installed
+sed -ri "s#logcollector.remote_commands=.*#logcollector.remote_commands=1#g" %{_localstatedir}/etc/internal_options.conf
+sed -ri "s#wazuh_command.remote_commands=.*#wazuh_command.remote_commands=1#g" %{_localstatedir}/etc/internal_options.conf
+sed -ri "s#sca.remote_commands=.*#sca.remote_commands=1#g" %{_localstatedir}/etc/internal_options.conf
 if [ $1 = 1 ]; then
 
   sles=""
@@ -228,10 +231,8 @@ if [ $1 = 1 ]; then
   # Generating osse.conf file
   %{_localstatedir}/packages_files/agent_installation_scripts/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir} > %{_localstatedir}/etc/ossec.conf
   chown root:ossec %{_localstatedir}/etc/ossec.conf
-  echo "logcollector.remote_commands=1" >> %{_localstatedir}/etc/local_internal_options.conf 
-  echo "wazuh_command.remote_commands=1" >> %{_localstatedir}/etc/local_internal_options.conf 
-  echo "sca.remote_commands=1" >> %{_localstatedir}/etc/local_internal_options.conf
   sed -ri "s#<protocol>.*</protocol>#<protocol>udp</protocol>#g" %{_localstatedir}/etc/ossec.conf
+
 
   # Add default local_files to ossec.conf
   %{_localstatedir}/packages_files/agent_installation_scripts/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf

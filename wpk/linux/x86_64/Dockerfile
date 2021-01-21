@@ -29,4 +29,7 @@ RUN pip3 install cryptography==2.9.2 awscli
 
 ADD wpkpack.py /usr/local/bin/wpkpack
 ADD run.sh /usr/local/bin/run
+ADD upgrade.sh /usr/local/bin/upgrade.sh
+ADD pkg_installer.sh /usr/local/bin/pkg_installer.sh
+
 ENTRYPOINT ["/usr/local/bin/run"]
