@@ -217,7 +217,8 @@ installKibana() {
     else
         curl -so /etc/kibana/kibana.yml ${resources_url}/resources/open-distro/kibana/7.x/kibana_all_in_one.yml --max-time 300
         echo "telemetry.enabled: false" >> /etc/kibana/kibana.yml
-        chown -R kibana:kibana /usr/share/kibana/{optimize,plugins}
+        mkdir /usr/share/kibana/data
+        chown -R kibana:kibana /usr/share/kibana/{plugins,data}
 
         if [ "${PACKAGES_REPOSITORY}" = "prod" ]; then
             if [ "${WAZUH_MAJOR}" -ge "4" ]; then
