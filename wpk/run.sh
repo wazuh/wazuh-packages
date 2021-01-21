@@ -166,8 +166,8 @@ main() {
     if [ "${DIST_NAME}" = "centos" ]; then
         package_name="wazuh-agent-4.0.4-1.x86_64.rpm"
         wget "https://packages.wazuh.com/${MAJOR}.x/yum/wazuh-agent-4.0.4-1.x86_64.rpm"
-        cp /scripts/upgrade.sh .
-        ${PYTHON} /usr/local/bin/wpkpack ${OUTPUT} ${WPKCERT} ${WPKKEY} ${package_name} upgrade.sh
+        cp /scripts/*.sh .
+        ${PYTHON} /usr/local/bin/wpkpack ${OUTPUT} ${WPKCERT} ${WPKKEY} ${package_name} upgrade.sh pkg_installer.sh
     else
 
       if [ "${HAVE_PKG_NAME}" == true ]; then
