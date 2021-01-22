@@ -77,9 +77,11 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.ssh
 # Copy the installed files into RPM_BUILD_ROOT directory
 cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
 mkdir -p ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
-sed -i "s|WAZUH_HOME_TMP|%{_localstatedir}|g" src/init/templates/ossec-hids-rh.init
+sed "s/WAZUH_HOME_TMP/%{_localstatedir}/g" src/init/templates/ossec-hids-rh.init > src/init/templates/ossec-hids-rh.init.tmp
+mv src/init/templates/ossec-hids-rh.init.tmp src/init/templates/ossec-hids-rh.init
 install -m 0755 src/init/templates/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-agent
-sed -i "s|WAZUH_HOME_TMP|%{_localstatedir}|g" src/init/templates/wazuh-manager.service
+sed "s/WAZUH_HOME_TMP/%{_localstatedir}/g" src/init/templates/wazuh-manager.service > src/init/templates/wazuh-manager.service.tmp
+mv src/init/templates/wazuh-manager.service.tmp src/init/templates/wazuh-manager.service
 install -m 0644 src/init/templates/wazuh-manager.service ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
 
 # Clean the preinstalled configuration assesment files
@@ -154,7 +156,8 @@ cp etc/templates/config/debian/9/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tm
 
 
 # Add SUSE initscript
-sed -i "s|WAZUH_HOME_TMP|%{_localstatedir}|g" src/init/templates/ossec-hids-suse.init
+sed "s/WAZUH_HOME_TMP/%{_localstatedir}/g" src/init/templates/ossec-hids-suse.init > src/init/templates/ossec-hids-suse.init.tmp
+mv src/init/templates/ossec-hids-suse.init.tmp src/init/templates/ossec-hids-suse.init
 cp -rp src/init/templates/ossec-hids-suse.init ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/src/init/
 
 # Copy scap templates
