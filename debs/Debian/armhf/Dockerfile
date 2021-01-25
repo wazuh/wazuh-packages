@@ -17,6 +17,12 @@ RUN apt-get build-dep python3.5 -y
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
     apt-get install -y nodejs
 
+RUN curl -OL http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz && \
+    tar -zxvf cmake-3.18.3.tar.gz && cd cmake-3.18.3 && \
+    linux32 ./bootstrap --no-system-curl && \
+    linux32 make -j$(nproc) && linux32 make install && \
+    ln -s /usr/local/bin/cmake /usr/bin/cmake && cd / && rm -rf cmake-*
+
 # Add the script to build the Debian package
 ADD build.sh /usr/local/bin/build_package
 RUN chmod +x /usr/local/bin/build_package
