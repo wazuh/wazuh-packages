@@ -490,6 +490,10 @@ rm -fr %{buildroot}
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/logcollector
 %dir %attr(750, root, ossec) %{_localstatedir}/ruleset/
 %dir %attr(750, root, ossec) %{_localstatedir}/ruleset/sca
+%attr(750, root, ossec) %{_localstatedir}/lib/libdbsync.so
+%attr(750, root, ossec) %{_localstatedir}/lib/librsync.so
+%attr(750, root, ossec) %{_localstatedir}/lib/libsyscollector.so
+%attr(750, root, ossec) %{_localstatedir}/lib/libsysinfo.so
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/applications
 %attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/applications/*
