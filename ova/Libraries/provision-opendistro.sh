@@ -164,6 +164,10 @@ installElasticsearch() {
             echo "elasticsearch soft nproc 4096" >> /etc/security/limits.conf
             echo "bootstrap.system_call_filter: false" >> /etc/elasticsearch/elasticsearch.yml
         fi
+
+        # While Performance Analyzer problems are solved (https://github.com/opendistro-for-elasticsearch/performance-analyzer/issues/229)
+        /usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro_performance_analyzer
+
         # Start Elasticsearch
         startService "elasticsearch"
         logger "Initializing Elasticsearch..."
