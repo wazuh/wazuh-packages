@@ -78,7 +78,7 @@ cat > /etc/motd << EOF
 
 
              WAZUH Open Source Security Platform
-                 Site: http://www.wazuh.com
+                       www.wazuh.com
 
 EOF
 
