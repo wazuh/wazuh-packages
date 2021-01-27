@@ -1289,7 +1289,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/var/run/ossec-agentd.state": {
+    "/var/ossec/var/run/wazuh-agentd.state": {
         "class": "static",
         "group": "ossec",
         "mode": "0644",
@@ -1297,7 +1297,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/var/run/ossec-agentd-*.pid": {
+    "/var/ossec/var/run/wazuh-agentd-*.pid": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -1305,7 +1305,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/var/run/ossec-execd-*.pid": {
+    "/var/ossec/var/run/wazuh-execd-*.pid": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -1313,7 +1313,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/var/run/ossec-logcollector-*.pid": {
+    "/var/ossec/var/run/wazuh-logcollector-*.pid": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -1321,7 +1321,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/var/run/ossec-syscheckd-*.pid": {
+    "/var/ossec/var/run/wazuh-syscheckd-*.pid": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",

@@ -14,7 +14,7 @@
       <Description>The VM Network network</Description>
     </Network>
   </NetworkSection>
-    <VirtualSystem ovf:id="vm_wazuh">
+    <VirtualSystem ovf:id="Wazuh v{WAZUH_VERSION} OVA">
     <Info>A virtual machine</Info>
     <ProductSection>
       <Info>Meta-information about the installed software</Info>
