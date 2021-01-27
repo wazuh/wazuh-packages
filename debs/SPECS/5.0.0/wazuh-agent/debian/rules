@@ -66,8 +66,7 @@ override_dh_install:
 	cp src/init/templates/ossec-hids-debian.init ${TARGET_DIR}/etc/init.d/wazuh-agent
 	# Copying systemd file
 	mkdir -p ${TARGET_DIR}/usr/lib/systemd/system/
-	sed "s/WAZUH_HOME_TMP/${INSTALLATION_DIR}/g" src/init/templates/wazuh-agent.service > src/init/templates/wazuh-agent.service.tmp
-	mv src/init/templates/wazuh-agent.service.tmp src/init/templates/wazuh-agent.service
+	sed -i "s:WAZUH_HOME_TMP:${INSTALLATION_DIR}:g" src/init/templates/wazuh-agent.service
 	install -m 0644 src/init/templates/wazuh-agent.service ${TARGET_DIR}/usr/lib/systemd/system/
 
 	# Generating permission restoration file for postinstall
@@ -178,8 +177,7 @@ override_dh_install:
 
 	# Copying systemd file
 	mkdir -p ${TARGET_DIR}/etc/systemd/system/
-	sed "s/WAZUH_HOME_TMP/${INSTALLATION_DIR}/g" src/init/templates/wazuh-agent.service > src/init/templates/wazuh-agent.service.tmp
-	mv src/init/templates/wazuh-agent.service.tmp src/init/templates/wazuh-agent.service
+	sed -i "s:WAZUH_HOME_TMP:${INSTALLATION_DIR}:g" src/init/templates/wazuh-agent.service
 	cp src/init/templates/wazuh-agent.service ${TARGET_DIR}/etc/systemd/system/
 
 override_dh_auto_clean:
