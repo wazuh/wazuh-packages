@@ -769,6 +769,8 @@ rm -fr %{buildroot}
 %attr(750, root, ossec) %{_localstatedir}/wodles/docker/*
 %dir %attr(750, root, ossec) %{_localstatedir}/wodles/gcloud
 %attr(750, root, ossec) %{_localstatedir}/wodles/gcloud/*
+%dir %attr(750, root, ossec) %{_localstatedir}/wodles/oscap
+%attr(750, root, ossec) %{_localstatedir}/wodles/oscap/*
 
 %if %{_debugenabled} == "yes"
 /usr/lib/debug/%{_localstatedir}/*
