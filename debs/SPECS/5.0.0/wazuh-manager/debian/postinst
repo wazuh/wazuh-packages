@@ -101,7 +101,8 @@ case "$1" in
     if type openssl >/dev/null 2>&1 && [ ! -f "${DIR}/etc/sslmanager.key" ] && [ ! -f "${DIR}/etc/sslmanager.cert" ]; then
         openssl req -x509 -batch -nodes -days 365 -newkey rsa:2048 -subj "/C=US/ST=California/CN=Wazuh/" -keyout ${DIR}/etc/sslmanager.key -out ${DIR}/etc/sslmanager.cert 2>/dev/null
     fi
-    chmod 640 ${DIR}/etc/sslmanager.cert ${DIR}/etc/sslmanager.key
+
+    chmod 640 ${DIR}/etc/sslmanager.cert ${DIR}/etc/sslmanager.key > /dev/null 2>&1 || true
 
     # For the etc dir
     if [ -f /etc/localtime ]; then
@@ -243,7 +244,7 @@ case "$1" in
             elif command -v service > /dev/null 2>&1 && service wazuh-manager status 2>/dev/null | grep "running" > /dev/null 2>&1; then
                 service wazuh-manager restart > /dev/null 2>&1
             else
-                ${DIR}/bin/ossec-control restart /dev/null 2>&1
+                ${DIR}/bin/wazuh-control restart /dev/null 2>&1
             fi
         fi
     fi

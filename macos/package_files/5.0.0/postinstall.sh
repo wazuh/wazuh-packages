@@ -117,6 +117,5 @@ ${INSTALLATION_SCRIPTS_DIR}/src/init/darwin-init.sh
 rm -rf ${DIR}/packages_files
 
 if ${upgrade} && ${restart}; then
-    ${DIR}/bin/ossec-control restart
+    ${DIR}/bin/wazuh-control restart
 fi
-
