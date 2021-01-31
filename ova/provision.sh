@@ -52,33 +52,35 @@ EOF
 
 cat > /etc/motd << EOF
 
-                (,                        ((
-               ((((                      ((((
-              ,(((((                    (((((
-              (((((((                  (((((((
-             ((((((((((              ,(((((((((
-            ((((((((((((            ((((((((((((
-           ,((((((((((((((((((((((((((((((((((((
-           ((((((((((((((((((((((((((((((((((((((
-        ,((((((((((((((((((((((((((((((((((((((((((,
-      ((((((((((((((((((((((((((((((((((((((((((((((((
-    (((((((((((((((((((((((((((((((((((((((((((((((((((,
-     (((((((((( (((((((((((((((((((((((((((( ((((((((((
-        ,((((((((, ,((((((((((((((((((((, ,((((((((,,
-           (((((((((  (((((((((((((((( ((((((((((
-             ,((((((((,,,((,,((,,((,,(((((((((,
-                (((((((((( (((((( ((((((((((
-                  ,,((((((((((((((((((((,,
-                     ((((((((((((((((((
-                     ,((((((((((((((((
-                       ((((((((((((((
-                        ((((((((((((
-                         ((((((((((
-                          ,,,,,,,,
+              W.                   W.
+             WWW.                 WWW.
+            WWWWW.               WWWWW.
+           WWWWWWW.             WWWWWWW.
+          WWWWWWWWW.           WWWWWWWWW.
+         WWWWWWWWWWW.         WWWWWWWWWWW.
+        WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.
+       WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.
+     WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.
+    WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.
+  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.
+WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.
+  WWWWWWWW...WWWWWWWWWWWWWWWWWWWWWWWW...WWWWWWWW.
+    WWWWWWWW...WWWWWWWWWWWWWWWWWWWW..WWWWWWWW.
+       WWWWWWW...WWWWWWWWWWWWWWWW..WWWWWWWW.
+         WWWWWWWW...WWW....WWW...WWWWWWWW.
+           WWWWWWWW....WWWW....WWWWWWWW.
+              WWWWWWWWWWWWWWWWWWWWWWW.
+                WWWWWWWWWWWWWWWWWWW.
+                 WWWWWWWWWWWWWWWWW.
+                  WWWWWWWWWWWWWWW.
+                   WWWWWWWWWWWWW.
+                    WWWWWWWWWWW.
+                     WWWWWWWWW.
+                      WWWWWWW.
 
 
-             WAZUH Open Source Security Platform
-                       www.wazuh.com
+         WAZUH Open Source Security Platform
+                   www.wazuh.com
 
 EOF
 
