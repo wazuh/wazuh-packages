@@ -25,8 +25,10 @@ yum install -y ${DIRECTORY}/var/upgrade/wazuh-agent-4.0.4-1.x86_64.rpm >> ${DIRE
 
 # Check installation result
 RESULT=$?
-rm -rf ${DIRECTORY}/var/upgrade/*
 echo "$(date +"%Y/%m/%d %H:%M:%S") - Installation result = ${RESULT}" >> ${DIRECTORY}/logs/upgrade.log
+
+# Clean old upgrades
+rm -rf ${DIRECTORY}/var/upgrade/* ${DIRECTORY}/var/incoming/*
 
 # Wait connection
 status="pending"
