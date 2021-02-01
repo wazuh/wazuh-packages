@@ -180,7 +180,6 @@ fi
 exit 0
 
 %pre
-
 # Create the ossec group if it doesn't exists
 if command -v getent > /dev/null 2>&1 && ! getent group ossec > /dev/null 2>&1; then
   groupadd -r ossec
@@ -208,6 +207,15 @@ if [ $1 = 2 ]; then
 fi
 
 %post
+if [ $1 = 2 ]; then
+  if [ -d %{_localstatedir}/logs/ossec ]; then
+    cp -rT %{_localstatedir}/logs/ossec/ %{_localstatedir}/logs/wazuh
+  fi
+
+  if [ -d %{_localstatedir}/queue/ossec ]; then
+    cp -rT %{_localstatedir}/queue/ossec/ %{_localstatedir}/queue/sockets
+  fi
+fi
 # If the package is being installed
 if [ $1 = 1 ]; then
 
@@ -435,6 +443,14 @@ if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
   fi
 fi
 
+if [ -d %{_localstatedir}/logs/ossec ]; then
+  rm -rf %{_localstatedir}/logs/ossec/
+fi
+
+if [ -d %{_localstatedir}/queue/ossec ]; then
+  rm -rf %{_localstatedir}/queue/ossec/
+fi
+
 %clean
 rm -fr %{buildroot}
 
@@ -466,7 +482,7 @@ rm -fr %{buildroot}
 %attr(660,ossec,ossec) %ghost %{_localstatedir}/logs/active-responses.log
 %attr(660,root,ossec) %ghost %{_localstatedir}/logs/ossec.log
 %attr(660,root,ossec) %ghost %{_localstatedir}/logs/ossec.json
-%dir %attr(750,ossec,ossec) %{_localstatedir}/logs/ossec
+%dir %attr(750,ossec,ossec) %{_localstatedir}/logs/wazuh
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts
 %attr(750,root,root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/add_localfiles.sh
@@ -478,7 +494,7 @@ rm -fr %{buildroot}
 %attr(750,root,root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/suse/*
 %attr(750,root,root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/src/*
 %dir %attr(750,root,ossec) %{_localstatedir}/queue
-%dir %attr(770,ossec,ossec) %{_localstatedir}/queue/ossec
+%dir %attr(770,ossec,ossec) %{_localstatedir}/queue/sockets
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/diff
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/fim
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/fim/db

@@ -102,7 +102,15 @@ fi
 
 if [ $1 = 2 ]; then
   touch %{_localstatedir}/tmp/wazuh.restart
-  /etc/rc.d/init.d/wazuh-agent stop > /dev/null 2>&1 || :
+  /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
+
+  if [ -d %{_localstatedir}/logs/ossec ]; then
+    mv %{_localstatedir}/logs/ossec %{_localstatedir}/logs/wazuh
+  fi
+  
+  if [ -d %{_localstatedir}/queue/ossec ]; then
+    mv %{_localstatedir}/queue/ossec %{_localstatedir}/logs/sockets
+  fi
 fi
 
 %post
@@ -166,9 +174,9 @@ fi
 if [ $1 = 0 ]; then
 
   /etc/rc.d/init.d/wazuh-agent stop > /dev/null 2>&1 || :
-  rm -f %{_localstatedir}/queue/ossec/*
-  rm -f %{_localstatedir}/queue/ossec/.agent_info || :
-  rm -f %{_localstatedir}/queue/ossec/.wait || :
+  rm -f %{_localstatedir}/queue/sockets/*
+  rm -f %{_localstatedir}/queue/sockets/.agent_info || :
+  rm -f %{_localstatedir}/queue/sockets/.wait || :
   rm -f %{_localstatedir}/queue/diff/*
   rm -f %{_localstatedir}/queue/alerts/*
   rm -f %{_localstatedir}/queue/rids/*
@@ -224,9 +232,9 @@ rm -fr %{buildroot}
 %attr(660,ossec,ossec) %ghost %{_localstatedir}/logs/active-responses.log
 %attr(660,root,ossec) %ghost %{_localstatedir}/logs/ossec.log
 %attr(660,root,ossec) %ghost %{_localstatedir}/logs/ossec.json
-%dir %attr(750,ossec,ossec) %{_localstatedir}/logs/ossec
+%dir %attr(750,ossec,ossec) %{_localstatedir}/logs/wazuh
 %dir %attr(750,root,ossec) %{_localstatedir}/queue
-%dir %attr(770,ossec,ossec) %{_localstatedir}/queue/ossec
+%dir %attr(770,ossec,ossec) %{_localstatedir}/queue/sockets
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/diff
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/fim
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/fim/db

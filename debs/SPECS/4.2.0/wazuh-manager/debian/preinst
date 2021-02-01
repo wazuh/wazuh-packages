@@ -32,6 +32,14 @@ case "$1" in
                 touch ${WAZUH_TMP_DIR}/wazuh.restart
             fi
 
+            if [ -d ${DIR}/logs/ossec ]; then
+                mv ${DIR}/logs/ossec ${DIR}/logs/wazuh
+            fi
+            
+            if [ -d ${DIR}/queue/ossec ]; then
+                mv ${DIR}/queue/ossec ${DIR}/logs/sockets
+            fi
+
             # Delete old API backups
             if [ -d ${DIR}/~api ]; then
                 rm -rf ${DIR}/~api
