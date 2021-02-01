@@ -102,7 +102,7 @@ fi
 
 if [ $1 = 2 ]; then
   touch %{_localstatedir}/tmp/wazuh.restart
-  /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
+  /etc/rc.d/init.d/wazuh-agent stop > /dev/null 2>&1 || :
 fi
 
 %post
