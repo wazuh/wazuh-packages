@@ -28,8 +28,16 @@ case "$1" in
                 service wazuh-manager stop
                 touch ${WAZUH_TMP_DIR}/wazuh.restart
             elif ${DIR}/bin/wazuh-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
-                ${DIR}/wazuh-control stop > /dev/null 2>&1
+                ${DIR}/bin/wazuh-control stop > /dev/null 2>&1
                 touch ${WAZUH_TMP_DIR}/wazuh.restart
+            fi
+
+            if [ -d ${DIR}/logs/ossec ]; then
+                mv ${DIR}/logs/ossec ${DIR}/logs/wazuh
+            fi
+            
+            if [ -d ${DIR}/queue/ossec ]; then
+                mv ${DIR}/queue/ossec ${DIR}/logs/sockets
             fi
 
             # Delete old API backups

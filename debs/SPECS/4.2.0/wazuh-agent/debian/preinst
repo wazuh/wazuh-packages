@@ -29,6 +29,14 @@ case "$1" in
                 ${DIR}/bin/wazuh-control stop > /dev/null 2>&1
                 touch ${WAZUH_TMP_DIR}/wazuh.restart
             fi
+
+            if [ -d ${DIR}/logs/ossec ]; then
+                mv ${DIR}/logs/ossec ${DIR}/logs/wazuh
+            fi
+            
+            if [ -d ${DIR}/queue/ossec ]; then
+                mv ${DIR}/queue/ossec ${DIR}/queue/sockets
+            fi
         fi
 
         if [ ! -z "$2" ] && [ ! -f ${DIR}/etc/ossec.conf ] ; then
