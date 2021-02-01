@@ -143,7 +143,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/active-response/bin/restart-ossec.sh": {
+    "/var/ossec/active-response/bin/restart-wazuh.sh": {
         "class": "static",
         "group": "ossec",
         "mode": "0750",
