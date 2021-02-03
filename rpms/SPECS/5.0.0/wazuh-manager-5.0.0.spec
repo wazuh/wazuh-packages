@@ -105,7 +105,7 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/{applications,generic}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/{1,2}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/{8,7,6,5}
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/{15,16,17,18,19}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/{15,16,17,18,19,20}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/{7,8,9}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ubuntu/{12,14,16}/04
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/{8,7,6,5}
@@ -131,6 +131,7 @@ cp etc/templates/config/darwin/16/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/t
 cp etc/templates/config/darwin/17/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/17
 cp etc/templates/config/darwin/18/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/18
 cp etc/templates/config/darwin/19/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/19
+cp etc/templates/config/darwin/20/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/20
 
 cp etc/templates/config/rhel/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel
 cp etc/templates/config/rhel/7/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/7
@@ -192,8 +193,8 @@ if [ $1 = 2 ]; then
   elif command -v service > /dev/null 2>&1 && service wazuh-manager status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
     service wazuh-manager stop > /dev/null 2>&1
     touch %{_localstatedir}/tmp/wazuh.restart
-  elif %{_localstatedir}/bin/ossec-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
-    %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
+  elif %{_localstatedir}/bin/wazuh-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
+    %{_localstatedir}/bin/wazuh-control stop > /dev/null 2>&1
     touch %{_localstatedir}/tmp/wazuh.restart
   fi
 fi
@@ -430,7 +431,7 @@ if [ $1 = 0 ]; then
   elif command -v service > /dev/null 2>&1 && service wazuh-manager status 2>/dev/null | grep "running" > /dev/null 2>&1; then
     service wazuh-manager stop > /dev/null 2>&1
   else # Anything else
-    %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
+    %{_localstatedir}/bin/wazuh-control stop > /dev/null 2>&1
   fi
 
   # Check for systemd
@@ -514,7 +515,7 @@ if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
   elif command -v service > /dev/null 2>&1 ; then
     service wazuh-manager restart > /dev/null 2>&1
   else
-    %{_localstatedir}/bin/ossec-control restart > /dev/null 2>&1
+    %{_localstatedir}/bin/wazuh-control restart > /dev/null 2>&1
   fi
 fi
 
@@ -557,25 +558,19 @@ rm -fr %{buildroot}
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-agentlessd
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-analysisd
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-authd
-%attr(750, root, root) %{_localstatedir}/bin/ossec-control
+%attr(750, root, root) %{_localstatedir}/bin/wazuh-control
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-csyslogd
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-dbd
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-execd
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-integratord
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-logcollector
-%attr(750, root, root) %{_localstatedir}/bin/ossec-logtest
 %attr(750, root, ossec) %{_localstatedir}/bin/wazuh-logtest
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-maild
-%attr(750, root, root) %{_localstatedir}/bin/ossec-makelists
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-monitord
-%attr(750, root, root) %{_localstatedir}/bin/ossec-regex
+%attr(750, root, root) %{_localstatedir}/bin/wazuh-regex
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-remoted
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-reportd
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-syscheckd
-%attr(750, root, root) %{_localstatedir}/bin/rootcheck_control
-%attr(750, root, root) %{_localstatedir}/bin/syscheck_control
-%attr(750, root, root) %{_localstatedir}/bin/syscheck_update
-%attr(750, root, root) %{_localstatedir}/bin/util.sh
 %attr(750, root, ossec) %{_localstatedir}/bin/verify-agent-conf
 %attr(750, root, ossec) %{_localstatedir}/bin/wazuh-apid
 %attr(750, root, ossec) %{_localstatedir}/bin/wazuh-clusterd
@@ -594,9 +589,7 @@ rm -fr %{buildroot}
 %dir %attr(770, ossec, ossec) %{_localstatedir}/etc/lists/amazon
 %attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/etc/lists/amazon/*
 %attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/etc/lists/audit-keys
-%attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/etc/lists/audit-keys.cdb
 %attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/etc/lists/security-eventchannel
-%attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/etc/lists/security-eventchannel.cdb
 %dir %attr(770, root, ossec) %{_localstatedir}/etc/shared
 %dir %attr(770, ossec, ossec) %{_localstatedir}/etc/shared/default
 %attr(660, ossec, ossec) %{_localstatedir}/etc/shared/agent-template.conf
@@ -671,11 +664,11 @@ rm -fr %{buildroot}
 %attr(640, root,ossec) %{_localstatedir}/queue/syscollector/norm_config.json
 %dir %attr(750, ossec, ossec) %{_localstatedir}/queue/fts
 %dir %attr(770, ossecr, ossec) %{_localstatedir}/queue/rids
-%dir %attr(750, ossec, ossec) %{_localstatedir}/queue/logcollector
 %dir %attr(770, ossec, ossec) %{_localstatedir}/queue/tasks
 %dir %attr(770, ossec, ossec) %{_localstatedir}/queue/ossec
 %dir %attr(660, root, ossec) %{_localstatedir}/queue/vulnerabilities
 %dir %attr(440, root, ossec) %{_localstatedir}/queue/vulnerabilities/dictionaries
+%dir %attr(750, ossec, ossec) %{_localstatedir}/queue/logcollector
 %attr(0440, root, ossec) %{_localstatedir}/queue/vulnerabilities/dictionaries/cpe_helper.json
 %attr(0440, root, ossec) %ghost %{_localstatedir}/queue/vulnerabilities/dictionaries/msu.json.gz
 %dir %attr(750, root, ossec) %{_localstatedir}/ruleset
@@ -718,6 +711,8 @@ rm -fr %{buildroot}
 %attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/18/*
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/19
 %attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/19/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/20
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/20/*
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian
 %attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/sca.files
 %attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/*yml

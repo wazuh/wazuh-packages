@@ -311,7 +311,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/bin/ossec-control": {
+    "/var/ossec/bin/wazuh-control": {
         "class": "static",
         "group": "root",
         "mode": "0750",
@@ -1208,6 +1208,14 @@
         "type": "directory",
         "user": "ossec"
     },
+    "/var/ossec/queue/logcollector": {
+        "class": "static",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "drwxr-x---",
+        "type": "directory",
+        "user": "ossec"
+    },
     "/var/ossec/queue/rids/*": {
         "class": "dynamic",
         "group": "ossec",
@@ -1305,7 +1313,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/var/run/ossec-agentd.state": {
+    "/var/ossec/var/run/wazuh-agentd.state": {
         "class": "static",
         "group": "ossec",
         "mode": "0644",
@@ -1313,7 +1321,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/var/run/ossec-agentd-*.pid": {
+    "/var/ossec/var/run/wazuh-agentd-*.pid": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -1321,7 +1329,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/var/run/ossec-execd-*.pid": {
+    "/var/ossec/var/run/wazuh-execd-*.pid": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -1329,7 +1337,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/var/run/ossec-logcollector-*.pid": {
+    "/var/ossec/var/run/wazuh-logcollector-*.pid": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -1337,7 +1345,15 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/var/run/ossec-syscheckd-*.pid": {
+    "/var/ossec/var/run/wazuh-logcollector.state": {
+        "class": "static",
+        "group": "ossec",
+        "mode": "0644",
+        "prot": "-rw-r--r--",
+        "type": "file",
+        "user": "ossec"
+    },
+    "/var/ossec/var/run/wazuh-syscheckd-*.pid": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
