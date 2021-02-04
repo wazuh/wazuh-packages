@@ -85,24 +85,24 @@ SCA_TMP_DIR="${SCA_BASE_DIR}/${SCA_DIR}"
 
 # Install the configuration files needed for this hosts
 if [ -r "${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}/${DIST_SUBVER}/sca.files" ]; then
-  SCA_TMP_DIR="${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}/${DIST_SUBVER}"
+    SCA_TMP_DIR="${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}/${DIST_SUBVER}"
 elif [ -r "${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}/sca.files" ]; then
-  SCA_TMP_DIR="${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}"
+    SCA_TMP_DIR="${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}"
 elif [ -r "${SCA_BASE_DIR}/${DIST_NAME}/sca.files" ]; then
-  SCA_TMP_DIR="${SCA_BASE_DIR}/${DIST_NAME}"
+    SCA_TMP_DIR="${SCA_BASE_DIR}/${DIST_NAME}"
 else
-  SCA_TMP_DIR="${SCA_BASE_DIR}/generic"
+    SCA_TMP_DIR="${SCA_BASE_DIR}/generic"
 fi
 
 SCA_TMP_FILE="${SCA_TMP_DIR}/sca.files"
 
 if [ -r ${SCA_TMP_FILE} ]; then
 
-  rm -f ${DIR}/ruleset/sca/* || true
+    rm -f ${DIR}/ruleset/sca/* || true
 
-  for sca_file in $(cat ${SCA_TMP_FILE}); do
-    mv ${SCA_BASE_DIR}/${sca_file} ${DIR}/ruleset/sca
-  done
+    for sca_file in $(cat ${SCA_TMP_FILE}); do
+        mv ${SCA_BASE_DIR}/${sca_file} ${DIR}/ruleset/sca
+    done
 fi
 
 # Register and configure agent if Wazuh environment variables are defined

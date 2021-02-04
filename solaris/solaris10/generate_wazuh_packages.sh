@@ -40,9 +40,9 @@ set_control_binary() {
     minor=`echo $number_version | cut -d . -f 2`
 
     if [ "$major" -le "4" ] && [ "$minor" -le "1" ]; then
-      control_binary="ossec-control"
+        control_binary="ossec-control"
     else
-      control_binary="wazuh-control"
+        control_binary="wazuh-control"
     fi
   fi
 }

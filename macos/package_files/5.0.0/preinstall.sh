@@ -34,34 +34,34 @@ if [ $(launchctl getenv WAZUH_PKG_UPGRADE) = true ]; then
 fi
 
 if [[ ! -f "/usr/bin/dscl" ]]
-  then
-  echo "Error: I couldn't find dscl, dying here";
-  exit
+    then
+    echo "Error: I couldn't find dscl, dying here";
+    exit
 fi
 
 DSCL="/usr/bin/dscl";
 
 function check_errm
 {
-   if  [[ ${?} != "0" ]]
-      then
-      echo "${1}";
-      exit ${2};
-      fi
+    if  [[ ${?} != "0" ]]
+        then
+        echo "${1}";
+        exit ${2};
+        fi
 }
 
 # get unique id numbers (uid, gid) that are greater than 100
 unset -v i new_uid new_gid idvar;
 declare -i new_uid=0 new_gid=0 i=100 idvar=0;
 while [[ $idvar -eq 0 ]]; do
-   i=$[i+1]
-   if [[ -z "$(/usr/bin/dscl . -search /Users uid ${i})" ]] && [[ -z "$(/usr/bin/dscl . -search /Groups gid ${i})" ]];
-      then
-      new_uid=$i
-      new_gid=$i
-      idvar=1
-      #break
-   fi
+    i=$[i+1]
+    if [[ -z "$(/usr/bin/dscl . -search /Users uid ${i})" ]] && [[ -z "$(/usr/bin/dscl . -search /Groups gid ${i})" ]];
+        then
+        new_uid=$i
+        new_gid=$i
+        idvar=1
+        #break
+    fi
 done
 
 echo "UID available for ossec user is:";
@@ -69,14 +69,14 @@ echo ${new_uid}
 
 # Verify that the uid and gid exist and match
 if [[ $new_uid -eq 0 ]] || [[ $new_gid -eq 0 ]];
-   then
-   echo "Getting unique id numbers (uid, gid) failed!";
-   exit 1;
+    then
+    echo "Getting unique id numbers (uid, gid) failed!";
+    exit 1;
 fi
 if [[ ${new_uid} != ${new_gid} ]]
-   then
-   echo "I failed to find matching free uid and gid!";
-   exit 5;
+    then
+    echo "I failed to find matching free uid and gid!";
+    exit 5;
 fi
 
 # Stops the agent before upgrading it
@@ -86,33 +86,33 @@ fi
 
 # Creating the group
 if [[ $(dscl . -read /Groups/ossec) ]]
-   then
-   echo "ossec group already exists.";
+    then
+    echo "ossec group already exists.";
 else
-   sudo ${DSCL} localhost -create /Local/Default/Groups/ossec
-   check_errm "Error creating group ossec" "67"
-   sudo ${DSCL} localhost -createprop /Local/Default/Groups/ossec PrimaryGroupID ${new_gid}
-   sudo ${DSCL} localhost -createprop /Local/Default/Groups/ossec RealName ossec
-   sudo ${DSCL} localhost -createprop /Local/Default/Groups/ossec RecordName ossec
-   sudo ${DSCL} localhost -createprop /Local/Default/Groups/ossec RecordType: dsRecTypeStandard:Groups
-   sudo ${DSCL} localhost -createprop /Local/Default/Groups/ossec Password "*"
+    sudo ${DSCL} localhost -create /Local/Default/Groups/ossec
+    check_errm "Error creating group ossec" "67"
+    sudo ${DSCL} localhost -createprop /Local/Default/Groups/ossec PrimaryGroupID ${new_gid}
+    sudo ${DSCL} localhost -createprop /Local/Default/Groups/ossec RealName ossec
+    sudo ${DSCL} localhost -createprop /Local/Default/Groups/ossec RecordName ossec
+    sudo ${DSCL} localhost -createprop /Local/Default/Groups/ossec RecordType: dsRecTypeStandard:Groups
+    sudo ${DSCL} localhost -createprop /Local/Default/Groups/ossec Password "*"
 fi
 
 # Creating the user
 if [[ $(dscl . -read /Users/ossec) ]]
-   then
-   echo "ossec user already exists.";
+    then
+    echo "ossec user already exists.";
 else
-   sudo ${DSCL} localhost -create /Local/Default/Users/ossec
-   check_errm "Error creating user ossec" "77"
-   sudo ${DSCL} localhost -createprop /Local/Default/Users/ossec RecordName ossec
-   sudo ${DSCL} localhost -createprop /Local/Default/Users/ossec RealName ossec
-   sudo ${DSCL} localhost -createprop /Local/Default/Users/ossec UserShell /usr/bin/false
-   sudo ${DSCL} localhost -createprop /Local/Default/Users/ossec NFSHomeDirectory /var/ossec
-   sudo ${DSCL} localhost -createprop /Local/Default/Users/ossec UniqueID ${new_uid}
-   sudo ${DSCL} localhost -createprop /Local/Default/Users/ossec PrimaryGroupID ${new_gid}
-   sudo ${DSCL} localhost -append /Local/Default/Groups/ossec GroupMembership ossec
-   sudo ${DSCL} localhost -createprop /Local/Default/Users/ossec Password "*"
+    sudo ${DSCL} localhost -create /Local/Default/Users/ossec
+    check_errm "Error creating user ossec" "77"
+    sudo ${DSCL} localhost -createprop /Local/Default/Users/ossec RecordName ossec
+    sudo ${DSCL} localhost -createprop /Local/Default/Users/ossec RealName ossec
+    sudo ${DSCL} localhost -createprop /Local/Default/Users/ossec UserShell /usr/bin/false
+    sudo ${DSCL} localhost -createprop /Local/Default/Users/ossec NFSHomeDirectory /var/ossec
+    sudo ${DSCL} localhost -createprop /Local/Default/Users/ossec UniqueID ${new_uid}
+    sudo ${DSCL} localhost -createprop /Local/Default/Users/ossec PrimaryGroupID ${new_gid}
+    sudo ${DSCL} localhost -append /Local/Default/Groups/ossec GroupMembership ossec
+    sudo ${DSCL} localhost -createprop /Local/Default/Users/ossec Password "*"
 fi
 
 #Hide the fixed users

@@ -37,7 +37,7 @@ sudo /usr/sbin/pkgutil --forget com.wazuh.pkg.wazuh-agent-etc
 # In case it was installed via Puppet pkgdmg provider
 
 if [ -e /var/db/.puppet_pkgdmg_installed_wazuh-agent ]; then
-  sudo rm -f /var/db/.puppet_pkgdmg_installed_wazuh-agent
+    sudo rm -f /var/db/.puppet_pkgdmg_installed_wazuh-agent
 fi
 
 echo
