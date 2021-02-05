@@ -21,7 +21,6 @@ Wazuh is an open source security monitoring solution for threat detection, integ
 
 %prep
 %setup -q
-./gen_ossec.sh init agent %{_localstatedir} > ossec-init.conf
 cd src && gmake clean && gmake deps RESOURCES_URL=http://packages.wazuh.com/deps/4.2
 gmake TARGET=agent USE_SELINUX=no PREFIX=%{_localstatedir} DISABLE_SHARED=yes DISABLE_SYSC=yes
 cd ..
@@ -54,8 +53,9 @@ mkdir -p ${RPM_BUILD_ROOT}%{_init_scripts}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.ssh
 
 # Copy the files into RPM_BUILD_ROOT directory
-install -m 0640 ossec-init.conf ${RPM_BUILD_ROOT}%{_sysconfdir}
-install -m 0750 src/init/ossec-hids-aix.init ${RPM_BUILD_ROOT}%{_init_scripts}/wazuh-agent
+sed "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/ossec-hids-aix.init > src/init/templates/ossec-hids-aix.init.tmp
+mv src/init/templates/ossec-hids-aix.init.tmp src/init/templates/ossec-hids-aix.init
+install -m 0750 src/init/templates/ossec-hids-aix.init ${RPM_BUILD_ROOT}%{_init_scripts}/wazuh-agent
 cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
 
 # Add configuration scripts
@@ -136,7 +136,7 @@ if [ $1 = 1 ]; then
   chown ossec:ossec %{_localstatedir}/logs/active-responses.log
   chmod 0660 %{_localstatedir}/logs/active-responses.log
 
-  %{_localstatedir}/tmp/src/init/register_configure_agent.sh > /dev/null || :
+  %{_localstatedir}/tmp/src/init/register_configure_agent.sh %{_localstatedir} > /dev/null || :
 
 fi
 chown root:ossec %{_localstatedir}/etc/ossec.conf
@@ -201,7 +201,6 @@ rm -fr %{buildroot}
 
 %files
 %{_init_scripts}/*
-%attr(640,root,ossec) %verify(not md5 size mtime) %{_sysconfdir}/ossec-init.conf
 
 %dir %attr(750,root,ossec) %{_localstatedir}
 %attr(750,root,ossec) %{_localstatedir}/agentless
@@ -217,7 +216,6 @@ rm -fr %{buildroot}
 %attr(640,root,ossec) %{_localstatedir}/etc/internal_options*
 %attr(640,root,ossec) %config(noreplace) %{_localstatedir}/etc/local_internal_options.conf
 %attr(660,root,ossec) %config(noreplace) %{_localstatedir}/etc/ossec.conf
-%{_localstatedir}/etc/ossec-init.conf
 %attr(640,root,ossec) %{_localstatedir}/etc/wpk_root.pem
 %dir %attr(770,root,ossec) %{_localstatedir}/etc/shared
 %attr(660,root,ossec) %config(missingok,noreplace) %{_localstatedir}/etc/shared/*

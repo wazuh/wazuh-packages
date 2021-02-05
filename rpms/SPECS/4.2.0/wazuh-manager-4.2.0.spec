@@ -31,7 +31,6 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 %setup -q
 
 ./gen_ossec.sh conf manager centos %rhel %{_localstatedir} > etc/ossec-server.conf
-./gen_ossec.sh init manager %{_localstatedir} > ossec-init.conf
 
 %build
 pushd src
@@ -78,9 +77,10 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.ssh
 # Copy the installed files into RPM_BUILD_ROOT directory
 cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
 mkdir -p ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
-install -m 0640 ossec-init.conf ${RPM_BUILD_ROOT}%{_sysconfdir}
-install -m 0755 src/init/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-manager
-install -m 0644 src/systemd/wazuh-manager.service ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
+sed -i "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/ossec-hids-rh.init
+install -m 0755 src/init/templates/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-manager
+sed -i "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/wazuh-manager.service
+install -m 0644 src/init/templates/wazuh-manager.service ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
 
 # Clean the preinstalled configuration assesment files
 rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ruleset/sca/*
@@ -156,7 +156,8 @@ cp etc/templates/config/debian/9/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tm
 
 
 # Add SUSE initscript
-cp -rp src/init/ossec-hids-suse.init ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/src/init/
+sed -i "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/ossec-hids-suse.init
+cp -rp src/init/templates/ossec-hids-suse.init ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/src/init/
 
 # Copy scap templates
 cp -rp  etc/templates/config/generic/* ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/generic
@@ -245,8 +246,14 @@ if [ $1 = 2 ]; then
   if [ -d %{_localstatedir}/~api ]; then
     rm -rf %{_localstatedir}/~api
   fi
-  # Import the variables from ossec-init.conf file
-  . %{_sysconfdir}/ossec-init.conf
+
+  if [ -f %{_sysconfdir}/ossec-init.conf ]; then
+    # Import the variables from ossec-init.conf file
+    . %{_sysconfdir}/ossec-init.conf
+  else
+    # Ask wazuh-control the version
+    VERSION=$(%{_localstatedir}/bin/wazuh-control info -v)
+  fi
 
   # Get the major and minor version
   MAJOR=$(echo $VERSION | cut -dv -f2 | cut -d. -f1)
@@ -531,7 +538,6 @@ rm -fr %{buildroot}
 %{_initrddir}/wazuh-manager
 /usr/lib/systemd/system/wazuh-manager.service
 %defattr(-,root,ossec)
-%attr(640, root, ossec) %verify(not md5 size mtime) %{_sysconfdir}/ossec-init.conf
 %dir %attr(750, root, ossec) %{_localstatedir}
 %attr(750, root, ossec) %{_localstatedir}/agentless
 %dir %attr(750, root, ossec) %{_localstatedir}/active-response
@@ -581,7 +587,6 @@ rm -fr %{buildroot}
 %attr(640, root, ossec) %config(noreplace) %{_localstatedir}/etc/client.keys
 %attr(640, root, ossec) %{_localstatedir}/etc/internal_options*
 %attr(640, root, ossec) %config(noreplace) %{_localstatedir}/etc/local_internal_options.conf
-%{_localstatedir}/etc/ossec-init.conf
 %attr(640, root, ossec) %{_localstatedir}/etc/localtime
 %dir %attr(770, root, ossec) %{_localstatedir}/etc/decoders
 %attr(660, ossec, ossec) %config(noreplace) %{_localstatedir}/etc/decoders/local_decoder.xml
