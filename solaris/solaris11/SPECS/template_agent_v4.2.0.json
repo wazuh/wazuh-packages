@@ -31,7 +31,7 @@
         "type": "directory",
         "user": "root"
     },
-    "/var/ossec/active-response/bin/default-firewall-drop.sh": {
+    "/var/ossec/active-response/bin/default-firewall-drop": {
         "class": "static",
         "group": "ossec",
         "mode": "0750",
@@ -39,7 +39,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/active-response/bin/disable-account.sh": {
+    "/var/ossec/active-response/bin/disable-account": {
         "class": "static",
         "group": "ossec",
         "mode": "0750",
@@ -47,7 +47,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/active-response/bin/firewall-drop.sh": {
+    "/var/ossec/active-response/bin/firewall-drop": {
         "class": "static",
         "group": "ossec",
         "mode": "0750",
@@ -55,7 +55,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/active-response/bin/firewalld-drop.sh": {
+    "/var/ossec/active-response/bin/firewalld-drop": {
         "class": "static",
         "group": "ossec",
         "mode": "0750",
@@ -63,7 +63,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/active-response/bin/host-deny.sh": {
+    "/var/ossec/active-response/bin/host-deny": {
         "class": "static",
         "group": "ossec",
         "mode": "0750",
@@ -71,7 +71,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/active-response/bin/ip-customblock.sh": {
+    "/var/ossec/active-response/bin/ip-customblock": {
         "class": "static",
         "group": "ossec",
         "mode": "0750",
@@ -79,15 +79,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/active-response/bin/ipfw.sh": {
-        "class": "static",
-        "group": "ossec",
-        "mode": "0750",
-        "prot": "-rwxr-x---",
-        "type": "file",
-        "user": "root"
-    },
-    "/var/ossec/active-response/bin/ipfw_mac.sh": {
+    "/var/ossec/active-response/bin/ipfw": {
         "class": "static",
         "group": "ossec",
         "mode": "0750",
@@ -103,7 +95,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/active-response/bin/kaspersky.sh": {
+    "/var/ossec/active-response/bin/kaspersky": {
         "class": "static",
         "group": "ossec",
         "mode": "0750",
@@ -111,7 +103,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/active-response/bin/npf.sh": {
+    "/var/ossec/active-response/bin/npf": {
         "class": "static",
         "group": "ossec",
         "mode": "0750",
@@ -119,7 +111,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/active-response/bin/ossec-slack.sh": {
+    "/var/ossec/active-response/bin/wazuh-slack": {
         "class": "static",
         "group": "ossec",
         "mode": "0750",
@@ -127,7 +119,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/active-response/bin/ossec-tweeter.sh": {
+    "/var/ossec/active-response/bin/pf": {
         "class": "static",
         "group": "ossec",
         "mode": "0750",
@@ -135,15 +127,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/active-response/bin/pf.sh": {
-        "class": "static",
-        "group": "ossec",
-        "mode": "0750",
-        "prot": "-rwxr-x---",
-        "type": "file",
-        "user": "root"
-    },
-    "/var/ossec/active-response/bin/restart-ossec.sh": {
+    "/var/ossec/active-response/bin/restart-wazuh": {
         "class": "static",
         "group": "ossec",
         "mode": "0750",
@@ -159,7 +143,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/active-response/bin/route-null.sh": {
+    "/var/ossec/active-response/bin/route-null": {
         "class": "static",
         "group": "ossec",
         "mode": "0750",
@@ -405,15 +389,6 @@
         "mode": "0640",
         "prot": "-rw-r-----",
         "type": "file",
-        "user": "root"
-    },
-    "/var/ossec/etc/ossec-init.conf": {
-        "class": "static",
-        "group": "root",
-        "mode": "0777",
-        "prot": "lrwxrwxrwx",
-        "target": "/etc/ossec-init.conf",
-        "type": "link",
         "user": "root"
     },
     "/var/ossec/etc/ossec.conf": {

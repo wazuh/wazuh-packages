@@ -37,10 +37,6 @@ case "$1" in
         adduser --system --home ${DIR} --shell ${OSMYSHELL} --ingroup ${GROUP} ${USER_REM} > /dev/null 2>&1
     fi
 
-    if [ -f ${SCRIPTS_DIR}/ossec-init.conf ] ; then
-        cp ${SCRIPTS_DIR}/ossec-init.conf /etc/ossec-init.conf
-    fi
-
     if [ -z "$2" ] || [ -f ${WAZUH_TMP_DIR}/create_conf ] ; then
 
         ${SCRIPTS_DIR}/gen_ossec.sh conf manager ${OS} ${VER} > ${DIR}/etc/ossec.conf
@@ -233,10 +229,6 @@ case "$1" in
     # Restoring file permissions
     ${SCRIPTS_DIR}/restore-permissions.sh > /dev/null 2>&1 || true
 
-    # Fix /etc/ossec-init.conf
-    chmod 640 /etc/ossec-init.conf
-    chown root:ossec /etc/ossec-init.conf
-
     if [ ! -z "$2" ]; then
         if [ -f ${WAZUH_TMP_DIR}/wazuh.restart ] ; then
             if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-manager > /dev/null 2>&1; then
@@ -247,6 +239,11 @@ case "$1" in
                 ${DIR}/bin/wazuh-control restart /dev/null 2>&1
             fi
         fi
+    fi
+
+    #Delete obsolete files
+    if [ -f /etc/ossec-init.conf ]; then
+        rm /etc/ossec-init.conf
     fi
 
     # Delete installation scripts

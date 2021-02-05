@@ -34,7 +34,6 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 %setup -q
 
 ./gen_ossec.sh conf agent centos %rhel %{_localstatedir} > etc/ossec-agent.conf
-./gen_ossec.sh init agent %{_localstatedir} > ossec-init.conf
 
 %build
 pushd src
@@ -83,9 +82,10 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.ssh
 # Copy the installed files into RPM_BUILD_ROOT directory
 cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
 mkdir -p ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
-install -m 0640 ossec-init.conf ${RPM_BUILD_ROOT}%{_sysconfdir}
-install -m 0755 src/init/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-agent
-install -m 0644 src/systemd/wazuh-agent.service ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
+sed -i "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/ossec-hids-rh.init
+install -m 0755 src/init/templates/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-agent
+sed -i "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/wazuh-agent.service
+install -m 0644 src/init/templates/wazuh-agent.service ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
 
 # Clean the preinstalled configuration assesment files
 rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ruleset/sca/*
@@ -157,7 +157,8 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_sc
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/sles
 
 # Add SUSE initscript
-cp -rp src/init/ossec-hids-suse.init ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/src/init/
+sed -i "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/ossec-hids-suse.init
+cp -rp src/init/templates/ossec-hids-suse.init ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/src/init/
 
 # Copy scap templates
 cp -rp  etc/templates/config/generic/* ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/generic
@@ -239,7 +240,7 @@ if [ $1 = 1 ]; then
   %{_localstatedir}/packages_files/agent_installation_scripts/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
 
   # Register and configure agent if Wazuh environment variables are defined
-  %{_localstatedir}/packages_files/agent_installation_scripts/src/init/register_configure_agent.sh > /dev/null || :
+  %{_localstatedir}/packages_files/agent_installation_scripts/src/init/register_configure_agent.sh %{_localstatedir} > /dev/null || :
 fi
 
 # Delete the installation files used to configure the agent
@@ -247,7 +248,6 @@ rm -rf %{_localstatedir}/packages_files
 
 # Remove unnecessary files from shared directory
 rm -f %{_localstatedir}/etc/shared/*.rpmnew
-
 
 # CentOS
 if [ -r "/etc/centos-release" ]; then
@@ -442,7 +442,6 @@ rm -fr %{buildroot}
 %{_initrddir}/wazuh-agent
 /usr/lib/systemd/system/wazuh-agent.service
 %defattr(-,root,root)
-%attr(640,root,ossec) %verify(not md5 size mtime) %{_sysconfdir}/ossec-init.conf
 %dir %attr(750,root,ossec) %{_localstatedir}
 %attr(750,root,ossec) %{_localstatedir}/agentless
 %dir %attr(770,root,ossec) %{_localstatedir}/.ssh
@@ -458,7 +457,6 @@ rm -fr %{buildroot}
 %attr(640,root,ossec) %{_localstatedir}/etc/localtime
 %attr(640,root,ossec) %config(noreplace) %{_localstatedir}/etc/local_internal_options.conf
 %attr(660,root,ossec) %config(noreplace) %{_localstatedir}/etc/ossec.conf
-%{_localstatedir}/etc/ossec-init.conf
 %attr(640,root,ossec) %{_localstatedir}/etc/wpk_root.pem
 %dir %attr(770,root,ossec) %{_localstatedir}/etc/shared
 %attr(660,root,ossec) %config(missingok,noreplace) %{_localstatedir}/etc/shared/*

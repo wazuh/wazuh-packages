@@ -68,10 +68,13 @@ override_dh_install:
 
 	# Copying init.d script
 	mkdir -p ${TARGET_DIR}/etc/init.d/
-	cp src/init/ossec-hids-debian.init ${TARGET_DIR}/etc/init.d/wazuh-manager
+	sed -i "s:WAZUH_HOME_TMP:${INSTALLATION_DIR}:g" src/init/templates/ossec-hids-debian.init
+	cp src/init/templates/ossec-hids-debian.init ${TARGET_DIR}/etc/init.d/wazuh-manager
+
 	# Copying systemd file
 	mkdir -p ${TARGET_DIR}/usr/lib/systemd/system/
-	install -m 0644 src/systemd/wazuh-manager.service ${TARGET_DIR}/usr/lib/systemd/system/
+	sed -i "s:WAZUH_HOME_TMP:${INSTALLATION_DIR}:g" src/init/templates/wazuh-manager.service
+	install -m 0644 src/init/templates/wazuh-manager.service ${TARGET_DIR}/usr/lib/systemd/system/
 
 	# Generating permission restoration file for postinstall
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/
@@ -183,9 +186,6 @@ override_dh_install:
 	cp etc/templates/config/ubuntu/12/04/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/ubuntu/12/04
 	cp etc/templates/config/ubuntu/14/04/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/ubuntu/14/04
 	cp etc/templates/config/ubuntu/16/04/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/ubuntu/16/04
-
-	# Copy ossec-init.conf
-	cp /etc/ossec-init.conf ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)
 
 override_dh_fixperms:
 	dh_fixperms
