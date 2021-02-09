@@ -124,6 +124,13 @@ build_curl() {
   cd .. && rm -rf curl-7.72.0*
 }
 
+build_cmake() {
+  curl -OL http://packages.wazuh.com/utils/cmake/cmake-3.12.4.tar.gz
+  gtar -zxvf cmake-3.12.4.tar.gz && cd cmake-3.12.4
+  ./bootstrap && gmake && gmake install && cd / && rm -rf cmake-3.12.4
+  ln -fs /usr/local/bin/cmake /usr/bin/cmake
+}
+
 # Function to build the compilation environment
 build_environment() {
 
@@ -202,6 +209,8 @@ build_environment() {
     $rpm http://www.oss4aix.org/download/RPMS/gcc/libgcc-6.3.0-1.aix6.1.ppc.rpm || true
     $rpm http://www.oss4aix.org/download/RPMS/gcc/libstdc++-6.3.0-1.aix6.1.ppc.rpm || true
     $rpm http://www.oss4aix.org/download/RPMS/gcc/libstdc++-devel-6.3.0-1.aix6.1.ppc.rpm || true
+    $rpm http://www.oss4aix.org/download/RPMS/gcc/gcc-c++-6.3.0-1.aix6.1.ppc.rpm || true
+
   fi
 
   if [[ "${aix_major}" = "7" ]] && [[ "${aix_minor}" = "1" ]]; then
@@ -210,6 +219,7 @@ build_environment() {
     $rpm http://www.oss4aix.org/download/RPMS/gcc/libgcc-6.3.0-1.aix7.1.ppc.rpm || true
     $rpm http://www.oss4aix.org/download/RPMS/gcc/libstdc++-6.3.0-1.aix7.1.ppc.rpm || true
     $rpm http://www.oss4aix.org/download/RPMS/gcc/libstdc++-devel-6.3.0-1.aix7.1.ppc.rpm || true
+    $rpm http://www.oss4aix.org/download/RPMS/gcc/gcc-c++-6.3.0-1.aix7.1.ppc.rpm || true
   fi
 
   if [[ "${aix_major}" = "7" ]] && [[ "${aix_minor}" = "2" ]]; then
@@ -218,6 +228,7 @@ build_environment() {
     $rpm http://www.oss4aix.org/download/RPMS/gcc/libgcc-6.3.0-1.aix7.2.ppc.rpm || true
     $rpm http://www.oss4aix.org/download/RPMS/gcc/libstdc++-6.3.0-1.aix7.2.ppc.rpm || true
     $rpm http://www.oss4aix.org/download/RPMS/gcc/libstdc++-devel-6.3.0-1.aix7.2.ppc.rpm || true
+    $rpm http://www.oss4aix.org/download/RPMS/gcc/gcc-c++-6.3.0-1.aix7.2.ppc.rpm || true
   fi
 
   if [[ "${aix_major}" = "5" ]]; then
@@ -226,6 +237,9 @@ build_environment() {
     build_curl
   fi
 
+  if [[ "${aix_major}" = "6" ]] || [[ "${aix_major}" = "7" ]]; then
+    build_cmake
+  fi
   return 0
 }
 

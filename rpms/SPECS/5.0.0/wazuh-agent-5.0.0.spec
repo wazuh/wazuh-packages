@@ -482,11 +482,18 @@ rm -fr %{buildroot}
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/diff
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/fim
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/fim/db
+%dir %attr(750,ossec,ossec) %{_localstatedir}/queue/syscollector
+%dir %attr(750,ossec,ossec) %{_localstatedir}/queue/syscollector/db
+%attr(640, root,ossec) %{_localstatedir}/queue/syscollector/norm_config.json
 %dir %attr(770,ossec,ossec) %{_localstatedir}/queue/alerts
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/rids
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/logcollector
 %dir %attr(750, root, ossec) %{_localstatedir}/ruleset/
 %dir %attr(750, root, ossec) %{_localstatedir}/ruleset/sca
+%attr(750, root, ossec) %{_localstatedir}/lib/libdbsync.so
+%attr(750, root, ossec) %{_localstatedir}/lib/librsync.so
+%attr(750, root, ossec) %{_localstatedir}/lib/libsyscollector.so
+%attr(750, root, ossec) %{_localstatedir}/lib/libsysinfo.so
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/applications
 %attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/applications/*
