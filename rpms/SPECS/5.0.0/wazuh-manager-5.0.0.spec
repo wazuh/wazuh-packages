@@ -281,6 +281,15 @@ if [ $1 = 2 ]; then
 fi
 
 %post
+if [ $1 = 2 ]; then
+  if [ -d %{_localstatedir}/logs/ossec ]; then
+    cp -rT %{_localstatedir}/logs/ossec/ %{_localstatedir}/logs/wazuh
+  fi
+
+  if [ -d %{_localstatedir}/queue/ossec ]; then
+    cp -rT %{_localstatedir}/queue/ossec/ %{_localstatedir}/queue/sockets
+  fi
+fi
 
 # Fresh install code block
 if [ $1 = 1 ]; then
@@ -524,6 +533,14 @@ if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
   else
     %{_localstatedir}/bin/wazuh-control restart > /dev/null 2>&1
   fi
+fi
+
+if [ -d %{_localstatedir}/logs/ossec ]; then
+  rm -rf %{_localstatedir}/logs/ossec/
+fi
+
+if [ -d %{_localstatedir}/queue/ossec ]; then
+  rm -rf %{_localstatedir}/queue/ossec/
 fi
 
 %triggerin -- glibc
