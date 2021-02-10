@@ -101,11 +101,23 @@ if [ $1 = 1 ]; then
 fi
 
 if [ $1 = 2 ]; then
-  touch %{_localstatedir}/tmp/wazuh.restart
-  /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
+  if %{_localstatedir}/bin/wazuh-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
+    /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
+    touch %{_localstatedir}/tmp/wazuh.restart
+  fi
 fi
 
 %post
+if [ $1 = 2 ]; then
+  if [ -d %{_localstatedir}/logs/ossec ]; then
+    cp -rT %{_localstatedir}/logs/ossec/ %{_localstatedir}/logs/wazuh
+  fi
+
+  if [ -d %{_localstatedir}/queue/ossec ]; then
+    cp -rT %{_localstatedir}/queue/ossec/ %{_localstatedir}/queue/sockets
+  fi
+fi
+
 # New installations
 if [ $1 = 1 ]; then
 
@@ -194,6 +206,14 @@ fi
 if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
   rm -f %{_localstatedir}/tmp/wazuh.restart
   /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
+fi
+
+if [ -d %{_localstatedir}/logs/ossec ]; then
+  rm -rf %{_localstatedir}/logs/ossec/
+fi
+
+if [ -d %{_localstatedir}/queue/ossec ]; then
+  rm -rf %{_localstatedir}/queue/ossec/
 fi
 
 %clean
