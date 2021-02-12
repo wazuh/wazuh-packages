@@ -243,7 +243,7 @@ case "$1" in
 
     #Delete obsolete files
     if [ -f /etc/ossec-init.conf ]; then
-        rm /etc/ossec-init.conf
+        rm -f /etc/ossec-init.conf
     fi
 
     # Delete installation scripts
