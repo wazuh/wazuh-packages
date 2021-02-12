@@ -188,7 +188,7 @@ installFilebeat() {
 
     logger "Installing Filebeat..."
 
-    $sys_type install filebeat-oss-"${ELK_VERSION}" -y -q
+    $sys_type install filebeat-"${ELK_VERSION}" -y -q
     if [ "$?" != 0 ]; then
         logger "Error: Filebeat installation failed"
         exit 1
