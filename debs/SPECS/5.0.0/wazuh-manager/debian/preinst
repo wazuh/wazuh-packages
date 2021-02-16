@@ -30,6 +30,9 @@ case "$1" in
             elif ${DIR}/bin/wazuh-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
                 ${DIR}/bin/wazuh-control stop > /dev/null 2>&1
                 touch ${WAZUH_TMP_DIR}/wazuh.restart
+            elif ${DIR}/bin/ossec-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
+                ${DIR}/bin/ossec-control stop > /dev/null 2>&1
+                touch ${WAZUH_TMP_DIR}/wazuh.restart
             fi
 
             # Delete old API backups

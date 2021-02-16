@@ -204,6 +204,9 @@ if [ $1 = 2 ]; then
   elif %{_localstatedir}/bin/wazuh-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
     %{_localstatedir}/bin/wazuh-control stop > /dev/null 2>&1
     touch %{_localstatedir}/tmp/wazuh.restart
+  elif %{_localstatedir}/bin/ossec-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
+    %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
+    touch %{_localstatedir}/tmp/wazuh.restart
   fi
 fi
 
