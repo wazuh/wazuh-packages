@@ -136,8 +136,6 @@ if [ $1 = 1 ]; then
   chown ossec:ossec %{_localstatedir}/logs/active-responses.log
   chmod 0660 %{_localstatedir}/logs/active-responses.log
 
-  %{_localstatedir}/tmp/src/init/register_configure_agent.sh %{_localstatedir} > /dev/null || :
-
 fi
 chown root:ossec %{_localstatedir}/etc/ossec.conf
 ln -fs /etc/rc.d/init.d/wazuh-agent /etc/rc.d/rc2.d/S97wazuh-agent

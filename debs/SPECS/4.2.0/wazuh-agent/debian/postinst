@@ -119,12 +119,7 @@ case "$1" in
         if [ $(getenforce) !=  "Disabled" ]; then
             semodule -i ${DIR}/var/selinux/wazuh.pp
             semodule -e wazuh
-        fi
-    fi
-
-    # Register and configure agent if Wazuh environment variables are defined
-    if [ -z "$2" ] ; then
-        ${SCRIPTS_DIR}/src/init/register_configure_agent.sh ${DIR} > /dev/null || :
+        fi  
     fi
 
     # Restoring file permissions

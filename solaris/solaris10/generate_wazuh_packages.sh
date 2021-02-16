@@ -155,7 +155,7 @@ installation(){
     cd $SOURCE
 
     # Patch solaris 10 sh files to change the shebang
-    for file in $(find . -name "*.sh");do
+    for file in $(find . -name "*.sh" -o -name "wazuhctl");do
         sed 's:#!/bin/sh:#!/usr/xpg4/bin/sh:g' $file > $file.new
         mv $file.new $file && chmod +x $file
     done
