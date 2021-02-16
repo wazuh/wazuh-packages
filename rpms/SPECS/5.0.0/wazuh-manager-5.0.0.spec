@@ -652,7 +652,7 @@ rm -fr %{buildroot}
 %dir %attr(750, ossec, ossec) %{_localstatedir}/logs/alerts
 %dir %attr(750, ossec, ossec) %{_localstatedir}/logs/cluster
 %dir %attr(750, ossec, ossec) %{_localstatedir}/logs/firewall
-%dir %attr(750, ossec, ossec) %{_localstatedir}/logs/ossec
+%dir %attr(750, ossec, ossec) %{_localstatedir}/logs/wazuh
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/add_localfiles.sh
@@ -687,7 +687,7 @@ rm -fr %{buildroot}
 %dir %attr(750, ossec, ossec) %{_localstatedir}/queue/fts
 %dir %attr(770, ossecr, ossec) %{_localstatedir}/queue/rids
 %dir %attr(770, ossec, ossec) %{_localstatedir}/queue/tasks
-%dir %attr(770, ossec, ossec) %{_localstatedir}/queue/ossec
+%dir %attr(770, ossec, ossec) %{_localstatedir}/queue/sockets
 %dir %attr(660, root, ossec) %{_localstatedir}/queue/vulnerabilities
 %dir %attr(440, root, ossec) %{_localstatedir}/queue/vulnerabilities/dictionaries
 %dir %attr(750, ossec, ossec) %{_localstatedir}/queue/logcollector
