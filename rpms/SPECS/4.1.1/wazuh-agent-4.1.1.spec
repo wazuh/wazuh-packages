@@ -42,13 +42,13 @@ pushd src
 make clean
 
 %if 0%{?el} >= 6 || 0%{?rhel} >= 6
-    make deps
+    make deps TARGET=agent
     make -j%{_threads} TARGET=agent USE_SELINUX=yes PREFIX=%{_localstatedir} DEBUG=%{_debugenabled}
 %else
     %ifnarch x86_64
       MSGPACK="USE_MSGPACK_OPT=no"
     %endif
-    make deps RESOURCES_URL=http://packages.wazuh.com/deps/10
+    make deps RESOURCES_URL=http://packages.wazuh.com/deps/10 TARGET=agent
     make -j%{_threads} TARGET=agent USE_AUDIT=no USE_SELINUX=yes USE_EXEC_ENVIRON=no PREFIX=%{_localstatedir} DEBUG=%{_debugenabled} ${MSGPACK}
 
 %endif
