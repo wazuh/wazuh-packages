@@ -142,7 +142,7 @@ installation(){
     gmake clean
     check_version
     if [ "$deps_version" = "true" ]; then
-        gmake deps
+        gmake deps TARGET=agent
     fi
     arch="$(uname -p)"
     # Build the binaries
