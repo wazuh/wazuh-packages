@@ -99,7 +99,7 @@ check_version() {
   number_version=`echo "${wazuh_version}" | cut -d v -f 2`
   major=`echo $number_version | cut -d . -f 1`
   minor=`echo $number_version | cut -d . -f 2`
-  deps_version=`cat ${source_directory}/src/MAKEFILE | grep "DEPS_VERSION =" | cut -d " " -f 3`
+  deps_version=`cat ${source_directory}/src/Makefile | grep "DEPS_VERSION =" | cut -d " " -f 3`
 }
 
 compile() {
