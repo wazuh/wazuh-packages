@@ -20,7 +20,7 @@ if [[ "${DEBUG}" = "yes" ]]; then
     FLAGS+="-d "
 fi
 
-make -C /wazuh-*/src deps ${FLAGS}
+make -C /wazuh-*/src deps TARGET=winagent ${FLAGS}
 make -C /wazuh-*/src TARGET=winagent ${FLAGS}
 
 rm -rf /wazuh-*/src/external

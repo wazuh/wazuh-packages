@@ -39,7 +39,7 @@ pushd src
 make clean
 
 # Build Wazuh sources
-make deps PREFIX=%{_localstatedir}
+make deps PREFIX=%{_localstatedir} TARGET=server
 make -j%{_threads} TARGET=server USE_SELINUX=yes USE_FRAMEWORK_LIB=yes PREFIX=%{_localstatedir} DEBUG=%{_debugenabled}
 
 popd
