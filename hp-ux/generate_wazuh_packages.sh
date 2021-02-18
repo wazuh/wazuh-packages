@@ -115,7 +115,7 @@ compile() {
     config
     check_version
     if [ "$deps_version" = "true" ]; then
-        gmake deps RESOURCES_URL=http://packages.wazuh.com/deps/$major.$minor
+        gmake deps TARGET=agent RESOURCES_URL=http://packages.wazuh.com/deps/$major.$minor
     fi
 
     gmake TARGET=agent USE_SELINUX=no DISABLE_SHARED=yes

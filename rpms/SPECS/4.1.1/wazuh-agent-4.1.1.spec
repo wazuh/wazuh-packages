@@ -42,7 +42,7 @@ pushd src
 make clean
 
 %if 0%{?el} >= 6 || 0%{?rhel} >= 6
-    make deps
+    make deps TARGET=agent
     make -j%{_threads} TARGET=agent USE_SELINUX=yes PREFIX=%{_localstatedir} DEBUG=%{_debugenabled}
 %else
     %ifnarch x86_64

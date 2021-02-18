@@ -165,7 +165,7 @@ main() {
     if [ "${NO_COMPILE}" == false ]; then
         # Execute gmake deps if the version is greater or equal to 3.5
         if [[ ${MAJOR} -ge 4 || (${MAJOR} -ge 3 && ${MINOR} -ge 5) ]]; then
-            make -C src deps
+            make -C src deps TARGET=${BUILD_TARGET}
         fi
 
         # Compile agent
