@@ -209,11 +209,11 @@ fi
 %post
 if [ $1 = 2 ]; then
   if [ -d %{_localstatedir}/logs/ossec ]; then
-    cp -rT %{_localstatedir}/logs/ossec/ %{_localstatedir}/logs/wazuh
+    mv %{_localstatedir}/logs/ossec/* %{_localstatedir}/logs/wazuh
   fi
 
   if [ -d %{_localstatedir}/queue/ossec ]; then
-    cp -rT %{_localstatedir}/queue/ossec/ %{_localstatedir}/queue/sockets
+    mv %{_localstatedir}/queue/ossec/* %{_localstatedir}/queue/sockets
   fi
 fi
 # If the package is being installed
