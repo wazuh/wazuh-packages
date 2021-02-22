@@ -35,7 +35,7 @@ function build() {
     configure
 
     if [ -z "${USER_BINARYINSTALL}" ]; then
-        make -C ${SOURCES_PATH}/src deps
+        make -C ${SOURCES_PATH}/src deps TARGET=agent
 
         echo "Generating Wazuh executables"
         make -j$JOBS -C ${SOURCES_PATH}/src DYLD_FORCE_FLAT_NAMESPACE=1 TARGET=agent PREFIX=${DESTINATION_PATH} build
@@ -71,7 +71,7 @@ function build() {
     cp ${SOURCES_PATH}/etc/templates/config/darwin/18/sca.files ${INSTALLATION_SCRIPTS_DIR}/sca/darwin/18/
     cp ${SOURCES_PATH}/etc/templates/config/darwin/19/sca.files ${INSTALLATION_SCRIPTS_DIR}/sca/darwin/19/
     cp ${SOURCES_PATH}/etc/templates/config/darwin/20/sca.files ${INSTALLATION_SCRIPTS_DIR}/sca/darwin/20/
-    
+
     cp ${SOURCES_PATH}/src/VERSION ${INSTALLATION_SCRIPTS_DIR}/src/
     cp ${SOURCES_PATH}/src/REVISION ${INSTALLATION_SCRIPTS_DIR}/src/
     cp ${SOURCES_PATH}/src/LOCATION ${INSTALLATION_SCRIPTS_DIR}/src/
