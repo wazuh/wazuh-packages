@@ -121,7 +121,7 @@ build_package(){
 
     # Build the package
     yarn
-    yarn build
+    KIBANA_VERSION=${kibana_version} yarn build
 
     find ${build_dir} -name "*.zip" -exec mv {} ${destination_dir}/${wazuh_app_pkg_name} \;
 
