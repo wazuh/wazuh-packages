@@ -27,6 +27,14 @@ fi
 if [ $(launchctl getenv WAZUH_PKG_UPGRADE) = true ]; then
     mkdir -p ${DIR}/config_files/
     cp -r ${DIR}/etc/{ossec.conf,client.keys,local_internal_options.conf,shared} ${DIR}/config_files/
+
+    if [ -d ${DIR}/logs/ossec ]; then
+        mv ${DIR}/logs/ossec ${DIR}/logs/wazuh
+    fi
+    
+    if [ -d ${DIR}/queue/ossec ]; then
+        mv ${DIR}/queue/ossec ${DIR}/queue/sockets
+    fi
 fi
 
 if [ $(launchctl getenv WAZUH_PKG_UPGRADE) = true ]; then
