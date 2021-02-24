@@ -190,7 +190,6 @@ if [ $1 = 0 ];then
   rm -rf %{_localstatedir}/ruleset
 fi
 
-%posttrans
 if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
   rm -f %{_localstatedir}/tmp/wazuh.restart
   /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
