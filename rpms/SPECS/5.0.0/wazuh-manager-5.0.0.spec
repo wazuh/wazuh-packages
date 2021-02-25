@@ -284,6 +284,15 @@ if [ $1 = 2 ]; then
 fi
 
 %post
+if [ $1 = 2 ]; then
+  if [ -d %{_localstatedir}/logs/ossec ]; then
+    mv %{_localstatedir}/logs/ossec/* %{_localstatedir}/logs/wazuh
+  fi
+
+  if [ -d %{_localstatedir}/queue/ossec ]; then
+    mv %{_localstatedir}/queue/ossec/* %{_localstatedir}/queue/sockets
+  fi
+fi
 
 # Fresh install code block
 if [ $1 = 1 ]; then
@@ -529,6 +538,14 @@ if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
   fi
 fi
 
+if [ -d %{_localstatedir}/logs/ossec ]; then
+  rm -rf %{_localstatedir}/logs/ossec/
+fi
+
+if [ -d %{_localstatedir}/queue/ossec ]; then
+  rm -rf %{_localstatedir}/queue/ossec/
+fi
+
 %triggerin -- glibc
 [ -r %{_sysconfdir}/localtime ] && cp -fpL %{_sysconfdir}/localtime %{_localstatedir}/etc
  chown root:ossec %{_localstatedir}/etc/localtime
@@ -638,7 +655,7 @@ rm -fr %{buildroot}
 %dir %attr(750, ossec, ossec) %{_localstatedir}/logs/alerts
 %dir %attr(750, ossec, ossec) %{_localstatedir}/logs/cluster
 %dir %attr(750, ossec, ossec) %{_localstatedir}/logs/firewall
-%dir %attr(750, ossec, ossec) %{_localstatedir}/logs/ossec
+%dir %attr(750, ossec, ossec) %{_localstatedir}/logs/wazuh
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/add_localfiles.sh
@@ -673,7 +690,7 @@ rm -fr %{buildroot}
 %dir %attr(750, ossec, ossec) %{_localstatedir}/queue/fts
 %dir %attr(770, ossecr, ossec) %{_localstatedir}/queue/rids
 %dir %attr(770, ossec, ossec) %{_localstatedir}/queue/tasks
-%dir %attr(770, ossec, ossec) %{_localstatedir}/queue/ossec
+%dir %attr(770, ossec, ossec) %{_localstatedir}/queue/sockets
 %dir %attr(660, root, ossec) %{_localstatedir}/queue/vulnerabilities
 %dir %attr(440, root, ossec) %{_localstatedir}/queue/vulnerabilities/dictionaries
 %dir %attr(750, ossec, ossec) %{_localstatedir}/queue/logcollector
