@@ -77,7 +77,6 @@ cp src/init/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/src/init
 # Add installation scripts
 cp src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/src/
 cp src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/src/
-cp src/LOCATION ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/src/
 
 exit 0
 
