@@ -23,7 +23,7 @@ Wazuh is an open source security monitoring solution for threat detection, integ
 %setup -q
 deps_version=`cat src/Makefile | grep "DEPS_VERSION =" | cut -d " " -f 3`
 cd src && gmake clean && gmake deps RESOURCES_URL=http://packages.wazuh.com/deps/${deps_version} TARGET=agent
-gmake TARGET=agent USE_SELINUX=no INSTALLDIR=%{_localstatedir} DISABLE_SHARED=yes DISABLE_SYSC=yes
+gmake TARGET=agent USE_SELINUX=no DISABLE_SHARED=yes DISABLE_SYSC=yes
 cd ..
 
 %install

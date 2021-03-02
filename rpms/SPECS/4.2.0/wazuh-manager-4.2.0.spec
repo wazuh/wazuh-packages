@@ -39,7 +39,7 @@ make clean
 
 # Build Wazuh sources
 make deps TARGET=server
-make -j%{_threads} TARGET=server USE_SELINUX=yes INSTALLDIR=%{_localstatedir} DEBUG=%{_debugenabled}
+make -j%{_threads} TARGET=server USE_SELINUX=yes DEBUG=%{_debugenabled}
 
 popd
 
