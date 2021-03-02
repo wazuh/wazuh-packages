@@ -74,7 +74,6 @@ function build() {
 
     cp ${SOURCES_PATH}/src/VERSION ${INSTALLATION_SCRIPTS_DIR}/src/
     cp ${SOURCES_PATH}/src/REVISION ${INSTALLATION_SCRIPTS_DIR}/src/
-    cp ${SOURCES_PATH}/src/LOCATION ${INSTALLATION_SCRIPTS_DIR}/src/
 }
 
 build
