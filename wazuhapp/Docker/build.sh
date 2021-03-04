@@ -87,7 +87,6 @@ install_dependencies () {
     cd ${kibana_dir}
     change_node_version $kibana_node_version
     sudo npm install -g "yarn@${kibana_yarn_version}"
-    yarn config set network-timeout 600000 -g
     yarn kbn bootstrap --skip-kibana-plugins --oss
 }
 
