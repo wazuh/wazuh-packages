@@ -26,6 +26,7 @@ wazuh_version=""
 kibana_version=""
 wazuh_app_node_version=""
 kibana_yarn_version=""
+kibana_node_version=""
 
 
 change_node_version () {
@@ -59,10 +60,13 @@ prepare_env() {
     kibana_package_json_url="${kibana_app_raw_repo_url}/v${kibana_version}/package.json"
 
     echo "Downloading package.json from elastic/kibana repository"
-    if ! curl $kibana_package_json_url -o "/tmp/package.json" ; then
+    if ! sudo curl $kibana_package_json_url -o "/tmp/package.json" ; then
         echo "Error downloading package.json from GitHub."
         exit 1
     fi
+
+    kibana_node_version=$(python -c 'import json, os; f=open("/tmp/package.json"); pkg=json.load(f); f.close();\
+                          print(pkg["engines"]["node"])')
 
     kibana_yarn_version=$(python -c 'import json, os; f=open("/tmp/package.json"); pkg=json.load(f); f.close();\
                           print(pkg["engines"]["yarn"])')
@@ -76,6 +80,7 @@ prepare_env() {
     }||{
         wazuh_app_node_version="8.14.0"
     }
+
 }
 
 
@@ -84,32 +89,30 @@ download_kibana_sources() {
         echo "Error downloading Kibana source code from elastic/kibana GitHub repository."
         exit 1
     fi
-
+    
     mkdir -p kibana_source/plugins
+    mv kibana_source ${kibana_dir}     
 }
 
 
 install_dependencies () {
-    npm install -g "yarn@${kibana_yarn_version}"
+    cd ${kibana_dir}
+    change_node_version $kibana_node_version
+    npm install -g "yarn@${kibana_yarn_version}"    
+    yarn kbn bootstrap --skip-kibana-plugins --oss -- --allow-root
 }
 
 
 download_wazuh_app_sources() {
-    if ! git clone $wazuh_app_clone_repo_url --branch ${wazuh_branch} --depth=1 kibana_source/plugins/wazuh ; then
+    if ! git clone $wazuh_app_clone_repo_url --branch ${wazuh_branch} --depth=1 ${kibana_dir}/plugins/wazuh ; then
         echo "Error downloading the source code from wazuh-kibana-app GitHub repository."
         exit 1
-    fi
-
-    mv kibana_source ${kibana_dir}
+    fi      
 }
 
 
 build_package(){
-
-    change_node_version $wazuh_app_node_version
-
-    unset NODE_ENV
-
+   
     cd $source_dir
 
     # Set pkg name
@@ -121,7 +124,7 @@ build_package(){
 
     # Build the package
     yarn
-    KIBANA_VERSION=${kibana_version} yarn build
+    KIBANA_VERSION=${kibana_version} yarn build --allow-root
 
     find ${build_dir} -name "*.zip" -exec mv {} ${destination_dir}/${wazuh_app_pkg_name} \;
 
