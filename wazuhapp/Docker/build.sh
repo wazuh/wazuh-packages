@@ -24,7 +24,6 @@ wazuh_app_package_json_url="${wazuh_app_raw_repo_url}/${wazuh_branch}/package.js
 # Script vars
 wazuh_version=""
 kibana_version=""
-wazuh_app_node_version=""
 kibana_yarn_version=""
 kibana_node_version=""
 
@@ -60,7 +59,7 @@ prepare_env() {
     kibana_package_json_url="${kibana_app_raw_repo_url}/v${kibana_version}/package.json"
 
     echo "Downloading package.json from elastic/kibana repository"
-    if ! sudo curl $kibana_package_json_url -o "/tmp/package.json" ; then
+    if ! curl $kibana_package_json_url -o "/tmp/package.json" ; then
         echo "Error downloading package.json from GitHub."
         exit 1
     fi
@@ -70,17 +69,6 @@ prepare_env() {
 
     kibana_yarn_version=$(python -c 'import json, os; f=open("/tmp/package.json"); pkg=json.load(f); f.close();\
                           print(pkg["engines"]["yarn"])')
-
-    {
-        wazuh_app_node_version=$(python -c 'import json, os; f=open("/tmp/package.json"); pkg=json.load(f); f.close();\
-                                 print(pkg["node_build"])')
-    }||{
-        wazuh_app_node_version=$(python -c 'import json, os; f=open("/tmp/package.json"); pkg=json.load(f); f.close();\
-                                 print(pkg["node"])')
-    }||{
-        wazuh_app_node_version="8.14.0"
-    }
-
 }
 
 
@@ -99,7 +87,7 @@ install_dependencies () {
     cd ${kibana_dir}
     change_node_version $kibana_node_version
     npm install -g "yarn@${kibana_yarn_version}"    
-    yarn kbn bootstrap --skip-kibana-plugins --oss -- --allow-root
+    yarn kbn bootstrap --skip-kibana-plugins --oss --allow-root
 }
 
 
