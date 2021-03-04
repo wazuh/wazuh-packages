@@ -92,7 +92,6 @@ install_dependencies () {
     npm install "yarn@${kibana_yarn_version}"
     export PATH=${kibana_dir}/node_modules/yarn/bin:$PATH
     echo "Updated PATH=${PATH}"
-    yarn config set network-timeout 600000 -g
     yarn kbn bootstrap --skip-kibana-plugins --oss
 }
 
