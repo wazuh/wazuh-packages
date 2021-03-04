@@ -6,11 +6,16 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7 && \
     yum install git nodejs gcc gcc-c++ make -y && \
     npm install -g n 
 
-ADD build.sh /
-RUN chmod +x /build.sh
+RUN useradd -ms /bin/bash builduser
+ADD build.sh /home/builduser
+RUN chmod +x /home/builduser/build.sh
+RUN chown builduser:builduser /home/builduser/build.sh
+
+USER builduser
+WORKDIR /home/builduser
 
 # Add the volumes
-RUN mkdir /wazuh_app /source
+RUN mkdir wazuh_app source
 
 # Set the entrypoint/
-ENTRYPOINT ["/build.sh"]
+ENTRYPOINT ["/home/builduser/build.sh"]

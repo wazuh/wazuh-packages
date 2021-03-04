@@ -8,10 +8,11 @@ checksum=$2
 app_revision=$3
 
 # Paths
+build_user_home="/home/builduser"
 kibana_dir="/tmp/source"
 source_dir="${kibana_dir}/plugins/wazuh"
 build_dir="${source_dir}/build"
-destination_dir="/wazuh_app"
+destination_dir="${build_user_home}/wazuh_app"
 checksum_dir="/var/local/checksum"
 
 # Repositories URLs
@@ -26,7 +27,7 @@ wazuh_version=""
 kibana_version=""
 kibana_yarn_version=""
 kibana_node_version=""
-
+export N_PREFIX=$HOME
 
 change_node_version () {
     installed_node_version="$(node -v)"
@@ -35,9 +36,11 @@ change_node_version () {
     n ${node_version}
 
     if [[ "${installed_node_version}" != "v${node_version}" ]]; then
-        mv /usr/local/bin/node /usr/bin
-        mv /usr/local/bin/npm /usr/bin
-        mv /usr/local/bin/npx /usr/bin
+	    export PATH=${build_user_home}/bin:$PATH
+	    echo "Updated PATH=${PATH}"
+    #    mv /usr/local/bin/node /usr/bin
+    #    mv /usr/local/bin/npm /usr/bin
+    #    mv /usr/local/bin/npx /usr/bin
     fi
 
     echo "Using $(node -v) node version"
@@ -86,8 +89,11 @@ download_kibana_sources() {
 install_dependencies () {
     cd ${kibana_dir}
     change_node_version $kibana_node_version
-    npm install -g "yarn@${kibana_yarn_version}"    
-    yarn kbn bootstrap --skip-kibana-plugins --oss --allow-root
+    npm install "yarn@${kibana_yarn_version}"
+    export PATH=${kibana_dir}/node_modules/yarn/bin:$PATH
+    echo "Updated PATH=${PATH}"
+    yarn config set network-timeout 600000 -g
+    yarn kbn bootstrap --skip-kibana-plugins --oss
 }
 
 
@@ -112,7 +118,7 @@ build_package(){
 
     # Build the package
     yarn
-    KIBANA_VERSION=${kibana_version} yarn build --allow-root
+    KIBANA_VERSION=${kibana_version} yarn build
 
     find ${build_dir} -name "*.zip" -exec mv {} ${destination_dir}/${wazuh_app_pkg_name} \;
 
