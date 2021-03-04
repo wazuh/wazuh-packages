@@ -27,6 +27,8 @@ wazuh_version=""
 kibana_version=""
 kibana_yarn_version=""
 kibana_node_version=""
+
+# Configure n to install on user's home
 export N_PREFIX=$HOME
 
 change_node_version () {
@@ -36,11 +38,9 @@ change_node_version () {
     n ${node_version}
 
     if [[ "${installed_node_version}" != "v${node_version}" ]]; then
+	    #Update PATH to use the locally installed node
 	    export PATH=${build_user_home}/bin:$PATH
 	    echo "Updated PATH=${PATH}"
-    #    mv /usr/local/bin/node /usr/bin
-    #    mv /usr/local/bin/npm /usr/bin
-    #    mv /usr/local/bin/npx /usr/bin
     fi
 
     echo "Using $(node -v) node version"
@@ -90,8 +90,11 @@ install_dependencies () {
     cd ${kibana_dir}
     change_node_version $kibana_node_version
     npm install "yarn@${kibana_yarn_version}"
+
+    # Update PATH to use the locally installed yarn
     export PATH=${kibana_dir}/node_modules/yarn/bin:$PATH
     echo "Updated PATH=${PATH}"
+
     yarn kbn bootstrap --skip-kibana-plugins --oss
 }
 
