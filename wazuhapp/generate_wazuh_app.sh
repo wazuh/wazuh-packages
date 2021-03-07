@@ -36,10 +36,18 @@ help() {
 
 build_package(){
 
+    export USER_ID=$(id -u)
+    export GROUP_ID=$(id -g)
     # Build the Docker image
-    docker build -t ${CONTAINER_NAME} ./Docker/
+    docker build --build-arg USER=$USER \
+                 --build-arg UID=$USER_ID \
+                 --build-arg GID=$GROUP_ID \
+	         -t ${CONTAINER_NAME} ./Docker/
     # Build the Wazuh Kibana app package using the build docker image
-    docker run --rm -t -v "${OUTDIR}":/wazuh_app:Z \
+    docker run \
+        --user $USER_ID:$GROUP_ID \
+        --workdir "/home/$USER" \
+	-it -t -v "${OUTDIR}":/home/$USER/wazuh_app:Z \
         -v ${CHECKSUMDIR}:/var/local/checksum:Z \
         ${CONTAINER_NAME} ${BRANCH_TAG} ${CHECKSUM} ${REVISION}
 

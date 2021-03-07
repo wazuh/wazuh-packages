@@ -8,11 +8,10 @@ checksum=$2
 app_revision=$3
 
 # Paths
-build_user_home="/home/builduser"
 kibana_dir="/tmp/source"
 source_dir="${kibana_dir}/plugins/wazuh"
 build_dir="${source_dir}/build"
-destination_dir="${build_user_home}/wazuh_app"
+destination_dir="${HOME}/wazuh_app"
 checksum_dir="/var/local/checksum"
 
 # Repositories URLs
@@ -45,6 +44,9 @@ change_node_version () {
 
 
 prepare_env() {
+    echo "Setting permissions for output directory"
+    sudo chown $(id -u):$(id -g) $destination_dir
+
     echo "Downloading package.json from wazuh-kibana app repository"
     if ! curl $wazuh_app_package_json_url -o "/tmp/package.json" ; then
         echo "Error downloading package.json from GitHub."
