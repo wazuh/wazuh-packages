@@ -86,7 +86,8 @@ download_kibana_sources() {
 install_dependencies () {
     cd ${kibana_dir}
     change_node_version $kibana_node_version
-    npm install -g "yarn@${kibana_yarn_version}"    
+    npm install -g "yarn@${kibana_yarn_version}"
+    sed -i 's/node scripts\/build_ts_refs && node scripts\/register_git_hook/node scripts\/build_ts_refs --allow-root/' ${kibana_dir}/package.json
     yarn kbn bootstrap --skip-kibana-plugins --oss --allow-root
 }
 
@@ -129,3 +130,4 @@ download_kibana_sources
 install_dependencies
 download_wazuh_app_sources
 build_package
+

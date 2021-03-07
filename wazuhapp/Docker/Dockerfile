@@ -3,7 +3,7 @@ FROM centos:7
 # Create the build directory and add file
 RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7 && \
     curl -sL https://rpm.nodesource.com/setup_10.x | bash - && \
-    yum install git nodejs gcc gcc-c++ make -y && \
+    yum install git nodejs gcc gcc-c++ make zip -y && \
     npm install -g n 
 
 ADD build.sh /
