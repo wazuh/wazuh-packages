@@ -146,19 +146,10 @@ installation(){
     fi
     arch="$(uname -p)"
     # Build the binaries
-
-    if [ "$major" -le "4" ] && [ "$minor" -le "1" ]; then
-        if [ "$arch" = "sparc" ]; then
-            gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no USE_BIG_ENDIAN=yes DISABLE_SHARED=yes || return 1
-        else
-            gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no DISABLE_SHARED=yes || return 1
-        fi
+    if [ "$arch" = "sparc" ]; then
+        gmake -j $THREADS TARGET=agent USE_SELINUX=no USE_BIG_ENDIAN=yes DISABLE_SHARED=yes || return 1
     else
-        if [ "$arch" = "sparc" ]; then
-            gmake -j $THREADS TARGET=agent USE_SELINUX=no USE_BIG_ENDIAN=yes DISABLE_SHARED=yes || return 1
-        else
-            gmake -j $THREADS TARGET=agent USE_SELINUX=no DISABLE_SHARED=yes || return 1
-        fi
+        gmake -j $THREADS TARGET=agent USE_SELINUX=no DISABLE_SHARED=yes || return 1
     fi
 
     cd $SOURCE
