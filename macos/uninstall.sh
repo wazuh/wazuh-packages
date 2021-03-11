@@ -1,8 +1,8 @@
 #/bin/sh
 
 ## Stop and remove application
-sudo /Library/Ossec/bin/ossec-control stop
-sudo /bin/rm -r /Library/Ossec*
+sudo /Users/0xk3vs3c/Ossec/bin/ossec-control stop
+sudo /bin/rm -r /Users/0xk3vs3c/Ossec*
 sudo /bin/rm /etc/ossec-init.conf
 
 ## stop and unload dispatcher

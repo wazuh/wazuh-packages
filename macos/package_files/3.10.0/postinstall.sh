@@ -10,7 +10,7 @@
 #  so the the list GroupMembership works properly
 GROUP="ossec"
 USER="ossec"
-DIR="/Library/Ossec"
+DIR="/Users/0xk3vs3c/Ossec"
 INSTALLATION_SCRIPTS_DIR="${DIR}/packages_files/agent_installation_scripts"
 SCA_BASE_DIR="${INSTALLATION_SCRIPTS_DIR}/sca"
 

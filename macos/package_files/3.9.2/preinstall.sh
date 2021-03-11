@@ -9,7 +9,7 @@
 # $1 is the message
 # $2 is the error code
 
-DIR="/Library/Ossec"
+DIR="/Users/0xk3vs3c/Ossec"
 
 if [ ! -d ${DIR} ]; then
     launchctl setenv WAZUH_PKG_UPGRADE false
@@ -64,8 +64,8 @@ if [[ ${new_uid} != ${new_gid} ]]
 fi
 
 # Stops the agent before upgrading it
-if [ -f /Library/Ossec/bin/ossec-control ]; then
-    /Library/Ossec/bin/ossec-control stop
+if [ -f /Users/0xk3vs3c/Ossec/bin/ossec-control ]; then
+    /Users/0xk3vs3c/Ossec/bin/ossec-control stop
 fi
 
 # Creating the group
@@ -129,7 +129,7 @@ sudo tee /Library/StartupItems/WAZUH/WAZUH <<-'EOF'
 . /etc/rc.common
 . /etc/ossec-init.conf
 if [ "X${DIRECTORY}" = "X" ]; then
-    DIRECTORY="/Library/Ossec"
+    DIRECTORY="/Users/0xk3vs3c/Ossec"
 fi
 
 StartService ()
@@ -184,7 +184,7 @@ sudo tee /Library/StartupItems/WAZUH/launcher.sh <<-'EOF'
 . /etc/ossec-init.conf
 
 if [ "X${DIRECTORY}" = "X" ]; then
-    DIRECTORY="/Library/Ossec"
+    DIRECTORY="/Users/0xk3vs3c/Ossec"
 fi
 
 capture_sigterm() {

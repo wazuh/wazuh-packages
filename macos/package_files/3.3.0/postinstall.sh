@@ -11,7 +11,7 @@
 
 GROUP="ossec"
 USER="ossec"
-DIR="/Library/Ossec/"
+DIR="/Users/0xk3vs3c/Ossec/"
 
 
 # Default for all directories

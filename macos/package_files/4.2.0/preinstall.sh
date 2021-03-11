@@ -9,7 +9,7 @@
 # $1 is the message
 # $2 is the error code
 
-DIR="/Library/Ossec"
+DIR="/Users/0xk3vs3c/Ossec"
 
 if [ ! -d ${DIR} ]; then
     launchctl setenv WAZUH_PKG_UPGRADE false
@@ -144,7 +144,7 @@ sudo tee /Library/StartupItems/WAZUH/WAZUH <<-'EOF'
 #!/bin/sh
 . /etc/rc.common
 
-DIRECTORY="/Library/Ossec"
+DIRECTORY="/Users/0xk3vs3c/Ossec"
 
 StartService ()
 {
@@ -195,7 +195,7 @@ chmod u=rw-,go=r-- /Library/StartupItems/WAZUH/StartupParameters.plist
 sudo tee /Library/StartupItems/WAZUH/launcher.sh <<-'EOF'
 #!/bin/sh
 
-DIRECTORY="/Library/Ossec"
+DIRECTORY="/Users/0xk3vs3c/Ossec"
 
 capture_sigterm() {
     ${DIRECTORY}/bin/wazuh-control stop

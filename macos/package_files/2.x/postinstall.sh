@@ -12,7 +12,7 @@
 GROUP="ossec"
 USER="ossec"
 subdirs="logs bin queue queue/ossec queue/alerts queue/syscheck queue/rids queue/diff tmp var var/run etc etc/shared active-response active-response/bin agentless .ssh"
-DIR="/Library/Ossec/"
+DIR="/Users/0xk3vs3c/Ossec/"
 
 
 # Default for all directories

@@ -99,7 +99,7 @@ sudo tee /Library/LaunchDaemons/com.wazuh.agent.plist <<-'EOF'
      <string>com.wazuh.agent</string>
      <key>ProgramArguments</key>
      <array>
-         <string>/Library/Ossec/bin/ossec-control</string>
+         <string>/Users/0xk3vs3c/Ossec/bin/ossec-control</string>
          <string>start</string>
      </array>
      <key>RunAtLoad</key>
@@ -118,7 +118,7 @@ sudo tee /Library/StartupItems/WAZUH/WAZUH <<-'EOF'
 . /etc/rc.common
 . /etc/ossec-init.conf
 if [ "X${DIRECTORY}" = "X" ]; then
-    DIRECTORY="/Library/Ossec"
+    DIRECTORY="/Users/0xk3vs3c/Ossec"
 fi
 
 StartService ()
