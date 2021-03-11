@@ -9,8 +9,6 @@ case "$1" in
     VER=$(lsb_release -sr)
     DIR="/var/ossec"
     USER="ossec"
-    USER_MAIL="ossecm"
-    USER_REM="ossecr"
     GROUP="ossec"
     WAZUH_GLOBAL_TMP_DIR="${DIR}/packages_files"
     WAZUH_TMP_DIR="${WAZUH_GLOBAL_TMP_DIR}/manager_config_files"
@@ -24,17 +22,11 @@ case "$1" in
         fi
     fi
 
-    if ! getent group | grep -q "^ossec" ; then
-        addgroup --system ossec  > /dev/null 2>&1
+    if ! getent group | grep -q "^wazuh" ; then
+        addgroup --system wazuh  > /dev/null 2>&1
     fi
-    if ! getent passwd | grep -q "^ossec" ; then
+    if ! getent passwd | grep -q "^wazuh" ; then
         adduser --system --home ${DIR} --shell ${OSMYSHELL} --ingroup ${GROUP} ${USER} > /dev/null 2>&1
-    fi
-    if ! getent passwd | grep -q "^ossecm" ; then
-        adduser --system --home ${DIR} --shell ${OSMYSHELL} --ingroup ${GROUP} ${USER_MAIL} > /dev/null 2>&1
-    fi
-    if ! getent passwd | grep -q "^ossecr" ; then
-        adduser --system --home ${DIR} --shell ${OSMYSHELL} --ingroup ${GROUP} ${USER_REM} > /dev/null 2>&1
     fi
 
     if [ -z "$2" ] || [ -f ${WAZUH_TMP_DIR}/create_conf ] ; then
@@ -72,7 +64,7 @@ case "$1" in
 
     if [ -f ${DIR}/queue/db/global.db ]; then
         chmod 640 ${DIR}/queue/db/global.db*
-        chown ossec:ossec ${DIR}/queue/db/global.db*
+        chown wazuh:wazuh ${DIR}/queue/db/global.db*
     fi
 
     # Delete uncompatible DBs versions
@@ -161,14 +153,14 @@ case "$1" in
 
     touch ${DIR}/logs/active-responses.log
     touch ${DIR}/logs/integrations.log
-    chown ossec:ossec ${DIR}/logs/active-responses.log
-    chown ossecm:ossec ${DIR}/logs/integrations.log
+    chown wazuh:wazuh ${DIR}/logs/active-responses.log
+    chown wazuh:wazuh ${DIR}/logs/integrations.log
     chmod 0660 ${DIR}/logs/active-responses.log
     chmod 0640 ${DIR}/logs/integrations.log
 
 
     if [ -f ${DIR}/etc/shared/ar.conf ]; then
-        chown root:ossec ${DIR}/etc/shared/ar.conf
+        chown root:wazuh ${DIR}/etc/shared/ar.conf
     fi
 
     # Check if SELinux is installed and enabled
