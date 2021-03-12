@@ -125,7 +125,7 @@ build() {
             build_rpm ${RPM_X86_BUILDER} ${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE} || return 1
         fi
 
-    elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]]; then
+    elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]] || [[ "${TARGET}" == "server" ]]; then
 
         BUILD_NAME=""
         FILE_PATH=""
@@ -158,7 +158,7 @@ build() {
         fi
         build_rpm ${BUILD_NAME} ${FILE_PATH} || return 1
     else
-        echo "Invalid target. Choose: manager, agent or api."
+        echo "Invalid target. Choose: manager, agent, server or api."
         return 1
     fi
 
@@ -170,7 +170,7 @@ help() {
     echo "Usage: $0 [OPTIONS]"
     echo
     echo "    -b, --branch <branch>        [Required] Select Git branch or tag e.g. $BRANCH"
-    echo "    -t, --target <target>        [Required] Target package to build [manager/api/agent]."
+    echo "    -t, --target <target>        [Required] Target package to build [manager/api/agent/server]."
     echo "    -a, --architecture <arch>    [Optional] Target architecture of the package [x86_64/i386/ppc64le/aarch64/armv7hl]."
     echo "    -r, --revision <rev>         [Optional] Package revision that append to version e.g. x.x.x-rev"
     echo "    -l, --legacy                 [Optional] Build package for CentOS 5."
