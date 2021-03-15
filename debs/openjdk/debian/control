@@ -1,0 +1,19 @@
+Source: wazuh-jdk
+Section: devel
+Priority: optional
+Maintainer: Wazuh, Inc <cicd@wazuh.com>
+Build-Depends: tar, curl
+Standards-Version: 3.9.8.0
+Homepage: http://www.wazuh.com
+
+Package: wazuh-jdk
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Architecture: any
+Description:Wazuh helps you to gain security visibility into your infrastructure
+  by monitoring hosts at an operating system and application level.
+  It provides the following capabilities:
+  - log analysis.
+  - file integrity monitoring.
+  - intrusions detection.
+  - policy and compliance monitoring.
+  - And much more.

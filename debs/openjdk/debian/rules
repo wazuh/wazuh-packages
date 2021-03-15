@@ -1,0 +1,61 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Sample debian/rules that uses debhelper.
+#
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+#
+# Modified to make a template file for a multi-binary package with separated
+# build-arch and build-indep targets  by Bill Allombert 2001
+
+# Uncomment this to turn on verbose mode.
+export DH_VERBOSE=1
+
+# This has to be exported to make some magic below work.
+export DH_OPTIONS
+export PKG_DIR=debian/wazuh-jdk
+
+export TARGET_DIR=${CURDIR}/${PKG_DIR}
+
+# Package build options
+export INSTALLATION_DIR="/var/wazuh/jdk"
+
+# -----------------------------------------------------------------------------
+
+%:
+	dh $@
+
+# Ignored debuild stages
+override_dh_shlibdeps:
+
+override_dh_auto_configure:
+
+override_dh_auto_install:
+
+override_dh_strip_nondeterminism:
+
+# -----------------------------------------------------------------------------
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym --exclude=dh_strip --no-automatic-dbgsym
+
+.PHONY: override_dh_strip override_dh_auto_clean override_dh_auto_build override_dh_auto_configure
+
+# -----------------------------------------------------------------------------
+
+override_dh_install:
+	rm -rf $(INSTALLATION_DIR)/
+
+	curl -sOL https://packages-dev.wazuh.com/deps/openjdk-11.0.2_linux-x64_bin.tar.gz
+	tar -zxf openjdk-11.0.2_linux-x64_bin.tar.gz
+
+	# Create directories
+	# Generating permission restoration file for postinstall
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_DIR)/
+
+	# Copy the installed files into build directory
+	cp -r jdk-11.0.2/* $(TARGET_DIR)$(INSTALLATION_DIR)/
+
+# -----------------------------------------------------------------------------

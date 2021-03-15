@@ -1,0 +1,5 @@
+wazuh-jdk: embedded-library
+wazuh-jdk: non-standard-dir-in-var
+wazuh-jdk: file-in-unusual-dir
+wazuh-jdk: hardening-no-fortify-functions
+wazuh-jdk: hardening-no-relro
