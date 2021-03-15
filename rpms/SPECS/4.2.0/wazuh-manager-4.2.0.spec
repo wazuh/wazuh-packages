@@ -80,7 +80,7 @@ curl -sL https://packages-dev.wazuh.com/deps/filebeat-home.tar.gz | tar zx
 
 # Move packages to directories
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/etc/wazuh-forwarder
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/usr/share/wazuh-forwarder
+mkdir -p ${RPM_BUILD_ROOT}%/usr/share/wazuh-forwarder
 
 # Copy files
 mv filebeat.yml filebeat.reference.yml modules.d ${RPM_BUILD_ROOT}%{_localstatedir}/etc/wazuh-forwarder
