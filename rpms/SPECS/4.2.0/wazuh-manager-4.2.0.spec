@@ -80,7 +80,7 @@ curl -sL https://packages-dev.wazuh.com/deps/filebeat-home.tar.gz | tar zx
 
 # Move packages to directories
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/etc/wazuh-forwarder
-mkdir -p ${RPM_BUILD_ROOT}%/usr/share/wazuh-forwarder
+mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-forwarder
 
 # Copy files
 mv filebeat.yml filebeat.reference.yml modules.d ${RPM_BUILD_ROOT}%{_localstatedir}/etc/wazuh-forwarder
@@ -816,19 +816,21 @@ rm -fr %{buildroot}
 %attr(750, root, ossec) %{_localstatedir}/wodles/gcloud/*
 
 %dir %attr(755, root, root) %{_localstatedir}/etc/wazuh-forwarder
-%attr(755, root, root) %{_localstatedir}/etc/wazuh-forwarder/*
+%attr(644, root, root) %{_localstatedir}/etc/wazuh-forwarder/filebeat.reference.yml
+%attr(644, root, root) %{_localstatedir}/etc/wazuh-forwarder/filebeat.yml
 
 %dir %attr(755, root, root) %{_localstatedir}/etc/wazuh-forwarder/modules.d
-%attr(755, root, root) %{_localstatedir}/etc/wazuh-forwarder/modules.d/*
+%attr(644, root, root) %{_localstatedir}/etc/wazuh-forwarder/modules.d/*
 
 %dir %attr(755, root, root) /usr/share/wazuh-forwarder
-%attr(755, root, root) /usr/share/wazuh-forwarder/*
+%attr(644, root, root) /usr/share/wazuh-forwarder/README.md
+%attr(644, root, root) /usr/share/wazuh-forwarder/NOTICE.txt
+%attr(644, root, root) /usr/share/wazuh-forwarder/LICENSE.txt
 
 %dir %attr(755, root, root) /usr/share/wazuh-forwarder/bin
-%attr(755, root, root) /usr/share/wazuh-forwarder/bin/*
-
+%attr(755, root, root) /usr/share/wazuh-forwarder/bin/filebeat
 %dir %attr(755, root, root) /usr/share/wazuh-forwarder/module
-%attr(755, root, root) /usr/share/wazuh-forwarder/module/*
+%attr(644, root, root) /usr/share/wazuh-forwarder/module/*
 
 %if %{_debugenabled} == "yes"
 /usr/lib/debug/%{_localstatedir}/*
