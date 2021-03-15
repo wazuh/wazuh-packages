@@ -84,7 +84,7 @@ mkdir -p ${RPM_BUILD_ROOT}%/usr/share/wazuh-forwarder
 
 # Copy files
 mv filebeat.yml filebeat.reference.yml modules.d ${RPM_BUILD_ROOT}%{_localstatedir}/etc/wazuh-forwarder
-mv bin LICENSE.txt module NOTICE.txt README.md ${RPM_BUILD_ROOT}%{_localstatedir}/usr/share/wazuh-forwarder
+mv bin LICENSE.txt module NOTICE.txt README.md ${RPM_BUILD_ROOT}/usr/share/wazuh-forwarder
 
 # Copy the installed files into RPM_BUILD_ROOT directory
 cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
