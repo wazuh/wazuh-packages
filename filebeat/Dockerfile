@@ -8,6 +8,7 @@ RUN yum update -y && \
     mkdir /pkg
 
 COPY ./entrypoint.sh /usr/bin/entrypoint.sh
+COPY ./wazuh-forwarder.service /pkg
 
 RUN chmod +x /usr/bin/entrypoint.sh
 

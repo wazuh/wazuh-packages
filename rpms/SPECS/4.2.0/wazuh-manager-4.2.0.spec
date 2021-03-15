@@ -75,16 +75,28 @@ mkdir -p ${RPM_BUILD_ROOT}%{_initrddir}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.ssh
 
 # Download pre-compiled filebeat
-curl -sL https://packages-dev.wazuh.com/deps/filebeat-conf.tar.gz | tar zx
-curl -sL https://packages-dev.wazuh.com/deps/filebeat-home.tar.gz | tar zx
+curl -sL https://packages-dev.wazuh.com/deps/filebeat-test/filebeat-conf.tar.gz | tar zx
+curl -sL https://packages-dev.wazuh.com/deps/filebeat-test/filebeat-home.tar.gz | tar zx
+
+# Download filebeat Wazuh module
+curl -sL https://packages.wazuh.com/4.x/filebeat/wazuh-filebeat-0.1.tar.gz | tar -xz
+
+# Download wazuh-template.json 
+curl -so wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/4.1/extensions/elasticsearch/7.x/wazuh-template.json
+chmod go+r wazuh-template.json
+
+# Download service template
+curl -so wazuh-forwarder.service https://packages-dev.wazuh.com/deps/filebeat-test/wazuh-forwarder.service
 
 # Move packages to directories
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/etc/wazuh-forwarder
 mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-forwarder
 
 # Copy files
-mv filebeat.yml filebeat.reference.yml modules.d ${RPM_BUILD_ROOT}%{_localstatedir}/etc/wazuh-forwarder
-mv bin LICENSE.txt module NOTICE.txt README.md ${RPM_BUILD_ROOT}/usr/share/wazuh-forwarder
+mv wazuh-template.json filebeat.reference.yml modules.d ${RPM_BUILD_ROOT}%{_localstatedir}/etc/wazuh-forwarder
+mv wazuh bin LICENSE.txt module NOTICE.txt README.md ${RPM_BUILD_ROOT}/usr/share/wazuh-forwarder
+curl -so ${RPM_BUILD_ROOT}%{_localstatedir}/etc/wazuh-forwarder/filebeat.yml https://packages-dev.wazuh.com/deps/filebeat-test/filebeat.yml
+
 
 # Copy the installed files into RPM_BUILD_ROOT directory
 cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
@@ -93,6 +105,7 @@ sed -i "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/ossec-hids-rh.i
 install -m 0755 src/init/templates/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-manager
 sed -i "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/wazuh-manager.service
 install -m 0644 src/init/templates/wazuh-manager.service ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
+install -m 0644 wazuh-forwarder.service ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
 
 # Clean the preinstalled configuration assesment files
 rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ruleset/sca/*
@@ -570,6 +583,7 @@ rm -fr %{buildroot}
 %files
 %{_initrddir}/wazuh-manager
 /usr/lib/systemd/system/wazuh-manager.service
+/usr/lib/systemd/system/wazuh-forwarder.service
 %defattr(-,root,ossec)
 %dir %attr(750, root, ossec) %{_localstatedir}
 %attr(750, root, ossec) %{_localstatedir}/agentless
@@ -818,6 +832,7 @@ rm -fr %{buildroot}
 %dir %attr(755, root, root) %{_localstatedir}/etc/wazuh-forwarder
 %attr(644, root, root) %{_localstatedir}/etc/wazuh-forwarder/filebeat.reference.yml
 %attr(644, root, root) %{_localstatedir}/etc/wazuh-forwarder/filebeat.yml
+%attr(644, root, root) %{_localstatedir}/etc/wazuh-forwarder/wazuh-template.json
 
 %dir %attr(755, root, root) %{_localstatedir}/etc/wazuh-forwarder/modules.d
 %attr(644, root, root) %{_localstatedir}/etc/wazuh-forwarder/modules.d/*
