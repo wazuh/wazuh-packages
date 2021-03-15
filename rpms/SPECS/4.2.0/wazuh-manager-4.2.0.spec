@@ -847,6 +847,15 @@ rm -fr %{buildroot}
 %dir %attr(755, root, root) /usr/share/wazuh-forwarder/module
 %attr(644, root, root) /usr/share/wazuh-forwarder/module/*
 
+%dir %attr(755, root, root) /usr/share/wazuh-forwarder/wazuh
+%attr(644, root, root) /usr/share/wazuh-forwarder/wazuh/module.yml
+%dir %attr(755, root, root) /usr/share/wazuh-forwarder/wazuh/_meta
+%attr(644, root, root) /usr/share/wazuh-forwarder/wazuh/_meta/*
+%dir %attr(755, root, root) /usr/share/wazuh-forwarder/wazuh/archives
+%attr(644, root, root) /usr/share/wazuh-forwarder/wazuh/archives/*
+%dir %attr(755, root, root) /usr/share/wazuh-forwarder/wazuh/alerts
+%attr(644, root, root) /usr/share/wazuh-forwarder/wazuh/alerts/*
+
 %if %{_debugenabled} == "yes"
 /usr/lib/debug/%{_localstatedir}/*
 /usr/src/debug/%{name}-%{version}/*
