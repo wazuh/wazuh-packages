@@ -1,0 +1,16 @@
+[Unit]
+Description=Wazuh forwarder send logs to Logstash or directly to Elasticsearch.
+Documentation=https://documentation.wazuh.com/current/user-manual/
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+
+Environment="BEAT_LOG_OPTS="
+Environment="BEAT_CONFIG_OPTS=-c /var/ossec/etc/wazuh-forwarder/filebeat.yml"
+Environment="BEAT_PATH_OPTS=--path.home /usr/share/wazuh-forwarder --path.config /var/ossec/etc/wazuh-forwarder --path.data /var/lib/filebeat --path.logs /var/log/filebeat"
+ExecStart=/usr/share/wazuh-forwarder/bin/filebeat --environment systemd $BEAT_LOG_OPTS $BEAT_CONFIG_OPTS $BEAT_PATH_OPTS
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
