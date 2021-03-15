@@ -74,16 +74,16 @@ echo 'USER_CREATE_SSL_CERT="n"' >> ./etc/preloaded-vars.conf
 mkdir -p ${RPM_BUILD_ROOT}%{_initrddir}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.ssh
 
-# Download pre-compiled filebeat
-curl -sL https://packages-dev.wazuh.com/deps/filebeat-conf.tar.gz | tar zx
-curl -sL https://packages-dev.wazuh.com/deps/filebeat-home.tar.gz | tar zx
+# Download pre-compiled wazuh-forwarder
+curl -sL https://packages-dev.wazuh.com/deps/wazuh-forwarder-conf.tar.gz | tar zx
+curl -sL https://packages-dev.wazuh.com/deps/wazuh-forwarder-home.tar.gz | tar zx
 
 # Move packages to directories
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/etc/wazuh-forwarder
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/usr/share/wazuh-forwarder
 
 # Copy files
-mv filebeat.yml filebeat.reference.yml modules.d ${RPM_BUILD_ROOT}%{_localstatedir}/etc/wazuh-forwarder
+mv wazuh-forwarder.yml wazuh-forwarder.reference.yml modules.d ${RPM_BUILD_ROOT}%{_localstatedir}/etc/wazuh-forwarder
 mv bin LICENSE.txt module NOTICE.txt README.md ${RPM_BUILD_ROOT}%{_localstatedir}/usr/share/wazuh-forwarder
 
 # Copy the installed files into RPM_BUILD_ROOT directory
@@ -815,20 +815,20 @@ rm -fr %{buildroot}
 %dir %attr(750, root, ossec) %{_localstatedir}/wodles/gcloud
 %attr(750, root, ossec) %{_localstatedir}/wodles/gcloud/*
 
-%dir %attr(755, root, root) %{_localstatedir}/etc/filebeat
-%attr(755, root, root) %{_localstatedir}/etc/filebeat/*
+%dir %attr(755, root, root) %{_localstatedir}/etc/wazuh-forwarder
+%attr(755, root, root) %{_localstatedir}/etc/wazuh-forwarder/*
 
-%dir %attr(755, root, root) %{_localstatedir}/etc/filebeat/modules.d
-%attr(755, root, root) %{_localstatedir}/etc/filebeat/modules.d/*
+%dir %attr(755, root, root) %{_localstatedir}/etc/wazuh-forwarder/modules.d
+%attr(755, root, root) %{_localstatedir}/etc/wazuh-forwarder/modules.d/*
 
-%dir %attr(755, root, root) /usr/share/filebeat
-%attr(755, root, root) /usr/share/filebeat/*
+%dir %attr(755, root, root) /usr/share/wazuh-forwarder
+%attr(755, root, root) /usr/share/wazuh-forwarder/*
 
-%dir %attr(755, root, root) /usr/share/filebeat/bin
-%attr(755, root, root) /usr/share/filebeat/bin/*
+%dir %attr(755, root, root) /usr/share/wazuh-forwarder/bin
+%attr(755, root, root) /usr/share/wazuh-forwarder/bin/*
 
-%dir %attr(755, root, root) /usr/share/filebeat/module
-%attr(755, root, root) /usr/share/filebeat/module/*
+%dir %attr(755, root, root) /usr/share/wazuh-forwarder/module
+%attr(755, root, root) /usr/share/wazuh-forwarder/module/*
 
 %if %{_debugenabled} == "yes"
 /usr/lib/debug/%{_localstatedir}/*
