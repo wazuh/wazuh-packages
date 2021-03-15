@@ -815,6 +815,21 @@ rm -fr %{buildroot}
 %dir %attr(750, root, ossec) %{_localstatedir}/wodles/gcloud
 %attr(750, root, ossec) %{_localstatedir}/wodles/gcloud/*
 
+%dir %attr(755, root, root) %{_localstatedir}/etc/filebeat
+%attr(755, root, root) %{_localstatedir}/etc/filebeat/*
+
+%dir %attr(755, root, root) %{_localstatedir}/etc/filebeat/modules.d
+%attr(755, root, root) %{_localstatedir}/etc/filebeat/modules.d/*
+
+%dir %attr(755, root, root) /usr/share/filebeat
+%attr(755, root, root) /usr/share/filebeat/*
+
+%dir %attr(755, root, root) /usr/share/filebeat/bin
+%attr(755, root, root) /usr/share/filebeat/bin/*
+
+%dir %attr(755, root, root) /usr/share/filebeat/module
+%attr(755, root, root) /usr/share/filebeat/module/*
+
 %if %{_debugenabled} == "yes"
 /usr/lib/debug/%{_localstatedir}/*
 /usr/src/debug/%{name}-%{version}/*
