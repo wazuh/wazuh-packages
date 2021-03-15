@@ -74,9 +74,9 @@ echo 'USER_CREATE_SSL_CERT="n"' >> ./etc/preloaded-vars.conf
 mkdir -p ${RPM_BUILD_ROOT}%{_initrddir}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.ssh
 
-# Download pre-compiled wazuh-forwarder
-curl -sL https://packages-dev.wazuh.com/deps/wazuh-forwarder-conf.tar.gz | tar zx
-curl -sL https://packages-dev.wazuh.com/deps/wazuh-forwarder-home.tar.gz | tar zx
+# Download pre-compiled filebeat
+curl -sL https://packages-dev.wazuh.com/deps/filebeat-conf.tar.gz | tar zx
+curl -sL https://packages-dev.wazuh.com/deps/filebeat-home.tar.gz | tar zx
 
 # Move packages to directories
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/etc/wazuh-forwarder
