@@ -542,7 +542,7 @@ rm -fr %{buildroot}
 %files
 %{_initrddir}/wazuh-manager
 /usr/lib/systemd/system/wazuh-manager.service
-%defattr(-,root,ossec)
+%defattr(-, root, wazuh)
 %dir %attr(750, root, wazuh) %{_localstatedir}
 %attr(750, root, wazuh) %{_localstatedir}/agentless
 %dir %attr(750, root, wazuh) %{_localstatedir}/active-response
@@ -672,7 +672,7 @@ rm -fr %{buildroot}
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/fim/db
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/syscollector
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/syscollector/db
-%attr(640, root,ossec) %{_localstatedir}/queue/syscollector/norm_config.json
+%attr(640, root, wazuh) %{_localstatedir}/queue/syscollector/norm_config.json
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/fts
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/rids
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/tasks

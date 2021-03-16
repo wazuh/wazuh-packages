@@ -223,62 +223,62 @@ rm -fr %{buildroot}
 %files
 %{_init_scripts}/*
 
-%dir %attr(750,root,ossec) %{_localstatedir}
-%attr(750,root,ossec) %{_localstatedir}/agentless
-%dir %attr(770,root,ossec) %{_localstatedir}/.ssh
-%dir %attr(750,root,ossec) %{_localstatedir}/active-response
-%dir %attr(750,root,ossec) %{_localstatedir}/active-response/bin
-%attr(750,root,ossec) %{_localstatedir}/active-response/bin/*
-%dir %attr(750,root,system) %{_localstatedir}/bin
-%attr(750,root,system) %{_localstatedir}/bin/*
-%dir %attr(750,root,ossec) %{_localstatedir}/backup
-%dir %attr(770,ossec,ossec) %{_localstatedir}/etc
-%attr(640,root,ossec) %config(noreplace) %{_localstatedir}/etc/client.keys
-%attr(640,root,ossec) %{_localstatedir}/etc/internal_options*
-%attr(640,root,ossec) %config(noreplace) %{_localstatedir}/etc/local_internal_options.conf
-%attr(660,root,ossec) %config(noreplace) %{_localstatedir}/etc/ossec.conf
-%attr(640,root,ossec) %{_localstatedir}/etc/wpk_root.pem
-%dir %attr(770,root,ossec) %{_localstatedir}/etc/shared
-%attr(660,root,ossec) %config(missingok,noreplace) %{_localstatedir}/etc/shared/*
-%dir %attr(750,root,system) %{_localstatedir}/lib
-%dir %attr(770,ossec,ossec) %{_localstatedir}/logs
-%attr(660,ossec,ossec) %ghost %{_localstatedir}/logs/active-responses.log
-%attr(660,root,ossec) %ghost %{_localstatedir}/logs/ossec.log
-%attr(660,root,ossec) %ghost %{_localstatedir}/logs/ossec.json
-%dir %attr(750,ossec,ossec) %{_localstatedir}/logs/wazuh
-%dir %attr(750,root,ossec) %{_localstatedir}/queue
-%dir %attr(770,ossec,ossec) %{_localstatedir}/queue/sockets
-%dir %attr(750,ossec,ossec) %{_localstatedir}/queue/diff
-%dir %attr(750,ossec,ossec) %{_localstatedir}/queue/fim
-%dir %attr(750,ossec,ossec) %{_localstatedir}/queue/fim/db
-%dir %attr(750,ossec,ossec) %{_localstatedir}/queue/syscollector
-%dir %attr(750,ossec,ossec) %{_localstatedir}/queue/syscollector/db
-%attr(640, root,ossec) %{_localstatedir}/queue/syscollector/norm_config.json
-%dir %attr(770,ossec,ossec) %{_localstatedir}/queue/alerts
-%dir %attr(750,ossec,ossec) %{_localstatedir}/queue/rids
-%dir %attr(750,ossec,ossec) %{_localstatedir}/queue/logcollector
-%dir %attr(750, ossec, ossec) %{_localstatedir}/ruleset/sca
-%attr(640, root, ossec) %{_localstatedir}/ruleset/sca/*
-%dir %attr(1750,root,ossec) %{_localstatedir}/tmp
-%attr(750,root,system) %config(missingok) %{_localstatedir}/tmp/add_localfiles.sh
-%attr(750,root,system) %config(missingok) %{_localstatedir}/tmp/gen_ossec.sh
-%dir %attr(1750,root,ossec) %config(missingok) %{_localstatedir}/tmp/etc/templates
-%dir %attr(1750,root,ossec) %config(missingok) %{_localstatedir}/tmp/etc/templates/config
-%dir %attr(1750,root,ossec) %config(missingok) %{_localstatedir}/tmp/etc/templates/config/generic
-%attr(750,root,system) %config(missingok) %{_localstatedir}/tmp/etc/templates/config/generic/*.template
-%dir %attr(1750,root,ossec) %config(missingok) /var/ossec/tmp/etc/templates/config/generic/localfile-logs
-%attr(750,root,system) %config(missingok) /var/ossec/tmp/etc/templates/config/generic/localfile-logs/*.template
-%attr(750,root,system) %config(missingok) %{_localstatedir}/tmp/src/*
-%dir %attr(750,root,ossec) %{_localstatedir}/var
-%dir %attr(770,root,ossec) %{_localstatedir}/var/incoming
-%dir %attr(770,root,ossec) %{_localstatedir}/var/run
-%dir %attr(770,root,ossec) %{_localstatedir}/var/upgrade
-%dir %attr(770,root,ossec) %{_localstatedir}/var/wodles
-%dir %attr(750,root,ossec) %{_localstatedir}/wodles
-%dir %attr(750,root,ossec) %{_localstatedir}/wodles/aws
-%attr(750,root,ossec) %{_localstatedir}/wodles/aws/*
-%dir %attr(750, root, ossec) %{_localstatedir}/wodles/gcloud
-%attr(750, root, ossec) %{_localstatedir}/wodles/gcloud/*
+%dir %attr(750, root, wazuh) %{_localstatedir}
+%attr(750, root, wazuh) %{_localstatedir}/agentless
+%dir %attr(770, root, wazuh) %{_localstatedir}/.ssh
+%dir %attr(750, root, wazuh) %{_localstatedir}/active-response
+%dir %attr(750, root, wazuh) %{_localstatedir}/active-response/bin
+%attr(750, root, wazuh) %{_localstatedir}/active-response/bin/*
+%dir %attr(750, root,system) %{_localstatedir}/bin
+%attr(750, root,system) %{_localstatedir}/bin/*
+%dir %attr(750, root, wazuh) %{_localstatedir}/backup
+%dir %attr(770, wazuh, wazuh) %{_localstatedir}/etc
+%attr(640, root, wazuh) %config(noreplace) %{_localstatedir}/etc/client.keys
+%attr(640, root, wazuh) %{_localstatedir}/etc/internal_options*
+%attr(640, root, wazuh) %config(noreplace) %{_localstatedir}/etc/local_internal_options.conf
+%attr(660, root, wazuh) %config(noreplace) %{_localstatedir}/etc/ossec.conf
+%attr(640, root, wazuh) %{_localstatedir}/etc/wpk_root.pem
+%dir %attr(770, root, wazuh) %{_localstatedir}/etc/shared
+%attr(660, root, wazuh) %config(missingok,noreplace) %{_localstatedir}/etc/shared/*
+%dir %attr(750, root,system) %{_localstatedir}/lib
+%dir %attr(770, wazuh, wazuh) %{_localstatedir}/logs
+%attr(660, wazuh, wazuh) %ghost %{_localstatedir}/logs/active-responses.log
+%attr(660, root, wazuh) %ghost %{_localstatedir}/logs/ossec.log
+%attr(660, root, wazuh) %ghost %{_localstatedir}/logs/ossec.json
+%dir %attr(750, wazuh, wazuh) %{_localstatedir}/logs/wazuh
+%dir %attr(750, root, wazuh) %{_localstatedir}/queue
+%dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/sockets
+%dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/diff
+%dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/fim
+%dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/fim/db
+%dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/syscollector
+%dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/syscollector/db
+%attr(640, root, wazuh) %{_localstatedir}/queue/syscollector/norm_config.json
+%dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/alerts
+%dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/rids
+%dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/logcollector
+%dir %attr(750, wazuh, wazuh) %{_localstatedir}/ruleset/sca
+%attr(640, root, wazuh) %{_localstatedir}/ruleset/sca/*
+%dir %attr(1750, root, wazuh) %{_localstatedir}/tmp
+%attr(750, root,system) %config(missingok) %{_localstatedir}/tmp/add_localfiles.sh
+%attr(750, root,system) %config(missingok) %{_localstatedir}/tmp/gen_ossec.sh
+%dir %attr(1750, root, wazuh) %config(missingok) %{_localstatedir}/tmp/etc/templates
+%dir %attr(1750, root, wazuh) %config(missingok) %{_localstatedir}/tmp/etc/templates/config
+%dir %attr(1750, root, wazuh) %config(missingok) %{_localstatedir}/tmp/etc/templates/config/generic
+%attr(750, root,system) %config(missingok) %{_localstatedir}/tmp/etc/templates/config/generic/*.template
+%dir %attr(1750, root, wazuh) %config(missingok) /var/ossec/tmp/etc/templates/config/generic/localfile-logs
+%attr(750, root,system) %config(missingok) /var/ossec/tmp/etc/templates/config/generic/localfile-logs/*.template
+%attr(750, root,system) %config(missingok) %{_localstatedir}/tmp/src/*
+%dir %attr(750, root, wazuh) %{_localstatedir}/var
+%dir %attr(770, root, wazuh) %{_localstatedir}/var/incoming
+%dir %attr(770, root, wazuh) %{_localstatedir}/var/run
+%dir %attr(770, root, wazuh) %{_localstatedir}/var/upgrade
+%dir %attr(770, root, wazuh) %{_localstatedir}/var/wodles
+%dir %attr(750, root, wazuh) %{_localstatedir}/wodles
+%dir %attr(750, root, wazuh) %{_localstatedir}/wodles/aws
+%attr(750, root, wazuh) %{_localstatedir}/wodles/aws/*
+%dir %attr(750, root, wazuh) %{_localstatedir}/wodles/gcloud
+%attr(750, root, wazuh) %{_localstatedir}/wodles/gcloud/*
 
 
 %changelog

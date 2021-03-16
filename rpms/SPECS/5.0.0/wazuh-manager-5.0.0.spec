@@ -541,7 +541,7 @@ rm -fr %{buildroot}
 %files
 %{_initrddir}/wazuh-manager
 /usr/lib/systemd/system/wazuh-manager.service
-%defattr(-,root, wazuh)
+%defattr(-, root, wazuh)
 %dir %attr(750, root, wazuh) %{_localstatedir}
 %attr(750, root, wazuh) %{_localstatedir}/agentless
 %dir %attr(750, root, wazuh) %{_localstatedir}/active-response
