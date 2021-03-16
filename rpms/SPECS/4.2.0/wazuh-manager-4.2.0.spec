@@ -75,6 +75,8 @@ mkdir -p ${RPM_BUILD_ROOT}%{_initrddir}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.ssh
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/wazuh-forwarder
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/wazuh-forwarder/etc
+mkdir -p ${RPM_BUILD_ROOT}/var/log/wazuh-forwarder
+touch ${RPM_BUILD_ROOT}/var/log/wazuh-forwarder/wazuh-forwarder.log
 
 # Download pre-compiled filebeat filebeat-7.10.2-linux-x86_64
 curl -sL https://packages-dev.wazuh.com/deps/filebeat-test/filebeat-7.10.2-linux-x86_64.tar.gz | tar zx
@@ -856,6 +858,9 @@ rm -fr %{buildroot}
 %attr(644, root, root) %{_localstatedir}/wazuh-forwarder/module/wazuh/archives/*
 %dir %attr(755, root, root) %{_localstatedir}/wazuh-forwarder/module/wazuh/alerts
 %attr(644, root, root) %{_localstatedir}/wazuh-forwarder/module/wazuh/alerts/*
+
+%dir %attr(755, root, root) /var/log/wazuh-forwarder
+%attr(644, root, root) /var/log/wazuh-forwarder/wazuh-forwarder.log
 
 %if %{_debugenabled} == "yes"
 /usr/lib/debug/%{_localstatedir}/*
