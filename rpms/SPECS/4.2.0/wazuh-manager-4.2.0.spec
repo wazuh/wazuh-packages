@@ -73,10 +73,11 @@ echo 'USER_CREATE_SSL_CERT="n"' >> ./etc/preloaded-vars.conf
 # Create directories
 mkdir -p ${RPM_BUILD_ROOT}%{_initrddir}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.ssh
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/wazuh-forwarder
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/wazuh-forwarder/etc
 
-# Download pre-compiled filebeat
-curl -sL https://packages-dev.wazuh.com/deps/filebeat-test/filebeat-conf.tar.gz | tar zx
-curl -sL https://packages-dev.wazuh.com/deps/filebeat-test/filebeat-home.tar.gz | tar zx
+# Download pre-compiled filebeat filebeat-7.10.2-linux-x86_64
+curl -sL https://packages-dev.wazuh.com/deps/filebeat-test/filebeat-7.10.2-linux-x86_64.tar.gz | tar zx
 
 # Download filebeat Wazuh module
 curl -sL https://packages.wazuh.com/4.x/filebeat/wazuh-filebeat-0.1.tar.gz | tar -xz
@@ -88,15 +89,14 @@ chmod go+r wazuh-template.json
 # Download service template
 curl -so wazuh-forwarder.service https://packages-dev.wazuh.com/deps/filebeat-test/wazuh-forwarder.service
 
-# Move packages to directories
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/etc/wazuh-forwarder
-mkdir -p ${RPM_BUILD_ROOT}/usr/share/wazuh-forwarder
-
 # Copy files
-mv wazuh-template.json filebeat.reference.yml modules.d ${RPM_BUILD_ROOT}%{_localstatedir}/etc/wazuh-forwarder
-mv wazuh bin LICENSE.txt module NOTICE.txt README.md ${RPM_BUILD_ROOT}/usr/share/wazuh-forwarder
-curl -so ${RPM_BUILD_ROOT}%{_localstatedir}/etc/wazuh-forwarder/filebeat.yml https://packages-dev.wazuh.com/deps/filebeat-test/filebeat.yml
-
+cd filebeat-7.10.2-linux-x86_64
+mv kibana filebeat LICENSE.txt module NOTICE.txt README.md ${RPM_BUILD_ROOT}%{_localstatedir}/wazuh-forwarder/
+mv filebeat.reference.yml fields.yml modules.d ${RPM_BUILD_ROOT}%{_localstatedir}/wazuh-forwarder/etc/
+cd ..
+mv wazuh-template.json ${RPM_BUILD_ROOT}%{_localstatedir}/wazuh-forwarder/etc/
+mv wazuh ${RPM_BUILD_ROOT}%{_localstatedir}/wazuh-forwarder/module/
+curl -so ${RPM_BUILD_ROOT}%{_localstatedir}/wazuh-forwarder/etc/filebeat.yml https://packages-dev.wazuh.com/deps/filebeat-test/filebeat.yml
 
 # Copy the installed files into RPM_BUILD_ROOT directory
 cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
@@ -829,38 +829,38 @@ rm -fr %{buildroot}
 %dir %attr(750, root, ossec) %{_localstatedir}/wodles/gcloud
 %attr(750, root, ossec) %{_localstatedir}/wodles/gcloud/*
 
-%dir %attr(755, root, root) %{_localstatedir}/etc/wazuh-forwarder
-%attr(644, root, root) %{_localstatedir}/etc/wazuh-forwarder/filebeat.reference.yml
-%attr(644, root, root) %{_localstatedir}/etc/wazuh-forwarder/filebeat.yml
-%attr(644, root, root) %{_localstatedir}/etc/wazuh-forwarder/wazuh-template.json
+%dir %attr(755, root, root) %{_localstatedir}/wazuh-forwarder/etc/
+%attr(644, root, root) %{_localstatedir}/wazuh-forwarder/etc/filebeat.reference.yml
+%attr(644, root, root) %{_localstatedir}/wazuh-forwarder/etc/filebeat.yml
+%attr(644, root, root) %{_localstatedir}/wazuh-forwarder/etc/wazuh-template.json
+%dir %attr(755, root, root) %{_localstatedir}/wazuh-forwarder/etc/modules.d
+%attr(644, root, root) %{_localstatedir}/wazuh-forwarder/etc/modules.d/*
 
-%dir %attr(755, root, root) %{_localstatedir}/etc/wazuh-forwarder/modules.d
-%attr(644, root, root) %{_localstatedir}/etc/wazuh-forwarder/modules.d/*
+%dir %attr(755, root, root) %{_localstatedir}/wazuh-forwarder
+%attr(644, root, root) %{_localstatedir}/wazuh-forwarder/README.md
+%attr(644, root, root) %{_localstatedir}/wazuh-forwarder/NOTICE.txt
+%attr(644, root, root) %{_localstatedir}/wazuh-forwarder/LICENSE.txt
+%attr(755, root, root) %{_localstatedir}/wazuh-forwarder/filebeat
+%dir %attr(755, root, root) %{_localstatedir}/wazuh-forwarder/module
+%attr(644, root, root) %{_localstatedir}/wazuh-forwarder/module/*
+%dir %attr(755, root, root) %{_localstatedir}/wazuh-forwarder/kibana
+%dir %attr(755, root, root) %{_localstatedir}/wazuh-forwarder/kibana/7
+%dir %attr(755, root, root) %{_localstatedir}/wazuh-forwarder/kibana/7/dashboard
+%attr(644, root, root) %{_localstatedir}/wazuh-forwarder/kibana/7/dashboard/*
 
-%dir %attr(755, root, root) /usr/share/wazuh-forwarder
-%attr(644, root, root) /usr/share/wazuh-forwarder/README.md
-%attr(644, root, root) /usr/share/wazuh-forwarder/NOTICE.txt
-%attr(644, root, root) /usr/share/wazuh-forwarder/LICENSE.txt
-
-%dir %attr(755, root, root) /usr/share/wazuh-forwarder/bin
-%attr(755, root, root) /usr/share/wazuh-forwarder/bin/filebeat
-%dir %attr(755, root, root) /usr/share/wazuh-forwarder/module
-%attr(644, root, root) /usr/share/wazuh-forwarder/module/*
-
-%dir %attr(755, root, root) /usr/share/wazuh-forwarder/wazuh
-%attr(644, root, root) /usr/share/wazuh-forwarder/wazuh/module.yml
-%dir %attr(755, root, root) /usr/share/wazuh-forwarder/wazuh/_meta
-%attr(644, root, root) /usr/share/wazuh-forwarder/wazuh/_meta/*
-%dir %attr(755, root, root) /usr/share/wazuh-forwarder/wazuh/archives
-%attr(644, root, root) /usr/share/wazuh-forwarder/wazuh/archives/*
-%dir %attr(755, root, root) /usr/share/wazuh-forwarder/wazuh/alerts
-%attr(644, root, root) /usr/share/wazuh-forwarder/wazuh/alerts/*
+%dir %attr(755, root, root) %{_localstatedir}/wazuh-forwarder/module/wazuh
+%attr(644, root, root) %{_localstatedir}/wazuh-forwarder/module/wazuh/module.yml
+%dir %attr(755, root, root) %{_localstatedir}/wazuh-forwarder/module/wazuh/_meta
+%attr(644, root, root) %{_localstatedir}/wazuh-forwarder/module/wazuh/_meta/*
+%dir %attr(755, root, root) %{_localstatedir}/wazuh-forwarder/module/wazuh/archives
+%attr(644, root, root) %{_localstatedir}/wazuh-forwarder/module/wazuh/archives/*
+%dir %attr(755, root, root) %{_localstatedir}/wazuh-forwarder/module/wazuh/alerts
+%attr(644, root, root) %{_localstatedir}/wazuh-forwarder/module/wazuh/alerts/*
 
 %if %{_debugenabled} == "yes"
 /usr/lib/debug/%{_localstatedir}/*
 /usr/src/debug/%{name}-%{version}/*
 %endif
-
 
 %changelog
 * Mon Apr 26 2021 support <info@wazuh.com> - 4.2.0
