@@ -239,8 +239,8 @@ clean(){
     rm -f /etc/rc3.d/S97wazuh-agent
 
     ## Remove User and Groups
-    userdel ossec
-    groupdel ossec
+    userdel wazuh
+    groupdel wazuh
 }
 
 ctrl_c() {
@@ -256,8 +256,8 @@ build(){
     echo "| Building |"
     echo "------------"
 
-    groupadd ossec
-    useradd -g ossec ossec
+    groupadd wazuh
+    useradd -g wazuh wazuh
     installation
     package
 }

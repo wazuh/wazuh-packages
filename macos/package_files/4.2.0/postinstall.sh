@@ -8,8 +8,8 @@
 #  starting at 600 puts this in user space
 # -Added lines to append the ossec users to the group ossec
 #  so the the list GroupMembership works properly
-GROUP="ossec"
-USER="ossec"
+GROUP="wazuh"
+USER="wazuh"
 DIR="/Library/Ossec"
 INSTALLATION_SCRIPTS_DIR="${DIR}/packages_files/agent_installation_scripts"
 SCA_BASE_DIR="${INSTALLATION_SCRIPTS_DIR}/sca"
