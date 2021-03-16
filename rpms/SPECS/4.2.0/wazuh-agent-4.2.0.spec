@@ -181,15 +181,15 @@ fi
 exit 0
 
 %pre
-# Create the ossec group if it doesn't exists
-if command -v getent > /dev/null 2>&1 && ! getent group ossec > /dev/null 2>&1; then
-  groupadd -r ossec
-elif ! id -g ossec > /dev/null 2>&1; then
-  groupadd -r ossec
+# Create the wazuh group if it doesn't exists
+if command -v getent > /dev/null 2>&1 && ! getent group wazuh > /dev/null 2>&1; then
+  groupadd -r wazuh
+elif ! id -g wazuh > /dev/null 2>&1; then
+  groupadd -r wazuh
 fi
-# Create the ossec user if it doesn't exists
-if ! id -u ossec > /dev/null 2>&1; then
-  useradd -g ossec -G ossec -d %{_localstatedir} -r -s /sbin/nologin ossec
+# Create the wazuh user if it doesn't exists
+if ! id -u wazuh > /dev/null 2>&1; then
+  useradd -g wazuh -G wazuh -d %{_localstatedir} -r -s /sbin/nologin wazuh
 fi
 
 # Stop the services to upgrade the package

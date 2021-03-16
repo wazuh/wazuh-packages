@@ -83,13 +83,13 @@ exit 0
 
 %pre
 
-# Create ossec user and group
-if ! grep "^ossec:" /etc/group > /dev/null 2>&1; then
-  /usr/bin/mkgroup ossec
+# Create wazuh user and group
+if ! grep "^wazuh:" /etc/group > /dev/null 2>&1; then
+  /usr/bin/mkgroup wazuh
 fi
-if ! grep "^ossec" /etc/passwd > /dev/null 2>&1; then
-  /usr/sbin/useradd ossec
-  /usr/sbin/usermod -G ossec ossec
+if ! grep "^wazuh" /etc/passwd > /dev/null 2>&1; then
+  /usr/sbin/useradd wazuh
+  /usr/sbin/usermod -G wazuh wazuh
 fi
 
 # Remove existent config file and notify user for new installations
@@ -191,13 +191,13 @@ fi
 
 %postun
 
-# Remove ossec user and group
+# Remove wazuh user and group
 if [ $1 = 0 ];then
-  if grep "^ossec" /etc/passwd > /dev/null 2>&1; then
-    userdel ossec
+  if grep "^wazuh" /etc/passwd > /dev/null 2>&1; then
+    userdel wazuh
   fi
-  if grep "^ossec:" /etc/group > /dev/null 2>&1; then
-    rmgroup ossec
+  if grep "^wazuh:" /etc/group > /dev/null 2>&1; then
+    rmgroup wazuh
   fi
 
   rm -rf %{_localstatedir}/ruleset
