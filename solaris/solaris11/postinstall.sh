@@ -10,10 +10,22 @@ if [ -d <INSTALL_PATH>/queue/ossec ]; then
 fi
 
 # Change user and group if necessary
-find <INSTALL_PATH> -group ossec -user root -exec chown root:wazuh {} \; || true
-find <INSTALL_PATH> -group ossec -user ossec -exec chown wazuh:wazuh {} \; || true
-find <INSTALL_PATH> -group ossec -user ossecm -exec chown wazuh:wazuh {} \; || true
-find <INSTALL_PATH> -group ossec -user ossecr -exec chown wazuh:wazuh {} \; || true
+if grep "^ossec:" /etc/group > /dev/null 2>&1; then
+  find <INSTALL_PATH> -group ossec -user root -exec chown root:wazuh {} \ > /dev/null 2>&1 || true
+  if grep "^ossec" /etc/passwd > /dev/null 2>&1; then
+    find <INSTALL_PATH> -group ossec -user ossec -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true;
+    userdel ossec
+  fi
+  if grep "^ossecm" /etc/passwd > /dev/null 2>&1; then
+    find <INSTALL_PATH> -group ossec -user ossecm -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true;
+    userdel ossecm
+  fi
+  if grep "^ossecr" /etc/passwd > /dev/null 2>&1; then
+    find <INSTALL_PATH> -group ossec -user ossecr -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true;
+    userdel ossecr
+  fi
+  groupdel ossec
+fi
 
 rm -rf <INSTALL_PATH>/logs/ossec/
 rm -rf <INSTALL_PATH>/queue/ossec/

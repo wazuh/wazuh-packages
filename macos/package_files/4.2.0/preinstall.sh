@@ -74,7 +74,7 @@ while [[ $idvar -eq 0 ]]; do
    fi
 done
 
-echo "UID available for ossec user is:";
+echo "UID available for wazuh user is:";
 echo ${new_uid}
 
 # Verify that the uid and gid exist and match
@@ -97,9 +97,9 @@ elif [ -f ${DIR}/bin/ossec-control ]; then
 fi
 
 # Creating the group
-if [[ $(dscl . -read /Groups/ossec) ]]
+if [[ $(dscl . -read /Groups/wazuh) ]]
     then
-    echo "ossec group already exists.";
+    echo "wazuh group already exists.";
 else
     sudo ${DSCL} localhost -create /Local/Default/Groups/wazuh
     check_errm "Error creating group wazuh" "67"
@@ -111,9 +111,9 @@ else
 fi
 
 # Creating the user
-if [[ $(dscl . -read /Users/ossec) ]]
+if [[ $(dscl . -read /Users/wazuh) ]]
     then
-    echo "ossec user already exists.";
+    echo "wazuh user already exists.";
 else
     sudo ${DSCL} localhost -create /Local/Default/Users/wazuh
     check_errm "Error creating user wazuh" "77"
@@ -128,7 +128,7 @@ sudo ${DSCL} localhost -createprop /Local/Default/Users/wazuh Password "*"
 fi
 
 #Hide the fixed users
-dscl . create /Users/ossec IsHidden 1
+dscl . create /Users/wazuh IsHidden 1
 
 sudo tee /Library/LaunchDaemons/com.wazuh.agent.plist <<-'EOF'
 <?xml version="1.0" encoding="UTF-8"?>

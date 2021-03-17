@@ -431,10 +431,22 @@ rm -rf %{_localstatedir}/packages_files
 rm -f %{_localstatedir}/etc/shared/default/*.rpmnew
 
 # Change user and group if necessary
-find %{_localstatedir} -group ossec -user root -exec chown root:wazuh {} \; || true
-find %{_localstatedir} -group ossec -user ossec -exec chown wazuh:wazuh {} \; || true
-find %{_localstatedir} -group ossec -user ossecm -exec chown wazuh:wazuh {} \; || true
-find %{_localstatedir} -group ossec -user ossecr -exec chown wazuh:wazuh {} \; || true
+if id -g ossec > /dev/null 2>&1; then
+  find %{_localstatedir} -group ossec -user root -exec chown root:wazuh {} \ > /dev/null 2>&1 || true
+  if id -u ossec > /dev/null 2>&1; then
+    find %{_localstatedir} -group ossec -user ossec -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true;
+    userdel ossec
+  fi
+  if id -u ossecm > /dev/null 2>&1; then
+    find %{_localstatedir} -group ossec -user ossecm -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true;
+    userdel ossecm
+  fi
+  if id -u ossecr > /dev/null 2>&1; then
+    find %{_localstatedir} -group ossec -user ossecr -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true;
+    userdel ossecr
+  fi
+  rmgroup ossec
+fi
 
 %preun
 

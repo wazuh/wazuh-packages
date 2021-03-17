@@ -8,8 +8,8 @@
 #  starting at 600 puts this in user space
 # -Added lines to append the ossec users to the group ossec
 #  so the the list GroupMembership works properly
-GROUP="ossec"
-USER="ossec"
+GROUP="wazuh"
+USER="wazuh"
 DIR="/Library/Ossec"
 INSTALLATION_SCRIPTS_DIR="${DIR}/packages_files/agent_installation_scripts"
 SCA_BASE_DIR="${INSTALLATION_SCRIPTS_DIR}/sca"
@@ -112,13 +112,25 @@ ${INSTALLATION_SCRIPTS_DIR}/src/init/register_configure_agent.sh ${DIR} > /dev/n
 ${INSTALLATION_SCRIPTS_DIR}/src/init/darwin-init.sh ${DIR}
 
 # Remove temporary directory
-rm -rf ${DIR}/
+rm -rf ${DIR}/packages_files
 
 # Change user and group if necessary
-find ${DIR} -group ossec -user root -exec chown root:wazuh {} \; || true
-find ${DIR} -group ossec -user ossec -exec chown wazuh:wazuh {} \; || true
-find ${DIR} -group ossec -user ossecm -exec chown wazuh:wazuh {} \; || true
-find ${DIR} -group ossec -user ossecr -exec chown wazuh:wazuh {} \; || true
+if [[ $(dscl . -read /Groups/ossec) ]]; then
+  find %{_localstatedir} -group ossec -user root -exec chown root:wazuh {} \ > /dev/null 2>&1 || true
+  if [ $(dscl . -read /Users/ossec) ]]; then
+    find %{_localstatedir} -group ossec -user ossec -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true;
+    sudo /usr/bin/dscl . -delete "/Users/ossec"
+  fi
+  if [ $(dscl . -read /Users/ossecm) ]]; then
+    find %{_localstatedir} -group ossec -user ossecm -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true;
+    sudo /usr/bin/dscl . -delete "/Users/ossecm"
+  fi
+  if [ $(dscl . -read /Users/ossecr) ]]; then
+    find %{_localstatedir} -group ossec -user ossecr -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true;
+    sudo /usr/bin/dscl . -delete "/Users/ossecr"
+  fi
+  sudo /usr/bin/dscl . -delete "/Groups/wazuh"
+fi
 
 if ${upgrade} && ${restart}; then
     ${DIR}/bin/wazuh-control restart

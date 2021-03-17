@@ -83,13 +83,13 @@ exit 0
 
 %pre
 
-# Create ossec user and group
-if ! grep "^ossec:" /etc/group > /dev/null 2>&1; then
-  /usr/bin/mkgroup ossec
+# Create wazuh user and group
+if ! grep "^wazuh:" /etc/group > /dev/null 2>&1; then
+  /usr/bin/mkgroup wazuh
 fi
-if ! grep "^ossec" /etc/passwd > /dev/null 2>&1; then
-  /usr/sbin/useradd ossec
-  /usr/sbin/usermod -G ossec ossec
+if ! grep "^wazuh" /etc/passwd > /dev/null 2>&1; then
+  /usr/sbin/useradd wazuh
+  /usr/sbin/usermod -G wazuh wazuh
 fi
 
 # Remove existent config file and notify user for new installations
@@ -174,11 +174,22 @@ if grep '<address>.*</address>' %{_localstatedir}/etc/ossec.conf | grep -v 'MANA
 fi
 
 # Change user and group if necessary
-find %{_localstatedir} -group ossec -user root -exec chown root:wazuh {} \; || true
-find %{_localstatedir} -group ossec -user ossec -exec chown wazuh:wazuh {} \; || true
-find %{_localstatedir} -group ossec -user ossecm -exec chown wazuh:wazuh {} \; || true
-find %{_localstatedir} -group ossec -user ossecr -exec chown wazuh:wazuh {} \; || true
-
+if grep "^ossec:" /etc/group > /dev/null 2>&1; then
+  find %{_localstatedir} -group ossec -user root -exec chown root:wazuh {} \ > /dev/null 2>&1 || true
+  if grep "^ossec" /etc/passwd > /dev/null 2>&1; then
+    find %{_localstatedir} -group ossec -user ossec -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true;
+    userdel ossec
+  fi
+  if grep "^ossecm" /etc/passwd > /dev/null 2>&1; then
+    find %{_localstatedir} -group ossec -user ossecm -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true;
+    userdel ossecm
+  fi
+  if grep "^ossecr" /etc/passwd > /dev/null 2>&1; then
+    find %{_localstatedir} -group ossec -user ossecr -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true;
+    userdel ossecr
+  fi
+  rmgroup ossec
+fi
 
 %preun
 
@@ -197,13 +208,13 @@ fi
 
 %postun
 
-# Remove ossec user and group
+# Remove wazuh user and group
 if [ $1 = 0 ];then
-  if grep "^ossec" /etc/passwd > /dev/null 2>&1; then
-    userdel ossec
+  if grep "^wazuh" /etc/passwd > /dev/null 2>&1; then
+    userdel wazuh
   fi
-  if grep "^ossec:" /etc/group > /dev/null 2>&1; then
-    rmgroup ossec
+  if grep "^wazuh:" /etc/group > /dev/null 2>&1; then
+    rmgroup wazuh
   fi
 
   rm -rf %{_localstatedir}/ruleset

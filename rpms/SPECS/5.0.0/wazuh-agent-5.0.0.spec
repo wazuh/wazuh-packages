@@ -358,10 +358,22 @@ fi
 chmod 0660 %{_localstatedir}/etc/ossec.conf
 
 # Change user and group if necessary
-find %{_localstatedir} -group ossec -user root -exec chown root:wazuh {} \; || true
-find %{_localstatedir} -group ossec -user ossec -exec chown wazuh:wazuh {} \; || true
-find %{_localstatedir} -group ossec -user ossecm -exec chown wazuh:wazuh {} \; || true
-find %{_localstatedir} -group ossec -user ossecr -exec chown wazuh:wazuh {} \; || true
+if id -g ossec > /dev/null 2>&1; then
+  find %{_localstatedir} -group ossec -user root -exec chown root:wazuh {} \ > /dev/null 2>&1 || true
+  if id -u ossec > /dev/null 2>&1; then
+    find %{_localstatedir} -group ossec -user ossec -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true;
+    userdel ossec
+  fi
+  if id -u ossecm > /dev/null 2>&1; then
+    find %{_localstatedir} -group ossec -user ossecm -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true;
+    userdel ossecm
+  fi
+  if id -u ossecr > /dev/null 2>&1; then
+    find %{_localstatedir} -group ossec -user ossecr -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true;
+    userdel ossecr
+  fi
+  rmgroup ossec
+fi
 
 %preun
 
@@ -420,15 +432,15 @@ fi
 
 # If the package is been uninstalled
 if [ $1 = 0 ];then
-  # Remove the ossec user if it exists
-  if id -u ossec > /dev/null 2>&1; then
-    userdel ossec >/dev/null 2>&1
+  # Remove the wazuh user if it exists
+  if id -u wazuh > /dev/null 2>&1; then
+    userdel wazuh >/dev/null 2>&1
   fi
-  # Remove the ossec group if it exists
-  if command -v getent > /dev/null 2>&1 && getent group ossec > /dev/null 2>&1; then
-    groupdel ossec >/dev/null 2>&1
-  elif id -g ossec > /dev/null 2>&1; then
-    groupdel ossec >/dev/null 2>&1
+  # Remove the wazuh group if it exists
+  if command -v getent > /dev/null 2>&1 && getent group wazuh > /dev/null 2>&1; then
+    groupdel wazuh >/dev/null 2>&1
+  elif id -g wazuh > /dev/null 2>&1; then
+    groupdel wazuh >/dev/null 2>&1
   fi
 
   # Remove lingering folders and files
