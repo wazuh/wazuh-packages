@@ -356,10 +356,10 @@ fi
 chmod 0660 %{_localstatedir}/etc/ossec.conf
 
 # Change user and group if necessary
-find %{_localstatedir} -group ossec -user root -exec chown root:wazuh {} \;
-find %{_localstatedir} -group ossec -user ossec -exec chown wazuh:wazuh {} \;
-find %{_localstatedir} -group ossec -user ossecm -exec chown wazuh:wazuh {} \;
-find %{_localstatedir} -group ossec -user ossecr -exec chown wazuh:wazuh {} \;
+find %{_localstatedir} -group ossec -user root -exec chown root:wazuh {} \; || true
+find %{_localstatedir} -group ossec -user ossec -exec chown wazuh:wazuh {} \; || true
+find %{_localstatedir} -group ossec -user ossecm -exec chown wazuh:wazuh {} \; || true
+find %{_localstatedir} -group ossec -user ossecr -exec chown wazuh:wazuh {} \; || true
 
 %preun
 

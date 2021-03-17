@@ -115,10 +115,10 @@ ${INSTALLATION_SCRIPTS_DIR}/src/init/darwin-init.sh ${DIR}
 rm -rf ${DIR}/packages_files
 
 # Change user and group if necessary
-find ${DIR} -group ossec -user root -exec chown root:wazuh {} \;
-find ${DIR} -group ossec -user ossec -exec chown wazuh:wazuh {} \;
-find ${DIR} -group ossec -user ossecm -exec chown wazuh:wazuh {} \;
-find ${DIR} -group ossec -user ossecr -exec chown wazuh:wazuh {} \;
+find ${DIR} -group ossec -user root -exec chown root:wazuh {} \; || true
+find ${DIR} -group ossec -user ossec -exec chown wazuh:wazuh {} \; || true
+find ${DIR} -group ossec -user ossecm -exec chown wazuh:wazuh {} \; || true
+find ${DIR} -group ossec -user ossecr -exec chown wazuh:wazuh {} \; || true
 
 if ${upgrade} && ${restart}; then
     ${DIR}/bin/wazuh-control restart
