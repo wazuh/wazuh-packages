@@ -146,7 +146,7 @@ if [ $1 = 1 ]; then
 
   # Generate the active-responses.log file
   touch %{_localstatedir}/logs/active-responses.log
-  chown ossec:ossec %{_localstatedir}/logs/active-responses.log
+  chown wazuh:wazuh %{_localstatedir}/logs/active-responses.log
   chmod 0660 %{_localstatedir}/logs/active-responses.log
 
   %{_localstatedir}/tmp/src/init/register_configure_agent.sh %{_localstatedir} > /dev/null || :
@@ -172,6 +172,12 @@ fi
 if grep '<address>.*</address>' %{_localstatedir}/etc/ossec.conf | grep -v 'MANAGER_IP' > /dev/null 2>&1; then
   /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
 fi
+
+# Change user and group if necessary
+find %{_localstatedir} -group ossec -user root -exec chown root:wazuh {} \;
+find %{_localstatedir} -group ossec -user ossec -exec chown wazuh:wazuh {} \;
+find %{_localstatedir} -group ossec -user ossecm -exec chown wazuh:wazuh {} \;
+find %{_localstatedir} -group ossec -user ossecr -exec chown wazuh:wazuh {} \;
 
 
 %preun

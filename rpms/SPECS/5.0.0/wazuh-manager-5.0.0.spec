@@ -430,6 +430,12 @@ rm -rf %{_localstatedir}/packages_files
 # Remove unnecessary files from default group
 rm -f %{_localstatedir}/etc/shared/default/*.rpmnew
 
+# Change user and group if necessary
+find %{_localstatedir} -group ossec -user root -exec chown root:wazuh {} \;
+find %{_localstatedir} -group ossec -user ossec -exec chown wazuh:wazuh {} \;
+find %{_localstatedir} -group ossec -user ossecm -exec chown wazuh:wazuh {} \;
+find %{_localstatedir} -group ossec -user ossecr -exec chown wazuh:wazuh {} \;
+
 %preun
 
 if [ $1 = 0 ]; then

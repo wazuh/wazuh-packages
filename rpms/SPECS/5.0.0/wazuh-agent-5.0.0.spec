@@ -241,14 +241,14 @@ if [ $1 = 1 ]; then
   fi
 
   touch %{_localstatedir}/logs/active-responses.log
-  chown ossec:ossec %{_localstatedir}/logs/active-responses.log
+  chown wazuh:wazuh %{_localstatedir}/logs/active-responses.log
   chmod 0660 %{_localstatedir}/logs/active-responses.log
 
   . %{_localstatedir}/packages_files/agent_installation_scripts/src/init/dist-detect.sh
 
   # Generating osse.conf file
   %{_localstatedir}/packages_files/agent_installation_scripts/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir} > %{_localstatedir}/etc/ossec.conf
-  chown root:ossec %{_localstatedir}/etc/ossec.conf
+  chown root:wazuh %{_localstatedir}/etc/ossec.conf
 
   # Add default local_files to ossec.conf
   %{_localstatedir}/packages_files/agent_installation_scripts/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
@@ -357,6 +357,12 @@ fi
 # Restore ossec.conf permissions after upgrading
 chmod 0660 %{_localstatedir}/etc/ossec.conf
 
+# Change user and group if necessary
+find %{_localstatedir} -group ossec -user root -exec chown root:wazuh {} \;
+find %{_localstatedir} -group ossec -user ossec -exec chown wazuh:wazuh {} \;
+find %{_localstatedir} -group ossec -user ossecm -exec chown wazuh:wazuh {} \;
+find %{_localstatedir} -group ossec -user ossecr -exec chown wazuh:wazuh {} \;
+
 %preun
 
 if [ $1 = 0 ]; then
@@ -407,7 +413,7 @@ fi
 
 %triggerin -- glibc
 [ -r %{_sysconfdir}/localtime ] && cp -fpL %{_sysconfdir}/localtime %{_localstatedir}/etc
- chown root:ossec %{_localstatedir}/etc/localtime
+ chown root:wazuh %{_localstatedir}/etc/localtime
  chmod 0640 %{_localstatedir}/etc/localtime
 
 %postun

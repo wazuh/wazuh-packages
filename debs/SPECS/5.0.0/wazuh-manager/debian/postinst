@@ -253,6 +253,12 @@ case "$1" in
         rm -rf ${WAZUH_GLOBAL_TMP_DIR}
     fi
 
+    # Change user and group if necessary
+    find /var/ossec/ -group ossec -user root -exec chown root:wazuh {} \;
+    find /var/ossec/ -group ossec -user ossec -exec chown wazuh:wazuh {} \;
+    find /var/ossec/ -group ossec -user ossecm -exec chown wazuh:wazuh {} \;
+    find /var/ossec/ -group ossec -user ossecr -exec chown wazuh:wazuh {} \;
+
     ;;
 
 

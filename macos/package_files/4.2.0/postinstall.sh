@@ -74,7 +74,7 @@ launchctl unsetenv WAZUH_RESTART
 
 if [ "${upgrade}" = "false" ]; then
     ${INSTALLATION_SCRIPTS_DIR}/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} ${DIR} > ${DIR}/etc/ossec.conf
-    chown root:ossec ${DIR}/etc/ossec.conf
+    chown root:wazuh ${DIR}/etc/ossec.conf
     chmod 0640 ${DIR}/etc/ossec.conf
 fi
 
@@ -113,6 +113,12 @@ ${INSTALLATION_SCRIPTS_DIR}/src/init/darwin-init.sh ${DIR}
 
 # Remove temporary directory
 rm -rf ${DIR}/packages_files
+
+# Change user and group if necessary
+find ${DIR} -group ossec -user root -exec chown root:wazuh {} \;
+find ${DIR} -group ossec -user ossec -exec chown wazuh:wazuh {} \;
+find ${DIR} -group ossec -user ossecm -exec chown wazuh:wazuh {} \;
+find ${DIR} -group ossec -user ossecr -exec chown wazuh:wazuh {} \;
 
 if ${upgrade} && ${restart}; then
     ${DIR}/bin/wazuh-control restart
