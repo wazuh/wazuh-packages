@@ -49,7 +49,7 @@ case "$1" in
             fi
 
             # Get old package version
-            if [ -f . /etc/ossec-init.conf ]; then
+            if [ -f /etc/ossec-init.conf ]; then
                 . /etc/ossec-init.conf
             else
                 VERSION=$(${DIR}/bin/wazuh-control info -v)
