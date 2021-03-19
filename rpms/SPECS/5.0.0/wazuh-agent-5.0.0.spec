@@ -214,11 +214,11 @@ fi
 %post
 if [ $1 = 2 ]; then
   if [ -d %{_localstatedir}/logs/ossec ]; then
-    mv %{_localstatedir}/logs/ossec/* %{_localstatedir}/logs/wazuh
+    mv %{_localstatedir}/logs/ossec/* %{_localstatedir}/logs/wazuh > /dev/null 2>&1 || true
   fi
 
   if [ -d %{_localstatedir}/queue/ossec ]; then
-    mv %{_localstatedir}/queue/ossec/* %{_localstatedir}/queue/sockets
+    mv %{_localstatedir}/queue/ossec/* %{_localstatedir}/queue/sockets > /dev/null 2>&1 || true
   fi
 fi
 
@@ -359,17 +359,17 @@ chmod 0660 %{_localstatedir}/etc/ossec.conf
 
 # Change user and group if necessary
 if id -g ossec > /dev/null 2>&1; then
-  find %{_localstatedir} -group ossec -user root -exec chown root:wazuh {} \ > /dev/null 2>&1 || true
+  find %{_localstatedir} -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
   if id -u ossec > /dev/null 2>&1; then
-    find %{_localstatedir} -group ossec -user ossec -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true;
+    find %{_localstatedir} -group ossec -user ossec -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
     userdel ossec
   fi
   if id -u ossecm > /dev/null 2>&1; then
-    find %{_localstatedir} -group ossec -user ossecm -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true;
+    find %{_localstatedir} -group ossec -user ossecm -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
     userdel ossecm
   fi
   if id -u ossecr > /dev/null 2>&1; then
-    find %{_localstatedir} -group ossec -user ossecr -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true;
+    find %{_localstatedir} -group ossec -user ossecr -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
     userdel ossecr
   fi
   rmgroup ossec

@@ -111,7 +111,7 @@ fi
 %post
 if [ $1 = 2 ]; then
   if [ -d %{_localstatedir}/logs/ossec ]; then
-    mv %{_localstatedir}/logs/ossec/* %{_localstatedir}/logs/wazuh
+    mv %{_localstatedir}/logs/ossec/* %{_localstatedir}/logs/wazuh > /dev/null 2>&1 || true
   fi
 
   if [ -d %{_localstatedir}/queue/ossec ]; then
@@ -175,17 +175,17 @@ fi
 
 # Change user and group if necessary
 if grep "^ossec:" /etc/group > /dev/null 2>&1; then
-  find %{_localstatedir} -group ossec -user root -exec chown root:wazuh {} \ > /dev/null 2>&1 || true
+  find %{_localstatedir} -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
   if grep "^ossec" /etc/passwd > /dev/null 2>&1; then
-    find %{_localstatedir} -group ossec -user ossec -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true;
+    find %{_localstatedir} -group ossec -user ossec -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
     userdel ossec
   fi
   if grep "^ossecm" /etc/passwd > /dev/null 2>&1; then
-    find %{_localstatedir} -group ossec -user ossecm -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true;
+    find %{_localstatedir} -group ossec -user ossecm -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
     userdel ossecm
   fi
   if grep "^ossecr" /etc/passwd > /dev/null 2>&1; then
-    find %{_localstatedir} -group ossec -user ossecr -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true;
+    find %{_localstatedir} -group ossec -user ossecr -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
     userdel ossecr
   fi
   rmgroup ossec

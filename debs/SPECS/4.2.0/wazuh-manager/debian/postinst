@@ -255,24 +255,21 @@ case "$1" in
 
     # Change user and group if necessary
     if ! getent group | grep -q "^ossec" ; then
-        find ${DIR} -group ossec -user root -exec chown root:wazuh {} \ > /dev/null 2>&1 || true;
+        find ${DIR} -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
         if ! getent passwd | grep -q "^ossec" ; then
-            find ${DIR} -group ossec -user ossec -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true;
+            find ${DIR} -group ossec -user ossec -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
             deluser ossec
         fi
         if ! getent passwd | grep -q "^ossecm" ; then
-            find ${DIR} -group ossec -user ossecm -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true;
+            find ${DIR} -group ossec -user ossecm -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
             deluser ossecm
         fi
         if ! getent passwd | grep -q "^ossecr" ; then
-            find ${DIR} -group ossec -user ossecr -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true;
+            find ${DIR} -group ossec -user ossecr -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
             deluser ossecr
         fi
         delgroup ossec 
     fi
-    
-    find ${DIR} -group ossec -user ossecm -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true;
-    find ${DIR} -group ossec -user ossecr -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true;
     
     ;;
 

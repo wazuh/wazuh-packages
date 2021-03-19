@@ -124,7 +124,7 @@ else
     sudo ${DSCL} localhost -createprop /Local/Default/Users/wazuh UniqueID ${new_uid}
     sudo ${DSCL} localhost -createprop /Local/Default/Users/wazuh PrimaryGroupID ${new_gid}
     sudo ${DSCL} localhost -append /Local/Default/Groups/wazuh GroupMembership wazuh
-sudo ${DSCL} localhost -createprop /Local/Default/Users/wazuh Password "*"
+    sudo ${DSCL} localhost -createprop /Local/Default/Users/wazuh Password "*"
 fi
 
 #Hide the fixed users
