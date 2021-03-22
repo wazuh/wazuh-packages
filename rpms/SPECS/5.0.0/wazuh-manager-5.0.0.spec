@@ -643,7 +643,7 @@ rm -fr %{buildroot}
 %attr(750, root, ossec) %{_localstatedir}/lib/librsync.so
 %attr(750, root, ossec) %{_localstatedir}/lib/libsyscollector.so
 %attr(750, root, ossec) %{_localstatedir}/lib/libsysinfo.so
-%{_localstatedir}/lib/libpython3.8.so.1.0
+%{_localstatedir}/lib/libpython3.9.so.1.0
 %dir %attr(770, ossec, ossec) %{_localstatedir}/logs
 %attr(660, ossec, ossec)  %ghost %{_localstatedir}/logs/active-responses.log
 %attr(660, ossec, ossec) %ghost %{_localstatedir}/logs/api.log
