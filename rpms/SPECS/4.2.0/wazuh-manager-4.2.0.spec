@@ -591,7 +591,7 @@ rm -fr %{buildroot}
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-execd
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-integratord
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-logcollector
-%attr(750, root, root) %{_localstatedir}/bin/wazuh-logtest.legacy
+%attr(750, root, root) %{_localstatedir}/bin/wazuh-logtest-legacy
 %attr(750, root, ossec) %{_localstatedir}/bin/wazuh-logtest
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-maild
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-monitord
