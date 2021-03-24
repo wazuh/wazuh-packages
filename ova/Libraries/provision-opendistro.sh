@@ -142,19 +142,6 @@ installElasticsearch() {
         fi
         rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml search-guard-tlstool-1.7.zip -f
 
-
-        ##CANDIDATO A IR FUERA
-        # # Configure JVM options for Elasticsearch
-        jv=$(java -version 2>&1 | grep -o -m1 '1.8.0') || :
-        if [ "${jv}" = "1.8.0" ]; then
-            ln -s /usr/lib/jvm/java-1.8.0/lib/tools.jar /usr/share/elasticsearch/lib/
-            echo "root hard nproc 4096" >> /etc/security/limits.conf
-            echo "root soft nproc 4096" >> /etc/security/limits.conf
-            echo "elasticsearch hard nproc 4096" >> /etc/security/limits.conf
-            echo "elasticsearch soft nproc 4096" >> /etc/security/limits.conf
-            echo "bootstrap.system_call_filter: false" >> /etc/elasticsearch/elasticsearch.yml
-        fi
-
         # While Performance Analyzer problems are solved (https://github.com/opendistro-for-elasticsearch/performance-analyzer/issues/229)
         /usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro_performance_analyzer
 
