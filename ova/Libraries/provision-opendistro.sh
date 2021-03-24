@@ -92,17 +92,6 @@ addWazuhrepo() {
     fi
 }
 
-addElasticRepo(){
-
-    logger "Adding the Elastic repository..."
-    if [ "$?" != 0 ]; then
-        logger "Error: Wazuh repository could not be added"
-        exit 1
-    else
-        logger "Done"
-    fi
-}
-
 ## Wazuh manager
 installWazuh() {
 
@@ -154,6 +143,7 @@ installElasticsearch() {
         rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml search-guard-tlstool-1.7.zip -f
 
 
+        ##CANDIDATO A IR FUERA
         # # Configure JVM options for Elasticsearch
         jv=$(java -version 2>&1 | grep -o -m1 '1.8.0') || :
         if [ "${jv}" = "1.8.0" ]; then
