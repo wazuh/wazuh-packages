@@ -95,6 +95,7 @@ cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
 mkdir -p ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
 install -m 0640 ossec-init.conf ${RPM_BUILD_ROOT}%{_sysconfdir}
 install -m 0755 src/init/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-manager
+install -m 0755 src/init/ossec-filebeat.init ${RPM_BUILD_ROOT}%{_initrddir}/filebeat
 install -m 0644 src/systemd/wazuh-manager.service ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
 install -m 0644 filebeat.service ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
 
@@ -543,6 +544,7 @@ rm -fr %{buildroot}
 
 %files
 %{_initrddir}/wazuh-manager
+%{_initrddir}/filebeat
 /usr/lib/systemd/system/wazuh-manager.service
 %defattr(-,root,ossec)
 %attr(640, root, ossec) %verify(not md5 size mtime) %{_sysconfdir}/ossec-init.conf
