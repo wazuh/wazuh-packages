@@ -129,7 +129,7 @@ if [ $1 = 1 ]; then
   # Add default local_files to ossec.conf
   %{_localstatedir}/tmp/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
 
-  # Restore Wazuh manager configuration
+  # Restore Wazuh agent configuration
   if [ -f %{_localstatedir}/etc/ossec.conf.rpmorig ]; then
     %{_localstatedir}/tmp/src/init/replace_manager_ip.sh %{_localstatedir}/etc/ossec.conf.rpmorig %{_localstatedir}/etc/ossec.conf
   fi
