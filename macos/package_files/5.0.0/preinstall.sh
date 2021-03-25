@@ -57,7 +57,7 @@ function check_errm
         then
         echo "${1}";
         exit ${2};
-        fi
+    fi
 }
 
 # get unique id numbers (uid, gid) that are greater than 100
@@ -71,7 +71,7 @@ while [[ $idvar -eq 0 ]]; do
         new_gid=$i
         idvar=1
         #break
-   fi
+    fi
 done
 
 echo "UID available for wazuh user is:";
@@ -79,14 +79,14 @@ echo ${new_uid}
 
 # Verify that the uid and gid exist and match
 if [[ $new_uid -eq 0 ]] || [[ $new_gid -eq 0 ]];
-   then
-   echo "Getting unique id numbers (uid, gid) failed!";
-   exit 1;
+    then
+    echo "Getting unique id numbers (uid, gid) failed!";
+    exit 1;
 fi
 if [[ ${new_uid} != ${new_gid} ]]
-   then
-   echo "I failed to find matching free uid and gid!";
-   exit 5;
+    then
+    echo "I failed to find matching free uid and gid!";
+    exit 5;
 fi
 
 # Stops the agent before upgrading it
