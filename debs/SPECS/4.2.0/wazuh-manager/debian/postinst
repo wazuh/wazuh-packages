@@ -64,7 +64,7 @@ case "$1" in
 
     if [ -f ${DIR}/queue/db/global.db ]; then
         chmod 640 ${DIR}/queue/db/global.db*
-        chown wazuh:wazuh ${DIR}/queue/db/global.db*
+        chown ${USER}:${GROUP} ${DIR}/queue/db/global.db*
     fi
 
     # Delete uncompatible DBs versions
@@ -153,8 +153,8 @@ case "$1" in
 
     touch ${DIR}/logs/active-responses.log
     touch ${DIR}/logs/integrations.log
-    chown wazuh:wazuh ${DIR}/logs/active-responses.log
-    chown wazuh:wazuh ${DIR}/logs/integrations.log
+    chown ${USER}:${GROUP} ${DIR}/logs/active-responses.log
+    chown ${USER}:${GROUP} ${DIR}/logs/integrations.log
     chmod 0660 ${DIR}/logs/active-responses.log
     chmod 0640 ${DIR}/logs/integrations.log
 
@@ -257,15 +257,15 @@ case "$1" in
     if ! getent group | grep -q "^ossec" ; then
         find ${DIR} -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
         if ! getent passwd | grep -q "^ossec" ; then
-            find ${DIR} -group ossec -user ossec -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
+            find ${DIR} -group ossec -user ossec -exec chown ${USER}:${GROUP} {} \; > /dev/null 2>&1 || true
             deluser ossec
         fi
         if ! getent passwd | grep -q "^ossecm" ; then
-            find ${DIR} -group ossec -user ossecm -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
+            find ${DIR} -group ossec -user ossecm -exec chown ${USER}:${GROUP} {} \; > /dev/null 2>&1 || true
             deluser ossecm
         fi
         if ! getent passwd | grep -q "^ossecr" ; then
-            find ${DIR} -group ossec -user ossecr -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
+            find ${DIR} -group ossec -user ossecr -exec chown ${USER}:${GROUP} {} \; > /dev/null 2>&1 || true
             deluser ossecr
         fi
         delgroup ossec 
