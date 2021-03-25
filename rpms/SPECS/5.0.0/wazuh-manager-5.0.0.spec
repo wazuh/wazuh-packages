@@ -178,11 +178,11 @@ exit 0
 
 %pre
 
-# Create the ossec group if it doesn't exists
-if command -v getent > /dev/null 2>&1 && ! getent group ossec > /dev/null 2>&1; then
-  groupadd -r ossec
-elif ! id -g ossec > /dev/null 2>&1; then
-  groupadd -r ossec
+# Create the wazuh group if it doesn't exists
+if command -v getent > /dev/null 2>&1 && ! getent group wazuh > /dev/null 2>&1; then
+  groupadd -r wazuh
+elif ! id -g wazuh > /dev/null 2>&1; then
+  groupadd -r wazuh
 fi
 
 # Stop the services to upgrade the package
@@ -276,6 +276,7 @@ if [ $1 = 2 ]; then
 fi
 
 %post
+
 if [ $1 = 2 ]; then
   if [ -d %{_localstatedir}/logs/ossec ]; then
     mv %{_localstatedir}/logs/ossec/* %{_localstatedir}/logs/wazuh > /dev/null 2>&1 || true
@@ -446,7 +447,7 @@ if id -g ossec > /dev/null 2>&1; then
     find %{_localstatedir} -group ossec -user ossecr -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
     userdel ossecr
   fi
-  rmgroup ossec
+  groupdel ossec
 fi
 
 %preun

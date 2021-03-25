@@ -181,16 +181,15 @@ fi
 exit 0
 
 %pre
-
-# Create the ossec group if it doesn't exists
-if command -v getent > /dev/null 2>&1 && ! getent group ossec > /dev/null 2>&1; then
-  groupadd -r ossec
-elif ! id -g ossec > /dev/null 2>&1; then
-  groupadd -r ossec
+# Create the wazuh group if it doesn't exists
+if command -v getent > /dev/null 2>&1 && ! getent group wazuh > /dev/null 2>&1; then
+  groupadd -r wazuh
+elif ! id -g wazuh > /dev/null 2>&1; then
+  groupadd -r wazuh
 fi
-# Create the ossec user if it doesn't exists
-if ! id -u ossec > /dev/null 2>&1; then
-  useradd -g ossec -G ossec -d %{_localstatedir} -r -s /sbin/nologin ossec
+# Create the wazuh user if it doesn't exists
+if ! id -u wazuh > /dev/null 2>&1; then
+  useradd -g wazuh -G wazuh -d %{_localstatedir} -r -s /sbin/nologin wazuh
 fi
 
 # Stop the services to upgrade the package
@@ -221,7 +220,6 @@ if [ $1 = 2 ]; then
     mv %{_localstatedir}/queue/ossec/* %{_localstatedir}/queue/sockets > /dev/null 2>&1 || true
   fi
 fi
-
 # If the package is being installed
 if [ $1 = 1 ]; then
 
@@ -246,7 +244,7 @@ if [ $1 = 1 ]; then
 
   . %{_localstatedir}/packages_files/agent_installation_scripts/src/init/dist-detect.sh
 
-  # Generating osse.conf file
+  # Generating ossec.conf file
   %{_localstatedir}/packages_files/agent_installation_scripts/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir} > %{_localstatedir}/etc/ossec.conf
   chown root:wazuh %{_localstatedir}/etc/ossec.conf
 
@@ -373,7 +371,7 @@ if id -g ossec > /dev/null 2>&1; then
     find %{_localstatedir} -group ossec -user ossecr -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
     userdel ossecr
   fi
-  rmgroup ossec
+  groupdel ossec
 fi
 
 %preun
