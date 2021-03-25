@@ -430,7 +430,8 @@ rm -rf %{_localstatedir}/packages_files
 # Remove unnecessary files from default group
 rm -f %{_localstatedir}/etc/shared/default/*.rpmnew
 
-# Change user and group if necessary
+# Remove old ossec user and group if exists and change ownwership of files
+
 if id -g ossec > /dev/null 2>&1; then
   find %{_localstatedir} -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
   if id -u ossec > /dev/null 2>&1; then

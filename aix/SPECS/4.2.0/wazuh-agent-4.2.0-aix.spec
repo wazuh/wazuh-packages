@@ -173,7 +173,8 @@ if grep '<address>.*</address>' %{_localstatedir}/etc/ossec.conf | grep -v 'MANA
   /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
 fi
 
-# Change user and group if necessary
+# Remove old ossec user and group if exists and change ownwership of files
+
 if grep "^ossec:" /etc/group > /dev/null 2>&1; then
   find %{_localstatedir} -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
   if grep "^ossec" /etc/passwd > /dev/null 2>&1; then

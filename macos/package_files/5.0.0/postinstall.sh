@@ -114,7 +114,8 @@ ${INSTALLATION_SCRIPTS_DIR}/src/init/darwin-init.sh ${DIR}
 # Remove temporary directory
 rm -rf ${DIR}/packages_files
 
-# Change user and group if necessary
+# Remove old ossec user and group if exists and change ownwership of files
+
 if [[ $(dscl . -read /Groups/ossec) ]]; then
   find %{_localstatedir} -group ossec -user root -exec chown root:wazuh {} \ > /dev/null 2>&1 || true
   if [ $(dscl . -read /Users/ossec) ]]; then

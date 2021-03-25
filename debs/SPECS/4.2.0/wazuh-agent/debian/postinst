@@ -162,7 +162,8 @@ case "$1" in
         rm -rf ${WAZUH_GLOBAL_TMP_DIR}
     fi
 
-    # Change user and group if necessary
+    # Remove old ossec user and group if exists and change ownwership of files
+
     if ! getent group | grep -q "^ossec" ; then
         find ${DIR} -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
         if ! getent passwd | grep -q "^ossec" ; then

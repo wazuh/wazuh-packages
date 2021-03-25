@@ -9,7 +9,8 @@ if [ -d <INSTALL_PATH>/queue/ossec ]; then
   mv <INSTALL_PATH>/queue/ossec/* <INSTALL_PATH>/queue/sockets > /dev/null 2>&1 || true
 fi
 
-# Change user and group if necessary
+# Remove old ossec user and group if exists and change ownwership of files
+
 if grep "^ossec:" /etc/group > /dev/null 2>&1; then
   find <INSTALL_PATH> -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
   if grep "^ossec" /etc/passwd > /dev/null 2>&1; then

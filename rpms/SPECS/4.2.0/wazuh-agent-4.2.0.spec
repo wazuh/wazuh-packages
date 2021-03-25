@@ -355,7 +355,8 @@ fi
 # Restore ossec.conf permissions after upgrading
 chmod 0660 %{_localstatedir}/etc/ossec.conf
 
-# Change user and group if necessary
+# Remove old ossec user and group if exists and change ownwership of files
+
 if id -g ossec > /dev/null 2>&1; then
   find %{_localstatedir} -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
   if id -u ossec > /dev/null 2>&1; then
