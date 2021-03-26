@@ -38,8 +38,8 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 # Extract elasticsearch-oss tar.gz file
 mkdir -p files/plugins
 mkdir -p files/config_files
-#curl -o files/elasticsearch-oss-7.10.2-linux-x86_64.tar.gz https://packages-dev.wazuh.com/deps/wazuh-indexer/elasticsearch-oss-7.10.2-linux-x86_64.tar.gz
-#curl -o files/elasticsearch-oss-extracted-files.tgz https://packages-dev.wazuh.com/deps/wazuh-indexer/elasticsearch-oss-extracted-files.tgz
+curl -o files/elasticsearch-oss-7.10.2-linux-x86_64.tar.gz https://packages-dev.wazuh.com/deps/wazuh-indexer/elasticsearch-oss-7.10.2-linux-x86_64.tar.gz
+curl -o files/elasticsearch-oss-extracted-files.tgz https://packages-dev.wazuh.com/deps/wazuh-indexer/elasticsearch-oss-extracted-files.tgz
 tar -zxvf files/elasticsearch-oss-extracted-files.tgz -C files/
 
 
@@ -90,8 +90,6 @@ EOF
 
 
 
-
-#cp files/elasticsearch-oss-7.10.2-linux-x86_64.tar.gz .
 tar -zvxf files/elasticsearch-oss-7.10.2-linux-x86_64.tar.gz
 
 # Fix distribution type so systemd is notified: https://github.com/elastic/elasticsearch/issues/55477
@@ -121,9 +119,6 @@ mkdir -p %{buildroot}%{LOG_DIR}
 # Copy the installed files into buildroot directory
 cp -pr elasticsearch-7.10.2/* %{buildroot}%{_localstatedir}/
 
-# Remove bundled configuration directory since /etc/wazuh-indexer will be used
-##rm -rf %{buildroot}%{_localstatedir}/config
-
 # Add custom tools
 cp files/wazuh-passwords-tool.sh %{buildroot}%{_localstatedir}/bin
 cp files/wazuh-cert-tool.sh %{buildroot}%{_localstatedir}/bin
@@ -134,9 +129,6 @@ cp files/instances.yml %{buildroot}%{_localstatedir}/bin
 cp files/config_files/elasticsearch.yml %{buildroot}%{CONFIG_DIR}/elasticsearch.yml.distributed
 cp files/config_files/elasticsearch_all_in_one.yml %{buildroot}%{CONFIG_DIR}/elasticsearch.yml.aio
 cp files/config_files/elasticsearch_all_in_one.yml %{buildroot}%{CONFIG_DIR}/elasticsearch.yml
-#cp files/config_files/elasticsearch_3364-Unattended_improvements.yml %{buildroot}%{CONFIG_DIR}/elasticsearch.yml.distributed.wazuh-cert
-#cp files/config_files/elasticsearch_all_in_one_3364-Unattended_improvements.yml %{buildroot}%{CONFIG_DIR}/elasticsearch.yml.aio.wazuh-cert
-#cp files/config_files/elasticsearch_all_in_one_3364-Unattended_improvements.yml %{buildroot}%{CONFIG_DIR}/elasticsearch.yml
 
 
 
@@ -198,7 +190,6 @@ rm -rf %{buildroot}%{_localstatedir}/config
 sed -i 's/\/usr\/share\/elasticsearch/\/usr\/share\/wazuh-indexer/' %{buildroot}%{_localstatedir}/plugins/opendistro-performance-analyzer/pa_config/supervisord.conf
 sed -i 's/\/usr\/share\/elasticsearch/\/usr\/share\/wazuh-indexer/' %{buildroot}%{_localstatedir}/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/supervisord.conf
 
-#sed -i 's/\/usr\/share\/elasticsearch/\/usr\/share\/wazuh-indexer/' %{buildroot}%{_localstatedir}/performance-analyzer-rca/pa_config/supervisord.conf
 
 exit 0
 
