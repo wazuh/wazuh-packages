@@ -10,6 +10,7 @@ Vendor:      Wazuh, Inc <info@wazuh.com>
 Packager:    Wazuh, Inc <info@wazuh.com>
 AutoReqProv: no
 
+Conflicts: elasticsearch elasticsearch-oss opendistroforelasticsearch
 Requires: coreutils openssl
 BuildRequires: tar
 
@@ -1231,6 +1232,7 @@ if ! grep -q '## OpenDistro Performance Analyzer' %{CONFIG_DIR}/jvm.options; the
 fi
 
 IS_UPGRADE=false
+
 case "$1" in
     1)
         # If $1=1 this is an install
@@ -1335,14 +1337,34 @@ fi
 export JAVA_HOME=%{INSTALL_DIR}/jdk
 
 echo "Registering and starting %{SERVICE_NAME} service"
-systemctl daemon-reload
-systemctl enable %{SERVICE_NAME}
-systemctl start %{SERVICE_NAME}
+
+
+if command -v systemctl >/dev/null; then
+    systemctl daemon-reload
+    systemctl enable %{SERVICE_NAME}.service
+    systemctl start %{SERVICE_NAME}.service
+elif command -v chkconfig >/dev/null; then
+    chkconfig --add %{SERVICE_NAME}
+    service %{SERVICE_NAME} start
+elif command -v update-rc.d >/dev/null; then
+    update-rc.d %{SERVICE_NAME} defaults 95 10
+    /etc/init.d/%{SERVICE_NAME} start
+fi
+
 
 echo "Initializing OpenDistro"
 
 %{INSTALL_DIR}/plugins/opendistro_security/tools/securityadmin.sh -cd %{INSTALL_DIR}/plugins/opendistro_security/securityconfig/ -nhnv -cacert %{CONFIG_DIR}/certs/root-ca.pem -cert %{CONFIG_DIR}/certs/admin.pem -key %{CONFIG_DIR}/certs/admin-key.pem
 
+if [ "$?" != "0" ]; then
+    # TODO: SystemV may report that service is started but it is not available ant the setup fails
+    # One option could be to first check the result of curl -s https://localhost:9200/_cat/health -k if the
+    # port will not change or we can obtain it
+    echo "Service not ready yet. Retrying in 10 seconds..."
+    sleep 10;
+    %{INSTALL_DIR}/plugins/opendistro_security/tools/securityadmin.sh -cd %{INSTALL_DIR}/plugins/opendistro_security/securityconfig/ -nhnv -cacert %{CONFIG_DIR}/certs/root-ca.pem -cert %{CONFIG_DIR}/certs/admin.pem -key %{CONFIG_DIR}/certs/admin-key.pem
+
+fi
 
 # Built for packages-7.10.0 (rpm)
 
