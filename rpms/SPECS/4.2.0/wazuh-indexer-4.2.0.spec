@@ -39,7 +39,7 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 # Extract elasticsearch-oss tar.gz file
 mkdir -p files/plugins
 mkdir -p files/config_files
-curl -o files/elasticsearch-oss-7.10.2-linux-x86_64.tar.gz https://packages-dev.wazuh.com/deps/wazuh-indexer/elasticsearch-oss-7.10.2-linux-x86_64.tar.gz
+curl -o files/opendistroforelasticsearch-1.13.1-linux-x64.tar.gz https://packages-dev.wazuh.com/deps/wazuh-indexer/opendistroforelasticsearch-1.13.1-linux-x64.tar.gz
 curl -o files/elasticsearch-oss-extracted-files.tgz https://packages-dev.wazuh.com/deps/wazuh-indexer/elasticsearch-oss-extracted-files.tgz
 tar -zxvf files/elasticsearch-oss-extracted-files.tgz -C files/
 
@@ -49,19 +49,6 @@ curl -o files/instances.yml https://raw.githubusercontent.com/wazuh/wazuh-docume
 #Using only AIO for the moment
 #curl -o files/instances.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/679-wazuh-packages_wazuh-indexer/resources/open-distro/tools/certificate-utility/instances.yml
 curl -o files/wazuh-passwords-tool.sh https://raw.githubusercontent.com/wazuh/wazuh-documentation/679-wazuh-packages_wazuh-indexer/resources/open-distro/tools/wazuh-passwords-tool.sh
-
-curl -o files/plugins/opendistro-alerting-1.13.1.0.zip https://packages-dev.wazuh.com/deps/wazuh-indexer/opendistro-elasticsearch-plugins/opendistro-alerting-1.13.1.0.zip
-curl -o files/plugins/opendistro-anomaly-detection-1.13.0.0.zip https://packages-dev.wazuh.com/deps/wazuh-indexer/opendistro-elasticsearch-plugins/opendistro-anomaly-detection-1.13.0.0.zip
-curl -o files/plugins/opendistro-asynchronous-search-1.13.0.1.zip https://packages-dev.wazuh.com/deps/wazuh-indexer/opendistro-elasticsearch-plugins/opendistro-asynchronous-search-1.13.0.1.zip
-curl -o files/plugins/opendistro-index-management-1.13.1.0.zip https://packages-dev.wazuh.com/deps/wazuh-indexer/opendistro-elasticsearch-plugins/opendistro-index-management-1.13.1.0.zip
-curl -o files/plugins/opendistro-job-scheduler-1.13.0.0.zip https://packages-dev.wazuh.com/deps/wazuh-indexer/opendistro-elasticsearch-plugins/opendistro-job-scheduler-1.13.0.0.zip
-curl -o files/plugins/opendistro-performance-analyzer-1.13.0.0.zip https://packages-dev.wazuh.com/deps/wazuh-indexer/opendistro-elasticsearch-plugins/opendistro-performance-analyzer-1.13.0.0.zip
-curl -o files/plugins/opendistro-reports-scheduler-1.13.0.0.zip https://packages-dev.wazuh.com/deps/wazuh-indexer/opendistro-elasticsearch-plugins/opendistro-reports-scheduler-1.13.0.0.zip
-curl -o files/plugins/opendistro-security-1.13.1.0.zip https://packages-dev.wazuh.com/deps/wazuh-indexer/opendistro-elasticsearch-plugins/opendistro-security-1.13.1.0.zip
-curl -o files/plugins/opendistro-sql-1.13.0.0.zip https://packages-dev.wazuh.com/deps/wazuh-indexer/opendistro-elasticsearch-plugins/opendistro-sql-1.13.0.0.zip
-curl -o files/plugins/knn.tgz https://packages-dev.wazuh.com/deps/wazuh-indexer/opendistro-elasticsearch-plugins/knn.tgz
-
-tar -zxvf files/plugins/knn.tgz -C files/plugins
 
 
 curl -o files/config_files/elasticsearch.yml  https://raw.githubusercontent.com/wazuh/wazuh-documentation/679-wazuh-packages_wazuh-indexer/resources/open-distro/elasticsearch/7.x/elasticsearch.yml
@@ -91,10 +78,10 @@ EOF
 
 
 
-tar -zvxf files/elasticsearch-oss-7.10.2-linux-x86_64.tar.gz
+tar -zvxf files/opendistroforelasticsearch-1.13.1-linux-x64.tar.gz
 
 # Fix distribution type so systemd is notified: https://github.com/elastic/elasticsearch/issues/55477
-sed -i 's/ES_DISTRIBUTION_TYPE=tar/ES_DISTRIBUTION_TYPE=rpm/' elasticsearch-7.10.2/bin/elasticsearch-env
+sed -i 's/ES_DISTRIBUTION_TYPE=tar/ES_DISTRIBUTION_TYPE=rpm/' opendistroforelasticsearch-1.13.1/bin/elasticsearch-env
 
 
 
@@ -118,7 +105,7 @@ mkdir -p %{buildroot}%{LIB_DIR}
 mkdir -p %{buildroot}%{LOG_DIR}
 
 # Copy the installed files into buildroot directory
-cp -pr elasticsearch-7.10.2/* %{buildroot}%{_localstatedir}/
+cp -pr opendistroforelasticsearch-1.13.1/* %{buildroot}%{_localstatedir}/
 
 # Add custom tools
 cp files/wazuh-passwords-tool.sh %{buildroot}%{_localstatedir}/bin
@@ -145,7 +132,6 @@ cp files/elasticsearch-oss-extracted-files/systemd-entrypoint %{buildroot}%{_loc
 cp -pr files/elasticsearch-oss-extracted-files/systemd_module/systemd %{buildroot}%{_localstatedir}/modules
 
 # This is needed by the performance-analyzer service
-mkdir %{buildroot}%{_localstatedir}/data
 echo false > %{buildroot}%{_localstatedir}/data/batch_metrics_enabled.conf
 
 # Service for performance analyzer
@@ -155,22 +141,11 @@ cp files/opendistro-performance-analyzer.service %{buildroot}/usr/lib/systemd/sy
 # Install plugins
 export ES_HOME=%{buildroot}%{_localstatedir}
 export JAVA_HOME=%{buildroot}%{_localstatedir}/jdk
-%{buildroot}%{_localstatedir}/bin/elasticsearch-plugin install --batch file://%{_builddir}/files/plugins/opendistro-security-1.13.1.0.zip
-%{buildroot}%{_localstatedir}/bin/elasticsearch-plugin install --batch file://%{_builddir}/files/plugins/opendistro-job-scheduler-1.13.0.0.zip
-%{buildroot}%{_localstatedir}/bin/elasticsearch-plugin install --batch file://%{_builddir}/files/plugins/opendistro-alerting-1.13.1.0.zip
-%{buildroot}%{_localstatedir}/bin/elasticsearch-plugin install --batch file://%{_builddir}/files/plugins/opendistro-sql-1.13.0.0.zip
-%{buildroot}%{_localstatedir}/bin/elasticsearch-plugin install --batch file://%{_builddir}/files/plugins/opendistro-reports-scheduler-1.13.0.0.zip
-%{buildroot}%{_localstatedir}/bin/elasticsearch-plugin install --batch file://%{_builddir}/files/plugins/opendistro-index-management-1.13.1.0.zip
-%{buildroot}%{_localstatedir}/bin/elasticsearch-plugin install --batch file://%{_builddir}/files/plugins/opendistro-anomaly-detection-1.13.0.0.zip
-%{buildroot}%{_localstatedir}/bin/elasticsearch-plugin install --batch file://%{_builddir}/files/plugins/opendistro-asynchronous-search-1.13.0.1.zip
-%{buildroot}%{_localstatedir}/bin/elasticsearch-plugin install --batch file://%{_builddir}/files/plugins/opendistro-performance-analyzer-1.13.0.0.zip
 
-# K-NN is a special plugins, needs a lib. Here we copy the plugin files (corresponds to knn.rpm)
-mkdir -p %{buildroot}%{_localstatedir}/plugins/opendistro-knn
-cp files/plugins/knn_rpm_extracted_files/* %{buildroot}%{_localstatedir}/plugins/opendistro-knn
+# Run the opendistro tar install script but don't start elasticsearch at this time
+sed -i 's/bash $ES_HOME/#bash $ES_HOME/' %{buildroot}%{_localstatedir}/opendistro-tar-install.sh
 
-# Here we copy the library (corresponds to knnlib.rpm)
-cp files/plugins/knnlib_rpm_extracted_files/libKNNIndexV2_0_11.so %{buildroot}/usr/lib
+%{buildroot}%{_localstatedir}/opendistro-tar-install.sh
 
 
 # Copy Wazuh's config files for the opendistro_security plugin
@@ -190,6 +165,7 @@ rm -rf %{buildroot}%{_localstatedir}/config
 # Note: For the moment not using variable because of escaped slashes, btu should use INSTALL_DIR
 sed -i 's/\/usr\/share\/elasticsearch/\/usr\/share\/wazuh-indexer/' %{buildroot}%{_localstatedir}/plugins/opendistro-performance-analyzer/pa_config/supervisord.conf
 sed -i 's/\/usr\/share\/elasticsearch/\/usr\/share\/wazuh-indexer/' %{buildroot}%{_localstatedir}/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/supervisord.conf
+
 
 
 exit 0
@@ -241,9 +217,6 @@ rm -fr %{buildroot}
 %attr(755, root, root) %{_localstatedir}/bin/elasticsearch-node
 %attr(755, root, root) %{_localstatedir}/bin/elasticsearch-plugin
 %attr(755, root, root) %{_localstatedir}/bin/elasticsearch-shard
-
-%dir %attr(755, root, root) %{_localstatedir}/bin/opendistro-performance-analyzer
-%attr(755, root, root) %{_localstatedir}/bin/opendistro-performance-analyzer/performance-analyzer-agent-cli
 
 %dir %attr(755, root, root) %{_localstatedir}/lib
 
@@ -911,6 +884,12 @@ rm -fr %{buildroot}
 %dir %attr(755, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/install/deb
 %attr(644, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/install/deb/postinst
 %attr(644, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/install/deb/postrm
+
+
+%attr(755, root, root) %{_localstatedir}/bin/performance-analyzer-agent-cli
+%attr(755, root, root) %{_localstatedir}/opendistro-tar-install.sh
+
+
 %dir %attr(755, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/performance-analyzer-rca
 %dir %attr(755, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/performance-analyzer-rca/bin
 %attr(755, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/performance-analyzer-rca/bin/performance-analyzer-rca
@@ -921,6 +900,19 @@ rm -fr %{buildroot}
 %attr(644, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/*
 %dir %attr(755, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/performance-analyzer-rca/lib
 %attr(644, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/performance-analyzer-rca/lib/*.jar
+
+%dir %attr(755, root, root) %{_localstatedir}/performance-analyzer-rca
+%dir %attr(755, root, root) %{_localstatedir}/performance-analyzer-rca/bin
+%attr(755, root, root) %{_localstatedir}/performance-analyzer-rca/bin/performance-analyzer-rca
+%attr(755, root, root) %{_localstatedir}/performance-analyzer-rca/bin/performance-analyzer-rca.bat
+%dir %attr(755, root, root) %{_localstatedir}/performance-analyzer-rca/pa_bin
+%attr(755, root, root) %{_localstatedir}/performance-analyzer-rca/pa_bin/performance-analyzer-agent
+%dir %attr(755, root, root) %{_localstatedir}/performance-analyzer-rca/pa_config
+%attr(644, root, root) %{_localstatedir}/performance-analyzer-rca/pa_config/*
+%dir %attr(755, root, root) %{_localstatedir}/performance-analyzer-rca/lib
+%attr(644, root, root) %{_localstatedir}/performance-analyzer-rca/lib/*.jar
+
+
 %dir %attr(755, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/pa_bin
 %attr(755, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/pa_bin/performance-analyzer-agent
 
@@ -949,15 +941,12 @@ rm -fr %{buildroot}
 %attr(0644, root, root) "%{_localstatedir}/plugins/opendistro-knn/plugin-security.policy"
 
 # KNN Lib
-%attr(0755, root, root) "/usr/lib/libKNNIndexV2_0_11.so"
+%attr(0755, root, root) "/usr/share/wazuh-indexer/plugins/opendistro-knn/knn-lib/libKNNIndexV2_0_11.so"
 
 %attr(0644, root, root) "/usr/share/%{SERVICE_NAME}/data/batch_metrics_enabled.conf"
 
 %dir %attr(2750, %{USER}, %{GROUP}) "%{LIB_DIR}"
 %dir %attr(2750, %{USER}, %{GROUP}) "%{LOG_DIR}"
-
-
-
 
 
 
@@ -1211,7 +1200,6 @@ if [ -f "$ES_HOME"/bin/opendistro-performance-analyzer/performance-analyzer-agen
   mv "$ES_HOME"/bin/opendistro-performance-analyzer/performance-analyzer-agent-cli "$ES_HOME"/bin
   rm -rf "$ES_HOME"/bin/opendistro-performance-analyzer
 fi
-mkdir -p "$ES_HOME"/data
 mkdir -p "%{LIB_DIR}"
 touch "$ES_HOME"/data/rca_enabled.conf
 echo 'true' > "$ES_HOME"/data/rca_enabled.conf
