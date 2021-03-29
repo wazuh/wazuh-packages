@@ -169,7 +169,7 @@ main() {
         fi
 
         # Compile agent
-        make -C src -j ${JOBS} TARGET=${BUILD_TARGET} PREFIX="${INSTALLATION_PATH}" || exit 1
+        make -C src -j ${JOBS} TARGET=${BUILD_TARGET} || exit 1
         # Clean unuseful files
         clean
         # Preload vars for installer
