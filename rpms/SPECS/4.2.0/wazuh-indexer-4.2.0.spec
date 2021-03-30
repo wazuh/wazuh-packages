@@ -941,9 +941,9 @@ rm -fr %{buildroot}
 %attr(0644, root, root) "%{_localstatedir}/plugins/opendistro-knn/plugin-security.policy"
 
 # KNN Lib
-%attr(0755, root, root) "/usr/share/wazuh-indexer/plugins/opendistro-knn/knn-lib/libKNNIndexV2_0_11.so"
+%attr(0755, root, root) "%{_localstatedir}/plugins/opendistro-knn/knn-lib/libKNNIndexV2_0_11.so"
 
-%attr(0644, root, root) "/usr/share/%{SERVICE_NAME}/data/batch_metrics_enabled.conf"
+%attr(0644, root, root) "%{_localstatedir}/data/batch_metrics_enabled.conf"
 
 %dir %attr(2750, %{USER}, %{GROUP}) "%{LIB_DIR}"
 %dir %attr(2750, %{USER}, %{GROUP}) "%{LOG_DIR}"
