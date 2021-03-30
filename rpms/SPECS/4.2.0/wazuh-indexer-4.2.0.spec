@@ -145,6 +145,9 @@ export JAVA_HOME=%{buildroot}%{_localstatedir}/jdk
 # Run the opendistro tar install script but don't start elasticsearch at this time
 sed -i 's/bash $ES_HOME/#bash $ES_HOME/' %{buildroot}%{_localstatedir}/opendistro-tar-install.sh
 
+# realpath is not present in docker image but readlink is
+sed -i 's/realpath/readlink -f/' %{buildroot}%{_localstatedir}/opendistro-tar-install.sh
+
 %{buildroot}%{_localstatedir}/opendistro-tar-install.sh
 
 
