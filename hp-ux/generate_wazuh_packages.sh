@@ -99,13 +99,7 @@ check_version() {
     number_version=`echo "${wazuh_version}" | cut -d v -f 2`
     major=`echo $number_version | cut -d . -f 1`
     minor=`echo $number_version | cut -d . -f 2`
-    if [ "$major" -eq "3" ]; then
-        if [ "$minor" -ge "5" ]; then
-            deps_version="true"
-        fi
-    elif [ "$major" -gt "3" ]; then
-        deps_version="true"
-    fi
+    deps_version=`cat ${source_directory}/src/Makefile | grep "DEPS_VERSION =" | cut -d " " -f 3`
 }
 
 compile() {
@@ -114,10 +108,7 @@ compile() {
     cd ${source_directory}/src
     config
     check_version
-    if [ "$deps_version" = "true" ]; then
-        gmake deps RESOURCES_URL=http://packages.wazuh.com/deps/$major.$minor
-    fi
-
+    gmake deps RESOURCES_URL=http://packages.wazuh.com/deps/${deps_version} TARGET=agent
     gmake TARGET=agent USE_SELINUX=no DISABLE_SHARED=yes
     bash ${source_directory}/install.sh
     cd $current_path

@@ -38,8 +38,8 @@ pushd src
 make clean
 
 # Build Wazuh sources
-make deps PREFIX=%{_localstatedir}
-make -j%{_threads} TARGET=server USE_SELINUX=yes USE_FRAMEWORK_LIB=yes PREFIX=%{_localstatedir} DEBUG=%{_debugenabled}
+make deps TARGET=server
+make -j%{_threads} TARGET=server USE_SELINUX=yes DEBUG=%{_debugenabled}
 
 popd
 
@@ -169,7 +169,6 @@ install -m 0640 src/init/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/
 # Add installation scripts
 cp src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/src/
 cp src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/src/
-cp src/LOCATION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/src/
 
 if [ %{_debugenabled} = "yes" ]; then
   %{_rpmconfigdir}/find-debuginfo.sh
@@ -196,6 +195,9 @@ if [ $1 = 2 ]; then
     touch %{_localstatedir}/tmp/wazuh.restart
   elif %{_localstatedir}/bin/wazuh-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
     %{_localstatedir}/bin/wazuh-control stop > /dev/null 2>&1
+    touch %{_localstatedir}/tmp/wazuh.restart
+  elif %{_localstatedir}/bin/ossec-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
+    %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
     touch %{_localstatedir}/tmp/wazuh.restart
   fi
 fi
@@ -281,6 +283,16 @@ if [ $1 = 2 ]; then
 fi
 
 %post
+
+if [ $1 = 2 ]; then
+  if [ -d %{_localstatedir}/logs/ossec ]; then
+    mv %{_localstatedir}/logs/ossec/* %{_localstatedir}/logs/wazuh
+  fi
+
+  if [ -d %{_localstatedir}/queue/ossec ]; then
+    mv %{_localstatedir}/queue/ossec/* %{_localstatedir}/queue/sockets
+  fi
+fi
 
 # Fresh install code block
 if [ $1 = 1 ]; then
@@ -526,6 +538,14 @@ if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
   fi
 fi
 
+if [ -d %{_localstatedir}/logs/ossec ]; then
+  rm -rf %{_localstatedir}/logs/ossec/
+fi
+
+if [ -d %{_localstatedir}/queue/ossec ]; then
+  rm -rf %{_localstatedir}/queue/ossec/
+fi
+
 %triggerin -- glibc
 [ -r %{_sysconfdir}/localtime ] && cp -fpL %{_sysconfdir}/localtime %{_localstatedir}/etc
  chown root:ossec %{_localstatedir}/etc/localtime
@@ -570,6 +590,7 @@ rm -fr %{buildroot}
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-execd
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-integratord
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-logcollector
+%attr(750, root, root) %{_localstatedir}/bin/wazuh-logtest-legacy
 %attr(750, root, ossec) %{_localstatedir}/bin/wazuh-logtest
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-maild
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-monitord
@@ -623,7 +644,7 @@ rm -fr %{buildroot}
 %attr(750, root, ossec) %{_localstatedir}/lib/librsync.so
 %attr(750, root, ossec) %{_localstatedir}/lib/libsyscollector.so
 %attr(750, root, ossec) %{_localstatedir}/lib/libsysinfo.so
-%{_localstatedir}/lib/libpython3.8.so.1.0
+%{_localstatedir}/lib/libpython3.9.so.1.0
 %dir %attr(770, ossec, ossec) %{_localstatedir}/logs
 %attr(660, ossec, ossec)  %ghost %{_localstatedir}/logs/active-responses.log
 %attr(660, ossec, ossec) %ghost %{_localstatedir}/logs/api.log
@@ -635,13 +656,12 @@ rm -fr %{buildroot}
 %dir %attr(750, ossec, ossec) %{_localstatedir}/logs/alerts
 %dir %attr(750, ossec, ossec) %{_localstatedir}/logs/cluster
 %dir %attr(750, ossec, ossec) %{_localstatedir}/logs/firewall
-%dir %attr(750, ossec, ossec) %{_localstatedir}/logs/ossec
+%dir %attr(750, ossec, ossec) %{_localstatedir}/logs/wazuh
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/add_localfiles.sh
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/gen_ossec.sh
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/src/
-%attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/src/LOCATION
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/src/REVISION
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/src/VERSION
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/src/init/
@@ -670,7 +690,7 @@ rm -fr %{buildroot}
 %dir %attr(750, ossec, ossec) %{_localstatedir}/queue/fts
 %dir %attr(770, ossecr, ossec) %{_localstatedir}/queue/rids
 %dir %attr(770, ossec, ossec) %{_localstatedir}/queue/tasks
-%dir %attr(770, ossec, ossec) %{_localstatedir}/queue/ossec
+%dir %attr(770, ossec, ossec) %{_localstatedir}/queue/sockets
 %dir %attr(660, root, ossec) %{_localstatedir}/queue/vulnerabilities
 %dir %attr(440, root, ossec) %{_localstatedir}/queue/vulnerabilities/dictionaries
 %dir %attr(750, ossec, ossec) %{_localstatedir}/queue/logcollector

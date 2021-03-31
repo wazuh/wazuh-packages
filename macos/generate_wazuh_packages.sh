@@ -185,6 +185,7 @@ function help() {
     echo "    -h, --help                    [  Util  ] Show this help."
     echo "    -i, --install-deps            [  Util  ] Install build dependencies (Packages)."
     echo "    -x, --install-xcode           [  Util  ] Install X-Code and brew. Can't be executed as root."
+    echo "    -v, --verbose                 [  Util  ] Show additional information during the package generation."
     echo
     echo "  Signing options:"
     echo "    --keychain                    [Optional] Keychain where the Certificates are installed."
@@ -255,7 +256,7 @@ function install_deps() {
 function install_xcode() {
 
     # Install brew tool. Brew will install X-Code if it is not already installed in the host.
-    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 
     exit 0
 }

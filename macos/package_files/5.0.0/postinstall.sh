@@ -28,10 +28,10 @@ chown -R root:wheel ${DIR}/bin
 chown -R root:wheel ${DIR}/lib
 
 # To the ossec queue (default for agentd to read)
-chown -R ${USER}:${GROUP} ${DIR}/queue/{alerts,diff,ossec,rids}
+chown -R ${USER}:${GROUP} ${DIR}/queue/{alerts,diff,sockets,rids}
 
-chmod -R 770 ${DIR}/queue/{alerts,ossec}
-chmod -R 750 ${DIR}/queue/{diff,ossec,rids}
+chmod -R 770 ${DIR}/queue/{alerts,sockets}
+chmod -R 750 ${DIR}/queue/{diff,sockets,rids}
 
 # For the logging user
 chmod 770 ${DIR}/logs

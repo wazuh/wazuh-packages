@@ -17,6 +17,8 @@ else
     launchctl setenv WAZUH_PKG_UPGRADE true
     if ${DIR}/bin/wazuh-control status | grep "is running" > /dev/null 2>&1; then
         launchctl setenv WAZUH_RESTART true
+    elif ${DIR}/bin/ossec-control status | grep "is running" > /dev/null 2>&1; then
+        launchctl setenv WAZUH_RESTART true
     else
         launchctl setenv WAZUH_RESTART false
     fi
@@ -25,6 +27,14 @@ fi
 if [ $(launchctl getenv WAZUH_PKG_UPGRADE) = true ]; then
     mkdir -p ${DIR}/config_files/
     cp -r ${DIR}/etc/{ossec.conf,client.keys,local_internal_options.conf,shared} ${DIR}/config_files/
+
+    if [ -d ${DIR}/logs/ossec ]; then
+        mv ${DIR}/logs/ossec ${DIR}/logs/wazuh
+    fi
+    
+    if [ -d ${DIR}/queue/ossec ]; then
+        mv ${DIR}/queue/ossec ${DIR}/queue/sockets
+    fi
 fi
 
 if [ $(launchctl getenv WAZUH_PKG_UPGRADE) = true ]; then
@@ -82,6 +92,8 @@ fi
 # Stops the agent before upgrading it
 if [ -f ${DIR}/bin/wazuh-control ]; then
     ${DIR}/bin/wazuh-control stop
+elif [ -f ${DIR}/bin/ossec-control ]; then
+    ${DIR}/bin/ossec-control stop
 fi
 
 # Creating the group
