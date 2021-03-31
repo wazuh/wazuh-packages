@@ -110,11 +110,13 @@ fi
 %post
 if [ $1 = 2 ]; then
   if [ -d %{_localstatedir}/logs/ossec ]; then
-    mv %{_localstatedir}/logs/ossec/* %{_localstatedir}/logs/wazuh
+    rm -rf %{_localstatedir}/logs/wazuh
+    cp -rp %{_localstatedir}/logs/ossec %{_localstatedir}/logs/wazuh
   fi
 
   if [ -d %{_localstatedir}/queue/ossec ]; then
-    mv %{_localstatedir}/queue/ossec/* %{_localstatedir}/queue/sockets
+    rm -rf %{_localstatedir}/queue/sockets
+    cp -rp %{_localstatedir}/queue/ossec %{_localstatedir}/queue/sockets
   fi
 fi
 
