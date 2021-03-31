@@ -40,7 +40,7 @@ case "$1" in
             fi
             
             if [ -d ${DIR}/queue/ossec ]; then
-                mv ${DIR}/queue/ossec ${DIR}/logs/sockets
+                mv ${DIR}/queue/ossec ${DIR}/queue/sockets
             fi
 
             # Delete old API backups
