@@ -142,14 +142,14 @@ installation(){
     gmake clean
     check_version
     if [ "$deps_version" = "true" ]; then
-        gmake deps
+        gmake deps TARGET=agent
     fi
     arch="$(uname -p)"
     # Build the binaries
     if [ "$arch" = "sparc" ]; then
-        gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no USE_BIG_ENDIAN=yes DISABLE_SHARED=yes || return 1
+        gmake -j $THREADS TARGET=agent USE_SELINUX=no USE_BIG_ENDIAN=yes DISABLE_SHARED=yes || return 1
     else
-        gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no DISABLE_SHARED=yes || return 1
+        gmake -j $THREADS TARGET=agent USE_SELINUX=no DISABLE_SHARED=yes || return 1
     fi
 
     cd $SOURCE

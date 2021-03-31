@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [v4.1.1]
+
+- Updated Wazuh app build script [#648](https://github.com/wazuh/wazuh-packages/pull/648)
+
 ## [v4.0.2]
 
 ### Added

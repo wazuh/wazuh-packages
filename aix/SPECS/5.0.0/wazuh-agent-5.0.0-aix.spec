@@ -21,8 +21,9 @@ Wazuh is an open source security monitoring solution for threat detection, integ
 
 %prep
 %setup -q
-cd src && gmake clean && gmake deps RESOURCES_URL=http://packages.wazuh.com/deps/5.0
-gmake TARGET=agent USE_SELINUX=no PREFIX=%{_localstatedir} DISABLE_SHARED=yes DISABLE_SYSC=yes
+deps_version=`cat src/Makefile | grep "DEPS_VERSION =" | cut -d " " -f 3`
+cd src && gmake clean && gmake deps RESOURCES_URL=http://packages.wazuh.com/deps/${deps_version} TARGET=agent
+gmake TARGET=agent USE_SELINUX=no DISABLE_SHARED=yes DISABLE_SYSC=yes
 cd ..
 
 %install
@@ -76,7 +77,6 @@ cp src/init/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/src/init
 # Add installation scripts
 cp src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/src/
 cp src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/src/
-cp src/LOCATION ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/src/
 
 exit 0
 
@@ -101,11 +101,23 @@ if [ $1 = 1 ]; then
 fi
 
 if [ $1 = 2 ]; then
-  touch %{_localstatedir}/tmp/wazuh.restart
-  /etc/rc.d/init.d/wazuh-agent stop > /dev/null 2>&1 || :
+  if %{_localstatedir}/bin/wazuh-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
+    /etc/rc.d/init.d/wazuh-agent stop > /dev/null 2>&1 || :
+    touch %{_localstatedir}/tmp/wazuh.restart
+  fi
 fi
 
 %post
+if [ $1 = 2 ]; then
+  if [ -d %{_localstatedir}/logs/ossec ]; then
+    mv %{_localstatedir}/logs/ossec/* %{_localstatedir}/logs/wazuh
+  fi
+
+  if [ -d %{_localstatedir}/queue/ossec ]; then
+    mv %{_localstatedir}/queue/ossec/* %{_localstatedir}/queue/sockets
+  fi
+fi
+
 # New installations
 if [ $1 = 1 ]; then
 
@@ -196,6 +208,14 @@ if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
   /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
 fi
 
+if [ -d %{_localstatedir}/logs/ossec ]; then
+  rm -rf %{_localstatedir}/logs/ossec/
+fi
+
+if [ -d %{_localstatedir}/queue/ossec ]; then
+  rm -rf %{_localstatedir}/queue/ossec/
+fi
+
 %clean
 rm -fr %{buildroot}
 
@@ -224,9 +244,9 @@ rm -fr %{buildroot}
 %attr(660,ossec,ossec) %ghost %{_localstatedir}/logs/active-responses.log
 %attr(660,root,ossec) %ghost %{_localstatedir}/logs/ossec.log
 %attr(660,root,ossec) %ghost %{_localstatedir}/logs/ossec.json
-%dir %attr(750,ossec,ossec) %{_localstatedir}/logs/ossec
+%dir %attr(750,ossec,ossec) %{_localstatedir}/logs/wazuh
 %dir %attr(750,root,ossec) %{_localstatedir}/queue
-%dir %attr(770,ossec,ossec) %{_localstatedir}/queue/ossec
+%dir %attr(770,ossec,ossec) %{_localstatedir}/queue/sockets
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/diff
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/fim
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/fim/db

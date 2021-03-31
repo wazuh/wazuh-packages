@@ -15,6 +15,9 @@ arch=`uname -p`
 SOURCE=${current_path}/repository
 CONFIG="$SOURCE/etc/preloaded-vars.conf"
 VERSION=""
+number_version=""
+major_version=""
+minor_version=""
 target_dir="${current_path}/output"
 checksum_dir=""
 compute_checksums="no"
@@ -95,9 +98,6 @@ download_source() {
 }
 
 check_version(){
-    number_version=`echo "$VERSION" | cut -d v -f 2`
-    major_version=`echo ${number_version} | cut -d . -f 1`
-    minor_version=`echo ${number_version} | cut -d . -f 2`
     if [ "${major_version}" -eq "3" ]; then
         if [ "${minor_version}" -ge "5" ]; then
             deps_version="true"
@@ -120,20 +120,23 @@ compile() {
 
     cd ${current_path}
     VERSION=`cat $SOURCE/src/VERSION`
+    number_version=`echo "$VERSION" | cut -d v -f 2`
+    major_version=`echo ${number_version} | cut -d . -f 1`
+    minor_version=`echo ${number_version} | cut -d . -f 2`
     cd $SOURCE/src
     gmake clean
     config
     check_version
     if [ "${deps_version}" = "true" ]; then
-        gmake deps
+        gmake deps TARGET=agent
     fi
 
     arch="$(uname -p)"
     # Build the binaries
     if [ "$arch" = "sparc" ]; then
-        gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no USE_BIG_ENDIAN=yes DISABLE_SHARED=yes || exit 1
+        gmake -j $THREADS TARGET=agent USE_SELINUX=no USE_BIG_ENDIAN=yes DISABLE_SHARED=yes || exit 1
     else
-        gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no DISABLE_SHARED=yes || exit 1
+        gmake -j $THREADS TARGET=agent USE_SELINUX=no DISABLE_SHARED=yes || exit 1
     fi
 
     $SOURCE/install.sh || exit 1
@@ -160,12 +163,24 @@ create_package() {
     pkgsend generate ${install_path} | pkgfmt > wazuh-agent.p5m.1
     python solaris_fix.py -t SPECS/template_agent_${VERSION}.json -p wazuh-agent.p5m.1 # Fix p5m.1 file
     mv wazuh-agent.p5m.1.aux.fixed wazuh-agent.p5m.1
-
     # Add the preserve=install-only tag to the configuration files
     for file in etc/ossec.conf etc/local_internal_options.conf etc/client.keys; do
         sed "s:file $file.*:& preserve=install-only:"  wazuh-agent.p5m.1 > wazuh-agent.p5m.1.aux_sed
         mv wazuh-agent.p5m.1.aux_sed wazuh-agent.p5m.1
     done
+
+    if [ "${major_version}" -ge "4" ]; then
+        if [ "${minor_version}" -ge "2" ]; then
+            mkdir   ${install_path}/logs/ossec
+            chown ossec:ossec ${install_path}/logs/ossec
+            chmod 0750 ${install_path}/logs/ossec
+            sed "s|<INSTALL_PATH>|${install_path}|" ${current_path}/postinstall.sh > ${current_path}/postinstall.sh.new
+            mv ${current_path}/postinstall.sh.new ${current_path}/postinstall.sh
+            echo "file smf_manifest.xml path=lib/svc/manifest/site/post-install.xml owner=root group=sys mode=0744 restart_fmri=svc:/system/manifest-import:default" >> wazuh-agent.p5m.1
+            echo "dir  path=var/ossec/installation_scripts owner=root group=bin mode=0755" >> wazuh-agent.p5m.1
+            echo "file postinstall.sh path=var/ossec/installation_scripts/postinstall.sh owner=root group=bin mode=0744" >> wazuh-agent.p5m.1
+        fi
+    fi
     # Add service files
     echo "file wazuh-agent path=etc/init.d/wazuh-agent owner=root group=sys mode=0744" >> wazuh-agent.p5m.1
     echo "file S97wazuh-agent path=etc/rc2.d/S97wazuh-agent owner=root group=sys mode=0744" >> wazuh-agent.p5m.1
@@ -174,7 +189,7 @@ create_package() {
     echo "group groupname=ossec" >> wazuh-agent.p5m.1
     echo "user username=ossec group=ossec" >> wazuh-agent.p5m.1
     pkgmogrify -DARCH=`uname -p` wazuh-agent.p5m.1 wazuh-agent.mog | pkgfmt > wazuh-agent.p5m.2
-    pkgsend -s http://localhost:9001 publish -d ${install_path} -d /etc/init.d -d /etc/rc2.d -d /etc/rc3.d wazuh-agent.p5m.2 > pack
+    pkgsend -s http://localhost:9001 publish -d ${install_path} -d /etc/init.d -d /etc/rc2.d -d /etc/rc3.d -d ${current_path} wazuh-agent.p5m.2 > pack
     package=`cat pack | grep wazuh | cut -c 13-` # This extracts the name of the package generated in the previous step
     rm -f *.p5p
     pkg_name="wazuh-agent_$VERSION-sol11-${arch}.p5p"
