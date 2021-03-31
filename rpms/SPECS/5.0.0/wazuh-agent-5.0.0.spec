@@ -620,6 +620,14 @@ rm -fr %{buildroot}
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Apr 26 2021 support <info@wazuh.com> - 4.2.0
 - More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Mar 29 2021 support <info@wazuh.com> - 4.1.4
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Sat Mar 20 2021 support <info@wazuh.com> - 4.1.3
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Mar 08 2021 support <info@wazuh.com> - 4.1.2
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Fri Mar 05 2021 support <info@wazuh.com> - 4.1.1
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Tue Jan 19 2021 support <info@wazuh.com> - 4.1.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Tue Jan 12 2021 support <info@wazuh.com> - 4.0.4
