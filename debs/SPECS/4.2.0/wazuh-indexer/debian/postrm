@@ -1,0 +1,162 @@
+#!/bin/bash
+ RPM_ARCH=x86_64 
+ RPM_OS=linux 
+ RPM_PACKAGE_NAME=wazuh-indexer 
+ RPM_PACKAGE_VERSION=7.12.0 
+ RPM_PACKAGE_RELEASE=1 
+
+#
+# This script is executed in the post-removal phase
+#
+#   On Debian,
+#       $1=remove    : indicates a removal
+#       $1=purge     : indicates an upgrade
+#
+#   On RedHat,
+#       $1=0         : indicates a removal
+#       $1=1         : indicates an upgrade
+
+# source the default env file
+if [ -f "/etc/sysconfig/wazuh-indexer" ]; then
+    . "/etc/sysconfig/wazuh-indexer"
+fi
+
+export ES_PATH_CONF=${ES_PATH_CONF:-/etc/wazuh-indexer}
+
+REMOVE_DIRS=false
+REMOVE_JVM_OPTIONS_DIRECTORY=false
+REMOVE_USER_AND_GROUP=false
+
+case "$1" in
+
+    # Debian ####################################################
+    remove)
+        REMOVE_DIRS=true
+    ;;
+
+    purge)
+        REMOVE_DIRS=true
+        REMOVE_JVM_OPTIONS_DIRECTORY=true
+        REMOVE_USER_AND_GROUP=true
+    ;;
+    failed-upgrade|abort-install|abort-upgrade|disappear|upgrade|disappear)
+    ;;
+
+    # RedHat ####################################################
+    0)
+        REMOVE_DIRS=true
+        REMOVE_USER_AND_GROUP=true
+    ;;
+    1)
+        # If $1=1 this is an upgrade
+        IS_UPGRADE=true
+    ;;
+
+    *)
+        echo "post remove script called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+if [ "$REMOVE_DIRS" = "true" ]; then
+
+    if [ -d /var/log/wazuh-indexer ]; then
+        echo -n "Deleting log directory..."
+        rm -rf /var/log/wazuh-indexer
+        echo " OK"
+    fi
+
+    if [ -d /usr/share/wazuh-indexer/plugins ]; then
+        echo -n "Deleting plugins directory..."
+        rm -rf /usr/share/wazuh-indexer/plugins
+        echo " OK"
+    fi
+
+    # plugins may have contained bin files
+    if [ -d /usr/share/wazuh-indexer/bin ]; then
+        echo -n "Deleting plugin bin directories..."
+        rm -rf /usr/share/wazuh-indexer/bin
+        echo " OK"
+    fi
+
+    if [ -d /var/run/wazuh-indexer ]; then
+        echo -n "Deleting PID directory..."
+        rm -rf /var/run/wazuh-indexer
+        echo " OK"
+    fi
+
+    # Delete the data directory if and only if empty
+    if [ -d /var/lib/wazuh-indexer ]; then
+        rmdir --ignore-fail-on-non-empty /var/lib/wazuh-indexer
+    fi
+
+    # delete the jvm.options.d directory if and only if empty
+    if [ -d "${ES_PATH_CONF}/jvm.options.d" ]; then
+        rmdir --ignore-fail-on-non-empty "${ES_PATH_CONF}/jvm.options.d"
+    fi
+
+    # delete the jvm.options.d directory if we are purging
+    if [ "$REMOVE_JVM_OPTIONS_DIRECTORY" = "true" ]; then
+      if [ -d "${ES_PATH_CONF}/jvm.options.d" ]; then
+        echo -n "Deleting jvm.options.d directory..."
+        rm -rf "${ES_PATH_CONF}/jvm.options.d"
+        echo " OK"
+      fi
+    fi
+
+    # delete the conf directory if and only if empty
+    if [ -d "${ES_PATH_CONF}" ]; then
+        rmdir --ignore-fail-on-non-empty "${ES_PATH_CONF}"
+    fi
+
+fi
+
+if [ "$REMOVE_USER_AND_GROUP" = "true" ]; then
+    if id wazuh-indexer > /dev/null 2>&1 ; then
+        userdel wazuh-indexer
+    fi
+
+    if getent group wazuh-indexer > /dev/null 2>&1 ; then
+        groupdel wazuh-indexer
+    fi
+fi
+
+
+
+
+
+#### POSTRUN from opendistro-performance-analyzer.spec
+
+# Make sure the ES_HOME environment variable is set
+if [ -z "$ES_HOME" ]; then
+    ES_HOME=/usr/share/wazuh-indexer
+fi
+
+# Cleanup files
+if [ -d $ES_HOME/performance-analyzer-rca ]; then
+  rm -rf $ES_HOME/performance-analyzer-rca
+fi
+
+if [ -f $ES_HOME/bin/performance-analyzer-agent-cli ]; then
+  rm $ES_HOME/bin/performance-analyzer-agent-cli
+fi
+
+if [ -f "$ES_HOME"/data/rca_enabled.conf ]; then
+  rm "$ES_HOME"/data/rca_enabled.conf
+fi
+
+if [ -f "$ES_HOME"/data/batch_metrics_enabled.conf ]; then
+  rm "$ES_HOME"/data/batch_metrics_enabled.conf
+fi
+
+if [ -f /var/lib/wazuh-indexer/performance_analyzer_enabled.conf ]; then
+  rm /var/lib/wazuh-indexer/performance_analyzer_enabled.conf
+fi
+
+if [ -f /var/lib/wazuh-indexer/rca_enabled.conf ]; then
+  rm /var/lib/wazuh-indexer/rca_enabled.conf
+fi
+
+if [ -f /usr/lib/systemd/system/opendistro-performance-analyzer.service ]; then
+  rm /usr/lib/systemd/system/opendistro-performance-analyzer.service
+fi
