@@ -33,6 +33,9 @@ if [ ${build_target} = "api" ]; then
         curl -sL https://github.com/wazuh/wazuh-api/tarball/${wazuh_branch} | tar zx
     fi
     wazuh_version="$(grep version wazuh*/package.json | cut -d '"' -f 4)"
+elif [ ${build_target} = "indexer" ]; then
+    wazuh_version="4.2.0"
+    #curl -sL https://github.com/wazuh/wazuh/tarball/${wazuh_branch} | tar zx
 else
     if [ "${local_source_code}" = "no" ]; then
         curl -sL https://github.com/wazuh/wazuh/tarball/${wazuh_branch} | tar zx
@@ -46,7 +49,13 @@ package_full_name="wazuh-${build_target}-${wazuh_version}"
 sources_dir="${build_dir}/${build_target}/${package_full_name}"
 
 mkdir -p ${build_dir}/${build_target}
-cp -R wazuh* ${build_dir}/${build_target}/wazuh-${build_target}-${wazuh_version}
+
+if [ ${build_target} = "indexer" ]; then
+    mkdir -p ${build_dir}/${build_target}/wazuh-${build_target}-${wazuh_version}
+else
+    cp -R wazuh* ${build_dir}/${build_target}/wazuh-${build_target}-${wazuh_version}
+fi
+
 
 if [ "${use_local_specs}" = "no" ]; then
     curl -sL https://github.com/wazuh/wazuh-packages/tarball/${wazuh_packages_branch} | tar zx
