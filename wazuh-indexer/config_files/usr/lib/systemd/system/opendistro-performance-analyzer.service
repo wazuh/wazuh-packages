@@ -1,0 +1,14 @@
+[Unit]
+Description=Opendistro for Elasticsearch Performance Analyzer
+PartOf=wazuh-indexer.service
+
+[Service]
+ExecStart=/usr/share/wazuh-indexer/bin/performance-analyzer-agent-cli
+Restart=on-failure
+User=wazuh-indexer
+Group=wazuh-indexer
+Environment=ES_HOME=/usr/share/wazuh-indexer
+WorkingDirectory=/usr/share/wazuh-indexer
+
+[Install]
+WantedBy=wazuh-indexer.service
