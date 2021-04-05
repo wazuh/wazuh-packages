@@ -58,24 +58,7 @@ curl -o files/config_files/roles.yml https://raw.githubusercontent.com/wazuh/waz
 curl -o files/config_files/roles_mapping.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/4.1/resources/open-distro/elasticsearch/roles/roles_mapping.yml
 curl -o files/config_files/internal_users.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/4.1/resources/open-distro/elasticsearch/roles/internal_users.yml
 
-
-cat << EOF > files/opendistro-performance-analyzer.service
-[Unit]
-Description=Opendistro for Elasticsearch Performance Analyzer
-PartOf=wazuh-indexer.service
-
-[Service]
-ExecStart=/usr/share/wazuh-indexer/bin/performance-analyzer-agent-cli
-Restart=on-failure
-User=wazuh-indexer
-Group=wazuh-indexer
-Environment=ES_HOME=/usr/share/wazuh-indexer
-WorkingDirectory=/usr/share/wazuh-indexer
-
-[Install]
-WantedBy=wazuh-indexer.service
-EOF
-
+curl -o files/opendistro-performance-analyzer.service https://packages-dev.wazuh.com/deps/wazuh-indexer/opendistro-performance-analyzer.service
 
 
 tar -zvxf files/opendistroforelasticsearch-1.13.1-linux-x64.tar.gz
