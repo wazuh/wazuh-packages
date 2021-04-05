@@ -58,8 +58,20 @@ override_dh_install:
 	mkdir -p files/plugins
 	mkdir -p files/config_files
 	curl -o files/$(ODFE_FILE) https://packages-dev.wazuh.com/deps/wazuh-indexer/$(ODFE_FILE)
-	curl -o files/elasticsearch-oss-extracted-files.tgz https://packages-dev.wazuh.com/deps/wazuh-indexer/elasticsearch-oss-extracted-files.tgz
-	tar -zxvf files/elasticsearch-oss-extracted-files.tgz -C files/
+
+
+	# Files that were previously stored as elasticsearch-oss-extracted-files.tgz now stored in git.
+	# Need to find the best way of obtaining them since we don't have a wazuh-indexer repo so we can't get a tarball
+	# as wazuh agent or manager compilation does. Getting them one by one now:
+	curl -o files/config_files/etc/init.d/$(SERVICE_NAME) --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/etc/init.d/$(SERVICE_NAME)
+	curl -o files/config_files/etc/wazuh-indexer/log4j2.properties --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/etc/wazuh-indexer/log4j2.properties
+	curl -o files/config_files/etc/wazuh-indexer/jvm.options --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/etc/wazuh-indexer/jvm.options
+	curl -o files/config_files/etc/sysconfig/$(SERVICE_NAME) --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/etc/sysconfig/$(SERVICE_NAME)
+	curl -o files/config_files/usr/lib/tmpfiles.d/$(SERVICE_NAME).conf --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/usr/lib/tmpfiles.d/$(SERVICE_NAME).conf
+	curl -o files/config_files/usr/lib/sysctl.d/$(SERVICE_NAME).conf --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/usr/lib/sysctl.d/$(SERVICE_NAME).conf
+	curl -o files/config_files/usr/lib/systemd/system/$(SERVICE_NAME).service --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/usr/lib/systemd/system/$(SERVICE_NAME).service
+	curl -o files/config_files/usr/lib/systemd/system/opendistro-performance-analyzer.service --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/usr/lib/systemd/system/opendistro-performance-analyzer.service
+	curl -o files/config_files/systemd-entrypoint --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/systemd-entrypoint
 
 
 	curl -o files/wazuh-cert-tool.sh https://raw.githubusercontent.com/wazuh/wazuh-documentation/679-wazuh-packages_wazuh-indexer/resources/open-distro/tools/certificate-utility/wazuh-cert-tool.sh
@@ -75,9 +87,6 @@ override_dh_install:
 	curl -o files/config_files/roles.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/4.1/resources/open-distro/elasticsearch/roles/roles.yml
 	curl -o files/config_files/roles_mapping.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/4.1/resources/open-distro/elasticsearch/roles/roles_mapping.yml
 	curl -o files/config_files/internal_users.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/4.1/resources/open-distro/elasticsearch/roles/internal_users.yml
-
-	curl -o files/opendistro-performance-analyzer.service https://packages-dev.wazuh.com/deps/wazuh-indexer/opendistro-performance-analyzer.service
-	
 
 	tar -zvxf files/$(ODFE_FILE)
 
@@ -116,20 +125,20 @@ override_dh_install:
 
 
 	# Copy configuration files
-	cp files/elasticsearch-oss-extracted-files/etc/init.d/$(SERVICE_NAME) $(TARGET_DIR)/etc/init.d/$(SERVICE_NAME)
-	cp files/elasticsearch-oss-extracted-files/etc/wazuh-indexer/log4j2.properties $(TARGET_DIR)$(CONFIG_DIR)/log4j2.properties
-	cp files/elasticsearch-oss-extracted-files/etc/wazuh-indexer/jvm.options $(TARGET_DIR)$(CONFIG_DIR)/jvm.options
-	cp files/elasticsearch-oss-extracted-files/etc/sysconfig/$(SERVICE_NAME) $(TARGET_DIR)/etc/sysconfig/$(SERVICE_NAME)
-	cp files/elasticsearch-oss-extracted-files/usr/lib/tmpfiles.d/$(SERVICE_NAME).conf $(TARGET_DIR)/usr/lib/tmpfiles.d/$(SERVICE_NAME).conf
-	cp files/elasticsearch-oss-extracted-files/usr/lib/sysctl.d/$(SERVICE_NAME).conf $(TARGET_DIR)/usr/lib/sysctl.d/$(SERVICE_NAME).conf
-	cp files/elasticsearch-oss-extracted-files/usr/lib/systemd/system/$(SERVICE_NAME).service $(TARGET_DIR)/usr/lib/systemd/system/$(SERVICE_NAME).service
-	cp files/elasticsearch-oss-extracted-files/systemd-entrypoint $(TARGET_DIR)$(INSTALLATION_DIR)/bin
+	cp files/config_files/etc/init.d/$(SERVICE_NAME) $(TARGET_DIR)/etc/init.d/$(SERVICE_NAME)
+	cp files/config_files/etc/wazuh-indexer/log4j2.properties $(TARGET_DIR)$(CONFIG_DIR)/log4j2.properties
+	cp files/config_files/etc/wazuh-indexer/jvm.options $(TARGET_DIR)$(CONFIG_DIR)/jvm.options
+	cp files/config_files/etc/sysconfig/$(SERVICE_NAME) $(TARGET_DIR)/etc/sysconfig/$(SERVICE_NAME)
+	cp files/config_files/usr/lib/tmpfiles.d/$(SERVICE_NAME).conf $(TARGET_DIR)/usr/lib/tmpfiles.d/$(SERVICE_NAME).conf
+	cp files/config_files/usr/lib/sysctl.d/$(SERVICE_NAME).conf $(TARGET_DIR)/usr/lib/sysctl.d/$(SERVICE_NAME).conf
+	cp files/config_files/usr/lib/systemd/system/$(SERVICE_NAME).service $(TARGET_DIR)/usr/lib/systemd/system/$(SERVICE_NAME).service
+	cp files/config_files/systemd-entrypoint $(TARGET_DIR)$(INSTALLATION_DIR)/bin
+
+	# Service for performance analyzer
+	cp files/config_files/usr/lib/systemd/system/opendistro-performance-analyzer.service $(TARGET_DIR)/usr/lib/systemd/system/
 
 	# This is needed by the performance-analyzer service
 	echo false > $(TARGET_DIR)$(INSTALLATION_DIR)/data/batch_metrics_enabled.conf
-
-	# Service for performance analyzer
-	cp files/opendistro-performance-analyzer.service $(TARGET_DIR)/usr/lib/systemd/system/
 
 
 	# Install plugins
