@@ -25,6 +25,7 @@ ExclusiveOS: linux
 %global LIB_DIR /var/lib/%{SERVICE_NAME}
 %global PID_DIR /var/run/%{SERVICE_NAME}
 %global INSTALL_DIR /usr/share/%{SERVICE_NAME}
+%global ODFE_VERSION 1.13.1
 
 # -----------------------------------------------------------------------------
 
@@ -36,10 +37,14 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 # -----------------------------------------------------------------------------
 
 %prep
+
+ODFE_DIR=opendistroforelasticsearch-%{ODFE_VERSION}
+ODFE_FILE=${ODFE_DIR}-linux-x64-with-systemd-module.tar.gz
+
 # Extract elasticsearch-oss tar.gz file
 mkdir -p files/plugins
 mkdir -p files/config_files
-curl -o files/opendistroforelasticsearch-1.13.1-linux-x64.tar.gz https://packages-dev.wazuh.com/deps/wazuh-indexer/opendistroforelasticsearch-1.13.1-linux-x64.tar.gz
+curl -o files/$ODFE_FILE https://packages-dev.wazuh.com/deps/wazuh-indexer/$ODFE_FILE
 curl -o files/elasticsearch-oss-extracted-files.tgz https://packages-dev.wazuh.com/deps/wazuh-indexer/elasticsearch-oss-extracted-files.tgz
 tar -zxvf files/elasticsearch-oss-extracted-files.tgz -C files/
 
@@ -61,16 +66,19 @@ curl -o files/config_files/internal_users.yml https://raw.githubusercontent.com/
 curl -o files/opendistro-performance-analyzer.service https://packages-dev.wazuh.com/deps/wazuh-indexer/opendistro-performance-analyzer.service
 
 
-tar -zvxf files/opendistroforelasticsearch-1.13.1-linux-x64.tar.gz
+tar -zvxf files/$ODFE_FILE
 
 # Fix distribution type so systemd is notified: https://github.com/elastic/elasticsearch/issues/55477
-sed -i 's/ES_DISTRIBUTION_TYPE=tar/ES_DISTRIBUTION_TYPE=rpm/' opendistroforelasticsearch-1.13.1/bin/elasticsearch-env
+sed -i 's/ES_DISTRIBUTION_TYPE=tar/ES_DISTRIBUTION_TYPE=rpm/' $ODFE_DIR/bin/elasticsearch-env
 
 
 
 # -----------------------------------------------------------------------------
 
 %install
+
+ODFE_DIR=opendistroforelasticsearch-%{ODFE_VERSION}
+
 # Clean BUILDROOT
 rm -fr %{buildroot}
 
@@ -88,7 +96,7 @@ mkdir -p %{buildroot}%{LIB_DIR}
 mkdir -p %{buildroot}%{LOG_DIR}
 
 # Copy the installed files into buildroot directory
-cp -pr opendistroforelasticsearch-1.13.1/* %{buildroot}%{_localstatedir}/
+cp -pr $ODFE_DIR/* %{buildroot}%{_localstatedir}/
 
 # Add custom tools
 cp files/wazuh-passwords-tool.sh %{buildroot}%{_localstatedir}/bin
@@ -112,7 +120,6 @@ cp files/elasticsearch-oss-extracted-files/usr/lib/tmpfiles.d/%{SERVICE_NAME}.co
 cp files/elasticsearch-oss-extracted-files/usr/lib/sysctl.d/%{SERVICE_NAME}.conf %{buildroot}/usr/lib/sysctl.d/%{SERVICE_NAME}.conf
 cp files/elasticsearch-oss-extracted-files/usr/lib/systemd/system/%{SERVICE_NAME}.service %{buildroot}/usr/lib/systemd/system/%{SERVICE_NAME}.service
 cp files/elasticsearch-oss-extracted-files/systemd-entrypoint %{buildroot}%{_localstatedir}/bin
-cp -pr files/elasticsearch-oss-extracted-files/systemd_module/systemd %{buildroot}%{_localstatedir}/modules
 
 # This is needed by the performance-analyzer service
 echo false > %{buildroot}%{_localstatedir}/data/batch_metrics_enabled.conf
