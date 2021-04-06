@@ -32,6 +32,8 @@ export INSTALLATION_DIR=/usr/share/${SERVICE_NAME}
 export ODFE_VERSION=1.13.1
 export ODFE_DIR=opendistroforelasticsearch-${ODFE_VERSION}
 export ODFE_FILE=${ODFE_DIR}-linux-x64-with-systemd-module.tar.gz
+export DOCUMENTATION_BRANCH=679-wazuh-packages_wazuh-indexer
+export PACKAGES_BRANCH=679-wazuh-indexer
 
 %:
 	dh $@
@@ -53,33 +55,33 @@ override_dh_install:
 	# Files that were previously stored as elasticsearch-oss-extracted-files.tgz now stored in git.
 	# Need to find the best way of obtaining them since we don't have a wazuh-indexer repo so we can't get a tarball
 	# as wazuh agent or manager compilation does. Getting them one by one now:
-	curl -o files/config_files/etc/init.d/$(SERVICE_NAME) --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/etc/init.d/$(SERVICE_NAME)
-	curl -o files/config_files/etc/wazuh-indexer/log4j2.properties --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/etc/wazuh-indexer/log4j2.properties
-	curl -o files/config_files/etc/wazuh-indexer/jvm.options --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/etc/wazuh-indexer/jvm.options
-	curl -o files/config_files/etc/sysconfig/$(SERVICE_NAME) --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/etc/sysconfig/$(SERVICE_NAME)
-	curl -o files/config_files/usr/lib/tmpfiles.d/$(SERVICE_NAME).conf --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/usr/lib/tmpfiles.d/$(SERVICE_NAME).conf
-	curl -o files/config_files/usr/lib/sysctl.d/$(SERVICE_NAME).conf --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/usr/lib/sysctl.d/$(SERVICE_NAME).conf
-	curl -o files/config_files/usr/lib/systemd/system/$(SERVICE_NAME).service --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/usr/lib/systemd/system/$(SERVICE_NAME).service
-	curl -o files/config_files/usr/lib/systemd/system/opendistro-performance-analyzer.service --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/usr/lib/systemd/system/opendistro-performance-analyzer.service
-	curl -o files/config_files/systemd-entrypoint --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/systemd-entrypoint
+	curl -o files/config_files/etc/init.d/$(SERVICE_NAME) --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/init.d/$(SERVICE_NAME)
+	curl -o files/config_files/etc/wazuh-indexer/log4j2.properties --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/wazuh-indexer/log4j2.properties
+	curl -o files/config_files/etc/wazuh-indexer/jvm.options --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/wazuh-indexer/jvm.options
+	curl -o files/config_files/etc/sysconfig/$(SERVICE_NAME) --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/sysconfig/$(SERVICE_NAME)
+	curl -o files/config_files/usr/lib/tmpfiles.d/$(SERVICE_NAME).conf --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/usr/lib/tmpfiles.d/$(SERVICE_NAME).conf
+	curl -o files/config_files/usr/lib/sysctl.d/$(SERVICE_NAME).conf --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/usr/lib/sysctl.d/$(SERVICE_NAME).conf
+	curl -o files/config_files/usr/lib/systemd/system/$(SERVICE_NAME).service --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/usr/lib/systemd/system/$(SERVICE_NAME).service
+	curl -o files/config_files/usr/lib/systemd/system/opendistro-performance-analyzer.service --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/usr/lib/systemd/system/opendistro-performance-analyzer.service
+	curl -o files/config_files/systemd-entrypoint --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/systemd-entrypoint
 
 
-	curl -o files/wazuh-cert-tool.sh https://raw.githubusercontent.com/wazuh/wazuh-documentation/679-wazuh-packages_wazuh-indexer/resources/open-distro/tools/certificate-utility/wazuh-cert-tool.sh
-	curl -o files/instances.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/679-wazuh-packages_wazuh-indexer/resources/open-distro/tools/certificate-utility/instances_aio.yml
-	curl -o files/wazuh-passwords-tool.sh https://raw.githubusercontent.com/wazuh/wazuh-documentation/679-wazuh-packages_wazuh-indexer/resources/open-distro/tools/wazuh-passwords-tool.sh
+	curl -o files/wazuh-cert-tool.sh https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/tools/certificate-utility/wazuh-cert-tool.sh
+	curl -o files/instances.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/tools/certificate-utility/instances_aio.yml
+	curl -o files/wazuh-passwords-tool.sh https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/tools/wazuh-passwords-tool.sh
 
 	# Demo certificates
-	curl -o files/config_files/etc/wazuh-indexer/certs/admin-key.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/etc/wazuh-indexer/certs/admin-key.pem
-	curl -o files/config_files/etc/wazuh-indexer/certs/admin.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/etc/wazuh-indexer/certs/admin.pem
-	curl -o files/config_files/etc/wazuh-indexer/certs/elasticsearch-key.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/etc/wazuh-indexer/certs/elasticsearch-key.pem
-	curl -o files/config_files/etc/wazuh-indexer/certs/elasticsearch.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/etc/wazuh-indexer/certs/elasticsearch.pem
-	curl -o files/config_files/etc/wazuh-indexer/certs/root-ca.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/etc/wazuh-indexer/certs/root-ca.pem
+	curl -o files/config_files/etc/wazuh-indexer/certs/admin-key.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/wazuh-indexer/certs/admin-key.pem
+	curl -o files/config_files/etc/wazuh-indexer/certs/admin.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/wazuh-indexer/certs/admin.pem
+	curl -o files/config_files/etc/wazuh-indexer/certs/elasticsearch-key.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/wazuh-indexer/certs/elasticsearch-key.pem
+	curl -o files/config_files/etc/wazuh-indexer/certs/elasticsearch.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/wazuh-indexer/certs/elasticsearch.pem
+	curl -o files/config_files/etc/wazuh-indexer/certs/root-ca.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/wazuh-indexer/certs/root-ca.pem
 
 	# Configuration files from documentation repo
-	curl -o files/config_files/elasticsearch_all_in_one.yml  https://raw.githubusercontent.com/wazuh/wazuh-documentation/679-wazuh-packages_wazuh-indexer/resources/open-distro/elasticsearch/7.x/elasticsearch_all_in_one.yml
-	curl -o files/config_files/roles.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/4.1/resources/open-distro/elasticsearch/roles/roles.yml
-	curl -o files/config_files/roles_mapping.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/4.1/resources/open-distro/elasticsearch/roles/roles_mapping.yml
-	curl -o files/config_files/internal_users.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/4.1/resources/open-distro/elasticsearch/roles/internal_users.yml
+	curl -o files/config_files/elasticsearch_all_in_one.yml  https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/elasticsearch/7.x/elasticsearch_all_in_one.yml
+	curl -o files/config_files/roles.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/elasticsearch/roles/roles.yml
+	curl -o files/config_files/roles_mapping.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/elasticsearch/roles/roles_mapping.yml
+	curl -o files/config_files/internal_users.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/elasticsearch/roles/internal_users.yml
 
 	tar -zvxf files/$(ODFE_FILE)
 
