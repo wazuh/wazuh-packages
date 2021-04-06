@@ -21,14 +21,6 @@ export DH_OPTIONS
 export TARGET_DIR=${CURDIR}/debian/tmp
 
 # Package build options
-export INSTALLATION_DIR="/usr/share/wazuh-indexer"
-export INSTALLATION_SCRIPTS_DIR="${INSTALLATION_DIR}/packages_files/agent_installation_scripts"
-export JOBS="5"
-export DEBUG_ENABLED="no"
-export PATH="${PATH}"
-export LD_LIBRARY_PATH=""
-
-# My variables
 export USER=wazuh-indexer
 export GROUP=wazuh-indexer
 export SERVICE_NAME=wazuh-indexer
@@ -36,7 +28,7 @@ export CONFIG_DIR=/etc/${SERVICE_NAME}
 export LOG_DIR=/var/log/${SERVICE_NAME}
 export LIB_DIR=/var/lib/${SERVICE_NAME}
 export PID_DIR=/var/run/${SERVICE_NAME}
-export INSTALL_DIR=/usr/share/${SERVICE_NAME}
+export INSTALLATION_DIR=/usr/share/${SERVICE_NAME}
 export ODFE_VERSION=1.13.1
 export ODFE_DIR=opendistroforelasticsearch-${ODFE_VERSION}
 export ODFE_FILE=${ODFE_DIR}-linux-x64-with-systemd-module.tar.gz
@@ -53,7 +45,6 @@ override_dh_auto_install:
 override_dh_install:
 
 	rm -rf $(INSTALLATION_DIR)/
-
 
 	mkdir -p files/plugins
 	mkdir -p files/config_files
@@ -84,10 +75,8 @@ override_dh_install:
 	curl -o files/config_files/etc/wazuh-indexer/certs/elasticsearch.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/etc/wazuh-indexer/certs/elasticsearch.pem
 	curl -o files/config_files/etc/wazuh-indexer/certs/root-ca.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/etc/wazuh-indexer/certs/root-ca.pem
 
-
-	curl -o files/config_files/elasticsearch.yml  https://raw.githubusercontent.com/wazuh/wazuh-documentation/679-wazuh-packages_wazuh-indexer/resources/open-distro/elasticsearch/7.x/elasticsearch.yml
+	# Configuration files from documentation repo
 	curl -o files/config_files/elasticsearch_all_in_one.yml  https://raw.githubusercontent.com/wazuh/wazuh-documentation/679-wazuh-packages_wazuh-indexer/resources/open-distro/elasticsearch/7.x/elasticsearch_all_in_one.yml
-
 	curl -o files/config_files/roles.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/4.1/resources/open-distro/elasticsearch/roles/roles.yml
 	curl -o files/config_files/roles_mapping.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/4.1/resources/open-distro/elasticsearch/roles/roles_mapping.yml
 	curl -o files/config_files/internal_users.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/4.1/resources/open-distro/elasticsearch/roles/internal_users.yml
@@ -100,7 +89,6 @@ override_dh_install:
 
 	# copy to target
 
-	#mkdir -p $(TARGET_DIR)%{_initrddir}
 	mkdir -p $(TARGET_DIR)$(INSTALLATION_DIR)
 	mkdir -p $(TARGET_DIR)$(CONFIG_DIR)/certs
 	mkdir -p $(TARGET_DIR)$(CONFIG_DIR)/jvm.options.d
@@ -174,8 +162,8 @@ override_dh_install:
 	# Remove bundled configuration directory since /etc/wazuh-indexer will be used
 	rm -rf $(TARGET_DIR)$(INSTALLATION_DIR)/config
 
-	# Fix performance-analyzer plugin files which reference elasticsearch path
-	# Note: For the moment not using variable because of escaped slashes, btu should use INSTALL_DIR
+	# Fix performance-analyzer plugin files which references elasticsearch path
+	# Note: For the moment not using variable because of escaped slashes, but should use INSTALLATION_DIR
 	sed -i 's/\/usr\/share\/elasticsearch/\/usr\/share\/wazuh-indexer/' $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro-performance-analyzer/pa_config/supervisord.conf
 	sed -i 's/\/usr\/share\/elasticsearch/\/usr\/share\/wazuh-indexer/' $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/supervisord.conf
 

@@ -172,8 +172,8 @@ sed -i 's/if \[ -z "$ES_PATH_CONF" \]; then ES_PATH_CONF="$ES_HOME"\/config; fi/
 # Remove bundled configuration directory since /etc/wazuh-indexer will be used
 rm -rf %{buildroot}%{_localstatedir}/config
 
-# Fix performance-analyzer plugin files which reference elasticsearch path
-# Note: For the moment not using variable because of escaped slashes, btu should use INSTALL_DIR
+# Fix performance-analyzer plugin files which references elasticsearch path
+# Note: For the moment not using variable because of escaped slashes, but should use INSTALL_DIR
 sed -i 's/\/usr\/share\/elasticsearch/\/usr\/share\/wazuh-indexer/' %{buildroot}%{_localstatedir}/plugins/opendistro-performance-analyzer/pa_config/supervisord.conf
 sed -i 's/\/usr\/share\/elasticsearch/\/usr\/share\/wazuh-indexer/' %{buildroot}%{_localstatedir}/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/supervisord.conf
 
@@ -965,7 +965,7 @@ rm -fr %{buildroot}
 
 
 
-### The following are scripts copied from rpmrebuild -s of elasticsearch-oss
+### The following are scripts were copied from rpmrebuild -s of elasticsearch-oss and adapted to wazuh-indexer
 
 
 %pre -p /bin/bash
