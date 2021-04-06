@@ -1,4 +1,3 @@
-*.pem
 .vagrant
 ova/Config_files/filebeat.yml
 *.ova
