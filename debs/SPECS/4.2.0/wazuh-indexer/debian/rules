@@ -75,8 +75,6 @@ override_dh_install:
 
 	curl -o files/wazuh-cert-tool.sh https://raw.githubusercontent.com/wazuh/wazuh-documentation/679-wazuh-packages_wazuh-indexer/resources/open-distro/tools/certificate-utility/wazuh-cert-tool.sh
 	curl -o files/instances.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/679-wazuh-packages_wazuh-indexer/resources/open-distro/tools/certificate-utility/instances_aio.yml
-	#Using only AIO for the moment
-	#curl -o files/instances.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/679-wazuh-packages_wazuh-indexer/resources/open-distro/tools/certificate-utility/instances.yml
 	curl -o files/wazuh-passwords-tool.sh https://raw.githubusercontent.com/wazuh/wazuh-documentation/679-wazuh-packages_wazuh-indexer/resources/open-distro/tools/wazuh-passwords-tool.sh
 
 	# Demo certificates
@@ -122,15 +120,10 @@ override_dh_install:
 	cp files/wazuh-cert-tool.sh $(TARGET_DIR)$(INSTALLATION_DIR)/bin
 	cp files/instances.yml $(TARGET_DIR)$(INSTALLATION_DIR)/bin
 
-	# Copy the different versions of elasticsearch.yml (varying depending on the
-	# deployment type (AIO or distributed) and cert tool used.
-	cp files/config_files/elasticsearch.yml $(TARGET_DIR)$(CONFIG_DIR)/elasticsearch.yml.distributed
-	cp files/config_files/elasticsearch_all_in_one.yml $(TARGET_DIR)$(CONFIG_DIR)/elasticsearch.yml.aio
+	# Copy configuration files from documentation repo
 	cp files/config_files/elasticsearch_all_in_one.yml $(TARGET_DIR)$(CONFIG_DIR)/elasticsearch.yml
 
-
-
-	# Copy configuration files
+	# Copy configuration files for wazuh-indexer
 	cp files/config_files/etc/init.d/$(SERVICE_NAME) $(TARGET_DIR)/etc/init.d/$(SERVICE_NAME)
 	cp files/config_files/etc/wazuh-indexer/log4j2.properties $(TARGET_DIR)$(CONFIG_DIR)/log4j2.properties
 	cp files/config_files/etc/wazuh-indexer/jvm.options $(TARGET_DIR)$(CONFIG_DIR)/jvm.options

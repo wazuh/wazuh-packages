@@ -27,8 +27,6 @@ ExclusiveOS: linux
 %global INSTALL_DIR /usr/share/%{SERVICE_NAME}
 %global ODFE_VERSION 1.13.1
 
-# Custom installation environment variables
-# WAZUH_DEPLOYMENT_TYPE if set to 'distributed' will use distributed elasticsearch.yml instead of All In One
 
 # -----------------------------------------------------------------------------
 
@@ -120,13 +118,10 @@ cp files/wazuh-passwords-tool.sh %{buildroot}%{_localstatedir}/bin
 cp files/wazuh-cert-tool.sh %{buildroot}%{_localstatedir}/bin
 cp files/instances.yml %{buildroot}%{_localstatedir}/bin
 
-# Copy the different versions of elasticsearch.yml (varying depending on the
-# deployment type (AIO or distributed) and cert tool used.
-cp files/config_files/elasticsearch.yml %{buildroot}%{CONFIG_DIR}/elasticsearch.yml.distributed
-cp files/config_files/elasticsearch_all_in_one.yml %{buildroot}%{CONFIG_DIR}/elasticsearch.yml.aio
+# Copy configuration files from documentation repo
 cp files/config_files/elasticsearch_all_in_one.yml %{buildroot}%{CONFIG_DIR}/elasticsearch.yml
 
-# Copy configuration files
+# Copy configuration files for wazuh-indexer
 cp files/config_files/etc/init.d/%{SERVICE_NAME} %{buildroot}/etc/init.d/%{SERVICE_NAME}
 cp files/config_files/etc/wazuh-indexer/log4j2.properties %{buildroot}%{CONFIG_DIR}/log4j2.properties
 cp files/config_files/etc/wazuh-indexer/jvm.options %{buildroot}%{CONFIG_DIR}/jvm.options
@@ -199,8 +194,6 @@ rm -fr %{buildroot}
 
 %dir %attr(2750, root, %{GROUP}) "%{CONFIG_DIR}"
 %config(noreplace) %attr(0660, root, %{GROUP}) "%{CONFIG_DIR}/elasticsearch.yml"
-%config(noreplace) %attr(0660, root, %{GROUP}) "%{CONFIG_DIR}/elasticsearch.yml.distributed"
-%config(noreplace) %attr(0660, root, %{GROUP}) "%{CONFIG_DIR}/elasticsearch.yml.aio"
 %config(noreplace) %attr(0660, root, %{GROUP}) "%{CONFIG_DIR}/jvm.options"
 %dir %attr(2750, root, %{GROUP}) "%{CONFIG_DIR}/jvm.options.d"
 %dir %attr(2750, root, %{GROUP}) "%{CONFIG_DIR}/certs"
@@ -1272,19 +1265,9 @@ fi
 
 
 
-## Certificates creation
+## Remove Elasticsearch demo certificates
 
 rm %{CONFIG_DIR}/esnode-key.pem %{CONFIG_DIR}/esnode.pem %{CONFIG_DIR}/kirk-key.pem %{CONFIG_DIR}/kirk.pem %{CONFIG_DIR}/root-ca.pem -f
-
-
-# Copy the corresponding file as elasticsearch.yml depending on the deployment type
-if [ "$WAZUH_DEPLOYMENT_TYPE" = "distributed" ]; then
-  # Using 3364-Unattended_improvements branch file
-  cp %{CONFIG_DIR}/elasticsearch.yml.distributed %{CONFIG_DIR}/elasticsearch.yml
-else
-  # Using 3364-Unattended_improvements branch file
-  cp %{CONFIG_DIR}/elasticsearch.yml.aio %{CONFIG_DIR}/elasticsearch.yml
-fi
 
 
 # Built for packages-7.10.0 (rpm)

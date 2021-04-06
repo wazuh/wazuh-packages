@@ -4,7 +4,5 @@
 /etc/init.d/wazuh-indexer
 /etc/sysconfig/wazuh-indexer
 /etc/wazuh-indexer/elasticsearch.yml
-/etc/wazuh-indexer/elasticsearch.yml.aio
-/etc/wazuh-indexer/elasticsearch.yml.distributed
 /etc/wazuh-indexer/jvm.options
 /etc/wazuh-indexer/log4j2.properties
