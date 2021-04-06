@@ -59,7 +59,6 @@ override_dh_install:
 	mkdir -p files/config_files
 	curl -o files/$(ODFE_FILE) https://packages-dev.wazuh.com/deps/wazuh-indexer/$(ODFE_FILE)
 
-
 	# Files that were previously stored as elasticsearch-oss-extracted-files.tgz now stored in git.
 	# Need to find the best way of obtaining them since we don't have a wazuh-indexer repo so we can't get a tarball
 	# as wazuh agent or manager compilation does. Getting them one by one now:
@@ -79,6 +78,13 @@ override_dh_install:
 	#Using only AIO for the moment
 	#curl -o files/instances.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/679-wazuh-packages_wazuh-indexer/resources/open-distro/tools/certificate-utility/instances.yml
 	curl -o files/wazuh-passwords-tool.sh https://raw.githubusercontent.com/wazuh/wazuh-documentation/679-wazuh-packages_wazuh-indexer/resources/open-distro/tools/wazuh-passwords-tool.sh
+
+	# Demo certificates
+	curl -o files/config_files/etc/wazuh-indexer/certs/admin-key.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/etc/wazuh-indexer/certs/admin-key.pem
+	curl -o files/config_files/etc/wazuh-indexer/certs/admin.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/etc/wazuh-indexer/certs/admin.pem
+	curl -o files/config_files/etc/wazuh-indexer/certs/elasticsearch-key.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/etc/wazuh-indexer/certs/elasticsearch-key.pem
+	curl -o files/config_files/etc/wazuh-indexer/certs/elasticsearch.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/etc/wazuh-indexer/certs/elasticsearch.pem
+	curl -o files/config_files/etc/wazuh-indexer/certs/root-ca.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/etc/wazuh-indexer/certs/root-ca.pem
 
 
 	curl -o files/config_files/elasticsearch.yml  https://raw.githubusercontent.com/wazuh/wazuh-documentation/679-wazuh-packages_wazuh-indexer/resources/open-distro/elasticsearch/7.x/elasticsearch.yml
@@ -140,10 +146,13 @@ override_dh_install:
 	# This is needed by the performance-analyzer service
 	echo false > $(TARGET_DIR)$(INSTALLATION_DIR)/data/batch_metrics_enabled.conf
 
+	# Copy certificates
+	cp files/config_files/etc/wazuh-indexer/certs/admin-key.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/admin-key.pem
+	cp files/config_files/etc/wazuh-indexer/certs/admin.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/admin.pem
+	cp files/config_files/etc/wazuh-indexer/certs/elasticsearch-key.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/elasticsearch-key.pem
+	cp files/config_files/etc/wazuh-indexer/certs/elasticsearch.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/elasticsearch.pem
+	cp files/config_files/etc/wazuh-indexer/certs/root-ca.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/root-ca.pem
 
-	# Install plugins
-	export ES_HOME=$(TARGET_DIR)$(INSTALLATION_DIR)
-	export JAVA_HOME=$(TARGET_DIR)$(INSTALLATION_DIR)/jdk
 
 	# Run the opendistro tar install script but don't start elasticsearch at this time
 	sed -i 's/bash $$ES_HOME/#bash $$ES_HOME/' $(TARGET_DIR)$(INSTALLATION_DIR)/opendistro-tar-install.sh
@@ -152,6 +161,9 @@ override_dh_install:
 
 	# realpath is not present in docker image but readlink is
 	sed -i 's/realpath/readlink -f/' $(TARGET_DIR)$(INSTALLATION_DIR)/opendistro-tar-install.sh
+
+	export ES_HOME=$(TARGET_DIR)$(INSTALLATION_DIR)
+	export JAVA_HOME=$(TARGET_DIR)$(INSTALLATION_DIR)/jdk
 
 	$(TARGET_DIR)$(INSTALLATION_DIR)/opendistro-tar-install.sh
 

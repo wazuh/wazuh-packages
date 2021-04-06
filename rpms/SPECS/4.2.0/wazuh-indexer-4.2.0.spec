@@ -27,6 +27,13 @@ ExclusiveOS: linux
 %global INSTALL_DIR /usr/share/%{SERVICE_NAME}
 %global ODFE_VERSION 1.13.1
 
+# Custom installation environment variables
+# WAZUH_DEPLOYMENT_TYPE if set to 'distributed' will use distributed elasticsearch.yml instead of All In One
+# WAZUH_GENERATE_CERTIFICATES if set to 'true' will generate certificates using wazuh-cert-tool instead
+#                             of using the ones included in the wazuh-indexer package
+# WAZUH_INITIALIZE_ODFE if set to 'true' will start elasticsearch after installation and execute securityadmin.sh
+#                       script from the opendistro_security/tools/ plugin folder.
+
 # -----------------------------------------------------------------------------
 
 %description
@@ -59,6 +66,12 @@ curl -o files/config_files/usr/lib/systemd/system/%{SERVICE_NAME}.service --crea
 curl -o files/config_files/usr/lib/systemd/system/opendistro-performance-analyzer.service --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/usr/lib/systemd/system/opendistro-performance-analyzer.service
 curl -o files/config_files/systemd-entrypoint --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/systemd-entrypoint
 
+# Demo certificates
+curl -o files/config_files/etc/wazuh-indexer/certs/admin-key.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/etc/wazuh-indexer/certs/admin-key.pem
+curl -o files/config_files/etc/wazuh-indexer/certs/admin.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/etc/wazuh-indexer/certs/admin.pem
+curl -o files/config_files/etc/wazuh-indexer/certs/elasticsearch-key.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/etc/wazuh-indexer/certs/elasticsearch-key.pem
+curl -o files/config_files/etc/wazuh-indexer/certs/elasticsearch.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/etc/wazuh-indexer/certs/elasticsearch.pem
+curl -o files/config_files/etc/wazuh-indexer/certs/root-ca.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/679-wazuh-indexer/wazuh-indexer/config_files/etc/wazuh-indexer/certs/root-ca.pem
 
 curl -o files/wazuh-cert-tool.sh https://raw.githubusercontent.com/wazuh/wazuh-documentation/679-wazuh-packages_wazuh-indexer/resources/open-distro/tools/certificate-utility/wazuh-cert-tool.sh
 curl -o files/instances.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/679-wazuh-packages_wazuh-indexer/resources/open-distro/tools/certificate-utility/instances_aio.yml
@@ -117,8 +130,6 @@ cp files/config_files/elasticsearch.yml %{buildroot}%{CONFIG_DIR}/elasticsearch.
 cp files/config_files/elasticsearch_all_in_one.yml %{buildroot}%{CONFIG_DIR}/elasticsearch.yml.aio
 cp files/config_files/elasticsearch_all_in_one.yml %{buildroot}%{CONFIG_DIR}/elasticsearch.yml
 
-
-
 # Copy configuration files
 cp files/config_files/etc/init.d/%{SERVICE_NAME} %{buildroot}/etc/init.d/%{SERVICE_NAME}
 cp files/config_files/etc/wazuh-indexer/log4j2.properties %{buildroot}%{CONFIG_DIR}/log4j2.properties
@@ -135,10 +146,13 @@ cp files/config_files/usr/lib/systemd/system/opendistro-performance-analyzer.ser
 # This is needed by the performance-analyzer service
 echo false > %{buildroot}%{_localstatedir}/data/batch_metrics_enabled.conf
 
+# Copy certificates
+cp files/config_files/etc/wazuh-indexer/certs/admin-key.pem %{buildroot}%{CONFIG_DIR}/certs/admin-key.pem
+cp files/config_files/etc/wazuh-indexer/certs/admin.pem %{buildroot}%{CONFIG_DIR}/certs/admin.pem
+cp files/config_files/etc/wazuh-indexer/certs/elasticsearch-key.pem %{buildroot}%{CONFIG_DIR}/certs/elasticsearch-key.pem
+cp files/config_files/etc/wazuh-indexer/certs/elasticsearch.pem %{buildroot}%{CONFIG_DIR}/certs/elasticsearch.pem
+cp files/config_files/etc/wazuh-indexer/certs/root-ca.pem %{buildroot}%{CONFIG_DIR}/certs/root-ca.pem
 
-# Install plugins
-export ES_HOME=%{buildroot}%{_localstatedir}
-export JAVA_HOME=%{buildroot}%{_localstatedir}/jdk
 
 # Run the opendistro tar install script but don't start elasticsearch at this time
 sed -i 's/bash $ES_HOME/#bash $ES_HOME/' %{buildroot}%{_localstatedir}/opendistro-tar-install.sh
@@ -147,6 +161,9 @@ sed -i 's/bash $ES_HOME/#bash $ES_HOME/' %{buildroot}%{_localstatedir}/opendistr
 # One possibility could be to install coreutils in it
 # but readlink is present and does the same job, replacing it as a workaround for the moment
 sed -i 's/realpath/readlink -f/' %{buildroot}%{_localstatedir}/opendistro-tar-install.sh
+
+export ES_HOME=%{buildroot}%{_localstatedir}
+export JAVA_HOME=%{buildroot}%{_localstatedir}/jdk
 
 %{buildroot}%{_localstatedir}/opendistro-tar-install.sh
 
@@ -191,6 +208,11 @@ rm -fr %{buildroot}
 %config(noreplace) %attr(0660, root, %{GROUP}) "%{CONFIG_DIR}/jvm.options"
 %dir %attr(2750, root, %{GROUP}) "%{CONFIG_DIR}/jvm.options.d"
 %dir %attr(2750, root, %{GROUP}) "%{CONFIG_DIR}/certs"
+%config(noreplace) %attr(0440, root, %{GROUP}) "%{CONFIG_DIR}/certs/admin-key.pem"
+%config(noreplace) %attr(0440, root, %{GROUP}) "%{CONFIG_DIR}/certs/admin.pem"
+%config(noreplace) %attr(0440, root, %{GROUP}) "%{CONFIG_DIR}/certs/elasticsearch-key.pem"
+%config(noreplace) %attr(0440, root, %{GROUP}) "%{CONFIG_DIR}/certs/elasticsearch.pem"
+%config(noreplace) %attr(0440, root, %{GROUP}) "%{CONFIG_DIR}/certs/root-ca.pem"
 %config(noreplace) %attr(0660, root, %{GROUP}) "%{CONFIG_DIR}/log4j2.properties"
 %config(noreplace) %attr(0750, root, root) "/etc/init.d/%{SERVICE_NAME}"
 %config(noreplace) %attr(0660, root, %{GROUP}) "/etc/sysconfig/%{SERVICE_NAME}"
@@ -1254,20 +1276,13 @@ fi
 
 
 
-
-
-
-
-
 ## Certificates creation
 
 rm %{CONFIG_DIR}/esnode-key.pem %{CONFIG_DIR}/esnode.pem %{CONFIG_DIR}/kirk-key.pem %{CONFIG_DIR}/kirk.pem %{CONFIG_DIR}/root-ca.pem -f
 
-echo "DEPLOYMENT_TYPE = $DEPLOYMENT_TYPE"
-
 
 # Copy the corresponding file as elasticsearch.yml depending on the deployment type
-if [ "$DEPLOYMENT_TYPE" = "distributed" ]; then
+if [ "$WAZUH_DEPLOYMENT_TYPE" = "distributed" ]; then
   # Using 3364-Unattended_improvements branch file
   cp %{CONFIG_DIR}/elasticsearch.yml.distributed %{CONFIG_DIR}/elasticsearch.yml
 else
@@ -1276,19 +1291,19 @@ else
 fi
 
 
+if [ "$WAZUH_GENERATE_CERTIFICATES" = "true" ]; then
+    # Create certificates
+    echo "Creating certificates with wazuh-cert-tool"
+    mkdir -p ~/certs
+    cp %{INSTALL_DIR}/bin/wazuh-cert-tool.sh ~
+    cp %{INSTALL_DIR}/bin/instances.yml ~
 
-# Create certificates
-echo "Creating certificates with wazuh-cert-tool"
-mkdir -p ~/certs
-cp %{INSTALL_DIR}/bin/wazuh-cert-tool.sh ~
-cp %{INSTALL_DIR}/bin/instances.yml ~
+    ~/wazuh-cert-tool.sh
 
-~/wazuh-cert-tool.sh
-
-cp ~/certs/elasticsearch* %{CONFIG_DIR}/certs/
-cp ~/certs/root-ca.pem %{CONFIG_DIR}/certs/
-cp ~/certs/admin* %{CONFIG_DIR}/certs/
-
+    cp ~/certs/elasticsearch* %{CONFIG_DIR}/certs/
+    cp ~/certs/root-ca.pem %{CONFIG_DIR}/certs/
+    cp ~/certs/admin* %{CONFIG_DIR}/certs/
+fi
 
 
 # Built for packages-7.10.0 (rpm)
@@ -1322,39 +1337,41 @@ else
 fi
 
 
-# Do the service start and OpenDistro initialization in posttrans script
-# so keystore is already created, otheriwse in post script it fails to start
+if [ "$WAZUH_INITIALIZE_ODFE" = "true" ]; then
+    # Do the service start and OpenDistro initialization in posttrans script
+    # so keystore is already created, otheriwse in post script it fails to start
 
-export JAVA_HOME=%{INSTALL_DIR}/jdk
+    export JAVA_HOME=%{INSTALL_DIR}/jdk
 
-echo "Registering and starting %{SERVICE_NAME} service"
-
-
-if command -v systemctl >/dev/null; then
-    systemctl daemon-reload
-    systemctl enable %{SERVICE_NAME}.service
-    systemctl start %{SERVICE_NAME}.service
-elif command -v chkconfig >/dev/null; then
-    chkconfig --add %{SERVICE_NAME}
-    service %{SERVICE_NAME} start
-elif command -v update-rc.d >/dev/null; then
-    update-rc.d %{SERVICE_NAME} defaults 95 10
-    /etc/init.d/%{SERVICE_NAME} start
-fi
+    echo "Registering and starting %{SERVICE_NAME} service"
 
 
-echo "Initializing OpenDistro"
+    if command -v systemctl >/dev/null; then
+        systemctl daemon-reload
+        systemctl enable %{SERVICE_NAME}.service
+        systemctl start %{SERVICE_NAME}.service
+    elif command -v chkconfig >/dev/null; then
+        chkconfig --add %{SERVICE_NAME}
+        service %{SERVICE_NAME} start
+    elif command -v update-rc.d >/dev/null; then
+        update-rc.d %{SERVICE_NAME} defaults 95 10
+        /etc/init.d/%{SERVICE_NAME} start
+    fi
 
-%{INSTALL_DIR}/plugins/opendistro_security/tools/securityadmin.sh -cd %{INSTALL_DIR}/plugins/opendistro_security/securityconfig/ -nhnv -cacert %{CONFIG_DIR}/certs/root-ca.pem -cert %{CONFIG_DIR}/certs/admin.pem -key %{CONFIG_DIR}/certs/admin-key.pem
 
-if [ "$?" != "0" ]; then
-    # TODO: SystemV may report that service is started but it is not available ant the setup fails
-    # One option could be to first check the result of curl -s https://localhost:9200/_cat/health -k if the
-    # port will not change or we can obtain it
-    echo "Service not ready yet. Retrying in 10 seconds..."
-    sleep 10;
+    echo "Initializing OpenDistro"
+
     %{INSTALL_DIR}/plugins/opendistro_security/tools/securityadmin.sh -cd %{INSTALL_DIR}/plugins/opendistro_security/securityconfig/ -nhnv -cacert %{CONFIG_DIR}/certs/root-ca.pem -cert %{CONFIG_DIR}/certs/admin.pem -key %{CONFIG_DIR}/certs/admin-key.pem
 
+    if [ "$?" != "0" ]; then
+        # TODO: SystemV may report that service is started but it is not available ant the setup fails
+        # One option could be to first check the result of curl -s https://localhost:9200/_cat/health -k if the
+        # port will not change or we can obtain it
+        echo "Service not ready yet. Retrying in 10 seconds..."
+        sleep 10;
+        %{INSTALL_DIR}/plugins/opendistro_security/tools/securityadmin.sh -cd %{INSTALL_DIR}/plugins/opendistro_security/securityconfig/ -nhnv -cacert %{CONFIG_DIR}/certs/root-ca.pem -cert %{CONFIG_DIR}/certs/admin.pem -key %{CONFIG_DIR}/certs/admin-key.pem
+
+    fi
 fi
 
 # Built for packages-7.10.0 (rpm)
