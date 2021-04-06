@@ -95,7 +95,7 @@ override_dh_install:
 	tar -zvxf files/$(ODFE_FILE)
 
 	# Fix distribution type so systemd is notified: https://github.com/elastic/elasticsearch/issues/55477
-	sed -i 's/ES_DISTRIBUTION_TYPE=tar/ES_DISTRIBUTION_TYPE=rpm/' $(ODFE_DIR)/bin/elasticsearch-env
+	sed -i 's/ES_DISTRIBUTION_TYPE=tar/ES_DISTRIBUTION_TYPE=deb/' $(ODFE_DIR)/bin/elasticsearch-env
 
 
 	# copy to target
@@ -105,7 +105,7 @@ override_dh_install:
 	mkdir -p $(TARGET_DIR)$(CONFIG_DIR)/certs
 	mkdir -p $(TARGET_DIR)$(CONFIG_DIR)/jvm.options.d
 	mkdir -p $(TARGET_DIR)/etc/init.d
-	mkdir -p $(TARGET_DIR)/etc/sysconfig
+	mkdir -p $(TARGET_DIR)/etc/default
 	mkdir -p $(TARGET_DIR)/usr/lib/tmpfiles.d
 	mkdir -p $(TARGET_DIR)/usr/lib/sysctl.d
 	mkdir -p $(TARGET_DIR)/usr/lib/systemd/system
@@ -127,7 +127,7 @@ override_dh_install:
 	cp files/config_files/etc/init.d/$(SERVICE_NAME) $(TARGET_DIR)/etc/init.d/$(SERVICE_NAME)
 	cp files/config_files/etc/wazuh-indexer/log4j2.properties $(TARGET_DIR)$(CONFIG_DIR)/log4j2.properties
 	cp files/config_files/etc/wazuh-indexer/jvm.options $(TARGET_DIR)$(CONFIG_DIR)/jvm.options
-	cp files/config_files/etc/sysconfig/$(SERVICE_NAME) $(TARGET_DIR)/etc/sysconfig/$(SERVICE_NAME)
+	cp files/config_files/etc/sysconfig/$(SERVICE_NAME) $(TARGET_DIR)/etc/default/$(SERVICE_NAME)
 	cp files/config_files/usr/lib/tmpfiles.d/$(SERVICE_NAME).conf $(TARGET_DIR)/usr/lib/tmpfiles.d/$(SERVICE_NAME).conf
 	cp files/config_files/usr/lib/sysctl.d/$(SERVICE_NAME).conf $(TARGET_DIR)/usr/lib/sysctl.d/$(SERVICE_NAME).conf
 	cp files/config_files/usr/lib/systemd/system/$(SERVICE_NAME).service $(TARGET_DIR)/usr/lib/systemd/system/$(SERVICE_NAME).service
@@ -169,7 +169,7 @@ override_dh_install:
 	# Fix file sourced file by elasticsearch-env so that it can find the config directory as /etc/elasticsearch
 	# https://github.com/elastic/elasticsearch/blob/v7.10.2/distribution/src/bin/elasticsearch-env#L81
 	# https://github.com/elastic/elasticsearch/blob/v7.10.2/distribution/build.gradle#L585
-	sed -i 's/if \[ -z "$$ES_PATH_CONF" \]; then ES_PATH_CONF="$$ES_HOME"\/config; fi/source \/etc\/sysconfig\/wazuh-indexer/' $(TARGET_DIR)$(INSTALLATION_DIR)/bin/elasticsearch-env
+	sed -i 's/if \[ -z "$$ES_PATH_CONF" \]; then ES_PATH_CONF="$$ES_HOME"\/config; fi/source \/etc\/default\/wazuh-indexer/' $(TARGET_DIR)$(INSTALLATION_DIR)/bin/elasticsearch-env
 
 	# Remove bundled configuration directory since /etc/wazuh-indexer will be used
 	rm -rf $(TARGET_DIR)$(INSTALLATION_DIR)/config

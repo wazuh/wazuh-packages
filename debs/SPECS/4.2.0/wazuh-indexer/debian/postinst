@@ -6,7 +6,7 @@
 export SERVICE_NAME=wazuh-indexer
 
 # alien added permissions fixup code
-chown ':wazuh-indexer' '/etc/sysconfig/wazuh-indexer'
+chown ':wazuh-indexer' '/etc/default/wazuh-indexer'
 chown ':wazuh-indexer' '/etc/wazuh-indexer'
 chmod '2750' '/etc/wazuh-indexer'
 chown ':wazuh-indexer' '/etc/wazuh-indexer/certs'
@@ -180,8 +180,8 @@ chmod '755' '/usr/share/wazuh-indexer/bin/systemd-entrypoint'
 #       $1=1         : indicates an upgrade
 
 # source the default env file
-if [ -f "/etc/sysconfig/wazuh-indexer" ]; then
-    . "/etc/sysconfig/wazuh-indexer"
+if [ -f "/etc/default/wazuh-indexer" ]; then
+    . "/etc/default/wazuh-indexer"
 fi
 
 export ES_PATH_CONF=${ES_PATH_CONF:-/etc/wazuh-indexer}

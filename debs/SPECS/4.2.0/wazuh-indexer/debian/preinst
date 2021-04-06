@@ -22,8 +22,8 @@ err_exit() {
 }
 
 # source the default env file
-if [ -f "/etc/sysconfig/wazuh-indexer" ]; then
-    . "/etc/sysconfig/wazuh-indexer"
+if [ -f "/etc/default/wazuh-indexer" ]; then
+    . "/etc/default/wazuh-indexer"
 fi
 
 export ES_PATH_CONF=${ES_PATH_CONF:-/etc/wazuh-indexer}
