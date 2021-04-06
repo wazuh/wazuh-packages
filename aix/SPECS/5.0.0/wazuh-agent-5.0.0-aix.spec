@@ -110,11 +110,13 @@ fi
 %post
 if [ $1 = 2 ]; then
   if [ -d %{_localstatedir}/logs/ossec ]; then
-    mv %{_localstatedir}/logs/ossec/* %{_localstatedir}/logs/wazuh
+    rm -rf %{_localstatedir}/logs/wazuh
+    cp -rp %{_localstatedir}/logs/ossec %{_localstatedir}/logs/wazuh
   fi
 
   if [ -d %{_localstatedir}/queue/ossec ]; then
-    mv %{_localstatedir}/queue/ossec/* %{_localstatedir}/queue/sockets
+    rm -rf %{_localstatedir}/queue/sockets
+    cp -rp %{_localstatedir}/queue/ossec %{_localstatedir}/queue/sockets
   fi
 fi
 
@@ -178,9 +180,9 @@ fi
 if [ $1 = 0 ]; then
 
   /etc/rc.d/init.d/wazuh-agent stop > /dev/null 2>&1 || :
-  rm -f %{_localstatedir}/queue/ossec/*
-  rm -f %{_localstatedir}/queue/ossec/.agent_info || :
-  rm -f %{_localstatedir}/queue/ossec/.wait || :
+  rm -f %{_localstatedir}/queue/sockets/*
+  rm -f %{_localstatedir}/queue/sockets/.agent_info || :
+  rm -f %{_localstatedir}/queue/sockets/.wait || :
   rm -f %{_localstatedir}/queue/diff/*
   rm -f %{_localstatedir}/queue/alerts/*
   rm -f %{_localstatedir}/queue/rids/*
@@ -282,6 +284,8 @@ rm -fr %{buildroot}
 
 %changelog
 * Sat Dec 04 2021 support <info@wazuh.com> - 5.0.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Wed Apr 28 2021 support <info@wazuh.com> - 4.3.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Apr 26 2021 support <info@wazuh.com> - 4.2.0
 - More info: https://documentation.wazuh.com/current/release-notes/
