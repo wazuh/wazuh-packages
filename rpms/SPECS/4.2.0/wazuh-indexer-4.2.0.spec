@@ -31,8 +31,6 @@ ExclusiveOS: linux
 # WAZUH_DEPLOYMENT_TYPE if set to 'distributed' will use distributed elasticsearch.yml instead of All In One
 # WAZUH_GENERATE_CERTIFICATES if set to 'true' will generate certificates using wazuh-cert-tool instead
 #                             of using the ones included in the wazuh-indexer package
-# WAZUH_INITIALIZE_ODFE if set to 'true' will start elasticsearch after installation and execute securityadmin.sh
-#                       script from the opendistro_security/tools/ plugin folder.
 
 # -----------------------------------------------------------------------------
 
@@ -1336,43 +1334,6 @@ else
     fi
 fi
 
-
-if [ "$WAZUH_INITIALIZE_ODFE" = "true" ]; then
-    # Do the service start and OpenDistro initialization in posttrans script
-    # so keystore is already created, otheriwse in post script it fails to start
-
-    export JAVA_HOME=%{INSTALL_DIR}/jdk
-
-    echo "Registering and starting %{SERVICE_NAME} service"
-
-
-    if command -v systemctl >/dev/null; then
-        systemctl daemon-reload
-        systemctl enable %{SERVICE_NAME}.service
-        systemctl start %{SERVICE_NAME}.service
-    elif command -v chkconfig >/dev/null; then
-        chkconfig --add %{SERVICE_NAME}
-        service %{SERVICE_NAME} start
-    elif command -v update-rc.d >/dev/null; then
-        update-rc.d %{SERVICE_NAME} defaults 95 10
-        /etc/init.d/%{SERVICE_NAME} start
-    fi
-
-
-    echo "Initializing OpenDistro"
-
-    %{INSTALL_DIR}/plugins/opendistro_security/tools/securityadmin.sh -cd %{INSTALL_DIR}/plugins/opendistro_security/securityconfig/ -nhnv -cacert %{CONFIG_DIR}/certs/root-ca.pem -cert %{CONFIG_DIR}/certs/admin.pem -key %{CONFIG_DIR}/certs/admin-key.pem
-
-    if [ "$?" != "0" ]; then
-        # TODO: SystemV may report that service is started but it is not available ant the setup fails
-        # One option could be to first check the result of curl -s https://localhost:9200/_cat/health -k if the
-        # port will not change or we can obtain it
-        echo "Service not ready yet. Retrying in 10 seconds..."
-        sleep 10;
-        %{INSTALL_DIR}/plugins/opendistro_security/tools/securityadmin.sh -cd %{INSTALL_DIR}/plugins/opendistro_security/securityconfig/ -nhnv -cacert %{CONFIG_DIR}/certs/root-ca.pem -cert %{CONFIG_DIR}/certs/admin.pem -key %{CONFIG_DIR}/certs/admin-key.pem
-
-    fi
-fi
 
 # Built for packages-7.10.0 (rpm)
 
