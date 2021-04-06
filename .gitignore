@@ -12,7 +12,6 @@ ova/Config_files/filebeat.yml
 *.msi
 *.p5p
 *.sha512
-*.key
 *.csr
 *.srl
 wpk/versions
