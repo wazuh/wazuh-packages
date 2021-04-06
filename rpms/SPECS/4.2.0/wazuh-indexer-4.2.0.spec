@@ -11,7 +11,7 @@ Packager:    Wazuh, Inc <info@wazuh.com>
 AutoReqProv: no
 
 Conflicts: elasticsearch elasticsearch-oss opendistroforelasticsearch
-Requires: coreutils openssl
+Requires: coreutils
 BuildRequires: tar
 
 ExclusiveOS: linux
@@ -29,8 +29,6 @@ ExclusiveOS: linux
 
 # Custom installation environment variables
 # WAZUH_DEPLOYMENT_TYPE if set to 'distributed' will use distributed elasticsearch.yml instead of All In One
-# WAZUH_GENERATE_CERTIFICATES if set to 'true' will generate certificates using wazuh-cert-tool instead
-#                             of using the ones included in the wazuh-indexer package
 
 # -----------------------------------------------------------------------------
 
@@ -1286,21 +1284,6 @@ if [ "$WAZUH_DEPLOYMENT_TYPE" = "distributed" ]; then
 else
   # Using 3364-Unattended_improvements branch file
   cp %{CONFIG_DIR}/elasticsearch.yml.aio %{CONFIG_DIR}/elasticsearch.yml
-fi
-
-
-if [ "$WAZUH_GENERATE_CERTIFICATES" = "true" ]; then
-    # Create certificates
-    echo "Creating certificates with wazuh-cert-tool"
-    mkdir -p ~/certs
-    cp %{INSTALL_DIR}/bin/wazuh-cert-tool.sh ~
-    cp %{INSTALL_DIR}/bin/instances.yml ~
-
-    ~/wazuh-cert-tool.sh
-
-    cp ~/certs/elasticsearch* %{CONFIG_DIR}/certs/
-    cp ~/certs/root-ca.pem %{CONFIG_DIR}/certs/
-    cp ~/certs/admin* %{CONFIG_DIR}/certs/
 fi
 
 

@@ -2,8 +2,6 @@
 
 # Custom installation environment variables
 # WAZUH_DEPLOYMENT_TYPE if set to 'distributed' will use distributed elasticsearch.yml instead of All In One
-# WAZUH_GENERATE_CERTIFICATES if set to 'true' will generate certificates using wazuh-cert-tool instead
-#                             of using the ones included in the wazuh-indexer package
 
 # TODO: Check if variables can be imported from a single place, because this is already defined in rules
 # and if it makes sense to replace all /etc/wazuh-indexer and /usr/share/wazuh-indexer from this file
@@ -384,17 +382,3 @@ else
   cp /etc/wazuh-indexer/elasticsearch.yml.aio /etc/wazuh-indexer/elasticsearch.yml
 fi
 
-
-if [ "$WAZUH_GENERATE_CERTIFICATES" = "true" ]; then
-    # Create certificates
-    echo "Creating certificates with wazuh-cert-tool"
-    mkdir -p ~/certs
-    cp /usr/share/wazuh-indexer/bin/wazuh-cert-tool.sh ~
-    cp /usr/share/wazuh-indexer/bin/instances.yml ~
-
-    ~/wazuh-cert-tool.sh
-
-    cp ~/certs/elasticsearch* /etc/wazuh-indexer/certs/
-    cp ~/certs/root-ca.pem /etc/wazuh-indexer/certs/
-    cp ~/certs/admin* /etc/wazuh-indexer/certs/
-fi
