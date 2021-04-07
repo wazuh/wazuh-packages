@@ -200,7 +200,7 @@ installKibana() {
         chown -R kibana:kibana /usr/share/kibana/plugins
         mkdir /usr/share/kibana/data
         chown -R kibana:kibana /usr/share/kibana/data
-        #Install Wazuh  Kibana plugin
+        ## Install Wazuh  Kibana plugin
         if [ "${PACKAGES_REPOSITORY}" = "prod" ]; then
             if [ "${WAZUH_MAJOR}" -ge "4" ]; then
                 sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/${WAZUH_MAJOR}.x/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-${UI_REVISION}.zip
