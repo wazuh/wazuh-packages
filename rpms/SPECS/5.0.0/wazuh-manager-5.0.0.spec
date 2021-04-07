@@ -70,9 +70,22 @@ echo 'USER_AUTO_START="n"' >> ./etc/preloaded-vars.conf
 echo 'USER_CREATE_SSL_CERT="n"' >> ./etc/preloaded-vars.conf
 ./install.sh
 
+# Config vars (AUX)
+%define filebeat_data_path /var/lib/filebeat
+%define filebeat_log_path /var/log/filebeat
+
 # Create directories
 mkdir -p ${RPM_BUILD_ROOT}%{_initrddir}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.ssh
+mkdir -p $RPM_BUILD_ROOT}%{filebeat_log_path}
+mkdir -p $RPM_BUILD_ROOT}%{filebeat_data_path}
+
+# Download filebeat
+curl -sL https://packages-dev.wazuh.com/deps/filebeat-test/wazuh-filebeat-oss-7.10.2.tar.gz | tar zx
+# Modify install dir in filebeat.yml
+sed -i "s:INSTALLATION_PATH:%{_localstatedir}:g" filebeat/etc/filebeat.yml
+# Copy filebeat folder into the Wazuh directory
+mv filebeat ${RPM_BUILD_ROOT}%{_localstatedir}/
 
 # Copy the installed files into RPM_BUILD_ROOT directory
 cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
@@ -800,6 +813,46 @@ rm -fr %{buildroot}
 %attr(750, root, ossec) %{_localstatedir}/wodles/docker/*
 %dir %attr(750, root, ossec) %{_localstatedir}/wodles/gcloud
 %attr(750, root, ossec) %{_localstatedir}/wodles/gcloud/*
+
+
+%dir %attr(755, root, root) %{_localstatedir}/filebeat
+%attr(644, root, root) %{_localstatedir}/filebeat/.build_hash.txt
+%attr(644, root, root) %{_localstatedir}/filebeat/README.md
+%attr(644, root, root) %{_localstatedir}/filebeat/NOTICE.txt
+%attr(644, root, root) %{_localstatedir}/filebeat/LICENSE.txt
+%dir %attr(755, root, root) %{_localstatedir}/filebeat/etc
+%dir %attr(755, root, root) %{_localstatedir}/filebeat/etc/certs
+%attr(600, root, root) %{_localstatedir}/filebeat/etc/certs/filebeat.key
+%attr(644, root, root) %{_localstatedir}/filebeat/etc/certs/filebeat.pem
+%attr(644, root, root) %{_localstatedir}/filebeat/etc/certs/root-ca.pem
+%attr(644, root, root) %{_localstatedir}/filebeat/etc/wazuh-template.json
+%attr(644, root, root) %config(noreplace) %{_localstatedir}/filebeat/etc/filebeat.yml
+%dir %attr(755, root, root) %{_localstatedir}/filebeat/module
+%dir %attr(755, root, root) %{_localstatedir}/filebeat/module/wazuh
+%attr(644, root, root) %{_localstatedir}/filebeat/module/wazuh/module.yml
+%dir %attr(755, root, root) %{_localstatedir}/filebeat/module/wazuh/alerts
+%attr(644, root, root) %{_localstatedir}/filebeat/module/wazuh/alerts/manifest.yml
+%dir %attr(755, root, root) %{_localstatedir}/filebeat/module/wazuh/alerts/config
+%attr(644, root, root) %{_localstatedir}/filebeat/module/wazuh/alerts/config/alerts.yml
+%dir %attr(755, root, root) %{_localstatedir}/filebeat/module/wazuh/alerts/ingest
+%attr(644, root, root) %{_localstatedir}/filebeat/module/wazuh/alerts/ingest/pipeline.json
+
+%dir %attr(755, root, root) %{_localstatedir}/filebeat/module/wazuh/archives
+%attr(644, root, root) %{_localstatedir}/filebeat/module/wazuh/archives/manifest.yml
+%dir %attr(755, root, root) %{_localstatedir}/filebeat/module/wazuh/archives/config
+%attr(644, root, root) %{_localstatedir}/filebeat/module/wazuh/archives/config/archives.yml
+%dir %attr(755, root, root) %{_localstatedir}/filebeat/module/wazuh/archives/ingest
+%attr(644, root, root) %{_localstatedir}/filebeat/module/wazuh/archives/ingest/pipeline.json
+
+%dir %attr(755, root, root) %{_localstatedir}/filebeat/module/wazuh/_meta
+%attr(644, root, root) %{_localstatedir}/filebeat/module/wazuh/_meta/config.yml
+%attr(644, root, root) %{_localstatedir}/filebeat/module/wazuh/_meta/docs.asciidoc
+%attr(644, root, root) %{_localstatedir}/filebeat/module/wazuh/_meta/fields.yml
+
+%dir %attr(755, root, root) %{_localstatedir}/filebeat/modules.d
+%attr(644, root, root) %{_localstatedir}/filebeat/modules.d/elasticsearch.yml.disabled
+%dir %attr(755, root, root) %{_localstatedir}/filebeat/bin
+%attr(755, root, root) %{_localstatedir}/filebeat/bin/filebeat
 
 %if %{_debugenabled} == "yes"
 /usr/lib/debug/%{_localstatedir}/*
