@@ -82,10 +82,10 @@ mkdir -p $RPM_BUILD_ROOT}%{filebeat_data_path}
 
 # Download filebeat
 curl -sL https://packages-dev.wazuh.com/deps/filebeat-test/wazuh-filebeat-oss-7.10.2.tar.gz | tar zx
-
+# Modify install dir in filebeat.yml
+sed -i "s:INSTALLATION_PATH:%{_localstatedir}:g" filebeat/etc/filebeat.yml
 # Copy filebeat folder into the Wazuh directory
 mv filebeat ${RPM_BUILD_ROOT}%{_localstatedir}/
-
 
 # Copy the installed files into RPM_BUILD_ROOT directory
 cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
@@ -822,8 +822,11 @@ rm -fr %{buildroot}
 %attr(644, root, root) %{_localstatedir}/filebeat/LICENSE.txt
 %dir %attr(755, root, root) %{_localstatedir}/filebeat/etc
 %dir %attr(755, root, root) %{_localstatedir}/filebeat/etc/certs
+%attr(600, root, root) %{_localstatedir}/filebeat/etc/certs/filebeat.key
+%attr(644, root, root) %{_localstatedir}/filebeat/etc/certs/filebeat.pem
+%attr(644, root, root) %{_localstatedir}/filebeat/etc/certs/root-ca.pem
 %attr(644, root, root) %{_localstatedir}/filebeat/etc/wazuh-template.json
-%attr(644, root, root) %{_localstatedir}/filebeat/etc/filebeat.yml
+%attr(644, root, root) %config(noreplace) %{_localstatedir}/filebeat/etc/filebeat.yml
 %dir %attr(755, root, root) %{_localstatedir}/filebeat/module
 %dir %attr(755, root, root) %{_localstatedir}/filebeat/module/wazuh
 %attr(644, root, root) %{_localstatedir}/filebeat/module/wazuh/module.yml
