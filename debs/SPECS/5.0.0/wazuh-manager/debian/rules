@@ -99,7 +99,8 @@ override_dh_install:
 
 	# Download Filebeat
 	curl -sL https://packages-dev.wazuh.com/deps/filebeat-test/wazuh-filebeat-oss-7.10.2.tar.gz | tar zx
-
+	# Modify install dir in filebeat.yml
+	sed -i "s:INSTALLATION_PATH:$(INSTALLATION_DIR):g" filebeat/etc/filebeat.yml
 	# Copy filebeat to installation dir
 	mv filebeat ${TARGET_DIR}$(INSTALLATION_DIR)/
 
