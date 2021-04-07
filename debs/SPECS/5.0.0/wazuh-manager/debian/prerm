@@ -69,7 +69,7 @@ case "$1" in
       fi
       # Save filebeat.yml
       if [ -f ${DIR}/filebeat/etc/filebeat.yml ]; then
-        cp -p ${DIR}/filebeat/etc/filebeat.yml.save ${DIR}/tmp/conffiles
+        cp -p ${DIR}/filebeat/etc/filebeat.yml ${DIR}/tmp/conffiles
       fi
     ;;
 
