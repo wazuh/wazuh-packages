@@ -56,7 +56,7 @@ clean() {
     exit_code=$1
 
     # Clean the files
-    rm -rf ${DOCKERFILE_PATH}/{*.tar.gz,wazuh*} ${DOCKERFILE_PATH}/build.sh ${SOURCES_DIRECTORY}
+    #rm -rf ${DOCKERFILE_PATH}/{*.tar.gz,wazuh*} ${DOCKERFILE_PATH}/build.sh  ${SOURCES_DIRECTORY}
 
     exit ${exit_code}
 }
@@ -71,6 +71,7 @@ build_rpm() {
 
     # Copy the necessary files
     cp build.sh ${DOCKERFILE_PATH}
+    cp -r services ${DOCKERFILE_PATH}
 
     # Download the legacy tar file if it is needed
     if [ "${CONTAINER_NAME}" = "${LEGACY_RPM_I386_BUILDER}" ] && [ ! -f "${LEGACY_TAR_FILE}" ]; then
@@ -125,7 +126,7 @@ build() {
             build_rpm ${RPM_X86_BUILDER} ${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE} || return 1
         fi
 
-    elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]]; then
+    elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]] || [[ "${TARGET}" == "wui" ]]; then
 
         BUILD_NAME=""
         FILE_PATH=""
