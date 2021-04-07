@@ -78,7 +78,7 @@ override_dh_install:
 	curl -o files/config_files/etc/wazuh-indexer/certs/root-ca.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/wazuh-indexer/certs/root-ca.pem
 
 	# Configuration files from documentation repo
-	curl -o files/config_files/elasticsearch_all_in_one.yml  https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/elasticsearch/7.x/elasticsearch_all_in_one.yml
+	curl -o files/config_files/elasticsearch.yml  https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/elasticsearch/7.x/elasticsearch.yml
 	curl -o files/config_files/roles.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/elasticsearch/roles/roles.yml
 	curl -o files/config_files/roles_mapping.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/elasticsearch/roles/roles_mapping.yml
 	curl -o files/config_files/internal_users.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/elasticsearch/roles/internal_users.yml
@@ -111,7 +111,7 @@ override_dh_install:
 	cp files/instances.yml $(TARGET_DIR)$(INSTALLATION_DIR)/bin
 
 	# Copy configuration files from documentation repo
-	cp files/config_files/elasticsearch_all_in_one.yml $(TARGET_DIR)$(CONFIG_DIR)/elasticsearch.yml
+	cp files/config_files/elasticsearch.yml $(TARGET_DIR)$(CONFIG_DIR)/elasticsearch.yml
 
 	# Copy configuration files for wazuh-indexer
 	cp files/config_files/etc/init.d/$(SERVICE_NAME) $(TARGET_DIR)/etc/init.d/$(SERVICE_NAME)

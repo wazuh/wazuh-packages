@@ -76,7 +76,6 @@ curl -o files/wazuh-passwords-tool.sh https://raw.githubusercontent.com/wazuh/wa
 
 
 curl -o files/config_files/elasticsearch.yml  https://raw.githubusercontent.com/wazuh/wazuh-documentation/%{DOCUMENTATION_BRANCH}/resources/open-distro/elasticsearch/7.x/elasticsearch.yml
-curl -o files/config_files/elasticsearch_all_in_one.yml  https://raw.githubusercontent.com/wazuh/wazuh-documentation/%{DOCUMENTATION_BRANCH}/resources/open-distro/elasticsearch/7.x/elasticsearch_all_in_one.yml
 
 curl -o files/config_files/roles.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/%{DOCUMENTATION_BRANCH}/resources/open-distro/elasticsearch/roles/roles.yml
 curl -o files/config_files/roles_mapping.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/%{DOCUMENTATION_BRANCH}/resources/open-distro/elasticsearch/roles/roles_mapping.yml
@@ -120,7 +119,7 @@ cp files/wazuh-cert-tool.sh %{buildroot}%{_localstatedir}/bin
 cp files/instances.yml %{buildroot}%{_localstatedir}/bin
 
 # Copy configuration files from documentation repo
-cp files/config_files/elasticsearch_all_in_one.yml %{buildroot}%{CONFIG_DIR}/elasticsearch.yml
+cp files/config_files/elasticsearch.yml %{buildroot}%{CONFIG_DIR}/elasticsearch.yml
 
 # Copy configuration files for wazuh-indexer
 cp files/config_files/etc/init.d/%{SERVICE_NAME} %{buildroot}/etc/init.d/%{SERVICE_NAME}
