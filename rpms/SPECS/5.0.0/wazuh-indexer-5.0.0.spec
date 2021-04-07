@@ -1,6 +1,6 @@
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-indexer
-Version:     4.2.0
+Version:     5.0.0
 Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
@@ -1574,5 +1574,5 @@ fi
 
 
 %changelog
-* Mon Apr 26 2021 support <info@wazuh.com> - 4.2.0
+* Mon Apr 26 2021 support <info@wazuh.com> - 5.0.0
 - More info: https://documentation.wazuh.com/current/release-notes/
