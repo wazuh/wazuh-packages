@@ -73,8 +73,8 @@ override_dh_install:
 	# Demo certificates
 	curl -o files/config_files/etc/wazuh-indexer/certs/admin-key.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/wazuh-indexer/certs/admin-key.pem
 	curl -o files/config_files/etc/wazuh-indexer/certs/admin.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/wazuh-indexer/certs/admin.pem
-	curl -o files/config_files/etc/wazuh-indexer/certs/elasticsearch-key.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/wazuh-indexer/certs/elasticsearch-key.pem
-	curl -o files/config_files/etc/wazuh-indexer/certs/elasticsearch.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/wazuh-indexer/certs/elasticsearch.pem
+	curl -o files/config_files/etc/wazuh-indexer/certs/wazuh-indexer-key.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/wazuh-indexer/certs/wazuh-indexer-key.pem
+	curl -o files/config_files/etc/wazuh-indexer/certs/wazuh-indexer.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/wazuh-indexer/certs/wazuh-indexer.pem
 	curl -o files/config_files/etc/wazuh-indexer/certs/root-ca.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/wazuh-indexer/certs/root-ca.pem
 
 	# Configuration files from documentation repo
@@ -132,8 +132,8 @@ override_dh_install:
 	# Copy certificates
 	cp files/config_files/etc/wazuh-indexer/certs/admin-key.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/admin-key.pem
 	cp files/config_files/etc/wazuh-indexer/certs/admin.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/admin.pem
-	cp files/config_files/etc/wazuh-indexer/certs/elasticsearch-key.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/elasticsearch-key.pem
-	cp files/config_files/etc/wazuh-indexer/certs/elasticsearch.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/elasticsearch.pem
+	cp files/config_files/etc/wazuh-indexer/certs/wazuh-indexer-key.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/wazuh-indexer-key.pem
+	cp files/config_files/etc/wazuh-indexer/certs/wazuh-indexer.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/wazuh-indexer.pem
 	cp files/config_files/etc/wazuh-indexer/certs/root-ca.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/root-ca.pem
 
 

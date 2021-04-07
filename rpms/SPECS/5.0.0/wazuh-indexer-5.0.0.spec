@@ -64,8 +64,8 @@ curl -o files/config_files/systemd-entrypoint --create-dirs https://raw.githubus
 # Demo certificates
 curl -o files/config_files/etc/wazuh-indexer/certs/admin-key.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/%{PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/wazuh-indexer/certs/admin-key.pem
 curl -o files/config_files/etc/wazuh-indexer/certs/admin.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/%{PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/wazuh-indexer/certs/admin.pem
-curl -o files/config_files/etc/wazuh-indexer/certs/elasticsearch-key.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/%{PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/wazuh-indexer/certs/elasticsearch-key.pem
-curl -o files/config_files/etc/wazuh-indexer/certs/elasticsearch.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/%{PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/wazuh-indexer/certs/elasticsearch.pem
+curl -o files/config_files/etc/wazuh-indexer/certs/wazuh-indexer-key.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/%{PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/wazuh-indexer/certs/wazuh-indexer-key.pem
+curl -o files/config_files/etc/wazuh-indexer/certs/wazuh-indexer.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/%{PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/wazuh-indexer/certs/wazuh-indexer.pem
 curl -o files/config_files/etc/wazuh-indexer/certs/root-ca.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/%{PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/wazuh-indexer/certs/root-ca.pem
 
 curl -o files/wazuh-cert-tool.sh https://raw.githubusercontent.com/wazuh/wazuh-documentation/%{DOCUMENTATION_BRANCH}/resources/open-distro/tools/certificate-utility/wazuh-cert-tool.sh
@@ -140,8 +140,8 @@ echo false > %{buildroot}%{_localstatedir}/data/batch_metrics_enabled.conf
 # Copy certificates
 cp files/config_files/etc/wazuh-indexer/certs/admin-key.pem %{buildroot}%{CONFIG_DIR}/certs/admin-key.pem
 cp files/config_files/etc/wazuh-indexer/certs/admin.pem %{buildroot}%{CONFIG_DIR}/certs/admin.pem
-cp files/config_files/etc/wazuh-indexer/certs/elasticsearch-key.pem %{buildroot}%{CONFIG_DIR}/certs/elasticsearch-key.pem
-cp files/config_files/etc/wazuh-indexer/certs/elasticsearch.pem %{buildroot}%{CONFIG_DIR}/certs/elasticsearch.pem
+cp files/config_files/etc/wazuh-indexer/certs/wazuh-indexer-key.pem %{buildroot}%{CONFIG_DIR}/certs/wazuh-indexer-key.pem
+cp files/config_files/etc/wazuh-indexer/certs/wazuh-indexer.pem %{buildroot}%{CONFIG_DIR}/certs/wazuh-indexer.pem
 cp files/config_files/etc/wazuh-indexer/certs/root-ca.pem %{buildroot}%{CONFIG_DIR}/certs/root-ca.pem
 
 
@@ -199,8 +199,8 @@ rm -fr %{buildroot}
 %dir %attr(2750, root, %{GROUP}) "%{CONFIG_DIR}/certs"
 %config(noreplace) %attr(0440, root, %{GROUP}) "%{CONFIG_DIR}/certs/admin-key.pem"
 %config(noreplace) %attr(0440, root, %{GROUP}) "%{CONFIG_DIR}/certs/admin.pem"
-%config(noreplace) %attr(0440, root, %{GROUP}) "%{CONFIG_DIR}/certs/elasticsearch-key.pem"
-%config(noreplace) %attr(0440, root, %{GROUP}) "%{CONFIG_DIR}/certs/elasticsearch.pem"
+%config(noreplace) %attr(0440, root, %{GROUP}) "%{CONFIG_DIR}/certs/wazuh-indexer-key.pem"
+%config(noreplace) %attr(0440, root, %{GROUP}) "%{CONFIG_DIR}/certs/wazuh-indexer.pem"
 %config(noreplace) %attr(0440, root, %{GROUP}) "%{CONFIG_DIR}/certs/root-ca.pem"
 %config(noreplace) %attr(0660, root, %{GROUP}) "%{CONFIG_DIR}/log4j2.properties"
 %config(noreplace) %attr(0750, root, root) "/etc/init.d/%{SERVICE_NAME}"
