@@ -156,6 +156,12 @@ case "$1" in
         rm -rf ${WAZUH_TMP_DIR}/api.yaml
     fi
 
+    # Restore Filebeat configuration file
+    if [ -f ${WAZUH_TMP_DIR}/filebeat.yml ]; then
+        cp -fp ${WAZUH_TMP_DIR}/filebeat.yml ${DIR}/filebeat/etc/filebeat.yml
+        rm -rf ${WAZUH_TMP_DIR}/filebeat.yml
+    fi
+
     # More files
     touch ${DIR}/etc/client.keys
 

@@ -88,6 +88,10 @@ case "$1" in
             if [ -f ${DIR}/api/configuration/api.yaml ]; then
                 cp -fp ${DIR}/api/configuration/api.yaml ${WAZUH_TMP_DIR}/api.yaml
             fi
+            # Save filebeat.yml
+            if [ -f ${DIR}/filebeat/etc/filebeat.yml ]; then
+                cp -fp ${DIR}/filebeat/etc/filebeat.yml ${WAZUH_TMP_DIR}/filebeat.yml
+            fi
         fi
 
         # Delete old service

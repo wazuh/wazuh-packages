@@ -37,6 +37,12 @@ case "$1" in
             mv ${DIR}/tmp/conffiles/api.yaml ${DIR}/api/configuration/api.yaml
         fi
 
+        # Save filebeat.yml
+        if [ -f ${DIR}/filebeat/etc/filebeat.yml ]; then
+            mkdir -p ${DIR}/filebeat/etc
+            mv ${DIR}/tmp/conffiles/filebeat.yml ${DIR}/filebeat/etc/filebeat.yml
+        fi
+
         # If the directory is not empty, copy the files into ${DIR}/etc
         if ls -A ${DIR}/tmp/conffiles > /dev/null 2>&1 ; then
             cp -Rf ${DIR}/tmp/conffiles/* ${DIR}/etc
