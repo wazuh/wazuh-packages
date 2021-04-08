@@ -34,8 +34,7 @@ if [ ${build_target} = "api" ]; then
     fi
     wazuh_version="$(grep version wazuh*/package.json | cut -d '"' -f 4)"
 elif [ ${build_target} = "indexer" ]; then
-    wazuh_version="5.0.0"
-    #curl -sL https://github.com/wazuh/wazuh/tarball/${wazuh_branch} | tar zx
+    wazuh_version="$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh/${wazuh_branch}/src/VERSION | cut -d 'v' -f 2)"
 else
     if [ "${local_source_code}" = "no" ]; then
         curl -sL https://github.com/wazuh/wazuh/tarball/${wazuh_branch} | tar zx
