@@ -56,7 +56,7 @@ clean() {
     exit_code=$1
 
     # Clean the files
-    #rm -rf ${DOCKERFILE_PATH}/{*.tar.gz,wazuh*} ${DOCKERFILE_PATH}/build.sh  ${SOURCES_DIRECTORY}
+    rm -rf ${DOCKERFILE_PATH}/{*.tar.gz,wazuh*,services,certs,config} ${DOCKERFILE_PATH}/build.sh  ${SOURCES_DIRECTORY}
 
     exit ${exit_code}
 }
