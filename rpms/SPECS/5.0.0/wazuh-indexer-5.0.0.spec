@@ -10,8 +10,7 @@ Vendor:      Wazuh, Inc <info@wazuh.com>
 Packager:    Wazuh, Inc <info@wazuh.com>
 AutoReqProv: no
 
-Conflicts: elasticsearch elasticsearch-oss opendistroforelasticsearch
-Requires: coreutils
+Requires: coreutils initscripts
 BuildRequires: tar
 
 ExclusiveOS: linux
