@@ -63,6 +63,10 @@ ADD build.sh /usr/local/bin/build_package
 RUN chmod +x /usr/local/bin/build_package
 
 COPY services /tmp/services
+COPY config /tmp/config
+COPY certs /tmp/certs
+
+
 
 # Set the entrypoint
 ENTRYPOINT ["/usr/local/bin/build_package"]
