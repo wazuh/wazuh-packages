@@ -71,8 +71,8 @@ echo 'USER_CREATE_SSL_CERT="n"' >> ./etc/preloaded-vars.conf
 ./install.sh
 
 # Config vars (AUX)
-%define filebeat_data_path /var/lib/filebeat
-%define filebeat_log_path /var/log/filebeat
+%define filebeat_data_path /var/lib/wazuh-filebeat
+%define filebeat_log_path /var/log/wazuh-filebeat
 
 # Create directories
 mkdir -p ${RPM_BUILD_ROOT}%{_initrddir}
@@ -82,8 +82,35 @@ mkdir -p $RPM_BUILD_ROOT}%{filebeat_data_path}
 
 # Download filebeat
 curl -sL https://packages-dev.wazuh.com/deps/filebeat-test/wazuh-filebeat-oss-7.10.2.tar.gz | tar zx
-# Modify install dir in filebeat.yml
+
+# filebeat
+# ├── bin
+# │   └── filebeat
+# ├── etc
+# │   └── certs
+# │       ├── filebeat.key
+# │       ├── filebeat.pem
+# │       └── root-ca.pem
+# ├── LICENSE.txt
+# ├── module
+# ├── NOTICE.txt
+# └── README.md
+
+# Get filebeat.yml
+mv extensions/filebeat/7.x/filebeat.yml filebeat/etc/
+# Get Wazuh filebeat module
+mv extensions/filebeat/7.x/wazuh-module filebeat/module/
+# Rename Wazuh filebeat module
+mv filebeat/module/wazuh-module filebeat/module/wazuh
+# Modify install dir in filebeat.yml and Wazuh module
 sed -i "s:INSTALLATION_PATH:%{_localstatedir}:g" filebeat/etc/filebeat.yml
+sed -i "s:INSTALLATION_PATH:%{_localstatedir}:g" filebeat/module/wazuh/alerts/manifest.yml
+sed -i "s:INSTALLATION_PATH:%{_localstatedir}:g" filebeat/module/wazuh/archives/manifest.yml
+# Modify logs path and data path in filebeat.yml
+sed -i "s:FILEBEAT_LOG_PATH:%{filebeat_log_path}:g" filebeat/etc/filebeat.yml
+sed -i "s:FILEBEAT_DATA_PATH:%{filebeat_data_path}:g" filebeat/etc/filebeat.yml
+# Get wazuh-template.json file
+mv extensions/elasticsearch/7.x/wazuh-template.json filebeat/etc/wazuh-template.json
 # Copy filebeat folder into the Wazuh directory
 mv filebeat ${RPM_BUILD_ROOT}%{_localstatedir}/
 
@@ -822,9 +849,9 @@ rm -fr %{buildroot}
 %attr(644, root, root) %{_localstatedir}/filebeat/LICENSE.txt
 %dir %attr(755, root, root) %{_localstatedir}/filebeat/etc
 %dir %attr(755, root, root) %{_localstatedir}/filebeat/etc/certs
-%attr(600, root, root) %{_localstatedir}/filebeat/etc/certs/filebeat.key
-%attr(644, root, root) %{_localstatedir}/filebeat/etc/certs/filebeat.pem
-%attr(644, root, root) %{_localstatedir}/filebeat/etc/certs/root-ca.pem
+%attr(600, root, root) %config(noreplace) %{_localstatedir}/filebeat/etc/certs/filebeat.key
+%attr(644, root, root) %config(noreplace) %{_localstatedir}/filebeat/etc/certs/filebeat.pem
+%attr(644, root, root) %config(noreplace) %{_localstatedir}/filebeat/etc/certs/root-ca.pem
 %attr(644, root, root) %{_localstatedir}/filebeat/etc/wazuh-template.json
 %attr(644, root, root) %config(noreplace) %{_localstatedir}/filebeat/etc/filebeat.yml
 %dir %attr(755, root, root) %{_localstatedir}/filebeat/module
@@ -849,8 +876,6 @@ rm -fr %{buildroot}
 %attr(644, root, root) %{_localstatedir}/filebeat/module/wazuh/_meta/docs.asciidoc
 %attr(644, root, root) %{_localstatedir}/filebeat/module/wazuh/_meta/fields.yml
 
-%dir %attr(755, root, root) %{_localstatedir}/filebeat/modules.d
-%attr(644, root, root) %{_localstatedir}/filebeat/modules.d/elasticsearch.yml.disabled
 %dir %attr(755, root, root) %{_localstatedir}/filebeat/bin
 %attr(755, root, root) %{_localstatedir}/filebeat/bin/filebeat
 
