@@ -176,6 +176,8 @@ rm -rf %{buildroot}%{_localstatedir}/config
 sed -i 's/\/usr\/share\/elasticsearch/\/usr\/share\/wazuh-indexer/' %{buildroot}%{_localstatedir}/plugins/opendistro-performance-analyzer/pa_config/supervisord.conf
 sed -i 's/\/usr\/share\/elasticsearch/\/usr\/share\/wazuh-indexer/' %{buildroot}%{_localstatedir}/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/supervisord.conf
 
+# Fix performance analyzer JAVA_HOME definition when running manually for non systemd environments
+sed -i s'/JAVA_HOME=$2/export JAVA_HOME=$2/' %{buildroot}%{_localstatedir}/plugins/opendistro-performance-analyzer/pa_bin/performance-analyzer-agent
 
 
 exit 0
@@ -1258,7 +1260,7 @@ if [ "x$IS_UPGRADE" != "xtrue" ]; then
 
     elif command -v chkconfig >/dev/null; then
         echo "### Non systemd distro. Please start and stop performance analyzer manually using the command: "
-        echo "sh %{INSTALL_DIR}/plugins/opendistro-performance-analyzer/pa_bin/performance-analyzer-agent %{INSTALL_DIR} -d"
+        echo "sh %{INSTALL_DIR}/plugins/opendistro-performance-analyzer/pa_bin/performance-analyzer-agent %{INSTALL_DIR} %{INSTALL_DIR}/jdk -d"
     fi
 fi
 

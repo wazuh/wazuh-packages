@@ -169,6 +169,8 @@ override_dh_install:
 	sed -i 's/\/usr\/share\/elasticsearch/\/usr\/share\/wazuh-indexer/' $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro-performance-analyzer/pa_config/supervisord.conf
 	sed -i 's/\/usr\/share\/elasticsearch/\/usr\/share\/wazuh-indexer/' $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/supervisord.conf
 
+	# Fix performance analyzer JAVA_HOME definition when running manually for non systemd environments
+	sed -i s'/JAVA_HOME=$$2/export JAVA_HOME=$$2/' $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro-performance-analyzer/pa_bin/performance-analyzer-agent
 
 #override_dh_auto_clean:
 	#$(MAKE) -C src clean

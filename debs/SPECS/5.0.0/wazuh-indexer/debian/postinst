@@ -358,7 +358,7 @@ if [ "x$IS_UPGRADE" != "xtrue" ]; then
 
     elif command -v chkconfig >/dev/null; then
         echo "### Non systemd distro. Please start and stop performance analyzer manually using the command: "
-        echo "sh /usr/share/wazuh-indexer/plugins/opendistro-performance-analyzer/pa_bin/performance-analyzer-agent /usr/share/wazuh-indexer -d"
+        echo "sh /usr/share/wazuh-indexer/plugins/opendistro-performance-analyzer/pa_bin/performance-analyzer-agent /usr/share/wazuh-indexer /usr/share/wazuh-indexer/jdk -d"
     fi
 fi
 
