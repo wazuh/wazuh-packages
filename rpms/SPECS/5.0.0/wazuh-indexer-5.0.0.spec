@@ -40,12 +40,14 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 %prep
 
 ODFE_DIR=opendistroforelasticsearch-%{ODFE_VERSION}
-ODFE_FILE=${ODFE_DIR}-linux-x64-with-systemd-module.tar.gz
+ODFE_FILE=${ODFE_DIR}-linux-x64.tar.gz
+SYSTEMD_MODULE_FILE=systemd_elasticsearch_module_7.10.2.tgz
 
 # Extract elasticsearch-oss tar.gz file
 mkdir -p files/plugins
 mkdir -p files/config_files
 curl -o files/$ODFE_FILE https://packages-dev.wazuh.com/deps/wazuh-indexer/$ODFE_FILE
+curl -o files/$SYSTEMD_MODULE_FILE https://packages-dev.wazuh.com/deps/wazuh-indexer/$SYSTEMD_MODULE_FILE
 
 # Files that were previously stored as elasticsearch-oss-extracted-files.tgz now stored in git.
 # Need to find the best way of obtaining them since we don't have a wazuh-indexer repo so we can't get a tarball
@@ -81,6 +83,7 @@ curl -o files/config_files/roles_mapping.yml https://raw.githubusercontent.com/w
 curl -o files/config_files/internal_users.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/%{DOCUMENTATION_BRANCH}/resources/open-distro/elasticsearch/roles/internal_users.yml
 
 tar -zvxf files/$ODFE_FILE
+tar -zvxf files/$SYSTEMD_MODULE_FILE -C $ODFE_DIR/modules
 
 # Fix distribution type so systemd is notified: https://github.com/elastic/elasticsearch/issues/55477
 sed -i 's/ES_DISTRIBUTION_TYPE=tar/ES_DISTRIBUTION_TYPE=rpm/' $ODFE_DIR/bin/elasticsearch-env
