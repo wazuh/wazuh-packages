@@ -100,7 +100,7 @@ override_dh_install:
 	cp -r $(INSTALLATION_DIR)/. $(TARGET_DIR)$(INSTALLATION_DIR)/
 
 	# Download Filebeat #TODO
-	curl -sL https://packages-dev.wazuh.com/deps/filebeat-test/wazuh-filebeat-oss-7.11.2.tar.gz | tar zx
+	curl -sL https://packages-dev.wazuh.com/deps/filebeat-test/wazuh-filebeat-oss-7.10.2.tar.gz | tar zx
 	# filebeat
 	# ├── bin
 	# │   └── filebeat
