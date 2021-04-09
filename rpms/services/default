@@ -1,0 +1,6 @@
+user="wazuh-wui"
+group="wazuh-wui"
+chroot="/"
+chdir="/"
+nice=""
+KILL_ON_STOP_TIMEOUT=0
