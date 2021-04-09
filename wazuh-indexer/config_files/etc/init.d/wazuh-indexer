@@ -52,7 +52,7 @@ if [ ! -z "$ES_USER" ] || [ ! -z "$ES_GROUP" ]; then
 fi
 
 exec="$ES_HOME/bin/elasticsearch"
-prog="elasticsearch"
+prog="wazuh-indexer"
 pidfile="$PID_DIR/${prog}.pid"
 
 export ES_JAVA_OPTS
@@ -63,7 +63,7 @@ export ES_STARTUP_SLEEP_TIME
 lockfile=/var/lock/subsys/$prog
 
 if [ ! -x "$exec" ]; then
-    echo "The elasticsearch startup script does not exists or it is not executable, tried: $exec"
+    echo "The wazuh-indexer startup script does not exists or it is not executable, tried: $exec"
     exit 1
 fi
 

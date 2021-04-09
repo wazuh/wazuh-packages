@@ -55,7 +55,9 @@ override_dh_install:
 	# Files that were previously stored as elasticsearch-oss-extracted-files.tgz now stored in git.
 	# Need to find the best way of obtaining them since we don't have a wazuh-indexer repo so we can't get a tarball
 	# as wazuh agent or manager compilation does. Getting them one by one now:
-	curl -o files/config_files/etc/init.d/$(SERVICE_NAME) --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/init.d/$(SERVICE_NAME)
+
+	# note this init script is different from RPM one
+	curl -o files/config_files/etc/init.d/$(SERVICE_NAME) --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/init.d/$(SERVICE_NAME)-deb
 	curl -o files/config_files/etc/wazuh-indexer/log4j2.properties --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/wazuh-indexer/log4j2.properties
 	curl -o files/config_files/etc/wazuh-indexer/jvm.options --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/wazuh-indexer/jvm.options
 	curl -o files/config_files/etc/sysconfig/$(SERVICE_NAME) --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/sysconfig/$(SERVICE_NAME)

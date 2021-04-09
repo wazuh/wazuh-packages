@@ -147,6 +147,7 @@ chown 'wazuh-indexer:wazuh-indexer' '/var/log/wazuh-indexer'
 chmod '2750' '/var/log/wazuh-indexer'
 
 #More chmods from RPM SPEC
+chmod '750' '/etc/init.d/wazuh-indexer'
 chmod '750' '/usr/share/wazuh-indexer/plugins/opendistro_security/tools/audit_config_migrater.bat'
 chmod '750' '/usr/share/wazuh-indexer/plugins/opendistro_security/tools/audit_config_migrater.sh'
 chmod '750' '/usr/share/wazuh-indexer/plugins/opendistro_security/tools/hash.bat'
