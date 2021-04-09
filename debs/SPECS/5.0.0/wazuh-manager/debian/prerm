@@ -67,10 +67,6 @@ case "$1" in
       if [ -f ${DIR}/api/configuration/api.yaml ]; then
         cp -p ${DIR}/api/configuration/api.yaml ${DIR}/tmp/conffiles
       fi
-      # Save filebeat.yml
-      if [ -f ${DIR}/filebeat/etc/filebeat.yml ]; then
-        cp -p ${DIR}/filebeat/etc/filebeat.yml ${DIR}/tmp/conffiles
-      fi
     ;;
 
     failed-upgrade)
