@@ -157,6 +157,6 @@ if [ -f /var/lib/wazuh-indexer/rca_enabled.conf ]; then
   rm /var/lib/wazuh-indexer/rca_enabled.conf
 fi
 
-if [ -f /usr/lib/systemd/system/opendistro-performance-analyzer.service ]; then
-  rm /usr/lib/systemd/system/opendistro-performance-analyzer.service
+if [ -f /usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service ]; then
+  rm /usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service
 fi

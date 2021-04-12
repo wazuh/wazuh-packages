@@ -1,5 +1,5 @@
 /usr/lib/sysctl.d/wazuh-indexer.conf
-/usr/lib/systemd/system/opendistro-performance-analyzer.service
+/usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service
 /usr/lib/systemd/system/wazuh-indexer.service
 /etc/init.d/wazuh-indexer
 /etc/default/wazuh-indexer

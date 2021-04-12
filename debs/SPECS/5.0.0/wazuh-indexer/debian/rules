@@ -66,7 +66,7 @@ override_dh_install:
 	curl -o files/config_files/usr/lib/tmpfiles.d/$(SERVICE_NAME).conf --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/usr/lib/tmpfiles.d/$(SERVICE_NAME).conf
 	curl -o files/config_files/usr/lib/sysctl.d/$(SERVICE_NAME).conf --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/usr/lib/sysctl.d/$(SERVICE_NAME).conf
 	curl -o files/config_files/usr/lib/systemd/system/$(SERVICE_NAME).service --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/usr/lib/systemd/system/$(SERVICE_NAME).service
-	curl -o files/config_files/usr/lib/systemd/system/opendistro-performance-analyzer.service --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/usr/lib/systemd/system/opendistro-performance-analyzer.service
+	curl -o files/config_files/usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service
 	curl -o files/config_files/systemd-entrypoint --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/systemd-entrypoint
 
 
@@ -92,6 +92,27 @@ override_dh_install:
 
 	# Fix distribution type so systemd is notified: https://github.com/elastic/elasticsearch/issues/55477
 	sed -i 's/ES_DISTRIBUTION_TYPE=tar/ES_DISTRIBUTION_TYPE=deb/' $(ODFE_DIR)/bin/elasticsearch-env
+
+	# Change elasticsearch default ports. Note this could be temporary and could be changed in the repository file
+	echo "http.port: 9202" >> files/config_files/elasticsearch.yml
+	echo "transport.tcp.port: 9302" >> files/config_files/elasticsearch.yml
+
+	# Change performance analyzer default ports
+	sed -i 's/webservice-listener-port = 9600/webservice-listener-port = 9602/' $(ODFE_DIR)/performance-analyzer-rca/pa_config/performance-analyzer.properties
+	sed -i 's/webservice-listener-port = 9600/webservice-listener-port = 9602/' $(ODFE_DIR)/plugins/opendistro-performance-analyzer/pa_config/performance-analyzer.properties
+	sed -i 's/webservice-listener-port = 9600/webservice-listener-port = 9602/' $(ODFE_DIR)/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/performance-analyzer.properties
+
+	sed -i 's/rpc-port = 9650/rpc-port = 9652/' $(ODFE_DIR)/performance-analyzer-rca/pa_config/performance-analyzer.properties
+	sed -i 's/rpc-port = 9650/rpc-port = 9652/' $(ODFE_DIR)/plugins/opendistro-performance-analyzer/pa_config/performance-analyzer.properties
+	sed -i 's/rpc-port = 9650/rpc-port = 9652/' $(ODFE_DIR)/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/performance-analyzer.properties
+
+	sed -i 's/metrics-location = \/dev\/shm\/performanceanalyzer/metrics-location = \/dev\/shm\/wazuh-indexer-performanceanalyzer/' $(ODFE_DIR)/performance-analyzer-rca/pa_config/performance-analyzer.properties
+	sed -i 's/metrics-location = \/dev\/shm\/performanceanalyzer/metrics-location = \/dev\/shm\/wazuh-indexer-performanceanalyzer/' $(ODFE_DIR)/plugins/opendistro-performance-analyzer/pa_config/performance-analyzer.properties
+	sed -i 's/metrics-location = \/dev\/shm\/performanceanalyzer/metrics-location = \/dev\/shm\/wazuh-indexer-performanceanalyzer/' $(ODFE_DIR)/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/performance-analyzer.properties
+
+	sed -i 's/metrics-db-file-prefix-path = \/tmp\/metricsdb_/metrics-db-file-prefix-path = \/tmp\/wazuh-indexer_metricsdb_/' $(ODFE_DIR)/performance-analyzer-rca/pa_config/performance-analyzer.properties
+	sed -i 's/metrics-db-file-prefix-path = \/tmp\/metricsdb_/metrics-db-file-prefix-path = \/tmp\/wazuh-indexer_metricsdb_/' $(ODFE_DIR)/plugins/opendistro-performance-analyzer/pa_config/performance-analyzer.properties
+	sed -i 's/metrics-db-file-prefix-path = \/tmp\/metricsdb_/metrics-db-file-prefix-path = \/tmp\/wazuh-indexer_metricsdb_/' $(ODFE_DIR)/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/performance-analyzer.properties
 
 
 	# copy to target
@@ -129,7 +150,7 @@ override_dh_install:
 	cp files/config_files/systemd-entrypoint $(TARGET_DIR)$(INSTALLATION_DIR)/bin
 
 	# Service for performance analyzer
-	cp files/config_files/usr/lib/systemd/system/opendistro-performance-analyzer.service $(TARGET_DIR)/usr/lib/systemd/system/
+	cp files/config_files/usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service $(TARGET_DIR)/usr/lib/systemd/system/
 
 	# This is needed by the performance-analyzer service
 	echo false > $(TARGET_DIR)$(INSTALLATION_DIR)/data/batch_metrics_enabled.conf

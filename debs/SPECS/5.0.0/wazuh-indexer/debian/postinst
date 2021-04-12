@@ -355,7 +355,7 @@ if [ "x$IS_UPGRADE" != "xtrue" ]; then
     if command -v systemctl > /dev/null; then
         echo '# Enabling opendistro performance analyzer to start and stop along with wazuh-indexer.service'
         systemctl daemon-reload
-        systemctl enable opendistro-performance-analyzer.service || true
+        systemctl enable wazuh-indexer-performance-analyzer.service || true
 
     elif command -v chkconfig >/dev/null; then
         echo "### Non systemd distro. Please start and stop performance analyzer manually using the command: "

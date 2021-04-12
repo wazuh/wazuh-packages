@@ -59,7 +59,7 @@ curl -o files/config_files/etc/sysconfig/%{SERVICE_NAME} --create-dirs https://r
 curl -o files/config_files/usr/lib/tmpfiles.d/%{SERVICE_NAME}.conf --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/%{PACKAGES_BRANCH}/wazuh-indexer/config_files/usr/lib/tmpfiles.d/%{SERVICE_NAME}.conf
 curl -o files/config_files/usr/lib/sysctl.d/%{SERVICE_NAME}.conf --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/%{PACKAGES_BRANCH}/wazuh-indexer/config_files/usr/lib/sysctl.d/%{SERVICE_NAME}.conf
 curl -o files/config_files/usr/lib/systemd/system/%{SERVICE_NAME}.service --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/%{PACKAGES_BRANCH}/wazuh-indexer/config_files/usr/lib/systemd/system/%{SERVICE_NAME}.service
-curl -o files/config_files/usr/lib/systemd/system/opendistro-performance-analyzer.service --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/%{PACKAGES_BRANCH}/wazuh-indexer/config_files/usr/lib/systemd/system/opendistro-performance-analyzer.service
+curl -o files/config_files/usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/%{PACKAGES_BRANCH}/wazuh-indexer/config_files/usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service
 curl -o files/config_files/systemd-entrypoint --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/%{PACKAGES_BRANCH}/wazuh-indexer/config_files/systemd-entrypoint
 
 # Demo certificates
@@ -88,6 +88,26 @@ tar -zvxf files/$SYSTEMD_MODULE_FILE -C $ODFE_DIR/modules
 # Fix distribution type so systemd is notified: https://github.com/elastic/elasticsearch/issues/55477
 sed -i 's/ES_DISTRIBUTION_TYPE=tar/ES_DISTRIBUTION_TYPE=rpm/' $ODFE_DIR/bin/elasticsearch-env
 
+# Change elasticsearch default ports. Note this could be temporary and could be changed in the repository file
+echo "http.port: 9202" >> files/config_files/elasticsearch.yml
+echo "transport.tcp.port: 9302" >> files/config_files/elasticsearch.yml
+
+# Change performance analyzer default ports
+sed -i 's/webservice-listener-port = 9600/webservice-listener-port = 9602/' $ODFE_DIR/performance-analyzer-rca/pa_config/performance-analyzer.properties
+sed -i 's/webservice-listener-port = 9600/webservice-listener-port = 9602/' $ODFE_DIR/plugins/opendistro-performance-analyzer/pa_config/performance-analyzer.properties
+sed -i 's/webservice-listener-port = 9600/webservice-listener-port = 9602/' $ODFE_DIR/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/performance-analyzer.properties
+
+sed -i 's/rpc-port = 9650/rpc-port = 9652/' $ODFE_DIR/performance-analyzer-rca/pa_config/performance-analyzer.properties
+sed -i 's/rpc-port = 9650/rpc-port = 9652/' $ODFE_DIR/plugins/opendistro-performance-analyzer/pa_config/performance-analyzer.properties
+sed -i 's/rpc-port = 9650/rpc-port = 9652/' $ODFE_DIR/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/performance-analyzer.properties
+
+sed -i 's/metrics-location = \/dev\/shm\/performanceanalyzer/metrics-location = \/dev\/shm\/wazuh-indexer-performanceanalyzer/' $ODFE_DIR/performance-analyzer-rca/pa_config/performance-analyzer.properties
+sed -i 's/metrics-location = \/dev\/shm\/performanceanalyzer/metrics-location = \/dev\/shm\/wazuh-indexer-performanceanalyzer/' $ODFE_DIR/plugins/opendistro-performance-analyzer/pa_config/performance-analyzer.properties
+sed -i 's/metrics-location = \/dev\/shm\/performanceanalyzer/metrics-location = \/dev\/shm\/wazuh-indexer-performanceanalyzer/' $ODFE_DIR/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/performance-analyzer.properties
+
+sed -i 's/metrics-db-file-prefix-path = \/tmp\/metricsdb_/metrics-db-file-prefix-path = \/tmp\/wazuh-indexer_metricsdb_/' $ODFE_DIR/performance-analyzer-rca/pa_config/performance-analyzer.properties
+sed -i 's/metrics-db-file-prefix-path = \/tmp\/metricsdb_/metrics-db-file-prefix-path = \/tmp\/wazuh-indexer_metricsdb_/' $ODFE_DIR/plugins/opendistro-performance-analyzer/pa_config/performance-analyzer.properties
+sed -i 's/metrics-db-file-prefix-path = \/tmp\/metricsdb_/metrics-db-file-prefix-path = \/tmp\/wazuh-indexer_metricsdb_/' $ODFE_DIR/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/performance-analyzer.properties
 
 
 # -----------------------------------------------------------------------------
@@ -134,7 +154,7 @@ cp files/config_files/usr/lib/systemd/system/%{SERVICE_NAME}.service %{buildroot
 cp files/config_files/systemd-entrypoint %{buildroot}%{_localstatedir}/bin
 
 # Service for performance analyzer
-cp files/config_files/usr/lib/systemd/system/opendistro-performance-analyzer.service %{buildroot}/usr/lib/systemd/system/
+cp files/config_files/usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service %{buildroot}/usr/lib/systemd/system/
 
 # This is needed by the performance-analyzer service
 echo false > %{buildroot}%{_localstatedir}/data/batch_metrics_enabled.conf
@@ -211,7 +231,7 @@ rm -fr %{buildroot}
 %config(noreplace) %attr(0660, root, %{GROUP}) "/etc/sysconfig/%{SERVICE_NAME}"
 %config(noreplace) %attr(0644, root, root) "/usr/lib/sysctl.d/%{SERVICE_NAME}.conf"
 %config(noreplace) %attr(0644, root, root) "/usr/lib/systemd/system/%{SERVICE_NAME}.service"
-%config(noreplace) %attr(0644, root, root) "/usr/lib/systemd/system/opendistro-performance-analyzer.service"
+%config(noreplace) %attr(0644, root, root) "/usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service"
 
 %attr(0644, root, root) "/usr/lib/tmpfiles.d/%{SERVICE_NAME}.conf"
 
@@ -1259,7 +1279,7 @@ if [ "x$IS_UPGRADE" != "xtrue" ]; then
     if command -v systemctl > /dev/null; then
         echo '# Enabling opendistro performance analyzer to start and stop along with elasticsearch.service'
         systemctl daemon-reload
-        systemctl enable opendistro-performance-analyzer.service || true
+        systemctl enable wazuh-indexer-performance-analyzer.service || true
 
     elif command -v chkconfig >/dev/null; then
         echo "### Non systemd distro. Please start and stop performance analyzer manually using the command: "
@@ -1569,8 +1589,8 @@ if [ -f %{LIB_DIR}/rca_enabled.conf ]; then
   rm %{LIB_DIR}/rca_enabled.conf
 fi
 
-if [ -f /usr/lib/systemd/system/opendistro-performance-analyzer.service ]; then
-  rm /usr/lib/systemd/system/opendistro-performance-analyzer.service
+if [ -f /usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service ]; then
+  rm /usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service
 fi
 
 
