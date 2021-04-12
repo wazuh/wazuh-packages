@@ -116,9 +116,8 @@ setcap 'cap_net_bind_service=+ep' /usr/share/wazuh-wui/node/bin/node
 if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-agent > /dev/null 2>&1; then
     systemctl stop wazuh-wui.service > /dev/null 2>&1
   # Check for SysV
-  elif command -v service > /dev/null 2>&1 && service wazuh-wui status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
-    service wazuh-wui stop > /dev/null 2>&1
-  fi
+elif command -v service > /dev/null 2>&1 && service wazuh-wui status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
+  service wazuh-wui stop > /dev/null 2>&1
 fi
 %postun
 
@@ -151,12 +150,14 @@ fi
 rm -fr %{buildroot}
 
 %files
+%defattr(0644,wazuh-wui,wazuh-wui,0755)
+
 %attr(0755, wazuh-wui, wazuh-wui) "%{_localstatedir}/etc/init.d/wazuh-wui"
 %attr(0755, wazuh-wui, wazuh-wui) "%{_localstatedir}/etc/default/wazuh-wui"
 %config(noreplace) %attr(0644, wazuh-wui, wazuh-wui) "%{_localstatedir}/etc/wazuh-wui/wazuh-wui.yml"
 %dir %attr(0755, wazuh-wui, wazuh-wui) %{_localstatedir}/etc/wazuh-wui/certs
 %config(noreplace) %attr(0644, wazuh-wui, wazuh-wui) "%{_localstatedir}/etc/wazuh-wui/certs/*"
-%attr(0644, wazuh-wui, wazuh-wui) "%{_localstatedir}/usr/share/wazuh-wui/*"
+"%{_localstatedir}/usr/share/wazuh-wui/"
 %attr(0644, wazuh-wui, wazuh-wui) "%{_localstatedir}/etc/wazuh-wui/node.options"
 %attr(0644, wazuh-wui, wazuh-wui) "%{_localstatedir}/etc/systemd/system/wazuh-wui.service"
 %attr(0755, wazuh-wui, wazuh-wui) "%{_localstatedir}/usr/share/wazuh-wui/bin/kibana"
@@ -786,11 +787,6 @@ rm -fr %{buildroot}
 %attr(0755, wazuh-wui, wazuh-wui) "%{_localstatedir}/usr/share/wazuh-wui/src/core/server/core_app/assets/fonts/roboto_mono/RobotoMono-Thin.ttf"
 %attr(0755, wazuh-wui, wazuh-wui) "%{_localstatedir}/usr/share/wazuh-wui/src/core/server/core_app/assets/fonts/roboto_mono/RobotoMono-ThinItalic.ttf"
 %attr(0755, wazuh-wui, wazuh-wui) "%{_localstatedir}/usr/share/wazuh-wui/src/plugins/home/public/assets/logos/osquery.svg"
-
-%dir %attr(0755, wazuh-wui, wazuh-wui) %{_localstatedir}/usr/share/wazuh-wui/plugins/wazuh/
-%attr(0755, wazuh-wui, wazuh-wui) %{_localstatedir}/usr/share/wazuh-wui/plugins/wazuh/*
-%dir %attr(0755, wazuh-wui, wazuh-wui) %{_localstatedir}/usr/share/wazuh-wui/*
-
 
 
 %changelog
