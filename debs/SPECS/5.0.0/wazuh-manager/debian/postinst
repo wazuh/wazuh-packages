@@ -39,8 +39,8 @@ case "$1" in
 
     if [ -z "$2" ] || [ -f ${WAZUH_TMP_DIR}/create_conf ] ; then
 
-        ${SCRIPTS_DIR}/gen_ossec.sh conf manager ${OS} ${VER} > ${DIR}/etc/ossec.conf
-        ${SCRIPTS_DIR}/add_localfiles.sh >> ${DIR}/etc/ossec.conf
+        ${SCRIPTS_DIR}/gen_ossec.sh conf manager ${OS} ${VER} ${DIR} > ${DIR}/etc/ossec.conf
+        ${SCRIPTS_DIR}/add_localfiles.sh ${DIR} >> ${DIR}/etc/ossec.conf
 
         passlist="${DIR}/agentless/.passlist"
 
@@ -55,7 +55,7 @@ case "$1" in
             fi
         fi
     else
-        ${SCRIPTS_DIR}/gen_ossec.sh conf manager ${OS} ${VER} > ${DIR}/etc/ossec.conf.new
+        ${SCRIPTS_DIR}/gen_ossec.sh conf manager ${OS} ${VER} ${DIR} > ${DIR}/etc/ossec.conf.new
         chmod 660 ${DIR}/etc/ossec.conf.new
     fi
 
