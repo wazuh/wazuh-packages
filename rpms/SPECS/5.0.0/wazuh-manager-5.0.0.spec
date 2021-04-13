@@ -80,22 +80,6 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.ssh
 mkdir -p $RPM_BUILD_ROOT}%{filebeat_log_path}
 mkdir -p $RPM_BUILD_ROOT}%{filebeat_data_path}
 
-# Download filebeat
-curl -sL https://packages-dev.wazuh.com/deps/filebeat-test/wazuh-filebeat-oss-7.10.2.tar.gz | tar zx
-
-# filebeat
-# ├── bin
-# │   └── filebeat
-# ├── etc
-# │   └── certs
-# │       ├── filebeat.key
-# │       ├── filebeat.pem
-# │       └── root-ca.pem
-# ├── LICENSE.txt
-# ├── module
-# ├── NOTICE.txt
-# └── README.md
-
 # Get filebeat.yml
 mv extensions/filebeat/7.x/filebeat.yml filebeat/etc/
 # Get Wazuh filebeat module

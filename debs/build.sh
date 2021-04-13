@@ -23,6 +23,7 @@ wazuh_packages_branch=$9
 use_local_specs=${10}
 local_source_code=${11}
 future=${12}
+filebeat_version=${13}
 
 if [ -z "${package_release}" ]; then
     package_release="1"
@@ -36,6 +37,11 @@ if [ ${build_target} = "api" ]; then
 else
     if [ "${local_source_code}" = "no" ]; then
         curl -sL https://github.com/wazuh/wazuh/tarball/${wazuh_branch} | tar zx
+        # TODO: Remove only for testing purposes.
+        if [[ "${future}" == "yes" ]]; then
+            filebeat_version="7.11.2"
+        fi
+        curl -sL https://packages-dev.wazuh.com/deps/filebeat-test/wazuh-filebeat-oss-${filebeat_version}.tar.gz | tar zx
     fi
     wazuh_version="$(cat wazuh*/src/VERSION | cut -d 'v' -f 2)"
 fi
@@ -47,6 +53,7 @@ sources_dir="${build_dir}/${build_target}/${package_full_name}"
 
 mkdir -p ${build_dir}/${build_target}
 cp -R wazuh* ${build_dir}/${build_target}/wazuh-${build_target}-${wazuh_version}
+cp -R filebeat* ${build_dir}/${build_target}/wazuh-${build_target}-${wazuh_version}
 
 if [ "${use_local_specs}" = "no" ]; then
     curl -sL https://github.com/wazuh/wazuh-packages/tarball/${wazuh_packages_branch} | tar zx

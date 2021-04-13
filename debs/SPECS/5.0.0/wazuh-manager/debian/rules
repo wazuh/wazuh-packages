@@ -99,21 +99,6 @@ override_dh_install:
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_DIR)/
 	cp -r $(INSTALLATION_DIR)/. $(TARGET_DIR)$(INSTALLATION_DIR)/
 
-	# Download Filebeat #TODO
-	curl -sL https://packages-dev.wazuh.com/deps/filebeat-test/wazuh-filebeat-oss-7.10.2.tar.gz | tar zx
-	# filebeat
-	# ├── bin
-	# │   └── filebeat
-	# ├── etc
-	# │   └── certs
-	# │       ├── filebeat.key
-	# │       ├── filebeat.pem
-	# │       └── root-ca.pem
-	# ├── LICENSE.txt
-	# ├── module
-	# ├── NOTICE.txt
-	# └── README.md
-
 	# Get filebeat.yml
 	mv extensions/filebeat/7.x/filebeat.yml filebeat/etc/
 	# Get Wazuh filebeat module

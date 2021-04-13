@@ -24,6 +24,7 @@ src=${11}
 legacy=${12}
 local_source_code=${13}
 future=${14}
+filebeat_version=${15}
 wazuh_version=""
 rpmbuild="rpmbuild"
 
@@ -45,6 +46,11 @@ if [ ${build_target} = "api" ]; then
 else
     if [ "${local_source_code}" = "no" ]; then
         curl -sL https://github.com/wazuh/wazuh/tarball/${wazuh_branch} | tar zx
+        # TODO. Remove, only for testing purposes.
+        if [[ "${future}" == "yes" ]]; then
+            filebeat_version="7.11.2"
+        fi
+        curl -sL https://packages-dev.wazuh.com/deps/filebeat-test/wazuh-filebeat-oss-${filebeat_version}.tar.gz | tar zx
     fi
     wazuh_version="$(cat wazuh*/src/VERSION | cut -d 'v' -f 2)"
 fi
@@ -63,6 +69,7 @@ mkdir -p ${rpm_build_dir}/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 # Prepare the sources directory to build the source tar.gz
 package_name=wazuh-${build_target}-${wazuh_version}
 cp -R wazuh-* ${build_dir}/${package_name}
+cp -R filebeat* ${build_dir}/${package_name}
 
 # Including spec file
 if [ "${use_local_specs}" = "no" ]; then

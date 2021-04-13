@@ -43,6 +43,7 @@ USE_LOCAL_SPECS="no"
 LOCAL_SOURCE_CODE=""
 USE_LOCAL_SOURCE_CODE="no"
 FUTURE="no"
+FILEBEAT_VERSION="7.10.2"
 
 trap ctrl_c INT
 
@@ -96,7 +97,7 @@ build_rpm() {
         ${CONTAINER_NAME} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
         ${JOBS} ${REVISION} ${INSTALLATION_PATH} ${DEBUG} \
         ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} ${SRC} \
-        ${LEGACY} ${USE_LOCAL_SOURCE_CODE} ${FUTURE}|| return 1
+        ${LEGACY} ${USE_LOCAL_SOURCE_CODE} ${FUTURE} ${FILEBEAT_VERSION} || return 1
 
     echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
 
@@ -306,6 +307,14 @@ main() {
         "--future")
             FUTURE="yes"
             shift 1
+            ;;
+        "--filebeat-version")
+            if [ -n "$2" ]; then
+                FILEBEAT_VERSION="$2"
+                shift 2
+            else
+                help 1
+            fi
             ;;
         *)
             help 1
