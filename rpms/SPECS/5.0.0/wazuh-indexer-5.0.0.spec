@@ -89,17 +89,17 @@ tar -zvxf files/$SYSTEMD_MODULE_FILE -C $ODFE_DIR/modules
 sed -i 's/ES_DISTRIBUTION_TYPE=tar/ES_DISTRIBUTION_TYPE=rpm/' $ODFE_DIR/bin/elasticsearch-env
 
 # Change elasticsearch default ports. Note this could be temporary and could be changed in the repository file
-echo "http.port: 9202" >> files/config_files/elasticsearch.yml
-echo "transport.tcp.port: 9302" >> files/config_files/elasticsearch.yml
+echo "http.port: 9250-9300" >> files/config_files/elasticsearch.yml
+echo "transport.tcp.port: 9350-9400" >> files/config_files/elasticsearch.yml
 
 # Change performance analyzer default ports
-sed -i 's/webservice-listener-port = 9600/webservice-listener-port = 9602/' $ODFE_DIR/performance-analyzer-rca/pa_config/performance-analyzer.properties
-sed -i 's/webservice-listener-port = 9600/webservice-listener-port = 9602/' $ODFE_DIR/plugins/opendistro-performance-analyzer/pa_config/performance-analyzer.properties
-sed -i 's/webservice-listener-port = 9600/webservice-listener-port = 9602/' $ODFE_DIR/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/performance-analyzer.properties
+sed -i 's/webservice-listener-port = 9600/webservice-listener-port = 9601/' $ODFE_DIR/performance-analyzer-rca/pa_config/performance-analyzer.properties
+sed -i 's/webservice-listener-port = 9600/webservice-listener-port = 9601/' $ODFE_DIR/plugins/opendistro-performance-analyzer/pa_config/performance-analyzer.properties
+sed -i 's/webservice-listener-port = 9600/webservice-listener-port = 9601/' $ODFE_DIR/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/performance-analyzer.properties
 
-sed -i 's/rpc-port = 9650/rpc-port = 9652/' $ODFE_DIR/performance-analyzer-rca/pa_config/performance-analyzer.properties
-sed -i 's/rpc-port = 9650/rpc-port = 9652/' $ODFE_DIR/plugins/opendistro-performance-analyzer/pa_config/performance-analyzer.properties
-sed -i 's/rpc-port = 9650/rpc-port = 9652/' $ODFE_DIR/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/performance-analyzer.properties
+sed -i 's/rpc-port = 9650/rpc-port = 9651/' $ODFE_DIR/performance-analyzer-rca/pa_config/performance-analyzer.properties
+sed -i 's/rpc-port = 9650/rpc-port = 9651/' $ODFE_DIR/plugins/opendistro-performance-analyzer/pa_config/performance-analyzer.properties
+sed -i 's/rpc-port = 9650/rpc-port = 9651/' $ODFE_DIR/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/performance-analyzer.properties
 
 sed -i 's/metrics-location = \/dev\/shm\/performanceanalyzer/metrics-location = \/dev\/shm\/wazuh-indexer-performanceanalyzer/' $ODFE_DIR/performance-analyzer-rca/pa_config/performance-analyzer.properties
 sed -i 's/metrics-location = \/dev\/shm\/performanceanalyzer/metrics-location = \/dev\/shm\/wazuh-indexer-performanceanalyzer/' $ODFE_DIR/plugins/opendistro-performance-analyzer/pa_config/performance-analyzer.properties
