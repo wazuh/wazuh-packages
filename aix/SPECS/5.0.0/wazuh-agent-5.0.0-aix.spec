@@ -82,13 +82,13 @@ exit 0
 
 %pre
 
-# Create ossec user and group
-if ! grep "^ossec:" /etc/group > /dev/null 2>&1; then
-  /usr/bin/mkgroup ossec
+# Create wazuh user and group
+if ! grep "^wazuh:" /etc/group > /dev/null 2>&1; then
+  /usr/bin/mkgroup wazuh
 fi
-if ! grep "^ossec" /etc/passwd > /dev/null 2>&1; then
-  /usr/sbin/useradd ossec
-  /usr/sbin/usermod -G ossec ossec
+if ! grep "^wazuh" /etc/passwd > /dev/null 2>&1; then
+  /usr/sbin/useradd wazuh
+  /usr/sbin/usermod -G wazuh wazuh
 fi
 
 # Remove existent config file and notify user for new installations
@@ -130,7 +130,7 @@ if [ $1 = 1 ]; then
   # Add default local_files to ossec.conf
   %{_localstatedir}/tmp/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
 
-  # Restore Wazuh manager configuration
+  # Restore Wazuh agent configuration
   if [ -f %{_localstatedir}/etc/ossec.conf.rpmorig ]; then
     %{_localstatedir}/tmp/src/init/replace_manager_ip.sh %{_localstatedir}/etc/ossec.conf.rpmorig %{_localstatedir}/etc/ossec.conf
   fi
@@ -147,13 +147,13 @@ if [ $1 = 1 ]; then
 
   # Generate the active-responses.log file
   touch %{_localstatedir}/logs/active-responses.log
-  chown ossec:ossec %{_localstatedir}/logs/active-responses.log
+  chown wazuh:wazuh %{_localstatedir}/logs/active-responses.log
   chmod 0660 %{_localstatedir}/logs/active-responses.log
 
   %{_localstatedir}/tmp/src/init/register_configure_agent.sh %{_localstatedir} > /dev/null || :
 
 fi
-chown root:ossec %{_localstatedir}/etc/ossec.conf
+chown root:wazuh %{_localstatedir}/etc/ossec.conf
 ln -fs /etc/rc.d/init.d/wazuh-agent /etc/rc.d/rc2.d/S97wazuh-agent
 ln -fs /etc/rc.d/init.d/wazuh-agent /etc/rc.d/rc3.d/S97wazuh-agent
 
@@ -174,6 +174,24 @@ if grep '<address>.*</address>' %{_localstatedir}/etc/ossec.conf | grep -v 'MANA
   /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
 fi
 
+# Remove old ossec user and group if exists and change ownwership of files
+
+if grep "^ossec:" /etc/group > /dev/null 2>&1; then
+  find %{_localstatedir} -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
+  if grep "^ossec" /etc/passwd > /dev/null 2>&1; then
+    find %{_localstatedir} -group ossec -user ossec -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
+    userdel ossec
+  fi
+  if grep "^ossecm" /etc/passwd > /dev/null 2>&1; then
+    find %{_localstatedir} -group ossec -user ossecm -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
+    userdel ossecm
+  fi
+  if grep "^ossecr" /etc/passwd > /dev/null 2>&1; then
+    find %{_localstatedir} -group ossec -user ossecr -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
+    userdel ossecr
+  fi
+  rmgroup ossec
+fi
 
 %preun
 
@@ -192,13 +210,13 @@ fi
 
 %postun
 
-# Remove ossec user and group
+# Remove wazuh user and group
 if [ $1 = 0 ];then
-  if grep "^ossec" /etc/passwd > /dev/null 2>&1; then
-    userdel ossec
+  if grep "^wazuh" /etc/passwd > /dev/null 2>&1; then
+    userdel wazuh
   fi
-  if grep "^ossec:" /etc/group > /dev/null 2>&1; then
-    rmgroup ossec
+  if grep "^wazuh:" /etc/group > /dev/null 2>&1; then
+    rmgroup wazuh
   fi
 
   rm -rf %{_localstatedir}/ruleset
@@ -224,63 +242,62 @@ rm -fr %{buildroot}
 %files
 %{_init_scripts}/*
 
-%dir %attr(750,root,ossec) %{_localstatedir}
-%attr(750,root,ossec) %{_localstatedir}/agentless
-%dir %attr(770,root,ossec) %{_localstatedir}/.ssh
-%dir %attr(750,root,ossec) %{_localstatedir}/active-response
-%dir %attr(750,root,ossec) %{_localstatedir}/active-response/bin
-%attr(750,root,ossec) %{_localstatedir}/active-response/bin/*
-%dir %attr(750,root,system) %{_localstatedir}/bin
-%attr(750,root,system) %{_localstatedir}/bin/*
-%dir %attr(750,root,ossec) %{_localstatedir}/backup
-%dir %attr(770,ossec,ossec) %{_localstatedir}/etc
-%attr(640,root,ossec) %config(noreplace) %{_localstatedir}/etc/client.keys
-%attr(640,root,ossec) %{_localstatedir}/etc/internal_options*
-%attr(640,root,ossec) %config(noreplace) %{_localstatedir}/etc/local_internal_options.conf
-%attr(660,root,ossec) %config(noreplace) %{_localstatedir}/etc/ossec.conf
-%attr(640,root,ossec) %{_localstatedir}/etc/wpk_root.pem
-%dir %attr(770,root,ossec) %{_localstatedir}/etc/shared
-%attr(660,root,ossec) %config(missingok,noreplace) %{_localstatedir}/etc/shared/*
-%dir %attr(750,root,system) %{_localstatedir}/lib
-%dir %attr(770,ossec,ossec) %{_localstatedir}/logs
-%attr(660,ossec,ossec) %ghost %{_localstatedir}/logs/active-responses.log
-%attr(660,root,ossec) %ghost %{_localstatedir}/logs/ossec.log
-%attr(660,root,ossec) %ghost %{_localstatedir}/logs/ossec.json
-%dir %attr(750,ossec,ossec) %{_localstatedir}/logs/wazuh
-%dir %attr(750,root,ossec) %{_localstatedir}/queue
-%dir %attr(770,ossec,ossec) %{_localstatedir}/queue/sockets
-%dir %attr(750,ossec,ossec) %{_localstatedir}/queue/diff
-%dir %attr(750,ossec,ossec) %{_localstatedir}/queue/fim
-%dir %attr(750,ossec,ossec) %{_localstatedir}/queue/fim/db
-%dir %attr(750,ossec,ossec) %{_localstatedir}/queue/syscollector
-%dir %attr(750,ossec,ossec) %{_localstatedir}/queue/syscollector/db
-%attr(640, root,ossec) %{_localstatedir}/queue/syscollector/norm_config.json
-%dir %attr(770,ossec,ossec) %{_localstatedir}/queue/alerts
-%dir %attr(750,ossec,ossec) %{_localstatedir}/queue/rids
-%dir %attr(750,ossec,ossec) %{_localstatedir}/queue/logcollector
-%dir %attr(750, ossec, ossec) %{_localstatedir}/ruleset/sca
-%attr(640, root, ossec) %{_localstatedir}/ruleset/sca/*
-%dir %attr(1750,root,ossec) %{_localstatedir}/tmp
-%attr(750,root,system) %config(missingok) %{_localstatedir}/tmp/add_localfiles.sh
-%attr(750,root,system) %config(missingok) %{_localstatedir}/tmp/gen_ossec.sh
-%dir %attr(1750,root,ossec) %config(missingok) %{_localstatedir}/tmp/etc/templates
-%dir %attr(1750,root,ossec) %config(missingok) %{_localstatedir}/tmp/etc/templates/config
-%dir %attr(1750,root,ossec) %config(missingok) %{_localstatedir}/tmp/etc/templates/config/generic
-%attr(750,root,system) %config(missingok) %{_localstatedir}/tmp/etc/templates/config/generic/*.template
-%dir %attr(1750,root,ossec) %config(missingok) /var/ossec/tmp/etc/templates/config/generic/localfile-logs
-%attr(750,root,system) %config(missingok) /var/ossec/tmp/etc/templates/config/generic/localfile-logs/*.template
-%attr(750,root,system) %config(missingok) %{_localstatedir}/tmp/src/*
-%dir %attr(750,root,ossec) %{_localstatedir}/var
-%dir %attr(770,root,ossec) %{_localstatedir}/var/incoming
-%dir %attr(770,root,ossec) %{_localstatedir}/var/run
-%dir %attr(770,root,ossec) %{_localstatedir}/var/upgrade
-%dir %attr(770,root,ossec) %{_localstatedir}/var/wodles
-%dir %attr(750,root,ossec) %{_localstatedir}/wodles
-%dir %attr(750,root,ossec) %{_localstatedir}/wodles/aws
-%attr(750,root,ossec) %{_localstatedir}/wodles/aws/*
-%dir %attr(750, root, ossec) %{_localstatedir}/wodles/gcloud
-%attr(750, root, ossec) %{_localstatedir}/wodles/gcloud/*
-
+%dir %attr(750, root, wazuh) %{_localstatedir}
+%attr(750, root, wazuh) %{_localstatedir}/agentless
+%dir %attr(770, root, wazuh) %{_localstatedir}/.ssh
+%dir %attr(750, root, wazuh) %{_localstatedir}/active-response
+%dir %attr(750, root, wazuh) %{_localstatedir}/active-response/bin
+%attr(750, root, wazuh) %{_localstatedir}/active-response/bin/*
+%dir %attr(750, root,system) %{_localstatedir}/bin
+%attr(750, root,system) %{_localstatedir}/bin/*
+%dir %attr(750, root, wazuh) %{_localstatedir}/backup
+%dir %attr(770, wazuh, wazuh) %{_localstatedir}/etc
+%attr(640, root, wazuh) %config(noreplace) %{_localstatedir}/etc/client.keys
+%attr(640, root, wazuh) %{_localstatedir}/etc/internal_options*
+%attr(640, root, wazuh) %config(noreplace) %{_localstatedir}/etc/local_internal_options.conf
+%attr(660, root, wazuh) %config(noreplace) %{_localstatedir}/etc/ossec.conf
+%attr(640, root, wazuh) %{_localstatedir}/etc/wpk_root.pem
+%dir %attr(770, root, wazuh) %{_localstatedir}/etc/shared
+%attr(660, root, wazuh) %config(missingok,noreplace) %{_localstatedir}/etc/shared/*
+%dir %attr(750, root,system) %{_localstatedir}/lib
+%dir %attr(770, wazuh, wazuh) %{_localstatedir}/logs
+%attr(660, wazuh, wazuh) %ghost %{_localstatedir}/logs/active-responses.log
+%attr(660, root, wazuh) %ghost %{_localstatedir}/logs/ossec.log
+%attr(660, root, wazuh) %ghost %{_localstatedir}/logs/ossec.json
+%dir %attr(750, wazuh, wazuh) %{_localstatedir}/logs/wazuh
+%dir %attr(750, root, wazuh) %{_localstatedir}/queue
+%dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/sockets
+%dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/diff
+%dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/fim
+%dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/fim/db
+%dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/syscollector
+%dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/syscollector/db
+%attr(640, root, wazuh) %{_localstatedir}/queue/syscollector/norm_config.json
+%dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/alerts
+%dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/rids
+%dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/logcollector
+%dir %attr(750, wazuh, wazuh) %{_localstatedir}/ruleset/sca
+%attr(640, root, wazuh) %{_localstatedir}/ruleset/sca/*
+%dir %attr(1750, root, wazuh) %{_localstatedir}/tmp
+%attr(750, root,system) %config(missingok) %{_localstatedir}/tmp/add_localfiles.sh
+%attr(750, root,system) %config(missingok) %{_localstatedir}/tmp/gen_ossec.sh
+%dir %attr(1750, root, wazuh) %config(missingok) %{_localstatedir}/tmp/etc/templates
+%dir %attr(1750, root, wazuh) %config(missingok) %{_localstatedir}/tmp/etc/templates/config
+%dir %attr(1750, root, wazuh) %config(missingok) %{_localstatedir}/tmp/etc/templates/config/generic
+%attr(750, root,system) %config(missingok) %{_localstatedir}/tmp/etc/templates/config/generic/*.template
+%dir %attr(1750, root, wazuh) %config(missingok) /var/ossec/tmp/etc/templates/config/generic/localfile-logs
+%attr(750, root,system) %config(missingok) /var/ossec/tmp/etc/templates/config/generic/localfile-logs/*.template
+%attr(750, root,system) %config(missingok) %{_localstatedir}/tmp/src/*
+%dir %attr(750, root, wazuh) %{_localstatedir}/var
+%dir %attr(770, root, wazuh) %{_localstatedir}/var/incoming
+%dir %attr(770, root, wazuh) %{_localstatedir}/var/run
+%dir %attr(770, root, wazuh) %{_localstatedir}/var/upgrade
+%dir %attr(770, root, wazuh) %{_localstatedir}/var/wodles
+%dir %attr(750, root, wazuh) %{_localstatedir}/wodles
+%dir %attr(750, root, wazuh) %{_localstatedir}/wodles/aws
+%attr(750, root, wazuh) %{_localstatedir}/wodles/aws/*
+%dir %attr(750, root, wazuh) %{_localstatedir}/wodles/gcloud
+%attr(750, root, wazuh) %{_localstatedir}/wodles/gcloud/*
 
 %changelog
 * Sat Dec 04 2021 support <info@wazuh.com> - 5.0.0
