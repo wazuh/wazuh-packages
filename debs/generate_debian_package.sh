@@ -57,6 +57,9 @@ build_deb() {
 
     # Copy the necessary files
     cp build.sh ${DOCKERFILE_PATH}
+    cp -r services ${DOCKERFILE_PATH}
+    cp -r config ${DOCKERFILE_PATH}
+    cp -r certs ${DOCKERFILE_PATH}
 
     # Create an optional parameter to share the local source code as a volume
     if [ ! -z "${LOCAL_SOURCE_CODE}" ]; then
@@ -106,7 +109,7 @@ build() {
             build_deb ${DEB_AMD64_BUILDER} ${DEB_AMD64_BUILDER_DOCKERFILE} || return 1
         fi
 
-    elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]]; then
+    elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]] || [[ "${TARGET}" == "wui" ]]; then
 
         BUILD_NAME=""
         FILE_PATH=""

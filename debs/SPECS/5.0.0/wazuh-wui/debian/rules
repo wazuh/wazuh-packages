@@ -16,7 +16,7 @@ export DH_VERBOSE=1
 # This has to be exported to make some magic below work.
 export DH_OPTIONS
 
-export TARGET_DIR=${CURDIR}/debian/wazuh-agent
+export TARGET_DIR=${CURDIR}/debian/wazuh-wui
 
 # Package build options
 export INSTALLATION_DIR="/"
@@ -31,49 +31,57 @@ override_dh_auto_configure:
 override_dh_auto_install:
 
 override_dh_install:
+	curl https://d3g5vo6xdbdb9a.cloudfront.net/tarball/opendistroforelasticsearch-kibana/opendistroforelasticsearch-kibana-1.13.1-linux-x64.tar.gz -o opendistroforelasticsearch-kibana-1.13.1-linux-x64.tar.gz
 
-curl https://d3g5vo6xdbdb9a.cloudfront.net/tarball/opendistroforelasticsearch-kibana/opendistroforelasticsearch-kibana-1.13.1-linux-x64.tar.gz -o opendistroforelasticsearch-kibana-1.13.1-linux-x64.tar.gz
+	groupadd wazuh-wui
+	useradd -g wazuh-wui wazuh-wui
 
-groupadd wazuh-wui
-useradd -g wazuh-wui wazuh-wui
+	tar -xf opendistroforelasticsearch-kibana-1.13.1-linux-x64.tar.gz
 
-tar -xf opendistroforelasticsearch-kibana-1.13.1-linux-x64.tar.gz
+	mkdir -p ${TARGET_DIR}/${INSTALLATION_DIR}/etc/wazuh-wui/certs
+	mkdir -p ${TARGET_DIR}/${INSTALLATION_DIR}/usr/share/wazuh-wui
+	mkdir -p ${TARGET_DIR}/${INSTALLATION_DIR}/etc/systemd/system
+	mkdir -p ${TARGET_DIR}/${INSTALLATION_DIR}/etc/init.d
 
-mkdir -p ${INSTALLATION_DIR}/etc/wazuh-wui/certs
-mkdir -p ${INSTALLATION_DIR}/usr/share/wazuh-wui
-mkdir -p ${INSTALLATION_DIR}/etc/systemd/system
-mkdir -p ${INSTALLATION_DIR}/etc/init.d
+	mv opendistroforelasticsearch-kibana/config/* ${TARGET_DIR}/${INSTALLATION_DIR}/etc/wazuh-wui
+	mv opendistroforelasticsearch-kibana/* ${TARGET_DIR}/${INSTALLATION_DIR}/usr/share/wazuh-wui
 
-mv opendistroforelasticsearch-kibana/config/* ${INSTALLATION_DIR}/etc/wazuh-wui
-mv opendistroforelasticsearch-kibana/* ${INSTALLATION_DIR}/usr/share/wazuh-wui
-
-mv /tmp/config/wazuh-wui.yml ${INSTALLATION_DIR}/etc/wazuh-wui/wazuh-wui.yml
-rm -f ${INSTALLATION_DIR}/etc/wazuh-wui/kibana.yml
-
-
-cp /tmp/services/wazuh-wui.service ${INSTALLATION_DIR}/etc/systemd/system/wazuh-wui.service 
-cp /tmp/services/wazuh-wui ${INSTALLATION_DIR}/etc/init.d/wazuh-wui
-chmod 644 ${INSTALLATION_DIR}/etc/init.d/wazuh-wui
+	mv /tmp/config/wazuh-wui.yml ${TARGET_DIR}/${INSTALLATION_DIR}/etc/wazuh-wui/wazuh-wui.yml
+	rm -f ${TARGET_DIR}/${INSTALLATION_DIR}/etc/wazuh-wui/kibana.yml
 
 
-cp /tmp/certs/wazuh-wui.pem ${INSTALLATION_DIR}/etc/wazuh-wui/certs/wazuh-wui.pem
-cp /tmp/certs/wazuh-wui-key.pem ${INSTALLATION_DIR}/etc/wazuh-wui/certs/wazuh-wui-key.pem
-cp /tmp/certs/root-ca.pem ${INSTALLATION_DIR}/etc/wazuh-wui/certs/root-ca.pem
+	cp /tmp/services/wazuh-wui.service ${TARGET_DIR}/${INSTALLATION_DIR}/etc/systemd/system/wazuh-wui.service 
+	cp /tmp/services/wazuh-wui ${TARGET_DIR}/${INSTALLATION_DIR}/etc/init.d/wazuh-wui
+	cp /tmp/services/default ${TARGET_DIR}/${INSTALLATION_DIR}/etc/default/wazuh-wui
 
-cp /tmp/certs/root-ca.pem ${INSTALLATION_DIR}/etc/wazuh-wui/certs/root-ca.pem
-chmod 644 ${INSTALLATION_DIR}/etc/wazuh-wui/certs/*
-
-find %{buildroot}/usr/share/wazuh-wui -exec chown wazuh-wui:wazuh-wui {} \;
-find %{buildroot}/etc/wazuh-wui -exec chown wazuh-wui:wazuh-wui {} \;
-
-chown wazuh-wui:wazuh-wui ${INSTALLATION_DIR}/etc/systemd/system/wazuh-wui.service
-chown wazuh-wui:wazuh-wui ${INSTALLATION_DIR}/etc/init.d/wazuh-wui
+	chmod 644 ${TARGET_DIR}/${INSTALLATION_DIR}/etc/systemd/system/wazuh-wui.service 
+	chmod 644 ${TARGET_DIR}/${INSTALLATION_DIR}/etc/init.d/wazuh-wui
+	chmod 644 ${TARGET_DIR}/${INSTALLATION_DIR}/etc/default/wazuh-wui
 
 
-cd ${INSTALLATION_DIR}/usr/share/wazuh-wui
-sudo -u wazuh-wui bin/kibana-plugin install https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana-4.1.4_7.10.2-1.zip
 
-find %{buildroot}/usr/share/wazuh-wui/plugins/wazuh/ -exec chown wazuh-wui:wazuh-wui {} \;
+	cp /tmp/certs/wazuh-wui.pem ${TARGET_DIR}/${INSTALLATION_DIR}/etc/wazuh-wui/certs/wazuh-wui.pem
+	cp /tmp/certs/wazuh-wui-key.pem ${TARGET_DIR}/${INSTALLATION_DIR}/etc/wazuh-wui/certs/wazuh-wui-key.pem
+	cp /tmp/certs/root-ca.pem ${TARGET_DIR}/${INSTALLATION_DIR}/etc/wazuh-wui/certs/root-ca.pem
+
+	cp /tmp/certs/root-ca.pem ${TARGET_DIR}/${INSTALLATION_DIR}/etc/wazuh-wui/certs/root-ca.pem
+	chmod 644 ${TARGET_DIR}/${INSTALLATION_DIR}/etc/wazuh-wui/certs/*
+
+	find ${TARGET_DIR}/${INSTALLATION_DIR}/usr/share/wazuh-wui -exec chown wazuh-wui:wazuh-wui {} \;
+	find ${TARGET_DIR}/${INSTALLATION_DIR}/etc/wazuh-wui -exec chown wazuh-wui:wazuh-wui {} \;
+
+	chown wazuh-wui:wazuh-wui ${TARGET_DIR}/${INSTALLATION_DIR}/etc/systemd/system/wazuh-wui.service
+	chown wazuh-wui:wazuh-wui ${TARGET_DIR}/${INSTALLATION_DIR}/etc/init.d/wazuh-wui
+	chown wazuh-wui:wazuh-wui ${TARGET_DIR}/${INSTALLATION_DIR}/etc/default/wazuh-wui
+
+	pwd 
+	cd ${TARGET_DIR}/${INSTALLATION_DIR}/usr/share/wazuh-wui
+	pwd
+	ls -lah ${TARGET_DIR}/${INSTALLATION_DIR}/usr/share/wazuh-wui
+	ls -lah ${TARGET_DIR}/${INSTALLATION_DIR}/usr/share/wazuh-wui/bin/
+	sudo -u wazuh-wui bin/kibana-plugin install https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana-4.1.4_7.10.2-1.zip
+
+	find ${TARGET_DIR}/${INSTALLATION_DIR}/usr/share/wazuh-wui/plugins/wazuh/ -exec chown wazuh-wui:wazuh-wui {} \;
 
 
 override_dh_auto_clean:

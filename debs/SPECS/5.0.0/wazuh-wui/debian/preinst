@@ -1,73 +1,49 @@
 #!/bin/sh
-# preinst script for wazuh-agent
+# preinst script for wazuh-wui
 
 set -e
 
 # configuration variables
-DIR="/var/ossec"
-WAZUH_TMP_DIR="${DIR}/packages_files/agent_config_files"
+DIR="/"
+USR_DIR="${DIR}/usr/share/wazuh-wui"
+ETC_DIR="${DIR}/etc/wazuh-wui"
+
 
 # environment configuration
-if [ ! -d ${WAZUH_TMP_DIR} ]; then
-    mkdir -p ${WAZUH_TMP_DIR}
+if [ ! -d ${USR_DIR} ]; then
+    mkdir -p ${USR_DIR}
+    mkdir -p ${ETC_DIR}
+
 else
-    rm -rf ${WAZUH_TMP_DIR}
-    mkdir -p ${WAZUH_TMP_DIR}
+    rm -rf ${USR_DIR}
+    mkdir -p ${USR_DIR}
+    rm -rf ${ETC_DIR}
+    mkdir -p ${ETC_DIR}
 fi
 
 case "$1" in
     install|upgrade)
-
-        if [ "$1" = "upgrade" ]; then
-            if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-agent > /dev/null 2>&1; then
-                systemctl stop wazuh-agent.service > /dev/null 2>&1
-                touch ${WAZUH_TMP_DIR}/wazuh.restart
-            elif command -v service > /dev/null 2>&1 && service wazuh-agent status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
-                service wazuh-agent stop > /dev/null 2>&1
-                touch ${WAZUH_TMP_DIR}/wazuh.restart
-            elif ${DIR}/bin/wazuh-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
-                ${DIR}/bin/wazuh-control stop > /dev/null 2>&1
-                touch ${WAZUH_TMP_DIR}/wazuh.restart
-            elif ${DIR}/bin/ossec-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
-                ${DIR}/bin/ossec-control stop > /dev/null 2>&1
-                touch ${WAZUH_TMP_DIR}/wazuh.restart
-            fi
-
-            if [ -d ${DIR}/logs/ossec ]; then
-                mv ${DIR}/logs/ossec ${DIR}/logs/wazuh
-            fi
-            
-            if [ -d ${DIR}/queue/ossec ]; then
-                mv ${DIR}/queue/ossec ${DIR}/queue/sockets
-            fi
+        # Create the wazuh-wui group if it doesn't exists
+        if command -v getent > /dev/null 2>&1 && ! getent group wazuh-wui > /dev/null 2>&1; then
+        groupadd -r wazuh-wui
+        elif ! id -g wazuh-wui > /dev/null 2>&1; then
+        groupadd -r wazuh-wui
+        fi
+        # Create the wazuh-wui user if it doesn't exists
+        if ! id -u wazuh-wui > /dev/null 2>&1; then
+        useradd -g wazuh-wui -G wazuh-wui -d %{_localstatedir} -r -s /sbin/nologin wazuh-wui
         fi
 
-        if [ ! -z "$2" ] && [ ! -f ${DIR}/etc/ossec.conf ] ; then
-            touch ${WAZUH_TMP_DIR}/create_conf
+        # Stop the services to upgrade the package
+        if [ $1 = 2 ]; then
+        if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-wui > /dev/null 2>&1; then
+            systemctl stop wazuh-wui.service > /dev/null 2>&1
+            touch ${USR_DIR}/wazuh-wui.restart
+        # Check for SysV
+        elif command -v service > /dev/null 2>&1 && service wazuh-wui status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
+            service wazuh-wui stop > /dev/null 2>&1
+            touch ${USR_DIR}/wazuh-wui.restart
         fi
-
-        # Delete old service
-        if [ -f /etc/init.d/ossec ]; then
-            rm /etc/init.d/ossec
-        fi
-        # back up the current user rules
-        if [ -f ${DIR}/etc/client.keys ]; then
-            cp ${DIR}/etc/client.keys ${WAZUH_TMP_DIR}/client.keys
-        fi
-        if [ -f ${DIR}/etc/local_internal_options.conf ]; then
-            cp -p ${DIR}/etc/local_internal_options.conf ${WAZUH_TMP_DIR}/local_internal_options.conf
-        fi
-        if [ -f ${DIR}/etc/ossec.conf ]; then
-            cp -p ${DIR}/etc/ossec.conf ${WAZUH_TMP_DIR}/ossec.conf
-        fi
-
-        if [ -d ${DIR}/etc/shared ]; then
-            files="$(ls -A ${DIR}/etc/shared/*)"
-        fi
-
-        if [ ! -z "$files" ]; then
-            mkdir -p ${WAZUH_TMP_DIR}/group
-            cp -rp ${DIR}/etc/shared/* ${WAZUH_TMP_DIR}/group/
         fi
     ;;
 

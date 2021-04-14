@@ -1,0 +1,15 @@
+server.host: 0.0.0.0
+server.port: 443
+elasticsearch.hosts: https://localhost:9200
+elasticsearch.ssl.verificationMode: certificate
+elasticsearch.username: kibanaserver
+elasticsearch.password: kibanaserver
+elasticsearch.requestHeadersWhitelist: ["securitytenant","Authorization"]
+opendistro_security.multitenancy.enabled: false
+opendistro_security.readonly_mode.roles: ["kibana_read_only"]
+server.ssl.enabled: true
+server.ssl.key: "/etc/wazuh-wui/certs/wazuh-wui-key.pem"
+server.ssl.certificate: "/etc/wazuh-wui/certs/wazuh-wui.pem"
+elasticsearch.ssl.certificateAuthorities: ["/etc/wazuh-wui/certs/root-ca.pem"]
+server.defaultRoute: /app/wazuh
+telemetry.enabled: false
