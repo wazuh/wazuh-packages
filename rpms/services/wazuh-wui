@@ -1,3 +1,4 @@
+#!/bin/sh
 name=wazuh-wui
 program=/usr/share/wazuh-wui/bin/kibana
 args=-c\\\ /etc/wazuh-wui/wazuh-wui.yml
