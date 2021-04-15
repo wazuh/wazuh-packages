@@ -118,6 +118,14 @@ if [ $1 = 2 ]; then
     rm -rf %{_localstatedir}/queue/sockets
     cp -rp %{_localstatedir}/queue/ossec %{_localstatedir}/queue/sockets
   fi
+
+  if [ -f %{_localstatedir}/queue/logs/ossec.log ]; then
+    mv %{_localstatedir}/queue/logs/ossec.log %{_localstatedir}/queue/logs/wazuh.log
+  fi
+
+  if [ -f %{_localstatedir}/queue/logs/ossec.json ]; then
+    mv %{_localstatedir}/queue/logs/ossec.json %{_localstatedir}/queue/logs/wazuh.json
+  fi
 fi
 
 # New installations
@@ -244,8 +252,8 @@ rm -fr %{buildroot}
 %dir %attr(750,root,system) %{_localstatedir}/lib
 %dir %attr(770,ossec,ossec) %{_localstatedir}/logs
 %attr(660,ossec,ossec) %ghost %{_localstatedir}/logs/active-responses.log
-%attr(660,root,ossec) %ghost %{_localstatedir}/logs/ossec.log
-%attr(660,root,ossec) %ghost %{_localstatedir}/logs/ossec.json
+%attr(660,root,ossec) %ghost %{_localstatedir}/logs/wazuh.log
+%attr(660,root,ossec) %ghost %{_localstatedir}/logs/wazuh.json
 %dir %attr(750,ossec,ossec) %{_localstatedir}/logs/wazuh
 %dir %attr(750,root,ossec) %{_localstatedir}/queue
 %dir %attr(770,ossec,ossec) %{_localstatedir}/queue/sockets
