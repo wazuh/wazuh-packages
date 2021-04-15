@@ -227,11 +227,11 @@ rm -fr %{buildroot}
 %config(noreplace) %attr(0440, root, %{GROUP}) "%{CONFIG_DIR}/certs/wazuh-indexer.pem"
 %config(noreplace) %attr(0440, root, %{GROUP}) "%{CONFIG_DIR}/certs/root-ca.pem"
 %config(noreplace) %attr(0660, root, %{GROUP}) "%{CONFIG_DIR}/log4j2.properties"
-%config(noreplace) %attr(0750, root, root) "/etc/init.d/%{SERVICE_NAME}"
 %config(noreplace) %attr(0660, root, %{GROUP}) "/etc/sysconfig/%{SERVICE_NAME}"
-%config(noreplace) %attr(0644, root, root) "/usr/lib/sysctl.d/%{SERVICE_NAME}.conf"
-%config(noreplace) %attr(0644, root, root) "/usr/lib/systemd/system/%{SERVICE_NAME}.service"
-%config(noreplace) %attr(0644, root, root) "/usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service"
+%attr(0750, root, root) "/etc/init.d/%{SERVICE_NAME}"
+%attr(0644, root, root) "/usr/lib/sysctl.d/%{SERVICE_NAME}.conf"
+%attr(0644, root, root) "/usr/lib/systemd/system/%{SERVICE_NAME}.service"
+%attr(0644, root, root) "/usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service"
 
 %attr(0644, root, root) "/usr/lib/tmpfiles.d/%{SERVICE_NAME}.conf"
 
@@ -1147,79 +1147,16 @@ if command -v systemctl > /dev/null; then
     systemctl restart systemd-sysctl.service || true
 fi
 
-# TODO: If we will be starting the service at the end we need to remove this message, or make it conditional
-# if we will conditionally start the service
-if [ "x$IS_UPGRADE" != "xtrue" ]; then
-    if command -v systemctl >/dev/null; then
-        echo "### NOT starting on installation, please execute the following statements to configure %{SERVICE_NAME} service to start automatically using systemd"
-        echo " sudo systemctl daemon-reload"
-        echo " sudo systemctl enable wazuh-indexer.service"
-        echo "### You can start %{SERVICE_NAME} service by executing"
-        echo " sudo systemctl start %{SERVICE_NAME}.service"
 
-    elif command -v chkconfig >/dev/null; then
-        echo "### NOT starting on installation, please execute the following statements to configure %{SERVICE_NAME} service to start automatically using chkconfig"
-        echo " sudo chkconfig --add %{SERVICE_NAME}"
-        echo "### You can start %{SERVICE_NAME} service by executing"
-        echo " sudo service %{SERVICE_NAME} start"
+# Service restart is done after performance analyzer setup
 
-    elif command -v update-rc.d >/dev/null; then
-        echo "### NOT starting on installation, please execute the following statements to configure %{SERVICE_NAME} service to start automatically using chkconfig"
-        echo " sudo update-rc.d %{SERVICE_NAME} defaults 95 10"
-        echo "### You can start %{SERVICE_NAME} service by executing"
-        echo " sudo /etc/init.d/%{SERVICE_NAME} start"
-    fi
-elif [ "$RESTART_ON_UPGRADE" = "true" ]; then
-
-    echo -n "Restarting %{SERVICE_NAME} service..."
-    if command -v systemctl >/dev/null; then
-        systemctl daemon-reload
-        systemctl restart %{SERVICE_NAME}.service || true
-
-    elif [ -x /etc/init.d/%{SERVICE_NAME} ]; then
-        if command -v invoke-rc.d >/dev/null; then
-            invoke-rc.d %{SERVICE_NAME} stop || true
-            invoke-rc.d %{SERVICE_NAME} start || true
-        else
-            /etc/init.d/%{SERVICE_NAME} restart || true
-        fi
-
-    # older suse linux distributions do not ship with systemd
-    # but do not have an /etc/init.d/ directory
-    # this tries to start the wazuh-indexer service on these
-    # as well without failing this script
-    elif [ -x /etc/rc.d/init.d/%{SERVICE_NAME} ] ; then
-        /etc/rc.d/init.d/%{SERVICE_NAME} restart || true
-    fi
-    echo " OK"
-fi
-
-# the equivalent code for rpm is in posttrans
-if [ "$PACKAGE" = "deb" ]; then
-    if [ ! -f "${ES_PATH_CONF}"/elasticsearch.keystore ]; then
-        %{INSTALL_DIR}/bin/elasticsearch-keystore create
-        chown root:%{GROUP} "${ES_PATH_CONF}"/elasticsearch.keystore
-        chmod 660 "${ES_PATH_CONF}"/elasticsearch.keystore
-        md5sum "${ES_PATH_CONF}"/elasticsearch.keystore > "${ES_PATH_CONF}"/.elasticsearch.keystore.initial_md5sum
-    else
-        if %{INSTALL_DIR}/bin/elasticsearch-keystore has-passwd --silent ; then
-          echo "### Warning: unable to upgrade encrypted keystore" 1>&2
-          echo " Please run elasticsearch-keystore upgrade and enter password" 1>&2
-        else
-          %{INSTALL_DIR}/bin/elasticsearch-keystore upgrade
-        fi
-    fi
-fi
-
-
-
+## Here starts the post install script for performance analyzer
 
 ## Post install script from opendistro-performance-analyzer plugin
 ## adapted from plugins/opendistro-performance-analyzer/install/rpm/postinst 
 
 # Post install script for Redhat like distros. Tested on CentOS 7.
 
-echo "Executing postinst"
 # Cannot execute the plugin postinst script as suggested in the documentation with this command
 #sh %{INSTALL_DIR}/plugins/opendistro-performance-analyzer/install/rpm/postinst 1
 # because it contains elasticsearch instructions that now should be replaced by wazuh-indexer
@@ -1287,12 +1224,77 @@ if [ "x$IS_UPGRADE" != "xtrue" ]; then
     fi
 fi
 
+## Here ends the post install script for performance analyzer
 
 
 ## Remove Elasticsearch demo certificates
 
 rm %{CONFIG_DIR}/esnode-key.pem %{CONFIG_DIR}/esnode.pem %{CONFIG_DIR}/kirk-key.pem %{CONFIG_DIR}/kirk.pem %{CONFIG_DIR}/root-ca.pem -f
 
+
+# wazuh-indexer service restart if needed or display commands for manual start
+
+if [ "x$IS_UPGRADE" != "xtrue" ]; then
+    if command -v systemctl >/dev/null; then
+        echo "### NOT starting on installation, please execute the following statements to configure %{SERVICE_NAME} service to start automatically using systemd"
+        echo " sudo systemctl daemon-reload"
+        echo " sudo systemctl enable wazuh-indexer.service"
+        echo "### You can start %{SERVICE_NAME} service by executing"
+        echo " sudo systemctl start %{SERVICE_NAME}.service"
+
+    elif command -v chkconfig >/dev/null; then
+        echo "### NOT starting on installation, please execute the following statements to configure %{SERVICE_NAME} service to start automatically using chkconfig"
+        echo " sudo chkconfig --add %{SERVICE_NAME}"
+        echo "### You can start %{SERVICE_NAME} service by executing"
+        echo " sudo service %{SERVICE_NAME} start"
+
+    elif command -v update-rc.d >/dev/null; then
+        echo "### NOT starting on installation, please execute the following statements to configure %{SERVICE_NAME} service to start automatically using chkconfig"
+        echo " sudo update-rc.d %{SERVICE_NAME} defaults 95 10"
+        echo "### You can start %{SERVICE_NAME} service by executing"
+        echo " sudo /etc/init.d/%{SERVICE_NAME} start"
+    fi
+elif [ "$RESTART_ON_UPGRADE" = "true" ]; then
+
+    echo -n "Restarting %{SERVICE_NAME} service..."
+    if command -v systemctl >/dev/null; then
+        systemctl daemon-reload
+        systemctl restart %{SERVICE_NAME}.service || true
+
+    elif [ -x /etc/init.d/%{SERVICE_NAME} ]; then
+        if command -v invoke-rc.d >/dev/null; then
+            invoke-rc.d %{SERVICE_NAME} stop || true
+            invoke-rc.d %{SERVICE_NAME} start || true
+        else
+            /etc/init.d/%{SERVICE_NAME} restart || true
+        fi
+
+    # older suse linux distributions do not ship with systemd
+    # but do not have an /etc/init.d/ directory
+    # this tries to start the wazuh-indexer service on these
+    # as well without failing this script
+    elif [ -x /etc/rc.d/init.d/%{SERVICE_NAME} ] ; then
+        /etc/rc.d/init.d/%{SERVICE_NAME} restart || true
+    fi
+    echo " OK"
+fi
+
+# the equivalent code for rpm is in posttrans
+if [ "$PACKAGE" = "deb" ]; then
+    if [ ! -f "${ES_PATH_CONF}"/elasticsearch.keystore ]; then
+        %{INSTALL_DIR}/bin/elasticsearch-keystore create
+        chown root:%{GROUP} "${ES_PATH_CONF}"/elasticsearch.keystore
+        chmod 660 "${ES_PATH_CONF}"/elasticsearch.keystore
+        md5sum "${ES_PATH_CONF}"/elasticsearch.keystore > "${ES_PATH_CONF}"/.elasticsearch.keystore.initial_md5sum
+    else
+        if %{INSTALL_DIR}/bin/elasticsearch-keystore has-passwd --silent ; then
+          echo "### Warning: unable to upgrade encrypted keystore" 1>&2
+          echo " Please run elasticsearch-keystore upgrade and enter password" 1>&2
+        else
+          %{INSTALL_DIR}/bin/elasticsearch-keystore upgrade
+        fi
+    fi
+fi
 
 # Built for packages-7.10.0 (rpm)
 
@@ -1565,33 +1567,33 @@ if [ -z "$ES_HOME" ]; then
 fi
 
 # Cleanup files
-if [ -d $ES_HOME/performance-analyzer-rca ]; then
-  rm -rf $ES_HOME/performance-analyzer-rca
-fi
+#if [ -d $ES_HOME/performance-analyzer-rca ]; then
+  #rm -rf $ES_HOME/performance-analyzer-rca
+#fi
 
-if [ -f $ES_HOME/bin/performance-analyzer-agent-cli ]; then
-  rm $ES_HOME/bin/performance-analyzer-agent-cli
-fi
+#if [ -f $ES_HOME/bin/performance-analyzer-agent-cli ]; then
+#  rm $ES_HOME/bin/performance-analyzer-agent-cli
+#fi
 
 if [ -f "$ES_HOME"/data/rca_enabled.conf ]; then
   rm "$ES_HOME"/data/rca_enabled.conf
 fi
 
-if [ -f "$ES_HOME"/data/batch_metrics_enabled.conf ]; then
-  rm "$ES_HOME"/data/batch_metrics_enabled.conf
-fi
+#if [ -f "$ES_HOME"/data/batch_metrics_enabled.conf ]; then
+#  rm "$ES_HOME"/data/batch_metrics_enabled.conf
+#fi
 
-if [ -f %{LIB_DIR}/performance_analyzer_enabled.conf ]; then
-  rm %{LIB_DIR}/performance_analyzer_enabled.conf
-fi
+#if [ -f %{LIB_DIR}/performance_analyzer_enabled.conf ]; then
+#  rm %{LIB_DIR}/performance_analyzer_enabled.conf
+#fi
 
-if [ -f %{LIB_DIR}/rca_enabled.conf ]; then
-  rm %{LIB_DIR}/rca_enabled.conf
-fi
+#if [ -f %{LIB_DIR}/rca_enabled.conf ]; then
+#  rm %{LIB_DIR}/rca_enabled.conf
+#fi
 
-if [ -f /usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service ]; then
-  rm /usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service
-fi
+#if [ -f /usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service ]; then
+#  rm /usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service
+#fi
 
 
 
