@@ -118,6 +118,14 @@ if [ $1 = 2 ]; then
     rm -rf %{_localstatedir}/queue/sockets
     cp -rp %{_localstatedir}/queue/ossec %{_localstatedir}/queue/sockets
   fi
+
+  if [ -f %{_localstatedir}/queue/logs/ossec.log ]; then
+    mv %{_localstatedir}/queue/logs/ossec.log %{_localstatedir}/queue/logs/wazuh.log
+  fi
+
+  if [ -f %{_localstatedir}/queue/logs/ossec.json ]; then
+    mv %{_localstatedir}/queue/logs/ossec.json %{_localstatedir}/queue/logs/wazuh.json
+  fi
 fi
 
 # New installations
