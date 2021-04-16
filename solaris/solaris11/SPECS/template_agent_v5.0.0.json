@@ -687,7 +687,7 @@
         "type": "directory",
         "user": "wazuh"
     },
-    "/var/ossec/logs/ossec.log": {
+    "/var/ossec/logs/wazuh.log": {
         "class": "dynamic",
         "group": "wazuh",
         "mode": "0660",
@@ -695,7 +695,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/logs/ossec.json": {
+    "/var/ossec/logs/wazuh.json": {
         "class": "dynamic",
         "group": "wazuh",
         "mode": "0660",

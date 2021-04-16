@@ -205,6 +205,15 @@ if [ $1 = 2 ]; then
     %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
     touch %{_localstatedir}/tmp/wazuh.restart
   fi
+
+  if [ -f ${DIR}/logs/ossec.log ]; then
+      rm -f ${DIR}/logs/ossec.log
+      rm -rf ${DIR}/logs/wazuh/*
+  fi
+
+  if [ -f ${DIR}/logs/ossec.json ]; then
+      rm -f ${DIR}/logs/ossec.json
+  fi
 fi
 
 # Remove/relocate existing SQLite databases
