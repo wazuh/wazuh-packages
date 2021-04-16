@@ -1410,9 +1410,9 @@ if [ "$STOP_REQUIRED" = "true" ]; then
     echo " OK"
 fi
 
-if [ -f "${ES_PATH_CONF}"/%{SERVICE_NAME}.keystore ]; then
-  if md5sum --status -c "${ES_PATH_CONF}"/.%{SERVICE_NAME}.keystore.initial_md5sum; then
-    rm "${ES_PATH_CONF}"/%{SERVICE_NAME}.keystore "${ES_PATH_CONF}"/.%{SERVICE_NAME}.keystore.initial_md5sum
+if [ -f "${ES_PATH_CONF}"/elasticsearch.keystore ]; then
+  if md5sum --status -c "${ES_PATH_CONF}"/.elasticsearch.keystore.initial_md5sum; then
+    rm "${ES_PATH_CONF}"/elasticsearch.keystore "${ES_PATH_CONF}"/.elasticsearch.keystore.initial_md5sum
   fi
 fi
 
