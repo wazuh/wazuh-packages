@@ -87,7 +87,7 @@ chown wazuh-wui:wazuh-wui %{buildroot}/%{_localstatedir}/etc/init.d/wazuh-wui
 
 
 cd %{buildroot}/%{_localstatedir}/usr/share/wazuh-wui
-sudo -u wazuh-wui bin/kibana-plugin install https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana-4.1.4_7.10.2-1.zip
+sudo -u wazuh-wui bin/kibana-plugin install file:///tmp/plugin/wazuh-kibana-app.zip
 
 find %{buildroot}/usr/share/wazuh-wui/plugins/wazuh/ -exec chown wazuh-wui:wazuh-wui {} \;
 
@@ -106,7 +106,7 @@ fi
 
 # Stop the services to upgrade the package
 if [ $1 = 2 ]; then
-  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-agent > /dev/null 2>&1; then
+  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-wui > /dev/null 2>&1; then
     systemctl stop wazuh-wui.service > /dev/null 2>&1
     touch %{_localstatedir}/usr/share/wazuh-wui/wazuh-wui.restart
   # Check for SysV
@@ -120,15 +120,13 @@ fi
 setcap 'cap_net_bind_service=+ep' /usr/share/wazuh-wui/node/bin/node
 
 %preun
-set -x
-if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-agent > /dev/null 2>&1; then
+if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-wui > /dev/null 2>&1; then
     systemctl stop wazuh-wui.service > /dev/null 2>&1
 # Check for SysV
 elif command -v service > /dev/null 2>&1 && service wazuh-wui status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
   service wazuh-wui stop > /dev/null 2>&1
 fi
 %postun
-set -x
 # If the package is been uninstalled
 if [ $1 = 0 ];then
   # Remove the wazuh-wui user if it exists

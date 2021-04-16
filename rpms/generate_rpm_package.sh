@@ -74,6 +74,7 @@ build_rpm() {
     cp -r services ${DOCKERFILE_PATH}
     cp -r config ${DOCKERFILE_PATH}
     cp -r certs ${DOCKERFILE_PATH}
+    cp -r plugin ${DOCKERFILE_PATH}
 
 
     # Download the legacy tar file if it is needed

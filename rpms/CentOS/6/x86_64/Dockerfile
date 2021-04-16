@@ -65,6 +65,8 @@ RUN chmod +x /usr/local/bin/build_package
 COPY services /tmp/services
 COPY config /tmp/config
 COPY certs /tmp/certs
+COPY plugin /tmp/plugin
+
 
 
 
