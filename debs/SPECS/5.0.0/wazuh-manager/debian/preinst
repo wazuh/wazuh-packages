@@ -135,6 +135,15 @@ case "$1" in
         if [ -d ${DIR}/queue/rootcheck ]; then
             rm -rf ${DIR}/queue/rootcheck/* > /dev/null 2>&1
         fi
+
+        if [ -f ${DIR}/logs/ossec.log ]; then
+            rm -f ${DIR}/logs/ossec.log
+            rm -rf ${DIR}/logs/wazuh/*
+        fi
+
+        if [ -f ${DIR}/logs/ossec.json ]; then
+            rm -f ${DIR}/logs/ossec.json
+        fi
     ;;
 
     abort-upgrade)
