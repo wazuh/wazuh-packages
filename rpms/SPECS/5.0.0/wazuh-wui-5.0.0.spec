@@ -51,8 +51,15 @@ mkdir -p %{buildroot}/%{_localstatedir}/etc/default
 mv opendistroforelasticsearch-kibana/config/* %{buildroot}/%{_localstatedir}/etc/wazuh-wui
 mv opendistroforelasticsearch-kibana/* %{buildroot}/%{_localstatedir}/usr/share/wazuh-wui
 
-mv /tmp/config/wazuh-wui.yml %{buildroot}/%{_localstatedir}/etc/wazuh-wui/wazuh-wui.yml
+cp /tmp/config/wazuh-wui.yml %{buildroot}/%{_localstatedir}/etc/wazuh-wui/wazuh-wui.yml
 rm -f %{buildroot}/%{_localstatedir}/etc/wazuh-wui/kibana.yml
+
+# Set custom welcome styles
+
+
+cp -f /tmp/config/custom_welcome/template.js.hbs %{buildroot}/%{_localstatedir}/usr/share/wazuh-wui/src/legacy/ui/ui_render/bootstrap/template.js.hbs
+cp -f /tmp/config/custom_welcome/light_theme.style.css %{buildroot}/%{_localstatedir}/usr/share/wazuh-wui/src/core/server/core_app/assets/legacy_light_theme.css
+cp -f /tmp/config/custom_welcome/*svg %{buildroot}/%{_localstatedir}/usr/share/wazuh-wui/src/core/server/core_app/assets/
 
 
 cp /tmp/services/wazuh-wui.service %{buildroot}/%{_localstatedir}/etc/systemd/system/wazuh-wui.service 
@@ -113,14 +120,15 @@ fi
 setcap 'cap_net_bind_service=+ep' /usr/share/wazuh-wui/node/bin/node
 
 %preun
+set -x
 if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-agent > /dev/null 2>&1; then
     systemctl stop wazuh-wui.service > /dev/null 2>&1
-  # Check for SysV
+# Check for SysV
 elif command -v service > /dev/null 2>&1 && service wazuh-wui status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
   service wazuh-wui stop > /dev/null 2>&1
 fi
 %postun
-
+set -x
 # If the package is been uninstalled
 if [ $1 = 0 ];then
   # Remove the wazuh-wui user if it exists
