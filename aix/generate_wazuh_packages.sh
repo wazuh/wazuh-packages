@@ -125,9 +125,13 @@ build_curl() {
 }
 
 build_cmake() {
+  mv /opt/freeware/lib/gcc/powerpc-ibm-aix6.1.1.0/6.3.0/include-fixed/sys/socket.h /opt/freeware/lib/gcc/powerpc-ibm-aix6.1.1.0/6.3.0/include-fixed/sys/socket.h.bkp 
   curl -OL http://packages.wazuh.com/utils/cmake/cmake-3.12.4.tar.gz
-  gtar -zxvf cmake-3.12.4.tar.gz && cd cmake-3.12.4
-  ./bootstrap && gmake && gmake install && cd / && rm -rf cmake-3.12.4
+  gtar -zxf cmake-3.12.4.tar.gz && cd cmake-3.12.4
+  ./bootstrap
+  sed ' 1 s/.*/&-Wl,-bbigtoc/' Source/CMakeFiles/ctest.dir/link.txt | tee Source/CMakeFiles/ctest.dir/link.txt
+  sed ' 1 s/.*/&-Wl,-bbigtoc/' Source/CMakeFiles/cpack.dir/link.txt | tee Source/CMakeFiles/cpack.dir/link.txt
+  gmake && gmake install && cd / && rm -rf cmake-3.12.4
   ln -fs /usr/local/bin/cmake /usr/bin/cmake
 }
 
@@ -183,6 +187,8 @@ build_environment() {
   $rpm http://www.oss4aix.org/download/RPMS/popt/popt-1.16-2.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/rsync/rsync-3.1.3-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/nano/nano-2.5.3-1.aix5.1.ppc.rpm || true
+  $rpm http://www.oss4aix.org/download/RPMS/curl/curl-7.72.0-1.aix5.1.ppc.rpm || true
+  $rpm http://www.oss4aix.org/download/RPMS/tar/tar-1.32-1.aix5.1.ppc.rpm || true
 
   if [[ "${aix_major}" = "5" ]]; then
     $rpm http://www.oss4aix.org/download/RPMS/gcc/gcc-4.8.2-1.aix5.3.ppc.rpm || true
@@ -231,8 +237,8 @@ build_environment() {
     $rpm http://www.oss4aix.org/download/RPMS/gcc/gcc-c++-6.3.0-1.aix7.2.ppc.rpm || true
   fi
 
+  build_perl
   if [[ "${aix_major}" = "5" ]]; then
-    build_perl
     build_libssh2
     build_curl
   fi
