@@ -55,8 +55,9 @@ clean() {
 
     cd ${scriptpath}
     vagrant destroy -f
-    rm -f ${OVA_VM} ${OVF_VM} ${OVA_VMDK} ${OVA_FIXED} Config_files/filebeat.yml
-
+    rm -f ${OVA_VM} ${OVF_VM} ${OVA_VMDK} ${OVA_FIXED} Config_files/all-in-one-installation.sh
+    rmdir Config_files
+    
     exit ${exit_code}
 }
 
@@ -72,6 +73,8 @@ build_ova() {
     if [ -e "${OUTPUT_DIR}/${OVA_VM}" ] || [ -e "${OUTPUT_DIR}/${OVF_VM}" ]; then
         rm -f ${OUTPUT_DIR}/${OVA_VM} ${OUTPUT_DIR}/${OVF_VM}
     fi
+
+    mkdir Config_files
 
     # Download unattended installer
     curl -so Config_files/all-in-one-installation.sh https://raw.githubusercontent.com/wazuh/wazuh-documentation/4.1/resources/open-distro/unattended-installation/all-in-one-installation.sh 
