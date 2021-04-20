@@ -57,7 +57,7 @@ clean() {
     vagrant destroy -f
     rm -f ${OVA_VM} ${OVF_VM} ${OVA_VMDK} ${OVA_FIXED} Config_files/all-in-one-installation.sh
     rmdir Config_files
-    
+
     exit ${exit_code}
 }
 
@@ -88,9 +88,9 @@ build_ova() {
     vagrant destroy -f
     vagrant up || clean 1
     vagrant suspend
-    VM_EXPORT=$(vboxmanage list vms | grep -i vm_wazuh | cut -d "\"" -f2)
-
+    
     # OVA creation with all metadata information.
+    VM_EXPORT=$(vboxmanage list vms | grep -i vm_wazuh | cut -d "\"" -f2)
     vboxmanage export ${VM_EXPORT} -o ${OVA_VM} --vsys 0 --product "Wazuh v${WAZUH_VERSION} OVA" --producturl "https://packages.wazuh.com/vm/wazuh-${OVA_VERSION}.ova" --vendor "Wazuh, inc <info@wazuh.com>" --vendorurl "https://wazuh.com" --version "$OVA_VERSION" --description "Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring." || clean 1
 
     # Destroy vagrant machine
