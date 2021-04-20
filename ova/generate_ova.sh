@@ -24,7 +24,9 @@ CHECKSUM_DIR=""
 HAVE_VERSION=false
 HAVE_OPENDISTRO_VERSION=false
 HAVE_ELK_VERSION=false
+HAVE_PACKAGE_VERSION=false
 
+PACKAGE_VERSION=""
 WAZUH_VERSION=""
 OPENDISTRO_VERSION=""
 BRANCH="master"
@@ -37,6 +39,7 @@ help () {
 
     echo
     echo "Usage: $0 [OPTIONS]"
+    echo "  -p, --package          [required] Select Git branch or tag from wazuh-packages repository."
     echo "  -v, --version          [Required] Version of wazuh to install on VM."
     echo "  -o, --opendistro       [Required] Version of Open Distro for Elasticsearch."
     echo "  -f, --filebeat         [Required] Filebeat's version."
@@ -77,7 +80,7 @@ build_ova() {
     mkdir Config_files
 
     # Download unattended installer
-    curl -so Config_files/all-in-one-installation.sh https://raw.githubusercontent.com/wazuh/wazuh-documentation/4.1/resources/open-distro/unattended-installation/all-in-one-installation.sh 
+    curl -so Config_files/all-in-one-installation.sh https://raw.githubusercontent.com/wazuh/wazuh-documentation/${PACKAGE_VERSION}/resources/open-distro/unattended-installation/all-in-one-installation.sh 
     
     # Change specified versions in unattended installer
     sed -i "s/WAZUH_VER=\"4.2.4\"/WAZUH_VER=\"$WAZUH_VERSION\"/g" Config_files/all-in-one-installation.sh
@@ -164,6 +167,17 @@ main() {
             shift 2
         ;;
 
+        "-p"|"--package")
+            if [ -n "$2" ]; then
+                export PACKAGE_VERSION="$2"
+                HAVE_PACKAGE_VERSION=true
+            else
+                logger "ERROR Need package version (4.1, 4.2, ...)"
+                help 1
+            fi
+            shift 2
+        ;;
+
         "-f" | "--filebeat")
             if [ -n "$2" ]; then
 
@@ -235,13 +249,13 @@ main() {
     if [ -z "${CHECKSUM_DIR}" ]; then
         CHECKSUM_DIR="${OUTPUT_DIR}"
     fi
-    if  [ "${HAVE_VERSION}" = true ] && [ "${HAVE_ELK_VERSION}" = true ] && [ "${HAVE_PACKAGES_REPOSITORY}" = true ] && [ "${HAVE_OPENDISTRO_VERSION}" = true ]; then
+    if  [ "${HAVE_PACKAGE_VERSION}" = true ] && [ "${HAVE_VERSION}" = true ] && [ "${HAVE_ELK_VERSION}" = true ] && [ "${HAVE_PACKAGES_REPOSITORY}" = true ] && [ "${HAVE_OPENDISTRO_VERSION}" = true ]; then
         export UI_REVISION="${UI_REVISION}"
         check_version
         OVA_VERSION="${WAZUH_VERSION}_${OPENDISTRO_VERSION}"
 
-        logger "Version to build: ${WAZUH_VERSION}-${OPENDISTRO_VERSION} with ${PACKAGES_REPOSITORY} repository and ${BRANCH} branch"
-        build_ova ${WAZUH_VERSION} ${OVA_VERSION}
+        logger "Version to build: ${WAZUH_VERSION}-${OPENDISTRO_VERSION} with ${PACKAGES_REPOSITORY} repository and ${BRANCH} branch of package ${PACKAGE_VERSION}"
+        build_ova ${WAZUH_VERSION} ${OVA_VERSION} ${PACKAGE_VERSION}
     else
         logger "ERROR: Need more parameters."
         help 1
