@@ -1,3 +1,5 @@
+# This file is needed by wazuh-jenkins repository
+
 workspace=$1
 path_ova=$2
 dest_ova=$3
