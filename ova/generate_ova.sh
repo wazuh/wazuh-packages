@@ -66,36 +66,44 @@ build_ova() {
     OVF_VM="wazuh-${OVA_VERSION}.ovf"
     OVA_FIXED="wazuh-${OVA_VERSION}-fixed.ova"
     OVA_VMDK="wazuh-${OVA_VERSION}-disk001.vmdk"
-    ELK_MAJOR=`echo ${ELK_VERSION} | cut -d"." -f1`
     export BRANCH
 
-    if [ -e "${OVA_VM}" ] || [ -e "${OVA_VM}" ]; then
-        rm -f ${OVA_VM} ${OVF_VM}
+    # Delete OVA/OVF files if exists
+    if [ -e "${OUTPUT_DIR}/${OVA_VM}" ] || [ -e "${OUTPUT_DIR}/${OVF_VM}" ]; then
+        rm -f ${OUTPUT_DIR}/${OVA_VM} ${OUTPUT_DIR}/${OVF_VM}
     fi
 
-    #Download filebeat.yml and enable geoip
-    if [ ${ELK_MAJOR} -eq 7 ]; then
-        curl -so Config_files/filebeat.yml https://raw.githubusercontent.com/wazuh/wazuh/v${WAZUH_VERSION}/extensions/filebeat/7.x/filebeat.yml
-        sed -i "s|#pipeline: geoip|pipeline: geoip|" Config_files/filebeat.yml
-    fi
-
-
+    # Download unattended installer
+    curl -so Config_files/all-in-one-installation.sh https://raw.githubusercontent.com/wazuh/wazuh-documentation/4.1/resources/open-distro/unattended-installation/all-in-one-installation.sh 
+    
+    # Change specified versions in unattended installer
+    sed -i "s/WAZUH_VER=\"4.2.4\"/WAZUH_VER=\"$WAZUH_VERSION\"/g" Config_files/all-in-one-installation.sh
+    sed -i "s/OD_VER=\"7.10.0\"/OD_VER=\"$OPENDISTRO_VERSION\"/g" Config_files/all-in-one-installation.sh
+    sed -i "s/ELK_VER=\"4.2.4\"/ELK_VER=\"$ELK_VERSION\"/g" Config_files/all-in-one-installation.sh
+ 
     # Vagrant will provision the VM with all the software. (See vagrant file)
     vagrant destroy -f
     vagrant up || clean 1
     vagrant suspend
     VM_EXPORT=$(vboxmanage list vms | grep -i vm_wazuh | cut -d "\"" -f2)
+
     # OVA creation with all metadata information.
     vboxmanage export ${VM_EXPORT} -o ${OVA_VM} --vsys 0 --product "Wazuh v${WAZUH_VERSION} OVA" --producturl "https://packages.wazuh.com/vm/wazuh-${OVA_VERSION}.ova" --vendor "Wazuh, inc <info@wazuh.com>" --vendorurl "https://wazuh.com" --version "$OVA_VERSION" --description "Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring." || clean 1
 
+    # Destroy vagrant machine
     vagrant destroy -f
+
+    # Create file
     tar -xvf ${OVA_VM}
 
+    # Configure OVA file (SATA, sound, etc)
     python Ova2Ovf.py -s ${OVA_VM} -d ${OVA_FIXED}
 
+    # Make output dir of OVA file
     mkdir -p ${OUTPUT_DIR}
     mv ${OVA_FIXED} ${OUTPUT_DIR}/${OVA_VM}
 
+    # Check Checksum
     if [ "${CHECKSUM}" = "yes" ]; then
         mkdir -p ${CHECKSUM_DIR}
         cd ${OUTPUT_DIR} && sha512sum "${OVA_VM}" > "${CHECKSUM_DIR}/${OVA_VM}.sha512"
