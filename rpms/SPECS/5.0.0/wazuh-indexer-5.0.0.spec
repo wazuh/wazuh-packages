@@ -1397,11 +1397,6 @@ esac
 if [ "$STOP_REQUIRED" = "true" ]; then
     echo -n "Stopping %{SERVICE_NAME} service..."
     if command -v systemctl >/dev/null; then
-        # Stopping performance analyzer first, even if it is a wazuh-indexer dependency, it happens that it is
-        # still up when "systemctl stop wazuh-indexer" returns, so the user and group cannot be removed because
-        # they are in use by that process
-        systemctl --no-reload stop %{SERVICE_NAME}-performance-analyzer.service
-
         systemctl --no-reload stop %{SERVICE_NAME}.service
 
     elif [ -x /etc/init.d/%{SERVICE_NAME} ]; then

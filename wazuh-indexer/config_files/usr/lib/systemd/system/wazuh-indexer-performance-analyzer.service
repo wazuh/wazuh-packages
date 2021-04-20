@@ -1,6 +1,7 @@
 [Unit]
 Description=Opendistro for Elasticsearch Performance Analyzer
 PartOf=wazuh-indexer.service
+After=wazuh-indexer.service
 
 [Service]
 ExecStart=/usr/share/wazuh-indexer/bin/performance-analyzer-agent-cli
