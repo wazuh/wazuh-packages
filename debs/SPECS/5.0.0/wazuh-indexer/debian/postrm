@@ -109,7 +109,41 @@ if [ "$REMOVE_DIRS" = "true" ]; then
         rmdir --ignore-fail-on-non-empty "${ES_PATH_CONF}"
     fi
 
+
+    #### POSTRUN from opendistro-performance-analyzer.spec
+
+    # Make sure the ES_HOME environment variable is set
+    if [ -z "$ES_HOME" ]; then
+        ES_HOME=/usr/share/wazuh-indexer
+    fi
+
+    if [ -f "$ES_HOME"/data/rca_enabled.conf ]; then
+        rm "$ES_HOME"/data/rca_enabled.conf
+    fi
+
+    if [ -f /var/lib/wazuh-indexer/performance_analyzer_enabled.conf ]; then
+        rm /var/lib/wazuh-indexer/performance_analyzer_enabled.conf
+    fi
+
+    if [ -f /var/lib/wazuh-indexer/rca_enabled.conf ]; then
+        rm /var/lib/wazuh-indexer/rca_enabled.conf
+    fi
+
+    if [ -f /var/lib/wazuh-indexer/batch_metrics_enabled.conf ]; then
+        rm /var/lib/wazuh-indexer/batch_metrics_enabled.conf
+    fi
+
+    # delete the install directory if and only if empty
+    if [ -d "${ES_HOME}"/data ]; then
+        rmdir --ignore-fail-on-non-empty "${ES_HOME}"/data
+    fi
+
+    if [ -d "${ES_HOME}" ]; then
+        rmdir --ignore-fail-on-non-empty "${ES_HOME}"
+    fi
+
 fi
+
 
 if [ "$REMOVE_USER_AND_GROUP" = "true" ]; then
     if id wazuh-indexer > /dev/null 2>&1 ; then
@@ -121,42 +155,3 @@ if [ "$REMOVE_USER_AND_GROUP" = "true" ]; then
     fi
 fi
 
-
-
-
-
-#### POSTRUN from opendistro-performance-analyzer.spec
-
-# Make sure the ES_HOME environment variable is set
-if [ -z "$ES_HOME" ]; then
-    ES_HOME=/usr/share/wazuh-indexer
-fi
-
-# Cleanup files
-#if [ -d $ES_HOME/performance-analyzer-rca ]; then
-#  rm -rf $ES_HOME/performance-analyzer-rca
-#fi
-
-#if [ -f $ES_HOME/bin/performance-analyzer-agent-cli ]; then
-#  rm $ES_HOME/bin/performance-analyzer-agent-cli
-#fi
-
-if [ -f "$ES_HOME"/data/rca_enabled.conf ]; then
-  rm "$ES_HOME"/data/rca_enabled.conf
-fi
-
-#if [ -f "$ES_HOME"/data/batch_metrics_enabled.conf ]; then
-#  rm "$ES_HOME"/data/batch_metrics_enabled.conf
-#fi
-
-#if [ -f /var/lib/wazuh-indexer/performance_analyzer_enabled.conf ]; then
-#  rm /var/lib/wazuh-indexer/performance_analyzer_enabled.conf
-#fi
-
-#if [ -f /var/lib/wazuh-indexer/rca_enabled.conf ]; then
-#  rm /var/lib/wazuh-indexer/rca_enabled.conf
-#fi
-
-#if [ -f /usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service ]; then
-#  rm /usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service
-#fi
