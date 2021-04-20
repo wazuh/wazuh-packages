@@ -43,7 +43,7 @@ RUN curl -OL http://packages.wazuh.com/utils/openssl/openssl-1.1.1a.tar.gz && \
     make -j$(nproc) && make install && echo "/usr/lib" > /etc/ld.so.conf.d/openssl-1.1.1a.conf && \
     ldconfig -v && cd / && rm -rf openssl-1.1.1a*
 
-RUN pip3 install cryptography==2.9.2 awscli
+RUN pip3 install cryptography==2.9.2 typing awscli
 
 ADD wpkpack.py /usr/local/bin/wpkpack
 ADD run.sh /usr/local/bin/run
