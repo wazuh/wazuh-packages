@@ -159,6 +159,8 @@ cp files/config_files/usr/lib/systemd/system/wazuh-indexer-performance-analyzer.
 # This is needed by the performance-analyzer service
 echo false > %{buildroot}%{_localstatedir}/data/batch_metrics_enabled.conf
 
+echo true > %{buildroot}%{_localstatedir}/data/rca_enabled.conf
+
 # Copy certificates
 cp files/config_files/etc/wazuh-indexer/certs/admin-key.pem %{buildroot}%{CONFIG_DIR}/certs/admin-key.pem
 cp files/config_files/etc/wazuh-indexer/certs/admin.pem %{buildroot}%{CONFIG_DIR}/certs/admin.pem
@@ -234,6 +236,8 @@ rm -fr %{buildroot}
 %attr(0644, root, root) "/usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service"
 
 %attr(0644, root, root) "/usr/lib/tmpfiles.d/%{SERVICE_NAME}.conf"
+
+%dir %attr(755, root, root) %{_localstatedir}
 
 %attr(755, root, root) %{_localstatedir}/bin/systemd-entrypoint
 
@@ -981,7 +985,9 @@ rm -fr %{buildroot}
 # KNN Lib
 %attr(0755, root, root) "%{_localstatedir}/plugins/opendistro-knn/knn-lib/libKNNIndexV2_0_11.so"
 
-%attr(0644, root, root) "%{_localstatedir}/data/batch_metrics_enabled.conf"
+%dir %attr(0755, root, root) "%{_localstatedir}/data"
+%config(noreplace) %attr(0644, root, root) "%{_localstatedir}/data/batch_metrics_enabled.conf"
+%config(noreplace) %attr(0644, root, root) "%{_localstatedir}/data/rca_enabled.conf"
 
 %dir %attr(2750, %{USER}, %{GROUP}) "%{LIB_DIR}"
 %dir %attr(2750, %{USER}, %{GROUP}) "%{LOG_DIR}"
@@ -1391,6 +1397,11 @@ esac
 if [ "$STOP_REQUIRED" = "true" ]; then
     echo -n "Stopping %{SERVICE_NAME} service..."
     if command -v systemctl >/dev/null; then
+        # Stopping performance analyzer first, even if it is a wazuh-indexer dependency, it happens that it is
+        # still up when "systemctl stop wazuh-indexer" returns, so the user and group cannot be removed because
+        # they are in use by that process
+        systemctl --no-reload stop %{SERVICE_NAME}-performance-analyzer.service
+
         systemctl --no-reload stop %{SERVICE_NAME}.service
 
     elif [ -x /etc/init.d/%{SERVICE_NAME} ]; then
@@ -1575,26 +1586,34 @@ fi
 #  rm $ES_HOME/bin/performance-analyzer-agent-cli
 #fi
 
-if [ -f "$ES_HOME"/data/rca_enabled.conf ]; then
-  rm "$ES_HOME"/data/rca_enabled.conf
-fi
+#if [ -f "$ES_HOME"/data/rca_enabled.conf ]; then
+#  rm "$ES_HOME"/data/rca_enabled.conf
+#fi
 
 #if [ -f "$ES_HOME"/data/batch_metrics_enabled.conf ]; then
 #  rm "$ES_HOME"/data/batch_metrics_enabled.conf
 #fi
 
-#if [ -f %{LIB_DIR}/performance_analyzer_enabled.conf ]; then
-#  rm %{LIB_DIR}/performance_analyzer_enabled.conf
-#fi
+if [ -f %{LIB_DIR}/performance_analyzer_enabled.conf ]; then
+  rm %{LIB_DIR}/performance_analyzer_enabled.conf
+fi
 
-#if [ -f %{LIB_DIR}/rca_enabled.conf ]; then
-#  rm %{LIB_DIR}/rca_enabled.conf
-#fi
+if [ -f %{LIB_DIR}/rca_enabled.conf ]; then
+  rm %{LIB_DIR}/rca_enabled.conf
+fi
+
+if [ -f %{LIB_DIR}/batch_metrics_enabled.conf ]; then
+  rm %{LIB_DIR}/batch_metrics_enabled.conf
+fi
 
 #if [ -f /usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service ]; then
 #  rm /usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service
 #fi
 
+# delete the install directory if and only if empty
+if [ -d "%{INSTALL_DIR}" ]; then
+    rmdir --ignore-fail-on-non-empty "%{INSTALL_DIR}"
+fi
 
 
 
