@@ -1549,6 +1549,23 @@ if [ "$REMOVE_DIRS" = "true" ]; then
         rmdir --ignore-fail-on-non-empty "${ES_PATH_CONF}"
     fi
 
+    if [ -f %{LIB_DIR}/performance_analyzer_enabled.conf ]; then
+        rm %{LIB_DIR}/performance_analyzer_enabled.conf
+    fi
+
+    if [ -f %{LIB_DIR}/rca_enabled.conf ]; then
+        rm %{LIB_DIR}/rca_enabled.conf
+    fi
+
+    if [ -f %{LIB_DIR}/batch_metrics_enabled.conf ]; then
+        rm %{LIB_DIR}/batch_metrics_enabled.conf
+    fi
+
+    # delete the install directory if and only if empty
+    if [ -d "%{INSTALL_DIR}" ]; then
+        rmdir --ignore-fail-on-non-empty "%{INSTALL_DIR}"
+    fi
+
 fi
 
 if [ "$REMOVE_USER_AND_GROUP" = "true" ]; then
@@ -1559,55 +1576,6 @@ if [ "$REMOVE_USER_AND_GROUP" = "true" ]; then
     if getent group %{GROUP} > /dev/null 2>&1 ; then
         groupdel %{GROUP}
     fi
-fi
-
-
-
-
-
-#### POSTRUN from opendistro-performance-analyzer.spec
-
-# Make sure the ES_HOME environment variable is set
-if [ -z "$ES_HOME" ]; then
-    ES_HOME=%{INSTALL_DIR}
-fi
-
-# Cleanup files
-#if [ -d $ES_HOME/performance-analyzer-rca ]; then
-  #rm -rf $ES_HOME/performance-analyzer-rca
-#fi
-
-#if [ -f $ES_HOME/bin/performance-analyzer-agent-cli ]; then
-#  rm $ES_HOME/bin/performance-analyzer-agent-cli
-#fi
-
-#if [ -f "$ES_HOME"/data/rca_enabled.conf ]; then
-#  rm "$ES_HOME"/data/rca_enabled.conf
-#fi
-
-#if [ -f "$ES_HOME"/data/batch_metrics_enabled.conf ]; then
-#  rm "$ES_HOME"/data/batch_metrics_enabled.conf
-#fi
-
-if [ -f %{LIB_DIR}/performance_analyzer_enabled.conf ]; then
-  rm %{LIB_DIR}/performance_analyzer_enabled.conf
-fi
-
-if [ -f %{LIB_DIR}/rca_enabled.conf ]; then
-  rm %{LIB_DIR}/rca_enabled.conf
-fi
-
-if [ -f %{LIB_DIR}/batch_metrics_enabled.conf ]; then
-  rm %{LIB_DIR}/batch_metrics_enabled.conf
-fi
-
-#if [ -f /usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service ]; then
-#  rm /usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service
-#fi
-
-# delete the install directory if and only if empty
-if [ -d "%{INSTALL_DIR}" ]; then
-    rmdir --ignore-fail-on-non-empty "%{INSTALL_DIR}"
 fi
 
 
