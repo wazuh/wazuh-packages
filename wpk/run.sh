@@ -203,9 +203,12 @@ main() {
 }
 
 clean() {
+    rm -rf ./{api,framework}
     rm -rf doc wodles/oscap/content/* gen_ossec.sh add_localfiles.sh Jenkinsfile*
-    rm -rf src/{addagent,analysisd,client-agent,config,error_messages,external/*,headers,logcollector,monitord,os_auth,os_crypto,os_csyslogd,os_dbdos_execd}
-    rm -rf src/{os_integrator,os_maild,os_netos_regex,os_xml,os_zlib,remoted,reportd,shared,syscheckd,tests,update,wazuh_db,wazuh_modules}
+    rm -rf src/{addagent,analysisd,client-agent,config,error_messages,external/*}
+    rm -rf src/{headers,logcollector,monitord,os_auth,os_crypto,os_csyslogd}
+    rm -rf src/{os_dbdos_execd,os_integrator,os_maild,os_netos_regex,os_xml,os_zlib}
+    rm -rf src/{remoted,reportd,shared,syscheckd,tests,update,wazuh_db,wazuh_modules}
 
     if [[ "${BUILD_TARGET}" != "winagent" ]]; then
         rm -rf src/win32
