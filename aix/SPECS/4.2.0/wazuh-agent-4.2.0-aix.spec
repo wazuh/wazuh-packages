@@ -259,7 +259,6 @@ rm -fr %{buildroot}
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/rids
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/logcollector
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ruleset/sca
-%attr(640, root, ossec) %{_localstatedir}/ruleset/sca/*
 %dir %attr(1750,root,ossec) %{_localstatedir}/tmp
 %attr(750,root,system) %config(missingok) %{_localstatedir}/tmp/add_localfiles.sh
 %attr(750,root,system) %config(missingok) %{_localstatedir}/tmp/gen_ossec.sh
