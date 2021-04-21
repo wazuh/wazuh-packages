@@ -39,7 +39,7 @@ help () {
 
     echo
     echo "Usage: $0 [OPTIONS]"
-    echo "  -p, --package          [required] Select Git branch or tag from wazuh-packages repository."
+    echo "  -p, --package          [Required] Select Git branch or tag from wazuh-packages repository."
     echo "  -v, --version          [Required] Version of wazuh to install on VM."
     echo "  -o, --opendistro       [Required] Version of Open Distro for Elasticsearch."
     echo "  -f, --filebeat         [Required] Filebeat's version."
