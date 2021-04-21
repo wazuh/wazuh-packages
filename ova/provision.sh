@@ -13,6 +13,16 @@ bash /vagrant/Config_files/all-in-one-installation.sh
 systemctl stop kibana filebeat elasticsearch
 systemctl enable wazuh-manager
 
+# need change root - this isnt working
+yes wazuh | passwd root
+
+# Set Hostname
+hostname wazuhmanager
+
+# Ssh config
+sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/" /etc/ssh/sshd_config
+echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+
 # OVA Welcome message
 cat > /etc/issue << EOF
 
