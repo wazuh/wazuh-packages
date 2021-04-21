@@ -1,11 +1,11 @@
 # This file is needed by wazuh-jenkins repository
 
-workspace=$1
-path_ova=$2
-dest_ova=$3
-ovf_path=$4
-wazuh_version=$5
-opendistro_version=$6
+workspace="."
+path_ova="./output/wazuh-4.1.4_1.12.0.ova"
+dest_ova="./output/wazuh-4.1.4_1.12.0_new.ova"
+ovf_path="./new-ova/wazuh-4.1.4_1.12.0.ovf"
+wazuh_version="4.1.4"
+opendistro_version="1.12.0"
 file="wazuh-${wazuh_version}_${opendistro_version}"
 mkdir -p ${workspace}/new-ova/
 
