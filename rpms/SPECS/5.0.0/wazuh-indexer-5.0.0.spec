@@ -156,11 +156,6 @@ cp files/config_files/systemd-entrypoint %{buildroot}%{_localstatedir}/bin
 # Service for performance analyzer
 cp files/config_files/usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service %{buildroot}/usr/lib/systemd/system/
 
-# This is needed by the performance-analyzer service
-echo false > %{buildroot}%{_localstatedir}/data/batch_metrics_enabled.conf
-
-echo true > %{buildroot}%{_localstatedir}/data/rca_enabled.conf
-
 # Copy certificates
 cp files/config_files/etc/wazuh-indexer/certs/admin-key.pem %{buildroot}%{CONFIG_DIR}/certs/admin-key.pem
 cp files/config_files/etc/wazuh-indexer/certs/admin.pem %{buildroot}%{CONFIG_DIR}/certs/admin.pem
@@ -198,8 +193,9 @@ rm -rf %{buildroot}%{_localstatedir}/config
 
 # Fix performance-analyzer plugin files which references elasticsearch path
 # Note: For the moment not using variable because of escaped slashes, but should use INSTALL_DIR
-sed -i 's/\/usr\/share\/elasticsearch/\/usr\/share\/wazuh-indexer/' %{buildroot}%{_localstatedir}/plugins/opendistro-performance-analyzer/pa_config/supervisord.conf
-sed -i 's/\/usr\/share\/elasticsearch/\/usr\/share\/wazuh-indexer/' %{buildroot}%{_localstatedir}/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/supervisord.conf
+sed -i 's/\/usr\/share\/elasticsearch/\/usr\/share\/wazuh-indexer/g' %{buildroot}%{_localstatedir}/plugins/opendistro-performance-analyzer/pa_config/supervisord.conf
+sed -i 's/\/usr\/share\/elasticsearch/\/usr\/share\/wazuh-indexer/g' %{buildroot}%{_localstatedir}/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/supervisord.conf
+sed -i 's/\/usr\/share\/elasticsearch/\/usr\/share\/wazuh-indexer/g' %{buildroot}%{_localstatedir}/performance-analyzer-rca/pa_config/supervisord.conf
 
 # Fix performance analyzer JAVA_HOME definition when running manually for non systemd environments
 sed -i s'/JAVA_HOME=$2/export JAVA_HOME=$2/' %{buildroot}%{_localstatedir}/plugins/opendistro-performance-analyzer/pa_bin/performance-analyzer-agent
@@ -943,16 +939,16 @@ rm -fr %{buildroot}
 %dir %attr(755, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/performance-analyzer-rca/lib
 %attr(644, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/performance-analyzer-rca/lib/*.jar
 
-%dir %attr(755, root, root) %{_localstatedir}/performance-analyzer-rca
-%dir %attr(755, root, root) %{_localstatedir}/performance-analyzer-rca/bin
-%attr(755, root, root) %{_localstatedir}/performance-analyzer-rca/bin/performance-analyzer-rca
-%attr(755, root, root) %{_localstatedir}/performance-analyzer-rca/bin/performance-analyzer-rca.bat
-%dir %attr(755, root, root) %{_localstatedir}/performance-analyzer-rca/pa_bin
-%attr(755, root, root) %{_localstatedir}/performance-analyzer-rca/pa_bin/performance-analyzer-agent
-%dir %attr(755, root, root) %{_localstatedir}/performance-analyzer-rca/pa_config
-%attr(644, root, root) %{_localstatedir}/performance-analyzer-rca/pa_config/*
-%dir %attr(755, root, root) %{_localstatedir}/performance-analyzer-rca/lib
-%attr(644, root, root) %{_localstatedir}/performance-analyzer-rca/lib/*.jar
+%dir %attr(755, %{USER}, %{GROUP}) %{_localstatedir}/performance-analyzer-rca
+%dir %attr(755, %{USER}, %{GROUP}) %{_localstatedir}/performance-analyzer-rca/bin
+%attr(755, %{USER}, %{GROUP}) %{_localstatedir}/performance-analyzer-rca/bin/performance-analyzer-rca
+%attr(755, %{USER}, %{GROUP}) %{_localstatedir}/performance-analyzer-rca/bin/performance-analyzer-rca.bat
+%dir %attr(755, %{USER}, %{GROUP}) %{_localstatedir}/performance-analyzer-rca/pa_bin
+%attr(755, %{USER}, %{GROUP}) %{_localstatedir}/performance-analyzer-rca/pa_bin/performance-analyzer-agent
+%dir %attr(755, %{USER}, %{GROUP}) %{_localstatedir}/performance-analyzer-rca/pa_config
+%attr(644, %{USER}, %{GROUP}) %{_localstatedir}/performance-analyzer-rca/pa_config/*
+%dir %attr(755, %{USER}, %{GROUP}) %{_localstatedir}/performance-analyzer-rca/lib
+%attr(644, %{USER}, %{GROUP}) %{_localstatedir}/performance-analyzer-rca/lib/*.jar
 
 
 %dir %attr(755, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/pa_bin
@@ -986,8 +982,6 @@ rm -fr %{buildroot}
 %attr(0755, root, root) "%{_localstatedir}/plugins/opendistro-knn/knn-lib/libKNNIndexV2_0_11.so"
 
 %dir %attr(0755, root, root) "%{_localstatedir}/data"
-%config(noreplace) %attr(0644, root, root) "%{_localstatedir}/data/batch_metrics_enabled.conf"
-%config(noreplace) %attr(0644, root, root) "%{_localstatedir}/data/rca_enabled.conf"
 
 %dir %attr(2750, %{USER}, %{GROUP}) "%{LIB_DIR}"
 %dir %attr(2750, %{USER}, %{GROUP}) "%{LOG_DIR}"
@@ -1176,7 +1170,10 @@ if [ -z "$ES_HOME" ]; then
 fi
 
 # Prepare the RCA reader process for execution
-cp -r "$ES_HOME"/plugins/opendistro-performance-analyzer/performance-analyzer-rca $ES_HOME
+
+# Opendistro tar already includes performance-analyzer-rca in the home directory, so this is not necessary
+#cp -r "$ES_HOME"/plugins/opendistro-performance-analyzer/performance-analyzer-rca $ES_HOME
+
 if [ -f "$ES_HOME"/bin/opendistro-performance-analyzer/performance-analyzer-agent-cli ]; then
   mv "$ES_HOME"/bin/opendistro-performance-analyzer/performance-analyzer-agent-cli "$ES_HOME"/bin
   rm -rf "$ES_HOME"/bin/opendistro-performance-analyzer
@@ -1190,6 +1187,9 @@ chown %{USER} %{LIB_DIR}/performance_analyzer_enabled.conf
 chown %{USER} %{LIB_DIR}/rca_enabled.conf
 chown -R %{USER} "$ES_HOME/performance-analyzer-rca"
 chmod a+rw /tmp
+
+# Added to avoid excessive logs
+echo 'false' > "$ES_HOME"/data/batch_metrics_enabled.conf
 
 if ! grep -q '## OpenDistro Performance Analyzer' %{CONFIG_DIR}/jvm.options; then
    CLK_TCK=`/usr/bin/getconf CLK_TCK`
@@ -1463,6 +1463,11 @@ fi
 
 export ES_PATH_CONF=${ES_PATH_CONF:-%{CONFIG_DIR}}
 
+# Make sure the ES_HOME environment variable is set
+if [ -z "$ES_HOME" ]; then
+    ES_HOME=%{INSTALL_DIR}
+fi
+
 REMOVE_DIRS=false
 REMOVE_JVM_OPTIONS_DIRECTORY=false
 REMOVE_USER_AND_GROUP=false
@@ -1547,6 +1552,19 @@ if [ "$REMOVE_DIRS" = "true" ]; then
     # delete the conf directory if and only if empty
     if [ -d "${ES_PATH_CONF}" ]; then
         rmdir --ignore-fail-on-non-empty "${ES_PATH_CONF}"
+    fi
+
+    if [ -f "$ES_HOME"/data/rca_enabled.conf ]; then
+        rm "$ES_HOME"/data/rca_enabled.conf
+    fi
+
+    if [ -f "$ES_HOME"/data/batch_metrics_enabled.conf ]; then
+        rm "$ES_HOME"/data/batch_metrics_enabled.conf
+    fi
+
+    # delete the data directory if and only if empty
+    if [ -d "$ES_HOME"/data ]; then
+        rmdir --ignore-fail-on-non-empty "$ES_HOME"/data
     fi
 
     if [ -f %{LIB_DIR}/performance_analyzer_enabled.conf ]; then
