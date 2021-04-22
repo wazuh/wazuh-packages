@@ -1,8 +1,9 @@
 
-# File adapted to local use 
-# Script didnt tested for Jenkins
 
-# ./setOVADefault.sh 4.1.4 1.12.0 output
+
+# Use example ./setOVADefault.sh 4.1.4 1.12.0 output
+
+echo "Standarizing OVA"
 
 wazuh_version=$1
 opendistro_version=$2
@@ -13,6 +14,7 @@ path_ova=$3
 
 mkdir new-ova
 
+# Extracting OVA
 tar -xvf "${path_ova}/${file}.ova" --directory new-ova/
 echo "OVA extracted"
 
@@ -24,7 +26,7 @@ echo "OVF changed - Wazuh ${wazuh_version} OpenDistro ${opendistro_version}"
 # Calculate vmdk size and insert it in ovf
 ovf_size=$(stat --printf=%s new-ova/${file}-disk001.vmdk)
 sed -i "s/{SIZE}/${ovf_size}/" "new-ova/${file}.ovf"   
-echo "echo OVF changed - VMDK size ${ovf_size} added to OVF"
+echo "OVF changed - VMDK size ${ovf_size} added to OVF"
 
 export workspace
 export file
