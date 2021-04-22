@@ -9,13 +9,13 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-# ./generate_ova.sh -v 4.1.4 -o 1.12.0 -f 7.10.0 -r dev -b wj-2421-ova-rework -p 4.1
+# Use example ./generate_ova.sh -p 4.1 -v 4.1.4 -o 1.12.0 -f 7.10.0 -r dev -b wj-2421-ova-rework 
 
 
 set -e
 # Dependencies: vagrant, virtualbox, ovftool
 
-#
+
 # CONFIGURATION VARIABLES
 
 scriptpath=$(
@@ -29,6 +29,9 @@ HAVE_VERSION=false
 HAVE_OPENDISTRO_VERSION=false
 HAVE_ELK_VERSION=false
 HAVE_PACKAGE_VERSION=false
+
+INSTALLER="all-in-one-installation.sh"
+export INSTALLER
 
 PACKAGE_VERSION=""
 WAZUH_VERSION=""
@@ -62,9 +65,8 @@ clean() {
 
     cd ${scriptpath}
     vagrant destroy -f
-    rm -f ${OVA_VM} ${OVF_VM} ${OVA_VMDK} ${OVA_FIXED} Config_files/all-in-one-installation.sh
-    rmdir Config_files
-
+    rm -f ${OVA_VM} ${OVF_VM} ${OVA_VMDK} ${OVA_FIXED}
+    
     exit ${exit_code}
 }
 
@@ -81,23 +83,23 @@ build_ova() {
         rm -f ${OUTPUT_DIR}/${OVA_VM} ${OUTPUT_DIR}/${OVF_VM}
     fi
 
-    mkdir Config_files
-
     # Download unattended installer
-    curl -so Config_files/all-in-one-installation.sh https://raw.githubusercontent.com/wazuh/wazuh-documentation/${PACKAGE_VERSION}/resources/open-distro/unattended-installation/all-in-one-installation.sh 
-    
+    curl -so ${INSTALLER} https://raw.githubusercontent.com/wazuh/wazuh-documentation/${PACKAGE_VERSION}/resources/open-distro/unattended-installation/${INSTALLER} 
+
+    # Get currents version values of installer
+    ACTUAL_W=$(less ${INSTALLER} | grep "WAZUH_VER=")
+    ACTUAL_O=$(less ${INSTALLER} | grep "OD_VER=")
+    ACTUAL_E=$(less ${INSTALLER} | grep "ELK_VER=")
+
     # Change specified versions in unattended installer
-    sed -i "s/WAZUH_VER=\"4.2.4\"/WAZUH_VER=\"$WAZUH_VERSION\"/g" Config_files/all-in-one-installation.sh
-    sed -i "s/OD_VER=\"7.10.0\"/OD_VER=\"$OPENDISTRO_VERSION\"/g" Config_files/all-in-one-installation.sh
-    sed -i "s/ELK_VER=\"4.2.4\"/ELK_VER=\"$ELK_VERSION\"/g" Config_files/all-in-one-installation.sh
- 
+    sed -i "s/${ACTUAL_W}/WAZUH_VER=\"${WAZUH_VERSION}\"/g" ${INSTALLER}
+    sed -i "s/${ACTUAL_O}/OD_VER=\"${OPENDISTRO_VERSION}\"/g" ${INSTALLER}
+    sed -i "s/${ACTUAL_E}/ELK_VER=\"${ELK_VERSION}\"/g" ${INSTALLER}
+
     # Vagrant will provision the VM with all the software. (See vagrant file)
     vagrant destroy -f
-    vagrant up || clean 1
+    vagrant up
     vagrant suspend
-    
-    # Pause creation and check installation
-    # TODO
 
     # OVA creation with all metadata information.
     VM_EXPORT=$(vboxmanage list vms | grep -i vm_wazuh | cut -d "\"" -f2)
@@ -122,8 +124,9 @@ build_ova() {
         cd ${OUTPUT_DIR} && sha512sum "${OVA_VM}" > "${CHECKSUM_DIR}/${OVA_VM}.sha512"
     fi
 
-    # Cleaning tasks
-    clean 0
+    # Remove installer file
+    rm ${INSTALLER}
+
 }
 
 check_version() {
@@ -138,6 +141,7 @@ check_version() {
         curl -Isf https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-${UI_REVISION}.zip > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${ELK_VERSION} not supported." && exit 1 )
     else
         logger "Error, repository value must take 'prod' or 'dev' value."
+        echo "Error, repository value must take 'prod' or 'dev' value."
         exit
     fi
 }
@@ -153,33 +157,35 @@ main() {
 
         "-v" | "--version")
             if [ -n "$2" ]; then
-
                 export WAZUH_VERSION="$2"
                 HAVE_VERSION=true
             else
                 logger "ERROR Need wazuh version."
+                echo "ERROR Need wazuh version."
                 help 1
             fi
             shift 2
         ;;
+
         "-o" | "--opendistro")
             if [ -n "$2" ]; then
-
                 export OPENDISTRO_VERSION="$2"
                 HAVE_OPENDISTRO_VERSION=true
             else
                 logger "ERROR Need opendistro version."
+                echo "ERROR Need opendistro version."
                 help 1
             fi
             shift 2
         ;;
 
-        "-p"|"--package")
+        "-p" | "--package")
             if [ -n "$2" ]; then
                 export PACKAGE_VERSION="$2"
                 HAVE_PACKAGE_VERSION=true
             else
                 logger "ERROR Need package version (4.1, 4.2, ...)"
+                echo "ERROR Need package version (4.1, 4.2, ...)"
                 help 1
             fi
             shift 2
@@ -187,11 +193,11 @@ main() {
 
         "-f" | "--filebeat")
             if [ -n "$2" ]; then
-
                 export ELK_VERSION="$2"
                 HAVE_ELK_VERSION=true
             else
                 logger "ERROR: Need filebeat version."
+                echo "ERROR: Need filebeat version."
                 help 1
             fi
             shift 2
@@ -199,11 +205,11 @@ main() {
 
         "-r" | "--repository")
             if [ -n "$2" ]; then
-
                 export PACKAGES_REPOSITORY="$2"
                 HAVE_PACKAGES_REPOSITORY=true
             else
                 logger "ERROR: package repository is needed."
+                echo "ERROR: package repository is needed."
                 help 1
             fi
             shift 2
@@ -214,36 +220,41 @@ main() {
                 UI_REVISION="$2"
             else
                 logger "ERROR: package repository is needed."
+                echo "ERROR: package repository is needed."
                 help 1
             fi
             shift 2
         ;;
+
         "-b"|"--branch")
             if [ -n "$2" ]; then
-
                 BRANCH="$2"
                 shift 2
             else
                 logger "ERROR: Need branch to build."
+                echo "ERROR: Need branch to build."
                 help 1
             fi
-            ;;
+        ;;
+
         "-s"|"--store-path")
             if [ -n "$2" ]; then
                 OUTPUT_DIR="$2"
                 shift 2
             else
                 logger "ERROR: Need store path"
+                echo "ERROR: Need store path"
                 help 1
             fi
-            ;;
+        ;;
+
         "-c"|"--checksum")
             if [ -n "$2" ]; then
                 CHECKSUM_DIR="$2"
                 CHECKSUM="yes"
                 shift 2
             else
-                CHECKSUM="yes"
+                CHECKSUM="no"
                 shift 1
             fi
         ;;
@@ -260,11 +271,20 @@ main() {
         export UI_REVISION="${UI_REVISION}"
         check_version
         OVA_VERSION="${WAZUH_VERSION}_${OPENDISTRO_VERSION}"
-
         logger "Version to build: ${WAZUH_VERSION}-${OPENDISTRO_VERSION} with ${PACKAGES_REPOSITORY} repository and ${BRANCH} branch of package ${PACKAGE_VERSION}"
+        echo "Version to build: ${WAZUH_VERSION}-${OPENDISTRO_VERSION} with ${PACKAGES_REPOSITORY} repository and ${BRANCH} branch of package ${PACKAGE_VERSION}"
+        
+        # Build OVA file (no standard)
         build_ova ${WAZUH_VERSION} ${OVA_VERSION} ${PACKAGE_VERSION}
+
+        # Standarize OVA and finish
+        ./setOVADefault.sh ${WAZUH_VERSION} ${OPENDISTRO_VERSION} ${OUTPUT_DIR} 
+        
+        clean 0
+
     else
         logger "ERROR: Need more parameters."
+        echo "ERROR: Need more parameters."
         help 1
     fi
 
