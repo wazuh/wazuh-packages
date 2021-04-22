@@ -183,6 +183,59 @@ cp -pr files/config_files/roles_mapping.yml %{buildroot}%{_localstatedir}/plugin
 cp -pr files/config_files/roles.yml %{buildroot}%{_localstatedir}/plugins/opendistro_security/securityconfig/roles.yml
 cp -pr files/config_files/internal_users.yml %{buildroot}%{_localstatedir}/plugins/opendistro_security/securityconfig/internal_users.yml
 
+# Fix performance-analyzer plugin files which references elasticsearch path
+sed -i 's!/usr/share/elasticsearch!%{INSTALL_DIR}!g' %{buildroot}%{_localstatedir}/plugins/opendistro-performance-analyzer/pa_config/supervisord.conf
+sed -i 's!/usr/share/elasticsearch!%{INSTALL_DIR}!g' %{buildroot}%{_localstatedir}/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/supervisord.conf
+sed -i 's!/usr/share/elasticsearch!%{INSTALL_DIR}!g' %{buildroot}%{_localstatedir}/performance-analyzer-rca/pa_config/supervisord.conf
+
+# Fix performance analyzer JAVA_HOME definition when running manually for non systemd environments
+sed -i s'/JAVA_HOME=$2/export JAVA_HOME=$2/' %{buildroot}%{_localstatedir}/plugins/opendistro-performance-analyzer/pa_bin/performance-analyzer-agent
+
+# Create group and user in rpmbuild chroot environment so elasticsearch can be started for creating ODFE security indices
+groupadd -r %{GROUP}
+useradd --system \
+                    --no-create-home \
+                    --home-dir /nonexistent \
+                    --uid 1001 \
+                    --gid %{GROUP} \
+                    --shell /sbin/nologin \
+                    --comment "%{USER} user" \
+                    %{USER}
+
+
+# Copy /etc/wazuh-indexer configuration to local ES config directory to be tuned for starting while building the
+# RPM and then this config directory will be cleared
+cp -r %{buildroot}%{CONFIG_DIR}/* %{buildroot}%{_localstatedir}/config
+
+sed -i 's!/var/!%{buildroot}/var/!'  %{buildroot}%{_localstatedir}/config/elasticsearch.yml
+sed -i 's!%{CONFIG_DIR}/!%{buildroot}%{_localstatedir}/config/!'  %{buildroot}%{_localstatedir}/config/elasticsearch.yml
+sed -i 's!/var/!%{buildroot}/var/!'  %{buildroot}%{_localstatedir}/config/jvm.options
+sed -i 's!/usr/!%{buildroot}/usr/!'  %{buildroot}%{_localstatedir}/config/jvm.options
+
+chown wazuh-indexer:wazuh-indexer %{buildroot}%{_localstatedir}/ -R
+chown wazuh-indexer:wazuh-indexer %{buildroot}/var -R
+chown wazuh-indexer:wazuh-indexer %{buildroot}/etc -R
+
+echo "wazuh-indexer hard nproc 4096" >> /etc/security/limits.conf
+echo "wazuh-indexer soft nproc 4096" >> /etc/security/limits.conf
+echo "wazuh-indexer hard nofile 65535" >> /etc/security/limits.conf
+echo "wazuh-indexer soft nofile 65535" >> /etc/security/limits.conf
+echo "bootstrap.system_call_filter: false" >> %{buildroot}%{_localstatedir}/config/elasticsearch.yml
+
+sudo -u wazuh-indexer ES_PATH_CONF=%{buildroot}%{_localstatedir}/config %{buildroot}%{_localstatedir}/bin/elasticsearch &
+
+sleep 15
+
+chmod +x %{buildroot}%{_localstatedir}/plugins/opendistro_security/tools/securityadmin.sh
+
+sudo -u wazuh-indexer ES_PATH_CONF=%{buildroot}%{_localstatedir}/config JAVA_HOME=%{buildroot}%{_localstatedir}/jdk %{buildroot}%{_localstatedir}/plugins/opendistro_security/tools/securityadmin.sh -cn indexer-cluster -p 9350 -cd %{buildroot}%{_localstatedir}/plugins/opendistro_security/securityconfig/ -nhnv -cacert %{buildroot}%{CONFIG_DIR}/certs/root-ca.pem -cert %{buildroot}%{CONFIG_DIR}/certs/admin.pem -key %{buildroot}%{CONFIG_DIR}/certs/admin-key.pem
+
+sleep 5
+
+killall java
+
+sleep 10
+
 # Fix file sourced file by elasticsearch-env so that it can find the config directory as /etc/elasticsearch
 # https://github.com/elastic/elasticsearch/blob/v7.10.2/distribution/src/bin/elasticsearch-env#L81
 # https://github.com/elastic/elasticsearch/blob/v7.10.2/distribution/build.gradle#L585
@@ -191,14 +244,12 @@ sed -i 's/if \[ -z "$ES_PATH_CONF" \]; then ES_PATH_CONF="$ES_HOME"\/config; fi/
 # Remove bundled configuration directory since /etc/wazuh-indexer will be used
 rm -rf %{buildroot}%{_localstatedir}/config
 
-# Fix performance-analyzer plugin files which references elasticsearch path
-# Note: For the moment not using variable because of escaped slashes, but should use INSTALL_DIR
-sed -i 's/\/usr\/share\/elasticsearch/\/usr\/share\/wazuh-indexer/g' %{buildroot}%{_localstatedir}/plugins/opendistro-performance-analyzer/pa_config/supervisord.conf
-sed -i 's/\/usr\/share\/elasticsearch/\/usr\/share\/wazuh-indexer/g' %{buildroot}%{_localstatedir}/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/supervisord.conf
-sed -i 's/\/usr\/share\/elasticsearch/\/usr\/share\/wazuh-indexer/g' %{buildroot}%{_localstatedir}/performance-analyzer-rca/pa_config/supervisord.conf
-
-# Fix performance analyzer JAVA_HOME definition when running manually for non systemd environments
-sed -i s'/JAVA_HOME=$2/export JAVA_HOME=$2/' %{buildroot}%{_localstatedir}/plugins/opendistro-performance-analyzer/pa_bin/performance-analyzer-agent
+mv %{buildroot}%{LIB_DIR}/nodes %{buildroot}%{_localstatedir}/initial_nodes
+rm -f %{buildroot}%{LOG_DIR}/*
+rm -f %{buildroot}%{LIB_DIR}/batch_metrics_enabled.conf
+rm -f %{buildroot}%{LIB_DIR}/logging_enabled.conf
+rm -f %{buildroot}%{LIB_DIR}/performance_analyzer_enabled.conf
+rm -f %{buildroot}%{LIB_DIR}/rca_enabled.conf
 
 
 exit 0
@@ -987,6 +1038,7 @@ rm -fr %{buildroot}
 %dir %attr(2750, %{USER}, %{GROUP}) "%{LOG_DIR}"
 
 
+%attr(-, %{USER}, %{GROUP}) "%{_localstatedir}/initial_nodes"
 
 
 ### The following are scripts were copied from rpmrebuild -s of elasticsearch-oss and adapted to wazuh-indexer
@@ -1017,8 +1069,8 @@ err_exit() {
 }
 
 # source the default env file
-if [ -f "/etc/sysconfig/wazuh-indexer" ]; then
-    . "/etc/sysconfig/wazuh-indexer"
+if [ -f "/etc/sysconfig/%{SERVICE_NAME}" ]; then
+    . "/etc/sysconfig/%{SERVICE_NAME}"
 fi
 
 export ES_PATH_CONF=${ES_PATH_CONF:-%{CONFIG_DIR}}
@@ -1103,6 +1155,11 @@ esac
 # source the default env file
 if [ -f "/etc/sysconfig/%{SERVICE_NAME}" ]; then
     . "/etc/sysconfig/%{SERVICE_NAME}"
+fi
+
+if [ ! -d "%{LIB_DIR}/nodes" ]; then
+    cp -r %{INSTALL_DIR}/initial_nodes %{LIB_DIR}/nodes
+    chown %{USER}:%{GROUP} %{LIB_DIR}/nodes -R
 fi
 
 export ES_PATH_CONF=${ES_PATH_CONF:-%{CONFIG_DIR}}
