@@ -1,7 +1,7 @@
 #!/bin/sh
 # postinst script for Wazuh
 # Wazuh, Inc 2015-2020
-set -e
+set -ex
 case "$1" in
     configure)
 
@@ -255,17 +255,17 @@ case "$1" in
 
     # Remove old ossec user and group if exists and change ownwership of files
 
-    if ! getent group | grep -q "^ossec" ; then
+    if getent group | grep -q "^ossec" ; then
         find ${DIR} -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
-        if ! getent passwd | grep -q "^ossec" ; then
+        if getent passwd | grep -q "^ossec" ; then
             find ${DIR} -group ossec -user ossec -exec chown ${USER}:${GROUP} {} \; > /dev/null 2>&1 || true
             deluser ossec
         fi
-        if ! getent passwd | grep -q "^ossecm" ; then
+        if getent passwd | grep -q "^ossecm" ; then
             find ${DIR} -group ossec -user ossecm -exec chown ${USER}:${GROUP} {} \; > /dev/null 2>&1 || true
             deluser ossecm
         fi
-        if ! getent passwd | grep -q "^ossecr" ; then
+        if getent passwd | grep -q "^ossecr" ; then
             find ${DIR} -group ossec -user ossecr -exec chown ${USER}:${GROUP} {} \; > /dev/null 2>&1 || true
             deluser ossecr
         fi
