@@ -67,15 +67,12 @@ yes wazuh | sudo passwd wazuh
 # Grant sudo privileges to user
 gpasswd -a wazuh wheel
 
-# Disable root access
-sed -i "s/root:x:0:0:root:\/root:\/bin\/bash/root:x:0:0:root:\/root:\/sbin\/nologin/" /etc/passwd
-
 # Set Hostname
 hostname wazuhmanager
 
 # Ssh config
 sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/" /etc/ssh/sshd_config
-echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+echo "PermitRootLogin no" >> /etc/ssh/sshd_config
 
 # Download unattended installer
 curl -so ${INSTALLER} https://raw.githubusercontent.com/wazuh/wazuh-documentation/${PACKAGE_VERSION}/resources/open-distro/unattended-installation/${INSTALLER} 
