@@ -312,5 +312,3 @@ ${rpm_url}/mesa-libGL-devel-18.3.4-7.el7.armv7hl.rpm \
 ${rpm_url}/gl-manpages-1.1-7.20130122.el7.noarch.rpm \
 ${rpm_url}/libICE-1.0.9-9.el7.armv7hl.rpm \
 ${rpm_url}/libICE-devel-1.0.9-9.el7.armv7hl.rpm
-${rpm_url}/cmake3-data-3.17.3-3.el7.noarch.rpm
-${rpm_url}/cmake3-3.17.3-3.el7.armv7hl.rpm
