@@ -1,57 +1,53 @@
 
-
-
-# Use example ./setOVADefault.sh 4.1.4 1.12.0 output
+set -x
 
 echo "Standarizing OVA"
 
-wazuh_version=$1
-opendistro_version=$2
-
+workspace=$1
+path_ova=$2
+dest_ova=$3
+ovf_path=$4
+wazuh_version=$5
+opendistro_version=$6
 file="wazuh-${wazuh_version}_${opendistro_version}"
+mkdir -p ${workspace}/new-ova/
 
-path_ova=$3
+echo "Setting OVA to default"
 
-mkdir new-ova
+tar -xvf ${path_ova} --directory ${workspace}/new-ova/
+echo "OVF extracted"
 
-# Extracting OVA
-tar -xvf "${path_ova}/${file}.ova" --directory new-ova/
-echo "OVA extracted"
+mv "${workspace}"/new-ova/*.ovf ${workspace}/new-ova/${file}.ovf
+mv "${workspace}"/new-ova/*.mf ${workspace}/new-ova/${file}.mf
+mv "${workspace}"/new-ova/*.vmdk ${workspace}/new-ova/${file}-disk-1.vmdk
+echo "Files renamed"
 
-# Change version info
-sed -i "s/{WAZUH_VERSION}/${wazuh_version}/" new-ova/${file}.ovf
-sed -i "s/{OPENDISTRO_VERSION}/${opendistro_version}/" new-ova/${file}.ovf
-echo "OVF changed - Wazuh ${wazuh_version} OpenDistro ${opendistro_version}"
+cp ${ovf_path} ${workspace}/new-ova/${file}.ovf
 
-# Calculate vmdk size and insert it in ovf
-ovf_size=$(stat --printf=%s new-ova/${file}-disk001.vmdk)
-sed -i "s/{SIZE}/${ovf_size}/" "new-ova/${file}.ovf"   
-echo "OVF changed - VMDK size ${ovf_size} added to OVF"
+sed -i "s/{WAZUH_VERSION}/${wazuh_version}/" ${workspace}/new-ova/${file}.ovf
+sed -i "s/{OPENDISTRO_VERSION}/${opendistro_version}/" ${workspace}/new-ova/${file}.ovf
+echo "OVF Version changed"
+
+ovf_size=$(stat --printf=%s ${workspace}/new-ova/${file}-disk-1.vmdk)
+sed -i "s/{SIZE}/${ovf_size}/" "${workspace}/new-ova/${file}.ovf"   
+echo "OVF Size changed"
 
 export workspace
 export file
-
-sha_ovf=$(sha1sum new-ova/${file}.ovf)
-echo "sha1sum OVF ${sha_ovf}"
-
-sha_vmdk=$(sha1sum new-ova/${file}-disk001.vmdk)
-echo "sha1sum VMDK ${sha_vmdk}"
-
-# Delete path of var
+sha_ovf=$(sha1sum ${workspace}/new-ova/${file}.ovf)
+sha_vmdk=$(sha1sum ${workspace}/new-ova/${file}-disk-1.vmdk)
 read -a sha_ovf_array <<< "${sha_ovf}"
 read -a sha_vmdk_array <<< "${sha_vmdk}"
+
 sha_ovf=${sha_ovf_array[0]}
 sha_vmdk=${sha_vmdk_array[0]}
 
-# Create file .mf with sha1sum
-echo "SHA1(${file}-disk-1.vmdk) = ${sha_vmdk}" > new-ova/${file}.mf
-echo "SHA1(${file}.ovf) = ${sha_ovf}" >> new-ova/${file}.mf
+echo "SHA1(${file}-disk-1.vmdk) = ${sha_vmdk}" > ${workspace}/new-ova/${file}.mf
+echo "SHA1(${file}.ovf) = ${sha_ovf}" >> ${workspace}/new-ova/${file}.mf
+echo "Manifest changed"
 
+tar -cvf "${dest_ova}" -C "${workspace}/new-ova/" ${file}.ovf ${file}-disk-1.vmdk ${file}.mf
+echo "New OVA created"
 
-# Tar the modified file into .ova file
-tar -cvf "output/${file}_new.ova" -C "new-ova/" ${file}.ovf ${file}-disk001.vmdk ${file}.mf
-
-# Check this
-rm "output/${file}.ova"
-mv "output/${file}_new.ova" "output/${file}.ova"
-rm -rf new-ova
+rm -rf ${workspace}/new-ova/
+echo "Cleaned temporary directory"
