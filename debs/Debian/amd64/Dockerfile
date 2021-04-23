@@ -14,7 +14,8 @@ RUN echo "deb http://archive.debian.org/debian/ wheezy contrib main non-free" > 
 
 # Add Debian's source repository and, Install NodeJS 6
 RUN apt-get update && apt-get build-dep python3.2 -y && \
-    curl -sL https://deb.nodesource.com/setup_6.x | bash -
+    curl -sL https://deb.nodesource.com/setup_6.x | bash - && \
+    curl --silent https://deb.nodesource.com/gpgkey/nodesource.gpg.key | sudo apt-key add -
 
 RUN sed -i 's:https:http:g' /etc/apt/sources.list.d/nodesource.list && \
     apt-get update && apt-get install nodejs -y
