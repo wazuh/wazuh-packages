@@ -12,5 +12,5 @@ Vagrant.configure("2") do |config|
     vb.cpus = "4"
   end
 
-  config.vm.provision :shell, path: "provision.sh", :args => "#{ENV['WAZUH_VERSION']} #{ENV['OPENDISTRO_VERSION']}  #{ENV['ELK_VERSION']}  #{ENV['PACKAGES_REPOSITORY']} #{ENV['INSTALLER']} -d"
+  config.vm.provision :shell, path: "provision.sh", :args => "#{ENV['WAZUH_VERSION']} #{ENV['OPENDISTRO_VERSION']}  #{ENV['ELK_VERSION']}  #{ENV['PACKAGES_REPOSITORY']} #{ENV['PACKAGE_VERSION']} -d"
 end
