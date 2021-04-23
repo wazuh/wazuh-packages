@@ -6,24 +6,26 @@ WAZUH_VERSION=$1
 OPENDISTRO_VERSION=$2
 ELK_VERSION=$3
 PACKAGES_REPOSITORY=$4
-INSTALLER=$5
+PACKAGE_VERSION=$5
+INSTALLER="all-in-one-installation.sh"
 
 # Display dev/prod
 echo "Using ${PACKAGES_REPOSITORY} packages"
 
 # OVA Welcome message
-echo -e '
+cat > /etc/issue <<EOF
 
 Welcome to the Wazuh OVA version 
 Wazuh - ${WAZUH_VERSION}
 Open Distro for Elasticsearch - ${OPENDISTRO_VERSION}
-Filebeat - ${ELK_VERSION}
-Access the Wazuh Web Interface at https://\4{eth0} or https://\4{eth1}
+ELK - ${ELK_VERSION}
+Access the Wazuh Web Interface at https://\4{eth0}
 Thank you for using Wazuh!
 
-' > /etc/issue
+EOF
 
-echo -e '
+# User Welcome message
+cat > /etc/motd <<EOF
 
               W.                   W.
              WWW.                 WWW.
@@ -55,7 +57,7 @@ WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.
          WAZUH Open Source Security Platform
                    www.wazuh.com
 
-' > /etc/motd
+EOF
 
 
 # Create user wazuh - Ignore password error
@@ -64,9 +66,6 @@ yes wazuh | sudo passwd wazuh
 
 # Grant sudo privileges to user
 gpasswd -a wazuh wheel
-
-# Remove user vagrant
-userdel -rf vagrant
 
 # Disable root access
 sed -i "s/root:x:0:0:root:\/root:\/bin\/bash/root:x:0:0:root:\/root:\/sbin\/nologin/" /etc/passwd
@@ -78,11 +77,24 @@ hostname wazuhmanager
 sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/" /etc/ssh/sshd_config
 echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 
+# Download unattended installer
+curl -so ${INSTALLER} https://raw.githubusercontent.com/wazuh/wazuh-documentation/${PACKAGE_VERSION}/resources/open-distro/unattended-installation/${INSTALLER} 
+
+# Get currents version values of installer
+ACTUAL_W=$(less ${INSTALLER} | grep "WAZUH_VER=")
+ACTUAL_O=$(less ${INSTALLER} | grep "OD_VER=")
+ACTUAL_E=$(less ${INSTALLER} | grep "ELK_VER=")
+
+# Change specified versions in unattended installer
+sed -i "s/${ACTUAL_W}/WAZUH_VER=\"${WAZUH_VERSION}\"/g" ${INSTALLER}
+sed -i "s/${ACTUAL_O}/OD_VER=\"${OPENDISTRO_VERSION}\"/g" ${INSTALLER}
+sed -i "s/${ACTUAL_E}/ELK_VER=\"${ELK_VERSION}\"/g" ${INSTALLER}
+
 # Execute unattended installer
-sh /vagrant/${INSTALLER}
+sh ${INSTALLER}
 
 # Remove installer
-rm /vagrant/${INSTALLER}
+rm ${INSTALLER}
 
 # Stop services and enable manager
 systemctl stop kibana filebeat elasticsearch
@@ -97,6 +109,9 @@ ram=$(( $(free -m | awk '/^Mem:/{print $2}') / 2 ))
 # Change de jvm.options with the new RAM use
 sed -i "s/-Xms[0-9]\+[gm]/-Xms${ram}m/" "/etc/elasticsearch/jvm.options"
 sed -i "s/-Xmx[0-9]\+[gm]/-Xmx${ram}m/" "/etc/elasticsearch/jvm.options"
+
+# Remove vagrant user - by default this script runs in /home/vagrant 
+userdel -rf vagrant
 
 # Remove vagrant shared folder
 rm -rf /vagrant
