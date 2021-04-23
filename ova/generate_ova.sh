@@ -30,9 +30,6 @@ HAVE_OPENDISTRO_VERSION=false
 HAVE_ELK_VERSION=false
 HAVE_PACKAGE_VERSION=false
 
-INSTALLER="all-in-one-installation.sh"
-export INSTALLER
-
 PACKAGE_VERSION=""
 WAZUH_VERSION=""
 OPENDISTRO_VERSION=""
@@ -83,22 +80,9 @@ build_ova() {
         rm -f ${OUTPUT_DIR}/${OVA_VM} ${OUTPUT_DIR}/${OVF_VM}
     fi
 
-    # Download unattended installer
-    curl -so ${INSTALLER} https://raw.githubusercontent.com/wazuh/wazuh-documentation/${PACKAGE_VERSION}/resources/open-distro/unattended-installation/${INSTALLER} 
-
-    # Get currents version values of installer
-    ACTUAL_W=$(less ${INSTALLER} | grep "WAZUH_VER=")
-    ACTUAL_O=$(less ${INSTALLER} | grep "OD_VER=")
-    ACTUAL_E=$(less ${INSTALLER} | grep "ELK_VER=")
-
-    # Change specified versions in unattended installer
-    sed -i "s/${ACTUAL_W}/WAZUH_VER=\"${WAZUH_VERSION}\"/g" ${INSTALLER}
-    sed -i "s/${ACTUAL_O}/OD_VER=\"${OPENDISTRO_VERSION}\"/g" ${INSTALLER}
-    sed -i "s/${ACTUAL_E}/ELK_VER=\"${ELK_VERSION}\"/g" ${INSTALLER}
-
     # Vagrant will provision the VM with all the software. (See vagrant file)
     vagrant destroy -f
-    vagrant up
+    vagrant up || clean 1 
     vagrant suspend
 
     # OVA creation with all metadata information.
@@ -124,9 +108,7 @@ build_ova() {
         cd ${OUTPUT_DIR} && sha512sum "${OVA_VM}" > "${CHECKSUM_DIR}/${OVA_VM}.sha512"
     fi
 
-    # Remove installer file
-    rm ${INSTALLER}
-
+    #clean 1
 }
 
 check_version() {
@@ -277,9 +259,11 @@ main() {
         # Build OVA file (no standard)
         build_ova ${WAZUH_VERSION} ${OVA_VERSION} ${PACKAGE_VERSION}
 
-        # Standarize OVA and finish
-        ./setOVADefault.sh ${WAZUH_VERSION} ${OPENDISTRO_VERSION} ${OUTPUT_DIR} 
+        # Standarize OVA
+        ./setOVADefault.sh "${scriptpath}" "${OUTPUT_DIR}/${OVA_VM}" "${OUTPUT_DIR}/${OVA_VM}" "${scriptpath}/wazuh_ovf_template" "${WAZUH_VERSION}" "${OPENDISTRO_VERSION}"
         
+        logger "Process finished"
+        echo "Process finished"
         clean 0
 
     else
