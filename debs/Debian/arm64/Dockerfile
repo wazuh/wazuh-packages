@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN echo "deb http://deb.debian.org/debian stretch contrib non-free" >> /etc/apt/sources.list && \
     echo "deb-src http://deb.debian.org/debian stretch main contrib non-free" >> /etc/apt/sources.list && \
     apt-get update && apt-get install -y apt apt-utils  \
-    curl gcc make cmake sudo expect gnupg fakeroot \
+    curl gcc make cmake sudo expect gnupg \
     perl-base perl wget libc-bin libc6 libc6-dev \
     build-essential cdbs devscripts equivs automake \
     autoconf libtool libaudit-dev selinux-basics \
