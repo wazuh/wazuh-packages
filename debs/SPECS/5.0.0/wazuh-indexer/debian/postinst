@@ -25,6 +25,7 @@ chown ':wazuh-indexer' '/usr/share/wazuh-indexer/bin/wazuh-cert-tool.sh'
 chown ':wazuh-indexer' '/usr/share/wazuh-indexer/bin/wazuh-passwords-tool.sh'
 chown ':wazuh-indexer' '/usr/share/wazuh-indexer/plugins/opendistro_security' -R
 chown 'wazuh-indexer:wazuh-indexer' '/var/lib/wazuh-indexer'
+chown 'wazuh-indexer:wazuh-indexer' '/var/lib/wazuh-indexer/nodes' -R
 chmod '2750' '/var/lib/wazuh-indexer'
 chown 'wazuh-indexer:wazuh-indexer' '/var/log/wazuh-indexer'
 chmod '2750' '/var/log/wazuh-indexer'
@@ -63,6 +64,11 @@ chmod '755' '/usr/share/wazuh-indexer/bin/systemd-entrypoint'
 # source the default env file
 if [ -f "/etc/default/wazuh-indexer" ]; then
     . "/etc/default/wazuh-indexer"
+fi
+
+if [ ! -d "/var/lib/wazuh-indexer/nodes" ]; then
+    cp -r /usr/share/wazuh-indexer/initial_nodes /var/lib/wazuh-indexer/nodes
+    chown wazuh-indexer:wazuh-indexer /var/lib/wazuh-indexer/nodes -R
 fi
 
 export ES_PATH_CONF=${ES_PATH_CONF:-/etc/wazuh-indexer}

@@ -182,6 +182,62 @@ override_dh_install:
 	cp -pr files/config_files/roles.yml $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro_security/securityconfig/roles.yml
 	cp -pr files/config_files/internal_users.yml $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro_security/securityconfig/internal_users.yml
 
+	# Fix performance-analyzer plugin files which references elasticsearch path
+	sed -i 's!/usr/share/elasticsearch!$(INSTALLATION_DIR)!g' $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro-performance-analyzer/pa_config/supervisord.conf
+	sed -i 's!/usr/share/elasticsearch!$(INSTALLATION_DIR)!g' $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/supervisord.conf
+	sed -i 's!/usr/share/elasticsearch!$(INSTALLATION_DIR)!g' $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/pa_config/supervisord.conf
+
+	# Fix performance analyzer JAVA_HOME definition when running manually for non systemd environments
+	sed -i s'/JAVA_HOME=$$2/export JAVA_HOME=$$2/' $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro-performance-analyzer/pa_bin/performance-analyzer-agent
+
+
+
+	# Create group and user in rpmbuild chroot environment so elasticsearch can be started for creating ODFE security indices
+	groupadd -r $(GROUP)
+	useradd --system \
+			--no-create-home \
+			--home-dir /nonexistent \
+			--uid 1001 \
+			--gid $(GROUP) \
+			--shell /sbin/nologin \
+			--comment "$(USER) user" \
+			$(USER)
+
+
+	# Copy /etc/wazuh-indexer configuration to local ES config directory to be tuned for starting while building the
+	# RPM and then this config directory will be cleared
+	cp -r $(TARGET_DIR)$(CONFIG_DIR)/* $(TARGET_DIR)$(INSTALLATION_DIR)/config
+
+	sed -i 's!/var/!$(TARGET_DIR)/var/!'  $(TARGET_DIR)$(INSTALLATION_DIR)/config/elasticsearch.yml
+	sed -i 's!$(CONFIG_DIR)/!$(TARGET_DIR)$(INSTALLATION_DIR)/config/!'  $(TARGET_DIR)$(INSTALLATION_DIR)/config/elasticsearch.yml
+	sed -i 's!/var/!$(TARGET_DIR)/var/!'  $(TARGET_DIR)$(INSTALLATION_DIR)/config/jvm.options
+	sed -i 's!/usr/!$(TARGET_DIR)/usr/!'  $(TARGET_DIR)$(INSTALLATION_DIR)/config/jvm.options
+
+	chown wazuh-indexer:wazuh-indexer $(TARGET_DIR)$(INSTALLATION_DIR)/ -R
+	chown wazuh-indexer:wazuh-indexer $(TARGET_DIR)/var -R
+	chown wazuh-indexer:wazuh-indexer $(TARGET_DIR)/etc -R
+
+	echo "wazuh-indexer hard nproc 4096" >> /etc/security/limits.conf
+	echo "wazuh-indexer soft nproc 4096" >> /etc/security/limits.conf
+	echo "wazuh-indexer hard nofile 65535" >> /etc/security/limits.conf
+	echo "wazuh-indexer soft nofile 65535" >> /etc/security/limits.conf
+	echo "bootstrap.system_call_filter: false" >> $(TARGET_DIR)$(INSTALLATION_DIR)/config/elasticsearch.yml
+
+	sudo -u wazuh-indexer ES_PATH_CONF=$(TARGET_DIR)$(INSTALLATION_DIR)/config $(TARGET_DIR)$(INSTALLATION_DIR)/bin/elasticsearch &
+
+	sleep 15
+
+	chmod +x $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro_security/tools/securityadmin.sh
+
+	sudo -u wazuh-indexer ES_PATH_CONF=$(TARGET_DIR)$(INSTALLATION_DIR)/config JAVA_HOME=$(TARGET_DIR)$(INSTALLATION_DIR)/jdk $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro_security/tools/securityadmin.sh -cn indexer-cluster -p 9350 -cd $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro_security/securityconfig/ -nhnv -cacert $(TARGET_DIR)$(CONFIG_DIR)/certs/root-ca.pem -cert $(TARGET_DIR)$(CONFIG_DIR)/certs/admin.pem -key $(TARGET_DIR)$(CONFIG_DIR)/certs/admin-key.pem
+
+	sleep 5
+
+	killall java
+
+	sleep 10
+
+
 	# Fix file sourced file by elasticsearch-env so that it can find the config directory as /etc/elasticsearch
 	# https://github.com/elastic/elasticsearch/blob/v7.10.2/distribution/src/bin/elasticsearch-env#L81
 	# https://github.com/elastic/elasticsearch/blob/v7.10.2/distribution/build.gradle#L585
@@ -190,13 +246,13 @@ override_dh_install:
 	# Remove bundled configuration directory since /etc/wazuh-indexer will be used
 	rm -rf $(TARGET_DIR)$(INSTALLATION_DIR)/config
 
-	# Fix performance-analyzer plugin files which references elasticsearch path
-	# Note: For the moment not using variable because of escaped slashes, but should use INSTALLATION_DIR
-	sed -i 's/\/usr\/share\/elasticsearch/\/usr\/share\/wazuh-indexer/' $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro-performance-analyzer/pa_config/supervisord.conf
-	sed -i 's/\/usr\/share\/elasticsearch/\/usr\/share\/wazuh-indexer/' $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/supervisord.conf
+	mv $(TARGET_DIR)$(LIB_DIR)/nodes $(TARGET_DIR)$(INSTALLATION_DIR)/initial_nodes
+	rm -f $(TARGET_DIR)$(LOG_DIR)/*
+	rm -f $(TARGET_DIR)$(LIB_DIR)/batch_metrics_enabled.conf
+	rm -f $(TARGET_DIR)$(LIB_DIR)/logging_enabled.conf
+	rm -f $(TARGET_DIR)$(LIB_DIR)/performance_analyzer_enabled.conf
+	rm -f $(TARGET_DIR)$(LIB_DIR)/rca_enabled.conf
 
-	# Fix performance analyzer JAVA_HOME definition when running manually for non systemd environments
-	sed -i s'/JAVA_HOME=$$2/export JAVA_HOME=$$2/' $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro-performance-analyzer/pa_bin/performance-analyzer-agent
 
 #override_dh_auto_clean:
 	#$(MAKE) -C src clean
