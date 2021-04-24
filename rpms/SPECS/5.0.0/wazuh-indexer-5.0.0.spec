@@ -262,9 +262,15 @@ rm -fr %{buildroot}
 # -----------------------------------------------------------------------------
 
 %files
-%%defattr(0644,root,root)
+%defattr(0644,root,root,0755)
 
+# First include all installation directory files, with default attributes, then list files with different
+# attributes as exceptions. This causes a warning about file listed twice to appear while building.
+#
+# TODO: Check if there is a better option to do this, without needing to list every file
+%{_localstatedir}
 
+# Configuration files, located outsie of the installation directory
 %dir %attr(2750, root, %{GROUP}) "%{CONFIG_DIR}"
 %config(noreplace) %attr(0660, root, %{GROUP}) "%{CONFIG_DIR}/elasticsearch.yml"
 %config(noreplace) %attr(0660, root, %{GROUP}) "%{CONFIG_DIR}/jvm.options"
@@ -281,23 +287,19 @@ rm -fr %{buildroot}
 %attr(0644, root, root) "/usr/lib/sysctl.d/%{SERVICE_NAME}.conf"
 %attr(0644, root, root) "/usr/lib/systemd/system/%{SERVICE_NAME}.service"
 %attr(0644, root, root) "/usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service"
-
 %attr(0644, root, root) "/usr/lib/tmpfiles.d/%{SERVICE_NAME}.conf"
 
-%dir %attr(755, root, root) %{_localstatedir}
+# Data folders
+%dir %attr(0755, root, root) "%{_localstatedir}/data"
+%dir %attr(2750, %{USER}, %{GROUP}) "%{LIB_DIR}"
+%dir %attr(2750, %{USER}, %{GROUP}) "%{LOG_DIR}"
 
+# Elasticsearch initial data. Generated from running securityadmin.sh and then copied by the post script
+# to /var/lib/wazuh-indexer/nodes
+%attr(-, %{USER}, %{GROUP}) "%{_localstatedir}/initial_nodes"
+
+# Binaries
 %attr(755, root, root) %{_localstatedir}/bin/systemd-entrypoint
-
-%attr(0644, root, root) "%{_localstatedir}/LICENSE.txt"
-%attr(0664, root, root) "%{_localstatedir}/NOTICE.txt"
-%attr(0644, root, root) "%{_localstatedir}/README.asciidoc"
-
-%dir %attr(755, root, root) %{_localstatedir}/bin
-
-%attr(750, root, %{GROUP}) %{_localstatedir}/bin/wazuh-passwords-tool.sh
-%attr(750, root, %{GROUP}) %{_localstatedir}/bin/wazuh-cert-tool.sh
-%attr(640, root, %{GROUP}) %{_localstatedir}/bin/instances.yml
-
 %attr(755, root, root) %{_localstatedir}/bin/elasticsearch
 %attr(755, root, root) %{_localstatedir}/bin/elasticsearch-cli
 %attr(755, root, root) %{_localstatedir}/bin/elasticsearch-env
@@ -307,65 +309,11 @@ rm -fr %{buildroot}
 %attr(755, root, root) %{_localstatedir}/bin/elasticsearch-plugin
 %attr(755, root, root) %{_localstatedir}/bin/elasticsearch-shard
 
-%dir %attr(755, root, root) %{_localstatedir}/lib
-
-%attr(644, root, root) %{_localstatedir}/lib/*.jar
-
-%dir %attr(755, root, root) %{_localstatedir}/lib/tools
-
-
-%dir %attr(755, root, root) %{_localstatedir}/lib/tools/keystore-cli
-%attr(644, root, root) %{_localstatedir}/lib/tools/keystore-cli/*.jar
-
-%dir %attr(755, root, root) %{_localstatedir}/lib/tools/plugin-cli
-%attr(644, root, root) %{_localstatedir}/lib/tools/plugin-cli/*.jar
-
-
-%dir %attr(755, root, root) %{_localstatedir}/modules
-%dir %attr(755, root, root) %{_localstatedir}/modules/aggs-matrix-stats
-%dir %attr(755, root, root) %{_localstatedir}/modules/analysis-common
-%dir %attr(755, root, root) %{_localstatedir}/modules/geo
-%dir %attr(755, root, root) %{_localstatedir}/modules/ingest-common
-%dir %attr(755, root, root) %{_localstatedir}/modules/ingest-geoip
-%dir %attr(755, root, root) %{_localstatedir}/modules/ingest-user-agent
-%dir %attr(755, root, root) %{_localstatedir}/modules/kibana
-%dir %attr(755, root, root) %{_localstatedir}/modules/lang-expression
-%dir %attr(755, root, root) %{_localstatedir}/modules/lang-mustache
-%dir %attr(755, root, root) %{_localstatedir}/modules/lang-painless
-%dir %attr(755, root, root) %{_localstatedir}/modules/mapper-extras
-%dir %attr(755, root, root) %{_localstatedir}/modules/parent-join
-%dir %attr(755, root, root) %{_localstatedir}/modules/percolator
-%dir %attr(755, root, root) %{_localstatedir}/modules/rank-eval
-%dir %attr(755, root, root) %{_localstatedir}/modules/reindex
-%dir %attr(755, root, root) %{_localstatedir}/modules/repository-url
-%dir %attr(755, root, root) %{_localstatedir}/modules/transport-netty4
-
-
-%attr(644, root, root) %{_localstatedir}/modules/aggs-matrix-stats/*
-%attr(644, root, root) %{_localstatedir}/modules/analysis-common/*
-%attr(644, root, root) %{_localstatedir}/modules/geo/*
-%attr(644, root, root) %{_localstatedir}/modules/ingest-common/*
-%attr(644, root, root) %{_localstatedir}/modules/ingest-geoip/*
-%attr(644, root, root) %{_localstatedir}/modules/ingest-user-agent/*
-%attr(644, root, root) %{_localstatedir}/modules/kibana/*
-%attr(644, root, root) %{_localstatedir}/modules/lang-expression/*
-%attr(644, root, root) %{_localstatedir}/modules/lang-mustache/*
-%attr(644, root, root) %{_localstatedir}/modules/lang-painless/*
-%attr(644, root, root) %{_localstatedir}/modules/mapper-extras/*
-%attr(644, root, root) %{_localstatedir}/modules/parent-join/*
-%attr(644, root, root) %{_localstatedir}/modules/percolator/*
-%attr(644, root, root) %{_localstatedir}/modules/rank-eval/*
-%attr(644, root, root) %{_localstatedir}/modules/reindex/*
-%attr(644, root, root) %{_localstatedir}/modules/repository-url/*
-%attr(644, root, root) %{_localstatedir}/modules/transport-netty4/*
-
-
-# elasticsearch module extracted from elasticsearch-oss RPM not present in tar.gz
-%dir %attr(755, root, root) %{_localstatedir}/modules/systemd
-%attr(644, root, root) %{_localstatedir}/modules/systemd/systemd-7.10.2.jar
-%attr(644, root, root) %{_localstatedir}/modules/systemd/plugin-security.policy
-%attr(644, root, root) %{_localstatedir}/modules/systemd/plugin-descriptor.properties
-
+# Wazuh tools.
+# TODO: Which is the right path for them?
+%attr(750, root, %{GROUP}) %{_localstatedir}/bin/wazuh-passwords-tool.sh
+%attr(750, root, %{GROUP}) %{_localstatedir}/bin/wazuh-cert-tool.sh
+%attr(640, root, %{GROUP}) %{_localstatedir}/bin/instances.yml
 
 # Embedded JDK
 %dir %attr(0755, root, root) "%{_localstatedir}/jdk"
@@ -400,535 +348,11 @@ rm -fr %{buildroot}
 %attr(0755, root, root) "%{_localstatedir}/jdk/bin/rmid"
 %attr(0755, root, root) "%{_localstatedir}/jdk/bin/rmiregistry"
 %attr(0755, root, root) "%{_localstatedir}/jdk/bin/serialver"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/conf"
-%attr(0644, root, root) "%{_localstatedir}/jdk/conf/logging.properties"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/conf/management"
-%attr(0644, root, root) "%{_localstatedir}/jdk/conf/management/jmxremote.access"
-%attr(0644, root, root) "%{_localstatedir}/jdk/conf/management/jmxremote.password.template"
-%attr(0644, root, root) "%{_localstatedir}/jdk/conf/management/management.properties"
-%attr(0644, root, root) "%{_localstatedir}/jdk/conf/net.properties"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/conf/sdp"
-%attr(0644, root, root) "%{_localstatedir}/jdk/conf/sdp/sdp.conf.template"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/conf/security"
-%attr(0644, root, root) "%{_localstatedir}/jdk/conf/security/java.policy"
-%attr(0644, root, root) "%{_localstatedir}/jdk/conf/security/java.security"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/conf/security/policy"
-%attr(0644, root, root) "%{_localstatedir}/jdk/conf/security/policy/README.txt"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/conf/security/policy/limited"
-%attr(0644, root, root) "%{_localstatedir}/jdk/conf/security/policy/limited/default_US_export.policy"
-%attr(0644, root, root) "%{_localstatedir}/jdk/conf/security/policy/limited/default_local.policy"
-%attr(0644, root, root) "%{_localstatedir}/jdk/conf/security/policy/limited/exempt_local.policy"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/conf/security/policy/unlimited"
-%attr(0644, root, root) "%{_localstatedir}/jdk/conf/security/policy/unlimited/default_US_export.policy"
-%attr(0644, root, root) "%{_localstatedir}/jdk/conf/security/policy/unlimited/default_local.policy"
-%attr(0644, root, root) "%{_localstatedir}/jdk/conf/sound.properties"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/include"
-%attr(0644, root, root) "%{_localstatedir}/jdk/include/classfile_constants.h"
-%attr(0644, root, root) "%{_localstatedir}/jdk/include/jawt.h"
-%attr(0644, root, root) "%{_localstatedir}/jdk/include/jdwpTransport.h"
-%attr(0644, root, root) "%{_localstatedir}/jdk/include/jni.h"
-%attr(0644, root, root) "%{_localstatedir}/jdk/include/jvmti.h"
-%attr(0644, root, root) "%{_localstatedir}/jdk/include/jvmticmlr.h"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/include/linux"
-%attr(0644, root, root) "%{_localstatedir}/jdk/include/linux/jawt_md.h"
-%attr(0644, root, root) "%{_localstatedir}/jdk/include/linux/jni_md.h"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/jmods"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/java.base.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/java.compiler.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/java.datatransfer.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/java.desktop.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/java.instrument.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/java.logging.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/java.management.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/java.management.rmi.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/java.naming.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/java.net.http.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/java.prefs.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/java.rmi.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/java.scripting.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/java.se.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/java.security.jgss.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/java.security.sasl.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/java.smartcardio.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/java.sql.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/java.sql.rowset.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/java.transaction.xa.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/java.xml.crypto.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/java.xml.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.accessibility.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.aot.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.attach.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.charsets.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.compiler.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.crypto.cryptoki.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.crypto.ec.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.dynalink.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.editpad.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.hotspot.agent.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.httpserver.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.incubator.foreign.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.incubator.jpackage.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.internal.ed.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.internal.jvmstat.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.internal.le.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.internal.opt.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.internal.vm.ci.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.internal.vm.compiler.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.internal.vm.compiler.management.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.jartool.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.javadoc.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.jcmd.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.jconsole.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.jdeps.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.jdi.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.jdwp.agent.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.jfr.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.jlink.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.jshell.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.jsobject.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.jstatd.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.localedata.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.management.agent.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.management.jfr.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.management.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.naming.dns.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.naming.rmi.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.net.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.nio.mapmode.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.sctp.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.security.auth.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.security.jgss.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.unsupported.desktop.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.unsupported.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.xml.dom.jmod"
-%attr(0644, root, root) "%{_localstatedir}/jdk/jmods/jdk.zipfs.jmod"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/java.base"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.base/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.base/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.base/LICENSE"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.base/aes.md"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.base/asm.md"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.base/c-libutl.md"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.base/cldr.md"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.base/icu.md"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.base/public_suffix.md"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.base/unicode.md"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/java.compiler"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.compiler/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.compiler/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.compiler/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/java.datatransfer"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.datatransfer/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.datatransfer/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.datatransfer/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/java.desktop"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.desktop/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.desktop/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.desktop/LICENSE"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.desktop/colorimaging.md"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.desktop/freetype.md"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.desktop/giflib.md"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.desktop/harfbuzz.md"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.desktop/jpeg.md"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.desktop/lcms.md"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.desktop/libpng.md"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.desktop/mesa3d.md"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.desktop/xwd.md"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/java.instrument"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.instrument/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.instrument/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.instrument/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/java.logging"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.logging/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.logging/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.logging/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/java.management"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/java.management.rmi"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.management.rmi/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.management.rmi/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.management.rmi/LICENSE"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.management/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.management/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.management/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/java.naming"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.naming/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.naming/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.naming/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/java.net.http"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.net.http/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.net.http/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.net.http/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/java.prefs"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.prefs/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.prefs/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.prefs/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/java.rmi"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.rmi/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.rmi/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.rmi/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/java.scripting"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.scripting/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.scripting/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.scripting/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/java.se"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.se/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.se/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.se/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/java.security.jgss"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.security.jgss/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.security.jgss/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.security.jgss/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/java.security.sasl"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.security.sasl/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.security.sasl/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.security.sasl/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/java.smartcardio"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.smartcardio/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.smartcardio/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.smartcardio/LICENSE"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.smartcardio/pcsclite.md"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/java.sql"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/java.sql.rowset"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.sql.rowset/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.sql.rowset/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.sql.rowset/LICENSE"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.sql/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.sql/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.sql/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/java.transaction.xa"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.transaction.xa/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.transaction.xa/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.transaction.xa/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/java.xml"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/java.xml.crypto"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.xml.crypto/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.xml.crypto/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.xml.crypto/LICENSE"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.xml.crypto/santuario.md"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.xml/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.xml/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.xml/LICENSE"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.xml/bcel.md"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.xml/dom.md"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.xml/jcup.md"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.xml/xalan.md"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/java.xml/xerces.md"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.accessibility"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.accessibility/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.accessibility/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.accessibility/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.aot"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.aot/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.aot/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.aot/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.attach"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.attach/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.attach/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.attach/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.charsets"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.charsets/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.charsets/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.charsets/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.compiler"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.compiler/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.compiler/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.compiler/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.crypto.cryptoki"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.crypto.cryptoki/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.crypto.cryptoki/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.crypto.cryptoki/LICENSE"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.crypto.cryptoki/pkcs11cryptotoken.md"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.crypto.cryptoki/pkcs11wrapper.md"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.crypto.ec"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.crypto.ec/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.crypto.ec/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.crypto.ec/LICENSE"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.crypto.ec/ecc.md"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.dynalink"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.dynalink/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.dynalink/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.dynalink/LICENSE"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.dynalink/dynalink.md"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.editpad"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.editpad/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.editpad/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.editpad/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.hotspot.agent"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.hotspot.agent/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.hotspot.agent/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.hotspot.agent/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.httpserver"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.httpserver/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.httpserver/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.httpserver/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.incubator.foreign"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.incubator.foreign/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.incubator.foreign/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.incubator.foreign/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.incubator.jpackage"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.incubator.jpackage/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.incubator.jpackage/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.incubator.jpackage/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.internal.ed"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.internal.ed/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.internal.ed/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.internal.ed/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.internal.jvmstat"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.internal.jvmstat/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.internal.jvmstat/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.internal.jvmstat/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.internal.le"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.internal.le/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.internal.le/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.internal.le/LICENSE"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.internal.le/jline.md"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.internal.opt"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.internal.opt/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.internal.opt/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.internal.opt/LICENSE"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.internal.opt/jopt-simple.md"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.internal.vm.ci"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.internal.vm.ci/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.internal.vm.ci/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.internal.vm.ci/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.internal.vm.compiler"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.internal.vm.compiler.management"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.internal.vm.compiler.management/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.internal.vm.compiler.management/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.internal.vm.compiler.management/LICENSE"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.internal.vm.compiler/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.internal.vm.compiler/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.internal.vm.compiler/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.jartool"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jartool/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jartool/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jartool/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.javadoc"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.javadoc/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.javadoc/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.javadoc/LICENSE"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.javadoc/jquery.md"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.javadoc/jqueryUI.md"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.jcmd"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jcmd/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jcmd/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jcmd/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.jconsole"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jconsole/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jconsole/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jconsole/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.jdeps"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jdeps/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jdeps/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jdeps/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.jdi"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jdi/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jdi/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jdi/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.jdwp.agent"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jdwp.agent/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jdwp.agent/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jdwp.agent/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.jfr"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jfr/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jfr/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jfr/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.jlink"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jlink/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jlink/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jlink/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.jshell"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jshell/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jshell/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jshell/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.jsobject"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jsobject/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jsobject/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jsobject/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.jstatd"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jstatd/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jstatd/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.jstatd/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.localedata"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.localedata/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.localedata/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.localedata/LICENSE"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.localedata/cldr.md"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.localedata/thaidict.md"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.management"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.management.agent"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.management.agent/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.management.agent/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.management.agent/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.management.jfr"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.management.jfr/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.management.jfr/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.management.jfr/LICENSE"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.management/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.management/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.management/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.naming.dns"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.naming.dns/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.naming.dns/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.naming.dns/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.naming.rmi"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.naming.rmi/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.naming.rmi/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.naming.rmi/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.net"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.net/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.net/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.net/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.nio.mapmode"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.nio.mapmode/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.nio.mapmode/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.nio.mapmode/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.sctp"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.sctp/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.sctp/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.sctp/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.security.auth"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.security.auth/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.security.auth/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.security.auth/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.security.jgss"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.security.jgss/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.security.jgss/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.security.jgss/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.unsupported"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.unsupported.desktop"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.unsupported.desktop/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.unsupported.desktop/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.unsupported.desktop/LICENSE"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.unsupported/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.unsupported/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.unsupported/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.xml.dom"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.xml.dom/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.xml.dom/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.xml.dom/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/legal/jdk.zipfs"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.zipfs/ADDITIONAL_LICENSE_INFO"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.zipfs/ASSEMBLY_EXCEPTION"
-%attr(0644, root, root) "%{_localstatedir}/jdk/legal/jdk.zipfs/LICENSE"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/lib"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/classlist"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/ct.sym"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/jexec"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/lib/jfr"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/jfr/default.jfc"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/jfr/profile.jfc"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/jrt-fs.jar"
 %attr(0755, root, root) "%{_localstatedir}/jdk/lib/jspawnhelper"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/jvm.cfg"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libattach.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libawt.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libawt_headless.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libawt_xawt.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libdt_socket.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libextnet.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libfontmanager.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libfreetype.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libinstrument.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libj2gss.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libj2pcsc.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libj2pkcs11.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libjaas.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libjava.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libjavajpeg.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libjawt.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libjdwp.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libjimage.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libjli.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libjsig.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libjsound.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/liblcms.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libmanagement.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libmanagement_agent.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libmanagement_ext.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libmlib_image.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libnet.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libnio.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libprefs.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/librmi.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libsaproc.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libsctp.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libsplashscreen.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libsunec.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libverify.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/libzip.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/modules"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/psfont.properties.ja"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/psfontj2d.properties"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/lib/security"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/security/blacklisted.certs"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/security/cacerts"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/security/default.policy"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/security/public_suffix_list.dat"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/lib/server"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/server/classes.jsa"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/server/classes_nocoops.jsa"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/server/libjsig.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/server/libjvm.so"
-%attr(0644, root, root) "%{_localstatedir}/jdk/lib/tzdb.dat"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/man"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/man/man1"
-%attr(0644, root, root) "%{_localstatedir}/jdk/man/man1/jaotc.1"
-%attr(0644, root, root) "%{_localstatedir}/jdk/man/man1/jar.1"
-%attr(0644, root, root) "%{_localstatedir}/jdk/man/man1/jarsigner.1"
-%attr(0644, root, root) "%{_localstatedir}/jdk/man/man1/java.1"
-%attr(0644, root, root) "%{_localstatedir}/jdk/man/man1/javac.1"
-%attr(0644, root, root) "%{_localstatedir}/jdk/man/man1/javadoc.1"
-%attr(0644, root, root) "%{_localstatedir}/jdk/man/man1/javap.1"
-%attr(0644, root, root) "%{_localstatedir}/jdk/man/man1/jcmd.1"
-%attr(0644, root, root) "%{_localstatedir}/jdk/man/man1/jconsole.1"
-%attr(0644, root, root) "%{_localstatedir}/jdk/man/man1/jdb.1"
-%attr(0644, root, root) "%{_localstatedir}/jdk/man/man1/jdeprscan.1"
-%attr(0644, root, root) "%{_localstatedir}/jdk/man/man1/jdeps.1"
-%attr(0644, root, root) "%{_localstatedir}/jdk/man/man1/jfr.1"
-%attr(0644, root, root) "%{_localstatedir}/jdk/man/man1/jhsdb.1"
-%attr(0644, root, root) "%{_localstatedir}/jdk/man/man1/jinfo.1"
-%attr(0644, root, root) "%{_localstatedir}/jdk/man/man1/jlink.1"
-%attr(0644, root, root) "%{_localstatedir}/jdk/man/man1/jmap.1"
-%attr(0644, root, root) "%{_localstatedir}/jdk/man/man1/jmod.1"
-%attr(0644, root, root) "%{_localstatedir}/jdk/man/man1/jpackage.1"
-%attr(0644, root, root) "%{_localstatedir}/jdk/man/man1/jps.1"
-%attr(0644, root, root) "%{_localstatedir}/jdk/man/man1/jrunscript.1"
-%attr(0644, root, root) "%{_localstatedir}/jdk/man/man1/jshell.1"
-%attr(0644, root, root) "%{_localstatedir}/jdk/man/man1/jstack.1"
-%attr(0644, root, root) "%{_localstatedir}/jdk/man/man1/jstat.1"
-%attr(0644, root, root) "%{_localstatedir}/jdk/man/man1/jstatd.1"
-%attr(0644, root, root) "%{_localstatedir}/jdk/man/man1/keytool.1"
-%attr(0644, root, root) "%{_localstatedir}/jdk/man/man1/rmid.1"
-%attr(0644, root, root) "%{_localstatedir}/jdk/man/man1/rmiregistry.1"
-%attr(0644, root, root) "%{_localstatedir}/jdk/man/man1/serialver.1"
-%attr(0644, root, root) "%{_localstatedir}/jdk/release"
+
 
 
 # Plugins
-%dir %attr(755, root, root) %{_localstatedir}/plugins
-
-%dir %attr(755, root, root) %{_localstatedir}/plugins/opendistro-alerting
-%attr(644, root, root) %{_localstatedir}/plugins/opendistro-alerting/*.jar
-%attr(644, root, root) %{_localstatedir}/plugins/opendistro-alerting/plugin-security.policy
-%attr(644, root, root) %{_localstatedir}/plugins/opendistro-alerting/plugin-descriptor.properties
-
-%dir %attr(755, root, root) %{_localstatedir}/plugins/opendistro-sql
-%attr(644, root, root) %{_localstatedir}/plugins/opendistro-sql/*.jar
-%attr(644, root, root) %{_localstatedir}/plugins/opendistro-sql/NOTICE.txt
-%attr(644, root, root) %{_localstatedir}/plugins/opendistro-sql/plugin-security.policy
-%attr(644, root, root) %{_localstatedir}/plugins/opendistro-sql/plugin-descriptor.properties
-%attr(644, root, root) %{_localstatedir}/plugins/opendistro-sql/LICENSE.txt
-
-%dir %attr(755, root, root) %{_localstatedir}/plugins/opendistro-job-scheduler
-%attr(644, root, root) %{_localstatedir}/plugins/opendistro-job-scheduler/*
-
-%dir %attr(755, root, root) %{_localstatedir}/plugins/opendistro-anomaly-detection
-%attr(644, root, root) %{_localstatedir}/plugins/opendistro-anomaly-detection/*.jar
-%attr(644, root, root) %{_localstatedir}/plugins/opendistro-anomaly-detection/plugin-security.policy
-%attr(644, root, root) %{_localstatedir}/plugins/opendistro-anomaly-detection/plugin-descriptor.properties
-
 %dir %attr(755, root, %{GROUP}) %{_localstatedir}/plugins/opendistro_security
 %attr(644, root, %{GROUP}) %{_localstatedir}/plugins/opendistro_security/*.jar
 %attr(644, root, %{GROUP}) %{_localstatedir}/plugins/opendistro_security/plugin-security.policy
@@ -953,42 +377,14 @@ rm -fr %{buildroot}
 %attr(750, root, %{GROUP}) %{_localstatedir}/plugins/opendistro_security/tools/hash.bat
 %attr(750, root, %{GROUP}) %{_localstatedir}/plugins/opendistro_security/tools/audit_config_migrater.sh
 
-%dir %attr(755, root, root) %{_localstatedir}/plugins/opendistro-index-management
-%attr(644, root, root) %{_localstatedir}/plugins/opendistro-index-management/*.jar
-%attr(644, root, root) %{_localstatedir}/plugins/opendistro-index-management/plugin-security.policy
-%attr(644, root, root) %{_localstatedir}/plugins/opendistro-index-management/plugin-descriptor.properties
-
-%dir %attr(755, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer
-%attr(644, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/*.jar
-%attr(644, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/plugin-security.policy
-%attr(644, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/plugin-descriptor.properties
-%dir %attr(755, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/pa_config
-%attr(644, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/pa_config/*
-%dir %attr(755, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/extensions
 %attr(755, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/extensions/performance-analyzer-agent
-%dir %attr(755, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/install
-%dir %attr(755, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/install/rpm
-%attr(644, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/install/rpm/postinst
-%attr(644, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/install/rpm/postrm
-%dir %attr(755, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/install/deb
-%attr(644, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/install/deb/postinst
-%attr(644, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/install/deb/postrm
-
 
 %attr(755, root, root) %{_localstatedir}/bin/performance-analyzer-agent-cli
 %attr(755, root, root) %{_localstatedir}/opendistro-tar-install.sh
 
-
-%dir %attr(755, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/performance-analyzer-rca
-%dir %attr(755, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/performance-analyzer-rca/bin
 %attr(755, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/performance-analyzer-rca/bin/performance-analyzer-rca
 %attr(755, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/performance-analyzer-rca/bin/performance-analyzer-rca.bat
-%dir %attr(755, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_bin
 %attr(755, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_bin/performance-analyzer-agent
-%dir %attr(755, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config
-%attr(644, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/*
-%dir %attr(755, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/performance-analyzer-rca/lib
-%attr(644, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/performance-analyzer-rca/lib/*.jar
 
 %dir %attr(755, %{USER}, %{GROUP}) %{_localstatedir}/performance-analyzer-rca
 %dir %attr(755, %{USER}, %{GROUP}) %{_localstatedir}/performance-analyzer-rca/bin
@@ -1002,46 +398,15 @@ rm -fr %{buildroot}
 %attr(644, %{USER}, %{GROUP}) %{_localstatedir}/performance-analyzer-rca/lib/*.jar
 
 
-%dir %attr(755, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/pa_bin
 %attr(755, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/pa_bin/performance-analyzer-agent
-
-%dir %attr(755, root, root) %{_localstatedir}/plugins/opendistro-reports-scheduler
-%attr(644, root, root) %{_localstatedir}/plugins/opendistro-reports-scheduler/*.jar
-%attr(644, root, root) %{_localstatedir}/plugins/opendistro-reports-scheduler/plugin-security.policy
-%attr(644, root, root) %{_localstatedir}/plugins/opendistro-reports-scheduler/plugin-descriptor.properties
-
-%dir %attr(755, root, root) %{_localstatedir}/plugins/opendistro-asynchronous-search
-%attr(644, root, root) %{_localstatedir}/plugins/opendistro-asynchronous-search/*.jar
-%attr(644, root, root) %{_localstatedir}/plugins/opendistro-asynchronous-search/plugin-security.policy
-%attr(644, root, root) %{_localstatedir}/plugins/opendistro-asynchronous-search/plugin-descriptor.properties
-
-
-# KNN Plugin
-%dir %attr(0755, root, root) "%{_localstatedir}/plugins/opendistro-knn"
-%attr(0644, root, root) "%{_localstatedir}/plugins/opendistro-knn/checker-qual-2.11.1.jar"
-%attr(0644, root, root) "%{_localstatedir}/plugins/opendistro-knn/error_prone_annotations-2.3.4.jar"
-%attr(0644, root, root) "%{_localstatedir}/plugins/opendistro-knn/failureaccess-1.0.1.jar"
-%attr(0644, root, root) "%{_localstatedir}/plugins/opendistro-knn/guava-29.0-jre.jar"
-%attr(0644, root, root) "%{_localstatedir}/plugins/opendistro-knn/j2objc-annotations-1.3.jar"
-%attr(0644, root, root) "%{_localstatedir}/plugins/opendistro-knn/jsr305-3.0.2.jar"
-%attr(0644, root, root) "%{_localstatedir}/plugins/opendistro-knn/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"
-%attr(0644, root, root) "%{_localstatedir}/plugins/opendistro-knn/opendistro-knn-1.13.0.0.jar"
-%attr(0644, root, root) "%{_localstatedir}/plugins/opendistro-knn/plugin-descriptor.properties"
-%attr(0644, root, root) "%{_localstatedir}/plugins/opendistro-knn/plugin-security.policy"
 
 # KNN Lib
 %attr(0755, root, root) "%{_localstatedir}/plugins/opendistro-knn/knn-lib/libKNNIndexV2_0_11.so"
 
-%dir %attr(0755, root, root) "%{_localstatedir}/data"
-
-%dir %attr(2750, %{USER}, %{GROUP}) "%{LIB_DIR}"
-%dir %attr(2750, %{USER}, %{GROUP}) "%{LOG_DIR}"
 
 
-%attr(-, %{USER}, %{GROUP}) "%{_localstatedir}/initial_nodes"
 
-
-### The following are scripts were copied from rpmrebuild -s of elasticsearch-oss and adapted to wazuh-indexer
+### The following scripts are based on elasticsearch-oss and opendistro-performance-analyzer scripts and adapted to wazuh-indexer
 
 
 %pre -p /bin/bash
