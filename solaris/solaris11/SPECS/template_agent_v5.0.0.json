@@ -303,22 +303,6 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/bin/wazuh-logcollector": {
-        "class": "static",
-        "group": "root",
-        "mode": "0750",
-        "prot": "-rwxr-x---",
-        "type": "file",
-        "user": "root"
-    },
-    "/var/ossec/bin/wazuh-syscheckd": {
-        "class": "static",
-        "group": "root",
-        "mode": "0750",
-        "prot": "-rwxr-x---",
-        "type": "file",
-        "user": "root"
-    },
     "/var/ossec/bin/util.sh": {
         "class": "static",
         "group": "root",
@@ -1664,7 +1648,11 @@
         "type": "file",
         "user": "ossec"
     },
+<<<<<<< HEAD
     "/var/ossec/var/run/wazuh-logcollector-*.pid": {
+=======
+    "/var/ossec/var/run/wazuh-execd-*.pid": {
+>>>>>>> dev-agent-process-unified
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -1679,14 +1667,6 @@
         "prot": "-rw-r--r--",
         "type": "file",
         "user": "ossec"
-    },
-    "/var/ossec/var/run/wazuh-syscheckd-*.pid": {
-        "class": "dynamic",
-        "group": "ossec",
-        "mode": "0640",
-        "prot": "-rw-r-----",
-        "type": "file",
-        "user": "root"
     },
     "/var/ossec/var/run/wazuh-modulesd-*.pid": {
         "class": "dynamic",
