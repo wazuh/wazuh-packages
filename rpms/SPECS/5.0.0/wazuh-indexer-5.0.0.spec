@@ -136,8 +136,8 @@ mkdir -p %{buildroot}%{LOG_DIR}
 cp -pr $ODFE_DIR/* %{buildroot}%{_localstatedir}/
 
 # Add custom tools
-cp files/wazuh-passwords-tool.sh %{buildroot}%{_localstatedir}/bin
-cp files/wazuh-cert-tool.sh %{buildroot}%{_localstatedir}/bin
+install -m 0750 files/wazuh-passwords-tool.sh %{buildroot}%{_localstatedir}/bin
+install -m 0750 files/wazuh-cert-tool.sh %{buildroot}%{_localstatedir}/bin
 cp files/instances.yml %{buildroot}%{_localstatedir}/bin
 
 # Copy configuration files from documentation repo
@@ -151,7 +151,7 @@ cp files/config_files/etc/sysconfig/%{SERVICE_NAME} %{buildroot}/etc/sysconfig/%
 cp files/config_files/usr/lib/tmpfiles.d/%{SERVICE_NAME}.conf %{buildroot}/usr/lib/tmpfiles.d/%{SERVICE_NAME}.conf
 cp files/config_files/usr/lib/sysctl.d/%{SERVICE_NAME}.conf %{buildroot}/usr/lib/sysctl.d/%{SERVICE_NAME}.conf
 cp files/config_files/usr/lib/systemd/system/%{SERVICE_NAME}.service %{buildroot}/usr/lib/systemd/system/%{SERVICE_NAME}.service
-cp files/config_files/systemd-entrypoint %{buildroot}%{_localstatedir}/bin
+install -m 0755 files/config_files/systemd-entrypoint %{buildroot}%{_localstatedir}/bin
 
 # Service for performance analyzer
 cp files/config_files/usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service %{buildroot}/usr/lib/systemd/system/
@@ -212,9 +212,10 @@ sed -i 's!%{CONFIG_DIR}/!%{buildroot}%{_localstatedir}/config/!'  %{buildroot}%{
 sed -i 's!/var/!%{buildroot}/var/!'  %{buildroot}%{_localstatedir}/config/jvm.options
 sed -i 's!/usr/!%{buildroot}/usr/!'  %{buildroot}%{_localstatedir}/config/jvm.options
 
-chown wazuh-indexer:wazuh-indexer %{buildroot}%{_localstatedir}/ -R
+chown root:wazuh-indexer %{buildroot}%{_localstatedir}/ -R
+chown wazuh-indexer:wazuh-indexer %{buildroot}%{_localstatedir}/config -R
 chown wazuh-indexer:wazuh-indexer %{buildroot}/var -R
-chown wazuh-indexer:wazuh-indexer %{buildroot}/etc -R
+chown root:wazuh-indexer %{buildroot}/etc -R
 
 echo "wazuh-indexer hard nproc 4096" >> /etc/security/limits.conf
 echo "wazuh-indexer soft nproc 4096" >> /etc/security/limits.conf
@@ -250,7 +251,7 @@ rm -f %{buildroot}%{LIB_DIR}/batch_metrics_enabled.conf
 rm -f %{buildroot}%{LIB_DIR}/logging_enabled.conf
 rm -f %{buildroot}%{LIB_DIR}/performance_analyzer_enabled.conf
 rm -f %{buildroot}%{LIB_DIR}/rca_enabled.conf
-
+rm -f %{buildroot}%{_localstatedir}/opendistro-tar-install.sh
 
 exit 0
 
@@ -262,13 +263,7 @@ rm -fr %{buildroot}
 # -----------------------------------------------------------------------------
 
 %files
-%defattr(0644,root,root,0755)
-
-# First include all installation directory files, with default attributes, then list files with different
-# attributes as exceptions. This causes a warning about file listed twice to appear while building.
-#
-# TODO: Check if there is a better option to do this, without needing to list every file
-%{_localstatedir}
+%defattr(-,root,root,0755)
 
 # Configuration files, located outsie of the installation directory
 %dir %attr(2750, root, %{GROUP}) "%{CONFIG_DIR}"
@@ -290,124 +285,47 @@ rm -fr %{buildroot}
 %attr(0644, root, root) "/usr/lib/tmpfiles.d/%{SERVICE_NAME}.conf"
 
 # Data folders
-%dir %attr(0755, root, root) "%{_localstatedir}/data"
 %dir %attr(2750, %{USER}, %{GROUP}) "%{LIB_DIR}"
 %dir %attr(2750, %{USER}, %{GROUP}) "%{LOG_DIR}"
 
-# Elasticsearch initial data. Generated from running securityadmin.sh and then copied by the post script
-# to /var/lib/wazuh-indexer/nodes
-%attr(-, %{USER}, %{GROUP}) "%{_localstatedir}/initial_nodes"
 
-# Binaries
-%attr(755, root, root) %{_localstatedir}/bin/systemd-entrypoint
-%attr(755, root, root) %{_localstatedir}/bin/elasticsearch
-%attr(755, root, root) %{_localstatedir}/bin/elasticsearch-cli
-%attr(755, root, root) %{_localstatedir}/bin/elasticsearch-env
-%attr(755, root, root) %{_localstatedir}/bin/elasticsearch-env-from-file
-%attr(755, root, root) %{_localstatedir}/bin/elasticsearch-keystore
-%attr(755, root, root) %{_localstatedir}/bin/elasticsearch-node
-%attr(755, root, root) %{_localstatedir}/bin/elasticsearch-plugin
-%attr(755, root, root) %{_localstatedir}/bin/elasticsearch-shard
+%dir %{_localstatedir}
+%{_localstatedir}/bin
+%{_localstatedir}/data
+%{_localstatedir}/initial_nodes
+%{_localstatedir}/jdk
+%{_localstatedir}/lib
+%{_localstatedir}/LICENSE.txt
+%{_localstatedir}/logs
+%{_localstatedir}/modules
+%{_localstatedir}/NOTICE.txt
+%attr(-, %{USER}, %{GROUP}) %{_localstatedir}/performance-analyzer-rca
+%dir %{_localstatedir}/plugins
+%{_localstatedir}/plugins/opendistro-alerting
+%{_localstatedir}/plugins/opendistro-anomaly-detection
+%{_localstatedir}/plugins/opendistro-asynchronous-search
+%{_localstatedir}/plugins/opendistro-index-management
+%{_localstatedir}/plugins/opendistro-job-scheduler
+%{_localstatedir}/plugins/opendistro-knn
+%{_localstatedir}/plugins/opendistro-performance-analyzer
+%{_localstatedir}/plugins/opendistro-reports-scheduler
+%{_localstatedir}/plugins/opendistro-sql
+%{_localstatedir}/README.asciidoc
 
-# Wazuh tools.
-# TODO: Which is the right path for them?
-%attr(750, root, %{GROUP}) %{_localstatedir}/bin/wazuh-passwords-tool.sh
-%attr(750, root, %{GROUP}) %{_localstatedir}/bin/wazuh-cert-tool.sh
-%attr(640, root, %{GROUP}) %{_localstatedir}/bin/instances.yml
-
-# Embedded JDK
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk"
-%dir %attr(0755, root, root) "%{_localstatedir}/jdk/bin"
-%attr(0755, root, root) "%{_localstatedir}/jdk/bin/jaotc"
-%attr(0755, root, root) "%{_localstatedir}/jdk/bin/jar"
-%attr(0755, root, root) "%{_localstatedir}/jdk/bin/jarsigner"
-%attr(0755, root, root) "%{_localstatedir}/jdk/bin/java"
-%attr(0755, root, root) "%{_localstatedir}/jdk/bin/javac"
-%attr(0755, root, root) "%{_localstatedir}/jdk/bin/javadoc"
-%attr(0755, root, root) "%{_localstatedir}/jdk/bin/javap"
-%attr(0755, root, root) "%{_localstatedir}/jdk/bin/jcmd"
-%attr(0755, root, root) "%{_localstatedir}/jdk/bin/jconsole"
-%attr(0755, root, root) "%{_localstatedir}/jdk/bin/jdb"
-%attr(0755, root, root) "%{_localstatedir}/jdk/bin/jdeprscan"
-%attr(0755, root, root) "%{_localstatedir}/jdk/bin/jdeps"
-%attr(0755, root, root) "%{_localstatedir}/jdk/bin/jfr"
-%attr(0755, root, root) "%{_localstatedir}/jdk/bin/jhsdb"
-%attr(0755, root, root) "%{_localstatedir}/jdk/bin/jimage"
-%attr(0755, root, root) "%{_localstatedir}/jdk/bin/jinfo"
-%attr(0755, root, root) "%{_localstatedir}/jdk/bin/jlink"
-%attr(0755, root, root) "%{_localstatedir}/jdk/bin/jmap"
-%attr(0755, root, root) "%{_localstatedir}/jdk/bin/jmod"
-%attr(0755, root, root) "%{_localstatedir}/jdk/bin/jpackage"
-%attr(0755, root, root) "%{_localstatedir}/jdk/bin/jps"
-%attr(0755, root, root) "%{_localstatedir}/jdk/bin/jrunscript"
-%attr(0755, root, root) "%{_localstatedir}/jdk/bin/jshell"
-%attr(0755, root, root) "%{_localstatedir}/jdk/bin/jstack"
-%attr(0755, root, root) "%{_localstatedir}/jdk/bin/jstat"
-%attr(0755, root, root) "%{_localstatedir}/jdk/bin/jstatd"
-%attr(0755, root, root) "%{_localstatedir}/jdk/bin/keytool"
-%attr(0755, root, root) "%{_localstatedir}/jdk/bin/rmid"
-%attr(0755, root, root) "%{_localstatedir}/jdk/bin/rmiregistry"
-%attr(0755, root, root) "%{_localstatedir}/jdk/bin/serialver"
-%attr(0755, root, root) "%{_localstatedir}/jdk/lib/jspawnhelper"
-
-
-
-# Plugins
+# Change ownership and permissions for security plugin as they are set by its RPM
 %dir %attr(755, root, %{GROUP}) %{_localstatedir}/plugins/opendistro_security
 %attr(644, root, %{GROUP}) %{_localstatedir}/plugins/opendistro_security/*.jar
 %attr(644, root, %{GROUP}) %{_localstatedir}/plugins/opendistro_security/plugin-security.policy
 %attr(644, root, %{GROUP}) %{_localstatedir}/plugins/opendistro_security/plugin-descriptor.properties
 %dir %attr(755, root, %{GROUP}) %{_localstatedir}/plugins/opendistro_security/securityconfig
-%attr(640, root, %{GROUP}) %{_localstatedir}/plugins/opendistro_security/securityconfig/roles_mapping.yml
-%attr(640, root, %{GROUP}) %{_localstatedir}/plugins/opendistro_security/securityconfig/roles.yml
-%attr(640, root, %{GROUP}) %{_localstatedir}/plugins/opendistro_security/securityconfig/elasticsearch.yml.example
-%attr(640, root, %{GROUP}) %{_localstatedir}/plugins/opendistro_security/securityconfig/tenants.yml
-%attr(640, root, %{GROUP}) %{_localstatedir}/plugins/opendistro_security/securityconfig/internal_users.yml
-%attr(640, root, %{GROUP}) %{_localstatedir}/plugins/opendistro_security/securityconfig/config.yml
-%attr(640, root, %{GROUP}) %{_localstatedir}/plugins/opendistro_security/securityconfig/action_groups.yml
-%attr(640, root, %{GROUP}) %{_localstatedir}/plugins/opendistro_security/securityconfig/whitelist.yml
-%attr(640, root, %{GROUP}) %{_localstatedir}/plugins/opendistro_security/securityconfig/audit.yml
-%attr(640, root, %{GROUP}) %{_localstatedir}/plugins/opendistro_security/securityconfig/nodes_dn.yml
+%attr(0640, root, %{GROUP}) %{_localstatedir}/plugins/opendistro_security/securityconfig/*
 %dir %attr(755, root, %{GROUP}) %{_localstatedir}/plugins/opendistro_security/tools
-%attr(750, root, %{GROUP}) %{_localstatedir}/plugins/opendistro_security/tools/securityadmin.sh
-%attr(750, root, %{GROUP}) %{_localstatedir}/plugins/opendistro_security/tools/audit_config_migrater.bat
-%attr(750, root, %{GROUP}) %{_localstatedir}/plugins/opendistro_security/tools/hash.sh
-%attr(750, root, %{GROUP}) %{_localstatedir}/plugins/opendistro_security/tools/install_demo_configuration.sh
-%attr(750, root, %{GROUP}) %{_localstatedir}/plugins/opendistro_security/tools/securityadmin.bat
-%attr(750, root, %{GROUP}) %{_localstatedir}/plugins/opendistro_security/tools/hash.bat
-%attr(750, root, %{GROUP}) %{_localstatedir}/plugins/opendistro_security/tools/audit_config_migrater.sh
-
-%attr(755, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/extensions/performance-analyzer-agent
-
-%attr(755, root, root) %{_localstatedir}/bin/performance-analyzer-agent-cli
-%attr(755, root, root) %{_localstatedir}/opendistro-tar-install.sh
-
-%attr(755, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/performance-analyzer-rca/bin/performance-analyzer-rca
-%attr(755, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/performance-analyzer-rca/bin/performance-analyzer-rca.bat
-%attr(755, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_bin/performance-analyzer-agent
-
-%dir %attr(755, %{USER}, %{GROUP}) %{_localstatedir}/performance-analyzer-rca
-%dir %attr(755, %{USER}, %{GROUP}) %{_localstatedir}/performance-analyzer-rca/bin
-%attr(755, %{USER}, %{GROUP}) %{_localstatedir}/performance-analyzer-rca/bin/performance-analyzer-rca
-%attr(755, %{USER}, %{GROUP}) %{_localstatedir}/performance-analyzer-rca/bin/performance-analyzer-rca.bat
-%dir %attr(755, %{USER}, %{GROUP}) %{_localstatedir}/performance-analyzer-rca/pa_bin
-%attr(755, %{USER}, %{GROUP}) %{_localstatedir}/performance-analyzer-rca/pa_bin/performance-analyzer-agent
-%dir %attr(755, %{USER}, %{GROUP}) %{_localstatedir}/performance-analyzer-rca/pa_config
-%attr(644, %{USER}, %{GROUP}) %{_localstatedir}/performance-analyzer-rca/pa_config/*
-%dir %attr(755, %{USER}, %{GROUP}) %{_localstatedir}/performance-analyzer-rca/lib
-%attr(644, %{USER}, %{GROUP}) %{_localstatedir}/performance-analyzer-rca/lib/*.jar
-
-
-%attr(755, root, root) %{_localstatedir}/plugins/opendistro-performance-analyzer/pa_bin/performance-analyzer-agent
-
-# KNN Lib
-%attr(0755, root, root) "%{_localstatedir}/plugins/opendistro-knn/knn-lib/libKNNIndexV2_0_11.so"
+%attr(0750, root, %{GROUP}) %{_localstatedir}/plugins/opendistro_security/tools/*
 
 
 
 
 ### The following scripts are based on elasticsearch-oss and opendistro-performance-analyzer scripts and adapted to wazuh-indexer
-
 
 %pre -p /bin/bash
 #!/bin/bash
