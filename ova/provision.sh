@@ -97,6 +97,24 @@ rm ${INSTALLER}
 systemctl stop kibana filebeat elasticsearch
 systemctl enable wazuh-manager
 
+# /usr/share/kibana/bin/kibana-plugin remove wazuh
+
+# Custom Welcome Page
+# Edit window title
+sed -i "s/null, \"Elastic\"/null, \"Wazuh\"/g" /usr/share/kibana/src/core/server/rendering/views/template.js
+
+# Download custom files
+curl -so /vagrant/custom_welcome.tar.gz https://wazuh-demo.s3-us-west-1.amazonaws.com/custom_welcome_opendistro_docker.tar.gz
+tar -xf /vagrant/custom_welcome.tar.gz -C /vagrant
+
+# Copy necesaries files
+cp /vagrant/custom_welcome/wazuh_logo_circle.svg /usr/share/kibana/src/core/server/core_app/assets/
+cp /vagrant/custom_welcome/wazuh_wazuh_bg.svg /usr/share/kibana/src/core/server/core_app/assets/
+cp /vagrant/custom_welcome/template.js.hbs /usr/share/kibana/src/legacy/ui/ui_render/bootstrap/template.js.hbs
+
+# Edit the ui
+less /vagrant/assets/customWelcomeKibana.txt >> /usr/share/kibana/src/core/server/core_app/assets/legacy_light_theme.css
+
 # Get actual RAM of machine
 ram_gb=$(free -m | awk '/^Mem:/{print $2}')
 
