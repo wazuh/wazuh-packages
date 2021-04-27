@@ -97,8 +97,6 @@ rm ${INSTALLER}
 systemctl stop kibana filebeat elasticsearch
 systemctl enable wazuh-manager
 
-# /usr/share/kibana/bin/kibana-plugin remove wazuh
-
 # Custom Welcome Page
 # Edit window title
 sed -i "s/null, \"Elastic\"/null, \"Wazuh\"/g" /usr/share/kibana/src/core/server/rendering/views/template.js
