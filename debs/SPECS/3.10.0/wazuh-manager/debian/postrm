@@ -25,8 +25,6 @@ case "$1" in
         rm -rf ${WAZUH_TMP_DIR}
     fi
 
-
-
     if [ -d /run/systemd/system ] ; then
         systemctl disable wazuh-manager > /dev/null 2>&1
         systemctl daemon-reload
