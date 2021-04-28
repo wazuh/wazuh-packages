@@ -9,12 +9,8 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-# Use example ./generate_ova.sh -p 4.1 -v 4.1.4 -o 1.12.0 -f 7.10.0 -r dev -b wj-2421-ova-rework 
-
-
 set -e
 # Dependencies: vagrant, virtualbox, ovftool
-
 
 # CONFIGURATION VARIABLES
 
@@ -44,16 +40,17 @@ help () {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo "  -p, --package          [Required] Select Git branch or tag from wazuh-packages repository."
-    echo "  -v, --version          [Required] Version of wazuh to install on VM."
+    echo "  -w, --wazuh            [Required] Version of wazuh to install on VM."
     echo "  -o, --opendistro       [Required] Version of Open Distro for Elasticsearch."
     echo "  -f, --filebeat         [Required] Filebeat's version."
     echo "  -r, --repository       [Required] Select the software repository [prod/dev]."
-    echo "  -b, --branch           [Optional] Branch/tag of the Wazuh repository."
+    echo "  -b, --branch           [Optional] Branch/tag of the Wazuh repository. By Default: master"
     echo "  -s, --store <path>     [Optional] Set the destination absolute path of package."
-    echo "  -c, --checksum <path>  [Optional] Generate checksum."
+    echo "  -c, --checksum <path>  [Optional] Generate checksum. By Default: no"
     echo "  -u, --ui-revision      [Optional] Revision of the UI package. By default, 1."
     echo "  -h, --help             [  Util  ] Show this help."
     echo
+    echo "Use example: ./generate_ova.sh -p 4.1 -w 4.1.5 -o 1.12.0 -f 7.10.0 -r prod -b wj-2421-ova-rework"
     exit $1
 }
 
@@ -73,7 +70,6 @@ build_ova() {
     OVF_VM="wazuh-${OVA_VERSION}.ovf"
     OVA_FIXED="wazuh-${OVA_VERSION}-fixed.ova"
     OVA_VMDK="wazuh-${OVA_VERSION}-disk001.vmdk"
-    export BRANCH
 
     # Delete OVA/OVF files if exists
     if [ -e "${OUTPUT_DIR}/${OVA_VM}" ] || [ -e "${OUTPUT_DIR}/${OVF_VM}" ]; then
@@ -117,18 +113,20 @@ build_ova() {
 }
 
 check_version() {
-    if [ "${PACKAGES_REPOSITORY}" = "prod" ]; then
-        WAZUH_MAJOR="$(echo ${WAZUH_VERSION} | head -c 1)"
-        if [ "${WAZUH_MAJOR}" = "3" ]; then
-            curl -Isf https://packages.wazuh.com/${WAZUH_MAJOR}.x/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}.zip > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${ELK_VERSION} not supported." && exit 1 )
-        else
+    WAZUH_MAJOR="$(echo ${WAZUH_VERSION} | head -c 1)"
+    if [ "${WAZUH_MAJOR}" = "4" ]; then
+        if [ "${PACKAGES_REPOSITORY}" = "prod" ]; then
             curl -Isf https://packages.wazuh.com/${WAZUH_MAJOR}.x/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-${UI_REVISION}.zip > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${ELK_VERSION}-${UI_REVISION} not supported." && exit 1 )
+        elif [ "${PACKAGES_REPOSITORY}" = "dev" ]; then
+            curl -Isf https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-${UI_REVISION}.zip > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${ELK_VERSION} not supported." && exit 1 )
+        else
+            logger "Error, repository value must take 'prod' or 'dev' value."
+            echo "Error, repository value must take 'prod' or 'dev' value."
+            exit
         fi
-    elif [ "${PACKAGES_REPOSITORY}" = "dev" ]; then
-        curl -Isf https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-${UI_REVISION}.zip > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${ELK_VERSION} not supported." && exit 1 )
-    else
-        logger "Error, repository value must take 'prod' or 'dev' value."
-        echo "Error, repository value must take 'prod' or 'dev' value."
+    else 
+        logger "Error, only 4.x versions are supported"
+        echo "Error, only 4.x versions are supported"
         exit
     fi
 }
@@ -142,7 +140,7 @@ main() {
             help 0
         ;;
 
-        "-v" | "--version")
+        "-w" | "--wazuh")
             if [ -n "$2" ]; then
                 export WAZUH_VERSION="$2"
                 HAVE_VERSION=true
