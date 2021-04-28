@@ -180,6 +180,7 @@ fi
 exit 0
 
 %pre
+
 # Create the ossec group if it doesn't exists
 if command -v getent > /dev/null 2>&1 && ! getent group ossec > /dev/null 2>&1; then
   groupadd -r ossec
@@ -210,6 +211,8 @@ if [ $1 = 2 ]; then
 fi
 
 %post
+
+echo "VERSION=\"v4.2.0\"" > /etc/ossec-init.conf
 if [ $1 = 2 ]; then
   if [ -d %{_localstatedir}/logs/ossec ]; then
     rm -rf %{_localstatedir}/logs/wazuh
@@ -473,7 +476,6 @@ rm -fr %{buildroot}
 %defattr(-,root,root)
 %{_initrddir}/wazuh-agent
 /usr/lib/systemd/system/wazuh-agent.service
-%attr(640, root, ossec) %ghost %{_sysconfdir}/ossec-init.conf
 %dir %attr(750,root,ossec) %{_localstatedir}
 %attr(750,root,ossec) %{_localstatedir}/agentless
 %dir %attr(770,root,ossec) %{_localstatedir}/.ssh

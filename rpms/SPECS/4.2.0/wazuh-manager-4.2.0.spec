@@ -284,6 +284,7 @@ fi
 
 %post
 
+echo "VERSION=\"v4.2.0\"" > /etc/ossec-init.conf
 if [ $1 = 2 ]; then
   if [ -d %{_localstatedir}/logs/ossec ]; then
     rm -rf %{_localstatedir}/logs/wazuh
@@ -570,7 +571,6 @@ rm -fr %{buildroot}
 %defattr(-,root,ossec)
 %{_initrddir}/wazuh-manager
 /usr/lib/systemd/system/wazuh-manager.service
-%attr(640, root, ossec) %ghost %{_sysconfdir}/ossec-init.conf
 %dir %attr(750, root, ossec) %{_localstatedir}
 %attr(750, root, ossec) %{_localstatedir}/agentless
 %dir %attr(750, root, ossec) %{_localstatedir}/active-response
