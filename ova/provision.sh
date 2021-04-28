@@ -128,3 +128,6 @@ userdel -rf vagrant
 
 # Remove vagrant shared folder
 rm -rf /vagrant
+
+# Reboot is required to apply settings
+reboot now
