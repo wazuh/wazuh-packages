@@ -70,6 +70,7 @@ build_ova() {
     OVF_VM="wazuh-${OVA_VERSION}.ovf"
     OVA_FIXED="wazuh-${OVA_VERSION}-fixed.ova"
     OVA_VMDK="wazuh-${OVA_VERSION}-disk001.vmdk"
+    OVA_VDI="wazuh-${OVA_VERSION}-disk001.vdi"
 
     # Delete OVA/OVF files if exists
     if [ -e "${OUTPUT_DIR}/${OVA_VM}" ] || [ -e "${OUTPUT_DIR}/${OVF_VM}" ]; then
@@ -87,13 +88,37 @@ build_ova() {
     VM_EXPORT=$(vboxmanage list vms | grep -i vm_wazuh | cut -d "\"" -f2)
     
     # Create OVA with machine
-    vboxmanage export ${VM_EXPORT} -o ${OVA_VM} --vsys 0 --product "Wazuh v${WAZUH_VERSION} OVA" --producturl "https://packages.wazuh.com/vm/wazuh-${OVA_VERSION}.ova" --vendor "Wazuh, inc <info@wazuh.com>" --vendorurl "https://wazuh.com" --version "$OVA_VERSION" --description "Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring." || clean 1
+    vboxmanage export ${VM_EXPORT} -o ${OVA_VM} \
+    --vsys 0 \
+    --product "Wazuh v${WAZUH_VERSION} OVA" \
+    --producturl "https://packages.wazuh.com/vm/wazuh-${OVA_VERSION}.ova" \
+    --vendor "Wazuh, inc <info@wazuh.com>" --vendorurl "https://wazuh.com" \
+    --version "$OVA_VERSION" --description "Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring." \
+    || clean 1
 
     # Destroy vagrant machine
     vagrant destroy -f
 
     # Extract ova
     tar -xvf ${OVA_VM}
+
+    
+    echo "VMDK Size $(stat --printf="%s" ${OVA_VMDK})"
+
+    echo "Cloning vmdk to vdi"
+    vboxmanage clonehd ${OVA_VMDK} ${OVA_VDI} --format VDI
+
+    echo "Optimizing disk"
+    vboxmanage modifymedium disk ${OVA_VDI} --compact
+
+    echo "VDI Size $(stat --printf="%s" ${OVA_VDI})"
+
+    echo "Cloning vdi to vmdk"
+    rm ${OVA_VMDK}
+    vboxmanage clonehd ${OVA_VDI} ${OVA_VMDK} --format VMDK
+
+    echo "VMDK Size Optimized $(stat --printf="%s" ${OVA_VMDK}")"
+
 
     echo "Setting up ova for VMware ESXi"
 
