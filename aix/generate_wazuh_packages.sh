@@ -15,8 +15,6 @@ reference="master"
 revision="1"
 target_dir="${current_path}/output/"
 compute_checksums="no"
-build_chroot="no"
-chroot_path="/usr/pkg"
 checksum_dir=""
 
 # Check if running as root
@@ -42,56 +40,12 @@ show_help() {
   echo "    -s,  --store  <path>          Directory to store the resulting RPM package. By default: ${target_dir}"
   echo "    -p,  --install-path <path>    Installation path for the package. By default: ${install_path}"
   echo "    -c,  --checksum <path>        Compute the SHA512 checksum of the RPM package."
-  echo "    --chroot                      Create a chroot jail to build the package in ${chroot_path}."
   echo "    -h,  --help                   Shows this help"
   echo
   exit $1
 }
 
-build_chroot() {
-  # Preparing chroot environment
-  mkdir -p ${chroot_path}/aix
-  mkdir -p ${chroot_path}/bin
-  mkdir -p ${chroot_path}/dev
-  mkdir -p ${chroot_path}/etc
-  mkdir -p ${chroot_path}/lib
-  mkdir -p ${chroot_path}/opt/freeware
-  mkdir -p ${chroot_path}/proc
-  mkdir -p ${chroot_path}/sbin
-  mkdir -p ${chroot_path}/tmp
-  mkdir -p ${chroot_path}/usr
-  mkdir -p ${chroot_path}/var
-  mkdir -p ${chroot_path}/usr/bin
-  mkdir -p ${chroot_path}/usr/ccs
-  mkdir -p ${chroot_path}/usr/custom
-  mkdir -p ${chroot_path}/usr/include
-  mkdir -p ${chroot_path}/usr/lib64
-  mkdir -p ${chroot_path}/usr/local
-  mkdir -p ${chroot_path}/usr/sbin
-  mkdir -p ${chroot_path}/usr/tmp
-
-  cp -R ${current_path}/* ${chroot_path}/aix/
-  cp -R /bin/* ${chroot_path}/bin/
-  cp -R /dev/* ${chroot_path}/dev/
-  cp -R /etc/* ${chroot_path}/etc/
-  rsync -v -a --exclude 'nls' /lib/ ${chroot_path}/lib/
-  cp -R /opt/freeware/* ${chroot_path}/opt/freeware/
-  cp -R /sbin/* ${chroot_path}/sbin/
-  cp -R /usr/bin ${chroot_path}/usr/
-  cp -R /usr/ccs ${chroot_path}/usr/
-  cp -R /usr/custom ${chroot_path}/usr/
-  cp -R /usr/include ${chroot_path}/usr/
-  cp -R /usr/lib64 ${chroot_path}/usr/
-  cp -R /usr/lib64 ${chroot_path}/usr/
-  cp -R /usr/local ${chroot_path}/usr/
-  cp -R /usr/sbin ${chroot_path}/usr/
-  cp -R /usr/tmp ${chroot_path}/usr/
-  rsync -v -a --exclude 'nls' /usr/lib/ ${chroot_path}/usr/lib/
-
-  chroot ${chroot_path}/ /aix/$(basename $0) -c ${checksum_dir} -p ${install_path} -b ${reference} -s ${target_dir}
-}
-
-# Function to install perl 5.10 on AIX 5
+# Function to install perl 5.10 on AIX
 build_perl() {
 
   wget http://www.cpan.org/src/5.0/perl-5.10.1.tar.gz
@@ -105,29 +59,14 @@ build_perl() {
   return 0
 }
 
-# Function to install libssh2 on AIX 5
-build_libssh2() {
-  wget http://packages.wazuh.com/utils/libssh2/libssh2-1.8.2.tar.gz
-  gunzip libssh2-1.8.2.tar.gz && tar -xvf libssh2-1.8.2.tar
-  cd libssh2-1.8.2 && ./configure --prefix=/usr/custom
-  gmake && gmake install
-  cd .. && rm -rf libssh2-1.8.2*
-}
-
-build_curl() {
-  wget http://packages.wazuh.com/utils/curl/curl-7.72.0.tar.gz
-  gunzip curl-7.72.0.tar.gz && tar -xvf curl-7.72.0.tar
-  cd curl-7.72.0 && ./configure --with-libssh2=/usr/custom
-  gmake && gmake install
-  ln -fs /usr/local/bin/curl /bin/curl
-  ln -fs /usr/local/bin/curl /opt/freeware/bin/curl
-  cd .. && rm -rf curl-7.72.0*
-}
-
 build_cmake() {
+  mv /opt/freeware/lib/gcc/powerpc-ibm-aix6.1.1.0/6.3.0/include-fixed/sys/socket.h /opt/freeware/lib/gcc/powerpc-ibm-aix6.1.1.0/6.3.0/include-fixed/sys/socket.h.bkp 
   curl -OL http://packages.wazuh.com/utils/cmake/cmake-3.12.4.tar.gz
-  gtar -zxvf cmake-3.12.4.tar.gz && cd cmake-3.12.4
-  ./bootstrap && gmake && gmake install && cd / && rm -rf cmake-3.12.4
+  gtar -zxf cmake-3.12.4.tar.gz && cd cmake-3.12.4
+  ./bootstrap
+  sed ' 1 s/.*/&-Wl,-bbigtoc/' Source/CMakeFiles/ctest.dir/link.txt | tee Source/CMakeFiles/ctest.dir/link.txt
+  sed ' 1 s/.*/&-Wl,-bbigtoc/' Source/CMakeFiles/cpack.dir/link.txt | tee Source/CMakeFiles/cpack.dir/link.txt
+  gmake && gmake install && cd / && rm -rf cmake-3.12.4
   ln -fs /usr/local/bin/cmake /usr/bin/cmake
 }
 
@@ -183,16 +122,8 @@ build_environment() {
   $rpm http://www.oss4aix.org/download/RPMS/popt/popt-1.16-2.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/rsync/rsync-3.1.3-1.aix5.1.ppc.rpm || true
   $rpm http://www.oss4aix.org/download/RPMS/nano/nano-2.5.3-1.aix5.1.ppc.rpm || true
-
-  if [[ "${aix_major}" = "5" ]]; then
-    $rpm http://www.oss4aix.org/download/RPMS/gcc/gcc-4.8.2-1.aix5.3.ppc.rpm || true
-    $rpm http://www.oss4aix.org/download/RPMS/gcc/gcc-cpp-4.8.2-1.aix5.3.ppc.rpm || true
-    $rpm http://www.oss4aix.org/download/RPMS/gcc/libgcc-4.8.2-1.aix5.3.ppc.rpm || true
-    $rpm http://www.oss4aix.org/download/RPMS/gcc/libstdc++-4.8.2-1.aix5.3.ppc.rpm || true
-    $rpm http://www.oss4aix.org/download/RPMS/gcc/libstdc++-devel-4.8.2-1.aix5.3.ppc.rpm || true
-    $rpm http://www.oss4aix.org/download/RPMS/libmpc/libmpc-1.0.2-1.aix5.1.ppc.rpm || true
-    $rpm http://www.oss4aix.org/download/RPMS/mpfr/mpfr-3.0.0-1.aix5.1.ppc.rpm || true
-  fi
+  $rpm http://www.oss4aix.org/download/RPMS/curl/curl-7.72.0-1.aix5.1.ppc.rpm || true
+  $rpm http://www.oss4aix.org/download/RPMS/tar/tar-1.32-1.aix5.1.ppc.rpm || true
 
   if [[ "${aix_major}" = "6" ]] || [[ "${aix_major}" = "7" ]]; then
     $rpm http://www.oss4aix.org/download/RPMS/isl/isl-0.18-1.aix5.1.ppc.rpm || true
@@ -231,11 +162,7 @@ build_environment() {
     $rpm http://www.oss4aix.org/download/RPMS/gcc/gcc-c++-6.3.0-1.aix7.2.ppc.rpm || true
   fi
 
-  if [[ "${aix_major}" = "5" ]]; then
-    build_perl
-    build_libssh2
-    build_curl
-  fi
+  build_perl
 
   if [[ "${aix_major}" = "6" ]] || [[ "${aix_major}" = "7" ]]; then
     build_cmake
@@ -372,10 +299,6 @@ main() {
                 shift 1
             fi
         ;;
-        "--chroot")
-          build_chroot="yes"
-          shift 1
-        ;;
         "-h"|"--help")
           show_help
           exit 0
@@ -393,16 +316,8 @@ main() {
     checksum_dir="${target_dir}"
   fi
 
-  if [[ "${build_chroot}" = "yes" ]]; then
-    build_chroot || exit 1
-  fi
-
   if [[ "${build_rpm}" = "yes" ]]; then
     build_package || exit 1
-  fi
-
-  if [[ "${build_chroot}" = "yes" ]]; then
-    rm -rf ${chroot_path} || exit 1
   fi
 
   return 0

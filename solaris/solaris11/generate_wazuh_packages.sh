@@ -64,13 +64,42 @@ build_environment() {
     /opt/csw/bin/pkgutil -y -i git
     /opt/csw/bin/pkgutil -y -i gmake
     /opt/csw/bin/pkgutil -y -i gcc5core
+    /opt/csw/bin/pkgutil -y -i gcc5g++
+
+     # Compile GCC-5.5 and CMake
+    curl -L http://packages.wazuh.com/utils/gcc/gcc-5.5.0.tar.gz | gtar xz
+    cd gcc-5.5.0
+    curl -L http://packages.wazuh.com/utils/gcc/mpfr-2.4.2.tar.bz2 | gtar xj
+    mv mpfr-2.4.2 mpfr
+    curl -L http://packages.wazuh.com/utils/gcc/gmp-4.3.2.tar.bz2 | gtar xj
+    mv gmp-4.3.2 gmp
+    curl -L http://packages.wazuh.com/utils/gcc/mpc-0.8.1.tar.gz | gtar xz
+    mv mpc-0.8.1 mpc
+    curl -L http://packages.wazuh.com/utils/gcc/isl-0.14.tar.bz2 | gtar xj
+    mv isl-0.14 isl
+    unset CPLUS_INCLUDE_PATH
+    unset LD_LIBRARY_PATH
+
+    mkdir -p /usr/local
+    ./configure --prefix=/usr/local/gcc-5.5.0 --enable-languages=c,c++ --disable-multilib --disable-libsanitizer --disable-bootstrap --with-ld=/usr/ccs/bin/ld --without-gnu-ld --with-gnu-as --with-as=/opt/csw/bin/gas
+    gmake -j$(nproc) && gmake install
+    export CPLUS_INCLUDE_PATH=/usr/local/gcc-5.5.0/include/c++/5.5.0
+    export LD_LIBRARY_PATH=/usr/local/gcc-5.5.0/lib
+    export PATH=/usr/sbin:/usr/bin:/usr/ccs/bin:/opt/csw/bin
+
+    echo "export PATH=/usr/sbin:/usr/bin:/usr/ccs/bin:/opt/csw/bin" >> /etc/profile
+
+    echo "export CPLUS_INCLUDE_PATH=/usr/local/gcc-5.5.0/include/c++/5.5.0" >> /etc/profile
+    echo "export LD_LIBRARY_PATH=/usr/local/gcc-5.5.0/lib" >> /etc/profile
+    rm -rf gcc-*
+    ln -sf /usr/local/gcc-5.5.0/bin/g++ /usr/bin/g++
 
     curl -sL http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz | gtar xz
     cd cmake-3.18.3
     ./bootstrap
     gmake -j$(nproc) && gmake install
     cd .. && rm -rf cmake-3.18.3
-    ln -s /usr/local/bin/cmake /usr/bin/cmake
+    ln -sf /usr/local/bin/cmake /usr/bin/cmake
 }
 
 compute_version_revision()
