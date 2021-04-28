@@ -117,7 +117,7 @@ build_ova() {
     rm ${OVA_VMDK}
     vboxmanage clonehd ${OVA_VDI} ${OVA_VMDK} --format VMDK
 
-    echo "VMDK Size Optimized $(stat --printf="%s" ${OVA_VMDK}")"
+    echo "VMDK Size Optimized $(stat --printf="%s" ${OVA_VMDK})"
 
 
     echo "Setting up ova for VMware ESXi"
