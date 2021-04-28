@@ -19,7 +19,8 @@ Welcome to the Wazuh OVA version
 Wazuh - ${WAZUH_VERSION}
 Open Distro for Elasticsearch - ${OPENDISTRO_VERSION}
 ELK - ${ELK_VERSION}
-Access the Wazuh Web Interface at https://\4{eth0}
+Access the Wazuh Web Interface at https://\4{eth0} with admin/wazuh
+Login with User: wazuh - Password: wazuh
 Thank you for using Wazuh!
 
 EOF
@@ -96,6 +97,11 @@ rm ${INSTALLER}
 # Stop services and enable manager
 systemctl stop kibana filebeat elasticsearch
 systemctl enable wazuh-manager
+
+# Change admin password for kibana
+curl -so wazuh-passwords-tool.sh https://raw.githubusercontent.com/wazuh/wazuh-documentation/4.1/resources/open-distro/tools/wazuh-passwords-tool.sh
+bash wazuh-passwords-tool.sh -u admin -p wazuh
+sed -i "s/password: \"wazuh\"/password: \"wazuh\"/g" /etc/filebeat/filebeat.yml
 
 # Custom Welcome Page
 # Edit window title
