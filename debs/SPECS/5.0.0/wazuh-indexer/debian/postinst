@@ -25,7 +25,7 @@ chown ':wazuh-indexer' '/usr/share/wazuh-indexer/bin/wazuh-cert-tool.sh'
 chown ':wazuh-indexer' '/usr/share/wazuh-indexer/bin/wazuh-passwords-tool.sh'
 chown ':wazuh-indexer' '/usr/share/wazuh-indexer/plugins/opendistro_security' -R
 chown 'wazuh-indexer:wazuh-indexer' '/var/lib/wazuh-indexer'
-chown 'wazuh-indexer:wazuh-indexer' '/var/lib/wazuh-indexer/nodes' -R
+chown 'wazuh-indexer:wazuh-indexer' '/usr/share/wazuh-indexer/initial_nodes' -R
 chmod '2750' '/var/lib/wazuh-indexer'
 chown 'wazuh-indexer:wazuh-indexer' '/var/log/wazuh-indexer'
 chmod '2750' '/var/log/wazuh-indexer'
