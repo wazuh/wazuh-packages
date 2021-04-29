@@ -99,24 +99,6 @@ build_ova() {
     # Extract ova
     tar -xvf ${OVA_VM}
 
-    
-    echo "VMDK Size $(stat --printf="%s" ${OVA_VMDK})"
-
-    echo "Cloning vmdk to vdi"
-    vboxmanage clonehd ${OVA_VMDK} ${OVA_VDI} --format VDI
-
-    echo "Optimizing disk"
-    vboxmanage modifymedium disk ${OVA_VDI} --compact
-
-    echo "VDI Size $(stat --printf="%s" ${OVA_VDI})"
-
-    echo "Cloning vdi to vmdk"
-    rm ${OVA_VMDK}
-    vboxmanage clonehd ${OVA_VDI} ${OVA_VMDK} --format VMDK
-
-    echo "VMDK Size Optimized $(stat --printf="%s" ${OVA_VMDK})"
-
-
     echo "Setting up ova for VMware ESXi"
 
     # Configure OVA for import to VMWare ESXi
