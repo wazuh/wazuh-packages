@@ -95,8 +95,8 @@ sh ${INSTALLER}
 rm ${INSTALLER}
 
 # Change admin password for kibana
-curl -so wazuh-passwords-tool.sh https://raw.githubusercontent.com/wazuh/wazuh-documentation/4.1/resources/open-distro/tools/wazuh-passwords-tool.sh
-bash wazuh-passwords-tool.sh -u admin -p wazuh
+curl -so /vagrant/wazuh-passwords-tool.sh https://raw.githubusercontent.com/wazuh/wazuh-documentation/4.1/resources/open-distro/tools/wazuh-passwords-tool.sh
+bash /vagrant/wazuh-passwords-tool.sh -u admin -p wazuh
 sed -i "s/password: \"wazuh\"/password: \"wazuh\"/g" /etc/filebeat/filebeat.yml
 
 # Stop services and enable manager
