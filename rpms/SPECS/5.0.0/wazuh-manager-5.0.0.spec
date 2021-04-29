@@ -600,16 +600,10 @@ rm -fr %{buildroot}
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-regex
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-remoted
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-reportd
-<<<<<<< HEAD
-%attr(750, root, ossec) %{_localstatedir}/bin/verify-agent-conf
-%attr(750, root, ossec) %{_localstatedir}/bin/wazuh-apid
-%attr(750, root, ossec) %{_localstatedir}/bin/wazuh-clusterd
-=======
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-syscheckd
 %attr(750, root, wazuh) %{_localstatedir}/bin/verify-agent-conf
 %attr(750, root, wazuh) %{_localstatedir}/bin/wazuh-apid
 %attr(750, root, wazuh) %{_localstatedir}/bin/wazuh-clusterd
->>>>>>> 9bba88c6... Merge 5.0.0 changes from master to 5.0-dev
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-db
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-modulesd
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/etc
@@ -825,10 +819,15 @@ rm -fr %{buildroot}
 * Mon Apr 26 2021 support <info@wazuh.com> - 4.2.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 <<<<<<< HEAD
+<<<<<<< HEAD
 * Thu Apr 22 2021 support <info@wazuh.com> - 4.1.5
 - More info: https://documentation.wazuh.com/current/release-notes/
 =======
 >>>>>>> 9bba88c6... Merge 5.0.0 changes from master to 5.0-dev
+=======
+* Thu Apr 22 2021 support <info@wazuh.com> - 4.1.5
+- More info: https://documentation.wazuh.com/current/release-notes/
+>>>>>>> c4742761... Add missing versions to changelog and specs
 * Mon Mar 29 2021 support <info@wazuh.com> - 4.1.4
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Sat Mar 20 2021 support <info@wazuh.com> - 4.1.3
