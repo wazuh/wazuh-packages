@@ -440,9 +440,11 @@ if [ -f "/etc/sysconfig/%{SERVICE_NAME}" ]; then
     . "/etc/sysconfig/%{SERVICE_NAME}"
 fi
 
-if [ ! -d "%{LIB_DIR}/nodes" ]; then
-    cp -r %{INSTALL_DIR}/initial_nodes %{LIB_DIR}/nodes
-    chown %{USER}:%{GROUP} %{LIB_DIR}/nodes -R
+if [ ! "x$SUBSEQUENT_NODE" = "xtrue" ]; then
+    if [ ! -d "%{LIB_DIR}/nodes" ]; then
+        cp -r %{INSTALL_DIR}/initial_nodes %{LIB_DIR}/nodes
+        chown %{USER}:%{GROUP} %{LIB_DIR}/nodes -R
+    fi
 fi
 
 export ES_PATH_CONF=${ES_PATH_CONF:-%{CONFIG_DIR}}

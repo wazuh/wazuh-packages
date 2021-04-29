@@ -66,9 +66,11 @@ if [ -f "/etc/default/wazuh-indexer" ]; then
     . "/etc/default/wazuh-indexer"
 fi
 
-if [ ! -d "/var/lib/wazuh-indexer/nodes" ]; then
-    cp -r /usr/share/wazuh-indexer/initial_nodes /var/lib/wazuh-indexer/nodes
-    chown wazuh-indexer:wazuh-indexer /var/lib/wazuh-indexer/nodes -R
+if [ ! "x$SUBSEQUENT_NODE" = "xtrue" ]; then
+    if [ ! -d "/var/lib/wazuh-indexer/nodes" ]; then
+        cp -r /usr/share/wazuh-indexer/initial_nodes /var/lib/wazuh-indexer/nodes
+        chown wazuh-indexer:wazuh-indexer /var/lib/wazuh-indexer/nodes -R
+    fi
 fi
 
 export ES_PATH_CONF=${ES_PATH_CONF:-/etc/wazuh-indexer}
