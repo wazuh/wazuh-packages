@@ -212,7 +212,7 @@ fi
 
 %post
 
-echo "VERSION=\"v4.2.0\"" > /etc/ossec-init.conf
+echo "VERSION=\"$(%{_localstatedir}/bin/wazuh-control info -v)\"" > /etc/ossec-init.conf
 if [ $1 = 2 ]; then
   if [ -d %{_localstatedir}/logs/ossec ]; then
     rm -rf %{_localstatedir}/logs/wazuh
