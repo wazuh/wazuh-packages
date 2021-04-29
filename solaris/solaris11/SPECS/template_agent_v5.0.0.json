@@ -1648,6 +1648,22 @@
         "type": "file",
         "user": "wazuh"
     },
+    "/var/ossec/var/run/wazuh-execd-*.pid": {
+        "class": "dynamic",
+        "group": "wazuh",
+        "mode": "0640",
+        "prot": "-rw-r-----",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/var/run/wazuh-logcollector-*.pid": {
+        "class": "dynamic",
+        "group": "wazuh",
+        "mode": "0640",
+        "prot": "-rw-r-----",
+        "type": "file",
+        "user": "root"
+    },
     "/var/ossec/var/run/wazuh-logcollector.state": {
         "class": "static",
         "group": "wazuh",
@@ -1655,6 +1671,14 @@
         "prot": "-rw-r--r--",
         "type": "file",
         "user": "wazuh"
+    },
+    "/var/ossec/var/run/wazuh-syscheckd-*.pid": {
+        "class": "dynamic",
+        "group": "wazuh",
+        "mode": "0640",
+        "prot": "-rw-r-----",
+        "type": "file",
+        "user": "root"
     },
     "/var/ossec/var/run/wazuh-modulesd-*.pid": {
         "class": "dynamic",
