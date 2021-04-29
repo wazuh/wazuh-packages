@@ -283,7 +283,7 @@ if [ $1 = 2 ]; then
 fi
 
 %post
-set -x
+
 echo "VERSION=\"$(%{_localstatedir}/bin/wazuh-control info -v)\"" > /etc/ossec-init.conf
 if [ $1 = 2 ]; then
   if [ -d %{_localstatedir}/logs/ossec ]; then
@@ -530,6 +530,7 @@ fi
 
 # posttrans code is the last thing executed in a install/upgrade
 %posttrans
+
 if [ -f %{_sysconfdir}/systemd/system/wazuh-manager.service ]; then
   rm -rf %{_sysconfdir}/systemd/system/wazuh-manager.service
   systemctl daemon-reload > /dev/null 2>&1
@@ -570,6 +571,7 @@ rm -fr %{buildroot}
 %files
 %defattr(-,root,ossec)
 %{_initrddir}/wazuh-manager
+%attr(640, root, ossec) %verify(not md5 size mtime) %ghost %{_sysconfdir}/ossec-init.conf
 /usr/lib/systemd/system/wazuh-manager.service
 %dir %attr(750, root, ossec) %{_localstatedir}
 %attr(750, root, ossec) %{_localstatedir}/agentless

@@ -76,6 +76,11 @@ echo 'USER_CA_STORE="/path/to/my_cert.pem"' >> ./etc/preloaded-vars.conf
 echo 'USER_AUTO_START="n"' >> ./etc/preloaded-vars.conf
 ./install.sh
 
+%if 0%{?el} < 6 || 0%{?rhel} < 6
+  mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}
+  touch ${RPM_BUILD_ROOT}%{_sysconfdir}/ossec-init.conf
+%endif
+
 # Create directories
 mkdir -p ${RPM_BUILD_ROOT}%{_initrddir}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.ssh
@@ -476,6 +481,7 @@ rm -fr %{buildroot}
 %defattr(-,root,root)
 %{_initrddir}/wazuh-agent
 /usr/lib/systemd/system/wazuh-agent.service
+%attr(640, root, ossec) %verify(not md5 size mtime) %ghost %{_sysconfdir}/ossec-init.conf
 %dir %attr(750,root,ossec) %{_localstatedir}
 %attr(750,root,ossec) %{_localstatedir}/agentless
 %dir %attr(770,root,ossec) %{_localstatedir}/.ssh
