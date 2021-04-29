@@ -94,14 +94,14 @@ sh ${INSTALLER}
 # Remove installer
 rm ${INSTALLER}
 
-# Stop services and enable manager
-systemctl stop kibana filebeat elasticsearch
-systemctl enable wazuh-manager
-
 # Change admin password for kibana
 curl -so wazuh-passwords-tool.sh https://raw.githubusercontent.com/wazuh/wazuh-documentation/4.1/resources/open-distro/tools/wazuh-passwords-tool.sh
 bash wazuh-passwords-tool.sh -u admin -p wazuh
 sed -i "s/password: \"wazuh\"/password: \"wazuh\"/g" /etc/filebeat/filebeat.yml
+
+# Stop services and enable manager
+systemctl stop kibana filebeat elasticsearch
+systemctl enable wazuh-manager
 
 # Custom Welcome Page
 # Edit window title
