@@ -6,7 +6,7 @@ WAZUH_VERSION=$1
 OPENDISTRO_VERSION=$2
 ELK_VERSION=$3
 PACKAGES_REPOSITORY=$4
-PACKAGE_VERSION=$5
+BRANCH=$5
 INSTALLER="all-in-one-installation.sh"
 
 # Display dev/prod
@@ -76,7 +76,7 @@ sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/" /etc/ssh/sshd_c
 echo "PermitRootLogin no" >> /etc/ssh/sshd_config
 
 # Download unattended installer
-curl -so ${INSTALLER} https://raw.githubusercontent.com/wazuh/wazuh-documentation/${PACKAGE_VERSION}/resources/open-distro/unattended-installation/${INSTALLER} 
+curl -so ${INSTALLER} https://raw.githubusercontent.com/wazuh/wazuh-documentation/${BRANCH}/resources/open-distro/unattended-installation/${INSTALLER} 
 
 # Get currents version values of installer
 ACTUAL_W=$(less ${INSTALLER} | grep "WAZUH_VER=")
