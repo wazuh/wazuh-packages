@@ -53,7 +53,6 @@ getHelp() {
    exit $1 # Exit script after printing help
 }
 
-
 ## Install the required packages for the installation
 installPrerequisites() {
 
@@ -84,17 +83,6 @@ addWazuhrepo() {
         logger "Adding development repository..."
         echo -e '[wazuh_pre_release]\ngpgcheck=1\ngpgkey=https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages-dev.wazuh.com/pre-release/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo
     fi
-    if [ "$?" != 0 ]; then
-        logger "Error: Wazuh repository could not be added"
-        exit 1
-    else
-        logger "Done"
-    fi
-}
-
-addElasticRepo(){
-
-    logger "Adding the Elastic repository..."
     if [ "$?" != 0 ]; then
         logger "Error: Wazuh repository could not be added"
         exit 1
@@ -153,20 +141,8 @@ installElasticsearch() {
         fi
         rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml search-guard-tlstool-1.7.zip -f
 
-
-        # # Configure JVM options for Elasticsearch
-        jv=$(java -version 2>&1 | grep -o -m1 '1.8.0') || :
-        if [ "${jv}" = "1.8.0" ]; then
-            ln -s /usr/lib/jvm/java-1.8.0/lib/tools.jar /usr/share/elasticsearch/lib/
-            echo "root hard nproc 4096" >> /etc/security/limits.conf
-            echo "root soft nproc 4096" >> /etc/security/limits.conf
-            echo "elasticsearch hard nproc 4096" >> /etc/security/limits.conf
-            echo "elasticsearch soft nproc 4096" >> /etc/security/limits.conf
-            echo "bootstrap.system_call_filter: false" >> /etc/elasticsearch/elasticsearch.yml
-        fi
-
         # While Performance Analyzer problems are solved (https://github.com/opendistro-for-elasticsearch/performance-analyzer/issues/229)
-        /usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro_performance_analyzer
+        /usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer
 
         # Start Elasticsearch
         startService "elasticsearch"
@@ -224,7 +200,7 @@ installKibana() {
         chown -R kibana:kibana /usr/share/kibana/plugins
         mkdir /usr/share/kibana/data
         chown -R kibana:kibana /usr/share/kibana/data
-
+        ## Install Wazuh  Kibana plugin
         if [ "${PACKAGES_REPOSITORY}" = "prod" ]; then
             if [ "${WAZUH_MAJOR}" -ge "4" ]; then
                 sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/${WAZUH_MAJOR}.x/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-${UI_REVISION}.zip
