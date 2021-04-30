@@ -136,9 +136,9 @@ userdel -rf vagrant
 rm -rf /vagrant
 
 # Disk optimization
-touch /var/tmp/emptyfile
-dd if=/dev/zero of=/var/tmp/emptyfile bs=4096k | true
-rm /var/tmp/emptyfile
+#touch /var/tmp/emptyfile
+#dd if=/dev/zero of=/var/tmp/emptyfile bs=4096k | true
+#rm /var/tmp/emptyfile
 
-# Reboot is required to apply settings
-reboot now
+# Clean history
+histoy -c
