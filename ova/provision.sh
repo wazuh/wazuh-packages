@@ -103,6 +103,14 @@ sed -i "s/password: \"wazuh\"/password: \"wazuh\"/g" /etc/filebeat/filebeat.yml
 systemctl stop kibana filebeat elasticsearch
 systemctl enable wazuh-manager
 
+# Disable all alerts on host (manager)
+sed -i "s/<disabled>no/<disabled>yes/g" /var/ossec/etc/ossec.conf
+sed -i "s/<enabled>yes/<enabled>no/g" /var/ossec/etc/ossec.conf
+
+# Enable rule_test and ossec_auth
+sed -i 'N; s/^[]*<rule_set>\n[ ]*<enabled>no/\ \ \ \ <rule_set>\n\ \ \ \ \ \ <enabled>yes/g' /var/ossec/etc/ossec.conf
+sed -i 'N; s/^[]*<auth>\n[ ]*<disabled>yes/\ \ \ \ <auth>\n\ \ \ \ \ \ <disabled>no/g' /var/ossec/etc/ossec.conf
+
 # Custom Welcome Page
 # Edit window title
 sed -i "s/null, \"Elastic\"/null, \"Wazuh\"/g" /usr/share/kibana/src/core/server/rendering/views/template.js
