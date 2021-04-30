@@ -55,18 +55,19 @@ clean() {
 
     cd ${scriptpath}
     vagrant destroy -f
-    rm -f ${OVA_VM} ${OVF_VM} "${OVA_VMDK}.vmdk" ${OVA_FIXED} ${OVA_VDI}
+    OVA_VMDK="wazuh-${OVA_VERSION}-disk001.vmdk"
+    rm -f ${OVA_VM} ${OVF_VM} ${OVA_VMDK} ${OVA_FIXED} ${OVA_VDI}
     
     exit ${exit_code}
 }
 
 build_ova() {
 
+    # Files
     OVA_VM="wazuh-${OVA_VERSION}.ova"
     OVF_VM="wazuh-${OVA_VERSION}.ovf"
     OVA_FIXED="wazuh-${OVA_VERSION}-fixed.ova"
-    OVA_VMDK="wazuh-${OVA_VERSION}-disk001"
-    OVA_VDI="wazuh-${OVA_VERSION}-disk001.vdi"
+
 
     # Delete OVA/OVF files if exists
     if [ -e "${OUTPUT_DIR}/${OVA_VM}" ] || [ -e "${OUTPUT_DIR}/${OVF_VM}" ]; then
