@@ -224,7 +224,7 @@ build_package() {
   if [ -f ${target_dir}/${rpm_file} ]; then
     echo "Your package ${rpm_file} is stored in ${target_dir}"
     if [[ "${compute_checksums}" = "yes" ]]; then
-      cd ${target_dir} && /usr/local/scripts/shasum -a 512 ${rpm_file} > "${checksum_dir}/${rpm_file}.sha512"
+      cd ${target_dir} && /usr/local/bin/shasum -a 512 ${rpm_file} > "${checksum_dir}/${rpm_file}.sha512"
     fi
   else
     echo "Error: RPM package could not be created"
