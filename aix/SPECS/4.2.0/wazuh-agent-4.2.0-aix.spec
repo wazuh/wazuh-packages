@@ -242,6 +242,7 @@ rm -fr %{buildroot}
 %dir %attr(770,root,ossec) %{_localstatedir}/etc/shared
 %attr(660,root,ossec) %config(missingok,noreplace) %{_localstatedir}/etc/shared/*
 %dir %attr(750,root,system) %{_localstatedir}/lib
+%attr(750,root,ossec) %{_localstatedir}/lib/*
 %dir %attr(770,ossec,ossec) %{_localstatedir}/logs
 %attr(660,ossec,ossec) %ghost %{_localstatedir}/logs/active-responses.log
 %attr(660,root,ossec) %ghost %{_localstatedir}/logs/ossec.log
