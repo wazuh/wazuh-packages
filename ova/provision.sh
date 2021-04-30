@@ -141,4 +141,7 @@ rm -rf /vagrant
 #rm /var/tmp/emptyfile
 
 # Clean history
-histoy -c
+history -c
+
+# Temporary fix for content loss in wazuh kibana plugin files
+reboot now
