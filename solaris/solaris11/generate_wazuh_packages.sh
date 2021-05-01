@@ -142,11 +142,6 @@ compile() {
     export CPLUS_INCLUDE_PATH=/usr/local/gcc-5.5.0/include/c++/5.5.0
     export LD_LIBRARY_PATH=/usr/local/gcc-5.5.0/lib
 
-    if [ "${arch}" = "sparc" ]; then
-        mv $SOURCE/src/Makefile $SOURCE/src/Makefile.tmp
-        sed -n '/OSSEC_LDFLAGS+=-z relax=secadj/!p' $SOURCE/src/Makefile.tmp > $SOURCE/src/Makefile
-    fi
-
     cd ${current_path}
     VERSION=`cat $SOURCE/src/VERSION`
     number_version=`echo "$VERSION" | cut -d v -f 2`
