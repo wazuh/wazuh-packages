@@ -138,7 +138,7 @@ check_version(){
 
 #Compile and install wazuh-agent
 compile() {
-    export PATH=/usr/local/gcc-5.5.0/bin:/usr/local/bin:$PATH
+    export PATH=/usr/local/gcc-5.5.0/bin:/usr/sbin:/usr/bin:/usr/ccs/bin:/opt/csw/bin
     export CPLUS_INCLUDE_PATH=/usr/local/gcc-5.5.0/include/c++/5.5.0
     export LD_LIBRARY_PATH=/usr/local/gcc-5.5.0/lib
 
