@@ -10,7 +10,7 @@
 # Foundation.
 
 set -e
-# Dependencies: vagrant, virtualbox, ovftool
+# Dependencies: vagrant, virtualbox
 
 # CONFIGURATION VARIABLES
 
@@ -56,7 +56,7 @@ clean() {
     cd ${scriptpath}
     vagrant destroy -f
     OVA_VMDK="wazuh-${OVA_VERSION}-disk001.vmdk"
-    rm -f ${OVA_VM} ${OVF_VM} ${OVA_VMDK} ${OVA_FIXED} ${OVA_VDI}
+    rm -f ${OVA_VM} ${OVF_VM} ${OVA_VMDK} ${OVA_FIXED}
     
     exit ${exit_code}
 }
@@ -98,19 +98,6 @@ build_ova() {
 
     # Extract ova
     tar -xvf ${OVA_VM}
-
-    #echo "Disk optimization stage"
-
-    # Compact disk file
-    #echo "Cloning to VDI"
-    #vboxmanage clonemedium disk "${OVA_VMDK}.vmdk" ${OVA_VDI} --format vdi || clean 1
-
-    #echo "Compacting"
-    #vboxmanage modifymedium disk ${OVA_VDI} --compact || clean 1
-    
-    #echo "Cloning to VMDK"
-    #vboxmanage clonemedium disk ${OVA_VDI} "${OVA_VMDK}1.vmdk" --format vmdk || clean 1
-    #mv "${OVA_VMDK}1.vmdk" "${OVA_VMDK}.vmdk"
 
     echo "Setting up ova for VMware ESXi"
 
