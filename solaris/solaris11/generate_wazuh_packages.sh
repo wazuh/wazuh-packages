@@ -169,6 +169,13 @@ compile() {
     fi
 
     $SOURCE/install.sh || exit 1
+
+    mkdir   ${install_path}/logs/ossec
+    mkdir   ${install_path}/queue/ossec
+    chown ossec:ossec ${install_path}/logs/ossec
+    chown ossec:ossec ${install_path}/queue/ossec
+    chmod 0750 ${install_path}/logs/ossec
+    chmod 0770 ${install_path}/queue/ossec
 }
 
 create_package() {
@@ -187,9 +194,12 @@ create_package() {
 
     set_control_binary
 
+
     # Package generation process
     svcbundle -o wazuh-agent.xml -s service-name=application/wazuh-agent -s start-method="${install_path}/bin/${control_binary} start" -s stop-method="${install_path}/bin/${control_binary} stop"
     pkgsend generate ${install_path} | pkgfmt > wazuh-agent.p5m.1
+    sed "s|<INSTALL_PATH>|${install_path}|" ${current_path}/postinstall.sh > ${current_path}/postinstall.sh.new
+    mv ${current_path}/postinstall.sh.new ${current_path}/postinstall.sh
     python solaris_fix.py -t SPECS/template_agent_${VERSION}.json -p wazuh-agent.p5m.1 # Fix p5m.1 file
     mv wazuh-agent.p5m.1.aux.fixed wazuh-agent.p5m.1
     # Add the preserve=install-only tag to the configuration files
@@ -197,20 +207,11 @@ create_package() {
         sed "s:file $file.*:& preserve=install-only:"  wazuh-agent.p5m.1 > wazuh-agent.p5m.1.aux_sed
         mv wazuh-agent.p5m.1.aux_sed wazuh-agent.p5m.1
     done
-
-    if [ "${major_version}" -ge "4" ]; then
-        if [ "${minor_version}" -ge "2" ]; then
-            mkdir   ${install_path}/logs/ossec
-            chown ossec:ossec ${install_path}/logs/ossec
-            chmod 0750 ${install_path}/logs/ossec
-            sed "s|<INSTALL_PATH>|${install_path}|" ${current_path}/postinstall.sh > ${current_path}/postinstall.sh.new
-            mv ${current_path}/postinstall.sh.new ${current_path}/postinstall.sh
-            echo "file smf_manifest.xml path=lib/svc/manifest/site/post-install.xml owner=root group=sys mode=0744 restart_fmri=svc:/system/manifest-import:default" >> wazuh-agent.p5m.1
-            echo "dir  path=var/ossec/installation_scripts owner=root group=bin mode=0755" >> wazuh-agent.p5m.1
-            echo "file postinstall.sh path=var/ossec/installation_scripts/postinstall.sh owner=root group=bin mode=0744" >> wazuh-agent.p5m.1
-        fi
-    fi
     # Add service files
+    echo "file smf_manifest.xml path=lib/svc/manifest/site/post-install.xml owner=root group=sys mode=0744 restart_fmri=svc:/system/manifest-import:default" >> wazuh-agent.p5m.1
+    echo "dir  path=var/ossec/installation_scripts owner=root group=bin mode=0755" >> wazuh-agent.p5m.1
+    echo "file postinstall.sh path=var/ossec/installation_scripts/postinstall.sh owner=root group=bin mode=0744" >> wazuh-agent.p5m.1
+    
     echo "file wazuh-agent path=etc/init.d/wazuh-agent owner=root group=sys mode=0744" >> wazuh-agent.p5m.1
     echo "file S97wazuh-agent path=etc/rc2.d/S97wazuh-agent owner=root group=sys mode=0744" >> wazuh-agent.p5m.1
     echo "file S97wazuh-agent path=etc/rc3.d/S97wazuh-agent owner=root group=sys mode=0744" >> wazuh-agent.p5m.1
