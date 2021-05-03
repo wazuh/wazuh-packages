@@ -7,6 +7,7 @@ OPENDISTRO_VERSION=$2
 ELK_VERSION=$3
 PACKAGES_REPOSITORY=$4
 BRANCH=$5
+BRANCHDOC=$6
 INSTALLER="all-in-one-installation.sh"
 
 # Display dev/prod
@@ -27,23 +28,42 @@ sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/" /etc/ssh/sshd_c
 echo "PermitRootLogin no" >> /etc/ssh/sshd_config
 
 # Download unattended installer
-curl -so ${INSTALLER} https://raw.githubusercontent.com/wazuh/wazuh-documentation/${BRANCH}/resources/open-distro/unattended-installation/${INSTALLER} 
+curl -so ${INSTALLER} https://raw.githubusercontent.com/wazuh/wazuh-documentation/${BRANCHDOC}/resources/open-distro/unattended-installation/${INSTALLER} 
 
 # Get currents version values of installer
-ACTUAL_W=$(less ${INSTALLER} | grep "WAZUH_VER=")
-ACTUAL_O=$(less ${INSTALLER} | grep "OD_VER=")
-ACTUAL_E=$(less ${INSTALLER} | grep "ELK_VER=")
+CURRENT_W=$(less ${INSTALLER} | grep "WAZUH_VER=")
+CURRENT_O=$(less ${INSTALLER} | grep "OD_VER=")
+CURRENT_E=$(less ${INSTALLER} | grep "ELK_VER=")
 
-# Change specified versions in unattended installer
-sed -i "s/${ACTUAL_W}/WAZUH_VER=\"${WAZUH_VERSION}\"/g" ${INSTALLER}
-sed -i "s/${ACTUAL_O}/OD_VER=\"${OPENDISTRO_VERSION}\"/g" ${INSTALLER}
-sed -i "s/${ACTUAL_E}/ELK_VER=\"${ELK_VERSION}\"/g" ${INSTALLER}
+# Change wazuh and documentation repository branch
+sed -i "s/uh\/[0-9]\+\.[0-9]\+\/ex/uh\/${BRANCH}\/ex/g" ${INSTALLER}
+sed -i "s/on\/[0-9]\+\.[0-9]\+\/re/on\/${BRANCHDOC}\/re/g" ${INSTALLER}
+
+# Change versions
+sed -i "s/${CURRENT_W}/WAZUH_VER=\"${WAZUH_VERSION}\"/g" ${INSTALLER}
+sed -i "s/${CURRENT_O}/OD_VER=\"${OPENDISTRO_VERSION}\"/g" ${INSTALLER}
+sed -i "s/${CURRENT_E}/ELK_VER=\"${ELK_VERSION}\"/g" ${INSTALLER}
+
+# Change repository if dev is specified
+if [ "${PACKAGES_REPOSITORY}" = "dev" ]; then
+  sed -i "s/\[wazuh\]/\[wazuh_pre_release\]/g" ${INSTALLER}
+  sed -i "s/ngpgkey\=https\:\/\/packages\.wazuh\.com/ngpgkey\=https\:\/\/packages\-dev\.wazuh\.com/g" ${INSTALLER}
+  sed -i "s/baseurl\=https\:\/\/packages\.wazuh\.com\/4\.x/baseurl\=https\:\/\/packages\-dev\.wazuh\.com\/pre\-release/g" ${INSTALLER}
+  sed -i "s/https\:\/\/packages\.wazuh\.com\/4\.x\/ui\/kibana/https\:\/\/packages\-dev\.wazuh\.com\/pre\-release\/ui\/kibana/g" ${INSTALLER}
+  sed -i "s/wazuh_kibana-[0-9\.]\+_[0-9\.]\+/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}/g" ${INSTALLER}
+fi
 
 # Execute unattended installer
 sh ${INSTALLER}
 
 # Remove installer
 rm ${INSTALLER}
+
+# Check kibana status
+until [[ "$(curl -u admin:admin -XGET https://localhost/status -I -s -k | grep HTTP)" == *"200"* ]]; do
+    echo "Waiting for Kibana..."
+    sleep 2
+done
 
 # Stop services and enable manager
 systemctl stop kibana filebeat elasticsearch wazuh-manager
@@ -57,7 +77,7 @@ sed -i "s/<enabled>yes/<enabled>no/g" /var/ossec/etc/ossec.conf
 sed -i "s/<localfile>/<!--localfile>/g" /var/ossec/etc/ossec.conf
 sed -i "s/<\/localfile>/<\/localfile-->/g" /var/ossec/etc/ossec.conf
 
-# Enable rule_test and ossec_auth modules
+# Enable ossec_auth modules
 sed -i '/<auth>/ {N; s/<auth>.*yes/<auth>\n\ \ \ \ <disabled>no/g}' /var/ossec/etc/ossec.conf
 
 # Custom Login Page
@@ -141,6 +161,7 @@ EOF
 yum clean all
 
 # Remove data from /var/ossec/logs/
+cd / 
 find /var/ossec/logs/ -type f -exec sh -c ': > "$1"' - {} \;
 
 # Remove data from /var/log/ files
@@ -148,3 +169,5 @@ find /var/log/ -type f -exec sh -c ': > "$1"' - {} \;
 
 # Delete history
 history -c
+
+reboot now
