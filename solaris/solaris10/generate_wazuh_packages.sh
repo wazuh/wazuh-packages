@@ -85,12 +85,13 @@ build_environment(){
     unset CPLUS_INCLUDE_PATH
     unset LD_LIBRARY_PATH
 
+    export PATH=/usr/sbin:/usr/bin:/usr/ccs/bin:/opt/csw/bin
+
     mkdir -p /usr/local
     ./configure --prefix=/usr/local/gcc-5.5.0 --enable-languages=c,c++ --disable-multilib --disable-libsanitizer --disable-bootstrap --with-ld=/usr/ccs/bin/ld --without-gnu-ld --with-gnu-as --with-as=/opt/csw/bin/gas
-    gmake -j$(nproc) && gmake install
+    gmake && gmake install
     export CPLUS_INCLUDE_PATH=/usr/local/gcc-5.5.0/include/c++/5.5.0
     export LD_LIBRARY_PATH=/usr/local/gcc-5.5.0/lib
-    export PATH=/usr/sbin:/usr/bin:/usr/ccs/bin:/opt/csw/bin
 
     echo "export PATH=/usr/sbin:/usr/bin:/usr/ccs/bin:/opt/csw/bin" >> /etc/profile
     echo "export CPLUS_INCLUDE_PATH=/usr/local/gcc-5.5.0/include/c++/5.5.0" >> /etc/profile
@@ -101,7 +102,7 @@ build_environment(){
     curl -sL http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz | gtar xz
     cd cmake-3.18.3
     ./bootstrap
-    gmake -j$(nproc) && gmake install
+    gmake && gmake install
     cd .. && rm -rf cmake-3.18.3
     ln -sf /usr/local/bin/cmake /usr/bin/cmake
 
@@ -163,10 +164,11 @@ check_version(){
 }
 
 installation(){
+    export PATH=/usr/local/gcc-5.5.0/bin:/usr/sbin:/usr/bin:/usr/ccs/bin:/opt/csw/bin
+    export CPLUS_INCLUDE_PATH=/usr/local/gcc-5.5.0/include/c++/5.5.0
+    export LD_LIBRARY_PATH=/usr/local/gcc-5.5.0/lib
+
     cd ${CURRENT_PATH}
-    # Removing incompatible flags
-    mv $SOURCE/src/Makefile $SOURCE/src/Makefile.tmp
-    sed -n '/OSSEC_LDFLAGS+=-z relax=secadj/!p' $SOURCE/src/Makefile.tmp > $SOURCE/src/Makefile
     cd $SOURCE/src
     gmake clean
     check_version
