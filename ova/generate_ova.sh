@@ -41,7 +41,7 @@ help () {
     echo "  -o, --opendistro       [Required] Version of Open Distro for Elasticsearch."
     echo "  -f, --filebeat         [Required] Filebeat's version."
     echo "  -r, --repository       [Required] Select the software repository [prod/dev]."
-    echo "  -s, --store <path>     [Optional] Set the destination absolute path of package."
+    echo "  -s, --store <path>     [Optional] Set the destination absolute path where the ova file will be stored."
     echo "  -c, --checksum <path>  [Optional] Generate checksum. By Default: no"
     echo "  -u, --ui-revision      [Optional] Revision of the UI package. By default, 1."
     echo "  -h, --help             [  Util  ] Show this help."
