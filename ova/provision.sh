@@ -58,7 +58,6 @@ sh ${INSTALLER}
 
 # Remove installer
 rm ${INSTALLER}
-rm securityadmin_demo.sh
 
 # Check kibana status
 until [[ "$(curl -u admin:admin -XGET https://localhost/status -I -s -k | grep HTTP)" == *"200"* ]]; do
@@ -167,6 +166,9 @@ find /var/ossec/logs/ -type f -exec sh -c ': > "$1"' - {} \;
 
 # Remove data from /var/log/ files
 find /var/log/ -type f -exec sh -c ': > "$1"' - {} \;
+
+# Remove demo script
+rm securityadmin_demo.sh
 
 # Delete history
 history -c
