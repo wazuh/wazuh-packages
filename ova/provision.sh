@@ -171,4 +171,5 @@ find /var/log/ -type f -exec sh -c ': > "$1"' - {} \;
 : > .bash_history
 history -c
 
+# Temporary fix
 reboot now
