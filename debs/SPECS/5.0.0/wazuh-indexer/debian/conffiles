@@ -1,0 +1,4 @@
+/etc/default/wazuh-indexer
+/etc/wazuh-indexer/elasticsearch.yml
+/etc/wazuh-indexer/jvm.options
+/etc/wazuh-indexer/log4j2.properties

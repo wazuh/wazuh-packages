@@ -130,8 +130,19 @@ build() {
             return 1
         fi
         build_deb ${BUILD_NAME} ${FILE_PATH} || return 1
+    elif [[ "${TARGET}" == "indexer" ]]; then
+        BUILD_NAME=""
+        FILE_PATH=""
+        if [[ "${ARCHITECTURE}" = "amd64" ]]; then
+            BUILD_NAME="${DEB_AMD64_BUILDER}"
+            FILE_PATH="${DEB_AMD64_BUILDER_DOCKERFILE}"
+        else
+            echo "Invalid architecture. Only amd64 is supported."
+            return 1
+        fi
+        build_deb ${BUILD_NAME} ${FILE_PATH} || return 1
     else
-        echo "Invalid target. Choose: manager, agent or api."
+        echo "Invalid target. Choose: manager, agent, api or indexer."
         return 1
     fi
 
@@ -143,7 +154,7 @@ help() {
     echo "Usage: $0 [OPTIONS]"
     echo
     echo "    -b, --branch <branch>      [Required] Select Git branch [${BRANCH}]. By default: master."
-    echo "    -t, --target <target>      [Required] Target package to build: manager, api or agent."
+    echo "    -t, --target <target>      [Required] Target package to build: manager, api, agent or indexer."
     echo "    -a, --architecture <arch>  [Optional] Target architecture of the package [amd64/i386/ppc64le/arm64/armhf]."
     echo "    -j, --jobs <number>        [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 2."
     echo "    -r, --revision <rev>       [Optional] Package revision. By default: 1."

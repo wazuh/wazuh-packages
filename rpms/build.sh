@@ -42,6 +42,8 @@ if [ ${build_target} = "api" ]; then
         curl -sL https://github.com/wazuh/wazuh-api/tarball/${wazuh_branch} | tar zx
     fi
     wazuh_version="$(grep version wazuh*/package.json | cut -d '"' -f 4)"
+elif [ ${build_target} = "indexer" ]; then
+    wazuh_version="$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh/${wazuh_branch}/src/VERSION | cut -d 'v' -f 2)"
 else
     if [ "${local_source_code}" = "no" ]; then
         curl -sL https://github.com/wazuh/wazuh/tarball/${wazuh_branch} | tar zx
@@ -62,7 +64,10 @@ mkdir -p ${rpm_build_dir}/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
 # Prepare the sources directory to build the source tar.gz
 package_name=wazuh-${build_target}-${wazuh_version}
-cp -R wazuh-* ${build_dir}/${package_name}
+
+if [ ${build_target} != "indexer" ]; then
+    cp -R wazuh-* ${build_dir}/${package_name}
+fi
 
 # Including spec file
 if [ "${use_local_specs}" = "no" ]; then
@@ -97,7 +102,9 @@ fi
 cp ${specs_path}/${wazuh_version}/wazuh-${build_target}-${wazuh_version}.spec ${rpm_build_dir}/SPECS/${package_name}.spec
 
 # Generating source tar.gz
-cd ${build_dir} && tar czf "${rpm_build_dir}/SOURCES/${package_name}.tar.gz" "${package_name}"
+if [ ${build_target} != "indexer" ]; then
+    cd ${build_dir} && tar czf "${rpm_build_dir}/SOURCES/${package_name}.tar.gz" "${package_name}"
+fi
 
 if [ "${architecture_target}" = "i386" ] || [ "${architecture_target}" = "armv7hl" ]; then
     linux="linux32"

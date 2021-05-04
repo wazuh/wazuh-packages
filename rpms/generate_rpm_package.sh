@@ -157,8 +157,19 @@ build() {
             return 1
         fi
         build_rpm ${BUILD_NAME} ${FILE_PATH} || return 1
+    elif [[ "${TARGET}" == "indexer" ]]; then
+        BUILD_NAME=""
+        FILE_PATH=""
+        if [[ "${ARCHITECTURE}" == "x86_64" ]]; then
+            BUILD_NAME="${RPM_X86_BUILDER}"
+            FILE_PATH="${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
+        else
+            echo "Invalid architecture. Only amd64 is supported."
+            return 1
+        fi
+        build_rpm ${BUILD_NAME} ${FILE_PATH} || return 1
     else
-        echo "Invalid target. Choose: manager, agent or api."
+        echo "Invalid target. Choose: manager, agent, api or indexer."
         return 1
     fi
 
@@ -170,7 +181,7 @@ help() {
     echo "Usage: $0 [OPTIONS]"
     echo
     echo "    -b, --branch <branch>        [Required] Select Git branch or tag e.g. $BRANCH"
-    echo "    -t, --target <target>        [Required] Target package to build [manager/api/agent]."
+    echo "    -t, --target <target>        [Required] Target package to build [manager/api/agent/indexer]."
     echo "    -a, --architecture <arch>    [Optional] Target architecture of the package [x86_64/i386/ppc64le/aarch64/armv7hl]."
     echo "    -r, --revision <rev>         [Optional] Package revision that append to version e.g. x.x.x-rev"
     echo "    -l, --legacy                 [Optional] Build package for CentOS 5."

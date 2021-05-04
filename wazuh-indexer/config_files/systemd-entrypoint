@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# This wrapper script allows SystemD to feed a file containing a passphrase into
+# the main Elasticsearch startup script
+
+if [ -n "$ES_KEYSTORE_PASSPHRASE_FILE" ] ; then
+  exec /usr/share/wazuh-indexer/bin/elasticsearch "$@" < "$ES_KEYSTORE_PASSPHRASE_FILE"
+else
+  exec /usr/share/wazuh-indexer/bin/elasticsearch "$@"
+fi

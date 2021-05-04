@@ -1,0 +1,264 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Sample debian/rules that uses debhelper.
+#
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+#
+# Modified to make a template file for a multi-binary package with separated
+# build-arch and build-indep targets  by Bill Allombert 2001
+
+# Uncomment this to turn on verbose mode.
+export DH_VERBOSE=1
+
+# This has to be exported to make some magic below work.
+export DH_OPTIONS
+
+# TODO: Check why it uses tmp
+#export TARGET_DIR=${CURDIR}/debian/wazuh-indexer
+export TARGET_DIR=${CURDIR}/debian/tmp
+
+# Package build options
+export USER=wazuh-indexer
+export GROUP=wazuh-indexer
+export SERVICE_NAME=wazuh-indexer
+export CONFIG_DIR=/etc/${SERVICE_NAME}
+export LOG_DIR=/var/log/${SERVICE_NAME}
+export LIB_DIR=/var/lib/${SERVICE_NAME}
+export PID_DIR=/var/run/${SERVICE_NAME}
+export INSTALLATION_DIR=/usr/share/${SERVICE_NAME}
+export ODFE_VERSION=1.13.1
+export ODFE_DIR=opendistroforelasticsearch-${ODFE_VERSION}
+export ODFE_FILE=${ODFE_DIR}-linux-x64.tar.gz
+export SYSTEMD_MODULE_FILE=systemd_elasticsearch_module_7.10.2.tgz
+export DOCUMENTATION_BRANCH=679-wazuh-packages_wazuh-indexer
+export PACKAGES_BRANCH=679-wazuh-indexer
+
+%:
+	dh $@
+
+override_dh_shlibdeps:
+
+override_dh_auto_configure:
+
+override_dh_auto_install:
+
+override_dh_install:
+
+	rm -rf $(INSTALLATION_DIR)/
+
+	mkdir -p files/plugins
+	mkdir -p files/config_files
+	curl -o files/$(ODFE_FILE) https://packages-dev.wazuh.com/deps/wazuh-indexer/$(ODFE_FILE)
+	curl -o files/$(SYSTEMD_MODULE_FILE) https://packages-dev.wazuh.com/deps/wazuh-indexer/$(SYSTEMD_MODULE_FILE)
+
+	# Files that were previously stored as elasticsearch-oss-extracted-files.tgz now stored in git.
+	# Need to find the best way of obtaining them since we don't have a wazuh-indexer repo so we can't get a tarball
+	# as wazuh agent or manager compilation does. Getting them one by one now:
+
+	# note this init script is different from RPM one
+	curl -o files/config_files/etc/init.d/$(SERVICE_NAME) --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/init.d/$(SERVICE_NAME)-deb
+	curl -o files/config_files/etc/wazuh-indexer/log4j2.properties --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/wazuh-indexer/log4j2.properties
+	curl -o files/config_files/etc/wazuh-indexer/jvm.options --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/wazuh-indexer/jvm.options
+	curl -o files/config_files/etc/sysconfig/$(SERVICE_NAME) --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/sysconfig/$(SERVICE_NAME)
+	curl -o files/config_files/usr/lib/tmpfiles.d/$(SERVICE_NAME).conf --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/usr/lib/tmpfiles.d/$(SERVICE_NAME).conf
+	curl -o files/config_files/usr/lib/sysctl.d/$(SERVICE_NAME).conf --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/usr/lib/sysctl.d/$(SERVICE_NAME).conf
+	curl -o files/config_files/usr/lib/systemd/system/$(SERVICE_NAME).service --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/usr/lib/systemd/system/$(SERVICE_NAME).service
+	curl -o files/config_files/usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service
+	curl -o files/config_files/systemd-entrypoint --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/systemd-entrypoint
+
+
+	curl -o files/wazuh-cert-tool.sh https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/tools/certificate-utility/wazuh-cert-tool.sh
+	curl -o files/instances.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/tools/certificate-utility/instances_aio.yml
+	curl -o files/wazuh-passwords-tool.sh https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/tools/wazuh-passwords-tool.sh
+
+	# Demo certificates
+	curl -o files/config_files/etc/wazuh-indexer/certs/admin-key.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/wazuh-indexer/certs/admin-key.pem
+	curl -o files/config_files/etc/wazuh-indexer/certs/admin.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/wazuh-indexer/certs/admin.pem
+	curl -o files/config_files/etc/wazuh-indexer/certs/wazuh-indexer-key.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/wazuh-indexer/certs/wazuh-indexer-key.pem
+	curl -o files/config_files/etc/wazuh-indexer/certs/wazuh-indexer.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/wazuh-indexer/certs/wazuh-indexer.pem
+	curl -o files/config_files/etc/wazuh-indexer/certs/root-ca.pem --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/config_files/etc/wazuh-indexer/certs/root-ca.pem
+
+	# Configuration files from documentation repo
+	curl -o files/config_files/elasticsearch.yml  https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/elasticsearch/7.x/elasticsearch.yml
+	curl -o files/config_files/roles.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/elasticsearch/roles/roles.yml
+	curl -o files/config_files/roles_mapping.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/elasticsearch/roles/roles_mapping.yml
+	curl -o files/config_files/internal_users.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/elasticsearch/roles/internal_users.yml
+
+	tar -zvxf files/$(ODFE_FILE)
+	tar -zvxf files/$(SYSTEMD_MODULE_FILE) -C $(ODFE_DIR)/modules
+
+	# Fix distribution type so systemd is notified: https://github.com/elastic/elasticsearch/issues/55477
+	sed -i 's/ES_DISTRIBUTION_TYPE=tar/ES_DISTRIBUTION_TYPE=deb/' $(ODFE_DIR)/bin/elasticsearch-env
+
+	# Change elasticsearch default ports. Note this could be temporary and could be changed in the repository file
+	echo "http.port: 9250-9300" >> files/config_files/elasticsearch.yml
+	echo "transport.tcp.port: 9350-9400" >> files/config_files/elasticsearch.yml
+
+	# Change performance analyzer default ports
+	sed -i 's/webservice-listener-port = 9600/webservice-listener-port = 9601/' $(ODFE_DIR)/performance-analyzer-rca/pa_config/performance-analyzer.properties
+	sed -i 's/webservice-listener-port = 9600/webservice-listener-port = 9601/' $(ODFE_DIR)/plugins/opendistro-performance-analyzer/pa_config/performance-analyzer.properties
+	sed -i 's/webservice-listener-port = 9600/webservice-listener-port = 9601/' $(ODFE_DIR)/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/performance-analyzer.properties
+
+	sed -i 's/rpc-port = 9650/rpc-port = 9651/' $(ODFE_DIR)/performance-analyzer-rca/pa_config/performance-analyzer.properties
+	sed -i 's/rpc-port = 9650/rpc-port = 9651/' $(ODFE_DIR)/plugins/opendistro-performance-analyzer/pa_config/performance-analyzer.properties
+	sed -i 's/rpc-port = 9650/rpc-port = 9651/' $(ODFE_DIR)/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/performance-analyzer.properties
+
+	sed -i 's/metrics-location = \/dev\/shm\/performanceanalyzer/metrics-location = \/dev\/shm\/wazuh-indexer-performanceanalyzer/' $(ODFE_DIR)/performance-analyzer-rca/pa_config/performance-analyzer.properties
+	sed -i 's/metrics-location = \/dev\/shm\/performanceanalyzer/metrics-location = \/dev\/shm\/wazuh-indexer-performanceanalyzer/' $(ODFE_DIR)/plugins/opendistro-performance-analyzer/pa_config/performance-analyzer.properties
+	sed -i 's/metrics-location = \/dev\/shm\/performanceanalyzer/metrics-location = \/dev\/shm\/wazuh-indexer-performanceanalyzer/' $(ODFE_DIR)/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/performance-analyzer.properties
+
+	sed -i 's/metrics-db-file-prefix-path = \/tmp\/metricsdb_/metrics-db-file-prefix-path = \/tmp\/wazuh-indexer_metricsdb_/' $(ODFE_DIR)/performance-analyzer-rca/pa_config/performance-analyzer.properties
+	sed -i 's/metrics-db-file-prefix-path = \/tmp\/metricsdb_/metrics-db-file-prefix-path = \/tmp\/wazuh-indexer_metricsdb_/' $(ODFE_DIR)/plugins/opendistro-performance-analyzer/pa_config/performance-analyzer.properties
+	sed -i 's/metrics-db-file-prefix-path = \/tmp\/metricsdb_/metrics-db-file-prefix-path = \/tmp\/wazuh-indexer_metricsdb_/' $(ODFE_DIR)/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/performance-analyzer.properties
+
+
+	# copy to target
+
+	mkdir -p $(TARGET_DIR)$(INSTALLATION_DIR)
+	mkdir -p $(TARGET_DIR)$(CONFIG_DIR)/certs
+	mkdir -p $(TARGET_DIR)$(CONFIG_DIR)/jvm.options.d
+	mkdir -p $(TARGET_DIR)/etc/init.d
+	mkdir -p $(TARGET_DIR)/etc/default
+	mkdir -p $(TARGET_DIR)/usr/lib/tmpfiles.d
+	mkdir -p $(TARGET_DIR)/usr/lib/sysctl.d
+	mkdir -p $(TARGET_DIR)/usr/lib/systemd/system
+	mkdir -p $(TARGET_DIR)$(LIB_DIR)
+	mkdir -p $(TARGET_DIR)$(LOG_DIR)
+
+	# Copy the installed files into buildroot directory
+	cp -pr $(ODFE_DIR)/* $(TARGET_DIR)$(INSTALLATION_DIR)/
+
+	# Add custom tools
+	cp files/wazuh-passwords-tool.sh $(TARGET_DIR)$(INSTALLATION_DIR)/bin
+	cp files/wazuh-cert-tool.sh $(TARGET_DIR)$(INSTALLATION_DIR)/bin
+	cp files/instances.yml $(TARGET_DIR)$(INSTALLATION_DIR)/bin
+
+	# Copy configuration files from documentation repo
+	cp files/config_files/elasticsearch.yml $(TARGET_DIR)$(CONFIG_DIR)/elasticsearch.yml
+
+	# Copy configuration files for wazuh-indexer
+	cp files/config_files/etc/init.d/$(SERVICE_NAME) $(TARGET_DIR)/etc/init.d/$(SERVICE_NAME)
+	cp files/config_files/etc/wazuh-indexer/log4j2.properties $(TARGET_DIR)$(CONFIG_DIR)/log4j2.properties
+	cp files/config_files/etc/wazuh-indexer/jvm.options $(TARGET_DIR)$(CONFIG_DIR)/jvm.options
+	cp files/config_files/etc/sysconfig/$(SERVICE_NAME) $(TARGET_DIR)/etc/default/$(SERVICE_NAME)
+	cp files/config_files/usr/lib/tmpfiles.d/$(SERVICE_NAME).conf $(TARGET_DIR)/usr/lib/tmpfiles.d/$(SERVICE_NAME).conf
+	cp files/config_files/usr/lib/sysctl.d/$(SERVICE_NAME).conf $(TARGET_DIR)/usr/lib/sysctl.d/$(SERVICE_NAME).conf
+	cp files/config_files/usr/lib/systemd/system/$(SERVICE_NAME).service $(TARGET_DIR)/usr/lib/systemd/system/$(SERVICE_NAME).service
+	cp files/config_files/systemd-entrypoint $(TARGET_DIR)$(INSTALLATION_DIR)/bin
+
+	# Service for performance analyzer
+	cp files/config_files/usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service $(TARGET_DIR)/usr/lib/systemd/system/
+
+	# This is needed by the performance-analyzer service
+	echo false > $(TARGET_DIR)$(INSTALLATION_DIR)/data/batch_metrics_enabled.conf
+
+	# Copy certificates
+	cp files/config_files/etc/wazuh-indexer/certs/admin-key.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/admin-key.pem
+	cp files/config_files/etc/wazuh-indexer/certs/admin.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/admin.pem
+	cp files/config_files/etc/wazuh-indexer/certs/wazuh-indexer-key.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/wazuh-indexer-key.pem
+	cp files/config_files/etc/wazuh-indexer/certs/wazuh-indexer.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/wazuh-indexer.pem
+	cp files/config_files/etc/wazuh-indexer/certs/root-ca.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/root-ca.pem
+
+
+	# Run the opendistro tar install script but don't start elasticsearch at this time
+	sed -i 's/bash $$ES_HOME/#bash $$ES_HOME/' $(TARGET_DIR)$(INSTALLATION_DIR)/opendistro-tar-install.sh
+
+	cat $(TARGET_DIR)$(INSTALLATION_DIR)/opendistro-tar-install.sh
+
+	# realpath is not present in docker image but readlink is
+	sed -i 's/realpath/readlink -f/' $(TARGET_DIR)$(INSTALLATION_DIR)/opendistro-tar-install.sh
+
+	export ES_HOME=$(TARGET_DIR)$(INSTALLATION_DIR)
+	export JAVA_HOME=$(TARGET_DIR)$(INSTALLATION_DIR)/jdk
+
+	$(TARGET_DIR)$(INSTALLATION_DIR)/opendistro-tar-install.sh
+
+
+	# Copy Wazuh's config files for the opendistro_security plugin
+	cp -pr files/config_files/roles_mapping.yml $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro_security/securityconfig/roles_mapping.yml
+	cp -pr files/config_files/roles.yml $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro_security/securityconfig/roles.yml
+	cp -pr files/config_files/internal_users.yml $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro_security/securityconfig/internal_users.yml
+
+	# Fix performance-analyzer plugin files which references elasticsearch path
+	sed -i 's!/usr/share/elasticsearch!$(INSTALLATION_DIR)!g' $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro-performance-analyzer/pa_config/supervisord.conf
+	sed -i 's!/usr/share/elasticsearch!$(INSTALLATION_DIR)!g' $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/supervisord.conf
+	sed -i 's!/usr/share/elasticsearch!$(INSTALLATION_DIR)!g' $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/pa_config/supervisord.conf
+
+	# Fix performance analyzer JAVA_HOME definition when running manually for non systemd environments
+	sed -i s'/JAVA_HOME=$$2/export JAVA_HOME=$$2/' $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro-performance-analyzer/pa_bin/performance-analyzer-agent
+
+
+
+	# Create group and user in rpmbuild chroot environment so elasticsearch can be started for creating ODFE security indices
+	groupadd -r $(GROUP)
+	useradd --system \
+			--no-create-home \
+			--home-dir /nonexistent \
+			--uid 1001 \
+			--gid $(GROUP) \
+			--shell /sbin/nologin \
+			--comment "$(USER) user" \
+			$(USER)
+
+
+	# Copy /etc/wazuh-indexer configuration to local ES config directory to be tuned for starting while building the
+	# RPM and then this config directory will be cleared
+	cp -r $(TARGET_DIR)$(CONFIG_DIR)/* $(TARGET_DIR)$(INSTALLATION_DIR)/config
+
+	sed -i 's!/var/!$(TARGET_DIR)/var/!'  $(TARGET_DIR)$(INSTALLATION_DIR)/config/elasticsearch.yml
+	sed -i 's!$(CONFIG_DIR)/!$(TARGET_DIR)$(INSTALLATION_DIR)/config/!'  $(TARGET_DIR)$(INSTALLATION_DIR)/config/elasticsearch.yml
+	sed -i 's!/var/!$(TARGET_DIR)/var/!'  $(TARGET_DIR)$(INSTALLATION_DIR)/config/jvm.options
+	sed -i 's!/usr/!$(TARGET_DIR)/usr/!'  $(TARGET_DIR)$(INSTALLATION_DIR)/config/jvm.options
+
+	chown wazuh-indexer:wazuh-indexer $(TARGET_DIR)$(INSTALLATION_DIR)/ -R
+	chown wazuh-indexer:wazuh-indexer $(TARGET_DIR)/var -R
+	chown wazuh-indexer:wazuh-indexer $(TARGET_DIR)/etc -R
+
+	echo "wazuh-indexer hard nproc 4096" >> /etc/security/limits.conf
+	echo "wazuh-indexer soft nproc 4096" >> /etc/security/limits.conf
+	echo "wazuh-indexer hard nofile 65535" >> /etc/security/limits.conf
+	echo "wazuh-indexer soft nofile 65535" >> /etc/security/limits.conf
+	echo "bootstrap.system_call_filter: false" >> $(TARGET_DIR)$(INSTALLATION_DIR)/config/elasticsearch.yml
+
+	sudo -u wazuh-indexer ES_PATH_CONF=$(TARGET_DIR)$(INSTALLATION_DIR)/config $(TARGET_DIR)$(INSTALLATION_DIR)/bin/elasticsearch &
+
+	sleep 15
+
+	chmod +x $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro_security/tools/securityadmin.sh
+
+	sudo -u wazuh-indexer ES_PATH_CONF=$(TARGET_DIR)$(INSTALLATION_DIR)/config JAVA_HOME=$(TARGET_DIR)$(INSTALLATION_DIR)/jdk $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro_security/tools/securityadmin.sh -cn indexer-cluster -p 9350 -cd $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro_security/securityconfig/ -nhnv -cacert $(TARGET_DIR)$(CONFIG_DIR)/certs/root-ca.pem -cert $(TARGET_DIR)$(CONFIG_DIR)/certs/admin.pem -key $(TARGET_DIR)$(CONFIG_DIR)/certs/admin-key.pem
+
+	sleep 5
+
+	killall java
+
+	sleep 10
+
+
+	# Fix file sourced file by elasticsearch-env so that it can find the config directory as /etc/elasticsearch
+	# https://github.com/elastic/elasticsearch/blob/v7.10.2/distribution/src/bin/elasticsearch-env#L81
+	# https://github.com/elastic/elasticsearch/blob/v7.10.2/distribution/build.gradle#L585
+	sed -i 's/if \[ -z "$$ES_PATH_CONF" \]; then ES_PATH_CONF="$$ES_HOME"\/config; fi/source \/etc\/default\/wazuh-indexer/' $(TARGET_DIR)$(INSTALLATION_DIR)/bin/elasticsearch-env
+
+	# Remove bundled configuration directory since /etc/wazuh-indexer will be used
+	rm -rf $(TARGET_DIR)$(INSTALLATION_DIR)/config
+
+	mv $(TARGET_DIR)$(LIB_DIR)/nodes $(TARGET_DIR)$(INSTALLATION_DIR)/initial_nodes
+	rm -f $(TARGET_DIR)$(LOG_DIR)/*
+	rm -f $(TARGET_DIR)$(LIB_DIR)/batch_metrics_enabled.conf
+	rm -f $(TARGET_DIR)$(LIB_DIR)/logging_enabled.conf
+	rm -f $(TARGET_DIR)$(LIB_DIR)/performance_analyzer_enabled.conf
+	rm -f $(TARGET_DIR)$(LIB_DIR)/rca_enabled.conf
+
+
+#override_dh_auto_clean:
+	#$(MAKE) -C src clean
+
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym
+
+.PHONY: override_dh_strip override_dh_auto_clean override_dh_auto_build override_dh_auto_configure
