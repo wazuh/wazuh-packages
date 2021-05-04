@@ -76,6 +76,11 @@ echo 'USER_CA_STORE="/path/to/my_cert.pem"' >> ./etc/preloaded-vars.conf
 echo 'USER_AUTO_START="n"' >> ./etc/preloaded-vars.conf
 ./install.sh
 
+%if 0%{?el} < 6 || 0%{?rhel} < 6
+  mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}
+  touch ${RPM_BUILD_ROOT}%{_sysconfdir}/ossec-init.conf
+%endif
+
 # Create directories
 mkdir -p ${RPM_BUILD_ROOT}%{_initrddir}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.ssh
@@ -180,6 +185,7 @@ fi
 exit 0
 
 %pre
+
 # Create the ossec group if it doesn't exists
 if command -v getent > /dev/null 2>&1 && ! getent group ossec > /dev/null 2>&1; then
   groupadd -r ossec
@@ -210,6 +216,8 @@ if [ $1 = 2 ]; then
 fi
 
 %post
+
+echo "VERSION=\"$(%{_localstatedir}/bin/wazuh-control info -v)\"" > /etc/ossec-init.conf
 if [ $1 = 2 ]; then
   if [ -d %{_localstatedir}/logs/ossec ]; then
     rm -rf %{_localstatedir}/logs/wazuh
@@ -437,9 +445,15 @@ fi
 
 # posttrans code is the last thing executed in a install/upgrade
 %posttrans
+if [ -f %{_sysconfdir}/systemd/system/wazuh-agent.service ]; then
+  rm -rf %{_sysconfdir}/systemd/system/wazuh-agent.service
+  systemctl daemon-reload > /dev/null 2>&1
+fi
+
 if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
   rm -f %{_localstatedir}/tmp/wazuh.restart
   if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 ; then
+    systemctl daemon-reload > /dev/null 2>&1
     systemctl restart wazuh-agent.service > /dev/null 2>&1
   elif command -v service > /dev/null 2>&1 && service wazuh-agent status 2>/dev/null | grep "running" > /dev/null 2>&1; then
     service wazuh-agent restart > /dev/null 2>&1
@@ -456,13 +470,18 @@ if [ -d %{_localstatedir}/queue/ossec ]; then
   rm -rf %{_localstatedir}/queue/ossec/
 fi
 
+if [ -f %{_sysconfdir}/ossec-init.conf ]; then
+  rm -rf %{_sysconfdir}/ossec-init.conf
+fi
+
 %clean
 rm -fr %{buildroot}
 
 %files
+%defattr(-,root,root)
 %{_initrddir}/wazuh-agent
 /usr/lib/systemd/system/wazuh-agent.service
-%defattr(-,root,root)
+%attr(640, root, ossec) %verify(not md5 size mtime) %ghost %{_sysconfdir}/ossec-init.conf
 %dir %attr(750,root,ossec) %{_localstatedir}
 %attr(750,root,ossec) %{_localstatedir}/agentless
 %dir %attr(770,root,ossec) %{_localstatedir}/.ssh

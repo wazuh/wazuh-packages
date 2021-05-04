@@ -284,6 +284,7 @@ fi
 
 %post
 
+echo "VERSION=\"$(%{_localstatedir}/bin/wazuh-control info -v)\"" > /etc/ossec-init.conf
 if [ $1 = 2 ]; then
   if [ -d %{_localstatedir}/logs/ossec ]; then
     rm -rf %{_localstatedir}/logs/wazuh
@@ -529,9 +530,16 @@ fi
 
 # posttrans code is the last thing executed in a install/upgrade
 %posttrans
+
+if [ -f %{_sysconfdir}/systemd/system/wazuh-manager.service ]; then
+  rm -rf %{_sysconfdir}/systemd/system/wazuh-manager.service
+  systemctl daemon-reload > /dev/null 2>&1
+fi
+
 if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
   rm -f %{_localstatedir}/tmp/wazuh.restart
   if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 ; then
+    systemctl daemon-reload > /dev/null 2>&1
     systemctl restart wazuh-manager.service > /dev/null 2>&1
   elif command -v service > /dev/null 2>&1 ; then
     service wazuh-manager restart > /dev/null 2>&1
@@ -548,6 +556,10 @@ if [ -d %{_localstatedir}/queue/ossec ]; then
   rm -rf %{_localstatedir}/queue/ossec/
 fi
 
+if [ -f %{_sysconfdir}/ossec-init.conf ]; then
+  rm -rf %{_sysconfdir}/ossec-init.conf
+fi
+
 %triggerin -- glibc
 [ -r %{_sysconfdir}/localtime ] && cp -fpL %{_sysconfdir}/localtime %{_localstatedir}/etc
  chown root:ossec %{_localstatedir}/etc/localtime
@@ -557,9 +569,10 @@ fi
 rm -fr %{buildroot}
 
 %files
-%{_initrddir}/wazuh-manager
-/usr/lib/systemd/system/wazuh-manager.service
 %defattr(-,root,ossec)
+%{_initrddir}/wazuh-manager
+%attr(640, root, ossec) %verify(not md5 size mtime) %ghost %{_sysconfdir}/ossec-init.conf
+/usr/lib/systemd/system/wazuh-manager.service
 %dir %attr(750, root, ossec) %{_localstatedir}
 %attr(750, root, ossec) %{_localstatedir}/agentless
 %dir %attr(750, root, ossec) %{_localstatedir}/active-response

@@ -655,6 +655,38 @@
         "type": "file",
         "user": "root"
     },
+    "/var/ossec/lib/libdbsync.so": {
+        "class": "static",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/lib/librsync.so": {
+        "class": "static",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/lib/libsysinfo.so": {
+        "class": "static",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/lib/libsyscollector.so": {
+        "class": "static",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
     "/var/ossec/logs": {
         "class": "static",
         "group": "ossec",
