@@ -30,7 +30,7 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 %prep
 %setup -q
 
-./gen_ossec.sh conf manager centos %rhel %{_localstatedir} > etc/ossec-server.conf
+./gen_wazuh.sh conf manager centos %rhel %{_localstatedir} > etc/manager.conf
 
 %build
 pushd src
@@ -90,7 +90,7 @@ install -m 0440 src/wazuh_modules/vulnerability_detector/*.json ${RPM_BUILD_ROOT
 
 # Add configuration scripts
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/
-cp gen_ossec.sh ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/
+cp gen_wazuh.sh ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/
 cp add_localfiles.sh ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/
 
 # Templates for initscript
@@ -307,8 +307,8 @@ if [ $1 = 1 ]; then
 
   . %{_localstatedir}/packages_files/manager_installation_scripts/src/init/dist-detect.sh
 
-  # Generating ossec.conf file
-  %{_localstatedir}/packages_files/manager_installation_scripts/gen_ossec.sh conf manager ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir} > %{_localstatedir}/etc/ossec.conf
+  # Generating manager.conf file
+  %{_localstatedir}/packages_files/manager_installation_scripts/gen_wazuh.sh conf manager ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir} > %{_localstatedir}/etc/manager.conf
 
   touch %{_localstatedir}/logs/active-responses.log
   touch %{_localstatedir}/logs/integrations.log
@@ -317,8 +317,8 @@ if [ $1 = 1 ]; then
   chmod 0660 %{_localstatedir}/logs/active-responses.log
   chmod 0640 %{_localstatedir}/logs/integrations.log
 
-  # Add default local_files to ossec.conf
-  %{_localstatedir}/packages_files/manager_installation_scripts/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
+  # Add default local_files to manager.conf
+  %{_localstatedir}/packages_files/manager_installation_scripts/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/manager.conf
 fi
 
 # Generation auto-signed certificate if not exists
@@ -665,7 +665,7 @@ rm -fr %{buildroot}
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/add_localfiles.sh
-%attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/gen_ossec.sh
+%attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/gen_wazuh.sh
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/src/
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/src/REVISION
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/src/VERSION
