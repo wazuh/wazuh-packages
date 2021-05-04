@@ -61,7 +61,7 @@ cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
 
 # Add configuration scripts
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/
-cp gen_ossec.sh ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/
+cp gen_wazuh.sh ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/
 cp add_localfiles.sh ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/
 
 # Support files for dynamic creation of configuraiton file
@@ -125,7 +125,7 @@ if [ $1 = 1 ]; then
 
   # Generating ossec.conf file
   . %{_localstatedir}/tmp/src/init/dist-detect.sh
-  %{_localstatedir}/tmp/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir} > %{_localstatedir}/etc/ossec.conf
+  %{_localstatedir}/tmp/gen_wazuh.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir} > %{_localstatedir}/etc/ossec.conf
 
   # Add default local_files to ossec.conf
   %{_localstatedir}/tmp/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
