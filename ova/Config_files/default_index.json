@@ -1,5 +1,0 @@
-{
-    "changes": {
-        "defaultIndex": "wazuh-alerts-{wazuh_major}.x-*"
-    }
-}
