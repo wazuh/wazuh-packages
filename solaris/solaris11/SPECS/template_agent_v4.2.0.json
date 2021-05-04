@@ -31,7 +31,7 @@
         "type": "directory",
         "user": "root"
     },
-    "/var/ossec/active-response/bin/default-firewall-drop.sh": {
+    "/var/ossec/active-response/bin/default-firewall-drop": {
         "class": "static",
         "group": "ossec",
         "mode": "0750",
@@ -39,7 +39,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/active-response/bin/disable-account.sh": {
+    "/var/ossec/active-response/bin/disable-account": {
         "class": "static",
         "group": "ossec",
         "mode": "0750",
@@ -47,7 +47,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/active-response/bin/firewall-drop.sh": {
+    "/var/ossec/active-response/bin/firewall-drop": {
         "class": "static",
         "group": "ossec",
         "mode": "0750",
@@ -55,7 +55,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/active-response/bin/firewalld-drop.sh": {
+    "/var/ossec/active-response/bin/firewalld-drop": {
         "class": "static",
         "group": "ossec",
         "mode": "0750",
@@ -63,7 +63,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/active-response/bin/host-deny.sh": {
+    "/var/ossec/active-response/bin/host-deny": {
         "class": "static",
         "group": "ossec",
         "mode": "0750",
@@ -71,7 +71,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/active-response/bin/ip-customblock.sh": {
+    "/var/ossec/active-response/bin/ip-customblock": {
         "class": "static",
         "group": "ossec",
         "mode": "0750",
@@ -79,15 +79,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/active-response/bin/ipfw.sh": {
-        "class": "static",
-        "group": "ossec",
-        "mode": "0750",
-        "prot": "-rwxr-x---",
-        "type": "file",
-        "user": "root"
-    },
-    "/var/ossec/active-response/bin/ipfw_mac.sh": {
+    "/var/ossec/active-response/bin/ipfw": {
         "class": "static",
         "group": "ossec",
         "mode": "0750",
@@ -103,7 +95,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/active-response/bin/kaspersky.sh": {
+    "/var/ossec/active-response/bin/kaspersky": {
         "class": "static",
         "group": "ossec",
         "mode": "0750",
@@ -111,7 +103,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/active-response/bin/npf.sh": {
+    "/var/ossec/active-response/bin/npf": {
         "class": "static",
         "group": "ossec",
         "mode": "0750",
@@ -119,7 +111,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/active-response/bin/ossec-slack.sh": {
+    "/var/ossec/active-response/bin/wazuh-slack": {
         "class": "static",
         "group": "ossec",
         "mode": "0750",
@@ -127,7 +119,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/active-response/bin/ossec-tweeter.sh": {
+    "/var/ossec/active-response/bin/pf": {
         "class": "static",
         "group": "ossec",
         "mode": "0750",
@@ -135,15 +127,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/active-response/bin/pf.sh": {
-        "class": "static",
-        "group": "ossec",
-        "mode": "0750",
-        "prot": "-rwxr-x---",
-        "type": "file",
-        "user": "root"
-    },
-    "/var/ossec/active-response/bin/restart-ossec.sh": {
+    "/var/ossec/active-response/bin/restart-wazuh": {
         "class": "static",
         "group": "ossec",
         "mode": "0750",
@@ -159,7 +143,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/active-response/bin/route-null.sh": {
+    "/var/ossec/active-response/bin/route-null": {
         "class": "static",
         "group": "ossec",
         "mode": "0750",
@@ -405,15 +389,6 @@
         "mode": "0640",
         "prot": "-rw-r-----",
         "type": "file",
-        "user": "root"
-    },
-    "/var/ossec/etc/ossec-init.conf": {
-        "class": "static",
-        "group": "root",
-        "mode": "0777",
-        "prot": "lrwxrwxrwx",
-        "target": "/etc/ossec-init.conf",
-        "type": "link",
         "user": "root"
     },
     "/var/ossec/etc/ossec.conf": {
@@ -680,6 +655,38 @@
         "type": "file",
         "user": "root"
     },
+    "/var/ossec/lib/libdbsync.so": {
+        "class": "static",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/lib/librsync.so": {
+        "class": "static",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/lib/libsysinfo.so": {
+        "class": "static",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/lib/libsyscollector.so": {
+        "class": "static",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
     "/var/ossec/logs": {
         "class": "static",
         "group": "ossec",
@@ -694,6 +701,14 @@
         "mode": "0660",
         "prot": "-rw-rw----",
         "type": "file",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh": {
+        "class": "static",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "drwxr-x---",
+        "type": "directory",
         "user": "ossec"
     },
     "/var/ossec/logs/ossec": {
@@ -720,6 +735,302 @@
         "type": "file",
         "user": "root"
     },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "drwxr-x---",
+        "type": "directory",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Jan": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "drwxr-x---",
+        "type": "directory",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Feb": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "drwxr-x---",
+        "type": "directory",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Mar": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "drwxr-x---",
+        "type": "directory",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Apr": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "drwxr-x---",
+        "type": "directory",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/May": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "drwxr-x---",
+        "type": "directory",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Jun": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "drwxr-x---",
+        "type": "directory",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Jul": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "drwxr-x---",
+        "type": "directory",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Aug": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "drwxr-x---",
+        "type": "directory",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Sep": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "drwxr-x---",
+        "type": "directory",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Oct": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "drwxr-x---",
+        "type": "directory",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Nov": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "drwxr-x---",
+        "type": "directory",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Dec": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "drwxr-x---",
+        "type": "directory",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Jan/ossec-[0-9][0-9].json.gz": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0640",
+        "prot": "-rw-r-----",
+        "type": "file",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Jan/ossec-[0-9][0-9].log.gz": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0640",
+        "prot": "-rw-r-----",
+        "type": "file",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Feb/ossec-[0-9][0-9].json.gz": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0640",
+        "prot": "-rw-r-----",
+        "type": "file",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Feb/ossec-[0-9][0-9].log.gz": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0640",
+        "prot": "-rw-r-----",
+        "type": "file",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Mar/ossec-[0-9][0-9].json.gz": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0640",
+        "prot": "-rw-r-----",
+        "type": "file",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Mar/ossec-[0-9][0-9].log.gz": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0640",
+        "prot": "-rw-r-----",
+        "type": "file",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Apr/ossec-[0-9][0-9].json.gz": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0640",
+        "prot": "-rw-r-----",
+        "type": "file",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Apr/ossec-[0-9][0-9].log.gz": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0640",
+        "prot": "-rw-r-----",
+        "type": "file",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/May/ossec-[0-9][0-9].json.gz": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0640",
+        "prot": "-rw-r-----",
+        "type": "file",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/May/ossec-[0-9][0-9].log.gz": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0640",
+        "prot": "-rw-r-----",
+        "type": "file",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Jun/ossec-[0-9][0-9].json.gz": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0640",
+        "prot": "-rw-r-----",
+        "type": "file",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Jun/ossec-[0-9][0-9].log.gz": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0640",
+        "prot": "-rw-r-----",
+        "type": "file",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Jul/ossec-[0-9][0-9].json.gz": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0640",
+        "prot": "-rw-r-----",
+        "type": "file",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Jul/ossec-[0-9][0-9].log.gz": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0640",
+        "prot": "-rw-r-----",
+        "type": "file",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Aug/ossec-[0-9][0-9].json.gz": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0640",
+        "prot": "-rw-r-----",
+        "type": "file",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Aug/ossec-[0-9][0-9].log.gz": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0640",
+        "prot": "-rw-r-----",
+        "type": "file",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Sep/ossec-[0-9][0-9].json.gz": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0640",
+        "prot": "-rw-r-----",
+        "type": "file",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Sep/ossec-[0-9][0-9].log.gz": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0640",
+        "prot": "-rw-r-----",
+        "type": "file",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Oct/ossec-[0-9][0-9].json.gz": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0640",
+        "prot": "-rw-r-----",
+        "type": "file",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Oct/ossec-[0-9][0-9].log.gz": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0640",
+        "prot": "-rw-r-----",
+        "type": "file",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Nov/ossec-[0-9][0-9].json.gz": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0640",
+        "prot": "-rw-r-----",
+        "type": "file",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Nov/ossec-[0-9][0-9].log.gz": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0640",
+        "prot": "-rw-r-----",
+        "type": "file",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Dec/ossec-[0-9][0-9].json.gz": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0640",
+        "prot": "-rw-r-----",
+        "type": "file",
+        "user": "ossec"
+    },
+    "/var/ossec/logs/wazuh/[0-9][0-9][0-9][0-9]/Dec/ossec-[0-9][0-9].log.gz": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0640",
+        "prot": "-rw-r-----",
+        "type": "file",
+        "user": "ossec"
+    },
     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]": {
         "class": "dynamic",
         "group": "ossec",
@@ -728,7 +1039,7 @@
         "type": "directory",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Jan": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Jan": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0750",
@@ -736,7 +1047,7 @@
         "type": "directory",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Feb": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Feb": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0750",
@@ -744,7 +1055,7 @@
         "type": "directory",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Mar": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Mar": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0750",
@@ -752,7 +1063,7 @@
         "type": "directory",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Apr": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Apr": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0750",
@@ -760,7 +1071,7 @@
         "type": "directory",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/May": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/May": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0750",
@@ -768,7 +1079,7 @@
         "type": "directory",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Jun": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Jun": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0750",
@@ -776,7 +1087,7 @@
         "type": "directory",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Jul": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Jul": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0750",
@@ -784,7 +1095,7 @@
         "type": "directory",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Aug": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Aug": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0750",
@@ -792,7 +1103,7 @@
         "type": "directory",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Sep": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Sep": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0750",
@@ -800,7 +1111,7 @@
         "type": "directory",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Oct": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Oct": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0750",
@@ -808,7 +1119,7 @@
         "type": "directory",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Nov": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Nov": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0750",
@@ -816,7 +1127,7 @@
         "type": "directory",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Dec": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Dec": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0750",
@@ -824,7 +1135,7 @@
         "type": "directory",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Jan/ossec-[0-9][0-9].json.gz": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Jan/ossec-[0-9][0-9].json.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -832,7 +1143,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Jan/ossec-[0-9][0-9].log.gz": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Jan/ossec-[0-9][0-9].log.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -840,7 +1151,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Feb/ossec-[0-9][0-9].json.gz": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Feb/ossec-[0-9][0-9].json.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -848,7 +1159,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Feb/ossec-[0-9][0-9].log.gz": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Feb/ossec-[0-9][0-9].log.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -856,7 +1167,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Mar/ossec-[0-9][0-9].json.gz": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Mar/ossec-[0-9][0-9].json.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -864,7 +1175,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Mar/ossec-[0-9][0-9].log.gz": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Mar/ossec-[0-9][0-9].log.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -872,7 +1183,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Apr/ossec-[0-9][0-9].json.gz": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Apr/ossec-[0-9][0-9].json.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -880,7 +1191,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Apr/ossec-[0-9][0-9].log.gz": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Apr/ossec-[0-9][0-9].log.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -888,7 +1199,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/May/ossec-[0-9][0-9].json.gz": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/May/ossec-[0-9][0-9].json.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -896,7 +1207,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/May/ossec-[0-9][0-9].log.gz": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/May/ossec-[0-9][0-9].log.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -904,7 +1215,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Jun/ossec-[0-9][0-9].json.gz": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Jun/ossec-[0-9][0-9].json.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -912,7 +1223,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Jun/ossec-[0-9][0-9].log.gz": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Jun/ossec-[0-9][0-9].log.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -920,7 +1231,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Jul/ossec-[0-9][0-9].json.gz": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Jul/ossec-[0-9][0-9].json.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -928,7 +1239,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Jul/ossec-[0-9][0-9].log.gz": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Jul/ossec-[0-9][0-9].log.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -936,7 +1247,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Aug/ossec-[0-9][0-9].json.gz": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Aug/ossec-[0-9][0-9].json.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -944,7 +1255,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Aug/ossec-[0-9][0-9].log.gz": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Aug/ossec-[0-9][0-9].log.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -952,7 +1263,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Sep/ossec-[0-9][0-9].json.gz": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Sep/ossec-[0-9][0-9].json.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -960,7 +1271,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Sep/ossec-[0-9][0-9].log.gz": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Sep/ossec-[0-9][0-9].log.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -968,7 +1279,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Oct/ossec-[0-9][0-9].json.gz": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Oct/ossec-[0-9][0-9].json.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -976,7 +1287,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Oct/ossec-[0-9][0-9].log.gz": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Oct/ossec-[0-9][0-9].log.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -984,7 +1295,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Nov/ossec-[0-9][0-9].json.gz": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Nov/ossec-[0-9][0-9].json.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -992,7 +1303,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Nov/ossec-[0-9][0-9].log.gz": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Nov/ossec-[0-9][0-9].log.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -1000,7 +1311,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Dec/ossec-[0-9][0-9].json.gz": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Dec/ossec-[0-9][0-9].json.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -1008,7 +1319,7 @@
         "type": "file",
         "user": "ossec"
     },
-    "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Dec/ossec-[0-9][0-9].log.gz": {
+     "/var/ossec/logs/ossec/[0-9][0-9][0-9][0-9]/Dec/ossec-[0-9][0-9].log.gz": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0640",
@@ -1112,6 +1423,30 @@
         "type": "directory",
         "user": "ossec"
     },
+    "/var/ossec/queue/syscollector": {
+        "class": "static",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "drwxr-x---",
+        "type": "directory",
+        "user": "ossec"
+    },
+    "/var/ossec/queue/syscollector/db": {
+        "class": "static",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "drwxr-x---",
+        "type": "directory",
+        "user": "ossec"
+    },
+    "/var/ossec/queue/syscollector/norm_config.json": {
+        "class": "static",
+        "group": "ossec",
+        "mode": "0640",
+        "prot": "-rw-r-----",
+        "type": "file",
+        "user": "root"
+    },
     "/var/ossec/queue/ossec": {
         "class": "static",
         "group": "ossec",
@@ -1169,6 +1504,70 @@
         "user": "root"
     },
     "/var/ossec/queue/ossec/control": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0660",
+        "prot": "-rw-rw----",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/queue/sockets": {
+        "class": "static",
+        "group": "ossec",
+        "mode": "0770",
+        "prot": "drwxrwx---",
+        "type": "directory",
+        "user": "ossec"
+    },
+    "/var/ossec/queue/sockets/.*": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0644",
+        "prot": "-rw-r--r--",
+        "type": "file",
+        "user": "ossec"
+    },
+    "/var/ossec/queue/sockets/logcollector": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0660",
+        "prot": "-rw-rw----",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/queue/sockets/syscheck": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0660",
+        "prot": "-rw-rw----",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/queue/sockets/wmodules": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0660",
+        "prot": "-rw-rw----",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/queue/sockets/queue": {
+        "class": "dynamic",
+        "group": "ossec",
+        "mode": "0660",
+        "prot": "-rw-rw----",
+        "type": "file",
+        "user": "ossec"
+    },
+    "/var/ossec/queue/sockets/com": {
+        "class": "static",
+        "group": "ossec",
+        "mode": "0660",
+        "prot": "-rw-rw----",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/queue/sockets/control": {
         "class": "dynamic",
         "group": "ossec",
         "mode": "0660",
@@ -1320,6 +1719,14 @@
         "prot": "-rw-r-----",
         "type": "file",
         "user": "root"
+    },
+    "/var/ossec/var/run/wazuh-logcollector.state": {
+        "class": "static",
+        "group": "ossec",
+        "mode": "0644",
+        "prot": "-rw-r--r--",
+        "type": "file",
+        "user": "ossec"
     },
     "/var/ossec/var/run/wazuh-syscheckd-*.pid": {
         "class": "dynamic",

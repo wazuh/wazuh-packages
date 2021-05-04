@@ -1,6 +1,6 @@
 # Spec file for AIX systems
 Name:        wazuh-agent
-Version:     5.0.0
+Version:     4.1.1
 Release:     1
 License:     GPL
 URL:         https://www.wazuh.com/
@@ -22,7 +22,7 @@ Wazuh is an open source security monitoring solution for threat detection, integ
 %prep
 %setup -q
 ./gen_ossec.sh init agent %{_localstatedir} > ossec-init.conf
-cd src && gmake clean && gmake deps RESOURCES_URL=http://packages.wazuh.com/deps/5.0
+cd src && gmake clean && gmake deps RESOURCES_URL=http://packages.wazuh.com/deps/4.1
 gmake TARGET=agent USE_SELINUX=no PREFIX=%{_localstatedir} DISABLE_SHARED=yes DISABLE_SYSC=yes
 cd ..
 
@@ -102,7 +102,7 @@ fi
 
 if [ $1 = 2 ]; then
   touch %{_localstatedir}/tmp/wazuh.restart
-  /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
+  /etc/rc.d/init.d/wazuh-agent stop > /dev/null 2>&1 || :
 fi
 
 %post
@@ -234,7 +234,6 @@ rm -fr %{buildroot}
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/fim/db
 %dir %attr(770,ossec,ossec) %{_localstatedir}/queue/alerts
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/rids
-%dir %attr(750,ossec,ossec) %{_localstatedir}/queue/logcollector
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ruleset/sca
 %attr(640, root, ossec) %{_localstatedir}/ruleset/sca/*
 %dir %attr(1750,root,ossec) %{_localstatedir}/tmp
@@ -260,17 +259,9 @@ rm -fr %{buildroot}
 
 
 %changelog
-* Sat Dec 04 2021 support <info@wazuh.com> - 5.0.0
-- More info: https://documentation.wazuh.com/current/release-notes/
-* Mon Apr 26 2021 support <info@wazuh.com> - 4.2.0
+* Fri Mar 05 2021 support <info@wazuh.com> - 4.1.1
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Tue Jan 19 2021 support <info@wazuh.com> - 4.1.0
-- More info: https://documentation.wazuh.com/current/release-notes/
-* Mon Nov 30 2020 support <info@wazuh.com> - 4.0.3
-- More info: https://documentation.wazuh.com/current/release-notes/
-* Mon Nov 23 2020 support <info@wazuh.com> - 4.0.2
-- More info: https://documentation.wazuh.com/current/release-notes/
-* Sat Oct 31 2020 support <info@wazuh.com> - 4.0.1
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Oct 19 2020 support <info@wazuh.com> - 4.0.0
 - More info: https://documentation.wazuh.com/current/release-notes/

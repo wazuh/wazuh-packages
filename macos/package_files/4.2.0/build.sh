@@ -35,10 +35,10 @@ function build() {
     configure
 
     if [ -z "${USER_BINARYINSTALL}" ]; then
-        make -C ${SOURCES_PATH}/src deps
+        make -C ${SOURCES_PATH}/src deps TARGET=agent
 
         echo "Generating Wazuh executables"
-        make -j$JOBS -C ${SOURCES_PATH}/src DYLD_FORCE_FLAT_NAMESPACE=1 TARGET=agent PREFIX=${DESTINATION_PATH} build
+        make -j$JOBS -C ${SOURCES_PATH}/src DYLD_FORCE_FLAT_NAMESPACE=1 TARGET=agent build
     fi
 
     echo "Running install script"
@@ -60,7 +60,7 @@ function build() {
     find ${SOURCES_PATH}/src/init/ -name *.sh -type f -exec install -m 0640 {} ${INSTALLATION_SCRIPTS_DIR}/src/init \;
 
     mkdir -p ${INSTALLATION_SCRIPTS_DIR}/sca/generic
-    mkdir -p ${INSTALLATION_SCRIPTS_DIR}/sca/darwin/{15,16,17,18}
+    mkdir -p ${INSTALLATION_SCRIPTS_DIR}/sca/darwin/{15,16,17,18,20}
 
     cp -r ${SOURCES_PATH}/ruleset/sca/darwin ${INSTALLATION_SCRIPTS_DIR}/sca
     cp -r ${SOURCES_PATH}/ruleset/sca/generic ${INSTALLATION_SCRIPTS_DIR}/sca
@@ -69,10 +69,11 @@ function build() {
     cp ${SOURCES_PATH}/etc/templates/config/darwin/16/sca.files ${INSTALLATION_SCRIPTS_DIR}/sca/darwin/16/
     cp ${SOURCES_PATH}/etc/templates/config/darwin/17/sca.files ${INSTALLATION_SCRIPTS_DIR}/sca/darwin/17/
     cp ${SOURCES_PATH}/etc/templates/config/darwin/18/sca.files ${INSTALLATION_SCRIPTS_DIR}/sca/darwin/18/
+    cp ${SOURCES_PATH}/etc/templates/config/darwin/19/sca.files ${INSTALLATION_SCRIPTS_DIR}/sca/darwin/19/
+    cp ${SOURCES_PATH}/etc/templates/config/darwin/20/sca.files ${INSTALLATION_SCRIPTS_DIR}/sca/darwin/20/
 
     cp ${SOURCES_PATH}/src/VERSION ${INSTALLATION_SCRIPTS_DIR}/src/
     cp ${SOURCES_PATH}/src/REVISION ${INSTALLATION_SCRIPTS_DIR}/src/
-    cp ${SOURCES_PATH}/src/LOCATION ${INSTALLATION_SCRIPTS_DIR}/src/
 }
 
 build

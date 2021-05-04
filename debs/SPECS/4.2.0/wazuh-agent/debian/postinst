@@ -32,17 +32,13 @@ case "$1" in
         adduser --system --home ${DIR} --shell ${OSMYSHELL} --ingroup ${GROUP} ${USER} > /dev/null 2>&1
     fi
 
-    if [ -f ${SCRIPTS_DIR}/ossec-init.conf ] ; then
-        cp ${SCRIPTS_DIR}/ossec-init.conf /etc/ossec-init.conf
-    fi
-
     if [ -z "$2" ] || [ -f ${WAZUH_TMP_DIR}/create_conf ] ; then
 
-        ${SCRIPTS_DIR}/gen_ossec.sh conf agent ${OS} ${VER} > ${DIR}/etc/ossec.conf
-        ${SCRIPTS_DIR}/add_localfiles.sh >> ${DIR}/etc/ossec.conf
+        ${SCRIPTS_DIR}/gen_ossec.sh conf agent ${OS} ${VER} ${DIR} > ${DIR}/etc/ossec.conf
+        ${SCRIPTS_DIR}/add_localfiles.sh ${DIR} >> ${DIR}/etc/ossec.conf
 
     else
-        ${SCRIPTS_DIR}/gen_ossec.sh conf agent ${OS} ${VER} > ${DIR}/etc/ossec.conf.new
+        ${SCRIPTS_DIR}/gen_ossec.sh conf agent ${OS} ${VER} ${DIR} > ${DIR}/etc/ossec.conf.new
         chmod 660 ${DIR}/etc/ossec.conf.new
     fi
 
@@ -128,19 +124,23 @@ case "$1" in
 
     # Register and configure agent if Wazuh environment variables are defined
     if [ -z "$2" ] ; then
-        ${SCRIPTS_DIR}/src/init/register_configure_agent.sh > /dev/null || :
+        ${SCRIPTS_DIR}/src/init/register_configure_agent.sh ${DIR} > /dev/null || :
     fi
 
     # Restoring file permissions
     ${SCRIPTS_DIR}/restore-permissions.sh > /dev/null 2>&1 || :
 
-    # Fix /etc/ossec-init.conf
-    chmod 640 /etc/ossec-init.conf
-    chown root:ossec /etc/ossec-init.conf
+    if [ -f /etc/systemd/system/wazuh-agent.service ]; then
+        rm -f /etc/systemd/system/wazuh-agent.service
+        if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
+            systemctl daemon-reload > /dev/null 2>&1
+        fi
+    fi
 
     if [ ! -z "$2" ]; then
         if [ -f ${WAZUH_TMP_DIR}/wazuh.restart ] ; then
             if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
+                systemctl daemon-reload > /dev/null 2>&1
                 systemctl restart wazuh-agent.service > /dev/null 2>&1
             elif command -v service > /dev/null 2>&1 ; then
                 service wazuh-agent restart > /dev/null 2>&1
@@ -148,6 +148,11 @@ case "$1" in
                 ${DIR}/bin/wazuh-control restart > /dev/null 2>&1
             fi
         fi
+    fi
+
+    #Delete obsolete files
+    if [ -f /etc/ossec-init.conf ]; then
+        rm -f /etc/ossec-init.conf
     fi
 
     # Delete installation scripts

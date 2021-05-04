@@ -17,7 +17,7 @@ OUTDIR="/var/local/wazuh"
 CHECKSUMDIR="/var/local/checksum"
 REVISION="1"
 
-if command -v python3 > /dev/null ; then 
+if command -v python3 > /dev/null ; then
     PYTHON="python3"
 else
     PYTHON=""
@@ -162,6 +162,20 @@ main() {
     MAJOR=$(echo ${WAZUH_VERSION} | cut -dv -f2 | cut -d. -f1)
     MINOR=$(echo ${WAZUH_VERSION} | cut -d. -f2)
 
+    if [ "${NO_COMPILE}" == false ]; then
+        # Execute gmake deps if the version is greater or equal to 3.5
+        if [[ ${MAJOR} -ge 4 || (${MAJOR} -ge 3 && ${MINOR} -ge 5) ]]; then
+            make -C src deps TARGET=${BUILD_TARGET}
+        fi
+
+        # Compile agent
+        make -C src -j ${JOBS} TARGET=${BUILD_TARGET} || exit 1
+        # Clean unuseful files
+        clean
+        # Preload vars for installer
+        preload
+    fi
+
     # Compress and sign package
     if [ "${DIST_NAME}" = "centos" ]; then
         package_name="wazuh-agent-4.0.4-1.x86_64.rpm"
@@ -192,9 +206,12 @@ main() {
 }
 
 clean() {
+    rm -rf ./{api,framework}
     rm -rf doc wodles/oscap/content/* gen_ossec.sh add_localfiles.sh Jenkinsfile*
-    rm -rf src/{addagent,analysisd,client-agent,config,error_messages,external/*,headers,logcollector,monitord,os_auth,os_crypto,os_csyslogd,os_dbdos_execd}
-    rm -rf src/{os_integrator,os_maild,os_netos_regex,os_xml,os_zlib,remoted,reportd,shared,syscheckd,tests,update,wazuh_db,wazuh_modules}
+    rm -rf src/{addagent,analysisd,client-agent,config,error_messages,external/*}
+    rm -rf src/{headers,logcollector,monitord,os_auth,os_crypto,os_csyslogd}
+    rm -rf src/{os_dbdos_execd,os_integrator,os_maild,os_netos_regex,os_xml,os_zlib}
+    rm -rf src/{remoted,reportd,shared,syscheckd,tests,update,wazuh_db}
 
     if [[ "${BUILD_TARGET}" != "winagent" ]]; then
         rm -rf src/win32

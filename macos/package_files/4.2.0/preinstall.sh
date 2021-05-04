@@ -17,6 +17,8 @@ else
     launchctl setenv WAZUH_PKG_UPGRADE true
     if ${DIR}/bin/wazuh-control status | grep "is running" > /dev/null 2>&1; then
         launchctl setenv WAZUH_RESTART true
+    elif ${DIR}/bin/ossec-control status | grep "is running" > /dev/null 2>&1; then
+        launchctl setenv WAZUH_RESTART true
     else
         launchctl setenv WAZUH_RESTART false
     fi
@@ -25,6 +27,14 @@ fi
 if [ $(launchctl getenv WAZUH_PKG_UPGRADE) = true ]; then
     mkdir -p ${DIR}/config_files/
     cp -r ${DIR}/etc/{ossec.conf,client.keys,local_internal_options.conf,shared} ${DIR}/config_files/
+
+    if [ -d ${DIR}/logs/ossec ]; then
+        mv ${DIR}/logs/ossec ${DIR}/logs/wazuh
+    fi
+    
+    if [ -d ${DIR}/queue/ossec ]; then
+        mv ${DIR}/queue/ossec ${DIR}/queue/sockets
+    fi
 fi
 
 if [ $(launchctl getenv WAZUH_PKG_UPGRADE) = true ]; then
@@ -34,33 +44,33 @@ if [ $(launchctl getenv WAZUH_PKG_UPGRADE) = true ]; then
 fi
 
 if [[ ! -f "/usr/bin/dscl" ]]
-  then
-  echo "Error: I couldn't find dscl, dying here";
-  exit
+    then
+    echo "Error: I couldn't find dscl, dying here";
+    exit
 fi
 
 DSCL="/usr/bin/dscl";
 
 function check_errm
 {
-   if  [[ ${?} != "0" ]]
-      then
-      echo "${1}";
-      exit ${2};
-      fi
+    if  [[ ${?} != "0" ]]
+        then
+        echo "${1}";
+        exit ${2};
+        fi
 }
 
 # get unique id numbers (uid, gid) that are greater than 100
 unset -v i new_uid new_gid idvar;
 declare -i new_uid=0 new_gid=0 i=100 idvar=0;
 while [[ $idvar -eq 0 ]]; do
-   i=$[i+1]
-   if [[ -z "$(/usr/bin/dscl . -search /Users uid ${i})" ]] && [[ -z "$(/usr/bin/dscl . -search /Groups gid ${i})" ]];
-      then
-      new_uid=$i
-      new_gid=$i
-      idvar=1
-      #break
+    i=$[i+1]
+    if [[ -z "$(/usr/bin/dscl . -search /Users uid ${i})" ]] && [[ -z "$(/usr/bin/dscl . -search /Groups gid ${i})" ]];
+        then
+        new_uid=$i
+        new_gid=$i
+        idvar=1
+        #break
    fi
 done
 
@@ -82,37 +92,39 @@ fi
 # Stops the agent before upgrading it
 if [ -f ${DIR}/bin/wazuh-control ]; then
     ${DIR}/bin/wazuh-control stop
+elif [ -f ${DIR}/bin/ossec-control ]; then
+    ${DIR}/bin/ossec-control stop
 fi
 
 # Creating the group
 if [[ $(dscl . -read /Groups/ossec) ]]
-   then
-   echo "ossec group already exists.";
+    then
+    echo "ossec group already exists.";
 else
-   sudo ${DSCL} localhost -create /Local/Default/Groups/ossec
-   check_errm "Error creating group ossec" "67"
-   sudo ${DSCL} localhost -createprop /Local/Default/Groups/ossec PrimaryGroupID ${new_gid}
-   sudo ${DSCL} localhost -createprop /Local/Default/Groups/ossec RealName ossec
-   sudo ${DSCL} localhost -createprop /Local/Default/Groups/ossec RecordName ossec
-   sudo ${DSCL} localhost -createprop /Local/Default/Groups/ossec RecordType: dsRecTypeStandard:Groups
-   sudo ${DSCL} localhost -createprop /Local/Default/Groups/ossec Password "*"
+    sudo ${DSCL} localhost -create /Local/Default/Groups/ossec
+    check_errm "Error creating group ossec" "67"
+    sudo ${DSCL} localhost -createprop /Local/Default/Groups/ossec PrimaryGroupID ${new_gid}
+    sudo ${DSCL} localhost -createprop /Local/Default/Groups/ossec RealName ossec
+    sudo ${DSCL} localhost -createprop /Local/Default/Groups/ossec RecordName ossec
+    sudo ${DSCL} localhost -createprop /Local/Default/Groups/ossec RecordType: dsRecTypeStandard:Groups
+    sudo ${DSCL} localhost -createprop /Local/Default/Groups/ossec Password "*"
 fi
 
 # Creating the user
 if [[ $(dscl . -read /Users/ossec) ]]
-   then
-   echo "ossec user already exists.";
+    then
+    echo "ossec user already exists.";
 else
-   sudo ${DSCL} localhost -create /Local/Default/Users/ossec
-   check_errm "Error creating user ossec" "77"
-   sudo ${DSCL} localhost -createprop /Local/Default/Users/ossec RecordName ossec
-   sudo ${DSCL} localhost -createprop /Local/Default/Users/ossec RealName ossec
-   sudo ${DSCL} localhost -createprop /Local/Default/Users/ossec UserShell /usr/bin/false
-   sudo ${DSCL} localhost -createprop /Local/Default/Users/ossec NFSHomeDirectory /var/ossec
-   sudo ${DSCL} localhost -createprop /Local/Default/Users/ossec UniqueID ${new_uid}
-   sudo ${DSCL} localhost -createprop /Local/Default/Users/ossec PrimaryGroupID ${new_gid}
-   sudo ${DSCL} localhost -append /Local/Default/Groups/ossec GroupMembership ossec
-   sudo ${DSCL} localhost -createprop /Local/Default/Users/ossec Password "*"
+    sudo ${DSCL} localhost -create /Local/Default/Users/ossec
+    check_errm "Error creating user ossec" "77"
+    sudo ${DSCL} localhost -createprop /Local/Default/Users/ossec RecordName ossec
+    sudo ${DSCL} localhost -createprop /Local/Default/Users/ossec RealName ossec
+    sudo ${DSCL} localhost -createprop /Local/Default/Users/ossec UserShell /usr/bin/false
+    sudo ${DSCL} localhost -createprop /Local/Default/Users/ossec NFSHomeDirectory /var/ossec
+    sudo ${DSCL} localhost -createprop /Local/Default/Users/ossec UniqueID ${new_uid}
+    sudo ${DSCL} localhost -createprop /Local/Default/Users/ossec PrimaryGroupID ${new_gid}
+    sudo ${DSCL} localhost -append /Local/Default/Groups/ossec GroupMembership ossec
+sudo ${DSCL} localhost -createprop /Local/Default/Users/ossec Password "*"
 fi
 
 #Hide the fixed users
@@ -143,10 +155,8 @@ chown root:wheel /Library/StartupItems/WAZUH
 sudo tee /Library/StartupItems/WAZUH/WAZUH <<-'EOF'
 #!/bin/sh
 . /etc/rc.common
-. /etc/ossec-init.conf
-if [ "X${DIRECTORY}" = "X" ]; then
-    DIRECTORY="/Library/Ossec"
-fi
+
+DIRECTORY="/Library/Ossec"
 
 StartService ()
 {
@@ -197,11 +207,7 @@ chmod u=rw-,go=r-- /Library/StartupItems/WAZUH/StartupParameters.plist
 sudo tee /Library/StartupItems/WAZUH/launcher.sh <<-'EOF'
 #!/bin/sh
 
-. /etc/ossec-init.conf
-
-if [ "X${DIRECTORY}" = "X" ]; then
-    DIRECTORY="/Library/Ossec"
-fi
+DIRECTORY="/Library/Ossec"
 
 capture_sigterm() {
     ${DIRECTORY}/bin/wazuh-control stop

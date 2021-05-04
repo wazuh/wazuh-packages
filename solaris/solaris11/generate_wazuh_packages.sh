@@ -15,6 +15,9 @@ arch=`uname -p`
 SOURCE=${current_path}/repository
 CONFIG="$SOURCE/etc/preloaded-vars.conf"
 VERSION=""
+number_version=""
+major_version=""
+minor_version=""
 target_dir="${current_path}/output"
 checksum_dir=""
 compute_checksums="no"
@@ -61,13 +64,42 @@ build_environment() {
     /opt/csw/bin/pkgutil -y -i git
     /opt/csw/bin/pkgutil -y -i gmake
     /opt/csw/bin/pkgutil -y -i gcc5core
+    /opt/csw/bin/pkgutil -y -i gcc5g++
+
+     # Compile GCC-5.5 and CMake
+    curl -L http://packages.wazuh.com/utils/gcc/gcc-5.5.0.tar.gz | gtar xz
+    cd gcc-5.5.0
+    curl -L http://packages.wazuh.com/utils/gcc/mpfr-2.4.2.tar.bz2 | gtar xj
+    mv mpfr-2.4.2 mpfr
+    curl -L http://packages.wazuh.com/utils/gcc/gmp-4.3.2.tar.bz2 | gtar xj
+    mv gmp-4.3.2 gmp
+    curl -L http://packages.wazuh.com/utils/gcc/mpc-0.8.1.tar.gz | gtar xz
+    mv mpc-0.8.1 mpc
+    curl -L http://packages.wazuh.com/utils/gcc/isl-0.14.tar.bz2 | gtar xj
+    mv isl-0.14 isl
+    unset CPLUS_INCLUDE_PATH
+    unset LD_LIBRARY_PATH
+
+    mkdir -p /usr/local
+    ./configure --prefix=/usr/local/gcc-5.5.0 --enable-languages=c,c++ --disable-multilib --disable-libsanitizer --disable-bootstrap --with-ld=/usr/ccs/bin/ld --without-gnu-ld --with-gnu-as --with-as=/opt/csw/bin/gas
+    gmake -j$(nproc) && gmake install
+    export CPLUS_INCLUDE_PATH=/usr/local/gcc-5.5.0/include/c++/5.5.0
+    export LD_LIBRARY_PATH=/usr/local/gcc-5.5.0/lib
+    export PATH=/usr/sbin:/usr/bin:/usr/ccs/bin:/opt/csw/bin
+
+    echo "export PATH=/usr/sbin:/usr/bin:/usr/ccs/bin:/opt/csw/bin" >> /etc/profile
+
+    echo "export CPLUS_INCLUDE_PATH=/usr/local/gcc-5.5.0/include/c++/5.5.0" >> /etc/profile
+    echo "export LD_LIBRARY_PATH=/usr/local/gcc-5.5.0/lib" >> /etc/profile
+    rm -rf gcc-*
+    ln -sf /usr/local/gcc-5.5.0/bin/g++ /usr/bin/g++
 
     curl -sL http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz | gtar xz
     cd cmake-3.18.3
     ./bootstrap
     gmake -j$(nproc) && gmake install
     cd .. && rm -rf cmake-3.18.3
-    ln -s /usr/local/bin/cmake /usr/bin/cmake
+    ln -sf /usr/local/bin/cmake /usr/bin/cmake
 }
 
 compute_version_revision()
@@ -95,9 +127,6 @@ download_source() {
 }
 
 check_version(){
-    number_version=`echo "$VERSION" | cut -d v -f 2`
-    major_version=`echo ${number_version} | cut -d . -f 1`
-    minor_version=`echo ${number_version} | cut -d . -f 2`
     if [ "${major_version}" -eq "3" ]; then
         if [ "${minor_version}" -ge "5" ]; then
             deps_version="true"
@@ -109,34 +138,39 @@ check_version(){
 
 #Compile and install wazuh-agent
 compile() {
-    export PATH=/usr/local/gcc-5.5.0/bin:/usr/local/bin:$PATH
+    export PATH=/usr/local/gcc-5.5.0/bin:/usr/sbin:/usr/bin:/usr/ccs/bin:/opt/csw/bin
     export CPLUS_INCLUDE_PATH=/usr/local/gcc-5.5.0/include/c++/5.5.0
     export LD_LIBRARY_PATH=/usr/local/gcc-5.5.0/lib
 
-    if [ "${arch}" = "sparc" ]; then
-        mv $SOURCE/src/Makefile $SOURCE/src/Makefile.tmp
-        sed -n '/OSSEC_LDFLAGS+=-z relax=secadj/!p' $SOURCE/src/Makefile.tmp > $SOURCE/src/Makefile
-    fi
-
     cd ${current_path}
     VERSION=`cat $SOURCE/src/VERSION`
+    number_version=`echo "$VERSION" | cut -d v -f 2`
+    major_version=`echo ${number_version} | cut -d . -f 1`
+    minor_version=`echo ${number_version} | cut -d . -f 2`
     cd $SOURCE/src
     gmake clean
     config
     check_version
     if [ "${deps_version}" = "true" ]; then
-        gmake deps
+        gmake deps TARGET=agent
     fi
 
     arch="$(uname -p)"
     # Build the binaries
     if [ "$arch" = "sparc" ]; then
-        gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no USE_BIG_ENDIAN=yes DISABLE_SHARED=yes || exit 1
+        gmake -j $THREADS TARGET=agent USE_SELINUX=no USE_BIG_ENDIAN=yes DISABLE_SHARED=yes || exit 1
     else
-        gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no DISABLE_SHARED=yes || exit 1
+        gmake -j $THREADS TARGET=agent USE_SELINUX=no DISABLE_SHARED=yes || exit 1
     fi
 
     $SOURCE/install.sh || exit 1
+
+    mkdir   ${install_path}/logs/ossec
+    mkdir   ${install_path}/queue/ossec
+    chown ossec:ossec ${install_path}/logs/ossec
+    chown ossec:ossec ${install_path}/queue/ossec
+    chmod 0750 ${install_path}/logs/ossec
+    chmod 0770 ${install_path}/queue/ossec
 }
 
 create_package() {
@@ -155,21 +189,24 @@ create_package() {
 
     set_control_binary
 
+
     # Package generation process
     svcbundle -o wazuh-agent.xml -s service-name=application/wazuh-agent -s start-method="${install_path}/bin/${control_binary} start" -s stop-method="${install_path}/bin/${control_binary} stop"
     pkgsend generate ${install_path} | pkgfmt > wazuh-agent.p5m.1
+    sed "s|<INSTALL_PATH>|${install_path}|" ${current_path}/postinstall.sh > ${current_path}/postinstall.sh.new
+    mv ${current_path}/postinstall.sh.new ${current_path}/postinstall.sh
     python solaris_fix.py -t SPECS/template_agent_${VERSION}.json -p wazuh-agent.p5m.1 # Fix p5m.1 file
     mv wazuh-agent.p5m.1.aux.fixed wazuh-agent.p5m.1
-
     # Add the preserve=install-only tag to the configuration files
     for file in etc/ossec.conf etc/local_internal_options.conf etc/client.keys; do
         sed "s:file $file.*:& preserve=install-only:"  wazuh-agent.p5m.1 > wazuh-agent.p5m.1.aux_sed
         mv wazuh-agent.p5m.1.aux_sed wazuh-agent.p5m.1
     done
-    # Fix the /etc/ossec-init.conf link
-    sed "s:target=etc/ossec-init.conf:target=/etc/ossec-init.conf:"  wazuh-agent.p5m.1 > wazuh-agent.p5m.1.aux
-    mv wazuh-agent.p5m.1.aux wazuh-agent.p5m.1
     # Add service files
+    echo "file smf_manifest.xml path=lib/svc/manifest/site/post-install.xml owner=root group=sys mode=0744 restart_fmri=svc:/system/manifest-import:default" >> wazuh-agent.p5m.1
+    echo "dir  path=var/ossec/installation_scripts owner=root group=bin mode=0755" >> wazuh-agent.p5m.1
+    echo "file postinstall.sh path=var/ossec/installation_scripts/postinstall.sh owner=root group=bin mode=0744" >> wazuh-agent.p5m.1
+    
     echo "file wazuh-agent path=etc/init.d/wazuh-agent owner=root group=sys mode=0744" >> wazuh-agent.p5m.1
     echo "file S97wazuh-agent path=etc/rc2.d/S97wazuh-agent owner=root group=sys mode=0744" >> wazuh-agent.p5m.1
     echo "file S97wazuh-agent path=etc/rc3.d/S97wazuh-agent owner=root group=sys mode=0744" >> wazuh-agent.p5m.1
@@ -177,7 +214,7 @@ create_package() {
     echo "group groupname=ossec" >> wazuh-agent.p5m.1
     echo "user username=ossec group=ossec" >> wazuh-agent.p5m.1
     pkgmogrify -DARCH=`uname -p` wazuh-agent.p5m.1 wazuh-agent.mog | pkgfmt > wazuh-agent.p5m.2
-    pkgsend -s http://localhost:9001 publish -d ${install_path} -d /etc/init.d -d /etc/rc2.d -d /etc/rc3.d wazuh-agent.p5m.2 > pack
+    pkgsend -s http://localhost:9001 publish -d ${install_path} -d /etc/init.d -d /etc/rc2.d -d /etc/rc3.d -d ${current_path} wazuh-agent.p5m.2 > pack
     package=`cat pack | grep wazuh | cut -c 13-` # This extracts the name of the package generated in the previous step
     rm -f *.p5p
     pkg_name="wazuh-agent_$VERSION-sol11-${arch}.p5p"

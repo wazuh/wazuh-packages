@@ -164,6 +164,10 @@ installElasticsearch() {
             echo "elasticsearch soft nproc 4096" >> /etc/security/limits.conf
             echo "bootstrap.system_call_filter: false" >> /etc/elasticsearch/elasticsearch.yml
         fi
+
+        # While Performance Analyzer problems are solved (https://github.com/opendistro-for-elasticsearch/performance-analyzer/issues/229)
+        /usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer
+
         # Start Elasticsearch
         startService "elasticsearch"
         logger "Initializing Elasticsearch..."
@@ -217,7 +221,9 @@ installKibana() {
     else
         curl -so /etc/kibana/kibana.yml ${resources_url}/resources/open-distro/kibana/7.x/kibana_all_in_one.yml --max-time 300
         echo "telemetry.enabled: false" >> /etc/kibana/kibana.yml
-        chown -R kibana:kibana /usr/share/kibana/{optimize,plugins}
+        chown -R kibana:kibana /usr/share/kibana/plugins
+        mkdir /usr/share/kibana/data
+        chown -R kibana:kibana /usr/share/kibana/data
 
         if [ "${PACKAGES_REPOSITORY}" = "prod" ]; then
             if [ "${WAZUH_MAJOR}" -ge "4" ]; then

@@ -21,9 +21,9 @@ Wazuh is an open source security monitoring solution for threat detection, integ
 
 %prep
 %setup -q
-./gen_ossec.sh init agent %{_localstatedir} > ossec-init.conf
-cd src && gmake clean && gmake deps RESOURCES_URL=http://packages.wazuh.com/deps/4.2
-gmake TARGET=agent USE_SELINUX=no PREFIX=%{_localstatedir} DISABLE_SHARED=yes DISABLE_SYSC=yes
+deps_version=`cat src/Makefile | grep "DEPS_VERSION =" | cut -d " " -f 3`
+cd src && gmake clean && gmake deps RESOURCES_URL=http://packages.wazuh.com/deps/${deps_version} TARGET=agent
+gmake TARGET=agent USE_SELINUX=no DISABLE_SHARED=yes
 cd ..
 
 %install
@@ -54,8 +54,9 @@ mkdir -p ${RPM_BUILD_ROOT}%{_init_scripts}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.ssh
 
 # Copy the files into RPM_BUILD_ROOT directory
-install -m 0640 ossec-init.conf ${RPM_BUILD_ROOT}%{_sysconfdir}
-install -m 0750 src/init/ossec-hids-aix.init ${RPM_BUILD_ROOT}%{_init_scripts}/wazuh-agent
+sed "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/ossec-hids-aix.init > src/init/templates/ossec-hids-aix.init.tmp
+mv src/init/templates/ossec-hids-aix.init.tmp src/init/templates/ossec-hids-aix.init
+install -m 0750 src/init/templates/ossec-hids-aix.init ${RPM_BUILD_ROOT}%{_init_scripts}/wazuh-agent
 cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
 
 # Add configuration scripts
@@ -76,7 +77,6 @@ cp src/init/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/src/init
 # Add installation scripts
 cp src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/src/
 cp src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/src/
-cp src/LOCATION ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/src/
 
 exit 0
 
@@ -101,11 +101,25 @@ if [ $1 = 1 ]; then
 fi
 
 if [ $1 = 2 ]; then
-  touch %{_localstatedir}/tmp/wazuh.restart
-  /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
+  if %{_localstatedir}/bin/wazuh-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
+    /etc/rc.d/init.d/wazuh-agent stop > /dev/null 2>&1 || :
+    touch %{_localstatedir}/tmp/wazuh.restart
+  fi
 fi
 
 %post
+if [ $1 = 2 ]; then
+  if [ -d %{_localstatedir}/logs/ossec ]; then
+    rm -rf %{_localstatedir}/logs/wazuh
+    cp -rp %{_localstatedir}/logs/ossec %{_localstatedir}/logs/wazuh
+  fi
+
+  if [ -d %{_localstatedir}/queue/ossec ]; then
+    rm -rf %{_localstatedir}/queue/sockets
+    cp -rp %{_localstatedir}/queue/ossec %{_localstatedir}/queue/sockets
+  fi
+fi
+
 # New installations
 if [ $1 = 1 ]; then
 
@@ -121,10 +135,6 @@ if [ $1 = 1 ]; then
     %{_localstatedir}/tmp/src/init/replace_manager_ip.sh %{_localstatedir}/etc/ossec.conf.rpmorig %{_localstatedir}/etc/ossec.conf
   fi
 
-  # Fix for AIX: remove syscollector
-  sed '/System inventory/,/^$/{/^$/!d;}' %{_localstatedir}/etc/ossec.conf > %{_localstatedir}/etc/ossec.conf.tmp
-  mv %{_localstatedir}/etc/ossec.conf.tmp %{_localstatedir}/etc/ossec.conf
-
   # Fix for AIX: netstat command
   sed 's/netstat -tulpn/nestat -tu/' %{_localstatedir}/etc/ossec.conf > %{_localstatedir}/etc/ossec.conf.tmp
   mv %{_localstatedir}/etc/ossec.conf.tmp %{_localstatedir}/etc/ossec.conf
@@ -136,7 +146,7 @@ if [ $1 = 1 ]; then
   chown ossec:ossec %{_localstatedir}/logs/active-responses.log
   chmod 0660 %{_localstatedir}/logs/active-responses.log
 
-  %{_localstatedir}/tmp/src/init/register_configure_agent.sh > /dev/null || :
+  %{_localstatedir}/tmp/src/init/register_configure_agent.sh %{_localstatedir} > /dev/null || :
 
 fi
 chown root:ossec %{_localstatedir}/etc/ossec.conf
@@ -166,9 +176,9 @@ fi
 if [ $1 = 0 ]; then
 
   /etc/rc.d/init.d/wazuh-agent stop > /dev/null 2>&1 || :
-  rm -f %{_localstatedir}/queue/ossec/*
-  rm -f %{_localstatedir}/queue/ossec/.agent_info || :
-  rm -f %{_localstatedir}/queue/ossec/.wait || :
+  rm -f %{_localstatedir}/queue/sockets/*
+  rm -f %{_localstatedir}/queue/sockets/.agent_info || :
+  rm -f %{_localstatedir}/queue/sockets/.wait || :
   rm -f %{_localstatedir}/queue/diff/*
   rm -f %{_localstatedir}/queue/alerts/*
   rm -f %{_localstatedir}/queue/rids/*
@@ -196,12 +206,19 @@ if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
   /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
 fi
 
+if [ -d %{_localstatedir}/logs/ossec ]; then
+  rm -rf %{_localstatedir}/logs/ossec/
+fi
+
+if [ -d %{_localstatedir}/queue/ossec ]; then
+  rm -rf %{_localstatedir}/queue/ossec/
+fi
+
 %clean
 rm -fr %{buildroot}
 
 %files
 %{_init_scripts}/*
-%attr(640,root,ossec) %verify(not md5 size mtime) %{_sysconfdir}/ossec-init.conf
 
 %dir %attr(750,root,ossec) %{_localstatedir}
 %attr(750,root,ossec) %{_localstatedir}/agentless
@@ -217,26 +234,28 @@ rm -fr %{buildroot}
 %attr(640,root,ossec) %{_localstatedir}/etc/internal_options*
 %attr(640,root,ossec) %config(noreplace) %{_localstatedir}/etc/local_internal_options.conf
 %attr(660,root,ossec) %config(noreplace) %{_localstatedir}/etc/ossec.conf
-%{_localstatedir}/etc/ossec-init.conf
 %attr(640,root,ossec) %{_localstatedir}/etc/wpk_root.pem
 %dir %attr(770,root,ossec) %{_localstatedir}/etc/shared
 %attr(660,root,ossec) %config(missingok,noreplace) %{_localstatedir}/etc/shared/*
 %dir %attr(750,root,system) %{_localstatedir}/lib
+%attr(750,root,ossec) %{_localstatedir}/lib/*
 %dir %attr(770,ossec,ossec) %{_localstatedir}/logs
 %attr(660,ossec,ossec) %ghost %{_localstatedir}/logs/active-responses.log
 %attr(660,root,ossec) %ghost %{_localstatedir}/logs/ossec.log
 %attr(660,root,ossec) %ghost %{_localstatedir}/logs/ossec.json
-%dir %attr(750,ossec,ossec) %{_localstatedir}/logs/ossec
+%dir %attr(750,ossec,ossec) %{_localstatedir}/logs/wazuh
 %dir %attr(750,root,ossec) %{_localstatedir}/queue
-%dir %attr(770,ossec,ossec) %{_localstatedir}/queue/ossec
+%dir %attr(770,ossec,ossec) %{_localstatedir}/queue/sockets
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/diff
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/fim
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/fim/db
+%dir %attr(750,ossec,ossec) %{_localstatedir}/queue/syscollector
+%dir %attr(750,ossec,ossec) %{_localstatedir}/queue/syscollector/db
+%attr(640, root,ossec) %{_localstatedir}/queue/syscollector/norm_config.json
 %dir %attr(770,ossec,ossec) %{_localstatedir}/queue/alerts
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/rids
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/logcollector
 %dir %attr(750, ossec, ossec) %{_localstatedir}/ruleset/sca
-%attr(640, root, ossec) %{_localstatedir}/ruleset/sca/*
 %dir %attr(1750,root,ossec) %{_localstatedir}/tmp
 %attr(750,root,system) %config(missingok) %{_localstatedir}/tmp/add_localfiles.sh
 %attr(750,root,system) %config(missingok) %{_localstatedir}/tmp/gen_ossec.sh

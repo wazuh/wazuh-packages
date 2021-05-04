@@ -24,6 +24,8 @@ export INSTALLATION_DIR="/var/ossec"
 export INSTALLATION_SCRIPTS_DIR="${INSTALLATION_DIR}/packages_files/manager_installation_scripts"
 export JOBS="5"
 export DEBUG_ENABLED="no"
+export PATH="${PATH}"
+export LD_LIBRARY_PATH=""
 
 %:
 	dh $@
@@ -38,8 +40,8 @@ override_dh_install:
 
 	rm -rf $(INSTALLATION_DIR)/
 	# Build the binaries
-	make -C src deps PREFIX=$(INSTALLATION_DIR)
-	make -j$(JOBS) -C src/ TARGET=server USE_SELINUX=yes PREFIX=$(INSTALLATION_DIR) DEBUG=$(DEBUG_ENABLED)
+	make -C src deps TARGET=server
+	make -j$(JOBS) -C src/ TARGET=server USE_SELINUX=yes DEBUG=$(DEBUG_ENABLED)
 
 	USER_LANGUAGE="en" \
 	USER_NO_STOP="y" \
@@ -66,10 +68,13 @@ override_dh_install:
 
 	# Copying init.d script
 	mkdir -p ${TARGET_DIR}/etc/init.d/
-	cp src/init/ossec-hids-debian.init ${TARGET_DIR}/etc/init.d/wazuh-manager
+	sed -i "s:WAZUH_HOME_TMP:${INSTALLATION_DIR}:g" src/init/templates/ossec-hids-debian.init
+	cp src/init/templates/ossec-hids-debian.init ${TARGET_DIR}/etc/init.d/wazuh-manager
+
 	# Copying systemd file
 	mkdir -p ${TARGET_DIR}/usr/lib/systemd/system/
-	install -m 0644 src/systemd/wazuh-manager.service ${TARGET_DIR}/usr/lib/systemd/system/
+	sed -i "s:WAZUH_HOME_TMP:${INSTALLATION_DIR}:g" src/init/templates/wazuh-manager.service
+	install -m 0644 src/init/templates/wazuh-manager.service ${TARGET_DIR}/usr/lib/systemd/system/
 
 	# Generating permission restoration file for postinstall
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/
@@ -95,7 +100,6 @@ override_dh_install:
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src
 	cp src/VERSION ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/
 	cp src/REVISION ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/
-	cp src/LOCATION ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/
 
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/init
 	cp -r src/init/*  ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/init
@@ -121,6 +125,8 @@ override_dh_install:
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/16
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/17
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/18
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/19
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/20
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian/7
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian/8
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian/9
@@ -151,6 +157,8 @@ override_dh_install:
 	cp etc/templates/config/darwin/16/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/16
 	cp etc/templates/config/darwin/17/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/17
 	cp etc/templates/config/darwin/18/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/18
+	cp etc/templates/config/darwin/18/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/19
+	cp etc/templates/config/darwin/20/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/20
 
 	cp etc/templates/config/debian/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian
 	cp etc/templates/config/debian/7/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian/7
@@ -178,17 +186,14 @@ override_dh_install:
 	cp etc/templates/config/ubuntu/14/04/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/ubuntu/14/04
 	cp etc/templates/config/ubuntu/16/04/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/ubuntu/16/04
 
-	# Copy ossec-init.conf
-	cp /etc/ossec-init.conf ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)
-
 override_dh_fixperms:
 	dh_fixperms
 	# Fix Python permissions
-	chmod 0750 ${TARGET_DIR}$(INSTALLATION_DIR)/framework/python/bin/2to3-3.8
-	chmod 0750 ${TARGET_DIR}$(INSTALLATION_DIR)/framework/python/bin/pydoc3.8
+	chmod 0750 ${TARGET_DIR}$(INSTALLATION_DIR)/framework/python/bin/2to3-3.9
+	chmod 0750 ${TARGET_DIR}$(INSTALLATION_DIR)/framework/python/bin/pydoc3.9
 	chmod 0750 ${TARGET_DIR}$(INSTALLATION_DIR)/framework/python/bin/python3-config
-	chmod 0640 ${TARGET_DIR}$(INSTALLATION_DIR)/framework/python/lib/pkgconfig/python-3.8-embed.pc
-	chmod 0640 ${TARGET_DIR}$(INSTALLATION_DIR)/framework/python/lib/pkgconfig/python-3.8.pc
+	chmod 0640 ${TARGET_DIR}$(INSTALLATION_DIR)/framework/python/lib/pkgconfig/python-3.9-embed.pc
+	chmod 0640 ${TARGET_DIR}$(INSTALLATION_DIR)/framework/python/lib/pkgconfig/python-3.9.pc
 	chmod 0640 ${TARGET_DIR}$(INSTALLATION_DIR)/framework/python/lib/pkgconfig/python3.pc
 
 override_dh_auto_clean:

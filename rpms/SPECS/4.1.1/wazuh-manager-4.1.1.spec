@@ -1,6 +1,6 @@
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-manager
-Version:     5.0.0
+Version:     4.1.1
 Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
@@ -114,7 +114,7 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/su
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sunos
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/windows
 
-cp -r ruleset/sca/{applications,generic,centos,darwin,debian,rhel,sles,sunos,windows} ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp
+cp -r etc/sca/{applications,generic,centos,darwin,debian,rhel,sles,sunos,windows} ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp
 
 cp etc/templates/config/generic/{sca.files,sca.manager.files} ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/generic
 
@@ -553,27 +553,28 @@ rm -fr %{buildroot}
 %attr(750, root, root) %{_localstatedir}/bin/clear_stats
 %attr(750, root, ossec) %{_localstatedir}/bin/cluster_control
 %attr(750, root, root) %{_localstatedir}/bin/manage_agents
-%attr(750, root, root) %{_localstatedir}/bin/wazuh-agentlessd
-%attr(750, root, root) %{_localstatedir}/bin/wazuh-analysisd
-%attr(750, root, root) %{_localstatedir}/bin/wazuh-authd
+%attr(750, root, root) %{_localstatedir}/bin/ossec-agentlessd
+%attr(750, root, root) %{_localstatedir}/bin/ossec-analysisd
+%attr(750, root, root) %{_localstatedir}/bin/ossec-authd
 %attr(750, root, root) %{_localstatedir}/bin/ossec-control
-%attr(750, root, root) %{_localstatedir}/bin/wazuh-csyslogd
-%attr(750, root, root) %{_localstatedir}/bin/wazuh-dbd
-%attr(750, root, root) %{_localstatedir}/bin/wazuh-execd
-%attr(750, root, root) %{_localstatedir}/bin/wazuh-integratord
-%attr(750, root, root) %{_localstatedir}/bin/wazuh-logcollector
+%attr(750, root, root) %{_localstatedir}/bin/ossec-csyslogd
+%attr(750, root, root) %{_localstatedir}/bin/ossec-dbd
+%attr(750, root, root) %{_localstatedir}/bin/ossec-execd
+%attr(750, root, root) %{_localstatedir}/bin/ossec-integratord
+%attr(750, root, root) %{_localstatedir}/bin/ossec-logcollector
 %attr(750, root, root) %{_localstatedir}/bin/ossec-logtest
 %attr(750, root, ossec) %{_localstatedir}/bin/wazuh-logtest
-%attr(750, root, root) %{_localstatedir}/bin/wazuh-maild
+%attr(750, root, root) %{_localstatedir}/bin/ossec-maild
 %attr(750, root, root) %{_localstatedir}/bin/ossec-makelists
-%attr(750, root, root) %{_localstatedir}/bin/wazuh-monitord
+%attr(750, root, root) %{_localstatedir}/bin/ossec-monitord
 %attr(750, root, root) %{_localstatedir}/bin/ossec-regex
-%attr(750, root, root) %{_localstatedir}/bin/wazuh-remoted
-%attr(750, root, root) %{_localstatedir}/bin/wazuh-reportd
-%attr(750, root, root) %{_localstatedir}/bin/wazuh-syscheckd
+%attr(750, root, root) %{_localstatedir}/bin/ossec-remoted
+%attr(750, root, root) %{_localstatedir}/bin/ossec-reportd
+%attr(750, root, root) %{_localstatedir}/bin/ossec-syscheckd
 %attr(750, root, root) %{_localstatedir}/bin/rootcheck_control
 %attr(750, root, root) %{_localstatedir}/bin/syscheck_control
 %attr(750, root, root) %{_localstatedir}/bin/syscheck_update
+%attr(750, root, ossec) %{_localstatedir}/bin/update_ruleset
 %attr(750, root, root) %{_localstatedir}/bin/util.sh
 %attr(750, root, ossec) %{_localstatedir}/bin/verify-agent-conf
 %attr(750, root, ossec) %{_localstatedir}/bin/wazuh-apid
@@ -663,7 +664,6 @@ rm -fr %{buildroot}
 %dir %attr(750, ossec,ossec) %{_localstatedir}/queue/fim/db
 %dir %attr(750, ossec, ossec) %{_localstatedir}/queue/fts
 %dir %attr(770, ossecr, ossec) %{_localstatedir}/queue/rids
-%dir %attr(750, ossec, ossec) %{_localstatedir}/queue/logcollector
 %dir %attr(770, ossec, ossec) %{_localstatedir}/queue/tasks
 %dir %attr(770, ossec, ossec) %{_localstatedir}/queue/ossec
 %dir %attr(660, root, ossec) %{_localstatedir}/queue/vulnerabilities
@@ -672,6 +672,7 @@ rm -fr %{buildroot}
 %attr(0440, root, ossec) %ghost %{_localstatedir}/queue/vulnerabilities/dictionaries/msu.json.gz
 %dir %attr(750, root, ossec) %{_localstatedir}/ruleset
 %dir %attr(750, root, ossec) %{_localstatedir}/ruleset/sca
+%attr(640, root, ossec) %{_localstatedir}/ruleset/VERSION
 %dir %attr(750, root, ossec) %{_localstatedir}/ruleset/decoders
 %attr(640, root, ossec) %{_localstatedir}/ruleset/decoders/*
 %dir %attr(750, root, ossec) %{_localstatedir}/ruleset/rules
@@ -779,9 +780,7 @@ rm -fr %{buildroot}
 
 
 %changelog
-* Sat Dec 04 2021 support <info@wazuh.com> - 5.0.0
-- More info: https://documentation.wazuh.com/current/release-notes/
-* Mon Apr 26 2021 support <info@wazuh.com> - 4.2.0
+* Fri Mar 05 2021 support <info@wazuh.com> - 4.1.1
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Tue Jan 19 2021 support <info@wazuh.com> - 4.1.0
 - More info: https://documentation.wazuh.com/current/release-notes/

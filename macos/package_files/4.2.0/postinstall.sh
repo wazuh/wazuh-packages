@@ -28,10 +28,10 @@ chown -R root:wheel ${DIR}/bin
 chown -R root:wheel ${DIR}/lib
 
 # To the ossec queue (default for agentd to read)
-chown -R ${USER}:${GROUP} ${DIR}/queue/{alerts,diff,ossec,rids}
+chown -R ${USER}:${GROUP} ${DIR}/queue/{alerts,diff,sockets,rids}
 
-chmod -R 770 ${DIR}/queue/{alerts,ossec}
-chmod -R 750 ${DIR}/queue/{diff,ossec,rids}
+chmod -R 770 ${DIR}/queue/{alerts,sockets}
+chmod -R 750 ${DIR}/queue/{diff,sockets,rids}
 
 # For the logging user
 chmod 770 ${DIR}/logs
@@ -64,8 +64,6 @@ chmod 770 ${DIR}/.ssh
 chmod -R 770 ${DIR}/var
 chown -R root:${GROUP} ${DIR}/var
 
-chown root:${GROUP} /etc/ossec-init.conf
-
 . ${INSTALLATION_SCRIPTS_DIR}/src/init/dist-detect.sh
 
 upgrade=$(launchctl getenv WAZUH_PKG_UPGRADE)
@@ -87,31 +85,31 @@ SCA_TMP_DIR="${SCA_BASE_DIR}/${SCA_DIR}"
 
 # Install the configuration files needed for this hosts
 if [ -r "${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}/${DIST_SUBVER}/sca.files" ]; then
-  SCA_TMP_DIR="${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}/${DIST_SUBVER}"
+    SCA_TMP_DIR="${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}/${DIST_SUBVER}"
 elif [ -r "${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}/sca.files" ]; then
-  SCA_TMP_DIR="${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}"
+    SCA_TMP_DIR="${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}"
 elif [ -r "${SCA_BASE_DIR}/${DIST_NAME}/sca.files" ]; then
-  SCA_TMP_DIR="${SCA_BASE_DIR}/${DIST_NAME}"
+    SCA_TMP_DIR="${SCA_BASE_DIR}/${DIST_NAME}"
 else
-  SCA_TMP_DIR="${SCA_BASE_DIR}/generic"
+    SCA_TMP_DIR="${SCA_BASE_DIR}/generic"
 fi
 
 SCA_TMP_FILE="${SCA_TMP_DIR}/sca.files"
 
 if [ -r ${SCA_TMP_FILE} ]; then
 
-  rm -f ${DIR}/ruleset/sca/* || true
+    rm -f ${DIR}/ruleset/sca/* || true
 
-  for sca_file in $(cat ${SCA_TMP_FILE}); do
-    mv ${SCA_BASE_DIR}/${sca_file} ${DIR}/ruleset/sca
-  done
+    for sca_file in $(cat ${SCA_TMP_FILE}); do
+        mv ${SCA_BASE_DIR}/${sca_file} ${DIR}/ruleset/sca
+    done
 fi
 
 # Register and configure agent if Wazuh environment variables are defined
-${INSTALLATION_SCRIPTS_DIR}/src/init/register_configure_agent.sh > /dev/null || :
+${INSTALLATION_SCRIPTS_DIR}/src/init/register_configure_agent.sh ${DIR} > /dev/null || :
 
 # Install the service
-${INSTALLATION_SCRIPTS_DIR}/src/init/darwin-init.sh
+${INSTALLATION_SCRIPTS_DIR}/src/init/darwin-init.sh ${DIR}
 
 # Remove temporary directory
 rm -rf ${DIR}/packages_files

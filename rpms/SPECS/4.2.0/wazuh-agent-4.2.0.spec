@@ -34,7 +34,6 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 %setup -q
 
 ./gen_ossec.sh conf agent centos %rhel %{_localstatedir} > etc/ossec-agent.conf
-./gen_ossec.sh init agent %{_localstatedir} > ossec-init.conf
 
 %build
 pushd src
@@ -42,14 +41,15 @@ pushd src
 make clean
 
 %if 0%{?el} >= 6 || 0%{?rhel} >= 6
-    make deps
-    make -j%{_threads} TARGET=agent USE_SELINUX=yes PREFIX=%{_localstatedir} DEBUG=%{_debugenabled}
+    make deps TARGET=agent
+    make -j%{_threads} TARGET=agent USE_SELINUX=yes DEBUG=%{_debugenabled}
 %else
     %ifnarch x86_64
       MSGPACK="USE_MSGPACK_OPT=no"
     %endif
-    make deps RESOURCES_URL=http://packages.wazuh.com/deps/4.2
-    make -j%{_threads} TARGET=agent USE_AUDIT=no USE_SELINUX=yes USE_EXEC_ENVIRON=no PREFIX=%{_localstatedir} DEBUG=%{_debugenabled} ${MSGPACK}
+    deps_version=`cat Makefile | grep "DEPS_VERSION =" | cut -d " " -f 3`
+    make deps RESOURCES_URL=http://packages.wazuh.com/deps/${deps_version} TARGET=agent
+    make -j%{_threads} TARGET=agent USE_AUDIT=no USE_SELINUX=yes USE_EXEC_ENVIRON=no DEBUG=%{_debugenabled} ${MSGPACK}
 
 %endif
 
@@ -76,6 +76,11 @@ echo 'USER_CA_STORE="/path/to/my_cert.pem"' >> ./etc/preloaded-vars.conf
 echo 'USER_AUTO_START="n"' >> ./etc/preloaded-vars.conf
 ./install.sh
 
+%if 0%{?el} < 6 || 0%{?rhel} < 6
+  mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}
+  touch ${RPM_BUILD_ROOT}%{_sysconfdir}/ossec-init.conf
+%endif
+
 # Create directories
 mkdir -p ${RPM_BUILD_ROOT}%{_initrddir}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.ssh
@@ -83,9 +88,10 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.ssh
 # Copy the installed files into RPM_BUILD_ROOT directory
 cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
 mkdir -p ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
-install -m 0640 ossec-init.conf ${RPM_BUILD_ROOT}%{_sysconfdir}
-install -m 0755 src/init/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-agent
-install -m 0644 src/systemd/wazuh-agent.service ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
+sed -i "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/ossec-hids-rh.init
+install -m 0755 src/init/templates/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-agent
+sed -i "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/wazuh-agent.service
+install -m 0644 src/init/templates/wazuh-agent.service ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
 
 # Clean the preinstalled configuration assesment files
 rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ruleset/sca/*
@@ -94,7 +100,7 @@ rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ruleset/sca/*
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/{applications,generic}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/{1,2}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/{8,7,6,5}
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/{15,16,17,18}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/{15,16,17,18,19,20}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/{7,8,9}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ubuntu/{12,14,16}/04
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/{8,7,6,5}
@@ -119,6 +125,8 @@ cp etc/templates/config/darwin/15/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/t
 cp etc/templates/config/darwin/16/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/16
 cp etc/templates/config/darwin/17/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/17
 cp etc/templates/config/darwin/18/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/18
+cp etc/templates/config/darwin/19/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/19
+cp etc/templates/config/darwin/20/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/20
 
 cp etc/templates/config/rhel/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel
 cp etc/templates/config/rhel/7/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/7
@@ -155,7 +163,8 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_sc
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/sles
 
 # Add SUSE initscript
-cp -rp src/init/ossec-hids-suse.init ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/src/init/
+sed -i "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/ossec-hids-suse.init
+cp -rp src/init/templates/ossec-hids-suse.init ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/src/init/
 
 # Copy scap templates
 cp -rp  etc/templates/config/generic/* ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/generic
@@ -169,7 +178,6 @@ install -m 0640 src/init/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/
 # Add installation scripts
 cp src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/src/
 cp src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/src/
-cp src/LOCATION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/src/
 
 if [ %{_debugenabled} = "yes" ]; then
   %{_rpmconfigdir}/find-debuginfo.sh
@@ -201,10 +209,26 @@ if [ $1 = 2 ]; then
   elif %{_localstatedir}/bin/wazuh-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
     %{_localstatedir}/bin/wazuh-control stop > /dev/null 2>&1
     touch %{_localstatedir}/tmp/wazuh.restart
+  elif %{_localstatedir}/bin/ossec-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
+    %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
+    touch %{_localstatedir}/tmp/wazuh.restart
   fi
 fi
 
 %post
+
+echo "VERSION=\"$(%{_localstatedir}/bin/wazuh-control info -v)\"" > /etc/ossec-init.conf
+if [ $1 = 2 ]; then
+  if [ -d %{_localstatedir}/logs/ossec ]; then
+    rm -rf %{_localstatedir}/logs/wazuh
+    cp -rp %{_localstatedir}/logs/ossec %{_localstatedir}/logs/wazuh
+  fi
+
+  if [ -d %{_localstatedir}/queue/ossec ]; then
+    rm -rf %{_localstatedir}/queue/sockets
+    cp -rp %{_localstatedir}/queue/ossec %{_localstatedir}/queue/sockets
+  fi
+fi
 # If the package is being installed
 if [ $1 = 1 ]; then
 
@@ -237,7 +261,7 @@ if [ $1 = 1 ]; then
   %{_localstatedir}/packages_files/agent_installation_scripts/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
 
   # Register and configure agent if Wazuh environment variables are defined
-  %{_localstatedir}/packages_files/agent_installation_scripts/src/init/register_configure_agent.sh > /dev/null || :
+  %{_localstatedir}/packages_files/agent_installation_scripts/src/init/register_configure_agent.sh %{_localstatedir} > /dev/null || :
 fi
 
 # Delete the installation files used to configure the agent
@@ -245,7 +269,6 @@ rm -rf %{_localstatedir}/packages_files
 
 # Remove unnecessary files from shared directory
 rm -f %{_localstatedir}/etc/shared/*.rpmnew
-
 
 # CentOS
 if [ -r "/etc/centos-release" ]; then
@@ -422,9 +445,15 @@ fi
 
 # posttrans code is the last thing executed in a install/upgrade
 %posttrans
+if [ -f %{_sysconfdir}/systemd/system/wazuh-agent.service ]; then
+  rm -rf %{_sysconfdir}/systemd/system/wazuh-agent.service
+  systemctl daemon-reload > /dev/null 2>&1
+fi
+
 if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
   rm -f %{_localstatedir}/tmp/wazuh.restart
   if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 ; then
+    systemctl daemon-reload > /dev/null 2>&1
     systemctl restart wazuh-agent.service > /dev/null 2>&1
   elif command -v service > /dev/null 2>&1 && service wazuh-agent status 2>/dev/null | grep "running" > /dev/null 2>&1; then
     service wazuh-agent restart > /dev/null 2>&1
@@ -433,14 +462,26 @@ if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
   fi
 fi
 
+if [ -d %{_localstatedir}/logs/ossec ]; then
+  rm -rf %{_localstatedir}/logs/ossec/
+fi
+
+if [ -d %{_localstatedir}/queue/ossec ]; then
+  rm -rf %{_localstatedir}/queue/ossec/
+fi
+
+if [ -f %{_sysconfdir}/ossec-init.conf ]; then
+  rm -rf %{_sysconfdir}/ossec-init.conf
+fi
+
 %clean
 rm -fr %{buildroot}
 
 %files
+%defattr(-,root,root)
 %{_initrddir}/wazuh-agent
 /usr/lib/systemd/system/wazuh-agent.service
-%defattr(-,root,root)
-%attr(640,root,ossec) %verify(not md5 size mtime) %{_sysconfdir}/ossec-init.conf
+%attr(640, root, ossec) %verify(not md5 size mtime) %ghost %{_sysconfdir}/ossec-init.conf
 %dir %attr(750,root,ossec) %{_localstatedir}
 %attr(750,root,ossec) %{_localstatedir}/agentless
 %dir %attr(770,root,ossec) %{_localstatedir}/.ssh
@@ -456,7 +497,6 @@ rm -fr %{buildroot}
 %attr(640,root,ossec) %{_localstatedir}/etc/localtime
 %attr(640,root,ossec) %config(noreplace) %{_localstatedir}/etc/local_internal_options.conf
 %attr(660,root,ossec) %config(noreplace) %{_localstatedir}/etc/ossec.conf
-%{_localstatedir}/etc/ossec-init.conf
 %attr(640,root,ossec) %{_localstatedir}/etc/wpk_root.pem
 %dir %attr(770,root,ossec) %{_localstatedir}/etc/shared
 %attr(660,root,ossec) %config(missingok,noreplace) %{_localstatedir}/etc/shared/*
@@ -466,7 +506,7 @@ rm -fr %{buildroot}
 %attr(660,ossec,ossec) %ghost %{_localstatedir}/logs/active-responses.log
 %attr(660,root,ossec) %ghost %{_localstatedir}/logs/ossec.log
 %attr(660,root,ossec) %ghost %{_localstatedir}/logs/ossec.json
-%dir %attr(750,ossec,ossec) %{_localstatedir}/logs/ossec
+%dir %attr(750,ossec,ossec) %{_localstatedir}/logs/wazuh
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts
 %attr(750,root,root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/add_localfiles.sh
@@ -478,15 +518,22 @@ rm -fr %{buildroot}
 %attr(750,root,root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/suse/*
 %attr(750,root,root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/src/*
 %dir %attr(750,root,ossec) %{_localstatedir}/queue
-%dir %attr(770,ossec,ossec) %{_localstatedir}/queue/ossec
+%dir %attr(770,ossec,ossec) %{_localstatedir}/queue/sockets
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/diff
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/fim
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/fim/db
+%dir %attr(750,ossec,ossec) %{_localstatedir}/queue/syscollector
+%dir %attr(750,ossec,ossec) %{_localstatedir}/queue/syscollector/db
+%attr(640, root,ossec) %{_localstatedir}/queue/syscollector/norm_config.json
 %dir %attr(770,ossec,ossec) %{_localstatedir}/queue/alerts
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/rids
 %dir %attr(750,ossec,ossec) %{_localstatedir}/queue/logcollector
 %dir %attr(750, root, ossec) %{_localstatedir}/ruleset/
 %dir %attr(750, root, ossec) %{_localstatedir}/ruleset/sca
+%attr(750, root, ossec) %{_localstatedir}/lib/libdbsync.so
+%attr(750, root, ossec) %{_localstatedir}/lib/librsync.so
+%attr(750, root, ossec) %{_localstatedir}/lib/libsyscollector.so
+%attr(750, root, ossec) %{_localstatedir}/lib/libsysinfo.so
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/applications
 %attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/applications/*
@@ -516,6 +563,10 @@ rm -fr %{buildroot}
 %attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/17/*
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/18
 %attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/18/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/19
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/19/*
+%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/20
+%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/20/*
 %dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian
 %attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/sca.files
 %attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/*yml
