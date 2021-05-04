@@ -168,6 +168,7 @@ find /var/ossec/logs/ -type f -exec sh -c ': > "$1"' - {} \;
 find /var/log/ -type f -exec sh -c ': > "$1"' - {} \;
 
 # Delete history
+: > .bash_history
 history -c
 
 reboot now
