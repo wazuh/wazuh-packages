@@ -2,14 +2,26 @@
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
+
+  # Required
+  config.vagrant.plugins = "vagrant-reload"
+
   config.vm.box = "centos/7"
   config.vm.hostname = "wazuhmanager"
+  config.ssh.insert_key = false
   config.vm.provider "virtualbox" do |vb|
     vb.name = "vm_wazuh"
     vb.memory = "4096"
     vb.cpus = "4"
   end
 
+  # Config folder and exclude final files
   config.vm.synced_folder "./", "/vagrant", type: "rsync", rsync__auto: true, rsync__exclude: ['./output/']
-  config.vm.provision :shell, path: "provision.sh", :args => "#{ENV['WAZUH_VERSION']} #{ENV['OPENDISTRO_VERSION']}  #{ENV['ELK_VERSION']}  #{ENV['PACKAGES_REPOSITORY']} #{ENV['BRANCH']} #{ENV['BRANCHDOC']} -d"
+  # Provision stage
+  config.vm.provision :shell, path: "provision.sh", :args =>  "#{ENV['WAZUH_VERSION']} #{ENV['OPENDISTRO_VERSION']}  #{ENV['ELK_VERSION']}  #{ENV['PACKAGES_REPOSITORY']} #{ENV['BRANCH']} #{ENV['BRANCHDOC']} -d"
+  config.vm.provision :reload
+  # Check system type
+  config.vm.provision 'shell', inline: "fsck /dev/sda1"
+  # Remove vagrant user
+  config.vm.provision 'shell', inline: "userdel -rf vagrant"
 end
