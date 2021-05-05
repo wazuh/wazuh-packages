@@ -103,9 +103,6 @@ ram=$(( $(free -m | awk '/^Mem:/{print $2}') / 2 ))
 sed -i "s/^-Xms[0-9]\+[gm]/-Xms${ram}m/" /etc/elasticsearch/jvm.options
 sed -i "s/^-Xmx[0-9]\+[gm]/-Xmx${ram}m/" /etc/elasticsearch/jvm.options
 
-# Remove vagrant user - by default this script runs in /home/vagrant 
-userdel -rf vagrant
-
 # Remove vagrant shared folder
 rm -rf /vagrant
 
@@ -172,6 +169,3 @@ rm securityadmin_demo.sh
 
 # Delete history
 history -c
-
-# Temporary fix for missing file content
-reboot now
