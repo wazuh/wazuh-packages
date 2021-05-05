@@ -172,7 +172,7 @@ create_package() {
     if [ "${major_version}" -ge "4" ]; then
         if [ "${minor_version}" -ge "2" ]; then
             mkdir   ${install_path}/logs/ossec
-            chown ossec:ossec ${install_path}/logs/ossec
+            chown wazuh:wazuh ${install_path}/logs/ossec
             chmod 0750 ${install_path}/logs/ossec
             sed "s|<INSTALL_PATH>|${install_path}|" ${current_path}/postinstall.sh > ${current_path}/postinstall.sh.new
             mv ${current_path}/postinstall.sh.new ${current_path}/postinstall.sh
@@ -185,9 +185,9 @@ create_package() {
     echo "file wazuh-agent path=etc/init.d/wazuh-agent owner=root group=sys mode=0744" >> wazuh-agent.p5m.1
     echo "file S97wazuh-agent path=etc/rc2.d/S97wazuh-agent owner=root group=sys mode=0744" >> wazuh-agent.p5m.1
     echo "file S97wazuh-agent path=etc/rc3.d/S97wazuh-agent owner=root group=sys mode=0744" >> wazuh-agent.p5m.1
-    # Add user and group ossec
-    echo "group groupname=ossec" >> wazuh-agent.p5m.1
-    echo "user username=ossec group=ossec" >> wazuh-agent.p5m.1
+    # Add user and group wazuh
+    echo "group groupname=wazuh" >> wazuh-agent.p5m.1
+    echo "user username=wazuh group=wazuh" >> wazuh-agent.p5m.1
     pkgmogrify -DARCH=`uname -p` wazuh-agent.p5m.1 wazuh-agent.mog | pkgfmt > wazuh-agent.p5m.2
     pkgsend -s http://localhost:9001 publish -d ${install_path} -d /etc/init.d -d /etc/rc2.d -d /etc/rc3.d -d ${current_path} wazuh-agent.p5m.2 > pack
     package=`cat pack | grep wazuh | cut -c 13-` # This extracts the name of the package generated in the previous step

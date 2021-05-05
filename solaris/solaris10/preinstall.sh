@@ -18,8 +18,8 @@ else
     type=upgrade
 fi
 
-USER="ossec"
-GROUP="ossec"
+USER="wazuh"
+GROUP="wazuh"
 OSSEC_HIDS_TMP_DIR="/tmp/wazuh-agent"
 OSMYSHELL="/sbin/nologin"
 
@@ -34,12 +34,12 @@ if [ ! -f ${OSMYSHELL} ]; then
     fi
 fi
 
-getent group | grep "^ossec"
+getent group | grep "^wazuh"
 if [ "$?" -eq 1 ]; then
     groupadd ${GROUP}
 fi
 
-getent passwd | grep "^ossec"
+getent passwd | grep "^wazuh"
 if [ "$?" -eq 1 ]; then
     useradd -d ${DIR} -s ${OSMYSHELL} -g ${GROUP} ${USER} > /dev/null 2>&1
 fi

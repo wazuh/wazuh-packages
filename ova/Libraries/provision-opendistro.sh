@@ -142,7 +142,7 @@ installElasticsearch() {
         rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml search-guard-tlstool-1.7.zip -f
 
         # While Performance Analyzer problems are solved (https://github.com/opendistro-for-elasticsearch/performance-analyzer/issues/229)
-        /usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro_performance_analyzer
+        /usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer
 
         # Start Elasticsearch
         startService "elasticsearch"
