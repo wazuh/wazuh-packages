@@ -58,11 +58,9 @@ PATTERN="eval \"rm \/etc\/elasticsearch\/e"
 SUBS="sed -i \"\/here\/r \/vagrant\/assets\/kibanaUser\.txt\" \/usr\/share\/elasticsearch\/plugins\/opendistro_security\/securityconfig\/internal_users\.yml\n        $PATTERN"
 sed -i "s/$PATTERN/$SUBS/g" ${INSTALLER}
 
-
 # Add Wazuh user to "all-access" role
 PATTERN="eval \"rm \/etc\/elasticsearch\/e"
-#sed -i "s/$PATTERN/sed -i \"s\/\"admin\"\/\"admin\"\\\n- \"wazuh\"\/g\" \/usr\/share\/elasticsearch\/plugins\/opendistro_security\/securityconfig\/roles_mapping\.yml\n        $PATTERN/g" ${INSTALLER}
-sed -i "s/$PATTERN/sed -i \'\/\"admin\"\/ {N; s\/\"admin\".*des\/\"admin\"\\\n- \"wazuh\"}\/g\' \/usr\/share\/elasticsearch\/plugins\/opendistro_security\/securityconfig\/roles_mapping\.yml\n        $PATTERN/g" ${INSTALLER}
+sed -i "s/$PATTERN/sed -i \'\/\"admin\"\/ {N; s\/\"admin\".*des\/\"admin\"\\\n  - \"wazuh\"\\\n  des\/g}\' \/usr\/share\/elasticsearch\/plugins\/opendistro_security\/securityconfig\/roles_mapping\.yml\n        $PATTERN/g" ${INSTALLER}
 
 # Run unattended installer
 sh ${INSTALLER}
