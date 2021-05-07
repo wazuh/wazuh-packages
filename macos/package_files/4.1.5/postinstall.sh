@@ -113,6 +113,9 @@ ${INSTALLATION_SCRIPTS_DIR}/src/init/register_configure_agent.sh > /dev/null || 
 # Install the service
 ${INSTALLATION_SCRIPTS_DIR}/src/init/darwin-init.sh
 
+# Install file preventing queue/alerts folder to be removed by the macOS upgrade
+touch ${INSTALLATION_SCRIPTS_DIR}/queue/alerts/sockets
+
 # Remove temporary directory
 rm -rf ${DIR}/packages_files
 
