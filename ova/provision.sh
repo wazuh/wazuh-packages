@@ -53,7 +53,18 @@ if [ "${PACKAGES_REPOSITORY}" = "dev" ]; then
   sed -i "s/wazuh_kibana-[0-9\.]\+_[0-9\.]\+/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}/g" ${INSTALLER}
 fi
 
-# Execute unattended installer
+# Add Kibana Wazuh user
+PATTERN="eval \"rm \/etc\/elasticsearch\/e"
+SUBS="sed -i \"\/here\/r \/vagrant\/assets\/kibanaUser\.txt\" \/usr\/share\/elasticsearch\/plugins\/opendistro_security\/securityconfig\/internal_users\.yml\n        $PATTERN"
+sed -i "s/$PATTERN/$SUBS/g" ${INSTALLER}
+
+
+# Add Wazuh user to "all-access" role
+PATTERN="eval \"rm \/etc\/elasticsearch\/e"
+#sed -i "s/$PATTERN/sed -i \"s\/\"admin\"\/\"admin\"\\\n- \"wazuh\"\/g\" \/usr\/share\/elasticsearch\/plugins\/opendistro_security\/securityconfig\/roles_mapping\.yml\n        $PATTERN/g" ${INSTALLER}
+sed -i "s/$PATTERN/sed -i \'\/\"admin\"\/ {N; s\/\"admin\".*des\/\"admin\"\\\n- \"wazuh\"}\/g\' \/usr\/share\/elasticsearch\/plugins\/opendistro_security\/securityconfig\/roles_mapping\.yml\n        $PATTERN/g" ${INSTALLER}
+
+# Run unattended installer
 sh ${INSTALLER}
 
 # Remove installer
