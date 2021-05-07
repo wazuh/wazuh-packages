@@ -81,15 +81,15 @@ systemctl stop kibana filebeat elasticsearch wazuh-manager
 systemctl enable wazuh-manager
 
 # Disable all host modules
-sed -i "s/<disabled>no/<disabled>yes/g" /var/ossec/etc/ossec.conf
-sed -i "s/<enabled>yes/<enabled>no/g" /var/ossec/etc/ossec.conf
+#sed -i "s/<disabled>no/<disabled>yes/g" /var/ossec/etc/ossec.conf
+#sed -i "s/<enabled>yes/<enabled>no/g" /var/ossec/etc/ossec.conf
 
 # Disable /var/log/ files and commands monitoring
-sed -i "s/<localfile>/<!--localfile>/g" /var/ossec/etc/ossec.conf
-sed -i "s/<\/localfile>/<\/localfile-->/g" /var/ossec/etc/ossec.conf
+#sed -i "s/<localfile>/<!--localfile>/g" /var/ossec/etc/ossec.conf
+#sed -i "s/<\/localfile>/<\/localfile-->/g" /var/ossec/etc/ossec.conf
 
 # Enable ossec_auth modules
-sed -i '/<auth>/ {N; s/<auth>.*yes/<auth>\n\ \ \ \ <disabled>no/g}' /var/ossec/etc/ossec.conf
+#sed -i '/<auth>/ {N; s/<auth>.*yes/<auth>\n\ \ \ \ <disabled>no/g}' /var/ossec/etc/ossec.conf
 
 # Custom Login Page
 # Edit window title
