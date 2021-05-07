@@ -201,10 +201,12 @@ fi
 if [ $1 = 2 ]; then
   if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-agent > /dev/null 2>&1; then
     systemctl stop wazuh-agent.service > /dev/null 2>&1
+    %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1 || %{_localstatedir}/bin/wazuh-control stop > /dev/null 2>&1
     touch %{_localstatedir}/tmp/wazuh.restart
   # Check for SysV
   elif command -v service > /dev/null 2>&1 && service wazuh-agent status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
     service wazuh-agent stop > /dev/null 2>&1
+    %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1 || %{_localstatedir}/bin/wazuh-control stop > /dev/null 2>&1
     touch %{_localstatedir}/tmp/wazuh.restart
   elif %{_localstatedir}/bin/wazuh-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
     %{_localstatedir}/bin/wazuh-control stop > /dev/null 2>&1
@@ -259,6 +261,7 @@ if [ $1 = 1 ]; then
 
   # Add default local_files to ossec.conf
   %{_localstatedir}/packages_files/agent_installation_scripts/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
+
 
   # Register and configure agent if Wazuh environment variables are defined
   %{_localstatedir}/packages_files/agent_installation_scripts/src/init/register_configure_agent.sh %{_localstatedir} > /dev/null || :
