@@ -115,7 +115,7 @@ ${INSTALLATION_SCRIPTS_DIR}/src/init/darwin-init.sh
 
 # Install file preventing queue/alerts folder to be removed by the macOS upgrade
 if [ ! -f ${DIR}/queue/alerts/sockets ]; then
-  /usr/bin/touch ${DIR}/queue/alerts/sockets
+  /usr/bin/touch ${DIR}/queue/alerts/.keepme
 fi
 
 
