@@ -607,7 +607,8 @@ rm -fr %{buildroot}
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-db
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-modulesd
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/etc
-%attr(660, root, wazuh) %config(noreplace) %{_localstatedir}/etc/ossec.conf
+%attr(660, root, wazuh) %config(noreplace) %{_localstatedir}/etc/manager.conf
+%attr(660, root, wazuh) %config(noreplace) %{_localstatedir}/etc/agent.conf
 %attr(640, root, wazuh) %config(noreplace) %{_localstatedir}/etc/client.keys
 %attr(640, root, wazuh) %{_localstatedir}/etc/internal_options*
 %attr(640, root, wazuh) %config(noreplace) %{_localstatedir}/etc/local_internal_options.conf
@@ -621,7 +622,7 @@ rm -fr %{buildroot}
 %attr(660, wazuh, wazuh) %config(noreplace) %{_localstatedir}/etc/lists/security-eventchannel
 %dir %attr(770, root, wazuh) %{_localstatedir}/etc/shared
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/etc/shared/default
-%attr(660, wazuh, wazuh) %{_localstatedir}/etc/shared/agent-template.conf
+%attr(660, wazuh, wazuh) %{_localstatedir}/etc/shared/shared-template.conf
 %attr(660, wazuh, wazuh) %config(noreplace) %{_localstatedir}/etc/shared/default/*
 %dir %attr(770, root, wazuh) %{_localstatedir}/etc/rootcheck
 %attr(660, root, wazuh) %{_localstatedir}/etc/rootcheck/*.txt
