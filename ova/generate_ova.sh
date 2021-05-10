@@ -38,6 +38,7 @@ ELK_VERSION=""
 PACKAGES_REPOSITORY="prod"
 CHECKSUM="no"
 UI_REVISION="1"
+DEBUG="no"
 
 help () {
 
@@ -52,6 +53,7 @@ help () {
     echo "  -s,    --store <path>     [Optional] Set the destination absolute path where the ova file will be stored."
     echo "  -c,    --checksum <path>  [Optional] Generate checksum. By default: no"
     echo "  -u,    --ui-revision      [Optional] Revision of the UI package. By default, 1."
+    echo "  -g,    --debug            [Optional] Set debug mode on. By default: disabled"
     echo "  -h,    --help             [  Util  ] Show this help."
     echo
     echo "Use example: ./generate_ova.sh -w 4.1.5 -o 1.12.0 -f 7.10.0"
@@ -77,6 +79,7 @@ build_ova() {
     OVF_VM="wazuh-${OVA_VERSION}.ovf"
     OVA_FIXED="wazuh-${OVA_VERSION}-fixed.ova"
     export PACKAGES_REPOSITORY
+    export DEBUG
 
     # Delete OVA/OVF files if exists
     if [ -e "${OUTPUT_DIR}/${OVA_VM}" ] || [ -e "${OUTPUT_DIR}/${OVF_VM}" ]; then
@@ -147,6 +150,7 @@ check_version() {
 main() {
 
     while [ -n "$1" ]; do
+        
         case $1 in
             "-h" | "--help")
             help 0
@@ -193,8 +197,8 @@ main() {
                 PACKAGES_REPOSITORY="$2"
                 shift 2
             else
-            logger "ERROR: Value must be: dev"
-            echo "ERROR: Value must be: dev"
+                logger "ERROR: Value must be: [prod/dev]"
+                echo "ERROR: Value must be: [prod/dev]"
                 help 1
             fi
         ;;
@@ -206,10 +210,9 @@ main() {
             else
                 help 1
             fi
-            shift 2
         ;;
 
-        "-b"|"--branch")
+        "-b" | "--branch")
             if [ -n "$2" ]; then
                 BRANCH="$2"
                 shift 2
@@ -220,7 +223,7 @@ main() {
             fi
         ;;
 
-        "-d"|"--doc")
+        "-d" | "--doc")
             if [ -n "$2" ]; then
                 BRANCHDOC="$2"
                 shift 2
@@ -231,13 +234,24 @@ main() {
             fi
         ;;
 
-        "-s"|"--store-path")
+        "-s" | "--store-path")
             if [ -n "$2" ]; then
                 OUTPUT_DIR="$2"
                 shift 2
             else
                 logger "ERROR: Need store path"
                 echo "ERROR: Need store path"
+                help 1
+            fi
+        ;;
+
+        "-g" | "--debug")
+            if [ -n "$2" ]; then
+                DEBUG="$2"
+                shift 2
+            else
+                logger "ERROR: Need a value [yes/no]"
+                echo "ERROR: Need a value [yes/no]"
                 help 1
             fi
         ;;
@@ -279,7 +293,7 @@ main() {
         echo "Version to build: ${WAZUH_VERSION}-${OPENDISTRO_VERSION} with ${REPO} repository and ${BRANCH} branch"
         
         # Build OVA file (no standard)
-        build_ova ${WAZUH_VERSION} ${OVA_VERSION} ${BRANCH} ${BRANCHDOC}
+        build_ova ${WAZUH_VERSION} ${OVA_VERSION} ${BRANCH} ${BRANCHDOC} ${DEBUG}
 
         # Standarize OVA
         bash setOVADefault.sh "${scriptpath}" "${OUTPUT_DIR}/${OVA_VM}" "${OUTPUT_DIR}/${OVA_VM}" "${scriptpath}/wazuh_ovf_template" "${WAZUH_VERSION}" "${OPENDISTRO_VERSION}"
