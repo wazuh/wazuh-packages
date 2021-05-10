@@ -30,8 +30,6 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 %prep
 %setup -q
 
-./gen_wazuh.sh conf manager centos %rhel %{_localstatedir} > etc/manager.conf
-
 %build
 pushd src
 # Rebuild for server

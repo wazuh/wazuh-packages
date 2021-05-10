@@ -33,8 +33,6 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 %prep
 %setup -q
 
-./gen_wazuh.sh conf agent centos %rhel %{_localstatedir} > etc/agent.conf
-
 %build
 pushd src
 # Rebuild for agent
