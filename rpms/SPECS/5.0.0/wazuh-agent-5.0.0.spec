@@ -180,16 +180,15 @@ fi
 exit 0
 
 %pre
-
-# Create the ossec group if it doesn't exists
-if command -v getent > /dev/null 2>&1 && ! getent group ossec > /dev/null 2>&1; then
-  groupadd -r ossec
-elif ! id -g ossec > /dev/null 2>&1; then
-  groupadd -r ossec
+# Create the wazuh group if it doesn't exists
+if command -v getent > /dev/null 2>&1 && ! getent group wazuh > /dev/null 2>&1; then
+  groupadd -r wazuh
+elif ! id -g wazuh > /dev/null 2>&1; then
+  groupadd -r wazuh
 fi
-# Create the ossec user if it doesn't exists
-if ! id -u ossec > /dev/null 2>&1; then
-  useradd -g ossec -G ossec -d %{_localstatedir} -r -s /sbin/nologin ossec
+# Create the wazuh user if it doesn't exists
+if ! id -u wazuh > /dev/null 2>&1; then
+  useradd -g wazuh -G wazuh -d %{_localstatedir} -r -s /sbin/nologin wazuh
 fi
 
 # Stop the services to upgrade the package
@@ -213,14 +212,15 @@ fi
 %post
 if [ $1 = 2 ]; then
   if [ -d %{_localstatedir}/logs/ossec ]; then
-    mv %{_localstatedir}/logs/ossec/* %{_localstatedir}/logs/wazuh
+    rm -rf %{_localstatedir}/logs/wazuh
+    cp -rp %{_localstatedir}/logs/ossec %{_localstatedir}/logs/wazuh
   fi
 
   if [ -d %{_localstatedir}/queue/ossec ]; then
-    mv %{_localstatedir}/queue/ossec/* %{_localstatedir}/queue/sockets
+    rm -rf %{_localstatedir}/queue/sockets
+    cp -rp %{_localstatedir}/queue/ossec %{_localstatedir}/queue/sockets
   fi
 fi
-
 # If the package is being installed
 if [ $1 = 1 ]; then
 
@@ -240,14 +240,14 @@ if [ $1 = 1 ]; then
   fi
 
   touch %{_localstatedir}/logs/active-responses.log
-  chown ossec:ossec %{_localstatedir}/logs/active-responses.log
+  chown wazuh:wazuh %{_localstatedir}/logs/active-responses.log
   chmod 0660 %{_localstatedir}/logs/active-responses.log
 
   . %{_localstatedir}/packages_files/agent_installation_scripts/src/init/dist-detect.sh
 
-  # Generating osse.conf file
+  # Generating ossec.conf file
   %{_localstatedir}/packages_files/agent_installation_scripts/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir} > %{_localstatedir}/etc/ossec.conf
-  chown root:ossec %{_localstatedir}/etc/ossec.conf
+  chown root:wazuh %{_localstatedir}/etc/ossec.conf
 
   # Add default local_files to ossec.conf
   %{_localstatedir}/packages_files/agent_installation_scripts/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
@@ -356,6 +356,25 @@ fi
 # Restore ossec.conf permissions after upgrading
 chmod 0660 %{_localstatedir}/etc/ossec.conf
 
+# Remove old ossec user and group if exists and change ownwership of files
+
+if id -g ossec > /dev/null 2>&1; then
+  find %{_localstatedir} -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
+  if id -u ossec > /dev/null 2>&1; then
+    find %{_localstatedir} -group ossec -user ossec -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
+    userdel ossec
+  fi
+  if id -u ossecm > /dev/null 2>&1; then
+    find %{_localstatedir} -group ossec -user ossecm -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
+    userdel ossecm
+  fi
+  if id -u ossecr > /dev/null 2>&1; then
+    find %{_localstatedir} -group ossec -user ossecr -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
+    userdel ossecr
+  fi
+  groupdel ossec
+fi
+
 %preun
 
 if [ $1 = 0 ]; then
@@ -406,22 +425,22 @@ fi
 
 %triggerin -- glibc
 [ -r %{_sysconfdir}/localtime ] && cp -fpL %{_sysconfdir}/localtime %{_localstatedir}/etc
- chown root:ossec %{_localstatedir}/etc/localtime
+ chown root:wazuh %{_localstatedir}/etc/localtime
  chmod 0640 %{_localstatedir}/etc/localtime
 
 %postun
 
 # If the package is been uninstalled
 if [ $1 = 0 ];then
-  # Remove the ossec user if it exists
-  if id -u ossec > /dev/null 2>&1; then
-    userdel ossec >/dev/null 2>&1
+  # Remove the wazuh user if it exists
+  if id -u wazuh > /dev/null 2>&1; then
+    userdel wazuh >/dev/null 2>&1
   fi
-  # Remove the ossec group if it exists
-  if command -v getent > /dev/null 2>&1 && getent group ossec > /dev/null 2>&1; then
-    groupdel ossec >/dev/null 2>&1
-  elif id -g ossec > /dev/null 2>&1; then
-    groupdel ossec >/dev/null 2>&1
+  # Remove the wazuh group if it exists
+  if command -v getent > /dev/null 2>&1 && getent group wazuh > /dev/null 2>&1; then
+    groupdel wazuh >/dev/null 2>&1
+  elif id -g wazuh > /dev/null 2>&1; then
+    groupdel wazuh >/dev/null 2>&1
   fi
 
   # Remove lingering folders and files
@@ -462,150 +481,150 @@ rm -fr %{buildroot}
 %files
 %{_initrddir}/wazuh-agent
 /usr/lib/systemd/system/wazuh-agent.service
-%defattr(-,root,root)
-%dir %attr(750,root,ossec) %{_localstatedir}
-%attr(750,root,ossec) %{_localstatedir}/agentless
-%dir %attr(770,root,ossec) %{_localstatedir}/.ssh
-%dir %attr(750,root,ossec) %{_localstatedir}/active-response
-%dir %attr(750,root,ossec) %{_localstatedir}/active-response/bin
-%attr(750,root,ossec) %{_localstatedir}/active-response/bin/*
-%dir %attr(750,root,root) %{_localstatedir}/bin
-%attr(750,root,root) %{_localstatedir}/bin/*
-%dir %attr(750,root,ossec) %{_localstatedir}/backup
-%dir %attr(770,ossec,ossec) %{_localstatedir}/etc
-%attr(640,root,ossec) %config(noreplace) %{_localstatedir}/etc/client.keys
-%attr(640,root,ossec) %{_localstatedir}/etc/internal_options*
-%attr(640,root,ossec) %{_localstatedir}/etc/localtime
-%attr(640,root,ossec) %config(noreplace) %{_localstatedir}/etc/local_internal_options.conf
-%attr(660,root,ossec) %config(noreplace) %{_localstatedir}/etc/ossec.conf
-%attr(640,root,ossec) %{_localstatedir}/etc/wpk_root.pem
-%dir %attr(770,root,ossec) %{_localstatedir}/etc/shared
-%attr(660,root,ossec) %config(missingok,noreplace) %{_localstatedir}/etc/shared/*
-%dir %attr(750,root,ossec) %{_localstatedir}/lib
-%attr(750,root,ossec) %{_localstatedir}/lib/*
-%dir %attr(770,ossec,ossec) %{_localstatedir}/logs
-%attr(660,ossec,ossec) %ghost %{_localstatedir}/logs/active-responses.log
-%attr(660,root,ossec) %ghost %{_localstatedir}/logs/ossec.log
-%attr(660,root,ossec) %ghost %{_localstatedir}/logs/ossec.json
-%dir %attr(750,ossec,ossec) %{_localstatedir}/logs/wazuh
+%defattr(-, root, root)
+%dir %attr(750, root, wazuh) %{_localstatedir}
+%attr(750, root, wazuh) %{_localstatedir}/agentless
+%dir %attr(770, root, wazuh) %{_localstatedir}/.ssh
+%dir %attr(750, root, wazuh) %{_localstatedir}/active-response
+%dir %attr(750, root, wazuh) %{_localstatedir}/active-response/bin
+%attr(750, root, wazuh) %{_localstatedir}/active-response/bin/*
+%dir %attr(750, root, root) %{_localstatedir}/bin
+%attr(750, root, root) %{_localstatedir}/bin/*
+%dir %attr(750, root, wazuh) %{_localstatedir}/backup
+%dir %attr(770, wazuh, wazuh) %{_localstatedir}/etc
+%attr(640, root, wazuh) %config(noreplace) %{_localstatedir}/etc/client.keys
+%attr(640, root, wazuh) %{_localstatedir}/etc/internal_options*
+%attr(640, root, wazuh) %{_localstatedir}/etc/localtime
+%attr(640, root, wazuh) %config(noreplace) %{_localstatedir}/etc/local_internal_options.conf
+%attr(660, root, wazuh) %config(noreplace) %{_localstatedir}/etc/ossec.conf
+%attr(640, root, wazuh) %{_localstatedir}/etc/wpk_root.pem
+%dir %attr(770, root, wazuh) %{_localstatedir}/etc/shared
+%attr(660, root, wazuh) %config(missingok,noreplace) %{_localstatedir}/etc/shared/*
+%dir %attr(750, root, wazuh) %{_localstatedir}/lib
+%attr(750, root, wazuh) %{_localstatedir}/lib/*
+%dir %attr(770, wazuh, wazuh) %{_localstatedir}/logs
+%attr(660, wazuh, wazuh) %ghost %{_localstatedir}/logs/active-responses.log
+%attr(660, root, wazuh) %ghost %{_localstatedir}/logs/ossec.log
+%attr(660, root, wazuh) %ghost %{_localstatedir}/logs/ossec.json
+%dir %attr(750, wazuh, wazuh) %{_localstatedir}/logs/wazuh
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts
-%attr(750,root,root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/add_localfiles.sh
-%attr(750,root,root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/gen_ossec.sh
-%attr(750,root,root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/generic/*
-%attr(750,root,root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/centos/*
-%attr(750,root,root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/rhel/*
-%attr(750,root,root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/sles/*
-%attr(750,root,root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/suse/*
-%attr(750,root,root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/src/*
-%dir %attr(750,root,ossec) %{_localstatedir}/queue
-%dir %attr(770,ossec,ossec) %{_localstatedir}/queue/sockets
-%dir %attr(750,ossec,ossec) %{_localstatedir}/queue/diff
-%dir %attr(750,ossec,ossec) %{_localstatedir}/queue/fim
-%dir %attr(750,ossec,ossec) %{_localstatedir}/queue/fim/db
-%dir %attr(750,ossec,ossec) %{_localstatedir}/queue/syscollector
-%dir %attr(750,ossec,ossec) %{_localstatedir}/queue/syscollector/db
-%attr(640, root,ossec) %{_localstatedir}/queue/syscollector/norm_config.json
-%dir %attr(770,ossec,ossec) %{_localstatedir}/queue/alerts
-%dir %attr(750,ossec,ossec) %{_localstatedir}/queue/rids
-%dir %attr(750,ossec,ossec) %{_localstatedir}/queue/logcollector
-%dir %attr(750, root, ossec) %{_localstatedir}/ruleset/
-%dir %attr(750, root, ossec) %{_localstatedir}/ruleset/sca
-%attr(750, root, ossec) %{_localstatedir}/lib/libdbsync.so
-%attr(750, root, ossec) %{_localstatedir}/lib/librsync.so
-%attr(750, root, ossec) %{_localstatedir}/lib/libsyscollector.so
-%attr(750, root, ossec) %{_localstatedir}/lib/libsysinfo.so
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/applications
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/applications/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/generic
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/generic/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/1
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/1/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/2
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/2/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/sca.files
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/5
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/5/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/6
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/6/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/7
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/7/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/8
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/8/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/15
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/15/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/16
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/16/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/17
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/17/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/18
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/18/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/19
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/19/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/20
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/20/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/sca.files
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/*yml
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/7
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/7/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/8
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/8/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/9
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/9/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/sca.files
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/5
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/5/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/6
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/6/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/7
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/7/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/8
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/8/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles/sca.files
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles/11
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles/11/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles/12
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles/12/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sunos
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sunos/*
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/suse/sca.files
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/suse/11
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/suse/11/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/suse/12
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ubuntu/sca.files
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ubuntu/12
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ubuntu/12/04
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ubuntu/12/04/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ubuntu/14
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ubuntu/14/04
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ubuntu/14/04/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ubuntu/16
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ubuntu/16/04
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ubuntu/16/04/*
-%dir %attr(750, ossec, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/windows
-%attr(640, root, ossec) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/windows/*
-%dir %attr(1770,root,ossec) %{_localstatedir}/tmp
-%dir %attr(750,root,ossec) %{_localstatedir}/var
-%dir %attr(770,root,ossec) %{_localstatedir}/var/incoming
-%dir %attr(770,root,ossec) %{_localstatedir}/var/run
-%dir %attr(770,root,ossec) %{_localstatedir}/var/selinux
-%attr(640,root,ossec) %{_localstatedir}/var/selinux/*
-%dir %attr(770,root,ossec) %{_localstatedir}/var/upgrade
-%dir %attr(770,root,ossec) %{_localstatedir}/var/wodles
-%dir %attr(750,root,ossec) %{_localstatedir}/wodles
-%dir %attr(750,root,ossec) %{_localstatedir}/wodles/aws
-%attr(750,root,ossec) %{_localstatedir}/wodles/aws/*
-%dir %attr(750,root,ossec) %{_localstatedir}/wodles/docker
-%attr(750,root,ossec) %{_localstatedir}/wodles/docker/*
-%dir %attr(750, root, ossec) %{_localstatedir}/wodles/gcloud
-%attr(750, root, ossec) %{_localstatedir}/wodles/gcloud/*
+%attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/add_localfiles.sh
+%attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/gen_ossec.sh
+%attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/generic/*
+%attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/centos/*
+%attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/rhel/*
+%attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/sles/*
+%attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/suse/*
+%attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/src/*
+%dir %attr(750, root, wazuh) %{_localstatedir}/queue
+%dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/sockets
+%dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/diff
+%dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/fim
+%dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/fim/db
+%dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/syscollector
+%dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/syscollector/db
+%attr(640, root, wazuh) %{_localstatedir}/queue/syscollector/norm_config.json
+%dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/alerts
+%dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/rids
+%dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/logcollector
+%dir %attr(750, root, wazuh) %{_localstatedir}/ruleset/
+%dir %attr(750, root, wazuh) %{_localstatedir}/ruleset/sca
+%attr(750, root, wazuh) %{_localstatedir}/lib/libdbsync.so
+%attr(750, root, wazuh) %{_localstatedir}/lib/librsync.so
+%attr(750, root, wazuh) %{_localstatedir}/lib/libsyscollector.so
+%attr(750, root, wazuh) %{_localstatedir}/lib/libsysinfo.so
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/applications
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/applications/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/generic
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/generic/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/1
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/1/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/2
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/2/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/sca.files
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/5
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/5/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/6
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/6/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/7
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/7/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/8
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/8/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/15
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/15/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/16
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/16/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/17
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/17/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/18
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/18/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/19
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/19/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/20
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/20/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/sca.files
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/*yml
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/7
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/7/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/8
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/8/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/9
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/9/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/sca.files
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/5
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/5/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/6
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/6/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/7
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/7/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/8
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/8/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles/sca.files
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles/11
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles/11/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles/12
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles/12/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sunos
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sunos/*
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/suse/sca.files
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/suse/11
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/suse/11/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/suse/12
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ubuntu/sca.files
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ubuntu/12
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ubuntu/12/04
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ubuntu/12/04/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ubuntu/14
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ubuntu/14/04
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ubuntu/14/04/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ubuntu/16
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ubuntu/16/04
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ubuntu/16/04/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/windows
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/windows/*
+%dir %attr(1770, root, wazuh) %{_localstatedir}/tmp
+%dir %attr(750, root, wazuh) %{_localstatedir}/var
+%dir %attr(770, root, wazuh) %{_localstatedir}/var/incoming
+%dir %attr(770, root, wazuh) %{_localstatedir}/var/run
+%dir %attr(770, root, wazuh) %{_localstatedir}/var/selinux
+%attr(640, root, wazuh) %{_localstatedir}/var/selinux/*
+%dir %attr(770, root, wazuh) %{_localstatedir}/var/upgrade
+%dir %attr(770, root, wazuh) %{_localstatedir}/var/wodles
+%dir %attr(750, root, wazuh) %{_localstatedir}/wodles
+%dir %attr(750, root, wazuh) %{_localstatedir}/wodles/aws
+%attr(750, root, wazuh) %{_localstatedir}/wodles/aws/*
+%dir %attr(750, root, wazuh) %{_localstatedir}/wodles/docker
+%attr(750, root, wazuh) %{_localstatedir}/wodles/docker/*
+%dir %attr(750, root, wazuh) %{_localstatedir}/wodles/gcloud
+%attr(750, root, wazuh) %{_localstatedir}/wodles/gcloud/*
 
 %if %{_debugenabled} == "yes"
 /usr/lib/debug/%{_localstatedir}/*
@@ -616,7 +635,19 @@ rm -fr %{buildroot}
 %changelog
 * Sat Dec 04 2021 support <info@wazuh.com> - 5.0.0
 - More info: https://documentation.wazuh.com/current/release-notes/
+* Wed Apr 28 2021 support <info@wazuh.com> - 4.3.0
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Apr 26 2021 support <info@wazuh.com> - 4.2.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Thu Apr 22 2021 support <info@wazuh.com> - 4.1.5
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Mar 29 2021 support <info@wazuh.com> - 4.1.4
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Sat Mar 20 2021 support <info@wazuh.com> - 4.1.3
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Mar 08 2021 support <info@wazuh.com> - 4.1.2
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Fri Mar 05 2021 support <info@wazuh.com> - 4.1.1
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Tue Jan 19 2021 support <info@wazuh.com> - 4.1.0
 - More info: https://documentation.wazuh.com/current/release-notes/
@@ -747,6 +778,6 @@ rm -fr %{buildroot}
 - Fixed compile errors on macOS.
 - Fixed option -V for Integrator.
 - Exclude symbolic links to directories when sending FIM diffs (by Stephan Joerrens).
-- Fixed daemon list for service reloading at ossec-control.
+- Fixed daemon list for service reloading at wazuh-control.
 - Fixed socket waiting issue on Windows agents.
 - Fixed PCI_DSS definitions grouping issue at Rootcheck controls.
