@@ -93,10 +93,10 @@ fi
 
 # Remove existent config file and notify user for new installations
 if [ $1 = 1 ]; then
-  if [ -f %{_localstatedir}/etc/ossec.conf ]; then
-    echo "A backup from your ossec.conf has been created at %{_localstatedir}/etc/ossec.conf.rpmorig"
-    echo "Please verify your ossec.conf configuration at %{_localstatedir}/etc/ossec.conf"
-    mv %{_localstatedir}/etc/ossec.conf %{_localstatedir}/etc/ossec.conf.rpmorig
+  if [ -f %{_localstatedir}/etc/agent.conf ]; then
+    echo "A backup from your agent.conf has been created at %{_localstatedir}/etc/agent.conf.rpmorig"
+    echo "Please verify your agent.conf configuration at %{_localstatedir}/etc/agent.conf"
+    mv %{_localstatedir}/etc/agent.conf %{_localstatedir}/etc/agent.conf.rpmorig
   fi
 fi
 
@@ -123,23 +123,23 @@ fi
 # New installations
 if [ $1 = 1 ]; then
 
-  # Generating ossec.conf file
+  # Generating agent.conf file
   . %{_localstatedir}/tmp/src/init/dist-detect.sh
-  %{_localstatedir}/tmp/gen_wazuh.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir} > %{_localstatedir}/etc/ossec.conf
+  %{_localstatedir}/tmp/gen_wazuh.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir} > %{_localstatedir}/etc/agent.conf
 
-  # Add default local_files to ossec.conf
-  %{_localstatedir}/tmp/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
+  # Add default local_files to agent.conf
+  %{_localstatedir}/tmp/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/agent.conf
 
   # Restore Wazuh agent configuration
-  if [ -f %{_localstatedir}/etc/ossec.conf.rpmorig ]; then
-    %{_localstatedir}/tmp/src/init/replace_manager_ip.sh %{_localstatedir}/etc/ossec.conf.rpmorig %{_localstatedir}/etc/ossec.conf
+  if [ -f %{_localstatedir}/etc/agent.conf.rpmorig ]; then
+    %{_localstatedir}/tmp/src/init/replace_manager_ip.sh %{_localstatedir}/etc/agent.conf.rpmorig %{_localstatedir}/etc/agent.conf
   fi
 
   # Fix for AIX: netstat command
-  sed 's/netstat -tulpn/nestat -tu/' %{_localstatedir}/etc/ossec.conf > %{_localstatedir}/etc/ossec.conf.tmp
-  mv %{_localstatedir}/etc/ossec.conf.tmp %{_localstatedir}/etc/ossec.conf
-  sed 's/sort -k 4 -g/sort -n -k 4/' %{_localstatedir}/etc/ossec.conf > %{_localstatedir}/etc/ossec.conf.tmp
-  mv %{_localstatedir}/etc/ossec.conf.tmp %{_localstatedir}/etc/ossec.conf
+  sed 's/netstat -tulpn/nestat -tu/' %{_localstatedir}/etc/agent.conf > %{_localstatedir}/etc/agent.conf.tmp
+  mv %{_localstatedir}/etc/agent.conf.tmp %{_localstatedir}/etc/agent.conf
+  sed 's/sort -k 4 -g/sort -n -k 4/' %{_localstatedir}/etc/agent.conf > %{_localstatedir}/etc/agent.conf.tmp
+  mv %{_localstatedir}/etc/agent.conf.tmp %{_localstatedir}/etc/agent.conf
 
   # Generate the active-responses.log file
   touch %{_localstatedir}/logs/active-responses.log
@@ -149,7 +149,7 @@ if [ $1 = 1 ]; then
   %{_localstatedir}/tmp/src/init/register_configure_agent.sh %{_localstatedir} > /dev/null || :
 
 fi
-chown root:wazuh %{_localstatedir}/etc/ossec.conf
+chown root:wazuh %{_localstatedir}/etc/agent.conf
 ln -fs /etc/rc.d/init.d/wazuh-agent /etc/rc.d/rc2.d/S97wazuh-agent
 ln -fs /etc/rc.d/init.d/wazuh-agent /etc/rc.d/rc3.d/S97wazuh-agent
 
@@ -157,16 +157,16 @@ rm -rf %{_localstatedir}/tmp/etc
 rm -rf %{_localstatedir}/tmp/src
 rm -f %{_localstatedir}/tmp/add_localfiles.sh
 
-chmod 0660 %{_localstatedir}/etc/ossec.conf
+chmod 0660 %{_localstatedir}/etc/agent.conf
 
 # Restart wazuh-agent when manager settings are in place
-if grep '<server-ip>.*</server-ip>' %{_localstatedir}/etc/ossec.conf | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' > /dev/null 2>&1; then
+if grep '<server-ip>.*</server-ip>' %{_localstatedir}/etc/agent.conf | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' > /dev/null 2>&1; then
   /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
 fi
-if grep '<server-hostname>.*</server-hostname>' %{_localstatedir}/etc/ossec.conf > /dev/null 2>&1; then
+if grep '<server-hostname>.*</server-hostname>' %{_localstatedir}/etc/agent.conf > /dev/null 2>&1; then
   /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
 fi
-if grep '<address>.*</address>' %{_localstatedir}/etc/ossec.conf | grep -v 'MANAGER_IP' > /dev/null 2>&1; then
+if grep '<address>.*</address>' %{_localstatedir}/etc/agent.conf | grep -v 'MANAGER_IP' > /dev/null 2>&1; then
   /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
 fi
 
@@ -251,7 +251,7 @@ rm -fr %{buildroot}
 %attr(640, root, wazuh) %config(noreplace) %{_localstatedir}/etc/client.keys
 %attr(640, root, wazuh) %{_localstatedir}/etc/internal_options*
 %attr(640, root, wazuh) %config(noreplace) %{_localstatedir}/etc/local_internal_options.conf
-%attr(660, root, wazuh) %config(noreplace) %{_localstatedir}/etc/ossec.conf
+%attr(660, root, wazuh) %config(noreplace) %{_localstatedir}/etc/agent.conf
 %attr(640, root, wazuh) %{_localstatedir}/etc/wpk_root.pem
 %dir %attr(770, root, wazuh) %{_localstatedir}/etc/shared
 %attr(660, root, wazuh) %config(missingok,noreplace) %{_localstatedir}/etc/shared/*
