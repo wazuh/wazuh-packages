@@ -8,10 +8,8 @@ case "$1" in
     OS=$(lsb_release -si)
     VER=$(lsb_release -sr)
     DIR="/var/ossec"
-    USER="ossec"
-    USER_MAIL="ossecm"
-    USER_REM="ossecr"
-    GROUP="ossec"
+    USER="wazuh"
+    GROUP="wazuh"
     WAZUH_GLOBAL_TMP_DIR="${DIR}/packages_files"
     WAZUH_TMP_DIR="${WAZUH_GLOBAL_TMP_DIR}/manager_config_files"
     OSMYSHELL="/sbin/nologin"
@@ -24,17 +22,11 @@ case "$1" in
         fi
     fi
 
-    if ! getent group | grep -q "^ossec" ; then
-        addgroup --system ossec  > /dev/null 2>&1
+    if ! getent group | grep -q "^wazuh" ; then
+        addgroup --system wazuh  > /dev/null 2>&1
     fi
-    if ! getent passwd | grep -q "^ossec" ; then
+    if ! getent passwd | grep -q "^wazuh" ; then
         adduser --system --home ${DIR} --shell ${OSMYSHELL} --ingroup ${GROUP} ${USER} > /dev/null 2>&1
-    fi
-    if ! getent passwd | grep -q "^ossecm" ; then
-        adduser --system --home ${DIR} --shell ${OSMYSHELL} --ingroup ${GROUP} ${USER_MAIL} > /dev/null 2>&1
-    fi
-    if ! getent passwd | grep -q "^ossecr" ; then
-        adduser --system --home ${DIR} --shell ${OSMYSHELL} --ingroup ${GROUP} ${USER_REM} > /dev/null 2>&1
     fi
 
     if [ -z "$2" ] || [ -f ${WAZUH_TMP_DIR}/create_conf ] ; then
@@ -72,7 +64,7 @@ case "$1" in
 
     if [ -f ${DIR}/queue/db/global.db ]; then
         chmod 640 ${DIR}/queue/db/global.db*
-        chown ossec:ossec ${DIR}/queue/db/global.db*
+        chown ${USER}:${GROUP} ${DIR}/queue/db/global.db*
     fi
 
     # Delete uncompatible DBs versions
@@ -161,14 +153,14 @@ case "$1" in
 
     touch ${DIR}/logs/active-responses.log
     touch ${DIR}/logs/integrations.log
-    chown ossec:ossec ${DIR}/logs/active-responses.log
-    chown ossecm:ossec ${DIR}/logs/integrations.log
+    chown ${USER}:${GROUP} ${DIR}/logs/active-responses.log
+    chown ${USER}:${GROUP} ${DIR}/logs/integrations.log
     chmod 0660 ${DIR}/logs/active-responses.log
     chmod 0640 ${DIR}/logs/integrations.log
 
 
     if [ -f ${DIR}/etc/shared/ar.conf ]; then
-        chown root:ossec ${DIR}/etc/shared/ar.conf
+        chown root:wazuh ${DIR}/etc/shared/ar.conf
     fi
 
     # Check if SELinux is installed and enabled
@@ -261,6 +253,25 @@ case "$1" in
         rm -rf ${WAZUH_GLOBAL_TMP_DIR}
     fi
 
+    # Remove old ossec user and group if exists and change ownwership of files
+
+    if getent group | grep -q "^ossec" ; then
+        find ${DIR} -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
+        if getent passwd | grep -q "^ossec" ; then
+            find ${DIR} -group ossec -user ossec -exec chown ${USER}:${GROUP} {} \; > /dev/null 2>&1 || true
+            deluser ossec
+        fi
+        if getent passwd | grep -q "^ossecm" ; then
+            find ${DIR} -group ossec -user ossecm -exec chown ${USER}:${GROUP} {} \; > /dev/null 2>&1 || true
+            deluser ossecm
+        fi
+        if getent passwd | grep -q "^ossecr" ; then
+            find ${DIR} -group ossec -user ossecr -exec chown ${USER}:${GROUP} {} \; > /dev/null 2>&1 || true
+            deluser ossecr
+        fi
+        delgroup ossec 
+    fi
+    
     ;;
 
 
