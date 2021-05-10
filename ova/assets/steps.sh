@@ -98,14 +98,12 @@ preInstall() {
 
     # Add Kibana "wazuh" user
     PATTERN="eval \"rm \/etc\/elasticsearch\/e"
-    CURRENT_PATH_MOD="${CURRENT_PATH:0:0}\\${CURRENT_PATH:0}"
-    SUBS="sed -i \"\/here\/r ${CURRENT_PATH_MOD}\/assets\/kibanaUser\.txt\" \/usr\/share\/elasticsearch\/plugins\/opendistro_security\/securityconfig\/internal_users\.yml\n        $PATTERN"
-    sed -i "s/$PATTERN/$SUBS/g" ${INSTALLER}
-
+    HASH="\\\$2y\\\$12\\\$qCvlv3y4\\\.i8nX6wUZOepROVhTWI36H8nH2gxwShHcpIzf0yV1J30K"
+    FILE_PATH="\/usr\/share\/elasticsearch\/plugins\/opendistro_security\/securityconfig"
+    sed -i "s/${PATTERN}/sed -i \'\/admin:\/ {N; s\/admin.*\/wazuh:\\\n  hash: \"${HASH}\"\/g}\' ${FILE_PATH}\/internal_users\.yml\n        ${PATTERN}/g" ${INSTALLER}
+    
     # Add Wazuh user to "all-access" role
-    PATTERN="eval \"rm \/etc\/elasticsearch\/e"
-    sed -i "s/$PATTERN/sed -i \'\/\"admin\"\/ {N; s\/\"admin\".*des\/\"admin\"\\\n  - \"wazuh\"\\\n  des\/g}\' \/usr\/share\/elasticsearch\/plugins\/opendistro_security\/securityconfig\/roles_mapping\.yml\n        $PATTERN/g" ${INSTALLER}
-
+    sed -i "s/${PATTERN}/sed -i \'s\/\"admin\"\/\"wazuh\"\/g\' ${FILE_PATH}\/roles_mapping\.yml\n        ${PATTERN}/g" ${INSTALLER}
 }
 
 # Edit wazuh installation
