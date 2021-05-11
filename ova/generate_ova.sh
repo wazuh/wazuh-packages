@@ -52,8 +52,8 @@ help () {
     echo "  -d,    --doc              [Optional] Branch/tag of the Wazuh documentation development repository. By default: ${BRANCHDOC}"
     echo "  -s,    --store <path>     [Optional] Set the destination absolute path where the ova file will be stored."
     echo "  -c,    --checksum         [Optional] Generate checksum [yes/no]. By default: no"
-    echo "  -u,    --ui-revision      [Optional] Revision of the UI package. By default, 1"
-    echo "  -g,    --debug            [Optional] Set debug mode on. By default: disabled"
+    echo "  -u,    --ui-revision      [Optional] Revision of the UI package. By default: 1"
+    echo "  -g,    --debug            [Optional] Set debug mode on [yes/no]. By default: no"
     echo "  -h,    --help             [  Util  ] Show this help."
     echo
     echo "Use example: ./generate_ova.sh -w 4.1.5 -o 1.12.0 -f 7.10.0"
@@ -193,6 +193,11 @@ main() {
 
         "-r" | "--repository")
             if [ -n "$2" ]; then
+                if [ "$2" != "prod" ] && [ "$2" != "dev" ]; then
+                    logger "ERROR: Repository must be: [prod/dev]"
+                    echo "ERROR: Repository must be: [prod/dev]"
+                    help 1
+                fi
                 PACKAGES_REPOSITORY="$2"
                 shift 2
             else
@@ -246,6 +251,11 @@ main() {
 
         "-g" | "--debug")
             if [ -n "$2" ]; then
+                if [ "$2" != "no" ] && [ "$2" != "yes" ]; then
+                    logger "ERROR: Debug must be [yes/no]"
+                    echo "ERROR: Debug must be [yes/no]"
+                    help 1
+                fi
                 DEBUG="$2"
                 shift 2
             else
