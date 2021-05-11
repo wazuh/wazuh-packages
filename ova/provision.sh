@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 WAZUH_VERSION=$1
 OPENDISTRO_VERSION=$2
@@ -25,7 +25,7 @@ configSystem
 # Download unattended installer
 curl -so ${INSTALLER} https://raw.githubusercontent.com/wazuh/wazuh-documentation/${BRANCHDOC}/resources/open-distro/unattended-installation/${INSTALLER} 
 
-# Pre installation steps
+# Edit installation script
 preInstall
 
 # Run unattended installer
@@ -35,7 +35,7 @@ sh ${INSTALLER}
 systemctl stop kibana filebeat elasticsearch wazuh-manager
 systemctl enable wazuh-manager
 
-# Post installation steps
+# Edit installation 
 postInstall
 
 # Clean system and unnused data
