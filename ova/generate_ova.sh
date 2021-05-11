@@ -296,7 +296,7 @@ main() {
         build_ova ${WAZUH_VERSION} ${OVA_VERSION} ${BRANCH} ${BRANCHDOC} ${DEBUG}
 
         # Standarize OVA
-        bash setOVADefault.sh "${scriptpath}" "${OUTPUT_DIR}/${OVA_VM}" "${OUTPUT_DIR}/${OVA_VM}" "${scriptpath}/wazuh_ovf_template" "${WAZUH_VERSION}" "${OPENDISTRO_VERSION}"
+        bash setOVADefault.sh "${scriptpath}" "${OUTPUT_DIR}/${OVA_VM}" "${OUTPUT_DIR}/${OVA_VM}" "${scriptpath}/wazuh_ovf_template" "${WAZUH_VERSION}" "${OPENDISTRO_VERSION}" || clean 1
         
         logger "Process finished"
         echo "Process finished"
