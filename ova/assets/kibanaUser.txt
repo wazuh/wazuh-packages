@@ -1,6 +1,0 @@
-wazuh:
-  hash: "$2y$12$qCvlv3y4.i8nX6wUZOepROVhTWI36H8nH2gxwShHcpIzf0yV1J30K"
-  reserved: false
-  backend_roles:
-  - "admin"
-  description: "Wazuh admin user"
