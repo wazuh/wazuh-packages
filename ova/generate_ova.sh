@@ -20,7 +20,7 @@ scriptpath=$(
 )
 
 OUTPUT_DIR="${scriptpath}/output"
-CHECKSUM_DIR=""
+CHECKSUM_DIR="${scriptpath}/checksum"
 HAVE_VERSION=false
 HAVE_OPENDISTRO_VERSION=false
 HAVE_ELK_VERSION=false
@@ -51,7 +51,7 @@ help () {
     echo "  -b,    --branch           [Optional] Branch/tag of the Wazuh development repository. By default: ${BRANCH}"
     echo "  -d,    --doc              [Optional] Branch/tag of the Wazuh documentation development repository. By default: ${BRANCHDOC}"
     echo "  -s,    --store <path>     [Optional] Set the destination absolute path where the ova file will be stored."
-    echo "  -c,    --checksum <path>  [Optional] Generate checksum. By default: no"
+    echo "  -c,    --checksum         [Optional] Generate checksum [yes/no]. By default: no"
     echo "  -u,    --ui-revision      [Optional] Revision of the UI package. By default, 1"
     echo "  -g,    --debug            [Optional] Set debug mode on. By default: disabled"
     echo "  -h,    --help             [  Util  ] Show this help."
@@ -84,6 +84,11 @@ build_ova() {
     # Delete OVA/OVF files if exists
     if [ -e "${OUTPUT_DIR}/${OVA_VM}" ] || [ -e "${OUTPUT_DIR}/${OVF_VM}" ]; then
         rm -f ${OUTPUT_DIR}/${OVA_VM} ${OUTPUT_DIR}/${OVF_VM}
+    fi
+
+    # Delete CHECKSUM if exists
+    if [ -e "${CHECKSUM_DIR}/${OVA_VM}.sha512" ]; then
+        rm -f "${CHECKSUM_DIR}/${OVA_VM}.sha512"
     fi
 
     # Vagrant will provision the VM with all the software. (See vagrantfile)
@@ -119,12 +124,6 @@ build_ova() {
     # Make output dir of OVA file
     mkdir -p ${OUTPUT_DIR}
     mv ${OVA_FIXED} ${OUTPUT_DIR}/${OVA_VM}
-
-    # Check Checksum
-    if [ "${CHECKSUM}" = "yes" ]; then
-        mkdir -p ${CHECKSUM_DIR}
-        cd ${OUTPUT_DIR} && sha512sum "${OVA_VM}" > "${CHECKSUM_DIR}/${OVA_VM}.sha512"
-    fi
 
 }
 
@@ -258,12 +257,17 @@ main() {
 
         "-c"|"--checksum")
             if [ -n "$2" ]; then
-                CHECKSUM_DIR="$2"
-                CHECKSUM="yes"
+                if [ "$2" != "no" ] && [ "$2" != "yes" ]; then
+                    logger "ERROR: Checksum must be [yes/no]"
+                    echo "ERROR: Checksum must be [yes/no]"
+                    help 1
+                fi
+                CHECKSUM="$2"
                 shift 2
             else
-                CHECKSUM="no"
-                shift 1
+                logger "ERROR: Checksum needs a value [yes/no]"
+                echo "ERROR: Checksum needs a value [yes/no]"
+                help 1
             fi
         ;;
         *)
@@ -298,6 +302,14 @@ main() {
         # Standarize OVA
         bash setOVADefault.sh "${scriptpath}" "${OUTPUT_DIR}/${OVA_VM}" "${OUTPUT_DIR}/${OVA_VM}" "${scriptpath}/wazuh_ovf_template" "${WAZUH_VERSION}" "${OPENDISTRO_VERSION}" || clean 1
         
+        # Check Checksum
+         if [ "${CHECKSUM}" = "yes" ]; then
+            mkdir -p ${CHECKSUM_DIR}
+            cd ${OUTPUT_DIR} && sha512sum "${OVA_VM}" > "${CHECKSUM_DIR}/${OVA_VM}.sha512"
+            logger "Checksum created in ${CHECKSUM_DIR}/${OVA_VM}.sha512"
+            echo "Checksum created in ${CHECKSUM_DIR}/${OVA_VM}.sha512"
+        fi
+
         logger "Process finished"
         echo "Process finished"
         clean 0
