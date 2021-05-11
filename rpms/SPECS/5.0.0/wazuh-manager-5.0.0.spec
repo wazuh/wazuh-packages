@@ -187,7 +187,7 @@ fi
 # Create the wazuh user if it doesn't exists
 if ! id -u wazuh > /dev/null 2>&1; then
   useradd -g wazuh -G wazuh -d %{_localstatedir} -r -s /sbin/nologin wazuh
-fi 
+fi
 
 # Stop the services to upgrade the package
 if [ $1 = 2 ]; then
@@ -819,6 +819,8 @@ rm -fr %{buildroot}
 * Wed Apr 28 2021 support <info@wazuh.com> - 4.3.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Apr 26 2021 support <info@wazuh.com> - 4.2.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Apr 22 2021 support <info@wazuh.com> - 4.1.5
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Mar 29 2021 support <info@wazuh.com> - 4.1.4
 - More info: https://documentation.wazuh.com/current/release-notes/
