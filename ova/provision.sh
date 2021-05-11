@@ -94,7 +94,7 @@ cp /vagrant/custom_welcome/wazuh_wazuh_bg.svg /usr/share/kibana/src/core/server/
 cp /vagrant/custom_welcome/template.js.hbs /usr/share/kibana/src/legacy/ui/ui_render/bootstrap/template.js.hbs
 
 # Add custom configuration to css
-less /vagrant/assets/customWelcomeKibana.txt >> /usr/share/kibana/src/core/server/core_app/assets/legacy_light_theme.css
+less /vagrant/assets/customWelcomeKibana.css >> /usr/share/kibana/src/core/server/core_app/assets/legacy_light_theme.css
 
 # Get actual RAM of machine and split it in half
 ram=$(( $(free -m | awk '/^Mem:/{print $2}') / 2 ))
