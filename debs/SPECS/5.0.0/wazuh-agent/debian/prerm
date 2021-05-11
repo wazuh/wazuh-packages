@@ -33,9 +33,9 @@ case "$1" in
       if [ -f ${DIR}/etc/local_internal_options.conf ]; then
         cp -p ${DIR}/etc/local_internal_options.conf ${DIR}/tmp/conffiles
       fi
-      # Save the ossec.conf
-      if [ -f ${DIR}/etc/ossec.conf ]; then
-        cp -p ${DIR}/etc/ossec.conf ${DIR}/tmp/conffiles
+      # Save the agent.conf
+      if [ -f ${DIR}/etc/agent.conf ]; then
+        cp -p ${DIR}/etc/agent.conf ${DIR}/tmp/conffiles
       fi
       # Save the shared configuration files
       if [ -d ${DIR}/etc/shared ]; then
