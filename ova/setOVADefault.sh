@@ -1,5 +1,5 @@
 
-set -x
+[[ ${DEBUG} = "yes" ]] && set -x
 
 echo "Standarizing OVA"
 
