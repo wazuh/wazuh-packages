@@ -6,9 +6,12 @@
 # Edit system config
 configSystem() {
 
-    # Create user wazuh - Ignore password error
+    # Change root password (root:wazuh)
+    sed -i "s/root:.*:/root:\$1\$pNjjEA7K\$USjdNwjfh7A\.vHCf8suK41::0:99999:7:::/g" /etc/shadow 
+
+    # Add user wazuh (wazuh:wazuh)
     adduser wazuh
-    yes wazuh | passwd wazuh 
+    sed -i "s/wazuh:!!/wazuh:\$1\$pNjjEA7K\$USjdNwjfh7A\.vHCf8suK41/g" /etc/shadow 
 
     # Grant sudo privileges to user
     gpasswd -a wazuh wheel
