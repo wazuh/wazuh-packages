@@ -7,6 +7,7 @@ PACKAGES_REPOSITORY=$4
 BRANCH=$5
 BRANCHDOC=$6
 DEBUG=$7
+UI_REVISION=$8
 INSTALLER="all-in-one-installation.sh"
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 
