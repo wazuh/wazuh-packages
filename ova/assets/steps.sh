@@ -118,6 +118,9 @@ preInstall() {
     PATTERN="eval \"curl -so \/etc\/filebeat\/wazuh-template"
     sed -i "s/${PATTERN}/sed -i \"s\/admin\/wazuh\/g\" \/etc\/filebeat\/filebeat\.yml\n        ${PATTERN}/g" ${INSTALLER}
 
+    # Change UI_REVISION in installer
+    sed -i "s/-1\.zip/-${UI_REVISION}.zip/g" ${INSTALLER}
+
 }
 
 # Edit wazuh installation
