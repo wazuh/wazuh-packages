@@ -281,6 +281,16 @@ rm -fr %{buildroot}
 %changelog
 * Mon Apr 26 2021 support <info@wazuh.com> - 4.2.0
 - More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Apr 22 2021 support <info@wazuh.com> - 4.1.5
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Mar 29 2021 support <info@wazuh.com> - 4.1.4
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Sat Mar 20 2021 support <info@wazuh.com> - 4.1.3
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Mar 08 2021 support <info@wazuh.com> - 4.1.2
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Fri Mar 05 2021 support <info@wazuh.com> - 4.1.1
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Tue Jan 19 2021 support <info@wazuh.com> - 4.1.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Nov 30 2020 support <info@wazuh.com> - 4.0.3
@@ -290,6 +300,8 @@ rm -fr %{buildroot}
 * Sat Oct 31 2020 support <info@wazuh.com> - 4.0.1
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Oct 19 2020 support <info@wazuh.com> - 4.0.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Sat Apr 24 2021 support <info@wazuh.com> - 3.13.3
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Fri Aug 21 2020 support <info@wazuh.com> - 3.13.2
 - More info: https://documentation.wazuh.com/current/release-notes/
