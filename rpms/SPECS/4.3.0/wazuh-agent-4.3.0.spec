@@ -659,6 +659,8 @@ rm -fr %{buildroot}
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Oct 19 2020 support <info@wazuh.com> - 4.0.0
 - More info: https://documentation.wazuh.com/current/release-notes/
+* Sat Apr 24 2021 support <info@wazuh.com> - 3.13.3
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Fri Aug 21 2020 support <info@wazuh.com> - 3.13.2
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Tue Jul 14 2020 support <info@wazuh.com> - 3.13.1
