@@ -114,6 +114,11 @@ ${INSTALLATION_SCRIPTS_DIR}/src/init/darwin-init.sh ${DIR}
 # Remove temporary directory
 rm -rf ${DIR}/packages_files
 
+# Remove 4.1.5 patch
+if [ -f ${DIR}/queue/alerts/sockets ]; then
+  rm ${DIR}/queue/alerts/sockets
+fi
+
 if ${upgrade} && ${restart}; then
     ${DIR}/bin/wazuh-control restart
 fi
