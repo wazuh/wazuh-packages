@@ -80,9 +80,9 @@ preInstall() {
 
     # Set debug mode
     if [ "${DEBUG}" == "yes" ]; then
-      sed -i "s/\#\!\/bin\/bash/\#\!\/bin\/bash\nset -xf/g" ${INSTALLER}
+      sed -i "s/\#\!\/bin\/bash/\#\!\/bin\/bash\nset -x/g" ${INSTALLER}
     fi
-    
+
     # Get currents version values of installer
     CURRENT_W=$(less ${INSTALLER} | grep "WAZUH_VER=")
     CURRENT_O=$(less ${INSTALLER} | grep "OD_VER=")
