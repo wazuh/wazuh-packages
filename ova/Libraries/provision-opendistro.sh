@@ -221,6 +221,8 @@ installKibana() {
     else
         curl -so /etc/kibana/kibana.yml ${resources_url}/resources/open-distro/kibana/7.x/kibana_all_in_one.yml --max-time 300
         echo "telemetry.enabled: false" >> /etc/kibana/kibana.yml
+        echo "opendistro_security.multitenancy.enabled: true" >> /etc/kibana/kibana.yml
+        echo "server.defaultRoute: /app/wazuh?security_tenant=global" >> /etc/kibana/kibana.yml
         chown -R kibana:kibana /usr/share/kibana/plugins
         mkdir /usr/share/kibana/data
         chown -R kibana:kibana /usr/share/kibana/data
