@@ -23,9 +23,6 @@ echo "Using ${PACKAGES_REPOSITORY} packages"
 # System configuration
 configSystem
 
-# Set welcome messages
-sh ${CURRENT_PATH}/assets/messages.sh
-
 # Download unattended installer
 curl -so ${INSTALLER} https://raw.githubusercontent.com/wazuh/wazuh-documentation/${BRANCHDOC}/resources/open-distro/unattended-installation/${INSTALLER} 
 
