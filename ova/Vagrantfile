@@ -15,15 +15,14 @@ Vagrant.configure("2") do |config|
     vb.cpus = "4"
   end
 
-  # Config folder and exclude final files
+  # Synced folder configuration
   config.vm.synced_folder ".", "/vagrant", disabled: true
   config.vm.synced_folder ".", "/tmp", type: "rsync", :rsync__exclude => ['output']
 
   # Provision stage
   config.vm.provision :shell, path: "provision.sh", :args => "#{ENV['WAZUH_VERSION']} #{ENV['OPENDISTRO_VERSION']}  #{ENV['ELK_VERSION']}  #{ENV['PACKAGES_REPOSITORY']} #{ENV['BRANCH']} #{ENV['BRANCHDOC']} #{ENV['DEBUG']} #{ENV['UI_REVISION']}"
   config.vm.provision :reload
-  # Check system type
-  config.vm.provision 'shell', inline: "fsck /dev/sda1"
-  # Remove vagrant user
-  config.vm.provision 'shell', inline: "userdel -rf vagrant"
+  # Provision cleanup stage
+  config.vm.provision :shell, path: "assets/clean.sh"
+  
 end
