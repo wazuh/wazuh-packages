@@ -23,6 +23,8 @@ configSystem() {
   sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/" /etc/ssh/sshd_config
   echo "PermitRootLogin no" >> /etc/ssh/sshd_config
 
+  # Edit custom welcome messages
+  sh ${CURRENT_PATH}/assets/messages.sh
 }
 
 # Edit unnatended installer
@@ -76,7 +78,7 @@ preInstall() {
   # Change UI_REVISION in installer
   sed -i "s/-1\.zip/-${UI_REVISION}.zip/g" ${INSTALLER}
 
-  # Disable wazuh-manager start
+  # Disable start of wazuh-manager
   sed -i "s/startService \"wazuh-manager\"/\#startService \"wazuh-manager\"/g" ${INSTALLER}
 
 }
