@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set debug mode
-[[ ${DEBUG} = "yes" ]] && set -exf || set -ef
+[[ ${DEBUG} = "yes" ]] && set -ex || set -e
 
 # Edit system config
 configSystem() {
@@ -22,54 +22,6 @@ configSystem() {
   # Ssh config
   sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/" /etc/ssh/sshd_config
   echo "PermitRootLogin no" >> /etc/ssh/sshd_config
-
-  # OVA Welcome message
-  cat > /etc/issue <<EOF
-
-Welcome to the Wazuh OVA version 
-Wazuh - ${WAZUH_VERSION}
-Open Distro for Elasticsearch - ${OPENDISTRO_VERSION}
-ELK - ${ELK_VERSION}
-Access the Wazuh Web Interface at https://\4{eth0}
-Use wazuh/wazuh to login
-Thank you for using Wazuh!
-
-EOF
-
-  # User Welcome message
-  cat > /etc/motd <<EOF
-
-              W.                   W.
-             WWW.                 WWW.
-            WWWWW.               WWWWW.
-           WWWWWWW.             WWWWWWW.
-          WWWWWWWWW.           WWWWWWWWW.
-         WWWWWWWWWWW.         WWWWWWWWWWW.
-        WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.
-       WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.
-     WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.
-    WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.
-  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.
-WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.
-  WWWWWWWW...WWWWWWWWWWWWWWWWWWWWWWWW...WWWWWWWW.
-    WWWWWWWW...WWWWWWWWWWWWWWWWWWWW..WWWWWWWW.
-       WWWWWWW...WWWWWWWWWWWWWWWW..WWWWWWWW.
-         WWWWWWWW...WWW....WWW...WWWWWWWW.
-           WWWWWWWW....WWWW....WWWWWWWW.
-              WWWWWWWWWWWWWWWWWWWWWWW.
-                WWWWWWWWWWWWWWWWWWW.
-                 WWWWWWWWWWWWWWWWW.
-                  WWWWWWWWWWWWWWW.
-                   WWWWWWWWWWWWW.
-                    WWWWWWWWWWW.
-                     WWWWWWWWW.
-                      WWWWWWW.
-
-
-         WAZUH Open Source Security Platform
-                   www.wazuh.com
-
-EOF
 
 }
 
@@ -124,6 +76,9 @@ preInstall() {
   # Change UI_REVISION in installer
   sed -i "s/-1\.zip/-${UI_REVISION}.zip/g" ${INSTALLER}
 
+  # Disable wazuh-manager start
+  sed -i "s/startService \"wazuh-manager\"/\#startService \"wazuh-manager\"/g" ${INSTALLER}
+
 }
 
 # Edit wazuh installation
@@ -165,17 +120,9 @@ clean() {
   # Clean cache
   yum clean all
 
-  # Remove data from /var/ossec/logs/
-  cd / 
-  find /var/ossec/logs/ -type f -exec sh -c ': > "$1"' - {} \;
-
-  # Remove data from /var/log/ files
-  find /var/log/ -type f -exec sh -c ': > "$1"' - {} \;
-
-  # Remove demo script
-  rm securityadmin_demo.sh
-
-  # Delete history
-  history -c
+  # Remove demo script and default centos configuration install
+  rm /securityadmin_demo.sh
+  rm /root/anaconda-ks.cfg
+  rm /root/original-ks.cfg
 
 }
