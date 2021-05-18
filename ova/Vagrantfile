@@ -3,9 +3,6 @@
 
 Vagrant.configure("2") do |config|
 
-  # Required
-  config.vagrant.plugins = "vagrant-reload"
-
   config.vm.box = "centos/7"
   config.vm.hostname = "wazuhmanager"
   config.ssh.insert_key = false
@@ -21,8 +18,7 @@ Vagrant.configure("2") do |config|
 
   # Provision stage
   config.vm.provision :shell, path: "provision.sh", :args => "#{ENV['WAZUH_VERSION']} #{ENV['OPENDISTRO_VERSION']}  #{ENV['ELK_VERSION']}  #{ENV['PACKAGES_REPOSITORY']} #{ENV['BRANCH']} #{ENV['BRANCHDOC']} #{ENV['DEBUG']} #{ENV['UI_REVISION']}"
-  config.vm.provision :reload
   # Provision cleanup stage
-  config.vm.provision :shell, path: "assets/clean.sh"
+  config.vm.provision :shell, path: "assets/clean.sh", :args => "#{ENV['DEBUG']}"
   
 end
