@@ -21,7 +21,7 @@ echo "Using ${PACKAGES_REPOSITORY} packages"
 . ${CURRENT_PATH}/assets/steps.sh
 
 # System configuration
-configSystem
+systemConfig
 
 # Download unattended installer
 curl -so ${INSTALLER} https://raw.githubusercontent.com/wazuh/wazuh-documentation/${BRANCHDOC}/resources/open-distro/unattended-installation/${INSTALLER} 
