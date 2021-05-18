@@ -4,7 +4,7 @@
 [[ ${DEBUG} = "yes" ]] && set -ex || set -e
 
 # Edit system config
-configSystem() {
+systemConfig() {
 
   # Change root password (root:wazuh)
   sed -i "s/root:.*:/root:\$1\$pNjjEA7K\$USjdNwjfh7A\.vHCf8suK41::0:99999:7:::/g" /etc/shadow 
@@ -75,8 +75,8 @@ preInstall() {
   PATTERN="eval \"curl -so \/etc\/filebeat\/wazuh-template"
   sed -i "s/${PATTERN}/sed -i \"s\/admin\/wazuh\/g\" \/etc\/filebeat\/filebeat\.yml\n        ${PATTERN}/g" ${INSTALLER}
 
-  # Change UI_REVISION in installer
-  sed -i "s/-1\.zip/-${UI_REVISION}.zip/g" ${INSTALLER}
+  # Edit kibana plugin versions
+  sed -i "s/wazuh\_kibana\-[0-9\.]*_[0-9\.]*\-1\.zip/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-${UI_REVISION}.zip/g" ${INSTALLER}
 
   # Disable start of wazuh-manager
   sed -i "s/startService \"wazuh-manager\"/\#startService \"wazuh-manager\"/g" ${INSTALLER}
@@ -115,9 +115,6 @@ clean() {
 
   # Remove installer
   rm ${INSTALLER}
-
-  # Remove synced vagrant content
-  rm -rf ${CURRENT_PATH}/*
 
   # Clean cache
   yum clean all
