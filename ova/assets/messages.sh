@@ -1,5 +1,6 @@
 #!/bin/bash
 
+[[ ${DEBUG} = "yes" ]] && set -ex || set -e
 
 # OVA Welcome message
 cat > /etc/issue <<EOF
