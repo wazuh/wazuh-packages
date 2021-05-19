@@ -8,27 +8,17 @@ CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 # Stop services after reload
 systemctl stop wazuh-manager elasticsearch filebeat kibana
 
+# Set dinamic ram of vm
+mv ${CURRENT_PATH}/assets/automatic_set_ram.sh /etc/
+chmod +x "/etc/automatic_set_ram.sh"
+echo "@reboot . /etc/automatic_set_ram.sh" >> cron
+crontab cron
+rm cron
+
 # Remove everything related to vagrant
+mv ${CURRENT_PATH}/assets/removeVagrant.service /etc/systemd/system/
 mv ${CURRENT_PATH}/assets/removeVagrant.sh /home/wazuh/
 chmod 755 /home/wazuh/removeVagrant.sh
-
-cat > /etc/systemd/system/removeVagrant.service <<EOF
-[Unit]
-Description=Remove vagrant
-
-[Install]
-WantedBy=multi-user.target
-
-[Service]
-ExecStart=/bin/bash /home/wazuh/removeVagrant.sh
-Type=simple
-User=root
-Group=root
-WorkingDirectory=/home/wazuh
-Restart=always
-RestartSec=3
-EOF
-
 systemctl daemon-reload
 systemctl enable removeVagrant.service
 
