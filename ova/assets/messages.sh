@@ -1,14 +1,16 @@
-#!/bin/bash
+#!/bin/sh
+
+DEBUG=$1
+WAZUH_VERSION=$2
 
 [[ ${DEBUG} = "yes" ]] && set -ex || set -e
+
 
 # OVA Welcome message
 cat > /etc/issue <<EOF
 
 Welcome to the Wazuh OVA version 
 Wazuh - ${WAZUH_VERSION}
-Open Distro for Elasticsearch - ${OPENDISTRO_VERSION}
-ELK - ${ELK_VERSION}
 Access the Wazuh Web Interface at https://\4{eth0}
 Use wazuh/wazuh to login
 Thank you for using Wazuh!
