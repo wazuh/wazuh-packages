@@ -24,7 +24,7 @@ systemConfig() {
   echo "PermitRootLogin no" >> /etc/ssh/sshd_config
 
   # Edit custom welcome messages
-  sh ${CURRENT_PATH}/assets/messages.sh
+  sh ${CURRENT_PATH}/assets/messages.sh ${DEBUG} ${WAZUH_VERSION}
 }
 
 # Edit unnatended installer
@@ -101,13 +101,6 @@ postInstall() {
 
   # Add custom configuration to css
   less ${CURRENT_PATH}/assets/customWelcomeKibana.css >> /usr/share/kibana/src/core/server/core_app/assets/legacy_light_theme.css
-
-  # Get actual RAM of machine and split it in half
-  ram=$(( $(free -m | awk '/^Mem:/{print $2}') / 2 ))
-
-  # Change de jvm.options with the new RAM use
-  sed -i "s/^-Xms[0-9]\+[gm]/-Xms${ram}m/" /etc/elasticsearch/jvm.options
-  sed -i "s/^-Xmx[0-9]\+[gm]/-Xmx${ram}m/" /etc/elasticsearch/jvm.options
 
 }
 
