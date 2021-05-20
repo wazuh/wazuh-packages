@@ -21,6 +21,11 @@ In this repository, you can find the necessary tools to build a Wazuh package fo
 - [Solaris](/solaris/README.md)
 - [Windows](/windows/README.md)
 
+## Branches
+
+* `master` branch contains the latest code, be aware of possible bugs on this branch.
+* `stable` branch on correspond to the last Wazuh stable version.
+
 ## Contribute
 
 If you want to contribute to our project please don't hesitate to send a pull request. You can also join our users [mailing list](https://groups.google.com/d/forum/wazuh) by sending an email to [wazuh+subscribe@googlegroups.com](mailto:wazuh+subscribe@googlegroups.com) or join to our Slack channel by filling this [form](https://wazuh.com/community/join-us-on-slack/) to ask questions and participate in discussions.
