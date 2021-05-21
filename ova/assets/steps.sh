@@ -6,6 +6,9 @@
 # Edit system config
 systemConfig() {
 
+  # Upgrade system packages
+  yum upgrade -y > /dev/null 2>&1
+
   # Disable kernel message and edit background
   yum install grub2 -y > /dev/null 2>&1
   mv ${CUSTOM_PATH}/grub/wazuh.png /boot/grub2/
