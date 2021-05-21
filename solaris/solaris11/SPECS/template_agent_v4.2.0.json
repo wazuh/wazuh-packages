@@ -655,14 +655,6 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/lib/libwazuhshared.so": {
-        "class": "static",
-        "group": "ossec",
-        "mode": "0750",
-        "prot": "-rwxr-x---",
-        "type": "file",
-        "user": "root"
-    },
     "/var/ossec/lib/libdbsync.so": {
         "class": "static",
         "group": "ossec",

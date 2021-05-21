@@ -109,7 +109,7 @@ compile() {
     config
     check_version
     gmake deps RESOURCES_URL=http://packages.wazuh.com/deps/${deps_version} TARGET=agent
-    gmake TARGET=agent USE_SELINUX=no
+    gmake TARGET=agent USE_SELINUX=no DISABLE_SHARED=yes
     bash ${source_directory}/install.sh
     cd $current_path
 }
