@@ -121,9 +121,9 @@ case "$1" in
     if [ -d ${WAZUH_TMP_DIR}/lists ]; then
         cp -rp ${WAZUH_TMP_DIR}/lists  ${DIR}/etc/
     fi
-    # Restore manager.conf configuration
-    if [ -f ${WAZUH_TMP_DIR}/manager.conf ]; then
-        mv ${WAZUH_TMP_DIR}/manager.conf ${DIR}/etc/manager.conf
+    # Restore ossec.conf configuration
+    if [ -f ${WAZUH_TMP_DIR}/ossec.conf ]; then
+        mv ${WAZUH_TMP_DIR}/ossec.conf ${DIR}/etc/ossec.conf
     fi
     # Restore local_rules.xml configuration
     if [ -f ${WAZUH_TMP_DIR}/local_rules.xml ]; then

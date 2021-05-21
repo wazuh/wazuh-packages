@@ -38,9 +38,9 @@ case "$1" in
       if [ -f ${DIR}/etc/local_internal_options.conf ]; then
         cp -p ${DIR}/etc/local_internal_options.conf ${DIR}/tmp/conffiles
       fi
-      # Save the manager.conf
-      if [ -f ${DIR}/etc/manager.conf ]; then
-        cp -p ${DIR}/etc/manager.conf ${DIR}/tmp/conffiles
+      # Save the ossec.conf
+      if [ -f ${DIR}/etc/ossec.conf ]; then
+        cp -p ${DIR}/etc/ossec.conf ${DIR}/tmp/conffiles
       fi
       # Save the local decoders
       if [ -d ${DIR}/etc/decoders ]; then
@@ -58,10 +58,10 @@ case "$1" in
       if [ -d ${DIR}/etc/rules ]; then
         cp -pr ${DIR}/etc/rules ${DIR}/tmp/conffiles
       fi
-      # Save the shared.conf from the group default
+      # Save the agent.conf from the group default
       mkdir -p ${DIR}/tmp/conffiles/shared/default
-      if [ -f ${DIR}/etc/shared/default/shared.conf ]; then
-        cp -p ${DIR}/etc/shared/default/shared.conf ${DIR}/tmp/conffiles/shared/default
+      if [ -f ${DIR}/etc/shared/default/agent.conf ]; then
+        cp -p ${DIR}/etc/shared/default/agent.conf ${DIR}/tmp/conffiles/shared/default
       fi
       # Save the client.keys
       if [ -f ${DIR}/api/configuration/api.yaml ]; then

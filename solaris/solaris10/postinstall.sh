@@ -5,14 +5,14 @@
 OSSEC_HIDS_TMP_DIR="/tmp/wazuh-agent"
 DIR="/var/ossec"
 
-# Restore the agent.confs, client.keys and local_internal_options
+# Restore the ossec.confs, client.keys and local_internal_options
 if [ -f ${OSSEC_HIDS_TMP_DIR}/client.keys ]; then
     cp ${OSSEC_HIDS_TMP_DIR}/client.keys ${DIR}/etc/client.keys
 fi
-# Restore agent.conf configuration
-if [ -f ${OSSEC_HIDS_TMP_DIR}/agent.conf ]; then
-    mv ${OSSEC_HIDS_TMP_DIR}/agent.conf ${DIR}/etc/agent.conf
-    chmod 640 ${DIR}/etc/agent.conf
+# Restore ossec.conf configuration
+if [ -f ${OSSEC_HIDS_TMP_DIR}/ossec.conf ]; then
+    mv ${OSSEC_HIDS_TMP_DIR}/ossec.conf ${DIR}/etc/ossec.conf
+    chmod 640 ${DIR}/etc/ossec.conf
 fi
 # Restore client.keys configuration
 if [ -f ${OSSEC_HIDS_TMP_DIR}/local_internal_options.conf ]; then

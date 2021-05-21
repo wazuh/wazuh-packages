@@ -27,8 +27,8 @@ case "$1" in
         fi
 
         # Move files from ${DIR}/tmp to ${DIR}/etc
-        if [ -f ${DIR}/tmp/conffiles/shared/default/shared.conf ]; then
-            mv ${DIR}/tmp/conffiles/shared/default/shared.conf ${DIR}/etc/shared/default/shared.conf.save
+        if [ -f ${DIR}/tmp/conffiles/shared/default/agent.conf ]; then
+            mv ${DIR}/tmp/conffiles/shared/default/agent.conf ${DIR}/etc/shared/default/agent.conf.save
         fi
 
         # Move files from ${DIR}/tmp to ${DIR}/etc

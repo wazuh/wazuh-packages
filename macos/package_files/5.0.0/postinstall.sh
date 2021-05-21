@@ -15,8 +15,8 @@ INSTALLATION_SCRIPTS_DIR="${DIR}/packages_files/agent_installation_scripts"
 SCA_BASE_DIR="${INSTALLATION_SCRIPTS_DIR}/sca"
 
 if [ $(launchctl getenv WAZUH_PKG_UPGRADE) = true ]; then
-    rm -rf ${DIR}/etc/{agent.conf,client.keys,local_internal_options.conf,shared}
-    cp -rf ${DIR}/config_files/{agent.conf,client.keys,local_internal_options.conf,shared} ${DIR}/etc/
+    rm -rf ${DIR}/etc/{ossec.conf,client.keys,local_internal_options.conf,shared}
+    cp -rf ${DIR}/config_files/{ossec.conf,client.keys,local_internal_options.conf,shared} ${DIR}/etc/
     rm -rf ${DIR}/config_files/
 fi
 
@@ -54,8 +54,8 @@ chmod 640 ${DIR}/etc/localtime
 chmod 770 ${DIR}/etc/shared # ossec must be able to write to it
 chown -R root:${GROUP} ${DIR}/etc/shared
 find ${DIR}/etc/shared/ -type f -exec chmod 660 {} \;
-chown root:${GROUP} ${DIR}/etc/agent.conf
-chmod 660 ${DIR}/etc/agent.conf
+chown root:${GROUP} ${DIR}/etc/ossec.conf
+chmod 660 ${DIR}/etc/ossec.conf
 
 
 chmod 770 ${DIR}/.ssh
@@ -73,9 +73,9 @@ launchctl unsetenv WAZUH_PKG_UPGRADE
 launchctl unsetenv WAZUH_RESTART
 
 if [ "${upgrade}" = "false" ]; then
-    ${INSTALLATION_SCRIPTS_DIR}/gen_wazuh.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} ${DIR} > ${DIR}/etc/agent.conf
-    chown root:wazuh ${DIR}/etc/agent.conf
-    chmod 0640 ${DIR}/etc/agent.conf
+    ${INSTALLATION_SCRIPTS_DIR}/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} ${DIR} > ${DIR}/etc/ossec.conf
+    chown root:wazuh ${DIR}/etc/ossec.conf
+    chmod 0640 ${DIR}/etc/ossec.conf
 fi
 
 SCA_DIR="${DIST_NAME}/${DIST_VER}"
