@@ -367,7 +367,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/etc/agent.conf": {
+    "/var/ossec/etc/ossec.conf": {
         "class": "static",
         "group": "wazuh",
         "mode": "0660",
@@ -375,7 +375,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/etc/agent.conf.rpmnew": {
+    "/var/ossec/etc/ossec.conf.rpmnew": {
         "class": "dynamic",
         "group": "wazuh",
         "mode": "0660",
@@ -383,7 +383,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/etc/agent.conf.new": {
+    "/var/ossec/etc/ossec.conf.new": {
         "class": "dynamic",
         "group": "root",
         "mode": "0660",

@@ -33,8 +33,6 @@ case "$1" in
 
         ${SCRIPTS_DIR}/gen_ossec.sh conf manager ${OS} ${VER} ${DIR} > ${DIR}/etc/ossec.conf
         ${SCRIPTS_DIR}/add_localfiles.sh ${DIR} >> ${DIR}/etc/ossec.conf
-        ${SCRIPTS_DIR}/gen_wazuh.sh conf manager ${OS} ${VER} > ${DIR}/etc/manager.conf
-        ${SCRIPTS_DIR}/add_localfiles.sh >> ${DIR}/etc/manager.conf
 
         passlist="${DIR}/agentless/.passlist"
 
@@ -51,8 +49,6 @@ case "$1" in
     else
         ${SCRIPTS_DIR}/gen_ossec.sh conf manager ${OS} ${VER} ${DIR} > ${DIR}/etc/ossec.conf.new
         chmod 660 ${DIR}/etc/ossec.conf.new
-        ${SCRIPTS_DIR}/gen_wazuh.sh conf manager ${OS} ${VER} > ${DIR}/etc/manager.conf.new
-        chmod 660 ${DIR}/etc/manager.conf.new
     fi
 
     # Remove/relocate existing SQLite databases
@@ -121,9 +117,9 @@ case "$1" in
     if [ -d ${WAZUH_TMP_DIR}/lists ]; then
         cp -rp ${WAZUH_TMP_DIR}/lists  ${DIR}/etc/
     fi
-    # Restore manager.conf configuration
-    if [ -f ${WAZUH_TMP_DIR}/manager.conf ]; then
-        mv ${WAZUH_TMP_DIR}/manager.conf ${DIR}/etc/manager.conf
+    # Restore ossec.conf configuration
+    if [ -f ${WAZUH_TMP_DIR}/ossec.conf ]; then
+        mv ${WAZUH_TMP_DIR}/ossec.conf ${DIR}/etc/ossec.conf
     fi
     # Restore local_rules.xml configuration
     if [ -f ${WAZUH_TMP_DIR}/local_rules.xml ]; then
