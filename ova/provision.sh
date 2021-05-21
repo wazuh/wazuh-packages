@@ -10,6 +10,8 @@ DEBUG=$7
 UI_REVISION=$8
 INSTALLER="all-in-one-installation.sh"
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
+ASSETS_PATH="${CURRENT_PATH}/assets"
+CUSTOM_PATH="${ASSETS_PATH}/custom"
 
 # Set debug mode
 [[ ${DEBUG} = "yes" ]] && set -ex || set -e
@@ -18,7 +20,7 @@ CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 echo "Using ${PACKAGES_REPOSITORY} packages"
 
 # Load bash functions
-. ${CURRENT_PATH}/assets/steps.sh
+. ${ASSETS_PATH}/steps.sh
 
 # System configuration
 systemConfig
