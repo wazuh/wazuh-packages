@@ -10,13 +10,6 @@ CUSTOM_PATH="${ASSETS_PATH}/custom"
 # Stop services after reload
 systemctl stop wazuh-manager elasticsearch filebeat kibana
 
-# Set dinamic ram of vm
-mv ${CUSTOM_PATH}/automatic_set_ram.sh /etc/
-chmod +x "/etc/automatic_set_ram.sh"
-echo "@reboot . /etc/automatic_set_ram.sh" >> cron
-crontab cron
-rm cron
-
 # Remove everything related to vagrant
 mv ${CUSTOM_PATH}/removeVagrant.service /etc/systemd/system/
 mv ${CUSTOM_PATH}/removeVagrant.sh /home/wazuh/
