@@ -34,12 +34,12 @@ case "$1" in
 
     if [ -z "$2" ] || [ -f ${WAZUH_TMP_DIR}/create_conf ] ; then
 
-        ${SCRIPTS_DIR}/gen_wazuh.sh conf agent ${OS} ${VER} > ${DIR}/etc/agent.conf
-        ${SCRIPTS_DIR}/add_localfiles.sh >> ${DIR}/etc/agent.conf
+        ${SCRIPTS_DIR}/gen_ossec.sh conf agent ${OS} ${VER} ${DIR} > ${DIR}/etc/ossec.conf
+        ${SCRIPTS_DIR}/add_localfiles.sh ${DIR} >> ${DIR}/etc/ossec.conf
 
     else
-        ${SCRIPTS_DIR}/gen_wazuh.sh conf agent ${OS} ${VER} > ${DIR}/etc/agent.conf.new
-        chmod 660 ${DIR}/etc/agent.conf.new
+        ${SCRIPTS_DIR}/gen_ossec.sh conf agent ${OS} ${VER} ${DIR} > ${DIR}/etc/ossec.conf.new
+        chmod 660 ${DIR}/etc/ossec.conf.new
     fi
 
     # For the etc dir
@@ -53,9 +53,9 @@ case "$1" in
     if [ -f ${WAZUH_TMP_DIR}/client.keys ]; then
         cp ${WAZUH_TMP_DIR}/client.keys ${DIR}/etc/client.keys
     fi
-    # Restore agent.conf configuration
-    if [ -f ${WAZUH_TMP_DIR}/agent.conf ]; then
-        mv ${WAZUH_TMP_DIR}/agent.conf ${DIR}/etc/agent.conf
+    # Restore ossec.conf configuration
+    if [ -f ${WAZUH_TMP_DIR}/ossec.conf ]; then
+        mv ${WAZUH_TMP_DIR}/ossec.conf ${DIR}/etc/ossec.conf
     fi
     # Restore internal options configuration
     if [ -f ${WAZUH_TMP_DIR}/local_internal_options.conf ]; then
