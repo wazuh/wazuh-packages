@@ -77,9 +77,9 @@ build_environment() {
   if grep 'www.siteox.com' /etc/motd > /dev/null 2>&1; then
     for partition in "/home" "/opt"; do
       partition_size=$(df -m | grep $partition | awk -F' ' '{print $2}' | cut -d'.' -f1)
-      if [[ ${partition_size} -lt "3584" ]]; then
-        echo "Resizing $partition partition to 3.5GB"
-        chfs -a size=3584M $partition > /dev/null 2>&1
+      if [[ ${partition_size} -lt "3000" ]]; then
+        echo "Resizing $partition partition to 3GB"
+        chfs -a size=3G $partition > /dev/null 2>&1
       fi
     done
   fi

@@ -23,7 +23,7 @@ Wazuh is an open source security monitoring solution for threat detection, integ
 %setup -q
 deps_version=`cat src/Makefile | grep "DEPS_VERSION =" | cut -d " " -f 3`
 cd src && gmake clean && gmake deps RESOURCES_URL=http://packages.wazuh.com/deps/${deps_version} TARGET=agent
-gmake TARGET=agent USE_SELINUX=no
+gmake TARGET=agent USE_SELINUX=no DISABLE_SHARED=yes
 cd ..
 
 %install
@@ -44,7 +44,7 @@ echo 'USER_UPDATE="n"' >> ./etc/preloaded-vars.conf
 echo 'USER_AGENT_SERVER_IP="MANAGER_IP"' >> ./etc/preloaded-vars.conf
 echo 'USER_CA_STORE="/path/to/my_cert.pem"' >> ./etc/preloaded-vars.conf
 echo 'USER_AUTO_START="n"' >> ./etc/preloaded-vars.conf
-./install.sh
+DISABLE_SHARED="yes" DISABLE_SYSC="yes" ./install.sh
 
 # Remove unnecessary files or directories
 rm -rf %{_localstatedir}/selinux
