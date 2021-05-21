@@ -56,8 +56,6 @@ help () {
     echo "  -g,    --debug            [Optional] Set debug mode on [yes/no]. By default: no"
     echo "  -h,    --help             [  Util  ] Show this help."
     echo
-    echo "Use example: ./generate_ova.sh -w 4.1.5 -o 1.12.0 -f 7.10.0"
-    echo "Use example: ./generate_ova.sh -w 4.2.0 -o 1.12.0 -f 7.10.0 -b 4.2 -d 4.2-rc -r dev"
     exit $1
 }
 
