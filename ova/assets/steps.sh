@@ -6,6 +6,12 @@
 # Edit system config
 systemConfig() {
 
+  # Disable kernel message and edit background
+  yum install grub2 -y > /dev/null 2>&1
+  mv ${CUSTOM_PATH}/grub/wazuh.png /boot/grub2/
+  mv ${CUSTOM_PATH}/grub/grub /etc/default/
+  grub2-mkconfig -o /boot/grub2/grub.cfg
+
   # Change root password (root:wazuh)
   sed -i "s/root:.*:/root:\$1\$pNjjEA7K\$USjdNwjfh7A\.vHCf8suK41::0:99999:7:::/g" /etc/shadow 
 
@@ -24,7 +30,7 @@ systemConfig() {
   echo "PermitRootLogin no" >> /etc/ssh/sshd_config
 
   # Edit custom welcome messages
-  sh ${CURRENT_PATH}/assets/messages.sh ${DEBUG} ${WAZUH_VERSION}
+  sh ${CUSTOM_PATH}/messages.sh ${DEBUG} ${WAZUH_VERSION}
 }
 
 # Edit unnatended installer
@@ -91,16 +97,16 @@ postInstall() {
   sed -i "s/null, \"Elastic\"/null, \"Wazuh\"/g" /usr/share/kibana/src/core/server/rendering/views/template.js
 
   # Download custom files (background, logo and template)
-  curl -so ${CURRENT_PATH}/custom_welcome.tar.gz https://wazuh-demo.s3-us-west-1.amazonaws.com/custom_welcome_opendistro_docker.tar.gz
-  tar -xf ${CURRENT_PATH}/custom_welcome.tar.gz -C ${CURRENT_PATH}
+  curl -so ${CUSTOM_PATH}/custom_welcome.tar.gz https://wazuh-demo.s3-us-west-1.amazonaws.com/custom_welcome_opendistro_docker.tar.gz
+  tar -xf ${CUSTOM_PATH}/custom_welcome.tar.gz -C ${CUSTOM_PATH}
 
   # Copy necesaries files
-  cp ${CURRENT_PATH}/custom_welcome/wazuh_logo_circle.svg /usr/share/kibana/src/core/server/core_app/assets/
-  cp ${CURRENT_PATH}/custom_welcome/wazuh_wazuh_bg.svg /usr/share/kibana/src/core/server/core_app/assets/
-  cp ${CURRENT_PATH}/custom_welcome/template.js.hbs /usr/share/kibana/src/legacy/ui/ui_render/bootstrap/template.js.hbs
+  cp ${CUSTOM_PATH}/custom_welcome/wazuh_logo_circle.svg /usr/share/kibana/src/core/server/core_app/assets/
+  cp ${CUSTOM_PATH}/custom_welcome/wazuh_wazuh_bg.svg /usr/share/kibana/src/core/server/core_app/assets/
+  cp ${CUSTOM_PATH}/custom_welcome/template.js.hbs /usr/share/kibana/src/legacy/ui/ui_render/bootstrap/template.js.hbs
 
   # Add custom configuration to css
-  less ${CURRENT_PATH}/assets/customWelcomeKibana.css >> /usr/share/kibana/src/core/server/core_app/assets/legacy_light_theme.css
+  less ${CUSTOM_PATH}/customWelcomeKibana.css >> /usr/share/kibana/src/core/server/core_app/assets/legacy_light_theme.css
 
 }
 
