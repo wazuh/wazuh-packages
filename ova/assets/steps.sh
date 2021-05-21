@@ -12,6 +12,13 @@ systemConfig() {
   mv ${CUSTOM_PATH}/grub/grub /etc/default/
   grub2-mkconfig -o /boot/grub2/grub.cfg
 
+  # Set dinamic ram of vm
+  mv ${CUSTOM_PATH}/automatic_set_ram.sh /etc/
+  chmod +x "/etc/automatic_set_ram.sh"
+  echo "@reboot . /etc/automatic_set_ram.sh" >> cron
+  crontab cron
+  rm cron
+
   # Change root password (root:wazuh)
   sed -i "s/root:.*:/root:\$1\$pNjjEA7K\$USjdNwjfh7A\.vHCf8suK41::0:99999:7:::/g" /etc/shadow 
 
