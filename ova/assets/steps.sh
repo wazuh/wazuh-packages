@@ -7,13 +7,13 @@
 systemConfig() {
 
   # Upgrade system packages
+  echo "Upgrading the system. This may take a while ..."
   yum upgrade -y > /dev/null 2>&1
 
   # Disable kernel message and edit background
-  yum install grub2 -y > /dev/null 2>&1
   mv ${CUSTOM_PATH}/grub/wazuh.png /boot/grub2/
   mv ${CUSTOM_PATH}/grub/grub /etc/default/
-  grub2-mkconfig -o /boot/grub2/grub.cfg
+  grub2-mkconfig -o /boot/grub2/grub.cfg > /dev/null 2>&1
 
   # Set dinamic ram of vm
   mv ${CUSTOM_PATH}/automatic_set_ram.sh /etc/
