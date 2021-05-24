@@ -24,6 +24,10 @@ rm -rf ${CURRENT_PATH}/* ${CURRENT_PATH}/.gitignore
 find /var/log/ -type f -exec sh -c ': > "$1"' - {} \;
 find /var/ossec/logs/ -type f -exec sh -c ': > "$1"' - {} \;
 
+# Remove default config from centos7 installation
+rm /root/anaconda-ks.cfg
+rm /root/original-ks.cfg
+
 # Clean history
 history -c
 
