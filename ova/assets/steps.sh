@@ -125,12 +125,10 @@ clean() {
   # Remove installer
   rm ${INSTALLER}
 
+  # Remove demo script
+  rm /securityadmin_demo.sh
+
   # Clean cache
   yum clean all
-
-  # Remove demo script and default centos configuration install
-  rm /securityadmin_demo.sh
-  rm /root/anaconda-ks.cfg
-  rm /root/original-ks.cfg
 
 }
