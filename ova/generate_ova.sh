@@ -92,7 +92,7 @@ build_ova() {
     # Vagrant will provision the VM with all the software. (See vagrantfile)
     vagrant destroy -f
     vagrant up || clean 1
-    vagrant halt
+    vagrant suspend
     echo "Exporting ova"
 
     # Get machine name
