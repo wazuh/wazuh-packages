@@ -16,7 +16,7 @@ adduser wazuh
 yes wazuh | sudo passwd wazuh
 gpasswd -a wazuh wheel
 
-hostname wazuhmanager
+hostname wazuh-manager
 
 # Ssh config
 sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/" /etc/ssh/sshd_config
