@@ -28,7 +28,7 @@ systemConfig() {
   sed -i "s/wazuh:!!/wazuh:\$1\$pNjjEA7K\$USjdNwjfh7A\.vHCf8suK41/g" /etc/shadow 
 
   gpasswd -a wazuh wheel
-  hostname wazuhmanager
+  hostname wazuh-manager
 
   # Ssh configuration
   sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/" /etc/ssh/sshd_config
