@@ -5,7 +5,6 @@ Vagrant.configure("2") do |config|
 
   config.vm.box = "centos/7"
   config.vm.hostname = "wazuh-manager"
-  config.ssh.insert_key = false
   config.vm.provider "virtualbox" do |vb|
     vb.name = "vm_wazuh"
     vb.memory = "4096"
