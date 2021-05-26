@@ -45,7 +45,7 @@ help () {
     echo "General usage: $0 [OPTIONS]"
     echo "  -w,    --wazuh            [Required] Version of wazuh to install on VM."
     echo "  -o,    --opendistro       [Required] Version of Open Distro for Elasticsearch."
-    echo "  -f,    --filebeat         [Required] Filebeat's version."
+    echo "  -e,    --elk              [Required] Versions of Elasticsearch, Logstash and Kibana."
     echo "  -r,    --repository       [Optional] Select the software repository [dev/prod]. By default: prod"
     echo "  -b,    --branch           [Optional] Branch/tag of the Wazuh development repository. By default: ${BRANCH}"
     echo "  -d,    --doc              [Optional] Branch/tag of the Wazuh documentation development repository. By default: ${BRANCHDOC}"
@@ -171,7 +171,7 @@ main() {
             shift 2
         ;;
 
-        "-f" | "--filebeat")
+        "-e" | "--elk")
             if [ -n "$2" ]; then
                 export ELK_VERSION="$2"
                 HAVE_ELK_VERSION=true
