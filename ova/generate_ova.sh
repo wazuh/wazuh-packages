@@ -72,13 +72,11 @@ clean() {
 
 build_ova() {
 
-    # Files
     OVA_VM="wazuh-${OVA_VERSION}.ova"
     OVF_VM="wazuh-${OVA_VERSION}.ovf"
     OVA_FIXED="wazuh-${OVA_VERSION}-fixed.ova"
     export PACKAGES_REPOSITORY
 
-    # Delete OVA/OVF files if exists
     if [ -e "${OUTPUT_DIR}/${OVA_VM}" ] || [ -e "${OUTPUT_DIR}/${OVF_VM}" ]; then
         rm -f ${OUTPUT_DIR}/${OVA_VM} ${OUTPUT_DIR}/${OVF_VM}
     fi
@@ -102,10 +100,8 @@ build_ova() {
     --version "$OVA_VERSION" --description "Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring." \
     || clean 1
 
-    # Destroy vagrant machine
     vagrant destroy -f
 
-    # Extract ova
     tar -xvf ${OVA_VM}
 
     echo "Setting up ova for VMware ESXi"
@@ -117,7 +113,6 @@ build_ova() {
     mkdir -p ${OUTPUT_DIR}
     mv ${OVA_FIXED} ${OUTPUT_DIR}/${OVA_VM}
 
-    # Check Checksum
     if [ "${CHECKSUM}" = "yes" ]; then
         mkdir -p ${CHECKSUM_DIR}
         cd ${OUTPUT_DIR} && sha512sum "${OVA_VM}" > "${CHECKSUM_DIR}/${OVA_VM}.sha512"
@@ -261,7 +256,7 @@ main() {
     if [ -z "${CHECKSUM_DIR}" ]; then
         CHECKSUM_DIR="${OUTPUT_DIR}"
     fi
-    # Check if versions of principal packages has been specified
+    # Check if versions of main packages have been specified
     if  [ "${HAVE_VERSION}" = true ] && [ "${HAVE_ELK_VERSION}" = true ] && [ "${HAVE_OPENDISTRO_VERSION}" = true ]; then
        
         if [ ${BRANCH} != ${BRANCHDOC} ] && [ ${PACKAGES_REPOSITORY} = "prod" ]; then
