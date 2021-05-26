@@ -72,19 +72,16 @@ clean() {
 
 build_ova() {
 
-    # Files
     OVA_VM="wazuh-${OVA_VERSION}.ova"
     OVF_VM="wazuh-${OVA_VERSION}.ovf"
     OVA_FIXED="wazuh-${OVA_VERSION}-fixed.ova"
     export PACKAGES_REPOSITORY
     export DEBUG
 
-    # Delete OVA/OVF files if exists
     if [ -e "${OUTPUT_DIR}/${OVA_VM}" ] || [ -e "${OUTPUT_DIR}/${OVF_VM}" ]; then
         rm -f ${OUTPUT_DIR}/${OVA_VM} ${OUTPUT_DIR}/${OVF_VM}
     fi
 
-    # Delete CHECKSUM if exists
     if [ -e "${CHECKSUM_DIR}/${OVA_VM}.sha512" ]; then
         rm -f "${CHECKSUM_DIR}/${OVA_VM}.sha512"
     fi
@@ -107,10 +104,8 @@ build_ova() {
     --version "$OVA_VERSION" --description "Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring." \
     || clean 1
 
-    # Destroy vagrant machine
     vagrant destroy -f
 
-    # Extract ova
     tar -xvf ${OVA_VM}
 
     echo "Setting up ova for VMware ESXi"
@@ -309,8 +304,7 @@ main() {
         # Standarize OVA
         bash setOVADefault.sh "${scriptpath}" "${OUTPUT_DIR}/${OVA_VM}" "${OUTPUT_DIR}/${OVA_VM}" "${scriptpath}/wazuh_ovf_template" "${WAZUH_VERSION}" "${OPENDISTRO_VERSION}" || clean 1
         
-        # Check Checksum
-         if [ "${CHECKSUM}" = "yes" ]; then
+        if [ "${CHECKSUM}" = "yes" ]; then
             mkdir -p ${CHECKSUM_DIR}
             cd ${OUTPUT_DIR} && sha512sum "${OVA_VM}" > "${CHECKSUM_DIR}/${OVA_VM}.sha512"
             logger "Checksum created in ${CHECKSUM_DIR}/${OVA_VM}.sha512"

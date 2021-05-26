@@ -1,16 +1,14 @@
 #!/bin/bash
 
-# Set debug mode
 [[ ${DEBUG} = "yes" ]] && set -ex || set -e
 
-# Edit system config
+# Edit system configuration
 systemConfig() {
 
-  # Upgrade system packages
   echo "Upgrading the system. This may take a while ..."
   yum upgrade -y > /dev/null 2>&1
 
-  # Disable kernel message and edit background
+  # Disable kernel messages and edit background
   mv ${CUSTOM_PATH}/grub/wazuh.png /boot/grub2/
   mv ${CUSTOM_PATH}/grub/grub /etc/default/
   grub2-mkconfig -o /boot/grub2/grub.cfg > /dev/null 2>&1
@@ -29,17 +27,14 @@ systemConfig() {
   adduser wazuh
   sed -i "s/wazuh:!!/wazuh:\$1\$pNjjEA7K\$USjdNwjfh7A\.vHCf8suK41/g" /etc/shadow 
 
-  # Grant sudo privileges to user
   gpasswd -a wazuh wheel
-
-  # Set Hostname
   hostname wazuhmanager
 
-  # Ssh config
+  # Ssh configuration
   sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/" /etc/ssh/sshd_config
   echo "PermitRootLogin no" >> /etc/ssh/sshd_config
 
-  # Edit custom welcome messages
+  # Edit system custom welcome messages
   sh ${CUSTOM_PATH}/messages.sh ${DEBUG} ${WAZUH_VERSION}
 }
 
@@ -102,33 +97,24 @@ preInstall() {
 # Edit wazuh installation
 postInstall() {
 
-  # Custom Login Page
   # Edit window title
   sed -i "s/null, \"Elastic\"/null, \"Wazuh\"/g" /usr/share/kibana/src/core/server/rendering/views/template.js
 
-  # Download custom files (background, logo and template)
   curl -so ${CUSTOM_PATH}/custom_welcome.tar.gz https://wazuh-demo.s3-us-west-1.amazonaws.com/custom_welcome_opendistro_docker.tar.gz
   tar -xf ${CUSTOM_PATH}/custom_welcome.tar.gz -C ${CUSTOM_PATH}
-
-  # Copy necesaries files
   cp ${CUSTOM_PATH}/custom_welcome/wazuh_logo_circle.svg /usr/share/kibana/src/core/server/core_app/assets/
   cp ${CUSTOM_PATH}/custom_welcome/wazuh_wazuh_bg.svg /usr/share/kibana/src/core/server/core_app/assets/
   cp ${CUSTOM_PATH}/custom_welcome/template.js.hbs /usr/share/kibana/src/legacy/ui/ui_render/bootstrap/template.js.hbs
 
-  # Add custom configuration to css
+  # Add custom css in kibana
   less ${CUSTOM_PATH}/customWelcomeKibana.css >> /usr/share/kibana/src/core/server/core_app/assets/legacy_light_theme.css
 
 }
 
 clean() {
 
-  # Remove installer
   rm ${INSTALLER}
-
-  # Remove demo script
   rm /securityadmin_demo.sh
-
-  # Clean cache
   yum clean all
 
 }

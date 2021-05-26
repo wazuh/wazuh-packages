@@ -7,7 +7,6 @@ CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ASSETS_PATH="${CURRENT_PATH}/assets"
 CUSTOM_PATH="${ASSETS_PATH}/custom"
 
-# Stop services after reload
 systemctl stop wazuh-manager elasticsearch filebeat kibana
 
 # Remove everything related to vagrant
@@ -24,12 +23,8 @@ rm -rf ${CURRENT_PATH}/* ${CURRENT_PATH}/.gitignore
 find /var/log/ -type f -exec sh -c ': > "$1"' - {} \;
 find /var/ossec/logs/ -type f -exec sh -c ': > "$1"' - {} \;
 
-# Remove default config from centos7 installation
 rm /root/anaconda-ks.cfg
 rm /root/original-ks.cfg
 
-# Clean history
 history -c
-
-# Apply cleaning changes
 shutdown -r now > /dev/null 2>&1
