@@ -128,12 +128,10 @@ check_version() {
         elif [ "${PACKAGES_REPOSITORY}" = "dev" ]; then
             curl -Isf https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-${UI_REVISION}.zip > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${ELK_VERSION} not supported." && exit 1 )
         else
-            logger "Error, repository value must take 'prod' (production) or 'dev' (development) value."
             echo "Error, repository value must take 'prod' (production) or 'dev' (development) value."
             exit
         fi
     else 
-        logger "Error, only 4.x versions are supported"
         echo "Error, only 4.x versions are supported"
         exit
     fi
@@ -152,7 +150,6 @@ main() {
                 export WAZUH_VERSION="$2"
                 HAVE_VERSION=true
             else
-                logger "ERROR Need wazuh version."
                 echo "ERROR Need wazuh version."
                 help 1
             fi
@@ -164,7 +161,6 @@ main() {
                 export OPENDISTRO_VERSION="$2"
                 HAVE_OPENDISTRO_VERSION=true
             else
-                logger "ERROR Need opendistro version."
                 echo "ERROR Need opendistro version."
                 help 1
             fi
@@ -176,7 +172,6 @@ main() {
                 export ELK_VERSION="$2"
                 HAVE_ELK_VERSION=true
             else
-                logger "ERROR: Need filebeat version."
                 echo "ERROR: Need filebeat version."
                 help 1
             fi
@@ -188,7 +183,6 @@ main() {
                 PACKAGES_REPOSITORY="$2"
                 shift 2
             else
-            logger "ERROR: Value must be: dev"
             echo "ERROR: Value must be: dev"
                 help 1
             fi
@@ -209,7 +203,6 @@ main() {
                 BRANCH="$2"
                 shift 2
             else
-                logger "ERROR: Need a value"
                 echo "ERROR: Need a value"
                 help 1
             fi
@@ -220,7 +213,6 @@ main() {
                 BRANCHDOC="$2"
                 shift 2
             else
-                logger "ERROR: Need a value"
                 echo "ERROR: Need a value"
                 help 1
             fi
@@ -231,7 +223,6 @@ main() {
                 OUTPUT_DIR="$2"
                 shift 2
             else
-                logger "ERROR: Need store path"
                 echo "ERROR: Need store path"
                 help 1
             fi
@@ -261,7 +252,6 @@ main() {
        
         if [ ${BRANCH} != ${BRANCHDOC} ] && [ ${PACKAGES_REPOSITORY} = "prod" ]; then
             echo "Wazuh branch must be equal to Documentation branch in production."
-            logger "Wazuh branch must be equal to Documentation branch in production."
             clean 1
         fi
 
@@ -270,7 +260,6 @@ main() {
 
         OVA_VERSION="${WAZUH_VERSION}_${OPENDISTRO_VERSION}"
         [[ ${PACKAGES_REPOSITORY} = "prod" ]] && REPO="production" || REPO="development"
-        logger "Version to build: ${WAZUH_VERSION}-${OPENDISTRO_VERSION} with ${REPO} repository and ${BRANCH} branch"
         echo "Version to build: ${WAZUH_VERSION}-${OPENDISTRO_VERSION} with ${REPO} repository and ${BRANCH} branch"
         
         # Build OVA file (no standard)
@@ -279,12 +268,10 @@ main() {
         # Standarize OVA
         bash setOVADefault.sh "${scriptpath}" "${OUTPUT_DIR}/${OVA_VM}" "${OUTPUT_DIR}/${OVA_VM}" "${scriptpath}/wazuh_ovf_template" "${WAZUH_VERSION}" "${OPENDISTRO_VERSION}"
         
-        logger "Process finished"
         echo "Process finished"
         clean 0
 
     else
-        logger "ERROR: Need more parameters."
         echo "ERROR: Need more parameters."
         help 1
     fi
