@@ -4,8 +4,10 @@
 require 'getoptlong'
 
 os = {
-        'solaris11'   => {'box' => 'wazuh/solaris11',          'ip' => '172.16.1.44'},
-        'solaris10'   => {'box' => 'wazuh/solaris10',          'ip' => '172.16.1.45'},
+    'solaris11' => {'box' => 'wazuh/solaris11', 'ip' => '172.16.1.44', 'folder' => 'solaris11'},
+    'solaris10' => {'box' => 'wazuh/solaris10', 'ip' => '172.16.1.45', 'folder' => 'solaris10'},
+    'solaris11_cmake' => {'box' => 'wazuh/solaris11_cmake', 'ip' => '172.16.1.46', 'folder' => 'solaris11'},
+    'solaris10_cmake' => {'box' => 'wazuh/solaris10_cmake', 'ip' => '172.16.1.47', 'folder' => 'solaris10'},
 }
 
 ###################################################
@@ -96,7 +98,7 @@ opts.each do |opt, arg|
             puts "Missing ram argument (try --help)"
             exit 0
         else
-        ram=arg
+            ram=arg
         end
     when '--cpus'
         if arg == ''
@@ -117,9 +119,13 @@ Vagrant.configure("2") do |config|
         config.vm.define "#{key}" do |node|
           node.vm.box = "#{value['box']}"
           if key == "solaris11"
-            node.vm.box_url = 'https://packages-dev.wazuh.com/utils/vagrant/solaris/11/solaris11.3.box'
+            node.vm.box_url = 'https://ci.wazuh.com/vms/vagrant/solaris/11/i386/solaris11.3.box'
           elsif key == "solaris10"
-            node.vm.box_url = 'https://packages-dev.wazuh.com/utils/vagrant/solaris/10/solaris10.box'
+            node.vm.box_url = 'https://ci.wazuh.com/vms/vagrant/solaris/10/i386/solaris10.box'
+          elsif key == "solaris11_cmake"
+            node.vm.box_url = 'https://ci.wazuh.com/vms/vagrant/solaris/11/i386/solaris11.3_cmake.box'
+          elsif key == "solaris10_cmake"
+            node.vm.box_url = 'https://ci.wazuh.com/vms/vagrant/solaris/10/i386/solaris10_cmake.box'
           end
 
           node.vm.network :private_network, ip: "#{value['ip']}"
@@ -131,7 +137,7 @@ Vagrant.configure("2") do |config|
           end
 
           config.vm.synced_folder "src/", "/tmp/shared"
-          node.vm.provision "shell", path: "src/generate_packages.sh", env: {"BRANCH_TAG" => "#{branch_tag}", "SOLARIS_VERSION" => "#{key}","CHECKSUM" => "#{checksum}"}
+          node.vm.provision "shell", path: "src/generate_packages.sh", env: {"BRANCH_TAG" => "#{branch_tag}", "SOLARIS_VERSION" => "#{value['folder']}","CHECKSUM" => "#{checksum}"}
         end
     end
 end

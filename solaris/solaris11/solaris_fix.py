@@ -68,9 +68,6 @@ def set_p5m1(template_path, p5m1_file_path):
                         # write the line into the file
                         p5m1_fixed.write("".join([i + " " for i in line_components])+"\n")
 
-        p5m1_fixed.write("file etc/ossec-init.conf path=etc/ossec-init.conf owner=root group=root mode=0640"+"\n")
-        p5m1_fixed.write("link path=var/ossec/etc/ossec-init.conf target=etc/ossec-init.conf"+"\n")
-
 
 def main():
     parser = argparse.ArgumentParser()

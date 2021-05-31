@@ -7,7 +7,6 @@
 # and/or modify it under the terms of the GNU General Public
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
-
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ARCHITECTURE="amd64"
 OUTDIR="${CURRENT_PATH}/output/"
@@ -16,18 +15,26 @@ REVISION="1"
 TARGET=""
 JOBS="2"
 DEBUG="no"
+BUILD_DOCKER="yes"
 INSTALLATION_PATH="/var/ossec"
 DEB_AMD64_BUILDER="deb_builder_amd64"
 DEB_I386_BUILDER="deb_builder_i386"
 DEB_PPC64LE_BUILDER="deb_builder_ppc64le"
+DEB_ARM64_BUILDER="deb_builder_arm64"
+DEB_ARMHF_BUILDER="deb_builder_armhf"
 DEB_AMD64_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/amd64"
 DEB_I386_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/i386"
+DEB_PPC64LE_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/ppc64le"
+DEB_ARM64_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/arm64"
+DEB_ARMHF_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/armhf"
 CHECKSUMDIR=""
 CHECKSUM="no"
-DEB_PPC64LE_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/ppc64le"
 PACKAGES_BRANCH="master"
 USE_LOCAL_SPECS="no"
 LOCAL_SPECS="${CURRENT_PATH}"
+LOCAL_SOURCE_CODE=""
+USE_LOCAL_SOURCE_CODE="no"
+FUTURE="no"
 
 trap ctrl_c INT
 
@@ -51,16 +58,26 @@ build_deb() {
     # Copy the necessary files
     cp build.sh ${DOCKERFILE_PATH}
 
+    # Create an optional parameter to share the local source code as a volume
+    if [ ! -z "${LOCAL_SOURCE_CODE}" ]; then
+        CUSTOM_CODE_VOL="-v ${LOCAL_SOURCE_CODE}:/wazuh-local-src:Z"
+        USE_LOCAL_SOURCE_CODE="yes"
+    fi
+
     # Build the Docker image
-    docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || return 1
+    if [[ ${BUILD_DOCKER} == "yes" ]]; then
+        docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || return 1
+    fi
 
     # Build the Debian package with a Docker container
     docker run -t --rm -v ${OUTDIR}:/var/local/wazuh:Z \
         -v ${CHECKSUMDIR}:/var/local/checksum:Z \
         -v ${LOCAL_SPECS}:/specs:Z \
+        ${CUSTOM_CODE_VOL} \
         ${CONTAINER_NAME} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
         ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} \
-        ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} || return 1
+        ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} \
+        ${USE_LOCAL_SOURCE_CODE} ${FUTURE}|| return 1
 
     echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
 
@@ -69,10 +86,22 @@ build_deb() {
 
 build() {
 
+    if [[ "${ARCHITECTURE}" = "x86_64" ]] || [[ "${ARCHITECTURE}" = "amd64" ]]; then
+            ARCHITECTURE="amd64"
+    elif [[ "${ARCHITECTURE}" = "aarch64" ]] || [[ "${ARCHITECTURE}" = "arm64" ]]; then
+            ARCHITECTURE="arm64"
+    elif [[ ${ARCHITECTURE} == "arm32" ]] || [[ ${ARCHITECTURE} == "armhf" ]] || [[ ${ARCHITECTURE} == "armv7hl" ]] ; then
+        ARCHITECTURE="armhf"
+    fi
+
     if [[ "${TARGET}" == "api" ]]; then
 
         if [[ "${ARCHITECTURE}" = "ppc64le" ]]; then
             build_deb ${DEB_PPC64LE_BUILDER} ${DEB_PPC64LE_BUILDER_DOCKERFILE} || return 1
+        elif [[ "${ARCHITECTURE}" = "arm64" ]]; then
+            build_deb ${DEB_ARM64_BUILDER} ${DEB_ARM64_BUILDER_DOCKERFILE} || return 1
+        elif [[ "${ARCHITECTURE}" = "armhf" ]]; then
+            build_deb ${DEB_ARMHF_BUILDER} ${DEB_ARMHF_BUILDER_DOCKERFILE} || return 1
         else
             build_deb ${DEB_AMD64_BUILDER} ${DEB_AMD64_BUILDER_DOCKERFILE} || return 1
         fi
@@ -81,18 +110,23 @@ build() {
 
         BUILD_NAME=""
         FILE_PATH=""
-        if [[ "${ARCHITECTURE}" = "x86_64" ]] || [[ "${ARCHITECTURE}" = "amd64" ]]; then
-            ARCHITECTURE="amd64"
+        if [[ "${ARCHITECTURE}" = "amd64" ]]; then
             BUILD_NAME="${DEB_AMD64_BUILDER}"
             FILE_PATH="${DEB_AMD64_BUILDER_DOCKERFILE}"
         elif [[ "${ARCHITECTURE}" = "i386" ]]; then
             BUILD_NAME="${DEB_I386_BUILDER}"
             FILE_PATH="${DEB_I386_BUILDER_DOCKERFILE}"
-        elif [[  "${ARCHITECTURE}" = "ppc64le" ]]; then
+        elif [[ "${ARCHITECTURE}" = "ppc64le" ]]; then
             BUILD_NAME="${DEB_PPC64LE_BUILDER}"
             FILE_PATH="${DEB_PPC64LE_BUILDER_DOCKERFILE}"
+        elif [[ "${ARCHITECTURE}" = "arm64" ]]; then
+            BUILD_NAME="${DEB_ARM64_BUILDER}"
+            FILE_PATH="${DEB_ARM64_BUILDER_DOCKERFILE}"
+        elif [[ "${ARCHITECTURE}" = "armhf" ]]; then
+            BUILD_NAME="${DEB_ARMHF_BUILDER}"
+            FILE_PATH="${DEB_ARMHF_BUILDER_DOCKERFILE}"
         else
-            echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too) or i386 or ppc64le."
+            echo "Invalid architecture. Choose one of amd64/i386/ppc64le/arm64/arm32."
             return 1
         fi
         build_deb ${BUILD_NAME} ${FILE_PATH} || return 1
@@ -110,14 +144,17 @@ help() {
     echo
     echo "    -b, --branch <branch>     [Required] Select Git branch [${BRANCH}]. By default: master."
     echo "    -t, --target <target>     [Required] Target package to build: manager, api or agent."
-    echo "    -a, --architecture <arch> [Optional] Target architecture of the package. By default: x86_64"
-    echo "    -j, --jobs <number>       [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 4."
+    echo "    -a, --architecture <arch> [Optional] Target architecture of the package [amd64/i386/ppc64le/arm64/armhf]."
+    echo "    -j, --jobs <number>       [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 2."
     echo "    -r, --revision <rev>      [Optional] Package revision. By default: 1."
-    echo "    -s, --store <path>        [Optional] Set the directory where the package will be stored. By default: ${HOME}/3.x/apt-dev/"
+    echo "    -s, --store <path>        [Optional] Set the destination path of package. By default, an output folder will be created."
     echo "    -p, --path <path>         [Optional] Installation path for the package. By default: /var/ossec."
     echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
     echo "    -c, --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
+    echo "    --dont-build-docker       [Optional] Locally built docker image will be used instead of generating a new one."
+    echo "    --sources <path>          [Optional] Absolute path containing wazuh source code. This option will use local source code instead of downloading it from GitHub."
     echo "    --dev                     [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub."
+    echo "    --future                  [Optional] Build test future package x.30.0 Used for development purposes."
     echo "    -h, --help                Show this help."
     echo
     exit $1
@@ -195,6 +232,10 @@ main() {
                 shift 1
             fi
             ;;
+        "--dont-build-docker")
+            BUILD_DOCKER="no"
+            shift 1
+            ;;
         "-s"|"--store")
             if [ -n "$2" ]; then
                 OUTDIR="$2"
@@ -211,6 +252,18 @@ main() {
             ;;
         "--dev")
             USE_LOCAL_SPECS="yes"
+            shift 1
+            ;;
+        "--sources")
+            if [ -n "$2" ]; then
+                LOCAL_SOURCE_CODE="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
+        "--future")
+            FUTURE="yes"
             shift 1
             ;;
         *)

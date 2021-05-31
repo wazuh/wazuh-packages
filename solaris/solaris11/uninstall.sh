@@ -1,16 +1,17 @@
 #/bin/sh
 
+control_binary="wazuh-control"
+
+if [ ! -f /var/ossec/bin/${control_binary} ]; then
+  control_binary="ossec-control"
+fi
+
 ## Stop and remove application
-sudo /var/ossec/bin/ossec-control stop
+sudo ${INSTALL_PATH}/bin/${control_binary} stop
 sudo rm -r /var/ossec*
-sudo rm /etc/ossec-init.conf
 
 # remove launchdaemons
 sudo rm -f /etc/init.d/wazuh-agent
-
-
-sudo rm -f /etc/ossec-init.conf
-
 
 ## Remove User and Groups
 sudo userdel ossec

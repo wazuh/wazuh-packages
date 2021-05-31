@@ -3,7 +3,6 @@
 ## Stop and remove application
 sudo /Library/Ossec/bin/ossec-control stop
 sudo /bin/rm -r /Library/Ossec*
-sudo /bin/rm /etc/ossec-init.conf
 
 ## stop and unload dispatcher
 #sudo /bin/launchctl unload /Library/LaunchDaemons/com.wazuh.agent.plist
@@ -38,7 +37,7 @@ sudo /usr/sbin/pkgutil --forget com.wazuh.pkg.wazuh-agent-etc
 # In case it was installed via Puppet pkgdmg provider
 
 if [ -e /var/db/.puppet_pkgdmg_installed_wazuh-agent ]; then
-  sudo rm -f /var/db/.puppet_pkgdmg_installed_wazuh-agent
+    sudo rm -f /var/db/.puppet_pkgdmg_installed_wazuh-agent
 fi
 
 echo

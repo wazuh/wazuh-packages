@@ -19,6 +19,8 @@ deps_version="false"
 SOURCE=${CURRENT_PATH}/repository
 CONFIG="$SOURCE/etc/preloaded-vars.conf"
 target_dir="${CURRENT_PATH}/output"
+control_binary=""
+short_version=""
 
 trap ctrl_c INT
 
@@ -30,7 +32,20 @@ if [ -z "$ARCH" ]; then
     ARCH="i386"
 fi
 
+set_control_binary() {
+  if [ -e ${SOURCE}/src/VERSION ]; then
+    wazuh_version=`cat ${SOURCE}/src/VERSION`
+    number_version=`echo "${wazuh_version}" | cut -d v -f 2`
+    major=`echo $number_version | cut -d . -f 1`
+    minor=`echo $number_version | cut -d . -f 2`
 
+    if [ "$major" -le "4" ] && [ "$minor" -le "1" ]; then
+        control_binary="ossec-control"
+    else
+        control_binary="wazuh-control"
+    fi
+  fi
+}
 
 build_environment(){
     cd ${CURRENT_PATH}
@@ -50,9 +65,46 @@ build_environment(){
     pkgutil -y -i wget
     pkgutil -y -i curl
     pkgutil -y -i gcc5core
+    pkgutil -y -i gcc5g++
+    pkgutil -y -i gtar
     /opt/csw/bin/curl -OL http://mirror.opencsw.org/opencsw/allpkgs/gmake-4.2.1%2cREV%3d2016.08.04-SunOS5.10-sparc-CSW.pkg.gz
     gunzip -f gmake-4.2.1%2cREV%3d2016.08.04-SunOS5.10-sparc-CSW.pkg.gz
     pkgadd -d gmake-4.2.1%2cREV%3d2016.08.04-SunOS5.10-sparc-CSW.pkg -n all
+
+    # Compile GCC-5.5 and CMake
+    curl -L http://packages.wazuh.com/utils/gcc/gcc-5.5.0.tar.gz | gtar xz
+    cd gcc-5.5.0
+    curl -L http://packages.wazuh.com/utils/gcc/mpfr-2.4.2.tar.bz2 | gtar xj
+    mv mpfr-2.4.2 mpfr
+    curl -L http://packages.wazuh.com/utils/gcc/gmp-4.3.2.tar.bz2 | gtar xj
+    mv gmp-4.3.2 gmp
+    curl -L http://packages.wazuh.com/utils/gcc/mpc-0.8.1.tar.gz | gtar xz
+    mv mpc-0.8.1 mpc
+    curl -L http://packages.wazuh.com/utils/gcc/isl-0.14.tar.bz2 | gtar xj
+    mv isl-0.14 isl
+    unset CPLUS_INCLUDE_PATH
+    unset LD_LIBRARY_PATH
+
+    export PATH=/usr/sbin:/usr/bin:/usr/ccs/bin:/opt/csw/bin
+
+    mkdir -p /usr/local
+    ./configure --prefix=/usr/local/gcc-5.5.0 --enable-languages=c,c++ --disable-multilib --disable-libsanitizer --disable-bootstrap --with-ld=/usr/ccs/bin/ld --without-gnu-ld --with-gnu-as --with-as=/opt/csw/bin/gas
+    gmake && gmake install
+    export CPLUS_INCLUDE_PATH=/usr/local/gcc-5.5.0/include/c++/5.5.0
+    export LD_LIBRARY_PATH=/usr/local/gcc-5.5.0/lib
+
+    echo "export PATH=/usr/sbin:/usr/bin:/usr/ccs/bin:/opt/csw/bin" >> /etc/profile
+    echo "export CPLUS_INCLUDE_PATH=/usr/local/gcc-5.5.0/include/c++/5.5.0" >> /etc/profile
+    echo "export LD_LIBRARY_PATH=/usr/local/gcc-5.5.0/lib" >> /etc/profile
+    rm -rf gcc-*
+    ln -sf /usr/local/gcc-5.5.0/bin/g++ /usr/bin/g++
+
+    curl -sL http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz | gtar xz
+    cd cmake-3.18.3
+    ./bootstrap
+    gmake && gmake install
+    cd .. && rm -rf cmake-3.18.3
+    ln -sf /usr/local/bin/cmake /usr/bin/cmake
 
     # Download and install perl5.10
     perl_version=`perl -v | cut -d . -f2 -s | head -n1`
@@ -108,29 +160,37 @@ check_version(){
     elif [ "$major" -gt 3 ]; then
         deps_version="true"
     fi
+    short_version="${major}.${minor}"
 }
 
 installation(){
+    export PATH=/usr/local/gcc-5.5.0/bin:/usr/sbin:/usr/bin:/usr/ccs/bin:/opt/csw/bin
+    export CPLUS_INCLUDE_PATH=/usr/local/gcc-5.5.0/include/c++/5.5.0
+    export LD_LIBRARY_PATH=/usr/local/gcc-5.5.0/lib
+
     cd ${CURRENT_PATH}
-    # Removing incompatible flags
-    mv $SOURCE/src/Makefile $SOURCE/src/Makefile.tmp
-    sed -n '/OSSEC_LDFLAGS+=-z relax=secadj/!p' $SOURCE/src/Makefile.tmp > $SOURCE/src/Makefile
     cd $SOURCE/src
     gmake clean
     check_version
     if [ "$deps_version" = "true" ]; then
-        gmake deps
+        gmake deps TARGET=agent
     fi
     arch="$(uname -p)"
     # Build the binaries
     if [ "$arch" = "sparc" ]; then
-        gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no USE_BIG_ENDIAN=yes DISABLE_SHARED=yes || return 1
+        gmake -j $THREADS TARGET=agent USE_SELINUX=no USE_BIG_ENDIAN=yes || return 1
     else
-        gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no DISABLE_SHARED=yes || return 1
+        gmake -j $THREADS TARGET=agent USE_SELINUX=no || return 1
     fi
 
     cd $SOURCE
-    ${CURRENT_PATH}/solaris10_patch.sh
+
+    # Patch solaris 10 sh files to change the shebang
+    for file in $(find . -name "*.sh");do
+        sed 's:#!/bin/sh:#!/usr/xpg4/bin/sh:g' $file > $file.new
+        mv $file.new $file && chmod +x $file
+    done
+
     config
     /bin/bash $SOURCE/install.sh || return 1
     cd ${CURRENT_PATH}
@@ -152,7 +212,6 @@ clone(){
     git clone $REPOSITORY ${SOURCE} || return 1
     cd $SOURCE
     git checkout $wazuh_branch
-    cp ${CURRENT_PATH}/solaris10_patch.sh ${CURRENT_PATH}/wazuh
     compute_version_revision
 
     return 0
@@ -172,7 +231,6 @@ package(){
     echo "i postinstall=postinstall.sh" >> "wazuh-agent_$VERSION.proto"
     echo "i preremove=preremove.sh" >> "wazuh-agent_$VERSION.proto"
     echo "i postremove=postremove.sh" >> "wazuh-agent_$VERSION.proto"
-    echo "f none /etc/ossec-init.conf  0640 root ossec" >> "wazuh-agent_$VERSION.proto"
     echo "f none /etc/init.d/wazuh-agent  0755 root root" >> "wazuh-agent_$VERSION.proto"
     echo "s none /etc/rc2.d/S97wazuh-agent=/etc/init.d/wazuh-agent" >> "wazuh-agent_$VERSION.proto"
     echo "s none /etc/rc3.d/S97wazuh-agent=/etc/init.d/wazuh-agent" >> "wazuh-agent_$VERSION.proto"
@@ -193,17 +251,20 @@ package(){
 }
 
 clean(){
+    set_control_binary
     cd ${CURRENT_PATH}
     rm -rf ${SOURCE}
     rm -rf wazuh-agent wazuh *.list *proto
     rm -f *.new
 
     ## Stop and remove application
-    ${install_path}/bin/ossec-control stop
-    rm -r ${install_path}*
-    rm -f /etc/ossec-init.conf
+    if [ ! -z $control_binary ]; then
+        ${install_path}/bin/${control_binary} stop
+    fi
 
-     # remove launchdaemons
+    rm -r ${install_path}*
+
+    # remove launchdaemons
     rm -f /etc/init.d/wazuh-agent
     rm -f /etc/rc2.d/S97wazuh-agent
     rm -f /etc/rc3.d/S97wazuh-agent
@@ -228,7 +289,6 @@ build(){
 
     groupadd ossec
     useradd -g ossec ossec
-    chmod +x $SOURCE/solaris10_patch.sh
     installation
     package
 }
