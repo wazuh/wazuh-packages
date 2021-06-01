@@ -23,7 +23,7 @@ target_dir="${CURRENT_PATH}/output"
 trap ctrl_c INT
 
 if [ -z "${wazuh_branch}" ]; then
-    wazuh_branch="master"
+    wazuh_branch="v3.13.3"
 fi
 
 if [ -z "$ARCH" ]; then

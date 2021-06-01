@@ -11,7 +11,7 @@
 # Script configuration variables
 current_path="$( cd $(dirname $0) ; pwd -P )"
 install_path="/var/ossec"
-wazuh_branch="master"
+wazuh_branch="v3.13.3"
 target_dir="${current_path}/output/"
 compute_checksums="no"
 checksum_dir=""
