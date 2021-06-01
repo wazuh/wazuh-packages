@@ -196,7 +196,7 @@ installFilebeat() {
         WAZUH_MAJOR="$(echo ${WAZUH_VERSION} | head -c 1)"
 
         curl -so /etc/filebeat/filebeat.yml ${resources_url}/resources/open-distro/filebeat/7.x/filebeat_all_in_one.yml --max-time 300
-        curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/master/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300
+        curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/v4.0.4/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300
         chmod go+r /etc/filebeat/wazuh-template.json
 
         curl -s https://packages.wazuh.com/${WAZUH_MAJOR}.x/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module

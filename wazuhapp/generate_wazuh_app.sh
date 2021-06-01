@@ -25,7 +25,7 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -b, --branch <branch>     [Required] Select Git branch or tag e.g. 3.8-6.7 or v3.7.2-6.5.4"
+    echo "    -b, --branch <branch>     [Required] Select Git branch or tag e.g. v4.0.4_7.9.1-1"
     echo "    -s, --store <path>        [Optional] Set the destination path of package, by defauly /tmp/wazuh-app."
     echo "    -r, --revision <rev>      [Optional] Package revision that append to version e.g. x.x.x-rev"
     echo "    -c, --checksum <path>     [Optional] Generate checksum"
