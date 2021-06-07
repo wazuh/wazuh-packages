@@ -18,7 +18,7 @@ ENTITLEMENTS_PATH="${CURRENT_PATH}/entitlements.plist"
 INSTALLATION_PATH="/Library/Ossec"    # Installation path
 VERSION=""                            # Default VERSION (branch/tag)
 REVISION="1"                          # Package revision.
-BRANCH_TAG="master"                   # Branch that will be downloaded to build package.
+BRANCH_TAG="v4.2.0-rc6"               # Branch that will be downloaded to build package.
 DESTINATION="${CURRENT_PATH}/output/" # Where package will be stored.
 JOBS="2"                              # Compilation jobs.
 DEBUG="no"                            # Enables the full log by using `set -exf`.
@@ -177,7 +177,7 @@ function help() {
     echo "Usage: $0 [OPTIONS]"
     echo
     echo "  Build options:"
-    echo "    -b, --branch <branch>         [Required] Select Git branch or tag e.g. $BRANCH"
+    echo "    -b, --branch <branch>         [Required] Select Git branch or tag. By default: $BRANCH"
     echo "    -s, --store-path <path>       [Optional] Set the destination absolute path of package."
     echo "    -j, --jobs <number>           [Optional] Number of parallel jobs when compiling."
     echo "    -r, --revision <rev>          [Optional] Package revision that append to version e.g. x.x.x-rev"

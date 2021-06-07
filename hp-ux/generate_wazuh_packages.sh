@@ -174,7 +174,7 @@ show_help() {
     echo "Usage: $0 [OPTIONS]"
     echo
     echo "    -e Install all the packages necessaries to build the TAR package"
-    echo "    -b <branch> Select Git branch. Example v3.5.0"
+    echo "    -b <branch> Select Git branch. Example v4.2.0-rc6"
     echo "    -s <tar_directory> Directory to store the resulting tar package. By default, an output folder will be created."
     echo "    -p <tar_home> Installation path for the package. By default: /var"
     echo "    -c, --checksum Compute the SHA512 checksum of the TAR package."

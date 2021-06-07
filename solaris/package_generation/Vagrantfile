@@ -47,7 +47,7 @@ opts = GetoptLong.new(
 #                  DEFAULT VALUES                 #
 ###################################################
 
-branch_tag="master"
+branch_tag="v4.2.0-rc6"
 ram="1024"
 cpus="1"
 checksum="no"
