@@ -1,6 +1,6 @@
 #! /bin/bash
 
-BRANCH="master"
+BRANCH="5.0-dev"
 JOBS="4"
 REVISION="1"
 DEBUG="no"
@@ -29,7 +29,7 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -b, --branch <branch>     [Required] Select Git branch [${BRANCH}]. By default: master."
+    echo "    -b, --branch <branch>     [Required] Select Git branch or tag. By default: ${BRANCH}."
     echo "    -j, --jobs <number>       [Optional] Change number of parallel jobs when compiling the Windows agent. By default: 4."
     echo "    -r, --revision <rev>      [Optional] Package revision. By default: 1."
     echo "    -s, --store <path>        [Optional] Set the directory where the package will be stored. By default the current path."

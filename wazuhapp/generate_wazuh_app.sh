@@ -12,7 +12,7 @@
 CURRENT_PATH=$( cd $(dirname $0) ; pwd -P )
 
 REVISION=""
-BRANCH_TAG=""
+BRANCH_TAG="5.0-7.10"
 CHECKSUMDIR=""
 CONTAINER_NAME="wazuh-kibana-app-builder"
 SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
@@ -25,7 +25,7 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -b, --branch <branch>     [Required] Select Git branch or tag e.g. 3.8-6.7 or v3.7.2-6.5.4"
+    echo "    -b, --branch <branch>     [Required] Select Git branch or tag. By default: ${BRANCH_TAG}"
     echo "    -s, --store <path>        [Optional] Set the destination path of package, by defauly /tmp/wazuh-app."
     echo "    -r, --revision <rev>      [Optional] Package revision that append to version e.g. x.x.x-rev"
     echo "    -c, --checksum <path>     [Optional] Generate checksum"

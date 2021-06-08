@@ -11,7 +11,7 @@
 # Script configuration variables
 current_path="$( cd $(dirname $0) ; pwd -P )"
 install_path="/var/ossec"
-reference="master"
+reference="5.0-dev"
 revision="1"
 target_dir="${current_path}/output/"
 compute_checksums="no"

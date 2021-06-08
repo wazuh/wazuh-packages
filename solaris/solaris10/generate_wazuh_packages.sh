@@ -25,7 +25,7 @@ short_version=""
 trap ctrl_c INT
 
 if [ -z "${wazuh_branch}" ]; then
-    wazuh_branch="master"
+    wazuh_branch="5.0-dev"
 fi
 
 if [ -z "$ARCH" ]; then
@@ -267,7 +267,7 @@ show_help() {
   echo
   echo "Usage: $0 [OPTIONS]"
   echo
-  echo "    -b, --branch <branch>               Select Git branch or tag e.g. $wazuh_branch"
+  echo "    -b, --branch <branch>               Select Git branch or tag. By default: $wazuh_branch"
   echo "    -e, --environment                   Install all the packages necessaries to build the pkg package"
   echo "    -s, --store  <pkg_directory>        Directory to store the resulting pkg package. By default, an output folder will be created."
   echo "    -p, --install-path <pkg_home>       Installation path for the package. By default: /var"

@@ -15,7 +15,7 @@
 
 CURRENT_PATH=$( cd $(dirname $0) ; pwd -P )
 
-BRANCH_TAG=""
+BRANCH_TAG="5.0-dev"
 SPLUNK_VERSION=""
 CONTAINER_NAME="wazuh-splunk-app-builder"
 OUTDIR="${CURRENT_PATH}/output"
@@ -30,7 +30,7 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -b, --branch <branch>     [Required] Select Git branch or tag e.g. 3.8 or v3.8.1-7.2.3"
+    echo "    -b, --branch <branch>     [Required] Select Git branch or tag. By default: ${BRANCH_TAG}"
     echo "    -s, --store <directory>   [Optional] Destination directory by default ${CURRENT_PATH}/output"
     echo "    -r, --revision            [Optional] Package revision that append to version e.g. x.x.x-y.y.y_rev"
     echo "    -c, --checksum <path>     [Optional] Generate checksum"
