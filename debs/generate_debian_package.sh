@@ -10,7 +10,7 @@
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ARCHITECTURE="amd64"
 OUTDIR="${CURRENT_PATH}/output/"
-BRANCH=""
+BRANCH=$(cat ../VERSION)
 REVISION="1"
 TARGET=""
 JOBS="2"
@@ -30,7 +30,6 @@ DEB_ARMHF_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/armhf"
 CHECKSUMDIR=""
 CHECKSUM="no"
 PACKAGES_BRANCH="master"
-USE_LOCAL_SPECS="no"
 LOCAL_SPECS="${CURRENT_PATH}"
 LOCAL_SOURCE_CODE=""
 USE_LOCAL_SOURCE_CODE="no"
@@ -76,7 +75,7 @@ build_deb() {
         ${CUSTOM_CODE_VOL} \
         ${CONTAINER_NAME} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
         ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} \
-        ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} \
+        ${CHECKSUM} ${PACKAGES_BRANCH} \
         ${USE_LOCAL_SOURCE_CODE} ${FUTURE}|| return 1
 
     echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
@@ -142,8 +141,8 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -b, --branch <branch>      [Required] Select Git branch [${BRANCH}]. By default: master."
     echo "    -t, --target <target>      [Required] Target package to build: manager, api or agent."
+    echo "    -b, --branch <branch>      [Optional] Select Git branch or tag. By default: ${BRANCH}"
     echo "    -a, --architecture <arch>  [Optional] Target architecture of the package [amd64/i386/ppc64le/arm64/armhf]."
     echo "    -j, --jobs <number>        [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 2."
     echo "    -r, --revision <rev>       [Optional] Package revision. By default: 1."
@@ -153,8 +152,7 @@ help() {
     echo "    -c, --checksum <path>      [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
     echo "    --dont-build-docker        [Optional] Locally built docker image will be used instead of generating a new one."
     echo "    --sources <path>           [Optional] Absolute path containing wazuh source code. This option will use local source code instead of downloading it from GitHub."
-    echo "    --packages-branch <branch> [Optional] Select Git branch or tag from wazuh-packages repository. e.g master."
-    echo "    --dev                      [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub."
+    echo "    --packages-branch <branch> [Optional] Select Git branch or tag from wazuh-packages repository. By default: ${PACKAGES_BRANCH}"
     echo "    --future                   [Optional] Build test future package x.30.0 Used for development purposes."
     echo "    -h, --help                 Show this help."
     echo
@@ -163,14 +161,17 @@ help() {
 
 
 main() {
-    BUILD="no"
+
+    if [ -z "$1" ]; then
+        help
+    fi
+
     while [ -n "$1" ]
     do
         case "$1" in
         "-b"|"--branch")
             if [ -n "$2" ]; then
                 BRANCH="$2"
-                BUILD="yes"
                 shift 2
             else
                 help 1
@@ -249,11 +250,9 @@ main() {
             if [ -n "$2" ]; then
                 PACKAGES_BRANCH="$2"
                 shift 2
+            else
+                help 1
             fi
-            ;;
-        "--dev")
-            USE_LOCAL_SPECS="yes"
-            shift 1
             ;;
         "--sources")
             if [ -n "$2" ]; then
@@ -276,11 +275,9 @@ main() {
         CHECKSUMDIR="${OUTDIR}"
     fi
 
-    if [[ "$BUILD" != "no" ]]; then
-        build || clean 1
-    else
-        clean 1
-    fi
+    
+    build || clean 1
+    
 
     clean 0
 }
