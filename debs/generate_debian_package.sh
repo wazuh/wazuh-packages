@@ -12,7 +12,7 @@ ARCHITECTURE="amd64"
 OUTDIR="${CURRENT_PATH}/output/"
 BRANCH=$(cat ../VERSION)
 REVISION="1"
-TARGET=""
+TARGET="manager"
 JOBS="2"
 DEBUG="no"
 BUILD_DOCKER="yes"
@@ -93,19 +93,7 @@ build() {
         ARCHITECTURE="armhf"
     fi
 
-    if [[ "${TARGET}" == "api" ]]; then
-
-        if [[ "${ARCHITECTURE}" = "ppc64le" ]]; then
-            build_deb ${DEB_PPC64LE_BUILDER} ${DEB_PPC64LE_BUILDER_DOCKERFILE} || return 1
-        elif [[ "${ARCHITECTURE}" = "arm64" ]]; then
-            build_deb ${DEB_ARM64_BUILDER} ${DEB_ARM64_BUILDER_DOCKERFILE} || return 1
-        elif [[ "${ARCHITECTURE}" = "armhf" ]]; then
-            build_deb ${DEB_ARMHF_BUILDER} ${DEB_ARMHF_BUILDER_DOCKERFILE} || return 1
-        else
-            build_deb ${DEB_AMD64_BUILDER} ${DEB_AMD64_BUILDER_DOCKERFILE} || return 1
-        fi
-
-    elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]]; then
+    if [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]]; then
 
         BUILD_NAME=""
         FILE_PATH=""
@@ -130,7 +118,7 @@ build() {
         fi
         build_deb ${BUILD_NAME} ${FILE_PATH} || return 1
     else
-        echo "Invalid target. Choose: manager, agent or api."
+        echo "Invalid target. Choose: manager or agent."
         return 1
     fi
 
@@ -141,7 +129,7 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -t, --target <target>      [Required] Target package to build: manager, api or agent."
+    echo "    -t, --target <target>      [Optional] Target package to build: manager or agent."
     echo "    -b, --branch <branch>      [Optional] Select Git branch or tag. By default: ${BRANCH}"
     echo "    -a, --architecture <arch>  [Optional] Target architecture of the package [amd64/i386/ppc64le/arm64/armhf]."
     echo "    -j, --jobs <number>        [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 2."
@@ -161,10 +149,6 @@ help() {
 
 
 main() {
-
-    if [ -z "$1" ]; then
-        help
-    fi
 
     while [ -n "$1" ]
     do
@@ -277,8 +261,6 @@ main() {
 
     
     build || clean 1
-    
-
     clean 0
 }
 
