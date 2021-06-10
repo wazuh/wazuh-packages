@@ -63,9 +63,8 @@ if [[ "${future}" == "yes" ]]; then
 
     # PREPARE FUTURE SPECS AND SOURCES
     mv ${base_version} ${wazuh_version}
-    mv ${build_dir}/${build_target}/${old_package_name} ${build_dir}/${build_target}/${package_full_name}
-    find "${build_dir}/${build_target}/${package_full_name}" "${wazuh_version}" \( -name "*VERSION*" -o -name "*changelog*"  \) -exec sed -i "s/${base_version}/${wazuh_version}/g" {} \;
-    sed -i "s/\$(VERSION)/${MAJOR}.${MINOR}/g" "${build_dir}/${build_target}/${package_full_name}/src/Makefile"
+    mv ${build_dir}/${build_target}/${old_package_name} ${sources_dir}
+    find "${sources_dir}" "${wazuh_version}" \( -name "*VERSION*" -o -name "*changelog*"  \) -exec sed -i "s/${base_version}/${wazuh_version}/g" {} \;
 fi
 
 cp -pr ${wazuh_version} ${sources_dir}/debian
