@@ -47,12 +47,13 @@ sources_dir="${build_dir}/${build_target}/${package_full_name}"
 
 mkdir -p ${build_dir}/${build_target}
 cp -R wazuh* ${build_dir}/${build_target}/wazuh-${build_target}-${wazuh_version}
+cp -R ${package_files}/wazuh-${build_target} ${wazuh_version}
 
 if [[ "${future}" == "yes" ]]; then
     # MODIFY VARIABLES
-    base_version=$wazuh_version
-    MAJOR=$(echo $base_version | cut -dv -f2 | cut -d. -f1)
-    MINOR=$(echo $base_version | cut -d. -f2)
+    base_version=${wazuh_version}
+    MAJOR=$(echo ${base_version} | cut -dv -f2 | cut -d. -f1)
+    MINOR=$(echo ${base_version} | cut -d. -f2)
     wazuh_version="${MAJOR}.30.0"
     file_name="wazuh-${build_target}-${wazuh_version}-${package_release}"
     old_name="wazuh-${build_target}-${base_version}-${package_release}"
@@ -61,13 +62,13 @@ if [[ "${future}" == "yes" ]]; then
     sources_dir="${build_dir}/${build_target}/${package_full_name}"
 
     # PREPARE FUTURE SPECS AND SOURCES
-    cp -r "${base_version}" "${wazuh_version}"
+    mv ${base_version} ${wazuh_version}
     mv ${build_dir}/${build_target}/${old_package_name} ${build_dir}/${build_target}/${package_full_name}
-    find "${build_dir}/${old_package_name}" "${wazuh_version}" \( -name "*VERSION*" -o -name "*changelog*" \) -exec sed -i "s/${base_version}/${wazuh_version}/g" {} \;
+    find "${build_dir}/${build_target}/${package_full_name}" "${wazuh_version}" \( -name "*VERSION*" -o -name "*changelog*"  \) -exec sed -i "s/${base_version}/${wazuh_version}/g" {} \;
     sed -i "s/\$(VERSION)/${MAJOR}.${MINOR}/g" "${build_dir}/${build_target}/${package_full_name}/src/Makefile"
 fi
-  
-cp -pr ${package_files}/wazuh-${build_target}/debian ${sources_dir}/debian
+
+cp -pr ${wazuh_version} ${sources_dir}/debian
 cp -p ${package_files}/gen_permissions.sh ${sources_dir}
 
 # Generating directory structure to build the .deb package
@@ -98,7 +99,7 @@ mk-build-deps -ir -t "apt-get -o Debug::pkgProblemResolver=yes -y"
 
 # Build package
 if [[ "${architecture_target}" == "amd64" ]] ||  [[ "${architecture_target}" == "ppc64le" ]] || \
-    [[ "${architecture_target}" == "arm64" ]]; then
+   [[ "${architecture_target}" == "arm64" ]]; then
     debuild --rootcmd=sudo -b -uc -us
 elif [[ "${architecture_target}" == "armhf" ]]; then
     linux32 debuild --rootcmd=sudo -b -uc -us
