@@ -13,19 +13,18 @@ set -ex
 build_target=$1
 wazuh_branch=$2
 architecture_target=$3
-threads=$4
-package_release=$5
-directory_base=$6
+package_release=$4
+jobs=$5
+dir_path=$6
 debug=$7
 checksum=$8
 wazuh_packages_branch=$9
-use_local_specs=${10}
-src=${11}
-legacy=${12}
-local_source_code=${13}
-future=${14}
-wazuh_version=""
+src=${10}
+legacy=${11}
+local_source_code=${12}
+future=${13}
 rpmbuild="rpmbuild"
+package_files="/specs"
 
 disable_debug_flag='%debug_package %{nil}'
 
@@ -37,67 +36,51 @@ if [ "${debug}" = "no" ]; then
     echo ${disable_debug_flag} > /etc/rpm/macros
 fi
 
-if [ ${build_target} = "api" ]; then
-    if [ "${local_source_code}" = "no" ]; then
-        curl -sL https://github.com/wazuh/wazuh-api/tarball/${wazuh_branch} | tar zx
-    fi
-    wazuh_version="$(grep version wazuh*/package.json | cut -d '"' -f 4)"
-else
-    if [ "${local_source_code}" = "no" ]; then
-        curl -sL https://github.com/wazuh/wazuh/tarball/${wazuh_branch} | tar zx
-    fi
-    wazuh_version="$(cat wazuh*/src/VERSION | cut -d 'v' -f 2)"
+if [ "${local_source_code}" = "no" ]; then
+    curl -sL https://github.com/wazuh/wazuh/tarball/${wazuh_branch} | tar zx
 fi
+wazuh_version="$(cat wazuh*/src/VERSION | cut -d 'v' -f 2)"
 
 # Build directories
 build_dir=/build_wazuh
-rpm_build_dir=${build_dir}/rpmbuild
+rpm_build_dir=${build_dir}/${rpmbuild}
 file_name="wazuh-${build_target}-${wazuh_version}-${package_release}"
 rpm_file="${file_name}.${architecture_target}.rpm"
 src_file="${file_name}.src.rpm"
 pkg_path="${rpm_build_dir}/RPMS/${architecture_target}"
 src_path="${rpm_build_dir}/SRPMS"
 extract_path="${pkg_path}"
-mkdir -p ${rpm_build_dir}/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+mkdir -p ${rpm_build_dir}/{BUILD,BUILDROOT,RPMS,SOURCES,SRPMS}
 
 # Prepare the sources directory to build the source tar.gz
-package_name=wazuh-${build_target}-${wazuh_version}
-cp -R wazuh-* ${build_dir}/${package_name}
-
-# Including spec file
-if [ "${use_local_specs}" = "no" ]; then
-    curl -sL https://github.com/wazuh/wazuh-packages/tarball/${wazuh_packages_branch} | tar zx
-    specs_path=$(find . -type d -name "SPECS" -path "*rpms*")
-else
-    specs_path="/specs"
-fi
+package_full_name=wazuh-${build_target}-${wazuh_version}
+cp -R wazuh-* ${build_dir}/${package_full_name}
+mkdir ${wazuh_version}
+cp -R ${package_files}/wazuh-${build_target}-rpms.spec ${wazuh_version}
 
 if [[ "${future}" == "yes" ]]; then    
     # MODIFY VARIABLES
-    base_version=$wazuh_version
-    MAJOR=$(echo $base_version | cut -dv -f2 | cut -d. -f1)
-    MINOR=$(echo $base_version | cut -d. -f2)
+    base_version=${wazuh_version}
+    MAJOR=$(echo ${base_version} | cut -dv -f2 | cut -d. -f1)
+    MINOR=$(echo ${base_version} | cut -d. -f2)
     wazuh_version="${MAJOR}.30.0"
     file_name="wazuh-${build_target}-${wazuh_version}-${package_release}"
     old_name="wazuh-${build_target}-${base_version}-${package_release}"
-    package_name=wazuh-${build_target}-${wazuh_version}
+    package_full_name=wazuh-${build_target}-${wazuh_version}
     old_package_name=wazuh-${build_target}-${base_version}
-    cp -r "${specs_path}/${base_version}" "${specs_path}/${wazuh_version}"
-    cd "${specs_path}/${wazuh_version}"
-    rename "${base_version}" "${wazuh_version}" *${base_version}*
-    cd -
+    sources_dir="${build_dir}/${package_full_name}"
 
     # PREPARE FUTURE SPECS AND SOURCES
-    mv "${build_dir}/${old_package_name}" "${build_dir}/${package_name}"
-    find "${build_dir}/${package_name}" "${specs_path}/${wazuh_version}" \( -name "*VERSION*" -o -name "*.spec" \) -exec sed -i "s/${base_version}/${wazuh_version}/g" {} \;
-    sed -i "s/\$(VERSION)/${MAJOR}.${MINOR}/g" "${build_dir}/${package_name}/src/Makefile"
+    mv ${base_version} ${wazuh_version}
+    mv ${build_dir}/${old_package_name} ${sources_dir}
+    find ${sources_dir} ${wazuh_version} \( -name "*VERSION*" -o -name "*.spec" \) -exec sed -i "s/${base_version}/${wazuh_version}/g" {} \;
 
 fi
 
-cp ${specs_path}/${wazuh_version}/wazuh-${build_target}-${wazuh_version}.spec ${rpm_build_dir}/SPECS/${package_name}.spec
+cp -pr ${wazuh_version}/wazuh-${build_target}-rpms.spec ${rpm_build_dir}/${package_full_name}.spec
 
 # Generating source tar.gz
-cd ${build_dir} && tar czf "${rpm_build_dir}/SOURCES/${package_name}.tar.gz" "${package_name}"
+cd ${build_dir} && tar czf "${rpm_build_dir}/SOURCES/${package_full_name}.tar.gz" "${package_full_name}"
 
 if [ "${architecture_target}" = "i386" ] || [ "${architecture_target}" = "armv7hl" ]; then
     linux="linux32"
@@ -115,10 +98,10 @@ if [ "${legacy}" = "no" ]; then
 fi
 
 # Building RPM
-$linux $rpmbuild --define "_sysconfdir /etc" --define "_topdir ${rpm_build_dir}" \
-        --define "_threads ${threads}" --define "_release ${package_release}" \
-        --define "_localstatedir ${directory_base}" --define "_debugenabled ${debug}" \
-        --target ${architecture_target} -ba ${rpm_build_dir}/SPECS/${package_name}.spec
+$linux ${rpmbuild} --define "_sysconfdir /etc" --define "_topdir ${rpm_build_dir}" \
+        --define "_threads ${jobs}" --define "_release ${package_release}" \
+        --define "_localstatedir ${dir_path}" --define "_debugenabled ${debug}" \
+        --target ${architecture_target} -ba ${rpm_build_dir}/${package_full_name}.spec
 
 if [[ "${checksum}" == "yes" ]]; then
     cd ${pkg_path} && sha512sum ${rpm_file} > /var/local/checksum/${rpm_file}.sha512
