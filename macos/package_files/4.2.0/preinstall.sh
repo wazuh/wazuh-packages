@@ -24,6 +24,13 @@ else
     fi
 fi
 
+# Stops the agent before upgrading it
+if [ -f ${DIR}/bin/wazuh-control ]; then
+    ${DIR}/bin/wazuh-control stop
+elif [ -f ${DIR}/bin/ossec-control ]; then
+    ${DIR}/bin/ossec-control stop
+fi
+
 if [ $(launchctl getenv WAZUH_PKG_UPGRADE) = true ]; then
     mkdir -p ${DIR}/config_files/
     cp -r ${DIR}/etc/{ossec.conf,client.keys,local_internal_options.conf,shared} ${DIR}/config_files/
@@ -87,13 +94,6 @@ if [[ ${new_uid} != ${new_gid} ]]
    then
    echo "I failed to find matching free uid and gid!";
    exit 5;
-fi
-
-# Stops the agent before upgrading it
-if [ -f ${DIR}/bin/wazuh-control ]; then
-    ${DIR}/bin/wazuh-control stop
-elif [ -f ${DIR}/bin/ossec-control ]; then
-    ${DIR}/bin/ossec-control stop
 fi
 
 # Creating the group
