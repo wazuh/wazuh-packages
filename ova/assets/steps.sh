@@ -69,29 +69,17 @@ preInstall() {
       sed -i "s/wazuh_kibana-[0-9\.]\+_[0-9\.]\+/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}/g" ${INSTALLER}
   fi
 
-  # Add Kibana custom user wazuh
-  PATTERN="eval \"rm \/etc\/elasticsearch\/e"
-  HASH="\\\$2y\\\$12\\\$qCvlv3y4\\\.i8nX6wUZOepROVhTWI36H8nH2gxwShHcpIzf0yV1J30K"  # password: wazuh
-  FILE_PATH="\/usr\/share\/elasticsearch\/plugins\/opendistro_security\/securityconfig"
-  sed -i "s/${PATTERN}/sed -i \'\/admin:\/ {N; s\/admin.*\/wazuh:\\\n  hash: \"${HASH}\"\/g}\' ${FILE_PATH}\/internal_users\.yml\n        ${PATTERN}/g" ${INSTALLER}
-  
-  # Set backend_role for wazuh user with all_access
-  sed -i "s/${PATTERN}/sed -i \'s\/\"admin\"\/\"wazuh\"\/g\' ${FILE_PATH}\/roles_mapping\.yml\n        ${PATTERN}/g" ${INSTALLER}
-  sed -i "s/${PATTERN}/sed -i \'s\/\"admin\"\/\"wazuh\"\/g\' ${FILE_PATH}\/internal_users\.yml\n        ${PATTERN}/g" ${INSTALLER}
-
-  # Change user:password in curls
-  sed -i "s/admin:admin/wazuh:wazuh/g" ${INSTALLER}
-
-  # Change user:password in filebeat.yml
-  PATTERN="eval \"curl -so \/etc\/filebeat\/wazuh-template"
-  sed -i "s/${PATTERN}/sed -i \"s\/admin\/wazuh\/g\" \/etc\/filebeat\/filebeat\.yml\n        ${PATTERN}/g" ${INSTALLER}
-
   # Edit kibana plugin versions
   sed -i "s/wazuh\_kibana\-[0-9\.]*_[0-9\.]*\-1\.zip/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-${UI_REVISION}.zip/g" ${INSTALLER}
-
+  
   # Disable start of wazuh-manager
   sed -i "s/startService \"wazuh-manager\"/\#startService \"wazuh-manager\"/g" ${INSTALLER}
 
+  # Disable passwords change
+  sed -i "s/wazuhpass=/#wazuhpass=/g" ${INSTALLER}
+  sed -i "s/changePasswords$/#changePasswords\nwazuhpass=wazuh/g" ${INSTALLER}
+  sed -i "s/ra=/#ra=/g" ${INSTALLER}
+  
 }
 
 # Edit wazuh installation
