@@ -5,7 +5,7 @@
 # Wazuh Solaris 11 Package builder.
 
 REPOSITORY="https://github.com/wazuh/wazuh"
-wazuh_branch="master"
+wazuh_branch=$(cat ../VERSION)
 install_path="/var/ossec"
 THREADS="4"
 TARGET="agent"

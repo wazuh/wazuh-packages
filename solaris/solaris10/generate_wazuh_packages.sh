@@ -6,7 +6,7 @@
 
 
 # CONFIGURATION VARIABLES
-wazuh_branch="$(echo "$2" | cut -d "/" -f2)"
+wazuh_branch=$(cat ../VERSION)
 PATH=$PATH:/opt/csw/bin:/usr/sfw/bin
 VERSION=""
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
