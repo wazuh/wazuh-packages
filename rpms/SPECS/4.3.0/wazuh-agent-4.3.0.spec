@@ -321,6 +321,7 @@ if ([ "X${DIST_NAME}" = "Xrhel" ] || [ "X${DIST_NAME}" = "Xcentos" ] || [ "X${DI
   if command -v getenforce > /dev/null 2>&1; then
     if [ $(getenforce) !=  "Disabled" ]; then
       chcon -t textrel_shlib_t  %{_localstatedir}/lib/libwazuhext.so
+      chcon -t textrel_shlib_t  %{_localstatedir}/lib/libwazuhshared.so
     fi
   fi
 else
