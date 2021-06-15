@@ -150,10 +150,8 @@ build_environment() {
     $rpm http://www.oss4aix.org/download/RPMS/gcc/libstdc++-devel-6.3.0-1.aix7.2.ppc.rpm || true
   fi
 
-  if [[ "${aix_major}" = "5" ]]; then
-    build_perl
-  fi
-
+  build_perl
+ 
   return 0
 }
 
