@@ -32,7 +32,7 @@ show_help() {
   echo
   echo "Usage: $0 [OPTIONS]"
   echo
-  echo "    -b, --branch <branch>               Select Git branch or tag e.g. $BRANCH"
+  echo "    -b, --branch <branch>               Select Git branch or tag e.g. $wazuh_branch"
   echo "    -e, --environment                   Install all the packages necessaries to build the RPM package"
   echo "    -s, --store  <rpm_directory>        Directory to store the resulting RPM package. By default: /tmp/build"
   echo "    -p, --install-path <rpm_home>       Installation path for the package. By default: /var"
