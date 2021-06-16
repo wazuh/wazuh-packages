@@ -113,11 +113,13 @@ if [ $1 = 2 ]; then
   if [ -d %{_localstatedir}/logs/ossec ]; then
     rm -rf %{_localstatedir}/logs/wazuh > /dev/null 2>&1 || :
     mv %{_localstatedir}/logs/ossec %{_localstatedir}/logs/wazuh
+    mkdir %{_localstatedir}/logs/ossec 
   fi
 
   if [ -d %{_localstatedir}/queue/ossec ]; then
     rm -rf %{_localstatedir}/queue/sockets > /dev/null 2>&1 || :
     mv %{_localstatedir}/queue/ossec %{_localstatedir}/queue/sockets
+    mkdir %{_localstatedir}/queue/ossec
   fi
 fi
 
