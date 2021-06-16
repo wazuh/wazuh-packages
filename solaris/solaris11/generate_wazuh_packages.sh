@@ -5,7 +5,7 @@
 # Wazuh Solaris 11 Package builder.
 
 REPOSITORY="https://github.com/wazuh/wazuh"
-wazuh_branch=$(cat ../VERSION)
+wazuh_branch=$(cat ../../VERSION)
 install_path="/var/ossec"
 THREADS="4"
 TARGET="agent"
@@ -22,6 +22,7 @@ target_dir="${current_path}/output"
 checksum_dir=""
 compute_checksums="no"
 control_binary=""
+SPECS_FILE="template-agent_solaris11.json"
 
 trap ctrl_c INT
 
@@ -161,7 +162,7 @@ create_package() {
     # Package generation process
     svcbundle -o wazuh-agent.xml -s service-name=application/wazuh-agent -s start-method="${install_path}/bin/${control_binary} start" -s stop-method="${install_path}/bin/${control_binary} stop"
     pkgsend generate ${install_path} | pkgfmt > wazuh-agent.p5m.1
-    python solaris_fix.py -t SPECS/template_agent_${VERSION}.json -p wazuh-agent.p5m.1 # Fix p5m.1 file
+    python solaris_fix.py -t ${SPECS_FILE} -p wazuh-agent.p5m.1 # Fix p5m.1 file
     mv wazuh-agent.p5m.1.aux.fixed wazuh-agent.p5m.1
     # Add the preserve=install-only tag to the configuration files
     for file in etc/ossec.conf etc/local_internal_options.conf etc/client.keys; do
@@ -197,7 +198,7 @@ create_package() {
 
     mkdir -p ${target_dir}
 
-    mv -f ${pkg_name} ${target_dir}
+    mv -f ${pkg_name}* ${target_dir}
 
     if [ "${compute_checksums}" = "yes" ]; then
         cd ${target_dir} && /opt/csw/gnu/sha512sum "${pkg_name}" > "${checksum_dir}/${pkg_name}.sha512"
@@ -342,7 +343,7 @@ main() {
                 compute_checksums="yes"
                 shift 2
             else
-                compute_checksums="yes"
+                compute_checksums="no"
                 shift 1
             fi
         ;;

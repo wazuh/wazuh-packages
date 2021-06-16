@@ -4,9 +4,10 @@
 # This program is a free software; you can redistribute it and/or modify it under the terms of GPLv2
 # Wazuh Solaris 10 i386 Package builder.
 
+set -x
 
 # CONFIGURATION VARIABLES
-wazuh_branch=$(cat ../VERSION)
+wazuh_branch=$(cat ../../VERSION)
 PATH=$PATH:/opt/csw/bin:/usr/sfw/bin
 VERSION=""
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
@@ -212,7 +213,7 @@ package(){
 
     mkdir -p ${target_dir}
 
-    mv -f ${pkg_name} ${target_dir}
+    mv -f ${pkg_name}* ${target_dir}
 
     if [ "${compute_checksums}" = "yes" ]; then
         cd ${target_dir} && /opt/csw/gnu/sha512sum "${pkg_name}" > "${checksum_dir}/${pkg_name}.sha512"
@@ -340,7 +341,7 @@ main() {
                 compute_checksums="yes"
                 shift 2
             else
-                compute_checksums="yes"
+                compute_checksums="no"
                 shift 1
             fi
         ;;
