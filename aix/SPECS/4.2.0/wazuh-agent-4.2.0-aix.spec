@@ -101,7 +101,7 @@ if [ $1 = 1 ]; then
 fi
 
 if [ $1 = 2 ]; then
-  if %{_localstatedir}/bin/wazuh-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
+  if /etc/rc.d/init.d/wazuh-agent status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
     /etc/rc.d/init.d/wazuh-agent stop > /dev/null 2>&1 || :
     touch %{_localstatedir}/tmp/wazuh.restart
   fi
@@ -111,12 +111,12 @@ fi
 %post
 if [ $1 = 2 ]; then
   if [ -d %{_localstatedir}/logs/ossec ]; then
-    rm -rf %{_localstatedir}/logs/wazuh
+    rm -rf %{_localstatedir}/logs/wazuh > /dev/null 2>&1 || :
     mv %{_localstatedir}/logs/ossec %{_localstatedir}/logs/wazuh
   fi
 
   if [ -d %{_localstatedir}/queue/ossec ]; then
-    rm -rf %{_localstatedir}/queue/sockets
+    rm -rf %{_localstatedir}/queue/sockets > /dev/null 2>&1 || :
     mv %{_localstatedir}/queue/ossec %{_localstatedir}/queue/sockets
   fi
 fi
