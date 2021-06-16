@@ -180,7 +180,14 @@ if [ $1 = 0 ]; then
   rm -f %{_localstatedir}/queue/diff/*
   rm -f %{_localstatedir}/queue/alerts/*
   rm -f %{_localstatedir}/queue/rids/*
-
+  rm -f %{_localstatedir}/queue/fim/db/*
+  rm -f %{_localstatedir}/queue/logcollector/*
+  rm -f %{_localstatedir}/queue/logcollector/db/*
+  rm -f %{_localstatedir}/queue/syscollector/*
+  rm -f %{_localstatedir}/queue/syscollector/db/*
+  rm -f %{_localstatedir}/etc/shared/*
+  rm -f %{_localstatedir}/etc/*rpmnew
+  rm -f %{_localstatedir}/etc/*rpmsave
 fi
 
 
@@ -225,8 +232,7 @@ rm -fr %{buildroot}
 %attr(750,root,ossec) %{_localstatedir}/lib/*
 %dir %attr(770,ossec,ossec) %{_localstatedir}/logs
 %attr(660,ossec,ossec) %ghost %{_localstatedir}/logs/active-responses.log
-%attr(660,root,ossec) %ghost %{_localstatedir}/logs/ossec.log
-%attr(660,root,ossec) %ghost %{_localstatedir}/logs/ossec.json
+%attr(660,root,ossec) %ghost %{_localstatedir}/logs/ossec*
 %dir %attr(750,ossec,ossec) %{_localstatedir}/logs/wazuh
 %dir %attr(750,root,ossec) %{_localstatedir}/queue
 %dir %attr(770,ossec,ossec) %{_localstatedir}/queue/sockets
