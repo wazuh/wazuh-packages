@@ -112,12 +112,12 @@ fi
 if [ $1 = 2 ]; then
   if [ -d %{_localstatedir}/logs/ossec ]; then
     rm -rf %{_localstatedir}/logs/wazuh
-    cp -rp %{_localstatedir}/logs/ossec %{_localstatedir}/logs/wazuh
+    mv %{_localstatedir}/logs/ossec %{_localstatedir}/logs/wazuh
   fi
 
   if [ -d %{_localstatedir}/queue/ossec ]; then
     rm -rf %{_localstatedir}/queue/sockets
-    cp -rp %{_localstatedir}/queue/ossec %{_localstatedir}/queue/sockets
+    mv %{_localstatedir}/queue/ossec %{_localstatedir}/queue/sockets
   fi
 fi
 
@@ -160,17 +160,10 @@ rm -f %{_localstatedir}/tmp/add_localfiles.sh
 
 chmod 0660 %{_localstatedir}/etc/ossec.conf
 
-# Restart wazuh-agent when manager settings are in place
-if grep '<server-ip>.*</server-ip>' %{_localstatedir}/etc/ossec.conf | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' > /dev/null 2>&1; then
+if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
+  rm -f %{_localstatedir}/tmp/wazuh.restart
   /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
 fi
-if grep '<server-hostname>.*</server-hostname>' %{_localstatedir}/etc/ossec.conf > /dev/null 2>&1; then
-  /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
-fi
-if grep '<address>.*</address>' %{_localstatedir}/etc/ossec.conf | grep -v 'MANAGER_IP' > /dev/null 2>&1; then
-  /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
-fi
-
 
 %preun
 
@@ -199,20 +192,6 @@ if [ $1 = 0 ];then
   fi
 
   rm -rf %{_localstatedir}/ruleset
-fi
-
-%posttrans
-if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
-  rm -f %{_localstatedir}/tmp/wazuh.restart
-  /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
-fi
-
-if [ -d %{_localstatedir}/logs/ossec ]; then
-  rm -rf %{_localstatedir}/logs/ossec/
-fi
-
-if [ -d %{_localstatedir}/queue/ossec ]; then
-  rm -rf %{_localstatedir}/queue/ossec/
 fi
 
 %clean
