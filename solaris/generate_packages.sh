@@ -6,7 +6,7 @@
 
 ######### GLOBAL VARIABLES #################################################
 
-BUILD_PATH="/export/home/vagrant/build" # cloning in the shared folder is too slow
+BUILD_PATH="/export/home/vagrant/build" # cloning in the /tmp/shared folder is too slow
 PACKAGE_GENERATION_SCRIPTS_PATH="/tmp/shared/${SOL_PATH}" # this will be changed when we start using Jekins.
 
 ############################################################################
@@ -22,12 +22,11 @@ cd ${BUILD_PATH}
 
 echo "Coping files from shared folder"
 cp -r /tmp/shared/${SOLARIS_VERSION} .
-chmod +x ${SOLARIS_VERSION}/*.sh
-
 
 cd ${SOLARIS_VERSION}
+chmod +x *.sh
 
 echo "Generating Wazuh package"
-./generate_wazuh_packages.sh -b ${BRANCH_TAG} -s /tmp/shared -c /tmp/shared
+./generate_wazuh_packages.sh -b ${BRANCH_TAG} -s /tmp/shared/${SOLARIS_VERSION}/output -c /tmp/shared/${SOLARIS_VERSION}/output
 
 exit 0
