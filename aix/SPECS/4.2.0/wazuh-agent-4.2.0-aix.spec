@@ -160,6 +160,8 @@ rm -f %{_localstatedir}/tmp/add_localfiles.sh
 
 chmod 0660 %{_localstatedir}/etc/ossec.conf
 
+%posttrans
+
 if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
   rm -f %{_localstatedir}/tmp/wazuh.restart
   /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
