@@ -5,7 +5,7 @@
 # Wazuh Solaris 11 Package builder.
 
 REPOSITORY="https://github.com/wazuh/wazuh"
-wazuh_branch="v4.2.0-rc6"
+wazuh_branch="v4.2.0-rc7"
 install_path="/var/ossec"
 THREADS="4"
 TARGET="agent"
@@ -118,7 +118,7 @@ download_source() {
     cd ${current_path}
     git clone $REPOSITORY $SOURCE
 
-    if [[ "${wazuh_branch}" != "trunk" ]] || [[ "${wazuh_branch}" != "v4.2.0-rc6" ]]; then
+    if [[ "${wazuh_branch}" != "trunk" ]] || [[ "${wazuh_branch}" != "v4.2.0-rc7" ]]; then
         cd $SOURCE
         git checkout $wazuh_branch
     fi
@@ -367,7 +367,7 @@ main() {
                 compute_checksums="yes"
                 shift 2
             else
-                compute_checksums="yes"
+                compute_checksums="no"
                 shift 1
             fi
         ;;

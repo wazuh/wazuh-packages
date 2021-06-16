@@ -6,7 +6,7 @@
 
 
 # CONFIGURATION VARIABLES
-wazuh_branch="$(echo "$2" | cut -d "/" -f2)"
+wazuh_branch="v4.2.0-rc7"
 PATH=$PATH:/opt/csw/bin:/usr/sfw/bin
 VERSION=""
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
@@ -25,7 +25,7 @@ short_version=""
 trap ctrl_c INT
 
 if [ -z "${wazuh_branch}" ]; then
-    wazuh_branch="v4.2.0-rc6"
+    wazuh_branch="v4.2.0-rc7"
 fi
 
 if [ -z "$ARCH" ]; then
@@ -371,7 +371,7 @@ main() {
                 compute_checksums="yes"
                 shift 2
             else
-                compute_checksums="yes"
+                compute_checksums="no"
                 shift 1
             fi
         ;;
