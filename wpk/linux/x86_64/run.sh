@@ -162,12 +162,28 @@ main() {
     MAJOR=$(echo ${WAZUH_VERSION} | cut -dv -f2 | cut -d. -f1)
     MINOR=$(echo ${WAZUH_VERSION} | cut -d. -f2)
 
+    if [ "${NO_COMPILE}" == false ]; then
+        # Execute gmake deps if the version is greater or equal to 3.5
+        if [[ ${MAJOR} -ge 4 || (${MAJOR} -ge 3 && ${MINOR} -ge 5) ]]; then
+            make -C src deps TARGET=${BUILD_TARGET}
+        fi
+
+        # Compile agent
+        make -C src -j ${JOBS} TARGET=${BUILD_TARGET} || exit 1
+        # Clean unuseful files
+        clean
+        # Preload vars for installer
+        preload
+    fi
+
     # Compress and sign package
     if [ "${DIST_NAME}" = "centos" ]; then
         package_name="wazuh-agent-4.2.0-0.4.x86_64.rpm"
         wget "https://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/custom/4.2-rc-rcs-wp/wazuh-agent-4.2.0-0.4.x86_64.rpm"
         cp /usr/local/bin/{upgrade.sh,pkg_installer.sh} .
+        ls -lah 
         ${PYTHON} /usr/local/bin/wpkpack ${OUTPUT} ${WPKCERT} ${WPKKEY} ${package_name} upgrade.sh pkg_installer.sh
+        ls -lah ${OUTPUT}
     else
 
       if [ "${HAVE_PKG_NAME}" == true ]; then
