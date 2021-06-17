@@ -43,6 +43,8 @@ USE_LOCAL_SPECS="no"
 LOCAL_SOURCE_CODE=""
 USE_LOCAL_SOURCE_CODE="no"
 FUTURE="no"
+HAVE_TARGET="no"
+HAVE_BRANCH="no"
 
 trap ctrl_c INT
 
@@ -114,53 +116,37 @@ build() {
         ARCHITECTURE="armv7hl"
     fi
 
-    if [[ "${TARGET}" == "api" ]]; then
-        if [[ "${ARCHITECTURE}" = "ppc64le" ]]; then
-            build_rpm ${RPM_PPC64LE_BUILDER} ${RPM_PPC64LE_BUILDER_DOCKERFILE}/${ARCHITECTURE} || return 1
-        elif [[ "${ARCHITECTURE}" = "aarch64" ]]; then
-            build_rpm ${RPM_AARCH64_BUILDER} ${RPM_AARCH64_BUILDER_DOCKERFILE}/${ARCHITECTURE} || return 1
-        elif [[ "${ARCHITECTURE}" = "armv7hl" ]]; then
-            build_rpm ${RPM_ARMV7HL_BUILDER} ${RPM_ARMV7HL_BUILDER_DOCKERFILE}/${ARCHITECTURE} || return 1
-        else
-            build_rpm ${RPM_X86_BUILDER} ${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE} || return 1
-        fi
-
-    elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]]; then
-
-        BUILD_NAME=""
-        FILE_PATH=""
-        if [[ "${LEGACY}" == "yes" ]] && [[ "${ARCHITECTURE}" == "x86_64" ]]; then
-            REVISION="${REVISION}.el5"
-            BUILD_NAME="${LEGACY_RPM_X86_BUILDER}"
-            FILE_PATH="${LEGACY_RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
-        elif [[ "${LEGACY}" == "yes" ]] && [[ "${ARCHITECTURE}" == "i386" ]]; then
-            REVISION="${REVISION}.el5"
-            BUILD_NAME="${LEGACY_RPM_I386_BUILDER}"
-            FILE_PATH="${LEGACY_RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
-        elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "x86_64" ]]; then
-            BUILD_NAME="${RPM_X86_BUILDER}"
-            FILE_PATH="${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
-        elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "i386" ]]; then
-            BUILD_NAME="${RPM_I386_BUILDER}"
-            FILE_PATH="${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
-        elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "ppc64le" ]]; then
-            BUILD_NAME="${RPM_PPC64LE_BUILDER}"
-            FILE_PATH="${RPM_PPC64LE_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
-        elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "aarch64" ]]; then
-            BUILD_NAME="${RPM_AARCH64_BUILDER}"
-            FILE_PATH="${RPM_AARCH64_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
-        elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "armv7hl" ]]; then
-            BUILD_NAME="${RPM_ARMV7HL_BUILDER}"
-            FILE_PATH="${RPM_ARMV7HL_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
-        else
-            echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too), ppc64le or i386"
-            return 1
-        fi
-        build_rpm ${BUILD_NAME} ${FILE_PATH} || return 1
+    
+    BUILD_NAME=""
+    FILE_PATH=""
+    if [[ "${LEGACY}" == "yes" ]] && [[ "${ARCHITECTURE}" == "x86_64" ]]; then
+        REVISION="${REVISION}.el5"
+        BUILD_NAME="${LEGACY_RPM_X86_BUILDER}"
+        FILE_PATH="${LEGACY_RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
+    elif [[ "${LEGACY}" == "yes" ]] && [[ "${ARCHITECTURE}" == "i386" ]]; then
+        REVISION="${REVISION}.el5"
+        BUILD_NAME="${LEGACY_RPM_I386_BUILDER}"
+        FILE_PATH="${LEGACY_RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
+    elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "x86_64" ]]; then
+        BUILD_NAME="${RPM_X86_BUILDER}"
+        FILE_PATH="${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
+    elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "i386" ]]; then
+        BUILD_NAME="${RPM_I386_BUILDER}"
+        FILE_PATH="${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
+    elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "ppc64le" ]]; then
+        BUILD_NAME="${RPM_PPC64LE_BUILDER}"
+        FILE_PATH="${RPM_PPC64LE_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
+    elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "aarch64" ]]; then
+        BUILD_NAME="${RPM_AARCH64_BUILDER}"
+        FILE_PATH="${RPM_AARCH64_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
+    elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "armv7hl" ]]; then
+        BUILD_NAME="${RPM_ARMV7HL_BUILDER}"
+        FILE_PATH="${RPM_ARMV7HL_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
     else
-        echo "Invalid target. Choose: manager, agent or api."
+        echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too), ppc64le or i386"
         return 1
     fi
+    build_rpm ${BUILD_NAME} ${FILE_PATH} || return 1
 
     return 0
 }
@@ -170,7 +156,7 @@ help() {
     echo "Usage: $0 [OPTIONS]"
     echo
     echo "    -b, --branch <branch>        [Required] Select Git branch or tag e.g. $BRANCH"
-    echo "    -t, --target <target>        [Required] Target package to build [manager/api/agent]."
+    echo "    -t, --target <target>        [Required] Target package to build: manager or agent."
     echo "    -a, --architecture <arch>    [Optional] Target architecture of the package [x86_64/i386/ppc64le/aarch64/armv7hl]."
     echo "    -r, --revision <rev>         [Optional] Package revision that append to version e.g. x.x.x-rev"
     echo "    -l, --legacy                 [Optional] Build package for CentOS 5."
@@ -192,16 +178,17 @@ help() {
 
 
 main() {
-    BUILD="no"
+    
     while [ -n "$1" ]
     do
         case "$1" in
         "-b"|"--branch")
             if [ -n "$2" ]; then
                 BRANCH="$2"
-                BUILD="yes"
+                HAVE_BRANCH="yes"
                 shift 2
             else
+                echo "Needs a branch."
                 help 1
             fi
             ;;
@@ -211,8 +198,10 @@ main() {
         "-t"|"--target")
             if [ -n "$2" ]; then
                 TARGET="$2"
+                HAVE_TARGET="yes"
                 shift 2
             else
+                echo "Needs a target."
                 help 1
             fi
             ;;
@@ -316,14 +305,27 @@ main() {
         OUTDIR="${OUTDIR}/5/${ARCHITECTURE}"
     fi
 
+    if [ "${HAVE_TARGET}" == "no" ] || [ "${HAVE_BRANCH}" == "no" ]; then
+        echo "Check required values"
+        help 1
+    fi
+
+    if [ "${TARGET}" != "manager" ] && [ "${TARGET}" != "agent" ]; then
+        echo "Target must be 'manager' or 'agent'."
+        help 1
+    fi
+
+    if [ "${TARGET}" != "agent" ] && [ "${LEGACY}" = "yes" ]; then
+        echo "Target ${TARGET} not supported for Centos5"
+        exit $1
+    fi
+
     if [ -z "${CHECKSUMDIR}" ]; then
         CHECKSUMDIR="${OUTDIR}"
     fi
 
-    if [[ "$BUILD" != "no" ]]; then
-        build || clean 1
-    fi
-
+   
+    build || clean 1
     clean 0
 }
 
