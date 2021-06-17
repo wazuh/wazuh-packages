@@ -6,7 +6,7 @@
 
 
 # CONFIGURATION VARIABLES
-wazuh_branch="$(echo "$2" | cut -d "/" -f2)"
+wazuh_branch="v4.0.4"
 PATH=$PATH:/opt/csw/bin:/usr/sfw/bin
 VERSION=""
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
@@ -342,7 +342,7 @@ main() {
                 compute_checksums="yes"
                 shift 2
             else
-                compute_checksums="yes"
+                compute_checksums="no"
                 shift 1
             fi
         ;;
