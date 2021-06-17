@@ -12,7 +12,7 @@
 CURRENT_PATH=$( cd $(dirname $0) ; pwd -P )
 
 REVISION="1"
-BRANCH_TAG="master"
+BRANCH_TAG="v4.3.0-7.10.2"
 CHECKSUMDIR=""
 CONTAINER_NAME="wazuh-kibana-app-builder"
 SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
@@ -92,7 +92,7 @@ main(){
                 CHECKSUM="yes"
                 shift 2
             else
-                CHECKSUM="yes"
+                CHECKSUM="no"
                 shift 1
             fi
             ;;
