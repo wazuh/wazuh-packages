@@ -34,6 +34,7 @@ LOCAL_SPECS="${CURRENT_PATH}"
 LOCAL_SOURCE_CODE=""
 USE_LOCAL_SOURCE_CODE="no"
 FUTURE="no"
+HAVE_TARGET="no"
 
 trap ctrl_c INT
 
@@ -161,9 +162,10 @@ main() {
         "-t"|"--target")
             if [ -n "$2" ]; then
                 TARGET="$2"
+                HAVE_TARGET="yes"
                 shift 2
             else
-                echo "Need a target."
+                echo "Needs a target."
                 help 1
             fi
             ;;
@@ -252,6 +254,11 @@ main() {
 
     if [ -z "${CHECKSUMDIR}" ]; then
         CHECKSUMDIR="${OUTDIR}"
+    fi
+
+    if [ "${HAVE_TARGET}" == "no" ]; then
+        echo "Check required values"
+        help 1
     fi
 
     if [ "${TARGET}" != "manager" ] && [ "${TARGET}" != "agent" ]; then
