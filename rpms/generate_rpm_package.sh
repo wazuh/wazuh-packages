@@ -13,7 +13,7 @@ ARCHITECTURE="x86_64"
 OUTDIR="${CURRENT_PATH}/output/"
 BRANCH=$(cat ../VERSION)
 REVISION="1"
-TARGET="manager"
+TARGET=""
 JOBS="2"
 DEBUG="no"
 BUILD_DOCKER="yes"
@@ -42,6 +42,7 @@ USE_LOCAL_SOURCE_CODE="no"
 FUTURE="no"
 SRC="no"
 LEGACY="no"
+HAVE_TARGET="no"
 
 trap ctrl_c INT
 
@@ -113,42 +114,36 @@ build() {
         ARCHITECTURE="armv7hl"
     fi
 
-    if [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]]; then
-
-        BUILD_NAME=""
-        FILE_PATH=""
-        if [[ "${LEGACY}" == "yes" ]] && [[ "${ARCHITECTURE}" == "x86_64" ]]; then
-            REVISION="${REVISION}.el5"
-            BUILD_NAME="${LEGACY_RPM_X86_BUILDER}"
-            FILE_PATH="${LEGACY_RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
-        elif [[ "${LEGACY}" == "yes" ]] && [[ "${ARCHITECTURE}" == "i386" ]]; then
-            REVISION="${REVISION}.el5"
-            BUILD_NAME="${LEGACY_RPM_I386_BUILDER}"
-            FILE_PATH="${LEGACY_RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
-        elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "x86_64" ]]; then
-            BUILD_NAME="${RPM_X86_BUILDER}"
-            FILE_PATH="${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
-        elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "i386" ]]; then
-            BUILD_NAME="${RPM_I386_BUILDER}"
-            FILE_PATH="${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
-        elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "ppc64le" ]]; then
-            BUILD_NAME="${RPM_PPC64LE_BUILDER}"
-            FILE_PATH="${RPM_PPC64LE_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
-        elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "aarch64" ]]; then
-            BUILD_NAME="${RPM_AARCH64_BUILDER}"
-            FILE_PATH="${RPM_AARCH64_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
-        elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "armv7hl" ]]; then
-            BUILD_NAME="${RPM_ARMV7HL_BUILDER}"
-            FILE_PATH="${RPM_ARMV7HL_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
-        else
-            echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too), ppc64le or i386"
-            return 1
-        fi
-        build_rpm ${BUILD_NAME} ${FILE_PATH} || return 1
+    BUILD_NAME=""
+    FILE_PATH=""
+    if [[ "${LEGACY}" == "yes" ]] && [[ "${ARCHITECTURE}" == "x86_64" ]]; then
+        REVISION="${REVISION}.el5"
+        BUILD_NAME="${LEGACY_RPM_X86_BUILDER}"
+        FILE_PATH="${LEGACY_RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
+    elif [[ "${LEGACY}" == "yes" ]] && [[ "${ARCHITECTURE}" == "i386" ]]; then
+        REVISION="${REVISION}.el5"
+        BUILD_NAME="${LEGACY_RPM_I386_BUILDER}"
+        FILE_PATH="${LEGACY_RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
+    elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "x86_64" ]]; then
+        BUILD_NAME="${RPM_X86_BUILDER}"
+        FILE_PATH="${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
+    elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "i386" ]]; then
+        BUILD_NAME="${RPM_I386_BUILDER}"
+        FILE_PATH="${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
+    elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "ppc64le" ]]; then
+        BUILD_NAME="${RPM_PPC64LE_BUILDER}"
+        FILE_PATH="${RPM_PPC64LE_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
+    elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "aarch64" ]]; then
+        BUILD_NAME="${RPM_AARCH64_BUILDER}"
+        FILE_PATH="${RPM_AARCH64_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
+    elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "armv7hl" ]]; then
+        BUILD_NAME="${RPM_ARMV7HL_BUILDER}"
+        FILE_PATH="${RPM_ARMV7HL_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
     else
-        echo "Invalid target. Choose: manager or agent."
+        echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too), ppc64le or i386"
         return 1
     fi
+    build_rpm ${BUILD_NAME} ${FILE_PATH} || return 1
 
     return 0
 }
@@ -157,7 +152,7 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -t, --target <target>      [Optional] Target package to build: manager or agent. By default: ${TARGET}"
+    echo "    -t, --target <target>      [Required] Target package to build: manager or agent."
     echo "    -b, --branch <branch>      [Optional] Select Git branch or tag. By default: ${BRANCH}"
     echo "    -a, --architecture <arch>  [Optional] Target architecture of the package [x86_64/i386/ppc64le/aarch64/armv7hl]."
     echo "    -j, --jobs <number>        [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 2."
@@ -197,8 +192,10 @@ main() {
         "-t"|"--target")
             if [ -n "$2" ]; then
                 TARGET="$2"
+                HAVE_TARGET="yes"
                 shift 2
             else
+                echo "Needs a target."
                 help 1
             fi
             ;;
@@ -296,6 +293,16 @@ main() {
 
     if [[ "${USER_PATH}" == "no" ]] && [[ "${LEGACY}" == "yes" ]]; then
         OUTDIR="${OUTDIR}/5/${ARCHITECTURE}"
+    fi
+
+    if [ "${HAVE_TARGET}" == "no" ]; then
+        echo "Check required values"
+        help 1
+    fi
+
+    if [ "${TARGET}" != "manager" ] && [ "${TARGET}" != "agent" ]; then
+        echo "Target must be 'manager' or 'agent'."
+        help 1
     fi
 
     if [ "${TARGET}" != "agent" ] && [ "${LEGACY}" = "yes" ]; then
