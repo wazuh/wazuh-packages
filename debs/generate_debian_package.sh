@@ -35,6 +35,8 @@ LOCAL_SPECS="${CURRENT_PATH}"
 LOCAL_SOURCE_CODE=""
 USE_LOCAL_SOURCE_CODE="no"
 FUTURE="no"
+HAVE_TARGET="no"
+HAVE_BRANCH="no"
 
 trap ctrl_c INT
 
@@ -94,46 +96,28 @@ build() {
         ARCHITECTURE="armhf"
     fi
 
-    if [[ "${TARGET}" == "api" ]]; then
-
-        if [[ "${ARCHITECTURE}" = "ppc64le" ]]; then
-            build_deb ${DEB_PPC64LE_BUILDER} ${DEB_PPC64LE_BUILDER_DOCKERFILE} || return 1
-        elif [[ "${ARCHITECTURE}" = "arm64" ]]; then
-            build_deb ${DEB_ARM64_BUILDER} ${DEB_ARM64_BUILDER_DOCKERFILE} || return 1
-        elif [[ "${ARCHITECTURE}" = "armhf" ]]; then
-            build_deb ${DEB_ARMHF_BUILDER} ${DEB_ARMHF_BUILDER_DOCKERFILE} || return 1
-        else
-            build_deb ${DEB_AMD64_BUILDER} ${DEB_AMD64_BUILDER_DOCKERFILE} || return 1
-        fi
-
-    elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]]; then
-
-        BUILD_NAME=""
-        FILE_PATH=""
-        if [[ "${ARCHITECTURE}" = "amd64" ]]; then
-            BUILD_NAME="${DEB_AMD64_BUILDER}"
-            FILE_PATH="${DEB_AMD64_BUILDER_DOCKERFILE}"
-        elif [[ "${ARCHITECTURE}" = "i386" ]]; then
-            BUILD_NAME="${DEB_I386_BUILDER}"
-            FILE_PATH="${DEB_I386_BUILDER_DOCKERFILE}"
-        elif [[ "${ARCHITECTURE}" = "ppc64le" ]]; then
-            BUILD_NAME="${DEB_PPC64LE_BUILDER}"
-            FILE_PATH="${DEB_PPC64LE_BUILDER_DOCKERFILE}"
-        elif [[ "${ARCHITECTURE}" = "arm64" ]]; then
-            BUILD_NAME="${DEB_ARM64_BUILDER}"
-            FILE_PATH="${DEB_ARM64_BUILDER_DOCKERFILE}"
-        elif [[ "${ARCHITECTURE}" = "armhf" ]]; then
-            BUILD_NAME="${DEB_ARMHF_BUILDER}"
-            FILE_PATH="${DEB_ARMHF_BUILDER_DOCKERFILE}"
-        else
-            echo "Invalid architecture. Choose one of amd64/i386/ppc64le/arm64/arm32."
-            return 1
-        fi
-        build_deb ${BUILD_NAME} ${FILE_PATH} || return 1
+    BUILD_NAME=""
+    FILE_PATH=""
+    if [[ "${ARCHITECTURE}" = "amd64" ]]; then
+        BUILD_NAME="${DEB_AMD64_BUILDER}"
+        FILE_PATH="${DEB_AMD64_BUILDER_DOCKERFILE}"
+    elif [[ "${ARCHITECTURE}" = "i386" ]]; then
+        BUILD_NAME="${DEB_I386_BUILDER}"
+        FILE_PATH="${DEB_I386_BUILDER_DOCKERFILE}"
+    elif [[ "${ARCHITECTURE}" = "ppc64le" ]]; then
+        BUILD_NAME="${DEB_PPC64LE_BUILDER}"
+        FILE_PATH="${DEB_PPC64LE_BUILDER_DOCKERFILE}"
+    elif [[ "${ARCHITECTURE}" = "arm64" ]]; then
+        BUILD_NAME="${DEB_ARM64_BUILDER}"
+        FILE_PATH="${DEB_ARM64_BUILDER_DOCKERFILE}"
+    elif [[ "${ARCHITECTURE}" = "armhf" ]]; then
+        BUILD_NAME="${DEB_ARMHF_BUILDER}"
+        FILE_PATH="${DEB_ARMHF_BUILDER_DOCKERFILE}"
     else
-        echo "Invalid target. Choose: manager, agent or api."
+        echo "Invalid architecture. Choose one of amd64/i386/ppc64le/arm64/arm32."
         return 1
     fi
+    build_deb ${BUILD_NAME} ${FILE_PATH} || return 1
 
     return 0
 }
@@ -142,8 +126,8 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -b, --branch <branch>       [Required] Select Git branch or tag. By default: ${BRANCH}."
-    echo "    -t, --target <target>       [Required] Target package to build: manager, api or agent."
+    echo "    -b, --branch <branch>       [Required] Select Git branch or tag. By default: ${BRANCH}"
+    echo "    -t, --target <target>       [Required] Target package to build: manager or agent."
     echo "    -a, --architecture <arch>   [Optional] Target architecture of the package [amd64/i386/ppc64le/arm64/armhf]."
     echo "    -j, --jobs <number>         [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 2."
     echo "    -r, --revision <rev>        [Optional] Package revision. By default: 1."
@@ -163,16 +147,17 @@ help() {
 
 
 main() {
-    BUILD="no"
+
     while [ -n "$1" ]
     do
         case "$1" in
         "-b"|"--branch")
             if [ -n "$2" ]; then
                 BRANCH="$2"
-                BUILD="yes"
+                HAVE_BRANCH="yes"
                 shift 2
             else
+                echo "Needs a branch."
                 help 1
             fi
             ;;
@@ -182,8 +167,10 @@ main() {
         "-t"|"--target")
             if [ -n "$2" ]; then
                 TARGET="$2"
+                HAVE_TARGET="yes"
                 shift 2
             else
+                echo "Needs a target."
                 help 1
             fi
             ;;
@@ -249,6 +236,8 @@ main() {
             if [ -n "$2" ]; then
                 PACKAGES_BRANCH="$2"
                 shift 2
+            else
+                help 1
             fi
             ;;
         "--dev")
@@ -276,12 +265,22 @@ main() {
         CHECKSUMDIR="${OUTDIR}"
     fi
 
-    if [[ "$BUILD" != "no" ]]; then
-        build || clean 1
-    else
-        clean 1
+    if [ "${HAVE_TARGET}" == "no" ]; then
+        echo "Check required values"
+        help 1
     fi
 
+    if [ "${HAVE_BRANCH}" == "no" ]; then
+        echo "Check required values"
+        help 1
+    fi
+
+    if [ "${TARGET}" != "manager" ] && [ "${TARGET}" != "agent" ]; then
+        echo "Target must be 'manager' or 'agent'."
+        help 1
+    fi
+
+    build || clean 1
     clean 0
 }
 
