@@ -11,12 +11,13 @@
 
 CURRENT_PATH=$( cd $(dirname $0) ; pwd -P )
 
-REVISION=""
-BRANCH_TAG=""
+REVISION="1"
+BRANCH_TAG="v3.7.2-6.5.4"
 CHECKSUMDIR=""
 CONTAINER_NAME="wazuh-kibana-app-builder"
 SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
 OUTDIR="${CURRENT_PATH}/output/"
+WORK_DIR="/wazuh_app"
 
 trap ctrl_c INT
 
@@ -25,8 +26,8 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -b, --branch <branch>     [Required] Select Git branch or tag e.g. 3.8-6.7 or v3.7.2-6.5.4"
-    echo "    -s, --store <path>        [Optional] Set the destination path of package, by defauly /tmp/wazuh-app."
+    echo "    -b, --branch <branch>     [Required] Select Git branch or tag e.g. ${BRANCH_TAG}"
+    echo "    -s, --store <path>        [Optional] Set the destination path of package, by default its created in a output folder."
     echo "    -r, --revision <rev>      [Optional] Package revision that append to version e.g. x.x.x-rev"
     echo "    -c, --checksum <path>     [Optional] Generate checksum"
     echo "    -h, --help                Show this help."
@@ -39,7 +40,7 @@ build_package(){
     # Build the Docker image
     docker build -t ${CONTAINER_NAME} ./Docker/
     # Build the Wazuh Kibana app package using the build docker image
-    docker run --rm -t -v "${OUTDIR}":/wazuh_app:Z \
+    docker run --rm -t -v "${OUTDIR}":${WORK_DIR}:Z \
         -v ${CHECKSUMDIR}:/var/local/checksum:Z \
         ${CONTAINER_NAME} ${BRANCH_TAG} ${CHECKSUM} ${REVISION}
 
@@ -64,7 +65,7 @@ main(){
         "-b"|"--branch")
             if [ -n "$2" ]; then
                 HAVE_BRANCH=true
-                BRANCH_TAG="$(echo "$2" | cut -d "/" -f2)"
+                BRANCH_TAG="$2"
                 shift 2
             else
                 help 1
@@ -92,7 +93,7 @@ main(){
                 CHECKSUM="yes"
                 shift 2
             else
-                CHECKSUM="yes"
+                CHECKSUM="no"
                 shift 1
             fi
             ;;
