@@ -34,6 +34,8 @@ PACKAGES_BRANCH="legacy"
 USE_LOCAL_SPECS="no"
 LOCAL_SPECS="${CURRENT_PATH}"
 LOCAL_SOURCE_CODE=""
+HAVE_TARGET="no"
+HAVE_BRANCH="no"
 
 trap ctrl_c INT
 
@@ -139,36 +141,38 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -b, --branch <branch>     [Required] Select Git branch. By default: ${BRANCH}."
-    echo "    -t, --target <target>     [Required] Target package to build: manager, api or agent."
-    echo "    -a, --architecture <arch> [Optional] Target architecture of the package [amd64/i386/ppc64le/arm64/armhf]."
-    echo "    -j, --jobs <number>       [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 2."
-    echo "    -r, --revision <rev>      [Optional] Package revision. By default: 1."
-    echo "    -s, --store <path>        [Optional] Set the destination path of package. By default, an output folder will be created."
-    echo "    -p, --path <path>         [Optional] Installation path for the package. By default: /var/ossec."
-    echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
-    echo "    -c, --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
-    echo "    --packages-branch         [Optional] Branch of the wazuh packages repository. By default: ${PACKAGES_BRANCH}."
-    echo "    --dont-build-docker       [Optional] Locally built docker image will be used instead of generating a new one."
-    echo "    --sources <path>          [Optional] Absolute path containing wazuh source code. This option will use local source code instead of downloading it from GitHub."
-    echo "    --dev                     [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub."
-    echo "    -h, --help                Show this help."
+    echo "    -b, --branch <branch>       [Required] Select Git branch. By default: ${BRANCH}."
+    echo "    -t, --target <target>       [Required] Target package to build: manager, api or agent."
+    echo "    -a, --architecture <arch>   [Optional] Target architecture of the package [amd64/i386/ppc64le/arm64/armhf]."
+    echo "    -j, --jobs <number>         [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 2."
+    echo "    -r, --revision <rev>        [Optional] Package revision. By default: 1."
+    echo "    -s, --store <path>          [Optional] Set the destination path of package. By default, an output folder will be created."
+    echo "    -p, --path <path>           [Optional] Installation path for the package. By default: /var/ossec."
+    echo "    -d, --debug                 [Optional] Build the binaries with debug symbols. By default: no."
+    echo "    -c, --checksum <path>       [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
+    echo "    --packages-branch           [Optional] Branch of the wazuh packages repository. By default: ${PACKAGES_BRANCH}."
+    echo "    --dont-build-docker         [Optional] Locally built docker image will be used instead of generating a new one."
+    echo "    --sources <path>            [Optional] Absolute path containing wazuh source code. This option will use local source code instead of downloading it from GitHub."
+    echo "    --packages-branch <branch>  [Optional] Select Git branch or tag from wazuh-packages repository. e.g ${PACKAGES_BRANCH}"
+    echo "    --dev                       [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub."
+    echo "    -h, --help                  Show this help."
     echo
     exit $1
 }
 
 
 main() {
-    BUILD="no"
+
     while [ -n "$1" ]
     do
         case "$1" in
         "-b"|"--branch")
             if [ -n "$2" ]; then
                 BRANCH="$2"
-                BUILD="yes"
+                HAVE_BRANCH="yes"
                 shift 2
             else
+                echo "Needs a branch."
                 help 1
             fi
             ;;
@@ -178,8 +182,10 @@ main() {
         "-t"|"--target")
             if [ -n "$2" ]; then
                 TARGET="$2"
+                HAVE_TARGET="yes"
                 shift 2
             else
+                echo "Needs a target."
                 help 1
             fi
             ;;
@@ -245,6 +251,8 @@ main() {
             if [ -n "$2" ]; then
                 PACKAGES_BRANCH="$2"
                 shift 2
+            else
+                help 1
             fi
             ;;
         "--dev")
@@ -268,12 +276,22 @@ main() {
         CHECKSUMDIR="${OUTDIR}"
     fi
 
-    if [[ "$BUILD" != "no" ]]; then
-        build || clean 1
-    else
-        clean 1
+    if [ "${HAVE_TARGET}" == "no" ]; then
+        echo "Check required values"
+        help 1
     fi
 
+    if [ "${HAVE_BRANCH}" == "no" ]; then
+        echo "Check required values"
+        help 1
+    fi
+
+    if [ "${TARGET}" != "manager" ] && [ "${TARGET}" != "agent" ] [ "${TARGET}" != "api" ]; then
+        echo "Target must be 'manager' or 'agent'."
+        help 1
+    fi
+
+    build || clean 1
     clean 0
 }
 
