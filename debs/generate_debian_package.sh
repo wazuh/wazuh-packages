@@ -12,7 +12,7 @@ ARCHITECTURE="amd64"
 OUTDIR="${CURRENT_PATH}/output/"
 BRANCH=$(cat ../VERSION)
 REVISION="1"
-TARGET="manager"
+TARGET=""
 JOBS="2"
 DEBUG="no"
 BUILD_DOCKER="yes"
@@ -93,35 +93,29 @@ build() {
         ARCHITECTURE="armhf"
     fi
 
-    if [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]]; then
-
-        BUILD_NAME=""
-        FILE_PATH=""
-        if [[ "${ARCHITECTURE}" = "amd64" ]]; then
-            BUILD_NAME="${DEB_AMD64_BUILDER}"
-            FILE_PATH="${DEB_AMD64_BUILDER_DOCKERFILE}"
-        elif [[ "${ARCHITECTURE}" = "i386" ]]; then
-            BUILD_NAME="${DEB_I386_BUILDER}"
-            FILE_PATH="${DEB_I386_BUILDER_DOCKERFILE}"
-        elif [[ "${ARCHITECTURE}" = "ppc64le" ]]; then
-            BUILD_NAME="${DEB_PPC64LE_BUILDER}"
-            FILE_PATH="${DEB_PPC64LE_BUILDER_DOCKERFILE}"
-        elif [[ "${ARCHITECTURE}" = "arm64" ]]; then
-            BUILD_NAME="${DEB_ARM64_BUILDER}"
-            FILE_PATH="${DEB_ARM64_BUILDER_DOCKERFILE}"
-        elif [[ "${ARCHITECTURE}" = "armhf" ]]; then
-            BUILD_NAME="${DEB_ARMHF_BUILDER}"
-            FILE_PATH="${DEB_ARMHF_BUILDER_DOCKERFILE}"
-        else
-            echo "Invalid architecture. Choose one of amd64/i386/ppc64le/arm64/arm32."
-            return 1
-        fi
-        build_deb ${BUILD_NAME} ${FILE_PATH} || return 1
+    BUILD_NAME=""
+    FILE_PATH=""
+    if [[ "${ARCHITECTURE}" = "amd64" ]]; then
+        BUILD_NAME="${DEB_AMD64_BUILDER}"
+        FILE_PATH="${DEB_AMD64_BUILDER_DOCKERFILE}"
+    elif [[ "${ARCHITECTURE}" = "i386" ]]; then
+        BUILD_NAME="${DEB_I386_BUILDER}"
+        FILE_PATH="${DEB_I386_BUILDER_DOCKERFILE}"
+    elif [[ "${ARCHITECTURE}" = "ppc64le" ]]; then
+        BUILD_NAME="${DEB_PPC64LE_BUILDER}"
+        FILE_PATH="${DEB_PPC64LE_BUILDER_DOCKERFILE}"
+    elif [[ "${ARCHITECTURE}" = "arm64" ]]; then
+        BUILD_NAME="${DEB_ARM64_BUILDER}"
+        FILE_PATH="${DEB_ARM64_BUILDER_DOCKERFILE}"
+    elif [[ "${ARCHITECTURE}" = "armhf" ]]; then
+        BUILD_NAME="${DEB_ARMHF_BUILDER}"
+        FILE_PATH="${DEB_ARMHF_BUILDER_DOCKERFILE}"
     else
-        echo "Invalid target. Choose: manager or agent."
+        echo "Invalid architecture. Choose one of amd64/i386/ppc64le/arm64/arm32."
         return 1
     fi
-
+    build_deb ${BUILD_NAME} ${FILE_PATH} || return 1
+    
     return 0
 }
 
@@ -129,7 +123,7 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -t, --target <target>      [Optional] Target package to build: manager or agent. By default: ${TARGET}"
+    echo "    -t, --target <target>      [Required] Target package to build: manager or agent."
     echo "    -b, --branch <branch>      [Optional] Select Git branch or tag. By default: ${BRANCH}"
     echo "    -a, --architecture <arch>  [Optional] Target architecture of the package [amd64/i386/ppc64le/arm64/armhf]."
     echo "    -j, --jobs <number>        [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 2."
@@ -169,6 +163,7 @@ main() {
                 TARGET="$2"
                 shift 2
             else
+                echo "Need a target."
                 help 1
             fi
             ;;
@@ -259,7 +254,11 @@ main() {
         CHECKSUMDIR="${OUTDIR}"
     fi
 
-    
+    if [ "${TARGET}" != "manager" ] && [ "${TARGET}" != "agent" ]; then
+        echo "Target must be 'manager' or 'agent'."
+        help 1
+    fi
+
     build || clean 1
     clean 0
 }
