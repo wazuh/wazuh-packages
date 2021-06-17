@@ -41,6 +41,8 @@ CHECKSUMDIR=""
 CHECKSUM="no"
 USE_LOCAL_SPECS="no"
 LOCAL_SOURCE_CODE=""
+HAVE_TARGET="no"
+HAVE_BRANCH="no"
 
 trap ctrl_c INT
 
@@ -166,7 +168,7 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -b, --branch <branch>        [Required] Select Git branch or tag e.g. $BRANCH"
+    echo "    -b, --branch <branch>        [Required] Select Git branch or tag. e.g. ${BRANCH}"
     echo "    -t, --target <target>        [Required] Target package to build [manager/api/agent]."
     echo "    -a, --architecture <arch>    [Optional] Target architecture of the package [x86_64/i386/ppc64le/aarch64/armv7hl]."
     echo "    -r, --revision <rev>         [Optional] Package revision that append to version e.g. x.x.x-rev"
@@ -188,16 +190,17 @@ help() {
 
 
 main() {
-    BUILD="no"
+
     while [ -n "$1" ]
     do
         case "$1" in
         "-b"|"--branch")
             if [ -n "$2" ]; then
                 BRANCH="$2"
-                BUILD="yes"
+                HAVE_BRANCH="yes"
                 shift 2
             else
+                echo "Needs a branch."
                 help 1
             fi
             ;;
@@ -207,8 +210,10 @@ main() {
         "-t"|"--target")
             if [ -n "$2" ]; then
                 TARGET="$2"
+                HAVE_TARGET="yes"
                 shift 2
             else
+                echo "Needs a target."
                 help 1
             fi
             ;;
@@ -308,14 +313,46 @@ main() {
         OUTDIR="${OUTDIR}/5/${ARCHITECTURE}"
     fi
 
+    if [ "${HAVE_TARGET}" == "no" ] || [ "${HAVE_BRANCH}" == "no" ]; then
+        echo "Check required values"
+        help 1
+    fi
+
+    if [ "${TARGET}" != "manager" ] && [ "${TARGET}" != "agent" ] && [ "${TARGET}" != "api" ]; then
+        echo "Target must be 'manager', 'agent' or 'api'."
+        help 1
+    fi
+
+    if [ "${LEGACY}" == "yes" ]; then
+
+        if [ "${TARGET}" == "api" ]; then
+            echo "Targets supported by legacy: [manager/agent]"
+            exit 1
+        fi
+
+        if [ "${BRANCH:0:1}" == "v" ]; then
+            VER=$(echo ${BRANCH} | cut -d'.' -f 2)
+        fi
+
+        if [ "${VER}" != "" ]; then
+            if [ "${VER}" -gt "8" ] && [ "${TARGET}" != "agent" ]; then
+                echo "Target supported by legacy in this branch: [agent]"
+                exit 1
+            fi
+
+        else
+            echo
+            echo "Careful. Legacy only supports the targets [manager/agent] for versions lower than or equal than 3.8 and [agent] for versions higher to 3.8."
+            echo
+        fi
+
+    fi
+
     if [ -z "${CHECKSUMDIR}" ]; then
         CHECKSUMDIR="${OUTDIR}"
     fi
-
-    if [[ "$BUILD" != "no" ]]; then
-        build || clean 1
-    fi
-
+    
+    build || clean 1
     clean 0
 }
 
