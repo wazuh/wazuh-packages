@@ -330,7 +330,7 @@ main() {
                 compute_checksums="yes"
                 shift 2
             else
-                compute_checksums="yes"
+                compute_checksums="no"
                 shift 1
             fi
         ;;
