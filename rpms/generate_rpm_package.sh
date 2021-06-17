@@ -153,7 +153,7 @@ help() {
     echo "Usage: $0 [OPTIONS]"
     echo
     echo "    -t, --target <target>      [Required] Target package to build: manager or agent."
-    echo "    -b, --branch <branch>      [Optional] Select Git branch or tag. By default: ${BRANCH}"
+    echo "    -b, --branch <branch>      [Optional] Select Git branch or tag. e.g. $BRANCH"
     echo "    -a, --architecture <arch>  [Optional] Target architecture of the package [x86_64/i386/ppc64le/aarch64/armv7hl]."
     echo "    -j, --jobs <number>        [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 2."
     echo "    -r, --revision <rev>       [Optional] Package revision. By default: 1."
