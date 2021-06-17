@@ -64,7 +64,7 @@ opts.each do |opt, arg|
         vagrant [OPTION] ... ssh/provision/delete
 
         Example:
-        vagrant --branch-tag=v3.7.2 --ram=1024 --cpus=4 up solaris10 solaris11
+        vagrant --branch-tag=v3.13.3 --ram=1024 --cpus=4 up solaris10 solaris11
 
         -h, --help:
         Show help
