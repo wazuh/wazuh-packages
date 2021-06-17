@@ -20,9 +20,9 @@ dir_path=$6
 debug=$7
 checksum=$8
 wazuh_packages_branch=$9
-local_source_code=${10}
-future=${11}
-package_files="/specs"
+use_local_specs=${10}
+local_source_code=${11}
+future=${12}
 
 if [ -z "${package_release}" ]; then
     package_release="1"
@@ -40,7 +40,15 @@ sources_dir="${build_dir}/${build_target}/${package_full_name}"
 
 mkdir -p ${build_dir}/${build_target}
 cp -R wazuh* ${build_dir}/${build_target}/wazuh-${build_target}-${wazuh_version}
-cp -R ${package_files}/wazuh-${build_target} ${wazuh_version}
+
+if [ "${use_local_specs}" = "no" ]; then
+    curl -sL https://github.com/wazuh/wazuh-packages/tarball/${wazuh_packages_branch} | tar zx
+    package_files="wazuh*/debs"
+    specs_path=$(find . -type d -name "SPECS" -path "*debs*")
+else
+    package_files="/specs"
+    specs_path="${package_files}/SPECS"
+fi
 
 if [[ "${future}" == "yes" ]]; then
     # MODIFY VARIABLES
@@ -55,12 +63,12 @@ if [[ "${future}" == "yes" ]]; then
     sources_dir="${build_dir}/${build_target}/${package_full_name}"
 
     # PREPARE FUTURE SPECS AND SOURCES
-    mv ${base_version} ${wazuh_version}
-    mv ${build_dir}/${build_target}/${old_package_name} ${sources_dir}
-    find "${sources_dir}" "${wazuh_version}" \( -name "*VERSION*" -o -name "*changelog*"  \) -exec sed -i "s/${base_version}/${wazuh_version}/g" {} \;
+    cp -r "${specs_path}/${base_version}" "${specs_path}/${wazuh_version}"
+    mv ${build_dir}/${build_target}/${old_package_name} ${build_dir}/${build_target}/${package_full_name}
+    find "${build_dir}/${package_name}" "${specs_path}/${wazuh_version}" \( -name "*VERSION*" -o -name "*changelog*" \) -exec sed -i "s/${base_version}/${wazuh_version}/g" {} \;
 fi
 
-cp -pr ${wazuh_version} ${sources_dir}/debian
+cp -pr ${specs_path}/${wazuh_version}/wazuh-${build_target}/debian ${sources_dir}/debian
 cp -p ${package_files}/gen_permissions.sh ${sources_dir}
 
 # Generating directory structure to build the .deb package

@@ -30,6 +30,7 @@ DEB_ARMHF_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/armhf"
 CHECKSUMDIR=""
 CHECKSUM="no"
 PACKAGES_BRANCH="4.2"
+USE_LOCAL_SPECS="no"
 LOCAL_SPECS="${CURRENT_PATH}"
 LOCAL_SOURCE_CODE=""
 USE_LOCAL_SOURCE_CODE="no"
@@ -77,7 +78,7 @@ build_deb() {
         ${CUSTOM_CODE_VOL} \
         ${CONTAINER_NAME} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
         ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} \
-        ${CHECKSUM} ${PACKAGES_BRANCH} \
+        ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} \
         ${USE_LOCAL_SOURCE_CODE} ${FUTURE}|| return 1
 
     echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
@@ -137,6 +138,7 @@ help() {
     echo "    --dont-build-docker        [Optional] Locally built docker image will be used instead of generating a new one."
     echo "    --sources <path>           [Optional] Absolute path containing wazuh source code. This option will use local source code instead of downloading it from GitHub."
     echo "    --packages-branch <branch> [Optional] Select Git branch or tag from wazuh-packages repository. By default: ${PACKAGES_BRANCH}"
+    echo "    --dev                       [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub."
     echo "    --future                   [Optional] Build test future package x.30.0 Used for development purposes."
     echo "    -h, --help                 Show this help."
     echo
@@ -237,6 +239,10 @@ main() {
             else
                 help 1
             fi
+            ;;
+        "--dev")
+            USE_LOCAL_SPECS="yes"
+            shift 1
             ;;
         "--sources")
             if [ -n "$2" ]; then
