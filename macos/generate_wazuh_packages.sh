@@ -18,11 +18,11 @@ ENTITLEMENTS_PATH="${CURRENT_PATH}/entitlements.plist"
 INSTALLATION_PATH="/Library/Ossec"    # Installation path
 VERSION=""                            # Default VERSION (branch/tag)
 REVISION="1"                          # Package revision.
-BRANCH_TAG="master"                   # Branch that will be downloaded to build package.
+BRANCH_TAG="$(cat ../VERSION)"        # Branch that will be downloaded to build package.
 DESTINATION="${CURRENT_PATH}/output/" # Where package will be stored.
 JOBS="2"                              # Compilation jobs.
 DEBUG="no"                            # Enables the full log by using `set -exf`.
-CHECKSUMDIR=""                        # Directory to store the checksum of the package.
+CHECKSUMDIR="${CURRENT_PATH}/output/" # Directory to store the checksum of the package.
 CHECKSUM="no"                         # Enables the checksum generation.
 CERT_APPLICATION_ID=""                # Apple Developer ID certificate to sign Apps and binaries.
 CERT_INSTALLER_ID=""                  # Apple Developer ID certificate to sign pkg.
@@ -143,11 +143,7 @@ function build_package() {
     packages_script_path=""
 
     # build the sources
-    if [[ "${VERSION}" =~ ^2\. ]]; then
-        packages_script_path="package_files/2.x"
-    else
-        packages_script_path="package_files/${VERSION}"
-    fi
+    packages_script_path="package_files/"
 
     cp ${packages_script_path}/*.sh ${CURRENT_PATH}/package_files/
     ${CURRENT_PATH}/package_files/build.sh "${INSTALLATION_PATH}" "${WAZUH_PATH}" ${JOBS}
@@ -177,7 +173,7 @@ function help() {
     echo "Usage: $0 [OPTIONS]"
     echo
     echo "  Build options:"
-    echo "    -b, --branch <branch>         [Required] Select Git branch or tag e.g. $BRANCH"
+    echo "    -b, --branch <branch>         [Optional] Select Git branch or tag. By default: ${BRANCH_TAG}"
     echo "    -s, --store-path <path>       [Optional] Set the destination absolute path of package."
     echo "    -j, --jobs <number>           [Optional] Number of parallel jobs when compiling."
     echo "    -r, --revision <rev>          [Optional] Package revision that append to version e.g. x.x.x-rev"
@@ -204,13 +200,7 @@ function get_pkgproj_specs() {
     VERSION=$(< "${WAZUH_PATH}/src/VERSION"  cut -d "-" -f1 | cut -c 2-)
 
     major="$(echo "$VERSION" | cut -d'.' -f 1)"
-    major_path="specs/${major}.x"
-
-    if [ ! -d "${CURRENT_PATH}/${major_path}" ]; then
-        echo "Warning: directory for Wazuh ${major}.x does not exists. Check the version selected."
-    fi
-
-    pkg_file="${major_path}/wazuh-agent-${VERSION}.pkgproj"
+    pkg_file="wazuh-agent-macos.pkgproj"
 
     if [ ! -f "${pkg_file}" ]; then
         echo "Warning: the file ${pkg_file} does not exists. Check the version selected."
@@ -272,14 +262,13 @@ function check_root() {
 
 function main() {
 
-    BUILD="no"
+
     while [ -n "$1" ]
     do
         case "$1" in
         "-b"|"--branch")
             if [ -n "$2" ]; then
                 BRANCH_TAG="$2"
-                BUILD=yes
                 shift 2
             else
                 help 1
@@ -329,7 +318,7 @@ function main() {
                 CHECKSUM="yes"
                 shift 2
             else
-                CHECKSUM="yes"
+                CHECKSUM="no"
                 shift 1
             fi
             ;;
@@ -400,14 +389,9 @@ function main() {
         CHECKSUMDIR="${DESTINATION}"
     fi
 
-    if [[ "$BUILD" != "no" ]]; then
-        check_root
-        build_package
-        "${CURRENT_PATH}/uninstall.sh"
-    else
-        echo "The branch has not been specified. No package will be generated."
-        help 1
-    fi
+    check_root
+    build_package
+    "${CURRENT_PATH}/uninstall.sh"
 
     return 0
 }
