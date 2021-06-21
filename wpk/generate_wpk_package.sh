@@ -99,16 +99,16 @@ function build_container() {
 function help() {
     echo
     echo "Usage: ${0} [OPTIONS]"
-    echo "It is required to use -k or --aws-wpk-key, --aws-wpk-cert parameters"
+    echo "*It is required to use -k or --aws-wpk-key, --aws-wpk-cert parameters"
     echo
     echo "    -t,   --target-system <target> [Required] Select target wpk to build [linux/windows]"
     echo "    -b,   --branch <branch>        [Required] Select Git branch or tag e.g. $BRANCH"
     echo "    -d,   --destination <path>     [Required] Set the destination path of package."
     echo "    -pn,  --package-name <name>    [Required for windows] Package name to pack on wpk."
     echo "    -o,   --output <name>          [Required] Name to the output package."
-    echo "    -k,   --key-dir <arch>         [Optional] Set the WPK key path to sign package."
-    echo "    --aws-wpk-key                  [Optional] AWS Secrets manager Name/ARN to get WPK private key."
-    echo "    --aws-wpk-cert                 [Optional] AWS secrets manager Name/ARN to get WPK certificate."
+    echo "    -k,   --key-dir <path>         [Required*] Set the WPK key path to sign package."
+    echo "    --aws-wpk-key                  [Required*] AWS Secrets manager Name/ARN to get WPK private key."
+    echo "    --aws-wpk-cert                 [Required*] AWS secrets manager Name/ARN to get WPK certificate."
     echo "    --aws-wpk-key-region           [Optional] AWS Region where secrets are stored."
     echo "    -a,   --architecture <arch>    [Optional] Target architecture of the package [x86_64]."
     echo "    -j,   --jobs <number>          [Optional] Number of parallel jobs when compiling."
@@ -137,7 +137,7 @@ ctrl_c() {
 
 function main() {
     local TARGET=""
-    local BRANCH=""
+    local BRANCH="v3.13.3"
     local DESTINATION="${CURRENT_PATH}/output"
     local ARCHITECTURE="x86_64"
     local JOBS="4"
