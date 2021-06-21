@@ -2,7 +2,7 @@
 set -x
 DIRECTORY="wazuh*"
 REPOSITORY="https://github.com/wazuh/wazuh"
-REFERENCE="v4.2.0-rc6"
+REFERENCE="v4.2.0-rc7"
 JOBS="4"
 OUT_NAME=""
 CHECKSUM="no"
