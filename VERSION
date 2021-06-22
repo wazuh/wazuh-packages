@@ -1,3 +1,3 @@
 wazuh=master
-wazuhapp=v4.3.0-7.10.2
-splunkapp=v4.2.0-8.1.3 
+wazuhapp=master
+splunkapp=master
