@@ -11,13 +11,14 @@
 # Script configuration variables
 current_path="$( cd $(dirname $0) ; pwd -P )"
 install_path="/var/ossec"
-reference=$(cat ../VERSION)
+reference="$(sed -n "s/wazuh=//p" ../VERSION)"
 revision="1"
 target_dir="${current_path}/output/"
 compute_checksums="no"
 build_chroot="no"
 chroot_path="/usr/pkg"
-checksum_dir=""
+checksum_dir="${current_path}/output/"
+spec_file="wazuh-agent-aix.spec"
 
 # Check if running as root
 if [[ $EUID -ne 0 ]]; then
@@ -231,8 +232,9 @@ build_environment() {
     $rpm http://www.oss4aix.org/download/RPMS/gcc/gcc-c++-6.3.0-1.aix7.2.ppc.rpm || true
   fi
 
+  build_perl
+
   if [[ "${aix_major}" = "5" ]]; then
-    build_perl
     build_libssh2
     build_curl
   fi
@@ -265,7 +267,7 @@ build_package() {
   tar cf ${package_name}.tar ${package_name} && gzip ${package_name}.tar
   mv ${package_name}.tar.gz ${rpm_build_dir}/SOURCES/
 
-  cp ${current_path}/SPECS/${wazuh_version}/wazuh-agent-${wazuh_version}-aix.spec ${rpm_build_dir}/SPECS
+  cp ${current_path}/${spec_file} ${rpm_build_dir}/SPECS
 
   if [[ ${aix_major} = "6" ]] && [[ -f /opt/freeware/lib/gcc/powerpc-ibm-aix6.1.1.0/6.3.0/include-fixed/sys/socket.h ]]; then
     ignored_lib=/opt/freeware/lib/gcc/powerpc-ibm-aix6.1.1.0/6.3.0/include-fixed/sys/socket.h
@@ -277,7 +279,7 @@ build_package() {
 
   rpm --define '_tmppath /tmp' --define "_topdir ${rpm_build_dir}" --define "_localstatedir ${install_path}" \
   --define "_init_scripts ${init_scripts}" --define "_sysconfdir ${sysconfdir}" \
-  -bb ${rpm_build_dir}/SPECS/${package_name}-aix.spec
+  -bb ${rpm_build_dir}/SPECS/${spec_file}
 
   if [[ ${aix_major} = "6" ]]; then
     mv ${ignored_lib}.backup ${ignored_lib}
@@ -309,14 +311,8 @@ build_package() {
 
 # Main function, processes user input
 main() {
-  # If the script is called without arguments
-  # show the help
-  if [[ -z $1 ]] ; then
-    show_help 0
-  fi
 
   build_env="no"
-  build_rpm="no"
 
   while [ -n "$1" ]
   do
@@ -325,7 +321,6 @@ main() {
           if [ -n "$2" ]
           then
             reference="$2"
-            build_rpm="yes"
             shift 2
           else
               show_help 1
@@ -389,17 +384,11 @@ main() {
     build_environment || exit 1
   fi
 
-  if [ -z "${checksum_dir}" ]; then
-    checksum_dir="${target_dir}"
-  fi
-
   if [[ "${build_chroot}" = "yes" ]]; then
     build_chroot || exit 1
   fi
 
-  if [[ "${build_rpm}" = "yes" ]]; then
-    build_package || exit 1
-  fi
+  build_package || exit 1
 
   if [[ "${build_chroot}" = "yes" ]]; then
     rm -rf ${chroot_path} || exit 1
