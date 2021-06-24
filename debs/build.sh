@@ -20,8 +20,9 @@ dir_path=$6
 debug=$7
 checksum=$8
 wazuh_packages_branch=$9
-local_source_code=${10}
-future=${11}
+use_local_specs=${10}
+local_source_code=${11}
+future=${12}
 package_files="/specs"
 
 if [ -z "${package_release}" ]; then
@@ -40,6 +41,12 @@ sources_dir="${build_dir}/${build_target}/${package_full_name}"
 
 mkdir -p ${build_dir}/${build_target}
 cp -R wazuh* ${build_dir}/${build_target}/wazuh-${build_target}-${wazuh_version}
+
+if [ "${use_local_specs}" = "no" ]; then
+    curl -sL https://github.com/wazuh/wazuh-packages/tarball/${wazuh_packages_branch} | tar zx
+    package_files="/wazuh-wazuh-packages*/debs"
+fi
+
 cp -R ${package_files}/wazuh-${build_target} ${wazuh_version}
 
 if [[ "${future}" == "yes" ]]; then
