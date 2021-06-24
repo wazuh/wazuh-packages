@@ -9,6 +9,8 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
+
+BRANCH="v4.0.4"
 CURRENT_PATH="$( cd $(dirname ${0}) ; pwd -P )"
 LINUX_BUILDER_X86_64="linux_wpk_builder_x86_64"
 LINUX_BUILDER_X86_64_DOCKERFILE="${CURRENT_PATH}/linux/x86_64"
@@ -137,7 +139,6 @@ ctrl_c() {
 
 function main() {
     local TARGET=""
-    local BRANCH=""
     local DESTINATION="${CURRENT_PATH}/output"
     local ARCHITECTURE="x86_64"
     local JOBS="4"
