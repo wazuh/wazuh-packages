@@ -11,10 +11,10 @@
 
 CURRENT_PATH="$( cd $(dirname ${0}) ; pwd -P )"
 LINUX_BUILDER_X86_64="linux_wpk_builder_x86_64"
-LINUX_BUILDER_X86_64_DOCKERFILE="${CURRENT_PATH}/linux/x86_64"
 LINUX_BUILDER_AARCH64="linux_wpk_builder_aarch64"
-LINUX_BUILDER_AARCH64_DOCKERFILE="${CURRENT_PATH}/linux/aarch64"
 LINUX_BUILDER_ARMV7HL="linux_wpk_builder_armv7hl"
+LINUX_BUILDER_X86_64_DOCKERFILE="${CURRENT_PATH}/linux/x86_64"
+LINUX_BUILDER_AARCH64_DOCKERFILE="${CURRENT_PATH}/linux/aarch64"
 LINUX_BUILDER_ARMV7HL_DOCKERFILE="${CURRENT_PATH}/linux/armv7hl"
 WIN_BUILDER="windows_wpk_builder"
 WIN_BUILDER_DOCKERFILE="${CURRENT_PATH}/windows"
@@ -22,14 +22,14 @@ WIN_BUILDER_DOCKERFILE="${CURRENT_PATH}/windows"
 LINUX_BUILDER="${LINUX_BUILDER_X86_64}"
 LINUX_BUILDER_DOCKERFILE="${LINUX_BUILDER_X86_64_DOCKERFILE}"
 
-BRANCH=$(cat ../VERSION)
+BRANCH="$(sed -n "s/wazuh=//p" ../VERSION)"
 TARGET=""
 ARCHITECTURE="x86_64"
 JOBS="4"
 CONTAINER_NAME=""
 PKG_NAME=""
 NO_COMPILE=false
-CHECKSUMDIR=""
+CHECKSUMDIR="${CURRENT_PATH}/output/"
 WPK_KEY=""
 WPK_CERT=""
 AWS_REGION="us-east-1"
@@ -97,7 +97,7 @@ function help() {
     echo "    -a,   --architecture <arch>    [Optional] Target architecture of the package [x86_64/aarch64/armv7hl]. By default: ${ARCHITECTURE}"
     echo "    -j,   --jobs <number>          [Optional] Number of parallel jobs when compiling."
     echo "    -p,   --path <path>            [Optional] Installation path for the package. By default: ${INSTALLATION_PATH}"
-    echo "    -c,   --checksum <path>        [Optional] Generate checksum on the desired path."
+    echo "    -c,   --checksum <path>        [Optional] Generate checksum on the desired path. By default no checksum will be generated"
     echo "    -h,   --help                   Show this help."
     echo
     exit ${1}
@@ -159,13 +159,14 @@ function main() {
             ;;
         "-k"|"--key-dir")
             if [ -n "${2}" ]; then
-                if [[ "${2: -1}" != "/" ]]; then
-                    KEYDIR="${2}/"
-                    HAVE_KEYDIR=true
-                else
-                    KEYDIR="${2}"
-                    HAVE_KEYDIR=true
+                
+                KEYDIR="${2}"
+                HAVE_KEYDIR=true
+
+                if [ "${KEYDIR:0:1}" != "/" ]; then
+                   KEYDIR="$(pwd)/${KEYDIR}"
                 fi
+
                 shift 2
             fi
             ;;
@@ -265,7 +266,7 @@ function main() {
                 CHECKSUM="yes"
                 shift 2
             else
-                CHECKSUM="no"
+                CHECKSUM="yes"
                 shift 1
             fi
             ;;
@@ -282,10 +283,6 @@ function main() {
         help 1
     fi
 
-    if [ -z "${CHECKSUMDIR}" ]; then
-        CHECKSUMDIR="${DESTINATION}"
-    fi
-
     if [[ "${HAVE_TARGET}" == true ]]; then
 
         if [[ "${HAVE_OUT_NAME}" == false ]]; then
@@ -294,6 +291,11 @@ function main() {
 
         if [[ "${TARGET}" == "windows" ]] && [[ "${HAVE_PKG_NAME}" == false ]]; then
             echo "To build a windows packages is needed a msi file."
+            help 1
+        fi
+
+        if [[ "${TARGET}" == "linux" ]] && [[ "${HAVE_PKG_NAME}" ]]; then
+            echo "The windows msi file is only needed by windows target"
             help 1
         fi
 
