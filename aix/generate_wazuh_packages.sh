@@ -11,7 +11,7 @@
 # Script configuration variables
 current_path="$( cd $(dirname $0) ; pwd -P )"
 install_path="/var/ossec"
-reference="v4.2.0-rc6"
+reference="v4.2.0-rc7"
 revision="1"
 target_dir="${current_path}/output/"
 compute_checksums="no"
@@ -34,7 +34,7 @@ show_help() {
   echo
   echo "Usage: $0 [OPTIONS]"
   echo
-  echo "    -b,  --branch <branch>        Select Git branch or tag. By default: ${reference}"
+  echo "    -b,  --branch <branch>        Select Git branch or tag e.g. ${reference}"
   echo "    -r,  --revision <revision>    Define package revision text/number. By default: ${revision}"
   echo "    -e,  --environment            Install all the packages necessaries to build the RPM package"
   echo "    -s,  --store  <path>          Directory to store the resulting RPM package. By default: ${target_dir}"
