@@ -13,18 +13,19 @@ set -ex
 build_target=$1
 wazuh_branch=$2
 architecture_target=$3
-package_release=$4
-jobs=$5
+jobs=$4
+package_release=$5
 dir_path=$6
 debug=$7
 checksum=$8
 wazuh_packages_branch=$9
-src=${10}
-legacy=${11}
-local_source_code=${12}
-future=${13}
+use_local_specs=${10}
+src=${11}
+legacy=${12}
+local_source_code=${13}
+future=${14}
 rpmbuild="rpmbuild"
-package_files="/specs"
+specs_path="/specs"
 
 disable_debug_flag='%debug_package %{nil}'
 
@@ -55,8 +56,15 @@ mkdir -p ${rpm_build_dir}/{BUILD,BUILDROOT,RPMS,SOURCES,SRPMS}
 # Prepare the sources directory to build the source tar.gz
 package_full_name=wazuh-${build_target}-${wazuh_version}
 cp -R wazuh-* ${build_dir}/${package_full_name}
+
+# Including spec file
+if [ "${use_local_specs}" = "no" ]; then
+    curl -sL https://github.com/wazuh/wazuh-packages/tarball/${wazuh_packages_branch} | tar zx
+    specs_path="/wazuh-wazuh-packages*/rpms/"
+fi
+
 mkdir ${wazuh_version}
-cp -R ${package_files}/wazuh-${build_target}-rpms.spec ${wazuh_version}
+cp -R ${specs_path}/wazuh-${build_target}-rpms.spec ${wazuh_version}
 
 if [[ "${future}" == "yes" ]]; then    
     # MODIFY VARIABLES

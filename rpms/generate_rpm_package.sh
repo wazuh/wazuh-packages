@@ -11,7 +11,7 @@
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ARCHITECTURE="x86_64"
 OUTDIR="${CURRENT_PATH}/output/"
-BRANCH=$(cat ../VERSION)
+BRANCH="$(sed -n "s/wazuh=//p" ../VERSION)"
 REVISION="1"
 TARGET=""
 JOBS="2"
@@ -33,10 +33,11 @@ LEGACY_RPM_I386_BUILDER="rpm_legacy_builder_i386"
 LEGACY_RPM_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/5"
 LEGACY_TAR_FILE="${LEGACY_RPM_BUILDER_DOCKERFILE}/i386/centos-5-i386.tar.gz"
 TAR_URL="https://packages-dev.wazuh.com/utils/centos-5-i386-build/centos-5-i386.tar.gz"
-CHECKSUMDIR=""
+PACKAGES_BRANCH="master-790-branch_model_adaptation"
+CHECKSUMDIR="${CURRENT_PATH}/output/"
 CHECKSUM="no"
-PACKAGES_BRANCH="master"
 LOCAL_SPECS="${CURRENT_PATH}"
+USE_LOCAL_SPECS="no"
 LOCAL_SOURCE_CODE=""
 USE_LOCAL_SOURCE_CODE="no"
 FUTURE="no"
@@ -94,8 +95,8 @@ build_rpm() {
         -v ${LOCAL_SPECS}:/specs:Z \
         ${CUSTOM_CODE_VOL} \
         ${CONTAINER_NAME} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
-        ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} \
-        ${CHECKSUM} ${PACKAGES_BRANCH} ${SRC} \
+        ${JOBS} ${REVISION} ${INSTALLATION_PATH} ${DEBUG} \
+        ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} ${SRC} \
         ${LEGACY} ${USE_LOCAL_SOURCE_CODE} ${FUTURE}|| return 1
 
     echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
@@ -152,22 +153,23 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -t, --target <target>      [Required] Target package to build: manager or agent."
-    echo "    -b, --branch <branch>      [Optional] Select Git branch or tag. e.g. $BRANCH"
-    echo "    -a, --architecture <arch>  [Optional] Target architecture of the package [x86_64/i386/ppc64le/aarch64/armv7hl]."
-    echo "    -j, --jobs <number>        [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 2."
-    echo "    -r, --revision <rev>       [Optional] Package revision. By default: 1."
-    echo "    -l, --legacy               [Optional] Build package for CentOS 5. Only supported target: agent."
-    echo "    -s, --store <path>         [Optional] Set the destination path of package. By default, an output folder will be created."
-    echo "    -p, --path <path>          [Optional] Installation path for the package. By default: /var/ossec."
-    echo "    -d, --debug                [Optional] Build the binaries with debug symbols. By default: no."
-    echo "    -c, --checksum <path>      [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
-    echo "    --dont-build-docker        [Optional] Locally built docker image will be used instead of generating a new one."
-    echo "    --sources <path>           [Optional] Absolute path containing wazuh source code. This option will use local source code instead of downloading it from GitHub."
-    echo "    --packages-branch <branch> [Optional] Select Git branch or tag from wazuh-packages repository. By default: ${PACKAGES_BRANCH}"
-    echo "    --src                      [Optional] Generate the source package in the destination directory."
-    echo "    --future                   [Optional] Build test future package x.30.0 Used for development purposes."
-    echo "    -h, --help                 Show this help."
+    echo "    -t, --target <target>        [Required] Target package to build: manager or agent."
+    echo "    -b, --branch <branch>        [Optional] Select Git branch or tag. By default: ${BRANCH}"
+    echo "    -a, --architecture <arch>    [Optional] Target architecture of the package [x86_64/i386/ppc64le/aarch64/armv7hl]."
+    echo "    -j, --jobs <number>          [Optional] Change number of parallel jobs when compiling the manager or agent. By default: ${JOBS}."
+    echo "    -r, --revision <rev>         [Optional] Package revision. By default: ${REVISION}."
+    echo "    -l, --legacy                 [Optional] Build package for CentOS 5. Only supported target: agent."
+    echo "    -s, --store <path>           [Optional] Set the destination path of package. By default, an output folder will be created."
+    echo "    -p, --path <path>            [Optional] Installation path for the package. By default: ${INSTALLATION_PATH}."
+    echo "    -d, --debug                  [Optional] Build the binaries with debug symbols. By default: ${DEBUG}."
+    echo "    -c, --checksum <path>        [Optional] Generate checksum on the desired path. By default, it will be generated in an output folder next to the package."
+    echo "    --dont-build-docker          [Optional] Locally built docker image will be used instead of generating a new one."
+    echo "    --sources <path>             [Optional] Absolute path containing wazuh source code. This option will use local source code instead of downloading it from GitHub."
+    echo "    --packages-branch <branch>   [Optional] Select Git branch or tag from wazuh-packages repository. By default: ${PACKAGES_BRANCH}"
+    echo "    --dev                        [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub."
+    echo "    --src                        [Optional] Generate the source package in the destination directory."
+    echo "    --future                     [Optional] Build test future package x.30.0 Used for development purposes."
+    echo "    -h, --help                   Show this help."
     echo
     exit $1
 }
@@ -262,10 +264,6 @@ main() {
                 help 1
             fi
             ;;
-        "--src")
-            SRC="yes"
-            shift 1
-            ;;
         "--packages-branch")
             if [ -n "$2" ]; then
                 PACKAGES_BRANCH="$2"
@@ -273,6 +271,9 @@ main() {
             else
                 help 1
             fi
+            ;;"--src")
+            SRC="yes"
+            shift 1
             ;;
         "--sources")
             if [ -n "$2" ]; then
@@ -281,6 +282,10 @@ main() {
             else
                 help 1
             fi
+            ;;
+        "--dev")
+            USE_LOCAL_SPECS="yes"
+            shift 1
             ;;
         "--future")
             FUTURE="yes"
@@ -296,7 +301,7 @@ main() {
     fi
 
     if [ "${HAVE_TARGET}" == "no" ]; then
-        echo "Check required values"
+        echo "You need to specify the desired target"
         help 1
     fi
 
@@ -309,11 +314,6 @@ main() {
         echo "Target ${TARGET} not supported for Centos5"
         exit $1
     fi
-
-    if [ -z "${CHECKSUMDIR}" ]; then
-        CHECKSUMDIR="${OUTDIR}"
-    fi
-
    
     build || clean 1
     clean 0
