@@ -15,13 +15,14 @@
 
 CURRENT_PATH=$( cd $(dirname $0) ; pwd -P )
 
-BRANCH_TAG=""
+BRANCH_TAG="$(sed -n "s/splunkapp=//p" ../VERSION)"
 SPLUNK_VERSION=""
 CONTAINER_NAME="wazuh-splunk-app-builder"
 OUTDIR="${CURRENT_PATH}/output"
-CHECKSUMDIR=""
+CHECKSUMDIR="${CURRENT_PATH}/output"
 REVISION=""
 REPOSITORY="wazuh-splunk"
+CHECKSUM="no"
 
 trap ctrl_c INT
 
@@ -30,10 +31,10 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -b, --branch <branch>     [Required] Select Git branch or tag e.g. 3.8 or v3.8.1-7.2.3"
-    echo "    -s, --store <directory>   [Optional] Destination directory by default ${CURRENT_PATH}/output"
+    echo "    -b, --branch <branch>     [Optional] Select Git branch or tag. By default: ${BRANCH_TAG}"
+    echo "    -s, --store <directory>   [Optional] Destination directory, by default a output folder will be created"
     echo "    -r, --revision            [Optional] Package revision that append to version e.g. x.x.x-y.y.y_rev"
-    echo "    -c, --checksum <path>     [Optional] Generate checksum"
+    echo "    -c, --checksum <path>     [Optional] Generate checksum. By default: ${CHECKSUM}"
     echo "    -h, --help                Show this help."
     echo
     exit $1
@@ -65,7 +66,7 @@ ctrl_c() {
 }
 
 main() {
-    CHECKSUM="no"
+    
     # Reading command line arguments
     while [ -n "$1" ]
     do
@@ -76,7 +77,6 @@ main() {
         "-b"|"--branch")
             if [ -n "$2" ]; then
                 BRANCH_TAG="$2"
-                HAVE_BRANCH=true
                 shift 2
             else
                 help 1
@@ -113,16 +113,9 @@ main() {
         esac
     done
 
-    if [ -z "${CHECKSUMDIR}" ]; then
-        CHECKSUMDIR="${OUTDIR}"
-    fi
+    build_package || clean 1
+    clean 0
 
-    if [[ "$HAVE_BRANCH" == true ]] ; then
-        build_package || clean 1
-        clean 0
-    else
-        help 1
-    fi
 }
 
 main "$@"

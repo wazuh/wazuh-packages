@@ -15,22 +15,22 @@ WAZUH_SOURCE_REPOSITORY="https://github.com/wazuh/wazuh"
 AGENT_PKG_FILE="${CURRENT_PATH}/package_files/wazuh-agent.pkgproj"
 export CONFIG="${WAZUH_PATH}/etc/preloaded-vars.conf"
 ENTITLEMENTS_PATH="${CURRENT_PATH}/entitlements.plist"
-INSTALLATION_PATH="/Library/Ossec"    # Installation path
-VERSION=""                            # Default VERSION (branch/tag)
-REVISION="1"                          # Package revision.
-BRANCH_TAG="$(cat ../VERSION)"        # Branch that will be downloaded to build package.
-DESTINATION="${CURRENT_PATH}/output/" # Where package will be stored.
-JOBS="2"                              # Compilation jobs.
-DEBUG="no"                            # Enables the full log by using `set -exf`.
-CHECKSUMDIR="${CURRENT_PATH}/output/" # Directory to store the checksum of the package.
-CHECKSUM="no"                         # Enables the checksum generation.
-CERT_APPLICATION_ID=""                # Apple Developer ID certificate to sign Apps and binaries.
-CERT_INSTALLER_ID=""                  # Apple Developer ID certificate to sign pkg.
-KEYCHAIN=""                           # Keychain where the Apple Developer ID certificate is.
-KC_PASS=""                            # Password of the keychain.
-NOTARIZE="no"                         # Notarize the package for macOS Catalina.
-DEVELOPER_ID=""                       # Apple Developer ID.
-ALTOOL_PASS=""                        # Temporary Application password for altool.
+INSTALLATION_PATH="/Library/Ossec"              # Installation path
+VERSION=""                                      # Default VERSION (branch/tag)
+REVISION="1"                                    # Package revision.
+BRANCH_TAG="$(sed -n "s/wazuh=//p" ../VERSION)" # Branch that will be downloaded to build package.
+DESTINATION="${CURRENT_PATH}/output/"           # Where package will be stored.
+JOBS="2"                                        # Compilation jobs.
+DEBUG="no"                                      # Enables the full log by using `set -exf`.
+CHECKSUMDIR="${CURRENT_PATH}/output/"           # Directory to store the checksum of the package.
+CHECKSUM="no"                                   # Enables the checksum generation.
+CERT_APPLICATION_ID=""                          # Apple Developer ID certificate to sign Apps and binaries.
+CERT_INSTALLER_ID=""                            # Apple Developer ID certificate to sign pkg.
+KEYCHAIN=""                                     # Keychain where the Apple Developer ID certificate is.
+KC_PASS=""                                      # Password of the keychain.
+NOTARIZE="no"                                   # Notarize the package for macOS Catalina.
+DEVELOPER_ID=""                                 # Apple Developer ID.
+ALTOOL_PASS=""                                  # Temporary Application password for altool.
 pkg_name=""
 
 trap ctrl_c INT
@@ -46,7 +46,6 @@ function clean_and_exit() {
 function ctrl_c() {
     clean_and_exit 1
 }
-
 
 function notarize_pkg() {
 
@@ -140,8 +139,6 @@ function build_package() {
         ${CURRENT_PATH}/uninstall.sh
     fi
 
-    packages_script_path=""
-
     # build the sources
     packages_script_path="package_files/"
 
@@ -174,10 +171,10 @@ function help() {
     echo
     echo "  Build options:"
     echo "    -b, --branch <branch>         [Optional] Select Git branch or tag. By default: ${BRANCH_TAG}"
-    echo "    -s, --store-path <path>       [Optional] Set the destination absolute path of package."
+    echo "    -s, --store-path <path>       [Optional] Set the destination absolute path of package. By default, an output folder will be created."
     echo "    -j, --jobs <number>           [Optional] Number of parallel jobs when compiling."
     echo "    -r, --revision <rev>          [Optional] Package revision that append to version e.g. x.x.x-rev"
-    echo "    -c, --checksum <path>         [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
+    echo "    -c, --checksum <path>         [Optional] Generate checksum on the desired path. By default, an output folder will be created."
     echo "    -h, --help                    [  Util  ] Show this help."
     echo "    -i, --install-deps            [  Util  ] Install build dependencies (Packages)."
     echo "    -x, --install-xcode           [  Util  ] Install X-Code and brew. Can't be executed as root."
@@ -262,7 +259,6 @@ function check_root() {
 
 function main() {
 
-
     while [ -n "$1" ]
     do
         case "$1" in
@@ -318,7 +314,7 @@ function main() {
                 CHECKSUM="yes"
                 shift 2
             else
-                CHECKSUM="no"
+                CHECKSUM="yes"
                 shift 1
             fi
             ;;
@@ -384,11 +380,6 @@ function main() {
     fi
 
     testdep
-
-    if [ -z "${CHECKSUMDIR}" ]; then
-        CHECKSUMDIR="${DESTINATION}"
-    fi
-
     check_root
     build_package
     "${CURRENT_PATH}/uninstall.sh"

@@ -12,12 +12,13 @@
 CURRENT_PATH=$( cd $(dirname $0) ; pwd -P )
 
 REVISION="1"
-BRANCH_TAG="v4.3.0-7.10.2"
-CHECKSUMDIR=""
+BRANCH_TAG="$(sed -n "s/wazuhapp=//p" ../VERSION)"
+CHECKSUMDIR="${CURRENT_PATH}/output/"
 CONTAINER_NAME="wazuh-kibana-app-builder"
 SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
 OUTDIR="${CURRENT_PATH}/output/"
 WORK_DIR="/wazuh_app"
+CHECKSUM="no"
 
 trap ctrl_c INT
 
@@ -26,10 +27,10 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -b, --branch <branch>     [Required] Select Git branch or tag e.g. ${BRANCH_TAG}"
-    echo "    -s, --store <path>        [Optional] Set the destination path of package, by default its created in a output folder."
+    echo "    -b, --branch <branch>     [Optional] Select Git branch or tag. By default: ${BRANCH_TAG}"
+    echo "    -s, --store <path>        [Optional] Set the destination path of package, by default its created in a output folder"
     echo "    -r, --revision <rev>      [Optional] Package revision that append to version e.g. x.x.x-rev"
-    echo "    -c, --checksum <path>     [Optional] Generate checksum"
+    echo "    -c, --checksum <path>     [Optional] Generate checksum. By default: ${CHECKSUM}"
     echo "    -h, --help                Show this help."
     echo
     exit $1
@@ -57,13 +58,12 @@ ctrl_c() {
 }
 
 main(){
-    CHECKSUM="no"
+    
     while [ -n "$1" ]
     do
         case "$1" in
         "-b"|"--branch")
             if [ -n "$2" ]; then
-                HAVE_BRANCH=true
                 BRANCH_TAG="$2"
                 shift 2
             else
@@ -92,7 +92,7 @@ main(){
                 CHECKSUM="yes"
                 shift 2
             else
-                CHECKSUM="no"
+                CHECKSUM="yes"
                 shift 1
             fi
             ;;
@@ -104,16 +104,9 @@ main(){
         esac
     done
 
-    if [ -z "${CHECKSUMDIR}" ]; then
-        CHECKSUMDIR="${OUTDIR}"
-    fi
-
-    if [[ ${HAVE_BRANCH} == true ]]; then
-        build_package || clean 1
-        clean 0
-    else
-        help 1
-    fi
+    build_package || clean 1
+    clean 0
+ 
 }
 
 main "$@"

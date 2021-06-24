@@ -1,10 +1,10 @@
 #! /bin/bash
 
-BRANCH="master"
+BRANCH="$(sed -n "s/wazuh=//p" ../VERSION)"
 JOBS="4"
 REVISION="1"
 DEBUG="no"
-OUTDIR="$(pwd)"
+OUTDIR="$(pwd)/output"
 REVISION="1"
 
 DOCKERFILE_PATH="./"
@@ -29,11 +29,11 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -b, --branch <branch>     [Required] Select Git branch [${BRANCH}]. By default: master."
-    echo "    -j, --jobs <number>       [Optional] Change number of parallel jobs when compiling the Windows agent. By default: 4."
-    echo "    -r, --revision <rev>      [Optional] Package revision. By default: 1."
-    echo "    -s, --store <path>        [Optional] Set the directory where the package will be stored. By default the current path."
-    echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
+    echo "    -b, --branch <branch>     [Optional] Select Git branch or tag. By default: ${BRANCH}"
+    echo "    -j, --jobs <number>       [Optional] Change number of parallel jobs when compiling the Windows agent. By default: ${JOBS}."
+    echo "    -r, --revision <rev>      [Optional] Package revision. By default: ${REVISION}."
+    echo "    -s, --store <path>        [Optional] Set the directory where the package will be stored. By default a output folder will be created."
+    echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: ${DEBUG}."
     echo "    -h, --help                Show this help."
     echo
     exit $1
@@ -41,14 +41,13 @@ help() {
 
 
 main() {
-    BUILD="no"
+
     while [ -n "$1" ]
     do
         case "$1" in
         "-b"|"--branch")
             if [ -n "$2" ]; then
                 BRANCH="$2"
-                BUILD="yes"
                 shift 2
             else
                 help 1
@@ -90,10 +89,8 @@ main() {
         esac
     done
 
-    if [[ "$BUILD" != "no" ]]; then
-        generate_compiled_win_agent || exit 1
-    fi
 
+    generate_compiled_win_agent || exit 1
     exit 0
 }
 
