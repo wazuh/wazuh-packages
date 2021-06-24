@@ -4,10 +4,8 @@
 # This program is a free software; you can redistribute it and/or modify it under the terms of GPLv2
 # Wazuh Solaris 10 i386 Package builder.
 
-set -x
-
 # CONFIGURATION VARIABLES
-wazuh_branch=$(cat ../../VERSION)
+wazuh_branch="$(sed -n "s/wazuh=//p" ../../VERSION)"
 PATH=$PATH:/opt/csw/bin:/usr/sfw/bin
 VERSION=""
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
@@ -22,12 +20,9 @@ CONFIG="$SOURCE/etc/preloaded-vars.conf"
 target_dir="${CURRENT_PATH}/output"
 control_binary=""
 short_version=""
+checksum_dir="${CURRENT_PATH}/output"
 
 trap ctrl_c INT
-
-if [ -z "${wazuh_branch}" ]; then
-    wazuh_branch="master"
-fi
 
 if [ -z "$ARCH" ]; then
     ARCH="i386"
@@ -242,6 +237,8 @@ clean(){
     ## Remove User and Groups
     userdel wazuh
     groupdel wazuh
+
+    exit $1
 }
 
 ctrl_c() {
@@ -268,10 +265,10 @@ show_help() {
   echo
   echo "Usage: $0 [OPTIONS]"
   echo
-  echo "    -b, --branch <branch>               Select Git branch or tag e.g. $wazuh_branch"
+  echo "    -b, --branch <branch>               Select Git branch or tag. By default: ${wazuh_branch}"
   echo "    -e, --environment                   Install all the packages necessaries to build the pkg package"
   echo "    -s, --store  <pkg_directory>        Directory to store the resulting pkg package. By default, an output folder will be created."
-  echo "    -p, --install-path <pkg_home>       Installation path for the package. By default: /var"
+  echo "    -p, --install-path <pkg_home>       Installation path for the package. By default: ${install_path}"
   echo "    -c, --checksum                      Compute the SHA512 checksum of the pkg package."
   echo "    -h, --help                          Shows this help"
   echo
@@ -287,14 +284,6 @@ build_package(){
 
 # Main function, processes user input
 main() {
-  # If the script is called without arguments
-  # show the help
-  if [[ -z $1 ]] ; then
-    show_help 0
-  fi
-
-  build_env="no"
-  build_pkg="no"
 
   while [ -n "$1" ]
   do
@@ -303,7 +292,6 @@ main() {
             if [ -n "$2" ]
             then
                 wazuh_branch="$2"
-                build_pkg="yes"
                 shift 2
             else
                 show_help 1
@@ -313,7 +301,7 @@ main() {
             show_help
             exit 0
         ;;
-        "-e"|"-u"|"--environment" )
+        "-e"|"--environment" )
             build_environment
             exit 0
         ;;
@@ -341,7 +329,7 @@ main() {
                 compute_checksums="yes"
                 shift 2
             else
-                compute_checksums="no"
+                compute_checksums="yes"
                 shift 1
             fi
         ;;
@@ -350,21 +338,8 @@ main() {
     esac
   done
 
-  if [[ "${build_env}" = "yes" ]]; then
-    build_environment || exit 1
-  fi
-
-  if [ -z "${checksum_dir}" ]; then
-    checksum_dir="${target_dir}"
-  fi
-
-  if [[ "${build_pkg}" = "yes" ]]; then
-    build_package || clean 1
-  fi
-
+  build_package || clean 1
   clean 0
-
-  return 0
 }
 
 main "$@"

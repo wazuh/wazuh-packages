@@ -5,7 +5,7 @@
 # Wazuh Solaris 11 Package builder.
 
 REPOSITORY="https://github.com/wazuh/wazuh"
-wazuh_branch=$(cat ../../VERSION)
+wazuh_branch="$(sed -n "s/wazuh=//p" ../../VERSION)"
 install_path="/var/ossec"
 THREADS="4"
 TARGET="agent"
@@ -13,16 +13,16 @@ PATH=$PATH:/opt/csw/bin/
 current_path="$( cd $(dirname $0) ; pwd -P )"
 arch=`uname -p`
 SOURCE=${current_path}/repository
-CONFIG="$SOURCE/etc/preloaded-vars.conf"
+CONFIG="${SOURCE}/etc/preloaded-vars.conf"
 VERSION=""
 number_version=""
 major_version=""
 minor_version=""
 target_dir="${current_path}/output"
-checksum_dir=""
+checksum_dir="${current_path}/output"
 compute_checksums="no"
 control_binary=""
-SPECS_FILE="template-agent_solaris11.json"
+SPECS_FILE="template_agent_solaris11.json"
 
 trap ctrl_c INT
 
@@ -225,7 +225,6 @@ create_repo() {
     zfs create rpool/wazuh
     zfs set mountpoint=/wazuh rpool/wazuh
     pkgrepo create /wazuh
-    ls /wazuh
     pkgrepo -s /wazuh set publisher/prefix=wazuh
     svccfg -s application/pkg/server setprop \ pkg/inst_root=/wazuh
     svccfg -s application/pkg/server setprop pkg/port=9001
@@ -257,6 +256,7 @@ clean() {
     rm -f wazuh-agent.mog
     rm -f wazuh-agent.mog-aux
     rm -f pack
+    exit $1
 }
 
 ctrl_c() {
@@ -268,10 +268,10 @@ show_help() {
   echo
   echo "Usage: $0 [OPTIONS]"
   echo
-  echo "    -b, --branch <branch>               Select Git branch or tag e.g. $wazuh_branch."
+  echo "    -b, --branch <branch>               Select Git branch or tag. By default: ${wazuh_branch}"
   echo "    -e, --environment                   Install all the packages necessaries to build the pkg package."
   echo "    -s, --store  <pkg_directory>        Directory to store the resulting pkg package. By default, an output folder will be created."
-  echo "    -p, --install-path <pkg_home>       Installation path for the package. By default: /var."
+  echo "    -p, --install-path <pkg_home>       Installation path for the package. By default: ${install_path}"
   echo "    -c, --checksum                      Compute the SHA512 checksum of the pkg package."
   echo "    -h, --help                          Shows this help."
   echo
@@ -283,20 +283,11 @@ build_package() {
     create_repo
     compile
     create_package
-    clean
-    exit 0
+    clean 0
 }
 
 # Main function, processes user input
 main() {
-  # If the script is called without arguments
-  # show the help
-  if [[ -z $1 ]] ; then
-    show_help 0
-  fi
-
-  build_env="no"
-  build_pkg="no"
 
   while [ -n "$1" ]
   do
@@ -305,7 +296,6 @@ main() {
             if [ -n "$2" ]
             then
                 wazuh_branch="$2"
-                build_pkg="yes"
                 shift 2
             else
                 show_help 1
@@ -343,7 +333,7 @@ main() {
                 compute_checksums="yes"
                 shift 2
             else
-                compute_checksums="no"
+                compute_checksums="yes"
                 shift 1
             fi
         ;;
@@ -352,19 +342,9 @@ main() {
     esac
   done
 
-  if [[ "${build_env}" = "yes" ]]; then
-    build_environment || exit 1
-  fi
 
-  if [ -z "${checksum_dir}" ]; then
-    checksum_dir="${target_dir}"
-  fi
-
-  if [[ "${build_pkg}" = "yes" ]]; then
-    build_package || exit 1
-  fi
-
-  return 0
+  build_package || clean 1
+  clean 0
 }
 
 main "$@"

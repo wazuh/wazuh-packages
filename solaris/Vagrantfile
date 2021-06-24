@@ -66,7 +66,7 @@ opts.each do |opt, arg|
         vagrant [OPTION] ... ssh/provision/delete
 
         Example:
-        vagrant --branch-tag=v4.3.0 --ram=1024 --cpus=4 up solaris10 solaris11
+        vagrant --branch-tag=#{branch_tag} --ram=#{ram} --cpus=#{cpus} up solaris10 solaris11
 
         -h, --help:
         Show help
@@ -87,10 +87,7 @@ opts.each do |opt, arg|
 
         EOF
     when '--branch-tag'
-        if arg == ''
-            puts "Missing branch-tag argument (try --help)"
-            exit 0
-        else
+        if arg != ''
             branch_tag=arg
         end
     when '--ram'
