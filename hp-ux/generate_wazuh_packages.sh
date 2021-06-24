@@ -14,6 +14,7 @@ PATH=$PATH:/usr/local/bin
 target_dir="${current_path}/output"
 checksum_dir=""
 wazuh_version=""
+wazuh_branch="v4.1.5"
 wazuh_revision="1"
 depot_path=""
 control_binary=""
@@ -173,12 +174,12 @@ show_help() {
   echo
   echo "Usage: $0 [OPTIONS]"
   echo
-  echo "    -e Install all the packages necessaries to build the TAR package"
-  echo "    -b <branch> Select Git branch. Example v4.1.5"
-  echo "    -s <tar_directory> Directory to store the resulting tar package. By default, an output folder will be created."
-  echo "    -p <tar_home> Installation path for the package. By default: /var"
-  echo "    -c, --checksum Compute the SHA512 checksum of the TAR package."
-  echo "    -d <path_to_depot>, --depot Change the path to depothelper package (by default current path)."
+  echo "    -e                            Install all the packages necessaries to build the TAR package"
+  echo "    -b <branch>                   Select Git branch or tag e.g. ${wazuh_branch}"
+  echo "    -s <tar_directory>            Directory to store the resulting tar package. By default, an output folder will be created."
+  echo "    -p <tar_home>                 Installation path for the package. By default: /var"
+  echo "    -c, --checksum                Compute the SHA512 checksum of the TAR package."
+  echo "    -d <path_to_depot>, --depot   Change the path to depothelper package (by default current path)."
   echo "    -h Shows this help"
   echo
   exit $1

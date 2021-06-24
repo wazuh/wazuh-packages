@@ -29,7 +29,7 @@ DEB_ARM64_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/arm64"
 DEB_ARMHF_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/armhf"
 CHECKSUMDIR=""
 CHECKSUM="no"
-PACKAGES_BRANCH="4.1"
+PACKAGES_BRANCH="4.1-790-branch_model_adaptation"
 USE_LOCAL_SPECS="no"
 LOCAL_SPECS="${CURRENT_PATH}"
 LOCAL_SOURCE_CODE=""
@@ -126,7 +126,7 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -b, --branch <branch>       [Required] Select Git branch or tag. By default: ${BRANCH}"
+    echo "    -b, --branch <branch>       [Required] Select Git branch or tag e.g. ${BRANCH}"
     echo "    -t, --target <target>       [Required] Target package to build: manager or agent."
     echo "    -a, --architecture <arch>   [Optional] Target architecture of the package [amd64/i386/ppc64le/arm64/armhf]."
     echo "    -j, --jobs <number>         [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 2."

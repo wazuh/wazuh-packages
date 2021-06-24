@@ -93,7 +93,7 @@ main(){
                 CHECKSUM="yes"
                 shift 2
             else
-                CHECKSUM="no"
+                CHECKSUM="yes"
                 shift 1
             fi
             ;;
