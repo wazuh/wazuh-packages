@@ -20,9 +20,6 @@ RUN yum install -y gcc make wget git \
 
 RUN yum-builddep python34 -y
 
-RUN curl --silent --location https://rpm.nodesource.com/setup_8.x | bash -
-RUN yum install -y nodejs
-
 # Update rpmbuild, rpm and autoconf
 RUN curl -O http://packages.wazuh.com/utils/autoconf/autoconf-2.69.tar.gz && \
     gunzip autoconf-2.69.tar.gz && tar xvf autoconf-2.69.tar && \

@@ -22,7 +22,7 @@ RUN yum install -y gcc make wget git \
     libffi-devel libtirpc-devel libGL-devel libuuid-devel \
     libX11-devel ncurses-devel pkgconfig readline-devel \
     redhat-rpm-config sqlite-devel gdb tar tcl-devel tix-devel tk-devel \
-    valgrind-devel python-rpm-macros python34 nodejs
+    valgrind-devel python-rpm-macros python34
 
 RUN curl -OL http://packages.wazuh.com/utils/gcc/gcc-5.5.0.tar.gz && \
     tar xzf gcc-5.5.0.tar.gz  && cd gcc-5.5.0/ && \
@@ -46,10 +46,6 @@ RUN curl -O http://packages.wazuh.com/utils/openssl/openssl-1.1.1a.tar.gz && \
     tar -xzf openssl-1.1.1a.tar.gz && cd openssl* && \
     ./config -Wl,--enable-new-dtags,-rpath,'$(LIBRPATH)' && \
     make -j $(nproc) && make install && cd / && rm -rf openssl-*
-
-RUN curl -O http://packages.wazuh.com/utils/nodejs/node-v12.16.1-linux-arm64.tar.xz && \
-    tar -xJf node-v12.16.1-linux-arm64.tar.xz && \
-    cd node-v12.16* && cp -R * /usr/local/ && cd / && rm -rf node-v*
 
 # Update rpmbuild, rpm and autoconf
 RUN curl -O http://packages.wazuh.com/utils/autoconf/autoconf-2.69.tar.gz && \

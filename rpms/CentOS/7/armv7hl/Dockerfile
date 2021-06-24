@@ -28,9 +28,6 @@ RUN curl -O http://packages.wazuh.com/utils/openssl/openssl-1.1.1a.tar.gz && \
     linux32 make -j $(nproc) && linux32 make install && \
     make install && cd / && rm -rf openssl-*
 
-RUN curl -O http://packages.wazuh.com/utils/nodejs/node-v4.9.1-linux-armv7l.tar.xz && \
-    tar -xJf node-v4.9.1-linux-armv7l.tar.xz && cd node-v4.9.1-linux-armv7l && cp -R * /usr/local/ && cd / && rm -rf node-v*
-
 # Update rpmbuild, rpm and autoconf
 RUN curl -O http://packages.wazuh.com/utils/autoconf/autoconf-2.69.tar.gz && \
     gunzip autoconf-2.69.tar.gz && tar xvf autoconf-2.69.tar && \

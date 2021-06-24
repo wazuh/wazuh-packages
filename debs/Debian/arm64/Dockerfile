@@ -12,10 +12,8 @@ RUN echo "deb http://deb.debian.org/debian stretch contrib non-free" >> /etc/apt
     autoconf libtool libaudit-dev selinux-basics \
     libdb5.3 libdb5.3 libssl1.0.2 gawk libsigsegv2
 
-# Add Debian's source repository and, Install NodeJS 12
+# Add Debian's source repository
 RUN apt-get update &&  apt-get build-dep python3.5 -y
-RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
-    apt-get install -y nodejs
 
 RUN curl -OL http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz && \
     tar -zxf cmake-3.18.3.tar.gz && cd cmake-3.18.3 && \

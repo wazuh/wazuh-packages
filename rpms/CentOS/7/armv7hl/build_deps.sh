@@ -122,7 +122,6 @@ ${rpm_url}/man-db-2.6.3-11.el7.armv7hl.rpm \
 ${rpm_url}/mpfr-3.1.1-4.el7.armv7hl.rpm \
 ${rpm_url}/ncurses-devel-5.9-14.20130511.el7_4.armv7hl.rpm \
 ${rpm_url}/ncurses-libs-5.9-14.20130511.el7_4.armv7hl.rpm \
-${rpm_url}/nodejs-6.17.1-1.el7.armv7hl.rpm \
 ${rpm_url}/npm-3.10.10-1.6.17.1.1.el7.armv7hl.rpm \
 ${rpm_url}/nspr-devel-4.21.0-1.el7.armv7hl.rpm \
 ${rpm_url}/nspr-4.21.0-1.el7.armv7hl.rpm \

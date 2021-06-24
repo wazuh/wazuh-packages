@@ -28,8 +28,7 @@ RUN curl -O http://packages.wazuh.com/utils/autoconf/autoconf-2.69.tar.gz && \
     linux32 make -j$(nproc) && linux32 make install && cd / && rm -rf autoconf-*
 
 RUN curl -O https://packages.wazuh.com/utils/libarchive/libarchive-3.1.2-12.el7.src.rpm && \
-    linux32 rpmbuild --rebuild libarchive-3.1.2-12.el7.src.rpm --target i386 && \
-    rpm -Uvh /root/rpmbuild/RPMS/i386/* --nodeps && rm -rf libarchive-*
+    linux32 rpmbuild --rebuild libarchive-3.1.2-12.el7.src.rpm --target i386
 
 RUN curl -O http://packages.wazuh.com/utils/rpm/rpm-4.15.1.tar.bz2 && \
     tar -xjf rpm-4.15.1.tar.bz2 && cd rpm-4.15.1 && \
