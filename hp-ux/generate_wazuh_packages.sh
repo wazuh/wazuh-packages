@@ -7,13 +7,14 @@
 
 
 install_path="/var/ossec"
-current_path=`pwd`
+current_path=$(pwd)
 source_directory=${current_path}/wazuh-sources
 configuration_file="${source_directory}/etc/preloaded-vars.conf"
 PATH=$PATH:/usr/local/bin
 target_dir="${current_path}/output"
-checksum_dir=""
-wazuh_version=$(cat ../VERSION)
+checksum_dir="{current_path}/output"
+wazuh_version=""
+wazuh_branch="$(sed -n "s/wazuh=//p" ../VERSION)"
 wazuh_revision="1"
 depot_path=""
 control_binary=""
@@ -151,7 +152,6 @@ set_control_binary() {
 }
 
 # Uninstall agent.
-
 clean() {
     exit_code=$1
     set_control_binary
@@ -173,12 +173,12 @@ show_help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -e Install all the packages necessaries to build the TAR package"
-    echo "    -b <branch> Select Git branch. Example v3.5.0"
-    echo "    -s <tar_directory> Directory to store the resulting tar package. By default, an output folder will be created."
-    echo "    -p <tar_home> Installation path for the package. By default: /var"
-    echo "    -c, --checksum Compute the SHA512 checksum of the TAR package."
-    echo "    -d <path_to_depot>, --depot Change the path to depothelper package (by default current path)."
+    echo "    -e                            Install all the packages necessaries to build the TAR package"
+    echo "    -b <branch>                   Select Git branch or tag. By default: ${wazuh_branch}"
+    echo "    -s <tar_directory>            Directory to store the resulting tar package. By default, an output folder will be created."
+    echo "    -p <tar_home>                 Installation path for the package. By default: ${install_path}"
+    echo "    -c, --checksum                Compute the SHA512 checksum of the TAR package."
+    echo "    -d <path_to_depot>, --depot   Change the path to depothelper package (by default current path)."
     echo "    -h Shows this help"
     echo
     exit $1
@@ -193,14 +193,6 @@ build_package() {
 
 # Main function, processes user input
 main() {
-    # If the script is called without arguments
-    # show the help
-    if [[ -z $1 ]] ; then
-        show_help 0
-    fi
-
-    build_env="no"
-    build_pkg="no"
 
     while [ -n "$1" ]
     do
@@ -209,7 +201,6 @@ main() {
                 if [ -n "$2" ]
                     then
                     wazuh_branch="$2"
-                    build_pkg="yes"
                     shift 2
                 else
                     show_help 1
@@ -265,18 +256,8 @@ main() {
         esac
     done
 
-    if [[ "${build_env}" = "yes" ]]; then
-        build_environment || exit 1
-    fi
-
-    if [ -z "${checksum_dir}" ]; then
-        checksum_dir="${target_dir}"
-    fi
-
-    if [[ "${build_pkg}" = "yes" ]]; then
-        build_package || clean 1
-    fi
-
+    build_package || clean 1
+    
     return 0
 }
 
