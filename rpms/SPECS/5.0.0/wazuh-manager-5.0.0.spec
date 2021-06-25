@@ -552,9 +552,9 @@ fi
 rm -fr %{buildroot}
 
 %files
-%defattr(-,root,ossec)
+%defattr(-,root,wazuh)
 %{_initrddir}/wazuh-manager
-%attr(640, root, ossec) %verify(not md5 size mtime) %ghost %{_sysconfdir}/ossec-init.conf
+%attr(640, root, wazuh) %verify(not md5 size mtime) %ghost %{_sysconfdir}/ossec-init.conf
 /usr/lib/systemd/system/wazuh-manager.service
 %defattr(-, root, wazuh)
 %dir %attr(750, root, wazuh) %{_localstatedir}
