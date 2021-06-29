@@ -294,7 +294,7 @@ function main() {
             help 1
         fi
 
-        if [[ "${TARGET}" == "linux" ]] && [[ "${HAVE_PKG_NAME}" ]]; then
+        if [[ "${TARGET}" == "linux" ]] && [[ "${HAVE_PKG_NAME}" == true ]]; then
             echo "The windows msi file is only needed by windows target"
             help 1
         fi
