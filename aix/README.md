@@ -9,6 +9,7 @@ Please, visit the following link for the full AIX packages building documentatio
 
 ## More Packages
 
+- [Arch](/arch/README.md)
 - [Debian](/debs/README.md)
 - [HP-UX](/hp-ux/README.md)
 - [KibanaApp](/wazuhapp/README.md)
