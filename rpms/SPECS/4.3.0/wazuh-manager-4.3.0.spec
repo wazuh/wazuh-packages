@@ -109,7 +109,7 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/da
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/{7,8,9}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ubuntu/{12,14,16,18,20}/04
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/{8,7,6,5}
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles/{11,12}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles/{11,12,15}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/suse/{11,12}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sunos
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/windows
@@ -134,6 +134,7 @@ cp etc/templates/config/rhel/5/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/
 cp etc/templates/config/sles/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles
 cp etc/templates/config/sles/11/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles/11
 cp etc/templates/config/sles/12/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles/12
+cp etc/templates/config/sles/15/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles/15
 
 cp etc/templates/config/suse/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/suse
 cp etc/templates/config/suse/11/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/suse/11
@@ -183,12 +184,11 @@ if [ $1 = 2 ]; then
     service wazuh-manager stop > /dev/null 2>&1
     touch %{_localstatedir}/tmp/wazuh.restart
   elif %{_localstatedir}/bin/wazuh-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
-    %{_localstatedir}/bin/wazuh-control stop > /dev/null 2>&1
     touch %{_localstatedir}/tmp/wazuh.restart
   elif %{_localstatedir}/bin/ossec-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
-    %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
     touch %{_localstatedir}/tmp/wazuh.restart
   fi
+  %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1 || %{_localstatedir}/bin/wazuh-control stop > /dev/null 2>&1
 fi
 
 # Remove/relocate existing SQLite databases
@@ -260,6 +260,7 @@ fi
 
 %post
 
+echo "VERSION=\"$(%{_localstatedir}/bin/wazuh-control info -v)\"" > /etc/ossec-init.conf
 if [ $1 = 2 ]; then
   if [ -d %{_localstatedir}/logs/ossec ]; then
     rm -rf %{_localstatedir}/logs/wazuh
@@ -516,9 +517,16 @@ fi
 
 # posttrans code is the last thing executed in a install/upgrade
 %posttrans
+
+if [ -f %{_sysconfdir}/systemd/system/wazuh-manager.service ]; then
+  rm -rf %{_sysconfdir}/systemd/system/wazuh-manager.service
+  systemctl daemon-reload > /dev/null 2>&1
+fi
+
 if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
   rm -f %{_localstatedir}/tmp/wazuh.restart
   if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 ; then
+    systemctl daemon-reload > /dev/null 2>&1
     systemctl restart wazuh-manager.service > /dev/null 2>&1
   elif command -v service > /dev/null 2>&1 ; then
     service wazuh-manager restart > /dev/null 2>&1
@@ -535,6 +543,10 @@ if [ -d %{_localstatedir}/queue/ossec ]; then
   rm -rf %{_localstatedir}/queue/ossec/
 fi
 
+if [ -f %{_sysconfdir}/ossec-init.conf ]; then
+  rm -rf %{_sysconfdir}/ossec-init.conf
+fi
+
 %triggerin -- glibc
 [ -r %{_sysconfdir}/localtime ] && cp -fpL %{_sysconfdir}/localtime %{_localstatedir}/etc
  chown root:wazuh %{_localstatedir}/etc/localtime
@@ -544,9 +556,10 @@ fi
 rm -fr %{buildroot}
 
 %files
+%defattr(-,root,wazuh)
 %{_initrddir}/wazuh-manager
+%attr(640, root, ossec) %verify(not md5 size mtime) %ghost %{_sysconfdir}/ossec-init.conf
 /usr/lib/systemd/system/wazuh-manager.service
-%defattr(-, root, wazuh)
 %dir %attr(750, root, wazuh) %{_localstatedir}
 %attr(750, root, wazuh) %{_localstatedir}/agentless
 %dir %attr(750, root, wazuh) %{_localstatedir}/active-response
@@ -629,7 +642,7 @@ rm -fr %{buildroot}
 %attr(750, root, wazuh) %{_localstatedir}/integrations/*
 %dir %attr(750, root, wazuh) %{_localstatedir}/lib
 %attr(750, root, wazuh) %{_localstatedir}/lib/libwazuhext.so
-%attr(750, root, ossec) %{_localstatedir}/lib/libwazuhshared.so
+%attr(750, root, wazuh) %{_localstatedir}/lib/libwazuhshared.so
 %attr(750, root, wazuh) %{_localstatedir}/lib/libdbsync.so
 %attr(750, root, wazuh) %{_localstatedir}/lib/librsync.so
 %attr(750, root, wazuh) %{_localstatedir}/lib/libsyscollector.so
@@ -798,6 +811,10 @@ rm -fr %{buildroot}
 * Wed Apr 28 2021 support <info@wazuh.com> - 4.3.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Apr 26 2021 support <info@wazuh.com> - 4.2.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Sat Apr 24 2021 support <info@wazuh.com> - 3.13.3
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Apr 22 2021 support <info@wazuh.com> - 4.1.5
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Mar 29 2021 support <info@wazuh.com> - 4.1.4
 - More info: https://documentation.wazuh.com/current/release-notes/
