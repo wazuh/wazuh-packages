@@ -480,6 +480,7 @@ rm -fr %{buildroot}
 %files
 %defattr(-,root,root)
 %{_initrddir}/wazuh-agent
+%attr(640, root, wazuh) %verify(not md5 size mtime) %ghost %{_sysconfdir}/ossec-init.conf
 /usr/lib/systemd/system/wazuh-agent.service
 %dir %attr(750, root, wazuh) %{_localstatedir}
 %attr(750, root, wazuh) %{_localstatedir}/agentless
