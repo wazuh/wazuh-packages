@@ -277,7 +277,7 @@ rm -fr %{buildroot}
 %attr(640, root, wazuh) %{_localstatedir}/ruleset/sca/*
 %dir %attr(1750, root, wazuh) %{_localstatedir}/tmp
 %attr(750, root,system) %config(missingok) %{_localstatedir}/tmp/add_localfiles.sh
-%attr(750, root,system) %config(missingok) %{_localstatedir}/tmp/gen_ossec.sh
+%attr(750, root,system) %config(missingok) %{_localstatedir}/tmp/gen_wazuh.sh
 %dir %attr(1750, root, wazuh) %config(missingok) %{_localstatedir}/tmp/etc/templates
 %dir %attr(1750, root, wazuh) %config(missingok) %{_localstatedir}/tmp/etc/templates/config
 %dir %attr(1750, root, wazuh) %config(missingok) %{_localstatedir}/tmp/etc/templates/config/generic

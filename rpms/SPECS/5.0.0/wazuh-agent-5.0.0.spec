@@ -508,7 +508,7 @@ rm -fr %{buildroot}
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/add_localfiles.sh
-%attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/gen_ossec.sh
+%attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/gen_wazuh.sh
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/generic/*
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/centos/*
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/rhel/*

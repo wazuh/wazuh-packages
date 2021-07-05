@@ -32,6 +32,7 @@ case "$1" in
     if [ -z "$2" ] || [ -f ${WAZUH_TMP_DIR}/create_conf ] ; then
 
         ${SCRIPTS_DIR}/gen_wazuh.sh conf manager ${OS} ${VER} > ${DIR}/etc/manager.conf
+        ${SCRIPTS_DIR}/gen_wazuh.sh conf agent-server ${OS} ${VER} > ${DIR}/etc/agent.conf
         ${SCRIPTS_DIR}/add_localfiles.sh >> ${DIR}/etc/manager.conf
 
         passlist="${DIR}/agentless/.passlist"
@@ -48,7 +49,9 @@ case "$1" in
         fi
     else
         ${SCRIPTS_DIR}/gen_wazuh.sh conf manager ${OS} ${VER} > ${DIR}/etc/manager.conf.new
+        ${SCRIPTS_DIR}/gen_wazuh.sh conf agent-server ${OS} ${VER} > ${DIR}/etc/agent.conf.new
         chmod 660 ${DIR}/etc/manager.conf.new
+        chmod 660 ${DIR}/etc/agent.conf.new
     fi
 
     # Remove/relocate existing SQLite databases
@@ -120,6 +123,10 @@ case "$1" in
     # Restore manager.conf configuration
     if [ -f ${WAZUH_TMP_DIR}/manager.conf ]; then
         mv ${WAZUH_TMP_DIR}/manager.conf ${DIR}/etc/manager.conf
+    fi
+    # Restore agent.conf configuration
+    if [ -f ${WAZUH_TMP_DIR}/agent.conf ]; then
+        mv ${WAZUH_TMP_DIR}/agent.conf ${DIR}/etc/agent.conf
     fi
     # Restore local_rules.xml configuration
     if [ -f ${WAZUH_TMP_DIR}/local_rules.xml ]; then

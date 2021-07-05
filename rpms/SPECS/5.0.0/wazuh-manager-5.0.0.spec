@@ -290,6 +290,10 @@ if [ $1 = 1 ]; then
   # Generating manager.conf file
   %{_localstatedir}/packages_files/manager_installation_scripts/gen_wazuh.sh conf manager ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir} > %{_localstatedir}/etc/manager.conf
 
+  # Generating agent.conf file
+  %{_localstatedir}/packages_files/agent_installation_scripts/gen_wazuh.sh conf agent-server ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir} > %{_localstatedir}/etc/agent.conf
+  chown root:ossec %{_localstatedir}/etc/agent.conf
+
   touch %{_localstatedir}/logs/active-responses.log
   touch %{_localstatedir}/logs/integrations.log
   chown wazuh:wazuh %{_localstatedir}/logs/active-responses.log
