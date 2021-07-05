@@ -133,6 +133,11 @@ if [[ $(dscl . -read /Groups/ossec) ]]; then
   sudo /usr/bin/dscl . -delete "/Groups/wazuh"
 fi
 
+# Remove 4.1.5 patch
+if [ -f ${DIR}/queue/alerts/sockets ]; then
+  rm ${DIR}/queue/alerts/sockets
+fi
+
 if ${upgrade} && ${restart}; then
     ${DIR}/bin/wazuh-control restart
 fi

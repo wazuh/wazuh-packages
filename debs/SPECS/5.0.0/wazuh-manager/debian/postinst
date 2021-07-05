@@ -221,14 +221,23 @@ case "$1" in
     # Restoring file permissions
     ${SCRIPTS_DIR}/restore-permissions.sh > /dev/null 2>&1 || true
 
+    # Remove old service file /etc/systemd/system/wazuh-manager.service if present
+    if [ -f /etc/systemd/system/wazuh-manager.service ]; then
+        rm -f /etc/systemd/system/wazuh-manager.service
+        if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
+            systemctl daemon-reload > /dev/null 2>&1
+        fi
+    fi
+
     if [ ! -z "$2" ]; then
         if [ -f ${WAZUH_TMP_DIR}/wazuh.restart ] ; then
-            if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-manager > /dev/null 2>&1; then
+            if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
+                systemctl daemon-reload > /dev/null 2>&1
                 systemctl restart wazuh-manager.service > /dev/null 2>&1
-            elif command -v service > /dev/null 2>&1 && service wazuh-manager status 2>/dev/null | grep "running" > /dev/null 2>&1; then
+            elif command -v service > /dev/null 2>&1 ; then
                 service wazuh-manager restart > /dev/null 2>&1
             else
-                ${DIR}/bin/wazuh-control restart /dev/null 2>&1
+                ${DIR}/bin/wazuh-control restart > /dev/null 2>&1
             fi
         fi
     fi
@@ -255,7 +264,7 @@ case "$1" in
 
     # Remove old ossec user and group if exists and change ownwership of files
 
-    if ! getent group | grep -q "^ossec" ; then
+    if getent group | grep -q "^ossec" ; then
         find ${DIR} -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
         if getent passwd | grep -q "^ossec" ; then
             find ${DIR} -group ossec -user ossec -exec chown ${USER}:${GROUP} {} \; > /dev/null 2>&1 || true

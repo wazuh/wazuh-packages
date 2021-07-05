@@ -130,9 +130,17 @@ case "$1" in
     # Restoring file permissions
     ${SCRIPTS_DIR}/restore-permissions.sh > /dev/null 2>&1 || :
 
+    if [ -f /etc/systemd/system/wazuh-agent.service ]; then
+        rm -f /etc/systemd/system/wazuh-agent.service
+        if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
+            systemctl daemon-reload > /dev/null 2>&1
+        fi
+    fi
+
     if [ ! -z "$2" ]; then
         if [ -f ${WAZUH_TMP_DIR}/wazuh.restart ] ; then
             if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
+                systemctl daemon-reload > /dev/null 2>&1
                 systemctl restart wazuh-agent.service > /dev/null 2>&1
             elif command -v service > /dev/null 2>&1 ; then
                 service wazuh-agent restart > /dev/null 2>&1
