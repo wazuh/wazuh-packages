@@ -589,6 +589,8 @@ rm -fr %{buildroot}
 %dir %attr(750, root, wazuh) %{_localstatedir}/wodles
 %dir %attr(750, root, wazuh) %{_localstatedir}/wodles/aws
 %attr(750, root, wazuh) %{_localstatedir}/wodles/aws/*
+%dir %attr(750, root, wazuh) %{_localstatedir}/wodles/azure
+%attr(750, root, wazuh) %{_localstatedir}/wodles/azure/*
 %dir %attr(750, root, wazuh) %{_localstatedir}/wodles/docker
 %attr(750, root, wazuh) %{_localstatedir}/wodles/docker/*
 %dir %attr(750, root, wazuh) %{_localstatedir}/wodles/gcloud
