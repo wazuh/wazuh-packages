@@ -412,11 +412,6 @@ if [ $1 = 0 ]; then
 
 fi
 
-%triggerin -- glibc
-[ -r %{_sysconfdir}/localtime ] && cp -fpL %{_sysconfdir}/localtime %{_localstatedir}/etc
- chown root:wazuh %{_localstatedir}/etc/localtime
- chmod 0640 %{_localstatedir}/etc/localtime
-
 %postun
 
 # If the package is been uninstalled
@@ -494,7 +489,6 @@ rm -fr %{buildroot}
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/etc
 %attr(640, root, wazuh) %config(noreplace) %{_localstatedir}/etc/client.keys
 %attr(640, root, wazuh) %{_localstatedir}/etc/internal_options*
-%attr(640, root, wazuh) %{_localstatedir}/etc/localtime
 %attr(640, root, wazuh) %config(noreplace) %{_localstatedir}/etc/local_internal_options.conf
 %attr(660, root, wazuh) %config(noreplace) %{_localstatedir}/etc/ossec.conf
 %attr(640, root, wazuh) %{_localstatedir}/etc/wpk_root.pem
