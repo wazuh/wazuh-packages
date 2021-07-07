@@ -383,14 +383,6 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/etc/localtime": {
-        "class": "static",
-        "group": "wazuh",
-        "mode": "0640",
-        "prot": "-rw-r-----",
-        "type": "file",
-        "user": "root"
-    },
     "/var/ossec/etc/ossec.conf": {
         "class": "static",
         "group": "wazuh",

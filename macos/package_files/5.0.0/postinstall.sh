@@ -50,7 +50,6 @@ chmod 640 ${DIR}/etc/local_internal_options.conf
 chown root:${GROUP} ${DIR}/etc/local_internal_options.conf
 chmod 640 ${DIR}/etc/client.keys
 chown root:${GROUP} ${DIR}/etc/client.keys
-chmod 640 ${DIR}/etc/localtime
 chmod 770 ${DIR}/etc/shared # ossec must be able to write to it
 chown -R root:${GROUP} ${DIR}/etc/shared
 find ${DIR}/etc/shared/ -type f -exec chmod 660 {} \;
