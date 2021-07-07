@@ -92,19 +92,6 @@ case "$1" in
 
     chmod 640 ${DIR}/etc/sslmanager.cert ${DIR}/etc/sslmanager.key > /dev/null 2>&1 || true
 
-    # For the etc dir
-    if [ -f /etc/localtime ]; then
-        cp -pL /etc/localtime ${DIR}/etc/;
-        chmod 640 ${DIR}/etc/localtime
-        chown root:${GROUP} ${DIR}/etc/localtime
-    fi
-
-    if [ -f /etc/TIMEZONE ]; then
-        cp -p /etc/TIMEZONE ${DIR}/etc/;
-        chmod 640 ${DIR}/etc/TIMEZONE
-        chown root:${GROUP} ${DIR}/etc/localtime
-    fi
-
     # Restore client.keys configuration
     if [ -f ${WAZUH_TMP_DIR}/client.keys ]; then
         mv ${WAZUH_TMP_DIR}/client.keys ${DIR}/etc/client.keys

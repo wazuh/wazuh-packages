@@ -42,13 +42,6 @@ case "$1" in
         chmod 660 ${DIR}/etc/ossec.conf.new
     fi
 
-    # For the etc dir
-    if [ -f /etc/localtime ]; then
-        cp -pL /etc/localtime ${DIR}/etc/;
-        chmod 640 ${DIR}/etc/localtime
-        chown root:${GROUP} ${DIR}/etc/localtime
-    fi
-
     # Restore the local rules, client.keys and local_decoder
     if [ -f ${WAZUH_TMP_DIR}/client.keys ]; then
         cp ${WAZUH_TMP_DIR}/client.keys ${DIR}/etc/client.keys
