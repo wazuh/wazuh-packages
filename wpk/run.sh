@@ -164,8 +164,8 @@ main() {
 
     # Compress and sign package
     if [ "${DIST_NAME}" = "centos" ]; then
-        package_name="wazuh-agent-4.2.0-0.4.x86_64.rpm"
-        wget "https://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/custom/4.2-rc-rcs-wp/wazuh-agent-4.2.0-0.4.x86_64.rpm"
+        package_name="wazuh-agent-4.2.0-0.5.x86_64.rpm"
+        wget "https://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/trash/yum/wazuh-agent-4.2.0-0.5.x86_64.rpm"
         cp /usr/local/bin/{upgrade.sh,pkg_installer.sh} .
         ${PYTHON} /usr/local/bin/wpkpack ${OUTPUT} ${WPKCERT} ${WPKKEY} ${package_name} upgrade.sh pkg_installer.sh
     else
