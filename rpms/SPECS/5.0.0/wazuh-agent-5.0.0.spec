@@ -504,8 +504,8 @@ rm -fr %{buildroot}
 %attr(750, root, wazuh) %{_localstatedir}/lib/*
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/logs
 %attr(660, wazuh, wazuh) %ghost %{_localstatedir}/logs/active-responses.log
-%attr(660, root, wazuh) %ghost %{_localstatedir}/logs/ossec.log
-%attr(660, root, wazuh) %ghost %{_localstatedir}/logs/ossec.json
+%attr(660, root, wazuh) %ghost %{_localstatedir}/logs/wazuh.log
+%attr(660, root, wazuh) %ghost %{_localstatedir}/logs/wazuh.json
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/logs/wazuh
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts
