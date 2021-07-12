@@ -196,8 +196,8 @@ if [ $1 = 0 ]; then
 
   /etc/rc.d/init.d/wazuh-agent stop > /dev/null 2>&1 || :
   rm -f %{_localstatedir}/queue/sockets/*
-  rm -f %{_localstatedir}/queue/sockets/.agent_info || :
-  rm -f %{_localstatedir}/queue/sockets/.wait || :
+  rm -f %{_localstatedir}/var/run/.agent_info || :
+  rm -f %{_localstatedir}/var/run/.wait || :
   rm -f %{_localstatedir}/queue/diff/*
   rm -f %{_localstatedir}/queue/alerts/*
   rm -f %{_localstatedir}/queue/rids/*
