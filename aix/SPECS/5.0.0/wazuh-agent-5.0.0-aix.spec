@@ -23,7 +23,7 @@ Wazuh is an open source security monitoring solution for threat detection, integ
 %setup -q
 deps_version=`cat src/Makefile | grep "DEPS_VERSION =" | cut -d " " -f 3`
 cd src && gmake clean && gmake deps RESOURCES_URL=http://packages.wazuh.com/deps/${deps_version} TARGET=agent
-gmake TARGET=agent USE_SELINUX=no DISABLE_SHARED=yes DISABLE_SYSC=yes
+gmake TARGET=agent USE_SELINUX=no
 cd ..
 
 %install
@@ -44,7 +44,7 @@ echo 'USER_UPDATE="n"' >> ./etc/preloaded-vars.conf
 echo 'USER_AGENT_SERVER_IP="MANAGER_IP"' >> ./etc/preloaded-vars.conf
 echo 'USER_CA_STORE="/path/to/my_cert.pem"' >> ./etc/preloaded-vars.conf
 echo 'USER_AUTO_START="n"' >> ./etc/preloaded-vars.conf
-DISABLE_SHARED="yes" DISABLE_SYSC="yes" ./install.sh
+./install.sh
 
 # Remove unnecessary files or directories
 rm -rf %{_localstatedir}/selinux
@@ -105,6 +105,7 @@ if [ $1 = 2 ]; then
     /etc/rc.d/init.d/wazuh-agent stop > /dev/null 2>&1 || :
     touch %{_localstatedir}/tmp/wazuh.restart
   fi
+  %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1 || %{_localstatedir}/bin/wazuh-control stop > /dev/null 2>&1
 fi
 
 %post
@@ -258,8 +259,8 @@ rm -fr %{buildroot}
 %dir %attr(750, root,system) %{_localstatedir}/lib
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/logs
 %attr(660, wazuh, wazuh) %ghost %{_localstatedir}/logs/active-responses.log
-%attr(660, root, wazuh) %ghost %{_localstatedir}/logs/ossec.log
-%attr(660, root, wazuh) %ghost %{_localstatedir}/logs/ossec.json
+%attr(660, root, wazuh) %ghost %{_localstatedir}/logs/wazuh.log
+%attr(660, root, wazuh) %ghost %{_localstatedir}/logs/wazuh.json
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/logs/wazuh
 %dir %attr(750, root, wazuh) %{_localstatedir}/queue
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/sockets
@@ -302,15 +303,17 @@ rm -fr %{buildroot}
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Apr 26 2021 support <info@wazuh.com> - 4.2.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Thu Apr 22 2021 support <info@wazuh.com> - 4.1.5
+* Sat Apr 24 2021 support <info@wazuh.com> - 3.13.3
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Thu Mar 25 2021 support <info@wazuh.com> - 4.1.4
+* Mon Apr 22 2021 support <info@wazuh.com> - 4.1.5
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Tue Mar 23 2021 support <info@wazuh.com> - 4.1.3
+* Mon Mar 29 2021 support <info@wazuh.com> - 4.1.4
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Mon Mar 8 2021 support <info@wazuh.com> - 4.1.2
+* Sat Mar 20 2021 support <info@wazuh.com> - 4.1.3
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Thu Feb 25 2021 support <info@wazuh.com> - 4.1.1
+* Mon Mar 08 2021 support <info@wazuh.com> - 4.1.2
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Fri Mar 05 2021 support <info@wazuh.com> - 4.1.1
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Tue Jan 19 2021 support <info@wazuh.com> - 4.1.0
 - More info: https://documentation.wazuh.com/current/release-notes/
