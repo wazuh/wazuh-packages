@@ -643,8 +643,8 @@ rm -fr %{buildroot}
 %attr(660, wazuh, wazuh)  %ghost %{_localstatedir}/logs/active-responses.log
 %attr(660, wazuh, wazuh) %ghost %{_localstatedir}/logs/api.log
 %attr(640, wazuh, wazuh) %ghost %{_localstatedir}/logs/integrations.log
-%attr(660, wazuh, wazuh) %ghost %{_localstatedir}/logs/ossec.log
-%attr(660, wazuh, wazuh) %ghost %{_localstatedir}/logs/ossec.json
+%attr(660, wazuh, wazuh) %ghost %{_localstatedir}/logs/wazuh.log
+%attr(660, wazuh, wazuh) %ghost %{_localstatedir}/logs/wazuh.json
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/logs/api
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/logs/archives
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/logs/alerts
