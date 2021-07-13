@@ -49,13 +49,13 @@ case $type in
 
     if [ -d "$DIR" ]
 		    then
-        if [ -f ${DIR}/etc/ossec.conf ]; then
-            cp  ${DIR}/etc/ossec.conf  ${DIR}/etc/ossec.conf.deborig
-            chmod 0600 ${DIR}/etc/ossec.conf.deborig
-            chown root:root ${DIR}/etc/ossec.conf.deborig
+        if [ -f ${DIR}/etc/agent.conf ]; then
+            cp  ${DIR}/etc/agent.conf  ${DIR}/etc/agent.conf.deborig
+            chmod 0600 ${DIR}/etc/agent.conf.deborig
+            chown root:root ${DIR}/etc/agent.conf.deborig
             echo "====================================================================================="
-            echo "= Backup from your ossec.conf has been created at /var/ossec/etc/ossec.conf.deborig ="
-            echo "= Please verify your ossec.conf configuration at /var/ossec/etc/ossec.conf          ="
+            echo "= Backup from your agent.conf has been created at /var/ossec/etc/agent.conf.deborig ="
+            echo "= Please verify your agent.conf configuration at /var/ossec/etc/agent.conf          ="
             echo "====================================================================================="
         fi
     fi
@@ -70,8 +70,8 @@ case $type in
     if [ -f ${DIR}/etc/local_internal_options.conf ]; then
         cp -p ${DIR}/etc/local_internal_options.conf ${OSSEC_HIDS_TMP_DIR}/local_internal_options.conf
     fi
-    if [ -f ${DIR}/etc/ossec.conf ]; then
-        cp -p ${DIR}/etc/ossec.conf ${OSSEC_HIDS_TMP_DIR}/ossec.conf
+    if [ -f ${DIR}/etc/agent.conf ]; then
+        cp -p ${DIR}/etc/agent.conf ${OSSEC_HIDS_TMP_DIR}/agent.conf
     fi
 
     ;;

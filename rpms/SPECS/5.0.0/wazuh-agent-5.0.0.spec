@@ -33,8 +33,6 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 %prep
 %setup -q
 
-./gen_ossec.sh conf agent centos %rhel %{_localstatedir} > etc/ossec-agent.conf
-
 %build
 pushd src
 # Rebuild for agent
@@ -132,7 +130,7 @@ cp etc/templates/config/suse/12/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp
 
 # Add configuration scripts
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/
-cp gen_ossec.sh ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/
+cp gen_wazuh.sh ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/
 cp add_localfiles.sh ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/
 
 # Templates for initscript
@@ -232,12 +230,12 @@ if [ $1 = 1 ]; then
 
   . %{_localstatedir}/packages_files/agent_installation_scripts/src/init/dist-detect.sh
 
-  # Generating ossec.conf file
-  %{_localstatedir}/packages_files/agent_installation_scripts/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir} > %{_localstatedir}/etc/ossec.conf
-  chown root:wazuh %{_localstatedir}/etc/ossec.conf
+  # Generating agent.conf file
+  %{_localstatedir}/packages_files/agent_installation_scripts/gen_wazuh.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir} > %{_localstatedir}/etc/agent.conf
+  chown root:ossec %{_localstatedir}/etc/agent.conf
 
-  # Add default local_files to ossec.conf
-  %{_localstatedir}/packages_files/agent_installation_scripts/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
+  # Add default local_files to agent.conf
+  %{_localstatedir}/packages_files/agent_installation_scripts/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/agent.conf
 
 
   # Register and configure agent if Wazuh environment variables are defined
@@ -342,8 +340,8 @@ else
   fi
 fi
 
-# Restore ossec.conf permissions after upgrading
-chmod 0660 %{_localstatedir}/etc/ossec.conf
+# Restore agent.conf permissions after upgrading
+chmod 0660 %{_localstatedir}/etc/agent.conf
 
 # Remove old ossec user and group if exists and change ownwership of files
 
@@ -496,7 +494,7 @@ rm -fr %{buildroot}
 %attr(640, root, wazuh) %{_localstatedir}/etc/internal_options*
 %attr(640, root, wazuh) %{_localstatedir}/etc/localtime
 %attr(640, root, wazuh) %config(noreplace) %{_localstatedir}/etc/local_internal_options.conf
-%attr(660, root, wazuh) %config(noreplace) %{_localstatedir}/etc/ossec.conf
+%attr(660, root, wazuh) %config(noreplace) %{_localstatedir}/etc/agent.conf
 %attr(640, root, wazuh) %{_localstatedir}/etc/wpk_root.pem
 %dir %attr(770, root, wazuh) %{_localstatedir}/etc/shared
 %attr(660, root, wazuh) %config(missingok,noreplace) %{_localstatedir}/etc/shared/*
@@ -510,7 +508,7 @@ rm -fr %{buildroot}
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/add_localfiles.sh
-%attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/gen_ossec.sh
+%attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/gen_wazuh.sh
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/generic/*
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/centos/*
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts/etc/templates/config/rhel/*

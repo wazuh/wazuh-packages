@@ -41,7 +41,7 @@ case "$1" in
             fi
         fi
 
-        if [ ! -z "$2" ] && [ ! -f ${DIR}/etc/ossec.conf ] ; then
+        if [ ! -z "$2" ] && [ ! -f ${DIR}/etc/agent.conf ] ; then
             touch ${WAZUH_TMP_DIR}/create_conf
         fi
 
@@ -56,8 +56,8 @@ case "$1" in
         if [ -f ${DIR}/etc/local_internal_options.conf ]; then
             cp -p ${DIR}/etc/local_internal_options.conf ${WAZUH_TMP_DIR}/local_internal_options.conf
         fi
-        if [ -f ${DIR}/etc/ossec.conf ]; then
-            cp -p ${DIR}/etc/ossec.conf ${WAZUH_TMP_DIR}/ossec.conf
+        if [ -f ${DIR}/etc/agent.conf ]; then
+            cp -p ${DIR}/etc/agent.conf ${WAZUH_TMP_DIR}/agent.conf
         fi
 
         if [ -d ${DIR}/etc/shared ]; then

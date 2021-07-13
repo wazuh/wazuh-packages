@@ -3,7 +3,7 @@ char="#"
 sys_type="yum"
 searchguard_version="1.8"
 resources_url=https://raw.githubusercontent.com/wazuh/wazuh-documentation/${BRANCH}
-manager_config="/var/ossec/etc/ossec.conf"
+manager_config="/var/ossec/etc/manager.conf"
 
 logger() {
 
@@ -235,8 +235,8 @@ configWazuh() {
     sed -i 's/<enabled>.*<\/enabled>/<enabled>no<\/enabled>/' ${manager_config}
     sed -i 's/<disabled>.*<\/disabled>/<disabled>yes<\/disabled>/' ${manager_config}
 
-    sed -i "s/INSTALLATION_DIRECTORY/\/var\/ossec/g" ${config_files}/ossec.conf
-    auth_configuration_with_tags=$(sed -n '/<auth>/I,/<\/auth>/I p' ${config_files}/ossec.conf)
+    sed -i "s/INSTALLATION_DIRECTORY/\/var\/ossec/g" ${config_files}/manager.conf
+    auth_configuration_with_tags=$(sed -n '/<auth>/I,/<\/auth>/I p' ${config_files}/manager.conf)
     auth_configuration=$(echo "${auth_configuration_with_tags}" | tail -n +2 | head -n -1)
     ossec_configuration=$(awk -vauthConf="${auth_configuration}" '/<auth>/{p=1;print;print authConf}/<\/auth>/{p=0}!p' ${manager_config})
     echo "${ossec_configuration}" > ${manager_config}

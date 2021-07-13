@@ -204,7 +204,7 @@ main() {
 
 clean() {
     rm -rf ./{api,framework}
-    rm -rf doc wodles/oscap/content/* gen_ossec.sh add_localfiles.sh Jenkinsfile*
+    rm -rf doc wodles/oscap/content/* gen_wazuh.sh add_localfiles.sh Jenkinsfile*
     rm -rf src/{addagent,analysisd,client-agent,config,error_messages,external/*}
     rm -rf src/{headers,logcollector,monitord,os_auth,os_crypto,os_csyslogd}
     rm -rf src/{os_dbdos_execd,os_integrator,os_maild,os_netos_regex,os_xml,os_zlib}
