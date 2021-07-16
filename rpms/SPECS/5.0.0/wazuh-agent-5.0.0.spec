@@ -412,11 +412,6 @@ if [ $1 = 0 ]; then
 
 fi
 
-%triggerin -- glibc
-[ -r %{_sysconfdir}/localtime ] && cp -fpL %{_sysconfdir}/localtime %{_localstatedir}/etc
- chown root:wazuh %{_localstatedir}/etc/localtime
- chmod 0640 %{_localstatedir}/etc/localtime
-
 %postun
 
 # If the package is been uninstalled
@@ -494,7 +489,6 @@ rm -fr %{buildroot}
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/etc
 %attr(640, root, wazuh) %config(noreplace) %{_localstatedir}/etc/client.keys
 %attr(640, root, wazuh) %{_localstatedir}/etc/internal_options*
-%attr(640, root, wazuh) %{_localstatedir}/etc/localtime
 %attr(640, root, wazuh) %config(noreplace) %{_localstatedir}/etc/local_internal_options.conf
 %attr(660, root, wazuh) %config(noreplace) %{_localstatedir}/etc/ossec.conf
 %attr(640, root, wazuh) %{_localstatedir}/etc/wpk_root.pem
@@ -504,8 +498,8 @@ rm -fr %{buildroot}
 %attr(750, root, wazuh) %{_localstatedir}/lib/*
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/logs
 %attr(660, wazuh, wazuh) %ghost %{_localstatedir}/logs/active-responses.log
-%attr(660, root, wazuh) %ghost %{_localstatedir}/logs/ossec.log
-%attr(660, root, wazuh) %ghost %{_localstatedir}/logs/ossec.json
+%attr(660, root, wazuh) %ghost %{_localstatedir}/logs/wazuh.log
+%attr(660, root, wazuh) %ghost %{_localstatedir}/logs/wazuh.json
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/logs/wazuh
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/agent_installation_scripts
@@ -589,6 +583,8 @@ rm -fr %{buildroot}
 %dir %attr(750, root, wazuh) %{_localstatedir}/wodles
 %dir %attr(750, root, wazuh) %{_localstatedir}/wodles/aws
 %attr(750, root, wazuh) %{_localstatedir}/wodles/aws/*
+%dir %attr(750, root, wazuh) %{_localstatedir}/wodles/azure
+%attr(750, root, wazuh) %{_localstatedir}/wodles/azure/*
 %dir %attr(750, root, wazuh) %{_localstatedir}/wodles/docker
 %attr(750, root, wazuh) %{_localstatedir}/wodles/docker/*
 %dir %attr(750, root, wazuh) %{_localstatedir}/wodles/gcloud

@@ -537,11 +537,6 @@ if [ -f %{_sysconfdir}/ossec-init.conf ]; then
   rm -rf %{_sysconfdir}/ossec-init.conf
 fi
 
-%triggerin -- glibc
-[ -r %{_sysconfdir}/localtime ] && cp -fpL %{_sysconfdir}/localtime %{_localstatedir}/etc
- chown root:wazuh %{_localstatedir}/etc/localtime
- chmod 0640 %{_localstatedir}/etc/localtime
-
 %clean
 rm -fr %{buildroot}
 
@@ -600,7 +595,6 @@ rm -fr %{buildroot}
 %attr(640, root, wazuh) %config(noreplace) %{_localstatedir}/etc/client.keys
 %attr(640, root, wazuh) %{_localstatedir}/etc/internal_options*
 %attr(640, root, wazuh) %config(noreplace) %{_localstatedir}/etc/local_internal_options.conf
-%attr(640, root, wazuh) %{_localstatedir}/etc/localtime
 %dir %attr(770, root, wazuh) %{_localstatedir}/etc/decoders
 %attr(660, wazuh, wazuh) %config(noreplace) %{_localstatedir}/etc/decoders/local_decoder.xml
 %dir %attr(770, root, wazuh) %{_localstatedir}/etc/lists
@@ -642,8 +636,8 @@ rm -fr %{buildroot}
 %attr(660, wazuh, wazuh)  %ghost %{_localstatedir}/logs/active-responses.log
 %attr(660, wazuh, wazuh) %ghost %{_localstatedir}/logs/api.log
 %attr(640, wazuh, wazuh) %ghost %{_localstatedir}/logs/integrations.log
-%attr(660, wazuh, wazuh) %ghost %{_localstatedir}/logs/ossec.log
-%attr(660, wazuh, wazuh) %ghost %{_localstatedir}/logs/ossec.json
+%attr(660, wazuh, wazuh) %ghost %{_localstatedir}/logs/wazuh.log
+%attr(660, wazuh, wazuh) %ghost %{_localstatedir}/logs/wazuh.json
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/logs/api
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/logs/archives
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/logs/alerts
