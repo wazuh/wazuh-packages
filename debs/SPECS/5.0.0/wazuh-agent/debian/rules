@@ -110,7 +110,6 @@ override_dh_install:
 	cp -r ruleset/sca/* ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca
 
 	cp etc/templates/config/generic/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/generic
-	cp etc/templates/config/generic/sca.manager.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/generic
 
 	cp etc/templates/config/debian/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian
 	cp etc/templates/config/debian/7/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian/7

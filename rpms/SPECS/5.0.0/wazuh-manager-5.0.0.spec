@@ -113,7 +113,7 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/wi
 
 cp -r ruleset/sca/{applications,generic,mongodb,nginx,oracledb,centos,darwin,debian,rhel,sles,sunos,windows,amazon,ubuntu} ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp
 
-cp etc/templates/config/generic/{sca.files,sca.manager.files} ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/generic
+cp etc/templates/config/generic/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/generic
 
 cp etc/templates/config/amzn/1/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/1
 cp etc/templates/config/amzn/2/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/2
@@ -376,20 +376,13 @@ fi
 
 SCA_TMP_FILE="${SCA_TMP_DIR}/sca.files"
 
-if [ -r ${SCA_TMP_FILE} ] && [ -r ${SCA_BASE_DIR}/generic/sca.manager.files ]; then
+if [ -r ${SCA_TMP_FILE} ]; then
 
   rm -f %{_localstatedir}/ruleset/sca/* || true
 
   for sca_file in $(cat ${SCA_TMP_FILE}); do
     if [ -f ${SCA_BASE_DIR}/${sca_file} ]; then
       mv ${SCA_BASE_DIR}/${sca_file} %{_localstatedir}/ruleset/sca
-    fi
-  done
-
-  for sca_file in $(cat ${SCA_BASE_DIR}/generic/sca.manager.files); do
-    filename=$(basename ${sca_file})
-    if [ -f "${SCA_BASE_DIR}/${sca_file}" ] && [ ! -f "%{_localstatedir}/ruleset/sca/${filename}" ]; then
-      mv ${SCA_BASE_DIR}/${sca_file} %{_localstatedir}/ruleset/sca/${filename}.disabled
     fi
   done
 fi

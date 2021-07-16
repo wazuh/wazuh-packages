@@ -181,19 +181,12 @@ case "$1" in
 
         SCA_TMP_FILE="${SCA_TMP_DIR}/sca.files"
 
-        if [ -r ${SCA_TMP_FILE} ] && [ -r ${SCA_BASE_DIR}/generic/sca.manager.files ]; then
+        if [ -r ${SCA_TMP_FILE} ]; then
 
             rm -f ${DIR}/ruleset/sca/* || true
 
             for sca_file in $(cat ${SCA_TMP_FILE}); do
                 mv ${SCA_BASE_DIR}/${sca_file} ${DIR}/ruleset/sca
-            done
-
-            for sca_file in $(cat ${SCA_BASE_DIR}/generic/sca.manager.files); do
-                filename=$(basename ${sca_file})
-                if [ -f "${SCA_BASE_DIR}/${sca_file}" ] && [ ! -f "${DIR}/ruleset/sca/${filename}" ]; then
-                    mv ${SCA_BASE_DIR}/${sca_file} ${DIR}/ruleset/sca/${filename}.disabled
-                fi
             done
         fi
 
