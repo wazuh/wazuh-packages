@@ -21,7 +21,7 @@ rm -rf ${DIRECTORY}/tmp_bkp
 
 # Installing upgrade
 echo "$(date +"%Y/%m/%d %H:%M:%S") - Upgrade started." >> ${DIRECTORY}/logs/upgrade.log
-yum install -y ${DIRECTORY}/var/upgrade/wazuh-agent-4.2.0-0.1.x86_64.rpm >> ${DIRECTORY}/logs/upgrade.log 2>&1
+yum install -y ${DIRECTORY}/var/upgrade/wazuh-agent* >> ${DIRECTORY}/logs/upgrade.log 2>&1
 
 # Check installation result
 RESULT=$?
