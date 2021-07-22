@@ -32,7 +32,7 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 
 %prep
 %setup -q
-
+set -x
 ./gen_ossec.sh conf agent centos %rhel %{_localstatedir} > etc/ossec-agent.conf
 
 %build
@@ -163,7 +163,14 @@ fi
 exit 0
 
 %pre
+set -x
 
+echo "check system macros" 
+rpm --eval %{_localstatedir}
+rpm --eval %{_sysconfdir}
+echo "check package macros"  
+echo %{_localstatedir}
+echo %{_sysconfdir}
 # Create the ossec group if it doesn't exists
 if command -v getent > /dev/null 2>&1 && ! getent group ossec > /dev/null 2>&1; then
   groupadd -r ossec
@@ -192,7 +199,18 @@ if [ $1 = 2 ]; then
   %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1 || %{_localstatedir}/bin/wazuh-control stop > /dev/null 2>&1
 fi
 
+echo "Check /etc permissions"
+ls -ld /etc
+
 %post
+set -x
+
+echo "check system macros" 
+rpm --eval %{_localstatedir}
+rpm --eval %{_sysconfdir}
+echo "check package macros"  
+echo %{_localstatedir}
+echo %{_sysconfdir}
 
 echo "VERSION=\"$(%{_localstatedir}/bin/wazuh-control info -v)\"" > /etc/ossec-init.conf
 if [ $1 = 2 ]; then
@@ -343,7 +361,18 @@ fi
 # Restore ossec.conf permissions after upgrading
 chmod 0660 %{_localstatedir}/etc/ossec.conf
 
+echo "Check /etc permissions"
+ls -ld /etc
+
 %preun
+set -x
+
+echo "check system macros" 
+rpm --eval %{_localstatedir}
+rpm --eval %{_sysconfdir}
+echo "check package macros"  
+echo %{_localstatedir}
+echo %{_sysconfdir}
 
 if [ $1 = 0 ]; then
 
@@ -396,7 +425,18 @@ fi
  chown root:ossec %{_localstatedir}/etc/localtime
  chmod 0640 %{_localstatedir}/etc/localtime
 
+echo "Check /etc permissions"
+ls -ld /etc
+
 %postun
+set -x
+
+echo "check system macros" 
+rpm --eval %{_localstatedir}
+rpm --eval %{_sysconfdir}
+echo "check package macros"  
+echo %{_localstatedir}
+echo %{_sysconfdir}
 
 # If the package is been uninstalled
 if [ $1 = 0 ];then
@@ -423,7 +463,20 @@ if [ $1 = 0 ];then
 fi
 
 # posttrans code is the last thing executed in a install/upgrade
+
+echo "Check /etc permissions"
+ls -ld /etc
+
 %posttrans
+set -x
+echo "check system macros" 
+rpm --eval %{_localstatedir}
+rpm --eval %{_sysconfdir}
+echo "check package macros" 
+echo %{_localstatedir}
+echo %{_sysconfdir}
+
+
 if [ -f %{_sysconfdir}/systemd/system/wazuh-agent.service ]; then
   rm -rf %{_sysconfdir}/systemd/system/wazuh-agent.service
   systemctl daemon-reload > /dev/null 2>&1
@@ -452,6 +505,9 @@ fi
 if [ -f %{_sysconfdir}/ossec-init.conf ]; then
   rm -rf %{_sysconfdir}/ossec-init.conf
 fi
+
+echo "Check /etc permissions"
+ls -ld /etc
 
 %clean
 rm -fr %{buildroot}
