@@ -1,4 +1,3 @@
 #!/bin/bash
 # Copyright (C) 2015-2020, Wazuh Inc.
-. /etc/ossec-init.conf 2> /dev/null || exit 1
-(sleep 5 && chmod +x $DIRECTORY/var/upgrade/*.sh && $DIRECTORY/var/upgrade/pkg_installer.sh) >/dev/null 2>&1 &
+(sleep 5 && chmod +x /opt/ossec/var/upgrade/*.sh && /opt/ossec/var/upgrade/pkg_installer.sh) >/dev/null 2>&1 &
