@@ -19,6 +19,12 @@ RUN yum -y install epel-release && \
 
 RUN yum-builddep python34 -y
 
+RUN curl -OL http://packages.wazuh.com/utils/openssl/openssl-1.1.1a.tar.gz && \
+    tar xf openssl-1.1.1a.tar.gz && cd openssl-1.1.1a && \
+    ./config --prefix=/usr/ --openssldir=/usr/ shared zlib && \
+    make -j$(nproc) && make install && echo "/usr/lib" > /etc/ld.so.conf.d/openssl-1.1.1a.conf && \
+    ldconfig -v && cd / && rm -rf openssl-1.1.1a*
+
 RUN pip3 install cryptography==2.9.2 typing awscli
 
 ADD wpkpack.py /usr/local/bin/wpkpack

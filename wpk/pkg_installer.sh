@@ -2,7 +2,7 @@
 
 # Copyright (C) 2015-2020, Wazuh Inc.
 
-. /etc/ossec-init.conf
+DIRECTORY="/opt/ossec"
 
 # Generating Backup
 BDATE=$(date +"%m-%d-%Y_%H-%M-%S")
