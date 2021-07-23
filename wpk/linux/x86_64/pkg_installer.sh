@@ -2,11 +2,11 @@
 
 # Copyright (C) 2015-2020, Wazuh Inc.
 
+. /etc/ossec-init.conf
+
 # Generating Backup
 BDATE=$(date +"%m-%d-%Y_%H-%M-%S")
-DIRECTORY="/opt/ossec"
-VERSION="4.2.0"
-REVISION="0.4"
+
 echo "$(date +"%Y/%m/%d %H:%M:%S") - Generating Backup." > ${DIRECTORY}/logs/upgrade.log
 mkdir -p ${DIRECTORY}/tmp_bkp/${DIRECTORY}/bin
 mkdir -p ${DIRECTORY}/tmp_bkp/${DIRECTORY}/etc
@@ -21,7 +21,7 @@ rm -rf ${DIRECTORY}/tmp_bkp
 
 # Installing upgrade
 echo "$(date +"%Y/%m/%d %H:%M:%S") - Upgrade started." >> ${DIRECTORY}/logs/upgrade.log
-yum install -y ${DIRECTORY}/var/upgrade/wazuh-agent-${VERSION}-${REVISION}.x86_64.rpm >> ${DIRECTORY}/logs/upgrade.log 2>&1
+yum install -y ${DIRECTORY}/var/upgrade/wazuh-agent* >> ${DIRECTORY}/logs/upgrade.log 2>&1
 
 # Check installation result
 RESULT=$?
