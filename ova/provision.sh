@@ -8,6 +8,7 @@ BRANCH=$5
 BRANCHDOC=$6
 DEBUG=$7
 UI_REVISION=$8
+REPO=$9
 INSTALLER="unattended-installation.sh"
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ASSETS_PATH="${CURRENT_PATH}/assets"

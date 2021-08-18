@@ -54,9 +54,13 @@ preInstall() {
   CURRENT_O=$(less ${INSTALLER} | grep "OD_VER=")
   CURRENT_E=$(less ${INSTALLER} | grep "ELK_VER=")
 
-  # Change wazuh and documentation repository branch
-  sed -i "s/uh\/[0-9]\+\.[0-9]\+\/ex/uh\/${BRANCH}\/ex/g" ${INSTALLER}
-  sed -i "s/on\/[0-9]\+\.[0-9]\+\/re/on\/${BRANCHDOC}\/re/g" ${INSTALLER}
+  # Change wazuh branch in s3 (4.1, 4.2, ...)
+  AWS_BRANCH=$BRANCH
+  if [ ${AWS_BRANCH:0:1} = "v" ]; then
+        AWS_BRANCH=$(echo $AWS_BRANCH | cut --complement -c 1)
+  fi
+  AWS_BRANCH=${AWS_BRANCH:0:3}
+  sed -i "s/resources\/[0-9]\+\.[0-9]\+\//resources\/${AWS_BRANCH}\//g" ${INSTALLER}
 
   # Change versions
   sed -i "s/${CURRENT_W}/WAZUH_VER=\"${WAZUH_VERSION}\"/g" ${INSTALLER}
@@ -65,11 +69,12 @@ preInstall() {
 
   # Change repository if dev is specified
   if [ "${PACKAGES_REPOSITORY}" = "dev" ]; then
-      sed -i "s/\[wazuh\]/\[wazuh_pre_release\]/g" ${INSTALLER}
-      sed -i "s/ngpgkey\=https\:\/\/packages\.wazuh\.com/ngpgkey\=https\:\/\/packages\-dev\.wazuh\.com/g" ${INSTALLER}
-      sed -i "s/baseurl\=https\:\/\/packages\.wazuh\.com\/4\.x/baseurl\=https\:\/\/packages\-dev\.wazuh\.com\/pre\-release/g" ${INSTALLER}
-      sed -i "s/https\:\/\/packages\.wazuh\.com\/4\.x\/ui\/kibana/https\:\/\/packages\-dev\.wazuh\.com\/pre\-release\/ui\/kibana/g" ${INSTALLER}
+      sed -i "s/packages\.wazuh\.com\/resources/packages-dev\.wazuh\.com\/resources/g" ${INSTALLER} 
+      sed -i "s/wazuh\/[0-9\.]\+\/extensions/wazuh\/${BRANCH}\/extensions/g" ${INSTALLER}                     
       sed -i "s/wazuh_kibana-[0-9\.]\+_[0-9\.]\+/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}/g" ${INSTALLER}
+      sed -i "s/packages\.wazuh\.com\/key/packages-dev\.wazuh\.com\/key/g" ${INSTALLER}
+      sed -i "s/baseurl\=https\:\/\/packages\.wazuh\.com\/4\.x/baseurl\=https\:\/\/packages\-dev\.wazuh\.com\/${REPO}/g" ${INSTALLER}
+      sed -i "s/https\:\/\/packages\.wazuh\.com\/4\.x\/ui\/kibana/https\:\/\/packages\-dev\.wazuh\.com\/${REPO}\/ui\/kibana/g" ${INSTALLER}
   fi
 
   # Edit kibana plugin versions

@@ -23,10 +23,11 @@ OUTPUT_DIR="${scriptpath}/output"
 CHECKSUM_DIR="${scriptpath}/checksum"
 HAVE_BRANCH="no"
 HAVE_BRANCHDOC="no"
+HAVE_S3REPO="no"
 
 # Get the currents production branches
 
-BRANCH="v4.2-rc6"
+BRANCH="v4.2-rc13"
 BRANCHDOC="4.2-rc"
 export BRANCH
 export BRANCHDOC
@@ -38,6 +39,7 @@ PACKAGES_REPOSITORY="prod"
 CHECKSUM="no"
 UI_REVISION="1"
 DEBUG="no"
+S3_REPO=""
 
 help () {
 
@@ -55,6 +57,8 @@ help () {
     echo "  -c,    --checksum         [Optional] Generate checksum [yes/no]. By default: no"
     echo "  -u,    --ui-revision      [Optional] Revision of the UI package. By default: 1"
     echo "  -g,    --debug            [Optional] Set debug mode on [yes/no]. By default: no"
+    echo "  -rp,   --repo             [Optional] Set S3 dev repository [pre-release, branches, ...]"
+    echo "                            [Required if using development repository]"
     echo "  -h,    --help             [  Util  ] Show this help."
     echo
     exit $1
@@ -82,6 +86,7 @@ build_ova() {
     export ELK_VERSION
     export PACKAGES_REPOSITORY
     export DEBUG
+    export S3_REPO
 
     if [ -e "${OUTPUT_DIR}/${OVA_VM}" ] || [ -e "${OUTPUT_DIR}/${OVF_VM}" ]; then
         rm -f ${OUTPUT_DIR}/${OVA_VM} ${OUTPUT_DIR}/${OVF_VM}
@@ -240,6 +245,17 @@ main() {
             fi
         ;;
 
+        "-rp" | "--repo")
+            if [ -n "$2" ]; then
+                S3_REPO="$2"
+                HAVE_S3REPO="yes"
+                shift 2
+            else
+                echo "ERROR: Need a value"
+                help 1
+            fi
+        ;;
+
         "-c"|"--checksum")
             if [ -n "$2" ]; then
                 if [ "$2" != "no" ] && [ "$2" != "yes" ]; then
@@ -274,7 +290,11 @@ main() {
         if [ ${HAVE_BRANCH} = "no" ] || [ ${HAVE_BRANCHDOC} = "no" ]; then
             echo "Required options: '-b' or '--branch' and '-d' or '--doc'"
             help 1
+        elif [ ${HAVE_S3REPO} = "no" ]; then
+            echo "Required option: '-rp' or '--repo'"
+            help 1
         fi
+
     fi
 
     export UI_REVISION="${UI_REVISION}"
@@ -283,9 +303,9 @@ main() {
     OVA_VERSION="${WAZUH_VERSION}_${OPENDISTRO_VERSION}"
     [[ ${PACKAGES_REPOSITORY} = "prod" ]] && REPO="production" || REPO="development"
     echo "Version to build: ${WAZUH_VERSION}-${OPENDISTRO_VERSION} with ${REPO} repository and ${BRANCH} branch"
-    
+
     # Build OVA file (no standard)
-    build_ova ${WAZUH_VERSION} ${OVA_VERSION} ${BRANCH} ${BRANCHDOC} ${DEBUG}
+    build_ova ${WAZUH_VERSION} ${OVA_VERSION} ${BRANCH} ${BRANCHDOC} ${DEBUG} ${S3_REPO}
 
     # Standarize OVA
     bash setOVADefault.sh "${scriptpath}" "${OUTPUT_DIR}/${OVA_VM}" "${OUTPUT_DIR}/${OVA_VM}" "${scriptpath}/wazuh_ovf_template" "${WAZUH_VERSION}" "${OPENDISTRO_VERSION}" || clean 1
