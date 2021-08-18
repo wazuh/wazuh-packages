@@ -561,6 +561,7 @@ fi
 
 if [ -f %{_sysconfdir}/ossec-init.conf ]; then
   rm -rf %{_sysconfdir}/ossec-init.conf
+  rm -rf %{_localstatedir}/etc/ossec-init.conf
 fi
 
 %triggerin -- glibc
