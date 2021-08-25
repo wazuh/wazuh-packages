@@ -38,10 +38,10 @@ systemConfig() {
   echo "PermitRootLogin no" >> /etc/ssh/sshd_config
 
   # Edit system custom welcome messages
-  sh ${CUSTOM_PATH}/messages.sh ${DEBUG} ${WAZUH_VERSION}
+  sh ${CUSTOM_PATH}/messages.sh ${DEBUG} ${WAZUH_MAJOR}
 }
 
-# Edit unnatended installer
+# Edit unattended installer
 preInstall() {
 
   # Set debug mode
@@ -49,45 +49,38 @@ preInstall() {
     sed -i "s/\#\!\/bin\/bash/\#\!\/bin\/bash\nset -x/g" ${INSTALLER}
   fi
 
-  # Get currents version values of installer
-  CURRENT_W=$(less ${INSTALLER} | grep "WAZUH_VER=")
-  CURRENT_O=$(less ${INSTALLER} | grep "OD_VER=")
-  CURRENT_E=$(less ${INSTALLER} | grep "ELK_VER=")
-
-  # Change wazuh branch in s3 (4.1, 4.2, ...)
-  AWS_BRANCH=$BRANCH
-  if [ ${AWS_BRANCH:0:1} = "v" ]; then
-        AWS_BRANCH=$(echo $AWS_BRANCH | cut --complement -c 1)
-  fi
-  AWS_BRANCH=${AWS_BRANCH:0:3}
-  sed -i "s/resources\/[0-9]\+\.[0-9]\+\//resources\/${AWS_BRANCH}\//g" ${INSTALLER}
-
-  # Change versions
-  sed -i "s/${CURRENT_W}/WAZUH_VER=\"${WAZUH_VERSION}\"/g" ${INSTALLER}
-  sed -i "s/${CURRENT_O}/OD_VER=\"${OPENDISTRO_VERSION}\"/g" ${INSTALLER}
-  sed -i "s/${CURRENT_E}/ELK_VER=\"${ELK_VERSION}\"/g" ${INSTALLER}
+  # Remove debug in unattended script
+  sed -i "s/\${debug}//g" ${INSTALLER}
 
   # Change repository if dev is specified
   if [ "${PACKAGES_REPOSITORY}" = "dev" ]; then
-      sed -i "s/packages\.wazuh\.com\/resources/packages-dev\.wazuh\.com\/resources/g" ${INSTALLER} 
-      sed -i "s/wazuh\/[0-9\.]\+\/extensions/wazuh\/${BRANCH}\/extensions/g" ${INSTALLER}                     
-      sed -i "s/wazuh_kibana-[0-9\.]\+_[0-9\.]\+/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}/g" ${INSTALLER}
-      sed -i "s/packages\.wazuh\.com\/key/packages-dev\.wazuh\.com\/key/g" ${INSTALLER}
-      sed -i "s/baseurl\=https\:\/\/packages\.wazuh\.com\/4\.x/baseurl\=https\:\/\/packages\-dev\.wazuh\.com\/${REPO}/g" ${INSTALLER}
-      sed -i "s/https\:\/\/packages\.wazuh\.com\/4\.x\/ui\/kibana/https\:\/\/packages\-dev\.wazuh\.com\/${REPO}\/ui\/kibana/g" ${INSTALLER}
+    sed -i "s/packages\.wazuh\.com/packages-dev\.wazuh\.com/g" ${INSTALLER} 
+    sed -i "s/packages-dev\.wazuh\.com\/4\.x/packages-dev\.wazuh\.com\/pre-release/g" ${INSTALLER} 
   fi
 
-  # Edit kibana plugin versions
-  sed -i "s/wazuh\_kibana\-[0-9\.]*_[0-9\.]*\-1\.zip/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-${UI_REVISION}.zip/g" ${INSTALLER}
-  
+  # Remove kibana admin user
+  PATTERN="eval \"rm \/etc\/elasticsearch\/e"
+  FILE_PATH="\/usr\/share\/elasticsearch\/plugins\/opendistro_security\/securityconfig"
+  sed -i "s/${PATTERN}/sed -i \'\/^admin:\/,\/admin user\\\\\"\/d\' ${FILE_PATH}\/internal_users\.yml\n        ${PATTERN}/g" ${INSTALLER}
+ 
+  # Change user:password in curls
+  sed -i "s/admin:admin/wazuh:wazuh/g" ${INSTALLER}
+
+  # Replace admin/admin for wazuh/wazuh in filebeat.yml
+  PATTERN="eval \"curl -so \/etc\/filebeat\/wazuh-template"
+  sed -i "s/${PATTERN}/sed -i \"s\/admin\/wazuh\/g\" \/etc\/filebeat\/filebeat\.yml\n        ${PATTERN}/g" ${INSTALLER}
+
   # Disable start of wazuh-manager
   sed -i "s/startService \"wazuh-manager\"/\#startService \"wazuh-manager\"/g" ${INSTALLER}
 
   # Disable passwords change
   sed -i "s/wazuhpass=/#wazuhpass=/g" ${INSTALLER}
-  sed -i "s/changePasswords$/#changePasswords\nwazuhpass=wazuh/g" ${INSTALLER}
+  sed -i "s/changePasswords$/#changePasswords\nwazuhpass=\"wazuh\"/g" ${INSTALLER}
   sed -i "s/ra=/#ra=/g" ${INSTALLER}
-  
+
+  # Revert url to packages.wazuh.com to get filebeat gz
+  sed -i "s/'\${repobaseurl}'\/filebeat/https:\/\/packages.wazuh.com\/4.x\/filebeat/g" ${INSTALLER}
+
 }
 
 # Edit wazuh installation

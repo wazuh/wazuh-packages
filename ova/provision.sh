@@ -1,14 +1,10 @@
 #!/bin/bash
 
-WAZUH_VERSION=$1
-OPENDISTRO_VERSION=$2
-ELK_VERSION=$3
-PACKAGES_REPOSITORY=$4
-BRANCH=$5
-BRANCHDOC=$6
-DEBUG=$7
-UI_REVISION=$8
-REPO=$9
+
+PACKAGES_REPOSITORY=$1
+DEBUG=$2
+WAZUH_MAJOR=$3
+
 INSTALLER="unattended-installation.sh"
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ASSETS_PATH="${CURRENT_PATH}/assets"
@@ -23,7 +19,10 @@ echo "Using ${PACKAGES_REPOSITORY} packages"
 # System configuration
 systemConfig
 
-curl -so ${INSTALLER} https://raw.githubusercontent.com/wazuh/wazuh-documentation/${BRANCHDOC}/resources/open-distro/unattended-installation/${INSTALLER} 
+if [ "${PACKAGES_REPOSITORY}" = "dev" ]; then
+    AWS_SUFFIX="-dev"
+fi
+curl -so ${INSTALLER} https://packages${AWS_SUFFIX}.wazuh.com/resources/${WAZUH_MAJOR}/open-distro/unattended-installation/unattended-installation.sh
 
 # Edit installation script
 preInstall

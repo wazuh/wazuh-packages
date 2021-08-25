@@ -21,44 +21,24 @@ scriptpath=$(
 
 OUTPUT_DIR="${scriptpath}/output"
 CHECKSUM_DIR="${scriptpath}/checksum"
-HAVE_BRANCH="no"
-HAVE_BRANCHDOC="no"
 HAVE_S3REPO="no"
-
-# Get the currents production branches
-
-BRANCH="v4.2-rc13"
-BRANCHDOC="4.2-rc"
-export BRANCH
-export BRANCHDOC
 
 WAZUH_VERSION="4.2.0"
 OPENDISTRO_VERSION="1.13.2"
-ELK_VERSION="7.10.2"
+WAZUH_MAJOR="4.2"
+
 PACKAGES_REPOSITORY="prod"
 CHECKSUM="no"
-UI_REVISION="1"
 DEBUG="no"
-S3_REPO=""
 
 help () {
-
     echo
     echo "General usage: $0 [OPTIONS]"
-    echo "  -w,    --wazuh            [Optional] Version of wazuh to install on VM."
-    echo "  -o,    --opendistro       [Optional] Version of Open Distro for Elasticsearch."
-    echo "  -e,    --elk              [Optional] Versions of Elasticsearch, Logstash and Kibana."
-    echo "  -r,    --repository       [Optional] Select the software repository [dev/prod]. By default: prod"
-    echo "  -b,    --branch           [Optional] Branch/tag of the Wazuh repository. By default: ${BRANCH}"
-    echo "                            [Required by -r|--repository]"
-    echo "  -d,    --doc              [Optional] Branch/tag of the Wazuh documentation repository. By default: ${BRANCHDOC}"
-    echo "                            [Required by -r|--repository]"
+    echo "  -w,    --wazuh            [Optional] Select the wazuh major version [4.1, 4.2]. By default: ${WAZUH_MAJOR}"
+    echo "  -r,    --repository       [Optional] Select the software repository [prod/dev]. By default: ${PACKAGES_REPOSITORY}"
     echo "  -s,    --store <path>     [Optional] Set the destination absolute path where the ova file will be stored."
-    echo "  -c,    --checksum         [Optional] Generate checksum [yes/no]. By default: no"
-    echo "  -u,    --ui-revision      [Optional] Revision of the UI package. By default: 1"
-    echo "  -g,    --debug            [Optional] Set debug mode on [yes/no]. By default: no"
-    echo "  -rp,   --repo             [Optional] Set S3 dev repository [pre-release, branches, ...]"
-    echo "                            [Required if using development repository]"
+    echo "  -c,    --checksum         [Optional] Generate checksum [yes/no]. By default: ${CHECKSUM}"
+    echo "  -g,    --debug            [Optional] Set debug mode on [yes/no]. By default: ${DEBUG}"
     echo "  -h,    --help             [  Util  ] Show this help."
     echo
     exit $1
@@ -81,12 +61,9 @@ build_ova() {
     OVF_VM="wazuh-${OVA_VERSION}.ovf"
     OVA_FIXED="wazuh-${OVA_VERSION}-fixed.ova"
 
-    export WAZUH_VERSION
-    export OPENDISTRO_VERSION
-    export ELK_VERSION
     export PACKAGES_REPOSITORY
     export DEBUG
-    export S3_REPO
+    export WAZUH_MAJOR
 
     if [ -e "${OUTPUT_DIR}/${OVA_VM}" ] || [ -e "${OUTPUT_DIR}/${OVF_VM}" ]; then
         rm -f ${OUTPUT_DIR}/${OVA_VM} ${OUTPUT_DIR}/${OVF_VM}
@@ -129,23 +106,6 @@ build_ova() {
 
 }
 
-check_version() {
-    WAZUH_MAJOR="$(echo ${WAZUH_VERSION} | head -c 1)"
-    if [ "${WAZUH_MAJOR}" = "4" ]; then
-        if [ "${PACKAGES_REPOSITORY}" = "prod" ]; then
-            curl -Isf https://packages.wazuh.com/${WAZUH_MAJOR}.x/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-${UI_REVISION}.zip > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${ELK_VERSION}-${UI_REVISION} not supported." && exit 1 )
-        elif [ "${PACKAGES_REPOSITORY}" = "dev" ]; then
-            curl -Isf https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuh_kibana-${WAZUH_VERSION}_${ELK_VERSION}-${UI_REVISION}.zip > /dev/null || ( echo "Error version ${WAZUH_VERSION}-${ELK_VERSION} not supported." && exit 1 )
-        else
-            echo "Error, repository value must take 'prod' (production) or 'dev' (development) value."
-            exit
-        fi
-    else 
-        echo "Error, only 4.x versions are supported"
-        exit
-    fi
-}
-
 main() {
 
     while [ -n "$1" ]; do
@@ -157,21 +117,7 @@ main() {
 
         "-w" | "--wazuh")
             if [ -n "$2" ]; then
-                WAZUH_VERSION="$2"
-                shift 2
-            fi
-        ;;
-
-        "-o" | "--opendistro")
-            if [ -n "$2" ]; then
-                OPENDISTRO_VERSION="$2"
-                shift 2
-            fi
-        ;;
-
-        "-e" | "--elk")
-            if [ -n "$2" ]; then
-                ELK_VERSION="$2"
+                WAZUH_MAJOR="$2"
                 shift 2
             fi
         ;;
@@ -186,37 +132,6 @@ main() {
                 shift 2
             else
                 echo "ERROR: Value must be: [prod/dev]"
-                help 1
-            fi
-        ;;
-
-        "-u" | "--ui")
-            if [ -n "$2" ]; then
-                UI_REVISION="$2"
-                shift 2
-            else
-                help 1
-            fi
-        ;;
-
-        "-b" | "--branch")
-            if [ -n "$2" ]; then
-                BRANCH="$2"
-                HAVE_BRANCH="yes"
-                shift 2
-            else
-                echo "ERROR: Need a value"
-                help 1
-            fi
-        ;;
-
-        "-d" | "--doc")
-            if [ -n "$2" ]; then
-                BRANCHDOC="$2"
-                HAVE_BRANCHDOC="yes"
-                shift 2
-            else
-                echo "ERROR: Need a value"
                 help 1
             fi
         ;;
@@ -245,17 +160,6 @@ main() {
             fi
         ;;
 
-        "-rp" | "--repo")
-            if [ -n "$2" ]; then
-                S3_REPO="$2"
-                HAVE_S3REPO="yes"
-                shift 2
-            else
-                echo "ERROR: Need a value"
-                help 1
-            fi
-        ;;
-
         "-c"|"--checksum")
             if [ -n "$2" ]; then
                 if [ "$2" != "no" ] && [ "$2" != "yes" ]; then
@@ -279,33 +183,16 @@ main() {
         CHECKSUM_DIR="${OUTPUT_DIR}"
     fi
 
-    # Check versions 
-    if [ ${BRANCH} != ${BRANCHDOC} ] && [ ${PACKAGES_REPOSITORY} = "prod" ]; then
-        echo "Wazuh branch must be equal to Documentation branch in production."
-        clean 1
-    fi
-
-    # Check if branch are specified if using dev repository
-    if [ ${PACKAGES_REPOSITORY} = "dev" ]; then
-        if [ ${HAVE_BRANCH} = "no" ] || [ ${HAVE_BRANCHDOC} = "no" ]; then
-            echo "Required options: '-b' or '--branch' and '-d' or '--doc'"
-            help 1
-        elif [ ${HAVE_S3REPO} = "no" ]; then
-            echo "Required option: '-rp' or '--repo'"
-            help 1
-        fi
-
-    fi
-
-    export UI_REVISION="${UI_REVISION}"
-    check_version
-
-    OVA_VERSION="${WAZUH_VERSION}_${OPENDISTRO_VERSION}"
     [[ ${PACKAGES_REPOSITORY} = "prod" ]] && REPO="production" || REPO="development"
-    echo "Version to build: ${WAZUH_VERSION}-${OPENDISTRO_VERSION} with ${REPO} repository and ${BRANCH} branch"
+    if [ ${WAZUH_MAJOR} = "4.1" ]; then
+        WAZUH_VERSION="4.1.5"
+    fi
+    OVA_VERSION="${WAZUH_VERSION}_${OPENDISTRO_VERSION}"
+    
+    echo "Version to build: ${OVA_VERSION} with ${REPO} repository"
 
     # Build OVA file (no standard)
-    build_ova ${WAZUH_VERSION} ${OVA_VERSION} ${BRANCH} ${BRANCHDOC} ${DEBUG} ${S3_REPO}
+    build_ova ${OVA_VERSION} ${DEBUG} ${WAZUH_MAJOR}
 
     # Standarize OVA
     bash setOVADefault.sh "${scriptpath}" "${OUTPUT_DIR}/${OVA_VM}" "${OUTPUT_DIR}/${OVA_VM}" "${scriptpath}/wazuh_ovf_template" "${WAZUH_VERSION}" "${OPENDISTRO_VERSION}" || clean 1
