@@ -34,9 +34,9 @@ DEBUG="no"
 help () {
     echo
     echo "General usage: $0 [OPTIONS]"
-    echo "  -w,    --wazuh            [Optional] Select the wazuh major version [4.1, 4.2]. By default: ${WAZUH_MAJOR}"
+    echo "  -w,    --wazuh            [Optional] Select the Wazuh major version [4.1, 4.2]. By default: ${WAZUH_MAJOR}"
     echo "  -r,    --repository       [Optional] Select the software repository [prod/dev]. By default: ${PACKAGES_REPOSITORY}"
-    echo "  -s,    --store <path>     [Optional] Set the destination absolute path where the ova file will be stored."
+    echo "  -s,    --store <path>     [Optional] Set the destination absolute path where the OVA file will be stored."
     echo "  -c,    --checksum         [Optional] Generate checksum [yes/no]. By default: ${CHECKSUM}"
     echo "  -g,    --debug            [Optional] Set debug mode on [yes/no]. By default: ${DEBUG}"
     echo "  -h,    --help             [  Util  ] Show this help."
