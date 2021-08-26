@@ -1,8 +1,8 @@
 #!/bin/sh
 
 DEBUG=$1
-WAZUH_MAJOR=$2
-[[ ${WAZUH_MAJOR} = "4.2" ]] && WAZUH_VERSION="4.2.0" || WAZUH_VERSION="4.1.5"
+WAZUH_VERSION=$2
+
 [[ ${DEBUG} = "yes" ]] && set -ex || set -e
 
 # OVA Welcome message

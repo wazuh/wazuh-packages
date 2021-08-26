@@ -23,8 +23,6 @@ OUTPUT_DIR="${scriptpath}/output"
 CHECKSUM_DIR="${scriptpath}/checksum"
 HAVE_S3REPO="no"
 
-WAZUH_VERSION="4.2.0"
-OPENDISTRO_VERSION="1.13.2"
 WAZUH_MAJOR="4.2"
 
 PACKAGES_REPOSITORY="prod"
@@ -34,7 +32,6 @@ DEBUG="no"
 help () {
     echo
     echo "General usage: $0 [OPTIONS]"
-    echo "  -w,    --wazuh            [Optional] Select the Wazuh major version [4.1, 4.2]. By default: ${WAZUH_MAJOR}"
     echo "  -r,    --repository       [Optional] Select the software repository [prod/dev]. By default: ${PACKAGES_REPOSITORY}"
     echo "  -s,    --store <path>     [Optional] Set the destination absolute path where the OVA file will be stored."
     echo "  -c,    --checksum         [Optional] Generate checksum [yes/no]. By default: ${CHECKSUM}"
@@ -78,7 +75,7 @@ build_ova() {
     vagrant up || clean 1
     vagrant suspend
     echo "Exporting ova"
-
+ 
     # Get machine name
     VM_EXPORT=$(vboxmanage list vms | grep -i vm_wazuh | cut -d "\"" -f2)
     
@@ -113,13 +110,6 @@ main() {
         case $1 in
             "-h" | "--help")
             help 0
-        ;;
-
-        "-w" | "--wazuh")
-            if [ -n "$2" ]; then
-                WAZUH_MAJOR="$2"
-                shift 2
-            fi
         ;;
 
         "-r" | "--repository")
@@ -184,15 +174,16 @@ main() {
     fi
 
     [[ ${PACKAGES_REPOSITORY} = "prod" ]] && REPO="production" || REPO="development"
-    if [ ${WAZUH_MAJOR} = "4.1" ]; then
-        WAZUH_VERSION="4.1.5"
-    fi
+
+    UNATTENDED_URL="https://packages.wazuh.com/resources/${WAZUH_MAJOR}/open-distro/unattended-installation/unattended-installation.sh"
+    WAZUH_VERSION=$(curl -s ${UNATTENDED_URL} | grep "WAZUH_VER=" | cut -d "\"" -f 2)
+    OPENDISTRO_VERSION=$(curl -s ${UNATTENDED_URL} | grep "OD_VER=" | cut -d "\"" -f 2)
     OVA_VERSION="${WAZUH_VERSION}_${OPENDISTRO_VERSION}"
     
     echo "Version to build: ${OVA_VERSION} with ${REPO} repository"
 
     # Build OVA file (no standard)
-    build_ova ${OVA_VERSION} ${DEBUG} ${WAZUH_MAJOR}
+    build_ova ${OVA_VERSION} ${DEBUG} ${WAZUH_MAJOR} ${WAZUH_VERSION}
 
     # Standarize OVA
     bash setOVADefault.sh "${scriptpath}" "${OUTPUT_DIR}/${OVA_VM}" "${OUTPUT_DIR}/${OVA_VM}" "${scriptpath}/wazuh_ovf_template" "${WAZUH_VERSION}" "${OPENDISTRO_VERSION}" || clean 1

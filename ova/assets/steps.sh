@@ -38,7 +38,8 @@ systemConfig() {
   echo "PermitRootLogin no" >> /etc/ssh/sshd_config
 
   # Edit system custom welcome messages
-  sh ${CUSTOM_PATH}/messages.sh ${DEBUG} ${WAZUH_MAJOR}
+  sh ${CUSTOM_PATH}/messages.sh ${DEBUG} ${WAZUH_VERSION}
+
 }
 
 # Edit unattended installer
