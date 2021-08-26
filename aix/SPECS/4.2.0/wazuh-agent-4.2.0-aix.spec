@@ -23,7 +23,7 @@ Wazuh is an open source security monitoring solution for threat detection, integ
 %setup -q
 deps_version=`cat src/Makefile | grep "DEPS_VERSION =" | cut -d " " -f 3`
 cd src && gmake clean && gmake deps RESOURCES_URL=http://packages.wazuh.com/deps/${deps_version} TARGET=agent
-gmake TARGET=agent USE_SELINUX=no DISABLE_SHARED=yes
+gmake TARGET=agent USE_SELINUX=no
 cd ..
 
 %install
@@ -44,7 +44,7 @@ echo 'USER_UPDATE="n"' >> ./etc/preloaded-vars.conf
 echo 'USER_AGENT_SERVER_IP="MANAGER_IP"' >> ./etc/preloaded-vars.conf
 echo 'USER_CA_STORE="/path/to/my_cert.pem"' >> ./etc/preloaded-vars.conf
 echo 'USER_AUTO_START="n"' >> ./etc/preloaded-vars.conf
-DISABLE_SHARED="yes" DISABLE_SYSC="yes" ./install.sh
+./install.sh
 
 # Remove unnecessary files or directories
 rm -rf %{_localstatedir}/selinux
@@ -101,22 +101,38 @@ if [ $1 = 1 ]; then
 fi
 
 if [ $1 = 2 ]; then
-  if %{_localstatedir}/bin/wazuh-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
+  if /etc/rc.d/init.d/wazuh-agent status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
     /etc/rc.d/init.d/wazuh-agent stop > /dev/null 2>&1 || :
     touch %{_localstatedir}/tmp/wazuh.restart
+  fi
+  %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1 || %{_localstatedir}/bin/wazuh-control stop > /dev/null 2>&1
+fi
+
+if [ $1 = 2 ]; then
+  if [ -d %{_localstatedir}/logs/ossec ]; then
+    cp -rp %{_localstatedir}/logs/ossec %{_localstatedir}/tmp/logs/wazuh > /dev/null 2>&1
+    rm -rf %{_localstatedir}/logs/ossec/*
+    rm -rf %{_localstatedir}/logs/ossec/.??*
+  fi
+
+  if [ -d %{_localstatedir}/queue/ossec ]; then
+    cp -rp %{_localstatedir}/queue/ossec %{_localstatedir}/tmp/queue/sockets > /dev/null 2>&1
+    rm -rf %{_localstatedir}/queue/ossec/*
+    rm -rf %{_localstatedir}/queue/ossec/.??*
   fi
 fi
 
 %post
+
 if [ $1 = 2 ]; then
-  if [ -d %{_localstatedir}/logs/ossec ]; then
+  if [ -d %{_localstatedir}/tmp/logs/wazuh ]; then
     rm -rf %{_localstatedir}/logs/wazuh
-    cp -rp %{_localstatedir}/logs/ossec %{_localstatedir}/logs/wazuh
+    mv %{_localstatedir}/tmp/logs/ossec %{_localstatedir}/logs/wazuh> /dev/null 2>&1
   fi
 
-  if [ -d %{_localstatedir}/queue/ossec ]; then
+  if [ -d %{_localstatedir}/tmp/queue/sockets ]; then
     rm -rf %{_localstatedir}/queue/sockets
-    cp -rp %{_localstatedir}/queue/ossec %{_localstatedir}/queue/sockets
+    mv %{_localstatedir}/tmp/queue/ossec %{_localstatedir}/queue/sockets > /dev/null 2>&1
   fi
 fi
 
@@ -136,7 +152,7 @@ if [ $1 = 1 ]; then
   fi
 
   # Fix for AIX: netstat command
-  sed 's/netstat -tulpn/nestat -tu/' %{_localstatedir}/etc/ossec.conf > %{_localstatedir}/etc/ossec.conf.tmp
+  sed 's/netstat -tulpn/netstat -tu/' %{_localstatedir}/etc/ossec.conf > %{_localstatedir}/etc/ossec.conf.tmp
   mv %{_localstatedir}/etc/ossec.conf.tmp %{_localstatedir}/etc/ossec.conf
   sed 's/sort -k 4 -g/sort -n -k 4/' %{_localstatedir}/etc/ossec.conf > %{_localstatedir}/etc/ossec.conf.tmp
   mv %{_localstatedir}/etc/ossec.conf.tmp %{_localstatedir}/etc/ossec.conf
@@ -159,17 +175,10 @@ rm -f %{_localstatedir}/tmp/add_localfiles.sh
 
 chmod 0660 %{_localstatedir}/etc/ossec.conf
 
-# Restart wazuh-agent when manager settings are in place
-if grep '<server-ip>.*</server-ip>' %{_localstatedir}/etc/ossec.conf | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' > /dev/null 2>&1; then
+if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
+  rm -f %{_localstatedir}/tmp/wazuh.restart
   /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
 fi
-if grep '<server-hostname>.*</server-hostname>' %{_localstatedir}/etc/ossec.conf > /dev/null 2>&1; then
-  /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
-fi
-if grep '<address>.*</address>' %{_localstatedir}/etc/ossec.conf | grep -v 'MANAGER_IP' > /dev/null 2>&1; then
-  /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
-fi
-
 
 %preun
 
@@ -200,19 +209,6 @@ if [ $1 = 0 ];then
   rm -rf %{_localstatedir}/ruleset
 fi
 
-%posttrans
-if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
-  rm -f %{_localstatedir}/tmp/wazuh.restart
-  /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
-fi
-
-if [ -d %{_localstatedir}/logs/ossec ]; then
-  rm -rf %{_localstatedir}/logs/ossec/
-fi
-
-if [ -d %{_localstatedir}/queue/ossec ]; then
-  rm -rf %{_localstatedir}/queue/ossec/
-fi
 
 %clean
 rm -fr %{buildroot}
@@ -280,6 +276,18 @@ rm -fr %{buildroot}
 
 %changelog
 * Mon Apr 26 2021 support <info@wazuh.com> - 4.2.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Sat Apr 24 2021 support <info@wazuh.com> - 3.13.3
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Apr 22 2021 support <info@wazuh.com> - 4.1.5
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Mar 29 2021 support <info@wazuh.com> - 4.1.4
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Sat Mar 20 2021 support <info@wazuh.com> - 4.1.3
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Mar 08 2021 support <info@wazuh.com> - 4.1.2
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Fri Mar 05 2021 support <info@wazuh.com> - 4.1.1
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Tue Jan 19 2021 support <info@wazuh.com> - 4.1.0
 - More info: https://documentation.wazuh.com/current/release-notes/
