@@ -8,7 +8,8 @@ OUT_NAME=""
 CHECKSUM="no"
 INSTALLATION_PATH="/var/ossec"
 PKG_NAME=""
-HAVE_PKG_NAME=false
+HAVE_PKG_NAME_WIN=false
+HAVE_PKG_NAME_MAC=false
 AWS_REGION="us-east-1"
 KEYPATH="/etc/wazuh"
 WPKCERT="${KEYPATH}/wpkcert.pem"
@@ -28,17 +29,18 @@ help() {
     echo "Usage: ${0} [OPTIONS]"
     echo "It is required to use -k or --aws-wpk-key, --aws-wpk-cert parameters"
     echo
-    echo "    -b,   --branch <branch>      [Required] Select Git branch or tag e.g. master"
-    echo "    -o,   --output <name>        [Required] Name to the output package."
-    echo "    -pn,  --package-name <name>  [Required for windows] Package name to pack on wpk."
-    echo "    -r,   --revision <rev>       [Optional] Revision of the package. By default: 1."
-    echo "    -p,   --path <path>          [Optional] Installation path for the package. By default: /var."
-    echo "    -j,   --jobs <number>        [Optional] Number of parallel jobs when compiling."
-    echo "    -c,   --checksum             [Optional] Whether Generate checksum or not."
-    echo "    --aws-wpk-key                [Optional] AWS Secrets manager Name/ARN to get WPK private key."
-    echo "    --aws-wpk-cert               [Optional] AWS secrets manager Name/ARN to get WPK certificate."
-    echo "    --aws-wpk-key-region         [Optional] AWS Region where secrets are stored."
-    echo "    -h,   --help                 Show this help."
+    echo "    -b,   --branch <branch>               [Required] Select Git branch or tag e.g. master"
+    echo "    -o,   --output <name>                 [Required] Name to the output package."
+    echo "    -pnw,  --package-name-windows <name>  [Required for windows] Package name to pack on wpk, incompatible with -pnm."
+    echo "    -pnm,  --package-name-macos <name>    [Required for macOS] Package name to pack on wpk, incompatible with -pnw."
+    echo "    -r,   --revision <rev>                [Optional] Revision of the package. By default: 1."
+    echo "    -p,   --path <path>                   [Optional] Installation path for the package. By default: /var."
+    echo "    -j,   --jobs <number>                 [Optional] Number of parallel jobs when compiling."
+    echo "    -c,   --checksum                      [Optional] Whether Generate checksum or not."
+    echo "    --aws-wpk-key                         [Optional] AWS Secrets manager Name/ARN to get WPK private key."
+    echo "    --aws-wpk-cert                        [Optional] AWS secrets manager Name/ARN to get WPK certificate."
+    echo "    --aws-wpk-key-region                  [Optional] AWS Region where secrets are stored."
+    echo "    -h,   --help                          Show this help."
     echo
     exit ${1}
 }
@@ -77,10 +79,25 @@ main() {
                 shift 2
             fi
             ;;
-        "-pn"|"--package-name")
+        "-pnw"|"--package-name-windows")
+            if [ "${HAVE_PKG_NAME_MAC}" == true ]; then
+                echo "ERROR: Incompatible option '-pnw' with '-pnm'"
+                help 1
+            fi
             if [ -n "${2}" ]; then
                 PKG_NAME="${2}"
-                HAVE_PKG_NAME=true
+                HAVE_PKG_NAME_WIN=true
+                shift 2
+            fi
+            ;;
+        "-pnm"|"--package-name-macos")
+            if [ "${HAVE_PKG_NAME_WIN}" == true ]; then
+                echo "ERROR: Incompatible option '-pnm' with '-pnw'"
+                help 1
+            fi
+            if [ -n "${2}" ]; then
+                PKG_NAME="${2}"
+                HAVE_PKG_NAME_MAC=true
                 shift 2
             fi
             ;;
@@ -181,7 +198,7 @@ main() {
         ${PYTHON} /usr/local/bin/wpkpack ${OUTPUT} ${WPKCERT} ${WPKKEY} *
     else
 
-      if [ "${HAVE_PKG_NAME}" == true ]; then
+      if [ "${HAVE_PKG_NAME_WIN}" == true ]; then
           CURRENT_DIR=$(pwd)
           echo "wpkpack ${OUTPUT} ${WPKCERT} ${WPKKEY} ${PKG_NAME} upgrade.bat do_upgrade.ps1"
           cd ${OUTDIR}
@@ -189,8 +206,17 @@ main() {
           cp /var/pkg/${PKG_NAME} ${OUTDIR} 2>/dev/null
           wpkpack ${OUTPUT} ${WPKCERT} ${WPKKEY} ${PKG_NAME} upgrade.bat do_upgrade.ps1
           rm -f upgrade.bat do_upgrade.ps1 ${PKG_NAME}
+      elif [ "${HAVE_PKG_NAME_MAC}" == true ]; then
+          CURRENT_DIR=$(pwd)
+          echo "wpkpack ${OUTPUT} ${WPKCERT} ${WPKKEY} ${PKG_NAME} upgrade.sh pkg_installer_mac.sh"
+          cd ${OUTDIR}
+          cp ${CURRENT_DIR}/src/init/pkg_installer_mac.sh .
+          cp ${CURRENT_DIR}/upgrade.sh .
+          cp /var/pkg/${PKG_NAME} ${OUTDIR} 2>/dev/null
+          wpkpack ${OUTPUT} ${WPKCERT} ${WPKKEY} ${PKG_NAME} upgrade.sh pkg_installer_mac.sh
+          rm -f upgrade.sh pkg_installer_mac.sh ${PKG_NAME}
       else
-          echo "ERROR: MSI package is needed to build the Windows WPK"
+          echo "ERROR: a package is needed to build the Windows or macOS WPK"
           help 1
       fi
     fi

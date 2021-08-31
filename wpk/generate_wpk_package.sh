@@ -18,25 +18,29 @@ LINUX_BUILDER_ARMV7HL="linux_wpk_builder_armv7hl"
 LINUX_BUILDER_ARMV7HL_DOCKERFILE="${CURRENT_PATH}/linux/armv7hl"
 WIN_BUILDER="windows_wpk_builder"
 WIN_BUILDER_DOCKERFILE="${CURRENT_PATH}/windows"
+WIN_PN_OPTION="-pnw"
+MAC_BUILDER="macos_wpk_builder"
+MAC_BUILDER_DOCKERFILE="${CURRENT_PATH}/macos"
+MAC_PN_OPTION="-pnm"
 CHECKSUM="no"
 INSTALLATION_PATH="/var/ossec"
 
 trap ctrl_c INT
 
 
-function build_wpk_windows() {
-    local BRANCH="${1}"
-    local DESTINATION="${2}"
-    local CONTAINER_NAME="${3}"
-    local JOBS="${4}"
-    local PACKAGE_NAME="${5}"
-    local OUT_NAME="${6}"
-    local CHECKSUM="${7}"
-    local CHECKSUMDIR="${8}"
-    local INSTALLATION_PATH="${9}"
-    local AWS_REGION="${10}"
-    local WPK_KEY="${11}"
-    local WPK_CERT="${12}"
+function build_wpk_windows_macos() {
+    local BRANCH="${2}"
+    local DESTINATION="${3}"
+    local CONTAINER_NAME="${4}"
+    local JOBS="${5}"
+    local PACKAGE_NAME="${6}"
+    local OUT_NAME="${7}"
+    local CHECKSUM="${8}"
+    local CHECKSUMDIR="${9}"
+    local INSTALLATION_PATH="${10}"
+    local AWS_REGION="${11}"
+    local WPK_KEY="${12}"
+    local WPK_CERT="${13}"
 
     if [ -n "${CHECKSUM}" ]; then
         CHECKSUM_FLAG="-c"
@@ -48,9 +52,18 @@ function build_wpk_windows() {
         WPK_CERT_FLAG="--aws-wpk-cert ${WPK_CERT}"
     fi
 
+    if [ "${1}" == "windows" ]; then
+        PACKAGE_NAME_OPTION="${WIN_PN_OPTION}"
+    elif [ "${1}" == "macos" ]; then
+        PACKAGE_NAME_OPTION="${MAC_PN_OPTION}"
+    else
+        echo "ERROR: Target system to build wpk must be windows or macos"
+        return 1
+    fi
+
     docker run -t --rm -v ${KEYDIR}:/etc/wazuh:Z -v ${DESTINATION}:/var/local/wazuh:Z -v ${PKG_PATH}:/var/pkg:Z \
         -v ${CHECKSUMDIR}:/var/local/checksum:Z \
-        ${CONTAINER_NAME} -b ${BRANCH} -j ${JOBS} -o ${OUT_NAME} -p ${INSTALLATION_PATH} --aws-wpk-key-region ${AWS_REGION} ${WPK_KEY_FLAG} ${WPK_CERT_FLAG} -pn ${PACKAGE_NAME} ${CHECKSUM_FLAG}
+        ${CONTAINER_NAME} -b ${BRANCH} -j ${JOBS} -o ${OUT_NAME} -p ${INSTALLATION_PATH} --aws-wpk-key-region ${AWS_REGION} ${WPK_KEY_FLAG} ${WPK_CERT_FLAG} ${PACKAGE_NAME_OPTION} ${PACKAGE_NAME} ${CHECKSUM_FLAG}
 
     return $?
 }
@@ -101,10 +114,10 @@ function help() {
     echo "Usage: ${0} [OPTIONS]"
     echo "It is required to use -k or --aws-wpk-key, --aws-wpk-cert parameters"
     echo
-    echo "    -t,   --target-system <target> [Required] Select target wpk to build [linux/windows]"
+    echo "    -t,   --target-system <target> [Required] Select target wpk to build [linux/windows/macOS]"
     echo "    -b,   --branch <branch>        [Required] Select Git branch or tag e.g. $BRANCH"
     echo "    -d,   --destination <path>     [Required] Set the destination path of package."
-    echo "    -pn,  --package-name <name>    [Required for windows] Package name to pack on wpk."
+    echo "    -pn,  --package-name <name>    [Required for windows and macOS] Package name to pack on wpk."
     echo "    -o,   --output <name>          [Required] Name to the output package."
     echo "    -k,   --key-dir <path>         [Optional] Set the WPK key path to sign package."
     echo "    --aws-wpk-key                  [Optional] AWS Secrets manager Name/ARN to get WPK private key."
@@ -166,12 +179,12 @@ function main() {
         case "${1}" in
         "-t"|"--target-system")
             if [ -n "${2}" ]; then
-                if [[ "${2}" == "linux" || "${2}" == "windows" ]]; then
+                if [[ "${2}" == "linux" || "${2}" == "windows" || "${2}" == "macOS" ]]; then
                     local TARGET="${2}"
                     local HAVE_TARGET=true
                     shift 2
                 else
-                    echo "Target system must be linux or windows"
+                    echo "Target system must be linux, windows or macOS"
                     help 1
                 fi
             else
@@ -328,10 +341,20 @@ function main() {
             if [[ "${HAVE_PKG_NAME}" == true ]]; then
                 build_container ${WIN_BUILDER} ${WIN_BUILDER_DOCKERFILE} || clean ${WIN_BUILDER_DOCKERFILE} 1
                 local CONTAINER_NAME="${WIN_BUILDER}"
-                build_wpk_windows ${BRANCH} ${DESTINATION} ${CONTAINER_NAME} ${JOBS} ${PKG_NAME} ${OUT_NAME} ${CHECKSUM} ${CHECKSUMDIR} ${INSTALLATION_PATH} ${AWS_REGION} ${WPK_KEY} ${WPK_CERT} || clean ${WIN_BUILDER_DOCKERFILE} 1
+                build_wpk_windows_macos windows ${BRANCH} ${DESTINATION} ${CONTAINER_NAME} ${JOBS} ${PKG_NAME} ${OUT_NAME} ${CHECKSUM} ${CHECKSUMDIR} ${INSTALLATION_PATH} ${AWS_REGION} ${WPK_KEY} ${WPK_CERT} || clean ${WIN_BUILDER_DOCKERFILE} 1
                 clean ${WIN_BUILDER_DOCKERFILE} 0
             else
                 echo "ERROR: No msi package name specified for Windows WPK"
+                help 1
+            fi
+        elif [[ "${TARGET}" == "macOS" ]]; then
+            if [[ "${HAVE_PKG_NAME}" == true ]]; then
+                build_container ${MAC_BUILDER} ${MAC_BUILDER_DOCKERFILE} || clean ${MAC_BUILDER_DOCKERFILE} 1
+                local CONTAINER_NAME="${MAC_BUILDER}"
+                build_wpk_windows_macos macos ${BRANCH} ${DESTINATION} ${CONTAINER_NAME} ${JOBS} ${PKG_NAME} ${OUT_NAME} ${CHECKSUM} ${CHECKSUMDIR} ${INSTALLATION_PATH} ${AWS_REGION} ${WPK_KEY} ${WPK_CERT} || clean ${MAC_BUILDER_DOCKERFILE} 1
+                clean ${MAC_BUILDER_DOCKERFILE} 0
+            else
+                echo "ERROR: No pkg package name specified for macOS WPK"
                 help 1
             fi
         else
