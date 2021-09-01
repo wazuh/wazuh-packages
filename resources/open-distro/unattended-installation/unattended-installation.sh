@@ -21,7 +21,7 @@ WAZUH_KIB_PLUG_REV="1"
 ow=""
 repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"
 repobaseurl="https://packages.wazuh.com/4.x"
-resources="https://raw.githubusercontent.com/wazuh/wazuh-packages/4.1/resources"
+resources="https://raw.githubusercontent.com/wazuh/wazuh-packages/${WAZUH_MAJOR}/resources"
 
 if [ -n "$(command -v yum)" ]; then
     sys_type="yum"
