@@ -23,7 +23,8 @@ OUTPUT_DIR="${scriptpath}/output"
 CHECKSUM_DIR="${scriptpath}/checksum"
 HAVE_S3REPO="no"
 
-WAZUH_MAJOR="4.2"
+# wazuh-packages branch/tag of unattended installer script to use
+PACKAGES_BRANCH="4.2"
 
 PACKAGES_REPOSITORY="prod"
 CHECKSUM="no"
@@ -32,6 +33,7 @@ DEBUG="no"
 help () {
     echo
     echo "General usage: $0 [OPTIONS]"
+    echo "  -b,    --branch           [Optional] Set the wazuh-packages repository branch/tag. By default: ${PACKAGES_BRANCH}"
     echo "  -r,    --repository       [Optional] Select the software repository [prod/dev]. By default: ${PACKAGES_REPOSITORY}"
     echo "  -s,    --store <path>     [Optional] Set the destination absolute path where the OVA file will be stored."
     echo "  -c,    --checksum         [Optional] Generate checksum [yes/no]. By default: ${CHECKSUM}"
@@ -60,7 +62,7 @@ build_ova() {
 
     export PACKAGES_REPOSITORY
     export DEBUG
-    export WAZUH_MAJOR
+    export PACKAGES_BRANCH
 
     if [ -e "${OUTPUT_DIR}/${OVA_VM}" ] || [ -e "${OUTPUT_DIR}/${OVF_VM}" ]; then
         rm -f ${OUTPUT_DIR}/${OVA_VM} ${OUTPUT_DIR}/${OVF_VM}
@@ -110,6 +112,16 @@ main() {
         case $1 in
             "-h" | "--help")
             help 0
+        ;;
+
+        "-b" | "--branch")
+            if [ -n "$2" ]; then
+                PACKAGES_BRANCH="$2"
+                shift 2
+            else
+                echo "ERROR: Value is empty"
+                help 1
+            fi
         ;;
 
         "-r" | "--repository")
@@ -175,7 +187,7 @@ main() {
 
     [[ ${PACKAGES_REPOSITORY} = "prod" ]] && REPO="production" || REPO="development"
 
-    UNATTENDED_URL="https://packages.wazuh.com/resources/${WAZUH_MAJOR}/open-distro/unattended-installation/unattended-installation.sh"
+    UNATTENDED_URL="https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/resources/open-distro/unattended-installation/unattended-installation.sh"
     WAZUH_VERSION=$(curl -s ${UNATTENDED_URL} | grep "WAZUH_VER=" | cut -d "\"" -f 2)
     OPENDISTRO_VERSION=$(curl -s ${UNATTENDED_URL} | grep "OD_VER=" | cut -d "\"" -f 2)
     OVA_VERSION="${WAZUH_VERSION}_${OPENDISTRO_VERSION}"
@@ -183,7 +195,7 @@ main() {
     echo "Version to build: ${OVA_VERSION} with ${REPO} repository"
 
     # Build OVA file (no standard)
-    build_ova ${OVA_VERSION} ${DEBUG} ${WAZUH_MAJOR} ${WAZUH_VERSION}
+    build_ova ${OVA_VERSION} ${DEBUG} ${PACKAGES_BRANCH} ${WAZUH_VERSION}
 
     # Standarize OVA
     bash setOVADefault.sh "${scriptpath}" "${OUTPUT_DIR}/${OVA_VM}" "${OUTPUT_DIR}/${OVA_VM}" "${scriptpath}/wazuh_ovf_template" "${WAZUH_VERSION}" "${OPENDISTRO_VERSION}" || clean 1

@@ -82,6 +82,9 @@ preInstall() {
   # Revert url to packages.wazuh.com to get filebeat gz
   sed -i "s/'\${repobaseurl}'\/filebeat/https:\/\/packages.wazuh.com\/4.x\/filebeat/g" ${INSTALLER}
 
+  # Change wazuh-packages branch
+  sed -i "s/WAZUH_MAJOR=\"4.2\"/WAZUH_MAJOR=\"${PACKAGES_BRANCH}\"/g" ${INSTALLER}
+
 }
 
 # Edit wazuh installation
