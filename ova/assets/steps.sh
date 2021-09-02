@@ -47,43 +47,37 @@ preInstall() {
 
   # Set debug mode
   if [ "${DEBUG}" == "yes" ]; then
-    sed -i "s/\#\!\/bin\/bash/\#\!\/bin\/bash\nset -x/g" ${INSTALLER}
+    sed -i "s/\#\!\/bin\/bash/\#\!\/bin\/bash\nset -x/g" ${UNATTENDED_PATH}/${INSTALLER}
   fi
-
-  # Remove debug in unattended script
-  sed -i "s/\${debug}//g" ${INSTALLER}
 
   # Change repository if dev is specified
   if [ "${PACKAGES_REPOSITORY}" = "dev" ]; then
-    sed -i "s/packages\.wazuh\.com/packages-dev\.wazuh\.com/g" ${INSTALLER} 
-    sed -i "s/packages-dev\.wazuh\.com\/4\.x/packages-dev\.wazuh\.com\/pre-release/g" ${INSTALLER} 
+    sed -i "s/packages\.wazuh\.com/packages-dev\.wazuh\.com/g" ${UNATTENDED_PATH}/${INSTALLER} 
+    sed -i "s/packages-dev\.wazuh\.com\/4\.x/packages-dev\.wazuh\.com\/pre-release/g" ${UNATTENDED_PATH}/${INSTALLER} 
   fi
 
   # Remove kibana admin user
   PATTERN="eval \"rm \/etc\/elasticsearch\/e"
   FILE_PATH="\/usr\/share\/elasticsearch\/plugins\/opendistro_security\/securityconfig"
-  sed -i "s/${PATTERN}/sed -i \'\/^admin:\/,\/admin user\\\\\"\/d\' ${FILE_PATH}\/internal_users\.yml\n        ${PATTERN}/g" ${INSTALLER}
+  sed -i "s/${PATTERN}/sed -i \'\/^admin:\/,\/admin user\\\\\"\/d\' ${FILE_PATH}\/internal_users\.yml\n        ${PATTERN}/g" ${UNATTENDED_PATH}/${INSTALLER}
  
   # Change user:password in curls
-  sed -i "s/admin:admin/wazuh:wazuh/g" ${INSTALLER}
+  sed -i "s/admin:admin/wazuh:wazuh/g" ${UNATTENDED_PATH}/${INSTALLER}
 
   # Replace admin/admin for wazuh/wazuh in filebeat.yml
   PATTERN="eval \"curl -so \/etc\/filebeat\/wazuh-template"
-  sed -i "s/${PATTERN}/sed -i \"s\/admin\/wazuh\/g\" \/etc\/filebeat\/filebeat\.yml\n        ${PATTERN}/g" ${INSTALLER}
+  sed -i "s/${PATTERN}/sed -i \"s\/admin\/wazuh\/g\" \/etc\/filebeat\/filebeat\.yml\n        ${PATTERN}/g" ${UNATTENDED_PATH}/${INSTALLER}
 
   # Disable start of wazuh-manager
-  sed -i "s/startService \"wazuh-manager\"/\#startService \"wazuh-manager\"/g" ${INSTALLER}
+  sed -i "s/startService \"wazuh-manager\"/\#startService \"wazuh-manager\"/g" ${UNATTENDED_PATH}/${INSTALLER}
 
   # Disable passwords change
-  sed -i "s/wazuhpass=/#wazuhpass=/g" ${INSTALLER}
-  sed -i "s/changePasswords$/#changePasswords\nwazuhpass=\"wazuh\"/g" ${INSTALLER}
-  sed -i "s/ra=/#ra=/g" ${INSTALLER}
+  sed -i "s/wazuhpass=/#wazuhpass=/g" ${UNATTENDED_PATH}/${INSTALLER}
+  sed -i "s/changePasswords$/#changePasswords\nwazuhpass=\"wazuh\"/g" ${UNATTENDED_PATH}/${INSTALLER}
+  sed -i "s/ra=/#ra=/g" ${UNATTENDED_PATH}/${INSTALLER}
 
   # Revert url to packages.wazuh.com to get filebeat gz
-  sed -i "s/'\${repobaseurl}'\/filebeat/https:\/\/packages.wazuh.com\/4.x\/filebeat/g" ${INSTALLER}
-
-  # Change wazuh-packages branch
-  sed -i "s/WAZUH_MAJOR=\"4.2\"/WAZUH_MAJOR=\"${PACKAGES_BRANCH}\"/g" ${INSTALLER}
+  sed -i "s/'\${repobaseurl}'\/filebeat/https:\/\/packages.wazuh.com\/4.x\/filebeat/g" ${UNATTENDED_PATH}/${INSTALLER}
 
 }
 
@@ -106,7 +100,6 @@ postInstall() {
 
 clean() {
 
-  rm ${INSTALLER}
   rm /securityadmin_demo.sh
   yum clean all
 
