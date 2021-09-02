@@ -114,10 +114,10 @@ function help() {
     echo "Usage: ${0} [OPTIONS]"
     echo "It is required to use -k or --aws-wpk-key, --aws-wpk-cert parameters"
     echo
-    echo "    -t,   --target-system <target> [Required] Select target wpk to build [linux/windows/macOS]"
+    echo "    -t,   --target-system <target> [Required] Select target wpk to build [linux/windows/macos]"
     echo "    -b,   --branch <branch>        [Required] Select Git branch or tag e.g. $BRANCH"
     echo "    -d,   --destination <path>     [Required] Set the destination path of package."
-    echo "    -pn,  --package-name <name>    [Required for windows and macOS] Package name to pack on wpk."
+    echo "    -pn,  --package-name <name>    [Required for windows and macos] Package name to pack on wpk."
     echo "    -o,   --output <name>          [Required] Name to the output package."
     echo "    -k,   --key-dir <path>         [Optional] Set the WPK key path to sign package."
     echo "    --aws-wpk-key                  [Optional] AWS Secrets manager Name/ARN to get WPK private key."
@@ -179,12 +179,12 @@ function main() {
         case "${1}" in
         "-t"|"--target-system")
             if [ -n "${2}" ]; then
-                if [[ "${2}" == "linux" || "${2}" == "windows" || "${2}" == "macOS" ]]; then
+                if [[ "${2}" == "linux" || "${2}" == "windows" || "${2}" == "macos" ]]; then
                     local TARGET="${2}"
                     local HAVE_TARGET=true
                     shift 2
                 else
-                    echo "Target system must be linux, windows or macOS"
+                    echo "Target system must be linux, windows or macos"
                     help 1
                 fi
             else
@@ -347,14 +347,14 @@ function main() {
                 echo "ERROR: No msi package name specified for Windows WPK"
                 help 1
             fi
-        elif [[ "${TARGET}" == "macOS" ]]; then
+        elif [[ "${TARGET}" == "macos" ]]; then
             if [[ "${HAVE_PKG_NAME}" == true ]]; then
                 build_container ${MAC_BUILDER} ${MAC_BUILDER_DOCKERFILE} || clean ${MAC_BUILDER_DOCKERFILE} 1
                 local CONTAINER_NAME="${MAC_BUILDER}"
                 build_wpk_windows_macos macos ${BRANCH} ${DESTINATION} ${CONTAINER_NAME} ${JOBS} ${PKG_NAME} ${OUT_NAME} ${CHECKSUM} ${CHECKSUMDIR} ${INSTALLATION_PATH} ${AWS_REGION} ${WPK_KEY} ${WPK_CERT} || clean ${MAC_BUILDER_DOCKERFILE} 1
                 clean ${MAC_BUILDER_DOCKERFILE} 0
             else
-                echo "ERROR: No pkg package name specified for macOS WPK"
+                echo "ERROR: No pkg package name specified for macos WPK"
                 help 1
             fi
         else

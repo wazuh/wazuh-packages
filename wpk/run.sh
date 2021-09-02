@@ -32,7 +32,7 @@ help() {
     echo "    -b,   --branch <branch>               [Required] Select Git branch or tag e.g. master"
     echo "    -o,   --output <name>                 [Required] Name to the output package."
     echo "    -pnw,  --package-name-windows <name>  [Required for windows] Package name to pack on wpk, incompatible with -pnm."
-    echo "    -pnm,  --package-name-macos <name>    [Required for macOS] Package name to pack on wpk, incompatible with -pnw."
+    echo "    -pnm,  --package-name-macos <name>    [Required for macos] Package name to pack on wpk, incompatible with -pnw."
     echo "    -r,   --revision <rev>                [Optional] Revision of the package. By default: 1."
     echo "    -p,   --path <path>                   [Optional] Installation path for the package. By default: /var."
     echo "    -j,   --jobs <number>                 [Optional] Number of parallel jobs when compiling."
