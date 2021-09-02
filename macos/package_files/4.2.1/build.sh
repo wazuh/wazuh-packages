@@ -51,8 +51,6 @@ function build() {
     cp ${SOURCES_PATH}/gen_ossec.sh ${INSTALLATION_SCRIPTS_DIR}/
     cp ${SOURCES_PATH}/add_localfiles.sh ${INSTALLATION_SCRIPTS_DIR}/
 
-    cp ${SOURCES_PATH}/etc/wpk_root.pem ${INSTALLATION_SCRIPTS_DIR}/etc/
-
     mkdir -p ${INSTALLATION_SCRIPTS_DIR}/src/init
     mkdir -p ${INSTALLATION_SCRIPTS_DIR}/etc/templates/config/{generic,darwin}
 

@@ -216,7 +216,7 @@ main() {
           wpkpack ${OUTPUT} ${WPKCERT} ${WPKKEY} ${PKG_NAME} upgrade.sh pkg_installer_mac.sh
           rm -f upgrade.sh pkg_installer_mac.sh ${PKG_NAME}
       else
-          echo "ERROR: a package is needed to build the Windows or macOS WPK"
+          echo "ERROR: MSI/PKG package is needed to build the Windows or macOS WPK"
           help 1
       fi
     fi
