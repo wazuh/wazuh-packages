@@ -1808,6 +1808,22 @@
         "type": "directory",
         "user": "root"
     },
+        "/var/ossec/wodles/__init__.py": {
+        "class": "static",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+        "/var/ossec/wodles/utils.py": {
+        "class": "static",
+        "group": "ossec",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
     "/var/ossec/wodles/aws": {
         "class": "static",
         "group": "ossec",
