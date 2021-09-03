@@ -268,6 +268,7 @@ rm -fr %{buildroot}
 %dir %attr(770,root,ossec) %{_localstatedir}/var/upgrade
 %dir %attr(770,root,ossec) %{_localstatedir}/var/wodles
 %dir %attr(750,root,ossec) %{_localstatedir}/wodles
+%attr(750,root,ossec) %{_localstatedir}/wodles/*
 %dir %attr(750,root,ossec) %{_localstatedir}/wodles/aws
 %attr(750,root,ossec) %{_localstatedir}/wodles/aws/*
 %dir %attr(750, root, ossec) %{_localstatedir}/wodles/gcloud
