@@ -5,7 +5,6 @@ WAZUH_VERSION=$2
 
 [[ ${DEBUG} = "yes" ]] && set -ex || set -e
 
-
 # OVA Welcome message
 cat > /etc/issue <<EOF
 
