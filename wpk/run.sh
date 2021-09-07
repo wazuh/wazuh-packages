@@ -31,8 +31,7 @@ help() {
     echo
     echo "    -b,   --branch <branch>               [Required] Select Git branch or tag e.g. master"
     echo "    -o,   --output <name>                 [Required] Name to the output package."
-    echo "    -pnw,  --package-name-windows <name>  [Required for windows] Package name to pack on wpk, incompatible with -pnm."
-    echo "    -pnm,  --package-name-macos <name>    [Required for macos] Package name to pack on wpk, incompatible with -pnw."
+    echo "    -pn,  --package-name <name>           [Required for windows and macOS] Package name to pack on wpk."
     echo "    -r,   --revision <rev>                [Optional] Revision of the package. By default: 1."
     echo "    -p,   --path <path>                   [Optional] Installation path for the package. By default: /var."
     echo "    -j,   --jobs <number>                 [Optional] Number of parallel jobs when compiling."
@@ -79,25 +78,14 @@ main() {
                 shift 2
             fi
             ;;
-        "-pnw"|"--package-name-windows")
-            if [ "${HAVE_PKG_NAME_MAC}" == true ]; then
-                echo "ERROR: Incompatible option '-pnw' with '-pnm'"
-                help 1
-            fi
+        "-pn"|"--package-name")
             if [ -n "${2}" ]; then
                 PKG_NAME="${2}"
-                HAVE_PKG_NAME_WIN=true
-                shift 2
-            fi
-            ;;
-        "-pnm"|"--package-name-macos")
-            if [ "${HAVE_PKG_NAME_WIN}" == true ]; then
-                echo "ERROR: Incompatible option '-pnm' with '-pnw'"
-                help 1
-            fi
-            if [ -n "${2}" ]; then
-                PKG_NAME="${2}"
-                HAVE_PKG_NAME_MAC=true
+                if [ "${PKG_NAME: -4}" == ".msi" ]; then
+                    HAVE_PKG_NAME_WIN=true
+                elif [[ "${PKG_NAME: -4}" == ".pkg" || "${PKG_NAME: -4}" == ".PKG" ]]; then
+                    HAVE_PKG_NAME_MAC=true
+                fi
                 shift 2
             fi
             ;;

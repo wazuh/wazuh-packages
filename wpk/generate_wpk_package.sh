@@ -16,31 +16,27 @@ LINUX_BUILDER_AARCH64="linux_wpk_builder_aarch64"
 LINUX_BUILDER_AARCH64_DOCKERFILE="${CURRENT_PATH}/linux/aarch64"
 LINUX_BUILDER_ARMV7HL="linux_wpk_builder_armv7hl"
 LINUX_BUILDER_ARMV7HL_DOCKERFILE="${CURRENT_PATH}/linux/armv7hl"
-WIN_BUILDER="windows_wpk_builder"
-WIN_BUILDER_DOCKERFILE="${CURRENT_PATH}/windows"
-WIN_PN_OPTION="-pnw"
-MAC_BUILDER="macos_wpk_builder"
-MAC_BUILDER_DOCKERFILE="${CURRENT_PATH}/macos"
-MAC_PN_OPTION="-pnm"
+COMMON_BUILDER="common_wpk_builder"
+COMMON_BUILDER_DOCKERFILE="${CURRENT_PATH}/common"
 CHECKSUM="no"
 INSTALLATION_PATH="/var/ossec"
 
 trap ctrl_c INT
 
 
-function build_wpk_windows_macos() {
-    local BRANCH="${2}"
-    local DESTINATION="${3}"
-    local CONTAINER_NAME="${4}"
-    local JOBS="${5}"
-    local PACKAGE_NAME="${6}"
-    local OUT_NAME="${7}"
-    local CHECKSUM="${8}"
-    local CHECKSUMDIR="${9}"
-    local INSTALLATION_PATH="${10}"
-    local AWS_REGION="${11}"
-    local WPK_KEY="${12}"
-    local WPK_CERT="${13}"
+function pack_wpk() {
+    local BRANCH="${1}"
+    local DESTINATION="${2}"
+    local CONTAINER_NAME="${3}"
+    local JOBS="${4}"
+    local PACKAGE_NAME="${5}"
+    local OUT_NAME="${6}"
+    local CHECKSUM="${7}"
+    local CHECKSUMDIR="${8}"
+    local INSTALLATION_PATH="${9}"
+    local AWS_REGION="${10}"
+    local WPK_KEY="${11}"
+    local WPK_CERT="${12}"
 
     if [ -n "${CHECKSUM}" ]; then
         CHECKSUM_FLAG="-c"
@@ -52,18 +48,9 @@ function build_wpk_windows_macos() {
         WPK_CERT_FLAG="--aws-wpk-cert ${WPK_CERT}"
     fi
 
-    if [ "${1}" == "windows" ]; then
-        PACKAGE_NAME_OPTION="${WIN_PN_OPTION}"
-    elif [ "${1}" == "macos" ]; then
-        PACKAGE_NAME_OPTION="${MAC_PN_OPTION}"
-    else
-        echo "ERROR: Target system to build wpk must be windows or macos"
-        return 1
-    fi
-
     docker run -t --rm -v ${KEYDIR}:/etc/wazuh:Z -v ${DESTINATION}:/var/local/wazuh:Z -v ${PKG_PATH}:/var/pkg:Z \
         -v ${CHECKSUMDIR}:/var/local/checksum:Z \
-        ${CONTAINER_NAME} -b ${BRANCH} -j ${JOBS} -o ${OUT_NAME} -p ${INSTALLATION_PATH} --aws-wpk-key-region ${AWS_REGION} ${WPK_KEY_FLAG} ${WPK_CERT_FLAG} ${PACKAGE_NAME_OPTION} ${PACKAGE_NAME} ${CHECKSUM_FLAG}
+        ${CONTAINER_NAME} -b ${BRANCH} -j ${JOBS} -o ${OUT_NAME} -p ${INSTALLATION_PATH} --aws-wpk-key-region ${AWS_REGION} ${WPK_KEY_FLAG} ${WPK_CERT_FLAG} -pn ${PACKAGE_NAME} ${CHECKSUM_FLAG}
 
     return $?
 }
@@ -339,20 +326,20 @@ function main() {
     if [[ "${HAVE_TARGET}" == true ]] && [[ "${HAVE_BRANCH}" == true ]] && [[ "${HAVE_DESTINATION}" == true ]] && [[ "${HAVE_OUT_NAME}" == true ]]; then
         if [[ "${TARGET}" == "windows" ]]; then
             if [[ "${HAVE_PKG_NAME}" == true ]]; then
-                build_container ${WIN_BUILDER} ${WIN_BUILDER_DOCKERFILE} || clean ${WIN_BUILDER_DOCKERFILE} 1
-                local CONTAINER_NAME="${WIN_BUILDER}"
-                build_wpk_windows_macos windows ${BRANCH} ${DESTINATION} ${CONTAINER_NAME} ${JOBS} ${PKG_NAME} ${OUT_NAME} ${CHECKSUM} ${CHECKSUMDIR} ${INSTALLATION_PATH} ${AWS_REGION} ${WPK_KEY} ${WPK_CERT} || clean ${WIN_BUILDER_DOCKERFILE} 1
-                clean ${WIN_BUILDER_DOCKERFILE} 0
+                build_container ${COMMON_BUILDER} ${COMMON_BUILDER_DOCKERFILE} || clean ${COMMON_BUILDER_DOCKERFILE} 1
+                local CONTAINER_NAME="${COMMON_BUILDER}"
+                pack_wpk ${BRANCH} ${DESTINATION} ${CONTAINER_NAME} ${JOBS} ${PKG_NAME} ${OUT_NAME} ${CHECKSUM} ${CHECKSUMDIR} ${INSTALLATION_PATH} ${AWS_REGION} ${WPK_KEY} ${WPK_CERT} || clean ${COMMON_BUILDER_DOCKERFILE} 1
+                clean ${COMMON_BUILDER_DOCKERFILE} 0
             else
                 echo "ERROR: No msi package name specified for Windows WPK"
                 help 1
             fi
         elif [[ "${TARGET}" == "macos" ]]; then
             if [[ "${HAVE_PKG_NAME}" == true ]]; then
-                build_container ${MAC_BUILDER} ${MAC_BUILDER_DOCKERFILE} || clean ${MAC_BUILDER_DOCKERFILE} 1
-                local CONTAINER_NAME="${MAC_BUILDER}"
-                build_wpk_windows_macos macos ${BRANCH} ${DESTINATION} ${CONTAINER_NAME} ${JOBS} ${PKG_NAME} ${OUT_NAME} ${CHECKSUM} ${CHECKSUMDIR} ${INSTALLATION_PATH} ${AWS_REGION} ${WPK_KEY} ${WPK_CERT} || clean ${MAC_BUILDER_DOCKERFILE} 1
-                clean ${MAC_BUILDER_DOCKERFILE} 0
+                build_container ${COMMON_BUILDER} ${COMMON_BUILDER_DOCKERFILE} || clean ${COMMON_BUILDER_DOCKERFILE} 1
+                local CONTAINER_NAME="${COMMON_BUILDER}"
+                pack_wpk ${BRANCH} ${DESTINATION} ${CONTAINER_NAME} ${JOBS} ${PKG_NAME} ${OUT_NAME} ${CHECKSUM} ${CHECKSUMDIR} ${INSTALLATION_PATH} ${AWS_REGION} ${WPK_KEY} ${WPK_CERT} || clean ${COMMON_BUILDER_DOCKERFILE} 1
+                clean ${COMMON_BUILDER_DOCKERFILE} 0
             else
                 echo "ERROR: No pkg package name specified for macos WPK"
                 help 1
