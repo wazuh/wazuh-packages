@@ -1,104 +1,35 @@
-#/bin/bash
-set -exf
-# Variables
-repo_branch=$(echo "$1" | cut -c1-3)
-repo_baseurl=$(echo "$1" | cut -c1-2)
-WAZUH_VERSION=$1
-OPENDISTRO_VERSION=$2
-ELK_VERSION=$3
-PACKAGES_REPOSITORY=$4
-BRANCH=$5
-UI_REVISION=$6
-DIRECTORY="/var/ossec"
-ELK_MAJOR=`echo ${ELK_VERSION}|cut -d"." -f1`
-ELK_MINOR=`echo ${ELK_VERSION}|cut -d"." -f2`
+#!/bin/bash
+
+PACKAGES_REPOSITORY=$1
+DEBUG=$2
+
+RESOURCES_PATH="/tmp/resources"
+UNATTENDED_PATH="${RESOURCES_PATH}/open-distro/unattended-installation"
+INSTALLER="unattended-installation.sh"
+WAZUH_VERSION=$(cat ${UNATTENDED_PATH}/${INSTALLER} | grep "WAZUH_VER=" | cut -d "\"" -f 2)
 
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
-config_files="${CURRENT_PATH}/Config_files"
-automatic_set_ram_location="/etc/"
-libraries_files="${CURRENT_PATH}/Libraries/"
+ASSETS_PATH="${CURRENT_PATH}/assets"
+CUSTOM_PATH="${ASSETS_PATH}/custom"
 
-echo "${PACKAGES_REPOSITORY}"
+[[ ${DEBUG} = "yes" ]] && set -ex || set -e
 
+echo "Using ${PACKAGES_REPOSITORY} packages"
 
-. ${CURRENT_PATH}/Libraries/provision-opendistro.sh
+. ${ASSETS_PATH}/steps.sh
 
+# System configuration
+systemConfig
 
-# Setting wazuh default root password
+# Edit installation script
+preInstall
 
-cp ${libraries_files}/automatic_set_ram.sh ${automatic_set_ram_location}
-chmod +x "${automatic_set_ram_location}/automatic_set_ram.sh"
-echo "@reboot . /etc/automatic_set_ram.sh" >> ram_cron
-
-
-crontab ram_cron
-rm -rf ram_cron
-
-yes wazuh | passwd root
-hostname wazuhmanager
-
-# Ssh config
-sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/" /etc/ssh/sshd_config
-echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
-
-# OVA Welcome message
-cat > /etc/issue << EOF
-
-Welcome to the Wazuh OVA version $WAZUH_VERSION
-Access the Wazuh Web Interface at https://\4{eth0}
-Thank you for using Wazuh!
-
-EOF
-
-cat > /etc/motd << EOF
-
-              W.                   W.
-             WWW.                 WWW.
-            WWWWW.               WWWWW.
-           WWWWWWW.             WWWWWWW.
-          WWWWWWWWW.           WWWWWWWWW.
-         WWWWWWWWWWW.         WWWWWWWWWWW.
-        WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.
-       WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.
-     WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.
-    WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.
-  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.
-WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.
-  WWWWWWWW...WWWWWWWWWWWWWWWWWWWWWWWW...WWWWWWWW.
-    WWWWWWWW...WWWWWWWWWWWWWWWWWWWW..WWWWWWWW.
-       WWWWWWW...WWWWWWWWWWWWWWWW..WWWWWWWW.
-         WWWWWWWW...WWW....WWW...WWWWWWWW.
-           WWWWWWWW....WWWW....WWWWWWWW.
-              WWWWWWWWWWWWWWWWWWWWWWW.
-                WWWWWWWWWWWWWWWWWWW.
-                 WWWWWWWWWWWWWWWWW.
-                  WWWWWWWWWWWWWWW.
-                   WWWWWWWWWWWWW.
-                    WWWWWWWWWWW.
-                     WWWWWWWWW.
-                      WWWWWWW.
-
-
-         WAZUH Open Source Security Platform
-                   www.wazuh.com
-
-EOF
-
-
-# Dependences
-yum install openssl -y
-
-installPrerequisites
-addWazuhrepo
-installWazuh
-installElasticsearch
-installFilebeat
-installKibana
-configWazuh
-checkInstallation
-cleanInstall
-
-rm -rf /vagrant
+sh ${UNATTENDED_PATH}/${INSTALLER}
 
 systemctl stop kibana filebeat elasticsearch
 systemctl enable wazuh-manager
+
+# Edit installation 
+postInstall
+
+clean
