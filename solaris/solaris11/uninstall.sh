@@ -17,7 +17,7 @@ set_control_binary() {
 set_control_binary
 
 ## Stop and remove application
-sudo /var/ossec/bin/${control_binary} stop
+sudo ${INSTALL_PATH}/bin/${control_binary} stop
 sudo rm -r /var/ossec*
 sudo rm ${OSSEC_INIT}
 

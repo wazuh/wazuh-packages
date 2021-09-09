@@ -29,6 +29,22 @@ RUN curl -OL http://packages.wazuh.com/utils/curl/curl-7.63.0.tar.gz && \
     tar xf curl-7.63.0.tar.gz && cd curl-7.63.0 && ./configure --with-ssl=/usr/local/ssl && \
     make -j2 && make install && cd / && rm -rf curl*
 
+RUN curl -OL http://packages.wazuh.com/utils/gcc/gcc-5.5.0.tar.gz && \
+    tar xzf gcc-5.5.0.tar.gz  && cd gcc-5.5.0/ && \
+    ./contrib/download_prerequisites && \
+    ./configure --prefix=/usr/local/gcc-5.5.0 --enable-languages=c,c++ \
+        --disable-multilib --disable-libsanitizer --disable-bootstrap && \
+    make -j2 && make install && \
+    ln -fs /usr/local/gcc-5.5.0/bin/g++ /usr/bin/c++ && cd / && rm -rf gcc-*
+
+ENV CPLUS_INCLUDE_PATH "/usr/local/gcc-5.5.0/include/c++/5.5.0/"
+ENV LD_LIBRARY_PATH "/usr/local/gcc-5.5.0/lib64/"
+ENV PATH "/usr/local/gcc-5.5.0/bin:${PATH}"
+
+RUN curl -OL http://packages.wazuh.com/utils/cmake/cmake-3.12.4.tar.gz && \
+    tar -zxvf cmake-3.12.4.tar.gz && cd cmake-3.12.4 && \
+    ./bootstrap && make -j2 && make install && cd / && rm -rf cmake-*
+
 # Add the scripts to build the RPM package
 ADD build.sh /usr/local/bin/build_package
 RUN chmod +x /usr/local/bin/build_package

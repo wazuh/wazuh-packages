@@ -65,16 +65,46 @@ build_environment(){
     pkgutil -y -i wget
     pkgutil -y -i curl
     pkgutil -y -i gcc5core
+    pkgutil -y -i gcc5g++
+    pkgutil -y -i gtar
     /opt/csw/bin/curl -OL http://mirror.opencsw.org/opencsw/allpkgs/gmake-4.2.1%2cREV%3d2016.08.04-SunOS5.10-sparc-CSW.pkg.gz
     gunzip -f gmake-4.2.1%2cREV%3d2016.08.04-SunOS5.10-sparc-CSW.pkg.gz
     pkgadd -d gmake-4.2.1%2cREV%3d2016.08.04-SunOS5.10-sparc-CSW.pkg -n all
 
+    # Compile GCC-5.5 and CMake
+    curl -L http://packages.wazuh.com/utils/gcc/gcc-5.5.0.tar.gz | gtar xz
+    cd gcc-5.5.0
+    curl -L http://packages.wazuh.com/utils/gcc/mpfr-2.4.2.tar.bz2 | gtar xj
+    mv mpfr-2.4.2 mpfr
+    curl -L http://packages.wazuh.com/utils/gcc/gmp-4.3.2.tar.bz2 | gtar xj
+    mv gmp-4.3.2 gmp
+    curl -L http://packages.wazuh.com/utils/gcc/mpc-0.8.1.tar.gz | gtar xz
+    mv mpc-0.8.1 mpc
+    curl -L http://packages.wazuh.com/utils/gcc/isl-0.14.tar.bz2 | gtar xj
+    mv isl-0.14 isl
+    unset CPLUS_INCLUDE_PATH
+    unset LD_LIBRARY_PATH
+
+    export PATH=/usr/sbin:/usr/bin:/usr/ccs/bin:/opt/csw/bin
+
+    mkdir -p /usr/local
+    ./configure --prefix=/usr/local/gcc-5.5.0 --enable-languages=c,c++ --disable-multilib --disable-libsanitizer --disable-bootstrap --with-ld=/usr/ccs/bin/ld --without-gnu-ld --with-gnu-as --with-as=/opt/csw/bin/gas
+    gmake && gmake install
+    export CPLUS_INCLUDE_PATH=/usr/local/gcc-5.5.0/include/c++/5.5.0
+    export LD_LIBRARY_PATH=/usr/local/gcc-5.5.0/lib
+
+    echo "export PATH=/usr/sbin:/usr/bin:/usr/ccs/bin:/opt/csw/bin" >> /etc/profile
+    echo "export CPLUS_INCLUDE_PATH=/usr/local/gcc-5.5.0/include/c++/5.5.0" >> /etc/profile
+    echo "export LD_LIBRARY_PATH=/usr/local/gcc-5.5.0/lib" >> /etc/profile
+    rm -rf gcc-*
+    ln -sf /usr/local/gcc-5.5.0/bin/g++ /usr/bin/g++
+
     curl -sL http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz | gtar xz
     cd cmake-3.18.3
     ./bootstrap
-    gmake -j$(nproc) && gmake install
+    gmake && gmake install
     cd .. && rm -rf cmake-3.18.3
-    ln -s /usr/local/bin/cmake /usr/bin/cmake
+    ln -sf /usr/local/bin/cmake /usr/bin/cmake
 
     # Download and install perl5.10
     perl_version=`perl -v | cut -d . -f2 -s | head -n1`
@@ -134,10 +164,11 @@ check_version(){
 }
 
 installation(){
+    export PATH=/usr/local/gcc-5.5.0/bin:/usr/sbin:/usr/bin:/usr/ccs/bin:/opt/csw/bin
+    export CPLUS_INCLUDE_PATH=/usr/local/gcc-5.5.0/include/c++/5.5.0
+    export LD_LIBRARY_PATH=/usr/local/gcc-5.5.0/lib
+
     cd ${CURRENT_PATH}
-    # Removing incompatible flags
-    mv $SOURCE/src/Makefile $SOURCE/src/Makefile.tmp
-    sed -n '/OSSEC_LDFLAGS+=-z relax=secadj/!p' $SOURCE/src/Makefile.tmp > $SOURCE/src/Makefile
     cd $SOURCE/src
     gmake clean
     check_version
@@ -147,9 +178,9 @@ installation(){
     arch="$(uname -p)"
     # Build the binaries
     if [ "$arch" = "sparc" ]; then
-        gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no USE_BIG_ENDIAN=yes DISABLE_SHARED=yes || return 1
+        gmake -j $THREADS TARGET=agent USE_SELINUX=no USE_BIG_ENDIAN=yes || return 1
     else
-        gmake -j $THREADS TARGET=agent PREFIX=${install_path} USE_SELINUX=no DISABLE_SHARED=yes || return 1
+        gmake -j $THREADS TARGET=agent USE_SELINUX=no || return 1
     fi
 
     cd $SOURCE
