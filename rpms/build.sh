@@ -54,6 +54,7 @@ build_dir=/build_wazuh
 rpm_build_dir=${build_dir}/rpmbuild
 file_name="wazuh-${build_target}-${wazuh_version}-${package_release}"
 rpm_file="${file_name}.${architecture_target}.rpm"
+dbg_file="wazuh-${build_target}-debuginfo-${wazuh_version}-${package_release}.${architecture_target}.rpm"
 src_file="${file_name}.src.rpm"
 pkg_path="${rpm_build_dir}/RPMS/${architecture_target}"
 src_path="${rpm_build_dir}/SRPMS"
@@ -132,3 +133,7 @@ if [[ "${src}" == "yes" ]]; then
 fi
 
 find ${extract_path} -maxdepth 3 -type f -name "${file_name}*" -exec mv {} /var/local/wazuh \;
+
+if [[ "${debug}" == "yes" ]]; then
+    find ${extract_path} -maxdepth 3 -type f -name "${dbg_file}" -exec mv {} /var/local/wazuh \;
+fi

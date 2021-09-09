@@ -96,9 +96,6 @@ if [ "${build_target}" == "api" ]; then
     fi
 fi
 
-if [[ "${debug}" == "yes" ]]; then
-    sed -i "s:dh_strip --no-automatic-dbgsym::g" ${sources_dir}/debian/rules
-fi
 
 # Installing build dependencies
 cd ${sources_dir}
@@ -115,9 +112,15 @@ else
 fi
 
 deb_file="wazuh-${build_target}_${wazuh_version}-${package_release}_${architecture_target}.deb"
+deb_dbg_file="wazuh-${build_target}-dbg_${wazuh_version}-${package_release}_${architecture_target}.deb"
 pkg_path="${build_dir}/${build_target}"
 
 if [[ "${checksum}" == "yes" ]]; then
     cd ${pkg_path} && sha512sum ${deb_file} > /var/local/checksum/${deb_file}.sha512
 fi
+
 mv ${pkg_path}/${deb_file} /var/local/wazuh
+
+if [[ "${debug}" == "yes" ]]; then
+    mv ${pkg_path}/${deb_dbg_file} /var/local/wazuh
+fi
