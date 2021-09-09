@@ -95,23 +95,23 @@ download_source() {
 }
 
 check_version() {
-  wazuh_version=`cat ${source_directory}/src/VERSION`
-  number_version=`echo "${wazuh_version}" | cut -d v -f 2`
-  major=`echo $number_version | cut -d . -f 1`
-  minor=`echo $number_version | cut -d . -f 2`
-  deps_version=`cat ${source_directory}/src/Makefile | grep "DEPS_VERSION =" | cut -d " " -f 3`
+    wazuh_version=`cat ${source_directory}/src/VERSION`
+    number_version=`echo "${wazuh_version}" | cut -d v -f 2`
+    major=`echo $number_version | cut -d . -f 1`
+    minor=`echo $number_version | cut -d . -f 2`
+    deps_version=`cat ${source_directory}/src/Makefile | grep "DEPS_VERSION =" | cut -d " " -f 3`
 }
 
 compile() {
-  echo "Compiling code"
-  # Compile and install wazuh
-  cd ${source_directory}/src
-  config
-  check_version
-  gmake deps RESOURCES_URL=http://packages.wazuh.com/deps/${deps_version} TARGET=agent
-  gmake TARGET=agent USE_SELINUX=no DISABLE_SHARED=yes
-  bash ${source_directory}/install.sh
-  cd $current_path
+    echo "Compiling code"
+    # Compile and install wazuh
+    cd ${source_directory}/src
+    config
+    check_version
+    gmake deps RESOURCES_URL=http://packages.wazuh.com/deps/${deps_version} TARGET=agent
+    gmake TARGET=agent USE_SELINUX=no
+    bash ${source_directory}/install.sh
+    cd $current_path
 }
 
 create_package() {
