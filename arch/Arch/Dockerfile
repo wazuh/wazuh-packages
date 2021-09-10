@@ -4,7 +4,8 @@ FROM archlinux:latest
 RUN pacman --noconfirm -Syu && \
     pacman --noconfirm -S \
     curl gcc make sudo wget expect gnupg perl-base perl fakeroot python brotli \
-    automake autoconf libtool gawk libsigsegv nodejs base-devel inetutils
+    automake autoconf libtool gawk libsigsegv nodejs base-devel inetutils cmake \
+    lsb-release
 
 RUN useradd -ms /bin/bash user
 
