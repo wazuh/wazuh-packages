@@ -540,7 +540,13 @@ rm -fr %{buildroot}
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/logcollector
 %dir %attr(750, root, wazuh) %{_localstatedir}/ruleset/
 %dir %attr(750, root, wazuh) %{_localstatedir}/ruleset/sca
+%attr(750, root, wazuh) %{_localstatedir}/lib/libdbsync.so
+%attr(750, root, wazuh) %{_localstatedir}/lib/librsync.so
+%attr(750, root, wazuh) %{_localstatedir}/lib/libsyscollector.so
+%attr(750, root, wazuh) %{_localstatedir}/lib/libsysinfo.so
 %dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/applications
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/applications/*
 %dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/generic
 %attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/generic/*
 %dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn
@@ -594,6 +600,7 @@ rm -fr %{buildroot}
 %dir %attr(770, root, wazuh) %{_localstatedir}/var/upgrade
 %dir %attr(770, root, wazuh) %{_localstatedir}/var/wodles
 %dir %attr(750, root, wazuh) %{_localstatedir}/wodles
+%attr(750, root, wazuh) %{_localstatedir}/wodles/*
 %dir %attr(750, root, wazuh) %{_localstatedir}/wodles/aws
 %attr(750, root, wazuh) %{_localstatedir}/wodles/aws/*
 %dir %attr(750, root, wazuh) %{_localstatedir}/wodles/docker
@@ -608,7 +615,11 @@ rm -fr %{buildroot}
 
 
 %changelog
-* Wed Apr 28 2021 support <info@wazuh.com> - 4.3.0
+* Mon Nov 01 2021 support <info@wazuh.com> - 4.3.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Wed Oct 06 2021 support <info@wazuh.com> - 4.2.2
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Sat Sep 25 2021 support <info@wazuh.com> - 4.2.1
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Apr 26 2021 support <info@wazuh.com> - 4.2.0
 - More info: https://documentation.wazuh.com/current/release-notes/
