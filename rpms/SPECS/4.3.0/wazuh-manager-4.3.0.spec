@@ -14,7 +14,7 @@ Requires(post):   /sbin/chkconfig
 Requires(preun):  /sbin/chkconfig /sbin/service
 Requires(postun): /sbin/service /usr/sbin/groupdel /usr/sbin/userdel
 Conflicts:   ossec-hids ossec-hids-agent wazuh-agent wazuh-local
-Obsoletes: wazuh-api <= 3.13.2
+Obsoletes: wazuh-api < 4.0.0
 AutoReqProv: no
 
 Requires: coreutils
@@ -113,6 +113,7 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sl
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/suse/{11,12}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sunos
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/windows
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/{29,30,31,32,33,34}
 
 cp -r ruleset/sca/{applications,generic,mongodb,nginx,oracledb,centos,darwin,debian,rhel,sles,sunos,windows,amazon,ubuntu} ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp
 
@@ -139,6 +140,14 @@ cp etc/templates/config/sles/15/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp
 cp etc/templates/config/suse/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/suse
 cp etc/templates/config/suse/11/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/suse/11
 cp etc/templates/config/suse/12/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/suse/12
+
+cp etc/templates/config/fedora/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora
+cp etc/templates/config/fedora/29/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/29
+cp etc/templates/config/fedora/29/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/30
+cp etc/templates/config/fedora/29/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/31
+cp etc/templates/config/fedora/29/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/32
+cp etc/templates/config/fedora/29/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/33
+cp etc/templates/config/fedora/29/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/34
 
 # Add SUSE initscript
 sed -i "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/ossec-hids-suse.init
@@ -178,10 +187,12 @@ fi
 if [ $1 = 2 ]; then
   if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-manager > /dev/null 2>&1; then
     systemctl stop wazuh-manager.service > /dev/null 2>&1
+    %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1 || %{_localstatedir}/bin/wazuh-control stop > /dev/null 2>&1
     touch %{_localstatedir}/tmp/wazuh.restart
   # Check for SysV
   elif command -v service > /dev/null 2>&1 && service wazuh-manager status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
     service wazuh-manager stop > /dev/null 2>&1
+    %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1 || %{_localstatedir}/bin/wazuh-control stop > /dev/null 2>&1
     touch %{_localstatedir}/tmp/wazuh.restart
   elif %{_localstatedir}/bin/wazuh-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
     touch %{_localstatedir}/tmp/wazuh.restart
@@ -322,8 +333,8 @@ if [ -r "/etc/centos-release" ]; then
   DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.*[0-9]{0,2}.*/\1/p' /etc/centos-release`
 # Fedora
 elif [ -r "/etc/fedora-release" ]; then
-    DIST_NAME="generic"
-    DIST_VER=""
+    DIST_NAME="fedora"
+    DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.*[0-9]{0,2}.*/\1/p' /etc/fedora-release`
 # RedHat
 elif [ -r "/etc/redhat-release" ]; then
   if grep -q "CentOS" /etc/redhat-release; then
@@ -544,7 +555,8 @@ if [ -d %{_localstatedir}/queue/ossec ]; then
 fi
 
 if [ -f %{_sysconfdir}/ossec-init.conf ]; then
-  rm -rf %{_sysconfdir}/ossec-init.conf
+  rm -f %{_sysconfdir}/ossec-init.conf
+  rm -f %{_localstatedir}/etc/ossec-init.conf
 fi
 
 %triggerin -- glibc
@@ -778,6 +790,8 @@ rm -fr %{buildroot}
 %attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ubuntu/*
 %dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amazon
 %attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amazon/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/*
 %dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/windows
 %attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/windows/*
 %dir %attr(750, root, wazuh) %{_localstatedir}/var
@@ -792,6 +806,7 @@ rm -fr %{buildroot}
 %dir %attr(770, root, wazuh) %{_localstatedir}/var/upgrade
 %dir %attr(770, root, wazuh) %{_localstatedir}/var/wodles
 %dir %attr(750, root, wazuh) %{_localstatedir}/wodles
+%attr(750,root, wazuh) %{_localstatedir}/wodles/*
 %dir %attr(750, root, wazuh) %{_localstatedir}/wodles/aws
 %attr(750, root, wazuh) %{_localstatedir}/wodles/aws/*
 %dir %attr(750, root, wazuh) %{_localstatedir}/wodles/azure
@@ -808,7 +823,11 @@ rm -fr %{buildroot}
 
 
 %changelog
-* Wed Apr 28 2021 support <info@wazuh.com> - 4.3.0
+* Mon Nov 01 2021 support <info@wazuh.com> - 4.3.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Wed Oct 06 2021 support <info@wazuh.com> - 4.2.2
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Sat Sep 25 2021 support <info@wazuh.com> - 4.2.1
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Apr 26 2021 support <info@wazuh.com> - 4.2.0
 - More info: https://documentation.wazuh.com/current/release-notes/

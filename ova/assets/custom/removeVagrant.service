@@ -1,0 +1,14 @@
+[Unit]
+Description=Remove vagrant
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+ExecStart=/bin/bash /home/wazuh/removeVagrant.sh
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/home/wazuh
+Restart=always
+RestartSec=3

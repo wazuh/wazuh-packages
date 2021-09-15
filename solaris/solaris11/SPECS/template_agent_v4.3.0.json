@@ -663,6 +663,46 @@
         "type": "file",
         "user": "root"
     },
+    "/var/ossec/lib/libwazuhshared.so": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/lib/libdbsync.so": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/lib/librsync.so": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/lib/libsysinfo.so": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/lib/libsyscollector.so": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
     "/var/ossec/logs": {
         "class": "static",
         "group": "wazuh",
@@ -1774,6 +1814,22 @@
         "mode": "0750",
         "prot": "drwxr-x---",
         "type": "directory",
+        "user": "root"
+    },
+        "/var/ossec/wodles/__init__.py": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+        "/var/ossec/wodles/utils.py": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
         "user": "root"
     },
     "/var/ossec/wodles/aws": {

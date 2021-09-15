@@ -103,6 +103,7 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ce
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/{8,7,6,5}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles/{11,12,15}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/suse/{11,12}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/{29,30,31,32,33,34}
 
 cp -r ruleset/sca/{generic,centos,rhel,sles,amazon} ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp
 
@@ -129,6 +130,14 @@ cp etc/templates/config/sles/15/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp
 cp etc/templates/config/suse/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/suse
 cp etc/templates/config/suse/11/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/suse/11
 cp etc/templates/config/suse/12/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/suse/12
+
+cp etc/templates/config/fedora/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora
+cp etc/templates/config/fedora/29/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/29
+cp etc/templates/config/fedora/29/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/30
+cp etc/templates/config/fedora/29/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/31
+cp etc/templates/config/fedora/29/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/32
+cp etc/templates/config/fedora/29/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/33
+cp etc/templates/config/fedora/29/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/34
 
 # Add configuration scripts
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/
@@ -256,8 +265,8 @@ if [ -r "/etc/centos-release" ]; then
   DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.*[0-9]{0,2}.*/\1/p' /etc/centos-release`
 # Fedora
 elif [ -r "/etc/fedora-release" ]; then
-    DIST_NAME="generic"
-    DIST_VER=""
+    DIST_NAME="fedora"
+    DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.*[0-9]{0,2}.*/\1/p' /etc/fedora-release`
 # RedHat
 elif [ -r "/etc/redhat-release" ]; then
   if grep -q "CentOS" /etc/redhat-release; then
@@ -471,7 +480,8 @@ if [ -d %{_localstatedir}/queue/ossec ]; then
 fi
 
 if [ -f %{_sysconfdir}/ossec-init.conf ]; then
-  rm -rf %{_sysconfdir}/ossec-init.conf
+  rm -f %{_sysconfdir}/ossec-init.conf
+  rm -f %{_localstatedir}/etc/ossec-init.conf
 fi
 
 %clean
@@ -530,7 +540,13 @@ rm -fr %{buildroot}
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/logcollector
 %dir %attr(750, root, wazuh) %{_localstatedir}/ruleset/
 %dir %attr(750, root, wazuh) %{_localstatedir}/ruleset/sca
+%attr(750, root, wazuh) %{_localstatedir}/lib/libdbsync.so
+%attr(750, root, wazuh) %{_localstatedir}/lib/librsync.so
+%attr(750, root, wazuh) %{_localstatedir}/lib/libsyscollector.so
+%attr(750, root, wazuh) %{_localstatedir}/lib/libsysinfo.so
 %dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/applications
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/applications/*
 %dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/generic
 %attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/generic/*
 %dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn
@@ -573,6 +589,8 @@ rm -fr %{buildroot}
 %attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/suse/12/*
 %dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amazon
 %attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amazon/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/*
 %dir %attr(1770, root, wazuh) %{_localstatedir}/tmp
 %dir %attr(750, root, wazuh) %{_localstatedir}/var
 %dir %attr(770, root, wazuh) %{_localstatedir}/var/incoming
@@ -582,6 +600,7 @@ rm -fr %{buildroot}
 %dir %attr(770, root, wazuh) %{_localstatedir}/var/upgrade
 %dir %attr(770, root, wazuh) %{_localstatedir}/var/wodles
 %dir %attr(750, root, wazuh) %{_localstatedir}/wodles
+%attr(750, root, wazuh) %{_localstatedir}/wodles/*
 %dir %attr(750, root, wazuh) %{_localstatedir}/wodles/aws
 %attr(750, root, wazuh) %{_localstatedir}/wodles/aws/*
 %dir %attr(750, root, wazuh) %{_localstatedir}/wodles/docker
@@ -596,7 +615,11 @@ rm -fr %{buildroot}
 
 
 %changelog
-* Wed Apr 28 2021 support <info@wazuh.com> - 4.3.0
+* Mon Nov 01 2021 support <info@wazuh.com> - 4.3.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Wed Oct 06 2021 support <info@wazuh.com> - 4.2.2
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Sat Sep 25 2021 support <info@wazuh.com> - 4.2.1
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Apr 26 2021 support <info@wazuh.com> - 4.2.0
 - More info: https://documentation.wazuh.com/current/release-notes/
