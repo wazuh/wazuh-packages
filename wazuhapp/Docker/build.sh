@@ -26,6 +26,7 @@ wazuh_version=""
 kibana_version=""
 kibana_yarn_version=""
 kibana_node_version=""
+aux_kibana_version=""
 
 
 change_node_version () {
@@ -55,8 +56,13 @@ prepare_env() {
                     print(pkg["version"])')
     kibana_version=$(python -c 'import json, os; f=open("/tmp/package.json"); pkg=json.load(f); f.close();\
                      print(pkg["kibana"]["version"])')
+    aux_kibana_version=$kibana_version
 
-    kibana_package_json_url="${kibana_app_raw_repo_url}/v${kibana_version}/package.json"
+    if [ "${wazuh_version}" \< "4.2.2" ] && [ "${kibana_version}" \> "7.10.2" ]; then
+        aux_kibana_version="7.10.2"
+    fi
+
+    kibana_package_json_url="${kibana_app_raw_repo_url}/v${aux_kibana_version}/package.json"
 
     echo "Downloading package.json from elastic/kibana repository"
     if ! curl $kibana_package_json_url -o "/tmp/package.json" ; then
@@ -72,8 +78,8 @@ prepare_env() {
 }
 
 
-download_kibana_sources() {
-    if ! git clone $kibana_app_repo_url --branch "v${kibana_version}" --depth=1 kibana_source; then
+download_kibana_sources() {    
+    if ! git clone $kibana_app_repo_url --branch "v${aux_kibana_version}" --depth=1 kibana_source; then
         echo "Error downloading Kibana source code from elastic/kibana GitHub repository."
         exit 1
     fi
@@ -87,9 +93,11 @@ install_dependencies () {
     cd ${kibana_dir}
     change_node_version $kibana_node_version
     npm install -g "yarn@${kibana_yarn_version}"
-    sed -i 's/node scripts\/build_ts_refs/node scripts\/build_ts_refs --allow-root/' ${kibana_dir}/package.json
-    sed -i 's/node scripts\/register_git_hook/node scripts\/register_git_hook --allow-root/' ${kibana_dir}/package.json
-    yarn kbn bootstrap --skip-kibana-plugins --oss --allow-root
+    if [ "${aux_kibana_version}" \< "7.11.0" ]; then
+        sed -i 's/node scripts\/build_ts_refs/node scripts\/build_ts_refs --allow-root/' ${kibana_dir}/package.json
+        sed -i 's/node scripts\/register_git_hook/node scripts\/register_git_hook --allow-root/' ${kibana_dir}/package.json
+    fi
+    yarn kbn bootstrap --skip-kibana-plugins --oss #--allow-root
 }
 
 
@@ -114,7 +122,11 @@ build_package(){
 
     # Build the package
     yarn
-    KIBANA_VERSION=${kibana_version} yarn build --allow-root
+    if [ "${aux_kibana_version}" \< "7.11.0"  ]; then
+        KIBANA_VERSION=${kibana_version} yarn build --allow-root
+    else
+        KIBANA_VERSION=${kibana_version} yarn build
+    fi
 
     find ${build_dir} -name "*.zip" -exec mv {} ${destination_dir}/${wazuh_app_pkg_name} \;
 

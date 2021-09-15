@@ -189,6 +189,7 @@ create_package() {
 
     set_control_binary
 
+
     # Package generation process
     svcbundle -o wazuh-agent.xml -s service-name=application/wazuh-agent -s start-method="${install_path}/bin/${control_binary} start" -s stop-method="${install_path}/bin/${control_binary} stop"
     pkgsend generate ${install_path} | pkgfmt > wazuh-agent.p5m.1

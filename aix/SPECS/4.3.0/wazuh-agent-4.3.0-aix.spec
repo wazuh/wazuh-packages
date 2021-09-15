@@ -251,7 +251,8 @@ rm -fr %{buildroot}
 %attr(640, root, wazuh) %{_localstatedir}/etc/wpk_root.pem
 %dir %attr(770, root, wazuh) %{_localstatedir}/etc/shared
 %attr(660, root, wazuh) %config(missingok,noreplace) %{_localstatedir}/etc/shared/*
-%dir %attr(750, root,system) %{_localstatedir}/lib
+%dir %attr(750, root, system) %{_localstatedir}/lib
+%attr(750, root, wazuh) %{_localstatedir}/lib/*
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/logs
 %attr(660, wazuh, wazuh) %ghost %{_localstatedir}/logs/active-responses.log
 %attr(660, root, wazuh) %ghost %{_localstatedir}/logs/ossec.log
@@ -286,13 +287,14 @@ rm -fr %{buildroot}
 %dir %attr(770, root, wazuh) %{_localstatedir}/var/upgrade
 %dir %attr(770, root, wazuh) %{_localstatedir}/var/wodles
 %dir %attr(750, root, wazuh) %{_localstatedir}/wodles
-%dir %attr(750, root, wazuh) %{_localstatedir}/wodles/aws
-%attr(750, root, wazuh) %{_localstatedir}/wodles/aws/*
-%dir %attr(750, root, wazuh) %{_localstatedir}/wodles/gcloud
-%attr(750, root, wazuh) %{_localstatedir}/wodles/gcloud/*
+%attr(750, root, wazuh) %{_localstatedir}/wodles/*
 
 %changelog
-* Wed Apr 28 2021 support <info@wazuh.com> - 4.3.0
+* Mon Nov 01 2021 support <info@wazuh.com> - 4.3.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Wed Oct 06 2021 support <info@wazuh.com> - 4.2.2
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Sat Sep 25 2021 support <info@wazuh.com> - 4.2.1
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Apr 26 2021 support <info@wazuh.com> - 4.2.0
 - More info: https://documentation.wazuh.com/current/release-notes/
