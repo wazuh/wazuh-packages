@@ -98,7 +98,6 @@ override_dh_install:
 	cp src/REVISION ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/src/
 
 	# Install configuration assesment files and files templates
-	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/applications
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/generic
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian/7
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian/8
