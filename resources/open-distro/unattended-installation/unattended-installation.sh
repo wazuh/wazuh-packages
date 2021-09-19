@@ -210,7 +210,7 @@ addWazuhrepo() {
         eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/zypp/repos.d/wazuh.repo ${debug}"            
     elif [ ${sys_type} == "apt-get" ]; then
         eval "curl -s ${repogpg} --max-time 300 | apt-key add - ${debug}"
-        eval "echo "deb '${repobaseurl}'/apt/ stable main" | tee - /etc/apt/sources.list.d/wazuh.list ${debug}"
+        eval "echo "deb '${repobaseurl}'/apt/ stable main" | tee /etc/apt/sources.list.d/wazuh.list ${debug}"
         eval "apt-get update -q ${debug}"
     fi    
 
