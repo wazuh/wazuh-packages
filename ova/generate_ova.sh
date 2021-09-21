@@ -21,20 +21,11 @@ scriptpath=$(
 
 OUTPUT_DIR="${scriptpath}/output"
 CHECKSUM_DIR="${scriptpath}/checksum"
-HAVE_VERSION=false
-HAVE_OPENDISTRO_VERSION=false
-HAVE_ELK_VERSION=false
 
-# Get the currents production branches
-BRANCHDOC=$(curl -s https://documentation.wazuh.com/current/index.html | grep -o "m/[0-9\.]\+/i" | head -n1)
-BRANCHDOC="${BRANCHDOC:2:3}"
-BRANCH=${BRANCHDOC}
-export BRANCHDOC
-export BRANCH
+UNATTENDED_RESOURCES_FOLDER="unattended_scripts"
+UNATTENDED_PATH="../${UNATTENDED_RESOURCES_FOLDER}/open-distro/unattended-installation"
+UNATTENDED_SCRIPT="unattended-installation.sh"
 
-WAZUH_VERSION=""
-OPENDISTRO_VERSION=""
-ELK_VERSION=""
 PACKAGES_REPOSITORY="prod"
 CHECKSUM="no"
 UI_REVISION="1"
