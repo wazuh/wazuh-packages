@@ -3,7 +3,7 @@
 PACKAGES_REPOSITORY=$1
 DEBUG=$2
 
-RESOURCES_PATH="/tmp/resources"
+RESOURCES_PATH="/tmp/unattended_scripts"
 UNATTENDED_PATH="${RESOURCES_PATH}/open-distro/unattended-installation"
 INSTALLER="unattended-installation.sh"
 WAZUH_VERSION=$(cat ${UNATTENDED_PATH}/${INSTALLER} | grep "WAZUH_VER=" | cut -d "\"" -f 2)
