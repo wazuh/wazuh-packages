@@ -22,7 +22,7 @@ scriptpath=$(
 OUTPUT_DIR="${scriptpath}/output"
 CHECKSUM_DIR="${scriptpath}/checksum"
 
-UNATTENDED_RESOURCES_FOLDER="resources"
+UNATTENDED_RESOURCES_FOLDER="unattended_scripts"
 UNATTENDED_PATH="../${UNATTENDED_RESOURCES_FOLDER}/open-distro/unattended-installation"
 UNATTENDED_SCRIPT="unattended-installation.sh"
 
