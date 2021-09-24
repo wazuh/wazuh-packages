@@ -21,12 +21,10 @@ echo "Using ${PACKAGES_REPOSITORY} packages"
 # System configuration
 systemConfig
 
-curl -so ${INSTALLER} https://raw.githubusercontent.com/wazuh/wazuh-documentation/${BRANCHDOC}/resources/open-distro/unattended-installation/${INSTALLER} 
-
 # Edit installation script
 preInstall
 
-sh ${INSTALLER}
+sh ${UNATTENDED_PATH}/${INSTALLER}
 
 systemctl stop kibana filebeat elasticsearch
 systemctl enable wazuh-manager
