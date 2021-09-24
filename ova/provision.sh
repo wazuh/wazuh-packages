@@ -1,14 +1,13 @@
 #!/bin/bash
 
-WAZUH_VERSION=$1
-OPENDISTRO_VERSION=$2
-ELK_VERSION=$3
-PACKAGES_REPOSITORY=$4
-BRANCH=$5
-BRANCHDOC=$6
-DEBUG=$7
-UI_REVISION=$8
-INSTALLER="all-in-one-installation.sh"
+PACKAGES_REPOSITORY=$1
+DEBUG=$2
+
+RESOURCES_PATH="/tmp/unattended_scripts"
+UNATTENDED_PATH="${RESOURCES_PATH}/open-distro/unattended-installation"
+INSTALLER="unattended-installation.sh"
+WAZUH_VERSION=$(cat ${UNATTENDED_PATH}/${INSTALLER} | grep "WAZUH_VER=" | cut -d "\"" -f 2)
+
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ASSETS_PATH="${CURRENT_PATH}/assets"
 CUSTOM_PATH="${ASSETS_PATH}/custom"
@@ -22,12 +21,10 @@ echo "Using ${PACKAGES_REPOSITORY} packages"
 # System configuration
 systemConfig
 
-curl -so ${INSTALLER} https://raw.githubusercontent.com/wazuh/wazuh-documentation/${BRANCHDOC}/resources/open-distro/unattended-installation/${INSTALLER} 
-
 # Edit installation script
 preInstall
 
-sh ${INSTALLER}
+sh ${UNATTENDED_PATH}/${INSTALLER}
 
 systemctl stop kibana filebeat elasticsearch
 systemctl enable wazuh-manager
