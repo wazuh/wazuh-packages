@@ -197,7 +197,7 @@ create_package() {
     python solaris_fix.py -t SPECS/template_agent_${VERSION}.json -p wazuh-agent.p5m.1 # Fix p5m.1 file
     mv wazuh-agent.p5m.1.aux.fixed wazuh-agent.p5m.1
     # Add the preserve=install-only tag to the configuration files
-    for file in etc/ossec.conf etc/local_internal_options.conf etc/client.keys; do
+    for file in etc/agent.conf etc/local_internal_options.conf etc/client.keys; do
         sed "s:file $file.*:& preserve=install-only:"  wazuh-agent.p5m.1 > wazuh-agent.p5m.1.aux_sed
         mv wazuh-agent.p5m.1.aux_sed wazuh-agent.p5m.1
     done
