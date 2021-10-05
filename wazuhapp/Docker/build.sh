@@ -58,7 +58,7 @@ prepare_env() {
                      print(pkg["kibana"]["version"])')
     aux_kibana_version=$kibana_version
 
-    if [ "${wazuh_version}" \< "4.2.2" ] && [ "${kibana_version}" \> "7.10.2" ]; then
+    if [ "${wazuh_version}" \< "4.2.3" ] && [ "${kibana_version}" \> "7.10.2" ]; then
         aux_kibana_version="7.10.2"
     fi
 
