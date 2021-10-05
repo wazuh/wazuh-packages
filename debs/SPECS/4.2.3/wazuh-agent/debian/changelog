@@ -1,8 +1,14 @@
+wazuh-agent (4.2.3-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Wed, 06 Oct 2021 15:07:13 +0000
+
 wazuh-agent (4.2.2-RELEASE) stable; urgency=low
 
   * More info: https://documentation.wazuh.com/current/release-notes/
 
- -- Wazuh, Inc <info@wazuh.com>  Wed, 06 Oct 2021 08:58:38 +0000
+ -- Wazuh, Inc <info@wazuh.com>  Tue, 28 Sep 2021 08:58:38 +0000
 
 wazuh-agent (4.2.1-RELEASE) stable; urgency=low
 
