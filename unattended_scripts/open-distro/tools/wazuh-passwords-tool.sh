@@ -407,7 +407,7 @@ main() {
             readUsers
 	fi                    
 
-	if [[ -n "${CHANGEALL}" ]] && [[ -z "${PASSWORD}" ]]
+	if [[ -n "${CHANGEALL}" ]] && [[ -z "${PASSWORD}" ]]; then
 		generatePassword
 	fi
 
