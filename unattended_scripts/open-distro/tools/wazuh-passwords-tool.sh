@@ -331,7 +331,7 @@ runSecurityAdmin() {
         echo ""
         echo "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
         echo ""
-    elif 
+    else 
 	for i in "${!USERS[@]}"
 	do
 	    echo ""
