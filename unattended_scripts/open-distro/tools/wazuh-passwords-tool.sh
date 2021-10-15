@@ -283,7 +283,7 @@ changePassword() {
 		    echo "${conf}" > /etc/kibana/kibana.yml 
 		    restartService "kibana"
 	    fi         
-    fi
+   fi
 
 }
 
