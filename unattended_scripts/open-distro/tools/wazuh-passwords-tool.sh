@@ -264,6 +264,7 @@ changePassword() {
         fi 
     fi
 
+<<<<<<< HEAD
     if [ "$NUSER" == "kibanaserver" ] || [ -n "$CHANGEALL" ]; then
 
 	    if [ "${SYS_TYPE}" == "yum" ]; then
