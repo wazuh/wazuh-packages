@@ -196,7 +196,7 @@ generatePassword() {
 
 generateHash() {
     
-    if [ -n "${CHANGEALL}" ]; then
+    if [[ -n "${CHANGEALL}" ]] && [[ -z "${PASSWORD}" ]]; then
         echo "Generating hashes"
         for i in "${!PASSWORDS[@]}"
         do
@@ -220,7 +220,7 @@ generateHash() {
 
 changePassword() {
     
-    if [ -n "${CHANGEALL}" ]; then
+    if [[ -n "${CHANGEALL}" ]] && [[ -z "${PASSWORD}" ]]; then
         for i in "${!PASSWORDS[@]}"
         do
            awk -v new=${HASHES[i]} 'prev=="'${USERS[i]}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/elasticsearch/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
@@ -232,7 +232,21 @@ changePassword() {
             fi  
 
         done
-    else
+    elif [[ -n "${CHANGEALL}" ]] && [[ -n "${PASSWORD}" ]]; then
+        for i in "${!USERS[@]}"
+        do 
+            awk -v new=$HASH 'prev=="'${USERS[i]}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/elasticsearch/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
+	
+	    if [ "${USERS[i]}" == "wazuh" ]; then
+                wazuhpass=${PASSWORD}
+            elif [ "${USERS[i]}" == "kibanaserver" ]; then
+                kibpass=${PASSWORD}
+            fi
+        done
+
+
+
+    else 
         awk -v new="$HASH" 'prev=="'${NUSER}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/elasticsearch/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
 
         if [ "${NUSER}" == "wazuh" ]; then
@@ -307,7 +321,7 @@ runSecurityAdmin() {
         echo "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
     fi    
 
-    if [ -n "${CHANGEALL}" ]; then
+    if [[ -n "${CHANGEALL}" ]] && [[ -z "${PASSWORD}" ]]; then
         
         for i in "${!USERS[@]}"
         do
@@ -317,7 +331,16 @@ runSecurityAdmin() {
         echo ""
         echo "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
         echo ""
-    fi 
+    else 
+	for i in "${!USERS[@]}"
+	do
+	    echo ""
+	    echo "The password for ${USERS[i]} is ${PASSWORD}"
+	done
+        echo "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
+        echo ""
+
+    fi
 
 }
 
@@ -375,14 +398,6 @@ main() {
             getHelp
         fi 
 
-        if [[ -n "${PASSWORD}" ]] && [[ -n "${CHANGEALL}" ]]; then
-            getHelp
-        fi         
-
-        if [[ -z "${NUSER}" ]] && [[ -n "${PASSWORD}" ]]; then
-            getHelp
-        fi   
-
         if [[ -z "${NUSER}" ]] && [[ -z "${PASSWORD}" ]] && [[ -z "${CHANGEALL}" ]]; then
             getHelp
         fi 
@@ -397,15 +412,18 @@ main() {
             generatePassword
         fi
 
-        if [ -n "${CHANGEALL}" ]; then
+	if [ -n "${CHANGEALL} " ] ; then
             readUsers
-            generatePassword
-        fi                    
+	fi                    
 
-        getNetworkHost
-        createBackUp
-        generateHash
-        changePassword
+	if [[ -n "${CHANGEALL}" ]] && [[ -z "${PASSWORD}" ]]; then
+		generatePassword
+	fi
+
+	getNetworkHost
+	createBackUp
+	generateHash
+	changePassword
         runSecurityAdmin
 
     else
