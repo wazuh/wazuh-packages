@@ -262,12 +262,27 @@ changePassword() {
             echo "${conf}" > /etc/filebeat/filebeat.yml  
             restartService "filebeat"
         fi 
+    fi
 
-        if [[ -n "${haskibana}" ]] && [[ -n "${kibpass}" ]]; then
-            conf="$(awk '{sub("elasticsearch.password: '${wazuhkibold}'", "elasticsearch.password: '${kibpass}'")}1' /etc/kibana/kibana.yml)"
-            echo "${conf}" > /etc/kibana/kibana.yml 
-            restartService "kibana"
-        fi         
+    if [ "$NUSER" == "kibanaserver" ] || [ -n "$CHANGEALL" ]; then
+
+	    if [ "${SYS_TYPE}" == "yum" ]; then
+		    haskibana=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch-kibana)
+	    elif [ "${SYS_TYPE}" == "zypper" ]; then
+		    haskibana=$(zypper packages --installed | grep opendistroforelasticsearch-kibana | grep i+)
+	    elif [ "${SYS_TYPE}" == "apt-get" ]; then
+		    haskibana=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch-kibana)
+	    fi
+
+	    wazuhkibold=$(grep "password:" /etc/kibana/kibana.yml )
+	    rk="elasticsearch.password: "
+	    wazuhkibold="${wazuhkibold//$rk}"
+
+	    if [ -n "${haskibana}" ] && [ -n "${kibpass}" ]; then
+		    conf="$(awk '{sub("elasticsearch.password: '${wazuhkibold}'", "elasticsearch.password: '${kibpass}'")}1' /etc/kibana/kibana.yml)"
+		    echo "${conf}" > /etc/kibana/kibana.yml 
+		    restartService "kibana"
+	    fi         
     fi
 
     if [ "$NUSER" == "kibanaserver" ] || [ -n "$CHANGEALL" ]; then
