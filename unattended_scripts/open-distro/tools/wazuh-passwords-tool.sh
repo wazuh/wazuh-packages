@@ -338,13 +338,12 @@ changePassword() {
             echo "${conf}" > /etc/filebeat/filebeat.yml  
             restartService "filebeat"
         fi 
-
+    fi
         if [[ -n "${haskibana}" ]] && [[ -n "${kibpass}" ]]; then
             conf="$(awk '{sub("elasticsearch.password: '${wazuhkibold}'", "elasticsearch.password: '${kibpass}'")}1' /etc/kibana/kibana.yml)"
             echo "${conf}" > /etc/kibana/kibana.yml 
             restartService "kibana"
         fi         
-    fi
 
 }
 
