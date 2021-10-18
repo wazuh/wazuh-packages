@@ -196,7 +196,7 @@ generatePassword() {
 
 generateHash() {
     
-    if [[ -n "${CHANGEALL}" ]] && [[ -z "${PASSWORD}" ]]; then
+    if [ -n "${CHANGEALL}" ] && [ -z "${PASSWORD}" ]; then
         echo "Generating hashes"
         for i in "${!PASSWORDS[@]}"
         do
@@ -412,7 +412,7 @@ main() {
             generatePassword
         fi
 
-	if [ -n "${CHANGEALL} " ] ; then
+	if [ -n "${CHANGEALL} " ]; then
             readUsers
 	fi                    
 
