@@ -149,6 +149,7 @@ readFileUsers() {
         for i in "${!USERS[@]}"; do
 	    for j in "${!FILEUSERS[@]}"; do
 	        if [[ ${USERS[i]} == ${FILEUSERS[j]} ]]; then
+		    echo "Changing ${PASSWORD[i]} for ${FILEPASSWORDS[j]}"
 		    PASSWORDS[i]=${FILEPASSWORDS[j]}
 		fi
 	    done
