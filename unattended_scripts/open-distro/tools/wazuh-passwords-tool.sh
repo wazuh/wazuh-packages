@@ -144,6 +144,9 @@ readUsers() {
 readFileUsers() {
     FILEUSERS=$(grep -A 1 User: ${FILE} | grep -v User: | awk '{ print substr( $2, 1, length($2) ) }')
     FILEPASSWORDS=$(grep -A 2 User: ${FILE} | grep -v User: | grep -v name: | awk '{ print substr( $2, 1, length($2) ) }')
+
+    echo "Users in the file: ${FILEUSERS[@]}"
+    echo "Passwords in the file: ${FILEPASSWORDS[@]}"
     
     if [ -n "${CHANGEALL}" ]; then
         for i in "${!USERS[@]}"; do
@@ -160,8 +163,8 @@ readFileUsers() {
 	CHANGEALL=1
     fi
 
-    echo ${USERS[@]}
-    echo ${PASSWORDS[@]}
+    echo "Final users: ${USERS[@]}"
+    echo "Final passwords: ${PASSWORDS[@]}"
 
 }
 
