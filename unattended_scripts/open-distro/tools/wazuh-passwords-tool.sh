@@ -448,7 +448,6 @@ main() {
 	fi	    
 
 	if [ -n "${FILE}" ]; then
-	    checkFile
 	    readFileUsers
 	fi  
 
