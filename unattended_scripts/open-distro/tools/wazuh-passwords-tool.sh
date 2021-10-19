@@ -446,7 +446,7 @@ main() {
             generatePassword
         fi               
 
-        if [ -n "${FILE}" ] && [ -z "${CHANGEALL}"]; then
+        if [ -n "${FILE}" ] && [ -z "${CHANGEALL}" ]; then
 	    readUsers
 	fi	    
 
