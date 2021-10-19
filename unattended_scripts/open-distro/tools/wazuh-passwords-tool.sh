@@ -159,6 +159,9 @@ readFileUsers() {
 	CHANGEALL=1
     fi
 
+    echo ${USERS[@]}
+    echo ${PASSWORDS[@]}
+
 }
 
 ## Checks if the user exists
