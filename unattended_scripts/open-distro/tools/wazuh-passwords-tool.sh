@@ -157,9 +157,6 @@ readFileUsers() {
         for i in "${!USERS[@]}"; do
 	    for j in "${!FILEUSERS[@]}"; do
 	        if [[ ${USERS[i]} == ${FILEUSERS[j]} ]]; then
-		    if [ -n "${VERBOSEENABLED}" ]; then 
-			echo "Changing ${PASSWORD[i]} for ${FILEPASSWORDS[j]}" 
-		    fi
 		    PASSWORDS[i]=${FILEPASSWORDS[j]}
 		fi
 	    done
@@ -171,7 +168,7 @@ readFileUsers() {
 	for j in "${!FILEUSERS[@]}"; do
 	    for i in "${!USERS[@]}"; do
 	        if [[ ${USERS[i]} == ${FILEUSERS[j]} ]]; then
-		    FINALUSERS+=(${FILUSERS[j]})
+		    FINALUSERS+=(${FILEUSERS[j]})
 		    FINALPASSWORDS+=(${FILEPASSWORDS[j]})
 		fi
 	    done
@@ -181,11 +178,6 @@ readFileUsers() {
 	USERS=(${FINALUSERS})
 	PASSWORDS=(${FINALPASSWORDS})
 	CHANGEALL=1
-    fi
-
-    if [ -n "${VERBOSEENABLED}" ]; then
-        echo "Final users: ${USERS[@]}"
-        echo "Final passwords: ${PASSWORDS[@]}"
     fi
 
 }
