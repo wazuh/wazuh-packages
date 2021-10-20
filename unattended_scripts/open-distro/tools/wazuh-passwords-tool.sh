@@ -69,6 +69,7 @@ getHelp() {
    echo -e "\t-c     | --cert <route-admin-certificate> Indicates route to the admin certificate"
    echo -e "\t-k     | --certkey <route-admin-certificate-key> Indicates route to the admin certificate key"
    echo -e "\t-v     | --verbose Shows the complete script execution output"
+   echo -e "\t-f     | --file <password_file.yml> Changes the passwords for the ones given in the file. It has to be formatted like this, with three lines per user: \n\t\tUser:\n\t\t\tname:<user>\n\t\t\tpassword:<password>"
    echo -e "\t-h     | --help Shows help"
    exit 1 # Exit script after printing help
 }
@@ -137,6 +138,51 @@ readUsers() {
     SUSERS=$(grep -B 1 hash: /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml | grep -v hash: | grep -v "-" | awk '{ print substr( $0, 1, length($0)-1 ) }')
     USERS=($SUSERS)  
 }
+
+## Reads all the users and passwords in the given passwords file
+
+readFileUsers() {
+    SFILEUSERS=$(grep name: ${FILE} | awk '{ print substr( $2, 1, length($2) ) }')
+    SFILEPASSWORDS=$(grep password: ${FILE} | awk '{ print substr( $2, 1, length($2) ) }')
+
+    FILEUSERS=($SFILEUSERS)
+    FILEPASSWORDS=($SFILEPASSWORDS)
+
+    if [ -n "${VERBOSEENABLED}" ]; then
+        echo "Users in the file: ${FILEUSERS[@]}"
+        echo "Passwords in the file: ${FILEPASSWORDS[@]}"
+    fi
+
+    if [ -n "${CHANGEALL}" ]; then
+        for i in "${!USERS[@]}"; do
+	    for j in "${!FILEUSERS[@]}"; do
+	        if [[ ${USERS[i]} == ${FILEUSERS[j]} ]]; then
+		    PASSWORDS[i]=${FILEPASSWORDS[j]}
+		fi
+	    done
+        done
+    else
+	FINALUSERS=()
+	FINALPASSWORDS=()
+
+	for j in "${!FILEUSERS[@]}"; do
+	    for i in "${!USERS[@]}"; do
+	        if [[ ${USERS[i]} == ${FILEUSERS[j]} ]]; then
+		    FINALUSERS+=(${FILEUSERS[j]})
+		    FINALPASSWORDS+=(${FILEPASSWORDS[j]})
+		fi
+	    done
+        done
+
+	USERS=()
+	USERS=(${FINALUSERS[@]})
+	PASSWORDS=(${FINALPASSWORDS[@]})
+	CHANGEALL=1
+    fi
+
+}
+
+## Checks if the user exists
 
 checkUser() {
 
@@ -213,7 +259,6 @@ generateHash() {
         fi    
         echo "Hash generated"
     fi
-
 }
 
 ## Changes the password for the indicated user
@@ -354,7 +399,12 @@ main() {
                 adminkey=$2
                 shift
                 shift
-                ;;                                                            
+                ;; 
+	"-f"|"--file")
+		FILE=$2
+    		shift
+		shift
+		;;		
             "-h"|"--help")
                 getHelp
                 ;;
@@ -371,19 +421,31 @@ main() {
 
         checkInstalled   
 
-        if [[ -n "${NUSER}" ]] && [[ -n "${CHANGEALL}" ]]; then
+	if [ -n "${FILE}" ] && [ ! -f "${FILE}" ]; then
+	    getHelp
+	fi
+
+        if [ -n "${NUSER}" ] && [ -n "${CHANGEALL}" ]; then
             getHelp
         fi 
 
-        if [[ -n "${PASSWORD}" ]] && [[ -n "${CHANGEALL}" ]]; then
+        if [ -n "${PASSWORD}" ] && [ -n "${CHANGEALL}" ]; then
+            getHelp
+        fi 
+
+        if [ -n "${NUSER}" ] && [ -n "${FILE}" ]; then
+            getHelp
+        fi 
+
+        if [ -n "${PASSWORD}" ] && [ -n "${FILE}" ]; then
             getHelp
         fi         
 
-        if [[ -z "${NUSER}" ]] && [[ -n "${PASSWORD}" ]]; then
+        if [ -z "${NUSER}" ] && [ -n "${PASSWORD}" ]; then
             getHelp
         fi   
 
-        if [[ -z "${NUSER}" ]] && [[ -z "${PASSWORD}" ]] && [[ -z "${CHANGEALL}" ]]; then
+        if [ -z "${NUSER}" ] && [ -z "${PASSWORD}" ] && [ -z "${CHANGEALL}" ] && [ -z  "${FILE}" ]; then
             getHelp
         fi 
 
@@ -392,7 +454,7 @@ main() {
             checkUser
         fi          
 
-        if [[ -n "${NUSER}" ]] && [[ -z "${PASSWORD}" ]]; then
+        if [ -n "${NUSER}" ] && [ -z "${PASSWORD}" ]; then
             AUTOPASS=1
             generatePassword
         fi
@@ -400,7 +462,15 @@ main() {
         if [ -n "${CHANGEALL}" ]; then
             readUsers
             generatePassword
-        fi                    
+        fi               
+
+        if [ -n "${FILE}" ] && [ -z "${CHANGEALL}" ]; then
+	    readUsers
+	fi	    
+
+	if [ -n "${FILE}" ]; then
+	    readFileUsers
+	fi  
 
         getNetworkHost
         createBackUp
