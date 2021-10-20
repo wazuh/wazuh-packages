@@ -165,8 +165,21 @@ readFileUsers() {
 	    done
         done
     else
-        USERS=${FILEUSERS} 
-	PASSWORDS=${FILEPASSWORDS}
+	FINALUSERS=()
+	FINALPASSWORDS=()
+
+	for j in "${!FILEUSERS[@]}"; do
+	    for i in "${!USERS[@]}"; do
+	        if [[ ${USERS[i]} == ${FILEUSERS[j]} ]]; then
+		    FINALUSERS+=(${FILUSERS[j]})
+		    FINALPASSWORDS+=(${FILEPASSWORDS[j]})
+		fi
+	    done
+        done
+
+	USERS=()
+	USERS=(${FINALUSERS})
+	PASSWORDS=(${FINALPASSWORDS})
 	CHANGEALL=1
     fi
 
