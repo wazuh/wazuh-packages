@@ -175,8 +175,8 @@ readFileUsers() {
         done
 
 	USERS=()
-	USERS=(${FINALUSERS})
-	PASSWORDS=(${FINALPASSWORDS})
+	USERS=(${FINALUSERS[@]})
+	PASSWORDS=(${FINALPASSWORDS[@]})
 	CHANGEALL=1
     fi
 
