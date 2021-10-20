@@ -142,8 +142,8 @@ readUsers() {
 ## Reads all the users and passwords in the given passwords file
 
 readFileUsers() {
-    SFILEUSERS=$(grep -A 1 User: ${FILE} | grep -v User: | awk '{ print substr( $2, 1, length($2) ) }')
-    SFILEPASSWORDS=$(grep -A 2 User: ${FILE} | grep -v User: | grep -v name: | awk '{ print substr( $2, 1, length($2) ) }')
+    SFILEUSERS=$(grep name: ${FILE} | awk '{ print substr( $2, 1, length($2) ) }')
+    SFILEPASSWORDS=$(grep password: ${FILE} | awk '{ print substr( $2, 1, length($2) ) }')
 
     FILEUSERS=($SFILEUSERS)
     FILEPASSWORDS=($SFILEPASSWORDS)
