@@ -148,7 +148,7 @@ readFileUsers() {
     FILEUSERS=($SFILEUSERS)
     FILEPASSWORDS=($SFILEPASSWORDS)
 
-    if [ -n "${VERBOSE}" ]; then
+    if [ -n "${VERBOSEENABLED}" ]; then
         echo "Users in the file: ${FILEUSERS[@]}"
         echo "Passwords in the file: ${FILEPASSWORDS[@]}"
     fi
@@ -157,7 +157,7 @@ readFileUsers() {
         for i in "${!USERS[@]}"; do
 	    for j in "${!FILEUSERS[@]}"; do
 	        if [[ ${USERS[i]} == ${FILEUSERS[j]} ]]; then
-		    if [ -n "${VERBOSE}" ]; then 
+		    if [ -n "${VERBOSEENABLED}" ]; then 
 			echo "Changing ${PASSWORD[i]} for ${FILEPASSWORDS[j]}" 
 		    fi
 		    PASSWORDS[i]=${FILEPASSWORDS[j]}
@@ -170,7 +170,7 @@ readFileUsers() {
 	CHANGEALL=1
     fi
 
-    if [ -n "${VERBOSE}" ]; then
+    if [ -n "${VERBOSEENABLED}" ]; then
         echo "Final users: ${USERS[@]}"
         echo "Final passwords: ${PASSWORDS[@]}"
     fi
