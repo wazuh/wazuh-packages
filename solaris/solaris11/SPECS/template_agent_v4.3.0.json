@@ -1631,23 +1631,6 @@
         "type": "directory",
         "user": "root"
     },
-    "/var/ossec/ruleset/sca/cis_solaris11.yml": {
-        "class": "static",
-        "group": "wazuh",
-        "mode": "0640",
-        "prot": "-rwxr-----",
-        "type": "file",
-        "user": "root"
-    },
-
-    "/var/ossec/ruleset/sca/cis_solaris11.4.yml": {
-        "class": "static",
-        "group": "wazuh",
-        "mode": "0640",
-        "prot": "-rwxr-----",
-        "type": "file",
-        "user": "root"
-    },
     "/var/ossec/tmp": {
         "class": "static",
         "group": "wazuh",
@@ -2049,6 +2032,78 @@
         "user": "root"
     },
     "/var/ossec/wodles/oscap/template_xccdf.xsl": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/tmp/sca": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "drwxr-x---",
+        "type": "directory",
+        "user": "wazuh"
+    },
+    "/var/ossec/tmp/sca/sunos": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "drwxr-x---",
+        "type": "directory",
+        "user": "wazuh"
+    },
+    "/var/ossec/tmp/sca/sunos/5": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "drwxr-x---",
+        "type": "directory",
+        "user": "wazuh"
+    },
+    "/var/ossec/tmp/sca/sunos/5/11": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "drwxr-x---",
+        "type": "directory",
+        "user": "wazuh"
+    },
+    "/var/ossec/tmp/sca/sunos/5/11.4": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "drwxr-x---",
+        "type": "directory",
+        "user": "wazuh"
+    },
+    "/var/ossec/tmp/sca/sunos/5/11/sca.files": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/tmp/sca/sunos/5/11.4/sca.files": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/tmp/sca/sunos/cis_solaris11.4.yml": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/tmp/sca/sunos/cis_solaris11.yml": {
         "class": "static",
         "group": "wazuh",
         "mode": "0750",

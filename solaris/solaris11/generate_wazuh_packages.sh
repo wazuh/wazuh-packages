@@ -3,6 +3,7 @@
 # Copyright (C) 2018 Wazuh Inc.
 # This program is a free software; you can redistribute it and/or modify it under the terms of GPLv2
 # Wazuh Solaris 11 Package builder.
+set -x
 
 REPOSITORY="https://github.com/wazuh/wazuh"
 wazuh_branch="master"
@@ -164,6 +165,11 @@ compile() {
     fi
 
     $SOURCE/install.sh || exit 1
+
+    mkdir -p ${install_path}/tmp/sca/sunos/
+    cp -r $SOURCE/etc/templates/config/sunos/5/  ${install_path}/tmp/sca/sunos/
+    cp $SOURCE/ruleset/sca/sunos/* ${install_path}/tmp/sca/sunos/
+    rm -f ${install_path}/ruleset/sca/*
 
     mkdir   ${install_path}/logs/ossec
     mkdir   ${install_path}/queue/ossec
