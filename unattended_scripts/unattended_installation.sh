@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -x
+
+WAZUH_MAJOR="4.2"
+WAZUH_VER="4.2.3"
+WAZUH_REV="1"
+ELK_VER="7.10.2"
+ELKB_VER="7.12.1"
+OD_VER="1.13.2"
+OD_REV="1"
+WAZUH_KIB_PLUG_REV="1"
+
+
