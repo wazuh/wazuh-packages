@@ -171,10 +171,10 @@ compile() {
     cp $SOURCE/ruleset/sca/sunos/* ${install_path}/tmp/sca/sunos/
     rm -f ${install_path}/ruleset/sca/*
 
-    mkdir   ${install_path}/logs/ossec
-    mkdir   ${install_path}/queue/ossec
-    chown wazuh:wazuh ${install_path}/logs/ossec
-    chown wazuh:wazuh ${install_path}/queue/ossec
+    mkdir ${install_path}/logs/ossec
+    mkdir ${install_path}/queue/ossec
+    chown ossec:ossec ${install_path}/logs/ossec
+    chown ossec:ossec ${install_path}/queue/ossec
     chmod 0750 ${install_path}/logs/ossec
     chmod 0770 ${install_path}/queue/ossec
 }
