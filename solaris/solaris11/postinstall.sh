@@ -1,8 +1,11 @@
 #!/bin/sh
 # postinst script for wazuh-agent
 # Wazuh, Inc 2015-2020
-set -x
+
 install_path="<INSTALL_PATH>"
+osversion=$(uname -v)
+SCA_BASE_DIR="${install_path}/ruleset/sca/"
+SCA_TMP_DIR="${install_path}/tmp/sca"
 
 if [ -d ${install_path}/logs/ossec ]; then
   if [ -z "$(ls -A ${install_path}/logs/ossec)" ]; then
@@ -42,3 +45,17 @@ fi
 
 rm -rf ${install_path}/logs/ossec/
 rm -rf ${install_path}/queue/ossec/
+
+if [ -d "${SCA_TMP_DIR}/sunos/5/${osversion}" ]; then
+  scalist="${SCA_TMP_DIR}/sunos/5/${osversion}/sca.files"
+else
+  scalist="${SCA_TMP_DIR}/sunos/5/11/sca.files"
+fi
+
+for sca_file in $(cat ${scalist}); do
+  if [ -f ${SCA_TMP_DIR}/${sca_file} ]; then
+    mv ${SCA_TMP_DIR}/${sca_file} ${SCA_BASE_DIR}
+  fi
+done
+
+rm -rf ${SCA_TMP_DIR}
