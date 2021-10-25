@@ -166,12 +166,17 @@ readFileUsers() {
 	FINALPASSWORDS=()
 
 	for j in "${!FILEUSERS[@]}"; do
+	    supported=$false
 	    for i in "${!USERS[@]}"; do
 	        if [[ ${USERS[i]} == ${FILEUSERS[j]} ]]; then
 		    FINALUSERS+=(${FILEUSERS[j]})
 		    FINALPASSWORDS+=(${FILEPASSWORDS[j]})
+		    supported=$true
 		fi
 	    done
+	    if [ ! $supported ]; then
+	        echo "Error: The given user ${FILEUSERS[j]} does not exist"
+	    fi
         done
 
 	USERS=()
