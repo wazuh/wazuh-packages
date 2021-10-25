@@ -143,7 +143,7 @@ readUsers() {
 
 readFileUsers() {
 
-    FILECORRECT=$(grep -Pzc '(User:\s*name:\s*\w+\s*password:\s*\w+\s*)+' $FILE)
+    FILECORRECT=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*\w+\s*)+\Z' $FILE)
     if [ $FILECORRECT -ne 1 ]; then
 	echo "Error: the password file doesn't have a correct format.
 It must have this format:
