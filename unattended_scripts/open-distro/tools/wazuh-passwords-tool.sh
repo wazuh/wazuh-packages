@@ -188,7 +188,7 @@ User:
 		    supported=true
 		fi
 	    done
-	    if [ ! $supported ]; then
+	    if [ $supported = false ]; then
 	        echo "Error: The given user ${FILEUSERS[j]} does not exist"
 	    fi
         done
