@@ -165,8 +165,13 @@ compile() {
 
     $SOURCE/install.sh || exit 1
 
-    mkdir   ${install_path}/logs/ossec
-    mkdir   ${install_path}/queue/ossec
+    mkdir -p ${install_path}/tmp/sca/sunos/
+    cp -r $SOURCE/etc/templates/config/sunos/5/  ${install_path}/tmp/sca/sunos/
+    cp $SOURCE/ruleset/sca/sunos/* ${install_path}/tmp/sca/sunos/
+    rm -f ${install_path}/ruleset/sca/*
+
+    mkdir ${install_path}/logs/ossec
+    mkdir ${install_path}/queue/ossec
     chown ossec:ossec ${install_path}/logs/ossec
     chown ossec:ossec ${install_path}/queue/ossec
     chmod 0750 ${install_path}/logs/ossec
@@ -213,6 +218,7 @@ create_package() {
     # Add user and group wazuh
     echo "group groupname=wazuh" >> wazuh-agent.p5m.1
     echo "user username=wazuh group=wazuh" >> wazuh-agent.p5m.1
+    echo "user username=ossec group=ossec" >> wazuh-agent.p5m.1
     pkgmogrify -DARCH=`uname -p` wazuh-agent.p5m.1 wazuh-agent.mog | pkgfmt > wazuh-agent.p5m.2
     pkgsend -s http://localhost:9001 publish -d ${install_path} -d /etc/init.d -d /etc/rc2.d -d /etc/rc3.d -d ${current_path} wazuh-agent.p5m.2 > pack
     package=`cat pack | grep wazuh | cut -c 13-` # This extracts the name of the package generated in the previous step

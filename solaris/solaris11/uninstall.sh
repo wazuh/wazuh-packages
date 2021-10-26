@@ -14,7 +14,7 @@ sudo rm -r /var/ossec*
 sudo rm -f /etc/init.d/wazuh-agent
 
 ## Remove User and Groups
-sudo userdel ossec
-sudo groupdel ossec
+sudo userdel wazuh
+sudo groupdel wazuh
 
 exit 0

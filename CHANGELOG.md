@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 - Update SPECS [#689](https://github.com/wazuh/wazuh-packages/pull/689)
 - Fix `find` error in CentOS 5 building [#888](https://github.com/wazuh/wazuh-packages/pull/888)
+- Add new SCA files to Solaris 11 [#944](https://github.com/wazuh/wazuh-packages/pull/944)
 
 ## [v4.2.2]
 
