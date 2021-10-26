@@ -142,7 +142,6 @@ readUsers() {
 ## Reads all the users and passwords in the given passwords file
 
 readFileUsers() {
-<<<<<<< HEAD
 
     FILECORRECT=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*\w+\s*)+\Z' $FILE)
     if [ $FILECORRECT -ne 1 ]; then
@@ -157,8 +156,6 @@ User:
 	exit 1
     fi	
 
-=======
->>>>>>> cc0ad005 (Corrected array copy for password file comprobation)
     SFILEUSERS=$(grep name: ${FILE} | awk '{ print substr( $2, 1, length($2) ) }')
     SFILEPASSWORDS=$(grep password: ${FILE} | awk '{ print substr( $2, 1, length($2) ) }')
 
@@ -171,7 +168,6 @@ User:
     fi
 
     if [ -n "${CHANGEALL}" ]; then
-<<<<<<< HEAD
         for j in "${!FILEUSERS[@]}"; do
 	    supported=false
 	    for i in "${!USERS[@]}"; do
@@ -183,45 +179,29 @@ User:
 	    if [ $supported = false ]; then
 	        echo "Error: The given user ${FILEUSERS[j]} does not exist"
 	    fi
-=======
-        for i in "${!USERS[@]}"; do
-	    for j in "${!FILEUSERS[@]}"; do
-	        if [[ ${USERS[i]} == ${FILEUSERS[j]} ]]; then
-		    PASSWORDS[i]=${FILEPASSWORDS[j]}
-		fi
-	    done
->>>>>>> cc0ad005 (Corrected array copy for password file comprobation)
-        done
+       done
     else
-	FINALUSERS=()
-	FINALPASSWORDS=()
+	    FINALUSERS=()
+	    FINALPASSWORDS=()
 
-	for j in "${!FILEUSERS[@]}"; do
-<<<<<<< HEAD
-	    supported=false
-=======
->>>>>>> cc0ad005 (Corrected array copy for password file comprobation)
-	    for i in "${!USERS[@]}"; do
-	        if [[ ${USERS[i]} == ${FILEUSERS[j]} ]]; then
-		    FINALUSERS+=(${FILEUSERS[j]})
-		    FINALPASSWORDS+=(${FILEPASSWORDS[j]})
-<<<<<<< HEAD
-		    supported=true
-		fi
-	    done
+    	for j in "${!FILEUSERS[@]}"; do
+           supported=false
+	        for i in "${!USERS[@]}"; do
+	            if [[ ${USERS[i]} == ${FILEUSERS[j]} ]]; then
+		            FINALUSERS+=(${FILEUSERS[j]})
+		            FINALPASSWORDS+=(${FILEPASSWORDS[j]})
+		            supported=true
+		        fi
+	        done
             if [ $supported = false ]; then
-	        echo "Error: The given user ${FILEUSERS[j]} does not exist"
-	    fi
-=======
-		fi
-	    done
->>>>>>> cc0ad005 (Corrected array copy for password file comprobation)
+	            echo "Error: The given user ${FILEUSERS[j]} does not exist"
+		    fi
         done
 
-	USERS=()
-	USERS=(${FINALUSERS[@]})
-	PASSWORDS=(${FINALPASSWORDS[@]})
-	CHANGEALL=1
+	    USERS=()
+	    USERS=(${FINALUSERS[@]})
+	    PASSWORDS=(${FINALPASSWORDS[@]})
+    	CHANGEALL=1
     fi
 
 }
