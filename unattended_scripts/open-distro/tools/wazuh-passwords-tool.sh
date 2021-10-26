@@ -168,12 +168,17 @@ User:
     fi
 
     if [ -n "${CHANGEALL}" ]; then
-        for i in "${!USERS[@]}"; do
-	    for j in "${!FILEUSERS[@]}"; do
+        for j in "${!FILEUSERS[@]}"; do
+	    supported=false
+	    for i in "${!USERS[@]}"; do
 	        if [[ ${USERS[i]} == ${FILEUSERS[j]} ]]; then
 		    PASSWORDS[i]=${FILEPASSWORDS[j]}
+		    supported=true
 		fi
 	    done
+            if [ $supported = false ]; then
+	        echo "Error: The given user ${FILEUSERS[j]} does not exist"
+	    fi
         done
     else
 	FINALUSERS=()
