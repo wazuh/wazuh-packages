@@ -217,6 +217,7 @@ create_package() {
     echo "file S97wazuh-agent path=etc/rc3.d/S97wazuh-agent owner=root group=sys mode=0744" >> wazuh-agent.p5m.1
     # Add user and group wazuh
     echo "group groupname=wazuh" >> wazuh-agent.p5m.1
+    echo "group groupname=ossec" >> wazuh-agent.p5m.1
     echo "user username=wazuh group=wazuh" >> wazuh-agent.p5m.1
     echo "user username=ossec group=ossec" >> wazuh-agent.p5m.1
     pkgmogrify -DARCH=`uname -p` wazuh-agent.p5m.1 wazuh-agent.mog | pkgfmt > wazuh-agent.p5m.2
