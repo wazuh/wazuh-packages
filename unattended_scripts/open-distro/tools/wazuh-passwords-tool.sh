@@ -142,6 +142,20 @@ readUsers() {
 ## Reads all the users and passwords in the given passwords file
 
 readFileUsers() {
+
+    FILECORRECT=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*\w+\s*)+\Z' $FILE)
+    if [ $FILECORRECT -ne 1 ]; then
+	echo "Error: the password file doesn't have a correct format.
+It must have this format:
+User:
+   name: wazuh
+   password: wazuhpasword
+User:
+   name: kibanaserver
+   password: kibanaserverpassword"
+	exit 1
+    fi	
+    
     SFILEUSERS=$(grep name: ${FILE} | awk '{ print substr( $2, 1, length($2) ) }')
     SFILEPASSWORDS=$(grep password: ${FILE} | awk '{ print substr( $2, 1, length($2) ) }')
 
@@ -154,24 +168,35 @@ readFileUsers() {
     fi
 
     if [ -n "${CHANGEALL}" ]; then
-        for i in "${!USERS[@]}"; do
-	    for j in "${!FILEUSERS[@]}"; do
+        for j in "${!FILEUSERS[@]}"; do
+	    supported=false
+	    for i in "${!USERS[@]}"; do
 	        if [[ ${USERS[i]} == ${FILEUSERS[j]} ]]; then
 		    PASSWORDS[i]=${FILEPASSWORDS[j]}
+		    supported=true
 		fi
 	    done
+    	    if [ $supported = false ]; then
+		echo "Error: The given user ${FILEUSERS[j]} does not exist"
+	    fi
+
         done
     else
 	FINALUSERS=()
 	FINALPASSWORDS=()
 
 	for j in "${!FILEUSERS[@]}"; do
+	    supported=false
 	    for i in "${!USERS[@]}"; do
 	        if [[ ${USERS[i]} == ${FILEUSERS[j]} ]]; then
 		    FINALUSERS+=(${FILEUSERS[j]})
 		    FINALPASSWORDS+=(${FILEPASSWORDS[j]})
+		    supported=true
 		fi
 	    done
+	    if [ $supported = false ];then
+		echo "Error: The given user ${FILEUSERS[j]} does not exist"
+	    fi
         done
 
 	USERS=()
