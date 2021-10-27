@@ -169,39 +169,39 @@ User:
 
     if [ -n "${CHANGEALL}" ]; then
         for j in "${!FILEUSERS[@]}"; do
-	    supported=false
-	    for i in "${!USERS[@]}"; do
-	        if [[ ${USERS[i]} == ${FILEUSERS[j]} ]]; then
-		    PASSWORDS[i]=${FILEPASSWORDS[j]}
-		    supported=true
-		fi
-	    done
-            if [ $supported = false ]; then
+	        supported=false
+	        for i in "${!USERS[@]}"; do
+	          if [[ ${USERS[i]} == ${FILEUSERS[j]} ]]; then
+		          PASSWORDS[i]=${FILEPASSWORDS[j]}
+		          supported=true
+		        fi
+	        done
+        if [ $supported = false ]; then
 	        echo "Error: The given user ${FILEUSERS[j]} does not exist"
-	    fi
+	      fi
         done
     else
-	FINALUSERS=()
-	FINALPASSWORDS=()
+	    FINALUSERS=()
+	    FINALPASSWORDS=()
 
-	for j in "${!FILEUSERS[@]}"; do
-	    supported=false
-	    for i in "${!USERS[@]}"; do
+	    for j in "${!FILEUSERS[@]}"; do
+	      supported=false
+	      for i in "${!USERS[@]}"; do
 	        if [[ ${USERS[i]} == ${FILEUSERS[j]} ]]; then
-		    FINALUSERS+=(${FILEUSERS[j]})
-		    FINALPASSWORDS+=(${FILEPASSWORDS[j]})
-		    supported=true
-		fi
-	    done
+		        FINALUSERS+=(${FILEUSERS[j]})
+		        FINALPASSWORDS+=(${FILEPASSWORDS[j]})
+		        supported=true
+		      fi
+	      done
 	    if [ $supported = false ]; then
-	        echo "Error: The given user ${FILEUSERS[j]} does not exist"
+	      echo "Error: The given user ${FILEUSERS[j]} does not exist"
 	    fi
-        done
+      done
 
-	USERS=()
-	USERS=(${FINALUSERS[@]})
-	PASSWORDS=(${FINALPASSWORDS[@]})
-	CHANGEALL=1
+	    USERS=()
+	    USERS=(${FINALUSERS[@]})
+	    PASSWORDS=(${FINALPASSWORDS[@]})
+	    CHANGEALL=1
     fi
 
 }
@@ -453,13 +453,14 @@ main() {
 	fi
 
         if [ -n "${NUSER}" ] && [ -n "${CHANGEALL}" ]; then
+
             getHelp
         fi 
 
         if [ -n "${PASSWORD}" ] && [ -n "${CHANGEALL}" ]; then
             getHelp
         fi 
-
+        
         if [ -n "${NUSER}" ] && [ -n "${FILE}" ]; then
             getHelp
         fi 
