@@ -6,7 +6,7 @@
 systemConfig() {
 
   echo "Upgrading the system. This may take a while ..."
-  yum upgrade -y > /dev/null 2>&1
+  #yum upgrade -y > /dev/null 2>&1
 
   # Disable kernel messages and edit background
   mv ${CUSTOM_PATH}/grub/wazuh.png /boot/grub2/
@@ -68,9 +68,6 @@ preInstall() {
   PATTERN="eval \"curl -so \/etc\/filebeat\/wazuh-template"
   sed -i "s/${PATTERN}/sed -i \"s\/admin\/wazuh\/g\" \/etc\/filebeat\/filebeat\.yml\n        ${PATTERN}/g" ${UNATTENDED_PATH}/${INSTALLER}
 
-  # Disable start of wazuh-manager
-  sed -i "s/startService \"wazuh-manager\"/\#startService \"wazuh-manager\"/g" ${UNATTENDED_PATH}/${INSTALLER}
-
   # Disable passwords change
   sed -i "s/wazuhpass=/#wazuhpass=/g" ${UNATTENDED_PATH}/${INSTALLER}
   sed -i "s/changePasswords$/#changePasswords\nwazuhpass=\"wazuh\"/g" ${UNATTENDED_PATH}/${INSTALLER}
@@ -79,6 +76,8 @@ preInstall() {
   # Revert url to packages.wazuh.com to get filebeat gz
   sed -i "s/'\${repobaseurl}'\/filebeat/https:\/\/packages.wazuh.com\/4.x\/filebeat/g" ${UNATTENDED_PATH}/${INSTALLER}
 
+  # add rbac permissions to Wazuh user and stop wazuh manager
+  sed -i "0,/setWazuhUserRBACPermissions/s/setWazuhUserRBACPermissions/setWazuhUserRBACPermissions\nsystemctl stop wazuh-manager/" ${UNATTENDED_PATH}/${INSTALLER}
 }
 
 # Edit wazuh installation
