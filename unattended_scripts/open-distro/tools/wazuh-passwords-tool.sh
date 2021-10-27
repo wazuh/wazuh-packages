@@ -334,7 +334,6 @@ changePassword() {
     fi
 
     if [ "$NUSER" == "kibanaserver" ] || [ -n "$CHANGEALL" ]; then
-
 	    if [ "${SYS_TYPE}" == "yum" ]; then
 		    haskibana=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch-kibana)
 	    elif [ "${SYS_TYPE}" == "zypper" ]; then
@@ -453,7 +452,6 @@ main() {
 	fi
 
         if [ -n "${NUSER}" ] && [ -n "${CHANGEALL}" ]; then
-
             getHelp
         fi 
 
