@@ -85,7 +85,6 @@ getHelp() {
    echo -e "\t-k     | --install-kibana Installs Open Distro for Kibana (cannot be used together with option -e)"
    echo -e "\t-n     | --node-name Name of the node"
    echo -e "\t-c     | --create-certificates Generates the certificates for all the indicated nodes"
-   echo -e "\t-k     | --install-kibana Install Kibana"
    echo -e "\t-d     | --debug Shows the complete installation output"
    echo -e "\t-i     | --ignore-health-check Ignores the health-check"
    echo -e "\t-h     | --help Shows help"
