@@ -101,23 +101,38 @@ if [ $1 = 1 ]; then
 fi
 
 if [ $1 = 2 ]; then
-  if %{_localstatedir}/bin/wazuh-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
+  if /etc/rc.d/init.d/wazuh-agent status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
     /etc/rc.d/init.d/wazuh-agent stop > /dev/null 2>&1 || :
     touch %{_localstatedir}/tmp/wazuh.restart
   fi
   %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1 || %{_localstatedir}/bin/wazuh-control stop > /dev/null 2>&1
 fi
 
-%post
 if [ $1 = 2 ]; then
   if [ -d %{_localstatedir}/logs/ossec ]; then
-    rm -rf %{_localstatedir}/logs/wazuh
-    cp -rp %{_localstatedir}/logs/ossec %{_localstatedir}/logs/wazuh
+    cp -rp %{_localstatedir}/logs/ossec %{_localstatedir}/tmp/logs/wazuh > /dev/null 2>&1
+    rm -rf %{_localstatedir}/logs/ossec/*
+    rm -rf %{_localstatedir}/logs/ossec/.??*
   fi
 
   if [ -d %{_localstatedir}/queue/ossec ]; then
+    cp -rp %{_localstatedir}/queue/ossec %{_localstatedir}/tmp/queue/sockets > /dev/null 2>&1
+    rm -rf %{_localstatedir}/queue/ossec/*
+    rm -rf %{_localstatedir}/queue/ossec/.??*
+  fi
+fi
+
+%post
+
+if [ $1 = 2 ]; then
+  if [ -d %{_localstatedir}/tmp/logs/wazuh ]; then
+    rm -rf %{_localstatedir}/logs/wazuh
+    mv %{_localstatedir}/tmp/logs/ossec %{_localstatedir}/logs/wazuh> /dev/null 2>&1
+  fi
+
+  if [ -d %{_localstatedir}/tmp/queue/sockets ]; then
     rm -rf %{_localstatedir}/queue/sockets
-    cp -rp %{_localstatedir}/queue/ossec %{_localstatedir}/queue/sockets
+    mv %{_localstatedir}/tmp/queue/ossec %{_localstatedir}/queue/sockets > /dev/null 2>&1
   fi
 fi
 
@@ -160,17 +175,6 @@ rm -f %{_localstatedir}/tmp/add_localfiles.sh
 
 chmod 0660 %{_localstatedir}/etc/agent.conf
 
-# Restart wazuh-agent when manager settings are in place
-if grep '<server-ip>.*</server-ip>' %{_localstatedir}/etc/agent.conf | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' > /dev/null 2>&1; then
-  /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
-fi
-if grep '<server-hostname>.*</server-hostname>' %{_localstatedir}/etc/agent.conf > /dev/null 2>&1; then
-  /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
-fi
-if grep '<address>.*</address>' %{_localstatedir}/etc/agent.conf | grep -v 'MANAGER_IP' > /dev/null 2>&1; then
-  /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
-fi
-
 # Remove old ossec user and group if exists and change ownwership of files
 
 if grep "^ossec:" /etc/group > /dev/null 2>&1; then
@@ -188,6 +192,11 @@ if grep "^ossec:" /etc/group > /dev/null 2>&1; then
     userdel ossecr
   fi
   rmgroup ossec
+fi
+
+if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
+  rm -f %{_localstatedir}/tmp/wazuh.restart
+  /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
 fi
 
 %preun
@@ -219,20 +228,6 @@ if [ $1 = 0 ];then
   rm -rf %{_localstatedir}/ruleset
 fi
 
-%posttrans
-if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
-  rm -f %{_localstatedir}/tmp/wazuh.restart
-  /etc/rc.d/init.d/wazuh-agent restart > /dev/null 2>&1 || :
-fi
-
-if [ -d %{_localstatedir}/logs/ossec ]; then
-  rm -rf %{_localstatedir}/logs/ossec/
-fi
-
-if [ -d %{_localstatedir}/queue/ossec ]; then
-  rm -rf %{_localstatedir}/queue/ossec/
-fi
-
 %clean
 rm -fr %{buildroot}
 
@@ -256,7 +251,8 @@ rm -fr %{buildroot}
 %attr(640, root, wazuh) %{_localstatedir}/etc/wpk_root.pem
 %dir %attr(770, root, wazuh) %{_localstatedir}/etc/shared
 %attr(660, root, wazuh) %config(missingok,noreplace) %{_localstatedir}/etc/shared/*
-%dir %attr(750, root,system) %{_localstatedir}/lib
+%dir %attr(750, root, system) %{_localstatedir}/lib
+%attr(750, root, wazuh) %{_localstatedir}/lib/*
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/logs
 %attr(660, wazuh, wazuh) %ghost %{_localstatedir}/logs/active-responses.log
 %attr(660, root, wazuh) %ghost %{_localstatedir}/logs/wazuh.log
@@ -291,15 +287,20 @@ rm -fr %{buildroot}
 %dir %attr(770, root, wazuh) %{_localstatedir}/var/upgrade
 %dir %attr(770, root, wazuh) %{_localstatedir}/var/wodles
 %dir %attr(750, root, wazuh) %{_localstatedir}/wodles
-%dir %attr(750, root, wazuh) %{_localstatedir}/wodles/aws
-%attr(750, root, wazuh) %{_localstatedir}/wodles/aws/*
-%dir %attr(750, root, wazuh) %{_localstatedir}/wodles/gcloud
-%attr(750, root, wazuh) %{_localstatedir}/wodles/gcloud/*
+%attr(750, root, wazuh) %{_localstatedir}/wodles/*
 
 %changelog
 * Sat Dec 04 2021 support <info@wazuh.com> - 5.0.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Wed Apr 28 2021 support <info@wazuh.com> - 4.3.0
+* Thu Oct 21 2021 support <info@wazuh.com> - 4.2.4
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Wed Oct 06 2021 support <info@wazuh.com> - 4.2.3
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Nov 01 2021 support <info@wazuh.com> - 4.3.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Wed Oct 06 2021 support <info@wazuh.com> - 4.2.2
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Sat Sep 25 2021 support <info@wazuh.com> - 4.2.1
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Apr 26 2021 support <info@wazuh.com> - 4.2.0
 - More info: https://documentation.wazuh.com/current/release-notes/
