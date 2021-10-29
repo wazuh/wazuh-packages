@@ -272,26 +272,13 @@ installElasticsearch() {
         eval "cd /etc/elasticsearch/certs ${debug}"
         echo "${resources}/open-distro/tools/certificate-utility/wazuh-cert-tool.sh --max-time 300"
         eval "curl -so ~/wazuh-cert-tool.sh ${resources}/open-distro/tools/certificate-utility/wazuh-cert-tool.sh --max-time 300 ${debug}"
+	eval "curl -so ~/instances.yml ${resources}/open-distro/tools/certificate-utility/instances.yml"
+	eval "grep -A 4 'Elasticsearch nodes' ~/instances.yml | sed  's/<node-name>/elasticsearch/; s/node-IP/127.0.0.1/' >> ~/instances_tmp.yml"
+	eval "grep -A 4 'Wazuh server nodes' ~/instances.yml | sed  's/<node-name>/filebeat/; s/node-IP/127.0.0.1/' >> ~/instances_tmp.yml"
+	eval "grep -A 4 'Kibana node' ~/instances.yml | sed  's/<node-name>/kibana/; s/node-IP/127.0.0.1/' >> ~/instances_tmp.yml"
+	eval "mv -f ~/instances_tmp.yml ~/instances.yml"
 
-        echo "# Elasticsearch nodes" >> ~/instances.yml
-        echo "elasticsearch-nodes:" >> ~/instances.yml
-        echo "- name: elasticsearch" >> ~/instances.yml
-        echo "    ip:" >> ~/instances.yml
-        echo "    - 127.0.0.1" >> ~/instances.yml
-
-        echo "# Wazuh server nodes" >> ~/instances.yml
-        echo "wazuh-servers:" >> ~/instances.yml
-        echo "- name: filebeat" >> ~/instances.yml
-        echo "    ip:" >> ~/instances.yml
-        echo "    - 127.0.0.1" >> ~/instances.yml
-
-        echo "# Kibana node"  >> ~/instances.yml
-        echo "kibana:"  >> ~/instances.yml
-        echo "- name: kibana" >> ~/instances.yml
-        echo "    ip:" >> ~/instances.yml
-        echo "    - 127.0.0.1" >> ~/instances.yml
-
-        export JAVA_HOME=/usr/share/elasticsearch/jdk/
+       export JAVA_HOME=/usr/share/elasticsearch/jdk/
         bash ~/wazuh-cert-tool.sh
 
         if [  "$?" != 0  ]; then
