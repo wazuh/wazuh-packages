@@ -102,7 +102,12 @@ checkConfig() {
         echo "No certificates file found."
         exit 1;
     fi
-
+    if [ -n "${key}" ]: then
+	if [ ! -f ~/wazuh_config.yml ]; then
+ 	    echo "No configuration file found for the wazuh cluster."
+	    exit 1;
+	fi
+    fi
 }
 
 ## Install the required packages for the installation
@@ -170,6 +175,32 @@ installWazuh() {
     else
         logger "Done"
     fi
+
+    ## Configure cluster if wazuh_config.yml is here
+    if [ -n $key ]; then
+	cn=$(awk '/cluster.name:/ {print $2}' ~/wazuh_config.yml)
+	nt=$(awk '/node.type:/ {print $2}' ~/wazuh_config.yml)
+	ma=$(awk '/master.address:/ {print $2}' ~/wazuh_config.yml)
+	ba=$(awk '/bind.address:/ {print $2}' ~/wazuh_config.yml)
+	port=$(awk '/port:/ {print $2}' ~/wazuh_config.yml)
+	hidden=$(awk '/hidden:/ {print $2}' ~/wazuh_config.yml)
+	disabled=$(awk '/disabled:/ {print $2}' ~/wazuh_config.yml)
+	lstart=$(grep -n "<cluster>" /var/ossec/etc/ossec.conf | cut -d : -f 1)
+        lend=$(grep -n "</cluster>" /var/ossec/etc/ossec.conf | cut -d : -f 1)
+
+        eval 'sed -i -e "${lstart},${lend}s/<name>.*<\/name>/<name>${cn}<\/name>/" \
+		-e "${lstart},${lend}s/<node_name>.*<\/node_name>/<node_name>${iname}<\/node_name>/" \
+		-e "${lstart},${lend}s/<node_type>.*<\/node_type>/<node_type>${nt}<\/node_type>/" \
+		-e "${lstart},${lend}s/<key>.*<\/key>/<key>${key}<\/key>/" \
+		-e "${lstart},${lend}s/<port>.*<\/port>/<port>${port}<\/port>/" \
+		-e "${lstart},${lend}s/<bind_addr>.*<\/bind_addr>/<bind_addr>${ba}<\/bind_addr>/" \
+		-e "${lstart},${lend}s/<node>.*<\/node>/<node>${ma}<\/node>/" \
+		-e "${lstart},${lend}s/<hidden>.*<\/hidden>/<hidden>${hidden}<\/hidden>/" \
+		-e "${lstart},${lend}s/<disabled>.*<\/disabled>/<disabled>${disabled}<\/disabled>/" \
+		/var/ossec/etc/ossec.conf'
+    fi	
+
+
     startService "wazuh-manager"
 
 }
@@ -279,6 +310,11 @@ main() {
             "-h"|"--help")
                 getHelp
                 ;;
+	    "-k"|"--key")
+		clusterkey=$2
+		shift
+		shift
+		;;
             *)
                 getHelp
             esac
