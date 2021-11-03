@@ -28,7 +28,7 @@ RUN apt-get update &&  apt-get build-dep python3.5 -y &&\
 
 RUN curl -OL http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz && \
     tar -zxvf cmake-3.18.3.tar.gz && cd cmake-3.18.3 && \
-    ./bootstrap --no-system-curl \
+    ./bootstrap --no-system-curl && \
     make -j$(nproc) && make install && cd / && rm -rf cmake-*
 
 # Set the entrypoint

@@ -37,7 +37,8 @@ RUN curl -OL http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz && \
     tar -zxf cmake-3.18.3.tar.gz && cd cmake-3.18.3 && \
     ./bootstrap --no-system-curl CC=/usr/local/gcc-5.5.0/bin/gcc \
         CXX=/usr/local/gcc-5.5.0/bin/g++ && \
-    make -j$(nproc) && make install && cd / && rm -rf cmake-*
+    make -j$(nproc) && make install && cd / && rm -rf cmake-* && \
+    ln -sf /usr/bin/rpmbuild /usr/local/bin/rpmbuild
 
 # Add the scripts to build the RPM package
 ADD build.sh /usr/local/bin/build_package
