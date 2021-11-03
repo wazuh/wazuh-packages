@@ -306,13 +306,13 @@ main() {
                 debugEnabled=1
                 shift 1
                 ;;
-            "-h"|"--help")
-                getHelp
-                ;;
             "-k"|"--key")
                 clusterkey=$2
                 shift
                 shift
+                ;;
+            "-h"|"--help")
+                getHelp
                 ;;
             *)
                 getHelp
