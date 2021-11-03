@@ -105,10 +105,10 @@ checkConfig() {
         exit 1;
     fi
     if [ -n "${clusterkey}" ]; then
-	if [ ! -f ~/wazuh_config.yml ]; then
- 	    echo "No configuration file found for the wazuh cluster."
-	    exit 1;
-	fi
+        if [ ! -f ~/wazuh_config.yml ]; then
+            echo "No configuration file found for the wazuh cluster."
+            exit 1;
+        fi
     fi
 }
 
@@ -309,11 +309,11 @@ main() {
             "-h"|"--help")
                 getHelp
                 ;;
-	    "-k"|"--key")
-		clusterkey=$2
-		shift
-		shift
-		;;
+            "-k"|"--key")
+                clusterkey=$2
+                shift
+                shift
+                ;;
             *)
                 getHelp
             esac
@@ -345,9 +345,9 @@ main() {
         installPrerequisites
         addWazuhrepo
         installWazuh
-	if [ -n "${clusterkey}" ]; then 
-	    configureWazuh 
-	fi
+        if [ -n "${clusterkey}" ]; then 
+            configureWazuh 
+        fi
         installFilebeat iname
         configureFilebeat
     else
