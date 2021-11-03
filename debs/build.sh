@@ -114,11 +114,15 @@ else
     linux32 debuild --rootcmd=sudo -ai386 -b -uc -us
 fi
 
-deb_file="wazuh-${build_target}_${wazuh_version}-${package_release}_${architecture_target}.deb"
+deb_file="wazuh-${build_target}_${wazuh_version}-${package_release}"
+if [[ "${architecture_target}" == "ppc64le" ]]; then
+  deb_file="${deb_file}_ppc64el.deb"
+else
+  deb_file="${deb_file}_${architecture_target}.deb"
+fi
 pkg_path="${build_dir}/${build_target}"
 
 if [[ "${checksum}" == "yes" ]]; then
     cd ${pkg_path} && sha512sum ${deb_file} > /var/local/checksum/${deb_file}.sha512
 fi
-ls ${pkg_path}
 mv ${pkg_path}/${deb_file} /var/local/wazuh
