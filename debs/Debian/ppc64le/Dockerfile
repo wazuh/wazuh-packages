@@ -3,9 +3,6 @@ FROM ppc64le/debian:stretch
 ENV DEBIAN_FRONTEND noninteractive
 ENV PATH /usr/local/lib/nodejs/node-v10.16.0-linux-ppc64le/bin:$PATH
 
-# Add the script to build the Debian package
-ADD build.sh /usr/local/bin/build_package
-
 # Installing necessary packages
 RUN echo "deb http://deb.debian.org/debian stretch main contrib non-free" >> /etc/apt/sources.list && \
     echo "deb-src http://deb.debian.org/debian stretch main contrib non-free" >> /etc/apt/sources.list && \
@@ -30,6 +27,9 @@ RUN curl -OL http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz && \
     tar -zxvf cmake-3.18.3.tar.gz && cd cmake-3.18.3 && \
     ./bootstrap --no-system-curl && \
     make -j$(nproc) && make install && cd / && rm -rf cmake-*
+
+# Add the script to build the Debian package
+ADD build.sh /usr/local/bin/build_package
 
 # Set the entrypoint
 ENTRYPOINT ["/usr/local/bin/build_package"]

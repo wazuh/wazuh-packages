@@ -51,7 +51,7 @@ cp -R wazuh* ${build_dir}/${build_target}/wazuh-${build_target}-${wazuh_version}
 if [ "${use_local_specs}" = "no" ]; then
     curl -sL https://github.com/wazuh/wazuh-packages/tarball/${wazuh_packages_branch} | tar zx
     package_files="wazuh*/debs"
-    specs_path=$(find . -type d -name "SPECS" -path "*debs*")
+    specs_path=$(find ${package_files} -type d -name "SPECS" -path "*debs*")
 else
     package_files="/specs"
     specs_path="${package_files}/SPECS"
@@ -120,4 +120,5 @@ pkg_path="${build_dir}/${build_target}"
 if [[ "${checksum}" == "yes" ]]; then
     cd ${pkg_path} && sha512sum ${deb_file} > /var/local/checksum/${deb_file}.sha512
 fi
+ls ${pkg_path}
 mv ${pkg_path}/${deb_file} /var/local/wazuh
