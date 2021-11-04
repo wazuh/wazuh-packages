@@ -104,11 +104,9 @@ checkConfig() {
         echo "No certificates file found."
         exit 1;
     fi
-    if [ -n "${clusterkey}" ]; then
-        if [ ! -f ~/wazuh_config.yml ]; then
-            echo "No configuration file found for the wazuh cluster."
-            exit 1;
-        fi
+    if [ -n "${clusterkey}" ] && [ ! -f ~/wazuh_config.yml ]; then
+        echo "No configuration file found for the wazuh cluster."
+        exit 1;
     fi
 }
 
