@@ -70,7 +70,7 @@ build_rpm() {
     DOCKERFILE_PATH="$2"
 
     # Copy the necessary files
-    cp build.sh ${DOCKERFILE_PATH}
+    cp ${CURRENT_PATH}/build.sh ${DOCKERFILE_PATH}
 
     # Download the legacy tar file if it is needed
     if [ "${CONTAINER_NAME}" = "${LEGACY_RPM_I386_BUILDER}" ] && [ ! -f "${LEGACY_TAR_FILE}" ]; then
