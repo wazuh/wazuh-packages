@@ -86,8 +86,7 @@ getHelp() {
    echo -e "\t-n    | --node-name Name of the node"
    echo -e "\t-p    | --elastic-password Elastic user password"
    echo -e "\t-d    | --debug Shows the complete installation output"
-   echo -e "\t-k    | --key <wazuh-cluster-key> Use this option as well as a \
-wazuh_config.yml configuration file to automatically configure the wazuh cluster"
+   echo -e "\t-k    | --key <wazuh-cluster-key> Use this option as well as a wazuh_config.yml configuration file to automatically configure the wazuh cluster"
    echo -e "\t-h    | --help Shows help"
    exit 1 # Exit script after printing help
 
