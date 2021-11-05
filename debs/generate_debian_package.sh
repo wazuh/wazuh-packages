@@ -56,7 +56,7 @@ build_deb() {
     DOCKERFILE_PATH="$2"
 
     # Copy the necessary files
-    cp build.sh ${DOCKERFILE_PATH}
+    cp ${CURRENT_PATH}/build.sh ${DOCKERFILE_PATH}
 
     # Create an optional parameter to share the local source code as a volume
     if [ ! -z "${LOCAL_SOURCE_CODE}" ]; then
