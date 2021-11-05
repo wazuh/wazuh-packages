@@ -10,8 +10,7 @@ BuildRoot:   %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Vendor:      Wazuh, Inc <info@wazuh.com>
 Packager:    Wazuh, Inc <info@wazuh.com>
 Requires(pre):    /usr/sbin/groupadd /usr/sbin/useradd
-Requires(post):   /sbin/chkconfig
-Requires(preun):  /sbin/chkconfig /sbin/service
+Requires(preun):  /sbin/service
 Requires(postun): /sbin/service /usr/sbin/groupdel /usr/sbin/userdel
 Conflicts:   ossec-hids ossec-hids-agent wazuh-agent wazuh-local
 Obsoletes: wazuh-api < 4.0.0
@@ -260,7 +259,7 @@ if [ $1 = 2 ]; then
       systemctl stop wazuh-api.service > /dev/null 2>&1
       systemctl disable wazuh-api.service > /dev/null 2>&1
       rm -f /etc/systemd/system/wazuh-api.service
-    elif command -v service > /dev/null 2>&1 ; then
+    elif command -v service > /dev/null 2>&1 && command -v chkconfig > /dev/null 2>&1; then
       service wazuh-api stop > /dev/null 2>&1
       chkconfig wazuh-api off > /dev/null 2>&1
       chkconfig --del wazuh-api > /dev/null 2>&1
@@ -298,7 +297,9 @@ if [ $1 = 1 ]; then
   fi
 
   if [ ! -z "$sles" ]; then
-    install -m 755 %{_localstatedir}/packages_files/manager_installation_scripts/src/init/ossec-hids-suse.init /etc/init.d/wazuh-manager
+    if [ -d /etc/init.d ]; then
+      install -m 755 %{_localstatedir}/packages_files/manager_installation_scripts/src/init/ossec-hids-suse.init /etc/init.d/wazuh-manager
+    fi
   fi
 
   . %{_localstatedir}/packages_files/manager_installation_scripts/src/init/dist-detect.sh
@@ -467,8 +468,7 @@ if [ $1 = 0 ]; then
     systemctl disable wazuh-manager > /dev/null 2>&1
     systemctl daemon-reload > /dev/null 2>&1
   # Check for SysV
-  elif command -v service > /dev/null 2>&1 ; then
-    chkconfig wazuh-manager off > /dev/null 2>&1
+  elif command -v service > /dev/null 2>&1 && command -v chkconfig > /dev/null 2>&1; then    chkconfig wazuh-manager off > /dev/null 2>&1
     chkconfig --del wazuh-manager > /dev/null 2>&1
   fi
 
