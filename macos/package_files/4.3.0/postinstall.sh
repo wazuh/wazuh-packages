@@ -132,7 +132,7 @@ if [[ $(dscl . -read /Groups/ossec) ]]; then
     find %{_localstatedir} -group ossec -user ossecr -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true
     sudo /usr/bin/dscl . -delete "/Users/ossecr"
   fi
-  sudo /usr/bin/dscl . -delete "/Groups/wazuh"
+  sudo /usr/bin/dscl . -delete "/Groups/ossec"
 fi
 
 # Remove 4.1.5 patch
