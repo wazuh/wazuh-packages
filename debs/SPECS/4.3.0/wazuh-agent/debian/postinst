@@ -176,17 +176,17 @@ case "$1" in
         find ${DIR} -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
         if getent passwd | grep -q "^ossec" ; then
             find ${DIR} -group ossec -user ossec -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
-            deluser ossec
+            deluser ossec > /dev/null 2>&1
         fi
         if getent passwd | grep -q "^ossecm" ; then
             find ${DIR} -group ossec -user ossecm -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
-            deluser ossecm
+            deluser ossecm > /dev/null 2>&1
         fi
         if getent passwd | grep -q "^ossecr" ; then
             find ${DIR} -group ossec -user ossecr -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
-            deluser ossecr
+            deluser ossecr > /dev/null 2>&1
         fi
-        delgroup ossec 
+        delgroup ossec > /dev/null 2>&1
     fi
 
     ;;
