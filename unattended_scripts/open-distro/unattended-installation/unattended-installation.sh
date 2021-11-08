@@ -270,7 +270,6 @@ installElasticsearch() {
         ## Create certificates
         eval "mkdir /etc/elasticsearch/certs ${debug}"
         eval "cd /etc/elasticsearch/certs ${debug}"
-        echo "${resources}/open-distro/tools/certificate-utility/wazuh-cert-tool.sh --max-time 300"
         eval "curl -so ~/wazuh-cert-tool.sh ${resources}/open-distro/tools/certificate-utility/wazuh-cert-tool.sh --max-time 300 ${debug}"
 
         echo "# Elasticsearch nodes" >> ~/instances.yml
