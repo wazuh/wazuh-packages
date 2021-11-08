@@ -468,7 +468,8 @@ if [ $1 = 0 ]; then
     systemctl disable wazuh-manager > /dev/null 2>&1
     systemctl daemon-reload > /dev/null 2>&1
   # Check for SysV
-  elif command -v service > /dev/null 2>&1 && command -v chkconfig > /dev/null 2>&1; then    chkconfig wazuh-manager off > /dev/null 2>&1
+  elif command -v service > /dev/null 2>&1 && command -v chkconfig > /dev/null 2>&1; then
+    chkconfig wazuh-manager off > /dev/null 2>&1
     chkconfig --del wazuh-manager > /dev/null 2>&1
   fi
 
