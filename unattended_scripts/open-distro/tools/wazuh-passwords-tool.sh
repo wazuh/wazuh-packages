@@ -237,7 +237,7 @@ changePassword() {
 
         if [ "${NUSER}" == "wazuh" ]; then
             wazuhpass=${PASSWORD}
-        elif [ "${USERS[i]}" == "kibanaserver" ]; then
+        elif [ "${NUSER}" == "kibanaserver" ]; then
             kibpass=${PASSWORD}
         fi        
 
@@ -253,34 +253,58 @@ changePassword() {
             hasfilebeat=$(apt list --installed  2>/dev/null | grep filebeat)
         fi 
 
-        if [ "${SYS_TYPE}" == "yum" ]; then
-            haskibana=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch-kibana)
-        elif [ "${SYS_TYPE}" == "zypper" ]; then
-            haskibana=$(zypper packages --installed | grep opendistroforelasticsearch-kibana | grep i+)
-        elif [ "${SYS_TYPE}" == "apt-get" ]; then
-            haskibana=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch-kibana)
-        fi     
-
         wazuhold=$(grep "password:" /etc/filebeat/filebeat.yml )
         ra="  password: "
         wazuhold="${wazuhold//$ra}"
-
-        wazuhkibold=$(grep "password:" /etc/kibana/kibana.yml )
-        rk="elasticsearch.password: "
-        wazuhkibold="${wazuhkibold//$rk}"        
 
         if [ -n "${hasfilebeat}" ]; then
             conf="$(awk '{sub("  password: '${wazuhold}'", "  password: '${wazuhpass}'")}1' /etc/filebeat/filebeat.yml)"
             echo "${conf}" > /etc/filebeat/filebeat.yml  
             restartService "filebeat"
         fi 
-
-        if [ -n "${haskibana}" ]; then
-            conf="$(awk '{sub("elasticsearch.password: '${wazuhkibold}'", "elasticsearch.password: '${kibpass}'")}1' /etc/kibana/kibana.yml)"
-            echo "${conf}" > /etc/kibana/kibana.yml 
-            restartService "kibana"
-        fi         
     fi
+
+    if [ "$NUSER" == "kibanaserver" ] || [ -n "$CHANGEALL" ]; then
+
+	    if [ "${SYS_TYPE}" == "yum" ]; then
+		    haskibana=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch-kibana)
+	    elif [ "${SYS_TYPE}" == "zypper" ]; then
+		    haskibana=$(zypper packages --installed | grep opendistroforelasticsearch-kibana | grep i+)
+	    elif [ "${SYS_TYPE}" == "apt-get" ]; then
+		    haskibana=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch-kibana)
+	    fi
+
+	    wazuhkibold=$(grep "password:" /etc/kibana/kibana.yml )
+	    rk="elasticsearch.password: "
+	    wazuhkibold="${wazuhkibold//$rk}"
+
+	    if [ -n "${haskibana}" ] && [ -n "${kibpass}" ]; then
+		    conf="$(awk '{sub("elasticsearch.password: '${wazuhkibold}'", "elasticsearch.password: '${kibpass}'")}1' /etc/kibana/kibana.yml)"
+		    echo "${conf}" > /etc/kibana/kibana.yml 
+		    restartService "kibana"
+	    fi         
+    fi
+
+    if [ "$NUSER" == "kibanaserver" ] || [ -n "$CHANGEALL" ]; then
+
+	    if [ "${SYS_TYPE}" == "yum" ]; then
+		    haskibana=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch-kibana)
+	    elif [ "${SYS_TYPE}" == "zypper" ]; then
+		    haskibana=$(zypper packages --installed | grep opendistroforelasticsearch-kibana | grep i+)
+	    elif [ "${SYS_TYPE}" == "apt-get" ]; then
+		    haskibana=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch-kibana)
+	    fi
+
+	    wazuhkibold=$(grep "password:" /etc/kibana/kibana.yml )
+	    rk="elasticsearch.password: "
+	    wazuhkibold="${wazuhkibold//$rk}"
+
+	    if [ -n "${haskibana}" ] && [ -n "${kibpass}" ]; then
+		    conf="$(awk '{sub("elasticsearch.password: '${wazuhkibold}'", "elasticsearch.password: '${kibpass}'")}1' /etc/kibana/kibana.yml)"
+		    echo "${conf}" > /etc/kibana/kibana.yml 
+		    restartService "kibana"
+	    fi         
+   fi
 
 }
 
