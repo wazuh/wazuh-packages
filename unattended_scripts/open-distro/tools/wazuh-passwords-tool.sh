@@ -145,17 +145,17 @@ readFileUsers() {
 
     FILECORRECT=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*\w+\s*)+\Z' $FILE)
     if [ $FILECORRECT -ne 1 ]; then
-	echo "Error: the password file doesn't have a correct format.
-It must have this format:
-User:
-   name: wazuh
-   password: wazuhpasword
-User:
-   name: kibanaserver
-   password: kibanaserverpassword"
-	exit 1
+        echo "Error: the password file doesn't have a correct format.
+        It must have this format:
+        User:
+        name: wazuh
+        password: wazuhpasword
+        User:
+        name: kibanaserver
+        password: kibanaserverpassword"
+        exit 1
     fi	
-    
+
     SFILEUSERS=$(grep name: ${FILE} | awk '{ print substr( $2, 1, length($2) ) }')
     SFILEPASSWORDS=$(grep password: ${FILE} | awk '{ print substr( $2, 1, length($2) ) }')
 
@@ -169,40 +169,40 @@ User:
 
     if [ -n "${CHANGEALL}" ]; then
         for j in "${!FILEUSERS[@]}"; do
-	    supported=false
-	    for i in "${!USERS[@]}"; do
-	        if [[ ${USERS[i]} == ${FILEUSERS[j]} ]]; then
-		    PASSWORDS[i]=${FILEPASSWORDS[j]}
-		    supported=true
-		fi
-	    done
-    	    if [ $supported = false ]; then
-		echo "Error: The given user ${FILEUSERS[j]} does not exist"
-	    fi
+            supported=false
+            for i in "${!USERS[@]}"; do
+                if [[ ${USERS[i]} == ${FILEUSERS[j]} ]]; then
+                    PASSWORDS[i]=${FILEPASSWORDS[j]}
+                    supported=true
+                fi
+            done
+            if [ $supported = false ]; then
+                echo "Error: The given user ${FILEUSERS[j]} does not exist"
+            fi
 
         done
     else
-	FINALUSERS=()
-	FINALPASSWORDS=()
+        FINALUSERS=()
+        FINALPASSWORDS=()
 
-	for j in "${!FILEUSERS[@]}"; do
-	    supported=false
-	    for i in "${!USERS[@]}"; do
-	        if [[ ${USERS[i]} == ${FILEUSERS[j]} ]]; then
-		    FINALUSERS+=(${FILEUSERS[j]})
-		    FINALPASSWORDS+=(${FILEPASSWORDS[j]})
-		    supported=true
-		fi
-	    done
-	    if [ $supported = false ];then
-		echo "Error: The given user ${FILEUSERS[j]} does not exist"
-	    fi
+        for j in "${!FILEUSERS[@]}"; do
+            supported=false
+            for i in "${!USERS[@]}"; do
+                if [[ ${USERS[i]} == ${FILEUSERS[j]} ]]; then
+                    FINALUSERS+=(${FILEUSERS[j]})
+                    FINALPASSWORDS+=(${FILEPASSWORDS[j]})
+                    supported=true
+                fi
+            done
+            if [ $supported = false ];then
+                echo "Error: The given user ${FILEUSERS[j]} does not exist"
+            fi
         done
 
-	USERS=()
-	USERS=(${FINALUSERS[@]})
-	PASSWORDS=(${FINALPASSWORDS[@]})
-	CHANGEALL=1
+        USERS=()
+        USERS=(${FINALUSERS[@]})
+        PASSWORDS=(${FINALPASSWORDS[@]})
+        CHANGEALL=1
     fi
 
 }
