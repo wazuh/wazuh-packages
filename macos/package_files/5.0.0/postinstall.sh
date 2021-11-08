@@ -54,8 +54,10 @@ chmod 640 ${DIR}/etc/localtime
 chmod 770 ${DIR}/etc/shared # ossec must be able to write to it
 chown -R root:${GROUP} ${DIR}/etc/shared
 find ${DIR}/etc/shared/ -type f -exec chmod 660 {} \;
-chown root:${GROUP} ${DIR}/etc/agent.conf
-chmod 660 ${DIR}/etc/agent.conf
+chown root:${GROUP} ${DIR}/etc/ossec.conf
+chmod 660 ${DIR}/etc/ossec.conf
+chown root:${GROUP} ${DIR}/etc/wpk_root.pem
+chmod 640 ${DIR}/etc/wpk_root.pem
 
 
 chmod 770 ${DIR}/.ssh

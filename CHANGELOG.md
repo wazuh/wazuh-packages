@@ -1,6 +1,41 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+
+## [v4.3.0]
+
+- Update SPECS [#689](https://github.com/wazuh/wazuh-packages/pull/689)
+- Fix `find` error in CentOS 5 building [#888](https://github.com/wazuh/wazuh-packages/pull/888)
+- Add new SCA files to Solaris 11 [#944](https://github.com/wazuh/wazuh-packages/pull/944)
+
+## [v4.2.2]
+
+- Update SPECS [#846](https://github.com/wazuh/wazuh-packages/pull/846)
+
+## [v4.2.1]
+
+- Update SPECS [#833](https://github.com/wazuh/wazuh-packages/pull/833)
+
+## [v4.2.0]
+
+- Update SPECS [#556](https://github.com/wazuh/wazuh-packages/pull/556)
+
+## [v4.1.5]
+
+- Update SPECS [#726](https://github.com/wazuh/wazuh-packages/pull/726)
+
+## [v4.1.4]
+
+- Update SPECS [#684](https://github.com/wazuh/wazuh-packages/pull/684)
+
+## [v4.1.3]
+
+- Update SPECS [#668](https://github.com/wazuh/wazuh-packages/pull/668)
+
+## [v4.1.2]
+
+- Update SPECS [#656](https://github.com/wazuh/wazuh-packages/pull/656)
+
 ## [v4.1.1]
 
 - Updated Wazuh app build script [#648](https://github.com/wazuh/wazuh-packages/pull/648)

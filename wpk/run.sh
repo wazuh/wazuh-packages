@@ -8,7 +8,8 @@ OUT_NAME=""
 CHECKSUM="no"
 INSTALLATION_PATH="/var/ossec"
 PKG_NAME=""
-HAVE_PKG_NAME=false
+HAVE_PKG_NAME_WIN=false
+HAVE_PKG_NAME_MAC=false
 AWS_REGION="us-east-1"
 KEYPATH="/etc/wazuh"
 WPKCERT="${KEYPATH}/wpkcert.pem"
@@ -30,7 +31,7 @@ help() {
     echo
     echo "    -b,   --branch <branch>      [Required] Select Git branch or tag e.g. master"
     echo "    -o,   --output <name>        [Required] Name to the output package."
-    echo "    -pn,  --package-name <name>  [Required for windows] Package name to pack on wpk."
+    echo "    -pn,  --package-name <name>  [Required for windows and macos] Package name to pack on wpk."
     echo "    -r,   --revision <rev>       [Optional] Revision of the package. By default: 1."
     echo "    -p,   --path <path>          [Optional] Installation path for the package. By default: /var."
     echo "    -j,   --jobs <number>        [Optional] Number of parallel jobs when compiling."
@@ -80,7 +81,11 @@ main() {
         "-pn"|"--package-name")
             if [ -n "${2}" ]; then
                 PKG_NAME="${2}"
-                HAVE_PKG_NAME=true
+                if [ "${PKG_NAME: -4}" == ".msi" ]; then
+                    HAVE_PKG_NAME_WIN=true
+                elif [ "${PKG_NAME: -4}" == ".pkg" ]; then
+                    HAVE_PKG_NAME_MAC=true
+                fi
                 shift 2
             fi
             ;;
@@ -181,7 +186,7 @@ main() {
         ${PYTHON} /usr/local/bin/wpkpack ${OUTPUT} ${WPKCERT} ${WPKKEY} *
     else
 
-      if [ "${HAVE_PKG_NAME}" == true ]; then
+      if [ "${HAVE_PKG_NAME_WIN}" == true ]; then
           CURRENT_DIR=$(pwd)
           echo "wpkpack ${OUTPUT} ${WPKCERT} ${WPKKEY} ${PKG_NAME} upgrade.bat do_upgrade.ps1"
           cd ${OUTDIR}
@@ -189,8 +194,17 @@ main() {
           cp /var/pkg/${PKG_NAME} ${OUTDIR} 2>/dev/null
           wpkpack ${OUTPUT} ${WPKCERT} ${WPKKEY} ${PKG_NAME} upgrade.bat do_upgrade.ps1
           rm -f upgrade.bat do_upgrade.ps1 ${PKG_NAME}
+      elif [ "${HAVE_PKG_NAME_MAC}" == true ]; then
+          CURRENT_DIR=$(pwd)
+          echo "wpkpack ${OUTPUT} ${WPKCERT} ${WPKKEY} ${PKG_NAME} upgrade.sh pkg_installer_mac.sh"
+          cd ${OUTDIR}
+          cp ${CURRENT_DIR}/src/init/pkg_installer_mac.sh .
+          cp ${CURRENT_DIR}/upgrade.sh .
+          cp /var/pkg/${PKG_NAME} ${OUTDIR} 2>/dev/null
+          wpkpack ${OUTPUT} ${WPKCERT} ${WPKKEY} ${PKG_NAME} upgrade.sh pkg_installer_mac.sh
+          rm -f upgrade.sh pkg_installer_mac.sh ${PKG_NAME}
       else
-          echo "ERROR: MSI package is needed to build the Windows WPK"
+          echo "ERROR: MSI/PKG package is needed to build the Windows or macOS WPK"
           help 1
       fi
     fi
