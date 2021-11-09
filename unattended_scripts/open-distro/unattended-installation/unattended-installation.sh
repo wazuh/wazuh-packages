@@ -36,7 +36,7 @@ fi
 
 logger() {
 
-    echo $1
+    progressBar "$1"
     
 }
 
@@ -596,7 +596,46 @@ checkInstallation() {
     echo $'\nYou can access the web interface https://<kibana_ip>. The credentials are wazuh:'${wazuhpass}''
 
     exit 0;
+}
 
+## Progress Bar Utility
+progressBar() {
+    if [ -z "${buffer}" ]; then
+        buffer=""
+        lines=1
+    fi
+
+    if [ "$1" ]; then
+        buffer="${buffer}$1\n"
+    fi
+
+    
+    if [ -z "${progress}" ]; then 
+	    progress=1
+        printf "\n"
+    fi
+
+    cols=$(tput cols)
+    cols=$(( $cols-6 ))
+    cols_done=$(( ($progress*$cols) / $progressbartotal ))
+    cols_empty=$(( $cols-$cols_done ))
+    progresspercentage=$(( ($progress*100) / $progressbartotal ))
+
+    for i in $(seq $lines)
+    do
+       tput cuu1
+       tput el
+    done
+    printf "${buffer}"
+    echo -ne "["
+    for i in $(seq $cols_done); do echo -n "#"; done
+    for i in $(seq $cols_empty); do echo -n "-"; done
+    printf "]%3.3s%%\n" ${progresspercentage}
+
+    progress=$(( $progress+1 ))
+    if [ -n "$1" ]; then
+        lines=$(( $lines+1 ))
+    fi
 }
 
 main() {
@@ -647,9 +686,11 @@ main() {
         fi        
         
         if [ -n "${ignore}" ]; then
-            echo "Health-check ignored."    
+            echo "Health-check ignored."
+            progressbartotal=17    
             checkInstalled
         else
+            progressbartotal=18
             checkInstalled
             healthCheck           
         fi            
@@ -661,6 +702,7 @@ main() {
         installKibana
         checkInstallation    
     else
+        progressbartotal=18
         checkInstalled  
         healthCheck   
         installPrerequisites
