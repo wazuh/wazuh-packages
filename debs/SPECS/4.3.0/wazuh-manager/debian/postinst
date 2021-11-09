@@ -1,7 +1,7 @@
 #!/bin/sh
 # postinst script for Wazuh
 # Wazuh, Inc 2015-2020
-set -e
+set -ex
 case "$1" in
     configure)
 
