@@ -38,34 +38,8 @@ configureElasticsearchAIO() {
     echo "${resources}/open-distro/tools/certificate-utility/wazuh-cert-tool.sh --max-time 300"
     eval "curl -so ~/wazuh-cert-tool.sh ${resources}/open-distro/tools/certificate-utility/wazuh-cert-tool.sh --max-time 300 ${debug}"
 
-    echo "# Elasticsearch nodes" >> ~/instances.yml
-    echo "elasticsearch-nodes:" >> ~/instances.yml
-    echo "- name: elasticsearch" >> ~/instances.yml
-    echo "    ip:" >> ~/instances.yml
-    echo "    - 127.0.0.1" >> ~/instances.yml
-
-    echo "# Wazuh server nodes" >> ~/instances.yml
-    echo "wazuh-servers:" >> ~/instances.yml
-    echo "- name: filebeat" >> ~/instances.yml
-    echo "    ip:" >> ~/instances.yml
-    echo "    - 127.0.0.1" >> ~/instances.yml
-
-    echo "# Kibana node"  >> ~/instances.yml
-    echo "kibana:"  >> ~/instances.yml
-    echo "- name: kibana" >> ~/instances.yml
-    echo "    ip:" >> ~/instances.yml
-    echo "    - 127.0.0.1" >> ~/instances.yml
-
     export JAVA_HOME=/usr/share/elasticsearch/jdk/
-    bash ~/wazuh-cert-tool.sh
-
-    if [  "$?" != 0  ]; then
-        echo "Error: certificates were not created"
-        rollBack
-        exit 1;
-    else
-        logger "Certificates created"
-    fi     
+        
     eval "cp ~/certs/elasticsearch* /etc/elasticsearch/certs/ ${debug}"
     eval "cp ~/certs/root-ca.pem /etc/elasticsearch/certs/ ${debug}"
     eval "cp ~/certs/admin* /etc/elasticsearch/certs/ ${debug}"

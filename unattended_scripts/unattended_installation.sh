@@ -105,6 +105,11 @@ main() {
         done
 
     importFunction "common.sh"
+    
+    if [ -n "${certificates}" ]; then
+        createCertificates
+    fi
+
     if [ -n "${elastic}" ]; then
 
         importFunction "elasticsearch.sh"
@@ -180,8 +185,12 @@ main() {
         addWazuhrepo
         installWazuh
         configureWazuhtAIO
-        installFilebeat iname
+        installElasticsearch
+        configureElasticsearchAIO
+        installFilebeat
         configureFilebeatAIO
+        installKibana
+        configureKibanaAIO
     fi
 }
 

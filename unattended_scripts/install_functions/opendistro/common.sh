@@ -202,44 +202,9 @@ createCertificates() {
 
 
     logger "Creating the certificates..."
-    eval "curl -so ~/search-guard-tlstool-1.8.zip https://maven.search-guard.com/search-guard-tlstool/1.8/search-guard-tlstool-1.8.zip --max-time 300 ${debug}"
-    eval "unzip ~/search-guard-tlstool-1.8.zip -d ~/searchguard ${debug}"
-    eval "curl -so ~/searchguard/search-guard.yml https://packages.wazuh.com/resources/${WAZUH_MAJOR}/open-distro/unattended-installation/distributed/templates/search-guard-unattended.yml --max-time 300 ${debug}"
-
-    if [ -n "${single}" ]; then
-        echo -e "\n" >> ~/searchguard/search-guard.yml
-        echo "nodes:" >> ~/searchguard/search-guard.yml
-        echo '  - name: "'${iname}'"' >> ~/searchguard/search-guard.yml
-        echo '    dn: CN="'${iname}'",OU=Docu,O=Wazuh,L=California,C=US' >> ~/searchguard/search-guard.yml
-        echo '    ip:' >> ~/searchguard/search-guard.yml
-        echo '      - "'${nip}'"' >> ~/searchguard/search-guard.yml
-    else
-        echo -e "\n" >> ~/searchguard/search-guard.yml
-        echo "nodes:" >> ~/searchguard/search-guard.yml
-        for i in "${!IMN[@]}"; do
-            echo '  - name: "'${IMN[i]}'"' >> ~/searchguard/search-guard.yml
-            echo '    dn: CN="'${IMN[i]}'",OU=Docu,O=Wazuh,L=California,C=US' >> ~/searchguard/search-guard.yml
-            echo '    ip:' >> ~/searchguard/search-guard.yml
-            echo '      - "'${DSH[i]}'"' >> ~/searchguard/search-guard.yml
-        done      
-    fi
-    kip=$(grep -A 1 "Kibana-instance" ~/config.yml | tail -1)
-    rm="- "
-    kip="${kip//$rm}"        
-    echo '  - name: "kibana"' >> ~/searchguard/search-guard.yml
-    echo '    dn: CN="kibana",OU=Docu,O=Wazuh,L=California,C=US' >> ~/searchguard/search-guard.yml
-    echo '    ip:' >> ~/searchguard/search-guard.yml
-    echo '      - "'${kip}'"' >> ~/searchguard/search-guard.yml      
-    awk -v RS='' '/# Clients certificates/' ~/config.yml >> ~/searchguard/search-guard.yml
-    eval "chmod +x ~/searchguard/tools/sgtlstool.sh ${debug}"
-    eval "bash ~/searchguard/tools/sgtlstool.sh -c ~/searchguard/search-guard.yml -ca -crt -t /etc/elasticsearch/certs/ ${debug}"
-    if [  "$?" != 0  ]; then
-        echo "Error: certificates were not created"
-        exit 1;
-    else
-        logger "Certificates created"
-    fi
-    #awk -v RS='' '/## Certificates/' ~/config.yml >> /etc/elasticsearch/certs/searchguard/search-guard.yml
+    curl -so ~/wazuh-cert-tool.sh https://packages.wazuh.com/resources/4.2/open-distro/tools/certificate-utility/wazuh-cert-tool.sh
+    curl -so ~/instances.yml https://packages.wazuh.com/resources/4.2/open-distro/tools/certificate-utility/instances_aio.yml
+    bash ~/wazuh-cert-tool.sh
 }
 
 copyCertificates() {
