@@ -10,8 +10,7 @@ BuildRoot:   %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Vendor:      Wazuh, Inc <info@wazuh.com>
 Packager:    Wazuh, Inc <info@wazuh.com>
 Requires(pre):    /usr/sbin/groupadd /usr/sbin/useradd
-Requires(post):   /sbin/chkconfig
-Requires(preun):  /sbin/chkconfig /sbin/service
+Requires(preun):  /sbin/service
 Requires(postun): /sbin/service
 Conflicts:   ossec-hids ossec-hids-agent wazuh-manager wazuh-local
 AutoReqProv: no
@@ -393,7 +392,7 @@ if [ $1 = 0 ]; then
     systemctl disable wazuh-agent > /dev/null 2>&1
     systemctl daemon-reload > /dev/null 2>&1
   # Check for SysV
-  elif command -v service > /dev/null 2>&1 ; then
+  elif command -v service > /dev/null 2>&1 && command -v chkconfig > /dev/null 2>&1; then
     chkconfig wazuh-agent off > /dev/null 2>&1
     chkconfig --del wazuh-agent > /dev/null 2>&1
   fi
