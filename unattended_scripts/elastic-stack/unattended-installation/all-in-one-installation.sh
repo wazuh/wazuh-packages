@@ -29,17 +29,32 @@ then
     sys_type="apt-get"
 fi
 
+## Prints information
 logger() {
 
-    echo $1
-
+    now=$(date +'%m/%d/%Y %H:%M:%S')
+    case $2 in 
+        "-e")
+            mtype="ERROR:"
+            message="$2"
+            ;;
+        "-w")
+            mtype="WARNING:"
+            message="$2"
+            ;;
+        *)
+            mtype="INFO:"
+            message="$1"
+            ;;
+    esac
+    echo $now $mtype $message
 }
 
 checkArch() {
     arch=$(uname -m)
 
     if [ ${arch} != "x86_64" ]; then
-        echo "Uncompatible system. This script must be run on a 64-bit system."
+        logger -e "Uncompatible system. This script must be run on a 64-bit system."
         exit 1;
     fi
 }
@@ -52,10 +67,10 @@ startService() {
         eval "systemctl start $1.service $debug"
         if [  "$?" != 0  ]
         then
-            echo "${1^} could not be started."
+            logger -e "${1^} could not be started."
             exit 1;
         else
-            echo "${1^} started"
+            logger "${1^} started"
         fi
     elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
         eval "chkconfig $1 on $debug"
@@ -63,22 +78,22 @@ startService() {
         eval "/etc/init.d/$1 start $debug"
         if [  "$?" != 0  ]
         then
-            echo "${1^} could not be started."
+            logger -e "${1^} could not be started."
             exit 1;
         else
-            echo "${1^} started"
+            logger "${1^} started"
         fi
     elif [ -x /etc/rc.d/init.d/$1 ] ; then
         eval "/etc/rc.d/init.d/$1 start $debug"
         if [  "$?" != 0  ]
         then
-            echo "${1^} could not be started."
+            logger -e "${1^} could not be started."
             exit 1;
         else
-            echo "${1^} started"
+            logger "${1^} started"
         fi
     else
-        echo "Error: ${1^} could not start. No service manager found on the system."
+        logger -e "${1^} could not start. No service manager found on the system."
         exit 1;
     fi
 
@@ -118,7 +133,7 @@ installPrerequisites() {
 
     if [  "$?" != 0  ]
     then
-        echo "Error: Prerequisites could not be installed"
+        logger -e "Prerequisites could not be installed"
         exit 1;
     else
         logger "Done"
@@ -158,7 +173,7 @@ addElasticrepo() {
 
     if [  "$?" != 0  ]
     then
-        echo "Error: Elasticsearch repository could not be added"
+        logger -e "Elasticsearch repository could not be added"
         exit 1;
     else
         logger "Done"
@@ -197,7 +212,7 @@ addWazuhrepo() {
 
     if [  "$?" != 0  ]
     then
-        echo "Error: Wazuh repository could not be added"
+        logger -e "Wazuh repository could not be added"
         exit 1;
     else
         logger "Done"
@@ -217,7 +232,7 @@ installWazuh() {
     fi
     if [  "$?" != 0  ]
     then
-        echo "Error: Wazuh installation failed"
+        logger -e "Wazuh installation failed"
         exit 1;
     else
         logger "Done"
@@ -244,7 +259,7 @@ installElasticsearch() {
 
     if [  "$?" != 0  ]
     then
-        echo "Error: Elasticsearch installation failed"
+        logger -e "Elasticsearch installation failed"
         exit 1;
     else
         logger "Done"
@@ -262,7 +277,7 @@ installElasticsearch() {
         eval "chmod 400 /etc/elasticsearch/certs/ca/ca.* /etc/elasticsearch/certs/elasticsearch.* $debug"
         if [  "$?" != 0  ]
         then
-            echo "Error: certificates were not created"
+            logger -e "Certificates were not created"
             exit 1;
         else
             logger "Certificates created"
@@ -280,13 +295,13 @@ installElasticsearch() {
 
         # Start Elasticsearch
         startService "elasticsearch"
-        echo "Initializing Elasticsearch...(this may take a while)"
+        logger "Initializing Elasticsearch...(this may take a while)"
         until grep '\Security is enabled' /var/log/elasticsearch/elasticsearch.log > /dev/null
         do
             echo -ne $char
             sleep 10
         done
-        echo $'\nGenerating passwords...'
+        logger $'\nGenerating passwords...'
         passwords=$(/usr/share/elasticsearch/bin/elasticsearch-setup-passwords auto -b)
         password=$(echo $passwords | awk 'NF{print $NF; exit}')
         until $(curl -XGET https://localhost:9200/ -elastic:"$password" -k --max-time 120 --silent --output /dev/null); do
@@ -294,7 +309,7 @@ installElasticsearch() {
             sleep 10
         done
 
-        echo "Done"
+        logger "Done"
     fi
 
 }
@@ -315,7 +330,7 @@ installFilebeat() {
     fi
     if [  "$?" != 0  ]
     then
-        echo "Error: Filebeat installation failed"
+        logger -e "Filebeat installation failed"
         exit 1;
     else
         eval "curl -so /etc/filebeat/filebeat.yml https://packages.wazuh.com/resources/4.2/elastic-stack/filebeat/7.x/filebeat_all_in_one.yml --max-time 300  $debug"
@@ -352,7 +367,7 @@ installKibana() {
     fi
     if [  "$?" != 0  ]
     then
-        echo "Error: Kibana installation failed"
+        logger -e "Kibana installation failed"
         exit 1;
     else
         eval "curl -so /etc/kibana/kibana.yml https://packages.wazuh.com/resources/4.2/elastic-stack/kibana/7.x/kibana_all_in_one.yml --max-time 300 $debug"
@@ -361,7 +376,7 @@ installKibana() {
         eval "cd /usr/share/kibana ${debug}"
         eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana-${WAZUH_VER}_${ELK_VER}-${WAZUH_KIB_PLUG_REV}.zip ${debug}"
         if [  "$?" != 0  ]; then
-            echo "Error: Wazuh Kibana plugin could not be installed."
+            logger -e "Wazuh Kibana plugin could not be installed."
             exit 1;
         fi
         eval "mkdir /etc/kibana/certs/ca -p"
@@ -391,13 +406,13 @@ healthCheck() {
 
     if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]
     then
-        echo "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores . If you want to proceed with the installation use the -i option to ignore these requirements."
+        logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores . If you want to proceed with the installation use the -i option to ignore these requirements."
         exit 1;
     elif [[ -f /etc/elasticsearch/elasticsearch.yml ]] && [[ -f /etc/kibana/kibana.yml ]] && [[ -f /etc/filebeat/filebeat.yml ]]; then
-        echo "All the componens have already been installed."
+        logger -e "All the components have already been installed."
         exit 1;    
     else
-        echo "Starting the installation..."
+        logger "Starting the installation..."
     fi
 
 }
@@ -408,29 +423,29 @@ checkInstallation() {
     eval "curl -XGET https://localhost:9200 -elastic:"$password" -k --max-time 300 $debug"
     if [  "$?" != 0  ]
     then
-        echo "Error: Elasticsearch was not successfully installed."
+        logger -e "Elasticsearch was not successfully installed."
         exit 1;
     else
-        echo "Elasticsearch installation succeeded."
+        logger "Elasticsearch installation succeeded."
     fi
     eval "filebeat test output $debug"
     if [  "$?" != 0  ]
     then
-        echo "Error: Filebeat was not successfully installed."
+        logger -e "Filebeat was not successfully installed."
         exit 1;
     else
-        echo "Filebeat installation succeeded."
+        logger "Filebeat installation succeeded."
     fi
     logger "Initializing Kibana (this may take a while)"
     until [[ "$(curl -XGET https://localhost/status -I -uelastic:"$password" -k -s | grep "200 OK")" ]]; do
         echo -ne $char
         sleep 10
     done
-    echo $'\nDuring the installation of Elasticsearch the passwords for its user were generated. Please take note of them:'
-    echo "$passwords"
-    echo $'\nInstallation finished'
+    logger $'\nDuring the installation of Elasticsearch the passwords for its user were generated. Please take note of them:'
+    logger "$passwords"
+    logger $'\nInstallation finished'
     disableRepos
-    echo $'\nYou can access the web interface https://<kibana_ip>. The credentials are elastic:'$password''    
+    logger $'\nYou can access the web interface https://<kibana_ip>. The credentials are elastic:'$password''    
     exit 0;
 
 }
@@ -477,7 +492,7 @@ main() {
         done 
 
         if [ "$EUID" -ne 0 ]; then
-            echo "This script must be run as root."
+            logger -e "This script must be run as root."
             exit 1;
         fi       
 
@@ -490,7 +505,7 @@ main() {
 
         if [ -n "$i" ]
         then
-            echo "Health-check ignored."
+            logger -w "Health-check ignored."
         else
             healthCheck
         fi
