@@ -27,15 +27,32 @@ elif [ -n "$(command -v apt-get)" ]; then
     sep="="
 fi
 
+## Prints information
 logger() {
-    echo $1
+
+    now=$(date +'%m/%d/%Y %H:%M:%S')
+    case $2 in 
+        "-e")
+            mtype="ERROR:"
+            message="$2"
+            ;;
+        "-w")
+            mtype="WARNING:"
+            message="$2"
+            ;;
+        *)
+            mtype="INFO:"
+            message="$1"
+            ;;
+    esac
+    echo $now $mtype $message
 }
 
 checkArch() {
     arch=$(uname -m)
 
     if [ ${arch} != "x86_64" ]; then
-        logger "Uncompatible system. This script must be run on a 64-bit system."
+        logger -e "Uncompatible system. This script must be run on a 64-bit system."
         exit 1;
     fi
 }
@@ -48,7 +65,7 @@ startService() {
         eval "systemctl start $1.service ${debug}"
         if [  "$?" != 0  ]
         then
-            logger "${1^} could not be started."
+            logger -e  "${1^} could not be started."
             exit 1;
         else
             logger "${1^} started"
@@ -59,7 +76,7 @@ startService() {
         eval "/etc/init.d/$1 start ${debug}"
         if [  "$?" != 0  ]
         then
-            logger "${1^} could not be started."
+            logger -e  "${1^} could not be started."
             exit 1;
         else
             logger "${1^} started"
@@ -68,13 +85,13 @@ startService() {
         eval "/etc/rc.d/init.d/$1 start ${debug}"
         if [  "$?" != 0  ]
         then
-            logger "${1^} could not be started."
+            logger -e "${1^} could not be started."
             exit 1;
         else
             logger "${1^} started"
         fi
     else
-        logger "Error: ${1^} could not start. No service manager found on the system."
+        logger -e "${1^} could not start. No service manager found on the system."
         exit 1;
     fi
 
@@ -99,7 +116,7 @@ checkConfig() {
         logger "Certificates file found. Starting the installation..."
         eval "tar --overwrite -C ~/ -xf ~/certs.tar config.yml ${debug}"
     else
-        logger "No certificates file found."
+        logger -e "No certificates file found."
         exit 1;
     fi
 
@@ -165,7 +182,7 @@ installWazuh() {
     fi
     if [  "$?" != 0  ]
     then
-        logger "Error: Wazuh installation failed"
+        logger -e "Wazuh installation failed"
         exit 1;
     else
         logger "Done"
@@ -178,7 +195,7 @@ installWazuh() {
 installFilebeat() {
 
     if [[ -f /etc/filebeat/filebeat.yml ]]; then
-        logger "Filebeat is already installed in this node."
+        logger -e "Filebeat is already installed in this node."
         exit 1;
     fi
 
@@ -191,7 +208,7 @@ installFilebeat() {
     fi
     if [  "$?" != 0  ]
     then
-        logger "Error: Filebeat installation failed"
+        logger -e "Filebeat installation failed"
         exit 1;
     else
         eval "curl -so /etc/filebeat/filebeat.yml https://packages.wazuh.com/resources/4.2/open-distro/unattended-installation/distributed/templates/filebeat.yml --max-time 300 ${debug}"
@@ -246,7 +263,7 @@ healthCheck() {
 
     if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]
     then
-        logger "Your system does not meet the recommended minimum hardware requirements of 2Gb of RAM and 2 CPU cores . If you want to proceed with the installation use the -i option to ignore these requirements."
+        logger -e "Your system does not meet the recommended minimum hardware requirements of 2Gb of RAM and 2 CPU cores . If you want to proceed with the installation use the -i option to ignore these requirements."
         exit 1;
     else
         logger "Starting the installation..."
@@ -285,7 +302,7 @@ main() {
         done
 
         if [ "$EUID" -ne 0 ]; then
-            logger "This script must be run as root."
+            logger -e "This script must be run as root."
             exit 1;
         fi
 
@@ -301,7 +318,7 @@ main() {
         fi
         if [ -n "${ignore}" ]
         then
-            logger "Health-check ignored."
+            logger -w "Health-check ignored."
 
         else
             healthCheck

@@ -36,18 +36,32 @@ fi
 
 logger() {
 
-    echo $1
-    
+    now=$(date +'%m/%d/%Y %H:%M:%S')
+    case $1 in 
+        "-e")
+            mtype="ERROR:"
+            message="$2"
+            ;;
+        "-w")
+            mtype="WARNING:"
+            message="$2"
+            ;;
+        *)
+            mtype="INFO:"
+            message="$1"
+            ;;
+    esac
+    echo $now $mtype $message
 }
 
 rollBack() {
 
     if [ -z "${uninstall}" ]; then
-        logger "Cleaning the installation" 
+        logger -w "Cleaning the installation" 
     fi   
     
     if [ -n "${wazuhinstalled}" ]; then
-        logger "Removing the Wazuh manager..."
+        logger -w "Removing the Wazuh manager..."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-manager -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
@@ -59,7 +73,7 @@ rollBack() {
     fi     
 
     if [ -n "${elasticinstalled}" ]; then
-        logger "Removing Elasticsearch..."
+        logger -w "Removing Elasticsearch..."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove opendistroforelasticsearch -y ${debug}"
             eval "yum remove elasticsearch* -y ${debug}"
@@ -77,7 +91,7 @@ rollBack() {
     fi
 
     if [ -n "${filebeatinstalled}" ]; then
-        logger "Removing Filebeat..."
+        logger -w "Removing Filebeat..."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove filebeat -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
@@ -91,7 +105,7 @@ rollBack() {
     fi
 
     if [ -n "${kibanainstalled}" ]; then
-        logger "Removing Kibana..."
+        logger -w "Removing Kibana..."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove opendistroforelasticsearch-kibana -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
@@ -105,7 +119,7 @@ rollBack() {
     fi
 
     if [ -z "${uninstall}" ]; then    
-        logger "Installation cleaned. Check the /var/log/wazuh-unattended-installation.log file to learn more about the issue."
+        logger -w "Installation cleaned. Check the /var/log/wazuh-unattended-installation.log file to learn more about the issue."
     fi
 
 }
@@ -115,7 +129,7 @@ checkArch() {
     arch=$(uname -m)
 
     if [ ${arch} != "x86_64" ]; then
-        logger "Uncompatible system. This script must be run on a 64-bit system."
+        logger -e "Uncompatible system. This script must be run on a 64-bit system."
         exit 1;
     fi
     
@@ -128,7 +142,7 @@ startService() {
         eval "systemctl enable $1.service ${debug}"
         eval "systemctl start $1.service ${debug}"
         if [  "$?" != 0  ]; then
-            logger "${1^} could not be started."
+            logger -e "${1^} could not be started."
             rollBack
             exit 1;
         else
@@ -139,7 +153,7 @@ startService() {
         eval "service $1 start ${debug}"
         eval "/etc/init.d/$1 start ${debug}"
         if [  "$?" != 0  ]; then
-            logger "${1^} could not be started."
+            logger -e "${1^} could not be started."
             rollBack
             exit 1;
         else
@@ -148,14 +162,14 @@ startService() {
     elif [ -x /etc/rc.d/init.d/$1 ] ; then
         eval "/etc/rc.d/init.d/$1 start ${debug}"
         if [  "$?" != 0  ]; then
-            logger "${1^} could not be started."
+            logger -e "${1^} could not be started."
             rollBack
             exit 1;
         else
             logger "${1^} started"
         fi             
     else
-        logger "Error: ${1^} could not start. No service manager found on the system."
+        logger -e "${1^} could not start. No service manager found on the system."
         exit 1;
     fi
 
@@ -190,7 +204,7 @@ installPrerequisites() {
     fi
 
     if [  "$?" != 0  ]; then
-        logger "Error: Prerequisites could not be installed"
+        logger -e "Prerequisites could not be installed"
         exit 1;
     else
         logger "Done"
@@ -227,7 +241,7 @@ installWazuh() {
         eval "${sys_type} install wazuh-manager${sep}${WAZUH_VER}-${WAZUH_REV} -y ${debug}"
     fi
     if [  "$?" != 0  ]; then
-        logger "Error: Wazuh installation failed"
+        logger -e "Wazuh installation failed"
         rollBack
         exit 1;
     else
@@ -252,7 +266,7 @@ installElasticsearch() {
     fi
 
     if [  "$?" != 0  ]; then
-        logger "Error: Elasticsearch installation failed"
+        logger -e "Elasticsearch installation failed"
         rollBack
         exit 1;
     else
@@ -294,7 +308,7 @@ installElasticsearch() {
         bash ~/wazuh-cert-tool.sh
 
         if [  "$?" != 0  ]; then
-            logger "Error: certificates were not created"
+            logger -e "Certificates were not created"
             rollBack
             exit 1;
         else
@@ -342,7 +356,7 @@ installFilebeat() {
         eval "${sys_type} install filebeat${sep}${ELK_VER} -y -q  ${debug}"
     fi
     if [  "$?" != 0  ]; then
-        logger "Error: Filebeat installation failed"
+        logger -e "Filebeat installation failed"
         rollBack
         exit 1;
     else
@@ -373,7 +387,7 @@ installKibana() {
         eval "${sys_type} install opendistroforelasticsearch-kibana${sep}${OD_VER} -y ${debug}"
     fi
     if [  "$?" != 0  ]; then
-        logger "Error: Kibana installation failed"
+        logger -e "Kibana installation failed"
         rollBack
         exit 1;
     else    
@@ -384,7 +398,7 @@ installKibana() {
         eval "cd /usr/share/kibana ${debug}"
         eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${repobaseurl}'/ui/kibana/wazuh_kibana-${WAZUH_VER}_${ELK_VER}-${WAZUH_KIB_PLUG_REV}.zip ${debug}"
         if [  "$?" != 0  ]; then
-            logger "Error: Wazuh Kibana plugin could not be installed."
+            logger -e "Wazuh Kibana plugin could not be installed."
             rollBack
 
             exit 1;
@@ -482,7 +496,7 @@ checkInstalled() {
     fi  
 
     if [ -z "${wazuhinstalled}" ] || [ -z "${elasticinstalled}" ] || [ -z "${filebeatinstalled}" ] || [ -z "${kibanainstalled}" ] && [ -n "${uninstall}" ]; then 
-        logger "Error: No Wazuh components were found on the system."
+        logger -e "No Wazuh components were found on the system."
         exit 1;        
     fi
 
@@ -494,7 +508,7 @@ checkInstalled() {
             logger "Removing the installed items"
             rollBack
         else
-            logger "All the Wazuh componets were found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. NOTE: This will erase all the existing configuration and data."
+            logger -e "All the Wazuh componets were found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. NOTE: This will erase all the existing configuration and data."
             exit 1;
         fi
     fi          
@@ -523,7 +537,7 @@ overwrite() {
 networkCheck() {
     connection=$(curl -I https://packages.wazuh.com/ -s | grep 200 | awk '{print $2}')
     if [ ${connection} != "200" ]; then
-        logger "Error. No internet connection. To perform an offline installation, please run this script with the option -d/--download-packages in a computer with internet access, copy the wazuh-packages.tar file generated on this computer and run again this script."
+        logger -e "No internet connection. To perform an offline installation, please run this script with the option -d/--download-packages in a computer with internet access, copy the wazuh-packages.tar file generated on this computer and run again this script."
         exit 1;
     fi
 }
@@ -540,7 +554,7 @@ healthCheck() {
 
     specsCheck
     if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]; then
-        logger "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
+        logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
         exit 1;
     else
         logger "Starting the installation..."
@@ -558,7 +572,7 @@ changePasswords() {
     fi    
     
     if [  "$?" != 0  ]; then
-        logger "The passwords could not be changed"
+        logger -e "The passwords could not be changed"
         rollBack
         exit 1; 
     fi
@@ -573,7 +587,7 @@ checkInstallation() {
     logger "Checking the installation..."
     eval "curl -XGET https://localhost:9200 -uwazuh:${wazuhpass} -k --max-time 300 ${debug}"
     if [  "$?" != 0  ]; then
-        logger "Error: Elasticsearch was not successfully installed."
+        logger -e "Elasticsearch was not successfully installed."
         rollBack
         exit 1;     
     else
@@ -581,7 +595,7 @@ checkInstallation() {
     fi
     eval "filebeat test output ${debug}"
     if [  "$?" != 0  ]; then
-        logger "Error: Filebeat was not successfully installed."
+        logger -e "Filebeat was not successfully installed."
         rollBack
         exit 1;     
     else
@@ -602,7 +616,7 @@ checkInstallation() {
 main() {
 
     if [ "$EUID" -ne 0 ]; then
-        logger "This script must be run as root."
+        logger -e "This script must be run as root."
         exit 1;
     fi   
 
@@ -647,7 +661,7 @@ main() {
         fi        
         
         if [ -n "${ignore}" ]; then
-            logger "Health-check ignored."    
+            logger -w "Health-check ignored."    
             checkInstalled
         else
             checkInstalled
