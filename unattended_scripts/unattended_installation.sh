@@ -40,15 +40,16 @@ getHelp() {
 }
 
 importFunction() {
-    if [ $local = 1]; then
+    if [ -n "${local}" ]; then
         . ./$functions_path/$1
     else
         curl -so /tmp/$1 $resources_functions/$1
         . /tmp/$1
+    fi
 }
 
 main() {
-
+    echo $1
     if [ "$EUID" -ne 0 ]; then
         echo "This script must be run as root."
         exit 1;
@@ -57,12 +58,12 @@ main() {
     while [ -n "$1" ]
         do
             case "$1" in
-              "-A"|"--AllInOne")
+            "-A"|"--AllInOne")
                 AIO=1
                 shift 1
-                ;;
-              "-w"|"--wazuh")
-                elastic=1
+            ;;
+            "-w"|"--wazuh")
+                wazuh=1
                 shift 1
                 ;;
             "-e"|"--elasticsearch")
@@ -102,9 +103,6 @@ main() {
                 getHelp
             esac
         done
-
-
-    fi
 
     importFunction "common.sh"
     if [ -n "${elastic}" ]; then
@@ -182,3 +180,5 @@ main() {
         configureFilebeatAIO
     fi
 }
+
+main "$@"
