@@ -28,7 +28,7 @@ fi
 logger() {
 
     now=$(date +'%m/%d/%Y %H:%M:%S')
-    case $2 in 
+    case $1 in 
         "-e")
             mtype="ERROR:"
             message="$2"
