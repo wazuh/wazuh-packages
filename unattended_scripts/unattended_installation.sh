@@ -114,6 +114,7 @@ main() {
         else
             healthCheck elastic
         fi
+        checkSystem
         checkConfig
         installPrerequisites
         addWazuhrepo
@@ -131,6 +132,7 @@ main() {
         else
             healthCheck kibana
         fi
+        checkSystem
         checkConfig
         installPrerequisites
         addWazuhrepo
@@ -148,6 +150,7 @@ main() {
         else
             healthCheck wazuh
         fi
+        checkSystem
         checkConfig
         installPrerequisites
         addWazuhrepo
@@ -171,6 +174,7 @@ main() {
             healthCheck kibana
             healthCheck wazuh
         fi
+        checkSystem
         checkConfig
         installPrerequisites
         addWazuhrepo
