@@ -27,15 +27,29 @@ fi
 ## Prints information
 logger() {
 
-    echo $1
-
+    now=$(date +'%m/%d/%Y %H:%M:%S')
+    case $1 in 
+        "-e")
+            mtype="ERROR:"
+            message="$2"
+            ;;
+        "-w")
+            mtype="WARNING:"
+            message="$2"
+            ;;
+        *)
+            mtype="INFO:"
+            message="$1"
+            ;;
+    esac
+    echo $now $mtype $message
 }
 
 checkArch() {
     arch=$(uname -m)
 
     if [ ${arch} != "x86_64" ]; then
-        echo "Uncompatible system. This script must be run on a 64-bit system."
+        logger -e "Uncompatible system. This script must be run on a 64-bit system."
         exit 1;
     fi
 }
@@ -48,10 +62,10 @@ startService() {
         eval "systemctl start $1.service $debug"
         if [  "$?" != 0  ]
         then
-            echo "${1^} could not be started."
+            logger -e "${1^} could not be started."
             exit 1;
         else
-            echo "${1^} started"
+            logger "${1^} started"
         fi
     elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
         eval "chkconfig $1 on $debug"
@@ -59,22 +73,22 @@ startService() {
         eval "/etc/init.d/$1 start $debug"
         if [  "$?" != 0  ]
         then
-            echo "${1^} could not be started."
+            logger -e "${1^} could not be started."
             exit 1;
         else
-            echo "${1^} started"
+            logger "${1^} started"
         fi
     elif [ -x /etc/rc.d/init.d/$1 ] ; then
         eval "/etc/rc.d/init.d/$1 start $debug"
         if [  "$?" != 0  ]
         then
-            echo "${1^} could not be started."
+            logger -e "${1^} could not be started."
             exit 1;
         else
-            echo "${1^} started"
+            logger "${1^} started"
         fi
     else
-        echo "Error: ${1^} could not start. No service manager found on the system."
+        logger -e "${1^} could not start. No service manager found on the system."
         exit 1;
     fi
 
@@ -104,14 +118,14 @@ checkConfig() {
     then
         if [ -f ~/config.yml ]
         then
-            echo "Configuration file found. Starting the installation..."
+            logger "Configuration file found. Starting the installation..."
         else
             if [ -f ~/certs.zip ]
             then
-                echo "Certificates file found. Starting the installation..."
+                logger "Certificates file found. Starting the installation..."
                 eval "unzip -o ~/certs.zip config.yml $debug"
             else
-                echo "No configuration file found."
+                logger -e "No configuration file found."
                 exit 1;
             fi
         fi
@@ -120,9 +134,9 @@ checkConfig() {
     then
         if [ -e ~/certs/${iname} ]
         then
-            echo "Certificates file found. Starting the installation..."
+            logger "Certificates file found. Starting the installation..."
         else
-            echo "No certificates found."
+            logger -e "No certificates found."
             exit 1;
         fi
     fi
@@ -150,7 +164,7 @@ installPrerequisites() {
 
     if [  "$?" != 0  ]
     then
-        echo "Error: Prerequisites could not be installed"
+        logger -e "Prerequisites could not be installed"
         exit 1;
     else
         logger "Done"
@@ -194,7 +208,7 @@ addElasticrepo() {
 
     if [  "$?" != 0  ]
     then
-        echo "Error: Elasticsearch repository could not be added"
+        logger -e "Elasticsearch repository could not be added"
         exit 1;
     else
         logger "Done"
@@ -206,7 +220,7 @@ addElasticrepo() {
 installElasticsearch() {
 
     if [[ -f /etc/elasticsearch/elasticsearch.yml ]]; then
-        echo "Elasticsearch is already installed in this node."
+        logger -e "Elasticsearch is already installed in this node."
         exit 1;
     fi
 
@@ -225,7 +239,7 @@ installElasticsearch() {
 
     if [  "$?" != 0  ]
     then
-        echo "Error: Elasticsearch installation failed"
+        logger -e "Elasticsearch installation failed"
         exit 1;
     else
         logger "Done"
@@ -273,7 +287,7 @@ installElasticsearch() {
             fi
             done
             if [[ ! " ${IMN[@]} " =~ " ${iname} " ]]; then
-                echo "The name given does not appear on the configuration file"
+                logger -e "The name given does not appear on the configuration file"
                 exit 1;
             fi
             nip="${DSH[pos]}"
@@ -309,7 +323,7 @@ installElasticsearch() {
             copyCertificates iname
         fi
         initializeElastic
-        echo "Done"
+        logger "Done"
     fi
 
 }
@@ -334,7 +348,7 @@ createCertificates() {
     eval "/usr/share/elasticsearch/bin/elasticsearch-certutil cert ca --pem --in instances.yml --keep-ca-key --out ~/certs.zip $debug"
     if [  "$?" != 0  ]
     then
-        echo "Error: certificates were not created"
+        logger -e "Certificates were not created"
         exit 1;
     else
         logger "Certificates created"
@@ -382,13 +396,13 @@ initializeElastic() {
     startService "elasticsearch"
     if [ -n "$single" ]
     then
-        echo "Initializing Elasticsearch...(this may take a while)"
+        logger "Initializing Elasticsearch...(this may take a while)"
         until grep '\Security is enabled' /var/log/elasticsearch/elasticsearch.log > /dev/null
         do
             echo -ne $char
             sleep 10
         done
-        echo $'\nGenerating passwords...'
+        logger $'\nGenerating passwords...'
         passwords=$(/usr/share/elasticsearch/bin/elasticsearch-setup-passwords auto -b)
         password=$(echo $passwords | awk 'NF{print $NF; exit}')
         elk=$(awk -F'network.host: ' '{print $2}' ~/config.yml | xargs)
@@ -398,10 +412,10 @@ initializeElastic() {
         done
 
         logger "Done"
-        echo $'\nDuring the installation of Elasticsearch the passwords for its user were generated. Please take note of them:'
-        echo "$passwords"
+        logger $'\nDuring the installation of Elasticsearch the passwords for its user were generated. Please take note of them:'
+        logger "$passwords"
     fi
-    echo $'\nElasticsearch installation finished'
+    logger $'\nElasticsearch installation finished'
     disableRepos
     exit 0;
 
@@ -411,7 +425,7 @@ initializeElastic() {
 installKibana() {
 
     if [[ -f /etc/kibana/kibana.yml ]]; then
-        echo "Kibana is already installed in this node."
+        logger -e "Kibana is already installed in this node."
         exit 1;
     fi
 
@@ -428,7 +442,7 @@ installKibana() {
     fi
     if [  "$?" != 0  ]
     then
-        echo "Error: Kibana installation failed"
+        logger -e "Kibana installation failed"
         exit 1;
     else
         disableRepos
@@ -438,7 +452,7 @@ installKibana() {
         eval "cd /usr/share/kibana ${debug}"
         eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana-4.2.2_7.11.2-1.zip ${debug}"
         if [  "$?" != 0  ]; then
-            echo "Error: Wazuh Kibana plugin could not be installed."
+            logger -e "Wazuh Kibana plugin could not be installed."
             exit 1;
         fi
         eval "setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node $debug"
@@ -511,7 +525,7 @@ initializeKibana() {
 
     conf="$(awk '{sub("url: https://localhost", "url: https://'"${wip}"'")}1' /usr/share/kibana/data/wazuh/config/wazuh.yml)"
     echo "$conf" > /usr/share/kibana/data/wazuh/config/wazuh.yml  
-    echo $'\nYou can access the web interface https://'${kip}'. The credentials are elastic:'$epassword''    
+    logger $'\nYou can access the web interface https://'${kip}'. The credentials are elastic:'$epassword''    
   
 }
 
@@ -537,19 +551,19 @@ healthCheck() {
     then
         if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]
         then
-            echo "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores . If you want to proceed with the installation use the -i option to ignore these requirements."
+            logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores . If you want to proceed with the installation use the -i option to ignore these requirements."
             exit 1;
         else
-            echo "Starting the installation..."
+            logger "Starting the installation..."
         fi
     elif [ -n "$k" ]
     then
         if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]
         then
-            echo "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores . If you want to proceed with the installation use the -i option to ignore these requirements."
+            logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores . If you want to proceed with the installation use the -i option to ignore these requirements."
             exit 1;
         else
-            echo "Starting the installation..."
+            logger "Starting the installation..."
         fi
     fi
 
@@ -618,7 +632,7 @@ main() {
         done  
 
         if [ "$EUID" -ne 0 ]; then
-            echo "This script must be run as root."
+            logger -e "This script must be run as root."
             exit 1;
         fi  
 
@@ -643,7 +657,7 @@ main() {
 
             if [ -n "$i" ]
             then
-                echo "Health-check ignored."
+                logger -w "Health-check ignored."
             else
                 healthCheck e k
             fi
@@ -666,7 +680,7 @@ main() {
 
             if [ -n "$i" ]
             then
-                echo "Health-check ignored."
+                logger -w "Health-check ignored."
             else
                 healthCheck e k
             fi
