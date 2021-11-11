@@ -17,11 +17,32 @@ elif [ -n "$(command -v apt-get)" ]; then
     SYS_TYPE="apt-get"   
 fi
 
+## Prints information
+logger() {
+
+    now=$(date +'%m/%d/%Y %H:%M:%S')
+    case $1 in 
+        "-e")
+            mtype="ERROR:"
+            message="$2"
+            ;;
+        "-w")
+            mtype="WARNING:"
+            message="$2"
+            ;;
+        *)
+            mtype="INFO:"
+            message="$1"
+            ;;
+    esac
+    echo $now $mtype $message
+}
+
 ## Checks if the script is run with enough privileges
 
 checkRoot() {
     if [ "$EUID" -ne 0 ]; then
-        echo "This script must be run as root."
+        logger -e "This script must be run as root."
         exit 1;
     fi 
 }
@@ -31,29 +52,29 @@ restartService() {
     if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
         eval "systemctl restart $1.service ${VERBOSE}"
         if [  "$?" != 0  ]; then
-            echo "${1^} could not be started."
+            logger -e "${1^} could not be started."
             exit 1;
         else
-            echo "${1^} started"
+            logger "${1^} started"
         fi  
     elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
         eval "/etc/init.d/$1 restart ${VERBOSE}"
         if [  "$?" != 0  ]; then
-            echo "${1^} could not be started."
+            logger -e "${1^} could not be started."
             exit 1;
         else
-            echo "${1^} started"
+            logger "${1^} started"
         fi     
     elif [ -x /etc/rc.d/init.d/$1 ] ; then
         eval "/etc/rc.d/init.d/$1 restart ${VERBOSE}"
         if [  "$?" != 0  ]; then
-            echo "${1^} could not be started."
+            logger -e "${1^} could not be started."
             exit 1;
         else
-            echo "${1^} started"
+            logger "${1^} started"
         fi             
     else
-        echo "Error: ${1^} could not start. No service manager found on the system."
+        logger -e "${1^} could not start. No service manager found on the system."
         exit 1;
     fi
 
@@ -99,7 +120,7 @@ checkInstalled() {
     fi 
 
     if [ -z "${elasticinstalled}" ]; then
-        echo "Error: Open Distro is not installed on the system."
+        logger -e "Open Distro is not installed on the system."
         exit 1;
     else
         capem=$(grep "opendistro_security.ssl.transport.pemtrustedcas_filepath: " /etc/elasticsearch/elasticsearch.yml )
@@ -117,7 +138,7 @@ readAdmincerts() {
     if [[ -f /etc/elasticsearch/certs/admin.pem ]]; then
         adminpem="/etc/elasticsearch/certs/admin.pem"
     else
-        echo "Error. No admin certificate indicated. Please run the script with the option -c <path-to-certificate>."
+        logger -e "No admin certificate indicated. Please run the script with the option -c <path-to-certificate>."
         exit 1;
     fi
 
@@ -126,7 +147,7 @@ readAdmincerts() {
     elif [[ -f /etc/elasticsearch/certs/admin.key ]]; then
         adminkey="/etc/elasticsearch/certs/admin.key"
     else
-        echo "Error. No admin certificate key indicated. Please run the script with the option -k <path-to-key-certificate>."
+        logger -e "No admin certificate key indicated. Please run the script with the option -k <path-to-key-certificate>."
         exit 1;
     fi    
 
@@ -145,7 +166,7 @@ readFileUsers() {
 
     FILECORRECT=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*\w+\s*)+\Z' $FILE)
     if [ $FILECORRECT -ne 1 ]; then
-	echo "Error: the password file doesn't have a correct format.
+	logger -e "The password file doesn't have a correct format.
 It must have this format:
 User:
    name: wazuh
@@ -163,8 +184,8 @@ User:
     FILEPASSWORDS=($SFILEPASSWORDS)
 
     if [ -n "${VERBOSEENABLED}" ]; then
-        echo "Users in the file: ${FILEUSERS[@]}"
-        echo "Passwords in the file: ${FILEPASSWORDS[@]}"
+        logger "Users in the file: ${FILEUSERS[@]}"
+        logger "Passwords in the file: ${FILEPASSWORDS[@]}"
     fi
 
     if [ -n "${CHANGEALL}" ]; then
@@ -177,7 +198,7 @@ User:
                 fi
             done
             if [ $supported = false ]; then
-                echo "Error: The given user ${FILEUSERS[j]} does not exist"
+                logger -e "The given user ${FILEUSERS[j]} does not exist"
             fi
         done
     else
@@ -194,7 +215,7 @@ User:
                 fi
             done
             if [ $supported = false ]; then
-                echo "Error: The given user ${FILEUSERS[j]} does not exist"
+                logger -e "The given user ${FILEUSERS[j]} does not exist"
             fi
         done
 
@@ -217,7 +238,7 @@ checkUser() {
     done
 
     if [ -z "${EXISTS}" ]; then
-        echo "Error: The given user does not exist"
+        logger -e "The given user does not exist"
         exit 1;
     fi
 
@@ -227,15 +248,15 @@ checkUser() {
 
 createBackUp() {
     
-    echo "Creating backup..."
+    logger "Creating backup..."
     eval "mkdir /usr/share/elasticsearch/backup ${VERBOSE}"
     eval "cd /usr/share/elasticsearch/plugins/opendistro_security/tools/ ${VERBOSE}"
     eval "./securityadmin.sh -backup /usr/share/elasticsearch/backup -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${VERBOSE}"
     if [  "$?" != 0  ]; then
-        echo "Error: The backup could not be created"
+        logger -e "The backup could not be created"
         exit 1;
     fi
-    echo "Backup created"
+    logger "Backup created"
     
 }
 
@@ -244,10 +265,10 @@ createBackUp() {
 generatePassword() {
 
     if [ -n "${NUSER}" ]; then
-        echo "Generating random password"
+        logger "Generating random password"
         PASSWORD=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32};echo;)
     else
-        echo "Generating random passwords"
+        logger "Generating random passwords"
         for i in "${!USERS[@]}"; do
             PASS=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32};echo;)
             PASSWORDS+=(${PASS})
@@ -255,10 +276,10 @@ generatePassword() {
     fi
 
         if [  "$?" != 0  ]; then
-        echo "Error: The password has not been generated"
+        logger -e "The password has not been generated"
         exit 1;
     fi
-    echo "Done"
+    logger "Done"
  
 }
 
@@ -267,21 +288,21 @@ generatePassword() {
 generateHash() {
     
     if [ -n "${CHANGEALL}" ]; then
-        echo "Generating hashes"
+        logger "Generating hashes"
         for i in "${!PASSWORDS[@]}"
         do
             NHASH=$(bash /usr/share/elasticsearch/plugins/opendistro_security/tools/hash.sh -p ${PASSWORDS[i]} | grep -v WARNING)
             HASHES+=(${NHASH})
         done
-        echo "Hashes generated"
+        logger "Hashes generated"
     else
-        echo "Generating hash"
+        logger "Generating hash"
         HASH=$(bash /usr/share/elasticsearch/plugins/opendistro_security/tools/hash.sh -p ${PASSWORD} | grep -v WARNING)
         if [  "$?" != 0  ]; then
-            echo "Error: Hash generation failed."
+            logger -e "Hash generation failed."
             exit 1;
         fi    
-        echo "Hash generated"
+        logger "Hash generated"
     fi
 }
 
@@ -380,36 +401,33 @@ changePassword() {
 ## Runs the Security Admin script to load the changes
 runSecurityAdmin() {
     
-    echo "Loading changes..."
+    logger "Loading changes..."
     eval "cp /usr/share/elasticsearch/backup/* /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ ${VERBOSE}"
     eval "cd /usr/share/elasticsearch/plugins/opendistro_security/tools/ ${VERBOSE}"
     eval "./securityadmin.sh -cd ../securityconfig/ -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${VERBOSE}"
     if [  "$?" != 0  ]; then
-        echo "Error: Could not load the changes."
+        logger -e "Could not load the changes."
         exit 1;
     fi    
     eval "rm -rf /usr/share/elasticsearch/backup/ ${VERBOSE}"
-    echo "Done"
+    logger "Done"
 
     if [[ -n "${NUSER}" ]] && [[ -n ${AUTOPASS} ]]; then
-        echo $'\nThe password for user '${NUSER}' is '${PASSWORD}''
-        echo "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
+        logger "The password for user '${NUSER}' is '${PASSWORD}'"
+        logger "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
     fi
 
     if [[ -n "${NUSER}" ]] && [[ -z ${AUTOPASS} ]]; then
-        echo "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
+        logger "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
     fi    
 
     if [ -n "${CHANGEALL}" ]; then
         
         for i in "${!USERS[@]}"
         do
-            echo ""
-            echo "The password for ${USERS[i]} is ${PASSWORDS[i]}"
+            logger "The password for ${USERS[i]} is ${PASSWORDS[i]}"
         done
-        echo ""
-        echo "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
-        echo ""
+        logger "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
     fi 
 
 }
