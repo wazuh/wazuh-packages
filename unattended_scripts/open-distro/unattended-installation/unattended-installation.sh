@@ -34,6 +34,7 @@ elif [ -n "$(command -v apt-get)" ]; then
     sep="="
 fi
 
+## Prints information
 logger() {
 
     now=$(date +'%m/%d/%Y %H:%M:%S')
