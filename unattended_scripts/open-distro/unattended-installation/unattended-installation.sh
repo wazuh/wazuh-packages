@@ -37,7 +37,6 @@ fi
 ## Prints information
 logger() {
 
-    progressBar "$1"
     now=$(date +'%m/%d/%Y %H:%M:%S')
     case $1 in 
         "-e")
@@ -53,8 +52,7 @@ logger() {
             message="$1"
             ;;
     esac
-    echo $now $mtype $message
->>>>>>> stable
+    progressBar "$now $mtype $message"
 }
 
 rollBack() {
@@ -139,6 +137,8 @@ checkArch() {
 }
 
 startService() {
+    
+    logger "Starting ${1^} service."
 
     if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
         eval "systemctl daemon-reload ${debug}"
@@ -511,7 +511,7 @@ checkInstalled() {
             logger -w "Removing the installed items"
             rollBack
         else
-            logger -e "All the Wazuh componets were found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. NOTE: This will erase all the existing configuration and data."
+            logger -e "At least one of the Wazuh componets was found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. NOTE: This will erase all the existing configuration and data."
             exit 1;
         fi
     fi          
@@ -609,8 +609,8 @@ checkInstallation() {
         echo -ne $char
         sleep 10
     done    
-    logger $'\nInstallation finished'
-    logger $'\nYou can access the web interface https://<kibana_ip>. The credentials are wazuh:'${wazuhpass}''
+    logger $'Installation finished'
+    logger $'You can access the web interface https://<kibana_ip>. The credentials are wazuh:'${wazuhpass}''
 
     exit 0;
 }
@@ -640,8 +640,8 @@ progressBar() {
 
     for i in $(seq $lines)
     do
-       tput cuu1
-       tput el
+        tput cuu1
+        tput el
     done
     printf "${buffer}"
     echo -ne "["
@@ -703,11 +703,11 @@ main() {
         fi        
         
         if [ -n "${ignore}" ]; then
-            progressbartotal=17    
+            progressbartotal=31    
             logger -w "Health-check ignored."    
             checkInstalled
         else
-            progressbartotal=18
+            progressbartotal=31
             checkInstalled
             healthCheck           
         fi            
@@ -719,7 +719,7 @@ main() {
         installKibana
         checkInstallation    
     else
-        progressbartotal=18
+        progressbartotal=31
         checkInstalled  
         healthCheck   
         installPrerequisites

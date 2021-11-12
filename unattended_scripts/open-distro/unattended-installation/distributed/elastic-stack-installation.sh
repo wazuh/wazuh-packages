@@ -48,7 +48,7 @@ logger() {
             message="$1"
             ;;
     esac
-    echo $now $mtype $message
+    progressBar "$now $mtype $message"
 }
 
 checkArch() {
@@ -428,8 +428,9 @@ initializeElastic() {
     logger "Elasticsearch installed."
 
     # Start Elasticsearch
-    logger "Starting Elasticsearch..."
+    logger "Starting Elasticsearch service."
     startService "elasticsearch"
+    logger "Elasticsearch started"
     logger "Initializing Elasticsearch..."
 
 
@@ -538,7 +539,9 @@ copyKibanacerts() {
 initializeKibana() {
 
     # Start Kibana
+    logger "Starting Kibana service."
     startService "kibana"
+    logger "Kibana started"
     logger "Initializing Kibana (this may take a while)"
     until [[ "$(curl -XGET https://${kip}/status -I -uadmin:admin -k -s --max-time 300 | grep "200 OK")" ]]; do
         echo -ne ${char}
@@ -586,8 +589,47 @@ healthCheck() {
 
 }
 
-## Main
+## Progress Bar Utility
+progressBar() {
+    if [ -z "${buffer}" ]; then
+        buffer=""
+        lines=1
+    fi
 
+    if [ "$1" ]; then
+        buffer="${buffer}$1\n"
+    fi
+
+    
+    if [ -z "${progress}" ]; then 
+	    progress=1
+        printf "\n"
+    fi
+
+    cols=$(tput cols)
+    cols=$(( $cols-6 ))
+    cols_done=$(( ($progress*$cols) / $progressbartotal ))
+    cols_empty=$(( $cols-$cols_done ))
+    progresspercentage=$(( ($progress*100) / $progressbartotal ))
+
+    for i in $(seq $lines)
+    do
+        tput cuu1
+        tput el
+    done
+    printf "${buffer}"
+    echo -ne "["
+    for i in $(seq $cols_done); do echo -n "#"; done
+    for i in $(seq $cols_empty); do echo -n "-"; done
+    printf "]%3.3s%%\n" ${progresspercentage}
+
+    progress=$(( $progress+1 ))
+    if [ -n "$1" ]; then
+        lines=$(( $lines+1 ))
+    fi
+}
+
+## Main
 main() {
 
     if [ -n "$1" ]; then
@@ -651,7 +693,7 @@ main() {
         fi
 
         if [ -n "${elastic}" ]; then
-
+            progressbartotal=17
             if [ -n "${ignore}" ]; then
                 logger -w "Health-check ignored."
             else
@@ -664,7 +706,7 @@ main() {
             installElasticsearch iname
         fi
         if [ -n "${kibana}" ]; then
-
+            progressbartotal=12
             if [ -n "${ignore}" ]; then
                 logger -w "Health-check ignored."
             else

@@ -47,7 +47,7 @@ logger() {
             message="$1"
             ;;
     esac
-    echo $now $mtype $message
+    progressBar "$now $mtype $message"
 }
 
 checkArch() {
@@ -61,6 +61,7 @@ checkArch() {
 
 startService() {
 
+    logger "Starting ${1^} service"
     if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
         eval "systemctl daemon-reload $debug"
         eval "systemctl enable $1.service $debug"
@@ -441,11 +442,11 @@ checkInstallation() {
         echo -ne $char
         sleep 10
     done
-    logger $'\nDuring the installation of Elasticsearch the passwords for its user were generated. Please take note of them:'
+    logger $'During the installation of Elasticsearch the passwords for its user were generated. Please take note of them:'
     logger "$passwords"
-    logger $'\nInstallation finished'
+    logger $'Installation finished'
     disableRepos
-    logger $'\nYou can access the web interface https://<kibana_ip>. The credentials are elastic:'$password''    
+    logger $'You can access the web interface https://<kibana_ip>. The credentials are elastic:'$password''    
     exit 0;
 
 }
@@ -465,6 +466,46 @@ disableRepos() {
         sed -i 's/^deb/#deb/' /etc/apt/sources.list.d/wazuh.list
         sed -i 's/^deb/#deb/' /etc/apt/sources.list.d/elastic-7.x.list
         eval "apt-get update -q $debug"
+    fi
+}
+
+## Progress Bar Utility
+progressBar() {
+    if [ -z "${buffer}" ]; then
+        buffer=""
+        lines=1
+    fi
+
+    if [ "$1" ]; then
+        buffer="${buffer}$1\n"
+    fi
+
+    
+    if [ -z "${progress}" ]; then 
+	    progress=1
+        printf "\n"
+    fi
+
+    cols=$(tput cols)
+    cols=$(( $cols-6 ))
+    cols_done=$(( ($progress*$cols) / $progressbartotal ))
+    cols_empty=$(( $cols-$cols_done ))
+    progresspercentage=$(( ($progress*100) / $progressbartotal ))
+
+    for i in $(seq $lines)
+    do
+        tput cuu1
+        tput el
+    done
+    printf "${buffer}"
+    echo -ne "["
+    for i in $(seq $cols_done); do echo -n "#"; done
+    for i in $(seq $cols_empty); do echo -n "-"; done
+    printf "]%3.3s%%\n" ${progresspercentage}
+
+    progress=$(( $progress+1 ))
+    if [ -n "$1" ]; then
+        lines=$(( $lines+1 ))
     fi
 }
 
@@ -502,7 +543,7 @@ main() {
         then
             debug=""
         fi
-
+        progressbartotal=36
         if [ -n "$i" ]
         then
             logger -w "Health-check ignored."
@@ -518,6 +559,7 @@ main() {
         installKibana password
         checkInstallation
     else
+        progressbartotal=36
         healthCheck
         installPrerequisites
         addElasticrepo

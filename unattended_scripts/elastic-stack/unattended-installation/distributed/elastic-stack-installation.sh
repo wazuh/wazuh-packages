@@ -48,7 +48,7 @@ logger() {
             message="$1"
             ;;
     esac
-    echo $now $mtype $message
+    progressBar "$now $mtype $message"
 }
 
 checkArch() {
@@ -61,6 +61,8 @@ checkArch() {
 }
 
 startService() {
+
+    logger "Starting ${1^} service"
 
     if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
         eval "systemctl daemon-reload $debug"
@@ -408,7 +410,7 @@ initializeElastic() {
             echo -ne $char
             sleep 10
         done
-        logger $'\nGenerating passwords...'
+        logger $'Generating passwords...'
         passwords=$(/usr/share/elasticsearch/bin/elasticsearch-setup-passwords auto -b)
         password=$(echo $passwords | awk 'NF{print $NF; exit}')
         elk=$(awk -F'network.host: ' '{print $2}' ~/config.yml | xargs)
@@ -418,10 +420,10 @@ initializeElastic() {
         done
 
         logger "Done"
-        logger $'\nDuring the installation of Elasticsearch the passwords for its user were generated. Please take note of them:'
+        logger $'During the installation of Elasticsearch the passwords for its user were generated. Please take note of them:'
         logger "$passwords"
     fi
-    logger $'\nElasticsearch installation finished'
+    logger $'Elasticsearch installation finished'
     disableRepos
     exit 0;
 
@@ -531,7 +533,7 @@ initializeKibana() {
 
     conf="$(awk '{sub("url: https://localhost", "url: https://'"${wip}"'")}1' /usr/share/kibana/data/wazuh/config/wazuh.yml)"
     echo "$conf" > /usr/share/kibana/data/wazuh/config/wazuh.yml  
-    logger $'\nYou can access the web interface https://'${kip}'. The credentials are elastic:'$epassword''    
+    logger $'You can access the web interface https://'${kip}'. The credentials are elastic:'$epassword''    
   
 }
 
@@ -590,8 +592,47 @@ disableRepos() {
     fi
 }
 
-## Main
+## Progress Bar Utility
+progressBar() {
+    if [ -z "${buffer}" ]; then
+        buffer=""
+        lines=1
+    fi
 
+    if [ "$1" ]; then
+        buffer="${buffer}$1\n"
+    fi
+
+    
+    if [ -z "${progress}" ]; then 
+	    progress=1
+        printf "\n"
+    fi
+
+    cols=$(tput cols)
+    cols=$(( $cols-6 ))
+    cols_done=$(( ($progress*$cols) / $progressbartotal ))
+    cols_empty=$(( $cols-$cols_done ))
+    progresspercentage=$(( ($progress*100) / $progressbartotal ))
+
+    for i in $(seq $lines)
+    do
+        tput cuu1
+        tput el
+    done
+    printf "${buffer}"
+    echo -ne "["
+    for i in $(seq $cols_done); do echo -n "#"; done
+    for i in $(seq $cols_empty); do echo -n "-"; done
+    printf "]%3.3s%%\n" ${progresspercentage}
+
+    progress=$(( $progress+1 ))
+    if [ -n "$1" ]; then
+        lines=$(( $lines+1 ))
+    fi
+}
+
+## Main
 main() {
 
     if [ -n "$1" ]
@@ -660,7 +701,7 @@ main() {
             then
                 getHelp
             fi
-
+            progressbartotal=16
             if [ -n "$i" ]
             then
                 logger -w "Health-check ignored."
@@ -683,7 +724,7 @@ main() {
             then
                 getHelp
             fi
-
+            progressbartotal=12
             if [ -n "$i" ]
             then
                 logger -w "Health-check ignored."

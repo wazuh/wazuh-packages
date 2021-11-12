@@ -40,7 +40,7 @@ logger() {
             message="$1"
             ;;
     esac
-    echo $now $mtype $message
+    progressBar "$now $mtype $message"
 }
 
 checkArch() {
@@ -54,6 +54,7 @@ checkArch() {
 
 startService() {
 
+    logger "Starting ${1^} service"
     if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
         eval "systemctl daemon-reload $debug"
         eval "systemctl enable $1.service $debug"
@@ -296,6 +297,8 @@ installFilebeat() {
 
 configureFilebeat() {
 
+    logger "Configuring Filebeat..."
+
     nh=$(awk -v RS='' '/network.host:/' ~/config.yml)
 
     if [ -n "$nh" ]
@@ -334,6 +337,7 @@ configureFilebeat() {
     eval "systemctl daemon-reload $debug"
     eval "systemctl enable filebeat.service $debug"
     eval "systemctl start filebeat.service $debug"
+    logger "Filebeat started"
     disableRepos
 
 }
@@ -372,8 +376,47 @@ disableRepos() {
     fi
 }
 
-## Main
+## Progress Bar Utility
+progressBar() {
+    if [ -z "${buffer}" ]; then
+        buffer=""
+        lines=1
+    fi
 
+    if [ "$1" ]; then
+        buffer="${buffer}$1\n"
+    fi
+
+    
+    if [ -z "${progress}" ]; then 
+	    progress=1
+        printf "\n"
+    fi
+
+    cols=$(tput cols)
+    cols=$(( $cols-6 ))
+    cols_done=$(( ($progress*$cols) / $progressbartotal ))
+    cols_empty=$(( $cols-$cols_done ))
+    progresspercentage=$(( ($progress*100) / $progressbartotal ))
+
+    for i in $(seq $lines)
+    do
+        tput cuu1
+        tput el
+    done
+    printf "${buffer}"
+    echo -ne "["
+    for i in $(seq $cols_done); do echo -n "#"; done
+    for i in $(seq $cols_empty); do echo -n "-"; done
+    printf "]%3.3s%%\n" ${progresspercentage}
+
+    progress=$(( $progress+1 ))
+    if [ -n "$1" ]; then
+        lines=$(( $lines+1 ))
+    fi
+}
+
+## Main
 main() {
 
     if [ -n "$1" ]
@@ -425,6 +468,7 @@ main() {
         then
             getHelp
         fi
+        progressbartotal=16
         if [ -n "$i" ]
         then
             logger -w "Health-check ignored."
