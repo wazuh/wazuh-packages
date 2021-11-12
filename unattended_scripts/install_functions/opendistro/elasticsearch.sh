@@ -40,9 +40,9 @@ configureElasticsearchAIO() {
 
     export JAVA_HOME=/usr/share/elasticsearch/jdk/
         
-    eval "cp ~/certs/elasticsearch* /etc/elasticsearch/certs/ ${debug}"
-    eval "cp ~/certs/root-ca.pem /etc/elasticsearch/certs/ ${debug}"
-    eval "cp ~/certs/admin* /etc/elasticsearch/certs/ ${debug}"
+    eval "cp ./certs/elasticsearch* /etc/elasticsearch/certs/ ${debug}"
+    eval "cp ./certs/root-ca.pem /etc/elasticsearch/certs/ ${debug}"
+    eval "cp ./certs/admin* /etc/elasticsearch/certs/ ${debug}"
     
     # Configure JVM options for Elasticsearch
     ram_gb=$(free -g | awk '/^Mem:/{print $2}')
@@ -77,6 +77,8 @@ configureElasticsearch() {
     eval "curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml https://packages.wazuh.com/resources/${WAZUH_MAJOR}/open-distro/elasticsearch/roles/roles_mapping.yml --max-time 300 ${debug}"
     eval "curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml https://packages.wazuh.com/resources/${WAZUH_MAJOR}/open-distro/elasticsearch/roles/internal_users.yml --max-time 300 ${debug}"
 
+    checkNodes
+    
     if [ -n "${single}" ]; then
         nh=$(awk -v RS='' '/network.host:/' ~/config.yml)
         nhr="network.host: "

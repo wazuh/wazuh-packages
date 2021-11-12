@@ -44,7 +44,7 @@ configureFilebeat() {
     fi
 
     eval "mkdir /etc/filebeat/certs ${debug}"
-    eval "cp ~/certs.tar /etc/filebeat/certs/ ${debug}"
+    eval "cp ./certs.tar /etc/filebeat/certs/ ${debug}"
     eval "cd /etc/filebeat/certs/ ${debug}"
     eval "tar -xf certs.tar ${iname}.pem ${iname}.key root-ca.pem ${debug}"
     if [ ${iname} != "filebeat" ]
@@ -65,8 +65,8 @@ configureFilebeatAIO() {
         eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
         eval "curl -s '${repobaseurl}'/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module ${debug}"
         eval "mkdir /etc/filebeat/certs ${debug}"
-        eval "cp ~/certs/root-ca.pem /etc/filebeat/certs/ ${debug}"
-        eval "cp ~/certs/filebeat* /etc/filebeat/certs/ ${debug}"
+        eval "cp ./certs/root-ca.pem /etc/filebeat/certs/ ${debug}"
+        eval "cp ./certs/filebeat* /etc/filebeat/certs/ ${debug}"
 
         # Start Filebeat
         startService "filebeat"
