@@ -40,9 +40,9 @@ configureElasticsearchAIO() {
 
     export JAVA_HOME=/usr/share/elasticsearch/jdk/
         
-    eval "cp ~/certs/elasticsearch* /etc/elasticsearch/certs/ ${debug}"
-    eval "cp ~/certs/root-ca.pem /etc/elasticsearch/certs/ ${debug}"
-    eval "cp ~/certs/admin* /etc/elasticsearch/certs/ ${debug}"
+    eval "cp ./certs/elasticsearch* /etc/elasticsearch/certs/ ${debug}"
+    eval "cp ./certs/root-ca.pem /etc/elasticsearch/certs/ ${debug}"
+    eval "cp ./certs/admin* /etc/elasticsearch/certs/ ${debug}"
     
     # Configure JVM options for Elasticsearch
     ram_gb=$(free -g | awk '/^Mem:/{print $2}')

@@ -30,8 +30,8 @@ configureKibanaAIO() {
         exit 1;
     fi     
     eval "mkdir /etc/kibana/certs ${debug}"
-    eval "cp ~/certs/kibana* /etc/kibana/certs/ ${debug}"
-    eval "cp ~/certs/root-ca.pem /etc/kibana/certs/ ${debug}"
+    eval "cp ./certs/kibana* /etc/kibana/certs/ ${debug}"
+    eval "cp ./certs/root-ca.pem /etc/kibana/certs/ ${debug}"
     eval "chown -R kibana:kibana /etc/kibana/ ${debug}"
     eval "chmod -R 500 /etc/kibana/certs ${debug}"
     eval "chmod 440 /etc/kibana/certs/kibana* ${debug}"
@@ -77,7 +77,7 @@ configureKibana() {
     fi
 
 
-    eval "cp ~/certs.tar /etc/kibana/certs/ ${debug}"
+    eval "cp ./certs.tar /etc/kibana/certs/ ${debug}"
     eval "cd /etc/kibana/certs/ ${debug}"
     eval "tar -xf certs.tar kibana_http.pem kibana_http.key root-ca.pem ${debug}"
     eval "mv /etc/kibana/certs/kibana_http.key /etc/kibana/certs/kibana.key ${debug}"
@@ -96,8 +96,8 @@ copyKibanacerts() {
         eval "mv /etc/elasticsearch/certs/kibana_http* /etc/kibana/certs/ ${debug}"
         eval "mv /etc/kibana/certs/kibana_http.key /etc/kibana/certs/kibana.key ${debug}"
         eval "mv /etc/kibana/certs/kibana_http.pem /etc/kibana/certs/kibana.pem ${debug}"          
-    elif [ -f ~/certs.tar ]; then
-        eval "cp ~/certs.tar /etc/kibana/certs/ ${debug}"
+    elif [ -f ./certs.tar ]; then
+        eval "cp ./certs.tar /etc/kibana/certs/ ${debug}"
         eval "cd /etc/kibana/certs/ ${debug}"
         eval "tar --overwrite -xf certs.tar kibana_http.pem kibana_http.key root-ca.pem ${debug}"
         # if [ ${iname} != "kibana" ]; then
