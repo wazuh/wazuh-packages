@@ -114,7 +114,7 @@ checkInstalled() {
     if [ "${SYS_TYPE}" == "yum" ]; then
         elasticinstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch)
     elif [ "${SYS_TYPE}" == "zypper" ]; then
-        elasticinstalled=$(zypper packages --installed | grep opendistroforelasticsearch | grep i+ | grep noarch)
+        elasticinstalled=$(zypper packages --installed-only | grep opendistroforelasticsearch | grep i+)
     elif [ "${SYS_TYPE}" == "apt-get" ]; then
         elasticinstalled=$(apt list --installed  2>/dev/null | grep 'opendistroforelasticsearch*')
     fi 
@@ -338,7 +338,7 @@ changePassword() {
         if [ "${SYS_TYPE}" == "yum" ]; then
             hasfilebeat=$(yum list installed 2>/dev/null | grep filebeat)
         elif [ "${SYS_TYPE}" == "zypper" ]; then
-            hasfilebeat=$(zypper packages --installed | grep filebeat | grep i+ | grep noarch)
+            hasfilebeat=$(zypper packages --installed-only | grep filebeat | grep i+)
         elif [ "${SYS_TYPE}" == "apt-get" ]; then
             hasfilebeat=$(apt list --installed  2>/dev/null | grep filebeat)
         fi 
@@ -358,7 +358,7 @@ changePassword() {
 	    if [ "${SYS_TYPE}" == "yum" ]; then
 		    haskibana=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch-kibana)
 	    elif [ "${SYS_TYPE}" == "zypper" ]; then
-		    haskibana=$(zypper packages --installed | grep opendistroforelasticsearch-kibana | grep i+)
+		    haskibana=$(zypper packages --installed-only | grep opendistroforelasticsearch-kibana | grep i+)
 	    elif [ "${SYS_TYPE}" == "apt-get" ]; then
 		    haskibana=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch-kibana)
 	    fi
