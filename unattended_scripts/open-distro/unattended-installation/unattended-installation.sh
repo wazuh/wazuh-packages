@@ -607,9 +607,7 @@ checkInstallation() {
         echo -ne $char
         sleep 10
     done
-
     setWazuhUserRBACPermissions
- 
     logger $'\nInstallation finished'
     logger $'\nYou can access the web interface https://<kibana_ip>. The credentials are wazuh:'${wazuhpass}''
 

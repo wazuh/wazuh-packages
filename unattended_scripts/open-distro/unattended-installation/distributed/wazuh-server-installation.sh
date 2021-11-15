@@ -336,6 +336,7 @@ main() {
         installFilebeat iname
         configureFilebeat
         setWazuhUserRBACPermissions
+
     else
         getHelp
     fi

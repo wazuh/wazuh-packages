@@ -43,7 +43,7 @@ readInstances() {
         logger "Configuration file found. Creating certificates..."
         eval "mkdir ~/certs $debug"
     else
-        logger -e "no configuration file found."
+        logger -e "No configuration file found."
         exit 1;
     fi
 

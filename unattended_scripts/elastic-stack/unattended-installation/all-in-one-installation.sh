@@ -11,6 +11,7 @@
 WAZUH_VER="4.2.5"
 WAZUH_REV="1"
 ELK_VER="7.14.2"
+
 WAZUH_KIB_PLUG_REV="1"
 
 ## Check if system is based on yum or apt-get or zypper

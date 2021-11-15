@@ -202,6 +202,9 @@ create_package() {
         sed "s:file $file.*:& preserve=install-only:"  wazuh-agent.p5m.1 > wazuh-agent.p5m.1.aux_sed
         mv wazuh-agent.p5m.1.aux_sed wazuh-agent.p5m.1
     done
+    # Fix the /etc/ossec-init.conf link
+    sed "s:target=etc/ossec-init.conf:target=/etc/ossec-init.conf:"  wazuh-agent.p5m.1 > wazuh-agent.p5m.1.aux
+    mv wazuh-agent.p5m.1.aux wazuh-agent.p5m.1
     # Add service files
     echo "file smf_manifest.xml path=lib/svc/manifest/site/post-install.xml owner=root group=sys mode=0744 restart_fmri=svc:/system/manifest-import:default" >> wazuh-agent.p5m.1
     echo "dir  path=var/ossec/installation_scripts owner=root group=bin mode=0755" >> wazuh-agent.p5m.1
