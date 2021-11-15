@@ -308,7 +308,7 @@ installElasticsearch() {
         echo "    - 127.0.0.1" >> ~/instances.yml
 
         export JAVA_HOME=/usr/share/elasticsearch/jdk/
-        bash ~/wazuh-cert-tool.sh
+        bash ~/wazuh-cert-tool.sh | logger
 
         if [  "$?" != 0  ]; then
             logger -e "Certificates were not created"
@@ -505,6 +505,7 @@ checkInstalled() {
 
     if [ -n "${wazuhinstalled}" ] || [ -n "${elasticinstalled}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${kibanainstalled}" ]; then 
         if [ -n "${ow}" ]; then
+            progressbartotal=
              overwrite
         
         elif [ -n "${uninstall}" ]; then
@@ -568,10 +569,11 @@ healthCheck() {
 changePasswords() {
     eval "curl -so ~/wazuh-passwords-tool.sh ${resources}/open-distro/tools/wazuh-passwords-tool.sh --max-time 300 ${debug}"
     if [ -n "${verbose}" ]; then
-        bash ~/wazuh-passwords-tool.sh -a -v
+        bash ~/wazuh-passwords-tool.sh -a -v | logger
     else
         VERBOSE='> /dev/null 2>&1'
-        bash ~/wazuh-passwords-tool.sh -a
+        bash ~/wazuh-passwords-tool.sh -a | logger
+
     fi    
     
     if [  "$?" != 0  ]; then
@@ -618,8 +620,7 @@ checkInstallation() {
 ## Progress Bar Utility
 progressBar() {
     if [ -z "${buffer}" ]; then
-        buffer=""
-        lines=1
+        lines=0
     fi
 
     if [ "$1" ]; then
@@ -644,15 +645,15 @@ progressBar() {
         tput el
     done
     printf "${buffer}"
+    echo -e "Buffer:\n${buffer}" >> buffer.txt
+    echo -e "Lines:\n${lines}" >> buffer.txt
     echo -ne "["
     for i in $(seq $cols_done); do echo -n "#"; done
     for i in $(seq $cols_empty); do echo -n "-"; done
     printf "]%3.3s%%\n" ${progresspercentage}
 
     progress=$(( $progress+1 ))
-    if [ -n "$1" ]; then
-        lines=$(( $lines+1 ))
-    fi
+    lines=$(echo "${buffer}" | wc -l)
 }
 
 main() {
