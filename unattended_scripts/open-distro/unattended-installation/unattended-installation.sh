@@ -606,12 +606,21 @@ checkInstallation() {
     until [[ "$(curl -XGET https://localhost/status -I -uwazuh:${wazuhpass} -k -s --max-time 300 | grep "200 OK")" ]]; do
         echo -ne $char
         sleep 10
-    done    
+    done
+
+    setWazuhUserRBACPermissions
+ 
     logger $'\nInstallation finished'
     logger $'\nYou can access the web interface https://<kibana_ip>. The credentials are wazuh:'${wazuhpass}''
 
     exit 0;
 
+}
+
+setWazuhUserRBACPermissions() {
+    TOKEN=$(curl -u wazuh:wazuh -s -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
+    eval "curl -s -k -X POST \"https://localhost:55000/security/rules?pretty=true\" -H \"Authorization: Bearer $TOKEN\" -H \"Content-Type: application/json\" -d '{\"name\": \"wazuh_rbac\",\"rule\": {\"FIND\": {\"user_name\": \"wazuh\"}}}' ${debug}"
+    eval "curl -s -k -X POST \"https://localhost:55000/security/roles/1/rules?rule_ids=100&pretty=true\" -H \"Authorization: Bearer $TOKEN\" ${debug}"
 }
 
 main() {

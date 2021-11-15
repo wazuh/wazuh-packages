@@ -270,6 +270,12 @@ healthCheck() {
     fi
 }
 
+setWazuhUserRBACPermissions() {
+    TOKEN=$(curl -u wazuh:wazuh -s -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
+    eval "curl -s -k -X POST \"https://localhost:55000/security/rules?pretty=true\" -H \"Authorization: Bearer $TOKEN\" -H \"Content-Type: application/json\" -d '{\"name\": \"wazuh_rbac\",\"rule\": {\"FIND\": {\"user_name\": \"wazuh\"}}}' ${debug}"
+    eval "curl -s -k -X POST \"https://localhost:55000/security/roles/1/rules?rule_ids=100&pretty=true\" -H \"Authorization: Bearer $TOKEN\" ${debug}"
+}
+
 ## Main
 
 main() {
@@ -329,6 +335,7 @@ main() {
         installWazuh
         installFilebeat iname
         configureFilebeat
+        setWazuhUserRBACPermissions
     else
         getHelp
     fi
