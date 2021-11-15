@@ -83,6 +83,12 @@ preInstall() {
 # Edit wazuh installation
 postInstall() {
 
+  # Change Wazuh repo dev to prod
+  if [ "${PACKAGES_REPOSITORY}" = "dev" ]; then
+    sed -i "s/-dev//g" /etc/yum.repos.d/wazuh.repo
+    sed -i "s/pre-release/4.x/g" /etc/yum.repos.d/wazuh.repo
+  fi
+
   # Edit window title
   sed -i "s/null, \"Elastic\"/null, \"Wazuh\"/g" /usr/share/kibana/src/core/server/rendering/views/template.js
 

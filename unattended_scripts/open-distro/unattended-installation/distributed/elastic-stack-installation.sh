@@ -10,7 +10,7 @@
 
 char="."
 debug='> /dev/null 2>&1'
-WAZUH_VER="4.2.4"
+WAZUH_VER="4.2.5"
 WAZUH_MAJOR="4.2"
 WAZUH_REV="1"
 ELK_VER="7.10.2"
@@ -32,14 +32,30 @@ fi
 
 ## Prints information
 logger() {
-    echo $1
+
+    now=$(date +'%m/%d/%Y %H:%M:%S')
+    case $1 in 
+        "-e")
+            mtype="ERROR:"
+            message="$2"
+            ;;
+        "-w")
+            mtype="WARNING:"
+            message="$2"
+            ;;
+        *)
+            mtype="INFO:"
+            message="$1"
+            ;;
+    esac
+    echo $now $mtype $message
 }
 
 checkArch() {
     arch=$(uname -m)
 
     if [ ${arch} != "x86_64" ]; then
-        echo "Uncompatible system. This script must be run on a 64-bit system."
+        logger -e "Uncompatible system. This script must be run on a 64-bit system."
         exit 1;
     fi
 }
@@ -51,31 +67,31 @@ startService() {
         eval "systemctl enable $1.service ${debug}"
         eval "systemctl start $1.service ${debug}"
         if [  "$?" != 0  ]; then
-            echo "${1^} could not be started."
+            logger -e "${1^} could not be started."
             exit 1;
         else
-            echo "${1^} started"
+            logger "${1^} started"
         fi
     elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
         eval "chkconfig $1 on ${debug}"
         eval "service $1 start ${debug}"
         eval "/etc/init.d/$1 start ${debug}"
         if [  "$?" != 0  ]; then
-            echo "${1^} could not be started."
+            logger -e "${1^} could not be started."
             exit 1;
         else
-            echo "${1^} started"
+            logger "${1^} started"
         fi
     elif [ -x /etc/rc.d/init.d/$1 ] ; then
         eval "/etc/rc.d/init.d/$1 start ${debug}"
         if [  "$?" != 0  ]; then
-            echo "${1^} could not be started."
+            logger -e "${1^} could not be started."
             exit 1;
         else
-            echo "${1^} started"
+            logger "${1^} started"
         fi
     else
-        echo "Error: ${1^} could not start. No service manager found on the system."
+        logger -e "${1^} could not start. No service manager found on the system."
         exit 1;
     fi
 }
@@ -88,7 +104,6 @@ getHelp() {
    echo -e "\t-k     | --install-kibana Installs Open Distro for Kibana (cannot be used together with option -e)"
    echo -e "\t-n     | --node-name Name of the node"
    echo -e "\t-c     | --create-certificates Generates the certificates for all the indicated nodes"
-   echo -e "\t-k     | --install-kibana Install Kibana"
    echo -e "\t-d     | --debug Shows the complete installation output"
    echo -e "\t-i     | --ignore-health-check Ignores the health-check"
    echo -e "\t-h     | --help Shows help"
@@ -99,17 +114,17 @@ getHelp() {
 checkConfig() {
 
     if [ -f ~/config.yml ]; then
-        echo "Configuration file found. Starting the installation..."
+        logger "Configuration file found. Starting the installation..."
     else
         if [ -f ~/certs.tar ]; then
-            echo "Certificates file found. Starting the installation..."
+            logger "Certificates file found. Starting the installation..."
             eval "tar --overwrite -C ~/ -xf ~/certs.tar config.yml ${debug}"
         elif [ -f /etc/elasticsearch/certs/certs.tar ]; then
             eval "mv /etc/elasticsearch/certs/certs.tar ~/ ${debug}"
             eval "tar --overwrite -C ~/ -xf ~/certs.tar config.yml ${debug}"
-            echo "Certificates file found. Starting the installation..."
+            logger "Certificates file found. Starting the installation..."
         else
-            echo "No configuration file found."
+            logger -e "No configuration file found."
             exit 1;
         fi
     fi
@@ -172,7 +187,7 @@ installPrerequisites() {
         eval "apt-get update -q ${debug}"
         eval "apt-get install openjdk-11-jdk -y -q ${debug}"
         if [  "$?" != 0  ]; then
-            logger "JDK installation failed."
+            logger -e "JDK installation failed."
             exit 1;
         fi
         export JAVA_HOME=/usr/
@@ -180,7 +195,7 @@ installPrerequisites() {
     fi
 
     if [  "$?" != 0  ]; then
-        echo "Error: Prerequisites could not be installed"
+        logger -e "Prerequisites could not be installed"
         exit 1;
     else
         logger "Done"
@@ -194,10 +209,10 @@ addWazuhrepo() {
 
     if [ ${sys_type} == "yum" ]; then
         eval "rpm --import https://packages.wazuh.com/key/GPG-KEY-WAZUH ${debug}"
-        eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages.wazuh.com/4.x/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo ${debug}"
+        eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-\$releasever - Wazuh\nbaseurl=https://packages.wazuh.com/4.x/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo ${debug}"
     elif [ ${sys_type} == "zypper" ]; then
         eval "rpm --import https://packages.wazuh.com/key/GPG-KEY-WAZUH ${debug}"
-        eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages.wazuh.com/4.x/yum/\nprotect=1' | tee /etc/zypp/repos.d/wazuh.repo ${debug}"
+        eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-\$releasever - Wazuh\nbaseurl=https://packages.wazuh.com/4.x/yum/\nprotect=1' | tee /etc/zypp/repos.d/wazuh.repo ${debug}"
     elif [ ${sys_type} == "apt-get" ]; then
         eval "curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH --max-time 300 | apt-key add - ${debug}"
         eval "echo "deb https://packages.wazuh.com/4.x/apt/ stable main" | tee -a /etc/apt/sources.list.d/wazuh.list ${debug}"
@@ -210,7 +225,7 @@ addWazuhrepo() {
 installElasticsearch() {
 
     if [[ -f /etc/elasticsearch/elasticsearch.yml ]]; then
-        echo "Open Distro for Elasticsearch is already installed in this node."
+        logger -e "Open Distro for Elasticsearch is already installed in this node."
         exit 1;
     fi
 
@@ -225,7 +240,7 @@ installElasticsearch() {
     fi
 
     if [  "$?" != 0  ]; then
-        echo "Error: Elasticsearch installation failed"
+        logger -e "Elasticsearch installation failed"
         exit 1;
     else
         logger "Done"
@@ -279,7 +294,7 @@ installElasticsearch() {
                 fi
             done
             if [[ ! " ${IMN[@]} " =~ " ${iname} " ]]; then
-                echo "The name given does not appear on the configuration file"
+                logger -e "The name given does not appear on the configuration file"
                 exit 1;
             fi
             nip="${DSH[pos]}"
@@ -332,7 +347,7 @@ installElasticsearch() {
             copyCertificates iname pos
         fi
         initializeElastic nip
-        echo "Done"
+        logger "Done"
     fi
 }
 
@@ -372,7 +387,7 @@ createCertificates() {
     eval "chmod +x ~/searchguard/tools/sgtlstool.sh ${debug}"
     eval "bash ~/searchguard/tools/sgtlstool.sh -c ~/searchguard/search-guard.yml -ca -crt -t /etc/elasticsearch/certs/ ${debug}"
     if [  "$?" != 0  ]; then
-        echo "Error: certificates were not created"
+        logger -e "Certificates were not created"
         exit 1;
     else
         logger "Certificates created"
@@ -436,7 +451,7 @@ initializeElastic() {
 installKibana() {
 
     if [[ -f /etc/kibana/kibana.yml ]]; then
-        echo "Kibana is already installed in this node."
+        logger -e "Kibana is already installed in this node."
         exit 1;
     fi
 
@@ -447,7 +462,7 @@ installKibana() {
         eval "${sys_type} install opendistroforelasticsearch-kibana${sep}${OD_VER} -y -q ${debug}"
     fi
     if [  "$?" != 0  ]; then
-        echo "Error: Kibana installation failed"
+        logger -e "Kibana installation failed"
         exit 1;
     else
         eval "curl -so /etc/kibana/kibana.yml https://packages.wazuh.com/resources/${WAZUH_MAJOR}/open-distro/unattended-installation/distributed/templates/kibana_unattended.yml --max-time 300 ${debug}"
@@ -456,7 +471,7 @@ installKibana() {
         eval "cd /usr/share/kibana ${debug}"
         eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana-${WAZUH_VER}_${ELK_VER}-${WAZUH_KIB_PLUG_REV}.zip ${debug}"
         if [  "$?" != 0  ]; then
-            echo "Error: Wazuh Kibana plugin could not be installed."
+            logger -e "Wazuh Kibana plugin could not be installed."
             exit 1;
         fi
         eval "setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node ${debug}"
@@ -514,7 +529,7 @@ copyKibanacerts() {
         #     eval "mv /etc/kibana/certs/${iname}_http.key /etc/kibana/certs/kibana.key ${debug}"
         # fi            
     else
-        echo "No certificates found. Could not initialize Kibana"
+        logger -e "No certificates found. Could not initialize Kibana"
         exit 1;
     fi
 
@@ -534,7 +549,7 @@ initializeKibana() {
     wip="${wip//$rm}"
     conf="$(awk '{sub("url: https://localhost", "url: https://'"${wip}"'")}1' /usr/share/kibana/data/wazuh/config/wazuh.yml)"
     echo "${conf}" > /usr/share/kibana/data/wazuh/config/wazuh.yml  
-    echo $'\nYou can access the web interface https://'${kip}'. The credentials are admin:admin'    
+    logger $'\nYou can access the web interface https://'${kip}'. The credentials are admin:admin'    
 
 }
 
@@ -555,17 +570,17 @@ healthCheck() {
     ram_gb=$(free -m | awk '/^Mem:/{print $2}')
     if [ -n "${elastic}" ]; then
         if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]; then
-            echo "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
+            logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
             exit 1;
         else
-            echo "Starting the installation..."
+            logger "Starting the installation..."
         fi
     elif [ -n "${kibana}" ]; then
         if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]; then
-            echo "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
+            logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
             exit 1;
         else
-            echo "Starting the installation..."
+            logger "Starting the installation..."
         fi
     fi
 
@@ -613,7 +628,7 @@ main() {
         done
 
         if [ "$EUID" -ne 0 ]; then
-            echo "This script must be run as root."
+            logger -e "This script must be run as root."
             exit 1;
         fi
 
@@ -638,7 +653,7 @@ main() {
         if [ -n "${elastic}" ]; then
 
             if [ -n "${ignore}" ]; then
-                echo "Health-check ignored."
+                logger -w "Health-check ignored."
             else
                 healthCheck elastic
             fi
@@ -651,7 +666,7 @@ main() {
         if [ -n "${kibana}" ]; then
 
             if [ -n "${ignore}" ]; then
-                echo "Health-check ignored."
+                logger -w "Health-check ignored."
             else
                 healthCheck kibana
             fi

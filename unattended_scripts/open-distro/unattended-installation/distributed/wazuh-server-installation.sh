@@ -11,7 +11,7 @@
 ## Check if system is based on yum or apt-get
 char="."
 debug='> /dev/null 2>&1'
-WAZUH_VER="4.2.4"
+WAZUH_VER="4.2.5"
 WAZUH_REV="1"
 ELK_VER="7.10.2"
 OD_VER="1.13.2"
@@ -27,15 +27,32 @@ elif [ -n "$(command -v apt-get)" ]; then
     sep="="
 fi
 
+## Prints information
 logger() {
-    echo $1
+
+    now=$(date +'%m/%d/%Y %H:%M:%S')
+    case $1 in 
+        "-e")
+            mtype="ERROR:"
+            message="$2"
+            ;;
+        "-w")
+            mtype="WARNING:"
+            message="$2"
+            ;;
+        *)
+            mtype="INFO:"
+            message="$1"
+            ;;
+    esac
+    echo $now $mtype $message
 }
 
 checkArch() {
     arch=$(uname -m)
 
     if [ ${arch} != "x86_64" ]; then
-        echo "Uncompatible system. This script must be run on a 64-bit system."
+        logger -e "Uncompatible system. This script must be run on a 64-bit system."
         exit 1;
     fi
 }
@@ -48,10 +65,10 @@ startService() {
         eval "systemctl start $1.service ${debug}"
         if [  "$?" != 0  ]
         then
-            echo "${1^} could not be started."
+            logger -e "${1^} could not be started."
             exit 1;
         else
-            echo "${1^} started"
+            logger "${1^} started"
         fi
     elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
         eval "chkconfig $1 on ${debug}"
@@ -59,22 +76,22 @@ startService() {
         eval "/etc/init.d/$1 start ${debug}"
         if [  "$?" != 0  ]
         then
-            echo "${1^} could not be started."
+            logger -e "${1^} could not be started."
             exit 1;
         else
-            echo "${1^} started"
+            logger "${1^} started"
         fi
     elif [ -x /etc/rc.d/init.d/$1 ] ; then
         eval "/etc/rc.d/init.d/$1 start ${debug}"
         if [  "$?" != 0  ]
         then
-            echo "${1^} could not be started."
+            logger -e "${1^} could not be started."
             exit 1;
         else
-            echo "${1^} started"
+            logger "${1^} started"
         fi
     else
-        echo "Error: ${1^} could not start. No service manager found on the system."
+        logger -e "${1^} could not start. No service manager found on the system."
         exit 1;
     fi
 
@@ -96,10 +113,10 @@ checkConfig() {
 
     if [ -f ~/certs.tar ]
     then
-        echo "Certificates file found. Starting the installation..."
+        logger "Certificates file found. Starting the installation..."
         eval "tar --overwrite -C ~/ -xf ~/certs.tar config.yml ${debug}"
     else
-        echo "No certificates file found."
+        logger -e "No certificates file found."
         exit 1;
     fi
 
@@ -139,11 +156,11 @@ addWazuhrepo() {
     if [ ${sys_type} == "yum" ]
     then
         eval "rpm --import https://packages.wazuh.com/key/GPG-KEY-WAZUH ${debug}"
-        eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-${releasever} - Wazuh\nbaseurl=https://packages.wazuh.com/4.x/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo ${debug}"
+        eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-\${releasever} - Wazuh\nbaseurl=https://packages.wazuh.com/4.x/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo ${debug}"
     elif [ ${sys_type} == "zypper" ]
     then
         eval "rpm --import https://packages.wazuh.com/key/GPG-KEY-WAZUH ${debug}"
-        eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-${releasever} - Wazuh\nbaseurl=https://packages.wazuh.com/4.x/yum/\nprotect=1' | tee /etc/zypp/repos.d/wazuh.repo ${debug}"
+        eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-\${releasever} - Wazuh\nbaseurl=https://packages.wazuh.com/4.x/yum/\nprotect=1' | tee /etc/zypp/repos.d/wazuh.repo ${debug}"
     elif [ ${sys_type} == "apt-get" ]
     then
         eval "curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH --max-time 300 | apt-key add - ${debug}"
@@ -165,7 +182,7 @@ installWazuh() {
     fi
     if [  "$?" != 0  ]
     then
-        echo "Error: Wazuh installation failed"
+        logger -e "Wazuh installation failed"
         exit 1;
     else
         logger "Done"
@@ -178,7 +195,7 @@ installWazuh() {
 installFilebeat() {
 
     if [[ -f /etc/filebeat/filebeat.yml ]]; then
-        echo "Filebeat is already installed in this node."
+        logger -e "Filebeat is already installed in this node."
         exit 1;
     fi
 
@@ -191,7 +208,7 @@ installFilebeat() {
     fi
     if [  "$?" != 0  ]
     then
-        echo "Error: Filebeat installation failed"
+        logger -e "Filebeat installation failed"
         exit 1;
     else
         eval "curl -so /etc/filebeat/filebeat.yml https://packages.wazuh.com/resources/4.2/open-distro/unattended-installation/distributed/templates/filebeat.yml --max-time 300 ${debug}"
@@ -233,7 +250,7 @@ configureFilebeat() {
         eval "mv /etc/filebeat/certs/${iname}.key /etc/filebeat/certs/filebeat.key ${debug}"
     fi
     logger "Done"
-    echo "Starting Filebeat..."
+    logger "Starting Filebeat..."
     eval "systemctl daemon-reload ${debug}"
     eval "systemctl enable filebeat.service ${debug}"
     eval "systemctl start filebeat.service ${debug}"
@@ -246,10 +263,10 @@ healthCheck() {
 
     if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]
     then
-        echo "Your system does not meet the recommended minimum hardware requirements of 2Gb of RAM and 2 CPU cores . If you want to proceed with the installation use the -i option to ignore these requirements."
+        logger -e "Your system does not meet the recommended minimum hardware requirements of 2Gb of RAM and 2 CPU cores . If you want to proceed with the installation use the -i option to ignore these requirements."
         exit 1;
     else
-        echo "Starting the installation..."
+        logger "Starting the installation..."
     fi
 }
 
@@ -291,7 +308,7 @@ main() {
         done
 
         if [ "$EUID" -ne 0 ]; then
-            echo "This script must be run as root."
+            logger -e "This script must be run as root."
             exit 1;
         fi
 
@@ -307,7 +324,7 @@ main() {
         fi
         if [ -n "${ignore}" ]
         then
-            echo "Health-check ignored."
+            logger -w "Health-check ignored."
 
         else
             healthCheck
