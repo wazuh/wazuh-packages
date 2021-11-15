@@ -10,6 +10,7 @@ Please, visit the following link for the full Wazuh Kibana plugin packages build
 ## More Packages
 
 - [AIX](/aix/README.md)
+- [Arch](/arch/README.md)
 - [Debian](/debs/README.md)
 - [HP-UX](/hp-ux/README.md)
 - [macOS](/macos/README.md)

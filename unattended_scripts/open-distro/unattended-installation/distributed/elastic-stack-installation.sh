@@ -10,7 +10,7 @@
 
 char="."
 debug='> /dev/null 2>&1'
-WAZUH_VER="4.2.4"
+WAZUH_VER="4.2.5"
 WAZUH_MAJOR="4.2"
 WAZUH_REV="1"
 ELK_VER="7.10.2"
@@ -225,7 +225,7 @@ addWazuhrepo() {
 installElasticsearch() {
 
     if [[ -f /etc/elasticsearch/elasticsearch.yml ]]; then
-        logger "Open Distro for Elasticsearch is already installed in this node."
+        logger -e "Open Distro for Elasticsearch is already installed in this node."
         exit 1;
     fi
 
@@ -443,7 +443,7 @@ initializeElastic() {
         eval "./securityadmin.sh -cd ../securityconfig/ -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin.key -h ${nip} ${debug}"
     fi
 
-    logger ":Done"
+    logger "Done"
     exit 0;
 }
 
@@ -529,7 +529,7 @@ copyKibanacerts() {
         #     eval "mv /etc/kibana/certs/${iname}_http.key /etc/kibana/certs/kibana.key ${debug}"
         # fi            
     else
-        echo "No certificates found. Could not initialize Kibana"
+        logger -e "No certificates found. Could not initialize Kibana"
         exit 1;
     fi
 

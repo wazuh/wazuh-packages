@@ -166,7 +166,8 @@ readFileUsers() {
 
     FILECORRECT=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*\w+\s*)+\Z' $FILE)
     if [ $FILECORRECT -ne 1 ]; then
-	logger -e "the password file doesn't have a correct format.
+	logger -e "The password file doesn't have a correct format.
+
 It must have this format:
 User:
    name: wazuh
@@ -355,6 +356,7 @@ changePassword() {
     fi
 
     if [ "$NUSER" == "kibanaserver" ] || [ -n "$CHANGEALL" ]; then
+
 	    if [ "${SYS_TYPE}" == "yum" ]; then
 		    haskibana=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch-kibana)
 	    elif [ "${SYS_TYPE}" == "zypper" ]; then
@@ -373,7 +375,6 @@ changePassword() {
 		    restartService "kibana"
 	    fi         
     fi
-
 }
 
 ## Runs the Security Admin script to load the changes

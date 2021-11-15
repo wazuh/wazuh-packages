@@ -1,6 +1,23 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [v4.2.5]
+
+- Update SPECS [#991](https://github.com/wazuh/wazuh-packages/pull/991)
+
+## [v4.2.4]
+
+- Update SPECS [#927](https://github.com/wazuh/wazuh-packages/pull/927)
+
+## [v4.2.3]
+
+- Update SPECS [#915](https://github.com/wazuh/wazuh-packages/pull/915)
+
+## [v4.2.2]
+
+- Update SPECS [#846](https://github.com/wazuh/wazuh-packages/pull/846)
+- Remove unused applications SCA files from agent installation [#885](https://github.com/wazuh/wazuh-packages/pull/885)
+
 ## [v4.2.1]
 
 - Update SPECS [#833](https://github.com/wazuh/wazuh-packages/pull/833)
