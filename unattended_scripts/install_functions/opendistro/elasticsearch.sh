@@ -32,12 +32,6 @@ configureElasticsearchAIO() {
     eval "curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml ${resources}/open-distro/elasticsearch/roles/internal_users.yml --max-time 300 ${debug}"        
     eval "rm /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem -f ${debug}"
 
-    ## Create certificates
-    eval "mkdir /etc/elasticsearch/certs ${debug}"
-    eval "cd /etc/elasticsearch/certs ${debug}"
-    echo "${resources}/open-distro/tools/certificate-utility/wazuh-cert-tool.sh --max-time 300"
-    eval "curl -so ./wazuh-cert-tool.sh ${resources}/open-distro/tools/certificate-utility/wazuh-cert-tool.sh --max-time 300 ${debug}"
-
     export JAVA_HOME=/usr/share/elasticsearch/jdk/
         
     eval "cp ./certs/elasticsearch* /etc/elasticsearch/certs/ ${debug}"
@@ -157,15 +151,6 @@ configureElasticsearch() {
         echo "elasticsearch hard nproc 4096" >> /etc/security/limits.conf
         echo "elasticsearch soft nproc 4096" >> /etc/security/limits.conf
         echo "bootstrap.system_call_filter: false" >> /etc/elasticsearch/elasticsearch.yml
-    fi
-
-    # Create certificates
-    if [ -n "${single}" ]; then
-        createCertificates name ip
-    elif [ -n "${certificates}" ]; then
-        createCertificates IMN DSH
-    else
-        logger "Done"
     fi
 
     if [ -n "${single}" ]; then
