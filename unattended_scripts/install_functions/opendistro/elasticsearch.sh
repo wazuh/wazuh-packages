@@ -27,12 +27,12 @@ copyCertificatesElasticsearch() {
     checkNodes
 
     if [ -n "${single}" ]; then
-        eval "mv ./certs/${iname}.pem /etc/elasticsearch/certs/elasticsearch.pem ${debug}"
-        eval "mv ./certs/${iname}.key /etc/elasticsearch/certs/elasticsearch.key ${debug}"
+        eval "cp ./certs/${iname}.pem /etc/elasticsearch/certs/elasticsearch.pem ${debug}"
+        eval "cp ./certs/${iname}.key /etc/elasticsearch/certs/elasticsearch.key ${debug}"
         eval "rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml search-guard-tlstool-1.8.zip -f ${debug}"
     else
-        eval "mv ./certs/${IMN[pos]}.pem /etc/elasticsearch/certs/elasticsearch.pem ${debug}"
-        eval "mv ./certs/${IMN[pos]}.key /etc/elasticsearch/certs/elasticsearch.key ${debug}"
+        eval "cp ./certs/${IMN[pos]}.pem /etc/elasticsearch/certs/elasticsearch.pem ${debug}"
+        eval "cp ./certs/${IMN[pos]}.key /etc/elasticsearch/certs/elasticsearch.key ${debug}"
         eval "rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml ./search-guard-tlstool-1.8.zip -f ${debug}"
     fi
     eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
