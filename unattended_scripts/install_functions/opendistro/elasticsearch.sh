@@ -203,5 +203,4 @@ initializeElastic() {
     fi
 
     logger "Done"
-    exit 0;
 }
