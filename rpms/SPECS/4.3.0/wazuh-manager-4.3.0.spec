@@ -631,8 +631,6 @@ rm -fr %{buildroot}
 %attr(660, wazuh, wazuh) %config(noreplace) %{_localstatedir}/etc/lists/amazon/*
 %attr(660, wazuh, wazuh) %config(noreplace) %{_localstatedir}/etc/lists/audit-keys
 %attr(660, wazuh, wazuh) %config(noreplace) %{_localstatedir}/etc/lists/security-eventchannel
-%attr(660, wazuh, wazuh) %config(noreplace) %{_localstatedir}/etc/lists/ip_reputation
-%attr(660, wazuh, wazuh) %config(noreplace) %{_localstatedir}/etc/lists/uncommon-cmd-opened-process
 %dir %attr(770, root, wazuh) %{_localstatedir}/etc/shared
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/etc/shared/default
 %attr(660, wazuh, wazuh) %{_localstatedir}/etc/shared/agent-template.conf
