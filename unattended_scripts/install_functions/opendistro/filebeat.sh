@@ -49,19 +49,13 @@ configureFilebeat() {
     fi
 
     eval "mkdir /etc/filebeat/certs ${debug}"
-    eval "cp ./certs.tar /etc/filebeat/certs/ ${debug}"
-    eval "cd /etc/filebeat/certs/ ${debug}"
-    eval "tar -xf certs.tar ${iname}.pem ${iname}.key root-ca.pem ${debug}"
-    if [ ${iname} != "filebeat" ]
-    then
-        eval "mv /etc/filebeat/certs/${iname}.pem /etc/filebeat/certs/filebeat.pem ${debug}"
-        eval "mv /etc/filebeat/certs/${iname}.key /etc/filebeat/certs/filebeat.key ${debug}"
-    fi
+    eval "mv ./certs/${winame}.pem /etc/filebeat/certs/filebeat.pem ${debug}"
+    eval "mv ./certs/${winame}-key.pem /etc/filebeat/certs/filebeat-key.pem ${debug}"
+    eval "cp ./certs/root-ca.pem /etc/filebeat/certs/ ${debug}"
+
     logger "Done"
     echo "Starting Filebeat..."
-    eval "systemctl daemon-reload ${debug}"
-    eval "systemctl enable filebeat.service ${debug}"
-    eval "systemctl start filebeat.service ${debug}"
+    startService filebeat
 }
 
 configureFilebeatAIO() {

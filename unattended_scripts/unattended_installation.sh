@@ -24,17 +24,18 @@ getHelp() {
 
     echo ""
     echo "Usage: $0 arguments"
-    echo -e "\t-A   | --AllInOne            All-In-One installation"
-    echo -e "\t-w   | --wazuh               Wazuh installation"
-    echo -e "\t-e   | --elasticsearch       Elasticsearch installation"
-    echo -e "\t-k   | --kibana              Kibana installation"
-    echo -e "\t-n   | --node-name           Name of the node, used for distributed installations"
+    echo -e "\t-A   | --AllInOne                      All-In-One installation"
+    echo -e "\t-w   | --wazuh                         Wazuh installation"
+    echo -e "\t-e   | --elasticsearch                 Elasticsearch installation"
+    echo -e "\t-k   | --kibana                        Kibana installation"
+    echo -e "\t-en  | --elastic- node-name            Name of the elastic node, used for distributed installations"
+    echo -e "\t-wn | --wazuh- node-name               Name of the wazuh node, used for distributed installations"
 
-    echo -e "\t-r   | --uninstall           Remove the installation"
-    echo -e "\t-v   | --verbose             Shows the complete installation output"
-    echo -e "\t-i   | --ignore-health-check Ignores the health-check"
-    echo -e "\t-l   | --local               Use local files"
-    echo -e "\t-h   | --help                Shows help"
+    echo -e "\t-r   | --uninstall                     Remove the installation"
+    echo -e "\t-v   | --verbose                       Shows the complete installation output"
+    echo -e "\t-i   | --ignore-health-check           Ignores the health-check"
+    echo -e "\t-l   | --local                         Use local files"
+    echo -e "\t-h   | --help                          Shows help"
     exit 1 # Exit script after printing help
 
 }
@@ -75,10 +76,13 @@ main() {
                 kibana=1
                 shift 1
                 ;;
-            "-n"|"--node-name")
-                iname=$2
-                shift
-                shift
+            "-en"|"--elastic-node-name")
+                einame=$2
+                shift 2
+                ;;
+            "-wn"|"--wazuh-node-name")
+                winame=$2
+                shift 2
                 ;;
 
             "-c"|"--create-certificates")
@@ -127,7 +131,7 @@ main() {
         addWazuhrepo
         checkNodes
         installElasticsearch 
-        configureElasticsearch iname
+        configureElasticsearch
     fi
 
     if [ -n "${kibana}" ]; then
@@ -144,7 +148,7 @@ main() {
         installPrerequisites
         addWazuhrepo
         installKibana 
-        configureKibana iname
+        configureKibana
     fi
 
     if [ -n "${wazuh}" ]; then
@@ -163,7 +167,7 @@ main() {
         addWazuhrepo
         installWazuh
         configureWazuh
-        installFilebeat iname
+        installFilebeat
         configureFilebeat
     fi
 

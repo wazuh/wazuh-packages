@@ -174,7 +174,7 @@ startService() {
         eval "systemctl start $1.service ${debug}"
         if [  "$?" != 0  ]; then
             echo "${1^} could not be started."
-            # rollBack
+            rollBack
             exit 1;
         else
             echo "${1^} started"

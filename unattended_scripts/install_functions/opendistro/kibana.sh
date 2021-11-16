@@ -80,7 +80,7 @@ configureKibana() {
     
     logger "Kibana installed."
 
-    copyKibanacerts iname
+    copyKibanacerts
     initializeKibana kip
     echo -e
 }
