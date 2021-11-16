@@ -272,11 +272,11 @@ installElasticsearch() {
         eval "cd /etc/elasticsearch/certs ${debug}"
         echo "${resources}/open-distro/tools/certificate-utility/wazuh-cert-tool.sh --max-time 300"
         eval "curl -so ~/wazuh-cert-tool.sh ${resources}/open-distro/tools/certificate-utility/wazuh-cert-tool.sh --max-time 300 ${debug}"
-	eval "curl -so ~/instances.yml ${resources}/open-distro/tools/certificate-utility/instances.yml"
-	eval "grep -A 4 'Elasticsearch nodes' ~/instances.yml | sed  's/<node-name>/elasticsearch/; s/node-IP/127.0.0.1/' >> ~/instances_tmp.yml"
-	eval "grep -A 4 'Wazuh server nodes' ~/instances.yml | sed  's/<node-name>/filebeat/; s/node-IP/127.0.0.1/' >> ~/instances_tmp.yml"
-	eval "grep -A 4 'Kibana node' ~/instances.yml | sed  's/<node-name>/kibana/; s/node-IP/127.0.0.1/' >> ~/instances_tmp.yml"
-	eval "mv -f ~/instances_tmp.yml ~/instances.yml"
+        eval "curl -so ~/instances.yml ${resources}/open-distro/tools/certificate-utility/instances.yml"
+        eval "grep -A 4 'Elasticsearch nodes' ~/instances.yml | sed  's/<node-name>/elasticsearch/; s/node-IP/127.0.0.1/' >> ~/instances_tmp.yml"
+        eval "grep -A 4 'Wazuh server nodes' ~/instances.yml | sed  's/<node-name>/filebeat/; s/node-IP/127.0.0.1/' >> ~/instances_tmp.yml"
+        eval "grep -A 4 'Kibana node' ~/instances.yml | sed  's/<node-name>/kibana/; s/node-IP/127.0.0.1/' >> ~/instances_tmp.yml"
+        eval "mv -f ~/instances_tmp.yml ~/instances.yml"
 
         export JAVA_HOME=/usr/share/elasticsearch/jdk/
         bash ~/wazuh-cert-tool.sh
