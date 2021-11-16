@@ -229,36 +229,6 @@ checkNodes() {
 
 }
 
-copyCertificates() {
-
-    checkNodes
-
-    if [ -n "${single}" ]; then
-        eval "mv /etc/elasticsearch/certs/${iname}.pem /etc/elasticsearch/certs/elasticsearch.pem ${debug}"
-        eval "mv /etc/elasticsearch/certs/${iname}.key /etc/elasticsearch/certs/elasticsearch.key ${debug}"
-        eval "mv /etc/elasticsearch/certs/${iname}_http.pem /etc/elasticsearch/certs/elasticsearch_http.pem ${debug}"
-        eval "mv /etc/elasticsearch/certs/${iname}_http.key /etc/elasticsearch/certs/elasticsearch_http.key ${debug}"
-        eval "rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml search-guard-tlstool-1.8.zip -f ${debug}"
-    else
-        if [ -z "${certificates}" ]; then
-            eval "mv ./certs.tar /etc/elasticsearch/certs ${debug}"
-            eval "tar -xf certs.tar ${IMN[pos]}.pem ${IMN[pos]}.key ${IMN[pos]}_http.pem ${IMN[pos]}_http.key root-ca.pem ${debug}"
-        fi
-        eval "mv /etc/elasticsearch/certs/${IMN[pos]}.pem /etc/elasticsearch/certs/elasticsearch.pem ${debug}"
-        eval "mv /etc/elasticsearch/certs/${IMN[pos]}.key /etc/elasticsearch/certs/elasticsearch.key ${debug}"
-        eval "mv /etc/elasticsearch/certs/${IMN[pos]}_http.pem /etc/elasticsearch/certs/elasticsearch_http.pem ${debug}"
-        eval "mv /etc/elasticsearch/certs/${IMN[pos]}_http.key /etc/elasticsearch/certs/elasticsearch_http.key ${debug}"
-        eval "rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml ./search-guard-tlstool-1.8.zip -f ${debug}"
-    fi
-    eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
-    if [[ -n "${certificates}" ]] || [[ -n "${single}" ]]; then
-        cp ./config.yml /etc/elasticsearch/certs/
-        tar -cf /etc/elasticsearch/certs/certs.tar *
-        mv /etc/elasticsearch/certs/certs.tar ./certs.tar
-    fi
-
-}
-
 specsCheck() {
 
     cores=$(cat /proc/cpuinfo | grep processor | wc -l)
