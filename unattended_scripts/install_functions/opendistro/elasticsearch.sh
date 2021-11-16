@@ -161,3 +161,27 @@ configureElasticsearch() {
     initializeElastic nip
     echo "Done"
 }
+
+initializeElastic() {
+
+    logger "Elasticsearch installed."
+
+    # Start Elasticsearch
+    logger "Starting Elasticsearch..."
+    startService "elasticsearch"
+    logger "Initializing Elasticsearch..."
+
+
+    until $(curl -XGET https://${nip}:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null); do
+        echo -ne ${char}
+        sleep 10
+    done
+
+    if [ -n "${single}" ]; then
+        eval "cd /usr/share/elasticsearch/plugins/opendistro_security/tools/ ${debug}"
+        eval "./securityadmin.sh -cd ../securityconfig/ -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin.key -h ${nip} ${debug}"
+    fi
+
+    logger "Done"
+    exit 0;
+}
