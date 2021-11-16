@@ -28,7 +28,7 @@ copyCertificatesElasticsearch() {
 
     if [ -n "${single}" ]; then
         eval "cp ./certs/${iname}.pem /etc/elasticsearch/certs/elasticsearch.pem ${debug}"
-        eval "cp ./certs/${iname}.key /etc/elasticsearch/certs/elasticsearch.key ${debug}"
+        eval "cp ./certs/${iname}-key.pem /etc/elasticsearch/certs/elasticsearch-key.pem ${debug}"
         eval "cp ./certs/root-ca.pem /etc/kibana/certs/ ${debug}"
         eval "cp ./certs/admin.pem /etc/kibana/certs/ ${debug}"
         eval "cp ./certs/admin-key.pem /etc/kibana/certs/ ${debug}"
@@ -36,7 +36,7 @@ copyCertificatesElasticsearch() {
         eval "rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml search-guard-tlstool-1.8.zip -f ${debug}"
     else
         eval "cp ./certs/${IMN[pos]}.pem /etc/elasticsearch/certs/elasticsearch.pem ${debug}"
-        eval "cp ./certs/${IMN[pos]}.key /etc/elasticsearch/certs/elasticsearch.key ${debug}"
+        eval "cp ./certs/${IMN[pos]}-key.pem /etc/elasticsearch/certs/elasticsearch-key.pem ${debug}"
         eval "cp ./certs/root-ca.pem /etc/kibana/certs/ ${debug}"
 
         eval "rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml ./search-guard-tlstool-1.8.zip -f ${debug}"
