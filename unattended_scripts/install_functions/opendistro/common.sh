@@ -208,13 +208,13 @@ startService() {
 
 createCertificates() {
 
-
-    logger "Creating the certificates..."
-    getResources tools/certificate-utility/wazuh-passwords-tool.sh ./wazuh-passwords-tool.sh
-    if [ -n "${AIO}" ]; then
-        getResources tools/certificate-utility/certificate-utility/instances_aio.yml  ./instances.yml 
-    fi
-    bash ./wazuh-cert-tool.sh
+    readInstances
+    generateRootCAcertificate
+    generateAdmincertificate
+    generateElasticsearchcertificates
+    generateFilebeatcertificates
+    generateKibanacertificates
+    cleanFiles
 }
 
 checkNodes() {
@@ -305,4 +305,74 @@ healthCheck() {
             fi
             ;;
     esac
+}
+
+rollBack() {
+
+    if [ -z "${uninstall}" ]; then
+        echo "Cleaning the installation" 
+    fi   
+    
+    if [ -n "${wazuhinstalled}" ]; then
+        echo "Removing the Wazuh manager..."
+        if [ "${sys_type}" == "yum" ]; then
+            eval "yum remove wazuh-manager -y ${debug}"
+        elif [ "${sys_type}" == "zypper" ]; then
+            eval "zypper -n remove wazuh-manager ${debug}"
+        elif [ "${sys_type}" == "apt-get" ]; then
+            eval "apt remove --purge wazuh-manager -y ${debug}"
+        fi 
+        eval "rm -rf /var/ossec/ ${debug}"
+    fi     
+
+    if [ -n "${elasticinstalled}" ]; then
+        echo "Removing Elasticsearch..."
+        if [ "${sys_type}" == "yum" ]; then
+            eval "yum remove opendistroforelasticsearch -y ${debug}"
+            eval "yum remove elasticsearch* -y ${debug}"
+            eval "yum remove opendistro-* -y ${debug}"
+        elif [ "${sys_type}" == "zypper" ]; then
+            eval "zypper -n remove opendistroforelasticsearch elasticsearch* opendistro-* ${debug}"
+        elif [ "${sys_type}" == "apt-get" ]; then
+            eval "apt remove --purge opendistroforelasticsearch elasticsearch* opendistro-* -y ${debug}"
+        fi 
+        eval "rm -rf /var/lib/elasticsearch/ ${debug}"
+        eval "rm -rf /usr/share/elasticsearch/ ${debug}"
+        eval "rm -rf /etc/elasticsearch/ ${debug}"
+        eval "rm -rf ~/search-guard-tlstool-1.8.zip ${debug}"
+        eval "rm -rf ~/searchguard ${debug}"
+    fi
+
+    if [ -n "${filebeatinstalled}" ]; then
+        echo "Removing Filebeat..."
+        if [ "${sys_type}" == "yum" ]; then
+            eval "yum remove filebeat -y ${debug}"
+        elif [ "${sys_type}" == "zypper" ]; then
+            eval "zypper -n remove filebeat ${debug}"
+        elif [ "${sys_type}" == "apt-get" ]; then
+            eval "apt remove --purge filebeat -y ${debug}"
+        fi 
+        eval "rm -rf /var/lib/filebeat/ ${debug}"
+        eval "rm -rf /usr/share/filebeat/ ${debug}"
+        eval "rm -rf /etc/filebeat/ ${debug}"
+    fi
+
+    if [ -n "${kibanainstalled}" ]; then
+        echo "Removing Kibana..."
+        if [ "${sys_type}" == "yum" ]; then
+            eval "yum remove opendistroforelasticsearch-kibana -y ${debug}"
+        elif [ "${sys_type}" == "zypper" ]; then
+            eval "zypper -n remove opendistroforelasticsearch-kibana ${debug}"
+        elif [ "${sys_type}" == "apt-get" ]; then
+            eval "apt remove --purge opendistroforelasticsearch-kibana -y ${debug}"
+        fi 
+        eval "rm -rf /var/lib/kibana/ ${debug}"
+        eval "rm -rf /usr/share/kibana/ ${debug}"
+        eval "rm -rf /etc/kibana/ ${debug}"
+    fi
+
+    if [ -z "${uninstall}" ]; then    
+        echo "Installation cleaned. Check the /var/log/wazuh-unattended-installation.log file to learn more about the issue."
+    fi
+
 }

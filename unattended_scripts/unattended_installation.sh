@@ -105,6 +105,7 @@ main() {
         done
 
     importFunction "common.sh"
+    importFunction "wazuh-cert-tool.sh"
     
     if [ -n "${certificates}" ]; then
         createCertificates
@@ -160,7 +161,7 @@ main() {
         installPrerequisites
         addWazuhrepo
         installWazuh
-        configureWazuhtAIO
+        configureWazuh
         installFilebeat iname
         configureFilebeat
     fi
