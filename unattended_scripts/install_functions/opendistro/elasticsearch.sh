@@ -26,7 +26,7 @@ configureElasticsearchAIO() {
  
     logger "Configuring Elasticsearch..."
 
-    eval "getConfig elasticsearch/7.x/elasticsearch_unattended.yml /etc/elasticsearch/elasticsearch.yml  ${debug}"
+    eval "getConfig elasticsearch/elasticsearch_unattended.yml /etc/elasticsearch/elasticsearch.yml  ${debug}"
     eval "getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml  ${debug}"
     eval "getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml  ${debug}"
     eval "getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml  ${debug}"        
@@ -114,7 +114,7 @@ configureElasticsearch() {
                 pos="${i}";
             fi
         done
-        if [[ ! " ${IMN[@]} " =. " ${iname} " ]]; then
+        if [[ ! " ${IMN[@]} " = " ${iname} " ]]; then
             echo "The name given does not appear on the configuration file"
             exit 1;
         fi
