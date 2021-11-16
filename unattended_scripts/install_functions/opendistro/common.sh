@@ -1,9 +1,9 @@
 repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"
 repobaseurl="https://packages.wazuh.com/4.x"
 
-getResources() {
+getConfig() {
     if [ -n "${local}" ]; then
-        cp ./$config_path/$1
+        cp ./$config_path/$1 $2
     else
         curl -so $2 $resources_config/$1
     fi
