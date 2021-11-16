@@ -54,11 +54,11 @@ configureKibana() {
     eval "setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node ${debug}"
     eval "mkdir /etc/kibana/certs ${debug}"
 
-    kip=$(grep -A 1 "Kibana-instance" ~/config.yml | tail -1)
+    kip=$(grep -A 1 "Kibana-instance" ./config.yml | tail -1)
     rm="- "
     kip="${kip//$rm}"
     echo 'server.host: "'${kip}'"' >> /etc/kibana/kibana.yml
-    nh=$(awk -v RS='' '/network.host:/' ~/config.yml)
+    nh=$(awk -v RS='' '/network.host:/' ./config.yml)
 
     if [ -n "${nh}" ]; then
         nhr="network.host: "
@@ -66,7 +66,7 @@ configureKibana() {
         echo "elasticsearch.hosts: https://"${eip}":9200" >> /etc/kibana/kibana.yml
     else
         echo "elasticsearch.hosts:" >> /etc/kibana/kibana.yml
-        sh=$(awk -v RS='' '/discovery.seed_hosts:/' ~/config.yml)
+        sh=$(awk -v RS='' '/discovery.seed_hosts:/' ./config.yml)
         shr="discovery.seed_hosts:"
         rm="- "
         sh="${sh//$shr}"
@@ -120,7 +120,7 @@ initializeKibana() {
         echo -ne ${char}
         sleep 10
     done
-    wip=$(grep -A 1 "Wazuh-master-configuration" ~/config.yml | tail -1)
+    wip=$(grep -A 1 "Wazuh-master-configuration" ./config.yml | tail -1)
     rm="- "
     wip="${wip//$rm}"
     conf="$(awk '{sub("url: https://localhost", "url: https://'"${wip}"'")}1' /usr/share/kibana/data/wazuh/config/wazuh.yml)"

@@ -23,7 +23,7 @@ installFilebeat() {
 
 configureFilebeat() {
 
-    nh=$(awk -v RS='' '/network.host:/' ~/config.yml)
+    nh=$(awk -v RS='' '/network.host:/' ./config.yml)
 
     if [ -n "$nh" ]
     then
@@ -33,7 +33,7 @@ configureFilebeat() {
         echo "  - ${nip}"  >> /etc/filebeat/filebeat.yml
     else
         echo "output.elasticsearch.hosts:" >> /etc/filebeat/filebeat.yml
-        sh=$(awk -v RS='' '/discovery.seed_hosts:/' ~/config.yml)
+        sh=$(awk -v RS='' '/discovery.seed_hosts:/' ./config.yml)
         shr="discovery.seed_hosts:"
         rm="- "
         sh="${sh//$shr}"

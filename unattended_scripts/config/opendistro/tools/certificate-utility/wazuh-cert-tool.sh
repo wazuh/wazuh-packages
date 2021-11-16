@@ -18,7 +18,7 @@ KIBANAHEAD='# Kibana node'
 
 readInstances() {
 
-    if [ -f ~/instances.yml ]; then
+    if [ -f ./instances.yml ]; then
         echo "Configuration file found. Creating certificates..."
         eval "mkdir ./certs $debug"
     else
@@ -44,7 +44,7 @@ getHelp() {
 
 readFile() {
 
-    IFS=$'\r\n' GLOBIGNORE='*' command eval  'INSTANCES=($(cat ~/instances.yml))'
+    IFS=$'\r\n' GLOBIGNORE='*' command eval  'INSTANCES=($(cat ./instances.yml))'
     for i in "${!INSTANCES[@]}"; do
     if [[ "${INSTANCES[$i]}" == "${ELASTICINSTANCES}" ]]; then
         ELASTICLIMITT=${i}

@@ -339,8 +339,8 @@ rollBack() {
         eval "rm -rf /var/lib/elasticsearch/ ${debug}"
         eval "rm -rf /usr/share/elasticsearch/ ${debug}"
         eval "rm -rf /etc/elasticsearch/ ${debug}"
-        eval "rm -rf ~/search-guard-tlstool-1.8.zip ${debug}"
-        eval "rm -rf ~/searchguard ${debug}"
+        eval "rm -rf ./search-guard-tlstool-1.8.zip ${debug}"
+        eval "rm -rf ./searchguard ${debug}"
     fi
 
     if [ -n "${filebeatinstalled}" ]; then

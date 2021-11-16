@@ -36,7 +36,7 @@ configureElasticsearchAIO() {
     eval "mkdir /etc/elasticsearch/certs ${debug}"
     eval "cd /etc/elasticsearch/certs ${debug}"
     echo "${resources}/open-distro/tools/certificate-utility/wazuh-cert-tool.sh --max-time 300"
-    eval "curl -so ~/wazuh-cert-tool.sh ${resources}/open-distro/tools/certificate-utility/wazuh-cert-tool.sh --max-time 300 ${debug}"
+    eval "curl -so ./wazuh-cert-tool.sh ${resources}/open-distro/tools/certificate-utility/wazuh-cert-tool.sh --max-time 300 ${debug}"
 
     export JAVA_HOME=/usr/share/elasticsearch/jdk/
         
@@ -80,7 +80,7 @@ configureElasticsearch() {
     checkNodes
     
     if [ -n "${single}" ]; then
-        nh=$(awk -v RS='' '/network.host:/' ~/config.yml)
+        nh=$(awk -v RS='' '/network.host:/' ./config.yml)
         nhr="network.host: "
         nip="${nh//$nhr}"
         echo "node.name: ${iname}" >> /etc/elasticsearch/elasticsearch.yml
@@ -92,9 +92,9 @@ configureElasticsearch() {
         echo '        - CN='${iname}',OU=Docu,O=Wazuh,L=California,C=US' >> /etc/elasticsearch/elasticsearch.yml
     else
         echo "node.name: ${iname}" >> /etc/elasticsearch/elasticsearch.yml
-        mn=$(awk -v RS='' '/cluster.initial_master_nodes:/' ~/config.yml)
-        sh=$(awk -v RS='' '/discovery.seed_hosts:/' ~/config.yml)
-        cn=$(awk -v RS='' '/cluster.name:/' ~/config.yml)
+        mn=$(awk -v RS='' '/cluster.initial_master_nodes:/' ./config.yml)
+        sh=$(awk -v RS='' '/discovery.seed_hosts:/' ./config.yml)
+        cn=$(awk -v RS='' '/cluster.name:/' ./config.yml)
         echo "${cn}" >> /etc/elasticsearch/elasticsearch.yml
         mnr="cluster.initial_master_nodes:"
         rm="- "
@@ -120,7 +120,7 @@ configureElasticsearch() {
                 pos="${i}";
             fi
         done
-        if [[ ! " ${IMN[@]} " =~ " ${iname} " ]]; then
+        if [[ ! " ${IMN[@]} " =. " ${iname} " ]]; then
             echo "The name given does not appear on the configuration file"
             exit 1;
         fi
@@ -133,7 +133,7 @@ configureElasticsearch() {
         done
 
     fi
-    #awk -v RS='' '/## Elasticsearch/' ~/config.yml >> /etc/elasticsearch/elasticsearch.yml
+    #awk -v RS='' '/## Elasticsearch/' ./config.yml >> /etc/elasticsearch/elasticsearch.yml
 
     eval "rm /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem -f ${debug}"
     eval "mkdir /etc/elasticsearch/certs ${debug}"
