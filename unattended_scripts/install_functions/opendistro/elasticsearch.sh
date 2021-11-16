@@ -153,8 +153,6 @@ configureElasticsearch() {
 
     eval "rm /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem -f ${debug}"
     eval "mkdir /etc/elasticsearch/certs ${debug}"
-    eval "cd /etc/elasticsearch/certs ${debug}"
-
 
     # Configure JVM options for Elasticsearch
     ram_gb=$(free -g | awk '/^Mem:/{print $2}')
