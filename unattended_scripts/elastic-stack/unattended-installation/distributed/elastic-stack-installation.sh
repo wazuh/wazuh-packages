@@ -408,6 +408,7 @@ initializeElastic() {
             echo -ne $char
             sleep 10
         done
+        echo ""
         logger $'\nGenerating passwords...'
         passwords=$(/usr/share/elasticsearch/bin/elasticsearch-setup-passwords auto -b)
         password=$(echo $passwords | awk 'NF{print $NF; exit}')
@@ -416,10 +417,12 @@ initializeElastic() {
             echo -ne $char
             sleep 10
         done
+        echo ""
 
         logger "Done"
         logger $'\nDuring the installation of Elasticsearch the passwords for its user were generated. Please take note of them:'
-        logger "$passwords"
+        passwords=$(sed $'s/Changed/\\\nChanged/g' <<< $passwords)
+        echo "$passwords"
     fi
     logger $'\nElasticsearch installation finished'
     disableRepos
@@ -522,6 +525,7 @@ initializeKibana() {
         echo -ne $char
         sleep 10
     done
+    echo ""
     sleep 10
     wip=$(grep -A 2 ${iname} ~/config.yml | tail -1)
     rw1="- "
