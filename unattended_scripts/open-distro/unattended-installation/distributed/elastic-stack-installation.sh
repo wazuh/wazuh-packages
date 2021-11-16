@@ -434,6 +434,7 @@ initializeElastic() {
         echo -ne ${char}
         sleep 10
     done
+    echo ""
 
     if [ -n "${single}" ]; then
         eval "cd /usr/share/elasticsearch/plugins/opendistro_security/tools/ ${debug}"
@@ -541,6 +542,7 @@ initializeKibana() {
         echo -ne ${char}
         sleep 10
     done
+    echo ""
     wip=$(grep -A 1 "Wazuh-master-configuration" ~/config.yml | tail -1)
     rm="- "
     wip="${wip//$rm}"
