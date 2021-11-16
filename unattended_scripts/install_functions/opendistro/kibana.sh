@@ -51,6 +51,7 @@ configureKibana() {
         echo "Error: Wazuh Kibana plugin could not be installed."
         exit 1;
     fi
+    cd -
     eval "setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node ${debug}"
     eval "mkdir /etc/kibana/certs ${debug}"
 
@@ -76,12 +77,7 @@ configureKibana() {
         done
     fi
 
-
-    eval "cp ./certs.tar /etc/kibana/certs/ ${debug}"
-    eval "cd /etc/kibana/certs/ ${debug}"
-    eval "tar -xf certs.tar kibana_http.pem kibana_http.key root-ca.pem ${debug}"
-    eval "mv /etc/kibana/certs/kibana_http.key /etc/kibana/certs/kibana.key ${debug}"
-    eval "mv /etc/kibana/certs/kibana_http.pem /etc/kibana/certs/kibana.pem ${debug}"        
+    
     logger "Kibana installed."
 
     copyKibanacerts iname
@@ -92,18 +88,8 @@ configureKibana() {
 
 copyKibanacerts() {
 
-    if [[ -f "/etc/elasticsearch/certs/kibana_http.pem" ]] && [[ -f "/etc/elasticsearch/certs/kibana_http.key" ]]; then
-        eval "mv /etc/elasticsearch/certs/kibana_http* /etc/kibana/certs/ ${debug}"
-        eval "mv /etc/kibana/certs/kibana_http.key /etc/kibana/certs/kibana.key ${debug}"
-        eval "mv /etc/kibana/certs/kibana_http.pem /etc/kibana/certs/kibana.pem ${debug}"          
-    elif [ -f ./certs.tar ]; then
-        eval "cp ./certs.tar /etc/kibana/certs/ ${debug}"
-        eval "cd /etc/kibana/certs/ ${debug}"
-        eval "tar --overwrite -xf certs.tar kibana_http.pem kibana_http.key root-ca.pem ${debug}"
-        # if [ ${iname} != "kibana" ]; then
-        #     eval "mv /etc/kibana/certs/${iname}_http.pem /etc/kibana/certs/kibana.pem ${debug}"
-        #     eval "mv /etc/kibana/certs/${iname}_http.key /etc/kibana/certs/kibana.key ${debug}"
-        # fi            
+    if [ -d ./certs ]; then
+        eval "cp ./certs/kibana* /etc/kibana/certs/ ${debug}"
     else
         echo "No certificates found. Could not initialize Kibana"
         exit 1;
