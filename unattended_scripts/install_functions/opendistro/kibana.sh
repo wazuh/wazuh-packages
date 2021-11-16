@@ -90,6 +90,7 @@ copyKibanacerts() {
 
     if [ -d ./certs ]; then
         eval "cp ./certs/kibana* /etc/kibana/certs/ ${debug}"
+        eval "cp ./certs/root-ca.pem /etc/kibana/certs/ ${debug}"
     else
         echo "No certificates found. Could not initialize Kibana"
         exit 1;
