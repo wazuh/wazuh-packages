@@ -52,6 +52,7 @@ configureElasticsearchAIO() {
 
     export JAVA_HOME=/usr/share/elasticsearch/jdk/
         
+    eval "mkdir /etc/elasticsearch/certs/ ${debug}"
     eval "cp ./certs/elasticsearch* /etc/elasticsearch/certs/ ${debug}"
     eval "cp ./certs/root-ca.pem /etc/elasticsearch/certs/ ${debug}"
     eval "cp ./certs/admin* /etc/elasticsearch/certs/ ${debug}"
