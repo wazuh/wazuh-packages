@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -x
-
 ## Package vars
 WAZUH_MAJOR="4.2"
 WAZUH_VER="4.2.3"
