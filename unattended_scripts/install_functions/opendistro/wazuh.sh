@@ -47,4 +47,4 @@ configureWazuhCluster() {
     else
         logger -e "No cluster key"
     fi
-    }
+}
