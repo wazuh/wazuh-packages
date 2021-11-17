@@ -392,21 +392,21 @@ runSecurityAdmin() {
     logger "Done"
 
     if [[ -n "${NUSER}" ]] && [[ -n ${AUTOPASS} ]]; then
-        logger "The password for user '${NUSER}' is '${PASSWORD}'"
-        logger "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
+        echo "The password for user '${NUSER}' is '${PASSWORD}'"
+        logger -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
     fi
 
     if [[ -n "${NUSER}" ]] && [[ -z ${AUTOPASS} ]]; then
-        logger "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
+        logger -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
     fi    
 
     if [ -n "${CHANGEALL}" ]; then
         
         for i in "${!USERS[@]}"
         do
-            logger "The password for ${USERS[i]} is ${PASSWORDS[i]}"
+            echo "The password for ${USERS[i]} is ${PASSWORDS[i]}"
         done
-        logger "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
+        logger -w "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
     fi 
 
 }
