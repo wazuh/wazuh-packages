@@ -184,7 +184,6 @@ main() {
         installPrerequisites
         addWazuhrepo
         installWazuh
-        configureWazuhtAIO
         installElasticsearch
         configureElasticsearchAIO
         installFilebeat
