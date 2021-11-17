@@ -1,0 +1,60 @@
+{
+    "connection": {
+      "server_connect_failure": "Could not connect to the server",
+      "agent_start_failure": "Ossec agent could not start",
+      "agent_connect_failure": "The agent could not connect to the server"
+    },
+    "version": {
+      "check_version": "Version does not match with specified in to_version parameter",
+      "ruleset": "Ruleset version does not match with specified in to_version parameter"
+    },
+    "process": {
+      "wazuh-modulesd": "The wazuh-modulesd daemon is not running",
+      "wazuh-logcollector": "The wazuh-logcollector daemon is not running",
+      "wazuh-syscheckd": "The wazuh-syscheckd daemon is not running",
+      "wazuh-agentd": "The wazuh-agentd daemon is not running",
+      "wazuh-execd": "The wazuh-execd daemon is not running",
+      "wazuh-apid": "The wazuh-apid.py service is not running",
+      "wazuh-clusterd": "The wazuh-clusterd daemon is running",
+      "wazuh-monitord": "The wazuh-monitord daemon is not running",
+      "wazuh-remoted": "The wazuh-remoted daemon is not running",
+      "wazuh-analysisd": "The wazuh-analysisd daemon is not running",
+      "wazuh-maild": "The wazuh-maild daemon is running",
+      "wazuh-db": "The wazuh-db daemon is not running"
+    },
+    "error": {
+      "exception_not_detected": "An error was found in the log",
+      "exception_not_interval": "An error was found outside of upgrade interval",
+      "critical": "There is some CRITICAL error",
+      "error": "There is some ERROR",
+      "sigterm": "API throw SIGTERM out of installation time",
+      "daemon_is_not_started": "Daemon is not started before getting the error",
+      "connection_refused_and_daemon_is_not_started": "The connection has been refused and the the daemon has not been initiated",
+      "value_not_found": "Could not found the expected value",
+      "selinux": "SELinux seems to restrict the access."
+    },
+    "files": {
+      "ossec_conf_OS_not_detected": "Could not read your OS in /var/ossec/etc/ossec.conf",
+      "check_ossec_conf_checksum": "The checksum file don't match with the checksum generated before upgrading",
+      "check_client_keys_checksum": "The client keys file don't match with the checksum generated before upgrading",
+      "check_local_internal_options_checksum": "The local_internal_options checksum file is not the correct one",
+      "check_local_decoder_checksum": "The local_decoder checksum file is not the correct one",
+      "check_local_rules_checksum": "The local_rules checksum file is not the correct one",
+      "check_agent_conf_checksum": "The agent_conf checksum file is not the correct one",
+      "check_api_conf_checksum": "The api_conf checksum file is not the correct one",
+      "check_auth_user_checksum": "The auth user checksum file is not the correct one"
+    },
+    "alerts": {
+      "not_found": "The expected alert on alerts.json wasn't found",
+      "wrong_alert_field_value": "The alert field value was not the expected one",
+      "wrong_alert_data_field_value": "The alert data field value was not the expected one",
+      "wrong_alert_rule_field_value": "The alert rule field value was not the expected one",
+      "wrong_alert_agent_field_value": "The alert agent field value was not the expected one",
+      "wrong_alert_manager_field_value": "The alert agent field value was not the expected one",
+      "wrong_alert_precoder_field_value": "The alert precoder field value was not the expected one",
+      "wrong_alert_decoder_field_value": "The alert decoder field value was not the expected one",
+      "wrong_alert_syscheck_field_value": "The alert syscheck field value was not the expected one",
+      "distinct_alerts_number_with_target": "The generated alerts does not match with target alerts"
+    }
+  }
+  
