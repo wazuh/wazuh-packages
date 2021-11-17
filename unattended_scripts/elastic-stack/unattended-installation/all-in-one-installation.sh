@@ -446,8 +446,7 @@ checkInstallation() {
     done
     echo ""
     logger $'\nDuring the installation of Elasticsearch the passwords for its user were generated. Please take note of them:'
-    passwords=$(sed $'s/Changed/\\\n\\\nChanged/g' <<< $passwords)
-    echo "$passwords"
+    echo -e "$passwords"
     logger $'\nInstallation finished'
     disableRepos
     logger $'\nYou can access the web interface https://<kibana_ip>. The credentials are elastic:'$password''    
