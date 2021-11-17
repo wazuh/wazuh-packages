@@ -7,7 +7,7 @@ installWazuh() {
         eval "${sys_type} install wazuh-manager${sep}${WAZUH_VER}-${WAZUH_REV} -y ${debug}"
     fi
     if [  "$?" != 0  ]; then
-        echo "Error: Wazuh installation failed"
+        logger -e "Wazuh installation failed"
         rollBack
         exit 1;
     else

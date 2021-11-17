@@ -19,10 +19,10 @@ KIBANAHEAD='# Kibana node'
 readInstances() {
 
     if [ -f ./instances.yml ]; then
-        echo "Configuration file found. Creating certificates..."
+        logger "Configuration file found. Creating certificates..."
         eval "mkdir ./certs $debug"
     else
-        echo "Error: no configuration file found."
+        logger -e "No configuration file found."
         exit 1;
     fi
 
@@ -146,7 +146,7 @@ generateCertificateconfiguration() {
         conf="$(awk '{sub("IP.1 = cip", "DNS.1 = '${cip}'")}1' ./certs/$cname.conf)"
         echo "${conf}" > ./certs/$cname.conf 
     else
-        echo "Error. The given information does not match with an IP or a DNS"  
+        logger -e "The given information does not match with an IP or a DNS"  
         exit 1; 
     fi   
 
@@ -169,7 +169,7 @@ generateAdmincertificate() {
 
 generateElasticsearchcertificates() {
 
-     echo "Creating the Elasticsearch certificates..."
+     logger "Creating the Elasticsearch certificates..."
 
     i=0
     while [ ${i} -lt ${#ELASTICNODES[@]} ]; do
@@ -193,7 +193,7 @@ generateElasticsearchcertificates() {
 
 generateFilebeatcertificates() {
 
-    echo "Creating Wazuh server certificates..."
+    logger "Creating Wazuh server certificates..."
 
     i=0
     while [ ${i} -lt ${#FILEBEATNODES[@]} ]; do
@@ -216,7 +216,7 @@ generateFilebeatcertificates() {
 
 generateKibanacertificates() {
 
-    echo "Creating Kibana certificate..."
+    logger "Creating Kibana certificate..."
 
     i=0
     while [ ${i} -lt ${#KIBANANODES[@]} ]; do
@@ -243,14 +243,14 @@ cleanFiles() {
     eval "rm -rf ./certs/*.srl ${debug}"
     eval "rm -rf ./certs/*.conf ${debug}"
     eval "rm -rf ./certs/admin-key-temp.pem ${debug}"
-    echo "Certificates creation finished. They can be found in ./certs."
+    logger "Certificates creation finished. They can be found in ./certs."
 
 }
 
 main() {
 
     if [ "$EUID" -ne 0 ]; then
-        echo "This script must be run as root."
+        logger -e "This script must be run as root."
         exit 1;
     fi    
 
@@ -296,27 +296,27 @@ main() {
 
         if [[ -n "${cadmin}" ]]; then
             generateAdmincertificate
-            echo "Admin certificates created."
+            logger "Admin certificates created."
         fi   
 
         if [[ -n "${ca}" ]]; then
             generateRootCAcertificate
-            echo "Authority certificates created."
+            logger "Authority certificates created."
         fi                   
 
         if [[ -n "${celastic}" ]]; then
             generateElasticsearchcertificates
-            echo "Elasticsearch certificates created."
+            logger "Elasticsearch certificates created."
         fi     
 
         if [[ -n "${cwazuh}" ]]; then
             generateFilebeatcertificates
-            echo "Wazuh server certificates created."
+            logger "Wazuh server certificates created."
         fi 
 
         if [[ -n "${ckibana}" ]]; then
             generateKibanacertificates
-            echo "Kibana certificates created."
+            logger "Kibana certificates created."
         fi                     
            
     else

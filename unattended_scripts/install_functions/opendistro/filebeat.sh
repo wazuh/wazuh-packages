@@ -1,7 +1,7 @@
 installFilebeat() {
 
     if [[ -f /etc/filebeat/filebeat.yml ]]; then
-        echo "Filebeat is already installed in this node."
+        logger -e "Filebeat is already installed in this node."
         exit 1;
     fi
 
@@ -14,7 +14,7 @@ installFilebeat() {
     fi
     if [  "$?" != 0  ]
     then
-        echo "Error: Filebeat installation failed"
+        logger -e "Filebeat installation failed"
         exit 1;
     else
         filebeatinstalled="1"
@@ -55,7 +55,7 @@ configureFilebeat() {
     eval "cp ./certs/root-ca.pem /etc/filebeat/certs/ ${debug}"
 
     logger "Done"
-    echo "Starting Filebeat..."
+    logger "Starting Filebeat..."
     startService filebeat
 }
 

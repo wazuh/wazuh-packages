@@ -53,8 +53,11 @@ importFunction() {
 
 main() {
     echo $1
+
+    importFunction "common.sh"
+
     if [ "$EUID" -ne 0 ]; then
-        echo "This script must be run as root."
+        logger -e "This script must be run as root."
         exit 1;
     fi   
 
@@ -116,8 +119,7 @@ main() {
             esac
         done
 
-    importFunction "common.sh"
-    importFunction "wazuh-cert-tool.sh"
+        importFunction "wazuh-cert-tool.sh"
     
     if [ -n "${certificates}" ]; then
         createCertificates
@@ -128,7 +130,7 @@ main() {
         importFunction "elasticsearch.sh"
 
         if [ -n "${ignore}" ]; then
-            echo "Health-check ignored."
+            logger -w "Health-check ignored."
         else
             healthCheck elastic
         fi
@@ -145,7 +147,7 @@ main() {
         importFunction "kibana.sh"
 
         if [ -n "${ignore}" ]; then
-            echo "Health-check ignored."
+            logger -w "Health-check ignored."
         else
             healthCheck kibana
         fi
@@ -166,7 +168,7 @@ main() {
         importFunction "filebeat.sh"
 
         if [ -n "${ignore}" ]; then
-            echo "Health-check ignored."
+            logger -w "Health-check ignored."
         else
             healthCheck wazuh
         fi
@@ -189,7 +191,7 @@ main() {
         importFunction "kibana.sh"
 
         if [ -n "${ignore}" ]; then
-            echo "Health-check ignored."
+            logger -w "Health-check ignored."
         else
             healthCheck elasticsearch
             healthCheck kibana
