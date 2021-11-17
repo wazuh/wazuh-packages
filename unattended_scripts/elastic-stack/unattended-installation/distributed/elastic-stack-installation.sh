@@ -415,8 +415,7 @@ initializeElastic() {
 
         logger "Done"
         logger $'\nDuring the installation of Elasticsearch the passwords for its user were generated. Please take note of them:'
-        passwords=$(sed $'s/Changed/\\\n\\\nChanged/g' <<< $passwords)
-        echo "$passwords"
+        echo -e "$passwords"
     fi
     logger $'\nElasticsearch installation finished'
     disableRepos
