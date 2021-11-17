@@ -30,6 +30,7 @@ getHelp() {
     echo -e "\t-k   | --kibana              Kibana installation"
     echo -e "\t-n   | --node-name           Name of the node, used for distributed installations"
 
+    echo -e "\t-wk  | --wazuh-key <key>     Use this option as well as a wazuh_config.yml configuration file to automatically configure the wazuh cluster when using a multi-node installation"
     echo -e "\t-r   | --uninstall           Remove the installation"
     echo -e "\t-v   | --verbose             Shows the complete installation output"
     echo -e "\t-i   | --ignore-health-check Ignores the health-check"
@@ -61,7 +62,7 @@ main() {
             "-A"|"--AllInOne")
                 AIO=1
                 shift 1
-            ;;
+                ;;
             "-w"|"--wazuh")
                 wazuh=1
                 shift 1
@@ -95,6 +96,12 @@ main() {
             "-l"|"--local")
                 local=1
                 shift 1
+                ;;
+            "-wk"|"--wazuh-key")
+                wazuh_config=1
+                wazuhclusterkey="$2"
+                shift 
+                shift
                 ;;
             "-h"|"--help")
                 getHelp
@@ -147,6 +154,10 @@ main() {
 
     if [ -n "${wazuh}" ]; then
 
+        if [ -n "$wazuhclusterkey" ] && [ ! -f wazuh_config.yml ]; then
+            logger -e "No wazuh_config.yml file found."
+        fi
+
         importFunction "wazuh.sh"
         importFunction "filebeat.sh"
 
@@ -160,7 +171,9 @@ main() {
         installPrerequisites
         addWazuhrepo
         installWazuh
-        configureWazuhtAIO
+        if [ -n "$wazuhclusterkey" ]; then
+            configureWazuhCluster 
+        fi  
         installFilebeat iname
         configureFilebeat
     fi
