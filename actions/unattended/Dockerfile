@@ -44,5 +44,3 @@ COPY ./launchTest.sh /launchTest.sh
 RUN chmod 755 /launchTest.sh 
 COPY ./test_unattended.py /test_unattended.py 
 COPY ./pytest.ini /pytest.ini
-
-
