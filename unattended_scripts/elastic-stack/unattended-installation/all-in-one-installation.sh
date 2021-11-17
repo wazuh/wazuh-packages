@@ -445,7 +445,7 @@ checkInstallation() {
     done
     echo ""
     logger $'\nDuring the installation of Elasticsearch the passwords for its user were generated. Please take note of them:'
-    passwords=$(sed $'s/Changed/\\\nChanged/g' <<< $passwords)
+    passwords=$(sed $'s/Changed/\\\n\\\nChanged/g' <<< $passwords)
     echo "$passwords"
     logger $'\nInstallation finished'
     disableRepos
