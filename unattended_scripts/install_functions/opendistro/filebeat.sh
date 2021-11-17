@@ -23,7 +23,12 @@ installFilebeat() {
 
 configureFilebeat() {
 
-    nh=$(awk -v RS='' '/network.host:/' ~/config.yml)
+    eval "getConfig filebeat/filebeat_distributed.yml /etc/filebeat/filebeat.yml ${debug}"
+    eval "curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/4.2/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300 ${debug}"
+    eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
+    eval "curl -s https://packages.wazuh.com/4.x/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module ${debug}"
+
+    nh=$(awk -v RS='' '/network.host:/' ./config.yml)
 
     if [ -n "$nh" ]
     then
@@ -33,7 +38,7 @@ configureFilebeat() {
         echo "  - ${nip}"  >> /etc/filebeat/filebeat.yml
     else
         echo "output.elasticsearch.hosts:" >> /etc/filebeat/filebeat.yml
-        sh=$(awk -v RS='' '/discovery.seed_hosts:/' ~/config.yml)
+        sh=$(awk -v RS='' '/discovery.seed_hosts:/' ./config.yml)
         shr="discovery.seed_hosts:"
         rm="- "
         sh="${sh//$shr}"
@@ -44,23 +49,18 @@ configureFilebeat() {
     fi
 
     eval "mkdir /etc/filebeat/certs ${debug}"
-    eval "cp ./certs.tar /etc/filebeat/certs/ ${debug}"
-    eval "cd /etc/filebeat/certs/ ${debug}"
-    eval "tar -xf certs.tar ${iname}.pem ${iname}.key root-ca.pem ${debug}"
-    if [ ${iname} != "filebeat" ]
-    then
-        eval "mv /etc/filebeat/certs/${iname}.pem /etc/filebeat/certs/filebeat.pem ${debug}"
-        eval "mv /etc/filebeat/certs/${iname}.key /etc/filebeat/certs/filebeat.key ${debug}"
-    fi
+
+    eval "mv ./certs/${winame}.pem /etc/filebeat/certs/filebeat.pem ${debug}"
+    eval "mv ./certs/${winame}-key.pem /etc/filebeat/certs/filebeat-key.pem ${debug}"
+    eval "cp ./certs/root-ca.pem /etc/filebeat/certs/ ${debug}"
+
     logger "Done"
     echo "Starting Filebeat..."
-    eval "systemctl daemon-reload ${debug}"
-    eval "systemctl enable filebeat.service ${debug}"
-    eval "systemctl start filebeat.service ${debug}"
+    startService filebeat
 }
 
 configureFilebeatAIO() {
-        eval "curl -so /etc/filebeat/filebeat.yml ${resources}/open-distro/filebeat/7.x/filebeat_unattended.yml --max-time 300  ${debug}"   
+        eval "getConfig filebeat/filebeat_unattended.yml /etc/filebeat/filebeat.yml ${debug}"   
         eval "curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/4.0/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300 ${debug}"
         eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
         eval "curl -s '${repobaseurl}'/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module ${debug}"

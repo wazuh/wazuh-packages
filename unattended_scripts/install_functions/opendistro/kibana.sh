@@ -18,11 +18,12 @@ installKibana() {
 }
 
 configureKibanaAIO() {
-    eval "curl -so /etc/kibana/kibana.yml ${resources}/open-distro/kibana/7.x/kibana_unattended.yml --max-time 300 ${debug}"
+    eval "getConfig kibana/kibana_unattended.yml /etc/kibana/kibana.yml ${debug}"
     eval "mkdir /usr/share/kibana/data ${debug}"
     eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
     eval "cd /usr/share/kibana ${debug}"
     eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${repobaseurl}'/ui/kibana/wazuh_kibana-${WAZUH_VER}_${ELK_VER}-${WAZUH_KIB_PLUG_REV}.zip ${debug}"
+    eval "cd - ${debug}"
     if [  "$?" != 0  ]; then
         echo "Error: Wazuh Kibana plugin could not be installed."
         rollBack
@@ -42,23 +43,24 @@ configureKibanaAIO() {
 }
 
 configureKibana() {
-    eval "curl -so /etc/kibana/kibana.yml https://packages.wazuh.com/resources/${WAZUH_MAJOR}/open-distro/unattended-installation/distributed/templates/kibana_unattended.yml --max-time 300 ${debug}"
+    eval "getConfig kibana/kibana_unattended_distributed.yml /etc/kibana/kibana.yml ${debug}"
     eval "mkdir /usr/share/kibana/data ${debug}"
     eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
     eval "cd /usr/share/kibana ${debug}"
-    eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana-${WAZUH_VER}_${ELK_VER}-${WAZUH_KIB_PLUG_REV}.zip ${debug}"
+    eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${repobaseurl}'/ui/kibana/wazuh_kibana-${WAZUH_VER}_${ELK_VER}-${WAZUH_KIB_PLUG_REV}.zip ${debug}"
     if [  "$?" != 0  ]; then
         echo "Error: Wazuh Kibana plugin could not be installed."
         exit 1;
     fi
+    cd -
     eval "setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node ${debug}"
     eval "mkdir /etc/kibana/certs ${debug}"
 
-    kip=$(grep -A 1 "Kibana-instance" ~/config.yml | tail -1)
+    kip=$(grep -A 1 "Kibana-instance" ./config.yml | tail -1)
     rm="- "
     kip="${kip//$rm}"
     echo 'server.host: "'${kip}'"' >> /etc/kibana/kibana.yml
-    nh=$(awk -v RS='' '/network.host:/' ~/config.yml)
+    nh=$(awk -v RS='' '/network.host:/' ./config.yml)
 
     if [ -n "${nh}" ]; then
         nhr="network.host: "
@@ -66,7 +68,7 @@ configureKibana() {
         echo "elasticsearch.hosts: https://"${eip}":9200" >> /etc/kibana/kibana.yml
     else
         echo "elasticsearch.hosts:" >> /etc/kibana/kibana.yml
-        sh=$(awk -v RS='' '/discovery.seed_hosts:/' ~/config.yml)
+        sh=$(awk -v RS='' '/discovery.seed_hosts:/' ./config.yml)
         shr="discovery.seed_hosts:"
         rm="- "
         sh="${sh//$shr}"
@@ -76,15 +78,10 @@ configureKibana() {
         done
     fi
 
-
-    eval "cp ./certs.tar /etc/kibana/certs/ ${debug}"
-    eval "cd /etc/kibana/certs/ ${debug}"
-    eval "tar -xf certs.tar kibana_http.pem kibana_http.key root-ca.pem ${debug}"
-    eval "mv /etc/kibana/certs/kibana_http.key /etc/kibana/certs/kibana.key ${debug}"
-    eval "mv /etc/kibana/certs/kibana_http.pem /etc/kibana/certs/kibana.pem ${debug}"        
+    
     logger "Kibana installed."
 
-    copyKibanacerts iname
+    copyKibanacerts
     initializeKibana kip
     echo -e
 }
@@ -92,18 +89,9 @@ configureKibana() {
 
 copyKibanacerts() {
 
-    if [[ -f "/etc/elasticsearch/certs/kibana_http.pem" ]] && [[ -f "/etc/elasticsearch/certs/kibana_http.key" ]]; then
-        eval "mv /etc/elasticsearch/certs/kibana_http* /etc/kibana/certs/ ${debug}"
-        eval "mv /etc/kibana/certs/kibana_http.key /etc/kibana/certs/kibana.key ${debug}"
-        eval "mv /etc/kibana/certs/kibana_http.pem /etc/kibana/certs/kibana.pem ${debug}"          
-    elif [ -f ./certs.tar ]; then
-        eval "cp ./certs.tar /etc/kibana/certs/ ${debug}"
-        eval "cd /etc/kibana/certs/ ${debug}"
-        eval "tar --overwrite -xf certs.tar kibana_http.pem kibana_http.key root-ca.pem ${debug}"
-        # if [ ${iname} != "kibana" ]; then
-        #     eval "mv /etc/kibana/certs/${iname}_http.pem /etc/kibana/certs/kibana.pem ${debug}"
-        #     eval "mv /etc/kibana/certs/${iname}_http.key /etc/kibana/certs/kibana.key ${debug}"
-        # fi            
+    if [ -d ./certs ]; then
+        eval "cp ./certs/kibana* /etc/kibana/certs/ ${debug}"
+        eval "cp ./certs/root-ca.pem /etc/kibana/certs/ ${debug}"
     else
         echo "No certificates found. Could not initialize Kibana"
         exit 1;
@@ -120,7 +108,7 @@ initializeKibana() {
         echo -ne ${char}
         sleep 10
     done
-    wip=$(grep -A 1 "Wazuh-master-configuration" ~/config.yml | tail -1)
+    wip=$(grep -A 1 "Wazuh-master-configuration" ./config.yml | tail -1)
     rm="- "
     wip="${wip//$rm}"
     conf="$(awk '{sub("url: https://localhost", "url: https://'"${wip}"'")}1' /usr/share/kibana/data/wazuh/config/wazuh.yml)"

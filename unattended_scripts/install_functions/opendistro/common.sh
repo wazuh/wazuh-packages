@@ -1,11 +1,11 @@
 repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"
 repobaseurl="https://packages.wazuh.com/4.x"
 
-getResources() {
+getConfig() {
     if [ -n "${local}" ]; then
-        . ./$config_path/$1
+        cp ./$config_path/$1 $2
     else
-        curl -so $2/$1 $resources_config/$1
+        curl -so $2 $resources_config/$1
     fi
 }
 
@@ -208,37 +208,27 @@ startService() {
 
 createCertificates() {
 
+    if [ -n "${AIO}" ]; then
+        eval "getConfig certificate/instances_aio.yml ./instances.yml ${debug}"
+    fi
 
-    logger "Creating the certificates..."
-    curl -so ~/wazuh-cert-tool.sh https://packages.wazuh.com/resources/4.2/open-distro/tools/certificate-utility/wazuh-cert-tool.sh
-    curl -so ~/instances.yml https://packages.wazuh.com/resources/4.2/open-distro/tools/certificate-utility/instances_aio.yml
-    bash ~/wazuh-cert-tool.sh
+    readInstances
+    generateRootCAcertificate
+    generateAdmincertificate
+    generateElasticsearchcertificates
+    generateFilebeatcertificates
+    generateKibanacertificates
+    cleanFiles
 }
 
-copyCertificates() {
+checkNodes() {
 
-    if [ -n "${single}" ]; then
-        eval "mv /etc/elasticsearch/certs/${iname}.pem /etc/elasticsearch/certs/elasticsearch.pem ${debug}"
-        eval "mv /etc/elasticsearch/certs/${iname}.key /etc/elasticsearch/certs/elasticsearch.key ${debug}"
-        eval "mv /etc/elasticsearch/certs/${iname}_http.pem /etc/elasticsearch/certs/elasticsearch_http.pem ${debug}"
-        eval "mv /etc/elasticsearch/certs/${iname}_http.key /etc/elasticsearch/certs/elasticsearch_http.key ${debug}"
-        eval "rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml search-guard-tlstool-1.8.zip -f ${debug}"
+    head=$(head -n1 ./config.yml)
+    if [ "${head}" == "## Multi-node configuration" ]
+    then
+        master=1
     else
-        if [ -z "${certificates}" ]; then
-            eval "mv ./certs.tar /etc/elasticsearch/certs ${debug}"
-            eval "tar -xf certs.tar ${IMN[pos]}.pem ${IMN[pos]}.key ${IMN[pos]}_http.pem ${IMN[pos]}_http.key root-ca.pem ${debug}"
-        fi
-        eval "mv /etc/elasticsearch/certs/${IMN[pos]}.pem /etc/elasticsearch/certs/elasticsearch.pem ${debug}"
-        eval "mv /etc/elasticsearch/certs/${IMN[pos]}.key /etc/elasticsearch/certs/elasticsearch.key ${debug}"
-        eval "mv /etc/elasticsearch/certs/${IMN[pos]}_http.pem /etc/elasticsearch/certs/elasticsearch_http.pem ${debug}"
-        eval "mv /etc/elasticsearch/certs/${IMN[pos]}_http.key /etc/elasticsearch/certs/elasticsearch_http.key ${debug}"
-        eval "rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml ~/search-guard-tlstool-1.8.zip -f ${debug}"
-    fi
-    eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
-    if [[ -n "${certificates}" ]] || [[ -n "${single}" ]]; then
-        cp ~/config.yml /etc/elasticsearch/certs/
-        tar -cf /etc/elasticsearch/certs/certs.tar *
-        mv /etc/elasticsearch/certs/certs.tar ./certs.tar
+        single=1
     fi
 
 }
@@ -310,4 +300,73 @@ logger() {
             ;;
     esac
     echo $now $mtype $message
+}
+
+rollBack() {
+
+    if [ -z "${uninstall}" ]; then
+        echo "Cleaning the installation" 
+    fi   
+    
+    if [ -n "${wazuhinstalled}" ]; then
+        echo "Removing the Wazuh manager..."
+        if [ "${sys_type}" == "yum" ]; then
+            eval "yum remove wazuh-manager -y ${debug}"
+        elif [ "${sys_type}" == "zypper" ]; then
+            eval "zypper -n remove wazuh-manager ${debug}"
+        elif [ "${sys_type}" == "apt-get" ]; then
+            eval "apt remove --purge wazuh-manager -y ${debug}"
+        fi 
+        eval "rm -rf /var/ossec/ ${debug}"
+    fi     
+
+    if [ -n "${elasticinstalled}" ]; then
+        echo "Removing Elasticsearch..."
+        if [ "${sys_type}" == "yum" ]; then
+            eval "yum remove opendistroforelasticsearch -y ${debug}"
+            eval "yum remove elasticsearch* -y ${debug}"
+            eval "yum remove opendistro-* -y ${debug}"
+        elif [ "${sys_type}" == "zypper" ]; then
+            eval "zypper -n remove opendistroforelasticsearch elasticsearch* opendistro-* ${debug}"
+        elif [ "${sys_type}" == "apt-get" ]; then
+            eval "apt remove --purge opendistroforelasticsearch elasticsearch* opendistro-* -y ${debug}"
+        fi 
+        eval "rm -rf /var/lib/elasticsearch/ ${debug}"
+        eval "rm -rf /usr/share/elasticsearch/ ${debug}"
+        eval "rm -rf /etc/elasticsearch/ ${debug}"
+        eval "rm -rf ./search-guard-tlstool-1.8.zip ${debug}"
+        eval "rm -rf ./searchguard ${debug}"
+    fi
+
+    if [ -n "${filebeatinstalled}" ]; then
+        echo "Removing Filebeat..."
+        if [ "${sys_type}" == "yum" ]; then
+            eval "yum remove filebeat -y ${debug}"
+        elif [ "${sys_type}" == "zypper" ]; then
+            eval "zypper -n remove filebeat ${debug}"
+        elif [ "${sys_type}" == "apt-get" ]; then
+            eval "apt remove --purge filebeat -y ${debug}"
+        fi 
+        eval "rm -rf /var/lib/filebeat/ ${debug}"
+        eval "rm -rf /usr/share/filebeat/ ${debug}"
+        eval "rm -rf /etc/filebeat/ ${debug}"
+    fi
+
+    if [ -n "${kibanainstalled}" ]; then
+        echo "Removing Kibana..."
+        if [ "${sys_type}" == "yum" ]; then
+            eval "yum remove opendistroforelasticsearch-kibana -y ${debug}"
+        elif [ "${sys_type}" == "zypper" ]; then
+            eval "zypper -n remove opendistroforelasticsearch-kibana ${debug}"
+        elif [ "${sys_type}" == "apt-get" ]; then
+            eval "apt remove --purge opendistroforelasticsearch-kibana -y ${debug}"
+        fi 
+        eval "rm -rf /var/lib/kibana/ ${debug}"
+        eval "rm -rf /usr/share/kibana/ ${debug}"
+        eval "rm -rf /etc/kibana/ ${debug}"
+    fi
+
+    if [ -z "${uninstall}" ]; then    
+        echo "Installation cleaned. Check the /var/log/wazuh-unattended-installation.log file to learn more about the issue."
+    fi
 }

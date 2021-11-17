@@ -22,24 +22,37 @@ installElasticsearch() {
 
 }
 
+copyCertificatesElasticsearch() {
+
+    checkNodes
+    
+    if [ -n "${single}" ]; then
+        name=${einame}
+    else
+        name=${IMN[pos]}
+    fi
+
+    eval "cp ./certs/${name}.pem /etc/elasticsearch/certs/elasticsearch.pem ${debug}"
+    eval "cp ./certs/${name}-key.pem /etc/elasticsearch/certs/elasticsearch-key.pem ${debug}"
+    eval "cp ./certs/root-ca.pem /etc/elasticsearch/certs/ ${debug}"
+    eval "cp ./certs/admin.pem /etc/elasticsearch/certs/ ${debug}"
+    eval "cp ./certs/admin-key.pem /etc/elasticsearch/certs/ ${debug}"
+}
+
 configureElasticsearchAIO() {
  
     logger "Configuring Elasticsearch..."
 
-    eval "curl -so /etc/elasticsearch/elasticsearch.yml ${resources}/open-distro/elasticsearch/7.x/elasticsearch_unattended.yml --max-time 300 ${debug}"
-    eval "curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml ${resources}/open-distro/elasticsearch/roles/roles.yml --max-time 300 ${debug}"
-    eval "curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml ${resources}/open-distro/elasticsearch/roles/roles_mapping.yml --max-time 300 ${debug}"
-    eval "curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml ${resources}/open-distro/elasticsearch/roles/internal_users.yml --max-time 300 ${debug}"        
+    eval "getConfig elasticsearch/elasticsearch_unattended.yml /etc/elasticsearch/elasticsearch.yml  ${debug}"
+    eval "getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml  ${debug}"
+    eval "getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml  ${debug}"
+    eval "getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml  ${debug}"        
+    
     eval "rm /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem -f ${debug}"
-
-    ## Create certificates
-    eval "mkdir /etc/elasticsearch/certs ${debug}"
-    eval "cd /etc/elasticsearch/certs ${debug}"
-    echo "${resources}/open-distro/tools/certificate-utility/wazuh-cert-tool.sh --max-time 300"
-    eval "curl -so ~/wazuh-cert-tool.sh ${resources}/open-distro/tools/certificate-utility/wazuh-cert-tool.sh --max-time 300 ${debug}"
 
     export JAVA_HOME=/usr/share/elasticsearch/jdk/
         
+    eval "mkdir /etc/elasticsearch/certs/ ${debug}"
     eval "cp ./certs/elasticsearch* /etc/elasticsearch/certs/ ${debug}"
     eval "cp ./certs/root-ca.pem /etc/elasticsearch/certs/ ${debug}"
     eval "cp ./certs/admin* /etc/elasticsearch/certs/ ${debug}"
@@ -72,27 +85,29 @@ configureElasticsearchAIO() {
 configureElasticsearch() {
     logger "Configuring Elasticsearch..."
 
-    eval "curl -so /etc/elasticsearch/elasticsearch.yml https://packages.wazuh.com/resources/${WAZUH_MAJOR}/open-distro/unattended-installation/distributed/templates/elasticsearch_unattended.yml --max-time 300 ${debug}"
-    eval "curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml https://packages.wazuh.com/resources/${WAZUH_MAJOR}/open-distro/elasticsearch/roles/roles.yml --max-time 300 ${debug}"
-    eval "curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml https://packages.wazuh.com/resources/${WAZUH_MAJOR}/open-distro/elasticsearch/roles/roles_mapping.yml --max-time 300 ${debug}"
-    eval "curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml https://packages.wazuh.com/resources/${WAZUH_MAJOR}/open-distro/elasticsearch/roles/internal_users.yml --max-time 300 ${debug}"
+    eval "getConfig elasticsearch/elasticsearch_unattended_distributed.yml /etc/elasticsearch/elasticsearch.yml ${debug}"
+    eval "getConfig elasticsearch/roles/roles.ym /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml ${debug}"
+    eval "getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml ${debug}"
+    eval "getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml ${debug}"
 
+    checkNodes
+    
     if [ -n "${single}" ]; then
-        nh=$(awk -v RS='' '/network.host:/' ~/config.yml)
+        nh=$(awk -v RS='' '/network.host:/' ./config.yml)
         nhr="network.host: "
         nip="${nh//$nhr}"
-        echo "node.name: ${iname}" >> /etc/elasticsearch/elasticsearch.yml
+        echo "node.name: ${einame}" >> /etc/elasticsearch/elasticsearch.yml
         echo "${nn}" >> /etc/elasticsearch/elasticsearch.yml
         echo "${nh}" >> /etc/elasticsearch/elasticsearch.yml
-        echo "cluster.initial_master_nodes: ${iname}" >> /etc/elasticsearch/elasticsearch.yml
+        echo "cluster.initial_master_nodes: ${einame}" >> /etc/elasticsearch/elasticsearch.yml
 
         echo "opendistro_security.nodes_dn:" >> /etc/elasticsearch/elasticsearch.yml
-        echo '        - CN='${iname}',OU=Docu,O=Wazuh,L=California,C=US' >> /etc/elasticsearch/elasticsearch.yml
+        echo '        - CN='${einame}',OU=Docu,O=Wazuh,L=California,C=US' >> /etc/elasticsearch/elasticsearch.yml
     else
-        echo "node.name: ${iname}" >> /etc/elasticsearch/elasticsearch.yml
-        mn=$(awk -v RS='' '/cluster.initial_master_nodes:/' ~/config.yml)
-        sh=$(awk -v RS='' '/discovery.seed_hosts:/' ~/config.yml)
-        cn=$(awk -v RS='' '/cluster.name:/' ~/config.yml)
+        echo "node.name: ${einame}" >> /etc/elasticsearch/elasticsearch.yml
+        mn=$(awk -v RS='' '/cluster.initial_master_nodes:/' ./config.yml)
+        sh=$(awk -v RS='' '/discovery.seed_hosts:/' ./config.yml)
+        cn=$(awk -v RS='' '/cluster.name:/' ./config.yml)
         echo "${cn}" >> /etc/elasticsearch/elasticsearch.yml
         mnr="cluster.initial_master_nodes:"
         rm="- "
@@ -114,11 +129,11 @@ configureElasticsearch() {
                 echo '        - "'${line}'"' >> /etc/elasticsearch/elasticsearch.yml
         done
         for i in "${!IMN[@]}"; do
-            if [[ "${IMN[$i]}" = "${iname}" ]]; then
+            if [ "${IMN[$i]}" == "${einame}" ]; then
                 pos="${i}";
             fi
         done
-        if [[ ! " ${IMN[@]} " =~ " ${iname} " ]]; then
+        if [ ! ${IMN[@]} == ${einame}  ]; then
             echo "The name given does not appear on the configuration file"
             exit 1;
         fi
@@ -131,12 +146,10 @@ configureElasticsearch() {
         done
 
     fi
-    #awk -v RS='' '/## Elasticsearch/' ~/config.yml >> /etc/elasticsearch/elasticsearch.yml
+    #awk -v RS='' '/## Elasticsearch/' ./config.yml >> /etc/elasticsearch/elasticsearch.yml
 
     eval "rm /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem -f ${debug}"
     eval "mkdir /etc/elasticsearch/certs ${debug}"
-    eval "cd /etc/elasticsearch/certs ${debug}"
-
 
     # Configure JVM options for Elasticsearch
     ram_gb=$(free -g | awk '/^Mem:/{print $2}')
@@ -157,20 +170,38 @@ configureElasticsearch() {
         echo "bootstrap.system_call_filter: false" >> /etc/elasticsearch/elasticsearch.yml
     fi
 
-    # Create certificates
     if [ -n "${single}" ]; then
-        createCertificates name ip
-    elif [ -n "${certificates}" ]; then
-        createCertificates IMN DSH
+        copyCertificatesElasticsearch einame
     else
-        logger "Done"
+        copyCertificatesElasticsearch einame pos
     fi
 
-    if [ -n "${single}" ]; then
-        copyCertificates iname
-    else
-        copyCertificates iname pos
-    fi
+    eval "rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml -f ${debug}"
+    eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
+
     initializeElastic nip
     echo "Done"
+}
+
+initializeElastic() {
+
+    logger "Elasticsearch installed."
+
+    # Start Elasticsearch
+    logger "Starting Elasticsearch..."
+    startService "elasticsearch"
+    logger "Initializing Elasticsearch..."
+
+
+    until $(curl -XGET https://${nip}:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null); do
+        echo -ne ${char}
+        sleep 10
+    done
+
+    if [ -n "${single}" ]; then
+        eval "cd /usr/share/elasticsearch/plugins/opendistro_security/tools/ ${debug}"
+        eval "./securityadmin.sh -cd ../securityconfig/ -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${nip} ${debug}"
+    fi
+
+    logger "Done"
 }
