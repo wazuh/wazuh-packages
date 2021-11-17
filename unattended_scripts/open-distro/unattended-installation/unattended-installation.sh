@@ -162,6 +162,7 @@ startService() {
         fi     
     elif [ -x /etc/rc.d/init.d/$1 ] ; then
         eval "/etc/rc.d/init.d/$1 start ${debug}"
+        sleep 5
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
             rollBack
