@@ -136,7 +136,7 @@ def test_check_filebeat_process():
     assert check_call("ps -xa | grep \"/usr/share/filebeat/bin/filebeat\" | grep -v grep", shell=True) != ""
 
 def test_check_elasticsearch_process():
-    assert check_call("ps -xa | grep \"/usr/share/elasticsearch/jdk/bin/java\" | grep -v grep", shell=True) != ""
+    assert check_call("ps -xa | grep \"/usr/share/elasticsearch/jdk/bin/java\" | grep -v grep | cut -d " " -f15", shell=True) != ""
 
 def test_check_kibana_process():
     assert check_call("ps -xa | grep \"/usr/share/kibana/bin/../node/bin/node\" | grep -v grep", shell=True) != ""
