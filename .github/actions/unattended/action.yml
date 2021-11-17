@@ -7,6 +7,6 @@ runs:
   using: docker
   image: 'wazuh/unattended-base-test:latest'
   entrypoint: '/entrypoint.sh'
-  post-entrypoint: '/launchTest.sh'
+  #post-entrypoint: '/launchTest.sh'
 
 
