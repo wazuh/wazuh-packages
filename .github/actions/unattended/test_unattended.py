@@ -102,43 +102,43 @@ def get_wazuh_api_status():
 
 
 
-def test_check_wazuh_manager_processes_authd():
+def test_check_wazuh_manager_authd():
     assert check_call("ps -xa | grep wazuh-authd | grep -v grep", shell=True) != ""
 
-def test_check_wazuh_manager_processes_db():
+def test_check_wazuh_manager_db():
     assert check_call("ps -xa | grep wazuh-db | grep -v grep", shell=True) != ""
 
-def test_check_wazuh_manager_processes_execd():
+def test_check_wazuh_manager_execd():
     assert check_call("ps -xa | grep wazuh-execd | grep -v grep", shell=True) != ""
 
-def test_check_wazuh_manager_processes_analysisd():
+def test_check_wazuh_manager_analysisd():
     assert check_call("ps -xa | grep /wazuh-analysisd | grep -v grep", shell=True) != ""
 
-def test_check_wazuh_manager_processes_syscheckd():
+def test_check_wazuh_manager_syscheckd():
     assert check_call("ps -xa | grep /wazuh-syscheckd | grep -v grep", shell=True) != ""
 
-def test_check_wazuh_manager_processes_remoted():
+def test_check_wazuh_manager_remoted():
     assert check_call("ps -xa | grep \wazuh-remoted | grep -v grep", shell=True) != ""
 
-def test_check_wazuh_manager_processes_logcollec():
+def test_check_wazuh_manager_logcollec():
     assert check_call("ps -xa | grep /wazuh-logcollec | grep -v grep", shell=True) != ""
 
-def test_check_wazuh_manager_processes_monitord():
+def test_check_wazuh_manager_monitord():
     assert check_call("ps -xa | grep wazuh-monitord | grep -v grep", shell=True) != ""
 
-def test_check_wazuh_manager_processes_modulesd():
+def test_check_wazuh_manager_modulesd():
     assert check_call("ps -xa | grep wazuh-modulesd | grep -v grep", shell=True) != ""
 
-def test_check_wazuh_manager_processes_apid():
+def test_check_wazuh_manager_apid():
     assert check_call("ps -xa | grep wazuh-apid | grep -v grep", shell=True) != ""
 
-def test_check_filebeat_service():
+def test_check_filebeat_process():
     assert check_call("ps -xa | grep \"/usr/share/filebeat/bin/filebeat\" | grep -v grep", shell=True) != ""
 
-def test_check_elasticsearch_service():
+def test_check_elasticsearch_process():
     assert check_call("ps -xa | grep \"/usr/share/elasticsearch/jdk/bin/java\" | grep -v grep", shell=True) != ""
 
-def test_check_kibana_service():
+def test_check_kibana_process():
     assert check_call("ps -xa | grep \"/usr/share/kibana/bin/../node/bin/node\" | grep -v grep", shell=True) != ""
 
 def test_check_elasticsearch_cluster_status():
