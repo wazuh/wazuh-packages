@@ -16,6 +16,27 @@ ELASTICHEAD='# Elasticsearch nodes'
 FILEBEATHEAD='# Wazuh server nodes'
 KIBANAHEAD='# Kibana node'
 
+## Prints information
+logger() {
+
+    now=$(date +'%m/%d/%Y %H:%M:%S')
+    case $1 in 
+        "-e")
+            mtype="ERROR:"
+            message="$2"
+            ;;
+        "-w")
+            mtype="WARNING:"
+            message="$2"
+            ;;
+        *)
+            mtype="INFO:"
+            message="$1"
+            ;;
+    esac
+    echo $now $mtype $message
+}
+
 readInstances() {
 
     if [ -f ./instances.yml ]; then
