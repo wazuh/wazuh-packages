@@ -23,6 +23,7 @@ configureKibanaAIO() {
     eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
     eval "cd /usr/share/kibana ${debug}"
     eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${repobaseurl}'/ui/kibana/wazuh_kibana-${WAZUH_VER}_${ELK_VER}-${WAZUH_KIB_PLUG_REV}.zip ${debug}"
+    eval "cd - ${debug}"
     if [  "$?" != 0  ]; then
         echo "Error: Wazuh Kibana plugin could not be installed."
         rollBack
