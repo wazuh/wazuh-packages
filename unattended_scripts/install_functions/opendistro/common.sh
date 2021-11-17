@@ -208,6 +208,10 @@ startService() {
 
 createCertificates() {
 
+    if [ -n "${AIO}" ]; then
+        eval "getConfig certificate/instances_aio.yml ./instances.yml   ${debug}"
+    fi
+
     readInstances
     generateRootCAcertificate
     generateAdmincertificate
