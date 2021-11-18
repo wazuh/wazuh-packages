@@ -23,3 +23,4 @@ solaris/packer/packer-solaris10-virtualbox/
 solaris/packer/packer_cache/
 solaris/packer/sol-10-u11-ga-x86-dvd.iso
 solaris/packer/sol-11_3-text-x86.iso
+unattended_scripts/certs
