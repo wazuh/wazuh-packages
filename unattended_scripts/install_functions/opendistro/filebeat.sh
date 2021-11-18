@@ -49,7 +49,6 @@ configureFilebeat() {
     fi
 
     eval "mkdir /etc/filebeat/certs ${debug}"
-
     eval "mv ./certs/${winame}.pem /etc/filebeat/certs/filebeat.pem ${debug}"
     eval "mv ./certs/${winame}-key.pem /etc/filebeat/certs/filebeat-key.pem ${debug}"
     eval "cp ./certs/root-ca.pem /etc/filebeat/certs/ ${debug}"
