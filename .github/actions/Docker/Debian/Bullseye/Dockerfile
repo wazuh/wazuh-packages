@@ -1,7 +1,7 @@
-FROM ubuntu:focal
+FROM debian:bullseye
 
-LABEL "com.github.actions.name"="unattended-aio-ubuntu-focal"
-LABEL "com.github.actions.description"="Test unattended installer All-In-One Ubuntu Focal"
+LABEL "com.github.actions.name"="unattended-aio-debian-bullseye"
+LABEL "com.github.actions.description"="Test unattended installer All-In-One Debian Bullseye"
 
 LABEL "name"="Validate unattended installer"
 LABEL "version"="0.0.1"
@@ -29,7 +29,8 @@ RUN apt-get update && apt-get upgrade && \
         gcc \
         zlib1g-dev \
         libssl-dev \
-        libffi-dev
+        libffi-dev \
+        procps
 
 #RUN  yum -y groupinstall "Development Tools" && \
 #     yum install -y openssl gnupg2 sudo ca-certificates curl gnupg lsb-release zlib \
