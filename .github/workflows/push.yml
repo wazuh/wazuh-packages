@@ -42,7 +42,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
       - name: Launching an unattended installation - CentOS 7
-        uses: './.github/actions/unattended'
+        uses: './.github/actions/Tests/Unattended/'
         env:
           IMAGE: centos:7
           PLATFORM: centos
