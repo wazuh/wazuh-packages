@@ -683,7 +683,7 @@ main() {
         installElasticsearch
         installFilebeat
         installKibana
-        #checkInstallation    
+        checkInstallation    
     else
         checkInstalled  
         healthCheck   
@@ -693,7 +693,7 @@ main() {
         installElasticsearch
         installFilebeat
         installKibana
-        #checkInstallation  
+        checkInstallation  
     fi
 
 }

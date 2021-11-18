@@ -49,16 +49,18 @@ checkRoot() {
 
 restartService() {
 
-    if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
+    if command -v systemctl > /dev/null 2>&1; then
         eval "systemctl restart $1.service ${VERBOSE}"
+        sleep 10
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
             exit 1;
         else
             logger "${1^} started"
         fi  
-    elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
+    elif command -v service > /dev/null 2>&1; then
         eval "/etc/init.d/$1 restart ${VERBOSE}"
+        sleep 10
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
             exit 1;
@@ -67,6 +69,7 @@ restartService() {
         fi     
     elif [ -x /etc/rc.d/init.d/$1 ] ; then
         eval "/etc/rc.d/init.d/$1 restart ${VERBOSE}"
+        sleep 10
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
             exit 1;
