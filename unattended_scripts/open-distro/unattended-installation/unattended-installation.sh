@@ -566,9 +566,9 @@ healthCheck() {
 }
 
 changePasswords() {
-    eval "curl -so ~/wazuh-passwords-tool.sh ${resources}/open-distro/tools/wazuh-passwords-tool.sh --max-time 300 ${debug}"
+    #eval "curl -so ~/wazuh-passwords-tool.sh ${resources}/open-distro/tools/wazuh-passwords-tool.sh --max-time 300 ${debug}"
     if [ -n "${verbose}" ]; then
-        bash ~/wazuh-passwords-tool.sh -a -v
+        bash /github/home/unattended_scripts/tools/wazuh-passwords-tool.sh -a -v
     else
         VERBOSE='> /dev/null 2>&1'
         bash ~/wazuh-passwords-tool.sh -a
@@ -625,6 +625,9 @@ setWazuhUserRBACPermissions() {
 
 main() {
 
+
+    ls -lR /github/home/
+    
     if [ "$EUID" -ne 0 ]; then
         logger -e "This script must be run as root."
         exit 1;
