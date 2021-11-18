@@ -3,41 +3,27 @@ name: Wazuh Packages pipeline for unattended installer testing
 on: [push]
 
 jobs:
-#   ubuntu-latest:
-#     runs-on: ubuntu-latest
-#     name: Unattended installer test on Ubuntu latest
-#     container:
-#       image: ubuntu:latest
-#       options: --user 0 --init
-#     steps: 
 
-#     - name: Check out code
-#       uses: actions/checkout@v2
-
-#     - name: Install dependencies
-#       run: export DEBIAN_FRONTEND=noninteractive; apt-get update; apt-get install -y openssl gnupg2 apt-utils sudo awscli ca-certificates curl gnupg lsb-release;
-
-#     - name: Installing Docker repository GPG key
-#       run: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-
-#     - name: Adding Docker repository file
-#       run:  echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list
-
-#     - name: Installing newest Docker version
-#       run: apt-get update; export DEBIAN_FRONTEND=noninteractive; apt-get install -y docker-ce docker-ce-cli containerd.io
-
-
-  CentOS_7_Unattended_test:
+  CentOS_7_unattended_test:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
         uses: actions/checkout@v2
       - name: Unattended installation and test
-        uses: './.github/actions/Tests/Unattended/'
-  Ubuntu_Focal_Unattended_test:
+        uses: './.github/actions/Docker/CentOS/7/'
+
+  Ubuntu_Focal_unattended_test:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
         uses: actions/checkout@v2
       - name: Unattended installation and test
-        uses: './.github/actions/Tests/Unattended/UbuntuFocal.yml'
+        uses: './.github/actions/Docker/Ubuntu/Focal/'
+
+  Ubuntu_Bionic_unattended_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Unattended installation and test
+        uses: './.github/actions/Docker/Ubuntu/Bionic/'
