@@ -51,3 +51,19 @@ jobs:
         uses: actions/checkout@v2
       - name: Unattended installation and test
         uses: './.github/actions/Docker/Debian/Bullseye/'
+
+  Debian_Buster_unattended_install_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Unattended installation and test
+        uses: './.github/actions/Docker/Debian/Buster/'
+
+#  Debian_Stretch_unattended_install_test:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Check out code
+#        uses: actions/checkout@v2
+#      - name: Unattended installation and test
+#        uses: './.github/actions/Docker/Debian/Stretch/'
