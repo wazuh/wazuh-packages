@@ -680,7 +680,7 @@ main() {
         installPrerequisites
         addWazuhrepo
         installWazuh
-        #installElasticsearch
+        installElasticsearch
         installFilebeat
         #installKibana
         #checkInstallation    
@@ -690,7 +690,7 @@ main() {
         installPrerequisites
         addWazuhrepo
         installWazuh
-        #installElasticsearch
+        installElasticsearch
         installFilebeat
         #installKibana
         #checkInstallation  
