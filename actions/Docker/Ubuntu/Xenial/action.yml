@@ -1,0 +1,12 @@
+name: validate-unattended
+description: Validate Unattended installer
+branding:
+    icon: "command"
+    color: "blue"
+runs:
+  using: docker
+  image: 'wazuh/ubuntu-xenial-unattended-base:latest'
+  entrypoint: '/entrypoint.sh'
+
+
+
