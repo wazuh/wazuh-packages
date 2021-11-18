@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
 
-  CentOS_7_unattended_test:
+  CentOS_7_unattended_install_test:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -12,7 +12,7 @@ jobs:
       - name: Unattended installation and test
         uses: './.github/actions/Docker/CentOS/7/'
 
-  Ubuntu_Focal_unattended_test:
+  Ubuntu_Focal_unattended_install_test:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -20,7 +20,7 @@ jobs:
       - name: Unattended installation and test
         uses: './.github/actions/Docker/Ubuntu/Focal/'
 
-  Ubuntu_Bionic_unattended_test:
+  Ubuntu_Bionic_unattended_install_test:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
