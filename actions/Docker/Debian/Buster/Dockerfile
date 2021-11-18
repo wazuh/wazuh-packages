@@ -30,7 +30,8 @@ RUN apt-get update && apt-get upgrade && \
         zlib1g-dev \
         libssl-dev \
         libffi-dev \
-        perl
+        perl \
+        procps
 
 RUN cd /usr/local/src/ && \ 
     curl https://www.openssl.org/source/openssl-1.1.1g.tar.gz | tar -xz && \
