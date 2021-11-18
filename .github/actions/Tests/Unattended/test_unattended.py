@@ -25,17 +25,6 @@ else:
     services = p.stdout
 p.kill()
 
-print (type(services))
-
-#def check_service(service):
-#    #pgrep -l wazuh | cut -d' ' -f2
-#    #p =  subprocess.Popen(["pgrep", "-l",  "filebeat", "|", "cut", "-d\' \'", "-f2"], stdout=subprocess.PIPE)
-#    p =  subprocess.Popen(["pgrep -l filebeat | cut -d' ' -f2"], stdout=subprocess.PIPE)
-#    (output, err) = p.communicate()
-#    return output.decode('utf-8').strip() 
-#filebeat="filebeat"
-#check_call("pgrep","-l","filebeat","|","cut -d'","'","-f2", shell=True)
-
 def get_elasticsearch_password():
     stream = open("/etc/filebeat/filebeat.yml", 'r')
     dictionary = yaml.safe_load(stream)
