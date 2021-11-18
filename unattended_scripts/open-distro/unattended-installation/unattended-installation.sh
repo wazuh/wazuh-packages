@@ -138,11 +138,11 @@ checkArch() {
 
 startService() {
 
-    if command -v systemctl; then
+    if command -v systemctl > /dev/null 2>&1; then
         eval "systemctl daemon-reload ${debug}"
         eval "systemctl enable $1.service ${debug}"
         eval "systemctl start $1.service ${debug}"
-        sleep 5
+        sleep 10
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
             rollBack
@@ -150,11 +150,10 @@ startService() {
         else
             logger "${1^} started"
         fi  
-    elif command -v service; then
+    elif command -v service > /dev/null 2>&1 ; then
         eval "chkconfig $1 on ${debug}"
         eval "service $1 start ${debug}"
-        eval "/etc/init.d/$1 start ${debug}"
-        sleep 5
+        sleep 10
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
             rollBack
@@ -164,7 +163,7 @@ startService() {
         fi     
     elif [ -x /etc/rc.d/init.d/$1 ] ; then
         eval "/etc/rc.d/init.d/$1 start ${debug}"
-        sleep 5
+        sleep 10
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
             rollBack
