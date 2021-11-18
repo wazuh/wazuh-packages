@@ -27,14 +27,14 @@ jobs:
 #       run: apt-get update; export DEBIAN_FRONTEND=noninteractive; apt-get install -y docker-ce docker-ce-cli containerd.io
 
 
-  CentOS 7 Unattended test:
+  CentOS_7_Unattended_test:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
         uses: actions/checkout@v2
       - name: Unattended installation and test
         uses: './.github/actions/Tests/Unattended/'
-  Ubuntu Focal Unattended test:
+  Ubuntu_Focal_Unattended_test:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
