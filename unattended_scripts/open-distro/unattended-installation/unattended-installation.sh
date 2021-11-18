@@ -142,6 +142,7 @@ startService() {
         eval "systemctl daemon-reload ${debug}"
         eval "systemctl enable $1.service ${debug}"
         eval "systemctl start $1.service ${debug}"
+        sleep 5
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
             rollBack
@@ -153,6 +154,7 @@ startService() {
         eval "chkconfig $1 on ${debug}"
         eval "service $1 start ${debug}"
         eval "/etc/init.d/$1 start ${debug}"
+        sleep 5
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
             rollBack
