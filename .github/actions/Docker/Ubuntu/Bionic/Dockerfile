@@ -13,7 +13,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 USER root
 WORKDIR /root
 
-RUN apt-get update && \ 
+RUN apt-get update && apt-get upgrade && \ 
     apt-get install -y \
         openssl \
         apt-utils \

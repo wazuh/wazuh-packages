@@ -11,8 +11,9 @@ LABEL "maintainer"="Wazuh"
 USER root
 WORKDIR /root
 
-RUN  yum -y groupinstall "Development Tools" && \
-     yum install -y \
+RUN yum -y update && \
+    yum -y groupinstall "Development Tools" && \
+    yum install -y \
         openssl \
         gnupg2 \
         sudo \
