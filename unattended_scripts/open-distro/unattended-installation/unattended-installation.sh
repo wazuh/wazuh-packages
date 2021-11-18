@@ -689,11 +689,11 @@ main() {
         healthCheck   
         installPrerequisites
         addWazuhrepo
-        installWazuh
-        installElasticsearch
+        #installWazuh
+        #installElasticsearch
         installFilebeat
-        installKibana
-        checkInstallation  
+        #installKibana
+        #checkInstallation  
     fi
 
 }
