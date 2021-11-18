@@ -679,7 +679,7 @@ main() {
         fi            
         installPrerequisites
         addWazuhrepo
-        #installWazuh
+        installWazuh
         #installElasticsearch
         installFilebeat
         #installKibana
@@ -689,7 +689,7 @@ main() {
         healthCheck   
         installPrerequisites
         addWazuhrepo
-        #installWazuh
+        installWazuh
         #installElasticsearch
         installFilebeat
         #installKibana
