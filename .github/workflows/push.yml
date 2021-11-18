@@ -12,13 +12,13 @@ jobs:
       - name: Unattended installation and test
         uses: './.github/actions/Docker/CentOS/7/'
 
-#  CentOS_8_unattended_install_test:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Check out code
-#        uses: actions/checkout@v2
-#      - name: Unattended installation and test
-#        uses: './.github/actions/Docker/CentOS/8/'
+  CentOS_8_unattended_install_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Unattended installation and test
+        uses: './.github/actions/Docker/CentOS/8/'
 
   AmazonLinux_2_unattended_install_test:
     runs-on: ubuntu-latest
