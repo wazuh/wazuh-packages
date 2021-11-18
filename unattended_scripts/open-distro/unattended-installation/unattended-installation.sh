@@ -682,7 +682,7 @@ main() {
         installWazuh
         installElasticsearch
         installFilebeat
-        #installKibana
+        installKibana
         #checkInstallation    
     else
         checkInstalled  
@@ -692,7 +692,7 @@ main() {
         installWazuh
         installElasticsearch
         installFilebeat
-        #installKibana
+        installKibana
         #checkInstallation  
     fi
 
