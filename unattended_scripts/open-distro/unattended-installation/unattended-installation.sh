@@ -571,7 +571,7 @@ changePasswords() {
         bash /github/workspace/unattended_scripts/open-distro/tools/wazuh-passwords-tool.sh -a -v
     else
         VERBOSE='> /dev/null 2>&1'
-        bash ~/wazuh-passwords-tool.sh -a
+        bash /github/workspace/unattended_scripts/open-distro/tools/wazuh-passwords-tool.sh -a
     fi    
     
     if [  "$?" != 0  ]; then
