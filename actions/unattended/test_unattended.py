@@ -112,16 +112,16 @@ def test_check_wazuh_manager_execd():
     assert check_call("ps -xa | grep wazuh-execd | grep -v grep", shell=True) != ""
 
 def test_check_wazuh_manager_analysisd():
-    assert check_call("ps -xa | grep /wazuh-analysisd | grep -v grep", shell=True) != ""
+    assert check_call("ps -xa | grep wazuh-analysisd | grep -v grep", shell=True) != ""
 
 def test_check_wazuh_manager_syscheckd():
-    assert check_call("ps -xa | grep /wazuh-syscheckd | grep -v grep", shell=True) != ""
+    assert check_call("ps -xa | grep wazuh-syscheckd | grep -v grep", shell=True) != ""
 
 def test_check_wazuh_manager_remoted():
-    assert check_call("ps -xa | grep \wazuh-remoted | grep -v grep", shell=True) != ""
+    assert check_call("ps -xa | grep wazuh-remoted | grep -v grep", shell=True) != ""
 
 def test_check_wazuh_manager_logcollec():
-    assert check_call("ps -xa | grep /wazuh-logcollec | grep -v grep", shell=True) != ""
+    assert check_call("ps -xa | grep wazuh-logcollec | grep -v grep", shell=True) != ""
 
 def test_check_wazuh_manager_monitord():
     assert check_call("ps -xa | grep wazuh-monitord | grep -v grep", shell=True) != ""
