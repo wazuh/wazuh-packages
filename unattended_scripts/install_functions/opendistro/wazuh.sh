@@ -20,13 +20,13 @@ installWazuh() {
 
 configureWazuhCluster() {
 
-    cluster_name=$(awk '/cluster.name:/ {print $2}' ~/wazuh_config.yml)
-    node_type=$(awk '/node.type:/ {print $2}' ~/wazuh_config.yml)
-    master_address=$(awk '/master.address:/ {print $2}' ~/wazuh_config.yml)
-    bind_address=$(awk '/bind.address:/ {print $2}' ~/wazuh_config.yml)
-    port=$(awk '/port:/ {print $2}' ~/wazuh_config.yml)
-    hidden=$(awk '/hidden:/ {print $2}' ~/wazuh_config.yml)
-    disabled=$(awk '/disabled:/ {print $2}' ~/wazuh_config.yml)
+    cluster_name=$(awk '/cluster.name:/ {print $2}' wazuh_cluster_config.yml)
+    node_type=$(awk '/node.type:/ {print $2}' wazuh_cluster_config.yml)
+    master_address=$(awk '/master.address:/ {print $2}' wazuh_cluster_config.yml)
+    bind_address=$(awk '/bind.address:/ {print $2}' wazuh_cluster_config.yml)
+    port=$(awk '/port:/ {print $2}' wazuh_cluster_config.yml)
+    hidden=$(awk '/hidden:/ {print $2}' wazuh_cluster_config.yml)
+    disabled=$(awk '/disabled:/ {print $2}' wazuh_cluster_config.yml)
     lstart=$(grep -n "<cluster>" /var/ossec/etc/ossec.conf | cut -d : -f 1)
     lend=$(grep -n "</cluster>" /var/ossec/etc/ossec.conf | cut -d : -f 1)
 

@@ -31,7 +31,7 @@ getHelp() {
     echo -e "\t-en  | --elastic- node-name            Name of the elastic node, used for distributed installations"
     echo -e "\t-wn | --wazuh- node-name               Name of the wazuh node, used for distributed installations"
 
-    echo -e "\t-wk  | --wazuh-key <wazuh-cluster-key> Use this option as well as a wazuh_config.yml configuration file to automatically configure the wazuh cluster when using a multi-node installation"
+    echo -e "\t-wk  | --wazuh-key <wazuh-cluster-key> Use this option as well as a wazuh_cluster_config.yml configuration file to automatically configure the wazuh cluster when using a multi-node installation"
     echo -e "\t-r   | --uninstall                     Remove the installation"
     echo -e "\t-v   | --verbose                       Shows the complete installation output"
     echo -e "\t-i   | --ignore-health-check           Ignores the health-check"
@@ -52,18 +52,14 @@ importFunction() {
 }
 
 main() {
-    echo $1
-
-    importFunction "common.sh"
-
     if [ "$EUID" -ne 0 ]; then
-        logger -e "This script must be run as root."
+        echo "Error: This script must be run as root."
         exit 1;
     fi   
 
     while [ -n "$1" ]
-        do
-            case "$1" in
+    do
+        case "$1" in
             "-A"|"--AllInOne")
                 AIO=1
                 shift 1
@@ -108,19 +104,19 @@ main() {
             "-wk"|"--wazuh-key")
                 wazuh_config=1
                 wazuhclusterkey="$2"
-                shift 
-                shift
+                shift 2
                 ;;
             "-h"|"--help")
                 getHelp
                 ;;
             *)
                 getHelp
-            esac
-        done
+        esac
+    done
 
-        importFunction "wazuh-cert-tool.sh"
-    
+    importFunction "common.sh"
+    importFunction "wazuh-cert-tool.sh"
+
     if [ -n "${certificates}" ]; then
         createCertificates
     fi
@@ -160,8 +156,8 @@ main() {
 
     if [ -n "${wazuh}" ]; then
 
-        if [ -n "$wazuhclusterkey" ] && [ ! -f wazuh_config.yml ]; then
-            logger -e "No wazuh_config.yml file found."
+        if [ -n "$wazuhclusterkey" ] && [ ! -f wazuh_cluster_config.yml ]; then
+            logger -e "No wazuh_cluster_config.yml file found."
         fi
 
         importFunction "wazuh.sh"

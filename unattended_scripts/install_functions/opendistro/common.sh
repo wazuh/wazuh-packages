@@ -26,7 +26,7 @@ checkArch() {
     arch=$(uname -m)
 
     if [ ${arch} != "x86_64" ]; then
-        echo "Uncompatible system. This script must be run on a 64-bit system."
+        logger -e "Uncompatible system. This script must be run on a 64-bit system."
         exit 1;
     fi
 }
@@ -45,7 +45,7 @@ installPrerequisites() {
     fi
 
     if [  "$?" != 0  ]; then
-        echo "Error: Prerequisites could not be installed"
+        logger -e "Prerequisites could not be installed"
         exit 1;
     else
         logger "Done"
@@ -76,7 +76,7 @@ checkFlavor() {
     fi
 
     if [ -n "$flavor" ]; then
-        echo "OD"
+        logger "OD"
     fi
 }
 
@@ -147,7 +147,7 @@ checkInstalled() {
     fi  
 
     if [ -z "${wazuhinstalled}" ] || [ -z "${elasticinstalled}" ] || [ -z "${filebeatinstalled}" ] || [ -z "${kibanainstalled}" ] && [ -n "${uninstall}" ]; then 
-        echo "Error: No Wazuh components were found on the system."
+        logger -e " No Wazuh components were found on the system."
         exit 1;        
     fi
 
@@ -156,10 +156,10 @@ checkInstalled() {
              overwrite
         
         elif [ -n "${uninstall}" ]; then
-            echo "Removing the installed items"
+            logger -w "Removing the installed items"
             rollBack
         else
-            echo "All the Wazuh componets were found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. NOTE: This will erase all the existing configuration and data."
+            logger -e "All the Wazuh componets were found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. NOTE: This will erase all the existing configuration and data."
             exit 1;
         fi
     fi          
@@ -173,34 +173,34 @@ startService() {
         eval "systemctl enable $1.service ${debug}"
         eval "systemctl start $1.service ${debug}"
         if [  "$?" != 0  ]; then
-            echo "${1^} could not be started."
+            logger -e "${1^} could not be started."
             rollBack
             exit 1;
         else
-            echo "${1^} started"
+            logger "${1^} started"
         fi  
     elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
         eval "chkconfig $1 on ${debug}"
         eval "service $1 start ${debug}"
         eval "/etc/init.d/$1 start ${debug}"
         if [  "$?" != 0  ]; then
-            echo "${1^} could not be started."
+            logger -e "${1^} could not be started."
             rollBack
             exit 1;
         else
-            echo "${1^} started"
+            logger "${1^} started"
         fi     
     elif [ -x /etc/rc.d/init.d/$1 ] ; then
         eval "/etc/rc.d/init.d/$1 start ${debug}"
         if [  "$?" != 0  ]; then
-            echo "${1^} could not be started."
+            logger -e "${1^} could not be started."
             rollBack
             exit 1;
         else
-            echo "${1^} started"
+            logger "${1^} started"
         fi             
     else
-        echo "Error: ${1^} could not start. No service manager found on the system."
+        logger -e "${1^} could not start. No service manager found on the system."
         exit 1;
     fi
 
@@ -245,37 +245,37 @@ healthCheck() {
     case "$1" in
         "elasticsearch")
             if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]; then
-                echo "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
+                logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
                 exit 1;
             else
-                echo "Starting the installation..."
+                logger "Starting the installation..."
             fi
             ;;
 
         "kibana")
             if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]; then
-                echo "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
+                logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
                 exit 1;
             else
-                echo "Starting the installation..."
+                logger "Starting the installation..."
             fi
             ;;
         "wazuh")
             if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]
             then
-                echo "Your system does not meet the recommended minimum hardware requirements of 2Gb of RAM and 2 CPU cores . If you want to proceed with the installation use the -i option to ignore these requirements."
+                logger -e "Your system does not meet the recommended minimum hardware requirements of 2Gb of RAM and 2 CPU cores . If you want to proceed with the installation use the -i option to ignore these requirements."
                 exit 1;
             else
-                echo "Starting the installation..."
+                logger "Starting the installation..."
             fi
             ;;
         "AIO")
             specsCheck
             if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]; then
-                echo "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
+                logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
                 exit 1;
             else
-                echo "Starting the installation..."
+                logger "Starting the installation..."
             fi
             ;;
     esac
@@ -305,11 +305,11 @@ logger() {
 rollBack() {
 
     if [ -z "${uninstall}" ]; then
-        echo "Cleaning the installation" 
+        logger -w "Cleaning the installation" 
     fi   
     
     if [ -n "${wazuhinstalled}" ]; then
-        echo "Removing the Wazuh manager..."
+        logger -w "Removing the Wazuh manager..."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-manager -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
@@ -321,7 +321,7 @@ rollBack() {
     fi     
 
     if [ -n "${elasticinstalled}" ]; then
-        echo "Removing Elasticsearch..."
+        logger -w "Removing Elasticsearch..."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove opendistroforelasticsearch -y ${debug}"
             eval "yum remove elasticsearch* -y ${debug}"
@@ -339,7 +339,7 @@ rollBack() {
     fi
 
     if [ -n "${filebeatinstalled}" ]; then
-        echo "Removing Filebeat..."
+        logger -w "Removing Filebeat..."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove filebeat -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
@@ -353,7 +353,7 @@ rollBack() {
     fi
 
     if [ -n "${kibanainstalled}" ]; then
-        echo "Removing Kibana..."
+        logger -w "Removing Kibana..."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove opendistroforelasticsearch-kibana -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
@@ -367,6 +367,6 @@ rollBack() {
     fi
 
     if [ -z "${uninstall}" ]; then    
-        echo "Installation cleaned. Check the /var/log/wazuh-unattended-installation.log file to learn more about the issue."
+        logger -w "Installation cleaned. Check the /var/log/wazuh-unattended-installation.log file to learn more about the issue."
     fi
 }
