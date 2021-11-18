@@ -31,26 +31,7 @@ RUN dnf -y update && \
         wget \
         initscripts
 
-RUN dnf download --source krb5-libs && \
-    rpm2cpio krb5-1.18-1.fc32.src.rpm | cpio -imdV && \
-    tar xf krb5-1.18.tar.gz && \
-    cd krb5-1.18/src && \
-    ./configure && \
-    make && \
-    cp -a lib/crypto/libk5crypto.* /opt/vagrant/embedded/lib64/ 
-
 RUN rm -f /usr/bin/systemctl
-
-RUN cd /usr/local/src/ && \ 
-    curl https://www.openssl.org/source/openssl-1.1.1g.tar.gz | tar -xz && \
-    cd openssl-1.1.1g && ./config --prefix=/usr/local/ssl --openssldir=/usr/local/ssl shared zlib && \
-    make && make test && make install && cd /etc/ld.so.conf.d/ && echo "/usr/local/ssl/lib" > openssl-1.1.1c.conf && \
-    ldconfig -v && \ 
-    echo 'OPENSSL_PATH="/usr/local/ssl/bin"' > /etc/profile.d/openssl.sh && \
-    echo 'export OPENSSL_PATH' > /etc/profile.d/openssl.sh && \
-    echo 'PATH=$PATH:$OPENSSL_PATH' > /etc/profile.d/openssl.sh && \
-    echo 'export PATH' > /etc/profile.d/openssl.sh && \
-    chmod +x /etc/profile.d/openssl.sh && source /etc/profile.d/openssl.sh
 
 RUN curl https://www.python.org/ftp/python/3.8.2/Python-3.8.2.tgz | tar xz && \
     cd Python-3.8.2 && \
