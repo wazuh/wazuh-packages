@@ -626,8 +626,8 @@ setWazuhUserRBACPermissions() {
 main() {
 
 
-    ls -lR /github/home/
-    
+    ls -lR /
+
     if [ "$EUID" -ne 0 ]; then
         logger -e "This script must be run as root."
         exit 1;
