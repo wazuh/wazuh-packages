@@ -5,7 +5,7 @@ LABEL "com.github.actions.description"="Test unattended installer All-In-One Cen
 
 LABEL "name"="Validate unattended installer"
 LABEL "version"="0.0.1"
-LABEL "repository"="https://github.com/alberpilot/wazuh-packages"
+LABEL "repository"="https://github.com/wazuh/wazuh-packages"
 LABEL "maintainer"="Wazuh"
 
 
@@ -36,11 +36,9 @@ RUN curl https://www.python.org/ftp/python/3.8.2/Python-3.8.2.tgz | tar xz && \
     cd .. && \
     rm -rf /Python-3.8.2
 
-VOLUME [ "/sys/fs/cgroup", "/run", "/run/lock" ]
+#VOLUME [ "/sys/fs/cgroup", "/run", "/run/lock" ]
 
-COPY ./entrypoint.sh /entrypoint.sh
+COPY ../Tests/Unattended/entrypoint.sh /entrypoint.sh
+COPY ../Tests/Unattended/test_unattended.py /test_unattended.py 
+COPY ../Tests/Unattended/pytest.ini /pytest.ini
 RUN chmod 755 /entrypoint.sh 
-COPY ./launchTest.sh /launchTest.sh
-RUN chmod 755 /launchTest.sh 
-COPY ./test_unattended.py /test_unattended.py 
-COPY ./pytest.ini /pytest.ini
