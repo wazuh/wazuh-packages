@@ -41,10 +41,7 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v2
-      - name: Launching an unattended installation - CentOS 7
+      - name: CentOS 7 unattended installation test
         uses: './.github/actions/Tests/Unattended/'
-        env:
-          IMAGE: centos:7
-          PLATFORM: centos
-          RELEASE: 7
-          RUN_COMMAND: /sbin/init
+      - name: Ubuntu Focal unattended installation test
+        uses: './.github/actions/Tests/Unattended/UbuntuFocal.yml'

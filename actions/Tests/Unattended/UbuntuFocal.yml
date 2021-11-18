@@ -5,7 +5,7 @@ branding:
     color: "blue"
 runs:
   using: docker
-  image: 'wazuh/centos-7-unattended-base:latest'
+  image: 'wazuh/ubuntu-focal-unattended-base:latest'
   entrypoint: '/entrypoint.sh'
 
 
