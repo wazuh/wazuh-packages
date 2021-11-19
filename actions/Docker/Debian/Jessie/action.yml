@@ -1,19 +1,10 @@
 name: validate-unattended
 description: Validate Unattended installer
 branding:
-    icon: "command"
-    color: "blue"
+  icon: "command"
+  color: "blue"
 runs:
-#  using: docker
-#  image: 'wazuh/debian-jessie-unattended-base:latest'
-#  entrypoint: '/entrypoint.sh'
-
-  using: "composite"
-  steps:
-    - using: docker
-      image: 'wazuh/debian-jessie-unattended-base:latest'
-      entrypoint: '/entrypoint.sh'
-    - name: Read VERSION file
-      id: getversion
-      run: echo "::set-output name=version::$(cat /var/log/wazuh-unattended-installation.log)"
+  using: docker
+  image: 'wazuh/debian-jessie-unattended-base:latest'
+  entrypoint: '/entrypoint.sh'
 

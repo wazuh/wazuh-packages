@@ -1,11 +1,11 @@
 name: validate-unattended
 description: Validate Unattended installer
 branding:
-    icon: "command"
-    color: "blue"
+  icon: "command"
+  color: "blue"
 runs:
   using: docker
-  image: 'wazuh/ubuntu-focal-unattended-base:latest'
+  image: 'wazuh/debian-bullseye-unattended-base:latest'
   entrypoint: '/entrypoint.sh'
 
 
