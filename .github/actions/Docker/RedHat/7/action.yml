@@ -1,0 +1,15 @@
+name: validate-unattended
+description: Validate Unattended installer
+branding:
+    icon: "command"
+    color: "blue"
+runs:
+  using: docker
+  image: 'wazuh/redhat-7-unattended-base:latest'
+  entrypoint: '/entrypoint.sh'
+  
+  
+  
+  
+  
+  
