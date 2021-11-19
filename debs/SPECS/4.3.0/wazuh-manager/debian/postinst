@@ -220,6 +220,7 @@ case "$1" in
 
     # Restoring file permissions
     ${SCRIPTS_DIR}/restore-permissions.sh > /dev/null 2>&1 || true
+    cp ${SCRIPTS_DIR}/restore-permissions.sh ${DIR}/restore-permissions.sh
 
     # Remove old service file /etc/systemd/system/wazuh-manager.service if present
     if [ -f /etc/systemd/system/wazuh-manager.service ]; then
@@ -227,6 +228,25 @@ case "$1" in
         if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
             systemctl daemon-reload > /dev/null 2>&1
         fi
+    fi
+
+    # Remove old ossec user and group if exists and change ownwership of files
+
+    if getent group | grep -q "^ossec" ; then
+        find ${DIR} -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
+        if getent passwd | grep -q "^ossec" ; then
+            find ${DIR} -group ossec -user ossec -exec chown ${USER}:${GROUP} {} \; > /dev/null 2>&1 || true
+            deluser ossec > /dev/null 2>&1
+        fi
+        if getent passwd | grep -q "^ossecm" ; then
+            find ${DIR} -group ossec -user ossecm -exec chown ${USER}:${GROUP} {} \; > /dev/null 2>&1 || true
+            deluser ossecm > /dev/null 2>&1
+        fi
+        if getent passwd | grep -q "^ossecr" ; then
+            find ${DIR} -group ossec -user ossecr -exec chown ${USER}:${GROUP} {} \; > /dev/null 2>&1 || true
+            deluser ossecr > /dev/null 2>&1
+        fi
+        delgroup ossec > /dev/null 2>&1
     fi
 
     if [ ! -z "$2" ]; then
@@ -261,26 +281,7 @@ case "$1" in
     if [ -z "$(ls -A ${WAZUH_GLOBAL_TMP_DIR})" ]; then
         rm -rf ${WAZUH_GLOBAL_TMP_DIR}
     fi
-
-    # Remove old ossec user and group if exists and change ownwership of files
-
-    if getent group | grep -q "^ossec" ; then
-        find ${DIR} -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
-        if getent passwd | grep -q "^ossec" ; then
-            find ${DIR} -group ossec -user ossec -exec chown ${USER}:${GROUP} {} \; > /dev/null 2>&1 || true
-            deluser ossec
-        fi
-        if getent passwd | grep -q "^ossecm" ; then
-            find ${DIR} -group ossec -user ossecm -exec chown ${USER}:${GROUP} {} \; > /dev/null 2>&1 || true
-            deluser ossecm
-        fi
-        if getent passwd | grep -q "^ossecr" ; then
-            find ${DIR} -group ossec -user ossecr -exec chown ${USER}:${GROUP} {} \; > /dev/null 2>&1 || true
-            deluser ossecr
-        fi
-        delgroup ossec 
-    fi
-    
+   
     ;;
 
 

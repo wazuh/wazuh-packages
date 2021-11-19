@@ -136,7 +136,25 @@ case "$1" in
             systemctl daemon-reload > /dev/null 2>&1
         fi
     fi
+    # Remove old ossec user and group if exists and change ownwership of files
 
+    if getent group | grep -q "^ossec" ; then
+        find ${DIR} -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
+        if getent passwd | grep -q "^ossec" ; then
+            find ${DIR} -group ossec -user ossec -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
+            deluser ossec > /dev/null 2>&1
+        fi
+        if getent passwd | grep -q "^ossecm" ; then
+            find ${DIR} -group ossec -user ossecm -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
+            deluser ossecm > /dev/null 2>&1
+        fi
+        if getent passwd | grep -q "^ossecr" ; then
+            find ${DIR} -group ossec -user ossecr -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
+            deluser ossecr > /dev/null 2>&1
+        fi
+        delgroup ossec > /dev/null 2>&1
+    fi
+    
     if [ ! -z "$2" ]; then
         if [ -f ${WAZUH_TMP_DIR}/wazuh.restart ] ; then
             if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
@@ -168,25 +186,6 @@ case "$1" in
     # If the parent directory is empty, delete it
     if [ -z "$(ls -A ${WAZUH_GLOBAL_TMP_DIR})" ]; then
         rm -rf ${WAZUH_GLOBAL_TMP_DIR}
-    fi
-
-    # Remove old ossec user and group if exists and change ownwership of files
-
-    if getent group | grep -q "^ossec" ; then
-        find ${DIR} -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
-        if getent passwd | grep -q "^ossec" ; then
-            find ${DIR} -group ossec -user ossec -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
-            deluser ossec
-        fi
-        if getent passwd | grep -q "^ossecm" ; then
-            find ${DIR} -group ossec -user ossecm -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
-            deluser ossecm
-        fi
-        if getent passwd | grep -q "^ossecr" ; then
-            find ${DIR} -group ossec -user ossecr -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
-            deluser ossecr
-        fi
-        delgroup ossec 
     fi
 
     ;;
