@@ -260,7 +260,7 @@ installWazuh() {
 installElasticsearch() {
 
     logger "Installing Open Distro for Elasticsearch..."
-
+    
     if [ ${sys_type} == "yum" ]; then
         eval "yum install opendistroforelasticsearch-${OD_VER}-${OD_REV} -y ${debug}"
     elif [ ${sys_type} == "zypper" ]; then

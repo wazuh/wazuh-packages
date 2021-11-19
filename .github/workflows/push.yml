@@ -84,13 +84,29 @@ jobs:
       - name: Unattended installation and test
         uses: './.github/actions/Docker/Debian/Stretch/'
 
-  Debian_Jessie_unattended_install_test:
+  OracleLinux_7_unattended_install_test:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
         uses: actions/checkout@v2
       - name: Unattended installation and test
-        uses: './.github/actions/Docker/Debian/Jessie/'
+        uses: './.github/actions/Docker/OracleLinux/7/'
+
+  OracleLinux_8_unattended_install_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Unattended installation and test
+        uses: './.github/actions/Docker/OracleLinux/8/'
+
+#  Debian_Jessie_unattended_install_test:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Check out code
+#        uses: actions/checkout@v2
+#      - name: Unattended installation and test
+#        uses: './.github/actions/Docker/Debian/Jessie/'
 
 
 
