@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 - Fix `find` error in CentOS 5 building [#888](https://github.com/wazuh/wazuh-packages/pull/888)
 - Add new SCA files to Solaris 11 [#944](https://github.com/wazuh/wazuh-packages/pull/944)
 - Improved support for ppc64le on CentOS and Debian [#915](https://github.com/wazuh/wazuh-packages/pull/975)
+- Fix error with wazuh user in Debian packages [#1005](https://github.com/wazuh/wazuh-packages/pull/1005)
 
 ## [v4.2.2]
 
