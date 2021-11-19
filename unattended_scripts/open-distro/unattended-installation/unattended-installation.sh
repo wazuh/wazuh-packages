@@ -9,6 +9,7 @@
 # Foundation.
 
 ## Check if system is based on yum or apt-get
+
 char="."
 debug='>> /var/log/wazuh-unattended-installation.log 2>&1'
 WAZUH_MAJOR="4.2"
@@ -689,6 +690,8 @@ main() {
         healthCheck   
         installPrerequisites
         addWazuhrepo
+        
+        
         installWazuh
         installElasticsearch
         installFilebeat

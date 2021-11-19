@@ -4,45 +4,45 @@ on: [push]
 
 jobs:
 
-  CentOS_7_unattended_install_test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-      - name: Unattended installation and test
-        uses: './.github/actions/Docker/CentOS/7/'
-
-  CentOS_8_unattended_install_test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-      - name: Unattended installation and test
-        uses: './.github/actions/Docker/CentOS/8/'
-
-  AmazonLinux_2_unattended_install_test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-      - name: Unattended installation and test
-        uses: './.github/actions/Docker/AmazonLinux/2/'
-
-  Ubuntu_Focal_unattended_install_test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-      - name: Unattended installation and test
-        uses: './.github/actions/Docker/Ubuntu/Focal/'
-
-  Ubuntu_Bionic_unattended_install_test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-      - name: Unattended installation and test
-        uses: './.github/actions/Docker/Ubuntu/Bionic/'
+##  CentOS_7_unattended_install_test:
+##    runs-on: ubuntu-latest
+##    steps:
+##      - name: Check out code
+##        uses: actions/checkout@v2
+##      - name: Unattended installation and test
+##        uses: './.github/actions/Docker/CentOS/7/'
+##
+##  CentOS_8_unattended_install_test:
+##    runs-on: ubuntu-latest
+##    steps:
+##      - name: Check out code
+##        uses: actions/checkout@v2
+##      - name: Unattended installation and test
+##        uses: './.github/actions/Docker/CentOS/8/'
+##
+##  AmazonLinux_2_unattended_install_test:
+##    runs-on: ubuntu-latest
+##    steps:
+##      - name: Check out code
+##        uses: actions/checkout@v2
+##      - name: Unattended installation and test
+##        uses: './.github/actions/Docker/AmazonLinux/2/'
+##
+##  Ubuntu_Focal_unattended_install_test:
+##    runs-on: ubuntu-latest
+##    steps:
+##      - name: Check out code
+##        uses: actions/checkout@v2
+##      - name: Unattended installation and test
+##        uses: './.github/actions/Docker/Ubuntu/Focal/'
+##
+##  Ubuntu_Bionic_unattended_install_test:
+##    runs-on: ubuntu-latest
+##    steps:
+##      - name: Check out code
+##        uses: actions/checkout@v2
+##      - name: Unattended installation and test
+##        uses: './.github/actions/Docker/Ubuntu/Bionic/'
 
 #  Ubuntu_Xenial_unattended_install_test:
 #    runs-on: ubuntu-latest
@@ -60,29 +60,29 @@ jobs:
 #      - name: Unattended installation and test
 #        uses: './.github/actions/Docker/Ubuntu/Trusty/'
 
-  Debian_Bullseye_unattended_install_test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-      - name: Unattended installation and test
-        uses: './.github/actions/Docker/Debian/Bullseye/'
-
-  Debian_Buster_unattended_install_test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-      - name: Unattended installation and test
-        uses: './.github/actions/Docker/Debian/Buster/'
-
-  Debian_Stretch_unattended_install_test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-      - name: Unattended installation and test
-        uses: './.github/actions/Docker/Debian/Stretch/'
+#  Debian_Bullseye_unattended_install_test:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Check out code
+#        uses: actions/checkout@v2
+#      - name: Unattended installation and test
+#        uses: './.github/actions/Docker/Debian/Bullseye/'
+#
+#  Debian_Buster_unattended_install_test:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Check out code
+#        uses: actions/checkout@v2
+#      - name: Unattended installation and test
+#        uses: './.github/actions/Docker/Debian/Buster/'
+#
+#  Debian_Stretch_unattended_install_test:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Check out code
+#        uses: actions/checkout@v2
+#      - name: Unattended installation and test
+#        uses: './.github/actions/Docker/Debian/Stretch/'
 
   Debian_Jessie_unattended_install_test:
     runs-on: ubuntu-latest
