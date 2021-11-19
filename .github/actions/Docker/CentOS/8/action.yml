@@ -1,12 +1,10 @@
 name: validate-unattended
 description: Validate Unattended installer
-branding:
-    icon: "command"
-    color: "blue"
 runs:
   using: docker
   image: 'wazuh/centos-8-unattended-base:latest'
   entrypoint: '/entrypoint.sh'
-
-
+branding:
+  icon: "command"
+  color: "blue"
 
