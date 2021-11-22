@@ -7,7 +7,7 @@ installKibana() {
         eval "${sys_type} install opendistroforelasticsearch-kibana${sep}${OD_VER} -y ${debug}"
     fi
     if [  "$?" != 0  ]; then
-        echo "Error: Kibana installation failed"
+        logger -e "Kibana installation failed"
         rollBack
         exit 1;
     else    
@@ -25,7 +25,7 @@ configureKibanaAIO() {
     eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${repobaseurl}'/ui/kibana/wazuh_kibana-${WAZUH_VER}_${ELK_VER}-${WAZUH_KIB_PLUG_REV}.zip ${debug}"
     eval "cd - ${debug}"
     if [  "$?" != 0  ]; then
-        echo "Error: Wazuh Kibana plugin could not be installed."
+        logger -e "Wazuh Kibana plugin could not be installed."
         rollBack
 
         exit 1;
@@ -49,7 +49,7 @@ configureKibana() {
     eval "cd /usr/share/kibana ${debug}"
     eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${repobaseurl}'/ui/kibana/wazuh_kibana-${WAZUH_VER}_${ELK_VER}-${WAZUH_KIB_PLUG_REV}.zip ${debug}"
     if [  "$?" != 0  ]; then
-        echo "Error: Wazuh Kibana plugin could not be installed."
+        logger -e "Wazuh Kibana plugin could not be installed."
         exit 1;
     fi
     cd -
@@ -83,7 +83,6 @@ configureKibana() {
 
     copyKibanacerts
     initializeKibana kip
-    echo -e
 }
 
 
@@ -93,7 +92,7 @@ copyKibanacerts() {
         eval "cp ./certs/kibana* /etc/kibana/certs/ ${debug}"
         eval "cp ./certs/root-ca.pem /etc/kibana/certs/ ${debug}"
     else
-        echo "No certificates found. Could not initialize Kibana"
+        logger "No certificates found. Could not initialize Kibana"
         exit 1;
     fi
 
@@ -108,11 +107,12 @@ initializeKibana() {
         echo -ne ${char}
         sleep 10
     done
+    echo ""
     wip=$(grep -A 1 "Wazuh-master-configuration" ./config.yml | tail -1)
     rm="- "
     wip="${wip//$rm}"
     conf="$(awk '{sub("url: https://localhost", "url: https://'"${wip}"'")}1' /usr/share/kibana/data/wazuh/config/wazuh.yml)"
     echo "${conf}" > /usr/share/kibana/data/wazuh/config/wazuh.yml  
-    echo $'\nYou can access the web interface https://'${kip}'. The credentials are admin:admin'    
+    logger $'\nYou can access the web interface https://'${kip}'. The credentials are admin:admin'    
 
 }

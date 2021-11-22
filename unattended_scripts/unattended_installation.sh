@@ -31,6 +31,7 @@ getHelp() {
     echo -e "\t-en  | --elastic- node-name            Name of the elastic node, used for distributed installations"
     echo -e "\t-wn | --wazuh- node-name               Name of the wazuh node, used for distributed installations"
 
+    echo -e "\t-wk  | --wazuh-key <wazuh-cluster-key> Use this option as well as a wazuh_cluster_config.yml configuration file to automatically configure the wazuh cluster when using a multi-node installation"
     echo -e "\t-r   | --uninstall                     Remove the installation"
     echo -e "\t-v   | --verbose                       Shows the complete installation output"
     echo -e "\t-i   | --ignore-health-check           Ignores the health-check"
@@ -51,19 +52,18 @@ importFunction() {
 }
 
 main() {
-    echo $1
     if [ "$EUID" -ne 0 ]; then
-        echo "This script must be run as root."
+        echo "Error: This script must be run as root."
         exit 1;
     fi   
 
     while [ -n "$1" ]
-        do
-            case "$1" in
+    do
+        case "$1" in
             "-A"|"--AllInOne")
                 AIO=1
                 shift 1
-            ;;
+                ;;
             "-w"|"--wazuh")
                 wazuh=1
                 shift 1
@@ -101,17 +101,22 @@ main() {
                 local=1
                 shift 1
                 ;;
+            "-wk"|"--wazuh-key")
+                wazuh_config=1
+                wazuhclusterkey="$2"
+                shift 2
+                ;;
             "-h"|"--help")
                 getHelp
                 ;;
             *)
                 getHelp
-            esac
-        done
+        esac
+    done
 
     importFunction "common.sh"
     importFunction "wazuh-cert-tool.sh"
-    
+
     if [ -n "${certificates}" ]; then
         createCertificates
     fi
@@ -121,7 +126,7 @@ main() {
         importFunction "elasticsearch.sh"
 
         if [ -n "${ignore}" ]; then
-            echo "Health-check ignored."
+            logger -w "Health-check ignored."
         else
             healthCheck elastic
         fi
@@ -138,7 +143,7 @@ main() {
         importFunction "kibana.sh"
 
         if [ -n "${ignore}" ]; then
-            echo "Health-check ignored."
+            logger -w "Health-check ignored."
         else
             healthCheck kibana
         fi
@@ -151,11 +156,16 @@ main() {
 
     if [ -n "${wazuh}" ]; then
 
+        if [ -n "$wazuhclusterkey" ] && [ ! -f wazuh_cluster_config.yml ]; then
+            logger -e "No wazuh_cluster_config.yml file found."
+            exit 1;
+        fi
+
         importFunction "wazuh.sh"
         importFunction "filebeat.sh"
 
         if [ -n "${ignore}" ]; then
-            echo "Health-check ignored."
+            logger -w "Health-check ignored."
         else
             healthCheck wazuh
         fi
@@ -163,8 +173,10 @@ main() {
         installPrerequisites
         addWazuhrepo
         installWazuh
-        configureWazuh
-        installFilebeat
+        if [ -n "$wazuhclusterkey" ]; then
+            configureWazuhCluster 
+        fi  
+        installFilebeat  
         configureFilebeat
     fi
 
@@ -176,7 +188,7 @@ main() {
         importFunction "kibana.sh"
 
         if [ -n "${ignore}" ]; then
-            echo "Health-check ignored."
+            logger -w "Health-check ignored."
         else
             healthCheck elasticsearch
             healthCheck kibana
