@@ -44,22 +44,6 @@ jobs:
       - name: Unattended installation and test
         uses: './.github/actions/Docker/Ubuntu/Bionic/'
 
-#  Ubuntu_Xenial_unattended_install_test:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Check out code
-#        uses: actions/checkout@v2
-#      - name: Unattended installation and test
-#        uses: './.github/actions/Docker/Ubuntu/Xenial/'
-
-#  Ubuntu_Trusty_unattended_install_test:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Check out code
-#        uses: actions/checkout@v2
-#      - name: Unattended installation and test
-#        uses: './.github/actions/Docker/Ubuntu/Trusty/'
-
   Debian_Bullseye_unattended_install_test:
     runs-on: ubuntu-latest
     steps:
@@ -108,6 +92,21 @@ jobs:
 #      - name: Unattended installation and test
 #        uses: './.github/actions/Docker/Debian/Jessie/'
 
+#  Ubuntu_Xenial_unattended_install_test:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Check out code
+#        uses: actions/checkout@v2
+#      - name: Unattended installation and test
+#        uses: './.github/actions/Docker/Ubuntu/Xenial/'
+
+#  Ubuntu_Trusty_unattended_install_test:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Check out code
+#        uses: actions/checkout@v2
+#      - name: Unattended installation and test
+#        uses: './.github/actions/Docker/Ubuntu/Trusty/'
 
 
 
@@ -116,7 +115,7 @@ jobs:
 #Fedora Linux 31 and later
 #openSUSE Tumbleweed, Leap 15.2 and later
 
-#Oracle Linux 6 Extended and later
+#Oracle Linux 6
 #Red Hat Enterprise Linux 6 ELS and later
 #Ubuntu trusty 14.04 and Xenial 16
 
