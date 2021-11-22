@@ -301,6 +301,7 @@ installElasticsearch() {
             echo -ne $char
             sleep 10
         done
+        echo ""
         logger $'\nGenerating passwords...'
         passwords=$(/usr/share/elasticsearch/bin/elasticsearch-setup-passwords auto -b)
         password=$(echo $passwords | awk 'NF{print $NF; exit}')
@@ -308,6 +309,7 @@ installElasticsearch() {
             echo -ne $char
             sleep 10
         done
+        echo ""
 
         logger "Done"
     fi
@@ -441,8 +443,9 @@ checkInstallation() {
         echo -ne $char
         sleep 10
     done
+    echo ""
     logger $'\nDuring the installation of Elasticsearch the passwords for its user were generated. Please take note of them:'
-    logger "$passwords"
+    echo -e "$passwords"
     logger $'\nInstallation finished'
     disableRepos
     logger $'\nYou can access the web interface https://<kibana_ip>. The credentials are elastic:'$password''    
