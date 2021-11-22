@@ -337,6 +337,7 @@ installElasticsearch() {
             echo -ne ${char}
             sleep 10
         done    
+        echo ""
 
         eval "cd /usr/share/elasticsearch/plugins/opendistro_security/tools/ ${debug}"
         eval "./securityadmin.sh -cd ../securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem ${debug}"
@@ -607,6 +608,7 @@ checkInstallation() {
         echo -ne $char
         sleep 10
     done    
+    echo ""
     logger $'\nInstallation finished'
     logger $'\nYou can access the web interface https://<kibana_ip>. The credentials are wazuh:'${wazuhpass}''
 
