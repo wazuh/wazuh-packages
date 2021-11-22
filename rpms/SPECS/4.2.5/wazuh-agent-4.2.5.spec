@@ -32,7 +32,7 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 
 %prep
 %setup -q
-
+set -x
 ./gen_ossec.sh conf agent centos %rhel %{_localstatedir} > etc/ossec-agent.conf
 
 %build
@@ -57,6 +57,7 @@ popd
 
 %install
 # Clean BUILDROOT
+set -x
 rm -fr %{buildroot}
 
 echo 'USER_LANGUAGE="en"' > ./etc/preloaded-vars.conf
@@ -164,6 +165,7 @@ exit 0
 
 %pre
 
+set -x
 # Create the ossec group if it doesn't exists
 if command -v getent > /dev/null 2>&1 && ! getent group ossec > /dev/null 2>&1; then
   groupadd -r ossec
@@ -194,6 +196,7 @@ fi
 
 %post
 
+set -x
 echo "VERSION=\"$(%{_localstatedir}/bin/wazuh-control info -v)\"" > /etc/ossec-init.conf
 if [ $1 = 2 ]; then
   if [ -d %{_localstatedir}/logs/ossec ]; then
@@ -344,7 +347,7 @@ fi
 chmod 0660 %{_localstatedir}/etc/ossec.conf
 
 %preun
-
+set -x
 if [ $1 = 0 ]; then
 
   # Stop the services before uninstall the package
@@ -397,7 +400,7 @@ fi
  chmod 0640 %{_localstatedir}/etc/localtime
 
 %postun
-
+set -x
 # If the package is been uninstalled
 if [ $1 = 0 ];then
   # Remove the ossec user if it exists
@@ -424,6 +427,7 @@ fi
 
 # posttrans code is the last thing executed in a install/upgrade
 %posttrans
+set -x
 if [ -f %{_sysconfdir}/systemd/system/wazuh-agent.service ]; then
   rm -rf %{_sysconfdir}/systemd/system/wazuh-agent.service
   systemctl daemon-reload > /dev/null 2>&1
@@ -455,6 +459,7 @@ if [ -f %{_sysconfdir}/ossec-init.conf ]; then
 fi
 
 %clean
+set -x
 rm -fr %{buildroot}
 
 %files
