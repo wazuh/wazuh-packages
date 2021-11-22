@@ -158,6 +158,7 @@ main() {
 
         if [ -n "$wazuhclusterkey" ] && [ ! -f wazuh_cluster_config.yml ]; then
             logger -e "No wazuh_cluster_config.yml file found."
+            exit 1;
         fi
 
         importFunction "wazuh.sh"

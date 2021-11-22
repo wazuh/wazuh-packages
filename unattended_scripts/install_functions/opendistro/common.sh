@@ -70,16 +70,6 @@ addWazuhrepo() {
     logger "Done" 
 }
 
-checkFlavor() {
-    if [ -n "$elasticinstalled" ]; then
-        flavor=$(grep 'opendistro' /etc/elasticsearch/elasticsearch.yml)
-    fi
-
-    if [ -n "$flavor" ]; then
-        logger "OD"
-    fi
-}
-
 checkInstalled() {
     
     if [ "${sys_type}" == "yum" ]; then
