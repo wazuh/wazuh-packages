@@ -153,13 +153,13 @@ checkInstalled() {
 
     if [ -n "${wazuhinstalled}" ] || [ -n "${elasticinstalled}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${kibanainstalled}" ]; then 
         if [ -n "${ow}" ]; then
-             overwrite
+            overwrite
         
         elif [ -n "${uninstall}" ]; then
             echo "Removing the installed items"
             rollBack
         else
-            echo "All the Wazuh componets were found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. NOTE: This will erase all the existing configuration and data."
+            echo "All the Wazuh components were found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. NOTE: This will erase all the existing configuration and data."
             exit 1;
         fi
     fi          
