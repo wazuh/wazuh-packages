@@ -321,9 +321,9 @@ if [ $1 = 1 ]; then
 
   # Generating ossec.conf file
   if [ -z "${DIST_SUBVER}" ]; then
-    %{_localstatedir}/packages_files/agent_installation_scripts/gen_ossec.sh conf manager ${DIST_NAME} ${DIST_VER} %{_localstatedir} > %{_localstatedir}/etc/ossec.conf
+    %{_localstatedir}/packages_files/manager_installation_scripts/gen_ossec.sh conf manager ${DIST_NAME} ${DIST_VER} %{_localstatedir} > %{_localstatedir}/etc/ossec.conf
   else
-    %{_localstatedir}/packages_files/agent_installation_scripts/gen_ossec.sh conf manager ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir} > %{_localstatedir}/etc/ossec.conf
+    %{_localstatedir}/packages_files/manager_installation_scripts/gen_ossec.sh conf manager ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir} > %{_localstatedir}/etc/ossec.conf
   fi
 
   touch %{_localstatedir}/logs/active-responses.log
