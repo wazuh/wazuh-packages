@@ -229,7 +229,7 @@ if [ $1 = 1 ]; then
 
   . %{_localstatedir}/packages_files/agent_installation_scripts/src/init/dist-detect.sh
 
-# Generating osse.conf file
+# Generating ossec.conf file
   if [ -z "${DIST_SUBVER}" ]; then
     %{_localstatedir}/packages_files/agent_installation_scripts/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER} %{_localstatedir} > %{_localstatedir}/etc/ossec.conf
   else
