@@ -234,7 +234,11 @@ if [ $1 = 1 ]; then
   . %{_localstatedir}/packages_files/agent_installation_scripts/src/init/dist-detect.sh
 
   # Generating osse.conf file
-  %{_localstatedir}/packages_files/agent_installation_scripts/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir} > %{_localstatedir}/etc/ossec.conf
+  if [ -n ${DIST_SUBVER} ]; then
+    %{_localstatedir}/packages_files/agent_installation_scripts/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir} > %{_localstatedir}/etc/ossec.conf
+  else
+    %{_localstatedir}/packages_files/agent_installation_scripts/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER} %{_localstatedir} > %{_localstatedir}/etc/ossec.conf
+  fi
   chown root:ossec %{_localstatedir}/etc/ossec.conf
 
   # Add default local_files to ossec.conf
