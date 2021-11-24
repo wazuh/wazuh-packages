@@ -36,7 +36,7 @@ jobs:
         with:
           push: true
           tags: wazuh/centos-7-unattended-base:latest
-          context: './.github/actions/Docker/CentOS/7/'
+          context: '../Docker/CentOS/7/'
 
 
 #  CentOS_7_unattended_install_test:
