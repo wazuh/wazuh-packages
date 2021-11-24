@@ -310,7 +310,6 @@ installElasticsearch() {
 
         eval "rm /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem -f ${debug}"
         eval "mkdir /etc/elasticsearch/certs ${debug}"
-        eval "cd /etc/elasticsearch/certs ${debug}"
 
 
         # Configure JVM options for Elasticsearch
@@ -439,8 +438,7 @@ initializeElastic() {
     done
     echo ""
     if [ -n "${single}" ]; then
-        eval "cd /usr/share/elasticsearch/plugins/opendistro_security/tools/ ${debug}"
-        eval "./securityadmin.sh -cd ../securityconfig/ -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin.key -h ${nip} ${debug}"
+        eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin.key -h ${nip} ${debug}"
     fi
 
     logger "Done"
@@ -468,7 +466,6 @@ installKibana() {
         eval "curl -so /etc/kibana/kibana.yml https://packages.wazuh.com/resources/${WAZUH_MAJOR}/open-distro/unattended-installation/distributed/templates/kibana_unattended.yml --max-time 300 ${debug}"
         eval "mkdir /usr/share/kibana/data ${debug}"
         eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
-        eval "cd /usr/share/kibana ${debug}"
         eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana-${WAZUH_VER}_${ELK_VER}-${WAZUH_KIB_PLUG_REV}.zip ${debug}"
         if [  "$?" != 0  ]; then
             logger -e "Wazuh Kibana plugin could not be installed."
@@ -501,8 +498,7 @@ installKibana() {
 
 
         eval "cp ~/certs.tar /etc/kibana/certs/ ${debug}"
-        eval "cd /etc/kibana/certs/ ${debug}"
-        eval "tar -xf certs.tar kibana_http.pem kibana_http.key root-ca.pem ${debug}"
+        eval "tar -xf /etc/kibana/certs/certs.tar /etc/kibana/certs/kibana_http.pem /etc/kibana/certs/kibana_http.key /etc/kibana/certs/root-ca.pem ${debug}"
         eval "mv /etc/kibana/certs/kibana_http.key /etc/kibana/certs/kibana.key ${debug}"
         eval "mv /etc/kibana/certs/kibana_http.pem /etc/kibana/certs/kibana.pem ${debug}"        
         logger "Kibana installed."
@@ -522,8 +518,7 @@ copyKibanacerts() {
         eval "mv /etc/kibana/certs/kibana_http.pem /etc/kibana/certs/kibana.pem ${debug}"          
     elif [ -f ~/certs.tar ]; then
         eval "cp ~/certs.tar /etc/kibana/certs/ ${debug}"
-        eval "cd /etc/kibana/certs/ ${debug}"
-        eval "tar --overwrite -xf certs.tar kibana_http.pem kibana_http.key root-ca.pem ${debug}"
+        eval "tar --overwrite -xf /etc/kibana/certs/certs.tar /etc/kibana/certs/kibana_http.pem /etc/kibana/certs/kibana_http.key /etc/kibana/certs/root-ca.pem ${debug}"
         # if [ ${iname} != "kibana" ]; then
         #     eval "mv /etc/kibana/certs/${iname}_http.pem /etc/kibana/certs/kibana.pem ${debug}"
         #     eval "mv /etc/kibana/certs/${iname}_http.key /etc/kibana/certs/kibana.key ${debug}"
