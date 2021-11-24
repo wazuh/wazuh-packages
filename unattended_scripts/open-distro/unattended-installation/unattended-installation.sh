@@ -284,7 +284,6 @@ installElasticsearch() {
 
         ## Create certificates
         eval "mkdir /etc/elasticsearch/certs ${debug}"
-        eval "cd /etc/elasticsearch/certs ${debug}"
         eval "curl -so ~/wazuh-cert-tool.sh ${resources}/open-distro/tools/certificate-utility/wazuh-cert-tool.sh --max-time 300 ${debug}"
         eval "curl -so ~/instances.yml ${resources}/open-distro/tools/certificate-utility/instances.yml"
         eval "grep -A 4 'Elasticsearch nodes' ~/instances.yml | sed  's/<node-name>/elasticsearch/; s/node-IP/127.0.0.1/' >> ~/instances_tmp.yml"
@@ -326,8 +325,7 @@ installElasticsearch() {
         done    
         echo ""
 
-        eval "cd /usr/share/elasticsearch/plugins/opendistro_security/tools/ ${debug}"
-        eval "./securityadmin.sh -cd ../securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem ${debug}"
+        eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem ${debug}"
         logger "Done"
         
     fi
@@ -384,7 +382,6 @@ installKibana() {
         eval "curl -so /etc/kibana/kibana.yml ${resources}/open-distro/kibana/7.x/kibana_unattended.yml --max-time 300 ${debug}"
         eval "mkdir /usr/share/kibana/data ${debug}"
         eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
-        eval "cd /usr/share/kibana ${debug}"
         eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${repobaseurl}'/ui/kibana/wazuh_kibana-${WAZUH_VER}_${ELK_VER}-${WAZUH_KIB_PLUG_REV}.zip ${debug}"
         if [  "$?" != 0  ]; then
             logger -e "Wazuh Kibana plugin could not be installed."
@@ -484,7 +481,7 @@ checkInstalled() {
         fi  
     fi  
 
-    if [ -z "${wazuhinstalled}" ] || [ -z "${elasticinstalled}" ] || [ -z "${filebeatinstalled}" ] || [ -z "${kibanainstalled}" ] && [ -n "${uninstall}" ]; then 
+    if [ -z "${wazuhinstalled}" ] && [ -z "${elasticinstalled}" ] && [ -z "${filebeatinstalled}" ] && [ -z "${kibanainstalled}" ] && [ -n "${uninstall}" ]; then 
         logger -e "No Wazuh components were found on the system."
         exit 1;        
     fi
