@@ -6,9 +6,13 @@ on:
   push:
     branches:
       - stable
+    paths:
+      - 'unattended_scripts/**'
   pull_request:
     branches:
       - stable
+    paths:
+      - 'unattended_scripts/**'
 
 jobs:
 
