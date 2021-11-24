@@ -7,6 +7,7 @@
 # and/or modify it under the terms of the GNU General Public
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
+
 ## Check if system is based on yum or apt-get
 char="."
 debug='>> /var/log/wazuh-unattended-installation.log 2>&1'
