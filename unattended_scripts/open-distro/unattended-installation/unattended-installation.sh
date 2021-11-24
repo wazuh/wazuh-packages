@@ -22,7 +22,7 @@ WAZUH_KIB_PLUG_REV="1"
 ow=""
 repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"
 repobaseurl="https://packages.wazuh.com/4.x"
-resources="https://packages.wazuh.com/resources/${WAZUH_MAJOR}"
+resources="https://raw.githubusercontent.com/wazuh/wazuh-packages/unattended-testing/unattended_scripts"
 
 if [ -n "$(command -v yum)" ]; then
     sys_type="yum"
@@ -567,12 +567,12 @@ healthCheck() {
 }
 
 changePasswords() {
-    #eval "curl -so ~/wazuh-passwords-tool.sh ${resources}/open-distro/tools/wazuh-passwords-tool.sh --max-time 300 ${debug}"
+    eval "curl -so ~/wazuh-passwords-tool.sh ${resources}/open-distro/tools/wazuh-passwords-tool.sh --max-time 300 ${debug}"
     if [ -n "${verbose}" ]; then
-        bash /github/workspace/unattended_scripts/open-distro/tools/wazuh-passwords-tool.sh -a -v
+        bash ~/wazuh-passwords-tool.sh -a -v
     else
         VERBOSE='> /dev/null 2>&1'
-        bash /github/workspace/unattended_scripts/open-distro/tools/wazuh-passwords-tool.sh -a
+        bash ~/wazuh-passwords-tool.sh -a -v
     fi    
     
     if [  "$?" != 0  ]; then
