@@ -320,11 +320,11 @@ runSecurityAdmin() {
 
     if [[ -n "${NUSER}" ]] && [[ -n ${AUTOPASS} ]]; then
         logger $'\nThe password for user '${NUSER}' is '${PASSWORD}''
-        logger -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
+        logger "Password changed. If this was executed in a distributed architecture remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml and restart the services. For more information: https://documentation.wazuh.com."
     fi
 
     if [[ -n "${NUSER}" ]] && [[ -z ${AUTOPASS} ]]; then
-        logger -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
+        logger "Password changed. If this was executed in a distributed architecture remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml and restart the services. For more information: https://documentation.wazuh.com."
     fi    
 
     if [ -n "${CHANGEALL}" ]; then
@@ -335,7 +335,7 @@ runSecurityAdmin() {
             logger "The password for ${USERS[i]} is ${PASSWORDS[i]}"
         done
         echo ""
-        logger -w "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
+        logger "Password changed. If this was executed in a distributed architecture remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml and restart the services. For more information: https://documentation.wazuh.com."
         echo ""
     fi 
 
