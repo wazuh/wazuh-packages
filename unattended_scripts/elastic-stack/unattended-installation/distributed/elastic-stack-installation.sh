@@ -8,11 +8,10 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-WAZUH_MAJOR="4.3"
 WAZUH_VER="4.3.0"
+WAZUH_MAJOR="4.3"
 WAZUH_REV="1"
 ELK_VER="7.14.2"
-
 WAZUH_KIB_PLUG_REV="1"
 
 ## Check if system is based on yum or apt-get
@@ -252,7 +251,7 @@ installElasticsearch() {
         logger "Done"
 
         logger "Configuring Elasticsearch..."
-        eval "curl -so /etc/elasticsearch/elasticsearch.yml https://packages.wazuh.com/resources/4.3/elastic-stack/unattended-installation/distributed/templates/elasticsearch_unattended.yml --max-time 300 $debug"
+        eval "curl -so /etc/elasticsearch/elasticsearch.yml https://packages.wazuh.com/resources/${WAZUH_MAJOR}/elastic-stack/unattended-installation/distributed/templates/elasticsearch_unattended.yml --max-time 300 $debug"
 
         if [ -n "$single" ]
         then
@@ -456,7 +455,7 @@ installKibana() {
         exit 1;
     else
         disableRepos
-        eval "curl -so /etc/kibana/kibana.yml https://packages.wazuh.com/resources/4.3/elastic-stack/unattended-installation/distributed/templates/kibana_unattended.yml --max-time 300 $debug"
+        eval "curl -so /etc/kibana/kibana.yml https://packages.wazuh.com/resources/${WAZUH_MAJOR}/elastic-stack/unattended-installation/distributed/templates/kibana_unattended.yml --max-time 300 $debug"
         eval "mkdir /usr/share/kibana/data ${debug}"
         eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
         eval "cd /usr/share/kibana ${debug}"

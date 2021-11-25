@@ -9,6 +9,13 @@
 # Foundation.
 
 ## Check if system is based on yum or apt-get
+
+WAZUH_VER="4.3.0"
+WAZUH_MAJOR="4.3"
+WAZUH_REV="1"
+ELK_VER="7.14.2"
+WAZUH_KIB_PLUG_REV="1"
+
 ips=()
 debug='> /dev/null 2>&1'
 if [ -n "$(command -v yum)" ]
@@ -283,8 +290,8 @@ installFilebeat() {
         logger -e "Filebeat installation failed"
         exit 1;
     else
-        eval "curl -so /etc/filebeat/filebeat.yml https://packages.wazuh.com/resources/4.3/elastic-stack/unattended-installation/distributed/templates/filebeat.yml --max-time 300  $debug"
-        eval "curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/4.3/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300 $debug"
+        eval "curl -so /etc/filebeat/filebeat.yml https://packages.wazuh.com/resources/${WAZUH_MAJOR}/elastic-stack/unattended-installation/distributed/templates/filebeat.yml --max-time 300  $debug"
+        eval "curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/${WAZUH_MAJOR}/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300 $debug"
         eval "chmod go+r /etc/filebeat/wazuh-template.json $debug"
         eval "curl -s https://packages.wazuh.com/4.x/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module $debug"
         eval "mkdir /etc/filebeat/certs $debug"
