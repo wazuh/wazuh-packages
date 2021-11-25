@@ -8,6 +8,12 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
+WAZUH_VER="4.3.0"
+WAZUH_REV="1"
+ELK_VER="7.14.2"
+
+WAZUH_KIB_PLUG_REV="1"
+
 ## Check if system is based on yum or apt-get or zypper
 char="."
 debug='> /dev/null 2>&1'
@@ -184,7 +190,7 @@ addWazuhrepo() {
     if [ $sys_type == "yum" ]
     then
         eval "rpm --import https://packages.wazuh.com/key/GPG-KEY-WAZUH $debug"
-        eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages.wazuh.com/4.x/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo $debug"
+        eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-\$releasever - Wazuh\nbaseurl=https://packages.wazuh.com/4.x/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo $debug"
     elif [ $sys_type == "zypper" ]
     then
         rpm --import https://packages.wazuh.com/key/GPG-KEY-WAZUH > /dev/null 2>&1
@@ -243,13 +249,13 @@ installElasticsearch() {
 
     if [ $sys_type == "yum" ]
     then
-        eval "yum install elasticsearch-7.11.2 -y -q $debug"
+        eval "yum install elasticsearch-${ELK_VER} -y -q $debug"
     elif [ $sys_type == "apt-get" ] 
     then
-        eval "apt-get install elasticsearch=7.11.2 -y -q $debug"
+        eval "apt-get install elasticsearch=${ELK_VER} -y -q $debug"
     elif [ $sys_type == "zypper" ] 
     then
-        eval "zypper -n install elasticsearch-7.11.2 $debug"
+        eval "zypper -n install elasticsearch-${ELK_VER} $debug"
     fi
 
     if [  "$?" != 0  ]
@@ -261,8 +267,8 @@ installElasticsearch() {
 
         logger "Configuring Elasticsearch..."
 
-        eval "curl -so /etc/elasticsearch/elasticsearch.yml https://packages.wazuh.com/resources/4.2/elastic-stack/elasticsearch/7.x/elasticsearch_all_in_one.yml --max-time 300 $debug"
-        eval "curl -so /usr/share/elasticsearch/instances.yml https://packages.wazuh.com/resources/4.2/elastic-stack/instances_aio.yml --max-time 300 $debug"
+        eval "curl -so /etc/elasticsearch/elasticsearch.yml https://packages.wazuh.com/resources/4.3/elastic-stack/elasticsearch/7.x/elasticsearch_all_in_one.yml --max-time 300 $debug"
+        eval "curl -so /usr/share/elasticsearch/instances.yml https://packages.wazuh.com/resources/4.3/elastic-stack/instances_aio.yml --max-time 300 $debug"
         eval "/usr/share/elasticsearch/bin/elasticsearch-certutil cert ca --pem --in instances.yml --keep-ca-key --out ~/certs.zip $debug"
         eval "unzip ~/certs.zip -d ~/certs $debug"
         eval "mkdir /etc/elasticsearch/certs/ca -p $debug"
@@ -317,21 +323,21 @@ installFilebeat() {
     logger "Installing Filebeat..."
     if [ $sys_type == "yum" ]
     then
-        eval "yum install filebeat-7.11.2 -y -q  $debug"    
+        eval "yum install filebeat-${ELK_VER} -y -q  $debug"    
     elif [ $sys_type == "zypper" ] 
     then
-        eval "zypper -n install filebeat-7.11.2 $debug"
+        eval "zypper -n install filebeat-${ELK_VER} $debug"
     elif [ $sys_type == "apt-get" ] 
     then
-        eval "apt-get install filebeat=7.11.2 -y -q  $debug"
+        eval "apt-get install filebeat=${ELK_VER} -y -q  $debug"
     fi
     if [  "$?" != 0  ]
     then
         logger -e "Filebeat installation failed"
         exit 1;
     else
-        eval "curl -so /etc/filebeat/filebeat.yml https://packages.wazuh.com/resources/4.2/elastic-stack/filebeat/7.x/filebeat_all_in_one.yml --max-time 300  $debug"
-        eval "curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/4.2/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300 $debug"
+        eval "curl -so /etc/filebeat/filebeat.yml https://packages.wazuh.com/resources/4.3/elastic-stack/filebeat/7.x/filebeat_all_in_one.yml --max-time 300  $debug"
+        eval "curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/4.3/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300 $debug"
         eval "chmod go+r /etc/filebeat/wazuh-template.json $debug"
         eval "curl -s https://packages.wazuh.com/4.x/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module $debug"
         eval "mkdir /etc/filebeat/certs $debug"
@@ -354,24 +360,24 @@ installKibana() {
     logger "Installing Kibana..."
     if [ $sys_type == "yum" ]
     then
-        eval "yum install kibana-7.11.2 -y -q  $debug"    
+        eval "yum install kibana-${ELK_VER} -y -q  $debug"    
     elif [ $sys_type == "zypper" ] 
     then
-        eval "zypper -n install kibana-7.11.2 $debug"
+        eval "zypper -n install kibana-${ELK_VER} $debug"
     elif [ $sys_type == "apt-get" ] 
     then
-        eval "apt-get install kibana=7.11.2 -y -q  $debug"
+        eval "apt-get install kibana=${ELK_VER} -y -q  $debug"
     fi
     if [  "$?" != 0  ]
     then
         logger -e "Kibana installation failed"
         exit 1;
     else
-        eval "curl -so /etc/kibana/kibana.yml https://packages.wazuh.com/resources/4.2/elastic-stack/kibana/7.x/kibana_all_in_one.yml --max-time 300 $debug"
+        eval "curl -so /etc/kibana/kibana.yml https://packages.wazuh.com/resources/4.3/elastic-stack/kibana/7.x/kibana_all_in_one.yml --max-time 300 $debug"
         eval "mkdir /usr/share/kibana/data ${debug}"
         eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
         eval "cd /usr/share/kibana ${debug}"
-        eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana-4.2.2_7.11.2-1.zip ${debug}"
+        eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana-${WAZUH_VER}_${ELK_VER}-${WAZUH_KIB_PLUG_REV}.zip ${debug}"
         if [  "$?" != 0  ]; then
             logger -e "Wazuh Kibana plugin could not be installed."
             exit 1;
@@ -406,7 +412,7 @@ healthCheck() {
         logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores . If you want to proceed with the installation use the -i option to ignore these requirements."
         exit 1;
     elif [[ -f /etc/elasticsearch/elasticsearch.yml ]] && [[ -f /etc/kibana/kibana.yml ]] && [[ -f /etc/filebeat/filebeat.yml ]]; then
-        logger -w "All the componens have already been installed."
+        logger -e "All the components have already been installed."
         exit 1;    
     else
         logger "Starting the installation..."

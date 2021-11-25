@@ -11,7 +11,7 @@
 ## Check if system is based on yum or apt-get
 char="."
 debug='> /dev/null 2>&1'
-WAZUH_VER="4.2.2"
+WAZUH_VER="4.3.0"
 WAZUH_REV="1"
 ELK_VER="7.10.2"
 OD_VER="1.13.2"
@@ -65,7 +65,7 @@ startService() {
         eval "systemctl start $1.service ${debug}"
         if [  "$?" != 0  ]
         then
-            logger -e  "${1^} could not be started."
+            logger -e "${1^} could not be started."
             exit 1;
         else
             logger "${1^} started"
@@ -76,7 +76,7 @@ startService() {
         eval "/etc/init.d/$1 start ${debug}"
         if [  "$?" != 0  ]
         then
-            logger -e  "${1^} could not be started."
+            logger -e "${1^} could not be started."
             exit 1;
         else
             logger "${1^} started"
@@ -211,8 +211,8 @@ installFilebeat() {
         logger -e "Filebeat installation failed"
         exit 1;
     else
-        eval "curl -so /etc/filebeat/filebeat.yml https://packages.wazuh.com/resources/4.2/open-distro/unattended-installation/distributed/templates/filebeat.yml --max-time 300 ${debug}"
-        eval "curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/4.2/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300 ${debug}"
+        eval "curl -so /etc/filebeat/filebeat.yml https://packages.wazuh.com/resources/4.3/open-distro/unattended-installation/distributed/templates/filebeat.yml --max-time 300 ${debug}"
+        eval "curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/4.3/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300 ${debug}"
         eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
         eval "curl -s https://packages.wazuh.com/4.x/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module ${debug}"
     fi
@@ -268,6 +268,12 @@ healthCheck() {
     else
         logger "Starting the installation..."
     fi
+}
+
+setWazuhUserRBACPermissions() {
+    TOKEN=$(curl -u wazuh:wazuh -s -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
+    eval "curl -s -k -X POST \"https://localhost:55000/security/rules?pretty=true\" -H \"Authorization: Bearer $TOKEN\" -H \"Content-Type: application/json\" -d '{\"name\": \"wazuh_rbac\",\"rule\": {\"FIND\": {\"user_name\": \"wazuh\"}}}' ${debug}"
+    eval "curl -s -k -X POST \"https://localhost:55000/security/roles/1/rules?rule_ids=100&pretty=true\" -H \"Authorization: Bearer $TOKEN\" ${debug}"
 }
 
 ## Main
@@ -329,6 +335,8 @@ main() {
         installWazuh
         installFilebeat iname
         configureFilebeat
+        setWazuhUserRBACPermissions
+
     else
         getHelp
     fi

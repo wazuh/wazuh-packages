@@ -35,10 +35,11 @@ logger() {
             message="$1"
             ;;
     esac
-    echo  $now $mtype $message
+    echo $now $mtype $message
 }
 
 ## Checks if the script is run with enough privileges
+
 checkRoot() {
     if [ "$EUID" -ne 0 ]; then
         logger -e "This script must be run as root."
@@ -165,15 +166,16 @@ readFileUsers() {
 
     FILECORRECT=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*\w+\s*)+\Z' $FILE)
     if [ $FILECORRECT -ne 1 ]; then
-        logger -e "the password file doesn't have a correct format.
-        It must have this format:
-        User:
-        name: wazuh
-        password: wazuhpasword
-        User:
-        name: kibanaserver
-        password: kibanaserverpassword"
-        exit 1
+	logger -e "The password file doesn't have a correct format.
+
+It must have this format:
+User:
+   name: wazuh
+   password: wazuhpasword
+User:
+   name: kibanaserver
+   password: kibanaserverpassword"
+	exit 1
     fi	
 
     SFILEUSERS=$(grep name: ${FILE} | awk '{ print substr( $2, 1, length($2) ) }')
@@ -199,7 +201,6 @@ readFileUsers() {
             if [ $supported = false ]; then
                 logger -e "The given user ${FILEUSERS[j]} does not exist"
             fi
-
         done
     else
         FINALUSERS=()
@@ -214,7 +215,7 @@ readFileUsers() {
                     supported=true
                 fi
             done
-            if [ $supported = false ];then
+            if [ $supported = false ]; then
                 logger -e "The given user ${FILEUSERS[j]} does not exist"
             fi
         done
@@ -374,7 +375,6 @@ changePassword() {
 		    restartService "kibana"
 	    fi         
     fi
-
 }
 
 ## Runs the Security Admin script to load the changes
@@ -477,7 +477,7 @@ main() {
         if [ -n "${PASSWORD}" ] && [ -n "${CHANGEALL}" ]; then
             getHelp
         fi 
-
+        
         if [ -n "${NUSER}" ] && [ -n "${FILE}" ]; then
             getHelp
         fi 
