@@ -4,15 +4,15 @@ on:
   push:
     branches:
       - stable
-    paths:
-      - '.github/actions/Tests/Unattended/**'
-      - '.github/actions/Docker/**'
-  pull_request:
-    branches:
-      - stable
-    paths:
-      - '.github/actions/Tests/Unattended/**'
-      - '.github/actions/Docker/**'
+      paths:
+        - '.github/actions/Tests/Unattended/**'
+        - '.github/actions/Docker/**'
+    pull_request:
+      branches:
+        - stable
+      paths:
+        - '.github/actions/Tests/Unattended/**'
+        - '.github/actions/Docker/**'
 
 jobs:
 
