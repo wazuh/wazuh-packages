@@ -487,6 +487,9 @@ installKibana() {
         fi
         logger "Kibana installed."
 
+        # Add custom css in kibana
+        less ${resources}/open-distro/kibana/customWelcomeKibana.css >> /usr/share/kibana/src/core/server/core_app/assets/legacy_light_theme.css
+
         initializeKibana iname kip epassword
         echo -e
 

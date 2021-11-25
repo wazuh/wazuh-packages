@@ -397,6 +397,11 @@ installKibana() {
         eval "chmod 440 /etc/kibana/certs/kibana* ${debug}"
         eval "setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node ${debug}"
 
+        # Add custom css in kibana
+        less ${resources}/open-distro/kibana/customWelcomeKibana.css >> /usr/share/kibana/src/core/server/core_app/assets/legacy_light_theme.css
+
+
+
         # Start Kibana
         startService "kibana"
 

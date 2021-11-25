@@ -501,6 +501,9 @@ installKibana() {
         eval "mv /etc/kibana/certs/kibana_http.pem /etc/kibana/certs/kibana.pem ${debug}"        
         logger "Kibana installed."
 
+        # Add custom css in kibana
+        less ${resources}/open-distro/kibana/customWelcomeKibana.css >> /usr/share/kibana/src/core/server/core_app/assets/legacy_light_theme.css
+
         copyKibanacerts iname
         initializeKibana kip
         echo -e

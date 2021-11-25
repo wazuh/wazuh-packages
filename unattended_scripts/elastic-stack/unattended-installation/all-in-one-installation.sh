@@ -386,6 +386,9 @@ installKibana() {
         conf="$(awk '{sub("<elasticsearch_password>", "'"${password}"'")}1' /etc/kibana/kibana.yml)"
         echo "$conf" > /etc/kibana/kibana.yml
 
+        # Add custom css in kibana
+        less ${resources}/open-distro/kibana/customWelcomeKibana.css >> /usr/share/kibana/src/core/server/core_app/assets/legacy_light_theme.css
+
         # Start Kibana
         startService "kibana"
 
