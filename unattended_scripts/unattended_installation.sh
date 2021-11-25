@@ -4,7 +4,7 @@ set -x
 
 ## Package vars
 WAZUH_MAJOR="4.2"
-WAZUH_VER="4.2.3"
+WAZUH_VER="4.2.5"
 WAZUH_REV="1"
 ELK_VER="7.10.2"
 ELKB_VER="7.12.1"
