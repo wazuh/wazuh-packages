@@ -10,8 +10,8 @@ BuildRoot:   %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Vendor:      Wazuh, Inc <info@wazuh.com>
 Packager:    Wazuh, Inc <info@wazuh.com>
 Requires(pre):    /usr/sbin/groupadd /usr/sbin/useradd
-Requires(post):   /sbin/chkconfig
-Requires(preun):  /sbin/chkconfig /sbin/service
+Requires(post):   
+Requires(preun):  /sbin/service
 Requires(postun): /sbin/service
 Conflicts:   ossec-hids ossec-hids-agent wazuh-manager wazuh-local
 AutoReqProv: no
@@ -357,15 +357,6 @@ if [ $1 = 0 ]; then
     %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1
   fi
 
-  # Check for systemd
-  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
-    systemctl disable wazuh-agent > /dev/null 2>&1
-    systemctl daemon-reload > /dev/null 2>&1
-  # Check for SysV
-  elif command -v service > /dev/null 2>&1 ; then
-    chkconfig wazuh-agent off > /dev/null 2>&1
-    chkconfig --del wazuh-agent > /dev/null 2>&1
-  fi
 
   # Remove the SELinux policy
   if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then

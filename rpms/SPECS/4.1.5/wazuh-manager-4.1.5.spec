@@ -10,8 +10,8 @@ BuildRoot:   %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Vendor:      Wazuh, Inc <info@wazuh.com>
 Packager:    Wazuh, Inc <info@wazuh.com>
 Requires(pre):    /usr/sbin/groupadd /usr/sbin/useradd
-Requires(post):   /sbin/chkconfig
-Requires(preun):  /sbin/chkconfig /sbin/service
+Requires(post):   
+Requires(preun):  /sbin/service
 Requires(postun): /sbin/service /usr/sbin/groupdel /usr/sbin/userdel
 Conflicts:   ossec-hids ossec-hids-agent wazuh-agent wazuh-local
 Obsoletes: wazuh-api <= 3.13.2
@@ -256,20 +256,7 @@ if [ $1 = 2 ]; then
     rm -f %{_localstatedir}/queue/db/.template.db
   fi
 
-  # Delete 3.X Wazuh API service
-  if [ "$MAJOR" = "3" ] && [ -d %{_localstatedir}/api ]; then
-    if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 ; then
-      systemctl stop wazuh-api.service > /dev/null 2>&1
-      systemctl disable wazuh-api.service > /dev/null 2>&1
-      rm -f /etc/systemd/system/wazuh-api.service
-    elif command -v service > /dev/null 2>&1 ; then
-      service wazuh-api stop > /dev/null 2>&1
-      chkconfig wazuh-api off > /dev/null 2>&1
-      chkconfig --del wazuh-api > /dev/null 2>&1
-      rm -f /etc/rc.d/init.d/wazuh-api || true
-    fi
-  fi
-fi
+
 
 %post
 
