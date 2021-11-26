@@ -170,6 +170,8 @@ compile() {
     cp $SOURCE/ruleset/sca/sunos/* ${install_path}/tmp/sca/sunos/
     rm -f ${install_path}/ruleset/sca/*
 
+    useradd -g ossec ossec
+    groupadd ossec
     mkdir ${install_path}/logs/ossec
     mkdir ${install_path}/queue/ossec
     chown ossec:ossec ${install_path}/logs/ossec
