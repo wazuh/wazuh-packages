@@ -16,8 +16,8 @@ WAZUH_KIB_PLUG_REV="1"
 functions_path="install_functions/opendistro"
 config_path="config/opendistro"
 resources="https://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/resources/${WAZUH_MAJOR}"
-resources_functions="${resources}/${WAZUH_MAJOR}/${functions_path}"
-resources_config="${resources}/{WAZUH_MAJOR}/${config_path}"
+resources_functions="${resources}/${functions_path}"
+resources_config="${resources}/${config_path}"
 
 ## Show script usage
 getHelp() {
