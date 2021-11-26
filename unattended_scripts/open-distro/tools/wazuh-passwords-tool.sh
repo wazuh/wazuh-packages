@@ -17,6 +17,14 @@ elif [ -n "$(command -v apt-get)" ]; then
     SYS_TYPE="apt-get"   
 fi
 
+fileFormat="It must have this format:
+User:
+   name: wazuh
+   password: wazuhpasword
+User:
+   name: kibanaserver
+   password: kibanaserverpassword"
+   
 ## Prints information
 logger() {
 
@@ -35,7 +43,7 @@ logger() {
             message="$1"
             ;;
     esac
-    echo $now $mtype $message
+    echo -e $now $mtype $message
 }
 
 ## Checks if the script is run with enough privileges
@@ -166,15 +174,7 @@ readFileUsers() {
 
     FILECORRECT=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*\w+\s*)+\Z' $FILE)
     if [ $FILECORRECT -ne 1 ]; then
-	logger -e "The password file doesn't have a correct format.
-
-It must have this format:
-User:
-   name: wazuh
-   password: wazuhpasword
-User:
-   name: kibanaserver
-   password: kibanaserverpassword"
+	logger -e "The password file doesn't have a correct format.\n${fileFormat}"
 	exit 1
     fi	
 
