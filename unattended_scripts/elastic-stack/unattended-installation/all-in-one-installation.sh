@@ -8,8 +8,8 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-WAZUH_VER="4.3.0"
-WAZUH_MAJOR="4.3"
+WAZUH_VER="4.4.0"
+WAZUH_MAJOR="4.4"
 WAZUH_REV="1"
 ELK_VER="7.14.2"
 WAZUH_KIB_PLUG_REV="1"
