@@ -80,29 +80,6 @@ preInstall() {
   sed -i "0,/setWazuhUserRBACPermissions/s/setWazuhUserRBACPermissions/setWazuhUserRBACPermissions\nsystemctl stop wazuh-manager/" ${UNATTENDED_PATH}/${INSTALLER}
 }
 
-# Edit wazuh installation
-postInstall() {
-
-  # Change Wazuh repo dev to prod
-  if [ "${PACKAGES_REPOSITORY}" = "dev" ]; then
-    sed -i "s/-dev//g" /etc/yum.repos.d/wazuh.repo
-    sed -i "s/pre-release/4.x/g" /etc/yum.repos.d/wazuh.repo
-  fi
-
-  # Edit window title
-  sed -i "s/null, \"Elastic\"/null, \"Wazuh\"/g" /usr/share/kibana/src/core/server/rendering/views/template.js
-
-  curl -so ${CUSTOM_PATH}/custom_welcome.tar.gz https://wazuh-demo.s3-us-west-1.amazonaws.com/custom_welcome_opendistro_docker.tar.gz
-  tar -xf ${CUSTOM_PATH}/custom_welcome.tar.gz -C ${CUSTOM_PATH}
-  cp ${CUSTOM_PATH}/custom_welcome/wazuh_logo_circle.svg /usr/share/kibana/src/core/server/core_app/assets/
-  cp ${CUSTOM_PATH}/custom_welcome/wazuh_wazuh_bg.svg /usr/share/kibana/src/core/server/core_app/assets/
-  cp ${CUSTOM_PATH}/custom_welcome/template.js.hbs /usr/share/kibana/src/legacy/ui/ui_render/bootstrap/template.js.hbs
-
-  # Add custom css in kibana
-  less ${CUSTOM_PATH}/customWelcomeKibana.css >> /usr/share/kibana/src/core/server/core_app/assets/legacy_light_theme.css
-
-}
-
 clean() {
 
   rm /securityadmin_demo.sh
