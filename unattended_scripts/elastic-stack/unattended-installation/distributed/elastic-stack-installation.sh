@@ -8,6 +8,12 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
+WAZUH_VER="4.3.0"
+WAZUH_MAJOR="4.3"
+WAZUH_REV="1"
+ELK_VER="7.14.2"
+WAZUH_KIB_PLUG_REV="1"
+
 ## Check if system is based on yum or apt-get
 char="."
 debug='> /dev/null 2>&1'
@@ -228,13 +234,13 @@ installElasticsearch() {
 
     if [ $sys_type == "yum" ]
     then
-        eval "yum install elasticsearch-7.11.2 -y -q $debug"
+        eval "yum install elasticsearch-${ELK_VER} -y -q $debug"
     elif [ $sys_type == "apt-get" ] 
     then
-        eval "apt-get install elasticsearch=7.11.2 -y -q $debug"
+        eval "apt-get install elasticsearch=${ELK_VER} -y -q $debug"
     elif [ $sys_type == "zypper" ] 
     then
-        eval "zypper -n install elasticsearch-7.11.2 $debug"
+        eval "zypper -n install elasticsearch-${ELK_VER} $debug"
     fi
 
     if [  "$?" != 0  ]
@@ -245,7 +251,7 @@ installElasticsearch() {
         logger "Done"
 
         logger "Configuring Elasticsearch..."
-        eval "curl -so /etc/elasticsearch/elasticsearch.yml https://packages.wazuh.com/resources/4.2/elastic-stack/unattended-installation/distributed/templates/elasticsearch_unattended.yml --max-time 300 $debug"
+        eval "curl -so /etc/elasticsearch/elasticsearch.yml https://packages.wazuh.com/resources/${WAZUH_MAJOR}/elastic-stack/unattended-installation/distributed/templates/elasticsearch_unattended.yml --max-time 300 $debug"
 
         if [ -n "$single" ]
         then
@@ -323,6 +329,7 @@ installElasticsearch() {
             copyCertificates iname
         fi
         initializeElastic
+
         logger "Done"
     fi
 
@@ -434,13 +441,13 @@ installKibana() {
     logger "Installing Kibana..."
     if [ $sys_type == "yum" ]
     then
-        eval "yum install kibana-7.11.2 -y -q  $debug"    
+        eval "yum install kibana-${ELK_VER} -y -q  $debug"    
     elif [ $sys_type == "zypper" ] 
     then
-        eval "zypper -n install kibana-7.11.2 $debug"
+        eval "zypper -n install kibana-${ELK_VER} $debug"
     elif [ $sys_type == "apt-get" ] 
         then
-        eval "apt-get install kibana=7.11.2 -y -q  $debug"
+        eval "apt-get install kibana=${ELK_VER} -y -q  $debug"
     fi
     if [  "$?" != 0  ]
     then
@@ -448,11 +455,11 @@ installKibana() {
         exit 1;
     else
         disableRepos
-        eval "curl -so /etc/kibana/kibana.yml https://packages.wazuh.com/resources/4.2/elastic-stack/unattended-installation/distributed/templates/kibana_unattended.yml --max-time 300 $debug"
+        eval "curl -so /etc/kibana/kibana.yml https://packages.wazuh.com/resources/${WAZUH_MAJOR}/elastic-stack/unattended-installation/distributed/templates/kibana_unattended.yml --max-time 300 $debug"
         eval "mkdir /usr/share/kibana/data ${debug}"
         eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
         eval "cd /usr/share/kibana ${debug}"
-        eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana-4.2.2_7.11.2-1.zip ${debug}"
+        eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana-${WAZUH_VER}_${ELK_VER}-${WAZUH_KIB_PLUG_REV}.zip ${debug}"
         if [  "$?" != 0  ]; then
             logger -e "Wazuh Kibana plugin could not be installed."
             exit 1;
@@ -518,7 +525,7 @@ initializeKibana() {
         echo -ne $char
         sleep 10
     done
-    echo "" 
+    echo ""
     sleep 10
     wip=$(grep -A 2 ${iname} ~/config.yml | tail -1)
     rw1="- "

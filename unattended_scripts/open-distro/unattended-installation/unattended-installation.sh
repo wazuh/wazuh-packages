@@ -11,8 +11,8 @@
 ## Check if system is based on yum or apt-get
 char="."
 debug='>> /var/log/wazuh-unattended-installation.log 2>&1'
-WAZUH_MAJOR="4.2"
-WAZUH_VER="4.2.2"
+WAZUH_MAJOR="4.3"
+WAZUH_VER="4.3.0"
 WAZUH_REV="1"
 ELK_VER="7.10.2"
 OD_VER="1.13.2"
@@ -351,7 +351,7 @@ installFilebeat() {
     else
         filebeatinstalled="1"
         eval "curl -so /etc/filebeat/filebeat.yml ${resources}/open-distro/filebeat/7.x/filebeat_unattended.yml --max-time 300  ${debug}"
-        eval "curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/4.0/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300 ${debug}"
+        eval "curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/${WAZUH_MAJOR}/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300 ${debug}"
         eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
         eval "curl -s '${repobaseurl}'/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module ${debug}"
         eval "mkdir /etc/filebeat/certs ${debug}"
@@ -494,7 +494,7 @@ checkInstalled() {
              overwrite
         
         elif [ -n "${uninstall}" ]; then
-            logger "Removing the installed items"
+            logger -w "Removing the installed items"
             rollBack
         else
             logger -e "All the Wazuh componets were found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. NOTE: This will erase all the existing configuration and data."
@@ -594,13 +594,20 @@ checkInstallation() {
     until [[ "$(curl -XGET https://localhost/status -I -uwazuh:${wazuhpass} -k -s --max-time 300 | grep "200 OK")" ]]; do
         echo -ne $char
         sleep 10
-    done    
+    done
     echo ""
+    setWazuhUserRBACPermissions
     logger $'\nInstallation finished'
     logger $'\nYou can access the web interface https://<kibana_ip>. The credentials are wazuh:'${wazuhpass}''
 
     exit 0;
 
+}
+
+setWazuhUserRBACPermissions() {
+    TOKEN=$(curl -u wazuh:wazuh -s -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
+    eval "curl -s -k -X POST \"https://localhost:55000/security/rules?pretty=true\" -H \"Authorization: Bearer $TOKEN\" -H \"Content-Type: application/json\" -d '{\"name\": \"wazuh_rbac\",\"rule\": {\"FIND\": {\"user_name\": \"wazuh\"}}}' ${debug}"
+    eval "curl -s -k -X POST \"https://localhost:55000/security/roles/1/rules?rule_ids=100&pretty=true\" -H \"Authorization: Bearer $TOKEN\" ${debug}"
 }
 
 main() {
