@@ -14,11 +14,11 @@ case "$1" in
 
       # Stop the services before uninstalling the package
       # Check for systemd
-      if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-agent > /dev/null 2>&1; then
-          systemctl stop wazuh-agent > /dev/null 2>&1
+      if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet hd-agent > /dev/null 2>&1; then
+          systemctl stop hd-agent > /dev/null 2>&1
       # Check for SysV
-      elif command -v service > /dev/null 2>&1 && service wazuh-agent status 2>/dev/null | grep "running" > /dev/null 2>&1; then
-          service wazuh-agent stop > /dev/null 2>&1
+      elif command -v service > /dev/null 2>&1 && service hd-agent status 2>/dev/null | grep "running" > /dev/null 2>&1; then
+          service hd-agent stop > /dev/null 2>&1
       else
           ${DIR}/bin/wazuh-control stop > /dev/null 2>&1
       fi

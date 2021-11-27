@@ -1,4 +1,4 @@
-Source: wazuh-agent
+Source: hd-agent
 Section: admin
 Priority: extra
 Maintainer: Wazuh, Inc <info@wazuh.com>
@@ -6,7 +6,7 @@ Build-Depends: debhelper (>= 7.0.50~), make, gcc, linux-libc-dev, gawk, libaudit
 Standards-Version: 3.8.4
 Homepage: https://www.wazuh.com
 
-Package: wazuh-agent
+Package: hd-agent
 Architecture: any
 Depends: ${shlibs:Depends}, libc6 (>= 2.7), lsb-release, debconf, adduser
 Conflicts: ossec-hids-agent, wazuh-manager, ossec-hids, wazuh-api

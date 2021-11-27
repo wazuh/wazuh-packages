@@ -16,7 +16,7 @@ export DH_VERBOSE=1
 # This has to be exported to make some magic below work.
 export DH_OPTIONS
 
-export TARGET_DIR=${CURDIR}/debian/wazuh-agent
+export TARGET_DIR=${CURDIR}/debian/hd-agent
 
 # Package build options
 export INSTALLATION_DIR="/var/ossec"
@@ -64,12 +64,12 @@ override_dh_install:
 	mkdir -p ${TARGET_DIR}/etc/init.d/
 	sed -i "s:WAZUH_HOME_TMP:${INSTALLATION_DIR}:g" src/init/templates/ossec-hids-debian.init
 
-	cp src/init/templates/ossec-hids-debian.init ${TARGET_DIR}/etc/init.d/wazuh-agent
+	cp src/init/templates/ossec-hids-debian.init ${TARGET_DIR}/etc/init.d/hd-agent
 
 	# Copying systemd file
 	mkdir -p ${TARGET_DIR}/usr/lib/systemd/system/
-	sed -i "s:WAZUH_HOME_TMP:${INSTALLATION_DIR}:g" src/init/templates/wazuh-agent.service
-	install -m 0644 src/init/templates/wazuh-agent.service ${TARGET_DIR}/usr/lib/systemd/system/
+	sed -i "s:WAZUH_HOME_TMP:${INSTALLATION_DIR}:g" src/init/templates/hd-agent.service
+	install -m 0644 src/init/templates/hd-agent.service ${TARGET_DIR}/usr/lib/systemd/system/
 
 	# Generating permission restoration file for postinstall
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)
@@ -135,8 +135,8 @@ override_dh_install:
 
 	# Copying systemd file
 	mkdir -p ${TARGET_DIR}/etc/systemd/system/
-	sed -i "s:WAZUH_HOME_TMP:${INSTALLATION_DIR}:g" src/init/templates/wazuh-agent.service
-	cp src/init/templates/wazuh-agent.service ${TARGET_DIR}/etc/systemd/system/
+	sed -i "s:WAZUH_HOME_TMP:${INSTALLATION_DIR}:g" src/init/templates/hd-agent.service
+	cp src/init/templates/hd-agent.service ${TARGET_DIR}/etc/systemd/system/
 
 override_dh_auto_clean:
 	$(MAKE) -C src clean

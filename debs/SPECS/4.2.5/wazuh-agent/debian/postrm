@@ -1,5 +1,5 @@
 #!/bin/sh
-# postrm script for wazuh-agent
+# postrm script for hd-agent
 # Wazuh, Inc 2015-2020
 
 set -e
@@ -15,12 +15,12 @@ case "$1" in
         fi
 
         # Check for systemd
-        if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-agent > /dev/null 2>&1; then
-            systemctl disable wazuh-agent > /dev/null 2>&1
+        if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet hd-agent > /dev/null 2>&1; then
+            systemctl disable hd-agent > /dev/null 2>&1
             systemctl daemon-reload > /dev/null 2>&1
         # Check for SysV
-        elif command -v service > /dev/null 2>&1 && service wazuh-agent status 2>/dev/null | grep "running" > /dev/null 2>&1; then
-            update-rc.d -f wazuh-agent remove > /dev/null 2>&1
+        elif command -v service > /dev/null 2>&1 && service hd-agent status 2>/dev/null | grep "running" > /dev/null 2>&1; then
+            update-rc.d -f hd-agent remove > /dev/null 2>&1
         fi
 
         # Back up the old configuration files as .save
