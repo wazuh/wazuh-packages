@@ -381,8 +381,7 @@ installKibana() {
         exit 1;
     else    
         kibanainstalled="1"
-        #eval "curl -so /etc/kibana/kibana.yml ${resources}/open-distro/kibana/7.x/kibana_unattended.yml --max-time 300 ${debug}"
-        eval "cp  /unattended_scripts/open-distro/kibana/7.x/kibana_unattended.yml /etc/kibana/kibana.yml"
+        eval "curl -so /etc/kibana/kibana.yml ${resources}/open-distro/kibana/7.x/kibana_unattended.yml --max-time 300 ${debug}"
         eval "mkdir /usr/share/kibana/data ${debug}"
         eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
         eval "cd /usr/share/kibana ${debug}"
