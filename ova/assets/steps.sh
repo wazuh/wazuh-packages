@@ -80,10 +80,10 @@ preInstall() {
   sed -i "0,/setWazuhUserRBACPermissions/s/setWazuhUserRBACPermissions/setWazuhUserRBACPermissions\nsystemctl stop wazuh-manager/" ${UNATTENDED_PATH}/${INSTALLER}
 }
 
-# Edit Wazuh installation
+# Edit wazuh installation
 postInstall() {
 
-    # Change Wazuh repo dev to prod
+  # Change Wazuh repo dev to prod
   if [ "${PACKAGES_REPOSITORY}" = "dev" ]; then
     sed -i "s/-dev//g" /etc/yum.repos.d/wazuh.repo
     sed -i "s/pre-release/4.x/g" /etc/yum.repos.d/wazuh.repo
