@@ -1,5 +1,7 @@
 #/bin/sh
 
+set -x
+
 INSTALL_PATH=$1
 
 control_binary="wazuh-control"

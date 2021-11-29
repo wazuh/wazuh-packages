@@ -4,6 +4,8 @@
 # This program is a free software; you can redistribute it and/or modify it under the terms of GPLv2
 # Wazuh Solaris 11 Package builder.
 
+set -x
+
 REPOSITORY="https://github.com/wazuh/wazuh"
 wazuh_branch="master"
 install_path="/var/ossec"
