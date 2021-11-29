@@ -511,7 +511,7 @@ installKibana() {
         eval "cp ~/custom_welcome/wazuh_wazuh_bg.svg /usr/share/kibana/src/core/server/core_app/assets/ ${debug}"
         eval "cp -f ~/custom_welcome/template.js.hbs /usr/share/kibana/src/legacy/ui/ui_render/bootstrap/template.js.hbs ${debug}"
         eval "curl -so ~/customWelcomeKibana.css ${resources}/open-distro/kibana/customWelcomeKibana.css ${debug}"
-        eval "less ~/customWelcomeKibana.css >> /usr/share/kibana/src/core/server/core_app/assets/legacy_light_theme.css ${debug}"
+        eval "cat ~/customWelcomeKibana.css | tee -a /usr/share/kibana/src/core/server/core_app/assets/legacy_light_theme.css ${debug}"
 
         # Edit window title
         eval "sed -i 's/null, \"Elastic\"/null, \"Wazuh\"/g' /usr/share/kibana/src/core/server/rendering/views/template.js ${debug}"

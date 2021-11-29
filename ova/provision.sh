@@ -29,4 +29,7 @@ sh ${UNATTENDED_PATH}/${INSTALLER}
 systemctl stop kibana filebeat elasticsearch
 systemctl enable wazuh-manager
 
+# Edit installation
+postInstall
+
 clean
