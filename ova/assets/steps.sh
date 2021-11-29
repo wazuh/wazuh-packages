@@ -81,6 +81,16 @@ preInstall() {
 
 }
 
+# Edit wazuh installation
+postInstall() {
+
+  # Change Wazuh repo dev to prod
+  if [ "${PACKAGES_REPOSITORY}" = "dev" ]; then
+    sed -i "s/-dev//g" /etc/yum.repos.d/wazuh.repo
+    sed -i "s/pre-release/4.x/g" /etc/yum.repos.d/wazuh.repo
+  fi
+}
+
 clean() {
 
   rm /securityadmin_demo.sh
