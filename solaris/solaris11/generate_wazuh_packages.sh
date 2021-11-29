@@ -26,18 +26,18 @@ control_binary=""
 trap ctrl_c INT
 
 set_control_binary() {
-  if [ -e ${SOURCE}/src/VERSION ]; then
-    wazuh_version=`cat ${SOURCE}/src/VERSION`
-    number_version=`echo "${wazuh_version}" | cut -d v -f 2`
-    major=`echo $number_version | cut -d . -f 1`
-    minor=`echo $number_version | cut -d . -f 2`
+    if [ -e ${SOURCE}/src/VERSION ]; then
+        wazuh_version=`cat ${SOURCE}/src/VERSION`
+        number_version=`echo "${wazuh_version}" | cut -d v -f 2`
+        major=`echo $number_version | cut -d . -f 1`
+        minor=`echo $number_version | cut -d . -f 2`
 
-    if [ "$major" -le "4" ] && [ "$minor" -le "1" ]; then
-      control_binary="ossec-control"
-    else
-      control_binary="wazuh-control"
+        if [ "$major" -le "4" ] && [ "$minor" -le "1" ]; then
+            control_binary="ossec-control"
+        else
+            control_binary="wazuh-control"
+        fi
     fi
-  fi
 }
 
 build_environment() {
@@ -66,7 +66,7 @@ build_environment() {
     /opt/csw/bin/pkgutil -y -i gcc5core
     /opt/csw/bin/pkgutil -y -i gcc5g++
 
-     # Compile GCC-5.5 and CMake
+    # Compile GCC-5.5 and CMake
     curl -L http://packages.wazuh.com/utils/gcc/gcc-5.5.0.tar.gz | gtar xz
     cd gcc-5.5.0
     curl -L http://packages.wazuh.com/utils/gcc/mpfr-2.4.2.tar.bz2 | gtar xj
@@ -102,8 +102,7 @@ build_environment() {
     ln -sf /usr/local/bin/cmake /usr/bin/cmake
 }
 
-compute_version_revision()
-{
+compute_version_revision() {
     wazuh_version=$(cat ${SOURCE}/src/VERSION | cut -d "-" -f1 | cut -c 2-)
     revision="$(cat ${SOURCE}/src/REVISION)"
 
@@ -170,12 +169,16 @@ compile() {
     cp $SOURCE/ruleset/sca/sunos/* ${install_path}/tmp/sca/sunos/
     rm -f ${install_path}/ruleset/sca/*
 
-    mkdir ${install_path}/logs/ossec
-    mkdir ${install_path}/queue/ossec
-    chown ossec:ossec ${install_path}/logs/ossec
-    chown ossec:ossec ${install_path}/queue/ossec
-    chmod 0750 ${install_path}/logs/ossec
-    chmod 0770 ${install_path}/queue/ossec
+    if grep "^ossec:" /etc/group > /dev/null 2>&1; then
+        useradd -g ossec ossec
+        groupadd ossec
+        mkdir ${install_path}/logs/ossec
+        mkdir ${install_path}/queue/ossec
+        chown ossec:ossec ${install_path}/logs/ossec
+        chown ossec:ossec ${install_path}/queue/ossec
+        chmod 0750 ${install_path}/logs/ossec
+        chmod 0770 ${install_path}/queue/ossec
+    fi
 }
 
 create_package() {
@@ -211,7 +214,7 @@ create_package() {
     echo "file smf_manifest.xml path=lib/svc/manifest/site/post-install.xml owner=root group=sys mode=0744 restart_fmri=svc:/system/manifest-import:default" >> wazuh-agent.p5m.1
     echo "dir  path=var/ossec/installation_scripts owner=root group=bin mode=0755" >> wazuh-agent.p5m.1
     echo "file postinstall.sh path=var/ossec/installation_scripts/postinstall.sh owner=root group=bin mode=0744" >> wazuh-agent.p5m.1
-    
+
     echo "file wazuh-agent path=etc/init.d/wazuh-agent owner=root group=sys mode=0744" >> wazuh-agent.p5m.1
     echo "file S97wazuh-agent path=etc/rc2.d/S97wazuh-agent owner=root group=sys mode=0744" >> wazuh-agent.p5m.1
     echo "file S97wazuh-agent path=etc/rc3.d/S97wazuh-agent owner=root group=sys mode=0744" >> wazuh-agent.p5m.1
@@ -269,7 +272,7 @@ create_repo() {
 
 uninstall() {
     echo ${current_path}
-    ${current_path}/uninstall.sh
+    ${current_path}/uninstall.sh ${install_path}
     rm -f `find /etc | grep wazuh`
     rm -f /etc/rc3.d/S97wazuh-agent
     rm -f /etc/rc2.d/S97wazuh-agent
@@ -278,10 +281,9 @@ uninstall() {
 clean() {
     rm -rf ${SOURCE}
     cd ${current_path}
-    uninstall
-    pkg unset-publisher wazuh
-    zfs destroy rpool/wazuh
+    uninstall ${install_path}
     umount /wazuh
+    zfs destroy rpool/wazuh
     rm -rf /wazuh
     rm -rf $SOURCE/wazuh
     rm -f wazuh-agent.p5m*
@@ -296,17 +298,17 @@ ctrl_c() {
 
 
 show_help() {
-  echo
-  echo "Usage: $0 [OPTIONS]"
-  echo
-  echo "    -b, --branch <branch>               Select Git branch or tag e.g. $wazuh_branch."
-  echo "    -e, --environment                   Install all the packages necessaries to build the pkg package."
-  echo "    -s, --store  <pkg_directory>        Directory to store the resulting pkg package. By default, an output folder will be created."
-  echo "    -p, --install-path <pkg_home>       Installation path for the package. By default: /var."
-  echo "    -c, --checksum                      Compute the SHA512 checksum of the pkg package."
-  echo "    -h, --help                          Shows this help."
-  echo
-  exit $1
+    echo
+    echo "Usage: $0 [OPTIONS]"
+    echo
+    echo "    -b, --branch <branch>               Select Git branch or tag e.g. $wazuh_branch."
+    echo "    -e, --environment                   Install all the packages necessaries to build the pkg package."
+    echo "    -s, --store  <pkg_directory>        Directory to store the resulting pkg package. By default, an output folder will be created."
+    echo "    -p, --install-path <pkg_home>       Installation path for the package. By default: /var."
+    echo "    -c, --checksum                      Compute the SHA512 checksum of the pkg package."
+    echo "    -h, --help                          Shows this help."
+    echo
+    exit $1
 }
 
 build_package() {

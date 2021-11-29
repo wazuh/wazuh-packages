@@ -1,5 +1,7 @@
 #/bin/sh
 
+INSTALL_PATH=$1
+
 control_binary="wazuh-control"
 
 if [ ! -f /var/ossec/bin/${control_binary} ]; then
