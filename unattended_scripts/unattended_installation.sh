@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -x
-
 ## Package vars
 WAZUH_MAJOR="4.2"
 WAZUH_VER="4.2.5"
@@ -28,11 +26,10 @@ getHelp() {
     echo -e "\t-w   | --wazuh                         Wazuh installation"
     echo -e "\t-e   | --elasticsearch                 Elasticsearch installation"
     echo -e "\t-k   | --kibana                        Kibana installation"
-    echo -e "\t-en  | --elastic- node-name            Name of the elastic node, used for distributed installations"
-    echo -e "\t-wn | --wazuh- node-name               Name of the wazuh node, used for distributed installations"
+    echo -e "\t-c   | --create-certificates           Create certificates from instances.yml file"
+    echo -e "\t-en  | --elastic-node-name             Name of the elastic node, used for distributed installations"
+    echo -e "\t-wn  | --wazuh-node-name               Name of the wazuh node, used for distributed installations"
 
-    echo -e "\t-r   | --uninstall                     Remove the installation"
-    echo -e "\t-v   | --verbose                       Shows the complete installation output"
     echo -e "\t-i   | --ignore-health-check           Ignores the health-check"
     echo -e "\t-l   | --local                         Use local files"
     echo -e "\t-h   | --help                          Shows help"
@@ -112,7 +109,7 @@ main() {
     importFunction "common.sh"
     importFunction "wazuh-cert-tool.sh"
     
-    if [ -n "${certificates}" ]; then
+    if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
         createCertificates
     fi
 
