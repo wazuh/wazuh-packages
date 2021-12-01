@@ -35,12 +35,33 @@ getHelp() {
     echo -e "\t-wn  | --wazuh-node-name               Name of the wazuh node, used for distributed installations"
 
     echo -e "\t-wk  | --wazuh-key <wazuh-cluster-key> Use this option as well as a wazuh_cluster_config.yml configuration file to automatically configure the wazuh cluster when using a multi-node installation"
-    echo -e "\t-v   | --verbose                       Shows the complete installation output"
+    echo -e "\t-d   | --debug                         Shows the complete installation output"
     echo -e "\t-i   | --ignore-health-check           Ignores the health-check"
     echo -e "\t-l   | --local                         Use local files"
     echo -e "\t-h   | --help                          Shows help"
     exit 1 # Exit script after printing help
 
+}
+
+## Prints information
+logger() {
+
+    now=$(date +'%m/%d/%Y %H:%M:%S')
+    case $1 in 
+        "-e")
+            mtype="ERROR:"
+            message="$2"
+            ;;
+        "-w")
+            mtype="WARNING:"
+            message="$2"
+            ;;
+        *)
+            mtype="INFO:"
+            message="$1"
+            ;;
+    esac
+    echo $now $mtype $message | tee /var/log/wazuh-unattended-installation.log
 }
 
 importFunction() {
@@ -54,7 +75,7 @@ importFunction() {
         fi
     else
         curl -so /tmp/$1 $resources_functions/$1
-        if [ $? = 0]; then
+        if [[ $? == 0 ]]; then
             sed -i "s/main @//" /tmp/$1
             . /tmp/$1
             rm -f /tmp/$1
@@ -62,7 +83,7 @@ importFunction() {
             error=1 
         fi
     fi
-    if [ ${error} = 1]; then
+    if [[ ${error} == 1 ]]; then
         logger -e "Unable to find resource $1. Exiting"
         exit 1
     fi
@@ -70,7 +91,7 @@ importFunction() {
 
 main() {
     if [ "$EUID" -ne 0 ]; then
-        echo "Error: This script must be run as root."
+        logger -e "This script must be run as root."
         exit 1;
     fi   
 
