@@ -57,7 +57,7 @@ jobs:
 
       -
         name: Build and push AmazonLinux_2
-        id: docker_build_amazonlinux 2
+        id: docker_build_amazonlinux_2
         uses: docker/build-push-action@v2
         with:
           push: true
