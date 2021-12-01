@@ -45,7 +45,7 @@ jobs:
           context: './.github/actions/Tests/Unattended'
           file: './.github/actions/Docker/CentOS/7/Dockerfile'
 
-        -
+      -
         name: Build and push CentOS_8
         id: docker_build_centos_8
         uses: docker/build-push-action@v2
@@ -55,7 +55,7 @@ jobs:
           context: './.github/actions/Tests/Unattended'
           file: './.github/actions/Docker/CentOS/8/Dockerfile'
 
-        -
+      -
         name: Build and push AmazonLinux_2
         id: docker_build_amazonlinux 2
         uses: docker/build-push-action@v2
@@ -65,7 +65,7 @@ jobs:
           context: './.github/actions/Tests/Unattended'
           file: './.github/actions/Docker/AmazonLinux/2/Dockerfile'
 
-        -
+      -
         name: Build and push Ubuntu_Focal
         id: docker_build_ubuntu_focal
         uses: docker/build-push-action@v2
@@ -75,7 +75,7 @@ jobs:
           context: './.github/actions/Tests/Unattended'
           file: './.github/actions/Docker/Ubuntu/Focal/Dockerfile'
 
-        -
+      -
         name: Build and push Ubuntu_Bionic
         id: docker_build_ubuntu_bionic
         uses: docker/build-push-action@v2
@@ -85,7 +85,7 @@ jobs:
           context: './.github/actions/Tests/Unattended'
           file: './.github/actions/Docker/Ubuntu/Bionic/Dockerfile'
 
-        -
+      -
         name: Build and push Debian_Bullseye
         id: docker_build_debian_bullseye
         uses: docker/build-push-action@v2
@@ -95,7 +95,7 @@ jobs:
           context: './.github/actions/Tests/Unattended'
           file: './.github/actions/Docker/Debian/Bullseye/Dockerfile'
 
-        -
+      -
         name: Build and push Debian_Buster
         id: docker_build_debian_buster
         uses: docker/build-push-action@v2
@@ -105,7 +105,7 @@ jobs:
           context: './.github/actions/Tests/Unattended'
           file: './.github/actions/Docker/Debian/Buster/Dockerfile'
 
-        -
+      -
         name: Build and push Debian_Stretch
         id: docker_build_debian_stretch
         uses: docker/build-push-action@v2
@@ -115,7 +115,7 @@ jobs:
           context: './.github/actions/Tests/Unattended'
           file: './.github/actions/Docker/Debian/Stretch/Dockerfile'
 
-        -
+      -
         name: Build and push OracleLinux_7
         id: docker_build_oraclelinux_7
         uses: docker/build-push-action@v2
@@ -125,7 +125,7 @@ jobs:
           context: './.github/actions/Tests/Unattended'
           file: './.github/actions/Docker/OracleLinux/7/Dockerfile'
 
-        -
+      -
         name: Build and push OracleLinux_8
         id: docker_build_oraclelinux_8
         uses: docker/build-push-action@v2
@@ -135,7 +135,7 @@ jobs:
           context: './.github/actions/Tests/Unattended'
           file: './.github/actions/Docker/OracleLinux/8/Dockerfile'
 
-        -
+      -
         name: Build and push Debian_Jessie
         id: docker_build_debian_jessie
         uses: docker/build-push-action@v2
