@@ -46,7 +46,7 @@ checkArch() {
 
 startService() {
 
-    if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
+    if command -v systemctl > /dev/null 2>&1; then
         eval "systemctl daemon-reload ${debug}"
         eval "systemctl enable $1.service ${debug}"
         eval "systemctl start $1.service ${debug}"
@@ -56,7 +56,7 @@ startService() {
         else
             echo "${1^} started"
         fi
-    elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
+    elif command -v service > /dev/null 2>&1; then
         eval "chkconfig $1 on ${debug}"
         eval "service $1 start ${debug}"
         eval "/etc/init.d/$1 start ${debug}"

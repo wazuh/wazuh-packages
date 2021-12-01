@@ -1,0 +1,130 @@
+name: Wazuh Packages pipeline for unattended installer testing
+
+on:
+  push:
+    paths:
+      - 'unattended_scripts/**'
+  pull_request:
+    branches:
+      - stable
+    paths:
+      - 'unattended_scripts/**'
+  
+
+
+jobs:
+
+  needs: 'docker_build'
+  CentOS_7_unattended_install_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Unattended installation and test
+        uses: './.github/actions/Docker/CentOS/7/'
+
+  CentOS_8_unattended_install_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Unattended installation and test
+        uses: './.github/actions/Docker/CentOS/8/'
+
+  AmazonLinux_2_unattended_install_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Unattended installation and test
+        uses: './.github/actions/Docker/AmazonLinux/2/'
+
+  Ubuntu_Focal_unattended_install_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Unattended installation and test
+        uses: './.github/actions/Docker/Ubuntu/Focal/'
+
+  Ubuntu_Bionic_unattended_install_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Unattended installation and test
+        uses: './.github/actions/Docker/Ubuntu/Bionic/'
+
+  Debian_Bullseye_unattended_install_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Unattended installation and test
+        uses: './.github/actions/Docker/Debian/Bullseye/'
+
+  Debian_Buster_unattended_install_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Unattended installation and test
+        uses: './.github/actions/Docker/Debian/Buster/'
+
+  Debian_Stretch_unattended_install_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Unattended installation and test
+        uses: './.github/actions/Docker/Debian/Stretch/'
+
+  OracleLinux_7_unattended_install_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Unattended installation and test
+        uses: './.github/actions/Docker/OracleLinux/7/'
+
+  OracleLinux_8_unattended_install_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Unattended installation and test
+        uses: './.github/actions/Docker/OracleLinux/8/'
+  Debian_Jessie_unattended_install_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Unattended installation and test
+        uses: './.github/actions/Docker/Debian/Jessie/'
+
+#  Ubuntu_Xenial_unattended_install_test:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Check out code
+#        uses: actions/checkout@v2
+#      - name: Unattended installation and test
+#        uses: './.github/actions/Docker/Ubuntu/Xenial/'
+
+#  Ubuntu_Trusty_unattended_install_test:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Check out code
+#        uses: actions/checkout@v2
+#      - name: Unattended installation and test
+#        uses: './.github/actions/Docker/Ubuntu/Trusty/'
+
+
+
+
+
+#Fedora Linux 31 and later
+#openSUSE Tumbleweed, Leap 15.2 and later
+#Oracle Linux 6
+#Red Hat Enterprise Linux 6 ELS and later
+#Ubuntu trusty 14.04 and Xenial 16
+
