@@ -129,11 +129,11 @@ configureElasticsearch() {
                 echo '        - "'${line}'"' >> /etc/elasticsearch/elasticsearch.yml
         done
         for i in "${!IMN[@]}"; do
-            if [ "${IMN[$i]}" == "${einame}" ]; then
+            if [[ "${IMN[$i]}" == "${einame}" ]]; then
                 pos="${i}";
             fi
         done
-        if [ ! ${IMN[@]} == ${einame}  ]; then
+        if [[ ! ${IMN[@]} == ${einame}  ]]; then
             logger -e "The name given does not appear on the configuration file"
             exit 1;
         fi
