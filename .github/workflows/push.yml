@@ -2,7 +2,7 @@ name: Wazuh Packages pipeline for unattended installer testing
 
 on:
   push:
-    branches: '**'
+    branches: ['**']
     paths:
       - 'unattended_scripts/**'
   pull_request:
