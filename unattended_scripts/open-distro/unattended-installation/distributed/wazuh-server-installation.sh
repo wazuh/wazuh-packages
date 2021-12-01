@@ -242,7 +242,8 @@ configureFilebeat() {
 
     eval "mkdir /etc/filebeat/certs ${debug}"
     eval "cp ~/certs.tar /etc/filebeat/certs/ ${debug}"
-    eval "tar -xf /etc/filebeat/certs/certs.tar /etc/filebeat/certs/${iname}.pem /etc/filebeat/certs/${iname}.key /etc/filebeat/certs/root-ca.pem ${debug}"
+    eval "cd /etc/filebeat/certs/ ${debug}"
+    eval "tar -xf certs.tar ${iname}.pem ${iname}.key root-ca.pem ${debug}"
     if [ ${iname} != "filebeat" ]
     then
         eval "mv /etc/filebeat/certs/${iname}.pem /etc/filebeat/certs/filebeat.pem ${debug}"
