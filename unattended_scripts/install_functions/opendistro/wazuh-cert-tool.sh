@@ -8,7 +8,7 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-debug='> /dev/null 2>&1'
+debug_cert='>> /var/log/wazuh-cert-tool.log 2>&1'
 ELASTICINSTANCES="elasticsearch-nodes:"
 FILEBEATINSTANCES="wazuh-servers:"
 KIBANAINSTANCES="kibana:"
@@ -34,7 +34,7 @@ logger() {
             message="$1"
             ;;
     esac
-    echo $now $mtype $message
+    echo $now $mtype $message | tee 
 }
 
 readInstances() {
@@ -175,16 +175,27 @@ generateCertificateconfiguration() {
 
 generateRootCAcertificate() {
 
+<<<<<<< HEAD
     eval "openssl req -x509 -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/root-ca.key -out ${base_path}/certs/root-ca.pem -batch -subj '/OU=Docu/O=Wazuh/L=California/' -days 3650 ${debug}"
+=======
+    eval "openssl req -x509 -new -nodes -newkey rsa:2048 -keyout ./certs/root-ca.key -out ./certs/root-ca.pem -batch -subj '/OU=Docu/O=Wazuh/L=California/' -days 3650 ${debug_cert}"
+>>>>>>> 6659cda5 (Corrected logger and debug)
 
 }
 
 generateAdmincertificate() {
     
+<<<<<<< HEAD
     eval "openssl genrsa -out ${base_path}/certs/admin-key-temp.pem 2048 ${debug}"
     eval "openssl pkcs8 -inform PEM -outform PEM -in ${base_path}/certs/admin-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out ${base_path}/certs/admin-key.pem ${debug}"
     eval "openssl req -new -key ${base_path}/certs/admin-key.pem -out ${base_path}/certs/admin.csr -batch -subj '/C=US/L=California/O=Wazuh/OU=Docu/CN=admin' ${debug}"
     eval "openssl x509 -req -in ${base_path}/certs/admin.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -sha256 -out ${base_path}/certs/admin.pem ${debug}"
+=======
+    eval "openssl genrsa -out ./certs/admin-key-temp.pem 2048 ${debug_cert}"
+    eval "openssl pkcs8 -inform PEM -outform PEM -in ./certs/admin-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out ./certs/admin-key.pem ${debug_cert}"
+    eval "openssl req -new -key ./certs/admin-key.pem -out ./certs/admin.csr -batch -subj '/C=US/L=California/O=Wazuh/OU=Docu/CN=admin' ${debug_cert}"
+    eval "openssl x509 -req -in ./certs/admin.csr -CA ./certs/root-ca.pem -CAkey ./certs/root-ca.key -CAcreateserial -sha256 -out ./certs/admin.pem ${debug_cert}"
+>>>>>>> 6659cda5 (Corrected logger and debug)
 
 }
 
@@ -204,9 +215,15 @@ generateElasticsearchcertificates() {
         cip=$(echo ${cip} | xargs)
 
         generateCertificateconfiguration cname cip
+<<<<<<< HEAD
         eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${cname}-key.pem -out ${base_path}/certs/${cname}.csr -config ${base_path}/certs/${cname}.conf -days 3650 ${debug}"
         eval "openssl x509 -req -in ${base_path}/certs/${cname}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${cname}.pem -extfile ${base_path}/certs/${cname}.conf -extensions v3_req -days 3650 ${debug}"
         eval "chmod 444 ${base_path}/certs/${cname}-key.pem ${debug}"    
+=======
+        eval "openssl req -new -nodes -newkey rsa:2048 -keyout ./certs/${cname}-key.pem -out ./certs/${cname}.csr -config ./certs/${cname}.conf -days 3650 ${debug_cert}"
+        eval "openssl x509 -req -in ./certs/${cname}.csr -CA ./certs/root-ca.pem -CAkey ./certs/root-ca.key -CAcreateserial -out ./certs/${cname}.pem -extfile ./certs/${cname}.conf -extensions v3_req -days 3650 ${debug_cert}"
+        eval "chmod 444 ./certs/${cname}-key.pem ${debug_cert}"    
+>>>>>>> 6659cda5 (Corrected logger and debug)
         i=$(( ${i} + 2 ))
     done
 
@@ -228,8 +245,13 @@ generateFilebeatcertificates() {
         cip=$(echo ${cip} | xargs)
 
         generateCertificateconfiguration cname cip
+<<<<<<< HEAD
         eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${cname}-key.pem -out ${base_path}/certs/${cname}.csr -config ${base_path}/certs/${cname}.conf -days 3650 ${debug}"
         eval "openssl x509 -req -in ${base_path}/certs/${cname}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${cname}.pem -extfile ${base_path}/certs/${cname}.conf -extensions v3_req -days 3650 ${debug}"
+=======
+        eval "openssl req -new -nodes -newkey rsa:2048 -keyout ./certs/${cname}-key.pem -out ./certs/${cname}.csr -config ./certs/${cname}.conf -days 3650 ${debug_cert}"
+        eval "openssl x509 -req -in ./certs/${cname}.csr -CA ./certs/root-ca.pem -CAkey ./certs/root-ca.key -CAcreateserial -out ./certs/${cname}.pem -extfile ./certs/${cname}.conf -extensions v3_req -days 3650 ${debug_cert}"
+>>>>>>> 6659cda5 (Corrected logger and debug)
         i=$(( ${i} + 2 ))
     done      
 
@@ -251,8 +273,13 @@ generateKibanacertificates() {
         cip=$(echo ${cip} | xargs)
 
         generateCertificateconfiguration cname cip
+<<<<<<< HEAD
         eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${cname}-key.pem -out ${base_path}/certs/${cname}.csr -config ${base_path}/certs/${cname}.conf -days 3650 ${debug}"
         eval "openssl x509 -req -in ${base_path}/certs/${cname}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${cname}.pem -extfile ${base_path}/certs/${cname}.conf -extensions v3_req -days 3650 ${debug}"
+=======
+        eval "openssl req -new -nodes -newkey rsa:2048 -keyout ./certs/${cname}-key.pem -out ./certs/${cname}.csr -config ./certs/${cname}.conf -days 3650 ${debug_cert}"
+        eval "openssl x509 -req -in ./certs/${cname}.csr -CA ./certs/root-ca.pem -CAkey ./certs/root-ca.key -CAcreateserial -out ./certs/${cname}.pem -extfile ./certs/${cname}.conf -extensions v3_req -days 3650 ${debug_cert}"
+>>>>>>> 6659cda5 (Corrected logger and debug)
         i=$(( ${i} + 2 ))
     done 
 
@@ -260,11 +287,19 @@ generateKibanacertificates() {
 
 cleanFiles() {
 
+<<<<<<< HEAD
     eval "rm -rf ${base_path}/certs/*.csr ${debug}"
     eval "rm -rf ${base_path}/certs/*.srl ${debug}"
     eval "rm -rf ${base_path}/certs/*.conf ${debug}"
     eval "rm -rf ${base_path}/certs/admin-key-temp.pem ${debug}"
     logger "Certificates creation finished. They can be found in ${base_path}/certs."
+=======
+    eval "rm -rf ./certs/*.csr ${debug_cert}"
+    eval "rm -rf ./certs/*.srl ${debug_cert}"
+    eval "rm -rf ./certs/*.conf ${debug_cert}"
+    eval "rm -rf ./certs/admin-key-temp.pem ${debug_cert}"
+    logger "Certificates creation finished. They can be found in ./certs."
+>>>>>>> 6659cda5 (Corrected logger and debug)
 
 }
 
@@ -312,7 +347,7 @@ main() {
         done    
 
         if [ -n "${debugEnabled}" ]; then
-            debug=""           
+            debug_cert='2>&1 | tee -a /var/log/wazuh-cert-tool.log'          
         fi
 
         if [[ -n "${cadmin}" ]]; then

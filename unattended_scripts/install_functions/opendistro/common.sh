@@ -291,7 +291,7 @@ logger() {
             message="$1"
             ;;
     esac
-    echo $now $mtype $message
+    echo $now $mtype $message | tee /var/log/wazuh-unattended-installation.log
 }
 
 rollBack() {

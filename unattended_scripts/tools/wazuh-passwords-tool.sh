@@ -8,7 +8,7 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-VERBOSE='> /dev/null 2>&1'
+debug_pass='>> /var/log/wazuh-password-tool.log 2>&1'
 if [ -n "$(command -v yum)" ]; then
     SYS_TYPE="yum"
 elif [ -n "$(command -v zypper)" ]; then
@@ -35,7 +35,7 @@ logger() {
             message="$1"
             ;;
     esac
-    echo $now $mtype $message
+    echo $now $mtype $message | tee /var/log/wazuh-password-tool.log
 }
 
 ## Checks if the script is run with enough privileges
@@ -49,7 +49,7 @@ checkRoot() {
 restartService() {
 
     if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
-        eval "systemctl restart $1.service ${VERBOSE}"
+        eval "systemctl restart $1.service ${debug_pass}"
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
             exit 1;
@@ -57,7 +57,7 @@ restartService() {
             logger "${1^} started"
         fi  
     elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
-        eval "/etc/init.d/$1 restart ${VERBOSE}"
+        eval "/etc/init.d/$1 restart ${debug_pass}"
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
             exit 1;
@@ -65,7 +65,7 @@ restartService() {
             logger "${1^} started"
         fi     
     elif [ -x /etc/rc.d/init.d/$1 ] ; then
-        eval "/etc/rc.d/init.d/$1 restart ${VERBOSE}"
+        eval "/etc/rc.d/init.d/$1 restart ${debug_pass}"
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
             exit 1;
@@ -178,9 +178,9 @@ checkUser() {
 createBackUp() {
     
     logger "Creating backup..."
-    eval "mkdir /usr/share/elasticsearch/backup ${VERBOSE}"
-    eval "cd /usr/share/elasticsearch/plugins/opendistro_security/tools/ ${VERBOSE}"
-    eval "./securityadmin.sh -backup /usr/share/elasticsearch/backup -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${VERBOSE}"
+    eval "mkdir /usr/share/elasticsearch/backup ${debug_pass}"
+    eval "cd /usr/share/elasticsearch/plugins/opendistro_security/tools/ ${debug_pass}"
+    eval "./securityadmin.sh -backup /usr/share/elasticsearch/backup -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug_pass}"
     if [  "$?" != 0  ]; then
         logger -e "The backup could not be created"
         exit 1;
@@ -308,14 +308,14 @@ changePassword() {
 runSecurityAdmin() {
     
     logger "Loading changes..."
-    eval "cp /usr/share/elasticsearch/backup/* /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ ${VERBOSE}"
-    eval "cd /usr/share/elasticsearch/plugins/opendistro_security/tools/ ${VERBOSE}"
-    eval "./securityadmin.sh -cd ../securityconfig/ -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${VERBOSE}"
+    eval "cp /usr/share/elasticsearch/backup/* /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ ${debug_pass}"
+    eval "cd /usr/share/elasticsearch/plugins/opendistro_security/tools/ ${debug_pass}"
+    eval "./securityadmin.sh -cd ../securityconfig/ -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug_pass}"
     if [  "$?" != 0  ]; then
         logger -e "Could not load the changes."
         exit 1;
     fi    
-    eval "rm -rf /usr/share/elasticsearch/backup/ ${VERBOSE}"
+    eval "rm -rf /usr/share/elasticsearch/backup/ ${debug_pass}"
     logger "Done"
 
     if [[ -n "${NUSER}" ]] && [[ -n ${AUTOPASS} ]]; then
@@ -347,8 +347,8 @@ main() {
         while [ -n "$1" ]
         do
             case "$1" in
-            "-v"|"--verbose")
-                VERBOSEENABLED=1
+            "-d"|"--debug")
+                DEBUGENABLED=1
                 shift 1
                 ;;
             "-a"|"--change-all")
@@ -385,8 +385,8 @@ main() {
 
         export JAVA_HOME=/usr/share/elasticsearch/jdk/
         
-        if [ -n "${VERBOSEENABLED}" ]; then
-            VERBOSE=""
+        if [ -n "${DEBUGENABLED}" ]; then
+            debug_pass='2>&1 | tee -a /var/log/wazuh-passwords-tool.log'
         fi 
 
         checkInstalled   

@@ -18,6 +18,9 @@ resources_functions="${resources}/${functions_path}"
 resources_config="${resources}/${config_path}"
 base_path="$(dirname $(realpath $0))"
 
+## Debug variable used during the installation
+debug='>> /var/log/wazuh-unattended-installation.log 2>&1'
+
 ## Show script usage
 getHelp() {
 
@@ -94,6 +97,7 @@ main() {
                 ;;
             "-d"|"--debug")
                 debugEnabled=1
+                debug='2>&1 | tee -a /var/log/wazuh-unattended-installation.log'
                 shift 1
                 ;;
             "-l"|"--local")
