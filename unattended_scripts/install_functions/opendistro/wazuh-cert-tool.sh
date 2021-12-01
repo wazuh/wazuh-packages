@@ -34,7 +34,7 @@ logger() {
             message="$1"
             ;;
     esac
-    echo $now $mtype $message | tee 
+    echo $now $mtype $message | tee /var/log/wazuh-cert-tool.log
 }
 
 readInstances() {
