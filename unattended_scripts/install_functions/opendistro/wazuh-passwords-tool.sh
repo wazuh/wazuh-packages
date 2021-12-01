@@ -107,7 +107,7 @@ getNetworkHost() {
 
 ## Checks if Open Distro for Elasticsearch is installed
 
-checkInstalled() {
+checkInstalledOD() {
     
     if [ "${SYS_TYPE}" == "yum" ]; then
         elasticinstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch)
@@ -179,6 +179,7 @@ createBackUp() {
     
     logger "Creating backup..."
     eval "mkdir /usr/share/elasticsearch/backup ${VERBOSE}"
+    export JAVA_HOME="/usr/share/elasticsearch/jdk/"
     eval "cd /usr/share/elasticsearch/plugins/opendistro_security/tools/ ${VERBOSE}"
     eval "./securityadmin.sh -backup /usr/share/elasticsearch/backup -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${VERBOSE}"
     if [  "$?" != 0  ]; then
@@ -389,7 +390,7 @@ main() {
             VERBOSE=""
         fi 
 
-        checkInstalled   
+        checkInstalledOD   
 
         if [[ -n "${NUSER}" ]] && [[ -n "${CHANGEALL}" ]]; then
             getHelp

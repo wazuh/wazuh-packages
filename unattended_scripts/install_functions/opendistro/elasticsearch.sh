@@ -210,6 +210,8 @@ initializeElastic() {
 }
 
 changePasswords() {
+    
+    checkInstalledOD
     readUsers
     generatePassword
 
