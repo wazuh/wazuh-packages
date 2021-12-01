@@ -188,9 +188,7 @@ main() {
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored."
         else
-            healthCheck elasticsearch
-            healthCheck kibana
-            healthCheck wazuh
+            healthCheck AIO
         fi
         checkSystem
         installPrerequisites
