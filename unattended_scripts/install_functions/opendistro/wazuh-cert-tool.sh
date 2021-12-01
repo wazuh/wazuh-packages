@@ -8,7 +8,8 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-debug_cert='>> /var/log/wazuh-cert-tool.log 2>&1'
+logfile="/var/log/wazuh-cert-tool.log"
+debug_cert=">> ${logfile} 2>&1"
 ELASTICINSTANCES="elasticsearch-nodes:"
 FILEBEATINSTANCES="wazuh-servers:"
 KIBANAINSTANCES="kibana:"
@@ -34,7 +35,7 @@ logger_cert() {
             message="$1"
             ;;
     esac
-    echo $now $mtype $message | tee /var/log/wazuh-cert-tool.log
+    echo $now $mtype $message | tee ${logfile}
 }
 
 readInstances() {
@@ -355,7 +356,7 @@ main() {
         done    
 
         if [ -n "${debugEnabled}" ]; then
-            debug_cert='2>&1 | tee -a /var/log/wazuh-cert-tool.log'          
+            debug_cert="2>&1 | tee -a ${logfile}"          
         fi
 
         if [[ -n "${cadmin}" ]]; then

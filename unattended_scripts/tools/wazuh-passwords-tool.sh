@@ -8,7 +8,8 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-debug_pass='>> /var/log/wazuh-password-tool.log 2>&1'
+logfile="/var/log/wazuh-password-tool.sh"
+debug_pass=">> ${logfile} 2>&1"
 if [ -n "$(command -v yum)" ]; then
     SYS_TYPE="yum"
 elif [ -n "$(command -v zypper)" ]; then
@@ -35,7 +36,7 @@ logger_pass() {
             message="$1"
             ;;
     esac
-    echo $now $mtype $message | tee /var/log/wazuh-password-tool.log
+    echo $now $mtype $message | tee ${logfile}
 }
 
 ## Checks if the script is run with enough privileges
@@ -88,7 +89,7 @@ getHelp() {
    echo -e "\t-p     | --password <password> Indicates the new password, must be used with option -u"
    echo -e "\t-c     | --cert <route-admin-certificate> Indicates route to the admin certificate"
    echo -e "\t-k     | --certkey <route-admin-certificate-key> Indicates route to the admin certificate key"
-   echo -e "\t-v     | --verbose Shows the complete script execution output"
+   echo -e "\t-d     | --debug Shows the complete script execution output"
    echo -e "\t-h     | --help Shows help"
    exit 1 # Exit script after printing help
 }
@@ -386,7 +387,7 @@ main() {
         export JAVA_HOME=/usr/share/elasticsearch/jdk/
         
         if [ -n "${DEBUGENABLED}" ]; then
-            debug_pass='2>&1 | tee -a /var/log/wazuh-passwords-tool.log'
+            debug_pass="2>&1 | tee -a ${logfile}"
         fi 
 
         checkInstalled   

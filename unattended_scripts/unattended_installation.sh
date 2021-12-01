@@ -134,6 +134,7 @@ main() {
 
     importFunction "common.sh"
     importFunction "wazuh-cert-tool.sh"
+    logfile="/var/log/wazuh-unattended-installation.log"
     
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
         createCertificates
