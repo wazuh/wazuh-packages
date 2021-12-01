@@ -117,35 +117,35 @@ jobs:
         uses: actions/checkout@v2
       - name: Unattended installation and test
         uses: './.github/actions/Docker/Debian/Buster/'
-#
-#  Debian_Stretch_unattended_install_test:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Wait my build
-#        uses: tomchv/wait-my-workflow@v1.1.0
-#        id: wait-build
-#        with:
-#          token: ${{ secrets.GH_TOKEN }}
-#          checkName: docker_build_debian_stretch
-#      - name: Check out code
-#        uses: actions/checkout@v2
-#      - name: Unattended installation and test
-#        uses: './.github/actions/Docker/Debian/Stretch/'
-#
-#  OracleLinux_7_unattended_install_test:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Wait my build
-#        uses: tomchv/wait-my-workflow@v1.1.0
-#        id: wait-build
-#        with:
-#          token: ${{ secrets.GH_TOKEN }}
-#          checkName: docker_build_oraclelinux_7
-#      - name: Check out code
-#        uses: actions/checkout@v2
-#      - name: Unattended installation and test
-#        uses: './.github/actions/Docker/OracleLinux/7/'
-#
+
+  Debian_Stretch_unattended_install_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait my build
+        uses: tomchv/wait-my-workflow@v1.1.0
+        id: wait-build
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          checkName: docker_build_debian_stretch
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Unattended installation and test
+        uses: './.github/actions/Docker/Debian/Stretch/'
+
+  OracleLinux_7_unattended_install_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait my build
+        uses: tomchv/wait-my-workflow@v1.1.0
+        id: wait-build
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          checkName: docker_build_oraclelinux_7
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Unattended installation and test
+        uses: './.github/actions/Docker/OracleLinux/7/'
+
 #  OracleLinux_8_unattended_install_test:
 #    runs-on: ubuntu-latest
 #    steps:
