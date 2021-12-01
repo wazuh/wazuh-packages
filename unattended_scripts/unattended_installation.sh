@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -x
 ## Package vars
 WAZUH_MAJOR="4.2"
 WAZUH_VER="4.2.5"
@@ -58,7 +58,7 @@ importFunction() {
             error=1 
         fi
     fi
-    if [ "${error}" != 0 ]; then
+    if [ "${error}" = "1" ]; then
         logger -e "Unable to find resource $1. Exiting"
         exit 1
     fi
