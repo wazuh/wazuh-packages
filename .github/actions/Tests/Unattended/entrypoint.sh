@@ -1,6 +1,7 @@
 #!/bin/bash
 set -x
-bash ${GITHUB_WORKSPACE}/unattended_scripts/unattended_installation.sh
+cd ${GITHUB_WORKSPACE}
+bash ./unattended_scripts/unattended_installation.sh
 find / -name "unattended_installation.sh"
 echo "Testing"
 cat /var/log/wazuh-unattended-installation.log

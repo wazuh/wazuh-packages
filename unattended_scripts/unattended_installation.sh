@@ -17,6 +17,8 @@ resources="https://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/resources/$
 resources_functions="${resources}/${functions_path}"
 resources_config="${resources}/${config_path}"
 
+set -x
+
 ## Show script usage
 getHelp() {
 
@@ -48,7 +50,7 @@ importFunction() {
 }
 
 main() {
-    echo $1
+    
     if [ "$EUID" -ne 0 ]; then
         echo "This script must be run as root."
         exit 1;
