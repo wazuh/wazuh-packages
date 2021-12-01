@@ -5,7 +5,7 @@ branding:
     color: "blue"
 runs:
   using: docker
-  image: 'wazuh/debian-buster-unattended-base:latest'
+  image: 'wazuh/debian-bullseye-unattended-base:latest'
   entrypoint: '/entrypoint.sh'
 
 

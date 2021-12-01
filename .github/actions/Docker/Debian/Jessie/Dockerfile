@@ -33,6 +33,8 @@ RUN apt-get update && apt-get upgrade && \
         perl \
         procps
 
+RUN rm -f /usr/bin/systemctl
+
 RUN cd /usr/local/src/ && \ 
     curl -k https://www.openssl.org/source/openssl-1.1.1g.tar.gz | tar -xz && \
     cd openssl-1.1.1g && ./config --prefix=/usr/local/ssl --openssldir=/usr/local/ssl shared zlib && \
