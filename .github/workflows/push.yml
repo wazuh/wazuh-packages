@@ -170,20 +170,20 @@ jobs:
       - name: Unattended installation and test
         uses: './.github/actions/Docker/OracleLinux/8/'
 
-  Debian_Jessie_unattended_install_test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Wait my build
-        uses: tomchv/wait-my-workflow@v1.1.0
-        id: wait-build
-        with:
-          token: ${{ secrets.GH_TOKEN }}
-          checkName: docker_build_debian_jessie
-          timeoutSeconds: 900
-      - name: Check out code
-        uses: actions/checkout@v2
-      - name: Unattended installation and test
-        uses: './.github/actions/Docker/Debian/Jessie/'
+#  Debian_Jessie_unattended_install_test:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Wait my build
+#        uses: tomchv/wait-my-workflow@v1.1.0
+#        id: wait-build
+#        with:
+#          token: ${{ secrets.GH_TOKEN }}
+#          checkName: docker_build_debian_jessie
+#          timeoutSeconds: 900
+#      - name: Check out code
+#        uses: actions/checkout@v2
+#      - name: Unattended installation and test
+#        uses: './.github/actions/Docker/Debian/Jessie/'
 
 #  Ubuntu_Xenial_unattended_install_test:
 #    runs-on: ubuntu-latest
