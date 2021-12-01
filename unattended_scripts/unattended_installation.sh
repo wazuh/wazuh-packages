@@ -58,7 +58,7 @@ importFunction() {
             error=1 
         fi
     fi
-    if [ ${error} = 1 ]; then
+    if [ "${error}" != 0 ]; then
         logger -e "Unable to find resource $1. Exiting"
         exit 1
     fi
