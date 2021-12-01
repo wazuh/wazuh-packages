@@ -9,12 +9,13 @@ on:
       - stable
     paths:
       - 'unattended_scripts/**'
-  
-
+  workflow_run:
+    workflows: ['docker_build']
+    types:
+      - completed
 
 jobs:
 
-  needs: docker_build
   CentOS_7_unattended_install_test:
     runs-on: ubuntu-latest
     steps:
