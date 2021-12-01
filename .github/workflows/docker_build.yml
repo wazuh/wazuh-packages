@@ -162,7 +162,7 @@ jobs:
           context: './.github/actions/Tests/Unattended'
           file: './.github/actions/Docker/Ubuntu/Bionic/Dockerfile'
 
-  docker_build_debian_buillseye:
+  docker_build_debian_bullseye:
     runs-on: ubuntu-latest
     steps:
       -
