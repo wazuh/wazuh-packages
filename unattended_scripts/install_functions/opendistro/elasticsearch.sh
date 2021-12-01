@@ -208,3 +208,14 @@ initializeElastic() {
 
     logger "Done"
 }
+
+changePasswords() {
+    readUsers
+    generatePassword
+
+    getNetworkHost
+    createBackUp
+    generateHash
+    changePassword
+    runSecurityAdmin
+}

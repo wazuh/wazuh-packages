@@ -199,6 +199,7 @@ main() {
         importFunction "filebeat.sh"
         importFunction "elasticsearch.sh"
         importFunction "kibana.sh"
+        importFunction "wazuh-passwords-tool.sh"        
 
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored."
@@ -217,6 +218,7 @@ main() {
         configureFilebeatAIO
         installKibana
         configureKibanaAIO
+        changePasswords
     fi
 }
 
