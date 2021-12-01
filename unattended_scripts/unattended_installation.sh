@@ -87,7 +87,7 @@ main() {
                 certificates=1
                 shift 1
                 ;;
-            "-i"|"--ignore-healthcheck")
+            "-i"|"--ignore-health-check")
                 ignore=1
                 shift 1
                 ;;
