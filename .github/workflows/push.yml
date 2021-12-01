@@ -28,7 +28,7 @@ jobs:
         id: wait-build
         with:
           token: ${{ secrets.GH_TOKEN }}
-          checkName: docker_build
+          checkName: docker_build_centos_7
       - name: Check out code
         uses: actions/checkout@v2
       - name: Unattended installation and test
@@ -42,7 +42,7 @@ jobs:
         id: wait-build
         with:
           token: ${{ secrets.GH_TOKEN }}
-          checkName: docker_build
+          checkName: docker_build_centos_8
       - name: Check out code
         uses: actions/checkout@v2
       - name: Unattended installation and test
@@ -56,7 +56,7 @@ jobs:
         id: wait-build
         with:
           token: ${{ secrets.GH_TOKEN }}
-          checkName: docker_build
+          checkName: docker_build_amazonlinux_2
       - name: Check out code
         uses: actions/checkout@v2
       - name: Unattended installation and test
@@ -70,7 +70,7 @@ jobs:
         id: wait-build
         with:
           token: ${{ secrets.GH_TOKEN }}
-          checkName: docker_build
+          checkName: docker_build_ubuntu_focal
       - name: Check out code
         uses: actions/checkout@v2
       - name: Unattended installation and test
@@ -84,7 +84,7 @@ jobs:
         id: wait-build
         with:
           token: ${{ secrets.GH_TOKEN }}
-          checkName: docker_build
+          checkName: docker_build_ubuntu_bionic
       - name: Check out code
         uses: actions/checkout@v2
       - name: Unattended installation and test
@@ -98,7 +98,7 @@ jobs:
         id: wait-build
         with:
           token: ${{ secrets.GH_TOKEN }}
-          checkName: docker_build
+          checkName: docker_build_debian_bullseye
       - name: Check out code
         uses: actions/checkout@v2
       - name: Unattended installation and test
@@ -112,7 +112,7 @@ jobs:
         id: wait-build
         with:
           token: ${{ secrets.GH_TOKEN }}
-          checkName: docker_build
+          checkName: docker_build_debian_buster
       - name: Check out code
         uses: actions/checkout@v2
       - name: Unattended installation and test
@@ -126,7 +126,7 @@ jobs:
         id: wait-build
         with:
           token: ${{ secrets.GH_TOKEN }}
-          checkName: docker_build
+          checkName: docker_build_debian_stretch
       - name: Check out code
         uses: actions/checkout@v2
       - name: Unattended installation and test
@@ -140,7 +140,7 @@ jobs:
         id: wait-build
         with:
           token: ${{ secrets.GH_TOKEN }}
-          checkName: docker_build
+          checkName: docker_build_oraclelinux_7
       - name: Check out code
         uses: actions/checkout@v2
       - name: Unattended installation and test
@@ -154,7 +154,7 @@ jobs:
         id: wait-build
         with:
           token: ${{ secrets.GH_TOKEN }}
-          checkName: docker_build
+          checkName: docker_build_oraclelinux_8
       - name: Check out code
         uses: actions/checkout@v2
       - name: Unattended installation and test
@@ -167,7 +167,7 @@ jobs:
         id: wait-build
         with:
           token: ${{ secrets.GH_TOKEN }}
-          checkName: docker_build
+          checkName: docker_build_debian_jessie
       - name: Check out code
         uses: actions/checkout@v2
       - name: Unattended installation and test
@@ -176,12 +176,12 @@ jobs:
 #  Ubuntu_Xenial_unattended_install_test:
 #    runs-on: ubuntu-latest
 #    steps:
-  - name: Wait my build
-        uses: tomchv/wait-my-workflow@v1.1.0
-        id: wait-build
-        with:
-          token: ${{ secrets.GH_TOKEN }}
-          checkName: docker_build
+#  - name: Wait my build
+#        uses: tomchv/wait-my-workflow@v1.1.0
+#        id: wait-build
+#        with:
+#          token: ${{ secrets.GH_TOKEN }}
+#         checkName: docker_build
 #      - name: Check out code
 #        uses: actions/checkout@v2
 #      - name: Unattended installation and test
@@ -190,12 +190,12 @@ jobs:
 #  Ubuntu_Trusty_unattended_install_test:
 #    runs-on: ubuntu-latest
 #    steps:
-  - name: Wait my build
-        uses: tomchv/wait-my-workflow@v1.1.0
-        id: wait-build
-        with:
-          token: ${{ secrets.GH_TOKEN }}
-          checkName: docker_build
+#  - name: Wait my build
+#        uses: tomchv/wait-my-workflow@v1.1.0
+#        id: wait-build
+#        with:
+#          token: ${{ secrets.GH_TOKEN }}
+#         checkName: docker_build
 #      - name: Check out code
 #        uses: actions/checkout@v2
 #      - name: Unattended installation and test
@@ -210,3 +210,31 @@ jobs:
 #Oracle Linux 6
 #Red Hat Enterprise Linux 6 ELS and later
 #Ubuntu trusty 14.04 and Xenial 16
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+checkName: docker_build
+checkName: docker_build
