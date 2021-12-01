@@ -365,4 +365,5 @@ rollBack() {
     if [ -z "${uninstall}" ]; then    
         logger -w "Installation cleaned. Check the /var/log/wazuh-unattended-installation.log file to learn more about the issue."
     fi
+    exit 1
 }

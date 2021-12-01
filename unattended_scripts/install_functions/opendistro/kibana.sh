@@ -88,14 +88,9 @@ configureKibana() {
 
 copyKibanacerts() {
 
-    if [ -d ./certs ]; then
-        eval "cp ./certs/kibana* /etc/kibana/certs/ ${debug}"
-        eval "cp ./certs/root-ca.pem /etc/kibana/certs/ ${debug}"
-    else
-        logger "No certificates found. Could not initialize Kibana"
-        exit 1;
-    fi
-
+        eval "cp ./certs/kibana.pem /etc/kibana/certs/ ${debug}" || (logger -e "Unable to find kibana.pem." && rollBack)
+        eval "cp ./certs/kibana-key.pem /etc/kibana/certs/ ${debug}" || (logger -e "Unable to find kibana-key.pem." && rollBack)
+        eval "cp ./certs/root-ca.pem /etc/kibana/certs/ ${debug}" || (logger -e "Unable to find root-ca.pem." && rollBack)
 }
 
 initializeKibana() {

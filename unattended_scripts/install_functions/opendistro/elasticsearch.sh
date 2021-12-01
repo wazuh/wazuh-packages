@@ -12,7 +12,7 @@ installElasticsearch() {
 
     if [  "$?" != 0  ]; then
         echo -e "Elasticsearch installation failed"
-        rollBack
+        c
         exit 1;  
     else
         elasticinstalled="1"
@@ -31,12 +31,11 @@ copyCertificatesElasticsearch() {
     else
         name=${IMN[pos]}
     fi
-
-    eval "cp ./certs/${name}.pem /etc/elasticsearch/certs/elasticsearch.pem ${debug}"
-    eval "cp ./certs/${name}-key.pem /etc/elasticsearch/certs/elasticsearch-key.pem ${debug}"
-    eval "cp ./certs/root-ca.pem /etc/elasticsearch/certs/ ${debug}"
-    eval "cp ./certs/admin.pem /etc/elasticsearch/certs/ ${debug}"
-    eval "cp ./certs/admin-key.pem /etc/elasticsearch/certs/ ${debug}"
+    eval "cp ./certs/${name}.pem /etc/elasticsearch/certs/elasticsearch.pem ${debug}" || (logger -e "Unable to find ${name}.pem." && rollBack)
+    eval "cp ./certs/${name}-key.pem /etc/elasticsearch/certs/elasticsearch-key.pem ${debug}" || (logger -e "Unable to find ${name}-key.pem." && rollBack)
+    eval "cp ./certs/root-ca.pem /etc/elasticsearch/certs/ ${debug}" || (logger -e "Unable to find root-ca.pem." && rollBack)
+    eval "cp ./certs/admin.pem /etc/elasticsearch/certs/ ${debug}" || (logger -e "Unable to find admin.pem." && rollBack)
+    eval "cp ./certs/admin-key.pem /etc/elasticsearch/certs/ ${debug}" || (logger -e "Unable to find admin-key.pem." && rollBack)
 }
 
 configureElasticsearchAIO() {

@@ -49,9 +49,9 @@ configureFilebeat() {
     fi
 
     eval "mkdir /etc/filebeat/certs ${debug}"
-    eval "mv ./certs/${winame}.pem /etc/filebeat/certs/filebeat.pem ${debug}"
-    eval "mv ./certs/${winame}-key.pem /etc/filebeat/certs/filebeat-key.pem ${debug}"
-    eval "cp ./certs/root-ca.pem /etc/filebeat/certs/ ${debug}"
+    eval "cp ./certs/${winame}.pem /etc/filebeat/certs/filebeat.pem ${debug}" || (logger -e "Unable to find ${winame}.pem." && rollBack)
+    eval "cp ./certs/${winame}-key.pem /etc/filebeat/certs/filebeat-key.pem ${debug}" || (logger -e "Unable to find ${winame}-key.pem ." && rollBack)
+    eval "cp ./certs/root-ca.pem /etc/filebeat/certs/ ${debug}" || (logger -e "Unable to find root-ca.pem ." && rollBack)
 
     logger "Done"
     logger "Starting Filebeat..."
