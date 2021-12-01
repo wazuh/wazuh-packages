@@ -17,7 +17,7 @@ FILEBEATHEAD='# Wazuh server nodes'
 KIBANAHEAD='# Kibana node'
 
 ## Prints information
-logger() {
+logger_cert() {
 
     now=$(date +'%m/%d/%Y %H:%M:%S')
     case $1 in 
@@ -43,7 +43,7 @@ readInstances() {
         logger "Configuration file found. Creating certificates..."
         eval "mkdir ${base_path}/certs $debug"
     else
-        logger -e "No configuration file found."
+        logger_cert -e "No configuration file found."
         exit 1;
     fi
 
@@ -167,7 +167,7 @@ generateCertificateconfiguration() {
         conf="$(awk '{sub("IP.1 = cip", "DNS.1 = '${cip}'")}1' ${base_path}/certs/$cname.conf)"
         echo "${conf}" > ${base_path}/certs/$cname.conf 
     else
-        logger -e "The given information does not match with an IP or a DNS"  
+        logger_cert -e "The given information does not match with an IP or a DNS"  
         exit 1; 
     fi   
 
@@ -201,7 +201,11 @@ generateAdmincertificate() {
 
 generateElasticsearchcertificates() {
 
+<<<<<<< HEAD
     logger "Creating the Elasticsearch certificates..."
+=======
+     logger_cert "Creating the Elasticsearch certificates..."
+>>>>>>> f8aed672 (Changed logger name in wazuh-cert-tool and wazuh-password-tool)
 
     i=0
     while [ ${i} -lt ${#ELASTICNODES[@]} ]; do
@@ -231,7 +235,7 @@ generateElasticsearchcertificates() {
 
 generateFilebeatcertificates() {
 
-    logger "Creating Wazuh server certificates..."
+    logger_cert "Creating Wazuh server certificates..."
 
     i=0
     while [ ${i} -lt ${#FILEBEATNODES[@]} ]; do
@@ -259,7 +263,7 @@ generateFilebeatcertificates() {
 
 generateKibanacertificates() {
 
-    logger "Creating Kibana certificate..."
+    logger_cert "Creating Kibana certificate..."
 
     i=0
     while [ ${i} -lt ${#KIBANANODES[@]} ]; do
@@ -298,15 +302,19 @@ cleanFiles() {
     eval "rm -rf ./certs/*.srl ${debug_cert}"
     eval "rm -rf ./certs/*.conf ${debug_cert}"
     eval "rm -rf ./certs/admin-key-temp.pem ${debug_cert}"
+<<<<<<< HEAD
     logger "Certificates creation finished. They can be found in ./certs."
 >>>>>>> 6659cda5 (Corrected logger and debug)
+=======
+    logger_cert "Certificates creation finished. They can be found in ./certs."
+>>>>>>> f8aed672 (Changed logger name in wazuh-cert-tool and wazuh-password-tool)
 
 }
 
 main() {
 
     if [ "$EUID" -ne 0 ]; then
-        logger -e "This script must be run as root."
+        logger_cert -e "This script must be run as root."
         exit 1;
     fi    
 
@@ -352,27 +360,27 @@ main() {
 
         if [[ -n "${cadmin}" ]]; then
             generateAdmincertificate
-            logger "Admin certificates created."
+            logger_cert "Admin certificates created."
         fi   
 
         if [[ -n "${ca}" ]]; then
             generateRootCAcertificate
-            logger "Authority certificates created."
+            logger_cert "Authority certificates created."
         fi                   
 
         if [[ -n "${celastic}" ]]; then
             generateElasticsearchcertificates
-            logger "Elasticsearch certificates created."
+            logger_cert "Elasticsearch certificates created."
         fi     
 
         if [[ -n "${cwazuh}" ]]; then
             generateFilebeatcertificates
-            logger "Wazuh server certificates created."
+            logger_cert "Wazuh server certificates created."
         fi 
 
         if [[ -n "${ckibana}" ]]; then
             generateKibanacertificates
-            logger "Kibana certificates created."
+            logger_cert "Kibana certificates created."
         fi                     
            
     else
