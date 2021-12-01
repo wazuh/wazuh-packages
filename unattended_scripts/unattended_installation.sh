@@ -50,7 +50,7 @@ importFunction() {
         fi
     else
         curl -so /tmp/$1 $resources_functions/$1
-        if [ $? = 0]; then
+        if [ $? = 0 ]; then
             sed -i 's/main $@//' /tmp/$1
             . /tmp/$1
             rm -f /tmp/$1
