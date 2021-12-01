@@ -29,150 +29,161 @@ jobs:
         with:
           token: ${{ secrets.GH_TOKEN }}
           checkName: docker_build_centos_7
+          timeoutSeconds: 900
       - name: Check out code
         uses: actions/checkout@v2
       - name: Unattended installation and test
         uses: './.github/actions/Docker/CentOS/7/'
 
-###  CentOS_8_unattended_install_test:
-###    runs-on: ubuntu-latest
-###    steps:
-###      - name: Wait my build
-###        uses: tomchv/wait-my-workflow@v1.1.0
-###        id: wait-build
-###        with:
-###          token: ${{ secrets.GH_TOKEN }}
-###          checkName: docker_build_centos_8
-###      - name: Check out code
-###        uses: actions/checkout@v2
-###      - name: Unattended installation and test
-###        uses: './.github/actions/Docker/CentOS/8/'
-###
-###  AmazonLinux_2_unattended_install_test:
-###    runs-on: ubuntu-latest
-###    steps:
-###      - name: Wait my build
-###        uses: tomchv/wait-my-workflow@v1.1.0
-###        id: wait-build
-###        with:
-###          token: ${{ secrets.GH_TOKEN }}
-###          checkName: docker_build_amazonlinux_2
-###      - name: Check out code
-###        uses: actions/checkout@v2
-###      - name: Unattended installation and test
-###        uses: './.github/actions/Docker/AmazonLinux/2/'
-###
-###  Ubuntu_Focal_unattended_install_test:
-###    runs-on: ubuntu-latest
-###    steps:
-###      - name: Wait my build
-###        uses: tomchv/wait-my-workflow@v1.1.0
-###        id: wait-build
-###        with:
-###          token: ${{ secrets.GH_TOKEN }}
-###          checkName: docker_build_ubuntu_focal
-###      - name: Check out code
-###        uses: actions/checkout@v2
-###      - name: Unattended installation and test
-###        uses: './.github/actions/Docker/Ubuntu/Focal/'
-###
-###  Ubuntu_Bionic_unattended_install_test:
-###    runs-on: ubuntu-latest
-###    steps:
-###      - name: Wait my build
-###        uses: tomchv/wait-my-workflow@v1.1.0
-###        id: wait-build
-###        with:
-###          token: ${{ secrets.GH_TOKEN }}
-###          checkName: docker_build_ubuntu_bionic
-###      - name: Check out code
-###        uses: actions/checkout@v2
-###      - name: Unattended installation and test
-###        uses: './.github/actions/Docker/Ubuntu/Bionic/'
-###
-###  Debian_Bullseye_unattended_install_test:
-###    runs-on: ubuntu-latest
-###    steps:
-###      - name: Wait my build
-###        uses: tomchv/wait-my-workflow@v1.1.0
-###        id: wait-build
-###        with:
-###          token: ${{ secrets.GH_TOKEN }}
-###          checkName: docker_build_debian_bullseye
-###      - name: Check out code
-###        uses: actions/checkout@v2
-###      - name: Unattended installation and test
-###        uses: './.github/actions/Docker/Debian/Bullseye/'
-###
-###  Debian_Buster_unattended_install_test:
-###    runs-on: ubuntu-latest
-###    steps:
-###      - name: Wait my build
-###        uses: tomchv/wait-my-workflow@v1.1.0
-###        id: wait-build
-###        with:
-###          token: ${{ secrets.GH_TOKEN }}
-###          checkName: docker_build_debian_buster
-###      - name: Check out code
-###        uses: actions/checkout@v2
-###      - name: Unattended installation and test
-###        uses: './.github/actions/Docker/Debian/Buster/'
-###
-###  Debian_Stretch_unattended_install_test:
-###    runs-on: ubuntu-latest
-###    steps:
-###      - name: Wait my build
-###        uses: tomchv/wait-my-workflow@v1.1.0
-###        id: wait-build
-###        with:
-###          token: ${{ secrets.GH_TOKEN }}
-###          checkName: docker_build_debian_stretch
-###      - name: Check out code
-###        uses: actions/checkout@v2
-###      - name: Unattended installation and test
-###        uses: './.github/actions/Docker/Debian/Stretch/'
-###
-###  OracleLinux_7_unattended_install_test:
-###    runs-on: ubuntu-latest
-###    steps:
-###      - name: Wait my build
-###        uses: tomchv/wait-my-workflow@v1.1.0
-###        id: wait-build
-###        with:
-###          token: ${{ secrets.GH_TOKEN }}
-###          checkName: docker_build_oraclelinux_7
-###      - name: Check out code
-###        uses: actions/checkout@v2
-###      - name: Unattended installation and test
-###        uses: './.github/actions/Docker/OracleLinux/7/'
-###
-###  OracleLinux_8_unattended_install_test:
-###    runs-on: ubuntu-latest
-###    steps:
-###      - name: Wait my build
-###        uses: tomchv/wait-my-workflow@v1.1.0
-###        id: wait-build
-###        with:
-###          token: ${{ secrets.GH_TOKEN }}
-###          checkName: docker_build_oraclelinux_8
-###      - name: Check out code
-###        uses: actions/checkout@v2
-###      - name: Unattended installation and test
-###        uses: './.github/actions/Docker/OracleLinux/8/'
-###
-###  Debian_Jessie_unattended_install_test:
-###    runs-on: ubuntu-latest
-###    steps:
-###      - name: Wait my build
-###        uses: tomchv/wait-my-workflow@v1.1.0
-###        id: wait-build
-###        with:
-###          token: ${{ secrets.GH_TOKEN }}
-###          checkName: docker_build_debian_jessie
-###      - name: Check out code
-###        uses: actions/checkout@v2
-###      - name: Unattended installation and test
-###        uses: './.github/actions/Docker/Debian/Jessie/'
+  CentOS_8_unattended_install_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait my build
+        uses: tomchv/wait-my-workflow@v1.1.0
+        id: wait-build
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          checkName: docker_build_centos_8
+          timeoutSeconds: 900
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Unattended installation and test
+        uses: './.github/actions/Docker/CentOS/8/'
+
+  AmazonLinux_2_unattended_install_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait my build
+        uses: tomchv/wait-my-workflow@v1.1.0
+        id: wait-build
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          checkName: docker_build_amazonlinux_2
+          timeoutSeconds: 900
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Unattended installation and test
+        uses: './.github/actions/Docker/AmazonLinux/2/'
+
+  Ubuntu_Focal_unattended_install_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait my build
+        uses: tomchv/wait-my-workflow@v1.1.0
+        id: wait-build
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          checkName: docker_build_ubuntu_focal
+          timeoutSeconds: 900
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Unattended installation and test
+        uses: './.github/actions/Docker/Ubuntu/Focal/'
+
+  Ubuntu_Bionic_unattended_install_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait my build
+        uses: tomchv/wait-my-workflow@v1.1.0
+        id: wait-build
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          checkName: docker_build_ubuntu_bionic
+          timeoutSeconds: 900
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Unattended installation and test
+        uses: './.github/actions/Docker/Ubuntu/Bionic/'
+
+  Debian_Bullseye_unattended_install_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait my build
+        uses: tomchv/wait-my-workflow@v1.1.0
+        id: wait-build
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          checkName: docker_build_debian_bullseye
+          timeoutSeconds: 900
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Unattended installation and test
+        uses: './.github/actions/Docker/Debian/Bullseye/'
+
+  Debian_Buster_unattended_install_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait my build
+        uses: tomchv/wait-my-workflow@v1.1.0
+        id: wait-build
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          checkName: docker_build_debian_buster
+          timeoutSeconds: 900
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Unattended installation and test
+        uses: './.github/actions/Docker/Debian/Buster/'
+
+  Debian_Stretch_unattended_install_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait my build
+        uses: tomchv/wait-my-workflow@v1.1.0
+        id: wait-build
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          checkName: docker_build_debian_stretch
+          timeoutSeconds: 900
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Unattended installation and test
+        uses: './.github/actions/Docker/Debian/Stretch/'
+
+  OracleLinux_7_unattended_install_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait my build
+        uses: tomchv/wait-my-workflow@v1.1.0
+        id: wait-build
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          checkName: docker_build_oraclelinux_7
+          timeoutSeconds: 900
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Unattended installation and test
+        uses: './.github/actions/Docker/OracleLinux/7/'
+
+  OracleLinux_8_unattended_install_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait my build
+        uses: tomchv/wait-my-workflow@v1.1.0
+        id: wait-build
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          checkName: docker_build_oraclelinux_8
+          timeoutSeconds: 900
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Unattended installation and test
+        uses: './.github/actions/Docker/OracleLinux/8/'
+
+  Debian_Jessie_unattended_install_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait my build
+        uses: tomchv/wait-my-workflow@v1.1.0
+        id: wait-build
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          checkName: docker_build_debian_jessie
+          timeoutSeconds: 900
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Unattended installation and test
+        uses: './.github/actions/Docker/Debian/Jessie/'
 
 #  Ubuntu_Xenial_unattended_install_test:
 #    runs-on: ubuntu-latest
@@ -183,6 +194,7 @@ jobs:
 #        with:
 #          token: ${{ secrets.GH_TOKEN }}
 #         checkName: docker_build
+#          timeoutSeconds: 900
 #      - name: Check out code
 #        uses: actions/checkout@v2
 #      - name: Unattended installation and test
@@ -197,6 +209,7 @@ jobs:
 #        with:
 #          token: ${{ secrets.GH_TOKEN }}
 #         checkName: docker_build
+#          timeoutSeconds: 900
 #      - name: Check out code
 #        uses: actions/checkout@v2
 #      - name: Unattended installation and test
