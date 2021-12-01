@@ -42,8 +42,9 @@ getHelp() {
 importFunction() {
     if [ -n "${local}" ]; then
         echo "The current path is $pwd"
-        echo "The required libary is $functions_path/$1"
+        echo "The required library is $functions_path/$1"
         ls ./$functions_path/$1
+        ls .
         . ./$functions_path/$1
     else
         curl -so /tmp/$1 $resources_functions/$1
