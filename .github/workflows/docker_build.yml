@@ -6,11 +6,11 @@ on:
         - '.github/actions/Tests/Unattended/**'
         - '.github/actions/Docker/**'
   pull_request:
-      branches:
-        - stable
-      paths:
-        - '.github/actions/Tests/Unattended/**'
-        - '.github/actions/Docker/**'
+    branches:
+      - stable
+    paths:
+      - '.github/actions/Tests/Unattended/**'
+      - '.github/actions/Docker/**'
 
 jobs:
 
