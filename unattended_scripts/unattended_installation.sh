@@ -45,11 +45,26 @@ getHelp() {
 
 importFunction() {
     if [ -n "${local}" ]; then
-        . ${base_path}/${functions_path}/$1
+        if [ -f ${base_path}/$functions_path/$1 ]; then
+            sed -i "s/main @//" ${base_path}/$functions_path/$1
+            . ${base_path}/$functions_path/$1
+            echo "main @">> ${base_path}/$functions_path/$1
+        else 
+            error=1
+        fi
     else
-        curl -so /tmp/$1 ${resources_functions}/$1
-        . /tmp/$1
-        rm -f /tmp/$1
+        curl -so /tmp/$1 $resources_functions/$1
+        if [ $? = 0]; then
+            sed -i "s/main @//" /tmp/$1
+            . /tmp/$1
+            rm -f /tmp/$1
+        else
+            error=1 
+        fi
+    fi
+    if [ ${error} = 1]; then
+        logger -e "Unable to find resource $1. Exiting"
+        exit 1
     fi
 }
 
