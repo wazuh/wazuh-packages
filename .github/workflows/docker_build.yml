@@ -2,17 +2,17 @@ name: Wazuh docker testing images building workflow.
 
 
 on: [*]
-#  push:
-#    paths:
-#      - '.github/actions/Tests/Unattended/**'
-#      - '.github/actions/Docker/**'
-#      - '.github/actions/Docker/**/**'
-#      
-#  pull_request:
-#    paths:
-#      - '.github/actions/Tests/Unattended/**'
-#      - '.github/actions/Docker/**'
-#      - '.github/actions/Docker/**/**'
+  push:
+    paths:
+      - 'unattended_scripts/**'
+      - 'unattended_scripts/tools/**'
+      - '.github/**'
+
+  pull_request:
+    paths:
+      - 'unattended_scripts/**'
+      - 'unattended_scripts/tools/**'
+      - '.github/**'
 
 jobs:
 
