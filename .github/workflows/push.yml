@@ -20,7 +20,7 @@ on:
 
 jobs:
 
-  Wait_docker_build_workflow:
+  CentOS_7_unattended_install_test:
     runs-on: ubuntu-latest
     steps:
       - name: Wait my build
@@ -29,10 +29,6 @@ jobs:
         with:
           token: ${{ secrets.GH_TOKEN }}
           checkName: docker_build
-
-  CentOS_7_unattended_install_test:
-    runs-on: ubuntu-latest
-    steps:
       - name: Check out code
         uses: actions/checkout@v2
       - name: Unattended installation and test
@@ -41,6 +37,12 @@ jobs:
   CentOS_8_unattended_install_test:
     runs-on: ubuntu-latest
     steps:
+      - name: Wait my build
+        uses: tomchv/wait-my-workflow@v1.1.0
+        id: wait-build
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          checkName: docker_build
       - name: Check out code
         uses: actions/checkout@v2
       - name: Unattended installation and test
@@ -49,6 +51,12 @@ jobs:
   AmazonLinux_2_unattended_install_test:
     runs-on: ubuntu-latest
     steps:
+      - name: Wait my build
+        uses: tomchv/wait-my-workflow@v1.1.0
+        id: wait-build
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          checkName: docker_build
       - name: Check out code
         uses: actions/checkout@v2
       - name: Unattended installation and test
@@ -57,6 +65,12 @@ jobs:
   Ubuntu_Focal_unattended_install_test:
     runs-on: ubuntu-latest
     steps:
+      - name: Wait my build
+        uses: tomchv/wait-my-workflow@v1.1.0
+        id: wait-build
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          checkName: docker_build
       - name: Check out code
         uses: actions/checkout@v2
       - name: Unattended installation and test
@@ -65,6 +79,12 @@ jobs:
   Ubuntu_Bionic_unattended_install_test:
     runs-on: ubuntu-latest
     steps:
+      - name: Wait my build
+        uses: tomchv/wait-my-workflow@v1.1.0
+        id: wait-build
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          checkName: docker_build
       - name: Check out code
         uses: actions/checkout@v2
       - name: Unattended installation and test
@@ -73,6 +93,12 @@ jobs:
   Debian_Bullseye_unattended_install_test:
     runs-on: ubuntu-latest
     steps:
+      - name: Wait my build
+        uses: tomchv/wait-my-workflow@v1.1.0
+        id: wait-build
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          checkName: docker_build
       - name: Check out code
         uses: actions/checkout@v2
       - name: Unattended installation and test
@@ -81,6 +107,12 @@ jobs:
   Debian_Buster_unattended_install_test:
     runs-on: ubuntu-latest
     steps:
+      - name: Wait my build
+        uses: tomchv/wait-my-workflow@v1.1.0
+        id: wait-build
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          checkName: docker_build
       - name: Check out code
         uses: actions/checkout@v2
       - name: Unattended installation and test
@@ -89,6 +121,12 @@ jobs:
   Debian_Stretch_unattended_install_test:
     runs-on: ubuntu-latest
     steps:
+      - name: Wait my build
+        uses: tomchv/wait-my-workflow@v1.1.0
+        id: wait-build
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          checkName: docker_build
       - name: Check out code
         uses: actions/checkout@v2
       - name: Unattended installation and test
@@ -97,6 +135,12 @@ jobs:
   OracleLinux_7_unattended_install_test:
     runs-on: ubuntu-latest
     steps:
+      - name: Wait my build
+        uses: tomchv/wait-my-workflow@v1.1.0
+        id: wait-build
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          checkName: docker_build
       - name: Check out code
         uses: actions/checkout@v2
       - name: Unattended installation and test
@@ -105,6 +149,12 @@ jobs:
   OracleLinux_8_unattended_install_test:
     runs-on: ubuntu-latest
     steps:
+      - name: Wait my build
+        uses: tomchv/wait-my-workflow@v1.1.0
+        id: wait-build
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          checkName: docker_build
       - name: Check out code
         uses: actions/checkout@v2
       - name: Unattended installation and test
@@ -112,6 +162,12 @@ jobs:
   Debian_Jessie_unattended_install_test:
     runs-on: ubuntu-latest
     steps:
+      - name: Wait my build
+        uses: tomchv/wait-my-workflow@v1.1.0
+        id: wait-build
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          checkName: docker_build
       - name: Check out code
         uses: actions/checkout@v2
       - name: Unattended installation and test
@@ -120,6 +176,12 @@ jobs:
 #  Ubuntu_Xenial_unattended_install_test:
 #    runs-on: ubuntu-latest
 #    steps:
+  - name: Wait my build
+        uses: tomchv/wait-my-workflow@v1.1.0
+        id: wait-build
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          checkName: docker_build
 #      - name: Check out code
 #        uses: actions/checkout@v2
 #      - name: Unattended installation and test
@@ -128,6 +190,12 @@ jobs:
 #  Ubuntu_Trusty_unattended_install_test:
 #    runs-on: ubuntu-latest
 #    steps:
+  - name: Wait my build
+        uses: tomchv/wait-my-workflow@v1.1.0
+        id: wait-build
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          checkName: docker_build
 #      - name: Check out code
 #        uses: actions/checkout@v2
 #      - name: Unattended installation and test
