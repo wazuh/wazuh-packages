@@ -352,4 +352,4 @@ main() {
 
 }
 
-main @
+main $@
