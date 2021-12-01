@@ -1,9 +1,7 @@
 #!/bin/bash
 set -x
 cd ${GITHUB_WORKSPACE}
-bash ./unattended_scripts/unattended_installation.sh
-find / -name "unattended_installation.sh"
-echo "Testing"
+bash ./unattended_scripts/unattended_installation.sh -A
 cat /var/log/wazuh-unattended-installation.log
 sleep 60
 cd ~
