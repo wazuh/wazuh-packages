@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 bash ${GITHUB_WORKSPACE}/unattended_scripts/unattended_installation.sh
 find / -name "unattended_installation.sh" -exec cat {} \;
 echo "Testing"
