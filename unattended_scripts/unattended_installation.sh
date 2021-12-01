@@ -44,7 +44,7 @@ importFunction() {
         if [ -f ./$functions_path/$1 ]; then
             sed -i 's/main $@//' ./$functions_path/$1
             . ./$functions_path/$1
-            echo "main $@">> ./$functions_path/$1
+            echo 'main $@'>> ./$functions_path/$1
         else 
             error=1
         fi
