@@ -11,7 +11,7 @@ installElasticsearch() {
     fi
 
     if [  "$?" != 0  ]; then
-        echo "Error: Elasticsearch installation failed"
+        echo -e "Elasticsearch installation failed"
         rollBack
         exit 1;  
     else
@@ -70,11 +70,12 @@ configureElasticsearchAIO() {
     eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
     # Start Elasticsearch
     startService "elasticsearch"
-    echo "Initializing Elasticsearch..."
+    logger "Initializing Elasticsearch..."
     until $(curl -XGET https://localhost:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null); do
         echo -ne ${char}
         sleep 10
-    done    
+    done  
+    echo ""  
 
     eval "cd /usr/share/elasticsearch/plugins/opendistro_security/tools/ ${debug}"
     eval "./securityadmin.sh -cd ../securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem ${debug}"
@@ -135,7 +136,7 @@ configureElasticsearch() {
             fi
         done
         if [ ! ${IMN[@]} == ${einame}  ]; then
-            echo "The name given does not appear on the configuration file"
+            logger -e "The name given does not appear on the configuration file"
             exit 1;
         fi
         nip="${DSH[pos]}"
@@ -181,7 +182,7 @@ configureElasticsearch() {
     eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
 
     initializeElastic nip
-    echo "Done"
+    logger "Done"
 }
 
 initializeElastic() {
@@ -198,6 +199,7 @@ initializeElastic() {
         echo -ne ${char}
         sleep 10
     done
+    echo ""
 
     if [ -n "${single}" ]; then
         eval "cd /usr/share/elasticsearch/plugins/opendistro_security/tools/ ${debug}"
