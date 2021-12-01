@@ -16,15 +16,15 @@ on:
 
 jobs:
 
-  Wait_docker_build_workflow:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Wait my build
-        uses: tomchv/wait-my-workflow@v1.1.0
-        id: wait-build
-        with:
-          token: ${{ secrets.GH_TOKEN }}
-          checkName: docker_build
+#  Wait_docker_build_workflow:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Wait my build
+#        uses: tomchv/wait-my-workflow@v1.1.0
+#        id: wait-build
+#        with:
+#          token: ${{ secrets.GH_TOKEN }}
+#          checkName: docker_build
 
   CentOS_7_unattended_install_test:
     runs-on: ubuntu-latest
