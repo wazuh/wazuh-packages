@@ -1,5 +1,5 @@
 #!/bin/bash
-bash unattended_scripts/open-distro/unattended-installation/unattended-installation.sh
+bash unattended_scripts/unattended-installation.sh
 cat /var/log/wazuh-unattended-installation.log
 sleep 60
 cd ~
