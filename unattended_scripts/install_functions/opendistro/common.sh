@@ -41,7 +41,7 @@ installPrerequisites() {
         eval "zypper -n install libcap-progs ${debug} || zypper -n install libcap2 ${debug}"
     elif [ ${sys_type} == "apt-get" ]; then
         eval "apt-get update -q $debug"
-        eval "apt-get install apt-transport-https curl unzip wget libcap2-bin -y ${debug}"        
+        eval "apt-get install apt-transport-https curl unzip wget libcap2-bin -y ${debug}"
     fi
 
     if [  "$?" != 0  ]; then
@@ -49,24 +49,26 @@ installPrerequisites() {
         exit 1;
     else
         logger "Done"
-    fi          
+    fi
 }
 
 addWazuhrepo() {
     logger "Adding the Wazuh repository..."
-
-    if [ ${sys_type} == "yum" ]; then
-        eval "rpm --import ${repogpg} ${debug}"
-        eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo ${debug}"
-    elif [ ${sys_type} == "zypper" ]; then
-        eval "rpm --import ${repogpg} ${debug}"
-        eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/zypp/repos.d/wazuh.repo ${debug}"            
-    elif [ ${sys_type} == "apt-get" ]; then
-        eval "curl -s ${repogpg} --max-time 300 | apt-key add - ${debug}"
-        eval "echo "deb '${repobaseurl}'/apt/ stable main" | tee /etc/apt/sources.list.d/wazuh.list ${debug}"
-        eval "apt-get update -q ${debug}"
-    fi    
-
+    if [ ! -f /etc/yum.repos.d/wazuh.repo ] && [ ! -f /etc/yum.repos.d/wazuh.repo ] && [ ! -f /etc/yum.repos.d/wazuh.repo ] ; then
+        if [ ${sys_type} == "yum" ]; then
+            eval "rpm --import ${repogpg} ${debug}"
+            eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo ${debug}"
+        elif [ ${sys_type} == "zypper" ]; then
+            eval "rpm --import ${repogpg} ${debug}"
+            eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/zypp/repos.d/wazuh.repo ${debug}"
+        elif [ ${sys_type} == "apt-get" ]; then
+            eval "curl -s ${repogpg} --max-time 300 | apt-key add - ${debug}"
+            eval "echo "deb '${repobaseurl}'/apt/ stable main" | tee /etc/apt/sources.list.d/wazuh.list ${debug}"
+            eval "apt-get update -q ${debug}"
+        fi
+    else
+        logger "Wazuh repository already exists skipping"
+    fi
     logger "Done" 
 }
 
@@ -152,7 +154,7 @@ checkInstalled() {
             logger -e "All the Wazuh componets were found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. NOTE: This will erase all the existing configuration and data."
             exit 1;
         fi
-    fi          
+    fi
 
 }
 
