@@ -68,7 +68,10 @@ configureElasticsearchAIO() {
   
     eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
     # Start Elasticsearch
+    logger "Starting Elasticsearch..."
     startService "elasticsearch"
+
+    
     logger "Initializing Elasticsearch..."
     until $(curl -XGET https://localhost:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null); do
         echo -ne ${char}
