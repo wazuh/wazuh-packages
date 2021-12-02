@@ -23,7 +23,7 @@ configureKibanaAIO() {
     eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
     eval "cd /usr/share/kibana ${debug}"
     eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${repobaseurl}'/ui/kibana/wazuh_kibana-${WAZUH_VER}_${ELK_VER}-${WAZUH_KIB_PLUG_REV}.zip ${debug}"
-    eval "cd - ${debug}"
+    eval "cd ${base_path} ${debug}"
     if [  "$?" != 0  ]; then
         logger -e "Wazuh Kibana plugin could not be installed."
         rollBack
@@ -31,8 +31,7 @@ configureKibanaAIO() {
         exit 1;
     fi     
     eval "mkdir /etc/kibana/certs ${debug}"
-    eval "cp ./certs/kibana* /etc/kibana/certs/ ${debug}"
-    eval "cp ./certs/root-ca.pem /etc/kibana/certs/ ${debug}"
+    copyKibanacerts
     eval "chown -R kibana:kibana /etc/kibana/ ${debug}"
     eval "chmod -R 500 /etc/kibana/certs ${debug}"
     eval "chmod 440 /etc/kibana/certs/kibana* ${debug}"
@@ -52,7 +51,7 @@ configureKibana() {
         logger -e "Wazuh Kibana plugin could not be installed."
         exit 1;
     fi
-    cd -
+    eval "cd ${base_path} ${debug}"
     eval "setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node ${debug}"
     eval "mkdir /etc/kibana/certs ${debug}"
 
@@ -87,10 +86,9 @@ configureKibana() {
 
 
 copyKibanacerts() {
-
-    if [ -d ./certs ]; then
-        eval "cp ./certs/kibana* /etc/kibana/certs/ ${debug}"
-        eval "cp ./certs/root-ca.pem /etc/kibana/certs/ ${debug}"
+    if [ -d "${base_path}/certs" ]; then
+        eval "cp ${base_path}/certs/kibana* /etc/kibana/certs/ ${debug}"
+        eval "cp ${base_path}/certs/root-ca.pem /etc/kibana/certs/ ${debug}"
     else
         logger "No certificates found. Could not initialize Kibana"
         exit 1;
