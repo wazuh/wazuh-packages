@@ -49,9 +49,9 @@ configureFilebeat() {
     fi
 
     eval "mkdir /etc/filebeat/certs ${debug}"
-    eval "mv ./certs/${winame}.pem /etc/filebeat/certs/filebeat.pem ${debug}"
-    eval "mv ./certs/${winame}-key.pem /etc/filebeat/certs/filebeat-key.pem ${debug}"
-    eval "cp ./certs/root-ca.pem /etc/filebeat/certs/ ${debug}"
+    eval "mv ${base_path}/certs/${winame}.pem /etc/filebeat/certs/filebeat.pem ${debug}"
+    eval "mv ${base_path}/certs/${winame}-key.pem /etc/filebeat/certs/filebeat-key.pem ${debug}"
+    eval "cp ${base_path}/certs/root-ca.pem /etc/filebeat/certs/ ${debug}"
 
     logger "Filebeat: install done"
     logger "Filebeat: service starting ..."
@@ -64,8 +64,8 @@ configureFilebeatAIO() {
         eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
         eval "curl -s '${repobaseurl}'/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module ${debug}"
         eval "mkdir /etc/filebeat/certs ${debug}"
-        eval "cp ./certs/root-ca.pem /etc/filebeat/certs/ ${debug}"
-        eval "cp ./certs/filebeat* /etc/filebeat/certs/ ${debug}"
+        eval "cp ${base_path}/certs/root-ca.pem /etc/filebeat/certs/ ${debug}"
+        eval "cp ${base_path}/certs/filebeat* /etc/filebeat/certs/ ${debug}"
 
         # Start Filebeat
         startService "filebeat"
