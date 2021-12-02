@@ -32,15 +32,15 @@ copyCertificatesElasticsearch() {
         name=${IMN[pos]}
     fi
 
-    eval "cp ./certs/${name}.pem /etc/elasticsearch/certs/elasticsearch.pem ${debug}"
-    eval "cp ./certs/${name}-key.pem /etc/elasticsearch/certs/elasticsearch-key.pem ${debug}"
-    eval "cp ./certs/root-ca.pem /etc/elasticsearch/certs/ ${debug}"
-    eval "cp ./certs/admin.pem /etc/elasticsearch/certs/ ${debug}"
-    eval "cp ./certs/admin-key.pem /etc/elasticsearch/certs/ ${debug}"
+    eval "cp ${base_path}/certs/${name}.pem /etc/elasticsearch/certs/elasticsearch.pem ${debug}"
+    eval "cp ${base_path}/certs/${name}-key.pem /etc/elasticsearch/certs/elasticsearch-key.pem ${debug}"
+    eval "cp ${base_path}/certs/root-ca.pem /etc/elasticsearch/certs/ ${debug}"
+    eval "cp ${base_path}/certs/admin.pem /etc/elasticsearch/certs/ ${debug}"
+    eval "cp ${base_path}/certs/admin-key.pem /etc/elasticsearch/certs/ ${debug}"
 }
 
 configureElasticsearchAIO() {
- 
+
     logger "Configuring Elasticsearch..."
 
     eval "getConfig elasticsearch/elasticsearch_unattended.yml /etc/elasticsearch/elasticsearch.yml  ${debug}"
@@ -53,9 +53,9 @@ configureElasticsearchAIO() {
     export JAVA_HOME=/usr/share/elasticsearch/jdk/
         
     eval "mkdir /etc/elasticsearch/certs/ ${debug}"
-    eval "cp ./certs/elasticsearch* /etc/elasticsearch/certs/ ${debug}"
-    eval "cp ./certs/root-ca.pem /etc/elasticsearch/certs/ ${debug}"
-    eval "cp ./certs/admin* /etc/elasticsearch/certs/ ${debug}"
+    eval "cp ${base_path}/certs/elasticsearch* /etc/elasticsearch/certs/ ${debug}"
+    eval "cp ${base_path}/certs/root-ca.pem /etc/elasticsearch/certs/ ${debug}"
+    eval "cp ${base_path}/certs/admin* /etc/elasticsearch/certs/ ${debug}"
     
     # Configure JVM options for Elasticsearch
     ram_gb=$(free -g | awk '/^Mem:/{print $2}')
@@ -77,9 +77,7 @@ configureElasticsearchAIO() {
     done  
     echo ""  
 
-    eval "cd /usr/share/elasticsearch/plugins/opendistro_security/tools/ ${debug}"
-    eval "./securityadmin.sh -cd ../securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem ${debug}"
-    eval "cd - ${debug}"
+    eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem ${debug}"
     logger "Done"
 
 }
@@ -202,9 +200,7 @@ initializeElastic() {
     echo ""
 
     if [ -n "${single}" ]; then
-        eval "cd /usr/share/elasticsearch/plugins/opendistro_security/tools/ ${debug}"
-        eval "./securityadmin.sh -cd ../securityconfig/ -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${nip} ${debug}"
-        cd -
+        eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${nip} ${debug}"
     fi
 
     logger "Done"
