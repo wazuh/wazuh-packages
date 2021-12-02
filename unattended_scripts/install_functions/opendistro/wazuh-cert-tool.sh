@@ -61,8 +61,6 @@ getHelp() {
     echo -e "\t-k     | --kibana-certificates Creates the Kibana certificates."
     echo -e "\t-d     | --debug Enables verbose mode."
     exit 1 # Exit script after printing help    
-    exit 1 # Exit script after printing help    
-    exit 1 # Exit script after printing help    
 }
 
 readFile() {
