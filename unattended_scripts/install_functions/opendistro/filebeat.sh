@@ -53,8 +53,8 @@ configureFilebeat() {
     eval "mv ./certs/${winame}-key.pem /etc/filebeat/certs/filebeat-key.pem ${debug}"
     eval "cp ./certs/root-ca.pem /etc/filebeat/certs/ ${debug}"
 
-    logger "Done"
-    logger "Starting Filebeat..."
+    logger "Filebeat: install done"
+    logger "Filebeat: service starting ..."
     startService filebeat
 }
 

@@ -41,9 +41,9 @@ getHelp() {
 
 importFunction() {
     if [ -n "${local}" ]; then
-        . ./$functions_path/$1
+        . ./${functions_path}/$1
     else
-        curl -so /tmp/$1 $resources_functions/$1
+        curl -so /tmp/$1 ${resources_functions}/$1
         . /tmp/$1
         rm -f /tmp/$1
     fi
@@ -87,7 +87,7 @@ main() {
                 certificates=1
                 shift 1
                 ;;
-            "-i"|"--ignore-healthcheck")
+            "-i"|"--ignore-health-check")
                 ignore=1
                 shift 1
                 ;;
@@ -115,6 +115,8 @@ main() {
     importFunction "common.sh"
     importFunction "wazuh-cert-tool.sh"
     
+    logger "Wazuh unattended_installation: Starting process"
+
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
         createCertificates
     fi
@@ -203,6 +205,9 @@ main() {
         installKibana
         configureKibanaAIO
     fi
+
+logger "Wazuh unattended_installation: Ended process"
+
 }
 
 main "$@"

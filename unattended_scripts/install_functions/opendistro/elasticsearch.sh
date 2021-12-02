@@ -11,12 +11,12 @@ installElasticsearch() {
     fi
 
     if [  "$?" != 0  ]; then
-        echo -e "Elasticsearch installation failed"
+        logger -e "Elasticsearch installation failed"
         rollBack
         exit 1;  
     else
         elasticinstalled="1"
-        logger "Done"      
+        logger "Elasticsearch installation done"      
     fi
 
 
