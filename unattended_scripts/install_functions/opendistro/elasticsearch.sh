@@ -66,7 +66,7 @@ configureElasticsearchAIO() {
     fi    
     eval "sed -i "s/-Xms1g/-Xms${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
     eval "sed -i "s/-Xmx1g/-Xmx${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
-  
+
     eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
     # Start Elasticsearch
     startService "elasticsearch"
@@ -79,6 +79,7 @@ configureElasticsearchAIO() {
 
     eval "cd /usr/share/elasticsearch/plugins/opendistro_security/tools/ ${debug}"
     eval "./securityadmin.sh -cd ../securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem ${debug}"
+    eval "cd - ${debug}"
     logger "Done"
 
 }

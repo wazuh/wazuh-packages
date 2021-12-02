@@ -3,7 +3,7 @@ repobaseurl="https://packages.wazuh.com/4.x"
 
 getConfig() {
     if [ -n "${local}" ]; then
-        cp ./$config_path/$1 $2
+        cp "$(pwd)/$config_path/$1" $2
     else
         curl -so $2 $resources_config/$1
     fi
