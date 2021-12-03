@@ -39,9 +39,9 @@ logger() {
 
 readInstances() {
 
-    if [ -f ./instances.yml ]; then
+    if [ -f ${base_path}/instances.yml ]; then
         logger "Configuration file found. Creating certificates..."
-        eval "mkdir ./certs $debug"
+        eval "mkdir ${base_path}/certs $debug"
     else
         logger -e "No configuration file found."
         exit 1;
@@ -58,7 +58,7 @@ getHelp() {
     echo -e "                Creates the admin certificates."
     echo -e "        -ca, --root-ca-certificates"
     echo -e "                Creates the root-ca certificates."
-    echo -e "        -a,  --elasticsearch-certificates"
+    echo -e "        -e,  --elasticsearch-certificates"
     echo -e "                Creates the Elasticsearch certificates."
     echo -e "        -w,  --wazuh-certificates"
     echo -e "                Creates the Wazuh server certificates."
@@ -71,7 +71,7 @@ getHelp() {
 
 readFile() {
 
-    IFS=$'\r\n' GLOBIGNORE='*' command eval  'instances=($(cat ./instances.yml))'
+    IFS=$'\r\n' GLOBIGNORE='*' command eval  'instances=($(cat ${base_path}/instances.yml))'
     for i in "${!instances[@]}"; do
     if [[ "${instances[$i]}" == "${elasticinstances}" ]]; then
         elasticlimitt=${i}
@@ -133,7 +133,7 @@ readFile() {
 
 generateCertificateconfiguration() {
 
-    cat > ./certs/${cname}.conf <<- EOF
+    cat > ${base_path}/certs/${cname}.conf <<- EOF
         [ req ]
         prompt = no
         default_bits = 2048
@@ -158,20 +158,20 @@ generateCertificateconfiguration() {
         IP.1 = cip
 	EOF
 
-    conf="$(awk '{sub("CN = cname", "CN = '${cname}'")}1' ./certs/$cname.conf)"
-    echo "${conf}" > ./certs/$cname.conf    
+    conf="$(awk '{sub("CN = cname", "CN = '${cname}'")}1' ${base_path}/certs/$cname.conf)"
+    echo "${conf}" > ${base_path}/certs/$cname.conf    
 
     isIP=$(echo "${cip}" | grep -P "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")
     isDNS=$(echo ${cip} | grep -P "^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$" )
 
     if [[ -n "${isIP}" ]]; then
-        conf="$(awk '{sub("IP.1 = cip", "IP.1 = '${cip}'")}1' ./certs/$cname.conf)"
-        echo "${conf}" > ./certs/$cname.conf    
+        conf="$(awk '{sub("IP.1 = cip", "IP.1 = '${cip}'")}1' ${base_path}/certs/$cname.conf)"
+        echo "${conf}" > ${base_path}/certs/$cname.conf    
     elif [[ -n "${isDNS}" ]]; then
-        conf="$(awk '{sub("CN = cname", "CN =  '${cip}'")}1' ./certs/$cname.conf)"
-        echo "${conf}" > ./certs/$cname.conf     
-        conf="$(awk '{sub("IP.1 = cip", "DNS.1 = '${cip}'")}1' ./certs/$cname.conf)"
-        echo "${conf}" > ./certs/$cname.conf 
+        conf="$(awk '{sub("CN = cname", "CN =  '${cip}'")}1' ${base_path}/certs/$cname.conf)"
+        echo "${conf}" > ${base_path}/certs/$cname.conf     
+        conf="$(awk '{sub("IP.1 = cip", "DNS.1 = '${cip}'")}1' ${base_path}/certs/$cname.conf)"
+        echo "${conf}" > ${base_path}/certs/$cname.conf 
     else
         logger -e "The given information does not match with an IP or a DNS"  
         exit 1; 
@@ -181,22 +181,22 @@ generateCertificateconfiguration() {
 
 generateRootCAcertificate() {
 
-    eval "openssl req -x509 -new -nodes -newkey rsa:2048 -keyout ./certs/root-ca.key -out ./certs/root-ca.pem -batch -subj '/OU=Docu/O=Wazuh/L=California/' -days 3650 ${debug}"
+    eval "openssl req -x509 -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/root-ca.key -out ${base_path}/certs/root-ca.pem -batch -subj '/OU=Docu/O=Wazuh/L=California/' -days 3650 ${debug}"
 
 }
 
 generateAdmincertificate() {
     
-    eval "openssl genrsa -out ./certs/admin-key-temp.pem 2048 ${debug}"
-    eval "openssl pkcs8 -inform PEM -outform PEM -in ./certs/admin-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out ./certs/admin-key.pem ${debug}"
-    eval "openssl req -new -key ./certs/admin-key.pem -out ./certs/admin.csr -batch -subj '/C=US/L=California/O=Wazuh/OU=Docu/CN=admin' ${debug}"
-    eval "openssl x509 -req -in ./certs/admin.csr -CA ./certs/root-ca.pem -CAkey ./certs/root-ca.key -CAcreateserial -sha256 -out ./certs/admin.pem ${debug}"
+    eval "openssl genrsa -out ${base_path}/certs/admin-key-temp.pem 2048 ${debug}"
+    eval "openssl pkcs8 -inform PEM -outform PEM -in ${base_path}/certs/admin-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out ${base_path}/certs/admin-key.pem ${debug}"
+    eval "openssl req -new -key ${base_path}/certs/admin-key.pem -out ${base_path}/certs/admin.csr -batch -subj '/C=US/L=California/O=Wazuh/OU=Docu/CN=admin' ${debug}"
+    eval "openssl x509 -req -in ${base_path}/certs/admin.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -sha256 -out ${base_path}/certs/admin.pem ${debug}"
 
 }
 
 generateElasticsearchcertificates() {
 
-     logger "Creating the Elasticsearch certificates..."
+    logger "Creating the Elasticsearch certificates..."
 
     i=0
     while [ ${i} -lt ${#elasticnodes[@]} ]; do
@@ -210,9 +210,9 @@ generateElasticsearchcertificates() {
         cip=$(echo ${cip} | xargs)
 
         generateCertificateconfiguration cname cip
-        eval "openssl req -new -nodes -newkey rsa:2048 -keyout ./certs/${cname}-key.pem -out ./certs/${cname}.csr -config ./certs/${cname}.conf -days 3650 ${debug}"
-        eval "openssl x509 -req -in ./certs/${cname}.csr -CA ./certs/root-ca.pem -CAkey ./certs/root-ca.key -CAcreateserial -out ./certs/${cname}.pem -extfile ./certs/${cname}.conf -extensions v3_req -days 3650 ${debug}"
-        eval "chmod 444 ./certs/${cname}-key.pem ${debug}"    
+        eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${cname}-key.pem -out ${base_path}/certs/${cname}.csr -config ${base_path}/certs/${cname}.conf -days 3650 ${debug}"
+        eval "openssl x509 -req -in ${base_path}/certs/${cname}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${cname}.pem -extfile ${base_path}/certs/${cname}.conf -extensions v3_req -days 3650 ${debug}"
+        eval "chmod 444 ${base_path}/certs/${cname}-key.pem ${debug}"    
         i=$(( ${i} + 2 ))
     done
 
@@ -234,8 +234,8 @@ generateFilebeatcertificates() {
         cip=$(echo ${cip} | xargs)
 
         generateCertificateconfiguration cname cip
-        eval "openssl req -new -nodes -newkey rsa:2048 -keyout ./certs/${cname}-key.pem -out ./certs/${cname}.csr -config ./certs/${cname}.conf -days 3650 ${debug}"
-        eval "openssl x509 -req -in ./certs/${cname}.csr -CA ./certs/root-ca.pem -CAkey ./certs/root-ca.key -CAcreateserial -out ./certs/${cname}.pem -extfile ./certs/${cname}.conf -extensions v3_req -days 3650 ${debug}"
+        eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${cname}-key.pem -out ${base_path}/certs/${cname}.csr -config ${base_path}/certs/${cname}.conf -days 3650 ${debug}"
+        eval "openssl x509 -req -in ${base_path}/certs/${cname}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${cname}.pem -extfile ${base_path}/certs/${cname}.conf -extensions v3_req -days 3650 ${debug}"
         i=$(( ${i} + 2 ))
     done      
 
@@ -257,8 +257,8 @@ generateKibanacertificates() {
         cip=$(echo ${cip} | xargs)
 
         generateCertificateconfiguration cname cip
-        eval "openssl req -new -nodes -newkey rsa:2048 -keyout ./certs/${cname}-key.pem -out ./certs/${cname}.csr -config ./certs/${cname}.conf -days 3650 ${debug}"
-        eval "openssl x509 -req -in ./certs/${cname}.csr -CA ./certs/root-ca.pem -CAkey ./certs/root-ca.key -CAcreateserial -out ./certs/${cname}.pem -extfile ./certs/${cname}.conf -extensions v3_req -days 3650 ${debug}"
+        eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${cname}-key.pem -out ${base_path}/certs/${cname}.csr -config ${base_path}/certs/${cname}.conf -days 3650 ${debug}"
+        eval "openssl x509 -req -in ${base_path}/certs/${cname}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${cname}.pem -extfile ${base_path}/certs/${cname}.conf -extensions v3_req -days 3650 ${debug}"
         i=$(( ${i} + 2 ))
     done 
 
@@ -266,11 +266,11 @@ generateKibanacertificates() {
 
 cleanFiles() {
 
-    eval "rm -rf ./certs/*.csr ${debug}"
-    eval "rm -rf ./certs/*.srl ${debug}"
-    eval "rm -rf ./certs/*.conf ${debug}"
-    eval "rm -rf ./certs/admin-key-temp.pem ${debug}"
-    logger "Certificates creation finished. They can be found in ./certs."
+    eval "rm -rf ${base_path}/certs/*.csr ${debug}"
+    eval "rm -rf ${base_path}/certs/*.srl ${debug}"
+    eval "rm -rf ${base_path}/certs/*.conf ${debug}"
+    eval "rm -rf ${base_path}/certs/admin-key-temp.pem ${debug}"
+    logger "Certificates creation finished. They can be found in ${base_path}/certs."
 
 }
 

@@ -24,6 +24,7 @@ config_path="config/opendistro"
 resources="https://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/resources/${wazuh_major}"
 resources_functions="${resources}/${functions_path}"
 resources_config="${resources}/${config_path}"
+base_path="$(dirname $(realpath $0))"
 
 ## Show script usage
 getHelp() {
@@ -62,9 +63,9 @@ getHelp() {
 
 importFunction() {
     if [ -n "${local}" ]; then
-        . ./$functions_path/$1
+        . ${base_path}/${functions_path}/$1
     else
-        curl -so /tmp/$1 $resources_functions/$1
+        curl -so /tmp/$1 ${resources_functions}/$1
         . /tmp/$1
         rm -f /tmp/$1
     fi

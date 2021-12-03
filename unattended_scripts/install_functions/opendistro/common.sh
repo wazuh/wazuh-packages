@@ -10,9 +10,9 @@ repobaseurl="https://packages.wazuh.com/4.x"
 
 getConfig() {
     if [ -n "${local}" ]; then
-        cp ./$config_path/$1 $2
+        cp ${base_path}/${config_path}/$1 $2
     else
-        curl -so $2 $resources_config/$1
+        curl -so $2 ${resources_config}/$1
     fi
 }
 
@@ -208,7 +208,7 @@ startService() {
 createCertificates() {
 
     if [ -n "${AIO}" ]; then
-        eval "getConfig certificate/instances_aio.yml ./instances.yml ${debug}"
+        eval "getConfig certificate/instances_aio.yml ${base_path}/instances.yml ${debug}"
     fi
 
     readInstances
