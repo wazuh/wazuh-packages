@@ -32,7 +32,7 @@ checkArch() {
 }
 
 installPrerequisites() {
-    logger "Installing all necessary utilities for the installation..."
+    logger "Prerequisites: Installing all necessary utilities for the installation..."
 
     if [ ${sys_type} == "yum" ]; then
         eval "yum install curl unzip wget libcap -y ${debug}"
@@ -48,7 +48,7 @@ installPrerequisites() {
         logger -e "Prerequisites could not be installed"
         exit 1;
     else
-        logger "Done"
+        logger "Prerequisites: Done"
     fi
 }
 
