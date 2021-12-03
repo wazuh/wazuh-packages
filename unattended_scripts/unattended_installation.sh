@@ -1,19 +1,27 @@
 #!/bin/bash
 
+# Wazuh installer
+# Copyright (C) 2015-2021, Wazuh Inc.
+#
+# This program is a free software; you can redistribute it
+# and/or modify it under the terms of the GNU General Public
+# License (version 2) as published by the FSF - Free Software
+# Foundation.
+
 ## Package vars
-WAZUH_MAJOR="4.2"
-WAZUH_VER="4.2.5"
-WAZUH_REV="1"
-ELK_VER="7.10.2"
-ELKB_VER="7.12.1"
-OD_VER="1.13.2"
-OD_REV="1"
-WAZUH_KIB_PLUG_REV="1"
+wazuh_major="4.2"
+wazuh_ver="4.2.5"
+wazuh_rev="1"
+elk_ver="7.10.2"
+elkb_ver="7.12.1"
+od_ver="1.13.2"
+od_rev="1"
+wazuh_kib_plug_rev="1"
 
 ## Links and paths to resources
 functions_path="install_functions/opendistro"
 config_path="config/opendistro"
-resources="https://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/resources/${WAZUH_MAJOR}"
+resources="https://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/resources/${wazuh_major}"
 resources_functions="${resources}/${functions_path}"
 resources_config="${resources}/${config_path}"
 
@@ -21,20 +29,33 @@ resources_config="${resources}/${config_path}"
 getHelp() {
 
     echo ""
-    echo "Usage: $0 arguments"
-    echo -e "\t-A   | --AllInOne                      All-In-One installation"
-    echo -e "\t-w   | --wazuh                         Wazuh installation"
-    echo -e "\t-e   | --elasticsearch                 Elasticsearch installation"
-    echo -e "\t-k   | --kibana                        Kibana installation"
-    echo -e "\t-c   | --create-certificates           Create certificates from instances.yml file"
-    echo -e "\t-en  | --elastic-node-name             Name of the elastic node, used for distributed installations"
-    echo -e "\t-wn  | --wazuh-node-name               Name of the wazuh node, used for distributed installations"
+    echo "Usage: $(basename $0) options"
+    echo -e "        -a,  --all-in-one"
+    echo -e "                All-In-One installation."
+    echo -e "        -w,  --wazuh-server"
+    echo -e "                Wazuh server installation. It includes Filebeat."
+    echo -e "        -e,  --elasticsearch"
+    echo -e "                Elasticsearch installation."
+    echo -e "        -k,  --kibana"
+    echo -e "                Kibana installation."
+    echo -e "        -c,  --create-certificates"
+    echo -e "                Create certificates from instances.yml file."
+    echo -e "        -en, --elastic-node-name"
+    echo -e "                Name of the elastic node, used for distributed installations."
+    echo -e "        -wn, --wazuh-node-name"
+    echo -e "                Name of the wazuh node, used for distributed installations."
 
-    echo -e "\t-wk  | --wazuh-key <wazuh-cluster-key> Use this option as well as a wazuh_cluster_config.yml configuration file to automatically configure the wazuh cluster when using a multi-node installation"
-    echo -e "\t-v   | --verbose                       Shows the complete installation output"
-    echo -e "\t-i   | --ignore-health-check           Ignores the health-check"
-    echo -e "\t-l   | --local                         Use local files"
-    echo -e "\t-h   | --help                          Shows help"
+    echo -e "        -wk, --wazuh-key <wazuh-cluster-key>"
+    echo -e "                Use this option as well as a wazuh_cluster_config.yml configuration file to automatically configure the wazuh cluster when using a multi-node installation."
+    echo -e "        -v,  --verbose"
+    echo -e "                Shows the complete installation output."
+    echo -e "        -i,  --ignore-health-check"
+    echo -e "                Ignores the health-check."
+    echo -e "        -l,  --local"
+    echo -e "                Use local files."
+    echo -e "        -h,  --help"
+    echo -e "                Shows help."
+    echo -e ""
     exit 1 # Exit script after printing help
 
 }
@@ -50,19 +71,19 @@ importFunction() {
 }
 
 main() {
-    if [ "$EUID" -ne 0 ]; then
-        echo "Error: This script must be run as root."
-        exit 1;
-    fi   
+
+    if [ ! -n  "$1" ]; then
+        getHelp
+    fi
 
     while [ -n "$1" ]
     do
         case "$1" in
-            "-A"|"--AllInOne")
+            "-a"|"--all-in-one")
                 AIO=1
                 shift 1
                 ;;
-            "-w"|"--wazuh")
+            "-w"|"--wazuh-server")
                 wazuh=1
                 shift 1
                 ;;
@@ -108,13 +129,19 @@ main() {
                 getHelp
                 ;;
             *)
+                echo "Unknow option: $1"
                 getHelp
         esac
     done
 
+    if [ "$EUID" -ne 0 ]; then
+        echo "Error: This script must be run as root."
+        exit 1;
+    fi   
+
     importFunction "common.sh"
     importFunction "wazuh-cert-tool.sh"
-    
+
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
         createCertificates
     fi

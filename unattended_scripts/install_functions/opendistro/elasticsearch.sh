@@ -1,11 +1,18 @@
+# Copyright (C) 2015-2021, Wazuh Inc.
+#
+# This program is a free software; you can redistribute it
+# and/or modify it under the terms of the GNU General Public
+# License (version 2) as published by the FSF - Free Software
+# Foundation.
+
 installElasticsearch() {
 
     logger "Installing Open Distro for Elasticsearch..."
 
     if [ ${sys_type} == "yum" ]; then
-        eval "yum install opendistroforelasticsearch-${OD_VER}-${OD_REV} -y ${debug}"
+        eval "yum install opendistroforelasticsearch-${od_ver}-${od_rev} -y ${debug}"
     elif [ ${sys_type} == "zypper" ]; then
-        eval "zypper -n install opendistroforelasticsearch=${OD_VER}-${OD_REV} ${debug}"
+        eval "zypper -n install opendistroforelasticsearch=${od_ver}-${od_rev} ${debug}"
     elif [ ${sys_type} == "apt-get" ]; then
         eval "apt install elasticsearch-oss opendistroforelasticsearch -y ${debug}"
     fi
@@ -40,7 +47,7 @@ copyCertificatesElasticsearch() {
 }
 
 configureElasticsearchAIO() {
- 
+
     logger "Configuring Elasticsearch..."
 
     eval "getConfig elasticsearch/elasticsearch_unattended.yml /etc/elasticsearch/elasticsearch.yml  ${debug}"
@@ -66,7 +73,7 @@ configureElasticsearchAIO() {
     fi    
     eval "sed -i "s/-Xms1g/-Xms${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
     eval "sed -i "s/-Xmx1g/-Xmx${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
-  
+
     eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
     # Start Elasticsearch
     startService "elasticsearch"
