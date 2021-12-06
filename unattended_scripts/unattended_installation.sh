@@ -56,6 +56,14 @@ main() {
         exit 1;
     fi   
 
+    MACHINE_TYPE=`uname -m`
+
+    if ! { [ ${MACHINE_TYPE} = 'x86_64' ] || [ ${MACHINE_TYPE} = 'aarch64' ]; }; then
+    #if [ ${MACHINE_TYPE} == 'x86_64' ]; then
+        echo "Error: Package installation requires x86_64 or aarch64 architecture."
+        exit 1;
+    fi   
+
     while [ -n "$1" ]
     do
         case "$1" in
