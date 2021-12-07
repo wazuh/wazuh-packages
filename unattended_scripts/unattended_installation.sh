@@ -1,5 +1,4 @@
 #!/bin/bash
-
 ## Package vars
 WAZUH_MAJOR="4.2"
 WAZUH_VER="4.2.5"
@@ -61,13 +60,13 @@ logger() {
             message="$1"
             ;;
     esac
-    echo $now $mtype $message | tee /var/log/wazuh-unattended-installation.log
+    echo $now $mtype $message | tee -a /var/log/wazuh-unattended-installation.log
 }
 
 importFunction() {
     if [ -n "${local}" ]; then
         if [ -f ${base_path}/$functions_path/$1 ]; then
-            sed -i "s/main @//" ${base_path}/$functions_path/$1
+            sed -i "/main @/d" ${base_path}/$functions_path/$1
             . ${base_path}/$functions_path/$1
             echo "main @">> ${base_path}/$functions_path/$1
         else 
@@ -76,7 +75,7 @@ importFunction() {
     else
         curl -so /tmp/$1 $resources_functions/$1
         if [[ $? == 0 ]]; then
-            sed -i "s/main @//" /tmp/$1
+            sed -i "/main @/d" /tmp/$1
             . /tmp/$1
             rm -f /tmp/$1
         else

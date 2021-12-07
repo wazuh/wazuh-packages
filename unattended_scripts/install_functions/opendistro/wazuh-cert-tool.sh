@@ -35,7 +35,7 @@ logger_cert() {
             message="$1"
             ;;
     esac
-    echo $now $mtype $message | tee ${logfile}
+    echo $now $mtype $message | tee -a ${logfile}
 }
 
 readInstances() {

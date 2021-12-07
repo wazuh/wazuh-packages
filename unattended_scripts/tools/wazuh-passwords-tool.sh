@@ -36,7 +36,7 @@ logger_pass() {
             message="$1"
             ;;
     esac
-    echo $now $mtype $message | tee ${logfile}
+    echo $now $mtype $message | tee -a ${logfile}
 }
 
 ## Checks if the script is run with enough privileges
