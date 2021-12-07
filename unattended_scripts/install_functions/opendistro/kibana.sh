@@ -23,7 +23,7 @@ configureKibanaAIO() {
     eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
     eval "cd /usr/share/kibana"
     eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${repobaseurl}'/ui/kibana/wazuh_kibana-${WAZUH_VER}_${ELK_VER}-${WAZUH_KIB_PLUG_REV}.zip ${debug}"
-    eval "cd ${base_path} ${debug}"
+    eval "cd ${base_path}"
     if [  "$?" != 0  ]; then
         logger -e "Wazuh Kibana plugin could not be installed."
         rollBack
@@ -51,7 +51,7 @@ configureKibana() {
         logger -e "Wazuh Kibana plugin could not be installed."
         exit 1;
     fi
-    eval "cd ${base_path} ${debug}"
+    eval "cd ${base_path}"
     eval "setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node ${debug}"
     eval "mkdir /etc/kibana/certs ${debug}"
 
