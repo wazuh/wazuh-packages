@@ -66,18 +66,18 @@ logger() {
 importFunction() {
     if [ -n "${local}" ]; then
         if [ -f ${base_path}/$functions_path/$1 ]; then
-            sed -i "/main @/d" ${base_path}/$functions_path/$1
-            . ${base_path}/$functions_path/$1
-            echo "main @">> ${base_path}/$functions_path/$1
+            eval "sed -i '/main @/d' ${base_path}/$functions_path/$1 ${debug}"
+            eval ". ${base_path}/$functions_path/$1 ${debug}"
+            echo 'main @' >> ${base_path}/$functions_path/$1
         else 
             error=1
         fi
     else
-        curl -so /tmp/$1 $resources_functions/$1
+        eval "curl -so /tmp/$1 $resources_functions/$1 ${debug}"
         if [[ $? == 0 ]]; then
-            sed -i "/main @/d" /tmp/$1
-            . /tmp/$1
-            rm -f /tmp/$1
+            eval "sed -i '/main @/d' /tmp/$1 ${debug}"
+            eval ". /tmp/$1 ${debug}"
+            eval "rm -f /tmp/$1 ${debug}"
         else
             error=1 
         fi
