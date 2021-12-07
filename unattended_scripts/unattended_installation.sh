@@ -51,10 +51,16 @@ importFunction() {
 }
 
 main() {
+
+    importFunction "common.sh"
+    importFunction "wazuh-cert-tool.sh"
+
     if [ "$EUID" -ne 0 ]; then
         echo "Error: This script must be run as root."
         exit 1;
-    fi   
+    fi
+
+    checkArch
 
     while [ -n "$1" ]
     do
@@ -112,10 +118,7 @@ main() {
                 getHelp
         esac
     done
-
-    importFunction "common.sh"
-    importFunction "wazuh-cert-tool.sh"
-    
+   
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
         createCertificates
     fi
