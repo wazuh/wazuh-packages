@@ -193,6 +193,7 @@ initializeElastic() {
     logger "Initializing Elasticsearch..."
 
 
+    char="."
     until $(curl -XGET https://${nip}:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null); do
         echo -ne ${char}
         sleep 10

@@ -90,7 +90,7 @@ copyKibanacerts() {
         eval "cp ${base_path}/certs/kibana* /etc/kibana/certs/ ${debug}"
         eval "cp ${base_path}/certs/root-ca.pem /etc/kibana/certs/ ${debug}"
     else
-        logger "No certificates found. Could not initialize Kibana"
+        logger -e "No certificates found. Could not initialize Kibana"
         exit 1;
     fi
 
@@ -101,6 +101,7 @@ initializeKibana() {
     # Start Kibana
     startService "kibana"
     logger "Initializing Kibana (this may take a while)"
+    char="."
     until [[ "$(curl -XGET https://${kip}/status -I -uadmin:admin -k -s --max-time 300 | grep "200 OK")" ]]; do
         echo -ne ${char}
         sleep 10
