@@ -153,8 +153,8 @@ main() {
     done
 
     importFunction "common.sh"
-    importFunction "wazuh-cert-tool.sh"
     logfile="/var/log/wazuh-unattended-installation.log"
+    importFunction "wazuh-cert-tool.sh"
     
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
         createCertificates

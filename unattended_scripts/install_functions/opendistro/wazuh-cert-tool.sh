@@ -8,7 +8,9 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-logfile="/var/log/wazuh-cert-tool.log"
+if [[ -z "${logfile}" ]]; then
+    logfile="/var/log/wazuh-cert-tool.log"
+fi
 debug_cert=">> ${logfile} 2>&1"
 ELASTICINSTANCES="elasticsearch-nodes:"
 FILEBEATINSTANCES="wazuh-servers:"
