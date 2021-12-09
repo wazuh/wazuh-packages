@@ -8,7 +8,7 @@
 repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"
 repobaseurl="https://packages.wazuh.com/4.x"
 
-if [ -n ${development} ]; then
+if [ -n "${development}" ]; then
     repogpg="https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH"
     repobaseurl="https://packages-dev.wazuh.com/pre-release"
 fi
