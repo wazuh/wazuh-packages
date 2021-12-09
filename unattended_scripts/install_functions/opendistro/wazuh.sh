@@ -9,9 +9,9 @@ installWazuh() {
     
     logger "Installing the Wazuh manager..."
     if [ ${sys_type} == "zypper" ]; then
-        eval "zypper -n install wazuh-manager=${wazuh_ver}-${wazuh_rev} ${debug}"
+        eval "zypper -n install wazuh-manager=${wazuh_version}-${wazuh_revision} ${debug}"
     else
-        eval "${sys_type} install wazuh-manager${sep}${wazuh_ver}-${wazuh_rev} -y ${debug}"
+        eval "${sys_type} install wazuh-manager${sep}${wazuh_version}-${wazuh_revision} -y ${debug}"
     fi
     if [  "$?" != 0  ]; then
         logger -e "Wazuh installation failed"

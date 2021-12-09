@@ -10,9 +10,9 @@ installElasticsearch() {
     logger "Installing Open Distro for Elasticsearch..."
 
     if [ ${sys_type} == "yum" ]; then
-        eval "yum install opendistroforelasticsearch-${od_ver}-${od_rev} -y ${debug}"
+        eval "yum install opendistroforelasticsearch-${opendistro_version}-${opendistro_revision} -y ${debug}"
     elif [ ${sys_type} == "zypper" ]; then
-        eval "zypper -n install opendistroforelasticsearch=${od_ver}-${od_rev} ${debug}"
+        eval "zypper -n install opendistroforelasticsearch=${opendistro_version}-${opendistro_revision} ${debug}"
     elif [ ${sys_type} == "apt-get" ]; then
         eval "apt install elasticsearch-oss opendistroforelasticsearch -y ${debug}"
     fi

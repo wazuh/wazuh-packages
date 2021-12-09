@@ -10,13 +10,13 @@
 
 ## Package vars
 wazuh_major="4.2"
-wazuh_ver="4.2.5"
-wazuh_rev="1"
-elk_ver="7.10.2"
-elkb_ver="7.12.1"
-od_ver="1.13.2"
-od_rev="1"
-wazuh_kib_plug_rev="1"
+wazuh_version="4.2.5"
+wazuh_revision="1"
+elastic_oss_version="7.10.2"
+elastic_basic_version="7.12.1"
+opendistro_version="1.13.2"
+opendistro_revision="1"
+wazuh_kibana_plugin_revision="1"
 
 ## Links and paths to resources
 functions_path="install_functions/opendistro"
