@@ -1,3 +1,10 @@
+# Copyright (C) 2015-2021, Wazuh Inc.
+#
+# This program is a free software; you can redistribute it
+# and/or modify it under the terms of the GNU General Public
+# License (version 2) as published by the FSF - Free Software
+# Foundation.
+
 installFilebeat() {
 
     if [[ -f /etc/filebeat/filebeat.yml ]]; then
@@ -8,9 +15,9 @@ installFilebeat() {
     logger "Installing Filebeat..."
     
     if [ ${sys_type} == "zypper" ]; then
-        eval "zypper -n install filebeat-${ELK_VER} ${debug}"
+        eval "zypper -n install filebeat-${elastic_oss_version} ${debug}"
     else
-        eval "${sys_type} install filebeat${sep}${ELK_VER} -y -q  ${debug}"
+        eval "${sys_type} install filebeat${sep}${elastic_oss_version} -y -q  ${debug}"
     fi
     if [  "$?" != 0  ]
     then

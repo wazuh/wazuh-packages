@@ -1,22 +1,30 @@
 #!/bin/bash
-set -x
+
+# Wazuh installer
+# Copyright (C) 2015-2021, Wazuh Inc.
+#
+# This program is a free software; you can redistribute it
+# and/or modify it under the terms of the GNU General Public
+# License (version 2) as published by the FSF - Free Software
+# Foundation.
+
 ## Package vars
-WAZUH_MAJOR="4.2"
-WAZUH_VER="4.2.5"
-WAZUH_REV="1"
-ELK_VER="7.10.2"
-ELKB_VER="7.12.1"
-OD_VER="1.13.2"
-OD_REV="1"
-WAZUH_KIB_PLUG_REV="1"
+wazuh_major="4.2"
+wazuh_version="4.2.5"
+wazuh_revision="1"
+elastic_oss_version="7.10.2"
+elastic_basic_version="7.12.1"
+opendistro_version="1.13.2"
+opendistro_revision="1"
+wazuh_kibana_plugin_revision="1"
 
 ## Links and paths to resources
 functions_path="install_functions/opendistro"
 config_path="config/opendistro"
-resources="https://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/resources/${WAZUH_MAJOR}"
+resources="https://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/resources/${wazuh_major}"
 resources_functions="${resources}/${functions_path}"
 resources_config="${resources}/${config_path}"
-base_path="$(dirname $(realpath $0))"
+base_path="$(dirname $(readlink -f $0))"
 
 ## Debug variable used during the installation
 debug='>> /var/log/wazuh-unattended-installation.log 2>&1'
@@ -39,7 +47,7 @@ getHelp() {
     echo -e "\t-i   | --ignore-health-check           Ignores the health-check"
     echo -e "\t-l   | --local                         Use local files"
     echo -e "\t-h   | --help                          Shows help"
-    exit 1 # Exit script after printing help
+   exit 1 # Exit script after printing help
 
 }
 
@@ -90,19 +98,18 @@ importFunction() {
 }
 
 main() {
-    if [ "$EUID" -ne 0 ]; then
-        logger -e "This script must be run as root."
-        exit 1;
-    fi   
+    if [ ! -n  "$1" ]; then
+        getHelp
+    fi
 
     while [ -n "$1" ]
     do
         case "$1" in
-            "-A"|"--AllInOne")
+            "-a"|"--all-in-one")
                 AIO=1
                 shift 1
                 ;;
-            "-w"|"--wazuh")
+            "-w"|"--wazuh-server")
                 wazuh=1
                 shift 1
                 ;;
@@ -127,7 +134,7 @@ main() {
                 certificates=1
                 shift 1
                 ;;
-            "-i"|"--ignore-healthcheck")
+            "-i"|"--ignore-health-check")
                 ignore=1
                 shift 1
                 ;;
@@ -149,13 +156,21 @@ main() {
                 getHelp
                 ;;
             *)
+                echo "Unknow option: $1"
                 getHelp
         esac
     done
 
+    if [ "$EUID" -ne 0 ]; then
+        logger -e "Error: This script must be run as root."
+        exit 1;
+    fi   
+
     importFunction "common.sh"
     logfile="/var/log/wazuh-unattended-installation.log"
     importFunction "wazuh-cert-tool.sh"
+
+    checkArch
     
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
         createCertificates
@@ -230,9 +245,7 @@ main() {
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored."
         else
-            healthCheck elasticsearch
-            healthCheck kibana
-            healthCheck wazuh
+            healthCheck AIO
         fi
         checkSystem
         installPrerequisites
