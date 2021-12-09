@@ -115,6 +115,8 @@ main() {
 
     importFunction "common.sh"
     importFunction "wazuh-cert-tool.sh"
+
+    checkArch
     
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
         createCertificates
