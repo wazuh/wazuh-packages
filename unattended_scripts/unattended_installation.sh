@@ -16,7 +16,7 @@ config_path="config/opendistro"
 resources="https://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/resources/${WAZUH_MAJOR}"
 resources_functions="${resources}/${functions_path}"
 resources_config="${resources}/${config_path}"
-base_path="$(dirname $(realpath $0))"
+base_path="$(dirname $(readlink -f $0))"
 
 ## Show script usage
 getHelp() {
