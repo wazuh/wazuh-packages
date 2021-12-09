@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 ## Package vars
 WAZUH_MAJOR="4.2"
 WAZUH_VER="4.2.5"
@@ -67,7 +68,7 @@ importFunction() {
     if [ -n "${local}" ]; then
         if [ -f ${base_path}/$functions_path/$1 ]; then
             eval "sed -i '/main @/d' ${base_path}/$functions_path/$1 ${debug}"
-            eval ". ${base_path}/$functions_path/$1 ${debug}"
+            eval ". ${base_path}/$functions_path/$1"
             echo 'main @' >> ${base_path}/$functions_path/$1
         else 
             error=1
