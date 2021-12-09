@@ -1,0 +1,32 @@
+## Multi-node configuration
+
+## Elasticsearch configuration
+
+cluster.name: wazuh
+
+cluster.initial_master_nodes:
+        - node1
+        - node2
+        - node3
+
+discovery.seed_hosts:
+        - 172.16.1.17
+        - 172.16.1.64
+        - 172.16.1.65
+
+## Certificates creation
+
+# Clients certificates
+clients:
+  - name: admin
+    dn: CN=admin,OU=Docu,O=Wazuh,L=California,C=US
+    admin: true
+  - name: filebeat
+    dn: CN=filebeat,OU=Docu,O=Wazuh,L=California,C=US
+
+
+# Kibana-instance
+- 172.16.1.17
+
+# Wazuh-master-configuration
+- 172.16.1.17 
