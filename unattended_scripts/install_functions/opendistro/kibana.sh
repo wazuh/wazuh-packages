@@ -1,10 +1,17 @@
+# Copyright (C) 2015-2021, Wazuh Inc.
+#
+# This program is a free software; you can redistribute it
+# and/or modify it under the terms of the GNU General Public
+# License (version 2) as published by the FSF - Free Software
+# Foundation.
+
 installKibana() {
     
     logger "Installing Open Distro for Kibana..."
     if [ ${sys_type} == "zypper" ]; then
-        eval "zypper -n install opendistroforelasticsearch-kibana=${OD_VER} ${debug}"
+        eval "zypper -n install opendistroforelasticsearch-kibana=${opendistro_version} ${debug}"
     else
-        eval "${sys_type} install opendistroforelasticsearch-kibana${sep}${OD_VER} -y ${debug}"
+        eval "${sys_type} install opendistroforelasticsearch-kibana${sep}${opendistro_version} -y ${debug}"
     fi
     if [  "$?" != 0  ]; then
         logger -e "Kibana installation failed"
@@ -22,7 +29,7 @@ configureKibanaAIO() {
     eval "mkdir /usr/share/kibana/data ${debug}"
     eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
     eval "cd /usr/share/kibana ${debug}"
-    eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${repobaseurl}'/ui/kibana/wazuh_kibana-${WAZUH_VER}_${ELK_VER}-${WAZUH_KIB_PLUG_REV}.zip ${debug}"
+    eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${repobaseurl}'/ui/kibana/wazuh_kibana-${wazuh_version}_${elastic_oss_version}-${wazuh_kibana_plugin_revision}.zip ${debug}"
     eval "cd ${base_path} ${debug}"
     if [  "$?" != 0  ]; then
         logger -e "Wazuh Kibana plugin could not be installed."
@@ -46,7 +53,7 @@ configureKibana() {
     eval "mkdir /usr/share/kibana/data ${debug}"
     eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
     eval "cd /usr/share/kibana ${debug}"
-    eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${repobaseurl}'/ui/kibana/wazuh_kibana-${WAZUH_VER}_${ELK_VER}-${WAZUH_KIB_PLUG_REV}.zip ${debug}"
+    eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${repobaseurl}'/ui/kibana/wazuh_kibana-${wazuh_version}_${elastic_oss_version}-${wazuh_kibana_plugin_revision}.zip ${debug}"
     if [  "$?" != 0  ]; then
         logger -e "Wazuh Kibana plugin could not be installed."
         exit 1;
