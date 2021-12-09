@@ -9,8 +9,8 @@
 # Foundation.
 
 ## Package vars
-wazuh_major="4.3"
-wazuh_version="4.3.0"
+wazuh_major="4.2"
+wazuh_version="4.2.5"
 wazuh_revision="1"
 elastic_oss_version="7.10.2"
 elastic_basic_version="7.12.1"
@@ -71,7 +71,7 @@ getHelp() {
     echo -e "                Use local files."
     echo -e ""
     echo -e "        -d,  --dev"
-    echo -e "                Use development packages"
+    echo -e "                Use development repository."
     echo -e ""
     echo -e "        -h,  --help"
     echo -e "                Shows help."
