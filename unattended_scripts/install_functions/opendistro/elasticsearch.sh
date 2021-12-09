@@ -11,7 +11,7 @@ installElasticsearch() {
     fi
 
     if [  "$?" != 0  ]; then
-        echo -e "Elasticsearch installation failed"
+        logger -e "Elasticsearch installation failed"
         rollBack
         exit 1;  
     else
