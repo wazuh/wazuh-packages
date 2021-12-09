@@ -85,7 +85,7 @@ addWazuhrepo() {
 }
 
 restoreWazuhrepo() {
-    if [ -n ${development} ]; then
+    if [ -n "${development}" ]; then
         logger "Setting the Wazuh repository to production"
         if [ ${sys_type} == "yum" ] && [ -f /etc/yum.repos.d/wazuh.repo ]; then
             file="/etc/yum.repos.d/wazuh.repo"
