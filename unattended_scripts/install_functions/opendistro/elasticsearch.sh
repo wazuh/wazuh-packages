@@ -93,7 +93,7 @@ configureElasticsearch() {
     logger "Configuring Elasticsearch..."
 
     eval "getConfig elasticsearch/elasticsearch_unattended_distributed.yml /etc/elasticsearch/elasticsearch.yml ${debug}"
-    eval "getConfig elasticsearch/roles/roles.ym /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml ${debug}"
+    eval "getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml ${debug}"
     eval "getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml ${debug}"
     eval "getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml ${debug}"
 

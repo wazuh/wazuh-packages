@@ -173,6 +173,7 @@ main() {
             "-v"|"--verbose")
                 debugEnabled=1
                 debug='2>&1 | tee -a /var/log/wazuh-unattended-installation.log'
+                ;;
             "-d"|"--dev")
                 development=1
                 shift 1
