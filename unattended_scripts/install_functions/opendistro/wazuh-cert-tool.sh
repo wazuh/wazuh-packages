@@ -8,7 +8,7 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-debug='> /dev/null 2>&1'
+debug=''
 elasticinstances="elasticsearch-nodes:"
 filebeatinstances="wazuh-servers:"
 kibanainstances="kibana:"
