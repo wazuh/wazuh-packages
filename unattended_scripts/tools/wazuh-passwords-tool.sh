@@ -89,7 +89,7 @@ getHelp() {
    echo -e "\t-p     | --password <password> Indicates the new password, must be used with option -u"
    echo -e "\t-c     | --cert <route-admin-certificate> Indicates route to the admin certificate"
    echo -e "\t-k     | --certkey <route-admin-certificate-key> Indicates route to the admin certificate key"
-   echo -e "\t-d     | --debug Shows the complete script execution output"
+   echo -e "\t-v     | --verbose Shows the complete script execution output"
    echo -e "\t-h     | --help Shows help"
    exit 1 # Exit script after printing help
 }
@@ -346,7 +346,7 @@ main() {
         while [ -n "$1" ]
         do
             case "$1" in
-            "-d"|"--debug")
+            "-v"|"--verbose")
                 DEBUGENABLED=1
                 shift 1
                 ;;

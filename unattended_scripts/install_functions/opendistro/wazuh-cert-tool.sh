@@ -67,7 +67,7 @@ getHelp() {
     echo -e "                Creates the Wazuh server certificates."
     echo -e "        -k,  --kibana-certificates"
     echo -e "                Creates the Kibana certificates."
-    echo -e "        -d,  --debug"
+    echo -e "        -v,  --verbose"
     echo -e "                Enables verbose mode."
     exit 1 # Exit script after printing help    
 }
@@ -307,7 +307,7 @@ main() {
                 ckibana=1
                 shift 1
                 ;;                               
-            "-d"|"--debug") 
+            "-v"|"--verbose") 
                 debugEnabled=1          
                 shift 1
                 ;;                                 
