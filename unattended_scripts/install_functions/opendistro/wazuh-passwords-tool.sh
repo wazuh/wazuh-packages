@@ -39,6 +39,7 @@ logger() {
 }
 
 ## Checks if the script is run with enough privileges
+
 checkRoot() {
     if [ "$EUID" -ne 0 ]; then
         logger -e "This script must be run as root."
@@ -89,6 +90,7 @@ getHelp() {
    echo -e "\t-c     | --cert <route-admin-certificate> Indicates route to the admin certificate"
    echo -e "\t-k     | --certkey <route-admin-certificate-key> Indicates route to the admin certificate key"
    echo -e "\t-v     | --verbose Shows the complete script execution output"
+   echo -e "\t-f     | --file <password_file.yml> Changes the passwords for the ones given in the file. It has to be formatted like this, with three lines per user: \n\t\tUser:\n\t\t\tname:<user>\n\t\t\tpassword:<password>"
    echo -e "\t-h     | --help Shows help"
    exit 1 # Exit script after printing help
 }
@@ -107,12 +109,12 @@ getNetworkHost() {
 
 ## Checks if Open Distro for Elasticsearch is installed
 
-checkInstalledOD() {
+checkInstalled() {
     
     if [ "${SYS_TYPE}" == "yum" ]; then
         elasticinstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch)
     elif [ "${SYS_TYPE}" == "zypper" ]; then
-        elasticinstalled=$(zypper packages --installed | grep opendistroforelasticsearch | grep i+ | grep noarch)
+        elasticinstalled=$(zypper packages --installed-only | grep opendistroforelasticsearch | grep i+)
     elif [ "${SYS_TYPE}" == "apt-get" ]; then
         elasticinstalled=$(apt list --installed  2>/dev/null | grep 'opendistroforelasticsearch*')
     fi 
@@ -158,6 +160,76 @@ readUsers() {
     USERS=($SUSERS)  
 }
 
+## Reads all the users and passwords in the given passwords file
+
+readFileUsers() {
+
+    FILECORRECT=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*\w+\s*)+\Z' $FILE)
+    if [ $FILECORRECT -ne 1 ]; then
+	logger -e "The password file doesn't have a correct format.
+
+It must have this format:
+User:
+   name: wazuh
+   password: wazuhpasword
+User:
+   name: kibanaserver
+   password: kibanaserverpassword"
+	exit 1
+    fi	
+
+    SFILEUSERS=$(grep name: ${FILE} | awk '{ print substr( $2, 1, length($2) ) }')
+    SFILEPASSWORDS=$(grep password: ${FILE} | awk '{ print substr( $2, 1, length($2) ) }')
+
+    FILEUSERS=($SFILEUSERS)
+    FILEPASSWORDS=($SFILEPASSWORDS)
+
+    if [ -n "${VERBOSEENABLED}" ]; then
+        logger "Users in the file: ${FILEUSERS[@]}"
+        logger "Passwords in the file: ${FILEPASSWORDS[@]}"
+    fi
+
+    if [ -n "${CHANGEALL}" ]; then
+        for j in "${!FILEUSERS[@]}"; do
+            supported=false
+            for i in "${!USERS[@]}"; do
+                if [[ ${USERS[i]} == ${FILEUSERS[j]} ]]; then
+                    PASSWORDS[i]=${FILEPASSWORDS[j]}
+                    supported=true
+                fi
+            done
+            if [ $supported = false ]; then
+                logger -e "The given user ${FILEUSERS[j]} does not exist"
+            fi
+        done
+    else
+        FINALUSERS=()
+        FINALPASSWORDS=()
+
+        for j in "${!FILEUSERS[@]}"; do
+            supported=false
+            for i in "${!USERS[@]}"; do
+                if [[ ${USERS[i]} == ${FILEUSERS[j]} ]]; then
+                    FINALUSERS+=(${FILEUSERS[j]})
+                    FINALPASSWORDS+=(${FILEPASSWORDS[j]})
+                    supported=true
+                fi
+            done
+            if [ $supported = false ]; then
+                logger -e "The given user ${FILEUSERS[j]} does not exist"
+            fi
+        done
+
+        USERS=()
+        USERS=(${FINALUSERS[@]})
+        PASSWORDS=(${FINALPASSWORDS[@]})
+        CHANGEALL=1
+    fi
+
+}
+
+## Checks if the user exists
+
 checkUser() {
 
     for i in "${!USERS[@]}"; do
@@ -179,7 +251,6 @@ createBackUp() {
     
     logger "Creating backup..."
     eval "mkdir /usr/share/elasticsearch/backup ${VERBOSE}"
-    export JAVA_HOME="/usr/share/elasticsearch/jdk/"
     eval "cd /usr/share/elasticsearch/plugins/opendistro_security/tools/ ${VERBOSE}"
     eval "./securityadmin.sh -backup /usr/share/elasticsearch/backup -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${VERBOSE}"
     if [  "$?" != 0  ]; then
@@ -213,6 +284,16 @@ generatePassword() {
  
 }
 
+generatePasswordFile() {
+    USERS=(admin kibanaserver kibanaro logstash readall snapshotrestore wazuh_admin wazuh_user)
+    generatePassword
+    for i in "${!USERS[@]}"; do
+        echo "User:" >> ./certs/password_file
+        echo "  ${USERS[${i}]}: ${PASSWORDS[${i}]}" >> ./certs/password_file
+    done
+    logger "Paswords stored in ./certs/password_file"
+}
+
 ## Generates the hash for the new password
 
 generateHash() {
@@ -234,7 +315,6 @@ generateHash() {
         fi    
         logger "Hash generated"
     fi
-
 }
 
 ## Changes the password for the indicated user
@@ -258,7 +338,7 @@ changePassword() {
 
         if [ "${NUSER}" == "wazuh" ]; then
             wazuhpass=${PASSWORD}
-        elif [ "${USERS[i]}" == "kibanaserver" ]; then
+        elif [ "${NUSER}" == "kibanaserver" ]; then
             kibpass=${PASSWORD}
         fi        
 
@@ -269,40 +349,42 @@ changePassword() {
         if [ "${SYS_TYPE}" == "yum" ]; then
             hasfilebeat=$(yum list installed 2>/dev/null | grep filebeat)
         elif [ "${SYS_TYPE}" == "zypper" ]; then
-            hasfilebeat=$(zypper packages --installed | grep filebeat | grep i+ | grep noarch)
+            hasfilebeat=$(zypper packages --installed-only | grep filebeat | grep i+)
         elif [ "${SYS_TYPE}" == "apt-get" ]; then
             hasfilebeat=$(apt list --installed  2>/dev/null | grep filebeat)
         fi 
 
-        if [ "${SYS_TYPE}" == "yum" ]; then
-            haskibana=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch-kibana)
-        elif [ "${SYS_TYPE}" == "zypper" ]; then
-            haskibana=$(zypper packages --installed | grep opendistroforelasticsearch-kibana | grep i+)
-        elif [ "${SYS_TYPE}" == "apt-get" ]; then
-            haskibana=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch-kibana)
-        fi     
-
         wazuhold=$(grep "password:" /etc/filebeat/filebeat.yml )
         ra="  password: "
         wazuhold="${wazuhold//$ra}"
-
-        wazuhkibold=$(grep "password:" /etc/kibana/kibana.yml )
-        rk="elasticsearch.password: "
-        wazuhkibold="${wazuhkibold//$rk}"        
 
         if [ -n "${hasfilebeat}" ]; then
             conf="$(awk '{sub("  password: '${wazuhold}'", "  password: '${wazuhpass}'")}1' /etc/filebeat/filebeat.yml)"
             echo "${conf}" > /etc/filebeat/filebeat.yml  
             restartService "filebeat"
         fi 
-
-        if [ -n "${haskibana}" ]; then
-            conf="$(awk '{sub("elasticsearch.password: '${wazuhkibold}'", "elasticsearch.password: '${kibpass}'")}1' /etc/kibana/kibana.yml)"
-            echo "${conf}" > /etc/kibana/kibana.yml 
-            restartService "kibana"
-        fi         
     fi
 
+    if [ "$NUSER" == "kibanaserver" ] || [ -n "$CHANGEALL" ]; then
+
+	    if [ "${SYS_TYPE}" == "yum" ]; then
+		    haskibana=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch-kibana)
+	    elif [ "${SYS_TYPE}" == "zypper" ]; then
+		    haskibana=$(zypper packages --installed-only | grep opendistroforelasticsearch-kibana | grep i+)
+	    elif [ "${SYS_TYPE}" == "apt-get" ]; then
+		    haskibana=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch-kibana)
+	    fi
+
+	    wazuhkibold=$(grep "password:" /etc/kibana/kibana.yml )
+	    rk="elasticsearch.password: "
+	    wazuhkibold="${wazuhkibold//$rk}"
+
+	    if [ -n "${haskibana}" ] && [ -n "${kibpass}" ]; then
+		    conf="$(awk '{sub("elasticsearch.password: '${wazuhkibold}'", "elasticsearch.password: '${kibpass}'")}1' /etc/kibana/kibana.yml)"
+		    echo "${conf}" > /etc/kibana/kibana.yml 
+		    restartService "kibana"
+	    fi         
+    fi
 }
 
 ## Runs the Security Admin script to load the changes
@@ -320,24 +402,21 @@ runSecurityAdmin() {
     logger "Done"
 
     if [[ -n "${NUSER}" ]] && [[ -n ${AUTOPASS} ]]; then
-        logger $'\nThe password for user '${NUSER}' is '${PASSWORD}''
-        logger -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
+        echo -e "The password for user '${NUSER}' is '${PASSWORD}'\n"
+        logger "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services. More info: https://documentation.wazuh.com/current/user-manual/elasticsearch/elastic-tuning.html#change-users-password"
     fi
 
     if [[ -n "${NUSER}" ]] && [[ -z ${AUTOPASS} ]]; then
-        logger -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
+        logger "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services. More info: https://documentation.wazuh.com/current/user-manual/elasticsearch/elastic-tuning.html#change-users-password"
     fi    
 
     if [ -n "${CHANGEALL}" ]; then
         
         for i in "${!USERS[@]}"
         do
-            echo ""
-            logger "The password for ${USERS[i]} is ${PASSWORDS[i]}"
+            echo -e "The password for ${USERS[i]} is ${PASSWORDS[i]}\n"
         done
-        echo ""
-        logger -w "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
-        echo ""
+        logger "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services. More info: https://documentation.wazuh.com/current/user-manual/elasticsearch/elastic-tuning.html#change-users-password"
     fi 
 
 }
@@ -375,7 +454,12 @@ main() {
                 adminkey=$2
                 shift
                 shift
-                ;;                                                            
+                ;; 
+	        "-f"|"--file")
+                FILE=$2
+                    shift
+                shift
+                ;;		
             "-h"|"--help")
                 getHelp
                 ;;
@@ -390,21 +474,33 @@ main() {
             VERBOSE=""
         fi 
 
-        checkInstalledOD   
+        checkInstalled   
 
-        if [[ -n "${NUSER}" ]] && [[ -n "${CHANGEALL}" ]]; then
+	if [ -n "${FILE}" ] && [ ! -f "${FILE}" ]; then
+	    getHelp
+	fi
+
+        if [ -n "${NUSER}" ] && [ -n "${CHANGEALL}" ]; then
             getHelp
         fi 
 
-        if [[ -n "${PASSWORD}" ]] && [[ -n "${CHANGEALL}" ]]; then
+        if [ -n "${PASSWORD}" ] && [ -n "${CHANGEALL}" ]; then
+            getHelp
+        fi 
+        
+        if [ -n "${NUSER}" ] && [ -n "${FILE}" ]; then
+            getHelp
+        fi 
+
+        if [ -n "${PASSWORD}" ] && [ -n "${FILE}" ]; then
             getHelp
         fi         
 
-        if [[ -z "${NUSER}" ]] && [[ -n "${PASSWORD}" ]]; then
+        if [ -z "${NUSER}" ] && [ -n "${PASSWORD}" ]; then
             getHelp
         fi   
 
-        if [[ -z "${NUSER}" ]] && [[ -z "${PASSWORD}" ]] && [[ -z "${CHANGEALL}" ]]; then
+        if [ -z "${NUSER}" ] && [ -z "${PASSWORD}" ] && [ -z "${CHANGEALL}" ] && [ -z  "${FILE}" ]; then
             getHelp
         fi 
 
@@ -413,7 +509,7 @@ main() {
             checkUser
         fi          
 
-        if [[ -n "${NUSER}" ]] && [[ -z "${PASSWORD}" ]]; then
+        if [ -n "${NUSER}" ] && [ -z "${PASSWORD}" ]; then
             AUTOPASS=1
             generatePassword
         fi
@@ -421,7 +517,15 @@ main() {
         if [ -n "${CHANGEALL}" ]; then
             readUsers
             generatePassword
-        fi                    
+        fi               
+
+        if [ -n "${FILE}" ] && [ -z "${CHANGEALL}" ]; then
+	    readUsers
+	fi	    
+
+	if [ -n "${FILE}" ]; then
+	    readFileUsers
+	fi  
 
         getNetworkHost
         createBackUp
@@ -437,4 +541,4 @@ main() {
 
 }
 
-main $@
+# main "$@"

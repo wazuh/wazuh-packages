@@ -134,10 +134,16 @@ main() {
     done
 
     importFunction "common.sh"
-    importFunction "wazuh-cert-tool.sh"
     
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
+        importFunction "wazuh-cert-tool.sh"
+        importFunction "wazuh-passwords-tool.sh"        
         createCertificates
+        if [ ! -n "${AIO}" ]; then
+            generatePasswordFile
+        fi
+        sudo tar -zcvf certs.tar.gz -C certs/ .
+        rm -rf ./certs
     fi
 
     if [ -n "${elastic}" ]; then
@@ -205,7 +211,6 @@ main() {
         importFunction "filebeat.sh"
         importFunction "elasticsearch.sh"
         importFunction "kibana.sh"
-        importFunction "wazuh-passwords-tool.sh"        
 
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored."
