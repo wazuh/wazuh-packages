@@ -9,8 +9,8 @@
 # Foundation.
 
 ## Package vars
-wazuh_major="4.2"
-wazuh_version="4.2.5"
+wazuh_major="4.3"
+wazuh_version="4.3.0"
 wazuh_revision="1"
 elastic_oss_version="7.10.2"
 elastic_basic_version="7.12.1"
@@ -72,6 +72,9 @@ getHelp() {
     echo -e ""
     echo -e "        -l,  --local"
     echo -e "                Use local files."
+    echo -e ""
+    echo -e "        -d,  --dev"
+    echo -e "                Use development repository."
     echo -e ""
     echo -e "        -h,  --help"
     echo -e "                Shows help."
@@ -170,6 +173,8 @@ main() {
             "-v"|"--verbose")
                 debugEnabled=1
                 debug='2>&1 | tee -a /var/log/wazuh-unattended-installation.log'
+            "-d"|"--dev")
+                development=1
                 shift 1
                 ;;
             "-l"|"--local")
@@ -220,6 +225,7 @@ main() {
         checkNodes
         installElasticsearch 
         configureElasticsearch
+        restoreWazuhrepo
     fi
 
     if [ -n "${kibana}" ]; then
@@ -236,6 +242,7 @@ main() {
         addWazuhrepo
         installKibana 
         configureKibana
+        restoreWazuhrepo
     fi
 
     if [ -n "${wazuh}" ]; then
@@ -262,6 +269,7 @@ main() {
         fi  
         installFilebeat  
         configureFilebeat
+        restoreWazuhrepo
     fi
 
     if [ -n "${AIO}" ]; then
@@ -286,6 +294,7 @@ main() {
         configureFilebeatAIO
         installKibana
         configureKibanaAIO
+        restoreWazuhrepo
     fi
 }
 
