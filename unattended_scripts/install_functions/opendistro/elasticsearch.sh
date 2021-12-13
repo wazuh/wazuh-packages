@@ -140,7 +140,7 @@ configureElasticsearch() {
                 pos="${i}";
             fi
         done
-        if [[ ! ${IMN[@]} == ${einame}  ]]; then
+        if [[ ! ${IMN[pos]} == ${einame}  ]]; then
             logger -e "The name given does not appear on the configuration file"
             exit 1;
         fi
