@@ -177,11 +177,7 @@ configureElasticsearch() {
         echo "bootstrap.system_call_filter: false" >> /etc/elasticsearch/elasticsearch.yml
     fi
 
-    if [ -n "${single}" ]; then
-        copyCertificatesElasticsearch
-    else
-        copyCertificatesElasticsearch
-    fi
+    copyCertificatesElasticsearch
 
     eval "rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml -f ${debug}"
     eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
