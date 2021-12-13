@@ -88,6 +88,9 @@ configureKibana() {
     logger "Kibana installed."
 
     copyKibanacerts
+    eval "chown -R kibana:kibana /etc/kibana/ ${debug}"
+    eval "chmod -R 500 /etc/kibana/certs ${debug}"
+    eval "chmod 440 /etc/kibana/certs/kibana* ${debug}"
     initializeKibana kip
 }
 
@@ -96,6 +99,7 @@ copyKibanacerts() {
     if [ -d "${base_path}/certs" ]; then
         eval "cp ${base_path}/certs/kibana* /etc/kibana/certs/ ${debug}"
         eval "cp ${base_path}/certs/root-ca.pem /etc/kibana/certs/ ${debug}"
+        
     else
         logger "No certificates found. Could not initialize Kibana"
         exit 1;
