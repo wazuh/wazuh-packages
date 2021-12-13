@@ -7,7 +7,7 @@
 # and/or modify it under the terms of the GNU General Public
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
-set -x
+
 ## Package vars
 wazuh_major="4.2"
 wazuh_version="4.2.5"
