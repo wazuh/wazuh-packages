@@ -35,7 +35,7 @@ configureFilebeat() {
     eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
     eval "curl -s https://packages.wazuh.com/4.x/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module ${debug}"
 
-    nh=$(awk -v RS='' '/network.host:/' ./config.yml)
+    nh=$(awk -v RS='' '/network.host:/' ${base_path}/config.yml)
 
     if [ -n "$nh" ]
     then
@@ -45,7 +45,7 @@ configureFilebeat() {
         echo "  - ${nip}"  >> /etc/filebeat/filebeat.yml
     else
         echo "output.elasticsearch.hosts:" >> /etc/filebeat/filebeat.yml
-        sh=$(awk -v RS='' '/discovery.seed_hosts:/' ./config.yml)
+        sh=$(awk -v RS='' '/discovery.seed_hosts:/' ${base_path}/config.yml)
         shr="discovery.seed_hosts:"
         rm="- "
         sh="${sh//$shr}"
