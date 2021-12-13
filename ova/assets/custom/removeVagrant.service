@@ -5,10 +5,10 @@ Description=Remove vagrant
 WantedBy=multi-user.target
 
 [Service]
-ExecStart=/bin/bash /home/wazuh/removeVagrant.sh
+ExecStart=/bin/bash /home/USER/removeVagrant.sh
 Type=simple
 User=root
 Group=root
-WorkingDirectory=/home/wazuh
+WorkingDirectory=/home/USER
 Restart=always
 RestartSec=3
