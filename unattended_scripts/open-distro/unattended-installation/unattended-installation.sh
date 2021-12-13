@@ -379,8 +379,7 @@ installKibana() {
         exit 1;
     else    
         kibanainstalled="1"
-        #eval "curl -so /etc/kibana/kibana.yml ${resources}/open-distro/kibana/7.x/kibana_unattended.yml --max-time 300 ${debug}"
-        eval "cp  /unattended_scripts/open-distro/kibana/7.x/kibana_unattended.yml /etc/kibana/kibana.yml"
+        eval "curl -so /etc/kibana/kibana.yml ${resources}/open-distro/kibana/7.x/kibana_unattended.yml --max-time 300 ${debug}"
         eval "mkdir /usr/share/kibana/data ${debug}"
         eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
         eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${repobaseurl}'/ui/kibana/wazuh_kibana-${WAZUH_VER}_${ELK_VER}-${WAZUH_KIB_PLUG_REV}.zip ${debug}"
