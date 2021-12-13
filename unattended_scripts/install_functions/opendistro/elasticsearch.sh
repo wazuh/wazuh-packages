@@ -100,7 +100,7 @@ configureElasticsearch() {
     checkNodes
     
     if [ -n "${single}" ]; then
-        nh=$(awk -v RS='' '/network.host:/' ./config.yml)
+        nh=$(awk -v RS='' '/network.host:/' ${base_path}/config.yml)
         nhr="network.host: "
         nip="${nh//$nhr}"
         echo "node.name: ${einame}" >> /etc/elasticsearch/elasticsearch.yml
@@ -112,9 +112,9 @@ configureElasticsearch() {
         echo '        - CN='${einame}',OU=Docu,O=Wazuh,L=California,C=US' >> /etc/elasticsearch/elasticsearch.yml
     else
         echo "node.name: ${einame}" >> /etc/elasticsearch/elasticsearch.yml
-        mn=$(awk -v RS='' '/cluster.initial_master_nodes:/' ./config.yml)
-        sh=$(awk -v RS='' '/discovery.seed_hosts:/' ./config.yml)
-        cn=$(awk -v RS='' '/cluster.name:/' ./config.yml)
+        mn=$(awk -v RS='' '/cluster.initial_master_nodes:/' ${base_path}/config.yml)
+        sh=$(awk -v RS='' '/discovery.seed_hosts:/' ${base_path}/config.yml)
+        cn=$(awk -v RS='' '/cluster.name:/' ${base_path}/config.yml)
         echo "${cn}" >> /etc/elasticsearch/elasticsearch.yml
         mnr="cluster.initial_master_nodes:"
         rm="- "

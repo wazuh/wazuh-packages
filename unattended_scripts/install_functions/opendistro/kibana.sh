@@ -66,7 +66,7 @@ configureKibana() {
     rm="- "
     kip="${kip//$rm}"
     echo 'server.host: "'${kip}'"' >> /etc/kibana/kibana.yml
-    nh=$(awk -v RS='' '/network.host:/' ./config.yml)
+    nh=$(awk -v RS='' '/network.host:/' ${base_path}/config.yml)
 
     if [ -n "${nh}" ]; then
         nhr="network.host: "
@@ -74,7 +74,7 @@ configureKibana() {
         echo "elasticsearch.hosts: https://"${eip}":9200" >> /etc/kibana/kibana.yml
     else
         echo "elasticsearch.hosts:" >> /etc/kibana/kibana.yml
-        sh=$(awk -v RS='' '/discovery.seed_hosts:/' ./config.yml)
+        sh=$(awk -v RS='' '/discovery.seed_hosts:/' ${base_path}/config.yml)
         shr="discovery.seed_hosts:"
         rm="- "
         sh="${sh//$shr}"

@@ -247,7 +247,7 @@ createCertificates() {
 
 checkNodes() {
 
-    head=$(head -n1 ./config.yml)
+    head=$(head -n1 ${base_path}/config.yml)
     if [ "${head}" == "## Multi-node configuration" ]
     then
         master=1
