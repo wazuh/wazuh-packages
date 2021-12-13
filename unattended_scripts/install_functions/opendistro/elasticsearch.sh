@@ -93,7 +93,7 @@ configureElasticsearch() {
     logger "Configuring Elasticsearch..."
 
     eval "getConfig elasticsearch/elasticsearch_unattended_distributed.yml /etc/elasticsearch/elasticsearch.yml ${debug}"
-    eval "getConfig elasticsearch/roles/roles.ym /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml ${debug}"
+    eval "getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml ${debug}"
     eval "getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml ${debug}"
     eval "getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml ${debug}"
 
@@ -140,7 +140,7 @@ configureElasticsearch() {
                 pos="${i}";
             fi
         done
-        if [ ! ${IMN[@]} == ${einame}  ]; then
+        if [[ ! ${IMN[pos]} == ${einame}  ]]; then
             logger -e "The name given does not appear on the configuration file"
             exit 1;
         fi
@@ -177,11 +177,7 @@ configureElasticsearch() {
         echo "bootstrap.system_call_filter: false" >> /etc/elasticsearch/elasticsearch.yml
     fi
 
-    if [ -n "${single}" ]; then
-        copyCertificatesElasticsearch einame
-    else
-        copyCertificatesElasticsearch einame pos
-    fi
+    copyCertificatesElasticsearch
 
     eval "rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml -f ${debug}"
     eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
