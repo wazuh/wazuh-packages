@@ -371,7 +371,7 @@ if id -g ossec > /dev/null 2>&1; then
   fi
 fi
 if grep -q ossec /etc/group; then
-groupdel ossec
+  groupdel ossec
 fi
 %preun
 
