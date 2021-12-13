@@ -370,7 +370,9 @@ if id -g ossec > /dev/null 2>&1; then
     userdel ossecr
   fi
 fi
-
+if grep -q ossec /etc/group; then
+groupdel ossec
+fi
 %preun
 
 if [ $1 = 0 ]; then
