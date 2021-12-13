@@ -220,7 +220,6 @@ case "$1" in
 
     # Restoring file permissions
     ${SCRIPTS_DIR}/restore-permissions.sh > /dev/null 2>&1 || true
-    cp ${SCRIPTS_DIR}/restore-permissions.sh ${DIR}/restore-permissions.sh
 
     # Remove old service file /etc/systemd/system/wazuh-manager.service if present
     if [ -f /etc/systemd/system/wazuh-manager.service ]; then
