@@ -19,9 +19,10 @@ OD_VER="1.13.2"
 OD_REV="1"
 WAZUH_KIB_PLUG_REV="1"
 ow=""
-repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"
-repobaseurl="https://packages.wazuh.com/4.x"
-resources="https://packages.wazuh.com/resources/${WAZUH_MAJOR}"
+repogpg="https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH"
+repobaseurl="https://packages-dev.wazuh.com/pre-release"
+filebeat_wazuh_template_url="https://raw.githubusercontent.com/wazuh/wazuh/4.3/extensions/elasticsearch/7.x/wazuh-template.json"
+resources="https://packages-dev.wazuh.com/resources/${WAZUH_MAJOR}"
 
 if [ -n "$(command -v yum)" ]; then
     sys_type="yum"
@@ -179,14 +180,14 @@ startService() {
 ## Show script usage
 getHelp() {
 
-   echo ""
-   echo "Usage: $0 arguments"
-   echo -e "\t-o   | --overwrite Overwrite the existing installation"
-   echo -e "\t-r   | --uninstall Remove the installation"
-   echo -e "\t-v   | --verbose Shows the complete installation output"
-   echo -e "\t-i   | --ignore-health-check Ignores the health-check"
-   echo -e "\t-h   | --help Shows help"
-   exit 1 # Exit script after printing help
+    echo ""
+    echo "Usage: $0 arguments"
+    echo -e "\t-o   | --overwrite Overwrite the existing installation"
+    echo -e "\t-r   | --uninstall Remove the installation"
+    echo -e "\t-v   | --verbose Shows the complete installation output"
+    echo -e "\t-i   | --ignore-health-check Ignores the health-check"
+    echo -e "\t-h   | --help Shows help"
+    exit 1 # Exit script after printing help
 
 }
 
@@ -201,7 +202,7 @@ installPrerequisites() {
         eval "zypper -n install libcap-progs ${debug} || zypper -n install libcap2 ${debug}"
     elif [ ${sys_type} == "apt-get" ]; then
         eval "apt-get update -q $debug"
-        eval "apt-get install apt-transport-https curl unzip wget libcap2-bin -y ${debug}"        
+        eval "apt-get install apt-transport-https curl unzip wget libcap2-bin -y ${debug}"
     fi
 
     if [  "$?" != 0  ]; then
@@ -314,7 +315,7 @@ installElasticsearch() {
         fi    
         eval "sed -i "s/-Xms1g/-Xms${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
         eval "sed -i "s/-Xmx1g/-Xmx${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
-     
+
         eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
         # Start Elasticsearch
         startService "elasticsearch"
@@ -349,7 +350,7 @@ installFilebeat() {
     else
         filebeatinstalled="1"
         eval "curl -so /etc/filebeat/filebeat.yml ${resources}/open-distro/filebeat/7.x/filebeat_unattended.yml --max-time 300  ${debug}"
-        eval "curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/4.2/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300 ${debug}"
+        eval "curl -so /etc/filebeat/wazuh-template.json ${filebeat_wazuh_template_url} --max-time 300 ${debug}"
         eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
         eval "curl -s '${repobaseurl}'/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module ${debug}"
         eval "mkdir /etc/filebeat/certs ${debug}"
@@ -488,7 +489,7 @@ checkInstalled() {
 
     if [ -n "${wazuhinstalled}" ] || [ -n "${elasticinstalled}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${kibanainstalled}" ]; then 
         if [ -n "${ow}" ]; then
-             overwrite
+            overwrite
         
         elif [ -n "${uninstall}" ]; then
             logger -w "Removing the installed items"
@@ -523,7 +524,7 @@ overwrite() {
 networkCheck() {
     connection=$(curl -I https://packages.wazuh.com/ -s | grep 200 | awk '{print $2}')
     if [ ${connection} != "200" ]; then
-        logger -e "No internet connection. To perform an offline installation, please run this script with the option -d/--download-packages in a computer with internet access, copy the wazuh-packages.tar file generated on this computer and run again this script."
+        logger -e "No internet connection."
         exit 1;
     fi
 }
@@ -567,11 +568,11 @@ changePasswords() {
 checkInstallation() {
 
     changePasswords
-    wazuhpass=$(grep "password:" /etc/filebeat/filebeat.yml )
+    adminpass=$(grep "password:" /etc/filebeat/filebeat.yml )
     ra="  password: "
-    wazuhpass="${wazuhpass//$ra}"
+    adminpass="${adminpass//$ra}"
     logger "Checking the installation..."
-    eval "curl -XGET https://localhost:9200 -uwazuh:${wazuhpass} -k --max-time 300 ${debug}"
+    eval "curl -XGET https://localhost:9200 -uadmin:${adminpass} -k --max-time 300 ${debug}"
     if [  "$?" != 0  ]; then
         logger -e "Elasticsearch was not successfully installed."
         rollBack
@@ -588,35 +589,22 @@ checkInstallation() {
         logger "Filebeat installation succeeded."
     fi    
     logger "Initializing Kibana (this may take a while)"
-    until [[ "$(curl -XGET https://localhost/status -I -uwazuh:${wazuhpass} -k -s --max-time 300 | grep "200 OK")" ]]; do
+    until [[ "$(curl -XGET https://localhost/status -I -uadmin:${adminpass} -k -s --max-time 300 | grep "200 OK")" ]]; do
         echo -ne $char
         sleep 10
     done
     echo ""
-    setWazuhUserRBACPermissions
     logger $'\nInstallation finished'
-    logger $'\nYou can access the web interface https://<kibana_ip>. The credentials are wazuh:'${wazuhpass}''
+    logger $'\nYou can access the web interface https://<kibana_ip>. The credentials are admin:'${adminpass}''
 
     exit 0;
 
 }
 
-setWazuhUserRBACPermissions() {
-    TOKEN=$(curl -u wazuh:wazuh -s -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
-    eval "curl -s -k -X POST \"https://localhost:55000/security/rules?pretty=true\" -H \"Authorization: Bearer $TOKEN\" -H \"Content-Type: application/json\" -d '{\"name\": \"wazuh_rbac\",\"rule\": {\"FIND\": {\"user_name\": \"wazuh\"}}}' ${debug}"
-    eval "curl -s -k -X POST \"https://localhost:55000/security/roles/1/rules?rule_ids=100&pretty=true\" -H \"Authorization: Bearer $TOKEN\" ${debug}"
-}
-
 main() {
 
-    if [ "$EUID" -ne 0 ]; then
-        logger -e "This script must be run as root."
-        exit 1;
-    fi   
-
     checkArch
-    touch /var/log/wazuh-unattended-installation.log
-
+    
     if [ -n "$1" ]; then      
         while [ -n "$1" ]
         do
@@ -630,55 +618,53 @@ main() {
                 shift 1
                 ;; 
             "-o"|"--overwrite")  
-                ow=1 
-                shift 1     
+                ow=1
+                shift 1
                 ;;  
-            "-r"|"--uninstall")  
-                uninstall=1 
-                shift 1     
-                ;;                                                              
-            "-h"|"--help")        
+            "-r"|"--uninstall")
+                uninstall=1
+                shift 1
+                ;;
+            "-h"|"--help")
                 getHelp
-                ;;                                         
+                ;;
             *)
                 getHelp
             esac
-        done    
-
-        if [ -n "${verbose}" ]; then
-            debug='2>&1 | tee -a /var/log/wazuh-unattended-installation.log'
-        fi
-
-        if [ -n "${uninstall}" ]; then
-            checkInstalled
-            exit 0;
-        fi        
-        
-        if [ -n "${ignore}" ]; then
-            logger -w "Health-check ignored."    
-            checkInstalled
-        else
-            checkInstalled
-            healthCheck           
-        fi            
-        installPrerequisites
-        addWazuhrepo
-        installWazuh
-        installElasticsearch
-        installFilebeat
-        installKibana
-        checkInstallation    
-    else
-        checkInstalled  
-        healthCheck   
-        installPrerequisites
-        addWazuhrepo
-        installWazuh
-        installElasticsearch
-        installFilebeat
-        installKibana
-        checkInstallation  
+        done
     fi
+
+    if [ "$EUID" -ne 0 ]; then
+        logger -e "This script must be run as root."
+        exit 1;
+    fi
+
+    eval "touch /var/log/wazuh-unattended-installation.log"
+
+    if [ -n "${verbose}" ]; then
+        debug='2>&1 | tee -a /var/log/wazuh-unattended-installation.log'
+    fi
+
+    if [ -n "${uninstall}" ]; then
+        checkInstalled
+        exit 0;
+    fi        
+
+    if [ -n "${ignore}" ]; then
+        logger -w "Health-check ignored."  
+        checkInstalled
+    else
+        checkInstalled
+        healthCheck 
+    fi                   
+
+    installPrerequisites
+    addWazuhrepo
+    installWazuh
+    installElasticsearch
+    installFilebeat
+    installKibana
+    checkInstallation
 
 }
 
