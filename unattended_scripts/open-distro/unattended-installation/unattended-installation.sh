@@ -19,10 +19,10 @@ OD_VER="1.13.2"
 OD_REV="1"
 WAZUH_KIB_PLUG_REV="1"
 ow=""
-repogpg="https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH"
-repobaseurl="https://packages-dev.wazuh.com/pre-release"
+repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"
+repobaseurl="https://packages.wazuh.com/4.x"
 filebeat_wazuh_template_url="https://raw.githubusercontent.com/wazuh/wazuh/4.3/extensions/elasticsearch/7.x/wazuh-template.json"
-resources="https://packages-dev.wazuh.com/resources/${WAZUH_MAJOR}"
+resources="https://packages.wazuh.com/resources/${WAZUH_MAJOR}"
 
 if [ -n "$(command -v yum)" ]; then
     sys_type="yum"
@@ -628,6 +628,10 @@ main() {
             "-h"|"--help")
                 getHelp
                 ;;
+            "-d"|"--dev")
+                development=1
+                shift 1
+                ;;
             *)
                 getHelp
             esac
@@ -640,6 +644,12 @@ main() {
     fi
 
     eval "touch /var/log/wazuh-unattended-installation.log"
+
+    if [ -n "${development}" ]; then
+        repogpg="https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH"
+        repobaseurl="https://packages-dev.wazuh.com/pre-release"
+        resources="https://packages-dev.wazuh.com/resources/${WAZUH_MAJOR}"
+    fi
 
     if [ -n "${verbose}" ]; then
         debug='2>&1 | tee -a /var/log/wazuh-unattended-installation.log'
