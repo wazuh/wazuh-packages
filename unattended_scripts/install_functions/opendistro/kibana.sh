@@ -45,7 +45,7 @@ configureKibanaAIO() {
     modifyKibanaLogin
     
     # Start Kibana
-    startService "kibana"
+    initializeKibanaAIO
 }
 
 configureKibana() {
@@ -91,7 +91,7 @@ configureKibana() {
     eval "chown -R kibana:kibana /etc/kibana/ ${debug}"
     eval "chmod -R 500 /etc/kibana/certs ${debug}"
     eval "chmod 440 /etc/kibana/certs/kibana* ${debug}"
-    initializeKibana kip
+    initializeKibana
 }
 
 
@@ -138,4 +138,16 @@ modifyKibanaLogin() {
     eval "cp -f ~/custom_welcome/template.js.hbs /usr/share/kibana/src/legacy/ui/ui_render/bootstrap/template.js.hbs ${debug}"
     eval "curl -so ~/customWelcomeKibana.css ${resources}/open-distro/kibana/customWelcomeKibana.css ${debug}"
     eval "cat ~/customWelcomeKibana.css | tee -a /usr/share/kibana/src/core/server/core_app/assets/legacy_light_theme.css ${debug}"
+}
+
+initializeKibanaAIO() {
+
+    # Start Kibana
+    startService "kibana"
+    logger "Initializing Kibana (this may take a while)"
+    until [[ "$(curl -XGET https://localhost/status -I -uadmin:admin -k -s --max-time 300 | grep "200 OK")" ]]; do
+        sleep 10
+    done
+    logger $'\nYou can access the web interface https://localhost. The credentials are admin:admin'    
+
 }

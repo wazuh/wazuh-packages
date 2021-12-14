@@ -182,7 +182,7 @@ configureElasticsearch() {
     eval "rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml -f ${debug}"
     eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
 
-    initializeElastic nip
+    initializeElastic
     logger "Done"
 }
 
