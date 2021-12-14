@@ -28,9 +28,7 @@ configureKibanaAIO() {
     eval "getConfig kibana/kibana_unattended.yml /etc/kibana/kibana.yml ${debug}"
     eval "mkdir /usr/share/kibana/data ${debug}"
     eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
-    eval "cd /usr/share/kibana ${debug}"
     eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${repobaseurl}'/ui/kibana/wazuh_kibana-${wazuh_version}_${elastic_oss_version}-${wazuh_kibana_plugin_revision}.zip ${debug}"
-    eval "cd ${base_path} ${debug}"
     if [  "$?" != 0  ]; then
         logger -e "Wazuh Kibana plugin could not be installed."
         rollBack
@@ -46,7 +44,6 @@ configureKibanaAIO() {
 
     modifyKibanaLogin
     
-    # Start Kibana
     startService "kibana"
 }
 
@@ -54,13 +51,11 @@ configureKibana() {
     eval "getConfig kibana/kibana_unattended_distributed.yml /etc/kibana/kibana.yml ${debug}"
     eval "mkdir /usr/share/kibana/data ${debug}"
     eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
-    eval "cd /usr/share/kibana ${debug}"
     eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${repobaseurl}'/ui/kibana/wazuh_kibana-${wazuh_version}_${elastic_oss_version}-${wazuh_kibana_plugin_revision}.zip ${debug}"
     if [  "$?" != 0  ]; then
         logger -e "Wazuh Kibana plugin could not be installed."
         exit 1;
     fi
-    eval "cd ${base_path} ${debug}"
     eval "setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node ${debug}"
     eval "mkdir /etc/kibana/certs ${debug}"
 
@@ -104,7 +99,7 @@ copyKibanacerts() {
         eval "cp ${base_path}/certs/kibana* /etc/kibana/certs/ ${debug}"
         eval "cp ${base_path}/certs/root-ca.pem /etc/kibana/certs/ ${debug}"
     else
-        logger "No certificates found. Could not initialize Kibana"
+        logger -e "No certificates found. Could not initialize Kibana"
         exit 1;
     fi
 
@@ -112,14 +107,11 @@ copyKibanacerts() {
 
 initializeKibana() {
 
-    # Start Kibana
     startService "kibana"
     logger "Initializing Kibana (this may take a while)"
     until [[ "$(curl -XGET https://${kip}/status -I -uadmin:admin -k -s --max-time 300 | grep "200 OK")" ]]; do
-        echo -ne ${char}
         sleep 10
     done
-    echo ""
     wip=$(grep -A 1 "Wazuh-master-configuration" ./config.yml | tail -1)
     rm="- "
     wip="${wip//$rm}"

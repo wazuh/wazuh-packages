@@ -8,7 +8,8 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-VERBOSE='> /dev/null 2>&1'
+logfile="/var/log/wazuh-password-tool.sh"
+debug_pass=">> ${logfile} 2>&1"
 if [ -n "$(command -v yum)" ]; then
     SYS_TYPE="yum"
 elif [ -n "$(command -v zypper)" ]; then
@@ -17,8 +18,7 @@ elif [ -n "$(command -v apt-get)" ]; then
     SYS_TYPE="apt-get"   
 fi
 
-## Prints information
-logger() {
+logger_pass() {
 
     now=$(date +'%m/%d/%Y %H:%M:%S')
     case $1 in 
@@ -35,13 +35,12 @@ logger() {
             message="$1"
             ;;
     esac
-    echo $now $mtype $message
+    echo $now $mtype $message | tee -a ${logfile}
 }
 
-## Checks if the script is run with enough privileges
 checkRoot() {
     if [ "$EUID" -ne 0 ]; then
-        logger -e "This script must be run as root."
+        logger_pass -e "This script must be run as root."
         exit 1;
     fi 
 }
@@ -49,37 +48,36 @@ checkRoot() {
 restartService() {
 
     if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
-        eval "systemctl restart $1.service ${VERBOSE}"
+        eval "systemctl restart $1.service ${debug_pass}"
         if [  "$?" != 0  ]; then
-            logger -e "${1^} could not be started."
+            logger_pass -e "${1^} could not be started."
             exit 1;
         else
-            logger "${1^} started"
+            logger_pass "${1^} started"
         fi  
     elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
-        eval "/etc/init.d/$1 restart ${VERBOSE}"
+        eval "/etc/init.d/$1 restart ${debug_pass}"
         if [  "$?" != 0  ]; then
-            logger -e "${1^} could not be started."
+            logger_pass -e "${1^} could not be started."
             exit 1;
         else
-            logger "${1^} started"
+            logger_pass "${1^} started"
         fi     
     elif [ -x /etc/rc.d/init.d/$1 ] ; then
-        eval "/etc/rc.d/init.d/$1 restart ${VERBOSE}"
+        eval "/etc/rc.d/init.d/$1 restart ${debug_pass}"
         if [  "$?" != 0  ]; then
-            logger -e "${1^} could not be started."
+            logger_pass -e "${1^} could not be started."
             exit 1;
         else
-            logger "${1^} started"
+            logger_pass "${1^} started"
         fi             
     else
-        logger -e "${1^} could not start. No service manager found on the system."
+        logger_pass -e "${1^} could not start. No service manager found on the system."
         exit 1;
     fi
 
 }
 
-## Shows script usage
 getHelp() {
    echo ""
    echo "Usage: $0 arguments"
@@ -90,10 +88,8 @@ getHelp() {
    echo -e "\t-k     | --certkey <route-admin-certificate-key> Indicates route to the admin certificate key"
    echo -e "\t-v     | --verbose Shows the complete script execution output"
    echo -e "\t-h     | --help Shows help"
-   exit 1 # Exit script after printing help
+   exit 1
 }
-
-## Gets the network host
 
 getNetworkHost() {
     IP=$(grep -hr "network.host:" /etc/elasticsearch/elasticsearch.yml)
@@ -104,8 +100,6 @@ getNetworkHost() {
         IP="localhost"
     fi
 }
-
-## Checks if Open Distro for Elasticsearch is installed
 
 checkInstalled() {
     
@@ -118,7 +112,7 @@ checkInstalled() {
     fi 
 
     if [ -z "${elasticinstalled}" ]; then
-        logger -e "Open Distro is not installed on the system."
+        logger_pass -e "Open Distro is not installed on the system."
         exit 1;
     else
         capem=$(grep "opendistro_security.ssl.transport.pemtrustedcas_filepath: " /etc/elasticsearch/elasticsearch.yml )
@@ -136,7 +130,7 @@ readAdmincerts() {
     if [[ -f /etc/elasticsearch/certs/admin.pem ]]; then
         adminpem="/etc/elasticsearch/certs/admin.pem"
     else
-        logger -e "No admin certificate indicated. Please run the script with the option -c <path-to-certificate>."
+        logger_pass -e "No admin certificate indicated. Please run the script with the option -c <path-to-certificate>."
         exit 1;
     fi
 
@@ -145,13 +139,11 @@ readAdmincerts() {
     elif [[ -f /etc/elasticsearch/certs/admin.key ]]; then
         adminkey="/etc/elasticsearch/certs/admin.key"
     else
-        logger -e "No admin certificate key indicated. Please run the script with the option -k <path-to-key-certificate>."
+        logger_pass -e "No admin certificate key indicated. Please run the script with the option -k <path-to-key-certificate>."
         exit 1;
     fi    
 
 }
-
-## Reads all the users present in internal_users.yml
 
 readUsers() {
     SUSERS=$(grep -B 1 hash: /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml | grep -v hash: | grep -v "-" | awk '{ print substr( $0, 1, length($0)-1 ) }')
@@ -167,37 +159,32 @@ checkUser() {
     done
 
     if [ -z "${EXISTS}" ]; then
-        logger -e "The given user does not exist"
+        logger_pass -e "The given user does not exist"
         exit 1;
     fi
 
 }
-
-## Creates a backup of the existing internal_users.yml
 
 createBackUp() {
     
-    logger "Creating backup..."
-    eval "mkdir /usr/share/elasticsearch/backup ${VERBOSE}"
-    eval "cd /usr/share/elasticsearch/plugins/opendistro_security/tools/ ${VERBOSE}"
-    eval "./securityadmin.sh -backup /usr/share/elasticsearch/backup -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${VERBOSE}"
+    logger_pass "Creating backup..."
+    eval "mkdir /usr/share/elasticsearch/backup ${debug_pass}"
+    eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -backup /usr/share/elasticsearch/backup -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug_pass}"
     if [  "$?" != 0  ]; then
-        logger -e "The backup could not be created"
+        logger_pass -e "The backup could not be created"
         exit 1;
     fi
-    logger "Backup created"
+    logger_pass "Backup created"
     
 }
-
-## Generate random password
 
 generatePassword() {
 
     if [ -n "${NUSER}" ]; then
-        logger "Generating random password"
+        logger_pass "Generating random password"
         PASSWORD=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32};echo;)
     else
-        logger "Generating random passwords"
+        logger_pass "Generating random passwords"
         for i in "${!USERS[@]}"; do
             PASS=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32};echo;)
             PASSWORDS+=(${PASS})
@@ -205,38 +192,34 @@ generatePassword() {
     fi
 
         if [  "$?" != 0  ]; then
-        logger -e "The password has not been generated"
+        logger_pass -e "The password has not been generated"
         exit 1;
     fi
-    logger "Done"
+    logger_pass "Done"
  
 }
-
-## Generates the hash for the new password
 
 generateHash() {
     
     if [ -n "${CHANGEALL}" ]; then
-        logger "Generating hashes"
+        logger_pass "Generating hashes"
         for i in "${!PASSWORDS[@]}"
         do
             NHASH=$(bash /usr/share/elasticsearch/plugins/opendistro_security/tools/hash.sh -p ${PASSWORDS[i]} | grep -v WARNING)
             HASHES+=(${NHASH})
         done
-        logger "Hashes generated"
+        logger_pass "Hashes generated"
     else
-        logger "Generating hash"
+        logger_pass "Generating hash"
         HASH=$(bash /usr/share/elasticsearch/plugins/opendistro_security/tools/hash.sh -p ${PASSWORD} | grep -v WARNING)
         if [  "$?" != 0  ]; then
-            logger -e "Hash generation failed."
+            logger_pass -e "Hash generation failed."
             exit 1;
         fi    
-        logger "Hash generated"
+        logger_pass "Hash generated"
     fi
 
 }
-
-## Changes the password for the indicated user
 
 changePassword() {
     
@@ -304,27 +287,25 @@ changePassword() {
 
 }
 
-## Runs the Security Admin script to load the changes
 runSecurityAdmin() {
     
-    logger "Loading changes..."
-    eval "cp /usr/share/elasticsearch/backup/* /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ ${VERBOSE}"
-    eval "cd /usr/share/elasticsearch/plugins/opendistro_security/tools/ ${VERBOSE}"
-    eval "./securityadmin.sh -cd ../securityconfig/ -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${VERBOSE}"
+    logger_pass "Loading changes..."
+    eval "cp /usr/share/elasticsearch/backup/* /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ ${debug_pass}"
+    eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -nhnv -cacert /usr/share/elasticsearch/plugins/opendistro_security/tools/${capem} -cert /usr/share/elasticsearch/plugins/opendistro_security/tools/${adminpem} -key /usr/share/elasticsearch/plugins/opendistro_security/tools/${adminkey} -icl -h ${IP} ${debug_pass}"
     if [  "$?" != 0  ]; then
-        logger -e "Could not load the changes."
+        logger_pass -e "Could not load the changes."
         exit 1;
     fi    
-    eval "rm -rf /usr/share/elasticsearch/backup/ ${VERBOSE}"
-    logger "Done"
+    eval "rm -rf /usr/share/elasticsearch/backup/ ${debug_pass}"
+    logger_pass "Done"
 
     if [[ -n "${NUSER}" ]] && [[ -n ${AUTOPASS} ]]; then
-        logger $'\nThe password for user '${NUSER}' is '${PASSWORD}''
-        logger -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
+        logger_pass $'\nThe password for user '${NUSER}' is '${PASSWORD}''
+        logger_pass -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
     fi
 
     if [[ -n "${NUSER}" ]] && [[ -z ${AUTOPASS} ]]; then
-        logger -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
+        logger_pass -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
     fi    
 
     if [ -n "${CHANGEALL}" ]; then
@@ -332,10 +313,10 @@ runSecurityAdmin() {
         for i in "${!USERS[@]}"
         do
             echo ""
-            logger "The password for ${USERS[i]} is ${PASSWORDS[i]}"
+            logger_pass "The password for ${USERS[i]} is ${PASSWORDS[i]}"
         done
         echo ""
-        logger -w "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
+        logger_pass -w "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
         echo ""
     fi 
 
@@ -348,7 +329,7 @@ main() {
         do
             case "$1" in
             "-v"|"--verbose")
-                VERBOSEENABLED=1
+                DEBUGENABLED=1
                 shift 1
                 ;;
             "-a"|"--change-all")
@@ -385,8 +366,8 @@ main() {
 
         export JAVA_HOME=/usr/share/elasticsearch/jdk/
         
-        if [ -n "${VERBOSEENABLED}" ]; then
-            VERBOSE=""
+        if [ -n "${DEBUGENABLED}" ]; then
+            debug_pass="2>&1 | tee -a ${logfile}"
         fi 
 
         checkInstalled   

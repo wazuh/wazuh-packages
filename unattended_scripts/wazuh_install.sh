@@ -26,7 +26,10 @@ resources_functions="${resources}/${functions_path}"
 resources_config="${resources}/${config_path}"
 base_path="$(dirname $(readlink -f $0))"
 
-## Show script usage
+## Debug variable used during the installation
+logfile="/var/log/wazuh-unattended-installation.log"
+debug=">> ${logfile} 2>&1"
+
 getHelp() {
 
     echo -e ""
@@ -80,18 +83,58 @@ getHelp() {
 
 }
 
+logger() {
+
+    now=$(date +'%m/%d/%Y %H:%M:%S')
+    case $1 in 
+        "-e")
+            mtype="ERROR:"
+            message="$2"
+            ;;
+        "-w")
+            mtype="WARNING:"
+            message="$2"
+            ;;
+        *)
+            mtype="INFO:"
+            message="$1"
+            ;;
+    esac
+    echo $now $mtype $message | tee -a ${logfile}
+}
+
 importFunction() {
     if [ -n "${local}" ]; then
-        . ${base_path}/${functions_path}/$1
+        if [ -f ./$functions_path/$1 ]; then
+            cat ./$functions_path/$1 |grep 'main $@' > /dev/null 2>&1
+            has_main=$?
+            if [ $has_main = 0 ]; then
+                sed -i 's/main $@//' ./$functions_path/$1
+            fi
+            . ./$functions_path/$1
+            if [ $has_main = 0 ]; then
+                echo 'main $@' >> ./$functions_path/$1
+            fi
+        else 
+            error=1
+        fi
     else
-        curl -so /tmp/$1 ${resources_functions}/$1
-        . /tmp/$1
-        rm -f /tmp/$1
+        curl -so /tmp/$1 $resources_functions/$1
+        if [ $? = 0 ]; then
+            sed -i 's/main $@//' /tmp/$1
+            . /tmp/$1
+            rm -f /tmp/$1
+        else
+            error=1 
+        fi
+    fi
+    if [ "${error}" = "1" ]; then
+        logger -e "Unable to find resource $1. Exiting"
+        exit 1
     fi
 }
 
 main() {
-
     if [ ! -n  "$1" ]; then
         getHelp
     fi
@@ -132,6 +175,11 @@ main() {
                 ignore=1
                 shift 1
                 ;;
+            "-v"|"--verbose")
+                debugEnabled=1
+                debug='2>&1 | tee -a /var/log/wazuh-unattended-installation.log'
+                shift 1
+                ;;
             "-d"|"--dev")
                 development=1
                 shift 1
@@ -155,7 +203,7 @@ main() {
     done
 
     if [ "$EUID" -ne 0 ]; then
-        echo "Error: This script must be run as root."
+        logger -e "Error: This script must be run as root."
         exit 1;
     fi   
 
