@@ -267,11 +267,11 @@ generatePassword() {
 
     if [ -n "${NUSER}" ]; then
         logger "Generating random password"
-        PASSWORD=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32};echo;)
+        PASSWORD=$(< /dev/urandom tr -dc A-Za-z0-9 | head -c${1:-32};echo;)
     else
         logger "Generating random passwords"
         for i in "${!USERS[@]}"; do
-            PASS=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32};echo;)
+            PASS=$(< /dev/urandom tr -dc A-Za-z0-9 | head -c${1:-32};echo;)
             PASSWORDS+=(${PASS})
         done
     fi
