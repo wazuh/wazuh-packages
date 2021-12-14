@@ -188,11 +188,9 @@ main() {
         importFunction "wazuh-cert-tool.sh"
         importFunction "wazuh-passwords-tool.sh"        
         createCertificates
-        if [ ! -n "${AIO}" ]; then
-            generatePasswordFile
-            sudo tar -zcf certs.tar -C certs/ .
-            rm -rf "${base_path}/certs"
-        fi
+        generatePasswordFile
+        sudo tar -zcf certs.tar -C certs/ .
+        rm -rf "${base_path}/certs"
     fi
 
     if [ -n "${elastic}" ]; then
