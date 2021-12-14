@@ -289,7 +289,8 @@ generatePasswordFile() {
     generatePassword
     for i in "${!USERS[@]}"; do
         echo "User:" >> ./certs/password_file
-        echo "  ${USERS[${i}]}: ${PASSWORDS[${i}]}" >> ./certs/password_file
+        echo "  name: ${USERS[${i}]}" >> ./certs/password_file
+        echo "  password: ${PASSWORDS[${i}]}" >> ./certs/password_file
     done
     logger "Paswords stored in ${base_path}/certs/password_file"
 }
