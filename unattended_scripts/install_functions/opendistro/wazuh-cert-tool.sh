@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Program to generate the certificates necessary for Wazuh installation
-# Copyright (C) 2015-2020, Wazuh Inc.
+# Copyright (C) 2015-2021, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
@@ -9,12 +9,12 @@
 # Foundation.
 
 debug='> /dev/null 2>&1'
-ELASTICINSTANCES="elasticsearch-nodes:"
-FILEBEATINSTANCES="wazuh-servers:"
-KIBANAINSTANCES="kibana:"
-ELASTICHEAD='# Elasticsearch nodes'
-FILEBEATHEAD='# Wazuh server nodes'
-KIBANAHEAD='# Kibana node'
+elasticinstances="elasticsearch-nodes:"
+filebeatinstances="wazuh-servers:"
+kibanainstances="kibana:"
+elastichead='# Elasticsearch nodes'
+filebeathead='# Wazuh server nodes'
+kibanahead='# Kibana node'
 
 ## Prints information
 logger() {
@@ -52,44 +52,61 @@ readInstances() {
 }
 
 getHelp() {
-    echo ""
-    echo "Usage: $0 arguments"
-    echo -e "\t-a     | --admin-certificates Creates the admin certificates."
-    echo -e "\t-ca    | --root-ca-certificates Creates the root-ca certificates."
-    echo -e "\t-a     | --elasticsearch-certificates Creates the Elasticsearch certificates."
-    echo -e "\t-w     | --wazuh-certificates Creates the Wazuh server certificates."
-    echo -e "\t-k     | --kibana-certificates Creates the Kibana certificates."
-    echo -e "\t-d     | --debug Enables verbose mode."
+    echo -e ""
+    echo -e "NAME"
+    echo -e "        wazuh-cert-tool.sh - Manages the creation of certificates of the Wazuh components."
+    echo -e ""
+    echo -e "SYNOPSIS"
+    echo -e "        wazuh-cert-tool.sh [OPTIONS]"
+    echo -e ""
+    echo -e "DESCRIPTION"
+    echo -e "        -a,  --admin-certificates"
+    echo -e "                Creates the admin certificates."
+    echo -e ""
+    echo -e "        -ca, --root-ca-certificates"
+    echo -e "                Creates the root-ca certificates."
+    echo -e ""
+    echo -e "        -e,  --elasticsearch-certificates"
+    echo -e "                Creates the Elasticsearch certificates."
+    echo -e ""
+    echo -e "        -w,  --wazuh-certificates"
+    echo -e "                Creates the Wazuh server certificates."
+    echo -e ""
+    echo -e "        -k,  --kibana-certificates"
+    echo -e "                Creates the Kibana certificates."
+    echo -e ""
+    echo -e "        -d,  --debug"
+    echo -e "                Enables verbose mode."
     exit 1 # Exit script after printing help    
 }
 
 readFile() {
 
-    IFS=$'\r\n' GLOBIGNORE='*' command eval  'INSTANCES=($(cat ${base_path}/instances.yml))'
-    for i in "${!INSTANCES[@]}"; do
-    if [[ "${INSTANCES[$i]}" == "${ELASTICINSTANCES}" ]]; then
-        ELASTICLIMITT=${i}
+    IFS=$'\r\n' GLOBIGNORE='*' command eval  'instances=($(cat ${base_path}/instances.yml))'
+    for i in "${!instances[@]}"; do
+    if [[ "${instances[$i]}" == "${elasticinstances}" ]]; then
+        elasticlimitt=${i}
     fi
-        if [[ "${INSTANCES[$i]}" == "${FILEBEATINSTANCES}" ]]; then
-        ELASTICLIMIB=${i}
+        if [[ "${instances[$i]}" == "${filebeatinstances}" ]]; then
+        elasticlimib=${i}
     fi
 
-    if [[ "${INSTANCES[$i]}" == "${FILEBEATINSTANCES}" ]]; then
-        FILEBEATLIMITT=${i}
+    if [[ "${instances[$i]}" == "${filebeatinstances}" ]]; then
+        filebeatlimitt=${i}
     fi
     
-    if [[ "${INSTANCES[$i]}" == "${KIBANAINSTANCES}" ]]; then
-        FILEBEATLIMIB=${i}
+    if [[ "${instances[$i]}" == "${kibanainstances}" ]]; then
+        filebeatlimib=${i}
     fi  
     done
 
     ## Read Elasticsearch nodes
-    counter=${ELASTICLIMITT}
+    counter=${elasticlimitt}
     i=0
-    while [ "${counter}" -le "${ELASTICLIMIB}" ]
+    while [ "${counter}" -le "${elasticlimib}" ]
     do
-        if  [ "${INSTANCES[counter]}" !=  "${ELASTICINSTANCES}" ] && [ "${INSTANCES[counter]}" !=  "${FILEBEATINSTANCES}" ] && [ "${INSTANCES[counter]}" !=  "${FILEBEATHEAD}" ] && [ "${INSTANCES[counter]}" !=  "    ip:" ] && [ -n "${INSTANCES[counter]}" ]; then
-            ELASTICNODES[i]+="$(echo "${INSTANCES[counter]}" | tr -d '\011\012\013\014\015\040')"
+        if  [ "${instances[counter]}" !=  "${elasticinstances}" ] && [ "${instances[counter]}" !=  "${filebeatinstances}" ] && [ "${instances[counter]}" !=  "${filebeathead}" ] && [ "${instances[counter]}" !=  "    ip:" ] && [ -n "${instances[counter]}" ]; then
+            elasticnodes[i]+="$(echo "${instances[counter]}" | tr -d '\011\012\013\014\015\040')"
             ((i++))
         fi    
 
@@ -97,12 +114,12 @@ readFile() {
     done
 
     ## Read Filebeat nodes
-    counter=${FILEBEATLIMITT}
+    counter=${filebeatlimitt}
     i=0
-    while [ "${counter}" -le "${FILEBEATLIMIB}" ]
+    while [ "${counter}" -le "${filebeatlimib}" ]
     do
-        if  [ "${INSTANCES[counter]}" !=  "${FILEBEATINSTANCES}" ] && [ "${INSTANCES[counter]}" !=  "${KIBANAINSTANCES}" ] && [ "${INSTANCES[counter]}" !=  "${KIBANAHEAD}" ] && [ "${INSTANCES[counter]}" !=  "    ip:" ] && [ -n "${INSTANCES[counter]}" ]; then
-            FILEBEATNODES[i]+="$(echo "${INSTANCES[counter]}" | tr -d '\011\012\013\014\015\040')"
+        if  [ "${instances[counter]}" !=  "${filebeatinstances}" ] && [ "${instances[counter]}" !=  "${kibanainstances}" ] && [ "${instances[counter]}" !=  "${kibanahead}" ] && [ "${instances[counter]}" !=  "    ip:" ] && [ -n "${instances[counter]}" ]; then
+            filebeatnodes[i]+="$(echo "${instances[counter]}" | tr -d '\011\012\013\014\015\040')"
             ((i++))
         fi    
 
@@ -110,12 +127,12 @@ readFile() {
     done
 
     ## Read Kibana nodes
-    counter=${FILEBEATLIMIB}
+    counter=${filebeatlimib}
     i=0
-    while [ "${counter}" -le "${#INSTANCES[@]}" ]
+    while [ "${counter}" -le "${#instances[@]}" ]
     do
-        if  [ "${INSTANCES[counter]}" !=  "${KIBANAINSTANCES}" ]  && [ "${INSTANCES[counter]}" !=  "${KIBANAHEAD}" ] && [ "${INSTANCES[counter]}" !=  "    ip:" ] && [ -n "${INSTANCES[counter]}" ]; then
-            KIBANANODES[i]+="$(echo "${INSTANCES[counter]}" | tr -d '\011\012\013\014\015\040')"
+        if  [ "${instances[counter]}" !=  "${kibanainstances}" ]  && [ "${instances[counter]}" !=  "${kibanahead}" ] && [ "${instances[counter]}" !=  "    ip:" ] && [ -n "${instances[counter]}" ]; then
+            kibananodes[i]+="$(echo "${instances[counter]}" | tr -d '\011\012\013\014\015\040')"
             ((i++))
         fi    
 
@@ -193,9 +210,9 @@ generateElasticsearchcertificates() {
     logger "Creating the Elasticsearch certificates..."
 
     i=0
-    while [ ${i} -lt ${#ELASTICNODES[@]} ]; do
-        cname=${ELASTICNODES[i]}
-        cip=${ELASTICNODES[i+1]}
+    while [ ${i} -lt ${#elasticnodes[@]} ]; do
+        cname=${elasticnodes[i]}
+        cip=${elasticnodes[i+1]}
         rname="-name:"
         cname="${cname//$rname}"
         rip="-"
@@ -217,9 +234,9 @@ generateFilebeatcertificates() {
     logger "Creating Wazuh server certificates..."
 
     i=0
-    while [ ${i} -lt ${#FILEBEATNODES[@]} ]; do
-        cname=${FILEBEATNODES[i]}
-        cip=${FILEBEATNODES[i+1]}
+    while [ ${i} -lt ${#filebeatnodes[@]} ]; do
+        cname=${filebeatnodes[i]}
+        cip=${filebeatnodes[i+1]}
         rname="-name:"
         cname="${cname//$rname}"
         rip="-"
@@ -240,9 +257,9 @@ generateKibanacertificates() {
     logger "Creating Kibana certificate..."
 
     i=0
-    while [ ${i} -lt ${#KIBANANODES[@]} ]; do
-        cname=${KIBANANODES[i]}
-        cip=${KIBANANODES[i+1]}
+    while [ ${i} -lt ${#kibananodes[@]} ]; do
+        cname=${kibananodes[i]}
+        cip=${kibananodes[i+1]}
         rname="-name:"
         cname="${cname//$rname}"
         rip="-"
