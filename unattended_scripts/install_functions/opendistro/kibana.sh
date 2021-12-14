@@ -45,7 +45,7 @@ configureKibanaAIO() {
     eval "setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node ${debug}"
 
     # Start Kibana
-    startService "kibana"
+    initializeKibanaAIO
 }
 
 configureKibana() {
@@ -91,7 +91,7 @@ configureKibana() {
     eval "chown -R kibana:kibana /etc/kibana/ ${debug}"
     eval "chmod -R 500 /etc/kibana/certs ${debug}"
     eval "chmod 440 /etc/kibana/certs/kibana* ${debug}"
-    initializeKibana kip
+    initializeKibana
 }
 
 
