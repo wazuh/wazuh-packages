@@ -164,8 +164,8 @@ readUsers() {
 
 readFileUsers() {
 
-    FILECORRECT=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*\w+\s*)+\Z' $FILE)
-    if [ $FILECORRECT -ne 1 ]; then
+    FILECORRECT=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*\w+\s*)+\Z' ${P_FILE})
+    if [ ${FILECORRECT} -ne 1 ]; then
 	logger -e "The password file doesn't have a correct format.
 
 It must have this format:
