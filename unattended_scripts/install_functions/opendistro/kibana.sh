@@ -29,7 +29,7 @@ configureKibanaAIO() {
     eval "mkdir /usr/share/kibana/data ${debug}"
     eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
     eval "cd /usr/share/kibana ${debug}"
-    eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${repobaseurl}'/ui/kibana/wazuh_kibana-${wazuh_version}_${elastic_oss_version}-${wazuh_kibana_plugin_revision}.zip ${debug}"
+    eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${repobaseurl}'/ui/kibana/wazuh_kibana-${wazuh_version}_${elasticsearch_oss_version}-${wazuh_kibana_plugin_revision}.zip ${debug}"
     eval "cd ${base_path} ${debug}"
     if [  "$?" != 0  ]; then
         logger -e "Wazuh Kibana plugin could not be installed."
@@ -53,7 +53,7 @@ configureKibana() {
     eval "mkdir /usr/share/kibana/data ${debug}"
     eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
     eval "cd /usr/share/kibana ${debug}"
-    eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${repobaseurl}'/ui/kibana/wazuh_kibana-${wazuh_version}_${elastic_oss_version}-${wazuh_kibana_plugin_revision}.zip ${debug}"
+    eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${repobaseurl}'/ui/kibana/wazuh_kibana-${wazuh_version}_${elasticsearch_oss_version}-${wazuh_kibana_plugin_revision}.zip ${debug}"
     if [  "$?" != 0  ]; then
         logger -e "Wazuh Kibana plugin could not be installed."
         exit 1;
