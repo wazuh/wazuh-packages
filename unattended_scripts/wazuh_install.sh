@@ -30,7 +30,6 @@ base_path="$(dirname $(readlink -f $0))"
 logfile="/var/log/wazuh-unattended-installation.log"
 debug=">> ${logfile} 2>&1"
 
-## Progress Bar Utility
 progressBar() {
     if [ -z "${buffer}" ]; then
         buffer=""
@@ -73,7 +72,6 @@ progressBar() {
     lines=$(echo -e "$buffer" | wc -l)
 }
 
-## Show script usage
 getHelp() {
 
     echo -e ""
@@ -127,7 +125,6 @@ getHelp() {
 
 }
 
-## Prints information
 logger() {
 
     now=$(date +'%m/%d/%Y %H:%M:%S')
