@@ -84,6 +84,7 @@ addWazuhrepo() {
         fi
     else
         logger "Wazuh repository already exists skipping"
+        ((progressbartotal++))
     fi
     logger "Done" 
 }

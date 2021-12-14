@@ -149,9 +149,6 @@ logger() {
     else 
         echo "$finalmessage"
     fi
-    if [ "$1" == "-w" ]; then
-        progressbartotal=$(${progressbartotal}+1)
-    fi
 }
 
 importFunction() {
@@ -190,23 +187,29 @@ main() {
         getHelp
     fi
 
+    progressbartotal=0
+
     while [ -n "$1" ]
     do
         case "$1" in
             "-a"|"--all-in-one")
                 AIO=1
+                progressbartotal=$((progressbartotal+23))
                 shift 1
                 ;;
             "-w"|"--wazuh-server")
                 wazuh=1
+                progressbartotal=$((progressbartotal+13))
                 shift 1
                 ;;
             "-e"|"--elasticsearch")
                 elastic=1
+                progressbartotal=$((progressbartotal+14))
                 shift 1
                 ;;
             "-k"|"--kibana")
                 kibana=1
+                progressbartotal=$((progressbartotal+13))
                 shift 1
                 ;;
             "-en"|"--elastic-node-name")
@@ -228,7 +231,7 @@ main() {
                 ;;
             "-v"|"--verbose")
                 debugEnabled=1
-                debug='2>&1 | tee -a /var/log/wazuh-unattended-installation.log'
+                debug="2>&1 | tee -a ${logfile}"
                 shift 1
                 ;;
             "-d"|"--dev")
@@ -242,6 +245,7 @@ main() {
             "-wk"|"--wazuh-key")
                 wazuh_config=1
                 wazuhclusterkey="$2"
+                ((progressbartotal++))
                 shift 2
                 ;;
             "-h"|"--help")
@@ -253,6 +257,12 @@ main() {
         esac
     done
 
+    if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
+        ((progressbartotal++))
+    fi
+
+
+
     if [ "$EUID" -ne 0 ]; then
         logger -e "Error: This script must be run as root."
         exit 1;
@@ -263,9 +273,7 @@ main() {
 
     checkArch
 
-    progressbartotal=0
-    if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
-        progressbartotal
+    
     
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
         createCertificates
