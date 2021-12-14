@@ -124,3 +124,15 @@ initializeKibana() {
     logger $'\nYou can access the web interface https://'${kip}'. The credentials are admin:admin'    
 
 }
+
+initializeKibanaAIO() {
+
+    # Start Kibana
+    startService "kibana"
+    logger "Initializing Kibana (this may take a while)"
+    until [[ "$(curl -XGET https://localhost/status -I -uadmin:admin -k -s --max-time 300 | grep "200 OK")" ]]; do
+        sleep 10
+    done
+    logger $'\nYou can access the web interface https://localhost. The credentials are admin:admin'    
+
+}
