@@ -405,3 +405,30 @@ rollBack() {
     fi
     exit 1
 }
+
+changePasswords() {
+    
+    if [ -n "${AIO}" ]; then
+        readUsers
+        generatePassword
+    else
+        if [ -f "${base_path}/certs.tar" ]; then
+            eval "tar -xf ${base_path}/certs.tar password_file -C ${base_path} ${debug}"
+            P_FILE="${base_path}/password_file"
+            readFileUsers
+        else 
+            logger -e "Cannot find passwords-file. Exiting"
+            exit 1
+        fi
+    fi
+
+    getNetworkHost
+    createBackUp
+    generateHash
+
+    changePassword
+    if [ -n "${elastic}" ] || [ -n "${AIO}" ]; then
+        runSecurityAdmin
+    fi
+}
+

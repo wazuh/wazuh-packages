@@ -178,8 +178,8 @@ User:
 	exit 1
     fi	
 
-    SFILEUSERS=$(grep name: ${FILE} | awk '{ print substr( $2, 1, length($2) ) }')
-    SFILEPASSWORDS=$(grep password: ${FILE} | awk '{ print substr( $2, 1, length($2) ) }')
+    SFILEUSERS=$(grep name: ${P_FILE} | awk '{ print substr( $2, 1, length($2) ) }')
+    SFILEPASSWORDS=$(grep password: ${P_FILE} | awk '{ print substr( $2, 1, length($2) ) }')
 
     FILEUSERS=($SFILEUSERS)
     FILEPASSWORDS=($SFILEPASSWORDS)
@@ -291,7 +291,7 @@ generatePasswordFile() {
         echo "User:" >> ./certs/password_file
         echo "  ${USERS[${i}]}: ${PASSWORDS[${i}]}" >> ./certs/password_file
     done
-    logger "Paswords stored in ./certs/password_file"
+    logger "Paswords stored in ${base_path}/certs/password_file"
 }
 
 ## Generates the hash for the new password
@@ -456,7 +456,7 @@ main() {
                 shift
                 ;; 
 	        "-f"|"--file")
-                FILE=$2
+                P_FILE=$2
                     shift
                 shift
                 ;;		
@@ -476,7 +476,7 @@ main() {
 
         checkInstalled   
 
-	if [ -n "${FILE}" ] && [ ! -f "${FILE}" ]; then
+	if [ -n "${P_FILE}" ] && [ ! -f "${P_FILE}" ]; then
 	    getHelp
 	fi
 
@@ -488,11 +488,11 @@ main() {
             getHelp
         fi 
         
-        if [ -n "${NUSER}" ] && [ -n "${FILE}" ]; then
+        if [ -n "${NUSER}" ] && [ -n "${P_FILE}" ]; then
             getHelp
         fi 
 
-        if [ -n "${PASSWORD}" ] && [ -n "${FILE}" ]; then
+        if [ -n "${PASSWORD}" ] && [ -n "${P_FILE}" ]; then
             getHelp
         fi         
 
@@ -500,7 +500,7 @@ main() {
             getHelp
         fi   
 
-        if [ -z "${NUSER}" ] && [ -z "${PASSWORD}" ] && [ -z "${CHANGEALL}" ] && [ -z  "${FILE}" ]; then
+        if [ -z "${NUSER}" ] && [ -z "${PASSWORD}" ] && [ -z "${CHANGEALL}" ] && [ -z  "${P_FILE}" ]; then
             getHelp
         fi 
 
@@ -519,11 +519,11 @@ main() {
             generatePassword
         fi               
 
-        if [ -n "${FILE}" ] && [ -z "${CHANGEALL}" ]; then
+        if [ -n "${P_FILE}" ] && [ -z "${CHANGEALL}" ]; then
 	    readUsers
 	fi	    
 
-	if [ -n "${FILE}" ]; then
+	if [ -n "${P_FILE}" ]; then
 	    readFileUsers
 	fi  
 
@@ -541,4 +541,4 @@ main() {
 
 }
 
-# main "$@"
+main "$@"

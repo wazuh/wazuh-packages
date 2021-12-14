@@ -217,6 +217,7 @@ main() {
         installElasticsearch 
         configureElasticsearch
         restoreWazuhrepo
+        changePasswords
     fi
 
     if [ -n "${kibana}" ]; then
@@ -239,6 +240,7 @@ main() {
         installKibana 
         configureKibana
         restoreWazuhrepo
+        changePasswords
     fi
 
     if [ -n "${wazuh}" ]; then
@@ -271,6 +273,7 @@ main() {
         installFilebeat  
         configureFilebeat
         restoreWazuhrepo
+        changePasswords
     fi
 
     if [ -n "${AIO}" ]; then

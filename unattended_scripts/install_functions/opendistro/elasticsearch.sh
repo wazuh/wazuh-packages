@@ -43,7 +43,7 @@ copyCertificatesElasticsearch() {
 
 
     if [ -f "${base_path}/certs.tar" ]; then
-        eval "tar -xf ${base_path}/certs.tar ${name}.pem -C ${e_certs_path} && mv ${e_certs_path}${name}.pem ${e_certs_path}elasticsearch.pem${debug}"
+        eval "tar -xf ${base_path}/certs.tar ${name}.pem -C ${e_certs_path} && mv ${e_certs_path}${name}.pem ${e_certs_path}elasticsearch.pem ${debug}"
         eval "tar -xf ${base_path}/certs.tar ${name}-key.pem -C ${e_certs_path} && mv ${e_certs_path}${name}-key.pem -C ${e_certs_path}elasticsearch-key.pem ${debug}"
         eval "tar -xf ${base_path}/certs.tar root-ca.pem -C ${e_certs_path} ${debug}"
         eval "tar -xf ${base_path}/certs.tar admin.pem -C ${e_certs_path} ${debug}"
@@ -218,17 +218,4 @@ initializeElastic() {
     fi
 
     logger "Done"
-}
-
-changePasswords() {
-    
-    checkInstalledOD
-    readUsers
-    generatePassword
-
-    getNetworkHost
-    createBackUp
-    generateHash
-    changePassword
-    runSecurityAdmin
 }
