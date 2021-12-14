@@ -99,8 +99,8 @@ configureKibana() {
 
 copyKibanacerts() {
     if [ -f "${base_path}/certs.tar" ]; then
-        eval "tar ${base_path}/certs.tar --wildcards kibana* -C ${k_certs_path} ${debug}"
-        eval "tar ${base_path}/certs.tar root-ca.pem -C ${k_certs_path} ${debug}"
+        eval "tar -xf ${base_path}/certs.tar -C ${k_certs_path} --wildcards ./kibana* ${debug}"
+        eval "tar -xf ${base_path}/certs.tar -C ${k_certs_path} ./root-ca.pem ${debug}"
     else
         logger "No certificates found. Could not initialize Kibana"
         exit 1;

@@ -34,12 +34,12 @@ copyCertificatesFilebeat() {
 
     if [ -f "${base_path}/certs.tar" ]; then
         if [ -n "${AIO}" ]; then
-            eval "tar ${base_path}/certs.tar --wildcards filebeat* -C ${f_cert_path} ${debug}"
-            eval "tar ${base_path}/certs.tar root-ca.pem -C ${f_cert_path} ${debug}"
+            eval "tar -xf ${base_path}/certs.tar -C ${f_cert_path} --wildcards ./filebeat* ${debug}"
+            eval "tar -xf ${base_path}/certs.tar -C ${f_cert_path} ./root-ca.pem ${debug}"
         else
-            eval "tar -xf ${base_path}/certs.tar ${winame}.pem -C ${f_cert_path} && mv ${f_cert_path}${winame}.pem ${f_cert_path}filebeat.pem ${debug}"
-            eval "tar -xf ${base_path}/certs.tar ${winame}-key.pem -C ${f_cert_path} && mv ${f_cert_path}${winame}-key.pem ${f_cert_path}filebeat-key.pem ${debug}"
-            eval "tar -xf ${base_path}/certs.tar root-ca.pem -C ${f_cert_path} ${debug}"
+            eval "tar -xf ${base_path}/certs.tar -C ${f_cert_path} ./${winame}.pem && mv ${f_cert_path}${winame}.pem ${f_cert_path}filebeat.pem ${debug}"
+            eval "tar -xf ${base_path}/certs.tar -C ${f_cert_path} ./${winame}-key.pem && mv ${f_cert_path}${winame}-key.pem ${f_cert_path}filebeat-key.pem ${debug}"
+            eval "tar -xf ${base_path}/certs.tar -C ${f_cert_path} ./root-ca.pem ${debug}"
         fi
     else
         logger "No certificates found. Could not initialize Filebeat"

@@ -33,26 +33,24 @@ installElasticsearch() {
 
 copyCertificatesElasticsearch() {
 
-    checkNodes
-    
-    if [ -n "${single}" ]; then
-        name=${einame}
-    else
-        name=${IMN[pos]}
-    fi
-
-
     if [ -f "${base_path}/certs.tar" ]; then
         if [ -n "${AIO}" ]; then
-            eval "tar ${base_path}/certs.tar --wildcards elasticsearch* -C ${e_certs_path} ${debug}"
-            eval "tar ${base_path}/certs.tar --wildcards admin* -C ${e_certs_path} ${debug}"
-            eval "tar ${base_path}/certs.tar root-ca.pem -C ${e_certs_path} ${debug}"
+            eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} --wildcards ./elasticsearch*  ${debug}"
+            eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} --wildcards ./admin*  ${debug}"
+            eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} ./root-ca.pem  ${debug}"
         else
-            eval "tar -xf ${base_path}/certs.tar ${name}.pem -C ${e_certs_path} && mv ${e_certs_path}${name}.pem ${e_certs_path}elasticsearch.pem ${debug}"
-            eval "tar -xf ${base_path}/certs.tar ${name}-key.pem -C ${e_certs_path} && mv ${e_certs_path}${name}-key.pem -C ${e_certs_path}elasticsearch-key.pem ${debug}"
-            eval "tar -xf ${base_path}/certs.tar root-ca.pem -C ${e_certs_path} ${debug}"
-            eval "tar -xf ${base_path}/certs.tar admin.pem -C ${e_certs_path} ${debug}"
-            eval "tar -xf ${base_path}/certs.tar admin-key.pem -C ${e_certs_path} ${debug}"
+            checkNodes
+    
+            if [ -n "${single}" ]; then
+                name=${einame}
+            else
+                name=${IMN[pos]}
+            fi
+            eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} ./${name}.pem  && mv ${e_certs_path}${name}.pem ${e_certs_path}elasticsearch.pem ${debug}"
+            eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} ./${name}-key.pem  && mv ${e_certs_path}${name}-key.pem ${e_certs_path}elasticsearch-key.pem ${debug}"
+            eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} ./root-ca.pem  ${debug}"
+            eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} ./admin.pem  ${debug}"
+            eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} ./admin-key.pem  ${debug}"
         fi
     else
         logger "No certificates found. Could not initialize Filebeat"
