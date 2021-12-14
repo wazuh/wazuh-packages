@@ -140,7 +140,9 @@ configureElasticsearch() {
                 pos="${i}";
             fi
         done
+
         if [[ ! ${IMN[pos]} == ${einame}  ]]; then
+
             logger -e "The name given does not appear on the configuration file"
             exit 1;
         fi
@@ -204,6 +206,7 @@ initializeElastic() {
     echo ""
 
     if [ -n "${single}" ]; then
+        eval "export JAVA_HOME=/usr/share/elasticsearch/jdk/"
         eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${nip} ${debug}"
     fi
 

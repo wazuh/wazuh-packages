@@ -27,7 +27,8 @@ resources_config="${resources}/${config_path}"
 base_path="$(dirname $(readlink -f $0))"
 
 ## Debug variable used during the installation
-debug='>> /var/log/wazuh-unattended-installation.log 2>&1'
+logfile="/var/log/wazuh-unattended-installation.log"
+debug=">> ${logfile} 2>&1"
 
 ## Show script usage
 getHelp() {
@@ -101,29 +102,35 @@ logger() {
             message="$1"
             ;;
     esac
-    echo $now $mtype $message | tee -a /var/log/wazuh-unattended-installation.log
+    echo $now $mtype $message | tee -a ${logfile}
 }
 
 importFunction() {
     if [ -n "${local}" ]; then
-        if [ -f ${base_path}/$functions_path/$1 ]; then
-            eval "sed -i '/main @/d' ${base_path}/$functions_path/$1 ${debug}"
-            eval ". ${base_path}/$functions_path/$1"
-            echo 'main @' >> ${base_path}/$functions_path/$1
+        if [ -f ./$functions_path/$1 ]; then
+            cat ./$functions_path/$1 |grep 'main $@' > /dev/null 2>&1
+            has_main=$?
+            if [ $has_main = 0 ]; then
+                sed -i 's/main $@//' ./$functions_path/$1
+            fi
+            . ./$functions_path/$1
+            if [ $has_main = 0 ]; then
+                echo 'main $@' >> ./$functions_path/$1
+            fi
         else 
             error=1
         fi
     else
-        eval "curl -so /tmp/$1 $resources_functions/$1 ${debug}"
-        if [[ $? == 0 ]]; then
-            eval "sed -i '/main @/d' /tmp/$1 ${debug}"
-            eval ". /tmp/$1 ${debug}"
-            eval "rm -f /tmp/$1 ${debug}"
+        curl -so /tmp/$1 $resources_functions/$1
+        if [ $? = 0 ]; then
+            sed -i 's/main $@//' /tmp/$1
+            . /tmp/$1
+            rm -f /tmp/$1
         else
             error=1 
         fi
     fi
-    if [[ ${error} == 1 ]]; then
+    if [ "${error}" = "1" ]; then
         logger -e "Unable to find resource $1. Exiting"
         exit 1
     fi
@@ -203,7 +210,6 @@ main() {
     fi   
 
     importFunction "common.sh"
-    logfile="/var/log/wazuh-unattended-installation.log"
     importFunction "wazuh-cert-tool.sh"
 
     checkArch
