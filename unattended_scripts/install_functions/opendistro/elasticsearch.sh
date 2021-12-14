@@ -21,7 +21,6 @@ installElasticsearch() {
 
     if [  "$?" != 0  ]; then
         echo -e "Elasticsearch installation failed"
-        c
         exit 1;  
     else
         elasticinstalled="1"
