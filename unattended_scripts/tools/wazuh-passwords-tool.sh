@@ -18,7 +18,6 @@ elif [ -n "$(command -v apt-get)" ]; then
     SYS_TYPE="apt-get"   
 fi
 
-## Prints information
 logger_pass() {
 
     now=$(date +'%m/%d/%Y %H:%M:%S')
@@ -39,7 +38,6 @@ logger_pass() {
     echo $now $mtype $message | tee -a ${logfile}
 }
 
-## Checks if the script is run with enough privileges
 checkRoot() {
     if [ "$EUID" -ne 0 ]; then
         logger_pass -e "This script must be run as root."
@@ -80,7 +78,6 @@ restartService() {
 
 }
 
-## Shows script usage
 getHelp() {
    echo ""
    echo "Usage: $0 arguments"
@@ -91,10 +88,8 @@ getHelp() {
    echo -e "\t-k     | --certkey <route-admin-certificate-key> Indicates route to the admin certificate key"
    echo -e "\t-v     | --verbose Shows the complete script execution output"
    echo -e "\t-h     | --help Shows help"
-   exit 1 # Exit script after printing help
+   exit 1
 }
-
-## Gets the network host
 
 getNetworkHost() {
     IP=$(grep -hr "network.host:" /etc/elasticsearch/elasticsearch.yml)
@@ -105,8 +100,6 @@ getNetworkHost() {
         IP="localhost"
     fi
 }
-
-## Checks if Open Distro for Elasticsearch is installed
 
 checkInstalled() {
     
@@ -152,8 +145,6 @@ readAdmincerts() {
 
 }
 
-## Reads all the users present in internal_users.yml
-
 readUsers() {
     SUSERS=$(grep -B 1 hash: /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml | grep -v hash: | grep -v "-" | awk '{ print substr( $0, 1, length($0)-1 ) }')
     USERS=($SUSERS)  
@@ -174,8 +165,6 @@ checkUser() {
 
 }
 
-## Creates a backup of the existing internal_users.yml
-
 createBackUp() {
     
     logger_pass "Creating backup..."
@@ -188,8 +177,6 @@ createBackUp() {
     logger_pass "Backup created"
     
 }
-
-## Generate random password
 
 generatePassword() {
 
@@ -212,8 +199,6 @@ generatePassword() {
  
 }
 
-## Generates the hash for the new password
-
 generateHash() {
     
     if [ -n "${CHANGEALL}" ]; then
@@ -235,8 +220,6 @@ generateHash() {
     fi
 
 }
-
-## Changes the password for the indicated user
 
 changePassword() {
     
@@ -304,7 +287,6 @@ changePassword() {
 
 }
 
-## Runs the Security Admin script to load the changes
 runSecurityAdmin() {
     
     logger_pass "Loading changes..."

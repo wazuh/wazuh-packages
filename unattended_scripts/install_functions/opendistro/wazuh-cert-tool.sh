@@ -19,7 +19,6 @@ elastichead='# Elasticsearch nodes'
 filebeathead='# Wazuh server nodes'
 kibanahead='# Kibana node'
 
-## Prints information
 logger_cert() {
 
     now=$(date +'%m/%d/%Y %H:%M:%S')
@@ -80,7 +79,7 @@ getHelp() {
     echo -e ""
     echo -e "        -v,  --verbose"
     echo -e "                Enables verbose mode."
-    exit 1 # Exit script after printing help    
+    exit 1
 }
 
 readFile() {

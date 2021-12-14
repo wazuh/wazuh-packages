@@ -75,7 +75,7 @@ configureElasticsearchAIO() {
     eval "sed -i "s/-Xmx1g/-Xmx${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
 
     eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
-    # Start Elasticsearch
+
     startService "elasticsearch"
     logger "Initializing Elasticsearch..."
     until $(curl -XGET https://localhost:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null); do
@@ -190,7 +190,6 @@ initializeElastic() {
 
     logger "Elasticsearch installed."
 
-    # Start Elasticsearch
     logger "Starting Elasticsearch..."
     startService "elasticsearch"
     logger "Initializing Elasticsearch..."

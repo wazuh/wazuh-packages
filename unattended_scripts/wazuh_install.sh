@@ -30,7 +30,6 @@ base_path="$(dirname $(readlink -f $0))"
 logfile="/var/log/wazuh-unattended-installation.log"
 debug=">> ${logfile} 2>&1"
 
-## Show script usage
 getHelp() {
 
     echo -e ""
@@ -84,7 +83,6 @@ getHelp() {
 
 }
 
-## Prints information
 logger() {
 
     now=$(date +'%m/%d/%Y %H:%M:%S')
