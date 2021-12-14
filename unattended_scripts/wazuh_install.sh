@@ -70,7 +70,7 @@ getHelp() {
     echo -e "        -l,  --local"
     echo -e "                Use local files."
     echo -e ""
-    echo -e "        -d,  --dev"
+    echo -e "        -d,  --development"
     echo -e "                Use development repository."
     echo -e ""
     echo -e "        -h,  --help"
@@ -132,7 +132,7 @@ main() {
                 ignore=1
                 shift 1
                 ;;
-            "-d"|"--dev")
+            "-d"|"--development")
                 development=1
                 shift 1
                 ;;
@@ -163,9 +163,17 @@ main() {
     importFunction "wazuh-cert-tool.sh"
 
     checkArch
-    
+    checkPrerequisites
+
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
         createCertificates
+    fi
+
+    if [ -n "${AIO}" ] || [ -n "${wazuh}" ] || [ -n "${kibana}" ] || [ -n "${elastic}" ]; then
+        logger "...checkSystem, installPrerequisites, addWazuhrepo"
+        checkSystem
+        installPrerequisites
+        addWazuhrepo
     fi
 
     if [ -n "${elastic}" ]; then
@@ -173,17 +181,13 @@ main() {
         importFunction "elasticsearch.sh"
 
         if [ -n "${ignore}" ]; then
-            logger -w "Health-check ignored."
+            logger -w "Health-check ignored for Elasticsearch"
         else
             healthCheck elasticsearch
         fi
-        checkSystem
-        installPrerequisites
-        addWazuhrepo
         checkNodes
         installElasticsearch 
         configureElasticsearch
-        restoreWazuhrepo
     fi
 
     if [ -n "${kibana}" ]; then
@@ -191,16 +195,12 @@ main() {
         importFunction "kibana.sh"
 
         if [ -n "${ignore}" ]; then
-            logger -w "Health-check ignored."
+            logger -w "Health-check ignored for Kibana"
         else
             healthCheck kibana
         fi
-        checkSystem
-        installPrerequisites
-        addWazuhrepo
         installKibana 
         configureKibana
-        restoreWazuhrepo
     fi
 
     if [ -n "${wazuh}" ]; then
@@ -214,20 +214,16 @@ main() {
         importFunction "filebeat.sh"
 
         if [ -n "${ignore}" ]; then
-            logger -w "Health-check ignored."
+            logger -w "Health-check ignored for Wazuh manager"
         else
             healthCheck wazuh
         fi
-        checkSystem
-        installPrerequisites
-        addWazuhrepo
         installWazuh
         if [ -n "$wazuhclusterkey" ]; then
             configureWazuhCluster 
         fi  
         installFilebeat  
         configureFilebeat
-        restoreWazuhrepo
     fi
 
     if [ -n "${AIO}" ]; then
@@ -238,13 +234,10 @@ main() {
         importFunction "kibana.sh"
 
         if [ -n "${ignore}" ]; then
-            logger -w "Health-check ignored."
+            logger -w "Health-check ignored for AIO"
         else
             healthCheck AIO
         fi
-        checkSystem
-        installPrerequisites
-        addWazuhrepo
         installWazuh
         installElasticsearch
         configureElasticsearchAIO
@@ -252,8 +245,13 @@ main() {
         configureFilebeatAIO
         installKibana
         configureKibanaAIO
+    fi
+
+    if [ -n "${AIO}" ] || [ -n "${wazuh}" ] || [ -n "${kibana}" || [ -n "${elastic}" ]; then
+        logger -w "restoreWazuhrepo"
         restoreWazuhrepo
     fi
+
 }
 
 main "$@"
