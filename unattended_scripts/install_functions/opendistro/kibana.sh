@@ -46,7 +46,6 @@ configureKibanaAIO() {
 
     modifyKibanaLogin
     
-    # Start Kibana
     initializeKibanaAIO
 }
 
@@ -112,7 +111,6 @@ copyKibanacerts() {
 
 initializeKibana() {
 
-    # Start Kibana
     startService "kibana"
     logger "Initializing Kibana (this may take a while)"
     until [[ "$(curl -XGET https://${kip}/status -I -uadmin:admin -k -s --max-time 300 | grep "200 OK")" ]]; do
@@ -132,7 +130,6 @@ initializeKibana() {
 
 initializeKibanaAIO() {
 
-    # Start Kibana
     startService "kibana"
     logger "Initializing Kibana (this may take a while)"
     until [[ "$(curl -XGET https://localhost/status -I -uadmin:admin -k -s --max-time 300 | grep "200 OK")" ]]; do
