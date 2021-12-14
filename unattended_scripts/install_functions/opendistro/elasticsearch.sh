@@ -153,7 +153,7 @@ configureElasticsearch() {
         done
 
     fi
-    #awk -v RS='' '/## Elasticsearch/' ./config.yml >> /etc/elasticsearch/elasticsearch.yml
+    #awk -v RS='' '/## Elasticsearch/' ${base_path}/config.yml >> /etc/elasticsearch/elasticsearch.yml
 
     eval "rm /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem -f ${debug}"
     eval "mkdir /etc/elasticsearch/certs ${debug}"

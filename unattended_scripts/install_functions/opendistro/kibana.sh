@@ -62,7 +62,7 @@ configureKibana() {
     eval "setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node ${debug}"
     eval "mkdir /etc/kibana/certs ${debug}"
 
-    kip=$(grep -A 1 "Kibana-instance" ./config.yml | tail -1)
+    kip=$(grep -A 1 "Kibana-instance" ${base_path}/config.yml | tail -1)
     rm="- "
     kip="${kip//$rm}"
     echo 'server.host: "'${kip}'"' >> /etc/kibana/kibana.yml
@@ -116,7 +116,7 @@ initializeKibana() {
         sleep 10
     done
     echo ""
-    wip=$(grep -A 1 "Wazuh-master-configuration" ./config.yml | tail -1)
+    wip=$(grep -A 1 "Wazuh-master-configuration" ${base_path}/config.yml | tail -1)
     rm="- "
     wip="${wip//$rm}"
     conf="$(awk '{sub("url: https://localhost", "url: https://'"${wip}"'")}1' /usr/share/kibana/data/wazuh/config/wazuh.yml)"
