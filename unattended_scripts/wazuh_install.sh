@@ -27,7 +27,8 @@ resources_config="${resources}/${config_path}"
 base_path="$(dirname $(readlink -f $0))"
 
 ## Debug variable used during the installation
-debug='>> /var/log/wazuh-unattended-installation.log 2>&1'
+logfile="/var/log/wazuh-unattended-installation.log"
+debug=">> ${logfile} 2>&1"
 
 ## Show script usage
 getHelp() {
@@ -101,7 +102,7 @@ logger() {
             message="$1"
             ;;
     esac
-    echo $now $mtype $message | tee -a /var/log/wazuh-unattended-installation.log
+    echo $now $mtype $message | tee -a ${logfile}
 }
 
 importFunction() {
@@ -203,7 +204,6 @@ main() {
     fi   
 
     importFunction "common.sh"
-    logfile="/var/log/wazuh-unattended-installation.log"
     importFunction "wazuh-cert-tool.sh"
 
     checkArch
