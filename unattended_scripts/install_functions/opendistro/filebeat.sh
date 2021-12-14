@@ -30,6 +30,23 @@ installFilebeat() {
     fi
 }
 
+copyCertificatesFilebeat() {
+
+    if [ -f "${base_path}/certs.tar" ]; then
+        if [ -n "${AIO}" ]; then
+            eval "tar ${base_path}/certs.tar --wildcards filebeat* -C ${f_cert_path} ${debug}"
+            eval "tar ${base_path}/certs.tar root-ca.pem -C ${f_cert_path} ${debug}"
+        else
+            eval "tar -xf ${base_path}/certs.tar ${winame}.pem -C ${f_cert_path} && mv ${f_cert_path}${winame}.pem ${f_cert_path}filebeat.pem ${debug}"
+            eval "tar -xf ${base_path}/certs.tar ${winame}-key.pem -C ${f_cert_path} && mv ${f_cert_path}${winame}-key.pem ${f_cert_path}filebeat-key.pem ${debug}"
+            eval "tar -xf ${base_path}/certs.tar root-ca.pem -C ${f_cert_path} ${debug}"
+        fi
+    else
+        logger "No certificates found. Could not initialize Filebeat"
+        exit 1;
+    fi
+}
+
 configureFilebeat() {
 
     eval "getConfig filebeat/filebeat_distributed.yml /etc/filebeat/filebeat.yml ${debug}"
@@ -58,15 +75,7 @@ configureFilebeat() {
     fi
 
     eval "mkdir /etc/filebeat/certs ${debug}"
-
-    if [ -f "${base_path}/certs.tar" ]; then
-        eval "tar -xf ${base_path}/certs.tar ${winame}.pem -C ${f_cert_path} && mv ${f_cert_path}${winame}.pem ${f_cert_path}filebeat.pem ${debug}"
-        eval "tar -xf ${base_path}/certs.tar ${winame}-key.pem -C ${f_cert_path} && mv ${f_cert_path}${winame}-key.pem ${f_cert_path}filebeat-key.pem ${debug}"
-        eval "tar -xf ${base_path}/certs.tar root-ca.pem -C ${f_cert_path} ${debug}"
-    else
-        logger "No certificates found. Could not initialize Filebeat"
-        exit 1;
-    fi
+    copyCertificatesFilebeat
 
     logger "Done"
     logger "Starting Filebeat..."
@@ -79,10 +88,10 @@ configureFilebeatAIO() {
         eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
         eval "curl -s '${repobaseurl}'/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module ${debug}"
         eval "mkdir /etc/filebeat/certs ${debug}"
-        eval "cp ${base_path}/certs/root-ca.pem /etc/filebeat/certs/ ${debug}"
-        eval "cp ${base_path}/certs/filebeat* /etc/filebeat/certs/ ${debug}"
+        copyCertificatesFilebeat
 
         # Start Filebeat
+        logger "Starting Filebeat..."
         startService "filebeat"
 
         logger "Done"

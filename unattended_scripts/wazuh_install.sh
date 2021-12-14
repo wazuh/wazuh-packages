@@ -190,7 +190,7 @@ main() {
         createCertificates
         generatePasswordFile
         sudo tar -zcf certs.tar -C certs/ .
-        rm -rf "${base_path}/certs"
+        #rm -rf "${base_path}/certs"
     fi
 
     if [ -n "${elastic}" ]; then

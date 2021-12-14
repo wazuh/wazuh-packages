@@ -43,11 +43,17 @@ copyCertificatesElasticsearch() {
 
 
     if [ -f "${base_path}/certs.tar" ]; then
-        eval "tar -xf ${base_path}/certs.tar ${name}.pem -C ${e_certs_path} && mv ${e_certs_path}${name}.pem ${e_certs_path}elasticsearch.pem ${debug}"
-        eval "tar -xf ${base_path}/certs.tar ${name}-key.pem -C ${e_certs_path} && mv ${e_certs_path}${name}-key.pem -C ${e_certs_path}elasticsearch-key.pem ${debug}"
-        eval "tar -xf ${base_path}/certs.tar root-ca.pem -C ${e_certs_path} ${debug}"
-        eval "tar -xf ${base_path}/certs.tar admin.pem -C ${e_certs_path} ${debug}"
-        eval "tar -xf ${base_path}/certs.tar admin-key.pem -C ${e_certs_path} ${debug}"
+        if [ -n "${AIO}" ]; then
+            eval "tar ${base_path}/certs.tar --wildcards elasticsearch* -C ${e_certs_path} ${debug}"
+            eval "tar ${base_path}/certs.tar --wildcards admin* -C ${e_certs_path} ${debug}"
+            eval "tar ${base_path}/certs.tar root-ca.pem -C ${e_certs_path} ${debug}"
+        else
+            eval "tar -xf ${base_path}/certs.tar ${name}.pem -C ${e_certs_path} && mv ${e_certs_path}${name}.pem ${e_certs_path}elasticsearch.pem ${debug}"
+            eval "tar -xf ${base_path}/certs.tar ${name}-key.pem -C ${e_certs_path} && mv ${e_certs_path}${name}-key.pem -C ${e_certs_path}elasticsearch-key.pem ${debug}"
+            eval "tar -xf ${base_path}/certs.tar root-ca.pem -C ${e_certs_path} ${debug}"
+            eval "tar -xf ${base_path}/certs.tar admin.pem -C ${e_certs_path} ${debug}"
+            eval "tar -xf ${base_path}/certs.tar admin-key.pem -C ${e_certs_path} ${debug}"
+        fi
     else
         logger "No certificates found. Could not initialize Filebeat"
         exit 1;
@@ -68,9 +74,7 @@ configureElasticsearchAIO() {
     export JAVA_HOME=/usr/share/elasticsearch/jdk/
         
     eval "mkdir ${e_certs_path} ${debug}"
-    eval "cp ${base_path}/certs/elasticsearch* ${e_certs_path} ${debug}"
-    eval "cp ${base_path}/certs/root-ca.pem ${e_certs_path} ${debug}"
-    eval "cp ${base_path}/certs/admin* ${e_certs_path} ${debug}"
+    copyCertificatesElasticsearch
     
     # Configure JVM options for Elasticsearch
     ram_gb=$(free -g | awk '/^Mem:/{print $2}')
