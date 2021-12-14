@@ -1,5 +1,4 @@
 #!/bin/bash
-set -x
 
 # Wazuh installer
 # Copyright (C) 2015-2021, Wazuh Inc.
