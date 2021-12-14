@@ -30,6 +30,49 @@ base_path="$(dirname $(readlink -f $0))"
 logfile="/var/log/wazuh-unattended-installation.log"
 debug=">> ${logfile} 2>&1"
 
+## Progress Bar Utility
+progressBar() {
+    if [ -z "${buffer}" ]; then
+        buffer=""
+        lines=1
+    fi
+
+    if [ "$1" ]; then
+        buffer="${buffer}$1\n"
+    fi
+
+    if [ -z "${progress}" ]; then 
+	    progress=0
+        printf "\n"
+    fi
+
+    if [ -z "${progressbartotal}" ]; then
+        progressbartotal=20
+    fi
+
+    cols=$(tput cols)
+    cols=$(( $cols-6 ))
+    cols_done=$(( ($progress*$cols) / $progressbartotal ))
+    cols_empty=$(( $cols-$cols_done ))
+    progresspercentage=$(( ($progress*100) / $progressbartotal ))
+
+    tput el1
+    for i in $(seq $lines)
+    do
+        tput cuu1
+        tput el
+    done
+    printf "${buffer}"
+    echo -ne "["
+    for i in $(seq $cols_done); do echo -n "#"; done
+    for i in $(seq $cols_empty); do echo -n "-"; done
+    printf "]%3.3s%%\n" ${progresspercentage}
+
+    progress=$(( $progress+1 ))
+
+    lines=$(echo -e "$buffer" | wc -l)
+}
+
 ## Show script usage
 getHelp() {
 
@@ -102,7 +145,16 @@ logger() {
             message="$1"
             ;;
     esac
-    echo $now $mtype $message | tee -a ${logfile}
+    finalmessage=$(echo "$now" "$mtype" "$message") 
+    echo finalmessage >> ${logfile}
+    if [ -z "$debugEnabled" ] && [ "$1" != "-e" ]; then
+        progressBar "$finalmessage"
+    else 
+        echo "$finalmessage"
+    fi
+    if [ "$1" == "-w" ]; then
+        progressbartotal=$(${progressbartotal}+1)
+    fi
 }
 
 importFunction() {
@@ -213,6 +265,10 @@ main() {
     importFunction "wazuh-cert-tool.sh"
 
     checkArch
+
+    progressbartotal=0
+    if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
+        progressbartotal
     
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
         createCertificates
