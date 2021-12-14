@@ -140,7 +140,7 @@ configureElasticsearch() {
                 pos="${i}";
             fi
         done
-        if [[ ! ${IMN[@]} == ${einame}  ]]; then
+        if [[ ! ${IMN[pos]} == ${einame}  ]]; then
             logger -e "The name given does not appear on the configuration file"
             exit 1;
         fi
@@ -177,11 +177,7 @@ configureElasticsearch() {
         echo "bootstrap.system_call_filter: false" >> /etc/elasticsearch/elasticsearch.yml
     fi
 
-    if [ -n "${single}" ]; then
-        copyCertificatesElasticsearch einame
-    else
-        copyCertificatesElasticsearch einame pos
-    fi
+    copyCertificatesElasticsearch
 
     eval "rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml -f ${debug}"
     eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"

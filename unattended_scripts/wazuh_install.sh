@@ -219,7 +219,7 @@ main() {
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored."
         else
-            healthCheck elastic
+            healthCheck elasticsearch
         fi
         checkSystem
         installPrerequisites
