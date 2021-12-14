@@ -1,40 +1,82 @@
 #!/bin/bash
 set -x
+
+# Wazuh installer
+# Copyright (C) 2015-2021, Wazuh Inc.
+#
+# This program is a free software; you can redistribute it
+# and/or modify it under the terms of the GNU General Public
+# License (version 2) as published by the FSF - Free Software
+# Foundation.
+
 ## Package vars
-WAZUH_MAJOR="4.2"
-WAZUH_VER="4.2.5"
-WAZUH_REV="1"
-ELK_VER="7.10.2"
-ELKB_VER="7.12.1"
-OD_VER="1.13.2"
-OD_REV="1"
-WAZUH_KIB_PLUG_REV="1"
+wazuh_major="4.3"
+wazuh_version="4.3.0"
+wazuh_revision="1"
+elastic_oss_version="7.10.2"
+elastic_basic_version="7.12.1"
+opendistro_version="1.13.2"
+opendistro_revision="1"
+wazuh_kibana_plugin_revision="1"
 
 ## Links and paths to resources
 functions_path="install_functions/opendistro"
 config_path="config/opendistro"
-resources="https://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/resources/${WAZUH_MAJOR}"
+resources="https://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/resources/${wazuh_major}"
 resources_functions="${resources}/${functions_path}"
 resources_config="${resources}/${config_path}"
+base_path="$(dirname $(readlink -f $0))"
 
 ## Show script usage
 getHelp() {
 
-    echo ""
-    echo "Usage: $0 arguments"
-    echo -e "\t-A   | --AllInOne                      All-In-One installation"
-    echo -e "\t-w   | --wazuh                         Wazuh installation"
-    echo -e "\t-e   | --elasticsearch                 Elasticsearch installation"
-    echo -e "\t-k   | --kibana                        Kibana installation"
-    echo -e "\t-c   | --create-certificates           Create certificates from instances.yml file"
-    echo -e "\t-en  | --elastic-node-name             Name of the elastic node, used for distributed installations"
-    echo -e "\t-wn  | --wazuh-node-name               Name of the wazuh node, used for distributed installations"
-
-    echo -e "\t-wk  | --wazuh-key <wazuh-cluster-key> Use this option as well as a wazuh_cluster_config.yml configuration file to automatically configure the wazuh cluster when using a multi-node installation"
-    echo -e "\t-v   | --verbose                       Shows the complete installation output"
-    echo -e "\t-i   | --ignore-health-check           Ignores the health-check"
-    echo -e "\t-l   | --local                         Use local files"
-    echo -e "\t-h   | --help                          Shows help"
+    echo -e ""
+    echo -e "NAME"
+    echo -e "        $(basename $0) - Install and configure Wazuh All-In-One components."
+    echo -e ""
+    echo -e "SYNOPSIS"
+    echo -e "        $(basename $0) [OPTIONS]"
+    echo -e ""
+    echo -e "DESCRIPTION"
+    echo -e "        -a,  --all-in-one"
+    echo -e "                All-In-One installation."
+    echo -e ""
+    echo -e "        -w,  --wazuh-server"
+    echo -e "                Wazuh server installation. It includes Filebeat."
+    echo -e ""
+    echo -e "        -e,  --elasticsearch"
+    echo -e "                Elasticsearch installation."
+    echo -e ""
+    echo -e "        -k,  --kibana"
+    echo -e "                Kibana installation."
+    echo -e ""
+    echo -e "        -c,  --create-certificates"
+    echo -e "                Create certificates from instances.yml file."
+    echo -e ""
+    echo -e "        -en, --elastic-node-name"
+    echo -e "                Name of the elastic node, used for distributed installations."
+    echo -e ""
+    echo -e "        -wn, --wazuh-node-name"
+    echo -e "                Name of the wazuh node, used for distributed installations."
+    echo -e ""
+    echo -e "        -wk, --wazuh-key <wazuh-cluster-key>"
+    echo -e "                Use this option as well as a wazuh_cluster_config.yml configuration file to automatically configure the wazuh cluster when using a multi-node installation."
+    echo -e ""
+    echo -e "        -v,  --verbose"
+    echo -e "                Shows the complete installation output."
+    echo -e ""
+    echo -e "        -i,  --ignore-health-check"
+    echo -e "                Ignores the health-check."
+    echo -e ""
+    echo -e "        -l,  --local"
+    echo -e "                Use local files."
+    echo -e ""
+    echo -e "        -d,  --dev"
+    echo -e "                Use development repository."
+    echo -e ""
+    echo -e "        -h,  --help"
+    echo -e "                Shows help."
+    echo -e ""
     exit 1 # Exit script after printing help
 
 }
@@ -71,19 +113,19 @@ importFunction() {
 }
 
 main() {
-    if [ "$EUID" -ne 0 ]; then
-        echo "Error: This script must be run as root."
-        exit 1;
-    fi   
+
+    if [ ! -n  "$1" ]; then
+        getHelp
+    fi
 
     while [ -n "$1" ]
     do
         case "$1" in
-            "-A"|"--AllInOne")
+            "-a"|"--all-in-one")
                 AIO=1
                 shift 1
                 ;;
-            "-w"|"--wazuh")
+            "-w"|"--wazuh-server")
                 wazuh=1
                 shift 1
                 ;;
@@ -112,8 +154,8 @@ main() {
                 ignore=1
                 shift 1
                 ;;
-            "-d"|"--debug")
-                debugEnabled=1
+            "-d"|"--dev")
+                development=1
                 shift 1
                 ;;
             "-l"|"--local")
@@ -129,11 +171,18 @@ main() {
                 getHelp
                 ;;
             *)
+                echo "Unknow option: $1"
                 getHelp
         esac
     done
 
+    if [ "$EUID" -ne 0 ]; then
+        echo "Error: This script must be run as root."
+        exit 1;
+    fi   
+
     importFunction "common.sh"
+    checkArch
     
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
         importFunction "wazuh-cert-tool.sh"
@@ -153,7 +202,7 @@ main() {
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored."
         else
-            healthCheck elastic
+            healthCheck elasticsearch
         fi
         checkSystem
         installPrerequisites
@@ -161,6 +210,7 @@ main() {
         checkNodes
         installElasticsearch 
         configureElasticsearch
+        restoreWazuhrepo
     fi
 
     if [ -n "${kibana}" ]; then
@@ -177,6 +227,7 @@ main() {
         addWazuhrepo
         installKibana 
         configureKibana
+        restoreWazuhrepo
     fi
 
     if [ -n "${wazuh}" ]; then
@@ -203,6 +254,7 @@ main() {
         fi  
         installFilebeat  
         configureFilebeat
+        restoreWazuhrepo
     fi
 
     if [ -n "${AIO}" ]; then
@@ -215,9 +267,7 @@ main() {
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored."
         else
-            healthCheck elasticsearch
-            healthCheck kibana
-            healthCheck wazuh
+            healthCheck AIO
         fi
         checkSystem
         installPrerequisites
@@ -230,6 +280,7 @@ main() {
         installKibana
         configureKibanaAIO
         changePasswords
+        restoreWazuhrepo
     fi
 }
 

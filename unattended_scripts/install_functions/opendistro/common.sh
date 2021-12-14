@@ -1,11 +1,23 @@
+# Copyright (C) 2015-2021, Wazuh Inc.
+#
+# This program is a free software; you can redistribute it
+# and/or modify it under the terms of the GNU General Public
+# License (version 2) as published by the FSF - Free Software
+# Foundation.
+
 repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"
 repobaseurl="https://packages.wazuh.com/4.x"
 
+if [ -n "${development}" ]; then
+    repogpg="https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH"
+    repobaseurl="https://packages-dev.wazuh.com/pre-release"
+fi
+
 getConfig() {
     if [ -n "${local}" ]; then
-        cp ./$config_path/$1 $2
+        cp ${base_path}/${config_path}/$1 $2
     else
-        curl -so $2 $resources_config/$1
+        curl -so $2 ${resources_config}/$1
     fi
     if [ $? != 0]; then
         logger -e "Unable to find config $1. Exiting"
@@ -58,13 +70,13 @@ installPrerequisites() {
 
 addWazuhrepo() {
     logger "Adding the Wazuh repository..."
-    if [ ! -f /etc/yum.repos.d/wazuh.repo ] && [ ! -f /etc/yum.repos.d/wazuh.repo ] && [ ! -f /etc/yum.repos.d/wazuh.repo ] ; then
+    if [ ! -f /etc/yum.repos.d/wazuh.repo ] && [ ! -f /etc/zypp/repos.d/wazuh.repo ] && [ ! -f /etc/apt/sources.list.d/wazuh.list ] ; then
         if [ ${sys_type} == "yum" ]; then
             eval "rpm --import ${repogpg} ${debug}"
-            eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo ${debug}"
+            eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-\$releasever - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo ${debug}"
         elif [ ${sys_type} == "zypper" ]; then
             eval "rpm --import ${repogpg} ${debug}"
-            eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/zypp/repos.d/wazuh.repo ${debug}"
+            eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-\$releasever - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/zypp/repos.d/wazuh.repo ${debug}"
         elif [ ${sys_type} == "apt-get" ]; then
             eval "curl -s ${repogpg} --max-time 300 | apt-key add - ${debug}"
             eval "echo "deb '${repobaseurl}'/apt/ stable main" | tee /etc/apt/sources.list.d/wazuh.list ${debug}"
@@ -74,6 +86,24 @@ addWazuhrepo() {
         logger "Wazuh repository already exists skipping"
     fi
     logger "Done" 
+}
+
+restoreWazuhrepo() {
+    if [ -n "${development}" ]; then
+        logger "Setting the Wazuh repository to production"
+        if [ ${sys_type} == "yum" ] && [ -f /etc/yum.repos.d/wazuh.repo ]; then
+            file="/etc/yum.repos.d/wazuh.repo"
+        elif [ ${sys_type} == "zypper" ] && [ -f /etc/zypp/repos.d/wazuh.repo ]; then
+            file="/etc/zypp/repos.d/wazuh.repo"
+        elif [ ${sys_type} == "apt-get" ] && [ -f /etc/apt/sources.list.d/wazuh.list ]; then
+            file="/etc/apt/sources.list.d/wazuh.list"
+        else
+            logger "Wazuh repository does not exists"
+        fi
+        eval "sed -i 's/-dev//g' ${file} ${debug}"
+        eval "sed -i 's/pre-release/4.x/g' ${file} ${debug}"
+        logger "Done"
+    fi
 }
 
 checkInstalled() {
@@ -149,7 +179,7 @@ checkInstalled() {
 
     if [ -n "${wazuhinstalled}" ] || [ -n "${elasticinstalled}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${kibanainstalled}" ]; then 
         if [ -n "${ow}" ]; then
-             overwrite
+            overwrite
         
         elif [ -n "${uninstall}" ]; then
             logger -w "Removing the installed items"
@@ -205,7 +235,7 @@ startService() {
 createCertificates() {
 
     if [ -n "${AIO}" ]; then
-        eval "getConfig certificate/instances_aio.yml ./instances.yml ${debug}"
+        eval "getConfig certificate/instances_aio.yml ${base_path}/instances.yml ${debug}"
     fi
 
     readInstances
@@ -302,8 +332,16 @@ rollBack() {
 
     if [ -z "${uninstall}" ]; then
         logger -w "Cleaning the installation" 
-    fi   
-    
+    fi  
+
+    if [ -f /etc/yum.repos.d/wazuh.repo ]; then
+        eval "rm /etc/yum.repos.d/wazuh.repo"
+    elif [ -f /etc/zypp/repos.d/wazuh.repo ]; then
+        eval "rm /etc/zypp/repos.d/wazuh.repo"
+    elif [ -f /etc/apt/sources.list.d/wazuh.list ]; then
+        eval "rm /etc/apt/sources.list.d/wazuh.list"
+    fi
+
     if [ -n "${wazuhinstalled}" ]; then
         logger -w "Removing the Wazuh manager..."
         if [ "${sys_type}" == "yum" ]; then

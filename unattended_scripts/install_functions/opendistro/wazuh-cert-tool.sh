@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Program to generate the certificates necessary for Wazuh installation
-# Copyright (C) 2015-2020, Wazuh Inc.
+# Copyright (C) 2015-2021, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
@@ -9,12 +9,12 @@
 # Foundation.
 
 debug='> /dev/null 2>&1'
-ELASTICINSTANCES="elasticsearch-nodes:"
-FILEBEATINSTANCES="wazuh-servers:"
-KIBANAINSTANCES="kibana:"
-ELASTICHEAD='# Elasticsearch nodes'
-FILEBEATHEAD='# Wazuh server nodes'
-KIBANAHEAD='# Kibana node'
+elasticinstances="elasticsearch-nodes:"
+filebeatinstances="wazuh-servers:"
+kibanainstances="kibana:"
+elastichead='# Elasticsearch nodes'
+filebeathead='# Wazuh server nodes'
+kibanahead='# Kibana node'
 
 ## Prints information
 logger() {
@@ -39,9 +39,9 @@ logger() {
 
 readInstances() {
 
-    if [ -f ./instances.yml ]; then
+    if [ -f ${base_path}/instances.yml ]; then
         logger "Configuration file found. Creating certificates..."
-        eval "mkdir ./certs $debug"
+        eval "mkdir ${base_path}/certs $debug"
     else
         logger -e "No configuration file found."
         exit 1;
@@ -52,44 +52,61 @@ readInstances() {
 }
 
 getHelp() {
-   echo ""
-   echo "Usage: $0 arguments"
-   echo -e "\t-a     | --admin-certificates Creates the admin certificates."
-   echo -e "\t-ca    | --root-ca-certificates Creates the root-ca certificates."
-   echo -e "\t-a     | --elasticsearch-certificates Creates the Elasticsearch certificates."
-   echo -e "\t-w     | --wazuh-certificates Creates the Wazuh server certificates."
-   echo -e "\t-k     | --kibana-certificates Creates the Kibana certificates."
-   echo -e "\t-d     | --debug Enables verbose mode."
-   exit 1 # Exit script after printing help    
+    echo -e ""
+    echo -e "NAME"
+    echo -e "        wazuh-cert-tool.sh - Manages the creation of certificates of the Wazuh components."
+    echo -e ""
+    echo -e "SYNOPSIS"
+    echo -e "        wazuh-cert-tool.sh [OPTIONS]"
+    echo -e ""
+    echo -e "DESCRIPTION"
+    echo -e "        -a,  --admin-certificates"
+    echo -e "                Creates the admin certificates."
+    echo -e ""
+    echo -e "        -ca, --root-ca-certificates"
+    echo -e "                Creates the root-ca certificates."
+    echo -e ""
+    echo -e "        -e,  --elasticsearch-certificates"
+    echo -e "                Creates the Elasticsearch certificates."
+    echo -e ""
+    echo -e "        -w,  --wazuh-certificates"
+    echo -e "                Creates the Wazuh server certificates."
+    echo -e ""
+    echo -e "        -k,  --kibana-certificates"
+    echo -e "                Creates the Kibana certificates."
+    echo -e ""
+    echo -e "        -d,  --debug"
+    echo -e "                Enables verbose mode."
+    exit 1 # Exit script after printing help    
 }
 
 readFile() {
 
-    IFS=$'\r\n' GLOBIGNORE='*' command eval  'INSTANCES=($(cat ./instances.yml))'
-    for i in "${!INSTANCES[@]}"; do
-    if [[ "${INSTANCES[$i]}" == "${ELASTICINSTANCES}" ]]; then
-        ELASTICLIMITT=${i}
+    IFS=$'\r\n' GLOBIGNORE='*' command eval  'instances=($(cat ${base_path}/instances.yml))'
+    for i in "${!instances[@]}"; do
+    if [[ "${instances[$i]}" == "${elasticinstances}" ]]; then
+        elasticlimitt=${i}
     fi
-        if [[ "${INSTANCES[$i]}" == "${FILEBEATINSTANCES}" ]]; then
-        ELASTICLIMIB=${i}
+        if [[ "${instances[$i]}" == "${filebeatinstances}" ]]; then
+        elasticlimib=${i}
     fi
 
-    if [[ "${INSTANCES[$i]}" == "${FILEBEATINSTANCES}" ]]; then
-        FILEBEATLIMITT=${i}
+    if [[ "${instances[$i]}" == "${filebeatinstances}" ]]; then
+        filebeatlimitt=${i}
     fi
     
-    if [[ "${INSTANCES[$i]}" == "${KIBANAINSTANCES}" ]]; then
-        FILEBEATLIMIB=${i}
+    if [[ "${instances[$i]}" == "${kibanainstances}" ]]; then
+        filebeatlimib=${i}
     fi  
     done
 
     ## Read Elasticsearch nodes
-    counter=${ELASTICLIMITT}
+    counter=${elasticlimitt}
     i=0
-    while [ "${counter}" -le "${ELASTICLIMIB}" ]
+    while [ "${counter}" -le "${elasticlimib}" ]
     do
-        if  [ "${INSTANCES[counter]}" !=  "${ELASTICINSTANCES}" ] && [ "${INSTANCES[counter]}" !=  "${FILEBEATINSTANCES}" ] && [ "${INSTANCES[counter]}" !=  "${FILEBEATHEAD}" ] && [ "${INSTANCES[counter]}" !=  "    ip:" ] && [ -n "${INSTANCES[counter]}" ]; then
-            ELASTICNODES[i]+="$(echo "${INSTANCES[counter]}" | tr -d '\011\012\013\014\015\040')"
+        if  [ "${instances[counter]}" !=  "${elasticinstances}" ] && [ "${instances[counter]}" !=  "${filebeatinstances}" ] && [ "${instances[counter]}" !=  "${filebeathead}" ] && [ "${instances[counter]}" !=  "    ip:" ] && [ -n "${instances[counter]}" ]; then
+            elasticnodes[i]+="$(echo "${instances[counter]}" | tr -d '\011\012\013\014\015\040')"
             ((i++))
         fi    
 
@@ -97,12 +114,12 @@ readFile() {
     done
 
     ## Read Filebeat nodes
-    counter=${FILEBEATLIMITT}
+    counter=${filebeatlimitt}
     i=0
-    while [ "${counter}" -le "${FILEBEATLIMIB}" ]
+    while [ "${counter}" -le "${filebeatlimib}" ]
     do
-        if  [ "${INSTANCES[counter]}" !=  "${FILEBEATINSTANCES}" ] && [ "${INSTANCES[counter]}" !=  "${KIBANAINSTANCES}" ] && [ "${INSTANCES[counter]}" !=  "${KIBANAHEAD}" ] && [ "${INSTANCES[counter]}" !=  "    ip:" ] && [ -n "${INSTANCES[counter]}" ]; then
-            FILEBEATNODES[i]+="$(echo "${INSTANCES[counter]}" | tr -d '\011\012\013\014\015\040')"
+        if  [ "${instances[counter]}" !=  "${filebeatinstances}" ] && [ "${instances[counter]}" !=  "${kibanainstances}" ] && [ "${instances[counter]}" !=  "${kibanahead}" ] && [ "${instances[counter]}" !=  "    ip:" ] && [ -n "${instances[counter]}" ]; then
+            filebeatnodes[i]+="$(echo "${instances[counter]}" | tr -d '\011\012\013\014\015\040')"
             ((i++))
         fi    
 
@@ -110,12 +127,12 @@ readFile() {
     done
 
     ## Read Kibana nodes
-    counter=${FILEBEATLIMIB}
+    counter=${filebeatlimib}
     i=0
-    while [ "${counter}" -le "${#INSTANCES[@]}" ]
+    while [ "${counter}" -le "${#instances[@]}" ]
     do
-        if  [ "${INSTANCES[counter]}" !=  "${KIBANAINSTANCES}" ]  && [ "${INSTANCES[counter]}" !=  "${KIBANAHEAD}" ] && [ "${INSTANCES[counter]}" !=  "    ip:" ] && [ -n "${INSTANCES[counter]}" ]; then
-            KIBANANODES[i]+="$(echo "${INSTANCES[counter]}" | tr -d '\011\012\013\014\015\040')"
+        if  [ "${instances[counter]}" !=  "${kibanainstances}" ]  && [ "${instances[counter]}" !=  "${kibanahead}" ] && [ "${instances[counter]}" !=  "    ip:" ] && [ -n "${instances[counter]}" ]; then
+            kibananodes[i]+="$(echo "${instances[counter]}" | tr -d '\011\012\013\014\015\040')"
             ((i++))
         fi    
 
@@ -127,7 +144,7 @@ readFile() {
 
 generateCertificateconfiguration() {
 
-    cat > ./certs/${cname}.conf <<- EOF
+    cat > ${base_path}/certs/${cname}.conf <<- EOF
         [ req ]
         prompt = no
         default_bits = 2048
@@ -152,20 +169,20 @@ generateCertificateconfiguration() {
         IP.1 = cip
 	EOF
 
-    conf="$(awk '{sub("CN = cname", "CN = '${cname}'")}1' ./certs/$cname.conf)"
-    echo "${conf}" > ./certs/$cname.conf    
+    conf="$(awk '{sub("CN = cname", "CN = '${cname}'")}1' ${base_path}/certs/$cname.conf)"
+    echo "${conf}" > ${base_path}/certs/$cname.conf    
 
     isIP=$(echo "${cip}" | grep -P "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")
     isDNS=$(echo ${cip} | grep -P "^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$" )
 
     if [[ -n "${isIP}" ]]; then
-        conf="$(awk '{sub("IP.1 = cip", "IP.1 = '${cip}'")}1' ./certs/$cname.conf)"
-        echo "${conf}" > ./certs/$cname.conf    
+        conf="$(awk '{sub("IP.1 = cip", "IP.1 = '${cip}'")}1' ${base_path}/certs/$cname.conf)"
+        echo "${conf}" > ${base_path}/certs/$cname.conf    
     elif [[ -n "${isDNS}" ]]; then
-        conf="$(awk '{sub("CN = cname", "CN =  '${cip}'")}1' ./certs/$cname.conf)"
-        echo "${conf}" > ./certs/$cname.conf     
-        conf="$(awk '{sub("IP.1 = cip", "DNS.1 = '${cip}'")}1' ./certs/$cname.conf)"
-        echo "${conf}" > ./certs/$cname.conf 
+        conf="$(awk '{sub("CN = cname", "CN =  '${cip}'")}1' ${base_path}/certs/$cname.conf)"
+        echo "${conf}" > ${base_path}/certs/$cname.conf     
+        conf="$(awk '{sub("IP.1 = cip", "DNS.1 = '${cip}'")}1' ${base_path}/certs/$cname.conf)"
+        echo "${conf}" > ${base_path}/certs/$cname.conf 
     else
         logger -e "The given information does not match with an IP or a DNS"  
         exit 1; 
@@ -175,27 +192,27 @@ generateCertificateconfiguration() {
 
 generateRootCAcertificate() {
 
-    eval "openssl req -x509 -new -nodes -newkey rsa:2048 -keyout ./certs/root-ca.key -out ./certs/root-ca.pem -batch -subj '/OU=Docu/O=Wazuh/L=California/' -days 3650 ${debug}"
+    eval "openssl req -x509 -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/root-ca.key -out ${base_path}/certs/root-ca.pem -batch -subj '/OU=Docu/O=Wazuh/L=California/' -days 3650 ${debug}"
 
 }
 
 generateAdmincertificate() {
     
-    eval "openssl genrsa -out ./certs/admin-key-temp.pem 2048 ${debug}"
-    eval "openssl pkcs8 -inform PEM -outform PEM -in ./certs/admin-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out ./certs/admin-key.pem ${debug}"
-    eval "openssl req -new -key ./certs/admin-key.pem -out ./certs/admin.csr -batch -subj '/C=US/L=California/O=Wazuh/OU=Docu/CN=admin' ${debug}"
-    eval "openssl x509 -req -in ./certs/admin.csr -CA ./certs/root-ca.pem -CAkey ./certs/root-ca.key -CAcreateserial -sha256 -out ./certs/admin.pem ${debug}"
+    eval "openssl genrsa -out ${base_path}/certs/admin-key-temp.pem 2048 ${debug}"
+    eval "openssl pkcs8 -inform PEM -outform PEM -in ${base_path}/certs/admin-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out ${base_path}/certs/admin-key.pem ${debug}"
+    eval "openssl req -new -key ${base_path}/certs/admin-key.pem -out ${base_path}/certs/admin.csr -batch -subj '/C=US/L=California/O=Wazuh/OU=Docu/CN=admin' ${debug}"
+    eval "openssl x509 -req -in ${base_path}/certs/admin.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -sha256 -out ${base_path}/certs/admin.pem ${debug}"
 
 }
 
 generateElasticsearchcertificates() {
 
-     logger "Creating the Elasticsearch certificates..."
+    logger "Creating the Elasticsearch certificates..."
 
     i=0
-    while [ ${i} -lt ${#ELASTICNODES[@]} ]; do
-        cname=${ELASTICNODES[i]}
-        cip=${ELASTICNODES[i+1]}
+    while [ ${i} -lt ${#elasticnodes[@]} ]; do
+        cname=${elasticnodes[i]}
+        cip=${elasticnodes[i+1]}
         rname="-name:"
         cname="${cname//$rname}"
         rip="-"
@@ -204,9 +221,9 @@ generateElasticsearchcertificates() {
         cip=$(echo ${cip} | xargs)
 
         generateCertificateconfiguration cname cip
-        eval "openssl req -new -nodes -newkey rsa:2048 -keyout ./certs/${cname}-key.pem -out ./certs/${cname}.csr -config ./certs/${cname}.conf -days 3650 ${debug}"
-        eval "openssl x509 -req -in ./certs/${cname}.csr -CA ./certs/root-ca.pem -CAkey ./certs/root-ca.key -CAcreateserial -out ./certs/${cname}.pem -extfile ./certs/${cname}.conf -extensions v3_req -days 3650 ${debug}"
-        eval "chmod 444 ./certs/${cname}-key.pem ${debug}"    
+        eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${cname}-key.pem -out ${base_path}/certs/${cname}.csr -config ${base_path}/certs/${cname}.conf -days 3650 ${debug}"
+        eval "openssl x509 -req -in ${base_path}/certs/${cname}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${cname}.pem -extfile ${base_path}/certs/${cname}.conf -extensions v3_req -days 3650 ${debug}"
+        eval "chmod 444 ${base_path}/certs/${cname}-key.pem ${debug}"    
         i=$(( ${i} + 2 ))
     done
 
@@ -217,9 +234,9 @@ generateFilebeatcertificates() {
     logger "Creating Wazuh server certificates..."
 
     i=0
-    while [ ${i} -lt ${#FILEBEATNODES[@]} ]; do
-        cname=${FILEBEATNODES[i]}
-        cip=${FILEBEATNODES[i+1]}
+    while [ ${i} -lt ${#filebeatnodes[@]} ]; do
+        cname=${filebeatnodes[i]}
+        cip=${filebeatnodes[i+1]}
         rname="-name:"
         cname="${cname//$rname}"
         rip="-"
@@ -228,8 +245,8 @@ generateFilebeatcertificates() {
         cip=$(echo ${cip} | xargs)
 
         generateCertificateconfiguration cname cip
-        eval "openssl req -new -nodes -newkey rsa:2048 -keyout ./certs/${cname}-key.pem -out ./certs/${cname}.csr -config ./certs/${cname}.conf -days 3650 ${debug}"
-        eval "openssl x509 -req -in ./certs/${cname}.csr -CA ./certs/root-ca.pem -CAkey ./certs/root-ca.key -CAcreateserial -out ./certs/${cname}.pem -extfile ./certs/${cname}.conf -extensions v3_req -days 3650 ${debug}"
+        eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${cname}-key.pem -out ${base_path}/certs/${cname}.csr -config ${base_path}/certs/${cname}.conf -days 3650 ${debug}"
+        eval "openssl x509 -req -in ${base_path}/certs/${cname}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${cname}.pem -extfile ${base_path}/certs/${cname}.conf -extensions v3_req -days 3650 ${debug}"
         i=$(( ${i} + 2 ))
     done      
 
@@ -240,9 +257,9 @@ generateKibanacertificates() {
     logger "Creating Kibana certificate..."
 
     i=0
-    while [ ${i} -lt ${#KIBANANODES[@]} ]; do
-        cname=${KIBANANODES[i]}
-        cip=${KIBANANODES[i+1]}
+    while [ ${i} -lt ${#kibananodes[@]} ]; do
+        cname=${kibananodes[i]}
+        cip=${kibananodes[i+1]}
         rname="-name:"
         cname="${cname//$rname}"
         rip="-"
@@ -251,8 +268,8 @@ generateKibanacertificates() {
         cip=$(echo ${cip} | xargs)
 
         generateCertificateconfiguration cname cip
-        eval "openssl req -new -nodes -newkey rsa:2048 -keyout ./certs/${cname}-key.pem -out ./certs/${cname}.csr -config ./certs/${cname}.conf -days 3650 ${debug}"
-        eval "openssl x509 -req -in ./certs/${cname}.csr -CA ./certs/root-ca.pem -CAkey ./certs/root-ca.key -CAcreateserial -out ./certs/${cname}.pem -extfile ./certs/${cname}.conf -extensions v3_req -days 3650 ${debug}"
+        eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${cname}-key.pem -out ${base_path}/certs/${cname}.csr -config ${base_path}/certs/${cname}.conf -days 3650 ${debug}"
+        eval "openssl x509 -req -in ${base_path}/certs/${cname}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${cname}.pem -extfile ${base_path}/certs/${cname}.conf -extensions v3_req -days 3650 ${debug}"
         i=$(( ${i} + 2 ))
     done 
 
@@ -260,11 +277,11 @@ generateKibanacertificates() {
 
 cleanFiles() {
 
-    eval "rm -rf ./certs/*.csr ${debug}"
-    eval "rm -rf ./certs/*.srl ${debug}"
-    eval "rm -rf ./certs/*.conf ${debug}"
-    eval "rm -rf ./certs/admin-key-temp.pem ${debug}"
-    logger "Certificates creation finished. They can be found in ./certs."
+    eval "rm -rf ${base_path}/certs/*.csr ${debug}"
+    eval "rm -rf ${base_path}/certs/*.srl ${debug}"
+    eval "rm -rf ${base_path}/certs/*.conf ${debug}"
+    eval "rm -rf ${base_path}/certs/admin-key-temp.pem ${debug}"
+    logger "Certificates creation finished. They can be found in ${base_path}/certs."
 
 }
 
