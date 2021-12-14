@@ -190,12 +190,17 @@ main() {
         createCertificates
         if [ ! -n "${AIO}" ]; then
             generatePasswordFile
+            sudo tar -zcf certs.tar -C certs/ .
+            rm -rf "${base_path}/certs"
         fi
-        sudo tar -zcvf certs.tar.gz -C certs/ .
-        rm -rf ./certs
     fi
 
     if [ -n "${elastic}" ]; then
+
+        if [ ! -f "${base_path}/certs.tar" ]; then
+            logger -e "Certificates not found. Exiting"
+            exit 1
+        fi
 
         importFunction "elasticsearch.sh"
 
@@ -204,6 +209,7 @@ main() {
         else
             healthCheck elasticsearch
         fi
+
         checkSystem
         installPrerequisites
         addWazuhrepo
@@ -214,6 +220,11 @@ main() {
     fi
 
     if [ -n "${kibana}" ]; then
+
+        if [ ! -f "${base_path}/certs.tar" ]; then
+            logger -e "Certificates not found. Exiting"
+            exit 1
+        fi
 
         importFunction "kibana.sh"
 
@@ -231,6 +242,11 @@ main() {
     fi
 
     if [ -n "${wazuh}" ]; then
+
+        if [ ! -f "${base_path}/certs.tar" ]; then
+            logger -e "Certificates not found. Exiting"
+            exit 1
+        fi
 
         if [ -n "$wazuhclusterkey" ] && [ ! -f wazuh_cluster_config.yml ]; then
             logger -e "No wazuh_cluster_config.yml file found."
@@ -281,6 +297,7 @@ main() {
         configureKibanaAIO
         changePasswords
         restoreWazuhrepo
+        rm -rf "${base_path}/certs"
     fi
 }
 

@@ -5,6 +5,8 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
+e_certs_path="/etc/elasticsearch/certs/"
+
 installElasticsearch() {
 
     logger "Installing Open Distro for Elasticsearch..."
@@ -39,11 +41,17 @@ copyCertificatesElasticsearch() {
         name=${IMN[pos]}
     fi
 
-    eval "cp ${base_path}/certs/${name}.pem /etc/elasticsearch/certs/elasticsearch.pem ${debug}"
-    eval "cp ${base_path}/certs/${name}-key.pem /etc/elasticsearch/certs/elasticsearch-key.pem ${debug}"
-    eval "cp ${base_path}/certs/root-ca.pem /etc/elasticsearch/certs/ ${debug}"
-    eval "cp ${base_path}/certs/admin.pem /etc/elasticsearch/certs/ ${debug}"
-    eval "cp ${base_path}/certs/admin-key.pem /etc/elasticsearch/certs/ ${debug}"
+
+    if [ -f "${base_path}/certs.tar" ]; then
+        eval "tar -xf ${base_path}/certs.tar ${name}.pem -C ${e_certs_path} && mv ${e_certs_path}${name}.pem ${e_certs_path}elasticsearch.pem${debug}"
+        eval "tar -xf ${base_path}/certs.tar ${name}-key.pem -C ${e_certs_path} && mv ${e_certs_path}${name}-key.pem -C ${e_certs_path}elasticsearch-key.pem ${debug}"
+        eval "tar -xf ${base_path}/certs.tar root-ca.pem -C ${e_certs_path} ${debug}"
+        eval "tar -xf ${base_path}/certs.tar admin.pem -C ${e_certs_path} ${debug}"
+        eval "tar -xf ${base_path}/certs.tar admin-key.pem -C ${e_certs_path} ${debug}"
+    else
+        logger "No certificates found. Could not initialize Filebeat"
+        exit 1;
+    fi
 }
 
 configureElasticsearchAIO() {
@@ -59,10 +67,10 @@ configureElasticsearchAIO() {
 
     export JAVA_HOME=/usr/share/elasticsearch/jdk/
         
-    eval "mkdir /etc/elasticsearch/certs/ ${debug}"
-    eval "cp ${base_path}/certs/elasticsearch* /etc/elasticsearch/certs/ ${debug}"
-    eval "cp ${base_path}/certs/root-ca.pem /etc/elasticsearch/certs/ ${debug}"
-    eval "cp ${base_path}/certs/admin* /etc/elasticsearch/certs/ ${debug}"
+    eval "mkdir ${e_certs_path} ${debug}"
+    eval "cp ${base_path}/certs/elasticsearch* ${e_certs_path} ${debug}"
+    eval "cp ${base_path}/certs/root-ca.pem ${e_certs_path} ${debug}"
+    eval "cp ${base_path}/certs/admin* ${e_certs_path} ${debug}"
     
     # Configure JVM options for Elasticsearch
     ram_gb=$(free -g | awk '/^Mem:/{print $2}')
@@ -87,7 +95,7 @@ configureElasticsearchAIO() {
     done  
     echo ""  
 
-    eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem ${debug}"
+    eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert ${e_certs_path}root-ca.pem -cert ${e_certs_path}admin.pem -key ${e_certs_path}admin-key.pem ${debug}"
     logger "Done"
 
 }
@@ -182,7 +190,7 @@ configureElasticsearch() {
 
     copyCertificatesElasticsearch
 
-    eval "rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml -f ${debug}"
+    eval "rm ${e_certs_path}client-certificates.readme ${e_certs_path}elasticsearch_elasticsearch_config_snippet.yml -f ${debug}"
     eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
 
     initializeElastic nip
@@ -206,7 +214,7 @@ initializeElastic() {
     echo ""
 
     if [ -n "${single}" ]; then
-        eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${nip} ${debug}"
+        eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -nhnv -cacert ${e_certs_path}root-ca.pem -cert ${e_certs_path}admin.pem -key ${e_certs_path}admin-key.pem -h ${nip} ${debug}"
     fi
 
     logger "Done"

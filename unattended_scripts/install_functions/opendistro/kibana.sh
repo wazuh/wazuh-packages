@@ -5,6 +5,8 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
+k_certs_path="/etc/kibana/certs/"
+
 installKibana() {
     
     logger "Installing Open Distro for Kibana..."
@@ -41,7 +43,7 @@ configureKibanaAIO() {
     copyKibanacerts
     eval "chown -R kibana:kibana /etc/kibana/ ${debug}"
     eval "chmod -R 500 /etc/kibana/certs ${debug}"
-    eval "chmod 440 /etc/kibana/certs/kibana* ${debug}"
+    eval "chmod 440 ${k_certs_path}kibana* ${debug}"
     eval "setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node ${debug}"
 
     # Start Kibana
@@ -90,15 +92,15 @@ configureKibana() {
     copyKibanacerts
     eval "chown -R kibana:kibana /etc/kibana/ ${debug}"
     eval "chmod -R 500 /etc/kibana/certs ${debug}"
-    eval "chmod 440 /etc/kibana/certs/kibana* ${debug}"
+    eval "chmod 440 ${k_certs_path}kibana* ${debug}"
     initializeKibana kip
 }
 
 
 copyKibanacerts() {
-    if [ -d "${base_path}/certs" ]; then
-        eval "cp ${base_path}/certs/kibana* /etc/kibana/certs/ ${debug}"
-        eval "cp ${base_path}/certs/root-ca.pem /etc/kibana/certs/ ${debug}"
+    if [ -f "${base_path}/certs.tar" ]; then
+        eval "tar ${base_path}/certs.tar --wildcards kibana* -C ${k_certs_path} ${debug}"
+        eval "tar ${base_path}/certs.tar root-ca.pem -C ${k_certs_path} ${debug}"
     else
         logger "No certificates found. Could not initialize Kibana"
         exit 1;

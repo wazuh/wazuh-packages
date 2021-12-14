@@ -5,6 +5,8 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
+f_cert_path="/etc/filebeat/certs/"
+
 installFilebeat() {
 
     if [[ -f /etc/filebeat/filebeat.yml ]]; then
@@ -56,9 +58,15 @@ configureFilebeat() {
     fi
 
     eval "mkdir /etc/filebeat/certs ${debug}"
-    eval "mv ${base_path}/certs/${winame}.pem /etc/filebeat/certs/filebeat.pem ${debug}"
-    eval "mv ${base_path}/certs/${winame}-key.pem /etc/filebeat/certs/filebeat-key.pem ${debug}"
-    eval "cp ${base_path}/certs/root-ca.pem /etc/filebeat/certs/ ${debug}"
+
+    if [ -f "${base_path}/certs.tar" ]; then
+        eval "tar -xf ${base_path}/certs.tar ${winame}.pem -C ${f_cert_path} && mv ${f_cert_path}${winame}.pem ${f_cert_path}filebeat.pem ${debug}"
+        eval "tar -xf ${base_path}/certs.tar ${winame}-key.pem -C ${f_cert_path} && mv ${f_cert_path}${winame}-key.pem ${f_cert_path}filebeat-key.pem ${debug}"
+        eval "tar -xf ${base_path}/certs.tar root-ca.pem -C ${f_cert_path} ${debug}"
+    else
+        logger "No certificates found. Could not initialize Filebeat"
+        exit 1;
+    fi
 
     logger "Done"
     logger "Starting Filebeat..."
