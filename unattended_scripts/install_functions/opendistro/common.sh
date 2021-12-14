@@ -45,6 +45,19 @@ checkArch() {
     fi
 }
 
+checkPrerequisites() {
+    if [ "$local" -ne 0 ]; then
+        file_to_verify=${base_path}/config.yml
+
+        if [ -f "$file_to_verify" ]; then
+            logger $'\ncheckPrerequisites'
+        else 
+            logger -w $'\nThe file '${file_to_verify}' is required. It should be located in the script directory:'${base_path}''
+            exit 1;
+        fi
+    fi
+}
+
 installPrerequisites() {
     logger "Installing all necessary utilities for the installation..."
 
@@ -100,6 +113,7 @@ restoreWazuhrepo() {
         fi
         eval "sed -i 's/-dev//g' ${file} ${debug}"
         eval "sed -i 's/pre-release/4.x/g' ${file} ${debug}"
+        eval "sed -i 's/unstable/stable/g' ${file} ${debug}"
         logger "Done"
     fi
 }
@@ -272,6 +286,7 @@ healthCheck() {
                 logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
                 exit 1;
             else
+                logger "Check recommended minimum hardware requirements for Elasticsearch done..."
                 logger "Starting the installation..."
             fi
             ;;
@@ -281,6 +296,7 @@ healthCheck() {
                 logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
                 exit 1;
             else
+                logger "Check recommended minimum hardware requirements for Kibana done..."
                 logger "Starting the installation..."
             fi
             ;;
@@ -290,6 +306,7 @@ healthCheck() {
                 logger -e "Your system does not meet the recommended minimum hardware requirements of 2Gb of RAM and 2 CPU cores . If you want to proceed with the installation use the -i option to ignore these requirements."
                 exit 1;
             else
+                logger "Check recommended minimum hardware requirements for Wazuh manager done..."
                 logger "Starting the installation..."
             fi
             ;;
@@ -299,6 +316,7 @@ healthCheck() {
                 logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
                 exit 1;
             else
+                logger "Check recommended minimum hardware requirements for AIO done..."
                 logger "Starting the installation..."
             fi
             ;;
