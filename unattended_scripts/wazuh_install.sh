@@ -30,6 +30,8 @@ base_path="$(dirname $(readlink -f $0))"
 logfile="/var/log/wazuh-unattended-installation.log"
 debug=">> ${logfile} 2>&1"
 
+max_progressbar_length=70
+
 progressBar() {
     if [ -z "${buffer}" ]; then
         buffer=""
@@ -41,7 +43,7 @@ progressBar() {
     fi
 
     if [ -z "${progress}" ]; then 
-	    progress=0
+	    progress=1
         printf "\n"
     fi
 
@@ -49,10 +51,10 @@ progressBar() {
         progressbartotal=20
     fi
 
-    cols=$(tput cols)
-    cols=$(( $cols-6 ))
-    cols_done=$(( ($progress*$cols) / $progressbartotal ))
-    cols_empty=$(( $cols-$cols_done ))
+    totalcolumns=$(tput cols)
+    columns=$(echo $((totalcolumns<max_progressbar_length ? totalcolumns : max_progressbar_length)))
+    cols_done=$(( ($progress*$columns) / $progressbartotal ))
+    cols_empty=$(( $columns-$cols_done ))
     progresspercentage=$(( ($progress*100) / $progressbartotal ))
 
     tput el1
@@ -70,6 +72,13 @@ progressBar() {
     progress=$(( $progress+1 ))
 
     lines=$(echo -e "$buffer" | wc -l)
+    for line in $(echo -e "$buffer"); do 
+        length=$(expr length "$line")
+        while [[ $length -gt totalcolumns ]]; do
+            ((lines+=1))
+            length=$(( $length - totalcolumns ))
+        done
+    done
 }
 
 getHelp() {
@@ -143,7 +152,7 @@ logger() {
             ;;
     esac
     finalmessage=$(echo "$now" "$mtype" "$message") 
-    echo finalmessage >> ${logfile}
+    echo "$finalmessage" >> ${logfile}
     if [ -z "$debugEnabled" ] && [ "$1" != "-e" ]; then
         progressBar "$finalmessage"
     else 
@@ -194,7 +203,7 @@ main() {
         case "$1" in
             "-a"|"--all-in-one")
                 AIO=1
-                progressbartotal=$((progressbartotal+23))
+                progressbartotal=$((progressbartotal+24))
                 shift 1
                 ;;
             "-w"|"--wazuh-server")
@@ -204,7 +213,7 @@ main() {
                 ;;
             "-e"|"--elasticsearch")
                 elastic=1
-                progressbartotal=$((progressbartotal+14))
+                progressbartotal=$((progressbartotal+15))
                 shift 1
                 ;;
             "-k"|"--kibana")
@@ -256,12 +265,6 @@ main() {
                 getHelp
         esac
     done
-
-    if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
-        ((progressbartotal++))
-    fi
-
-
 
     if [ "$EUID" -ne 0 ]; then
         logger -e "Error: This script must be run as root."
