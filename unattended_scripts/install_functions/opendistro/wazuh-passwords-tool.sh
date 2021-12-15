@@ -79,18 +79,48 @@ restartService() {
 }
 
 getHelp() {
-   echo ""
-   echo "Usage: $0 arguments"
-   echo -e "\t-a     | --change-all Changes all the Open Distro user passwords and prints them on screen"
-   echo -e "\t-u     | --user <user> Indicates the name of the user whose password will be changed. If no password specified it will generate a random one"
-   echo -e "\t-p     | --password <password> Indicates the new password, must be used with option -u"
-   echo -e "\t-c     | --cert <route-admin-certificate> Indicates route to the admin certificate"
-   echo -e "\t-k     | --certkey <route-admin-certificate-key> Indicates route to the admin certificate key"
-   echo -e "\t-v     | --verbose Shows the complete script execution output"
-   echo -e "\t-f     | --file <password_file.yml> Changes the passwords for the ones given in the file. It has to be formatted like this, with three lines per user: \n\t\tUser:\n\t\t\tname:<user>\n\t\t\tpassword:<password>"
-   echo -e "-gf      | --generate-file <password_file.yml> Generate password file with random passwords for standard users"
-   echo -e "\t-h     | --help Shows help"
-   exit 1
+    echo -e ""
+    echo -e "NAME"
+    echo -e "        $(basename $0) - Manage passwords for OpenDistro users."
+    echo -e ""
+    echo -e "SYNOPSIS"
+    echo -e "        $(basename $0) [OPTIONS]"
+    echo -e ""
+    echo -e "DESCRIPTION"
+    echo -e "        -a,  --change-all"
+    echo -e "                Changes all the Open Distro user passwords and prints them on screen."
+    echo -e ""
+    echo -e "        -u,  --user <user>"
+    echo -e "                Indicates the name of the user whose password will be changed." 
+    echo -e "                If no password specified it will generate a random one."
+    echo -e ""
+    echo -e "        -p,  --password <password>"
+    echo -e "                Indicates the new password, must be used with option -u."
+    echo -e ""
+    echo -e "        -c,  --cert <route-admin-certificate>"
+    echo -e "                Indicates route to the admin certificate"
+    echo -e ""
+    echo -e "        -k,  --certkey <route-admin-certificate-key>"
+    echo -e "                Indicates route to the admin certificate key".
+    echo -e ""
+    echo -e "        -v,  --verbose"
+    echo -e "                Shows the complete script execution output".
+    echo -e ""
+    echo -e "        -f,  --file <password_file.yml>"
+    echo -e "                Changes the passwords for the ones given in the file."
+    echo -e "                Each user has to have this format."
+    echo -e ""
+    echo -e "                    User:"
+    echo -e "                        name:<user>"
+    echo -e "                        password:<password>"
+    echo -e ""
+    echo -e "        -gf, --generate-file <password_file.yml>"
+    echo -e "                Generate password file with random passwords for standard users"
+    echo -e ""
+    echo -e "        -h,  --help"
+    echo -e "                Shows help"
+    echo -e ""
+    exit 1
 }
 
 getNetworkHost() {
@@ -308,7 +338,7 @@ generatePassword() {
         exit 1;
     fi
     logger_pass "Done"
- 
+
 }
 
 generatePasswordFile() {
@@ -319,7 +349,6 @@ generatePasswordFile() {
         echo "  name: ${users[${i}]}" >> $1/certs/password_file
         echo "  password: ${passwords[${i}]}" >> $1/certs/password_file
     done
-    logger_pass "Passwords stored in $1/certs/password_file"
 }
 
 generateHash() {
@@ -386,14 +415,14 @@ changePassword() {
 
     if [ "$nuser" == "kibanaserver" ] || [ -n "$changeall" ]; then
 
-	    if [ -n "${kibanainstalled}" ] && [ -n "${kibpass}" ]; then
+        if [ -n "${kibanainstalled}" ] && [ -n "${kibpass}" ]; then
             wazuhkibold=$(grep "password:" /etc/kibana/kibana.yml )
             rk="elasticsearch.password: "
             wazuhkibold="${wazuhkibold//$rk}"
-		    conf="$(awk '{sub("elasticsearch.password: '${wazuhkibold}'", "elasticsearch.password: '${kibpass}'")}1' /etc/kibana/kibana.yml)"
-		    echo "${conf}" > /etc/kibana/kibana.yml 
-		    restartService "kibana"
-	    fi         
+            conf="$(awk '{sub("elasticsearch.password: '${wazuhkibold}'", "elasticsearch.password: '${kibpass}'")}1' /etc/kibana/kibana.yml)"
+            echo "${conf}" > /etc/kibana/kibana.yml 
+            restartService "kibana"
+        fi         
     fi
 }
 
@@ -449,25 +478,31 @@ main() {
             "-u"|"--user")
                 nuser=$2
                 shift
+                shift
                 ;;
             "-p"|"--password")
                 password=$2
+                shift
                 shift
                 ;;
             "-c"|"--cert")
                 adminpem=$2
                 shift
+                shift
                 ;; 
             "-k"|"--certkey")
                 adminkey=$2
+                shift
                 shift
                 ;; 
             "-f"|"--file")
                 p_file=$2
                 shift
+                shift
                 ;;
             "-gf"|"--generate-file")
                 gen_file=$2
+                shift
                 shift
                 ;;  
             "-h"|"--help")
