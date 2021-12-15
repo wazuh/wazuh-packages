@@ -104,14 +104,14 @@ getNetworkHost() {
 checkInstalled() {
     
     if [ "${SYS_TYPE}" == "yum" ]; then
-        elasticinstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch)
+        elasticsearchinstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch)
     elif [ "${SYS_TYPE}" == "zypper" ]; then
-        elasticinstalled=$(zypper packages --installed | grep opendistroforelasticsearch | grep i+ | grep noarch)
+        elasticsearchinstalled=$(zypper packages --installed | grep opendistroforelasticsearch | grep i+ | grep noarch)
     elif [ "${SYS_TYPE}" == "apt-get" ]; then
-        elasticinstalled=$(apt list --installed  2>/dev/null | grep 'opendistroforelasticsearch*')
+        elasticsearchinstalled=$(apt list --installed  2>/dev/null | grep 'opendistroforelasticsearch*')
     fi 
 
-    if [ -z "${elasticinstalled}" ]; then
+    if [ -z "${elasticsearchinstalled}" ]; then
         logger_pass -e "Open Distro is not installed on the system."
         exit 1;
     else

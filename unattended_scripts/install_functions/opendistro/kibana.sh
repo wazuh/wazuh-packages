@@ -28,7 +28,7 @@ configureKibanaAIO() {
     eval "getConfig kibana/kibana_unattended.yml /etc/kibana/kibana.yml ${debug}"
     eval "mkdir /usr/share/kibana/data ${debug}"
     eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
-    eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${repobaseurl}'/ui/kibana/wazuh_kibana-${wazuh_version}_${elastic_oss_version}-${wazuh_kibana_plugin_revision}.zip ${debug}"
+    eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${repobaseurl}'/ui/kibana/wazuh_kibana-${wazuh_version}_${elasticsearch_oss_version}-${wazuh_kibana_plugin_revision}.zip ${debug}"
     if [  "$?" != 0  ]; then
         logger -e "Wazuh Kibana plugin could not be installed."
         rollBack
@@ -54,7 +54,7 @@ configureKibana() {
     eval "getConfig kibana/kibana_unattended_distributed.yml /etc/kibana/kibana.yml ${debug}"
     eval "mkdir /usr/share/kibana/data ${debug}"
     eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
-    eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${repobaseurl}'/ui/kibana/wazuh_kibana-${wazuh_version}_${elastic_oss_version}-${wazuh_kibana_plugin_revision}.zip ${debug}"
+    eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${repobaseurl}'/ui/kibana/wazuh_kibana-${wazuh_version}_${elasticsearch_oss_version}-${wazuh_kibana_plugin_revision}.zip ${debug}"
     if [  "$?" != 0  ]; then
         logger -e "Wazuh Kibana plugin could not be installed."
         exit 1;
@@ -124,6 +124,16 @@ initializeKibana() {
 
 }
 
+initializeKibanaAIO() {
+
+    startService "kibana"
+    logger "Initializing Kibana (this may take a while)"
+    until [[ "$(curl -XGET https://localhost/status -I -uadmin:admin -k -s --max-time 300 | grep "200 OK")" ]]; do
+        sleep 10
+    done
+    logger $'\nYou can access the web interface https://localhost. The credentials are admin:admin'    
+}
+
 modifyKibanaLogin() {
     # Edit window title
     eval "sed -i 's/null, \"Elastic\"/null, \"Wazuh\"/g' /usr/share/kibana/src/core/server/rendering/views/template.js ${debug}"
@@ -136,16 +146,4 @@ modifyKibanaLogin() {
     eval "cp -f ~/custom_welcome/template.js.hbs /usr/share/kibana/src/legacy/ui/ui_render/bootstrap/template.js.hbs ${debug}"
     eval "curl -so ~/customWelcomeKibana.css ${resources}/open-distro/kibana/customWelcomeKibana.css ${debug}"
     eval "cat ~/customWelcomeKibana.css | tee -a /usr/share/kibana/src/core/server/core_app/assets/legacy_light_theme.css ${debug}"
-}
-
-initializeKibanaAIO() {
-
-    # Start Kibana
-    startService "kibana"
-    logger "Initializing Kibana (this may take a while)"
-    until [[ "$(curl -XGET https://localhost/status -I -uadmin:admin -k -s --max-time 300 | grep "200 OK")" ]]; do
-        sleep 10
-    done
-    logger $'You can access the web interface https://localhost. The credentials are admin:admin'    
-
 }

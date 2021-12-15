@@ -12,8 +12,8 @@
 wazuh_major="4.3"
 wazuh_version="4.3.0"
 wazuh_revision="1"
-elastic_oss_version="7.10.2"
-elastic_basic_version="7.12.1"
+elasticsearch_oss_version="7.10.2"
+elasticsearch_basic_version="7.12.1"
 opendistro_version="1.13.2"
 opendistro_revision="1"
 wazuh_kibana_plugin_revision="1"
@@ -107,8 +107,8 @@ getHelp() {
     echo -e "        -c,  --create-certificates"
     echo -e "                Create certificates from instances.yml file."
     echo -e ""
-    echo -e "        -en, --elastic-node-name"
-    echo -e "                Name of the elastic node, used for distributed installations."
+    echo -e "        -en, --elasticsearch-node-name"
+    echo -e "                Name of the elasticsearch node, used for distributed installations."
     echo -e ""
     echo -e "        -wn, --wazuh-node-name"
     echo -e "                Name of the wazuh node, used for distributed installations."
@@ -213,8 +213,8 @@ main() {
                 shift 1
                 ;;
             "-e"|"--elasticsearch")
-                elastic=1
                 progressbartotal=$((progressbartotal+15))
+                elasticsearch=1
                 shift 1
                 ;;
             "-k"|"--kibana")
@@ -222,7 +222,7 @@ main() {
                 progressbartotal=$((progressbartotal+14))
                 shift 1
                 ;;
-            "-en"|"--elastic-node-name")
+            "-en"|"--elasticsearch-node-name")
                 einame=$2
                 shift 2
                 ;;
@@ -283,7 +283,7 @@ main() {
         createCertificates
     fi
 
-    if [ -n "${elastic}" ]; then
+    if [ -n "${elasticsearch}" ]; then
 
         importFunction "elasticsearch.sh"
 
