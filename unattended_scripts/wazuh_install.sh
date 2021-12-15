@@ -212,11 +212,11 @@ main() {
     fi   
 
     importFunction "common.sh"
+    importFunction "wazuh-passwords-tool.sh"        
     checkArch
     
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
         importFunction "wazuh-cert-tool.sh"
-        importFunction "wazuh-passwords-tool.sh"        
         createCertificates
         generatePasswordFile
         sudo tar -zcf certs.tar -C certs/ .
