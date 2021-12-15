@@ -114,19 +114,7 @@ checkInstalledPass() {
         elasticsearchinstalled=$(apt list --installed  2>/dev/null | grep 'elasticsearch-oss*')
     fi 
 
-    if [ -z "${elasticsearchinstalled}" ]; then
-        logger_pass -e "Open Distro is not installed on the system."
-        exit 1;
-    else
-        capem=$(grep "opendistro_security.ssl.transport.pemtrustedcas_filepath: " /etc/elasticsearch/elasticsearch.yml )
-        rcapem="opendistro_security.ssl.transport.pemtrustedcas_filepath: "
-        capem="${capem//$rcapem}"
-        if [[ -z ${adminpem} ]] || [[ -z ${adminkey} ]]; then
-            readAdmincerts
-        fi
-    fi
-
-        if [ "${SYS_TYPE}" == "yum" ]; then
+    if [ "${SYS_TYPE}" == "yum" ]; then
         filebeatinstalled=$(yum list installed 2>/dev/null | grep filebeat)
     elif [ "${SYS_TYPE}" == "zypper" ]; then
         filebeatinstalled=$(zypper packages --installed | grep filebeat | grep i+ | grep noarch)
@@ -157,6 +145,18 @@ checkInstalledPass() {
             kibanaversion=$(echo ${kibanainstalled} | awk '{print $2}')
         fi  
     fi 
+
+    if [ -z "${elasticsearchinstalled}" ] && [ -z "${kibanainstalled}" ] && [ -z "${filebeatinstalled}" ]; then
+        logger_pass -e "Open Distro is not installed on the system."
+        exit 1;
+    else
+        capem=$(grep "opendistro_security.ssl.transport.pemtrustedcas_filepath: " /etc/elasticsearch/elasticsearch.yml )
+        rcapem="opendistro_security.ssl.transport.pemtrustedcas_filepath: "
+        capem="${capem//$rcapem}"
+        if [[ -z ${adminpem} ]] || [[ -z ${adminkey} ]]; then
+            readAdmincerts
+        fi
+    fi
 
 }
 
@@ -190,7 +190,7 @@ readFileUsers() {
 
     FILECORRECT=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*\w+\s*)+\Z' ${P_FILE})
     if [ ${FILECORRECT} -ne 1 ]; then
-	logger -e "The password file doesn't have a correct format.
+	logger_pass -e "The password file doesn't have a correct format.
 
 It must have this format:
 User:
@@ -219,8 +219,8 @@ User:
     FILEPASSWORDS=($SFILEPASSWORDS)
 
     if [ -n "${VERBOSEENABLED}" ]; then
-        logger "Users in the file: ${FILEUSERS[@]}"
-        logger "Passwords in the file: ${FILEPASSWORDS[@]}"
+        logger_pass "Users in the file: ${FILEUSERS[@]}"
+        logger_pass "Passwords in the file: ${FILEPASSWORDS[@]}"
     fi
 
     if [ -n "${CHANGEALL}" ]; then
@@ -233,7 +233,7 @@ User:
                 fi
             done
             if [ $supported = false ] && [ -n "${elasticsearchinstalled}" ]; then
-                logger -e "The given user ${FILEUSERS[j]} does not exist"
+                logger_pass -e "The given user ${FILEUSERS[j]} does not exist"
             fi
         done
     else
@@ -250,7 +250,7 @@ User:
                 fi
             done
             if [ $supported = false ] && [ -n "${elasticsearchinstalled}" ]; then
-                logger -e "The given user ${FILEUSERS[j]} does not exist"
+                logger_pass -e "The given user ${FILEUSERS[j]} does not exist"
             fi
         done
 
@@ -293,7 +293,7 @@ createBackUp() {
 generatePassword() {
 
     if [ -n "${NUSER}" ]; then
-        logger "Generating random password"
+        logger_pass "Generating random password"
         PASSWORD=$(< /dev/urandom tr -dc A-Za-z0-9 | head -c${1:-32};echo;)
     else
         logger_pass "Generating random passwords"
@@ -319,7 +319,7 @@ generatePasswordFile() {
         echo "  name: ${USERS[${i}]}" >> ./certs/password_file
         echo "  password: ${PASSWORDS[${i}]}" >> ./certs/password_file
     done
-    logger "Paswords stored in ${base_path}/certs/password_file"
+    logger_pass "Paswords stored in ${base_path}/certs/password_file"
 }
 
 ## Generates the hash for the new password
