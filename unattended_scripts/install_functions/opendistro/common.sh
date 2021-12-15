@@ -396,9 +396,8 @@ changePasswords() {
         exit 1
     fi
 
-    getNetworkHost
-
     if [ -n "${elastic}" ] || [ -n "${AIO}" ]; then
+        getNetworkHost
         checkInstalledPass
         createBackUp
         generateHash

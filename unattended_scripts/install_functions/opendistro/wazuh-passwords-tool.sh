@@ -98,7 +98,7 @@ getNetworkHost() {
     NH="network.host: "
     IP="${IP//$NH}"
     
-    if [ ${IP} == "0.0.0.0" ]; then
+    if [[ ${IP} == "0.0.0.0" ]]; then
         IP="localhost"
     fi
 }
