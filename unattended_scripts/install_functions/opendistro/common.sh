@@ -422,6 +422,7 @@ changePasswords() {
     if [ -n "${elastic}" ] || [ -n "${AIO}" ]; then
         checkInstalledPass
         createBackUp
+        generateHash
     fi
 
     changePassword
