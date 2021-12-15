@@ -389,7 +389,7 @@ changePasswords() {
     
     if [ -f "${base_path}/certs.tar" ]; then
         eval "tar -xf ${base_path}/certs.tar -C ${base_path} ./password_file ${debug}"
-        P_FILE="${base_path}/password_file"
+        p_file="${base_path}/password_file"
         checkInstalledPass
         readFileUsers
     else 

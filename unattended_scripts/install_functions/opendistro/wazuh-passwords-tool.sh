@@ -88,6 +88,7 @@ getHelp() {
    echo -e "\t-k     | --certkey <route-admin-certificate-key> Indicates route to the admin certificate key"
    echo -e "\t-v     | --verbose Shows the complete script execution output"
    echo -e "\t-f     | --file <password_file.yml> Changes the passwords for the ones given in the file. It has to be formatted like this, with three lines per user: \n\t\tUser:\n\t\t\tname:<user>\n\t\t\tpassword:<password>"
+   echo -e "-gf      | --generate-file <password_file.yml> Generate password file with random passwords for standard users"
    echo -e "\t-h     | --help Shows help"
    exit 1
 }
@@ -148,7 +149,7 @@ checkInstalledPass() {
         logger_pass -e "Open Distro is not installed on the system."
         exit 1;
     else
-        if [ -z "${elasticsearchinstalled}" ]; then
+        if [ -n "${elasticsearchinstalled}" ]; then
             capem=$(grep "opendistro_security.ssl.transport.pemtrustedcas_filepath: " /etc/elasticsearch/elasticsearch.yml )
             rcapem="opendistro_security.ssl.transport.pemtrustedcas_filepath: "
             capem="${capem//$rcapem}"
@@ -314,11 +315,11 @@ generatePasswordFile() {
     users=( admin wazuh kibanaserver kibanaro logstash readall snapshotrestore wazuh_admin wazuh_user)
     generatePassword
     for i in "${!users[@]}"; do
-        echo "User:" >> ./certs/password_file
-        echo "  name: ${users[${i}]}" >> ./certs/password_file
-        echo "  password: ${passwords[${i}]}" >> ./certs/password_file
+        echo "User:" >> $1/certs/password_file
+        echo "  name: ${users[${i}]}" >> $1/certs/password_file
+        echo "  password: ${passwords[${i}]}" >> $1/certs/password_file
     done
-    logger_pass "Paswords stored in ${base_path}/certs/password_file"
+    logger_pass "Paswords stored in $1/certs/password_file"
 }
 
 generateHash() {
@@ -467,9 +468,14 @@ main() {
                 ;; 
 	        "-f"|"--file")
                 p_file=$2
-                    shift
                 shift
-                ;;		
+                shift
+                ;;
+            "-gf"|"--generate-file")
+                gen_file=$2
+                shift
+                shift
+                ;;  
             "-h"|"--help")
                 getHelp
                 ;;
@@ -484,11 +490,15 @@ main() {
             debug_pass="2>&1 | tee -a ${logfile}"
         fi 
 
+        if [ -n "${gen_file}" ]; then
+            generatePasswordFile
+        fi
+
         checkInstalledPass   
 
-	if [ -n "${p_file}" ] && [ ! -f "${p_file}" ]; then
-	    getHelp
-	fi
+        if [ -n "${p_file}" ] && [ ! -f "${p_file}" ]; then
+            getHelp
+        fi
 
         if [ -n "${nuser}" ] && [ -n "${changeall}" ]; then
             getHelp
