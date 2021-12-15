@@ -109,7 +109,7 @@ getNetworkHost() {
 
 ## Checks if Open Distro for Elasticsearch is installed
 
-checkInstalled() {
+checkInstalledPass() {
     
     if [ "${SYS_TYPE}" == "yum" ]; then
         elasticinstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch)
@@ -475,7 +475,7 @@ main() {
             VERBOSE=""
         fi 
 
-        checkInstalled   
+        checkInstalledPass   
 
 	if [ -n "${P_FILE}" ] && [ ! -f "${P_FILE}" ]; then
 	    getHelp

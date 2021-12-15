@@ -418,10 +418,14 @@ changePasswords() {
     fi
 
     getNetworkHost
-    createBackUp
-    generateHash
+
+    if [ -n "${elastic}" ] || [ -n "${AIO}" ]; then
+        checkInstalledPass
+        createBackUp
+    fi
 
     changePassword
+
     if [ -n "${elastic}" ] || [ -n "${AIO}" ]; then
         runSecurityAdmin
     fi

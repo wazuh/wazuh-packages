@@ -26,6 +26,9 @@ resources_functions="${resources}/${functions_path}"
 resources_config="${resources}/${config_path}"
 base_path="$(dirname $(readlink -f $0))"
 
+## JAVA_HOME
+export JAVA_HOME=/usr/share/elasticsearch/jdk/
+
 ## Show script usage
 getHelp() {
 
