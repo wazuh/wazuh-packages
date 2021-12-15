@@ -202,7 +202,7 @@ User:
 	exit 1
     fi	
 
-    if [ -n "$USERS" ]; thenvi 
+    if [ -n "$USERS" ]; then 
         if [ -n "$kibanainstalled" ]; then 
             USERS=( kibanaserver )
         fi
