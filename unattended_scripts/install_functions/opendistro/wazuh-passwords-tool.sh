@@ -449,31 +449,25 @@ main() {
             "-u"|"--user")
                 nuser=$2
                 shift
-                shift
                 ;;
             "-p"|"--password")
                 password=$2
-                shift
                 shift
                 ;;
             "-c"|"--cert")
                 adminpem=$2
                 shift
-                shift
                 ;; 
             "-k"|"--certkey")
                 adminkey=$2
                 shift
-                shift
                 ;; 
-	        "-f"|"--file")
+            "-f"|"--file")
                 p_file=$2
-                shift
                 shift
                 ;;
             "-gf"|"--generate-file")
                 gen_file=$2
-                shift
                 shift
                 ;;  
             "-h"|"--help")
@@ -540,11 +534,11 @@ main() {
         fi               
 
         if [ -n "${p_file}" ] && [ -z "${changeall}" ]; then
-	    readUsers
+        readUsers
 	fi	    
 
 	if [ -n "${p_file}" ]; then
-	    readFileUsers
+        readFileUsers
 	fi  
 
         getNetworkHost

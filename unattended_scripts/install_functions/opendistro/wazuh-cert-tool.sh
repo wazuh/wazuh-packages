@@ -210,7 +210,7 @@ generateAdmincertificate() {
 
 generateElasticsearchcertificates() {
 
-     logger_cert "Creating the Elasticsearch certificates..."
+    logger_cert "Creating the Elasticsearch certificates..."
 
     i=0
     while [ ${i} -lt ${#elasticsearchnodes[@]} ]; do
@@ -227,7 +227,7 @@ generateElasticsearchcertificates() {
         eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${cname}-key.pem -out ${base_path}/certs/${cname}.csr -config ${base_path}/certs/${cname}.conf -days 3650 ${debug_cert}"
         eval "openssl x509 -req -in ${base_path}/certs/${cname}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${cname}.pem -extfile ${base_path}/certs/${cname}.conf -extensions v3_req -days 3650 ${debug_cert}"
         eval "chmod 444 ${base_path}/certs/${cname}-key.pem ${debug_cert}"    
-       i=$(( ${i} + 2 ))
+        i=$(( ${i} + 2 ))
     done
 
 }
@@ -250,7 +250,7 @@ generateFilebeatcertificates() {
         generateCertificateconfiguration cname cip
         eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${cname}-key.pem -out ${base_path}/certs/${cname}.csr -config ${base_path}/certs/${cname}.conf -days 3650 ${debug_cert}"
         eval "openssl x509 -req -in ${base_path}/certs/${cname}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${cname}.pem -extfile ${base_path}/certs/${cname}.conf -extensions v3_req -days 3650 ${debug_cert}"
-       i=$(( ${i} + 2 ))
+        i=$(( ${i} + 2 ))
     done      
 
 }
@@ -273,7 +273,7 @@ generateKibanacertificates() {
         generateCertificateconfiguration cname cip
         eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${cname}-key.pem -out ${base_path}/certs/${cname}.csr -config ${base_path}/certs/${cname}.conf -days 3650 ${debug_cert}"
         eval "openssl x509 -req -in ${base_path}/certs/${cname}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${cname}.pem -extfile ${base_path}/certs/${cname}.conf -extensions v3_req -days 3650 ${debug_cert}"
-       i=$(( ${i} + 2 ))
+        i=$(( ${i} + 2 ))
     done 
 
 }
@@ -358,7 +358,7 @@ main() {
             generateKibanacertificates
             logger_cert "Kibana certificates created."
         fi                     
-           
+
     else
         readInstances
         generateRootCAcertificate
