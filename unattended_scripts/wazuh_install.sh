@@ -53,6 +53,7 @@ progressBar() {
 
     totalcolumns=$(tput cols)
     columns=$(echo $((totalcolumns<max_progressbar_length ? totalcolumns : max_progressbar_length)))
+    columns=$(( $columns-6 ))
     cols_done=$(( ($progress*$columns) / $progressbartotal ))
     cols_empty=$(( $columns-$cols_done ))
     progresspercentage=$(( ($progress*100) / $progressbartotal ))
@@ -218,7 +219,7 @@ main() {
                 ;;
             "-k"|"--kibana")
                 kibana=1
-                progressbartotal=$((progressbartotal+13))
+                progressbartotal=$((progressbartotal+14))
                 shift 1
                 ;;
             "-en"|"--elastic-node-name")
