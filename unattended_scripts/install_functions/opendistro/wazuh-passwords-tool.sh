@@ -107,11 +107,11 @@ getNetworkHost() {
 checkInstalledPass() {
     
     if [ "${SYS_TYPE}" == "yum" ]; then
-        elasticsearchinstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch)
+        elasticsearchinstalled=$(yum list installed 2>/dev/null | grep elasticsearch-oss$)
     elif [ "${SYS_TYPE}" == "zypper" ]; then
-        elasticsearchinstalled=$(zypper packages --installed | grep opendistroforelasticsearch | grep i+ | grep noarch)
+        elasticsearchinstalled=$(zypper packages --installed | grep elasticsearch-oss | grep i+ | grep noarch)
     elif [ "${SYS_TYPE}" == "apt-get" ]; then
-        elasticsearchinstalled=$(apt list --installed  2>/dev/null | grep 'opendistroforelasticsearch*')
+        elasticsearchinstalled=$(apt list --installed  2>/dev/null | grep 'elasticsearch-oss*')
     fi 
 
     if [ -z "${elasticsearchinstalled}" ]; then
@@ -232,7 +232,7 @@ User:
                     supported=true
                 fi
             done
-            if [ $supported = false ] && [ ! -n "${elasticsearchinstalled}" ]; then
+            if [ $supported = false ] && [ -n "${elasticsearchinstalled}" ]; then
                 logger -e "The given user ${FILEUSERS[j]} does not exist"
             fi
         done
@@ -249,7 +249,7 @@ User:
                     supported=true
                 fi
             done
-            if [ $supported = false ]; then
+            if [ $supported = false ] && [ -n "${elasticsearchinstalled}" ]; then
                 logger -e "The given user ${FILEUSERS[j]} does not exist"
             fi
         done
@@ -257,7 +257,6 @@ User:
         USERS=()
         USERS=(${FINALUSERS[@]})
         PASSWORDS=(${FINALPASSWORDS[@]})
-        CHANGEALL=1
     fi
 
 }
@@ -349,9 +348,11 @@ changePassword() {
     
     if [ -n "${CHANGEALL}" ]; then
         for i in "${!PASSWORDS[@]}"
-        do
-           awk -v new=${HASHES[i]} 'prev=="'${USERS[i]}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/elasticsearch/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
-
+        do  
+            if [ -n "${elasticsearchinstalled}" ]; then
+                awk -v new=${HASHES[i]} 'prev=="'${USERS[i]}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/elasticsearch/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
+            fi
+            
             if [ "${USERS[i]}" == "wazuh" ]; then
                 wazuhpass=${PASSWORDS[i]}
             elif [ "${USERS[i]}" == "kibanaserver" ]; then

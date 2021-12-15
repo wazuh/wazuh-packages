@@ -125,11 +125,11 @@ checkInstalled() {
     fi
 
     if [ "${sys_type}" == "yum" ]; then
-        elasticsearchinstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch)
+        elasticsearchinstalled=$(yum list installed 2>/dev/null | grep elasticsearch-oss)
     elif [ "${sys_type}" == "zypper" ]; then
-        elasticsearchinstalled=$(zypper packages --installed | grep opendistroforelasticsearch | grep i+ | grep noarch)
+        elasticsearchinstalled=$(zypper packages --installed | grep elasticsearch-oss | grep i+ | grep noarch)
     elif [ "${sys_type}" == "apt-get" ]; then
-        elasticsearchinstalled=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch)
+        elasticsearchinstalled=$(apt list --installed  2>/dev/null | grep elasticsearch-oss)
     fi 
 
     if [ -n "${elasticsearchinstalled}" ]; then
