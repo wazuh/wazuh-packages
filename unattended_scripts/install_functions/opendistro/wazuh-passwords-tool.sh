@@ -126,6 +126,38 @@ checkInstalledPass() {
         fi
     fi
 
+        if [ "${sys_type}" == "yum" ]; then
+        filebeatinstalled=$(yum list installed 2>/dev/null | grep filebeat)
+    elif [ "${sys_type}" == "zypper" ]; then
+        filebeatinstalled=$(zypper packages --installed | grep filebeat | grep i+ | grep noarch)
+    elif [ "${sys_type}" == "apt-get" ]; then
+        filebeatinstalled=$(apt list --installed  2>/dev/null | grep filebeat)
+    fi 
+
+    if [ -n "${filebeatinstalled}" ]; then
+        if [ ${sys_type} == "zypper" ]; then
+            filebeatversion=$(echo ${filebeatinstalled} | awk '{print $11}')
+        else
+            filebeatversion=$(echo ${filebeatinstalled} | awk '{print $2}')
+        fi  
+    fi    
+
+    if [ "${sys_type}" == "yum" ]; then
+        kibanainstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch-kibana)
+    elif [ "${sys_type}" == "zypper" ]; then
+        kibanainstalled=$(zypper packages --installed | grep opendistroforelasticsearch-kibana | grep i+)
+    elif [ "${sys_type}" == "apt-get" ]; then
+        kibanainstalled=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch-kibana)
+    fi 
+
+    if [ -n "${kibanainstalled}" ]; then
+        if [ ${sys_type} == "zypper" ]; then
+            kibanaversion=$(echo ${kibanainstalled} | awk '{print $11}')
+        else
+            kibanaversion=$(echo ${kibanainstalled} | awk '{print $2}')
+        fi  
+    fi 
+
 }
 
 readAdmincerts() {
@@ -169,6 +201,16 @@ User:
    password: kibanaserverpassword"
 	exit 1
     fi	
+
+    if [ -n "$USERS" ]; then
+        if [ -n "$kibanainstalled" ]; then 
+            USERS=( kibanaserver )
+        fi
+
+        if [ -n "$filebeatinstalled" ]; then 
+            USERS=( wazuh )
+        fi
+    fi
 
     SFILEUSERS=$(grep name: ${P_FILE} | awk '{ print substr( $2, 1, length($2) ) }')
     SFILEPASSWORDS=$(grep password: ${P_FILE} | awk '{ print substr( $2, 1, length($2) ) }')
@@ -271,7 +313,7 @@ generatePassword() {
 }
 
 generatePasswordFile() {
-    USERS=(admin wazuh kibanaserver kibanaro logstash readall snapshotrestore wazuh_admin wazuh_user)
+    USERS= wazuh kibanaserver kibanaro logstash readall snapshotrestore wazuh_admin wazuh_user)
     generatePassword
     for i in "${!USERS[@]}"; do
         echo "User:" >> ./certs/password_file
@@ -328,6 +370,51 @@ changePassword() {
 
     fi
     
+    if [ "${NUSER}" == "wazuh" ] || [ -n "${CHANGEALL}" ]; then
+
+        if [ "${SYS_TYPE}" == "yum" ]; then
+            hasfilebeat=$(yum list installed 2>/dev/null | grep filebeat)
+        elif [ "${SYS_TYPE}" == "zypper" ]; then
+            hasfilebeat=$(zypper packages --installed-only | grep filebeat | grep i+)
+        elif [ "${SYS_TYPE}" == "apt-get" ]; then
+            hasfilebeat=$(apt list --installed  2>/dev/null | grep filebeat)
+        fi 
+
+        wazuhold=$(grep "password:" /etc/filebeat/filebeat.yml )
+        ra="  password: "
+        wazuhold="${wazuhold//$ra}"
+
+        if [ -n "${hasfilebeat}" ]; then
+            conf="$(awk '{sub("  password: '${wazuhold}'", "  password: '${wazuhpass}'")}1' /etc/filebeat/filebeat.yml)"
+            echo "${conf}" > /etc/filebeat/filebeat.yml  
+            restartService "filebeat"
+        fi 
+    fi
+
+    if [ "$NUSER" == "kibanaserver" ] || [ -n "$CHANGEALL" ]; then
+
+	    if [ "${SYS_TYPE}" == "yum" ]; then
+		    haskibana=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch-kibana)
+	    elif [ "${SYS_TYPE}" == "zypper" ]; then
+		    haskibana=$(zypper packages --installed-only | grep opendistroforelasticsearch-kibana | grep i+)
+	    elif [ "${SYS_TYPE}" == "apt-get" ]; then
+		    haskibana=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch-kibana)
+	    fi
+
+	    wazuhkibold=$(grep "password:" /etc/kibana/kibana.yml )
+	    rk="elasticsearch.password: "
+	    wazuhkibold="${wazuhkibold//$rk}"
+
+	    if [ -n "${haskibana}" ] && [ -n "${kibpass}" ]; then
+		    conf="$(awk '{sub("elasticsearch.password: '${wazuhkibold}'", "elasticsearch.password: '${kibpass}'")}1' /etc/kibana/kibana.yml)"
+		    echo "${conf}" > /etc/kibana/kibana.yml 
+		    restartService "kibana"
+	    fi         
+    fi
+}
+
+changePasswordKF() {
+
     if [ "${NUSER}" == "wazuh" ] || [ -n "${CHANGEALL}" ]; then
 
         if [ "${SYS_TYPE}" == "yum" ]; then
