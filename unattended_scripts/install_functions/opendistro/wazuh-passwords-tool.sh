@@ -534,12 +534,12 @@ main() {
         fi               
 
         if [ -n "${p_file}" ] && [ -z "${changeall}" ]; then
-        readUsers
-	fi	    
+            readUsers
+        fi	    
 
-	if [ -n "${p_file}" ]; then
-        readFileUsers
-	fi  
+        if [ -n "${p_file}" ]; then
+            readFileUsers
+        fi  
 
         getNetworkHost
         createBackUp
