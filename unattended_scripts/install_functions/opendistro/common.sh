@@ -19,6 +19,10 @@ getConfig() {
     else
         curl -so $2 ${resources_config}/$1
     fi
+    if [ $? != 0 ]; then
+        logger -e "Unable to find config $1. Exiting"
+        exit 1
+    fi
 }
 
 checkSystem() {
@@ -301,27 +305,6 @@ healthCheck() {
             fi
             ;;
     esac
-}
-
-## Prints information
-logger() {
-
-    now=$(date +'%m/%d/%Y %H:%M:%S')
-    case $1 in 
-        "-e")
-            mtype="ERROR:"
-            message="$2"
-            ;;
-        "-w")
-            mtype="WARNING:"
-            message="$2"
-            ;;
-        *)
-            mtype="INFO:"
-            message="$1"
-            ;;
-    esac
-    echo $now $mtype $message
 }
 
 rollBack() {

@@ -18,7 +18,7 @@ installElasticsearch() {
     fi
 
     if [  "$?" != 0  ]; then
-        echo -e "Elasticsearch installation failed"
+        logger -e "Elasticsearch installation failed"
         rollBack
         exit 1;  
     else
@@ -75,14 +75,12 @@ configureElasticsearchAIO() {
     eval "sed -i "s/-Xmx1g/-Xmx${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
 
     eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
-    # Start Elasticsearch
+
     startService "elasticsearch"
     logger "Initializing Elasticsearch..."
     until $(curl -XGET https://localhost:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null); do
-        echo -ne ${char}
         sleep 10
-    done  
-    echo ""  
+    done
 
     eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem ${debug}"
     logger "Done"
@@ -136,11 +134,13 @@ configureElasticsearch() {
                 echo '        - "'${line}'"' >> /etc/elasticsearch/elasticsearch.yml
         done
         for i in "${!IMN[@]}"; do
-            if [ "${IMN[$i]}" == "${einame}" ]; then
+            if [[ "${IMN[$i]}" == "${einame}" ]]; then
                 pos="${i}";
             fi
         done
+
         if [[ ! ${IMN[pos]} == ${einame}  ]]; then
+
             logger -e "The name given does not appear on the configuration file"
             exit 1;
         fi
@@ -190,19 +190,17 @@ initializeElasticsearch() {
 
     logger "Elasticsearch installed."
 
-    # Start Elasticsearch
     logger "Starting Elasticsearch..."
     startService "elasticsearch"
     logger "Initializing Elasticsearch..."
 
 
     until $(curl -XGET https://${nip}:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null); do
-        echo -ne ${char}
         sleep 10
     done
-    echo ""
 
     if [ -n "${single}" ]; then
+        eval "export JAVA_HOME=/usr/share/elasticsearch/jdk/"
         eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${nip} ${debug}"
     fi
 

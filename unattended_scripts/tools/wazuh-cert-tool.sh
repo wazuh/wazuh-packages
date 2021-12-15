@@ -59,7 +59,7 @@ getHelp() {
    echo -e "\t-a     | --elasticsearch-certificates Creates the Elasticsearch certificates."
    echo -e "\t-w     | --wazuh-certificates Creates the Wazuh server certificates."
    echo -e "\t-k     | --kibana-certificates Creates the Kibana certificates."
-   echo -e "\t-d     | --debug Enables verbose mode."
+   echo -e "\t-v     | --verbose Enables verbose mode."
    exit 1 # Exit script after printing help    
 }
 
@@ -299,7 +299,7 @@ main() {
                 ckibana=1
                 shift 1
                 ;;                               
-            "-d"|"--debug") 
+            "-v"|"--verbose") 
                 debugEnabled=1          
                 shift 1
                 ;;                                 

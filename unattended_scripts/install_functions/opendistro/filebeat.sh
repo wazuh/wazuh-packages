@@ -74,7 +74,6 @@ configureFilebeatAIO() {
         eval "cp ${base_path}/certs/root-ca.pem /etc/filebeat/certs/ ${debug}"
         eval "cp ${base_path}/certs/filebeat* /etc/filebeat/certs/ ${debug}"
 
-        # Start Filebeat
         startService "filebeat"
 
         logger "Done"
