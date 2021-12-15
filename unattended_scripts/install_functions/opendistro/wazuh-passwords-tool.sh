@@ -195,7 +195,7 @@ readFileUsers() {
 It must have this format:
 User:
    name: wazuh
-   password: wazuhpasword
+   password: wazuhpassword
 User:
    name: kibanaserver
    password: kibanaserverpassword"
@@ -319,7 +319,7 @@ generatePasswordFile() {
         echo "  name: ${users[${i}]}" >> $1/certs/password_file
         echo "  password: ${passwords[${i}]}" >> $1/certs/password_file
     done
-    logger_pass "Paswords stored in $1/certs/password_file"
+    logger_pass "Passwords stored in $1/certs/password_file"
 }
 
 generateHash() {
