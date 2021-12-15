@@ -1,20 +1,9 @@
-## Multi-node configuration
+## Single-node configuration
 
 ## Elasticsearch configuration
 
-cluster.name: wazuh
+network.host: 192.168.56.16
 
-cluster.initial_master_nodes:
-        - node1
-        - node2
-        - node3
-
-discovery.seed_hosts:
-        - 172.16.1.17
-        - 172.16.1.64
-        - 172.16.1.65
-
-## Certificates creation
 
 # Clients certificates
 clients:
@@ -26,7 +15,7 @@ clients:
 
 
 # Kibana-instance
-- 172.16.1.17
+- 192.168.56.17
 
 # Wazuh-master-configuration
-- 172.16.1.17 
+- 192.168.56.17

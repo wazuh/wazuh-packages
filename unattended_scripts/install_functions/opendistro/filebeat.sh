@@ -17,9 +17,9 @@ installFilebeat() {
     logger "Installing Filebeat..."
     
     if [ ${sys_type} == "zypper" ]; then
-        eval "zypper -n install filebeat-${elastic_oss_version} ${debug}"
+        eval "zypper -n install filebeat-${elasticsearch_oss_version} ${debug}"
     else
-        eval "${sys_type} install filebeat${sep}${elastic_oss_version} -y -q  ${debug}"
+        eval "${sys_type} install filebeat${sep}${elasticsearch_oss_version} -y -q  ${debug}"
     fi
     if [  "$?" != 0  ]
     then

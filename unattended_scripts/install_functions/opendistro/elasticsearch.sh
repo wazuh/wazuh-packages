@@ -20,10 +20,11 @@ installElasticsearch() {
     fi
 
     if [  "$?" != 0  ]; then
-        echo -e "Elasticsearch installation failed"
+        logger -e "Elasticsearch installation failed"
+        rollBack
         exit 1;  
     else
-        elasticinstalled="1"
+        elasticsearchinstalled="1"
         logger "Done"      
     fi
 
@@ -91,10 +92,8 @@ configureElasticsearchAIO() {
     
     logger "Initializing Elasticsearch..."
     until $(curl -XGET https://localhost:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null); do
-        echo -ne ${char}
         sleep 10
-    done  
-    echo ""  
+    done
 
     eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert ${e_certs_path}root-ca.pem -cert ${e_certs_path}admin.pem -key ${e_certs_path}admin-key.pem ${debug}"
     logger "Done"
@@ -148,11 +147,13 @@ configureElasticsearch() {
                 echo '        - "'${line}'"' >> /etc/elasticsearch/elasticsearch.yml
         done
         for i in "${!IMN[@]}"; do
-            if [ "${IMN[$i]}" == "${einame}" ]; then
+            if [[ "${IMN[$i]}" == "${einame}" ]]; then
                 pos="${i}";
             fi
         done
+
         if [[ ! ${IMN[pos]} == ${einame}  ]]; then
+
             logger -e "The name given does not appear on the configuration file"
             exit 1;
         fi
@@ -194,25 +195,22 @@ configureElasticsearch() {
     eval "rm ${e_certs_path}client-certificates.readme ${e_certs_path}elasticsearch_elasticsearch_config_snippet.yml -f ${debug}"
     eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
 
-    initializeElastic nip
+    initializeElasticsearch
     logger "Done"
 }
 
-initializeElastic() {
+initializeElasticsearch() {
 
     logger "Elasticsearch installed."
 
-    # Start Elasticsearch
     logger "Starting Elasticsearch..."
     startService "elasticsearch"
     logger "Initializing Elasticsearch..."
 
 
     until $(curl -XGET https://${nip}:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null); do
-        echo -ne ${char}
         sleep 10
     done
-    echo ""
 
     if [ -n "${single}" ]; then
         eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -nhnv -cacert ${e_certs_path}root-ca.pem -cert ${e_certs_path}admin.pem -key ${e_certs_path}admin-key.pem -h ${nip} ${debug}"

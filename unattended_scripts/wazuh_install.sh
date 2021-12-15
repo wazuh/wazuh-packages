@@ -12,8 +12,8 @@
 wazuh_major="4.3"
 wazuh_version="4.3.0"
 wazuh_revision="1"
-elastic_oss_version="7.10.2"
-elastic_basic_version="7.12.1"
+elasticsearch_oss_version="7.10.2"
+elasticsearch_basic_version="7.12.1"
 opendistro_version="1.13.2"
 opendistro_revision="1"
 wazuh_kibana_plugin_revision="1"
@@ -28,6 +28,10 @@ base_path="$(dirname $(readlink -f $0))"
 
 ## JAVA_HOME
 export JAVA_HOME=/usr/share/elasticsearch/jdk/
+
+## Debug variable used during the installation
+logfile="/var/log/wazuh-unattended-installation.log"
+debug=">> ${logfile} 2>&1"
 
 ## Show script usage
 getHelp() {
@@ -55,8 +59,8 @@ getHelp() {
     echo -e "        -c,  --create-certificates"
     echo -e "                Create certificates from instances.yml file."
     echo -e ""
-    echo -e "        -en, --elastic-node-name"
-    echo -e "                Name of the elastic node, used for distributed installations."
+    echo -e "        -en, --elasticsearch-node-name"
+    echo -e "                Name of the elasticsearch node, used for distributed installations."
     echo -e ""
     echo -e "        -wn, --wazuh-node-name"
     echo -e "                Name of the wazuh node, used for distributed installations."
@@ -81,6 +85,26 @@ getHelp() {
     echo -e ""
     exit 1 # Exit script after printing help
 
+}
+
+logger() {
+
+    now=$(date +'%m/%d/%Y %H:%M:%S')
+    case $1 in 
+        "-e")
+            mtype="ERROR:"
+            message="$2"
+            ;;
+        "-w")
+            mtype="WARNING:"
+            message="$2"
+            ;;
+        *)
+            mtype="INFO:"
+            message="$1"
+            ;;
+    esac
+    echo $now $mtype $message | tee -a ${logfile}
 }
 
 importFunction() {
@@ -115,7 +139,6 @@ importFunction() {
 }
 
 main() {
-
     if [ ! -n  "$1" ]; then
         getHelp
     fi
@@ -132,14 +155,14 @@ main() {
                 shift 1
                 ;;
             "-e"|"--elasticsearch")
-                elastic=1
+                elasticsearch=1
                 shift 1
                 ;;
             "-k"|"--kibana")
                 kibana=1
                 shift 1
                 ;;
-            "-en"|"--elastic-node-name")
+            "-en"|"--elasticsearch-node-name")
                 einame=$2
                 shift 2
                 ;;
@@ -154,6 +177,11 @@ main() {
                 ;;
             "-i"|"--ignore-health-check")
                 ignore=1
+                shift 1
+                ;;
+            "-v"|"--verbose")
+                debugEnabled=1
+                debug='2>&1 | tee -a /var/log/wazuh-unattended-installation.log'
                 shift 1
                 ;;
             "-d"|"--dev")
@@ -179,7 +207,7 @@ main() {
     done
 
     if [ "$EUID" -ne 0 ]; then
-        echo "Error: This script must be run as root."
+        logger -e "Error: This script must be run as root."
         exit 1;
     fi   
 
@@ -195,7 +223,7 @@ main() {
         rm -rf "${base_path}/certs"
     fi
 
-    if [ -n "${elastic}" ]; then
+    if [ -n "${elasticsearch}" ]; then
 
         if [ ! -f "${base_path}/certs.tar" ]; then
             logger -e "Certificates not found. Exiting"
