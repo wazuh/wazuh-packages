@@ -8,14 +8,15 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
+
 if [[ -z "${logfile}" ]]; then
     logfile="/var/log/wazuh-cert-tool.log"
 fi
 debug_cert=">> ${logfile} 2>&1"
-elasticinstances="elasticsearch-nodes:"
+elasticsearchinstances="elasticsearch-nodes:"
 filebeatinstances="wazuh-servers:"
 kibanainstances="kibana:"
-elastichead='# Elasticsearch nodes'
+elasticsearchhead='# Elasticsearch nodes'
 filebeathead='# Wazuh server nodes'
 kibanahead='# Kibana node'
 
@@ -86,11 +87,11 @@ readFile() {
 
     IFS=$'\r\n' GLOBIGNORE='*' command eval  'instances=($(cat ${base_path}/instances.yml))'
     for i in "${!instances[@]}"; do
-    if [[ "${instances[$i]}" == "${elasticinstances}" ]]; then
-        elasticlimitt=${i}
+    if [[ "${instances[$i]}" == "${elasticsearchinstances}" ]]; then
+        elasticsearchlimitt=${i}
     fi
         if [[ "${instances[$i]}" == "${filebeatinstances}" ]]; then
-        elasticlimib=${i}
+        elasticsearchlimib=${i}
     fi
 
     if [[ "${instances[$i]}" == "${filebeatinstances}" ]]; then
@@ -103,12 +104,12 @@ readFile() {
     done
 
     ## Read Elasticsearch nodes
-    counter=${elasticlimitt}
+    counter=${elasticsearchlimitt}
     i=0
-    while [ "${counter}" -le "${elasticlimib}" ]
+    while [ "${counter}" -le "${elasticsearchlimib}" ]
     do
-        if  [ "${instances[counter]}" !=  "${elasticinstances}" ] && [ "${instances[counter]}" !=  "${filebeatinstances}" ] && [ "${instances[counter]}" !=  "${filebeathead}" ] && [ "${instances[counter]}" !=  "    ip:" ] && [ -n "${instances[counter]}" ]; then
-            elasticnodes[i]+="$(echo "${instances[counter]}" | tr -d '\011\012\013\014\015\040')"
+        if  [ "${instances[counter]}" !=  "${elasticsearchinstances}" ] && [ "${instances[counter]}" !=  "${filebeatinstances}" ] && [ "${instances[counter]}" !=  "${filebeathead}" ] && [ "${instances[counter]}" !=  "    ip:" ] && [ -n "${instances[counter]}" ]; then
+            elasticsearchnodes[i]+="$(echo "${instances[counter]}" | tr -d '\011\012\013\014\015\040')"
             ((i++))
         fi    
 
@@ -212,9 +213,9 @@ generateElasticsearchcertificates() {
      logger_cert "Creating the Elasticsearch certificates..."
 
     i=0
-    while [ ${i} -lt ${#elasticnodes[@]} ]; do
-        cname=${elasticnodes[i]}
-        cip=${elasticnodes[i+1]}
+    while [ ${i} -lt ${#elasticsearchnodes[@]} ]; do
+        cname=${elasticsearchnodes[i]}
+        cip=${elasticsearchnodes[i+1]}
         rname="-name:"
         cname="${cname//$rname}"
         rip="-"
@@ -306,7 +307,7 @@ main() {
                 shift 1
                 ;;                           
             "-e"|"--elasticsearch-certificates") 
-                celastic=1
+                celasticsearch=1
                 shift 1
                 ;; 
             "-w"|"--wazuh-certificates") 
@@ -343,7 +344,7 @@ main() {
             logger_cert "Authority certificates created."
         fi                   
 
-        if [[ -n "${celastic}" ]]; then
+        if [[ -n "${celasticsearch}" ]]; then
             generateElasticsearchcertificates
             logger_cert "Elasticsearch certificates created."
         fi     

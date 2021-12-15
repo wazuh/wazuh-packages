@@ -125,18 +125,18 @@ checkInstalled() {
     fi
 
     if [ "${sys_type}" == "yum" ]; then
-        elasticinstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch)
+        elasticsearchinstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch)
     elif [ "${sys_type}" == "zypper" ]; then
-        elasticinstalled=$(zypper packages --installed | grep opendistroforelasticsearch | grep i+ | grep noarch)
+        elasticsearchinstalled=$(zypper packages --installed | grep opendistroforelasticsearch | grep i+ | grep noarch)
     elif [ "${sys_type}" == "apt-get" ]; then
-        elasticinstalled=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch)
+        elasticsearchinstalled=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch)
     fi 
 
-    if [ -n "${elasticinstalled}" ]; then
+    if [ -n "${elasticsearchinstalled}" ]; then
         if [ ${sys_type} == "zypper" ]; then
-            odversion=$(echo ${elasticinstalled} | awk '{print $11}')
+            odversion=$(echo ${elasticsearchinstalled} | awk '{print $11}')
         else
-            odversion=$(echo ${elasticinstalled} | awk '{print $2}')
+            odversion=$(echo ${elasticsearchinstalled} | awk '{print $2}')
         fi  
     fi
 
@@ -172,12 +172,12 @@ checkInstalled() {
         fi  
     fi  
 
-    if [ -z "${wazuhinstalled}" ] || [ -z "${elasticinstalled}" ] || [ -z "${filebeatinstalled}" ] || [ -z "${kibanainstalled}" ] && [ -n "${uninstall}" ]; then 
+    if [ -z "${wazuhinstalled}" ] || [ -z "${elasticsearchinstalled}" ] || [ -z "${filebeatinstalled}" ] || [ -z "${kibanainstalled}" ] && [ -n "${uninstall}" ]; then 
         logger -e " No Wazuh components were found on the system."
         exit 1;        
     fi
 
-    if [ -n "${wazuhinstalled}" ] || [ -n "${elasticinstalled}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${kibanainstalled}" ]; then 
+    if [ -n "${wazuhinstalled}" ] || [ -n "${elasticsearchinstalled}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${kibanainstalled}" ]; then 
         if [ -n "${ow}" ]; then
             overwrite
         
@@ -333,7 +333,7 @@ rollBack() {
         eval "rm -rf /var/ossec/ ${debug}"
     fi     
 
-    if [ -n "${elasticinstalled}" ]; then
+    if [ -n "${elasticsearchinstalled}" ]; then
         logger -w "Removing Elasticsearch..."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove opendistroforelasticsearch -y ${debug}"
