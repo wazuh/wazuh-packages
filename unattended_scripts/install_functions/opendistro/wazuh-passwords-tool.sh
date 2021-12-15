@@ -313,7 +313,7 @@ generatePassword() {
 }
 
 generatePasswordFile() {
-    USERS= wazuh kibanaserver kibanaro logstash readall snapshotrestore wazuh_admin wazuh_user)
+    USERS=( wazuh kibanaserver kibanaro logstash readall snapshotrestore wazuh_admin wazuh_user)
     generatePassword
     for i in "${!USERS[@]}"; do
         echo "User:" >> ./certs/password_file
