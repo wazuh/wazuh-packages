@@ -126,32 +126,32 @@ checkInstalledPass() {
         fi
     fi
 
-        if [ "${sys_type}" == "yum" ]; then
+        if [ "${SYS_TYPE}" == "yum" ]; then
         filebeatinstalled=$(yum list installed 2>/dev/null | grep filebeat)
-    elif [ "${sys_type}" == "zypper" ]; then
+    elif [ "${SYS_TYPE}" == "zypper" ]; then
         filebeatinstalled=$(zypper packages --installed | grep filebeat | grep i+ | grep noarch)
-    elif [ "${sys_type}" == "apt-get" ]; then
+    elif [ "${SYS_TYPE}" == "apt-get" ]; then
         filebeatinstalled=$(apt list --installed  2>/dev/null | grep filebeat)
     fi 
 
     if [ -n "${filebeatinstalled}" ]; then
-        if [ ${sys_type} == "zypper" ]; then
+        if [ ${SYS_TYPE} == "zypper" ]; then
             filebeatversion=$(echo ${filebeatinstalled} | awk '{print $11}')
         else
             filebeatversion=$(echo ${filebeatinstalled} | awk '{print $2}')
         fi  
     fi    
 
-    if [ "${sys_type}" == "yum" ]; then
+    if [ "${SYS_TYPE}" == "yum" ]; then
         kibanainstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch-kibana)
-    elif [ "${sys_type}" == "zypper" ]; then
+    elif [ "${SYS_TYPE}" == "zypper" ]; then
         kibanainstalled=$(zypper packages --installed | grep opendistroforelasticsearch-kibana | grep i+)
-    elif [ "${sys_type}" == "apt-get" ]; then
+    elif [ "${SYS_TYPE}" == "apt-get" ]; then
         kibanainstalled=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch-kibana)
     fi 
 
     if [ -n "${kibanainstalled}" ]; then
-        if [ ${sys_type} == "zypper" ]; then
+        if [ ${SYS_TYPE} == "zypper" ]; then
             kibanaversion=$(echo ${kibanainstalled} | awk '{print $11}')
         else
             kibanaversion=$(echo ${kibanainstalled} | awk '{print $2}')
@@ -202,7 +202,7 @@ User:
 	exit 1
     fi	
 
-    if [ -n "$USERS" ]; then
+    if [ -n "$USERS" ]; thenvi 
         if [ -n "$kibanainstalled" ]; then 
             USERS=( kibanaserver )
         fi
@@ -313,7 +313,7 @@ generatePassword() {
 }
 
 generatePasswordFile() {
-    USERS=( wazuh kibanaserver kibanaro logstash readall snapshotrestore wazuh_admin wazuh_user)
+    USERS=( admin wazuh kibanaserver kibanaro logstash readall snapshotrestore wazuh_admin wazuh_user)
     generatePassword
     for i in "${!USERS[@]}"; do
         echo "User:" >> ./certs/password_file
