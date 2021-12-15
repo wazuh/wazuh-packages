@@ -53,7 +53,7 @@ copyCertificatesElasticsearch() {
             eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} ./admin-key.pem  ${debug}"
         fi
     else
-        logger "No certificates found. Could not initialize Filebeat"
+        logger -e "No certificates found. Could not initialize Elasticsearch"
         exit 1;
     fi
 }
@@ -85,7 +85,6 @@ configureElasticsearchAIO() {
     eval "sed -i "s/-Xmx1g/-Xmx${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
 
     eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
-    # Start Elasticsearch
     logger "Starting Elasticsearch..."
     startService "elasticsearch"
 

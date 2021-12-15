@@ -42,7 +42,7 @@ copyCertificatesFilebeat() {
             eval "tar -xf ${base_path}/certs.tar -C ${f_cert_path} ./root-ca.pem ${debug}"
         fi
     else
-        logger "No certificates found. Could not initialize Filebeat"
+        logger -e "No certificates found. Could not initialize Filebeat"
         exit 1;
     fi
 }
@@ -90,7 +90,6 @@ configureFilebeatAIO() {
         eval "mkdir /etc/filebeat/certs ${debug}"
         copyCertificatesFilebeat
 
-        # Start Filebeat
         logger "Starting Filebeat..."
         startService "filebeat"
 

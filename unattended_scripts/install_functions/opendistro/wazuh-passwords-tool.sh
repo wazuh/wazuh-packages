@@ -38,7 +38,6 @@ logger_pass() {
     echo $now $mtype $message | tee -a ${logfile}
 }
 
-## Checks if the script is run with enough privileges
 checkRoot() {
     if [ "$EUID" -ne 0 ]; then
         logger_pass -e "This script must be run as root."
@@ -103,7 +102,6 @@ getNetworkHost() {
     fi
 }
 
-## Checks if Open Distro for Elasticsearch is installed
 checkInstalledPass() {
     
     if [ "${sys_type}" == "yum" ]; then
@@ -187,7 +185,6 @@ readUsers() {
     users=($susers)  
 }
 
-## Reads all the users and passwords in the given passwords file
 readFileUsers() {
 
     filecorrect=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*\w+\s*)+\Z' ${p_file})
@@ -264,7 +261,6 @@ User:
 
 }
 
-## Checks if the user exists
 checkUser() {
 
     for i in "${!users[@]}"; do
@@ -325,7 +321,6 @@ generatePasswordFile() {
     logger_pass "Paswords stored in ${base_path}/certs/password_file"
 }
 
-## Generates the hash for the new password
 generateHash() {
     
     if [ -n "${changeall}" ]; then

@@ -92,7 +92,7 @@ configureKibana() {
     eval "chown -R kibana:kibana /etc/kibana/ ${debug}"
     eval "chmod -R 500 /etc/kibana/certs ${debug}"
     eval "chmod 440 ${k_certs_path}kibana* ${debug}"
-    initializeKibana kip
+    initializeKibana
 }
 
 

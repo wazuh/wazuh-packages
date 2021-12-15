@@ -33,7 +33,6 @@ export JAVA_HOME=/usr/share/elasticsearch/jdk/
 logfile="/var/log/wazuh-unattended-installation.log"
 debug=">> ${logfile} 2>&1"
 
-## Show script usage
 getHelp() {
 
     echo -e ""
@@ -83,8 +82,7 @@ getHelp() {
     echo -e "        -h,  --help"
     echo -e "                Shows help."
     echo -e ""
-    exit 1 # Exit script after printing help
-
+    exit 1 
 }
 
 logger() {
