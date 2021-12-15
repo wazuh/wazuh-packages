@@ -266,9 +266,9 @@ main() {
         installPrerequisites
         addWazuhrepo
         installKibana 
+        changePasswords
         configureKibana
         restoreWazuhrepo
-        changePasswords
     fi
 
     if [ -n "${wazuh}" ]; then
@@ -298,10 +298,10 @@ main() {
         if [ -n "$wazuhclusterkey" ]; then
             configureWazuhCluster 
         fi  
-        installFilebeat  
+        installFilebeat 
+        changePasswords 
         configureFilebeat
         restoreWazuhrepo
-        changePasswords
     fi
 
     if [ -n "${AIO}" ]; then
