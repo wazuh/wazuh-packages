@@ -202,12 +202,12 @@ User:
 	exit 1
     fi	
 
-    if [ -n "$USERS" ]; then 
-        if [ -n "$kibanainstalled" ]; then 
+    if [ ! -n "$USERS" ]; then 
+        if [ -n "${kibanainstalled}" ]; then 
             USERS=( kibanaserver )
         fi
 
-        if [ -n "$filebeatinstalled" ]; then 
+        if [ -n "${filebeatinstalled}" ]; then 
             USERS=( wazuh )
         fi
     fi
@@ -232,7 +232,7 @@ User:
                     supported=true
                 fi
             done
-            if [ $supported = false ]; then
+            if [ $supported = false ] && [ ! -n "${elasticsearchinstalled}" ]; then
                 logger -e "The given user ${FILEUSERS[j]} does not exist"
             fi
         done
@@ -360,7 +360,9 @@ changePassword() {
 
         done
     else
-        awk -v new="$HASH" 'prev=="'${NUSER}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/elasticsearch/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
+        if [ -n "${elasticsearchinstalled}" ]; then
+            awk -v new="$HASH" 'prev=="'${NUSER}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/elasticsearch/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
+        fi
 
         if [ "${NUSER}" == "wazuh" ]; then
             wazuhpass=${PASSWORD}
