@@ -259,6 +259,7 @@ User:
         users=()
         users=(${finalusers[@]})
         passwords=(${finalpasswords[@]})
+        changeall=1
     fi
 
 }
@@ -377,19 +378,10 @@ changePassword() {
     
     if [ "${nuser}" == "wazuh" ] || [ -n "${changeall}" ]; then
 
-        if [ "${sys_type}" == "yum" ]; then
-            hasfilebeat=$(yum list installed 2>/dev/null | grep filebeat)
-        elif [ "${sys_type}" == "zypper" ]; then
-            hasfilebeat=$(zypper packages --installed-only | grep filebeat | grep i+)
-        elif [ "${sys_type}" == "apt-get" ]; then
-            hasfilebeat=$(apt list --installed  2>/dev/null | grep filebeat)
-        fi 
-
-        wazuhold=$(grep "password:" /etc/filebeat/filebeat.yml )
-        ra="  password: "
-        wazuhold="${wazuhold//$ra}"
-
-        if [ -n "${hasfilebeat}" ]; then
+        if [ -n "${filebeatinstalled}" ]; then
+            wazuhold=$(grep "password:" /etc/filebeat/filebeat.yml )
+            ra="  password: "
+            wazuhold="${wazuhold//$ra}"
             conf="$(awk '{sub("  password: '${wazuhold}'", "  password: '${wazuhpass}'")}1' /etc/filebeat/filebeat.yml)"
             echo "${conf}" > /etc/filebeat/filebeat.yml  
             restartService "filebeat"
@@ -398,19 +390,10 @@ changePassword() {
 
     if [ "$nuser" == "kibanaserver" ] || [ -n "$changeall" ]; then
 
-	    if [ "${sys_type}" == "yum" ]; then
-		    haskibana=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch-kibana)
-	    elif [ "${sys_type}" == "zypper" ]; then
-		    haskibana=$(zypper packages --installed-only | grep opendistroforelasticsearch-kibana | grep i+)
-	    elif [ "${sys_type}" == "apt-get" ]; then
-		    haskibana=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch-kibana)
-	    fi
-
-	    wazuhkibold=$(grep "password:" /etc/kibana/kibana.yml )
-	    rk="elasticsearch.password: "
-	    wazuhkibold="${wazuhkibold//$rk}"
-
-	    if [ -n "${haskibana}" ] && [ -n "${kibpass}" ]; then
+	    if [ -n "${kibanainstalled}" ] && [ -n "${kibpass}" ]; then
+            wazuhkibold=$(grep "password:" /etc/kibana/kibana.yml )
+            rk="elasticsearch.password: "
+            wazuhkibold="${wazuhkibold//$rk}"
 		    conf="$(awk '{sub("elasticsearch.password: '${wazuhkibold}'", "elasticsearch.password: '${kibpass}'")}1' /etc/kibana/kibana.yml)"
 		    echo "${conf}" > /etc/kibana/kibana.yml 
 		    restartService "kibana"
