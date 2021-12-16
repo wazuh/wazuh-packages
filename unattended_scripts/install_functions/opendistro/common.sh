@@ -261,11 +261,16 @@ createCertificates() {
 checkNodes() {
 
     head=$(head -n1 ./config.yml)
-    if [ "${head}" == "## Multi-node configuration" ]
-    then
+    inst=$(awk -v RS='' '/installation:/' ./config.yml)
+    instr="installation: "
+    inst_type="${inst//$instr}"
+    if [ "${inst_type}" == "multi-node" ]; then
         master=1
-    else
+    elif [ "${inst_type}" == "single-node" ]; then
         single=1
+    else
+        logger -e "Unsuported installation type in config.yml"
+        exit 1
     fi
 
 }
