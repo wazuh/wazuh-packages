@@ -20,6 +20,7 @@ installKibana() {
     else    
         kibanainstalled="1"
         logger "Done"
+        ((progressbar_status++))
     fi
 
 }
@@ -45,6 +46,7 @@ configureKibanaAIO() {
     modifyKibanaLogin
     
     initializeKibanaAIO
+    ((progressbar_status++))
 }
 
 configureKibana() {
@@ -84,9 +86,6 @@ configureKibana() {
         done
     fi
 
-    
-    logger "Kibana installed."
-
     modifyKibanaLogin
 
     copyKibanacerts
@@ -94,6 +93,9 @@ configureKibana() {
     eval "chmod -R 500 /etc/kibana/certs ${debug}"
     eval "chmod 440 /etc/kibana/certs/kibana* ${debug}"
     initializeKibana
+
+    logger "Kibana installed."
+    ((progressbar_status++))
 }
 
 
@@ -119,9 +121,9 @@ initializeKibana() {
     rm="- "
     wip="${wip//$rm}"
     conf="$(awk '{sub("url: https://localhost", "url: https://'"${wip}"'")}1' /usr/share/kibana/data/wazuh/config/wazuh.yml)"
-    echo "${conf}" > /usr/share/kibana/data/wazuh/config/wazuh.yml  
+    echo "${conf}" > /usr/share/kibana/data/wazuh/config/wazuh.yml
+    ((progressbar_status++))
     logger $'\nYou can access the web interface https://'${kip}'. The credentials are admin:admin'    
-
 }
 
 initializeKibanaAIO() {

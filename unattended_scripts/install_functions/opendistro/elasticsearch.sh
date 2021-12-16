@@ -23,16 +23,12 @@ installElasticsearch() {
         exit 1;  
     else
         elasticsearchinstalled="1"
-        logger "Done"      
+        logger "Done"
+        ((progressbar_status++))
     fi
-
-
 }
 
 copyCertificatesElasticsearch() {
-
-    checkNodes
-    
     if [ -n "${single}" ]; then
         name=${einame}
     else
@@ -81,10 +77,11 @@ configureElasticsearchAIO() {
     until $(curl -XGET https://localhost:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null); do
         sleep 10
     done
+    ((progressbar_status++))
 
     eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem ${debug}"
     logger "Done"
-
+    ((progressbar_status++))
 }
 
 configureElasticsearch() {
@@ -94,8 +91,6 @@ configureElasticsearch() {
     eval "getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml ${debug}"
     eval "getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml ${debug}"
     eval "getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml ${debug}"
-
-    checkNodes
     
     if [ -n "${single}" ]; then
         nh=$(awk -v RS='' '/network.host:/' ./config.yml)
@@ -182,8 +177,9 @@ configureElasticsearch() {
     eval "rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml -f ${debug}"
     eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
 
+    ((progressbar_status++))
+
     initializeElasticsearch
-    logger "Done"
 }
 
 initializeElasticsearch() {
@@ -203,4 +199,5 @@ initializeElasticsearch() {
     fi
 
     logger "Done"
+    ((progressbar_status++))
 }

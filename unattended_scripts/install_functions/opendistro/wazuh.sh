@@ -22,6 +22,7 @@ installWazuh() {
         logger "Done"
     fi   
     startService "wazuh-manager"
+    ((progressbar_status++))
 
 }
 
@@ -49,4 +50,5 @@ configureWazuhCluster() {
         /var/ossec/etc/ossec.conf'
 
     startService "wazuh-manager"
+    ((progressbar_status++))
 }
