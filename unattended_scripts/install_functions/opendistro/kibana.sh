@@ -28,9 +28,7 @@ configureKibanaAIO() {
     eval "getConfig kibana/kibana_unattended.yml /etc/kibana/kibana.yml ${debug}"
     eval "mkdir /usr/share/kibana/data ${debug}"
     eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
-    eval "cd /usr/share/kibana ${debug}"
-    eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${repobaseurl}'/ui/kibana/wazuh_kibana-${wazuh_version}_${elastic_oss_version}-${wazuh_kibana_plugin_revision}.zip ${debug}"
-    eval "cd ${base_path} ${debug}"
+    eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${repobaseurl}'/ui/kibana/wazuh_kibana-${wazuh_version}_${elasticsearch_oss_version}-${wazuh_kibana_plugin_revision}.zip ${debug}"
     if [  "$?" != 0  ]; then
         logger -e "Wazuh Kibana plugin could not be installed."
         rollBack
@@ -44,21 +42,20 @@ configureKibanaAIO() {
     eval "chmod 440 /etc/kibana/certs/kibana* ${debug}"
     eval "setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node ${debug}"
 
-    # Start Kibana
-    startService "kibana"
+    modifyKibanaLogin
+    
+    initializeKibanaAIO
 }
 
 configureKibana() {
     eval "getConfig kibana/kibana_unattended_distributed.yml /etc/kibana/kibana.yml ${debug}"
     eval "mkdir /usr/share/kibana/data ${debug}"
     eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
-    eval "cd /usr/share/kibana ${debug}"
-    eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${repobaseurl}'/ui/kibana/wazuh_kibana-${wazuh_version}_${elastic_oss_version}-${wazuh_kibana_plugin_revision}.zip ${debug}"
+    eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${repobaseurl}'/ui/kibana/wazuh_kibana-${wazuh_version}_${elasticsearch_oss_version}-${wazuh_kibana_plugin_revision}.zip ${debug}"
     if [  "$?" != 0  ]; then
         logger -e "Wazuh Kibana plugin could not be installed."
         exit 1;
     fi
-    eval "cd ${base_path} ${debug}"
     eval "setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node ${debug}"
     eval "mkdir /etc/kibana/certs ${debug}"
 
@@ -87,11 +84,13 @@ configureKibana() {
     
     logger "Kibana installed."
 
+    modifyKibanaLogin
+
     copyKibanacerts
     eval "chown -R kibana:kibana /etc/kibana/ ${debug}"
     eval "chmod -R 500 /etc/kibana/certs ${debug}"
     eval "chmod 440 /etc/kibana/certs/kibana* ${debug}"
-    initializeKibana kip
+    initializeKibana
 }
 
 
@@ -100,7 +99,7 @@ copyKibanacerts() {
         eval "cp ${base_path}/certs/kibana* /etc/kibana/certs/ ${debug}"
         eval "cp ${base_path}/certs/root-ca.pem /etc/kibana/certs/ ${debug}"
     else
-        logger "No certificates found. Could not initialize Kibana"
+        logger -e "No certificates found. Could not initialize Kibana"
         exit 1;
     fi
 
@@ -108,14 +107,11 @@ copyKibanacerts() {
 
 initializeKibana() {
 
-    # Start Kibana
     startService "kibana"
     logger "Initializing Kibana (this may take a while)"
     until [[ "$(curl -XGET https://${kip}/status -I -uadmin:admin -k -s --max-time 300 | grep "200 OK")" ]]; do
-        echo -ne ${char}
         sleep 10
     done
-    echo ""
     wip=$(grep -A 1 "Wazuh-master-configuration" ${base_path}/config.yml | tail -1)
     rm="- "
     wip="${wip//$rm}"
@@ -123,4 +119,34 @@ initializeKibana() {
     echo "${conf}" > /usr/share/kibana/data/wazuh/config/wazuh.yml  
     logger $'\nYou can access the web interface https://'${kip}'. The credentials are admin:admin'    
 
+}
+
+initializeKibanaAIO() {
+
+    startService "kibana"
+    logger "Initializing Kibana (this may take a while)"
+    until [[ "$(curl -XGET https://localhost/status -I -uadmin:admin -k -s --max-time 300 | grep "200 OK")" ]]; do
+        sleep 10
+    done
+    logger $'\nYou can access the web interface https://localhost. The credentials are admin:admin'    
+}
+
+modifyKibanaLogin() {
+    # Edit window title
+    eval "sed -i 's/null, \"Elastic\"/null, \"Wazuh\"/g' /usr/share/kibana/src/core/server/rendering/views/template.js ${debug}"
+
+    # Edit background and logos
+    eval "curl -so /tmp/custom_welcome.tar.gz https://wazuh-demo.s3-us-west-1.amazonaws.com/custom_welcome_opendistro_docker.tar.gz ${debug}"
+    eval "tar -xf /tmp/custom_welcome.tar.gz -C /tmp ${debug}"
+    eval "rm -f /tmp/custom_welcome.tar.gz ${debug}"
+    eval "cp /tmp/custom_welcome/wazuh_logo_circle.svg /usr/share/kibana/src/core/server/core_app/assets/ ${debug}"
+    eval "cp /tmp/custom_welcome/wazuh_wazuh_bg.svg /usr/share/kibana/src/core/server/core_app/assets/ ${debug}"
+    eval "cp -f /tmp/custom_welcome/template.js.hbs /usr/share/kibana/src/legacy/ui/ui_render/bootstrap/template.js.hbs ${debug}"
+    eval "rm -f /tmp/custom_welcome/* ${debug}"
+    eval "rmdir /tmp/custom_welcome ${debug}"
+
+    # Edit CSS theme
+    eval "getConfig kibana/customWelcomeKibana.css /tmp/ ${debug}"
+    eval "cat /tmp//customWelcomeKibana.css | tee -a /usr/share/kibana/src/core/server/core_app/assets/legacy_light_theme.css ${debug}"
+    eval "rm -f /tmp/customWelcomeKibana.css"
 }
