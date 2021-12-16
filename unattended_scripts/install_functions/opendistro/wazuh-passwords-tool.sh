@@ -345,9 +345,9 @@ generatePasswordFile() {
     users=( admin wazuh kibanaserver kibanaro logstash readall snapshotrestore wazuh_admin wazuh_user)
     generatePassword
     for i in "${!users[@]}"; do
-        echo "User:" >> $1/certs/password_file
-        echo "  name: ${users[${i}]}" >> $1/certs/password_file
-        echo "  password: ${passwords[${i}]}" >> $1/certs/password_file
+        echo "User:" >> ${gen_file}
+        echo "  name: ${users[${i}]}" >> ${gen_file}
+        echo "  password: ${passwords[${i}]}" >> ${gen_file}
     done
 }
 
@@ -520,7 +520,10 @@ main() {
         fi 
 
         if [ -n "${gen_file}" ]; then
-            generatePasswordFile
+            generatePasswordFile 
+            if [ -z "${p_file}" ] && [ -z "${nuser}" ] && [ -z "${changeall}" ]; then
+                exit 0
+            fi
         fi
 
         checkInstalledPass   
