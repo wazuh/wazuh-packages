@@ -184,7 +184,7 @@ generateAdmincertificate() {
     eval "openssl genrsa -out ./certs/admin-key-temp.pem 2048 ${debug}"
     eval "openssl pkcs8 -inform PEM -outform PEM -in ./certs/admin-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out ./certs/admin-key.pem ${debug}"
     eval "openssl req -new -key ./certs/admin-key.pem -out ./certs/admin.csr -batch -subj '/C=US/L=California/O=Wazuh/OU=Docu/CN=admin' ${debug}"
-    eval "openssl x509 -req -in ./certs/admin.csr -CA ./certs/root-ca.pem -CAkey ./certs/root-ca.key -CAcreateserial -days 730 -sha256 -out ./certs/admin.pem ${debug}"
+    eval "openssl x509 -req -in ./certs/admin.csr -CA ./certs/root-ca.pem -CAkey ./certs/root-ca.key -CAcreateserial -sha256 -out ./certs/admin.pem ${debug}"
 
 }
 
