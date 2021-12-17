@@ -216,7 +216,7 @@ main() {
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
         importFunction "wazuh-cert-tool.sh"
         createCertificates
-        gen_file="${base_path}/password_file"
+        gen_file="${base_path}/certs/password_file.yml"
         generatePasswordFile 
         sudo tar -zcf certs.tar -C certs/ .
         rm -rf "${base_path}/certs"
@@ -327,7 +327,6 @@ main() {
         configureKibanaAIO
         changePasswords
         restoreWazuhrepo
-        rm -rf "${base_path}/password_file"
     fi
 }
 

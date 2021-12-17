@@ -388,8 +388,8 @@ rollBack() {
 changePasswords() {
     
     if [ -f "${base_path}/certs.tar" ]; then
-        eval "tar -xf ${base_path}/certs.tar -C ${base_path} ./password_file ${debug}"
-        p_file="${base_path}/password_file"
+        eval "tar -xf ${base_path}/certs.tar -C ${base_path} ./password_file.yml ${debug}"
+        p_file="${base_path}/password_file.yml"
         checkInstalledPass
         readFileUsers
     else 
@@ -409,5 +409,6 @@ changePasswords() {
     if [ -n "${elastic}" ] || [ -n "${AIO}" ]; then
         runSecurityAdmin
     fi
+    rm -rf ${p_file}
 }
 
