@@ -61,9 +61,6 @@ getHelp() {
     echo -e "        -wn, --wazuh-node-name"
     echo -e "                Name of the wazuh node, used for distributed installations."
     echo -e ""
-    echo -e "        -wk, --wazuh-key <wazuh-cluster-key>"
-    echo -e "                Use this option as well as a wazuh_cluster_config.yml configuration file to automatically configure the wazuh cluster when using a multi-node installation."
-    echo -e ""
     echo -e "        -v,  --verbose"
     echo -e "                Shows the complete installation output."
     echo -e ""
@@ -188,11 +185,6 @@ main() {
                 local=1
                 shift 1
                 ;;
-            "-wk"|"--wazuh-key")
-                wazuh_config=1
-                wazuhclusterkey="$2"
-                shift 2
-                ;;
             "-h"|"--help")
                 getHelp
                 ;;
@@ -253,11 +245,6 @@ main() {
 
     if [ -n "${wazuh}" ]; then
 
-        if [ -n "$wazuhclusterkey" ] && [ ! -f wazuh_cluster_config.yml ]; then
-            logger -e "No wazuh_cluster_config.yml file found."
-            exit 1;
-        fi
-
         importFunction "wazuh.sh"
         importFunction "filebeat.sh"
 
@@ -267,7 +254,7 @@ main() {
             healthCheck wazuh
         fi
         installWazuh
-        if [ -n "$wazuhclusterkey" ]; then
+        if [ $wazuh_cluster_config_enabled == yes ]; then
             configureWazuhCluster 
         fi  
         installFilebeat  

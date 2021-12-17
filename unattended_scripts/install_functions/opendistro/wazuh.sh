@@ -34,6 +34,7 @@ configureWazuhCluster() {
         node_type="worker"
     fi
     master_address=$wazuh_cluster_config_cluster_master_address
+    key=$(openssl rand -hex 16)
     bind_address="0.0.0.0"
     port="1516"
     hidden="no"
@@ -44,7 +45,7 @@ configureWazuhCluster() {
     eval 'sed -i -e "${lstart},${lend}s/<name>.*<\/name>/<name>${cluster_name}<\/name>/" \
         -e "${lstart},${lend}s/<node_name>.*<\/node_name>/<node_name>${iname}<\/node_name>/" \
         -e "${lstart},${lend}s/<node_type>.*<\/node_type>/<node_type>${node_type}<\/node_type>/" \
-        -e "${lstart},${lend}s/<key>.*<\/key>/<key>${wazuhclusterkey}<\/key>/" \
+        -e "${lstart},${lend}s/<key>.*<\/key>/<key>${key}<\/key>/" \
         -e "${lstart},${lend}s/<port>.*<\/port>/<port>${port}<\/port>/" \
         -e "${lstart},${lend}s/<bind_addr>.*<\/bind_addr>/<bind_addr>${bind_address}<\/bind_addr>/" \
         -e "${lstart},${lend}s/<node>.*<\/node>/<node>${master_address}<\/node>/" \
