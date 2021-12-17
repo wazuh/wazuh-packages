@@ -216,6 +216,13 @@ main() {
         createCertificates
     fi
 
+    if [ -z AIO ]; then
+        readConfig
+        checkSystem
+        installPrerequisites
+        addWazuhrepo
+    fi
+
     if [ -n "${elasticsearch}" ]; then
 
         importFunction "elasticsearch.sh"
@@ -225,10 +232,6 @@ main() {
         else
             healthCheck elasticsearch
         fi
-        checkSystem
-        installPrerequisites
-        addWazuhrepo
-        checkNodes
         installElasticsearch 
         configureElasticsearch
         restoreWazuhrepo
@@ -243,9 +246,6 @@ main() {
         else
             healthCheck kibana
         fi
-        checkSystem
-        installPrerequisites
-        addWazuhrepo
         installKibana 
         configureKibana
         restoreWazuhrepo
@@ -266,9 +266,6 @@ main() {
         else
             healthCheck wazuh
         fi
-        checkSystem
-        installPrerequisites
-        addWazuhrepo
         installWazuh
         if [ -n "$wazuhclusterkey" ]; then
             configureWazuhCluster 

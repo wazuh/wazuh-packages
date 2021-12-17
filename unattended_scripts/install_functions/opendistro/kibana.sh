@@ -59,25 +59,13 @@ configureKibana() {
     eval "setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node ${debug}"
     eval "mkdir /etc/kibana/certs ${debug}"
 
-    kip=$(grep -A 1 "Kibana-instance" ./config.yml | tail -1)
-    rm="- "
-    kip="${kip//$rm}"
-    echo 'server.host: "'${kip}'"' >> /etc/kibana/kibana.yml
-    nh=$(awk -v RS='' '/network.host:/' ./config.yml)
+    echo 'server.host: "'${nodes_kibana_ip}'"' >> /etc/kibana/kibana.yml
 
-    if [ -n "${nh}" ]; then
-        nhr="network.host: "
-        eip="${nh//$nhr}"
-        echo "elasticsearch.hosts: https://"${eip}":9200" >> /etc/kibana/kibana.yml
+    if [ ${!elasticsearch_node_names[@]} -eq 0 ]; then
+        echo "elasticsearch.hosts: https://"${elasticsearch_node_ips[0]}":9200" >> /etc/kibana/kibana.yml
     else
-        echo "elasticsearch.hosts:" >> /etc/kibana/kibana.yml
-        sh=$(awk -v RS='' '/discovery.seed_hosts:/' ./config.yml)
-        shr="discovery.seed_hosts:"
-        rm="- "
-        sh="${sh//$shr}"
-        sh="${sh//$rm}"
-        for line in $sh; do
-                echo "  - https://${line}:9200" >> /etc/kibana/kibana.yml
+        for i in ${elasticsearch_node_ips[@]}; do
+                echo "  - https://${i}:9200" >> /etc/kibana/kibana.yml
         done
     fi
 
@@ -109,15 +97,12 @@ initializeKibana() {
 
     startService "kibana"
     logger "Initializing Kibana (this may take a while)"
-    until [[ "$(curl -XGET https://${kip}/status -I -uadmin:admin -k -s --max-time 300 | grep "200 OK")" ]]; do
+    until [[ "$(curl -XGET https://${nodes_kibana_ip}/status -I -uadmin:admin -k -s --max-time 300 | grep "200 OK")" ]]; do
         sleep 10
     done
-    wip=$(grep -A 1 "Wazuh-master-configuration" ./config.yml | tail -1)
-    rm="- "
-    wip="${wip//$rm}"
-    conf="$(awk '{sub("url: https://localhost", "url: https://'"${wip}"'")}1' /usr/share/kibana/data/wazuh/config/wazuh.yml)"
+    conf="$(awk '{sub("url: https://localhost", "url: https://'"${wazuh_cluster_config_master_address}"'")}1' /usr/share/kibana/data/wazuh/config/wazuh.yml)"
     echo "${conf}" > /usr/share/kibana/data/wazuh/config/wazuh.yml  
-    logger $'\nYou can access the web interface https://'${kip}'. The credentials are admin:admin'    
+    logger $'\nYou can access the web interface https://'${nodes_kibana_ip}'. The credentials are admin:admin'    
 
 }
 

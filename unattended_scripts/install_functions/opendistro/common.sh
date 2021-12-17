@@ -258,23 +258,6 @@ createCertificates() {
     cleanFiles
 }
 
-checkNodes() {
-
-    head=$(head -n1 ./config.yml)
-    inst=$(awk -v RS='' '/installation:/' ./config.yml)
-    instr="installation: "
-    inst_type="${inst//$instr}"
-    if [ "${inst_type}" == "multi-node" ]; then
-        master=1
-    elif [ "${inst_type}" == "single-node" ]; then
-        single=1
-    else
-        logger -e "Unsuported installation type in config.yml"
-        exit 1
-    fi
-
-}
-
 specsCheck() {
 
     cores=$(cat /proc/cpuinfo | grep processor | wc -l)
@@ -420,17 +403,17 @@ parse_yaml() {
 readConfig() {
     vars=$(parse_yaml ${base_path}/config.yml)
     eval $vars
-    vars="elasticsearch_node_names=( $(parse_yaml ${base_path}/config.yml | grep certificates_elasticsearch_name | sed 's/certificates_elasticsearch_name=//') )"
+    vars="elasticsearch_node_names=( $(parse_yaml ${base_path}/config.yml | grep nodes_elasticsearch_name | sed 's/nodes_elasticsearch_name=//') )"
     eval $vars
-    vars="wazuh_servers_node_names=( $(parse_yaml ${base_path}/config.yml | grep certificates_wazuh_servers_name | sed 's/certificates_wazuh_servers_name=//') )"
+    vars="wazuh_servers_node_names=( $(parse_yaml ${base_path}/config.yml | grep nodes_wazuh_servers_name | sed 's/nodes_wazuh_servers_name=//') )"
     eval $vars
-    vars="kibana_node_names=( $(parse_yaml ${base_path}/config.yml | grep certificates_kibana_name | sed 's/certificates_kibana_name=//') )"
+    vars="kibana_node_names=( $(parse_yaml ${base_path}/config.yml | grep nodes_kibana_name | sed 's/nodes_kibana_name=//') )"
     eval $vars
 
-    vars="elasticsearch_node_ips=( $(parse_yaml ${base_path}/config.yml | grep certificates_elasticsearch_ip | sed 's/certificates_elasticsearch_ip=//') )"
+    vars="elasticsearch_node_ips=( $(parse_yaml ${base_path}/config.yml | grep nodes_elasticsearch_ip | sed 's/nodes_elasticsearch_ip=//') )"
     eval $vars
-    vars="wazuh_servers_node_ips=( $(parse_yaml ${base_path}/config.yml | grep certificates_wazuh_servers_ip | sed 's/certificates_wazuh_servers_ip=//') )"
+    vars="wazuh_servers_node_ips=( $(parse_yaml ${base_path}/config.yml | grep nodes_wazuh_servers_ip | sed 's/nodes_wazuh_servers_ip=//') )"
     eval $vars
-    vars="kibana_node_ips=( $(parse_yaml ${base_path}/config.yml | grep certificates_kibana_ip | sed 's/certificates_kibana_ip=//') )"
+    vars="kibana_node_ips=( $(parse_yaml ${base_path}/config.yml | grep nodes_kibana_ip | sed 's/nodes_kibana_ip=//') )"
     eval $vars
 }
