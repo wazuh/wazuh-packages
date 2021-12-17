@@ -97,7 +97,6 @@ addWazuhrepo() {
         fi
     else
         logger "Wazuh repository already exists skipping"
-        ((progressbartotal++))
     fi
     logger "Done"
     ((progressbar_status++))
@@ -118,10 +117,8 @@ restoreWazuhrepo() {
         eval "sed -i 's/-dev//g' ${file} ${debug}"
         eval "sed -i 's/pre-release/4.x/g' ${file} ${debug}"
         logger "Done"
-        ((progressbar_status++))
-    else 
-        ((progressbar_total--))
     fi
+    ((progressbar_status++))
 }
 
 checkInstalled() {

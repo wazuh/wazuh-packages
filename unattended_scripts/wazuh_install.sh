@@ -205,18 +205,22 @@ main() {
         case "$1" in
             "-a"|"--all-in-one")
                 AIO=1
+                progressbar_total=14
                 shift 1
                 ;;
             "-w"|"--wazuh-server")
                 wazuh=1
+                progressbar_total=8
                 shift 1
                 ;;
             "-e"|"--elasticsearch")
                 elasticsearch=1
+                progressbar_total=8
                 shift 1
                 ;;
             "-k"|"--kibana")
                 kibana=1
+                progressbar_total=8
                 shift 1
                 ;;
             "-en"|"--elasticsearch-node-name")
@@ -293,8 +297,6 @@ main() {
 
         importFunction "elasticsearch.sh"
 
-
-        progressbar_total=8
         progressbar_status=0
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored."
@@ -317,7 +319,6 @@ main() {
 
         importFunction "kibana.sh"
 
-        progressbar_total=8
         progressbar_status=0
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored."
@@ -344,7 +345,6 @@ main() {
         importFunction "wazuh.sh"
         importFunction "filebeat.sh"
 
-        progressbar_total=8
         progressbar_status=0
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored."
@@ -373,8 +373,6 @@ main() {
         importFunction "elasticsearch.sh"
         importFunction "kibana.sh"
 
-        progressbar_total=13
-        progressbar_status=0
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored."
             ((progressbar_status++))
@@ -392,6 +390,7 @@ main() {
         installKibana
         configureKibanaAIO
         restoreWazuhrepo
+        logger "Installation Finished"
     fi
 }
 

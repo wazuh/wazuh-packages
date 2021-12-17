@@ -45,6 +45,8 @@ configureKibanaAIO() {
 
     modifyKibanaLogin
     
+
+    ((progressbar_status++))
     initializeKibanaAIO
     ((progressbar_status++))
 }
@@ -92,6 +94,8 @@ configureKibana() {
     eval "chown -R kibana:kibana /etc/kibana/ ${debug}"
     eval "chmod -R 500 /etc/kibana/certs ${debug}"
     eval "chmod 440 /etc/kibana/certs/kibana* ${debug}"
+
+    ((progressbar_status++))
     initializeKibana
 
     logger "Kibana installed."
