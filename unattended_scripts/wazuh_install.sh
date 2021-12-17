@@ -317,7 +317,7 @@ main() {
 
         importFunction "kibana.sh"
 
-        progressbar_total=7
+        progressbar_total=8
         progressbar_status=0
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored."
@@ -344,7 +344,7 @@ main() {
         importFunction "wazuh.sh"
         importFunction "filebeat.sh"
 
-        progressbar_total=7
+        progressbar_total=8
         progressbar_status=0
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored."
