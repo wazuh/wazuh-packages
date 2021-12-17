@@ -43,10 +43,10 @@ getHelp() {
     echo -e "        -a,  --all-in-one"
     echo -e "                All-In-One installation."
     echo -e ""
-    echo -e "        -w,  --wazuh-server"
+    echo -e "        -w,  --wazuh-server <wazuh-node-name>"
     echo -e "                Wazuh server installation. It includes Filebeat."
     echo -e ""
-    echo -e "        -e,  --elasticsearch"
+    echo -e "        -e,  --elasticsearch <elasticsearch-node-name>"
     echo -e "                Elasticsearch installation."
     echo -e ""
     echo -e "        -k,  --kibana"
@@ -54,12 +54,6 @@ getHelp() {
     echo -e ""
     echo -e "        -c,  --create-certificates"
     echo -e "                Create certificates from instances.yml file."
-    echo -e ""
-    echo -e "        -en, --elasticsearch-node-name"
-    echo -e "                Name of the elasticsearch node, used for distributed installations."
-    echo -e ""
-    echo -e "        -wn, --wazuh-node-name"
-    echo -e "                Name of the wazuh node, used for distributed installations."
     echo -e ""
     echo -e "        -wk, --wazuh-key <wazuh-cluster-key>"
     echo -e "                Use this option as well as a wazuh_cluster_config.yml configuration file to automatically configure the wazuh cluster when using a multi-node installation."
@@ -148,25 +142,18 @@ main() {
                 ;;
             "-w"|"--wazuh-server")
                 wazuh=1
+                winame=$2
                 shift 1
                 ;;
             "-e"|"--elasticsearch")
                 elasticsearch=1
-                shift 1
+                einame=$2
+                shift 2
                 ;;
             "-k"|"--kibana")
                 kibana=1
                 shift 1
                 ;;
-            "-en"|"--elasticsearch-node-name")
-                einame=$2
-                shift 2
-                ;;
-            "-wn"|"--wazuh-node-name")
-                winame=$2
-                shift 2
-                ;;
-
             "-c"|"--create-certificates")
                 certificates=1
                 shift 1
