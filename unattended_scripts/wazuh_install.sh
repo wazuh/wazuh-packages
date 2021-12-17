@@ -158,7 +158,7 @@ logger() {
     if [ -z "$debugEnabled" ] && [ "$1" != "-e" ]; then
         progressBar "$finalmessage"
     else 
-        echo "$finalmessage"
+        echo -e "$finalmessage"
     fi
 }
 
