@@ -34,7 +34,9 @@ logger() {
             message="$1"
             ;;
     esac
-    echo $now $mtype $message
+    finalmessage=$(echo "$now" "$mtype" "$message") 
+    echo -e "$finalmessage" >> ${logfile}
+    echo -e "$finalmessage"
 }
 
 readInstances() {
@@ -60,7 +62,7 @@ getHelp() {
    echo -e "\t-w     | --wazuh-certificates Creates the Wazuh server certificates."
    echo -e "\t-k     | --kibana-certificates Creates the Kibana certificates."
    echo -e "\t-v     | --verbose Enables verbose mode."
-   exit 1 # Exit script after printing help    
+   exit 1 # Exit script after printing help
 }
 
 readFile() {
@@ -117,9 +119,9 @@ readFile() {
         if  [ "${INSTANCES[counter]}" !=  "${KIBANAINSTANCES}" ]  && [ "${INSTANCES[counter]}" !=  "${KIBANAHEAD}" ] && [ "${INSTANCES[counter]}" !=  "    ip:" ] && [ -n "${INSTANCES[counter]}" ]; then
             KIBANANODES[i]+="$(echo "${INSTANCES[counter]}" | tr -d '\011\012\013\014\015\040')"
             ((i++))
-        fi    
+        fi
 
-        ((counter++))    
+        ((counter++))
     done
 
 }
@@ -273,73 +275,73 @@ main() {
     if [ "$EUID" -ne 0 ]; then
         logger -e "This script must be run as root."
         exit 1;
-    fi    
+    fi
 
-    if [ -n "$1" ]; then      
+    if [ -n "$1" ]; then
         while [ -n "$1" ]
         do
-            case "$1" in 
-            "-a"|"--admin-certificates") 
+            case "$1" in
+            "-a"|"--admin-certificates")
                 cadmin=1
                 shift 1
-                ;;     
-            "-ca"|"--root-ca-certificate") 
+                ;;
+            "-ca"|"--root-ca-certificate")
                 ca=1
                 shift 1
-                ;;                           
-            "-e"|"--elasticsearch-certificates") 
+                ;;
+            "-e"|"--elasticsearch-certificates")
                 celastic=1
                 shift 1
-                ;; 
-            "-w"|"--wazuh-certificates") 
+                ;;
+            "-w"|"--wazuh-certificates")
                 cwazuh=1
                 shift 1
-                ;;   
-            "-k"|"--kibana-certificates") 
+                ;;
+            "-k"|"--kibana-certificates")
                 ckibana=1
                 shift 1
-                ;;                               
-            "-v"|"--verbose") 
-                debugEnabled=1          
+                ;;
+            "-v"|"--verbose")
+                debugEnabled=1
                 shift 1
-                ;;                                 
-            "-h"|"--help")        
+                ;;
+            "-h"|"--help")
                 getHelp
-                ;;                                         
+                ;;
             *)
                 getHelp
             esac
-        done    
+        done
 
         if [ -n "${debugEnabled}" ]; then
-            debug=""           
+            debug=""
         fi
 
         if [[ -n "${cadmin}" ]]; then
             generateAdmincertificate
             logger "Admin certificates created."
-        fi   
+        fi
 
         if [[ -n "${ca}" ]]; then
             generateRootCAcertificate
             logger "Authority certificates created."
-        fi                   
+        fi
 
         if [[ -n "${celastic}" ]]; then
             generateElasticsearchcertificates
             logger "Elasticsearch certificates created."
-        fi     
+        fi
 
         if [[ -n "${cwazuh}" ]]; then
             generateFilebeatcertificates
             logger "Wazuh server certificates created."
-        fi 
+        fi
 
         if [[ -n "${ckibana}" ]]; then
             generateKibanacertificates
             logger "Kibana certificates created."
-        fi                     
-           
+        fi
+
     else
         readInstances
         generateRootCAcertificate
