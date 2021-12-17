@@ -1,32 +1,28 @@
 installation:
   type: <installation-type>
 
-configuration:
-  network_host:  <elasticsearch-node-ip>
-  # cluster_initial_master_nodes: <master_node_1> <master_node_2> <master_node_3>
-  # discovery_seed_hosts: <elasticsearch_ip_node1> <elasticsearch_ip_node2> <elasticsearch_ip_node3>
-
 certificates:
   elasticsearch:
-    name: <elasticsearch-node-name>
-    ip: <elasticsearch-node-ip>
+    name: node1
+    ip: 192.168.56.16
+    name: node2
+    ip: 192.168.56.16
     # name: <elasticsearch-node-name>
     # ip: <elasticsearch-node-ip>
 
   # Wazuh server nodes
   wazuh_servers:
-    name: <wazuh-node-name>
-    ip: <wazuh-manager-ip>
+    name: wazuh
+    ip: 192.168.56.16
     # name: <wazuh-node-name>
     # ip: <wazuh-manager-ip>
 
   # Kibana node
   kibana:
-    name: <kibana-node-name>
-    ip: <kibana-ip>
+    name: kibana
+    ip: 192.168.56.16
 
 ## Wazuh cluster configuration
 wazuh_cluster_config:
-  cluster_name: <wazuh-cluster>
-  master_address: <wazuh-master-address>
-
+  cluster_name: cluster
+  master_address: 192.168.56.16
