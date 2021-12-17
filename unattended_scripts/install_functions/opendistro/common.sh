@@ -72,6 +72,17 @@ installPrerequisites() {
 
 addWazuhrepo() {
     logger "Adding the Wazuh repository..."
+
+    if [ -n ${development} ]; then
+        if [ ${sys_type} == "yum" ]; then
+            eval "rm -f /etc/yum.repos.d/wazuh.repo ${debug}"
+        elif [ ${sys_type} == "zypper" ]; then
+            eval "rm -f /etc/zypp/repos.d/wazuh.repo ${debug}"
+        elif [ ${sys_type} == "apt-get" ]; then
+            eval "rm -f /etc/apt/sources.list.d/wazuh.list ${debug}"
+        fi
+    fi
+
     if [ ! -f /etc/yum.repos.d/wazuh.repo ] && [ ! -f /etc/zypp/repos.d/wazuh.repo ] && [ ! -f /etc/apt/sources.list.d/wazuh.list ] ; then
         if [ ${sys_type} == "yum" ]; then
             eval "rpm --import ${repogpg} ${debug}"

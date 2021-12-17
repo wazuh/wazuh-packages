@@ -141,11 +141,17 @@ modifyKibanaLogin() {
     eval "sed -i 's/null, \"Elastic\"/null, \"Wazuh\"/g' /usr/share/kibana/src/core/server/rendering/views/template.js ${debug}"
 
     # Edit background and logos
-    eval "curl -so ~/custom_welcome.tar.gz https://wazuh-demo.s3-us-west-1.amazonaws.com/custom_welcome_opendistro_docker.tar.gz ${debug}"
-    eval "tar -xf ~/custom_welcome.tar.gz -C ~ ${debug}"
-    eval "cp ~/custom_welcome/wazuh_logo_circle.svg /usr/share/kibana/src/core/server/core_app/assets/ ${debug}"
-    eval "cp ~/custom_welcome/wazuh_wazuh_bg.svg /usr/share/kibana/src/core/server/core_app/assets/ ${debug}"
-    eval "cp -f ~/custom_welcome/template.js.hbs /usr/share/kibana/src/legacy/ui/ui_render/bootstrap/template.js.hbs ${debug}"
-    eval "curl -so ~/customWelcomeKibana.css ${resources}/open-distro/kibana/customWelcomeKibana.css ${debug}"
-    eval "cat ~/customWelcomeKibana.css | tee -a /usr/share/kibana/src/core/server/core_app/assets/legacy_light_theme.css ${debug}"
+    eval "curl -so /tmp/custom_welcome.tar.gz https://wazuh-demo.s3-us-west-1.amazonaws.com/custom_welcome_opendistro_docker.tar.gz ${debug}"
+    eval "tar -xf /tmp/custom_welcome.tar.gz -C /tmp ${debug}"
+    eval "rm -f /tmp/custom_welcome.tar.gz ${debug}"
+    eval "cp /tmp/custom_welcome/wazuh_logo_circle.svg /usr/share/kibana/src/core/server/core_app/assets/ ${debug}"
+    eval "cp /tmp/custom_welcome/wazuh_wazuh_bg.svg /usr/share/kibana/src/core/server/core_app/assets/ ${debug}"
+    eval "cp -f /tmp/custom_welcome/template.js.hbs /usr/share/kibana/src/legacy/ui/ui_render/bootstrap/template.js.hbs ${debug}"
+    eval "rm -f /tmp/custom_welcome/* ${debug}"
+    eval "rmdir /tmp/custom_welcome ${debug}"
+
+    # Edit CSS theme
+    eval "getConfig kibana/customWelcomeKibana.css /tmp/ ${debug}"
+    eval "cat /tmp//customWelcomeKibana.css | tee -a /usr/share/kibana/src/core/server/core_app/assets/legacy_light_theme.css ${debug}"
+    eval "rm -f /tmp/customWelcomeKibana.css"
 }
