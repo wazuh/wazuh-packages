@@ -49,21 +49,8 @@ checkArch() {
     fi
 }
 
-checkPrerequisites() {
-    if [ "$local" -ne 0 ]; then
-        file_to_verify=${base_path}/config.yml
-
-        if [ -f "$file_to_verify" ]; then
-            logger $'\ncheckPrerequisites'
-        else 
-            logger -w $'\nThe file '${file_to_verify}' is required. It should be located in the script directory:'${base_path}''
-            exit 1;
-        fi
-    fi
-}
-
 installPrerequisites() {
-    logger "Installing all necessary utilities for the installation..."
+    logger "Installing all necessary utilities for the installation."
 
     if [ ${sys_type} == "yum" ]; then
         eval "yum install curl unzip wget libcap -y ${debug}"
@@ -84,7 +71,7 @@ installPrerequisites() {
 }
 
 addWazuhrepo() {
-    logger "Adding the Wazuh repository..."
+    logger "Adding the Wazuh repository."
 
     if [ -n ${development} ]; then
         if [ ${sys_type} == "yum" ]; then
@@ -301,8 +288,8 @@ healthCheck() {
                 logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
                 exit 1;
             else
-                logger "Check recommended minimum hardware requirements for Elasticsearch done..."
-                logger "Starting the installation..."
+                logger "Check recommended minimum hardware requirements for Elasticsearch done."
+                logger "Starting the installation."
             fi
             ;;
 
@@ -311,8 +298,8 @@ healthCheck() {
                 logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
                 exit 1;
             else
-                logger "Check recommended minimum hardware requirements for Kibana done..."
-                logger "Starting the installation..."
+                logger "Check recommended minimum hardware requirements for Kibana done."
+                logger "Starting the installation."
             fi
             ;;
         "wazuh")
@@ -321,8 +308,8 @@ healthCheck() {
                 logger -e "Your system does not meet the recommended minimum hardware requirements of 2Gb of RAM and 2 CPU cores . If you want to proceed with the installation use the -i option to ignore these requirements."
                 exit 1;
             else
-                logger "Check recommended minimum hardware requirements for Wazuh manager done..."
-                logger "Starting the installation..."
+                logger "Check recommended minimum hardware requirements for Wazuh manager done."
+                logger "Starting the installation."
             fi
             ;;
         "AIO")
@@ -331,8 +318,8 @@ healthCheck() {
                 logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
                 exit 1;
             else
-                logger "Check recommended minimum hardware requirements for AIO done..."
-                logger "Starting the installation..."
+                logger "Check recommended minimum hardware requirements for AIO done."
+                logger "Starting the installation."
             fi
             ;;
     esac
@@ -353,7 +340,7 @@ rollBack() {
     fi
 
     if [ -n "${wazuhinstalled}" ]; then
-        logger -w "Removing the Wazuh manager..."
+        logger -w "Removing the Wazuh manager."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-manager -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
@@ -365,7 +352,7 @@ rollBack() {
     fi     
 
     if [ -n "${elasticsearchinstalled}" ]; then
-        logger -w "Removing Elasticsearch..."
+        logger -w "Removing Elasticsearch."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove opendistroforelasticsearch -y ${debug}"
             eval "yum remove elasticsearch* -y ${debug}"
@@ -383,7 +370,7 @@ rollBack() {
     fi
 
     if [ -n "${filebeatinstalled}" ]; then
-        logger -w "Removing Filebeat..."
+        logger -w "Removing Filebeat."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove filebeat -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
@@ -397,7 +384,7 @@ rollBack() {
     fi
 
     if [ -n "${kibanainstalled}" ]; then
-        logger -w "Removing Kibana..."
+        logger -w "Removing Kibana."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove opendistroforelasticsearch-kibana -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then

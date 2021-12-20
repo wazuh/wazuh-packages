@@ -129,7 +129,7 @@ importFunction() {
         fi
     fi
     if [ "${error}" = "1" ]; then
-        logger -e "Unable to find resource $1. Exiting"
+        logger -e "Unable to find resource $1. Exiting."
         exit 1
     fi
 }
@@ -211,25 +211,21 @@ main() {
     importFunction "wazuh-cert-tool.sh"
 
     checkArch
-    checkPrerequisites
 
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
         createCertificates
     fi
-
-    if [ -n "${AIO}" ] || [ -n "${wazuh}" ] || [ -n "${kibana}" ] || [ -n "${elastic}" ]; then
-        logger "...checkSystem, installPrerequisites, addWazuhrepo"
-        checkSystem
-        installPrerequisites
-        addWazuhrepo
-    fi
+    
+    checkSystem
+    installPrerequisites
+    addWazuhrepo
 
     if [ -n "${elasticsearch}" ]; then
 
         importFunction "elasticsearch.sh"
 
         if [ -n "${ignore}" ]; then
-            logger -w "Health-check ignored for Elasticsearch"
+            logger -w "Health-check ignored for Elasticsearch."
         else
             healthCheck elasticsearch
         fi
@@ -243,7 +239,7 @@ main() {
         importFunction "kibana.sh"
 
         if [ -n "${ignore}" ]; then
-            logger -w "Health-check ignored for Kibana"
+            logger -w "Health-check ignored for Kibana."
         else
             healthCheck kibana
         fi
@@ -262,7 +258,7 @@ main() {
         importFunction "filebeat.sh"
 
         if [ -n "${ignore}" ]; then
-            logger -w "Health-check ignored for Wazuh manager"
+            logger -w "Health-check ignored for Wazuh manager."
         else
             healthCheck wazuh
         fi
@@ -282,7 +278,7 @@ main() {
         importFunction "kibana.sh"
 
         if [ -n "${ignore}" ]; then
-            logger -w "Health-check ignored for AIO"
+            logger -w "Health-check ignored for AIO."
         else
             healthCheck AIO
         fi
@@ -295,9 +291,7 @@ main() {
         configureKibanaAIO
     fi
 
-    if [ -n "${AIO}" ] || [ -n "${wazuh}" ] || [ -n "${kibana}" ] || [ -n "${elastic}" ]; then
-        restoreWazuhrepo
-    fi
+    restoreWazuhrepo
 
 }
 
