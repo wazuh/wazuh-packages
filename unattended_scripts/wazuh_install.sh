@@ -244,7 +244,7 @@ main() {
             healthCheck wazuh
         fi
         installWazuh
-        if [ $wazuh_cluster_config_enabled == "yes" ]; then
+        if [ "${wazuh_cluster_config_enabled}" == "yes" ]; then
             configureWazuhCluster 
         fi  
         installFilebeat  
