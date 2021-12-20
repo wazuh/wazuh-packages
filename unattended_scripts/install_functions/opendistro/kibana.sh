@@ -99,7 +99,6 @@ configureKibana() {
     initializeKibana
 
     logger "Kibana installed."
-    ((progressbar_status++))
 }
 
 
@@ -127,7 +126,7 @@ initializeKibana() {
     conf="$(awk '{sub("url: https://localhost", "url: https://'"${wip}"'")}1' /usr/share/kibana/data/wazuh/config/wazuh.yml)"
     echo "${conf}" > /usr/share/kibana/data/wazuh/config/wazuh.yml
     ((progressbar_status++))
-    logger $'\nYou can access the web interface https://'${kip}'. The credentials are admin:admin'    
+    logger $'\nYou can access the web interface https://'${kip}'. The credentials are admin:admin'
 }
 
 initializeKibanaAIO() {
@@ -137,7 +136,7 @@ initializeKibanaAIO() {
     until [[ "$(curl -XGET https://localhost/status -I -uadmin:admin -k -s --max-time 300 | grep "200 OK")" ]]; do
         sleep 10
     done
-    logger $'\nYou can access the web interface https://localhost. The credentials are admin:admin'    
+    logger $'\nYou can access the web interface https://localhost. The credentials are admin:admin'
 }
 
 modifyKibanaLogin() {

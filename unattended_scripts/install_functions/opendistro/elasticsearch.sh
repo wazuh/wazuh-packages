@@ -184,7 +184,6 @@ configureElasticsearch() {
 
 initializeElasticsearch() {
 
-    logger "Starting Elasticsearch..."
     startService "elasticsearch"
     logger "Initializing Elasticsearch..."
 
