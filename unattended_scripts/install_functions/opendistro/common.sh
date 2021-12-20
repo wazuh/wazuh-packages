@@ -402,7 +402,6 @@ parse_yaml() {
 
 readConfig() {
     if [ -f ${base_path}/config.yml ]; then
-        logger_cert "Configuration file found. Creating certificates..."
         eval "$(parse_yaml ${base_path}/config.yml)"
         eval "elasticsearch_node_names=( $(parse_yaml ${base_path}/config.yml | grep nodes_elasticsearch_name | sed 's/nodes_elasticsearch_name=//') )"
         eval "wazuh_servers_node_names=( $(parse_yaml ${base_path}/config.yml | grep nodes_wazuh_servers_name | sed 's/nodes_wazuh_servers_name=//') )"
