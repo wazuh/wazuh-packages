@@ -99,6 +99,7 @@ configureElasticsearch() {
     eval "getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml ${debug}"
     
     if [ ${!elasticsearch_node_names[@]} -eq 0 ]; then
+        pos=0
         echo "node.name: ${einame}" >> /etc/elasticsearch/elasticsearch.yml
         echo "network.host: ${elasticsearch_node_ips[0]}" >> /etc/elasticsearch/elasticsearch.yml
         echo "cluster.initial_master_nodes: ${einame}" >> /etc/elasticsearch/elasticsearch.yml
@@ -177,8 +178,7 @@ initializeElasticsearch() {
     startService "elasticsearch"
     logger "Initializing Elasticsearch..."
 
-
-    until $(curl -XGET https://${nip}:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null); do
+    until $(curl -XGET https://${elasticsearch_node_ips[pos]}:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null); do
         sleep 10
     done
 
