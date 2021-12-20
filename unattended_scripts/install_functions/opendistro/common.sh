@@ -246,7 +246,7 @@ startService() {
 createCertificates() {
 
     if [ -n "${AIO}" ]; then
-        eval "getConfig certificate/instances_aio.yml ${base_path}/instances.yml ${debug}"
+        eval "getConfig certificate/config_aio.yml ${base_path}/config.yml ${debug}"
     fi
 
     readInstances

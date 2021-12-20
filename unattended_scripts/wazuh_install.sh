@@ -53,7 +53,7 @@ getHelp() {
     echo -e "                Kibana installation."
     echo -e ""
     echo -e "        -c,  --create-certificates"
-    echo -e "                Create certificates from instances.yml file."
+    echo -e "                Create certificates from config.yml file."
     echo -e ""
     echo -e "        -en, --elasticsearch-node-name"
     echo -e "                Name of the elasticsearch node, used for distributed installations."
@@ -254,7 +254,7 @@ main() {
             healthCheck wazuh
         fi
         installWazuh
-        if [ $wazuh_cluster_config_enabled == yes ]; then
+        if [ $wazuh_cluster_config_enabled == "yes" ]; then
             configureWazuhCluster 
         fi  
         installFilebeat  
