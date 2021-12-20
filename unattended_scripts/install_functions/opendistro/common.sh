@@ -308,7 +308,7 @@ healthCheck() {
                 logger -e "Your system does not meet the recommended minimum hardware requirements of 2Gb of RAM and 2 CPU cores . If you want to proceed with the installation use the -i option to ignore these requirements."
                 exit 1;
             else
-                logger "Check recommended minimum hardware requirements for Wazuh manager done."
+                logger "Check recommended minimum hardware requirements for Wazuh Manager done."
                 logger "Starting the installation."
             fi
             ;;
