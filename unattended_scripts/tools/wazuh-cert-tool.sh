@@ -40,7 +40,7 @@ logger() {
 readInstances() {
 
     if [ -f ./instances.yml ]; then
-        logger "Configuration file found. Creating certificates..."
+        logger "Configuration file found. Creating certificates."
         eval "mkdir ./certs $debug"
     else
         logger -e "no configuration file found."
@@ -190,7 +190,7 @@ generateAdmincertificate() {
 
 generateElasticsearchcertificates() {
 
-     logger "Creating the Elasticsearch certificates..."
+     logger "Creating the Elasticsearch certificates."
 
     i=0
     while [ ${i} -lt ${#ELASTICNODES[@]} ]; do
@@ -214,7 +214,7 @@ generateElasticsearchcertificates() {
 
 generateFilebeatcertificates() {
 
-    logger "Creating Wazuh server certificates..."
+    logger "Creating Wazuh server certificates."
 
     i=0
     while [ ${i} -lt ${#FILEBEATNODES[@]} ]; do
@@ -237,7 +237,7 @@ generateFilebeatcertificates() {
 
 generateKibanacertificates() {
 
-    logger "Creating Kibana certificate..."
+    logger "Creating Kibana certificate."
 
     i=0
     while [ ${i} -lt ${#KIBANANODES[@]} ]; do

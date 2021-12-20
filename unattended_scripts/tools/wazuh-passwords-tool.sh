@@ -167,7 +167,7 @@ checkUser() {
 
 createBackUp() {
     
-    logger_pass "Creating backup..."
+    logger_pass "Creating backup."
     eval "mkdir /usr/share/elasticsearch/backup ${debug_pass}"
     eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -backup /usr/share/elasticsearch/backup -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug_pass}"
     if [  "$?" != 0  ]; then
@@ -289,7 +289,7 @@ changePassword() {
 
 runSecurityAdmin() {
     
-    logger_pass "Loading changes..."
+    logger_pass "Loading changes."
     eval "cp /usr/share/elasticsearch/backup/* /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ ${debug_pass}"
     eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -nhnv -cacert /usr/share/elasticsearch/plugins/opendistro_security/tools/${capem} -cert /usr/share/elasticsearch/plugins/opendistro_security/tools/${adminpem} -key /usr/share/elasticsearch/plugins/opendistro_security/tools/${adminkey} -icl -h ${IP} ${debug_pass}"
     if [  "$?" != 0  ]; then

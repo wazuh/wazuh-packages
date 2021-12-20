@@ -7,7 +7,7 @@
 
 installElasticsearch() {
 
-    logger "Installing Open Distro for Elasticsearch..."
+    logger "Installing Open Distro for Elasticsearch."
 
     if [ ${sys_type} == "yum" ]; then
         eval "yum install opendistroforelasticsearch-${opendistro_version}-${opendistro_revision} -y ${debug}"
@@ -48,7 +48,7 @@ copyCertificatesElasticsearch() {
 
 configureElasticsearchAIO() {
 
-    logger "Configuring Elasticsearch..."
+    logger "Configuring Elasticsearch."
 
     eval "getConfig elasticsearch/elasticsearch_unattended.yml /etc/elasticsearch/elasticsearch.yml  ${debug}"
     eval "getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml  ${debug}"
@@ -77,7 +77,7 @@ configureElasticsearchAIO() {
     eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
 
     startService "elasticsearch"
-    logger "Initializing Elasticsearch..."
+    logger "Initializing Elasticsearch."
     until $(curl -XGET https://localhost:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null); do
         sleep 10
     done
@@ -88,7 +88,7 @@ configureElasticsearchAIO() {
 }
 
 configureElasticsearch() {
-    logger "Configuring Elasticsearch..."
+    logger "Configuring Elasticsearch."
 
     eval "getConfig elasticsearch/elasticsearch_unattended_distributed.yml /etc/elasticsearch/elasticsearch.yml ${debug}"
     eval "getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml ${debug}"
@@ -190,9 +190,9 @@ initializeElasticsearch() {
 
     logger "Elasticsearch installed."
 
-    logger "Starting Elasticsearch..."
+    logger "Starting Elasticsearch."
     startService "elasticsearch"
-    logger "Initializing Elasticsearch..."
+    logger "Initializing Elasticsearch."
 
 
     until $(curl -XGET https://${nip}:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null); do
