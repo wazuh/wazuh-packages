@@ -1,7 +1,7 @@
 nodes:
   elasticsearch:
-    # name: <elasticsearch-node-name>
-    # ip: <elasticsearch-node-ip>
+    name: <elasticsearch-node-name>
+    ip: <elasticsearch-node-ip>
     # name: <elasticsearch-node-name>
     # ip: <elasticsearch-node-ip>
 

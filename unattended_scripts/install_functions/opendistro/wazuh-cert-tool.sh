@@ -1,5 +1,5 @@
 #!/bin/bash
-# set -x
+
 # Program to generate the certificates necessary for Wazuh installation
 # Copyright (C) 2015-2021, Wazuh Inc.
 #

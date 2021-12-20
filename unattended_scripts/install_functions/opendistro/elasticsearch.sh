@@ -30,13 +30,11 @@ installElasticsearch() {
 }
 
 copyCertificatesElasticsearch() {
-
-    checkNodes
     
-    if [ -n "${single}" ]; then
+    if [ ${!elasticsearch_node_names[@]} -eq 0 ]; then
         name=${einame}
     else
-        name=${IMN[pos]}
+        name=${elasticsearch_node_names[pos]}
     fi
 
     eval "cp ${base_path}/certs/${name}.pem /etc/elasticsearch/certs/elasticsearch.pem ${debug}"
@@ -94,8 +92,6 @@ configureElasticsearch() {
     eval "getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml ${debug}"
     eval "getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml ${debug}"
     eval "getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml ${debug}"
-
-    checkNodes
     
     if [ ${!elasticsearch_node_names[@]} -eq 0 ]; then
         echo "node.name: ${einame}" >> /etc/elasticsearch/elasticsearch.yml
@@ -181,7 +177,7 @@ initializeElasticsearch() {
         sleep 10
     done
 
-    if [ -n "${single}" ]; then
+    if [ ${!elasticsearch_node_names[@]} -eq 0 ] || [ ${pos} -eq 0 ]; then
         eval "export JAVA_HOME=/usr/share/elasticsearch/jdk/"
         eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${nip} ${debug}"
     fi
