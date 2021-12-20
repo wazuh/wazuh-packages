@@ -72,7 +72,7 @@ progressBar() {
         done
     done
 
-    if [ -n "${mult_install}" ] && [ $progressbar_status -eq $progressbar_total ]; then
+    if [ $distributed_installs -gt 1 ] && [ $progressbar_status -eq $progressbar_total ]; then
         buffer=""
         lines=1
         printf "${buffer}"
@@ -193,6 +193,7 @@ main() {
     fi
 
     progressbar_total=0
+    distributed_installs=0
 
     while [ -n "$1" ]
     do
@@ -205,18 +206,21 @@ main() {
             "-w"|"--wazuh-server")
                 wazuh=1
                 progressbar_total=8
+                ((distributed_installs++))
                 winame=$2
                 shift 2
                 ;;
             "-e"|"--elasticsearch")
                 elasticsearch=1
                 progressbar_total=8
+                ((distributed_installs++))
                 einame=$2
                 shift 2
                 ;;
             "-k"|"--kibana")
                 kibana=1
                 progressbar_total=8
+                ((distributed_installs++))
                 shift 1
                 ;;
             "-c"|"--create-certificates")
@@ -254,6 +258,8 @@ main() {
         esac
     done
 
+    echo $>progressbar_total
+
     if [ "$EUID" -ne 0 ]; then
         logger -e "Error: This script must be run as root."
         exit 1;
@@ -268,16 +274,6 @@ main() {
     
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
         createCertificates
-    fi
-
-    if [ -n "${elasticsearch}" ] && [ -n "${kibana}" ]; then
-        mult_install=1
-    fi
-    if [ -n "${elasticsearch}" ] && [ -n "${wazuh}" ]; then
-        mult_install=1
-    fi
-    if [ -n "${kibana}" ] && [ -n "${wazuh}" ]; then
-        mult_install=1
     fi
 
     if [ -n "${elasticsearch}" ]; then
@@ -299,7 +295,7 @@ main() {
         configureElasticsearch
         restoreWazuhrepo
         logger "Elasticsearch installed correctly"
-
+        ((distributed_installs--))
     fi
 
     if [ -n "${kibana}" ]; then
@@ -320,6 +316,7 @@ main() {
         configureKibana
         restoreWazuhrepo
         logger "Kibana installed correctly"
+        ((distributed_installs--))
     fi
 
     if [ -n "${wazuh}" ]; then
@@ -351,6 +348,7 @@ main() {
         configureFilebeat
         restoreWazuhrepo
         logger "Wazuh installed correctly"
+        ((distributed_installs--))
     fi
 
     if [ -n "${AIO}" ]; then
