@@ -32,7 +32,7 @@ installElasticsearch() {
 copyCertificatesElasticsearch() {
     
     if [ ${!elasticsearch_node_names[@]} -eq 0 ]; then
-        name=${einame}
+        name=${elasticsearch_node_names[0]}
     else
         name=${elasticsearch_node_names[pos]}
     fi
@@ -184,7 +184,7 @@ initializeElasticsearch() {
 
     if [ ${pos} -eq 0 ]; then
         eval "export JAVA_HOME=/usr/share/elasticsearch/jdk/"
-        eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${nip} ${debug}"
+        eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${elasticsearch_node_ips[pos]} ${debug}"
     fi
 
     logger "Done"
