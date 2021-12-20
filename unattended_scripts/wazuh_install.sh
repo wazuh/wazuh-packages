@@ -143,7 +143,7 @@ main() {
             "-w"|"--wazuh-server")
                 wazuh=1
                 winame=$2
-                shift 1
+                shift 2
                 ;;
             "-e"|"--elasticsearch")
                 elasticsearch=1
