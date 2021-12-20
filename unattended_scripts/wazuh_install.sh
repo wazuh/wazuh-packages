@@ -198,7 +198,7 @@ main() {
         createCertificates
     fi
 
-    if [ -z AIO ]; then
+    if [ -z ${AIO} ]; then
         readConfig
         checkSystem
         installPrerequisites
