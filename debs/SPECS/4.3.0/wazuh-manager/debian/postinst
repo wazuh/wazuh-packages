@@ -280,6 +280,9 @@ case "$1" in
     if [ -z "$(ls -A ${WAZUH_GLOBAL_TMP_DIR})" ]; then
         rm -rf ${WAZUH_GLOBAL_TMP_DIR}
     fi
+
+    # change client.keys ownership
+    chown ${USER}:${GROUP} ${DIR}/etc/client.keys
    
     ;;
 
