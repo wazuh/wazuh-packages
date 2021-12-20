@@ -32,7 +32,7 @@ installElasticsearch() {
 copyCertificatesElasticsearch() {
     
     if [ ${!elasticsearch_node_names[@]} -eq 0 ]; then
-        name=${elasticsearch_node_names[0]}
+        name=${einame}
     else
         name=${elasticsearch_node_names[pos]}
     fi
