@@ -296,7 +296,6 @@ main() {
     fi
 
     if [ -n "${AIO}" ] || [ -n "${wazuh}" ] || [ -n "${kibana}" ] || [ -n "${elastic}" ]; then
-        logger -w "restoreWazuhrepo"
         restoreWazuhrepo
     fi
 
