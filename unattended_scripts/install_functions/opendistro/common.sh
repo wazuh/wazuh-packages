@@ -249,7 +249,7 @@ createCertificates() {
         eval "getConfig certificate/config_aio.yml ${base_path}/config.yml ${debug}"
     fi
 
-    readInstances
+    readConfig
     generateRootCAcertificate
     generateAdmincertificate
     generateElasticsearchcertificates
