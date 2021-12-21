@@ -204,13 +204,13 @@ installPrerequisites() {
     logger "Installing all necessary utilities for the installation..."
 
     if [ ${sys_type} == "yum" ]; then
-        eval "yum install curl unzip wget libcap -y ${debug}"
+        eval "yum install curl unzip wget libcap tar -y ${debug}"
     elif [ ${sys_type} == "zypper" ]; then
-        eval "zypper -n install curl unzip wget ${debug}"         
+        eval "zypper -n install curl unzip wget tar ${debug}"
         eval "zypper -n install libcap-progs ${debug} || zypper -n install libcap2 ${debug}"
     elif [ ${sys_type} == "apt-get" ]; then
         eval "apt-get update -q $debug"
-        eval "apt-get install apt-transport-https curl unzip wget libcap2-bin -y ${debug}"        
+        eval "apt-get install apt-transport-https curl unzip wget libcap2-bin tar -y ${debug}"
     fi
 
     if [  "$?" != 0  ]; then
