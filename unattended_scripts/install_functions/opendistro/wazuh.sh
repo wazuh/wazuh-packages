@@ -45,7 +45,7 @@ configureWazuhCluster() {
     lend=$(grep -n "</cluster>" /var/ossec/etc/ossec.conf | cut -d : -f 1)
 
     eval 'sed -i -e "${lstart},${lend}s/<name>.*<\/name>/<name>wazuh_cluster<\/name>/" \
-        -e "${lstart},${lend}s/<node_name>.*<\/node_name>/<node_name>${iname}<\/node_name>/" \
+        -e "${lstart},${lend}s/<node_name>.*<\/node_name>/<node_name>${winame}<\/node_name>/" \
         -e "${lstart},${lend}s/<node_type>.*<\/node_type>/<node_type>${wazuh_servers_node_types[i]}<\/node_type>/" \
         -e "${lstart},${lend}s/<key>.*<\/key>/<key>${key}<\/key>/" \
         -e "${lstart},${lend}s/<port>.*<\/port>/<port>${port}<\/port>/" \
