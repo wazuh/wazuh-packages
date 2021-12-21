@@ -112,7 +112,7 @@ configureElasticsearch() {
         echo "node.name: ${einame}" >> /etc/elasticsearch/elasticsearch.yml
         echo "cluster.initial_master_nodes:" >> /etc/elasticsearch/elasticsearch.yml
         for i in ${elasticsearch_node_names[@]}; do
-            echo '        - "'${$i}'"' >> /etc/elasticsearch/elasticsearch.yml
+            echo '        - "'${i}'"' >> /etc/elasticsearch/elasticsearch.yml
         done
 
         echo "discovery.seed_hosts:" >> /etc/elasticsearch/elasticsearch.yml
