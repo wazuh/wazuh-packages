@@ -173,7 +173,7 @@ generateAdmincertificate() {
 
 generateElasticsearchcertificates() {
 
-    logger_cert "Creating the Elasticsearch certificates..."
+    logger_cert "Creating the Elasticsearch certificates."
 
     i=0
     while [ ${i} -lt ${#elasticsearch_node_names[@]} ]; do
@@ -188,7 +188,7 @@ generateElasticsearchcertificates() {
 
 generateFilebeatcertificates() {
 
-    logger_cert "Creating Wazuh server certificates..."
+    logger_cert "Creating Wazuh server certificates."
 
     i=0
     while [ ${i} -lt ${#wazuh_servers_node_names[@]} ]; do
@@ -202,7 +202,7 @@ generateFilebeatcertificates() {
 
 generateKibanacertificates() {
 
-    logger_cert "Creating Kibana certificate..."
+    logger_cert "Creating Kibana certificate."
 
     i=0
     while [ ${i} -lt ${#kibana_node_names[@]} ]; do

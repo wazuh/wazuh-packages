@@ -7,10 +7,12 @@
 
 repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"
 repobaseurl="https://packages.wazuh.com/4.x"
+reporelease="stable"
 
 if [ -n "${development}" ]; then
     repogpg="https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH"
     repobaseurl="https://packages-dev.wazuh.com/pre-release"
+    reporelease="unstable"
 fi
 
 getConfig() {
@@ -48,7 +50,7 @@ checkArch() {
 }
 
 installPrerequisites() {
-    logger "Installing all necessary utilities for the installation..."
+    logger "Installing all necessary utilities for the installation."
 
     if [ ${sys_type} == "yum" ]; then
         eval "yum install curl unzip wget libcap -y ${debug}"
@@ -69,7 +71,7 @@ installPrerequisites() {
 }
 
 addWazuhrepo() {
-    logger "Adding the Wazuh repository..."
+    logger "Adding the Wazuh repository."
 
     if [ -n ${development} ]; then
         if [ ${sys_type} == "yum" ]; then
@@ -90,7 +92,7 @@ addWazuhrepo() {
             eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-\$releasever - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/zypp/repos.d/wazuh.repo ${debug}"
         elif [ ${sys_type} == "apt-get" ]; then
             eval "curl -s ${repogpg} --max-time 300 | apt-key add - ${debug}"
-            eval "echo "deb '${repobaseurl}'/apt/ stable main" | tee /etc/apt/sources.list.d/wazuh.list ${debug}"
+            eval "echo "deb '${repobaseurl}'/apt/ '${reporelease}' main" | tee /etc/apt/sources.list.d/wazuh.list ${debug}"
             eval "apt-get update -q ${debug}"
         fi
     else
@@ -113,6 +115,7 @@ restoreWazuhrepo() {
         fi
         eval "sed -i 's/-dev//g' ${file} ${debug}"
         eval "sed -i 's/pre-release/4.x/g' ${file} ${debug}"
+        eval "sed -i 's/unstable/stable/g' ${file} ${debug}"
         logger "Done"
     fi
 }
@@ -273,7 +276,8 @@ healthCheck() {
                 logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
                 exit 1;
             else
-                logger "Starting the installation..."
+                logger "Check recommended minimum hardware requirements for Elasticsearch done."
+                logger "Starting the installation."
             fi
             ;;
 
@@ -282,7 +286,8 @@ healthCheck() {
                 logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
                 exit 1;
             else
-                logger "Starting the installation..."
+                logger "Check recommended minimum hardware requirements for Kibana done."
+                logger "Starting the installation."
             fi
             ;;
         "wazuh")
@@ -291,7 +296,8 @@ healthCheck() {
                 logger -e "Your system does not meet the recommended minimum hardware requirements of 2Gb of RAM and 2 CPU cores . If you want to proceed with the installation use the -i option to ignore these requirements."
                 exit 1;
             else
-                logger "Starting the installation..."
+                logger "Check recommended minimum hardware requirements for Wazuh Manager done."
+                logger "Starting the installation."
             fi
             ;;
         "AIO")
@@ -300,7 +306,8 @@ healthCheck() {
                 logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
                 exit 1;
             else
-                logger "Starting the installation..."
+                logger "Check recommended minimum hardware requirements for AIO done."
+                logger "Starting the installation."
             fi
             ;;
     esac
@@ -321,7 +328,7 @@ rollBack() {
     fi
 
     if [ -n "${wazuhinstalled}" ]; then
-        logger -w "Removing the Wazuh manager..."
+        logger -w "Removing the Wazuh manager."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-manager -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
@@ -333,7 +340,7 @@ rollBack() {
     fi     
 
     if [ -n "${elasticsearchinstalled}" ]; then
-        logger -w "Removing Elasticsearch..."
+        logger -w "Removing Elasticsearch."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove opendistroforelasticsearch -y ${debug}"
             eval "yum remove elasticsearch* -y ${debug}"
@@ -351,7 +358,7 @@ rollBack() {
     fi
 
     if [ -n "${filebeatinstalled}" ]; then
-        logger -w "Removing Filebeat..."
+        logger -w "Removing Filebeat."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove filebeat -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
@@ -365,7 +372,7 @@ rollBack() {
     fi
 
     if [ -n "${kibanainstalled}" ]; then
-        logger -w "Removing Kibana..."
+        logger -w "Removing Kibana."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove opendistroforelasticsearch-kibana -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then

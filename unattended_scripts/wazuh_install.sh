@@ -67,7 +67,7 @@ getHelp() {
     echo -e "        -l,  --local"
     echo -e "                Use local files."
     echo -e ""
-    echo -e "        -d,  --dev"
+    echo -e "        -d,  --development"
     echo -e "                Use development repository."
     echo -e ""
     echo -e "        -h,  --help"
@@ -99,15 +99,15 @@ logger() {
 
 importFunction() {
     if [ -n "${local}" ]; then
-        if [ -f ./$functions_path/$1 ]; then
-            cat ./$functions_path/$1 |grep 'main $@' > /dev/null 2>&1
+        if [ -f ${base_path}/$functions_path/$1 ]; then
+            cat ${base_path}/$functions_path/$1 |grep 'main $@' > /dev/null 2>&1
             has_main=$?
             if [ $has_main = 0 ]; then
-                sed -i 's/main $@//' ./$functions_path/$1
+                sed -i 's/main $@//' ${base_path}/$functions_path/$1
             fi
-            . ./$functions_path/$1
+            . ${base_path}/$functions_path/$1
             if [ $has_main = 0 ]; then
-                echo 'main $@' >> ./$functions_path/$1
+                echo 'main $@' >> ${base_path}/$functions_path/$1
             fi
         else 
             error=1
@@ -123,7 +123,7 @@ importFunction() {
         fi
     fi
     if [ "${error}" = "1" ]; then
-        logger -e "Unable to find resource $1. Exiting"
+        logger -e "Unable to find resource $1. Exiting."
         exit 1
     fi
 }
@@ -167,7 +167,7 @@ main() {
                 debug='2>&1 | tee -a /var/log/wazuh-unattended-installation.log'
                 shift 1
                 ;;
-            "-d"|"--dev")
+            "-d"|"--development")
                 development=1
                 shift 1
                 ;;
@@ -193,10 +193,6 @@ main() {
     importFunction "wazuh-cert-tool.sh"
 
     checkArch
-    
-    if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
-        createCertificates
-    fi
 
     if [ -z ${AIO} ]; then
         readConfig
@@ -205,18 +201,21 @@ main() {
         addWazuhrepo
     fi
 
+    if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
+        createCertificates
+    fi
+    
     if [ -n "${elasticsearch}" ]; then
 
         importFunction "elasticsearch.sh"
 
         if [ -n "${ignore}" ]; then
-            logger -w "Health-check ignored."
+            logger -w "Health-check ignored for Elasticsearch."
         else
             healthCheck elasticsearch
         fi
         installElasticsearch 
         configureElasticsearch
-        restoreWazuhrepo
     fi
 
     if [ -n "${kibana}" ]; then
@@ -224,13 +223,12 @@ main() {
         importFunction "kibana.sh"
 
         if [ -n "${ignore}" ]; then
-            logger -w "Health-check ignored."
+            logger -w "Health-check ignored for Kibana."
         else
             healthCheck kibana
         fi
         installKibana 
         configureKibana
-        restoreWazuhrepo
     fi
 
     if [ -n "${wazuh}" ]; then
@@ -239,7 +237,7 @@ main() {
         importFunction "filebeat.sh"
 
         if [ -n "${ignore}" ]; then
-            logger -w "Health-check ignored."
+            logger -w "Health-check ignored for Wazuh manager."
         else
             healthCheck wazuh
         fi
@@ -249,7 +247,6 @@ main() {
         fi  
         installFilebeat  
         configureFilebeat
-        restoreWazuhrepo
     fi
 
     if [ -n "${AIO}" ]; then
@@ -260,10 +257,11 @@ main() {
         importFunction "kibana.sh"
 
         if [ -n "${ignore}" ]; then
-            logger -w "Health-check ignored."
+            logger -w "Health-check ignored for AIO."
         else
             healthCheck AIO
         fi
+
         checkSystem
         installPrerequisites
         addWazuhrepo
@@ -274,8 +272,10 @@ main() {
         configureFilebeatAIO
         installKibana
         configureKibanaAIO
-        restoreWazuhrepo
     fi
+
+    restoreWazuhrepo
+
 }
 
 main "$@"
