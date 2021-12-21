@@ -464,14 +464,10 @@ readConfig() {
         elif [ ${#wazuh_servers_node_names[@]} -ne ${#wazuh_servers_node_types[@]} ]; then
             logger -e "Different number of Wazuh server node names and node types "
             exit 1;
-        fi
-
-        if [ $(grep -o master <<< ${wazuh_servers_node_types[*]} | wc -l) -ne 1 ]; then
+        elif [ $(grep -o master <<< ${wazuh_servers_node_types[*]} | wc -l) -ne 1 ]; then
             logger -e "Wazuh cluster needs a single master node"
             exit 1;
-        fi
-
-        if [ $(grep -o worker <<< ${wazuh_servers_node_types[*]} | wc -l) -ne $(expr ${#wazuh_servers_node_types[@]} - 1)  ]; then
+        elif [ $(grep -o worker <<< ${wazuh_servers_node_types[*]} | wc -l) -ne $(expr ${#wazuh_servers_node_types[@]} - 1)  ]; then
             logger -e "Incorrect number of workers"
             exit 1;
         fi
