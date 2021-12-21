@@ -12,7 +12,7 @@ installFilebeat() {
         exit 1;
     fi
 
-    logger "Installing Filebeat..."
+    logger "Installing Filebeat."
     
     if [ ${sys_type} == "zypper" ]; then
         eval "zypper -n install filebeat-${elasticsearch_oss_version} ${debug}"
@@ -51,7 +51,7 @@ configureFilebeat() {
     eval "cp ${base_path}/certs/root-ca.pem /etc/filebeat/certs/ ${debug}"
 
     logger "Done"
-    logger "Starting Filebeat..."
+    logger "Starting Filebeat."
     startService filebeat
 }
 
