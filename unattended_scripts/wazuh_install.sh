@@ -199,14 +199,14 @@ main() {
         readConfig
         checknames
         installPrerequisites
-        if [ -n ${wazuh_servers_node_types[*]} ]; then
-            createClusterKey
-        fi
         addWazuhrepo
     fi
 
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
         createCertificates
+        if [ -n "${wazuh_servers_node_types[*]}" ]; then
+            createClusterKey
+        fi
     fi
     
     if [ -n "${elasticsearch}" ]; then
