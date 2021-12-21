@@ -1,4 +1,5 @@
 nodes:
+  # Elasticsearch server nodes
   elasticsearch:
     name: <elasticsearch-node-name>
     ip: <elasticsearch-node-ip>
@@ -6,21 +7,16 @@ nodes:
     # ip: <elasticsearch-node-ip>
 
   # Wazuh server nodes
+  # Use node_type only with more than one Wazuh manager
   wazuh_servers:
     name: <wazuh-node-name>
     ip: <wazuh-manager-ip>
+    # node_type: master
     # name: <wazuh-node-name>
     # ip: <wazuh-manager-ip>
+    # node_type: worker
 
   # Kibana node
   kibana:
     name: <kibana-node-name>
     ip: <kibana-manager-ip>
-
-## Wazuh cluster configuration
-wazuh_cluster_config:
-  enabled: yes
-  master_node_name: <wazuh-master-node-name>
-  cluster_name: cluster
-  master_address: <wazuh-master-node-address>
-  

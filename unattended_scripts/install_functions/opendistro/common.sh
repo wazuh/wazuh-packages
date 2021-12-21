@@ -418,8 +418,71 @@ readConfig() {
         eval "elasticsearch_node_ips=( $(parse_yaml ${base_path}/config.yml | grep nodes_elasticsearch_ip | sed 's/nodes_elasticsearch_ip=//') )"
         eval "wazuh_servers_node_ips=( $(parse_yaml ${base_path}/config.yml | grep nodes_wazuh_servers_ip | sed 's/nodes_wazuh_servers_ip=//') )"
         eval "kibana_node_ips=( $(parse_yaml ${base_path}/config.yml | grep nodes_kibana_ip | sed 's/nodes_kibana_ip=//') )"
+
+        eval "wazuh_servers_node_types=( $(parse_yaml ${base_path}/config.yml | grep nodes_wazuh_servers_node_type | sed 's/nodes_wazuh_servers_node_type=//') )"
+
+        if [ $(printf '%s\n' "${elasticsearch_node_names[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#elasticsearch_node_names[@]} ]; then 
+            logger -e "Duplicated Elasticsearch node names"
+            exit 1;
+        fi
+
+        if [ $(printf '%s\n' "${elasticsearch_node_ips[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#elasticsearch_node_ips[@]} ]; then 
+            logger -e "Duplicated Elasticsearch node ips"
+            exit 1;
+        fi
+
+        if [ $(printf '%s\n' "${wazuh_servers_node_names[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#wazuh_servers_node_names[@]} ]; then 
+            logger -e "Duplicated Wazuh server node names"
+            exit 1;
+        fi
+
+        if [ $(printf '%s\n' "${wazuh_servers_node_ips[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#wazuh_servers_node_ips[@]} ]; then 
+            logger -e "Duplicated Wazuh server node ips"
+            exit 1;
+        fi
+
+        if [ $(printf '%s\n' "${kibana_node_names[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#kibana_node_names[@]} ]; then 
+            logger -e "Duplicated Kibana node names"
+            exit 1;
+        fi
+
+        if [ $(printf '%s\n' "${kibana_node_ips[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#kibana_node_ips[@]} ]; then 
+            logger -e "Duplicated Kibana node ips"
+            exit 1;
+        fi
+
+        if [ ${#wazuh_servers_node_names[@]} -ne ${#wazuh_servers_node_ips[@]} ]; then 
+            logger -e "Different number of Wazuh server node names and IPs "
+            exit 1;
+        fi
+
+        if [ ${#wazuh_servers_node_names[@]} -le 1 ]; then
+            if [ ${#wazuh_servers_node_types[@]} -ne 0 ]; then
+                logger -e "node_type must be used with more than one Wazuh server"
+                exit 1;
+            fi
+        elif [ ${#wazuh_servers_node_names[@]} -ne ${#wazuh_servers_node_types[@]} ]; then
+            logger -e "Different number of Wazuh server node names and node types "
+            exit 1;
+        fi
+
+        if [ $(grep -o master <<< ${wazuh_servers_node_types[*]} | wc -l) -ne 1 ]; then
+            logger -e "Wazuh cluster needs a single master node"
+            exit 1;
+        fi
+
+        if [ $(grep -o worker <<< ${wazuh_servers_node_types[*]} | wc -l) -ne $(expr ${#wazuh_servers_node_types[@]} - 1)  ]; then
+            logger -e "Incorrect number of workers"
+            exit 1;
+        fi
+
+        if [ ${#kibana_node_names[@]} -ne ${#kibana_node_ips[@]} ]; then 
+            logger -e "Different number of Kibana node names and IPs "
+            exit 1;
+        fi
+
     else
-        logger_cert -e "No configuration file found. ${base_path}/config.yml"
+        logger -e "No configuration file found. ${base_path}/config.yml"
         exit 1;
     fi
 }
@@ -427,3 +490,4 @@ readConfig() {
 createClusterKey() {
     openssl rand -hex 16 >> ${base_path}/certs/clusterkey
 }
+
