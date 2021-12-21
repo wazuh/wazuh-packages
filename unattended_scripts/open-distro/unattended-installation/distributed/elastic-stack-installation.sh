@@ -63,7 +63,7 @@ checkArch() {
 applyLog4j2Mitigation(){
 
     eval "mkdir /etc/elasticsearch/jvm.options.d ${debug}"
-    eval "echo '-Dlog4j2.formatMsgNoLookups=true' > /etc/elasticsearch/jvm.options.d/disabledlog4j.options ${debug}"
+    eval "echo '-Dlog4j2.formatMsgNoLookups=true' > /etc/elasticsearch/jvm.options.d/disabledlog4j.options 2>&1"
     eval "chmod 2750 /etc/elasticsearch/jvm.options.d/disabledlog4j.options ${debug}"
     eval "chown root:elasticsearch /etc/elasticsearch/jvm.options.d/disabledlog4j.options ${debug}"
 
