@@ -126,11 +126,6 @@ configureElasticsearch() {
             fi
         done
 
-        if [[ ! "${elasticsearch_node_names[@]}" =~ "${einame}" ]]; then
-            logger -e "The name given does not appear on the configuration file"
-            exit 1;
-        fi
-
         echo "network.host: ${elasticsearch_node_ips[pos]}" >> /etc/elasticsearch/elasticsearch.yml
 
         echo "opendistro_security.nodes_dn:" >> /etc/elasticsearch/elasticsearch.yml

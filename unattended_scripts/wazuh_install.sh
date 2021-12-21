@@ -197,6 +197,7 @@ main() {
 
     if [ -z ${AIO} ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
         readConfig
+        checknames
         installPrerequisites
         if [ "${wazuh_cluster_config_enabled}" == "yes" ]; then
             createClusterKey
