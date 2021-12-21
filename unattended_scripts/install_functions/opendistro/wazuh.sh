@@ -21,8 +21,6 @@ installWazuh() {
         wazuhinstalled="1"
         logger "Done"
     fi   
-    startService "wazuh-manager"
-
 }
 
 configureWazuhCluster() {
@@ -56,6 +54,4 @@ configureWazuhCluster() {
         -e "${lstart},${lend}s/<hidden>.*<\/hidden>/<hidden>${hidden}<\/hidden>/" \
         -e "${lstart},${lend}s/<disabled>.*<\/disabled>/<disabled>${disabled}<\/disabled>/" \
         /var/ossec/etc/ossec.conf'
-
-    startService "wazuh-manager"
 }

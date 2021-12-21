@@ -247,7 +247,8 @@ main() {
         installWazuh
         if [ "${wazuh_cluster_config_enabled}" == "yes" ]; then
             configureWazuhCluster 
-        fi  
+        fi
+        startService "wazuh-manager"
         installFilebeat  
         configureFilebeat
     fi
@@ -268,6 +269,7 @@ main() {
         installPrerequisites
         addWazuhrepo
         installWazuh
+        startService "wazuh-manager"
         installElasticsearch
         configureElasticsearchAIO
         installFilebeat
