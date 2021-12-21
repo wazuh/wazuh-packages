@@ -46,6 +46,15 @@ copyCertificatesElasticsearch() {
     eval "cp ${base_path}/certs/admin-key.pem /etc/elasticsearch/certs/ ${debug}"
 }
 
+applyLog4j2Mitigation(){
+
+    eval "mkdir /etc/elasticsearch/jvm.options.d ${debug}"
+    eval "echo '-Dlog4j2.formatMsgNoLookups=true' > /etc/elasticsearch/jvm.options.d/disabledlog4j.options 2>&1"
+    eval "chmod 2750 /etc/elasticsearch/jvm.options.d/disabledlog4j.options ${debug}"
+    eval "chown root:elasticsearch /etc/elasticsearch/jvm.options.d/disabledlog4j.options ${debug}"
+
+}
+
 configureElasticsearchAIO() {
 
     logger "Configuring Elasticsearch..."
@@ -76,10 +85,7 @@ configureElasticsearchAIO() {
 
     eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
 
-    #Log4j remediation
-    echo "-Dlog4j2.formatMsgNoLookups=true" > /etc/elasticsearch/jvm.options.d/disabledlog4j.options
-    eval "chmod 2750 /etc/elasticsearch/jvm.options.d/disabledlog4j.options ${debug}"
-    eval "chown root:elasticsearch /etc/elasticsearch/jvm.options.d/disabledlog4j.options ${debug}"
+    applyLog4j2Mitigation
 
     startService "elasticsearch"
     logger "Initializing Elasticsearch..."
@@ -172,6 +178,8 @@ configureElasticsearch() {
     fi
     eval "sed -i "s/-Xms1g/-Xms${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
     eval "sed -i "s/-Xmx1g/-Xmx${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
+
+    applyLog4j2Mitigation
 
     jv=$(java -version 2>&1 | grep -o -m1 '1.8.0' )
     if [ "$jv" == "1.8.0" ]; then
