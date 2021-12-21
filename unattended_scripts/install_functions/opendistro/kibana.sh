@@ -61,7 +61,7 @@ configureKibana() {
 
     echo 'server.host: "'${nodes_kibana_ip}'"' >> /etc/kibana/kibana.yml
 
-    if [ ${!elasticsearch_node_names[@]} -eq 0 ]; then
+    if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
         echo "elasticsearch.hosts: https://"${elasticsearch_node_ips[0]}":9200" >> /etc/kibana/kibana.yml
     else
         for i in ${elasticsearch_node_ips[@]}; do
