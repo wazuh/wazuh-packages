@@ -194,10 +194,6 @@ main() {
 
     checkArch
 
-    if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
-        createCertificates
-    fi
-    
     if [ -z ${AIO} ]; then
         readConfig
         checkSystem
@@ -205,6 +201,10 @@ main() {
         addWazuhrepo
     fi
 
+    if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
+        createCertificates
+    fi
+    
     if [ -n "${elasticsearch}" ]; then
 
         importFunction "elasticsearch.sh"
@@ -261,6 +261,10 @@ main() {
         else
             healthCheck AIO
         fi
+
+        checkSystem
+        installPrerequisites
+        addWazuhrepo
         installWazuh
         installElasticsearch
         configureElasticsearchAIO
