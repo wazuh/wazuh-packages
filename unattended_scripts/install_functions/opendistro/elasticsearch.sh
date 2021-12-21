@@ -120,8 +120,8 @@ configureElasticsearch() {
             echo '        - "'${i}'"' >> /etc/elasticsearch/elasticsearch.yml
         done
 
-        for i in ${elasticsearch_node_names[@]}; do
-            if [[ "${i}" == "${einame}" ]]; then
+        for i in ${!elasticsearch_node_names[@]}; do
+            if [[ "${elasticsearch_node_names[i]}" == "${einame}" ]]; then
                 pos="${i}";
             fi
         done
