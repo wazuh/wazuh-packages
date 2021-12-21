@@ -103,7 +103,17 @@ initializeKibana() {
         sleep 10
         i=$((i+1))
     done
-    conf="$(awk '{sub("url: https://localhost", "url: https://'"${wazuh_cluster_config_master_address}"'")}1' /usr/share/kibana/data/wazuh/config/wazuh.yml)"
+
+    if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
+        wazuh_api_address=${wazuh_servers_node_ips[0]}
+    else
+        for i in ${!wazuh_servers_node_types[@]}; do
+            if [[ "${wazuh_servers_node_types[i]}" == "master" ]]; then
+                wazuh_api_address=${wazuh_servers_node_ips[i]}
+            fi
+        done
+    fi
+    conf="$(awk '{sub("url: https://localhost", "url: https://'"${wazuh_api_address}"'")}1' /usr/share/kibana/data/wazuh/config/wazuh.yml)"
     echo "${conf}" > /usr/share/kibana/data/wazuh/config/wazuh.yml  
     logger $'\nYou can access the web interface https://'${nodes_kibana_ip}'. The credentials are admin:admin'    
 
