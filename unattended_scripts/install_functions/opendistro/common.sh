@@ -253,6 +253,7 @@ createCertificates() {
     fi
 
     readConfig
+    mkdir ${base_path}/certs 
     generateRootCAcertificate
     generateAdmincertificate
     generateElasticsearchcertificates

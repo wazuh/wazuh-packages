@@ -194,7 +194,7 @@ main() {
 
     checkArch
 
-    if [ -z ${AIO} ]; then
+    if [ -z ${AIO} ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
         readConfig
         checkSystem
         installPrerequisites
