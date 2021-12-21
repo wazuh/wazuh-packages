@@ -60,6 +60,15 @@ checkArch() {
     fi
 }
 
+applyLog4j2Mitigation(){
+
+    eval "mkdir /etc/elasticsearch/jvm.options.d ${debug}"
+    eval "echo '-Dlog4j2.formatMsgNoLookups=true' > /etc/elasticsearch/jvm.options.d/disabledlog4j.options 2>&1"
+    eval "chmod 2750 /etc/elasticsearch/jvm.options.d/disabledlog4j.options ${debug}"
+    eval "chown root:elasticsearch /etc/elasticsearch/jvm.options.d/disabledlog4j.options ${debug}"
+
+}
+
 startService() {
 
     if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
@@ -322,6 +331,8 @@ installElasticsearch() {
         fi
         eval "sed -i "s/-Xms1g/-Xms${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
         eval "sed -i "s/-Xmx1g/-Xmx${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
+
+        applyLog4j2Mitigation
 
         jv=$(java -version 2>&1 | grep -o -m1 '1.8.0' )
         if [ "$jv" == "1.8.0" ]; then
