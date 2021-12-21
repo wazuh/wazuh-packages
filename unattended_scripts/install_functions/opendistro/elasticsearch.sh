@@ -193,13 +193,13 @@ initializeElasticsearch() {
         sleep 10
     done
 
-    if [ -n "${single}" ] || [ -n "${AIO}"]; then
+    if [ -n "${single}" ] || [ -n "${AIO}" ]; then
         eval "export JAVA_HOME=/usr/share/elasticsearch/jdk/"
         security_admin_success=$(/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem | tee -a ${logfile} | grep "Done with success")
-        if [ -z security_admin_success ]; then
+        if [ -z "${security_admin_success}" ]; then
             logger -e "Elasticsearch security admin exitted with errors."
             exit 1
-        else 
+        else
             logger "Done"
         fi
     fi
