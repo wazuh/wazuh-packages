@@ -23,14 +23,13 @@ installElasticsearch() {
         exit 1;  
     else
         elasticsearchinstalled="1"
-        logger "Done"      
+        logger "Done"
+        ((progressbar_status++))
     fi
-
-
 }
 
 copyCertificatesElasticsearch() {
-    
+
     if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
         name=${einame}
     else
@@ -44,6 +43,15 @@ copyCertificatesElasticsearch() {
         eval "cp ${base_path}/certs/admin.pem /etc/elasticsearch/certs/ ${debug}"
         eval "cp ${base_path}/certs/admin-key.pem /etc/elasticsearch/certs/ ${debug}"
     fi
+}
+
+applyLog4j2Mitigation(){
+
+    eval "mkdir /etc/elasticsearch/jvm.options.d ${debug}"
+    eval "echo '-Dlog4j2.formatMsgNoLookups=true' > /etc/elasticsearch/jvm.options.d/disabledlog4j.options 2>&1"
+    eval "chmod 2750 /etc/elasticsearch/jvm.options.d/disabledlog4j.options ${debug}"
+    eval "chown root:elasticsearch /etc/elasticsearch/jvm.options.d/disabledlog4j.options ${debug}"
+
 }
 
 configureElasticsearchAIO() {
@@ -76,20 +84,8 @@ configureElasticsearchAIO() {
 
     eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
 
-    #Log4j remediation
-    echo "-Dlog4j2.formatMsgNoLookups=true" > /etc/elasticsearch/jvm.options.d/disabledlog4j.options
-    eval "chmod 2750 /etc/elasticsearch/jvm.options.d/disabledlog4j.options ${debug}"
-    eval "chown root:elasticsearch /etc/elasticsearch/jvm.options.d/disabledlog4j.options ${debug}"
-
-    startService "elasticsearch"
-    logger "Initializing Elasticsearch."
-    until $(curl -XGET https://localhost:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null); do
-        sleep 10
-    done
-
-    eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem ${debug}"
-    logger "Done"
-
+    applyLog4j2Mitigation
+    initializeElasticsearch
 }
 
 configureElasticsearch() {
@@ -130,7 +126,7 @@ configureElasticsearch() {
 
         echo "opendistro_security.nodes_dn:" >> /etc/elasticsearch/elasticsearch.yml
         for i in "${elasticsearch_node_names[@]}"; do
-                echo '        - CN='${i}',OU=Docu,O=Wazuh,L=California,C=US' >> /etc/elasticsearch/elasticsearch.yml
+            echo '        - CN='${i}',OU=Docu,O=Wazuh,L=California,C=US' >> /etc/elasticsearch/elasticsearch.yml
         done
 
     fi
@@ -148,6 +144,8 @@ configureElasticsearch() {
     eval "sed -i "s/-Xms1g/-Xms${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
     eval "sed -i "s/-Xmx1g/-Xmx${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
 
+    
+
     jv=$(java -version 2>&1 | grep -o -m1 '1.8.0' )
     if [ "$jv" == "1.8.0" ]; then
         echo "root hard nproc 4096" >> /etc/security/limits.conf
@@ -162,26 +160,40 @@ configureElasticsearch() {
     eval "rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml -f ${debug}"
     eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
 
+    applyLog4j2Mitigation
     initializeElasticsearch
-    logger "Done"
 }
 
 initializeElasticsearch() {
 
-    logger "Elasticsearch installed."
-
     logger "Starting Elasticsearch."
     startService "elasticsearch"
+    ((progressbar_status++))
     logger "Initializing Elasticsearch."
 
-    until $(curl -XGET https://${elasticsearch_node_ips[pos]}:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null); do
+    if [ -n "${AIO}" ]; then
+        nip="localhost"
+        options="-icl"
+    else
+        nip="${elasticsearch_node_names[@]}"
+        options="-h ${elasticsearch_node_ips[pos]}"
+    fi
+
+    until $(curl -XGET https://${nip}:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null); do
         sleep 10
     done
 
     if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
         eval "export JAVA_HOME=/usr/share/elasticsearch/jdk/"
-        eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${elasticsearch_node_ips[pos]} ${debug}"
+        security_admin_success=$(/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ ${options} -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem | tee -a ${logfile} | grep "Done with success")
+        if [ -z "${security_admin_success}" ]; then
+            logger -e "Elasticsearch security admin exitted with errors."
+            exit 1
+        else
+            logger "Done"
+        fi
     fi
 
     logger "Done"
+    ((progressbar_status++))
 }

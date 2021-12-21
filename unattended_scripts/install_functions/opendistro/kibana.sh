@@ -20,6 +20,7 @@ installKibana() {
     else    
         kibanainstalled="1"
         logger "Done"
+        ((progressbar_status++))
     fi
 
 }
@@ -44,10 +45,16 @@ configureKibanaAIO() {
 
     modifyKibanaLogin
     
+
+    ((progressbar_status++))
     initializeKibanaAIO
+    ((progressbar_status++))
 }
 
 configureKibana() {
+
+    logger "Configuring Kibana"
+    
     eval "getConfig kibana/kibana_unattended_distributed.yml /etc/kibana/kibana.yml ${debug}"
     eval "mkdir /usr/share/kibana/data ${debug}"
     eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
@@ -66,12 +73,9 @@ configureKibana() {
     else
         echo "elasticsearch.hosts:" >> /etc/kibana/kibana.yml
         for i in ${elasticsearch_node_ips[@]}; do
-                echo "  - https://${i}:9200" >> /etc/kibana/kibana.yml
+            echo "  - https://${i}:9200" >> /etc/kibana/kibana.yml
         done
     fi
-
-    
-    logger "Kibana installed."
 
     modifyKibanaLogin
 
@@ -79,7 +83,11 @@ configureKibana() {
     eval "chown -R kibana:kibana /etc/kibana/ ${debug}"
     eval "chmod -R 500 /etc/kibana/certs ${debug}"
     eval "chmod 440 /etc/kibana/certs/kibana* ${debug}"
+
+    ((progressbar_status++))
     initializeKibana
+
+    logger "Kibana installed."
 }
 
 
@@ -113,9 +121,11 @@ initializeKibana() {
             fi
         done
     fi
+
     conf="$(awk '{sub("url: https://localhost", "url: https://'"${wazuh_api_address}"'")}1' /usr/share/kibana/data/wazuh/config/wazuh.yml)"
-    echo "${conf}" > /usr/share/kibana/data/wazuh/config/wazuh.yml  
-    logger $'\nYou can access the web interface https://'${nodes_kibana_ip}'. The credentials are admin:admin'    
+    echo "${conf}" > /usr/share/kibana/data/wazuh/config/wazuh.yml
+    ((progressbar_status++))
+    logger $'\nYou can access the web interface https://'${kip}'. The credentials are admin:admin'
 
 }
 
@@ -128,7 +138,7 @@ initializeKibanaAIO() {
         sleep 10
         i=$((i+1))
     done
-    logger $'\nYou can access the web interface https://localhost. The credentials are admin:admin'    
+    logger $'\nYou can access the web interface https://localhost. The credentials are admin:admin'
 }
 
 modifyKibanaLogin() {

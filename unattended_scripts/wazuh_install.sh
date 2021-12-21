@@ -30,6 +30,59 @@ base_path="$(dirname $(readlink -f $0))"
 logfile="/var/log/wazuh-unattended-installation.log"
 debug=">> ${logfile} 2>&1"
 
+max_progressbar_length=70
+progressbar_status=0
+
+progressBar() {
+    if [ -z "${buffer}" ]; then
+        buffer=""
+        lines=1
+    fi
+
+    if [ "$1" ]; then
+        buffer="${buffer}$1\n"
+    fi
+
+    totalcolumns=$( tput cols )
+    columns=$(echo $((totalcolumns<max_progressbar_length ? totalcolumns : max_progressbar_length)))
+    columns=$(( $columns-6 ))
+    cols_done=$(( ($progressbar_status*$columns) / $progressbar_total ))
+    cols_empty=$(( $columns-$cols_done ))
+    progresspercentage=$(( ($progressbar_status*100) / $progressbar_total ))
+
+    tput el1
+    for i in $(seq $lines)
+    do
+        tput cuu1
+        tput el
+    done
+    printf "${buffer}"
+    echo -ne "|"
+    for i in $(seq $cols_done); do echo -n "▇"; done
+    for i in $(seq $cols_empty); do echo -n " "; done
+    printf "|%3.3s%%\n" ${progresspercentage}
+
+    lines=$(echo -e "$buffer" | wc -l)
+    IFS=$'\n'
+    for line in $(echo -e "$buffer"); do 
+        length=$(expr length "$line")
+        while [[ $length -gt $totalcolumns ]]; do
+            ((lines+=1))
+            length=$(( length - totalcolumns ))
+        done
+    done
+
+    if [ $distributed_installs -gt 1 ] && [ $progressbar_status -eq $progressbar_total ]; then
+        buffer=""
+        lines=1
+        printf "${buffer}"
+        echo -ne "|"
+        for i in $(seq $cols_done); do echo -n "▇"; done
+        for i in $(seq $cols_empty); do echo -n " "; done
+        printf "|%3.3s%%\n" ${progresspercentage}
+    fi
+}
+
 getHelp() {
 
     echo -e ""
@@ -94,7 +147,13 @@ logger() {
             message="$1"
             ;;
     esac
-    echo $now $mtype $message | tee -a ${logfile}
+    finalmessage=$(echo "$now" "$mtype" "$message") 
+    echo "$finalmessage" >> ${logfile}
+    if [ -z "$debugEnabled" ] && [ "$1" != "-e" ]; then
+        progressBar "$finalmessage"
+    else 
+        echo -e "$finalmessage"
+    fi
 }
 
 importFunction() {
@@ -133,26 +192,36 @@ main() {
         getHelp
     fi
 
+    progressbar_total=0
+    distributed_installs=0
+
     while [ -n "$1" ]
     do
         case "$1" in
             "-a"|"--all-in-one")
                 AIO=1
                 winame="wazuh"
+                progressbar_total=14
                 shift 1
                 ;;
             "-w"|"--wazuh-server")
                 wazuh=1
+                progressbar_total=8
+                ((distributed_installs++))
                 winame=$2
                 shift 2
                 ;;
             "-e"|"--elasticsearch")
                 elasticsearch=1
+                progressbar_total=8
+                ((distributed_installs++))
                 einame=$2
                 shift 2
                 ;;
             "-k"|"--kibana")
                 kibana=1
+                progressbar_total=8
+                ((distributed_installs++))
                 shift 1
                 ;;
             "-c"|"--create-certificates")
@@ -165,7 +234,7 @@ main() {
                 ;;
             "-v"|"--verbose")
                 debugEnabled=1
-                debug='2>&1 | tee -a /var/log/wazuh-unattended-installation.log'
+                debug="2>&1 | tee -a ${logfile}"
                 shift 1
                 ;;
             "-d"|"--development")
@@ -184,6 +253,8 @@ main() {
                 getHelp
         esac
     done
+
+    echo $>progressbar_total
 
     if [ "$EUID" -ne 0 ]; then
         logger -e "Error: This script must be run as root."
@@ -214,26 +285,43 @@ main() {
 
         importFunction "elasticsearch.sh"
 
+        progressbar_status=0
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored for Elasticsearch."
+            ((progressbar_status++))
         else
             healthCheck elasticsearch
         fi
-        installElasticsearch 
+        checkSystem
+        installPrerequisites
+        addWazuhrepo
+        checkNodes
+        installElasticsearch
         configureElasticsearch
+        restoreWazuhrepo
+        logger "Elasticsearch installed correctly"
+        ((distributed_installs--))
     fi
 
     if [ -n "${kibana}" ]; then
 
         importFunction "kibana.sh"
 
+        progressbar_status=0
         if [ -n "${ignore}" ]; then
-            logger -w "Health-check ignored for Kibana."
+            logger -w "Health-check ignored for Kibana.."
+            ((progressbar_status++))
         else
             healthCheck kibana
         fi
-        installKibana 
+        checkSystem
+        installPrerequisites
+        addWazuhrepo
+        installKibana
         configureKibana
+        restoreWazuhrepo
+        logger "Kibana installed correctly"
+        ((distributed_installs--))
     fi
 
     if [ -n "${wazuh}" ]; then
@@ -241,18 +329,26 @@ main() {
         importFunction "wazuh.sh"
         importFunction "filebeat.sh"
 
+        progressbar_status=0
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored for Wazuh manager."
+            ((progressbar_status++))
         else
             healthCheck wazuh
         fi
         installWazuh
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
-            configureWazuhCluster 
+            configureWazuhCluster
+            ((progressbar_total++))
         fi
+
         startService "wazuh-manager"
-        installFilebeat  
+
+        installFilebeat
         configureFilebeat
+        restoreWazuhrepo
+        logger "Wazuh installed correctly"
+        ((distributed_installs--))
     fi
 
     if [ -n "${AIO}" ]; then
@@ -264,6 +360,7 @@ main() {
 
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored for AIO."
+            ((progressbar_status++))
         else
             healthCheck AIO
         fi
@@ -278,6 +375,8 @@ main() {
         configureFilebeatAIO
         installKibana
         configureKibanaAIO
+        restoreWazuhrepo
+        logger "Installation Finished"
     fi
 
     restoreWazuhrepo
