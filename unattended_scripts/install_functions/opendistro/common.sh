@@ -423,3 +423,7 @@ readConfig() {
         exit 1;
     fi
 }
+
+createClusterKey() {
+    openssl rand -hex 16 >> ${base_path}/certs/clusterkey
+}

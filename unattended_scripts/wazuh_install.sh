@@ -198,6 +198,9 @@ main() {
         readConfig
         checkSystem
         installPrerequisites
+        if [ "${wazuh_cluster_config_enabled}" == "yes" ]; then
+            createClusterKey
+        fi
         addWazuhrepo
     fi
 

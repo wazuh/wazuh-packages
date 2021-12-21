@@ -34,7 +34,7 @@ configureWazuhCluster() {
         node_type="worker"
     fi
     master_address=$wazuh_cluster_config_cluster_master_address
-    key=$(openssl rand -hex 16)
+    key=$(cat ${base_path}/certs/clusterkey)
     bind_address="0.0.0.0"
     port="1516"
     hidden="no"
