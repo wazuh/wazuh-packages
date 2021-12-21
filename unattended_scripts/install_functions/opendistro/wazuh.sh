@@ -27,20 +27,25 @@ installWazuh() {
 
 configureWazuhCluster() {
 
-    cluster_name=$(awk '/cluster.name:/ {print $2}' wazuh_cluster_config.yml)
-    node_type=$(awk '/node.type:/ {print $2}' wazuh_cluster_config.yml)
-    master_address=$(awk '/master.address:/ {print $2}' wazuh_cluster_config.yml)
-    bind_address=$(awk '/bind.address:/ {print $2}' wazuh_cluster_config.yml)
-    port=$(awk '/port:/ {print $2}' wazuh_cluster_config.yml)
-    hidden=$(awk '/hidden:/ {print $2}' wazuh_cluster_config.yml)
-    disabled=$(awk '/disabled:/ {print $2}' wazuh_cluster_config.yml)
+    cluster_name=$wazuh_cluster_config_cluster_name
+    if [[ $winame == $wazuh_cluster_config_master_node_name ]]; then
+        node_type="master"
+    else
+        node_type="worker"
+    fi
+    master_address=$wazuh_cluster_config_cluster_master_address
+    key=$(openssl rand -hex 16)
+    bind_address="0.0.0.0"
+    port="1516"
+    hidden="no"
+    disabled="no"
     lstart=$(grep -n "<cluster>" /var/ossec/etc/ossec.conf | cut -d : -f 1)
     lend=$(grep -n "</cluster>" /var/ossec/etc/ossec.conf | cut -d : -f 1)
 
     eval 'sed -i -e "${lstart},${lend}s/<name>.*<\/name>/<name>${cluster_name}<\/name>/" \
         -e "${lstart},${lend}s/<node_name>.*<\/node_name>/<node_name>${iname}<\/node_name>/" \
         -e "${lstart},${lend}s/<node_type>.*<\/node_type>/<node_type>${node_type}<\/node_type>/" \
-        -e "${lstart},${lend}s/<key>.*<\/key>/<key>${wazuhclusterkey}<\/key>/" \
+        -e "${lstart},${lend}s/<key>.*<\/key>/<key>${key}<\/key>/" \
         -e "${lstart},${lend}s/<port>.*<\/port>/<port>${port}<\/port>/" \
         -e "${lstart},${lend}s/<bind_addr>.*<\/bind_addr>/<bind_addr>${bind_address}<\/bind_addr>/" \
         -e "${lstart},${lend}s/<node>.*<\/node>/<node>${master_address}<\/node>/" \

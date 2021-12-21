@@ -35,23 +35,13 @@ configureFilebeat() {
     eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
     eval "curl -s https://packages.wazuh.com/4.x/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module ${debug}"
 
-    nh=$(awk -v RS='' '/network.host:/' ${base_path}/config.yml)
-
-    if [ -n "$nh" ]
-    then
-        nhr="network.host: "
-        nip="${nh//$nhr}"
+    if [ ${!elasticsearch_node_names[@]} -eq 0 ]; then
         echo "output.elasticsearch.hosts:" >> /etc/filebeat/filebeat.yml
-        echo "  - ${nip}"  >> /etc/filebeat/filebeat.yml
+        echo "  - ${elasticsearch_node_ips[0]}"  >> /etc/filebeat/filebeat.yml
     else
         echo "output.elasticsearch.hosts:" >> /etc/filebeat/filebeat.yml
-        sh=$(awk -v RS='' '/discovery.seed_hosts:/' ${base_path}/config.yml)
-        shr="discovery.seed_hosts:"
-        rm="- "
-        sh="${sh//$shr}"
-        sh="${sh//$rm}"
-        for line in $sh; do
-                echo "  - ${line}" >> /etc/filebeat/filebeat.yml
+        for i in ${elasticsearch_node_ips[@]}; do
+                echo "  - ${i}" >> /etc/filebeat/filebeat.yml
         done
     fi
 

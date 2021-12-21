@@ -249,28 +249,16 @@ startService() {
 createCertificates() {
 
     if [ -n "${AIO}" ]; then
-        eval "getConfig certificate/instances_aio.yml ${base_path}/instances.yml ${debug}"
+        eval "getConfig certificate/config_aio.yml ${base_path}/config.yml ${debug}"
     fi
 
-    readInstances
+    readConfig
     generateRootCAcertificate
     generateAdmincertificate
     generateElasticsearchcertificates
     generateFilebeatcertificates
     generateKibanacertificates
     cleanFiles
-}
-
-checkNodes() {
-
-    head=$(head -n1 ${base_path}/config.yml)
-    if [ "${head}" == "## Multi-node configuration" ]
-    then
-        master=1
-    else
-        single=1
-    fi
-
 }
 
 specsCheck() {
@@ -399,5 +387,39 @@ rollBack() {
 
     if [ -z "${uninstall}" ]; then    
         logger -w "Installation cleaned. Check the /var/log/wazuh-unattended-installation.log file to learn more about the issue."
+    fi
+}
+
+parse_yaml() {
+   local prefix=$2
+   local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @|tr @ '\034')
+   sed -ne "s|^\($s\):|\1|" \
+        -e "s|^\($s\)\($w\)$s:$s[\"']\(.*\)[\"']$s\$|\1$fs\2$fs\3|p" \
+        -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p"  $1 |
+   awk -F$fs '{
+      indent = length($1)/2;
+      vname[indent] = $2;
+      for (i in vname) {if (i > indent) {delete vname[i]}}
+      if (length($3) > 0) {
+         vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
+         printf("%s%s%s=\"%s\"\n", "'$prefix'",vn, $2, $3);
+      }
+   }'
+}
+
+readConfig() {
+    if [ -f ${base_path}/config.yml ]; then
+        logger_cert "Configuration file found. Creating certificates..."
+        eval "$(parse_yaml ${base_path}/config.yml)"
+        eval "elasticsearch_node_names=( $(parse_yaml ${base_path}/config.yml | grep nodes_elasticsearch_name | sed 's/nodes_elasticsearch_name=//') )"
+        eval "wazuh_servers_node_names=( $(parse_yaml ${base_path}/config.yml | grep nodes_wazuh_servers_name | sed 's/nodes_wazuh_servers_name=//') )"
+        eval "kibana_node_names=( $(parse_yaml ${base_path}/config.yml | grep nodes_kibana_name | sed 's/nodes_kibana_name=//') )"
+
+        eval "elasticsearch_node_ips=( $(parse_yaml ${base_path}/config.yml | grep nodes_elasticsearch_ip | sed 's/nodes_elasticsearch_ip=//') )"
+        eval "wazuh_servers_node_ips=( $(parse_yaml ${base_path}/config.yml | grep nodes_wazuh_servers_ip | sed 's/nodes_wazuh_servers_ip=//') )"
+        eval "kibana_node_ips=( $(parse_yaml ${base_path}/config.yml | grep nodes_kibana_ip | sed 's/nodes_kibana_ip=//') )"
+    else
+        logger_cert -e "No configuration file found. ${base_path}/config.yml"
+        exit 1;
     fi
 }
