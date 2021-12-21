@@ -77,17 +77,10 @@ configureElasticsearchAIO() {
     eval "chmod 2750 /etc/elasticsearch/jvm.options.d/disabledlog4j.options ${debug}"
     eval "chown root:elasticsearch /etc/elasticsearch/jvm.options.d/disabledlog4j.options ${debug}"
 
-    startService "elasticsearch"
-    logger "Initializing Elasticsearch..."
-    until $(curl -XGET https://localhost:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null); do
-        sleep 10
-    done
-    ((progressbar_status++))
-
-    eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem ${debug}"
-    logger "Done"
-    ((progressbar_status++))
+    initializeElasticsearch
 }
+
+
 
 configureElasticsearch() {
     logger "Configuring Elasticsearch..."
@@ -182,24 +175,33 @@ configureElasticsearch() {
     eval "rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml -f ${debug}"
     eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
 
-    ((progressbar_status++))
-
     initializeElasticsearch
 }
 
 initializeElasticsearch() {
 
     startService "elasticsearch"
+    ((progressbar_status++))
     logger "Initializing Elasticsearch..."
 
+
+    if [ -n "${AIO}" ]; then 
+        nip="localhost"
+    fi
 
     until $(curl -XGET https://${nip}:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null); do
         sleep 10
     done
 
-    if [ -n "${single}" ]; then
+    if [ -n "${single}" ] || [ -n "${AIO}"]; then
         eval "export JAVA_HOME=/usr/share/elasticsearch/jdk/"
-        eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${nip} ${debug}"
+        security_admin_success=$(/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem | tee -a ${logfile} | grep "Done with success")
+        if [ -z security_admin_success ]; then
+            logger -e "Elasticsearch security admin exitted with errors."
+            exit 1
+        else 
+            logger "Done"
+        fi
     fi
 
     logger "Done"
