@@ -25,8 +25,8 @@ installWazuh() {
 
 configureWazuhCluster() {
 
-    for i in ${wazuh_server_node_names[@]}; do
-        if [[ "${i}" == "${winame}" ]]; then
+    for i in ${!wazuh_server_node_names[@]}; do
+        if [[ "${wazuh_server_node_names[i]}" == "${winame}" ]]; then
             pos="${i}";
         fi
     done
