@@ -198,10 +198,6 @@ main() {
         createCertificates
     fi
     
-    checkSystem
-    installPrerequisites
-    addWazuhrepo
-
     if [ -z ${AIO} ]; then
         readConfig
         checkSystem
