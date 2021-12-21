@@ -246,7 +246,7 @@ main() {
             healthCheck wazuh
         fi
         installWazuh
-        if [ -n ${wazuh_servers_node_types[*]} ]; then
+        if [ -n "${wazuh_servers_node_types[*]}" ]; then
             configureWazuhCluster 
         fi
         startService "wazuh-manager"
