@@ -193,10 +193,10 @@ main() {
     importFunction "wazuh-cert-tool.sh"
 
     checkArch
+    checkSystem
 
     if [ -z ${AIO} ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
         readConfig
-        checkSystem
         installPrerequisites
         if [ "${wazuh_cluster_config_enabled}" == "yes" ]; then
             createClusterKey
@@ -265,7 +265,6 @@ main() {
             healthCheck AIO
         fi
 
-        checkSystem
         installPrerequisites
         addWazuhrepo
         installWazuh
