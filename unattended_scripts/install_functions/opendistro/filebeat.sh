@@ -28,6 +28,13 @@ installFilebeat() {
     fi
 }
 
+copyCertificatesFilebeat() {
+    eval "mkdir /etc/filebeat/certs ${debug}"
+    eval "cp ${base_path}/certs/${winame}.pem /etc/filebeat/certs/filebeat.pem ${debug}"
+    eval "cp ${base_path}/certs/${winame}-key.pem /etc/filebeat/certs/filebeat-key.pem ${debug}"
+    eval "cp ${base_path}/certs/root-ca.pem /etc/filebeat/certs/ ${debug}"
+}
+
 configureFilebeat() {
 
     eval "getConfig filebeat/filebeat_distributed.yml /etc/filebeat/filebeat.yml ${debug}"
@@ -45,10 +52,7 @@ configureFilebeat() {
         done
     fi
 
-    eval "mkdir /etc/filebeat/certs ${debug}"
-    eval "mv ${base_path}/certs/${winame}.pem /etc/filebeat/certs/filebeat.pem ${debug}"
-    eval "mv ${base_path}/certs/${winame}-key.pem /etc/filebeat/certs/filebeat-key.pem ${debug}"
-    eval "cp ${base_path}/certs/root-ca.pem /etc/filebeat/certs/ ${debug}"
+    copyCertificatesFilebeat
 
     logger "Done"
     logger "Starting Filebeat."
@@ -56,15 +60,14 @@ configureFilebeat() {
 }
 
 configureFilebeatAIO() {
-        eval "getConfig filebeat/filebeat_unattended.yml /etc/filebeat/filebeat.yml ${debug}"   
-        eval "curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/4.0/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300 ${debug}"
-        eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
-        eval "curl -s '${repobaseurl}'/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module ${debug}"
-        eval "mkdir /etc/filebeat/certs ${debug}"
-        eval "cp ${base_path}/certs/root-ca.pem /etc/filebeat/certs/ ${debug}"
-        eval "cp ${base_path}/certs/filebeat* /etc/filebeat/certs/ ${debug}"
+    eval "getConfig filebeat/filebeat_unattended.yml /etc/filebeat/filebeat.yml ${debug}"   
+    eval "curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/4.0/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300 ${debug}"
+    eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
+    eval "curl -s '${repobaseurl}'/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module ${debug}"
+    
+    copyCertificatesFilebeat
 
-        startService "filebeat"
-
-        logger "Done"
+    logger "Done"
+    logger "Starting Filebeat."
+    startService "filebeat"
 }

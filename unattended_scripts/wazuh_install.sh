@@ -138,6 +138,7 @@ main() {
         case "$1" in
             "-a"|"--all-in-one")
                 AIO=1
+                winame="wazuh"
                 shift 1
                 ;;
             "-w"|"--wazuh-server")

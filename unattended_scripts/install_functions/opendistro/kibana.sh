@@ -36,7 +36,7 @@ configureKibanaAIO() {
         exit 1;
     fi     
     eval "mkdir /etc/kibana/certs ${debug}"
-    copyKibanacerts
+    copyCertificatesKibana
     eval "chown -R kibana:kibana /etc/kibana/ ${debug}"
     eval "chmod -R 500 /etc/kibana/certs ${debug}"
     eval "chmod 440 /etc/kibana/certs/kibana* ${debug}"
@@ -75,7 +75,7 @@ configureKibana() {
 
     modifyKibanaLogin
 
-    copyKibanacerts
+    copyCertificatesKibana
     eval "chown -R kibana:kibana /etc/kibana/ ${debug}"
     eval "chmod -R 500 /etc/kibana/certs ${debug}"
     eval "chmod 440 /etc/kibana/certs/kibana* ${debug}"
@@ -83,7 +83,7 @@ configureKibana() {
 }
 
 
-copyKibanacerts() {
+copyCertificatesKibana() {
     if [ -d "${base_path}/certs" ]; then
         eval "cp ${base_path}/certs/kibana* /etc/kibana/certs/ ${debug}"
         eval "cp ${base_path}/certs/root-ca.pem /etc/kibana/certs/ ${debug}"
