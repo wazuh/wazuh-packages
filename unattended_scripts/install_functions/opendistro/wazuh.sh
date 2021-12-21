@@ -31,8 +31,8 @@ configureWazuhCluster() {
         fi
     done
 
-    for i in ${wazuh_servers_node_types[@]}; do
-        if [[ "${i}" == "master" ]]; then
+    for i in ${!wazuh_servers_node_types[@]}; do
+        if [[ "${wazuh_servers_node_types[i]}" == "master" ]]; then
             master_address=${wazuh_servers_node_ips[i]}
         fi
     done
