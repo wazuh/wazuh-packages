@@ -136,7 +136,7 @@ getNetworkHost() {
 checkInstalledPass() {
     
     if [ "${sys_type}" == "yum" ]; then
-        elasticsearchinstalled=$(yum list installed 2>/dev/null | grep elasticsearch-oss$)
+        elasticsearchinstalled=$(yum list installed 2>/dev/null | grep elasticsearch-oss)
     elif [ "${sys_type}" == "zypper" ]; then
         elasticsearchinstalled=$(zypper packages --installed | grep elasticsearch-oss | grep i+ | grep noarch)
     elif [ "${sys_type}" == "apt-get" ]; then
@@ -218,7 +218,7 @@ readUsers() {
 
 readFileUsers() {
 
-    filecorrect=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*\w+\s*)+\Z' ${p_file})
+    filecorrect=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' ${p_file})
     if [ ${filecorrect} -ne 1 ]; then
 	logger_pass -e "The password file doesn't have a correct format.
 
@@ -430,7 +430,7 @@ runSecurityAdmin() {
     
     logger_pass "Loading changes..."
     eval "cp /usr/share/elasticsearch/backup/* /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ ${debug_pass}"
-    eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -nhnv -cacert /usr/share/elasticsearch/plugins/opendistro_security/tools/${capem} -cert /usr/share/elasticsearch/plugins/opendistro_security/tools/${adminpem} -key /usr/share/elasticsearch/plugins/opendistro_security/tools/${adminkey} -icl -h ${IP} ${debug_pass}"
+    eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug_pass}"
     if [  "$?" != 0  ]; then
         logger_pass -e "Could not load the changes."
         exit 1;
