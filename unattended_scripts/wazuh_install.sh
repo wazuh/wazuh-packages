@@ -199,7 +199,7 @@ main() {
         readConfig
         checknames
         installPrerequisites
-        if [ "${wazuh_cluster_config_enabled}" == "yes" ]; then
+        if [ -n ${wazuh_servers_node_types[*]} ]; then
             createClusterKey
         fi
         addWazuhrepo
@@ -246,7 +246,7 @@ main() {
             healthCheck wazuh
         fi
         installWazuh
-        if [ "${wazuh_cluster_config_enabled}" == "yes" ]; then
+        if [ -n ${wazuh_servers_node_types[*]} ]; then
             configureWazuhCluster 
         fi
         startService "wazuh-manager"
