@@ -130,7 +130,7 @@ configureElasticsearch() {
 
         echo "opendistro_security.nodes_dn:" >> /etc/elasticsearch/elasticsearch.yml
         for i in "${elasticsearch_node_names[@]}"; do
-                echo '        - CN='${$i}',OU=Docu,O=Wazuh,L=California,C=US' >> /etc/elasticsearch/elasticsearch.yml
+                echo '        - CN='${i}',OU=Docu,O=Wazuh,L=California,C=US' >> /etc/elasticsearch/elasticsearch.yml
         done
 
     fi
