@@ -44,7 +44,7 @@ readInstances() {
 
     if [ -f ${base_path}/instances.yml ]; then
         logger_cert "Configuration file found. Creating certificates..."
-        eval "mkdir ${base_path}/certs $debug"
+        eval "mkdir ${base_path}/certs ${debug_cert}"
     else
         logger_cert -e "No configuration file found."
         exit 1;

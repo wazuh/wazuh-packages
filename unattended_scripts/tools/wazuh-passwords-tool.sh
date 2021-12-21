@@ -101,7 +101,7 @@ getNetworkHost() {
     fi
 }
 
-checkInstalled() {
+checkInstalled_pass() {
     
     if [ "${SYS_TYPE}" == "yum" ]; then
         elasticsearchinstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch)
@@ -370,7 +370,7 @@ main() {
             debug_pass="2>&1 | tee -a ${logfile}"
         fi
 
-        checkInstalled
+        checkInstalled_pass
 
         if [[ -n "${NUSER}" ]] && [[ -n "${CHANGEALL}" ]]; then
             getHelp

@@ -36,7 +36,6 @@ checkSystem() {
         sys_type="apt-get"   
         sep="="
     fi
-    ((progressbar_status++))
 }
 
 checkArch() {
@@ -192,24 +191,20 @@ checkInstalled() {
         fi  
     fi  
 
-    if [ -z "${wazuhinstalled}" ] || [ -z "${elasticsearchinstalled}" ] || [ -z "${filebeatinstalled}" ] || [ -z "${kibanainstalled}" ] && [ -n "${uninstall}" ]; then 
-        logger -e " No Wazuh components were found on the system."
-        exit 1;        
+    if [ -z "${wazuhinstalled}" ] && [ -z "${elasticsearchinstalled}" ] && [ -z "${filebeatinstalled}" ] && [ -z "${kibanainstalled}" ] && [ -n "${uninstall}" ]; then 
+        logger -e "Can't uninstall. No Wazuh components were found on the system."
+        exit 1;
     fi
 
-    if [ -n "${wazuhinstalled}" ] || [ -n "${elasticsearchinstalled}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${kibanainstalled}" ]; then 
-        if [ -n "${ow}" ]; then
-            overwrite
-        
-        elif [ -n "${uninstall}" ]; then
+    if [ -n "AIO" ] && ([ -n "${wazuhinstalled}" ] || [ -n "${elasticsearchinstalled}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${kibanainstalled}" ]); then 
+        if [ -n "${overwrite}" ]; then
             logger -w "Removing the installed items"
             rollBack
         else
-            logger -e "All the Wazuh componets were found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. NOTE: This will erase all the existing configuration and data."
+            logger -e "Some the Wazuh components were found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. NOTE: This will erase all the existing configuration and data."
             exit 1;
         fi
     fi
-
 }
 
 startService() {
@@ -331,7 +326,7 @@ healthCheck() {
 rollBack() {
 
     if [ -z "${uninstall}" ]; then
-        logger -w "Cleaning the installation" 
+        logger "Cleaning the installation" 
     fi  
 
     if [ -f /etc/yum.repos.d/wazuh.repo ]; then
@@ -342,7 +337,7 @@ rollBack() {
         eval "rm /etc/apt/sources.list.d/wazuh.list"
     fi
 
-    if [ -n "${wazuhinstalled}" ]; then
+    if [ -n "${wazuhinstalled}" ] && ([ -z "$1" ] || [ "$1" == "wazuh" ]); then
         logger -w "Removing the Wazuh manager..."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-manager -y ${debug}"
@@ -354,7 +349,7 @@ rollBack() {
         eval "rm -rf /var/ossec/ ${debug}"
     fi     
 
-    if [ -n "${elasticsearchinstalled}" ]; then
+    if [ -n "${elasticsearchinstalled}" ] && ([ -z "$1" ] || [ "$1" == "elasticsearch" ]); then
         logger -w "Removing Elasticsearch..."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove opendistroforelasticsearch -y ${debug}"
@@ -372,7 +367,7 @@ rollBack() {
         eval "rm -rf ./searchguard ${debug}"
     fi
 
-    if [ -n "${filebeatinstalled}" ]; then
+    if [ -n "${filebeatinstalled}" ] && ([ -z "$1" ] || [ "$1" == "filebeat" ]); then
         logger -w "Removing Filebeat..."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove filebeat -y ${debug}"
@@ -386,7 +381,7 @@ rollBack() {
         eval "rm -rf /etc/filebeat/ ${debug}"
     fi
 
-    if [ -n "${kibanainstalled}" ]; then
+    if [ -n "${kibanainstalled}" ] && ([ -z "$1" ] || [ "$1" == "kibana" ]); then
         logger -w "Removing Kibana..."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove opendistroforelasticsearch-kibana -y ${debug}"
@@ -400,7 +395,7 @@ rollBack() {
         eval "rm -rf /etc/kibana/ ${debug}"
     fi
 
-    if [ -z "${uninstall}" ]; then    
-        logger -w "Installation cleaned. Check the /var/log/wazuh-unattended-installation.log file to learn more about the issue."
+    if [ -z "${uninstall}" ]; then
+        logger "Installation cleaned. Check the ${logfile} file to learn more about the issue."
     fi
 }

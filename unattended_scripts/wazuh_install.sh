@@ -123,6 +123,12 @@ getHelp() {
     echo -e "        -d,  --dev"
     echo -e "                Use development repository."
     echo -e ""
+    echo -e "        -o,  --overwrite"
+    echo -e "                Overwrite previously installed components of the stack. NOTE: This will erase all the existing configuration and data."
+    echo -e ""
+    echo -e "        -u,  --uninstall"
+    echo -e "                Uninstall all wazuh components. NOTE: This will erase all the existing configuration and data."
+    echo -e ""
     echo -e "        -h,  --help"
     echo -e "                Shows help."
     echo -e ""
@@ -149,7 +155,7 @@ logger() {
     esac
     finalmessage=$(echo "$now" "$mtype" "$message") 
     echo "$finalmessage" >> ${logfile}
-    if [ -z "$debugEnabled" ] && [ "$1" != "-e" ]; then
+    if [ -z "$debugEnabled" ] && [ "$1" != "-e" ] && [ -z "$uninstall"]; then
         progressBar "$finalmessage"
     else 
         echo -e "$finalmessage"
@@ -188,6 +194,7 @@ importFunction() {
 }
 
 main() {
+
     if [ ! -n  "$1" ]; then
         getHelp
     fi
@@ -200,26 +207,36 @@ main() {
         case "$1" in
             "-a"|"--all-in-one")
                 AIO=1
-                progressbar_total=14
+                progressbar_total=12
                 shift 1
                 ;;
             "-w"|"--wazuh-server")
+                if [ -n "$wazuh" ]; then
+                    logger -e "Error on arguments. Probably missing <node-name> after -w|--wazuh-server"
+                    getHelp
+                    exit 1
+                fi
                 wazuh=1
-                progressbar_total=8
+                progressbar_total=7
                 ((distributed_installs++))
                 winame=$2
                 shift 2
                 ;;
             "-e"|"--elasticsearch")
+                if [ -n "$elasticsearch" ]; then
+                    logger -e "Error on arguments. Probably missing <node-name> after -e|--elasticsearch"
+                    getHelp
+                    exit 1
+                fi
                 elasticsearch=1
-                progressbar_total=8
+                progressbar_total=7
                 ((distributed_installs++))
                 einame=$2
                 shift 2
                 ;;
             "-k"|"--kibana")
                 kibana=1
-                progressbar_total=8
+                progressbar_total=7
                 ((distributed_installs++))
                 shift 1
                 ;;
@@ -249,6 +266,14 @@ main() {
                 wazuhclusterkey="$2"
                 shift 2
                 ;;
+            "-o"|"--overwrite")
+                overwrite=1
+                shift 1
+                ;;
+            "-u"|"--uninstall")
+                uninstall=1
+                shift 1
+                ;;
             "-h"|"--help")
                 getHelp
                 ;;
@@ -258,22 +283,27 @@ main() {
         esac
     done
 
-    echo $>progressbar_total
-
     if [ "$EUID" -ne 0 ]; then
         logger -e "Error: This script must be run as root."
         exit 1;
-    fi   
+    fi
 
     importFunction "common.sh"
     importFunction "wazuh-cert-tool.sh"
 
     checkArch
-
-    
+    checkSystem
+    checkInstalled
+    checkArguments
     
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
         createCertificates
+    fi
+
+    if [ -n "${uninstall}" ]; then
+        logger "Removing all installed components"
+        rollBack
+        exit 0
     fi
 
     if [ -n "${elasticsearch}" ]; then
@@ -287,7 +317,6 @@ main() {
         else
             healthCheck elasticsearch
         fi
-        checkSystem
         installPrerequisites
         addWazuhrepo
         checkNodes
@@ -309,7 +338,6 @@ main() {
         else
             healthCheck kibana
         fi
-        checkSystem
         installPrerequisites
         addWazuhrepo
         installKibana
@@ -336,7 +364,6 @@ main() {
         else
             healthCheck wazuh
         fi
-        checkSystem
         installPrerequisites
         addWazuhrepo
         installWazuh
@@ -364,7 +391,6 @@ main() {
         else
             healthCheck AIO
         fi
-        checkSystem
         installPrerequisites
         addWazuhrepo
         installWazuh
@@ -379,4 +405,71 @@ main() {
     fi
 }
 
-main "$@"
+checkArguments() {
+
+    if [ -n "$uninstall" ] && ([ -n "$AIO" ] || [ -n "$elasticsearch" ] || [ -n "$kibana" ] || [ -n "$wazuh" ]); then 
+        logger -e "The argument -u|--uninstall can't be used with -a, -k, -e or -w. If you want to overwrite the components use -o|--overwrite"
+        exit 1
+    fi
+
+    if [ -n "$AIO" ]; then
+        if [ -n "$elasticsearch" ] || [ -n "$kibana" ] || [ -n "$wazuh" ]; then
+            logger -e "Argument -a|--all-in-one is not compatible with -e|--elasticsearch, -k|--kibana or -w|--wazuh-server"
+            exit 1
+        fi
+    fi
+
+    if [ -n "$elasticsearch" ] && [ -z "$einame" ]; then
+        logger -e "Argument --elasticsearch must be accompanied by the name of the node."
+        exit 1
+    fi
+
+    if [ -n "$wazuh" ] && [ -z "$winame" ]; then
+        logger -e "Argument --wazuh-server must be accompanied by the name of the node."
+        exit 1
+    fi
+
+    if [ -n "$elasticsearch" ] && [ -n "$elasticsearchinstalled" ]; then
+        if [ -n "$overwrite" ]; then
+            rollBack "elasticsearch"
+        else 
+            logger -e "Elasticsearch is already installed in this node. Use option -o|--overwrite to overwrite all components."
+            exit 
+        fi
+    fi
+
+    if [ -n "$kibana" ] && [ -n "$kibanainstalled" ]; then
+        if [ -n "$overwrite" ]; then
+            rollBack "kibana"
+        else 
+            logger -e "Kibana is already installed in this node. Use option -o|--overwrite to overwrite all components."
+            exit 
+        fi
+    fi
+
+    if [ -n "$wazuh" ] && [ -n "$wazuhinstalled" ]; then
+        if [ -n "$overwrite" ]; then
+            rollBack "wazuh"
+        else 
+            logger -e "Wazuh is already installed in this node. Use option -o|--overwrite to overwrite all components."
+            exit 
+        fi
+    fi
+
+    if [ -n "$wazuh" ] && [ -n "$filebeatinstalled" ]; then
+        if [ -n "$overwrite" ]; then
+            rollBack "filebeat"
+        else 
+            logger -e "Filebeat is already installed in this node. Use option -o|--overwrite to overwrite all components."
+            exit 
+        fi
+    fi
+
+    if [ -n "$overwrite" ] && [ -z "$AIO" ] && [ -z "$elasticsearch" ] && [ -z "$kibana" ] && [ -z "$wazuh" ]; then 
+        logger -e "The argument -o|--overwrite can't be used by itself. If you want to uninstall the components use -u|--uninstall"
+        exit 1
+    fi
+
+}
+
+main $@

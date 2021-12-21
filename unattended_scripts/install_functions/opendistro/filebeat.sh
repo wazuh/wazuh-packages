@@ -7,11 +7,6 @@
 
 installFilebeat() {
 
-    if [[ -f /etc/filebeat/filebeat.yml ]]; then
-        logger -e "Filebeat is already installed in this node."
-        exit 1;
-    fi
-
     logger "Installing Filebeat..."
     
     if [ ${sys_type} == "zypper" ]; then
