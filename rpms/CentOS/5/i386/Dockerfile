@@ -23,16 +23,16 @@ RUN curl -OL http://packages.wazuh.com/utils/curl/curl-7.63.0.tar.gz && \
     linux32 ./configure --with-ssl=/usr/local/ssl && \
     linux32 make -j2 && linux32 make install && cd / && rm -rf curl*
 
-RUN curl -OL http://packages.wazuh.com/utils/gcc/gcc-5.5.0.tar.gz && \
-    tar xzf gcc-5.5.0.tar.gz  && cd gcc-5.5.0/ && \
+RUN curl -OL http://packages.wazuh.com/utils/gcc/gcc-9.4.0.tar.gz && \
+    tar xzf gcc-9.4.0.tar.gz  && cd gcc-9.4.0/ && \
     linux32 ./contrib/download_prerequisites && \
-    linux32 ./configure --prefix=/usr/local/gcc-5.5.0 --enable-languages=c,c++ --disable-multilib --disable-libsanitizer --disable-bootstrap && \
+    linux32 ./configure --prefix=/usr/local/gcc-9.4.0 --enable-languages=c,c++ --disable-multilib --disable-libsanitizer && \
     linux32 make -j2 && linux32 make install && \
-    ln -fs /usr/local/gcc-5.5.0/bin/g++ /usr/bin/c++ && cd / && rm -rf gcc-*
+    ln -fs /usr/local/gcc-9.4.0/bin/g++ /usr/bin/c++ && cd / && rm -rf gcc-*
 
-ENV CPLUS_INCLUDE_PATH "/usr/local/gcc-5.5.0/include/c++/5.5.0/"
-ENV LD_LIBRARY_PATH "/usr/local/gcc-5.5.0/lib/"
-ENV PATH "/usr/local/gcc-5.5.0/bin:${PATH}"
+ENV CPLUS_INCLUDE_PATH "/usr/local/gcc-9.4.0/include/c++/9.4.0/"
+ENV LD_LIBRARY_PATH "/usr/local/gcc-9.4.0/lib/"
+ENV PATH "/usr/local/gcc-9.4.0/bin:${PATH}"
 
 RUN curl -OL http://packages.wazuh.com/utils/cmake/cmake-3.12.4.tar.gz && \
     tar -zxvf cmake-3.12.4.tar.gz && cd cmake-3.12.4 && \

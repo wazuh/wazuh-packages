@@ -12,24 +12,24 @@ RUN echo "deb http://archive.debian.org/debian/ wheezy contrib main non-free" > 
     cdbs devscripts equivs automake autoconf libtool libaudit-dev selinux-basics \
     libdb5.1=5.1.29-5 libdb5.1-dev libssl1.0.0=1.0.1e-2+deb7u20 procps gawk libsigsegv2
 
-RUN apt-get update && apt-get build-dep python3.2 -y 
+RUN apt-get update && apt-get build-dep python3.2 -y
 
-RUN curl -OL http://packages.wazuh.com/utils/gcc/gcc-5.5.0.tar.gz && \
-    tar xzf gcc-5.5.0.tar.gz  && cd gcc-5.5.0/ && \
+RUN curl -OL http://packages.wazuh.com/utils/gcc/gcc-9.4.0.tar.gz && \
+    tar xzf gcc-9.4.0.tar.gz  && cd gcc-9.4.0/ && \
     ./contrib/download_prerequisites && \
-    ./configure --prefix=/usr/local/gcc-5.5.0 --enable-languages=c,c++ --disable-multilib \
-        --disable-libsanitizer --disable-bootstrap && \
+    ./configure --prefix=/usr/local/gcc-9.4.0 --enable-languages=c,c++ --disable-multilib \
+        --disable-libsanitizer && \
     make -j$(nproc) && make install && \
-    ln -fs /usr/local/gcc-5.5.0/bin/g++ /usr/bin/c++ && cd / && rm -rf gcc-*
+    ln -fs /usr/local/gcc-9.4.0/bin/g++ /usr/bin/c++ && cd / && rm -rf gcc-*
 
-ENV CPLUS_INCLUDE_PATH "/usr/local/gcc-5.5.0/include/c++/5.5.0/"
-ENV LD_LIBRARY_PATH "/usr/local/gcc-5.5.0/lib64:${LD_LIBRARY_PATH}"
-ENV PATH "/usr/local/gcc-5.5.0/bin:${PATH}"
+ENV CPLUS_INCLUDE_PATH "/usr/local/gcc-9.4.0/include/c++/9.4.0/"
+ENV LD_LIBRARY_PATH "/usr/local/gcc-9.4.0/lib64:${LD_LIBRARY_PATH}"
+ENV PATH "/usr/local/gcc-9.4.0/bin:${PATH}"
 
 RUN curl -OL http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz && \
     tar -zxf cmake-3.18.3.tar.gz && cd cmake-3.18.3 && \
-    ./bootstrap --no-system-curl CXX=/usr/local/gcc-5.5.0/bin/g++ \
-        CC=/usr/local/gcc-5.5.0/bin/gcc && \
+    ./bootstrap --no-system-curl CXX=/usr/local/gcc-9.4.0/bin/g++ \
+        CC=/usr/local/gcc-9.4.0/bin/gcc && \
     make -j$(nproc) && make install && ln -s /usr/local/bin/cmake /usr/bin/cmake && \
     cd / && rm -rf cmake-*
 
