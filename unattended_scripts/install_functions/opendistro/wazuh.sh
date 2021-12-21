@@ -22,6 +22,7 @@ installWazuh() {
         logger "Done"
     fi   
     startService "wazuh-manager"
+    ((progressbar_status++))
 
 }
 

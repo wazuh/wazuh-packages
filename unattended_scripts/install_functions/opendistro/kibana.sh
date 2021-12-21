@@ -20,6 +20,7 @@ installKibana() {
     else    
         kibanainstalled="1"
         logger "Done"
+        ((progressbar_status++))
     fi
 
 }
@@ -44,10 +45,16 @@ configureKibanaAIO() {
 
     modifyKibanaLogin
     
+
+    ((progressbar_status++))
     initializeKibanaAIO
+    ((progressbar_status++))
 }
 
 configureKibana() {
+
+    logger "Configuring Kibana"
+    
     eval "getConfig kibana/kibana_unattended_distributed.yml /etc/kibana/kibana.yml ${debug}"
     eval "mkdir /usr/share/kibana/data ${debug}"
     eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
@@ -81,16 +88,17 @@ configureKibana() {
         done
     fi
 
-    
-    logger "Kibana installed."
-
     modifyKibanaLogin
 
     copyKibanacerts
     eval "chown -R kibana:kibana /etc/kibana/ ${debug}"
     eval "chmod -R 500 /etc/kibana/certs ${debug}"
     eval "chmod 440 /etc/kibana/certs/kibana* ${debug}"
+
+    ((progressbar_status++))
     initializeKibana
+
+    logger "Kibana installed."
 }
 
 
@@ -116,9 +124,9 @@ initializeKibana() {
     rm="- "
     wip="${wip//$rm}"
     conf="$(awk '{sub("url: https://localhost", "url: https://'"${wip}"'")}1' /usr/share/kibana/data/wazuh/config/wazuh.yml)"
-    echo "${conf}" > /usr/share/kibana/data/wazuh/config/wazuh.yml  
-    logger $'\nYou can access the web interface https://'${kip}'. The credentials are admin:admin'    
-
+    echo "${conf}" > /usr/share/kibana/data/wazuh/config/wazuh.yml
+    ((progressbar_status++))
+    logger $'\nYou can access the web interface https://'${kip}'. The credentials are admin:admin'
 }
 
 initializeKibanaAIO() {
@@ -128,7 +136,7 @@ initializeKibanaAIO() {
     until [[ "$(curl -XGET https://localhost/status -I -uadmin:admin -k -s --max-time 300 | grep "200 OK")" ]]; do
         sleep 10
     done
-    logger $'\nYou can access the web interface https://localhost. The credentials are admin:admin'    
+    logger $'\nYou can access the web interface https://localhost. The credentials are admin:admin'
 }
 
 modifyKibanaLogin() {

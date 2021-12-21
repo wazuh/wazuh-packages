@@ -13,9 +13,9 @@ debug_pass=">> ${logfile} 2>&1"
 if [ -n "$(command -v yum)" ]; then
     SYS_TYPE="yum"
 elif [ -n "$(command -v zypper)" ]; then
-    SYS_TYPE="zypper"   
+    SYS_TYPE="zypper"
 elif [ -n "$(command -v apt-get)" ]; then
-    SYS_TYPE="apt-get"   
+    SYS_TYPE="apt-get"
 fi
 
 logger_pass() {
@@ -42,7 +42,7 @@ checkRoot() {
     if [ "$EUID" -ne 0 ]; then
         logger_pass -e "This script must be run as root."
         exit 1;
-    fi 
+    fi
 }
 
 restartService() {
@@ -54,7 +54,7 @@ restartService() {
             exit 1;
         else
             logger_pass "${1^} started"
-        fi  
+        fi
     elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
         eval "/etc/init.d/$1 restart ${debug_pass}"
         if [  "$?" != 0  ]; then
@@ -62,7 +62,7 @@ restartService() {
             exit 1;
         else
             logger_pass "${1^} started"
-        fi     
+        fi
     elif [ -x /etc/rc.d/init.d/$1 ] ; then
         eval "/etc/rc.d/init.d/$1 restart ${debug_pass}"
         if [  "$?" != 0  ]; then
@@ -70,7 +70,7 @@ restartService() {
             exit 1;
         else
             logger_pass "${1^} started"
-        fi             
+        fi
     else
         logger_pass -e "${1^} could not start. No service manager found on the system."
         exit 1;
@@ -141,13 +141,13 @@ readAdmincerts() {
     else
         logger_pass -e "No admin certificate key indicated. Please run the script with the option -k <path-to-key-certificate>."
         exit 1;
-    fi    
+    fi
 
 }
 
 readUsers() {
     SUSERS=$(grep -B 1 hash: /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml | grep -v hash: | grep -v "-" | awk '{ print substr( $0, 1, length($0)-1 ) }')
-    USERS=($SUSERS)  
+    USERS=($SUSERS)
 }
 
 checkUser() {
@@ -215,7 +215,7 @@ generateHash() {
         if [  "$?" != 0  ]; then
             logger_pass -e "Hash generation failed."
             exit 1;
-        fi    
+        fi
         logger_pass "Hash generated"
     fi
 
@@ -232,7 +232,7 @@ changePassword() {
                 wazuhpass=${PASSWORDS[i]}
             elif [ "${USERS[i]}" == "kibanaserver" ]; then
                 kibpass=${PASSWORDS[i]}
-            fi  
+            fi
 
         done
     else
@@ -242,7 +242,7 @@ changePassword() {
             wazuhpass=${PASSWORD}
         elif [ "${USERS[i]}" == "kibanaserver" ]; then
             kibpass=${PASSWORD}
-        fi        
+        fi
 
     fi
     
@@ -254,7 +254,7 @@ changePassword() {
             hasfilebeat=$(zypper packages --installed | grep filebeat | grep i+ | grep noarch)
         elif [ "${SYS_TYPE}" == "apt-get" ]; then
             hasfilebeat=$(apt list --installed  2>/dev/null | grep filebeat)
-        fi 
+        fi
 
         if [ "${SYS_TYPE}" == "yum" ]; then
             haskibana=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch-kibana)
@@ -262,7 +262,7 @@ changePassword() {
             haskibana=$(zypper packages --installed | grep opendistroforelasticsearch-kibana | grep i+)
         elif [ "${SYS_TYPE}" == "apt-get" ]; then
             haskibana=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch-kibana)
-        fi     
+        fi
 
         wazuhold=$(grep "password:" /etc/filebeat/filebeat.yml )
         ra="  password: "
@@ -276,13 +276,13 @@ changePassword() {
             conf="$(awk '{sub("  password: '${wazuhold}'", "  password: '${wazuhpass}'")}1' /etc/filebeat/filebeat.yml)"
             echo "${conf}" > /etc/filebeat/filebeat.yml  
             restartService "filebeat"
-        fi 
+        fi
 
         if [ -n "${haskibana}" ]; then
             conf="$(awk '{sub("elasticsearch.password: '${wazuhkibold}'", "elasticsearch.password: '${kibpass}'")}1' /etc/kibana/kibana.yml)"
             echo "${conf}" > /etc/kibana/kibana.yml 
             restartService "kibana"
-        fi         
+        fi
     fi
 
 }
@@ -295,7 +295,7 @@ runSecurityAdmin() {
     if [  "$?" != 0  ]; then
         logger_pass -e "Could not load the changes."
         exit 1;
-    fi    
+    fi
     eval "rm -rf /usr/share/elasticsearch/backup/ ${debug_pass}"
     logger_pass "Done"
 
@@ -306,10 +306,10 @@ runSecurityAdmin() {
 
     if [[ -n "${NUSER}" ]] && [[ -z ${AUTOPASS} ]]; then
         logger_pass -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
-    fi    
+    fi
 
     if [ -n "${CHANGEALL}" ]; then
-        
+
         for i in "${!USERS[@]}"
         do
             echo ""
@@ -318,13 +318,13 @@ runSecurityAdmin() {
         echo ""
         logger_pass -w "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
         echo ""
-    fi 
+    fi
 
 }
 
-main() {   
+main() {
 
-    if [ -n "$1" ]; then      
+    if [ -n "$1" ]; then
         while [ -n "$1" ]
         do
             case "$1" in
@@ -335,7 +335,7 @@ main() {
             "-a"|"--change-all")
                 CHANGEALL=1
                 shift 1
-                ;;                
+                ;;
             "-u"|"--user")
                 NUSER=$2
                 shift
@@ -355,7 +355,7 @@ main() {
                 adminkey=$2
                 shift
                 shift
-                ;;                                                            
+                ;;
             "-h"|"--help")
                 getHelp
                 ;;
@@ -368,30 +368,30 @@ main() {
         
         if [ -n "${DEBUGENABLED}" ]; then
             debug_pass="2>&1 | tee -a ${logfile}"
-        fi 
+        fi
 
-        checkInstalled   
+        checkInstalled
 
         if [[ -n "${NUSER}" ]] && [[ -n "${CHANGEALL}" ]]; then
             getHelp
-        fi 
+        fi
 
         if [[ -n "${PASSWORD}" ]] && [[ -n "${CHANGEALL}" ]]; then
             getHelp
-        fi         
+        fi
 
         if [[ -z "${NUSER}" ]] && [[ -n "${PASSWORD}" ]]; then
             getHelp
-        fi   
+        fi
 
         if [[ -z "${NUSER}" ]] && [[ -z "${PASSWORD}" ]] && [[ -z "${CHANGEALL}" ]]; then
             getHelp
-        fi 
+        fi
 
         if [ -n "${NUSER}" ]; then
             readUsers
             checkUser
-        fi          
+        fi
 
         if [[ -n "${NUSER}" ]] && [[ -z "${PASSWORD}" ]]; then
             AUTOPASS=1
@@ -401,7 +401,7 @@ main() {
         if [ -n "${CHANGEALL}" ]; then
             readUsers
             generatePassword
-        fi                    
+        fi
 
         getNetworkHost
         createBackUp
@@ -411,7 +411,7 @@ main() {
 
     else
 
-        getHelp        
+        getHelp
 
     fi
 
