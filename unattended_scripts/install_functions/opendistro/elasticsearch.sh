@@ -40,8 +40,10 @@ copyCertificatesElasticsearch() {
     eval "cp ${base_path}/certs/${name}.pem /etc/elasticsearch/certs/elasticsearch.pem ${debug}"
     eval "cp ${base_path}/certs/${name}-key.pem /etc/elasticsearch/certs/elasticsearch-key.pem ${debug}"
     eval "cp ${base_path}/certs/root-ca.pem /etc/elasticsearch/certs/ ${debug}"
-    eval "cp ${base_path}/certs/admin.pem /etc/elasticsearch/certs/ ${debug}"
-    eval "cp ${base_path}/certs/admin-key.pem /etc/elasticsearch/certs/ ${debug}"
+    if [ ${pos} -eq 0 ]
+        eval "cp ${base_path}/certs/admin.pem /etc/elasticsearch/certs/ ${debug}"
+        eval "cp ${base_path}/certs/admin-key.pem /etc/elasticsearch/certs/ ${debug}"
+    fi
 }
 
 configureElasticsearchAIO() {
