@@ -40,8 +40,6 @@ configureKibanaAIO() {
     eval "setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node ${debug}"
 
     modifyKibanaLogin
-    
-
     ((progressbar_status++))
     initializeKibanaAIO
     ((progressbar_status++))
