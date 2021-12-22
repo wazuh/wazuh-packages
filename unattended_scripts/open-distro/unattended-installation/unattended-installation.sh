@@ -138,10 +138,23 @@ checkArch() {
 
 applyLog4j2Mitigation(){
 
-    eval "mkdir /etc/elasticsearch/jvm.options.d ${debug}"
-    eval "echo '-Dlog4j2.formatMsgNoLookups=true' > /etc/elasticsearch/jvm.options.d/disabledlog4j.options 2>&1"
-    eval "chmod 2750 /etc/elasticsearch/jvm.options.d/disabledlog4j.options ${debug}"
-    eval "chown root:elasticsearch /etc/elasticsearch/jvm.options.d/disabledlog4j.options ${debug}"
+    eval "curl -so /tmp/apache-log4j-2.17.0-bin.tar.gz https://dlcdn.apache.org/logging/log4j/2.17.0/apache-log4j-2.17.0-bin.tar.gz ${debug}"
+    eval "tar -xf /tmp/apache-log4j-2.17.0-bin.tar.gz -C /tmp/"
+
+    eval "cp /tmp/apache-log4j-2.17.0-bin/log4j-api-2.17.0.jar /usr/share/elasticsearch/lib/  ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.0-bin/log4j-core-2.17.0.jar /usr/share/elasticsearch/lib/ ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.0-bin/log4j-slf4j-impl-2.17.0.jar /usr/share/elasticsearch/plugins/opendistro_security/ ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.0-bin/log4j-api-2.17.0.jar /usr/share/elasticsearch/performance-analyzer-rca/lib/ ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.0-bin/log4j-core-2.17.0.jar /usr/share/elasticsearch/performance-analyzer-rca/lib/ ${debug}"
+
+    eval "rm -f /usr/share/elasticsearch/lib//log4j-api-2.11.1.jar ${debug}"
+    eval "rm -f /usr/share/elasticsearch/lib/log4j-core-2.11.1.jar ${debug}"
+    eval "rm -f /usr/share/elasticsearch/plugins/opendistro_security/log4j-slf4j-impl-2.11.1.jar ${debug}"
+    eval "rm -f /usr/share/elasticsearch/performance-analyzer-rca/lib/log4j-api-2.13.0.jar ${debug}"
+    eval "rm -f /usr/share/elasticsearch/performance-analyzer-rca/lib/log4j-core-2.13.0.jar ${debug}"
+
+    eval "rm -rf /tmp/apache-log4j-2.17.0-bin ${debug}"
+    eval "rm -f /tmp/apache-log4j-2.17.0-bin.tar.gz ${debug}"
 
 }
 
