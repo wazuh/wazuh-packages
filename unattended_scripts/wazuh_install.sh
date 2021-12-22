@@ -72,6 +72,9 @@ progressBar() {
         done
     done
 
+    echo $buffer >> lines.txt
+    echo $lines >> lines.txt
+
     if [ $distributed_installs -gt 1 ] && [ $progressbar_status -eq $progressbar_total ]; then
         buffer=""
         lines=1
@@ -153,9 +156,9 @@ logger() {
             message="$1"
             ;;
     esac
-    finalmessage=$(echo "$now" "$mtype" "$message") 
+    finalmessage=$(echo "$now" "$mtype" "$message")
     echo "$finalmessage" >> ${logfile}
-    if [ -z "$debugEnabled" ] && [ "$1" != "-e" ] && [ -z "$uninstall"]; then
+    if [ -z "$debugEnabled" ] && [ "$1" != "-e" ] && [ -z "$uninstall" ]; then
         progressBar "$finalmessage"
     else 
         echo -e "$finalmessage"
@@ -207,7 +210,7 @@ main() {
         case "$1" in
             "-a"|"--all-in-one")
                 AIO=1
-                progressbar_total=12
+                progressbar_total=13
                 shift 1
                 ;;
             "-w"|"--wazuh-server")
@@ -407,16 +410,29 @@ main() {
 
 checkArguments() {
 
+    if [ -z "${wazuhinstalled}" ] && [ -z "${elasticsearchinstalled}" ] && [ -z "${filebeatinstalled}" ] && [ -z "${kibanainstalled}" ] && [ -n "${uninstall}" ]; then 
+        logger -e "Can't uninstall. No Wazuh components were found on the system."
+        exit 1;
+    fi
+
+    if [ -n "$AIO" ] && ([ -n "${wazuhinstalled}" ] || [ -n "${elasticsearchinstalled}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${kibanainstalled}" ]); then 
+        if [ -n "${overwrite}" ]; then
+            logger -w "Removing the installed items"
+            rollBack
+        else
+            logger -e "Some the Wazuh components were found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. NOTE: This will erase all the existing configuration and data."
+            exit 1;
+        fi
+    fi
+
     if [ -n "$uninstall" ] && ([ -n "$AIO" ] || [ -n "$elasticsearch" ] || [ -n "$kibana" ] || [ -n "$wazuh" ]); then 
         logger -e "The argument -u|--uninstall can't be used with -a, -k, -e or -w. If you want to overwrite the components use -o|--overwrite"
         exit 1
     fi
 
-    if [ -n "$AIO" ]; then
-        if [ -n "$elasticsearch" ] || [ -n "$kibana" ] || [ -n "$wazuh" ]; then
-            logger -e "Argument -a|--all-in-one is not compatible with -e|--elasticsearch, -k|--kibana or -w|--wazuh-server"
-            exit 1
-        fi
+    if [ -n "$AIO" ] && ([ -n "$elasticsearch" ] || [ -n "$kibana" ] || [ -n "$wazuh" ]); then
+        logger -e "Argument -a|--all-in-one is not compatible with -e|--elasticsearch, -k|--kibana or -w|--wazuh-server"
+        exit 1
     fi
 
     if [ -n "$elasticsearch" ] && [ -z "$einame" ]; then

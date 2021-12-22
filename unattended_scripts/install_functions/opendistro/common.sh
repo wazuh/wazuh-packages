@@ -4,7 +4,6 @@
 # and/or modify it under the terms of the GNU General Public
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
-
 repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"
 repobaseurl="https://packages.wazuh.com/4.x"
 
@@ -189,21 +188,6 @@ checkInstalled() {
         else
             kibanaversion=$(echo ${kibanainstalled} | awk '{print $2}')
         fi  
-    fi  
-
-    if [ -z "${wazuhinstalled}" ] && [ -z "${elasticsearchinstalled}" ] && [ -z "${filebeatinstalled}" ] && [ -z "${kibanainstalled}" ] && [ -n "${uninstall}" ]; then 
-        logger -e "Can't uninstall. No Wazuh components were found on the system."
-        exit 1;
-    fi
-
-    if [ -n "AIO" ] && ([ -n "${wazuhinstalled}" ] || [ -n "${elasticsearchinstalled}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${kibanainstalled}" ]); then 
-        if [ -n "${overwrite}" ]; then
-            logger -w "Removing the installed items"
-            rollBack
-        else
-            logger -e "Some the Wazuh components were found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. NOTE: This will erase all the existing configuration and data."
-            exit 1;
-        fi
     fi
 }
 
@@ -325,7 +309,7 @@ healthCheck() {
 
 rollBack() {
 
-    if [ -z "${uninstall}" ]; then
+    if [ -z "${uninstall}" ] && [ -z "$1"]; then
         logger "Cleaning the installation" 
     fi  
 
@@ -395,7 +379,7 @@ rollBack() {
         eval "rm -rf /etc/kibana/ ${debug}"
     fi
 
-    if [ -z "${uninstall}" ]; then
+    if [ -z "${uninstall}" ] && [ -z "$1"]; then
         logger "Installation cleaned. Check the ${logfile} file to learn more about the issue."
     fi
 }
