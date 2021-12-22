@@ -24,7 +24,9 @@ installFilebeat() {
         logger -e "Filebeat installation failed"
         exit 1;
     else
+        logger "Filebeat installed"
         filebeatinstalled="1"
+        ((progressbar_status++))
     fi
 }
 
@@ -53,6 +55,7 @@ configureFilebeat() {
     logger "Done"
     logger "Starting Filebeat."
     startService filebeat
+    ((progressbar_status++))
 }
 
 configureFilebeatAIO() {
@@ -67,4 +70,5 @@ configureFilebeatAIO() {
         startService "filebeat"
 
         logger "Done"
+        ((progressbar_status++))
 }
