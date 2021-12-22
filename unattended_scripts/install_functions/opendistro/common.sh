@@ -59,7 +59,7 @@ installPrerequisites() {
         eval "zypper -n install libcap-progs tar ${debug} || zypper -n install libcap2 tar ${debug}"
     elif [ ${sys_type} == "apt-get" ]; then
         eval "apt-get update -q $debug"
-        eval "apt-get install apt-transport-https curl unzip wget libcap2-bin tar -y ${debug}"
+        eval "apt-get install apt-transport-https curl unzip wget libcap2-bin tar gnupg gnupg2 gnupg1 -y ${debug}"
     fi
 
     if [  "$?" != 0  ]; then
