@@ -25,14 +25,14 @@ installWazuh() {
 
 configureWazuhCluster() {
 
-    for i in ${wazuh_server_node_names[@]}; do
-        if [[ "${i}" == "${winame}" ]]; then
+    for i in ${!wazuh_servers_node_names[@]}; do
+        if [[ "${wazuh_servers_node_names[i]}" == "${winame}" ]]; then
             pos="${i}";
         fi
     done
 
-    for i in ${wazuh_servers_node_types[@]}; do
-        if [[ "${i}" == "master" ]]; then
+    for i in ${!wazuh_servers_node_types[@]}; do
+        if [[ "${wazuh_servers_node_types[i]}" == "master" ]]; then
             master_address=${wazuh_servers_node_ips[i]}
         fi
     done
@@ -45,8 +45,8 @@ configureWazuhCluster() {
     lend=$(grep -n "</cluster>" /var/ossec/etc/ossec.conf | cut -d : -f 1)
 
     eval 'sed -i -e "${lstart},${lend}s/<name>.*<\/name>/<name>wazuh_cluster<\/name>/" \
-        -e "${lstart},${lend}s/<node_name>.*<\/node_name>/<node_name>${iname}<\/node_name>/" \
-        -e "${lstart},${lend}s/<node_type>.*<\/node_type>/<node_type>${wazuh_servers_node_types[i]}<\/node_type>/" \
+        -e "${lstart},${lend}s/<node_name>.*<\/node_name>/<node_name>${winame}<\/node_name>/" \
+        -e "${lstart},${lend}s/<node_type>.*<\/node_type>/<node_type>${wazuh_servers_node_types[pos]}<\/node_type>/" \
         -e "${lstart},${lend}s/<key>.*<\/key>/<key>${key}<\/key>/" \
         -e "${lstart},${lend}s/<port>.*<\/port>/<port>${port}<\/port>/" \
         -e "${lstart},${lend}s/<bind_addr>.*<\/bind_addr>/<bind_addr>${bind_address}<\/bind_addr>/" \

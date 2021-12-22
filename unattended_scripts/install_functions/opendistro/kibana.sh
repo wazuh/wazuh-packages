@@ -61,9 +61,10 @@ configureKibana() {
 
     echo 'server.host: "'${nodes_kibana_ip}'"' >> /etc/kibana/kibana.yml
 
-    if [ ${!elasticsearch_node_names[@]} -eq 0 ]; then
+    if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
         echo "elasticsearch.hosts: https://"${elasticsearch_node_ips[0]}":9200" >> /etc/kibana/kibana.yml
     else
+        echo "elasticsearch.hosts:" >> /etc/kibana/kibana.yml
         for i in ${elasticsearch_node_ips[@]}; do
                 echo "  - https://${i}:9200" >> /etc/kibana/kibana.yml
         done
@@ -97,10 +98,22 @@ initializeKibana() {
 
     startService "kibana"
     logger "Initializing Kibana (this may take a while)"
-    until [[ "$(curl -XGET https://${nodes_kibana_ip}/status -I -uadmin:admin -k -s --max-time 300 | grep "200 OK")" ]]; do
+    i=0
+    until [[ "$(curl -XGET https://${nodes_kibana_ip}/status -I -uadmin:admin -k -s --max-time 300 | grep "200 OK")" ]] || [ ${i} -eq 12 ]; do
         sleep 10
+        i=$((i+1))
     done
-    conf="$(awk '{sub("url: https://localhost", "url: https://'"${wazuh_cluster_config_master_address}"'")}1' /usr/share/kibana/data/wazuh/config/wazuh.yml)"
+
+    if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
+        wazuh_api_address=${wazuh_servers_node_ips[0]}
+    else
+        for i in ${!wazuh_servers_node_types[@]}; do
+            if [[ "${wazuh_servers_node_types[i]}" == "master" ]]; then
+                wazuh_api_address=${wazuh_servers_node_ips[i]}
+            fi
+        done
+    fi
+    conf="$(awk '{sub("url: https://localhost", "url: https://'"${wazuh_api_address}"'")}1' /usr/share/kibana/data/wazuh/config/wazuh.yml)"
     echo "${conf}" > /usr/share/kibana/data/wazuh/config/wazuh.yml  
     logger $'\nYou can access the web interface https://'${nodes_kibana_ip}'. The credentials are admin:admin'    
 
@@ -110,8 +123,10 @@ initializeKibanaAIO() {
 
     startService "kibana"
     logger "Initializing Kibana (this may take a while)"
-    until [[ "$(curl -XGET https://localhost/status -I -uadmin:admin -k -s --max-time 300 | grep "200 OK")" ]]; do
+    i=0
+    until [[ "$(curl -XGET https://localhost/status -I -uadmin:admin -k -s --max-time 300 | grep "200 OK")" ]] || [ ${i} -eq 12 ]; do
         sleep 10
+        i=$((i+1))
     done
     logger $'\nYou can access the web interface https://localhost. The credentials are admin:admin'    
 }

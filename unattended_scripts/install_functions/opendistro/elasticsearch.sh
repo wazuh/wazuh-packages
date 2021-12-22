@@ -31,7 +31,7 @@ installElasticsearch() {
 
 copyCertificatesElasticsearch() {
     
-    if [ ${!elasticsearch_node_names[@]} -eq 0 ]; then
+    if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
         name=${einame}
     else
         name=${elasticsearch_node_names[pos]}
@@ -100,7 +100,7 @@ configureElasticsearch() {
     eval "getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml ${debug}"
     eval "getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml ${debug}"
     
-    if [ ${!elasticsearch_node_names[@]} -eq 0 ]; then
+    if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
         pos=0
         echo "node.name: ${einame}" >> /etc/elasticsearch/elasticsearch.yml
         echo "network.host: ${elasticsearch_node_ips[0]}" >> /etc/elasticsearch/elasticsearch.yml
@@ -112,7 +112,7 @@ configureElasticsearch() {
         echo "node.name: ${einame}" >> /etc/elasticsearch/elasticsearch.yml
         echo "cluster.initial_master_nodes:" >> /etc/elasticsearch/elasticsearch.yml
         for i in ${elasticsearch_node_names[@]}; do
-            echo '        - "'${$i}'"' >> /etc/elasticsearch/elasticsearch.yml
+            echo '        - "'${i}'"' >> /etc/elasticsearch/elasticsearch.yml
         done
 
         echo "discovery.seed_hosts:" >> /etc/elasticsearch/elasticsearch.yml
@@ -120,22 +120,17 @@ configureElasticsearch() {
             echo '        - "'${i}'"' >> /etc/elasticsearch/elasticsearch.yml
         done
 
-        for i in ${elasticsearch_node_names[@]}; do
-            if [[ "${i}" == "${einame}" ]]; then
+        for i in ${!elasticsearch_node_names[@]}; do
+            if [[ "${elasticsearch_node_names[i]}" == "${einame}" ]]; then
                 pos="${i}";
             fi
         done
-
-        if [[ ! "${elasticsearch_node_names[@]}" =~ "${einame}" ]]; then
-            logger -e "The name given does not appear on the configuration file"
-            exit 1;
-        fi
 
         echo "network.host: ${elasticsearch_node_ips[pos]}" >> /etc/elasticsearch/elasticsearch.yml
 
         echo "opendistro_security.nodes_dn:" >> /etc/elasticsearch/elasticsearch.yml
         for i in "${elasticsearch_node_names[@]}"; do
-                echo '        - CN='${$i}',OU=Docu,O=Wazuh,L=California,C=US' >> /etc/elasticsearch/elasticsearch.yml
+                echo '        - CN='${i}',OU=Docu,O=Wazuh,L=California,C=US' >> /etc/elasticsearch/elasticsearch.yml
         done
 
     fi
@@ -183,7 +178,7 @@ initializeElasticsearch() {
         sleep 10
     done
 
-    if [ ${!elasticsearch_node_names[@]} -eq 0 ]; then
+    if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
         eval "export JAVA_HOME=/usr/share/elasticsearch/jdk/"
         eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${elasticsearch_node_ips[pos]} ${debug}"
     fi

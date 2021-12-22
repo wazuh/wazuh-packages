@@ -42,6 +42,19 @@ checkSystem() {
     fi
 }
 
+checknames() {
+
+    if [ -n ${einame} ] && [[ ! "${elasticsearch_node_names[@]}" =~ "${einame}" ]]; then
+        logger -e "The name given for the elasticsearch node does not appear on the configuration file"
+        exit 1;
+    fi
+
+    if [ -n ${winame} ] && [[ ! "${wazuh_servers_node_names[@]}" =~ "${winame}" ]]; then
+        logger -e "The name given for the wazuh server node does not appear on the configuration file"
+        exit 1;
+    fi
+}
+
 checkArch() {
     arch=$(uname -m)
 

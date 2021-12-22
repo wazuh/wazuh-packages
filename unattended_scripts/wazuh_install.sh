@@ -197,15 +197,16 @@ main() {
 
     if [ -z ${AIO} ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
         readConfig
+        checknames
         installPrerequisites
-        if [ "${wazuh_cluster_config_enabled}" == "yes" ]; then
-            createClusterKey
-        fi
         addWazuhrepo
     fi
 
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
         createCertificates
+        if [ -n "${wazuh_servers_node_types[*]}" ]; then
+            createClusterKey
+        fi
     fi
     
     if [ -n "${elasticsearch}" ]; then
@@ -245,7 +246,7 @@ main() {
             healthCheck wazuh
         fi
         installWazuh
-        if [ "${wazuh_cluster_config_enabled}" == "yes" ]; then
+        if [ -n "${wazuh_servers_node_types[*]}" ]; then
             configureWazuhCluster 
         fi
         startService "wazuh-manager"
