@@ -137,7 +137,7 @@ initializeKibanaAIO() {
         sleep 10
         i=$((i+1))
     done
-    logger $'\nYou can access the web interface https://localhost. The credentials are admin:admin'
+    logger $'\nYou can access the web interface https://<kibana-host-ip>. The credentials are admin:admin'
 }
 
 modifyKibanaLogin() {
