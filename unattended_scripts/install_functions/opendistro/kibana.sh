@@ -33,14 +33,10 @@ configureKibanaAIO() {
     if [  "$?" != 0  ]; then
         logger -e "Wazuh Kibana plugin could not be installed."
         rollBack
-
         exit 1;
-    fi     
-    eval "mkdir /etc/kibana/certs ${debug}"
-    copyKibanacerts
-    eval "chown -R kibana:kibana /etc/kibana/ ${debug}"
-    eval "chmod -R 500 /etc/kibana/certs ${debug}"
-    eval "chmod 440 /etc/kibana/certs/kibana* ${debug}"
+    fi
+    logger "Wazuh Kibana plugin installed."
+    setupKibanacerts
     eval "setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node ${debug}"
 
     modifyKibanaLogin
@@ -63,8 +59,8 @@ configureKibana() {
         logger -e "Wazuh Kibana plugin could not be installed."
         exit 1;
     fi
+    logger "Wazuh Kibana plugin installed."
     eval "setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node ${debug}"
-    eval "mkdir /etc/kibana/certs ${debug}"
 
     echo 'server.host: "'${nodes_kibana_ip}'"' >> /etc/kibana/kibana.yml
 
@@ -78,28 +74,30 @@ configureKibana() {
     fi
 
     modifyKibanaLogin
-
-    copyKibanacerts
-    eval "chown -R kibana:kibana /etc/kibana/ ${debug}"
-    eval "chmod -R 500 /etc/kibana/certs ${debug}"
-    eval "chmod 440 /etc/kibana/certs/kibana* ${debug}"
-
+    setupKibanacerts
     ((progressbar_status++))
     initializeKibana
 
     logger "Kibana installed."
 }
 
-
-copyKibanacerts() {
+setupKibanacerts() {
+    eval "mkdir /etc/kibana/certs ${debug}"
     if [ -d "${base_path}/certs" ]; then
-        eval "cp ${base_path}/certs/kibana* /etc/kibana/certs/ ${debug}"
+        eval "cp ${base_path}/certs/${kibana_node_names}* /etc/kibana/certs/ ${debug}"
         eval "cp ${base_path}/certs/root-ca.pem /etc/kibana/certs/ ${debug}"
+        eval "chown -R kibana:kibana /etc/kibana/ ${debug}"
+        eval "chmod -R 500 /etc/kibana/certs ${debug}"
+        eval "chmod 440 /etc/kibana/certs/${kibana_node_names}* ${debug}"
+
+        confCert="$(awk '{sub("/etc/kibana/certs/kibana", "/etc/kibana/certs/'"${kibana_node_names}"'")}1' /etc/kibana/kibana.yml)"
+        echo "${confCert}" > /etc/kibana/kibana.yml
+        logger "Kibana certificate setup finished."
+
     else
         logger -e "No certificates found. Could not initialize Kibana"
         exit 1;
     fi
-
 }
 
 initializeKibana() {
