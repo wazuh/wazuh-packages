@@ -21,6 +21,9 @@ installWazuh() {
         wazuhinstalled="1"
         logger "Done"
     fi   
+
+    ((progressbar_status++))
+
 }
 
 configureWazuhCluster() {

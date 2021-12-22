@@ -38,6 +38,7 @@ checkSystem() {
         sys_type="apt-get"   
         sep="="
     fi
+    ((progressbar_status++))
 }
 
 checknames() {
@@ -80,6 +81,7 @@ installPrerequisites() {
         exit 1;
     else
         logger "Done"
+        ((progressbar_status++))
     fi
 }
 
@@ -105,13 +107,19 @@ addWazuhrepo() {
             eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-\$releasever - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/zypp/repos.d/wazuh.repo ${debug}"
         elif [ ${sys_type} == "apt-get" ]; then
             eval "curl -s ${repogpg} --max-time 300 | apt-key add - ${debug}"
-            eval "echo "deb '${repobaseurl}'/apt/ '${reporelease}' main" | tee /etc/apt/sources.list.d/wazuh.list ${debug}"
+            if [ -n "${development}" ]; then
+                repotype="unstable"
+            else 
+                repotype="stable"
+            fi
+            eval "echo \"deb ${repobaseurl}/apt/ ${repotype} main\" | tee /etc/apt/sources.list.d/wazuh.list ${debug}"
             eval "apt-get update -q ${debug}"
         fi
     else
         logger "Wazuh repository already exists skipping"
     fi
-    logger "Done" 
+    logger "Done"
+    ((progressbar_status++))
 }
 
 restoreWazuhrepo() {
@@ -131,6 +139,7 @@ restoreWazuhrepo() {
         eval "sed -i 's/unstable/stable/g' ${file} ${debug}"
         logger "Done"
     fi
+    ((progressbar_status++))
 }
 
 checkInstalled() {
@@ -220,6 +229,8 @@ checkInstalled() {
 }
 
 startService() {
+
+    logger "Starting service $1..."
 
     if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
         eval "systemctl daemon-reload ${debug}"
@@ -315,7 +326,6 @@ healthCheck() {
             fi
             ;;
         "AIO")
-            specsCheck
             if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]; then
                 logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
                 exit 1;
@@ -325,6 +335,7 @@ healthCheck() {
             fi
             ;;
     esac
+    ((progressbar_status++))
 }
 
 rollBack() {
