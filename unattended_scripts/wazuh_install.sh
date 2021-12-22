@@ -34,14 +34,6 @@ max_progressbar_length=70
 progressbar_status=0
 
 progressBar() {
-    if [ -z "${buffer}" ]; then
-        buffer=""
-        lines=1
-    fi
-
-    if [ "$1" ]; then
-        buffer="${buffer}$1\n"
-    fi
 
     totalcolumns=$( tput cols )
     columns=$(echo $((totalcolumns<max_progressbar_length ? totalcolumns : max_progressbar_length)))
@@ -50,12 +42,22 @@ progressBar() {
     cols_empty=$(( $columns-$cols_done ))
     progresspercentage=$(( ($progressbar_status*100) / $progressbar_total ))
 
+    if [ -z "${buffer}" ]; then
+        buffer=""
+        lines=0
+    fi
+
     tput el1
     for i in $(seq $lines)
     do
         tput cuu1
         tput el
     done
+
+    if [ "$1" ]; then
+        buffer="${buffer}$1\n"
+    fi
+
     printf "${buffer}"
     echo -ne "|"
     for i in $(seq $cols_done); do echo -n "▇"; done
@@ -203,6 +205,7 @@ main() {
     fi
 
     progressbar_total=0
+    progressbar_status=0
     distributed_installs=0
 
     while [ -n "$1" ]
