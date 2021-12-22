@@ -30,6 +30,59 @@ base_path="$(dirname $(readlink -f $0))"
 logfile="/var/log/wazuh-unattended-installation.log"
 debug=">> ${logfile} 2>&1"
 
+max_progressbar_length=70
+progressbar_status=0
+
+progressBar() {
+    if [ -z "${buffer}" ]; then
+        buffer=""
+        lines=1
+    fi
+
+    if [ "$1" ]; then
+        buffer="${buffer}$1\n"
+    fi
+
+    totalcolumns=$( tput cols )
+    columns=$(echo $((totalcolumns<max_progressbar_length ? totalcolumns : max_progressbar_length)))
+    columns=$(( $columns-6 ))
+    cols_done=$(( ($progressbar_status*$columns) / $progressbar_total ))
+    cols_empty=$(( $columns-$cols_done ))
+    progresspercentage=$(( ($progressbar_status*100) / $progressbar_total ))
+
+    tput el1
+    for i in $(seq $lines)
+    do
+        tput cuu1
+        tput el
+    done
+    printf "${buffer}"
+    echo -ne "|"
+    for i in $(seq $cols_done); do echo -n "▇"; done
+    for i in $(seq $cols_empty); do echo -n " "; done
+    printf "|%3.3s%%\n" ${progresspercentage}
+
+    lines=$(echo -e "$buffer" | wc -l)
+    IFS=$'\n'
+    for line in $(echo -e "$buffer"); do 
+        length=$(expr length "$line")
+        while [[ $length -gt $totalcolumns ]]; do
+            ((lines+=1))
+            length=$(( length - totalcolumns ))
+        done
+    done
+
+    if [ $distributed_installs -gt 1 ] && [ $progressbar_status -eq $progressbar_total ]; then
+        buffer=""
+        lines=1
+        printf "${buffer}"
+        echo -ne "|"
+        for i in $(seq $cols_done); do echo -n "▇"; done
+        for i in $(seq $cols_empty); do echo -n " "; done
+        printf "|%3.3s%%\n" ${progresspercentage}
+    fi
+}
+
 getHelp() {
 
     echo -e ""
@@ -43,35 +96,32 @@ getHelp() {
     echo -e "        -a,  --all-in-one"
     echo -e "                All-In-One installation."
     echo -e ""
-    echo -e "        -w,  --wazuh-server <wazuh-node-name>"
-    echo -e "                Wazuh server installation. It includes Filebeat."
-    echo -e ""
-    echo -e "        -e,  --elasticsearch <elasticsearch-node-name>"
-    echo -e "                Elasticsearch installation."
-    echo -e ""
-    echo -e "        -k,  --kibana"
-    echo -e "                Kibana installation."
-    echo -e ""
     echo -e "        -c,  --create-certificates"
     echo -e "                Create certificates from config.yml file."
-    echo -e ""
-    echo -e "        -wk, --wazuh-key <wazuh-cluster-key>"
-    echo -e "                Use this option as well as a wazuh_cluster_config.yml configuration file to automatically configure the wazuh cluster when using a multi-node installation."
-    echo -e ""
-    echo -e "        -v,  --verbose"
-    echo -e "                Shows the complete installation output."
-    echo -e ""
-    echo -e "        -i,  --ignore-health-check"
-    echo -e "                Ignores the health-check."
-    echo -e ""
-    echo -e "        -l,  --local"
-    echo -e "                Use local files."
     echo -e ""
     echo -e "        -d,  --development"
     echo -e "                Use development repository."
     echo -e ""
+    echo -e "        -e,  --elasticsearch <elasticsearch-node-name>"
+    echo -e "                Elasticsearch installation."
+    echo -e ""
     echo -e "        -h,  --help"
     echo -e "                Shows help."
+    echo -e ""
+    echo -e "        -i,  --ignore-health-check"
+    echo -e "                Ignores the health-check."
+    echo -e ""
+    echo -e "        -k,  --kibana"
+    echo -e "                Kibana installation."
+    echo -e ""
+    echo -e "        -l,  --local"
+    echo -e "                Use local files."
+    echo -e ""
+    echo -e "        -v,  --verbose"
+    echo -e "                Shows the complete installation output."
+    echo -e ""
+    echo -e "        -w,  --wazuh-server <wazuh-node-name>"
+    echo -e "                Wazuh server installation. It includes Filebeat."
     echo -e ""
     exit 1 # Exit script after printing help
 
@@ -94,7 +144,13 @@ logger() {
             message="$1"
             ;;
     esac
-    echo $now $mtype $message | tee -a ${logfile}
+    finalmessage=$(echo "$now" "$mtype" "$message") 
+    echo "$finalmessage" >> ${logfile}
+    if [ -z "$debugEnabled" ] && [ "$1" != "-e" ]; then
+        progressBar "$finalmessage"
+    else 
+        echo -e "$finalmessage"
+    fi
 }
 
 importFunction() {
@@ -133,25 +189,35 @@ main() {
         getHelp
     fi
 
+    progressbar_total=0
+    distributed_installs=0
+
     while [ -n "$1" ]
     do
         case "$1" in
             "-a"|"--all-in-one")
                 AIO=1
+                progressbar_total=14
                 shift 1
                 ;;
             "-w"|"--wazuh-server")
                 wazuh=1
+                progressbar_total=8
+                ((distributed_installs++))
                 winame=$2
                 shift 2
                 ;;
             "-e"|"--elasticsearch")
                 elasticsearch=1
+                progressbar_total=8
+                ((distributed_installs++))
                 einame=$2
                 shift 2
                 ;;
             "-k"|"--kibana")
                 kibana=1
+                progressbar_total=8
+                ((distributed_installs++))
                 shift 1
                 ;;
             "-c"|"--create-certificates")
@@ -164,7 +230,7 @@ main() {
                 ;;
             "-v"|"--verbose")
                 debugEnabled=1
-                debug='2>&1 | tee -a /var/log/wazuh-unattended-installation.log'
+                debug="2>&1 | tee -a ${logfile}"
                 shift 1
                 ;;
             "-d"|"--development")
@@ -213,26 +279,34 @@ main() {
 
         importFunction "elasticsearch.sh"
 
+        progressbar_status=0
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored for Elasticsearch."
+            ((progressbar_status++))
         else
             healthCheck elasticsearch
         fi
         installElasticsearch 
         configureElasticsearch
+        logger "Elasticsearch installed correctly"
+        ((distributed_installs--))
     fi
 
     if [ -n "${kibana}" ]; then
 
         importFunction "kibana.sh"
 
+        progressbar_status=0
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored for Kibana."
+            ((progressbar_status++))
         else
             healthCheck kibana
         fi
         installKibana 
         configureKibana
+        logger "Kibana installed correctly"
+        ((distributed_installs--))
     fi
 
     if [ -n "${wazuh}" ]; then
@@ -240,8 +314,10 @@ main() {
         importFunction "wazuh.sh"
         importFunction "filebeat.sh"
 
+        progressbar_status=0
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored for Wazuh manager."
+            ((progressbar_status++))
         else
             healthCheck wazuh
         fi
@@ -252,6 +328,8 @@ main() {
         startService "wazuh-manager"
         installFilebeat  
         configureFilebeat
+        logger "Wazuh installed correctly"
+        ((distributed_installs--))
     fi
 
     if [ -n "${AIO}" ]; then
@@ -263,6 +341,7 @@ main() {
 
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored for AIO."
+            ((progressbar_status++))
         else
             healthCheck AIO
         fi
@@ -278,8 +357,8 @@ main() {
         installKibana
         configureKibanaAIO
     fi
-
     restoreWazuhrepo
+    logger "Installation Finished"
 
 }
 
