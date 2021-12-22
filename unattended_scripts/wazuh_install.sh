@@ -254,8 +254,6 @@ main() {
         esac
     done
 
-    echo $>progressbar_total
-
     if [ "$EUID" -ne 0 ]; then
         logger -e "Error: This script must be run as root."
         exit 1;
