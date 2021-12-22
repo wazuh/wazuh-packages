@@ -187,7 +187,6 @@ configureElasticsearch() {
 }
 
 initializeElasticsearch() {
-
     startService "elasticsearch"
     ((progressbar_status++))
     logger "Initializing Elasticsearch..."
@@ -203,7 +202,7 @@ initializeElasticsearch() {
 
     if [ -n "${single}" ] || [ -n "${AIO}" ]; then
         eval "export JAVA_HOME=/usr/share/elasticsearch/jdk/"
-        security_admin_success=$(/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem | tee -a ${logfile} | grep "Done with success")
+        security_admin_success=$(/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${nip}| tee -a ${logfile} | grep "Done with success")
         if [ -z "${security_admin_success}" ]; then
             logger -e "Elasticsearch security admin exitted with errors."
             exit 1

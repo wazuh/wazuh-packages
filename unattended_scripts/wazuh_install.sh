@@ -417,7 +417,6 @@ checkArguments() {
 
     if [ -n "$AIO" ] && ([ -n "${wazuhinstalled}" ] || [ -n "${elasticsearchinstalled}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${kibanainstalled}" ]); then 
         if [ -n "${overwrite}" ]; then
-            logger -w "Removing the installed items"
             rollBack
         else
             logger -e "Some the Wazuh components were found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. NOTE: This will erase all the existing configuration and data."

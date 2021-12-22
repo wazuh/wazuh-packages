@@ -309,7 +309,7 @@ healthCheck() {
 
 rollBack() {
 
-    if [ -z "${uninstall}" ] && [ -z "$1"]; then
+    if [ -z "${uninstall}" ] && [ -z "$1" ]; then
         logger "Cleaning the installation" 
     fi  
 

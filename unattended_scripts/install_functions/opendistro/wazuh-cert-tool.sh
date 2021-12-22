@@ -37,7 +37,13 @@ logger_cert() {
             message="$1"
             ;;
     esac
-    echo $now $mtype $message | tee -a ${logfile}
+    finalmessage=$(echo "$now" "$mtype" "$message")
+    echo "$finalmessage" >> ${logfile}
+    if [ -z "$debugEnabled" ] && [ "$1" != "-e" ] && [ -z "$uninstall" ] && [[ $(type -t progressBar) == function ]]; then
+        progressBar "$finalmessage"
+    else 
+        echo -e "$finalmessage"
+    fi
 }
 
 readInstances() {
@@ -357,7 +363,7 @@ main() {
         if [[ -n "${ckibana}" ]]; then
             generateKibanacertificates
             logger_cert "Kibana certificates created."
-        fi                     
+        fi
            
     else
         readInstances
