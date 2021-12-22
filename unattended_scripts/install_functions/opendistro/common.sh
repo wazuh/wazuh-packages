@@ -5,21 +5,19 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"
-repobaseurl="https://packages.wazuh.com/4.x"
-reporelease="stable"
-filebeat_wazuh_template="https://raw.githubusercontent.com/wazuh/wazuh/'${wazuh_major}'/extensions/elasticsearch/7.x/wazuh-template.json"
-filebeat_wazuh_module="'${repobaseurl}'/filebeat/wazuh-filebeat-0.1.tar.gz"
-kibana_wazuh_module="'${repobaseurl}'/ui/kibana/wazuh_kibana-'${wazuh_version}'_'${elasticsearch_oss_version}'-'${wazuh_kibana_plugin_revision}'.zip"
-
 if [ -n "${development}" ]; then
     repogpg="https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH"
     repobaseurl="https://packages-dev.wazuh.com/pre-release"
     reporelease="unstable"
-    filebeat_wazuh_template="https://raw.githubusercontent.com/wazuh/wazuh/'${wazuh_major}'/extensions/elasticsearch/7.x/wazuh-template.json"
-    filebeat_wazuh_module="'${repobaseurl}'/filebeat/wazuh-filebeat-0.1.tar.gz"
-    kibana_wazuh_module="'${repobaseurl}'/ui/kibana/wazuh_kibana-'${wazuh_version}'_'${elasticsearch_oss_version}'-'${wazuh_kibana_plugin_revision}'.zip"
+else
+    repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"
+    repobaseurl="https://packages.wazuh.com/4.x"
+    reporelease="stable"
 fi
+
+filebeat_wazuh_template="https://raw.githubusercontent.com/wazuh/wazuh/'${wazuh_major}'/extensions/elasticsearch/7.x/wazuh-template.json"
+filebeat_wazuh_module="'${repobaseurl}'/filebeat/wazuh-filebeat-0.1.tar.gz"
+kibana_wazuh_module="'${repobaseurl}'/ui/kibana/wazuh_kibana-'${wazuh_version}'_'${elasticsearch_oss_version}'-'${wazuh_kibana_plugin_revision}'.zip"
 
 getConfig() {
     if [ -n "${local}" ]; then
