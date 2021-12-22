@@ -7,7 +7,7 @@
 
 installWazuh() {
     
-    logger "Installing the Wazuh manager."
+    logger "Installing the Wazuh Manager."
     if [ ${sys_type} == "zypper" ]; then
         eval "zypper -n install wazuh-manager=${wazuh_version}-${wazuh_revision} ${debug}"
     else
