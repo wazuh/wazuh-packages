@@ -264,8 +264,6 @@ main() {
     if [ -z ${AIO} ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
         readConfig
         checknames
-        installPrerequisites
-        addWazuhrepo
     fi
 
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
@@ -275,6 +273,9 @@ main() {
         fi
     fi
     
+    installPrerequisites
+    addWazuhrepo
+
     if [ -n "${elasticsearch}" ]; then
 
         importFunction "elasticsearch.sh"
@@ -345,9 +346,6 @@ main() {
         else
             healthCheck AIO
         fi
-
-        installPrerequisites
-        addWazuhrepo
         installWazuh
         startService "wazuh-manager"
         installElasticsearch
@@ -357,6 +355,7 @@ main() {
         installKibana
         configureKibanaAIO
     fi
+
     restoreWazuhrepo
     logger "Installation Finished"
 
