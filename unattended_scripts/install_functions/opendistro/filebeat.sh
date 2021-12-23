@@ -53,22 +53,20 @@ configureFilebeat() {
     eval "cp ${base_path}/certs/root-ca.pem /etc/filebeat/certs/ ${debug}"
 
     logger "Done"
-    logger "Starting Filebeat."
-    startService filebeat
     ((progressbar_status++))
 }
 
 configureFilebeatAIO() {
-        eval "getConfig filebeat/filebeat_unattended.yml /etc/filebeat/filebeat.yml ${debug}"   
-        eval "curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/4.0/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300 ${debug}"
-        eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
-        eval "curl -s '${repobaseurl}'/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module ${debug}"
-        eval "mkdir /etc/filebeat/certs ${debug}"
-        eval "cp ${base_path}/certs/root-ca.pem /etc/filebeat/certs/ ${debug}"
-        eval "cp ${base_path}/certs/filebeat* /etc/filebeat/certs/ ${debug}"
 
-        startService "filebeat"
+    eval "getConfig filebeat/filebeat_unattended.yml /etc/filebeat/filebeat.yml ${debug}"   
+    eval "curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/4.0/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300 ${debug}"
+    eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
+    eval "curl -s '${repobaseurl}'/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module ${debug}"
+    eval "mkdir /etc/filebeat/certs ${debug}"
+    eval "cp ${base_path}/certs/root-ca.pem /etc/filebeat/certs/ ${debug}"
+    eval "cp ${base_path}/certs/filebeat* /etc/filebeat/certs/ ${debug}"
 
-        logger "Done"
-        ((progressbar_status++))
+    logger "Done"
+    ((progressbar_status++))
+
 }
