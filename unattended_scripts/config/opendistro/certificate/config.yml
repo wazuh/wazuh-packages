@@ -1,0 +1,22 @@
+nodes:
+  # Elasticsearch server nodes
+  elasticsearch:
+    name: <elasticsearch-node-name>
+    ip: <elasticsearch-node-ip>
+    # name: <elasticsearch-node-name>
+    # ip: <elasticsearch-node-ip>
+
+  # Wazuh server nodes
+  # Use node_type only with more than one Wazuh manager
+  wazuh_servers:
+    name: <wazuh-node-name>
+    ip: <wazuh-manager-ip>
+    # node_type: master
+    # name: <wazuh-node-name>
+    # ip: <wazuh-manager-ip>
+    # node_type: worker
+
+  # Kibana node
+  kibana:
+    name: <kibana-node-name>
+    ip: <kibana-node-ip>

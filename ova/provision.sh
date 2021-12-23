@@ -12,7 +12,7 @@ HOSTNAME="wazuh-manager"
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ASSETS_PATH="${CURRENT_PATH}/assets"
 CUSTOM_PATH="${ASSETS_PATH}/custom"
-BASH_ARGS="-a -l"
+BASH_ARGS="-a -l -v"
 
 
 if [[ ${DEBUG} = "yes" ]]; then
