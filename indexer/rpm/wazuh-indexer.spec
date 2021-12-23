@@ -32,7 +32,7 @@ curl -kOL https://s3.amazonaws.com/warehouse.wazuh.com/indexer/wazuh-indexer-bas
 tar xzvf wazuh-indexer-*.tar.gz && rm -f wazuh-indexer-*.tar.gz
 
 # Copy the installed files into RPM_BUILD_ROOT directory
-adduser wazuh
+useradd wazuh
 chown -R wazuh:wazuh wazuh-indexer-*/*
 cp -pr wazuh-indexer-*/* ${RPM_BUILD_ROOT}%{_localstatedir}/
 
@@ -46,6 +46,10 @@ echo 'OPENSEARCH_PATH_CONF=%{_localstatedir}' >> ${RPM_BUILD_ROOT}/etc/sysconfig
 # -----------------------------------------------------------------------------
 
 %pre
+if ! id wazuh &> /dev/null; then
+    useradd wazuh
+fi
+
 if [ -d /etc/elasticsearch ];then
     cp -r /etc/elasticsearch /tmp/elasticsearch
 fi
@@ -57,9 +61,33 @@ fi
 # -----------------------------------------------------------------------------
 
 %post
+
 if [ -d /tmp/elasticsearch ];then
+    basefolder="/tmp/elasticsearch"
     #echo 'OPENSEARCH_PATH_CONF=%{_localstatedir}' >> /etc/sysconfig/wazuh-indexer
-    cp -r /tmp/elasticsearch/certs %{_localstatedir}/config/
+    if [ -f "${basefolder}/elasticsearch.yml" ];then
+        mkdir -p %{_localstatedir}/config/certs
+
+        http_pemcert=`grep http.pemcert ${basefolder}/elasticsearch.yml | cut -d' ' -f2 | tr -d '"'`
+        http_pemkey=`grep http.pemkey ${basefolder}/elasticsearch.yml | cut -d' ' -f2 | tr -d '"'`
+        http_pemtrustedcas=`grep http.pemtrustedcas ${basefolder}/elasticsearch.yml | cut -d' ' -f2 | tr -d '"'`
+
+        transport_pemcert=`grep transport.pemcert ${basefolder}/elasticsearch.yml | cut -d' ' -f2 | tr -d '"'`
+        transport_pemkey=`grep transport.pemkey ${basefolder}/elasticsearch.yml | cut -d' ' -f2 | tr -d '"'`
+        transport_pemtrustedcas=`grep transport.pemtrustedcas ${basefolder}/elasticsearch.yml | cut -d' ' -f2 | tr -d '"'`
+
+        certs_array=($http_pemcert $http_pemkey $http_pemtrustedcas $transport_pemcert $transport_pemkey $transport_pemtrustedcas)
+
+        for item in "${certs_array[@]}"; do
+            basename=`basename ${item}`
+            if [[ "${item:0:1}" == '/' ]];then
+                cp -r ${item} %{_localstatedir}/config/certs/
+            else
+                cp -r ${basefolder}/${item} %{_localstatedir}/config/certs/
+            fi
+            sed -i 's|${item}|certs/${basename}|g' ${basefolder}/elasticsearch.yml
+        done
+    fi
 
     # Migrate Elastic config to Indexer
     export ES_HOME=/tmp/elasticsearch_home
@@ -85,12 +113,12 @@ else
     echo "path.data: /var/lib/elasticsearch" >> ${RPM_BUILD_ROOT}%{_localstatedir}/config/opensearch.yml
 fi
 
-if ! id wazuh &> /dev/null; then
-    useradd wazuh
-fi
 if [ -d /var/lib/elasticsearch ];then
     chown -R wazuh:wazuh /var/lib/elasticsearch
 fi
+
+rm -rf /tmp/elasticsearch_home
+rm -rf /tmp/elasticsearch
 
 # -----------------------------------------------------------------------------
 
