@@ -19,4 +19,4 @@ nodes:
   # Kibana node
   kibana:
     name: <kibana-node-name>
-    ip: <kibana-manager-ip>
+    ip: <kibana-node-ip>
