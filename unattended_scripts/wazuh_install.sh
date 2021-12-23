@@ -75,16 +75,6 @@ progressBar() {
             length=$(( length - totalcolumns ))
         done
     done
-
-    if [ $distributed_installs -gt 1 ] && [ $progressbar_status -eq $progressbar_total ]; then
-        buffer=""
-        lines=1
-        printf "${buffer}"
-        echo -ne "|"
-        for i in $(seq $cols_done); do echo -n "▇"; done
-        for i in $(seq $cols_empty); do echo -n " "; done
-        printf "|%3.3s%%\n" ${progresspercentage}
-    fi
 }
 
 getHelp() {
@@ -156,11 +146,12 @@ logger() {
     esac
     finalmessage=$(echo "$now" "$mtype" "$message")
     echo "$finalmessage" >> ${logfile}
-    if [ -z "$debugEnabled" ] && [ "$1" != "-e" ] && [ -z "$uninstall" ] && [ -n "${progressbar_status}" ]; then
-        progressBar "$finalmessage"
-    else 
-        echo -e "$finalmessage"
-    fi
+    echo -e "$finalmessage"
+    # if [ -z "$debugEnabled" ] && [ "$1" != "-e" ] && [ -z "$uninstall" ] && [ -n "${progressbar_status}" ]; then
+    #     progressBar "$finalmessage"
+    # else 
+    #     echo -e "$finalmessage"
+    # fi
 }
 
 importFunction() {
@@ -219,7 +210,6 @@ main() {
                 fi
                 wazuh=1
                 progressbar_total=5
-                ((distributed_installs++))
                 winame=$2
                 shift 2
                 ;;
@@ -231,14 +221,12 @@ main() {
                 fi
                 elasticsearch=1
                 progressbar_total=5
-                ((distributed_installs++))
                 einame=$2
                 shift 2
                 ;;
             "-k"|"--kibana")
                 kibana=1
                 progressbar_total=5
-                ((distributed_installs++))
                 shift 1
                 ;;
             "-c"|"--create-certificates")
@@ -293,19 +281,19 @@ main() {
     checkInstalled
     checkArguments
 
-    if [ -z ${AIO} ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
-        readConfig
-        checknames
-        installPrerequisites
-        addWazuhrepo
-    fi
-    
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
         createCertificates
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
             createClusterKey
         fi
-        ((progressbar_status++))
+    fi
+
+    if [ -z ${AIO} ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
+        progressbar_status=0
+        readConfig
+        checknames
+        installPrerequisites
+        addWazuhrepo
     fi
 
     if [ -n "${uninstall}" ]; then
@@ -318,7 +306,9 @@ main() {
 
         importFunction "elasticsearch.sh"
 
-        progressbar_status=0
+        if [[ $progressbar_status -eq $progressbar_total ]]; then
+            progressbar_status=0
+        fi
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored for Elasticsearch."
             ((progressbar_status++))
@@ -334,7 +324,9 @@ main() {
 
         importFunction "kibana.sh"
 
-        progressbar_status=0
+        if [[ $progressbar_status -eq $progressbar_total ]]; then
+            progressbar_status=0
+        fi
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored for Kibana."
             ((progressbar_status++))
@@ -351,7 +343,9 @@ main() {
         importFunction "wazuh.sh"
         importFunction "filebeat.sh"
 
-        progressbar_status=0
+        if [[ $progressbar_status -eq $progressbar_total ]]; then
+            progressbar_status=0
+        fi
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored for Wazuh manager."
             ((progressbar_status++))
@@ -376,7 +370,6 @@ main() {
         importFunction "elasticsearch.sh"
         importFunction "kibana.sh"
 
-        progressbar_status=0
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored for AIO."
             ((progressbar_status++))
