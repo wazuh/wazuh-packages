@@ -365,6 +365,7 @@ main() {
         startService "wazuh-manager"
         installFilebeat  
         configureFilebeat
+        startService "filebeat"
         logger "Wazuh installed correctly"
     fi
 
@@ -391,6 +392,7 @@ main() {
         startService "wazuh-manager"
         installFilebeat
         configureFilebeatAIO
+        startService "filebeat"
         installKibana
         configureKibanaAIO
     fi

@@ -252,7 +252,12 @@ createCertificates() {
     fi
 
     readConfig
-    mkdir ${base_path}/certs 
+    if [ -d ${base_path}/certs ]; then
+        logger -e "Folder ${base_path}/certs exists. Please remove the cert/ folder if you want to create new certificates."
+        exit 1;
+    else
+        mkdir ${base_path}/certs 
+    fi   
     generateRootCAcertificate
     generateAdmincertificate
     generateElasticsearchcertificates
