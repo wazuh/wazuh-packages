@@ -124,7 +124,7 @@ initializeKibana() {
     conf="$(awk '{sub("url: https://localhost", "url: https://'"${wazuh_api_address}"'")}1' /usr/share/kibana/data/wazuh/config/wazuh.yml)"
     echo "${conf}" > /usr/share/kibana/data/wazuh/config/wazuh.yml
     ((progressbar_status++))  
-    logger $'\nYou can access the web interface https://'${nodes_kibana_ip}'. The credentials are admin:admin'    
+    logger $'You can access the web interface https://'${nodes_kibana_ip}'. The credentials are admin:admin'    
 
 }
 
@@ -137,7 +137,7 @@ initializeKibanaAIO() {
         sleep 10
         i=$((i+1))
     done
-    logger $'\nYou can access the web interface https://<kibana-host-ip>. The credentials are admin:admin'
+    logger $'You can access the web interface https://<kibana-host-ip>. The credentials are admin:admin'
 }
 
 modifyKibanaLogin() {
