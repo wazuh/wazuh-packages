@@ -31,9 +31,17 @@ logfile="/var/log/wazuh-unattended-installation.log"
 debug=">> ${logfile} 2>&1"
 
 max_progressbar_length=70
-progressbar_status=0
 
 progressBar() {
+
+    if [ -z "${buffer}" ]; then
+        buffer=""
+        lines=0
+    fi
+
+    if [ "$1" ]; then
+        buffer="${buffer}$1\n"
+    fi
 
     totalcolumns=$( tput cols )
     columns=$(echo $((totalcolumns<max_progressbar_length ? totalcolumns : max_progressbar_length)))
@@ -42,10 +50,7 @@ progressBar() {
     cols_empty=$(( $columns-$cols_done ))
     progresspercentage=$(( ($progressbar_status*100) / $progressbar_total ))
 
-    if [ -z "${buffer}" ]; then
-        buffer=""
-        lines=0
-    fi
+    
 
     tput el1
     for i in $(seq $lines)
@@ -54,10 +59,7 @@ progressBar() {
         tput el
     done
 
-    if [ "$1" ]; then
-        buffer="${buffer}$1\n"
-    fi
-
+    
     printf "${buffer}"
     echo -ne "|"
     for i in $(seq $cols_done); do echo -n "▇"; done
@@ -73,9 +75,6 @@ progressBar() {
             length=$(( length - totalcolumns ))
         done
     done
-
-    echo $buffer >> lines.txt
-    echo $lines >> lines.txt
 
     if [ $distributed_installs -gt 1 ] && [ $progressbar_status -eq $progressbar_total ]; then
         buffer=""
@@ -160,7 +159,7 @@ logger() {
     esac
     finalmessage=$(echo "$now" "$mtype" "$message")
     echo "$finalmessage" >> ${logfile}
-    if [ -z "$debugEnabled" ] && [ "$1" != "-e" ] && [ -z "$uninstall" ]; then
+    if [ -z "$debugEnabled" ] && [ "$1" != "-e" ] && [ -z "$uninstall" ] && [ -n "${progressbar_status}" ]; then
         progressBar "$finalmessage"
     else 
         echo -e "$finalmessage"
@@ -205,7 +204,6 @@ main() {
     fi
 
     progressbar_total=0
-    progressbar_status=0
     distributed_installs=0
 
     while [ -n "$1" ]
@@ -391,6 +389,7 @@ main() {
         importFunction "elasticsearch.sh"
         importFunction "kibana.sh"
 
+        progressbar_status=0
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored."
             ((progressbar_status++))

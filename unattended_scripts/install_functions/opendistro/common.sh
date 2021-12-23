@@ -379,7 +379,7 @@ rollBack() {
         eval "rm -rf /etc/kibana/ ${debug}"
     fi
 
-    if [ -z "${uninstall}" ] && [ -z "$1"]; then
+    if [ -z "${uninstall}" ] && [ -z "$1" ]; then
         logger "Installation cleaned. Check the ${logfile} file to learn more about the issue."
     fi
 }

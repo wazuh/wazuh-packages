@@ -39,11 +39,7 @@ logger_cert() {
     esac
     finalmessage=$(echo "$now" "$mtype" "$message")
     echo "$finalmessage" >> ${logfile}
-    if [ -z "$debugEnabled" ] && [ "$1" != "-e" ] && [ -z "$uninstall" ] && [[ $(type -t progressBar) == function ]]; then
-        progressBar "$finalmessage"
-    else 
-        echo -e "$finalmessage"
-    fi
+    echo -e "$finalmessage"
 }
 
 readInstances() {
