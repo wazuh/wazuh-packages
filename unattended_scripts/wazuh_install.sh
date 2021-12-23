@@ -36,7 +36,7 @@ progressBar() {
 
     if [ -z "${buffer}" ]; then
         buffer=""
-        lines=1
+        lines=0
     fi
 
     if [ "$1" ]; then
