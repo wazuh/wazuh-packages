@@ -197,31 +197,32 @@ main() {
         case "$1" in
             "-a"|"--all-in-one")
                 AIO=1
-                progressbar_total=14
+                progressbar_total=15
                 shift 1
                 ;;
             "-w"|"--wazuh-server")
                 wazuh=1
-                progressbar_total=8
+                progressbar_total=5
                 ((distributed_installs++))
                 winame=$2
                 shift 2
                 ;;
             "-e"|"--elasticsearch")
                 elasticsearch=1
-                progressbar_total=8
+                progressbar_total=5
                 ((distributed_installs++))
                 einame=$2
                 shift 2
                 ;;
             "-k"|"--kibana")
                 kibana=1
-                progressbar_total=8
+                progressbar_total=5
                 ((distributed_installs++))
                 shift 1
                 ;;
             "-c"|"--create-certificates")
                 certificates=1
+                #progressbar_total=3
                 shift 1
                 ;;
             "-i"|"--ignore-health-check")
@@ -271,6 +272,7 @@ main() {
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
             createClusterKey
         fi
+        ((progressbar_status++))
     fi
     
     installPrerequisites
@@ -290,7 +292,6 @@ main() {
         installElasticsearch 
         configureElasticsearch
         logger "Elasticsearch installed correctly"
-        ((distributed_installs--))
     fi
 
     if [ -n "${kibana}" ]; then
@@ -307,7 +308,6 @@ main() {
         installKibana 
         configureKibana
         logger "Kibana installed correctly"
-        ((distributed_installs--))
     fi
 
     if [ -n "${wazuh}" ]; then
@@ -329,8 +329,8 @@ main() {
         startService "wazuh-manager"
         installFilebeat  
         configureFilebeat
+        startService "filebeat"
         logger "Wazuh installed correctly"
-        ((distributed_installs--))
     fi
 
     if [ -n "${AIO}" ]; then
@@ -346,12 +346,14 @@ main() {
         else
             healthCheck AIO
         fi
-        installWazuh
-        startService "wazuh-manager"
+
         installElasticsearch
         configureElasticsearchAIO
+        installWazuh
+        startService "wazuh-manager"
         installFilebeat
         configureFilebeatAIO
+        startService "filebeat"
         installKibana
         configureKibanaAIO
     fi
