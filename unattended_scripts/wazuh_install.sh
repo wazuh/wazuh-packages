@@ -110,7 +110,7 @@ getHelp() {
     echo -e "                Kibana installation."
     echo -e ""
     echo -e "        -c,  --create-certificates"
-    echo -e "                Create certificates from instances.yml file."
+    echo -e "                Create certificates from config.yml file."
     echo -e ""
     echo -e "        -wk, --wazuh-key <wazuh-cluster-key>"
     echo -e "                Use this option as well as a wazuh_cluster_config.yml configuration file to automatically configure the wazuh cluster when using a multi-node installation."
@@ -124,7 +124,7 @@ getHelp() {
     echo -e "        -l,  --local"
     echo -e "                Use local files."
     echo -e ""
-    echo -e "        -d,  --dev"
+    echo -e "        -d,  --development"
     echo -e "                Use development repository."
     echo -e ""
     echo -e "        -o,  --overwrite"
@@ -168,15 +168,15 @@ logger() {
 
 importFunction() {
     if [ -n "${local}" ]; then
-        if [ -f ./$functions_path/$1 ]; then
-            cat ./$functions_path/$1 |grep 'main $@' > /dev/null 2>&1
+        if [ -f ${base_path}/$functions_path/$1 ]; then
+            cat ${base_path}/$functions_path/$1 |grep 'main $@' > /dev/null 2>&1
             has_main=$?
             if [ $has_main = 0 ]; then
-                sed -i 's/main $@//' ./$functions_path/$1
+                sed -i 's/main $@//' ${base_path}/$functions_path/$1
             fi
-            . ./$functions_path/$1
+            . ${base_path}/$functions_path/$1
             if [ $has_main = 0 ]; then
-                echo 'main $@' >> ./$functions_path/$1
+                echo 'main $@' >> ${base_path}/$functions_path/$1
             fi
         else 
             error=1
@@ -192,7 +192,7 @@ importFunction() {
         fi
     fi
     if [ "${error}" = "1" ]; then
-        logger -e "Unable to find resource $1. Exiting"
+        logger -e "Unable to find resource $1. Exiting."
         exit 1
     fi
 }
@@ -257,18 +257,13 @@ main() {
                 debug="2>&1 | tee -a ${logfile}"
                 shift 1
                 ;;
-            "-d"|"--dev")
+            "-d"|"--development")
                 development=1
                 shift 1
                 ;;
             "-l"|"--local")
                 local=1
                 shift 1
-                ;;
-            "-wk"|"--wazuh-key")
-                wazuh_config=1
-                wazuhclusterkey="$2"
-                shift 2
                 ;;
             "-o"|"--overwrite")
                 overwrite=1
@@ -299,9 +294,19 @@ main() {
     checkSystem
     checkInstalled
     checkArguments
+
+    if [ -z ${AIO} ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
+        readConfig
+        checknames
+        installPrerequisites
+        addWazuhrepo
+    fi
     
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
         createCertificates
+        if [ -n "${wazuh_servers_node_types[*]}" ]; then
+            createClusterKey
+        fi
     fi
 
     if [ -n "${uninstall}" ]; then
@@ -316,19 +321,12 @@ main() {
 
         progressbar_status=0
         if [ -n "${ignore}" ]; then
-            logger -w "Health-check ignored."
-            ((progressbar_status++))
+            logger -w "Health-check ignored for Elasticsearch."
         else
             healthCheck elasticsearch
         fi
-        installPrerequisites
-        addWazuhrepo
-        checkNodes
-        installElasticsearch
+        installElasticsearch 
         configureElasticsearch
-        restoreWazuhrepo
-        logger "Elasticsearch installed correctly"
-        ((distributed_installs--))
     fi
 
     if [ -n "${kibana}" ]; then
@@ -337,49 +335,32 @@ main() {
 
         progressbar_status=0
         if [ -n "${ignore}" ]; then
-            logger -w "Health-check ignored."
-            ((progressbar_status++))
+            logger -w "Health-check ignored for Kibana."
         else
             healthCheck kibana
         fi
-        installPrerequisites
-        addWazuhrepo
-        installKibana
+        installKibana 
         configureKibana
-        restoreWazuhrepo
-        logger "Kibana installed correctly"
-        ((distributed_installs--))
     fi
 
     if [ -n "${wazuh}" ]; then
-
-        if [ -n "$wazuhclusterkey" ] && [ ! -f wazuh_cluster_config.yml ]; then
-            logger -e "No wazuh_cluster_config.yml file found."
-            exit 1;
-        fi
 
         importFunction "wazuh.sh"
         importFunction "filebeat.sh"
 
         progressbar_status=0
         if [ -n "${ignore}" ]; then
-            logger -w "Health-check ignored."
-            ((progressbar_status++))
+            logger -w "Health-check ignored for Wazuh manager."
         else
             healthCheck wazuh
         fi
-        installPrerequisites
-        addWazuhrepo
         installWazuh
-        if [ -n "$wazuhclusterkey" ]; then
-            configureWazuhCluster
-            ((progressbar_total++))
+        if [ -n "${wazuh_servers_node_types[*]}" ]; then
+            configureWazuhCluster 
         fi
-        installFilebeat
+        startService "wazuh-manager"
+        installFilebeat  
         configureFilebeat
-        restoreWazuhrepo
-        logger "Wazuh installed correctly"
-        ((distributed_installs--))
     fi
 
     if [ -n "${AIO}" ]; then
@@ -391,23 +372,25 @@ main() {
 
         progressbar_status=0
         if [ -n "${ignore}" ]; then
-            logger -w "Health-check ignored."
-            ((progressbar_status++))
+            logger -w "Health-check ignored for AIO."
         else
             healthCheck AIO
         fi
+
         installPrerequisites
         addWazuhrepo
         installWazuh
+        startService "wazuh-manager"
         installElasticsearch
         configureElasticsearchAIO
         installFilebeat
         configureFilebeatAIO
         installKibana
         configureKibanaAIO
-        restoreWazuhrepo
-        logger "Installation Finished"
     fi
+
+    restoreWazuhrepo
+
 }
 
 checkArguments() {

@@ -7,7 +7,7 @@
 
 installElasticsearch() {
 
-    logger "Installing Open Distro for Elasticsearch..."
+    logger "Installing Open Distro for Elasticsearch."
 
     if [ ${sys_type} == "yum" ]; then
         eval "yum install opendistroforelasticsearch-${opendistro_version}-${opendistro_revision} -y ${debug}"
@@ -29,17 +29,20 @@ installElasticsearch() {
 }
 
 copyCertificatesElasticsearch() {
-    if [ -n "${single}" ]; then
+    
+    if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
         name=${einame}
     else
-        name=${IMN[pos]}
+        name=${elasticsearch_node_names[pos]}
     fi
 
     eval "cp ${base_path}/certs/${name}.pem /etc/elasticsearch/certs/elasticsearch.pem ${debug}"
     eval "cp ${base_path}/certs/${name}-key.pem /etc/elasticsearch/certs/elasticsearch-key.pem ${debug}"
     eval "cp ${base_path}/certs/root-ca.pem /etc/elasticsearch/certs/ ${debug}"
-    eval "cp ${base_path}/certs/admin.pem /etc/elasticsearch/certs/ ${debug}"
-    eval "cp ${base_path}/certs/admin-key.pem /etc/elasticsearch/certs/ ${debug}"
+    if [ ${pos} -eq 0 ]; then
+        eval "cp ${base_path}/certs/admin.pem /etc/elasticsearch/certs/ ${debug}"
+        eval "cp ${base_path}/certs/admin-key.pem /etc/elasticsearch/certs/ ${debug}"
+    fi
 }
 
 applyLog4j2Mitigation(){
@@ -53,7 +56,7 @@ applyLog4j2Mitigation(){
 
 configureElasticsearchAIO() {
 
-    logger "Configuring Elasticsearch..."
+    logger "Configuring Elasticsearch."
 
     eval "getConfig elasticsearch/elasticsearch_unattended.yml /etc/elasticsearch/elasticsearch.yml  ${debug}"
     eval "getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml  ${debug}"
@@ -81,7 +84,19 @@ configureElasticsearchAIO() {
 
     eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
 
-    applyLog4j2Mitigation
+    #Log4j remediation
+    echo "-Dlog4j2.formatMsgNoLookups=true" > /etc/elasticsearch/jvm.options.d/disabledlog4j.options
+    eval "chmod 2750 /etc/elasticsearch/jvm.options.d/disabledlog4j.options ${debug}"
+    eval "chown root:elasticsearch /etc/elasticsearch/jvm.options.d/disabledlog4j.options ${debug}"
+
+    startService "elasticsearch"
+    logger "Initializing Elasticsearch."
+    until $(curl -XGET https://localhost:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null); do
+        sleep 10
+    done
+
+    eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem ${debug}"
+    logger "Done"
 
     initializeElasticsearch
 }
@@ -89,70 +104,47 @@ configureElasticsearchAIO() {
 
 
 configureElasticsearch() {
-    logger "Configuring Elasticsearch..."
+    logger "Configuring Elasticsearch."
 
     eval "getConfig elasticsearch/elasticsearch_unattended_distributed.yml /etc/elasticsearch/elasticsearch.yml ${debug}"
     eval "getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml ${debug}"
     eval "getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml ${debug}"
     eval "getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml ${debug}"
     
-    if [ -n "${single}" ]; then
-        nh=$(awk -v RS='' '/network.host:/' ./config.yml)
-        nhr="network.host: "
-        nip="${nh//$nhr}"
+    if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
+        pos=0
         echo "node.name: ${einame}" >> /etc/elasticsearch/elasticsearch.yml
-        echo "${nn}" >> /etc/elasticsearch/elasticsearch.yml
-        echo "${nh}" >> /etc/elasticsearch/elasticsearch.yml
+        echo "network.host: ${elasticsearch_node_ips[0]}" >> /etc/elasticsearch/elasticsearch.yml
         echo "cluster.initial_master_nodes: ${einame}" >> /etc/elasticsearch/elasticsearch.yml
 
         echo "opendistro_security.nodes_dn:" >> /etc/elasticsearch/elasticsearch.yml
         echo '        - CN='${einame}',OU=Docu,O=Wazuh,L=California,C=US' >> /etc/elasticsearch/elasticsearch.yml
     else
         echo "node.name: ${einame}" >> /etc/elasticsearch/elasticsearch.yml
-        mn=$(awk -v RS='' '/cluster.initial_master_nodes:/' ./config.yml)
-        sh=$(awk -v RS='' '/discovery.seed_hosts:/' ./config.yml)
-        cn=$(awk -v RS='' '/cluster.name:/' ./config.yml)
-        echo "${cn}" >> /etc/elasticsearch/elasticsearch.yml
-        mnr="cluster.initial_master_nodes:"
-        rm="- "
-        mn="${mn//$mnr}"
-        mn="${mn//$rm}"
-
-        shr="discovery.seed_hosts:"
-        sh="${sh//$shr}"
-        sh="${sh//$rm}"
         echo "cluster.initial_master_nodes:" >> /etc/elasticsearch/elasticsearch.yml
-        for line in $mn; do
-                IMN+=(${line})
-                echo '        - "'${line}'"' >> /etc/elasticsearch/elasticsearch.yml
+        for i in ${elasticsearch_node_names[@]}; do
+            echo '        - "'${i}'"' >> /etc/elasticsearch/elasticsearch.yml
         done
 
         echo "discovery.seed_hosts:" >> /etc/elasticsearch/elasticsearch.yml
-        for line in $sh; do
-                DSH+=(${line})
-                echo '        - "'${line}'"' >> /etc/elasticsearch/elasticsearch.yml
+        for i in ${elasticsearch_node_ips[@]}; do
+            echo '        - "'${i}'"' >> /etc/elasticsearch/elasticsearch.yml
         done
-        for i in "${!IMN[@]}"; do
-            if [[ "${IMN[$i]}" == "${einame}" ]]; then
+
+        for i in ${!elasticsearch_node_names[@]}; do
+            if [[ "${elasticsearch_node_names[i]}" == "${einame}" ]]; then
                 pos="${i}";
             fi
         done
 
-        if [[ ! ${IMN[pos]} == ${einame}  ]]; then
-
-            logger -e "The name given does not appear on the configuration file"
-            exit 1;
-        fi
-        nip="${DSH[pos]}"
-        echo "network.host: ${nip}" >> /etc/elasticsearch/elasticsearch.yml
+        echo "network.host: ${elasticsearch_node_ips[pos]}" >> /etc/elasticsearch/elasticsearch.yml
 
         echo "opendistro_security.nodes_dn:" >> /etc/elasticsearch/elasticsearch.yml
-        for i in "${!IMN[@]}"; do
-                echo '        - CN='${IMN[i]}',OU=Docu,O=Wazuh,L=California,C=US' >> /etc/elasticsearch/elasticsearch.yml
+        for i in "${elasticsearch_node_names[@]}"; do
+                echo '        - CN='${i}',OU=Docu,O=Wazuh,L=California,C=US' >> /etc/elasticsearch/elasticsearch.yml
         done
 
     fi
-    #awk -v RS='' '/## Elasticsearch/' ./config.yml >> /etc/elasticsearch/elasticsearch.yml
 
     eval "rm /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem -f ${debug}"
     eval "mkdir /etc/elasticsearch/certs ${debug}"
@@ -187,28 +179,20 @@ configureElasticsearch() {
 }
 
 initializeElasticsearch() {
+
+    logger "Elasticsearch installed."
+
+    logger "Starting Elasticsearch."
     startService "elasticsearch"
-    ((progressbar_status++))
-    logger "Initializing Elasticsearch..."
+    logger "Initializing Elasticsearch."
 
-
-    if [ -n "${AIO}" ]; then 
-        nip="localhost"
-    fi
-
-    until $(curl -XGET https://${nip}:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null); do
+    until $(curl -XGET https://${elasticsearch_node_ips[pos]}:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null); do
         sleep 10
     done
 
-    if [ -n "${single}" ] || [ -n "${AIO}" ]; then
+    if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
         eval "export JAVA_HOME=/usr/share/elasticsearch/jdk/"
-        security_admin_success=$(/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${nip}| tee -a ${logfile} | grep "Done with success")
-        if [ -z "${security_admin_success}" ]; then
-            logger -e "Elasticsearch security admin exitted with errors."
-            exit 1
-        else
-            logger "Done"
-        fi
+        eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${elasticsearch_node_ips[pos]} ${debug}"
     fi
 
     logger "Done"
