@@ -87,9 +87,8 @@ setupKibanacerts() {
         eval "chown -R kibana:kibana /etc/kibana/ ${debug}"
         eval "chmod -R 500 /etc/kibana/certs ${debug}"
         eval "chmod 440 /etc/kibana/certs/${kibana_node_names}* ${debug}"
-
-        confCert="$(awk '{sub("/etc/kibana/certs/kibana", "/etc/kibana/certs/'"${kibana_node_names}"'")}1' /etc/kibana/kibana.yml)"
-        echo "${confCert}" > /etc/kibana/kibana.yml
+        eval "sed -i 's/kibana.pem/'${kibana_node_names}'.pem/g' /etc/kibana/kibana.yml ${debug}"
+        eval "sed -i 's/kibana-key.pem/'${kibana_node_names}'-key.pem/g' /etc/kibana/kibana.yml ${debug}"
         logger "Kibana certificate setup finished."
 
     else
@@ -117,8 +116,7 @@ initializeKibana() {
             fi
         done
     fi
-    conf="$(awk '{sub("url: https://localhost", "url: https://'"${wazuh_api_address}"'")}1' /usr/share/kibana/data/wazuh/config/wazuh.yml)"
-    echo "${conf}" > /usr/share/kibana/data/wazuh/config/wazuh.yml
+    eval "sed -i 's,url: https://localhost,url: https://${wazuh_api_address},g' /usr/share/kibana/data/wazuh/config/wazuh.yml ${debug}"
     ((progressbar_status++))  
     logger $'You can access the web interface https://'${nodes_kibana_ip}'. The credentials are admin:admin'    
 
