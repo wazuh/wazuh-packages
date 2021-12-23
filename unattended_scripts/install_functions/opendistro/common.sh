@@ -17,7 +17,7 @@ fi
 
 filebeat_wazuh_template="https://raw.githubusercontent.com/wazuh/wazuh/'${wazuh_major}'/extensions/elasticsearch/7.x/wazuh-template.json"
 filebeat_wazuh_module="'${repobaseurl}'/filebeat/wazuh-filebeat-0.1.tar.gz"
-kibana_wazuh_module="'${repobaseurl}'/ui/kibana/wazuh_kibana-'${wazuh_version}'_'${elasticsearch_oss_version}'-'${wazuh_kibana_plugin_revision}'.zip"
+kibana_wazuh_plugin="'${repobaseurl}'/ui/kibana/wazuh_kibana-'${wazuh_version}'_'${elasticsearch_oss_version}'-'${wazuh_kibana_plugin_revision}'.zip"
 
 getConfig() {
     if [ -n "${local}" ]; then
@@ -71,13 +71,13 @@ installPrerequisites() {
     logger "Installing all necessary utilities for the installation."
 
     if [ ${sys_type} == "yum" ]; then
-        eval "yum install curl unzip wget libcap tar -y ${debug}"
+        eval "yum install curl unzip wget libcap tar gnupg openssl -y ${debug}"
     elif [ ${sys_type} == "zypper" ]; then
         eval "zypper -n install curl unzip wget ${debug}"         
-        eval "zypper -n install libcap-progs tar ${debug} || zypper -n install libcap2 tar ${debug}"
+        eval "zypper -n install libcap-progs tar gnupg openssl ${debug} || zypper -n install libcap2 tar gnupg openssl ${debug}"
     elif [ ${sys_type} == "apt-get" ]; then
         eval "apt-get update -q $debug"
-        eval "apt-get install apt-transport-https curl unzip wget libcap2-bin tar gnupg -y ${debug}"
+        eval "apt-get install apt-transport-https curl unzip wget libcap2-bin tar gnupg openssl -y ${debug}"
     fi
 
     if [  "$?" != 0  ]; then
