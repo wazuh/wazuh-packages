@@ -7,10 +7,12 @@
 
 repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"
 repobaseurl="https://packages.wazuh.com/4.x"
+reporelease="stable"
 
 if [ -n "${development}" ]; then
     repogpg="https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH"
     repobaseurl="https://packages-dev.wazuh.com/pre-release"
+    reporelease="unstable"
 fi
 
 getConfig() {
@@ -39,6 +41,19 @@ checkSystem() {
     ((progressbar_status++))
 }
 
+checknames() {
+
+    if [ -n ${einame} ] && [[ ! "${elasticsearch_node_names[@]}" =~ "${einame}" ]]; then
+        logger -e "The name given for the elasticsearch node does not appear on the configuration file"
+        exit 1;
+    fi
+
+    if [ -n ${winame} ] && [[ ! "${wazuh_servers_node_names[@]}" =~ "${winame}" ]]; then
+        logger -e "The name given for the wazuh server node does not appear on the configuration file"
+        exit 1;
+    fi
+}
+
 checkArch() {
     arch=$(uname -m)
 
@@ -49,16 +64,16 @@ checkArch() {
 }
 
 installPrerequisites() {
-    logger "Installing all necessary utilities for the installation..."
+    logger "Installing all necessary utilities for the installation."
 
     if [ ${sys_type} == "yum" ]; then
-        eval "yum install curl unzip wget libcap -y ${debug}"
+        eval "yum install curl unzip wget libcap tar -y ${debug}"
     elif [ ${sys_type} == "zypper" ]; then
         eval "zypper -n install curl unzip wget ${debug}"         
-        eval "zypper -n install libcap-progs ${debug} || zypper -n install libcap2 ${debug}"
+        eval "zypper -n install libcap-progs tar ${debug} || zypper -n install libcap2 tar ${debug}"
     elif [ ${sys_type} == "apt-get" ]; then
         eval "apt-get update -q $debug"
-        eval "apt-get install apt-transport-https curl unzip wget libcap2-bin -y ${debug}"
+        eval "apt-get install apt-transport-https curl unzip wget libcap2-bin tar -y ${debug}"
     fi
 
     if [  "$?" != 0  ]; then
@@ -71,7 +86,7 @@ installPrerequisites() {
 }
 
 addWazuhrepo() {
-    logger "Adding the Wazuh repository..."
+    logger "Adding the Wazuh repository."
 
     if [ -n ${development} ]; then
         if [ ${sys_type} == "yum" ]; then
@@ -92,12 +107,7 @@ addWazuhrepo() {
             eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-\$releasever - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/zypp/repos.d/wazuh.repo ${debug}"
         elif [ ${sys_type} == "apt-get" ]; then
             eval "curl -s ${repogpg} --max-time 300 | apt-key add - ${debug}"
-            if [ -n "${development}" ]; then
-                repotype="unstable"
-            else 
-                repotype="stable"
-            fi
-            eval "echo \"deb ${repobaseurl}/apt/ ${repotype} main\" | tee /etc/apt/sources.list.d/wazuh.list ${debug}"
+            eval "echo \"deb ${repobaseurl}/apt/ ${reporelease} main\" | tee /etc/apt/sources.list.d/wazuh.list ${debug}"
             eval "apt-get update -q ${debug}"
         fi
     else
@@ -121,6 +131,7 @@ restoreWazuhrepo() {
         fi
         eval "sed -i 's/-dev//g' ${file} ${debug}"
         eval "sed -i 's/pre-release/4.x/g' ${file} ${debug}"
+        eval "sed -i 's/unstable/stable/g' ${file} ${debug}"
         logger "Done"
     fi
     ((progressbar_status++))
@@ -257,27 +268,22 @@ startService() {
 createCertificates() {
 
     if [ -n "${AIO}" ]; then
-        eval "getConfig certificate/instances_aio.yml ${base_path}/instances.yml ${debug}"
+        eval "getConfig certificate/config_aio.yml ${base_path}/config.yml ${debug}"
     fi
 
-    readInstances
+    readConfig
+    if [ -d ${base_path}/certs ]; then
+        logger -e "Folder ${base_path}/certs exists. Please remove the cert/ folder if you want to create new certificates."
+        exit 1;
+    else
+        mkdir ${base_path}/certs 
+    fi   
     generateRootCAcertificate
     generateAdmincertificate
     generateElasticsearchcertificates
     generateFilebeatcertificates
     generateKibanacertificates
     cleanFiles
-}
-
-checkNodes() {
-
-    head=$(head -n1 ./config.yml)
-    if [ "${head}" == "## Multi-node configuration" ]
-    then
-        master=1
-    else
-        single=1
-    fi
 }
 
 specsCheck() {
@@ -295,7 +301,8 @@ healthCheck() {
                 logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
                 exit 1;
             else
-                logger "Starting the installation of Elasticsearch..."
+                logger "Check recommended minimum hardware requirements for Elasticsearch done."
+                logger "Starting the installation."
             fi
             ;;
 
@@ -304,7 +311,8 @@ healthCheck() {
                 logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
                 exit 1;
             else
-                logger "Starting the installation of Kibana..."
+                logger "Check recommended minimum hardware requirements for Kibana done."
+                logger "Starting the installation."
             fi
             ;;
         "wazuh")
@@ -313,7 +321,8 @@ healthCheck() {
                 logger -e "Your system does not meet the recommended minimum hardware requirements of 2Gb of RAM and 2 CPU cores . If you want to proceed with the installation use the -i option to ignore these requirements."
                 exit 1;
             else
-                logger "Starting the installation of the Wazuh Manager..."
+                logger "Check recommended minimum hardware requirements for Wazuh Manager done."
+                logger "Starting the installation."
             fi
             ;;
         "AIO")
@@ -321,7 +330,8 @@ healthCheck() {
                 logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
                 exit 1;
             else
-                logger "Starting the installation..."
+                logger "Check recommended minimum hardware requirements for AIO done."
+                logger "Starting the installation."
             fi
             ;;
     esac
@@ -343,7 +353,7 @@ rollBack() {
     fi
 
     if [ -n "${wazuhinstalled}" ]; then
-        logger -w "Removing the Wazuh manager..."
+        logger -w "Removing the Wazuh manager."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-manager -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
@@ -355,7 +365,7 @@ rollBack() {
     fi     
 
     if [ -n "${elasticsearchinstalled}" ]; then
-        logger -w "Removing Elasticsearch..."
+        logger -w "Removing Elasticsearch."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove opendistroforelasticsearch -y ${debug}"
             eval "yum remove elasticsearch* -y ${debug}"
@@ -373,7 +383,7 @@ rollBack() {
     fi
 
     if [ -n "${filebeatinstalled}" ]; then
-        logger -w "Removing Filebeat..."
+        logger -w "Removing Filebeat."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove filebeat -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
@@ -387,7 +397,7 @@ rollBack() {
     fi
 
     if [ -n "${kibanainstalled}" ]; then
-        logger -w "Removing Kibana..."
+        logger -w "Removing Kibana."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove opendistroforelasticsearch-kibana -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
@@ -404,3 +414,100 @@ rollBack() {
         logger -w "Installation cleaned. Check the /var/log/wazuh-unattended-installation.log file to learn more about the issue."
     fi
 }
+
+parse_yaml() {
+   local prefix=$2
+   local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @|tr @ '\034')
+   sed -ne "s|^\($s\):|\1|" \
+        -e "s|^\($s\)\($w\)$s:$s[\"']\(.*\)[\"']$s\$|\1$fs\2$fs\3|p" \
+        -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p"  $1 |
+   awk -F$fs '{
+      indent = length($1)/2;
+      vname[indent] = $2;
+      for (i in vname) {if (i > indent) {delete vname[i]}}
+      if (length($3) > 0) {
+         vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
+         printf("%s%s%s=\"%s\"\n", "'$prefix'",vn, $2, $3);
+      }
+   }'
+}
+
+readConfig() {
+    if [ -f ${base_path}/config.yml ]; then
+        eval "$(parse_yaml ${base_path}/config.yml)"
+        eval "elasticsearch_node_names=( $(parse_yaml ${base_path}/config.yml | grep nodes_elasticsearch_name | sed 's/nodes_elasticsearch_name=//') )"
+        eval "wazuh_servers_node_names=( $(parse_yaml ${base_path}/config.yml | grep nodes_wazuh_servers_name | sed 's/nodes_wazuh_servers_name=//') )"
+        eval "kibana_node_names=( $(parse_yaml ${base_path}/config.yml | grep nodes_kibana_name | sed 's/nodes_kibana_name=//') )"
+
+        eval "elasticsearch_node_ips=( $(parse_yaml ${base_path}/config.yml | grep nodes_elasticsearch_ip | sed 's/nodes_elasticsearch_ip=//') )"
+        eval "wazuh_servers_node_ips=( $(parse_yaml ${base_path}/config.yml | grep nodes_wazuh_servers_ip | sed 's/nodes_wazuh_servers_ip=//') )"
+        eval "kibana_node_ips=( $(parse_yaml ${base_path}/config.yml | grep nodes_kibana_ip | sed 's/nodes_kibana_ip=//') )"
+
+        eval "wazuh_servers_node_types=( $(parse_yaml ${base_path}/config.yml | grep nodes_wazuh_servers_node_type | sed 's/nodes_wazuh_servers_node_type=//') )"
+
+        if [ $(printf '%s\n' "${elasticsearch_node_names[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#elasticsearch_node_names[@]} ]; then 
+            logger -e "Duplicated Elasticsearch node names"
+            exit 1;
+        fi
+
+        if [ $(printf '%s\n' "${elasticsearch_node_ips[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#elasticsearch_node_ips[@]} ]; then 
+            logger -e "Duplicated Elasticsearch node ips"
+            exit 1;
+        fi
+
+        if [ $(printf '%s\n' "${wazuh_servers_node_names[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#wazuh_servers_node_names[@]} ]; then 
+            logger -e "Duplicated Wazuh server node names"
+            exit 1;
+        fi
+
+        if [ $(printf '%s\n' "${wazuh_servers_node_ips[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#wazuh_servers_node_ips[@]} ]; then 
+            logger -e "Duplicated Wazuh server node ips"
+            exit 1;
+        fi
+
+        if [ $(printf '%s\n' "${kibana_node_names[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#kibana_node_names[@]} ]; then 
+            logger -e "Duplicated Kibana node names"
+            exit 1;
+        fi
+
+        if [ $(printf '%s\n' "${kibana_node_ips[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#kibana_node_ips[@]} ]; then 
+            logger -e "Duplicated Kibana node ips"
+            exit 1;
+        fi
+
+        if [ ${#wazuh_servers_node_names[@]} -ne ${#wazuh_servers_node_ips[@]} ]; then 
+            logger -e "Different number of Wazuh server node names and IPs "
+            exit 1;
+        fi
+
+        if [ ${#wazuh_servers_node_names[@]} -le 1 ]; then
+            if [ ${#wazuh_servers_node_types[@]} -ne 0 ]; then
+                logger -e "node_type must be used with more than one Wazuh server"
+                exit 1;
+            fi
+        elif [ ${#wazuh_servers_node_names[@]} -ne ${#wazuh_servers_node_types[@]} ]; then
+            logger -e "Different number of Wazuh server node names and node types "
+            exit 1;
+        elif [ $(grep -o master <<< ${wazuh_servers_node_types[*]} | wc -l) -ne 1 ]; then
+            logger -e "Wazuh cluster needs a single master node"
+            exit 1;
+        elif [ $(grep -o worker <<< ${wazuh_servers_node_types[*]} | wc -l) -ne $(expr ${#wazuh_servers_node_types[@]} - 1)  ]; then
+            logger -e "Incorrect number of workers"
+            exit 1;
+        fi
+
+        if [ ${#kibana_node_names[@]} -ne ${#kibana_node_ips[@]} ]; then 
+            logger -e "Different number of Kibana node names and IPs "
+            exit 1;
+        fi
+
+    else
+        logger -e "No configuration file found. ${base_path}/config.yml"
+        exit 1;
+    fi
+}
+
+createClusterKey() {
+    openssl rand -hex 16 >> ${base_path}/certs/clusterkey
+}
+
