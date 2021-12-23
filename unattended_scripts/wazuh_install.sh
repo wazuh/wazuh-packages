@@ -111,6 +111,9 @@ getHelp() {
     echo -e "        -i,  --ignore-health-check"
     echo -e "                Ignores the health-check."
     echo -e ""
+    echo -e "        -s,  --start-cluster"
+    echo -e "                Start the elasticsearch cluster."
+    echo -e ""
     echo -e "        -k,  --kibana"
     echo -e "                Kibana installation."
     echo -e ""
@@ -225,6 +228,10 @@ main() {
                 #progressbar_total=3
                 shift 1
                 ;;
+            "-s"|"--start-cluster")
+                start_elastic_cluster=1
+                shift 1
+                ;;
             "-i"|"--ignore-health-check")
                 ignore=1
                 shift 1
@@ -291,6 +298,11 @@ main() {
         installElasticsearch 
         configureElasticsearch
         logger "Elasticsearch installed correctly"
+    fi
+
+    if [ -n "${start_elastic_cluster}" ]; then
+        importFunction "elasticsearch.sh"
+        startElasticsearchCluster
     fi
 
     if [ -n "${kibana}" ]; then
