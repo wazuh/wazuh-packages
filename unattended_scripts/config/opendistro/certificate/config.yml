@@ -11,10 +11,10 @@ nodes:
   wazuh_servers:
     name: <wazuh-node-name>
     ip: <wazuh-manager-ip>
-    # node_type: master # only use in multi-node installation
+    # node_type: master
     # name: <wazuh-node-name>
     # ip: <wazuh-manager-ip>
-    # node_type: worker # only use in multi-node installation
+    # node_type: worker
 
   # Kibana node
   kibana:
