@@ -18,5 +18,5 @@ nodes:
 
   # Kibana node
   kibana:
-    name: <kibana-manager-name>
+    name: <kibana-node-name>
     ip: <kibana-manager-ip>
