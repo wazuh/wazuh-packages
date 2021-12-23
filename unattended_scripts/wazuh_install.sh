@@ -100,29 +100,8 @@ getHelp() {
     echo -e "        -a,  --all-in-one"
     echo -e "                All-In-One installation."
     echo -e ""
-    echo -e "        -w,  --wazuh-server <wazuh-node-name>"
-    echo -e "                Wazuh server installation. It includes Filebeat."
-    echo -e ""
-    echo -e "        -e,  --elasticsearch <elasticsearch-node-name>"
-    echo -e "                Elasticsearch installation."
-    echo -e ""
-    echo -e "        -k,  --kibana"
-    echo -e "                Kibana installation."
-    echo -e ""
     echo -e "        -c,  --create-certificates"
     echo -e "                Create certificates from config.yml file."
-    echo -e ""
-    echo -e "        -wk, --wazuh-key <wazuh-cluster-key>"
-    echo -e "                Use this option as well as a wazuh_cluster_config.yml configuration file to automatically configure the wazuh cluster when using a multi-node installation."
-    echo -e ""
-    echo -e "        -v,  --verbose"
-    echo -e "                Shows the complete installation output."
-    echo -e ""
-    echo -e "        -i,  --ignore-health-check"
-    echo -e "                Ignores the health-check."
-    echo -e ""
-    echo -e "        -l,  --local"
-    echo -e "                Use local files."
     echo -e ""
     echo -e "        -d,  --development"
     echo -e "                Use development repository."
@@ -133,8 +112,26 @@ getHelp() {
     echo -e "        -u,  --uninstall"
     echo -e "                Uninstall all wazuh components. NOTE: This will erase all the existing configuration and data."
     echo -e ""
+    echo -e "        -e,  --elasticsearch <elasticsearch-node-name>"
+    echo -e "                Elasticsearch installation."
+    echo -e ""
     echo -e "        -h,  --help"
     echo -e "                Shows help."
+    echo -e ""
+    echo -e "        -i,  --ignore-health-check"
+    echo -e "                Ignores the health-check."
+    echo -e ""
+    echo -e "        -k,  --kibana"
+    echo -e "                Kibana installation."
+    echo -e ""
+    echo -e "        -l,  --local"
+    echo -e "                Use local files."
+    echo -e ""
+    echo -e "        -v,  --verbose"
+    echo -e "                Shows the complete installation output."
+    echo -e ""
+    echo -e "        -w,  --wazuh-server <wazuh-node-name>"
+    echo -e "                Wazuh server installation. It includes Filebeat."
     echo -e ""
     exit 1 # Exit script after printing help
 
@@ -211,7 +208,7 @@ main() {
         case "$1" in
             "-a"|"--all-in-one")
                 AIO=1
-                progressbar_total=13
+                progressbar_total=15
                 shift 1
                 ;;
             "-w"|"--wazuh-server")
@@ -221,7 +218,7 @@ main() {
                     exit 1
                 fi
                 wazuh=1
-                progressbar_total=7
+                progressbar_total=5
                 ((distributed_installs++))
                 winame=$2
                 shift 2
@@ -233,19 +230,20 @@ main() {
                     exit 1
                 fi
                 elasticsearch=1
-                progressbar_total=7
+                progressbar_total=5
                 ((distributed_installs++))
                 einame=$2
                 shift 2
                 ;;
             "-k"|"--kibana")
                 kibana=1
-                progressbar_total=7
+                progressbar_total=5
                 ((distributed_installs++))
                 shift 1
                 ;;
             "-c"|"--create-certificates")
                 certificates=1
+                #progressbar_total=3
                 shift 1
                 ;;
             "-i"|"--ignore-health-check")
@@ -307,6 +305,7 @@ main() {
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
             createClusterKey
         fi
+        ((progressbar_status++))
     fi
 
     if [ -n "${uninstall}" ]; then
@@ -322,11 +321,13 @@ main() {
         progressbar_status=0
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored for Elasticsearch."
+            ((progressbar_status++))
         else
             healthCheck elasticsearch
         fi
         installElasticsearch 
         configureElasticsearch
+        logger "Elasticsearch installed correctly"
     fi
 
     if [ -n "${kibana}" ]; then
@@ -336,11 +337,13 @@ main() {
         progressbar_status=0
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored for Kibana."
+            ((progressbar_status++))
         else
             healthCheck kibana
         fi
         installKibana 
         configureKibana
+        logger "Kibana installed correctly"
     fi
 
     if [ -n "${wazuh}" ]; then
@@ -351,6 +354,7 @@ main() {
         progressbar_status=0
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored for Wazuh manager."
+            ((progressbar_status++))
         else
             healthCheck wazuh
         fi
@@ -361,6 +365,7 @@ main() {
         startService "wazuh-manager"
         installFilebeat  
         configureFilebeat
+        logger "Wazuh installed correctly"
     fi
 
     if [ -n "${AIO}" ]; then
@@ -373,23 +378,24 @@ main() {
         progressbar_status=0
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored for AIO."
+            ((progressbar_status++))
         else
             healthCheck AIO
         fi
 
         installPrerequisites
         addWazuhrepo
-        installWazuh
-        startService "wazuh-manager"
         installElasticsearch
         configureElasticsearchAIO
+        installWazuh
+        startService "wazuh-manager"
         installFilebeat
         configureFilebeatAIO
         installKibana
         configureKibanaAIO
     fi
-
     restoreWazuhrepo
+    logger "Installation Finished"
 
 }
 

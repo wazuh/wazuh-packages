@@ -8,15 +8,11 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
+base_path="$(dirname $(readlink -f $0))"
 
 if [[ -z "${logfile}" ]]; then
     logfile="/var/log/wazuh-cert-tool.log"
 fi
-
-if [[ -z "${base_path}" ]]; then
-    base_path="."
-fi
-
 
 debug_cert=">> ${logfile} 2>&1"
 elasticsearchinstances="elasticsearch-nodes:"
@@ -355,7 +351,7 @@ main() {
             generateKibanacertificates
             logger_cert "Kibana certificates created."
         fi
-           
+
     else
         readConfig
         generateRootCAcertificate

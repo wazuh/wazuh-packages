@@ -47,7 +47,10 @@ copyCertificatesElasticsearch() {
 
 applyLog4j2Mitigation(){
 
-    eval "mkdir /etc/elasticsearch/jvm.options.d ${debug}"
+    if [ ! -d /etc/elasticsearch/jvm.options.d ]; then
+        eval "mkdir /etc/elasticsearch/jvm.options.d ${debug}"
+    fi
+    
     eval "echo '-Dlog4j2.formatMsgNoLookups=true' > /etc/elasticsearch/jvm.options.d/disabledlog4j.options 2>&1"
     eval "chmod 2750 /etc/elasticsearch/jvm.options.d/disabledlog4j.options ${debug}"
     eval "chown root:elasticsearch /etc/elasticsearch/jvm.options.d/disabledlog4j.options ${debug}"
@@ -57,14 +60,12 @@ applyLog4j2Mitigation(){
 configureElasticsearchAIO() {
 
     logger "Configuring Elasticsearch."
-
-    eval "getConfig elasticsearch/elasticsearch_unattended.yml /etc/elasticsearch/elasticsearch.yml  ${debug}"
-    eval "getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml  ${debug}"
-    eval "getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml  ${debug}"
-    eval "getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml  ${debug}"        
+    eval "getConfig elasticsearch/elasticsearch_all_in_one.yml /etc/elasticsearch/elasticsearch.yml ${debug}"
+    eval "getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml ${debug}"
+    eval "getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml ${debug}"
+    eval "getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml ${debug}"
     
     eval "rm /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem -f ${debug}"
-
     export JAVA_HOME=/usr/share/elasticsearch/jdk/
         
     eval "mkdir /etc/elasticsearch/certs/ ${debug}"
@@ -84,20 +85,7 @@ configureElasticsearchAIO() {
 
     eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
 
-    #Log4j remediation
-    echo "-Dlog4j2.formatMsgNoLookups=true" > /etc/elasticsearch/jvm.options.d/disabledlog4j.options
-    eval "chmod 2750 /etc/elasticsearch/jvm.options.d/disabledlog4j.options ${debug}"
-    eval "chown root:elasticsearch /etc/elasticsearch/jvm.options.d/disabledlog4j.options ${debug}"
-
-    startService "elasticsearch"
-    logger "Initializing Elasticsearch."
-    until $(curl -XGET https://localhost:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null); do
-        sleep 10
-    done
-
-    eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem ${debug}"
-    logger "Done"
-
+    applyLog4j2Mitigation
     initializeElasticsearch
 }
 
@@ -181,7 +169,7 @@ configureElasticsearch() {
 initializeElasticsearch() {
 
     logger "Elasticsearch installed."
-
+    ((progressbar_status++))
     logger "Starting Elasticsearch."
     startService "elasticsearch"
     logger "Initializing Elasticsearch."
