@@ -37,6 +37,7 @@ checkSystem() {
         sys_type="apt-get"   
         sep="="
     fi
+    ((progressbar_status++))
 }
 
 checknames() {
