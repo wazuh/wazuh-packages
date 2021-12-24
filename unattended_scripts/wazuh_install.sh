@@ -112,7 +112,7 @@ getHelp() {
     echo -e "                Ignores the health-check."
     echo -e ""
     echo -e "        -s,  --start-cluster"
-    echo -e "                Start the elasticsearch cluster."
+    echo -e "                Start the Elasticsearch cluster."
     echo -e ""
     echo -e "        -k,  --kibana"
     echo -e "                Kibana installation."
@@ -225,7 +225,6 @@ main() {
                 ;;
             "-c"|"--create-certificates")
                 certificates=1
-                #progressbar_total=3
                 shift 1
                 ;;
             "-s"|"--start-cluster")
@@ -268,6 +267,7 @@ main() {
 
     checkArch
     checkSystem
+    checkOpenSSL
 
     if [ -z ${AIO} ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
         readConfig
