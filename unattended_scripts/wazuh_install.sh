@@ -267,7 +267,6 @@ main() {
 
     checkArch
     checkSystem
-    checkOpenSSL
 
     if [ -z ${AIO} ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
         readConfig

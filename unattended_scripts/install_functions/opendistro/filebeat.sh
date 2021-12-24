@@ -35,6 +35,8 @@ configureFilebeat() {
     eval "getConfig filebeat/filebeat_distributed.yml /etc/filebeat/filebeat.yml ${debug}"
     eval "curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/4.2/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300 ${debug}"
     eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
+    eval "curl -s https://packages.wazuh.com/4.x/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module ${debug}"
+
 
     if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
         echo "output.elasticsearch.hosts:" >> /etc/filebeat/filebeat.yml
@@ -50,8 +52,6 @@ configureFilebeat() {
     eval "mv ${base_path}/certs/${winame}.pem /etc/filebeat/certs/filebeat.pem ${debug}"
     eval "mv ${base_path}/certs/${winame}-key.pem /etc/filebeat/certs/filebeat-key.pem ${debug}"
     eval "cp ${base_path}/certs/root-ca.pem /etc/filebeat/certs/ ${debug}"
-
-    eval "curl ${filebeat_wazuh_template} | curl -X PUT 'https://${elasticsearch_node_ips[pos]}:9200/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k ${debug}"
 
     logger "Done"
     ((progressbar_status++))

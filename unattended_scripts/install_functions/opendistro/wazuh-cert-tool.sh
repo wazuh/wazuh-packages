@@ -71,11 +71,6 @@ getHelp() {
     exit 1
 }
 
-checkOpenSSL() {
-    openssl_version=$( openssl version )
-    openssl_installed=$( echo $openssl_version | grep OpenSSL)
-}
-
 parse_yaml() {
    local prefix=$2
    local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @|tr @ '\034')
@@ -326,11 +321,6 @@ main() {
             esac
         done
 
-        checkOpenSSL
-
-        if [ -z "$openssl_installed" ]; then
-            logger_cert -e "OpenSSL isn't installed in this system. Install it to continue the creation of certificates"
-        fi
 
         if [ -n "${debugEnabled}" ]; then
             debug_cert="2>&1 | tee -a ${logfile}"
