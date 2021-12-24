@@ -52,6 +52,8 @@ configureFilebeat() {
     eval "mv ${base_path}/certs/${winame}-key.pem /etc/filebeat/certs/filebeat-key.pem ${debug}"
     eval "cp ${base_path}/certs/root-ca.pem /etc/filebeat/certs/ ${debug}"
 
+    eval "curl ${filebeat_wazuh_template} | curl -X PUT 'https://${elasticsearch_node_ips[pos]}:9200/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k ${debug}"
+
     logger "Done"
     ((progressbar_status++))
 }
