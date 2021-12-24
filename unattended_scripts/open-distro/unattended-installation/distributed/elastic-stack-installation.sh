@@ -60,6 +60,15 @@ checkArch() {
     fi
 }
 
+applyLog4j2Mitigation(){
+
+    eval "mkdir /etc/elasticsearch/jvm.options.d ${debug}"
+    eval "echo '-Dlog4j2.formatMsgNoLookups=true' > /etc/elasticsearch/jvm.options.d/disabledlog4j.options 2>&1"
+    eval "chmod 2750 /etc/elasticsearch/jvm.options.d/disabledlog4j.options ${debug}"
+    eval "chown root:elasticsearch /etc/elasticsearch/jvm.options.d/disabledlog4j.options ${debug}"
+
+}
+
 startService() {
 
     if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
@@ -98,16 +107,16 @@ startService() {
 
 ## Show script usage
 getHelp() {
-   echo ""
-   echo "Usage: $0 arguments"
-   echo -e "\t-e     | --install-elasticsearch Installs Open Distro for Elasticsearch (cannot be used together with option -k)"
-   echo -e "\t-k     | --install-kibana Installs Open Distro for Kibana (cannot be used together with option -e)"
-   echo -e "\t-n     | --node-name Name of the node"
-   echo -e "\t-c     | --create-certificates Generates the certificates for all the indicated nodes"
-   echo -e "\t-d     | --debug Shows the complete installation output"
-   echo -e "\t-i     | --ignore-health-check Ignores the health-check"
-   echo -e "\t-h     | --help Shows help"
-   exit 1 # Exit script after printing help
+    echo ""
+    echo "Usage: $0 arguments"
+    echo -e "\t-e     | --install-elasticsearch Installs Open Distro for Elasticsearch (cannot be used together with option -k)"
+    echo -e "\t-k     | --install-kibana Installs Open Distro for Kibana (cannot be used together with option -e)"
+    echo -e "\t-n     | --node-name Name of the node"
+    echo -e "\t-c     | --create-certificates Generates the certificates for all the indicated nodes"
+    echo -e "\t-d     | --debug Shows the complete installation output"
+    echo -e "\t-i     | --ignore-health-check Ignores the health-check"
+    echo -e "\t-h     | --help Shows help"
+    exit 1 # Exit script after printing help
 }
 
 ## Checks if the configuration file or certificates exist
@@ -322,6 +331,8 @@ installElasticsearch() {
         fi
         eval "sed -i "s/-Xms1g/-Xms${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
         eval "sed -i "s/-Xmx1g/-Xmx${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
+
+        applyLog4j2Mitigation
 
         jv=$(java -version 2>&1 | grep -o -m1 '1.8.0' )
         if [ "$jv" == "1.8.0" ]; then

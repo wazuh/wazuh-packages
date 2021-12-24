@@ -170,11 +170,11 @@ readFileUsers() {
 
 It must have this format:
 User:
-   name: wazuh
-   password: wazuhpasword
+    name: wazuh
+    password: wazuhpasword
 User:
-   name: kibanaserver
-   password: kibanaserverpassword"
+    name: kibanaserver
+    password: kibanaserverpassword"
 	exit 1
     fi	
 
@@ -314,10 +314,10 @@ changePassword() {
     if [ -n "${CHANGEALL}" ]; then
         for i in "${!PASSWORDS[@]}"
         do
-           awk -v new=${HASHES[i]} 'prev=="'${USERS[i]}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/elasticsearch/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
+            awk -v new=${HASHES[i]} 'prev=="'${USERS[i]}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/elasticsearch/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
 
-            if [ "${USERS[i]}" == "wazuh" ]; then
-                wazuhpass=${PASSWORDS[i]}
+            if [ "${USERS[i]}" == "admin" ]; then
+                adminpass=${PASSWORDS[i]}
             elif [ "${USERS[i]}" == "kibanaserver" ]; then
                 kibpass=${PASSWORDS[i]}
             fi  
@@ -326,15 +326,15 @@ changePassword() {
     else
         awk -v new="$HASH" 'prev=="'${NUSER}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/elasticsearch/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
 
-        if [ "${NUSER}" == "wazuh" ]; then
-            wazuhpass=${PASSWORD}
+        if [ "${NUSER}" == "admin" ]; then
+            adminpass=${PASSWORD}
         elif [ "${NUSER}" == "kibanaserver" ]; then
             kibpass=${PASSWORD}
         fi        
 
     fi
     
-    if [ "${NUSER}" == "wazuh" ] || [ -n "${CHANGEALL}" ]; then
+    if [ "${NUSER}" == "admin" ] || [ -n "${CHANGEALL}" ]; then
 
         if [ "${SYS_TYPE}" == "yum" ]; then
             hasfilebeat=$(yum list installed 2>/dev/null | grep filebeat)
@@ -344,12 +344,12 @@ changePassword() {
             hasfilebeat=$(apt list --installed  2>/dev/null | grep filebeat)
         fi 
 
-        wazuhold=$(grep "password:" /etc/filebeat/filebeat.yml )
+        adminold=$(grep "password:" /etc/filebeat/filebeat.yml )
         ra="  password: "
-        wazuhold="${wazuhold//$ra}"
+        adminold="${adminold//$ra}"
 
         if [ -n "${hasfilebeat}" ]; then
-            conf="$(awk '{sub("  password: '${wazuhold}'", "  password: '${wazuhpass}'")}1' /etc/filebeat/filebeat.yml)"
+            conf="$(awk '{sub("  password: '${adminold}'", "  password: '${adminpass}'")}1' /etc/filebeat/filebeat.yml)"
             echo "${conf}" > /etc/filebeat/filebeat.yml  
             restartService "filebeat"
         fi 
