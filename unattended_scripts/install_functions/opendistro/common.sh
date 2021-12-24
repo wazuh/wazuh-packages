@@ -39,17 +39,52 @@ checkSystem() {
     fi
 }
 
-checknames() {
+checkNames() {
 
-    if [ -n ${einame} ] && [[ ! "${elasticsearch_node_names[@]}" =~ "${einame}" ]]; then
-        logger -e "The name given for the elasticsearch node does not appear on the configuration file"
-        exit 1;
+    if [[ "${einame}" == "${kiname}" ]] || [[ "${einame}" == "${winame}" ]] || [[ "${kiname}" == "${winame}" ]]; then
+        logger -e "The node names for Elastisearch, Kibana and Wazuh must be different"
+        exit 1
     fi
 
-    if [ -n ${winame} ] && [[ ! "${wazuh_servers_node_names[@]}" =~ "${winame}" ]]; then
-        logger -e "The name given for the wazuh server node does not appear on the configuration file"
-        exit 1;
+    if [ -n ${einame} ]; then
+        if [[ ! "${elasticsearch_node_names[@]}" =~ "${einame}" ]]; then
+           logger -e "The name given for the elasticsearch node does not appear on the configuration file"
+            exit 1
+        fi
+
+        if [ ! -f ${base_path}/certs/${einame}.pem ] || [ ! -f ${base_path}/certs/${einame}-key.pem ]; then
+            logger -e "There is no certificate for the elasticsearch node ${einame} in ${base_path}/certs"
+            exit 1
+        fi
+
     fi
+
+    if [ -n ${winame} ]; then
+        if [[ ! "${wazuh_servers_node_names[@]}" =~ "${winame}" ]]; then
+           logger -e "The name given for the wazuh server node does not appear on the configuration file"
+            exit 1
+        fi
+
+        if [ ! -f ${base_path}/certs/${winame}.pem ] || [ ! -f ${base_path}/certs/${winame}-key.pem ]; then
+            logger -e "There is no certificate for the wazuh server node ${winame} in ${base_path}/certs"
+            exit 1
+        fi
+
+    fi
+
+    if [ -n ${kiname} ]; then
+        if [[ ! "${kibana_node_names[@]}" =~ "${kiname}" ]]; then
+           logger -e "The name given for the kibana node does not appear on the configuration file"
+            exit 1;
+        fi
+
+        if [ ! -f ${base_path}/certs/${kiname}.pem ] || [ ! -f ${base_path}/certs/${kiname}-key.pem ]; then
+            logger -e "There is no certificate for the kibana node ${kiname} in ${base_path}/certs"
+            exit 1
+        fi
+
+    fi
+
 }
 
 checkArch() {
@@ -143,7 +178,11 @@ checkInstalled() {
         wazuhinstalled=$(zypper packages --installed | grep wazuh-manager | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
         wazuhinstalled=$(apt list --installed  2>/dev/null | grep wazuh-manager)
-    fi    
+    fi
+
+    if [ -d /var/ossec ]; then
+        wazuh_remaining_files=1
+    fi
 
     if [ -n "${wazuhinstalled}" ]; then
         if [ ${sys_type} == "zypper" ]; then
@@ -159,14 +198,18 @@ checkInstalled() {
         elasticsearchinstalled=$(zypper packages --installed | grep opendistroforelasticsearch | grep i+ | grep noarch)
     elif [ "${sys_type}" == "apt-get" ]; then
         elasticsearchinstalled=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch)
-    fi 
+    fi
+
+    if [ -d /var/lib/elasticsearch/ ] || [ -d /usr/share/elasticsearch ] || [ -d /etc/elasticsearch ] || [ -d ${base_path}/searchguard ] || [ -f ${base_path}/search-guard-tlstool* ]; then
+        elastic_remaining_files=1
+    fi
 
     if [ -n "${elasticsearchinstalled}" ]; then
         if [ ${sys_type} == "zypper" ]; then
             odversion=$(echo ${elasticsearchinstalled} | awk '{print $11}')
         else
             odversion=$(echo ${elasticsearchinstalled} | awk '{print $2}')
-        fi  
+        fi
     fi
 
     if [ "${sys_type}" == "yum" ]; then
@@ -175,15 +218,19 @@ checkInstalled() {
         filebeatinstalled=$(zypper packages --installed | grep filebeat | grep i+ | grep noarch)
     elif [ "${sys_type}" == "apt-get" ]; then
         filebeatinstalled=$(apt list --installed  2>/dev/null | grep filebeat)
-    fi 
+    fi
+
+    if [ -d /var/lib/filebeat/ ] || [ -d /usr/share/filebeat ] || [ -d /etc/filebeat ]; then
+        filebeat_remaining_files=1
+    fi
 
     if [ -n "${filebeatinstalled}" ]; then
         if [ ${sys_type} == "zypper" ]; then
             filebeatversion=$(echo ${filebeatinstalled} | awk '{print $11}')
         else
             filebeatversion=$(echo ${filebeatinstalled} | awk '{print $2}')
-        fi  
-    fi    
+        fi
+    fi
 
     if [ "${sys_type}" == "yum" ]; then
         kibanainstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch-kibana)
@@ -191,7 +238,11 @@ checkInstalled() {
         kibanainstalled=$(zypper packages --installed | grep opendistroforelasticsearch-kibana | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
         kibanainstalled=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch-kibana)
-    fi 
+    fi
+
+    if [ -d /var/lib/kibana/ ] || [ -d /usr/share/kibana ] || [ -d /etc/kibana ]; then
+        kibana_remaining_files=1
+    fi
 
     if [ -n "${kibanainstalled}" ]; then
         if [ ${sys_type} == "zypper" ]; then
@@ -252,11 +303,12 @@ createCertificates() {
 
     readConfig
     if [ -d ${base_path}/certs ]; then
-        logger -e "Folder ${base_path}/certs exists. Please remove the cert/ folder if you want to create new certificates."
+        logger -e "Folder ${base_path}/certs exists. Please remove the certificates folder if you want to create new certificates."
         exit 1;
     else
-        mkdir ${base_path}/certs 
-    fi   
+        mkdir ${base_path}/certs
+    fi
+
     generateRootCAcertificate
     generateAdmincertificate
     generateElasticsearchcertificates
@@ -340,8 +392,12 @@ rollBack() {
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge wazuh-manager -y ${debug}"
         fi 
+        
+    fi
+
+    if [ -n "${wazuh_remaining_files}" ] && ([ -z "$1" ] || [ "$1" == "wazuh" ]); then
         eval "rm -rf /var/ossec/ ${debug}"
-    fi     
+    fi
 
     if [ -n "${elasticsearchinstalled}" ] && ([ -z "$1" ] || [ "$1" == "elasticsearch" ]); then
         logger -w "Removing Elasticsearch."
@@ -354,12 +410,17 @@ rollBack() {
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge opendistroforelasticsearch elasticsearch* opendistro-* -y ${debug}"
         fi 
+    fi
+
+    if [ -n "${elastic_remaining_files}" ] && ([ -z "$1" ] || [ "$1" == "elasticsearch" ]); then
         eval "rm -rf /var/lib/elasticsearch/ ${debug}"
         eval "rm -rf /usr/share/elasticsearch/ ${debug}"
         eval "rm -rf /etc/elasticsearch/ ${debug}"
-        eval "rm -rf ./search-guard-tlstool-1.8.zip ${debug}"
-        eval "rm -rf ./searchguard ${debug}"
+        eval "rm -rf ${base_path}/search-guard-tlstool* ${debug}"
+        eval "rm -rf ${base_path}/searchguard ${debug}"
     fi
+
+
 
     if [ -n "${filebeatinstalled}" ] && ([ -z "$1" ] || [ "$1" == "filebeat" ]); then
         logger -w "Removing Filebeat."
@@ -369,7 +430,10 @@ rollBack() {
             eval "zypper -n remove filebeat ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge filebeat -y ${debug}"
-        fi 
+        fi
+    fi
+
+    if [ -n "${filebeat_remaining_files}" ] && ([ -z "$1" ] || [ "$1" == "filebeat" ]); then
         eval "rm -rf /var/lib/filebeat/ ${debug}"
         eval "rm -rf /usr/share/filebeat/ ${debug}"
         eval "rm -rf /etc/filebeat/ ${debug}"
@@ -383,7 +447,10 @@ rollBack() {
             eval "zypper -n remove opendistroforelasticsearch-kibana ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge opendistroforelasticsearch-kibana -y ${debug}"
-        fi 
+        fi
+    fi
+
+    if [ -n "${kibana_remaining_files}" ] && ([ -z "$1" ] || [ "$1" == "kibana" ]); then
         eval "rm -rf /var/lib/kibana/ ${debug}"
         eval "rm -rf /usr/share/kibana/ ${debug}"
         eval "rm -rf /etc/kibana/ ${debug}"
@@ -409,81 +476,6 @@ parse_yaml() {
          printf("%s%s%s=\"%s\"\n", "'$prefix'",vn, $2, $3);
       }
    }'
-}
-
-readConfig() {
-    if [ -f ${base_path}/config.yml ]; then
-        eval "$(parse_yaml ${base_path}/config.yml)"
-        eval "elasticsearch_node_names=( $(parse_yaml ${base_path}/config.yml | grep nodes_elasticsearch_name | sed 's/nodes_elasticsearch_name=//') )"
-        eval "wazuh_servers_node_names=( $(parse_yaml ${base_path}/config.yml | grep nodes_wazuh_servers_name | sed 's/nodes_wazuh_servers_name=//') )"
-        eval "kibana_node_names=( $(parse_yaml ${base_path}/config.yml | grep nodes_kibana_name | sed 's/nodes_kibana_name=//') )"
-
-        eval "elasticsearch_node_ips=( $(parse_yaml ${base_path}/config.yml | grep nodes_elasticsearch_ip | sed 's/nodes_elasticsearch_ip=//') )"
-        eval "wazuh_servers_node_ips=( $(parse_yaml ${base_path}/config.yml | grep nodes_wazuh_servers_ip | sed 's/nodes_wazuh_servers_ip=//') )"
-        eval "kibana_node_ips=( $(parse_yaml ${base_path}/config.yml | grep nodes_kibana_ip | sed 's/nodes_kibana_ip=//') )"
-
-        eval "wazuh_servers_node_types=( $(parse_yaml ${base_path}/config.yml | grep nodes_wazuh_servers_node_type | sed 's/nodes_wazuh_servers_node_type=//') )"
-
-        if [ $(printf '%s\n' "${elasticsearch_node_names[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#elasticsearch_node_names[@]} ]; then 
-            logger -e "Duplicated Elasticsearch node names"
-            exit 1;
-        fi
-
-        if [ $(printf '%s\n' "${elasticsearch_node_ips[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#elasticsearch_node_ips[@]} ]; then 
-            logger -e "Duplicated Elasticsearch node ips"
-            exit 1;
-        fi
-
-        if [ $(printf '%s\n' "${wazuh_servers_node_names[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#wazuh_servers_node_names[@]} ]; then 
-            logger -e "Duplicated Wazuh server node names"
-            exit 1;
-        fi
-
-        if [ $(printf '%s\n' "${wazuh_servers_node_ips[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#wazuh_servers_node_ips[@]} ]; then 
-            logger -e "Duplicated Wazuh server node ips"
-            exit 1;
-        fi
-
-        if [ $(printf '%s\n' "${kibana_node_names[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#kibana_node_names[@]} ]; then 
-            logger -e "Duplicated Kibana node names"
-            exit 1;
-        fi
-
-        if [ $(printf '%s\n' "${kibana_node_ips[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#kibana_node_ips[@]} ]; then 
-            logger -e "Duplicated Kibana node ips"
-            exit 1;
-        fi
-
-        if [ ${#wazuh_servers_node_names[@]} -ne ${#wazuh_servers_node_ips[@]} ]; then 
-            logger -e "Different number of Wazuh server node names and IPs "
-            exit 1;
-        fi
-
-        if [ ${#wazuh_servers_node_names[@]} -le 1 ]; then
-            if [ ${#wazuh_servers_node_types[@]} -ne 0 ]; then
-                logger -e "node_type must be used with more than one Wazuh server"
-                exit 1;
-            fi
-        elif [ ${#wazuh_servers_node_names[@]} -ne ${#wazuh_servers_node_types[@]} ]; then
-            logger -e "Different number of Wazuh server node names and node types "
-            exit 1;
-        elif [ $(grep -o master <<< ${wazuh_servers_node_types[*]} | wc -l) -ne 1 ]; then
-            logger -e "Wazuh cluster needs a single master node"
-            exit 1;
-        elif [ $(grep -o worker <<< ${wazuh_servers_node_types[*]} | wc -l) -ne $(expr ${#wazuh_servers_node_types[@]} - 1)  ]; then
-            logger -e "Incorrect number of workers"
-            exit 1;
-        fi
-
-        if [ ${#kibana_node_names[@]} -ne ${#kibana_node_ips[@]} ]; then 
-            logger -e "Different number of Kibana node names and IPs "
-            exit 1;
-        fi
-
-    else
-        logger -e "No configuration file found. ${base_path}/config.yml"
-        exit 1;
-    fi
 }
 
 createClusterKey() {

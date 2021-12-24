@@ -105,23 +105,23 @@ getHelp() {
     echo -e "        -e,  --elasticsearch <elasticsearch-node-name>"
     echo -e "                Elasticsearch installation."
     echo -e ""
+    echo -e "        -k,  --kibana <kibana-node-name>"
+    echo -e "                Kibana installation."
+    echo -e ""
+    echo -e "        -w,  --wazuh-server <wazuh-node-name>"
+    echo -e "                Wazuh server installation. It includes Filebeat."
+    echo -e ""
     echo -e "        -h,  --help"
     echo -e "                Shows help."
     echo -e ""
     echo -e "        -i,  --ignore-health-check"
     echo -e "                Ignores the health-check."
     echo -e ""
-    echo -e "        -k,  --kibana"
-    echo -e "                Kibana installation."
-    echo -e ""
     echo -e "        -l,  --local"
     echo -e "                Use local files."
     echo -e ""
     echo -e "        -v,  --verbose"
     echo -e "                Shows the complete installation output."
-    echo -e ""
-    echo -e "        -w,  --wazuh-server <wazuh-node-name>"
-    echo -e "                Wazuh server installation. It includes Filebeat."
     echo -e ""
     exit 1 # Exit script after printing help
 
@@ -225,13 +225,18 @@ main() {
                 shift 2
                 ;;
             "-k"|"--kibana")
+            if [ -n "$kibana" ]; then
+                    logger -e "Error on arguments. Probably missing <node-name> after -k|--kibana"
+                    getHelp
+                    exit 1
+                fi
                 kibana=1
                 progressbar_total=5
-                shift 1
+                kiname=$2
+                shift 2
                 ;;
             "-c"|"--create-certificates")
                 certificates=1
-                #progressbar_total=3
                 shift 1
                 ;;
             "-i"|"--ignore-health-check")
@@ -288,10 +293,15 @@ main() {
         fi
     fi
 
+    if [ ! -d ${base_path}/certs ]; then
+        logger -e "No certificates directory found ($base_path/certs). Run the script with the option -c|--certificates to create automatically or copy them from the node where they were created."
+        exit 1
+    fi
+
     if [ -z ${AIO} ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
         progressbar_status=0
         readConfig
-        checknames
+        checkNames
         installPrerequisites
         addWazuhrepo
     fi
@@ -396,81 +406,98 @@ main() {
 
 checkArguments() {
 
-    if [ -z "${wazuhinstalled}" ] && [ -z "${elasticsearchinstalled}" ] && [ -z "${filebeatinstalled}" ] && [ -z "${kibanainstalled}" ] && [ -n "${uninstall}" ]; then 
-        logger -e "Can't uninstall. No Wazuh components were found on the system."
-        exit 1;
-    fi
-
-    if [ -n "$AIO" ] && ([ -n "${wazuhinstalled}" ] || [ -n "${elasticsearchinstalled}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${kibanainstalled}" ]); then 
-        if [ -n "${overwrite}" ]; then
-            rollBack
-        else
-            logger -e "Some the Wazuh components were found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. NOTE: This will erase all the existing configuration and data."
-            exit 1;
-        fi
-    fi
-
-    if [ -n "$uninstall" ] && ([ -n "$AIO" ] || [ -n "$elasticsearch" ] || [ -n "$kibana" ] || [ -n "$wazuh" ]); then 
-        logger -e "The argument -u|--uninstall can't be used with -a, -k, -e or -w. If you want to overwrite the components use -o|--overwrite"
-        exit 1
-    fi
-
-    if [ -n "$AIO" ] && ([ -n "$elasticsearch" ] || [ -n "$kibana" ] || [ -n "$wazuh" ]); then
-        logger -e "Argument -a|--all-in-one is not compatible with -e|--elasticsearch, -k|--kibana or -w|--wazuh-server"
-        exit 1
-    fi
-
-    if [ -n "$elasticsearch" ] && [ -z "$einame" ]; then
-        logger -e "Argument --elasticsearch must be accompanied by the name of the node."
-        exit 1
-    fi
-
-    if [ -n "$wazuh" ] && [ -z "$winame" ]; then
-        logger -e "Argument --wazuh-server must be accompanied by the name of the node."
-        exit 1
-    fi
-
-    if [ -n "$elasticsearch" ] && [ -n "$elasticsearchinstalled" ]; then
-        if [ -n "$overwrite" ]; then
-            rollBack "elasticsearch"
-        else 
-            logger -e "Elasticsearch is already installed in this node. Use option -o|--overwrite to overwrite all components."
-            exit 
-        fi
-    fi
-
-    if [ -n "$kibana" ] && [ -n "$kibanainstalled" ]; then
-        if [ -n "$overwrite" ]; then
-            rollBack "kibana"
-        else 
-            logger -e "Kibana is already installed in this node. Use option -o|--overwrite to overwrite all components."
-            exit 
-        fi
-    fi
-
-    if [ -n "$wazuh" ] && [ -n "$wazuhinstalled" ]; then
-        if [ -n "$overwrite" ]; then
-            rollBack "wazuh"
-        else 
-            logger -e "Wazuh is already installed in this node. Use option -o|--overwrite to overwrite all components."
-            exit 
-        fi
-    fi
-
-    if [ -n "$wazuh" ] && [ -n "$filebeatinstalled" ]; then
-        if [ -n "$overwrite" ]; then
-            rollBack "filebeat"
-        else 
-            logger -e "Filebeat is already installed in this node. Use option -o|--overwrite to overwrite all components."
-            exit 
-        fi
-    fi
-
     if [ -n "$overwrite" ] && [ -z "$AIO" ] && [ -z "$elasticsearch" ] && [ -z "$kibana" ] && [ -z "$wazuh" ]; then 
         logger -e "The argument -o|--overwrite can't be used by itself. If you want to uninstall the components use -u|--uninstall"
         exit 1
     fi
 
+    if [ -n "${uninstall}" ]; then
+
+        if [ -z "${wazuhinstalled}" ] && [ -z "${elasticsearchinstalled}" ] && [ -z "${filebeatinstalled}" ] && [ -z "${kibanainstalled}" ]; then 
+            logger -e "Can't uninstall. No Wazuh components were found on the system."
+            exit 1;
+        fi
+
+        if [ -n "$AIO" ] || [ -n "$elasticsearch" ] || [ -n "$kibana" ] || [ -n "$wazuh" ]; then
+            logger -e "The argument -u|--uninstall can't be used with -a, -k, -e or -w. If you want to overwrite the components use -o|--overwrite"
+            exit 1
+        fi
+    fi
+
+    if [ -n "$AIO" ]; then
+
+        if [ -n "$elasticsearch" ] || [ -n "$kibana" ] || [ -n "$wazuh" ]; then
+            logger -e "Argument -a|--all-in-one is not compatible with -e|--elasticsearch, -k|--kibana or -w|--wazuh-server"
+            exit 1
+        fi
+
+        if [ -n "${wazuhinstalled}" ] || [ -n "${elasticsearchinstalled}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${kibanainstalled}" ]; then
+            if [ -n "${overwrite}" ]; then
+                rollBack
+            else
+                logger -e "Some the Wazuh components were found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. NOTE: This will erase all the existing configuration and data."
+                exit 1;
+            fi
+        fi
+    fi
+
+    if [ -n "$elasticsearch" ]; then
+
+        if [ -z "$einame" ]; then
+        logger -e "Argument --elasticsearch must be accompanied by the name of the node."
+        exit 1
+        fi
+
+        if [ -n "$elasticsearchinstalled" ] || [ -n "$elastic_remaining_files" ]; then
+            if [ -n "$overwrite" ]; then
+                rollBack "elasticsearch"
+            else 
+                logger -e "Elasticsearch is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
+                exit
+            fi
+        fi
+    fi
+
+    if [ -n "$kibana" ]; then
+
+        if [ -n "$kibana" ] && [ -z "$kiname" ]; then
+        logger -e "Argument --kibana must be accompanied by the name of the node."
+        exit 1
+        fi
+
+        if [ -n "$kibanainstalled" ] || [ -n "$kibana_remaining_files" ]; then
+            if [ -n "$overwrite" ]; then
+                rollBack "kibana"
+            else 
+                logger -e "Kibana is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
+                exit 
+            fi
+        fi
+    fi
+
+    if [ -n "$wazuh" ]; then
+        if [ -z "$winame" ]; then
+            logger -e "Argument --wazuh-server must be accompanied by the name of the node."
+            exit 1
+        fi
+        if [ -n "$wazuhinstalled" ] || [ -n "$wazuh_remaining_files" ]; then
+            if [ -n "$overwrite" ]; then
+                rollBack "wazuh"
+            else 
+                logger -e "Wazuh is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
+                exit 
+            fi
+        fi
+
+        if [ -n "$filebeatinstalled" ] || [ -n "$filebeat_remaining_files" ]; then
+            if [ -n "$overwrite" ]; then
+                rollBack "filebeat"
+            else
+                logger -e "Filebeat is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
+                exit 1
+            fi
+        fi
+    fi
 }
 
 main $@

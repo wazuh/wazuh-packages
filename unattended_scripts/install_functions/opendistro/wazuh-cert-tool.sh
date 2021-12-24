@@ -8,7 +8,9 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-base_path="$(dirname $(readlink -f $0))"
+if [ -z "$base_path" ]; then
+    base_path="$(dirname $(readlink -f $0))"
+fi
 
 if [[ -z "${logfile}" ]]; then
     logfile="/var/log/wazuh-cert-tool.log"
@@ -285,67 +287,76 @@ main() {
     if [ "$EUID" -ne 0 ]; then
         logger_cert -e "This script must be run as root."
         exit 1;
-    fi    
+    fi
+    
+    if [[ -d ${base_path}/certs ]]; then
+        logger -e "Folder ${base_path}/certs exists. Please remove the /certs folder if you want to create new certificates."
+        exit 1;
+    else
+        mkdir ${base_path}/certs
+    fi
 
-    if [ -n "$1" ]; then      
+
+
+    if [ -n "$1" ]; then
         while [ -n "$1" ]
         do
             case "$1" in 
-            "-a"|"--admin-certificates") 
+            "-a"|"--admin-certificates")
                 cadmin=1
                 shift 1
                 ;;     
-            "-ca"|"--root-ca-certificate") 
+            "-ca"|"--root-ca-certificate")
                 ca=1
                 shift 1
-                ;;                           
-            "-e"|"--elasticsearch-certificates") 
+                ;;
+            "-e"|"--elasticsearch-certificates")
                 celasticsearch=1
                 shift 1
                 ;; 
-            "-w"|"--wazuh-certificates") 
+            "-w"|"--wazuh-certificates")
                 cwazuh=1
                 shift 1
                 ;;   
-            "-k"|"--kibana-certificates") 
+            "-k"|"--kibana-certificates")
                 ckibana=1
                 shift 1
-                ;;                               
-            "-v"|"--verbose") 
-                debugEnabled=1          
+                ;;
+            "-v"|"--verbose")
+                debugEnabled=1
                 shift 1
-                ;;                                 
-            "-h"|"--help")        
+                ;;
+            "-h"|"--help")
                 getHelp
-                ;;                                         
+                ;;
             *)
                 getHelp
             esac
-        done    
+        done
 
         if [ -n "${debugEnabled}" ]; then
-            debug_cert="2>&1 | tee -a ${logfile}"          
+            debug_cert="2>&1 | tee -a ${logfile}"
         fi
 
         if [[ -n "${cadmin}" ]]; then
             generateAdmincertificate
             logger_cert "Admin certificates created."
-        fi   
+        fi
 
         if [[ -n "${ca}" ]]; then
             generateRootCAcertificate
             logger_cert "Authority certificates created."
-        fi                   
+        fi
 
         if [[ -n "${celasticsearch}" ]]; then
             generateElasticsearchcertificates
             logger_cert "Elasticsearch certificates created."
-        fi     
+        fi
 
         if [[ -n "${cwazuh}" ]]; then
             generateFilebeatcertificates
             logger_cert "Wazuh server certificates created."
-        fi 
+        fi
 
         if [[ -n "${ckibana}" ]]; then
             generateKibanacertificates
@@ -364,3 +375,4 @@ main() {
 
 }
 
+main $@
