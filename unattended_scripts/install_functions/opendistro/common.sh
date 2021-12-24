@@ -255,7 +255,7 @@ checkInstalled() {
 
 startService() {
 
-    logger "Starting service $1..."
+    logger "Starting service $1"
 
     if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
         eval "systemctl daemon-reload ${debug}"

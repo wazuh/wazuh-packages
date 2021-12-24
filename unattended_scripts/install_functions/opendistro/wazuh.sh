@@ -7,7 +7,7 @@
 
 installWazuh() {
     
-    logger "Installing the Wazuh manager."
+    logger "Starting the Wazuh manager installation."
     if [ ${sys_type} == "zypper" ]; then
         eval "zypper -n install wazuh-manager=${wazuh_version}-${wazuh_revision} ${debug}"
     else
@@ -20,7 +20,7 @@ installWazuh() {
     else
         wazuhinstalled="1"
         logger "Done"
-    fi   
+    fi
 
     ((progressbar_status++))
 

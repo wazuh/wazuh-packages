@@ -7,7 +7,7 @@
 
 installElasticsearch() {
 
-    logger "Installing Open Distro for Elasticsearch."
+    logger "Starting the Elasticsearch Installation"
 
     if [ ${sys_type} == "yum" ]; then
         eval "yum install opendistroforelasticsearch-${opendistro_version}-${opendistro_revision} -y ${debug}"
@@ -20,7 +20,7 @@ installElasticsearch() {
     if [  "$?" != 0  ]; then
         logger -e "Elasticsearch installation failed"
         rollBack
-        exit 1;  
+        exit 1;
     else
         elasticsearchinstalled="1"
         logger "Done"
@@ -170,8 +170,8 @@ initializeElasticsearch() {
 
     logger "Elasticsearch installed."
     ((progressbar_status++))
-    logger "Starting Elasticsearch."
     startService "elasticsearch"
+    
     logger "Initializing Elasticsearch."
 
     until $(curl -XGET https://${elasticsearch_node_ips[pos]}:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null); do
