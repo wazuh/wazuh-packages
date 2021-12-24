@@ -183,6 +183,10 @@ if ! id -u wazuh > /dev/null 2>&1; then
 fi 
 
 # Stop the services to upgrade the package
+if ps aux | grep "[o]ssec-authd" > /dev/null 2>&1; then
+    %{_localstatedir}/bin/ossec-control enable auth
+fi
+
 if [ $1 = 2 ]; then
   if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-manager > /dev/null 2>&1; then
     systemctl stop wazuh-manager.service > /dev/null 2>&1
