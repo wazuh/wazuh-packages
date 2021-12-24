@@ -35,7 +35,6 @@ configureFilebeat() {
     eval "getConfig filebeat/filebeat_distributed.yml /etc/filebeat/filebeat.yml ${debug}"
     eval "curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/4.2/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300 ${debug}"
     eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
-    eval "curl -s https://packages.wazuh.com/4.x/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module ${debug}"
 
     if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
         echo "output.elasticsearch.hosts:" >> /etc/filebeat/filebeat.yml
