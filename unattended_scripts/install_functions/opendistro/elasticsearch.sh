@@ -188,6 +188,6 @@ initializeElasticsearch() {
 startElasticsearchCluster() {
     eval "elasticsearch_cluster_ip=( $(cat /etc/elasticsearch/elasticsearch.yml | grep network.host | sed 's/network.host:\s//') )"
     eval "export JAVA_HOME=/usr/share/elasticsearch/jdk/"
-    eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${elasticsearch_cluster_ip}"
+    eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${elasticsearch_cluster_ip}"
     eval "curl ${filebeat_wazuh_template} | curl -X PUT 'https://${elasticsearch_node_ips[pos]}:9200/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k ${debug}"
 }
