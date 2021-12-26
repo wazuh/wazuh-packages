@@ -279,12 +279,21 @@ cleanFiles() {
     logger_cert "Certificates creation finished. They can be found in ${base_path}/certs."
 }
 
+checkOpenSSL() {
+    if [ -z "$(command -v openssl)" ]; then
+        logger_cert -e "OpenSSL not installed."
+        exit 1;
+    fi    
+}
+
 main() {
 
     if [ "$EUID" -ne 0 ]; then
         logger_cert -e "This script must be run as root."
         exit 1;
     fi    
+
+
 
     if [ -n "$1" ]; then      
         while [ -n "$1" ]

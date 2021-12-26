@@ -46,6 +46,9 @@ progressBar() {
     totalcolumns=$( tput cols )
     columns=$(echo $((totalcolumns<max_progressbar_length ? totalcolumns : max_progressbar_length)))
     columns=$(( $columns-6 ))
+    if [ $progressbar_total -eq "0" ]; then
+        progressbar_total=1
+    fi
     cols_done=$(( ($progressbar_status*$columns) / $progressbar_total ))
     cols_empty=$(( $columns-$cols_done ))
     progresspercentage=$(( ($progressbar_status*100) / $progressbar_total ))
@@ -261,7 +264,7 @@ main() {
     importFunction "wazuh-cert-tool.sh"
 
 
-    if [ -n ${AIO} ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
+    if [ ! -z ${AIO} ] || [ ! -z "${elasticsearch}" ] || [ ! -z "${kibana}" ] || [ ! -z "${wazuh}" ]; then
         checkArch
         checkSystem
         installPrerequisites
@@ -275,6 +278,7 @@ main() {
     fi
 
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
+        checkOpenSSL
         createCertificates
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
             createClusterKey
