@@ -60,7 +60,18 @@ configureKibana() {
     logger "Wazuh Kibana plugin installed."
     eval "setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node ${debug}"
 
-    echo 'server.host: "'${nodes_kibana_ip}'"' >> /etc/kibana/kibana.yml
+    if [ ${#kibana_node_names[@]} -eq 1 ]; then
+        ip=${kibana_node_ips[0]}
+    else
+        for i in ${!kibana_node_names[@]}; do
+            if [[ "${kibana_node_names[i]}" == "${kiname}" ]]; then
+                pos="${i}";
+            fi
+        done
+        ip=${kibana_node_ips[pos]}
+    fi
+
+    echo 'server.host: "'${ip}'"' >> /etc/kibana/kibana.yml
 
     if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
         echo "elasticsearch.hosts: https://"${elasticsearch_node_ips[0]}":9200" >> /etc/kibana/kibana.yml
@@ -82,13 +93,19 @@ configureKibana() {
 setupKibanacerts() {
     eval "mkdir /etc/kibana/certs ${debug}"
     if [ -d "${base_path}/certs" ]; then
-        eval "cp ${base_path}/certs/${kibana_node_names}* /etc/kibana/certs/ ${debug}"
+
+        if [ ${#kibana_node_names[@]} -eq 1 ]; then
+            name="kibana"
+        else
+            name=${kibana_node_names[pos]}
+        fi
+
+        eval "cp ${base_path}/certs/${name}-key.pem /etc/kibana/certs/kibana-key.pem ${debug}"
+        eval "cp ${base_path}/certs/${name}.pem /etc/kibana/certs/kibana.pem ${debug}"
         eval "cp ${base_path}/certs/root-ca.pem /etc/kibana/certs/ ${debug}"
         eval "chown -R kibana:kibana /etc/kibana/ ${debug}"
         eval "chmod -R 500 /etc/kibana/certs ${debug}"
         eval "chmod 440 /etc/kibana/certs/${kibana_node_names}* ${debug}"
-        eval "sed -i 's/kibana.pem/'${kibana_node_names}'.pem/g' /etc/kibana/kibana.yml ${debug}"
-        eval "sed -i 's/kibana-key.pem/'${kibana_node_names}'-key.pem/g' /etc/kibana/kibana.yml ${debug}"
         logger "Kibana certificate setup finished."
 
     else

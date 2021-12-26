@@ -129,7 +129,7 @@ getHelp() {
 
 logger() {
 
-    now=$(date +'%m/%d/%Y %H:%M:%S')
+    now=$(date +'%d/%m/%Y %H:%M:%S')
     case $1 in 
         "-e")
             mtype="ERROR:"
@@ -218,7 +218,8 @@ main() {
                 kibana=1
                 progressbar_total=5
                 ((distributed_installs++))
-                shift 1
+                kiname=$2
+                shift 2
                 ;;
             "-c"|"--create-certificates")
                 certificates=1
