@@ -288,6 +288,8 @@ main() {
         fi
         installElasticsearch 
         configureElasticsearch
+        startService "elasticsearch"
+        initializeElasticsearch
         logger "Elasticsearch installed correctly"
     fi
 
@@ -348,6 +350,8 @@ main() {
 
         installElasticsearch
         configureElasticsearchAIO
+        startService "elasticsearch"
+        initializeElasticsearch
         installWazuh
         startService "wazuh-manager"
         installFilebeat
