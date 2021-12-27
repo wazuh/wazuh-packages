@@ -44,17 +44,52 @@ checkSystem() {
     fi
 }
 
-checknames() {
+checkNames() {
 
-    if [ -n ${einame} ] && [[ ! "${elasticsearch_node_names[@]}" =~ "${einame}" ]]; then
-        logger -e "The name given for the elasticsearch node does not appear on the configuration file"
-        exit 1;
+    if [[ "${einame}" == "${kiname}" ]] || [[ "${einame}" == "${winame}" ]] || [[ "${kiname}" == "${winame}" ]]; then
+        logger -e "The node names for Elastisearch, Kibana and Wazuh must be different."
+        exit 1
     fi
 
-    if [ -n ${winame} ] && [[ ! "${wazuh_servers_node_names[@]}" =~ "${winame}" ]]; then
-        logger -e "The name given for the wazuh server node does not appear on the configuration file"
-        exit 1;
+    if [ -n ${einame} ]; then
+        if [[ ! "${elasticsearch_node_names[@]}" =~ "${einame}" ]]; then
+            logger -e "The name given for the elasticsearch node does not appear on the configuration file."
+            exit 1
+        fi
+
+        if [ ! -f ${base_path}/certs/${einame}.pem ] || [ ! -f ${base_path}/certs/${einame}-key.pem ]; then
+            logger -e "There is no certificate for the elasticsearch node ${einame} in ${base_path}/certs."
+            exit 1
+        fi
+
     fi
+
+    if [ -n ${winame} ]; then
+        if [[ ! "${wazuh_servers_node_names[@]}" =~ "${winame}" ]]; then
+            logger -e "The name given for the wazuh server node does not appear on the configuration file."
+            exit 1
+        fi
+
+        if [ ! -f ${base_path}/certs/${winame}.pem ] || [ ! -f ${base_path}/certs/${winame}-key.pem ]; then
+            logger -e "There is no certificate for the wazuh server node ${winame} in ${base_path}/certs."
+            exit 1
+        fi
+
+    fi
+
+    if [ -n ${kiname} ]; then
+        if [[ ! "${kibana_node_names[@]}" =~ "${kiname}" ]]; then
+            logger -e "The name given for the kibana node does not appear on the configuration file."
+            exit 1
+        fi
+
+        if [ ! -f ${base_path}/certs/${kiname}.pem ] || [ ! -f ${base_path}/certs/${kiname}-key.pem ]; then
+            logger -e "There is no certificate for the kibana node ${kiname} in ${base_path}/certs."
+            exit 1
+        fi
+
+    fi
+
 }
 
 checkArch() {
@@ -62,7 +97,7 @@ checkArch() {
 
     if [ ${arch} != "x86_64" ]; then
         logger -e "Uncompatible system. This script must be run on a 64-bit system."
-        exit 1;
+        exit 1
     fi
 }
 
@@ -87,7 +122,7 @@ installPrerequisites() {
 
     if [  "$?" != 0  ]; then
         logger -e "Prerequisites could not be installed"
-        exit 1;
+        exit 1
     else
         logger "All necessary utility installation finished."
     fi
@@ -149,10 +184,14 @@ checkInstalled() {
     if [ "${sys_type}" == "yum" ]; then
         wazuhinstalled=$(yum list installed 2>/dev/null | grep wazuh-manager)
     elif [ "${sys_type}" == "zypper" ]; then
-        wazuhinstalled=$(zypper packages --installed | grep wazuh-manager | grep i+)
+        wazuhinstalled=$(zypper packages | grep wazuh-manager | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
         wazuhinstalled=$(apt list --installed  2>/dev/null | grep wazuh-manager)
-    fi    
+    fi
+
+    if [ -d /var/ossec ]; then
+        wazuh_remaining_files=1
+    fi
 
     if [ -n "${wazuhinstalled}" ]; then
         if [ ${sys_type} == "zypper" ]; then
@@ -165,69 +204,62 @@ checkInstalled() {
     if [ "${sys_type}" == "yum" ]; then
         elasticsearchinstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch)
     elif [ "${sys_type}" == "zypper" ]; then
-        elasticsearchinstalled=$(zypper packages --installed | grep opendistroforelasticsearch | grep i+ | grep noarch)
+        elasticsearchinstalled=$(zypper packages | grep opendistroforelasticsearch | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
         elasticsearchinstalled=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch)
-    fi 
+    fi
+
+    if [ -d /var/lib/elasticsearch/ ] || [ -d /usr/share/elasticsearch ] || [ -d /etc/elasticsearch ] || [ -f ${base_path}/search-guard-tlstool* ]; then
+        elastic_remaining_files=1
+    fi
 
     if [ -n "${elasticsearchinstalled}" ]; then
         if [ ${sys_type} == "zypper" ]; then
             odversion=$(echo ${elasticsearchinstalled} | awk '{print $11}')
         else
             odversion=$(echo ${elasticsearchinstalled} | awk '{print $2}')
-        fi  
+        fi
     fi
 
     if [ "${sys_type}" == "yum" ]; then
         filebeatinstalled=$(yum list installed 2>/dev/null | grep filebeat)
     elif [ "${sys_type}" == "zypper" ]; then
-        filebeatinstalled=$(zypper packages --installed | grep filebeat | grep i+ | grep noarch)
+        filebeatinstalled=$(zypper packages | grep filebeat | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
         filebeatinstalled=$(apt list --installed  2>/dev/null | grep filebeat)
-    fi 
+    fi
+
+    if [ -d /var/lib/filebeat/ ] || [ -d /usr/share/filebeat ] || [ -d /etc/filebeat ]; then
+        filebeat_remaining_files=1
+    fi
 
     if [ -n "${filebeatinstalled}" ]; then
         if [ ${sys_type} == "zypper" ]; then
             filebeatversion=$(echo ${filebeatinstalled} | awk '{print $11}')
         else
             filebeatversion=$(echo ${filebeatinstalled} | awk '{print $2}')
-        fi  
-    fi    
+        fi
+    fi
 
     if [ "${sys_type}" == "yum" ]; then
         kibanainstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch-kibana)
     elif [ "${sys_type}" == "zypper" ]; then
-        kibanainstalled=$(zypper packages --installed | grep opendistroforelasticsearch-kibana | grep i+)
+        kibanainstalled=$(zypper packages | grep opendistroforelasticsearch-kibana | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
         kibanainstalled=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch-kibana)
-    fi 
+    fi
+
+    if [ -d /var/lib/kibana/ ] || [ -d /usr/share/kibana ] || [ -d /etc/kibana ]; then
+        kibana_remaining_files=1
+    fi
 
     if [ -n "${kibanainstalled}" ]; then
         if [ ${sys_type} == "zypper" ]; then
             kibanaversion=$(echo ${kibanainstalled} | awk '{print $11}')
         else
             kibanaversion=$(echo ${kibanainstalled} | awk '{print $2}')
-        fi  
-    fi  
-
-    if [ -z "${wazuhinstalled}" ] || [ -z "${elasticsearchinstalled}" ] || [ -z "${filebeatinstalled}" ] || [ -z "${kibanainstalled}" ] && [ -n "${uninstall}" ]; then 
-        logger -e "No Wazuh components were found on the system."
-        exit 1;        
-    fi
-
-    if [ -n "${wazuhinstalled}" ] || [ -n "${elasticsearchinstalled}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${kibanainstalled}" ]; then 
-        if [ -n "${ow}" ]; then
-            overwrite
-        
-        elif [ -n "${uninstall}" ]; then
-            logger -w "Removing the installed items"
-            rollBack
-        else
-            logger -e "All the Wazuh componets were found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. NOTE: This will erase all the existing configuration and data."
-            exit 1;
         fi
     fi
-
 }
 
 startService() {
@@ -241,7 +273,7 @@ startService() {
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
             rollBack
-            exit 1;
+            exit 1
         else
             logger "${1^} service started."
         fi
@@ -252,7 +284,7 @@ startService() {
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
             rollBack
-            exit 1;
+            exit 1
         else
             logger "${1^} service started."
         fi     
@@ -261,13 +293,13 @@ startService() {
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
             rollBack
-            exit 1;
+            exit 1
         else
             logger "${1^} service started."
-        fi             
+        fi
     else
         logger -e "${1^} could not start. No service manager found on the system."
-        exit 1;
+        exit 1
     fi
 
 }
@@ -280,11 +312,12 @@ createCertificates() {
 
     readConfig
     if [ -d ${base_path}/certs ]; then
-        logger -e "Folder ${base_path}/certs exists. Please remove the cert/ folder if you want to create new certificates."
-        exit 1;
+        logger -e "Folder ${base_path}/certs exists. Please remove the certificates folder if you want to create new certificates."
+        exit 1
     else
-        mkdir ${base_path}/certs 
-    fi   
+        mkdir ${base_path}/certs
+    fi
+
     generateRootCAcertificate
     generateAdmincertificate
     generateElasticsearchcertificates
@@ -306,7 +339,7 @@ healthCheck() {
         "elasticsearch")
             if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]; then
                 logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
-                exit 1;
+                exit 1
             else
                 logger "Check recommended minimum hardware requirements for Elasticsearch done."
                 logger "Starting the installation."
@@ -316,7 +349,7 @@ healthCheck() {
         "kibana")
             if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]; then
                 logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
-                exit 1;
+                exit 1
             else
                 logger "Check recommended minimum hardware requirements for Kibana done."
                 logger "Starting the installation."
@@ -326,7 +359,7 @@ healthCheck() {
             if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 1700 ]
             then
                 logger -e "Your system does not meet the recommended minimum hardware requirements of 2Gb of RAM and 2 CPU cores . If you want to proceed with the installation use the -i option to ignore these requirements."
-                exit 1;
+                exit 1
             else
                 logger "Check recommended minimum hardware requirements for Wazuh Manager done."
                 logger "Starting the installation."
@@ -335,7 +368,7 @@ healthCheck() {
         "AIO")
             if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]; then
                 logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
-                exit 1;
+                exit 1
             else
                 logger "Check recommended minimum hardware requirements for AIO done."
                 logger "Starting the installation."
@@ -346,8 +379,8 @@ healthCheck() {
 
 rollBack() {
 
-    if [ -z "${uninstall}" ]; then
-        logger -w "Cleaning the installation." 
+    if [ -z "${uninstall}" ] && [ -z "$1" ]; then
+        logger "Cleaning the installation."
     fi  
 
     if [ -f /etc/yum.repos.d/wazuh.repo ]; then
@@ -358,19 +391,24 @@ rollBack() {
         eval "rm /etc/apt/sources.list.d/wazuh.list"
     fi
 
-    if [ -n "${wazuhinstalled}" ]; then
+    if [ -n "${wazuhinstalled}" ] && ([ -z "$1" ] || [ "$1" == "wazuh" ]); then
         logger -w "Removing the Wazuh manager."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-manager -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
             eval "zypper -n remove wazuh-manager ${debug}"
+            eval "rm -f /etc/init.d/wazuh-manager ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge wazuh-manager -y ${debug}"
         fi 
-        eval "rm -rf /var/ossec/ ${debug}"
-    fi     
+        
+    fi
 
-    if [ -n "${elasticsearchinstalled}" ]; then
+    if [ -n "${wazuh_remaining_files}" ] && ([ -z "$1" ] || [ "$1" == "wazuh" ]); then
+        eval "rm -rf /var/ossec/ ${debug}"
+    fi
+
+    if [ -n "${elasticsearchinstalled}" ] && ([ -z "$1" ] || [ "$1" == "elasticsearch" ]); then
         logger -w "Removing Elasticsearch."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove opendistroforelasticsearch -y ${debug}"
@@ -381,14 +419,15 @@ rollBack() {
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge opendistroforelasticsearch elasticsearch* opendistro-* -y ${debug}"
         fi 
+    fi
+
+    if [ -n "${elastic_remaining_files}" ] && ([ -z "$1" ] || [ "$1" == "elasticsearch" ]); then
         eval "rm -rf /var/lib/elasticsearch/ ${debug}"
         eval "rm -rf /usr/share/elasticsearch/ ${debug}"
         eval "rm -rf /etc/elasticsearch/ ${debug}"
-        eval "rm -rf ./search-guard-tlstool-1.8.zip ${debug}"
-        eval "rm -rf ./searchguard ${debug}"
     fi
 
-    if [ -n "${filebeatinstalled}" ]; then
+    if [ -n "${filebeatinstalled}" ] && ([ -z "$1" ] || [ "$1" == "filebeat" ]); then
         logger -w "Removing Filebeat."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove filebeat -y ${debug}"
@@ -396,13 +435,16 @@ rollBack() {
             eval "zypper -n remove filebeat ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge filebeat -y ${debug}"
-        fi 
+        fi
+    fi
+
+    if [ -n "${filebeat_remaining_files}" ] && ([ -z "$1" ] || [ "$1" == "filebeat" ]); then
         eval "rm -rf /var/lib/filebeat/ ${debug}"
         eval "rm -rf /usr/share/filebeat/ ${debug}"
         eval "rm -rf /etc/filebeat/ ${debug}"
     fi
 
-    if [ -n "${kibanainstalled}" ]; then
+    if [ -n "${kibanainstalled}" ] && ([ -z "$1" ] || [ "$1" == "kibana" ]); then
         logger -w "Removing Kibana."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove opendistroforelasticsearch-kibana -y ${debug}"
@@ -410,14 +452,61 @@ rollBack() {
             eval "zypper -n remove opendistroforelasticsearch-kibana ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge opendistroforelasticsearch-kibana -y ${debug}"
-        fi 
+        fi
+    fi
+
+    if [ -n "${kibana_remaining_files}" ] && ([ -z "$1" ] || [ "$1" == "kibana" ]); then
         eval "rm -rf /var/lib/kibana/ ${debug}"
         eval "rm -rf /usr/share/kibana/ ${debug}"
         eval "rm -rf /etc/kibana/ ${debug}"
     fi
 
-    if [ -z "${uninstall}" ]; then    
-        logger -w "Installation cleaned. Check the /var/log/wazuh-unattended-installation.log file to learn more about the issue."
+    if [ -d "/var/log/elasticsearch" ]; then
+        eval "rm -rf /var/log/elasticsearch/ ${debug}"
+    fi
+
+    if [ -d "/var/log/filebeat" ]; then
+        eval "rm -rf /var/log/filebeat/ ${debug}"
+    fi
+
+    if [ -f "/securityadmin_demo.sh" ]; then
+        eval "rm -f /securityadmin_demo.sh ${debug}"
+    fi
+
+    if [ -f "/etc/systemd/system/multi-user.target.wants/wazuh-manager.service" ]; then
+        eval "rm -f /etc/systemd/system/multi-user.target.wants/wazuh-manager.service ${debug}"
+    fi
+
+    if [ -f "/etc/systemd/system/multi-user.target.wants/filebeat.service" ]; then
+        eval "rm -f /etc/systemd/system/multi-user.target.wants/filebeat.service ${debug}"
+    fi
+
+    if [ -f "/etc/systemd/system/multi-user.target.wants/elasticsearch.service" ]; then
+        eval "rm -f /etc/systemd/system/multi-user.target.wants/elasticsearch.service ${debug}"
+    fi
+
+    if [ -f "/etc/systemd/system/multi-user.target.wants/kibana.service" ]; then
+        eval "rm -f /etc/systemd/system/multi-user.target.wants/kibana.service ${debug}"
+    fi
+
+    if [ -f "/etc/systemd/system/kibana.service" ]; then
+        eval "rm -f /etc/systemd/system/kibana.service ${debug}"
+    fi
+
+    if [ -f "/lib/firewalld/services/kibana.xml" ]; then
+        eval "rm -f /lib/firewalld/services/kibana.xml ${debug}"
+    fi
+
+    if [ -f "/lib/firewalld/services/elasticsearch.xml" ]; then
+        eval "rm -f /lib/firewalld/services/elasticsearch.xml ${debug}"
+    fi
+
+    if [ -d "/etc/systemd/system/elasticsearch.service.wants" ]; then
+        eval "rm -rf /etc/systemd/system/elasticsearch.service.wants ${debug}"
+    fi
+
+    if [ -z "${uninstall}" ] && [ -z "$1" ]; then
+        logger "Installation cleaned. Check the ${logfile} file to learn more about the issue."
     fi
 }
 
@@ -425,3 +514,98 @@ createClusterKey() {
     openssl rand -hex 16 >> ${base_path}/certs/clusterkey
 }
 
+checkArguments() {
+
+    if [ -n "$overwrite" ] && [ -z "$AIO" ] && [ -z "$elasticsearch" ] && [ -z "$kibana" ] && [ -z "$wazuh" ]; then 
+        logger -e "The argument -o|--overwrite can't be used by itself. If you want to uninstall the components use -u|--uninstall"
+        exit 1
+    fi
+
+    if [ -n "${uninstall}" ]; then
+
+        if [ -z "${wazuhinstalled}" ] && [ -z "${elasticsearchinstalled}" ] && [ -z "${filebeatinstalled}" ] && [ -z "${kibanainstalled}" ]; then 
+            logger -e "Can't uninstall. No Wazuh components were found on the system."
+            exit 1
+        fi
+
+        if [ -n "$AIO" ] || [ -n "$elasticsearch" ] || [ -n "$kibana" ] || [ -n "$wazuh" ]; then
+            logger -e "The argument -u|--uninstall can't be used with -a, -k, -e or -w. If you want to overwrite the components use -o|--overwrite"
+            exit 1
+        fi
+    fi
+
+    if [ -n "$AIO" ]; then
+
+        if [ -n "$elasticsearch" ] || [ -n "$kibana" ] || [ -n "$wazuh" ]; then
+            logger -e "Argument -a|--all-in-one is not compatible with -e|--elasticsearch, -k|--kibana or -w|--wazuh-server"
+            exit 1
+        fi
+
+        if [ -n "${wazuhinstalled}" ] || [ -n "${elasticsearchinstalled}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${kibanainstalled}" ]; then
+            if [ -n "${overwrite}" ]; then
+                rollBack
+            else
+                logger -e "Some the Wazuh components were found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. NOTE: This will erase all the existing configuration and data."
+                exit 1
+            fi
+        fi
+    fi
+
+    if [ -n "$elasticsearch" ]; then
+
+        if [ -z "$einame" ]; then
+        logger -e "Argument --elasticsearch must be accompanied by the name of the node."
+        exit 1
+        fi
+
+        if [ -n "$elasticsearchinstalled" ] || [ -n "$elastic_remaining_files" ]; then
+            if [ -n "$overwrite" ]; then
+                rollBack "elasticsearch"
+            else 
+                logger -e "Elasticsearch is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
+                exit
+            fi
+        fi
+    fi
+
+    if [ -n "$kibana" ]; then
+
+        if [ -n "$kibana" ] && [ -z "$kiname" ]; then
+        logger -e "Argument --kibana must be accompanied by the name of the node."
+        exit 1
+        fi
+
+        if [ -n "$kibanainstalled" ] || [ -n "$kibana_remaining_files" ]; then
+            if [ -n "$overwrite" ]; then
+                rollBack "kibana"
+            else 
+                logger -e "Kibana is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
+                exit 
+            fi
+        fi
+    fi
+
+    if [ -n "$wazuh" ]; then
+        if [ -z "$winame" ]; then
+            logger -e "Argument --wazuh-server must be accompanied by the name of the node."
+            exit 1
+        fi
+        if [ -n "$wazuhinstalled" ] || [ -n "$wazuh_remaining_files" ]; then
+            if [ -n "$overwrite" ]; then
+                rollBack "wazuh"
+            else 
+                logger -e "Wazuh is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
+                exit 
+            fi
+        fi
+
+        if [ -n "$filebeatinstalled" ] || [ -n "$filebeat_remaining_files" ]; then
+            if [ -n "$overwrite" ]; then
+                rollBack "filebeat"
+            else
+                logger -e "Filebeat is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
+                exit 1
+            fi
+        fi
+    fi
+}

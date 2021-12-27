@@ -7,7 +7,7 @@
 
 installWazuh() {
 
-    logger "Starting the Wazuh manager installation."    
+    logger "Starting the Wazuh manager installation."
     if [ ${sys_type} == "zypper" ]; then
         eval "zypper -n install wazuh-manager=${wazuh_version}-${wazuh_revision} ${debug}"
     else
@@ -16,7 +16,7 @@ installWazuh() {
     if [  "$?" != 0  ]; then
         logger -e "Wazuh installation failed"
         rollBack
-        exit 1;
+        exit 1
     else
         wazuhinstalled="1"
         logger "Wazuh manager installation finished."
@@ -55,4 +55,5 @@ configureWazuhCluster() {
         -e "${lstart},${lend}s/<hidden>.*<\/hidden>/<hidden>${hidden}<\/hidden>/" \
         -e "${lstart},${lend}s/<disabled>.*<\/disabled>/<disabled>${disabled}<\/disabled>/" \
         /var/ossec/etc/ossec.conf'
+
 }
