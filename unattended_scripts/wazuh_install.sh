@@ -257,7 +257,7 @@ main() {
     fi
 
     if [ -n "${uninstall}" ]; then
-        logger "Removing all installed components"
+        logger "Removing all installed components."
         rollBack
         exit 0
     fi
