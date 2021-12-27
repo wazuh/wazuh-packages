@@ -42,7 +42,6 @@ checkSystem() {
         sys_type="apt-get"   
         sep="="
     fi
-    ((progressbar_status++))
 }
 
 checknames() {
@@ -90,7 +89,6 @@ installPrerequisites() {
         exit 1;
     else
         logger "Done"
-        ((progressbar_status++))
     fi
 }
 
@@ -123,7 +121,6 @@ addWazuhrepo() {
         logger "Wazuh repository already exists skipping"
     fi
     logger "Done"
-    ((progressbar_status++))
 }
 
 restoreWazuhrepo() {
@@ -143,7 +140,6 @@ restoreWazuhrepo() {
         eval "sed -i 's/unstable/stable/g' ${file} ${debug}"
         logger "Done"
     fi
-    ((progressbar_status++))
 }
 
 checkInstalled() {
@@ -344,7 +340,6 @@ healthCheck() {
             fi
             ;;
     esac
-    ((progressbar_status++))
 }
 
 rollBack() {

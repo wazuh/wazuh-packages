@@ -24,7 +24,6 @@ installElasticsearch() {
     else
         elasticsearchinstalled="1"
         logger "Done"
-        ((progressbar_status++))
     fi
 }
 
@@ -165,7 +164,6 @@ configureElasticsearch() {
 initializeElasticsearch() {
 
     logger "Elasticsearch installed."
-    ((progressbar_status++))
     logger "Starting Elasticsearch."
     startService "elasticsearch"
     logger "Initializing Elasticsearch."
@@ -180,7 +178,6 @@ initializeElasticsearch() {
     fi
 
     logger "Done"
-    ((progressbar_status++))
 }
 
 startElasticsearchCluster() {

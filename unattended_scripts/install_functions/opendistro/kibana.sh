@@ -20,7 +20,6 @@ installKibana() {
     else    
         kibanainstalled="1"
         logger "Done"
-        ((progressbar_status++))
     fi
 
 }
@@ -40,9 +39,7 @@ configureKibanaAIO() {
     eval "setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node ${debug}"
 
     modifyKibanaLogin
-    ((progressbar_status++))
     initializeKibanaAIO
-    ((progressbar_status++))
 }
 
 configureKibana() {
@@ -84,7 +81,6 @@ configureKibana() {
 
     modifyKibanaLogin
     setupKibanacerts
-    ((progressbar_status++))
     initializeKibana
 
     logger "Kibana installed."
@@ -134,7 +130,6 @@ initializeKibana() {
         done
     fi
     eval "sed -i 's,url: https://localhost,url: https://${wazuh_api_address},g' /usr/share/kibana/data/wazuh/config/wazuh.yml ${debug}"
-    ((progressbar_status++))  
     logger $'You can access the web interface https://'${nodes_kibana_ip}'. The credentials are admin:admin'    
 
 }

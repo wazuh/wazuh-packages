@@ -152,9 +152,7 @@ logger() {
     esac
     finalmessage=$(echo "$now" "$mtype" "$message") 
     echo "$finalmessage" >> ${logfile}
-    if [ -z "$debugEnabled" ] && [ "$1" != "-e" ]; then
-        progressBar "$finalmessage"
-    else 
+    if [ -n "$debugEnabled" ] && [ "$1" == "-e" ]; then
         echo -e "$finalmessage"
     fi
 }
@@ -195,35 +193,25 @@ main() {
         getHelp
     fi
 
-    progressbar_total=0
-    distributed_installs=0
-
     while [ -n "$1" ]
     do
         case "$1" in
             "-a"|"--all-in-one")
                 AIO=1
-                progressbar_total=15
                 shift 1
                 ;;
             "-w"|"--wazuh-server")
                 wazuh=1
-                progressbar_total=5
-                ((distributed_installs++))
                 winame=$2
                 shift 2
                 ;;
             "-e"|"--elasticsearch")
                 elasticsearch=1
-                progressbar_total=5
-                ((distributed_installs++))
                 einame=$2
                 shift 2
                 ;;
             "-k"|"--kibana")
                 kibana=1
-                progressbar_total=5
-                ((distributed_installs++))
                 kiname=$2
                 shift 2
                 ;;
@@ -287,7 +275,6 @@ main() {
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
             createClusterKey
         fi
-        ((progressbar_status++))
     fi
     
 
@@ -295,10 +282,8 @@ main() {
 
         importFunction "elasticsearch.sh"
 
-        progressbar_status=0
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored for Elasticsearch."
-            ((progressbar_status++))
         else
             healthCheck elasticsearch
         fi
@@ -316,10 +301,8 @@ main() {
 
         importFunction "kibana.sh"
 
-        progressbar_status=0
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored for Kibana."
-            ((progressbar_status++))
         else
             healthCheck kibana
         fi
@@ -333,10 +316,8 @@ main() {
         importFunction "wazuh.sh"
         importFunction "filebeat.sh"
 
-        progressbar_status=0
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored for Wazuh manager."
-            ((progressbar_status++))
         else
             healthCheck wazuh
         fi
@@ -360,7 +341,6 @@ main() {
 
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored for AIO."
-            ((progressbar_status++))
         else
             healthCheck AIO
         fi

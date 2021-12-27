@@ -26,7 +26,6 @@ installFilebeat() {
     else
         logger "Filebeat installed"
         filebeatinstalled="1"
-        ((progressbar_status++))
     fi
 }
 
@@ -54,7 +53,6 @@ configureFilebeat() {
     eval "cp ${base_path}/certs/root-ca.pem /etc/filebeat/certs/ ${debug}"
 
     logger "Done"
-    ((progressbar_status++))
 }
 
 configureFilebeatAIO() {
@@ -67,6 +65,5 @@ configureFilebeatAIO() {
     eval "cp ${base_path}/certs/filebeat* /etc/filebeat/certs/ ${debug}"
 
     logger "Done"
-    ((progressbar_status++))
 
 }
