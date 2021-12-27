@@ -133,7 +133,24 @@ getHelp() {
 
 }
 
+spin() {
+  spinner="/|\\-/|\\-"
+  while :
+  do
+    for i in `seq 0 7`
+    do
+      echo -n "${spinner:$i:1}"
+      echo -en "\010"
+      sleep 0.5
+    done
+  done
+}
+
 logger() {
+
+    if [ -n "$spin_pid" ]; then
+        kill -9 $spin_pid
+    fi
 
     now=$(date +'%d/%m/%Y %H:%M:%S')
     case $1 in 
@@ -155,6 +172,13 @@ logger() {
     if [ -n "$debugEnabled" ] && [ "$1" == "-e" ]; then
         echo -e "$finalmessage"
     fi
+
+    # Start the Spinner:
+    spin &
+    # Make a note of its Process ID (PID):
+    spin_pid=$!
+    # Kill the spinner on any signal, including our own exit.
+    trap "kill -9 $spin_pid" `seq 0 15`
 }
 
 importFunction() {
