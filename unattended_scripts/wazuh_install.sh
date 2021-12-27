@@ -46,6 +46,9 @@ progressBar() {
     totalcolumns=$( tput cols )
     columns=$(echo $((totalcolumns<max_progressbar_length ? totalcolumns : max_progressbar_length)))
     columns=$(( $columns-6 ))
+    if [ $progressbar_total -eq "0" ]; then
+        progressbar_total=1
+    fi
     cols_done=$(( ($progressbar_status*$columns) / $progressbar_total ))
     cols_empty=$(( $columns-$cols_done ))
     progresspercentage=$(( ($progressbar_status*100) / $progressbar_total ))
@@ -96,20 +99,8 @@ getHelp() {
     echo -e "        -d,  --development"
     echo -e "                Use development repository."
     echo -e ""
-    echo -e "        -o,  --overwrite"
-    echo -e "                Overwrite previously installed components of the stack. NOTE: This will erase all the existing configuration and data."
-    echo -e ""
-    echo -e "        -u,  --uninstall"
-    echo -e "                Uninstall all wazuh components. NOTE: This will erase all the existing configuration and data."
-    echo -e ""
     echo -e "        -e,  --elasticsearch <elasticsearch-node-name>"
     echo -e "                Elasticsearch installation."
-    echo -e ""
-    echo -e "        -k,  --kibana <kibana-node-name>"
-    echo -e "                Kibana installation."
-    echo -e ""
-    echo -e "        -w,  --wazuh-server <wazuh-node-name>"
-    echo -e "                Wazuh server installation. It includes Filebeat."
     echo -e ""
     echo -e "        -h,  --help"
     echo -e "                Shows help."
@@ -117,11 +108,26 @@ getHelp() {
     echo -e "        -i,  --ignore-health-check"
     echo -e "                Ignores the health-check."
     echo -e ""
+    echo -e "        -k,  --kibana <kibana-node-name>"
+    echo -e "                Kibana installation."
+    echo -e ""
     echo -e "        -l,  --local"
     echo -e "                Use local files."
     echo -e ""
+    echo -e "        -o,  --overwrite"
+    echo -e "                Overwrite previously installed components of the stack. NOTE: This will erase all the existing configuration and data."
+    echo -e ""
+    echo -e "        -s,  --start-cluster"
+    echo -e "                Start the Elasticsearch cluster."
+    echo -e ""
+    echo -e "        -u,  --uninstall"
+    echo -e "                Uninstall all wazuh components. NOTE: This will erase all the existing configuration and data."
+    echo -e ""
     echo -e "        -v,  --verbose"
     echo -e "                Shows the complete installation output."
+    echo -e ""
+    echo -e "        -w,  --wazuh-server <wazuh-node-name>"
+    echo -e "                Wazuh server installation. It includes Filebeat."
     echo -e ""
     exit 1 # Exit script after printing help
 
@@ -129,7 +135,7 @@ getHelp() {
 
 logger() {
 
-    now=$(date +'%m/%d/%Y %H:%M:%S')
+    now=$(date +'%d/%m/%Y %H:%M:%S')
     case $1 in 
         "-e")
             mtype="ERROR:"
@@ -147,11 +153,6 @@ logger() {
     finalmessage=$(echo "$now" "$mtype" "$message")
     echo "$finalmessage" >> ${logfile}
     echo -e "$finalmessage"
-    # if [ -z "$debugEnabled" ] && [ "$1" != "-e" ] && [ -z "$uninstall" ] && [ -n "${progressbar_status}" ]; then
-    #     progressBar "$finalmessage"
-    # else 
-    #     echo -e "$finalmessage"
-    # fi
 }
 
 importFunction() {
@@ -191,15 +192,11 @@ main() {
         getHelp
     fi
 
-    progressbar_total=0
-    distributed_installs=0
-
     while [ -n "$1" ]
     do
         case "$1" in
             "-a"|"--all-in-one")
                 AIO=1
-                progressbar_total=15
                 shift 1
                 ;;
             "-w"|"--wazuh-server")
@@ -209,7 +206,6 @@ main() {
                     exit 1
                 fi
                 wazuh=1
-                progressbar_total=5
                 winame=$2
                 shift 2
                 ;;
@@ -220,7 +216,6 @@ main() {
                     exit 1
                 fi
                 elasticsearch=1
-                progressbar_total=5
                 einame=$2
                 shift 2
                 ;;
@@ -231,12 +226,15 @@ main() {
                     exit 1
                 fi
                 kibana=1
-                progressbar_total=5
                 kiname=$2
                 shift 2
                 ;;
             "-c"|"--create-certificates")
                 certificates=1
+                shift 1
+                ;;
+            "-s"|"--start-cluster")
+                start_elastic_cluster=1
                 shift 1
                 ;;
             "-i"|"--ignore-health-check")
@@ -285,8 +283,18 @@ main() {
     checkSystem
     checkInstalled
     checkArguments
+    if [ -z "${AIO}" ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
+        readConfig
+        checknames
+    fi
+
+    if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
+        installPrerequisites
+        addWazuhrepo
+    fi
 
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
+        checkOpenSSL
         createCertificates
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
             createClusterKey
@@ -296,14 +304,6 @@ main() {
     if [ ! -d ${base_path}/certs ]; then
         logger -e "No certificates directory found ($base_path/certs). Run the script with the option -c|--certificates to create automatically or copy them from the node where they were created."
         exit 1
-    fi
-
-    if [ -z ${AIO} ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
-        progressbar_status=0
-        readConfig
-        checkNames
-        installPrerequisites
-        addWazuhrepo
     fi
 
     if [ -n "${uninstall}" ]; then
@@ -316,12 +316,8 @@ main() {
 
         importFunction "elasticsearch.sh"
 
-        if [[ $progressbar_status -eq $progressbar_total ]]; then
-            progressbar_status=0
-        fi
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored for Elasticsearch."
-            ((progressbar_status++))
         else
             healthCheck elasticsearch
         fi
@@ -330,16 +326,17 @@ main() {
         logger "Elasticsearch installation finished"
     fi
 
+    if [ -n "${start_elastic_cluster}" ]; then
+        importFunction "elasticsearch.sh"
+        startElasticsearchCluster
+    fi
+
     if [ -n "${kibana}" ]; then
 
         importFunction "kibana.sh"
 
-        if [[ $progressbar_status -eq $progressbar_total ]]; then
-            progressbar_status=0
-        fi
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored for Kibana."
-            ((progressbar_status++))
         else
             healthCheck kibana
         fi
@@ -353,12 +350,8 @@ main() {
         importFunction "wazuh.sh"
         importFunction "filebeat.sh"
 
-        if [[ $progressbar_status -eq $progressbar_total ]]; then
-            progressbar_status=0
-        fi
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored for Wazuh manager."
-            ((progressbar_status++))
         else
             healthCheck wazuh
         fi
@@ -384,13 +377,10 @@ main() {
 
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored for AIO."
-            ((progressbar_status++))
         else
             healthCheck AIO
         fi
 
-        installPrerequisites
-        addWazuhrepo
         installElasticsearch
         configureElasticsearchAIO
         logger "Elasticsearch installation finished"
@@ -405,6 +395,7 @@ main() {
         configureKibanaAIO
         logger "Kibana installation finished"
     fi
+
     restoreWazuhrepo
     logger "Installation Finished"
 

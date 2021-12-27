@@ -4,15 +4,20 @@
 # and/or modify it under the terms of the GNU General Public
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
-repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"
-repobaseurl="https://packages.wazuh.com/4.x"
-reporelease="stable"
 
 if [ -n "${development}" ]; then
     repogpg="https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH"
     repobaseurl="https://packages-dev.wazuh.com/pre-release"
     reporelease="unstable"
+else
+    repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"
+    repobaseurl="https://packages.wazuh.com/4.x"
+    reporelease="stable"
 fi
+
+filebeat_wazuh_template="https://raw.githubusercontent.com/wazuh/wazuh/'${wazuh_major}'/extensions/elasticsearch/7.x/wazuh-template.json"
+filebeat_wazuh_module="'${repobaseurl}'/filebeat/wazuh-filebeat-0.1.tar.gz"
+kibana_wazuh_plugin="'${repobaseurl}'/ui/kibana/wazuh_kibana-'${wazuh_version}'_'${elasticsearch_oss_version}'-'${wazuh_kibana_plugin_revision}'.zip"
 
 getConfig() {
     if [ -n "${local}" ]; then
@@ -99,14 +104,19 @@ checkArch() {
 installPrerequisites() {
     logger "Installing all necessary utilities for the installation."
 
+    openssl=""
+    if [ -z "$(command -v openssl)" ]; then
+        openssl="openssl"
+    fi
+
     if [ ${sys_type} == "yum" ]; then
-        eval "yum install curl unzip wget libcap tar -y ${debug}"
+        eval "yum install curl unzip wget libcap tar gnupg ${openssl} -y ${debug}"
     elif [ ${sys_type} == "zypper" ]; then
         eval "zypper -n install curl unzip wget ${debug}"         
-        eval "zypper -n install libcap-progs tar ${debug} || zypper -n install libcap2 tar ${debug}"
+        eval "zypper -n install libcap-progs tar gnupg ${openssl} ${debug} || zypper -n install libcap2 tar gnupg ${openssl} ${debug}"
     elif [ ${sys_type} == "apt-get" ]; then
         eval "apt-get update -q $debug"
-        eval "apt-get install apt-transport-https curl unzip wget libcap2-bin tar -y ${debug}"
+        eval "apt-get install apt-transport-https curl unzip wget libcap2-bin tar gnupg ${openssl} -y ${debug}"
     fi
 
     if [  "$?" != 0  ]; then
@@ -114,31 +124,30 @@ installPrerequisites() {
         exit 1;
     else
         logger "Done"
-        ((progressbar_status++))
     fi
 }
 
 addWazuhrepo() {
     logger "Adding the Wazuh repository."
 
-    if [ -n ${development} ]; then
-        if [ ${sys_type} == "yum" ]; then
+    if [ -n "${development}" ]; then
+        if [ "${sys_type}" == "yum" ]; then
             eval "rm -f /etc/yum.repos.d/wazuh.repo ${debug}"
-        elif [ ${sys_type} == "zypper" ]; then
+        elif [ "${sys_type}" == "zypper" ]; then
             eval "rm -f /etc/zypp/repos.d/wazuh.repo ${debug}"
-        elif [ ${sys_type} == "apt-get" ]; then
+        elif [ "${sys_type}" == "apt-get" ]; then
             eval "rm -f /etc/apt/sources.list.d/wazuh.list ${debug}"
         fi
     fi
 
     if [ ! -f /etc/yum.repos.d/wazuh.repo ] && [ ! -f /etc/zypp/repos.d/wazuh.repo ] && [ ! -f /etc/apt/sources.list.d/wazuh.list ] ; then
-        if [ ${sys_type} == "yum" ]; then
+        if [ "${sys_type}" == "yum" ]; then
             eval "rpm --import ${repogpg} ${debug}"
             eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-\$releasever - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo ${debug}"
-        elif [ ${sys_type} == "zypper" ]; then
+        elif [ "${sys_type}" == "zypper" ]; then
             eval "rpm --import ${repogpg} ${debug}"
             eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-\$releasever - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/zypp/repos.d/wazuh.repo ${debug}"
-        elif [ ${sys_type} == "apt-get" ]; then
+        elif [ "${sys_type}" == "apt-get" ]; then
             eval "curl -s ${repogpg} --max-time 300 | apt-key add - ${debug}"
             eval "echo \"deb ${repobaseurl}/apt/ ${reporelease} main\" | tee /etc/apt/sources.list.d/wazuh.list ${debug}"
             eval "apt-get update -q ${debug}"
@@ -147,17 +156,16 @@ addWazuhrepo() {
         logger "Wazuh repository already exists skipping"
     fi
     logger "Done"
-    ((progressbar_status++))
 }
 
 restoreWazuhrepo() {
     if [ -n "${development}" ]; then
         logger "Setting the Wazuh repository to production"
-        if [ ${sys_type} == "yum" ] && [ -f /etc/yum.repos.d/wazuh.repo ]; then
+        if [ "${sys_type}" == "yum" ] && [ -f /etc/yum.repos.d/wazuh.repo ]; then
             file="/etc/yum.repos.d/wazuh.repo"
-        elif [ ${sys_type} == "zypper" ] && [ -f /etc/zypp/repos.d/wazuh.repo ]; then
+        elif [ "${sys_type}" == "zypper" ] && [ -f /etc/zypp/repos.d/wazuh.repo ]; then
             file="/etc/zypp/repos.d/wazuh.repo"
-        elif [ ${sys_type} == "apt-get" ] && [ -f /etc/apt/sources.list.d/wazuh.list ]; then
+        elif [ "${sys_type}" == "apt-get" ] && [ -f /etc/apt/sources.list.d/wazuh.list ]; then
             file="/etc/apt/sources.list.d/wazuh.list"
         else
             logger "Wazuh repository does not exists"
@@ -167,7 +175,6 @@ restoreWazuhrepo() {
         eval "sed -i 's/unstable/stable/g' ${file} ${debug}"
         logger "Done"
     fi
-    ((progressbar_status++))
 }
 
 checkInstalled() {
@@ -366,7 +373,6 @@ healthCheck() {
             fi
             ;;
     esac
-    ((progressbar_status++))
 }
 
 rollBack() {

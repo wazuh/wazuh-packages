@@ -268,8 +268,9 @@ generateKibanacertificates() {
         generateCertificateconfiguration ${kibana_node_names[i]} ${kibana_node_ips[i]}
         eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${kibana_node_names[i]}-key.pem -out ${base_path}/certs/${kibana_node_names[i]}.csr -config ${base_path}/certs/${kibana_node_names[i]}.conf -days 3650 ${debug_cert}"
         eval "openssl x509 -req -in ${base_path}/certs/${kibana_node_names[i]}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${kibana_node_names[i]}.pem -extfile ${base_path}/certs/${kibana_node_names[i]}.conf -extensions v3_req -days 3650 ${debug_cert}"
-        i=$(( ${i} + 2 ))
-    done 
+        eval "chmod 444 ${base_path}/certs/${kibana_node_names[i]}-key.pem ${debug_cert}"    
+        i=$(( ${i} + 1 ))
+    done
 
 }
 
@@ -280,6 +281,13 @@ cleanFiles() {
     eval "rm -rf ${base_path}/certs/*.conf ${debug_cert}"
     eval "rm -rf ${base_path}/certs/admin-key-temp.pem ${debug_cert}"
     logger_cert "Certificates creation finished. They can be found in ${base_path}/certs."
+}
+
+checkOpenSSL() {
+    if [ -z "$(command -v openssl)" ]; then
+        logger_cert -e "OpenSSL not installed."
+        exit 1;
+    fi    
 }
 
 main() {

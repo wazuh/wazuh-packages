@@ -24,7 +24,6 @@ installElasticsearch() {
     else
         elasticsearchinstalled="1"
         logger "Done"
-        ((progressbar_status++))
     fi
 }
 
@@ -39,21 +38,29 @@ copyCertificatesElasticsearch() {
     eval "cp ${base_path}/certs/${name}.pem /etc/elasticsearch/certs/elasticsearch.pem ${debug}"
     eval "cp ${base_path}/certs/${name}-key.pem /etc/elasticsearch/certs/elasticsearch-key.pem ${debug}"
     eval "cp ${base_path}/certs/root-ca.pem /etc/elasticsearch/certs/ ${debug}"
-    if [ ${pos} -eq 0 ]; then
-        eval "cp ${base_path}/certs/admin.pem /etc/elasticsearch/certs/ ${debug}"
-        eval "cp ${base_path}/certs/admin-key.pem /etc/elasticsearch/certs/ ${debug}"
-    fi
+    eval "cp ${base_path}/certs/admin.pem /etc/elasticsearch/certs/ ${debug}"
+    eval "cp ${base_path}/certs/admin-key.pem /etc/elasticsearch/certs/ ${debug}"
 }
 
 applyLog4j2Mitigation(){
 
-    if [ ! -d /etc/elasticsearch/jvm.options.d ]; then
-        eval "mkdir /etc/elasticsearch/jvm.options.d ${debug}"
-    fi
-    
-    eval "echo '-Dlog4j2.formatMsgNoLookups=true' > /etc/elasticsearch/jvm.options.d/disabledlog4j.options 2>&1"
-    eval "chmod 2750 /etc/elasticsearch/jvm.options.d/disabledlog4j.options ${debug}"
-    eval "chown root:elasticsearch /etc/elasticsearch/jvm.options.d/disabledlog4j.options ${debug}"
+    eval "curl -so /tmp/apache-log4j-2.17.0-bin.tar.gz https://dlcdn.apache.org/logging/log4j/2.17.0/apache-log4j-2.17.0-bin.tar.gz ${debug}"
+    eval "tar -xf /tmp/apache-log4j-2.17.0-bin.tar.gz -C /tmp/"
+
+    eval "cp /tmp/apache-log4j-2.17.0-bin/log4j-api-2.17.0.jar /usr/share/elasticsearch/lib/  ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.0-bin/log4j-core-2.17.0.jar /usr/share/elasticsearch/lib/ ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.0-bin/log4j-slf4j-impl-2.17.0.jar /usr/share/elasticsearch/plugins/opendistro_security/ ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.0-bin/log4j-api-2.17.0.jar /usr/share/elasticsearch/performance-analyzer-rca/lib/ ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.0-bin/log4j-core-2.17.0.jar /usr/share/elasticsearch/performance-analyzer-rca/lib/ ${debug}"
+
+    eval "rm -f /usr/share/elasticsearch/lib//log4j-api-2.11.1.jar ${debug}"
+    eval "rm -f /usr/share/elasticsearch/lib/log4j-core-2.11.1.jar ${debug}"
+    eval "rm -f /usr/share/elasticsearch/plugins/opendistro_security/log4j-slf4j-impl-2.11.1.jar ${debug}"
+    eval "rm -f /usr/share/elasticsearch/performance-analyzer-rca/lib/log4j-api-2.13.0.jar ${debug}"
+    eval "rm -f /usr/share/elasticsearch/performance-analyzer-rca/lib/log4j-core-2.13.0.jar ${debug}"
+
+    eval "rm -rf /tmp/apache-log4j-2.17.0-bin ${debug}"
+    eval "rm -f /tmp/apache-log4j-2.17.0-bin.tar.gz ${debug}"
 
 }
 
@@ -66,8 +73,8 @@ configureElasticsearchAIO() {
     eval "getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml ${debug}"
     
     eval "rm /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem -f ${debug}"
-    export JAVA_HOME=/usr/share/elasticsearch/jdk/
-        
+    eval "export JAVA_HOME=/usr/share/elasticsearch/jdk/"
+
     eval "mkdir /etc/elasticsearch/certs/ ${debug}"
     eval "cp ${base_path}/certs/elasticsearch* /etc/elasticsearch/certs/ ${debug}"
     eval "cp ${base_path}/certs/root-ca.pem /etc/elasticsearch/certs/ ${debug}"
@@ -88,8 +95,6 @@ configureElasticsearchAIO() {
     applyLog4j2Mitigation
     initializeElasticsearch
 }
-
-
 
 configureElasticsearch() {
     logger "Configuring Elasticsearch."
@@ -169,7 +174,7 @@ configureElasticsearch() {
 initializeElasticsearch() {
 
     logger "Elasticsearch installed."
-    ((progressbar_status++))
+    
     startService "elasticsearch"
     
     logger "Initializing Elasticsearch."
@@ -180,9 +185,15 @@ initializeElasticsearch() {
 
     if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
         eval "export JAVA_HOME=/usr/share/elasticsearch/jdk/"
-        eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${elasticsearch_node_ips[pos]} ${debug}"
+        eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${elasticsearch_node_ips[pos]} ${debug}"
     fi
 
     logger "Done"
-    ((progressbar_status++))
+}
+
+startElasticsearchCluster() {
+    eval "elasticsearch_cluster_ip=( $(cat /etc/elasticsearch/elasticsearch.yml | grep network.host | sed 's/network.host:\s//') )"
+    eval "export JAVA_HOME=/usr/share/elasticsearch/jdk/"
+    eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${elasticsearch_cluster_ip}"
+    eval "curl ${filebeat_wazuh_template} | curl -X PUT 'https://${elasticsearch_node_ips[pos]}:9200/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k ${debug}"
 }
