@@ -19,12 +19,15 @@ installKibana() {
         exit 1;
     else    
         kibanainstalled="1"
-        logger "Done"
+        logger "Kibana installed."
     fi
 
 }
 
 configureKibanaAIO() {
+
+    logger "Configuring Kibana."
+
     eval "getConfig kibana/kibana_unattended.yml /etc/kibana/kibana.yml ${debug}"
     eval "mkdir /usr/share/kibana/data ${debug}"
     eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
@@ -34,17 +37,19 @@ configureKibanaAIO() {
         rollBack
         exit 1;
     fi
-    logger "Wazuh Kibana plugin installed."
     setupKibanacerts
     eval "setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node ${debug}"
 
     modifyKibanaLogin
+
+    logger "Kibana configured."
+
     initializeKibanaAIO
 }
 
 configureKibana() {
 
-    logger "Configuring Kibana"
+    logger "Configuring Kibana."
     
     eval "getConfig kibana/kibana_unattended_distributed.yml /etc/kibana/kibana.yml ${debug}"
     eval "mkdir /usr/share/kibana/data ${debug}"
@@ -81,9 +86,10 @@ configureKibana() {
 
     modifyKibanaLogin
     setupKibanacerts
-    initializeKibana
 
-    logger "Kibana installed."
+    logger "Kibana configured."
+
+    initializeKibana
 }
 
 setupKibanacerts() {
@@ -113,7 +119,7 @@ setupKibanacerts() {
 initializeKibana() {
 
     startService "kibana"
-    logger "Initializing Kibana (this may take a while)"
+    logger "Initializing Kibana."
     i=0
     until [[ "$(curl -XGET https://${nodes_kibana_ip}/status -I -uadmin:admin -k -s --max-time 300 | grep "200 OK")" ]] || [ ${i} -eq 12 ]; do
         sleep 10
@@ -130,20 +136,20 @@ initializeKibana() {
         done
     fi
     eval "sed -i 's,url: https://localhost,url: https://${wazuh_api_address},g' /usr/share/kibana/data/wazuh/config/wazuh.yml ${debug}"
-    logger $'You can access the web interface https://'${nodes_kibana_ip}'. The credentials are admin:admin'    
+    logger $'Kibana initialized. You can access the web interface https://'${nodes_kibana_ip}'. The credentials are admin:admin'    
 
 }
 
 initializeKibanaAIO() {
 
     startService "kibana"
-    logger "Initializing Kibana (this may take a while)"
+    logger "Initializing Kibana."
     i=0
     until [[ "$(curl -XGET https://localhost/status -I -uadmin:admin -k -s --max-time 300 | grep "200 OK")" ]] || [ ${i} -eq 12 ]; do
         sleep 10
         i=$((i+1))
     done
-    logger "You can access the web interface https://<kibana-host-ip>. The credentials are admin:admin"
+    logger "Kibana initialized. You can access the web interface https://<kibana-host-ip>. The credentials are admin:admin"
 }
 
 modifyKibanaLogin() {

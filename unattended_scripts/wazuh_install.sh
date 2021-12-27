@@ -323,7 +323,6 @@ main() {
         fi
         installElasticsearch 
         configureElasticsearch
-        logger "Elasticsearch installation finished"
     fi
 
     if [ -n "${start_elastic_cluster}" ]; then
@@ -342,7 +341,6 @@ main() {
         fi
         installKibana 
         configureKibana
-        logger "Kibana installation finished"
     fi
 
     if [ -n "${wazuh}" ]; then
@@ -360,12 +358,9 @@ main() {
             configureWazuhCluster 
         fi
         startService "wazuh-manager"
-        logger "Wazuh installation finished"
-
         installFilebeat
         configureFilebeat
         startService "filebeat"
-        logger "Filebeat installation finished"
     fi
 
     if [ -n "${AIO}" ]; then
@@ -383,17 +378,13 @@ main() {
 
         installElasticsearch
         configureElasticsearchAIO
-        logger "Elasticsearch installation finished"
         installWazuh
         startService "wazuh-manager"
-        logger "Wazuh Manager installation finished"
         installFilebeat
         configureFilebeatAIO
         startService "filebeat"
-        logger "Filebeat installation finished"
         installKibana
         configureKibanaAIO
-        logger "Kibana installation finished"
     fi
 
     restoreWazuhrepo

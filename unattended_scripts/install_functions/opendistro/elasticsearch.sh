@@ -7,7 +7,7 @@
 
 installElasticsearch() {
 
-    logger "Starting the Elasticsearch Installation"
+    logger "Starting the Elasticsearch Installation."
 
     if [ ${sys_type} == "yum" ]; then
         eval "yum install opendistroforelasticsearch-${opendistro_version}-${opendistro_revision} -y ${debug}"
@@ -23,7 +23,7 @@ installElasticsearch() {
         exit 1;
     else
         elasticsearchinstalled="1"
-        logger "Done"
+        logger "Elasticsearch installed."
     fi
 }
 
@@ -67,6 +67,7 @@ applyLog4j2Mitigation(){
 configureElasticsearchAIO() {
 
     logger "Configuring Elasticsearch."
+
     eval "getConfig elasticsearch/elasticsearch_all_in_one.yml /etc/elasticsearch/elasticsearch.yml ${debug}"
     eval "getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml ${debug}"
     eval "getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml ${debug}"
@@ -93,6 +94,9 @@ configureElasticsearchAIO() {
     eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
 
     applyLog4j2Mitigation
+
+    logger "Elasticsearch configured."
+    
     initializeElasticsearch
 }
 
@@ -168,12 +172,12 @@ configureElasticsearch() {
     eval "rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml -f ${debug}"
     eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
 
+    logger "Elasticsearch configured."
+
     initializeElasticsearch
 }
 
 initializeElasticsearch() {
-
-    logger "Elasticsearch installed."
     
     startService "elasticsearch"
     
@@ -188,7 +192,7 @@ initializeElasticsearch() {
         eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${elasticsearch_node_ips[pos]} ${debug}"
     fi
 
-    logger "Done"
+    logger "Elasticsearch initialized."
 }
 
 startElasticsearchCluster() {

@@ -173,7 +173,6 @@ restoreWazuhrepo() {
         eval "sed -i 's/-dev//g' ${file} ${debug}"
         eval "sed -i 's/pre-release/4.x/g' ${file} ${debug}"
         eval "sed -i 's/unstable/stable/g' ${file} ${debug}"
-        logger "Done"
     fi
 }
 
@@ -262,7 +261,7 @@ checkInstalled() {
 
 startService() {
 
-    logger "Starting service $1"
+    logger "Starting service $1."
 
     if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
         eval "systemctl daemon-reload ${debug}"
@@ -293,7 +292,7 @@ startService() {
             rollBack
             exit 1;
         else
-            logger "${1^} started"
+            logger "${1^} started."
         fi             
     else
         logger -e "${1^} could not start. No service manager found on the system."
