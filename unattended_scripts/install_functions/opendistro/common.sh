@@ -272,7 +272,7 @@ startService() {
             rollBack
             exit 1;
         else
-            logger "${1^} started"
+            logger "${1^} started."
         fi  
     elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
         eval "chkconfig $1 on ${debug}"
