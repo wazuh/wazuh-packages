@@ -264,8 +264,9 @@ generateKibanacertificates() {
         generateCertificateconfiguration ${kibana_node_names[i]} ${kibana_node_ips[i]}
         eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${kibana_node_names[i]}-key.pem -out ${base_path}/certs/${kibana_node_names[i]}.csr -config ${base_path}/certs/${kibana_node_names[i]}.conf -days 3650 ${debug_cert}"
         eval "openssl x509 -req -in ${base_path}/certs/${kibana_node_names[i]}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${kibana_node_names[i]}.pem -extfile ${base_path}/certs/${kibana_node_names[i]}.conf -extensions v3_req -days 3650 ${debug_cert}"
-        i=$(( ${i} + 2 ))
-    done 
+        eval "chmod 444 ${base_path}/certs/${kibana_node_names[i]}-key.pem ${debug_cert}"    
+        i=$(( ${i} + 1 ))
+    done
 
 }
 
@@ -278,12 +279,21 @@ cleanFiles() {
     logger_cert "Certificates creation finished. They can be found in ${base_path}/certs."
 }
 
+checkOpenSSL() {
+    if [ -z "$(command -v openssl)" ]; then
+        logger_cert -e "OpenSSL not installed."
+        exit 1;
+    fi    
+}
+
 main() {
 
     if [ "$EUID" -ne 0 ]; then
         logger_cert -e "This script must be run as root."
         exit 1;
     fi    
+
+
 
     if [ -n "$1" ]; then      
         while [ -n "$1" ]
@@ -328,27 +338,27 @@ main() {
         if [[ -n "${cadmin}" ]]; then
             generateAdmincertificate
             logger_cert "Admin certificates created."
-        fi   
+        fi
 
         if [[ -n "${ca}" ]]; then
             generateRootCAcertificate
             logger_cert "Authority certificates created."
-        fi                   
+        fi
 
         if [[ -n "${celasticsearch}" ]]; then
             generateElasticsearchcertificates
             logger_cert "Elasticsearch certificates created."
-        fi     
+        fi
 
         if [[ -n "${cwazuh}" ]]; then
             generateFilebeatcertificates
             logger_cert "Wazuh server certificates created."
-        fi 
+        fi
 
         if [[ -n "${ckibana}" ]]; then
             generateKibanacertificates
             logger_cert "Kibana certificates created."
-        fi                     
+        fi
 
     else
         readConfig

@@ -46,6 +46,9 @@ progressBar() {
     totalcolumns=$( tput cols )
     columns=$(echo $((totalcolumns<max_progressbar_length ? totalcolumns : max_progressbar_length)))
     columns=$(( $columns-6 ))
+    if [ $progressbar_total -eq "0" ]; then
+        progressbar_total=1
+    fi
     cols_done=$(( ($progressbar_status*$columns) / $progressbar_total ))
     cols_empty=$(( $columns-$cols_done ))
     progresspercentage=$(( ($progressbar_status*100) / $progressbar_total ))
@@ -129,7 +132,7 @@ getHelp() {
 
 logger() {
 
-    now=$(date +'%m/%d/%Y %H:%M:%S')
+    now=$(date +'%d/%m/%Y %H:%M:%S')
     case $1 in 
         "-e")
             mtype="ERROR:"
@@ -218,7 +221,8 @@ main() {
                 kibana=1
                 progressbar_total=5
                 ((distributed_installs++))
-                shift 1
+                kiname=$2
+                shift 2
                 ;;
             "-c"|"--create-certificates")
                 certificates=1
@@ -259,17 +263,22 @@ main() {
     importFunction "common.sh"
     importFunction "wazuh-cert-tool.sh"
 
-    checkArch
-    checkSystem
 
-    if [ -z ${AIO} ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
-        readConfig
-        checknames
+    if [ ! -z ${AIO} ] || [ ! -z "${elasticsearch}" ] || [ ! -z "${kibana}" ] || [ ! -z "${wazuh}" ]; then
+        checkArch
+        checkSystem
         installPrerequisites
         addWazuhrepo
     fi
 
+
+    if [ -z ${AIO} ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
+        readConfig
+        checknames
+    fi
+
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
+        checkOpenSSL
         createCertificates
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
             createClusterKey
@@ -277,6 +286,7 @@ main() {
         ((progressbar_status++))
     fi
     
+
     if [ -n "${elasticsearch}" ]; then
 
         importFunction "elasticsearch.sh"
@@ -346,8 +356,6 @@ main() {
             healthCheck AIO
         fi
 
-        installPrerequisites
-        addWazuhrepo
         installElasticsearch
         configureElasticsearchAIO
         installWazuh
@@ -358,6 +366,7 @@ main() {
         installKibana
         configureKibanaAIO
     fi
+
     restoreWazuhrepo
     logger "Installation Finished"
 

@@ -29,23 +29,17 @@ configureKibanaAIO() {
     eval "getConfig kibana/kibana_unattended.yml /etc/kibana/kibana.yml ${debug}"
     eval "mkdir /usr/share/kibana/data ${debug}"
     eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
-    eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${repobaseurl}'/ui/kibana/wazuh_kibana-${wazuh_version}_${elasticsearch_oss_version}-${wazuh_kibana_plugin_revision}.zip ${debug}"
+    eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${kibana_wazuh_plugin}' ${debug}"
     if [  "$?" != 0  ]; then
         logger -e "Wazuh Kibana plugin could not be installed."
         rollBack
-
         exit 1;
-    fi     
-    eval "mkdir /etc/kibana/certs ${debug}"
-    copyKibanacerts
-    eval "chown -R kibana:kibana /etc/kibana/ ${debug}"
-    eval "chmod -R 500 /etc/kibana/certs ${debug}"
-    eval "chmod 440 /etc/kibana/certs/kibana* ${debug}"
+    fi
+    logger "Wazuh Kibana plugin installed."
+    setupKibanacerts
     eval "setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node ${debug}"
 
     modifyKibanaLogin
-    
-
     ((progressbar_status++))
     initializeKibanaAIO
     ((progressbar_status++))
@@ -58,15 +52,26 @@ configureKibana() {
     eval "getConfig kibana/kibana_unattended_distributed.yml /etc/kibana/kibana.yml ${debug}"
     eval "mkdir /usr/share/kibana/data ${debug}"
     eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
-    eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${repobaseurl}'/ui/kibana/wazuh_kibana-${wazuh_version}_${elasticsearch_oss_version}-${wazuh_kibana_plugin_revision}.zip ${debug}"
+    eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${kibana_wazuh_plugin}' ${debug}"
     if [  "$?" != 0  ]; then
         logger -e "Wazuh Kibana plugin could not be installed."
         exit 1;
     fi
+    logger "Wazuh Kibana plugin installed."
     eval "setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node ${debug}"
-    eval "mkdir /etc/kibana/certs ${debug}"
 
-    echo 'server.host: "'${nodes_kibana_ip}'"' >> /etc/kibana/kibana.yml
+    if [ ${#kibana_node_names[@]} -eq 1 ]; then
+        ip=${kibana_node_ips[0]}
+    else
+        for i in ${!kibana_node_names[@]}; do
+            if [[ "${kibana_node_names[i]}" == "${kiname}" ]]; then
+                pos="${i}";
+            fi
+        done
+        ip=${kibana_node_ips[pos]}
+    fi
+
+    echo 'server.host: "'${ip}'"' >> /etc/kibana/kibana.yml
 
     if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
         echo "elasticsearch.hosts: https://"${elasticsearch_node_ips[0]}":9200" >> /etc/kibana/kibana.yml
@@ -78,28 +83,35 @@ configureKibana() {
     fi
 
     modifyKibanaLogin
-
-    copyKibanacerts
-    eval "chown -R kibana:kibana /etc/kibana/ ${debug}"
-    eval "chmod -R 500 /etc/kibana/certs ${debug}"
-    eval "chmod 440 /etc/kibana/certs/kibana* ${debug}"
-
+    setupKibanacerts
     ((progressbar_status++))
     initializeKibana
 
     logger "Kibana installed."
 }
 
-
-copyKibanacerts() {
+setupKibanacerts() {
+    eval "mkdir /etc/kibana/certs ${debug}"
     if [ -d "${base_path}/certs" ]; then
-        eval "cp ${base_path}/certs/kibana* /etc/kibana/certs/ ${debug}"
+
+        if [ ${#kibana_node_names[@]} -eq 1 ]; then
+            name="kibana"
+        else
+            name=${kibana_node_names[pos]}
+        fi
+
+        eval "cp ${base_path}/certs/${name}-key.pem /etc/kibana/certs/kibana-key.pem ${debug}"
+        eval "cp ${base_path}/certs/${name}.pem /etc/kibana/certs/kibana.pem ${debug}"
         eval "cp ${base_path}/certs/root-ca.pem /etc/kibana/certs/ ${debug}"
+        eval "chown -R kibana:kibana /etc/kibana/ ${debug}"
+        eval "chmod -R 500 /etc/kibana/certs ${debug}"
+        eval "chmod 440 /etc/kibana/certs/${kibana_node_names}* ${debug}"
+        logger "Kibana certificate setup finished."
+
     else
         logger -e "No certificates found. Could not initialize Kibana"
         exit 1;
     fi
-
 }
 
 initializeKibana() {
@@ -121,8 +133,7 @@ initializeKibana() {
             fi
         done
     fi
-    conf="$(awk '{sub("url: https://localhost", "url: https://'"${wazuh_api_address}"'")}1' /usr/share/kibana/data/wazuh/config/wazuh.yml)"
-    echo "${conf}" > /usr/share/kibana/data/wazuh/config/wazuh.yml
+    eval "sed -i 's,url: https://localhost,url: https://${wazuh_api_address},g' /usr/share/kibana/data/wazuh/config/wazuh.yml ${debug}"
     ((progressbar_status++))  
     logger $'You can access the web interface https://'${nodes_kibana_ip}'. The credentials are admin:admin'    
 
