@@ -16,7 +16,7 @@ installWazuh() {
     if [  "$?" != 0  ]; then
         logger -e "Wazuh installation failed"
         rollBack
-        exit 1;
+        exit 1
     else
         wazuhinstalled="1"
         logger "Wazuh manager installation finished."

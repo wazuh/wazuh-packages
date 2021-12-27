@@ -223,7 +223,7 @@ main() {
 
     if [ "$EUID" -ne 0 ]; then
         logger -e "Error: This script must be run as root."
-        exit 1;
+        exit 1
     fi
 
     importFunction "common.sh"
@@ -362,7 +362,7 @@ checkArguments() {
 
         if [ -z "${wazuhinstalled}" ] && [ -z "${elasticsearchinstalled}" ] && [ -z "${filebeatinstalled}" ] && [ -z "${kibanainstalled}" ]; then 
             logger -e "Can't uninstall. No Wazuh components were found on the system."
-            exit 1;
+            exit 1
         fi
 
         if [ -n "$AIO" ] || [ -n "$elasticsearch" ] || [ -n "$kibana" ] || [ -n "$wazuh" ]; then
@@ -383,7 +383,7 @@ checkArguments() {
                 rollBack
             else
                 logger -e "Some the Wazuh components were found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. NOTE: This will erase all the existing configuration and data."
-                exit 1;
+                exit 1
             fi
         fi
     fi

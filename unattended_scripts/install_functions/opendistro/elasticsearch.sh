@@ -20,7 +20,7 @@ installElasticsearch() {
     if [  "$?" != 0  ]; then
         logger -e "Elasticsearch installation failed."
         rollBack
-        exit 1;
+        exit 1
     else
         elasticsearchinstalled="1"
          logger "Open Distro for Elasticsearch installation finished."

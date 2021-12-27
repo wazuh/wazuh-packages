@@ -80,7 +80,7 @@ checkNames() {
     if [ -n ${kiname} ]; then
         if [[ ! "${kibana_node_names[@]}" =~ "${kiname}" ]]; then
            logger -e "The name given for the kibana node does not appear on the configuration file"
-            exit 1;
+            exit 1
         fi
 
         if [ ! -f ${base_path}/certs/${kiname}.pem ] || [ ! -f ${base_path}/certs/${kiname}-key.pem ]; then
@@ -97,7 +97,7 @@ checkArch() {
 
     if [ ${arch} != "x86_64" ]; then
         logger -e "Uncompatible system. This script must be run on a 64-bit system."
-        exit 1;
+        exit 1
     fi
 }
 
@@ -122,7 +122,7 @@ installPrerequisites() {
 
     if [  "$?" != 0  ]; then
         logger -e "Prerequisites could not be installed"
-        exit 1;
+        exit 1
     else
         logger "All necessary utility installation finished."
     fi
@@ -273,7 +273,7 @@ startService() {
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
             rollBack
-            exit 1;
+            exit 1
         else
             logger "${1^} service started."
         fi
@@ -284,7 +284,7 @@ startService() {
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
             rollBack
-            exit 1;
+            exit 1
         else
             logger "${1^} service started."
         fi     
@@ -293,13 +293,13 @@ startService() {
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
             rollBack
-            exit 1;
+            exit 1
         else
             logger "${1^} service started."
         fi
     else
         logger -e "${1^} could not start. No service manager found on the system."
-        exit 1;
+        exit 1
     fi
 
 }
@@ -313,7 +313,7 @@ createCertificates() {
     readConfig
     if [ -d ${base_path}/certs ]; then
         logger -e "Folder ${base_path}/certs exists. Please remove the certificates folder if you want to create new certificates."
-        exit 1;
+        exit 1
     else
         mkdir ${base_path}/certs
     fi
@@ -339,7 +339,7 @@ healthCheck() {
         "elasticsearch")
             if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]; then
                 logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
-                exit 1;
+                exit 1
             else
                 logger "Check recommended minimum hardware requirements for Elasticsearch done."
                 logger "Starting the installation."
@@ -349,7 +349,7 @@ healthCheck() {
         "kibana")
             if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]; then
                 logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
-                exit 1;
+                exit 1
             else
                 logger "Check recommended minimum hardware requirements for Kibana done."
                 logger "Starting the installation."
@@ -359,7 +359,7 @@ healthCheck() {
             if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 1700 ]
             then
                 logger -e "Your system does not meet the recommended minimum hardware requirements of 2Gb of RAM and 2 CPU cores . If you want to proceed with the installation use the -i option to ignore these requirements."
-                exit 1;
+                exit 1
             else
                 logger "Check recommended minimum hardware requirements for Wazuh Manager done."
                 logger "Starting the installation."
@@ -368,7 +368,7 @@ healthCheck() {
         "AIO")
             if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]; then
                 logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
-                exit 1;
+                exit 1
             else
                 logger "Check recommended minimum hardware requirements for AIO done."
                 logger "Starting the installation."

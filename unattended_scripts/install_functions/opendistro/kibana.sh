@@ -16,7 +16,7 @@ installKibana() {
     if [  "$?" != 0  ]; then
         logger -e "Kibana installation failed"
         rollBack
-        exit 1;
+        exit 1
     else    
         kibanainstalled="1"
         logger "Kibana installation finished."
@@ -35,7 +35,7 @@ configureKibanaAIO() {
     if [  "$?" != 0  ]; then
         logger -e "Wazuh Kibana plugin could not be installed."
         rollBack
-        exit 1;
+        exit 1
     fi
     logger "Wazuh Kibana plugin installation finished."
     setupKibanacerts
@@ -55,7 +55,7 @@ configureKibana() {
     eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${kibana_wazuh_plugin}' ${debug}"
     if [  "$?" != 0  ]; then
         logger -e "Wazuh Kibana plugin could not be installed."
-        exit 1;
+        exit 1
     fi
     logger "Wazuh Kibana plugin installed."
     eval "setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node ${debug}"
@@ -107,7 +107,7 @@ setupKibanacerts() {
 
     else
         logger -e "No certificates found. Could not initialize Kibana"
-        exit 1;
+        exit 1
     fi
 }
 

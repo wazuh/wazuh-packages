@@ -17,7 +17,7 @@ installFilebeat() {
     if [  "$?" != 0  ]
     then
         logger -e "Filebeat installation failed"
-        exit 1;
+        exit 1
     else
         logger "Filebeat installation finished."
         filebeatinstalled="1"

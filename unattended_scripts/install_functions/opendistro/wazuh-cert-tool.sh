@@ -111,63 +111,63 @@ readConfig() {
 
         if [ $(printf '%s\n' "${elasticsearch_node_names[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#elasticsearch_node_names[@]} ]; then 
             logger_cert -e "Duplicated Elasticsearch node names."
-            exit 1;
+            exit 1
         fi
 
         if [ $(printf '%s\n' "${elasticsearch_node_ips[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#elasticsearch_node_ips[@]} ]; then 
             logger_cert -e "Duplicated Elasticsearch node ips."
-            exit 1;
+            exit 1
         fi
 
         if [ $(printf '%s\n' "${wazuh_servers_node_names[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#wazuh_servers_node_names[@]} ]; then 
             logger_cert -e "Duplicated Wazuh server node names."
-            exit 1;
+            exit 1
         fi
 
         if [ $(printf '%s\n' "${wazuh_servers_node_ips[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#wazuh_servers_node_ips[@]} ]; then 
             logger_cert -e "Duplicated Wazuh server node ips."
-            exit 1;
+            exit 1
         fi
 
         if [ $(printf '%s\n' "${kibana_node_names[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#kibana_node_names[@]} ]; then 
             logger_cert -e "Duplicated Kibana node names."
-            exit 1;
+            exit 1
         fi
 
         if [ $(printf '%s\n' "${kibana_node_ips[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#kibana_node_ips[@]} ]; then 
             logger_cert -e "Duplicated Kibana node ips."
-            exit 1;
+            exit 1
         fi
 
         if [ ${#wazuh_servers_node_names[@]} -ne ${#wazuh_servers_node_ips[@]} ]; then 
             logger_cert -e "Different number of Wazuh server node names and IPs."
-            exit 1;
+            exit 1
         fi
 
         if [ ${#wazuh_servers_node_names[@]} -le 1 ]; then
             if [ ${#wazuh_servers_node_types[@]} -ne 0 ]; then
                 logger_cert -e "node_type must be used with more than one Wazuh server."
-                exit 1;
+                exit 1
             fi
         elif [ ${#wazuh_servers_node_names[@]} -ne ${#wazuh_servers_node_types[@]} ]; then
             logger_cert -e "Different number of Wazuh server node names and node types."
-            exit 1;
+            exit 1
         elif [ $(grep -o master <<< ${wazuh_servers_node_types[*]} | wc -l) -ne 1 ]; then
             logger_cert -e "Wazuh cluster needs a single master node."
-            exit 1;
+            exit 1
         elif [ $(grep -o worker <<< ${wazuh_servers_node_types[*]} | wc -l) -ne $(expr ${#wazuh_servers_node_types[@]} - 1)  ]; then
             logger_cert -e "Incorrect number of workers."
-            exit 1;
+            exit 1
         fi
 
         if [ ${#kibana_node_names[@]} -ne ${#kibana_node_ips[@]} ]; then 
             logger_cert -e "Different number of Kibana node names and IPs."
-            exit 1;
+            exit 1
         fi
 
     else
         logger_cert -e "No configuration file found. ${base_path}/config.yml."
-        exit 1;
+        exit 1
     fi
 }
 
@@ -214,7 +214,7 @@ generateCertificateconfiguration() {
         echo "${conf}" > ${base_path}/certs/$1.conf 
     else
         logger_cert -e "The given information does not match with an IP or a DNS".  
-        exit 1; 
+        exit 1 
     fi   
 
 }
@@ -290,7 +290,7 @@ cleanFiles() {
 checkOpenSSL() {
     if [ -z "$(command -v openssl)" ]; then
         logger_cert -e "OpenSSL not installed."
-        exit 1;
+        exit 1
     fi    
 }
 
@@ -298,12 +298,12 @@ main() {
 
     if [ "$EUID" -ne 0 ]; then
         logger_cert -e "This script must be run as root."
-        exit 1;
+        exit 1
     fi
     
     if [[ -d ${base_path}/certs ]]; then
         logger -e "Folder ${base_path}/certs exists. Please remove the /certs folder if you want to create new certificates."
-        exit 1;
+        exit 1
     else
         mkdir ${base_path}/certs
     fi
