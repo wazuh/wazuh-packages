@@ -67,7 +67,8 @@ checkArch() {
 }
 
 installPrerequisites() {
-    logger "Installing all necessary utilities for the installation."
+
+    logger "Starting all necessary utility installation."
 
     openssl=""
     if [ -z "$(command -v openssl)" ]; then
@@ -88,11 +89,12 @@ installPrerequisites() {
         logger -e "Prerequisites could not be installed"
         exit 1;
     else
-        logger "Done"
+        logger "All necessary utility installation finished."
     fi
 }
 
 addWazuhrepo() {
+
     logger "Adding the Wazuh repository."
 
     if [ -n "${development}" ]; then
@@ -118,14 +120,14 @@ addWazuhrepo() {
             eval "apt-get update -q ${debug}"
         fi
     else
-        logger "Wazuh repository already exists skipping"
+        logger "Wazuh repository already exists skipping."
     fi
-    logger "Done"
+    logger "Wazuh repository added."
 }
 
 restoreWazuhrepo() {
     if [ -n "${development}" ]; then
-        logger "Setting the Wazuh repository to production"
+        logger "Setting the Wazuh repository to production."
         if [ "${sys_type}" == "yum" ] && [ -f /etc/yum.repos.d/wazuh.repo ]; then
             file="/etc/yum.repos.d/wazuh.repo"
         elif [ "${sys_type}" == "zypper" ] && [ -f /etc/zypp/repos.d/wazuh.repo ]; then
@@ -133,12 +135,12 @@ restoreWazuhrepo() {
         elif [ "${sys_type}" == "apt-get" ] && [ -f /etc/apt/sources.list.d/wazuh.list ]; then
             file="/etc/apt/sources.list.d/wazuh.list"
         else
-            logger "Wazuh repository does not exists"
+            logger "Wazuh repository does not exists."
         fi
         eval "sed -i 's/-dev//g' ${file} ${debug}"
         eval "sed -i 's/pre-release/4.x/g' ${file} ${debug}"
         eval "sed -i 's/unstable/stable/g' ${file} ${debug}"
-        logger "Done"
+        logger "The Wazuh repository set to production."
     fi
 }
 
@@ -209,7 +211,7 @@ checkInstalled() {
     fi  
 
     if [ -z "${wazuhinstalled}" ] || [ -z "${elasticsearchinstalled}" ] || [ -z "${filebeatinstalled}" ] || [ -z "${kibanainstalled}" ] && [ -n "${uninstall}" ]; then 
-        logger -e " No Wazuh components were found on the system."
+        logger -e "No Wazuh components were found on the system."
         exit 1;        
     fi
 
@@ -230,7 +232,7 @@ checkInstalled() {
 
 startService() {
 
-    logger "Starting service $1..."
+    logger "Starting service $1."
 
     if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
         eval "systemctl daemon-reload ${debug}"
@@ -241,8 +243,8 @@ startService() {
             rollBack
             exit 1;
         else
-            logger "${1^} started"
-        fi  
+            logger "${1^} service started."
+        fi
     elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
         eval "chkconfig $1 on ${debug}"
         eval "service $1 start ${debug}"
@@ -252,7 +254,7 @@ startService() {
             rollBack
             exit 1;
         else
-            logger "${1^} started"
+            logger "${1^} service started."
         fi     
     elif [ -x /etc/rc.d/init.d/$1 ] ; then
         eval "/etc/rc.d/init.d/$1 start ${debug}"
@@ -261,7 +263,7 @@ startService() {
             rollBack
             exit 1;
         else
-            logger "${1^} started"
+            logger "${1^} service started."
         fi             
     else
         logger -e "${1^} could not start. No service manager found on the system."
@@ -345,7 +347,7 @@ healthCheck() {
 rollBack() {
 
     if [ -z "${uninstall}" ]; then
-        logger -w "Cleaning the installation" 
+        logger -w "Cleaning the installation." 
     fi  
 
     if [ -f /etc/yum.repos.d/wazuh.repo ]; then
@@ -416,98 +418,6 @@ rollBack() {
 
     if [ -z "${uninstall}" ]; then    
         logger -w "Installation cleaned. Check the /var/log/wazuh-unattended-installation.log file to learn more about the issue."
-    fi
-}
-
-parse_yaml() {
-   local prefix=$2
-   local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @|tr @ '\034')
-   sed -ne "s|^\($s\):|\1|" \
-        -e "s|^\($s\)\($w\)$s:$s[\"']\(.*\)[\"']$s\$|\1$fs\2$fs\3|p" \
-        -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p"  $1 |
-   awk -F$fs '{
-      indent = length($1)/2;
-      vname[indent] = $2;
-      for (i in vname) {if (i > indent) {delete vname[i]}}
-      if (length($3) > 0) {
-         vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
-         printf("%s%s%s=\"%s\"\n", "'$prefix'",vn, $2, $3);
-      }
-   }'
-}
-
-readConfig() {
-    if [ -f ${base_path}/config.yml ]; then
-        eval "$(parse_yaml ${base_path}/config.yml)"
-        eval "elasticsearch_node_names=( $(parse_yaml ${base_path}/config.yml | grep nodes_elasticsearch_name | sed 's/nodes_elasticsearch_name=//') )"
-        eval "wazuh_servers_node_names=( $(parse_yaml ${base_path}/config.yml | grep nodes_wazuh_servers_name | sed 's/nodes_wazuh_servers_name=//') )"
-        eval "kibana_node_names=( $(parse_yaml ${base_path}/config.yml | grep nodes_kibana_name | sed 's/nodes_kibana_name=//') )"
-
-        eval "elasticsearch_node_ips=( $(parse_yaml ${base_path}/config.yml | grep nodes_elasticsearch_ip | sed 's/nodes_elasticsearch_ip=//') )"
-        eval "wazuh_servers_node_ips=( $(parse_yaml ${base_path}/config.yml | grep nodes_wazuh_servers_ip | sed 's/nodes_wazuh_servers_ip=//') )"
-        eval "kibana_node_ips=( $(parse_yaml ${base_path}/config.yml | grep nodes_kibana_ip | sed 's/nodes_kibana_ip=//') )"
-
-        eval "wazuh_servers_node_types=( $(parse_yaml ${base_path}/config.yml | grep nodes_wazuh_servers_node_type | sed 's/nodes_wazuh_servers_node_type=//') )"
-
-        if [ $(printf '%s\n' "${elasticsearch_node_names[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#elasticsearch_node_names[@]} ]; then 
-            logger -e "Duplicated Elasticsearch node names"
-            exit 1;
-        fi
-
-        if [ $(printf '%s\n' "${elasticsearch_node_ips[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#elasticsearch_node_ips[@]} ]; then 
-            logger -e "Duplicated Elasticsearch node ips"
-            exit 1;
-        fi
-
-        if [ $(printf '%s\n' "${wazuh_servers_node_names[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#wazuh_servers_node_names[@]} ]; then 
-            logger -e "Duplicated Wazuh server node names"
-            exit 1;
-        fi
-
-        if [ $(printf '%s\n' "${wazuh_servers_node_ips[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#wazuh_servers_node_ips[@]} ]; then 
-            logger -e "Duplicated Wazuh server node ips"
-            exit 1;
-        fi
-
-        if [ $(printf '%s\n' "${kibana_node_names[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#kibana_node_names[@]} ]; then 
-            logger -e "Duplicated Kibana node names"
-            exit 1;
-        fi
-
-        if [ $(printf '%s\n' "${kibana_node_ips[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#kibana_node_ips[@]} ]; then 
-            logger -e "Duplicated Kibana node ips"
-            exit 1;
-        fi
-
-        if [ ${#wazuh_servers_node_names[@]} -ne ${#wazuh_servers_node_ips[@]} ]; then 
-            logger -e "Different number of Wazuh server node names and IPs "
-            exit 1;
-        fi
-
-        if [ ${#wazuh_servers_node_names[@]} -le 1 ]; then
-            if [ ${#wazuh_servers_node_types[@]} -ne 0 ]; then
-                logger -e "node_type must be used with more than one Wazuh server"
-                exit 1;
-            fi
-        elif [ ${#wazuh_servers_node_names[@]} -ne ${#wazuh_servers_node_types[@]} ]; then
-            logger -e "Different number of Wazuh server node names and node types "
-            exit 1;
-        elif [ $(grep -o master <<< ${wazuh_servers_node_types[*]} | wc -l) -ne 1 ]; then
-            logger -e "Wazuh cluster needs a single master node"
-            exit 1;
-        elif [ $(grep -o worker <<< ${wazuh_servers_node_types[*]} | wc -l) -ne $(expr ${#wazuh_servers_node_types[@]} - 1)  ]; then
-            logger -e "Incorrect number of workers"
-            exit 1;
-        fi
-
-        if [ ${#kibana_node_names[@]} -ne ${#kibana_node_ips[@]} ]; then 
-            logger -e "Different number of Kibana node names and IPs "
-            exit 1;
-        fi
-
-    else
-        logger -e "No configuration file found. ${base_path}/config.yml"
-        exit 1;
     fi
 }
 

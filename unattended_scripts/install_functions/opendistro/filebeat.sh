@@ -7,12 +7,7 @@
 
 installFilebeat() {
 
-    if [[ -f /etc/filebeat/filebeat.yml ]]; then
-        logger -e "Filebeat is already installed in this node."
-        exit 1;
-    fi
-
-    logger "Installing Filebeat."
+    logger "Starting filebeat installation."
     
     if [ ${sys_type} == "zypper" ]; then
         eval "zypper -n install filebeat-${elasticsearch_oss_version} ${debug}"
@@ -24,7 +19,7 @@ installFilebeat() {
         logger -e "Filebeat installation failed"
         exit 1;
     else
-        logger "Filebeat installed"
+        logger "Filebeat installation finished."
         filebeatinstalled="1"
     fi
 }
@@ -52,7 +47,7 @@ configureFilebeat() {
     eval "mv ${base_path}/certs/${winame}-key.pem /etc/filebeat/certs/filebeat-key.pem ${debug}"
     eval "cp ${base_path}/certs/root-ca.pem /etc/filebeat/certs/ ${debug}"
 
-    logger "Done"
+    logger "Filebeat post-install configuration finished."
 }
 
 configureFilebeatAIO() {
@@ -64,6 +59,6 @@ configureFilebeatAIO() {
     eval "cp ${base_path}/certs/root-ca.pem /etc/filebeat/certs/ ${debug}"
     eval "cp ${base_path}/certs/filebeat* /etc/filebeat/certs/ ${debug}"
 
-    logger "Done"
+    logger "Filebeat post-install configuration finished."
 
 }
