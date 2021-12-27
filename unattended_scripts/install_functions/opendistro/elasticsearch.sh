@@ -173,7 +173,7 @@ configureElasticsearch() {
 initializeElasticsearch() {
 
 
-    logger "Starting Elasticsearch."
+    logger "Starting Elasticsearch cluster."
     until $(curl -XGET https://${elasticsearch_node_ips[pos]}:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null); do
         sleep 10
     done
@@ -183,7 +183,7 @@ initializeElasticsearch() {
         eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${elasticsearch_node_ips[pos]} ${debug}"
     fi
 
-    logger "Elasticsearch started."
+    logger "Elasticsearch cluster started."
 }
 
 startElasticsearchCluster() {
