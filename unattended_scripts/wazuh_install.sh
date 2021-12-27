@@ -307,7 +307,9 @@ main() {
         fi
         installKibana 
         configureKibana
-        logger "Kibana installed correctly"
+        startService "kibana"
+        initializeKibana
+
     fi
 
     if [ -n "${wazuh}" ]; then
@@ -353,6 +355,8 @@ main() {
         startService "filebeat"
         installKibana
         configureKibanaAIO
+        startService "kibana"
+        initializeKibanaAIO
     fi
 
     restoreWazuhrepo

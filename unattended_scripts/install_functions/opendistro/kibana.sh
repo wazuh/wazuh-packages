@@ -7,24 +7,27 @@
 
 installKibana() {
     
-    logger "Installing Open Distro for Kibana."
+    logger "Starting Open Distro for Kibana installation."
     if [ ${sys_type} == "zypper" ]; then
         eval "zypper -n install opendistroforelasticsearch-kibana=${opendistro_version} ${debug}"
     else
         eval "${sys_type} install opendistroforelasticsearch-kibana${sep}${opendistro_version} -y ${debug}"
     fi
     if [  "$?" != 0  ]; then
-        logger -e "Kibana installation failed"
+        logger -e "Open Distro for Kibana installation failed"
         rollBack
         exit 1;
     else    
         kibanainstalled="1"
-        logger "Done"
+        logger "Open Distro for Kibana installation finished."
     fi
 
 }
 
 configureKibanaAIO() {
+
+    logger "Starting Wazuh Kibana plugin installation."
+    
     eval "getConfig kibana/kibana_unattended.yml /etc/kibana/kibana.yml ${debug}"
     eval "mkdir /usr/share/kibana/data ${debug}"
     eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
@@ -34,12 +37,12 @@ configureKibanaAIO() {
         rollBack
         exit 1;
     fi
-    logger "Wazuh Kibana plugin installed."
+    logger "Wazuh Kibana plugin installation finished."
     setupKibanacerts
     eval "setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node ${debug}"
-
     modifyKibanaLogin
-    initializeKibanaAIO
+    logger "Kibana post-install configuration finished."
+
 }
 
 configureKibana() {
@@ -81,9 +84,7 @@ configureKibana() {
 
     modifyKibanaLogin
     setupKibanacerts
-    initializeKibana
-
-    logger "Kibana installed."
+    logger "Kibana post-install configuration finished."
 }
 
 setupKibanacerts() {
@@ -112,8 +113,7 @@ setupKibanacerts() {
 
 initializeKibana() {
 
-    startService "kibana"
-    logger "Initializing Kibana (this may take a while)"
+    logger "Starting Kibana (this may take a while)."
     i=0
     until [[ "$(curl -XGET https://${nodes_kibana_ip}/status -I -uadmin:admin -k -s --max-time 300 | grep "200 OK")" ]] || [ ${i} -eq 12 ]; do
         sleep 10
@@ -130,20 +130,22 @@ initializeKibana() {
         done
     fi
     eval "sed -i 's,url: https://localhost,url: https://${wazuh_api_address},g' /usr/share/kibana/data/wazuh/config/wazuh.yml ${debug}"
-    logger $'You can access the web interface https://'${nodes_kibana_ip}'. The credentials are admin:admin'    
+    logger "Kibana started."
+    logger "You can access the web interface https://'${nodes_kibana_ip}'. The credentials are admin:admin"
 
 }
 
 initializeKibanaAIO() {
 
-    startService "kibana"
-    logger "Initializing Kibana (this may take a while)"
+    logger "Starting Kibana (this may take a while)."
     i=0
     until [[ "$(curl -XGET https://localhost/status -I -uadmin:admin -k -s --max-time 300 | grep "200 OK")" ]] || [ ${i} -eq 12 ]; do
         sleep 10
         i=$((i+1))
     done
-    logger $'You can access the web interface https://<kibana-host-ip>. The credentials are admin:admin'
+    logger "Kibana started."
+    logger "You can access the web interface https://<kibana-host-ip>. The credentials are admin:admin"
+
 }
 
 modifyKibanaLogin() {
