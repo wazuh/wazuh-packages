@@ -30,56 +30,6 @@ base_path="$(dirname $(readlink -f $0))"
 logfile="/var/log/wazuh-unattended-installation.log"
 debug=">> ${logfile} 2>&1"
 
-max_progressbar_length=70
-
-progressBar() {
-
-    if [ -z "${buffer}" ]; then
-        buffer=""
-        lines=0
-    fi
-
-    if [ "$1" ]; then
-        buffer="${buffer}$1\n"
-    fi
-
-    totalcolumns=$( tput cols )
-    columns=$(echo $((totalcolumns<max_progressbar_length ? totalcolumns : max_progressbar_length)))
-    columns=$(( $columns-6 ))
-    if [ $progressbar_total -eq "0" ]; then
-        progressbar_total=1
-    fi
-    cols_done=$(( ($progressbar_status*$columns) / $progressbar_total ))
-    cols_empty=$(( $columns-$cols_done ))
-    progresspercentage=$(( ($progressbar_status*100) / $progressbar_total ))
-
-    
-
-    tput el1
-    for i in $(seq $lines)
-    do
-        tput cuu1
-        tput el
-    done
-
-    
-    printf "${buffer}"
-    echo -ne "|"
-    for i in $(seq $cols_done); do echo -n "▇"; done
-    for i in $(seq $cols_empty); do echo -n " "; done
-    printf "|%3.3s%%\n" ${progresspercentage}
-
-    lines=$(echo -e "$buffer" | wc -l)
-    IFS=$'\n'
-    for line in $(echo -e "$buffer"); do 
-        length=$(expr length "$line")
-        while [[ $length -gt $totalcolumns ]]; do
-            ((lines+=1))
-            length=$(( length - totalcolumns ))
-        done
-    done
-}
-
 getHelp() {
 
     echo -e ""
@@ -388,7 +338,7 @@ main() {
     fi
 
     restoreWazuhrepo
-    logger "Installation Finished"
+    logger "Installation Finished."
 
 }
 

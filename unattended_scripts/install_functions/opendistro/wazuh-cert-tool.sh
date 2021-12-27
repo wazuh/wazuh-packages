@@ -309,11 +309,11 @@ main() {
     if [ -n "$1" ]; then
         while [ -n "$1" ]
         do
-            case "$1" in 
+            case "$1" in
             "-a"|"--admin-certificates")
                 cadmin=1
                 shift 1
-                ;;     
+                ;;
             "-ca"|"--root-ca-certificate")
                 ca=1
                 shift 1
@@ -321,11 +321,11 @@ main() {
             "-e"|"--elasticsearch-certificates")
                 celasticsearch=1
                 shift 1
-                ;; 
+                ;;
             "-w"|"--wazuh-certificates")
                 cwazuh=1
                 shift 1
-                ;;   
+                ;;
             "-k"|"--kibana-certificates")
                 ckibana=1
                 shift 1

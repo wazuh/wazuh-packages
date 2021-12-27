@@ -160,7 +160,7 @@ addWazuhrepo() {
 
 restoreWazuhrepo() {
     if [ -n "${development}" ]; then
-        logger "Setting the Wazuh repository to production"
+        logger "Setting the Wazuh repository to production."
         if [ "${sys_type}" == "yum" ] && [ -f /etc/yum.repos.d/wazuh.repo ]; then
             file="/etc/yum.repos.d/wazuh.repo"
         elif [ "${sys_type}" == "zypper" ] && [ -f /etc/zypp/repos.d/wazuh.repo ]; then
@@ -168,7 +168,7 @@ restoreWazuhrepo() {
         elif [ "${sys_type}" == "apt-get" ] && [ -f /etc/apt/sources.list.d/wazuh.list ]; then
             file="/etc/apt/sources.list.d/wazuh.list"
         else
-            logger "Wazuh repository does not exists"
+            logger "Wazuh repository does not exists."
         fi
         eval "sed -i 's/-dev//g' ${file} ${debug}"
         eval "sed -i 's/pre-release/4.x/g' ${file} ${debug}"
@@ -283,7 +283,7 @@ startService() {
             rollBack
             exit 1;
         else
-            logger "${1^} started"
+            logger "${1^} started."
         fi     
     elif [ -x /etc/rc.d/init.d/$1 ] ; then
         eval "/etc/rc.d/init.d/$1 start ${debug}"
