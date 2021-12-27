@@ -47,18 +47,18 @@ checkSystem() {
 checkNames() {
 
     if [[ "${einame}" == "${kiname}" ]] || [[ "${einame}" == "${winame}" ]] || [[ "${kiname}" == "${winame}" ]]; then
-        logger -e "The node names for Elastisearch, Kibana and Wazuh must be different"
+        logger -e "The node names for Elastisearch, Kibana and Wazuh must be different."
         exit 1
     fi
 
     if [ -n ${einame} ]; then
         if [[ ! "${elasticsearch_node_names[@]}" =~ "${einame}" ]]; then
-           logger -e "The name given for the elasticsearch node does not appear on the configuration file"
+            logger -e "The name given for the elasticsearch node does not appear on the configuration file."
             exit 1
         fi
 
         if [ ! -f ${base_path}/certs/${einame}.pem ] || [ ! -f ${base_path}/certs/${einame}-key.pem ]; then
-            logger -e "There is no certificate for the elasticsearch node ${einame} in ${base_path}/certs"
+            logger -e "There is no certificate for the elasticsearch node ${einame} in ${base_path}/certs."
             exit 1
         fi
 
@@ -66,12 +66,12 @@ checkNames() {
 
     if [ -n ${winame} ]; then
         if [[ ! "${wazuh_servers_node_names[@]}" =~ "${winame}" ]]; then
-           logger -e "The name given for the wazuh server node does not appear on the configuration file"
+            logger -e "The name given for the wazuh server node does not appear on the configuration file."
             exit 1
         fi
 
         if [ ! -f ${base_path}/certs/${winame}.pem ] || [ ! -f ${base_path}/certs/${winame}-key.pem ]; then
-            logger -e "There is no certificate for the wazuh server node ${winame} in ${base_path}/certs"
+            logger -e "There is no certificate for the wazuh server node ${winame} in ${base_path}/certs."
             exit 1
         fi
 
@@ -79,12 +79,12 @@ checkNames() {
 
     if [ -n ${kiname} ]; then
         if [[ ! "${kibana_node_names[@]}" =~ "${kiname}" ]]; then
-           logger -e "The name given for the kibana node does not appear on the configuration file"
+            logger -e "The name given for the kibana node does not appear on the configuration file."
             exit 1
         fi
 
         if [ ! -f ${base_path}/certs/${kiname}.pem ] || [ ! -f ${base_path}/certs/${kiname}-key.pem ]; then
-            logger -e "There is no certificate for the kibana node ${kiname} in ${base_path}/certs"
+            logger -e "There is no certificate for the kibana node ${kiname} in ${base_path}/certs."
             exit 1
         fi
 
