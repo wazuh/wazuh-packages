@@ -397,6 +397,7 @@ rollBack() {
             eval "yum remove wazuh-manager -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
             eval "zypper -n remove wazuh-manager ${debug}"
+            eval "rm -f /etc/init.d/wazuh-manager ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge wazuh-manager -y ${debug}"
         fi 
@@ -425,8 +426,6 @@ rollBack() {
         eval "rm -rf /usr/share/elasticsearch/ ${debug}"
         eval "rm -rf /etc/elasticsearch/ ${debug}"
     fi
-
-
 
     if [ -n "${filebeatinstalled}" ] && ([ -z "$1" ] || [ "$1" == "filebeat" ]); then
         logger -w "Removing Filebeat."
@@ -460,6 +459,50 @@ rollBack() {
         eval "rm -rf /var/lib/kibana/ ${debug}"
         eval "rm -rf /usr/share/kibana/ ${debug}"
         eval "rm -rf /etc/kibana/ ${debug}"
+    fi
+
+    if [ -d "/var/log/elasticsearch" ]; then
+        eval "rm -rf /var/log/elasticsearch/ ${debug}"
+    fi
+
+    if [ -d "/var/log/filebeat" ]; then
+        eval "rm -rf /var/log/filebeat/ ${debug}"
+    fi
+
+    if [ -f "/securityadmin_demo.sh" ]; then
+        eval "rm -f /securityadmin_demo.sh ${debug}"
+    fi
+
+    if [ -f "/etc/systemd/system/multi-user.target.wants/wazuh-manager.service" ]; then
+        eval "rm -f /etc/systemd/system/multi-user.target.wants/wazuh-manager.service ${debug}"
+    fi
+
+    if [ -f "/etc/systemd/system/multi-user.target.wants/filebeat.service" ]; then
+        eval "rm -f /etc/systemd/system/multi-user.target.wants/filebeat.service ${debug}"
+    fi
+
+    if [ -f "/etc/systemd/system/multi-user.target.wants/elasticsearch.service" ]; then
+        eval "rm -f /etc/systemd/system/multi-user.target.wants/elasticsearch.service ${debug}"
+    fi
+
+    if [ -f "/etc/systemd/system/multi-user.target.wants/kibana.service" ]; then
+        eval "rm -f /etc/systemd/system/multi-user.target.wants/kibana.service ${debug}"
+    fi
+
+    if [ -f "/etc/systemd/system/kibana.service" ]; then
+        eval "rm -f /etc/systemd/system/kibana.service ${debug}"
+    fi
+
+    if [ -f "/lib/firewalld/services/kibana.xml" ]; then
+        eval "rm -f /lib/firewalld/services/kibana.xml ${debug}"
+    fi
+
+    if [ -f "/lib/firewalld/services/elasticsearch.xml" ]; then
+        eval "rm -f /lib/firewalld/services/elasticsearch.xml ${debug}"
+    fi
+
+    if [ -d "/etc/systemd/system/elasticsearch.service.wants" ]; then
+        eval "rm -rf /etc/systemd/system/elasticsearch.service.wants ${debug}"
     fi
 
     if [ -z "${uninstall}" ] && [ -z "$1" ]; then
