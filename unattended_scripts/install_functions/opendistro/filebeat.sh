@@ -26,7 +26,6 @@ installFilebeat() {
     else
         logger "Filebeat installed"
         filebeatinstalled="1"
-        ((progressbar_status++))
     fi
 }
 
@@ -36,6 +35,7 @@ configureFilebeat() {
     eval "curl -so /etc/filebeat/wazuh-template.json ${filebeat_wazuh_template} --max-time 300 ${debug}"
     eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
     eval "curl -s ${filebeat_wazuh_module} --max-time 300 | tar -xvz -C /usr/share/filebeat/module ${debug}"
+
 
     if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
         echo "output.elasticsearch.hosts:" >> /etc/filebeat/filebeat.yml
@@ -53,7 +53,6 @@ configureFilebeat() {
     eval "cp ${base_path}/certs/root-ca.pem /etc/filebeat/certs/ ${debug}"
 
     logger "Done"
-    ((progressbar_status++))
 }
 
 configureFilebeatAIO() {
@@ -66,6 +65,5 @@ configureFilebeatAIO() {
     eval "cp ${base_path}/certs/filebeat* /etc/filebeat/certs/ ${debug}"
 
     logger "Done"
-    ((progressbar_status++))
 
 }

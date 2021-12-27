@@ -42,7 +42,6 @@ checkSystem() {
         sys_type="apt-get"   
         sep="="
     fi
-    ((progressbar_status++))
 }
 
 checknames() {
@@ -90,31 +89,30 @@ installPrerequisites() {
         exit 1;
     else
         logger "Done"
-        ((progressbar_status++))
     fi
 }
 
 addWazuhrepo() {
     logger "Adding the Wazuh repository."
 
-    if [ -n ${development} ]; then
-        if [ ${sys_type} == "yum" ]; then
+    if [ -n "${development}" ]; then
+        if [ "${sys_type}" == "yum" ]; then
             eval "rm -f /etc/yum.repos.d/wazuh.repo ${debug}"
-        elif [ ${sys_type} == "zypper" ]; then
+        elif [ "${sys_type}" == "zypper" ]; then
             eval "rm -f /etc/zypp/repos.d/wazuh.repo ${debug}"
-        elif [ ${sys_type} == "apt-get" ]; then
+        elif [ "${sys_type}" == "apt-get" ]; then
             eval "rm -f /etc/apt/sources.list.d/wazuh.list ${debug}"
         fi
     fi
 
     if [ ! -f /etc/yum.repos.d/wazuh.repo ] && [ ! -f /etc/zypp/repos.d/wazuh.repo ] && [ ! -f /etc/apt/sources.list.d/wazuh.list ] ; then
-        if [ ${sys_type} == "yum" ]; then
+        if [ "${sys_type}" == "yum" ]; then
             eval "rpm --import ${repogpg} ${debug}"
             eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-\$releasever - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo ${debug}"
-        elif [ ${sys_type} == "zypper" ]; then
+        elif [ "${sys_type}" == "zypper" ]; then
             eval "rpm --import ${repogpg} ${debug}"
             eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-\$releasever - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/zypp/repos.d/wazuh.repo ${debug}"
-        elif [ ${sys_type} == "apt-get" ]; then
+        elif [ "${sys_type}" == "apt-get" ]; then
             eval "curl -s ${repogpg} --max-time 300 | apt-key add - ${debug}"
             eval "echo \"deb ${repobaseurl}/apt/ ${reporelease} main\" | tee /etc/apt/sources.list.d/wazuh.list ${debug}"
             eval "apt-get update -q ${debug}"
@@ -123,17 +121,16 @@ addWazuhrepo() {
         logger "Wazuh repository already exists skipping"
     fi
     logger "Done"
-    ((progressbar_status++))
 }
 
 restoreWazuhrepo() {
     if [ -n "${development}" ]; then
         logger "Setting the Wazuh repository to production"
-        if [ ${sys_type} == "yum" ] && [ -f /etc/yum.repos.d/wazuh.repo ]; then
+        if [ "${sys_type}" == "yum" ] && [ -f /etc/yum.repos.d/wazuh.repo ]; then
             file="/etc/yum.repos.d/wazuh.repo"
-        elif [ ${sys_type} == "zypper" ] && [ -f /etc/zypp/repos.d/wazuh.repo ]; then
+        elif [ "${sys_type}" == "zypper" ] && [ -f /etc/zypp/repos.d/wazuh.repo ]; then
             file="/etc/zypp/repos.d/wazuh.repo"
-        elif [ ${sys_type} == "apt-get" ] && [ -f /etc/apt/sources.list.d/wazuh.list ]; then
+        elif [ "${sys_type}" == "apt-get" ] && [ -f /etc/apt/sources.list.d/wazuh.list ]; then
             file="/etc/apt/sources.list.d/wazuh.list"
         else
             logger "Wazuh repository does not exists"
@@ -143,7 +140,6 @@ restoreWazuhrepo() {
         eval "sed -i 's/unstable/stable/g' ${file} ${debug}"
         logger "Done"
     fi
-    ((progressbar_status++))
 }
 
 checkInstalled() {
@@ -344,7 +340,6 @@ healthCheck() {
             fi
             ;;
     esac
-    ((progressbar_status++))
 }
 
 rollBack() {

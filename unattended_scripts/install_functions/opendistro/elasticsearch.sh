@@ -24,7 +24,6 @@ installElasticsearch() {
     else
         elasticsearchinstalled="1"
         logger "Done"
-        ((progressbar_status++))
     fi
 }
 
@@ -39,10 +38,8 @@ copyCertificatesElasticsearch() {
     eval "cp ${base_path}/certs/${name}.pem /etc/elasticsearch/certs/elasticsearch.pem ${debug}"
     eval "cp ${base_path}/certs/${name}-key.pem /etc/elasticsearch/certs/elasticsearch-key.pem ${debug}"
     eval "cp ${base_path}/certs/root-ca.pem /etc/elasticsearch/certs/ ${debug}"
-    if [ ${pos} -eq 0 ]; then
-        eval "cp ${base_path}/certs/admin.pem /etc/elasticsearch/certs/ ${debug}"
-        eval "cp ${base_path}/certs/admin-key.pem /etc/elasticsearch/certs/ ${debug}"
-    fi
+    eval "cp ${base_path}/certs/admin.pem /etc/elasticsearch/certs/ ${debug}"
+    eval "cp ${base_path}/certs/admin-key.pem /etc/elasticsearch/certs/ ${debug}"
 }
 
 applyLog4j2Mitigation(){
@@ -76,8 +73,8 @@ configureElasticsearchAIO() {
     eval "getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml ${debug}"
     
     eval "rm /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem -f ${debug}"
-    export JAVA_HOME=/usr/share/elasticsearch/jdk/
-        
+    eval "export JAVA_HOME=/usr/share/elasticsearch/jdk/"
+
     eval "mkdir /etc/elasticsearch/certs/ ${debug}"
     eval "cp ${base_path}/certs/elasticsearch* /etc/elasticsearch/certs/ ${debug}"
     eval "cp ${base_path}/certs/root-ca.pem /etc/elasticsearch/certs/ ${debug}"
@@ -98,8 +95,6 @@ configureElasticsearchAIO() {
     applyLog4j2Mitigation
     initializeElasticsearch
 }
-
-
 
 configureElasticsearch() {
     logger "Configuring Elasticsearch."
@@ -179,7 +174,6 @@ configureElasticsearch() {
 initializeElasticsearch() {
 
     logger "Elasticsearch installed."
-    ((progressbar_status++))
     logger "Starting Elasticsearch."
     startService "elasticsearch"
     logger "Initializing Elasticsearch."
@@ -194,5 +188,11 @@ initializeElasticsearch() {
     fi
 
     logger "Done"
-    ((progressbar_status++))
+}
+
+startElasticsearchCluster() {
+    eval "elasticsearch_cluster_ip=( $(cat /etc/elasticsearch/elasticsearch.yml | grep network.host | sed 's/network.host:\s//') )"
+    eval "export JAVA_HOME=/usr/share/elasticsearch/jdk/"
+    eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${elasticsearch_cluster_ip}"
+    eval "curl ${filebeat_wazuh_template} | curl -X PUT 'https://${elasticsearch_node_ips[pos]}:9200/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k ${debug}"
 }

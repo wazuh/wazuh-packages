@@ -114,6 +114,9 @@ getHelp() {
     echo -e "        -i,  --ignore-health-check"
     echo -e "                Ignores the health-check."
     echo -e ""
+    echo -e "        -s,  --start-cluster"
+    echo -e "                Start the Elasticsearch cluster."
+    echo -e ""
     echo -e "        -k,  --kibana"
     echo -e "                Kibana installation."
     echo -e ""
@@ -149,9 +152,7 @@ logger() {
     esac
     finalmessage=$(echo "$now" "$mtype" "$message") 
     echo "$finalmessage" >> ${logfile}
-    if [ -z "$debugEnabled" ] && [ "$1" != "-e" ]; then
-        progressBar "$finalmessage"
-    else 
+    if [ -n "$debugEnabled" ] && [ "$1" == "-e" ]; then
         echo -e "$finalmessage"
     fi
 }
@@ -192,41 +193,34 @@ main() {
         getHelp
     fi
 
-    progressbar_total=0
-    distributed_installs=0
-
     while [ -n "$1" ]
     do
         case "$1" in
             "-a"|"--all-in-one")
                 AIO=1
-                progressbar_total=15
                 shift 1
                 ;;
             "-w"|"--wazuh-server")
                 wazuh=1
-                progressbar_total=5
-                ((distributed_installs++))
                 winame=$2
                 shift 2
                 ;;
             "-e"|"--elasticsearch")
                 elasticsearch=1
-                progressbar_total=5
-                ((distributed_installs++))
                 einame=$2
                 shift 2
                 ;;
             "-k"|"--kibana")
                 kibana=1
-                progressbar_total=5
-                ((distributed_installs++))
                 kiname=$2
                 shift 2
                 ;;
             "-c"|"--create-certificates")
                 certificates=1
-                #progressbar_total=3
+                shift 1
+                ;;
+            "-s"|"--start-cluster")
+                start_elastic_cluster=1
                 shift 1
                 ;;
             "-i"|"--ignore-health-check")
@@ -263,18 +257,16 @@ main() {
     importFunction "common.sh"
     importFunction "wazuh-cert-tool.sh"
 
+    if [ -z "${AIO}" ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
+        readConfig
+        checknames
+    fi
 
-    if [ ! -z ${AIO} ] || [ ! -z "${elasticsearch}" ] || [ ! -z "${kibana}" ] || [ ! -z "${wazuh}" ]; then
+    if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
         checkArch
         checkSystem
         installPrerequisites
         addWazuhrepo
-    fi
-
-
-    if [ -z ${AIO} ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
-        readConfig
-        checknames
     fi
 
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
@@ -283,7 +275,6 @@ main() {
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
             createClusterKey
         fi
-        ((progressbar_status++))
     fi
     
 
@@ -291,10 +282,8 @@ main() {
 
         importFunction "elasticsearch.sh"
 
-        progressbar_status=0
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored for Elasticsearch."
-            ((progressbar_status++))
         else
             healthCheck elasticsearch
         fi
@@ -303,14 +292,17 @@ main() {
         logger "Elasticsearch installed correctly"
     fi
 
+    if [ -n "${start_elastic_cluster}" ]; then
+        importFunction "elasticsearch.sh"
+        startElasticsearchCluster
+    fi
+
     if [ -n "${kibana}" ]; then
 
         importFunction "kibana.sh"
 
-        progressbar_status=0
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored for Kibana."
-            ((progressbar_status++))
         else
             healthCheck kibana
         fi
@@ -324,10 +316,8 @@ main() {
         importFunction "wazuh.sh"
         importFunction "filebeat.sh"
 
-        progressbar_status=0
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored for Wazuh manager."
-            ((progressbar_status++))
         else
             healthCheck wazuh
         fi
@@ -351,7 +341,6 @@ main() {
 
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored for AIO."
-            ((progressbar_status++))
         else
             healthCheck AIO
         fi

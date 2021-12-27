@@ -291,48 +291,47 @@ main() {
     if [ "$EUID" -ne 0 ]; then
         logger_cert -e "This script must be run as root."
         exit 1;
-    fi    
+    fi
 
-
-
-    if [ -n "$1" ]; then      
+    if [ -n "$1" ]; then
         while [ -n "$1" ]
         do
-            case "$1" in 
-            "-a"|"--admin-certificates") 
+            case "$1" in
+            "-a"|"--admin-certificates")
                 cadmin=1
                 shift 1
-                ;;     
-            "-ca"|"--root-ca-certificate") 
+                ;;
+            "-ca"|"--root-ca-certificate")
                 ca=1
                 shift 1
-                ;;                           
-            "-e"|"--elasticsearch-certificates") 
+                ;;
+            "-e"|"--elasticsearch-certificates")
                 celasticsearch=1
                 shift 1
-                ;; 
-            "-w"|"--wazuh-certificates") 
+                ;;
+            "-w"|"--wazuh-certificates")
                 cwazuh=1
                 shift 1
-                ;;   
-            "-k"|"--kibana-certificates") 
+                ;;
+            "-k"|"--kibana-certificates")
                 ckibana=1
                 shift 1
-                ;;                               
-            "-v"|"--verbose") 
-                debugEnabled=1          
+                ;;
+            "-v"|"--verbose")
+                debugEnabled=1
                 shift 1
-                ;;                                 
-            "-h"|"--help")        
+                ;;
+            "-h"|"--help")
                 getHelp
-                ;;                                         
+                ;;
             *)
                 getHelp
             esac
-        done    
+        done
+
 
         if [ -n "${debugEnabled}" ]; then
-            debug_cert="2>&1 | tee -a ${logfile}"          
+            debug_cert="2>&1 | tee -a ${logfile}"
         fi
 
         if [[ -n "${cadmin}" ]]; then
