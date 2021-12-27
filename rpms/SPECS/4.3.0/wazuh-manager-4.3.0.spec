@@ -183,8 +183,8 @@ if ! id -u wazuh > /dev/null 2>&1; then
 fi 
 
 # Stop the services to upgrade the package
-if ps aux | grep "[o]ssec-authd" > /dev/null 2>&1; then
-    %{_localstatedir}/bin/ossec-control enable auth
+if pgrep -f ossec-authd > /dev/null 2>&1; then
+    kill -15 $(pgrep -f ossec-authd)
 fi
 
 if [ $1 = 2 ]; then
