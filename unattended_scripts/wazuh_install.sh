@@ -290,7 +290,6 @@ main() {
         configureElasticsearch
         startService "elasticsearch"
         initializeElasticsearch
-        logger "Elasticsearch installed correctly"
     fi
 
     if [ -n "${start_elastic_cluster}" ]; then
@@ -332,7 +331,6 @@ main() {
         installFilebeat  
         configureFilebeat
         startService "filebeat"
-        logger "Wazuh installed correctly"
     fi
 
     if [ -n "${AIO}" ]; then
