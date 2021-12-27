@@ -269,18 +269,16 @@ main() {
     importFunction "common.sh"
     importFunction "wazuh-cert-tool.sh"
 
+    if [ -z "${AIO}" ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
+        readConfig
+        checknames
+    fi
 
     if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
         checkArch
         checkSystem
         installPrerequisites
         addWazuhrepo
-    fi
-
-
-    if [ -z "${AIO}" ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
-        readConfig
-        checknames
     fi
 
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
