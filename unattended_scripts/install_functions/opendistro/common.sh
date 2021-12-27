@@ -209,7 +209,7 @@ checkInstalled() {
         elasticsearchinstalled=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch)
     fi
 
-    if [ -d /var/lib/elasticsearch/ ] || [ -d /usr/share/elasticsearch ] || [ -d /etc/elasticsearch ] || [ -d ${base_path}/searchguard ] || [ -f ${base_path}/search-guard-tlstool* ]; then
+    if [ -d /var/lib/elasticsearch/ ] || [ -d /usr/share/elasticsearch ] || [ -d /etc/elasticsearch ] || [ -f ${base_path}/search-guard-tlstool* ]; then
         elastic_remaining_files=1
     fi
 
@@ -424,8 +424,6 @@ rollBack() {
         eval "rm -rf /var/lib/elasticsearch/ ${debug}"
         eval "rm -rf /usr/share/elasticsearch/ ${debug}"
         eval "rm -rf /etc/elasticsearch/ ${debug}"
-        eval "rm -rf ${base_path}/search-guard-tlstool* ${debug}"
-        eval "rm -rf ${base_path}/searchguard ${debug}"
     fi
 
 
