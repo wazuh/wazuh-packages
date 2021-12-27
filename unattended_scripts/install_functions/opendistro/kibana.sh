@@ -7,19 +7,19 @@
 
 installKibana() {
     
-    logger "Starting Open Distro for Kibana installation."
+    logger "Starting Kibana installation."
     if [ ${sys_type} == "zypper" ]; then
         eval "zypper -n install opendistroforelasticsearch-kibana=${opendistro_version} ${debug}"
     else
         eval "${sys_type} install opendistroforelasticsearch-kibana${sep}${opendistro_version} -y ${debug}"
     fi
     if [  "$?" != 0  ]; then
-        logger -e "Open Distro for Kibana installation failed"
+        logger -e "Kibana installation failed"
         rollBack
         exit 1;
     else    
         kibanainstalled="1"
-        logger "Open Distro for Kibana installation finished."
+        logger "Kibana installation finished."
     fi
 
 }
