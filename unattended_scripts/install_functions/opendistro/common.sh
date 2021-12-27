@@ -123,7 +123,7 @@ installPrerequisites() {
         logger -e "Prerequisites could not be installed"
         exit 1;
     else
-        logger "Done"
+        logger "All necessary prerequisites installed."
     fi
 }
 
@@ -155,7 +155,7 @@ addWazuhrepo() {
     else
         logger "Wazuh repository already exists skipping"
     fi
-    logger "Done"
+    logger "Wazuh repository added."
 }
 
 restoreWazuhrepo() {
