@@ -47,8 +47,6 @@ configureKibanaAIO() {
 
 configureKibana() {
 
-    logger "Configuring Kibana."
-    
     eval "getConfig kibana/kibana_unattended_distributed.yml /etc/kibana/kibana.yml ${debug}"
     eval "mkdir /usr/share/kibana/data ${debug}"
     eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
