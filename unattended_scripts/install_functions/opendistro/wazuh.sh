@@ -6,7 +6,7 @@
 # Foundation.
 
 installWazuh() {
-    
+
     logger "Starting the Wazuh manager installation."
     if [ ${sys_type} == "zypper" ]; then
         eval "zypper -n install wazuh-manager=${wazuh_version}-${wazuh_revision} ${debug}"
@@ -19,7 +19,7 @@ installWazuh() {
         exit 1;
     else
         wazuhinstalled="1"
-        logger "Wazuh manager installed."
+        logger "Wazuh manager installation finished."
     fi   
 }
 
@@ -38,6 +38,7 @@ configureWazuhCluster() {
             master_address=${wazuh_servers_node_ips[i]}
         fi
     done
+
     key=$(cat ${base_path}/certs/clusterkey)
     bind_address="0.0.0.0"
     port="1516"

@@ -102,7 +102,8 @@ checkArch() {
 }
 
 installPrerequisites() {
-    logger "Installing all necessary utilities for the installation."
+
+    logger "Starting all necessary utility installation."
 
     openssl=""
     if [ -z "$(command -v openssl)" ]; then
@@ -123,11 +124,12 @@ installPrerequisites() {
         logger -e "Prerequisites could not be installed"
         exit 1;
     else
-        logger "All necessary prerequisites installed."
+        logger "All necessary utility installation finished."
     fi
 }
 
 addWazuhrepo() {
+
     logger "Adding the Wazuh repository."
 
     if [ -n "${development}" ]; then
@@ -153,7 +155,7 @@ addWazuhrepo() {
             eval "apt-get update -q ${debug}"
         fi
     else
-        logger "Wazuh repository already exists skipping"
+        logger "Wazuh repository already exists skipping."
     fi
     logger "Wazuh repository added."
 }
@@ -173,6 +175,7 @@ restoreWazuhrepo() {
         eval "sed -i 's/-dev//g' ${file} ${debug}"
         eval "sed -i 's/pre-release/4.x/g' ${file} ${debug}"
         eval "sed -i 's/unstable/stable/g' ${file} ${debug}"
+        logger "The Wazuh repository set to production."
     fi
 }
 
@@ -255,7 +258,7 @@ checkInstalled() {
             kibanaversion=$(echo ${kibanainstalled} | awk '{print $11}')
         else
             kibanaversion=$(echo ${kibanainstalled} | awk '{print $2}')
-        fi  
+        fi
     fi
 }
 
@@ -272,8 +275,8 @@ startService() {
             rollBack
             exit 1;
         else
-            logger "${1^} started."
-        fi  
+            logger "${1^} service started."
+        fi
     elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
         eval "chkconfig $1 on ${debug}"
         eval "service $1 start ${debug}"
@@ -283,7 +286,7 @@ startService() {
             rollBack
             exit 1;
         else
-            logger "${1^} started."
+            logger "${1^} service started."
         fi     
     elif [ -x /etc/rc.d/init.d/$1 ] ; then
         eval "/etc/rc.d/init.d/$1 start ${debug}"
@@ -292,8 +295,8 @@ startService() {
             rollBack
             exit 1;
         else
-            logger "${1^} started."
-        fi             
+            logger "${1^} service started."
+        fi
     else
         logger -e "${1^} could not start. No service manager found on the system."
         exit 1;
@@ -377,7 +380,7 @@ healthCheck() {
 rollBack() {
 
     if [ -z "${uninstall}" ] && [ -z "$1" ]; then
-        logger "Cleaning the installation" 
+        logger "Cleaning the installation."
     fi  
 
     if [ -f /etc/yum.repos.d/wazuh.repo ]; then
@@ -464,23 +467,6 @@ rollBack() {
     if [ -z "${uninstall}" ] && [ -z "$1" ]; then
         logger "Installation cleaned. Check the ${logfile} file to learn more about the issue."
     fi
-}
-
-parse_yaml() {
-   local prefix=$2
-   local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @|tr @ '\034')
-   sed -ne "s|^\($s\):|\1|" \
-        -e "s|^\($s\)\($w\)$s:$s[\"']\(.*\)[\"']$s\$|\1$fs\2$fs\3|p" \
-        -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p"  $1 |
-   awk -F$fs '{
-      indent = length($1)/2;
-      vname[indent] = $2;
-      for (i in vname) {if (i > indent) {delete vname[i]}}
-      if (length($3) > 0) {
-         vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
-         printf("%s%s%s=\"%s\"\n", "'$prefix'",vn, $2, $3);
-      }
-   }'
 }
 
 createClusterKey() {

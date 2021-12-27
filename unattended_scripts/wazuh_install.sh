@@ -273,6 +273,8 @@ main() {
         fi
         installElasticsearch 
         configureElasticsearch
+        startService "elasticsearch"
+        initializeElasticsearch
     fi
 
     if [ -n "${start_elastic_cluster}" ]; then
@@ -291,6 +293,9 @@ main() {
         fi
         installKibana 
         configureKibana
+        startService "kibana"
+        initializeKibana
+
     fi
 
     if [ -n "${wazuh}" ]; then
@@ -328,6 +333,8 @@ main() {
 
         installElasticsearch
         configureElasticsearchAIO
+        startService "elasticsearch"
+        initializeElasticsearch
         installWazuh
         startService "wazuh-manager"
         installFilebeat
@@ -335,6 +342,8 @@ main() {
         startService "filebeat"
         installKibana
         configureKibanaAIO
+        startService "kibana"
+        initializeKibanaAIO
     fi
 
     restoreWazuhrepo
