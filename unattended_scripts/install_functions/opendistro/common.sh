@@ -140,7 +140,7 @@ restoreWazuhrepo() {
         eval "sed -i 's/-dev//g' ${file} ${debug}"
         eval "sed -i 's/pre-release/4.x/g' ${file} ${debug}"
         eval "sed -i 's/unstable/stable/g' ${file} ${debug}"
-        logger "The Wazuh repository points to production."
+        logger "The Wazuh repository set to production."
     fi
 }
 
