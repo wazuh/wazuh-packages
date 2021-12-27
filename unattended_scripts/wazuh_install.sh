@@ -270,7 +270,7 @@ main() {
     importFunction "wazuh-cert-tool.sh"
 
 
-    if [ ! -z ${AIO} ] || [ ! -z "${elasticsearch}" ] || [ ! -z "${kibana}" ] || [ ! -z "${wazuh}" ]; then
+    if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
         checkArch
         checkSystem
         installPrerequisites
@@ -278,7 +278,7 @@ main() {
     fi
 
 
-    if [ -z ${AIO} ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
+    if [ -z "${AIO}" ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
         readConfig
         checknames
     fi
