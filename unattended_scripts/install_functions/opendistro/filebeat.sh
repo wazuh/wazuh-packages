@@ -26,8 +26,6 @@ installFilebeat() {
 
 configureFilebeat() {
 
-    logger "Configuring Filebeat."
-
     eval "getConfig filebeat/filebeat_distributed.yml /etc/filebeat/filebeat.yml ${debug}"
     eval "curl -so /etc/filebeat/wazuh-template.json ${filebeat_wazuh_template} --max-time 300 ${debug}"
     eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
@@ -53,8 +51,6 @@ configureFilebeat() {
 }
 
 configureFilebeatAIO() {
-
-    logger "Configuring Filebeat."
 
     eval "getConfig filebeat/filebeat_unattended.yml /etc/filebeat/filebeat.yml ${debug}"
     eval "curl -so /etc/filebeat/wazuh-template.json ${filebeat_wazuh_template} --max-time 300 ${debug}"
