@@ -595,15 +595,15 @@ healthCheck() {
     cores=$(cat /proc/cpuinfo | grep processor | wc -l)
     ram_gb=$(free -m | awk '/^Mem:/{print $2}')
     if [ -n "${elastic}" ]; then
-        if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]; then
-            logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
+        if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 1837 ]; then
+            logger -e "Your system does not meet the recommended minimum hardware requirements of 2Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
             exit 1;
         else
             logger "Starting the installation..."
         fi
     elif [ -n "${kibana}" ]; then
-        if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]; then
-            logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
+        if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 1837 ]; then
+            logger -e "Your system does not meet the recommended minimum hardware requirements of 2Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
             exit 1;
         else
             logger "Starting the installation..."
