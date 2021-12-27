@@ -252,7 +252,7 @@ main() {
     if [ "$EUID" -ne 0 ]; then
         logger -e "Error: This script must be run as root."
         exit 1;
-    fi   
+    fi
 
     importFunction "common.sh"
     importFunction "wazuh-cert-tool.sh"
@@ -276,7 +276,6 @@ main() {
             createClusterKey
         fi
     fi
-    
 
     if [ -n "${elasticsearch}" ]; then
 
