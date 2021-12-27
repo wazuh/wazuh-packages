@@ -23,8 +23,8 @@ OUTPUT_DIR="${scriptpath}/output"
 CHECKSUM_DIR="${scriptpath}/checksum"
 
 UNATTENDED_RESOURCES_FOLDER="unattended_scripts"
-UNATTENDED_PATH="../${UNATTENDED_RESOURCES_FOLDER}/open-distro/unattended-installation"
-UNATTENDED_SCRIPT="unattended-installation.sh"
+UNATTENDED_PATH="../${UNATTENDED_RESOURCES_FOLDER}"
+UNATTENDED_SCRIPT="wazuh_install.sh"
 
 PACKAGES_REPOSITORY="prod"
 CHECKSUM="no"
@@ -177,8 +177,8 @@ main() {
 
     cp -r ../${UNATTENDED_RESOURCES_FOLDER} .
 
-    WAZUH_VERSION=$(cat ${UNATTENDED_PATH}/${UNATTENDED_SCRIPT} | grep "WAZUH_VER=" | cut -d "\"" -f 2)
-    OPENDISTRO_VERSION=$(cat ${UNATTENDED_PATH}/${UNATTENDED_SCRIPT} | grep "OD_VER=" | cut -d "\"" -f 2)
+    WAZUH_VERSION=$(cat ${UNATTENDED_PATH}/${UNATTENDED_SCRIPT} | grep "wazuh_version=" | cut -d "\"" -f 2)
+    OPENDISTRO_VERSION=$(cat ${UNATTENDED_PATH}/${UNATTENDED_SCRIPT} | grep "elasticsearch_oss_version=" | cut -d "\"" -f 2)
     OVA_VERSION="${WAZUH_VERSION}_${OPENDISTRO_VERSION}"
 
     # Build OVA file (no standard)

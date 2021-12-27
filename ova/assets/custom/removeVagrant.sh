@@ -13,7 +13,7 @@ sed -i "/vagrant/d" /etc/pam.d/su
 rm /etc/sudoers.d/vagrant
 
 # Autodestroy
-rm /home/wazuh/removeVagrant.sh
+rm /home/USER/removeVagrant.sh
 rm /etc/systemd/system/removeVagrant.service
 rm /etc/systemd/system/multi-user.target.wants/removeVagrant.service
 systemctl daemon-reload
