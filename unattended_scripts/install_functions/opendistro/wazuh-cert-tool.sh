@@ -8,7 +8,7 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-if [ -z "$base_path" ]; then
+if [ -z "${base_path}" ]; then
     base_path="$(dirname $(readlink -f $0))"
 fi
 

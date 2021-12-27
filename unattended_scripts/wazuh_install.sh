@@ -252,7 +252,7 @@ main() {
     fi
 
     if [ ! -d ${base_path}/certs ]; then
-        logger -e "No certificates directory found ($base_path/certs). Run the script with the option -c|--certificates to create automatically or copy them from the node where they were created."
+        logger -e "No certificates directory found (${base_path}/certs). Run the script with the option -c|--certificates to create automatically or copy them from the node where they were created."
         exit 1
     fi
 
