@@ -25,8 +25,6 @@ installWazuh() {
 
 configureWazuhCluster() {
 
-    logger "Configuring the Wazuh cluster."
-
     for i in ${!wazuh_servers_node_names[@]}; do
         if [[ "${wazuh_servers_node_names[i]}" == "${winame}" ]]; then
             pos="${i}";
@@ -58,5 +56,4 @@ configureWazuhCluster() {
         -e "${lstart},${lend}s/<disabled>.*<\/disabled>/<disabled>${disabled}<\/disabled>/" \
         /var/ossec/etc/ossec.conf'
 
-    logger "Wazuh cluster configured."
 }
