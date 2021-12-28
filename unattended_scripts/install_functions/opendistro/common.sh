@@ -67,13 +67,6 @@ checkNames() {
         fi
     fi
 
-    # if [[ "${einame}" == "${kiname}" ]] || [[ "${einame}" == "${winame}" ]] || [[ "${kiname}" == "${winame}" ]]; then
-    #     logger -e "The node names for Elastisearch, Kibana and Wazuh must be different."
-    #     logger -e "kiname: ${kiname} / einame ${einame} / winame ${winame}"
-
-    #     exit 1
-    # fi
-
     if [[ -n ${einame} ]]; then
         if [[ ! "${elasticsearch_node_names[@]}" =~ "${einame}" ]]; then
             logger -e "The name given for the ElasticSearch node does not appear on the configuration file."
