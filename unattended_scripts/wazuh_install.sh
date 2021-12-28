@@ -35,8 +35,15 @@ debug=">> ${logfile} 2>&1"
 trap "cleanExit" SIGTERM SIGINT
 
 cleanExit() {
-    echo "Exiting cleanly"
-    exit 0
+
+    echo "Do you want to clean the ongoing installation?[Y/n]"
+    read rollback_conf
+    if [[ "$rollback_conf" =~ [N|n] ]]; then
+        exit 1
+    else 
+        rollBack
+        exit 1
+    fi
 }
 
 getHelp() {
@@ -95,21 +102,26 @@ getHelp() {
 spin() {
     trap "{ tput el1; exit 0; }" 15
     spinner="/|\\-/|\\-"
+    ppid=$PID
     while :
     do
         for i in `seq 0 7`
         do
-        echo -n "${spinner:$i:1}"
-        echo -en "\010"
-        sleep 0.5
+            echo -n "${spinner:$i:1}"
+            echo -en "\010"
+            sleep 0.1
         done
+        # if ! ( kill -0 $ppid >/dev/null) ; then
+        #     echo "Saliendo por padre muerto"
+        #     exit 0;
+        # fi
     done
 }
 
 logger() {
 
     if [ -n "$spin_pid" ]; then
-        kill -15 $spin_pid
+        kill -15 $spin_pid >/dev/null
     fi
 
     now=$(date +'%d/%m/%Y %H:%M:%S')
@@ -134,7 +146,8 @@ logger() {
     # Make a note of its Process ID (PID):
     spin_pid=$!
     # Kill the spinner on any signal, including our own exit.
-    trap "{kill -9 $spin_pid; cleanExit; }" SIGTERM SIGINT
+    trap "{ kill -9 $spin_pid; cleanExit; }" SIGTERM SIGINT
+    trap "{ kill -9 $spin_pid >/dev/null;}" EXIT
 }
 
 importFunction() {
