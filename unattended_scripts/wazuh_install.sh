@@ -30,11 +30,12 @@ base_path="$(dirname $(readlink -f $0))"
 logfile="/var/log/wazuh-unattended-installation.log"
 debug=">> ${logfile} 2>&1"
 
-##More info to continue on
+## More info to continue on
 ## https://stackoverflow.com/questions/3338030/multiple-bash-traps-for-the-same-signal
-#trap "cleanExit" INT
+trap "cleanExit" SIGTERM SIGINT
 
 cleanExit() {
+    echo "Exiting cleanly"
     exit 0
 }
 
@@ -92,17 +93,17 @@ getHelp() {
 }
 
 spin() {
-  trap 'tput el1; exit 0' TERM
-  spinner="/|\\-/|\\-"
-  while :
-  do
-    for i in `seq 0 7`
+    trap "{ tput el1; exit 0; }" 15
+    spinner="/|\\-/|\\-"
+    while :
     do
-      echo -n "${spinner:$i:1}"
-      echo -en "\010"
-      sleep 0.5
+        for i in `seq 0 7`
+        do
+        echo -n "${spinner:$i:1}"
+        echo -en "\010"
+        sleep 0.5
+        done
     done
-  done
 }
 
 logger() {
@@ -133,7 +134,7 @@ logger() {
     # Make a note of its Process ID (PID):
     spin_pid=$!
     # Kill the spinner on any signal, including our own exit.
-    trap "kill -9 $spin_pid" `seq 0 15`
+    trap "{kill -9 $spin_pid; cleanExit; }" SIGTERM SIGINT
 }
 
 importFunction() {
