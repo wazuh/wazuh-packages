@@ -258,8 +258,8 @@ main() {
         rm -rf "${base_path}/certs"
     fi
 
-    if [ ! -d ${base_path}/certs ]; then
-        logger -e "No certificates directory found (${base_path}/certs). Run the script with the option -c|--certificates to create automatically or copy them from the node where they were created."
+    if [ ! -f ${base_path}/certs.tar ]; then
+        logger -e "No certificates file found (${base_path}/certs.tar). Run the script with the option -c|--certificates to create automatically or copy them from the node where they were created."
         exit 1
     fi
 
