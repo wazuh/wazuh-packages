@@ -66,14 +66,20 @@ getHelp() {
     echo -e "        -i,  --ignore-health-check"
     echo -e "                Ignores the health-check."
     echo -e ""
-    echo -e "        -s,  --start-cluster"
-    echo -e "                Start the Elasticsearch cluster."
-    echo -e ""
-    echo -e "        -k,  --kibana"
+    echo -e "        -k,  --kibana <kibana-node-name>"
     echo -e "                Kibana installation."
     echo -e ""
     echo -e "        -l,  --local"
     echo -e "                Use local files."
+    echo -e ""
+    echo -e "        -o,  --overwrite"
+    echo -e "                Overwrite previously installed components of the stack. NOTE: This will erase all the existing configuration and data."
+    echo -e ""
+    echo -e "        -s,  --start-cluster"
+    echo -e "                Start the Elasticsearch cluster."
+    echo -e ""
+    echo -e "        -u,  --uninstall"
+    echo -e "                Uninstall all wazuh components. NOTE: This will erase all the existing configuration and data."
     echo -e ""
     echo -e "        -v,  --verbose"
     echo -e "                Shows the complete installation output."
@@ -162,6 +168,7 @@ importFunction() {
 }
 
 main() {
+
     if [ ! -n  "$1" ]; then
         getHelp
     fi
@@ -174,16 +181,31 @@ main() {
                 shift 1
                 ;;
             "-w"|"--wazuh-server")
+                if [ -n "$wazuh" ]; then
+                    logger -e "Error on arguments. Probably missing <node-name> after -w|--wazuh-server"
+                    getHelp
+                    exit 1
+                fi
                 wazuh=1
                 winame=$2
                 shift 2
                 ;;
             "-e"|"--elasticsearch")
+                if [ -n "$elasticsearch" ]; then
+                    logger -e "Error on arguments. Probably missing <node-name> after -e|--elasticsearch"
+                    getHelp
+                    exit 1
+                fi
                 elasticsearch=1
                 einame=$2
                 shift 2
                 ;;
             "-k"|"--kibana")
+            if [ -n "$kibana" ]; then
+                    logger -e "Error on arguments. Probably missing <node-name> after -k|--kibana"
+                    getHelp
+                    exit 1
+                fi
                 kibana=1
                 kiname=$2
                 shift 2
@@ -213,6 +235,14 @@ main() {
                 local=1
                 shift 1
                 ;;
+            "-o"|"--overwrite")
+                overwrite=1
+                shift 1
+                ;;
+            "-u"|"--uninstall")
+                uninstall=1
+                shift 1
+                ;;
             "-h"|"--help")
                 getHelp
                 ;;
@@ -224,20 +254,22 @@ main() {
 
     if [ "$EUID" -ne 0 ]; then
         logger -e "Error: This script must be run as root."
-        exit 1;
-    fi   
+        exit 1
+    fi
 
     importFunction "common.sh"
     importFunction "wazuh-cert-tool.sh"
 
+    checkArch
+    checkSystem
+    checkInstalled
+    checkArguments
     if [ -z "${AIO}" ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
         readConfig
-        checknames
+        checkNames
     fi
 
     if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
-        checkArch
-        checkSystem
         installPrerequisites
         addWazuhrepo
     fi
@@ -249,7 +281,17 @@ main() {
             createClusterKey
         fi
     fi
-    
+
+    if [ ! -d ${base_path}/certs ]; then
+        logger -e "No certificates directory found (${base_path}/certs). Run the script with the option -c|--certificates to create automatically or copy them from the node where they were created."
+        exit 1
+    fi
+
+    if [ -n "${uninstall}" ]; then
+        logger "Removing all installed components."
+        rollBack
+        exit 0
+    fi
 
     if [ -n "${elasticsearch}" ]; then
 
@@ -262,7 +304,8 @@ main() {
         fi
         installElasticsearch 
         configureElasticsearch
-        logger "Elasticsearch installed correctly"
+        startService "elasticsearch"
+        initializeElasticsearch
     fi
 
     if [ -n "${start_elastic_cluster}" ]; then
@@ -281,7 +324,9 @@ main() {
         fi
         installKibana 
         configureKibana
-        logger "Kibana installed correctly"
+        startService "kibana"
+        initializeKibana
+
     fi
 
     if [ -n "${wazuh}" ]; then
@@ -299,10 +344,9 @@ main() {
             configureWazuhCluster 
         fi
         startService "wazuh-manager"
-        installFilebeat  
+        installFilebeat
         configureFilebeat
         startService "filebeat"
-        logger "Wazuh installed correctly"
     fi
 
     if [ -n "${AIO}" ]; then
@@ -320,6 +364,8 @@ main() {
 
         installElasticsearch
         configureElasticsearchAIO
+        startService "elasticsearch"
+        initializeElasticsearch
         installWazuh
         startService "wazuh-manager"
         installFilebeat
@@ -327,11 +373,13 @@ main() {
         startService "filebeat"
         installKibana
         configureKibanaAIO
+        startService "kibana"
+        initializeKibanaAIO
     fi
 
     restoreWazuhrepo
-    logger "Installation Finished"
+    logger "Installation Finished."
 
 }
 
-main "$@"
+main $@

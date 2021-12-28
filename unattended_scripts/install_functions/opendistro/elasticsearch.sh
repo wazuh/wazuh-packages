@@ -7,7 +7,7 @@
 
 installElasticsearch() {
 
-    logger "Installing Open Distro for Elasticsearch."
+    logger "Starting Open Distro for Elasticsearch installation."
 
     if [ ${sys_type} == "yum" ]; then
         eval "yum install opendistroforelasticsearch-${opendistro_version}-${opendistro_revision} -y ${debug}"
@@ -18,12 +18,12 @@ installElasticsearch() {
     fi
 
     if [  "$?" != 0  ]; then
-        logger -e "Elasticsearch installation failed"
+        logger -e "Elasticsearch installation failed."
         rollBack
-        exit 1;  
+        exit 1
     else
         elasticsearchinstalled="1"
-        logger "Done"
+         logger "Open Distro for Elasticsearch installation finished."
     fi
 }
 
@@ -66,7 +66,6 @@ applyLog4j2Mitigation(){
 
 configureElasticsearchAIO() {
 
-    logger "Configuring Elasticsearch."
     eval "getConfig elasticsearch/elasticsearch_all_in_one.yml /etc/elasticsearch/elasticsearch.yml ${debug}"
     eval "getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml ${debug}"
     eval "getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml ${debug}"
@@ -93,7 +92,8 @@ configureElasticsearchAIO() {
     eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
 
     applyLog4j2Mitigation
-    initializeElasticsearch
+    logger "Elasticsearch post-install configuration finished."
+
 }
 
 configureElasticsearch() {
@@ -168,16 +168,12 @@ configureElasticsearch() {
     eval "rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml -f ${debug}"
     eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
 
-    initializeElasticsearch
 }
 
 initializeElasticsearch() {
 
-    logger "Elasticsearch installed."
-    logger "Starting Elasticsearch."
-    startService "elasticsearch"
-    logger "Initializing Elasticsearch."
 
+    logger "Starting Elasticsearch cluster."
     until $(curl -XGET https://${elasticsearch_node_ips[pos]}:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null); do
         sleep 10
     done
@@ -187,12 +183,14 @@ initializeElasticsearch() {
         eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${elasticsearch_node_ips[pos]} ${debug}"
     fi
 
-    logger "Done"
+    logger "Elasticsearch cluster started."
 }
 
 startElasticsearchCluster() {
+
     eval "elasticsearch_cluster_ip=( $(cat /etc/elasticsearch/elasticsearch.yml | grep network.host | sed 's/network.host:\s//') )"
     eval "export JAVA_HOME=/usr/share/elasticsearch/jdk/"
     eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${elasticsearch_cluster_ip}"
     eval "curl ${filebeat_wazuh_template} | curl -X PUT 'https://${elasticsearch_node_ips[pos]}:9200/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k ${debug}"
+
 }

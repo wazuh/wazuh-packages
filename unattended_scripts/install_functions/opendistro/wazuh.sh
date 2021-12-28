@@ -6,8 +6,8 @@
 # Foundation.
 
 installWazuh() {
-    
-    logger "Installing the Wazuh manager."
+
+    logger "Starting the Wazuh manager installation."
     if [ ${sys_type} == "zypper" ]; then
         eval "zypper -n install wazuh-manager=${wazuh_version}-${wazuh_revision} ${debug}"
     else
@@ -16,10 +16,10 @@ installWazuh() {
     if [  "$?" != 0  ]; then
         logger -e "Wazuh installation failed"
         rollBack
-        exit 1;
+        exit 1
     else
         wazuhinstalled="1"
-        logger "Done"
+        logger "Wazuh manager installation finished."
     fi   
 }
 
@@ -36,6 +36,7 @@ configureWazuhCluster() {
             master_address=${wazuh_servers_node_ips[i]}
         fi
     done
+
     key=$(cat ${base_path}/certs/clusterkey)
     bind_address="0.0.0.0"
     port="1516"
@@ -54,4 +55,5 @@ configureWazuhCluster() {
         -e "${lstart},${lend}s/<hidden>.*<\/hidden>/<hidden>${hidden}<\/hidden>/" \
         -e "${lstart},${lend}s/<disabled>.*<\/disabled>/<disabled>${disabled}<\/disabled>/" \
         /var/ossec/etc/ossec.conf'
+
 }
