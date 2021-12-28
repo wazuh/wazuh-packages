@@ -42,8 +42,10 @@ logger_cert() {
             ;;
     esac
     finalmessage=$(echo "$now" "$mtype" "$message")
-    echo "$finalmessage" >> ${logfile}
-    echo -e "$finalmessage"
+    echo "$finalmessage" | tee -a ${logfile}
+    if [ -n "$debugEnabled" ] && [ "$1" == "-e" ]; then
+        echo -e "$finalmessage"
+    fi
 }
 
 getHelp() {
