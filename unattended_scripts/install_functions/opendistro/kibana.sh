@@ -89,7 +89,11 @@ setupKibanacerts() {
     eval "mkdir /etc/kibana/certs ${debug}"
     if [ -d "${base_path}/certs" ]; then
 
-        name=${kibana_node_names[pos]}
+        if [ ${#kibana_node_names[@]} -eq 1 ]; then
+            name=${kiname}
+        else
+            name=${kibana_node_names[pos]}
+        fi
 
         eval "cp ${base_path}/certs/${name}-key.pem /etc/kibana/certs/kibana-key.pem ${debug}"
         eval "cp ${base_path}/certs/${name}.pem /etc/kibana/certs/kibana.pem ${debug}"
