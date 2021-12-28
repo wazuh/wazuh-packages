@@ -48,21 +48,21 @@ checkNames() {
 
     if [[ -n ${einame} ]] && [[ -n ${kiname} ]]; then
         if [[ "${einame}" == "${kiname}" ]]; then
-            logger -e "The node names for Elastisearch, Kibana and Wazuh must be different.1"
+            logger -e "The node names for Elastisearch, Kibana and Wazuh must be different."
             exit 1
         fi
     fi
 
     if [[ -n ${einame} ]] && [[ -n ${winame} ]]; then
         if [[ "${einame}" == "${winame}" ]]; then
-            logger -e "The node names for Elastisearch, Kibana and Wazuh must be different.2"
+            logger -e "The node names for Elastisearch, Kibana and Wazuh must be different."
             exit 1
         fi
     fi
 
     if [[ -n ${kiname} ]] && [[ -n ${winame} ]]; then
         if [[ "${kiname}" == "${winame}" ]]; then
-            logger -e "The node names for Elastisearch, Kibana and Wazuh must be different.3"
+            logger -e "The node names for Elastisearch, Kibana and Wazuh must be different."
             exit 1
         fi
     fi
