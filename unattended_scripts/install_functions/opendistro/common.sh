@@ -537,6 +537,14 @@ changePasswords() {
     rm -rf ${p_file}
 }
 
+getPass() {
+
+    for i in "${!users[@]}"; do
+        if [ "${users[i]}" == "$1" ]; then
+            u_pass=${passwords[i]}
+        fi
+    done
+}
 createClusterKey() {
     openssl rand -hex 16 >> ${base_path}/certs/clusterkey
 }

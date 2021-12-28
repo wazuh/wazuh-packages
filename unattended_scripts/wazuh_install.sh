@@ -363,8 +363,8 @@ main() {
         installKibana
         configureKibanaAIO
         startService "kibana"
-        initializeKibanaAIO
         changePasswords
+        initializeKibanaAIO
     fi
 
     restoreWazuhrepo

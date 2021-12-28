@@ -112,8 +112,9 @@ copyKibanacerts() {
 initializeKibana() {
 
     logger "Starting Kibana (this may take a while)."
+    getPass "admin"
     i=0
-    until [[ "$(curl -XGET https://${nodes_kibana_ip}/status -I -uadmin:admin -k -s --max-time 300 | grep "200 OK")" ]] || [ ${i} -eq 12 ]; do
+    until [[ "$(curl -XGET https://${nodes_kibana_ip}/status -I -uadmin:${u_pass} -k -s --max-time 300 | grep "200 OK")" ]] || [ ${i} -eq 12 ]; do
         sleep 10
         i=$((i+1))
     done
@@ -129,20 +130,21 @@ initializeKibana() {
     fi
     eval "sed -i 's,url: https://localhost,url: https://${wazuh_api_address},g' /usr/share/kibana/data/wazuh/config/wazuh.yml ${debug}"
     logger "Kibana started."
-    logger "You can access the web interface https://'${nodes_kibana_ip}'. The credentials are admin:admin"
+    logger "You can access the web interface https://'${nodes_kibana_ip}'. The credentials are admin:${u_pass}"
 
 }
 
 initializeKibanaAIO() {
 
     logger "Starting Kibana (this may take a while)."
+    getPass "admin"
     i=0
-    until [[ "$(curl -XGET https://localhost/status -I -uadmin:admin -k -s --max-time 300 | grep "200 OK")" ]] || [ ${i} -eq 12 ]; do
+    until [[ "$(curl -XGET https://localhost/status -I -uadmin:${u_pass} -k -s --max-time 300 | grep "200 OK")" ]] || [ ${i} -eq 12 ]; do
         sleep 10
         i=$((i+1))
     done
     logger "Kibana started."
-    logger "You can access the web interface https://<kibana-host-ip>. The credentials are admin:admin"
+    logger "You can access the web interface https://<kibana-host-ip>. The credentials are admin:${u_pass}"
 
 }
 
