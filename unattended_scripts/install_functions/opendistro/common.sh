@@ -46,25 +46,19 @@ checkSystem() {
 
 checkNames() {
 
-    if [[ -n ${einame} ]] && [[ -n ${kiname} ]]; then
-        if [[ "${einame}" == "${kiname}" ]]; then
-            logger -e "The node names for Elastisearch, Kibana and Wazuh must be different."
-            exit 1
-        fi
+    if [[ -n ${einame} ]] && [[ -n ${kiname} ]] && ([[ "${einame}" == "${kiname}" ]]); then
+        logger -e "The node names for Elastisearch, Kibana and Wazuh must be different."
+        exit 1
     fi
 
-    if [[ -n ${einame} ]] && [[ -n ${winame} ]]; then
-        if [[ "${einame}" == "${winame}" ]]; then
-            logger -e "The node names for Elastisearch, Kibana and Wazuh must be different."
-            exit 1
-        fi
+    if [[ -n ${einame} ]] && [[ -n ${winame} ]] && ([[ "${einame}" == "${winame}" ]]); then
+        logger -e "The node names for Elastisearch, Kibana and Wazuh must be different."
+        exit 1
     fi
 
-    if [[ -n ${kiname} ]] && [[ -n ${winame} ]]; then
-        if [[ "${kiname}" == "${winame}" ]]; then
-            logger -e "The node names for Elastisearch, Kibana and Wazuh must be different."
-            exit 1
-        fi
+    if [[ -n ${winame} ]] && [[ -n ${kiname} ]] && ([[ "${winame}" == "${kiname}" ]]); then
+        logger -e "The node names for Elastisearch, Kibana and Wazuh must be different."
+        exit 1
     fi
 
     if [[ -n ${einame} ]]; then
