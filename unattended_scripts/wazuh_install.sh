@@ -30,62 +30,6 @@ base_path="$(dirname $(readlink -f $0))"
 logfile="/var/log/wazuh-unattended-installation.log"
 debug=">> ${logfile} 2>&1"
 
-max_progressbar_length=70
-progressbar_status=0
-
-progressBar() {
-    if [ -z "${buffer}" ]; then
-        buffer=""
-        lines=1
-    fi
-
-    if [ "$1" ]; then
-        buffer="${buffer}$1\n"
-    fi
-
-    totalcolumns=$( tput cols )
-    columns=$(echo $((totalcolumns<max_progressbar_length ? totalcolumns : max_progressbar_length)))
-    columns=$(( $columns-6 ))
-    if [ $progressbar_total -eq "0" ]; then
-        progressbar_total=1
-    fi
-    cols_done=$(( ($progressbar_status*$columns) / $progressbar_total ))
-    cols_empty=$(( $columns-$cols_done ))
-    progresspercentage=$(( ($progressbar_status*100) / $progressbar_total ))
-
-    tput el1
-    for i in $(seq $lines)
-    do
-        tput cuu1
-        tput el
-    done
-    printf "${buffer}"
-    echo -ne "|"
-    for i in $(seq $cols_done); do echo -n "▇"; done
-    for i in $(seq $cols_empty); do echo -n " "; done
-    printf "|%3.3s%%\n" ${progresspercentage}
-
-    lines=$(echo -e "$buffer" | wc -l)
-    IFS=$'\n'
-    for line in $(echo -e "$buffer"); do 
-        length=$(expr length "$line")
-        while [[ $length -gt $totalcolumns ]]; do
-            ((lines+=1))
-            length=$(( length - totalcolumns ))
-        done
-    done
-
-    if [ $distributed_installs -gt 1 ] && [ $progressbar_status -eq $progressbar_total ]; then
-        buffer=""
-        lines=1
-        printf "${buffer}"
-        echo -ne "|"
-        for i in $(seq $cols_done); do echo -n "▇"; done
-        for i in $(seq $cols_empty); do echo -n " "; done
-        printf "|%3.3s%%\n" ${progresspercentage}
-    fi
-}
-
 getHelp() {
 
     echo -e ""
@@ -114,14 +58,20 @@ getHelp() {
     echo -e "        -i,  --ignore-health-check"
     echo -e "                Ignores the health-check."
     echo -e ""
-    echo -e "        -s,  --start-cluster"
-    echo -e "                Start the Elasticsearch cluster."
-    echo -e ""
-    echo -e "        -k,  --kibana"
+    echo -e "        -k,  --kibana <kibana-node-name>"
     echo -e "                Kibana installation."
     echo -e ""
     echo -e "        -l,  --local"
     echo -e "                Use local files."
+    echo -e ""
+    echo -e "        -o,  --overwrite"
+    echo -e "                Overwrite previously installed components of the stack. NOTE: This will erase all the existing configuration and data."
+    echo -e ""
+    echo -e "        -s,  --start-cluster"
+    echo -e "                Start the Elasticsearch cluster."
+    echo -e ""
+    echo -e "        -u,  --uninstall"
+    echo -e "                Uninstall all wazuh components. NOTE: This will erase all the existing configuration and data."
     echo -e ""
     echo -e "        -v,  --verbose"
     echo -e "                Shows the complete installation output."
@@ -150,11 +100,9 @@ logger() {
             message="$1"
             ;;
     esac
-    finalmessage=$(echo "$now" "$mtype" "$message") 
+    finalmessage=$(echo "$now" "$mtype" "$message")
     echo "$finalmessage" >> ${logfile}
-    if [ -n "$debugEnabled" ] && [ "$1" == "-e" ]; then
-        echo -e "$finalmessage"
-    fi
+    echo -e "$finalmessage"
 }
 
 importFunction() {
@@ -189,6 +137,7 @@ importFunction() {
 }
 
 main() {
+
     if [ ! -n  "$1" ]; then
         getHelp
     fi
@@ -201,16 +150,31 @@ main() {
                 shift 1
                 ;;
             "-w"|"--wazuh-server")
+                if [ -n "$wazuh" ]; then
+                    logger -e "Error on arguments. Probably missing <node-name> after -w|--wazuh-server"
+                    getHelp
+                    exit 1
+                fi
                 wazuh=1
                 winame=$2
                 shift 2
                 ;;
             "-e"|"--elasticsearch")
+                if [ -n "$elasticsearch" ]; then
+                    logger -e "Error on arguments. Probably missing <node-name> after -e|--elasticsearch"
+                    getHelp
+                    exit 1
+                fi
                 elasticsearch=1
                 einame=$2
                 shift 2
                 ;;
             "-k"|"--kibana")
+            if [ -n "$kibana" ]; then
+                    logger -e "Error on arguments. Probably missing <node-name> after -k|--kibana"
+                    getHelp
+                    exit 1
+                fi
                 kibana=1
                 kiname=$2
                 shift 2
@@ -240,6 +204,14 @@ main() {
                 local=1
                 shift 1
                 ;;
+            "-o"|"--overwrite")
+                overwrite=1
+                shift 1
+                ;;
+            "-u"|"--uninstall")
+                uninstall=1
+                shift 1
+                ;;
             "-h"|"--help")
                 getHelp
                 ;;
@@ -251,20 +223,22 @@ main() {
 
     if [ "$EUID" -ne 0 ]; then
         logger -e "Error: This script must be run as root."
-        exit 1;
+        exit 1
     fi
 
     importFunction "common.sh"
     importFunction "wazuh-cert-tool.sh"
 
+    checkArch
+    checkSystem
+    checkInstalled
+    checkArguments
     if [ -z "${AIO}" ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
         readConfig
-        checknames
+        checkNames
     fi
 
     if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
-        checkArch
-        checkSystem
         installPrerequisites
         addWazuhrepo
     fi
@@ -275,6 +249,17 @@ main() {
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
             createClusterKey
         fi
+    fi
+
+    if [ ! -d ${base_path}/certs ]; then
+        logger -e "No certificates directory found (${base_path}/certs). Run the script with the option -c|--certificates to create automatically or copy them from the node where they were created."
+        exit 1
+    fi
+
+    if [ -n "${uninstall}" ]; then
+        logger "Removing all installed components."
+        rollBack
+        exit 0
     fi
 
     if [ -n "${elasticsearch}" ]; then
@@ -328,7 +313,7 @@ main() {
             configureWazuhCluster 
         fi
         startService "wazuh-manager"
-        installFilebeat  
+        installFilebeat
         configureFilebeat
         startService "filebeat"
     fi
@@ -362,8 +347,8 @@ main() {
     fi
 
     restoreWazuhrepo
-    logger "Installation Finished"
+    logger "Installation Finished."
 
 }
 
-main "$@"
+main $@

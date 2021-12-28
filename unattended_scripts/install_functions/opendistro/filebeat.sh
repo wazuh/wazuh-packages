@@ -17,7 +17,7 @@ installFilebeat() {
     if [  "$?" != 0  ]
     then
         logger -e "Filebeat installation failed"
-        exit 1;
+        exit 1
     else
         logger "Filebeat installation finished."
         filebeatinstalled="1"
@@ -51,6 +51,7 @@ configureFilebeat() {
 }
 
 configureFilebeatAIO() {
+
     eval "getConfig filebeat/filebeat_unattended.yml /etc/filebeat/filebeat.yml ${debug}"
     eval "curl -so /etc/filebeat/wazuh-template.json ${filebeat_wazuh_template} --max-time 300 ${debug}"
     eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
