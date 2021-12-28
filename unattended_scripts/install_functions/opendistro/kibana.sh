@@ -89,18 +89,14 @@ setupKibanacerts() {
     eval "mkdir /etc/kibana/certs ${debug}"
     if [ -d "${base_path}/certs" ]; then
 
-        if [ ${#kibana_node_names[@]} -eq 1 ]; then
-            name="kibana"
-        else
-            name=${kibana_node_names[pos]}
-        fi
+        name=${kibana_node_names[pos]}
 
         eval "cp ${base_path}/certs/${name}-key.pem /etc/kibana/certs/kibana-key.pem ${debug}"
         eval "cp ${base_path}/certs/${name}.pem /etc/kibana/certs/kibana.pem ${debug}"
         eval "cp ${base_path}/certs/root-ca.pem /etc/kibana/certs/ ${debug}"
         eval "chown -R kibana:kibana /etc/kibana/ ${debug}"
         eval "chmod -R 500 /etc/kibana/certs ${debug}"
-        eval "chmod 440 /etc/kibana/certs/${kibana_node_names}* ${debug}"
+        eval "chmod 440 /etc/kibana/certs/* ${debug}"
         logger "Kibana certificate setup finished."
 
     else
