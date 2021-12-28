@@ -183,10 +183,6 @@ if ! id -u wazuh > /dev/null 2>&1; then
 fi 
 
 # Stop the services to upgrade the package
-if pgrep -f ossec-authd > /dev/null 2>&1; then
-    kill -15 $(pgrep -f ossec-authd)
-fi
-
 if [ $1 = 2 ]; then
   if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-manager > /dev/null 2>&1; then
     systemctl stop wazuh-manager.service > /dev/null 2>&1
@@ -204,6 +200,10 @@ if [ $1 = 2 ]; then
   fi
   %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1 || %{_localstatedir}/bin/wazuh-control stop > /dev/null 2>&1
 fi
+if pgrep -f ossec-authd > /dev/null 2>&1; then
+    kill -15 $(pgrep -f ossec-authd)
+fi
+
 
 # Remove/relocate existing SQLite databases
 rm -f %{_localstatedir}/var/db/cluster.db* || true
@@ -433,6 +433,25 @@ rm -rf %{_localstatedir}/packages_files
 # Remove unnecessary files from default group
 rm -f %{_localstatedir}/etc/shared/default/*.rpmnew
 
+# Remove old ossec user and group if exists and change ownwership of files
+
+if id -g ossec > /dev/null 2>&1; then
+  find %{_localstatedir} -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
+  if id -u ossec > /dev/null 2>&1; then
+    find %{_localstatedir} -group ossec -user ossec -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
+    userdel ossec
+  fi
+  if id -u ossecm > /dev/null 2>&1; then
+    find %{_localstatedir} -group ossec -user ossecm -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
+    userdel ossecm
+  fi
+  if id -u ossecr > /dev/null 2>&1; then
+    find %{_localstatedir} -group ossec -user ossecr -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
+    userdel ossecr
+  fi
+  groupdel ossec
+fi
+
 %preun
 
 if [ $1 = 0 ]; then
@@ -543,25 +562,6 @@ fi
 if [ -f %{_sysconfdir}/ossec-init.conf ]; then
   rm -f %{_sysconfdir}/ossec-init.conf
   rm -f %{_localstatedir}/etc/ossec-init.conf
-fi
-
-# Remove old ossec user and group if exists and change ownwership of files
-
-if id -g ossec > /dev/null 2>&1; then
-  find %{_localstatedir} -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
-  if id -u ossec > /dev/null 2>&1; then
-    find %{_localstatedir} -group ossec -user ossec -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
-    userdel ossec
-  fi
-  if id -u ossecm > /dev/null 2>&1; then
-    find %{_localstatedir} -group ossec -user ossecm -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
-    userdel ossecm
-  fi
-  if id -u ossecr > /dev/null 2>&1; then
-    find %{_localstatedir} -group ossec -user ossecr -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
-    userdel ossecr
-  fi
-  groupdel ossec
 fi
 
 %triggerin -- glibc

@@ -21,9 +21,6 @@ case "$1" in
     install|upgrade)
 
         if [ "$1" = "upgrade" ]; then
-            if pgrep -f ossec-authd > /dev/null 2>&1; then
-                kill -15 $(pgrep -f ossec-authd)
-            fi
             if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-manager > /dev/null 2>&1; then
                 systemctl stop wazuh-manager.service > /dev/null 2>&1
                 touch ${WAZUH_TMP_DIR}/wazuh.restart
@@ -36,6 +33,9 @@ case "$1" in
                 touch ${WAZUH_TMP_DIR}/wazuh.restart
             fi
             ${DIR}/bin/ossec-control stop > /dev/null 2>&1 || ${DIR}/bin/wazuh-control stop > /dev/null 2>&1
+            if pgrep -f ossec-authd > /dev/null 2>&1; then
+                kill -15 $(pgrep -f ossec-authd)
+            fi
 
             if [ -d ${DIR}/logs/ossec ]; then
                 mv ${DIR}/logs/ossec ${DIR}/logs/wazuh

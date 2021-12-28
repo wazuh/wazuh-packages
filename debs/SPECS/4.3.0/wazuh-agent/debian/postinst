@@ -2,7 +2,7 @@
 # postinst script for wazuh-agent
 # Wazuh, Inc 2015-2020
 
-set -e
+set -x
 
 case "$1" in
     configure)
