@@ -9,12 +9,7 @@ f_cert_path="/etc/filebeat/certs/"
 
 installFilebeat() {
 
-    if [[ -f /etc/filebeat/filebeat.yml ]]; then
-        logger -e "Filebeat is already installed in this node."
-        exit 1;
-    fi
-
-    logger "Installing Filebeat..."
+    logger "Starting filebeat installation."
     
     if [ ${sys_type} == "zypper" ]; then
         eval "zypper -n install filebeat-${elasticsearch_oss_version} ${debug}"
@@ -24,8 +19,9 @@ installFilebeat() {
     if [  "$?" != 0  ]
     then
         logger -e "Filebeat installation failed"
-        exit 1;
+        exit 1
     else
+        logger "Filebeat installation finished."
         filebeatinstalled="1"
     fi
 }
@@ -50,48 +46,36 @@ copyCertificatesFilebeat() {
 configureFilebeat() {
 
     eval "getConfig filebeat/filebeat_distributed.yml /etc/filebeat/filebeat.yml ${debug}"
-    eval "curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/4.2/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300 ${debug}"
+    eval "curl -so /etc/filebeat/wazuh-template.json ${filebeat_wazuh_template} --max-time 300 ${debug}"
     eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
-    eval "curl -s https://packages.wazuh.com/4.x/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module ${debug}"
+    eval "curl -s ${filebeat_wazuh_module} --max-time 300 | tar -xvz -C /usr/share/filebeat/module ${debug}"
 
-    nh=$(awk -v RS='' '/network.host:/' ./config.yml)
 
-    if [ -n "$nh" ]
-    then
-        nhr="network.host: "
-        nip="${nh//$nhr}"
+    if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
         echo "output.elasticsearch.hosts:" >> /etc/filebeat/filebeat.yml
-        echo "  - ${nip}"  >> /etc/filebeat/filebeat.yml
+        echo "  - ${elasticsearch_node_ips[0]}"  >> /etc/filebeat/filebeat.yml
     else
         echo "output.elasticsearch.hosts:" >> /etc/filebeat/filebeat.yml
-        sh=$(awk -v RS='' '/discovery.seed_hosts:/' ./config.yml)
-        shr="discovery.seed_hosts:"
-        rm="- "
-        sh="${sh//$shr}"
-        sh="${sh//$rm}"
-        for line in $sh; do
-                echo "  - ${line}" >> /etc/filebeat/filebeat.yml
+        for i in ${elasticsearch_node_ips[@]}; do
+                echo "  - ${i}" >> /etc/filebeat/filebeat.yml
         done
     fi
 
     eval "mkdir /etc/filebeat/certs ${debug}"
     copyCertificatesFilebeat
 
-    logger "Done"
-    logger "Starting Filebeat..."
-    startService filebeat
+    logger "Filebeat post-install configuration finished."
 }
 
 configureFilebeatAIO() {
-        eval "getConfig filebeat/filebeat_unattended.yml /etc/filebeat/filebeat.yml ${debug}"   
-        eval "curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/4.0/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300 ${debug}"
-        eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
-        eval "curl -s '${repobaseurl}'/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module ${debug}"
-        eval "mkdir /etc/filebeat/certs ${debug}"
-        copyCertificatesFilebeat
 
-        logger "Starting Filebeat..."
-        startService "filebeat"
+    eval "getConfig filebeat/filebeat_unattended.yml /etc/filebeat/filebeat.yml ${debug}"
+    eval "curl -so /etc/filebeat/wazuh-template.json ${filebeat_wazuh_template} --max-time 300 ${debug}"
+    eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
+    eval "curl -s ${filebeat_wazuh_module} --max-time 300 | tar -xvz -C /usr/share/filebeat/module ${debug}"
+    eval "mkdir /etc/filebeat/certs ${debug}"
+    copyCertificatesFilebeat
 
-        logger "Done"
+    logger "Filebeat post-install configuration finished."
+
 }

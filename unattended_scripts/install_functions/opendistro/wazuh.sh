@@ -6,8 +6,8 @@
 # Foundation.
 
 installWazuh() {
-    
-    logger "Installing the Wazuh manager..."
+
+    logger "Starting the Wazuh manager installation."
     if [ ${sys_type} == "zypper" ]; then
         eval "zypper -n install wazuh-manager=${wazuh_version}-${wazuh_revision} ${debug}"
     else
@@ -16,31 +16,39 @@ installWazuh() {
     if [  "$?" != 0  ]; then
         logger -e "Wazuh installation failed"
         rollBack
-        exit 1;
+        exit 1
     else
         wazuhinstalled="1"
-        logger "Done"
+        logger "Wazuh manager installation finished."
     fi   
-    startService "wazuh-manager"
-
 }
 
 configureWazuhCluster() {
 
-    cluster_name=$(awk '/cluster.name:/ {print $2}' wazuh_cluster_config.yml)
-    node_type=$(awk '/node.type:/ {print $2}' wazuh_cluster_config.yml)
-    master_address=$(awk '/master.address:/ {print $2}' wazuh_cluster_config.yml)
-    bind_address=$(awk '/bind.address:/ {print $2}' wazuh_cluster_config.yml)
-    port=$(awk '/port:/ {print $2}' wazuh_cluster_config.yml)
-    hidden=$(awk '/hidden:/ {print $2}' wazuh_cluster_config.yml)
-    disabled=$(awk '/disabled:/ {print $2}' wazuh_cluster_config.yml)
+    for i in ${!wazuh_servers_node_names[@]}; do
+        if [[ "${wazuh_servers_node_names[i]}" == "${winame}" ]]; then
+            pos="${i}";
+        fi
+    done
+
+    for i in ${!wazuh_servers_node_types[@]}; do
+        if [[ "${wazuh_servers_node_types[i]}" == "master" ]]; then
+            master_address=${wazuh_servers_node_ips[i]}
+        fi
+    done
+
+    key=$(cat ${base_path}/certs/clusterkey)
+    bind_address="0.0.0.0"
+    port="1516"
+    hidden="no"
+    disabled="no"
     lstart=$(grep -n "<cluster>" /var/ossec/etc/ossec.conf | cut -d : -f 1)
     lend=$(grep -n "</cluster>" /var/ossec/etc/ossec.conf | cut -d : -f 1)
 
-    eval 'sed -i -e "${lstart},${lend}s/<name>.*<\/name>/<name>${cluster_name}<\/name>/" \
-        -e "${lstart},${lend}s/<node_name>.*<\/node_name>/<node_name>${iname}<\/node_name>/" \
-        -e "${lstart},${lend}s/<node_type>.*<\/node_type>/<node_type>${node_type}<\/node_type>/" \
-        -e "${lstart},${lend}s/<key>.*<\/key>/<key>${wazuhclusterkey}<\/key>/" \
+    eval 'sed -i -e "${lstart},${lend}s/<name>.*<\/name>/<name>wazuh_cluster<\/name>/" \
+        -e "${lstart},${lend}s/<node_name>.*<\/node_name>/<node_name>${winame}<\/node_name>/" \
+        -e "${lstart},${lend}s/<node_type>.*<\/node_type>/<node_type>${wazuh_servers_node_types[pos]}<\/node_type>/" \
+        -e "${lstart},${lend}s/<key>.*<\/key>/<key>${key}<\/key>/" \
         -e "${lstart},${lend}s/<port>.*<\/port>/<port>${port}<\/port>/" \
         -e "${lstart},${lend}s/<bind_addr>.*<\/bind_addr>/<bind_addr>${bind_address}<\/bind_addr>/" \
         -e "${lstart},${lend}s/<node>.*<\/node>/<node>${master_address}<\/node>/" \
@@ -48,5 +56,4 @@ configureWazuhCluster() {
         -e "${lstart},${lend}s/<disabled>.*<\/disabled>/<disabled>${disabled}<\/disabled>/" \
         /var/ossec/etc/ossec.conf'
 
-    startService "wazuh-manager"
 }
