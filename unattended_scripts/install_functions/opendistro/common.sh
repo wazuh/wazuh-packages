@@ -63,7 +63,7 @@ checkNames() {
 
     if [[ -n ${einame} ]]; then
         if [[ ! "${elasticsearch_node_names[@]}" =~ "${einame}" ]]; then
-            logger -e "The name given for the ElasticSearch node does not appear on the configuration file."
+            logger -e "The name given for the Elasticsearch node does not appear on the configuration file."
             exit 1
         fi
     fi
@@ -88,7 +88,7 @@ checkPreviousCertificates() {
 
     if [ -n ${einame} ]; then
         if [ -f ${base_path}/certs/${einame}.pem ] || [ -f ${base_path}/certs/${einame}-key.pem ]; then
-            logger -e "There is a certificate for the elasticsearch node ${einame} in ${base_path}/certs."
+            logger -e "There is a certificate for the Elasticsearch node ${einame} in ${base_path}/certs."
             exit 1
         fi
 
@@ -96,14 +96,14 @@ checkPreviousCertificates() {
 
     if [ -n ${winame} ]; then
         if [ -f ${base_path}/certs/${winame}.pem ] || [ -f ${base_path}/certs/${winame}-key.pem ]; then
-            logger -e "There is a certificate for the wazuh server node ${winame} in ${base_path}/certs."
+            logger -e "There is a certificate for the Wazuh server node ${winame} in ${base_path}/certs."
             exit 1
         fi
     fi
 
     if [ -n ${kiname} ]; then
         if [ -f ${base_path}/certs/${kiname}.pem ] || [ -f ${base_path}/certs/${kiname}-key.pem ]; then
-            logger -e "There is a certificate for the kibana node ${kiname} in ${base_path}/certs."
+            logger -e "There is a certificate for the Kibana node ${kiname} in ${base_path}/certs."
             exit 1
         fi
     fi
