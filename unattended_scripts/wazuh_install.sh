@@ -100,9 +100,11 @@ logger() {
             message="$1"
             ;;
     esac
-    finalmessage=$(echo "$now" "$mtype" "$message")
-    echo "$finalmessage" >> ${logfile}
-    echo -e "$finalmessage"
+    finalmessage=$(echo "$now" "$mtype" "$message") 
+    echo "$finalmessage" | tee -a ${logfile}
+    if [ -n "$debugEnabled" ] && [ "$1" == "-e" ]; then
+        echo -e "$finalmessage"
+    fi
 }
 
 importFunction() {
@@ -236,6 +238,7 @@ main() {
     if [ -z "${AIO}" ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
         readConfig
         checkNames
+        checkPreviousCertificates
     fi
 
     if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
