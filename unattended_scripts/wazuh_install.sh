@@ -123,19 +123,16 @@ importFunction() {
             error=1
         fi
     else
-        mkdir ${base_path}/tmp
-        curl -so ${base_path}/tmp/$1 $resources_functions/$1
+        curl -so ${base_path}/$1 $resources_functions/$1
         if [ $? = 0 ]; then
-            checkContent=$(grep '<?xml version="1.0" encoding="UTF-8"?>' ${base_path}/tmp/$1)
+            checkContent=$(grep '<?xml version="1.0" encoding="UTF-8"?>' ${base_path}/$1)
                 if [[ -n ${checkContent} ]]; then
                     error=1
-                    rm -f ${base_path}/tmp/$1
-                    rm -fr ${base_path}/tmp
+                    rm -f ${base_path}/$1
                 else
-                    sed -i 's/main $@//' ${base_path}/tmp/$1
-                    . ${base_path}/tmp/$1
-                    rm -f ${base_path}/tmp/$1
-                    rm -fr ${base_path}/tmp
+                    sed -i 's/main $@//' ${base_path}/$1
+                    . ${base_path}/$1
+                    rm -f ${base_path}/$1
                 fi
         else
             error=1
