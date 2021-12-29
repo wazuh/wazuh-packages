@@ -33,6 +33,9 @@ case "$1" in
                 touch ${WAZUH_TMP_DIR}/wazuh.restart
             fi
             ${DIR}/bin/ossec-control stop > /dev/null 2>&1 || ${DIR}/bin/wazuh-control stop > /dev/null 2>&1
+            if pgrep -f ossec-authd > /dev/null 2>&1; then
+                kill -15 $(pgrep -f ossec-authd)
+            fi
 
             if [ -d ${DIR}/logs/ossec ]; then
                 mv ${DIR}/logs/ossec ${DIR}/logs/wazuh
