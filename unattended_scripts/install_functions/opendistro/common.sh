@@ -84,32 +84,6 @@ checkNames() {
 
 }
 
-checkPreviousCertificates() {
-
-    if [ -n ${einame} ]; then
-        if [ -f ${base_path}/certs/${einame}.pem ] || [ -f ${base_path}/certs/${einame}-key.pem ]; then
-            logger -e "There is a certificate for the Elasticsearch node ${einame} in ${base_path}/certs."
-            exit 1
-        fi
-
-    fi
-
-    if [ -n ${winame} ]; then
-        if [ -f ${base_path}/certs/${winame}.pem ] || [ -f ${base_path}/certs/${winame}-key.pem ]; then
-            logger -e "There is a certificate for the Wazuh server node ${winame} in ${base_path}/certs."
-            exit 1
-        fi
-    fi
-
-    if [ -n ${kiname} ]; then
-        if [ -f ${base_path}/certs/${kiname}.pem ] || [ -f ${base_path}/certs/${kiname}-key.pem ]; then
-            logger -e "There is a certificate for the Kibana node ${kiname} in ${base_path}/certs."
-            exit 1
-        fi
-    fi
-
-}
-
 checkArch() {
     arch=$(uname -m)
 
