@@ -26,7 +26,7 @@ getConfig() {
         curl -so $2 ${resources_config}/$1
     fi
     if [ $? != 0 ]; then
-        logger -e "Unable to find config $1. Exiting"
+        logger -e "Unable to find config $1. Exiting."
         exit 1
     fi
 }
