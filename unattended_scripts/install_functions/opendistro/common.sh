@@ -309,13 +309,7 @@ createCertificates() {
         eval "getConfig certificate/config_aio.yml ${base_path}/config.yml ${debug}"
     fi
 
-    readConfig
-    if [ -d ${base_path}/certs ]; then
-        logger -e "Folder ${base_path}/certs exists. Please remove the certificates folder if you want to create new certificates."
-        exit 1
-    else
-        mkdir ${base_path}/certs
-    fi
+    mkdir ${base_path}/certs
 
     generateRootCAcertificate
     generateAdmincertificate

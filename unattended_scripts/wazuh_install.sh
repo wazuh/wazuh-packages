@@ -271,8 +271,8 @@ main() {
     checkSystem
     checkInstalled
     checkArguments
+    readConfig
     if [ -z "${AIO}" ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
-        readConfig
         checkNames
     fi
 
