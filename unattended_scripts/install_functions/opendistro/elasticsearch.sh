@@ -42,14 +42,7 @@ copyCertificatesElasticsearch() {
             eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} --wildcards ./elasticsearch*  ${debug}"
             eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} --wildcards ./admin*  ${debug}"
             eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} ./root-ca.pem  ${debug}"
-        else
-            checkNodes
-    
-            if [ -n "${single}" ]; then
-                name=${einame}
-            else
-                name=${IMN[pos]}
-            fi
+        else   
             eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} ./${name}.pem  && mv ${e_certs_path}${name}.pem ${e_certs_path}elasticsearch.pem ${debug}"
             eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} ./${name}-key.pem  && mv ${e_certs_path}${name}-key.pem ${e_certs_path}elasticsearch-key.pem ${debug}"
             eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} ./root-ca.pem  ${debug}"
@@ -73,7 +66,7 @@ applyLog4j2Mitigation(){
     eval "cp /tmp/apache-log4j-2.17.0-bin/log4j-api-2.17.0.jar /usr/share/elasticsearch/performance-analyzer-rca/lib/ ${debug}"
     eval "cp /tmp/apache-log4j-2.17.0-bin/log4j-core-2.17.0.jar /usr/share/elasticsearch/performance-analyzer-rca/lib/ ${debug}"
 
-    eval "rm -f /usr/share/elasticsearch/lib//log4j-api-2.11.1.jar ${debug}"
+    eval "rm -f /usr/share/elasticsearch/lib/log4j-api-2.11.1.jar ${debug}"
     eval "rm -f /usr/share/elasticsearch/lib/log4j-core-2.11.1.jar ${debug}"
     eval "rm -f /usr/share/elasticsearch/plugins/opendistro_security/log4j-slf4j-impl-2.11.1.jar ${debug}"
     eval "rm -f /usr/share/elasticsearch/performance-analyzer-rca/lib/log4j-api-2.13.0.jar ${debug}"
@@ -172,7 +165,7 @@ configureElasticsearch() {
     eval "sed -i "s/-Xms1g/-Xms${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
     eval "sed -i "s/-Xmx1g/-Xmx${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
 
-    applyLog4j2Mitigation
+    # applyLog4j2Mitigation
 
     jv=$(java -version 2>&1 | grep -o -m1 '1.8.0' )
     if [ "$jv" == "1.8.0" ]; then

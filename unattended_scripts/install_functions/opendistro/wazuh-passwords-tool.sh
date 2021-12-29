@@ -273,7 +273,7 @@ User:
         for j in "${!fileusers[@]}"; do
             supported=false
             for i in "${!users[@]}"; do
-                if [[ ${users[i]} == ${fileusers[j]} ]]; then
+                if [[ "${users[i]}" == "${fileusers[j]}" ]]; then
                     finalusers+=(${fileusers[j]})
                     finalpasswords+=(${filepasswords[j]})
                     supported=true

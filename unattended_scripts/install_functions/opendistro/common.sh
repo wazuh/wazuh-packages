@@ -46,45 +46,45 @@ checkSystem() {
 
 checkNames() {
 
-    if [[ "${einame}" == "${kiname}" ]] || [[ "${einame}" == "${winame}" ]] || [[ "${kiname}" == "${winame}" ]]; then
-        logger -e "The node names for Elastisearch, Kibana and Wazuh must be different."
-        exit 1
-    fi
+    # if [[ "${einame}" == "${kiname}" ]] || [[ "${einame}" == "${winame}" ]] || [[ "${kiname}" == "${winame}" ]]; then
+    #     logger -e "The node names for Elastisearch, Kibana and Wazuh must be different."
+    #     exit 1
+    # fi
 
-    if [ -n ${einame} ]; then
+    if [ -n "${einame}" ]; then
         if [[ ! "${elasticsearch_node_names[@]}" =~ "${einame}" ]]; then
             logger -e "The name given for the elasticsearch node does not appear on the configuration file."
             exit 1
         fi
 
-        if [ ! -f ${base_path}/certs/${einame}.pem ] || [ ! -f ${base_path}/certs/${einame}-key.pem ]; then
-            logger -e "There is no certificate for the elasticsearch node ${einame} in ${base_path}/certs."
+        if [ -z "$(tar -tvf ${base_path}/certs.tar|grep ${einame}.pem)" ] || [ -z "$(tar -tvf ${base_path}/certs.tar|grep ${einame}-key.pem)" ]; then
+            logger -e "There is no certificate for the elasticsearch node ${einame} in ${base_path}/certs.tar."
             exit 1
         fi
 
     fi
 
-    if [ -n ${winame} ]; then
+    if [ -n "${winame}" ]; then
         if [[ ! "${wazuh_servers_node_names[@]}" =~ "${winame}" ]]; then
             logger -e "The name given for the wazuh server node does not appear on the configuration file."
             exit 1
         fi
 
-        if [ ! -f ${base_path}/certs/${winame}.pem ] || [ ! -f ${base_path}/certs/${winame}-key.pem ]; then
-            logger -e "There is no certificate for the wazuh server node ${winame} in ${base_path}/certs."
+        if [ -z "$(tar -tvf ${base_path}/certs.tar|grep ${winame}.pem)" ] || [ -z "$(tar -tvf ${base_path}/certs.tar|grep ${winame}-key.pem)" ]; then
+            logger -e "There is no certificate for the wazuh server node ${winame} in ${base_path}/certs.tar."
             exit 1
         fi
 
     fi
 
-    if [ -n ${kiname} ]; then
+    if [ -n "${kiname}" ]; then
         if [[ ! "${kibana_node_names[@]}" =~ "${kiname}" ]]; then
             logger -e "The name given for the kibana node does not appear on the configuration file."
             exit 1
         fi
 
-        if [ ! -f ${base_path}/certs/${kiname}.pem ] || [ ! -f ${base_path}/certs/${kiname}-key.pem ]; then
-            logger -e "There is no certificate for the kibana node ${kiname} in ${base_path}/certs."
+        if [ -z "$(tar -tvf ${base_path}/certs.tar|grep ${kiname}.pem)" ] || [ -z "$(tar -tvf ${base_path}/certs.tar|grep ${kiname}-key.pem)" ]; then
+            logger -e "There is no certificate for the kibana node ${kiname} in ${base_path}/certs.tar."
             exit 1
         fi
 
@@ -511,7 +511,7 @@ rollBack() {
 }
 
 changePasswords() {
-    
+    set -x
     if [ -f "${base_path}/certs.tar" ]; then
         eval "tar -xf ${base_path}/certs.tar -C ${base_path} ./password_file.yml ${debug}"
         p_file="${base_path}/password_file.yml"
@@ -525,6 +525,7 @@ changePasswords() {
     if [ -n "${elastic}" ] || [ -n "${AIO}" ]; then
         getNetworkHost
         checkInstalledPass
+        readUsers
         createBackUp
         generateHash
     fi
@@ -535,6 +536,7 @@ changePasswords() {
         runSecurityAdmin
     fi
     rm -rf ${p_file}
+    set +x
 }
 
 getPass() {
