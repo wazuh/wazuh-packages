@@ -518,7 +518,7 @@ checkArguments() {
     if ([ -n "$AIO" ] || [ -n "$certificates" ]) && [ -d ${base_path}/certs ]; then
             logger -e "Folder ${base_path}/certs exists. Please remove the certificates folder if you want to create new certificates."
             exit 1
-        fi
+    fi
 
     if [ -n "$overwrite" ] && [ -z "$AIO" ] && [ -z "$elasticsearch" ] && [ -z "$kibana" ] && [ -z "$wazuh" ]; then 
         logger -e "The argument -o|--overwrite can't be used by itself. If you want to uninstall the components use -u|--uninstall"
