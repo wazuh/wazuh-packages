@@ -38,7 +38,6 @@ cleanExit() {
 
     if [ -n "$spin_pid" ]; then
         eval "kill -9 $spin_pid $debug"
-        spin_pid=
     fi
 
     echo -e "\nDo you want to clean the ongoing installation?[Y/n]"
