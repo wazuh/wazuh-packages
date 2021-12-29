@@ -543,11 +543,6 @@ checkArguments() {
 
     if [ -n "$elasticsearch" ]; then
 
-        if [ -z "$einame" ]; then
-        logger -e "Argument --elasticsearch must be accompanied by the name of the node."
-        exit 1
-        fi
-
         if [ -n "$elasticsearchinstalled" ] || [ -n "$elastic_remaining_files" ]; then
             if [ -n "$overwrite" ]; then
                 rollBack "elasticsearch"
@@ -560,11 +555,6 @@ checkArguments() {
 
     if [ -n "$kibana" ]; then
 
-        if [ -n "$kibana" ] && [ -z "$kiname" ]; then
-        logger -e "Argument --kibana must be accompanied by the name of the node."
-        exit 1
-        fi
-
         if [ -n "$kibanainstalled" ] || [ -n "$kibana_remaining_files" ]; then
             if [ -n "$overwrite" ]; then
                 rollBack "kibana"
@@ -576,10 +566,6 @@ checkArguments() {
     fi
 
     if [ -n "$wazuh" ]; then
-        if [ -z "$winame" ]; then
-            logger -e "Argument --wazuh-server must be accompanied by the name of the node."
-            exit 1
-        fi
         if [ -n "$wazuhinstalled" ] || [ -n "$wazuh_remaining_files" ]; then
             if [ -n "$overwrite" ]; then
                 rollBack "wazuh"

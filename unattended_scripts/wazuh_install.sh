@@ -189,7 +189,7 @@ main() {
                 shift 1
                 ;;
             "-w"|"--wazuh-server")
-                if [ -n "$wazuh" ]; then
+                if [ -z "$2" ]; then
                     logger -e "Error on arguments. Probably missing <node-name> after -w|--wazuh-server"
                     getHelp
                     exit 1
@@ -199,7 +199,7 @@ main() {
                 shift 2
                 ;;
             "-e"|"--elasticsearch")
-                if [ -n "$elasticsearch" ]; then
+                if [ -z "$2" ]; then
                     logger -e "Error on arguments. Probably missing <node-name> after -e|--elasticsearch"
                     getHelp
                     exit 1
@@ -209,7 +209,7 @@ main() {
                 shift 2
                 ;;
             "-k"|"--kibana")
-            if [ -n "$kibana" ]; then
+                if [ -z "$2" ]; then
                     logger -e "Error on arguments. Probably missing <node-name> after -k|--kibana"
                     getHelp
                     exit 1
@@ -279,7 +279,6 @@ main() {
     readConfig
     if [ -z "${AIO}" ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
         checkNames
-        checkPreviousCertificates
     fi
 
     if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
