@@ -44,14 +44,14 @@ copyCertificatesElasticsearch() {
 
 applyLog4j2Mitigation(){
 
-    eval "curl -so /tmp/apache-log4j-2.17.0-bin.tar.gz https://dlcdn.apache.org/logging/log4j/2.17.0/apache-log4j-2.17.0-bin.tar.gz ${debug}"
-    eval "tar -xf /tmp/apache-log4j-2.17.0-bin.tar.gz -C /tmp/"
+    eval "curl -so /tmp/apache-log4j-2.17.1-bin.tar.gz https://packages.wazuh.com/utils/log4j/apache-log4j-2.17.1-bin.tar.gz ${debug}"
+    eval "tar -xf /tmp/apache-log4j-2.17.1-bin.tar.gz -C /tmp/"
 
-    eval "cp /tmp/apache-log4j-2.17.0-bin/log4j-api-2.17.0.jar /usr/share/elasticsearch/lib/  ${debug}"
-    eval "cp /tmp/apache-log4j-2.17.0-bin/log4j-core-2.17.0.jar /usr/share/elasticsearch/lib/ ${debug}"
-    eval "cp /tmp/apache-log4j-2.17.0-bin/log4j-slf4j-impl-2.17.0.jar /usr/share/elasticsearch/plugins/opendistro_security/ ${debug}"
-    eval "cp /tmp/apache-log4j-2.17.0-bin/log4j-api-2.17.0.jar /usr/share/elasticsearch/performance-analyzer-rca/lib/ ${debug}"
-    eval "cp /tmp/apache-log4j-2.17.0-bin/log4j-core-2.17.0.jar /usr/share/elasticsearch/performance-analyzer-rca/lib/ ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-api-2.17.1.jar /usr/share/elasticsearch/lib/  ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-core-2.17.1.jar /usr/share/elasticsearch/lib/ ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-slf4j-impl-2.17.1.jar /usr/share/elasticsearch/plugins/opendistro_security/ ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-api-2.17.1.jar /usr/share/elasticsearch/performance-analyzer-rca/lib/ ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-core-2.17.1.jar /usr/share/elasticsearch/performance-analyzer-rca/lib/ ${debug}"
 
     eval "rm -f /usr/share/elasticsearch/lib//log4j-api-2.11.1.jar ${debug}"
     eval "rm -f /usr/share/elasticsearch/lib/log4j-core-2.11.1.jar ${debug}"
@@ -59,8 +59,8 @@ applyLog4j2Mitigation(){
     eval "rm -f /usr/share/elasticsearch/performance-analyzer-rca/lib/log4j-api-2.13.0.jar ${debug}"
     eval "rm -f /usr/share/elasticsearch/performance-analyzer-rca/lib/log4j-core-2.13.0.jar ${debug}"
 
-    eval "rm -rf /tmp/apache-log4j-2.17.0-bin ${debug}"
-    eval "rm -f /tmp/apache-log4j-2.17.0-bin.tar.gz ${debug}"
+    eval "rm -rf /tmp/apache-log4j-2.17.1-bin ${debug}"
+    eval "rm -f /tmp/apache-log4j-2.17.1-bin.tar.gz ${debug}"
 
 }
 
@@ -190,7 +190,22 @@ startElasticsearchCluster() {
 
     eval "elasticsearch_cluster_ip=( $(cat /etc/elasticsearch/elasticsearch.yml | grep network.host | sed 's/network.host:\s//') )"
     eval "export JAVA_HOME=/usr/share/elasticsearch/jdk/"
-    eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${elasticsearch_cluster_ip}"
-    eval "curl ${filebeat_wazuh_template} | curl -X PUT 'https://${elasticsearch_node_ips[pos]}:9200/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k ${debug}"
+    eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${elasticsearch_cluster_ip} > /dev/null ${debug}"
+    if [  "$?" != 0  ]; then
+        logger -e "The cluster could not be initialized."
+        rollBack
+        exit 1
+    else
+        logger "The Elasticsearch cluster was initialized."
+    fi
+    eval "curl --silent ${filebeat_wazuh_template} | curl -X PUT 'https://${elasticsearch_node_ips[pos]}:9200/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k --silent ${debug}"
+    if [  "$?" != 0  ]; then
+        logger -e "The wazuh-alerts template could not be inserted into the Elasticsearch cluster."
+        rollBack
+        exit 1
+    else
+        logger "The wazuh-alerts template was inserted into the Elasticsearch cluster."
+    fi
+
 
 }

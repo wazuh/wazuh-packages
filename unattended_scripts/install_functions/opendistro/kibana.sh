@@ -129,7 +129,7 @@ initializeKibana() {
     fi
     eval "sed -i 's,url: https://localhost,url: https://${wazuh_api_address},g' /usr/share/kibana/data/wazuh/config/wazuh.yml ${debug}"
     logger "Kibana started."
-    logger "You can access the web interface https://'${nodes_kibana_ip}'. The credentials are admin:admin"
+    logger "You can access the web interface https://${nodes_kibana_ip}. The credentials are admin:admin"
 
 }
 
