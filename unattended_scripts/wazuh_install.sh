@@ -135,11 +135,7 @@ logger() {
             message="$1"
             ;;
     esac
-    finalmessage=$(echo "$now" "$mtype" "$message") 
-    echo "$finalmessage" | tee -a ${logfile}
-    if [ -n "$debugEnabled" ] && [ "$1" == "-e" ]; then
-        echo -e "$finalmessage"
-    fi
+    echo $now $mtype $message | tee -a ${logfile}
 }
 
 importFunction() {
