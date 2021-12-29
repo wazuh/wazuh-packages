@@ -32,11 +32,16 @@ debug=">> ${logfile} 2>&1"
 
 ## More info to continue on
 ## https://stackoverflow.com/questions/3338030/multiple-bash-traps-for-the-same-signal
-trap "cleanExit" SIGTERM SIGINT
+trap cleanExit SIGINT
 
 cleanExit() {
 
-    echo "Do you want to clean the ongoing installation?[Y/n]"
+    if [ -n "$spin_pid" ]; then
+        eval "kill -9 $spin_pid $debug"
+        spin_pid=
+    fi
+
+    echo -e "\nDo you want to clean the ongoing installation?[Y/n]"
     read rollback_conf
     if [[ "$rollback_conf" =~ [N|n] ]]; then
         exit 1
@@ -102,7 +107,7 @@ getHelp() {
 spin() {
     trap "{ tput el1; exit 0; }" 15
     spinner="/|\\-/|\\-"
-    ppid=$PID
+    trap "echo ''" EXIT
     while :
     do
         for i in `seq 0 7`
@@ -111,18 +116,10 @@ spin() {
             echo -en "\010"
             sleep 0.1
         done
-        # if ! ( kill -0 $ppid >/dev/null) ; then
-        #     echo "Saliendo por padre muerto"
-        #     exit 0;
-        # fi
     done
 }
 
 logger() {
-
-    if [ -n "$spin_pid" ]; then
-        kill -15 $spin_pid >/dev/null
-    fi
 
     now=$(date +'%d/%m/%Y %H:%M:%S')
     case $1 in 
@@ -141,13 +138,6 @@ logger() {
     esac
     echo $now $mtype $message | tee -a ${logfile}
 
-    # Start the Spinner:
-    spin &
-    # Make a note of its Process ID (PID):
-    spin_pid=$!
-    # Kill the spinner on any signal, including our own exit.
-    trap "{ kill -9 $spin_pid; cleanExit; }" SIGTERM SIGINT
-    trap "{ kill -9 $spin_pid >/dev/null;}" EXIT
 }
 
 importFunction() {
@@ -183,7 +173,7 @@ importFunction() {
 
 main() {
 
-    if [ ! -n  "$1" ]; then
+    if [ ! -n "$1" ]; then
         getHelp
     fi
 
@@ -265,6 +255,10 @@ main() {
                 getHelp
         esac
     done
+
+    spin &
+    spin_pid=$!
+    trap "kill -9 $spin_pid $debug" EXIT
 
     if [ "$EUID" -ne 0 ]; then
         logger -e "Error: This script must be run as root."
