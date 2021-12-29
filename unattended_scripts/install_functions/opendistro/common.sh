@@ -51,7 +51,7 @@ checkNames() {
     #    exit 1
     #fi
 
-    if [ -n ${einame} ]; then
+    if [ -n "${einame}" ]; then
         if [[ ! "${elasticsearch_node_names[@]}" =~ "${einame}" ]]; then
             logger -e "The name given for the elasticsearch node does not appear on the configuration file."
             exit 1
@@ -64,7 +64,7 @@ checkNames() {
 
     fi
 
-    if [ -n ${winame} ]; then
+    if [ -n "${winame}" ]; then
         if [[ ! "${wazuh_servers_node_names[@]}" =~ "${winame}" ]]; then
             logger -e "The name given for the wazuh server node does not appear on the configuration file."
             exit 1
@@ -77,7 +77,7 @@ checkNames() {
 
     fi
 
-    if [ -n ${kiname} ]; then
+    if [ -n "${kiname}" ]; then
         if [[ ! "${kibana_node_names[@]}" =~ "${kiname}" ]]; then
             logger -e "The name given for the kibana node does not appear on the configuration file."
             exit 1
