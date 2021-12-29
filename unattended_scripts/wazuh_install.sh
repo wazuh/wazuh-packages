@@ -391,7 +391,12 @@ main() {
     fi
 
     restoreWazuhrepo
-    logger "Installation Finished."
+
+    if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}"  ]; then
+        logger "Installation finished."
+    elif [ -n "${start_elastic_cluster}" ]; then
+        logger "Elasticsearch cluster started."
+    fi
 
 }
 
