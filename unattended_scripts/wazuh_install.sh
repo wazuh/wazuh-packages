@@ -30,6 +30,26 @@ base_path="$(dirname $(readlink -f $0))"
 logfile="/var/log/wazuh-unattended-installation.log"
 debug=">> ${logfile} 2>&1"
 
+## More info to continue on
+## https://stackoverflow.com/questions/3338030/multiple-bash-traps-for-the-same-signal
+trap cleanExit SIGINT
+
+cleanExit() {
+
+    if [ -n "$spin_pid" ]; then
+        eval "kill -9 $spin_pid $debug"
+    fi
+
+    echo -e "\nDo you want to clean the ongoing installation?[Y/n]"
+    read rollback_conf
+    if [[ "$rollback_conf" =~ [N|n] ]]; then
+        exit 1
+    else 
+        rollBack
+        exit 1
+    fi
+}
+
 getHelp() {
 
     echo -e ""
@@ -81,6 +101,21 @@ getHelp() {
     echo -e ""
     exit 1 # Exit script after printing help
 
+}
+
+spin() {
+    trap "{ tput el1; exit 0; }" 15
+    spinner="/|\\-/|\\-"
+    trap "echo ''" EXIT
+    while :
+    do
+        for i in `seq 0 7`
+        do
+            echo -n "${spinner:$i:1}"
+            echo -en "\010"
+            sleep 0.1
+        done
+    done
 }
 
 logger() {
@@ -146,7 +181,7 @@ importFunction() {
 
 main() {
 
-    if [ ! -n  "$1" ]; then
+    if [ ! -n "$1" ]; then
         getHelp
     fi
 
@@ -229,6 +264,10 @@ main() {
         esac
     done
 
+    spin &
+    spin_pid=$!
+    trap "kill -9 $spin_pid $debug" EXIT
+
     if [ "$EUID" -ne 0 ]; then
         logger -e "Error: This script must be run as root."
         exit 1
@@ -241,8 +280,8 @@ main() {
     checkSystem
     checkInstalled
     checkArguments
+    readConfig
     if [ -z "${AIO}" ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
-        readConfig
         checkNames
         checkPreviousCertificates
     fi
@@ -356,7 +395,12 @@ main() {
     fi
 
     restoreWazuhrepo
-    logger "Installation Finished."
+
+    if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}"  ]; then
+        logger "Installation finished."
+    elif [ -n "${start_elastic_cluster}" ]; then
+        logger "Elasticsearch cluster started."
+    fi
 
 }
 
