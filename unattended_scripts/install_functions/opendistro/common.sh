@@ -198,7 +198,6 @@ restoreWazuhrepo() {
 }
 
 checkInstalled() {
-    
     if [ "${sys_type}" == "yum" ]; then
         wazuhinstalled=$(yum list installed 2>/dev/null | grep wazuh-manager)
     elif [ "${sys_type}" == "zypper" ]; then
@@ -328,13 +327,7 @@ createCertificates() {
         eval "getConfig certificate/config_aio.yml ${base_path}/config.yml ${debug}"
     fi
 
-    readConfig
-    if [ -d ${base_path}/certs ]; then
-        logger -e "Folder ${base_path}/certs exists. Please remove the certificates folder if you want to create new certificates."
-        exit 1
-    else
-        mkdir ${base_path}/certs
-    fi
+    mkdir ${base_path}/certs
 
     generateRootCAcertificate
     generateAdmincertificate
@@ -422,7 +415,7 @@ rollBack() {
         
     fi
 
-    if [ -n "${wazuh_remaining_files}" ] && ([ -z "$1" ] || [ "$1" == "wazuh" ]); then
+    if ([ -n "${wazuh_remaining_files}" ] || [ -n "$wazuhinstalled" ]) && ([ -z "$1" ] || [ "$1" == "wazuh" ]); then
         eval "rm -rf /var/ossec/ ${debug}"
     fi
 
@@ -439,7 +432,7 @@ rollBack() {
         fi 
     fi
 
-    if [ -n "${elastic_remaining_files}" ] && ([ -z "$1" ] || [ "$1" == "elasticsearch" ]); then
+    if ([ -n "${elastic_remaining_files}" ] || [ -n "$elasticsearchinstalled" ]) && ([ -z "$1" ] || [ "$1" == "elasticsearch" ]); then
         eval "rm -rf /var/lib/elasticsearch/ ${debug}"
         eval "rm -rf /usr/share/elasticsearch/ ${debug}"
         eval "rm -rf /etc/elasticsearch/ ${debug}"
@@ -456,7 +449,7 @@ rollBack() {
         fi
     fi
 
-    if [ -n "${filebeat_remaining_files}" ] && ([ -z "$1" ] || [ "$1" == "filebeat" ]); then
+    if ([ -n "${filebeat_remaining_files}" ] || [ -n "$filebeatinstalled" ]) && ([ -z "$1" ] || [ "$1" == "filebeat" ]); then
         eval "rm -rf /var/lib/filebeat/ ${debug}"
         eval "rm -rf /usr/share/filebeat/ ${debug}"
         eval "rm -rf /etc/filebeat/ ${debug}"
@@ -473,7 +466,7 @@ rollBack() {
         fi
     fi
 
-    if [ -n "${kibana_remaining_files}" ] && ([ -z "$1" ] || [ "$1" == "kibana" ]); then
+    if ([ -n "${kibana_remaining_files}" ] || [ -n "$kibanainstalled" ]) && ([ -z "$1" ] || [ "$1" == "kibana" ]); then
         eval "rm -rf /var/lib/kibana/ ${debug}"
         eval "rm -rf /usr/share/kibana/ ${debug}"
         eval "rm -rf /etc/kibana/ ${debug}"
@@ -533,6 +526,11 @@ createClusterKey() {
 }
 
 checkArguments() {
+
+    if ([ -n "$AIO" ] || [ -n "$certificates" ]) && [ -d ${base_path}/certs ]; then
+            logger -e "Folder ${base_path}/certs exists. Please remove the certificates folder if you want to create new certificates."
+            exit 1
+    fi
 
     if [ -n "$overwrite" ] && [ -z "$AIO" ] && [ -z "$elasticsearch" ] && [ -z "$kibana" ] && [ -z "$wazuh" ]; then 
         logger -e "The argument -o|--overwrite can't be used by itself. If you want to uninstall the components use -u|--uninstall"
