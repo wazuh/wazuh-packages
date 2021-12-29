@@ -180,7 +180,7 @@ fi
 # Create the wazuh user if it doesn't exists
 if ! id -u wazuh > /dev/null 2>&1; then
   useradd -g wazuh -G wazuh -d %{_localstatedir} -r -s /sbin/nologin wazuh
-fi 
+fi
 
 # Stop the services to upgrade the package
 if [ $1 = 2 ]; then
@@ -663,6 +663,7 @@ rm -fr %{buildroot}
 %attr(750, root, wazuh) %{_localstatedir}/lib/librsync.so
 %attr(750, root, wazuh) %{_localstatedir}/lib/libsyscollector.so
 %attr(750, root, wazuh) %{_localstatedir}/lib/libsysinfo.so
+%attr(750, root, wazuh) %{_localstatedir}/lib/libfimdb.so
 %{_localstatedir}/lib/libpython3.9.so.1.0
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/logs
 %attr(660, wazuh, wazuh)  %ghost %{_localstatedir}/logs/active-responses.log
