@@ -207,7 +207,7 @@ function rollBack() {
         elif [ "${sys_type}" == "zypper" ]; then
             eval "zypper -n remove opendistroforelasticsearch elasticsearch* opendistro-* ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
-            eval "apt remove --purge opendistroforelasticsearch elasticsearch* opendistro-* -y ${debug}"
+            eval "apt remove --purge ^elasticsearch* ^opendistro* -y ${debug}"
         fi 
     fi
 

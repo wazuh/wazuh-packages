@@ -99,6 +99,16 @@ function initializeKibana() {
     logger "Starting Kibana (this may take a while)."
     getPass "admin"
     i=0
+    if [ ${#kibana_node_names[@]} -eq 1 ]; then
+        nodes_kibana_ip=${kibana_node_ips[0]}
+    else
+        for i in ${!kibana_node_names[@]}; do
+            if [[ "${kibana_node_names[i]}" == "${kiname}" ]]; then
+                pos="${i}";
+            fi
+        done
+        nodes_kibana_ip=${kibana_node_ips[pos]}
+    fi
     until [[ "$(curl -XGET https://${nodes_kibana_ip}/status -I -uadmin:${u_pass} -k -s --max-time 300 | grep "200 OK")" ]] || [ ${i} -eq 12 ]; do
         sleep 10
         i=$((i+1))
@@ -127,6 +137,16 @@ function initializeKibanaAIO() {
     logger "Starting Kibana (this may take a while)."
     getPass "admin"
     i=0
+    if [ ${#kibana_node_names[@]} -eq 1 ]; then
+        nodes_kibana_ip=${kibana_node_ips[0]}
+    else
+        for i in ${!kibana_node_names[@]}; do
+            if [[ "${kibana_node_names[i]}" == "${kiname}" ]]; then
+                pos="${i}";
+            fi
+        done
+        nodes_kibana_ip=${kibana_node_ips[pos]}
+    fi
     until [[ "$(curl -XGET https://localhost/status -I -uadmin:${u_pass} -k -s --max-time 300 | grep "200 OK")" ]] || [ ${i} -eq 12 ]; do
         sleep 10
         i=$((i+1))
