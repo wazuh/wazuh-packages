@@ -54,7 +54,7 @@ function getHelp() {
 
     echo -e ""
     echo -e "NAME"
-    echo -e "        $(basename $0) - Install and configure Wazuh All-In-One components."
+    echo -e "        $(basename $0) - Install and configure Wazuh central components."
     echo -e ""
     echo -e "SYNOPSIS"
     echo -e "        $(basename $0) [OPTIONS]"
@@ -64,10 +64,10 @@ function getHelp() {
     echo -e "                All-In-One installation."
     echo -e ""
     echo -e "        -c,  --create-certificates"
-    echo -e "                Create certificates from config.yml file."
+    echo -e "                Creates certificates from config.yml file."
     echo -e ""
     echo -e "        -d,  --development"
-    echo -e "                Use development repository."
+    echo -e "                Uses development repository."
     echo -e ""
     echo -e "        -e,  --elasticsearch <elasticsearch-node-name>"
     echo -e "                Elasticsearch installation."
@@ -85,13 +85,13 @@ function getHelp() {
     echo -e "                Use local files."
     echo -e ""
     echo -e "        -o,  --overwrite"
-    echo -e "                Overwrite previously installed components of the stack. NOTE: This will erase all the existing configuration and data."
+    echo -e "                Overwrites previously installed components. NOTE: This will erase all the existing configuration and data."
     echo -e ""
     echo -e "        -s,  --start-cluster"
-    echo -e "                Start the Elasticsearch cluster."
+    echo -e "                Starts the Elasticsearch cluster."
     echo -e ""
     echo -e "        -u,  --uninstall"
-    echo -e "                Uninstall all wazuh components. NOTE: This will erase all the existing configuration and data."
+    echo -e "                Uninstalls all Wazuh components. NOTE: This will erase all the existing configuration and data."
     echo -e ""
     echo -e "        -v,  --verbose"
     echo -e "                Shows the complete installation output."
@@ -190,7 +190,7 @@ function main() {
                 ;;
             "-w"|"--wazuh-server")
                 if [ -z "$2" ]; then
-                    logger -e "Error on arguments. Probably missing <node-name> after -w|--wazuh-server"
+                  logger -e "Arguments contain errors. Probably missing <node-name> after -w|--wazuh-server."
                     getHelp
                     exit 1
                 fi
@@ -200,7 +200,7 @@ function main() {
                 ;;
             "-e"|"--elasticsearch")
                 if [ -z "$2" ]; then
-                    logger -e "Error on arguments. Probably missing <node-name> after -e|--elasticsearch"
+                    logger -e "Arguments contain errors. Probably missing <node-name> after -e|--elasticsearch."
                     getHelp
                     exit 1
                 fi
@@ -210,7 +210,7 @@ function main() {
                 ;;
             "-k"|"--kibana")
                 if [ -z "$2" ]; then
-                    logger -e "Error on arguments. Probably missing <node-name> after -k|--kibana"
+                    logger -e "Arguments contain errors. Probably missing <node-name> after -k|--kibana."
                     getHelp
                     exit 1
                 fi
@@ -261,7 +261,7 @@ function main() {
     done
 
     if [ "$EUID" -ne 0 ]; then
-        logger -e "Error: This script must be run as root."
+        logger -e "This script must be run as root."
         exit 1
     fi
 
@@ -314,7 +314,7 @@ function main() {
         importFunction "elasticsearch.sh"
 
         if [ -n "${ignore}" ]; then
-            logger -w "Health-check ignored for Elasticsearch."
+            logger -w "Health check ignored for Elasticsearch."
         else
             healthCheck elasticsearch
         fi
@@ -334,7 +334,7 @@ function main() {
         importFunction "kibana.sh"
 
         if [ -n "${ignore}" ]; then
-            logger -w "Health-check ignored for Kibana."
+            logger -w "Health check ignored for Kibana."
         else
             healthCheck kibana
         fi
@@ -351,7 +351,7 @@ function main() {
         importFunction "filebeat.sh"
 
         if [ -n "${ignore}" ]; then
-            logger -w "Health-check ignored for Wazuh manager."
+            logger -w "Health check ignored for Wazuh manager."
         else
             healthCheck wazuh
         fi
@@ -373,7 +373,7 @@ function main() {
         importFunction "kibana.sh"
 
         if [ -n "${ignore}" ]; then
-            logger -w "Health-check ignored for AIO."
+            logger -w "Health check ignored for All-In-One."
         else
             healthCheck AIO
         fi

@@ -47,7 +47,7 @@ function logger_cert() {
 function getHelp() {
     echo -e ""
     echo -e "NAME"
-    echo -e "        wazuh-cert-tool.sh - Manages the creation of certificates of the Wazuh components."
+    echo -e "        wazuh-cert-tool.sh - Manage the creation of certificates for the Wazuh components."
     echo -e ""
     echo -e "SYNOPSIS"
     echo -e "        wazuh-cert-tool.sh [OPTIONS]"
@@ -66,7 +66,7 @@ function getHelp() {
     echo -e "                Creates the Kibana certificates."
     echo -e ""
     echo -e "        -v,  --verbose"
-    echo -e "                Enables verbose mode."
+    echo -e "                Shows the complete certificates creation output."
     echo -e ""
     echo -e "        -w,  --wazuh-certificates"
     echo -e "                Creates the Wazuh server certificates."
@@ -113,7 +113,7 @@ function readConfig() {
         fi
 
         if [ $(printf '%s\n' "${elasticsearch_node_ips[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#elasticsearch_node_ips[@]} ]; then 
-            logger_cert -e "Duplicated Elasticsearch node ips."
+            logger_cert -e "Duplicated Elasticsearch node IP addresses."
             exit 1
         fi
 
@@ -123,7 +123,7 @@ function readConfig() {
         fi
 
         if [ $(printf '%s\n' "${wazuh_servers_node_ips[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#wazuh_servers_node_ips[@]} ]; then 
-            logger_cert -e "Duplicated Wazuh server node ips."
+            logger_cert -e "Duplicated Wazuh server node IP addresses."
             exit 1
         fi
 
@@ -133,25 +133,25 @@ function readConfig() {
         fi
 
         if [ $(printf '%s\n' "${kibana_node_ips[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#kibana_node_ips[@]} ]; then 
-            logger_cert -e "Duplicated Kibana node ips."
+            logger_cert -e "Duplicated Kibana node IP addresses."
             exit 1
         fi
 
         if [ ${#wazuh_servers_node_names[@]} -ne ${#wazuh_servers_node_ips[@]} ]; then 
-            logger_cert -e "Different number of Wazuh server node names and IPs."
+            logger_cert -e "Different number of Wazuh server node names and IP addresses."
             exit 1
         fi
 
         if [ ${#wazuh_servers_node_names[@]} -le 1 ]; then
             if [ ${#wazuh_servers_node_types[@]} -ne 0 ]; then
-                logger_cert -e "node_type must be used with more than one Wazuh server."
+                logger_cert -e "node_type must be used with more than one Wazuh server node."
                 exit 1
             fi
         elif [ ${#wazuh_servers_node_names[@]} -ne ${#wazuh_servers_node_types[@]} ]; then
             logger_cert -e "Different number of Wazuh server node names and node types."
             exit 1
         elif [ $(grep -o master <<< ${wazuh_servers_node_types[*]} | wc -l) -ne 1 ]; then
-            logger_cert -e "Wazuh cluster needs a single master node."
+            logger_cert -e "Wazuh cluster needs one single master node."
             exit 1
         elif [ $(grep -o worker <<< ${wazuh_servers_node_types[*]} | wc -l) -ne $(expr ${#wazuh_servers_node_types[@]} - 1)  ]; then
             logger_cert -e "Incorrect number of workers."
@@ -159,12 +159,12 @@ function readConfig() {
         fi
 
         if [ ${#kibana_node_names[@]} -ne ${#kibana_node_ips[@]} ]; then 
-            logger_cert -e "Different number of Kibana node names and IPs."
+            logger_cert -e "Different number of Kibana node names and IP addresses."
             exit 1
         fi
 
     else
-        logger_cert -e "No configuration file found. ${base_path}/config.yml."
+        logger_cert -e "Configuration file ${base_path}/config.yml not found."
         exit 1
     fi
 }
@@ -211,7 +211,7 @@ function generateCertificateconfiguration() {
         conf="$(awk '{sub("IP.1 = cip", "DNS.1 = '$2'")}1' ${base_path}/certs/$1.conf)"
         echo "${conf}" > ${base_path}/certs/$1.conf 
     else
-        logger_cert -e "The given information does not match with an IP or a DNS".  
+        logger_cert -e "The given information does not match with an IP address or a DNS".  
         exit 1 
     fi   
 
@@ -300,7 +300,7 @@ function main() {
     fi
     
     if [[ -d ${base_path}/certs ]]; then
-        logger -e "Folder ${base_path}/certs exists. Please remove the /certs folder if you want to create new certificates."
+        logger -e "Folder ${base_path}/certs already exists. Please, remove the /certs folder to create new certificates."
         exit 1
     else
         mkdir ${base_path}/certs

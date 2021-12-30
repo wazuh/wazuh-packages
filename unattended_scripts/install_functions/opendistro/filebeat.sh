@@ -16,7 +16,7 @@ function installFilebeat() {
     fi
     if [  "$?" != 0  ]
     then
-        logger -e "Filebeat installation failed"
+        logger -e "Filebeat installation failed."
         exit 1
     else
         logger "Filebeat installation finished."
