@@ -531,7 +531,7 @@ checkArguments() {
             exit 1
         fi
 
-        if [ -n "${wazuhinstalled}" ] || [ -n "${elasticsearchinstalled}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${kibanainstalled}" ]; then
+        if [ -n "${wazuhinstalled}" ] || [ -n "$wazuh_remaining_files" ] || [ -n "${elasticsearchinstalled}" ] || [ -n "$elastic_remaining_files" ] || [ -n "${filebeatinstalled}" ] || [ -n "$filebeat_remaining_files" ] || [ -n "${kibanainstalled}" ] || [ -n "$kibana_remaining_files" ]; then
             if [ -n "${overwrite}" ]; then
                 rollBack
             else
