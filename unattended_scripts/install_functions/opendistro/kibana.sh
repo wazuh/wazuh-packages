@@ -7,46 +7,6 @@
 
 k_certs_path="/etc/kibana/certs/"
 
-function installKibana() {
-    
-    logger "Starting Kibana installation."
-    if [ ${sys_type} == "zypper" ]; then
-        eval "zypper -n install opendistroforelasticsearch-kibana=${opendistro_version} ${debug}"
-    else
-        eval "${sys_type} install opendistroforelasticsearch-kibana${sep}${opendistro_version} -y ${debug}"
-    fi
-    if [  "$?" != 0  ]; then
-        logger -e "Kibana installation failed"
-        rollBack
-        exit 1
-    else    
-        kibanainstalled="1"
-        logger "Kibana installation finished."
-    fi
-
-}
-
-function configureKibanaAIO() {
-
-    logger "Starting Wazuh Kibana plugin installation."
-    
-    eval "getConfig kibana/kibana_unattended.yml /etc/kibana/kibana.yml ${debug}"
-    eval "mkdir /usr/share/kibana/data ${debug}"
-    eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
-    eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${kibana_wazuh_plugin}' ${debug}"
-    if [  "$?" != 0  ]; then
-        logger -e "Wazuh Kibana plugin could not be installed."
-        rollBack
-        exit 1
-    fi
-    logger "Wazuh Kibana plugin installation finished."
-    copyKibanacerts
-    eval "setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node ${debug}"
-    modifyKibanaLogin
-    logger "Kibana post-install configuration finished."
-
-}
-
 function configureKibana() {
 
     eval "getConfig kibana/kibana_unattended_distributed.yml /etc/kibana/kibana.yml ${debug}"
@@ -87,8 +47,29 @@ function configureKibana() {
     copyKibanacerts
 }
 
-function copyKibanacerts() {
+function configureKibanaAIO() {
+
+    logger "Starting Wazuh Kibana plugin installation."
     
+    eval "getConfig kibana/kibana_unattended.yml /etc/kibana/kibana.yml ${debug}"
+    eval "mkdir /usr/share/kibana/data ${debug}"
+    eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
+    eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${kibana_wazuh_plugin}' ${debug}"
+    if [  "$?" != 0  ]; then
+        logger -e "Wazuh Kibana plugin could not be installed."
+        rollBack
+        exit 1
+    fi
+    logger "Wazuh Kibana plugin installation finished."
+    copyKibanacerts
+    eval "setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node ${debug}"
+    modifyKibanaLogin
+    logger "Kibana post-install configuration finished."
+
+}
+
+function copyKibanacerts() {
+
     eval "mkdir /etc/kibana/certs ${debug}"
     if [ -f "${base_path}/certs.tar" ]; then
 
@@ -151,6 +132,25 @@ function initializeKibanaAIO() {
     done
     logger "Kibana started."
     logger "You can access the web interface https://<kibana-host-ip>. The credentials are admin:${u_pass}"
+
+}
+
+function installKibana() {
+    
+    logger "Starting Kibana installation."
+    if [ ${sys_type} == "zypper" ]; then
+        eval "zypper -n install opendistroforelasticsearch-kibana=${opendistro_version} ${debug}"
+    else
+        eval "${sys_type} install opendistroforelasticsearch-kibana${sep}${opendistro_version} -y ${debug}"
+    fi
+    if [  "$?" != 0  ]; then
+        logger -e "Kibana installation failed"
+        rollBack
+        exit 1
+    else    
+        kibanainstalled="1"
+        logger "Kibana installation finished."
+    fi
 
 }
 

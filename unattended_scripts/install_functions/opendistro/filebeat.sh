@@ -7,42 +7,6 @@
 
 f_cert_path="/etc/filebeat/certs/"
 
-function installFilebeat() {
-
-    logger "Starting filebeat installation."
-    
-    if [ ${sys_type} == "zypper" ]; then
-        eval "zypper -n install filebeat-${elasticsearch_oss_version} ${debug}"
-    else
-        eval "${sys_type} install filebeat${sep}${elasticsearch_oss_version} -y -q  ${debug}"
-    fi
-    if [  "$?" != 0  ]
-    then
-        logger -e "Filebeat installation failed"
-        exit 1
-    else
-        logger "Filebeat installation finished."
-        filebeatinstalled="1"
-    fi
-}
-
-function copyCertificatesFilebeat() {
-
-    if [ -f "${base_path}/certs.tar" ]; then
-        if [ -n "${AIO}" ]; then
-            eval "tar -xf ${base_path}/certs.tar -C ${f_cert_path} --wildcards ./filebeat* ${debug}"
-            eval "tar -xf ${base_path}/certs.tar -C ${f_cert_path} ./root-ca.pem ${debug}"
-        else
-            eval "tar -xf ${base_path}/certs.tar -C ${f_cert_path} ./${winame}.pem && mv ${f_cert_path}${winame}.pem ${f_cert_path}filebeat.pem ${debug}"
-            eval "tar -xf ${base_path}/certs.tar -C ${f_cert_path} ./${winame}-key.pem && mv ${f_cert_path}${winame}-key.pem ${f_cert_path}filebeat-key.pem ${debug}"
-            eval "tar -xf ${base_path}/certs.tar -C ${f_cert_path} ./root-ca.pem ${debug}"
-        fi
-    else
-        logger -e "No certificates found. Could not initialize Filebeat"
-        exit 1;
-    fi
-}
-
 function configureFilebeat() {
 
     eval "getConfig filebeat/filebeat_distributed.yml /etc/filebeat/filebeat.yml ${debug}"
@@ -78,4 +42,40 @@ function configureFilebeatAIO() {
 
     logger "Filebeat post-install configuration finished."
 
+}
+
+function copyCertificatesFilebeat() {
+
+    if [ -f "${base_path}/certs.tar" ]; then
+        if [ -n "${AIO}" ]; then
+            eval "tar -xf ${base_path}/certs.tar -C ${f_cert_path} --wildcards ./filebeat* ${debug}"
+            eval "tar -xf ${base_path}/certs.tar -C ${f_cert_path} ./root-ca.pem ${debug}"
+        else
+            eval "tar -xf ${base_path}/certs.tar -C ${f_cert_path} ./${winame}.pem && mv ${f_cert_path}${winame}.pem ${f_cert_path}filebeat.pem ${debug}"
+            eval "tar -xf ${base_path}/certs.tar -C ${f_cert_path} ./${winame}-key.pem && mv ${f_cert_path}${winame}-key.pem ${f_cert_path}filebeat-key.pem ${debug}"
+            eval "tar -xf ${base_path}/certs.tar -C ${f_cert_path} ./root-ca.pem ${debug}"
+        fi
+    else
+        logger -e "No certificates found. Could not initialize Filebeat"
+        exit 1;
+    fi
+}
+
+function installFilebeat() {
+
+    logger "Starting filebeat installation."
+    
+    if [ ${sys_type} == "zypper" ]; then
+        eval "zypper -n install filebeat-${elasticsearch_oss_version} ${debug}"
+    else
+        eval "${sys_type} install filebeat${sep}${elasticsearch_oss_version} -y -q  ${debug}"
+    fi
+    if [  "$?" != 0  ]
+    then
+        logger -e "Filebeat installation failed"
+        exit 1
+    else
+        logger "Filebeat installation finished."
+        filebeatinstalled="1"
+    fi
 }

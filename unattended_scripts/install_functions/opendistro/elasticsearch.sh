@@ -7,56 +7,6 @@
 
 e_certs_path="/etc/elasticsearch/certs/"
 
-function installElasticsearch() {
-
-    logger "Starting Open Distro for Elasticsearch installation."
-
-    if [ ${sys_type} == "yum" ]; then
-        eval "yum install opendistroforelasticsearch-${opendistro_version}-${opendistro_revision} -y ${debug}"
-    elif [ ${sys_type} == "zypper" ]; then
-        eval "zypper -n install opendistroforelasticsearch=${opendistro_version}-${opendistro_revision} ${debug}"
-    elif [ ${sys_type} == "apt-get" ]; then
-        eval "apt install elasticsearch-oss opendistroforelasticsearch -y ${debug}"
-    fi
-
-    if [  "$?" != 0  ]; then
-        logger -e "Elasticsearch installation failed."
-        rollBack
-        exit 1
-    else
-        elasticsearchinstalled="1"
-         logger "Open Distro for Elasticsearch installation finished."
-    fi
-}
-
-function copyCertificatesElasticsearch() {
-    
-    if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
-        name=${einame}
-    else
-        name=${elasticsearch_node_names[pos]}
-    fi
-
-    if [ -f "${base_path}/certs.tar" ]; then
-        if [ -n "${AIO}" ]; then
-            eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} --wildcards ./elasticsearch*  ${debug}"
-            eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} --wildcards ./admin*  ${debug}"
-            eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} ./root-ca.pem  ${debug}"
-        else  
-            set -x 
-            eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} ./${name}.pem  && mv ${e_certs_path}${name}.pem ${e_certs_path}elasticsearch.pem ${debug}"
-            eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} ./${name}-key.pem  && mv ${e_certs_path}${name}-key.pem ${e_certs_path}elasticsearch-key.pem ${debug}"
-            eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} ./root-ca.pem  ${debug}"
-            eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} ./admin.pem  ${debug}"
-            eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} ./admin-key.pem  ${debug}"
-            set +x
-        fi
-    else
-        logger -e "No certificates found. Could not initialize Elasticsearch"
-        exit 1;
-    fi
-}
-
 function applyLog4j2Mitigation() {
 
     eval "curl -so /tmp/apache-log4j-2.17.1-bin.tar.gz https://packages.wazuh.com/utils/log4j/apache-log4j-2.17.1-bin.tar.gz ${debug}"
@@ -76,38 +26,6 @@ function applyLog4j2Mitigation() {
 
     eval "rm -rf /tmp/apache-log4j-2.17.1-bin ${debug}"
     eval "rm -f /tmp/apache-log4j-2.17.1-bin.tar.gz ${debug}"
-
-}
-
-function configureElasticsearchAIO() {
-
-    eval "getConfig elasticsearch/elasticsearch_all_in_one.yml /etc/elasticsearch/elasticsearch.yml ${debug}"
-    eval "getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml ${debug}"
-    eval "getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml ${debug}"
-    eval "getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml ${debug}"
-    
-    eval "rm /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem -f ${debug}"
-    eval "export JAVA_HOME=/usr/share/elasticsearch/jdk/"
-
-    export JAVA_HOME=/usr/share/elasticsearch/jdk/
-        
-    eval "mkdir ${e_certs_path} ${debug}"
-    copyCertificatesElasticsearch
-    
-    # Configure JVM options for Elasticsearch
-    ram_gb=$(free -g | awk '/^Mem:/{print $2}')
-    ram=$(( ${ram_gb} / 2 ))
-
-    if [ ${ram} -eq "0" ]; then
-        ram=1;
-    fi    
-    eval "sed -i "s/-Xms1g/-Xms${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
-    eval "sed -i "s/-Xmx1g/-Xmx${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
-
-    eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
-
-    applyLog4j2Mitigation
-    logger "Elasticsearch post-install configuration finished."
 
 }
 
@@ -184,6 +102,65 @@ function configureElasticsearch() {
     eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
 
 }
+function configureElasticsearchAIO() {
+
+    eval "getConfig elasticsearch/elasticsearch_all_in_one.yml /etc/elasticsearch/elasticsearch.yml ${debug}"
+    eval "getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml ${debug}"
+    eval "getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml ${debug}"
+    eval "getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml ${debug}"
+    
+    eval "rm /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem -f ${debug}"
+    eval "export JAVA_HOME=/usr/share/elasticsearch/jdk/"
+
+    export JAVA_HOME=/usr/share/elasticsearch/jdk/
+        
+    eval "mkdir ${e_certs_path} ${debug}"
+    copyCertificatesElasticsearch
+    
+    # Configure JVM options for Elasticsearch
+    ram_gb=$(free -g | awk '/^Mem:/{print $2}')
+    ram=$(( ${ram_gb} / 2 ))
+
+    if [ ${ram} -eq "0" ]; then
+        ram=1;
+    fi    
+    eval "sed -i "s/-Xms1g/-Xms${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
+    eval "sed -i "s/-Xmx1g/-Xmx${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
+
+    eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
+
+    applyLog4j2Mitigation
+    logger "Elasticsearch post-install configuration finished."
+
+}
+
+function copyCertificatesElasticsearch() {
+    
+    if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
+        name=${einame}
+    else
+        name=${elasticsearch_node_names[pos]}
+    fi
+
+    if [ -f "${base_path}/certs.tar" ]; then
+        if [ -n "${AIO}" ]; then
+            eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} --wildcards ./elasticsearch*  ${debug}"
+            eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} --wildcards ./admin*  ${debug}"
+            eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} ./root-ca.pem  ${debug}"
+        else  
+            set -x 
+            eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} ./${name}.pem  && mv ${e_certs_path}${name}.pem ${e_certs_path}elasticsearch.pem ${debug}"
+            eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} ./${name}-key.pem  && mv ${e_certs_path}${name}-key.pem ${e_certs_path}elasticsearch-key.pem ${debug}"
+            eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} ./root-ca.pem  ${debug}"
+            eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} ./admin.pem  ${debug}"
+            eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} ./admin-key.pem  ${debug}"
+            set +x
+        fi
+    else
+        logger -e "No certificates found. Could not initialize Elasticsearch"
+        exit 1;
+    fi
+}
 
 function initializeElasticsearch() {
 
@@ -198,6 +175,28 @@ function initializeElasticsearch() {
     fi
 
     logger "Elasticsearch cluster started."
+}
+
+function installElasticsearch() {
+
+    logger "Starting Open Distro for Elasticsearch installation."
+
+    if [ ${sys_type} == "yum" ]; then
+        eval "yum install opendistroforelasticsearch-${opendistro_version}-${opendistro_revision} -y ${debug}"
+    elif [ ${sys_type} == "zypper" ]; then
+        eval "zypper -n install opendistroforelasticsearch=${opendistro_version}-${opendistro_revision} ${debug}"
+    elif [ ${sys_type} == "apt-get" ]; then
+        eval "apt install elasticsearch-oss opendistroforelasticsearch -y ${debug}"
+    fi
+
+    if [  "$?" != 0  ]; then
+        logger -e "Elasticsearch installation failed."
+        rollBack
+        exit 1
+    else
+        elasticsearchinstalled="1"
+         logger "Open Distro for Elasticsearch installation finished."
+    fi
 }
 
 function startElasticsearchCluster() {

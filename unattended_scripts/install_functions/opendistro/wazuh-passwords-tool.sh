@@ -18,118 +18,57 @@ elif [ -n "$(command -v apt-get)" ]; then
     sys_type="apt-get"   
 fi
 
-logger_pass() {
+changePassword() {
+    
+    if [ -n "${changeall}" ]; then
+        for i in "${!passwords[@]}"
+        do  
+            if [ -n "${elasticsearchinstalled}" ]; then
+                awk -v new=${hashes[i]} 'prev=="'${users[i]}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/elasticsearch/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
+            fi
+            
+            if [ "${users[i]}" == "admin" ]; then
+                wazuhpass=${passwords[i]}
+            elif [ "${users[i]}" == "kibanaserver" ]; then
+                kibpass=${passwords[i]}
+            fi  
 
-    now=$(date +'%m/%d/%Y %H:%M:%S')
-    case $1 in 
-        "-e")
-            mtype="ERROR:"
-            message="$2"
-            ;;
-        "-w")
-            mtype="WARNING:"
-            message="$2"
-            ;;
-        *)
-            mtype="INFO:"
-            message="$1"
-            ;;
-    esac
-    echo $now $mtype $message | tee -a ${logfile}
-}
-
-checkRoot() {
-    if [ "$EUID" -ne 0 ]; then
-        logger_pass -e "This script must be run as root."
-        exit 1;
-    fi 
-}
-
-restartService() {
-
-    if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
-        eval "systemctl restart $1.service ${debug_pass}"
-        if [  "$?" != 0  ]; then
-            logger_pass -e "${1^} could not be started."
-            exit 1;
-        else
-            logger_pass "${1^} started"
-        fi  
-    elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
-        eval "/etc/init.d/$1 restart ${debug_pass}"
-        if [  "$?" != 0  ]; then
-            logger_pass -e "${1^} could not be started."
-            exit 1;
-        else
-            logger_pass "${1^} started"
-        fi     
-    elif [ -x /etc/rc.d/init.d/$1 ] ; then
-        eval "/etc/rc.d/init.d/$1 restart ${debug_pass}"
-        if [  "$?" != 0  ]; then
-            logger_pass -e "${1^} could not be started."
-            exit 1;
-        else
-            logger_pass "${1^} started"
-        fi             
+        done
     else
-        logger_pass -e "${1^} could not start. No service manager found on the system."
-        exit 1;
+        if [ -n "${elasticsearchinstalled}" ]; then
+            awk -v new="$hash" 'prev=="'${nuser}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/elasticsearch/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
+        fi
+
+        if [ "${nuser}" == "wazuh" ]; then
+            wazuhpass=${password}
+        elif [ "${nuser}" == "kibanaserver" ]; then
+            kibpass=${password}
+        fi        
+
+    fi
+    
+    if [ "${nuser}" == "admin" ] || [ -n "${changeall}" ]; then
+
+        if [ -n "${filebeatinstalled}" ]; then
+            wazuhold=$(grep "password:" /etc/filebeat/filebeat.yml )
+            ra="  password: "
+            wazuhold="${wazuhold//$ra}"
+            conf="$(awk '{sub("password: .*", "password: '${wazuhpass}'")}1' /etc/filebeat/filebeat.yml)"
+            echo "${conf}" > /etc/filebeat/filebeat.yml  
+            restartService "filebeat"
+        fi 
     fi
 
-}
+    if [ "$nuser" == "kibanaserver" ] || [ -n "$changeall" ]; then
 
-getHelp() {
-    echo -e ""
-    echo -e "NAME"
-    echo -e "        $(basename $0) - Manage passwords for OpenDistro users."
-    echo -e ""
-    echo -e "SYNOPSIS"
-    echo -e "        $(basename $0) [OPTIONS]"
-    echo -e ""
-    echo -e "DESCRIPTION"
-    echo -e "        -a,  --change-all"
-    echo -e "                Changes all the Open Distro user passwords and prints them on screen."
-    echo -e ""
-    echo -e "        -u,  --user <user>"
-    echo -e "                Indicates the name of the user whose password will be changed." 
-    echo -e "                If no password specified it will generate a random one."
-    echo -e ""
-    echo -e "        -p,  --password <password>"
-    echo -e "                Indicates the new password, must be used with option -u."
-    echo -e ""
-    echo -e "        -c,  --cert <route-admin-certificate>"
-    echo -e "                Indicates route to the admin certificate"
-    echo -e ""
-    echo -e "        -k,  --certkey <route-admin-certificate-key>"
-    echo -e "                Indicates route to the admin certificate key".
-    echo -e ""
-    echo -e "        -v,  --verbose"
-    echo -e "                Shows the complete script execution output".
-    echo -e ""
-    echo -e "        -f,  --file <password_file.yml>"
-    echo -e "                Changes the passwords for the ones given in the file."
-    echo -e "                Each user has to have this format."
-    echo -e ""
-    echo -e "                    User:"
-    echo -e "                        name: <user>"
-    echo -e "                        password: <password>"
-    echo -e ""
-    echo -e "        -gf, --generate-file <password_file.yml>"
-    echo -e "                Generate password file with random passwords for standard users"
-    echo -e ""
-    echo -e "        -h,  --help"
-    echo -e "                Shows help"
-    echo -e ""
-    exit 1
-}
-
-getNetworkHost() {
-    IP=$(grep -hr "network.host:" /etc/elasticsearch/elasticsearch.yml)
-    NH="network.host: "
-    IP="${IP//$NH}"
-    
-    if [[ ${IP} == "0.0.0.0" ]]; then
-        IP="localhost"
+        if [ -n "${kibanainstalled}" ] && [ -n "${kibpass}" ]; then
+            wazuhkibold=$(grep "password:" /etc/kibana/kibana.yml )
+            rk="elasticsearch.password: "
+            wazuhkibold="${wazuhkibold//$rk}"
+            conf="$(awk '{sub("elasticsearch.password: .*", "elasticsearch.password: '${kibpass}'")}1' /etc/kibana/kibana.yml)"
+            echo "${conf}" > /etc/kibana/kibana.yml 
+            restartService "kibana"
+        fi         
     fi
 }
 
@@ -191,105 +130,11 @@ checkInstalledPass() {
 
 }
 
-readAdmincerts() {
-
-    if [[ -f /etc/elasticsearch/certs/admin.pem ]]; then
-        adminpem="/etc/elasticsearch/certs/admin.pem"
-    else
-        logger_pass -e "No admin certificate indicated. Please run the script with the option -c <path-to-certificate>."
+checkRoot() {
+    if [ "$EUID" -ne 0 ]; then
+        logger_pass -e "This script must be run as root."
         exit 1;
-    fi
-
-    if [[ -f /etc/elasticsearch/certs/admin-key.pem ]]; then
-        adminkey="/etc/elasticsearch/certs/admin-key.pem"
-    elif [[ -f /etc/elasticsearch/certs/admin.key ]]; then
-        adminkey="/etc/elasticsearch/certs/admin.key"
-    else
-        logger_pass -e "No admin certificate key indicated. Please run the script with the option -k <path-to-key-certificate>."
-        exit 1;
-    fi    
-
-}
-
-readUsers() {
-    susers=$(grep -B 1 hash: /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml | grep -v hash: | grep -v "-" | awk '{ print substr( $0, 1, length($0)-1 ) }')
-    users=($susers)  
-}
-
-readFileUsers() {
-
-    filecorrect=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' ${p_file})
-    if [ ${filecorrect} -ne 1 ]; then
-	logger_pass -e "The password file doesn't have a correct format.
-
-It must have this format:
-User:
-   name: wazuh
-   password: wazuhpassword
-User:
-   name: kibanaserver
-   password: kibanaserverpassword"
-	exit 1
-    fi	
-
-    if [ ! -n "$users" ]; then 
-        if [ -n "${kibanainstalled}" ]; then 
-            users=( kibanaserver admin )
-        fi
-
-        if [ -n "${filebeatinstalled}" ]; then 
-            users=( admin )
-        fi
-    fi
-
-    sfileusers=$(grep name: ${p_file} | awk '{ print substr( $2, 1, length($2) ) }')
-    sfilepasswords=$(grep password: ${p_file} | awk '{ print substr( $2, 1, length($2) ) }')
-
-    fileusers=($sfileusers)
-    filepasswords=($sfilepasswords)
-
-    if [ -n "${verboseenabled}" ]; then
-        logger_pass "Users in the file: ${fileusers[@]}"
-        logger_pass "Passwords in the file: ${filepasswords[@]}"
-    fi
-
-    if [ -n "${changeall}" ]; then
-        for j in "${!fileusers[@]}"; do
-            supported=false
-            for i in "${!users[@]}"; do
-                if [[ ${users[i]} == ${fileusers[j]} ]]; then
-                    passwords[i]=${filepasswords[j]}
-                    supported=true
-                fi
-            done
-            if [ $supported = false ] && [ -n "${elasticsearchinstalled}" ]; then
-                logger_pass -e "The given user ${fileusers[j]} does not exist"
-            fi
-        done
-    else
-        finalusers=()
-        finalpasswords=()
-
-        for j in "${!fileusers[@]}"; do
-            supported=false
-            for i in "${!users[@]}"; do
-                if [[ "${users[i]}" == "${fileusers[j]}" ]]; then
-                    finalusers+=(${fileusers[j]})
-                    finalpasswords+=(${filepasswords[j]})
-                    supported=true
-                fi
-            done
-            if [ $supported = false ] && [ -n "${elasticsearchinstalled}" ]; then
-                logger_pass -e "The given user ${fileusers[j]} does not exist"
-            fi
-        done
-
-        users=()
-        users=(${finalusers[@]})
-        passwords=(${finalpasswords[@]})
-        changeall=1
-    fi
-
+    fi 
 }
 
 checkUser() {
@@ -318,6 +163,27 @@ createBackUp() {
     fi
     logger_pass "Password backup created"
     
+}
+
+generateHash() {
+    
+    if [ -n "${changeall}" ]; then
+        logger_pass "Generating password hashes."
+        for i in "${!passwords[@]}"
+        do
+            nhash=$(bash /usr/share/elasticsearch/plugins/opendistro_security/tools/hash.sh -p ${passwords[i]} | grep -v WARNING)
+            hashes+=(${nhash})
+        done
+        logger_pass "Passowrd hashes generated."
+    else
+        logger_pass "Generating password hash"
+        hash=$(bash /usr/share/elasticsearch/plugins/opendistro_security/tools/hash.sh -p ${password} | grep -v WARNING)
+        if [  "$?" != 0  ]; then
+            logger_pass -e "Hash generation failed."
+            exit 1;
+        fi    
+        logger_pass "Passowrd hash generated."
+    fi
 }
 
 generatePassword() {
@@ -351,114 +217,79 @@ generatePasswordFile() {
     done
 }
 
-generateHash() {
+getHelp() {
+    echo -e ""
+    echo -e "NAME"
+    echo -e "        $(basename $0) - Manage passwords for OpenDistro users."
+    echo -e ""
+    echo -e "SYNOPSIS"
+    echo -e "        $(basename $0) [OPTIONS]"
+    echo -e ""
+    echo -e "DESCRIPTION"
+    echo -e "        -a,  --change-all"
+    echo -e "                Changes all the Open Distro user passwords and prints them on screen."
+    echo -e ""
+    echo -e "        -u,  --user <user>"
+    echo -e "                Indicates the name of the user whose password will be changed." 
+    echo -e "                If no password specified it will generate a random one."
+    echo -e ""
+    echo -e "        -p,  --password <password>"
+    echo -e "                Indicates the new password, must be used with option -u."
+    echo -e ""
+    echo -e "        -c,  --cert <route-admin-certificate>"
+    echo -e "                Indicates route to the admin certificate"
+    echo -e ""
+    echo -e "        -k,  --certkey <route-admin-certificate-key>"
+    echo -e "                Indicates route to the admin certificate key".
+    echo -e ""
+    echo -e "        -v,  --verbose"
+    echo -e "                Shows the complete script execution output".
+    echo -e ""
+    echo -e "        -f,  --file <password_file.yml>"
+    echo -e "                Changes the passwords for the ones given in the file."
+    echo -e "                Each user has to have this format."
+    echo -e ""
+    echo -e "                    User:"
+    echo -e "                        name: <user>"
+    echo -e "                        password: <password>"
+    echo -e ""
+    echo -e "        -gf, --generate-file <password_file.yml>"
+    echo -e "                Generate password file with random passwords for standard users"
+    echo -e ""
+    echo -e "        -h,  --help"
+    echo -e "                Shows help"
+    echo -e ""
+    exit 1
+}
+
+getNetworkHost() {
+    IP=$(grep -hr "network.host:" /etc/elasticsearch/elasticsearch.yml)
+    NH="network.host: "
+    IP="${IP//$NH}"
     
-    if [ -n "${changeall}" ]; then
-        logger_pass "Generating password hashes."
-        for i in "${!passwords[@]}"
-        do
-            nhash=$(bash /usr/share/elasticsearch/plugins/opendistro_security/tools/hash.sh -p ${passwords[i]} | grep -v WARNING)
-            hashes+=(${nhash})
-        done
-        logger_pass "Passowrd hashes generated."
-    else
-        logger_pass "Generating password hash"
-        hash=$(bash /usr/share/elasticsearch/plugins/opendistro_security/tools/hash.sh -p ${password} | grep -v WARNING)
-        if [  "$?" != 0  ]; then
-            logger_pass -e "Hash generation failed."
-            exit 1;
-        fi    
-        logger_pass "Passowrd hash generated."
+    if [[ ${IP} == "0.0.0.0" ]]; then
+        IP="localhost"
     fi
 }
 
-changePassword() {
-    
-    if [ -n "${changeall}" ]; then
-        for i in "${!passwords[@]}"
-        do  
-            if [ -n "${elasticsearchinstalled}" ]; then
-                awk -v new=${hashes[i]} 'prev=="'${users[i]}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/elasticsearch/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
-            fi
-            
-            if [ "${users[i]}" == "admin" ]; then
-                wazuhpass=${passwords[i]}
-            elif [ "${users[i]}" == "kibanaserver" ]; then
-                kibpass=${passwords[i]}
-            fi  
+logger_pass() {
 
-        done
-    else
-        if [ -n "${elasticsearchinstalled}" ]; then
-            awk -v new="$hash" 'prev=="'${nuser}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/elasticsearch/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
-        fi
-
-        if [ "${nuser}" == "wazuh" ]; then
-            wazuhpass=${password}
-        elif [ "${nuser}" == "kibanaserver" ]; then
-            kibpass=${password}
-        fi        
-
-    fi
-    
-    if [ "${nuser}" == "admin" ] || [ -n "${changeall}" ]; then
-
-        if [ -n "${filebeatinstalled}" ]; then
-            wazuhold=$(grep "password:" /etc/filebeat/filebeat.yml )
-            ra="  password: "
-            wazuhold="${wazuhold//$ra}"
-            conf="$(awk '{sub("password: .*", "password: '${wazuhpass}'")}1' /etc/filebeat/filebeat.yml)"
-            echo "${conf}" > /etc/filebeat/filebeat.yml  
-            restartService "filebeat"
-        fi 
-    fi
-
-    if [ "$nuser" == "kibanaserver" ] || [ -n "$changeall" ]; then
-
-        if [ -n "${kibanainstalled}" ] && [ -n "${kibpass}" ]; then
-            wazuhkibold=$(grep "password:" /etc/kibana/kibana.yml )
-            rk="elasticsearch.password: "
-            wazuhkibold="${wazuhkibold//$rk}"
-            conf="$(awk '{sub("elasticsearch.password: .*", "elasticsearch.password: '${kibpass}'")}1' /etc/kibana/kibana.yml)"
-            echo "${conf}" > /etc/kibana/kibana.yml 
-            restartService "kibana"
-        fi         
-    fi
-}
-
-runSecurityAdmin() {
-    
-    logger_pass "Loading changes..."
-    eval "cp /usr/share/elasticsearch/backup/* /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ ${debug_pass}"
-    eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug_pass}"
-    if [  "$?" != 0  ]; then
-        logger_pass -e "Could not load the changes."
-        exit 1;
-    fi    
-    eval "rm -rf /usr/share/elasticsearch/backup/ ${debug_pass}"
-    logger_pass "Done"
-
-    if [[ -n "${nuser}" ]] && [[ -n ${autopass} ]]; then
-        logger_pass $'\nThe password for user '${nuser}' is '${password}''
-        logger_pass -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
-    fi
-
-    if [[ -n "${nuser}" ]] && [[ -z ${autopass} ]]; then
-        logger_pass -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
-    fi    
-
-    if [ -n "${changeall}" ]; then
-        
-        for i in "${!users[@]}"
-        do
-            echo ""
-            logger_pass "The password for ${users[i]} is ${passwords[i]}"
-        done
-        echo ""
-        logger_pass -w "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
-        echo ""
-    fi 
-
+    now=$(date +'%m/%d/%Y %H:%M:%S')
+    case $1 in 
+        "-e")
+            mtype="ERROR:"
+            message="$2"
+            ;;
+        "-w")
+            mtype="WARNING:"
+            message="$2"
+            ;;
+        *)
+            mtype="INFO:"
+            message="$1"
+            ;;
+    esac
+    echo $now $mtype $message | tee -a ${logfile}
 }
 
 main() {   
@@ -590,6 +421,175 @@ main() {
         getHelp        
 
     fi
+
+}
+
+readAdmincerts() {
+
+    if [[ -f /etc/elasticsearch/certs/admin.pem ]]; then
+        adminpem="/etc/elasticsearch/certs/admin.pem"
+    else
+        logger_pass -e "No admin certificate indicated. Please run the script with the option -c <path-to-certificate>."
+        exit 1;
+    fi
+
+    if [[ -f /etc/elasticsearch/certs/admin-key.pem ]]; then
+        adminkey="/etc/elasticsearch/certs/admin-key.pem"
+    elif [[ -f /etc/elasticsearch/certs/admin.key ]]; then
+        adminkey="/etc/elasticsearch/certs/admin.key"
+    else
+        logger_pass -e "No admin certificate key indicated. Please run the script with the option -k <path-to-key-certificate>."
+        exit 1;
+    fi    
+
+}
+
+readFileUsers() {
+
+    filecorrect=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' ${p_file})
+    if [ ${filecorrect} -ne 1 ]; then
+	logger_pass -e "The password file doesn't have a correct format.
+
+It must have this format:
+User:
+   name: wazuh
+   password: wazuhpassword
+User:
+   name: kibanaserver
+   password: kibanaserverpassword"
+	exit 1
+    fi	
+
+    if [ ! -n "$users" ]; then 
+        if [ -n "${kibanainstalled}" ]; then 
+            users=( kibanaserver admin )
+        fi
+
+        if [ -n "${filebeatinstalled}" ]; then 
+            users=( admin )
+        fi
+    fi
+
+    sfileusers=$(grep name: ${p_file} | awk '{ print substr( $2, 1, length($2) ) }')
+    sfilepasswords=$(grep password: ${p_file} | awk '{ print substr( $2, 1, length($2) ) }')
+
+    fileusers=($sfileusers)
+    filepasswords=($sfilepasswords)
+
+    if [ -n "${verboseenabled}" ]; then
+        logger_pass "Users in the file: ${fileusers[@]}"
+        logger_pass "Passwords in the file: ${filepasswords[@]}"
+    fi
+
+    if [ -n "${changeall}" ]; then
+        for j in "${!fileusers[@]}"; do
+            supported=false
+            for i in "${!users[@]}"; do
+                if [[ ${users[i]} == ${fileusers[j]} ]]; then
+                    passwords[i]=${filepasswords[j]}
+                    supported=true
+                fi
+            done
+            if [ $supported = false ] && [ -n "${elasticsearchinstalled}" ]; then
+                logger_pass -e "The given user ${fileusers[j]} does not exist"
+            fi
+        done
+    else
+        finalusers=()
+        finalpasswords=()
+
+        for j in "${!fileusers[@]}"; do
+            supported=false
+            for i in "${!users[@]}"; do
+                if [[ "${users[i]}" == "${fileusers[j]}" ]]; then
+                    finalusers+=(${fileusers[j]})
+                    finalpasswords+=(${filepasswords[j]})
+                    supported=true
+                fi
+            done
+            if [ $supported = false ] && [ -n "${elasticsearchinstalled}" ]; then
+                logger_pass -e "The given user ${fileusers[j]} does not exist"
+            fi
+        done
+
+        users=()
+        users=(${finalusers[@]})
+        passwords=(${finalpasswords[@]})
+        changeall=1
+    fi
+
+}
+
+readUsers() {
+    susers=$(grep -B 1 hash: /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml | grep -v hash: | grep -v "-" | awk '{ print substr( $0, 1, length($0)-1 ) }')
+    users=($susers)  
+}
+
+restartService() {
+
+    if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
+        eval "systemctl restart $1.service ${debug_pass}"
+        if [  "$?" != 0  ]; then
+            logger_pass -e "${1^} could not be started."
+            exit 1;
+        else
+            logger_pass "${1^} started"
+        fi  
+    elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
+        eval "/etc/init.d/$1 restart ${debug_pass}"
+        if [  "$?" != 0  ]; then
+            logger_pass -e "${1^} could not be started."
+            exit 1;
+        else
+            logger_pass "${1^} started"
+        fi     
+    elif [ -x /etc/rc.d/init.d/$1 ] ; then
+        eval "/etc/rc.d/init.d/$1 restart ${debug_pass}"
+        if [  "$?" != 0  ]; then
+            logger_pass -e "${1^} could not be started."
+            exit 1;
+        else
+            logger_pass "${1^} started"
+        fi             
+    else
+        logger_pass -e "${1^} could not start. No service manager found on the system."
+        exit 1;
+    fi
+
+}
+
+runSecurityAdmin() {
+    
+    logger_pass "Loading changes..."
+    eval "cp /usr/share/elasticsearch/backup/* /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ ${debug_pass}"
+    eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug_pass}"
+    if [  "$?" != 0  ]; then
+        logger_pass -e "Could not load the changes."
+        exit 1;
+    fi    
+    eval "rm -rf /usr/share/elasticsearch/backup/ ${debug_pass}"
+    logger_pass "Done"
+
+    if [[ -n "${nuser}" ]] && [[ -n ${autopass} ]]; then
+        logger_pass $'\nThe password for user '${nuser}' is '${password}''
+        logger_pass -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
+    fi
+
+    if [[ -n "${nuser}" ]] && [[ -z ${autopass} ]]; then
+        logger_pass -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
+    fi    
+
+    if [ -n "${changeall}" ]; then
+        
+        for i in "${!users[@]}"
+        do
+            echo ""
+            logger_pass "The password for ${users[i]} is ${passwords[i]}"
+        done
+        echo ""
+        logger_pass -w "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
+        echo ""
+    fi 
 
 }
 

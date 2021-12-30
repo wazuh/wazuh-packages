@@ -105,41 +105,6 @@ function getHelp() {
     exit 1 
 }
 
-function spin() {
-    trap "{ tput el1; exit 0; }" 15
-    spinner="/|\\-/|\\-"
-    trap "echo ''" EXIT
-    while :
-    do
-        for i in `seq 0 7`
-        do
-            echo -n "${spinner:$i:1}"
-            echo -en "\010"
-            sleep 0.1
-        done
-    done
-}
-
-function logger() {
-
-    now=$(date +'%d/%m/%Y %H:%M:%S')
-    case $1 in 
-        "-e")
-            mtype="ERROR:"
-            message="$2"
-            ;;
-        "-w")
-            mtype="WARNING:"
-            message="$2"
-            ;;
-        *)
-            mtype="INFO:"
-            message="$1"
-            ;;
-    esac
-    echo $now $mtype $message | tee -a ${logfile}
-}
-
 function importFunction() {
     if [ -n "${local}" ]; then
         if [ -f ${base_path}/$functions_path/$1 ]; then
@@ -176,6 +141,26 @@ function importFunction() {
         logger -e "Unable to find resource $1. Exiting."
         exit 1
     fi
+}
+
+function logger() {
+
+    now=$(date +'%d/%m/%Y %H:%M:%S')
+    case $1 in 
+        "-e")
+            mtype="ERROR:"
+            message="$2"
+            ;;
+        "-w")
+            mtype="WARNING:"
+            message="$2"
+            ;;
+        *)
+            mtype="INFO:"
+            message="$1"
+            ;;
+    esac
+    echo $now $mtype $message | tee -a ${logfile}
 }
 
 function main() {
@@ -272,6 +257,7 @@ function main() {
         exit 1
     fi
 
+    importFunction "checks.sh"
     importFunction "common.sh"
     importFunction "wazuh-cert-tool.sh"
     importFunction "wazuh-passwords-tool.sh"
@@ -331,7 +317,7 @@ function main() {
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored for Elasticsearch."
         else
-            healthCheck elasticsearch
+            checkHealth elasticsearch
         fi
 
         installElasticsearch 
@@ -358,7 +344,7 @@ function main() {
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored for Kibana."
         else
-            healthCheck kibana
+            checkHealth kibana
         fi
 
         installKibana 
@@ -377,7 +363,7 @@ function main() {
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored for Wazuh manager."
         else
-            healthCheck wazuh
+            checkHealth wazuh
         fi
         installWazuh
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
@@ -401,7 +387,7 @@ function main() {
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored for AIO."
         else
-            healthCheck AIO
+            checkHealth AIO
         fi
 
         installElasticsearch
@@ -428,6 +414,21 @@ function main() {
         logger "Elasticsearch cluster started."
     fi
 
+}
+
+function spin() {
+    trap "{ tput el1; exit 0; }" 15
+    spinner="/|\\-/|\\-"
+    trap "echo ''" EXIT
+    while :
+    do
+        for i in `seq 0 7`
+        do
+            echo -n "${spinner:$i:1}"
+            echo -en "\010"
+            sleep 0.1
+        done
+    done
 }
 
 main $@

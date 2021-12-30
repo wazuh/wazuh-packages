@@ -5,24 +5,6 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-function installWazuh() {
-
-    logger "Starting the Wazuh manager installation."
-    if [ ${sys_type} == "zypper" ]; then
-        eval "zypper -n install wazuh-manager=${wazuh_version}-${wazuh_revision} ${debug}"
-    else
-        eval "${sys_type} install wazuh-manager${sep}${wazuh_version}-${wazuh_revision} -y ${debug}"
-    fi
-    if [  "$?" != 0  ]; then
-        logger -e "Wazuh installation failed"
-        rollBack
-        exit 1
-    else
-        wazuhinstalled="1"
-        logger "Wazuh manager installation finished."
-    fi   
-}
-
 function configureWazuhCluster() {
 
     for i in ${!wazuh_servers_node_names[@]}; do
@@ -56,4 +38,22 @@ function configureWazuhCluster() {
         -e "${lstart},${lend}s/<disabled>.*<\/disabled>/<disabled>${disabled}<\/disabled>/" \
         /var/ossec/etc/ossec.conf'
 
+}
+
+function installWazuh() {
+
+    logger "Starting the Wazuh manager installation."
+    if [ ${sys_type} == "zypper" ]; then
+        eval "zypper -n install wazuh-manager=${wazuh_version}-${wazuh_revision} ${debug}"
+    else
+        eval "${sys_type} install wazuh-manager${sep}${wazuh_version}-${wazuh_revision} -y ${debug}"
+    fi
+    if [  "$?" != 0  ]; then
+        logger -e "Wazuh installation failed"
+        rollBack
+        exit 1
+    else
+        wazuhinstalled="1"
+        logger "Wazuh manager installation finished."
+    fi   
 }

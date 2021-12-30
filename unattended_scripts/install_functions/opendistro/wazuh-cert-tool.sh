@@ -17,12 +17,22 @@ if [[ -z "${logfile}" ]]; then
 fi
 
 debug_cert=">> ${logfile} 2>&1"
-elasticsearchinstances="elasticsearch-nodes:"
-filebeatinstances="wazuh-servers:"
-kibanainstances="kibana:"
-elasticsearchhead='# Elasticsearch nodes'
-filebeathead='# Wazuh server nodes'
-kibanahead='# Kibana node'
+
+function cleanFiles() {
+
+    eval "rm -rf ${base_path}/certs/*.csr ${debug_cert}"
+    eval "rm -rf ${base_path}/certs/*.srl ${debug_cert}"
+    eval "rm -rf ${base_path}/certs/*.conf ${debug_cert}"
+    eval "rm -rf ${base_path}/certs/admin-key-temp.pem ${debug_cert}"
+    logger_cert "Certificates creation finished. They can be found in ${base_path}/certs."
+}
+
+function checkOpenSSL() {
+    if [ -z "$(command -v openssl)" ]; then
+        logger_cert -e "OpenSSL not installed."
+        exit 1
+    fi    
+}
 
 function logger_cert() {
 
@@ -42,6 +52,113 @@ function logger_cert() {
             ;;
     esac
     echo $now $mtype $message | tee -a ${logfile}
+}
+
+function generateAdmincertificate() {
+    
+    eval "openssl genrsa -out ${base_path}/certs/admin-key-temp.pem 2048 ${debug_cert}"
+    eval "openssl pkcs8 -inform PEM -outform PEM -in ${base_path}/certs/admin-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out ${base_path}/certs/admin-key.pem ${debug_cert}"
+    eval "openssl req -new -key ${base_path}/certs/admin-key.pem -out ${base_path}/certs/admin.csr -batch -subj '/C=US/L=California/O=Wazuh/OU=Docu/CN=admin' ${debug_cert}"
+    eval "openssl x509 -days 3650 -req -in ${base_path}/certs/admin.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -sha256 -out ${base_path}/certs/admin.pem ${debug_cert}"
+
+}
+
+function generateCertificateconfiguration() {
+
+    cat > ${base_path}/certs/$1.conf <<- EOF
+        [ req ]
+        prompt = no
+        default_bits = 2048
+        default_md = sha256
+        distinguished_name = req_distinguished_name
+        x509_extensions = v3_req
+        
+        [req_distinguished_name]
+        C = US
+        L = California
+        O = Wazuh
+        OU = Docu
+        CN = cname
+        
+        [ v3_req ]
+        authorityKeyIdentifier=keyid,issuer
+        basicConstraints = CA:FALSE
+        keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+        subjectAltName = @alt_names
+        
+        [alt_names]
+        IP.1 = cip
+	EOF
+
+    conf="$(awk '{sub("CN = cname", "CN = '$1'")}1' ${base_path}/certs/$1.conf)"
+    echo "${conf}" > ${base_path}/certs/$1.conf    
+
+    isIP=$(echo "$2" | grep -P "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")
+    isDNS=$(echo $2 | grep -P "^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$" )
+
+    if [[ -n "${isIP}" ]]; then
+        conf="$(awk '{sub("IP.1 = cip", "IP.1 = '$2'")}1' ${base_path}/certs/$1.conf)"
+        echo "${conf}" > ${base_path}/certs/$1.conf    
+    elif [[ -n "${isDNS}" ]]; then
+        conf="$(awk '{sub("CN = cname", "CN =  '$2'")}1' ${base_path}/certs/$1.conf)"
+        echo "${conf}" > ${base_path}/certs/$1.conf     
+        conf="$(awk '{sub("IP.1 = cip", "DNS.1 = '$2'")}1' ${base_path}/certs/$1.conf)"
+        echo "${conf}" > ${base_path}/certs/$1.conf 
+    else
+        logger_cert -e "The given information does not match with an IP or a DNS".  
+        exit 1 
+    fi   
+
+}
+
+function generateElasticsearchcertificates() {
+
+    logger_cert "Creating the Elasticsearch certificates."
+
+    i=0
+    while [ ${i} -lt ${#elasticsearch_node_names[@]} ]; do
+        generateCertificateconfiguration ${elasticsearch_node_names[i]} ${elasticsearch_node_ips[i]}
+        eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${elasticsearch_node_names[i]}-key.pem -out ${base_path}/certs/${elasticsearch_node_names[i]}.csr -config ${base_path}/certs/${elasticsearch_node_names[i]}.conf -days 3650 ${debug_cert}"
+        eval "openssl x509 -req -in ${base_path}/certs/${elasticsearch_node_names[i]}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${elasticsearch_node_names[i]}.pem -extfile ${base_path}/certs/${elasticsearch_node_names[i]}.conf -extensions v3_req -days 3650 ${debug_cert}"
+        eval "chmod 444 ${base_path}/certs/${elasticsearch_node_names[i]}-key.pem ${debug_cert}"    
+        i=$(( ${i} + 1 ))
+    done
+
+}
+
+function generateFilebeatcertificates() {
+
+    logger_cert "Creating the Wazuh server certificates."
+
+    i=0
+    while [ ${i} -lt ${#wazuh_servers_node_names[@]} ]; do
+        generateCertificateconfiguration ${wazuh_servers_node_names[i]} ${wazuh_servers_node_ips[i]}
+        eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${wazuh_servers_node_names[i]}-key.pem -out ${base_path}/certs/${wazuh_servers_node_names[i]}.csr -config ${base_path}/certs/${wazuh_servers_node_names[i]}.conf -days 3650 ${debug_cert}"
+        eval "openssl x509 -req -in ${base_path}/certs/${wazuh_servers_node_names[i]}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${wazuh_servers_node_names[i]}.pem -extfile ${base_path}/certs/${wazuh_servers_node_names[i]}.conf -extensions v3_req -days 3650 ${debug_cert}"
+        i=$(( ${i} + 1 ))
+    done      
+
+}
+
+function generateKibanacertificates() {
+
+    logger_cert "Creating the Kibana certificate."
+
+    i=0
+    while [ ${i} -lt ${#kibana_node_names[@]} ]; do
+        generateCertificateconfiguration ${kibana_node_names[i]} ${kibana_node_ips[i]}
+        eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${kibana_node_names[i]}-key.pem -out ${base_path}/certs/${kibana_node_names[i]}.csr -config ${base_path}/certs/${kibana_node_names[i]}.conf -days 3650 ${debug_cert}"
+        eval "openssl x509 -req -in ${base_path}/certs/${kibana_node_names[i]}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${kibana_node_names[i]}.pem -extfile ${base_path}/certs/${kibana_node_names[i]}.conf -extensions v3_req -days 3650 ${debug_cert}"
+        eval "chmod 444 ${base_path}/certs/${kibana_node_names[i]}-key.pem ${debug_cert}"    
+        i=$(( ${i} + 1 ))
+    done
+
+}
+
+function generateRootCAcertificate() {
+
+    eval "openssl req -x509 -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/root-ca.key -out ${base_path}/certs/root-ca.pem -batch -subj '/OU=Docu/O=Wazuh/L=California/' -days 3650 ${debug_cert}"
+
 }
 
 function getHelp() {
@@ -72,6 +189,99 @@ function getHelp() {
     echo -e "                Creates the Wazuh server certificates."
 
     exit 1
+}
+
+function main() {
+
+    if [ "$EUID" -ne 0 ]; then
+        logger_cert -e "This script must be run as root."
+        exit 1
+    fi
+    
+    if [[ -d ${base_path}/certs ]]; then
+        logger -e "Folder ${base_path}/certs exists. Please remove the /certs folder if you want to create new certificates."
+        exit 1
+    else
+        mkdir ${base_path}/certs
+    fi
+
+
+
+    if [ -n "$1" ]; then
+        while [ -n "$1" ]
+        do
+            case "$1" in
+            "-a"|"--admin-certificates")
+                cadmin=1
+                shift 1
+                ;;
+            "-ca"|"--root-ca-certificate")
+                ca=1
+                shift 1
+                ;;
+            "-e"|"--elasticsearch-certificates")
+                celasticsearch=1
+                shift 1
+                ;;
+            "-w"|"--wazuh-certificates")
+                cwazuh=1
+                shift 1
+                ;;
+            "-k"|"--kibana-certificates")
+                ckibana=1
+                shift 1
+                ;;
+            "-v"|"--verbose")
+                debugEnabled=1
+                shift 1
+                ;;
+            "-h"|"--help")
+                getHelp
+                ;;
+            *)
+                getHelp
+            esac
+        done
+
+        if [ -n "${debugEnabled}" ]; then
+            debug_cert="2>&1 | tee -a ${logfile}"
+        fi
+
+        if [[ -n "${cadmin}" ]]; then
+            generateAdmincertificate
+            logger_cert "Admin certificates created."
+        fi
+
+        if [[ -n "${ca}" ]]; then
+            generateRootCAcertificate
+            logger_cert "Authority certificates created."
+        fi
+
+        if [[ -n "${celasticsearch}" ]]; then
+            generateElasticsearchcertificates
+            logger_cert "Elasticsearch certificates created."
+        fi
+
+        if [[ -n "${cwazuh}" ]]; then
+            generateFilebeatcertificates
+            logger_cert "Wazuh server certificates created."
+        fi
+
+        if [[ -n "${ckibana}" ]]; then
+            generateKibanacertificates
+            logger_cert "Kibana certificates created."
+        fi
+
+    else
+        readConfig
+        generateRootCAcertificate
+        generateAdmincertificate
+        generateElasticsearchcertificates
+        generateFilebeatcertificates
+        generateKibanacertificates
+        cleanFiles
+    fi
+
 }
 
 function parse_yaml() {
@@ -167,222 +377,6 @@ function readConfig() {
         logger_cert -e "No configuration file found. ${base_path}/config.yml."
         exit 1
     fi
-}
-
-function generateCertificateconfiguration() {
-
-    cat > ${base_path}/certs/$1.conf <<- EOF
-        [ req ]
-        prompt = no
-        default_bits = 2048
-        default_md = sha256
-        distinguished_name = req_distinguished_name
-        x509_extensions = v3_req
-        
-        [req_distinguished_name]
-        C = US
-        L = California
-        O = Wazuh
-        OU = Docu
-        CN = cname
-        
-        [ v3_req ]
-        authorityKeyIdentifier=keyid,issuer
-        basicConstraints = CA:FALSE
-        keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
-        subjectAltName = @alt_names
-        
-        [alt_names]
-        IP.1 = cip
-	EOF
-
-    conf="$(awk '{sub("CN = cname", "CN = '$1'")}1' ${base_path}/certs/$1.conf)"
-    echo "${conf}" > ${base_path}/certs/$1.conf    
-
-    isIP=$(echo "$2" | grep -P "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")
-    isDNS=$(echo $2 | grep -P "^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$" )
-
-    if [[ -n "${isIP}" ]]; then
-        conf="$(awk '{sub("IP.1 = cip", "IP.1 = '$2'")}1' ${base_path}/certs/$1.conf)"
-        echo "${conf}" > ${base_path}/certs/$1.conf    
-    elif [[ -n "${isDNS}" ]]; then
-        conf="$(awk '{sub("CN = cname", "CN =  '$2'")}1' ${base_path}/certs/$1.conf)"
-        echo "${conf}" > ${base_path}/certs/$1.conf     
-        conf="$(awk '{sub("IP.1 = cip", "DNS.1 = '$2'")}1' ${base_path}/certs/$1.conf)"
-        echo "${conf}" > ${base_path}/certs/$1.conf 
-    else
-        logger_cert -e "The given information does not match with an IP or a DNS".  
-        exit 1 
-    fi   
-
-}
-
-function generateRootCAcertificate() {
-
-    eval "openssl req -x509 -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/root-ca.key -out ${base_path}/certs/root-ca.pem -batch -subj '/OU=Docu/O=Wazuh/L=California/' -days 3650 ${debug_cert}"
-
-}
-
-function generateAdmincertificate() {
-    
-    eval "openssl genrsa -out ${base_path}/certs/admin-key-temp.pem 2048 ${debug_cert}"
-    eval "openssl pkcs8 -inform PEM -outform PEM -in ${base_path}/certs/admin-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out ${base_path}/certs/admin-key.pem ${debug_cert}"
-    eval "openssl req -new -key ${base_path}/certs/admin-key.pem -out ${base_path}/certs/admin.csr -batch -subj '/C=US/L=California/O=Wazuh/OU=Docu/CN=admin' ${debug_cert}"
-    eval "openssl x509 -days 3650 -req -in ${base_path}/certs/admin.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -sha256 -out ${base_path}/certs/admin.pem ${debug_cert}"
-
-}
-
-function generateElasticsearchcertificates() {
-
-    logger_cert "Creating the Elasticsearch certificates."
-
-    i=0
-    while [ ${i} -lt ${#elasticsearch_node_names[@]} ]; do
-        generateCertificateconfiguration ${elasticsearch_node_names[i]} ${elasticsearch_node_ips[i]}
-        eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${elasticsearch_node_names[i]}-key.pem -out ${base_path}/certs/${elasticsearch_node_names[i]}.csr -config ${base_path}/certs/${elasticsearch_node_names[i]}.conf -days 3650 ${debug_cert}"
-        eval "openssl x509 -req -in ${base_path}/certs/${elasticsearch_node_names[i]}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${elasticsearch_node_names[i]}.pem -extfile ${base_path}/certs/${elasticsearch_node_names[i]}.conf -extensions v3_req -days 3650 ${debug_cert}"
-        eval "chmod 444 ${base_path}/certs/${elasticsearch_node_names[i]}-key.pem ${debug_cert}"    
-        i=$(( ${i} + 1 ))
-    done
-
-}
-
-function generateFilebeatcertificates() {
-
-    logger_cert "Creating the Wazuh server certificates."
-
-    i=0
-    while [ ${i} -lt ${#wazuh_servers_node_names[@]} ]; do
-        generateCertificateconfiguration ${wazuh_servers_node_names[i]} ${wazuh_servers_node_ips[i]}
-        eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${wazuh_servers_node_names[i]}-key.pem -out ${base_path}/certs/${wazuh_servers_node_names[i]}.csr -config ${base_path}/certs/${wazuh_servers_node_names[i]}.conf -days 3650 ${debug_cert}"
-        eval "openssl x509 -req -in ${base_path}/certs/${wazuh_servers_node_names[i]}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${wazuh_servers_node_names[i]}.pem -extfile ${base_path}/certs/${wazuh_servers_node_names[i]}.conf -extensions v3_req -days 3650 ${debug_cert}"
-        i=$(( ${i} + 1 ))
-    done      
-
-}
-
-function generateKibanacertificates() {
-
-    logger_cert "Creating the Kibana certificate."
-
-    i=0
-    while [ ${i} -lt ${#kibana_node_names[@]} ]; do
-        generateCertificateconfiguration ${kibana_node_names[i]} ${kibana_node_ips[i]}
-        eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${kibana_node_names[i]}-key.pem -out ${base_path}/certs/${kibana_node_names[i]}.csr -config ${base_path}/certs/${kibana_node_names[i]}.conf -days 3650 ${debug_cert}"
-        eval "openssl x509 -req -in ${base_path}/certs/${kibana_node_names[i]}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${kibana_node_names[i]}.pem -extfile ${base_path}/certs/${kibana_node_names[i]}.conf -extensions v3_req -days 3650 ${debug_cert}"
-        eval "chmod 444 ${base_path}/certs/${kibana_node_names[i]}-key.pem ${debug_cert}"    
-        i=$(( ${i} + 1 ))
-    done
-
-}
-
-function cleanFiles() {
-
-    eval "rm -rf ${base_path}/certs/*.csr ${debug_cert}"
-    eval "rm -rf ${base_path}/certs/*.srl ${debug_cert}"
-    eval "rm -rf ${base_path}/certs/*.conf ${debug_cert}"
-    eval "rm -rf ${base_path}/certs/admin-key-temp.pem ${debug_cert}"
-    logger_cert "Certificates creation finished. They can be found in ${base_path}/certs."
-}
-
-function checkOpenSSL() {
-    if [ -z "$(command -v openssl)" ]; then
-        logger_cert -e "OpenSSL not installed."
-        exit 1
-    fi    
-}
-
-function main() {
-
-    if [ "$EUID" -ne 0 ]; then
-        logger_cert -e "This script must be run as root."
-        exit 1
-    fi
-    
-    if [[ -d ${base_path}/certs ]]; then
-        logger -e "Folder ${base_path}/certs exists. Please remove the /certs folder if you want to create new certificates."
-        exit 1
-    else
-        mkdir ${base_path}/certs
-    fi
-
-
-
-    if [ -n "$1" ]; then
-        while [ -n "$1" ]
-        do
-            case "$1" in
-            "-a"|"--admin-certificates")
-                cadmin=1
-                shift 1
-                ;;
-            "-ca"|"--root-ca-certificate")
-                ca=1
-                shift 1
-                ;;
-            "-e"|"--elasticsearch-certificates")
-                celasticsearch=1
-                shift 1
-                ;;
-            "-w"|"--wazuh-certificates")
-                cwazuh=1
-                shift 1
-                ;;
-            "-k"|"--kibana-certificates")
-                ckibana=1
-                shift 1
-                ;;
-            "-v"|"--verbose")
-                debugEnabled=1
-                shift 1
-                ;;
-            "-h"|"--help")
-                getHelp
-                ;;
-            *)
-                getHelp
-            esac
-        done
-
-        if [ -n "${debugEnabled}" ]; then
-            debug_cert="2>&1 | tee -a ${logfile}"
-        fi
-
-        if [[ -n "${cadmin}" ]]; then
-            generateAdmincertificate
-            logger_cert "Admin certificates created."
-        fi
-
-        if [[ -n "${ca}" ]]; then
-            generateRootCAcertificate
-            logger_cert "Authority certificates created."
-        fi
-
-        if [[ -n "${celasticsearch}" ]]; then
-            generateElasticsearchcertificates
-            logger_cert "Elasticsearch certificates created."
-        fi
-
-        if [[ -n "${cwazuh}" ]]; then
-            generateFilebeatcertificates
-            logger_cert "Wazuh server certificates created."
-        fi
-
-        if [[ -n "${ckibana}" ]]; then
-            generateKibanacertificates
-            logger_cert "Kibana certificates created."
-        fi
-
-    else
-        readConfig
-        generateRootCAcertificate
-        generateAdmincertificate
-        generateElasticsearchcertificates
-        generateFilebeatcertificates
-        generateKibanacertificates
-        cleanFiles
-    fi
-
 }
 
 main $@
