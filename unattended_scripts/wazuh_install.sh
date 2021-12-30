@@ -147,6 +147,7 @@ function importFunction() {
             has_main=$?
             if [ $has_main = 0 ]; then
                 sed -i 's/main $@//' ${base_path}/$functions_path/$1
+                sed -i '$ d' ${base_path}/$functions_path/$1
             fi
             . ${base_path}/$functions_path/$1
             if [ $has_main = 0 ]; then
