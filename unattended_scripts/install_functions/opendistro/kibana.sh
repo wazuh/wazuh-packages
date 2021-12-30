@@ -5,7 +5,7 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-installKibana() {
+function installKibana() {
     
     logger "Starting Kibana installation."
     if [ ${sys_type} == "zypper" ]; then
@@ -24,7 +24,7 @@ installKibana() {
 
 }
 
-configureKibanaAIO() {
+function configureKibanaAIO() {
 
     logger "Starting Wazuh Kibana plugin installation."
     
@@ -45,7 +45,7 @@ configureKibanaAIO() {
 
 }
 
-configureKibana() {
+function configureKibana() {
 
     eval "getConfig kibana/kibana_unattended_distributed.yml /etc/kibana/kibana.yml ${debug}"
     eval "mkdir /usr/share/kibana/data ${debug}"
@@ -85,7 +85,7 @@ configureKibana() {
     logger "Kibana post-install configuration finished."
 }
 
-setupKibanacerts() {
+function setupKibanacerts() {
     eval "mkdir /etc/kibana/certs ${debug}"
     if [ -d "${base_path}/certs" ]; then
 
@@ -109,7 +109,7 @@ setupKibanacerts() {
     fi
 }
 
-initializeKibana() {
+function initializeKibana() {
 
     logger "Starting Kibana (this may take a while)."
     i=0
@@ -133,7 +133,7 @@ initializeKibana() {
 
 }
 
-initializeKibanaAIO() {
+function initializeKibanaAIO() {
 
     logger "Starting Kibana (this may take a while)."
     i=0
@@ -146,7 +146,7 @@ initializeKibanaAIO() {
 
 }
 
-modifyKibanaLogin() {
+function modifyKibanaLogin() {
     # Edit window title
     eval "sed -i 's/null, \"Elastic\"/null, \"Wazuh\"/g' /usr/share/kibana/src/core/server/rendering/views/template.js ${debug}"
 

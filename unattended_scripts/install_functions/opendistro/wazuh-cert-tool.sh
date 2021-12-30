@@ -24,7 +24,7 @@ elasticsearchhead='# Elasticsearch nodes'
 filebeathead='# Wazuh server nodes'
 kibanahead='# Kibana node'
 
-logger_cert() {
+function logger_cert() {
 
     now=$(date +'%m/%d/%Y %H:%M:%S')
     case $1 in 
@@ -44,7 +44,7 @@ logger_cert() {
     echo $now $mtype $message | tee -a ${logfile}
 }
 
-getHelp() {
+function getHelp() {
     echo -e ""
     echo -e "NAME"
     echo -e "        wazuh-cert-tool.sh - Manages the creation of certificates of the Wazuh components."
@@ -74,7 +74,7 @@ getHelp() {
     exit 1
 }
 
-parse_yaml() {
+function parse_yaml() {
 
     local prefix=$2
     local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @|tr @ '\034')
@@ -93,7 +93,7 @@ parse_yaml() {
 
 }
 
-readConfig() {
+function readConfig() {
 
     if [ -f ${base_path}/config.yml ]; then
         eval "$(parse_yaml ${base_path}/config.yml)"
@@ -169,7 +169,7 @@ readConfig() {
     fi
 }
 
-generateCertificateconfiguration() {
+function generateCertificateconfiguration() {
 
     cat > ${base_path}/certs/$1.conf <<- EOF
         [ req ]
@@ -217,13 +217,13 @@ generateCertificateconfiguration() {
 
 }
 
-generateRootCAcertificate() {
+function generateRootCAcertificate() {
 
     eval "openssl req -x509 -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/root-ca.key -out ${base_path}/certs/root-ca.pem -batch -subj '/OU=Docu/O=Wazuh/L=California/' -days 3650 ${debug_cert}"
 
 }
 
-generateAdmincertificate() {
+function generateAdmincertificate() {
     
     eval "openssl genrsa -out ${base_path}/certs/admin-key-temp.pem 2048 ${debug_cert}"
     eval "openssl pkcs8 -inform PEM -outform PEM -in ${base_path}/certs/admin-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out ${base_path}/certs/admin-key.pem ${debug_cert}"
@@ -232,7 +232,7 @@ generateAdmincertificate() {
 
 }
 
-generateElasticsearchcertificates() {
+function generateElasticsearchcertificates() {
 
     logger_cert "Creating the Elasticsearch certificates."
 
@@ -247,7 +247,7 @@ generateElasticsearchcertificates() {
 
 }
 
-generateFilebeatcertificates() {
+function generateFilebeatcertificates() {
 
     logger_cert "Creating the Wazuh server certificates."
 
@@ -261,7 +261,7 @@ generateFilebeatcertificates() {
 
 }
 
-generateKibanacertificates() {
+function generateKibanacertificates() {
 
     logger_cert "Creating the Kibana certificate."
 
@@ -276,7 +276,7 @@ generateKibanacertificates() {
 
 }
 
-cleanFiles() {
+function cleanFiles() {
 
     eval "rm -rf ${base_path}/certs/*.csr ${debug_cert}"
     eval "rm -rf ${base_path}/certs/*.srl ${debug_cert}"
@@ -285,14 +285,14 @@ cleanFiles() {
     logger_cert "Certificates creation finished. They can be found in ${base_path}/certs."
 }
 
-checkOpenSSL() {
+function checkOpenSSL() {
     if [ -z "$(command -v openssl)" ]; then
         logger_cert -e "OpenSSL not installed."
         exit 1
     fi    
 }
 
-main() {
+function main() {
 
     if [ "$EUID" -ne 0 ]; then
         logger_cert -e "This script must be run as root."

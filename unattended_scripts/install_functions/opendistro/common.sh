@@ -19,7 +19,7 @@ filebeat_wazuh_template="https://raw.githubusercontent.com/wazuh/wazuh/'${wazuh_
 filebeat_wazuh_module="'${repobaseurl}'/filebeat/wazuh-filebeat-0.1.tar.gz"
 kibana_wazuh_plugin="'${repobaseurl}'/ui/kibana/wazuh_kibana-'${wazuh_version}'_'${elasticsearch_oss_version}'-'${wazuh_kibana_plugin_revision}'.zip"
 
-getConfig() {
+function getConfig() {
     if [ -n "${local}" ]; then
         cp ${base_path}/${config_path}/$1 $2
     else
@@ -31,7 +31,7 @@ getConfig() {
     fi
 }
 
-checkSystem() {
+function checkSystem() {
     if [ -n "$(command -v yum)" ]; then
         sys_type="yum"
         sep="-"
@@ -44,7 +44,7 @@ checkSystem() {
     fi
 }
 
-checkNames() {
+function checkNames() {
 
     if [[ -n ${einame} ]] && [[ -n ${kiname} ]] && ([[ "${einame}" == "${kiname}" ]]); then
         logger -e "The node names for Elastisearch and Kibana must be different."
@@ -84,7 +84,7 @@ checkNames() {
 
 }
 
-checkArch() {
+function checkArch() {
     arch=$(uname -m)
 
     if [ ${arch} != "x86_64" ]; then
@@ -93,7 +93,7 @@ checkArch() {
     fi
 }
 
-installPrerequisites() {
+function installPrerequisites() {
 
     logger "Starting all necessary utility installation."
 
@@ -120,7 +120,7 @@ installPrerequisites() {
     fi
 }
 
-addWazuhrepo() {
+function addWazuhrepo() {
 
     logger "Adding the Wazuh repository."
 
@@ -152,7 +152,7 @@ addWazuhrepo() {
     logger "Wazuh repository added."
 }
 
-restoreWazuhrepo() {
+function restoreWazuhrepo() {
     if [ -n "${development}" ]; then
         logger "Setting the Wazuh repository to production."
         if [ "${sys_type}" == "yum" ] && [ -f /etc/yum.repos.d/wazuh.repo ]; then
@@ -171,7 +171,7 @@ restoreWazuhrepo() {
     fi
 }
 
-checkInstalled() {
+function checkInstalled() {
     if [ "${sys_type}" == "yum" ]; then
         wazuhinstalled=$(yum list installed 2>/dev/null | grep wazuh-manager)
     elif [ "${sys_type}" == "zypper" ]; then
@@ -253,7 +253,7 @@ checkInstalled() {
     fi
 }
 
-startService() {
+function startService() {
 
     logger "Starting service $1."
 
@@ -295,7 +295,7 @@ startService() {
 
 }
 
-createCertificates() {
+function createCertificates() {
 
     if [ -n "${AIO}" ]; then
         eval "getConfig certificate/config_aio.yml ${base_path}/config.yml ${debug}"
@@ -311,7 +311,7 @@ createCertificates() {
     cleanFiles
 }
 
-checkPreviousCertificates() {
+function checkPreviousCertificates() {
 
     if [ ! -z ${einame} ]; then
         if [ -f ${base_path}/certs/${einame}.pem ] || [ f ${base_path}/certs/${einame}-key.pem ]; then
@@ -343,14 +343,14 @@ checkPreviousCertificates() {
 
 }
 
-specsCheck() {
+function specsCheck() {
 
     cores=$(cat /proc/cpuinfo | grep processor | wc -l)
     ram_gb=$(free -m | awk '/^Mem:/{print $2}')
     
 }
 
-healthCheck() {
+function healthCheck() {
     specsCheck
     case "$1" in
         "elasticsearch")
@@ -394,7 +394,7 @@ healthCheck() {
     esac
 }
 
-rollBack() {
+function rollBack() {
 
     if [ -z "${uninstall}" ] && [ -z "$1" ]; then
         logger "Cleaning the installation."
@@ -527,11 +527,11 @@ rollBack() {
     fi
 }
 
-createClusterKey() {
+function createClusterKey() {
     openssl rand -hex 16 >> ${base_path}/certs/clusterkey
 }
 
-checkArguments() {
+function checkArguments() {
 
     if ([ -n "$AIO" ] || [ -n "$certificates" ]) && [ -d ${base_path}/certs ]; then
             logger -e "Folder ${base_path}/certs exists. Please remove the certificates folder if you want to create new certificates."

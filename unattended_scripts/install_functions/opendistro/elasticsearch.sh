@@ -5,7 +5,7 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-installElasticsearch() {
+function installElasticsearch() {
 
     logger "Starting Open Distro for Elasticsearch installation."
 
@@ -27,7 +27,7 @@ installElasticsearch() {
     fi
 }
 
-copyCertificatesElasticsearch() {
+function copyCertificatesElasticsearch() {
     
     if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
         name=${einame}
@@ -64,7 +64,7 @@ applyLog4j2Mitigation(){
 
 }
 
-configureElasticsearchAIO() {
+function configureElasticsearchAIO() {
 
     eval "getConfig elasticsearch/elasticsearch_all_in_one.yml /etc/elasticsearch/elasticsearch.yml ${debug}"
     eval "getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml ${debug}"
@@ -96,7 +96,7 @@ configureElasticsearchAIO() {
 
 }
 
-configureElasticsearch() {
+function configureElasticsearch() {
     logger "Configuring Elasticsearch."
 
     eval "getConfig elasticsearch/elasticsearch_unattended_distributed.yml /etc/elasticsearch/elasticsearch.yml ${debug}"
@@ -170,7 +170,7 @@ configureElasticsearch() {
 
 }
 
-initializeElasticsearch() {
+function initializeElasticsearch() {
 
 
     logger "Starting Elasticsearch cluster."
@@ -186,7 +186,7 @@ initializeElasticsearch() {
     logger "Elasticsearch cluster started."
 }
 
-startElasticsearchCluster() {
+function startElasticsearchCluster() {
 
     eval "elasticsearch_cluster_ip=( $(cat /etc/elasticsearch/elasticsearch.yml | grep network.host | sed 's/network.host:\s//') )"
     eval "export JAVA_HOME=/usr/share/elasticsearch/jdk/"
