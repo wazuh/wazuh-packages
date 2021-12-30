@@ -41,9 +41,7 @@ logger_cert() {
             message="$1"
             ;;
     esac
-    finalmessage=$(echo "$now" "$mtype" "$message")
-    echo "$finalmessage" >> ${logfile}
-    echo -e "$finalmessage"
+    echo $now $mtype $message | tee -a ${logfile}
 }
 
 getHelp() {
@@ -251,7 +249,7 @@ generateElasticsearchcertificates() {
 
 generateFilebeatcertificates() {
 
-    logger_cert "Creating Wazuh server certificates."
+    logger_cert "Creating the Wazuh server certificates."
 
     i=0
     while [ ${i} -lt ${#wazuh_servers_node_names[@]} ]; do
@@ -265,7 +263,7 @@ generateFilebeatcertificates() {
 
 generateKibanacertificates() {
 
-    logger_cert "Creating Kibana certificate."
+    logger_cert "Creating the Kibana certificate."
 
     i=0
     while [ ${i} -lt ${#kibana_node_names[@]} ]; do

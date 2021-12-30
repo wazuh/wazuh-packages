@@ -136,7 +136,6 @@ logger() {
             ;;
     esac
     echo $now $mtype $message | tee -a ${logfile}
-
 }
 
 importFunction() {
@@ -157,11 +156,17 @@ importFunction() {
     else
         curl -so /tmp/$1 $resources_functions/$1
         if [ $? = 0 ]; then
-            sed -i 's/main $@//' /tmp/$1
-            . /tmp/$1
-            rm -f /tmp/$1
+            checkContent=$(grep '<?xml version="1.0" encoding="UTF-8"?>' ${base_path}/$1)
+                if [[ -n "${checkContent}" ]]; then
+                    error=1
+                    rm -f /tmp/$1
+                else
+                    sed -i 's/main $@//' /tmp/$1
+                    . /tmp/$1
+                    rm -f /tmp/$1
+                fi
         else
-            error=1 
+            error=1
         fi
     fi
     if [ "${error}" = "1" ]; then
@@ -184,7 +189,7 @@ main() {
                 shift 1
                 ;;
             "-w"|"--wazuh-server")
-                if [ -n "$wazuh" ]; then
+                if [ -z "$2" ]; then
                     logger -e "Error on arguments. Probably missing <node-name> after -w|--wazuh-server"
                     getHelp
                     exit 1
@@ -194,7 +199,7 @@ main() {
                 shift 2
                 ;;
             "-e"|"--elasticsearch")
-                if [ -n "$elasticsearch" ]; then
+                if [ -z "$2" ]; then
                     logger -e "Error on arguments. Probably missing <node-name> after -e|--elasticsearch"
                     getHelp
                     exit 1
@@ -204,7 +209,7 @@ main() {
                 shift 2
                 ;;
             "-k"|"--kibana")
-            if [ -n "$kibana" ]; then
+                if [ -z "$2" ]; then
                     logger -e "Error on arguments. Probably missing <node-name> after -k|--kibana"
                     getHelp
                     exit 1
@@ -272,13 +277,15 @@ main() {
     checkInstalled
     checkArguments
     readConfig
+
+    if [ -n "${uninstall}" ]; then
+        logger "Removing all installed components."
+        rollBack
+        exit 0
+    fi
+    
     if [ -z "${AIO}" ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
         checkNames
-    fi
-
-    if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
-        installPrerequisites
-        addWazuhrepo
     fi
 
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
@@ -289,15 +296,17 @@ main() {
         fi
     fi
 
-    if [ ! -d ${base_path}/certs ]; then
-        logger -e "No certificates directory found (${base_path}/certs). Run the script with the option -c|--certificates to create automatically or copy them from the node where they were created."
-        exit 1
-    fi
+    if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
 
-    if [ -n "${uninstall}" ]; then
-        logger "Removing all installed components."
-        rollBack
-        exit 0
+        if [ ! -d ${base_path}/certs ]; then
+            logger -e "No certificates directory found (${base_path}/certs). Run the script with the option -c|--create-certificates to create automatically or copy them from the node where they were created."
+            exit 1
+        fi
+        if [ -d ${base_path}/certs ]; then
+            checkPreviousCertificates
+        fi
+        installPrerequisites
+        addWazuhrepo
     fi
 
     if [ -n "${elasticsearch}" ]; then
