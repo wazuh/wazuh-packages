@@ -33,7 +33,27 @@ export JAVA_HOME=/usr/share/elasticsearch/jdk/
 logfile="/var/log/wazuh-unattended-installation.log"
 debug=">> ${logfile} 2>&1"
 
-getHelp() {
+## More info to continue on
+## https://stackoverflow.com/questions/3338030/multiple-bash-traps-for-the-same-signal
+trap cleanExit SIGINT
+
+function cleanExit() {
+
+    if [ -n "$spin_pid" ]; then
+        eval "kill -9 $spin_pid $debug"
+    fi
+
+    echo -e "\nDo you want to clean the ongoing installation?[Y/n]"
+    read rollback_conf
+    if [[ "$rollback_conf" =~ [N|n] ]]; then
+        exit 1
+    else 
+        rollBack
+        exit 1
+    fi
+}
+
+function getHelp() {
 
     echo -e ""
     echo -e "NAME"
@@ -85,7 +105,22 @@ getHelp() {
     exit 1 
 }
 
-logger() {
+function spin() {
+    trap "{ tput el1; exit 0; }" 15
+    spinner="/|\\-/|\\-"
+    trap "echo ''" EXIT
+    while :
+    do
+        for i in `seq 0 7`
+        do
+            echo -n "${spinner:$i:1}"
+            echo -en "\010"
+            sleep 0.1
+        done
+    done
+}
+
+function logger() {
 
     now=$(date +'%d/%m/%Y %H:%M:%S')
     case $1 in 
@@ -102,12 +137,10 @@ logger() {
             message="$1"
             ;;
     esac
-    finalmessage=$(echo "$now" "$mtype" "$message")
-    echo "$finalmessage" >> ${logfile}
-    echo -e "$finalmessage"
+    echo $now $mtype $message | tee -a ${logfile}
 }
 
-importFunction() {
+function importFunction() {
     if [ -n "${local}" ]; then
         if [ -f ${base_path}/$functions_path/$1 ]; then
             cat ${base_path}/$functions_path/$1 |grep 'main $@' > /dev/null 2>&1
@@ -125,11 +158,17 @@ importFunction() {
     else
         curl -so /tmp/$1 $resources_functions/$1
         if [ $? = 0 ]; then
-            sed -i 's/main $@//' /tmp/$1
-            . /tmp/$1
-            rm -f /tmp/$1
+            checkContent=$(grep '<?xml version="1.0" encoding="UTF-8"?>' ${base_path}/$1)
+                if [[ -n "${checkContent}" ]]; then
+                    error=1
+                    rm -f /tmp/$1
+                else
+                    sed -i 's/main $@//' /tmp/$1
+                    . /tmp/$1
+                    rm -f /tmp/$1
+                fi
         else
-            error=1 
+            error=1
         fi
     fi
     if [ "${error}" = "1" ]; then
@@ -138,9 +177,9 @@ importFunction() {
     fi
 }
 
-main() {
+function main() {
 
-    if [ ! -n  "$1" ]; then
+    if [ ! -n "$1" ]; then
         getHelp
     fi
 
@@ -152,7 +191,7 @@ main() {
                 shift 1
                 ;;
             "-w"|"--wazuh-server")
-                if [ -n "$wazuh" ]; then
+                if [ -z "$2" ]; then
                     logger -e "Error on arguments. Probably missing <node-name> after -w|--wazuh-server"
                     getHelp
                     exit 1
@@ -162,7 +201,7 @@ main() {
                 shift 2
                 ;;
             "-e"|"--elasticsearch")
-                if [ -n "$elasticsearch" ]; then
+                if [ -z "$2" ]; then
                     logger -e "Error on arguments. Probably missing <node-name> after -e|--elasticsearch"
                     getHelp
                     exit 1
@@ -172,7 +211,7 @@ main() {
                 shift 2
                 ;;
             "-k"|"--kibana")
-            if [ -n "$kibana" ]; then
+                if [ -z "$2" ]; then
                     logger -e "Error on arguments. Probably missing <node-name> after -k|--kibana"
                     getHelp
                     exit 1
@@ -223,6 +262,10 @@ main() {
         esac
     done
 
+    spin &
+    spin_pid=$!
+    trap "kill -9 $spin_pid $debug" EXIT
+
     if [ "$EUID" -ne 0 ]; then
         logger -e "Error: This script must be run as root."
         exit 1
@@ -236,14 +279,16 @@ main() {
     checkSystem
     checkInstalled
     checkArguments
-    if [ -z "${AIO}" ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
-        readConfig
-        checkNames
-    fi
+    readConfig
 
-    if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
-        installPrerequisites
-        addWazuhrepo
+    if [ -n "${uninstall}" ]; then
+        logger "Removing all installed components."
+        rollBack
+        exit 0
+    fi
+    
+    if [ -z "${AIO}" ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
+        checkNames
     fi
 
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
@@ -258,15 +303,19 @@ main() {
         rm -rf "${base_path}/certs"
     fi
 
-    if [ ! -f ${base_path}/certs.tar ]; then
-        logger -e "No certificates file found (${base_path}/certs.tar). Run the script with the option -c|--certificates to create automatically or copy them from the node where they were created."
-        exit 1
-    fi
+    if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
 
-    if [ -n "${uninstall}" ]; then
-        logger "Removing all installed components."
-        rollBack
-        exit 0
+        if [ ! -f ${base_path}/certs.tar ]; then
+            logger -e "No certificates file found (${base_path}/certs.tar). Run the script with the option -c|--certificates to create automatically or copy them from the node where they were created."
+            exit 1
+        fi
+
+        if [ -d ${base_path}/certs ]; then
+            checkPreviousCertificates
+        fi
+
+        installPrerequisites
+        addWazuhrepo
     fi
 
     if [ -n "${elasticsearch}" ]; then
@@ -310,6 +359,7 @@ main() {
         else
             healthCheck kibana
         fi
+
         installKibana 
         configureKibana
         changePasswords
@@ -332,6 +382,7 @@ main() {
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
             configureWazuhCluster 
         fi
+        
         startService "wazuh-manager"
         installFilebeat
         configureFilebeat
@@ -369,7 +420,12 @@ main() {
     fi
 
     restoreWazuhrepo
-    logger "Installation Finished."
+
+    if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}"  ]; then
+        logger "Installation finished."
+    elif [ -n "${start_elastic_cluster}" ]; then
+        logger "Elasticsearch cluster started."
+    fi
 
 }
 

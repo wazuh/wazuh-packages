@@ -7,7 +7,7 @@
 
 k_certs_path="/etc/kibana/certs/"
 
-installKibana() {
+function installKibana() {
     
     logger "Starting Kibana installation."
     if [ ${sys_type} == "zypper" ]; then
@@ -26,7 +26,7 @@ installKibana() {
 
 }
 
-configureKibanaAIO() {
+function configureKibanaAIO() {
 
     logger "Starting Wazuh Kibana plugin installation."
     
@@ -47,7 +47,7 @@ configureKibanaAIO() {
 
 }
 
-configureKibana() {
+function configureKibana() {
 
     eval "getConfig kibana/kibana_unattended_distributed.yml /etc/kibana/kibana.yml ${debug}"
     eval "mkdir /usr/share/kibana/data ${debug}"
@@ -87,19 +87,22 @@ configureKibana() {
     copyKibanacerts
 }
 
-copyKibanacerts() {
-
+function setupKibanacerts() {
     eval "mkdir /etc/kibana/certs ${debug}"
     if [ -f "${base_path}/certs.tar" ]; then
 
-        name=${kibana_node_names[pos]}
+        if [ ${#kibana_node_names[@]} -eq 1 ]; then
+            name=${kiname}
+        else
+            name=${kibana_node_names[pos]}
+        fi
 
         eval "tar -xf ${base_path}/certs.tar -C ${k_certs_path} ./${name}.pem  && mv ${k_certs_path}${name}.pem ${k_certs_path}kibana.pem ${debug}"
         eval "tar -xf ${base_path}/certs.tar -C ${k_certs_path} ./${name}-key.pem  && mv ${k_certs_path}${name}-key.pem ${k_certs_path}kibana-key.pem ${debug}"
         eval "tar -xf ${base_path}/certs.tar -C ${k_certs_path} ./root-ca.pem ${debug}"
         eval "chown -R kibana:kibana /etc/kibana/ ${debug}"
         eval "chmod -R 500 /etc/kibana/certs ${debug}"
-        eval "chmod 440 /etc/kibana/certs/${kibana_node_names}* ${debug}"
+        eval "chmod 440 /etc/kibana/certs/* ${debug}"
         logger "Kibana certificate setup finished."
 
     else
@@ -108,7 +111,8 @@ copyKibanacerts() {
     fi
 }
 
-initializeKibana() {
+function initializeKibana() {
+
     logger "Starting Kibana (this may take a while)."
     getPass "admin"
     i=0
@@ -117,7 +121,7 @@ initializeKibana() {
         i=$((i+1))
     done
     if [ $i -eq 12 ]; then
-        logger -e "Cannot connect to Kibana"
+        logger -e "Cannot connect to Kibana."
         rollBack
         exit 1
     fi
@@ -135,7 +139,7 @@ initializeKibana() {
     logger "You can access the web interface https://${nodes_kibana_ip}. The credentials are admin:${u_pass}"
 }
 
-initializeKibanaAIO() {
+function initializeKibanaAIO() {
 
     logger "Starting Kibana (this may take a while)."
     getPass "admin"
@@ -149,7 +153,7 @@ initializeKibanaAIO() {
 
 }
 
-modifyKibanaLogin() {
+function modifyKibanaLogin() {
     # Edit window title
     eval "sed -i 's/null, \"Elastic\"/null, \"Wazuh\"/g' /usr/share/kibana/src/core/server/rendering/views/template.js ${debug}"
 

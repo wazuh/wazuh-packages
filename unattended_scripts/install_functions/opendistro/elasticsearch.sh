@@ -5,9 +5,7 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-e_certs_path="/etc/elasticsearch/certs/"
-
-installElasticsearch() {
+function installElasticsearch() {
 
     logger "Starting Open Distro for Elasticsearch installation."
 
@@ -29,8 +27,8 @@ installElasticsearch() {
     fi
 }
 
-copyCertificatesElasticsearch() {
-
+function copyCertificatesElasticsearch() {
+    
     if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
         name=${einame}
     else
@@ -55,7 +53,7 @@ copyCertificatesElasticsearch() {
     fi
 }
 
-applyLog4j2Mitigation() {
+function applyLog4j2Mitigation() {
 
     eval "curl -so /tmp/apache-log4j-2.17.1-bin.tar.gz https://packages.wazuh.com/utils/log4j/apache-log4j-2.17.1-bin.tar.gz ${debug}"
     eval "tar -xf /tmp/apache-log4j-2.17.1-bin.tar.gz -C /tmp/"
@@ -77,7 +75,7 @@ applyLog4j2Mitigation() {
 
 }
 
-configureElasticsearchAIO() {
+function configureElasticsearchAIO() {
 
     eval "getConfig elasticsearch/elasticsearch_all_in_one.yml /etc/elasticsearch/elasticsearch.yml ${debug}"
     eval "getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml ${debug}"
@@ -109,7 +107,7 @@ configureElasticsearchAIO() {
 
 }
 
-configureElasticsearch() {
+function configureElasticsearch() {
     logger "Configuring Elasticsearch."
 
     eval "getConfig elasticsearch/elasticsearch_unattended_distributed.yml /etc/elasticsearch/elasticsearch.yml ${debug}"
@@ -183,7 +181,7 @@ configureElasticsearch() {
 
 }
 
-initializeElasticsearch() {
+function initializeElasticsearch() {
 
 
     logger "Starting Elasticsearch cluster."
@@ -199,11 +197,26 @@ initializeElasticsearch() {
     logger "Elasticsearch cluster started."
 }
 
-startElasticsearchCluster() {
+function startElasticsearchCluster() {
 
     eval "elasticsearch_cluster_ip=( $(cat /etc/elasticsearch/elasticsearch.yml | grep network.host | sed 's/network.host:\s//') )"
     eval "export JAVA_HOME=/usr/share/elasticsearch/jdk/"
-    eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${elasticsearch_cluster_ip}"
-    eval "curl ${filebeat_wazuh_template} | curl -X PUT 'https://${elasticsearch_node_ips[pos]}:9200/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k ${debug}"
+    eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${elasticsearch_cluster_ip} > /dev/null ${debug}"
+    if [  "$?" != 0  ]; then
+        logger -e "The cluster could not be initialized."
+        rollBack
+        exit 1
+    else
+        logger "The Elasticsearch cluster was initialized."
+    fi
+    eval "curl --silent ${filebeat_wazuh_template} | curl -X PUT 'https://${elasticsearch_node_ips[pos]}:9200/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k --silent ${debug}"
+    if [  "$?" != 0  ]; then
+        logger -e "The wazuh-alerts template could not be inserted into the Elasticsearch cluster."
+        rollBack
+        exit 1
+    else
+        logger "The wazuh-alerts template was inserted into the Elasticsearch cluster."
+    fi
+
 
 }

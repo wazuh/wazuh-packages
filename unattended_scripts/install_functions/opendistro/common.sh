@@ -19,19 +19,19 @@ filebeat_wazuh_template="https://raw.githubusercontent.com/wazuh/wazuh/'${wazuh_
 filebeat_wazuh_module="'${repobaseurl}'/filebeat/wazuh-filebeat-0.1.tar.gz"
 kibana_wazuh_plugin="'${repobaseurl}'/ui/kibana/wazuh_kibana-'${wazuh_version}'_'${elasticsearch_oss_version}'-'${wazuh_kibana_plugin_revision}'.zip"
 
-getConfig() {
+function getConfig() {
     if [ -n "${local}" ]; then
         cp ${base_path}/${config_path}/$1 $2
     else
         curl -so $2 ${resources_config}/$1
     fi
     if [ $? != 0 ]; then
-        logger -e "Unable to find config $1. Exiting"
+        logger -e "Unable to find config $1. Exiting."
         exit 1
     fi
 }
 
-checkSystem() {
+function checkSystem() {
     if [ -n "$(command -v yum)" ]; then
         sys_type="yum"
         sep="-"
@@ -44,12 +44,7 @@ checkSystem() {
     fi
 }
 
-checkNames() {
-
-    # if [[ "${einame}" == "${kiname}" ]] || [[ "${einame}" == "${winame}" ]] || [[ "${kiname}" == "${winame}" ]]; then
-    #     logger -e "The node names for Elastisearch, Kibana and Wazuh must be different."
-    #     exit 1
-    # fi
+function checkNames() {
 
     if [ -n "${einame}" ]; then
         if [[ ! "${elasticsearch_node_names[@]}" =~ "${einame}" ]]; then
@@ -61,21 +56,8 @@ checkNames() {
             logger -e "There is no certificate for the elasticsearch node ${einame} in ${base_path}/certs.tar."
             exit 1
         fi
-
     fi
 
-    if [ -n "${winame}" ]; then
-        if [[ ! "${wazuh_servers_node_names[@]}" =~ "${winame}" ]]; then
-            logger -e "The name given for the wazuh server node does not appear on the configuration file."
-            exit 1
-        fi
-
-        if [ -z "$(tar -tvf ${base_path}/certs.tar|grep ${winame}.pem)" ] || [ -z "$(tar -tvf ${base_path}/certs.tar|grep ${winame}-key.pem)" ]; then
-            logger -e "There is no certificate for the wazuh server node ${winame} in ${base_path}/certs.tar."
-            exit 1
-        fi
-
-    fi
 
     if [ -n "${kiname}" ]; then
         if [[ ! "${kibana_node_names[@]}" =~ "${kiname}" ]]; then
@@ -87,12 +69,38 @@ checkNames() {
             logger -e "There is no certificate for the kibana node ${kiname} in ${base_path}/certs.tar."
             exit 1
         fi
+    fi
 
+    if [ -n "${winame}" ]; then
+        if [[ ! "${wazuh_servers_node_names[@]}" =~ "${winame}" ]]; then
+            logger -e "The name given for the wazuh server node does not appear on the configuration file."
+            exit 1
+        fi
+        
+        if [ -z "$(tar -tvf ${base_path}/certs.tar|grep ${winame}.pem)" ] || [ -z "$(tar -tvf ${base_path}/certs.tar|grep ${winame}-key.pem)" ]; then
+            logger -e "There is no certificate for the wazuh server node ${winame} in ${base_path}/certs.tar."
+            exit 1
+        fi
+    fi
+    
+    if [[ -n ${einame} ]] && [[ -n ${kiname} ]] && ([[ "${einame}" == "${kiname}" ]]); then
+        logger -e "The node names for Elastisearch and Kibana must be different."
+        exit 1
+    fi
+
+    if [[ -n ${einame} ]] && [[ -n ${winame} ]] && ([[ "${einame}" == "${winame}" ]]); then
+        logger -e "The node names for Elastisearch and Wazuh must be different."
+        exit 1
+    fi
+
+    if [[ -n ${winame} ]] && [[ -n ${kiname} ]] && ([[ "${winame}" == "${kiname}" ]]); then
+        logger -e "The node names for Wazuh and Kibana must be different."
+        exit 1
     fi
 
 }
 
-checkArch() {
+function checkArch() {
     arch=$(uname -m)
 
     if [ ${arch} != "x86_64" ]; then
@@ -101,7 +109,7 @@ checkArch() {
     fi
 }
 
-installPrerequisites() {
+function installPrerequisites() {
 
     logger "Starting all necessary utility installation."
 
@@ -128,7 +136,7 @@ installPrerequisites() {
     fi
 }
 
-addWazuhrepo() {
+function addWazuhrepo() {
 
     logger "Adding the Wazuh repository."
 
@@ -160,7 +168,7 @@ addWazuhrepo() {
     logger "Wazuh repository added."
 }
 
-restoreWazuhrepo() {
+function restoreWazuhrepo() {
     if [ -n "${development}" ]; then
         logger "Setting the Wazuh repository to production."
         if [ "${sys_type}" == "yum" ] && [ -f /etc/yum.repos.d/wazuh.repo ]; then
@@ -170,7 +178,7 @@ restoreWazuhrepo() {
         elif [ "${sys_type}" == "apt-get" ] && [ -f /etc/apt/sources.list.d/wazuh.list ]; then
             file="/etc/apt/sources.list.d/wazuh.list"
         else
-            logger "Wazuh repository does not exists."
+            logger -w "Wazuh repository does not exists."
         fi
         eval "sed -i 's/-dev//g' ${file} ${debug}"
         eval "sed -i 's/pre-release/4.x/g' ${file} ${debug}"
@@ -179,8 +187,7 @@ restoreWazuhrepo() {
     fi
 }
 
-checkInstalled() {
-    
+function checkInstalled() {
     if [ "${sys_type}" == "yum" ]; then
         wazuhinstalled=$(yum list installed 2>/dev/null | grep wazuh-manager)
     elif [ "${sys_type}" == "zypper" ]; then
@@ -262,7 +269,7 @@ checkInstalled() {
     fi
 }
 
-startService() {
+function startService() {
 
     logger "Starting service $1."
 
@@ -304,19 +311,13 @@ startService() {
 
 }
 
-createCertificates() {
+function createCertificates() {
 
     if [ -n "${AIO}" ]; then
         eval "getConfig certificate/config_aio.yml ${base_path}/config.yml ${debug}"
     fi
 
-    readConfig
-    if [ -d ${base_path}/certs ]; then
-        logger -e "Folder ${base_path}/certs exists. Please remove the certificates folder if you want to create new certificates."
-        exit 1
-    else
-        mkdir ${base_path}/certs
-    fi
+    mkdir ${base_path}/certs
 
     generateRootCAcertificate
     generateAdmincertificate
@@ -326,14 +327,46 @@ createCertificates() {
     cleanFiles
 }
 
-specsCheck() {
+function checkPreviousCertificates() {
+
+    if [ ! -z ${einame} ]; then
+        if [ -f ${base_path}/certs/${einame}.pem ] || [ f ${base_path}/certs/${einame}-key.pem ]; then
+            logger "Certificates were found for the Elasticsearch node: ${einame} in ${base_path}/certs."
+        else
+            logger -e "Missing certificate for the Elasticsearch node: ${einame} in ${base_path}/certs."
+            exit 1
+        fi
+
+    fi
+
+    if [ ! -z ${winame} ]; then
+        if [ -f ${base_path}/certs/${winame}.pem ] || [ -f ${base_path}/certs/${winame}-key.pem ]; then
+            logger "Certificates were found for the Wazuh server node: ${einame} in ${base_path}/certs."
+        else
+            logger -e "Missing certificate for the Wazuh server node: ${einame} in ${base_path}/certs."
+            exit 1
+        fi
+    fi
+
+    if [ ! -z ${kiname} ]; then
+        if [ -f ${base_path}/certs/${kiname}.pem ] || [ -f ${base_path}/certs/${kiname}-key.pem ]; then
+            logger "Certificates were found for the Kibana node: ${einame} in ${base_path}/certs."
+        else
+            logger -e "Missing certificate for the Kibana node: ${einame} in ${base_path}/certs."
+            exit 1
+        fi
+    fi
+
+}
+
+function specsCheck() {
 
     cores=$(cat /proc/cpuinfo | grep processor | wc -l)
     ram_gb=$(free -m | awk '/^Mem:/{print $2}')
     
 }
 
-healthCheck() {
+function healthCheck() {
     specsCheck
     case "$1" in
         "elasticsearch")
@@ -377,7 +410,7 @@ healthCheck() {
     esac
 }
 
-rollBack() {
+function rollBack() {
 
     if [ -z "${uninstall}" ] && [ -z "$1" ]; then
         logger "Cleaning the installation."
@@ -404,7 +437,7 @@ rollBack() {
         
     fi
 
-    if [ -n "${wazuh_remaining_files}" ] && ([ -z "$1" ] || [ "$1" == "wazuh" ]); then
+    if ([ -n "${wazuh_remaining_files}" ] || [ -n "$wazuhinstalled" ]) && ([ -z "$1" ] || [ "$1" == "wazuh" ]); then
         eval "rm -rf /var/ossec/ ${debug}"
     fi
 
@@ -421,7 +454,7 @@ rollBack() {
         fi 
     fi
 
-    if [ -n "${elastic_remaining_files}" ] && ([ -z "$1" ] || [ "$1" == "elasticsearch" ]); then
+    if ([ -n "${elastic_remaining_files}" ] || [ -n "$elasticsearchinstalled" ]) && ([ -z "$1" ] || [ "$1" == "elasticsearch" ]); then
         eval "rm -rf /var/lib/elasticsearch/ ${debug}"
         eval "rm -rf /usr/share/elasticsearch/ ${debug}"
         eval "rm -rf /etc/elasticsearch/ ${debug}"
@@ -438,7 +471,7 @@ rollBack() {
         fi
     fi
 
-    if [ -n "${filebeat_remaining_files}" ] && ([ -z "$1" ] || [ "$1" == "filebeat" ]); then
+    if ([ -n "${filebeat_remaining_files}" ] || [ -n "$filebeatinstalled" ]) && ([ -z "$1" ] || [ "$1" == "filebeat" ]); then
         eval "rm -rf /var/lib/filebeat/ ${debug}"
         eval "rm -rf /usr/share/filebeat/ ${debug}"
         eval "rm -rf /etc/filebeat/ ${debug}"
@@ -455,7 +488,7 @@ rollBack() {
         fi
     fi
 
-    if [ -n "${kibana_remaining_files}" ] && ([ -z "$1" ] || [ "$1" == "kibana" ]); then
+    if ([ -n "${kibana_remaining_files}" ] || [ -n "$kibanainstalled" ]) && ([ -z "$1" ] || [ "$1" == "kibana" ]); then
         eval "rm -rf /var/lib/kibana/ ${debug}"
         eval "rm -rf /usr/share/kibana/ ${debug}"
         eval "rm -rf /etc/kibana/ ${debug}"
@@ -510,7 +543,7 @@ rollBack() {
     fi
 }
 
-changePasswords() {
+function changePasswords() {
     logger "Setting passwords."
     if [ -f "${base_path}/certs.tar" ]; then
         eval "tar -xf ${base_path}/certs.tar -C ${base_path} ./password_file.yml ${debug}"
@@ -539,7 +572,7 @@ changePasswords() {
     logger "Passwords set."
 }
 
-getPass() {
+function getPass() {
 
     for i in "${!users[@]}"; do
         if [ "${users[i]}" == "$1" ]; then
@@ -547,11 +580,17 @@ getPass() {
         fi
     done
 }
-createClusterKey() {
+
+function createClusterKey() {
     openssl rand -hex 16 >> ${base_path}/certs/clusterkey
 }
 
-checkArguments() {
+function checkArguments() {
+
+    if ([ -n "$AIO" ] || [ -n "$certificates" ]) && [ -d ${base_path}/certs ]; then
+            logger -e "Folder ${base_path}/certs exists. Please remove the certificates folder if you want to create new certificates."
+            exit 1
+    fi
 
     if [ -n "$overwrite" ] && [ -z "$AIO" ] && [ -z "$elasticsearch" ] && [ -z "$kibana" ] && [ -z "$wazuh" ]; then 
         logger -e "The argument -o|--overwrite can't be used by itself. If you want to uninstall the components use -u|--uninstall"
@@ -560,9 +599,20 @@ checkArguments() {
 
     if [ -n "${uninstall}" ]; then
 
-        if [ -z "${wazuhinstalled}" ] && [ -z "${elasticsearchinstalled}" ] && [ -z "${filebeatinstalled}" ] && [ -z "${kibanainstalled}" ]; then 
-            logger -e "Can't uninstall. No Wazuh components were found on the system."
-            exit 1
+        if [ -z "${wazuhinstalled}" ] || [ -z "$wazuh_remaining_files" ]; then
+            logger -w "Can't uninstall Wazuh manager. No components were found on the system."
+        fi
+
+        if [ -z "${filebeatinstalled}" ] || [ -z "$filebeat_remaining_files" ]; then
+            logger -w "Can't uninstall Filebeat. No components were found on the system."
+        fi
+
+        if [ -z "${elasticsearchinstalled}" ] || [ -z "$elastic_remaining_files" ]; then
+            logger -w "Can't uninstall Elasticsearch. No components were found on the system."
+        fi
+
+        if [ -z "${kibanainstalled}" ] || [ -z "$kibana_remaining_files" ]; then
+            logger -w "Can't uninstall. No components were found on the system."
         fi
 
         if [ -n "$AIO" ] || [ -n "$elasticsearch" ] || [ -n "$kibana" ] || [ -n "$wazuh" ]; then
@@ -578,7 +628,7 @@ checkArguments() {
             exit 1
         fi
 
-        if [ -n "${wazuhinstalled}" ] || [ -n "${elasticsearchinstalled}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${kibanainstalled}" ]; then
+        if [ -n "${wazuhinstalled}" ] || [ -n "$wazuh_remaining_files" ] || [ -n "${elasticsearchinstalled}" ] || [ -n "$elastic_remaining_files" ] || [ -n "${filebeatinstalled}" ] || [ -n "$filebeat_remaining_files" ] || [ -n "${kibanainstalled}" ] || [ -n "$kibana_remaining_files" ]; then
             if [ -n "${overwrite}" ]; then
                 rollBack
             else
@@ -589,11 +639,6 @@ checkArguments() {
     fi
 
     if [ -n "$elasticsearch" ]; then
-
-        if [ -z "$einame" ]; then
-        logger -e "Argument --elasticsearch must be accompanied by the name of the node."
-        exit 1
-        fi
 
         if [ -n "$elasticsearchinstalled" ] || [ -n "$elastic_remaining_files" ]; then
             if [ -n "$overwrite" ]; then
@@ -607,11 +652,6 @@ checkArguments() {
 
     if [ -n "$kibana" ]; then
 
-        if [ -n "$kibana" ] && [ -z "$kiname" ]; then
-        logger -e "Argument --kibana must be accompanied by the name of the node."
-        exit 1
-        fi
-
         if [ -n "$kibanainstalled" ] || [ -n "$kibana_remaining_files" ]; then
             if [ -n "$overwrite" ]; then
                 rollBack "kibana"
@@ -623,10 +663,6 @@ checkArguments() {
     fi
 
     if [ -n "$wazuh" ]; then
-        if [ -z "$winame" ]; then
-            logger -e "Argument --wazuh-server must be accompanied by the name of the node."
-            exit 1
-        fi
         if [ -n "$wazuhinstalled" ] || [ -n "$wazuh_remaining_files" ]; then
             if [ -n "$overwrite" ]; then
                 rollBack "wazuh"
