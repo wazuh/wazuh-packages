@@ -309,14 +309,14 @@ checkUser() {
 
 createBackUp() {
     
-    logger_pass "Creating backup..."
+    logger_pass "Creating password backup."
     eval "mkdir /usr/share/elasticsearch/backup ${debug_pass}"
     eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -backup /usr/share/elasticsearch/backup -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug_pass}"
     if [  "$?" != 0  ]; then
         logger_pass -e "The backup could not be created"
         exit 1;
     fi
-    logger_pass "Backup created"
+    logger_pass "Password backup created"
     
 }
 
@@ -326,7 +326,7 @@ generatePassword() {
         logger_pass "Generating random password"
         password=$(< /dev/urandom tr -dc A-Za-z0-9 | head -c${1:-32};echo;)
     else
-        logger_pass "Generating random passwords"
+        logger_pass "Generating random passwords."
         for i in "${!users[@]}"; do
             PASS=$(< /dev/urandom tr -dc A-Za-z0-9 | head -c${1:-32};echo;)
             passwords+=(${PASS})
@@ -334,7 +334,7 @@ generatePassword() {
     fi
 
         if [  "$?" != 0  ]; then
-        logger_pass -e "The password has not been generated"
+        logger_pass -e "The password has not been generated."
         exit 1;
     fi
     logger_pass "Done"
@@ -354,21 +354,21 @@ generatePasswordFile() {
 generateHash() {
     
     if [ -n "${changeall}" ]; then
-        logger_pass "Generating hashes"
+        logger_pass "Generating password hashes."
         for i in "${!passwords[@]}"
         do
             nhash=$(bash /usr/share/elasticsearch/plugins/opendistro_security/tools/hash.sh -p ${passwords[i]} | grep -v WARNING)
             hashes+=(${nhash})
         done
-        logger_pass "Hashes generated"
+        logger_pass "Passowrd hashes generated."
     else
-        logger_pass "Generating hash"
+        logger_pass "Generating password hash"
         hash=$(bash /usr/share/elasticsearch/plugins/opendistro_security/tools/hash.sh -p ${password} | grep -v WARNING)
         if [  "$?" != 0  ]; then
             logger_pass -e "Hash generation failed."
             exit 1;
         fi    
-        logger_pass "Hash generated"
+        logger_pass "Passowrd hash generated."
     fi
 }
 
