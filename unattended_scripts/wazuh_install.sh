@@ -34,7 +34,7 @@ debug=">> ${logfile} 2>&1"
 ## https://stackoverflow.com/questions/3338030/multiple-bash-traps-for-the-same-signal
 trap cleanExit SIGINT
 
-cleanExit() {
+function cleanExit() {
 
     if [ -n "$spin_pid" ]; then
         eval "kill -9 $spin_pid $debug"
@@ -50,7 +50,7 @@ cleanExit() {
     fi
 }
 
-getHelp() {
+function getHelp() {
 
     echo -e ""
     echo -e "NAME"
@@ -103,7 +103,7 @@ getHelp() {
 
 }
 
-spin() {
+function spin() {
     trap "{ tput el1; exit 0; }" 15
     spinner="/|\\-/|\\-"
     trap "echo ''" EXIT
@@ -118,7 +118,7 @@ spin() {
     done
 }
 
-logger() {
+function logger() {
 
     now=$(date +'%d/%m/%Y %H:%M:%S')
     case $1 in 
@@ -138,7 +138,7 @@ logger() {
     echo $now $mtype $message | tee -a ${logfile}
 }
 
-importFunction() {
+function importFunction() {
     if [ -n "${local}" ]; then
         if [ -f ${base_path}/$functions_path/$1 ]; then
             cat ${base_path}/$functions_path/$1 |grep 'main $@' > /dev/null 2>&1
@@ -175,7 +175,7 @@ importFunction() {
     fi
 }
 
-main() {
+function main() {
 
     if [ ! -n "$1" ]; then
         getHelp
