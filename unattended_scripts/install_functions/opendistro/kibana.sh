@@ -87,7 +87,8 @@ function configureKibana() {
     copyKibanacerts
 }
 
-function setupKibanacerts() {
+function copyKibanacerts() {
+    
     eval "mkdir /etc/kibana/certs ${debug}"
     if [ -f "${base_path}/certs.tar" ]; then
 

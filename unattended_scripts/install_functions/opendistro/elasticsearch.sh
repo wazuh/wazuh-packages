@@ -5,6 +5,8 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
+e_certs_path="/etc/elasticsearch/certs/"
+
 function installElasticsearch() {
 
     logger "Starting Open Distro for Elasticsearch installation."
@@ -40,12 +42,14 @@ function copyCertificatesElasticsearch() {
             eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} --wildcards ./elasticsearch*  ${debug}"
             eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} --wildcards ./admin*  ${debug}"
             eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} ./root-ca.pem  ${debug}"
-        else   
+        else  
+            set -x 
             eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} ./${name}.pem  && mv ${e_certs_path}${name}.pem ${e_certs_path}elasticsearch.pem ${debug}"
             eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} ./${name}-key.pem  && mv ${e_certs_path}${name}-key.pem ${e_certs_path}elasticsearch-key.pem ${debug}"
             eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} ./root-ca.pem  ${debug}"
             eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} ./admin.pem  ${debug}"
             eval "tar -xf ${base_path}/certs.tar -C ${e_certs_path} ./admin-key.pem  ${debug}"
+            set +x
         fi
     else
         logger -e "No certificates found. Could not initialize Elasticsearch"
@@ -190,8 +194,7 @@ function initializeElasticsearch() {
     done
 
     if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
-        eval "export JAVA_HOME=/usr/share/elasticsearch/jdk/"
-        eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${elasticsearch_node_ips[pos]} ${debug}"
+        startElasticsearchCluster
     fi
 
     logger "Elasticsearch cluster started."
