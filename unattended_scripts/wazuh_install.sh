@@ -277,13 +277,15 @@ main() {
     checkInstalled
     checkArguments
     readConfig
+
+    if [ -n "${uninstall}" ]; then
+        logger "Removing all installed components."
+        rollBack
+        exit 0
+    fi
+    
     if [ -z "${AIO}" ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
         checkNames
-    fi
-
-    if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
-        installPrerequisites
-        addWazuhrepo
     fi
 
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
@@ -294,15 +296,17 @@ main() {
         fi
     fi
 
-    if [ ! -d ${base_path}/certs ]; then
-        logger -e "No certificates directory found (${base_path}/certs). Run the script with the option -c|--create-certificates to create automatically or copy them from the node where they were created."
-        exit 1
-    fi
+    if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
 
-    if [ -n "${uninstall}" ]; then
-        logger "Removing all installed components."
-        rollBack
-        exit 0
+        if [ ! -d ${base_path}/certs ]; then
+            logger -e "No certificates directory found (${base_path}/certs). Run the script with the option -c|--create-certificates to create automatically or copy them from the node where they were created."
+            exit 1
+        fi
+        if [ -d ${base_path}/certs ]; then
+            checkPreviousCertificates
+        fi
+        installPrerequisites
+        addWazuhrepo
     fi
 
     if [ -n "${elasticsearch}" ]; then

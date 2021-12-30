@@ -162,7 +162,7 @@ restoreWazuhrepo() {
         elif [ "${sys_type}" == "apt-get" ] && [ -f /etc/apt/sources.list.d/wazuh.list ]; then
             file="/etc/apt/sources.list.d/wazuh.list"
         else
-            logger "Wazuh repository does not exists."
+            logger -w "Wazuh repository does not exists."
         fi
         eval "sed -i 's/-dev//g' ${file} ${debug}"
         eval "sed -i 's/pre-release/4.x/g' ${file} ${debug}"
@@ -309,6 +309,38 @@ createCertificates() {
     generateFilebeatcertificates
     generateKibanacertificates
     cleanFiles
+}
+
+checkPreviousCertificates() {
+
+    if [ ! -z ${einame} ]; then
+        if [ -f ${base_path}/certs/${einame}.pem ] || [ f ${base_path}/certs/${einame}-key.pem ]; then
+            logger "Certificates were found for the Elasticsearch node: ${einame} in ${base_path}/certs."
+        else
+            logger -e "Missing certificate for the Elasticsearch node: ${einame} in ${base_path}/certs."
+            exit 1
+        fi
+
+    fi
+
+    if [ ! -z ${winame} ]; then
+        if [ -f ${base_path}/certs/${winame}.pem ] || [ -f ${base_path}/certs/${winame}-key.pem ]; then
+            logger "Certificates were found for the Wazuh server node: ${einame} in ${base_path}/certs."
+        else
+            logger -e "Missing certificate for the Elasticsearch node: ${einame} in ${base_path}/certs."
+            exit 1
+        fi
+    fi
+
+    if [ ! -z ${kiname} ]; then
+        if [ -f ${base_path}/certs/${kiname}.pem ] || [ -f ${base_path}/certs/${kiname}-key.pem ]; then
+            logger "Certificates were found for the Kibana node: ${einame} in ${base_path}/certs."
+        else
+            logger -e "Missing certificate for the Elasticsearch node: ${einame} in ${base_path}/certs."
+            exit 1
+        fi
+    fi
+
 }
 
 specsCheck() {
@@ -513,9 +545,20 @@ checkArguments() {
 
     if [ -n "${uninstall}" ]; then
 
-        if [ -z "${wazuhinstalled}" ] && [ -z "${elasticsearchinstalled}" ] && [ -z "${filebeatinstalled}" ] && [ -z "${kibanainstalled}" ]; then 
-            logger -e "Can't uninstall. No Wazuh components were found on the system."
-            exit 1
+        if [ -z "${wazuhinstalled}" ] || [ -z "$wazuh_remaining_files" ]; then
+            logger -w "Can't uninstall Wazuh manager. No components were found on the system."
+        fi
+
+        if [ -z "${filebeatinstalled}" ] || [ -z "$filebeat_remaining_files" ]; then
+            logger -w "Can't uninstall Filebeat. No components were found on the system."
+        fi
+
+        if [ -z "${elasticsearchinstalled}" ] || [ -z "$elastic_remaining_files" ]; then
+            logger -w "Can't uninstall Elasticsearch. No components were found on the system."
+        fi
+
+        if [ -z "${kibanainstalled}" ] || [ -z "$kibana_remaining_files" ]; then
+            logger -w "Can't uninstall. No components were found on the system."
         fi
 
         if [ -n "$AIO" ] || [ -n "$elasticsearch" ] || [ -n "$kibana" ] || [ -n "$wazuh" ]; then
