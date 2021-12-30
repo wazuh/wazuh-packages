@@ -283,11 +283,12 @@ main() {
         else
             healthCheck elasticsearch
         fi
-               
+
         installElasticsearch 
         configureElasticsearch
         startService "elasticsearch"
         initializeElasticsearch
+        changePasswords
     fi
 
     if [ -n "${start_elastic_cluster}" ]; then
@@ -310,8 +311,8 @@ main() {
             healthCheck kibana
         fi
         installKibana 
-        changePasswords
         configureKibana
+        changePasswords
         startService "kibana"
         initializeKibana
 

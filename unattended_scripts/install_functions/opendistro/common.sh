@@ -511,32 +511,32 @@ rollBack() {
 }
 
 changePasswords() {
-    set -x
+    logger "Setting passwords."
     if [ -f "${base_path}/certs.tar" ]; then
         eval "tar -xf ${base_path}/certs.tar -C ${base_path} ./password_file.yml ${debug}"
         p_file="${base_path}/password_file.yml"
         checkInstalledPass
+        if [ -n "${elasticsearch}" ] || [ -n "${AIO}" ]; then
+            readUsers
+        fi
         readFileUsers
     else 
         logger -e "Cannot find passwords-file. Exiting"
         exit 1
     fi
-
-    if [ -n "${elastic}" ] || [ -n "${AIO}" ]; then
+    if [ -n "${elasticsearch}" ] || [ -n "${AIO}" ]; then
         getNetworkHost
-        checkInstalledPass
-        readUsers
         createBackUp
         generateHash
     fi
-
+    
     changePassword
 
-    if [ -n "${elastic}" ] || [ -n "${AIO}" ]; then
+    if [ -n "${elasticsearch}" ] || [ -n "${AIO}" ]; then
         runSecurityAdmin
     fi
     rm -rf ${p_file}
-    set +x
+    logger "Passwords set."
 }
 
 getPass() {

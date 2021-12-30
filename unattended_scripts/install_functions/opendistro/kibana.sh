@@ -85,7 +85,6 @@ configureKibana() {
     modifyKibanaLogin
 
     copyKibanacerts
-    initializeKibana
 }
 
 copyKibanacerts() {
@@ -110,7 +109,6 @@ copyKibanacerts() {
 }
 
 initializeKibana() {
-
     logger "Starting Kibana (this may take a while)."
     getPass "admin"
     i=0
@@ -118,8 +116,12 @@ initializeKibana() {
         sleep 10
         i=$((i+1))
     done
-
-    if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
+    if [ $i -eq 12 ]; then
+        logger -e "Cannot connect to Kibana"
+        rollBack
+        exit 1
+    fi
+    if [ ${#wazuh_servers_node_names[@]} -eq 1 ]; then
         wazuh_api_address=${wazuh_servers_node_ips[0]}
     else
         for i in ${!wazuh_servers_node_types[@]}; do
@@ -130,8 +132,7 @@ initializeKibana() {
     fi
     eval "sed -i 's,url: https://localhost,url: https://${wazuh_api_address},g' /usr/share/kibana/data/wazuh/config/wazuh.yml ${debug}"
     logger "Kibana started."
-    logger "You can access the web interface https://'${nodes_kibana_ip}'. The credentials are admin:${u_pass}"
-
+    logger "You can access the web interface https://${nodes_kibana_ip}. The credentials are admin:${u_pass}"
 }
 
 initializeKibanaAIO() {

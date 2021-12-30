@@ -234,11 +234,11 @@ User:
 
     if [ ! -n "$users" ]; then 
         if [ -n "${kibanainstalled}" ]; then 
-            users=( kibanaserver )
+            users=( kibanaserver admin )
         fi
 
         if [ -n "${filebeatinstalled}" ]; then 
-            users=( wazuh )
+            users=( admin )
         fi
     fi
 
@@ -381,7 +381,7 @@ changePassword() {
                 awk -v new=${hashes[i]} 'prev=="'${users[i]}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/elasticsearch/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
             fi
             
-            if [ "${users[i]}" == "wazuh" ]; then
+            if [ "${users[i]}" == "admin" ]; then
                 wazuhpass=${passwords[i]}
             elif [ "${users[i]}" == "kibanaserver" ]; then
                 kibpass=${passwords[i]}
@@ -401,13 +401,13 @@ changePassword() {
 
     fi
     
-    if [ "${nuser}" == "wazuh" ] || [ -n "${changeall}" ]; then
+    if [ "${nuser}" == "admin" ] || [ -n "${changeall}" ]; then
 
         if [ -n "${filebeatinstalled}" ]; then
             wazuhold=$(grep "password:" /etc/filebeat/filebeat.yml )
             ra="  password: "
             wazuhold="${wazuhold//$ra}"
-            conf="$(awk '{sub("  password: '${wazuhold}'", "  password: '${wazuhpass}'")}1' /etc/filebeat/filebeat.yml)"
+            conf="$(awk '{sub("password: .*", "password: '${wazuhpass}'")}1' /etc/filebeat/filebeat.yml)"
             echo "${conf}" > /etc/filebeat/filebeat.yml  
             restartService "filebeat"
         fi 
@@ -419,7 +419,7 @@ changePassword() {
             wazuhkibold=$(grep "password:" /etc/kibana/kibana.yml )
             rk="elasticsearch.password: "
             wazuhkibold="${wazuhkibold//$rk}"
-            conf="$(awk '{sub("elasticsearch.password: '${wazuhkibold}'", "elasticsearch.password: '${kibpass}'")}1' /etc/kibana/kibana.yml)"
+            conf="$(awk '{sub("elasticsearch.password: .*", "elasticsearch.password: '${kibpass}'")}1' /etc/kibana/kibana.yml)"
             echo "${conf}" > /etc/kibana/kibana.yml 
             restartService "kibana"
         fi         
@@ -592,6 +592,36 @@ main() {
     fi
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
