@@ -43,7 +43,7 @@ function cleanExit() {
         eval "kill -9 $spin_pid $debug"
     fi
 
-    echo -e "\nDo you want to clean the ongoing installation?[Y/n]"
+    echo -ne "\nDo you want to clean the ongoing installation?[Y/n]"
     read rollback_conf
     if [[ "$rollback_conf" =~ [N|n] ]]; then
         exit 1
