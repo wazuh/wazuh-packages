@@ -248,6 +248,8 @@ function main() {
         esac
     done
 
+# -------------- Spinner initialization -----------------------------
+
     spin &
     spin_pid=$!
     trap "kill -9 $spin_pid $debug" EXIT
@@ -256,6 +258,8 @@ function main() {
         logger -e "Error: This script must be run as root."
         exit 1
     fi
+
+# -------------- Library  import ----------------------------
 
     importFunction "checks.sh"
     importFunction "common.sh"
@@ -268,15 +272,21 @@ function main() {
     checkArguments
     readConfig
 
+# -------------- Uninstall case  ------------------------------------
+
     if [ -n "${uninstall}" ]; then
         logger "Removing all installed components."
         rollBack
         exit 0
     fi
     
+# -------------- Uninstall case  ------------------------------------
+
     if [ -z "${AIO}" ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
         checkNames
     fi
+
+# -------------- Creating certificates case -------------------------
 
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
         checkOpenSSL
@@ -289,6 +299,8 @@ function main() {
         sudo tar -zcf certs.tar -C certs/ .
         rm -rf "${base_path}/certs"
     fi
+
+# -------------- Prerequisites and Wazuh repo  ----------------------
 
     if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
 
@@ -304,6 +316,8 @@ function main() {
         installPrerequisites
         addWazuhrepo
     fi
+
+# -------------- Elasticsearch case  --------------------------------
 
     if [ -n "${elasticsearch}" ]; then
 
@@ -332,6 +346,8 @@ function main() {
         startElasticsearchCluster
     fi
 
+# -------------- Kibana case  ---------------------------------------
+
     if [ -n "${kibana}" ]; then
 
         if [ ! -f "${base_path}/certs.tar" ]; then
@@ -355,6 +371,8 @@ function main() {
 
     fi
 
+# -------------- Wazuh case  ---------------------------------------
+
     if [ -n "${wazuh}" ]; then
 
         importFunction "wazuh.sh"
@@ -376,6 +394,8 @@ function main() {
         changePasswords 
         startService "filebeat"
     fi
+
+# -------------- AIO case  ------------------------------------------
 
     if [ -n "${AIO}" ]; then
 

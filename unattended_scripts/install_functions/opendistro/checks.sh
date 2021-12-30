@@ -28,19 +28,19 @@ function checkArguments() {
 
     if [ -n "${uninstall}" ]; then
 
-        if [ -z "${wazuhinstalled}" ] || [ -z "$wazuh_remaining_files" ]; then
+        if [ -z "${wazuhinstalled}" ] && [ -z "$wazuh_remaining_files" ]; then
             logger -w "Can't uninstall Wazuh manager. No components were found on the system."
         fi
 
-        if [ -z "${filebeatinstalled}" ] || [ -z "$filebeat_remaining_files" ]; then
+        if [ -z "${filebeatinstalled}" ] && [ -z "$filebeat_remaining_files" ]; then
             logger -w "Can't uninstall Filebeat. No components were found on the system."
         fi
 
-        if [ -z "${elasticsearchinstalled}" ] || [ -z "$elastic_remaining_files" ]; then
+        if [ -z "${elasticsearchinstalled}" ] && [ -z "$elastic_remaining_files" ]; then
             logger -w "Can't uninstall Elasticsearch. No components were found on the system."
         fi
 
-        if [ -z "${kibanainstalled}" ] || [ -z "$kibana_remaining_files" ]; then
+        if [ -z "${kibanainstalled}" ] && [ -z "$kibana_remaining_files" ]; then
             logger -w "Can't uninstall. No components were found on the system."
         fi
 
