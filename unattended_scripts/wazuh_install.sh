@@ -260,14 +260,14 @@ function main() {
         esac
     done
 
-    spin &
-    spin_pid=$!
-    trap "kill -9 $spin_pid $debug" EXIT
-
     if [ "$EUID" -ne 0 ]; then
         logger -e "Error: This script must be run as root."
         exit 1
     fi
+
+    spin &
+    spin_pid=$!
+    trap "kill -9 $spin_pid $debug" EXIT
 
     importFunction "common.sh"
     importFunction "wazuh-cert-tool.sh"
