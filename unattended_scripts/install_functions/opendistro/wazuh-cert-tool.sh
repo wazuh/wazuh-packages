@@ -286,11 +286,10 @@ function cleanFiles() {
 }
 
 function checkOpenSSL() {
-    openssl=""
     if [ -z "$(command -v openssl)" ]; then
-        openssl="openssl"
-        logger_cert -w "OpenSSL not installed. This script will proceed to install OpenSSL."
-    fi
+        logger_cert -e "OpenSSL not installed."
+        exit 1
+    fi    
 }
 
 function main() {

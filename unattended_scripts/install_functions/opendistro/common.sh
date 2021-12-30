@@ -97,6 +97,10 @@ function installPrerequisites() {
 
     logger "Starting all necessary utility installation."
 
+    openssl=""
+    if [ -z "$(command -v openssl)" ]; then
+        openssl="openssl"
+    fi
 
     if [ ${sys_type} == "yum" ]; then
         eval "yum install curl unzip wget libcap tar gnupg ${openssl} -y ${debug}"
@@ -309,38 +313,34 @@ function createCertificates() {
 
 function checkPreviousCertificates() {
 
-    if [ ! -d ${base_path}/certs ]; then
-        logger -e "No certificates directory found (${base_path}/certs). Run the script with the option -c|--create-certificates to create automatically or copy them from the node where they were created."
-        exit 1
-    else
-        if [ ! -z ${einame} ]; then
-            if [ -f ${base_path}/certs/${einame}.pem ] || [ f ${base_path}/certs/${einame}-key.pem ]; then
-                logger "Certificates were found for the Elasticsearch node: ${einame} in ${base_path}/certs."
-            else
-                logger -e "Missing certificate for the Elasticsearch node: ${einame} in ${base_path}/certs."
-                exit 1
-            fi
-
+    if [ ! -z ${einame} ]; then
+        if [ -f ${base_path}/certs/${einame}.pem ] || [ f ${base_path}/certs/${einame}-key.pem ]; then
+            logger "Certificates were found for the Elasticsearch node: ${einame} in ${base_path}/certs."
+        else
+            logger -e "Missing certificate for the Elasticsearch node: ${einame} in ${base_path}/certs."
+            exit 1
         fi
 
-        if [ ! -z ${winame} ]; then
-            if [ -f ${base_path}/certs/${winame}.pem ] || [ -f ${base_path}/certs/${winame}-key.pem ]; then
-                logger "Certificates were found for the Wazuh server node: ${einame} in ${base_path}/certs."
-            else
-                logger -e "Missing certificate for the Wazuh server node: ${einame} in ${base_path}/certs."
-                exit 1
-            fi
-        fi
+    fi
 
-        if [ ! -z ${kiname} ]; then
-            if [ -f ${base_path}/certs/${kiname}.pem ] || [ -f ${base_path}/certs/${kiname}-key.pem ]; then
-                logger "Certificates were found for the Kibana node: ${einame} in ${base_path}/certs."
-            else
-                logger -e "Missing certificate for the Kibana node: ${einame} in ${base_path}/certs."
-                exit 1
-            fi
+    if [ ! -z ${winame} ]; then
+        if [ -f ${base_path}/certs/${winame}.pem ] || [ -f ${base_path}/certs/${winame}-key.pem ]; then
+            logger "Certificates were found for the Wazuh server node: ${einame} in ${base_path}/certs."
+        else
+            logger -e "Missing certificate for the Wazuh server node: ${einame} in ${base_path}/certs."
+            exit 1
         fi
     fi
+
+    if [ ! -z ${kiname} ]; then
+        if [ -f ${base_path}/certs/${kiname}.pem ] || [ -f ${base_path}/certs/${kiname}-key.pem ]; then
+            logger "Certificates were found for the Kibana node: ${einame} in ${base_path}/certs."
+        else
+            logger -e "Missing certificate for the Kibana node: ${einame} in ${base_path}/certs."
+            exit 1
+        fi
+    fi
+
 }
 
 function specsCheck() {

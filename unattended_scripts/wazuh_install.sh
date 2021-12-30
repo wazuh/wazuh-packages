@@ -288,11 +288,8 @@ function main() {
         checkNames
     fi
 
-    checkOpenSSL
-    installPrerequisites
-    addWazuhrepo
-
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
+        checkOpenSSL
         createCertificates
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
             createClusterKey
@@ -300,7 +297,16 @@ function main() {
     fi
 
     if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
-        checkPreviousCertificates
+
+        if [ ! -d ${base_path}/certs ]; then
+            logger -e "No certificates directory found (${base_path}/certs). Run the script with the option -c|--create-certificates to create automatically or copy them from the node where they were created."
+            exit 1
+        fi
+        if [ -d ${base_path}/certs ]; then
+            checkPreviousCertificates
+        fi
+        installPrerequisites
+        addWazuhrepo
     fi
 
     if [ -n "${elasticsearch}" ]; then
