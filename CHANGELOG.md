@@ -1,7 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [v4.4.0]
 
+- Add `libfimdb` [#989](https://github.com/wazuh/wazuh-packages/issues/989)
 ## [v4.3.0]
 
 - Update SPECS [#1014](https://github.com/wazuh/wazuh-packages/pull/1014)
