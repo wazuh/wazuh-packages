@@ -87,7 +87,7 @@ function checkNames() {
 function checkArch() {
     arch=$(uname -m)
 
-    if [ ${arch} != "x86_64" ]; then
+    if [ "${arch}" != "x86_64" ]; then
         logger -e "Uncompatible system. This script must be run on a 64-bit system."
         exit 1
     fi
