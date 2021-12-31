@@ -268,6 +268,11 @@ function main() {
     checkSystem
     checkInstalled
     checkArguments
+
+    if [ -n "${AIO}" ]; then
+        eval "getConfig certificate/config_aio.yml ${base_path}/config.yml ${debug}"
+    fi
+
     readConfig
 
 # -------------- Uninstall case  ------------------------------------
