@@ -20,6 +20,10 @@ filebeat_wazuh_module="'${repobaseurl}'/filebeat/wazuh-filebeat-0.1.tar.gz"
 kibana_wazuh_plugin="'${repobaseurl}'/ui/kibana/wazuh_kibana-'${wazuh_version}'_'${elasticsearch_oss_version}'-'${wazuh_kibana_plugin_revision}'.zip"
 
 function getConfig() {
+    if [ "$#" -ne 2 ]; then
+        logger -e "getConfig must be called with 2 arguments."
+        exit 1
+    fi
     if [ -n "${local}" ]; then
         cp ${base_path}/${config_path}/$1 $2
     else
@@ -32,15 +36,18 @@ function getConfig() {
 }
 
 function checkSystem() {
-    if [ -n "$(command -v yum)" ]; then
+    if $(command -v yum) ; then
         sys_type="yum"
         sep="-"
-    elif [ -n "$(command -v zypper)" ]; then
-        sys_type="zypper"   
-        sep="-"  
-    elif [ -n "$(command -v apt-get)" ]; then
-        sys_type="apt-get"   
+    elif $(command -v zypper) ; then
+        sys_type="zypper"
+        sep="-"
+    elif $(command -v apt-get) ; then
+        sys_type="apt-get"
         sep="="
+    else
+        logger -e "Couldn't find type of system based on the installer software"
+        exit 1
     fi
 }
 
