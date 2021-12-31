@@ -62,21 +62,21 @@ function checkNames() {
     fi
 
     if [[ -n ${einame} ]]; then
-        if [ ! -n "$(echo ${elasticsearch_node_names[@]} | grep -w $einame)" ]; then
+        if [[ ! -n "$(echo ${elasticsearch_node_names[@]} | grep -w $einame)" ]]; then
             logger -e "The name given for the Elasticsearch node does not appear on the configuration file."
             exit 1
         fi
     fi
 
     if [[ -n ${winame} ]]; then
-        if [ ! -n "$(echo ${wazuh_servers_node_names[@]} | grep -w $winame)" ]; then
+        if [[ ! -n "$(echo ${wazuh_servers_node_names[@]} | grep -w $winame)" ]]; then
             logger -e "The name given for the Wazuh server node does not appear on the configuration file."
             exit 1
         fi
     fi
 
     if [[ -n ${kiname} ]]; then
-        if [ ! -n "$(echo ${kibana_node_names[@]} | grep -w $kiname)" ]; then
+        if [[ ! -n "$(echo ${kibana_node_names[@]} | grep -w $kiname)" ]]; then
             logger -e "The name given for the Kibana node does not appear on the configuration file."
             exit 1
         fi
