@@ -181,7 +181,7 @@ test-check-names-kibana-node-name-not-in-config() {
 }
 
 test-check-names-kibana-node-name-not-in-config-assert() {
-    logger -e "The name given for Kibana node does not appear on the configuration file."
+    logger -e "The name given for the Kibana node does not appear on the configuration file."
     exit 1
 }
 
@@ -193,6 +193,6 @@ test-check-names-elasticsearch-node-name-not-in-config() {
 }
 
 test-check-names-elasticsearch-node-name-not-in-config-assert() {
-    logger -e "The name given for Elasticsearch node does not appear on the configuration file."
+    logger -e "The name given for the Elasticsearch node does not appear on the configuration file."
     exit 1
 }
