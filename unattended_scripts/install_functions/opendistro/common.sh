@@ -325,18 +325,18 @@ function checkPreviousCertificates() {
 
     if [ ! -z ${winame} ]; then
         if [ -f ${base_path}/certs/${winame}.pem ] || [ -f ${base_path}/certs/${winame}-key.pem ]; then
-            logger "Certificates were found for the Wazuh server node: ${einame} in ${base_path}/certs."
+            logger "Certificates were found for the Wazuh server node: ${winame} in ${base_path}/certs."
         else
-            logger -e "Missing certificate for the Wazuh server node: ${einame} in ${base_path}/certs."
+            logger -e "Missing certificate for the Wazuh server node: ${winame} in ${base_path}/certs."
             exit 1
         fi
     fi
 
     if [ ! -z ${kiname} ]; then
         if [ -f ${base_path}/certs/${kiname}.pem ] || [ -f ${base_path}/certs/${kiname}-key.pem ]; then
-            logger "Certificates were found for the Kibana node: ${einame} in ${base_path}/certs."
+            logger "Certificates were found for the Kibana node: ${kiname} in ${base_path}/certs."
         else
-            logger -e "Missing certificate for the Kibana node: ${einame} in ${base_path}/certs."
+            logger -e "Missing certificate for the Kibana node: ${kiname} in ${base_path}/certs."
             exit 1
         fi
     fi
