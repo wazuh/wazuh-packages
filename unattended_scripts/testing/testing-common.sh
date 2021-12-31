@@ -169,6 +169,8 @@ test-check-names-wazuh-node-name-not-in-config() {
 }
 
 test-check-names-wazuh-node-name-not-in-config-assert() {
+    echo wazuh node10
+    grep -w node1
     logger -e "The name given for the Wazuh server node does not appear on the configuration file."
     exit 1
 }
@@ -181,6 +183,8 @@ test-check-names-kibana-node-name-not-in-config() {
 }
 
 test-check-names-kibana-node-name-not-in-config-assert() {
+    echo kibana node10
+    grep -w node1
     logger -e "The name given for the Kibana node does not appear on the configuration file."
     exit 1
 }
@@ -193,6 +197,20 @@ test-check-names-elasticsearch-node-name-not-in-config() {
 }
 
 test-check-names-elasticsearch-node-name-not-in-config-assert() {
+    echo elasticsearch node10
+    grep -w node1
     logger -e "The name given for the Elasticsearch node does not appear on the configuration file."
     exit 1
+}
+
+test-check-names-all-correct() {
+    load-check-names
+    einame="elasticsearch"
+    kiname="kibana"
+    wazuh="wazuh"
+    elasticsearch_node_names=( elasticsearch )
+    wazuh_servers_node_names=( kibana )
+    kibana_node_names=( wazuh )
+    checkNames
+    @assert-success
 }
