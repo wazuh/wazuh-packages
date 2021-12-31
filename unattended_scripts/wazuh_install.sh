@@ -195,7 +195,7 @@ function main() {
                     exit 1
                 fi
                 wazuh=1
-                winame=$2
+                winame="$2"
                 shift 2
                 ;;
             "-e"|"--elasticsearch")
@@ -205,7 +205,7 @@ function main() {
                     exit 1
                 fi
                 elasticsearch=1
-                einame=$2
+                einame="$2"
                 shift 2
                 ;;
             "-k"|"--kibana")
@@ -215,7 +215,7 @@ function main() {
                     exit 1
                 fi
                 kibana=1
-                kiname=$2
+                kiname="$2"
                 shift 2
                 ;;
             "-c"|"--create-certificates")
@@ -260,14 +260,14 @@ function main() {
         esac
     done
 
-    spin &
-    spin_pid=$!
-    trap "kill -9 $spin_pid $debug" EXIT
-
     if [ "$EUID" -ne 0 ]; then
         logger -e "Error: This script must be run as root."
         exit 1
     fi
+
+    spin &
+    spin_pid=$!
+    trap "kill -9 $spin_pid $debug" EXIT
 
     importFunction "common.sh"
     importFunction "wazuh-cert-tool.sh"
