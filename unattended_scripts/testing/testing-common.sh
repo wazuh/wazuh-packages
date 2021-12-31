@@ -70,56 +70,59 @@ test-check-system-no-system-assert() {
     exit 1
 }
 
-# test-check-system-yum() {
-#     load-check-system
-#     @mock command -v yum === @out /usr/bin/yum
-#     @mockfalse command -v zypper
-#     @mockfalse command -v apt-get
-#     checkSystem
-#     echo "$sys_type"
-#     echo "$sep"
-# }
+## TODO: Por alguna razón lo de command no funciona
+##    Puede que tenga que ver con que es palabra reservada
+##    He probado a poner @real y @command y nada
+test-check-system-yum() {
+    load-check-system
+    @mocktrue -z "$(command -v yum)"
+    @mockfalse -z "$(command -v zypper)"
+    @mockfalse -z "$(command -v apt-get)"
+    checkSystem
+    echo "$sys_type"
+    echo "$sep"
+}
 
-# test-check-system-yum-assert() {
-#     sys_type="yum"
-#     sep="-"
-#     echo "$sys_type"
-#     echo "$sep"
-# }
+test-check-system-yum-assert() {
+    sys_type="yum"
+    sep="-"
+    echo "$sys_type"
+    echo "$sep"
+}
 
-# test-check-system-zypper() {
-#     load-check-system
-#     @mockfalse command -v yum
-#     @mock command -v zypper === @out /usr/bin/zypper
-#     @mockfalse command -v apt-get
-#     checkSystem
-#     echo "$sys_type"
-#     echo "$sep"
-# }
+test-check-system-zypper() {
+    load-check-system
+    @mockfalse -z "$(command -v yum)"
+    @mocktrue -z "$(command -v zypper)"
+    @mockfalse -z "$(command -v apt)"
+    checkSystem
+    echo "$sys_type"
+    echo "$sep"
+}
 
-# test-check-system-zypper-assert() {
-#     sys_type="zypper"
-#     sep="-"
-#     echo "$sys_type"
-#     echo "$sep"
-# }
+test-check-system-zypper-assert() {
+    sys_type="zypper"
+    sep="-"
+    echo "$sys_type"
+    echo "$sep"
+}
 
-# test-check-system-apt() {
-#     load-check-system
-#     @mockfalse $(command -v yum)
-#     @mockfalse $(command -v zypper)
-#     @mock $(command -v apt-get) === @out /usr/bin/apt-get
-#     checkSystem
-#     echo "$sys_type"
-#     echo "$sep"
-# }
+test-check-system-apt() {
+    load-check-system
+    @mockfalse -z "$(command -v yum)"
+    @mockfalse -z "$(command -v zypper)"
+    @mocktrue -z "$(command -v apt-get)"
+    checkSystem
+    echo "$sys_type"
+    echo "$sep"
+}
 
-# test-check-system-apt-assert() {
-#     sys_type="apt-get"
-#     sep="="
-#     echo "$sys_type"
-#     echo "$sep"
-# }
+test-check-system-apt-assert() {
+    sys_type="apt-get"
+    sep="="
+    echo "$sys_type"
+    echo "$sep"
+}
 
 function load-check-names() {
     @load_function "${curr_dir}/../install_functions/opendistro/common.sh" checkNames
@@ -160,6 +163,9 @@ test-check-names-kibana-wazuh-equals-assert() {
     logger -e "The node names for Wazuh and Kibana must be different."
     exit 1
 }
+
+## TODO: El orden del echo y el grep a veces cambia o algo
+## y a veces fallan estos siguientes tres tests
 
 test-check-names-wazuh-node-name-not-in-config() {
     load-check-names
@@ -203,14 +209,83 @@ test-check-names-elasticsearch-node-name-not-in-config-assert() {
     exit 1
 }
 
+
+## TODO: Este no funciona, según el echo y el grep
+## que se muestran, no debería entrar en la condición
 test-check-names-all-correct() {
     load-check-names
-    einame="elasticsearch"
-    kiname="kibana"
-    wazuh="wazuh"
-    elasticsearch_node_names=( elasticsearch )
-    wazuh_servers_node_names=( kibana )
-    kibana_node_names=( wazuh )
+    einame="elasticsearch1"
+    kiname="kibana1"
+    wazuh="wazuh1"
+    elasticsearch_node_names=(elasticsearch1)
+    wazuh_servers_node_names=(kibana1)
+    kibana_node_names=(wazuh1)
     checkNames
     @assert-success
+}
+
+function load-check-arch() {
+    @load_function "${curr_dir}/../install_functions/opendistro/common.sh" checkArch
+}
+
+test-check-arch-x86_64() {
+    @mock uname -m === @out x86_64
+    load-check-arch
+    checkArch
+    @assert-success
+}
+
+test-check-arch-empty() {
+    @mock uname -m === @out
+    load-check-arch
+    checkArch
+}
+
+test-check-arch-empty-assert() {
+    logger -e "Uncompatible system. This script must be run on a 64-bit system."
+    exit 1
+}
+
+test-check-arch-i386() {
+    @mock uname -m === @out i386
+    load-check-arch
+    checkArch
+}
+
+test-check-arch-i386-assert() {
+    logger -e "Uncompatible system. This script must be run on a 64-bit system."
+    exit 1
+}
+
+function load-install-prerequisites() {
+    @load_function "${curr_dir}/../install_functions/opendistro/common.sh" installPrerequisites
+}
+
+test-install-prerequisites-yum-no-openssl() {
+    @mockfalse -z "$(command -v openssl)"
+    load-install-prerequisites
+    sys_type="yum"
+    debug=""
+    installPrerequisites
+}
+
+test-install-prerequisites-yum-no-openssl-assert() {
+    logger "Starting all necessary utility installation."
+    yum install curl unzip wget libcap tar gnupg openssl -y
+    logger "All necessary utility installation finished."
+}
+
+test-install-prerequisites-yum() {
+    @mock command -v openssl === @out /usr/bin/openssl
+    @mocktrue yum install curl unzip wget libcap tar gnupg -y
+    load-install-prerequisites
+    sys_type="yum"
+    debug=""
+    installPrerequisites
+}
+
+test-install-prerequisites-yum-assert() {
+    logger "Starting all necessary utility installation."
+    yum install curl unzip wget libcap tar gnupg -y
+    logger "All necessary utility installation finished."
 }
