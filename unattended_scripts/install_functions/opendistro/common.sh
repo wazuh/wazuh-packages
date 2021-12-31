@@ -297,10 +297,6 @@ function startService() {
 
 function createCertificates() {
 
-    if [ -n "${AIO}" ]; then
-        eval "getConfig certificate/config_aio.yml ${base_path}/config.yml ${debug}"
-    fi
-
     mkdir ${base_path}/certs
 
     generateRootCAcertificate
