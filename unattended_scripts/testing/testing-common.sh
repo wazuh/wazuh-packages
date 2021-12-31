@@ -10,23 +10,21 @@ function load-get-config() {
 
 test-get-config-empty() {
     load-get-config
-    @mock logger -e "getConfig must be called with 2 arguments." === @echo "getConfig must be called with 2 arguments."
     getConfig
 }
 
 test-get-config-empty-assert() {
-    @echo "getConfig must be called with 2 arguments."
+    logger -e "getConfig must be called with 2 arguments."
     exit 1
 }
 
 test-get-config-one-argument() {
     load-get-config
-    @mock logger -e "getConfig must be called with 2 arguments." === @echo "getConfig must be called with 2 arguments."
     getConfig "elasticsearch"
 }
 
 test-get-config-one-argument-assert() {
-    @echo "getConfig must be called with 2 arguments."
+    logger -e "getConfig must be called with 2 arguments."
     exit 1
 }
 
@@ -64,50 +62,137 @@ test-check-system-no-system() {
     @mockfalse command -v yum
     @mockfalse command -v zypper
     @mockfalse command -v apt-get
-    @mock logger -e "Couldn't find type of system based on the installer software" === @echo "Couldn't find type of system based on the installer software"
     checkSystem
 }
 
 test-check-system-no-system-assert() {
-    @echo "Couldn't find type of system based on the installer software"
+    logger -e "Couldn't find type of system based on the installer software"
     exit 1
 }
 
-test-check-system-yum() {
-    load-check-system
-    @mocktrue command -v yum
-    @mockfalse command -v zypper
-    @mockfalse command -v apt-get
-    checkSystem
+# test-check-system-yum() {
+#     load-check-system
+#     @mock command -v yum === @out /usr/bin/yum
+#     @mockfalse command -v zypper
+#     @mockfalse command -v apt-get
+#     checkSystem
+#     echo "$sys_type"
+#     echo "$sep"
+# }
+
+# test-check-system-yum-assert() {
+#     sys_type="yum"
+#     sep="-"
+#     echo "$sys_type"
+#     echo "$sep"
+# }
+
+# test-check-system-zypper() {
+#     load-check-system
+#     @mockfalse command -v yum
+#     @mock command -v zypper === @out /usr/bin/zypper
+#     @mockfalse command -v apt-get
+#     checkSystem
+#     echo "$sys_type"
+#     echo "$sep"
+# }
+
+# test-check-system-zypper-assert() {
+#     sys_type="zypper"
+#     sep="-"
+#     echo "$sys_type"
+#     echo "$sep"
+# }
+
+# test-check-system-apt() {
+#     load-check-system
+#     @mockfalse $(command -v yum)
+#     @mockfalse $(command -v zypper)
+#     @mock $(command -v apt-get) === @out /usr/bin/apt-get
+#     checkSystem
+#     echo "$sys_type"
+#     echo "$sep"
+# }
+
+# test-check-system-apt-assert() {
+#     sys_type="apt-get"
+#     sep="="
+#     echo "$sys_type"
+#     echo "$sep"
+# }
+
+function load-check-names() {
+    @load_function "${curr_dir}/../install_functions/opendistro/common.sh" checkNames
 }
 
-test-check-system-yum-assert() {
-    sys_type="yum"
-    sep="-"
+test-check-names-elastic-kibana-equals() {
+    load-check-names
+    einame="node1"
+    kiname="node1"
+    checkNames
 }
 
-test-check-system-zypper() {
-    load-check-system
-    @mockfalse command -v yum
-    @mocktrue command -v zypper
-    @mockfalse command -v apt-get
-    checkSystem
+test-check-names-elastic-kibana-equals-assert() {
+    logger -e "The node names for Elastisearch and Kibana must be different."
+    exit 1
 }
 
-test-check-system-zypper-assert() {
-    sys_type="zypper"
-    sep="-"
+test-check-names-elastic-wazuh-equals() {
+    load-check-names
+    einame="node1"
+    winame="node1"
+    checkNames
 }
 
-test-check-system-apt() {
-    load-check-system
-    @mockfalse command -v yum
-    @mockfalse command -v zypper
-    @mocktrue command -v apt-get
-    checkSystem
+test-check-names-elastic-wazuh-equals-assert() {
+    logger -e "The node names for Elastisearch and Wazuh must be different."
+    exit 1
 }
 
-test-check-system-yum-assert() {
-    sys_type="apt-get"
-    sep="="
+test-check-names-kibana-wazuh-equals() {
+    load-check-names
+    kiname="node1"
+    winame="node1"
+    checkNames
+}
+
+test-check-names-kibana-wazuh-equals-assert() {
+    logger -e "The node names for Wazuh and Kibana must be different."
+    exit 1
+}
+
+test-check-names-wazuh-node-name-not-in-config() {
+    load-check-names
+    winame="node1"
+    wazuh_servers_node_names=(wazuh node10)
+    checkNames
+}
+
+test-check-names-wazuh-node-name-not-in-config-assert() {
+    logger -e "The name given for the Wazuh server node does not appear on the configuration file."
+    exit 1
+}
+
+test-check-names-kibana-node-name-not-in-config() {
+    load-check-names
+    kiname="node1"
+    kibana_node_names=(kibana node10)
+    checkNames
+}
+
+test-check-names-kibana-node-name-not-in-config-assert() {
+    logger -e "The name given for Kibana node does not appear on the configuration file."
+    exit 1
+}
+
+test-check-names-elasticsearch-node-name-not-in-config() {
+    load-check-names
+    einame="node1"
+    elasticsearch_node_names=(elasticsearch node10)
+    checkNames
+}
+
+test-check-names-elasticsearch-node-name-not-in-config-assert() {
+    logger -e "The name given for Elasticsearch node does not appear on the configuration file."
+    exit 1
 }
