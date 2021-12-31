@@ -36,13 +36,13 @@ function getConfig() {
 }
 
 function checkSystem() {
-    if $(command -v yum) ; then
+    if [ -n "$(command -v yum)" ]; then
         sys_type="yum"
         sep="-"
-    elif $(command -v zypper) ; then
+    elif [ -n "$(command -v zypper)" ]; then
         sys_type="zypper"
         sep="-"
-    elif $(command -v apt-get) ; then
+    elif [ -n "$(command -v apt-get)" ]; then
         sys_type="apt-get"
         sep="="
     else
