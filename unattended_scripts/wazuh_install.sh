@@ -195,7 +195,7 @@ function main() {
                     exit 1
                 fi
                 wazuh=1
-                winame=$2
+                winame="$2"
                 shift 2
                 ;;
             "-e"|"--elasticsearch")
@@ -205,7 +205,7 @@ function main() {
                     exit 1
                 fi
                 elasticsearch=1
-                einame=$2
+                einame="$2"
                 shift 2
                 ;;
             "-k"|"--kibana")
@@ -215,7 +215,7 @@ function main() {
                     exit 1
                 fi
                 kibana=1
-                kiname=$2
+                kiname="$2"
                 shift 2
                 ;;
             "-c"|"--create-certificates")
