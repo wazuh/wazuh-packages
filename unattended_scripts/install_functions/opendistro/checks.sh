@@ -1,4 +1,5 @@
-# Copyright (C) 2015-2021, Wazuh Inc.
+# Wazuh installer - checks.sh library. 
+ Copyright (C) 2015-2022, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
@@ -156,7 +157,7 @@ function checkHealth() {
     esac
 }
 
-function checkInstalled() {
+function checkIfInstalled() {
     if [ "${sys_type}" == "yum" ]; then
         wazuhinstalled=$(yum list installed 2>/dev/null | grep wazuh-manager)
     elif [ "${sys_type}" == "zypper" ]; then
@@ -182,7 +183,7 @@ function checkInstalled() {
     elif [ "${sys_type}" == "zypper" ]; then
         elasticsearchinstalled=$(zypper packages | grep opendistroforelasticsearch | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
-        elasticsearchinstalled=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch)
+        elasticsearchinstalled=$(apt list --installed 2>/dev/null | grep opendistro)
     fi
 
     if [ -d /var/lib/elasticsearch/ ] || [ -d /usr/share/elasticsearch ] || [ -d /etc/elasticsearch ] || [ -f ${base_path}/search-guard-tlstool* ]; then
@@ -238,8 +239,9 @@ function checkInstalled() {
     fi
 }
 
+# This function ensures different names in the config.yml file. 
 function checkNames() {
-    
+
     if [[ -n ${einame} ]] && [[ -n ${kiname} ]] && ([[ "${einame}" == "${kiname}" ]]); then
         logger -e "The node names for Elastisearch and Kibana must be different."
         exit 1
@@ -272,6 +274,7 @@ function checkNames() {
         
 }
 
+# This function checks if the target certificates are created before to start the installation.
 function checkPreviousCertificates() {
 
     if [ -n "${einame}" ]; then

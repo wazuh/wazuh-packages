@@ -1,3 +1,4 @@
+# Wazuh installer - common.sh library. 
 # Copyright (C) 2015-2021, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
@@ -72,6 +73,7 @@ function createClusterKey() {
 }
 
 function changePasswords() {
+
     logger "Setting passwords."
     if [ -f "${base_path}/certs.tar" ]; then
         eval "tar -xf ${base_path}/certs.tar -C ${base_path} ./password_file.yml ${debug}"
@@ -98,6 +100,7 @@ function changePasswords() {
     fi
     rm -rf ${p_file}
     logger "Passwords set."
+
 }
 
 function getConfig() {
@@ -119,6 +122,7 @@ function getPass() {
             u_pass=${passwords[i]}
         fi
     done
+
 }
 
 function installPrerequisites() {
@@ -150,7 +154,6 @@ function installPrerequisites() {
 
 function restoreWazuhrepo() {
     if [ -n "${development}" ]; then
-        logger "Setting the Wazuh repository to production."
         if [ "${sys_type}" == "yum" ] && [ -f /etc/yum.repos.d/wazuh.repo ]; then
             file="/etc/yum.repos.d/wazuh.repo"
         elif [ "${sys_type}" == "zypper" ] && [ -f /etc/zypp/repos.d/wazuh.repo ]; then
@@ -298,6 +301,7 @@ function rollBack() {
     if [ -z "${uninstall}" ] && [ -z "$1" ]; then
         logger "Installation cleaned. Check the ${logfile} file to learn more about the issue."
     fi
+
 }
 
 function startService() {

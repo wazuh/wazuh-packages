@@ -1,4 +1,5 @@
-# Copyright (C) 2015-2021, Wazuh Inc.
+# Wazuh installer - kibana.sh library. 
+# Copyright (C) 2015-2022, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
@@ -13,7 +14,6 @@ function configureKibana() {
     eval "mkdir /usr/share/kibana/data ${debug}"
     eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
     eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install ${kibana_wazuh_plugin} ${debug}"
-    logger "${kibana_wazuh_plugin}"
     if [  "$?" != 0  ]; then
         logger -e "Wazuh Kibana plugin could not be installed."
         exit 1
@@ -44,7 +44,6 @@ function configureKibana() {
     fi
 
     modifyKibanaLogin
-
     copyKibanacerts
 }
 

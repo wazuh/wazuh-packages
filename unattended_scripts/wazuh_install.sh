@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Wazuh installer
-# Copyright (C) 2015-2021, Wazuh Inc.
+# Copyright (C) 2015-2022, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
@@ -57,7 +57,7 @@ function getHelp() {
 
     echo -e ""
     echo -e "NAME"
-    echo -e "        $(basename $0) - Install and configure Wazuh All-In-One components."
+    echo -e "        $(basename $0) - Install and configure Wazuh components."
     echo -e ""
     echo -e "SYNOPSIS"
     echo -e "        $(basename $0) [OPTIONS]"
@@ -252,21 +252,23 @@ function main() {
         logger -e "Error: This script must be run as root."
         exit 1
     fi
-    
+
+# -------------- Spinner initialization -----------------------------
+
     spin &
     spin_pid=$!
     trap "kill -9 $spin_pid $debug" EXIT
 
-# -------------- Library  import ----------------------------
+# -------------- Library import ----------------------------
 
     importFunction "checks.sh"
     importFunction "common.sh"
     importFunction "wazuh-cert-tool.sh"
     importFunction "wazuh-passwords-tool.sh"
-            
+
     checkArch
     checkSystem
-    checkInstalled
+    checkIfInstalled
     checkArguments
     readConfig
 
@@ -277,8 +279,8 @@ function main() {
         rollBack
         exit 0
     fi
-    
-# -------------- Uninstall case  ------------------------------------
+
+# -------------- Check config names ---------------------------------
 
     if [ -z "${AIO}" ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
         checkNames
@@ -305,12 +307,9 @@ function main() {
         if [ ! -f ${base_path}/certs.tar ]; then
             logger -e "No certificates file found (${base_path}/certs.tar). Run the script with the option -c|--certificates to create automatically or copy them from the node where they were created."
             exit 1
-        fi
-
-        if [ -d ${base_path}/certs ]; then
+        else
             checkPreviousCertificates
         fi
-
         installPrerequisites
         addWazuhrepo
     fi
@@ -331,13 +330,14 @@ function main() {
         else
             checkHealth elasticsearch
         fi
-
         installElasticsearch 
         configureElasticsearch
         startService "elasticsearch"
         initializeElasticsearch
         changePasswords
     fi
+
+# -------------- Start Elasticsearch cluster case  ------------------
 
     if [ -n "${start_elastic_cluster}" ]; then
         importFunction "elasticsearch.sh"
@@ -360,7 +360,6 @@ function main() {
         else
             checkHealth kibana
         fi
-
         installKibana 
         configureKibana
         changePasswords
@@ -385,7 +384,6 @@ function main() {
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
             configureWazuhCluster 
         fi
-        
         startService "wazuh-manager"
         installFilebeat
         configureFilebeat
@@ -424,7 +422,11 @@ function main() {
         initializeKibanaAIO
     fi
 
-    restoreWazuhrepo
+# -------------------------------------------------------------------
+
+    if [ -z "${certificates}" ]; then
+        restoreWazuhrepo
+    fi
 
     if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}"  ]; then
         logger "Installation finished."

@@ -1,4 +1,5 @@
-# Copyright (C) 2015-2021, Wazuh Inc.
+# Wazuh installer - elasticsearch.sh library. 
+# Copyright (C) 2015-2022, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
@@ -102,6 +103,7 @@ function configureElasticsearch() {
     eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
 
 }
+
 function configureElasticsearchAIO() {
 
     eval "getConfig elasticsearch/elasticsearch_all_in_one.yml /etc/elasticsearch/elasticsearch.yml ${debug}"
@@ -113,7 +115,6 @@ function configureElasticsearchAIO() {
     eval "export JAVA_HOME=/usr/share/elasticsearch/jdk/"
 
     export JAVA_HOME=/usr/share/elasticsearch/jdk/
-        
     eval "mkdir ${e_certs_path} ${debug}"
     copyCertificatesElasticsearch
     
@@ -195,7 +196,7 @@ function installElasticsearch() {
         exit 1
     else
         elasticsearchinstalled="1"
-         logger "Open Distro for Elasticsearch installation finished."
+        logger "Open Distro for Elasticsearch installation finished."
     fi
 }
 
@@ -219,6 +220,5 @@ function startElasticsearchCluster() {
     else
         logger "The wazuh-alerts template was inserted into the Elasticsearch cluster."
     fi
-
 
 }

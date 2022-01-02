@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Program to generate the certificates necessary for Wazuh installation
-# Copyright (C) 2015-2021, Wazuh Inc.
+# Copyright (C) 2015-2022, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
@@ -17,6 +17,12 @@ if [[ -z "${logfile}" ]]; then
 fi
 
 debug_cert=">> ${logfile} 2>&1"
+elasticsearchinstances="elasticsearch-nodes:"
+filebeatinstances="wazuh-servers:"
+kibanainstances="kibana:"
+elasticsearchhead='# Elasticsearch nodes'
+filebeathead='# Wazuh server nodes'
+kibanahead='# Kibana node'
 
 function cleanFiles() {
 
@@ -36,7 +42,7 @@ function checkOpenSSL() {
 
 function logger_cert() {
 
-    now=$(date +'%m/%d/%Y %H:%M:%S')
+    now=$(date +'%d/%m/%Y %H:%M:%S')
     case $1 in 
         "-e")
             mtype="ERROR:"

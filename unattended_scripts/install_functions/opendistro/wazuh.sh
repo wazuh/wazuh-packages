@@ -1,4 +1,5 @@
-# Copyright (C) 2015-2021, Wazuh Inc.
+# Wazuh installer - wazuh.sh library. 
+# Copyright (C) 2015-2022, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
