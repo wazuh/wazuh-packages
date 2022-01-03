@@ -13,7 +13,6 @@ ARCHITECTURE="x86_64"
 OUTDIR="${CURRENT_PATH}/output"
 REVISION="1"
 BUILD_DOCKER="yes"
-USER_PATH="no"
 RPM_X86_BUILDER="rpm_builder_x86"
 RPM_BUILDER_DOCKERFILE="${CURRENT_PATH}/docker"
 INSTALLATION_PATH="/var/wazuh-indexer"
@@ -24,7 +23,7 @@ clean() {
     exit_code=$1
 
     # Clean the files
-    rm -rf ${DOCKERFILE_PATH}/{*.tar.gz,wazuh*} ${DOCKERFILE_PATH}/build.sh ${SOURCES_DIRECTORY}
+    rm -rf ${DOCKERFILE_PATH}/{*.sh,*.tar.gz,wazuh-*}
 
     exit ${exit_code}
 }
@@ -51,7 +50,7 @@ build_rpm() {
     docker run -t --rm -v ${OUTDIR}/:/tmp:Z \
         -v ${CURRENT_PATH}/wazuh-indexer.spec:/root/wazuh-indexer.spec \
         ${CONTAINER_NAME} ${ARCHITECTURE} \
-        ${REVISION} ${INSTALLATION_PATH}|| return 1
+        ${REVISION} ${INSTALLATION_PATH} || return 1
 
     echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
 
@@ -78,12 +77,12 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -a, --architecture <arch>    [Optional] Target architecture of the package [x86_64]."
-    echo "    -r, --revision <rev>         [Optional] Package revision that append to version e.g. x.x.x-rev"
-    echo "    -s, --store <path>           [Optional] Set the destination path of package. By default, an output folder will be created."
-    echo "    -p, --path <path>            [Optional] Installation path for the package. By default: /var/ossec."
-    echo "    --dont-build-docker          [Optional] Locally built docker image will be used instead of generating a new one."
-    echo "    -h, --help                   Show this help."
+    echo "    -a, --architecture <arch>  [Optional] Target architecture of the package [x86_64]."
+    echo "    -r, --revision <rev>       [Optional] Package revision. By default: 1."
+    echo "    -s, --store <path>         [Optional] Set the destination path of package. By default, an output folder will be created."
+    echo "    -p, --path <path>          [Optional] Installation path for the package. By default: /usr/share/wazuh-indexer"
+    echo "    --dont-build-docker        [Optional] Locally built docker image will be used instead of generating a new one."
+    echo "    -h, --help                 Show this help."
     echo
     exit $1
 }
@@ -127,7 +126,6 @@ main() {
         "-s"|"--store")
             if [ -n "$2" ]; then
                 OUTDIR="$2"
-                USER_PATH="yes"
                 shift 2
             else
                 help 1
@@ -137,10 +135,6 @@ main() {
             help 1
         esac
     done
-
-    if [[ "${USER_PATH}" == "no" ]]; then
-        OUTDIR="${OUTDIR}/${ARCHITECTURE}"
-    fi
 
     build || clean 1
 

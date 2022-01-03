@@ -94,7 +94,7 @@ fi
 %post
 sysctl -w vm.max_map_count=262144 > /dev/null 2>&1 
 ulimit -Hn 65535 > /dev/null 2>&1 
-sudo -u %{USER} CLK_TK=`/usr/bin/getconf CLK_TCK` OPENSEARCH_PATH_CONF=%{CONFIG_DIR} %{INSTALL_DIR}/bin/opensearch > /dev/null 2>&1 &
+sudo -u %{USER} CLK_TK=`/usr/bin/getconf CLK_TCK` OPENSEARCH_PATH_CONF=%{CONFIG_DIR} %{INSTALL_DIR}/bin/opensearch --quiet > /dev/null 2>&1 &
 
 sleep 15
 

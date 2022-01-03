@@ -9,7 +9,7 @@
 # Foundation.
 
 set -ex
-# Optional package release
+# Script parameters to build the package
 target="wazuh-indexer"
 architecture=$1
 release=$2
@@ -27,28 +27,26 @@ build_dir=/build
 rpm_build_dir=${build_dir}/rpmbuild
 file_name="${target}-${version}-${release}"
 pkg_path="${rpm_build_dir}/RPMS/${architecture}"
+rpm_file="${file_name}.${architecture}.rpm"
 mkdir -p ${rpm_build_dir}/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
 # Prepare the sources directory to build the source tar.gz
-package_name=${target}-${version}
-mkdir ${build_dir}/${package_name}
-#files_dir="${build_dir}/${package_name}"
-#curl -kOL https://s3.amazonaws.com/warehouse.wazuh.com/indexer/opensearch-1.2.1-linux-x64.tar.gz
-#tar xzvf opensearch-*.tar.gz && rm -f opensearch-*.tar.gz
-#find opensearch-* -type l -exec rm -f {} \;
-#rm -rf opensearch-*/jdk/conf/security/policy/unlimited
-#rm -f opensearch-*/performance-analyzer-rca/bin/performance-analyzer-rca.bat
-#mv -f opensearch-* ${files_dir}
+pkg_name=${target}-${version}
+mkdir ${build_dir}/${pkg_name}
+
 
 # Including spec file
-cp /root/${target}.spec ${rpm_build_dir}/SPECS/${package_name}.spec
+cp /root/${target}.spec ${rpm_build_dir}/SPECS/${pkg_name}.spec
 
 # Generating source tar.gz
-cd ${build_dir} && tar czf "${rpm_build_dir}/SOURCES/${package_name}.tar.gz" "${package_name}"
+cd ${build_dir} && tar czf "${rpm_build_dir}/SOURCES/${pkg_name}.tar.gz" "${pkg_name}"
 
 # Building RPM
 /usr/bin/rpmbuild --define "_topdir ${rpm_build_dir}" \
     --define "_release ${release}" --define "_localstatedir ${directory_base}" \
-    --target ${architecture} -ba ${rpm_build_dir}/SPECS/${package_name}.spec
+    --target ${architecture} -ba ${rpm_build_dir}/SPECS/${pkg_name}.spec
+
+cd ${pkg_path} && sha512sum ${rpm_file} > /tmp/${rpm_file}.sha512
+
 
 find ${pkg_path}/ -maxdepth 3 -type f -name "${file_name}*" -exec mv {} /tmp/ \;
