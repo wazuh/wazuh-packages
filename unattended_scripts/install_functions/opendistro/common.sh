@@ -75,8 +75,8 @@ function createClusterKey() {
 function changePasswords() {
 
     logger "Setting passwords."
-    if [ -f "${base_path}/certs.tar" ]; then
-        eval "tar -xf ${base_path}/certs.tar -C ${base_path} ./password_file.yml ${debug}"
+    if [ -f "${tar_file}" ]; then
+        eval "tar -xf ${tar_file} -C ${base_path} ./password_file.yml ${debug}"
         p_file="${base_path}/password_file.yml"
         checkInstalledPass
         if [ -n "${elasticsearch}" ] || [ -n "${AIO}" ]; then
@@ -150,6 +150,7 @@ function installPrerequisites() {
     else
         logger "All necessary utility installation finished."
     fi
+    
 }
 
 function restoreWazuhrepo() {
@@ -210,7 +211,7 @@ function rollBack() {
         elif [ "${sys_type}" == "zypper" ]; then
             eval "zypper -n remove opendistroforelasticsearch elasticsearch* opendistro-* ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
-            eval "apt remove --purge ^elasticsearch* ^opendistro* -y ${debug}"
+            eval "apt remove --purge ^elasticsearch* ^opendistro-* ^opendistroforelasticsearch -y ${debug}"
         fi 
     fi
 

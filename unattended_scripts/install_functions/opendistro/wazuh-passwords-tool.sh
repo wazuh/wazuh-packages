@@ -203,7 +203,6 @@ generatePassword() {
         logger_pass -e "The password has not been generated."
         exit 1;
     fi
-    logger_pass "Done"
 
 }
 
@@ -568,7 +567,6 @@ runSecurityAdmin() {
         exit 1;
     fi    
     eval "rm -rf /usr/share/elasticsearch/backup/ ${debug_pass}"
-    logger_pass "Done"
 
     if [[ -n "${nuser}" ]] && [[ -n ${autopass} ]]; then
         logger_pass $'\nThe password for user '${nuser}' is '${password}''

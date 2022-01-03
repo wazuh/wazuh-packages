@@ -10,6 +10,7 @@
 
 if [ -z "${base_path}" ]; then
     base_path="$(dirname $(readlink -f $0))"
+    config_file="${base_path}/config.yml"
 fi
 
 if [[ -z "${logfile}" ]]; then
@@ -30,14 +31,16 @@ function cleanFiles() {
     eval "rm -rf ${base_path}/certs/*.srl ${debug_cert}"
     eval "rm -rf ${base_path}/certs/*.conf ${debug_cert}"
     eval "rm -rf ${base_path}/certs/admin-key-temp.pem ${debug_cert}"
-    logger_cert "Certificates creation finished. They can be found in ${base_path}/certs."
+
 }
 
 function checkOpenSSL() {
+
     if [ -z "$(command -v openssl)" ]; then
         logger_cert -e "OpenSSL not installed."
         exit 1
-    fi    
+    fi   
+
 }
 
 function logger_cert() {
@@ -58,6 +61,7 @@ function logger_cert() {
             ;;
     esac
     echo $now $mtype $message | tee -a ${logfile}
+
 }
 
 function generateAdmincertificate() {
@@ -168,6 +172,7 @@ function generateRootCAcertificate() {
 }
 
 function getHelp() {
+
     echo -e ""
     echo -e "NAME"
     echo -e "        wazuh-cert-tool.sh - Manages the creation of certificates of the Wazuh components."
@@ -195,6 +200,7 @@ function getHelp() {
     echo -e "                Creates the Wazuh server certificates."
 
     exit 1
+
 }
 
 function main() {
@@ -210,8 +216,6 @@ function main() {
     else
         mkdir ${base_path}/certs
     fi
-
-
 
     if [ -n "$1" ]; then
         while [ -n "$1" ]
@@ -311,17 +315,17 @@ function parse_yaml() {
 
 function readConfig() {
 
-    if [ -f ${base_path}/config.yml ]; then
-        eval "$(parse_yaml ${base_path}/config.yml)"
-        eval "elasticsearch_node_names=( $(parse_yaml ${base_path}/config.yml | grep nodes_elasticsearch_name | sed 's/nodes_elasticsearch_name=//') )"
-        eval "wazuh_servers_node_names=( $(parse_yaml ${base_path}/config.yml | grep nodes_wazuh_servers_name | sed 's/nodes_wazuh_servers_name=//') )"
-        eval "kibana_node_names=( $(parse_yaml ${base_path}/config.yml | grep nodes_kibana_name | sed 's/nodes_kibana_name=//') )"
+    if [ -f ${config_file} ]; then
+        eval "$(parse_yaml ${config_file})"
+        eval "elasticsearch_node_names=( $(parse_yaml ${config_file} | grep nodes_elasticsearch_name | sed 's/nodes_elasticsearch_name=//') )"
+        eval "wazuh_servers_node_names=( $(parse_yaml ${config_file} | grep nodes_wazuh_servers_name | sed 's/nodes_wazuh_servers_name=//') )"
+        eval "kibana_node_names=( $(parse_yaml ${config_file} | grep nodes_kibana_name | sed 's/nodes_kibana_name=//') )"
 
-        eval "elasticsearch_node_ips=( $(parse_yaml ${base_path}/config.yml | grep nodes_elasticsearch_ip | sed 's/nodes_elasticsearch_ip=//') )"
-        eval "wazuh_servers_node_ips=( $(parse_yaml ${base_path}/config.yml | grep nodes_wazuh_servers_ip | sed 's/nodes_wazuh_servers_ip=//') )"
-        eval "kibana_node_ips=( $(parse_yaml ${base_path}/config.yml | grep nodes_kibana_ip | sed 's/nodes_kibana_ip=//') )"
+        eval "elasticsearch_node_ips=( $(parse_yaml ${config_file} | grep nodes_elasticsearch_ip | sed 's/nodes_elasticsearch_ip=//') )"
+        eval "wazuh_servers_node_ips=( $(parse_yaml ${config_file} | grep nodes_wazuh_servers_ip | sed 's/nodes_wazuh_servers_ip=//') )"
+        eval "kibana_node_ips=( $(parse_yaml ${config_file} | grep nodes_kibana_ip | sed 's/nodes_kibana_ip=//') )"
 
-        eval "wazuh_servers_node_types=( $(parse_yaml ${base_path}/config.yml | grep nodes_wazuh_servers_node_type | sed 's/nodes_wazuh_servers_node_type=//') )"
+        eval "wazuh_servers_node_types=( $(parse_yaml ${config_file} | grep nodes_wazuh_servers_node_type | sed 's/nodes_wazuh_servers_node_type=//') )"
 
         if [ $(printf '%s\n' "${elasticsearch_node_names[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#elasticsearch_node_names[@]} ]; then 
             logger_cert -e "Duplicated Elasticsearch node names."
@@ -380,9 +384,10 @@ function readConfig() {
         fi
 
     else
-        logger_cert -e "No configuration file found. ${base_path}/config.yml."
+        logger_cert -e "No configuration file found. ${config_file}."
         exit 1
     fi
+    
 }
 
 main $@

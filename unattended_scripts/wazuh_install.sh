@@ -25,6 +25,8 @@ resources="https://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/resources/$
 resources_functions="${resources}/${functions_path}"
 resources_config="${resources}/${config_path}"
 base_path="$(dirname $(readlink -f $0))"
+config_file="${base_path}/config.yml"
+tar_file="${base_path}/certs.tar"
 
 ## JAVA_HOME
 export JAVA_HOME=/usr/share/elasticsearch/jdk/
@@ -51,6 +53,7 @@ function cleanExit() {
         rollBack
         exit 1
     fi
+
 }
 
 function getHelp() {
@@ -75,6 +78,9 @@ function getHelp() {
     echo -e "        -e,  --elasticsearch <elasticsearch-node-name>"
     echo -e "                Elasticsearch installation."
     echo -e ""
+    echo -e "        -f,  --fileconfig <path-to-config-yml>"
+    echo -e "                Path to config file. By default: ${base_path}/config.yml"
+    echo -e ""
     echo -e "        -h,  --help"
     echo -e "                Shows help."
     echo -e ""
@@ -93,6 +99,9 @@ function getHelp() {
     echo -e "        -s,  --start-cluster"
     echo -e "                Start the Elasticsearch cluster."
     echo -e ""
+    echo -e "        -t,  --tar <path-to-certs-tar"
+    echo -e "                Path to tar containing certificate files. By default: ${base_path}/certs.tar"
+    echo -e ""
     echo -e "        -u,  --uninstall"
     echo -e "                Uninstall all wazuh components. NOTE: This will erase all the existing configuration and data."
     echo -e ""
@@ -102,10 +111,12 @@ function getHelp() {
     echo -e "        -w,  --wazuh-server <wazuh-node-name>"
     echo -e "                Wazuh server installation. It includes Filebeat."
     echo -e ""
-    exit 1 
+    exit 1
+
 }
 
 function importFunction() {
+
     if [ -n "${local}" ]; then
         if [ -f ${base_path}/$functions_path/$1 ]; then
             cat ${base_path}/$functions_path/$1 |grep 'main $@' > /dev/null 2>&1
@@ -141,6 +152,7 @@ function importFunction() {
         logger -e "Unable to find resource $1. Exiting."
         exit 1
     fi
+
 }
 
 function logger() {
@@ -161,10 +173,12 @@ function logger() {
             ;;
     esac
     echo $now $mtype $message | tee -a ${logfile}
+
 }
 
 function main() {
 
+    nargs=$#
     if [ ! -n "$1" ]; then
         getHelp
     fi
@@ -176,15 +190,13 @@ function main() {
                 AIO=1
                 shift 1
                 ;;
-            "-w"|"--wazuh-server")
-                if [ -z "$2" ]; then
-                    logger -e "Error on arguments. Probably missing <node-name> after -w|--wazuh-server"
-                    getHelp
-                    exit 1
-                fi
-                wazuh=1
-                winame=$2
-                shift 2
+            "-c"|"--create-certificates")
+                certificates=1
+                shift 1
+                ;;
+            "-d"|"--development")
+                development=1
+                shift 1
                 ;;
             "-e"|"--elasticsearch")
                 if [ -z "$2" ]; then
@@ -196,6 +208,22 @@ function main() {
                 einame=$2
                 shift 2
                 ;;
+            "-f"|"--fileconfig")
+                if [ -z "$2" ]; then
+                    logger -e "Error on arguments. Probably missing <path-to-config-yml> after -f|--fileconfig"
+                    getHelp
+                    exit 1
+                fi
+                config_file=$2
+                shift 2
+                ;;
+            "-h"|"--help")
+                getHelp
+                ;;
+            "-i"|"--ignore-health-check")
+                ignore=1
+                shift 1
+                ;;
             "-k"|"--kibana")
                 if [ -z "$2" ]; then
                     logger -e "Error on arguments. Probably missing <node-name> after -k|--kibana"
@@ -206,27 +234,6 @@ function main() {
                 kiname=$2
                 shift 2
                 ;;
-            "-c"|"--create-certificates")
-                certificates=1
-                shift 1
-                ;;
-            "-s"|"--start-cluster")
-                start_elastic_cluster=1
-                shift 1
-                ;;
-            "-i"|"--ignore-health-check")
-                ignore=1
-                shift 1
-                ;;
-            "-v"|"--verbose")
-                debugEnabled=1
-                debug="2>&1 | tee -a ${logfile}"
-                shift 1
-                ;;
-            "-d"|"--development")
-                development=1
-                shift 1
-                ;;
             "-l"|"--local")
                 local=1
                 shift 1
@@ -235,12 +242,37 @@ function main() {
                 overwrite=1
                 shift 1
                 ;;
+            "-s"|"--start-cluster")
+                start_elastic_cluster=1
+                shift 1
+                ;;
+            "-t"|"--tar")
+                if [ -z "$2" ]; then
+                    logger -e "Error on arguments. Probably missing <path-to-certs-tar> after -t|--tar"
+                    getHelp
+                    exit 1
+                fi
+                tar_file=$2
+                shift 2
+                ;;
             "-u"|"--uninstall")
                 uninstall=1
                 shift 1
                 ;;
-            "-h"|"--help")
-                getHelp
+            "-v"|"--verbose")
+                debugEnabled=1
+                debug="2>&1 | tee -a ${logfile}"
+                shift 1
+                ;;
+            "-w"|"--wazuh-server")
+                if [ -z "$2" ]; then
+                    logger -e "Error on arguments. Probably missing <node-name> after -w|--wazuh-server"
+                    getHelp
+                    exit 1
+                fi
+                wazuh=1
+                winame=$2
+                shift 2
                 ;;
             *)
                 echo "Unknow option: $1"
@@ -269,7 +301,9 @@ function main() {
     checkArch
     checkSystem
     checkIfInstalled
-    checkArguments
+    set -x
+    checkArguments "${nargs}"
+    set +x
     readConfig
 
 # -------------- Uninstall case  ------------------------------------
@@ -305,8 +339,8 @@ function main() {
 
     if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
 
-        if [ ! -f ${base_path}/certs.tar ]; then
-            logger -e "No certificates file found (${base_path}/certs.tar). Run the script with the option -c|--certificates to create automatically or copy them from the node where they were created."
+        if [ ! -f ${tar_file} ]; then
+            logger -e "No certificates file found (${tar_file}). Run the script with the option -c|--certificates to create automatically or copy them from the node where they were created."
             exit 1
         else
             checkPreviousCertificates
@@ -319,7 +353,7 @@ function main() {
 
     if [ -n "${elasticsearch}" ]; then
 
-        if [ ! -f "${base_path}/certs.tar" ]; then
+        if [ ! -f "${tar_file}" ]; then
             logger -e "Certificates not found. Exiting"
             exit 1
         fi
@@ -349,7 +383,7 @@ function main() {
 
     if [ -n "${kibana}" ]; then
 
-        if [ ! -f "${base_path}/certs.tar" ]; then
+        if [ ! -f "${tar_file}" ]; then
             logger -e "Certificates not found. Exiting"
             exit 1
         fi
@@ -450,6 +484,7 @@ function spin() {
             sleep 0.1
         done
     done
+
 }
 
 main $@

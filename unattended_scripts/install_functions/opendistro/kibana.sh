@@ -71,7 +71,7 @@ function configureKibanaAIO() {
 function copyKibanacerts() {
 
     eval "mkdir /etc/kibana/certs ${debug}"
-    if [ -f "${base_path}/certs.tar" ]; then
+    if [ -f "${tar_file}" ]; then
 
         if [ ${#kibana_node_names[@]} -eq 1 ]; then
             name=${kiname}
@@ -79,9 +79,9 @@ function copyKibanacerts() {
             name=${kibana_node_names[pos]}
         fi
 
-        eval "tar -xf ${base_path}/certs.tar -C ${k_certs_path} ./${name}.pem  && mv ${k_certs_path}${name}.pem ${k_certs_path}kibana.pem ${debug}"
-        eval "tar -xf ${base_path}/certs.tar -C ${k_certs_path} ./${name}-key.pem  && mv ${k_certs_path}${name}-key.pem ${k_certs_path}kibana-key.pem ${debug}"
-        eval "tar -xf ${base_path}/certs.tar -C ${k_certs_path} ./root-ca.pem ${debug}"
+        eval "tar -xf ${tar_file} -C ${k_certs_path} ./${name}.pem  && mv ${k_certs_path}${name}.pem ${k_certs_path}kibana.pem ${debug}"
+        eval "tar -xf ${tar_file} -C ${k_certs_path} ./${name}-key.pem  && mv ${k_certs_path}${name}-key.pem ${k_certs_path}kibana-key.pem ${debug}"
+        eval "tar -xf ${tar_file} -C ${k_certs_path} ./root-ca.pem ${debug}"
         eval "chown -R kibana:kibana /etc/kibana/ ${debug}"
         eval "chmod -R 500 /etc/kibana/certs ${debug}"
         eval "chmod 440 /etc/kibana/certs/* ${debug}"
