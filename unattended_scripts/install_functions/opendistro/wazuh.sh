@@ -20,7 +20,7 @@ function configureWazuhCluster() {
         fi
     done
 
-    key=$(cat ${base_path}/certs/clusterkey)
+    key=$(tar -axf certs.tar ./clusterkey -O)
     bind_address="0.0.0.0"
     port="1516"
     hidden="no"
