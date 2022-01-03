@@ -1895,6 +1895,46 @@
         "type": "file",
         "user": "root"
     },
+    "/var/ossec/wodles/gcloud/buckets": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "directory",
+        "user": "root"
+    },
+    "/var/ossec/wodles/gcloud/buckets/access_logs.py": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/wodles/gcloud/buckets/bucket.py": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/wodles/gcloud/pubsub": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "directory",
+        "user": "root"
+    },
+    "/var/ossec/wodles/gcloud/pubsub/subscriber.py": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
     "/var/ossec/wodles/oscap": {
         "class": "static",
         "group": "wazuh",
