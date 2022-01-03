@@ -12,7 +12,7 @@ RUN echo "deb http://archive.debian.org/debian/ wheezy contrib main non-free" > 
     cdbs devscripts equivs automake autoconf libtool libaudit-dev selinux-basics \
     libdb5.1=5.1.29-5 libdb5.1-dev libssl1.0.0=1.0.1e-2+deb7u20 procps gawk libsigsegv2
 
-# Add Debian's source repository and, Install NodeJS 6
+
 RUN apt-get update && apt-get build-dep python3.2 -y
 
 RUN curl -OL http://packages.wazuh.com/utils/gcc/gcc-5.5.0.tar.gz && \
