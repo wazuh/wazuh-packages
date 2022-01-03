@@ -288,7 +288,9 @@ function main() {
         checkNames
     fi
 
-    installPrerequisites
+    if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
+        installPrerequisites
+    fi
 
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
         createCertificates
