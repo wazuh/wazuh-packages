@@ -98,7 +98,7 @@ function setupKibanacerts() {
         logger "Kibana certificate setup finished."
 
     else
-        logger -e "No certificates found. Could not initialize Kibana"
+        logger -e "No certificates found. Kibana could not be initialized."
         exit 1
     fi
 }
