@@ -5,7 +5,7 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-installElasticsearch() {
+function installElasticsearch() {
 
     logger "Starting Open Distro for Elasticsearch installation."
 
@@ -18,7 +18,7 @@ installElasticsearch() {
     fi
 
     if [  "$?" != 0  ]; then
-        logger -e "Elasticsearch installation failed."
+        logger -e "Open Distro for Elasticsearch installation failed."
         rollBack
         exit 1
     else
@@ -27,7 +27,7 @@ installElasticsearch() {
     fi
 }
 
-copyCertificatesElasticsearch() {
+function copyCertificatesElasticsearch() {
     
     if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
         name=${einame}
@@ -44,14 +44,14 @@ copyCertificatesElasticsearch() {
 
 applyLog4j2Mitigation(){
 
-    eval "curl -so /tmp/apache-log4j-2.17.0-bin.tar.gz https://dlcdn.apache.org/logging/log4j/2.17.0/apache-log4j-2.17.0-bin.tar.gz ${debug}"
-    eval "tar -xf /tmp/apache-log4j-2.17.0-bin.tar.gz -C /tmp/"
+    eval "curl -so /tmp/apache-log4j-2.17.1-bin.tar.gz https://packages.wazuh.com/utils/log4j/apache-log4j-2.17.1-bin.tar.gz ${debug}"
+    eval "tar -xf /tmp/apache-log4j-2.17.1-bin.tar.gz -C /tmp/"
 
-    eval "cp /tmp/apache-log4j-2.17.0-bin/log4j-api-2.17.0.jar /usr/share/elasticsearch/lib/  ${debug}"
-    eval "cp /tmp/apache-log4j-2.17.0-bin/log4j-core-2.17.0.jar /usr/share/elasticsearch/lib/ ${debug}"
-    eval "cp /tmp/apache-log4j-2.17.0-bin/log4j-slf4j-impl-2.17.0.jar /usr/share/elasticsearch/plugins/opendistro_security/ ${debug}"
-    eval "cp /tmp/apache-log4j-2.17.0-bin/log4j-api-2.17.0.jar /usr/share/elasticsearch/performance-analyzer-rca/lib/ ${debug}"
-    eval "cp /tmp/apache-log4j-2.17.0-bin/log4j-core-2.17.0.jar /usr/share/elasticsearch/performance-analyzer-rca/lib/ ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-api-2.17.1.jar /usr/share/elasticsearch/lib/  ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-core-2.17.1.jar /usr/share/elasticsearch/lib/ ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-slf4j-impl-2.17.1.jar /usr/share/elasticsearch/plugins/opendistro_security/ ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-api-2.17.1.jar /usr/share/elasticsearch/performance-analyzer-rca/lib/ ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-core-2.17.1.jar /usr/share/elasticsearch/performance-analyzer-rca/lib/ ${debug}"
 
     eval "rm -f /usr/share/elasticsearch/lib//log4j-api-2.11.1.jar ${debug}"
     eval "rm -f /usr/share/elasticsearch/lib/log4j-core-2.11.1.jar ${debug}"
@@ -59,12 +59,12 @@ applyLog4j2Mitigation(){
     eval "rm -f /usr/share/elasticsearch/performance-analyzer-rca/lib/log4j-api-2.13.0.jar ${debug}"
     eval "rm -f /usr/share/elasticsearch/performance-analyzer-rca/lib/log4j-core-2.13.0.jar ${debug}"
 
-    eval "rm -rf /tmp/apache-log4j-2.17.0-bin ${debug}"
-    eval "rm -f /tmp/apache-log4j-2.17.0-bin.tar.gz ${debug}"
+    eval "rm -rf /tmp/apache-log4j-2.17.1-bin ${debug}"
+    eval "rm -f /tmp/apache-log4j-2.17.1-bin.tar.gz ${debug}"
 
 }
 
-configureElasticsearchAIO() {
+function configureElasticsearchAIO() {
 
     eval "getConfig elasticsearch/elasticsearch_all_in_one.yml /etc/elasticsearch/elasticsearch.yml ${debug}"
     eval "getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml ${debug}"
@@ -96,7 +96,7 @@ configureElasticsearchAIO() {
 
 }
 
-configureElasticsearch() {
+function configureElasticsearch() {
     logger "Configuring Elasticsearch."
 
     eval "getConfig elasticsearch/elasticsearch_unattended_distributed.yml /etc/elasticsearch/elasticsearch.yml ${debug}"
@@ -170,7 +170,7 @@ configureElasticsearch() {
 
 }
 
-initializeElasticsearch() {
+function initializeElasticsearch() {
 
 
     logger "Starting Elasticsearch cluster."
@@ -186,11 +186,26 @@ initializeElasticsearch() {
     logger "Elasticsearch cluster started."
 }
 
-startElasticsearchCluster() {
+function startElasticsearchCluster() {
 
     eval "elasticsearch_cluster_ip=( $(cat /etc/elasticsearch/elasticsearch.yml | grep network.host | sed 's/network.host:\s//') )"
     eval "export JAVA_HOME=/usr/share/elasticsearch/jdk/"
-    eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${elasticsearch_cluster_ip}"
-    eval "curl ${filebeat_wazuh_template} | curl -X PUT 'https://${elasticsearch_node_ips[pos]}:9200/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k ${debug}"
+    eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${elasticsearch_cluster_ip} > /dev/null ${debug}"
+    if [  "$?" != 0  ]; then
+        logger -e "The Elasticsearch cluster could not be initialized."
+        rollBack
+        exit 1
+    else
+        logger "Elasticsearch cluster initialized."
+    fi
+    eval "curl --silent ${filebeat_wazuh_template} | curl -X PUT 'https://${elasticsearch_node_ips[pos]}:9200/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k --silent ${debug}"
+    if [  "$?" != 0  ]; then
+        logger -e "The wazuh-alerts template could not be inserted into the Elasticsearch cluster."
+        rollBack
+        exit 1
+    else
+        logger "wazuh-alerts template inserted into the Elasticsearch cluster."
+    fi
+
 
 }

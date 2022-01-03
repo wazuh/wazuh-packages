@@ -5,7 +5,7 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-installFilebeat() {
+function installFilebeat() {
 
     logger "Starting filebeat installation."
     
@@ -16,7 +16,7 @@ installFilebeat() {
     fi
     if [  "$?" != 0  ]
     then
-        logger -e "Filebeat installation failed"
+        logger -e "Filebeat installation failed."
         exit 1
     else
         logger "Filebeat installation finished."
@@ -24,7 +24,7 @@ installFilebeat() {
     fi
 }
 
-configureFilebeat() {
+function configureFilebeat() {
 
     eval "getConfig filebeat/filebeat_distributed.yml /etc/filebeat/filebeat.yml ${debug}"
     eval "curl -so /etc/filebeat/wazuh-template.json ${filebeat_wazuh_template} --max-time 300 ${debug}"
@@ -50,7 +50,7 @@ configureFilebeat() {
     logger "Filebeat post-install configuration finished."
 }
 
-configureFilebeatAIO() {
+function configureFilebeatAIO() {
 
     eval "getConfig filebeat/filebeat_unattended.yml /etc/filebeat/filebeat.yml ${debug}"
     eval "curl -so /etc/filebeat/wazuh-template.json ${filebeat_wazuh_template} --max-time 300 ${debug}"

@@ -5,7 +5,7 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-installKibana() {
+function installKibana() {
     
     logger "Starting Kibana installation."
     if [ ${sys_type} == "zypper" ]; then
@@ -24,7 +24,7 @@ installKibana() {
 
 }
 
-configureKibanaAIO() {
+function configureKibanaAIO() {
 
     logger "Starting Wazuh Kibana plugin installation."
     
@@ -45,7 +45,7 @@ configureKibanaAIO() {
 
 }
 
-configureKibana() {
+function configureKibana() {
 
     eval "getConfig kibana/kibana_unattended_distributed.yml /etc/kibana/kibana.yml ${debug}"
     eval "mkdir /usr/share/kibana/data ${debug}"
@@ -85,12 +85,12 @@ configureKibana() {
     logger "Kibana post-install configuration finished."
 }
 
-setupKibanacerts() {
+function setupKibanacerts() {
     eval "mkdir /etc/kibana/certs ${debug}"
     if [ -d "${base_path}/certs" ]; then
 
         if [ ${#kibana_node_names[@]} -eq 1 ]; then
-            name="kibana"
+            name=${kiname}
         else
             name=${kibana_node_names[pos]}
         fi
@@ -100,16 +100,16 @@ setupKibanacerts() {
         eval "cp ${base_path}/certs/root-ca.pem /etc/kibana/certs/ ${debug}"
         eval "chown -R kibana:kibana /etc/kibana/ ${debug}"
         eval "chmod -R 500 /etc/kibana/certs ${debug}"
-        eval "chmod 440 /etc/kibana/certs/${kibana_node_names}* ${debug}"
+        eval "chmod 440 /etc/kibana/certs/* ${debug}"
         logger "Kibana certificate setup finished."
 
     else
-        logger -e "No certificates found. Could not initialize Kibana"
+        logger -e "No certificates found. Kibana could not be initialized."
         exit 1
     fi
 }
 
-initializeKibana() {
+function initializeKibana() {
 
     logger "Starting Kibana (this may take a while)."
     i=0
@@ -129,11 +129,11 @@ initializeKibana() {
     fi
     eval "sed -i 's,url: https://localhost,url: https://${wazuh_api_address},g' /usr/share/kibana/data/wazuh/config/wazuh.yml ${debug}"
     logger "Kibana started."
-    logger "You can access the web interface https://'${nodes_kibana_ip}'. The credentials are admin:admin"
+    logger "You can access the web interface https://${nodes_kibana_ip}. The credentials are admin:admin"
 
 }
 
-initializeKibanaAIO() {
+function initializeKibanaAIO() {
 
     logger "Starting Kibana (this may take a while)."
     i=0
@@ -146,7 +146,7 @@ initializeKibanaAIO() {
 
 }
 
-modifyKibanaLogin() {
+function modifyKibanaLogin() {
     # Edit window title
     eval "sed -i 's/null, \"Elastic\"/null, \"Wazuh\"/g' /usr/share/kibana/src/core/server/rendering/views/template.js ${debug}"
 

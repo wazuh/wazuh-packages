@@ -24,7 +24,7 @@ elasticsearchhead='# Elasticsearch nodes'
 filebeathead='# Wazuh server nodes'
 kibanahead='# Kibana node'
 
-logger_cert() {
+function logger_cert() {
 
     now=$(date +'%m/%d/%Y %H:%M:%S')
     case $1 in 
@@ -41,15 +41,13 @@ logger_cert() {
             message="$1"
             ;;
     esac
-    finalmessage=$(echo "$now" "$mtype" "$message")
-    echo "$finalmessage" >> ${logfile}
-    echo -e "$finalmessage"
+    echo $now $mtype $message | tee -a ${logfile}
 }
 
-getHelp() {
+function getHelp() {
     echo -e ""
     echo -e "NAME"
-    echo -e "        wazuh-cert-tool.sh - Manages the creation of certificates of the Wazuh components."
+    echo -e "        wazuh-cert-tool.sh - Manage the creation of certificates for the Wazuh components."
     echo -e ""
     echo -e "SYNOPSIS"
     echo -e "        wazuh-cert-tool.sh [OPTIONS]"
@@ -68,7 +66,7 @@ getHelp() {
     echo -e "                Creates the Kibana certificates."
     echo -e ""
     echo -e "        -v,  --verbose"
-    echo -e "                Enables verbose mode."
+    echo -e "                Shows the complete certificates creation output."
     echo -e ""
     echo -e "        -w,  --wazuh-certificates"
     echo -e "                Creates the Wazuh server certificates."
@@ -76,7 +74,7 @@ getHelp() {
     exit 1
 }
 
-parse_yaml() {
+function parse_yaml() {
 
     local prefix=$2
     local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @|tr @ '\034')
@@ -95,7 +93,7 @@ parse_yaml() {
 
 }
 
-readConfig() {
+function readConfig() {
 
     if [ -f ${base_path}/config.yml ]; then
         eval "$(parse_yaml ${base_path}/config.yml)"
@@ -115,7 +113,7 @@ readConfig() {
         fi
 
         if [ $(printf '%s\n' "${elasticsearch_node_ips[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#elasticsearch_node_ips[@]} ]; then 
-            logger_cert -e "Duplicated Elasticsearch node ips."
+            logger_cert -e "Duplicated Elasticsearch node IP addresses."
             exit 1
         fi
 
@@ -125,7 +123,7 @@ readConfig() {
         fi
 
         if [ $(printf '%s\n' "${wazuh_servers_node_ips[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#wazuh_servers_node_ips[@]} ]; then 
-            logger_cert -e "Duplicated Wazuh server node ips."
+            logger_cert -e "Duplicated Wazuh server node IP addresses."
             exit 1
         fi
 
@@ -135,25 +133,25 @@ readConfig() {
         fi
 
         if [ $(printf '%s\n' "${kibana_node_ips[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#kibana_node_ips[@]} ]; then 
-            logger_cert -e "Duplicated Kibana node ips."
+            logger_cert -e "Duplicated Kibana node IP addresses."
             exit 1
         fi
 
         if [ ${#wazuh_servers_node_names[@]} -ne ${#wazuh_servers_node_ips[@]} ]; then 
-            logger_cert -e "Different number of Wazuh server node names and IPs."
+            logger_cert -e "Different number of Wazuh server node names and IP addresses."
             exit 1
         fi
 
         if [ ${#wazuh_servers_node_names[@]} -le 1 ]; then
             if [ ${#wazuh_servers_node_types[@]} -ne 0 ]; then
-                logger_cert -e "node_type must be used with more than one Wazuh server."
+                logger_cert -e "node_type must be used with more than one Wazuh server node."
                 exit 1
             fi
         elif [ ${#wazuh_servers_node_names[@]} -ne ${#wazuh_servers_node_types[@]} ]; then
             logger_cert -e "Different number of Wazuh server node names and node types."
             exit 1
         elif [ $(grep -o master <<< ${wazuh_servers_node_types[*]} | wc -l) -ne 1 ]; then
-            logger_cert -e "Wazuh cluster needs a single master node."
+            logger_cert -e "Wazuh cluster needs one single master node."
             exit 1
         elif [ $(grep -o worker <<< ${wazuh_servers_node_types[*]} | wc -l) -ne $(expr ${#wazuh_servers_node_types[@]} - 1)  ]; then
             logger_cert -e "Incorrect number of workers."
@@ -161,17 +159,17 @@ readConfig() {
         fi
 
         if [ ${#kibana_node_names[@]} -ne ${#kibana_node_ips[@]} ]; then 
-            logger_cert -e "Different number of Kibana node names and IPs."
+            logger_cert -e "Different number of Kibana node names and IP addresses."
             exit 1
         fi
 
     else
-        logger_cert -e "No configuration file found. ${base_path}/config.yml."
+        logger_cert -e "Configuration file ${base_path}/config.yml not found."
         exit 1
     fi
 }
 
-generateCertificateconfiguration() {
+function generateCertificateconfiguration() {
 
     cat > ${base_path}/certs/$1.conf <<- EOF
         [ req ]
@@ -213,19 +211,19 @@ generateCertificateconfiguration() {
         conf="$(awk '{sub("IP.1 = cip", "DNS.1 = '$2'")}1' ${base_path}/certs/$1.conf)"
         echo "${conf}" > ${base_path}/certs/$1.conf 
     else
-        logger_cert -e "The given information does not match with an IP or a DNS".  
+        logger_cert -e "The given information does not match with an IP address or a DNS".  
         exit 1 
     fi   
 
 }
 
-generateRootCAcertificate() {
+function generateRootCAcertificate() {
 
     eval "openssl req -x509 -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/root-ca.key -out ${base_path}/certs/root-ca.pem -batch -subj '/OU=Docu/O=Wazuh/L=California/' -days 3650 ${debug_cert}"
 
 }
 
-generateAdmincertificate() {
+function generateAdmincertificate() {
     
     eval "openssl genrsa -out ${base_path}/certs/admin-key-temp.pem 2048 ${debug_cert}"
     eval "openssl pkcs8 -inform PEM -outform PEM -in ${base_path}/certs/admin-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out ${base_path}/certs/admin-key.pem ${debug_cert}"
@@ -234,7 +232,7 @@ generateAdmincertificate() {
 
 }
 
-generateElasticsearchcertificates() {
+function generateElasticsearchcertificates() {
 
     logger_cert "Creating the Elasticsearch certificates."
 
@@ -249,9 +247,9 @@ generateElasticsearchcertificates() {
 
 }
 
-generateFilebeatcertificates() {
+function generateFilebeatcertificates() {
 
-    logger_cert "Creating Wazuh server certificates."
+    logger_cert "Creating the Wazuh server certificates."
 
     i=0
     while [ ${i} -lt ${#wazuh_servers_node_names[@]} ]; do
@@ -263,9 +261,9 @@ generateFilebeatcertificates() {
 
 }
 
-generateKibanacertificates() {
+function generateKibanacertificates() {
 
-    logger_cert "Creating Kibana certificate."
+    logger_cert "Creating the Kibana certificate."
 
     i=0
     while [ ${i} -lt ${#kibana_node_names[@]} ]; do
@@ -278,7 +276,7 @@ generateKibanacertificates() {
 
 }
 
-cleanFiles() {
+function cleanFiles() {
 
     eval "rm -rf ${base_path}/certs/*.csr ${debug_cert}"
     eval "rm -rf ${base_path}/certs/*.srl ${debug_cert}"
@@ -287,14 +285,14 @@ cleanFiles() {
     logger_cert "Certificates creation finished. They can be found in ${base_path}/certs."
 }
 
-checkOpenSSL() {
+function checkOpenSSL() {
     if [ -z "$(command -v openssl)" ]; then
         logger_cert -e "OpenSSL not installed."
         exit 1
     fi    
 }
 
-main() {
+function main() {
 
     if [ "$EUID" -ne 0 ]; then
         logger_cert -e "This script must be run as root."
@@ -302,7 +300,7 @@ main() {
     fi
     
     if [[ -d ${base_path}/certs ]]; then
-        logger -e "Folder ${base_path}/certs exists. Please remove the /certs folder if you want to create new certificates."
+        logger -e "Folder ${base_path}/certs already exists. Please, remove the /certs folder to create new certificates."
         exit 1
     else
         mkdir ${base_path}/certs
