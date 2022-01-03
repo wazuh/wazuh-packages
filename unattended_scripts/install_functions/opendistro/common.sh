@@ -30,7 +30,7 @@ function getConfig() {
         curl -so $2 ${resources_config}/$1
     fi
     if [ $? != 0 ]; then
-        logger -e "Unable to find config $1. Exiting."
+        logger -e "Unable to find configuration file $1. Exiting."
         exit 1
     fi
 }
@@ -70,21 +70,21 @@ function checkNames() {
 
     if [[ -n ${einame} ]]; then
         if [[ -z "$(echo ${elasticsearch_node_names[@]} | grep -w $einame)" ]]; then
-            logger -e "The name given for the Elasticsearch node does not appear on the configuration file."
+            logger -e "Elasticsearch node name not found in the configuration file."
             exit 1
         fi
     fi
 
     if [[ -n ${winame} ]]; then
         if [[ -z "$(echo ${wazuh_servers_node_names[@]} | grep -w $winame)" ]]; then
-            logger -e "The name given for the Wazuh server node does not appear on the configuration file."
+            logger -e "Wazuh server node name not found in the configuration file."
             exit 1
         fi
     fi
 
     if [[ -n ${kiname} ]]; then
         if [[ -z "$(echo ${kibana_node_names[@]} | grep -w $kiname)" ]]; then
-            logger -e "The name given for the Kibana node does not appear on the configuration file."
+            logger -e "Kibana node name not found in the configuration file."
             exit 1
         fi
     fi
@@ -102,7 +102,7 @@ function checkArch() {
 
 function installPrerequisites() {
 
-    logger "Starting all necessary utility installation."
+    logger "Starting required utilities installations."
 
     openssl=""
     if [ -z "$(command -v openssl)" ]; then
@@ -120,10 +120,10 @@ function installPrerequisites() {
     fi
 
     if [  "$?" != 0  ]; then
-        logger -e "Prerequisites could not be installed"
+        logger -e "Required utilities could not be installed"
         exit 1
     else
-        logger "All necessary utility installation finished."
+        logger "Required utilities installations finished."
     fi
 }
 
@@ -154,7 +154,7 @@ function addWazuhrepo() {
             eval "apt-get update -q ${debug}"
         fi
     else
-        logger "Wazuh repository already exists skipping."
+        logger "Wazuh repository already exists. Skipping addition."
     fi
     logger "Wazuh repository added."
 }
@@ -262,14 +262,14 @@ function checkInstalled() {
 
 function startService() {
 
-    logger "Starting service $1."
+    logger "Starting $1 service."
 
     if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
         eval "systemctl daemon-reload ${debug}"
         eval "systemctl enable $1.service ${debug}"
         eval "systemctl start $1.service ${debug}"
         if [  "$?" != 0  ]; then
-            logger -e "${1^} could not be started."
+            logger -e "${1^} service could not be started."
             rollBack
             exit 1
         else
@@ -280,7 +280,7 @@ function startService() {
         eval "service $1 start ${debug}"
         eval "/etc/init.d/$1 start ${debug}"
         if [  "$?" != 0  ]; then
-            logger -e "${1^} could not be started."
+            logger -e "${1^} service could not be started."
             rollBack
             exit 1
         else
@@ -289,14 +289,14 @@ function startService() {
     elif [ -x /etc/rc.d/init.d/$1 ] ; then
         eval "/etc/rc.d/init.d/$1 start ${debug}"
         if [  "$?" != 0  ]; then
-            logger -e "${1^} could not be started."
+            logger -e "${1^} service could not be started."
             rollBack
             exit 1
         else
             logger "${1^} service started."
         fi
     else
-        logger -e "${1^} could not start. No service manager found on the system."
+        logger -e "${1^} service could not be started. No service manager found in the system."
         exit 1
     fi
 
@@ -322,9 +322,9 @@ function checkPreviousCertificates() {
 
     if [ ! -z ${einame} ]; then
         if [ -f ${base_path}/certs/${einame}.pem ] || [ f ${base_path}/certs/${einame}-key.pem ]; then
-            logger "Certificates were found for the Elasticsearch node: ${einame} in ${base_path}/certs."
+            logger "Certificates were found for the Elasticsearch node ${einame} in ${base_path}/certs."
         else
-            logger -e "Missing certificate for the Elasticsearch node: ${einame} in ${base_path}/certs."
+            logger -e "Missing certificate for the Elasticsearch node ${einame} in ${base_path}/certs."
             exit 1
         fi
 
@@ -332,18 +332,18 @@ function checkPreviousCertificates() {
 
     if [ ! -z ${winame} ]; then
         if [ -f ${base_path}/certs/${winame}.pem ] || [ -f ${base_path}/certs/${winame}-key.pem ]; then
-            logger "Certificates were found for the Wazuh server node: ${winame} in ${base_path}/certs."
+            logger "Certificates were found for the Wazuh server node ${winame} in ${base_path}/certs."
         else
-            logger -e "Missing certificate for the Wazuh server node: ${winame} in ${base_path}/certs."
+            logger -e "Missing certificate for the Wazuh server node ${winame} in ${base_path}/certs."
             exit 1
         fi
     fi
 
     if [ ! -z ${kiname} ]; then
         if [ -f ${base_path}/certs/${kiname}.pem ] || [ -f ${base_path}/certs/${kiname}-key.pem ]; then
-            logger "Certificates were found for the Kibana node: ${kiname} in ${base_path}/certs."
+            logger "Certificates were found for the Kibana node ${kiname} in ${base_path}/certs."
         else
-            logger -e "Missing certificate for the Kibana node: ${kiname} in ${base_path}/certs."
+            logger -e "Missing certificate for the Kibana node ${kiname} in ${base_path}/certs."
             exit 1
         fi
     fi
@@ -362,39 +362,39 @@ function healthCheck() {
     case "$1" in
         "elasticsearch")
             if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]; then
-                logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
+                logger -e "The system does not meet the hardware requirements. The minimum recommended is 4Gb of RAM and 2 CPU cores. Use the -i option to ignore this check."
                 exit 1
             else
-                logger "Check recommended minimum hardware requirements for Elasticsearch done."
+                logger "Minimum recommended hardware requirements check for Elasticsearch done."
                 logger "Starting the installation."
             fi
             ;;
 
         "kibana")
             if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]; then
-                logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
+                logger -e "The system does not meet the hardware requirements. The minimum recommended is 4Gb of RAM and 2 CPU cores. Use the -i option to ignore this check."
                 exit 1
             else
-                logger "Check recommended minimum hardware requirements for Kibana done."
+                logger "Minimum recommended hardware requirements check for Kibana done."
                 logger "Starting the installation."
             fi
             ;;
         "wazuh")
             if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 1700 ]
             then
-                logger -e "Your system does not meet the recommended minimum hardware requirements of 2Gb of RAM and 2 CPU cores . If you want to proceed with the installation use the -i option to ignore these requirements."
+                logger -e "The system does not meet the hardware requirements. The minimum recommended is 2Gb of RAM and 2 CPU cores. Use the -i option to ignore this check."
                 exit 1
             else
-                logger "Check recommended minimum hardware requirements for Wazuh Manager done."
+                logger "Minimum recommended hardware requirements check for Wazuh Manager done."
                 logger "Starting the installation."
             fi
             ;;
         "AIO")
             if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]; then
-                logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
+                logger -e "The system does not meet the hardware requirements. The minimum recommended is 4Gb of RAM and 2 CPU cores. Use the -i option to ignore this check."
                 exit 1
             else
-                logger "Check recommended minimum hardware requirements for AIO done."
+                logger "Minimum recommended hardware requirements check for All-In-One done."
                 logger "Starting the installation."
             fi
             ;;
@@ -541,35 +541,35 @@ function createClusterKey() {
 function checkArguments() {
 
     if ([ -n "$AIO" ] || [ -n "$certificates" ]) && [ -d ${base_path}/certs ]; then
-            logger -e "Folder ${base_path}/certs exists. Please remove the certificates folder if you want to create new certificates."
+            logger -e "Folder ${base_path}/certs already exists. Please, remove the certificates folder to create new certificates."
             exit 1
     fi
 
     if [ -n "$overwrite" ] && [ -z "$AIO" ] && [ -z "$elasticsearch" ] && [ -z "$kibana" ] && [ -z "$wazuh" ]; then 
-        logger -e "The argument -o|--overwrite can't be used by itself. If you want to uninstall the components use -u|--uninstall"
+        logger -e "Missing arguments. The option -o|--overwrite can not be used alone. Expected -a, -e, -k, or -w options. To uninstall components, use -u|--uninstall instead."
         exit 1
     fi
 
     if [ -n "${uninstall}" ]; then
 
         if [ -z "${wazuhinstalled}" ] || [ -z "$wazuh_remaining_files" ]; then
-            logger -w "Can't uninstall Wazuh manager. No components were found on the system."
+            logger -w "Can not uninstall Wazuh manager. Component not found in the system."
         fi
 
         if [ -z "${filebeatinstalled}" ] || [ -z "$filebeat_remaining_files" ]; then
-            logger -w "Can't uninstall Filebeat. No components were found on the system."
+            logger -w "Can not uninstall Filebeat. Component not found in the system."
         fi
 
         if [ -z "${elasticsearchinstalled}" ] || [ -z "$elastic_remaining_files" ]; then
-            logger -w "Can't uninstall Elasticsearch. No components were found on the system."
+            logger -w "Can not uninstall Elasticsearch. Component not found in the system."
         fi
 
         if [ -z "${kibanainstalled}" ] || [ -z "$kibana_remaining_files" ]; then
-            logger -w "Can't uninstall. No components were found on the system."
+            logger -w "Can not uninstall Kibana. Component not found in the system."
         fi
 
         if [ -n "$AIO" ] || [ -n "$elasticsearch" ] || [ -n "$kibana" ] || [ -n "$wazuh" ]; then
-            logger -e "The argument -u|--uninstall can't be used with -a, -k, -e or -w. If you want to overwrite the components use -o|--overwrite"
+            logger -e "Too many arguments. The option -u|--uninstall can not be used with -a, -e, -k, or -w. To overwrite the installation, use -a, -e, -k, or -w with the -o|--overwrite option."
             exit 1
         fi
     fi
@@ -577,7 +577,7 @@ function checkArguments() {
     if [ -n "$AIO" ]; then
 
         if [ -n "$elasticsearch" ] || [ -n "$kibana" ] || [ -n "$wazuh" ]; then
-            logger -e "Argument -a|--all-in-one is not compatible with -e|--elasticsearch, -k|--kibana or -w|--wazuh-server"
+            logger -e "Too many arguments. The option -a|--all-in-one can not be used with -e|--elasticsearch, -k|--kibana, or -w|--wazuh-server."
             exit 1
         fi
 
@@ -585,7 +585,7 @@ function checkArguments() {
             if [ -n "${overwrite}" ]; then
                 rollBack
             else
-                logger -e "Some the Wazuh components were found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. NOTE: This will erase all the existing configuration and data."
+                logger -e "Wazuh components found in this host. To overwrite the current installation, run the installer using the -o/--overwrite option. NOTE: Overwriting erases all the existing configuration and data."
                 exit 1
             fi
         fi
@@ -597,7 +597,7 @@ function checkArguments() {
             if [ -n "$overwrite" ]; then
                 rollBack "elasticsearch"
             else 
-                logger -e "Elasticsearch is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
+                logger -e "Elasticsearch already installed or some files remain from previous installation. Use the -o|--overwrite option to install overwriting components."
                 exit
             fi
         fi
@@ -609,7 +609,7 @@ function checkArguments() {
             if [ -n "$overwrite" ]; then
                 rollBack "kibana"
             else 
-                logger -e "Kibana is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
+                logger -e "Kibana already installed or some files remain from previous installation. Use the -o|--overwrite option to install overwriting components."
                 exit 
             fi
         fi
@@ -620,7 +620,7 @@ function checkArguments() {
             if [ -n "$overwrite" ]; then
                 rollBack "wazuh"
             else 
-                logger -e "Wazuh is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
+                logger -e "Wazuh already installed or some files remain from previous installation. Use the -o|--overwrite option to install overwriting components."
                 exit 
             fi
         fi
@@ -629,7 +629,7 @@ function checkArguments() {
             if [ -n "$overwrite" ]; then
                 rollBack "filebeat"
             else
-                logger -e "Filebeat is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
+                logger -e "Filebeat already installed or some files remain from previous installation. Use the -o|--overwrite option to install overwriting components."
                 exit 1
             fi
         fi

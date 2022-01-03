@@ -14,7 +14,7 @@ function installWazuh() {
         eval "${sys_type} install wazuh-manager${sep}${wazuh_version}-${wazuh_revision} -y ${debug}"
     fi
     if [  "$?" != 0  ]; then
-        logger -e "Wazuh installation failed"
+        logger -e "Wazuh manager installation failed."
         rollBack
         exit 1
     else
