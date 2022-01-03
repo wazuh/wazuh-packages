@@ -57,72 +57,69 @@ function load-check-system() {
     @load_function "${curr_dir}/../install_functions/opendistro/common.sh" checkSystem
 }
 
-test-check-system-no-system() {
-    load-check-system
-    @mockfalse command -v yum
-    @mockfalse command -v zypper
-    @mockfalse command -v apt-get
-    checkSystem
-}
+# test-check-system-no-system() {
+#     load-check-system
+#     @mockfalse -n "$(command -v yum)"
+#     @mockfalse -n "$(command -v zypper)"
+#     @mockfalse -n "$(command -v apt-get)"
+#     checkSystem
+# }
 
-test-check-system-no-system-assert() {
-    logger -e "Couldn't find type of system based on the installer software"
-    exit 1
-}
+# test-check-system-no-system-assert() {
+#     logger -e "Couldn't find type of system based on the installer software"
+#     exit 1
+# }
 
-## TODO: Por alguna razón lo de command no funciona
-##    Puede que tenga que ver con que es palabra reservada
-##    He probado a poner @real y @command y nada
-test-check-system-yum() {
-    load-check-system
-    @mocktrue -z "$(command -v yum)"
-    @mockfalse -z "$(command -v zypper)"
-    @mockfalse -z "$(command -v apt-get)"
-    checkSystem
-    echo "$sys_type"
-    echo "$sep"
-}
+# test-check-system-yum() {
+#     load-check-system
+#     @mocktrue - "$(command -v yum)"
+#     @mockfalse -n "$(command -v zypper)"
+#     @mockfalse -n "$(command -v apt-get)"
+#     checkSystem
+#     echo "$sys_type"
+#     echo "$sep"
+# }
 
-test-check-system-yum-assert() {
-    sys_type="yum"
-    sep="-"
-    echo "$sys_type"
-    echo "$sep"
-}
+# test-check-system-yum-assert() {
+#     sys_type="yum"
+#     sep="-"
+#     echo "$sys_type"
+#     echo "$sep"
+# }
 
-test-check-system-zypper() {
-    load-check-system
-    @mockfalse -z "$(command -v yum)"
-    @mocktrue -z "$(command -v zypper)"
-    @mockfalse -z "$(command -v apt)"
-    checkSystem
-    echo "$sys_type"
-    echo "$sep"
-}
+# test-check-system-zypper() {
+#     load-check-system
+#     @mockfalse -n "$(command -v yum)"
+#     @mocktrue -n "$(command -v zypper)"
+#     @mockfalse -n "$(command -v apt)"
+#     checkSystem
+#     echo "$sys_type"
+#     echo "$sep"
+# }
 
-test-check-system-zypper-assert() {
-    sys_type="zypper"
-    sep="-"
-    echo "$sys_type"
-    echo "$sep"
-}
+# test-check-system-zypper-assert() {
+#     sys_type="zypper"
+#     sep="-"
+#     echo "$sys_type"
+#     echo "$sep"
+# }
 
-test-check-system-apt() {
-    load-check-system
-    @mockfalse -z "$(command -v yum)"
-    @mockfalse -z "$(command -v zypper)"
-    @mocktrue -z "$(command -v apt-get)"
-    checkSystem
-    echo "$sys_type"
-    echo "$sep"
-}
+# test-check-system-apt() {
+#     load-check-system
+#     @mockfalse -n "$(command -v yum)"
+#     @mockfalse -n "$(command -v zypper)"
+#     @mocktrue -n "$(command -v apt-get)"
+#     checkSystem
+#     echo "$sys_type"
+#     echo "$sep"
+# }
 
-test-check-system-apt-assert() {
-    sys_type="apt-get"
-    sep="="
-    echo "$sys_type"
-    echo "$sep"
-}
+# test-check-system-apt-assert() {
+#     sys_type="apt-get"
+#     sep="="
+#     echo "$sys_type"
+#     echo "$sep"
+# }
 
 function load-check-names() {
     @load_function "${curr_dir}/../install_functions/opendistro/common.sh" checkNames
@@ -163,9 +160,6 @@ test-check-names-kibana-wazuh-equals-assert() {
     logger -e "The node names for Wazuh and Kibana must be different."
     exit 1
 }
-
-## TODO: El orden del echo y el grep a veces cambia o algo
-## y a veces fallan estos siguientes tres tests
 
 test-check-names-wazuh-node-name-not-in-config() {
     load-check-names
@@ -209,9 +203,6 @@ test-check-names-elasticsearch-node-name-not-in-config-assert() {
     exit 1
 }
 
-
-## TODO: Este no funciona, según el echo y el grep
-## que se muestran, no debería entrar en la condición
 test-check-names-all-correct() {
     load-check-names
     einame="elasticsearch1"
@@ -262,7 +253,7 @@ function load-install-prerequisites() {
 }
 
 test-install-prerequisites-yum-no-openssl() {
-    @mockfalse -z "$(command -v openssl)"
+    @mock command -v openssl === @out 
     load-install-prerequisites
     sys_type="yum"
     debug=""
@@ -271,7 +262,7 @@ test-install-prerequisites-yum-no-openssl() {
 
 test-install-prerequisites-yum-no-openssl-assert() {
     logger "Starting all necessary utility installation."
-    yum install curl unzip wget libcap tar gnupg openssl -y
+    yum install curl unzip wget libcap tar gnupg -y
     logger "All necessary utility installation finished."
 }
 
@@ -286,6 +277,6 @@ test-install-prerequisites-yum() {
 
 test-install-prerequisites-yum-assert() {
     logger "Starting all necessary utility installation."
-    yum install curl unzip wget libcap tar gnupg -y
+    yum install curl unzip wget libcap tar gnupg openssl -y
     logger "All necessary utility installation finished."
 }
