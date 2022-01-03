@@ -72,7 +72,7 @@ function load-check-system() {
 
 # test-check-system-yum() {
 #     load-check-system
-#     @mocktrue - "$(command -v yum)"
+#     @mocktrue -n "$(command -v yum)"
 #     @mockfalse -n "$(command -v zypper)"
 #     @mockfalse -n "$(command -v apt-get)"
 #     checkSystem
@@ -458,4 +458,104 @@ test-restore-wazuh-repo-zypper-assert() {
     sed -i 's/pre-release/4.x/g' ${file}
     sed -i 's/unstable/stable/g' ${file}
     logger "The Wazuh repository set to production."
+}
+
+test-restore-wazuh-repo-yum-no-file() {
+    load-restore-repo
+    local development="1"
+    local sys_type="yum"
+    #@mockfalse -f /etc/yum.repos.d/wazuh.repo
+    restoreWazuhrepo
+}
+
+test-restore-wazuh-repo-yum-assert() {
+    logger "Setting the Wazuh repository to production."
+    sed -i 's/-dev//g'
+    sed -i 's/pre-release/4.x/g'
+    sed -i 's/unstable/stable/g'
+    logger "The Wazuh repository set to production."
+}
+
+test-restore-wazuh-repo-apt-no-file() {
+    load-restore-repo
+    local development="1"
+    local sys_type="yum"
+    #@mockfalse -f /etc/apt/sources.list.d/wazuh.list
+    restoreWazuhrepo
+}
+
+test-restore-wazuh-repo-apt-assert() {
+    logger "Setting the Wazuh repository to production."
+    sed -i 's/-dev//g'
+    sed -i 's/pre-release/4.x/g'
+    sed -i 's/unstable/stable/g'
+    logger "The Wazuh repository set to production."
+}
+
+test-restore-wazuh-repo-zypper() {
+    load-restore-repo
+    local development="1"
+    local sys_type="yum"
+    #@mockfalse -f /etc/zypp/repos.d/wazuh.repo
+    restoreWazuhrepo
+}
+
+test-restore-wazuh-repo-zypper-assert() {
+    logger "Setting the Wazuh repository to production."
+    file="/etc/zypp/repos.d/wazuh.repo"
+    sed -i 's/-dev//g'
+    sed -i 's/pre-release/4.x/g'
+    sed -i 's/unstable/stable/g'
+    logger "The Wazuh repository set to production."
+}
+
+function load-check-arguments {
+    @load_function "${base_dir}/unattended_scripts/install_functions/opendistro/common.sh" checkArguments
+}
+
+test-check-arguments-certs-file-present-aio() {
+    load-check-arguments
+    local AIO=1
+    #@mocktrue -d ${base_path}/certs
+    checkArguments
+}
+
+test-check-arguments-certs-file-present-aio-assert() {
+    logger -e "Folder /certs already exists. Please, remove the certificates folder to create new certificates."
+    exit 1
+}
+
+test-check-arguments-certs-file-present-certificate-creation() {
+    load-check-arguments
+    local certificates=1
+    #@mocktrue -d ${base_path}/certs
+    checkArguments
+}
+
+test-check-arguments-certs-file-present-certificate-creation-assert() {
+    logger -e "Folder /certs already exists. Please, remove the certificates folder to create new certificates."
+    exit 1
+}
+
+test-check-arguments-overwrite-with-no-installation() {
+    load-check-arguments
+    overwrite=1
+    AIO=
+    elasticsearch=
+    wazuh=
+    kibana=
+    checkArguments
+}
+
+test-check-test-check-arguments-overwrite-with-no-installation-assert() {
+    logger -e "Missing arguments. The option -o|--overwrite can not be used alone. Expected -a, -e, -k, or -w options. To uninstall components, use -u|--uninstall instead."
+    exit 1
+}
+
+test-check-arguments-uninstall-no-apps-installed() {
+    uninstall=1
+    elasticsearchinstalled=
+    wazuhinstalled=
+    kibanainstalled=
+    filebeatinstalled=
 }
