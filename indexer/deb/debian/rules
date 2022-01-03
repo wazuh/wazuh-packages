@@ -1,0 +1,182 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Sample debian/rules that uses debhelper.
+#
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+#
+# Modified to make a template file for a multi-binary package with separated
+# build-arch and build-indep targets  by Bill Allombert 2001
+
+# Uncomment this to turn on verbose mode.
+export DH_VERBOSE=1
+
+# This has to be exported to make some magic below work.
+export DH_OPTIONS
+
+# TODO: Check why it uses tmp
+#export TARGET_DIR=${CURDIR}/debian/wazuh-indexer
+export TARGET_DIR=${CURDIR}/debian/tmp
+
+# Package build options
+export NAME=wazuh-indexer
+export USER=${NAME}
+export GROUP=${NAME}
+export CONFIG_DIR=/etc/${NAME}
+export LOG_DIR=/var/log/${NAME}
+export LIB_DIR=/var/lib/${NAME}
+export PID_DIR=/var/run/${NAME}
+export INSTALLATION_DIR=/usr/share/${NAME}
+export BASE_DIR=${NAME}-*
+export INDEXER_FILE=wazuh-indexer-base-linux-x64.tar.gz
+#export DOCUMENTATION_BRANCH=679-wazuh-packages_wazuh-indexer
+#export PACKAGES_BRANCH=679-wazuh-indexer
+
+%:
+	dh $@
+
+override_dh_shlibdeps:
+
+override_dh_auto_configure:
+
+override_dh_auto_install:
+
+override_dh_install:
+
+	rm -rf $(INSTALLATION_DIR)/
+
+	curl -o $(INDEXER_FILE) https://s3.amazonaws.com/warehouse.wazuh.com/indexer/$(INDEXER_FILE)
+	tar -zvxf $(INDEXER_FILE)
+
+	# note this init script is different from RPM one
+#	curl -o etc/init.d/$(NAME) --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/etc/init.d/$(NAME)-deb
+#	curl -o etc/wazuh-indexer/log4j2.properties --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/etc/wazuh-indexer/log4j2.properties
+#	curl -o etc/wazuh-indexer/jvm.options --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/etc/wazuh-indexer/jvm.options
+#	curl -o etc/sysconfig/$(NAME) --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/etc/sysconfig/$(NAME)
+#	curl -o usr/lib/tmpfiles.d/$(NAME).conf --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/usr/lib/tmpfiles.d/$(NAME).conf
+#	curl -o usr/lib/sysctl.d/$(NAME).conf --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/usr/lib/sysctl.d/$(NAME).conf
+#	curl -o usr/lib/systemd/system/$(NAME).service --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/usr/lib/systemd/system/$(NAME).service
+#	curl -o usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service
+#	curl -o systemd-entrypoint --create-dirs https://raw.githubusercontent.com/wazuh/wazuh-packages/${PACKAGES_BRANCH}/wazuh-indexer/systemd-entrypoint
+
+
+#	curl -o wazuh-cert-tool.sh https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/tools/certificate-utility/wazuh-cert-tool.sh
+#	curl -o instances.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/tools/certificate-utility/instances_aio.yml
+#	curl -o wazuh-passwords-tool.sh https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/tools/wazuh-passwords-tool.sh
+
+
+	# Configuration files from documentation repo
+#	curl -o opensearch.yml  https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/wazuh-indexer/7.x/opensearch.yml
+#	curl -o roles.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/wazuh-indexer/roles/roles.yml
+#	curl -o roles_mapping.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/wazuh-indexer/roles/roles_mapping.yml
+#	curl -o internal_users.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/wazuh-indexer/roles/internal_users.yml
+
+	
+
+	# Change performance analyzer default ports
+#	sed -i 's/webservice-listener-port = 9600/webservice-listener-port = 9601/' $(BASE_DIR)/performance-analyzer-rca/pa_config/performance-analyzer.properties
+#	sed -i 's/webservice-listener-port = 9600/webservice-listener-port = 9601/' $(BASE_DIR)/plugins/opendistro-performance-analyzer/pa_config/performance-analyzer.properties
+#	sed -i 's/webservice-listener-port = 9600/webservice-listener-port = 9601/' $(BASE_DIR)/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/performance-analyzer.properties
+
+#	sed -i 's/rpc-port = 9650/rpc-port = 9651/' $(BASE_DIR)/performance-analyzer-rca/pa_config/performance-analyzer.properties
+#	sed -i 's/rpc-port = 9650/rpc-port = 9651/' $(BASE_DIR)/plugins/opendistro-performance-analyzer/pa_config/performance-analyzer.properties
+#	sed -i 's/rpc-port = 9650/rpc-port = 9651/' $(BASE_DIR)/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/performance-analyzer.properties
+
+#	sed -i 's/metrics-location = \/dev\/shm\/performanceanalyzer/metrics-location = \/dev\/shm\/wazuh-indexer-performanceanalyzer/' $(BASE_DIR)/performance-analyzer-rca/pa_config/performance-analyzer.properties
+#	sed -i 's/metrics-location = \/dev\/shm\/performanceanalyzer/metrics-location = \/dev\/shm\/wazuh-indexer-performanceanalyzer/' $(BASE_DIR)/plugins/opendistro-performance-analyzer/pa_config/performance-analyzer.properties
+#	sed -i 's/metrics-location = \/dev\/shm\/performanceanalyzer/metrics-location = \/dev\/shm\/wazuh-indexer-performanceanalyzer/' $(BASE_DIR)/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/performance-analyzer.properties
+
+#	sed -i 's/metrics-db-file-prefix-path = \/tmp\/metricsdb_/metrics-db-file-prefix-path = \/tmp\/wazuh-indexer_metricsdb_/' $(BASE_DIR)/performance-analyzer-rca/pa_config/performance-analyzer.properties
+#	sed -i 's/metrics-db-file-prefix-path = \/tmp\/metricsdb_/metrics-db-file-prefix-path = \/tmp\/wazuh-indexer_metricsdb_/' $(BASE_DIR)/plugins/opendistro-performance-analyzer/pa_config/performance-analyzer.properties
+#	sed -i 's/metrics-db-file-prefix-path = \/tmp\/metricsdb_/metrics-db-file-prefix-path = \/tmp\/wazuh-indexer_metricsdb_/' $(BASE_DIR)/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/performance-analyzer.properties
+
+
+	# copy to target
+
+	mkdir -p $(TARGET_DIR)$(INSTALLATION_DIR)
+	mkdir -p $(TARGET_DIR)$(CONFIG_DIR)/jvm.options.d
+	mkdir -p $(TARGET_DIR)/etc/init.d
+	mkdir -p $(TARGET_DIR)/etc/default
+	mkdir -p $(TARGET_DIR)/usr/lib/tmpfiles.d
+	mkdir -p $(TARGET_DIR)/usr/lib/sysctl.d
+	mkdir -p $(TARGET_DIR)/usr/lib/systemd/system
+	mkdir -p $(TARGET_DIR)$(LIB_DIR)
+	mkdir -p $(TARGET_DIR)$(LOG_DIR)
+
+	# Copy the installed files into buildroot directory
+	TMP_DIR=$(TARGET_DIR)$(INSTALLATION_DIR)
+	cp -pr $(BASE_DIR)/* ${TMP_DIR}/
+
+	# Add custom tools
+#	cp wazuh-passwords-tool.sh $(TARGET_DIR)$(INSTALLATION_DIR)/bin
+#	cp wazuh-cert-tool.sh $(TARGET_DIR)$(INSTALLATION_DIR)/bin
+#	cp instances.yml $(TARGET_DIR)$(INSTALLATION_DIR)/bin
+
+	# Copy configuration files for wazuh-indexer
+	
+	mv $(TMP_DIR)/etc/init.d/$(NAME) $(TARGET_DIR)/etc/init.d/$(NAME)
+	mv $(TMP_DIR)/etc/wazuh-indexer $(TARGET_DIR)$(CONFIG_DIR)
+	mv $(TMP_DIR)/etc/sysconfig/$(NAME) $(TARGET_DIR)/etc/default/
+	mv $(TMP_DIR)/usr/lib/tmpfiles.d/* $(TARGET_DIR)/usr/lib/tmpfiles.d/
+	mv $(TMP_DIR)/usr/lib/sysctl.d/* $(TARGET_DIR)/usr/lib/sysctl.d/
+	mv $(TMP_DIR)/usr/lib/systemd/system/* $(TARGET_DIR)/usr/lib/systemd/system/
+
+	# This is needed by the performance-analyzer service
+	echo false > $(TARGET_DIR)$(LIB_DIR)/batch_metrics_enabled.conf
+
+
+	# Copy Wazuh's config files for the opendistro_security plugin
+#	cp -pr roles_mapping.yml $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro_security/securityconfig/roles_mapping.yml
+#	cp -pr roles.yml $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro_security/securityconfig/roles.yml
+#	cp -pr internal_users.yml $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro_security/securityconfig/internal_users.yml
+
+	# Fix performance-analyzer plugin files which references wazuh-indexer path
+#	sed -i 's!/usr/share/wazuh-indexer!$(INSTALLATION_DIR)!g' $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro-performance-analyzer/pa_config/supervisord.conf
+#	sed -i 's!/usr/share/wazuh-indexer!$(INSTALLATION_DIR)!g' $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/supervisord.conf
+#	sed -i 's!/usr/share/wazuh-indexer!$(INSTALLATION_DIR)!g' $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/pa_config/supervisord.conf
+
+	# Fix performance analyzer JAVA_HOME definition when running manually for non systemd environments
+#	sed -i s'/JAVA_HOME=$$2/export JAVA_HOME=$$2/' $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro-performance-analyzer/pa_bin/performance-analyzer-agent
+
+
+
+	# Create group and user in rpmbuild chroot environment so wazuh-indexer can be started for creating ODFE security indices
+	groupadd -r $(GROUP)
+	useradd --system \
+			--no-create-home \
+			--home-dir /nonexistent \
+			--gid $(GROUP) \
+			--shell /sbin/nologin \
+			--comment "$(USER) user" \
+			$(USER)
+
+
+
+	chown $(USER):$(GROUP) -R $(TARGET_DIR)$(INSTALLATION_DIR)
+#	chown $(USER):$(GROUP) $(TARGET_DIR)/var -R
+#	chown $(USER):$(GROUP) $(TARGET_DIR)/etc -R
+
+#	echo "wazuh-indexer hard nproc 4096" >> /etc/security/limits.conf
+#	echo "wazuh-indexer soft nproc 4096" >> /etc/security/limits.conf
+#	echo "wazuh-indexer hard nofile 65535" >> /etc/security/limits.conf
+#	echo "wazuh-indexer soft nofile 65535" >> /etc/security/limits.conf
+#	echo "bootstrap.system_call_filter: false" >> $(TARGET_DIR)$(CONFIG_DIR)/opensearch.yml
+
+#	mv $(TARGET_DIR)$(LIB_DIR)/nodes $(TARGET_DIR)$(INSTALLATION_DIR)/initial_nodes
+#	rm -f $(TARGET_DIR)$(LOG_DIR)/*
+#	rm -f $(TARGET_DIR)$(LIB_DIR)/batch_metrics_enabled.conf
+#	rm -f $(TARGET_DIR)$(LIB_DIR)/logging_enabled.conf
+#	rm -f $(TARGET_DIR)$(LIB_DIR)/performance_analyzer_enabled.conf
+#	rm -f $(TARGET_DIR)$(LIB_DIR)/rca_enabled.conf
+
+
+#override_dh_auto_clean:
+	#$(MAKE) -C src clean
+
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym
+
+.PHONY: override_dh_strip override_dh_auto_clean override_dh_auto_build override_dh_auto_configure
