@@ -277,6 +277,7 @@ function main() {
     if [ -n "${uninstall}" ]; then
         logger "Removing all installed components."
         rollBack
+        logger "All components removed."
         exit 0
     fi
 

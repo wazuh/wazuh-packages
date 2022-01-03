@@ -17,7 +17,7 @@ function checkArch() {
 
 function checkArguments() {
 
-    if ([ -n "$AIO" ] || [ -n "$certificates" ]) && [ -d ${base_path}/certs ]; then
+    if ([ -n "$AIO" ] || [ -n "$certificates" ]) && [ -f ${base_path}/certs.tar ]; then
             logger -e "Folder ${base_path}/certs exists. Please remove the certificates folder if you want to create new certificates."
             exit 1
     fi

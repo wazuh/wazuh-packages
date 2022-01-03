@@ -174,7 +174,7 @@ generateHash() {
             nhash=$(bash /usr/share/elasticsearch/plugins/opendistro_security/tools/hash.sh -p ${passwords[i]} | grep -v WARNING)
             hashes+=(${nhash})
         done
-        logger_pass "Passowrd hashes generated."
+        logger_pass "Password hashes generated."
     else
         logger_pass "Generating password hash"
         hash=$(bash /usr/share/elasticsearch/plugins/opendistro_security/tools/hash.sh -p ${password} | grep -v WARNING)
@@ -182,7 +182,7 @@ generateHash() {
             logger_pass -e "Hash generation failed."
             exit 1;
         fi    
-        logger_pass "Passowrd hash generated."
+        logger_pass "Password hash generated."
     fi
 }
 
@@ -560,7 +560,7 @@ restartService() {
 
 runSecurityAdmin() {
     
-    logger_pass "Loading changes..."
+    logger_pass "Loading new passwords changes."
     eval "cp /usr/share/elasticsearch/backup/* /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ ${debug_pass}"
     eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug_pass}"
     if [  "$?" != 0  ]; then
@@ -583,7 +583,6 @@ runSecurityAdmin() {
         
         for i in "${!users[@]}"
         do
-            echo ""
             logger_pass "The password for ${users[i]} is ${passwords[i]}"
         done
         echo ""
