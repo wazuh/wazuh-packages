@@ -133,17 +133,10 @@ function importFunction() {
             error=1
         fi
     else
-        curl -so /tmp/$1 $resources_functions/$1
-        if [ $? = 0 ]; then
-            checkContent=$(grep '<?xml version="1.0" encoding="UTF-8"?>' ${base_path}/$1)
-                if [[ -n "${checkContent}" ]]; then
-                    error=1
-                    rm -f /tmp/$1
-                else
-                    sed -i 's/main $@//' /tmp/$1
-                    . /tmp/$1
-                    rm -f /tmp/$1
-                fi
+        if ( curl -f -so /tmp/$1 $resources_functions/$1 ); then
+            sed -i 's/main $@//' /tmp/$1
+            . /tmp/$1
+            rm -f /tmp/$1
         else
             error=1
         fi
@@ -302,6 +295,11 @@ function main() {
     checkArch
     checkSystem
     checkIfInstalled
+    if [ -n "${ignore}" ]; then
+        logger -w "Health-check ignored."
+    else
+        checkHealth
+    fi
     checkArguments "${nargs}"
     readConfig
 
@@ -359,11 +357,6 @@ function main() {
 
         importFunction "elasticsearch.sh"
 
-        if [ -n "${ignore}" ]; then
-            logger -w "Health-check ignored for Elasticsearch."
-        else
-            checkHealth elasticsearch
-        fi
         installElasticsearch 
         configureElasticsearch
         startService "elasticsearch"
@@ -389,11 +382,6 @@ function main() {
 
         importFunction "kibana.sh"
 
-        if [ -n "${ignore}" ]; then
-            logger -w "Health-check ignored for Kibana."
-        else
-            checkHealth kibana
-        fi
         installKibana 
         configureKibana
         changePasswords
@@ -409,11 +397,6 @@ function main() {
         importFunction "wazuh.sh"
         importFunction "filebeat.sh"
 
-        if [ -n "${ignore}" ]; then
-            logger -w "Health-check ignored for Wazuh manager."
-        else
-            checkHealth wazuh
-        fi
         installWazuh
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
             configureWazuhCluster 
@@ -433,12 +416,6 @@ function main() {
         importFunction "filebeat.sh"
         importFunction "elasticsearch.sh"
         importFunction "kibana.sh"
-
-        if [ -n "${ignore}" ]; then
-            logger -w "Health-check ignored for AIO."
-        else
-            checkHealth AIO
-        fi
 
         installElasticsearch
         configureElasticsearchAIO

@@ -108,10 +108,11 @@ function getConfig() {
     if [ -n "${local}" ]; then
         cp ${base_path}/${config_path}/$1 $2
     else
-        curl -so $2 ${resources_config}/$1
+        curl -f -so $2 ${resources_config}/$1
     fi
     if [ $? != 0 ]; then
-        logger -e "Unable to find config $1. Exiting."
+        logger -e "Unable to find configuration file $1. Exiting."
+        rollBack
         exit 1
     fi
 }

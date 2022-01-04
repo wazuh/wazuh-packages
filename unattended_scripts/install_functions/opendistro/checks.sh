@@ -122,42 +122,38 @@ function checkArguments() {
 function checkHealth() {
 
     checkSpecs
-    case "$1" in
-        "elasticsearch")
-            if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
-                logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
-                exit 1
-            else
-                logger "Check recommended minimum hardware requirements for Elasticsearch done."
-            fi
-            ;;
-
-        "kibana")
-            if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
-                logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
-                exit 1
-            else
-                logger "Check recommended minimum hardware requirements for Kibana done."
-            fi
-            ;;
-        "wazuh")
-            if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 1700 ]
-            then
-                logger -e "Your system does not meet the recommended minimum hardware requirements of 2Gb of RAM and 2 CPU cores . If you want to proceed with the installation use the -i option to ignore these requirements."
-                exit 1
-            else
-                logger "Check recommended minimum hardware requirements for Wazuh Manager done."
-            fi
-            ;;
-        "AIO")
-            if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
-                logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
-                exit 1
-            else
-                logger "Check recommended minimum hardware requirements for AIO done."
-            fi
-            ;;
-    esac
+    if [ -n "${elasticsearch}" ]; then
+        if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
+            logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
+            exit 1
+        else
+            logger "Check recommended minimum hardware requirements for Elasticsearch done."
+        fi
+    fi
+    if [ -n "${kibana}" ]; then
+        if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
+            logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
+            exit 1
+        else
+            logger "Check recommended minimum hardware requirements for Kibana done."
+        fi
+    fi
+    if [ -n "${wazuh}" ]; then
+        if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 1700 ]; then
+            logger -e "Your system does not meet the recommended minimum hardware requirements of 2Gb of RAM and 2 CPU cores . If you want to proceed with the installation use the -i option to ignore these requirements."
+            exit 1
+        else
+            logger "Check recommended minimum hardware requirements for Wazuh Manager done."
+        fi
+    fi
+    if [ -n "${aio}" ]; then
+        if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
+            logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
+            exit 1
+        else
+            logger "Check recommended minimum hardware requirements for AIO done."
+        fi
+    fi
 
 }
 
