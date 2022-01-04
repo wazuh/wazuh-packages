@@ -167,6 +167,8 @@ function generateKibanacertificates() {
 
 function generateRootCAcertificate() {
 
+    logger_cert "Creating the Root certificate."
+
     eval "openssl req -x509 -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/root-ca.key -out ${base_path}/certs/root-ca.pem -batch -subj '/OU=Docu/O=Wazuh/L=California/' -days 3650 ${debug_cert}"
 
 }
