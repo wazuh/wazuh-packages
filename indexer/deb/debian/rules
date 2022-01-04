@@ -16,12 +16,10 @@ export DH_VERBOSE=1
 # This has to be exported to make some magic below work.
 export DH_OPTIONS
 
-# TODO: Check why it uses tmp
-#export TARGET_DIR=${CURDIR}/debian/wazuh-indexer
-export TARGET_DIR=${CURDIR}/debian/tmp
+export NAME=wazuh-indexer
+export TARGET_DIR=${CURDIR}/debian/${NAME}
 
 # Package build options
-export NAME=wazuh-indexer
 export USER=${NAME}
 export GROUP=${NAME}
 export CONFIG_DIR=/etc/${NAME}
@@ -96,35 +94,33 @@ override_dh_install:
 	# copy to target
 
 	mkdir -p $(TARGET_DIR)$(INSTALLATION_DIR)
-	mkdir -p $(TARGET_DIR)$(CONFIG_DIR)/jvm.options.d
+	mkdir -p $(TARGET_DIR)$(CONFIG_DIR)
+	mkdir -p $(TARGET_DIR)$(LIB_DIR)
+	mkdir -p $(TARGET_DIR)$(LOG_DIR)
 	mkdir -p $(TARGET_DIR)/etc/init.d
 	mkdir -p $(TARGET_DIR)/etc/default
 	mkdir -p $(TARGET_DIR)/usr/lib/tmpfiles.d
 	mkdir -p $(TARGET_DIR)/usr/lib/sysctl.d
 	mkdir -p $(TARGET_DIR)/usr/lib/systemd/system
-	mkdir -p $(TARGET_DIR)$(LIB_DIR)
-	mkdir -p $(TARGET_DIR)$(LOG_DIR)
-
-	# Copy the installed files into buildroot directory
-	TMP_DIR=$(TARGET_DIR)$(INSTALLATION_DIR)
-	cp -pr $(BASE_DIR)/* ${TMP_DIR}/
 
 	# Add custom tools
 #	cp wazuh-passwords-tool.sh $(TARGET_DIR)$(INSTALLATION_DIR)/bin
 #	cp wazuh-cert-tool.sh $(TARGET_DIR)$(INSTALLATION_DIR)/bin
 #	cp instances.yml $(TARGET_DIR)$(INSTALLATION_DIR)/bin
 
-	# Copy configuration files for wazuh-indexer
-	
-	mv $(TMP_DIR)/etc/init.d/$(NAME) $(TARGET_DIR)/etc/init.d/$(NAME)
-	mv $(TMP_DIR)/etc/wazuh-indexer $(TARGET_DIR)$(CONFIG_DIR)
-	mv $(TMP_DIR)/etc/sysconfig/$(NAME) $(TARGET_DIR)/etc/default/
-	mv $(TMP_DIR)/usr/lib/tmpfiles.d/* $(TARGET_DIR)/usr/lib/tmpfiles.d/
-	mv $(TMP_DIR)/usr/lib/sysctl.d/* $(TARGET_DIR)/usr/lib/sysctl.d/
-	mv $(TMP_DIR)/usr/lib/systemd/system/* $(TARGET_DIR)/usr/lib/systemd/system/
+	# Move configuration files for wazuh-indexer
+	mv -f $(BASE_DIR)/etc/init.d/$(NAME) $(TARGET_DIR)/etc/init.d/$(NAME)
+	mv -f $(BASE_DIR)/etc/wazuh-indexer/* $(TARGET_DIR)$(CONFIG_DIR)
+	mv -f $(BASE_DIR)/etc/sysconfig/$(NAME) $(TARGET_DIR)/etc/default/
+	mv -f $(BASE_DIR)/usr/lib/tmpfiles.d/* $(TARGET_DIR)/usr/lib/tmpfiles.d/
+	mv -f $(BASE_DIR)/usr/lib/sysctl.d/* $(TARGET_DIR)/usr/lib/sysctl.d/
+	mv -f $(BASE_DIR)/usr/lib/systemd/system/* $(TARGET_DIR)/usr/lib/systemd/system/
+
+	# Copy installation files to final location
+	cp -pr $(BASE_DIR)/* $(TARGET_DIR)$(INSTALLATION_DIR)
 
 	# This is needed by the performance-analyzer service
-	echo false > $(TARGET_DIR)$(LIB_DIR)/batch_metrics_enabled.conf
+#	echo false > $(LIB_DIR)/batch_metrics_enabled.conf
 
 
 	# Copy Wazuh's config files for the opendistro_security plugin
@@ -142,7 +138,7 @@ override_dh_install:
 
 
 
-	# Create group and user in rpmbuild chroot environment so wazuh-indexer can be started for creating ODFE security indices
+	# Create group and user in chroot environment
 	groupadd -r $(GROUP)
 	useradd --system \
 			--no-create-home \
@@ -154,7 +150,7 @@ override_dh_install:
 
 
 
-	chown $(USER):$(GROUP) -R $(TARGET_DIR)$(INSTALLATION_DIR)
+#	chown $(USER):$(GROUP) -R $(TARGET_DIR)
 #	chown $(USER):$(GROUP) $(TARGET_DIR)/var -R
 #	chown $(USER):$(GROUP) $(TARGET_DIR)/etc -R
 

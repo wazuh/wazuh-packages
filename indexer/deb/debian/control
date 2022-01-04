@@ -2,7 +2,7 @@ Source: wazuh-indexer
 Section: admin
 Priority: extra
 Maintainer: Wazuh, Inc <info@wazuh.com>
-Build-Depends: debhelper (>= 7.0.50~), gawk, selinux-basics
+Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.8.4
 Homepage: https://www.wazuh.com
 

@@ -13,7 +13,7 @@ ARCHITECTURE="x86_64"
 OUTDIR="${CURRENT_PATH}/output"
 REVISION="1"
 BUILD_DOCKER="yes"
-RPM_X86_BUILDER="rpm_builder_x86"
+RPM_X86_BUILDER="rpm_indexer_builder_x86"
 RPM_BUILDER_DOCKERFILE="${CURRENT_PATH}/docker"
 INSTALLATION_PATH="/var/wazuh-indexer"
 

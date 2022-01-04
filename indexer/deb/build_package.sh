@@ -13,7 +13,7 @@ ARCHITECTURE="amd64"
 OUTDIR="${CURRENT_PATH}/output"
 REVISION="1"
 BUILD_DOCKER="yes"
-DEB_AMD64_BUILDER="deb_builder_amd64"
+DEB_AMD64_BUILDER="deb_indexer_builder_amd64"
 DEB_AMD64_BUILDER_DOCKERFILE="${CURRENT_PATH}/docker/amd64"
 INSTALLATION_PATH="/usr/share/wazuh-indexer"
 
