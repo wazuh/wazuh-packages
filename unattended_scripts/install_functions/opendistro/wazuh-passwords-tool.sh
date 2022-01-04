@@ -460,11 +460,11 @@ User:
     fi	
 
     if [ ! -n "$users" ]; then 
-        if [ -n "${kibanainstalled}" ]; then 
+        if [ -n "${kibanainstalled}" ] && [ -z "${changeall}" ]; then 
             users=( kibanaserver admin )
         fi
 
-        if [ -n "${filebeatinstalled}" ]; then 
+        if [ -n "${filebeatinstalled}" ] && [ -z "${changeall}" ]; then 
             users=( admin )
         fi
     fi
@@ -582,6 +582,7 @@ runSecurityAdmin() {
     fi 
 
 }
+
 
 
 main $@

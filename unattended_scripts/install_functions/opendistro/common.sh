@@ -80,6 +80,7 @@ function changePasswords() {
         p_file="${base_path}/password_file.yml"
         checkInstalledPass
         if [ -n "${elasticsearch}" ] || [ -n "${AIO}" ]; then
+            changeall=1
             readUsers
         fi
         readFileUsers
