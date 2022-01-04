@@ -190,7 +190,7 @@ function main() {
                 ;;
             "-w"|"--wazuh-server")
                 if [ -z "$2" ]; then
-                  logger -e "Arguments contain errors. Probably missing <node-name> after -w|--wazuh-server."
+                    logger -e "Arguments contain errors. Probably missing <node-name> after -w|--wazuh-server."
                     getHelp
                     exit 1
                 fi
@@ -284,14 +284,12 @@ function main() {
         exit 0
     fi
     
+    # Distributed architecture: node names must be different
     if [ -z "${AIO}" ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
         checkNames
     fi
 
-    if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
-        installPrerequisites
-    fi
-
+    # Creation certificate case: Only AIO and -c option can create certificates. 
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
         createCertificates
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
@@ -301,6 +299,7 @@ function main() {
 
     if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
         checkPreviousCertificates
+        installPrerequisites
         addWazuhrepo
     fi
 
