@@ -252,6 +252,7 @@ function main() {
                     getHelp
                     exit 1
                 fi
+                tar_conf="1"
                 tar_file=$2
                 shift 2
                 ;;
@@ -301,9 +302,7 @@ function main() {
     checkArch
     checkSystem
     checkIfInstalled
-    set -x
     checkArguments "${nargs}"
-    set +x
     readConfig
 
 # -------------- Uninstall case  ------------------------------------
@@ -369,7 +368,6 @@ function main() {
         configureElasticsearch
         startService "elasticsearch"
         initializeElasticsearch
-        changePasswords
     fi
 
 # -------------- Start Elasticsearch cluster case  ------------------
@@ -377,6 +375,7 @@ function main() {
     if [ -n "${start_elastic_cluster}" ]; then
         importFunction "elasticsearch.sh"
         startElasticsearchCluster
+        changePasswords
     fi
 
 # -------------- Kibana case  ---------------------------------------
