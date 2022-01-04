@@ -21,7 +21,7 @@ wazuh_kibana_plugin_revision="1"
 ## Links and paths to resources
 functions_path="install_functions/opendistro"
 config_path="config/opendistro"
-resources="https://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/resources/${wazuh_major}"
+resources="https://packages-dev.wazuh.com/resources/${wazuh_major}"
 resources_functions="${resources}/${functions_path}"
 resources_config="${resources}/${config_path}"
 base_path="$(dirname $(readlink -f $0))"
@@ -138,14 +138,14 @@ function importFunction() {
             sed -i 's/main $@//' /tmp/$1
             . /tmp/$1
             rm -f /tmp/$1
+        elif [ -f ${base_path}/$functions_path/$1 ]; then
+            logger -e "Unable to download resource $resources_functions/$1. Local file detected in ${base_path}/$functions_path/, you may want to use the -l option."
+            rm -f /tmp/$1
+            exit 1
         else
-            if [ -f ${base_path}/$functions_path/$1 ]; then
-                logger -e "Unable to download resource $resources_functions/$1, local file detected you may want to use the -l option."
-                exit
-            else
-                logger -e "Unable to find resource $resources_functions/$1."
-                exit 1
-            fi
+            logger -e "Unable to find resource $resources_functions/$1."
+            rm -f /tmp/$1
+            exit 1
         fi
     fi
 
