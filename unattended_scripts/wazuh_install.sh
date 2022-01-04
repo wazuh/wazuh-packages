@@ -69,6 +69,9 @@ function getHelp() {
     echo -e "        -d,  --development"
     echo -e "                Uses development repository."
     echo -e ""
+    echo -e "        -ds,  --disable-spinner"
+    echo -e "                Disables the spinner indicator."
+    echo -e ""
     echo -e "        -e,  --elasticsearch <elasticsearch-node-name>"
     echo -e "                Elasticsearch installation."
     echo -e ""
@@ -239,6 +242,10 @@ function main() {
                 development=1
                 shift 1
                 ;;
+            "-ds"|"--disable-spinner")
+                disableSpinner=1
+                shift 1
+                ;;
             "-l"|"--local")
                 local=1
                 shift 1
@@ -265,9 +272,11 @@ function main() {
         exit 1
     fi
 
-    spin &
-    spin_pid=$!
-    trap "kill -9 $spin_pid $debug" EXIT
+    if [ -z "${disableSpinner}" ]; then
+        spin &
+        spin_pid=$!
+        trap "kill -9 $spin_pid $debug" EXIT
+    fi
 
     importFunction "common.sh"
     importFunction "wazuh-cert-tool.sh"
