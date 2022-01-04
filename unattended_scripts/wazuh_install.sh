@@ -27,7 +27,6 @@ resources_config="${resources}/${config_path}"
 base_path="$(dirname $(readlink -f $0))"
 config_file="${base_path}/config.yml"
 tar_file="${base_path}/certs.tar"
-kiname="kibana"
 
 ## JAVA_HOME
 export JAVA_HOME=/usr/share/elasticsearch/jdk/
@@ -426,6 +425,7 @@ function main() {
         importFunction "elasticsearch.sh"
         importFunction "kibana.sh"
 
+        kiname="kibana"
         installElasticsearch
         configureElasticsearchAIO
         startService "elasticsearch"
