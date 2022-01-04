@@ -43,7 +43,7 @@ readInstances() {
         logger "Configuration file found. Creating certificates..."
         eval "mkdir ~/certs $debug"
     else
-        logger -e "no configuration file found."
+        logger -e "No configuration file found."
         exit 1;
     fi
 
@@ -167,7 +167,7 @@ generateCertificateconfiguration() {
         conf="$(awk '{sub("IP.1 = cip", "DNS.1 = '${cip}'")}1' ~/certs/$cname.conf)"
         echo "${conf}" > ~/certs/$cname.conf 
     else
-        echo "Error. The given information does not match with an IP or a DNS"  
+        logger -e "The given information does not match with an IP or a DNS"  
         exit 1; 
     fi   
 
@@ -184,7 +184,7 @@ generateAdmincertificate() {
     eval "openssl genrsa -out ~/certs/admin-key-temp.pem 2048 ${debug}"
     eval "openssl pkcs8 -inform PEM -outform PEM -in ~/certs/admin-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out ~/certs/admin-key.pem ${debug}"
     eval "openssl req -new -key ~/certs/admin-key.pem -out ~/certs/admin.csr -batch -subj '/C=US/L=California/O=Wazuh/OU=Docu/CN=admin' ${debug}"
-    eval "openssl x509 -req -in ~/certs/admin.csr -CA ~/certs/root-ca.pem -CAkey ~/certs/root-ca.key -CAcreateserial -sha256 -out ~/certs/admin.pem ${debug}"
+    eval "openssl x509 -req -days 3650 -in ~/certs/admin.csr -CA ~/certs/root-ca.pem -CAkey ~/certs/root-ca.key -CAcreateserial -sha256 -out ~/certs/admin.pem ${debug}"
 
 }
 

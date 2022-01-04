@@ -35,10 +35,11 @@ logger() {
             message="$1"
             ;;
     esac
-    echo  $now $mtype $message
+    echo $now $mtype $message
 }
 
 ## Checks if the script is run with enough privileges
+
 checkRoot() {
     if [ "$EUID" -ne 0 ]; then
         logger -e "This script must be run as root."
@@ -165,15 +166,16 @@ readFileUsers() {
 
     FILECORRECT=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*\w+\s*)+\Z' $FILE)
     if [ $FILECORRECT -ne 1 ]; then
-        logger -e "the password file doesn't have a correct format.
-        It must have this format:
-        User:
-        name: wazuh
-        password: wazuhpasword
-        User:
-        name: kibanaserver
-        password: kibanaserverpassword"
-        exit 1
+	logger -e "The password file doesn't have a correct format.
+
+It must have this format:
+User:
+    name: wazuh
+    password: wazuhpasword
+User:
+    name: kibanaserver
+    password: kibanaserverpassword"
+	exit 1
     fi	
 
     SFILEUSERS=$(grep name: ${FILE} | awk '{ print substr( $2, 1, length($2) ) }')
@@ -199,7 +201,6 @@ readFileUsers() {
             if [ $supported = false ]; then
                 logger -e "The given user ${FILEUSERS[j]} does not exist"
             fi
-
         done
     else
         FINALUSERS=()
@@ -214,7 +215,7 @@ readFileUsers() {
                     supported=true
                 fi
             done
-            if [ $supported = false ];then
+            if [ $supported = false ]; then
                 logger -e "The given user ${FILEUSERS[j]} does not exist"
             fi
         done
@@ -313,10 +314,10 @@ changePassword() {
     if [ -n "${CHANGEALL}" ]; then
         for i in "${!PASSWORDS[@]}"
         do
-           awk -v new=${HASHES[i]} 'prev=="'${USERS[i]}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/elasticsearch/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
+            awk -v new=${HASHES[i]} 'prev=="'${USERS[i]}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/elasticsearch/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
 
-            if [ "${USERS[i]}" == "wazuh" ]; then
-                wazuhpass=${PASSWORDS[i]}
+            if [ "${USERS[i]}" == "admin" ]; then
+                adminpass=${PASSWORDS[i]}
             elif [ "${USERS[i]}" == "kibanaserver" ]; then
                 kibpass=${PASSWORDS[i]}
             fi  
@@ -325,15 +326,15 @@ changePassword() {
     else
         awk -v new="$HASH" 'prev=="'${NUSER}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/elasticsearch/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
 
-        if [ "${NUSER}" == "wazuh" ]; then
-            wazuhpass=${PASSWORD}
+        if [ "${NUSER}" == "admin" ]; then
+            adminpass=${PASSWORD}
         elif [ "${NUSER}" == "kibanaserver" ]; then
             kibpass=${PASSWORD}
         fi        
 
     fi
     
-    if [ "${NUSER}" == "wazuh" ] || [ -n "${CHANGEALL}" ]; then
+    if [ "${NUSER}" == "admin" ] || [ -n "${CHANGEALL}" ]; then
 
         if [ "${SYS_TYPE}" == "yum" ]; then
             hasfilebeat=$(yum list installed 2>/dev/null | grep filebeat)
@@ -343,12 +344,12 @@ changePassword() {
             hasfilebeat=$(apt list --installed  2>/dev/null | grep filebeat)
         fi 
 
-        wazuhold=$(grep "password:" /etc/filebeat/filebeat.yml )
+        adminold=$(grep "password:" /etc/filebeat/filebeat.yml )
         ra="  password: "
-        wazuhold="${wazuhold//$ra}"
+        adminold="${adminold//$ra}"
 
         if [ -n "${hasfilebeat}" ]; then
-            conf="$(awk '{sub("  password: '${wazuhold}'", "  password: '${wazuhpass}'")}1' /etc/filebeat/filebeat.yml)"
+            conf="$(awk '{sub("  password: '${adminold}'", "  password: '${adminpass}'")}1' /etc/filebeat/filebeat.yml)"
             echo "${conf}" > /etc/filebeat/filebeat.yml  
             restartService "filebeat"
         fi 
@@ -374,7 +375,6 @@ changePassword() {
 		    restartService "kibana"
 	    fi         
     fi
-
 }
 
 ## Runs the Security Admin script to load the changes
@@ -393,11 +393,11 @@ runSecurityAdmin() {
 
     if [[ -n "${NUSER}" ]] && [[ -n ${AUTOPASS} ]]; then
         echo -e "The password for user '${NUSER}' is '${PASSWORD}'\n"
-        logger "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services. More info: https://documentation.wazuh.com/current/user-manual/elasticsearch/elastic-tuning.html#change-users-password"
+        logger -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
     fi
 
     if [[ -n "${NUSER}" ]] && [[ -z ${AUTOPASS} ]]; then
-        logger "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services. More info: https://documentation.wazuh.com/current/user-manual/elasticsearch/elastic-tuning.html#change-users-password"
+        logger -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
     fi    
 
     if [ -n "${CHANGEALL}" ]; then
@@ -406,7 +406,7 @@ runSecurityAdmin() {
         do
             echo -e "The password for ${USERS[i]} is ${PASSWORDS[i]}\n"
         done
-        logger "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services. More info: https://documentation.wazuh.com/current/user-manual/elasticsearch/elastic-tuning.html#change-users-password"
+        logger -w "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
     fi 
 
 }
@@ -477,7 +477,7 @@ main() {
         if [ -n "${PASSWORD}" ] && [ -n "${CHANGEALL}" ]; then
             getHelp
         fi 
-
+        
         if [ -n "${NUSER}" ] && [ -n "${FILE}" ]; then
             getHelp
         fi 

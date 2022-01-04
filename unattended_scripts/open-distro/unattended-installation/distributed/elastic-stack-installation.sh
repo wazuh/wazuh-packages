@@ -8,14 +8,17 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-## Check if system is based on yum or apt-get
 char="."
 debug='> /dev/null 2>&1'
-WAZUH_VER="4.2.2"
+WAZUH_VER="4.3.0"
+WAZUH_MAJOR="4.3"
 WAZUH_REV="1"
 ELK_VER="7.10.2"
 OD_VER="1.13.2"
 OD_REV="1"
+WAZUH_KIB_PLUG_REV="1"
+
+## Check if system is based on yum or apt-get
 if [ -n "$(command -v yum)" ]; then
     sys_type="yum"
     sep="-"
@@ -57,6 +60,28 @@ checkArch() {
     fi
 }
 
+applyLog4j2Mitigation(){
+
+    eval "curl -so /tmp/apache-log4j-2.17.1-bin.tar.gz https://packages.wazuh.com/utils/log4j/apache-log4j-2.17.1-bin.tar.gz ${debug}"
+    eval "tar -xf /tmp/apache-log4j-2.17.1-bin.tar.gz -C /tmp/"
+
+    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-api-2.17.1.jar /usr/share/elasticsearch/lib/  ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-core-2.17.1.jar /usr/share/elasticsearch/lib/ ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-slf4j-impl-2.17.1.jar /usr/share/elasticsearch/plugins/opendistro_security/ ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-api-2.17.1.jar /usr/share/elasticsearch/performance-analyzer-rca/lib/ ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-core-2.17.1.jar /usr/share/elasticsearch/performance-analyzer-rca/lib/ ${debug}"
+
+    eval "rm -f /usr/share/elasticsearch/lib//log4j-api-2.11.1.jar ${debug}"
+    eval "rm -f /usr/share/elasticsearch/lib/log4j-core-2.11.1.jar ${debug}"
+    eval "rm -f /usr/share/elasticsearch/plugins/opendistro_security/log4j-slf4j-impl-2.11.1.jar ${debug}"
+    eval "rm -f /usr/share/elasticsearch/performance-analyzer-rca/lib/log4j-api-2.13.0.jar ${debug}"
+    eval "rm -f /usr/share/elasticsearch/performance-analyzer-rca/lib/log4j-core-2.13.0.jar ${debug}"
+
+    eval "rm -rf /tmp/apache-log4j-2.17.1-bin ${debug}"
+    eval "rm -f /tmp/apache-log4j-2.17.1-bin.tar.gz ${debug}"
+
+}
+
 startService() {
 
     if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
@@ -95,16 +120,16 @@ startService() {
 
 ## Show script usage
 getHelp() {
-   echo ""
-   echo "Usage: $0 arguments"
-   echo -e "\t-e     | --install-elasticsearch Installs Open Distro for Elasticsearch (cannot be used together with option -k)"
-   echo -e "\t-k     | --install-kibana Installs Open Distro for Kibana (cannot be used together with option -e)"
-   echo -e "\t-n     | --node-name Name of the node"
-   echo -e "\t-c     | --create-certificates Generates the certificates for all the indicated nodes"
-   echo -e "\t-d     | --debug Shows the complete installation output"
-   echo -e "\t-i     | --ignore-health-check Ignores the health-check"
-   echo -e "\t-h     | --help Shows help"
-   exit 1 # Exit script after printing help
+    echo ""
+    echo "Usage: $0 arguments"
+    echo -e "\t-e     | --install-elasticsearch Installs Open Distro for Elasticsearch (cannot be used together with option -k)"
+    echo -e "\t-k     | --install-kibana Installs Open Distro for Kibana (cannot be used together with option -e)"
+    echo -e "\t-n     | --node-name Name of the node"
+    echo -e "\t-c     | --create-certificates Generates the certificates for all the indicated nodes"
+    echo -e "\t-d     | --debug Shows the complete installation output"
+    echo -e "\t-i     | --ignore-health-check Ignores the health-check"
+    echo -e "\t-h     | --help Shows help"
+    exit 1 # Exit script after printing help
 }
 
 ## Checks if the configuration file or certificates exist
@@ -244,10 +269,10 @@ installElasticsearch() {
 
         logger "Configuring Elasticsearch..."
 
-        eval "curl -so /etc/elasticsearch/elasticsearch.yml https://packages.wazuh.com/resources/4.2/open-distro/unattended-installation/distributed/templates/elasticsearch_unattended.yml --max-time 300 ${debug}"
-        eval "curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml https://packages.wazuh.com/resources/4.2/open-distro/elasticsearch/roles/roles.yml --max-time 300 ${debug}"
-        eval "curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml https://packages.wazuh.com/resources/4.2/open-distro/elasticsearch/roles/roles_mapping.yml --max-time 300 ${debug}"
-        eval "curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml https://packages.wazuh.com/resources/4.2/open-distro/elasticsearch/roles/internal_users.yml --max-time 300 ${debug}"
+        eval "curl -so /etc/elasticsearch/elasticsearch.yml https://packages.wazuh.com/resources/${WAZUH_MAJOR}/open-distro/unattended-installation/distributed/templates/elasticsearch_unattended.yml --max-time 300 ${debug}"
+        eval "curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml https://packages.wazuh.com/resources/${WAZUH_MAJOR}/open-distro/elasticsearch/roles/roles.yml --max-time 300 ${debug}"
+        eval "curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml https://packages.wazuh.com/resources/${WAZUH_MAJOR}/open-distro/elasticsearch/roles/roles_mapping.yml --max-time 300 ${debug}"
+        eval "curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml https://packages.wazuh.com/resources/${WAZUH_MAJOR}/open-distro/elasticsearch/roles/internal_users.yml --max-time 300 ${debug}"
 
         if [ -n "${single}" ]; then
             nh=$(awk -v RS='' '/network.host:/' ~/config.yml)
@@ -320,6 +345,8 @@ installElasticsearch() {
         eval "sed -i "s/-Xms1g/-Xms${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
         eval "sed -i "s/-Xmx1g/-Xmx${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
 
+        applyLog4j2Mitigation
+
         jv=$(java -version 2>&1 | grep -o -m1 '1.8.0' )
         if [ "$jv" == "1.8.0" ]; then
             echo "root hard nproc 4096" >> /etc/security/limits.conf
@@ -354,7 +381,7 @@ createCertificates() {
     logger "Creating the certificates..."
     eval "curl -so ~/search-guard-tlstool-1.8.zip https://maven.search-guard.com/search-guard-tlstool/1.8/search-guard-tlstool-1.8.zip --max-time 300 ${debug}"
     eval "unzip ~/search-guard-tlstool-1.8.zip -d ~/searchguard ${debug}"
-    eval "curl -so ~/searchguard/search-guard.yml https://packages.wazuh.com/resources/4.2/open-distro/unattended-installation/distributed/templates/search-guard-unattended.yml --max-time 300 ${debug}"
+    eval "curl -so ~/searchguard/search-guard.yml https://packages.wazuh.com/resources/${WAZUH_MAJOR}/open-distro/unattended-installation/distributed/templates/search-guard-unattended.yml --max-time 300 ${debug}"
 
     if [ -n "${single}" ]; then
         echo -e "\n" >> ~/searchguard/search-guard.yml
@@ -463,11 +490,11 @@ installKibana() {
         logger -e "Kibana installation failed"
         exit 1;
     else
-        eval "curl -so /etc/kibana/kibana.yml https://packages.wazuh.com/resources/4.2/open-distro/unattended-installation/distributed/templates/kibana_unattended.yml --max-time 300 ${debug}"
+        eval "curl -so /etc/kibana/kibana.yml https://packages.wazuh.com/resources/${WAZUH_MAJOR}/open-distro/unattended-installation/distributed/templates/kibana_unattended.yml --max-time 300 ${debug}"
         eval "mkdir /usr/share/kibana/data ${debug}"
         eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
         eval "cd /usr/share/kibana ${debug}"
-        eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana-4.2.2_7.10.2-1.zip ${debug}"
+        eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana-${WAZUH_VER}_${ELK_VER}-${WAZUH_KIB_PLUG_REV}.zip ${debug}"
         if [  "$?" != 0  ]; then
             logger -e "Wazuh Kibana plugin could not be installed."
             exit 1;
@@ -566,17 +593,17 @@ checkNodes() {
 healthCheck() {
 
     cores=$(cat /proc/cpuinfo | grep processor | wc -l)
-    ram_gb=$(free -m | awk '/^Mem:/{print $2}')
+    ram_gb=$(free --giga | awk '/^Mem:/{print $2}')
     if [ -n "${elastic}" ]; then
-        if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]; then
-            logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
+        if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 4 ]; then
+            logger -e "Your system does not meet the recommended minimum hardware requirements of 4GB of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
             exit 1;
         else
             logger "Starting the installation..."
         fi
     elif [ -n "${kibana}" ]; then
-        if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]; then
-            logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
+        if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 4 ]; then
+            logger -e "Your system does not meet the recommended minimum hardware requirements of 4GB of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
             exit 1;
         else
             logger "Starting the installation..."

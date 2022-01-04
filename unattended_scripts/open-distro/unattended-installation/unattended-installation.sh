@@ -11,8 +11,8 @@
 ## Check if system is based on yum or apt-get
 char="."
 debug='>> /var/log/wazuh-unattended-installation.log 2>&1'
-WAZUH_MAJOR="4.2"
-WAZUH_VER="4.2.2"
+WAZUH_MAJOR="4.3"
+WAZUH_VER="4.3.0"
 WAZUH_REV="1"
 ELK_VER="7.10.2"
 OD_VER="1.13.2"
@@ -21,6 +21,7 @@ WAZUH_KIB_PLUG_REV="1"
 ow=""
 repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"
 repobaseurl="https://packages.wazuh.com/4.x"
+filebeat_wazuh_template_url="https://raw.githubusercontent.com/wazuh/wazuh/4.3/extensions/elasticsearch/7.x/wazuh-template.json"
 resources="https://packages.wazuh.com/resources/${WAZUH_MAJOR}"
 
 if [ -n "$(command -v yum)" ]; then
@@ -136,6 +137,28 @@ checkArch() {
     
 }
 
+applyLog4j2Mitigation(){
+
+    eval "curl -so /tmp/apache-log4j-2.17.1-bin.tar.gz https://packages.wazuh.com/utils/log4j/apache-log4j-2.17.1-bin.tar.gz ${debug}"
+    eval "tar -xf /tmp/apache-log4j-2.17.1-bin.tar.gz -C /tmp/"
+
+    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-api-2.17.1.jar /usr/share/elasticsearch/lib/  ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-core-2.17.1.jar /usr/share/elasticsearch/lib/ ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-slf4j-impl-2.17.1.jar /usr/share/elasticsearch/plugins/opendistro_security/ ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-api-2.17.1.jar /usr/share/elasticsearch/performance-analyzer-rca/lib/ ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-core-2.17.1.jar /usr/share/elasticsearch/performance-analyzer-rca/lib/ ${debug}"
+
+    eval "rm -f /usr/share/elasticsearch/lib//log4j-api-2.11.1.jar ${debug}"
+    eval "rm -f /usr/share/elasticsearch/lib/log4j-core-2.11.1.jar ${debug}"
+    eval "rm -f /usr/share/elasticsearch/plugins/opendistro_security/log4j-slf4j-impl-2.11.1.jar ${debug}"
+    eval "rm -f /usr/share/elasticsearch/performance-analyzer-rca/lib/log4j-api-2.13.0.jar ${debug}"
+    eval "rm -f /usr/share/elasticsearch/performance-analyzer-rca/lib/log4j-core-2.13.0.jar ${debug}"
+
+    eval "rm -rf /tmp/apache-log4j-2.17.1-bin ${debug}"
+    eval "rm -f /tmp/apache-log4j-2.17.1-bin.tar.gz ${debug}"
+
+}
+
 startService() {
 
     if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
@@ -179,14 +202,14 @@ startService() {
 ## Show script usage
 getHelp() {
 
-   echo ""
-   echo "Usage: $0 arguments"
-   echo -e "\t-o   | --overwrite Overwrite the existing installation"
-   echo -e "\t-r   | --uninstall Remove the installation"
-   echo -e "\t-v   | --verbose Shows the complete installation output"
-   echo -e "\t-i   | --ignore-health-check Ignores the health-check"
-   echo -e "\t-h   | --help Shows help"
-   exit 1 # Exit script after printing help
+    echo ""
+    echo "Usage: $0 arguments"
+    echo -e "\t-o   | --overwrite Overwrite the existing installation"
+    echo -e "\t-r   | --uninstall Remove the installation"
+    echo -e "\t-v   | --verbose Shows the complete installation output"
+    echo -e "\t-i   | --ignore-health-check Ignores the health-check"
+    echo -e "\t-h   | --help Shows help"
+    exit 1 # Exit script after printing help
 
 }
 
@@ -201,7 +224,7 @@ installPrerequisites() {
         eval "zypper -n install libcap-progs ${debug} || zypper -n install libcap2 ${debug}"
     elif [ ${sys_type} == "apt-get" ]; then
         eval "apt-get update -q $debug"
-        eval "apt-get install apt-transport-https curl unzip wget libcap2-bin -y ${debug}"        
+        eval "apt-get install apt-transport-https curl unzip wget libcap2-bin -y ${debug}"
     fi
 
     if [  "$?" != 0  ]; then
@@ -284,7 +307,6 @@ installElasticsearch() {
 
         ## Create certificates
         eval "mkdir /etc/elasticsearch/certs ${debug}"
-        eval "cd /etc/elasticsearch/certs ${debug}"
         eval "curl -so ~/wazuh-cert-tool.sh ${resources}/open-distro/tools/certificate-utility/wazuh-cert-tool.sh --max-time 300 ${debug}"
         eval "curl -so ~/instances.yml ${resources}/open-distro/tools/certificate-utility/instances.yml"
         eval "grep -A 4 'Elasticsearch nodes' ~/instances.yml | sed  's/<node-name>/elasticsearch/; s/node-IP/127.0.0.1/' >> ~/instances_tmp.yml"
@@ -315,7 +337,9 @@ installElasticsearch() {
         fi    
         eval "sed -i "s/-Xms1g/-Xms${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
         eval "sed -i "s/-Xmx1g/-Xmx${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
-     
+
+        applyLog4j2Mitigation
+
         eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
         # Start Elasticsearch
         startService "elasticsearch"
@@ -326,8 +350,7 @@ installElasticsearch() {
         done    
         echo ""
 
-        eval "cd /usr/share/elasticsearch/plugins/opendistro_security/tools/ ${debug}"
-        eval "./securityadmin.sh -cd ../securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem ${debug}"
+        eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem ${debug}"
         logger "Done"
         
     fi
@@ -351,7 +374,7 @@ installFilebeat() {
     else
         filebeatinstalled="1"
         eval "curl -so /etc/filebeat/filebeat.yml ${resources}/open-distro/filebeat/7.x/filebeat_unattended.yml --max-time 300  ${debug}"
-        eval "curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/4.0/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300 ${debug}"
+        eval "curl -so /etc/filebeat/wazuh-template.json ${filebeat_wazuh_template_url} --max-time 300 ${debug}"
         eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
         eval "curl -s '${repobaseurl}'/filebeat/wazuh-filebeat-0.1.tar.gz --max-time 300 | tar -xvz -C /usr/share/filebeat/module ${debug}"
         eval "mkdir /etc/filebeat/certs ${debug}"
@@ -381,11 +404,9 @@ installKibana() {
         exit 1;
     else    
         kibanainstalled="1"
-        #eval "curl -so /etc/kibana/kibana.yml ${resources}/open-distro/kibana/7.x/kibana_unattended.yml --max-time 300 ${debug}"
-        eval "cp  /unattended_scripts/open-distro/kibana/7.x/kibana_unattended.yml /etc/kibana/kibana.yml"
+        eval "curl -so /etc/kibana/kibana.yml ${resources}/open-distro/kibana/7.x/kibana_unattended.yml --max-time 300 ${debug}"
         eval "mkdir /usr/share/kibana/data ${debug}"
         eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
-        eval "cd /usr/share/kibana ${debug}"
         eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${repobaseurl}'/ui/kibana/wazuh_kibana-${WAZUH_VER}_${ELK_VER}-${WAZUH_KIB_PLUG_REV}.zip ${debug}"
         if [  "$?" != 0  ]; then
             logger -e "Wazuh Kibana plugin could not be installed."
@@ -485,17 +506,17 @@ checkInstalled() {
         fi  
     fi  
 
-    if [ -z "${wazuhinstalled}" ] || [ -z "${elasticinstalled}" ] || [ -z "${filebeatinstalled}" ] || [ -z "${kibanainstalled}" ] && [ -n "${uninstall}" ]; then 
+    if [ -z "${wazuhinstalled}" ] && [ -z "${elasticinstalled}" ] && [ -z "${filebeatinstalled}" ] && [ -z "${kibanainstalled}" ] && [ -n "${uninstall}" ]; then 
         logger -e "No Wazuh components were found on the system."
         exit 1;        
     fi
 
     if [ -n "${wazuhinstalled}" ] || [ -n "${elasticinstalled}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${kibanainstalled}" ]; then 
         if [ -n "${ow}" ]; then
-             overwrite
+            overwrite
         
         elif [ -n "${uninstall}" ]; then
-            logger "Removing the installed items"
+            logger -w "Removing the installed items"
             rollBack
         else
             logger -e "All the Wazuh componets were found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. NOTE: This will erase all the existing configuration and data."
@@ -527,7 +548,7 @@ overwrite() {
 networkCheck() {
     connection=$(curl -I https://packages.wazuh.com/ -s | grep 200 | awk '{print $2}')
     if [ ${connection} != "200" ]; then
-        logger -e "No internet connection. To perform an offline installation, please run this script with the option -d/--download-packages in a computer with internet access, copy the wazuh-packages.tar file generated on this computer and run again this script."
+        logger -e "No internet connection."
         exit 1;
     fi
 }
@@ -535,7 +556,7 @@ networkCheck() {
 specsCheck() {
 
     cores=$(cat /proc/cpuinfo | grep processor | wc -l)
-    ram_gb=$(free -m | awk '/^Mem:/{print $2}')
+    ram_gb=$(free --giga | awk '/^Mem:/{print $2}')
     
 }
 
@@ -543,8 +564,8 @@ specsCheck() {
 healthCheck() {
 
     specsCheck
-    if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]; then
-        logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
+    if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 4 ]; then
+        logger -e "Your system does not meet the recommended minimum hardware requirements of 4GB of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
         exit 1;
     else
         logger "Starting the installation..."
@@ -571,11 +592,11 @@ changePasswords() {
 checkInstallation() {
 
     changePasswords
-    wazuhpass=$(grep "password:" /etc/filebeat/filebeat.yml )
+    adminpass=$(grep "password:" /etc/filebeat/filebeat.yml )
     ra="  password: "
-    wazuhpass="${wazuhpass//$ra}"
+    adminpass="${adminpass//$ra}"
     logger "Checking the installation..."
-    eval "curl -XGET https://localhost:9200 -uwazuh:${wazuhpass} -k --max-time 300 ${debug}"
+    eval "curl -XGET https://localhost:9200 -uadmin:${adminpass} -k --max-time 300 ${debug}"
     if [  "$?" != 0  ]; then
         logger -e "Elasticsearch was not successfully installed."
         rollBack
@@ -592,13 +613,13 @@ checkInstallation() {
         logger "Filebeat installation succeeded."
     fi    
     logger "Initializing Kibana (this may take a while)"
-    until [[ "$(curl -XGET https://localhost/status -I -uwazuh:${wazuhpass} -k -s --max-time 300 | grep "200 OK")" ]]; do
+    until [[ "$(curl -XGET https://localhost/status -I -uadmin:${adminpass} -k -s --max-time 300 | grep "200 OK")" ]]; do
         echo -ne $char
         sleep 10
-    done    
+    done
     echo ""
     logger $'\nInstallation finished'
-    logger $'\nYou can access the web interface https://<kibana_ip>. The credentials are wazuh:'${wazuhpass}''
+    logger $'\nYou can access the web interface https://<kibana_ip>. The credentials are admin:'${adminpass}''
 
     exit 0;
 
@@ -606,14 +627,8 @@ checkInstallation() {
 
 main() {
 
-    if [ "$EUID" -ne 0 ]; then
-        logger -e "This script must be run as root."
-        exit 1;
-    fi   
-
     checkArch
-    touch /var/log/wazuh-unattended-installation.log
-
+    
     if [ -n "$1" ]; then      
         while [ -n "$1" ]
         do
@@ -627,55 +642,63 @@ main() {
                 shift 1
                 ;; 
             "-o"|"--overwrite")  
-                ow=1 
-                shift 1     
+                ow=1
+                shift 1
                 ;;  
-            "-r"|"--uninstall")  
-                uninstall=1 
-                shift 1     
-                ;;                                                              
-            "-h"|"--help")        
+            "-r"|"--uninstall")
+                uninstall=1
+                shift 1
+                ;;
+            "-h"|"--help")
                 getHelp
-                ;;                                         
+                ;;
+            "-d"|"--dev")
+                development=1
+                shift 1
+                ;;
             *)
                 getHelp
             esac
-        done    
-
-        if [ -n "${verbose}" ]; then
-            debug='2>&1 | tee -a /var/log/wazuh-unattended-installation.log'
-        fi
-
-        if [ -n "${uninstall}" ]; then
-            checkInstalled
-            exit 0;
-        fi        
-        
-        if [ -n "${ignore}" ]; then
-            logger -w "Health-check ignored."    
-            checkInstalled
-        else
-            checkInstalled
-            healthCheck           
-        fi            
-        installPrerequisites
-        addWazuhrepo
-        installWazuh
-        installElasticsearch
-        installFilebeat
-        installKibana
-        checkInstallation    
-    else
-        checkInstalled  
-        healthCheck   
-        installPrerequisites
-        addWazuhrepo
-        installWazuh
-        installElasticsearch
-        installFilebeat
-        installKibana
-        checkInstallation  
+        done
     fi
+
+    if [ "$EUID" -ne 0 ]; then
+        logger -e "This script must be run as root."
+        exit 1;
+    fi
+
+    eval "touch /var/log/wazuh-unattended-installation.log"
+
+    if [ -n "${development}" ]; then
+        repogpg="https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH"
+        repobaseurl="https://packages-dev.wazuh.com/pre-release"
+        resources="https://packages-dev.wazuh.com/resources/${WAZUH_MAJOR}"
+    fi
+
+    if [ -n "${verbose}" ]; then
+        debug='2>&1 | tee -a /var/log/wazuh-unattended-installation.log'
+    fi
+
+    if [ -n "${uninstall}" ]; then
+        checkInstalled
+        exit 0;
+    fi        
+
+    if [ -n "${ignore}" ]; then
+        logger -w "Health-check ignored."  
+        checkInstalled
+    else
+        checkInstalled
+        healthCheck 
+    fi                   
+
+    installPrerequisites
+    addWazuhrepo
+    installWazuh
+    installElasticsearch
+    installFilebeat
+    installKibana
+    checkInstallation
 
 }
 

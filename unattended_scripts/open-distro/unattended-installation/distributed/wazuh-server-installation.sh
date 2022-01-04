@@ -11,7 +11,7 @@
 ## Check if system is based on yum or apt-get
 char="."
 debug='> /dev/null 2>&1'
-WAZUH_VER="4.2.2"
+WAZUH_VER="4.3.0"
 WAZUH_REV="1"
 ELK_VER="7.10.2"
 OD_VER="1.13.2"
@@ -65,7 +65,7 @@ startService() {
         eval "systemctl start $1.service ${debug}"
         if [  "$?" != 0  ]
         then
-            logger -e  "${1^} could not be started."
+            logger -e "${1^} could not be started."
             exit 1;
         else
             logger "${1^} started"
@@ -76,7 +76,7 @@ startService() {
         eval "/etc/init.d/$1 start ${debug}"
         if [  "$?" != 0  ]
         then
-            logger -e  "${1^} could not be started."
+            logger -e "${1^} could not be started."
             exit 1;
         else
             logger "${1^} started"
@@ -259,15 +259,21 @@ configureFilebeat() {
 ## Health check
 healthCheck() {
     cores=$(cat /proc/cpuinfo | grep processor | wc -l)
-    ram_gb=$(free -m | awk '/^Mem:/{print $2}')
+    ram_gb=$(free --giga | awk '/^Mem:/{print $2}')
 
-    if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]
+    if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 2 ]
     then
-        logger -e "Your system does not meet the recommended minimum hardware requirements of 2Gb of RAM and 2 CPU cores . If you want to proceed with the installation use the -i option to ignore these requirements."
+        logger -e "Your system does not meet the recommended minimum hardware requirements of 2GB of RAM and 2 CPU cores . If you want to proceed with the installation use the -i option to ignore these requirements."
         exit 1;
     else
         logger "Starting the installation..."
     fi
+}
+
+setWazuhUserRBACPermissions() {
+    TOKEN=$(curl -u wazuh:wazuh -s -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
+    eval "curl -s -k -X POST \"https://localhost:55000/security/rules?pretty=true\" -H \"Authorization: Bearer $TOKEN\" -H \"Content-Type: application/json\" -d '{\"name\": \"wazuh_rbac\",\"rule\": {\"FIND\": {\"user_name\": \"wazuh\"}}}' ${debug}"
+    eval "curl -s -k -X POST \"https://localhost:55000/security/roles/1/rules?rule_ids=100&pretty=true\" -H \"Authorization: Bearer $TOKEN\" ${debug}"
 }
 
 ## Main
@@ -329,6 +335,8 @@ main() {
         installWazuh
         installFilebeat iname
         configureFilebeat
+        setWazuhUserRBACPermissions
+
     else
         getHelp
     fi

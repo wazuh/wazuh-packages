@@ -369,9 +369,10 @@ if id -g ossec > /dev/null 2>&1; then
     find %{_localstatedir} -group ossec -user ossecr -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
     userdel ossecr
   fi
+fi
+if grep -q ossec /etc/group; then
   groupdel ossec
 fi
-
 %preun
 
 if [ $1 = 0 ]; then
