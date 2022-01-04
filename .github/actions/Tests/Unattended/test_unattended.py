@@ -13,6 +13,7 @@ import urllib
 from base64 import b64encode
 import warnings
 from subprocess import check_call
+from bs4 import BeautifulSoup
 warnings.filterwarnings('ignore', message='Unverified HTTPS request')
 
 # ----------------------------- Aux functions -----------------------------
@@ -40,6 +41,34 @@ def get_elasticsearch_ip():
     stream = open("/etc/elasticsearch/elasticsearch.yml", 'r')
     dictionary = yaml.safe_load(stream)
     return (dictionary.get('network.host'))
+
+def api_call_elasticsearch(host,query,address,api_protocol,api_user,api_pass,api_port):
+
+    if (query == ""):   # Calling ES API without query
+        if (api_pass != "" and api_pass != ""): # If credentials provided
+            response = os.system("curl --max-time " + str(curl_timeout)
+                                + " -k -u "     + api_user + ":" + api_pass + " "
+                                + api_protocol + "://" + address + ":" + api_port
+                                )
+        else:
+            response = os.system("curl --max-time " + str(curl_timeout) + " " + api_protocol + "://" + address + ":" + api_port)
+
+    elif (query != ""): # Executing query search
+        if (api_pass != "" and api_pass != ""):
+            response = os.system("curl -H \'Content-Type: application/json\'"
+                                + " --max-time 15" 
+                                + " -k -u "     + api_user + ":" + api_pass
+                                + " -d '"        + json.dumps(query) + "' "
+                                + api_protocol + "://" + address + ":" + api_port
+                                + "/wazuh-alerts-4.x-*/_search"
+                                )
+        else:
+            response = os.system("curl --max-time 15 " + api_protocol + "://" + address + ":" + api_port)
+
+    else:
+        response = "Error. Unable to classify Elasticsearch API call"
+
+    return response
 
 def get_kibana_password():
     stream = open("/etc/kibana/kibana.yml", 'r')
@@ -74,6 +103,12 @@ def get_kibana_status():
                         get_kibana_password()), 
                         verify=False)
     return (resp.status_code)
+
+def get_wazuh_node_name():
+    stream = open("/var/ossec/etc/ossec.conf", 'r')
+    dictionary = BeautifulSoup(stream, "xml")
+    node_name = dictionary.find('node_name')
+    return (node_name.get_text())
 
 def get_wazuh_api_status():
 
@@ -176,3 +211,24 @@ def test_check_log_errors():
                 found_error = True
                 break
     assert found_error == False, line
+
+@pytest.mark.every
+def test_check_alerts():
+    node_name = get_wazuh_node_name()
+    query = {
+        "query": {
+            "bool": {
+                "must": [
+                    {
+                        "wildcard": {
+                            "cluster.node": {
+                                "value": node_name
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+
+    response = api_call_elasticsearch(get_elasticsearch_ip(),query,get_elasticsearch_ip(),'https',get_elasticsearch_username(),get_elasticsearch_password(),'9200')
