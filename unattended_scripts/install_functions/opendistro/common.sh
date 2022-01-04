@@ -79,7 +79,7 @@ function changePasswords() {
         eval "tar -xf ${tar_file} -C ${base_path} ./password_file.yml ${debug}"
         p_file="${base_path}/password_file.yml"
         checkInstalledPass
-        if [ -n "${elasticsearch}" ] || [ -n "${AIO}" ]; then
+        if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
             changeall=1
             readUsers
         fi
@@ -88,7 +88,7 @@ function changePasswords() {
         logger -e "Cannot find passwords-file. Exiting"
         exit 1
     fi
-    if [ -n "${elasticsearch}" ] || [ -n "${AIO}" ]; then
+    if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
         getNetworkHost
         createBackUp
         generateHash
@@ -96,7 +96,7 @@ function changePasswords() {
     
     changePassword
 
-    if [ -n "${elasticsearch}" ] || [ -n "${AIO}" ]; then
+    if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
         runSecurityAdmin
     fi
     rm -rf ${p_file}
