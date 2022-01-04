@@ -77,7 +77,7 @@ checkInstalledPass() {
     if [ "${sys_type}" == "yum" ]; then
         elasticsearchinstalled=$(yum list installed 2>/dev/null | grep elasticsearch-oss)
     elif [ "${sys_type}" == "zypper" ]; then
-        elasticsearchinstalled=$(zypper packages --installed | grep elasticsearch-oss | grep i+ | grep noarch)
+        elasticsearchinstalled=$(zypper packages | grep elasticsearch-oss | grep i+ | grep noarch)
     elif [ "${sys_type}" == "apt-get" ]; then
         elasticsearchinstalled=$(apt list --installed  2>/dev/null | grep 'elasticsearch-oss*')
     fi 
@@ -85,7 +85,7 @@ checkInstalledPass() {
     if [ "${sys_type}" == "yum" ]; then
         filebeatinstalled=$(yum list installed 2>/dev/null | grep filebeat)
     elif [ "${sys_type}" == "zypper" ]; then
-        filebeatinstalled=$(zypper packages --installed | grep filebeat | grep i+ | grep noarch)
+        filebeatinstalled=$(zypper packages | grep filebeat | grep i+ | grep noarch)
     elif [ "${sys_type}" == "apt-get" ]; then
         filebeatinstalled=$(apt list --installed  2>/dev/null | grep filebeat)
     fi 
@@ -101,7 +101,7 @@ checkInstalledPass() {
     if [ "${sys_type}" == "yum" ]; then
         kibanainstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch-kibana)
     elif [ "${sys_type}" == "zypper" ]; then
-        kibanainstalled=$(zypper packages --installed | grep opendistroforelasticsearch-kibana | grep i+)
+        kibanainstalled=$(zypper packages | grep opendistroforelasticsearch-kibana | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
         kibanainstalled=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch-kibana)
     fi 
@@ -578,16 +578,10 @@ runSecurityAdmin() {
     fi    
 
     if [ -n "${changeall}" ]; then
-        
-        for i in "${!users[@]}"
-        do
-            logger_pass "The password for ${users[i]} is ${passwords[i]}"
-        done
-        echo ""
         logger_pass -w "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
-        echo ""
     fi 
 
 }
+
 
 main $@
