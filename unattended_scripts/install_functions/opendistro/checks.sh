@@ -258,18 +258,18 @@ function checkNames() {
         exit 1
     fi
 
-    if [ -n "${einame}" ] && [[ ! "${elasticsearch_node_names[@]}" =~ "${einame}" ]]; then
+    if [[ -z "$(echo ${elasticsearch_node_names[@]} | grep -w ${einame})" ]]; then
         logger -e "The name given for the elasticsearch node does not appear on the configuration file."
         exit 1
     fi
 
-    if [ -n "${kiname}" ] && [[ ! "${kibana_node_names[@]}" =~ "${kiname}" ]]; then
-        logger -e "The name given for the kibana node does not appear on the configuration file."
+        if [[ -z "$(echo ${wazuh_servers_node_names[@]} | grep -w ${winame})" ]]; then
+            logger -e "The name given for the kibana node does not appear on the configuration file."
         exit 1
     fi
 
-    if [ -n "${winame}" ] && [[ ! "${wazuh_servers_node_names[@]}" =~ "${winame}" ]]; then
-        logger -e "The name given for the wazuh server node does not appear on the configuration file."
+        if [[ -z "$(echo ${kibana_node_names[@]} | grep -w ${kiname})" ]]; then
+            logger -e "The name given for the wazuh server node does not appear on the configuration file."
         exit 1
     fi
         

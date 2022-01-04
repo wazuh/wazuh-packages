@@ -115,7 +115,7 @@ function generateCertificateconfiguration() {
         conf="$(awk '{sub("IP.1 = cip", "DNS.1 = '$2'")}1' ${base_path}/certs/$1.conf)"
         echo "${conf}" > ${base_path}/certs/$1.conf 
     else
-        logger_cert -e "The given information does not match with an IP or a DNS".  
+        logger_cert -e "The given information does not match with an IP address or a DNS".  
         exit 1 
     fi   
 
@@ -209,9 +209,11 @@ function main() {
         logger_cert -e "This script must be run as root."
         exit 1
     fi
+
+    checkOpenSSL
     
     if [[ -d ${base_path}/certs ]]; then
-        logger -e "Folder ${base_path}/certs exists. Please remove the /certs folder if you want to create new certificates."
+        logger -e "Folder ${base_path}/certs already exists. Please, remove the /certs folder to create new certificates."
         exit 1
     else
         mkdir ${base_path}/certs

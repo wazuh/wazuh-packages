@@ -47,7 +47,7 @@ function addWazuhrepo() {
             eval "apt-get update -q ${debug}"
         fi
     else
-        logger "Wazuh repository already exists skipping."
+        logger "Wazuh repository already exists. Skipping addition."
     fi
     logger "Wazuh repository added."
 
