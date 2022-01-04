@@ -591,7 +591,12 @@ runSecurityAdmin() {
     fi    
 
     if [ -n "${changeall}" ]; then
-        logger_pass -w "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
+        if ([ -z "${AIO}" ] && [ -z "${elasticsearch}" ] && [ -z "${kibana}" ] && [ -z "${wazuh}" ]); then
+            logger_pass -w "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
+        else
+            logger_pass "Passwords changed."
+        fi
+        
     fi 
 
 }
