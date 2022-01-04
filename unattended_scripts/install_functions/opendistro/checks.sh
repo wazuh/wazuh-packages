@@ -112,8 +112,7 @@ function checkArguments() {
             fi
         fi
     fi
-
-    if [ -n "${certificates}" ] && ([ "${1}" -gt 1 ] && ([ -n "${local}" ] && [ "${1}" -gt 2 ])); then
+    if [ -n "${certificates}" ] && ([ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ] || [ -n "${development}" ] || [ -n "${overwrite}" ] || [ -n "${start_elastic_cluster}" ] || [ -n "${tar_conf}" ] || [ -n "${uninstall}" ]); then
             logger -e "The argument -c|--certificates can only be used by itself"
             exit 1
     fi
@@ -130,7 +129,6 @@ function checkHealth() {
                 exit 1
             else
                 logger "Check recommended minimum hardware requirements for Elasticsearch done."
-                logger "Starting the installation."
             fi
             ;;
 
@@ -140,7 +138,6 @@ function checkHealth() {
                 exit 1
             else
                 logger "Check recommended minimum hardware requirements for Kibana done."
-                logger "Starting the installation."
             fi
             ;;
         "wazuh")
@@ -150,7 +147,6 @@ function checkHealth() {
                 exit 1
             else
                 logger "Check recommended minimum hardware requirements for Wazuh Manager done."
-                logger "Starting the installation."
             fi
             ;;
         "AIO")
@@ -159,7 +155,6 @@ function checkHealth() {
                 exit 1
             else
                 logger "Check recommended minimum hardware requirements for AIO done."
-                logger "Starting the installation."
             fi
             ;;
     esac
@@ -268,17 +263,17 @@ function checkNames() {
         exit 1
     fi
 
-    if [ -n "${einame}" ] && [ ! "${elasticsearch_node_names[@]}" =~ "${einame}" ]; then
+    if [ -n "${einame}" ] && [[ ! "${elasticsearch_node_names[@]}" =~ "${einame}" ]]; then
         logger -e "The name given for the elasticsearch node does not appear on the configuration file."
         exit 1
     fi
 
-    if [ -n "${kiname}" ] && [ ! "${kibana_node_names[@]}" =~ "${kiname}" ]; then
+    if [ -n "${kiname}" ] && [[ ! "${kibana_node_names[@]}" =~ "${kiname}" ]]; then
         logger -e "The name given for the kibana node does not appear on the configuration file."
         exit 1
     fi
 
-    if [ -n "${winame}" ] && [ ! "${wazuh_servers_node_names[@]}" =~ "${winame}" ]; then
+    if [ -n "${winame}" ] && [[ ! "${wazuh_servers_node_names[@]}" =~ "${winame}" ]]; then
         logger -e "The name given for the wazuh server node does not appear on the configuration file."
         exit 1
     fi
