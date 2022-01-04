@@ -29,6 +29,7 @@ function configureFilebeat() {
     copyCertificatesFilebeat
 
     logger "Filebeat post-install configuration finished."
+
 }
 
 function configureFilebeatAIO() {
@@ -59,13 +60,14 @@ function copyCertificatesFilebeat() {
         logger -e "No certificates found. Could not initialize Filebeat"
         exit 1;
     fi
+
 }
 
 function installFilebeat() {
 
     logger "Starting filebeat installation."
     
-    if [ ${sys_type} == "zypper" ]; then
+    if [ "${sys_type}" == "zypper" ]; then
         eval "zypper -n install filebeat-${elasticsearch_oss_version} ${debug}"
     else
         eval "${sys_type} install filebeat${sep}${elasticsearch_oss_version} -y -q  ${debug}"
@@ -78,4 +80,5 @@ function installFilebeat() {
         logger "Filebeat installation finished."
         filebeatinstalled="1"
     fi
+
 }

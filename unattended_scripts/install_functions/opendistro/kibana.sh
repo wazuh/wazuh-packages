@@ -21,7 +21,7 @@ function configureKibana() {
     logger "Wazuh Kibana plugin installed."
     eval "setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node ${debug}"
 
-    if [ ${#kibana_node_names[@]} -eq 1 ]; then
+    if [ "${#kibana_node_names[@]}" -eq 1 ]; then
         ip=${kibana_node_ips[0]}
     else
         for i in ${!kibana_node_names[@]}; do
@@ -34,7 +34,7 @@ function configureKibana() {
 
     echo 'server.host: "'${ip}'"' >> /etc/kibana/kibana.yml
 
-    if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
+    if [ "${#elasticsearch_node_names[@]}" -eq 1 ]; then
         echo "elasticsearch.hosts: https://"${elasticsearch_node_ips[0]}":9200" >> /etc/kibana/kibana.yml
     else
         echo "elasticsearch.hosts:" >> /etc/kibana/kibana.yml
@@ -45,6 +45,7 @@ function configureKibana() {
 
     modifyKibanaLogin
     copyKibanacerts
+
 }
 
 function configureKibanaAIO() {
@@ -55,7 +56,7 @@ function configureKibanaAIO() {
     eval "mkdir /usr/share/kibana/data ${debug}"
     eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
     eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${kibana_wazuh_plugin}' ${debug}"
-    if [  "$?" != 0  ]; then
+    if [ "$?" != 0  ]; then
         logger -e "Wazuh Kibana plugin could not be installed."
         rollBack
         exit 1
@@ -72,8 +73,7 @@ function copyKibanacerts() {
 
     eval "mkdir /etc/kibana/certs ${debug}"
     if [ -f "${tar_file}" ]; then
-
-        if [ ${#kibana_node_names[@]} -eq 1 ]; then
+        if [ "${#kibana_node_names[@]}" -eq 1 ]; then
             name=${kiname}
         else
             name=${kibana_node_names[pos]}
@@ -86,11 +86,11 @@ function copyKibanacerts() {
         eval "chmod -R 500 /etc/kibana/certs ${debug}"
         eval "chmod 440 /etc/kibana/certs/* ${debug}"
         logger "Kibana certificate setup finished."
-
     else
-        logger -e "No certificates found. Could not initialize Kibana"
+        logger -e "No certificates found. Kibana could not be initialized."
         exit 1
     fi
+
 }
 
 function initializeKibana() {
@@ -98,7 +98,7 @@ function initializeKibana() {
     logger "Starting Kibana (this may take a while)."
     getPass "admin"
     i=0
-    if [ ${#kibana_node_names[@]} -eq 1 ]; then
+    if [ "${#kibana_node_names[@]}" -eq 1 ]; then
         nodes_kibana_ip=${kibana_node_ips[0]}
     else
         for i in ${!kibana_node_names[@]}; do
@@ -117,7 +117,7 @@ function initializeKibana() {
         rollBack
         exit 1
     fi
-    if [ ${#wazuh_servers_node_names[@]} -eq 1 ]; then
+    if [ "${#wazuh_servers_node_names[@]}" -eq 1 ]; then
         wazuh_api_address=${wazuh_servers_node_ips[0]}
     else
         for i in ${!wazuh_servers_node_types[@]}; do
@@ -129,6 +129,7 @@ function initializeKibana() {
     eval "sed -i 's,url: https://localhost,url: https://${wazuh_api_address},g' /usr/share/kibana/data/wazuh/config/wazuh.yml ${debug}"
     logger "Kibana started."
     logger "You can access the web interface https://${nodes_kibana_ip}. The credentials are admin:${u_pass}"
+
 }
 
 function initializeKibanaAIO() {
@@ -136,7 +137,7 @@ function initializeKibanaAIO() {
     logger "Starting Kibana (this may take a while)."
     getPass "admin"
     i=0
-    if [ ${#kibana_node_names[@]} -eq 1 ]; then
+    if [ "${#kibana_node_names[@]}" -eq 1 ]; then
         nodes_kibana_ip=${kibana_node_ips[0]}
     else
         for i in ${!kibana_node_names[@]}; do
@@ -158,7 +159,7 @@ function initializeKibanaAIO() {
 function installKibana() {
     
     logger "Starting Kibana installation."
-    if [ ${sys_type} == "zypper" ]; then
+    if [ "${sys_type}" == "zypper" ]; then
         eval "zypper -n install opendistroforelasticsearch-kibana=${opendistro_version} ${debug}"
     else
         eval "${sys_type} install opendistroforelasticsearch-kibana${sep}${opendistro_version} -y ${debug}"
@@ -175,6 +176,7 @@ function installKibana() {
 }
 
 function modifyKibanaLogin() {
+
     # Edit window title
     eval "sed -i 's/null, \"Elastic\"/null, \"Wazuh\"/g' /usr/share/kibana/src/core/server/rendering/views/template.js ${debug}"
 
@@ -192,4 +194,5 @@ function modifyKibanaLogin() {
     eval "getConfig kibana/customWelcomeKibana.css /tmp/ ${debug}"
     eval "cat /tmp//customWelcomeKibana.css | tee -a /usr/share/kibana/src/core/server/core_app/assets/legacy_light_theme.css ${debug}"
     eval "rm -f /tmp/customWelcomeKibana.css"
+
 }

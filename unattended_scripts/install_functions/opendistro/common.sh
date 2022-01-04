@@ -34,7 +34,7 @@ function addWazuhrepo() {
         fi
     fi
 
-    if [ ! -f /etc/yum.repos.d/wazuh.repo ] && [ ! -f /etc/zypp/repos.d/wazuh.repo ] && [ ! -f /etc/apt/sources.list.d/wazuh.list ] ; then
+    if [ ! -f "/etc/yum.repos.d/wazuh.repo" ] && [ ! -f "/etc/zypp/repos.d/wazuh.repo" ] && [ ! -f "/etc/apt/sources.list.d/wazuh.list" ] ; then
         if [ "${sys_type}" == "yum" ]; then
             eval "rpm --import ${repogpg} ${debug}"
             eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-\$releasever - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo ${debug}"
@@ -47,9 +47,10 @@ function addWazuhrepo() {
             eval "apt-get update -q ${debug}"
         fi
     else
-        logger "Wazuh repository already exists skipping."
+        logger "Wazuh repository already exists. Skipping addition."
     fi
     logger "Wazuh repository added."
+
 }
 
 function createCertificates() {
@@ -66,10 +67,13 @@ function createCertificates() {
     generateFilebeatcertificates
     generateKibanacertificates
     cleanFiles
+
 }
 
 function createClusterKey() {
+
     openssl rand -hex 16 >> ${base_path}/certs/clusterkey
+
 }
 
 function changePasswords() {
@@ -105,6 +109,7 @@ function changePasswords() {
 }
 
 function getConfig() {
+
     if [ -n "${local}" ]; then
         cp ${base_path}/${config_path}/$1 $2
     else
@@ -115,6 +120,7 @@ function getConfig() {
         rollBack
         exit 1
     fi
+
 }
 
 function getPass() {
@@ -156,12 +162,13 @@ function installPrerequisites() {
 }
 
 function restoreWazuhrepo() {
+
     if [ -n "${development}" ]; then
-        if [ "${sys_type}" == "yum" ] && [ -f /etc/yum.repos.d/wazuh.repo ]; then
+        if [ "${sys_type}" == "yum" ] && [ -f "/etc/yum.repos.d/wazuh.repo" ]; then
             file="/etc/yum.repos.d/wazuh.repo"
-        elif [ "${sys_type}" == "zypper" ] && [ -f /etc/zypp/repos.d/wazuh.repo ]; then
+        elif [ "${sys_type}" == "zypper" ] && [ -f "/etc/zypp/repos.d/wazuh.repo" ]; then
             file="/etc/zypp/repos.d/wazuh.repo"
-        elif [ "${sys_type}" == "apt-get" ] && [ -f /etc/apt/sources.list.d/wazuh.list ]; then
+        elif [ "${sys_type}" == "apt-get" ] && [ -f "/etc/apt/sources.list.d/wazuh.list" ]; then
             file="/etc/apt/sources.list.d/wazuh.list"
         else
             logger -w "Wazuh repository does not exists."
@@ -179,11 +186,11 @@ function rollBack() {
         logger "Cleaning the installation."
     fi  
 
-    if [ -f /etc/yum.repos.d/wazuh.repo ]; then
+    if [ -f "/etc/yum.repos.d/wazuh.repo" ]; then
         eval "rm /etc/yum.repos.d/wazuh.repo"
-    elif [ -f /etc/zypp/repos.d/wazuh.repo ]; then
+    elif [ -f "/etc/zypp/repos.d/wazuh.repo" ]; then
         eval "rm /etc/zypp/repos.d/wazuh.repo"
-    elif [ -f /etc/apt/sources.list.d/wazuh.list ]; then
+    elif [ -f "/etc/apt/sources.list.d/wazuh.list" ]; then
         eval "rm /etc/apt/sources.list.d/wazuh.list"
     fi
 
@@ -200,7 +207,7 @@ function rollBack() {
         
     fi
 
-    if ([ -n "${wazuh_remaining_files}" ] || [ -n "$wazuhinstalled" ]) && ([ -z "$1" ] || [ "$1" == "wazuh" ]); then
+    if ([ -n "${wazuh_remaining_files}" ] || [ -n "${wazuhinstalled}" ]) && ([ -z "$1" ] || [ "$1" == "wazuh" ]); then
         eval "rm -rf /var/ossec/ ${debug}"
     fi
 
@@ -217,7 +224,7 @@ function rollBack() {
         fi 
     fi
 
-    if ([ -n "${elastic_remaining_files}" ] || [ -n "$elasticsearchinstalled" ]) && ([ -z "$1" ] || [ "$1" == "elasticsearch" ]); then
+    if ([ -n "${elastic_remaining_files}" ] || [ -n "${elasticsearchinstalled}" ]) && ([ -z "$1" ] || [ "$1" == "elasticsearch" ]); then
         eval "rm -rf /var/lib/elasticsearch/ ${debug}"
         eval "rm -rf /usr/share/elasticsearch/ ${debug}"
         eval "rm -rf /etc/elasticsearch/ ${debug}"
@@ -234,7 +241,7 @@ function rollBack() {
         fi
     fi
 
-    if ([ -n "${filebeat_remaining_files}" ] || [ -n "$filebeatinstalled" ]) && ([ -z "$1" ] || [ "$1" == "filebeat" ]); then
+    if ([ -n "${filebeat_remaining_files}" ] || [ -n "${filebeatinstalled}" ]) && ([ -z "$1" ] || [ "$1" == "filebeat" ]); then
         eval "rm -rf /var/lib/filebeat/ ${debug}"
         eval "rm -rf /usr/share/filebeat/ ${debug}"
         eval "rm -rf /etc/filebeat/ ${debug}"
@@ -251,7 +258,7 @@ function rollBack() {
         fi
     fi
 
-    if ([ -n "${kibana_remaining_files}" ] || [ -n "$kibanainstalled" ]) && ([ -z "$1" ] || [ "$1" == "kibana" ]); then
+    if ([ -n "${kibana_remaining_files}" ] || [ -n "${kibanainstalled}" ]) && ([ -z "$1" ] || [ "$1" == "kibana" ]); then
         eval "rm -rf /var/lib/kibana/ ${debug}"
         eval "rm -rf /usr/share/kibana/ ${debug}"
         eval "rm -rf /etc/kibana/ ${debug}"

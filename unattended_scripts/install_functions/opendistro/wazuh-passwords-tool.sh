@@ -70,6 +70,7 @@ changePassword() {
             restartService "kibana"
         fi         
     fi
+
 }
 
 checkInstalledPass() {
@@ -91,7 +92,7 @@ checkInstalledPass() {
     fi 
 
     if [ -n "${filebeatinstalled}" ]; then
-        if [ ${sys_type} == "zypper" ]; then
+        if [ "${sys_type}" == "zypper" ]; then
             filebeatversion=$(echo ${filebeatinstalled} | awk '{print $11}')
         else
             filebeatversion=$(echo ${filebeatinstalled} | awk '{print $2}')
@@ -107,7 +108,7 @@ checkInstalledPass() {
     fi 
 
     if [ -n "${kibanainstalled}" ]; then
-        if [ ${sys_type} == "zypper" ]; then
+        if [ "${sys_type}" == "zypper" ]; then
             kibanaversion=$(echo ${kibanainstalled} | awk '{print $11}')
         else
             kibanaversion=$(echo ${kibanainstalled} | awk '{print $2}')
@@ -122,7 +123,7 @@ checkInstalledPass() {
             capem=$(grep "opendistro_security.ssl.transport.pemtrustedcas_filepath: " /etc/elasticsearch/elasticsearch.yml )
             rcapem="opendistro_security.ssl.transport.pemtrustedcas_filepath: "
             capem="${capem//$rcapem}"
-            if [[ -z ${adminpem} ]] || [[ -z ${adminkey} ]]; then
+            if [[ -z "${adminpem}" ]] || [[ -z "${adminkey}" ]]; then
                 readAdmincerts
             fi
         fi
@@ -131,10 +132,12 @@ checkInstalledPass() {
 }
 
 checkRoot() {
+
     if [ "$EUID" -ne 0 ]; then
         logger_pass -e "This script must be run as root."
         exit 1;
     fi 
+
 }
 
 checkUser() {
@@ -184,6 +187,7 @@ generateHash() {
         fi    
         logger_pass "Password hash generated."
     fi
+
 }
 
 generatePassword() {
@@ -207,6 +211,7 @@ generatePassword() {
 }
 
 generatePasswordFile() {
+
     users=( admin kibanaserver kibanaro logstash readall snapshotrestore wazuh_admin wazuh_user)
     generatePassword
     for i in "${!users[@]}"; do
@@ -214,9 +219,11 @@ generatePasswordFile() {
         echo "  name: ${users[${i}]}" >> ${gen_file}
         echo "  password: ${passwords[${i}]}" >> ${gen_file}
     done
+
 }
 
 getHelp() {
+
     echo -e ""
     echo -e "NAME"
     echo -e "        $(basename $0) - Manage passwords for OpenDistro users."
@@ -259,9 +266,11 @@ getHelp() {
     echo -e "                Shows help"
     echo -e ""
     exit 1
+
 }
 
 getNetworkHost() {
+
     IP=$(grep -hr "network.host:" /etc/elasticsearch/elasticsearch.yml)
     NH="network.host: "
     IP="${IP//$NH}"
@@ -269,6 +278,7 @@ getNetworkHost() {
     if [[ ${IP} == "0.0.0.0" ]]; then
         IP="localhost"
     fi
+
 }
 
 logger_pass() {
@@ -289,6 +299,7 @@ logger_pass() {
             ;;
     esac
     echo $now $mtype $message | tee -a ${logfile}
+
 }
 
 main() {   
@@ -446,7 +457,7 @@ readAdmincerts() {
 readFileUsers() {
 
     filecorrect=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' ${p_file})
-    if [ ${filecorrect} -ne 1 ]; then
+    if [ "${filecorrect}" -ne 1 ]; then
 	logger_pass -e "The password file doesn't have a correct format.
 
 It must have this format:
@@ -489,7 +500,7 @@ User:
                     supported=true
                 fi
             done
-            if [ $supported = false ] && [ -n "${elasticsearchinstalled}" ]; then
+            if [ "${supported}" = false ] && [ -n "${elasticsearchinstalled}" ]; then
                 logger_pass -e "The given user ${fileusers[j]} does not exist"
             fi
         done
@@ -506,7 +517,7 @@ User:
                     supported=true
                 fi
             done
-            if [ $supported = false ] && [ -n "${elasticsearchinstalled}" ]; then
+            if [ ${supported} = false ] && [ -n "${elasticsearchinstalled}" ]; then
                 logger_pass -e "The given user ${fileusers[j]} does not exist"
             fi
         done
@@ -520,8 +531,10 @@ User:
 }
 
 readUsers() {
+
     susers=$(grep -B 1 hash: /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml | grep -v hash: | grep -v "-" | awk '{ print substr( $0, 1, length($0)-1 ) }')
     users=($susers)  
+
 }
 
 restartService() {
@@ -542,7 +555,7 @@ restartService() {
         else
             logger_pass "${1^} started"
         fi     
-    elif [ -x /etc/rc.d/init.d/$1 ] ; then
+    elif [ -x "/etc/rc.d/init.d/$1" ] ; then
         eval "/etc/rc.d/init.d/$1 restart ${debug_pass}"
         if [  "$?" != 0  ]; then
             logger_pass -e "${1^} could not be started."
@@ -582,7 +595,5 @@ runSecurityAdmin() {
     fi 
 
 }
-
-
 
 main $@

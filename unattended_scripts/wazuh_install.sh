@@ -60,7 +60,7 @@ function getHelp() {
 
     echo -e ""
     echo -e "NAME"
-    echo -e "        $(basename $0) - Install and configure Wazuh components."
+    echo -e "        $(basename $0) - Install and configure Wazuh central components."
     echo -e ""
     echo -e "SYNOPSIS"
     echo -e "        $(basename $0) [OPTIONS]"
@@ -70,10 +70,13 @@ function getHelp() {
     echo -e "                All-In-One installation."
     echo -e ""
     echo -e "        -c,  --create-certificates"
-    echo -e "                Create certificates from config.yml file."
+    echo -e "                Creates certificates from config.yml file."
     echo -e ""
     echo -e "        -d,  --development"
-    echo -e "                Use development repository."
+    echo -e "                Uses development repository."
+    echo -e ""
+    echo -e "        -ds,  --disable-spinner"
+    echo -e "                Disables the spinner indicator."
     echo -e ""
     echo -e "        -e,  --elasticsearch <elasticsearch-node-name>"
     echo -e "                Elasticsearch installation."
@@ -94,16 +97,16 @@ function getHelp() {
     echo -e "                Use local files."
     echo -e ""
     echo -e "        -o,  --overwrite"
-    echo -e "                Overwrite previously installed components of the stack. NOTE: This will erase all the existing configuration and data."
+    echo -e "                Overwrites previously installed components. NOTE: This will erase all the existing configuration and data."
     echo -e ""
     echo -e "        -s,  --start-cluster"
-    echo -e "                Start the Elasticsearch cluster."
+    echo -e "                Starts the Elasticsearch cluster."
     echo -e ""
     echo -e "        -t,  --tar <path-to-certs-tar"
     echo -e "                Path to tar containing certificate files. By default: ${base_path}/certs.tar"
     echo -e ""
     echo -e "        -u,  --uninstall"
-    echo -e "                Uninstall all wazuh components. NOTE: This will erase all the existing configuration and data."
+    echo -e "                Uninstalls all Wazuh components. NOTE: This will erase all the existing configuration and data."
     echo -e ""
     echo -e "        -v,  --verbose"
     echo -e "                Shows the complete installation output."
@@ -194,14 +197,18 @@ function main() {
                 development=1
                 shift 1
                 ;;
+            "-ds"|"--disable-spinner")
+                disableSpinner=1
+                shift 1
+                ;;
             "-e"|"--elasticsearch")
                 if [ -z "$2" ]; then
-                    logger -e "Error on arguments. Probably missing <node-name> after -e|--elasticsearch"
+                    logger -e "Arguments contain errors. Probably missing <node-name> after -e|--elasticsearch."
                     getHelp
                     exit 1
                 fi
                 elasticsearch=1
-                einame=$2
+                einame="$2"
                 shift 2
                 ;;
             "-f"|"--fileconfig")
@@ -278,15 +285,15 @@ function main() {
     done
 
     if [ "$EUID" -ne 0 ]; then
-        logger -e "Error: This script must be run as root."
+        logger -e "This script must be run as root."
         exit 1
     fi
 
-# -------------- Spinner initialization -----------------------------
-
-    spin &
-    spin_pid=$!
-    trap "kill -9 $spin_pid ${debug}" EXIT
+    if [ -z "${disableSpinner}" ]; then
+        spin &
+        spin_pid=$!
+        trap "kill -9 $spin_pid ${debug}" EXIT
+    fi
 
 # -------------- Library import ----------------------------
 
@@ -314,17 +321,14 @@ function main() {
         logger "All components removed."
         exit 0
     fi
-
-# -------------- Check config names ---------------------------------
-
+    
+    # Distributed architecture: node names must be different
     if [ -z "${AIO}" ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
         checkNames
     fi
 
-# -------------- Creating certificates case -------------------------
-
+    # Creation certificate case: Only AIO and -c option can create certificates. 
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
-        checkOpenSSL
         createCertificates
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
             createClusterKey
