@@ -308,7 +308,11 @@ function rollBack() {
     fi
 
     if [ -z "${uninstall}" ] && [ -z "$1" ]; then
-        logger "Installation cleaned. Check the ${logfile} file to learn more about the issue."
+        if [ -z "${overwrite}" ]; then
+            logger "Installation cleaned. Check the ${logfile} file to learn more about the issue."
+        else
+            logger "Installation cleaned."
+        fi
     fi
 
 }
