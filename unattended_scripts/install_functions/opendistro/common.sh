@@ -626,7 +626,7 @@ function checkArguments() {
                 rollBack "wazuh"
             else 
                 logger -e "Wazuh already installed or some files remain from previous installation. Use the -o|--overwrite option to install overwriting components."
-                exit 
+                exit 1
             fi
         fi
 
