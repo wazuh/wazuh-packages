@@ -331,8 +331,8 @@ function main() {
         fi
         gen_file="${base_path}/certs/password_file.yml"
         generatePasswordFile
-        eval "tar -zcf '${base_path}/certs.tar' -C '${base_path}/certs/' ."
-        eval "rm -rf '${base_path}/certs'"
+        eval "tar -zcf '${base_path}/certs.tar' -C '${base_path}/certs/' . $debug""
+        eval "rm -rf '${base_path}/certs' $debug""
 
     fi
 
