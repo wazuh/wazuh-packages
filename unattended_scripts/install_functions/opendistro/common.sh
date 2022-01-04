@@ -104,7 +104,6 @@ function changePasswords() {
         runSecurityAdmin
     fi
     rm -rf ${p_file}
-    logger "Passwords set."
 
 }
 
