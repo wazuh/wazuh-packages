@@ -327,9 +327,10 @@ function main() {
             createClusterKey
         fi
         gen_file="${base_path}/certs/password_file.yml"
-        generatePasswordFile 
-        sudo tar -zcf certs.tar -C certs/ .
-        rm -rf "${base_path}/certs"
+        generatePasswordFile
+        eval "tar -zcf '${base_path}/certs.tar' -C '${base_path}/certs/' ."
+        eval "rm -rf '${base_path}/certs'"
+
     fi
 
 # -------------- Prerequisites and Wazuh repo  ----------------------
