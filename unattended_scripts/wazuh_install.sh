@@ -42,7 +42,7 @@ trap cleanExit SIGINT
 function cleanExit() {
 
     if [ -n "$spin_pid" ]; then
-        eval "kill -9 $spin_pid $debug"
+        eval "kill -9 $spin_pid ${debug}"
     fi
 
     echo -ne "\nDo you want to clean the ongoing installation?[Y/n]"
@@ -286,7 +286,7 @@ function main() {
 
     spin &
     spin_pid=$!
-    trap "kill -9 $spin_pid $debug" EXIT
+    trap "kill -9 $spin_pid ${debug}" EXIT
 
 # -------------- Library import ----------------------------
 
@@ -331,8 +331,8 @@ function main() {
         fi
         gen_file="${base_path}/certs/password_file.yml"
         generatePasswordFile
-        eval "tar -zcf '${base_path}/certs.tar' -C '${base_path}/certs/' . $debug""
-        eval "rm -rf '${base_path}/certs' $debug""
+        eval "tar -zcf '${base_path}/certs.tar' -C '${base_path}/certs/' . ${debug}"
+        eval "rm -rf '${base_path}/certs' ${debug}"
 
     fi
 
