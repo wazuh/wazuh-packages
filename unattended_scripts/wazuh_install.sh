@@ -130,7 +130,8 @@ function importFunction() {
                 echo 'main $@' >> ${base_path}/$functions_path/$1
             fi
         else 
-            error=1
+            logger -e "Unable to find resource in path ${base_path}/$functions_path/$1."
+            exit 1
         fi
     else
         if ( curl -f -so /tmp/$1 $resources_functions/$1 ); then
@@ -138,12 +139,14 @@ function importFunction() {
             . /tmp/$1
             rm -f /tmp/$1
         else
-            error=1
+            if [ -f ${base_path}/$functions_path/$1 ]; then
+                logger -e "Unable to download resource $resources_functions/$1, local file detected you may want to use the -l option."
+                exit
+            else
+                logger -e "Unable to find resource $resources_functions/$1."
+                exit 1
+            fi
         fi
-    fi
-    if [ "${error}" = "1" ]; then
-        logger -e "Unable to find resource $1. Exiting."
-        exit 1
     fi
 
 }
