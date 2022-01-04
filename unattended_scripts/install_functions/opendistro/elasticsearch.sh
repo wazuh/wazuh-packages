@@ -149,13 +149,11 @@ function copyCertificatesElasticsearch() {
             eval "tar -xf ${tar_file} -C ${e_certs_path} --wildcards ./admin*  ${debug}"
             eval "tar -xf ${tar_file} -C ${e_certs_path} ./root-ca.pem  ${debug}"
         else  
-            set -x 
             eval "tar -xf ${tar_file} -C ${e_certs_path} ./${name}.pem  && mv ${e_certs_path}${name}.pem ${e_certs_path}elasticsearch.pem ${debug}"
             eval "tar -xf ${tar_file} -C ${e_certs_path} ./${name}-key.pem  && mv ${e_certs_path}${name}-key.pem ${e_certs_path}elasticsearch-key.pem ${debug}"
             eval "tar -xf ${tar_file} -C ${e_certs_path} ./root-ca.pem  ${debug}"
             eval "tar -xf ${tar_file} -C ${e_certs_path} ./admin.pem  ${debug}"
             eval "tar -xf ${tar_file} -C ${e_certs_path} ./admin-key.pem  ${debug}"
-            set +x
         fi
     else
         logger -e "No certificates found. Could not initialize Elasticsearch"
