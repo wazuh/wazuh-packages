@@ -30,19 +30,19 @@ function checkArguments() {
 
     if [ -n "${uninstall}" ]; then
 
-        if [ -z "${wazuhinstalled}" ] && [ -z "$wazuh_remaining_files" ]; then
+        if [ -z "${wazuhinstalled}" ] && [ -z "${wazuh_remaining_files}" ]; then
             logger -w "Can't uninstall Wazuh manager. No components were found on the system."
         fi
 
-        if [ -z "${filebeatinstalled}" ] && [ -z "$filebeat_remaining_files" ]; then
+        if [ -z "${filebeatinstalled}" ] && [ -z "${filebeat_remaining_files}" ]; then
             logger -w "Can't uninstall Filebeat. No components were found on the system."
         fi
 
-        if [ -z "${elasticsearchinstalled}" ] && [ -z "$elastic_remaining_files" ]; then
+        if [ -z "${elasticsearchinstalled}" ] && [ -z "${elastic_remaining_files}" ]; then
             logger -w "Can't uninstall Elasticsearch. No components were found on the system."
         fi
 
-        if [ -z "${kibanainstalled}" ] && [ -z "$kibana_remaining_files" ]; then
+        if [ -z "${kibanainstalled}" ] && [ -z "${kibana_remaining_files}" ]; then
             logger -w "Can't uninstall. No components were found on the system."
         fi
 
@@ -59,7 +59,7 @@ function checkArguments() {
             exit 1
         fi
 
-        if [ -n "${wazuhinstalled}" ] || [ -n "$wazuh_remaining_files" ] || [ -n "${elasticsearchinstalled}" ] || [ -n "$elastic_remaining_files" ] || [ -n "${filebeatinstalled}" ] || [ -n "$filebeat_remaining_files" ] || [ -n "${kibanainstalled}" ] || [ -n "$kibana_remaining_files" ]; then
+        if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ] || [ -n "${elasticsearchinstalled}" ] || [ -n "${elastic_remaining_files}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ] || [ -n "${kibanainstalled}" ] || [ -n "${kibana_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
                 rollBack
             else
@@ -71,8 +71,8 @@ function checkArguments() {
 
     if [ -n "${elasticsearch}" ]; then
 
-        if [ -n "$elasticsearchinstalled" ] || [ -n "$elastic_remaining_files" ]; then
-            if [ -n "$overwrite" ]; then
+        if [ -n "${elasticsearchinstalled}" ] || [ -n "${elastic_remaining_files}" ]; then
+            if [ -n "${overwrite}" ]; then
                 rollBack "elasticsearch"
             else 
                 logger -e "Elasticsearch is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
@@ -82,9 +82,8 @@ function checkArguments() {
     fi
 
     if [ -n "${kibana}" ]; then
-
-        if [ -n "$kibanainstalled" ] || [ -n "$kibana_remaining_files" ]; then
-            if [ -n "$overwrite" ]; then
+        if [ -n "${kibanainstalled}" ] || [ -n "${kibana_remaining_files}" ]; then
+            if [ -n "${overwrite}" ]; then
                 rollBack "kibana"
             else 
                 logger -e "Kibana is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
@@ -94,8 +93,8 @@ function checkArguments() {
     fi
 
     if [ -n "${wazuh}" ]; then
-        if [ -n "$wazuhinstalled" ] || [ -n "$wazuh_remaining_files" ]; then
-            if [ -n "$overwrite" ]; then
+        if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ]; then
+            if [ -n "${overwrite}" ]; then
                 rollBack "wazuh"
             else 
                 logger -e "Wazuh is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
@@ -103,8 +102,8 @@ function checkArguments() {
             fi
         fi
 
-        if [ -n "$filebeatinstalled" ] || [ -n "$filebeat_remaining_files" ]; then
-            if [ -n "$overwrite" ]; then
+        if [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ]; then
+            if [ -n "${overwrite}" ]; then
                 rollBack "filebeat"
             else
                 logger -e "Filebeat is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
@@ -187,7 +186,7 @@ function checkIfInstalled() {
         elasticsearchinstalled=$(apt list --installed 2>/dev/null | grep opendistroforelasticsearch | grep -v kibana)
     fi
 
-    if [ -d /var/lib/elasticsearch/ ] || [ -d /usr/share/elasticsearch ] || [ -d /etc/elasticsearch ] || [ -f ${base_path}/search-guard-tlstool* ]; then
+    if [ -d "/var/lib/elasticsearch/" ] || [ -d "/usr/share/elasticsearch" ] || [ -d "/etc/elasticsearch" ] || [ -f "${base_path}/search-guard-tlstool*" ]; then
         elastic_remaining_files=1
     fi
 

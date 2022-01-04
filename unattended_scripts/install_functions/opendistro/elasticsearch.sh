@@ -31,6 +31,7 @@ function applyLog4j2Mitigation() {
 }
 
 function configureElasticsearch() {
+
     logger "Configuring Elasticsearch."
 
     eval "getConfig elasticsearch/elasticsearch_unattended_distributed.yml /etc/elasticsearch/elasticsearch.yml ${debug}"
@@ -38,7 +39,7 @@ function configureElasticsearch() {
     eval "getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml ${debug}"
     eval "getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml ${debug}"
     
-    if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
+    if [ "${#elasticsearch_node_names[@]}" -eq 1 ]; then
         pos=0
         echo "node.name: ${einame}" >> /etc/elasticsearch/elasticsearch.yml
         echo "network.host: ${elasticsearch_node_ips[0]}" >> /etc/elasticsearch/elasticsearch.yml
@@ -137,7 +138,7 @@ function configureElasticsearchAIO() {
 
 function copyCertificatesElasticsearch() {
     
-    if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
+    if [ "${#elasticsearch_node_names[@]}" -eq 1 ]; then
         name=${einame}
     else
         name=${elasticsearch_node_names[pos]}
@@ -159,32 +160,33 @@ function copyCertificatesElasticsearch() {
         logger -e "No certificates found. Could not initialize Elasticsearch"
         exit 1;
     fi
+
 }
 
 function initializeElasticsearch() {
-
 
     logger "Starting Elasticsearch cluster."
     until $(curl -XGET https://${elasticsearch_node_ips[pos]}:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null); do
         sleep 10
     done
 
-    if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
+    if [ "${#elasticsearch_node_names[@]}" -eq 1 ]; then
         startElasticsearchCluster
     fi
 
     logger "Elasticsearch cluster started."
+
 }
 
 function installElasticsearch() {
 
     logger "Starting Open Distro for Elasticsearch installation."
 
-    if [ ${sys_type} == "yum" ]; then
+    if [ "${sys_type}" == "yum" ]; then
         eval "yum install opendistroforelasticsearch-${opendistro_version}-${opendistro_revision} -y ${debug}"
-    elif [ ${sys_type} == "zypper" ]; then
+    elif [ "${sys_type}" == "zypper" ]; then
         eval "zypper -n install opendistroforelasticsearch=${opendistro_version}-${opendistro_revision} ${debug}"
-    elif [ ${sys_type} == "apt-get" ]; then
+    elif [ "${sys_type}" == "apt-get" ]; then
         eval "apt install elasticsearch-oss opendistroforelasticsearch -y ${debug}"
     fi
 
@@ -196,6 +198,7 @@ function installElasticsearch() {
         elasticsearchinstalled="1"
         logger "Open Distro for Elasticsearch installation finished."
     fi
+
 }
 
 function startElasticsearchCluster() {
