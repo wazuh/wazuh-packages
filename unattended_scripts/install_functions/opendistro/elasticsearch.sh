@@ -115,7 +115,6 @@ function configureElasticsearchAIO() {
     eval "rm /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem -f ${debug}"
     eval "export JAVA_HOME=/usr/share/elasticsearch/jdk/"
 
-    export JAVA_HOME=/usr/share/elasticsearch/jdk/
     eval "mkdir ${e_certs_path} ${debug}"
     copyCertificatesElasticsearch
     
