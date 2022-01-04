@@ -190,7 +190,7 @@ function main() {
                 ;;
             "-w"|"--wazuh-server")
                 if [ -z "$2" ]; then
-                  logger -e "Arguments contain errors. Probably missing <node-name> after -w|--wazuh-server."
+                    logger -e "Arguments contain errors. Probably missing <node-name> after -w|--wazuh-server."
                     getHelp
                     exit 1
                 fi
@@ -284,12 +284,13 @@ function main() {
         exit 0
     fi
     
+    # Distributed architecture: node names must be different
     if [ -z "${AIO}" ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
         checkNames
     fi
 
+    # Creation certificate case: Only AIO and -c option can create certificates. 
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
-        checkOpenSSL
         createCertificates
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
             createClusterKey
@@ -297,14 +298,7 @@ function main() {
     fi
 
     if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
-
-        if [ ! -d ${base_path}/certs ]; then
-            logger -e "No certificates directory found (${base_path}/certs). Run the script with the option -c|--create-certificates to create automatically or copy them from the node where they were created."
-            exit 1
-        fi
-        if [ -d ${base_path}/certs ]; then
-            checkPreviousCertificates
-        fi
+        checkPreviousCertificates
         installPrerequisites
         addWazuhrepo
     fi

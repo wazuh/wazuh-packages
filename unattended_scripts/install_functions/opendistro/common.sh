@@ -320,40 +320,46 @@ function createCertificates() {
 
 function checkPreviousCertificates() {
 
-    if [ ! -z ${einame} ]; then
-        if [ -f ${base_path}/certs/${einame}.pem ] || [ f ${base_path}/certs/${einame}-key.pem ]; then
-            logger "Certificates were found for the Elasticsearch node ${einame} in ${base_path}/certs."
-        else
-            logger -e "Missing certificate for the Elasticsearch node ${einame} in ${base_path}/certs."
-            exit 1
+    if [ ! -d ${base_path}/certs ]; then
+        logger -e "No certificates directory found (${base_path}/certs). Run the script with the option -c|--create-certificates to create automatically or copy them from the node where they were created."
+        exit 1
+    else
+
+        if [ ! -z ${einame} ]; then
+            if [ -f ${base_path}/certs/${einame}.pem ] || [ f ${base_path}/certs/${einame}-key.pem ]; then
+                logger "Certificates were found for the Elasticsearch node ${einame} in ${base_path}/certs."
+            else
+                logger -e "Missing certificate for the Elasticsearch node ${einame} in ${base_path}/certs."
+                exit 1
+            fi
+
         fi
 
-    fi
-
-    if [ ! -z ${winame} ]; then
-        if [ -f ${base_path}/certs/${winame}.pem ] || [ -f ${base_path}/certs/${winame}-key.pem ]; then
-            logger "Certificates were found for the Wazuh server node ${winame} in ${base_path}/certs."
-        else
-            logger -e "Missing certificate for the Wazuh server node ${winame} in ${base_path}/certs."
-            exit 1
+        if [ ! -z ${winame} ]; then
+            if [ -f ${base_path}/certs/${winame}.pem ] || [ -f ${base_path}/certs/${winame}-key.pem ]; then
+                logger "Certificates were found for the Wazuh server node ${winame} in ${base_path}/certs."
+            else
+                logger -e "Missing certificate for the Wazuh server node ${winame} in ${base_path}/certs."
+                exit 1
+            if
         fi
-    fi
 
-    if [ ! -z ${kiname} ]; then
-        if [ -f ${base_path}/certs/${kiname}.pem ] || [ -f ${base_path}/certs/${kiname}-key.pem ]; then
-            logger "Certificates were found for the Kibana node ${kiname} in ${base_path}/certs."
-        else
-            logger -e "Missing certificate for the Kibana node ${kiname} in ${base_path}/certs."
-            exit 1
+        if [ ! -z ${kiname} ]; then
+            if [ -f ${base_path}/certs/${kiname}.pem ] || [ -f ${base_path}/certs/${kiname}-key.pem ]; then
+                logger "Certificates were found for the Kibana node ${kiname} in ${base_path}/certs."
+            else
+                logger -e "Missing certificate for the Kibana node ${kiname} in ${base_path}/certs."
+                exit 1
+            fi
         fi
-    fi
+    if
 
 }
 
 function specsCheck() {
 
     cores=$(cat /proc/cpuinfo | grep processor | wc -l)
-    ram_gb=$(free -m | awk '/^Mem:/{print $2}')
+    ram_gb=$(free --giga | awk '/^Mem:/{print $2}')
     
 }
 
@@ -361,38 +367,37 @@ function healthCheck() {
     specsCheck
     case "$1" in
         "elasticsearch")
-            if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]; then
-                logger -e "The system does not meet the hardware requirements. The minimum recommended is 4Gb of RAM and 2 CPU cores. Use the -i option to ignore this check."
-                exit 1
+            if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 4 ]; then
+                logger -e "The system does not meet the hardware requirements. The minimum recommended is 4GB of RAM and 2 CPU cores. Use the -i option to ignore this check."
+                exit 1;
             else
                 logger "Minimum recommended hardware requirements check for Elasticsearch done."
                 logger "Starting the installation."
             fi
             ;;
-
         "kibana")
-            if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]; then
-                logger -e "The system does not meet the hardware requirements. The minimum recommended is 4Gb of RAM and 2 CPU cores. Use the -i option to ignore this check."
-                exit 1
+            if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 4 ]; then
+                logger -e "The system does not meet the hardware requirements. The minimum recommended is 4GB of RAM and 2 CPU cores. Use the -i option to ignore this check."
+                exit 1;
             else
                 logger "Minimum recommended hardware requirements check for Kibana done."
                 logger "Starting the installation."
             fi
             ;;
         "wazuh")
-            if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 1700 ]
+            if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 2 ]
             then
-                logger -e "The system does not meet the hardware requirements. The minimum recommended is 2Gb of RAM and 2 CPU cores. Use the -i option to ignore this check."
-                exit 1
+                logger -e "The system does not meet the hardware requirements. The minimum recommended is 2GB of RAM and 2 CPU cores. Use the -i option to ignore this check."
+                exit 1;
             else
                 logger "Minimum recommended hardware requirements check for Wazuh Manager done."
                 logger "Starting the installation."
             fi
             ;;
         "AIO")
-            if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]; then
-                logger -e "The system does not meet the hardware requirements. The minimum recommended is 4Gb of RAM and 2 CPU cores. Use the -i option to ignore this check."
-                exit 1
+            if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 4 ]; then
+                logger -e "The system does not meet the hardware requirements. The minimum recommended is 4GB of RAM and 2 CPU cores. Use the -i option to ignore this check."
+                exit 1;
             else
                 logger "Minimum recommended hardware requirements check for All-In-One done."
                 logger "Starting the installation."

@@ -306,7 +306,7 @@ function main() {
         mkdir ${base_path}/certs
     fi
 
-
+    checkOpenSSL
 
     if [ -n "$1" ]; then
         while [ -n "$1" ]
