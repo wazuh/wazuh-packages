@@ -42,7 +42,7 @@ trap cleanExit SIGINT
 function cleanExit() {
 
     if [ -n "$spin_pid" ]; then
-        eval "kill -9 $spin_pid $debug"
+        eval "kill -9 $spin_pid ${debug}"
     fi
 
     echo -ne "\nDo you want to clean the ongoing installation?[Y/n]"
@@ -292,7 +292,7 @@ function main() {
     if [ -z "${disableSpinner}" ]; then
         spin &
         spin_pid=$!
-        trap "kill -9 $spin_pid $debug" EXIT
+        trap "kill -9 $spin_pid ${debug}" EXIT
     fi
 
 # -------------- Library import ----------------------------
@@ -334,9 +334,10 @@ function main() {
             createClusterKey
         fi
         gen_file="${base_path}/certs/password_file.yml"
-        generatePasswordFile 
-        sudo tar -zcf certs.tar -C certs/ .
-        rm -rf "${base_path}/certs"
+        generatePasswordFile
+        eval "tar -zcf '${base_path}/certs.tar' -C '${base_path}/certs/' . ${debug}"
+        eval "rm -rf '${base_path}/certs' ${debug}"
+
     fi
 
 # -------------- Prerequisites and Wazuh repo  ----------------------
