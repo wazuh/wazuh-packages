@@ -21,7 +21,7 @@ wazuh_kibana_plugin_revision="1"
 ## Links and paths to resources
 functions_path="install_functions/opendistro"
 config_path="config/opendistro"
-resources="https://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/resources/${wazuh_major}"
+resources="https://packages-dev.wazuh.com/resources/${wazuh_major}"
 resources_functions="${resources}/${functions_path}"
 resources_config="${resources}/${config_path}"
 base_path="$(dirname $(readlink -f $0))"
