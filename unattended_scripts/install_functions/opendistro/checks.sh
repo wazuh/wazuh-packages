@@ -258,21 +258,21 @@ function checkNames() {
         exit 1
     fi
 
-    if [[ -z "$(echo ${elasticsearch_node_names[@]} | grep -w ${einame})" ]]; then
-        logger -e "The name given for the elasticsearch node does not appear on the configuration file."
+    all_node_names=("${elasticsearch_node_names[@]}" "${wazuh_servers_node_names[@]}" "${kibana_node_names[@]}")
+    found=0
+    for i in ${all_node_names[@]}; do
+        if ([[ -n "${elasticsearch}" ]] && [[ "${i}" == "${einame}" ]]) || \
+            ([[ -n "${wazuh}" ]] && [[ "${i}" == "${winame}" ]]) || \
+            ([[ -n "${kibana}" ]] && [[ "${i}" == "${kiname}" ]]); then
+            found=1
+            break
+        fi
+    done
+    if [[ $found -eq 0 ]]; then
+        logger -e "The name given for the node does not appear on the configuration file."
         exit 1
     fi
 
-        if [[ -z "$(echo ${wazuh_servers_node_names[@]} | grep -w ${winame})" ]]; then
-            logger -e "The name given for the kibana node does not appear on the configuration file."
-        exit 1
-    fi
-
-        if [[ -z "$(echo ${kibana_node_names[@]} | grep -w ${kiname})" ]]; then
-            logger -e "The name given for the wazuh server node does not appear on the configuration file."
-        exit 1
-    fi
-        
 }
 
 # This function checks if the target certificates are created before to start the installation.
