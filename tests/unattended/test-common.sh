@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 base_dir="$(cd ../../"$(dirname "$BASH_SOURCE")"; pwd -P; cd - >/dev/null;)"
-source "${base_dir}"/test/bach.sh
+source "${base_dir}"/tests/bach.sh
 
 @setup-test {
     @ignore logger
