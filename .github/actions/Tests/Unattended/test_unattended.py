@@ -5,13 +5,13 @@ import os
 import re
 import json
 import sys
-import subprocess
 from subprocess import Popen, PIPE, check_output
 import yaml
 import requests
 import urllib
 from base64 import b64encode
 import warnings
+import subprocess
 from subprocess import check_call
 from bs4 import BeautifulSoup
 warnings.filterwarnings('ignore', message='Unverified HTTPS request')
@@ -46,24 +46,24 @@ def api_call_elasticsearch(host,query,address,api_protocol,api_user,api_pass,api
 
     if (query == ""):   # Calling ES API without query
         if (api_pass != "" and api_pass != ""): # If credentials provided
-            response = os.system("curl --max-time " + str(curl_timeout)
+            response = subprocess.check_output("curl --max-time 15"
                                 + " -k -u "     + api_user + ":" + api_pass + " "
-                                + api_protocol + "://" + address + ":" + api_port
-                                )
+                                + api_protocol + "://" + address + ":" + api_port,
+                                shell=True)
         else:
-            response = os.system("curl --max-time " + str(curl_timeout) + " " + api_protocol + "://" + address + ":" + api_port)
+            response = subprocess.check_output("curl --max-time 15 " + api_protocol + "://" + address + ":" + api_port, shell=True)
 
     elif (query != ""): # Executing query search
         if (api_pass != "" and api_pass != ""):
-            response = os.system("curl -H \'Content-Type: application/json\'"
+            response = subprocess.check_output("curl -H \'Content-Type: application/json\'"
                                 + " --max-time 15" 
                                 + " -k -u "     + api_user + ":" + api_pass
                                 + " -d '"        + json.dumps(query) + "' "
                                 + api_protocol + "://" + address + ":" + api_port
-                                + "/wazuh-alerts-4.x-*/_search"
-                                )
+                                + "/wazuh-alerts-4.x-*/_search",
+                                shell=True)
         else:
-            response = os.system("curl --max-time 15 " + api_protocol + "://" + address + ":" + api_port)
+            response = subprocess.check_output("curl --max-time 15 " + api_protocol + "://" + address + ":" + api_port, shell=True)
 
     else:
         response = "Error. Unable to classify Elasticsearch API call"
@@ -232,3 +232,6 @@ def test_check_alerts():
     }
 
     response = api_call_elasticsearch(get_elasticsearch_ip(),query,get_elasticsearch_ip(),'https',get_elasticsearch_username(),get_elasticsearch_password(),'9200')
+    response_dict = json.loads(response)
+
+    assert (response_dict["hits"]["total"]["value"] > 0)
