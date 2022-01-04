@@ -295,17 +295,33 @@ build(){
 
 
 show_help() {
-  echo
-  echo "Usage: $0 [OPTIONS]"
-  echo
-  echo "    -b, --branch <branch>               Select Git branch or tag e.g. $wazuh_branch"
-  echo "    -e, --environment                   Install all the packages necessaries to build the pkg package"
-  echo "    -s, --store  <pkg_directory>        Directory to store the resulting pkg package. By default, an output folder will be created."
-  echo "    -p, --install-path <pkg_home>       Installation path for the package. By default: /var"
-  echo "    -c, --checksum                      Compute the SHA512 checksum of the pkg package."
-  echo "    -h, --help                          Shows this help"
-  echo
-  exit $1
+    echo -e ""
+    echo -e "NAME"
+    echo -e "        $(basename $0) - Generate a Solaris 10 package"
+    echo -e ""
+    echo -e "SYNOPSIS"
+    echo -e "        $(basename $0) [OPTIONS]"
+    echo -e ""
+    echo -e "DESCRIPTION"
+    echo -e "        -b, --branch <branch>"
+    echo -e "                Select Git branch or tag e.g. ${wazuh_branch}."
+    echo -e ""
+    echo -e "        -e, --environment"
+    echo -e "                Install all the packages necessaries to build the package."
+    echo -e ""
+    echo -e "        -s, --store  <pkg_directory>"
+    echo -e "                Directory to store the resulting package. By default, an output folder will be created."
+    echo -e ""
+    echo -e "        -p, --install-path <pkg_home>"
+    echo -e "                Installation path for the package. By default: /var."
+    echo -e ""
+    echo -e "        -c, --checksum"
+    echo -e "                Compute the SHA512 checksum of the package."
+    echo -e ""
+    echo -e "        -h, --help"
+    echo -e "                Shows this help."
+    echo -e ""
+    exit $1
 }
 
 build_package(){
