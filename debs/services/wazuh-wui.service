@@ -1,0 +1,19 @@
+[Unit]
+Description=Wazuh-wui
+
+[Service]
+Type=simple
+User=wazuh-wui
+Group=wazuh-wui
+# Load env vars from /etc/default/ and /etc/sysconfig/ if they exist.
+# Prefixing the path with '-' makes it try to load, but if the file doesn't
+# exist, it continues onward.
+EnvironmentFile=-/etc/default/wazuh-wui
+EnvironmentFile=-/etc/sysconfig/wazuh-wui
+ExecStart=/usr/share/wazuh-wui/bin/kibana "-c /etc/wazuh-wui/wazuh-wui.yml"
+Restart=always
+WorkingDirectory=/
+
+[Install]
+WantedBy=multi-user.target
+

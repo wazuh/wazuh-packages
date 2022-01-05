@@ -56,7 +56,7 @@ clean() {
     exit_code=$1
 
     # Clean the files
-    rm -rf ${DOCKERFILE_PATH}/{*.tar.gz,wazuh*} ${DOCKERFILE_PATH}/build.sh ${SOURCES_DIRECTORY}
+    rm -rf ${DOCKERFILE_PATH}/{*.tar.gz,wazuh*} ${DOCKERFILE_PATH}/build.sh  ${SOURCES_DIRECTORY}
 
     exit ${exit_code}
 }
@@ -70,7 +70,8 @@ build_rpm() {
     DOCKERFILE_PATH="$2"
 
     # Copy the necessary files
-    cp ${CURRENT_PATH}/build.sh ${DOCKERFILE_PATH}
+    cp build.sh ${DOCKERFILE_PATH}
+
 
     # Download the legacy tar file if it is needed
     if [ "${CONTAINER_NAME}" = "${LEGACY_RPM_I386_BUILDER}" ] && [ ! -f "${LEGACY_TAR_FILE}" ]; then
@@ -125,7 +126,7 @@ build() {
             build_rpm ${RPM_X86_BUILDER} ${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE} || return 1
         fi
 
-    elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]]; then
+    elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]] || [[ "${TARGET}" == "dashboard" ]]; then
 
         BUILD_NAME=""
         FILE_PATH=""
@@ -170,7 +171,7 @@ help() {
     echo "Usage: $0 [OPTIONS]"
     echo
     echo "    -b, --branch <branch>        [Required] Select Git branch or tag e.g. $BRANCH"
-    echo "    -t, --target <target>        [Required] Target package to build [manager/api/agent]."
+    echo "    -t, --target <target>        [Required] Target package to build [manager/api/agent/dashboard]."
     echo "    -a, --architecture <arch>    [Optional] Target architecture of the package [x86_64/i386/ppc64le/aarch64/armv7hl]."
     echo "    -r, --revision <rev>         [Optional] Package revision that append to version e.g. x.x.x-rev"
     echo "    -l, --legacy                 [Optional] Build package for CentOS 5."
