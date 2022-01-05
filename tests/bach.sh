@@ -207,7 +207,13 @@ function bach-run-tests() {
         if [[ "$1" != -* ]] && bach--is-function "$1"; then
             "$@"
         else
-            command_not_found_handle command "$@"
+            mockfunc="$(@generate_mock_function_name command "$@")"
+            if bach--is-function "${mockfunc}"; then
+                @debug "[BC-func]" "${mockfunc}" "$@"
+                "${mockfunc}" "$@"
+            else
+                command_not_found_handle command "$@"
+            fi
         fi
     }
     export -f command
@@ -577,63 +583,6 @@ function @run() {
     @source "$script" "$@"
 }
 export -f @run
-
-function @fail() {
-    declare retval=1
-    if [[ "${1:-}" =~ ^[0-9]+$ ]]; then
-        retval="$1"
-        shift
-    fi
-    if [[ "$#" -gt 0 ]]; then
-        @out "${@}"
-    fi
-    builtin exit "${retval}"
-}
-export -f @fail
-
-function @assert-equals() {
-    declare expected="${1:?missing the expected result}" actual="${2:?missing the actual result}"
-
-    if [[ "${expected}" == "${actual}" ]]; then
-        @out <<EOF
-${__bach_run_test__ignore_prefix} [assert-equals] expected: ${expected}
-##                         actual: ${actual}
-EOF
-    else
-        @die - 2>&7 <<EOF
-Assert Failed:
-     Expected: $expected
-      But got: $actual
-EOF
-    fi
-} >&7
-export -f @assert-equals
-
-function @assert-fail() {
-    declare expected="<non-zero>" actual="$?"
-    [[ "$actual" -eq 0 ]] || expected="$actual"
-    @assert-equals "$expected" "$actual"
-}
-export -f @assert-fail
-
-function @assert-success() {
-    declare expected=0 actual="$?"
-    @assert-equals "$expected" "$actual"
-}
-export -f @assert-success
-
-function @do-nothing() {
-    :
-}
-export -f @do-nothing
-
-function @unmock() {
-    declare name="${1:?missing command name}"
-    if bach--is-function "$name"; then
-        unset -f "$name"
-    fi
-}
-export -f @unmock
 
 function @fail() {
     declare retval=1
