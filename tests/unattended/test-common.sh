@@ -876,25 +876,315 @@ test-rollBack-no-arguments-all-installed-yum() {
     elastic_remaining_files=1
     kibana_remaining_files=1
     filebeat_remaining_files=1
-    sys-type="yum"
+    sys_type="yum"
     debug=
     rollBack
 }
 
 test-rollBack-no-arguments-all-installed-yum-assert() {
     yum remove wazuh-manager -y
+
     rm -rf /var/ossec/
+
     yum remove opendistroforelasticsearch -y
     yum remove elasticsearch* -y
     yum remove opendistro-* -y
+
     rm -rf /var/lib/elasticsearch/
     rm -rf /usr/share/elasticsearch/
     rm -rf /etc/elasticsearch/
+
     yum remove filebeat -y
+
     rm -rf /var/lib/filebeat/
     rm -rf /usr/share/filebeat/
     rm -rf /etc/filebeat/
+
     yum remove opendistroforelasticsearch-kibana -y
+
+    rm -rf /var/lib/kibana/
+    rm -rf /usr/share/kibana/
+    rm -rf /etc/kibana/
+}
+
+test-rollBack-no-arguments-all-installed-zypper() {
+    load-rollBack
+    elasticsearchinstalled=1
+    wazuhinstalled=1
+    kibanainstalled=1
+    filebeatinstalled=1
+    wazuh_remaining_files=1
+    elastic_remaining_files=1
+    kibana_remaining_files=1
+    filebeat_remaining_files=1
+    sys_type="zypper"
+    debug=
+    rollBack
+}
+
+test-rollBack-no-arguments-all-installed-zypper-assert() {
+    zypper -n remove wazuh-manager
+    rm -f /etc/init.d/wazuh-manager
+
+    rm -rf /var/ossec/
+
+    zypper -n remove opendistroforelasticsearch elasticsearch* opendistro-*
+
+    rm -rf /var/lib/elasticsearch/
+    rm -rf /usr/share/elasticsearch/
+    rm -rf /etc/elasticsearch/
+
+    zypper -n remove filebeat
+
+    rm -rf /var/lib/filebeat/
+    rm -rf /usr/share/filebeat/
+    rm -rf /etc/filebeat/
+
+    zypper -n remove opendistroforelasticsearch-kibana
+
+    rm -rf /var/lib/kibana/
+    rm -rf /usr/share/kibana/
+    rm -rf /etc/kibana/
+}
+
+test-rollBack-no-arguments-all-installed-apt() {
+    load-rollBack
+    elasticsearchinstalled=1
+    wazuhinstalled=1
+    kibanainstalled=1
+    filebeatinstalled=1
+    wazuh_remaining_files=1
+    elastic_remaining_files=1
+    kibana_remaining_files=1
+    filebeat_remaining_files=1
+    sys_type="apt-get"
+    debug=
+    rollBack
+}
+
+test-rollBack-no-arguments-all-installed-apt-assert() {
+    apt remove --purge wazuh-manager -y
+
+    rm -rf /var/ossec/
+
+    apt remove --purge opendistroforelasticsearch elasticsearch* opendistro-* -y
+
+    rm -rf /var/lib/elasticsearch/
+    rm -rf /usr/share/elasticsearch/
+    rm -rf /etc/elasticsearch/
+
+    apt remove --purge filebeat -y
+
+    rm -rf /var/lib/filebeat/
+    rm -rf /usr/share/filebeat/
+    rm -rf /etc/filebeat/
+
+    apt remove --purge opendistroforelasticsearch-kibana -y
+
+    rm -rf /var/lib/kibana/
+    rm -rf /usr/share/kibana/
+    rm -rf /etc/kibana/
+}
+
+test-rollBack-elasticsearch-arg-all-installed-yum() {
+    load-rollBack
+    elasticsearchinstalled=1
+    wazuhinstalled=1
+    kibanainstalled=1
+    filebeatinstalled=1
+    wazuh_remaining_files=1
+    elastic_remaining_files=1
+    kibana_remaining_files=1
+    filebeat_remaining_files=1
+    sys_type="yum"
+    debug=
+    rollBack elasticsearch
+}
+
+test-rollBack-elasticsearch-arg-all-installed-yum-assert() {
+    yum remove opendistroforelasticsearch -y
+    yum remove elasticsearch* -y
+    yum remove opendistro-* -y
+
+    rm -rf /var/lib/elasticsearch/
+    rm -rf /usr/share/elasticsearch/
+    rm -rf /etc/elasticsearch/
+}
+
+test-rollBack-elasticsearch-arg-all-installed-zypper() {
+    load-rollBack
+    elasticsearchinstalled=1
+    wazuhinstalled=1
+    kibanainstalled=1
+    filebeatinstalled=1
+    wazuh_remaining_files=1
+    elastic_remaining_files=1
+    kibana_remaining_files=1
+    filebeat_remaining_files=1
+    sys_type="zypper"
+    debug=
+    rollBack elasticsearch
+}
+
+test-rollBack-elasticsearch-arg-all-installed-zypper-assert() {
+    zypper -n remove opendistroforelasticsearch elasticsearch* opendistro-*
+
+    rm -rf /var/lib/elasticsearch/
+    rm -rf /usr/share/elasticsearch/
+    rm -rf /etc/elasticsearch/
+}
+
+test-rollBack-elasticsearch-arg-all-installed-apt() {
+    load-rollBack
+    elasticsearchinstalled=1
+    wazuhinstalled=1
+    kibanainstalled=1
+    filebeatinstalled=1
+    wazuh_remaining_files=1
+    elastic_remaining_files=1
+    kibana_remaining_files=1
+    filebeat_remaining_files=1
+    sys_type="apt-get"
+    debug=
+    rollBack elasticsearch
+}
+
+test-rollBack-elasticsearch-arg-all-installed-apt-assert() {
+    apt remove --purge opendistroforelasticsearch elasticsearch* opendistro-* -y
+
+    rm -rf /var/lib/elasticsearch/
+    rm -rf /usr/share/elasticsearch/
+    rm -rf /etc/elasticsearch/
+}
+
+test-rollBack-wazuh-arg-all-installed-yum() {
+    load-rollBack
+    elasticsearchinstalled=1
+    wazuhinstalled=1
+    kibanainstalled=1
+    filebeatinstalled=1
+    wazuh_remaining_files=1
+    elastic_remaining_files=1
+    kibana_remaining_files=1
+    filebeat_remaining_files=1
+    sys_type="yum"
+    debug=
+    rollBack wazuh
+}
+
+test-rollBack-wazuh-arg-all-installed-yum-assert() {
+    yum remove wazuh-manager -y
+
+    rm -rf /var/ossec/
+}
+
+test-rollBack-wazuh-arg-all-installed-zypper() {
+    load-rollBack
+    elasticsearchinstalled=1
+    wazuhinstalled=1
+    kibanainstalled=1
+    filebeatinstalled=1
+    wazuh_remaining_files=1
+    elastic_remaining_files=1
+    kibana_remaining_files=1
+    filebeat_remaining_files=1
+    sys_type="zypper"
+    debug=
+    rollBack wazuh
+}
+
+test-rollBack-wazuh-arg-all-installed-zypper-assert() {
+    zypper -n remove wazuh-manager
+    rm -f /etc/init.d/wazuh-manager
+
+    rm -rf /var/ossec/
+}
+
+test-rollBack-wazuh-arg-all-installed-apt() {
+    load-rollBack
+    elasticsearchinstalled=1
+    wazuhinstalled=1
+    kibanainstalled=1
+    filebeatinstalled=1
+    wazuh_remaining_files=1
+    elastic_remaining_files=1
+    kibana_remaining_files=1
+    filebeat_remaining_files=1
+    sys_type="apt-get"
+    debug=
+    rollBack wazuh
+}
+
+test-rollBack-wazuh-arg-all-installed-apt-assert() {
+    apt remove --purge wazuh-manager -y
+
+    rm -rf /var/ossec/
+}
+
+test-rollBack-kibana-arg-all-installed-yum() {
+    load-rollBack
+    elasticsearchinstalled=1
+    wazuhinstalled=1
+    kibanainstalled=1
+    filebeatinstalled=1
+    wazuh_remaining_files=1
+    elastic_remaining_files=1
+    kibana_remaining_files=1
+    filebeat_remaining_files=1
+    sys_type="yum"
+    debug=
+    rollBack kibana
+}
+
+test-rollBack-kibana-arg-all-installed-yum-assert() {
+    yum remove opendistroforelasticsearch-kibana -y
+
+    rm -rf /var/lib/kibana/
+    rm -rf /usr/share/kibana/
+    rm -rf /etc/kibana/
+}
+
+test-rollBack-kibana-arg-all-installed-zypper() {
+    load-rollBack
+    elasticsearchinstalled=1
+    wazuhinstalled=1
+    kibanainstalled=1
+    filebeatinstalled=1
+    wazuh_remaining_files=1
+    elastic_remaining_files=1
+    kibana_remaining_files=1
+    filebeat_remaining_files=1
+    sys_type="zypper"
+    debug=
+    rollBack kibana
+}
+
+test-rollBack-kibana-arg-all-installed-zypper-assert() {
+    zypper -n remove opendistroforelasticsearch-kibana
+
+    rm -rf /var/lib/kibana/
+    rm -rf /usr/share/kibana/
+    rm -rf /etc/kibana/
+}
+
+test-rollBack-kibana-arg-all-installed-apt() {
+    load-rollBack
+    elasticsearchinstalled=1
+    wazuhinstalled=1
+    kibanainstalled=1
+    filebeatinstalled=1
+    wazuh_remaining_files=1
+    elastic_remaining_files=1
+    kibana_remaining_files=1
+    filebeat_remaining_files=1
+    sys_type="apt-get"
+    debug=
+    rollBack kibana
+}
+
+test-rollBack-kibana-arg-all-installed-apt-assert() {
+    apt remove --purge opendistroforelasticsearch-kibana -y
+
     rm -rf /var/lib/kibana/
     rm -rf /usr/share/kibana/
     rm -rf /etc/kibana/
