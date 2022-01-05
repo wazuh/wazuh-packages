@@ -1,4 +1,0 @@
-/etc/default/wazuh-indexer
-/etc/wazuh-indexer/opensearch.yml
-/etc/wazuh-indexer/jvm.options
-/etc/wazuh-indexer/log4j2.properties

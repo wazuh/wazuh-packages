@@ -6,6 +6,16 @@
 export NAME=wazuh-indexer
 export CONFIG_DIR=/etc/${NAME}
 export INSTALLATION_DIR=/usr/share/${NAME}
+export LOG_DIR=/var/log/${NAME}
+export PID_DIR=/var/run/${NAME}
+export LIB_DIR=/var/lib/${NAME}
+
+
+# Setting Owner and group of own folders
+chown -R ${NAME}:${NAME} ${CONFIG_DIR}
+chown -R ${NAME}:${NAME} ${INSTALLATION_DIR}
+chown -R ${NAME}:${NAME} ${LOG_DIR}
+chown -R ${NAME}:${NAME} ${LIB_DIR}
 
 #chown ':wazuh-indexer' '/etc/default/wazuh-indexer'
 #chown ':wazuh-indexer' '/etc/wazuh-indexer'
@@ -147,21 +157,12 @@ if [ -z "$OPENSEARCH_HOME" ]; then
 fi
 
 # Prepare the RCA reader process for execution
-#cp -r $OPENSEARCH_HOME/plugins/opendistro-performance-analyzer/performance-analyzer-rca $OPENSEARCH_HOME
-#if [ -f $OPENSEARCH_HOME/bin/opendistro-performance-analyzer/performance-analyzer-agent-cli ]; #then
-#  mv $OPENSEARCH_HOME/bin/opendistro-performance-analyzer/performance-analyzer-agent-cli $OPENSEARCH_HOME/bin
-#  rm -rf $OPENSEARCH_HOME/bin/opendistro-performance-analyzer
-#fi
-#mkdir -p $OPENSEARCH_HOME/data
 mkdir -p "/var/lib/wazuh-indexer"
-#touch $OPENSEARCH_HOME/data/rca_enabled.conf
-#echo 'true' > $OPENSEARCH_HOME/data/rca_enabled.conf
 echo 'true' > /var/lib/wazuh-indexer/performance_analyzer_enabled.conf
 echo 'true' > /var/lib/wazuh-indexer/rca_enabled.conf
 chown ${NAME}:${NAME} /var/lib/wazuh-indexer/performance_analyzer_enabled.conf
 chown ${NAME}:${NAME} /var/lib/wazuh-indexer/rca_enabled.conf
 chown -R ${NAME}:${NAME} $OPENSEARCH_HOME/performance-analyzer-rca
-#chmod a+rw /tmp
 
 #if ! grep -q '## OpenDistro Performance Analyzer' /etc/wazuh-indexer/jvm.options; then
    #CLK_TCK=`/usr/bin/getconf CLK_TCK`
@@ -183,13 +184,21 @@ if [ -z "$2" ]; then
 	sysctl -w vm.max_map_count=262144 > /dev/null 2>&1 
 	ulimit -Hn 65535 > /dev/null 2>&1 
 
-	sudo -u ${NAME} CLK_TK=`/usr/bin/getconf CLK_TCK` OPENSEARCH_PATH_CONF=${CONFIG_DIR} ${INSTALLATION_DIR}/bin/opensearch --quiet > /dev/null 2>&1 &
+  if command -v sudo > /dev/null 2>&1; then
+      sudo -u ${NAME} CLK_TK=`getconf CLK_TCK` OPENSEARCH_PATH_CONF=${CONFIG_DIR} ${INSTALLATION_DIR}/bin/opensearch --quiet > /dev/null 2>&1 &
+  else
+      CLK_TK=`getconf CLK_TCK` OPENSEARCH_PATH_CONF=${CONFIG_DIR} ${INSTALLATION_DIR}/bin/opensearch --quiet > /dev/null 2>&1 &
+  fi
 
 	sleep 15
 
-	chmod +x ${INSTALLATION_DIR}/plugins/opensearch-security/tools/securityadmin.sh
+	chmod +x ${INSTALLATION_DIR}/plugins/opensearch-security/tools/securityadmin.sh 
 
-	sudo -u ${NAME} OPENSEARCH_PATH_CONF=${CONFIG_DIR} JAVA_HOME=${INSTALLATION_DIR}/jdk ${INSTALLATION_DIR}/plugins/opensearch-security/tools/securityadmin.sh -icl -p 9800 -cd ${INSTALLATION_DIR}/plugins/opensearch-security/securityconfig/ -nhnv -cacert ${CONFIG_DIR}/certs/root-ca.pem -cert ${CONFIG_DIR}/certs/admin.pem -key ${CONFIG_DIR}/certs/admin-key.pem
+  if command -v sudo > /dev/null 2>&1; then
+      sudo -u ${NAME} OPENSEARCH_PATH_CONF=${CONFIG_DIR} JAVA_HOME=${INSTALLATION_DIR}/jdk ${INSTALLATION_DIR}/plugins/opensearch-security/tools/securityadmin.sh -icl -p 9800 -cd ${INSTALLATION_DIR}/plugins/opensearch-security/securityconfig/ -nhnv -cacert ${CONFIG_DIR}/certs/root-ca.pem -cert ${CONFIG_DIR}/certs/admin.pem -key ${CONFIG_DIR}/certs/admin-key.pem >> ${LOG_DIR}/securityadmin.log
+  else
+      OPENSEARCH_PATH_CONF=${CONFIG_DIR} JAVA_HOME=${INSTALLATION_DIR}/jdk ${INSTALLATION_DIR}/plugins/opensearch-security/tools/securityadmin.sh -icl -p 9800 -cd ${INSTALLATION_DIR}/plugins/opensearch-security/securityconfig/ -nhnv -cacert ${CONFIG_DIR}/certs/root-ca.pem -cert ${CONFIG_DIR}/certs/admin.pem -key ${CONFIG_DIR}/certs/admin-key.pem >> ${LOG_DIR}/securityadmin.log
+  fi
 
 	sleep 5
 
@@ -197,46 +206,19 @@ if [ -z "$2" ]; then
 
 	sleep 10
 
+  #rm -rf ${LOG_DIR}/* > /dev/null 2>&1
+
 else
   # otherwise it is an upgrade
   IS_UPGRADE=true
 fi
 
+# --- Do not edit ---
 #DEBHELPER#
+# --- Do not edit ---
 
 if [ "x$IS_UPGRADE" != "xtrue" ]; then
-    if command -v systemctl > /dev/null; then
-        echo '# Enabling opendistro performance analyzer to start and stop along with wazuh-indexer.service'
-        systemctl daemon-reload
-        systemctl enable wazuh-indexer-performance-analyzer.service || true
-
-    elif command -v chkconfig >/dev/null; then
-        echo "### Non systemd distro. Please start and stop performance analyzer manually using the command: "
-        echo "sh /usr/share/wazuh-indexer/plugins/opendistro-performance-analyzer/pa_bin/performance-analyzer-agent /usr/share/wazuh-indexer /usr/share/wazuh-indexer/jdk -d"
-    fi
-fi
-
-
-if [ "x$IS_UPGRADE" != "xtrue" ]; then
-    if command -v systemctl >/dev/null; then
-        echo "### NOT starting on installation, please execute the following statements to configure wazuh-indexer service to start automatically using systemd"
-        echo " sudo systemctl daemon-reload"
-        echo " sudo systemctl enable wazuh-indexer.service"
-        echo "### You can start wazuh-indexer service by executing"
-        echo " sudo systemctl start wazuh-indexer.service"
-
-    elif command -v chkconfig >/dev/null; then
-        echo "### NOT starting on installation, please execute the following statements to configure wazuh-indexer service to start automatically using chkconfig"
-        echo " sudo chkconfig --add wazuh-indexer"
-        echo "### You can start wazuh-indexer service by executing"
-        echo " sudo service wazuh-indexer start"
-
-    elif command -v update-rc.d >/dev/null; then
-        echo "### NOT starting on installation, please execute the following statements to configure wazuh-indexer service to start automatically using chkconfig"
-        echo " sudo update-rc.d wazuh-indexer defaults 95 10"
-        echo "### You can start wazuh-indexer service by executing"
-        echo " sudo /etc/init.d/wazuh-indexer start"
-    fi
+    echo "TEST"
 elif [ "$RESTART_ON_UPGRADE" = "true" ]; then
 
     echo -n "Restarting wazuh-indexer service..."

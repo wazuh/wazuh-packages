@@ -29,8 +29,6 @@ export PID_DIR=/var/run/${NAME}
 export INSTALLATION_DIR=/usr/share/${NAME}
 export BASE_DIR=${NAME}-*
 export INDEXER_FILE=wazuh-indexer-base-linux-x64.tar.gz
-#export DOCUMENTATION_BRANCH=679-wazuh-packages_wazuh-indexer
-#export PACKAGES_BRANCH=679-wazuh-indexer
 
 %:
 	dh $@
@@ -71,28 +69,8 @@ override_dh_install:
 #	curl -o roles_mapping.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/wazuh-indexer/roles/roles_mapping.yml
 #	curl -o internal_users.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/wazuh-indexer/roles/internal_users.yml
 
-	
-
-	# Change performance analyzer default ports
-#	sed -i 's/webservice-listener-port = 9600/webservice-listener-port = 9601/' $(BASE_DIR)/performance-analyzer-rca/pa_config/performance-analyzer.properties
-#	sed -i 's/webservice-listener-port = 9600/webservice-listener-port = 9601/' $(BASE_DIR)/plugins/opendistro-performance-analyzer/pa_config/performance-analyzer.properties
-#	sed -i 's/webservice-listener-port = 9600/webservice-listener-port = 9601/' $(BASE_DIR)/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/performance-analyzer.properties
-
-#	sed -i 's/rpc-port = 9650/rpc-port = 9651/' $(BASE_DIR)/performance-analyzer-rca/pa_config/performance-analyzer.properties
-#	sed -i 's/rpc-port = 9650/rpc-port = 9651/' $(BASE_DIR)/plugins/opendistro-performance-analyzer/pa_config/performance-analyzer.properties
-#	sed -i 's/rpc-port = 9650/rpc-port = 9651/' $(BASE_DIR)/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/performance-analyzer.properties
-
-#	sed -i 's/metrics-location = \/dev\/shm\/performanceanalyzer/metrics-location = \/dev\/shm\/wazuh-indexer-performanceanalyzer/' $(BASE_DIR)/performance-analyzer-rca/pa_config/performance-analyzer.properties
-#	sed -i 's/metrics-location = \/dev\/shm\/performanceanalyzer/metrics-location = \/dev\/shm\/wazuh-indexer-performanceanalyzer/' $(BASE_DIR)/plugins/opendistro-performance-analyzer/pa_config/performance-analyzer.properties
-#	sed -i 's/metrics-location = \/dev\/shm\/performanceanalyzer/metrics-location = \/dev\/shm\/wazuh-indexer-performanceanalyzer/' $(BASE_DIR)/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/performance-analyzer.properties
-
-#	sed -i 's/metrics-db-file-prefix-path = \/tmp\/metricsdb_/metrics-db-file-prefix-path = \/tmp\/wazuh-indexer_metricsdb_/' $(BASE_DIR)/performance-analyzer-rca/pa_config/performance-analyzer.properties
-#	sed -i 's/metrics-db-file-prefix-path = \/tmp\/metricsdb_/metrics-db-file-prefix-path = \/tmp\/wazuh-indexer_metricsdb_/' $(BASE_DIR)/plugins/opendistro-performance-analyzer/pa_config/performance-analyzer.properties
-#	sed -i 's/metrics-db-file-prefix-path = \/tmp\/metricsdb_/metrics-db-file-prefix-path = \/tmp\/wazuh-indexer_metricsdb_/' $(BASE_DIR)/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/performance-analyzer.properties
-
 
 	# copy to target
-
 	mkdir -p $(TARGET_DIR)$(INSTALLATION_DIR)
 	mkdir -p $(TARGET_DIR)$(CONFIG_DIR)
 	mkdir -p $(TARGET_DIR)$(LIB_DIR)
@@ -102,11 +80,6 @@ override_dh_install:
 	mkdir -p $(TARGET_DIR)/usr/lib/tmpfiles.d
 	mkdir -p $(TARGET_DIR)/usr/lib/sysctl.d
 	mkdir -p $(TARGET_DIR)/usr/lib/systemd/system
-
-	# Add custom tools
-#	cp wazuh-passwords-tool.sh $(TARGET_DIR)$(INSTALLATION_DIR)/bin
-#	cp wazuh-cert-tool.sh $(TARGET_DIR)$(INSTALLATION_DIR)/bin
-#	cp instances.yml $(TARGET_DIR)$(INSTALLATION_DIR)/bin
 
 	# Move configuration files for wazuh-indexer
 	mv -f $(BASE_DIR)/etc/init.d/$(NAME) $(TARGET_DIR)/etc/init.d/$(NAME)
@@ -128,14 +101,6 @@ override_dh_install:
 #	cp -pr roles.yml $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro_security/securityconfig/roles.yml
 #	cp -pr internal_users.yml $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro_security/securityconfig/internal_users.yml
 
-	# Fix performance-analyzer plugin files which references wazuh-indexer path
-#	sed -i 's!/usr/share/wazuh-indexer!$(INSTALLATION_DIR)!g' $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro-performance-analyzer/pa_config/supervisord.conf
-#	sed -i 's!/usr/share/wazuh-indexer!$(INSTALLATION_DIR)!g' $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro-performance-analyzer/performance-analyzer-rca/pa_config/supervisord.conf
-#	sed -i 's!/usr/share/wazuh-indexer!$(INSTALLATION_DIR)!g' $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/pa_config/supervisord.conf
-
-	# Fix performance analyzer JAVA_HOME definition when running manually for non systemd environments
-#	sed -i s'/JAVA_HOME=$$2/export JAVA_HOME=$$2/' $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro-performance-analyzer/pa_bin/performance-analyzer-agent
-
 
 
 	# Create group and user in chroot environment
@@ -150,23 +115,8 @@ override_dh_install:
 
 
 
-#	chown $(USER):$(GROUP) -R $(TARGET_DIR)
-#	chown $(USER):$(GROUP) $(TARGET_DIR)/var -R
-#	chown $(USER):$(GROUP) $(TARGET_DIR)/etc -R
-
-#	echo "wazuh-indexer hard nproc 4096" >> /etc/security/limits.conf
-#	echo "wazuh-indexer soft nproc 4096" >> /etc/security/limits.conf
-#	echo "wazuh-indexer hard nofile 65535" >> /etc/security/limits.conf
-#	echo "wazuh-indexer soft nofile 65535" >> /etc/security/limits.conf
-#	echo "bootstrap.system_call_filter: false" >> $(TARGET_DIR)$(CONFIG_DIR)/opensearch.yml
-
-#	mv $(TARGET_DIR)$(LIB_DIR)/nodes $(TARGET_DIR)$(INSTALLATION_DIR)/initial_nodes
-#	rm -f $(TARGET_DIR)$(LOG_DIR)/*
-#	rm -f $(TARGET_DIR)$(LIB_DIR)/batch_metrics_enabled.conf
-#	rm -f $(TARGET_DIR)$(LIB_DIR)/logging_enabled.conf
-#	rm -f $(TARGET_DIR)$(LIB_DIR)/performance_analyzer_enabled.conf
-#	rm -f $(TARGET_DIR)$(LIB_DIR)/rca_enabled.conf
-
+	chown $(USER):$(GROUP) -R $(TARGET_DIR)
+	chmod ug+x $(TARGET_DIR)$(INSTALLATION_DIR)/*
 
 #override_dh_auto_clean:
 	#$(MAKE) -C src clean
