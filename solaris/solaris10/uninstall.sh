@@ -1,4 +1,6 @@
-#/bin/sh
+#!/bin/sh
+# uninstall script for wazuh-agent
+# Wazuh, Inc 2015-2022
 
 control_binary="wazuh-control"
 
