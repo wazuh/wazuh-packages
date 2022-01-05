@@ -1,6 +1,6 @@
 #!/bin/sh
 # postinst script for wazuh-agent
-# Wazuh, Inc 2015-2021
+# Wazuh, Inc 2015-2022
 
 install_path="<INSTALL_PATH>"
 osversion=$(uname -v)
