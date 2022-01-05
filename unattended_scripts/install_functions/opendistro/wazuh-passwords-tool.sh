@@ -458,16 +458,17 @@ readFileUsers() {
 
     filecorrect=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' ${p_file})
     if [ "${filecorrect}" -ne 1 ]; then
-	logger_pass -e "The password file doesn't have a correct format.
+        logger_pass -e "The password file doesn't have a correct format.
 
 It must have this format:
 User:
-   name: wazuh
-   password: wazuhpassword
+  name: wazuh
+  password: wazuhpassword
 User:
-   name: kibanaserver
-   password: kibanaserverpassword"
-	exit 1
+  name: kibanaserver
+  password: kibanaserverpassword"
+
+	    exit 1
     fi	
 
     if [ ! -n "$users" ]; then 
