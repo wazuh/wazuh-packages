@@ -341,7 +341,7 @@ function checkPreviousCertificates() {
             else
                 logger -e "Missing certificate for the Wazuh server node ${winame} in ${base_path}/certs."
                 exit 1
-            if
+            fi
         fi
 
         if [ ! -z ${kiname} ]; then
@@ -352,7 +352,7 @@ function checkPreviousCertificates() {
                 exit 1
             fi
         fi
-    if
+    fi
 
 }
 
@@ -603,7 +603,7 @@ function checkArguments() {
                 rollBack "elasticsearch"
             else 
                 logger -e "Elasticsearch already installed or some files remain from previous installation. Use the -o|--overwrite option to install overwriting components."
-                exit
+                exit 1
             fi
         fi
     fi
@@ -615,7 +615,7 @@ function checkArguments() {
                 rollBack "kibana"
             else 
                 logger -e "Kibana already installed or some files remain from previous installation. Use the -o|--overwrite option to install overwriting components."
-                exit 
+                exit 1
             fi
         fi
     fi
