@@ -509,17 +509,17 @@ User:
         finalusers=()
         finalpasswords=()
 
-        for j in "${!fileusers[@]}"; do
+        for j in "${!users[@]}"; do
             supported=false
-            for i in "${!users[@]}"; do
-                if [[ "${users[i]}" == "${fileusers[j]}" ]]; then
-                    finalusers+=(${fileusers[j]})
+            for i in "${!fileusers[@]}"; do
+                if [[ "${fileusers[i]}" == "${users[j]}" ]]; then
+                    finalusers+=(${users[j]})
                     finalpasswords+=(${filepasswords[j]})
                     supported=true
                 fi
             done
             if [ ${supported} = false ] && [ -n "${elasticsearchinstalled}" ]; then
-                logger_pass -e "The given user ${fileusers[j]} does not exist"
+                logger_pass -e "The given user ${users[j]} does not exist"
             fi
         done
 
