@@ -7,11 +7,10 @@ osversion=$(uname -v)
 SCA_BASE_DIR="${install_path}/ruleset/sca/"
 SCA_TMP_DIR="${install_path}/tmp/sca"
 
-# upgrade from 3
 if [ -d ${install_path}/logs/ossec ]; then
-  if [ -z "$(ls -A ${install_path}/logs/ossec)" ]; then  # empty
+  if [ -z "$(ls -A ${install_path}/logs/ossec)" ]; then
     rm -rf ${install_path}/logs/ossec
-  else                                        # not empty
+  else 
     rm -rf ${install_path}/logs/wazuh
     mv ${install_path}/logs/ossec ${install_path}/logs/wazuh
   fi
