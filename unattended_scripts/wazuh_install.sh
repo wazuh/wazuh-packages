@@ -425,7 +425,6 @@ function main() {
         importFunction "elasticsearch.sh"
         importFunction "kibana.sh"
 
-        kiname="kibana"
         installElasticsearch
         configureElasticsearchAIO
         startService "elasticsearch"

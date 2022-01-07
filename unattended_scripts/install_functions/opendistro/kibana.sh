@@ -22,6 +22,7 @@ function configureKibana() {
     eval "setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node ${debug}"
 
     if [ "${#kibana_node_names[@]}" -eq 1 ]; then
+        pos=0
         ip=${kibana_node_ips[0]}
     else
         for i in ${!kibana_node_names[@]}; do
@@ -51,6 +52,8 @@ function configureKibana() {
 function configureKibanaAIO() {
 
     logger "Starting Wazuh Kibana plugin installation."
+
+    pos=0
     
     eval "getConfig kibana/kibana_unattended.yml /etc/kibana/kibana.yml ${debug}"
     eval "mkdir /usr/share/kibana/data ${debug}"
@@ -73,11 +76,8 @@ function copyKibanacerts() {
 
     eval "mkdir /etc/kibana/certs ${debug}"
     if [ -f "${tar_file}" ]; then
-        if [ "${#kibana_node_names[@]}" -eq 1 ]; then
-            name=${kiname}
-        else
-            name=${kibana_node_names[pos]}
-        fi
+    
+        name=${kibana_node_names[pos]}
 
         eval "tar -xf ${tar_file} -C ${k_certs_path} ./${name}.pem  && mv ${k_certs_path}${name}.pem ${k_certs_path}kibana.pem ${debug}"
         eval "tar -xf ${tar_file} -C ${k_certs_path} ./${name}-key.pem  && mv ${k_certs_path}${name}-key.pem ${k_certs_path}kibana-key.pem ${debug}"
