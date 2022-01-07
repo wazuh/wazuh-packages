@@ -1,0 +1,62 @@
+#!/bin/sh
+# preinst script for wazuh-dashboard
+
+set -x
+
+# configuration variables
+DIR="/"
+USR_DIR="/usr/share/wazuh-dashboard"
+ETC_DIR="/etc/wazuh-dashboard"
+
+
+# environment configuration
+if [ ! -d ${USR_DIR} ]; then
+    mkdir -p ${USR_DIR}
+    mkdir -p ${ETC_DIR}
+
+else
+    rm -rf ${USR_DIR}
+    mkdir -p ${USR_DIR}
+    rm -rf ${ETC_DIR}
+    mkdir -p ${ETC_DIR}
+fi
+
+case "$1" in
+    install|upgrade)
+        # Create the wazuh-dashboard group if it doesn't exists
+        if command -v getent > /dev/null 2>&1 && ! getent group wazuh-dashboard > /dev/null 2>&1; then
+        groupadd -r wazuh-dashboard
+        elif ! id -g wazuh-dashboard > /dev/null 2>&1; then
+        groupadd -r wazuh-dashboard
+        fi
+        # Create the wazuh-dashboard user if it doesn't exists
+        if ! id -u wazuh-dashboard > /dev/null 2>&1; then
+        useradd -g wazuh-dashboard -G wazuh-dashboard -d /usr/share/wazuh-dashboard/ -r -s /sbin/nologin wazuh-dashboard
+        fi
+
+        # Stop the services to upgrade the package
+        if [ $1 = 2 ]; then
+        if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-dashboard > /dev/null 2>&1; then
+            systemctl stop wazuh-dashboard.service > /dev/null 2>&1
+            touch ${USR_DIR}/wazuh-dashboard.restart
+        # Check for SysV
+        elif command -v service > /dev/null 2>&1 && service wazuh-dashboard status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
+            service wazuh-dashboard stop > /dev/null 2>&1
+            touch ${USR_DIR}/wazuh-dashboard.restart
+        fi
+        fi
+    ;;
+
+    abort-upgrade)
+
+    ;;
+
+    *)
+        echo "preinst called with unknown argument \`$1'" >&2
+        exit 1
+
+    ;;
+
+esac
+
+exit 0

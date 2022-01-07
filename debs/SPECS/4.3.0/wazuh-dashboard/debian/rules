@@ -1,0 +1,85 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Sample debian/rules that uses debhelper.
+#
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+#
+# Modified to make a template file for a multi-binary package with separated
+# build-arch and build-indep targets  by Bill Allombert 2001
+
+# Uncomment this to turn on verbose mode.
+export DH_VERBOSE=1
+
+# This has to be exported to make some magic below work.
+export DH_OPTIONS
+
+export TARGET_DIR=${CURDIR}/debian/wazuh-dashboard
+
+# Package build options
+export INSTALLATION_DIR="/"
+
+%:
+	dh $@
+
+override_dh_shlibdeps:
+
+override_dh_auto_configure:
+
+override_dh_auto_install:
+
+override_dh_install:
+	curl -kOL https://s3.amazonaws.com/warehouse.wazuh.com/dashboard/wazuh-dashboard-base-linux-x64.tar.gz
+
+	groupadd wazuh-dashboard
+	useradd -g wazuh-dashboard wazuh-dashboard
+
+	tar -xf wazuh-dashboard-base-linux-x64.tar.gz
+
+	mkdir -p /etc/wazuh-dashboard/certs
+	mkdir -p /usr/share/wazuh-dashboard
+	mkdir -p /etc/systemd/system
+	mkdir -p /etc/init.d
+
+	cp wazuh-dashboard-base-linux-x64/etc/node.options /etc/wazuh-dashboard
+	cp wazuh-dashboard-base-linux-x64/etc/wazuh-dashboard.yml /etc/wazuh-dashboard
+	mv wazuh-dashboard-base-linux-x64/* /usr/share/wazuh-dashboard
+
+	rm -f /etc/wazuh-dashboard/kibana.yml
+
+	cp /usr/share/wazuh-dashboard/etc/custom_welcome/template.js.hbs /usr/share/wazuh-dashboard/src/legacy/ui/ui_render/bootstrap/template.js.hbs
+	cp /usr/share/wazuh-dashboard/etc/custom_welcome/light_theme.style.css /usr/share/wazuh-dashboard/src/core/server/core_app/assets/legacy_light_theme.css
+	cp /usr/share/wazuh-dashboard/etc/custom_welcome/*svg /usr/share/wazuh-dashboard/src/core/server/core_app/assets/
+
+	cp /usr/share/wazuh-dashboard/etc/services/wazuh-dashboard.service /etc/systemd/system/wazuh-dashboard.service 
+	cp /usr/share/wazuh-dashboard/etc/services/wazuh-dashboard /etc/init.d/wazuh-dashboard
+	cp /usr/share/wazuh-dashboard/etc/services/default /etc/default/wazuh-dashboard
+
+	chmod 644 /etc/init.d/wazuh-dashboard
+	chmod 644 /etc/systemd/system/wazuh-dashboard.service 
+	chmod 644 /etc/default/wazuh-dashboard
+
+
+
+	cp /usr/share/wazuh-dashboard/etc/certs/wazuh-dashboard.pem /etc/wazuh-dashboard/certs/wazuh-dashboard.pem
+	cp /usr/share/wazuh-dashboard/etc/certs/wazuh-dashboard-key.pem /etc/wazuh-dashboard/certs/wazuh-dashboard-key.pem
+	cp /usr/share/wazuh-dashboard/etc/certs/root-ca.pem /etc/wazuh-dashboard/certs/root-ca.pem
+	chmod 644 /etc/wazuh-dashboard/certs/*
+
+
+	find /usr/share/wazuh-dashboard -exec chown wazuh-dashboard:wazuh-dashboard {} \;
+	find /etc/wazuh-dashboard -exec chown wazuh-dashboard:wazuh-dashboard {} \;
+
+	chown wazuh-dashboard:wazuh-dashboard /etc/systemd/system/wazuh-dashboard.service
+	chown wazuh-dashboard:wazuh-dashboard /etc/init.d/wazuh-dashboard
+	chown wazuh-dashboard:wazuh-dashboard /etc/default/wazuh-dashboard
+
+
+override_dh_auto_clean:
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym
+
+.PHONY: override_dh_strip override_dh_auto_clean override_dh_auto_build override_dh_auto_configure

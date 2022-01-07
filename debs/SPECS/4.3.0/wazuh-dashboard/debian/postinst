@@ -1,0 +1,36 @@
+#!/bin/sh
+# postinst script for wazuh-dashboard
+# Wazuh, Inc 2015-2020
+
+set -x
+DIR="/"
+USR_DIR="/usr/share/wazuh-dashboard"
+ETC_DIR="/usr/share/wazuh-dashboard"
+
+case "$1" in
+    configure)
+        setcap 'cap_net_bind_service=+ep' /usr/share/wazuh-dashboard/node/bin/node
+        if [ -f ${USR_DIR}/wazuh-dashboard.restart ]; then
+        rm -f ${USR_DIR}/wazuh-dashboard.restart
+            if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 ; then
+                systemctl restart wazuh-dashboard.service > /dev/null 2>&1
+            elif command -v service > /dev/null 2>&1 && service wazuh-dashboard status 2>/dev/null | grep "running" > /dev/null 2>&1; then
+                service wazuh-dashboard restart > /dev/null 2>&1
+            fi
+        fi
+    ;;
+
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+
+    ;;
+
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >22
+        exit 1
+    ;;
+
+esac
+
+exit 0

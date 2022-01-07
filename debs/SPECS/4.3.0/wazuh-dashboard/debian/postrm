@@ -1,0 +1,52 @@
+#!/bin/sh
+# postrm script for wazuh-dashboard
+# Wazuh, Inc 2015-2020
+
+set -x
+
+DIR="/"
+USR_DIR="/usr/share/wazuh-dashboard"
+ETC_DIR="/usr/share/wazuh-dashboard"
+
+case "$1" in
+    remove|failed-upgrade|abort-install|abort-upgrade|disappear)
+
+        if [ $1 = 0 ];then
+            # Remove the wazuh-dashboard user if it exists
+            if id -u wazuh-dashboard > /dev/null 2>&1; then
+                userdel wazuh-dashboard >/dev/null 2>&1
+            fi
+            # Remove the wazuh-dashboard group if it exists
+            if command -v getent > /dev/null 2>&1 && getent group wazuh-dashboard > /dev/null 2>&1; then
+                groupdel wazuh-dashboard >/dev/null 2>&1
+            elif id -g wazuh-dashboard > /dev/null 2>&1; then
+                groupdel wazuh-dashboard >/dev/null 2>&1
+            fi
+        fi
+        ;;
+
+        purge)
+
+        if getent passwd | grep -q "^wazuh-dashboard" ; then
+            deluser wazuh-dashboard > /dev/null 2>&1
+        fi
+        if getent group | grep -q "^wazuh-dashboard" ; then
+            delgroup wazuh-dashboard > /dev/null 2>&1
+        fi
+        rm -rf ${USR_DIR} ${ETC_DIR}
+
+    ;;
+
+    upgrade)
+
+    ;;
+
+    *)
+        echo "postrm called with unknown argument \`$1'" >&2
+        exit 1
+
+    ;;
+
+esac
+
+exit 0

@@ -1,0 +1,31 @@
+#!/bin/sh
+# prerm script for wazuh-dashboard
+
+set -x
+
+DIR="/"
+USR_DIR="/usr/share/wazuh-dashboard"
+ETC_DIR="/usr/share/wazuh-dashboard"
+
+case "$1" in
+    upgrade|deconfigure)
+
+    ;;
+
+    remove|failed-upgrade)
+        if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-dashboard > /dev/null 2>&1; then
+            systemctl stop wazuh-dashboard.service > /dev/null 2>&1
+        # Check for SysV
+        elif command -v service > /dev/null 2>&1 && service wazuh-dashboard status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
+            service wazuh-dashboard stop > /dev/null 2>&1
+        fi
+    ;;
+
+    *)
+        echo "prerm called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+
+esac
+
+exit 0

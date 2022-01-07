@@ -1,0 +1,4 @@
+Template: wazuh-dashboard/server-ip
+Type: string
+Default: 127.0.0.1
+Description: Server IP address for Wazuh Dashboard.
