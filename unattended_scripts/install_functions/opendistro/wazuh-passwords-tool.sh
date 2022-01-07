@@ -23,7 +23,7 @@ changePassword() {
     if [ -n "${changeall}" ]; then
         for i in "${!passwords[@]}"
         do  
-            if [ -n "${elasticsearchinstalled}" ]; then
+            if [ -n "${elasticsearchinstalled}" ] && [ -f "/usr/share/elasticsearch/backup/internal_users.yml" ]; then
                 awk -v new=${hashes[i]} 'prev=="'${users[i]}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/elasticsearch/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
             fi
             
@@ -35,7 +35,7 @@ changePassword() {
 
         done
     else
-        if [ -n "${elasticsearchinstalled}" ]; then
+        if [ -n "${elasticsearchinstalled}" ] && [ -f "/usr/share/elasticsearch/backup/internal_users.yml" ]; then
             awk -v new="$hash" 'prev=="'${nuser}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/elasticsearch/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
         fi
 
@@ -469,16 +469,6 @@ User:
   password: kibanaserverpassword"
 
 	    exit 1
-    fi	
-
-    if [ ! -n "$users" ]; then 
-        if [ -n "${kibanainstalled}" ] && [ -z "${changeall}" ]; then 
-            users=( kibanaserver admin )
-        fi
-
-        if [ -n "${filebeatinstalled}" ] && [ -z "${changeall}" ]; then 
-            users=( admin )
-        fi
     fi
 
     sfileusers=$(grep name: ${p_file} | awk '{ print substr( $2, 1, length($2) ) }')
@@ -509,17 +499,17 @@ User:
         finalusers=()
         finalpasswords=()
 
-        for j in "${!users[@]}"; do
+        for j in "${!fileusers[@]}"; do
             supported=false
-            for i in "${!fileusers[@]}"; do
-                if [[ "${fileusers[i]}" == "${users[j]}" ]]; then
-                    finalusers+=(${users[j]})
+            for i in "${!users[@]}"; do
+                if [[ "${users[i]}" == "${fileusers[j]}" ]]; then
+                    finalusers+=(${fileusers[j]})
                     finalpasswords+=(${filepasswords[j]})
                     supported=true
                 fi
             done
             if [ ${supported} = false ] && [ -n "${elasticsearchinstalled}" ]; then
-                logger_pass -e "The given user ${users[j]} does not exist"
+                logger_pass -e "The given user ${fileusers[j]} does not exist"
             fi
         done
 

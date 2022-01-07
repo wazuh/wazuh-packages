@@ -87,7 +87,7 @@ function changePasswords() {
             changeall=1
             readUsers
         fi
-        readFileUsers
+        readPasswordFileUsers
     else 
         logger -e "Cannot find passwords-file. Exiting"
         exit 1
@@ -158,6 +158,81 @@ function installPrerequisites() {
         logger "All necessary utility installation finished."
     fi
     
+}
+
+readPasswordFileUsers() {
+
+    filecorrect=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' ${p_file})
+    if [ "${filecorrect}" -ne 1 ]; then
+        logger_pass -e "The password file doesn't have a correct format.
+
+It must have this format:
+User:
+  name: wazuh
+  password: wazuhpassword
+User:
+  name: kibanaserver
+  password: kibanaserverpassword"
+
+	    exit 1
+    fi
+
+    sfileusers=$(grep name: ${p_file} | awk '{ print substr( $2, 1, length($2) ) }')
+    sfilepasswords=$(grep password: ${p_file} | awk '{ print substr( $2, 1, length($2) ) }')
+
+    fileusers=($sfileusers)
+    filepasswords=($sfilepasswords)
+
+    if [ -n "${verboseenabled}" ]; then
+        logger_pass "Users in the file: ${fileusers[@]}"
+        logger_pass "Passwords in the file: ${filepasswords[@]}"
+    fi
+
+    if [ -n "${changeall}" ]; then
+        for j in "${!fileusers[@]}"; do
+            supported=false
+            for i in "${!users[@]}"; do
+                if [[ ${users[i]} == ${fileusers[j]} ]]; then
+                    passwords[i]=${filepasswords[j]}
+                    supported=true
+                fi
+            done
+            if [ "${supported}" = false ] && [ -n "${elasticsearchinstalled}" ]; then
+                logger_pass -e "The given user ${fileusers[j]} does not exist"
+            fi
+        done
+    else
+        finalusers=()
+        finalpasswords=()
+
+        if [ -n "${kibanainstalled}" ]; then 
+            users=( kibanaserver admin )
+        fi
+
+        if [ -n "${filebeatinstalled}" ]; then 
+            users=( admin )
+        fi
+
+        for j in "${!fileusers[@]}"; do
+            supported=false
+            for i in "${!users[@]}"; do
+                if [[ "${users[i]}" == "${fileusers[j]}" ]]; then
+                    finalusers+=(${fileusers[j]})
+                    finalpasswords+=(${filepasswords[j]})
+                    supported=true
+                fi
+            done
+            if [ ${supported} = false ] && [ -n "${elasticsearchinstalled}" ] && [ -n "${changeall}" ]; then
+                logger_pass -e "The given user ${fileusers[j]} does not exist"
+            fi
+        done
+
+        users=()
+        users=(${finalusers[@]})
+        passwords=(${finalpasswords[@]})
+        changeall=1
+    fi
+
 }
 
 function restoreWazuhrepo() {
@@ -327,7 +402,7 @@ function startService() {
         eval "systemctl start $1.service ${debug}"
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
-            rollBack
+            rollBack ${1}
             exit 1
         else
             logger "${1^} service started."
@@ -338,7 +413,7 @@ function startService() {
         eval "/etc/init.d/$1 start ${debug}"
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
-            rollBack
+            rollBack ${1}
             exit 1
         else
             logger "${1^} service started."
@@ -347,7 +422,7 @@ function startService() {
         eval "/etc/rc.d/init.d/$1 start ${debug}"
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
-            rollBack
+            rollBack ${1}
             exit 1
         else
             logger "${1^} service started."

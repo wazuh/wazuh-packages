@@ -183,7 +183,7 @@ function installElasticsearch() {
 
     if [  "$?" != 0  ]; then
         logger -e "Elasticsearch installation failed."
-        rollBack
+        rollBack elasticsearch
         exit 1
     else
         elasticsearchinstalled="1"
@@ -199,7 +199,7 @@ function startElasticsearchCluster() {
     eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${elasticsearch_cluster_ip} > /dev/null ${debug}"
     if [  "$?" != 0  ]; then
         logger -e "The Elasticsearch cluster could not be initialized."
-        rollBack
+        rollBack elasticsearch
         exit 1
     else
         logger "Elasticsearch cluster initialized."
@@ -207,7 +207,7 @@ function startElasticsearchCluster() {
     eval "curl --silent ${filebeat_wazuh_template} | curl -X PUT 'https://${elasticsearch_node_ips[pos]}:9200/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k --silent ${debug}"
     if [  "$?" != 0  ]; then
         logger -e "The wazuh-alerts template could not be inserted into the Elasticsearch cluster."
-        rollBack
+        rollBack elasticsearch
         exit 1
     else
         logger "wazuh-alerts template inserted into the Elasticsearch cluster."

@@ -51,7 +51,8 @@ function installWazuh() {
     fi
     if [  "$?" != 0  ]; then
         logger -e "Wazuh installation failed"
-        rollBack
+        rollBack filebeat
+        rollBack wazuh
         exit 1
     else
         wazuhinstalled="1"
