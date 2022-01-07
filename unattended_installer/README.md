@@ -164,15 +164,13 @@ After describing the architecture, certificates must be created:
 </details>
 <br>
 
-Copy the `certs.tar` and `config.yml` in all the nodes, at the same level as `wazuh_install.sh`. 
-
-After `certs.tar` and `config.yml` distribution over all nodes, you can start installing components:
+Copy the `certs.tar` and `config.yml` in all the nodes, at the same level as `wazuh_install.sh`. After `certs.tar` and `config.yml` distribution over all nodes, you can start installing components:
 
 **Host #1**
 
 Install Elasticsearch:
 ```
-./wazuh_install.sh -l -e elastic1 -i
+./wazuh_install.sh -l -e elastic1
 ```
 <details><summary>Output</summary>
 
@@ -197,7 +195,7 @@ Install Elasticsearch:
 
 Install Wazuh server:
 ```
-./wazuh_install.sh -l -w manager1 -i
+./wazuh_install.sh -l -w manager1
 ```
 <details><summary>Output</summary>
 
@@ -225,7 +223,7 @@ Install Wazuh server:
 </details>
 <br>
 
-Repeat the described Elasticsearch and Wazuh servers steps on **hosts #2 and #3** changing the node name `elastic1` by `elastic2` or `elastic3` and `manager1` by `manager2` or `manager3`.
+Repeat the described Elasticsearch and Wazuh servers steps on **host #2**: run `./wazuh_install.sh -l -e elastic2` and `./wazuh_install.sh -l -w manager2`. Same for **host #3**:  run `./wazuh_install.sh -l -e elastic3` and `./wazuh_install.sh -l -w manager3`. Note that it changed component name.
 
 After having three hosts with Elasticsearch and Wazuh server installed, choose an Elasticsearch node and run the following command to initialize the security configuration:
 ```
@@ -251,9 +249,9 @@ After having three hosts with Elasticsearch and Wazuh server installed, choose a
 </details>
 <br>
 
-Lastly, install Kibana. Chose the node where you want to install Kibana and run the following command using the corresponding node name. In this example, Kibana will be installed in #2 host:
+Lastly, install Kibana. Choose the node where you want to install Kibana and run the following command using the corresponding node name. In this example, Kibana will be installed in #2 host:
 ```
-./wazuh_install.sh -l -k kibana2 -i
+./wazuh_install.sh -l -k kibana2
 ```
 <details><summary>Output</summary>
 
@@ -416,7 +414,7 @@ Install Elasticsearch node:
 ./wazuh_install.sh -l -e elastic3
 ```
 
-**At any elasticsearch host**
+**On any elasticsearch host**
 On any elasticsearch host (#3, #4 or #5 in our example), run:
 ```
 ./wazuh_install.sh -l -s
@@ -497,7 +495,7 @@ DESCRIPTION
                 Elasticsearch installation.
 
         -f,  --fileconfig <path-to-config-yml>
-                Path to config file. By default: /home/alberpilot/repositories/wazuh-packages/unattended_installer/config.yml
+                Path to config file. By default: wazuh-packages/unattended_installer/config.yml
 
         -h,  --help
                 Shows help.
@@ -518,7 +516,7 @@ DESCRIPTION
                 Starts the Elasticsearch cluster.
 
         -t,  --tar <path-to-certs-tar
-                Path to tar containing certificate files. By default: /home/alberpilot/repositories/wazuh-packages/unattended_installer/certs.tar
+                Path to tar containing certificate files. By default: wazuh-packages/unattended_installer/certs.tar
 
         -u,  --uninstall
                 Uninstalls all Wazuh components. NOTE: This will erase all the existing configuration and data.
