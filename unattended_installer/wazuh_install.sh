@@ -302,6 +302,15 @@ function main() {
     importFunction "wazuh-cert-tool.sh"
     importFunction "wazuh-passwords-tool.sh"
 
+# -------------- Uninstall case  ------------------------------------
+
+    if [ -n "${uninstall}" ]; then
+        logger "Removing all installed components."
+        rollBack
+        logger "All components removed."
+        exit 0
+    fi
+    
     checkArch
     checkSystem
     checkIfInstalled
@@ -312,15 +321,6 @@ function main() {
     fi
     checkArguments "${nargs}"
     readConfig
-
-# -------------- Uninstall case  ------------------------------------
-
-    if [ -n "${uninstall}" ]; then
-        logger "Removing all installed components."
-        rollBack
-        logger "All components removed."
-        exit 0
-    fi
     
     # Distributed architecture: node names must be different
     if [ -z "${AIO}" ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
