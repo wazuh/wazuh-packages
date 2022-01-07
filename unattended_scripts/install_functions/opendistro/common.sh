@@ -160,7 +160,7 @@ function installPrerequisites() {
     
 }
 
-readPasswordFileUsers() {
+function readPasswordFileUsers() {
 
     filecorrect=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' ${p_file})
     if [ "${filecorrect}" -ne 1 ]; then
@@ -205,11 +205,11 @@ User:
         finalusers=()
         finalpasswords=()
 
-        if [ -n "${kibanainstalled}" ]; then 
+        if [ -n "${kibanainstalled}" ] &&  [ -n "${kibana}" ]; then 
             users=( kibanaserver admin )
         fi
 
-        if [ -n "${filebeatinstalled}" ]; then 
+        if [ -n "${filebeatinstalled}" ] && [ -n "${wazuh}" ]; then 
             users=( admin )
         fi
 
