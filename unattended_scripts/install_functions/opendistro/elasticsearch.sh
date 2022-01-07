@@ -168,7 +168,6 @@ function initializeElasticsearch() {
         rollBack elasticsearch
         exit 1
     fi
-    set +X
     if [ "${#elasticsearch_node_names[@]}" -eq 1 ]; then
         startElasticsearchCluster
     fi
