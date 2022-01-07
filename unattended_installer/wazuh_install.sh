@@ -304,16 +304,15 @@ function main() {
 
 # -------------- Uninstall case  ------------------------------------
 
+    checkIfInstalled
     if [ -n "${uninstall}" ]; then
         logger "Removing all installed components."
         rollBack
         logger "All components removed."
         exit 0
     fi
-    
     checkArch
     checkSystem
-    checkIfInstalled
     if [ -n "${ignore}" ]; then
         logger -w "Health-check ignored."
     else
@@ -456,6 +455,7 @@ function main() {
 }
 
 function spin() {
+
     trap "{ tput el1; exit 0; }" 15
     spinner="/|\\-/|\\-"
     trap "echo ''" EXIT
