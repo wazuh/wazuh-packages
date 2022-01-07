@@ -2,14 +2,24 @@
 # postinst script for wazuh-dashboard
 # Wazuh, Inc 2015-2020
 
-set -x
-DIR="/"
-USR_DIR="/usr/share/wazuh-dashboard"
-ETC_DIR="/usr/share/wazuh-dashboard"
+set -e
+
+export NAME=wazuh-dashboard
+export CONFIG_DIR=/etc/${NAME}
+export INSTALLATION_DIR=/usr/share/${NAME}
+export LOG_DIR=/var/log/${NAME}
+
+
+# Setting Owner and group of own folders
+chown -R ${NAME}:${NAME} ${CONFIG_DIR}
+chown -R ${NAME}:${NAME} ${INSTALLATION_DIR}
+chown -R ${NAME}:${NAME} ${LOG_DIR}
+chown -R ${NAME}:${NAME} /etc/default/${NAME}
+chown -R ${NAME}:${NAME} /etc/init.d/${NAME}
 
 case "$1" in
     configure)
-        setcap 'cap_net_bind_service=+ep' /usr/share/wazuh-dashboard/node/bin/node
+        setcap 'cap_net_bind_service=+ep' ${INSTALLATION_DIR}/node/bin/node
         if [ -f ${USR_DIR}/wazuh-dashboard.restart ]; then
         rm -f ${USR_DIR}/wazuh-dashboard.restart
             if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 ; then

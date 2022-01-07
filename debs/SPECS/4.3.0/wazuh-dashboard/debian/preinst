@@ -1,54 +1,114 @@
 #!/bin/sh
 # preinst script for wazuh-dashboard
 
-set -x
+set -e
+
+#
+# This script is executed in the pre-installation phase
+#
+#   On Debian,
+#       $1=install : indicates an new install
+#       $1=upgrade : indicates an upgrade
+#
+#   On RedHat,
+#       $1=1       : indicates an new install
+#       $1=2       : indicates an upgrade
 
 # configuration variables
-DIR="/"
-USR_DIR="/usr/share/wazuh-dashboard"
-ETC_DIR="/etc/wazuh-dashboard"
-
+export NAME=wazuh-dashboard
+export CONFIG_DIR=/etc/${NAME}
+export INSTALLATION_DIR=/usr/share/${NAME}
+export LOG_DIR=/var/log/${NAME}
 
 # environment configuration
-if [ ! -d ${USR_DIR} ]; then
-    mkdir -p ${USR_DIR}
-    mkdir -p ${ETC_DIR}
+if [ ! -d ${INSTALLATION_DIR} ]; then
+    mkdir -p ${CONFIG_DIR}
+    mkdir -p ${INSTALLATION_DIR}
+    mkdir -p ${LOG_DIR}
 
 else
-    rm -rf ${USR_DIR}
-    mkdir -p ${USR_DIR}
-    rm -rf ${ETC_DIR}
-    mkdir -p ${ETC_DIR}
+    rm -rf ${INSTALLATION_DIR}
+    mkdir -p ${INSTALLATION_DIR}
+    rm -rf ${CONFIG_DIR}
+    mkdir -p ${CONFIG_DIR}
+    rm -rf ${LOG_DIR}
+    mkdir -p ${LOG_DIR}
 fi
 
 case "$1" in
+    # Debian ####################################################
     install|upgrade)
-        # Create the wazuh-dashboard group if it doesn't exists
-        if command -v getent > /dev/null 2>&1 && ! getent group wazuh-dashboard > /dev/null 2>&1; then
-        groupadd -r wazuh-dashboard
-        elif ! id -g wazuh-dashboard > /dev/null 2>&1; then
-        groupadd -r wazuh-dashboard
+
+        # Create wazuh-indexer group if not existing
+        if ! getent group ${NAME} > /dev/null 2>&1 ; then
+            echo -n "Creating ${NAME} group..."
+            addgroup --quiet --system ${NAME}
+            echo " OK"
         fi
-        # Create the wazuh-dashboard user if it doesn't exists
-        if ! id -u wazuh-dashboard > /dev/null 2>&1; then
-        useradd -g wazuh-dashboard -G wazuh-dashboard -d /usr/share/wazuh-dashboard/ -r -s /sbin/nologin wazuh-dashboard
+
+        # Create wazuh-indexer user if not existing
+        if ! id ${NAME} > /dev/null 2>&1 ; then
+            echo -n "Creating ${NAME} user..."
+            adduser --quiet \
+                    --system \
+                    --no-create-home \
+                    --home /nonexistent \
+                    --ingroup ${NAME} \
+                    --disabled-password \
+                    --shell /bin/false \
+                    ${NAME}
+            echo " OK"
         fi
 
         # Stop the services to upgrade the package
         if [ $1 = 2 ]; then
-        if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-dashboard > /dev/null 2>&1; then
-            systemctl stop wazuh-dashboard.service > /dev/null 2>&1
-            touch ${USR_DIR}/wazuh-dashboard.restart
+        if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet ${NAME} > /dev/null 2>&1; then
+            systemctl stop ${NAME}.service > /dev/null 2>&1
+            touch ${INSTALLATION_DIR}/${NAME}.restart
         # Check for SysV
-        elif command -v service > /dev/null 2>&1 && service wazuh-dashboard status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
-            service wazuh-dashboard stop > /dev/null 2>&1
-            touch ${USR_DIR}/wazuh-dashboard.restart
+        elif command -v service > /dev/null 2>&1 && service ${NAME} status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
+            service ${NAME} stop > /dev/null 2>&1
+            touch ${INSTALLATION_DIR}/${NAME}.restart
         fi
         fi
     ;;
+    abort-deconfigure|abort-upgrade|abort-remove)
+    ;;
 
-    abort-upgrade)
+    # RedHat ####################################################
+    1|2)
 
+        # Create wazuh-indexer group if not existing
+        if ! getent group ${NAME} > /dev/null 2>&1 ; then
+            echo -n "Creating ${NAME} group..."
+            groupadd -r ${NAME}
+            echo " OK"
+        fi
+
+        # Create wazuh-indexer user if not existing
+        if ! id ${NAME} > /dev/null 2>&1 ; then
+            echo -n "Creating ${NAME} user..."
+            useradd --system \
+                    --no-create-home \
+                    --home-dir /nonexistent \
+                    --gid ${NAME} \
+                    --shell /sbin/nologin \
+                    --comment "${NAME} user" \
+                    ${NAME}
+            echo " OK"
+        fi
+
+        # Stop the services to upgrade the package
+        if [ $1 = 2 ]; then
+        if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet ${NAME} > /dev/null 2>&1; then
+            systemctl stop ${NAME}.service > /dev/null 2>&1
+            touch ${INSTALLATION_DIR}/${NAME}.restart
+        # Check for SysV
+        elif command -v service > /dev/null 2>&1 && service ${NAME} status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
+            service ${NAME} stop > /dev/null 2>&1
+            touch ${INSTALLATION_DIR}/${NAME}.restart
+        fi
+        fi
     ;;
 
     *)

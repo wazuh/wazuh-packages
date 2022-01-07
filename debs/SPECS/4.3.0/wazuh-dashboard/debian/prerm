@@ -1,24 +1,55 @@
 #!/bin/sh
 # prerm script for wazuh-dashboard
 
-set -x
+set -e
 
-DIR="/"
-USR_DIR="/usr/share/wazuh-dashboard"
-ETC_DIR="/usr/share/wazuh-dashboard"
+export NAME=wazuh-dashboard
+export CONFIG_DIR=/etc/${NAME}
+export INSTALLATION_DIR=/usr/share/${NAME}
+
+#
+# This script is executed in the pre-remove phase
+#
+#   On Debian,
+#       $1=remove    : indicates a removal
+#       $1=upgrade   : indicates an upgrade
+#
+#   On RedHat,
+#       $1=0         : indicates a removal
+#       $1=1         : indicates an upgrade
+
+# source the default env file
+if [ -f "/etc/default/${NAME}" ]; then
+    . "/etc/default/${NAME}"
+fi
+
+STOP_REQUIRED=false
+REMOVE_SERVICE=false
 
 case "$1" in
-    upgrade|deconfigure)
 
+
+    # Debian ####################################################
+    remove)
+        STOP_REQUIRED=true
+        REMOVE_SERVICE=true
+    ;;
+    upgrade)
+        if [ "$RESTART_ON_UPGRADE" = "true" ]; then
+            STOP_REQUIRED=true
+        fi
+    ;;
+    deconfigure|failed-upgrade)
     ;;
 
-    remove|failed-upgrade)
-        if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-dashboard > /dev/null 2>&1; then
-            systemctl stop wazuh-dashboard.service > /dev/null 2>&1
-        # Check for SysV
-        elif command -v service > /dev/null 2>&1 && service wazuh-dashboard status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
-            service wazuh-dashboard stop > /dev/null 2>&1
-        fi
+
+    # RedHat ####################################################
+    0)
+        STOP_REQUIRED=true
+        REMOVE_SERVICE=true
+    ;;
+    1)
+        # Dont do anything on upgrade, because the preun script in redhat gets executed after the postinst (madness!)
     ;;
 
     *)
@@ -28,4 +59,39 @@ case "$1" in
 
 esac
 
-exit 0
+# Stops the service
+if [ "$STOP_REQUIRED" = "true" ]; then
+    echo -n "Stopping wazuh-dashboard service..."
+    if command -v systemctl >/dev/null; then
+        systemctl --no-reload stop ${NAME}.service
+
+    elif [ -x /etc/init.d/${NAME} ]; then
+        if command -v invoke-rc.d >/dev/null; then
+            invoke-rc.d ${NAME} stop
+        else
+            /etc/init.d/${NAME} stop
+        fi
+
+    # older suse linux distributions do not ship with systemd
+    # but do not have an /etc/init.d/ directory
+    # this tries to start the wazuh-dashboard service on these
+    # as well without failing this script
+    elif [ -x /etc/rc.d/init.d/${NAME} ] ; then
+        /etc/rc.d/init.d/${NAME} stop
+    fi
+    echo " OK"
+fi
+
+if [ "$REMOVE_SERVICE" = "true" ]; then
+    if command -v systemctl >/dev/null; then
+        systemctl disable ${NAME}.service > /dev/null 2>&1 || true
+    fi
+
+    if command -v chkconfig >/dev/null; then
+        chkconfig --del ${NAME} 2> /dev/null || true
+    fi
+
+    if command -v update-rc.d >/dev/null; then
+        update-rc.d ${NAME} remove >/dev/null || true
+    fi
+fi

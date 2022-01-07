@@ -17,6 +17,7 @@ JOBS="2"
 DEBUG="no"
 BUILD_DOCKER="yes"
 INSTALLATION_PATH="/var/ossec"
+INSTALLATION_PATH_DASHBOARD="/usr/share/wazuh-dashboard"
 DEB_AMD64_BUILDER="deb_builder_amd64"
 DEB_I386_BUILDER="deb_builder_i386"
 DEB_PPC64LE_BUILDER="deb_builder_ppc64le"
@@ -55,6 +56,9 @@ build_deb() {
     CONTAINER_NAME="$1"
     DOCKERFILE_PATH="$2"
 
+    if [[ "${TARGET}" == "dashboard" ]]; then
+        INSTALLATION_PATH=${INSTALLATION_PATH_DASHBOARD}
+    fi
     # Copy the necessary files
     cp ${CURRENT_PATH}/build.sh ${DOCKERFILE_PATH}
 

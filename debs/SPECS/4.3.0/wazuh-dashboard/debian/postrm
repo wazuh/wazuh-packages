@@ -2,51 +2,108 @@
 # postrm script for wazuh-dashboard
 # Wazuh, Inc 2015-2020
 
-set -x
+set -e
 
-DIR="/"
-USR_DIR="/usr/share/wazuh-dashboard"
-ETC_DIR="/usr/share/wazuh-dashboard"
+export NAME=wazuh-dashboard
+export CONFIG_DIR=/etc/${NAME}
+export INSTALLATION_DIR=/usr/share/${NAME}
+export LOG_DIR=/var/log/${NAME}
+
+#
+# This script is executed in the post-removal phase
+#
+#   On Debian,
+#       $1=remove    : indicates a removal
+#       $1=purge     : indicates an upgrade
+#
+#   On RedHat,
+#       $1=0         : indicates a removal
+#       $1=1         : indicates an upgrade
+
+# source the default env file
+if [ -f "/etc/default/${NAME}" ]; then
+    . "/etc/default/${NAME}"
+fi
+
+
+REMOVE_DIRS=false
+REMOVE_CONFIG_DIRECTORY=false
+REMOVE_USER_AND_GROUP=false
+
 
 case "$1" in
-    remove|failed-upgrade|abort-install|abort-upgrade|disappear)
-
-        if [ $1 = 0 ];then
-            # Remove the wazuh-dashboard user if it exists
-            if id -u wazuh-dashboard > /dev/null 2>&1; then
-                userdel wazuh-dashboard >/dev/null 2>&1
-            fi
-            # Remove the wazuh-dashboard group if it exists
-            if command -v getent > /dev/null 2>&1 && getent group wazuh-dashboard > /dev/null 2>&1; then
-                groupdel wazuh-dashboard >/dev/null 2>&1
-            elif id -g wazuh-dashboard > /dev/null 2>&1; then
-                groupdel wazuh-dashboard >/dev/null 2>&1
-            fi
-        fi
-        ;;
-
-        purge)
-
-        if getent passwd | grep -q "^wazuh-dashboard" ; then
-            deluser wazuh-dashboard > /dev/null 2>&1
-        fi
-        if getent group | grep -q "^wazuh-dashboard" ; then
-            delgroup wazuh-dashboard > /dev/null 2>&1
-        fi
-        rm -rf ${USR_DIR} ${ETC_DIR}
-
+    remove)
+        REMOVE_DIRS=true
     ;;
 
-    upgrade)
-
+    purge)
+        REMOVE_DIRS=true
+        REMOVE_CONFIG_DIRECTORY=true
+        REMOVE_USER_AND_GROUP=true
+    ;;
+    failed-upgrade|abort-install|abort-upgrade|disappear)
     ;;
 
-    *)
-        echo "postrm called with unknown argument \`$1'" >&2
+
+    # RedHat ####################################################
+    0)
+        REMOVE_DIRS=true
+        REMOVE_USER_AND_GROUP=true
+    ;;
+    1)
+        # If $1=1 this is an upgrade
+        IS_UPGRADE=true
+    ;;
+
+    *)  
+
+        echo "post remove script called with unknown argument \`$1'" >&2
         exit 1
-
     ;;
-
 esac
 
-exit 0
+
+if [ "$REMOVE_DIRS" = "true" ]; then
+
+    if [ -d ${LOG_DIR} ]; then
+        echo -n "Deleting log directory..."
+        rm -rf ${LOG_DIR}
+        echo " OK"
+    fi
+
+    if [ -d ${INSTALLATION_DIR} ]; then
+        echo -n "Deleting installation directory..."
+        rm -rf ${INSTALLATION_DIR}
+        echo " OK"
+    fi
+
+    if [ -d /etc/default/${NAME} ]; then
+        echo -n "Deleting Default File..."
+        rm -rf /etc/default/${NAME}
+        echo " OK"
+    fi
+
+    # Delete the data directory if we are purging
+    if [ -d /etc/init.d/${NAME} ]; then
+        rm -rf /etc/init.d/${NAME}
+        echo " OK"
+    fi
+
+    # Delete the config directory if we are purging
+    if [ "$REMOVE_CONFIG_DIRECTORY" = "true" ]; then
+        rm -rf ${CONFIG_DIR}
+        echo " OK"
+    fi
+
+fi
+
+
+if [ "$REMOVE_USER_AND_GROUP" = "true" ]; then
+    if id ${NAME} > /dev/null 2>&1 ; then
+        userdel ${NAME}
+    fi
+
+    if getent group ${NAME} > /dev/null 2>&1 ; then
+        groupdel ${NAME}
+    fi
+fi
