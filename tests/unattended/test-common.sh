@@ -1,7 +1,65 @@
 #!/usr/bin/env bash
+JAIL=/var/jail
+
+mkdir -p $JAIL/{dev,etc,lib,lib64,usr,bin}
+mkdir -p $JAIL/usr/bin
+chown root.root $JAIL
+
+mknod -m 666 $JAIL/dev/null c 1 3
+
+JAIL_BIN=$JAIL/usr/bin/
+JAIL_ETC=$JAIL/etc/
+
+cp /etc/ld.so.cache $JAIL_ETC
+cp /etc/ld.so.conf $JAIL_ETC
+cp /etc/nsswitch.conf $JAIL_ETC
+cp /etc/hosts $JAIL_ETC
+
+copy_binary() {
+    BINARY=$(command -v $1)
+    
+    cp $BINARY $JAIL/$BINARY
+    
+    copy_dependencies $BINARY
+}
+
+# http://www.cyberciti.biz/files/lighttpd/l2chroot.txt
+copy_dependencies() {
+    FILES="$(ldd $1 | awk '{ print $3 }' |egrep -v ^'\(')"
+    
+    echo "Copying shared files/libs to $JAIL..."
+    
+    for i in $FILES
+    do
+        d="$(dirname $i)"
+        
+        [ ! -d $JAIL$d ] && mkdir -p $JAIL$d || :
+        
+        /bin/cp $i $JAIL$d
+    done
+    
+    sldl="$(ldd $1 | grep 'ld-linux' | awk '{ print $1}')"
+    
+    # now get sub-dir
+    sldlsubdir="$(dirname $sldl)"
+    
+    if [ ! -f $JAIL$sldl ];
+    then
+        echo "Copying $sldl $JAIL$sldlsubdir..."
+        /bin/cp $sldl $JAIL$sldlsubdir
+    else
+        :
+    fi
+}
+
+copy_binary ls
+copy_binary sh
+copy_binary bash
+
 set -euo pipefail
 base_dir="$(cd ../../"$(dirname "$BASH_SOURCE")"; pwd -P; cd - >/dev/null;)"
 source "${base_dir}"/tests/bach.sh
+#source "${base_dir}"/tests/mk-chroot-jail.sh
 
 @setup-test {
     @ignore logger
@@ -284,9 +342,9 @@ test-installPrerequisites-apt-assert() {
     apt-get install apt-transport-https curl unzip wget libcap2-bin tar gnupg -y
 }
 
-# function load-addWazuhrepo() {
-#     @load_function "${base_dir}/unattended_scripts/install_functions/opendistro/common.sh" addWazuhrepo
-# }
+function load-addWazuhrepo() {
+    @load_function "${base_dir}/unattended_scripts/install_functions/opendistro/common.sh" addWazuhrepo
+}
 
 # test-addWazuhrepo-yum() {
 #     load-addWazuhrepo
@@ -295,12 +353,9 @@ test-installPrerequisites-apt-assert() {
 #     debug=""
 #     repogpg=""
 #     releasever=""
-#     @rm /etc/yum.repos.d/wazuh.repo
-#     @rm /etc/zypp/repos.d/wazuh.repo
-#     @rm /etc/apt/sources.list.d/wazuh.list
 #     @mocktrue echo -e '[wazuh]\ngpgcheck=1\ngpgkey=\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=/yum/\nprotect=1' 
 #     @mocktrue tee /etc/yum.repos.d/wazuh.repo
-#     addWazuhrepo
+#     @real chroot $JAIL addWazuhrepo
 # }
 
 # test-addWazuhrepo-yum-assert() {
@@ -1189,3 +1244,376 @@ test-rollBack-kibana-arg-all-installed-apt-assert() {
     rm -rf /usr/share/kibana/
     rm -rf /etc/kibana/
 }
+
+test-rollBack-no-arguments-nothing-installed() {
+    load-rollBack
+    elasticsearchinstalled=
+    wazuhinstalled=
+    kibanainstalled=
+    filebeatinstalled=
+    wazuh_remaining_files=
+    elastic_remaining_files=
+    kibana_remaining_files=
+    filebeat_remaining_files=
+    sys_type="yum"
+    debug=
+    rollBack
+    @assert-success
+}
+
+test-rollBack-no-arguments-all-remaining-files-yum() {
+    load-rollBack
+    elasticsearchinstalled=
+    wazuhinstalled=
+    kibanainstalled=
+    filebeatinstalled=
+    wazuh_remaining_files=1
+    elastic_remaining_files=1
+    kibana_remaining_files=1
+    filebeat_remaining_files=1
+    sys_type="yum"
+    debug=
+    rollBack
+}
+
+test-rollBack-no-arguments-all-remaining-files-yum-assert() {
+    rm -rf /var/ossec/
+
+    rm -rf /var/lib/elasticsearch/
+    rm -rf /usr/share/elasticsearch/
+    rm -rf /etc/elasticsearch/
+
+    rm -rf /var/lib/filebeat/
+    rm -rf /usr/share/filebeat/
+    rm -rf /etc/filebeat/
+
+    rm -rf /var/lib/kibana/
+    rm -rf /usr/share/kibana/
+    rm -rf /etc/kibana/
+}
+
+test-rollBack-no-arguments-all-remaining-files-zypper() {
+    load-rollBack
+    elasticsearchinstalled=
+    wazuhinstalled=
+    kibanainstalled=
+    filebeatinstalled=
+    wazuh_remaining_files=1
+    elastic_remaining_files=1
+    kibana_remaining_files=1
+    filebeat_remaining_files=1
+    sys_type="zypper"
+    debug=
+    rollBack
+}
+
+test-rollBack-no-arguments-all-remaining-files-zypper-assert() {
+    rm -rf /var/ossec/
+
+    rm -rf /var/lib/elasticsearch/
+    rm -rf /usr/share/elasticsearch/
+    rm -rf /etc/elasticsearch/
+
+    rm -rf /var/lib/filebeat/
+    rm -rf /usr/share/filebeat/
+    rm -rf /etc/filebeat/
+
+    rm -rf /var/lib/kibana/
+    rm -rf /usr/share/kibana/
+    rm -rf /etc/kibana/
+}
+
+test-rollBack-no-arguments-all-remaining-files-apt() {
+    load-rollBack
+    elasticsearchinstalled=
+    wazuhinstalled=
+    kibanainstalled=
+    filebeatinstalled=
+    wazuh_remaining_files=1
+    elastic_remaining_files=1
+    kibana_remaining_files=1
+    filebeat_remaining_files=1
+    sys_type="apt-get"
+    debug=
+    rollBack
+}
+
+test-rollBack-no-arguments-all-remaining-files-apt-assert() {
+    rm -rf /var/ossec/
+
+    rm -rf /var/lib/elasticsearch/
+    rm -rf /usr/share/elasticsearch/
+    rm -rf /etc/elasticsearch/
+
+    rm -rf /var/lib/filebeat/
+    rm -rf /usr/share/filebeat/
+    rm -rf /etc/filebeat/
+
+    rm -rf /var/lib/kibana/
+    rm -rf /usr/share/kibana/
+    rm -rf /etc/kibana/
+}
+
+# test-rollBack-nothing-installed-remove-yum-repo() {
+#     load-rollBack
+#     #@mocktrue -f /etc/yum.repos.d/wazuh.repo
+#     rollBack
+# }
+
+# test-rollBack-nothing-installed-remove-yum-repo-assert() {
+#     rm /etc/yum.repos.d/wazuh.repo
+# }
+
+# test-rollBack-nothing-installed-remove-zypper-repo() {
+#     load-rollBack
+#     #@mocktrue -f /etc/zypp/repos.d/wazuh.repo
+#     rollBack
+# }
+
+# test-rollBack-nothing-installed-remove-zypper-repo-assert() {
+#     rm /etc/zypp/repos.d/wazuh.repo
+# }
+
+# test-rollBack-nothing-installed-remove-zypper-repo() {
+#     load-rollBack
+#     #@mocktrue -f /etc/apt/sources.list.d/wazuh.list
+#     rollBack
+# }
+
+# test-rollBack-nothing-installed-remove-zypper-repo-assert() {
+#     rm /etc/apt/sources.list.d/wazuh.list
+# }
+
+# test-rollBack-nothing-installed-remove-/var/log/elasticsearch/() {
+#     load-rollBack
+#     #@mocktrue -d /var/log/elasticsearch/
+#     rollBack
+# }
+
+# test-rollBack-nothing-installed-remove-/var/log/elasticsearch/-assert() {
+#     rm -rf /var/log/elasticsearch/
+# }
+
+# test-rollBack-nothing-installed-remove-/var/log/filebeat/() {
+#     load-rollBack
+#     #@mocktrue -d /var/log/filebeat/
+#     rollBack
+# }
+
+# test-rollBack-nothing-installed-remove-/var/log/filebeat/-assert() {
+#     rm -rf /var/log/filebeat/
+# }
+
+# test-rollBack-nothing-installed-remove-/securityadmin_demo.sh() {
+#     load-rollBack
+#     #@mocktrue -f /securityadmin_demo.sh
+#     rollBack
+# }
+
+# test-rollBack-nothing-installed-remove-/securityadmin_demo.sh-assert() {
+#     rm -rf /securityadmin_demo.sh
+# }
+
+# test-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/wazuh-manager.service() {
+#     load-rollBack
+#     #@mocktrue -f /etc/systemd/system/multi-user.target.wants/wazuh-manager.service
+#     rollBack
+# }
+
+# test-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/wazuh-manager.service-assert() {
+#     rm -rf /etc/systemd/system/multi-user.target.wants/wazuh-manager.service
+# }
+
+# test-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/filebeat.service() {
+#     load-rollBack
+#     #@mocktrue -f /etc/systemd/system/multi-user.target.wants/filebeat.service
+#     rollBack
+# }
+
+# test-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/filebeat.service-assert() {
+#     rm -rf /etc/systemd/system/multi-user.target.wants/filebeat.service
+# }
+
+# test-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/elasticsearch.service() {
+#     load-rollBack
+#     #@mocktrue -f /etc/systemd/system/multi-user.target.wants/elasticsearch.service
+#     rollBack
+# }
+
+# test-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/elasticsearch.service-assert() {
+#     rm -rf /etc/systemd/system/multi-user.target.wants/elasticsearch.service
+# }
+
+# test-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/kibana.service() {
+#     load-rollBack
+#     #@mocktrue -f /etc/systemd/system/multi-user.target.wants/kibana.service
+#     rollBack
+# }
+
+# test-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/kibana.service-assert() {
+#     rm -rf /etc/systemd/system/multi-user.target.wants/kibana.service
+# }
+
+# test-rollBack-nothing-installed-remove-/etc/systemd/system/kibana.service() {
+#     load-rollBack
+#     #@mocktrue -f /etc/systemd/system/kibana.service
+#     rollBack
+# }
+
+# test-rollBack-nothing-installed-remove-/etc/systemd/system/kibana.service-assert() {
+#     rm -rf /etc/systemd/system/kibana.service
+# }
+
+# test-rollBack-nothing-installed-remove-/lib/firewalld/services/kibana.xml() {
+#     load-rollBack
+#     #@mocktrue -f /lib/firewalld/services/kibana.xml
+#     rollBack
+# }
+
+# test-rollBack-nothing-installed-remove-/lib/firewalld/services/kibana.xml-assert() {
+#     rm -rf /lib/firewalld/services/kibana.xml
+# }
+
+# test-rollBack-nothing-installed-remove-/lib/firewalld/services/elasticsearch.xml() {
+#     load-rollBack
+#     #@mocktrue -f /lib/firewalld/services/elasticsearch.xml
+#     rollBack
+# }
+
+# test-rollBack-nothing-installed-remove-/lib/firewalld/services/elasticsearch.xml-assert() {
+#     rm -rf /lib/firewalld/services/elasticsearch.xml
+# }
+
+# test-rollBack-nothing-installed-remove-/etc/systemd/system/elasticsearch.service.wants() {
+#     load-rollBack
+#     #@mocktrue -d /etc/systemd/system/elasticsearch.service.wants
+#     rollBack
+# }
+
+# test-rollBack-nothing-installed-remove-/etc/systemd/system/elasticsearch.service.wants-assert() {
+#     rm -rf /etc/systemd/system/elasticsearch.service.wants
+# }
+
+function load-healthCheck() {
+    @load_function "${base_dir}/unattended_scripts/install_functions/opendistro/common.sh" healthCheck
+    @mocktrue specsCheck
+}
+
+test-healthCheck-no-argument() {
+    load-healthCheck
+    healthCheck
+    @assert-success
+}
+
+test-ASSERT-FAIL-healthCheck-AIO-1-core-4gb() {
+    load-healthCheck
+    cores=1
+    ram_gb=4
+    healthCheck AIO
+}
+
+test-ASSERT-FAIL-healthCheck-AIO-2-cores-3gb() {
+    load-healthCheck
+    cores=2
+    ram_gb=3
+    healthCheck AIO
+}
+
+test-healthCheck-AIO-2-cores-4gb() {
+    load-healthCheck
+    cores=2
+    ram_gb=4
+    healthCheck AIO
+    @assert-success
+}
+
+test-ASSERT-FAIL-healthCheck-elasticsearch-1-core-4gb() {
+    load-healthCheck
+    cores=1
+    ram_gb=4
+    healthCheck elasticsearch
+}
+
+test-ASSERT-FAIL-healthCheck-elasticsearch-2-cores-3gb() {
+    load-healthCheck
+    cores=2
+    ram_gb=3
+    healthCheck elasticsearch
+}
+
+test-healthCheck-elasticsearch-2-cores-4gb() {
+    load-healthCheck
+    cores=2
+    ram_gb=4
+    healthCheck elasticsearch
+    @assert-success
+}
+
+test-ASSERT-FAIL-healthCheck-kibana-1-core-4gb() {
+    load-healthCheck
+    cores=1
+    ram_gb=4
+    healthCheck kibana
+}
+
+test-ASSERT-FAIL-healthCheck-kibana-2-cores-3gb() {
+    load-healthCheck
+    cores=2
+    ram_gb=3
+    healthCheck kibana
+}
+
+test-healthCheck-kibana-2-cores-4gb() {
+    load-healthCheck
+    cores=2
+    ram_gb=4
+    healthCheck kibana
+    @assert-success
+}
+
+test-ASSERT-FAIL-healthCheck-wazuh-1-core-2gb() {
+    load-healthCheck
+    cores=1
+    ram_gb=2
+    healthCheck wazuh
+}
+
+test-ASSERT-FAIL-healthCheck-wazuh-2-cores-1gb() {
+    load-healthCheck
+    cores=2
+    ram_gb=1
+    healthCheck wazuh
+}
+
+test-healthCheck-wazuh-2-cores-2gb() {
+    load-healthCheck
+    cores=2
+    ram_gb=2
+    healthCheck wazuh
+    @assert-success
+}
+
+function load-checkInstalled() {
+    @load_function "${base_dir}/unattended_scripts/install_functions/opendistro/common.sh" checkInstalled
+}
+
+# test-checkInstalled-all-installed-yum() {
+#     load-checkInstalled
+#     sys_type="yum"
+
+#     @mock yum list installed 2>/dev/null | grep wazuh-manager === @out "Detected pipeline"
+#     #@mockfalse -d /var/ossec
+#     @mock echo  wazuh-manager.x86_64  4.3.0-1  @wazuh === @out 4.3.0-1
+#     @mock awk '{print $2}'
+
+#     checkInstalled
+#     @echo $wazuhinstalled
+#     @echo $wazuhversion
+# }
+
+# test-checkInstalled-all-installed-yum-assert() {
+#     @echo "wazuh-manager.x86_64 4.3.0-1 @wazuh"
+#     @echo "4.3.0-1"
+# }
+
+rm -rf $JAIL
