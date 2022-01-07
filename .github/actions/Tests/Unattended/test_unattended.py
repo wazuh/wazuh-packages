@@ -3,9 +3,9 @@ import pytest
 import time
 import os
 import re
-import tools
 import json
 import sys
+import platform
 from subprocess import Popen, PIPE, check_output
 import yaml
 import requests
@@ -124,6 +124,12 @@ def get_wazuh_api_status():
 
     return response.json()['data']['title'] 
 
+def is_fedora_opensuse():
+    version = platform.release()
+    if 'fc33' or 'fc34' in version:
+        return True
+
+
 # ----------------------------- Tests ----------------------------- 
 
 @pytest.mark.wazuh
@@ -214,10 +220,11 @@ def test_check_log_errors():
         for line in f.readlines():
             if 'ERROR' in line:
                 found_error = True
-                if "wazuh-modulesd:syscollector: ERROR: Failed to open database '/var/lib/rpm/Packages': No such file or directory" in line:
-                    found_error = False
-                    print("Error detected as exception.")
-                    break
+                if is_fedora_opensuse():
+                    if "wazuh-modulesd:syscollector: ERROR: Failed to open database '/var/lib/rpm/Packages': No such file or directory" in line:
+                        found_error = False
+                        print("Error detected as exception.")
+                        break
     assert found_error == False, line
 
 @pytest.mark.elastic
