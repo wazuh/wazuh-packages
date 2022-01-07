@@ -341,7 +341,7 @@ Copy the `certs.tar` and `config.yml` in all the nodes, at the same level as `wa
 
 Install Wazuh server:
 ```
-./wazuh_install.sh -l -i -w manager1
+./wazuh_install.sh -l -w manager1
 ```
 <details><summary>Output</summary>
 
@@ -372,14 +372,14 @@ Install Wazuh server:
 
 Install Wazuh server:
 ```
-./wazuh_install.sh -l -i -w manager2
+./wazuh_install.sh -l -w manager2
 ```
 
 **Host #3**
 
 Install Elasticsearch node:
 ```
-./wazuh_install.sh -l -i -e elastic1
+./wazuh_install.sh -l -e elastic1
 ```
 <details><summary>Output</summary>
 
@@ -406,14 +406,14 @@ Install Elasticsearch node:
 
 Install Elasticsearch node:
 ```
-./wazuh_install.sh -l -i -e elastic2
+./wazuh_install.sh -l -e elastic2
 ```
 
 **Host #5**
 
 Install Elasticsearch node:
 ```
-./wazuh_install.sh -l -i -e elastic3
+./wazuh_install.sh -l -e elastic3
 ```
 
 **At any elasticsearch host**
@@ -444,7 +444,7 @@ On any elasticsearch host (#3, #4 or #5 in our example), run:
 Install Kibana:
 
 ```
-./wazuh_install.sh -l -i -k kibana1
+./wazuh_install.sh -l -k kibana1
 ```
 <details><summary>Output</summary>
 
