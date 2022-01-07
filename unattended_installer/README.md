@@ -15,10 +15,10 @@ The Wazuh unattended installer is a tool that helps you to install and configure
 We will show the use of this tool using 3 scenarios:
 
 - [All components work in the same host, the All-in-one scenario.](#All-in-one)
-- [Mixed distributed](#Mixed): every component will be installed separately, but conforming to a Wazuh cluster and Elasticsearch cluster:
-    - Host #1: Wazuh server - master node & Elasticsearch node.
-    - Host #2: Wazuh server - worker node & Elasticsearch node.
-    - Host #3: Wazuh server - worker node & Elasticsearch node.
+- [Mixed distributed](#Mixed): every component will be installed separately, but conforming to a Wazuh cluster and Elasticsearch cluster (it includes a Kibana installation on every node):
+    - Host #1: Wazuh server - master node & Elasticsearch node & Kibana.
+    - Host #2: Wazuh server - worker node & Elasticsearch node & Kibana.
+    - Host #3: Wazuh server - worker node & Elasticsearch node & Kibana.
 - [All distributed](#Distributed): every component will be installed on a different host. In this example, we will work on 6 hosts, a two nodes Wazuh cluster, a three Elasticsearch cluster and a Kibana node:
     - Host #1: Wazuh server - master node.
     - Host #2: Wazuh server - worker node.
