@@ -1,27 +1,10 @@
-# Copyright (C) 2015-2021, Wazuh Inc.
+# Wazuh installer - wazuh.sh library. 
+# Copyright (C) 2015-2022, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
-
-function installWazuh() {
-
-    logger "Starting the Wazuh manager installation."
-    if [ ${sys_type} == "zypper" ]; then
-        eval "zypper -n install wazuh-manager=${wazuh_version}-${wazuh_revision} ${debug}"
-    else
-        eval "${sys_type} install wazuh-manager${sep}${wazuh_version}-${wazuh_revision} -y ${debug}"
-    fi
-    if [  "$?" != 0  ]; then
-        logger -e "Wazuh manager installation failed."
-        rollBack
-        exit 1
-    else
-        wazuhinstalled="1"
-        logger "Wazuh manager installation finished."
-    fi   
-}
 
 function configureWazuhCluster() {
 
@@ -37,7 +20,7 @@ function configureWazuhCluster() {
         fi
     done
 
-    key=$(cat ${base_path}/certs/clusterkey)
+    key=$(tar -axf certs.tar ./clusterkey -O)
     bind_address="0.0.0.0"
     port="1516"
     hidden="no"
@@ -56,4 +39,23 @@ function configureWazuhCluster() {
         -e "${lstart},${lend}s/<disabled>.*<\/disabled>/<disabled>${disabled}<\/disabled>/" \
         /var/ossec/etc/ossec.conf'
 
+}
+
+function installWazuh() {
+
+    logger "Starting the Wazuh manager installation."
+    if [ ${sys_type} == "zypper" ]; then
+        eval "zypper -n install wazuh-manager=${wazuh_version}-${wazuh_revision} ${debug}"
+    else
+        eval "${sys_type} install wazuh-manager${sep}${wazuh_version}-${wazuh_revision} -y ${debug}"
+    fi
+    if [  "$?" != 0  ]; then
+        logger -e "Wazuh installation failed"
+        rollBack filebeat
+        rollBack wazuh
+        exit 1
+    else
+        wazuhinstalled="1"
+        logger "Wazuh manager installation finished."
+    fi   
 }
