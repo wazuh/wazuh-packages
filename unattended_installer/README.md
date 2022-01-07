@@ -16,12 +16,12 @@ We will show the use of this tool using 3 scenarios:
 
 - [All components work in the same host, the All-in-one scenario.](#All-in-one)
 - [Mixed distributed](#Mixed): every component will be installed separately, but conforming to a Wazuh cluster and Elasticsearch cluster:
-    - Host #1: Wazuh manager - master node & Elasticsearch node.
-    - Host #2: Wazuh manager - worker node & Elasticsearch node.
-    - Host #3: Wazuh manager - worker node & Elasticsearch node.
+    - Host #1: Wazuh server - master node & Elasticsearch node.
+    - Host #2: Wazuh server - worker node & Elasticsearch node.
+    - Host #3: Wazuh server - worker node & Elasticsearch node.
 - [All distributed](#Distributed): every component will be installed on a different host. In this example, we will work on 6 hosts, a two nodes Wazuh cluster, a three Elasticsearch cluster and a Kibana node:
-    - Host #1: Wazuh manager - master node.
-    - Host #2: Wazuh manager - worker node.
+    - Host #1: Wazuh server - master node.
+    - Host #2: Wazuh server - worker node.
     - Host #3: Elasticsearch node.
     - Host #4: Elasticsearch node.
     - Host #5: Elasticsearch node.
@@ -195,7 +195,7 @@ Install Elasticsearch:
 </details>
 <br>
 
-Install Wazuh manager:
+Install Wazuh server:
 ```
 ./wazuh_install.sh -l -w manager1 -i
 ```
@@ -225,9 +225,9 @@ Install Wazuh manager:
 </details>
 <br>
 
-Repeat the described Elasticsearch and Wazuh managers steps on **hosts #2 and #3** changing the node name `elastic1` by `elastic2` or `elastic3` and `manager1` by `manager2` or `manager3`.
+Repeat the described Elasticsearch and Wazuh servers steps on **hosts #2 and #3** changing the node name `elastic1` by `elastic2` or `elastic3` and `manager1` by `manager2` or `manager3`.
 
-After having three hosts with Elasticsearch and Wazuh manager installed, choose an Elasticsearch node and run the following command to initialize the security configuration:
+After having three hosts with Elasticsearch and Wazuh server installed, choose an Elasticsearch node and run the following command to initialize the security configuration:
 ```
 ./wazuh_install.sh -l -s
 ```
@@ -339,7 +339,7 @@ After describing the architecture, certificates must be created:
 
 Copy the `certs.tar` and `config.yml` in all the nodes, at the same level as `wazuh_install.sh`. After `certs.tar` and `config.yml` distribution over all nodes, you can start installing components.
 
-Install Wazuh manager:
+Install Wazuh server:
 ```
 ./wazuh_install.sh -l -i -w manager1
 ```
@@ -370,7 +370,7 @@ Install Wazuh manager:
 
 **Host #2**
 
-Install Wazuh manager:
+Install Wazuh server:
 ```
 ./wazuh_install.sh -l -i -w manager2
 ```
