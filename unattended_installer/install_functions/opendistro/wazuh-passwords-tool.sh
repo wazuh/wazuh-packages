@@ -76,12 +76,12 @@ changePassword() {
 checkInstalledPass() {
     
     if [ "${sys_type}" == "yum" ]; then
-        elasticsearchinstalled=$(yum list installed 2>/dev/null | grep elasticsearch-oss)
+        elasticsearchinstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch | grep -v kibana)
     elif [ "${sys_type}" == "zypper" ]; then
-        elasticsearchinstalled=$(zypper packages | grep elasticsearch-oss | grep i+ | grep noarch)
+        elasticsearchinstalled=$(zypper packages | grep opendistroforelasticsearch | grep -v kibana | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
-        elasticsearchinstalled=$(apt list --installed  2>/dev/null | grep 'elasticsearch-oss*')
-    fi 
+        elasticsearchinstalled=$(apt list --installed 2>/dev/null | grep opendistroforelasticsearch | grep -v kibana)
+    fi
 
     if [ "${sys_type}" == "yum" ]; then
         filebeatinstalled=$(yum list installed 2>/dev/null | grep filebeat)
@@ -114,7 +114,6 @@ checkInstalledPass() {
             kibanaversion=$(echo ${kibanainstalled} | awk '{print $2}')
         fi  
     fi 
-
     if [ -z "${elasticsearchinstalled}" ] && [ -z "${kibanainstalled}" ] && [ -z "${filebeatinstalled}" ]; then
         logger_pass -e "Open Distro is not installed on the system."
         exit 1;
@@ -158,12 +157,14 @@ checkUser() {
 createBackUp() {
     
     logger_pass "Creating password backup."
+    set -x
     eval "mkdir /usr/share/elasticsearch/backup ${debug_pass}"
     eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -backup /usr/share/elasticsearch/backup -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug_pass}"
     if [  "$?" != 0  ]; then
         logger_pass -e "The backup could not be created"
         exit 1;
     fi
+    set +x
     logger_pass "Password backup created"
     
 }
