@@ -248,6 +248,7 @@ After having three hosts with Elasticsearch and Wazuh manager installed, choose 
 
 </details>
 <br>
+
 Lastly, install Kibana. Chose the node where you want to install Kibana and run the following command using the corresponding node name. In this example, Kibana will be installed in #2 host:
 ```
 ./wazuh_install.sh -l -k kibana2 -i
