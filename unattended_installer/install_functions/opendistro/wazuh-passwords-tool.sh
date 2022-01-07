@@ -157,7 +157,7 @@ checkUser() {
 createBackUp() {
     
     logger_pass "Creating password backup."
-ç    eval "mkdir /usr/share/elasticsearch/backup ${debug_pass}"
+    eval "mkdir /usr/share/elasticsearch/backup ${debug_pass}"
     eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -backup /usr/share/elasticsearch/backup -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug_pass}"
     if [  "$?" != 0  ]; then
         logger_pass -e "The backup could not be created"

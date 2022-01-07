@@ -168,7 +168,9 @@ function initializeElasticsearch() {
         exit 1
     fi
     if [ "${#elasticsearch_node_names[@]}" -eq 1 ]; then
+        start_elastic_cluster=1
         startElasticsearchCluster
+        changePasswords
     fi
 
     logger "Elasticsearch cluster started."

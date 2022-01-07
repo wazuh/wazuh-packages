@@ -151,6 +151,11 @@ function initializeKibanaAIO() {
         sleep 10
         i=$((i+1))
     done
+    if [ $i -eq 12 ]; then
+        logger -e "Cannot connect to Kibana."
+        rollBack kibana
+        exit 1
+    fi
     logger "Kibana started."
     logger "You can access the web interface https://<kibana-host-ip>. The credentials are admin:${u_pass}"
 
