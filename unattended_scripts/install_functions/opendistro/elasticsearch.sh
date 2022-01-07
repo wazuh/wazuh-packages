@@ -137,24 +137,14 @@ function configureElasticsearchAIO() {
 
 function copyCertificatesElasticsearch() {
     
-    if [ "${#elasticsearch_node_names[@]}" -eq 1 ]; then
-        name=${einame}
-    else
-        name=${elasticsearch_node_names[pos]}
-    fi
+    name=${elasticsearch_node_names[pos]}
 
     if [ -f "${tar_file}" ]; then
-        if [ -n "${AIO}" ]; then
-            eval "tar -xf ${tar_file} -C ${e_certs_path} --wildcards ./elasticsearch*  ${debug}"
-            eval "tar -xf ${tar_file} -C ${e_certs_path} --wildcards ./admin*  ${debug}"
-            eval "tar -xf ${tar_file} -C ${e_certs_path} ./root-ca.pem  ${debug}"
-        else  
-            eval "tar -xf ${tar_file} -C ${e_certs_path} ./${name}.pem  && mv ${e_certs_path}${name}.pem ${e_certs_path}elasticsearch.pem ${debug}"
-            eval "tar -xf ${tar_file} -C ${e_certs_path} ./${name}-key.pem  && mv ${e_certs_path}${name}-key.pem ${e_certs_path}elasticsearch-key.pem ${debug}"
-            eval "tar -xf ${tar_file} -C ${e_certs_path} ./root-ca.pem  ${debug}"
-            eval "tar -xf ${tar_file} -C ${e_certs_path} ./admin.pem  ${debug}"
-            eval "tar -xf ${tar_file} -C ${e_certs_path} ./admin-key.pem  ${debug}"
-        fi
+        eval "tar -xf ${tar_file} -C ${e_certs_path} ./${name}.pem  && mv ${e_certs_path}${name}.pem ${e_certs_path}elasticsearch.pem ${debug}"
+        eval "tar -xf ${tar_file} -C ${e_certs_path} ./${name}-key.pem  && mv ${e_certs_path}${name}-key.pem ${e_certs_path}elasticsearch-key.pem ${debug}"
+        eval "tar -xf ${tar_file} -C ${e_certs_path} ./root-ca.pem  ${debug}"
+        eval "tar -xf ${tar_file} -C ${e_certs_path} ./admin.pem  ${debug}"
+        eval "tar -xf ${tar_file} -C ${e_certs_path} ./admin-key.pem  ${debug}"
     else
         logger -e "No certificates found. Could not initialize Elasticsearch"
         exit 1;
