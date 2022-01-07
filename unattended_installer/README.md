@@ -194,6 +194,7 @@ Install Elasticsearch:
 
 </details>
 <br>
+
 Install Wazuh manager:
 ```
 ./wazuh_install.sh -l -w manager1 -i
@@ -223,6 +224,7 @@ Install Wazuh manager:
 
 </details>
 <br>
+
 Repeat the described Elasticsearch and Wazuh managers steps on **hosts #2 and #3** changing the node name `elastic1` by `elastic2` or `elastic3` and `manager1` by `manager2` or `manager3`.
 
 After having three hosts with Elasticsearch and Wazuh manager installed, choose an Elasticsearch node and run the following command to initialize the security configuration:
@@ -334,6 +336,7 @@ After describing the architecture, certificates must be created:
 
 </details>
 <br>
+
 Copy the `certs.tar` and `config.yml` in all the nodes, at the same level as `wazuh_install.sh`. After `certs.tar` and `config.yml` distribution over all nodes, you can start installing components.
 
 Install Wazuh manager:
