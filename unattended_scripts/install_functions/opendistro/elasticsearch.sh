@@ -162,7 +162,7 @@ function initializeElasticsearch() {
         sleep 10
         i=$((i+1))
     done
-    if [ i -eq 12 ]; then
+    if [ ${i} -eq 12 ]; then
         logger -e "Cannot start Elasticsearch cluster."
         rollBack elasticsearch
         exit 1
