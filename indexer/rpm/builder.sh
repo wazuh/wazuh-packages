@@ -16,6 +16,8 @@ release=$2
 directory_base=$3
 version="4.3.0"
 rpmbuild="rpmbuild"
+use_local_specs=$4
+packages_branch=$5
 
 if [ -z "${release}" ]; then
     release="1"
@@ -36,7 +38,13 @@ mkdir ${build_dir}/${pkg_name}
 
 
 # Including spec file
-cp /root/${target}.spec ${rpm_build_dir}/SPECS/${pkg_name}.spec
+if [ "${use_local_specs}" = "no" ]; then
+    curl -sL https://github.com/wazuh/wazuh-packages/tarball/${packages_branch} | tar zx
+    specs_path=$(find ./wazuh* -type d -name "SPECS" -path "*indexer/rpm*")
+else
+    specs_path="/specs"
+fi
+cp ${specs_path}/${target}.spec ${rpm_build_dir}/SPECS/${pkg_name}.spec
 
 # Generating source tar.gz
 cd ${build_dir} && tar czf "${rpm_build_dir}/SOURCES/${pkg_name}.tar.gz" "${pkg_name}"
