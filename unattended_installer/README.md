@@ -470,6 +470,66 @@ Install Kibana:
 
 </details>
 
+## Unattended installer options:
+```
+./wazuh_install.sh -h      
+
+NAME
+        wazuh_install.sh - Install and configure Wazuh central components.
+
+SYNOPSIS
+        wazuh_install.sh [OPTIONS]
+
+DESCRIPTION
+        -a,  --all-in-one
+                All-In-One installation.
+
+        -c,  --create-certificates
+                Creates certificates from config.yml file.
+
+        -d,  --development
+                Uses development repository.
+
+        -ds,  --disable-spinner
+                Disables the spinner indicator.
+
+        -e,  --elasticsearch <elasticsearch-node-name>
+                Elasticsearch installation.
+
+        -f,  --fileconfig <path-to-config-yml>
+                Path to config file. By default: /home/alberpilot/repositories/wazuh-packages/unattended_installer/config.yml
+
+        -h,  --help
+                Shows help.
+
+        -i,  --ignore-health-check
+                Ignores the health-check.
+
+        -k,  --kibana <kibana-node-name>
+                Kibana installation.
+
+        -l,  --local
+                Use local files.
+
+        -o,  --overwrite
+                Overwrites previously installed components. NOTE: This will erase all the existing configuration and data.
+
+        -s,  --start-cluster
+                Starts the Elasticsearch cluster.
+
+        -t,  --tar <path-to-certs-tar
+                Path to tar containing certificate files. By default: /home/alberpilot/repositories/wazuh-packages/unattended_installer/certs.tar
+
+        -u,  --uninstall
+                Uninstalls all Wazuh components. NOTE: This will erase all the existing configuration and data.
+
+        -v,  --verbose
+                Shows the complete installation output.
+
+        -w,  --wazuh-server <wazuh-node-name>
+                Wazuh server installation. It includes Filebeat.
+```
+
 ## License and copyright
 
 WAZUH
