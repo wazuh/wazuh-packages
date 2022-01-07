@@ -158,12 +158,11 @@ function initializeElasticsearch() {
 
     logger "Starting Elasticsearch cluster."
     i=0
-    set -x
     until $(curl -XGET https://${elasticsearch_node_ips[pos]}:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null) || [ ${i} -eq 12 ]; do
         sleep 10
         i=$((i+1))
     done
-    if [ i -eq 12]; then
+    if [ i -eq 12 ]; then
         logger -e "Cannot start Elasticsearch cluster."
         rollBack elasticsearch
         exit 1
