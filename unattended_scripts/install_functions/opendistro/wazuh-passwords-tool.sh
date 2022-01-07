@@ -283,7 +283,7 @@ getNetworkHost() {
 
 logger_pass() {
 
-    now=$(date +'%m/%d/%Y %H:%M:%S')
+    now=$(date +'%d/%m/%Y %H:%M:%S')
     case $1 in 
         "-e")
             mtype="ERROR:"
