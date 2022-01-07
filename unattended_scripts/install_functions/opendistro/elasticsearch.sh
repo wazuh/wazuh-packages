@@ -157,10 +157,18 @@ function copyCertificatesElasticsearch() {
 function initializeElasticsearch() {
 
     logger "Starting Elasticsearch cluster."
-    until $(curl -XGET https://${elasticsearch_node_ips[pos]}:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null); do
+    i=0
+    set -x
+    until $(curl -XGET https://${elasticsearch_node_ips[pos]}:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null) || [ ${i} -eq 12 ]; do
         sleep 10
+        i=$((i+1))
     done
-
+    if [ i -eq 12]; then
+        logger -e "Cannot start Elasticsearch cluster."
+        rollBack elasticsearch
+        exit 1
+    fi
+    set +X
     if [ "${#elasticsearch_node_names[@]}" -eq 1 ]; then
         startElasticsearchCluster
     fi
