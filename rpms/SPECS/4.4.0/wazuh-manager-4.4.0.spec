@@ -180,7 +180,7 @@ fi
 # Create the wazuh user if it doesn't exists
 if ! id -u wazuh > /dev/null 2>&1; then
   useradd -g wazuh -G wazuh -d %{_localstatedir} -r -s /sbin/nologin wazuh
-fi 
+fi
 
 # Stop the services to upgrade the package
 if [ $1 = 2 ]; then
@@ -590,7 +590,6 @@ rm -fr %{buildroot}
 %attr(640, root, wazuh) %{_localstatedir}/api/scripts/wazuh-apid.py
 %dir %attr(750, root, wazuh) %{_localstatedir}/backup
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/backup/agents
-%dir %attr(750, wazuh, wazuh) %{_localstatedir}/backup/groups
 %dir %attr(750, root, wazuh) %{_localstatedir}/backup/shared
 %dir %attr(750, root, wazuh) %{_localstatedir}/bin
 %attr(750, root, root) %{_localstatedir}/bin/agent_control
@@ -695,7 +694,6 @@ rm -fr %{buildroot}
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/rhel/*
 %dir %attr(750, root, wazuh) %{_localstatedir}/queue
 %attr(600, root, wazuh) %ghost %{_localstatedir}/queue/agents-timestamp
-%dir %attr(770, root, wazuh) %{_localstatedir}/queue/agent-groups
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/agentless
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/alerts
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/cluster
