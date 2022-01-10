@@ -29,7 +29,7 @@ We will show the use of this tool using 3 scenarios:
 
 
 
-### All-in-one
+# All-in-one
 
 Clone the repository:
 ```
@@ -104,7 +104,7 @@ Example <details><summary>Output</summary>
 
 </details>
 
-### Mixed
+# Mixed
 
 Clone the repository:
 ```
@@ -279,7 +279,7 @@ Lastly, install Kibana. Choose the node where you want to install Kibana and run
 
 </details>
 
-### Distributed
+# Distributed
 
 Clone the repository on every host:
 ```
