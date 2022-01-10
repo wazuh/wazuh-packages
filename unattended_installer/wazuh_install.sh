@@ -177,7 +177,6 @@ function logger() {
 
 function main() {
 
-    nargs=$#
     if [ ! -n "$1" ]; then
         getHelp
     fi
@@ -311,6 +310,9 @@ function main() {
         logger "All components removed."
         exit 0
     fi
+    if [ -z "${certificates}"] && [ -z "${AIO}" ]; then
+        checkPreviousCertificates
+    fi
     checkArch
     checkSystem
     if [ -n "${ignore}" ]; then
@@ -318,7 +320,7 @@ function main() {
     else
         checkHealth
     fi
-    checkArguments "${nargs}"
+    checkArguments
     readConfig
     
     # Distributed architecture: node names must be different
@@ -342,13 +344,6 @@ function main() {
 # -------------- Prerequisites and Wazuh repo  ----------------------
 
     if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
-
-        if [ ! -f ${tar_file} ]; then
-            logger -e "No certificates file found (${tar_file}). Run the script with the option -c|--certificates to create automatically or copy them from the node where they were created."
-            exit 1
-        else
-            checkPreviousCertificates
-        fi
         installPrerequisites
         addWazuhrepo
     fi
@@ -356,11 +351,6 @@ function main() {
 # -------------- Elasticsearch case  --------------------------------
 
     if [ -n "${elasticsearch}" ]; then
-
-        if [ ! -f "${tar_file}" ]; then
-            logger -e "Certificates not found. Exiting"
-            exit 1
-        fi
 
         importFunction "elasticsearch.sh"
 
@@ -381,11 +371,6 @@ function main() {
 # -------------- Kibana case  ---------------------------------------
 
     if [ -n "${kibana}" ]; then
-
-        if [ ! -f "${tar_file}" ]; then
-            logger -e "Certificates not found. Exiting"
-            exit 1
-        fi
 
         importFunction "kibana.sh"
 

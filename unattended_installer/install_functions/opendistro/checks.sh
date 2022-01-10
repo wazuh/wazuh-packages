@@ -278,6 +278,10 @@ function checkNames() {
 # This function checks if the target certificates are created before to start the installation.
 function checkPreviousCertificates() {
 
+    if [ ! -f ${tar_file} ]; then
+        logger -e "No certificates file found (${tar_file}). Run the script with the option -c|--certificates to create automatically or copy them from the node where they were created."
+        exit 1
+    fi
     if [ -n "${einame}" ]; then
         if [ -z "$(tar -tvf ${tar_file}|grep ${einame}.pem)" ] || [ -z "$(tar -tvf ${tar_file}|grep ${einame}-key.pem)" ]; then
             logger -e "There is no certificate for the elasticsearch node ${einame} in ${tar_file}."
