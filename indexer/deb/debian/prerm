@@ -1,10 +1,8 @@
-#!/bin/bash
-export NAME=wazuh-indexer
-export CONFIG_DIR=/etc/${NAME}
-export INSTALLATION_DIR=/usr/share/${NAME}
-export LOG_DIR=/var/log/${NAME}
-export PID_DIR=/var/run/${NAME}
-export LIB_DIR=/var/lib/${NAME}
+#!/bin/sh
+# postinst script for Wazuh-indexer
+# Wazuh, Inc 2015-2022
+
+export CONFIG_DIR=/etc/wazuh-indexer
 
 #
 # This script is executed in the pre-remove phase
@@ -12,17 +10,11 @@ export LIB_DIR=/var/lib/${NAME}
 #   On Debian,
 #       $1=remove    : indicates a removal
 #       $1=upgrade   : indicates an upgrade
-#
-#   On RedHat,
-#       $1=0         : indicates a removal
-#       $1=1         : indicates an upgrade
 
 # source the default env file
 if [ -f "/etc/default/wazuh-indexer" ]; then
     . "/etc/default/wazuh-indexer"
 fi
-
-export OPENSEARCH_PATH_CONF=${OPENSEARCH_PATH_CONF:-/etc/wazuh-indexer}
 
 STOP_REQUIRED=false
 REMOVE_SERVICE=false
@@ -34,21 +26,8 @@ case "$1" in
         STOP_REQUIRED=true
         REMOVE_SERVICE=true
     ;;
-    upgrade)
-        if [ "$RESTART_ON_UPGRADE" = "true" ]; then
-            STOP_REQUIRED=true
-        fi
-    ;;
-    deconfigure|failed-upgrade)
-    ;;
 
-    # RedHat ####################################################
-    0)
-        STOP_REQUIRED=true
-        REMOVE_SERVICE=true
-    ;;
-    1)
-        # Dont do anything on upgrade, because the preun script in redhat gets executed after the postinst (madness!)
+    deconfigure|failed-upgrade)
     ;;
 
     *)
@@ -80,9 +59,9 @@ if [ "$STOP_REQUIRED" = "true" ]; then
     echo " OK"
 fi
 
-if [ -f "${OPENSEARCH_PATH_CONF}"/elasticsearch.keystore ]; then
-  if md5sum --status -c "${OPENSEARCH_PATH_CONF}"/.elasticsearch.keystore.initial_md5sum; then
-    rm "${OPENSEARCH_PATH_CONF}"/elasticsearch.keystore "${OPENSEARCH_PATH_CONF}"/.elasticsearch.keystore.initial_md5sum
+if [ -f "${CONFIG_DIR}"/opensearch.keystore ]; then
+  if md5sum --status -c "${CONFIG_DIR}"/.opensearch.keystore.initial_md5sum; then
+    rm "${CONFIG_DIR}"/opensearch.keystore "${CONFIG_DIR}"/.opensearch.keystore.initial_md5sum
   fi
 fi
 

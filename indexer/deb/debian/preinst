@@ -1,4 +1,7 @@
-#!/bin/bash
+#!/bin/sh
+# postinst script for Wazuh-indexer
+# Wazuh, Inc 2015-2022
+
 export NAME=wazuh-indexer
 
 #
@@ -7,10 +10,6 @@ export NAME=wazuh-indexer
 #   On Debian,
 #       $1=install : indicates an new install
 #       $1=upgrade : indicates an upgrade
-#
-#   On RedHat,
-#       $1=1       : indicates an new install
-#       $1=2       : indicates an upgrade
 
 err_exit() {
     echo "$@" >&2
@@ -48,31 +47,8 @@ case "$1" in
             echo " OK"
         fi
     ;;
+
     abort-deconfigure|abort-upgrade|abort-remove)
-    ;;
-
-    # RedHat ####################################################
-    1|2)
-
-        # Create wazuh-indexer group if not existing
-        if ! getent group ${NAME} > /dev/null 2>&1 ; then
-            echo -n "Creating ${NAME} group..."
-            groupadd -r ${NAME}
-            echo " OK"
-        fi
-
-        # Create wazuh-indexer user if not existing
-        if ! id ${NAME} > /dev/null 2>&1 ; then
-            echo -n "Creating ${NAME} user..."
-            useradd --system \
-                    --no-create-home \
-                    --home-dir /nonexistent \
-                    --gid ${NAME} \
-                    --shell /sbin/nologin \
-                    --comment "${NAME} user" \
-                    ${NAME}
-            echo " OK"
-        fi
     ;;
 
     *)

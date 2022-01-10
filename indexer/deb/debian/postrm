@@ -1,4 +1,7 @@
-#!/bin/bash
+#!/bin/sh
+# postinst script for Wazuh-indexer
+# Wazuh, Inc 2015-2022
+
 export NAME=wazuh-indexer
 export CONFIG_DIR=/etc/${NAME}
 export INSTALLATION_DIR=/usr/share/${NAME}
@@ -12,10 +15,6 @@ export LIB_DIR=/var/lib/${NAME}
 #   On Debian,
 #       $1=remove    : indicates a removal
 #       $1=purge     : indicates an upgrade
-#
-#   On RedHat,
-#       $1=0         : indicates a removal
-#       $1=1         : indicates an upgrade
 
 # source the default env file
 if [ -f "/etc/default/${NAME}" ]; then
@@ -40,17 +39,8 @@ case "$1" in
         REMOVE_DATA_DIRECTORY=true
         REMOVE_USER_AND_GROUP=true
     ;;
-    failed-upgrade|abort-install|abort-upgrade|disappear|upgrade|disappear)
-    ;;
 
-    # RedHat ####################################################
-    0)
-        REMOVE_DIRS=true
-        REMOVE_USER_AND_GROUP=true
-    ;;
-    1)
-        # If $1=1 this is an upgrade
-        IS_UPGRADE=true
+    failed-upgrade|abort-install|abort-upgrade|disappear|upgrade|disappear)
     ;;
 
     *)
@@ -81,12 +71,14 @@ if [ "$REMOVE_DIRS" = "true" ]; then
 
     # Delete the data directory if we are purging
     if [ "${REMOVE_DATA_DIRECTORY}" = "true" ]; then
+        echo -n "Deleting data directory..."
         rm -rf ${LIB_DIR}
         echo " OK"
     fi
 
     # Delete the config directory if we are purging
     if [ "$REMOVE_CONFIG_DIRECTORY" = "true" ]; then
+        echo -n "Deleting configuration directory..."
         rm -rf ${CONFIG_DIR}
         echo " OK"
     fi
