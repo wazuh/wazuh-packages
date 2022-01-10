@@ -87,7 +87,8 @@ override_dh_install:
 	mv -f $(BASE_DIR)/etc/sysconfig/$(NAME) $(TARGET_DIR)/etc/default/
 	mv -f $(BASE_DIR)/usr/lib/tmpfiles.d/* $(TARGET_DIR)/usr/lib/tmpfiles.d/
 	mv -f $(BASE_DIR)/usr/lib/sysctl.d/* $(TARGET_DIR)/usr/lib/sysctl.d/
-	mv -f $(BASE_DIR)/usr/lib/systemd/system/* $(TARGET_DIR)/usr/lib/systemd/system/
+	mv -f $(BASE_DIR)/usr/lib/systemd/system/wazuh-indexer_debian.service $(TARGET_DIR)/usr/lib/systemd/system/wazuh-indexer.service
+	mv -f $(BASE_DIR)/usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service $(TARGET_DIR)/usr/lib/systemd/system/
 
 	# Copy installation files to final location
 	cp -pr $(BASE_DIR)/* $(TARGET_DIR)$(INSTALLATION_DIR)
