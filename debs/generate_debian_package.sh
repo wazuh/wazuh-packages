@@ -17,7 +17,6 @@ JOBS="2"
 DEBUG="no"
 BUILD_DOCKER="yes"
 INSTALLATION_PATH="/var/ossec"
-INSTALLATION_PATH_DASHBOARD="/usr/share/wazuh-dashboard"
 DEB_AMD64_BUILDER="deb_builder_amd64"
 DEB_I386_BUILDER="deb_builder_i386"
 DEB_PPC64LE_BUILDER="deb_builder_ppc64le"
@@ -56,9 +55,6 @@ build_deb() {
     CONTAINER_NAME="$1"
     DOCKERFILE_PATH="$2"
 
-    if [[ "${TARGET}" == "dashboard" ]]; then
-        INSTALLATION_PATH=${INSTALLATION_PATH_DASHBOARD}
-    fi
     # Copy the necessary files
     cp ${CURRENT_PATH}/build.sh ${DOCKERFILE_PATH}
 
@@ -110,7 +106,7 @@ build() {
             build_deb ${DEB_AMD64_BUILDER} ${DEB_AMD64_BUILDER_DOCKERFILE} || return 1
         fi
 
-    elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]] || [[ "${TARGET}" == "dashboard" ]]; then
+    elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]] ; then
 
         BUILD_NAME=""
         FILE_PATH=""
@@ -135,7 +131,7 @@ build() {
         fi
         build_deb ${BUILD_NAME} ${FILE_PATH} || return 1
     else
-        echo "Invalid target. Choose: manager, agent, dashboard or api."
+        echo "Invalid target. Choose: manager or agent."
         return 1
     fi
 
@@ -147,7 +143,7 @@ help() {
     echo "Usage: $0 [OPTIONS]"
     echo
     echo "    -b, --branch <branch>      [Required] Select Git branch [${BRANCH}]. By default: master."
-    echo "    -t, --target <target>      [Required] Target package to build: manager, api, dashboard or agent."
+    echo "    -t, --target <target>      [Required] Target package to build: manager or agent."
     echo "    -a, --architecture <arch>  [Optional] Target architecture of the package [amd64/i386/ppc64le/arm64/armhf]."
     echo "    -j, --jobs <number>        [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 2."
     echo "    -r, --revision <rev>       [Optional] Package revision. By default: 1."

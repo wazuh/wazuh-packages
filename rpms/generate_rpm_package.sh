@@ -126,7 +126,7 @@ build() {
             build_rpm ${RPM_X86_BUILDER} ${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE} || return 1
         fi
 
-    elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]] || [[ "${TARGET}" == "dashboard" ]]; then
+    elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]]; then
 
         BUILD_NAME=""
         FILE_PATH=""
@@ -171,7 +171,7 @@ help() {
     echo "Usage: $0 [OPTIONS]"
     echo
     echo "    -b, --branch <branch>        [Required] Select Git branch or tag e.g. $BRANCH"
-    echo "    -t, --target <target>        [Required] Target package to build [manager/api/agent/dashboard]."
+    echo "    -t, --target <target>        [Required] Target package to build [manager/agent]."
     echo "    -a, --architecture <arch>    [Optional] Target architecture of the package [x86_64/i386/ppc64le/aarch64/armv7hl]."
     echo "    -r, --revision <rev>         [Optional] Package revision that append to version e.g. x.x.x-rev"
     echo "    -l, --legacy                 [Optional] Build package for CentOS 5."

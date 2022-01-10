@@ -1,0 +1,93 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Sample debian/rules that uses debhelper.
+#
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+#
+# Modified to make a template file for a multi-binary package with separated
+# build-arch and build-indep targets  by Bill Allombert 2001
+
+# Uncomment this to turn on verbose mode.
+export DH_VERBOSE=1
+
+# This has to be exported to make some magic below work.
+export DH_OPTIONS
+
+export TARGET_DIR=${CURDIR}/debian/wazuh-dashboard
+export NAME=wazuh-dashboard
+export CONFIG_DIR=/etc/${NAME}
+export INSTALLATION_DIR=/usr/share/${NAME}
+export LOG_DIR=/var/log/${NAME}
+export DASHBOARD_FILE=wazuh-dashboard-base-linux-x64
+export USER=${NAME}
+export GROUP=${NAME}
+
+
+
+%:
+	dh $@
+
+override_dh_shlibdeps:
+
+override_dh_auto_configure:
+
+override_dh_auto_install:
+
+override_dh_install:
+	curl -kOL https://s3.amazonaws.com/warehouse.wazuh.com/dashboard/${DASHBOARD_FILE}.tar.gz
+
+	groupadd ${GROUP}
+	useradd -g ${GROUP} ${USER}
+
+	tar -xf ${DASHBOARD_FILE}.tar.gz
+
+	mkdir -p ${TARGET_DIR}${CONFIG_DIR}/certs
+	mkdir -p ${TARGET_DIR}${INSTALLATION_DIR}
+	mkdir -p ${TARGET_DIR}/etc/systemd/system
+	mkdir -p ${TARGET_DIR}/etc/init.d
+	mkdir -p ${TARGET_DIR}/etc/default
+	mkdir -p ${TARGET_DIR}${LOG_DIR}
+
+	cp ${DASHBOARD_FILE}/etc/node.options ${TARGET_DIR}${CONFIG_DIR}
+	cp ${DASHBOARD_FILE}/etc/wazuh-dashboard.yml ${TARGET_DIR}${CONFIG_DIR}
+	mv ${DASHBOARD_FILE}/* ${TARGET_DIR}${INSTALLATION_DIR}
+
+	rm -f ${TARGET_DIR}${CONFIG_DIR}/kibana.yml
+
+	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/custom_welcome/template.js.hbs ${TARGET_DIR}${INSTALLATION_DIR}/src/legacy/ui/ui_render/bootstrap/template.js.hbs
+	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/custom_welcome/light_theme.style.css ${TARGET_DIR}${INSTALLATION_DIR}/src/core/server/core_app/assets/legacy_light_theme.css
+	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/custom_welcome/*svg ${TARGET_DIR}${INSTALLATION_DIR}/src/core/server/core_app/assets/
+
+	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/services/wazuh-dashboard.service ${TARGET_DIR}/etc/systemd/system/wazuh-dashboard.service 
+	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/services/wazuh-dashboard ${TARGET_DIR}/etc/init.d/${NAME}
+	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/services/default ${TARGET_DIR}/etc/default/${NAME}
+
+	chmod 644 ${TARGET_DIR}/etc/init.d/${NAME}
+	chmod 644 ${TARGET_DIR}/etc/systemd/system/wazuh-dashboard.service 
+	chmod 644 ${TARGET_DIR}/etc/default/${NAME}
+
+
+
+	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/certs/wazuh-dashboard.pem ${TARGET_DIR}${CONFIG_DIR}/certs/wazuh-dashboard.pem
+	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/certs/wazuh-dashboard-key.pem ${TARGET_DIR}${CONFIG_DIR}/certs/wazuh-dashboard-key.pem
+	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/certs/root-ca.pem ${TARGET_DIR}${CONFIG_DIR}/certs/root-ca.pem
+	chmod 644 ${TARGET_DIR}${CONFIG_DIR}/certs/*
+
+
+	find ${TARGET_DIR}${INSTALLATION_DIR} -exec chown wazuh-dashboard:wazuh-dashboard {} \;
+	find ${TARGET_DIR}${CONFIG_DIR} -exec chown wazuh-dashboard:wazuh-dashboard {} \;
+
+	chown ${USER}:${GROUP} ${TARGET_DIR}/etc/systemd/system/wazuh-dashboard.service
+	chown ${USER}:${GROUP} ${TARGET_DIR}/etc/init.d/${NAME}
+	chown ${USER}:${GROUP} ${TARGET_DIR}/etc/default/${NAME}
+
+
+#override_dh_auto_clean:
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym
+
+.PHONY: override_dh_strip override_dh_auto_clean override_dh_auto_build override_dh_auto_configure

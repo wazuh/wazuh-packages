@@ -1,0 +1,9 @@
+wazuh-dashboard: embedded-library
+wazuh-dashboard: embedded-zlib
+wazuh-dashboard: possible-gpl-code-linked-with-openssl
+wazuh-dashboard: new-package-should-close-itp-bug
+wazuh-dashboard: possibly-insecure-handling-of-tmp-files-in-maintainer-script
+wazuh-dashboard: non-standard-dir-in-var
+wazuh-dashboard: file-in-unusual-dir
+wazuh-dashboard: hardening-no-fortify-functions
+wazuh-dashboard: hardening-no-relro
