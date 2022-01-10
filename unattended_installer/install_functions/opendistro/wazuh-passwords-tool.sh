@@ -269,15 +269,19 @@ getHelp() {
 }
 
 getNetworkHost() {
-
     IP=$(grep -hr "network.host:" /etc/elasticsearch/elasticsearch.yml)
     NH="network.host: "
     IP="${IP//$NH}"
-    
-    if [[ ${IP} == "0.0.0.0" ]]; then
+
+    #allow to find ip with and interface
+    if [[ ${IP} =~ _.*_ ]]; then
+        interface="${IP//_}"
+        IP=$(ip -o -4 addr list ${interface} | awk '{print $4}' | cut -d/ -f1)
+    fi
+        
+    if [ ${IP} == "0.0.0.0" ]; then
         IP="localhost"
     fi
-
 }
 
 logger_pass() {
