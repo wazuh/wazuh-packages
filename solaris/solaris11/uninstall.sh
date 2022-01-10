@@ -1,20 +1,19 @@
-#/bin/sh
+#!/bin/sh
+# uninstall script for wazuh-agent
+# Wazuh, Inc 2015-2022
 
-control_binary="wazuh-control"
-
-if [ ! -f /var/ossec/bin/${control_binary} ]; then
-  control_binary="ossec-control"
-fi
+install_path=$1
+control_binary=$2
 
 ## Stop and remove application
-sudo ${INSTALL_PATH}/bin/${control_binary} stop
-sudo rm -r /var/ossec*
+${install_path}/bin/${control_binary} stop
+rm -r /var/ossec*
 
 # remove launchdaemons
-sudo rm -f /etc/init.d/wazuh-agent
+rm -f /etc/init.d/wazuh-agent
 
 ## Remove User and Groups
-sudo userdel wazuh
-sudo groupdel wazuh
+userdel wazuh
+groupdel wazuh
 
 exit 0

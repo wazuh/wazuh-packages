@@ -1,4 +1,6 @@
 #!/bin/sh
+# vmtools script for Solaris VMs
+# Wazuh, Inc 2015-2022
 
 if [ $PACKER_BUILDER_TYPE = 'virtualbox-iso' ]; then
   echo "Installing VirtualBox Guest Additions"
