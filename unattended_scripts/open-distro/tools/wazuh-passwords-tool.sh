@@ -105,7 +105,7 @@ getHelp() {
 
 ## Gets the network host
 
-etNetworkHost() {
+getNetworkHost() {
     IP=$(grep -hr "network.host:" /etc/elasticsearch/elasticsearch.yml)
     NH="network.host: "
     IP="${IP//$NH}"
