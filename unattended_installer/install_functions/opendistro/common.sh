@@ -59,6 +59,8 @@ function createCertificates() {
         eval "getConfig certificate/config_aio.yml ${base_path}/config.yml ${debug}"
     fi
 
+    readConfig
+
     mkdir ${base_path}/certs
 
     generateRootCAcertificate
@@ -109,11 +111,11 @@ function changePasswords() {
 
 function extractConfig() {
 
-    tar -xf ${tar_file} -C ${base_path} ./config.yml
-    if [ -z "$(tar -tvf ${tar_file}|grep config.yml)" ] ]; then
+    if [ -z "$(tar -tf ${tar_file} | grep config.yml)" ]; then
         logger -e "There is no congig.yml file in ${tar_file}."
         exit 1
     fi
+    tar -xf ${tar_file} -C ${base_path} ./config.yml
 
 }
 
@@ -314,7 +316,7 @@ function rollBack() {
         eval "rm -rf /etc/elasticsearch/ ${debug}"
     fi
 
-    if [ -n "${filebeatinstalled}" ] && ([ -z "$1" ] && ([ -n "${wazuh}" ] || [ -n "${AIO}" ]); then
+    if [ -n "${filebeatinstalled}" ] && ([ -n "${wazuh}" ] || [ -n "${AIO}" ]); then
         logger -w "Removing Filebeat."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove filebeat -y ${debug}"

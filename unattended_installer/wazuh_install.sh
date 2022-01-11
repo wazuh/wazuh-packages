@@ -335,10 +335,12 @@ function main() {
         eval "rm -rf '${base_path}/certs' ${debug}"
 
     fi
+    
     extractConfig
     readConfig
-    if [ -n "${configurations}" ]; then
-        rm -f ${config_path}
+
+    if [ -z "${configurations}" ]; then
+        rm -f ${config_file}
     fi
     
     # Distributed architecture: node names must be different

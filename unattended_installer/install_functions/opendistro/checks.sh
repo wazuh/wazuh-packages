@@ -19,7 +19,7 @@ function checkArch() {
 function checkArguments() {
 
     if ([ -n "${AIO}" ] || [ -n "${configurations}" ]) && [ -f "${tar_file}" ]; then
-            logger -e "File ${tar_file} exists. Please remove the certificates tar file if you want to create new certificates."
+            logger -e "File ${tar_file} exists. Please remove the configurations tar file if you want to use a new configuration."
             exit 1
     fi
 
@@ -122,7 +122,7 @@ function checkArguments() {
         exit 1
     fi
 
-    if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ] || [ -n "${start_elastic_cluster}" ] || [ -n "${configurations}" ];
+    if [ -z "${AIO}" ] && [ -z "${elasticsearch}" ] && [ -z "${kibana}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ] && [ -z "${configurations}" ]; then
         logger -e "At lease one of these arguments is necessary -a|--all-in-one, -c|--create-configurations, -e|--elasticsearch <elasticsearch-node-name>, -k|--kibana <kibana-node-name>, -s|--start-cluster, -w|--wazuh-server <wazuh-node-name>, "
         exit 1
     fi 
@@ -294,7 +294,7 @@ function checkPreviousCertificates() {
         exit 1
     fi
     if [ -n "${einame}" ]; then
-        if [ -z "$(tar -tvf ${tar_file}|grep ${einame}.pem)" ] || [ -z "$(tar -tvf ${tar_file}|grep ${einame}-key.pem)" ]; then
+        if [ -z "$(tar -tf ${tar_file}|grep ${einame}.pem)" ] || [ -z "$(tar -tf ${tar_file}|grep ${einame}-key.pem)" ]; then
             logger -e "There is no certificate for the elasticsearch node ${einame} in ${tar_file}."
             exit 1
         fi
@@ -302,14 +302,14 @@ function checkPreviousCertificates() {
 
 
     if [ -n "${kiname}" ]; then
-        if [ -z "$(tar -tvf ${tar_file}|grep ${kiname}.pem)" ] || [ -z "$(tar -tvf ${tar_file}|grep ${kiname}-key.pem)" ]; then
+        if [ -z "$(tar -tf ${tar_file}|grep ${kiname}.pem)" ] || [ -z "$(tar -tf ${tar_file}|grep ${kiname}-key.pem)" ]; then
             logger -e "There is no certificate for the kibana node ${kiname} in ${tar_file}."
             exit 1
         fi
     fi
 
     if [ -n "${winame}" ]; then
-        if [ -z "$(tar -tvf ${tar_file}|grep ${winame}.pem)" ] || [ -z "$(tar -tvf ${tar_file}|grep ${winame}-key.pem)" ]; then
+        if [ -z "$(tar -tf ${tar_file}|grep ${winame}.pem)" ] || [ -z "$(tar -tf ${tar_file}|grep ${winame}-key.pem)" ]; then
             logger -e "There is no certificate for the wazuh server node ${winame} in ${tar_file}."
             exit 1
         fi
