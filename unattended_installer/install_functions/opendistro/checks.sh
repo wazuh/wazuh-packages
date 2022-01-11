@@ -73,7 +73,7 @@ function checkArguments() {
 
         if [ -n "${elasticsearchinstalled}" ] || [ -n "${elastic_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
-                rollBack "elasticsearch"
+                rollBack
             else 
                 logger -e "Elasticsearch is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit
@@ -84,7 +84,7 @@ function checkArguments() {
     if [ -n "${kibana}" ]; then
         if [ -n "${kibanainstalled}" ] || [ -n "${kibana_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
-                rollBack "kibana"
+                rollBack
             else 
                 logger -e "Kibana is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 
@@ -95,7 +95,7 @@ function checkArguments() {
     if [ -n "${wazuh}" ]; then
         if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
-                rollBack "wazuh"
+                rollBack
             else 
                 logger -e "Wazuh is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 
@@ -104,7 +104,7 @@ function checkArguments() {
 
         if [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
-                rollBack "filebeat"
+                rollBack
             else
                 logger -e "Filebeat is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1

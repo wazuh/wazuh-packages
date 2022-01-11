@@ -26,7 +26,7 @@ resources_functions="${resources}/${functions_path}"
 resources_config="${resources}/${config_path}"
 base_path="$(dirname $(readlink -f $0))"
 config_file="${base_path}/config.yml"
-tar_file="${base_path}/certs.tar"
+tar_file="${base_path}/configurations.tar"
 
 ## JAVA_HOME
 export JAVA_HOME=/usr/share/elasticsearch/jdk/
@@ -63,14 +63,14 @@ function getHelp() {
     echo -e "        $(basename $0) - Install and configure Wazuh central components."
     echo -e ""
     echo -e "SYNOPSIS"
-    echo -e "        $(basename $0) [OPTIONS]"
+    echo -e "        $(basename $0) [OPTIONS] <-a | -c | -w name | -e name | -s | -k name>"
     echo -e ""
     echo -e "DESCRIPTION"
     echo -e "        -a,  --all-in-one"
     echo -e "                All-In-One installation."
     echo -e ""
-    echo -e "        -c,  --create-certificates"
-    echo -e "                Creates certificates from config.yml file."
+    echo -e "        -c,  --create-configurations"
+    echo -e "                Creates configurations.tar file containing config.yml, certificates, passwords and cluster key."
     echo -e ""
     echo -e "        -d,  --development"
     echo -e "                Uses development repository."
@@ -102,8 +102,8 @@ function getHelp() {
     echo -e "        -s,  --start-cluster"
     echo -e "                Starts the Elasticsearch cluster."
     echo -e ""
-    echo -e "        -t,  --tar <path-to-certs-tar"
-    echo -e "                Path to tar containing certificate files. By default: ${base_path}/certs.tar"
+    echo -e "        -t,  --tar <path-to-certs-tar>"
+    echo -e "                Path to tar containing certificate files. By default: ${base_path}/configurations.tar"
     echo -e ""
     echo -e "        -u,  --uninstall"
     echo -e "                Uninstalls all Wazuh components. NOTE: This will erase all the existing configuration and data."
@@ -321,12 +321,6 @@ function main() {
         checkHealth
     fi
     checkArguments
-    readConfig
-    
-    # Distributed architecture: node names must be different
-    if [ -z "${AIO}" ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
-        checkNames
-    fi
 
     # Creation certificate case: Only AIO and -c option can create certificates. 
     if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
@@ -336,9 +330,20 @@ function main() {
         fi
         gen_file="${base_path}/certs/password_file.yml"
         generatePasswordFile
-        eval "tar -zcf '${base_path}/certs.tar' -C '${base_path}/certs/' . ${debug}"
+        cp ${config_file} ${base_path}/certs/
+        eval "tar -zcf '${tar_file}' -C '${base_path}/certs/' . ${debug}"
         eval "rm -rf '${base_path}/certs' ${debug}"
 
+    fi
+    extractConfig
+    readConfig
+    if [ -n "${certificates}" ]; then
+        rm -f ${config_path}
+    fi
+    
+    # Distributed architecture: node names must be different
+    if [ -z "${AIO}" ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
+        checkNames
     fi
 
 # -------------- Prerequisites and Wazuh repo  ----------------------

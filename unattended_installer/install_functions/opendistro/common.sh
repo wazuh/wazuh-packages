@@ -107,6 +107,16 @@ function changePasswords() {
 
 }
 
+function extractConfig() {
+
+    tar -xf ${tar_file} -C ${base_path} ./config.yml
+    if [ -z "$(tar -tvf ${tar_file}|grep config.yml)" ] ]; then
+        logger -e "There is no congig.yml file in ${tar_file}."
+        exit 1
+    fi
+
+}
+
 function getConfig() {
 
     if [ -n "${local}" ]; then
@@ -268,7 +278,7 @@ function rollBack() {
         eval "rm /etc/apt/sources.list.d/wazuh.list"
     fi
 
-    if [ -n "${wazuhinstalled}" ] && ([ -z "$1" ] || [ "$1" == "wazuh" ]); then
+    if [ -n "${wazuhinstalled}" ] && ([ -n "${wazuh}" ] || [ -n "${AIO}" ]); then
         logger -w "Removing the Wazuh manager."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-manager -y ${debug}"
@@ -281,11 +291,11 @@ function rollBack() {
         
     fi
 
-    if ([ -n "${wazuh_remaining_files}" ] || [ -n "${wazuhinstalled}" ]) && ([ -z "$1" ] || [ "$1" == "wazuh" ]); then
+    if ([ -n "${wazuh_remaining_files}" ] || [ -n "${wazuhinstalled}" ]) && ([ -n "${wazuh}" ] || [ -n "${AIO}" ]); then
         eval "rm -rf /var/ossec/ ${debug}"
     fi
 
-    if [ -n "${elasticsearchinstalled}" ] && ([ -z "$1" ] || [ "$1" == "elasticsearch" ]); then
+    if [ -n "${elasticsearchinstalled}" ] && ([ -n "${elasticsearch}" ]  || [ -n "${AIO}" ]); then
         logger -w "Removing Elasticsearch."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove opendistroforelasticsearch -y ${debug}"
@@ -298,13 +308,13 @@ function rollBack() {
         fi 
     fi
 
-    if ([ -n "${elastic_remaining_files}" ] || [ -n "${elasticsearchinstalled}" ]) && ([ -z "$1" ] || [ "$1" == "elasticsearch" ]); then
+    if ([ -n "${elastic_remaining_files}" ] || [ -n "${elasticsearchinstalled}" ]) && ([ -n "${elasticsearch}" ] || [ -n "${AIO}" ]); then
         eval "rm -rf /var/lib/elasticsearch/ ${debug}"
         eval "rm -rf /usr/share/elasticsearch/ ${debug}"
         eval "rm -rf /etc/elasticsearch/ ${debug}"
     fi
 
-    if [ -n "${filebeatinstalled}" ] && ([ -z "$1" ] || [ "$1" == "filebeat" ]); then
+    if [ -n "${filebeatinstalled}" ] && ([ -z "$1" ] && ([ -n "${wazuh}" ] || [ -n "${AIO}" ]); then
         logger -w "Removing Filebeat."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove filebeat -y ${debug}"
@@ -315,13 +325,13 @@ function rollBack() {
         fi
     fi
 
-    if ([ -n "${filebeat_remaining_files}" ] || [ -n "${filebeatinstalled}" ]) && ([ -z "$1" ] || [ "$1" == "filebeat" ]); then
+    if ([ -n "${filebeat_remaining_files}" ] || [ -n "${filebeatinstalled}" ]) && ([ -n "${wazuh}" ] || [ -n "${AIO}" ]); then
         eval "rm -rf /var/lib/filebeat/ ${debug}"
         eval "rm -rf /usr/share/filebeat/ ${debug}"
         eval "rm -rf /etc/filebeat/ ${debug}"
     fi
 
-    if [ -n "${kibanainstalled}" ] && ([ -z "$1" ] || [ "$1" == "kibana" ]); then
+    if [ -n "${kibanainstalled}" ] && ([ -n "${kibana}" ] || [ -n "${AIO}" ]); then
         logger -w "Removing Kibana."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove opendistroforelasticsearch-kibana -y ${debug}"
@@ -332,7 +342,7 @@ function rollBack() {
         fi
     fi
 
-    if ([ -n "${kibana_remaining_files}" ] || [ -n "${kibanainstalled}" ]) && ([ -z "$1" ] || [ "$1" == "kibana" ]); then
+    if ([ -n "${kibana_remaining_files}" ] || [ -n "${kibanainstalled}" ]) && ([ -n "${kibana}" ] || [ -n "${AIO}" ]); then
         eval "rm -rf /var/lib/kibana/ ${debug}"
         eval "rm -rf /usr/share/kibana/ ${debug}"
         eval "rm -rf /etc/kibana/ ${debug}"
@@ -402,7 +412,7 @@ function startService() {
         eval "systemctl start $1.service ${debug}"
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
-            rollBack ${1}
+            rollBack
             exit 1
         else
             logger "${1^} service started."
@@ -413,7 +423,7 @@ function startService() {
         eval "/etc/init.d/$1 start ${debug}"
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
-            rollBack ${1}
+            rollBack
             exit 1
         else
             logger "${1^} service started."
@@ -422,7 +432,7 @@ function startService() {
         eval "/etc/rc.d/init.d/$1 start ${debug}"
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
-            rollBack ${1}
+            rollBack
             exit 1
         else
             logger "${1^} service started."

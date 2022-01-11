@@ -15,12 +15,12 @@ function configureWazuhCluster() {
     done
 
     for i in ${!wazuh_servers_node_types[@]}; do
-        if [[ "${wazuh_servers_node_types[i]}" == "master" ]]; then
+        if [[ "${wazuh_servers_node_types[i],,}" == "master" ]]; then
             master_address=${wazuh_servers_node_ips[i]}
         fi
     done
 
-    key=$(tar -axf certs.tar ./clusterkey -O)
+    key=$(tar -axf ${tar_file} ./clusterkey -O)
     bind_address="0.0.0.0"
     port="1516"
     hidden="no"
@@ -30,7 +30,7 @@ function configureWazuhCluster() {
 
     eval 'sed -i -e "${lstart},${lend}s/<name>.*<\/name>/<name>wazuh_cluster<\/name>/" \
         -e "${lstart},${lend}s/<node_name>.*<\/node_name>/<node_name>${winame}<\/node_name>/" \
-        -e "${lstart},${lend}s/<node_type>.*<\/node_type>/<node_type>${wazuh_servers_node_types[pos]}<\/node_type>/" \
+        -e "${lstart},${lend}s/<node_type>.*<\/node_type>/<node_type>${wazuh_servers_node_types[pos],,}<\/node_type>/" \
         -e "${lstart},${lend}s/<key>.*<\/key>/<key>${key}<\/key>/" \
         -e "${lstart},${lend}s/<port>.*<\/port>/<port>${port}<\/port>/" \
         -e "${lstart},${lend}s/<bind_addr>.*<\/bind_addr>/<bind_addr>${bind_address}<\/bind_addr>/" \
@@ -51,8 +51,7 @@ function installWazuh() {
     fi
     if [  "$?" != 0  ]; then
         logger -e "Wazuh installation failed"
-        rollBack filebeat
-        rollBack wazuh
+        rollBack
         exit 1
     else
         wazuhinstalled="1"

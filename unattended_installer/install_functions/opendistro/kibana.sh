@@ -61,7 +61,7 @@ function configureKibanaAIO() {
     eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${kibana_wazuh_plugin}' ${debug}"
     if [ "$?" != 0  ]; then
         logger -e "Wazuh Kibana plugin could not be installed."
-        rollBack kibana
+        rollBack
         exit 1
     fi
     logger "Wazuh Kibana plugin installation finished."
@@ -114,7 +114,7 @@ function initializeKibana() {
     done
     if [ $i -eq 12 ]; then
         logger -e "Cannot connect to Kibana."
-        rollBack kibana
+        rollBack
         exit 1
     fi
     if [ "${#wazuh_servers_node_names[@]}" -eq 1 ]; then
@@ -153,7 +153,7 @@ function initializeKibanaAIO() {
     done
     if [ $i -eq 12 ]; then
         logger -e "Cannot connect to Kibana."
-        rollBack kibana
+        rollBack
         exit 1
     fi
     logger "Kibana started."
@@ -171,7 +171,7 @@ function installKibana() {
     fi
     if [  "$?" != 0  ]; then
         logger -e "Kibana installation failed"
-        rollBack kibana
+        rollBack
         exit 1
     else    
         kibanainstalled="1"
