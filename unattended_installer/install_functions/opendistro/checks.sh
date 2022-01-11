@@ -18,7 +18,7 @@ function checkArch() {
 
 function checkArguments() {
 
-    if ([ -n "${AIO}" ] || [ -n "$certificates" ]) && [ -f "${tar_file}" ]; then
+    if ([ -n "${AIO}" ] || [ -n "${configurations}" ]) && [ -f "${tar_file}" ]; then
             logger -e "File ${tar_file} exists. Please remove the certificates tar file if you want to create new certificates."
             exit 1
     fi
@@ -111,10 +111,21 @@ function checkArguments() {
             fi
         fi
     fi
-    if [ -n "${certificates}" ] && ([ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ] || [ -n "${development}" ] || [ -n "${overwrite}" ] || [ -n "${start_elastic_cluster}" ] || [ -n "${tar_conf}" ] || [ -n "${uninstall}" ]); then
-            logger -e "The argument -c|--certificates can only be used by itself"
-            exit 1
+
+    if [ -n "${configurations}" ] && ([ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ] || [ -n "${development}" ] || [ -n "${overwrite}" ] || [ -n "${start_elastic_cluster}" ] || [ -n "${tar_conf}" ] || [ -n "${uninstall}" ]); then
+        logger -e "The argument -c|--certificates can only be used by itself"
+        exit 1
     fi
+
+    if [ -n "${start_elastic_cluster}" ] && ([ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ] || [ -n "${development}" ] || [ -n "${overwrite}" ] || [ -n "${configurations}" ] || [ -n "${tar_conf}" ] || [ -n "${uninstall}" ]); then
+        logger -e "The argument -s|--start-cluster can only be used by itself"
+        exit 1
+    fi
+
+    if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ] || [ -n "${start_elastic_cluster}" ] || [ -n "${configurations}" ];
+        logger -e "At lease one of these arguments is necessary -a|--all-in-one, -c|--create-configurations, -e|--elasticsearch <elasticsearch-node-name>, -k|--kibana <kibana-node-name>, -s|--start-cluster, -w|--wazuh-server <wazuh-node-name>, "
+        exit 1
+    fi 
 
 }
 

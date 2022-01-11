@@ -63,7 +63,7 @@ function getHelp() {
     echo -e "        $(basename $0) - Install and configure Wazuh central components."
     echo -e ""
     echo -e "SYNOPSIS"
-    echo -e "        $(basename $0) [OPTIONS] <-a | -c | -w name | -e name | -s | -k name>"
+    echo -e "        $(basename $0) [OPTIONS] -a | -c | -e <elasticsearch-node-name> | -k <kibana-node-name> | -s | -w <wazuh-node-name>"
     echo -e ""
     echo -e "DESCRIPTION"
     echo -e "        -a,  --all-in-one"
@@ -188,8 +188,8 @@ function main() {
                 AIO=1
                 shift 1
                 ;;
-            "-c"|"--create-certificates")
-                certificates=1
+            "-c"|"--create-configurations")
+                configurations=1
                 shift 1
                 ;;
             "-d"|"--development")
@@ -310,7 +310,7 @@ function main() {
         logger "All components removed."
         exit 0
     fi
-    if [ -z "${certificates}"] && [ -z "${AIO}" ]; then
+    if [ -z "${configurations}"] && [ -z "${AIO}" ]; then
         checkPreviousCertificates
     fi
     checkArch
@@ -323,7 +323,7 @@ function main() {
     checkArguments
 
     # Creation certificate case: Only AIO and -c option can create certificates. 
-    if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
+    if [ -n "${configurations}" ] || [ -n "${AIO}" ]; then
         createCertificates
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
             createClusterKey
@@ -337,7 +337,7 @@ function main() {
     fi
     extractConfig
     readConfig
-    if [ -n "${certificates}" ]; then
+    if [ -n "${configurations}" ]; then
         rm -f ${config_path}
     fi
     
@@ -432,7 +432,7 @@ function main() {
 
 # -------------------------------------------------------------------
 
-    if [ -z "${certificates}" ]; then
+    if [ -z "${configurations}" ]; then
         restoreWazuhrepo
     fi
 
