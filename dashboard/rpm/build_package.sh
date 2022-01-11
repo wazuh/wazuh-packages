@@ -46,12 +46,11 @@ build_rpm() {
       docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || return 1
     fi
 
-    echo "docker run -t --rm -v ${OUTDIR}/:/tmp:Z -v ${CURRENT_PATH}/wazuh-dashboard.spec:/root/wazuh-dashboard.spec ${CONTAINER_NAME} ${ARCHITECTURE} ${REVISION} ${INSTALLATION_PATH}"
     # Build the RPM package with a Docker container
     docker run -t --rm -v ${OUTDIR}/:/tmp:Z \
         -v ${CURRENT_PATH}/wazuh-dashboard.spec:/root/wazuh-dashboard.spec \
-        ${CONTAINER_NAME} "${ARCHITECTURE} \
-        ${REVISION} ${INSTALLATION_PATH}" || return 1
+        ${CONTAINER_NAME} ${ARCHITECTURE} \
+        ${REVISION} ${INSTALLATION_PATH} || return 1
 
     echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
 
