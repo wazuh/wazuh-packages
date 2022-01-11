@@ -57,5 +57,6 @@ function installWazuh() {
     else
         wazuhinstalled="1"
         logger "Wazuh manager installation finished."
-    fi   
+    fi
+    sed -i -e 's/wazuh_modules.debug=0/wazuh_modules.debug=2/' /var/ossec/etc/internal_options.conf
 }
