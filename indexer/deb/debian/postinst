@@ -1,6 +1,11 @@
 #!/bin/sh
 # postinst script for Wazuh-indexer
-# Wazuh, Inc 2015-2022
+# Copyright (C) 2015-2022, Wazuh Inc.
+#
+# This program is a free software; you can redistribute it
+# and/or modify it under the terms of the GNU General Public
+# License (version 2) as published by the FSF - Free Software
+# Foundation.
 
 #DEBHELPER#
 
@@ -25,10 +30,6 @@ chown -R ${USER}:${GROUP} ${LOG_DIR}
 #
 #   On Debian,
 #       $1=configure : is set to 'configure' and if $2 is set, it is an upgrade
-#
-#   On RedHat,
-#       $1=0         : indicates a removal
-#       $1=1         : indicates an upgrade
 
 # source the default env file
 if [ -f "/etc/default/wazuh-indexer" ]; then

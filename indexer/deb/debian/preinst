@@ -1,6 +1,11 @@
 #!/bin/sh
 # postinst script for Wazuh-indexer
-# Wazuh, Inc 2015-2022
+# Copyright (C) 2015-2022, Wazuh Inc.
+#
+# This program is a free software; you can redistribute it
+# and/or modify it under the terms of the GNU General Public
+# License (version 2) as published by the FSF - Free Software
+# Foundation.
 
 export NAME=wazuh-indexer
 
