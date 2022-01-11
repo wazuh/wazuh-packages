@@ -257,6 +257,8 @@ function main() {
             esac
         done
 
+        readConfig
+
         if [ -n "${debugEnabled}" ]; then
             debug_cert="2>&1 | tee -a ${logfile}"
         fi
