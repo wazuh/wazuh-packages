@@ -366,6 +366,13 @@ function readConfig() {
             exit 1
         fi
 
+        for i in ${wazuh_servers_node_types[@]}; do
+            if ( ! echo $i | grep -io master > /dev/null 2>&1 ) || ( ! echo $i | grep -io worker> /dev/null 2>&1 ); then
+                echo "Incorrect node_type $i must be master or worker"
+                # exit 1
+            fi
+        done
+
         if [ "${#wazuh_servers_node_names[@]}" -le 1 ]; then
             if [ "${#wazuh_servers_node_types[@]}" -ne 0 ]; then
                 logger_cert -e "node_type must be used with more than one Wazuh server."
@@ -374,10 +381,10 @@ function readConfig() {
         elif [ "${#wazuh_servers_node_names[@]}" -ne "${#wazuh_servers_node_types[@]}" ]; then
             logger_cert -e "Different number of Wazuh server node names and node types."
             exit 1
-        elif [ $(grep -o master <<< ${wazuh_servers_node_types[*]} | wc -l) -ne 1 ]; then
+        elif [ $(grep -io master <<< ${wazuh_servers_node_types[*]} | wc -l) -ne 1 ]; then
             logger_cert -e "Wazuh cluster needs a single master node."
             exit 1
-        elif [ $(grep -o worker <<< ${wazuh_servers_node_types[*]} | wc -l) -ne $(expr "${#wazuh_servers_node_types[@]}" - 1)  ]; then
+        elif [ $(grep -io worker <<< ${wazuh_servers_node_types[*]} | wc -l) -ne $(expr "${#wazuh_servers_node_types[@]}" - 1)  ]; then
             logger_cert -e "Incorrect number of workers."
             exit 1
         fi
