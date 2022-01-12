@@ -28,7 +28,7 @@ BuildRequires: tar shadow-utils
 %global CONFIG_DIR /etc/%{name}
 %global LOG_DIR /var/log/%{name}
 %global LIB_DIR /var/lib/%{name}
-%global PID_DIR /var/run/%{name}
+%global PID_DIR /run/%{name}
 %global SYS_DIR /usr/lib
 %global INSTALL_DIR /usr/share/%{name}
 
@@ -79,8 +79,6 @@ mv wazuh-indexer-*%{SYS_DIR}/* ${RPM_BUILD_ROOT}%{SYS_DIR}/
 rm -rf wazuh-indexer-*/etc
 rm -rf wazuh-indexer-*/usr
 cp -pr wazuh-indexer-*/* ${RPM_BUILD_ROOT}%{INSTALL_DIR}/
-mv ${RPM_BUILD_ROOT}/usr/lib/systemd/system/wazuh-indexer_centos.service ${RPM_BUILD_ROOT}/usr/lib/systemd/system/wazuh-indexer.service
-rm -rf ${RPM_BUILD_ROOT}/usr/lib/systemd/system/wazuh-indexer_debian.service
 
 # -----------------------------------------------------------------------------
 
