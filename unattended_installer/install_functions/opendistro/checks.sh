@@ -292,7 +292,7 @@ function checkPreviousCertificates() {
         exit 1
     fi
     if [ -n "${einame}" ]; then
-        if $(tar -tf "${tar_file}" | grep -q "${einame}".pem) || $(tar -tf "${tar_file}" | grep -q "${einame}"-key.pem); then
+        if ! $(tar -tf "${tar_file}" | grep -q "${einame}".pem) || ! $(tar -tf "${tar_file}" | grep -q "${einame}"-key.pem); then
             logger -e "There is no certificate for the elasticsearch node ${einame} in ${tar_file}."
             exit 1
         fi
@@ -300,14 +300,14 @@ function checkPreviousCertificates() {
 
 
     if [ -n "${kiname}" ]; then
-        if $(tar -tf "${tar_file}" | grep -q "${kiname}".pem) || $(tar -tf "${tar_file}" | grep -q "${kiname}"-key.pem); then
+        if ! $(tar -tf "${tar_file}" | grep -q "${kiname}".pem) || ! $(tar -tf "${tar_file}" | grep -q "${kiname}"-key.pem); then
             logger -e "There is no certificate for the kibana node ${kiname} in ${tar_file}."
             exit 1
         fi
     fi
 
     if [ -n "${winame}" ]; then
-        if $(tar -tf "${tar_file}" | grep -q "${winame}".pem) || $(tar -tf "${tar_file}" | grep -q "${winame}"-key.pem); then
+        if ! $(tar -tf "${tar_file}" | grep -q "${winame}".pem) || ! $(tar -tf "${tar_file}" | grep -q "${winame}"-key.pem); then
             logger -e "There is no certificate for the wazuh server node ${winame} in ${tar_file}."
             exit 1
         fi

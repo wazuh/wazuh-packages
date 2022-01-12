@@ -111,11 +111,11 @@ function changePasswords() {
 
 function extractConfig() {
 
-    if $(tar -tf "${tar_file}" | grep -q config.yml); then
+    if ! $(tar -tf "${tar_file}" | grep -q config.yml); then
         logger -e "There is no congig.yml file in ${tar_file}."
         exit 1
     fi
-    tar -xf "${tar_file}" -C "${base_path}" ./config.yml
+    eval "tar -xf ${tar_file} -C ${base_path} ./config.yml ${debug}"
 
 }
 
@@ -268,7 +268,7 @@ function restoreWazuhrepo() {
 
 function rollBack() {
 
-    if [ -z "${uninstall}" ] && [ -z "${1}" ]; then
+    if [ -z "${uninstall}" ]; then
         logger "Cleaning the installation."
     fi  
 
@@ -280,7 +280,7 @@ function rollBack() {
         eval "rm /etc/apt/sources.list.d/wazuh.list"
     fi
 
-    if [[ -n "${wazuhinstalled}" && ( -n "${wazuh}" || -n "${AIO}" ) ]];then
+    if [[ -n "${wazuhinstalled}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]];then
         logger -w "Removing the Wazuh manager."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-manager -y ${debug}"
@@ -293,11 +293,11 @@ function rollBack() {
         
     fi
 
-    if [[ ( -n "${wazuh_remaining_files}"  || -n "${wazuhinstalled}" ) && ( -n "${wazuh}" || -n "${AIO}" ) ]]; then
+    if [[ ( -n "${wazuh_remaining_files}"  || -n "${wazuhinstalled}" ) && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         eval "rm -rf /var/ossec/ ${debug}"
     fi
 
-    if [[ -n "${elasticsearchinstalled}" && ( -n "${elasticsearch}" || -n "${AIO}" ) ]]; then
+    if [[ -n "${elasticsearchinstalled}" && ( -n "${elasticsearch}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         logger -w "Removing Elasticsearch."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove opendistroforelasticsearch -y ${debug}"
@@ -310,13 +310,13 @@ function rollBack() {
         fi 
     fi
 
-    if [[ ( -n "${elastic_remaining_files}" || -n "${elasticsearchinstalled}" ) && ( -n "${elasticsearch}" || -n "${AIO}" ) ]]; then
+    if [[ ( -n "${elastic_remaining_files}" || -n "${elasticsearchinstalled}" ) && ( -n "${elasticsearch}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         eval "rm -rf /var/lib/elasticsearch/ ${debug}"
         eval "rm -rf /usr/share/elasticsearch/ ${debug}"
         eval "rm -rf /etc/elasticsearch/ ${debug}"
     fi
 
-    if [[ -n "${filebeatinstalled}" && ( -n "${wazuh}" || -n "${AIO}" ) ]]; then
+    if [[ -n "${filebeatinstalled}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         logger -w "Removing Filebeat."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove filebeat -y ${debug}"
@@ -327,13 +327,13 @@ function rollBack() {
         fi
     fi
 
-    if [[ ( -n "${filebeat_remaining_files}" || -n "${filebeatinstalled}" ) && ( -n "${wazuh}" || -n "${AIO}" ) ]]; then
+    if [[ ( -n "${filebeat_remaining_files}" || -n "${filebeatinstalled}" ) && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         eval "rm -rf /var/lib/filebeat/ ${debug}"
         eval "rm -rf /usr/share/filebeat/ ${debug}"
         eval "rm -rf /etc/filebeat/ ${debug}"
     fi
 
-    if [[ -n "${kibanainstalled}" && ( -n "${kibana}" || -n "${AIO}" ) ]]; then
+    if [[ -n "${kibanainstalled}" && ( -n "${kibana}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         logger -w "Removing Kibana."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove opendistroforelasticsearch-kibana -y ${debug}"
@@ -344,7 +344,7 @@ function rollBack() {
         fi
     fi
 
-    if [[ ( -n "${kibana_remaining_files}" || -n "${kibanainstalled}" ) && ( -n "${kibana}" || -n "${AIO}" ) ]]; then
+    if [[ ( -n "${kibana_remaining_files}" || -n "${kibanainstalled}" ) && ( -n "${kibana}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         eval "rm -rf /var/lib/kibana/ ${debug}"
         eval "rm -rf /usr/share/kibana/ ${debug}"
         eval "rm -rf /etc/kibana/ ${debug}"

@@ -302,12 +302,12 @@ function parse_yaml() {
             -e "s|^\($s\)\($w\)$s:$s[\"']\(.*\)[\"']$s\$|\1$fs\2$fs\3|p" \
             -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p"  ${1} |
     awk -F$fs '{
-        indent = length(${1})/2;
-        vname[indent] = ${2};
+        indent = length($1)/2;
+        vname[indent] = $2;
         for (i in vname) {if (i > indent) {delete vname[i]}}
         if (length($3) > 0) {
             vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
-            printf("%s%s%s=\"%s\"\n", "'$prefix'",vn, ${2}, $3);
+            printf("%s%s%s=\"%s\"\n", "'$prefix'",vn, $2, $3);
         }
     }'
 
@@ -363,7 +363,7 @@ function readConfig() {
         fi
 
         for i in "${wazuh_servers_node_types[@]}"; do
-            if ! echo "$i" | grep -ioq master || ! echo "$i" | grep -ioq worker; then
+            if ! echo "$i" | grep -ioq master && ! echo "$i" | grep -ioq worker; then
                 echo "Incorrect node_type $i must be master or worker"
                 # exit 1
             fi
