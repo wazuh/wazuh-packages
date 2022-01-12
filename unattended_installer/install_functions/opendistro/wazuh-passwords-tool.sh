@@ -24,7 +24,7 @@ changePassword() {
         for i in "${!passwords[@]}"
         do  
             if [ -n "${elasticsearchinstalled}" ] && [ -f "/usr/share/elasticsearch/backup/internal_users.yml" ]; then
-                awk -v new=${hashes[i]} 'prev=="'${users[i]}':"{sub(/\042.*/,""); ${0}=${0} new} {prev=${1}} 1' /usr/share/elasticsearch/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
+                awk -v new=${hashes[i]} 'prev=="'${users[i]}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1 1' /usr/share/elasticsearch/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
             fi
             
             if [ "${users[i]}" == "admin" ]; then
@@ -36,7 +36,7 @@ changePassword() {
         done
     else
         if [ -n "${elasticsearchinstalled}" ] && [ -f "/usr/share/elasticsearch/backup/internal_users.yml" ]; then
-            awk -v new="$hash" 'prev=="'${nuser}':"{sub(/\042.*/,""); ${0}=${0} new} {prev=${1}} 1' /usr/share/elasticsearch/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
+            awk -v new="$hash" 'prev=="'${nuser}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1 1' /usr/share/elasticsearch/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
         fi
 
         if [ "${nuser}" == "wazuh" ]; then
@@ -470,8 +470,8 @@ User:
 	    exit 1
     fi
 
-    sfileusers=$(grep name: "${p_file}" | awk '{ print substr( ${2}, 1, length(${2}) ) }')
-    sfilepasswords=$(grep password: "${p_file}" | awk '{ print substr( ${2}, 1, length(${2}) ) }')
+    sfileusers=$(grep name: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
+    sfilepasswords=$(grep password: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
 
     fileusers=("$sfileusers")
     filepasswords=("$sfilepasswords")
@@ -522,7 +522,7 @@ User:
 
 readUsers() {
 
-    susers=$(grep -B 1 hash: /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml | grep -v hash: | grep -v "-" | awk '{ print substr( ${0}, 1, length(${0})-1 ) }')
+    susers=$(grep -B 1 hash: /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml | grep -v hash: | grep -v "-" | awk '{ print substr( $0, 1, length($0)-1 ) }')
     users=("$susers")  
 
 }
