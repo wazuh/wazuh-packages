@@ -43,163 +43,7 @@ test-getConfig-online() {
 }
 
 test-getConfig-online-assert() {
-    curl -so /tmp/elasticsearch/elasticsearch.yml example.com/config/elasticsearch.yml
-}
-
-function load-checkSystem() {
-    @load_function "${base_dir}/tests/unattended/common.sh" checkSystem
-}
-
-test-ASSERT-FAIL-checkSystem-empty() {
-    load-checkSystem
-    @mock command -v yum === @false
-    @mock command -v zypper === @false
-    @mock command -v apt-get === @false
-    checkSystem
-}
-
-test-checkSystem-yum() {
-    load-checkSystem
-    @mock command -v yum === @echo /usr/bin/yum
-    @mock command -v zypper === @false
-    @mock command -v apt-get === @false
-    checkSystem
-    echo "$sys_type"
-    echo "$sep"
-}
-
-test-checkSystem-yum-assert() {
-    sys_type="yum"
-    sep="-"
-    echo "$sys_type"
-    echo "$sep"
-}
-
-test-checkSystem-zypper() {
-    load-checkSystem
-    @mock command -v yum === @false
-    @mock command -v zypper === @echo /usr/bin/zypper
-    @mock command -v apt-get === @false
-    checkSystem
-    @echo "$sys_type"
-    @echo "$sep"
-}
-
-test-checkSystem-zypper-assert() {
-    sys_type="zypper"
-    sep="-"
-    @echo "$sys_type"
-    @echo "$sep"
-}
-
-test-checkSystem-apt() {
-    load-checkSystem
-    @mock command -v yum === @false
-    @mock command -v zypper === @false
-    @mock command -v apt-get === @echo /usr/bin/apt-get
-    checkSystem
-    echo "$sys_type"
-    echo "$sep"
-}
-
-test-checkSystem-apt-assert() {
-    sys_type="apt-get"
-    sep="="
-    echo "$sys_type"
-    echo "$sep"
-}
-
-function load-checkNames() {
-    @load_function "${base_dir}/tests/unattended/common.sh" checkNames
-}
-
-test-ASSERT-FAIL-checkNames-elastic-kibana-equals() {
-    load-checkNames
-    einame="node1"
-    kiname="node1"
-    checkNames
-}
-
-test-ASSERT-FAIL-checkNames-elastic-wazuh-equals() {
-    load-checkNames
-    einame="node1"
-    winame="node1"
-    checkNames
-}
-
-test-ASSERT-FAIL-checkNames-kibana-wazuh-equals() {
-    load-checkNames
-    kiname="node1"
-    winame="node1"
-    checkNames
-}
-
-test-ASSERT-FAIL-checkNames-wazuh-node-name-not-in-config() {
-    load-checkNames
-    winame="node1"
-    wazuh_servers_node_names=(wazuh node10)
-    @mock echo ${wazuh_servers_node_names[@]} === @out wazuh node10
-    @mock grep -w $winame === @false
-    checkNames
-}
-
-test-ASSERT-FAIL-checkNames-kibana-node-name-not-in-config() {
-    load-checkNames
-    kiname="node1"
-    kibana_node_names=(kibana node10)
-    @mock echo ${kibana_node_names[@]} === @out kibana node10
-    @mock grep -w $kiname === @false
-    checkNames
-}
-
-test-ASSERT-FAIL-checkNames-elasticsearch-node-name-not-in-config() {
-    load-checkNames
-    einame="node1"
-    elasticsearch_node_names=(elasticsearch node10)
-    @mock echo ${elasticsearch_node_names[@]} === @out elasticsearch node10
-    @mock grep -w $einame === @false
-    checkNames
-}
-
-test-checkNames-all-correct() {
-    load-checkNames
-    einame="elasticsearch1"
-    kiname="kibana1"
-    wazuh="wazuh1"
-    elasticsearch_node_names=(elasticsearch1 node1)
-    wazuh_servers_node_names=(wazuh1 node2)
-    kibana_node_names=(kibana1 node3)
-    @mock echo ${elasticsearch_node_names[@]} === @out elasticsearch1 node1
-    @mock grep -w $einame === @out elasticsearch1
-    @mock echo ${wazuh_servers_node_names[@]} === @out wazuh1 node2
-    @mock grep -w $winame === @out wazuh1
-    @mock echo ${kibana_node_names[@]} === @out kibana1 node3
-    @mock grep -w $kiname === @out kibana1
-    checkNames
-    @assert-success
-}
-
-function load-checkArch() {
-    @load_function "${base_dir}/tests/unattended/common.sh" checkArch
-}
-
-test-checkArch-x86_64() {
-    @mock uname -m === @out x86_64
-    load-checkArch
-    checkArch
-    @assert-success
-}
-
-test-ASSERT-FAIL-checkArch-empty() {
-    @mock uname -m === @out
-    load-checkArch
-    checkArch
-}
-
-test-ASSERT-FAIL-checkArch-i386() {
-    @mock uname -m === @out i386
-    load-checkArch
-    checkArch
+    curl -f -so /tmp/elasticsearch/elasticsearch.yml example.com/config/elasticsearch.yml
 }
 
 function load-installPrerequisites() {
@@ -288,563 +132,192 @@ function load-addWazuhrepo() {
     @load_function "${base_dir}/tests/unattended/common.sh" addWazuhrepo
 }
 
-# test-addWazuhrepo-yum() {
-#     load-addWazuhrepo
-#     development=1
-#     sys_type="yum"
-#     debug=""
-#     repogpg=""
-#     releasever=""
-#     @mocktrue echo -e '[wazuh]\ngpgcheck=1\ngpgkey=\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=/yum/\nprotect=1'
-#     @mocktrue tee /etc/yum.repos.d/wazuh.repo
-#     @real chroot $JAIL addWazuhrepo
-# }
-
-# test-addWazuhrepo-yum-assert() {
-#     rm -f /etc/yum.repos.d/wazuh.repo
-#     rpm --import
-# }
-
-# test-addWazuhrepo-zypper() {
-#     load-addWazuhrepo
-#     development=1
-#     sys_type="zypper"
-#     debug=""
-#     repogpg=""
-#     releasever=""
-#     @rm /etc/yum.repos.d/wazuh.repo
-#     @rm /etc/zypp/repos.d/wazuh.repo
-#     @rm /etc/apt/sources.list.d/wazuh.list
-#     @mocktrue echo -e '[wazuh]\ngpgcheck=1\ngpgkey=\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=/yum/\nprotect=1'
-#     @mocktrue tee /etc/zypp/repos.d/wazuh.repo
-#     addWazuhrepo
-# }
-
-# test-addWazuhrepo-zypper-assert() {
-#     rm -f /etc/zypp/repos.d/wazuh.repo
-#     rpm --import
-# }
-
-# test-addWazuhrepo-apt() {
-#     load-addWazuhrepo
-#     development=1
-#     sys_type="apt-get"
-#     debug=""
-#     repogpg=""
-#     releasever=""
-#     @rm /etc/yum.repos.d/wazuh.repo
-#     @rm /etc/zypp/repos.d/wazuh.repo
-#     @rm /etc/apt/sources.list.d/wazuh.list
-#     @mocktrue curl -s --max-time 300
-#     @mocktrue apt-key add -
-#     @mocktrue echo "deb /apt/  main"
-#     @mocktrue tee /etc/apt/sources.list.d/wazuh.list
-#     addWazuhrepo
-# }
-
-# test-addWazuhrepo-apt-assert() {
-#     rm -f /etc/apt/sources.list.d/wazuh.list
-#     apt-get update -q
-# }
-
-# test-addWazuhrepo-yum-file-present() {
-#     load-addWazuhrepo
-#     development=""
-#     @touch /etc/yum.repos.d/wazuh.repo
-#     @rm /etc/zypp/repos.d/wazuh.repo
-#     @rm /etc/apt/sources.list.d/wazuh.list
-#     addWazuhrepo
-# }
-
-# test-addWazuhrepo-zypper-file-present() {
-#     load-addWazuhrepo
-#     development=""
-#     @mocktrue ! -f /etc/yum.repos.d/wazuh.repo
-#     @mockfalse ! -f /etc/zypp/repos.d/wazuh.repo
-#     @mocktrue ! -f /etc/apt/sources.list.d/wazuh.list
-#     addWazuhrepo
-# }
-
-# test-addWazuhrepo-apt-file-present() {
-#     load-addWazuhrepo
-#     development=""
-#     @mocktrue ! -f /etc/yum.repos.d/wazuh.repo
-#     @mocktrue ! -f /etc/zypp/repos.d/wazuh.repo
-#     @mockfalse ! -f /etc/apt/sources.list.d/wazuh.list
-#     addWazuhrepo
-# }
-
-# function load-restoreWazuhrepo() {
-#     @load_function "${base_dir}/tests/unattended/common.sh" restoreWazuhrepo
-# }
-
-# test-restoreWazuhrepo-no-dev() {
-#     load-restoreWazuhrepo
-#     development=""
-#     restoreWazuhrepo
-#     @assert-success
-# }
-
-# test-restoreWazuhrepo-yum() {
-#     load-restoreWazuhrepo
-#     development="1"
-#     sys_type="yum"
-#     #@mocktrue -f /etc/yum.repos.d/wazuh.repo
-#     restoreWazuhrepo
-# }
-
-# test-restoreWazuhrepo-yum-assert() {
-#     file="/etc/yum.repos.d/wazuh.repo"
-#     sed -i 's/-dev//g' ${file}
-#     sed -i 's/pre-release/4.x/g' ${file}
-#     sed -i 's/unstable/stable/g' ${file}
-# }
-
-# test-restoreWazuhrepo-apt() {
-#     load-restoreWazuhrepo
-#     development="1"
-#     sys_type="yum"
-#     #@mocktrue -f /etc/apt/sources.list.d/wazuh.list
-#     restoreWazuhrepo
-# }
-
-# test-restoreWazuhrepo-apt-assert() {
-#     file="/etc/apt/sources.list.d/wazuh.list"
-#     sed -i 's/-dev//g' ${file}
-#     sed -i 's/pre-release/4.x/g' ${file}
-#     sed -i 's/unstable/stable/g' ${file}
-# }
-
-# test-restoreWazuhrepo-zypper() {
-#     load-restoreWazuhrepo
-#     development="1"
-#     sys_type="yum"
-#     #@mocktrue -f /etc/zypp/repos.d/wazuh.repo
-#     restoreWazuhrepo
-# }
-
-# test-restoreWazuhrepo-zypper-assert() {
-#     file="/etc/zypp/repos.d/wazuh.repo"
-#     sed -i 's/-dev//g' ${file}
-#     sed -i 's/pre-release/4.x/g' ${file}
-#     sed -i 's/unstable/stable/g' ${file}
-# }
-
-# test-restoreWazuhrepo-yum-no-file() {
-#     load-restoreWazuhrepo
-#     development="1"
-#     sys_type="yum"
-#     #@mockfalse -f /etc/yum.repos.d/wazuh.repo
-#     restoreWazuhrepo
-# }
-
-# test-restoreWazuhrepo-yum-assert() {
-#     sed -i 's/-dev//g'
-#     sed -i 's/pre-release/4.x/g'
-#     sed -i 's/unstable/stable/g'
-# }
-
-# test-restoreWazuhrepo-apt-no-file() {
-#     load-restoreWazuhrepo
-#     development="1"
-#     sys_type="yum"
-#     #@mockfalse -f /etc/apt/sources.list.d/wazuh.list
-#     restoreWazuhrepo
-# }
-
-# test-restoreWazuhrepo-apt-assert() {
-#     sed -i 's/-dev//g'
-#     sed -i 's/pre-release/4.x/g'
-#     sed -i 's/unstable/stable/g'
-# }
-
-# test-restoreWazuhrepo-zypper() {
-#     load-restoreWazuhrepo
-#     development="1"
-#     sys_type="yum"
-#     #@mockfalse -f /etc/zypp/repos.d/wazuh.repo
-#     restoreWazuhrepo
-# }
-
-# test-restoreWazuhrepo-zypper-assert() {
-#     file="/etc/zypp/repos.d/wazuh.repo"
-#     sed -i 's/-dev//g'
-#     sed -i 's/pre-release/4.x/g'
-#     sed -i 's/unstable/stable/g'
-# }
-
-function load-checkArguments {
-    @load_function "${base_dir}/tests/unattended/common.sh" checkArguments
+test-addWazuhrepo-yum() {
+    load-addWazuhrepo
+    development=1
+    sys_type="yum"
+    debug=""
+    repogpg=""
+    releasever=""
+    @mocktrue echo -e '[wazuh]\ngpgcheck=1\ngpgkey=\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=/yum/\nprotect=1'
+    @mocktrue tee /etc/yum.repos.d/wazuh.repo
+    addWazuhrepo
 }
 
-test-ASSERT-FAIL-checkArguments-install-aio-certs-file-present() {
-    load-checkArguments
-    AIO=1
-    base_path=/tmp
-    @mkdir ${base_path}/certs
-    checkArguments
+test-addWazuhrepo-yum-assert() {
+    rm -f /etc/yum.repos.d/wazuh.repo
+    rpm --import
 }
 
-test-ASSERT-FAIL-checkArguments-certificate-creation-certs-file-present() {
-    load-checkArguments
-    certificates=1
-    base_path=/tmp
-    @mkdir ${base_path}/certs
-    checkArguments
+test-addWazuhrepo-zypper() {
+    load-addWazuhrepo
+    development=1
+    sys_type="zypper"
+    debug=""
+    repogpg=""
+    releasever=""
+    @rm /etc/yum.repos.d/wazuh.repo
+    @rm /etc/zypp/repos.d/wazuh.repo
+    @rm /etc/apt/sources.list.d/wazuh.list
+    @mocktrue echo -e '[wazuh]\ngpgcheck=1\ngpgkey=\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=/yum/\nprotect=1'
+    @mocktrue tee /etc/zypp/repos.d/wazuh.repo
+    addWazuhrepo
 }
 
-test-ASSERT-FAIL-checkArguments-overwrite-with-no-component-installed() {
-    load-checkArguments
-    overwrite=1
-    AIO=
-    elasticsearch=
-    wazuh=
-    kibana=
-    checkArguments
+test-addWazuhrepo-zypper-assert() {
+    rm -f /etc/zypp/repos.d/wazuh.repo
+    rpm --import
 }
 
-test-checkArguments-uninstall-no-component-installed() {
-    load-checkArguments
-    uninstall=1
-    elasticsearchinstalled=""
-    elastic_remaining_files=""
-    wazuhinstalled=""
-    wazuh_remaining_files=""
-    kibanainstalled=""
-    kibana_remaining_files=""
-    filebeatinstalled=""
-    filebeat_remaining_files=""
-    checkArguments
+test-addWazuhrepo-apt() {
+    load-addWazuhrepo
+    development=1
+    sys_type="apt-get"
+    debug=""
+    repogpg=""
+    releasever=""
+    @rm /etc/yum.repos.d/wazuh.repo
+    @rm /etc/zypp/repos.d/wazuh.repo
+    @rm /etc/apt/sources.list.d/wazuh.list
+    @mocktrue curl -s --max-time 300
+    @mocktrue apt-key add -
+    @mocktrue echo "deb /apt/  main"
+    @mocktrue tee /etc/apt/sources.list.d/wazuh.list
+    addWazuhrepo
+}
+
+test-addWazuhrepo-apt-assert() {
+    rm -f /etc/apt/sources.list.d/wazuh.list
+    apt-get update -q
+}
+
+test-addWazuhrepo-apt-file-present() {
+    load-addWazuhrepo
+    development=""
+    @mkdir -p /etc/yum.repos.d
+    @touch /etc/yum.repos.d/wazuh.repo
+    addWazuhrepo
+    @assert-success
+    @rm /etc/yum.repos.d/wazuh.repo
+}
+
+test-addWazuhrepo-zypper-file-present() {
+    load-addWazuhrepo
+    development=""
+    @mkdir -p /etc/zypp/repos.d/
+    @touch /etc/zypp/repos.d/wazuh.repo
+    addWazuhrepo
+    @assert-success
+    @rm /etc/zypp/repos.d/wazuh.repo
+}
+
+test-addWazuhrepo-yum-file-present() {
+    load-addWazuhrepo
+    development=""
+    @mkdir -p /etc/apt/sources.list.d/
+    @touch /etc/apt/sources.list.d/wazuh.list
+    addWazuhrepo
+    @assert-success
+    @rm /etc/apt/sources.list.d/wazuh.list
+}
+
+function load-restoreWazuhrepo() {
+    @load_function "${base_dir}/tests/unattended/common.sh" restoreWazuhrepo
+}
+
+test-restoreWazuhrepo-no-dev() {
+    load-restoreWazuhrepo
+    development=""
+    restoreWazuhrepo
     @assert-success
 }
 
-test-ASSERT-FAIL-checkArguments-uninstall-and-aio() {
-    load-checkArguments
-    uninstall=1
-    AIO=1
-    checkArguments
+test-restoreWazuhrepo-yum() {
+    load-restoreWazuhrepo
+    development="1"
+    sys_type="yum"
+    @mkdir -p /etc/yum.repos.d
+    @touch /etc/yum.repos.d/wazuh.repo
+    restoreWazuhrepo
+    @rm /etc/yum.repos.d/wazuh.repo
 }
 
-test-ASSERT-FAIL-checkArguments-uninstall-and-wazuh() {
-    load-checkArguments
-    uninstall=1
-    wazuh=1
-    checkArguments
+test-restoreWazuhrepo-yum-assert() {
+    sed -i 's/-dev//g' /etc/yum.repos.d/wazuh.repo
+    sed -i 's/pre-release/4.x/g' /etc/yum.repos.d/wazuh.repo
+    sed -i 's/unstable/stable/g' /etc/yum.repos.d/wazuh.repo
 }
 
-test-ASSERT-FAIL-checkArguments-uninstall-and-kibana() {
-    load-checkArguments
-    uninstall=1
-    kibana=1
-    checkArguments
+test-restoreWazuhrepo-apt() {
+    load-restoreWazuhrepo
+    development="1"
+    sys_type="apt-get"
+    @mkdir -p /etc/apt/sources.list.d/
+    @touch /etc/apt/sources.list.d/wazuh.list
+    restoreWazuhrepo
+    @rm /etc/apt/sources.list.d/wazuh.list
 }
 
-test-ASSERT-FAIL-checkArguments-uninstall-and-elasticsearch() {
-    load-checkArguments
-    uninstall=1
-    elasticsearch=1
-    checkArguments
+test-restoreWazuhrepo-apt-assert() {
+    sed -i 's/-dev//g' /etc/apt/sources.list.d/wazuh.list
+    sed -i 's/pre-release/4.x/g' /etc/apt/sources.list.d/wazuh.list
+    sed -i 's/unstable/stable/g' /etc/apt/sources.list.d/wazuh.list
 }
 
-test-ASSERT-FAIL-checkArguments-install-aio-and-elastic () {
-    load-checkArguments
-    AIO=1
-    elasticsearch=1
-    checkArguments
+test-restoreWazuhrepo-zypper() {
+    load-restoreWazuhrepo
+    development="1"
+    sys_type="zypper"
+    @mkdir -p /etc/zypp/repos.d/
+    @touch /etc/zypp/repos.d/wazuh.repo
+    restoreWazuhrepo
+    @rm /etc/zypp/repos.d/wazuh.repo
 }
 
-test-ASSERT-FAIL-checkArguments-install-aio-and-wazuh () {
-    load-checkArguments
-    AIO=1
-    wazuh=1
-    checkArguments
+test-restoreWazuhrepo-zypper-assert() {
+    sed -i 's/-dev//g' /etc/zypp/repos.d/wazuh.repo
+    sed -i 's/pre-release/4.x/g' /etc/zypp/repos.d/wazuh.repo
+    sed -i 's/unstable/stable/g' /etc/zypp/repos.d/wazuh.repo
 }
 
-test-ASSERT-FAIL-checkArguments-install-aio-and-kibana () {
-    load-checkArguments
-    AIO=1
-    kibana=1
-    checkArguments
+test-restoreWazuhrepo-yum-no-file() {
+    load-restoreWazuhrepo
+    development="1"
+    sys_type="yum"
+    restoreWazuhrepo
 }
 
-test-ASSERT-FAIL-checkArguments-install-aio-wazuh-installed-no-overwrite() {
-    load-checkArguments
-    AIO=1
-    wazuhinstalled=1
-    overwrite=
-    checkArguments
+test-restoreWazuhrepo-yum-no-file-assert() {
+    sed -i 's/-dev//g'
+    sed -i 's/pre-release/4.x/g'
+    sed -i 's/unstable/stable/g'
 }
 
-test-ASSERT-FAIL-checkArguments-install-aio-wazuh-files-no-overwrite() {
-    load-checkArguments
-    AIO=1
-    wazuh_remaining_files=1
-    overwrite=
-    checkArguments
+test-restoreWazuhrepo-apt-no-file() {
+    load-restoreWazuhrepo
+    development="1"
+    sys_type="yum"
+    restoreWazuhrepo
 }
 
-test-ASSERT-FAIL-checkArguments-install-aio-elastic-installed-no-overwrite() {
-    load-checkArguments
-    AIO=1
-    elasticsearchinstalled=1
-    overwrite=
-    checkArguments
+test-restoreWazuhrepo-apt-no-file-assert() {
+    sed -i 's/-dev//g'
+    sed -i 's/pre-release/4.x/g'
+    sed -i 's/unstable/stable/g'
 }
 
-test-ASSERT-FAIL-checkArguments-install-aio-elastic-files-no-overwrite() {
-    load-checkArguments
-    AIO=1
-    elastic_remaining_files=1
-    overwrite=
-    checkArguments
+test-restoreWazuhrepo-zypper-no-file() {
+    load-restoreWazuhrepo
+    development="1"
+    sys_type="yum"
+    restoreWazuhrepo
 }
 
-test-ASSERT-FAIL-checkArguments-install-aio-kibana-installed-no-overwrite() {
-    load-checkArguments
-    AIO=1
-    kibanainstalled=1
-    overwrite=
-    checkArguments
-}
-
-test-ASSERT-FAIL-checkArguments-install-aio-kibana-files-no-overwrite() {
-    load-checkArguments
-    AIO=1
-    kibana_remaining_files=1
-    overwrite=
-    checkArguments
-}
-
-test-checkArguments-install-aio-wazuh-installed-overwrite() {
-    load-checkArguments
-    AIO=1
-    wazuhinstalled=1
-    overwrite=1
-    checkArguments
-}
-
-test-checkArguments-install-aio-wazuh-installed-overwrite-assert() {
-    rollBack
-}
-
-test-checkArguments-install-aio-wazuh-files-overwrite() {
-    load-checkArguments
-    AIO=1
-    wazuh_remaining_files=1
-    overwrite=1
-    checkArguments
-}
-
-test-checkArguments-install-aio-wazuh-files-overwrite-assert() {
-    rollBack
-}
-
-test-checkArguments-install-aio-elastic-installed-overwrite() {
-    load-checkArguments
-    AIO=1
-    elasticsearchinstalled=1
-    overwrite=1
-    checkArguments
-}
-
-test-checkArguments-install-aio-elastic-installed-overwrite-assert() {
-    rollBack
-}
-
-test-checkArguments-install-aio-elastic-files-overwrite() {
-    load-checkArguments
-    AIO=1
-    elastic_remaining_files=1
-    overwrite=1
-    checkArguments
-}
-
-test-checkArguments-install-aio-elastic-files-overwrite-assert() {
-    rollBack
-}
-
-test-checkArguments-install-aio-kibana-installed-overwrite() {
-    load-checkArguments
-    AIO=1
-    kibanainstalled=1
-    overwrite=1
-    checkArguments
-}
-
-test-checkArguments-install-aio-kibana-installed-overwrite-assert() {
-    rollBack
-}
-
-test-checkArguments-install-aio-kibana-files-overwrite() {
-    load-checkArguments
-    AIO=1
-    kibana_remaining_files=1
-    overwrite=1
-    checkArguments
-}
-
-test-checkArguments-install-aio-kibana-files-overwrite-assert() {
-    rollBack
-}
-
-test-ASSERT-FAIL-checkArguments-install-elastic-already-installed-no-overwrite() {
-    load-checkArguments
-    elasticsearch=1
-    elasticsearchinstalled=1
-    overwrite=
-    checkArguments
-}
-
-test-ASSERT-FAIL-checkArguments-install-elastic-remaining-files-no-overwrite() {
-    load-checkArguments
-    elasticsearch=1
-    elastic_remaining_files=1
-    overwrite=
-    checkArguments
-}
-
-test-checkArguments-install-elastic-already-installed-overwrite() {
-    load-checkArguments
-    elasticsearch=1
-    elasticsearchinstalled=1
-    overwrite=1
-    checkArguments
-}
-
-test-checkArguments-install-elastic-already-installed-overwrite-assert() {
-    rollBack elasticsearch
-}
-
-test-checkArguments-install-elastic-remaining-files-overwrite() {
-    load-checkArguments
-    elasticsearch=1
-    elastic_remaining_files=1
-    overwrite=1
-    checkArguments
-}
-
-test-checkArguments-install-elastic-remaining-files-overwrite-assert() {
-    rollBack elasticsearch
-}
-
-test-ASSERT-FAIL-checkArguments-install-wazuh-already-installed-no-overwrite() {
-    load-checkArguments
-    wazuh=1
-    wazuhinstalled=1
-    overwrite=
-    checkArguments
-}
-
-test-ASSERT-FAIL-checkArguments-install-wazuh-remaining-files-no-overwrite() {
-    load-checkArguments
-    wazuh=1
-    wazuh_remaining_files=1
-    overwrite=
-    checkArguments
-}
-
-test-checkArguments-install-wazuh-already-installed-overwrite() {
-    load-checkArguments
-    wazuh=1
-    wazuhinstalled=1
-    overwrite=1
-    checkArguments
-}
-
-test-checkArguments-install-wazuh-already-installed-overwrite-assert() {
-    rollBack wazuh
-}
-
-test-checkArguments-install-wazuh-remaining-files-overwrite() {
-    load-checkArguments
-    wazuh=1
-    wazuh_remaining_files=1
-    overwrite=1
-    checkArguments
-}
-
-test-checkArguments-install-wazuh-remaining-files-overwrite-assert() {
-    rollBack wazuh
-}
-
-test-ASSERT-FAIL-checkArguments-install-wazuh-filebeat-already-installed-no-overwrite() {
-    load-checkArguments
-    wazuh=1
-    filebeatinstalled=1
-    overwrite=
-    checkArguments
-}
-
-test-ASSERT-FAIL-checkArguments-install-wazuh-filebeat-remaining-files-no-overwrite() {
-    load-checkArguments
-    wazuh=1
-    filebeat_remaining_files=1
-    overwrite=
-    checkArguments
-}
-
-test-checkArguments-install-wazuh-filebeat-already-installed-overwrite() {
-    load-checkArguments
-    wazuh=1
-    filebeatinstalled=1
-    overwrite=1
-    checkArguments
-}
-
-test-checkArguments-install-wazuh-filebeat-already-installed-overwrite-assert() {
-    rollBack filebeat
-}
-
-test-checkArguments-install-wazuh-filebeat-remaining-files-overwrite() {
-    load-checkArguments
-    wazuh=1
-    filebeat_remaining_files=1
-    overwrite=1
-    checkArguments
-}
-
-test-checkArguments-install-wazuh-filebeat-remaining-files-overwrite-assert() {
-    rollBack filebeat
-}
-
-test-ASSERT-FAIL-checkArguments-install-kibana-already-installed-no-overwrite() {
-    load-checkArguments
-    kibana=1
-    kibanainstalled=1
-    overwrite=
-    checkArguments
-}
-
-test-ASSERT-FAIL-checkArguments-install-kibana-remaining-files-no-overwrite() {
-    load-checkArguments
-    kibana=1
-    kibana_remaining_files=1
-    overwrite=
-    checkArguments
-}
-
-test-checkArguments-install-kibana-already-installed-overwrite() {
-    load-checkArguments
-    kibana=1
-    kibanainstalled=1
-    overwrite=1
-    checkArguments
-}
-
-test-checkArguments-install-kibana-already-installed-overwrite-assert() {
-    rollBack kibana
-}
-
-test-checkArguments-install-kibana-remaining-files-overwrite() {
-    load-checkArguments
-    kibana=1
-    kibana_remaining_files=1
-    overwrite=1
-    checkArguments
-}
-
-test-checkArguments-install-kibana-remaining-files-overwrite-assert() {
-    rollBack kibana
+test-restoreWazuhrepo-zypper-no-file-assert() {
+    file="/etc/zypp/repos.d/wazuh.repo"
+    sed -i 's/-dev//g'
+    sed -i 's/pre-release/4.x/g'
+    sed -i 's/unstable/stable/g'
 }
 
 function load-createClusterKey {
@@ -854,9 +327,12 @@ function load-createClusterKey {
 test-createClusterKey() {
     load-createClusterKey
     base_path=/tmp
-    @mocktrue openssl rand -hex 16 >> /tmp/certs/clusterkey
+    @mkdir -p /tmp/certs
+    @touch /tmp/certs/clusterkey
+    @mocktrue openssl rand -hex 16
     createClusterKey
     @assert-success
+    @rm /tmp/certs/clusterkey
 }
 
 function load-rollBack {
@@ -964,7 +440,7 @@ test-rollBack-no-arguments-all-installed-apt-assert() {
     
     rm -rf /var/ossec/
     
-    apt remove --purge opendistroforelasticsearch elasticsearch* opendistro-* -y
+    apt remove --purge ^elasticsearch* ^opendistro-* ^opendistroforelasticsearch -y
     
     rm -rf /var/lib/elasticsearch/
     rm -rf /usr/share/elasticsearch/
@@ -1047,7 +523,7 @@ test-rollBack-elasticsearch-arg-all-installed-apt() {
 }
 
 test-rollBack-elasticsearch-arg-all-installed-apt-assert() {
-    apt remove --purge opendistroforelasticsearch elasticsearch* opendistro-* -y
+    apt remove --purge ^elasticsearch* ^opendistro-* ^opendistroforelasticsearch -y
     
     rm -rf /var/lib/elasticsearch/
     rm -rf /usr/share/elasticsearch/
@@ -1462,125 +938,6 @@ test-rollBack-nothing-installed-remove-/etc/systemd/system/elasticsearch.service
     rm -rf /etc/systemd/system/elasticsearch.service.wants
 }
 
-function load-healthCheck() {
-    @load_function "${base_dir}/tests/unattended/common.sh" healthCheck
-    @mocktrue specsCheck
-}
-
-test-healthCheck-no-argument() {
-    load-healthCheck
-    healthCheck
-    @assert-success
-}
-
-test-ASSERT-FAIL-healthCheck-AIO-1-core-4gb() {
-    load-healthCheck
-    cores=1
-    ram_gb=4
-    healthCheck AIO
-}
-
-test-ASSERT-FAIL-healthCheck-AIO-2-cores-3gb() {
-    load-healthCheck
-    cores=2
-    ram_gb=3
-    healthCheck AIO
-}
-
-test-healthCheck-AIO-2-cores-4gb() {
-    load-healthCheck
-    cores=2
-    ram_gb=4
-    healthCheck AIO
-    @assert-success
-}
-
-test-ASSERT-FAIL-healthCheck-elasticsearch-1-core-4gb() {
-    load-healthCheck
-    cores=1
-    ram_gb=4
-    healthCheck elasticsearch
-}
-
-test-ASSERT-FAIL-healthCheck-elasticsearch-2-cores-3gb() {
-    load-healthCheck
-    cores=2
-    ram_gb=3
-    healthCheck elasticsearch
-}
-
-test-healthCheck-elasticsearch-2-cores-4gb() {
-    load-healthCheck
-    cores=2
-    ram_gb=4
-    healthCheck elasticsearch
-    @assert-success
-}
-
-test-ASSERT-FAIL-healthCheck-kibana-1-core-4gb() {
-    load-healthCheck
-    cores=1
-    ram_gb=4
-    healthCheck kibana
-}
-
-test-ASSERT-FAIL-healthCheck-kibana-2-cores-3gb() {
-    load-healthCheck
-    cores=2
-    ram_gb=3
-    healthCheck kibana
-}
-
-test-healthCheck-kibana-2-cores-4gb() {
-    load-healthCheck
-    cores=2
-    ram_gb=4
-    healthCheck kibana
-    @assert-success
-}
-
-test-ASSERT-FAIL-healthCheck-wazuh-1-core-2gb() {
-    load-healthCheck
-    cores=1
-    ram_gb=2
-    healthCheck wazuh
-}
-
-test-ASSERT-FAIL-healthCheck-wazuh-2-cores-1gb() {
-    load-healthCheck
-    cores=2
-    ram_gb=1
-    healthCheck wazuh
-}
-
-test-healthCheck-wazuh-2-cores-2gb() {
-    load-healthCheck
-    cores=2
-    ram_gb=2
-    healthCheck wazuh
-    @assert-success
-}
-
-function load-checkInstalled() {
-    @load_function "${base_dir}/tests/unattended/common.sh" checkInstalled
-}
-
-test-checkInstalled-all-installed-yum() {
-    load-checkInstalled
-    sys_type="yum"
-
-    @mock yum list installed 2>/dev/null | grep wazuh-manager === @out "Detected pipeline"
-    @mkdir /var/ossec
-    @mock echo  wazuh-manager.x86_64  4.3.0-1  @wazuh === @out 4.3.0-1
-    @mock awk '{print $2}'
-
-    checkInstalled
-    @echo $wazuhinstalled
-    @echo $wazuhversion
-    @rmdir /var/ossec
-}
-
-test-checkInstalled-all-installed-yum-assert() {
-    @echo "wazuh-manager.x86_64 4.3.0-1 @wazuh"
-    @echo "4.3.0-1"
+function load-startService() {
+    @load_function "${base_dir}/tests/unattended/common.sh" startService
 }

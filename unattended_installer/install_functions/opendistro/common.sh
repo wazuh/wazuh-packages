@@ -109,6 +109,11 @@ function changePasswords() {
 
 function getConfig() {
 
+    if [ "$#" -ne 2 ]; then
+        logger -e "getConfig should be called with two arguments"
+        exit 1
+    fi
+
     if [ -n "${local}" ]; then
         cp ${base_path}/${config_path}/$1 $2
     else

@@ -76,7 +76,7 @@ function checkArguments() {
                 rollBack "elasticsearch"
             else 
                 logger -e "Elasticsearch is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
-                exit
+                exit 1
             fi
         fi
     fi
@@ -87,7 +87,7 @@ function checkArguments() {
                 rollBack "kibana"
             else 
                 logger -e "Kibana is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
-                exit 
+                exit 1
             fi
         fi
     fi
@@ -98,7 +98,7 @@ function checkArguments() {
                 rollBack "wazuh"
             else 
                 logger -e "Wazuh is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
-                exit 
+                exit 1
             fi
         fi
 
@@ -320,6 +320,9 @@ function checkSystem() {
     elif [ -n "$(command -v apt-get)" ]; then
         sys_type="apt-get"   
         sep="="
+    else
+        logger -e "Couldn't find type of system"
+        exit 1
     fi
 
 }

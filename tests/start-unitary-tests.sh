@@ -4,7 +4,7 @@ function startDocker() {
         eval "systemctl daemon-reload"
         eval "systemctl enable docker.service"
         eval "systemctl start docker.service"
-        if [  "$?" != 0  ]; then
+        if [ "$?" != 0 ]; then
             echo "Docker could not be started"
             exit 1
         else 
@@ -14,7 +14,7 @@ function startDocker() {
         eval "chkconfig docker on"
         eval "service docker start"
         eval "/etc/init.d/docker start"
-        if [  "$?" != 0  ]; then
+        if [ "$?" != 0 ]; then
             echo "Docker could not be started"
             exit 1
         else 
@@ -22,7 +22,7 @@ function startDocker() {
         fi
     elif [ -x /etc/rc.d/init.d/docker ] ; then
         eval "/etc/rc.d/init.d/docker start"
-        if [  "$?" != 0  ]; then
+        if [ "$?" != 0 ]; then
             echo "Docker could not be started"
             exit 1
         else 
@@ -48,13 +48,25 @@ function createDocker() {
     container_name="testing-container"
     eval "docker run -d -t --name $container_name $image_name /bin/bash "
     container_id="$( docker ps -a | grep $container_name | awk '{ print $1 }' )"
+    eval "docker cp bach.sh $container_id:/tests/bach.sh"
 }
 
 function testCommon() {
-    eval "mkdir temp/"
-    eval "cp ../unattended_scripts/install_functions/opendistro/common.sh temp/"
+    eval "docker cp unattended/test-common.sh $container_id:/tests/unattended/test-common.sh"
+    eval "mkdir -p temp/"
+    eval "cp ../unattended_installer/install_functions/opendistro/common.sh temp/"
     eval "docker cp temp/common.sh $container_id:/tests/unattended/common.sh"
-    eval "docker exec $container_name bash -c \"cd /tests/unattended && bash test-common.sh\" "
+    eval "docker exec $container_name bash -lc \"cd /tests/unattended && bash test-common.sh\" "
+    echo -e "All unitary tests for the functions in common.sh finished.\n"
+}
+
+function testChecks() {
+    eval "docker cp unattended/test-checks.sh $container_id:/tests/unattended/test-checks.sh"
+    eval "mkdir -p temp/"
+    eval "cp ../unattended_installer/install_functions/opendistro/checks.sh temp/"
+    eval "docker cp temp/checks.sh $container_id:/tests/unattended/checks.sh"
+    eval "docker exec $container_name bash -lc \"cd /tests/unattended && bash test-checks.sh\" "
+    echo -e "All unitary tests for the functions in checks.sh finished.\n"
 }
 
 function clean() {
@@ -78,6 +90,7 @@ main() {
     startDocker
     createDocker
     testCommon
+    testChecks
     clean
 }
 
