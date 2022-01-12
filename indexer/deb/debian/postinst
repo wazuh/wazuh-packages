@@ -15,15 +15,9 @@ export GROUP=${NAME}
 export CONFIG_DIR=/etc/${NAME}
 export INSTALLATION_DIR=/usr/share/${NAME}
 export LOG_DIR=/var/log/${NAME}
-export PID_DIR=/var/run/${NAME}
+export PID_DIR=/run/${NAME}
 export LIB_DIR=/var/lib/${NAME}
 export SYS_DIR=/usr/lib
-
-
-# Setting Owner and group of own folders
-chown -R ${USER}:${GROUP} ${CONFIG_DIR}
-chown -R ${USER}:${GROUP} ${INSTALLATION_DIR}
-chown -R ${USER}:${GROUP} ${LOG_DIR}
 
 #
 # This script is executed in the post-installation phase
@@ -41,32 +35,33 @@ if command -v systemctl > /dev/null; then
     systemctl restart systemd-sysctl.service || true
 fi
 
-
-# Make sure the OPENSEARCH_HOME environment variable is set
-if [ -z "$OPENSEARCH_HOME" ]; then
-  OPENSEARCH_HOME=/usr/share/wazuh-indexer
-fi
-
-# Prepare the RCA reader process for execution
-mkdir -p "/var/lib/wazuh-indexer"
-echo 'true' > /var/lib/wazuh-indexer/performance_analyzer_enabled.conf
-echo 'true' > /var/lib/wazuh-indexer/rca_enabled.conf
-chown -R ${USER}:${GROUP} ${LIB_DIR}
-chown -R ${USER}:${GROUP} $OPENSEARCH_HOME/performance-analyzer-rca
-
-CLK_TCK=`/usr/bin/getconf CLK_TCK`
-echo >> /etc/wazuh-indexer/jvm.options
-echo '## OpenDistro Performance Analyzer' >> /etc/wazuh-indexer/jvm.options
-echo "-Dclk.tck=$CLK_TCK" >> /etc/wazuh-indexer/jvm.options
-echo "-Djdk.attach.allowAttachSelf=true" >> /etc/wazuh-indexer/jvm.options
-echo "-Djava.security.policy=file:///usr/share/wazuh-indexer/plugins/opendistro-performance-analyzer/pa_config/es_security.policy" >> /etc/wazuh-indexer/jvm.options
-
-
-
 # Below codeblock is using the fact that postinst script is called with the most-recently configured version.
 # In other words, a fresh installed will be called like "postinst configure" with no previous version ($2 is null)
 if [ -z "$2" ]; then
-  # If $2 is null, this is an install
+  # If $2 is null, this is an install	
+
+  # Setting Owner and group of own folders
+  chown -R ${USER}:${GROUP} ${CONFIG_DIR}
+  chown -R ${USER}:${GROUP} ${INSTALLATION_DIR}
+  chown -R ${USER}:${GROUP} ${LOG_DIR}
+
+  # Prepare the RCA reader process for execution
+  mkdir -p "/var/lib/wazuh-indexer"
+  echo 'true' > ${LIB_DIR}/performance_analyzer_enabled.conf
+  echo 'true' > ${LIB_DIR}/rca_enabled.conf
+  # This is needed by the performance-analyzer service
+  echo 'false' > ${LIB_DIR}/batch_metrics_enabled.conf
+  chown ${USER}:${GROUP} ${LIB_DIR}/performance_analyzer_enabled.conf
+  chown ${USER}:${GROUP} ${LIB_DIR}/rca_enabled.conf
+  chown ${USER}:${GROUP} ${LIB_DIR}/batch_metrics_enabled.conf
+  chown ${USER}:${GROUP} ${LIB_DIR}
+
+  CLK_TCK=`/usr/bin/getconf CLK_TCK`
+  echo >> /etc/wazuh-indexer/jvm.options
+  echo '## OpenDistro Performance Analyzer' >> /etc/wazuh-indexer/jvm.options
+  echo "-Dclk.tck=$CLK_TCK" >> /etc/wazuh-indexer/jvm.options
+  echo "-Djdk.attach.allowAttachSelf=true" >> /etc/wazuh-indexer/jvm.options
+  echo "-Djava.security.policy=file:///usr/share/wazuh-indexer/plugins/opendistro-performance-analyzer/pa_config/es_security.policy" >> /etc/wazuh-indexer/jvm.options
 
   # ---------------------------------------------------------------------------
 	sysctl -w vm.max_map_count=262144 > /dev/null 2>&1 

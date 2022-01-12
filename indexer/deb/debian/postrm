@@ -11,7 +11,7 @@ export NAME=wazuh-indexer
 export CONFIG_DIR=/etc/${NAME}
 export INSTALLATION_DIR=/usr/share/${NAME}
 export LOG_DIR=/var/log/${NAME}
-export PID_DIR=/var/run/${NAME}
+export PID_DIR=/run/${NAME}
 export LIB_DIR=/var/lib/${NAME}
 
 #

@@ -27,7 +27,7 @@ else
     if [ "${spec_reference}" ];then
         version=$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh-packages/${spec_reference}/indexer/deb/debian/changelog | egrep -o -m 1 '[0-9]+\.[0-9]+\.[0-9]+')
     else
-        version=$(egrep -o -m 1 '[0-9]+\.[0-9]+\.[0-9]+' /root/spec/debian/changelog)
+        version=$(egrep -o -m 1 '[0-9]+\.[0-9]+\.[0-9]+' /root/indexer/deb/debian/changelog)
     fi
 fi
 
@@ -43,8 +43,9 @@ mkdir -p ${sources_dir}/debian
 if [ "${spec_reference}" ];then
     curl -sL https://github.com/wazuh/wazuh-packages/tarball/${spec_reference} | tar zx
     cp -r ./wazuh*/indexer/deb/debian/* ${sources_dir}/debian/
+    cp -r ./wazuh*/* /root/
 else
-    cp -r /root/spec/debian/* ${sources_dir}/debian/
+    cp -r /root/indexer/deb/debian/* ${sources_dir}/debian/
 fi
 
 if [ "${future}" = "yes" ];then

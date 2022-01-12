@@ -33,10 +33,11 @@ export GROUP=${NAME}
 export CONFIG_DIR=/etc/${NAME}
 export LOG_DIR=/var/log/${NAME}
 export LIB_DIR=/var/lib/${NAME}
-export PID_DIR=/var/run/${NAME}
+export PID_DIR=/run/${NAME}
 export INSTALLATION_DIR=/usr/share/${NAME}
 export BASE_DIR=${NAME}-*
 export INDEXER_FILE=wazuh-indexer-base-linux-x64.tar.gz
+export REPO_DIR=/root/unattended_installer
 
 # -----------------------------------------------------------------------------
 
@@ -63,15 +64,6 @@ override_dh_install:
 	curl -o $(INDEXER_FILE) https://s3.amazonaws.com/warehouse.wazuh.com/indexer/$(INDEXER_FILE)
 	tar -zvxf $(INDEXER_FILE)
 
-#	curl -o wazuh-cert-tool.sh https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/tools/certificate-utility/wazuh-cert-tool.sh
-#	curl -o instances.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/tools/certificate-utility/instances_aio.yml
-#	curl -o wazuh-passwords-tool.sh https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/tools/wazuh-passwords-tool.sh
-
-	# Configuration files from documentation repo
-#	curl -o roles.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/wazuh-indexer/roles/roles.yml
-#	curl -o roles_mapping.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/wazuh-indexer/roles/roles_mapping.yml
-#	curl -o internal_users.yml https://raw.githubusercontent.com/wazuh/wazuh-documentation/${DOCUMENTATION_BRANCH}/resources/open-distro/wazuh-indexer/roles/internal_users.yml
-
 	# copy to target
 	mkdir -p $(TARGET_DIR)$(INSTALLATION_DIR)
 	mkdir -p $(TARGET_DIR)$(CONFIG_DIR)
@@ -89,21 +81,22 @@ override_dh_install:
 	mv -f $(BASE_DIR)/etc/sysconfig/$(NAME) $(TARGET_DIR)/etc/default/
 	mv -f $(BASE_DIR)/usr/lib/tmpfiles.d/* $(TARGET_DIR)/usr/lib/tmpfiles.d/
 	mv -f $(BASE_DIR)/usr/lib/sysctl.d/* $(TARGET_DIR)/usr/lib/sysctl.d/
-	mv -f $(BASE_DIR)/usr/lib/systemd/system/wazuh-indexer_debian.service $(TARGET_DIR)/usr/lib/systemd/system/wazuh-indexer.service
-	mv -f $(BASE_DIR)/usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service $(TARGET_DIR)/usr/lib/systemd/system/
+	mv -f $(BASE_DIR)/usr/lib/systemd/system/* $(TARGET_DIR)/usr/lib/systemd/system/
 	rm -rf $(BASE_DIR)/etc
 	rm -rf $(BASE_DIR)/usr
 
 	# Copy installation files to final location
 	cp -pr $(BASE_DIR)/* $(TARGET_DIR)$(INSTALLATION_DIR)
 
-	# This is needed by the performance-analyzer service
-#	echo false > $(LIB_DIR)/batch_metrics_enabled.conf
+	# Copy the security tools
+	cp $(REPO_DIR)/install_functions/wazuh-cert-tool.sh $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/
+	cp $(REPO_DIR)/install_functions/wazuh-passwords-tool.sh $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/
+	cp $(REPO_DIR)/config/opensearch/certificate/config_aio.yml $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/config.yml
 
-	# Copy Wazuh's config files for the opendistro_security plugin
-#	cp -pr roles_mapping.yml $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro_security/securityconfig/roles_mapping.yml
-#	cp -pr roles.yml $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro_security/securityconfig/roles.yml
-#	cp -pr internal_users.yml $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opendistro_security/securityconfig/internal_users.yml
+	# Copy Wazuh's config files for the security plugin
+	cp -pr $(REPO_DIR)/config/opensearch/roles/roles_mapping.yml $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/securityconfig/
+	cp -pr $(REPO_DIR)/config/opensearch/roles/roles.yml $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/securityconfig/
+	cp -pr $(REPO_DIR)/config/opensearch/roles/internal_users.yml $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/securityconfig/
 
 	# Create group and user in chroot environment
 	groupadd -r $(GROUP)

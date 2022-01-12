@@ -14,7 +14,7 @@ OUTDIR="${CURRENT_PATH}/output"
 REVISION="1"
 BUILD_DOCKER="yes"
 DEB_AMD64_BUILDER="deb_indexer_builder_amd64"
-DEB_AMD64_BUILDER_DOCKERFILE="${CURRENT_PATH}/docker/amd64"
+DEB_BUILDER_DOCKERFILE="${CURRENT_PATH}/docker"
 FUTURE="no"
 
 trap ctrl_c INT
@@ -52,9 +52,9 @@ build_deb() {
             ${FUTURE} ${REFERENCE} || return 1
     else
         docker run -t --rm -v ${OUTDIR}/:/tmp:Z \
-            -v ${CURRENT_PATH}:/root/spec:Z \
-            ${CONTAINER_NAME} ${ARCHITECTURE} ${REVISION} \
-            ${FUTURE} || return 1
+            -v ${CURRENT_PATH}/../..:/root:Z \
+            ${CONTAINER_NAME} ${ARCHITECTURE} \
+            ${REVISION} ${FUTURE} || return 1
     fi
 
     echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
@@ -65,12 +65,12 @@ build_deb() {
 build() {
     BUILD_NAME=""
     FILE_PATH=""
-    if [[ "${ARCHITECTURE}" = "x86_64" ]] || [[ "${ARCHITECTURE}" = "amd64" ]]; then
+    if [ "${ARCHITECTURE}" = "x86_64" ] || [ "${ARCHITECTURE}" = "amd64" ]; then
         ARCHITECTURE="amd64"
         BUILD_NAME="${DEB_AMD64_BUILDER}"
-        FILE_PATH="${DEB_AMD64_BUILDER_DOCKERFILE}"
+        FILE_PATH="${DEB_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
     else
-        echo "Invalid architecture. Choose one of amd64."
+        echo "Invalid architecture. Choose: amd64 (x86_64 is accepted too)"
         return 1
     fi
     build_deb ${BUILD_NAME} ${FILE_PATH} || return 1
