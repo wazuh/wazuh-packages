@@ -938,6 +938,287 @@ test-rollBack-nothing-installed-remove-/etc/systemd/system/elasticsearch.service
     rm -rf /etc/systemd/system/elasticsearch.service.wants
 }
 
+function load-createCertificates() {
+    @load_function "${base_dir}/tests/unattended/common.sh" createCertificates
+}
+
+test-createCertificates-aio() {
+    load-createCertificates
+    AIO=1
+    base_path=/tmp
+    createCertificates
+}
+
+test-createCertificates-aio-assert() {
+    getConfig certificate/config_aio.yml /tmp/config.yml
+
+    mkdir /tmp/certs
+
+    generateRootCAcertificate
+    generateAdmincertificate
+    generateElasticsearchcertificates
+    generateFilebeatcertificates
+    generateKibanacertificates
+    cleanFiles
+}
+
+test-createCertificates-no-aio() {
+    load-createCertificates
+    base_path=/tmp
+    createCertificates
+}
+
+test-createCertificates-no-aio-assert() {
+    mkdir /tmp/certs
+
+    generateRootCAcertificate
+    generateAdmincertificate
+    generateElasticsearchcertificates
+    generateFilebeatcertificates
+    generateKibanacertificates
+    cleanFiles
+}
+
+function load-changePasswords() {
+    @load_function "${base_dir}/tests/unattended/common.sh" changePasswords
+}
+
+test-ASSERT-FAIL-changePasswords-no-tarfile() {
+    load-changePasswords
+    tar_file=
+    changePasswords
+}
+
+test-changePasswords-with-tarfile() {
+    load-changePasswords
+    tar_file=tarfile.tar
+    base_path=/tmp
+    @touch $tar_file
+    @mock tar -xf tarfile.tar -C /tmp ./password_file.yml === @touch /tmp/password_file.yml
+    changePasswords
+    @echo $changeall
+    @rm /tmp/password_file.yml
+}
+
+test-changePasswords-with-tarfile-assert() {
+    checkInstalledPass
+    readPasswordFileUsers
+    changePassword
+    rm -rf /tmp/password_file.yml
+    @echo 
+}
+
+test-changePasswords-with-tarfile-aio() {
+    load-changePasswords
+    tar_file=tarfile.tar
+    base_path=/tmp
+    AIO=1
+    @touch $tar_file
+    @mock tar -xf tarfile.tar -C /tmp ./password_file.yml === @touch /tmp/password_file.yml
+    changePasswords
+    @echo $changeall
+    @rm /tmp/password_file.yml
+}
+
+test-changePasswords-with-tarfile-aio-assert() {
+    checkInstalledPass
+    readUsers
+    readPasswordFileUsers
+    getNetworkHost
+    createBackUp
+    generateHash
+    changePassword
+    runSecurityAdmin
+    rm -rf /tmp/password_file.yml
+    @echo 1
+}
+
+test-changePasswords-with-tarfile-start-elastic-cluster() {
+    load-changePasswords
+    tar_file=tarfile.tar
+    base_path=/tmp
+    AIO=1
+    @touch $tar_file
+    @mock tar -xf tarfile.tar -C /tmp ./password_file.yml === @touch /tmp/password_file.yml
+    changePasswords
+    @echo $changeall
+    @rm /tmp/password_file.yml
+}
+
+test-changePasswords-with-tarfile-start-elastic-cluster-assert() {
+    checkInstalledPass
+    readUsers
+    readPasswordFileUsers
+    getNetworkHost
+    createBackUp
+    generateHash
+    changePassword
+    runSecurityAdmin
+    rm -rf /tmp/password_file.yml
+    @echo 1
+}
+
+function load-getPass() {
+    @load_function "${base_dir}/tests/unattended/common.sh" getPass
+}
+
+test-getPass-no-args() {
+    load-getPass
+    users=(kibanaserver admin)
+    passwords=(kibanaserver_pass admin_pass)
+    getPass
+    @echo $u_pass
+}
+
+test-getPass-no-args-assert() {
+    @echo
+}
+
+test-getPass-admin() {
+    load-getPass
+    users=(kibanaserver admin)
+    passwords=(kibanaserver_pass admin_pass)
+    getPass admin
+    @echo $u_pass
+}
+
+test-getPass-admin-assert() {
+    @echo admin_pass
+}
+
 function load-startService() {
     @load_function "${base_dir}/tests/unattended/common.sh" startService
 }
+
+test-ASSERT-FAIL-startService-no-args() {
+    load-startService
+    startService
+}
+
+test-ASSERT-FAIL-startService-no-service-manager() {
+    load-startService
+    @mock ps -e
+    @mock egrep ^\ *1\ .*systemd$
+    @mock egrep ^\ *1\ .*init$
+    @rm /etc/init.d/wazuh
+    startService wazuh-manager
+}
+
+test-startService-systemd() {
+    load-startService
+    @mocktrue ps -e
+    @mock egrep ^\ *1\ .*systemd$ === @out systemd
+    @mock egrep ^\ *1\ .*init$
+    startService wazuh-manager
+}
+
+test-startService-systemd-assert() {
+    systemctl daemon-reload
+    systemctl enable wazuh-manager.service
+    systemctl start wazuh-manager.service
+}
+
+test-startService-systemd-error() {
+    load-startService
+    @mocktrue ps -e
+    @mock egrep ^\ *1\ .*systemd$ === @out systemd
+    @mock egrep ^\ *1\ .*init$
+    startService wazuh-manager
+}
+
+test-startService-systemd-error-assert() {
+    systemctl daemon-reload
+    systemctl enable wazuh-manager.service
+    systemctl start wazuh-manager.service
+    rollBack
+    exit 1
+}
+
+test-startService-initd() {
+    load-startService
+    @mocktrue ps -e
+    @mock egrep ^\ *1\ .*systemd$ === @out systemd
+    @mock egrep ^\ *1\ .*init$
+    @mkdir -p /etc/init.d
+    @touch /etc/init.d/wazuh-manager
+    startService wazuh-manager
+    @rm /etc/init.d/wazuh-manager
+}
+
+test-startService-initd-assert() {
+    @mkdir -p /etc/init.d
+    @touch /etc/init.d/wazuh-manager
+    chkconfig wazuh-manager on
+    service start wazuh-manager
+    /etc/init.d/wazuh-manager start
+    @rm /etc/init.d/wazuh-manager
+}
+
+test-startService-initd-error() {
+    load-startService
+    @mock ps -e
+    @mock egrep ^\ *1\ .*systemd$
+    @mock egrep ^\ *1\ .*init$ === @out initd
+    @mkdir -p /etc/init.d
+    @touch /etc/init.d/wazuh-manager
+    startService wazuh-manager
+    @rm /etc/init.d/wazuh-manager
+}
+
+test-startService-initd-error-assert() {
+    @mkdir -p /etc/init.d
+    @touch /etc/init.d/wazuh-manager
+    chkconfig wazuh-manager on
+    service start wazuh-manager
+    /etc/init.d/wazuh-manager start
+    rollBack
+    exit 1
+    @rm /etc/init.d/wazuh-manager
+}
+
+test-startService-rc.d/init.d() {
+    load-startService
+    @mocktrue ps -e
+    @mock egrep ^\ *1\ .*systemd$
+    @mock egrep ^\ *1\ .*init$
+
+    @mkdir -p /etc/rc.d/init.d
+    @touch /etc/rc.d/init.d/wazuh-manager
+    @chmod +x /etc/rc.d/init.d/wazuh-manager
+
+    startService wazuh-manager
+    @rm /etc/rc.d/init.d/wazuh-manager
+}
+
+test-startService-rc.d/init.d-assert() {
+    @mkdir -p /etc/rc.d/init.d
+    @touch /etc/rc.d/init.d/wazuh-manager
+    @chmod +x /etc/rc.d/init.d/wazuh-manager
+    /etc/rc.d/init.d/wazuh-manager start
+    @rm /etc/rc.d/init.d/wazuh-manager
+}
+
+test-startService-rc.d/init.d-error() {
+    load-startService
+    @mocktrue ps -e
+    @mock egrep ^\ *1\ .*systemd$
+    @mock egrep ^\ *1\ .*init$
+    @mkdir -p /etc/rc.d/init.d
+    @touch /etc/rc.d/init.d/wazuh-manager
+    @chmod +x /etc/rc.d/init.d/wazuh-manager
+    startService wazuh-manager
+    @rm /etc/rc.d/init.d/wazuh-manager
+}
+
+test-startService-rc.d/init.d-error-assert() {
+
+    @mkdir -p /etc/rc.d/init.d
+    @touch /etc/rc.d/init.d/wazuh-manager
+    @chmod +x /etc/rc.d/init.d/wazuh-manager
+    /etc/rc.d/init.d/wazuh-manager start
+    rollBack
+    exit 1
+    @rm /etc/rc.d/init.d/wazuh-manager
+}
+
+

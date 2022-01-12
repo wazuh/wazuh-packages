@@ -399,6 +399,11 @@ function rollBack() {
 
 function startService() {
 
+    if [ "$#" -ne 1 ]; then
+        logger -e "startService must be called with 1 argument."
+        exit 1
+    fi
+
     logger "Starting service $1."
 
     if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then

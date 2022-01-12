@@ -1,3 +1,5 @@
+trap clean SIGINT
+
 function startDocker() {
 
     if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
@@ -87,11 +89,19 @@ main() {
         exit 1
     fi
 
+    if [ "$#" -eq 0 ]; then
+        all_tests=1
+    fi
+
     startDocker
     createDocker
-    testCommon
-    testChecks
+    if [ -n "$all_tests" ] || [ "$1" == "common" ]; then
+        testCommon
+    fi
+    if [ -n "$all_tests" ] || [ "$1" == "checks" ]; then
+        testChecks
+    fi
     clean
 }
 
-main
+main $@
