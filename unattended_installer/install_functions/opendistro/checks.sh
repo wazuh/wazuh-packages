@@ -19,31 +19,31 @@ function checkArch() {
 function checkArguments() {
 
     if [[ ( -n "${AIO}"  || -n "${configurations}" ) && -f "${tar_file}" ]]; then
-            logger -e "File ${tar_file} exists. Please remove the configurations tar file if you want to use a new configuration."
+            logger -e "File ${tar_file} exists. Please remove it if you want to use a new configuration."
             exit 1
     fi
 
     if [ -n "${overwrite}" ] && [ -z "${AIO}" ] && [ -z "${elasticsearch}" ] && [ -z "${kibana}" ] && [ -z "${wazuh}" ]; then 
-        logger -e "The argument -o|--overwrite can't be used by itself. If you want to uninstall the components use -u|--uninstall"
+        logger -e "The argument -o|--overwrite must be used with -a, -k, -e or -w. If you want to uninstall all the components use -u|--uninstall"
         exit 1
     fi
 
     if [ -n "${uninstall}" ]; then
 
         if [ -z "${wazuhinstalled}" ] && [ -z "${wazuh_remaining_files}" ]; then
-            logger -w "Can't uninstall Wazuh manager. No components were found on the system."
+            logger "Wazuh manager components were not found on the system so it was not uninstalled."
         fi
 
         if [ -z "${filebeatinstalled}" ] && [ -z "${filebeat_remaining_files}" ]; then
-            logger -w "Can't uninstall Filebeat. No components were found on the system."
+            logger "Filebeat components were not found on the system so it was not uninstalled."
         fi
 
         if [ -z "${elasticsearchinstalled}" ] && [ -z "${elastic_remaining_files}" ]; then
-            logger -w "Can't uninstall Elasticsearch. No components were found on the system."
+            logger "Elasticsearch components were not found on the system so it was not uninstalled."
         fi
 
         if [ -z "${kibanainstalled}" ] && [ -z "${kibana_remaining_files}" ]; then
-            logger -w "Can't uninstall. No components were found on the system."
+            logger "Kibana components were found on the system so it was not uninstalled."
         fi
 
         if [ -n "$AIO" ] || [ -n "$elasticsearch" ] || [ -n "$kibana" ] || [ -n "$wazuh" ]; then
@@ -113,12 +113,12 @@ function checkArguments() {
     fi
 
     if [[ -n "${configurations}" && ( -n "${AIO}" || -n "${elasticsearch}" || -n "${kibana}" || -n "${wazuh}" || -n "${development}" || -n "${overwrite}" || -n "${start_elastic_cluster}" || -n "${tar_conf}" || -n "${uninstall}" ) ]]; then
-        logger -e "The argument -c|--certificates can only be used by itself"
+        logger -e "The argument -c|--certificates can't be used with -a, -k, -e or -w arguments."
         exit 1
     fi
 
     if [[ -n "${start_elastic_cluster}" && ( -n "${AIO}" || -n "${elasticsearch}" || -n "${kibana}" || -n "${wazuh}" || -n "${development}" || -n "${overwrite}" || -n "${configurations}" || -n "${tar_conf}" || -n "${uninstall}") ]]; then
-        logger -e "The argument -s|--start-cluster can only be used by itself"
+        logger -e "The argument -s|--start-cluster can't be used with -a, -k, -e or -w arguments."
         exit 1
     fi
 
