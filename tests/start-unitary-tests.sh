@@ -42,7 +42,9 @@ function createDocker() {
     fi
 
     image_name="testing-img"
-    eval "docker build -t $image_name ."
+    if [ -z "$(docker images | grep $image_name)" ]; then
+        eval "docker build -t $image_name ."
+    fi
     container_name="testing-container"
     eval "docker run -d -t --name $container_name $image_name /bin/bash "
     container_id="$( docker ps -a | grep $container_name | awk '{ print $1 }' )"
@@ -58,14 +60,13 @@ function testCommon() {
 function clean() {
     eval "docker stop $container_name"
     eval "docker rm $container_name"
-    eval "docker rmi $image_name"
     eval "rm -rf temp/"
 }
 
 main() {
 
     if [ "$EUID" -ne 0 ]; then
-        logger -e "Error: This script must be run as root."
+        echo "Error: This script must be run as root."
         exit 1
     fi
 
