@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Wazuh package builder
-# Copyright (C) 2015-2021, Wazuh Inc.
+# Copyright (C) 2015-2022, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
@@ -13,17 +13,24 @@ set -ex
 target="wazuh-dashboard"
 architecture=$1
 release=$2
-directory_base=$3
-version="4.3.0"
+future=$3
+spec_reference=$4
+directory_base="/usr/share/wazuh-dashboard"
 rpmbuild="rpmbuild"
 
 if [ -z "${release}" ]; then
     release="1"
 fi
 
-
-disable_debug_flag='%debug_package %{nil}'
-echo ${disable_debug_flag} > /etc/rpm/macros
+if [ "${future}" = "yes" ];then
+    version="99.99.0"
+else
+    if [ "${spec_reference}" ];then
+        version=$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh-packages/${spec_reference}/dashboard/rpm/${target}.spec | egrep -o -m 1 '[0-9]+\.[0-9]+\.[0-9]+')
+    else
+        version=$(egrep -o -m 1 '[0-9]+\.[0-9]+\.[0-9]+' /root/dashboard/rpm/${target}.spec)
+    fi
+fi
 
 # Build directories
 build_dir=/build
@@ -39,7 +46,18 @@ mkdir ${build_dir}/${pkg_name}
 
 
 # Including spec file
-cp /root/${target}.spec ${rpm_build_dir}/SPECS/${pkg_name}.spec
+if [ "${spec_reference}" ];then
+    curl -sL https://github.com/wazuh/wazuh-packages/tarball/${spec_reference} | tar zx
+    cp ./wazuh*/dashboard/rpm/${target}.spec ${rpm_build_dir}/SPECS/${pkg_name}.spec
+    cp -r ./wazuh*/* /root/
+else
+    cp /root/dashboard/rpm/${target}.spec ${rpm_build_dir}/SPECS/${pkg_name}.spec
+fi
+
+if [ "${future}" = "yes" ];then
+    sed -i '/Version:/,/License:/s|[0-9]\+.[0-9]\+.[0-9]\+|99.99.0|' ${rpm_build_dir}/SPECS/${pkg_name}.spec
+fi
+
 
 # Generating source tar.gz
 cd ${build_dir} && tar czf "${rpm_build_dir}/SOURCES/${pkg_name}.tar.gz" "${pkg_name}"
@@ -47,7 +65,7 @@ cd ${build_dir} && tar czf "${rpm_build_dir}/SOURCES/${pkg_name}.tar.gz" "${pkg_
 # Building RPM
 /usr/bin/rpmbuild --define "_topdir ${rpm_build_dir}" \
     --define "_release ${release}" --define "_localstatedir ${directory_base}" \
-    --target ${architecture} -ba ${rpm_build_dir}/SPECS/${pkg_name}.spec --define "_debugenabled no"
+    --target ${architecture} -ba ${rpm_build_dir}/SPECS/${pkg_name}.spec
 
 cd ${pkg_path} && sha512sum ${rpm_file} > /tmp/${rpm_file}.sha512
 

@@ -14,8 +14,8 @@ OUTDIR="${CURRENT_PATH}/output"
 REVISION="1"
 BUILD_DOCKER="yes"
 DEB_AMD64_BUILDER="deb_dashboard_builder_amd64"
-DEB_AMD64_BUILDER_DOCKERFILE="${CURRENT_PATH}/docker/amd64"
-INSTALLATION_PATH="/usr/share/wazuh-dashboard"
+DEB_BUILDER_DOCKERFILE="${CURRENT_PATH}/docker"
+FUTURE="no"
 
 trap ctrl_c INT
 
@@ -44,11 +44,18 @@ build_deb() {
         docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || return 1
     fi
 
+
     # Build the Debian package with a Docker container
-    docker run -t --rm -v ${OUTDIR}/:/tmp:Z \
-        -v ${CURRENT_PATH}:/root/spec:Z \
-        ${CONTAINER_NAME} ${ARCHITECTURE} \
-        ${REVISION} ${INSTALLATION_PATH} || return 1
+    if [ "${REFERENCE}" ];then
+        docker run -t --rm -v ${OUTDIR}/:/tmp:Z \
+            ${CONTAINER_NAME} ${ARCHITECTURE} ${REVISION} \
+            ${FUTURE} ${REFERENCE} || return 1
+    else
+        docker run -t --rm -v ${OUTDIR}/:/tmp:Z \
+            -v ${CURRENT_PATH}/../..:/root:Z \
+            ${CONTAINER_NAME} ${ARCHITECTURE} \
+            ${REVISION} ${FUTURE} || return 1
+    fi
 
     echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
 
@@ -58,12 +65,12 @@ build_deb() {
 build() {
     BUILD_NAME=""
     FILE_PATH=""
-    if [[ "${ARCHITECTURE}" = "x86_64" ]] || [[ "${ARCHITECTURE}" = "amd64" ]]; then
+    if [ "${ARCHITECTURE}" = "x86_64" ] || [ "${ARCHITECTURE}" = "amd64" ]; then
         ARCHITECTURE="amd64"
         BUILD_NAME="${DEB_AMD64_BUILDER}"
-        FILE_PATH="${DEB_AMD64_BUILDER_DOCKERFILE}"
+        FILE_PATH="${DEB_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
     else
-        echo "Invalid architecture. Choose one of amd64."
+        echo "Invalid architecture. Choose: amd64 (x86_64 is accepted too)"
         return 1
     fi
     build_deb ${BUILD_NAME} ${FILE_PATH} || return 1
@@ -78,8 +85,9 @@ help() {
     echo "    -a, --architecture <arch>  [Optional] Target architecture of the package [amd64]."
     echo "    -r, --revision <rev>       [Optional] Package revision. By default: 1."
     echo "    -s, --store <path>         [Optional] Set the destination path of package. By default, an output folder will be created."
-    echo "    -p, --path <path>          [Optional] Installation path for the package. By default: /usr/share/wazuh-dashboard"
+    echo "    --reference <ref>          [Optional] wazuh-packages branch to download SPECs, not used by default."
     echo "    --dont-build-docker        [Optional] Locally built docker image will be used instead of generating a new one."
+    echo "    --future                   [Optional] Build test future package x.30.0 Used for development purposes."
     echo "    -h, --help                 Show this help."
     echo
     exit $1
@@ -109,9 +117,9 @@ main() {
                 help 1
             fi
             ;;
-        "-p"|"--path")
+        "--reference")
             if [ -n "$2" ]; then
-                INSTALLATION_PATH="$2"
+                REFERENCE="$2"
                 shift 2
             else
                 help 1
@@ -119,6 +127,10 @@ main() {
             ;;
         "--dont-build-docker")
             BUILD_DOCKER="no"
+            shift 1
+            ;;
+        "--future")
+            FUTURE="yes"
             shift 1
             ;;
         "-s"|"--store")
