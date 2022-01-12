@@ -51,7 +51,7 @@ build_rpm() {
             ${FUTURE} ${REFERENCE} || return 1
     else
         docker run -t --rm -v ${OUTDIR}/:/tmp:Z \
-            -v ${CURRENT_PATH}/../..:/root \
+            -v ${CURRENT_PATH}/../..:/root:Z \
             ${CONTAINER_NAME} ${ARCHITECTURE} \
             ${REVISION} ${FUTURE} || return 1
     fi
