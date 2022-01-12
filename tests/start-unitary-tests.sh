@@ -1,3 +1,40 @@
+function startDocker() {
+
+    if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
+        eval "systemctl daemon-reload"
+        eval "systemctl enable docker.service"
+        eval "systemctl start docker.service"
+        if [  "$?" != 0  ]; then
+            echo "Docker could not be started"
+            exit 1
+        else 
+            echo "Docker started correctly"
+        fi
+    elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
+        eval "chkconfig docker on"
+        eval "service docker start"
+        eval "/etc/init.d/docker start"
+        if [  "$?" != 0  ]; then
+            echo "Docker could not be started"
+            exit 1
+        else 
+            echo "Docker started correctly"
+        fi
+    elif [ -x /etc/rc.d/init.d/docker ] ; then
+        eval "/etc/rc.d/init.d/docker start"
+        if [  "$?" != 0  ]; then
+            echo "Docker could not be started"
+            exit 1
+        else 
+            echo "Docker started correctly"
+        fi
+    else
+        echo "Docker could not be started. No system manager found"
+        exit 1
+    fi
+
+}
+
 function createDocker() {
 
     if [ ! -f ./Dockerfile ]; then
@@ -37,6 +74,7 @@ main() {
         exit 1
     fi
 
+    startDocker
     createDocker
     testCommon
     clean
