@@ -367,7 +367,7 @@ function readConfig() {
         fi
 
         for i in ${wazuh_servers_node_types[@]}; do
-            if ( ! echo $i | grep -io master > /dev/null 2>&1 ) || ( ! echo $i | grep -io worker> /dev/null 2>&1 ); then
+            if ( ! echo $i | grep -io master > /dev/null 2>&1 ) && ( ! echo $i | grep -io worker> /dev/null 2>&1 ); then
                 logger_cert -e "Incorrect node_type $i must be master or worker"
                 exit 1
             fi
