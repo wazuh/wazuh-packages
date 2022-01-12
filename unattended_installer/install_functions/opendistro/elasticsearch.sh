@@ -50,16 +50,16 @@ function configureElasticsearch() {
     else
         echo "node.name: ${einame}" >> /etc/elasticsearch/elasticsearch.yml
         echo "cluster.initial_master_nodes:" >> /etc/elasticsearch/elasticsearch.yml
-        for i in ${elasticsearch_node_names[@]}; do
+        for i in "${elasticsearch_node_names[@]}"; do
             echo '        - "'${i}'"' >> /etc/elasticsearch/elasticsearch.yml
         done
 
         echo "discovery.seed_hosts:" >> /etc/elasticsearch/elasticsearch.yml
-        for i in ${elasticsearch_node_ips[@]}; do
+        for i in "${elasticsearch_node_ips[@]}"; do
             echo '        - "'${i}'"' >> /etc/elasticsearch/elasticsearch.yml
         done
 
-        for i in ${!elasticsearch_node_names[@]}; do
+        for i in "${!elasticsearch_node_names[@]}"; do
             if [[ "${elasticsearch_node_names[i]}" == "${einame}" ]]; then
                 pos="${i}";
             fi
@@ -79,9 +79,9 @@ function configureElasticsearch() {
 
     # Configure JVM options for Elasticsearch
     ram_gb=$(free -g | awk '/^Mem:/{print $2}')
-    ram=$(( ${ram_gb} / 2 ))
+    ram=$(( ram_gb / 2 ))
 
-    if [ ${ram} -eq "0" ]; then
+    if [ "${ram}" -eq "0" ]; then
         ram=1;
     fi
     eval "sed -i "s/-Xms1g/-Xms${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
@@ -122,9 +122,9 @@ function configureElasticsearchAIO() {
     
     # Configure JVM options for Elasticsearch
     ram_gb=$(free -g | awk '/^Mem:/{print $2}')
-    ram=$(( ${ram_gb} / 2 ))
+    ram=$(( ram_gb / 2 ))
 
-    if [ ${ram} -eq "0" ]; then
+    if [ "${ram}" -eq "0" ]; then
         ram=1;
     fi    
     eval "sed -i "s/-Xms1g/-Xms${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
@@ -158,7 +158,7 @@ function initializeElasticsearch() {
 
     logger "Starting Elasticsearch cluster."
     i=0
-    until $(curl -XGET https://${elasticsearch_node_ips[pos]}:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null) || [ ${i} -eq 12 ]; do
+    until $(curl -XGET https://${elasticsearch_node_ips[pos]}:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null) || [ "${i}" -eq 12 ]; do
         sleep 10
         i=$((i+1))
     done
