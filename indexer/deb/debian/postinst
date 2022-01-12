@@ -19,6 +19,8 @@ export PID_DIR=/run/${NAME}
 export LIB_DIR=/var/lib/${NAME}
 export SYS_DIR=/usr/lib
 
+set -e 
+
 #
 # This script is executed in the post-installation phase
 #
@@ -56,7 +58,7 @@ if [ -z "$2" ]; then
   chown ${USER}:${GROUP} ${LIB_DIR}/batch_metrics_enabled.conf
   chown ${USER}:${GROUP} ${LIB_DIR}
 
-  CLK_TCK=`/usr/bin/getconf CLK_TCK`
+  CLK_TCK=$(getconf CLK_TCK)
   echo >> /etc/wazuh-indexer/jvm.options
   echo '## OpenDistro Performance Analyzer' >> /etc/wazuh-indexer/jvm.options
   echo "-Dclk.tck=$CLK_TCK" >> /etc/wazuh-indexer/jvm.options

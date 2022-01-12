@@ -2,11 +2,12 @@ Source: wazuh-indexer
 Section: admin
 Priority: extra
 Maintainer: Wazuh, Inc <info@wazuh.com>
-Build-Depends: debhelper (>= 7.0.50~)
-Standards-Version: 3.8.4
+Build-Depends: debhelper (>=9)
+Standards-Version: 4.0.0
 Homepage: https://www.wazuh.com
 
 Package: wazuh-indexer
 Architecture: any
 Depends: ${shlibs:Depends}, lsb-release, debconf, adduser, procps
-Description: Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
+Description: Wazuh-indexer wants to join security data into one unique platform.
+ It provides tons of features from OpenSearch.

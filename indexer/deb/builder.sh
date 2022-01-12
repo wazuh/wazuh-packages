@@ -64,7 +64,7 @@ cd ${sources_dir}
 mk-build-deps -ir -t "apt-get -o Debug::pkgProblemResolver=yes -y"
 
 # Build package
-debuild --rootcmd=sudo -b -uc -us
+debuild -b -uc -us
 
 deb_file="${target}_${version}-${release}_${architecture}.deb"
 
