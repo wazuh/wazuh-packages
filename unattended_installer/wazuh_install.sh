@@ -329,6 +329,9 @@ function main() {
 
     # Creation certificate case: Only AIO and -c option can create certificates. 
     if [ -n "${configurations}" ] || [ -n "${AIO}" ]; then
+        if [ -n "${configurations}" ]; then
+            checkOpenSSL
+        fi
         createCertificates
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
             createClusterKey
