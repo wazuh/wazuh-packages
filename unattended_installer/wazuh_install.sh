@@ -343,11 +343,10 @@ function main() {
         eval "rm -rf '${base_path}/certs' ${debug}"
 
     fi
-    
-    extractConfig
-    readConfig
 
     if [ -z "${configurations}" ]; then
+        extractConfig
+        readConfig
         rm -f "${config_file}"
     fi
     

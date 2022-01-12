@@ -327,32 +327,38 @@ function readConfig() {
 
         eval "wazuh_servers_node_types=( $(parse_yaml "${config_file}" | grep nodes_wazuh_servers_node_type | sed 's/nodes_wazuh_servers_node_type=//') )"
 
-        if [ $(printf '%s\n' "${elasticsearch_node_names[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne "${#elasticsearch_node_names[@]}" ]; then 
+        unique_names=($(echo "${elasticsearch_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+        if [ "${#unique_names[@]}" -ne "${#elasticsearch_node_names[@]}" ]; then 
             logger_cert -e "Duplicated Elasticsearch node names."
             exit 1
         fi
 
-        if [ $(printf '%s\n' "${elasticsearch_node_ips[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne "${#elasticsearch_node_ips[@]}" ]; then 
+        unique_ips=($(echo "${elasticsearch_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+        if [ "${#unique_ips[@]}" -ne "${#elasticsearch_node_ips[@]}" ]; then 
             logger_cert -e "Duplicated Elasticsearch node ips."
             exit 1
         fi
 
-        if [ $(printf '%s\n' "${wazuh_servers_node_names[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne "${#wazuh_servers_node_names[@]}" ]; then 
+        unique_names=($(echo "${wazuh_servers_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+        if [ "${#unique_names[@]}" -ne "${#wazuh_servers_node_names[@]}" ]; then 
             logger_cert -e "Duplicated Wazuh server node names."
             exit 1
         fi
 
-        if [ $(printf '%s\n' "${wazuh_servers_node_ips[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne "${#wazuh_servers_node_ips[@]}" ]; then 
+        unique_ips=($(echo "${wazuh_servers_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+        if [ "${#unique_ips[@]}" -ne "${#wazuh_servers_node_ips[@]}" ]; then 
             logger_cert -e "Duplicated Wazuh server node ips."
             exit 1
         fi
 
-        if [ $(printf '%s\n' "${kibana_node_names[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne "${#kibana_node_names[@]}" ]; then 
+        unique_names=($(echo "${kibana_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+        if [ "${#unique_names[@]}" -ne "${#kibana_node_names[@]}" ]; then 
             logger_cert -e "Duplicated Kibana node names."
             exit 1
         fi
 
-        if [ $(printf '%s\n' "${kibana_node_ips[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne "${#kibana_node_ips[@]}" ]; then 
+        unique_ips=($(echo "${kibana_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+        if [ "${#unique_ips[@]}" -ne "${#kibana_node_ips[@]}" ]; then 
             logger_cert -e "Duplicated Kibana node ips."
             exit 1
         fi
