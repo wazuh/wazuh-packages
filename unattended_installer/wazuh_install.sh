@@ -310,7 +310,10 @@ function main() {
         logger "All components removed."
         exit 0
     fi
-    if [ -z "${configurations}"] && [ -z "${AIO}" ]; then
+
+# -------------- Preliminary checks  --------------------------------
+
+    if [ -z "${configurations}" ] && [ -z "${AIO}" ]; then
         checkPreviousCertificates
     fi
     checkArch
@@ -321,6 +324,8 @@ function main() {
         checkHealth
     fi
     checkArguments
+
+# -------------- Configuration creation case  -----------------------
 
     # Creation certificate case: Only AIO and -c option can create certificates. 
     if [ -n "${configurations}" ] || [ -n "${AIO}" ]; then

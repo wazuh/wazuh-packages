@@ -113,7 +113,7 @@ function checkArguments() {
     fi
 
     if [ -n "${configurations}" ] && ([ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ] || [ -n "${development}" ] || [ -n "${overwrite}" ] || [ -n "${start_elastic_cluster}" ] || [ -n "${tar_conf}" ] || [ -n "${uninstall}" ]); then
-        logger -e "The argument -c|--certificates can't be used with -a, -k, -e or -w arguments."
+        logger -e "The argument -c|--certificates can't be used with -a, -k, -e, -u or -w arguments."
         exit 1
     fi
 

@@ -26,3 +26,4 @@ solaris/packer/sol-11_3-text-x86.iso
 unattended_installer/certs*
 unattended_installer/config.yml
 unattended_installer/.vscode
+unattended_installer/configurations.tar
