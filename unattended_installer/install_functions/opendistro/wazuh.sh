@@ -8,19 +8,19 @@
 
 function configureWazuhCluster() {
 
-    for i in ${!wazuh_servers_node_names[@]}; do
+    for i in "${!wazuh_servers_node_names[@]}"; do
         if [[ "${wazuh_servers_node_names[i]}" == "${winame}" ]]; then
             pos="${i}";
         fi
     done
 
-    for i in ${!wazuh_servers_node_types[@]}; do
+    for i in "${!wazuh_servers_node_types[@]}"; do
         if [[ "${wazuh_servers_node_types[i],,}" == "master" ]]; then
             master_address=${wazuh_servers_node_ips[i]}
         fi
     done
 
-    key=$(tar -axf ${tar_file} ./clusterkey -O)
+    key=$(tar -axf "${tar_file}" ./clusterkey -O)
     bind_address="0.0.0.0"
     port="1516"
     hidden="no"
@@ -44,8 +44,8 @@ function configureWazuhCluster() {
 function installWazuh() {
 
     logger "Starting the Wazuh manager installation."
-    if [ ${sys_type} == "zypper" ]; then
-        eval "zypper -n install wazuh-manager=${wazuh_version}-${wazuh_revision} ${debug}"
+    if [ "${sys_type}" == "zypper" ]; then
+        eval "${sys_type} -n install wazuh-manager=${wazuh_version}-${wazuh_revision} ${debug}"
     else
         eval "${sys_type} install wazuh-manager${sep}${wazuh_version}-${wazuh_revision} -y ${debug}"
     fi

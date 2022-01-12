@@ -24,6 +24,7 @@ solaris/packer/packer_cache/
 solaris/packer/sol-10-u11-ga-x86-dvd.iso
 solaris/packer/sol-11_3-text-x86.iso
 unattended_installer/certs*
+unattended_installer/configurations*
 unattended_installer/config.yml
 unattended_installer/.vscode
 unattended_installer/configurations.tar
