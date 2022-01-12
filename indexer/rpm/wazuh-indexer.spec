@@ -31,6 +31,7 @@ BuildRequires: tar shadow-utils
 %global PID_DIR /run/%{name}
 %global SYS_DIR /usr/lib
 %global INSTALL_DIR /usr/share/%{name}
+%global REPO_DIR /root/unattended_installer
 
 # -----------------------------------------------------------------------------
 
@@ -79,6 +80,13 @@ mv wazuh-indexer-*%{SYS_DIR}/* ${RPM_BUILD_ROOT}%{SYS_DIR}/
 rm -rf wazuh-indexer-*/etc
 rm -rf wazuh-indexer-*/usr
 cp -pr wazuh-indexer-*/* ${RPM_BUILD_ROOT}%{INSTALL_DIR}/
+cp %{REPO_DIR}/install_functions/wazuh-cert-tool.sh ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/tools/
+cp %{REPO_DIR}/install_functions/wazuh-passwords-tool.sh ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/tools/
+cp %{REPO_DIR}/config/opensearch/certificate/config_aio.yml ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/tools/config.yml
+
+cp %{REPO_DIR}/config/opensearch/roles/internal_users.yml ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/securityconfig/
+cp %{REPO_DIR}/config/opensearch/roles/roles.yml ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/securityconfig/
+cp %{REPO_DIR}/config/opensearch/roles/roles_mapping.yml ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/securityconfig/
 
 # -----------------------------------------------------------------------------
 
@@ -510,9 +518,12 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/json-smart-2.4.7.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/xmlsec-2.2.3.jar
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/config.yml
 %attr(740, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/hash.sh
 %attr(740, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/securityadmin.sh
 %attr(740, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/audit_config_migrater.sh
+%attr(740, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/wazuh-cert-tool.sh
+%attr(740, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/wazuh-passwords-tool.sh
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/jakarta.xml.ws-api-2.3.3.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/xmlschema-core-2.2.5.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/httpclient-cache-4.5.13.jar

@@ -13,14 +13,24 @@ set -ex
 target="wazuh-indexer"
 architecture=$1
 release=$2
-directory_base=$3
-version="4.3.0"
+future=$3
+spec_reference=$4
+directory_base="/usr/share/wazuh-indexer"
 rpmbuild="rpmbuild"
 
 if [ -z "${release}" ]; then
     release="1"
 fi
 
+if [ "${future}" = "yes" ];then
+    version="99.99.0"
+else
+    if [ "${spec_reference}" ];then
+        version=$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh-packages/${spec_reference}/indexer/rpm/${target}.spec | egrep -o -m 1 '[0-9]+\.[0-9]+\.[0-9]+')
+    else
+        version=$(egrep -o -m 1 '[0-9]+\.[0-9]+\.[0-9]+' /root/indexer/rpm/${target}.spec)
+    fi
+fi
 
 # Build directories
 build_dir=/build
@@ -36,7 +46,18 @@ mkdir ${build_dir}/${pkg_name}
 
 
 # Including spec file
-cp /root/${target}.spec ${rpm_build_dir}/SPECS/${pkg_name}.spec
+if [ "${spec_reference}" ];then
+    curl -sL https://github.com/wazuh/wazuh-packages/tarball/${spec_reference} | tar zx
+    cp ./wazuh*/indexer/rpm/${target}.spec ${rpm_build_dir}/SPECS/${pkg_name}.spec
+    cp -r ./wazuh*/* /root/
+else
+    cp /root/indexer/rpm/${target}.spec ${rpm_build_dir}/SPECS/${pkg_name}.spec
+fi
+
+if [ "${future}" = "yes" ];then
+    sed -i '/Version:/,/License:/s|[0-9]\+.[0-9]\+.[0-9]\+|99.99.0|' ${rpm_build_dir}/SPECS/${pkg_name}.spec
+fi
+
 
 # Generating source tar.gz
 cd ${build_dir} && tar czf "${rpm_build_dir}/SOURCES/${pkg_name}.tar.gz" "${pkg_name}"
