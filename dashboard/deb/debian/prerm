@@ -1,5 +1,11 @@
 #!/bin/sh
-# prerm script for wazuh-dashboard
+# postinst script for Wazuh-dashboard
+# Copyright (C) 2015-2022, Wazuh Inc.
+#
+# This program is a free software; you can redistribute it
+# and/or modify it under the terms of the GNU General Public
+# License (version 2) as published by the FSF - Free Software
+# Foundation.
 
 set -e
 
@@ -13,10 +19,6 @@ export INSTALLATION_DIR=/usr/share/${NAME}
 #   On Debian,
 #       $1=remove    : indicates a removal
 #       $1=upgrade   : indicates an upgrade
-#
-#   On RedHat,
-#       $1=0         : indicates a removal
-#       $1=1         : indicates an upgrade
 
 # source the default env file
 if [ -f "/etc/default/${NAME}" ]; then
@@ -40,16 +42,6 @@ case "$1" in
         fi
     ;;
     deconfigure|failed-upgrade)
-    ;;
-
-
-    # RedHat ####################################################
-    0)
-        STOP_REQUIRED=true
-        REMOVE_SERVICE=true
-    ;;
-    1)
-        # Dont do anything on upgrade, because the preun script in redhat gets executed after the postinst (madness!)
     ;;
 
     *)

@@ -2,13 +2,11 @@ Source: wazuh-dashboard
 Section: admin
 Priority: extra
 Maintainer: Wazuh, Inc <info@wazuh.com>
-Build-Depends: debhelper (>= 7.0.50~), tar, curl 
-Standards-Version: 3.8.4
+Build-Depends: debhelper (>= 9), tar, curl 
+Standards-Version: 4.0.0
 Homepage: https://www.wazuh.com
 
 Package: wazuh-dashboard
 Architecture: any
 Depends: debconf, adduser, curl, tar
-Conflicts:
-Breaks:
 Description: Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring

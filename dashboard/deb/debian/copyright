@@ -6,6 +6,14 @@ It was downloaded from:
 
     https://www.wazuh.com
 
+Upstream Authors:
+
+    santiago.bassett@gmail.com
+    pedro@wazuh.com
+    alberto.rodriguez@wazuh.com
+    jose.fernandez@wazuh.com
+    dfolch@wazuh.com
+
 Copyright:
 
     GNU General Public License version 2.
@@ -16,7 +24,7 @@ License:
 
 The Debian packaging is:
 
-    Copyright (C) 2015-2020 Wazuh, Inc <info@wazuh.com>
+    Copyright (C) 2015-2022 Wazuh, Inc <info@wazuh.com>
 
 and is licensed under the GPL version 2,
 see "/usr/share/common-licenses/GPL-2".

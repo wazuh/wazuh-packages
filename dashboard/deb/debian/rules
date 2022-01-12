@@ -8,7 +8,15 @@
 # This special exception was added by Craig Small in version 0.37 of dh-make.
 #
 # Modified to make a template file for a multi-binary package with separated
-# build-arch and build-indep targets  by Bill Allombert 2001
+# build-arch and build-indep targets by Bill Allombert 2001
+#
+# Modified by Wazuh 
+# Copyright (C) 2015-2022, Wazuh Inc.
+#
+# This program is a free software; you can redistribute it
+# and/or modify it under the terms of the GNU General Public
+# License (version 2) as published by the FSF - Free Software
+# Foundation.
 
 # Uncomment this to turn on verbose mode.
 export DH_VERBOSE=1

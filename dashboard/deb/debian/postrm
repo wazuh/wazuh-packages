@@ -1,6 +1,11 @@
 #!/bin/sh
-# postrm script for wazuh-dashboard
-# Wazuh, Inc 2015-2020
+# postinst script for Wazuh-dashboard
+# Copyright (C) 2015-2022, Wazuh Inc.
+#
+# This program is a free software; you can redistribute it
+# and/or modify it under the terms of the GNU General Public
+# License (version 2) as published by the FSF - Free Software
+# Foundation.
 
 set -e
 
@@ -15,10 +20,6 @@ export LOG_DIR=/var/log/${NAME}
 #   On Debian,
 #       $1=remove    : indicates a removal
 #       $1=purge     : indicates an upgrade
-#
-#   On RedHat,
-#       $1=0         : indicates a removal
-#       $1=1         : indicates an upgrade
 
 # source the default env file
 if [ -f "/etc/default/${NAME}" ]; then
@@ -42,17 +43,6 @@ case "$1" in
         REMOVE_USER_AND_GROUP=true
     ;;
     failed-upgrade|abort-install|abort-upgrade|disappear)
-    ;;
-
-
-    # RedHat ####################################################
-    0)
-        REMOVE_DIRS=true
-        REMOVE_USER_AND_GROUP=true
-    ;;
-    1)
-        # If $1=1 this is an upgrade
-        IS_UPGRADE=true
     ;;
 
     *)  
