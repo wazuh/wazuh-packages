@@ -9,8 +9,8 @@
 # Foundation.
 
 ## Package vars
-wazuh_major="4.2"
-wazuh_version="4.2.5"
+wazuh_major="4.3"
+wazuh_version="4.3.0"
 wazuh_revision="1"
 elasticsearch_oss_version="7.10.2"
 elasticsearch_basic_version="7.12.1"
