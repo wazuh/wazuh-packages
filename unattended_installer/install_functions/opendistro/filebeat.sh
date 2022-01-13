@@ -20,7 +20,7 @@ function configureFilebeat() {
         echo "  - ${elasticsearch_node_ips[0]}"  >> /etc/filebeat/filebeat.yml
     else
         echo "output.elasticsearch.hosts:" >> /etc/filebeat/filebeat.yml
-        for i in ${elasticsearch_node_ips[@]}; do
+        for i in "${elasticsearch_node_ips[@]}"; do
                 echo "  - ${i}" >> /etc/filebeat/filebeat.yml
         done
     fi

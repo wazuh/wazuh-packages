@@ -9,7 +9,7 @@
 # Foundation.
 
 if [ -z "${base_path}" ]; then
-    base_path="$(dirname $(readlink -f $0))"
+    base_path="$(dirname "$(readlink -f "$0")")"
     config_file="${base_path}/config.yml"
 fi
 
@@ -18,12 +18,6 @@ if [[ -z "${logfile}" ]]; then
 fi
 
 debug_cert=">> ${logfile} 2>&1"
-elasticsearchinstances="elasticsearch-nodes:"
-filebeatinstances="wazuh-servers:"
-kibanainstances="kibana:"
-elasticsearchhead='# Elasticsearch nodes'
-filebeathead='# Wazuh server nodes'
-kibanahead='# Kibana node'
 
 function cleanFiles() {
 
@@ -46,21 +40,21 @@ function checkOpenSSL() {
 function logger_cert() {
 
     now=$(date +'%d/%m/%Y %H:%M:%S')
-    case $1 in 
+    case ${1} in 
         "-e")
             mtype="ERROR:"
-            message="$2"
+            message="${2}"
             ;;
         "-w")
             mtype="WARNING:"
-            message="$2"
+            message="${2}"
             ;;
         *)
             mtype="INFO:"
-            message="$1"
+            message="${1}"
             ;;
     esac
-    echo $now $mtype $message | tee -a ${logfile}
+    echo "${now} ${mtype} ${message}" | tee -a ${logfile}
 
 }
 
@@ -75,7 +69,7 @@ function generateAdmincertificate() {
 
 function generateCertificateconfiguration() {
 
-    cat > ${base_path}/certs/$1.conf <<- EOF
+    cat > "${base_path}/certs/${1}.conf" <<- EOF
         [ req ]
         prompt = no
         default_bits = 2048
@@ -100,20 +94,20 @@ function generateCertificateconfiguration() {
         IP.1 = cip
 	EOF
 
-    conf="$(awk '{sub("CN = cname", "CN = '$1'")}1' ${base_path}/certs/$1.conf)"
-    echo "${conf}" > ${base_path}/certs/$1.conf    
+    conf="$(awk '{sub("CN = cname", "CN = '${1}'")}1' "${base_path}/certs/${1}.conf")"
+    echo "${conf}" > "${base_path}/certs/${1}.conf"    
 
-    isIP=$(echo "$2" | grep -P "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")
-    isDNS=$(echo $2 | grep -P "^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$" )
+    isIP=$(echo "${2}" | grep -P "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")
+    isDNS=$(echo "${2}" | grep -P "^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$" )
 
     if [[ -n "${isIP}" ]]; then
-        conf="$(awk '{sub("IP.1 = cip", "IP.1 = '$2'")}1' ${base_path}/certs/$1.conf)"
-        echo "${conf}" > ${base_path}/certs/$1.conf    
+        conf="$(awk '{sub("IP.1 = cip", "IP.1 = '${2}'")}1' "${base_path}/certs/${1}.conf")"
+        echo "${conf}" > "${base_path}/certs/${1}.conf"    
     elif [[ -n "${isDNS}" ]]; then
-        conf="$(awk '{sub("CN = cname", "CN =  '$2'")}1' ${base_path}/certs/$1.conf)"
-        echo "${conf}" > ${base_path}/certs/$1.conf     
-        conf="$(awk '{sub("IP.1 = cip", "DNS.1 = '$2'")}1' ${base_path}/certs/$1.conf)"
-        echo "${conf}" > ${base_path}/certs/$1.conf 
+        conf="$(awk '{sub("CN = cname", "CN =  '${2}'")}1' "${base_path}/certs/${1}.conf")"
+        echo "${conf}" > "${base_path}/certs/${1}.conf"     
+        conf="$(awk '{sub("IP.1 = cip", "DNS.1 = '${2}'")}1' "${base_path}/certs/${1}.conf")"
+        echo "${conf}" > "${base_path}/certs/${1}.conf" 
     else
         logger_cert -e "The given information does not match with an IP address or a DNS".  
         exit 1 
@@ -127,11 +121,11 @@ function generateElasticsearchcertificates() {
 
     i=0
     while [ ${i} -lt "${#elasticsearch_node_names[@]}" ]; do
-        generateCertificateconfiguration ${elasticsearch_node_names[i]} ${elasticsearch_node_ips[i]}
+        generateCertificateconfiguration "${elasticsearch_node_names[i]}" "${elasticsearch_node_ips[i]}"
         eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${elasticsearch_node_names[i]}-key.pem -out ${base_path}/certs/${elasticsearch_node_names[i]}.csr -config ${base_path}/certs/${elasticsearch_node_names[i]}.conf -days 3650 ${debug_cert}"
         eval "openssl x509 -req -in ${base_path}/certs/${elasticsearch_node_names[i]}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${elasticsearch_node_names[i]}.pem -extfile ${base_path}/certs/${elasticsearch_node_names[i]}.conf -extensions v3_req -days 3650 ${debug_cert}"
         eval "chmod 444 ${base_path}/certs/${elasticsearch_node_names[i]}-key.pem ${debug_cert}"    
-        i=$(( ${i} + 1 ))
+        i=$(( i + 1 ))
     done
 
 }
@@ -142,10 +136,10 @@ function generateFilebeatcertificates() {
 
     i=0
     while [ ${i} -lt "${#wazuh_servers_node_names[@]}" ]; do
-        generateCertificateconfiguration ${wazuh_servers_node_names[i]} ${wazuh_servers_node_ips[i]}
+        generateCertificateconfiguration "${wazuh_servers_node_names[i]}" "${wazuh_servers_node_ips[i]}"
         eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${wazuh_servers_node_names[i]}-key.pem -out ${base_path}/certs/${wazuh_servers_node_names[i]}.csr -config ${base_path}/certs/${wazuh_servers_node_names[i]}.conf -days 3650 ${debug_cert}"
         eval "openssl x509 -req -in ${base_path}/certs/${wazuh_servers_node_names[i]}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${wazuh_servers_node_names[i]}.pem -extfile ${base_path}/certs/${wazuh_servers_node_names[i]}.conf -extensions v3_req -days 3650 ${debug_cert}"
-        i=$(( ${i} + 1 ))
+        i=$(( i + 1 ))
     done      
 
 }
@@ -156,11 +150,11 @@ function generateKibanacertificates() {
 
     i=0
     while [ ${i} -lt "${#kibana_node_names[@]}" ]; do
-        generateCertificateconfiguration ${kibana_node_names[i]} ${kibana_node_ips[i]}
+        generateCertificateconfiguration "${kibana_node_names[i]}" "${kibana_node_ips[i]}"
         eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${kibana_node_names[i]}-key.pem -out ${base_path}/certs/${kibana_node_names[i]}.csr -config ${base_path}/certs/${kibana_node_names[i]}.conf -days 3650 ${debug_cert}"
         eval "openssl x509 -req -in ${base_path}/certs/${kibana_node_names[i]}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${kibana_node_names[i]}.pem -extfile ${base_path}/certs/${kibana_node_names[i]}.conf -extensions v3_req -days 3650 ${debug_cert}"
         eval "chmod 444 ${base_path}/certs/${kibana_node_names[i]}-key.pem ${debug_cert}"    
-        i=$(( ${i} + 1 ))
+        i=$(( i + 1 ))
     done
 
 }
@@ -218,13 +212,13 @@ function main() {
         logger -e "Folder ${base_path}/certs already exists. Please, remove the /certs folder to create new certificates."
         exit 1
     else
-        mkdir ${base_path}/certs
+        mkdir "${base_path}/certs"
     fi
 
-    if [ -n "$1" ]; then
-        while [ -n "$1" ]
+    if [ -n "${1}" ]; then
+        while [ -n "${1}" ]
         do
-            case "$1" in
+            case "${1}" in
             "-a"|"--admin-certificates")
                 cadmin=1
                 shift 1
@@ -302,11 +296,13 @@ function main() {
 
 function parse_yaml() {
 
-    local prefix=$2
-    local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @|tr @ '\034')
+    local prefix=${2}
+    local s='[[:space:]]*'
+    local w='[a-zA-Z0-9_]*'
+    local fs=$(echo @|tr @ '\034')
     sed -ne "s|^\($s\):|\1|" \
             -e "s|^\($s\)\($w\)$s:$s[\"']\(.*\)[\"']$s\$|\1$fs\2$fs\3|p" \
-            -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p"  $1 |
+            -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p"  ${1} |
     awk -F$fs '{
         indent = length($1)/2;
         vname[indent] = $2;
@@ -322,43 +318,49 @@ function parse_yaml() {
 function readConfig() {
 
     if [ -f "${config_file}" ]; then
-        eval "$(parse_yaml ${config_file})"
-        eval "elasticsearch_node_names=( $(parse_yaml ${config_file} | grep nodes_elasticsearch_name | sed 's/nodes_elasticsearch_name=//') )"
-        eval "wazuh_servers_node_names=( $(parse_yaml ${config_file} | grep nodes_wazuh_servers_name | sed 's/nodes_wazuh_servers_name=//') )"
-        eval "kibana_node_names=( $(parse_yaml ${config_file} | grep nodes_kibana_name | sed 's/nodes_kibana_name=//') )"
+        eval "$(parse_yaml "${config_file}")"
+        eval "elasticsearch_node_names=( $(parse_yaml "${config_file}" | grep nodes_elasticsearch_name | sed 's/nodes_elasticsearch_name=//') )"
+        eval "wazuh_servers_node_names=( $(parse_yaml "${config_file}" | grep nodes_wazuh_servers_name | sed 's/nodes_wazuh_servers_name=//') )"
+        eval "kibana_node_names=( $(parse_yaml "${config_file}" | grep nodes_kibana_name | sed 's/nodes_kibana_name=//') )"
 
-        eval "elasticsearch_node_ips=( $(parse_yaml ${config_file} | grep nodes_elasticsearch_ip | sed 's/nodes_elasticsearch_ip=//') )"
-        eval "wazuh_servers_node_ips=( $(parse_yaml ${config_file} | grep nodes_wazuh_servers_ip | sed 's/nodes_wazuh_servers_ip=//') )"
-        eval "kibana_node_ips=( $(parse_yaml ${config_file} | grep nodes_kibana_ip | sed 's/nodes_kibana_ip=//') )"
+        eval "elasticsearch_node_ips=( $(parse_yaml "${config_file}" | grep nodes_elasticsearch_ip | sed 's/nodes_elasticsearch_ip=//') )"
+        eval "wazuh_servers_node_ips=( $(parse_yaml "${config_file}" | grep nodes_wazuh_servers_ip | sed 's/nodes_wazuh_servers_ip=//') )"
+        eval "kibana_node_ips=( $(parse_yaml "${config_file}" | grep nodes_kibana_ip | sed 's/nodes_kibana_ip=//') )"
 
-        eval "wazuh_servers_node_types=( $(parse_yaml ${config_file} | grep nodes_wazuh_servers_node_type | sed 's/nodes_wazuh_servers_node_type=//') )"
+        eval "wazuh_servers_node_types=( $(parse_yaml "${config_file}" | grep nodes_wazuh_servers_node_type | sed 's/nodes_wazuh_servers_node_type=//') )"
 
-        if [ $(printf '%s\n' "${elasticsearch_node_names[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#elasticsearch_node_names[@]} ]; then 
+        unique_names=($(echo "${elasticsearch_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+        if [ "${#unique_names[@]}" -ne "${#elasticsearch_node_names[@]}" ]; then 
             logger_cert -e "Duplicated Elasticsearch node names."
             exit 1
         fi
 
-        if [ $(printf '%s\n' "${elasticsearch_node_ips[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#elasticsearch_node_ips[@]} ]; then 
+        unique_ips=($(echo "${elasticsearch_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+        if [ "${#unique_ips[@]}" -ne "${#elasticsearch_node_ips[@]}" ]; then 
             logger_cert -e "Duplicated Elasticsearch node ips."
             exit 1
         fi
 
-        if [ $(printf '%s\n' "${wazuh_servers_node_names[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#wazuh_servers_node_names[@]} ]; then 
+        unique_names=($(echo "${wazuh_servers_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+        if [ "${#unique_names[@]}" -ne "${#wazuh_servers_node_names[@]}" ]; then 
             logger_cert -e "Duplicated Wazuh server node names."
             exit 1
         fi
 
-        if [ $(printf '%s\n' "${wazuh_servers_node_ips[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#wazuh_servers_node_ips[@]} ]; then 
+        unique_ips=($(echo "${wazuh_servers_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+        if [ "${#unique_ips[@]}" -ne "${#wazuh_servers_node_ips[@]}" ]; then 
             logger_cert -e "Duplicated Wazuh server node ips."
             exit 1
         fi
 
-        if [ $(printf '%s\n' "${kibana_node_names[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#kibana_node_names[@]} ]; then 
+        unique_names=($(echo "${kibana_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+        if [ "${#unique_names[@]}" -ne "${#kibana_node_names[@]}" ]; then 
             logger_cert -e "Duplicated Kibana node names."
             exit 1
         fi
 
-        if [ $(printf '%s\n' "${kibana_node_ips[@]}"|awk '!($0 in seen){seen[$0];c++} END {print c}') -ne ${#kibana_node_ips[@]} ]; then 
+        unique_ips=($(echo "${kibana_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+        if [ "${#unique_ips[@]}" -ne "${#kibana_node_ips[@]}" ]; then 
             logger_cert -e "Duplicated Kibana node ips."
             exit 1
         fi
@@ -368,6 +370,13 @@ function readConfig() {
             exit 1
         fi
 
+        for i in "${wazuh_servers_node_types[@]}"; do
+            if ! echo "$i" | grep -ioq master && ! echo "$i" | grep -ioq worker; then
+                logger_cert -e "Incorrect node_type $i must be master or worker"
+                exit 1
+            fi
+        done
+
         if [ "${#wazuh_servers_node_names[@]}" -le 1 ]; then
             if [ "${#wazuh_servers_node_types[@]}" -ne 0 ]; then
                 logger_cert -e "node_type must be used with more than one Wazuh server."
@@ -376,10 +385,10 @@ function readConfig() {
         elif [ "${#wazuh_servers_node_names[@]}" -ne "${#wazuh_servers_node_types[@]}" ]; then
             logger_cert -e "Different number of Wazuh server node names and node types."
             exit 1
-        elif [ $(grep -o master <<< ${wazuh_servers_node_types[*]} | wc -l) -ne 1 ]; then
+        elif [ $(grep -io master <<< ${wazuh_servers_node_types[*]} | wc -l) -ne 1 ]; then
             logger_cert -e "Wazuh cluster needs a single master node."
             exit 1
-        elif [ $(grep -o worker <<< ${wazuh_servers_node_types[*]} | wc -l) -ne $(expr "${#wazuh_servers_node_types[@]}" - 1)  ]; then
+        elif [ $(grep -io worker <<< ${wazuh_servers_node_types[*]} | wc -l) -ne $(( "${#wazuh_servers_node_types[@]}" - 1 ))  ]; then
             logger_cert -e "Incorrect number of workers."
             exit 1
         fi

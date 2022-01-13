@@ -93,9 +93,9 @@ checkInstalledPass() {
 
     if [ -n "${filebeatinstalled}" ]; then
         if [ "${sys_type}" == "zypper" ]; then
-            filebeatversion=$(echo ${filebeatinstalled} | awk '{print $11}')
+            filebeatversion=$(echo "${filebeatinstalled}" | awk '{print ${1}1}')
         else
-            filebeatversion=$(echo ${filebeatinstalled} | awk '{print $2}')
+            filebeatversion=$(echo "${filebeatinstalled}" | awk '{print ${2}}')
         fi  
     fi    
 
@@ -109,9 +109,9 @@ checkInstalledPass() {
 
     if [ -n "${kibanainstalled}" ]; then
         if [ "${sys_type}" == "zypper" ]; then
-            kibanaversion=$(echo ${kibanainstalled} | awk '{print $11}')
+            kibanaversion=$(echo "${kibanainstalled}" | awk '{print ${1}1}')
         else
-            kibanaversion=$(echo ${kibanainstalled} | awk '{print $2}')
+            kibanaversion=$(echo "${kibanainstalled}" | awk '{print ${2}}')
         fi  
     fi 
     if [ -z "${elasticsearchinstalled}" ] && [ -z "${kibanainstalled}" ] && [ -z "${filebeatinstalled}" ]; then
@@ -142,7 +142,7 @@ checkRoot() {
 checkUser() {
 
     for i in "${!users[@]}"; do
-        if [ ${users[i]} == $nuser ]; then
+        if [ "${users[i]}" == "${nuser}" ]; then
             exists=1
         fi
     done
@@ -173,8 +173,8 @@ generateHash() {
         logger_pass "Generating password hashes."
         for i in "${!passwords[@]}"
         do
-            nhash=$(bash /usr/share/elasticsearch/plugins/opendistro_security/tools/hash.sh -p ${passwords[i]} | grep -v WARNING)
-            hashes+=(${nhash})
+            nhash=$(bash /usr/share/elasticsearch/plugins/opendistro_security/tools/hash.sh -p "${passwords[i]}" | grep -v WARNING)
+            hashes+=("${nhash}")
         done
         logger_pass "Password hashes generated."
     else
@@ -198,7 +198,7 @@ generatePassword() {
         logger_pass "Generating random passwords."
         for i in "${!users[@]}"; do
             PASS=$(< /dev/urandom tr -dc A-Za-z0-9 | head -c${1:-32};echo;)
-            passwords+=(${PASS})
+            passwords+=("${PASS}")
         done
     fi
 
@@ -214,9 +214,9 @@ generatePasswordFile() {
     users=( admin kibanaserver kibanaro logstash readall snapshotrestore wazuh_admin wazuh_user)
     generatePassword
     for i in "${!users[@]}"; do
-        echo "User:" >> ${gen_file}
-        echo "  name: ${users[${i}]}" >> ${gen_file}
-        echo "  password: ${passwords[${i}]}" >> ${gen_file}
+        echo "User:" >> "${gen_file}"
+        echo "  name: ${users[${i}]}" >> "${gen_file}"
+        echo "  password: ${passwords[${i}]}" >> "${gen_file}"
     done
 
 }
@@ -225,10 +225,10 @@ getHelp() {
 
     echo -e ""
     echo -e "NAME"
-    echo -e "        $(basename $0) - Manage passwords for OpenDistro users."
+    echo -e "        $(basename "${0}") - Manage passwords for OpenDistro users."
     echo -e ""
     echo -e "SYNOPSIS"
-    echo -e "        $(basename $0) [OPTIONS]"
+    echo -e "        $(basename "${0}") [OPTIONS]"
     echo -e ""
     echo -e "DESCRIPTION"
     echo -e "        -a,  --change-all"
@@ -283,30 +283,30 @@ getNetworkHost() {
 logger_pass() {
 
     now=$(date +'%d/%m/%Y %H:%M:%S')
-    case $1 in 
+    case ${1} in 
         "-e")
             mtype="ERROR:"
-            message="$2"
+            message="${2}"
             ;;
         "-w")
             mtype="WARNING:"
-            message="$2"
+            message="${2}"
             ;;
         *)
             mtype="INFO:"
-            message="$1"
+            message="${1}"
             ;;
     esac
-    echo $now $mtype $message | tee -a ${logfile}
+    echo "$now $mtype $message" | tee -a ${logfile}
 
 }
 
 main() {   
 
-    if [ -n "$1" ]; then      
-        while [ -n "$1" ]
+    if [ -n "${1}" ]; then      
+        while [ -n "${1}" ]
         do
-            case "$1" in
+            case "${1}" in
             "-v"|"--verbose")
                 verboseenabled=1
                 shift 1
@@ -316,32 +316,32 @@ main() {
                 shift 1
                 ;;                
             "-u"|"--user")
-                nuser=$2
+                nuser=${2}
                 shift
                 shift
                 ;;
             "-p"|"--password")
-                password=$2
+                password=${2}
                 shift
                 shift
                 ;;
             "-c"|"--cert")
-                adminpem=$2
+                adminpem=${2}
                 shift
                 shift
                 ;; 
             "-k"|"--certkey")
-                adminkey=$2
+                adminkey=${2}
                 shift
                 shift
                 ;; 
             "-f"|"--file")
-                p_file=$2
+                p_file=${2}
                 shift
                 shift
                 ;;
             "-gf"|"--generate-file")
-                gen_file=$2
+                gen_file=${2}
                 shift
                 shift
                 ;;  
@@ -455,7 +455,7 @@ readAdmincerts() {
 
 readFileUsers() {
 
-    filecorrect=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' ${p_file})
+    filecorrect=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' "${p_file}")
     if [ "${filecorrect}" -ne 1 ]; then
         logger_pass -e "The password file doesn't have a correct format.
 
@@ -470,22 +470,22 @@ User:
 	    exit 1
     fi
 
-    sfileusers=$(grep name: ${p_file} | awk '{ print substr( $2, 1, length($2) ) }')
-    sfilepasswords=$(grep password: ${p_file} | awk '{ print substr( $2, 1, length($2) ) }')
+    sfileusers=$(grep name: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
+    sfilepasswords=$(grep password: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
 
-    fileusers=($sfileusers)
-    filepasswords=($sfilepasswords)
+    fileusers=("$sfileusers")
+    filepasswords=("$sfilepasswords")
 
     if [ -n "${verboseenabled}" ]; then
-        logger_pass "Users in the file: ${fileusers[@]}"
-        logger_pass "Passwords in the file: ${filepasswords[@]}"
+        logger_pass "Users in the file: ${fileusers[*]}"
+        logger_pass "Passwords in the file: ${filepasswords[*]}"
     fi
 
     if [ -n "${changeall}" ]; then
         for j in "${!fileusers[@]}"; do
             supported=false
             for i in "${!users[@]}"; do
-                if [[ ${users[i]} == ${fileusers[j]} ]]; then
+                if [[ "${users[i]}" == "${fileusers[j]}" ]]; then
                     passwords[i]=${filepasswords[j]}
                     supported=true
                 fi
@@ -502,8 +502,8 @@ User:
             supported=false
             for i in "${!users[@]}"; do
                 if [[ "${users[i]}" == "${fileusers[j]}" ]]; then
-                    finalusers+=(${fileusers[j]})
-                    finalpasswords+=(${filepasswords[j]})
+                    finalusers+=("${fileusers[j]}")
+                    finalpasswords+=("${filepasswords[j]}")
                     supported=true
                 fi
             done
@@ -513,8 +513,8 @@ User:
         done
 
         users=()
-        users=(${finalusers[@]})
-        passwords=(${finalpasswords[@]})
+        users=("${finalusers[@]}")
+        passwords=("${finalpasswords[@]}")
         changeall=1
     fi
 
@@ -523,30 +523,30 @@ User:
 readUsers() {
 
     susers=$(grep -B 1 hash: /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml | grep -v hash: | grep -v "-" | awk '{ print substr( $0, 1, length($0)-1 ) }')
-    users=($susers)  
+    users=("$susers")  
 
 }
 
 restartService() {
 
-    if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
-        eval "systemctl restart $1.service ${debug_pass}"
+    if ps -e | grep -E -q "^\ *1\ .*systemd$"; then
+        eval "systemctl restart ${1}.service ${debug_pass}"
         if [  "$?" != 0  ]; then
             logger_pass -e "${1^} could not be started."
             exit 1;
         else
             logger_pass "${1^} started"
         fi  
-    elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
-        eval "/etc/init.d/$1 restart ${debug_pass}"
+    elif ps -e | grep -E -q "^\ *1\ .*init$"; then
+        eval "/etc/init.d/${1} restart ${debug_pass}"
         if [  "$?" != 0  ]; then
             logger_pass -e "${1^} could not be started."
             exit 1;
         else
             logger_pass "${1^} started"
         fi     
-    elif [ -x "/etc/rc.d/init.d/$1" ] ; then
-        eval "/etc/rc.d/init.d/$1 restart ${debug_pass}"
+    elif [ -x "/etc/rc.d/init.d/${1}" ] ; then
+        eval "/etc/rc.d/init.d/${1} restart ${debug_pass}"
         if [  "$?" != 0  ]; then
             logger_pass -e "${1^} could not be started."
             exit 1;
@@ -581,7 +581,7 @@ runSecurityAdmin() {
     fi    
 
     if [ -n "${changeall}" ]; then
-        if ([ -z "${AIO}" ] && [ -z "${elasticsearch}" ] && [ -z "${kibana}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ]); then
+        if [ -z "${AIO}" ] && [ -z "${elasticsearch}" ] && [ -z "${kibana}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ]; then
             logger_pass -w "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
         else
             logger_pass "Passwords changed."

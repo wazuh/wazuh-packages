@@ -164,7 +164,7 @@ After describing the architecture, certificates must be created:
 </details>
 <br>
 
-Copy the `certs.tar` and `config.yml` in all the nodes, at the same level as `wazuh_install.sh`. After `certs.tar` and `config.yml` distribution over all nodes, you can start installing components:
+Copy the `configurations.tar` and `config.yml` in all the nodes, at the same level as `wazuh_install.sh`. After `configurations.tar` and `config.yml` distribution over all nodes, you can start installing components:
 
 **Host #1**
 
@@ -335,7 +335,7 @@ After describing the architecture, certificates must be created:
 </details>
 <br>
 
-Copy the `certs.tar` and `config.yml` in all the nodes, at the same level as `wazuh_install.sh`. After `certs.tar` and `config.yml` distribution over all nodes, you can start installing components.
+Copy the `configurations.tar` and `config.yml` in all the nodes, at the same level as `wazuh_install.sh`. After `configurations.tar` and `config.yml` distribution over all nodes, you can start installing components.
 
 Install Wazuh server:
 ```
@@ -516,7 +516,7 @@ DESCRIPTION
                 Starts the Elasticsearch cluster.
 
         -t,  --tar <path-to-certs-tar
-                Path to tar containing certificate files. By default: wazuh-packages/unattended_installer/certs.tar
+                Path to tar containing certificate files. By default: wazuh-packages/unattended_installer/configurations.tar
 
         -u,  --uninstall
                 Uninstalls all Wazuh components. NOTE: This will erase all the existing configuration and data.
