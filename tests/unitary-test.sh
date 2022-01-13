@@ -45,12 +45,12 @@ function createDocker() {
 
     image_name="testing-img"
     if [ -z "$(docker images | grep $image_name)" ]; then
-        eval "docker build -t $image_name ."
+        eval "docker build -t $image_name . >/dev/null"
     fi
     container_name="testing-container"
-    eval "docker run -d -t --name $container_name $image_name /bin/bash "
+    eval "docker run -d -t --name $container_name $image_name /bin/bash >/dev/null"
     container_id="$( docker ps -a | grep $container_name | awk '{ print $1 }' )"
-    eval "docker cp bach.sh $container_id:/tests/bach.sh"
+    eval "docker cp bach.sh $container_id:/tests/bach.sh >/dev/null"
 }
 
 function testCommon() {

@@ -169,7 +169,7 @@ function readPasswordFileUsers() {
 
     filecorrect=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' ${p_file})
     if [ "${filecorrect}" -ne 1 ]; then
-        logger_pass -e "The password file doesn't have a correct format.
+        logger -e "The password file doesn't have a correct format.
 
 It must have this format:
 User:
@@ -189,8 +189,8 @@ User:
     filepasswords=($sfilepasswords)
 
     if [ -n "${verboseenabled}" ]; then
-        logger_pass "Users in the file: ${fileusers[@]}"
-        logger_pass "Passwords in the file: ${filepasswords[@]}"
+        logger "Users in the file: ${fileusers[@]}"
+        logger "Passwords in the file: ${filepasswords[@]}"
     fi
 
     if [ -n "${changeall}" ]; then
@@ -203,14 +203,14 @@ User:
                 fi
             done
             if [ "${supported}" = false ] && [ -n "${elasticsearchinstalled}" ]; then
-                logger_pass -e "The given user ${fileusers[j]} does not exist"
+                logger -e "The given user ${fileusers[j]} does not exist"
             fi
         done
     else
         finalusers=()
         finalpasswords=()
 
-        if [ -n "${kibanainstalled}" ] &&  [ -n "${kibana}" ]; then 
+        if [ -n "${kibanainstalled}" ] && [ -n "${kibana}" ]; then 
             users=( kibanaserver admin )
         fi
 
@@ -228,7 +228,7 @@ User:
                 fi
             done
             if [ ${supported} = false ] && [ -n "${elasticsearchinstalled}" ] && [ -n "${changeall}" ]; then
-                logger_pass -e "The given user ${fileusers[j]} does not exist"
+                logger -e "The given user ${fileusers[j]} does not exist"
             fi
         done
 
@@ -438,6 +438,7 @@ function startService() {
             logger "${1^} service started."
         fi
     else
+        echo "${1^} could not start. No service manager found on the system."
         logger -e "${1^} could not start. No service manager found on the system."
         exit 1
     fi

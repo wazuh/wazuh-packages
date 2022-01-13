@@ -1097,9 +1097,9 @@ test-ASSERT-FAIL-startService-no-args() {
 
 test-ASSERT-FAIL-startService-no-service-manager() {
     load-startService
-    @mock ps -e
-    @mock egrep ^\ *1\ .*systemd$
-    @mock egrep ^\ *1\ .*init$
+    @mocktrue ps -e
+    @mocktrue egrep ^\ *1\ .*systemd$
+    @mocktrue egrep ^\ *1\ .*init$
     @rm /etc/init.d/wazuh
     startService wazuh-manager
 }
@@ -1107,7 +1107,7 @@ test-ASSERT-FAIL-startService-no-service-manager() {
 test-startService-systemd() {
     load-startService
     @mocktrue ps -e
-    @mock egrep ^\ *1\ .*systemd$ === @out systemd
+    @mock egrep ^\ *1\ .*systemd$ === @echo systemd
     @mock egrep ^\ *1\ .*init$
     startService wazuh-manager
 }
@@ -1121,26 +1121,27 @@ test-startService-systemd-assert() {
 test-startService-systemd-error() {
     load-startService
     @mocktrue ps -e
-    @mock egrep ^\ *1\ .*systemd$ === @out systemd
+    @mock egrep ^\ *1\ .*systemd$ === @echo systemd
     @mock egrep ^\ *1\ .*init$
+    @mockfalse systemctl start wazuh-manager.service
     startService wazuh-manager
 }
 
 test-startService-systemd-error-assert() {
     systemctl daemon-reload
     systemctl enable wazuh-manager.service
-    systemctl start wazuh-manager.service
-    rollBack
+    rollBack wazuh-manager
     exit 1
 }
 
 test-startService-initd() {
     load-startService
     @mocktrue ps -e
-    @mock egrep ^\ *1\ .*systemd$ === @out systemd
-    @mock egrep ^\ *1\ .*init$
+    @mock egrep ^\ *1\ .*systemd$
+    @mock egrep ^\ *1\ .*init$ === @echo initd
     @mkdir -p /etc/init.d
     @touch /etc/init.d/wazuh-manager
+    @chmod +x /etc/init.d/wazuh-manager
     startService wazuh-manager
     @rm /etc/init.d/wazuh-manager
 }
@@ -1149,18 +1150,19 @@ test-startService-initd-assert() {
     @mkdir -p /etc/init.d
     @touch /etc/init.d/wazuh-manager
     chkconfig wazuh-manager on
-    service start wazuh-manager
+    service wazuh-manager start
     /etc/init.d/wazuh-manager start
     @rm /etc/init.d/wazuh-manager
 }
 
 test-startService-initd-error() {
     load-startService
-    @mock ps -e
+    @mocktrue ps -e
     @mock egrep ^\ *1\ .*systemd$
-    @mock egrep ^\ *1\ .*init$ === @out initd
+    @mock egrep ^\ *1\ .*init$ === @echo initd
     @mkdir -p /etc/init.d
     @touch /etc/init.d/wazuh-manager
+    #/etc/init.d/wazuh-manager is not executable -> It will fail
     startService wazuh-manager
     @rm /etc/init.d/wazuh-manager
 }
@@ -1169,9 +1171,9 @@ test-startService-initd-error-assert() {
     @mkdir -p /etc/init.d
     @touch /etc/init.d/wazuh-manager
     chkconfig wazuh-manager on
-    service start wazuh-manager
+    service wazuh-manager start
     /etc/init.d/wazuh-manager start
-    rollBack
+    rollBack wazuh-manager
     exit 1
     @rm /etc/init.d/wazuh-manager
 }
@@ -1198,27 +1200,136 @@ test-startService-rc.d/init.d-assert() {
     @rm /etc/rc.d/init.d/wazuh-manager
 }
 
-test-startService-rc.d/init.d-error() {
-    load-startService
-    @mocktrue ps -e
-    @mock egrep ^\ *1\ .*systemd$
-    @mock egrep ^\ *1\ .*init$
-    @mkdir -p /etc/rc.d/init.d
-    @touch /etc/rc.d/init.d/wazuh-manager
-    @chmod +x /etc/rc.d/init.d/wazuh-manager
-    startService wazuh-manager
-    @rm /etc/rc.d/init.d/wazuh-manager
+# test-startService-rc.d/init.d-error() {
+#     load-startService
+#     @mocktrue ps -e
+#     @mock egrep ^\ *1\ .*systemd$
+#     @mock egrep ^\ *1\ .*init$
+#     @mkdir -p /etc/rc.d/init.d
+#     @touch /etc/rc.d/init.d/wazuh-manager
+#     @chmod +x /etc/rc.d/init.d/wazuh-manager
+#     @out exit 1 > /etc/rc.d/init.d/wazuh-manager
+#     startService wazuh-manager
+#     @rm /etc/rc.d/init.d/wazuh-manager
+# }
+
+# test-startService-rc.d/init.d-error-assert() {
+
+#     @mkdir -p /etc/rc.d/init.d
+#     @touch /etc/rc.d/init.d/wazuh-manager
+#     @chmod +x /etc/rc.d/init.d/wazuh-manager
+#     /etc/rc.d/init.d/wazuh-manager start
+#     rollBack
+#     exit 1
+#     @rm /etc/rc.d/init.d/wazuh-manager
+# }
+
+function load-readPasswordFileUsers() {
+    @load_function "${base_dir}/tests/unattended/common.sh" readPasswordFileUsers
 }
 
-test-startService-rc.d/init.d-error-assert() {
-
-    @mkdir -p /etc/rc.d/init.d
-    @touch /etc/rc.d/init.d/wazuh-manager
-    @chmod +x /etc/rc.d/init.d/wazuh-manager
-    /etc/rc.d/init.d/wazuh-manager start
-    rollBack
-    exit 1
-    @rm /etc/rc.d/init.d/wazuh-manager
+test-ASSERT-FAIL-readPasswordFileUsers-file-incorrect() {
+    load-readPasswordFileUsers
+    p_file=/tmp/passfile.yml
+    @mock grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' /tmp/passfile.yml === @echo 0
+    readPasswordFileUsers
 }
 
+test-readPasswordFileUsers-changeall-correct() {
+    load-readPasswordFileUsers
+    p_file=/tmp/passfile.yml
+    @mock grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' /tmp/passfile.yml === @echo 1
+    @mock grep name: ${p_file} === @echo wazuh kibanaserver
+    @mock awk '{ print substr( $2, 1, length($2) ) }'
+    @mock grep password: ${p_file} === @echo wazuhpassword kibanaserverpassword
+    @mock awk '{ print substr( $2, 1, length($2) ) }'
+    changeall=1
+    users=(wazuh kibanaserver)
+    readPasswordFileUsers
+    @echo ${fileusers[*]}
+    @echo ${filepasswords[*]}
+    @echo ${users[*]}
+    @echo ${passwords[*]}
+}
+
+test-readPasswordFileUsers-changeall-correct-assert() {
+    @echo wazuh kibanaserver
+    @echo wazuhpassword kibanaserverpassword
+    @echo wazuh kibanaserver
+    @echo wazuhpassword kibanaserverpassword
+}
+
+test-readPasswordFileUsers-changeall-user-doesnt-exist() {
+    load-readPasswordFileUsers
+    p_file=/tmp/passfile.yml
+    @mock grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' /tmp/passfile.yml === @echo 1
+    @mock grep name: ${p_file} === @echo wazuh kibanaserver admin
+    @mock awk '{ print substr( $2, 1, length($2) ) }'
+    @mock grep password: ${p_file} === @echo wazuhpassword kibanaserverpassword
+    @mock awk '{ print substr( $2, 1, length($2) ) }'
+    changeall=1
+    users=(wazuh kibanaserver)
+    readPasswordFileUsers
+    @echo ${fileusers[*]}
+    @echo ${filepasswords[*]}
+    @echo ${users[*]}
+    @echo ${passwords[*]}
+}
+
+test-readPasswordFileUsers-changeall-user-doesnt-exist-assert() {
+    @echo wazuh kibanaserver admin
+    @echo wazuhpassword kibanaserverpassword
+    @echo wazuh kibanaserver
+    @echo wazuhpassword kibanaserverpassword
+}
+
+test-readPasswordFileUsers-no-changeall-kibana-correct() {
+    load-readPasswordFileUsers
+    p_file=/tmp/passfile.yml
+    @mock grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' /tmp/passfile.yml === @echo 1
+    @mock grep name: ${p_file} === @echo wazuh kibanaserver admin
+    @mock awk '{ print substr( $2, 1, length($2) ) }'
+    @mock grep password: ${p_file} === @echo wazuhpassword kibanaserverpassword adminpassword
+    @mock awk '{ print substr( $2, 1, length($2) ) }'
+    changeall=
+    kibanainstalled=1
+    kibana=1
+    readPasswordFileUsers
+    @echo ${fileusers[*]}
+    @echo ${filepasswords[*]}
+    @echo ${users[*]}
+    @echo ${passwords[*]}
+}
+
+test-readPasswordFileUsers-no-changeall-kibana-correct-assert() {
+    @echo wazuh kibanaserver admin
+    @echo wazuhpassword kibanaserverpassword adminpassword
+    @echo kibanaserver admin
+    @echo kibanaserverpassword adminpassword
+}
+
+test-readPasswordFileUsers-no-changeall-filebeat-correct() {
+    load-readPasswordFileUsers
+    p_file=/tmp/passfile.yml
+    @mock grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' /tmp/passfile.yml === @echo 1
+    @mock grep name: ${p_file} === @echo wazuh kibanaserver admin
+    @mock awk '{ print substr( $2, 1, length($2) ) }'
+    @mock grep password: ${p_file} === @echo wazuhpassword kibanaserverpassword adminpassword
+    @mock awk '{ print substr( $2, 1, length($2) ) }'
+    changeall=
+    filebeatinstalled=1
+    wazuh=1
+    readPasswordFileUsers
+    @echo ${fileusers[*]}
+    @echo ${filepasswords[*]}
+    @echo ${users[*]}
+    @echo ${passwords[*]}
+}
+
+test-readPasswordFileUsers-no-changeall-filebeat-correct-assert() {
+    @echo wazuh kibanaserver admin
+    @echo wazuhpassword kibanaserverpassword adminpassword
+    @echo admin
+    @echo adminpassword
+}
 
