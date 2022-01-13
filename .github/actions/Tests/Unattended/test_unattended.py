@@ -124,11 +124,12 @@ def get_wazuh_api_status():
 
     return response.json()['data']['title'] 
 
-def is_fedora_opensuse():
-    version = platform.release()
-    if 'fc33' or 'fc34' in version:
-        return True
-
+def is_fedora_suse():
+    if os.path.exists('/etc/os-release'):
+        with open('/etc/os-release', 'r') as f:
+            for line in f.readlines():
+                if 'Fedora 33' in line or 'Fedora 34' in line  or 'SUSE Linux Enterprise Server 15' in line:
+                    return True
 
 # ----------------------------- Tests ----------------------------- 
 
@@ -220,8 +221,8 @@ def test_check_log_errors():
         for line in f.readlines():
             if 'ERROR' in line:
                 found_error = True
-                if is_fedora_opensuse():
-                    if "wazuh-modulesd:syscollector: ERROR: Failed to open database '/var/lib/rpm/Packages': No such file or directory" in line:
+                if is_fedora_suse():
+                    if "ERROR: Failed to open database '/var/lib/rpm/Packages': No such file or directory" in line:
                         found_error = False
                         print("Error detected as exception.")
                         break
