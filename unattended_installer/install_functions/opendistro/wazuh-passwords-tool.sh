@@ -93,9 +93,9 @@ checkInstalledPass() {
 
     if [ -n "${filebeatinstalled}" ]; then
         if [ "${sys_type}" == "zypper" ]; then
-            filebeatversion=$(echo "${filebeatinstalled}" | awk '{print ${1}1}')
+            filebeatversion=$(echo "${filebeatinstalled}" | awk '{print $1}')
         else
-            filebeatversion=$(echo "${filebeatinstalled}" | awk '{print ${2}}')
+            filebeatversion=$(echo "${filebeatinstalled}" | awk '{print $2}')
         fi  
     fi    
 
@@ -109,9 +109,9 @@ checkInstalledPass() {
 
     if [ -n "${kibanainstalled}" ]; then
         if [ "${sys_type}" == "zypper" ]; then
-            kibanaversion=$(echo "${kibanainstalled}" | awk '{print ${1}1}')
+            kibanaversion=$(echo "${kibanainstalled}" | awk '{print $1}')
         else
-            kibanaversion=$(echo "${kibanainstalled}" | awk '{print ${2}}')
+            kibanaversion=$(echo "${kibanainstalled}" | awk '{print $2}')
         fi  
     fi 
     if [ -z "${elasticsearchinstalled}" ] && [ -z "${kibanainstalled}" ] && [ -z "${filebeatinstalled}" ]; then
