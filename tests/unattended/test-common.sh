@@ -351,6 +351,7 @@ test-rollBack-no-arguments-all-installed-yum() {
     filebeat_remaining_files=1
     sys_type="yum"
     debug=
+    AIO=1
     rollBack
 }
 
@@ -392,6 +393,7 @@ test-rollBack-no-arguments-all-installed-zypper() {
     filebeat_remaining_files=1
     sys_type="zypper"
     debug=
+    AIO=1
     rollBack
 }
 
@@ -432,6 +434,7 @@ test-rollBack-no-arguments-all-installed-apt() {
     filebeat_remaining_files=1
     sys_type="apt-get"
     debug=
+    AIO=
     rollBack
 }
 
@@ -471,6 +474,7 @@ test-rollBack-elasticsearch-arg-all-installed-yum() {
     filebeat_remaining_files=1
     sys_type="yum"
     debug=
+    AIO=1
     rollBack elasticsearch
 }
 
@@ -496,6 +500,7 @@ test-rollBack-elasticsearch-arg-all-installed-zypper() {
     filebeat_remaining_files=1
     sys_type="zypper"
     debug=
+    AIO=1
     rollBack elasticsearch
 }
 
@@ -519,6 +524,7 @@ test-rollBack-elasticsearch-arg-all-installed-apt() {
     filebeat_remaining_files=1
     sys_type="apt-get"
     debug=
+    AIO=1
     rollBack elasticsearch
 }
 
@@ -542,6 +548,7 @@ test-rollBack-wazuh-arg-all-installed-yum() {
     filebeat_remaining_files=1
     sys_type="yum"
     debug=
+    AIO=1
     rollBack wazuh
 }
 
@@ -563,6 +570,7 @@ test-rollBack-wazuh-arg-all-installed-zypper() {
     filebeat_remaining_files=1
     sys_type="zypper"
     debug=
+    AIO=1
     rollBack wazuh
 }
 
@@ -585,6 +593,7 @@ test-rollBack-wazuh-arg-all-installed-apt() {
     filebeat_remaining_files=1
     sys_type="apt-get"
     debug=
+    AIO=1
     rollBack wazuh
 }
 
@@ -606,6 +615,7 @@ test-rollBack-kibana-arg-all-installed-yum() {
     filebeat_remaining_files=1
     sys_type="yum"
     debug=
+    AIO=1
     rollBack kibana
 }
 
@@ -629,6 +639,7 @@ test-rollBack-kibana-arg-all-installed-zypper() {
     filebeat_remaining_files=1
     sys_type="zypper"
     debug=
+    AIO=1
     rollBack kibana
 }
 
@@ -652,6 +663,7 @@ test-rollBack-kibana-arg-all-installed-apt() {
     filebeat_remaining_files=1
     sys_type="apt-get"
     debug=
+    AIO=1
     rollBack kibana
 }
 
@@ -675,6 +687,7 @@ test-rollBack-no-arguments-nothing-installed() {
     filebeat_remaining_files=
     sys_type="yum"
     debug=
+    AIO=1
     rollBack
     @assert-success
 }
@@ -691,6 +704,7 @@ test-rollBack-no-arguments-all-remaining-files-yum() {
     filebeat_remaining_files=1
     sys_type="yum"
     debug=
+    AIO=1
     rollBack
 }
 
@@ -722,6 +736,7 @@ test-rollBack-no-arguments-all-remaining-files-zypper() {
     filebeat_remaining_files=1
     sys_type="zypper"
     debug=
+    AIO=1
     rollBack
 }
 
@@ -753,6 +768,7 @@ test-rollBack-no-arguments-all-remaining-files-apt() {
     filebeat_remaining_files=1
     sys_type="apt-get"
     debug=
+    AIO=1
     rollBack
 }
 
