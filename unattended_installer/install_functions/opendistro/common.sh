@@ -394,11 +394,11 @@ function rollBack() {
         eval "rm -rf /etc/systemd/system/elasticsearch.service.wants ${debug}"
     fi
 
-    if [ -z "${uninstall}" ] && [ -z "${1}" ]; then
-        if [ -z "${overwrite}" ]; then
-            logger "Installation cleaned. Check the ${logfile} file to learn more about the issue."
-        else
+    if [ -z "${uninstall}" ]; then
+        if [ -n "${rollback_conf}" ] || [ -n "${overwrite}" ]; then
             logger "Installation cleaned."
+        else
+            logger "Installation cleaned. Check the ${logfile} file to learn more about the issue."
         fi
     fi
 

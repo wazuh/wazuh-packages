@@ -40,14 +40,18 @@ debug=">> ${logfile} 2>&1"
 trap cleanExit SIGINT
 
 function cleanExit() {
-
+    
+    rollback_conf=""
+    
     if [ -n "$spin_pid" ]; then
         eval "kill -9 $spin_pid ${debug}"
     fi
 
-    echo -ne "\nDo you want to clean the ongoing installation?[Y/n]"
-    read -r rollback_conf
-    if [[ "$rollback_conf" =~ [N|n] ]]; then
+    until [[ "${rollback_conf}" =~ ^[N|Y|n|y]$ ]]; do
+        echo -ne "\nDo you want to clean the ongoing installation?[Y/N]"
+        read -r rollback_conf
+    done
+    if [[ "${rollback_conf}" =~ [N|n] ]]; then
         exit 1
     else 
         rollBack
