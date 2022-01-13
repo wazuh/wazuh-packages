@@ -370,8 +370,8 @@ function readConfig() {
 
         for i in "${wazuh_servers_node_types[@]}"; do
             if ! echo "$i" | grep -ioq master && ! echo "$i" | grep -ioq worker; then
-                echo "Incorrect node_type $i must be master or worker"
-                # exit 1
+                logger_cert -e "Incorrect node_type $i must be master or worker"
+                exit 1
             fi
         done
 

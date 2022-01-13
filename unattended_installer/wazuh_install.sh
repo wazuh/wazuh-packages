@@ -310,6 +310,9 @@ function main() {
         logger "All components removed."
         exit 0
     fi
+
+# -------------- Preliminary checks  --------------------------------
+
     if [ -z "${configurations}" ] && [ -z "${AIO}" ]; then
         checkPreviousCertificates
     fi
@@ -322,8 +325,13 @@ function main() {
     fi
     checkArguments
 
+# -------------- Configuration creation case  -----------------------
+
     # Creation certificate case: Only AIO and -c option can create certificates. 
     if [ -n "${configurations}" ] || [ -n "${AIO}" ]; then
+        if [ -n "${configurations}" ]; then
+            checkOpenSSL
+        fi
         createCertificates
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
             createClusterKey
