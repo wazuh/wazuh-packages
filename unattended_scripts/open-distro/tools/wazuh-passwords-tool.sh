@@ -102,7 +102,7 @@ getNetworkHost() {
     NH="network.host: "
     IP="${IP//$NH}"
 
-    #allow to find ip with and interface
+    # Allow to find ip with and interface
     if [[ ${IP} =~ _.*_ ]]; then
         interface="${IP//_}"
         IP=$(ip -o -4 addr list ${interface} | awk '{print $4}' | cut -d/ -f1)
