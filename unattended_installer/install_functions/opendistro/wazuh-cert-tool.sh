@@ -209,7 +209,7 @@ function main() {
     checkOpenSSL
     
     if [[ -d ${base_path}/certs ]]; then
-        logger -e "Folder ${base_path}/certs already exists. Please, remove the /certs folder to create new certificates."
+        logger_cert -e "Folder ${base_path}/certs already exists. Please, remove the /certs folder to create new certificates."
         exit 1
     else
         mkdir "${base_path}/certs"

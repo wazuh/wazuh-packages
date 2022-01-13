@@ -192,8 +192,8 @@ User:
     sfileusers=$(grep name: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
     sfilepasswords=$(grep password: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
 
-    fileusers=("${sfileusers}")
-    filepasswords=("${sfilepasswords}")
+    fileusers=(${sfileusers})
+    filepasswords=(${sfilepasswords})
 
     if [ -n "${verboseenabled}" ]; then
         logger_pass "Users in the file: ${fileusers[*]}"
@@ -229,19 +229,19 @@ User:
             supported=false
             for i in "${!users[@]}"; do
                 if [[ "${users[i]}" == "${fileusers[j]}" ]]; then
-                    finalusers+=("${fileusers[j]}")
-                    finalpasswords+=("${filepasswords[j]}")
+                    finalusers+=(${fileusers[j]})
+                    finalpasswords+=(${filepasswords[j]})
                     supported=true
                 fi
             done
-            if [ ${supported} = false ] && [ -n "${elasticsearchinstalled}" ] && [ -n "${changeall}" ]; then
+            if [ "${supported}" = "false" ] && [ -n "${elasticsearchinstalled}" ] && [ -n "${changeall}" ]; then
                 logger_pass -e "The given user ${fileusers[j]} does not exist"
             fi
         done
 
         users=()
-        users=("${finalusers[*]}")
-        passwords=("${finalpasswords[*]}")
+        users=(${finalusers[@]})
+        passwords=(${finalpasswords[@]})
         changeall=1
     fi
 
