@@ -211,7 +211,7 @@ generatePassword() {
 
 generatePasswordFile() {
 
-    users=( admin kibanaserver kibanaro logstash readall snapshotrestore wazuh_admin wazuh_user)
+    users=( admin kibanaserver kibanaro logstash readall snapshotrestore wazuh_admin wazuh_user )
     generatePassword
     for i in "${!users[@]}"; do
         echo "User:" >> "${gen_file}"
@@ -473,8 +473,8 @@ User:
     sfileusers=$(grep name: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
     sfilepasswords=$(grep password: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
 
-    fileusers=("$sfileusers")
-    filepasswords=("$sfilepasswords")
+    fileusers=(${sfileusers})
+    filepasswords=(${sfilepasswords})
 
     if [ -n "${verboseenabled}" ]; then
         logger_pass "Users in the file: ${fileusers[*]}"
@@ -513,8 +513,8 @@ User:
         done
 
         users=()
-        users=("${finalusers[@]}")
-        passwords=("${finalpasswords[@]}")
+        users=(${finalusers[@]})
+        passwords=(${finalpasswords[@]})
         changeall=1
     fi
 
@@ -523,7 +523,7 @@ User:
 readUsers() {
 
     susers=$(grep -B 1 hash: /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml | grep -v hash: | grep -v "-" | awk '{ print substr( $0, 1, length($0)-1 ) }')
-    users=("$susers")  
+    users=($susers)  
 
 }
 
