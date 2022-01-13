@@ -112,7 +112,7 @@ function changePasswords() {
 function extractConfig() {
 
     if ! $(tar -tf "${tar_file}" | grep -q config.yml); then
-        logger -e "There is no congig.yml file in ${tar_file}."
+        logger -e "There is no config.yml file in ${tar_file}."
         exit 1
     fi
     eval "tar -xf ${tar_file} -C ${base_path} ./config.yml ${debug}"
