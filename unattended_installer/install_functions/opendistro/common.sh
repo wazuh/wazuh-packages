@@ -189,8 +189,8 @@ User:
 	    exit 1
     fi
 
-    sfileusers=$(grep name: "${p_file}" | awk '{ print substr( ${2}, 1, length(${2}) ) }')
-    sfilepasswords=$(grep password: "${p_file}" | awk '{ print substr( ${2}, 1, length(${2}) ) }')
+    sfileusers=$(grep name: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
+    sfilepasswords=$(grep password: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
 
     fileusers=("${sfileusers}")
     filepasswords=("${sfilepasswords}")
