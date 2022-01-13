@@ -24,9 +24,9 @@ config_path="config/opendistro"
 resources="https://packages-dev.wazuh.com/resources/${wazuh_major}"
 resources_functions="${resources}/${functions_path}"
 resources_config="${resources}/${config_path}"
-base_path="$(dirname $(readlink -f $0))"
+base_path="$(dirname $(readlink -f "$0"))"
 config_file="${base_path}/config.yml"
-tar_file="${base_path}/certs.tar"
+tar_file="${base_path}/configurations.tar"
 
 ## JAVA_HOME
 export JAVA_HOME=/usr/share/elasticsearch/jdk/
@@ -46,7 +46,7 @@ function cleanExit() {
     fi
 
     echo -ne "\nDo you want to clean the ongoing installation?[Y/n]"
-    read rollback_conf
+    read -r rollback_conf
     if [[ "$rollback_conf" =~ [N|n] ]]; then
         exit 1
     else 
@@ -60,17 +60,17 @@ function getHelp() {
 
     echo -e ""
     echo -e "NAME"
-    echo -e "        $(basename $0) - Install and configure Wazuh central components."
+    echo -e "        $(basename "$0") - Install and configure Wazuh central components."
     echo -e ""
     echo -e "SYNOPSIS"
-    echo -e "        $(basename $0) [OPTIONS]"
+    echo -e "        $(basename "$0") [OPTIONS] -a | -c | -e <elasticsearch-node-name> | -k <kibana-node-name> | -s | -w <wazuh-node-name>"
     echo -e ""
     echo -e "DESCRIPTION"
     echo -e "        -a,  --all-in-one"
     echo -e "                All-In-One installation."
     echo -e ""
-    echo -e "        -c,  --create-certificates"
-    echo -e "                Creates certificates from config.yml file."
+    echo -e "        -c,  --create-configurations"
+    echo -e "                Creates configurations.tar file containing config.yml, certificates, passwords and cluster key."
     echo -e ""
     echo -e "        -d,  --development"
     echo -e "                Uses development repository."
@@ -102,8 +102,8 @@ function getHelp() {
     echo -e "        -s,  --start-cluster"
     echo -e "                Starts the Elasticsearch cluster."
     echo -e ""
-    echo -e "        -t,  --tar <path-to-certs-tar"
-    echo -e "                Path to tar containing certificate files. By default: ${base_path}/certs.tar"
+    echo -e "        -t,  --tar <path-to-certs-tar>"
+    echo -e "                Path to tar containing certificate files. By default: ${base_path}/configurations.tar"
     echo -e ""
     echo -e "        -u,  --uninstall"
     echo -e "                Uninstalls all Wazuh components. NOTE: This will erase all the existing configuration and data."
@@ -121,33 +121,33 @@ function getHelp() {
 function importFunction() {
 
     if [ -n "${local}" ]; then
-        if [ -f ${base_path}/$functions_path/$1 ]; then
-            cat ${base_path}/$functions_path/$1 |grep 'main $@' > /dev/null 2>&1
+        if [ -f "${base_path}/${functions_path}/${1}" ]; then
+            cat "${base_path}/${functions_path}/${1}" | grep 'main $@' > /dev/null 2>&1
             has_main=$?
             if [ $has_main = 0 ]; then
-                sed -i 's/main $@//' ${base_path}/$functions_path/$1
-                sed -i '$ d' ${base_path}/$functions_path/$1
+                sed -i 's/main $@//' "${base_path}/${functions_path}/${1}"
+                sed -i '$ d' "${base_path}/${functions_path}/${1}"
             fi
-            . ${base_path}/$functions_path/$1
+            . "${base_path}/${functions_path}/${1}"
             if [ $has_main = 0 ]; then
-                echo 'main $@' >> ${base_path}/$functions_path/$1
+                echo 'main $@' >> "${base_path}/${functions_path}/${1}"
             fi
         else 
-            logger -e "Unable to find resource in path ${base_path}/$functions_path/$1."
+            logger -e "Unable to find resource in path ${base_path}/${functions_path}/${1}."
             exit 1
         fi
     else
-        if ( curl -f -so /tmp/$1 $resources_functions/$1 ); then
-            sed -i 's/main $@//' /tmp/$1
-            . /tmp/$1
-            rm -f /tmp/$1
-        elif [ -f ${base_path}/$functions_path/$1 ]; then
-            logger -e "Unable to download resource $resources_functions/$1. Local file detected in ${base_path}/$functions_path/, you may want to use the -l option."
-            rm -f /tmp/$1
+        if ( curl -f -so "/tmp/${1}" "${resources_functions}/${1}" ); then
+            sed -i 's/main $@//' "/tmp/${1}"
+            . "/tmp/${1}"
+            rm -f "/tmp/${1}"
+        elif [ -f "${base_path}/${functions_path}/${1}" ]; then
+            logger -e "Unable to download resource ${resources_functions}/${1}. Local file detected in ${base_path}/${functions_path}/, you may want to use the -l option."
+            rm -f "/tmp/${1}"
             exit 1
         else
-            logger -e "Unable to find resource $resources_functions/$1."
-            rm -f /tmp/$1
+            logger -e "Unable to find resource ${resources_functions}/${1}."
+            rm -f "/tmp/${1}"
             exit 1
         fi
     fi
@@ -157,40 +157,39 @@ function importFunction() {
 function logger() {
 
     now=$(date +'%d/%m/%Y %H:%M:%S')
-    case $1 in 
+    case ${1} in 
         "-e")
             mtype="ERROR:"
-            message="$2"
+            message="${2}"
             ;;
         "-w")
             mtype="WARNING:"
-            message="$2"
+            message="${2}"
             ;;
         *)
             mtype="INFO:"
-            message="$1"
+            message="${1}"
             ;;
     esac
-    echo $now $mtype $message | tee -a ${logfile}
+    echo "${now} ${mtype} ${message}" | tee -a ${logfile}
 
 }
 
 function main() {
 
-    nargs=$#
-    if [ ! -n "$1" ]; then
+    if [ -z "${1}" ]; then
         getHelp
     fi
 
-    while [ -n "$1" ]
+    while [ -n "${1}" ]
     do
-        case "$1" in
+        case "${1}" in
             "-a"|"--all-in-one")
                 AIO=1
                 shift 1
                 ;;
-            "-c"|"--create-certificates")
-                certificates=1
+            "-c"|"--create-configurations")
+                configurations=1
                 shift 1
                 ;;
             "-d"|"--development")
@@ -202,22 +201,22 @@ function main() {
                 shift 1
                 ;;
             "-e"|"--elasticsearch")
-                if [ -z "$2" ]; then
+                if [ -z "${2}" ]; then
                     logger -e "Arguments contain errors. Probably missing <node-name> after -e|--elasticsearch."
                     getHelp
                     exit 1
                 fi
                 elasticsearch=1
-                einame="$2"
+                einame="${2}"
                 shift 2
                 ;;
             "-f"|"--fileconfig")
-                if [ -z "$2" ]; then
+                if [ -z "${2}" ]; then
                     logger -e "Error on arguments. Probably missing <path-to-config-yml> after -f|--fileconfig"
                     getHelp
                     exit 1
                 fi
-                config_file=$2
+                config_file=${2}
                 shift 2
                 ;;
             "-h"|"--help")
@@ -228,13 +227,13 @@ function main() {
                 shift 1
                 ;;
             "-k"|"--kibana")
-                if [ -z "$2" ]; then
+                if [ -z "${2}" ]; then
                     logger -e "Error on arguments. Probably missing <node-name> after -k|--kibana"
                     getHelp
                     exit 1
                 fi
                 kibana=1
-                kiname=$2
+                kiname=${2}
                 shift 2
                 ;;
             "-l"|"--local")
@@ -250,13 +249,13 @@ function main() {
                 shift 1
                 ;;
             "-t"|"--tar")
-                if [ -z "$2" ]; then
+                if [ -z "${2}" ]; then
                     logger -e "Error on arguments. Probably missing <path-to-certs-tar> after -t|--tar"
                     getHelp
                     exit 1
                 fi
                 tar_conf="1"
-                tar_file=$2
+                tar_file=${2}
                 shift 2
                 ;;
             "-u"|"--uninstall")
@@ -269,17 +268,17 @@ function main() {
                 shift 1
                 ;;
             "-w"|"--wazuh-server")
-                if [ -z "$2" ]; then
+                if [ -z "${2}" ]; then
                     logger -e "Error on arguments. Probably missing <node-name> after -w|--wazuh-server"
                     getHelp
                     exit 1
                 fi
                 wazuh=1
-                winame=$2
+                winame=${2}
                 shift 2
                 ;;
             *)
-                echo "Unknow option: $1"
+                echo "Unknow option: ${1}"
                 getHelp
         esac
     done
@@ -292,7 +291,7 @@ function main() {
     if [ -z "${disableSpinner}" ]; then
         spin &
         spin_pid=$!
-        trap "kill -9 $spin_pid ${debug}" EXIT
+        trap "kill -9 ${spin_pid} ${debug}" EXIT
     fi
 
 # -------------- Library import ----------------------------
@@ -311,6 +310,12 @@ function main() {
         logger "All components removed."
         exit 0
     fi
+
+# -------------- Preliminary checks  --------------------------------
+
+    if [ -z "${configurations}" ] && [ -z "${AIO}" ]; then
+        checkPreviousCertificates
+    fi
     checkArch
     checkSystem
     if [ -n "${ignore}" ]; then
@@ -318,37 +323,41 @@ function main() {
     else
         checkHealth
     fi
-    checkArguments "${nargs}"
-    readConfig
-    
-    # Distributed architecture: node names must be different
-    if [ -z "${AIO}" ] && ([ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]); then
-        checkNames
-    fi
+    checkArguments
+
+# -------------- Configuration creation case  -----------------------
 
     # Creation certificate case: Only AIO and -c option can create certificates. 
-    if [ -n "${certificates}" ] || [ -n "${AIO}" ]; then
+    if [ -n "${configurations}" ] || [ -n "${AIO}" ]; then
+        if [ -n "${configurations}" ]; then
+            checkOpenSSL
+        fi
         createCertificates
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
             createClusterKey
         fi
         gen_file="${base_path}/certs/password_file.yml"
         generatePasswordFile
-        eval "tar -zcf '${base_path}/certs.tar' -C '${base_path}/certs/' . ${debug}"
+        cp "${config_file}" "${base_path}/certs/"
+        eval "tar -zcf '${tar_file}' -C '${base_path}/certs/' . ${debug}"
         eval "rm -rf '${base_path}/certs' ${debug}"
 
+    fi
+
+    if [ -z "${configurations}" ]; then
+        extractConfig
+        readConfig
+        rm -f "${config_file}"
+    fi
+    
+    # Distributed architecture: node names must be different
+    if [[ -z "${AIO}" && ( -n "${elasticsearch}"  || -n "${kibana}" || -n "${wazuh}" )]]; then
+        checkNames
     fi
 
 # -------------- Prerequisites and Wazuh repo  ----------------------
 
     if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
-
-        if [ ! -f ${tar_file} ]; then
-            logger -e "No certificates file found (${tar_file}). Run the script with the option -c|--certificates to create automatically or copy them from the node where they were created."
-            exit 1
-        else
-            checkPreviousCertificates
-        fi
         installPrerequisites
         addWazuhrepo
     fi
@@ -356,11 +365,6 @@ function main() {
 # -------------- Elasticsearch case  --------------------------------
 
     if [ -n "${elasticsearch}" ]; then
-
-        if [ ! -f "${tar_file}" ]; then
-            logger -e "Certificates not found. Exiting"
-            exit 1
-        fi
 
         importFunction "elasticsearch.sh"
 
@@ -381,11 +385,6 @@ function main() {
 # -------------- Kibana case  ---------------------------------------
 
     if [ -n "${kibana}" ]; then
-
-        if [ ! -f "${tar_file}" ]; then
-            logger -e "Certificates not found. Exiting"
-            exit 1
-        fi
 
         importFunction "kibana.sh"
 
@@ -442,7 +441,7 @@ function main() {
 
 # -------------------------------------------------------------------
 
-    if [ -z "${certificates}" ]; then
+    if [ -z "${configurations}" ]; then
         restoreWazuhrepo
     fi
 
@@ -461,7 +460,7 @@ function spin() {
     trap "echo ''" EXIT
     while :
     do
-        for i in `seq 0 7`
+        for i in $(seq 0 7)
         do
             echo -n "${spinner:$i:1}"
             echo -en "\010"
@@ -471,4 +470,4 @@ function spin() {
 
 }
 
-main $@
+main "$@"

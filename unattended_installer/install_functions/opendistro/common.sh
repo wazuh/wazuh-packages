@@ -59,7 +59,9 @@ function createCertificates() {
         eval "getConfig certificate/config_aio.yml ${base_path}/config.yml ${debug}"
     fi
 
-    mkdir ${base_path}/certs
+    readConfig
+
+    mkdir "${base_path}/certs"
 
     generateRootCAcertificate
     generateAdmincertificate
@@ -72,7 +74,7 @@ function createCertificates() {
 
 function createClusterKey() {
 
-    openssl rand -hex 16 >> ${base_path}/certs/clusterkey
+    openssl rand -hex 16 >> "${base_path}/certs/clusterkey"
 
 }
 
@@ -103,19 +105,29 @@ function changePasswords() {
     if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
         runSecurityAdmin
     fi
-    rm -rf ${p_file}
+    rm -rf "${p_file}"
+
+}
+
+function extractConfig() {
+
+    if ! $(tar -tf "${tar_file}" | grep -q config.yml); then
+        logger -e "There is no config.yml file in ${tar_file}."
+        exit 1
+    fi
+    eval "tar -xf ${tar_file} -C ${base_path} ./config.yml ${debug}"
 
 }
 
 function getConfig() {
 
     if [ -n "${local}" ]; then
-        cp ${base_path}/${config_path}/$1 $2
+        cp "${base_path}/${config_path}/${1}" "${2}"
     else
-        curl -f -so $2 ${resources_config}/$1
+        curl -f -so "${2}" "${resources_config}/${1}"
     fi
-    if [ $? != 0 ]; then
-        logger -e "Unable to find configuration file $1. Exiting."
+    if [ "$?" != 0 ]; then
+        logger -e "Unable to find configuration file ${1}. Exiting."
         rollBack
         exit 1
     fi
@@ -125,7 +137,7 @@ function getConfig() {
 function getPass() {
 
     for i in "${!users[@]}"; do
-        if [ "${users[i]}" == "$1" ]; then
+        if [ "${users[i]}" == "${1}" ]; then
             u_pass=${passwords[i]}
         fi
     done
@@ -141,12 +153,12 @@ function installPrerequisites() {
         openssl="openssl"
     fi
 
-    if [ ${sys_type} == "yum" ]; then
+    if [ "${sys_type}" == "yum" ]; then
         eval "yum install curl unzip wget libcap tar gnupg ${openssl} -y ${debug}"
-    elif [ ${sys_type} == "zypper" ]; then
+    elif [ "${sys_type}" == "zypper" ]; then
         eval "zypper -n install curl unzip wget ${debug}"         
         eval "zypper -n install libcap-progs tar gnupg ${openssl} ${debug} || zypper -n install libcap2 tar gnupg ${openssl} ${debug}"
-    elif [ ${sys_type} == "apt-get" ]; then
+    elif [ "${sys_type}" == "apt-get" ]; then
         eval "apt-get update -q ${debug}"
         eval "apt-get install apt-transport-https curl unzip wget libcap2-bin tar gnupg ${openssl} -y ${debug}"
     fi
@@ -162,7 +174,7 @@ function installPrerequisites() {
 
 function readPasswordFileUsers() {
 
-    filecorrect=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' ${p_file})
+    filecorrect=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' "${p_file}")
     if [ "${filecorrect}" -ne 1 ]; then
         logger_pass -e "The password file doesn't have a correct format.
 
@@ -177,22 +189,22 @@ User:
 	    exit 1
     fi
 
-    sfileusers=$(grep name: ${p_file} | awk '{ print substr( $2, 1, length($2) ) }')
-    sfilepasswords=$(grep password: ${p_file} | awk '{ print substr( $2, 1, length($2) ) }')
+    sfileusers=$(grep name: "${p_file}" | awk '{ print substr( ${2}, 1, length(${2}) ) }')
+    sfilepasswords=$(grep password: "${p_file}" | awk '{ print substr( ${2}, 1, length(${2}) ) }')
 
-    fileusers=($sfileusers)
-    filepasswords=($sfilepasswords)
+    fileusers=("${sfileusers}")
+    filepasswords=("${sfilepasswords}")
 
     if [ -n "${verboseenabled}" ]; then
-        logger_pass "Users in the file: ${fileusers[@]}"
-        logger_pass "Passwords in the file: ${filepasswords[@]}"
+        logger_pass "Users in the file: ${fileusers[*]}"
+        logger_pass "Passwords in the file: ${filepasswords[*]}"
     fi
 
     if [ -n "${changeall}" ]; then
         for j in "${!fileusers[@]}"; do
             supported=false
             for i in "${!users[@]}"; do
-                if [[ ${users[i]} == ${fileusers[j]} ]]; then
+                if [[ ${users[i]} == "${fileusers[j]}" ]]; then
                     passwords[i]=${filepasswords[j]}
                     supported=true
                 fi
@@ -217,8 +229,8 @@ User:
             supported=false
             for i in "${!users[@]}"; do
                 if [[ "${users[i]}" == "${fileusers[j]}" ]]; then
-                    finalusers+=(${fileusers[j]})
-                    finalpasswords+=(${filepasswords[j]})
+                    finalusers+=("${fileusers[j]}")
+                    finalpasswords+=("${filepasswords[j]}")
                     supported=true
                 fi
             done
@@ -228,8 +240,8 @@ User:
         done
 
         users=()
-        users=(${finalusers[@]})
-        passwords=(${finalpasswords[@]})
+        users=("${finalusers[*]}")
+        passwords=("${finalpasswords[*]}")
         changeall=1
     fi
 
@@ -256,7 +268,7 @@ function restoreWazuhrepo() {
 
 function rollBack() {
 
-    if [ -z "${uninstall}" ] && [ -z "$1" ]; then
+    if [ -z "${uninstall}" ]; then
         logger "Cleaning the installation."
     fi  
 
@@ -268,7 +280,7 @@ function rollBack() {
         eval "rm /etc/apt/sources.list.d/wazuh.list"
     fi
 
-    if [ -n "${wazuhinstalled}" ] && ([ -z "$1" ] || [ "$1" == "wazuh" ]); then
+    if [[ -n "${wazuhinstalled}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]];then
         logger -w "Removing the Wazuh manager."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-manager -y ${debug}"
@@ -281,11 +293,11 @@ function rollBack() {
         
     fi
 
-    if ([ -n "${wazuh_remaining_files}" ] || [ -n "${wazuhinstalled}" ]) && ([ -z "$1" ] || [ "$1" == "wazuh" ]); then
+    if [[ ( -n "${wazuh_remaining_files}"  || -n "${wazuhinstalled}" ) && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         eval "rm -rf /var/ossec/ ${debug}"
     fi
 
-    if [ -n "${elasticsearchinstalled}" ] && ([ -z "$1" ] || [ "$1" == "elasticsearch" ]); then
+    if [[ -n "${elasticsearchinstalled}" && ( -n "${elasticsearch}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         logger -w "Removing Elasticsearch."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove opendistroforelasticsearch -y ${debug}"
@@ -298,13 +310,13 @@ function rollBack() {
         fi 
     fi
 
-    if ([ -n "${elastic_remaining_files}" ] || [ -n "${elasticsearchinstalled}" ]) && ([ -z "$1" ] || [ "$1" == "elasticsearch" ]); then
+    if [[ ( -n "${elastic_remaining_files}" || -n "${elasticsearchinstalled}" ) && ( -n "${elasticsearch}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         eval "rm -rf /var/lib/elasticsearch/ ${debug}"
         eval "rm -rf /usr/share/elasticsearch/ ${debug}"
         eval "rm -rf /etc/elasticsearch/ ${debug}"
     fi
 
-    if [ -n "${filebeatinstalled}" ] && ([ -z "$1" ] || [ "$1" == "filebeat" ]); then
+    if [[ -n "${filebeatinstalled}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         logger -w "Removing Filebeat."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove filebeat -y ${debug}"
@@ -315,13 +327,13 @@ function rollBack() {
         fi
     fi
 
-    if ([ -n "${filebeat_remaining_files}" ] || [ -n "${filebeatinstalled}" ]) && ([ -z "$1" ] || [ "$1" == "filebeat" ]); then
+    if [[ ( -n "${filebeat_remaining_files}" || -n "${filebeatinstalled}" ) && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         eval "rm -rf /var/lib/filebeat/ ${debug}"
         eval "rm -rf /usr/share/filebeat/ ${debug}"
         eval "rm -rf /etc/filebeat/ ${debug}"
     fi
 
-    if [ -n "${kibanainstalled}" ] && ([ -z "$1" ] || [ "$1" == "kibana" ]); then
+    if [[ -n "${kibanainstalled}" && ( -n "${kibana}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         logger -w "Removing Kibana."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove opendistroforelasticsearch-kibana -y ${debug}"
@@ -332,7 +344,7 @@ function rollBack() {
         fi
     fi
 
-    if ([ -n "${kibana_remaining_files}" ] || [ -n "${kibanainstalled}" ]) && ([ -z "$1" ] || [ "$1" == "kibana" ]); then
+    if [[ ( -n "${kibana_remaining_files}" || -n "${kibanainstalled}" ) && ( -n "${kibana}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         eval "rm -rf /var/lib/kibana/ ${debug}"
         eval "rm -rf /usr/share/kibana/ ${debug}"
         eval "rm -rf /etc/kibana/ ${debug}"
@@ -382,7 +394,7 @@ function rollBack() {
         eval "rm -rf /etc/systemd/system/elasticsearch.service.wants ${debug}"
     fi
 
-    if [ -z "${uninstall}" ] && [ -z "$1" ]; then
+    if [ -z "${uninstall}" ] && [ -z "${1}" ]; then
         if [ -z "${overwrite}" ]; then
             logger "Installation cleaned. Check the ${logfile} file to learn more about the issue."
         else
@@ -394,35 +406,35 @@ function rollBack() {
 
 function startService() {
 
-    logger "Starting service $1."
+    logger "Starting service ${1}."
 
-    if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
+    if ps -e | grep -E -q "^\ *1\ .*systemd$"; then
         eval "systemctl daemon-reload ${debug}"
-        eval "systemctl enable $1.service ${debug}"
-        eval "systemctl start $1.service ${debug}"
+        eval "systemctl enable ${1}.service ${debug}"
+        eval "systemctl start ${1}.service ${debug}"
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
-            rollBack ${1}
+            rollBack
             exit 1
         else
             logger "${1^} service started."
         fi
-    elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
-        eval "chkconfig $1 on ${debug}"
-        eval "service $1 start ${debug}"
-        eval "/etc/init.d/$1 start ${debug}"
+    elif ps -e | grep -E -q "^\ *1\ .*init$"; then
+        eval "chkconfig ${1} on ${debug}"
+        eval "service ${1} start ${debug}"
+        eval "/etc/init.d/${1} start ${debug}"
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
-            rollBack ${1}
+            rollBack
             exit 1
         else
             logger "${1^} service started."
         fi     
-    elif [ -x /etc/rc.d/init.d/$1 ] ; then
-        eval "/etc/rc.d/init.d/$1 start ${debug}"
+    elif [ -x "/etc/rc.d/init.d/${1}" ] ; then
+        eval "/etc/rc.d/init.d/${1} start ${debug}"
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
-            rollBack ${1}
+            rollBack
             exit 1
         else
             logger "${1^} service started."
