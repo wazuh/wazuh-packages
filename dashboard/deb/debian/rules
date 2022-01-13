@@ -63,8 +63,6 @@ override_dh_install:
 	cp ${DASHBOARD_FILE}/etc/wazuh-dashboard.yml ${TARGET_DIR}${CONFIG_DIR}
 	mv ${DASHBOARD_FILE}/* ${TARGET_DIR}${INSTALLATION_DIR}
 
-	rm -f ${TARGET_DIR}${CONFIG_DIR}/kibana.yml
-
 	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/custom_welcome/template.js.hbs ${TARGET_DIR}${INSTALLATION_DIR}/src/legacy/ui/ui_render/bootstrap/template.js.hbs
 	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/custom_welcome/light_theme.style.css ${TARGET_DIR}${INSTALLATION_DIR}/src/core/server/core_app/assets/legacy_light_theme.css
 	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/custom_welcome/*svg ${TARGET_DIR}${INSTALLATION_DIR}/src/core/server/core_app/assets/
@@ -77,13 +75,16 @@ override_dh_install:
 	chmod 644 ${TARGET_DIR}/etc/systemd/system/wazuh-dashboard.service 
 	chmod 644 ${TARGET_DIR}/etc/default/${NAME}
 
+	curl -O https://s3.amazonaws.com/warehouse.wazuh.com/stack/demo-certs.tar.gz
 
+	tar -xf demo-certs.tar.gz
 
-	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/certs/wazuh-dashboard.pem ${TARGET_DIR}${CONFIG_DIR}/certs/wazuh-dashboard.pem
-	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/certs/wazuh-dashboard-key.pem ${TARGET_DIR}${CONFIG_DIR}/certs/wazuh-dashboard-key.pem
-	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/certs/root-ca.pem ${TARGET_DIR}${CONFIG_DIR}/certs/root-ca.pem
+	cp certs/demo-dashboard.pem ${TARGET_DIR}${CONFIG_DIR}/certs/wazuh-dashboard.pem
+	cp certs/demo-dashboard-key.pem ${TARGET_DIR}${CONFIG_DIR}/certs/wazuh-dashboard-key.pem
+	cp certs/root-ca.pem ${TARGET_DIR}${CONFIG_DIR}/certs/root-ca.pem
 	chmod 644 ${TARGET_DIR}${CONFIG_DIR}/certs/*
 
+	rm -rf certs/
 
 	find ${TARGET_DIR}${INSTALLATION_DIR} -exec chown wazuh-dashboard:wazuh-dashboard {} \;
 	find ${TARGET_DIR}${CONFIG_DIR} -exec chown wazuh-dashboard:wazuh-dashboard {} \;
