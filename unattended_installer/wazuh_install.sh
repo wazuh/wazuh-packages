@@ -338,10 +338,11 @@ function main() {
         fi
         gen_file="${base_path}/certs/password_file.yml"
         generatePasswordFile
-        cp "${config_file}" "${base_path}/certs/"
+        # Using cat instead of simple cp because OpenSUSE unknown error. 
+        eval "cat '${config_file}' > '${base_path}/certs/config.yml'"
         eval "tar -zcf '${tar_file}' -C '${base_path}/certs/' . ${debug}"
         eval "rm -rf '${base_path}/certs' ${debug}"
-
+        logger "Configuration files created: ${tar_file}"
     fi
 
     if [ -z "${configurations}" ]; then
