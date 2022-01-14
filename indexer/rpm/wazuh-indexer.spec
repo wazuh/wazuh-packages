@@ -7,7 +7,7 @@
 # Foundation.
 Summary:     Wazuh indexer is a search and analytics engine for security-related data. Documentation can be found at https://documentation.wazuh.com/current/getting-started/components/wazuh-indexer.html
 Name:        wazuh-indexer
-Version:     4.3.0
+Version:     %{_version}
 Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
@@ -150,7 +150,7 @@ rm -fr %{buildroot}
 # -----------------------------------------------------------------------------
 
 %changelog
-* Mon Jan 10 2022 support <info@wazuh.com> - 4.3.0
+* Mon Jan 10 2022 support <info@wazuh.com> - %{version}
 - More info: https://documentation.wazuh.com/current/release-notes/
 
 # -----------------------------------------------------------------------------
