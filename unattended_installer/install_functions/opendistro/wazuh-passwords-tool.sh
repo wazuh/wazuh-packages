@@ -8,7 +8,9 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-logfile="/var/log/wazuh-password-tool.log"
+if [[ -z "${logfile}" ]]; then
+    logfile="/var/log/wazuh-password-tool.log"
+fi
 debug_pass=">> ${logfile} 2>&1"
 if [ -n "$(command -v yum)" ]; then
     sys_type="yum"
