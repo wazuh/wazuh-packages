@@ -269,17 +269,16 @@ function checkNames() {
         exit 1
     fi
 
-    all_node_names=("${elasticsearch_node_names[@]}" "${wazuh_servers_node_names[@]}" "${kibana_node_names[@]}")
-    found=0
-    for i in "${all_node_names[@]}"; do
-        if [[ ( -n "${elasticsearch}" && "${i}" == "${einame}" ) || ( -n "${wazuh}"  && "${i}" == "${winame}" ) || ( -n "${kibana}"  && "${i}" == "${kiname}" ) ]]; then
-            found=1
-            break
-        fi
-    done
-    if [[ $found -eq 0 ]]; then
-        logger -e "The name given for the node does not appear on the configuration file."
-        exit 1
+    if [ -n "${winame}" ] && [[ ! "${wazuh_servers_node_names[@]}" =~ "${winame}" ]];; then
+        logger -e "The Wazuh server node name ${winame} does not appear on the configuration file."
+    fi 
+
+    if [ -n "${einame}" ] && [[ ! "${elasticsearch_node_names[@]}" =~ "${einame}" ]];; then
+        logger -e "The Elasticsearch node name ${einame} does not appear on the configuration file."
+    fi
+
+    if [ -n "${kiname}" ] && [[ ! "${kibana_node_names[@]}" =~ "${kiname}" ]];; then
+        logger -e "The Kibana node name ${kiname} does not appear on the configuration file."
     fi
 
 }
