@@ -26,7 +26,7 @@ if [ "${future}" = "yes" ];then
     version="99.99.0"
 else
     if [ "${spec_reference}" ];then
-        version=$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh-packages/${spec_reference}/indexer/rpm/${target}.spec | egrep -o -m 1 '[0-9]+\.[0-9]+\.[0-9]+')
+        version=$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh-packages/${spec_reference}/VERSION | cat)
     else
         version=$(cat /root/VERSION)
     fi
