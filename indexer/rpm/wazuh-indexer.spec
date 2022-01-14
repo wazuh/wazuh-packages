@@ -140,7 +140,7 @@ kill -15 `pgrep -f opensearch` > /dev/null 2>&1
 
 sleep 10
 
-#rm -rf %{LOG_DIR}/* > /dev/null 2>&1
+rm -rf %{LOG_DIR}/* > /dev/null 2>&1
 
 # -----------------------------------------------------------------------------
 
