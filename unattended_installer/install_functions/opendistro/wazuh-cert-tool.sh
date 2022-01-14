@@ -318,6 +318,10 @@ function parse_yaml() {
 function readConfig() {
 
     if [ -f "${config_file}" ]; then
+        if [ -s "${config_file}" ]; then
+            logger_cert -e "File ${config_file} is empty"
+            exit 1
+        fi
         eval "$(parse_yaml "${config_file}")"
         eval "elasticsearch_node_names=( $(parse_yaml "${config_file}" | grep nodes_elasticsearch_name | sed 's/nodes_elasticsearch_name=//') )"
         eval "wazuh_servers_node_names=( $(parse_yaml "${config_file}" | grep nodes_wazuh_servers_name | sed 's/nodes_wazuh_servers_name=//') )"
@@ -352,7 +356,7 @@ function readConfig() {
             logger_cert -e "Duplicated Wazuh server node ips."
             exit 1
         fi
-
+ 
         unique_names=($(echo "${kibana_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
         if [ "${#unique_names[@]}" -ne "${#kibana_node_names[@]}" ]; then 
             logger_cert -e "Duplicated Kibana node names."
