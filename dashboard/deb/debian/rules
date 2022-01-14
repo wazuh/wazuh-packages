@@ -45,7 +45,7 @@ override_dh_auto_configure:
 override_dh_auto_install:
 
 override_dh_install:
-	curl -kOL https://s3.amazonaws.com/warehouse.wazuh.com/dashboard/${DASHBOARD_FILE}.tar.gz
+	curl -kOL https://s3.amazonaws.com/warehouse.wazuh.com/stack/dashboard/${DASHBOARD_FILE}.tar.gz
 
 	groupadd ${GROUP}
 	useradd -g ${GROUP} ${USER}
@@ -74,6 +74,8 @@ override_dh_install:
 	chmod 644 ${TARGET_DIR}/etc/init.d/${NAME}
 	chmod 644 ${TARGET_DIR}/etc/systemd/system/wazuh-dashboard.service 
 	chmod 644 ${TARGET_DIR}/etc/default/${NAME}
+
+	rm -rf ${TARGET_DIR}${INSTALLATION_DIR}/etc
 
 	curl -O https://s3.amazonaws.com/warehouse.wazuh.com/stack/demo-certs.tar.gz
 

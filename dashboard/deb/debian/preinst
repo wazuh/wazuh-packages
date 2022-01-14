@@ -41,14 +41,14 @@ case "$1" in
     # Debian ####################################################
     install|upgrade)
 
-        # Create wazuh-indexer group if not existing
+        # Create wazuh-dashboard group if not existing
         if ! getent group ${NAME} > /dev/null 2>&1 ; then
             echo -n "Creating ${NAME} group..."
             addgroup --quiet --system ${NAME}
             echo " OK"
         fi
 
-        # Create wazuh-indexer user if not existing
+        # Create wazuh-dashboard user if not existing
         if ! id ${NAME} > /dev/null 2>&1 ; then
             echo -n "Creating ${NAME} user..."
             adduser --quiet \

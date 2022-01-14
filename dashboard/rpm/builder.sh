@@ -28,7 +28,7 @@ else
     if [ "${spec_reference}" ];then
         version=$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh-packages/${spec_reference}/dashboard/rpm/${target}.spec | egrep -o -m 1 '[0-9]+\.[0-9]+\.[0-9]+')
     else
-        version=$(egrep -o -m 1 '[0-9]+\.[0-9]+\.[0-9]+' /root/dashboard/rpm/${target}.spec)
+        version=$(cat /root/VERSION)
     fi
 fi
 
@@ -54,16 +54,12 @@ else
     cp /root/dashboard/rpm/${target}.spec ${rpm_build_dir}/SPECS/${pkg_name}.spec
 fi
 
-if [ "${future}" = "yes" ];then
-    sed -i '/Version:/,/License:/s|[0-9]\+.[0-9]\+.[0-9]\+|99.99.0|' ${rpm_build_dir}/SPECS/${pkg_name}.spec
-fi
-
 
 # Generating source tar.gz
 cd ${build_dir} && tar czf "${rpm_build_dir}/SOURCES/${pkg_name}.tar.gz" "${pkg_name}"
 
 # Building RPM
-/usr/bin/rpmbuild --define "_topdir ${rpm_build_dir}" \
+/usr/bin/rpmbuild --define "_topdir ${rpm_build_dir}" --define "_version ${version}" \
     --define "_release ${release}" --define "_localstatedir ${directory_base}" \
     --target ${architecture} -ba ${rpm_build_dir}/SPECS/${pkg_name}.spec
 

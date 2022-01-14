@@ -25,9 +25,9 @@ if [ "${future}" = "yes" ];then
     version="99.99.0"
 else
     if [ "${spec_reference}" ];then
-        version=$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh-packages/${spec_reference}/dashboard/deb/debian/changelog | egrep -o -m 1 '[0-9]+\.[0-9]+\.[0-9]+')
+        version=$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh-packages/${spec_reference}/VERSION | cat)
     else
-        version=$(egrep -o -m 1 '[0-9]+\.[0-9]+\.[0-9]+' /root/dashboard/deb/debian/changelog)
+        version=$(cat /root/VERSION)
     fi
 fi
 
@@ -48,14 +48,12 @@ else
     cp -r /root/dashboard/deb/debian/* ${sources_dir}/debian/
 fi
 
-if [ "${future}" = "yes" ];then
-    sed -i '1s|[0-9]\+.[0-9]\+.[0-9]\+-RELEASE|99.99.0-RELEASE|' ${sources_dir}/debian/changelog
-fi
 
 # Generating directory structure to build the .deb package
 cd ${build_dir}/${target} && tar -czf ${pkg_name}.orig.tar.gz "${pkg_name}"
 
 # Configure the package with the different parameters
+sed -i "s:VERSION:${version}:g" ${sources_dir}/debian/changelog
 sed -i "s:RELEASE:${release}:g" ${sources_dir}/debian/changelog
 sed -i "s:export INSTALLATION_DIR=.*:export INSTALLATION_DIR=${directory_base}:g" ${sources_dir}/debian/rules
 
