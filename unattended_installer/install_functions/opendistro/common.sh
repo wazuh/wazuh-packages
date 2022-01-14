@@ -197,8 +197,8 @@ User:
     sfileusers=$(grep name: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
     sfilepasswords=$(grep password: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
 
-    fileusers=("${sfileusers}")
-    filepasswords=("${sfilepasswords}")
+    fileusers=(${sfileusers})
+    filepasswords=(${sfilepasswords})
 
     if [ -n "${verboseenabled}" ]; then
         logger_pass "Users in the file: ${fileusers[*]}"
@@ -234,19 +234,19 @@ User:
             supported=false
             for i in "${!users[@]}"; do
                 if [[ "${users[i]}" == "${fileusers[j]}" ]]; then
-                    finalusers+=("${fileusers[j]}")
-                    finalpasswords+=("${filepasswords[j]}")
+                    finalusers+=(${fileusers[j]})
+                    finalpasswords+=(${filepasswords[j]})
                     supported=true
                 fi
             done
-            if [ ${supported} = false ] && [ -n "${elasticsearchinstalled}" ] && [ -n "${changeall}" ]; then
-                logger -e "The given user ${fileusers[j]} does not exist"
+            if [ "${supported}" = "false" ] && [ -n "${elasticsearchinstalled}" ] && [ -n "${changeall}" ]; then
+                logger_pass -e "The given user ${fileusers[j]} does not exist"
             fi
         done
 
         users=()
-        users=("${finalusers[*]}")
-        passwords=("${finalpasswords[*]}")
+        users=(${finalusers[@]})
+        passwords=(${finalpasswords[@]})
         changeall=1
     fi
 
@@ -399,11 +399,11 @@ function rollBack() {
         eval "rm -rf /etc/systemd/system/elasticsearch.service.wants ${debug}"
     fi
 
-    if [ -z "${uninstall}" ] && [ -z "${1}" ]; then
-        if [ -z "${overwrite}" ]; then
-            logger "Installation cleaned. Check the ${logfile} file to learn more about the issue."
-        else
+    if [ -z "${uninstall}" ]; then
+        if [ -n "${rollback_conf}" ] || [ -n "${overwrite}" ]; then
             logger "Installation cleaned."
+        else
+            logger "Installation cleaned. Check the ${logfile} file to learn more about the issue."
         fi
     fi
 

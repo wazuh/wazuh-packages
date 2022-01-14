@@ -9,8 +9,8 @@
 # Foundation.
 
 ## Package vars
-wazuh_major="4.2"
-wazuh_version="4.2.5"
+wazuh_major="4.3"
+wazuh_version="4.3.0"
 wazuh_revision="1"
 elasticsearch_oss_version="7.10.2"
 elasticsearch_basic_version="7.12.1"
@@ -40,14 +40,18 @@ debug=">> ${logfile} 2>&1"
 trap cleanExit SIGINT
 
 function cleanExit() {
-
+    
+    rollback_conf=""
+    
     if [ -n "$spin_pid" ]; then
         eval "kill -9 $spin_pid ${debug}"
     fi
 
-    echo -ne "\nDo you want to clean the ongoing installation?[Y/n]"
-    read -r rollback_conf
-    if [[ "$rollback_conf" =~ [N|n] ]]; then
+    until [[ "${rollback_conf}" =~ ^[N|Y|n|y]$ ]]; do
+        echo -ne "\nDo you want to clean the ongoing installation?[Y/N]"
+        read -r rollback_conf
+    done
+    if [[ "${rollback_conf}" =~ [N|n] ]]; then
         exit 1
     else 
         rollBack

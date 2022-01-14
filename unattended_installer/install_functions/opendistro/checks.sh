@@ -223,7 +223,7 @@ function checkIfInstalled() {
 
     if [ -n "${filebeatinstalled}" ]; then
         if [ "${sys_type}" == "zypper" ]; then
-            filebeatversion=$(echo "${filebeatinstalled}" | awk '{print $11}')
+            filebeatversion=$(echo "${filebeatinstalled}" | awk '{print $1}')
         else
             filebeatversion=$(echo "${filebeatinstalled}" | awk '{print $2}')
         fi
@@ -243,7 +243,7 @@ function checkIfInstalled() {
 
     if [ -n "${kibanainstalled}" ]; then
         if [ "${sys_type}" == "zypper" ]; then
-            kibanaversion=$(echo "${kibanainstalled}" | awk '{print $11}')
+            kibanaversion=$(echo "${kibanainstalled}" | awk '{print $1}')
         else
             kibanaversion=$(echo "${kibanainstalled}" | awk '{print $2}')
         fi

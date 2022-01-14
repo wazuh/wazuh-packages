@@ -93,9 +93,9 @@ checkInstalledPass() {
 
     if [ -n "${filebeatinstalled}" ]; then
         if [ "${sys_type}" == "zypper" ]; then
-            filebeatversion=$(echo "${filebeatinstalled}" | awk '{print ${1}1}')
+            filebeatversion=$(echo "${filebeatinstalled}" | awk '{print $1}')
         else
-            filebeatversion=$(echo "${filebeatinstalled}" | awk '{print ${2}}')
+            filebeatversion=$(echo "${filebeatinstalled}" | awk '{print $2}')
         fi  
     fi    
 
@@ -109,9 +109,9 @@ checkInstalledPass() {
 
     if [ -n "${kibanainstalled}" ]; then
         if [ "${sys_type}" == "zypper" ]; then
-            kibanaversion=$(echo "${kibanainstalled}" | awk '{print ${1}1}')
+            kibanaversion=$(echo "${kibanainstalled}" | awk '{print $1}')
         else
-            kibanaversion=$(echo "${kibanainstalled}" | awk '{print ${2}}')
+            kibanaversion=$(echo "${kibanainstalled}" | awk '{print $2}')
         fi  
     fi 
     if [ -z "${elasticsearchinstalled}" ] && [ -z "${kibanainstalled}" ] && [ -z "${filebeatinstalled}" ]; then
@@ -211,7 +211,7 @@ generatePassword() {
 
 generatePasswordFile() {
 
-    users=( admin kibanaserver kibanaro logstash readall snapshotrestore wazuh_admin wazuh_user)
+    users=( admin kibanaserver kibanaro logstash readall snapshotrestore wazuh_admin wazuh_user )
     generatePassword
     for i in "${!users[@]}"; do
         echo "User:" >> "${gen_file}"
@@ -269,15 +269,19 @@ getHelp() {
 }
 
 getNetworkHost() {
-
     IP=$(grep -hr "network.host:" /etc/elasticsearch/elasticsearch.yml)
     NH="network.host: "
     IP="${IP//$NH}"
-    
-    if [[ ${IP} == "0.0.0.0" ]]; then
+
+    #allow to find ip with and interface
+    if [[ ${IP} =~ _.*_ ]]; then
+        interface="${IP//_}"
+        IP=$(ip -o -4 addr list ${interface} | awk '{print $4}' | cut -d/ -f1)
+    fi
+        
+    if [ ${IP} == "0.0.0.0" ]; then
         IP="localhost"
     fi
-
 }
 
 logger_pass() {
@@ -473,8 +477,8 @@ User:
     sfileusers=$(grep name: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
     sfilepasswords=$(grep password: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
 
-    fileusers=("$sfileusers")
-    filepasswords=("$sfilepasswords")
+    fileusers=(${sfileusers})
+    filepasswords=(${sfilepasswords})
 
     if [ -n "${verboseenabled}" ]; then
         logger_pass "Users in the file: ${fileusers[*]}"
@@ -513,8 +517,8 @@ User:
         done
 
         users=()
-        users=("${finalusers[@]}")
-        passwords=("${finalpasswords[@]}")
+        users=(${finalusers[@]})
+        passwords=(${finalpasswords[@]})
         changeall=1
     fi
 
@@ -523,7 +527,7 @@ User:
 readUsers() {
 
     susers=$(grep -B 1 hash: /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml | grep -v hash: | grep -v "-" | awk '{ print substr( $0, 1, length($0)-1 ) }')
-    users=("$susers")  
+    users=($susers)  
 
 }
 
