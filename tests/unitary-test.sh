@@ -71,6 +71,15 @@ function testChecks() {
     echo -e "All unitary tests for the functions in checks.sh finished.\n"
 }
 
+function testWazuh() {
+    eval "docker cp unattended/test-wazuh.sh $container_id:/tests/unattended/test-wazuh.sh"
+    eval "mkdir -p temp/"
+    eval "cp ../unattended_installer/install_functions/opendistro/wazuh.sh temp/"
+    eval "docker cp temp/wazuh.sh $container_id:/tests/unattended/wazuh.sh"
+    eval "docker exec $container_name bash -lc \"cd /tests/unattended && bash test-wazuh.sh\" "
+    echo -e "All unitary tests for the functions in wazuh.sh finished.\n"
+}
+
 function clean() {
     eval "docker stop $container_name"
     eval "docker rm $container_name"
@@ -78,6 +87,31 @@ function clean() {
 }
 
 main() {
+
+    if [ -z "${1}" ]; then
+        all_tests=1
+    fi
+
+    while [ -n "${1}" ]
+    do
+        case "${1}" in
+            "common")
+                common=1
+                shift 1
+                ;;
+            "checks")
+                checks=1
+                shift 1
+                ;;
+            "wazuh")
+                wazuh=1
+                shift 1
+                ;;
+            *)
+                echo "Unknow option: ${1}"
+                getHelp
+        esac
+    done
 
     if [ "$EUID" -ne 0 ]; then
         echo "Error: This script must be run as root."
@@ -89,17 +123,16 @@ main() {
         exit 1
     fi
 
-    if [ "$#" -eq 0 ]; then
-        all_tests=1
-    fi
-
     startDocker
     createDocker
-    if [ -n "$all_tests" ] || [ "$1" == "common" ]; then
+    if [ -n "$all_tests" ] || [ -n "$common" ]; then
         testCommon
     fi
-    if [ -n "$all_tests" ] || [ "$1" == "checks" ]; then
+    if [ -n "$all_tests" ] || [ -n "$checks" ]; then
         testChecks
+    fi
+    if [ -n "$all_tests" ] || [ -n "$wazuh" ]; then
+        testWazuh
     fi
     clean
 }
