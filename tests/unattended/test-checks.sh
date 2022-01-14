@@ -427,7 +427,7 @@ test-checkArguments-install-elastic-already-installed-overwrite() {
 }
 
 test-checkArguments-install-elastic-already-installed-overwrite-assert() {
-    rollBack elasticsearch
+    rollBack
 }
 
 test-checkArguments-install-elastic-remaining-files-overwrite() {
@@ -439,7 +439,7 @@ test-checkArguments-install-elastic-remaining-files-overwrite() {
 }
 
 test-checkArguments-install-elastic-remaining-files-overwrite-assert() {
-    rollBack elasticsearch
+    rollBack
 }
 
 test-ASSERT-FAIL-checkArguments-install-wazuh-already-installed-no-overwrite() {
@@ -467,7 +467,7 @@ test-checkArguments-install-wazuh-already-installed-overwrite() {
 }
 
 test-checkArguments-install-wazuh-already-installed-overwrite-assert() {
-    rollBack wazuh
+    rollBack
 }
 
 test-checkArguments-install-wazuh-remaining-files-overwrite() {
@@ -479,7 +479,7 @@ test-checkArguments-install-wazuh-remaining-files-overwrite() {
 }
 
 test-checkArguments-install-wazuh-remaining-files-overwrite-assert() {
-    rollBack wazuh
+    rollBack
 }
 
 test-ASSERT-FAIL-checkArguments-install-wazuh-filebeat-already-installed-no-overwrite() {
@@ -507,7 +507,7 @@ test-checkArguments-install-wazuh-filebeat-already-installed-overwrite() {
 }
 
 test-checkArguments-install-wazuh-filebeat-already-installed-overwrite-assert() {
-    rollBack filebeat
+    rollBack
 }
 
 test-checkArguments-install-wazuh-filebeat-remaining-files-overwrite() {
@@ -519,7 +519,7 @@ test-checkArguments-install-wazuh-filebeat-remaining-files-overwrite() {
 }
 
 test-checkArguments-install-wazuh-filebeat-remaining-files-overwrite-assert() {
-    rollBack filebeat
+    rollBack
 }
 
 test-ASSERT-FAIL-checkArguments-install-kibana-already-installed-no-overwrite() {
@@ -547,7 +547,7 @@ test-checkArguments-install-kibana-already-installed-overwrite() {
 }
 
 test-checkArguments-install-kibana-already-installed-overwrite-assert() {
-    rollBack kibana
+    rollBack
 }
 
 test-checkArguments-install-kibana-remaining-files-overwrite() {
@@ -559,7 +559,7 @@ test-checkArguments-install-kibana-remaining-files-overwrite() {
 }
 
 test-checkArguments-install-kibana-remaining-files-overwrite-assert() {
-    rollBack kibana
+    rollBack
 }
 
 function load-checkHealth() {
@@ -682,30 +682,30 @@ test-checkIfInstalled-all-installed-yum() {
     sys_type="yum"
 
     @mocktrue yum list installed
-    @mock awk '{print $2}'
+    @mock awk '{print $2}' === @out
 
     @mock grep wazuh-manager === @echo wazuh-manager.x86_64  4.3.0-1  @wazuh
     @mkdir /var/ossec
-    @mock echo  wazuh-manager.x86_64  4.3.0-1  @wazuh === @out 4.3.0-1
+    @mock echo "wazuh-manager.x86_64 4.3.0-1 @wazuh" === @out 4.3.0-1
 
     @mock grep opendistroforelasticsearch === @echo opendistroforelasticsearch.x86_64 1.13.2-1 @wazuh
     @mock grep -v kibana
     @mkdir /var/lib/elasticsearch/
     @mkdir /usr/share/elasticsearch
     @mkdir /etc/elasticsearch
-    @mock echo opendistroforelasticsearch.x86_64 1.13.2-1 @wazuh === @out 1.13.2-1
+    @mock echo "opendistroforelasticsearch.x86_64 1.13.2-1 @wazuh" === @out 1.13.2-1
 
     @mock grep filebeat === @echo filebeat.x86_64 7.10.2-1 @wazuh
     @mkdir /var/lib/filebeat/
     @mkdir /usr/share/filebeat
     @mkdir /etc/filebeat
-    @mock echo filebeat.x86_64 7.10.2-1 @wazuh === @out 7.10.2-1
+    @mock echo "filebeat.x86_64 7.10.2-1 @wazuh" === @out 7.10.2-1
 
     @mock grep opendistroforelasticsearch-kibana === @echo opendistroforelasticsearch-kibana.x86_64
     @mkdir /var/lib/kibana/
     @mkdir /usr/share/kibana
     @mkdir /etc/kibana
-    @mock echo opendistroforelasticsearch-kibana.x86_64 === @out
+    @mock echo "opendistroforelasticsearch-kibana.x86_64" === @out
 
     checkIfInstalled
     @echo $wazuhinstalled
@@ -760,29 +760,31 @@ test-checkIfInstalled-all-installed-zypper() {
 
     @mocktrue zypper packages
     @mock awk '{print $11}'
+    @mock awk '{print $1}'
+    @mock grep i+
 
     @mock grep wazuh-manager === @echo wazuh-manager.x86_64  4.3.0-1  @wazuh
     @mkdir /var/ossec
-    @mock echo  wazuh-manager.x86_64  4.3.0-1  @wazuh === @out 4.3.0-1
+    @mock echo "wazuh-manager.x86_64 4.3.0-1 @wazuh" === @out 4.3.0-1
 
     @mock grep opendistroforelasticsearch === @echo opendistroforelasticsearch.x86_64 1.13.2-1 @wazuh
     @mock grep -v kibana
     @mkdir /var/lib/elasticsearch/
     @mkdir /usr/share/elasticsearch
     @mkdir /etc/elasticsearch
-    @mock echo opendistroforelasticsearch.x86_64 1.13.2-1 @wazuh === @out 1.13.2-1
+    @mock echo "opendistroforelasticsearch.x86_64 1.13.2-1 @wazuh" === @out 1.13.2-1
 
     @mock grep filebeat === @echo filebeat.x86_64 7.10.2-1 @wazuh
     @mkdir /var/lib/filebeat/
     @mkdir /usr/share/filebeat
     @mkdir /etc/filebeat
-    @mock echo filebeat.x86_64 7.10.2-1 @wazuh === @out 7.10.2-1
+    @mock echo "filebeat.x86_64 7.10.2-1 @wazuh" === @out 7.10.2-1
 
     @mock grep opendistroforelasticsearch-kibana === @echo opendistroforelasticsearch-kibana.x86_64
     @mkdir /var/lib/kibana/
     @mkdir /usr/share/kibana
     @mkdir /etc/kibana
-    @mock echo opendistroforelasticsearch-kibana.x86_64 === @out
+    @mock echo "opendistroforelasticsearch-kibana.x86_64" === @out
 
     checkIfInstalled
     @echo $wazuhinstalled
@@ -838,28 +840,28 @@ test-checkIfInstalled-all-installed-apt() {
     @mocktrue apt list --installed
     @mock awk '{print $2}'
 
-    @mock grep wazuh-manager === @echo wazuh-manager.x86_64  4.3.0-1  @wazuh
+    @mock grep wazuh-manager === @echo wazuh-manager/now 4.2.5-1 amd64 [installed,local]
     @mkdir /var/ossec
-    @mock echo  wazuh-manager.x86_64  4.3.0-1  @wazuh === @out 4.3.0-1
+    @mock echo "wazuh-manager/now 4.2.5-1 amd64 [installed,local]" === @out 4.2.5-1
 
     @mock grep opendistroforelasticsearch === @echo opendistroforelasticsearch/stable,now 1.13.2-1 amd64 [installed]
     @mock grep -v kibana
     @mkdir /var/lib/elasticsearch/
     @mkdir /usr/share/elasticsearch
     @mkdir /etc/elasticsearch
-    @mock echo opendistroforelasticsearch.x86_64 1.13.2-1 @wazuh === @out 1.13.2-1
+    @mock echo "opendistroforelasticsearch/stable,now 1.13.2-1 amd64 [installed]" === @out 1.13.2-1
 
-    @mock grep filebeat === @echo filebeat.x86_64 7.10.2-1 @wazuh
+    @mock grep filebeat === @echo filebeat/now 7.10.2 amd64 [installed,local]
     @mkdir /var/lib/filebeat/
     @mkdir /usr/share/filebeat
     @mkdir /etc/filebeat
-    @mock echo filebeat.x86_64 7.10.2-1 @wazuh === @out 7.10.2-1
+    @mock echo "filebeat/now 7.10.2 amd64 [installed,local]" === @out 7.10.2-1
 
-    @mock grep opendistroforelasticsearch-kibana === @echo opendistroforelasticsearch-kibana.x86_64
+    @mock grep opendistroforelasticsearch-kibana === @echo opendistroforelasticsearch-kibana/now 1.13.2 amd64 [installed,local]
     @mkdir /var/lib/kibana/
     @mkdir /usr/share/kibana
     @mkdir /etc/kibana
-    @mock echo opendistroforelasticsearch-kibana.x86_64 === @out
+    @mock echo "opendistroforelasticsearch-kibana/now 1.13.2 amd64 [installed,local]" === @out 1.13.2
 
     checkIfInstalled
     @echo $wazuhinstalled
@@ -891,19 +893,19 @@ test-checkIfInstalled-all-installed-apt() {
 }
 
 test-checkIfInstalled-all-installed-apt-assert() {
-    @echo "wazuh-manager.x86_64 4.3.0-1 @wazuh"
-    @echo "4.3.0-1"
+    @echo "wazuh-manager/now 4.2.5-1 amd64 [installed,local]"
+    @echo "4.2.5-1"
     @echo 1
 
-    @echo "opendistroforelasticsearch.x86_64 1.13.2-1 @wazuh"
+    @echo "opendistroforelasticsearch/stable,now 1.13.2-1 amd64 [installed]"
     @echo "1.13.2-1"
     @echo 1
 
-    @echo "filebeat.x86_64 7.10.2-1 @wazuh"
+    @echo "filebeat/now 7.10.2 amd64 [installed,local]"
     @echo "7.10.2-1"
     @echo 1
 
-    @echo "opendistroforelasticsearch-kibana.x86_64"
-    @echo ""
+    @echo "opendistroforelasticsearch-kibana/now 1.13.2 amd64 [installed,local]"
+    @echo "1.13.2"
     @echo 1
 }
