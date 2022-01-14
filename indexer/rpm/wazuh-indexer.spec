@@ -17,7 +17,7 @@ BuildRoot:   %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Vendor:      Wazuh, Inc <info@wazuh.com>
 Packager:    Wazuh, Inc <info@wazuh.com>
 AutoReqProv: no
-Requires: coreutils initscripts
+Requires: coreutils initscripts chkconfig
 ExclusiveOS: linux
 BuildRequires: tar shadow-utils
 
@@ -141,6 +141,57 @@ kill -15 `pgrep -f opensearch` > /dev/null 2>&1
 sleep 10
 
 rm -rf %{LOG_DIR}/* > /dev/null 2>&1
+
+# -----------------------------------------------------------------------------
+
+%preun
+
+if [ $1 = 0 ];then # Remove
+    # Stop the services before uninstall the package
+    # Check for systemd
+    if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-indexer > /dev/null 2>&1; then
+        systemctl stop wazuh-indexer.service > /dev/null 2>&1
+    # Check for SysV
+    elif command -v service > /dev/null 2>&1 && service wazuh-indexer status 2>/dev/null | grep "running" > /dev/null 2>&1; then
+        service wazuh-indexer stop > /dev/null 2>&1
+    else # Anything else
+        kill -15 `pgrep -f opensearch` > /dev/null 2>&1
+    fi
+
+    # Check for systemd
+    if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
+        systemctl disable wazuh-indexer > /dev/null 2>&1
+        systemctl daemon-reload > /dev/null 2>&1
+    # Check for SysV
+    elif command -v service > /dev/null 2>&1 && command -v chkconfig > /dev/null 2>&1; then
+        chkconfig wazuh-indexer off > /dev/null 2>&1
+        chkconfig --del wazuh-indexer > /dev/null 2>&1
+    fi
+fi
+
+# -----------------------------------------------------------------------------
+
+%postun
+
+if [ $1 = 0 ];then
+    # Cleaning limits file
+    sed -i '/%{USER}/d' /etc/security/limits.conf
+
+    # Remove the user if it exists
+    if id -u %{USER} > /dev/null 2>&1; then
+        userdel %{USER} >/dev/null 2>&1
+    fi
+
+    # Remove the group if it exists
+    if command -v getent > /dev/null 2>&1 && getent group %{GROUP} > /dev/null 2>&1; then
+        groupdel %{GROUP} >/dev/null 2>&1
+    elif id -g %{GROUP} > /dev/null 2>&1; then
+        groupdel %{GROUP} >/dev/null 2>&1
+    fi
+
+    # Remove lingering folders and files
+    rm -rf %{INSTALL_DIR}
+fi
 
 # -----------------------------------------------------------------------------
 
