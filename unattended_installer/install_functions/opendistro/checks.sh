@@ -183,7 +183,7 @@ function checkIfInstalled() {
 
     if [ -n "${wazuhinstalled}" ]; then
         if [ "${sys_type}" == "zypper" ]; then
-            wazuhversion=$(echo "${wazuhinstalled}" | awk '{print $11}')
+            wazuhversion=$(echo "${wazuhinstalled}" | awk '{print $9}')
         else
             wazuhversion=$(echo "${wazuhinstalled}" | awk '{print $2}')
         fi    
@@ -203,7 +203,7 @@ function checkIfInstalled() {
 
     if [ -n "${elasticsearchinstalled}" ]; then
         if [ "${sys_type}" == "zypper" ]; then
-            odversion=$(echo "${elasticsearchinstalled}" | awk '{print $11}')
+            odversion=$(echo "${elasticsearchinstalled}" | awk '{print $9}')
         else
             odversion=$(echo "${elasticsearchinstalled}" | awk '{print $2}')
         fi
@@ -223,7 +223,7 @@ function checkIfInstalled() {
 
     if [ -n "${filebeatinstalled}" ]; then
         if [ "${sys_type}" == "zypper" ]; then
-            filebeatversion=$(echo "${filebeatinstalled}" | awk '{print $1}')
+            filebeatversion=$(echo "${filebeatinstalled}" | awk '{print $9}')
         else
             filebeatversion=$(echo "${filebeatinstalled}" | awk '{print $2}')
         fi
@@ -243,7 +243,7 @@ function checkIfInstalled() {
 
     if [ -n "${kibanainstalled}" ]; then
         if [ "${sys_type}" == "zypper" ]; then
-            kibanaversion=$(echo "${kibanainstalled}" | awk '{print $1}')
+            kibanaversion=$(echo "${kibanainstalled}" | awk '{print $9}')
         else
             kibanaversion=$(echo "${kibanainstalled}" | awk '{print $2}')
         fi
@@ -291,13 +291,13 @@ function checkPreviousCertificates() {
         logger -e "No certificates file found (${tar_file}). Run the script with the option -c|--certificates to create automatically or copy them from the node where they were created."
         exit 1
     fi
+
     if [ -n "${einame}" ]; then
         if ! $(tar -tf "${tar_file}" | grep -q "${einame}".pem) || ! $(tar -tf "${tar_file}" | grep -q "${einame}"-key.pem); then
             logger -e "There is no certificate for the elasticsearch node ${einame} in ${tar_file}."
             exit 1
         fi
     fi
-
 
     if [ -n "${kiname}" ]; then
         if ! $(tar -tf "${tar_file}" | grep -q "${kiname}".pem) || ! $(tar -tf "${tar_file}" | grep -q "${kiname}"-key.pem); then
