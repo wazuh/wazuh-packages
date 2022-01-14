@@ -61,7 +61,7 @@ override_dh_auto_install:
 override_dh_install:
 	rm -rf $(INSTALLATION_DIR)/
 
-	curl -o $(INDEXER_FILE) https://s3.amazonaws.com/warehouse.wazuh.com/indexer/$(INDEXER_FILE)
+	curl -o $(INDEXER_FILE) https://s3.amazonaws.com/warehouse.wazuh.com/stack/indexer/$(INDEXER_FILE)
 	tar -zvxf $(INDEXER_FILE)
 
 	# copy to target
@@ -87,6 +87,16 @@ override_dh_install:
 
 	# Copy installation files to final location
 	cp -pr $(BASE_DIR)/* $(TARGET_DIR)$(INSTALLATION_DIR)
+
+	# Download demo certificates
+	curl -kOL https://s3.amazonaws.com/warehouse.wazuh.com/stack/demo-certs.tar.gz
+	tar xzvf demo-certs.tar.gz && rm -f demo-certs.tar.gz
+	mkdir -p $(TARGET_DIR)$(CONFIG_DIR)/certs/
+	cp certs/admin.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/
+	cp certs/admin-key.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/
+	cp certs/demo-indexer.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/
+	cp certs/demo-indexer-key.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/
+	cp certs/root-ca.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/
 
 	# Copy the security tools
 	cp $(REPO_DIR)/install_functions/wazuh-cert-tool.sh $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/
