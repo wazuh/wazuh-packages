@@ -450,7 +450,6 @@ function startService() {
             logger "${1^} service started."
         fi
     else
-        echo "${1^} could not start. No service manager found on the system."
         logger -e "${1^} could not start. No service manager found on the system."
         exit 1
     fi
