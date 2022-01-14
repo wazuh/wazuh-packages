@@ -117,45 +117,45 @@ function generateCertificateconfiguration() {
 
 function generateElasticsearchcertificates() {
 
-    logger_cert "Creating the Elasticsearch certificates."
+    if [ ${#elasticsearch_node_names[@]} -gt 0 ]; then
+        logger_cert "Creating the Elasticsearch certificates."
 
-    i=0
-    while [ ${i} -lt "${#elasticsearch_node_names[@]}" ]; do
-        generateCertificateconfiguration "${elasticsearch_node_names[i]}" "${elasticsearch_node_ips[i]}"
-        eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${elasticsearch_node_names[i]}-key.pem -out ${base_path}/certs/${elasticsearch_node_names[i]}.csr -config ${base_path}/certs/${elasticsearch_node_names[i]}.conf -days 3650 ${debug_cert}"
-        eval "openssl x509 -req -in ${base_path}/certs/${elasticsearch_node_names[i]}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${elasticsearch_node_names[i]}.pem -extfile ${base_path}/certs/${elasticsearch_node_names[i]}.conf -extensions v3_req -days 3650 ${debug_cert}"
-        eval "chmod 444 ${base_path}/certs/${elasticsearch_node_names[i]}-key.pem ${debug_cert}"    
-        i=$(( i + 1 ))
-    done
+        for i in "${!elasticsearch_node_names[@]}"; do
+            generateCertificateconfiguration "${elasticsearch_node_names[i]}" "${elasticsearch_node_ips[i]}"
+            eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${elasticsearch_node_names[i]}-key.pem -out ${base_path}/certs/${elasticsearch_node_names[i]}.csr -config ${base_path}/certs/${elasticsearch_node_names[i]}.conf -days 3650 ${debug_cert}"
+            eval "openssl x509 -req -in ${base_path}/certs/${elasticsearch_node_names[i]}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${elasticsearch_node_names[i]}.pem -extfile ${base_path}/certs/${elasticsearch_node_names[i]}.conf -extensions v3_req -days 3650 ${debug_cert}"
+            eval "chmod 444 ${base_path}/certs/${elasticsearch_node_names[i]}-key.pem ${debug_cert}"    
+        done
+    fi
 
 }
 
 function generateFilebeatcertificates() {
 
-    logger_cert "Creating the Wazuh server certificates."
+    if [ ${#wazuh_servers_node_names[@]} -gt 0 ]; then
+        logger_cert "Creating the Wazuh server certificates."
 
-    i=0
-    while [ ${i} -lt "${#wazuh_servers_node_names[@]}" ]; do
-        generateCertificateconfiguration "${wazuh_servers_node_names[i]}" "${wazuh_servers_node_ips[i]}"
-        eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${wazuh_servers_node_names[i]}-key.pem -out ${base_path}/certs/${wazuh_servers_node_names[i]}.csr -config ${base_path}/certs/${wazuh_servers_node_names[i]}.conf -days 3650 ${debug_cert}"
-        eval "openssl x509 -req -in ${base_path}/certs/${wazuh_servers_node_names[i]}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${wazuh_servers_node_names[i]}.pem -extfile ${base_path}/certs/${wazuh_servers_node_names[i]}.conf -extensions v3_req -days 3650 ${debug_cert}"
-        i=$(( i + 1 ))
-    done      
+        for i in "${!wazuh_servers_node_names[@]}"; do
+            generateCertificateconfiguration "${wazuh_servers_node_names[i]}" "${wazuh_servers_node_ips[i]}"
+            eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${wazuh_servers_node_names[i]}-key.pem -out ${base_path}/certs/${wazuh_servers_node_names[i]}.csr -config ${base_path}/certs/${wazuh_servers_node_names[i]}.conf -days 3650 ${debug_cert}"
+            eval "openssl x509 -req -in ${base_path}/certs/${wazuh_servers_node_names[i]}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${wazuh_servers_node_names[i]}.pem -extfile ${base_path}/certs/${wazuh_servers_node_names[i]}.conf -extensions v3_req -days 3650 ${debug_cert}"
+        done
+    fi  
 
 }
 
 function generateKibanacertificates() {
+    
+    if [ ${#kibana_node_names[@]} -gt 0 ]; then
+        logger_cert "Creating the Kibana certificate."
 
-    logger_cert "Creating the Kibana certificate."
-
-    i=0
-    while [ ${i} -lt "${#kibana_node_names[@]}" ]; do
-        generateCertificateconfiguration "${kibana_node_names[i]}" "${kibana_node_ips[i]}"
-        eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${kibana_node_names[i]}-key.pem -out ${base_path}/certs/${kibana_node_names[i]}.csr -config ${base_path}/certs/${kibana_node_names[i]}.conf -days 3650 ${debug_cert}"
-        eval "openssl x509 -req -in ${base_path}/certs/${kibana_node_names[i]}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${kibana_node_names[i]}.pem -extfile ${base_path}/certs/${kibana_node_names[i]}.conf -extensions v3_req -days 3650 ${debug_cert}"
-        eval "chmod 444 ${base_path}/certs/${kibana_node_names[i]}-key.pem ${debug_cert}"    
-        i=$(( i + 1 ))
-    done
+        for i in "${!kibana_node_names[@]}"; do
+            generateCertificateconfiguration "${kibana_node_names[i]}" "${kibana_node_ips[i]}"
+            eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${kibana_node_names[i]}-key.pem -out ${base_path}/certs/${kibana_node_names[i]}.csr -config ${base_path}/certs/${kibana_node_names[i]}.conf -days 3650 ${debug_cert}"
+            eval "openssl x509 -req -in ${base_path}/certs/${kibana_node_names[i]}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${kibana_node_names[i]}.pem -extfile ${base_path}/certs/${kibana_node_names[i]}.conf -extensions v3_req -days 3650 ${debug_cert}"
+            eval "chmod 444 ${base_path}/certs/${kibana_node_names[i]}-key.pem ${debug_cert}"    
+        done
+    fi
 
 }
 
@@ -318,7 +318,7 @@ function parse_yaml() {
 function readConfig() {
 
     if [ -f "${config_file}" ]; then
-        if [ -s "${config_file}" ]; then
+        if [ ! -s "${config_file}" ]; then
             logger_cert -e "File ${config_file} is empty"
             exit 1
         fi
@@ -356,7 +356,7 @@ function readConfig() {
             logger_cert -e "Duplicated Wazuh server node ips."
             exit 1
         fi
- 
+
         unique_names=($(echo "${kibana_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
         if [ "${#unique_names[@]}" -ne "${#kibana_node_names[@]}" ]; then 
             logger_cert -e "Duplicated Kibana node names."
