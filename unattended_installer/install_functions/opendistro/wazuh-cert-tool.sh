@@ -388,7 +388,7 @@ function readConfig() {
         elif [ $(grep -io master <<< ${wazuh_servers_node_types[*]} | wc -l) -ne 1 ]; then
             logger_cert -e "Wazuh cluster needs a single master node."
             exit 1
-        elif [ $(grep -io worker <<< ${wazuh_servers_node_types[*]} | wc -l) -ne $(( "${#wazuh_servers_node_types[@]}" - 1 ))  ]; then
+        elif [ $(grep -io worker <<< ${wazuh_servers_node_types[*]} | wc -l) -ne $(( ${#wazuh_servers_node_types[@]} - 1 ))  ]; then
             logger_cert -e "Incorrect number of workers."
             exit 1
         fi
