@@ -379,11 +379,14 @@ function readConfig() {
 
         if [ "${#wazuh_servers_node_names[@]}" -le 1 ]; then
             if [ "${#wazuh_servers_node_types[@]}" -ne 0 ]; then
-                logger_cert -e "node_type must be used with more than one Wazuh server."
+                logger_cert -e "The tag node_type can only be used with more than one Wazuh server."
                 exit 1
             fi
-        elif [ "${#wazuh_servers_node_names[@]}" -ne "${#wazuh_servers_node_types[@]}" ]; then
-            logger_cert -e "Different number of Wazuh server node names and node types."
+        elif [ "${#wazuh_servers_node_names[@]}" -gt "${#wazuh_servers_node_types[@]}" ]; then
+            logger_cert -e "The tag node_type needs to be specified for all Wazuh server nodes."
+            exit 1
+        elif [ "${#wazuh_servers_node_names[@]}" -lt "${#wazuh_servers_node_types[@]}" ]; then
+            logger_cert -e "Found extra node_type tags."
             exit 1
         elif [ $(grep -io master <<< ${wazuh_servers_node_types[*]} | wc -l) -ne 1 ]; then
             logger_cert -e "Wazuh cluster needs a single master node."
