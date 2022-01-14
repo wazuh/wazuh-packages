@@ -1,0 +1,7 @@
+Instructions to run unitary tests:
+
+    All tests are defined in files as such: tests-{script_name}.sh, where {script_name}.sh is the file we are testing.
+    To run the tests we use the auxiliar script unitary-test.sh, which creates a clean docker environment on which to run the tests. 
+
+Usage: # bash unitary-test.sh {script-name}
+    {script-name} If we pass the name of a script(without .sh) as an argument, it will only run the tests for that script
