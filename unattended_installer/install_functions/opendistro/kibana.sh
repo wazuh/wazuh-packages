@@ -25,7 +25,7 @@ function configureKibana() {
         pos=0
         ip=${kibana_node_ips[0]}
     else
-        for i in ${!kibana_node_names[@]}; do
+        for i in "${!kibana_node_names[@]}"; do
             if [[ "${kibana_node_names[i]}" == "${kiname}" ]]; then
                 pos="${i}";
             fi
@@ -39,7 +39,7 @@ function configureKibana() {
         echo "elasticsearch.hosts: https://"${elasticsearch_node_ips[0]}":9200" >> /etc/kibana/kibana.yml
     else
         echo "elasticsearch.hosts:" >> /etc/kibana/kibana.yml
-        for i in ${elasticsearch_node_ips[@]}; do
+        for i in "${elasticsearch_node_ips[@]}"; do
                 echo "  - https://${i}:9200" >> /etc/kibana/kibana.yml
         done
     fi
@@ -61,7 +61,7 @@ function configureKibanaAIO() {
     eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${kibana_wazuh_plugin}' ${debug}"
     if [ "$?" != 0  ]; then
         logger -e "Wazuh Kibana plugin could not be installed."
-        rollBack kibana
+        rollBack
         exit 1
     fi
     logger "Wazuh Kibana plugin installation finished."
@@ -101,26 +101,26 @@ function initializeKibana() {
     if [ "${#kibana_node_names[@]}" -eq 1 ]; then
         nodes_kibana_ip=${kibana_node_ips[0]}
     else
-        for i in ${!kibana_node_names[@]}; do
+        for i in "${!kibana_node_names[@]}"; do
             if [[ "${kibana_node_names[i]}" == "${kiname}" ]]; then
                 pos="${i}";
             fi
         done
         nodes_kibana_ip=${kibana_node_ips[pos]}
     fi
-    until [[ "$(curl -XGET https://${nodes_kibana_ip}/status -I -uadmin:${u_pass} -k -s --max-time 300 | grep "200 OK")" ]] || [ ${i} -eq 12 ]; do
+    until $(curl -XGET https://${nodes_kibana_ip}/status -I -uadmin:"${u_pass}" -k -s --max-time 300 | grep -q "200 OK") || [ "${i}" -eq 12 ]; do
         sleep 10
         i=$((i+1))
     done
     if [ $i -eq 12 ]; then
         logger -e "Cannot connect to Kibana."
-        rollBack kibana
+        rollBack
         exit 1
     fi
     if [ "${#wazuh_servers_node_names[@]}" -eq 1 ]; then
         wazuh_api_address=${wazuh_servers_node_ips[0]}
     else
-        for i in ${!wazuh_servers_node_types[@]}; do
+        for i in "${!wazuh_servers_node_types[@]}"; do
             if [[ "${wazuh_servers_node_types[i]}" == "master" ]]; then
                 wazuh_api_address=${wazuh_servers_node_ips[i]}
             fi
@@ -140,20 +140,20 @@ function initializeKibanaAIO() {
     if [ "${#kibana_node_names[@]}" -eq 1 ]; then
         nodes_kibana_ip=${kibana_node_ips[0]}
     else
-        for i in ${!kibana_node_names[@]}; do
+        for i in "${!kibana_node_names[@]}"; do
             if [[ "${kibana_node_names[i]}" == "${kiname}" ]]; then
                 pos="${i}";
             fi
         done
         nodes_kibana_ip=${kibana_node_ips[pos]}
     fi
-    until [[ "$(curl -XGET https://localhost/status -I -uadmin:${u_pass} -k -s --max-time 300 | grep "200 OK")" ]] || [ ${i} -eq 12 ]; do
+    until $(curl -XGET https://localhost/status -I -uadmin:"${u_pass}" -k -s --max-time 300 | grep -q "200 OK") || [ "${i}" -eq 12 ]; do
         sleep 10
         i=$((i+1))
     done
     if [ $i -eq 12 ]; then
         logger -e "Cannot connect to Kibana."
-        rollBack kibana
+        rollBack
         exit 1
     fi
     logger "Kibana started."
@@ -171,7 +171,7 @@ function installKibana() {
     fi
     if [  "$?" != 0  ]; then
         logger -e "Kibana installation failed"
-        rollBack kibana
+        rollBack
         exit 1
     else    
         kibanainstalled="1"
