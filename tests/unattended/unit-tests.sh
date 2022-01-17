@@ -50,22 +50,22 @@ function createDocker() {
     container_name="testing-container"
     eval "docker run -d -t --name $container_name $image_name /bin/bash >/dev/null"
     container_id="$( docker ps -a | grep $container_name | awk '{ print $1 }' )"
-    eval "docker cp bach.sh $container_id:/tests/bach.sh >/dev/null"
+    eval "docker cp bach.sh $container_id:/tests/unattended/bach.sh >/dev/null"
 }
 
 function testCommon() {
-    eval "docker cp unattended/test-common.sh $container_id:/tests/unattended/test-common.sh"
+    eval "docker cp test-common.sh $container_id:/tests/unattended/test-common.sh"
     eval "mkdir -p temp/"
-    eval "cp ../unattended_installer/install_functions/opendistro/common.sh temp/"
+    eval "cp ../../unattended_installer/install_functions/opendistro/common.sh temp/"
     eval "docker cp temp/common.sh $container_id:/tests/unattended/common.sh"
     eval "docker exec $container_name bash -lc \"cd /tests/unattended && bash test-common.sh\" "
     echo -e "All unitary tests for the functions in common.sh finished.\n"
 }
 
 function testChecks() {
-    eval "docker cp unattended/test-checks.sh $container_id:/tests/unattended/test-checks.sh"
+    eval "docker cp test-checks.sh $container_id:/tests/unattended/test-checks.sh"
     eval "mkdir -p temp/"
-    eval "cp ../unattended_installer/install_functions/opendistro/checks.sh temp/"
+    eval "cp ../../unattended_installer/install_functions/opendistro/checks.sh temp/"
     eval "docker cp temp/checks.sh $container_id:/tests/unattended/checks.sh"
     eval "docker exec $container_name bash -lc \"cd /tests/unattended && bash test-checks.sh\" "
     echo -e "All unitary tests for the functions in checks.sh finished.\n"

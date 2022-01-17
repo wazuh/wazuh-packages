@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
-base_dir="$(cd ../../"$(dirname "$BASH_SOURCE")"; pwd -P; cd - >/dev/null;)"
-source "${base_dir}"/tests/bach.sh
+base_dir="$(cd "$(dirname "$BASH_SOURCE")"; pwd -P; cd - >/dev/null;)"
+source "${base_dir}"/bach.sh
 
 @setup-test {
     @ignore logger
 }
 
 function load-checkSystem() {
-    @load_function "${base_dir}/tests/unattended/checks.sh" checkSystem
+    @load_function "${base_dir}/checks.sh" checkSystem
 }
 
 test-ASSERT-FAIL-checkSystem-empty() {
@@ -71,7 +71,7 @@ test-checkSystem-apt-assert() {
 }
 
 function load-checkNames() {
-    @load_function "${base_dir}/tests/unattended/checks.sh" checkNames
+    @load_function "${base_dir}/checks.sh" checkNames
 }
 
 test-ASSERT-FAIL-checkNames-elastic-kibana-equals() {
@@ -163,7 +163,7 @@ test-checkNames-all-correct-installing-kibana() {
 
 
 function load-checkArch() {
-    @load_function "${base_dir}/tests/unattended/checks.sh" checkArch
+    @load_function "${base_dir}/checks.sh" checkArch
 }
 
 test-checkArch-x86_64() {
@@ -186,7 +186,7 @@ test-ASSERT-FAIL-checkArch-i386() {
 }
 
 function load-checkArguments {
-    @load_function "${base_dir}/tests/unattended/checks.sh" checkArguments
+    @load_function "${base_dir}/checks.sh" checkArguments
 }
 
 test-ASSERT-FAIL-checkArguments-install-aio-certs-file-present() {
@@ -563,7 +563,7 @@ test-checkArguments-install-kibana-remaining-files-overwrite-assert() {
 }
 
 function load-checkHealth() {
-    @load_function "${base_dir}/tests/unattended/checks.sh" checkHealth
+    @load_function "${base_dir}/checks.sh" checkHealth
     @mocktrue checkSpecs
 }
 
@@ -674,7 +674,7 @@ test-checkHealth-wazuh-2-cores-1700-ram() {
 }
 
 function load-checkIfInstalled() {
-    @load_function "${base_dir}/tests/unattended/checks.sh" checkIfInstalled
+    @load_function "${base_dir}/checks.sh" checkIfInstalled
 }
 
 test-checkIfInstalled-all-installed-yum() {
@@ -1067,7 +1067,7 @@ test-checkIfInstalled-nothing-installed-zypper-assert() {
 }
 
 function load-checkPreviousCertificates() {
-    @load_function "${base_dir}/tests/unattended/checks.sh" checkPreviousCertificates
+    @load_function "${base_dir}/checks.sh" checkPreviousCertificates
 }
 
 test-ASSERT-FAIL-checkPreviousCertificates-no-tar_file() {
