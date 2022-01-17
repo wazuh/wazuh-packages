@@ -93,7 +93,7 @@ function testFile() {
         return
     fi
 
-    eval "docker exec $container_name bash -lc \"cd /tests/unattended && bash test-$1.sh\" | tee -a ${logfile}"
+    eval "docker exec -it $container_name env TERM=xterm-256color bash -c \"cd /tests/unattended && bash test-$1.sh\" | tee -a ${logfile}"
     if [ "$?" != 0 ]; then
         logger -e "Docker encountered some error running the unit tests for $1.sh"
     else 
