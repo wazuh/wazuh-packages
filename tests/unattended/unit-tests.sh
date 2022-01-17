@@ -1,88 +1,112 @@
 trap clean SIGINT
 
-function startDocker() {
+logfile="/var/log/unit-tests-wazuh-installer.log"
+debug=">/dev/null"
 
-    if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
-        eval "systemctl daemon-reload"
-        eval "systemctl enable docker.service"
-        eval "systemctl start docker.service"
-        if [ "$?" != 0 ]; then
-            echo "Docker could not be started"
-            exit 1
-        else 
-            echo "Docker started correctly"
-        fi
-    elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
-        eval "chkconfig docker on"
-        eval "service docker start"
-        eval "/etc/init.d/docker start"
-        if [ "$?" != 0 ]; then
-            echo "Docker could not be started"
-            exit 1
-        else 
-            echo "Docker started correctly"
-        fi
-    elif [ -x /etc/rc.d/init.d/docker ] ; then
-        eval "/etc/rc.d/init.d/docker start"
-        if [ "$?" != 0 ]; then
-            echo "Docker could not be started"
-            exit 1
-        else 
-            echo "Docker started correctly"
-        fi
-    else
-        echo "Docker could not be started. No system manager found"
-        exit 1
-    fi
+function logger() {
+
+    now=$(date +'%d/%m/%Y %H:%M:%S')
+    case ${1} in 
+        "-e")
+            mtype="ERROR:"
+            message="${2}"
+            ;;
+        "-w")
+            mtype="WARNING:"
+            message="${2}"
+            ;;
+        *)
+            mtype="INFO:"
+            message="${1}"
+            ;;
+    esac
+    echo "${now} ${mtype} ${message}" | tee -a ${logfile}
 
 }
 
-function createDocker() {
+
+function createImage() {
 
     if [ ! -f ./Dockerfile ]; then
-        echo "Error: No Dockerfile found to create the environment"
+        logger -e "No Dockerfile found to create the environment."
+        exit 1
     fi
 
     image_name="testing-img"
     if [ -z "$(docker images | grep $image_name)" ]; then
-        eval "docker build -t $image_name . >/dev/null"
+        eval "docker build -t $image_name . ${debug}"
+        if [ "$?" != 0 ]; then
+            logger -e "Docker encountered some error."
+            exit 1
+        else 
+            logger "Docker image created successfully."
+        fi
+    else 
+        logger "Docker image found."
     fi
+}
+
+function runContainer() {
     container_name="testing-container"
-    eval "docker run -d -t --name $container_name $image_name /bin/bash >/dev/null"
+    eval "docker run -d -t --name $container_name $image_name /bin/bash ${debug}"
+    if [ "$?" != 0 ]; then
+        logger -e "Docker encountered some error."
+        exit 1
+    else 
+        logger "Docker container created successfully."
+    fi
     container_id="$( docker ps -a | grep $container_name | awk '{ print $1 }' )"
-    eval "docker cp bach.sh $container_id:/tests/unattended/bach.sh >/dev/null"
+    eval "docker cp bach.sh $container_id:/tests/unattended/bach.sh ${debug}"
+    if [ "$?" != 0 ]; then
+        logger -e "Error copying bach.sh to the container."
+        exit 1
+    fi
 }
 
-function testCommon() {
-    eval "docker cp test-common.sh $container_id:/tests/unattended/test-common.sh"
-    eval "mkdir -p temp/"
-    eval "cp ../../unattended_installer/install_functions/opendistro/common.sh temp/"
-    eval "docker cp temp/common.sh $container_id:/tests/unattended/common.sh"
-    eval "docker exec $container_name bash -lc \"cd /tests/unattended && bash test-common.sh\" "
-    echo -e "All unitary tests for the functions in common.sh finished.\n"
-}
+function testFile() {
 
-function testChecks() {
-    eval "docker cp test-checks.sh $container_id:/tests/unattended/test-checks.sh"
-    eval "mkdir -p temp/"
-    eval "cp ../../unattended_installer/install_functions/opendistro/checks.sh temp/"
-    eval "docker cp temp/checks.sh $container_id:/tests/unattended/checks.sh"
-    eval "docker exec $container_name bash -lc \"cd /tests/unattended && bash test-checks.sh\" "
-    echo -e "All unitary tests for the functions in checks.sh finished.\n"
+    logger "Unit tests for $1.sh."
+
+    eval "docker cp test-$1.sh $container_id:/tests/unattended/test-$1.sh ${debug}"
+    if [ "$?" != 0 ]; then
+        logger -e "File test-$1.sh could not be copied to the container."
+        return
+    fi
+    eval "mkdir -p temp/ ${debug}"
+
+    if [ -f ../../unattended_installer/install_functions/opendistro/$1.sh ]; then
+        eval "cp ../../unattended_installer/install_functions/opendistro/$1.sh temp/ ${debug}"
+    elif [ -f ../../unattended_installer/install_functions/elasticsearch_basic/$1.sh ]; then
+        eval "cp ../../unattended_installer/install_functions/elasticsearch_basic/$1.sh temp/ ${debug}"
+    elif [ -f ../../unattended_installer/$1.sh ]; then
+        eval "cp ../../unattended_installer/$1.sh ${debug}"
+    else 
+        logger -e "File $1.sh could not be found."
+        return
+    fi
+    
+    eval "docker cp temp/$1.sh $container_id:/tests/unattended/$1.sh ${debug}"
+    if [ "$?" != 0 ]; then
+        logger -e "File $1.sh could not be copied to the container."
+        return
+    fi
+
+    eval "docker exec $container_name bash -lc \"cd /tests/unattended && bash test-$1.sh\""
+    if [ "$?" != 0 ]; then
+        logger -e "Docker encountered some error running the unit tests for $1.sh"
+    else 
+        logger "All unit tests for the functions in $1.sh finished."
+    fi
 }
 
 function clean() {
-    eval "docker stop $container_name"
-    eval "docker rm $container_name"
-    eval "rm -rf temp/"
+    logger "Cleaning container and temporary files."
+    eval "docker stop $container_name ${debug}"
+    eval "docker rm $container_name ${debug}"
+    eval "rm -rf temp/ ${debug}"
 }
 
 main() {
-
-    if [ "$EUID" -ne 0 ]; then
-        echo "Error: This script must be run as root."
-        exit 1
-    fi
 
     if [ -z "$(command -v docker)" ]; then
         echo "Error: Docker must be installed in the system to run the tests"
@@ -93,13 +117,13 @@ main() {
         all_tests=1
     fi
 
-    startDocker
-    createDocker
+    createImage
+    runContainer
     if [ -n "$all_tests" ] || [ "$1" == "common" ]; then
-        testCommon
+        testFile common
     fi
     if [ -n "$all_tests" ] || [ "$1" == "checks" ]; then
-        testChecks
+        testChecks checks
     fi
     clean
 }
