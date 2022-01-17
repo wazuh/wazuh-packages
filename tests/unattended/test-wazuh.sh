@@ -16,7 +16,7 @@ test-installWazuh-zypper-error() {
     sys_type="zypper"
     wazuh_version=1
     wazuh_revision=1
-    @mock zypper -n install wazuh-manager=1-1 === @real false
+    @mockfalse zypper -n install wazuh-manager=1-1
     installWazuh
 }
 
@@ -31,7 +31,7 @@ test-installWazuh-apt-error() {
     sep="="
     wazuh_version=1
     wazuh_revision=1
-    @mock apt-get install wazuh-manager=1-1 -y === @real false
+    @mockfalse apt-get install wazuh-manager=1-1 -y
     installWazuh
 }
 
@@ -46,7 +46,7 @@ test-installWazuh-yum-error() {
     sep="-"
     wazuh_version=1
     wazuh_revision=1
-    @mock yum install wazuh-manager-1-1 -y === @real false
+    @mockfalse yum install wazuh-manager-1-1 -y
     installWazuh
 }
 

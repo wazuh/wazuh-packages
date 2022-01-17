@@ -51,7 +51,7 @@ test-getConfig-local-error() {
     base_path="/tmp"
     config_path="example"
     local=1
-    @mock cp /tmp/example/elasticsearch.yml /tmp/elasticsearch/elasticsearch.yml === @real false
+    @mockfalse cp /tmp/example/elasticsearch.yml /tmp/elasticsearch/elasticsearch.yml
     getConfig elasticsearch.yml /tmp/elasticsearch/elasticsearch.yml
 }
 
@@ -66,7 +66,7 @@ test-getConfig-online-error() {
     config_path="example"
     resources_config="example.com/config"
     local=
-    @mock curl -f -so /tmp/elasticsearch/elasticsearch.yml example.com/config/elasticsearch.yml === @real false
+    @mockfalse curl -f -so /tmp/elasticsearch/elasticsearch.yml example.com/config/elasticsearch.yml
     getConfig elasticsearch.yml /tmp/elasticsearch/elasticsearch.yml
 }
 
