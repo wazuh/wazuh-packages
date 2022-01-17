@@ -12,9 +12,7 @@ set -e
 export NAME=wazuh-indexer
 export CONFIG_DIR=/etc/${NAME}
 export INSTALLATION_DIR=/usr/share/${NAME}
-export LOG_DIR=/var/log/${NAME}
 export PID_DIR=/run/${NAME}
-export LIB_DIR=/var/lib/${NAME}
 
 #
 # This script is executed in the post-removal phase
@@ -30,7 +28,6 @@ fi
 
 REMOVE_DIRS=false
 REMOVE_CONFIG_DIRECTORY=false
-REMOVE_DATA_DIRECTORY=false
 REMOVE_USER_AND_GROUP=false
 
 case "$1" in
@@ -43,7 +40,6 @@ case "$1" in
     purge)
         REMOVE_DIRS=true
         REMOVE_CONFIG_DIRECTORY=true
-        REMOVE_DATA_DIRECTORY=true
         REMOVE_USER_AND_GROUP=true
     ;;
 
@@ -57,49 +53,38 @@ case "$1" in
 esac
 
 if [ "$REMOVE_DIRS" = "true" ]; then
-
-    if [ -d ${LOG_DIR} ]; then
-        echo -n "Deleting log directory..."
-        rm -rf ${LOG_DIR}
-        echo " OK"
-    fi
-
     if [ -d ${INSTALLATION_DIR} ]; then
         echo -n "Deleting installation directory..."
-        rm -rf ${INSTALLATION_DIR}
+        rm -rf ${INSTALLATION_DIR} > /dev/null 2>&1
         echo " OK"
     fi
 
     if [ -d ${PID_DIR} ]; then
         echo -n "Deleting PID directory..."
-        rm -rf ${PID_DIR}
-        echo " OK"
-    fi
-
-    # Delete the data directory if we are purging
-    if [ "${REMOVE_DATA_DIRECTORY}" = "true" ]; then
-        echo -n "Deleting data directory..."
-        rm -rf ${LIB_DIR}
+        rm -rf ${PID_DIR} > /dev/null 2>&1
         echo " OK"
     fi
 
     # Delete the config directory if we are purging
     if [ "$REMOVE_CONFIG_DIRECTORY" = "true" ]; then
         echo -n "Deleting configuration directory..."
-        rm -rf ${CONFIG_DIR}
+        rm -rf ${CONFIG_DIR} > /dev/null 2>&1
         echo " OK"
     fi
-
 fi
 
 
 if [ "$REMOVE_USER_AND_GROUP" = "true" ]; then
-    if id ${NAME} > /dev/null 2>&1 ; then
-        userdel ${NAME}
+    # Remove the user if it exists
+    if id -u ${NAME} > /dev/null 2>&1; then
+        userdel ${NAME} > /dev/null 2>&1
     fi
 
-    if getent group ${NAME} > /dev/null 2>&1 ; then
-        groupdel ${NAME}
+    # Remove the group if it exists
+    if command -v getent > /dev/null 2>&1 && getent group %{GROUP} > /dev/null 2>&1; then
+        groupdel %{GROUP} > /dev/null 2>&1
+    elif id -g %{GROUP} > /dev/null 2>&1; then
+        groupdel %{GROUP} > /dev/null 2>&1
     fi
 fi
 

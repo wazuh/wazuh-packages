@@ -46,30 +46,30 @@ esac
 # Stops the service
 if [ "$STOP_REQUIRED" = "true" ]; then
     echo -n "Stopping wazuh-indexer service..."
-    if command -v systemctl >/dev/null; then
-        systemctl --no-reload stop wazuh-indexer.service
+    if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-indexer > /dev/null 2>&1; then
+        systemctl --no-reload stop wazuh-indexer.service > /dev/null 2>&1
+
+    # Check for SysV
+    elif command -v service > /dev/null 2>&1 && service wazuh-indexer status 2>/dev/null | grep "running" > /dev/null 2>&1; then
+        service wazuh-indexer stop > /dev/null 2>&1
 
     elif [ -x /etc/init.d/wazuh-indexer ]; then
         if command -v invoke-rc.d >/dev/null; then
-            invoke-rc.d wazuh-indexer stop
+            invoke-rc.d wazuh-indexer stop > /dev/null 2>&1
         else
-            /etc/init.d/wazuh-indexer stop
+            /etc/init.d/wazuh-indexer stop > /dev/null 2>&1
         fi
 
-    # older suse linux distributions do not ship with systemd
+    # Older Suse linux distributions do not ship with systemd
     # but do not have an /etc/init.d/ directory
-    # this tries to start the wazuh-indexer service on these
+    # this tries to stop the wazuh-indexer service on these
     # as well without failing this script
     elif [ -x /etc/rc.d/init.d/wazuh-indexer ] ; then
-        /etc/rc.d/init.d/wazuh-indexer stop
+        /etc/rc.d/init.d/wazuh-indexer stop > /dev/null 2>&1
+    else # Anything else
+        kill -15 `pgrep -f opensearch` > /dev/null 2>&1
     fi
     echo " OK"
-fi
-
-if [ -f "${CONFIG_DIR}"/opensearch.keystore ]; then
-  if md5sum --status -c "${CONFIG_DIR}"/.opensearch.keystore.initial_md5sum; then
-    rm "${CONFIG_DIR}"/opensearch.keystore "${CONFIG_DIR}"/.opensearch.keystore.initial_md5sum
-  fi
 fi
 
 if [ "$REMOVE_SERVICE" = "true" ]; then
