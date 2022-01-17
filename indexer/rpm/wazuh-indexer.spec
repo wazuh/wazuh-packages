@@ -69,7 +69,7 @@ mkdir -p ${RPM_BUILD_ROOT}%{SYS_DIR}
 
 # Download required sources
 curl -kOL https://s3.amazonaws.com/warehouse.wazuh.com/stack/indexer/wazuh-indexer-base-linux-x64.tar.gz
-tar xzvf wazuh-indexer-*.tar.gz && rm -f wazuh-indexer-*.tar.gz
+tar -xzf wazuh-indexer-*.tar.gz && rm -f wazuh-indexer-*.tar.gz
 chown -R %{USER}:%{GROUP} wazuh-indexer-*/*
 
 # Copy base files into RPM_BUILD_ROOT directory
@@ -117,30 +117,31 @@ fi
 # -----------------------------------------------------------------------------
 
 %post
+if [ $1 = 1 ];then
+    echo "%{USER} hard nproc 4096" >> /etc/security/limits.conf
+    echo "%{USER} soft nproc 4096" >> /etc/security/limits.conf
+    echo "%{USER} hard nofile 65535" >> /etc/security/limits.conf
+    echo "%{USER} soft nofile 65535" >> /etc/security/limits.conf
+    if [[ "$(uname -a)" =~ "centos6" ]] || [[ "$(uname -a)" =~ "el6" ]];then
+        echo "### Disabled filter install on CentOS 6 systems ###" >> %{CONFIG_DIR}/opensearch.yml
+        echo "bootstrap.system_call_filter: false" >> %{CONFIG_DIR}/opensearch.yml
+    fi
 
-echo "%{USER} hard nproc 4096" >> /etc/security/limits.conf
-echo "%{USER} soft nproc 4096" >> /etc/security/limits.conf
-echo "%{USER} hard nofile 65535" >> /etc/security/limits.conf
-echo "%{USER} soft nofile 65535" >> /etc/security/limits.conf
-if [[ "$(uname -a)" =~ "centos6" ]] || [[ "$(uname -a)" =~ "el6" ]];then
-    echo "### Disabled filter install on CentOS 6 systems ###" >> %{CONFIG_DIR}/opensearch.yml
-    echo "bootstrap.system_call_filter: false" >> %{CONFIG_DIR}/opensearch.yml
+    sysctl -w vm.max_map_count=262144 > /dev/null 2>&1 
+    sudo -u %{USER} CLK_TK=`/usr/bin/getconf CLK_TCK` OPENSEARCH_PATH_CONF=%{CONFIG_DIR} %{INSTALL_DIR}/bin/opensearch --quiet > /dev/null 2>&1 &
+
+    sleep 15
+
+    sudo -u %{USER} OPENSEARCH_PATH_CONF=%{CONFIG_DIR} JAVA_HOME=%{INSTALL_DIR}/jdk %{INSTALL_DIR}/plugins/opensearch-security/tools/securityadmin.sh -cd %{INSTALL_DIR}/plugins/opensearch-security/securityconfig -icl -p 9800 -cd %{INSTALL_DIR}/plugins/opensearch-security/securityconfig -nhnv -cacert %{CONFIG_DIR}/certs/root-ca.pem -cert %{CONFIG_DIR}/certs/admin.pem -key %{CONFIG_DIR}/certs/admin-key.pem >> %{LOG_DIR}/securityadmin.log
+
+    sleep 5
+
+    kill -15 `pgrep -f opensearch` > /dev/null 2>&1
+
+    sleep 10
+
+    rm -rf %{LOG_DIR}/* > /dev/null 2>&1
 fi
-
-sysctl -w vm.max_map_count=262144 > /dev/null 2>&1 
-sudo -u %{USER} CLK_TK=`/usr/bin/getconf CLK_TCK` OPENSEARCH_PATH_CONF=%{CONFIG_DIR} %{INSTALL_DIR}/bin/opensearch --quiet > /dev/null 2>&1 &
-
-sleep 15
-
-sudo -u %{USER} OPENSEARCH_PATH_CONF=%{CONFIG_DIR} JAVA_HOME=%{INSTALL_DIR}/jdk %{INSTALL_DIR}/plugins/opensearch-security/tools/securityadmin.sh -cd %{INSTALL_DIR}/plugins/opensearch-security/securityconfig -icl -p 9800 -cd %{INSTALL_DIR}/plugins/opensearch-security/securityconfig -nhnv -cacert %{CONFIG_DIR}/certs/root-ca.pem -cert %{CONFIG_DIR}/certs/admin.pem -key %{CONFIG_DIR}/certs/admin-key.pem >> %{LOG_DIR}/securityadmin.log
-
-sleep 5
-
-kill -15 `pgrep -f opensearch` > /dev/null 2>&1
-
-sleep 10
-
-rm -rf %{LOG_DIR}/* > /dev/null 2>&1
 
 # -----------------------------------------------------------------------------
 
@@ -148,15 +149,31 @@ rm -rf %{LOG_DIR}/* > /dev/null 2>&1
 
 if [ $1 = 0 ];then # Remove
     # Stop the services before uninstall the package
-    # Check for systemd
+    echo -n "Stopping wazuh-indexer service..."
     if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-indexer > /dev/null 2>&1; then
-        systemctl stop wazuh-indexer.service > /dev/null 2>&1
+        systemctl --no-reload stop wazuh-indexer.service > /dev/null 2>&1
+
     # Check for SysV
     elif command -v service > /dev/null 2>&1 && service wazuh-indexer status 2>/dev/null | grep "running" > /dev/null 2>&1; then
         service wazuh-indexer stop > /dev/null 2>&1
+
+    elif [ -x /etc/init.d/wazuh-indexer ]; then
+        if command -v invoke-rc.d >/dev/null; then
+            invoke-rc.d wazuh-indexer stop > /dev/null 2>&1
+        else
+            /etc/init.d/wazuh-indexer stop > /dev/null 2>&1
+        fi
+
+    # Older Suse linux distributions do not ship with systemd
+    # but do not have an /etc/init.d/ directory
+    # this tries to stop the wazuh-indexer service on these
+    # as well without failing this script
+    elif [ -x /etc/rc.d/init.d/wazuh-indexer ] ; then
+        /etc/rc.d/init.d/wazuh-indexer stop > /dev/null 2>&1
     else # Anything else
         kill -15 `pgrep -f opensearch` > /dev/null 2>&1
     fi
+    echo " OK"
 
     # Check for systemd
     if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
