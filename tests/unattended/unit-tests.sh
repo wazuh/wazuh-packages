@@ -1,7 +1,8 @@
 trap clean SIGINT
 
-logfile="./unit-tests-wazuh-installer.log"
-debug=">/dev/null"
+logfile="./unit-tests.log"
+echo "-------------------------" >> ./unit-tests.log
+debug=">> ${logfile}"
 ALL_FILES=("common" "checks")
 
 function logger() {
@@ -92,7 +93,7 @@ function testFile() {
         return
     fi
 
-    eval "docker exec $container_name bash -lc \"cd /tests/unattended && bash test-$1.sh\""
+    eval "docker exec $container_name bash -lc \"cd /tests/unattended && bash test-$1.sh\" | tee -a ${logfile}"
     if [ "$?" != 0 ]; then
         logger -e "Docker encountered some error running the unit tests for $1.sh"
     else 
@@ -114,7 +115,7 @@ function getHelp() {
     echo -e "        $(basename "$0") - Unit test for the Wazuh installer."
     echo -e ""
     echo -e "SYNOPSIS"
-    echo -e "        $(basename "$0") [OPTIONS] -a | -d | -f <file-list>"
+    echo -e "        bash $(basename "$0") [OPTIONS] -a | -d | -f <file-list>"
     echo -e ""
     echo -e "DESCRIPTION"
     echo -e "        -a,  --test-all"
@@ -156,7 +157,7 @@ main() {
                 done
                 ;;
             "-d"|"--debug")
-                debug=""
+                debug="| tee -a ${logfile}"
                 shift 1
                 ;;
             "-h"|"--help")

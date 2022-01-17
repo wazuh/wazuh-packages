@@ -1,7 +1,24 @@
-Instructions to run unitary tests:
+Instructions to run uit tests:
 
     All tests are defined in files as such: tests-{script_name}.sh, where {script_name}.sh is the file we are testing.
-    To run the tests we use the auxiliar script unitary-test.sh, which creates a clean docker environment on which to run the tests. 
+    To run the tests we use the auxiliar script unit-tests.sh, which creates a clean docker environment on which to run the tests.
+    Docker must be installed and running in the system and the user must have access.
 
-Usage: # bash unitary-test.sh {script-name}
-    {script-name} If we pass the name of a script(without .sh) as an argument, it will only run the tests for that script
+NAME
+        unit-tests.sh - Unit test for the Wazuh installer.
+
+SYNOPSIS
+        bash unit-tests.sh [OPTIONS] -a | -d | -f <file-list>
+
+DESCRIPTION
+        -a,  --test-all
+                Test all files.
+
+        -f,  --files <file-list>
+                List of files to test. E.g. -f common checks
+
+        -h,  --help
+                Shows help.
+
+        -d,  --debug
+                Shows the complete installation output.
