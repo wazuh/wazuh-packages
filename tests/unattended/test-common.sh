@@ -1307,9 +1307,9 @@ test-readPasswordFileUsers-changeall-correct() {
     load-readPasswordFileUsers
     p_file=/tmp/passfile.yml
     @mock grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' /tmp/passfile.yml === @echo 1
-    @mock grep name: /tmp/passfile.yml === @echo ( wazuh kibanaserver )
+    @mock grep name: /tmp/passfile.yml === @echo wazuh kibanaserver
     @mock awk '{ print substr( $2, 1, length($2) ) }'
-    @mock grep password: /tmp/passfile.yml === @echo ( wazuhpassword kibanaserverpassword )
+    @mock grep password: /tmp/passfile.yml === @echo wazuhpassword kibanaserverpassword
     @mock awk '{ print substr( $2, 1, length($2) ) }'
     changeall=1
     users=( wazuh kibanaserver )
@@ -1331,9 +1331,9 @@ test-readPasswordFileUsers-changeall-user-doesnt-exist() {
     load-readPasswordFileUsers
     p_file=/tmp/passfile.yml
     @mock grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' /tmp/passfile.yml === @echo 1
-    @mock grep name: /tmp/passfile.yml === @out ( wazuh kibanaserver admin )
+    @mock grep name: /tmp/passfile.yml === @out wazuh kibanaserver admin
     @mock awk '{ print substr( $2, 1, length($2) ) }'
-    @mock grep password: /tmp/passfile.yml === @out ( wazuhpassword kibanaserverpassword )
+    @mock grep password: /tmp/passfile.yml === @out wazuhpassword kibanaserverpassword
     @mock awk '{ print substr( $2, 1, length($2) ) }'
     changeall=1
     users=( wazuh kibanaserver )
@@ -1355,9 +1355,9 @@ test-readPasswordFileUsers-no-changeall-kibana-correct() {
     load-readPasswordFileUsers
     p_file=/tmp/passfile.yml
     @mock grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' /tmp/passfile.yml === @echo 1
-    @mock grep name: /tmp/passfile.yml === @out ( wazuh kibanaserver admin )
+    @mock grep name: /tmp/passfile.yml === @out wazuh kibanaserver admin
     @mock awk '{ print substr( $2, 1, length($2) ) }'
-    @mock grep password: /tmp/passfile.yml === @out ( wazuhpassword kibanaserverpassword adminpassword )
+    @mock grep password: /tmp/passfile.yml === @out wazuhpassword kibanaserverpassword adminpassword
     @mock awk '{ print substr( $2, 1, length($2) ) }'
     changeall=
     kibanainstalled=1
@@ -1380,9 +1380,9 @@ test-readPasswordFileUsers-no-changeall-filebeat-correct() {
     load-readPasswordFileUsers
     p_file=/tmp/passfile.yml
     @mock grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' /tmp/passfile.yml === @echo 1
-    @mock grep name: /tmp/passfile.yml === @out ( wazuh kibanaserver admin )
+    @mock grep name: /tmp/passfile.yml === @out wazuh kibanaserver admin
     @mock awk '{ print substr( $2, 1, length($2) ) }'
-    @mock grep password: /tmp/passfile.yml === @out ( wazuhpassword kibanaserverpassword adminpassword )
+    @mock grep password: /tmp/passfile.yml === @out wazuhpassword kibanaserverpassword adminpassword
     @mock awk '{ print substr( $2, 1, length($2) ) }'
     changeall=
     filebeatinstalled=1
