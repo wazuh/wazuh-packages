@@ -112,11 +112,6 @@ function initializeKibana() {
         sleep 10
         i=$((i+1))
     done
-    if [ $i -eq 12 ]; then
-        logger -e "Cannot connect to Kibana."
-        rollBack
-        exit 1
-    fi
     if [ "${#wazuh_servers_node_names[@]}" -eq 1 ]; then
         wazuh_api_address=${wazuh_servers_node_ips[0]}
     else
@@ -125,6 +120,11 @@ function initializeKibana() {
                 wazuh_api_address=${wazuh_servers_node_ips[i]}
             fi
         done
+    fi
+    if [ ${i} -eq 12 ]; then
+        logger -e "Cannot connect to Kibana. Please check the status of your elasticsearch cluster"
+        logger "When Kibana is able to connect to your elasticsearch cluster, you can access the web interface https://${nodes_kibana_ip}. The credentials are admin:${u_pass}"
+        exit 1
     fi
     eval "sed -i 's,url: https://localhost,url: https://${wazuh_api_address},g' /usr/share/kibana/data/wazuh/config/wazuh.yml ${debug}"
     logger "Kibana started."
@@ -151,7 +151,7 @@ function initializeKibanaAIO() {
         sleep 10
         i=$((i+1))
     done
-    if [ $i -eq 12 ]; then
+    if [ ${i} -eq 12 ]; then
         logger -e "Cannot connect to Kibana."
         rollBack
         exit 1

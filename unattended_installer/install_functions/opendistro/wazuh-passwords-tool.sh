@@ -8,7 +8,9 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-logfile="/var/log/wazuh-password-tool.log"
+if [[ -z "${logfile}" ]]; then
+    logfile="/var/log/wazuh-password-tool.log"
+fi
 debug_pass=">> ${logfile} 2>&1"
 if [ -n "$(command -v yum)" ]; then
     sys_type="yum"
@@ -28,7 +30,7 @@ changePassword() {
             fi
             
             if [ "${users[i]}" == "admin" ]; then
-                wazuhpass=${passwords[i]}
+                adminpass=${passwords[i]}
             elif [ "${users[i]}" == "kibanaserver" ]; then
                 kibpass=${passwords[i]}
             fi  
@@ -39,8 +41,8 @@ changePassword() {
             awk -v new="$hash" 'prev=="'${nuser}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/elasticsearch/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
         fi
 
-        if [ "${nuser}" == "wazuh" ]; then
-            wazuhpass=${password}
+        if [ "${nuser}" == "admin" ]; then
+            adminpass=${password}
         elif [ "${nuser}" == "kibanaserver" ]; then
             kibpass=${password}
         fi        
@@ -53,7 +55,7 @@ changePassword() {
             wazuhold=$(grep "password:" /etc/filebeat/filebeat.yml )
             ra="  password: "
             wazuhold="${wazuhold//$ra}"
-            conf="$(awk '{sub("password: .*", "password: '${wazuhpass}'")}1' /etc/filebeat/filebeat.yml)"
+            conf="$(awk '{sub("password: .*", "password: '${adminpass}'")}1' /etc/filebeat/filebeat.yml)"
             echo "${conf}" > /etc/filebeat/filebeat.yml  
             restartService "filebeat"
         fi 
@@ -86,7 +88,7 @@ checkInstalledPass() {
     if [ "${sys_type}" == "yum" ]; then
         filebeatinstalled=$(yum list installed 2>/dev/null | grep filebeat)
     elif [ "${sys_type}" == "zypper" ]; then
-        filebeatinstalled=$(zypper packages | grep filebeat | grep i+ | grep noarch)
+        filebeatinstalled=$(zypper packages | grep filebeat | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
         filebeatinstalled=$(apt list --installed  2>/dev/null | grep filebeat)
     fi 
@@ -465,8 +467,8 @@ readFileUsers() {
 
 It must have this format:
 User:
-  name: wazuh
-  password: wazuhpassword
+  name: admin
+  password: adminpassword
 User:
   name: kibanaserver
   password: kibanaserverpassword"
