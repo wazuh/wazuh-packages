@@ -57,7 +57,6 @@ override_dh_install:
 	mkdir -p ${TARGET_DIR}/etc/systemd/system
 	mkdir -p ${TARGET_DIR}/etc/init.d
 	mkdir -p ${TARGET_DIR}/etc/default
-	mkdir -p ${TARGET_DIR}${LOG_DIR}
 
 	cp ${DASHBOARD_FILE}/etc/node.options ${TARGET_DIR}${CONFIG_DIR}
 	cp ${DASHBOARD_FILE}/etc/wazuh-dashboard.yml ${TARGET_DIR}${CONFIG_DIR}
@@ -66,6 +65,12 @@ override_dh_install:
 	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/custom_welcome/template.js.hbs ${TARGET_DIR}${INSTALLATION_DIR}/src/legacy/ui/ui_render/bootstrap/template.js.hbs
 	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/custom_welcome/light_theme.style.css ${TARGET_DIR}${INSTALLATION_DIR}/src/core/server/core_app/assets/legacy_light_theme.css
 	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/custom_welcome/*svg ${TARGET_DIR}${INSTALLATION_DIR}/src/core/server/core_app/assets/
+	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/custom_welcome/Assets/default_branding/wazuh_logo_white.svg ${TARGET_DIR}${INSTALLATION_DIR}/src/core/server/core_app/assets/default_branding/opensearch_logo.svg
+	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/custom_welcome/Assets/default_branding/wazuh_mark_dark_mode.svg ${TARGET_DIR}${INSTALLATION_DIR}/src/core/server/core_app/assets/default_branding/opensearch_mark_dark_mode.svg
+	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/custom_welcome/Assets/default_branding/wazuh_mark_default_mode.svg ${TARGET_DIR}${INSTALLATION_DIR}/src/core/server/core_app/assets/default_branding/opensearch_mark_default_mode.svg
+	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/custom_welcome/Assets/Favicons/* ${TARGET_DIR}${INSTALLATION_DIR}/src/core/server/core_app/assets/favicons/
+	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/custom_welcome/Assets/Favicons/favicon-32x32.png ${TARGET_DIR}${INSTALLATION_DIR}/src/core/server/core_app/assets/favicons/favicon.ico
+
 
 	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/services/wazuh-dashboard.service ${TARGET_DIR}/etc/systemd/system/wazuh-dashboard.service 
 	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/services/wazuh-dashboard ${TARGET_DIR}/etc/init.d/${NAME}
@@ -88,9 +93,8 @@ override_dh_install:
 
 	rm -rf certs/
 
-	find ${TARGET_DIR}${INSTALLATION_DIR} -exec chown wazuh-dashboard:wazuh-dashboard {} \;
-	find ${TARGET_DIR}${CONFIG_DIR} -exec chown wazuh-dashboard:wazuh-dashboard {} \;
-
+	chown -R ${USER}:${GROUP} ${TARGET_DIR}${INSTALLATION_DIR}
+	chown -R ${USER}:${GROUP} ${TARGET_DIR}${CONFIG_DIR}
 	chown ${USER}:${GROUP} ${TARGET_DIR}/etc/systemd/system/wazuh-dashboard.service
 	chown ${USER}:${GROUP} ${TARGET_DIR}/etc/init.d/${NAME}
 	chown ${USER}:${GROUP} ${TARGET_DIR}/etc/default/${NAME}
