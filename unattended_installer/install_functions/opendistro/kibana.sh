@@ -16,6 +16,7 @@ function configureKibana() {
     eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install ${kibana_wazuh_plugin} ${debug}"
     if [  "$?" != 0  ]; then
         logger -e "Wazuh Kibana plugin could not be installed."
+        rollBack
         exit 1
     fi
     logger "Wazuh Kibana plugin installed."
@@ -97,7 +98,7 @@ function initializeKibana() {
 
     logger "Starting Kibana (this may take a while)."
     getPass "admin"
-    i=0
+    j=0
     if [ "${#kibana_node_names[@]}" -eq 1 ]; then
         nodes_kibana_ip=${kibana_node_ips[0]}
     else
@@ -108,9 +109,10 @@ function initializeKibana() {
         done
         nodes_kibana_ip=${kibana_node_ips[pos]}
     fi
-    until $(curl -XGET https://${nodes_kibana_ip}/status -I -uadmin:"${u_pass}" -k -s --max-time 300 | grep -q "200 OK") || [ "${i}" -eq 12 ]; do
+
+    until $(curl -XGET https://${nodes_kibana_ip}/status -I -uadmin:"${u_pass}" -k -s --max-time 300 | grep -q "200 OK") || [ "${j}" -eq 12 ]; do
         sleep 10
-        i=$((i+1))
+        j=$((i+1))
     done
     if [ "${#wazuh_servers_node_names[@]}" -eq 1 ]; then
         wazuh_api_address=${wazuh_servers_node_ips[0]}
@@ -121,14 +123,37 @@ function initializeKibana() {
             fi
         done
     fi
-    if [ ${i} -eq 12 ]; then
-        logger -e "Cannot connect to Kibana. Please check the status of your elasticsearch cluster"
-        logger "When Kibana is able to connect to your elasticsearch cluster, you can access the web interface https://${nodes_kibana_ip}. The credentials are admin:${u_pass}"
-        exit 1
-    fi
     eval "sed -i 's,url: https://localhost,url: https://${wazuh_api_address},g' /usr/share/kibana/data/wazuh/config/wazuh.yml ${debug}"
-    logger "Kibana started."
-    logger "You can access the web interface https://${nodes_kibana_ip}. The credentials are admin:${u_pass}"
+
+    if [ ${j} -eq 12 ]; then
+        flag="-e"
+        if [ -z "${force}" ]; then
+            msg="If you want to ignore this error use the -F option"
+            flag="-w"
+        fi
+        logger "${flag}" "Cannot connect to Kibana. ${msg}"
+        for i in ${elasticsearch_node_ips[@]}; do
+            curl=$(curl -XGET https://${i}:9200/ -uadmin:admin -k)
+            if [[ "${curl}" =~ "Open Distro Security not initialized." ]]; then
+                cluster_init=1
+            fi
+            if [[ "${curl}" =~ "Failed connect to" ]]; then
+                failed_connect=1
+                logger "${flag}" "Failed to connect with node ${i}, ${msg}"
+            fi 
+        done
+        if [ -n "${cluster_init}" ]; then
+            logger "${flag}" "Opendistro cluster not initialized. ${msg}"
+        fi
+        if [ -z "${force}" ]; then
+            rollBack
+            exit 1
+        else
+            logger "When Kibana is able to connect to your elasticsearch cluster, you can access the web interface https://${nodes_kibana_ip}. The credentials are admin:${u_pass}"
+        fi
+    else
+        logger "You can access the web interface https://${nodes_kibana_ip}. The credentials are admin:${u_pass}"
+    fi
 
 }
 
