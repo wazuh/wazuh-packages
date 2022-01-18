@@ -216,7 +216,7 @@ def test_test_check_wazuh_api_status():
 #    assert found_error == False, line
 
 @pytest.mark.wazuh
-def test_check_log_errors():
+def test_check_ossec_log_errors():
     found_error = False
     with open('/var/ossec/logs/ossec.log', 'r') as f:
         for line in f.readlines():
@@ -227,6 +227,26 @@ def test_check_log_errors():
                         found_error = False
                         print("Error detected as exception.")
                         break
+    assert found_error == False, line
+
+@pytest.mark.wazuh_cluster
+def test_check_cluster_log_errors():
+    found_error = False
+    with open('/var/ossec/logs/cluster.log', 'r') as f:
+        for line in f.readlines():
+            if 'ERROR' in line:
+                found_error = True
+                break
+    assert found_error == False, line
+
+@pytest.mark.wazuh_cluster
+def test_check_api_log_errors():
+    found_error = False
+    with open('/var/ossec/logs/api.log', 'r') as f:
+        for line in f.readlines():
+            if 'ERROR' in line:
+                found_error = True
+                break
     assert found_error == False, line
 
 @pytest.mark.elastic
