@@ -32,10 +32,6 @@ RUN apt-get update && apt-get upgrade && \
         libffi-dev \
         procps
 
-#RUN  yum -y groupinstall "Development Tools" && \
-#     yum install -y openssl gnupg2 sudo ca-certificates curl gnupg lsb-release zlib \
-#     openssl-devel bzip2-devel libffi-devel xz-devel zlib-devel perl-core wget initscripts
-
 RUN cd /usr/local/src/ && \ 
     curl https://www.openssl.org/source/openssl-1.1.1g.tar.gz | tar -xz && \
     cd openssl-1.1.1g && ./config --prefix=/usr/local/ssl --openssldir=/usr/local/ssl shared zlib && \

@@ -1,5 +1,5 @@
 #!/bin/bash
-bash unattended_installer/wazuh_isntall.sh
+bash unattended_installer/wazuh_install.sh
 cat /var/log/wazuh-unattended-installation.log
 sleep 60
 cd ~
