@@ -50,7 +50,9 @@ function createImage() {
 
 function runContainer() {
     container_name="unattended-installer-unit-tests-launcher"
-    eval "docker run -d -t --name $container_name $image_name /bin/bash ${debug}"
+    eval "mkdir -p /tmp/unattended-installer-unit-testing/ ${debug}"
+    eval "cp bach.sh /tmp/unattended-installer-unit-testing/ ${debug}"
+    eval "docker run --detach --tty --rm --name $container_name --volume /tmp/unattended-installer-unit-testing/:/tests/unattended/ $image_name /bin/bash ${debug}"
     if [ "$?" != 0 ]; then
         logger -e "Docker encountered some error."
         exit 1
@@ -58,38 +60,22 @@ function runContainer() {
         logger "Docker container created successfully."
     fi
     container_id="$( docker ps -a | grep $container_name | awk '{ print $1 }' )"
-    eval "docker cp bach.sh $container_id:/tests/unattended/bach.sh ${debug}"
-    if [ "$?" != 0 ]; then
-        logger -e "Error copying bach.sh to the container."
-        exit 1
-    fi
 }
 
 function testFile() {
 
     logger "Unit tests for $1.sh."
 
-    eval "docker cp test-$1.sh $container_id:/tests/unattended/test-$1.sh ${debug}"
-    if [ "$?" != 0 ]; then
-        logger -e "File test-$1.sh could not be copied to the container."
-        return
-    fi
-    eval "mkdir -p temp/ ${debug}"
 
+    eval "cp test-$1.sh /tmp/unattended-installer-unit-testing/"
     if [ -f ../../unattended_installer/install_functions/opendistro/$1.sh ]; then
-        eval "cp ../../unattended_installer/install_functions/opendistro/$1.sh temp/ ${debug}"
+        eval "cp ../../unattended_installer/install_functions/opendistro/$1.sh /tmp/unattended-installer-unit-testing/ ${debug}"
     elif [ -f ../../unattended_installer/install_functions/elasticsearch_basic/$1.sh ]; then
-        eval "cp ../../unattended_installer/install_functions/elasticsearch_basic/$1.sh temp/ ${debug}"
+        eval "cp ../../unattended_installer/install_functions/elasticsearch_basic/$1.sh /tmp/unattended-installer-unit-testing/ ${debug}"
     elif [ -f ../../unattended_installer/$1.sh ]; then
         eval "cp ../../unattended_installer/$1.sh ${debug}"
     else 
         logger -e "File $1.sh could not be found."
-        return
-    fi
-    
-    eval "docker cp temp/$1.sh $container_id:/tests/unattended/$1.sh ${debug}"
-    if [ "$?" != 0 ]; then
-        logger -e "File $1.sh could not be copied to the container."
         return
     fi
 
@@ -104,8 +90,7 @@ function testFile() {
 function clean() {
     logger "Cleaning container and temporary files."
     eval "docker stop $container_name ${debug}"
-    eval "docker rm $container_name ${debug}"
-    eval "rm -rf temp/ ${debug}"
+    eval "rm -rf /tmp/unattended-installer-unit-testing/ ${debug}"
 }
 
 function getHelp() {
