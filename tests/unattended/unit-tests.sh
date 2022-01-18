@@ -34,7 +34,7 @@ function createImage() {
         exit 1
     fi
 
-    image_name="testing-img"
+    image_name="unattended-installer-unit-tests-launcher"
     if [ -z "$(docker images | grep $image_name)" ]; then
         eval "docker build -t $image_name . ${debug}"
         if [ "$?" != 0 ]; then
@@ -49,7 +49,7 @@ function createImage() {
 }
 
 function runContainer() {
-    container_name="testing-container"
+    container_name="unattended-installer-unit-tests-launcher"
     eval "docker run -d -t --name $container_name $image_name /bin/bash ${debug}"
     if [ "$?" != 0 ]; then
         logger -e "Docker encountered some error."

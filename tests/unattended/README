@@ -1,7 +1,7 @@
 Instructions to run uit tests:
 
     All tests are defined in files as such: tests-{script_name}.sh, where {script_name}.sh is the file we are testing.
-    To run the tests we use the auxiliar script unit-tests.sh, which creates a clean docker environment on which to run the tests.
+    To run the tests we use the auxiliary script `unit-tests.sh`, which creates a clean docker environment on which to run the tests.
     Docker must be installed and running in the system and the user must have access.
 
 NAME
