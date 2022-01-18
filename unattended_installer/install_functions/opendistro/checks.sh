@@ -76,7 +76,7 @@ function checkArguments() {
                 rollBack
             else 
                 logger -e "Elasticsearch is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
-                exit 1
+                exit
             fi
         fi
     fi
@@ -87,7 +87,7 @@ function checkArguments() {
                 rollBack
             else 
                 logger -e "Kibana is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
-                exit 1
+                exit 
             fi
         fi
     fi
@@ -98,7 +98,7 @@ function checkArguments() {
                 rollBack
             else 
                 logger -e "Wazuh is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
-                exit 1
+                exit 
             fi
         fi
 
@@ -112,18 +112,18 @@ function checkArguments() {
         fi
     fi
 
-    if [[ -n "${configurations}" && ( -n "${AIO}" || -n "${elasticsearch}" || -n "${kibana}" || -n "${wazuh}" || -n "${development}" || -n "${overwrite}" || -n "${start_elastic_cluster}" || -n "${tar_conf}" || -n "${uninstall}" ) ]]; then
-        logger -e "The argument -c|--certificates can't be used with -a, -k, -e, -u or -w arguments."
+    if [[ -n "${configurations}" && ( -n "${AIO}" || -n "${elasticsearch}" || -n "${kibana}" || -n "${wazuh}" || -n "${overwrite}" || -n "${start_elastic_cluster}" || -n "${tar_conf}" || -n "${uninstall}" ) ]]; then
+        logger -e "The argument -c|--create-configurations can't be used with -a, -k, -e, -u or -w arguments."
         exit 1
     fi
 
-    if [[ -n "${start_elastic_cluster}" && ( -n "${AIO}" || -n "${elasticsearch}" || -n "${kibana}" || -n "${wazuh}" || -n "${development}" || -n "${overwrite}" || -n "${configurations}" || -n "${tar_conf}" || -n "${uninstall}") ]]; then
+    if [[ -n "${start_elastic_cluster}" && ( -n "${AIO}" || -n "${elasticsearch}" || -n "${kibana}" || -n "${wazuh}" || -n "${overwrite}" || -n "${configurations}" || -n "${tar_conf}" || -n "${uninstall}") ]]; then
         logger -e "The argument -s|--start-cluster can't be used with -a, -k, -e or -w arguments."
         exit 1
     fi
 
-    if [ -z "${AIO}" ] && [ -z "${elasticsearch}" ] && [ -z "${kibana}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ] && [ -z "${configurations}" ] && [ -z "${uninstall}" ]; then
-        logger -e "At lease one of these arguments is necessary -a|--all-in-one, -c|--create-configurations, -e|--elasticsearch <elasticsearch-node-name>, -k|--kibana <kibana-node-name>, -s|--start-cluster, -w|--wazuh-server <wazuh-node-name>, -u|--uninstall"
+    if [ -z "${AIO}" ] && [ -z "${elasticsearch}" ] && [ -z "${kibana}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ] && [ -z "${configurations}" ]; then
+        logger -e "At lease one of these arguments is necessary -a|--all-in-one, -c|--create-configurations, -e|--elasticsearch <elasticsearch-node-name>, -k|--kibana <kibana-node-name>, -s|--start-cluster, -w|--wazuh-server <wazuh-node-name>, "
         exit 1
     fi 
 
@@ -183,7 +183,7 @@ function checkIfInstalled() {
 
     if [ -n "${wazuhinstalled}" ]; then
         if [ "${sys_type}" == "zypper" ]; then
-            wazuhversion=$(echo "${wazuhinstalled}" | awk '{print $9}')
+            wazuhversion=$(echo "${wazuhinstalled}" | awk '{print $11}')
         else
             wazuhversion=$(echo "${wazuhinstalled}" | awk '{print $2}')
         fi    
@@ -203,7 +203,7 @@ function checkIfInstalled() {
 
     if [ -n "${elasticsearchinstalled}" ]; then
         if [ "${sys_type}" == "zypper" ]; then
-            odversion=$(echo "${elasticsearchinstalled}" | awk '{print $9}')
+            odversion=$(echo "${elasticsearchinstalled}" | awk '{print $11}')
         else
             odversion=$(echo "${elasticsearchinstalled}" | awk '{print $2}')
         fi
@@ -223,7 +223,7 @@ function checkIfInstalled() {
 
     if [ -n "${filebeatinstalled}" ]; then
         if [ "${sys_type}" == "zypper" ]; then
-            filebeatversion=$(echo "${filebeatinstalled}" | awk '{print $9}')
+            filebeatversion=$(echo "${filebeatinstalled}" | awk '{print $1}')
         else
             filebeatversion=$(echo "${filebeatinstalled}" | awk '{print $2}')
         fi
@@ -243,7 +243,7 @@ function checkIfInstalled() {
 
     if [ -n "${kibanainstalled}" ]; then
         if [ "${sys_type}" == "zypper" ]; then
-            kibanaversion=$(echo "${kibanainstalled}" | awk '{print $9}')
+            kibanaversion=$(echo "${kibanainstalled}" | awk '{print $1}')
         else
             kibanaversion=$(echo "${kibanainstalled}" | awk '{print $2}')
         fi
@@ -269,16 +269,18 @@ function checkNames() {
         exit 1
     fi
 
-    all_node_names=("${elasticsearch_node_names[@]}" "${wazuh_servers_node_names[@]}" "${kibana_node_names[@]}")
-    found=0
-    for i in "${all_node_names[@]}"; do
-        if [[ ( -n "${elasticsearch}" && "${i}" == "${einame}" ) || ( -n "${wazuh}"  && "${i}" == "${winame}" ) || ( -n "${kibana}"  && "${i}" == "${kiname}" ) ]]; then
-            found=1
-            break
-        fi
-    done
-    if [[ $found -eq 0 ]]; then
-        logger -e "The name given for the node does not appear on the configuration file."
+    if [ -n "${winame}" ] && [[ ! "${wazuh_servers_node_names[@]}" =~ "${winame}" ]]; then
+        logger -e "The Wazuh server node name ${winame} does not appear on the configuration file."
+        exit 1
+    fi 
+
+    if [ -n "${einame}" ] && [[ ! "${elasticsearch_node_names[@]}" =~ "${einame}" ]]; then
+        logger -e "The Elasticsearch node name ${einame} does not appear on the configuration file."
+        exit 1
+    fi
+
+    if [ -n "${kiname}" ] && [[ ! "${kibana_node_names[@]}" =~ "${kiname}" ]]; then
+        logger -e "The Kibana node name ${kiname} does not appear on the configuration file."
         exit 1
     fi
 
@@ -291,13 +293,13 @@ function checkPreviousCertificates() {
         logger -e "No certificates file found (${tar_file}). Run the script with the option -c|--certificates to create automatically or copy them from the node where they were created."
         exit 1
     fi
-
     if [ -n "${einame}" ]; then
         if ! $(tar -tf "${tar_file}" | grep -q "${einame}".pem) || ! $(tar -tf "${tar_file}" | grep -q "${einame}"-key.pem); then
             logger -e "There is no certificate for the elasticsearch node ${einame} in ${tar_file}."
             exit 1
         fi
     fi
+
 
     if [ -n "${kiname}" ]; then
         if ! $(tar -tf "${tar_file}" | grep -q "${kiname}".pem) || ! $(tar -tf "${tar_file}" | grep -q "${kiname}"-key.pem); then
@@ -333,9 +335,6 @@ function checkSystem() {
     elif [ -n "$(command -v apt-get)" ]; then
         sys_type="apt-get"   
         sep="="
-    else
-        logger -e "Couldn't find type of system"
-        exit 1
     fi
 
 }

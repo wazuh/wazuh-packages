@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
-base_dir="$(cd ../../"$(dirname "$BASH_SOURCE")"; pwd -P; cd - >/dev/null;)"
-source "${base_dir}"/tests/bach.sh
+base_dir="$(cd "$(dirname "$BASH_SOURCE")"; pwd -P; cd - >/dev/null;)"
+source "${base_dir}"/bach.sh
 
 @setup-test {
     @ignore logger
 }
 
 function load-getConfig() {
-    @load_function "${base_dir}/tests/unattended/common.sh" getConfig
+    @load_function "${base_dir}/common.sh" getConfig
 }
 
 test-ASSERT-FAIL-getConfig-no-args() {
@@ -76,7 +76,7 @@ test-getConfig-online-error-assert() {
 }
 
 function load-installPrerequisites() {
-    @load_function "${base_dir}/tests/unattended/common.sh" installPrerequisites
+    @load_function "${base_dir}/common.sh" installPrerequisites
 }
 
 test-installPrerequisites-yum-no-openssl() {
@@ -158,7 +158,7 @@ test-installPrerequisites-apt-assert() {
 }
 
 function load-addWazuhrepo() {
-    @load_function "${base_dir}/tests/unattended/common.sh" addWazuhrepo
+    @load_function "${base_dir}/common.sh" addWazuhrepo
 }
 
 test-addWazuhrepo-yum() {
@@ -251,7 +251,7 @@ test-addWazuhrepo-yum-file-present() {
 }
 
 function load-restoreWazuhrepo() {
-    @load_function "${base_dir}/tests/unattended/common.sh" restoreWazuhrepo
+    @load_function "${base_dir}/common.sh" restoreWazuhrepo
 }
 
 test-restoreWazuhrepo-no-dev() {
@@ -350,7 +350,7 @@ test-restoreWazuhrepo-zypper-no-file-assert() {
 }
 
 function load-createClusterKey {
-    @load_function "${base_dir}/tests/unattended/common.sh" createClusterKey
+    @load_function "${base_dir}/common.sh" createClusterKey
 }
 
 test-createClusterKey() {
@@ -365,7 +365,7 @@ test-createClusterKey() {
 }
 
 function load-rollBack {
-    @load_function "${base_dir}/tests/unattended/common.sh" rollBack
+    @load_function "${base_dir}/common.sh" rollBack
 }
 
 test-rollBack-aio-all-installed-yum() {
@@ -1002,7 +1002,7 @@ test-rollBack-nothing-installed-remove-/etc/systemd/system/elasticsearch.service
 }
 
 function load-createCertificates() {
-    @load_function "${base_dir}/tests/unattended/common.sh" createCertificates
+    @load_function "${base_dir}/common.sh" createCertificates
 }
 
 test-createCertificates-aio() {
@@ -1048,7 +1048,7 @@ test-createCertificates-no-aio-assert() {
 }
 
 function load-changePasswords() {
-    @load_function "${base_dir}/tests/unattended/common.sh" changePasswords
+    @load_function "${base_dir}/common.sh" changePasswords
 }
 
 test-ASSERT-FAIL-changePasswords-no-tarfile() {
@@ -1127,7 +1127,7 @@ test-changePasswords-with-tarfile-start-elastic-cluster-assert() {
 }
 
 function load-getPass() {
-    @load_function "${base_dir}/tests/unattended/common.sh" getPass
+    @load_function "${base_dir}/common.sh" getPass
 }
 
 test-getPass-no-args() {
@@ -1155,7 +1155,7 @@ test-getPass-admin-assert() {
 }
 
 function load-startService() {
-    @load_function "${base_dir}/tests/unattended/common.sh" startService
+    @load_function "${base_dir}/common.sh" startService
 }
 
 test-ASSERT-FAIL-startService-no-args() {
@@ -1293,7 +1293,7 @@ test-startService-rc.d/init.d-assert() {
 # }
 
 function load-readPasswordFileUsers() {
-    @load_function "${base_dir}/tests/unattended/common.sh" readPasswordFileUsers
+    @load_function "${base_dir}/common.sh" readPasswordFileUsers
 }
 
 test-ASSERT-FAIL-readPasswordFileUsers-file-incorrect() {
@@ -1307,9 +1307,9 @@ test-readPasswordFileUsers-changeall-correct() {
     load-readPasswordFileUsers
     p_file=/tmp/passfile.yml
     @mock grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' /tmp/passfile.yml === @echo 1
-    @mock grep name: /tmp/passfile.yml === @echo ( wazuh kibanaserver )
+    @mock grep name: /tmp/passfile.yml === @echo wazuh kibanaserver
     @mock awk '{ print substr( $2, 1, length($2) ) }'
-    @mock grep password: /tmp/passfile.yml === @echo ( wazuhpassword kibanaserverpassword )
+    @mock grep password: /tmp/passfile.yml === @echo wazuhpassword kibanaserverpassword
     @mock awk '{ print substr( $2, 1, length($2) ) }'
     changeall=1
     users=( wazuh kibanaserver )
@@ -1331,9 +1331,9 @@ test-readPasswordFileUsers-changeall-user-doesnt-exist() {
     load-readPasswordFileUsers
     p_file=/tmp/passfile.yml
     @mock grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' /tmp/passfile.yml === @echo 1
-    @mock grep name: /tmp/passfile.yml === @out ( wazuh kibanaserver admin )
+    @mock grep name: /tmp/passfile.yml === @out wazuh kibanaserver admin
     @mock awk '{ print substr( $2, 1, length($2) ) }'
-    @mock grep password: /tmp/passfile.yml === @out ( wazuhpassword kibanaserverpassword )
+    @mock grep password: /tmp/passfile.yml === @out wazuhpassword kibanaserverpassword
     @mock awk '{ print substr( $2, 1, length($2) ) }'
     changeall=1
     users=( wazuh kibanaserver )
@@ -1355,9 +1355,9 @@ test-readPasswordFileUsers-no-changeall-kibana-correct() {
     load-readPasswordFileUsers
     p_file=/tmp/passfile.yml
     @mock grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' /tmp/passfile.yml === @echo 1
-    @mock grep name: /tmp/passfile.yml === @out ( wazuh kibanaserver admin )
+    @mock grep name: /tmp/passfile.yml === @out wazuh kibanaserver admin
     @mock awk '{ print substr( $2, 1, length($2) ) }'
-    @mock grep password: /tmp/passfile.yml === @out ( wazuhpassword kibanaserverpassword adminpassword )
+    @mock grep password: /tmp/passfile.yml === @out wazuhpassword kibanaserverpassword adminpassword
     @mock awk '{ print substr( $2, 1, length($2) ) }'
     changeall=
     kibanainstalled=1
@@ -1380,9 +1380,9 @@ test-readPasswordFileUsers-no-changeall-filebeat-correct() {
     load-readPasswordFileUsers
     p_file=/tmp/passfile.yml
     @mock grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' /tmp/passfile.yml === @echo 1
-    @mock grep name: /tmp/passfile.yml === @out ( wazuh kibanaserver admin )
+    @mock grep name: /tmp/passfile.yml === @out wazuh kibanaserver admin
     @mock awk '{ print substr( $2, 1, length($2) ) }'
-    @mock grep password: /tmp/passfile.yml === @out ( wazuhpassword kibanaserverpassword adminpassword )
+    @mock grep password: /tmp/passfile.yml === @out wazuhpassword kibanaserverpassword adminpassword
     @mock awk '{ print substr( $2, 1, length($2) ) }'
     changeall=
     filebeatinstalled=1
