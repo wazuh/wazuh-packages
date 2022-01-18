@@ -36,6 +36,7 @@ function createImage() {
 
     image_name="unattended-installer-unit-tests-launcher"
     if [ -z "$(docker images | grep $image_name)" ]; then
+        logger "Image not found. Building image."
         eval "docker build -t $image_name . ${debug}"
         if [ "$?" != 0 ]; then
             logger -e "Docker encountered some error."
@@ -52,7 +53,7 @@ function runContainer() {
     container_name="unattended-installer-unit-tests-launcher"
     eval "mkdir -p /tmp/unattended-installer-unit-testing/ ${debug}"
     eval "cp bach.sh /tmp/unattended-installer-unit-testing/ ${debug}"
-    eval "docker run --detach --tty --rm --name $container_name --volume /tmp/unattended-installer-unit-testing/:/tests/unattended/ $image_name /bin/bash ${debug}"
+    eval "docker run --detach --tty --rm --name $container_name --volume /tmp/unattended-installer-unit-testing/:/tests/unattended/ $image_name ${debug}"
     if [ "$?" != 0 ]; then
         logger -e "Docker encountered some error."
         exit 1
