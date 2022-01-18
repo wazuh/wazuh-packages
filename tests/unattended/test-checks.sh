@@ -567,7 +567,7 @@ function load-checkHealth() {
     @mocktrue checkSpecs
 }
 
-test-checkHealth-no-argument() {
+test-checkHealth-no-installation() {
     load-checkHealth
     checkHealth
     @assert-success
@@ -653,7 +653,7 @@ test-ASSERT-FAIL-checkHealth-wazuh-1-core-1700-ram() {
     cores=1
     ram_gb=1700
     wazuh=1
-    checkHealth wazuh
+    checkHealth
 }
 
 test-ASSERT-FAIL-checkHealth-wazuh-2-cores-1000-ram() {
@@ -661,7 +661,7 @@ test-ASSERT-FAIL-checkHealth-wazuh-2-cores-1000-ram() {
     cores=2
     ram_gb=1000
     wazuh=1
-    checkHealth wazuh
+    checkHealth
 }
 
 test-checkHealth-wazuh-2-cores-1700-ram() {
@@ -669,7 +669,7 @@ test-checkHealth-wazuh-2-cores-1700-ram() {
     cores=2
     ram_gb=1700
     wazuh=1
-    checkHealth wazuh
+    checkHealth
     @assert-success
 }
 
