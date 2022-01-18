@@ -181,14 +181,6 @@ function checkIfInstalled() {
         wazuh_remaining_files=1
     fi
 
-    if [ -n "${wazuhinstalled}" ]; then
-        if [ "${sys_type}" == "zypper" ]; then
-            wazuhversion=$(echo "${wazuhinstalled}" | awk '{print $9}')
-        else
-            wazuhversion=$(echo "${wazuhinstalled}" | awk '{print $2}')
-        fi    
-    fi
-
     if [ "${sys_type}" == "yum" ]; then
         elasticsearchinstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch | grep -v kibana)
     elif [ "${sys_type}" == "zypper" ]; then
@@ -199,14 +191,6 @@ function checkIfInstalled() {
 
     if [ -d "/var/lib/elasticsearch/" ] || [ -d "/usr/share/elasticsearch" ] || [ -d "/etc/elasticsearch" ] || [ -f "${base_path}/search-guard-tlstool*" ]; then
         elastic_remaining_files=1
-    fi
-
-    if [ -n "${elasticsearchinstalled}" ]; then
-        if [ "${sys_type}" == "zypper" ]; then
-            odversion=$(echo "${elasticsearchinstalled}" | awk '{print $9}')
-        else
-            odversion=$(echo "${elasticsearchinstalled}" | awk '{print $2}')
-        fi
     fi
 
     if [ "${sys_type}" == "yum" ]; then
@@ -221,14 +205,6 @@ function checkIfInstalled() {
         filebeat_remaining_files=1
     fi
 
-    if [ -n "${filebeatinstalled}" ]; then
-        if [ "${sys_type}" == "zypper" ]; then
-            filebeatversion=$(echo "${filebeatinstalled}" | awk '{print $9}')
-        else
-            filebeatversion=$(echo "${filebeatinstalled}" | awk '{print $2}')
-        fi
-    fi
-
     if [ "${sys_type}" == "yum" ]; then
         kibanainstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch-kibana)
     elif [ "${sys_type}" == "zypper" ]; then
@@ -239,14 +215,6 @@ function checkIfInstalled() {
 
     if [ -d "/var/lib/kibana/" ] || [ -d "/usr/share/kibana" ] || [ -d "/etc/kibana" ]; then
         kibana_remaining_files=1
-    fi
-
-    if [ -n "${kibanainstalled}" ]; then
-        if [ "${sys_type}" == "zypper" ]; then
-            kibanaversion=$(echo "${kibanainstalled}" | awk '{print $9}')
-        else
-            kibanaversion=$(echo "${kibanainstalled}" | awk '{print $2}')
-        fi
     fi
 
 }
