@@ -18,7 +18,7 @@ function checkArch() {
 
 function checkArguments() {
 
-    if [[ ( -n "${AIO}" || -n "${configurations}" ) && -f "${tar_file}" ]]; then
+    if [[ ( -n "${AIO}"  || -n "${configurations}" ) && -f "${tar_file}" ]]; then
             logger -e "File ${tar_file} exists. Please remove it if you want to use a new configuration."
             exit 1
     fi
@@ -123,7 +123,7 @@ function checkArguments() {
     fi
 
     if [ -z "${AIO}" ] && [ -z "${elasticsearch}" ] && [ -z "${kibana}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ] && [ -z "${configurations}" ]; then
-        logger -e "At lease one of these arguments is necessary -a|--all-in-one, -c|--create-configurations, -e|--elasticsearch <elasticsearch-node-name>, -k|--kibana <kibana-node-name>, -s|--start-cluster, -w|--wazuh-server <wazuh-node-name>,"
+        logger -e "At lease one of these arguments is necessary -a|--all-in-one, -c|--create-configurations, -e|--elasticsearch <elasticsearch-node-name>, -k|--kibana <kibana-node-name>, -s|--start-cluster, -w|--wazuh-server <wazuh-node-name>, "
         exit 1
     fi 
 
@@ -223,7 +223,7 @@ function checkIfInstalled() {
 
     if [ -n "${filebeatinstalled}" ]; then
         if [ "${sys_type}" == "zypper" ]; then
-            filebeatversion=$(echo "${filebeatinstalled}" | awk '{print $11}')
+            filebeatversion=$(echo "${filebeatinstalled}" | awk '{print $1}')
         else
             filebeatversion=$(echo "${filebeatinstalled}" | awk '{print $2}')
         fi
@@ -243,7 +243,7 @@ function checkIfInstalled() {
 
     if [ -n "${kibanainstalled}" ]; then
         if [ "${sys_type}" == "zypper" ]; then
-            kibanaversion=$(echo "${kibanainstalled}" | awk '{print $11}')
+            kibanaversion=$(echo "${kibanainstalled}" | awk '{print $1}')
         else
             kibanaversion=$(echo "${kibanainstalled}" | awk '{print $2}')
         fi
