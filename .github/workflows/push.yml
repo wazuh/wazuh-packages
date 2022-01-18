@@ -5,12 +5,12 @@ on:
     branches:
       - stable
     paths:
-      - 'unattended_scripts/**'
+      - 'unattended_installer/**'
   pull_request:
     branches:
       - stable
     paths:
-      - 'unattended_scripts/**'
+      - 'unattended_installer/**'
   
 
 
