@@ -4,6 +4,8 @@ logfile="./unit-tests.log"
 echo "-------------------------" >> ./unit-tests.log
 debug=">> ${logfile}"
 ALL_FILES=("common" "checks" "wazuh")
+IMAGE_NAME="unattended-installer-unit-tests-launcher"
+SHARED_VOLUME="/tmp/unattended-installer-unit-testing/"
 
 function logger() {
 
@@ -34,66 +36,45 @@ function createImage() {
         exit 1
     fi
 
-    image_name="testing-img"
-    if [ -z "$(docker images | grep $image_name)" ]; then
-        eval "docker build -t $image_name . ${debug}"
+    if [ -n "${rebuild_image}" ]; then
+        logger "Removing old image."
+        eval "docker rmi $IMAGE_NAME ${debug}"
+    fi
+
+    if [ -z "$(docker images | grep $IMAGE_NAME)" ]; then
+        logger "Building image."
+        eval "docker build -t $IMAGE_NAME . ${debug}"
         if [ "$?" != 0 ]; then
             logger -e "Docker encountered some error."
             exit 1
         else 
-            logger "Docker image created successfully."
+            logger "Docker image built successfully."
         fi
-    else 
+    else
         logger "Docker image found."
     fi
-}
-
-function runContainer() {
-    container_name="testing-container"
-    eval "docker run -d -t --name $container_name $image_name /bin/bash ${debug}"
-    if [ "$?" != 0 ]; then
-        logger -e "Docker encountered some error."
-        exit 1
-    else 
-        logger "Docker container created successfully."
-    fi
-    container_id="$( docker ps -a | grep $container_name | awk '{ print $1 }' )"
-    eval "docker cp bach.sh $container_id:/tests/unattended/bach.sh ${debug}"
-    if [ "$?" != 0 ]; then
-        logger -e "Error copying bach.sh to the container."
-        exit 1
-    fi
+    eval "mkdir -p $SHARED_VOLUME ${debug}"
+    eval "cp bach.sh $SHARED_VOLUME ${debug}"
 }
 
 function testFile() {
 
     logger "Unit tests for $1.sh."
 
-    eval "docker cp test-$1.sh $container_id:/tests/unattended/test-$1.sh ${debug}"
-    if [ "$?" != 0 ]; then
-        logger -e "File test-$1.sh could not be copied to the container."
-        return
-    fi
-    eval "mkdir -p temp/ ${debug}"
 
+    eval "cp test-$1.sh $SHARED_VOLUME"
     if [ -f ../../unattended_installer/install_functions/opendistro/$1.sh ]; then
-        eval "cp ../../unattended_installer/install_functions/opendistro/$1.sh temp/ ${debug}"
+        eval "cp ../../unattended_installer/install_functions/opendistro/$1.sh $SHARED_VOLUME ${debug}"
     elif [ -f ../../unattended_installer/install_functions/elasticsearch_basic/$1.sh ]; then
-        eval "cp ../../unattended_installer/install_functions/elasticsearch_basic/$1.sh temp/ ${debug}"
+        eval "cp ../../unattended_installer/install_functions/elasticsearch_basic/$1.sh $SHARED_VOLUME ${debug}"
     elif [ -f ../../unattended_installer/$1.sh ]; then
         eval "cp ../../unattended_installer/$1.sh ${debug}"
     else 
         logger -e "File $1.sh could not be found."
         return
     fi
-    
-    eval "docker cp temp/$1.sh $container_id:/tests/unattended/$1.sh ${debug}"
-    if [ "$?" != 0 ]; then
-        logger -e "File $1.sh could not be copied to the container."
-        return
-    fi
 
-    eval "docker exec -it $container_name env TERM=xterm-256color bash -c \"cd /tests/unattended && bash test-$1.sh\" | tee -a ${logfile}"
+    eval "docker run -t --rm --volume $SHARED_VOLUME:/tests/unattended/ --env TERM=xterm-256color $IMAGE_NAME $1 | tee -a ${logfile}"
     if [ "$?" != 0 ]; then
         logger -e "Docker encountered some error running the unit tests for $1.sh"
     else 
@@ -102,10 +83,8 @@ function testFile() {
 }
 
 function clean() {
-    logger "Cleaning container and temporary files."
-    eval "docker stop $container_name ${debug}"
-    eval "docker rm $container_name ${debug}"
-    eval "rm -rf temp/ ${debug}"
+    logger "Cleaning temporary files."
+    eval "rm -rf $SHARED_VOLUME ${debug}"
 }
 
 function getHelp() {
@@ -121,14 +100,17 @@ function getHelp() {
     echo -e "        -a,  --test-all"
     echo -e "                Test all files."
     echo -e ""
+    echo -e "        -d,  --debug"
+    echo -e "                Shows the complete installation output."
+    echo -e ""
     echo -e "        -f,  --files <file-list>"
     echo -e "                List of files to test. I.e. -f common checks"
     echo -e ""
     echo -e "        -h,  --help"
     echo -e "                Shows help."
     echo -e ""
-    echo -e "        -d,  --debug"
-    echo -e "                Shows the complete installation output."
+    echo -e "        -r,  --rebuild-image"
+    echo -e "                Forces to rebuild the image."
     echo -e ""
     exit 1
 
@@ -156,6 +138,10 @@ main() {
                     shift 1
                 done
                 ;;
+            "-r"|"--rebuild-image")
+                rebuild_image=1
+                shift 1
+                ;;
             "-d"|"--debug")
                 debug="| tee -a ${logfile}"
                 shift 1
@@ -180,7 +166,6 @@ main() {
     fi
 
     createImage
-    runContainer
 
     if [ -n "$all_tests" ]; then
         for file in "${ALL_FILES[@]}"; do

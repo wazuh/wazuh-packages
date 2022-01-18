@@ -1,5 +1,9 @@
 FROM alpine
 RUN apk add --no-cache bash coreutils diffutils
-RUN mkdir -p /tests
 RUN mkdir -p /tests/unattended/
-RUN mkdir -p /unattended_scripts/install_functions/opendistro/
+
+ADD entrypoint.sh /usr/local/bin/test_file
+RUN chmod +x /usr/local/bin/test_file
+
+# Set the entrypoint
+ENTRYPOINT ["/usr/local/bin/test_file"]
