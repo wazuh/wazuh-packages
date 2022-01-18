@@ -131,6 +131,12 @@ test-checkNames-all-correct-installing-elastic() {
     wazuh_servers_node_names=(wazuh1 node2)
     kibana_node_names=(kibana1 node3)
     elasticsearch=1
+    @mock echo ${elasticsearch_node_names[@]} === @out elasticsearch1 node1
+    @mock echo ${wazuh_servers_node_names[@]} === @out wazuh1 node2
+    @mock echo ${kibana_node_names[@]} === @out kibana1 node3
+    @mock grep -w $einame
+    @mock grep -w $winame
+    @mock grep -w $kiname
     checkNames
     @assert-success
 }
@@ -144,6 +150,12 @@ test-checkNames-all-correct-installing-wazuh() {
     wazuh_servers_node_names=(wazuh1 node2)
     kibana_node_names=(kibana1 node3)
     wazuh=1
+    @mock echo ${elasticsearch_node_names[@]} === @out elasticsearch1 node1
+    @mock echo ${wazuh_servers_node_names[@]} === @out wazuh1 node2
+    @mock echo ${kibana_node_names[@]} === @out kibana1 node3
+    @mock grep -w $einame
+    @mock grep -w $winame
+    @mock grep -w $kiname
     checkNames
     @assert-success
 }
@@ -157,6 +169,12 @@ test-checkNames-all-correct-installing-kibana() {
     wazuh_servers_node_names=(wazuh1 node2)
     kibana_node_names=(kibana1 node3)
     kibana=1
+    @mock echo ${elasticsearch_node_names[@]} === @out elasticsearch1 node1
+    @mock echo ${wazuh_servers_node_names[@]} === @out wazuh1 node2
+    @mock echo ${kibana_node_names[@]} === @out kibana1 node3
+    @mock grep -w $einame
+    @mock grep -w $winame
+    @mock grep -w $kiname
     checkNames
     @assert-success
 }
