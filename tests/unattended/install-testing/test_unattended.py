@@ -128,7 +128,7 @@ def is_fedora_suse():
     if os.path.exists('/etc/os-release'):
         with open('/etc/os-release', 'r') as f:
             for line in f.readlines():
-                if 'Fedora 33' in line or 'Fedora 34' in line  or 'SUSE Linux Enterprise Server 15' in line:
+                if 'Fedora 33' in line or 'Fedora 34' in line or 'Fedora Linux 35' in line or 'SUSE Linux Enterprise Server 15' in line:
                     return True
 
 
@@ -230,6 +230,16 @@ def test_check_ossec_log_errors():
     assert found_error == False, line
 
 @pytest.mark.wazuh_cluster
+def test_check_cluster_log_errors():
+    found_error = False
+    with open('/var/ossec/logs/cluster.log', 'r') as f:
+        for line in f.readlines():
+            if 'ERROR' in line:
+                found_error = True
+                break
+    assert found_error == False, line
+
+@pytest.mark.wazuh_worker
 def test_check_cluster_log_errors():
     found_error = False
     with open('/var/ossec/logs/cluster.log', 'r') as f:
