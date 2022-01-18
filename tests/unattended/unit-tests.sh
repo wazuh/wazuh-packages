@@ -3,7 +3,7 @@ trap clean SIGINT
 logfile="./unit-tests.log"
 echo "-------------------------" >> ./unit-tests.log
 debug=">> ${logfile}"
-ALL_FILES=("common" "checks")
+ALL_FILES=("common" "checks" "wazuh")
 
 function logger() {
 
