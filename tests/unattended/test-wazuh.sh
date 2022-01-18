@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
-base_dir="$(cd ../../"$(dirname "$BASH_SOURCE")"; pwd -P; cd - >/dev/null;)"
-source "${base_dir}"/tests/bach.sh
+base_dir="$(cd "$(dirname "$BASH_SOURCE")"; pwd -P; cd - >/dev/null;)"
+source "${base_dir}"/bach.sh
 
 @setup-test {
     @ignore logger
 }
 
 function load-installWazuh() {
-    @load_function "${base_dir}/tests/unattended/wazuh.sh" installWazuh
+    @load_function "${base_dir}/wazuh.sh" installWazuh
 }
 
 test-installWazuh-zypper-error() {
@@ -100,6 +100,6 @@ test-installWazuh-yum-assert() {
 }
 
 function load-configureWazuhCluster() {
-    @load_function "${base_dir}/tests/unattended/wazuh.sh" configureWazuhCluster
+    @load_function "${base_dir}/wazuh.sh" configureWazuhCluster
 }
 
