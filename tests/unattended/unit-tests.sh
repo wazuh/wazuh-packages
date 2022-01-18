@@ -42,13 +42,13 @@ function createImage() {
     fi
 
     if [ -z "$(docker images | grep $IMAGE_NAME)" ]; then
-        logger "Image not found. Building image."
+        logger "Building image."
         eval "docker build -t $IMAGE_NAME . ${debug}"
         if [ "$?" != 0 ]; then
             logger -e "Docker encountered some error."
             exit 1
         else 
-            logger "Docker image created successfully."
+            logger "Docker image built successfully."
         fi
     else
         logger "Docker image found."
@@ -74,7 +74,7 @@ function testFile() {
         return
     fi
 
-    eval "docker run --rm --volume $SHARED_VOLUME:/tests/unattended/ $IMAGE_NAME $1 | tee -a ${logfile}"
+    eval "docker run -t --rm --volume $SHARED_VOLUME:/tests/unattended/ --env TERM=xterm-256color $IMAGE_NAME $1 | tee -a ${logfile}"
     if [ "$?" != 0 ]; then
         logger -e "Docker encountered some error running the unit tests for $1.sh"
     else 
