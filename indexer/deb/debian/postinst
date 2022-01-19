@@ -66,8 +66,13 @@ if [ -z "$2" ]; then
   echo "-Djava.security.policy=file:///usr/share/wazuh-indexer/plugins/opendistro-performance-analyzer/pa_config/es_security.policy" >> /etc/wazuh-indexer/jvm.options
 
   # ---------------------------------------------------------------------------
-	sysctl -w vm.max_map_count=262144 > /dev/null 2>&1 
-	ulimit -Hn 65535 > /dev/null 2>&1 
+
+  echo "${USER} hard nproc 4096" >> /etc/security/limits.conf
+  echo "${USER} soft nproc 4096" >> /etc/security/limits.conf
+  echo "${USER} hard nofile 65535" >> /etc/security/limits.conf
+  echo "${USER} soft nofile 65535" >> /etc/security/limits.conf
+
+  sysctl -w vm.max_map_count=262144 > /dev/null 2>&1 
 
   if command -v sudo > /dev/null 2>&1; then
       sudo -u ${USER} CLK_TK=`getconf CLK_TCK` OPENSEARCH_PATH_CONF=${CONFIG_DIR} ${INSTALLATION_DIR}/bin/opensearch --quiet > /dev/null 2>&1 &

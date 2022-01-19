@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM debian:8
 
 ENV DEBIAN_FRONTEND noninteractive
 
