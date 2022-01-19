@@ -131,15 +131,16 @@ function initializeKibana() {
             flag="-e"
         fi
         logger "${flag}" "Cannot connect to Kibana. ${msg}"
-        for i in ${elasticsearch_node_ips[@]}; do
-            curl=$(curl -XGET https://${i}:9200/ -uadmin:${u_pass} -k -w %{http_code} -s -o /dev/null)
+
+        for i in "${!elasticsearch_node_ips[@]}"; do
+            curl=$(curl -XGET https://${elasticsearch_node_ips[i]}:9200/ -uadmin:${u_pass} -k -w %{http_code} -s -o /dev/null)
             exit_code=$?
             if [[ "${curl}" -eq "503" ]]; then
                 cluster_init=1
             fi
             if [[ "${exit_code}" -eq "7" ]]; then
                 failed_connect=1
-                logger "${flag}" "Failed to connect with node ${i}, ${msg}"
+                logger "${flag}" "Failed to connect with node ${elasticsearch_node_names[i]}. Connection refused. ${msg}"
             fi 
         done
         if [ -n "${cluster_init}" ]; then
@@ -161,7 +162,7 @@ function initializeKibanaAIO() {
 
     logger "Starting Kibana (this may take a while)."
     getPass "admin"
-    until $(curl -XGET https://localhost/status -I -uadmin:"${u_pass}" -k -s --max-time 300 | grep -q "200 OK") || [ "${i}" -eq 12 ]; do
+    until [ "$(curl -XGET https://localhost/status -uadmin:${u_pass} -k -w %{http_code} -s -o /dev/null)" -eq "200" ] || [ "${i}" -eq 12 ]; do
         sleep 10
         i=$((i+1))
     done

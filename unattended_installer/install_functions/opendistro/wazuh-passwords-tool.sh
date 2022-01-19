@@ -536,9 +536,13 @@ readUsers() {
 restartService() {
 
     if ps -e | grep -E -q "^\ *1\ .*systemd$"; then
+        eval "systemctl daemon-reload ${debug_pass}"
         eval "systemctl restart ${1}.service ${debug_pass}"
         if [  "$?" != 0  ]; then
             logger_pass -e "${1^} could not be started."
+            if [[ $(type -t rollBack) == "function" ]]; then
+                rollBack
+            fi
             exit 1;
         else
             logger_pass "${1^} started"
@@ -547,6 +551,9 @@ restartService() {
         eval "/etc/init.d/${1} restart ${debug_pass}"
         if [  "$?" != 0  ]; then
             logger_pass -e "${1^} could not be started."
+            if [[ $(type -t rollBack) == "function" ]]; then
+                rollBack
+            fi
             exit 1;
         else
             logger_pass "${1^} started"
@@ -555,11 +562,17 @@ restartService() {
         eval "/etc/rc.d/init.d/${1} restart ${debug_pass}"
         if [  "$?" != 0  ]; then
             logger_pass -e "${1^} could not be started."
+            if [[ $(type -t rollBack) == "function" ]]; then
+                rollBack
+            fi
             exit 1;
         else
             logger_pass "${1^} started"
         fi             
     else
+        if [[ $(type -t rollBack) == "function" ]]; then
+            rollBack
+        fi
         logger_pass -e "${1^} could not start. No service manager found on the system."
         exit 1;
     fi
