@@ -97,7 +97,7 @@ function initializeKibana() {
 
     logger "Starting Kibana (this may take a while)."
     getPass "admin"
-    i=0
+    j=0
     if [ "${#kibana_node_names[@]}" -eq 1 ]; then
         nodes_kibana_ip=${kibana_node_ips[0]}
     else
@@ -108,9 +108,9 @@ function initializeKibana() {
         done
         nodes_kibana_ip=${kibana_node_ips[pos]}
     fi
-    until $(curl -XGET https://${nodes_kibana_ip}/status -I -uadmin:"${u_pass}" -k -s --max-time 300 | grep -q "200 OK") || [ "${i}" -eq 12 ]; do
+    until $(curl -XGET https://${nodes_kibana_ip}/status -I -uadmin:"${u_pass}" -k -s --max-time 300 | grep -q "200 OK") || [ "${j}" -eq 12 ]; do
         sleep 10
-        i=$((i+1))
+        j=$((j+1))
     done
     if [ "${#wazuh_servers_node_names[@]}" -eq 1 ]; then
         wazuh_api_address=${wazuh_servers_node_ips[0]}
@@ -121,7 +121,7 @@ function initializeKibana() {
             fi
         done
     fi
-    if [ ${i} -eq 12 ]; then
+    if [ ${j} -eq 12 ]; then
         logger -e "Cannot connect to Kibana. Please check the status of your elasticsearch cluster"
         logger "When Kibana is able to connect to your elasticsearch cluster, you can access the web interface https://${nodes_kibana_ip}. The credentials are admin:${u_pass}"
         exit 1
@@ -137,16 +137,6 @@ function initializeKibanaAIO() {
     logger "Starting Kibana (this may take a while)."
     getPass "admin"
     i=0
-    if [ "${#kibana_node_names[@]}" -eq 1 ]; then
-        nodes_kibana_ip=${kibana_node_ips[0]}
-    else
-        for i in "${!kibana_node_names[@]}"; do
-            if [[ "${kibana_node_names[i]}" == "${kiname}" ]]; then
-                pos="${i}";
-            fi
-        done
-        nodes_kibana_ip=${kibana_node_ips[pos]}
-    fi
     until $(curl -XGET https://localhost/status -I -uadmin:"${u_pass}" -k -s --max-time 300 | grep -q "200 OK") || [ "${i}" -eq 12 ]; do
         sleep 10
         i=$((i+1))
@@ -197,7 +187,7 @@ function modifyKibanaLogin() {
 
     # Edit CSS theme
     eval "getConfig kibana/customWelcomeKibana.css /tmp/ ${debug}"
-    eval "cat /tmp//customWelcomeKibana.css | tee -a /usr/share/kibana/src/core/server/core_app/assets/legacy_light_theme.css ${debug}"
+    eval "cat /tmp/customWelcomeKibana.css | tee -a /usr/share/kibana/src/core/server/core_app/assets/legacy_light_theme.css ${debug}"
     eval "rm -f /tmp/customWelcomeKibana.css"
 
 }
