@@ -1,9 +1,10 @@
 trap clean SIGINT
 
-logfile="./unit-tests.log"
-echo "-------------------------" >> ./unit-tests.log
+today="$(date +"%m_%d_%y")"
+logfile="./${today}-unit_test.log"
+echo "-------------------------" >> ${logfile}
 debug=">> ${logfile}"
-ALL_FILES=("common" "checks" "kibana")
+ALL_FILES=("common" "checks")
 IMAGE_NAME="unattended-installer-unit-tests-launcher"
 SHARED_VOLUME="/tmp/unattended-installer-unit-testing/"
 
@@ -31,7 +32,7 @@ function logger() {
 
 function createImage() {
 
-    if [ ! -f ./Dockerfile ]; then
+    if [ ! -f docker-unit-testing-tool/Dockerfile ]; then
         logger -e "No Dockerfile found to create the environment."
         exit 1
     fi
@@ -43,7 +44,7 @@ function createImage() {
 
     if [ -z "$(docker images | grep ${IMAGE_NAME})" ]; then
         logger "Building image."
-        eval "docker build -t ${IMAGE_NAME} . ${debug}"
+        eval "docker build -t ${IMAGE_NAME} docker-unit-testing-tool ${debug}"
         if [ "$?" != 0 ]; then
             logger -e "Docker encountered some error."
             exit 1
@@ -54,7 +55,7 @@ function createImage() {
         logger "Docker image found."
     fi
     eval "mkdir -p ${SHARED_VOLUME} ${debug}"
-    eval "cp bach.sh ${SHARED_VOLUME} ${debug}"
+    eval "cp framework/bach.sh ${SHARED_VOLUME} ${debug}"
 }
 
 function testFile() {
@@ -62,13 +63,13 @@ function testFile() {
     logger "Unit tests for ${1}.sh."
 
 
-    eval "cp test-${1}.sh ${SHARED_VOLUME}"
-    if [ -f ../unattended_installer/install_functions/opendistro/${1}.sh ]; then
-        eval "cp ../unattended_installer/install_functions/opendistro/${1}.sh ${SHARED_VOLUME} ${debug}"
-    elif [ -f ../unattended_installer/install_functions/elasticsearch_basic/${1}.sh ]; then
-        eval "cp ../unattended_installer/install_functions/elasticsearch_basic/${1}.sh ${SHARED_VOLUME} ${debug}"
-    elif [ -f ../unattended_installer/${1}.sh ]; then
-        eval "cp ../unattended_installer/${1}.sh ${debug}"
+    eval "cp suites/test-${1}.sh ${SHARED_VOLUME}"
+    if [ -f ../../../unattended_installer/install_functions/opendistro/${1}.sh ]; then
+        eval "cp ../../../unattended_installer/install_functions/opendistro/${1}.sh ${SHARED_VOLUME} ${debug}"
+    elif [ -f ../../../unattended_installer/install_functions/elasticsearch_basic/${1}.sh ]; then
+        eval "cp ../../../unattended_installer/install_functions/elasticsearch_basic/${1}.sh ${SHARED_VOLUME} ${debug}"
+    elif [ -f ../../../unattended_installer/${1}.sh ]; then
+        eval "cp ../../../unattended_installer/${1}.sh ${debug}"
     else 
         logger -e "File ${1}.sh could not be found."
         return
