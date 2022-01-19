@@ -288,3 +288,27 @@ test-ASSERT-FAIL-initializeKibanaAIO-curl-error() {
     @mockfalse grep -q "200 OK"
     initializeKibanaAIO
 }
+
+function load-modifyKibanaLogin() {
+    @load_function "${base_dir}/kibana.sh" modifyKibanaLogin
+}
+
+test-modifyKibanaLogin() {
+    load-modifyKibanaLogin
+    @mock cat /tmp/customWelcomeKibana.css
+    @mock tee -a /usr/share/kibana/src/core/server/core_app/assets/legacy_light_theme.css
+    modifyKibanaLogin
+}
+
+test-modifyKibanaLogin-assert() {
+    sed -i 's/null, \"Elastic\"/null, \"Wazuh\"/g' /usr/share/kibana/src/core/server/rendering/views/template.js
+    tar -xf /tmp/custom_welcome.tar.gz -C /tmp
+    rm -f /tmp/custom_welcome.tar.gz 
+    cp /tmp/custom_welcome/wazuh_logo_circle.svg /usr/share/kibana/src/core/server/core_app/assets/
+    cp /tmp/custom_welcome/wazuh_wazuh_bg.svg /usr/share/kibana/src/core/server/core_app/assets/
+    cp -f /tmp/custom_welcome/template.js.hbs /usr/share/kibana/src/legacy/ui/ui_render/bootstrap/template.js.hbs
+    rm -f /tmp/custom_welcome/*
+    rmdir /tmp/custom_welcome
+    getConfig kibana/customWelcomeKibana.css /tmp/
+    rm -f /tmp/customWelcomeKibana.css
+}
