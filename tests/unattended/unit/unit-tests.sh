@@ -1,6 +1,6 @@
 trap clean SIGINT
 
-today="$(date +"%m_%d_%y")"
+today="$(date +"%d_%m_%y")"
 logfile="./${today}-unit_test.log"
 echo "-------------------------" >> ${logfile}
 debug=">> ${logfile}"
