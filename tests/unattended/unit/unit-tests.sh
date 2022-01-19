@@ -4,7 +4,7 @@ today="$(date +"%d_%m_%y")"
 logfile="./${today}-unit_test.log"
 echo "-------------------------" >> ${logfile}
 debug=">> ${logfile}"
-ALL_FILES=("common" "checks" "wazuh" "filebeat")
+ALL_FILES=("common" "checks" "wazuh" "filebeat" "kibana")
 IMAGE_NAME="unattended-installer-unit-tests-launcher"
 SHARED_VOLUME="/tmp/unattended-installer-unit-testing/"
 
