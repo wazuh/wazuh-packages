@@ -72,8 +72,7 @@ function installFilebeat() {
     else
         eval "${sys_type} install filebeat${sep}${elasticsearch_oss_version} -y -q  ${debug}"
     fi
-    if [  "$?" != 0  ]
-    then
+    if [  "$?" != 0  ]; then
         logger -e "Filebeat installation failed"
         exit 1
     else

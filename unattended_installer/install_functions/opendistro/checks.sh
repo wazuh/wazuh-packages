@@ -299,12 +299,12 @@ function checkSystem() {
         sys_type="yum"
         sep="-"
     elif [ -n "$(command -v zypper)" ]; then
-        sys_type="zypper"   
-        sep="-"  
+        sys_type="zypper"
+        sep="-"
     elif [ -n "$(command -v apt-get)" ]; then
-        sys_type="apt-get"   
+        sys_type="apt-get"
         sep="="
-    else 
+    else
         logger -e "Couldn'd find type of system"
         exit 1
     fi
