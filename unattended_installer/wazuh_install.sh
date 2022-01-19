@@ -35,8 +35,6 @@ export JAVA_HOME=/usr/share/elasticsearch/jdk/
 logfile="/var/log/wazuh-unattended-installation.log"
 debug=">> ${logfile} 2>&1"
 
-## More info to continue on
-## https://stackoverflow.com/questions/3338030/multiple-bash-traps-for-the-same-signal
 trap cleanExit SIGINT
 
 function cleanExit() {
