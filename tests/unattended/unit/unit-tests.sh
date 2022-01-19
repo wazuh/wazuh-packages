@@ -92,10 +92,10 @@ function getHelp() {
 
     echo -e ""
     echo -e "NAME"
-    echo -e "        $(basename "$0") - Unit test for the Wazuh installer."
+    echo -e "        $(basename "${0}") - Unit test for the Wazuh installer."
     echo -e ""
     echo -e "SYNOPSIS"
-    echo -e "        bash $(basename "$0") [OPTIONS] -a | -d | -f <file-list>"
+    echo -e "        bash $(basename "${0}") [OPTIONS] -a | -d | -f <file-list>"
     echo -e ""
     echo -e "DESCRIPTION"
     echo -e "        -a,  --test-all"
