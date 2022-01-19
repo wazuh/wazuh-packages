@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FILE_NAME=$1
+FILE_NAME=${1}
 cd /tests/unattended
 if [ -f test-${FILE_NAME}.sh ]; then
     bash test-${FILE_NAME}.sh
