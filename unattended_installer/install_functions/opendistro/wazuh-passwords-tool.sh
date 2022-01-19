@@ -91,15 +91,7 @@ checkInstalledPass() {
         filebeatinstalled=$(zypper packages | grep filebeat | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
         filebeatinstalled=$(apt list --installed  2>/dev/null | grep filebeat)
-    fi 
-
-    if [ -n "${filebeatinstalled}" ]; then
-        if [ "${sys_type}" == "zypper" ]; then
-            filebeatversion=$(echo "${filebeatinstalled}" | awk '{print $1}')
-        else
-            filebeatversion=$(echo "${filebeatinstalled}" | awk '{print $2}')
-        fi  
-    fi    
+    fi
 
     if [ "${sys_type}" == "yum" ]; then
         kibanainstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch-kibana)
@@ -107,15 +99,8 @@ checkInstalledPass() {
         kibanainstalled=$(zypper packages | grep opendistroforelasticsearch-kibana | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
         kibanainstalled=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch-kibana)
-    fi 
+    fi
 
-    if [ -n "${kibanainstalled}" ]; then
-        if [ "${sys_type}" == "zypper" ]; then
-            kibanaversion=$(echo "${kibanainstalled}" | awk '{print $1}')
-        else
-            kibanaversion=$(echo "${kibanainstalled}" | awk '{print $2}')
-        fi  
-    fi 
     if [ -z "${elasticsearchinstalled}" ] && [ -z "${kibanainstalled}" ] && [ -z "${filebeatinstalled}" ]; then
         logger_pass -e "Open Distro is not installed on the system."
         exit 1;
