@@ -81,7 +81,7 @@ cp -pr wazuh-indexer-*/* ${RPM_BUILD_ROOT}%{INSTALL_DIR}/
 
 # Download demo certificates
 curl -kOL https://s3.amazonaws.com/warehouse.wazuh.com/stack/demo-certs.tar.gz
-tar xzvf demo-certs.tar.gz && rm -f demo-certs.tar.gz
+tar xzf demo-certs.tar.gz && rm -f demo-certs.tar.gz
 chown -R %{USER}:%{GROUP} certs
 mkdir -p ${RPM_BUILD_ROOT}%{CONFIG_DIR}/certs/
 cp certs/admin.pem ${RPM_BUILD_ROOT}%{CONFIG_DIR}/certs/
@@ -117,7 +117,7 @@ fi
 # -----------------------------------------------------------------------------
 
 %post
-if [ $1 = 1 ];then
+if [ $1 = 1 ];then # Install
     echo "%{USER} hard nproc 4096" >> /etc/security/limits.conf
     echo "%{USER} soft nproc 4096" >> /etc/security/limits.conf
     echo "%{USER} hard nofile 65535" >> /etc/security/limits.conf
@@ -143,18 +143,43 @@ if [ $1 = 1 ];then
     rm -rf %{LOG_DIR}/* > /dev/null 2>&1
 fi
 
+if [ $1 = 2 ];then # Upgrade
+    echo -n "Restarting wazuh-indexer service..."
+    if command -v systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-indexer > /dev/null 2>&1; then
+        systemctl daemon-reload > /dev/null 2>&1
+        systemctl restart wazuh-indexer.service > /dev/null 2>&1
+
+    # Check for SysV
+    elif command -v service > /dev/null 2>&1; then
+        service wazuh-indexer restart > /dev/null 2>&1
+
+    elif [ -x /etc/init.d/wazuh-indexer ]; then
+        if command -v invoke-rc.d >/dev/null; then
+            invoke-rc.d wazuh-indexer restart > /dev/null 2>&1
+        else
+            /etc/init.d/wazuh-indexer restart > /dev/null 2>&1
+        fi
+
+    # Older Suse linux distributions do not ship with systemd
+    # but do not have an /etc/init.d/ directory
+    # this tries to stop the wazuh-indexer service on these
+    # as well without failing this script
+    elif [ -x /etc/rc.d/init.d/wazuh-indexer ] ; then
+        /etc/rc.d/init.d/wazuh-indexer restart > /dev/null 2>&1
+    fi
+    echo " OK"
+fi
+
 # -----------------------------------------------------------------------------
 
 %preun
-
 if [ $1 = 0 ];then # Remove
-    # Stop the services before uninstall the package
     echo -n "Stopping wazuh-indexer service..."
-    if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-indexer > /dev/null 2>&1; then
+    if command -v systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-indexer > /dev/null 2>&1; then
         systemctl --no-reload stop wazuh-indexer.service > /dev/null 2>&1
 
     # Check for SysV
-    elif command -v service > /dev/null 2>&1 && service wazuh-indexer status 2>/dev/null | grep "running" > /dev/null 2>&1; then
+    elif command -v service > /dev/null 2>&1; then
         service wazuh-indexer stop > /dev/null 2>&1
 
     elif [ -x /etc/init.d/wazuh-indexer ]; then
