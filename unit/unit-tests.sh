@@ -38,12 +38,12 @@ function createImage() {
 
     if [ -n "${rebuild_image}" ]; then
         logger "Removing old image."
-        eval "docker rmi $IMAGE_NAME ${debug}"
+        eval "docker rmi ${IMAGE_NAME} ${debug}"
     fi
 
-    if [ -z "$(docker images | grep $IMAGE_NAME)" ]; then
+    if [ -z "$(docker images | grep ${IMAGE_NAME})" ]; then
         logger "Building image."
-        eval "docker build -t $IMAGE_NAME . ${debug}"
+        eval "docker build -t ${IMAGE_NAME} . ${debug}"
         if [ "$?" != 0 ]; then
             logger -e "Docker encountered some error."
             exit 1
@@ -53,38 +53,38 @@ function createImage() {
     else
         logger "Docker image found."
     fi
-    eval "mkdir -p $SHARED_VOLUME ${debug}"
-    eval "cp bach.sh $SHARED_VOLUME ${debug}"
+    eval "mkdir -p ${SHARED_VOLUME} ${debug}"
+    eval "cp bach.sh ${SHARED_VOLUME} ${debug}"
 }
 
 function testFile() {
 
-    logger "Unit tests for $1.sh."
+    logger "Unit tests for ${1}.sh."
 
 
-    eval "cp test-$1.sh $SHARED_VOLUME"
-    if [ -f ../../unattended_installer/install_functions/opendistro/$1.sh ]; then
-        eval "cp ../../unattended_installer/install_functions/opendistro/$1.sh $SHARED_VOLUME ${debug}"
-    elif [ -f ../../unattended_installer/install_functions/elasticsearch_basic/$1.sh ]; then
-        eval "cp ../../unattended_installer/install_functions/elasticsearch_basic/$1.sh $SHARED_VOLUME ${debug}"
-    elif [ -f ../../unattended_installer/$1.sh ]; then
-        eval "cp ../../unattended_installer/$1.sh ${debug}"
+    eval "cp test-${1}.sh ${SHARED_VOLUME}"
+    if [ -f ../unattended_installer/install_functions/opendistro/${1}.sh ]; then
+        eval "cp ../unattended_installer/install_functions/opendistro/${1}.sh ${SHARED_VOLUME} ${debug}"
+    elif [ -f ../unattended_installer/install_functions/elasticsearch_basic/${1}.sh ]; then
+        eval "cp ../unattended_installer/install_functions/elasticsearch_basic/${1}.sh ${SHARED_VOLUME} ${debug}"
+    elif [ -f ../unattended_installer/${1}.sh ]; then
+        eval "cp ../unattended_installer/${1}.sh ${debug}"
     else 
-        logger -e "File $1.sh could not be found."
+        logger -e "File ${1}.sh could not be found."
         return
     fi
 
-    eval "docker run -t --rm --volume $SHARED_VOLUME:/tests/unattended/ --env TERM=xterm-256color $IMAGE_NAME $1 | tee -a ${logfile}"
+    eval "docker run -t --rm --volume ${SHARED_VOLUME}:/tests/unattended/ --env TERM=xterm-256color ${IMAGE_NAME} ${1} | tee -a ${logfile}"
     if [ "$?" != 0 ]; then
-        logger -e "Docker encountered some error running the unit tests for $1.sh"
+        logger -e "Docker encountered some error running the unit tests for ${1}.sh"
     else 
-        logger "All unit tests for the functions in $1.sh finished."
+        logger "All unit tests for the functions in ${1}.sh finished."
     fi
 }
 
 function clean() {
     logger "Cleaning temporary files."
-    eval "rm -rf $SHARED_VOLUME ${debug}"
+    eval "rm -rf ${SHARED_VOLUME} ${debug}"
 }
 
 function getHelp() {
@@ -167,13 +167,13 @@ main() {
 
     createImage
 
-    if [ -n "$all_tests" ]; then
+    if [ -n "${all_tests}" ]; then
         for file in "${ALL_FILES[@]}"; do
-            testFile $file
+            testFile ${file}
         done
     else 
         for file in "${TEST_FILES[@]}"; do
-            testFile $file
+            testFile ${file}
         done
     fi
     clean
