@@ -109,10 +109,9 @@ function initializeKibana() {
         done
         nodes_kibana_ip=${kibana_node_ips[pos]}
     fi
-
-    until $(curl -XGET https://${nodes_kibana_ip}/status -I -uadmin:"${u_pass}" -k -s --max-time 300 | grep -q "200 OK") || [ "${j}" -eq 12 ]; do
+    until [ "$(curl -XGET https://${nodes_kibana_ip}/status -uadmin:${u_pass} -k -w %{http_code} -s -o /dev/null)" -eq "200" ] || [ "${j}" -eq "12" ]; do
         sleep 10
-        j=$((i+1))
+        j=$((j+1))
     done
     if [ "${#wazuh_servers_node_names[@]}" -eq 1 ]; then
         wazuh_api_address=${wazuh_servers_node_ips[0]}
@@ -126,18 +125,19 @@ function initializeKibana() {
     eval "sed -i 's,url: https://localhost,url: https://${wazuh_api_address},g' /usr/share/kibana/data/wazuh/config/wazuh.yml ${debug}"
 
     if [ ${j} -eq 12 ]; then
-        flag="-e"
+        flag="-w"
         if [ -z "${force}" ]; then
             msg="If you want to ignore this error use the -F option"
-            flag="-w"
+            flag="-e"
         fi
         logger "${flag}" "Cannot connect to Kibana. ${msg}"
         for i in ${elasticsearch_node_ips[@]}; do
-            curl=$(curl -XGET https://${i}:9200/ -uadmin:admin -k)
-            if [[ "${curl}" =~ "Open Distro Security not initialized." ]]; then
+            curl=$(curl -XGET https://${i}:9200/ -uadmin:${u_pass} -k -w %{http_code} -s -o /dev/null)
+            exit_code=$?
+            if [[ "${curl}" -eq "503" ]]; then
                 cluster_init=1
             fi
-            if [[ "${curl}" =~ "Failed connect to" ]]; then
+            if [[ "${exit_code}" -eq "7" ]]; then
                 failed_connect=1
                 logger "${flag}" "Failed to connect with node ${i}, ${msg}"
             fi 
@@ -161,17 +161,6 @@ function initializeKibanaAIO() {
 
     logger "Starting Kibana (this may take a while)."
     getPass "admin"
-    i=0
-    if [ "${#kibana_node_names[@]}" -eq 1 ]; then
-        nodes_kibana_ip=${kibana_node_ips[0]}
-    else
-        for i in "${!kibana_node_names[@]}"; do
-            if [[ "${kibana_node_names[i]}" == "${kiname}" ]]; then
-                pos="${i}";
-            fi
-        done
-        nodes_kibana_ip=${kibana_node_ips[pos]}
-    fi
     until $(curl -XGET https://localhost/status -I -uadmin:"${u_pass}" -k -s --max-time 300 | grep -q "200 OK") || [ "${i}" -eq 12 ]; do
         sleep 10
         i=$((i+1))
