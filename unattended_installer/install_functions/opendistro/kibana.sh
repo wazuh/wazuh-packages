@@ -127,10 +127,9 @@ function initializeKibana() {
     if [ ${j} -eq 12 ]; then
         flag="-w"
         if [ -z "${force}" ]; then
-            msg="If you want to ignore this error use the -F option"
             flag="-e"
         fi
-        logger "${flag}" "Cannot connect to Kibana. ${msg}"
+        logger "${flag}" "Cannot connect to Kibana."
 
         for i in "${!elasticsearch_node_ips[@]}"; do
             curl=$(curl -XGET https://${elasticsearch_node_ips[i]}:9200/ -uadmin:${u_pass} -k -w %{http_code} -s -o /dev/null)
@@ -140,13 +139,14 @@ function initializeKibana() {
             fi
             if [[ "${exit_code}" -eq "7" ]]; then
                 failed_connect=1
-                logger "${flag}" "Failed to connect with node ${elasticsearch_node_names[i]}. Connection refused. ${msg}"
+                logger "${flag}" "Failed to connect with node ${elasticsearch_node_names[i]}. Connection refused."
             fi 
         done
         if [ -n "${cluster_init}" ]; then
-            logger "${flag}" "Opendistro cluster not initialized. ${msg}"
+            logger "${flag}" "Opendistro cluster not initialized."
         fi
         if [ -z "${force}" ]; then
+            logger "To ignore Elasticsearch cluster related errors during Kibana installation use teh -F option"
             rollBack
             exit 1
         else
