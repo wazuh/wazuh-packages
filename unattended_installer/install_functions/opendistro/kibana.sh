@@ -108,9 +108,9 @@ function initializeKibana() {
         done
         nodes_kibana_ip=${kibana_node_ips[pos]}
     fi
-    until $(curl -XGET https://${nodes_kibana_ip}/status -I -uadmin:"${u_pass}" -k -s --max-time 300 | grep -q "200 OK") || [ "${i}" -eq 12 ]; do
+    until $(curl -XGET https://${nodes_kibana_ip}/status -I -uadmin:"${u_pass}" -k -s --max-time 300 | grep -q "200 OK") || [ "${j}" -eq 12 ]; do
         sleep 10
-        i=$((i+1))
+        j=$((j+1))
     done
     if [ "${#wazuh_servers_node_names[@]}" -eq 1 ]; then
         wazuh_api_address=${wazuh_servers_node_ips[0]}
@@ -121,7 +121,7 @@ function initializeKibana() {
             fi
         done
     fi
-    if [ ${i} -eq 12 ]; then
+    if [ ${j} -eq 12 ]; then
         logger -e "Cannot connect to Kibana. Please check the status of your elasticsearch cluster"
         logger "When Kibana is able to connect to your elasticsearch cluster, you can access the web interface https://${nodes_kibana_ip}. The credentials are admin:${u_pass}"
         exit 1
