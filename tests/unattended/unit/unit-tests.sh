@@ -1,10 +1,10 @@
 trap clean SIGINT
 
-today="$(date +"%m_%d_%y")"
+today="$(date +"%d_%m_%y")"
 logfile="./${today}-unit_test.log"
 echo "-------------------------" >> ${logfile}
 debug=">> ${logfile}"
-ALL_FILES=("common" "checks" "filebeat")
+ALL_FILES=("common" "checks" "wazuh" "filebeat")
 IMAGE_NAME="unattended-installer-unit-tests-launcher"
 SHARED_VOLUME="/tmp/unattended-installer-unit-testing/"
 
@@ -92,10 +92,10 @@ function getHelp() {
 
     echo -e ""
     echo -e "NAME"
-    echo -e "        $(basename "$0") - Unit test for the Wazuh installer."
+    echo -e "        $(basename "${0}") - Unit test for the Wazuh installer."
     echo -e ""
     echo -e "SYNOPSIS"
-    echo -e "        bash $(basename "$0") [OPTIONS] -a | -d | -f <file-list>"
+    echo -e "        bash $(basename "${0}") [OPTIONS] -a | -d | -f <file-list>"
     echo -e ""
     echo -e "DESCRIPTION"
     echo -e "        -a,  --test-all"
