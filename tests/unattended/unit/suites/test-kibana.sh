@@ -295,13 +295,14 @@ function load-modifyKibanaLogin() {
 
 test-modifyKibanaLogin() {
     load-modifyKibanaLogin
-    @mock cat /tmp/customWelcomeKibana.css
+    @mocktrue cat /tmp/customWelcomeKibana.css
     @mock tee -a /usr/share/kibana/src/core/server/core_app/assets/legacy_light_theme.css
     modifyKibanaLogin
 }
 
 test-modifyKibanaLogin-assert() {
-    sed -i 's/null, \"Elastic\"/null, \"Wazuh\"/g' /usr/share/kibana/src/core/server/rendering/views/template.js
+    sed -i 's/null, "Elastic"/null, "Wazuh"/g' /usr/share/kibana/src/core/server/rendering/views/template.js
+    curl -so /tmp/custom_welcome.tar.gz https://wazuh-demo.s3-us-west-1.amazonaws.com/custom_welcome_opendistro_docker.tar.gz
     tar -xf /tmp/custom_welcome.tar.gz -C /tmp
     rm -f /tmp/custom_welcome.tar.gz 
     cp /tmp/custom_welcome/wazuh_logo_circle.svg /usr/share/kibana/src/core/server/core_app/assets/
