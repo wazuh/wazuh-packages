@@ -261,3 +261,30 @@ test-ASSERT-FAIL-initializeKibana-distributed-two-kibana-nodes-two-wazuh-nodes-c
     wazuh_servers_node_ips=("1.1.2.1" "1.1.2.2")
     initializeKibana
 }
+
+function load-initializeKibanaAIO() {
+    @load_function "${base_dir}/kibana.sh" initializeKibanaAIO
+}
+
+test-initializeKibanaAIO-curl-correct() {
+    load-initializeKibanaAIO
+    kibana_node_names=("kibana1")
+    kibana_node_ips=("1.1.1.1")
+    u_pass="user_password"
+    @mock curl -XGET https://localhost/status -I -uadmin:"${u_pass}" -k -s --max-time 300 === @out "200 OK"
+    @mocktrue grep -q "200 OK"
+    initializeKibanaAIO
+}
+
+test-initializeKibanaAIO-curl-correct-assert() {
+    getPass "admin"
+}
+
+
+test-ASSERT-FAIL-initializeKibanaAIO-curl-error() {
+    load-initializeKibanaAIO
+    u_pass="user_password"
+    @mock curl -XGET https://localhost/status -I -uadmin:"${u_pass}" -k -s --max-time 300 === @out "200 OK"
+    @mockfalse grep -q "200 OK"
+    initializeKibanaAIO
+}
