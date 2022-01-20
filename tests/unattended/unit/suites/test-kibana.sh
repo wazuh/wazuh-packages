@@ -206,8 +206,7 @@ test-initializeKibana-distributed-one-kibana-node-one-wazuh-node-curl-correct() 
     kibana_node_names=("kibana1")
     kibana_node_ips=("1.1.1.1")
     u_pass="user_password"
-    @mock curl -XGET https://1.1.1.1/status -I -uadmin:"${u_pass}" -k -s --max-time 300 === @out "200 OK"
-    @mocktrue grep -q "200 OK"
+    @mock curl -XGET https://1.1.1.1/status -uadmin:user_password -k -w %{http_code} -s -o /dev/null === @out "200"
     wazuh_servers_node_names=("wazuh1")
     wazuh_servers_node_ips=("2.2.2.2")
     initializeKibana
@@ -218,14 +217,12 @@ test-initializeKibana-distributed-one-kibana-node-one-wazuh-node-curl-correct-as
     sed -i 's,url: https://localhost,url: https://2.2.2.2,g' /usr/share/kibana/data/wazuh/config/wazuh.yml
 }
 
-
 test-ASSERT-FAIL-initializeKibana-distributed-one-kibana-node-one-wazuh-node-curl-error() {
     load-initializeKibana
     kibana_node_names=("kibana1")
     kibana_node_ips=("1.1.1.1")
     u_pass="user_password"
-    @mock curl -XGET https://1.1.1.1/status -I -uadmin:"${u_pass}" -k -s --max-time 300 === @out "200 OK"
-    @mockfalse grep -q "200 OK"
+    @mock curl -XGET https://1.1.1.1/status -uadmin:user_password -k -w %{http_code} -s -o /dev/null === @out "0"
     wazuh_servers_node_names=("wazuh1")
     wazuh_servers_node_ips=("2.2.2.2")
     initializeKibana
@@ -236,8 +233,7 @@ test-initializeKibana-distributed-two-kibana-nodes-two-wazuh-nodes-curl-correct(
     kibana_node_names=("kibana1" "kibana2")
     kibana_node_ips=("1.1.1.1" "1.1.1.2")
     u_pass="user_password"
-    @mock curl -XGET https://1.1.1.1/status -I -uadmin:"${u_pass}" -k -s --max-time 300 === @out "200 OK"
-    @mocktrue grep -q "200 OK"
+    @mock curl -XGET https://1.1.1.1/status -uadmin:user_password -k -w %{http_code} -s -o /dev/null === @out "200"
     wazuh_servers_node_names=("wazuh1" "wazuh2")
     wazuh_servers_node_types=("worker" "master")
     wazuh_servers_node_ips=("1.1.2.1" "1.1.2.2")
@@ -254,12 +250,42 @@ test-ASSERT-FAIL-initializeKibana-distributed-two-kibana-nodes-two-wazuh-nodes-c
     kibana_node_names=("kibana1" "kibana2")
     kibana_node_ips=("1.1.1.1" "1.1.1.2")
     u_pass="user_password"
-    @mock curl -XGET https://1.1.2.2/status -I -uadmin:"${u_pass}" -k -s --max-time 300 === @out "200 OK"
-    @mockfalse grep -q "200 OK"
+    force=
+    @mock curl -XGET https://1.1.1.1/status -uadmin:user_password -k -w %{http_code} -s -o /dev/null === @out "0"
     wazuh_servers_node_names=("wazuh1" "wazuh2")
     wazuh_servers_node_types=("worker" "master")
     wazuh_servers_node_ips=("1.1.2.1" "1.1.2.2")
     initializeKibana
+}
+
+test-initializeKibana-distributed-two-kibana-nodes-two-wazuh-nodes-curl-error-force() {
+    load-initializeKibana
+    kibana_node_names=("kibana1" "kibana2")
+    kibana_node_ips=("1.1.1.1" "1.1.1.2")
+    u_pass="user_password"
+    force=1
+    @mock curl -XGET https://1.1.1.1/status -uadmin:user_password -k -w %{http_code} -s -o /dev/null === @out "0"
+    wazuh_servers_node_names=("wazuh1" "wazuh2")
+    wazuh_servers_node_types=("worker" "master")
+    wazuh_servers_node_ips=("1.1.2.1" "1.1.2.2")
+    initializeKibana
+}
+
+test-initializeKibana-distributed-two-kibana-nodes-two-wazuh-nodes-curl-error-force-assert() {
+    getPass  admin
+    sleep  10
+    sleep  10
+    sleep  10
+    sleep  10
+    sleep  10
+    sleep  10
+    sleep  10
+    sleep  10
+    sleep  10
+    sleep  10
+    sleep  10
+    sleep  10
+    sed  -i  's,url: https://localhost,url: https://1.1.2.2,g'  /usr/share/kibana/data/wazuh/config/wazuh.yml
 }
 
 function load-initializeKibanaAIO() {
@@ -271,8 +297,7 @@ test-initializeKibanaAIO-curl-correct() {
     kibana_node_names=("kibana1")
     kibana_node_ips=("1.1.1.1")
     u_pass="user_password"
-    @mock curl -XGET https://localhost/status -I -uadmin:"${u_pass}" -k -s --max-time 300 === @out "200 OK"
-    @mocktrue grep -q "200 OK"
+    @mock curl -XGET https://localhost/status -uadmin:user_password -k -w %{http_code} -s -o /dev/null === @out "200"
     initializeKibanaAIO
 }
 
@@ -284,8 +309,7 @@ test-initializeKibanaAIO-curl-correct-assert() {
 test-ASSERT-FAIL-initializeKibanaAIO-curl-error() {
     load-initializeKibanaAIO
     u_pass="user_password"
-    @mock curl -XGET https://localhost/status -I -uadmin:"${u_pass}" -k -s --max-time 300 === @out "200 OK"
-    @mockfalse grep -q "200 OK"
+    @mock curl -XGET https://localhost/status -uadmin:user_password -k -w %{http_code} -s -o /dev/null === @out "0"
     initializeKibanaAIO
 }
 

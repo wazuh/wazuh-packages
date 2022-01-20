@@ -16,6 +16,7 @@ function configureKibana() {
     eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install ${kibana_wazuh_plugin} ${debug}"
     if [  "$?" != 0  ]; then
         logger -e "Wazuh Kibana plugin could not be installed."
+        rollBack
         exit 1
     fi
     logger "Wazuh Kibana plugin installed."
@@ -108,7 +109,7 @@ function initializeKibana() {
         done
         nodes_kibana_ip=${kibana_node_ips[pos]}
     fi
-    until $(curl -XGET https://${nodes_kibana_ip}/status -I -uadmin:"${u_pass}" -k -s --max-time 300 | grep -q "200 OK") || [ "${j}" -eq 12 ]; do
+    until [ "$(curl -XGET https://${nodes_kibana_ip}/status -uadmin:${u_pass} -k -w %{http_code} -s -o /dev/null)" -eq "200" ] || [ "${j}" -eq "12" ]; do
         sleep 10
         j=$((j+1))
     done
@@ -121,14 +122,35 @@ function initializeKibana() {
             fi
         done
     fi
-    if [ ${j} -eq 12 ]; then
-        logger -e "Cannot connect to Kibana. Please check the status of your elasticsearch cluster"
-        logger "When Kibana is able to connect to your elasticsearch cluster, you can access the web interface https://${nodes_kibana_ip}. The credentials are admin:${u_pass}"
-        exit 1
-    fi
     eval "sed -i 's,url: https://localhost,url: https://${wazuh_api_address},g' /usr/share/kibana/data/wazuh/config/wazuh.yml ${debug}"
-    logger "Kibana started."
-    logger "You can access the web interface https://${nodes_kibana_ip}. The credentials are admin:${u_pass}"
+
+    if [ ${j} -eq 12 ]; then
+        flag="-w"
+        if [ -z "${force}" ]; then
+            flag="-e"
+        fi
+        failed_nodes=()
+        logger "${flag}" "Cannot connect to Kibana."
+
+        for i in "${!elasticsearch_node_ips[@]}"; do
+            curl=$(curl -XGET https://${elasticsearch_node_ips[i]}:9200/ -uadmin:${u_pass} -k -w %{http_code} -s -o /dev/null)
+            exit_code=$?
+            if [[ "${exit_code}" -eq "7" ]]; then
+                failed_connect=1
+                failed_nodes+=("${elasticsearch_node_names[i]}")
+            fi 
+        done
+        logger "${flag}" "Failed to connect with ${failed_nodes[*]}. Connection refused."
+        if [ -z "${force}" ]; then
+            logger "If want to install Kibana without waiting for the Elasticsearch cluster, use the -F option"
+            rollBack
+            exit 1
+        else
+            logger "When Kibana is able to connect to your Elasticsearch cluster, you can access the web interface https://${nodes_kibana_ip}. The credentials are admin:${u_pass}"
+        fi
+    else
+        logger "You can access the web interface https://${nodes_kibana_ip}. The credentials are admin:${u_pass}"
+    fi
 
 }
 
@@ -136,8 +158,7 @@ function initializeKibanaAIO() {
 
     logger "Starting Kibana (this may take a while)."
     getPass "admin"
-    i=0
-    until $(curl -XGET https://localhost/status -I -uadmin:"${u_pass}" -k -s --max-time 300 | grep -q "200 OK") || [ "${i}" -eq 12 ]; do
+    until [ "$(curl -XGET https://localhost/status -uadmin:${u_pass} -k -w %{http_code} -s -o /dev/null)" -eq "200" ] || [ "${i}" -eq 12 ]; do
         sleep 10
         i=$((i+1))
     done
