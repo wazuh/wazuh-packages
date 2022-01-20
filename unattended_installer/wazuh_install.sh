@@ -9,31 +9,31 @@
 # Foundation.
 
 ## Package vars
-wazuh_major="4.2"
-wazuh_version="4.2.5"
-wazuh_revision="1"
-elasticsearch_oss_version="7.10.2"
-elasticsearch_basic_version="7.12.1"
-opendistro_version="1.13.2"
-opendistro_revision="1"
-wazuh_kibana_plugin_revision="1"
+readonly wazuh_major="4.2"
+readonly wazuh_version="4.2.5"
+readonly wazuh_revision="1"
+readonly elasticsearch_oss_version="7.10.2"
+readonly elasticsearch_basic_version="7.12.1"
+readonly opendistro_version="1.13.2"
+readonly opendistro_revision="1"
+readonly wazuh_kibana_plugin_revision="1"
 
 ## Links and paths to resources
-functions_path="install_functions/opendistro"
-config_path="config/opendistro"
-resources="https://packages-dev.wazuh.com/resources/${wazuh_major}"
-resources_functions="${resources}/${functions_path}"
-resources_config="${resources}/${config_path}"
-base_path="$(dirname $(readlink -f "$0"))"
-config_file="${base_path}/config.yml"
-tar_file="${base_path}/configurations.tar"
+readonly functions_path="install_functions/opendistro"
+readonly config_path="config/opendistro"
+readonly resources="https://packages-dev.wazuh.com/resources/${wazuh_major}"
+readonly resources_functions="${resources}/${functions_path}"
+readonly resources_config="${resources}/${config_path}"
+readonly base_path="$(dirname $(readlink -f "$0"))"
+readonly config_file="${base_path}/config.yml"
+readonly tar_file="${base_path}/configurations.tar"
 
 ## JAVA_HOME
 export JAVA_HOME=/usr/share/elasticsearch/jdk/
 
 ## Debug variable used during the installation
-logfile="/var/log/wazuh-unattended-installation.log"
-debug=">> ${logfile} 2>&1"
+readonly logfile="/var/log/wazuh-unattended-installation.log"
+readonly debug=">> ${logfile} 2>&1"
 
 trap cleanExit SIGINT
 
