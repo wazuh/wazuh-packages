@@ -18,15 +18,26 @@ function checkArch() {
 
 function checkArguments() {
 
+    # -------------- Configurations ---------------------------------
+
     if [[ ( -n "${AIO}"  || -n "${configurations}" ) && -f "${tar_file}" ]]; then
             logger -e "File ${tar_file} exists. Please remove it if you want to use a new configuration."
             exit 1
     fi
 
+    if [[ -n "${configurations}" && ( -n "${AIO}" || -n "${elasticsearch}" || -n "${kibana}" || -n "${wazuh}" || -n "${overwrite}" || -n "${start_elastic_cluster}" || -n "${tar_conf}" || -n "${uninstall}" ) ]]; then
+        logger -e "The argument -c|--create-configurations can't be used with -a, -k, -e, -u or -w arguments."
+        exit 1
+    fi
+
+    # -------------- Overwrite --------------------------------------
+
     if [ -n "${overwrite}" ] && [ -z "${AIO}" ] && [ -z "${elasticsearch}" ] && [ -z "${kibana}" ] && [ -z "${wazuh}" ]; then 
         logger -e "The argument -o|--overwrite must be used with -a, -k, -e or -w. If you want to uninstall all the components use -u|--uninstall"
         exit 1
     fi
+
+    # -------------- Uninstall --------------------------------------
 
     if [ -n "${uninstall}" ]; then
 
@@ -52,6 +63,8 @@ function checkArguments() {
         fi
     fi
 
+    # -------------- All-In-One -------------------------------------
+
     if [ -n "${AIO}" ]; then
 
         if [ -n "$elasticsearch" ] || [ -n "$kibana" ] || [ -n "$wazuh" ]; then
@@ -69,6 +82,8 @@ function checkArguments() {
         fi
     fi
 
+    # -------------- Elasticsearch ----------------------------------
+
     if [ -n "${elasticsearch}" ]; then
 
         if [ -n "${elasticsearchinstalled}" ] || [ -n "${elastic_remaining_files}" ]; then
@@ -81,6 +96,8 @@ function checkArguments() {
         fi
     fi
 
+    # -------------- Kibana -----------------------------------------
+
     if [ -n "${kibana}" ]; then
         if [ -n "${kibanainstalled}" ] || [ -n "${kibana_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
@@ -91,6 +108,8 @@ function checkArguments() {
             fi
         fi
     fi
+
+    # -------------- Wazuh ------------------------------------------
 
     if [ -n "${wazuh}" ]; then
         if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ]; then
@@ -112,15 +131,14 @@ function checkArguments() {
         fi
     fi
 
-    if [[ -n "${configurations}" && ( -n "${AIO}" || -n "${elasticsearch}" || -n "${kibana}" || -n "${wazuh}" || -n "${overwrite}" || -n "${start_elastic_cluster}" || -n "${tar_conf}" || -n "${uninstall}" ) ]]; then
-        logger -e "The argument -c|--create-configurations can't be used with -a, -k, -e, -u or -w arguments."
-        exit 1
-    fi
+    # -------------- Cluster start ----------------------------------
 
     if [[ -n "${start_elastic_cluster}" && ( -n "${AIO}" || -n "${elasticsearch}" || -n "${kibana}" || -n "${wazuh}" || -n "${overwrite}" || -n "${configurations}" || -n "${tar_conf}" || -n "${uninstall}") ]]; then
         logger -e "The argument -s|--start-cluster can't be used with -a, -k, -e or -w arguments."
         exit 1
     fi
+
+    # -------------- Global -----------------------------------------
 
     if [ -z "${AIO}" ] && [ -z "${elasticsearch}" ] && [ -z "${kibana}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ] && [ -z "${configurations}" ] && [ -z "${uninstall}"]; then
         logger -e "At least one of these arguments is necessary -a|--all-in-one, -c|--create-configurations, -e|--elasticsearch <elasticsearch-node-name>, -k|--kibana <kibana-node-name>, -s|--start-cluster, -w|--wazuh-server <wazuh-node-name>, -u|--uninstall"
@@ -140,6 +158,7 @@ function checkHealth() {
             logger "Check recommended minimum hardware requirements for Elasticsearch done."
         fi
     fi
+
     if [ -n "${kibana}" ]; then
         if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
             logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
@@ -148,6 +167,7 @@ function checkHealth() {
             logger "Check recommended minimum hardware requirements for Kibana done."
         fi
     fi
+
     if [ -n "${wazuh}" ]; then
         if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 1700 ]; then
             logger -e "Your system does not meet the recommended minimum hardware requirements of 2Gb of RAM and 2 CPU cores . If you want to proceed with the installation use the -i option to ignore these requirements."
@@ -156,6 +176,7 @@ function checkHealth() {
             logger "Check recommended minimum hardware requirements for Wazuh Manager done."
         fi
     fi
+
     if [ -n "${aio}" ]; then
         if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
             logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
