@@ -219,7 +219,7 @@ main() {
     done
 
     if [[ "${BUILD}" == "no" ]] || [[ "${PBRANCH}" == "no" ]]; then
-        echo "It is required to use the -b and --packages-branch parameters"
+        echo "It is required to use the (-b or --branch) and --packages-branch parameters"
         clean 1
     fi
 
