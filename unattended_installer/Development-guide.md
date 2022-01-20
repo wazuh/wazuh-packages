@@ -41,5 +41,6 @@ License (version 2) as published by the FSF - Free Software
 Foundation.
 
 ## Useful links and acknowledgment
+
 - [Bash meets solid](https://codewizardly.com/bash-meets-solid/)
 - [Shellcheck](https://github.com/koalaman/shellcheck#gallery-of-bad-code)
