@@ -375,12 +375,15 @@ function main() {
         addWazuhrepo
     fi
 
+# -------------- Elasticsearch or Start Elasticsearch case--------------------------------
+
+    if [ -n "${elasticsearch}" ] || [ -n "${start_elastic_cluster}" ] ; then
+        importFunction "elasticsearch.sh"
+    fi
+
 # -------------- Elasticsearch case  --------------------------------
 
     if [ -n "${elasticsearch}" ]; then
-
-        importFunction "elasticsearch.sh"
-
         installElasticsearch 
         configureElasticsearch
         startService "elasticsearch"
@@ -390,8 +393,6 @@ function main() {
 # -------------- Start Elasticsearch cluster case  ------------------
 
     if [ -n "${start_elastic_cluster}" ]; then
-        importFunction "elasticsearch.sh"
-
         startElasticsearchCluster
         changePasswords
     fi
