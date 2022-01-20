@@ -1,4 +1,4 @@
-# Wazuh installer - kibana.sh library. 
+# Wazuh installer - kibana.sh functions. 
 # Copyright (C) 2015, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it

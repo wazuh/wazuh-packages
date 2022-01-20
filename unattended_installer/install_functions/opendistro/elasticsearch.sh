@@ -1,4 +1,4 @@
-# Wazuh installer - elasticsearch.sh library. 
+# Wazuh installer - elasticsearch.sh functions. 
 # Copyright (C) 2015, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
