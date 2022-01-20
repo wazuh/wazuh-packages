@@ -86,6 +86,9 @@ function getHelp() {
     echo -e "        -f,  --fileconfig <path-to-config-yml>"
     echo -e "                Path to config file. By default: ${base_path}/config.yml"
     echo -e ""
+    echo -e "        -F,  --force-kibana"
+    echo -e "                Ignore Elasticsearch cluster related errors in kibana installation"
+    echo -e ""
     echo -e "        -h,  --help"
     echo -e "                Shows help."
     echo -e ""
@@ -220,6 +223,10 @@ function main() {
                 fi
                 config_file=${2}
                 shift 2
+                ;;
+            "-F"|"--force-kibana")
+                force=1
+                shift 1
                 ;;
             "-h"|"--help")
                 getHelp
