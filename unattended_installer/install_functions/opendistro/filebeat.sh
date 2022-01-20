@@ -6,44 +6,32 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-f_cert_path="/etc/filebeat/certs/"
+readonly f_cert_path="/etc/filebeat/certs/"
 
-function configureFilebeat() {
+function configureFilebeat(){
 
-    eval "getConfig filebeat/filebeat_distributed.yml /etc/filebeat/filebeat.yml ${debug}"
     eval "curl -so /etc/filebeat/wazuh-template.json ${filebeat_wazuh_template} --max-time 300 ${debug}"
     eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
     eval "curl -s ${filebeat_wazuh_module} --max-time 300 | tar -xvz -C /usr/share/filebeat/module ${debug}"
-
-
-    if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
-        echo "output.elasticsearch.hosts:" >> /etc/filebeat/filebeat.yml
-        echo "  - ${elasticsearch_node_ips[0]}"  >> /etc/filebeat/filebeat.yml
+    if [ -n "${AIO}" ]; then
+        eval "getConfig filebeat/filebeat_unattended.yml /etc/filebeat/filebeat.yml ${debug}"
     else
-        echo "output.elasticsearch.hosts:" >> /etc/filebeat/filebeat.yml
-        for i in "${elasticsearch_node_ips[@]}"; do
+        eval "getConfig filebeat/filebeat_distributed.yml /etc/filebeat/filebeat.yml ${debug}"
+        if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
+            echo "output.elasticsearch.hosts:" >> /etc/filebeat/filebeat.yml
+            echo "  - ${elasticsearch_node_ips[0]}"  >> /etc/filebeat/filebeat.yml
+        else
+            echo "output.elasticsearch.hosts:" >> /etc/filebeat/filebeat.yml
+            for i in "${elasticsearch_node_ips[@]}"; do
                 echo "  - ${i}" >> /etc/filebeat/filebeat.yml
-        done
+            done
+        fi
     fi
 
     eval "mkdir /etc/filebeat/certs ${debug}"
     copyCertificatesFilebeat
 
     logger "Filebeat post-install configuration finished."
-
-}
-
-function configureFilebeatAIO() {
-
-    eval "getConfig filebeat/filebeat_unattended.yml /etc/filebeat/filebeat.yml ${debug}"
-    eval "curl -so /etc/filebeat/wazuh-template.json ${filebeat_wazuh_template} --max-time 300 ${debug}"
-    eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
-    eval "curl -s ${filebeat_wazuh_module} --max-time 300 | tar -xvz -C /usr/share/filebeat/module ${debug}"
-    eval "mkdir /etc/filebeat/certs ${debug}"
-    copyCertificatesFilebeat
-
-    logger "Filebeat post-install configuration finished."
-
 }
 
 function copyCertificatesFilebeat() {
