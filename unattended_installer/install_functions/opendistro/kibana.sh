@@ -129,6 +129,7 @@ function initializeKibana() {
         if [ -z "${force}" ]; then
             flag="-e"
         fi
+        failed_nodes=()
         logger "${flag}" "Cannot connect to Kibana."
 
         for i in "${!elasticsearch_node_ips[@]}"; do
@@ -136,9 +137,10 @@ function initializeKibana() {
             exit_code=$?
             if [[ "${exit_code}" -eq "7" ]]; then
                 failed_connect=1
-                logger "${flag}" "Failed to connect with node ${elasticsearch_node_names[i]}. Connection refused."
+                failed_nodes+=("${elasticsearch_node_names[i]}")
             fi 
         done
+        logger "${flag}" "Failed to connect with ${failed_nodes[*]}. Connection refused."
         if [ -z "${force}" ]; then
             logger "If want to install Kibana without waiting for the Elasticsearch cluster, use the -F option"
             rollBack
