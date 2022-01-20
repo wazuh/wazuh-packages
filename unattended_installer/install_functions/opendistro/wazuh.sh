@@ -56,5 +56,5 @@ function installWazuh() {
     else
         wazuhinstalled="1"
         logger "Wazuh manager installation finished."
-    fi   
+    fi
 }
