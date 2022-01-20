@@ -134,23 +134,17 @@ function initializeKibana() {
         for i in "${!elasticsearch_node_ips[@]}"; do
             curl=$(curl -XGET https://${elasticsearch_node_ips[i]}:9200/ -uadmin:${u_pass} -k -w %{http_code} -s -o /dev/null)
             exit_code=$?
-            if [[ "${curl}" -eq "503" ]]; then
-                cluster_init=1
-            fi
             if [[ "${exit_code}" -eq "7" ]]; then
                 failed_connect=1
                 logger "${flag}" "Failed to connect with node ${elasticsearch_node_names[i]}. Connection refused."
             fi 
         done
-        if [ -n "${cluster_init}" ]; then
-            logger "${flag}" "Opendistro cluster not initialized."
-        fi
         if [ -z "${force}" ]; then
-            logger "To ignore Elasticsearch cluster related errors during Kibana installation use teh -F option"
+            logger "If want to install Kibana without waiting for the Elasticsearch cluster, use the -F option"
             rollBack
             exit 1
         else
-            logger "When Kibana is able to connect to your elasticsearch cluster, you can access the web interface https://${nodes_kibana_ip}. The credentials are admin:${u_pass}"
+            logger "When Kibana is able to connect to your Elasticsearch cluster, you can access the web interface https://${nodes_kibana_ip}. The credentials are admin:${u_pass}"
         fi
     else
         logger "You can access the web interface https://${nodes_kibana_ip}. The credentials are admin:${u_pass}"
