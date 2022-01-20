@@ -9,8 +9,8 @@
 # Foundation.
 
 ## Package vars
-wazuh_major="4.3"
-wazuh_version="4.3.0"
+wazuh_major="4.2"
+wazuh_version="4.2.5"
 wazuh_revision="1"
 elasticsearch_oss_version="7.10.2"
 elasticsearch_basic_version="7.12.1"
@@ -129,11 +129,14 @@ function importFunction() {
         if [ -f "${base_path}/${functions_path}/${1}" ]; then
             cat "${base_path}/${functions_path}/${1}" | grep 'main $@' > /dev/null 2>&1
             has_main=$?
+
             if [ $has_main = 0 ]; then
                 sed -i 's/main $@//' "${base_path}/${functions_path}/${1}"
                 sed -i '$ d' "${base_path}/${functions_path}/${1}"
             fi
+            # Loading functions
             . "${base_path}/${functions_path}/${1}"
+
             if [ $has_main = 0 ]; then
                 echo 'main $@' >> "${base_path}/${functions_path}/${1}"
             fi
@@ -221,7 +224,7 @@ function main() {
                     getHelp
                     exit 1
                 fi
-                config_file=${2}
+                config_file="${2}"
                 shift 2
                 ;;
             "-F"|"--force-kibana")
@@ -242,7 +245,7 @@ function main() {
                     exit 1
                 fi
                 kibana=1
-                kiname=${2}
+                kiname="${2}"
                 shift 2
                 ;;
             "-l"|"--local")
@@ -264,7 +267,7 @@ function main() {
                     exit 1
                 fi
                 tar_conf="1"
-                tar_file=${2}
+                tar_file="${2}"
                 shift 2
                 ;;
             "-u"|"--uninstall")
@@ -283,16 +286,16 @@ function main() {
                     exit 1
                 fi
                 wazuh=1
-                winame=${2}
+                winame="${2}"
                 shift 2
                 ;;
             *)
-                echo "Unknow option: ${1}"
+                echo "Unknow option: "${1}""
                 getHelp
         esac
     done
 
-    if [ "$EUID" -ne 0 ]; then
+    if [ "${EUID}" -ne 0 ]; then
         logger -e "This script must be run as root."
         exit 1
     fi
@@ -303,7 +306,7 @@ function main() {
         trap "kill -9 ${spin_pid} ${debug}" EXIT
     fi
 
-# -------------- Library import ----------------------------
+# -------------- Functions import -----------------------------------
 
     importFunction "checks.sh"
     importFunction "common.sh"
@@ -388,6 +391,7 @@ function main() {
 
     if [ -n "${start_elastic_cluster}" ]; then
         importFunction "elasticsearch.sh"
+
         startElasticsearchCluster
         changePasswords
     fi
