@@ -39,7 +39,6 @@ function configureElasticsearch() {
     eval "getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml ${debug}"
     eval "rm /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem -f ${debug}"
     
-    eval "mkdir ${e_certs_path} ${debug}"
     copyCertificatesElasticsearch
 
     # Configure JVM options for Elasticsearch
@@ -108,6 +107,7 @@ function configureElasticsearch() {
 
 function copyCertificatesElasticsearch() {
     
+    eval "mkdir ${e_certs_path} ${debug}"
     name=${elasticsearch_node_names[pos]}
 
     if [ -f "${tar_file}" ]; then

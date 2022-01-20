@@ -447,7 +447,7 @@ function main() {
         configureFilebeat
         startService "filebeat"
         installKibana
-        configureKibanaAIO
+        configureKibana
         startService "kibana"
         changePasswords
         initializeKibanaAIO
