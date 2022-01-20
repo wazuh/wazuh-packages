@@ -444,7 +444,7 @@ function main() {
         installWazuh
         startService "wazuh-manager"
         installFilebeat
-        configureFilebeatAIO
+        configureFilebeat
         startService "filebeat"
         installKibana
         configureKibanaAIO
