@@ -6,7 +6,7 @@ echo "-------------------------" >> ${logfile}
 debug=">> ${logfile}"
 ALL_FILES=("common" "checks" "wazuh" "filebeat" "kibana")
 IMAGE_NAME="unattended-installer-unit-tests-launcher"
-SHARED_VOLUME="$(pwd -P)/tmp/unattended-installer-unit-testing/"
+SHARED_VOLUME="$(pwd -P)/tmp/"
 
 function logger() {
 
@@ -123,7 +123,7 @@ main() {
         echo "No argument detected"
         getHelp
     fi
-    
+
     while [ -n "${1}" ]
     do
         case "${1}" in
