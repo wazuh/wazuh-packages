@@ -6,7 +6,7 @@ echo "-------------------------" >> ${logfile}
 debug=">> ${logfile}"
 ALL_FILES=("common" "checks" "wazuh" "filebeat" "kibana")
 IMAGE_NAME="unattended-installer-unit-tests-launcher"
-SHARED_VOLUME="/tmp/unattended-installer-unit-testing/"
+SHARED_VOLUME="$(pwd -P)/tmp/unattended-installer-unit-testing/"
 
 function logger() {
 
@@ -123,7 +123,7 @@ main() {
         echo "No argument detected"
         getHelp
     fi
-
+    
     while [ -n "${1}" ]
     do
         case "${1}" in
@@ -134,9 +134,12 @@ main() {
             "-f"|"--files")
                 shift 1
                 TEST_FILES=()
-                while [ -n "$(echo ${ALL_FILES[@]} | grep -w "${1}")" ]; do
+                while [ -n "${1}" ]; do
                     TEST_FILES+=("${1}")
                     shift 1
+                    if [ -z "${1}" ] || [[ "${1}" =~ -.* ]] || [ -z "$(echo ${ALL_FILES[@]} | grep -w "${1}")" ]; then
+                        break
+                    fi
                 done
                 ;;
             "-r"|"--rebuild-image")
