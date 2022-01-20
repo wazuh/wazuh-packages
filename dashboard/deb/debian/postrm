@@ -42,7 +42,7 @@ case "$1" in
         REMOVE_CONFIG_DIRECTORY=true
         REMOVE_USER_AND_GROUP=true
     ;;
-    failed-upgrade|abort-install|abort-upgrade|disappear)
+    failed-upgrade|abort-install|upgrade|abort-upgrade|disappear)
     ;;
 
     *)  
