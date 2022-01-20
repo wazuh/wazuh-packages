@@ -6,7 +6,7 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-k_certs_path="/etc/kibana/certs/"
+readonly k_certs_path="/etc/kibana/certs/"
 
 function configureKibana() {
 
@@ -58,7 +58,7 @@ function configureKibana() {
 
 function copyKibanacerts() {
 
-    eval "mkdir /etc/kibana/certs ${debug}"
+    eval "mkdir ${k_certs_path} ${debug}"
     if [ -f "${tar_file}" ]; then
     
         name=${kibana_node_names[pos]}
@@ -67,8 +67,8 @@ function copyKibanacerts() {
         eval "tar -xf ${tar_file} -C ${k_certs_path} ./${name}-key.pem  && mv ${k_certs_path}${name}-key.pem ${k_certs_path}kibana-key.pem ${debug}"
         eval "tar -xf ${tar_file} -C ${k_certs_path} ./root-ca.pem ${debug}"
         eval "chown -R kibana:kibana /etc/kibana/ ${debug}"
-        eval "chmod -R 500 /etc/kibana/certs ${debug}"
-        eval "chmod 440 /etc/kibana/certs/* ${debug}"
+        eval "chmod -R 500 ${k_certs_path} ${debug}"
+        eval "chmod 440 ${k_certs_path}* ${debug}"
         logger "Kibana certificate setup finished."
     else
         logger -e "No certificates found. Kibana could not be initialized."
@@ -82,6 +82,7 @@ function initializeKibana() {
     logger "Starting Kibana (this may take a while)."
     getPass "admin"
     j=0
+
     if [ "${#kibana_node_names[@]}" -eq 1 ]; then
         nodes_kibana_ip=${kibana_node_ips[0]}
     else
@@ -96,6 +97,7 @@ function initializeKibana() {
         sleep 10
         j=$((j+1))
     done
+
     if [ "${#wazuh_servers_node_names[@]}" -eq 1 ]; then
         wazuh_api_address=${wazuh_servers_node_ips[0]}
     else
