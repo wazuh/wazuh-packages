@@ -6,7 +6,7 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-e_certs_path="/etc/elasticsearch/certs/"
+readonly e_certs_path="/etc/elasticsearch/certs/"
 
 function applyLog4j2Mitigation() {
 
