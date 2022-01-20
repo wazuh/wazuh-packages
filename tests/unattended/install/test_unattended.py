@@ -10,6 +10,7 @@ from subprocess import Popen, PIPE, check_output
 import yaml
 import requests
 import urllib
+import socket
 from base64 import b64encode
 import warnings
 import subprocess
@@ -96,12 +97,6 @@ def get_kibana_status():
                         get_kibana_password()), 
                         verify=False)
     return (resp.status_code)
-
-def get_wazuh_node_name():
-    stream = open("/var/ossec/etc/ossec.conf", 'r')
-    dictionary = BeautifulSoup(stream, "xml")
-    node_name = dictionary.find('node_name')
-    return (node_name.get_text())
 
 def get_wazuh_api_status():
 
@@ -191,8 +186,11 @@ def test_check_kibana_process():
     assert check_call("ps -xa | grep \"/usr/share/kibana/bin/../node/bin/node\" | grep -v grep", shell=True) != ""
 
 @pytest.mark.elastic
-def test_check_elasticsearch_cluster_status():
+def test_check_elasticsearch_cluster_status_not_red():
     assert get_elasticsearch_cluster_status() != "red"
+
+@pytest.mark.elastic_cluster
+def test_check_elasticsearch_cluster_status_not_yellow():
     assert get_elasticsearch_cluster_status() != "yellow" 
 
 @pytest.mark.kibana
@@ -261,14 +259,14 @@ def test_check_api_log_errors():
 
 @pytest.mark.elastic
 def test_check_alerts():
-    node_name = get_wazuh_node_name()
+    node_name = socket.gethostname()
     query = {
         "query": {
             "bool": {
                 "must": [
                     {
                         "wildcard": {
-                            "cluster.node": {
+                            "agent.name": {
                                 "value": node_name
                             }
                         }
