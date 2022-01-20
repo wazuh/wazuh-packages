@@ -623,8 +623,12 @@ DESCRIPTION
 
 ## License and copyright
 
-WAZUH
-Copyright (C) 2015-2022 Wazuh Inc.  (License GPLv2)
+Copyright (C) 2015, Wazuh Inc.
+
+This program is free software; you can redistribute it
+and/or modify it under the terms of the GNU General Public
+License (version 2) as published by the FSF - Free Software
+Foundation.
 
 ## Useful links and acknowledgment
 - [Multiple bash traps for the same signal](https://stackoverflow.com/questions/3338030/multiple-bash-traps-for-the-same-signal)
