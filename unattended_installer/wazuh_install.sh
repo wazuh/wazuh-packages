@@ -438,7 +438,7 @@ function main() {
         importFunction "kibana.sh"
 
         installElasticsearch
-        configureElasticsearchAIO
+        configureElasticsearch
         startService "elasticsearch"
         initializeElasticsearch
         installWazuh
