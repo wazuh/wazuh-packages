@@ -1839,6 +1839,22 @@
         "type": "file",
         "user": "root"
     },
+    "/var/ossec/wodles/azure": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "drwxr-x---",
+        "type": "directory",
+        "user": "root"
+    },
+    "/var/ossec/wodles/azure/azure-logs": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
     "/var/ossec/wodles/docker": {
         "class": "static",
         "group": "wazuh",
