@@ -9,8 +9,8 @@
 # Foundation.
 
 ## Package vars
-readonly wazuh_major="4.2"
-readonly wazuh_version="4.2.5"
+readonly wazuh_major="4.3"
+readonly wazuh_version="4.3.0"
 readonly wazuh_revision="1"
 readonly elasticsearch_oss_version="7.10.2"
 readonly elasticsearch_basic_version="7.12.1"
