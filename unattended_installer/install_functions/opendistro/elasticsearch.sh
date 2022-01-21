@@ -37,7 +37,7 @@ function configureElasticsearch() {
     eval "getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml ${debug}"
     eval "getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml ${debug}"
     eval "getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml ${debug}"
-    eval "rm -f /etc/elasticsearch/{esnode-key.pem, esnode.pem, kirk-key.pem, kirk.pem, root-ca.pem} ${debug}"
+    eval "rm -f /etc/elasticsearch/{esnode-key.pem,esnode.pem,kirk-key.pem,kirk.pem,root-ca.pem} ${debug}"
     
     copyCertificatesElasticsearch
 
