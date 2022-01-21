@@ -373,7 +373,7 @@ function rollBack() {
                       "/lib/firewalld/services/elasticsearch.xml" )
 
     for file_to_remove in "${files_to_remove[@]}"; do
-        [ -f "${file_to_remove}" ] && eval "rm -rf "${file_to_remove}" ${debug}"
+        [ -f "${file_to_remove}" ] && eval "rm -f "${file_to_remove}" ${debug}"
     done
 
     if [ -z "${uninstall}" ]; then
