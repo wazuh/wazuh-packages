@@ -133,7 +133,7 @@ test-configureElasticsearch-dist-one-elastic-node-assert() {
     getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml
     getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml
 
-    rm /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem -f
+    rm -f /etc/elasticsearch/{esnode-key.pem, esnode.pem, kirk-key.pem, kirk.pem, root-ca.pem}
     copyCertificatesElasticsearch
 
     sed -i "s/-Xms1g/-Xms1g/" /etc/elasticsearch/jvm.options
@@ -166,7 +166,7 @@ test-configureElasticsearch-dist-two-elastic-nodes-assert() {
     getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml
     getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml
 
-    rm /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem -f
+    rm -f /etc/elasticsearch/{esnode-key.pem, esnode.pem, kirk-key.pem, kirk.pem, root-ca.pem}
     copyCertificatesElasticsearch
 
     sed -i "s/-Xms1g/-Xms1g/" /etc/elasticsearch/jvm.options
@@ -192,14 +192,13 @@ test-configureElasticsearch-AIO() {
     configureElasticsearch
 }
 
-
 test-configureElasticsearch-AIO-assert() {
     getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml
     getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml
     getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml
     
     export JAVA_HOME=/usr/share/elasticsearch/jdk/
-    rm /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem -f
+    rm -f /etc/elasticsearch/{esnode-key.pem, esnode.pem, kirk-key.pem, kirk.pem, root-ca.pem}
 
     copyCertificatesElasticsearch
 
