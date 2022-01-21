@@ -355,26 +355,19 @@ function rollBack() {
         eval "rm -rf /etc/kibana/ ${debug}"
     fi
 
-    directories_to_remove=( "/var/log/elasticsearch/"
+    elements_to_remove=(    "/var/log/elasticsearch/"
                             "/var/log/filebeat/"
-                            "/etc/systemd/system/elasticsearch.service.wants/" )
+                            "/etc/systemd/system/elasticsearch.service.wants/"
+                            "/securityadmin_demo.sh"
+                            "/etc/systemd/system/multi-user.target.wants/wazuh-manager.service"
+                            "/etc/systemd/system/multi-user.target.wants/filebeat.service"
+                            "/etc/systemd/system/multi-user.target.wants/elasticsearch.service"
+                            "/etc/systemd/system/multi-user.target.wants/kibana.service"
+                            "/etc/systemd/system/kibana.service"
+                            "/lib/firewalld/services/kibana.xml"
+                            "/lib/firewalld/services/elasticsearch.xml" )
 
-    for directory_to_remove in "${directories_to_remove[@]}"; do
-        [ -d "${directory_to_remove}" ] && eval "rm -rf "${directory_to_remove}" ${debug}"
-    done
-
-    files_to_remove=( "/securityadmin_demo.sh"
-                      "/etc/systemd/system/multi-user.target.wants/wazuh-manager.service"
-                      "/etc/systemd/system/multi-user.target.wants/filebeat.service"
-                      "/etc/systemd/system/multi-user.target.wants/elasticsearch.service"
-                      "/etc/systemd/system/multi-user.target.wants/kibana.service"
-                      "/etc/systemd/system/kibana.service"
-                      "/lib/firewalld/services/kibana.xml"
-                      "/lib/firewalld/services/elasticsearch.xml" )
-
-    for file_to_remove in "${files_to_remove[@]}"; do
-        [ -f "${file_to_remove}" ] && eval "rm -f "${file_to_remove}" ${debug}"
-    done
+    eval "rm -rf ${elements_to_remove[*]}"
 
     if [ -z "${uninstall}" ]; then
         if [ -n "${rollback_conf}" ] || [ -n "${overwrite}" ]; then
