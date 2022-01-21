@@ -991,7 +991,6 @@ test-55-rollBack-nothing-installed-remove-/lib/firewalld/services/elasticsearch.
 
 test-56-rollBack-nothing-installed-remove-/etc/systemd/system/elasticsearch.service.wants() {
     load-rollBack
-    #@mocktrue -d /etc/systemd/system/elasticsearch.service.wants
     @mkdir -p /etc/systemd/system/elasticsearch.service.wants
     rollBack
     @rmdir /etc/systemd/system/elasticsearch.service.wants
