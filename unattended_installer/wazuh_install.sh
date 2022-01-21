@@ -33,7 +33,7 @@ export JAVA_HOME=/usr/share/elasticsearch/jdk/
 
 ## Debug variable used during the installation
 readonly logfile="/var/log/wazuh-unattended-installation.log"
-readonly debug=">> ${logfile} 2>&1"
+debug=">> ${logfile} 2>&1"
 
 trap cleanExit SIGINT
 
