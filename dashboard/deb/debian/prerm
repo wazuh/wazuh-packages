@@ -10,8 +10,8 @@
 set -e
 
 export NAME=wazuh-dashboard
-export CONFIG_DIR=/etc/${NAME}
-export INSTALLATION_DIR=/usr/share/${NAME}
+export CONFIG_DIR=/etc/"${NAME}"
+export INSTALLATION_DIR=/usr/share/"${NAME}"
 
 #
 # This script is executed in the pre-remove phase
@@ -50,35 +50,35 @@ esac
 if [ "$STOP_REQUIRED" = "true" ]; then
     echo -n "Stopping wazuh-dashboard service..."
     if command -v systemctl >/dev/null; then
-        systemctl --no-reload stop ${NAME}.service
+        systemctl --no-reload stop "${NAME}".service
 
-    elif [ -x /etc/init.d/${NAME} ]; then
+    elif [ -x /etc/init.d/"${NAME}" ]; then
         if command -v invoke-rc.d >/dev/null; then
-            invoke-rc.d ${NAME} stop
+            invoke-rc.d "${NAME}" stop
         else
-            /etc/init.d/${NAME} stop
+            /etc/init.d/"${NAME}" stop
         fi
 
     # older suse linux distributions do not ship with systemd
     # but do not have an /etc/init.d/ directory
     # this tries to start the wazuh-dashboard service on these
     # as well without failing this script
-    elif [ -x /etc/rc.d/init.d/${NAME} ] ; then
-        /etc/rc.d/init.d/${NAME} stop
+    elif [ -x /etc/rc.d/init.d/"${NAME}" ] ; then
+        /etc/rc.d/init.d/"${NAME}" stop
     fi
     echo " OK"
 fi
 
 if [ "$REMOVE_SERVICE" = "true" ]; then
     if command -v systemctl >/dev/null; then
-        systemctl disable ${NAME}.service > /dev/null 2>&1 || true
+        systemctl disable "${NAME}".service > /dev/null 2>&1 || true
     fi
 
     if command -v chkconfig >/dev/null; then
-        chkconfig --del ${NAME} 2> /dev/null || true
+        chkconfig --del "${NAME}" 2> /dev/null || true
     fi
 
     if command -v update-rc.d >/dev/null; then
-        update-rc.d ${NAME} remove >/dev/null || true
+        update-rc.d "${NAME}" remove >/dev/null || true
     fi
 fi

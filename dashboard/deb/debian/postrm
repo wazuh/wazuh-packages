@@ -10,9 +10,9 @@
 set -e
 
 export NAME=wazuh-dashboard
-export CONFIG_DIR=/etc/${NAME}
-export INSTALLATION_DIR=/usr/share/${NAME}
-export LOG_DIR=/var/log/${NAME}
+export CONFIG_DIR=/etc/"${NAME}"
+export INSTALLATION_DIR=/usr/share/"${NAME}"
+export LOG_DIR=/var/log/"${NAME}"
 
 #
 # This script is executed in the post-removal phase
@@ -55,33 +55,31 @@ esac
 
 if [ "$REMOVE_DIRS" = "true" ]; then
 
-    if [ -d ${LOG_DIR} ]; then
-        echo -n "Deleting log directory..."
-        rm -rf ${LOG_DIR}
-        echo " OK"
+    if [ -d "${LOG_DIR}" ]; then
+        rmdir --ignore-fail-on-non-empty "${LOG_DIR}"
     fi
 
-    if [ -d ${INSTALLATION_DIR} ]; then
+    if [ -d "${INSTALLATION_DIR}" ]; then
         echo -n "Deleting installation directory..."
-        rm -rf ${INSTALLATION_DIR}
+        rm -rf "${INSTALLATION_DIR}"
         echo " OK"
     fi
 
-    if [ -d /etc/default/${NAME} ]; then
+    if [ -d /etc/default/"${NAME}" ]; then
         echo -n "Deleting Default File..."
-        rm -rf /etc/default/${NAME}
+        rm -rf /etc/default/"${NAME}"
         echo " OK"
     fi
 
     # Delete the data directory if we are purging
-    if [ -d /etc/init.d/${NAME} ]; then
-        rm -rf /etc/init.d/${NAME}
+    if [ -d /etc/init.d/"${NAME}" ]; then
+        rm -rf /etc/init.d/"${NAME}"
         echo " OK"
     fi
 
     # Delete the config directory if we are purging
     if [ "$REMOVE_CONFIG_DIRECTORY" = "true" ]; then
-        rm -rf ${CONFIG_DIR}
+        rm -rf "${CONFIG_DIR}"
         echo " OK"
     fi
 
@@ -89,11 +87,11 @@ fi
 
 
 if [ "$REMOVE_USER_AND_GROUP" = "true" ]; then
-    if id ${NAME} > /dev/null 2>&1 ; then
-        userdel ${NAME}
+    if id "${NAME}" > /dev/null 2>&1 ; then
+        userdel "${NAME}"
     fi
 
-    if getent group ${NAME} > /dev/null 2>&1 ; then
-        groupdel ${NAME}
+    if getent group "${NAME}" > /dev/null 2>&1 ; then
+        groupdel "${NAME}"
     fi
 fi
