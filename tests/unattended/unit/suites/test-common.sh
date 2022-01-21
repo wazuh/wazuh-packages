@@ -408,6 +408,8 @@ test-rollBack-aio-all-installed-yum-assert() {
     rm -rf /var/lib/kibana/
     rm -rf /usr/share/kibana/
     rm -rf /etc/kibana/
+
+    rm -rf /var/log/elasticsearch/ /var/log/filebeat/ /etc/systemd/system/elasticsearch.service.wants/ /securityadmin_demo.sh  /etc/systemd/system/multi-user.target.wants/wazuh-manager.service  /etc/systemd/system/multi-user.target.wants/filebeat.service  /etc/systemd/system/multi-user.target.wants/elasticsearch.service  /etc/systemd/system/multi-user.target.wants/kibana.service  /etc/systemd/system/kibana.service /lib/firewalld/services/kibana.xml /lib/firewalld/services/elasticsearch.xml
 }
 
 test-rollBack-aio-all-installed-zypper() {
@@ -449,6 +451,8 @@ test-rollBack-aio-all-installed-zypper-assert() {
     rm -rf /var/lib/kibana/
     rm -rf /usr/share/kibana/
     rm -rf /etc/kibana/
+
+    rm -rf /var/log/elasticsearch/ /var/log/filebeat/ /etc/systemd/system/elasticsearch.service.wants/ /securityadmin_demo.sh  /etc/systemd/system/multi-user.target.wants/wazuh-manager.service  /etc/systemd/system/multi-user.target.wants/filebeat.service  /etc/systemd/system/multi-user.target.wants/elasticsearch.service  /etc/systemd/system/multi-user.target.wants/kibana.service  /etc/systemd/system/kibana.service /lib/firewalld/services/kibana.xml /lib/firewalld/services/elasticsearch.xml
 }
 
 test-rollBack-aio-all-installed-apt() {
@@ -489,6 +493,8 @@ test-rollBack-aio-all-installed-apt-assert() {
     rm -rf /var/lib/kibana/
     rm -rf /usr/share/kibana/
     rm -rf /etc/kibana/
+
+    rm -rf /var/log/elasticsearch/ /var/log/filebeat/ /etc/systemd/system/elasticsearch.service.wants/ /securityadmin_demo.sh  /etc/systemd/system/multi-user.target.wants/wazuh-manager.service  /etc/systemd/system/multi-user.target.wants/filebeat.service  /etc/systemd/system/multi-user.target.wants/elasticsearch.service  /etc/systemd/system/multi-user.target.wants/kibana.service  /etc/systemd/system/kibana.service /lib/firewalld/services/kibana.xml /lib/firewalld/services/elasticsearch.xml
 }
 
 test-rollBack-elasticsearch-installation-all-installed-yum() {
@@ -515,6 +521,8 @@ test-rollBack-elasticsearch-installation-all-installed-yum-assert() {
     rm -rf /var/lib/elasticsearch/
     rm -rf /usr/share/elasticsearch/
     rm -rf /etc/elasticsearch/
+
+    rm -rf /var/log/elasticsearch/ /var/log/filebeat/ /etc/systemd/system/elasticsearch.service.wants/ /securityadmin_demo.sh  /etc/systemd/system/multi-user.target.wants/wazuh-manager.service  /etc/systemd/system/multi-user.target.wants/filebeat.service  /etc/systemd/system/multi-user.target.wants/elasticsearch.service  /etc/systemd/system/multi-user.target.wants/kibana.service  /etc/systemd/system/kibana.service /lib/firewalld/services/kibana.xml /lib/firewalld/services/elasticsearch.xml
 }
 
 test-rollBack-elasticsearch-installation-all-installed-zypper() {
@@ -539,6 +547,8 @@ test-rollBack-elasticsearch-installation-all-installed-zypper-assert() {
     rm -rf /var/lib/elasticsearch/
     rm -rf /usr/share/elasticsearch/
     rm -rf /etc/elasticsearch/
+
+    rm -rf /var/log/elasticsearch/ /var/log/filebeat/ /etc/systemd/system/elasticsearch.service.wants/ /securityadmin_demo.sh  /etc/systemd/system/multi-user.target.wants/wazuh-manager.service  /etc/systemd/system/multi-user.target.wants/filebeat.service  /etc/systemd/system/multi-user.target.wants/elasticsearch.service  /etc/systemd/system/multi-user.target.wants/kibana.service  /etc/systemd/system/kibana.service /lib/firewalld/services/kibana.xml /lib/firewalld/services/elasticsearch.xml
 }
 
 test-rollBack-elasticsearch-installation-all-installed-apt() {
@@ -563,6 +573,8 @@ test-rollBack-elasticsearch-installation-all-installed-apt-assert() {
     rm -rf /var/lib/elasticsearch/
     rm -rf /usr/share/elasticsearch/
     rm -rf /etc/elasticsearch/
+
+    rm -rf /var/log/elasticsearch/ /var/log/filebeat/ /etc/systemd/system/elasticsearch.service.wants/ /securityadmin_demo.sh  /etc/systemd/system/multi-user.target.wants/wazuh-manager.service  /etc/systemd/system/multi-user.target.wants/filebeat.service  /etc/systemd/system/multi-user.target.wants/elasticsearch.service  /etc/systemd/system/multi-user.target.wants/kibana.service  /etc/systemd/system/kibana.service /lib/firewalld/services/kibana.xml /lib/firewalld/services/elasticsearch.xml
 }
 
 test-rollBack-wazuh-installation-all-installed-yum() {
@@ -591,6 +603,8 @@ test-rollBack-wazuh-installation-all-installed-yum-assert() {
     rm -rf /var/lib/filebeat/
     rm -rf /usr/share/filebeat/
     rm -rf /etc/filebeat/
+
+    rm -rf /var/log/elasticsearch/ /var/log/filebeat/ /etc/systemd/system/elasticsearch.service.wants/ /securityadmin_demo.sh  /etc/systemd/system/multi-user.target.wants/wazuh-manager.service  /etc/systemd/system/multi-user.target.wants/filebeat.service  /etc/systemd/system/multi-user.target.wants/elasticsearch.service  /etc/systemd/system/multi-user.target.wants/kibana.service  /etc/systemd/system/kibana.service /lib/firewalld/services/kibana.xml /lib/firewalld/services/elasticsearch.xml
 }
 
 test-rollBack-wazuh-installation-all-installed-zypper() {
@@ -620,6 +634,8 @@ test-rollBack-wazuh-installation-all-installed-zypper-assert() {
     rm -rf /var/lib/filebeat/
     rm -rf /usr/share/filebeat/
     rm -rf /etc/filebeat/
+
+    rm -rf /var/log/elasticsearch/ /var/log/filebeat/ /etc/systemd/system/elasticsearch.service.wants/ /securityadmin_demo.sh  /etc/systemd/system/multi-user.target.wants/wazuh-manager.service  /etc/systemd/system/multi-user.target.wants/filebeat.service  /etc/systemd/system/multi-user.target.wants/elasticsearch.service  /etc/systemd/system/multi-user.target.wants/kibana.service  /etc/systemd/system/kibana.service /lib/firewalld/services/kibana.xml /lib/firewalld/services/elasticsearch.xml
 }
 
 test-rollBack-wazuh-installation-all-installed-apt() {
@@ -648,6 +664,8 @@ test-rollBack-wazuh-installation-all-installed-apt-assert() {
     rm -rf /var/lib/filebeat/
     rm -rf /usr/share/filebeat/
     rm -rf /etc/filebeat/
+
+    rm -rf /var/log/elasticsearch/ /var/log/filebeat/ /etc/systemd/system/elasticsearch.service.wants/ /securityadmin_demo.sh  /etc/systemd/system/multi-user.target.wants/wazuh-manager.service  /etc/systemd/system/multi-user.target.wants/filebeat.service  /etc/systemd/system/multi-user.target.wants/elasticsearch.service  /etc/systemd/system/multi-user.target.wants/kibana.service  /etc/systemd/system/kibana.service /lib/firewalld/services/kibana.xml /lib/firewalld/services/elasticsearch.xml
 }
 
 test-rollBack-kibana-installation-all-installed-yum() {
@@ -672,6 +690,8 @@ test-rollBack-kibana-installation-all-installed-yum-assert() {
     rm -rf /var/lib/kibana/
     rm -rf /usr/share/kibana/
     rm -rf /etc/kibana/
+
+    rm -rf /var/log/elasticsearch/ /var/log/filebeat/ /etc/systemd/system/elasticsearch.service.wants/ /securityadmin_demo.sh  /etc/systemd/system/multi-user.target.wants/wazuh-manager.service  /etc/systemd/system/multi-user.target.wants/filebeat.service  /etc/systemd/system/multi-user.target.wants/elasticsearch.service  /etc/systemd/system/multi-user.target.wants/kibana.service  /etc/systemd/system/kibana.service /lib/firewalld/services/kibana.xml /lib/firewalld/services/elasticsearch.xml
 }
 
 test-rollBack-kibana-installation-all-installed-zypper() {
@@ -696,6 +716,8 @@ test-rollBack-kibana-installation-all-installed-zypper-assert() {
     rm -rf /var/lib/kibana/
     rm -rf /usr/share/kibana/
     rm -rf /etc/kibana/
+
+    rm -rf /var/log/elasticsearch/ /var/log/filebeat/ /etc/systemd/system/elasticsearch.service.wants/ /securityadmin_demo.sh  /etc/systemd/system/multi-user.target.wants/wazuh-manager.service  /etc/systemd/system/multi-user.target.wants/filebeat.service  /etc/systemd/system/multi-user.target.wants/elasticsearch.service  /etc/systemd/system/multi-user.target.wants/kibana.service  /etc/systemd/system/kibana.service /lib/firewalld/services/kibana.xml /lib/firewalld/services/elasticsearch.xml
 }
 
 test-rollBack-kibana-installation-all-installed-apt() {
@@ -720,6 +742,8 @@ test-rollBack-kibana-installation-all-installed-apt-assert() {
     rm -rf /var/lib/kibana/
     rm -rf /usr/share/kibana/
     rm -rf /etc/kibana/
+
+    rm -rf /var/log/elasticsearch/ /var/log/filebeat/ /etc/systemd/system/elasticsearch.service.wants/ /securityadmin_demo.sh  /etc/systemd/system/multi-user.target.wants/wazuh-manager.service  /etc/systemd/system/multi-user.target.wants/filebeat.service  /etc/systemd/system/multi-user.target.wants/elasticsearch.service  /etc/systemd/system/multi-user.target.wants/kibana.service  /etc/systemd/system/kibana.service /lib/firewalld/services/kibana.xml /lib/firewalld/services/elasticsearch.xml
 }
 
 test-rollBack-aio-nothing-installed() {
@@ -769,6 +793,8 @@ test-rollBack-aio-all-remaining-files-yum-assert() {
     rm -rf /var/lib/kibana/
     rm -rf /usr/share/kibana/
     rm -rf /etc/kibana/
+
+    rm -rf /var/log/elasticsearch/ /var/log/filebeat/ /etc/systemd/system/elasticsearch.service.wants/ /securityadmin_demo.sh  /etc/systemd/system/multi-user.target.wants/wazuh-manager.service  /etc/systemd/system/multi-user.target.wants/filebeat.service  /etc/systemd/system/multi-user.target.wants/elasticsearch.service  /etc/systemd/system/multi-user.target.wants/kibana.service  /etc/systemd/system/kibana.service /lib/firewalld/services/kibana.xml /lib/firewalld/services/elasticsearch.xml
 }
 
 test-rollBack-aio-all-remaining-files-zypper() {
@@ -801,6 +827,8 @@ test-rollBack-aio-all-remaining-files-zypper-assert() {
     rm -rf /var/lib/kibana/
     rm -rf /usr/share/kibana/
     rm -rf /etc/kibana/
+
+    rm -rf /var/log/elasticsearch/ /var/log/filebeat/ /etc/systemd/system/elasticsearch.service.wants/ /securityadmin_demo.sh  /etc/systemd/system/multi-user.target.wants/wazuh-manager.service  /etc/systemd/system/multi-user.target.wants/filebeat.service  /etc/systemd/system/multi-user.target.wants/elasticsearch.service  /etc/systemd/system/multi-user.target.wants/kibana.service  /etc/systemd/system/kibana.service /lib/firewalld/services/kibana.xml /lib/firewalld/services/elasticsearch.xml
 }
 
 test-rollBack-aio-all-remaining-files-apt() {
@@ -833,6 +861,8 @@ test-rollBack-aio-all-remaining-files-apt-assert() {
     rm -rf /var/lib/kibana/
     rm -rf /usr/share/kibana/
     rm -rf /etc/kibana/
+
+    rm -rf /var/log/elasticsearch/ /var/log/filebeat/ /etc/systemd/system/elasticsearch.service.wants/ /securityadmin_demo.sh  /etc/systemd/system/multi-user.target.wants/wazuh-manager.service  /etc/systemd/system/multi-user.target.wants/filebeat.service  /etc/systemd/system/multi-user.target.wants/elasticsearch.service  /etc/systemd/system/multi-user.target.wants/kibana.service  /etc/systemd/system/kibana.service /lib/firewalld/services/kibana.xml /lib/firewalld/services/elasticsearch.xml
 }
 
 test-rollBack-nothing-installed-remove-yum-repo() {
@@ -845,6 +875,8 @@ test-rollBack-nothing-installed-remove-yum-repo() {
 
 test-rollBack-nothing-installed-remove-yum-repo-assert() {
     rm /etc/yum.repos.d/wazuh.repo
+
+    rm -rf /var/log/elasticsearch/ /var/log/filebeat/ /etc/systemd/system/elasticsearch.service.wants/ /securityadmin_demo.sh  /etc/systemd/system/multi-user.target.wants/wazuh-manager.service  /etc/systemd/system/multi-user.target.wants/filebeat.service  /etc/systemd/system/multi-user.target.wants/elasticsearch.service  /etc/systemd/system/multi-user.target.wants/kibana.service  /etc/systemd/system/kibana.service /lib/firewalld/services/kibana.xml /lib/firewalld/services/elasticsearch.xml
 }
 
 test-rollBack-nothing-installed-remove-zypper-repo() {
@@ -857,6 +889,8 @@ test-rollBack-nothing-installed-remove-zypper-repo() {
 
 test-rollBack-nothing-installed-remove-zypper-repo-assert() {
     rm /etc/zypp/repos.d/wazuh.repo
+
+    rm -rf /var/log/elasticsearch/ /var/log/filebeat/ /etc/systemd/system/elasticsearch.service.wants/ /securityadmin_demo.sh  /etc/systemd/system/multi-user.target.wants/wazuh-manager.service  /etc/systemd/system/multi-user.target.wants/filebeat.service  /etc/systemd/system/multi-user.target.wants/elasticsearch.service  /etc/systemd/system/multi-user.target.wants/kibana.service  /etc/systemd/system/kibana.service /lib/firewalld/services/kibana.xml /lib/firewalld/services/elasticsearch.xml
 }
 
 test-rollBack-nothing-installed-remove-zypper-repo() {
@@ -869,135 +903,8 @@ test-rollBack-nothing-installed-remove-zypper-repo() {
 
 test-rollBack-nothing-installed-remove-zypper-repo-assert() {
     rm /etc/apt/sources.list.d/wazuh.list
-}
 
-test-rollBack-nothing-installed-remove-/var/log/elasticsearch/() {
-    load-rollBack
-    @mkdir -p /var/log/elasticsearch/
-    rollBack
-    @rmdir /var/log/elasticsearch
-}
-
-test-rollBack-nothing-installed-remove-/var/log/elasticsearch/-assert() {
-    rm -rf /var/log/elasticsearch/
-}
-
-test-rollBack-nothing-installed-remove-/var/log/filebeat/() {
-    load-rollBack
-    @mkdir -p /var/log/filebeat/
-    rollBack
-    @rmdir /var/log/filebeat/
-}
-
-test-rollBack-nothing-installed-remove-/var/log/filebeat/-assert() {
-    rm -rf /var/log/filebeat/
-}
-
-test-rollBack-nothing-installed-remove-/securityadmin_demo.sh() {
-    load-rollBack
-    #@mocktrue -f /securityadmin_demo.sh
-    @touch /securityadmin_demo.sh
-    rollBack
-    @rm /securityadmin_demo.sh
-}
-
-test-rollBack-nothing-installed-remove-/securityadmin_demo.sh-assert() {
-    rm -f /securityadmin_demo.sh
-}
-
-test-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/wazuh-manager.service() {
-    load-rollBack
-    @mkdir -p /etc/systemd/system/multi-user.target.wants/
-    @touch /etc/systemd/system/multi-user.target.wants/wazuh-manager.service
-    rollBack
-    @rm /etc/systemd/system/multi-user.target.wants/wazuh-manager.service
-}
-
-test-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/wazuh-manager.service-assert() {
-    rm -f /etc/systemd/system/multi-user.target.wants/wazuh-manager.service
-}
-
-test-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/filebeat.service() {
-    load-rollBack
-    @mkdir -p /etc/systemd/system/multi-user.target.wants/
-    @touch /etc/systemd/system/multi-user.target.wants/filebeat.service
-    rollBack
-    @rm /etc/systemd/system/multi-user.target.wants/filebeat.service
-}
-
-test-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/filebeat.service-assert() {
-    rm -f /etc/systemd/system/multi-user.target.wants/filebeat.service
-}
-
-test-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/elasticsearch.service() {
-    load-rollBack
-    @mkdir -p /etc/systemd/system/multi-user.target.wants/
-    @touch /etc/systemd/system/multi-user.target.wants/elasticsearch.service
-    rollBack
-    @rm /etc/systemd/system/multi-user.target.wants/elasticsearch.service
-}
-
-test-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/elasticsearch.service-assert() {
-    rm -f /etc/systemd/system/multi-user.target.wants/elasticsearch.service
-}
-
-test-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/kibana.service() {
-    load-rollBack
-    @mkdir -p /etc/systemd/system/multi-user.target.wants/
-    @touch /etc/systemd/system/multi-user.target.wants/kibana.service
-    rollBack
-    @rm /etc/systemd/system/multi-user.target.wants/kibana.service
-}
-
-test-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/kibana.service-assert() {
-    rm -f /etc/systemd/system/multi-user.target.wants/kibana.service
-}
-
-test-rollBack-nothing-installed-remove-/etc/systemd/system/kibana.service() {
-    load-rollBack
-    @mkdir -p /etc/systemd/system/
-    @touch /etc/systemd/system/kibana.service
-    rollBack
-    @rm /etc/systemd/system/kibana.service
-}
-
-test-rollBack-nothing-installed-remove-/etc/systemd/system/kibana.service-assert() {
-    rm -f /etc/systemd/system/kibana.service
-}
-
-test-rollBack-nothing-installed-remove-/lib/firewalld/services/kibana.xml() {
-    load-rollBack
-    @mkdir -p /lib/firewalld/services/
-    @touch /lib/firewalld/services/kibana.xml
-    rollBack
-    @rm /lib/firewalld/services/kibana.xml
-}
-
-test-rollBack-nothing-installed-remove-/lib/firewalld/services/kibana.xml-assert() {
-    rm -f /lib/firewalld/services/kibana.xml
-}
-
-test-rollBack-nothing-installed-remove-/lib/firewalld/services/elasticsearch.xml() {
-    load-rollBack
-    @mkdir -p /lib/firewalld/services/
-    @touch /lib/firewalld/services/elasticsearch.xml
-    rollBack
-    @rm /lib/firewalld/services/elasticsearch.xml
-}
-
-test-rollBack-nothing-installed-remove-/lib/firewalld/services/elasticsearch.xml-assert() {
-    rm -f /lib/firewalld/services/elasticsearch.xml
-}
-
-test-rollBack-nothing-installed-remove-/etc/systemd/system/elasticsearch.service.wants() {
-    load-rollBack
-    @mkdir -p /etc/systemd/system/elasticsearch.service.wants
-    rollBack
-    @rmdir /etc/systemd/system/elasticsearch.service.wants/
-}
-
-test-rollBack-nothing-installed-remove-/etc/systemd/system/elasticsearch.service.wants-assert() {
-    rm -rf /etc/systemd/system/elasticsearch.service.wants/
+    rm -rf /var/log/elasticsearch/ /var/log/filebeat/ /etc/systemd/system/elasticsearch.service.wants/ /securityadmin_demo.sh  /etc/systemd/system/multi-user.target.wants/wazuh-manager.service  /etc/systemd/system/multi-user.target.wants/filebeat.service  /etc/systemd/system/multi-user.target.wants/elasticsearch.service  /etc/systemd/system/multi-user.target.wants/kibana.service  /etc/systemd/system/kibana.service /lib/firewalld/services/kibana.xml /lib/firewalld/services/elasticsearch.xml
 }
 
 function load-createCertificates() {
