@@ -993,7 +993,7 @@ test-56-rollBack-nothing-installed-remove-/etc/systemd/system/elasticsearch.serv
     load-rollBack
     @mkdir -p /etc/systemd/system/elasticsearch.service.wants
     rollBack
-    @rmdir /etc/systemd/system/elasticsearch.service.wants
+    @rmdir /etc/systemd/system/elasticsearch.service.wants/
 }
 
 test-56-rollBack-nothing-installed-remove-/etc/systemd/system/elasticsearch.service.wants-assert() {
