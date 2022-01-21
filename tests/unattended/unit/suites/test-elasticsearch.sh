@@ -32,7 +32,7 @@ test-copyCertificatesElasticsearch() {
 }
 
 test-copyCertificatesElasticsearch-assert() {
-    mkdir /etc/elasticsearch/certs/
+    mkdir -p /etc/elasticsearch/certs/
     tar -xf /tmp/tarfile.tar -C /etc/elasticsearch/certs/ ./elastic1.pem  && mv /etc/elasticsearch/certs/elastic1.pem /etc/elasticsearch/certs/elasticsearch.pem
     tar -xf /tmp/tarfile.tar -C /etc/elasticsearch/certs/ ./elastic1-key.pem  && mv /etc/elasticsearch/certs/elastic1-key.pem /etc/elasticsearch/certs/elasticsearch-key.pem
     tar -xf /tmp/tarfile.tar -C /etc/elasticsearch/certs/ ./root-ca.pem

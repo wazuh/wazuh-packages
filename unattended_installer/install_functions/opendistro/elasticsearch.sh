@@ -107,7 +107,7 @@ function configureElasticsearch() {
 
 function copyCertificatesElasticsearch() {
     
-    eval "mkdir ${e_certs_path} ${debug}"
+    eval "mkdir -p ${e_certs_path} ${debug}"
     name=${elasticsearch_node_names[pos]}
 
     if [ -f "${tar_file}" ]; then
