@@ -355,9 +355,9 @@ function rollBack() {
         eval "rm -rf /etc/kibana/ ${debug}"
     fi
 
-    directories_to_remove=( "/var/log/elasticsearch"
-                            "/var/log/filebeat"
-                            "/etc/systemd/system/elasticsearch.service.wants" )
+    directories_to_remove=( "/var/log/elasticsearch/"
+                            "/var/log/filebeat/"
+                            "/etc/systemd/system/elasticsearch.service.wants/" )
 
     for directory_to_remove in "${directories_to_remove[@]}"; do
         [ -d "${directory_to_remove}" ] && eval "rm -rf "${directory_to_remove}" ${debug}"

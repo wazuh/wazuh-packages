@@ -991,14 +991,13 @@ test-rollBack-nothing-installed-remove-/lib/firewalld/services/elasticsearch.xml
 
 test-rollBack-nothing-installed-remove-/etc/systemd/system/elasticsearch.service.wants() {
     load-rollBack
-    #@mocktrue -d /etc/systemd/system/elasticsearch.service.wants
     @mkdir -p /etc/systemd/system/elasticsearch.service.wants
     rollBack
     @rmdir /etc/systemd/system/elasticsearch.service.wants
 }
 
 test-rollBack-nothing-installed-remove-/etc/systemd/system/elasticsearch.service.wants-assert() {
-    rm -rf /etc/systemd/system/elasticsearch.service.wants
+    rm -rf /etc/systemd/system/elasticsearch.service.wants/
 }
 
 function load-createCertificates() {
