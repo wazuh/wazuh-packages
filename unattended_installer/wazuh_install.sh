@@ -375,7 +375,7 @@ function main() {
         addWazuhrepo
     fi
 
-# -------------- Elasticsearch or Start Elasticsearch case--------------------------------
+# -------------- Elasticsearch or Start Elasticsearch cluster case---
 
     if [ -n "${elasticsearch}" ] || [ -n "${start_elastic_cluster}" ] ; then
         importFunction "elasticsearch.sh"
