@@ -11,7 +11,7 @@ function load-installWazuh() {
     @load_function "${base_dir}/wazuh.sh" installWazuh
 }
 
-test-installWazuh-zypper-error() {
+test-01-installWazuh-zypper-error() {
     load-installWazuh
     sys_type="zypper"
     wazuh_version=1
@@ -20,12 +20,12 @@ test-installWazuh-zypper-error() {
     installWazuh
 }
 
-test-installWazuh-zypper-error-assert() {
+test-01-installWazuh-zypper-error-assert() {
     rollBack
     exit 1
 }
 
-test-installWazuh-apt-error() {
+test-02-installWazuh-apt-error() {
     load-installWazuh
     sys_type="apt-get"
     sep="="
@@ -35,12 +35,12 @@ test-installWazuh-apt-error() {
     installWazuh
 }
 
-test-installWazuh-apt-error-assert() {
+test-02-installWazuh-apt-error-assert() {
     rollBack
     exit 1
 }
 
-test-installWazuh-yum-error() {
+test-03-installWazuh-yum-error() {
     load-installWazuh
     sys_type="yum"
     sep="-"
@@ -50,12 +50,12 @@ test-installWazuh-yum-error() {
     installWazuh
 }
 
-test-installWazuh-yum-error-assert() {
+test-03-installWazuh-yum-error-assert() {
     rollBack
     exit 1
 }
 
-test-installWazuh-zypper() {
+test-04-installWazuh-zypper() {
     load-installWazuh
     sys_type="zypper"
     wazuh_version=1
@@ -64,12 +64,12 @@ test-installWazuh-zypper() {
     @echo $wazuhinstalled
 }
 
-test-installWazuh-zypper-assert() {
+test-04-installWazuh-zypper-assert() {
     zypper -n install wazuh-manager=1-1
     @echo 1
 }
 
-test-installWazuh-apt() {
+test-05-installWazuh-apt() {
     load-installWazuh
     sys_type="apt-get"
     sep="="
@@ -79,12 +79,12 @@ test-installWazuh-apt() {
     @echo $wazuhinstalled
 }
 
-test-installWazuh-apt-assert() {
+test-05-installWazuh-apt-assert() {
     apt-get install wazuh-manager=1-1 -y
     @echo 1
 }
 
-test-installWazuh-yum() {
+test-06-installWazuh-yum() {
     load-installWazuh
     sys_type="yum"
     sep="-"
@@ -94,7 +94,7 @@ test-installWazuh-yum() {
     @echo $wazuhinstalled
 }
 
-test-installWazuh-yum-assert() {
+test-06-installWazuh-yum-assert() {
     yum install wazuh-manager-1-1 -y
     @echo 1
 }
@@ -103,7 +103,7 @@ function load-configureWazuhCluster() {
     @load_function "${base_dir}/wazuh.sh" configureWazuhCluster
 }
 
-test-configureWazuhCluster() {
+test-07-configureWazuhCluster() {
     load-configureWazuhCluster
     wazuh_servers_node_names=("wazuh" "node10")
     wazuh_servers_node_types=("master" "worker")
@@ -121,7 +121,7 @@ test-configureWazuhCluster() {
     @echo $master_address
 }
 
-test-configureWazuhCluster-assert() {
+test-07-configureWazuhCluster-assert() {
     @echo 0
     @echo "1.1.1.1"
 }

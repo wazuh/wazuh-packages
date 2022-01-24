@@ -6,18 +6,13 @@ source "${base_dir}"/bach.sh
 @setup-test {
     @ignore logger
     e_certs_path="/etc/elasticsearch/certs/"
-    # wazuh_version="4.3.0"
-    # elasticsearch_oss_version="7.10.2"
-    # wazuh_kibana_plugin_revision="1"
-    # repobaseurl="https://packages.wazuh.com/4.x"
-    # kibana_wazuh_plugin="${repobaseurl}/ui/kibana/wazuh_kibana-${wazuh_version}_${elasticsearch_oss_version}-${wazuh_kibana_plugin_revision}.zip"
 }
 
 function load-copyCertificatesElasticsearch() {
     @load_function "${base_dir}/elasticsearch.sh" copyCertificatesElasticsearch
 }
 
-test-ASSERT-FAIL-copyCertificatesElasticsearch-no-tarfile() {
+test-ASSERT-FAIL-01-copyCertificatesElasticsearch-no-tarfile() {
     load-copyCertificatesElasticsearch
     tar_file=/tmp/tarfile.tar
     if [ -f ${tar_file} ]; then
@@ -26,7 +21,7 @@ test-ASSERT-FAIL-copyCertificatesElasticsearch-no-tarfile() {
     copyCertificatesElasticsearch
 }
 
-test-copyCertificatesElasticsearch() {
+test-02-copyCertificatesElasticsearch() {
     load-copyCertificatesElasticsearch
     tar_file=/tmp/tarfile.tar
     @touch ${tar_file}
@@ -36,7 +31,7 @@ test-copyCertificatesElasticsearch() {
     copyCertificatesElasticsearch
 }
 
-test-copyCertificatesElasticsearch-assert() {
+test-02-copyCertificatesElasticsearch-assert() {
     tar -xf /tmp/tarfile.tar -C /etc/elasticsearch/certs/ ./elastic1.pem  && mv /etc/elasticsearch/certs/elastic1.pem /etc/elasticsearch/certs/elasticsearch.pem
     tar -xf /tmp/tarfile.tar -C /etc/elasticsearch/certs/ ./elastic1-key.pem  && mv /etc/elasticsearch/certs/elastic1-key.pem /etc/elasticsearch/certs/elasticsearch-key.pem
     tar -xf /tmp/tarfile.tar -C /etc/elasticsearch/certs/ ./root-ca.pem
@@ -48,7 +43,7 @@ function load-installElasticsearch() {
     @load_function "${base_dir}/elasticsearch.sh" installElasticsearch
 }
 
-test-installElasticsearch-zypper() {
+test-03-installElasticsearch-zypper() {
     load-installElasticsearch
     sys_type="zypper"
     opendistro_version="1.13.2"
@@ -56,11 +51,11 @@ test-installElasticsearch-zypper() {
     installElasticsearch
 }
 
-test-installElasticsearch-zypper-assert() {
+test-03-installElasticsearch-zypper-assert() {
     zypper -n install opendistroforelasticsearch=1.13.2-1
 }
 
-test-ASSERT-FAIL-installElasticsearch-zypper-error() {
+test-ASSERT-FAIL-04-installElasticsearch-zypper-error() {
     load-installElasticsearch
     sys_type="zypper"
     opendistro_version="1.13.2"
@@ -69,7 +64,7 @@ test-ASSERT-FAIL-installElasticsearch-zypper-error() {
     installElasticsearch
 }
 
-test-installElasticsearch-yum() {
+test-05-installElasticsearch-yum() {
     load-installElasticsearch
     sys_type="yum"
     sep="-"
@@ -78,11 +73,11 @@ test-installElasticsearch-yum() {
     installElasticsearch
 }
 
-test-installElasticsearch-yum-assert() {
+test-05-installElasticsearch-yum-assert() {
     yum install opendistroforelasticsearch-1.13.2-1 -y
 }
 
-test-ASSERT-FAIL-installElasticsearch-yum-error() {
+test-ASSERT-FAIL-06-installElasticsearch-yum-error() {
     load-installElasticsearch
     sys_type="yum"
     sep="-"
@@ -92,7 +87,7 @@ test-ASSERT-FAIL-installElasticsearch-yum-error() {
     installElasticsearch
 }
 
-test-installElasticsearch-apt() {
+test-07-installElasticsearch-apt() {
     load-installElasticsearch
     sys_type="apt-get"
     sep="="
@@ -101,11 +96,11 @@ test-installElasticsearch-apt() {
     installElasticsearch
 }
 
-test-installElasticsearch-apt-assert() {
+test-07-installElasticsearch-apt-assert() {
     apt install elasticsearch-oss opendistroforelasticsearch -y 
 }
 
-test-ASSERT-FAIL-installElasticsearch-apt-error() {
+test-ASSERT-FAIL-08-installElasticsearch-apt-error() {
     load-installElasticsearch
     sys_type="apt-get"
     sep="="
@@ -119,7 +114,7 @@ function load-configureElasticsearch() {
     @load_function "${base_dir}/elasticsearch.sh" configureElasticsearch
 }
 
-test-configureElasticsearch-dist-one-elastic-node() {
+test-09-configureElasticsearch-dist-one-elastic-node() {
     load-configureElasticsearch
     elasticsearch_node_names=("elastic1")
     elasticsearch_node_ips=("1.1.1.1")
@@ -131,8 +126,7 @@ test-configureElasticsearch-dist-one-elastic-node() {
     configureElasticsearch
 }
 
-
-test-configureElasticsearch-dist-one-elastic-node-assert() {
+test-09-configureElasticsearch-dist-one-elastic-node-assert() {
     getConfig elasticsearch/elasticsearch_unattended_distributed.yml /etc/elasticsearch/elasticsearch.yml
     getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml
     getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml
@@ -153,7 +147,7 @@ test-configureElasticsearch-dist-one-elastic-node-assert() {
 
 }
 
-test-configureElasticsearch-dist-two-elastic-nodes() {
+test-10-configureElasticsearch-dist-two-elastic-nodes() {
     load-configureElasticsearch
     elasticsearch_node_names=("elastic1" "elastic2")
     elasticsearch_node_ips=("1.1.1.1", "1.1.2.2")
@@ -165,8 +159,7 @@ test-configureElasticsearch-dist-two-elastic-nodes() {
     configureElasticsearch
 }
 
-
-test-configureElasticsearch-dist-two-elastic-nodes-assert() {
+test-10-configureElasticsearch-dist-two-elastic-nodes-assert() {
     getConfig elasticsearch/elasticsearch_unattended_distributed.yml /etc/elasticsearch/elasticsearch.yml
     getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml
     getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml
@@ -190,7 +183,7 @@ function load-configureElasticsearchAIO() {
     @load_function "${base_dir}/elasticsearch.sh" configureElasticsearchAIO
 }
 
-test-configureElasticsearch-AIO() {
+test-11-configureElasticsearch-AIO() {
     load-configureElasticsearchAIO
     elasticsearch_node_names=("elastic1")
     elasticsearch_node_ips=("1.1.1.1")
@@ -199,8 +192,7 @@ test-configureElasticsearch-AIO() {
     configureElasticsearchAIO
 }
 
-
-test-configureElasticsearch-AIO-assert() {
+test-11-configureElasticsearch-AIO-assert() {
     getConfig elasticsearch/elasticsearch_all_in_one.yml /etc/elasticsearch/elasticsearch.yml
     getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml
     getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml
@@ -222,7 +214,7 @@ function load-initializeElasticsearch() {
     @load_function "${base_dir}/elasticsearch.sh" initializeElasticsearch
 }
 
-test-initializeElasticsearch-one-node() {
+test-12-initializeElasticsearch-one-node() {
     load-initializeElasticsearch
     elasticsearch_node_names=("elastic1")
     elasticsearch_node_ips=("1.1.1.1")
@@ -232,13 +224,13 @@ test-initializeElasticsearch-one-node() {
     @echo ${start_elastic_cluster}
 }
 
-test-initializeElasticsearch-one-node-assert() {
+test-12-initializeElasticsearch-one-node-assert() {
     startElasticsearchCluster
     changePasswords
     @echo 1
 }
 
-test-initializeElasticsearch-two-nodes() {
+test-13-initializeElasticsearch-two-nodes() {
     load-initializeElasticsearch
     elasticsearch_node_names=("elastic1" "elastic2")
     elasticsearch_node_ips=("1.1.1.1" "1.1.2.2")
@@ -248,7 +240,7 @@ test-initializeElasticsearch-two-nodes() {
     @assert-success
 }
 
-test-ASSERT-FAIL-initializeElasticsearch-error-connecting() {
+test-ASSERT-FAIL-14-initializeElasticsearch-error-connecting() {
     load-initializeElasticsearch
     elasticsearch_node_names=("elastic1")
     elasticsearch_node_ips=("1.1.1.1")
@@ -261,12 +253,12 @@ function load-applyLog4j2Mitigation() {
     @load_function "${base_dir}/elasticsearch.sh" applyLog4j2Mitigation
 }
 
-test-applyLog4j2Mitigation() {
+test-15-applyLog4j2Mitigation() {
     load-applyLog4j2Mitigation
     applyLog4j2Mitigation
 }
 
-test-applyLog4j2Mitigation-assert() {
+test-15-applyLog4j2Mitigation-assert() {
     curl -so /tmp/apache-log4j-2.17.1-bin.tar.gz https://packages.wazuh.com/utils/log4j/apache-log4j-2.17.1-bin.tar.gz
     tar -xf /tmp/apache-log4j-2.17.1-bin.tar.gz -C /tmp/
 
