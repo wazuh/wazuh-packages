@@ -602,7 +602,7 @@ rm -fr %{buildroot}
 %attr(750, root, wazuh) %{_localstatedir}/wodles/*
 %dir %attr(750, root, wazuh) %{_localstatedir}/wodles/aws
 %attr(750, root, wazuh) %{_localstatedir}/wodles/aws/*
-packages/%dir %attr(750, root, wazuh) %{_localstatedir}/wodles/azure
+%dir %attr(750, root, wazuh) %{_localstatedir}/wodles/azure
 %attr(750, root, wazuh) %{_localstatedir}/wodles/azure/*
 %dir %attr(750, root, wazuh) %{_localstatedir}/wodles/docker
 %attr(750, root, wazuh) %{_localstatedir}/wodles/docker/*
@@ -634,7 +634,7 @@ packages/%dir %attr(750, root, wazuh) %{_localstatedir}/wodles/azure
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Sat Apr 24 2021 support <info@wazuh.com> - 3.13.3
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Mon Apr 22 2021 support <info@wazuh.com> - 4.1.5
+* Thu Apr 22 2021 support <info@wazuh.com> - 4.1.5
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Mar 29 2021 support <info@wazuh.com> - 4.1.4
 - More info: https://documentation.wazuh.com/current/release-notes/
