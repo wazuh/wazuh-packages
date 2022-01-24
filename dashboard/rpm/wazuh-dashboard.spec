@@ -114,9 +114,9 @@ chown %{USER}:%{GROUP} %{buildroot}/etc/init.d/wazuh-dashboard
 
 
 cd %{buildroot}%{INSTALL_DIR}
-#sudo -u %{USER} bin/kibana-plugin install file:///tmp/plugin/wazuh-kibana-app.zip
+sudo -u %{USER} bin/opensearch-dashboards-plugin install https://s3.amazonaws.com/warehouse.wazuh.com/stack/dashboard/wazuh-1.2.0.zip
 
-#find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -exec chown %{USER}:%{GROUP} {} \;
+find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -exec chown %{USER}:%{GROUP} {} \;
 
 # -----------------------------------------------------------------------------
 
@@ -195,6 +195,7 @@ fi
 if [ -f %{INSTALL_DIR}/wazuh-dashboard.restart ]; then
   rm -f %{INSTALL_DIR}/wazuh-dashboard.restart
   if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 ; then
+    systemctl daemon-reload > /dev/null 2>&1
     systemctl restart wazuh-dashboard.service > /dev/null 2>&1
   elif command -v service > /dev/null 2>&1 && service wazuh-dashboard status 2>/dev/null | grep "running" > /dev/null 2>&1; then
     service wazuh-dashboard restart > /dev/null 2>&1

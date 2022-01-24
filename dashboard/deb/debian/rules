@@ -99,6 +99,10 @@ override_dh_install:
 	chown ${USER}:${GROUP} ${TARGET_DIR}/etc/init.d/${NAME}
 	chown ${USER}:${GROUP} ${TARGET_DIR}/etc/default/${NAME}
 
+	sudo -u ${USER} ${TARGET_DIR}${INSTALLATION_DIR}/bin/opensearch-dashboards-plugin install https://s3.amazonaws.com/warehouse.wazuh.com/stack/dashboard/wazuh-1.2.0.zip
+
+	find ${TARGET_DIR}${INSTALLATION_DIR}/plugins/wazuh/ -exec chown ${USER}:${GROUP} {} \;
+
 
 #override_dh_auto_clean:
 

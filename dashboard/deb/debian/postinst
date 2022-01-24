@@ -39,6 +39,7 @@ case "$1" in
         if [ -f "${INSTALLATION_DIR}"/"${NAME}".restart ]; then
         rm -f "${INSTALLATION_DIR}"/"${NAME}".restart
             if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 ; then
+                systemctl daemon-reload > /dev/null 2>&1
                 systemctl restart wazuh-dashboard.service > /dev/null 2>&1
             elif command -v service > /dev/null 2>&1 && service wazuh-dashboard status 2>/dev/null | grep "running" > /dev/null 2>&1; then
                 service wazuh-dashboard restart > /dev/null 2>&1
