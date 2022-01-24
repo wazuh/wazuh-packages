@@ -11,7 +11,7 @@ function load-checkSystem() {
     @load_function "${base_dir}/checks.sh" checkSystem
 }
 
-test-ASSERT-FAIL-checkSystem-empty() {
+test-ASSERT-FAIL-1-checkSystem-empty() {
     load-checkSystem
     @mock command -v yum === @false
     @mock command -v zypper === @false
@@ -19,7 +19,7 @@ test-ASSERT-FAIL-checkSystem-empty() {
     checkSystem
 }
 
-test-checkSystem-yum() {
+test-2-checkSystem-yum() {
     load-checkSystem
     @mock command -v yum === @echo /usr/bin/yum
     @mock command -v zypper === @false
@@ -29,14 +29,14 @@ test-checkSystem-yum() {
     echo "$sep"
 }
 
-test-checkSystem-yum-assert() {
+test-2-checkSystem-yum-assert() {
     sys_type="yum"
     sep="-"
     echo "$sys_type"
     echo "$sep"
 }
 
-test-checkSystem-zypper() {
+test-3-checkSystem-zypper() {
     load-checkSystem
     @mock command -v yum === @false
     @mock command -v zypper === @echo /usr/bin/zypper
@@ -46,14 +46,14 @@ test-checkSystem-zypper() {
     @echo "$sep"
 }
 
-test-checkSystem-zypper-assert() {
+test-3-checkSystem-zypper-assert() {
     sys_type="zypper"
     sep="-"
     @echo "$sys_type"
     @echo "$sep"
 }
 
-test-checkSystem-apt() {
+test-4-checkSystem-apt() {
     load-checkSystem
     @mock command -v yum === @false
     @mock command -v zypper === @false
@@ -63,7 +63,7 @@ test-checkSystem-apt() {
     echo "$sep"
 }
 
-test-checkSystem-apt-assert() {
+test-4-checkSystem-apt-assert() {
     sys_type="apt-get"
     sep="="
     echo "$sys_type"
@@ -74,28 +74,28 @@ function load-checkNames() {
     @load_function "${base_dir}/checks.sh" checkNames
 }
 
-test-ASSERT-FAIL-checkNames-elastic-kibana-equals() {
+test-ASSERT-FAIL-5-checkNames-elastic-kibana-equals() {
     load-checkNames
     einame="node1"
     kiname="node1"
     checkNames
 }
 
-test-ASSERT-FAIL-checkNames-elastic-wazuh-equals() {
+test-ASSERT-FAIL-6-checkNames-elastic-wazuh-equals() {
     load-checkNames
     einame="node1"
     winame="node1"
     checkNames
 }
 
-test-ASSERT-FAIL-checkNames-kibana-wazuh-equals() {
+test-ASSERT-FAIL-7-checkNames-kibana-wazuh-equals() {
     load-checkNames
     kiname="node1"
     winame="node1"
     checkNames
 }
 
-test-ASSERT-FAIL-checkNames-wazuh-node-name-not-in-config() {
+test-ASSERT-FAIL-8-checkNames-wazuh-node-name-not-in-config() {
     load-checkNames
     winame="node1"
     wazuh_servers_node_names=(wazuh node10)
@@ -104,7 +104,7 @@ test-ASSERT-FAIL-checkNames-wazuh-node-name-not-in-config() {
     checkNames
 }
 
-test-ASSERT-FAIL-checkNames-kibana-node-name-not-in-config() {
+test-ASSERT-FAIL-9-checkNames-kibana-node-name-not-in-config() {
     load-checkNames
     kiname="node1"
     kibana_node_names=(kibana node10)
@@ -113,7 +113,7 @@ test-ASSERT-FAIL-checkNames-kibana-node-name-not-in-config() {
     checkNames
 }
 
-test-ASSERT-FAIL-checkNames-elasticsearch-node-name-not-in-config() {
+test-ASSERT-FAIL-10-checkNames-elasticsearch-node-name-not-in-config() {
     load-checkNames
     einame="node1"
     elasticsearch_node_names=(elasticsearch node10)
@@ -122,7 +122,7 @@ test-ASSERT-FAIL-checkNames-elasticsearch-node-name-not-in-config() {
     checkNames
 }
 
-test-checkNames-all-correct-installing-elastic() {
+test-11-checkNames-all-correct-installing-elastic() {
     load-checkNames
     einame="elasticsearch1"
     kiname="kibana1"
@@ -141,7 +141,7 @@ test-checkNames-all-correct-installing-elastic() {
     @assert-success
 }
 
-test-checkNames-all-correct-installing-wazuh() {
+test-12-checkNames-all-correct-installing-wazuh() {
     load-checkNames
     einame="elasticsearch1"
     kiname="kibana1"
@@ -160,7 +160,7 @@ test-checkNames-all-correct-installing-wazuh() {
     @assert-success
 }
 
-test-checkNames-all-correct-installing-kibana() {
+test-13-checkNames-all-correct-installing-kibana() {
     load-checkNames
     einame="elasticsearch1"
     kiname="kibana1"
@@ -184,20 +184,20 @@ function load-checkArch() {
     @load_function "${base_dir}/checks.sh" checkArch
 }
 
-test-checkArch-x86_64() {
+test-14-checkArch-x86_64() {
     @mock uname -m === @out x86_64
     load-checkArch
     checkArch
     @assert-success
 }
 
-test-ASSERT-FAIL-checkArch-empty() {
+test-ASSERT-FAIL-15-checkArch-empty() {
     @mock uname -m === @out
     load-checkArch
     checkArch
 }
 
-test-ASSERT-FAIL-checkArch-i386() {
+test-ASSERT-FAIL-16-checkArch-i386() {
     @mock uname -m === @out i386
     load-checkArch
     checkArch
@@ -207,7 +207,7 @@ function load-checkArguments {
     @load_function "${base_dir}/checks.sh" checkArguments
 }
 
-test-ASSERT-FAIL-checkArguments-install-aio-certs-file-present() {
+test-ASSERT-FAIL-17-checkArguments-install-aio-certs-file-present() {
     load-checkArguments
     AIO=1
     tar_file="tarfile.tar"
@@ -217,7 +217,7 @@ test-ASSERT-FAIL-checkArguments-install-aio-certs-file-present() {
 
 }
 
-test-ASSERT-FAIL-checkArguments-certificate-creation-certs-file-present() {
+test-ASSERT-FAIL-18-checkArguments-certificate-creation-certs-file-present() {
     load-checkArguments
     certificates=1
     tar_file="tarfile.tar"
@@ -226,7 +226,7 @@ test-ASSERT-FAIL-checkArguments-certificate-creation-certs-file-present() {
     @rm $tar_file
 }
 
-test-ASSERT-FAIL-checkArguments-overwrite-with-no-component-installed() {
+test-ASSERT-FAIL-19-checkArguments-overwrite-with-no-component-installed() {
     load-checkArguments
     overwrite=1
     AIO=
@@ -236,7 +236,7 @@ test-ASSERT-FAIL-checkArguments-overwrite-with-no-component-installed() {
     checkArguments
 }
 
-test-checkArguments-uninstall-no-component-installed() {
+test-20-checkArguments-uninstall-no-component-installed() {
     load-checkArguments
     uninstall=1
     elasticsearchinstalled=""
@@ -251,56 +251,56 @@ test-checkArguments-uninstall-no-component-installed() {
     @assert-success
 }
 
-test-ASSERT-FAIL-checkArguments-uninstall-and-aio() {
+test-ASSERT-FAIL-21-checkArguments-uninstall-and-aio() {
     load-checkArguments
     uninstall=1
     AIO=1
     checkArguments
 }
 
-test-ASSERT-FAIL-checkArguments-uninstall-and-wazuh() {
+test-ASSERT-FAIL-22-checkArguments-uninstall-and-wazuh() {
     load-checkArguments
     uninstall=1
     wazuh=1
     checkArguments
 }
 
-test-ASSERT-FAIL-checkArguments-uninstall-and-kibana() {
+test-ASSERT-FAIL-23-checkArguments-uninstall-and-kibana() {
     load-checkArguments
     uninstall=1
     kibana=1
     checkArguments
 }
 
-test-ASSERT-FAIL-checkArguments-uninstall-and-elasticsearch() {
+test-ASSERT-FAIL-24-checkArguments-uninstall-and-elasticsearch() {
     load-checkArguments
     uninstall=1
     elasticsearch=1
     checkArguments
 }
 
-test-ASSERT-FAIL-checkArguments-install-aio-and-elastic () {
+test-ASSERT-FAIL-25-checkArguments-install-aio-and-elastic () {
     load-checkArguments
     AIO=1
     elasticsearch=1
     checkArguments
 }
 
-test-ASSERT-FAIL-checkArguments-install-aio-and-wazuh () {
+test-ASSERT-FAIL-26-checkArguments-install-aio-and-wazuh () {
     load-checkArguments
     AIO=1
     wazuh=1
     checkArguments
 }
 
-test-ASSERT-FAIL-checkArguments-install-aio-and-kibana () {
+test-ASSERT-FAIL-27-checkArguments-install-aio-and-kibana () {
     load-checkArguments
     AIO=1
     kibana=1
     checkArguments
 }
 
-test-ASSERT-FAIL-checkArguments-install-aio-wazuh-installed-no-overwrite() {
+test-ASSERT-FAIL-28-checkArguments-install-aio-wazuh-installed-no-overwrite() {
     load-checkArguments
     AIO=1
     wazuhinstalled=1
@@ -308,7 +308,7 @@ test-ASSERT-FAIL-checkArguments-install-aio-wazuh-installed-no-overwrite() {
     checkArguments
 }
 
-test-ASSERT-FAIL-checkArguments-install-aio-wazuh-files-no-overwrite() {
+test-ASSERT-FAIL-29-checkArguments-install-aio-wazuh-files-no-overwrite() {
     load-checkArguments
     AIO=1
     wazuh_remaining_files=1
@@ -316,7 +316,7 @@ test-ASSERT-FAIL-checkArguments-install-aio-wazuh-files-no-overwrite() {
     checkArguments
 }
 
-test-ASSERT-FAIL-checkArguments-install-aio-elastic-installed-no-overwrite() {
+test-ASSERT-FAIL-30-checkArguments-install-aio-elastic-installed-no-overwrite() {
     load-checkArguments
     AIO=1
     elasticsearchinstalled=1
@@ -324,7 +324,7 @@ test-ASSERT-FAIL-checkArguments-install-aio-elastic-installed-no-overwrite() {
     checkArguments
 }
 
-test-ASSERT-FAIL-checkArguments-install-aio-elastic-files-no-overwrite() {
+test-ASSERT-FAIL-31-checkArguments-install-aio-elastic-files-no-overwrite() {
     load-checkArguments
     AIO=1
     elastic_remaining_files=1
@@ -332,7 +332,7 @@ test-ASSERT-FAIL-checkArguments-install-aio-elastic-files-no-overwrite() {
     checkArguments
 }
 
-test-ASSERT-FAIL-checkArguments-install-aio-kibana-installed-no-overwrite() {
+test-ASSERT-FAIL-32-checkArguments-install-aio-kibana-installed-no-overwrite() {
     load-checkArguments
     AIO=1
     kibanainstalled=1
@@ -340,7 +340,7 @@ test-ASSERT-FAIL-checkArguments-install-aio-kibana-installed-no-overwrite() {
     checkArguments
 }
 
-test-ASSERT-FAIL-checkArguments-install-aio-kibana-files-no-overwrite() {
+test-ASSERT-FAIL-33-checkArguments-install-aio-kibana-files-no-overwrite() {
     load-checkArguments
     AIO=1
     kibana_remaining_files=1
@@ -348,7 +348,7 @@ test-ASSERT-FAIL-checkArguments-install-aio-kibana-files-no-overwrite() {
     checkArguments
 }
 
-test-checkArguments-install-aio-wazuh-installed-overwrite() {
+test-34-checkArguments-install-aio-wazuh-installed-overwrite() {
     load-checkArguments
     AIO=1
     wazuhinstalled=1
@@ -356,11 +356,11 @@ test-checkArguments-install-aio-wazuh-installed-overwrite() {
     checkArguments
 }
 
-test-checkArguments-install-aio-wazuh-installed-overwrite-assert() {
+test-34-checkArguments-install-aio-wazuh-installed-overwrite-assert() {
     rollBack
 }
 
-test-checkArguments-install-aio-wazuh-files-overwrite() {
+test-35-checkArguments-install-aio-wazuh-files-overwrite() {
     load-checkArguments
     AIO=1
     wazuh_remaining_files=1
@@ -368,11 +368,11 @@ test-checkArguments-install-aio-wazuh-files-overwrite() {
     checkArguments
 }
 
-test-checkArguments-install-aio-wazuh-files-overwrite-assert() {
+test-35-checkArguments-install-aio-wazuh-files-overwrite-assert() {
     rollBack
 }
 
-test-checkArguments-install-aio-elastic-installed-overwrite() {
+test-36-checkArguments-install-aio-elastic-installed-overwrite() {
     load-checkArguments
     AIO=1
     elasticsearchinstalled=1
@@ -380,11 +380,11 @@ test-checkArguments-install-aio-elastic-installed-overwrite() {
     checkArguments
 }
 
-test-checkArguments-install-aio-elastic-installed-overwrite-assert() {
+test-36-checkArguments-install-aio-elastic-installed-overwrite-assert() {
     rollBack
 }
 
-test-checkArguments-install-aio-elastic-files-overwrite() {
+test-37-checkArguments-install-aio-elastic-files-overwrite() {
     load-checkArguments
     AIO=1
     elastic_remaining_files=1
@@ -392,11 +392,11 @@ test-checkArguments-install-aio-elastic-files-overwrite() {
     checkArguments
 }
 
-test-checkArguments-install-aio-elastic-files-overwrite-assert() {
+test-37-checkArguments-install-aio-elastic-files-overwrite-assert() {
     rollBack
 }
 
-test-checkArguments-install-aio-kibana-installed-overwrite() {
+test-38-checkArguments-install-aio-kibana-installed-overwrite() {
     load-checkArguments
     AIO=1
     kibanainstalled=1
@@ -404,11 +404,11 @@ test-checkArguments-install-aio-kibana-installed-overwrite() {
     checkArguments
 }
 
-test-checkArguments-install-aio-kibana-installed-overwrite-assert() {
+test-38-checkArguments-install-aio-kibana-installed-overwrite-assert() {
     rollBack
 }
 
-test-checkArguments-install-aio-kibana-files-overwrite() {
+test-39-checkArguments-install-aio-kibana-files-overwrite() {
     load-checkArguments
     AIO=1
     kibana_remaining_files=1
@@ -416,11 +416,11 @@ test-checkArguments-install-aio-kibana-files-overwrite() {
     checkArguments
 }
 
-test-checkArguments-install-aio-kibana-files-overwrite-assert() {
+test-39-checkArguments-install-aio-kibana-files-overwrite-assert() {
     rollBack
 }
 
-test-ASSERT-FAIL-checkArguments-install-elastic-already-installed-no-overwrite() {
+test-ASSERT-FAIL-40-checkArguments-install-elastic-already-installed-no-overwrite() {
     load-checkArguments
     elasticsearch=1
     elasticsearchinstalled=1
@@ -428,7 +428,7 @@ test-ASSERT-FAIL-checkArguments-install-elastic-already-installed-no-overwrite()
     checkArguments
 }
 
-test-ASSERT-FAIL-checkArguments-install-elastic-remaining-files-no-overwrite() {
+test-ASSERT-FAIL-41-checkArguments-install-elastic-remaining-files-no-overwrite() {
     load-checkArguments
     elasticsearch=1
     elastic_remaining_files=1
@@ -436,7 +436,7 @@ test-ASSERT-FAIL-checkArguments-install-elastic-remaining-files-no-overwrite() {
     checkArguments
 }
 
-test-checkArguments-install-elastic-already-installed-overwrite() {
+test-42-checkArguments-install-elastic-already-installed-overwrite() {
     load-checkArguments
     elasticsearch=1
     elasticsearchinstalled=1
@@ -444,11 +444,11 @@ test-checkArguments-install-elastic-already-installed-overwrite() {
     checkArguments
 }
 
-test-checkArguments-install-elastic-already-installed-overwrite-assert() {
+test-42-checkArguments-install-elastic-already-installed-overwrite-assert() {
     rollBack
 }
 
-test-checkArguments-install-elastic-remaining-files-overwrite() {
+test-43-checkArguments-install-elastic-remaining-files-overwrite() {
     load-checkArguments
     elasticsearch=1
     elastic_remaining_files=1
@@ -456,11 +456,11 @@ test-checkArguments-install-elastic-remaining-files-overwrite() {
     checkArguments
 }
 
-test-checkArguments-install-elastic-remaining-files-overwrite-assert() {
+test-43-checkArguments-install-elastic-remaining-files-overwrite-assert() {
     rollBack
 }
 
-test-ASSERT-FAIL-checkArguments-install-wazuh-already-installed-no-overwrite() {
+test-ASSERT-FAIL-44-checkArguments-install-wazuh-already-installed-no-overwrite() {
     load-checkArguments
     wazuh=1
     wazuhinstalled=1
@@ -468,7 +468,7 @@ test-ASSERT-FAIL-checkArguments-install-wazuh-already-installed-no-overwrite() {
     checkArguments
 }
 
-test-ASSERT-FAIL-checkArguments-install-wazuh-remaining-files-no-overwrite() {
+test-ASSERT-FAIL-45-checkArguments-install-wazuh-remaining-files-no-overwrite() {
     load-checkArguments
     wazuh=1
     wazuh_remaining_files=1
@@ -476,7 +476,7 @@ test-ASSERT-FAIL-checkArguments-install-wazuh-remaining-files-no-overwrite() {
     checkArguments
 }
 
-test-checkArguments-install-wazuh-already-installed-overwrite() {
+test-46-checkArguments-install-wazuh-already-installed-overwrite() {
     load-checkArguments
     wazuh=1
     wazuhinstalled=1
@@ -484,11 +484,11 @@ test-checkArguments-install-wazuh-already-installed-overwrite() {
     checkArguments
 }
 
-test-checkArguments-install-wazuh-already-installed-overwrite-assert() {
+test-46-checkArguments-install-wazuh-already-installed-overwrite-assert() {
     rollBack
 }
 
-test-checkArguments-install-wazuh-remaining-files-overwrite() {
+test-47-checkArguments-install-wazuh-remaining-files-overwrite() {
     load-checkArguments
     wazuh=1
     wazuh_remaining_files=1
@@ -496,11 +496,11 @@ test-checkArguments-install-wazuh-remaining-files-overwrite() {
     checkArguments
 }
 
-test-checkArguments-install-wazuh-remaining-files-overwrite-assert() {
+test-47-checkArguments-install-wazuh-remaining-files-overwrite-assert() {
     rollBack
 }
 
-test-ASSERT-FAIL-checkArguments-install-wazuh-filebeat-already-installed-no-overwrite() {
+test-ASSERT-FAIL-48-checkArguments-install-wazuh-filebeat-already-installed-no-overwrite() {
     load-checkArguments
     wazuh=1
     filebeatinstalled=1
@@ -508,7 +508,7 @@ test-ASSERT-FAIL-checkArguments-install-wazuh-filebeat-already-installed-no-over
     checkArguments
 }
 
-test-ASSERT-FAIL-checkArguments-install-wazuh-filebeat-remaining-files-no-overwrite() {
+test-ASSERT-FAIL-49-checkArguments-install-wazuh-filebeat-remaining-files-no-overwrite() {
     load-checkArguments
     wazuh=1
     filebeat_remaining_files=1
@@ -516,7 +516,7 @@ test-ASSERT-FAIL-checkArguments-install-wazuh-filebeat-remaining-files-no-overwr
     checkArguments
 }
 
-test-checkArguments-install-wazuh-filebeat-already-installed-overwrite() {
+test-50-checkArguments-install-wazuh-filebeat-already-installed-overwrite() {
     load-checkArguments
     wazuh=1
     filebeatinstalled=1
@@ -524,11 +524,11 @@ test-checkArguments-install-wazuh-filebeat-already-installed-overwrite() {
     checkArguments
 }
 
-test-checkArguments-install-wazuh-filebeat-already-installed-overwrite-assert() {
+test-50-checkArguments-install-wazuh-filebeat-already-installed-overwrite-assert() {
     rollBack
 }
 
-test-checkArguments-install-wazuh-filebeat-remaining-files-overwrite() {
+test-51-checkArguments-install-wazuh-filebeat-remaining-files-overwrite() {
     load-checkArguments
     wazuh=1
     filebeat_remaining_files=1
@@ -536,11 +536,11 @@ test-checkArguments-install-wazuh-filebeat-remaining-files-overwrite() {
     checkArguments
 }
 
-test-checkArguments-install-wazuh-filebeat-remaining-files-overwrite-assert() {
+test-51-checkArguments-install-wazuh-filebeat-remaining-files-overwrite-assert() {
     rollBack
 }
 
-test-ASSERT-FAIL-checkArguments-install-kibana-already-installed-no-overwrite() {
+test-ASSERT-FAIL-52-checkArguments-install-kibana-already-installed-no-overwrite() {
     load-checkArguments
     kibana=1
     kibanainstalled=1
@@ -548,7 +548,7 @@ test-ASSERT-FAIL-checkArguments-install-kibana-already-installed-no-overwrite() 
     checkArguments
 }
 
-test-ASSERT-FAIL-checkArguments-install-kibana-remaining-files-no-overwrite() {
+test-ASSERT-FAIL-53-checkArguments-install-kibana-remaining-files-no-overwrite() {
     load-checkArguments
     kibana=1
     kibana_remaining_files=1
@@ -556,7 +556,7 @@ test-ASSERT-FAIL-checkArguments-install-kibana-remaining-files-no-overwrite() {
     checkArguments
 }
 
-test-checkArguments-install-kibana-already-installed-overwrite() {
+test-54-checkArguments-install-kibana-already-installed-overwrite() {
     load-checkArguments
     kibana=1
     kibanainstalled=1
@@ -564,11 +564,11 @@ test-checkArguments-install-kibana-already-installed-overwrite() {
     checkArguments
 }
 
-test-checkArguments-install-kibana-already-installed-overwrite-assert() {
+test-54-checkArguments-install-kibana-already-installed-overwrite-assert() {
     rollBack
 }
 
-test-checkArguments-install-kibana-remaining-files-overwrite() {
+test-55-checkArguments-install-kibana-remaining-files-overwrite() {
     load-checkArguments
     kibana=1
     kibana_remaining_files=1
@@ -576,7 +576,7 @@ test-checkArguments-install-kibana-remaining-files-overwrite() {
     checkArguments
 }
 
-test-checkArguments-install-kibana-remaining-files-overwrite-assert() {
+test-55-checkArguments-install-kibana-remaining-files-overwrite-assert() {
     rollBack
 }
 
@@ -585,13 +585,13 @@ function load-checkHealth() {
     @mocktrue checkSpecs
 }
 
-test-checkHealth-no-installation() {
+test-56-checkHealth-no-installation() {
     load-checkHealth
     checkHealth
     @assert-success
 }
 
-test-ASSERT-FAIL-checkHealth-AIO-1-core-3700-ram() {
+test-ASSERT-FAIL-57-checkHealth-AIO-1-core-3700-ram() {
     load-checkHealth
     cores=1
     ram_gb=3700
@@ -599,7 +599,7 @@ test-ASSERT-FAIL-checkHealth-AIO-1-core-3700-ram() {
     checkHealth
 }
 
-test-ASSERT-FAIL-checkHealth-AIO-2-cores-3000-ram() {
+test-ASSERT-FAIL-58-checkHealth-AIO-2-cores-3000-ram() {
     load-checkHealth
     cores=2
     ram_gb=3000
@@ -607,7 +607,7 @@ test-ASSERT-FAIL-checkHealth-AIO-2-cores-3000-ram() {
     checkHealth
 }
 
-test-checkHealth-AIO-2-cores-4gb() {
+test-59-checkHealth-AIO-2-cores-4gb() {
     load-checkHealth
     cores=2
     ram_gb=3700
@@ -616,7 +616,7 @@ test-checkHealth-AIO-2-cores-4gb() {
     @assert-success
 }
 
-test-ASSERT-FAIL-checkHealth-elasticsearch-1-core-3700-ram() {
+test-ASSERT-FAIL-60-checkHealth-elasticsearch-1-core-3700-ram() {
     load-checkHealth
     cores=1
     ram_gb=3700
@@ -624,7 +624,7 @@ test-ASSERT-FAIL-checkHealth-elasticsearch-1-core-3700-ram() {
     checkHealth
 }
 
-test-ASSERT-FAIL-checkHealth-elasticsearch-2-cores-3000-ram() {
+test-ASSERT-FAIL-61-checkHealth-elasticsearch-2-cores-3000-ram() {
     load-checkHealth
     cores=2
     ram_gb=3000
@@ -632,7 +632,7 @@ test-ASSERT-FAIL-checkHealth-elasticsearch-2-cores-3000-ram() {
     checkHealth
 }
 
-test-checkHealth-elasticsearch-2-cores-3700-ram() {
+test-62-checkHealth-elasticsearch-2-cores-3700-ram() {
     load-checkHealth
     cores=2
     ram_gb=3700
@@ -641,7 +641,7 @@ test-checkHealth-elasticsearch-2-cores-3700-ram() {
     @assert-success
 }
 
-test-ASSERT-FAIL-checkHealth-kibana-1-core-3700-ram() {
+test-ASSERT-FAIL-63-checkHealth-kibana-1-core-3700-ram() {
     load-checkHealth
     cores=1
     ram_gb=3700
@@ -649,7 +649,7 @@ test-ASSERT-FAIL-checkHealth-kibana-1-core-3700-ram() {
     checkHealth
 }
 
-test-ASSERT-FAIL-checkHealth-kibana-2-cores-3000-ram() {
+test-ASSERT-FAIL-64-checkHealth-kibana-2-cores-3000-ram() {
     load-checkHealth
     cores=2
     ram_gb=3000
@@ -657,7 +657,7 @@ test-ASSERT-FAIL-checkHealth-kibana-2-cores-3000-ram() {
     checkHealth
 }
 
-test-checkHealth-kibana-2-cores-3700-ram() {
+test-65-checkHealth-kibana-2-cores-3700-ram() {
     load-checkHealth
     cores=2
     ram_gb=3700
@@ -666,7 +666,7 @@ test-checkHealth-kibana-2-cores-3700-ram() {
     @assert-success
 }
 
-test-ASSERT-FAIL-checkHealth-wazuh-1-core-1700-ram() {
+test-ASSERT-FAIL-66-checkHealth-wazuh-1-core-1700-ram() {
     load-checkHealth
     cores=1
     ram_gb=1700
@@ -674,7 +674,7 @@ test-ASSERT-FAIL-checkHealth-wazuh-1-core-1700-ram() {
     checkHealth
 }
 
-test-ASSERT-FAIL-checkHealth-wazuh-2-cores-1000-ram() {
+test-ASSERT-FAIL-67-checkHealth-wazuh-2-cores-1000-ram() {
     load-checkHealth
     cores=2
     ram_gb=1000
@@ -682,7 +682,7 @@ test-ASSERT-FAIL-checkHealth-wazuh-2-cores-1000-ram() {
     checkHealth
 }
 
-test-checkHealth-wazuh-2-cores-1700-ram() {
+test-68-checkHealth-wazuh-2-cores-1700-ram() {
     load-checkHealth
     cores=2
     ram_gb=1700
@@ -695,7 +695,7 @@ function load-checkIfInstalled() {
     @load_function "${base_dir}/checks.sh" checkIfInstalled
 }
 
-test-checkIfInstalled-all-installed-yum() {
+test-69-checkIfInstalled-all-installed-yum() {
     load-checkIfInstalled
     sys_type="yum"
 
@@ -745,7 +745,7 @@ test-checkIfInstalled-all-installed-yum() {
 
 }
 
-test-checkIfInstalled-all-installed-yum-assert() {
+test-69-checkIfInstalled-all-installed-yum-assert() {
     @echo "wazuh-manager.x86_64 4.3.0-1 @wazuh"
     @echo 1
 
@@ -759,7 +759,7 @@ test-checkIfInstalled-all-installed-yum-assert() {
     @echo 1
 }
 
-test-checkIfInstalled-all-installed-zypper() {
+test-70-checkIfInstalled-all-installed-zypper() {
     load-checkIfInstalled
     sys_type="zypper"
 
@@ -810,7 +810,7 @@ test-checkIfInstalled-all-installed-zypper() {
 
 }
 
-test-checkIfInstalled-all-installed-zypper-assert() {
+test-70-checkIfInstalled-all-installed-zypper-assert() {
     @echo "i+ | EL-20211102 - Wazuh | wazuh-manager | 4.3.0-1 | x86_64"
     @echo 1
 
@@ -824,7 +824,7 @@ test-checkIfInstalled-all-installed-zypper-assert() {
     @echo 1
 }
 
-test-checkIfInstalled-all-installed-apt() {
+test-71-checkIfInstalled-all-installed-apt() {
     load-checkIfInstalled
     sys_type="apt-get"
 
@@ -874,7 +874,7 @@ test-checkIfInstalled-all-installed-apt() {
 
 }
 
-test-checkIfInstalled-all-installed-apt-assert() {
+test-71-checkIfInstalled-all-installed-apt-assert() {
     @echo "wazuh-manager/now 4.2.5-1 amd64 [installed,local]"
     @echo 1
 
@@ -888,7 +888,7 @@ test-checkIfInstalled-all-installed-apt-assert() {
     @echo 1
 }
 
-test-checkIfInstalled-nothing-installed-apt() {
+test-72-checkIfInstalled-nothing-installed-apt() {
     load-checkIfInstalled
     sys_type="apt-get"
 
@@ -917,7 +917,7 @@ test-checkIfInstalled-nothing-installed-apt() {
     @echo $kibana_remaining_files
 }
 
-test-checkIfInstalled-nothing-installed-apt-assert() {
+test-72-checkIfInstalled-nothing-installed-apt-assert() {
     @echo ""
     @echo ""
 
@@ -931,7 +931,7 @@ test-checkIfInstalled-nothing-installed-apt-assert() {
     @echo ""
 }
 
-test-checkIfInstalled-nothing-installed-yum() {
+test-73-checkIfInstalled-nothing-installed-yum() {
     load-checkIfInstalled
     sys_type="yum"
 
@@ -960,7 +960,7 @@ test-checkIfInstalled-nothing-installed-yum() {
     @echo $kibana_remaining_files
 }
 
-test-checkIfInstalled-nothing-installed-yum-assert() {
+test-73-checkIfInstalled-nothing-installed-yum-assert() {
     @echo ""
     @echo ""
 
@@ -974,7 +974,7 @@ test-checkIfInstalled-nothing-installed-yum-assert() {
     @echo ""
 }
 
-test-checkIfInstalled-nothing-installed-zypper() {
+test-74-checkIfInstalled-nothing-installed-zypper() {
     load-checkIfInstalled
     sys_type="zypper"
 
@@ -1004,7 +1004,7 @@ test-checkIfInstalled-nothing-installed-zypper() {
     @echo $kibana_remaining_files
 }
 
-test-checkIfInstalled-nothing-installed-zypper-assert() {
+test-74-checkIfInstalled-nothing-installed-zypper-assert() {
     @echo ""
     @echo ""
 
@@ -1022,7 +1022,7 @@ function load-checkPreviousCertificates() {
     @load_function "${base_dir}/checks.sh" checkPreviousCertificates
 }
 
-test-ASSERT-FAIL-checkPreviousCertificates-no-tar_file() {
+test-ASSERT-FAIL-75-checkPreviousCertificates-no-tar_file() {
     load-checkPreviousCertificates
     tar_file=/tmp/tarfile.tar
     if [ -f $tar_file ]; then
@@ -1031,7 +1031,7 @@ test-ASSERT-FAIL-checkPreviousCertificates-no-tar_file() {
     checkPreviousCertificates
 }
 
-test-ASSERT-FAIL-checkPreviousCertificates-einame-not-in-tar_file() {
+test-ASSERT-FAIL-76-checkPreviousCertificates-einame-not-in-tar_file() {
     load-checkPreviousCertificates
     tar_file=/tmp/tarfile.tar
     @touch /tmp/tarfile.tar
@@ -1043,7 +1043,7 @@ test-ASSERT-FAIL-checkPreviousCertificates-einame-not-in-tar_file() {
     @rm /tmp/tarfile.tar
 }
 
-test-ASSERT-FAIL-checkPreviousCertificates-kiname-not-in-tar_file() {
+test-ASSERT-FAIL-77-checkPreviousCertificates-kiname-not-in-tar_file() {
     load-checkPreviousCertificates
     tar_file=/tmp/tarfile.tar
     @touch /tmp/tarfile.tar
@@ -1055,7 +1055,7 @@ test-ASSERT-FAIL-checkPreviousCertificates-kiname-not-in-tar_file() {
     @rm /tmp/tarfile.tar
 }
 
-test-ASSERT-FAIL-checkPreviousCertificates-winame-not-in-tar_file() {
+test-ASSERT-FAIL-78-checkPreviousCertificates-winame-not-in-tar_file() {
     load-checkPreviousCertificates
     tar_file=/tmp/tarfile.tar
     @touch /tmp/tarfile.tar
@@ -1067,7 +1067,7 @@ test-ASSERT-FAIL-checkPreviousCertificates-winame-not-in-tar_file() {
     @rm /tmp/tarfile.tar
 }
 
-test-checkPreviousCertificates-all-correct() {
+test-79-checkPreviousCertificates-all-correct() {
     load-checkPreviousCertificates
     tar_file=/tmp/tarfile.tar
     @touch /tmp/tarfile.tar

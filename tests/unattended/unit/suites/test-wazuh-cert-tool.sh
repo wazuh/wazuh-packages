@@ -13,12 +13,12 @@ function load-cleanFiles() {
     @load_function "${base_dir}/wazuh-cert-tool.sh" cleanFiles
 }
 
-test-1-cleanFiles() {
+test-01-cleanFiles() {
     load-cleanFiles
     cleanFiles
 }
 
-test-1-cleanFiles-assert() {
+test-01-cleanFiles-assert() {
     rm -f /tmp/wazuh-cert-tool/certs/*.csr
     rm -f /tmp/wazuh-cert-tool/certs/*.srl
     rm -f /tmp/wazuh-cert-tool/certs/*.conf
@@ -29,17 +29,17 @@ function load-checkOpenSSL() {
     @load_function "${base_dir}/wazuh-cert-tool.sh" checkOpenSSL
 }
 
-test-2-checkOpenSSL-no-openssl() {
+test-02-checkOpenSSL-no-openssl() {
     load-checkOpenSSL
     @mockfalse command -v openssl
     checkOpenSSL
 }
 
-test-2-checkOpenSSL-no-openssl-assert() {
+test-02-checkOpenSSL-no-openssl-assert() {
     exit 1
 }
 
-test-3-checkOpenSSL-correct() {
+test-03-checkOpenSSL-correct() {
     load-checkOpenSSL
     @mock command -v openssl === @out "/bin/openssl"
     checkOpenSSL
@@ -50,12 +50,12 @@ function load-generateAdmincertificate() {
     @load_function "${base_dir}/wazuh-cert-tool.sh" generateAdmincertificate
 }
 
-test-4-generateAdmincertificate() {
+test-04-generateAdmincertificate() {
     load-generateAdmincertificate
     generateAdmincertificate
 }
 
-test-4-generateAdmincertificate-assert() {
+test-04-generateAdmincertificate-assert() {
     openssl genrsa -out /tmp/wazuh-cert-tool/certs/admin-key-temp.pem 2048
     openssl pkcs8 -inform PEM -outform PEM -in /tmp/wazuh-cert-tool/certs/admin-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out /tmp/wazuh-cert-tool/certs/admin-key.pem
     openssl req -new -key /tmp/wazuh-cert-tool/certs/admin-key.pem -out /tmp/wazuh-cert-tool/certs/admin.csr -batch -subj '/C=US/L=California/O=Wazuh/OU=Docu/CN=admin'
@@ -66,7 +66,7 @@ function load-generateCertificateconfiguration() {
     @load_function "${base_dir}/wazuh-cert-tool.sh" generateCertificateconfiguration
 }
 
-test-5-generateCertificateconfiguration-IP() {
+test-05-generateCertificateconfiguration-IP() {
     load-generateCertificateconfiguration
     @mkdir -p /tmp/wazuh-cert-tool/certs
     @touch /tmp/wazuh-cert-tool/certs/wazuh1.conf
@@ -81,12 +81,12 @@ test-5-generateCertificateconfiguration-IP() {
     @rmdir /tmp/wazuh-cert-tool/certs
 }
 
-test-5-generateCertificateconfiguration-IP-assert() {
+test-05-generateCertificateconfiguration-IP-assert() {
     echo "conf"
     echo "conf2"
 }
 
-test-6-generateCertificateconfiguration-DNS() {
+test-06-generateCertificateconfiguration-DNS() {
     load-generateCertificateconfiguration
     @mkdir -p /tmp/wazuh-cert-tool/certs
     @touch /tmp/wazuh-cert-tool/certs/wazuh1.conf
@@ -102,13 +102,13 @@ test-6-generateCertificateconfiguration-DNS() {
     @rmdir /tmp/wazuh-cert-tool/certs
 }
 
-test-6-generateCertificateconfiguration-DNS-assert() {
+test-06-generateCertificateconfiguration-DNS-assert() {
     echo "conf"
     echo "conf2"
     echo "conf3"
 }
 
-test-7-generateCertificateconfiguration-error() {
+test-07-generateCertificateconfiguration-error() {
     load-generateCertificateconfiguration
     @mkdir -p /tmp/wazuh-cert-tool/certs
     @touch /tmp/wazuh-cert-tool/certs/wazuh1.conf
@@ -124,7 +124,7 @@ test-7-generateCertificateconfiguration-error() {
     @rmdir /tmp/wazuh-cert-tool/certs
 }
 
-test-7-generateCertificateconfiguration-error-assert() {
+test-07-generateCertificateconfiguration-error-assert() {
     echo "conf"
     exit 1
 }
@@ -134,12 +134,12 @@ function load-generateRootCAcertificate() {
     @load_function "${base_dir}/wazuh-cert-tool.sh" generateRootCAcertificate
 }
 
-test-8-generateRootCAcertificate() {
+test-08-generateRootCAcertificate() {
     load-generateRootCAcertificate
     generateRootCAcertificate
 }
 
-test-8-generateRootCAcertificate-assert() {
+test-08-generateRootCAcertificate-assert() {
     openssl req -x509 -new -nodes -newkey rsa:2048 -keyout /tmp/wazuh-cert-tool/certs/root-ca.key -out /tmp/wazuh-cert-tool/certs/root-ca.pem -batch -subj '/OU=Docu/O=Wazuh/L=California/' -days 3650
 }
 
@@ -147,7 +147,7 @@ function load-generateElasticsearchcertificates() {
     @load_function "${base_dir}/wazuh-cert-tool.sh" generateElasticsearchcertificates
 }
 
-test-9-generateElasticsearchcertificates-no-nodes() {
+test-09-generateElasticsearchcertificates-no-nodes() {
     load-generateElasticsearchcertificates
     elasticsearch_node_names=()
     generateElasticsearchcertificates

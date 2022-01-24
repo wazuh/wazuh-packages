@@ -17,7 +17,7 @@ function load-copyKibanacerts() {
     @load_function "${base_dir}/kibana.sh" copyKibanacerts
 }
 
-test-ASSERT-FAIL-copyKibanacerts-no-tarfile() {
+test-ASSERT-FAIL-01-copyKibanacerts-no-tarfile() {
     load-copyKibanacerts
     tar_file=/tmp/tarfile.tar
     if [ -f ${tar_file} ]; then
@@ -26,7 +26,7 @@ test-ASSERT-FAIL-copyKibanacerts-no-tarfile() {
     copyKibanacerts
 }
 
-test-copyKibanacerts() {
+test-02-copyKibanacerts() {
     load-copyKibanacerts
     tar_file=/tmp/tarfile.tar
     @touch ${tar_file}
@@ -36,7 +36,7 @@ test-copyKibanacerts() {
     copyKibanacerts
 }
 
-test-copyKibanacerts-assert() {
+test-02-copyKibanacerts-assert() {
     mkdir /etc/kibana/certs
     tar -xf /tmp/tarfile.tar -C /etc/kibana/certs/ ./kibana1.pem  && mv /etc/kibana/certs/kibana1.pem /etc/kibana/certs/kibana.pem
     tar -xf /tmp/tarfile.tar -C /etc/kibana/certs/ ./kibana1-key.pem  && mv /etc/kibana/certs/kibana1-key.pem /etc/kibana/certs/kibana-key.pem
@@ -50,18 +50,18 @@ function load-installKibana() {
     @load_function "${base_dir}/kibana.sh" installKibana
 }
 
-test-installKibana-zypper() {
+test-03-installKibana-zypper() {
     load-installKibana
     sys_type="zypper"
     opendistro_version="1.13.2"
     installKibana
 }
 
-test-installKibana-zypper-assert() {
+test-03-installKibana-zypper-assert() {
     zypper -n install opendistroforelasticsearch-kibana=1.13.2
 }
 
-test-ASSERT-FAIL-installKibana-zypper-error() {
+test-ASSERT-FAIL-04-installKibana-zypper-error() {
     load-installKibana
     sys_type="zypper"
     opendistro_version="1.13.2"
@@ -69,7 +69,7 @@ test-ASSERT-FAIL-installKibana-zypper-error() {
     installKibana
 }
 
-test-installKibana-yum() {
+test-05-installKibana-yum() {
     load-installKibana
     sys_type="yum"
     sep="-"
@@ -77,11 +77,11 @@ test-installKibana-yum() {
     installKibana
 }
 
-test-installKibana-yum-assert() {
+test-05-installKibana-yum-assert() {
     yum install opendistroforelasticsearch-kibana-1.13.2 -y 
 }
 
-test-ASSERT-FAIL-installKibana-yum-error() {
+test-ASSERT-FAIL-06-installKibana-yum-error() {
     load-installKibana
     sys_type="yum"
     sep="-"
@@ -90,7 +90,7 @@ test-ASSERT-FAIL-installKibana-yum-error() {
     installKibana
 }
 
-test-installKibana-apt() {
+test-07-installKibana-apt() {
     load-installKibana
     sys_type="apt-get"
     sep="="
@@ -98,11 +98,11 @@ test-installKibana-apt() {
     installKibana
 }
 
-test-installKibana-apt-assert() {
+test-07-installKibana-apt-assert() {
     apt-get install opendistroforelasticsearch-kibana=1.13.2 -y 
 }
 
-test-ASSERT-FAIL-installKibana-apt-error() {
+test-ASSERT-FAIL-08-installKibana-apt-error() {
     load-installKibana
     sys_type="apt-get"
     sep="="
@@ -115,7 +115,7 @@ function load-configureKibana() {
     @load_function "${base_dir}/kibana.sh" configureKibana
 }
 
-test-configureKibana-dist-one-kibana-node-one-elastic-node() {
+test-09-configureKibana-dist-one-kibana-node-one-elastic-node() {
     load-configureKibana
     kibana_node_names=("kibana1")
     kibana_node_ips=("1.1.1.1")
@@ -124,8 +124,7 @@ test-configureKibana-dist-one-kibana-node-one-elastic-node() {
     configureKibana
 }
 
-
-test-configureKibana-dist-one-kibana-node-one-elastic-node-assert() {
+test-09-configureKibana-dist-one-kibana-node-one-elastic-node-assert() {
     getConfig kibana/kibana_unattended_distributed.yml /etc/kibana/kibana.yml
     mkdir /usr/share/kibana/data
     chown -R kibana:kibana /usr/share/kibana/
@@ -137,7 +136,7 @@ test-configureKibana-dist-one-kibana-node-one-elastic-node-assert() {
     copyKibanacerts
 }
 
-test-configureKibana-dist-two-kibana-nodes-two-elastic-nodes() {
+test-10-configureKibana-dist-two-kibana-nodes-two-elastic-nodes() {
     load-configureKibana
     kiname="kibana2"
     kibana_node_names=("kibana1" "kibana2")
@@ -147,7 +146,7 @@ test-configureKibana-dist-two-kibana-nodes-two-elastic-nodes() {
     configureKibana
 }
 
-test-configureKibana-dist-two-kibana-nodes-two-elastic-nodes-assert() {
+test-10-configureKibana-dist-two-kibana-nodes-two-elastic-nodes-assert() {
     getConfig kibana/kibana_unattended_distributed.yml /etc/kibana/kibana.yml
     mkdir /usr/share/kibana/data
     chown -R kibana:kibana /usr/share/kibana/
@@ -161,7 +160,7 @@ test-configureKibana-dist-two-kibana-nodes-two-elastic-nodes-assert() {
     copyKibanacerts
 }
 
-test-ASSERT-FAIL-configureKibana-dist-error-downloading-plugin() {
+test-ASSERT-FAIL-11-configureKibana-dist-error-downloading-plugin() {
     load-configureKibana
     @mockfalse sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana-4.3.0_7.10.2-1.zip
     configureKibana
@@ -171,7 +170,7 @@ function load-configureKibanaAIO() {
     @load_function "${base_dir}/kibana.sh" configureKibanaAIO
 }
 
-test-configureKibana-AIO() {
+test-12-configureKibana-AIO() {
     load-configureKibanaAIO
     kibana_node_names=("kibana1")
     kibana_node_ips=("1.1.1.1")
@@ -180,8 +179,7 @@ test-configureKibana-AIO() {
     configureKibanaAIO
 }
 
-
-test-configureKibana-AIO-assert() {
+test-12-configureKibana-AIO-assert() {
     getConfig kibana/kibana_unattended.yml /etc/kibana/kibana.yml
     mkdir /usr/share/kibana/data
     chown -R kibana:kibana /usr/share/kibana/
@@ -191,7 +189,7 @@ test-configureKibana-AIO-assert() {
     modifyKibanaLogin
 }
 
-test-ASSERT-FAIL-configureKibanaAIO-error-downloading-plugin() {
+test-ASSERT-FAIL-13-configureKibanaAIO-error-downloading-plugin() {
     load-configureKibanaAIO
     @mockfalse sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana-4.3.0_7.10.2-1.zip
     configureKibanaAIO
@@ -201,7 +199,7 @@ function load-initializeKibana() {
     @load_function "${base_dir}/kibana.sh" initializeKibana
 }
 
-test-initializeKibana-distributed-one-kibana-node-one-wazuh-node-curl-correct() {
+test-14-initializeKibana-distributed-one-kibana-node-one-wazuh-node-curl-correct() {
     load-initializeKibana
     kibana_node_names=("kibana1")
     kibana_node_ips=("1.1.1.1")
@@ -212,12 +210,12 @@ test-initializeKibana-distributed-one-kibana-node-one-wazuh-node-curl-correct() 
     initializeKibana
 }
 
-test-initializeKibana-distributed-one-kibana-node-one-wazuh-node-curl-correct-assert() {
+test-14-initializeKibana-distributed-one-kibana-node-one-wazuh-node-curl-correct-assert() {
     getPass "admin"
     sed -i 's,url: https://localhost,url: https://2.2.2.2,g' /usr/share/kibana/data/wazuh/config/wazuh.yml
 }
 
-test-ASSERT-FAIL-initializeKibana-distributed-one-kibana-node-one-wazuh-node-curl-error() {
+test-ASSERT-FAIL-15-initializeKibana-distributed-one-kibana-node-one-wazuh-node-curl-error() {
     load-initializeKibana
     kibana_node_names=("kibana1")
     kibana_node_ips=("1.1.1.1")
@@ -228,7 +226,7 @@ test-ASSERT-FAIL-initializeKibana-distributed-one-kibana-node-one-wazuh-node-cur
     initializeKibana
 }
 
-test-initializeKibana-distributed-two-kibana-nodes-two-wazuh-nodes-curl-correct() {
+test-16-initializeKibana-distributed-two-kibana-nodes-two-wazuh-nodes-curl-correct() {
     load-initializeKibana
     kibana_node_names=("kibana1" "kibana2")
     kibana_node_ips=("1.1.1.1" "1.1.1.2")
@@ -240,12 +238,12 @@ test-initializeKibana-distributed-two-kibana-nodes-two-wazuh-nodes-curl-correct(
     initializeKibana
 }
 
-test-initializeKibana-distributed-two-kibana-nodes-two-wazuh-nodes-curl-correct-assert() {
+test-16-initializeKibana-distributed-two-kibana-nodes-two-wazuh-nodes-curl-correct-assert() {
     getPass "admin"
     sed -i 's,url: https://localhost,url: https://1.1.2.2,g' /usr/share/kibana/data/wazuh/config/wazuh.yml
 }
 
-test-ASSERT-FAIL-initializeKibana-distributed-two-kibana-nodes-two-wazuh-nodes-curl-error() {
+test-ASSERT-FAIL-17-initializeKibana-distributed-two-kibana-nodes-two-wazuh-nodes-curl-error() {
     load-initializeKibana
     kibana_node_names=("kibana1" "kibana2")
     kibana_node_ips=("1.1.1.1" "1.1.1.2")
@@ -258,7 +256,7 @@ test-ASSERT-FAIL-initializeKibana-distributed-two-kibana-nodes-two-wazuh-nodes-c
     initializeKibana
 }
 
-test-initializeKibana-distributed-two-kibana-nodes-two-wazuh-nodes-curl-error-force() {
+test-18-initializeKibana-distributed-two-kibana-nodes-two-wazuh-nodes-curl-error-force() {
     load-initializeKibana
     kibana_node_names=("kibana1" "kibana2")
     kibana_node_ips=("1.1.1.1" "1.1.1.2")
@@ -271,7 +269,7 @@ test-initializeKibana-distributed-two-kibana-nodes-two-wazuh-nodes-curl-error-fo
     initializeKibana
 }
 
-test-initializeKibana-distributed-two-kibana-nodes-two-wazuh-nodes-curl-error-force-assert() {
+test-18-initializeKibana-distributed-two-kibana-nodes-two-wazuh-nodes-curl-error-force-assert() {
     getPass  admin
     sleep  10
     sleep  10
@@ -292,7 +290,7 @@ function load-initializeKibanaAIO() {
     @load_function "${base_dir}/kibana.sh" initializeKibanaAIO
 }
 
-test-initializeKibanaAIO-curl-correct() {
+test-19-initializeKibanaAIO-curl-correct() {
     load-initializeKibanaAIO
     kibana_node_names=("kibana1")
     kibana_node_ips=("1.1.1.1")
@@ -301,12 +299,12 @@ test-initializeKibanaAIO-curl-correct() {
     initializeKibanaAIO
 }
 
-test-initializeKibanaAIO-curl-correct-assert() {
+test-19-initializeKibanaAIO-curl-correct-assert() {
     getPass "admin"
 }
 
 
-test-ASSERT-FAIL-initializeKibanaAIO-curl-error() {
+test-ASSERT-FAIL-20-initializeKibanaAIO-curl-error() {
     load-initializeKibanaAIO
     u_pass="user_password"
     @mock curl -XGET https://localhost/status -uadmin:user_password -k -w %{http_code} -s -o /dev/null === @out "0"
@@ -317,14 +315,14 @@ function load-modifyKibanaLogin() {
     @load_function "${base_dir}/kibana.sh" modifyKibanaLogin
 }
 
-test-modifyKibanaLogin() {
+test-21-modifyKibanaLogin() {
     load-modifyKibanaLogin
     @mocktrue cat /tmp/customWelcomeKibana.css
     @mock tee -a /usr/share/kibana/src/core/server/core_app/assets/legacy_light_theme.css
     modifyKibanaLogin
 }
 
-test-modifyKibanaLogin-assert() {
+test-21-modifyKibanaLogin-assert() {
     sed -i 's/null, "Elastic"/null, "Wazuh"/g' /usr/share/kibana/src/core/server/rendering/views/template.js
     curl -so /tmp/custom_welcome.tar.gz https://wazuh-demo.s3-us-west-1.amazonaws.com/custom_welcome_opendistro_docker.tar.gz
     tar -xf /tmp/custom_welcome.tar.gz -C /tmp

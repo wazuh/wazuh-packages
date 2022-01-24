@@ -11,17 +11,17 @@ function load-getConfig() {
     @load_function "${base_dir}/common.sh" getConfig
 }
 
-test-ASSERT-FAIL-getConfig-no-args() {
+test-ASSERT-FAIL-01-getConfig-no-args() {
     load-getConfig
     getConfig
 }
 
-test-ASSERT-FAIL-getConfig-one-argument() {
+test-ASSERT-FAIL-02-getConfig-one-argument() {
     load-getConfig
     getConfig "elasticsearch"
 }
 
-test-getConfig-local() {
+test-03-getConfig-local() {
     load-getConfig
     base_path="/tmp"
     config_path="example"
@@ -29,11 +29,11 @@ test-getConfig-local() {
     getConfig elasticsearch.yml /tmp/elasticsearch/elasticsearch.yml
 }
 
-test-getConfig-local-assert() {
+test-03-getConfig-local-assert() {
     cp /tmp/example/elasticsearch.yml /tmp/elasticsearch/elasticsearch.yml
 }
 
-test-getConfig-online() {
+test-04-getConfig-online() {
     load-getConfig
     base_path="/tmp"
     config_path="example"
@@ -42,11 +42,11 @@ test-getConfig-online() {
     getConfig elasticsearch.yml /tmp/elasticsearch/elasticsearch.yml
 }
 
-test-getConfig-online-assert() {
+test-04-getConfig-online-assert() {
     curl -f -so /tmp/elasticsearch/elasticsearch.yml example.com/config/elasticsearch.yml
 }
 
-test-getConfig-local-error() {
+test-05-getConfig-local-error() {
     load-getConfig
     base_path="/tmp"
     config_path="example"
@@ -55,12 +55,12 @@ test-getConfig-local-error() {
     getConfig elasticsearch.yml /tmp/elasticsearch/elasticsearch.yml
 }
 
-test-getConfig-local-error-assert() {
+test-05-getConfig-local-error-assert() {
     rollBack
     exit 1
 }
 
-test-getConfig-online-error() {
+test-06-getConfig-online-error() {
     load-getConfig
     base_path="/tmp"
     config_path="example"
@@ -70,7 +70,7 @@ test-getConfig-online-error() {
     getConfig elasticsearch.yml /tmp/elasticsearch/elasticsearch.yml
 }
 
-test-getConfig-online-error-assert() {
+test-06-getConfig-online-error-assert() {
     rollBack
     exit 1
 }
@@ -79,7 +79,7 @@ function load-installPrerequisites() {
     @load_function "${base_dir}/common.sh" installPrerequisites
 }
 
-test-installPrerequisites-yum-no-openssl() {
+test-07-installPrerequisites-yum-no-openssl() {
     @mock command -v openssl === @false
     load-installPrerequisites
     sys_type="yum"
@@ -87,11 +87,11 @@ test-installPrerequisites-yum-no-openssl() {
     installPrerequisites
 }
 
-test-installPrerequisites-yum-no-openssl-assert() {
+test-07-installPrerequisites-yum-no-openssl-assert() {
     yum install curl unzip wget libcap tar gnupg openssl -y
 }
 
-test-installPrerequisites-yum() {
+test-08-installPrerequisites-yum() {
     @mock command -v openssl === @echo /usr/bin/openssl
     load-installPrerequisites
     sys_type="yum"
@@ -99,11 +99,11 @@ test-installPrerequisites-yum() {
     installPrerequisites
 }
 
-test-installPrerequisites-yum-assert() {
+test-08-installPrerequisites-yum-assert() {
     yum install curl unzip wget libcap tar gnupg -y
 }
 
-test-installPrerequisites-zypper-no-openssl() {
+test-09-installPrerequisites-zypper-no-openssl() {
     @mock command -v openssl === @false
     @mocktrue zypper -n install libcap-progs tar gnupg
     load-installPrerequisites
@@ -112,12 +112,12 @@ test-installPrerequisites-zypper-no-openssl() {
     installPrerequisites
 }
 
-test-installPrerequisites-zypper-no-openssl-assert() {
+test-09-installPrerequisites-zypper-no-openssl-assert() {
     zypper -n install curl unzip wget
     zypper -n install libcap-progs tar gnupg openssl
 }
 
-test-installPrerequisites-zypper-no-libcap-progs() {
+test-10-installPrerequisites-zypper-no-libcap-progs() {
     @mock command -v openssl === @out /usr/bin/openssl
     @mockfalse zypper -n install libcap-progs tar gnupg
     load-installPrerequisites
@@ -126,12 +126,12 @@ test-installPrerequisites-zypper-no-libcap-progs() {
     installPrerequisites
 }
 
-test-installPrerequisites-zypper-no-libcap-progs-assert() {
+test-10-installPrerequisites-zypper-no-libcap-progs-assert() {
     zypper -n install curl unzip wget
     zypper -n install libcap2 tar gnupg
 }
 
-test-installPrerequisites-apt-no-openssl() {
+test-11-installPrerequisites-apt-no-openssl() {
     @mock command -v openssl === @false
     load-installPrerequisites
     sys_type="apt-get"
@@ -139,12 +139,12 @@ test-installPrerequisites-apt-no-openssl() {
     installPrerequisites
 }
 
-test-installPrerequisites-apt-no-openssl-assert() {
+test-11-installPrerequisites-apt-no-openssl-assert() {
     apt-get update -q
     apt-get install apt-transport-https curl unzip wget libcap2-bin tar gnupg openssl -y
 }
 
-test-installPrerequisites-apt() {
+test-12-installPrerequisites-apt() {
     @mock command -v openssl === @out /usr/bin/openssl
     load-installPrerequisites
     sys_type="apt-get"
@@ -152,7 +152,7 @@ test-installPrerequisites-apt() {
     installPrerequisites
 }
 
-test-installPrerequisites-apt-assert() {
+test-12-installPrerequisites-apt-assert() {
     apt-get update -q
     apt-get install apt-transport-https curl unzip wget libcap2-bin tar gnupg -y
 }
@@ -161,7 +161,7 @@ function load-addWazuhrepo() {
     @load_function "${base_dir}/common.sh" addWazuhrepo
 }
 
-test-addWazuhrepo-yum() {
+test-13-addWazuhrepo-yum() {
     load-addWazuhrepo
     development=1
     sys_type="yum"
@@ -173,12 +173,12 @@ test-addWazuhrepo-yum() {
     addWazuhrepo
 }
 
-test-addWazuhrepo-yum-assert() {
+test-13-addWazuhrepo-yum-assert() {
     rm -f /etc/yum.repos.d/wazuh.repo
     rpm --import
 }
 
-test-addWazuhrepo-zypper() {
+test-14-addWazuhrepo-zypper() {
     load-addWazuhrepo
     development=1
     sys_type="zypper"
@@ -193,12 +193,12 @@ test-addWazuhrepo-zypper() {
     addWazuhrepo
 }
 
-test-addWazuhrepo-zypper-assert() {
+test-14-addWazuhrepo-zypper-assert() {
     rm -f /etc/zypp/repos.d/wazuh.repo
     rpm --import
 }
 
-test-addWazuhrepo-apt() {
+test-15-addWazuhrepo-apt() {
     load-addWazuhrepo
     development=1
     sys_type="apt-get"
@@ -215,12 +215,12 @@ test-addWazuhrepo-apt() {
     addWazuhrepo
 }
 
-test-addWazuhrepo-apt-assert() {
+test-15-addWazuhrepo-apt-assert() {
     rm -f /etc/apt/sources.list.d/wazuh.list
     apt-get update -q
 }
 
-test-addWazuhrepo-apt-file-present() {
+test-16-addWazuhrepo-apt-file-present() {
     load-addWazuhrepo
     development=""
     @mkdir -p /etc/yum.repos.d
@@ -230,7 +230,7 @@ test-addWazuhrepo-apt-file-present() {
     @rm /etc/yum.repos.d/wazuh.repo
 }
 
-test-addWazuhrepo-zypper-file-present() {
+test-17-addWazuhrepo-zypper-file-present() {
     load-addWazuhrepo
     development=""
     @mkdir -p /etc/zypp/repos.d/
@@ -240,7 +240,7 @@ test-addWazuhrepo-zypper-file-present() {
     @rm /etc/zypp/repos.d/wazuh.repo
 }
 
-test-addWazuhrepo-yum-file-present() {
+test-18-addWazuhrepo-yum-file-present() {
     load-addWazuhrepo
     development=""
     @mkdir -p /etc/apt/sources.list.d/
@@ -254,14 +254,14 @@ function load-restoreWazuhrepo() {
     @load_function "${base_dir}/common.sh" restoreWazuhrepo
 }
 
-test-restoreWazuhrepo-no-dev() {
+test-19-restoreWazuhrepo-no-dev() {
     load-restoreWazuhrepo
     development=""
     restoreWazuhrepo
     @assert-success
 }
 
-test-restoreWazuhrepo-yum() {
+test-20-restoreWazuhrepo-yum() {
     load-restoreWazuhrepo
     development="1"
     sys_type="yum"
@@ -271,13 +271,13 @@ test-restoreWazuhrepo-yum() {
     @rm /etc/yum.repos.d/wazuh.repo
 }
 
-test-restoreWazuhrepo-yum-assert() {
+test-20-restoreWazuhrepo-yum-assert() {
     sed -i 's/-dev//g' /etc/yum.repos.d/wazuh.repo
     sed -i 's/pre-release/4.x/g' /etc/yum.repos.d/wazuh.repo
     sed -i 's/unstable/stable/g' /etc/yum.repos.d/wazuh.repo
 }
 
-test-restoreWazuhrepo-apt() {
+test-21-restoreWazuhrepo-apt() {
     load-restoreWazuhrepo
     development="1"
     sys_type="apt-get"
@@ -287,13 +287,13 @@ test-restoreWazuhrepo-apt() {
     @rm /etc/apt/sources.list.d/wazuh.list
 }
 
-test-restoreWazuhrepo-apt-assert() {
+test-21-restoreWazuhrepo-apt-assert() {
     sed -i 's/-dev//g' /etc/apt/sources.list.d/wazuh.list
     sed -i 's/pre-release/4.x/g' /etc/apt/sources.list.d/wazuh.list
     sed -i 's/unstable/stable/g' /etc/apt/sources.list.d/wazuh.list
 }
 
-test-restoreWazuhrepo-zypper() {
+test-22-restoreWazuhrepo-zypper() {
     load-restoreWazuhrepo
     development="1"
     sys_type="zypper"
@@ -303,46 +303,46 @@ test-restoreWazuhrepo-zypper() {
     @rm /etc/zypp/repos.d/wazuh.repo
 }
 
-test-restoreWazuhrepo-zypper-assert() {
+test-22-restoreWazuhrepo-zypper-assert() {
     sed -i 's/-dev//g' /etc/zypp/repos.d/wazuh.repo
     sed -i 's/pre-release/4.x/g' /etc/zypp/repos.d/wazuh.repo
     sed -i 's/unstable/stable/g' /etc/zypp/repos.d/wazuh.repo
 }
 
-test-restoreWazuhrepo-yum-no-file() {
+test-23-restoreWazuhrepo-yum-no-file() {
     load-restoreWazuhrepo
     development="1"
     sys_type="yum"
     restoreWazuhrepo
 }
 
-test-restoreWazuhrepo-yum-no-file-assert() {
+test-23-restoreWazuhrepo-yum-no-file-assert() {
     sed -i 's/-dev//g'
     sed -i 's/pre-release/4.x/g'
     sed -i 's/unstable/stable/g'
 }
 
-test-restoreWazuhrepo-apt-no-file() {
+test-24-restoreWazuhrepo-apt-no-file() {
     load-restoreWazuhrepo
     development="1"
     sys_type="yum"
     restoreWazuhrepo
 }
 
-test-restoreWazuhrepo-apt-no-file-assert() {
+test-24-restoreWazuhrepo-apt-no-file-assert() {
     sed -i 's/-dev//g'
     sed -i 's/pre-release/4.x/g'
     sed -i 's/unstable/stable/g'
 }
 
-test-restoreWazuhrepo-zypper-no-file() {
+test-25-restoreWazuhrepo-zypper-no-file() {
     load-restoreWazuhrepo
     development="1"
     sys_type="yum"
     restoreWazuhrepo
 }
 
-test-restoreWazuhrepo-zypper-no-file-assert() {
+test-25-restoreWazuhrepo-zypper-no-file-assert() {
     file="/etc/zypp/repos.d/wazuh.repo"
     sed -i 's/-dev//g'
     sed -i 's/pre-release/4.x/g'
@@ -353,7 +353,7 @@ function load-createClusterKey {
     @load_function "${base_dir}/common.sh" createClusterKey
 }
 
-test-createClusterKey() {
+test-26-createClusterKey() {
     load-createClusterKey
     base_path=/tmp
     @mkdir -p /tmp/certs
@@ -368,7 +368,7 @@ function load-rollBack {
     @load_function "${base_dir}/common.sh" rollBack
 }
 
-test-rollBack-aio-all-installed-yum() {
+test-27-rollBack-aio-all-installed-yum() {
     load-rollBack
     elasticsearchinstalled=1
     wazuhinstalled=1
@@ -384,7 +384,7 @@ test-rollBack-aio-all-installed-yum() {
     rollBack
 }
 
-test-rollBack-aio-all-installed-yum-assert() {
+test-27-rollBack-aio-all-installed-yum-assert() {
     yum remove wazuh-manager -y
     
     rm -rf /var/ossec/
@@ -410,7 +410,7 @@ test-rollBack-aio-all-installed-yum-assert() {
     rm -rf /etc/kibana/
 }
 
-test-rollBack-aio-all-installed-zypper() {
+test-28-rollBack-aio-all-installed-zypper() {
     load-rollBack
     elasticsearchinstalled=1
     wazuhinstalled=1
@@ -426,7 +426,7 @@ test-rollBack-aio-all-installed-zypper() {
     rollBack
 }
 
-test-rollBack-aio-all-installed-zypper-assert() {
+test-28-rollBack-aio-all-installed-zypper-assert() {
     zypper -n remove wazuh-manager
     rm -f /etc/init.d/wazuh-manager
     
@@ -451,7 +451,7 @@ test-rollBack-aio-all-installed-zypper-assert() {
     rm -rf /etc/kibana/
 }
 
-test-rollBack-aio-all-installed-apt() {
+test-29-rollBack-aio-all-installed-apt() {
     load-rollBack
     elasticsearchinstalled=1
     wazuhinstalled=1
@@ -467,7 +467,7 @@ test-rollBack-aio-all-installed-apt() {
     rollBack
 }
 
-test-rollBack-aio-all-installed-apt-assert() {
+test-29-rollBack-aio-all-installed-apt-assert() {
     apt remove --purge wazuh-manager -y
     
     rm -rf /var/ossec/
@@ -491,7 +491,7 @@ test-rollBack-aio-all-installed-apt-assert() {
     rm -rf /etc/kibana/
 }
 
-test-rollBack-elasticsearch-installation-all-installed-yum() {
+test-30-rollBack-elasticsearch-installation-all-installed-yum() {
     load-rollBack
     elasticsearchinstalled=1
     wazuhinstalled=1
@@ -507,7 +507,7 @@ test-rollBack-elasticsearch-installation-all-installed-yum() {
     rollBack
 }
 
-test-rollBack-elasticsearch-installation-all-installed-yum-assert() {
+test-30-rollBack-elasticsearch-installation-all-installed-yum-assert() {
     yum remove opendistroforelasticsearch -y
     yum remove elasticsearch* -y
     yum remove opendistro-* -y
@@ -517,7 +517,7 @@ test-rollBack-elasticsearch-installation-all-installed-yum-assert() {
     rm -rf /etc/elasticsearch/
 }
 
-test-rollBack-elasticsearch-installation-all-installed-zypper() {
+test-31-rollBack-elasticsearch-installation-all-installed-zypper() {
     load-rollBack
     elasticsearchinstalled=1
     wazuhinstalled=1
@@ -533,7 +533,7 @@ test-rollBack-elasticsearch-installation-all-installed-zypper() {
     rollBack
 }
 
-test-rollBack-elasticsearch-installation-all-installed-zypper-assert() {
+test-31-rollBack-elasticsearch-installation-all-installed-zypper-assert() {
     zypper -n remove opendistroforelasticsearch elasticsearch* opendistro-*
     
     rm -rf /var/lib/elasticsearch/
@@ -541,7 +541,7 @@ test-rollBack-elasticsearch-installation-all-installed-zypper-assert() {
     rm -rf /etc/elasticsearch/
 }
 
-test-rollBack-elasticsearch-installation-all-installed-apt() {
+test-32-rollBack-elasticsearch-installation-all-installed-apt() {
     load-rollBack
     elasticsearchinstalled=1
     wazuhinstalled=1
@@ -557,7 +557,7 @@ test-rollBack-elasticsearch-installation-all-installed-apt() {
     rollBack
 }
 
-test-rollBack-elasticsearch-installation-all-installed-apt-assert() {
+test-32-rollBack-elasticsearch-installation-all-installed-apt-assert() {
     apt remove --purge ^elasticsearch* ^opendistro-* ^opendistroforelasticsearch -y
     
     rm -rf /var/lib/elasticsearch/
@@ -565,7 +565,7 @@ test-rollBack-elasticsearch-installation-all-installed-apt-assert() {
     rm -rf /etc/elasticsearch/
 }
 
-test-rollBack-wazuh-installation-all-installed-yum() {
+test-33-rollBack-wazuh-installation-all-installed-yum() {
     load-rollBack
     elasticsearchinstalled=1
     wazuhinstalled=1
@@ -581,7 +581,7 @@ test-rollBack-wazuh-installation-all-installed-yum() {
     rollBack
 }
 
-test-rollBack-wazuh-installation-all-installed-yum-assert() {
+test-33-rollBack-wazuh-installation-all-installed-yum-assert() {
     yum remove wazuh-manager -y
     
     rm -rf /var/ossec/
@@ -593,7 +593,7 @@ test-rollBack-wazuh-installation-all-installed-yum-assert() {
     rm -rf /etc/filebeat/
 }
 
-test-rollBack-wazuh-installation-all-installed-zypper() {
+test-34-rollBack-wazuh-installation-all-installed-zypper() {
     load-rollBack
     elasticsearchinstalled=1
     wazuhinstalled=1
@@ -609,7 +609,7 @@ test-rollBack-wazuh-installation-all-installed-zypper() {
     rollBack
 }
 
-test-rollBack-wazuh-installation-all-installed-zypper-assert() {
+test-34-rollBack-wazuh-installation-all-installed-zypper-assert() {
     zypper -n remove wazuh-manager
     rm -f /etc/init.d/wazuh-manager
     
@@ -622,7 +622,7 @@ test-rollBack-wazuh-installation-all-installed-zypper-assert() {
     rm -rf /etc/filebeat/
 }
 
-test-rollBack-wazuh-installation-all-installed-apt() {
+test-35-rollBack-wazuh-installation-all-installed-apt() {
     load-rollBack
     elasticsearchinstalled=1
     wazuhinstalled=1
@@ -638,7 +638,7 @@ test-rollBack-wazuh-installation-all-installed-apt() {
     rollBack
 }
 
-test-rollBack-wazuh-installation-all-installed-apt-assert() {
+test-35-rollBack-wazuh-installation-all-installed-apt-assert() {
     apt remove --purge wazuh-manager -y
     
     rm -rf /var/ossec/
@@ -650,7 +650,7 @@ test-rollBack-wazuh-installation-all-installed-apt-assert() {
     rm -rf /etc/filebeat/
 }
 
-test-rollBack-kibana-installation-all-installed-yum() {
+test-36-rollBack-kibana-installation-all-installed-yum() {
     load-rollBack
     elasticsearchinstalled=1
     wazuhinstalled=1
@@ -666,7 +666,7 @@ test-rollBack-kibana-installation-all-installed-yum() {
     rollBack
 }
 
-test-rollBack-kibana-installation-all-installed-yum-assert() {
+test-36-rollBack-kibana-installation-all-installed-yum-assert() {
     yum remove opendistroforelasticsearch-kibana -y
     
     rm -rf /var/lib/kibana/
@@ -674,7 +674,7 @@ test-rollBack-kibana-installation-all-installed-yum-assert() {
     rm -rf /etc/kibana/
 }
 
-test-rollBack-kibana-installation-all-installed-zypper() {
+test-37-rollBack-kibana-installation-all-installed-zypper() {
     load-rollBack
     elasticsearchinstalled=1
     wazuhinstalled=1
@@ -690,7 +690,7 @@ test-rollBack-kibana-installation-all-installed-zypper() {
     rollBack
 }
 
-test-rollBack-kibana-installation-all-installed-zypper-assert() {
+test-37-rollBack-kibana-installation-all-installed-zypper-assert() {
     zypper -n remove opendistroforelasticsearch-kibana
     
     rm -rf /var/lib/kibana/
@@ -698,7 +698,7 @@ test-rollBack-kibana-installation-all-installed-zypper-assert() {
     rm -rf /etc/kibana/
 }
 
-test-rollBack-kibana-installation-all-installed-apt() {
+test-38-rollBack-kibana-installation-all-installed-apt() {
     load-rollBack
     elasticsearchinstalled=1
     wazuhinstalled=1
@@ -714,7 +714,7 @@ test-rollBack-kibana-installation-all-installed-apt() {
     rollBack
 }
 
-test-rollBack-kibana-installation-all-installed-apt-assert() {
+test-38-rollBack-kibana-installation-all-installed-apt-assert() {
     apt remove --purge opendistroforelasticsearch-kibana -y
     
     rm -rf /var/lib/kibana/
@@ -722,7 +722,7 @@ test-rollBack-kibana-installation-all-installed-apt-assert() {
     rm -rf /etc/kibana/
 }
 
-test-rollBack-aio-nothing-installed() {
+test-39-rollBack-aio-nothing-installed() {
     load-rollBack
     elasticsearchinstalled=
     wazuhinstalled=
@@ -739,7 +739,7 @@ test-rollBack-aio-nothing-installed() {
     @assert-success
 }
 
-test-rollBack-aio-all-remaining-files-yum() {
+test-40-rollBack-aio-all-remaining-files-yum() {
     load-rollBack
     elasticsearchinstalled=
     wazuhinstalled=
@@ -755,7 +755,7 @@ test-rollBack-aio-all-remaining-files-yum() {
     rollBack
 }
 
-test-rollBack-aio-all-remaining-files-yum-assert() {
+test-40-rollBack-aio-all-remaining-files-yum-assert() {
     rm -rf /var/ossec/
     
     rm -rf /var/lib/elasticsearch/
@@ -771,7 +771,7 @@ test-rollBack-aio-all-remaining-files-yum-assert() {
     rm -rf /etc/kibana/
 }
 
-test-rollBack-aio-all-remaining-files-zypper() {
+test-41-rollBack-aio-all-remaining-files-zypper() {
     load-rollBack
     elasticsearchinstalled=
     wazuhinstalled=
@@ -787,7 +787,7 @@ test-rollBack-aio-all-remaining-files-zypper() {
     rollBack
 }
 
-test-rollBack-aio-all-remaining-files-zypper-assert() {
+test-41-rollBack-aio-all-remaining-files-zypper-assert() {
     rm -rf /var/ossec/
     
     rm -rf /var/lib/elasticsearch/
@@ -803,7 +803,7 @@ test-rollBack-aio-all-remaining-files-zypper-assert() {
     rm -rf /etc/kibana/
 }
 
-test-rollBack-aio-all-remaining-files-apt() {
+test-42-rollBack-aio-all-remaining-files-apt() {
     load-rollBack
     elasticsearchinstalled=
     wazuhinstalled=
@@ -819,7 +819,7 @@ test-rollBack-aio-all-remaining-files-apt() {
     rollBack
 }
 
-test-rollBack-aio-all-remaining-files-apt-assert() {
+test-42-rollBack-aio-all-remaining-files-apt-assert() {
     rm -rf /var/ossec/
     
     rm -rf /var/lib/elasticsearch/
@@ -835,7 +835,7 @@ test-rollBack-aio-all-remaining-files-apt-assert() {
     rm -rf /etc/kibana/
 }
 
-test-rollBack-nothing-installed-remove-yum-repo() {
+test-43-rollBack-nothing-installed-remove-yum-repo() {
     load-rollBack
     @mkdir -p /etc/yum.repos.d
     @touch /etc/yum.repos.d/wazuh.repo
@@ -843,11 +843,11 @@ test-rollBack-nothing-installed-remove-yum-repo() {
     @rm /etc/yum.repos.d/wazuh.repo
 }
 
-test-rollBack-nothing-installed-remove-yum-repo-assert() {
+test-43-rollBack-nothing-installed-remove-yum-repo-assert() {
     rm /etc/yum.repos.d/wazuh.repo
 }
 
-test-rollBack-nothing-installed-remove-zypper-repo() {
+test-44-rollBack-nothing-installed-remove-zypper-repo() {
     load-rollBack
     @mkdir -p /etc/zypp/repos.d
     @touch /etc/zypp/repos.d/wazuh.repo
@@ -855,11 +855,11 @@ test-rollBack-nothing-installed-remove-zypper-repo() {
     @rm /etc/zypp/repos.d/wazuh.repo
 }
 
-test-rollBack-nothing-installed-remove-zypper-repo-assert() {
+test-44-rollBack-nothing-installed-remove-zypper-repo-assert() {
     rm /etc/zypp/repos.d/wazuh.repo
 }
 
-test-rollBack-nothing-installed-remove-zypper-repo() {
+test-45-rollBack-nothing-installed-remove-zypper-repo() {
     load-rollBack
     @mkdir -p /etc/apt/sources.list.d
     @touch /etc/apt/sources.list.d/wazuh.list
@@ -867,33 +867,33 @@ test-rollBack-nothing-installed-remove-zypper-repo() {
     @rm /etc/apt/sources.list.d/wazuh.list
 }
 
-test-rollBack-nothing-installed-remove-zypper-repo-assert() {
+test-45-rollBack-nothing-installed-remove-zypper-repo-assert() {
     rm /etc/apt/sources.list.d/wazuh.list
 }
 
-test-rollBack-nothing-installed-remove-/var/log/elasticsearch/() {
+test-46-rollBack-nothing-installed-remove-/var/log/elasticsearch/() {
     load-rollBack
     @mkdir -p /var/log/elasticsearch/
     rollBack
     @rmdir /var/log/elasticsearch
 }
 
-test-rollBack-nothing-installed-remove-/var/log/elasticsearch/-assert() {
+test-46-rollBack-nothing-installed-remove-/var/log/elasticsearch/-assert() {
     rm -rf /var/log/elasticsearch/
 }
 
-test-rollBack-nothing-installed-remove-/var/log/filebeat/() {
+test-47-rollBack-nothing-installed-remove-/var/log/filebeat/() {
     load-rollBack
     @mkdir -p /var/log/filebeat/
     rollBack
     @rmdir /var/log/filebeat/
 }
 
-test-rollBack-nothing-installed-remove-/var/log/filebeat/-assert() {
+test-47-rollBack-nothing-installed-remove-/var/log/filebeat/-assert() {
     rm -rf /var/log/filebeat/
 }
 
-test-rollBack-nothing-installed-remove-/securityadmin_demo.sh() {
+test-48-rollBack-nothing-installed-remove-/securityadmin_demo.sh() {
     load-rollBack
     #@mocktrue -f /securityadmin_demo.sh
     @touch /securityadmin_demo.sh
@@ -901,11 +901,11 @@ test-rollBack-nothing-installed-remove-/securityadmin_demo.sh() {
     @rm /securityadmin_demo.sh
 }
 
-test-rollBack-nothing-installed-remove-/securityadmin_demo.sh-assert() {
+test-48-rollBack-nothing-installed-remove-/securityadmin_demo.sh-assert() {
     rm -f /securityadmin_demo.sh
 }
 
-test-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/wazuh-manager.service() {
+test-49-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/wazuh-manager.service() {
     load-rollBack
     @mkdir -p /etc/systemd/system/multi-user.target.wants/
     @touch /etc/systemd/system/multi-user.target.wants/wazuh-manager.service
@@ -913,11 +913,11 @@ test-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wan
     @rm /etc/systemd/system/multi-user.target.wants/wazuh-manager.service
 }
 
-test-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/wazuh-manager.service-assert() {
+test-49-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/wazuh-manager.service-assert() {
     rm -f /etc/systemd/system/multi-user.target.wants/wazuh-manager.service
 }
 
-test-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/filebeat.service() {
+test-50-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/filebeat.service() {
     load-rollBack
     @mkdir -p /etc/systemd/system/multi-user.target.wants/
     @touch /etc/systemd/system/multi-user.target.wants/filebeat.service
@@ -925,11 +925,11 @@ test-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wan
     @rm /etc/systemd/system/multi-user.target.wants/filebeat.service
 }
 
-test-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/filebeat.service-assert() {
+test-50-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/filebeat.service-assert() {
     rm -f /etc/systemd/system/multi-user.target.wants/filebeat.service
 }
 
-test-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/elasticsearch.service() {
+test-51-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/elasticsearch.service() {
     load-rollBack
     @mkdir -p /etc/systemd/system/multi-user.target.wants/
     @touch /etc/systemd/system/multi-user.target.wants/elasticsearch.service
@@ -937,11 +937,11 @@ test-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wan
     @rm /etc/systemd/system/multi-user.target.wants/elasticsearch.service
 }
 
-test-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/elasticsearch.service-assert() {
+test-51-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/elasticsearch.service-assert() {
     rm -f /etc/systemd/system/multi-user.target.wants/elasticsearch.service
 }
 
-test-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/kibana.service() {
+test-52-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/kibana.service() {
     load-rollBack
     @mkdir -p /etc/systemd/system/multi-user.target.wants/
     @touch /etc/systemd/system/multi-user.target.wants/kibana.service
@@ -949,11 +949,11 @@ test-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wan
     @rm /etc/systemd/system/multi-user.target.wants/kibana.service
 }
 
-test-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/kibana.service-assert() {
+test-52-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/kibana.service-assert() {
     rm -f /etc/systemd/system/multi-user.target.wants/kibana.service
 }
 
-test-rollBack-nothing-installed-remove-/etc/systemd/system/kibana.service() {
+test-53-rollBack-nothing-installed-remove-/etc/systemd/system/kibana.service() {
     load-rollBack
     @mkdir -p /etc/systemd/system/
     @touch /etc/systemd/system/kibana.service
@@ -961,11 +961,11 @@ test-rollBack-nothing-installed-remove-/etc/systemd/system/kibana.service() {
     @rm /etc/systemd/system/kibana.service
 }
 
-test-rollBack-nothing-installed-remove-/etc/systemd/system/kibana.service-assert() {
+test-53-rollBack-nothing-installed-remove-/etc/systemd/system/kibana.service-assert() {
     rm -f /etc/systemd/system/kibana.service
 }
 
-test-rollBack-nothing-installed-remove-/lib/firewalld/services/kibana.xml() {
+test-54-rollBack-nothing-installed-remove-/lib/firewalld/services/kibana.xml() {
     load-rollBack
     @mkdir -p /lib/firewalld/services/
     @touch /lib/firewalld/services/kibana.xml
@@ -973,11 +973,11 @@ test-rollBack-nothing-installed-remove-/lib/firewalld/services/kibana.xml() {
     @rm /lib/firewalld/services/kibana.xml
 }
 
-test-rollBack-nothing-installed-remove-/lib/firewalld/services/kibana.xml-assert() {
+test-54-rollBack-nothing-installed-remove-/lib/firewalld/services/kibana.xml-assert() {
     rm -f /lib/firewalld/services/kibana.xml
 }
 
-test-rollBack-nothing-installed-remove-/lib/firewalld/services/elasticsearch.xml() {
+test-55-rollBack-nothing-installed-remove-/lib/firewalld/services/elasticsearch.xml() {
     load-rollBack
     @mkdir -p /lib/firewalld/services/
     @touch /lib/firewalld/services/elasticsearch.xml
@@ -985,11 +985,11 @@ test-rollBack-nothing-installed-remove-/lib/firewalld/services/elasticsearch.xml
     @rm /lib/firewalld/services/elasticsearch.xml
 }
 
-test-rollBack-nothing-installed-remove-/lib/firewalld/services/elasticsearch.xml-assert() {
+test-55-rollBack-nothing-installed-remove-/lib/firewalld/services/elasticsearch.xml-assert() {
     rm -f /lib/firewalld/services/elasticsearch.xml
 }
 
-test-rollBack-nothing-installed-remove-/etc/systemd/system/elasticsearch.service.wants() {
+test-56-rollBack-nothing-installed-remove-/etc/systemd/system/elasticsearch.service.wants() {
     load-rollBack
     #@mocktrue -d /etc/systemd/system/elasticsearch.service.wants
     @mkdir -p /etc/systemd/system/elasticsearch.service.wants
@@ -997,7 +997,7 @@ test-rollBack-nothing-installed-remove-/etc/systemd/system/elasticsearch.service
     @rmdir /etc/systemd/system/elasticsearch.service.wants
 }
 
-test-rollBack-nothing-installed-remove-/etc/systemd/system/elasticsearch.service.wants-assert() {
+test-56-rollBack-nothing-installed-remove-/etc/systemd/system/elasticsearch.service.wants-assert() {
     rm -rf /etc/systemd/system/elasticsearch.service.wants
 }
 
@@ -1005,14 +1005,14 @@ function load-createCertificates() {
     @load_function "${base_dir}/common.sh" createCertificates
 }
 
-test-createCertificates-aio() {
+test-57-createCertificates-aio() {
     load-createCertificates
     AIO=1
     base_path=/tmp
     createCertificates
 }
 
-test-createCertificates-aio-assert() {
+test-57-createCertificates-aio-assert() {
     getConfig certificate/config_aio.yml /tmp/config.yml
 
     readConfig
@@ -1027,13 +1027,13 @@ test-createCertificates-aio-assert() {
     cleanFiles
 }
 
-test-createCertificates-no-aio() {
+test-58-createCertificates-no-aio() {
     load-createCertificates
     base_path=/tmp
     createCertificates
 }
 
-test-createCertificates-no-aio-assert() {
+test-58-createCertificates-no-aio-assert() {
 
     readConfig
 
@@ -1051,13 +1051,13 @@ function load-changePasswords() {
     @load_function "${base_dir}/common.sh" changePasswords
 }
 
-test-ASSERT-FAIL-changePasswords-no-tarfile() {
+test-ASSERT-FAIL-59-changePasswords-no-tarfile() {
     load-changePasswords
     tar_file=
     changePasswords
 }
 
-test-changePasswords-with-tarfile() {
+test-60-changePasswords-with-tarfile() {
     load-changePasswords
     tar_file=tarfile.tar
     base_path=/tmp
@@ -1068,7 +1068,7 @@ test-changePasswords-with-tarfile() {
     @rm /tmp/password_file.yml
 }
 
-test-changePasswords-with-tarfile-assert() {
+test-60-changePasswords-with-tarfile-assert() {
     checkInstalledPass
     readPasswordFileUsers
     changePassword
@@ -1076,7 +1076,7 @@ test-changePasswords-with-tarfile-assert() {
     @echo 
 }
 
-test-changePasswords-with-tarfile-aio() {
+test-61-changePasswords-with-tarfile-aio() {
     load-changePasswords
     tar_file=tarfile.tar
     base_path=/tmp
@@ -1088,7 +1088,7 @@ test-changePasswords-with-tarfile-aio() {
     @rm /tmp/password_file.yml
 }
 
-test-changePasswords-with-tarfile-aio-assert() {
+test-61-changePasswords-with-tarfile-aio-assert() {
     checkInstalledPass
     readUsers
     readPasswordFileUsers
@@ -1101,7 +1101,7 @@ test-changePasswords-with-tarfile-aio-assert() {
     @echo 1
 }
 
-test-changePasswords-with-tarfile-start-elastic-cluster() {
+test-62-changePasswords-with-tarfile-start-elastic-cluster() {
     load-changePasswords
     tar_file=tarfile.tar
     base_path=/tmp
@@ -1113,7 +1113,7 @@ test-changePasswords-with-tarfile-start-elastic-cluster() {
     @rm /tmp/password_file.yml
 }
 
-test-changePasswords-with-tarfile-start-elastic-cluster-assert() {
+test-62-changePasswords-with-tarfile-start-elastic-cluster-assert() {
     checkInstalledPass
     readUsers
     readPasswordFileUsers
@@ -1130,7 +1130,7 @@ function load-getPass() {
     @load_function "${base_dir}/common.sh" getPass
 }
 
-test-getPass-no-args() {
+test-63-getPass-no-args() {
     load-getPass
     users=(kibanaserver admin)
     passwords=(kibanaserver_pass admin_pass)
@@ -1138,11 +1138,11 @@ test-getPass-no-args() {
     @echo $u_pass
 }
 
-test-getPass-no-args-assert() {
+test-63-getPass-no-args-assert() {
     @echo
 }
 
-test-getPass-admin() {
+test-64-getPass-admin() {
     load-getPass
     users=(kibanaserver admin)
     passwords=(kibanaserver_pass admin_pass)
@@ -1150,7 +1150,7 @@ test-getPass-admin() {
     @echo $u_pass
 }
 
-test-getPass-admin-assert() {
+test-64-getPass-admin-assert() {
     @echo admin_pass
 }
 
@@ -1158,12 +1158,12 @@ function load-startService() {
     @load_function "${base_dir}/common.sh" startService
 }
 
-test-ASSERT-FAIL-startService-no-args() {
+test-ASSERT-FAIL-65-startService-no-args() {
     load-startService
     startService
 }
 
-test-ASSERT-FAIL-startService-no-service-manager() {
+test-ASSERT-FAIL-66-startService-no-service-manager() {
     load-startService
     @mockfalse ps -e
     @mockfalse grep -E -q "^\ *1\ .*systemd$"
@@ -1172,7 +1172,7 @@ test-ASSERT-FAIL-startService-no-service-manager() {
     startService wazuh-manager
 }
 
-test-startService-systemd() {
+test-67-startService-systemd() {
     load-startService
     @mockfalse ps -e === @out 
     @mocktrue grep -E -q "^\ *1\ .*systemd$"
@@ -1180,13 +1180,13 @@ test-startService-systemd() {
     startService wazuh-manager
 }
 
-test-startService-systemd-assert() {
+test-67-startService-systemd-assert() {
     systemctl daemon-reload
     systemctl enable wazuh-manager.service
     systemctl start wazuh-manager.service
 }
 
-test-startService-systemd-error() {
+test-68-startService-systemd-error() {
     load-startService
     @mock ps -e === @out 
     @mocktrue grep -E -q "^\ *1\ .*systemd$"
@@ -1195,14 +1195,14 @@ test-startService-systemd-error() {
     startService wazuh-manager
 }
 
-test-startService-systemd-error-assert() {
+test-68-startService-systemd-error-assert() {
     systemctl daemon-reload
     systemctl enable wazuh-manager.service
     rollBack
     exit 1
 }
 
-test-startService-initd() {
+test-69-startService-initd() {
     load-startService
     @mock ps -e === @out 
     @mockfalse grep -E -q "^\ *1\ .*systemd$"
@@ -1214,7 +1214,7 @@ test-startService-initd() {
     @rm /etc/init.d/wazuh-manager
 }
 
-test-startService-initd-assert() {
+test-69-startService-initd-assert() {
     @mkdir -p /etc/init.d
     @touch /etc/init.d/wazuh-manager
     chkconfig wazuh-manager on
@@ -1223,7 +1223,7 @@ test-startService-initd-assert() {
     @rm /etc/init.d/wazuh-manager
 }
 
-test-startService-initd-error() {
+test-70-startService-initd-error() {
     load-startService
     @mock ps -e === @out 
     @mockfalse grep -E -q "^\ *1\ .*systemd$"
@@ -1235,7 +1235,7 @@ test-startService-initd-error() {
     @rm /etc/init.d/wazuh-manager
 }
 
-test-startService-initd-error-assert() {
+test-70-startService-initd-error-assert() {
     @mkdir -p /etc/init.d
     @touch /etc/init.d/wazuh-manager
     @chmod +x /etc/init.d/wazuh-manager
@@ -1247,7 +1247,7 @@ test-startService-initd-error-assert() {
     @rm /etc/init.d/wazuh-manager
 }
 
-test-startService-rc.d/init.d() {
+test-71-startService-rc.d/init.d() {
     load-startService
     @mock ps -e === @out 
     @mockfalse grep -E -q "^\ *1\ .*systemd$"
@@ -1261,7 +1261,7 @@ test-startService-rc.d/init.d() {
     @rm /etc/rc.d/init.d/wazuh-manager
 }
 
-test-startService-rc.d/init.d-assert() {
+test-71-startService-rc.d/init.d-assert() {
     @mkdir -p /etc/rc.d/init.d
     @touch /etc/rc.d/init.d/wazuh-manager
     @chmod +x /etc/rc.d/init.d/wazuh-manager
@@ -1269,41 +1269,18 @@ test-startService-rc.d/init.d-assert() {
     @rm /etc/rc.d/init.d/wazuh-manager
 }
 
-# test-startService-rc.d/init.d-error() {
-#     load-startService
-#     @mock ps -e === @out 
-#     @mockfalse grep -E -q "^\ *1\ .*systemd$"
-#     @mockfalse grep -E -q "^\ *1\ .*init$"
-#     @mkdir -p /etc/rc.d/init.d
-#     @touch /etc/rc.d/init.d/wazuh-manager
-#     @chmod +x /etc/rc.d/init.d/wazuh-manager
-#     @mockfalse /etc/rc.d/init.d/wazuh-manager
-#     startService wazuh-manager
-#     @rm /etc/rc.d/init.d/wazuh-manager
-# }
-
-# test-startService-rc.d/init.d-error-assert() {
-#     @mkdir -p /etc/rc.d/init.d
-#     @touch /etc/rc.d/init.d/wazuh-manager
-#     @chmod +x /etc/rc.d/init.d/wazuh-manager
-#     /etc/rc.d/init.d/wazuh-manager start
-#     rollBack
-#     exit 1
-#     @rm /etc/rc.d/init.d/wazuh-manager
-# }
-
 function load-readPasswordFileUsers() {
     @load_function "${base_dir}/common.sh" readPasswordFileUsers
 }
 
-test-ASSERT-FAIL-readPasswordFileUsers-file-incorrect() {
+test-ASSERT-FAIL-72-readPasswordFileUsers-file-incorrect() {
     load-readPasswordFileUsers
     p_file=/tmp/passfile.yml
     @mock grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' /tmp/passfile.yml === @echo 0
     readPasswordFileUsers
 }
 
-test-readPasswordFileUsers-changeall-correct() {
+test-73-readPasswordFileUsers-changeall-correct() {
     load-readPasswordFileUsers
     p_file=/tmp/passfile.yml
     @mock grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' /tmp/passfile.yml === @echo 1
@@ -1320,14 +1297,14 @@ test-readPasswordFileUsers-changeall-correct() {
     @echo ${passwords[*]}
 }
 
-test-readPasswordFileUsers-changeall-correct-assert() {
+test-73-readPasswordFileUsers-changeall-correct-assert() {
     @echo wazuh kibanaserver
     @echo wazuhpassword kibanaserverpassword
     @echo wazuh kibanaserver
     @echo wazuhpassword kibanaserverpassword
 }
 
-test-readPasswordFileUsers-changeall-user-doesnt-exist() {
+test-74-readPasswordFileUsers-changeall-user-doesnt-exist() {
     load-readPasswordFileUsers
     p_file=/tmp/passfile.yml
     @mock grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' /tmp/passfile.yml === @echo 1
@@ -1344,14 +1321,14 @@ test-readPasswordFileUsers-changeall-user-doesnt-exist() {
     @echo ${passwords[*]}
 }
 
-test-readPasswordFileUsers-changeall-user-doesnt-exist-assert() {
+test-74-readPasswordFileUsers-changeall-user-doesnt-exist-assert() {
     @echo wazuh kibanaserver admin
     @echo wazuhpassword kibanaserverpassword
     @echo wazuh kibanaserver
     @echo wazuhpassword kibanaserverpassword
 }
 
-test-readPasswordFileUsers-no-changeall-kibana-correct() {
+test-75-readPasswordFileUsers-no-changeall-kibana-correct() {
     load-readPasswordFileUsers
     p_file=/tmp/passfile.yml
     @mock grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' /tmp/passfile.yml === @echo 1
@@ -1369,14 +1346,14 @@ test-readPasswordFileUsers-no-changeall-kibana-correct() {
     @echo ${passwords[*]}
 }
 
-test-readPasswordFileUsers-no-changeall-kibana-correct-assert() {
+test-75-readPasswordFileUsers-no-changeall-kibana-correct-assert() {
     @echo wazuh kibanaserver admin
     @echo wazuhpassword kibanaserverpassword adminpassword
     @echo kibanaserver admin
     @echo kibanaserverpassword adminpassword
 }
 
-test-readPasswordFileUsers-no-changeall-filebeat-correct() {
+test-76-readPasswordFileUsers-no-changeall-filebeat-correct() {
     load-readPasswordFileUsers
     p_file=/tmp/passfile.yml
     @mock grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' /tmp/passfile.yml === @echo 1
@@ -1394,7 +1371,7 @@ test-readPasswordFileUsers-no-changeall-filebeat-correct() {
     @echo ${passwords[*]}
 }
 
-test-readPasswordFileUsers-no-changeall-filebeat-correct-assert() {
+test-76-readPasswordFileUsers-no-changeall-filebeat-correct-assert() {
     @echo wazuh kibanaserver admin
     @echo wazuhpassword kibanaserverpassword adminpassword
     @echo admin
