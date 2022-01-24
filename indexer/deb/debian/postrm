@@ -10,9 +10,10 @@
 set -e 
 
 export NAME=wazuh-indexer
-export CONFIG_DIR=/etc/${NAME}
-export INSTALLATION_DIR=/usr/share/${NAME}
-export PID_DIR=/run/${NAME}
+export CONFIG_DIR="/etc/${NAME}"
+export INSTALLATION_DIR="/usr/share/${NAME}"
+export PID_DIR="/run/${NAME}"
+export LOG_DIR="/var/log/${NAME}"
 
 #
 # This script is executed in the post-removal phase
@@ -53,38 +54,43 @@ case "$1" in
 esac
 
 if [ "$REMOVE_DIRS" = "true" ]; then
-    if [ -d ${INSTALLATION_DIR} ]; then
+    if [ -d "${INSTALLATION_DIR}" ]; then
         echo -n "Deleting installation directory..."
-        rm -rf ${INSTALLATION_DIR} > /dev/null 2>&1
+        rm -rf "${INSTALLATION_DIR}" > /dev/null 2>&1
         echo " OK"
     fi
 
-    if [ -d ${PID_DIR} ]; then
+    if [ -d "${PID_DIR}" ]; then
         echo -n "Deleting PID directory..."
-        rm -rf ${PID_DIR} > /dev/null 2>&1
+        rm -rf "${PID_DIR}" > /dev/null 2>&1
         echo " OK"
     fi
 
     # Delete the config directory if we are purging
     if [ "$REMOVE_CONFIG_DIRECTORY" = "true" ]; then
         echo -n "Deleting configuration directory..."
-        rm -rf ${CONFIG_DIR} > /dev/null 2>&1
+        rm -rf "${CONFIG_DIR}" > /dev/null 2>&1
         echo " OK"
+    fi
+
+    # Delete the data directory if and only if empty
+    if [ -d "${LOG_DIR}" ]; then
+        rmdir --ignore-fail-on-non-empty "${LOG_DIR}"
     fi
 fi
 
 
 if [ "$REMOVE_USER_AND_GROUP" = "true" ]; then
     # Remove the user if it exists
-    if id -u ${NAME} > /dev/null 2>&1; then
-        userdel ${NAME} > /dev/null 2>&1
+    if id -u "${NAME}" > /dev/null 2>&1; then
+        userdel "${NAME}" > /dev/null 2>&1
     fi
 
     # Remove the group if it exists
-    if command -v getent > /dev/null 2>&1 && getent group %{GROUP} > /dev/null 2>&1; then
-        groupdel %{GROUP} > /dev/null 2>&1
-    elif id -g %{GROUP} > /dev/null 2>&1; then
-        groupdel %{GROUP} > /dev/null 2>&1
+    if command -v getent > /dev/null 2>&1 && getent group "${NAME}" > /dev/null 2>&1; then
+        groupdel "${NAME}" > /dev/null 2>&1
+    elif id -g "${NAME}" > /dev/null 2>&1; then
+        groupdel "${NAME}" > /dev/null 2>&1
     fi
 fi
 

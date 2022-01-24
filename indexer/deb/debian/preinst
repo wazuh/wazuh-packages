@@ -31,7 +31,7 @@ fi
 case "$1" in
 
     # Debian ####################################################
-    install|upgrade)
+    install)
 
         # Create wazuh-indexer group if not existing
         if ! getent group ${NAME} > /dev/null 2>&1 ; then
@@ -53,6 +53,9 @@ case "$1" in
                     ${NAME}
             echo " OK"
         fi
+    ;;
+
+    upgrade)
     ;;
 
     abort-deconfigure|abort-upgrade|abort-remove)

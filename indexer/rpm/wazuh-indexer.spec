@@ -101,17 +101,19 @@ cp %{REPO_DIR}/config/opensearch/roles/roles_mapping.yml ${RPM_BUILD_ROOT}%{INST
 # -----------------------------------------------------------------------------
 
 %pre
-# Create package group
-getent group %{GROUP} > /dev/null 2>&1 || groupadd -r %{GROUP}
+if [ $1 = 1 ];then # Install
+    # Create package group
+    getent group %{GROUP} > /dev/null 2>&1 || groupadd -r %{GROUP}
 
-if ! id %{USER} &> /dev/null; then
-    useradd --system \
-            --no-create-home \
-            --home-dir %{INSTALL_DIR} \
-            --gid %{GROUP} \
-            --shell /sbin/nologin \
-            --comment "%{USER} user" \
-            %{USER} > /dev/null 2>&1 
+    if ! id %{USER} &> /dev/null; then
+        useradd --system \
+                --no-create-home \
+                --home-dir %{INSTALL_DIR} \
+                --gid %{GROUP} \
+                --shell /sbin/nologin \
+                --comment "%{USER} user" \
+                %{USER} > /dev/null 2>&1 
+    fi
 fi
 
 # -----------------------------------------------------------------------------
