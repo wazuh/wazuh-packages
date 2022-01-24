@@ -123,7 +123,7 @@ def is_fedora_suse():
     if os.path.exists('/etc/os-release'):
         with open('/etc/os-release', 'r') as f:
             for line in f.readlines():
-                if 'Fedora 33' in line or 'Fedora 34' in line or 'Fedora Linux 35' in line or 'SUSE Linux Enterprise Server 15' in line:
+                if 'Fedora 33' in line or 'Fedora 34' in line or 'Fedora Linux 35' in line or 'SUSE Linux Enterprise Server 15' in line or 'tumbleweed' in line:
                     return True
 
 
@@ -224,7 +224,6 @@ def test_check_ossec_log_errors():
                     if "ERROR: Failed to open database '/var/lib/rpm/Packages': No such file or directory" in line:
                         found_error = False
                         print("Error detected as exception.")
-                        break
     assert found_error == False, line
 
 @pytest.mark.wazuh_cluster
