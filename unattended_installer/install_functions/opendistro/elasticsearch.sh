@@ -97,7 +97,7 @@ function configureElasticsearch() {
         echo "root soft nproc 4096" >> /etc/security/limits.conf
         echo "elasticsearch hard nproc 4096" >> /etc/security/limits.conf
         echo "elasticsearch soft nproc 4096" >> /etc/security/limits.conf
-        echo "bootstrap.system_call_filter: false" >> /etc/elasticsearch/elasticsearch.yml
+        echo -ne "\nbootstrap.system_call_filter: false" >> /etc/elasticsearch/elasticsearch.yml
     fi
 
     eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
