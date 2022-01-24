@@ -102,7 +102,7 @@ function generateCertificateconfiguration() {
         conf="$(awk '{sub("IP.1 = cip", "IP.1 = '${2}'")}1' "${base_path}/certs/${1}.conf")"
         echo "${conf}" > "${base_path}/certs/${1}.conf"
     elif [[ -n "${isDNS}" ]]; then
-        conf="$(awk '{sub("CN = cname", "CN = '${2}'")}1' "${base_path}/certs/${1}.conf")"
+        conf="$(awk '{sub("CN = cname", "CN =  '${2}'")}1' "${base_path}/certs/${1}.conf")"
         echo "${conf}" > "${base_path}/certs/${1}.conf"
         conf="$(awk '{sub("IP.1 = cip", "DNS.1 = '${2}'")}1' "${base_path}/certs/${1}.conf")"
         echo "${conf}" > "${base_path}/certs/${1}.conf"
