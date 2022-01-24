@@ -21,20 +21,18 @@ debug_cert=">> ${logfile} 2>&1"
 
 function cleanFiles() {
 
-    eval "rm -rf ${base_path}/certs/*.csr ${debug_cert}"
-    eval "rm -rf ${base_path}/certs/*.srl ${debug_cert}"
-    eval "rm -rf ${base_path}/certs/*.conf ${debug_cert}"
-    eval "rm -rf ${base_path}/certs/admin-key-temp.pem ${debug_cert}"
+    eval "rm -f ${base_path}/certs/*.csr ${debug_cert}"
+    eval "rm -f ${base_path}/certs/*.srl ${debug_cert}"
+    eval "rm -f ${base_path}/certs/*.conf ${debug_cert}"
+    eval "rm -f ${base_path}/certs/admin-key-temp.pem ${debug_cert}"
 
 }
 
 function checkOpenSSL() {
-
     if [ -z "$(command -v openssl)" ]; then
         logger_cert -e "OpenSSL not installed."
         exit 1
-    fi   
-
+    fi
 }
 
 function logger_cert() {
@@ -59,7 +57,7 @@ function logger_cert() {
 }
 
 function generateAdmincertificate() {
-    
+
     eval "openssl genrsa -out ${base_path}/certs/admin-key-temp.pem 2048 ${debug_cert}"
     eval "openssl pkcs8 -inform PEM -outform PEM -in ${base_path}/certs/admin-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out ${base_path}/certs/admin-key.pem ${debug_cert}"
     eval "openssl req -new -key ${base_path}/certs/admin-key.pem -out ${base_path}/certs/admin.csr -batch -subj '/C=US/L=California/O=Wazuh/OU=Docu/CN=admin' ${debug_cert}"
@@ -95,23 +93,23 @@ function generateCertificateconfiguration() {
 	EOF
 
     conf="$(awk '{sub("CN = cname", "CN = '${1}'")}1' "${base_path}/certs/${1}.conf")"
-    echo "${conf}" > "${base_path}/certs/${1}.conf"    
+    echo "${conf}" > "${base_path}/certs/${1}.conf"
 
     isIP=$(echo "${2}" | grep -P "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")
     isDNS=$(echo "${2}" | grep -P "^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$" )
 
     if [[ -n "${isIP}" ]]; then
         conf="$(awk '{sub("IP.1 = cip", "IP.1 = '${2}'")}1' "${base_path}/certs/${1}.conf")"
-        echo "${conf}" > "${base_path}/certs/${1}.conf"    
+        echo "${conf}" > "${base_path}/certs/${1}.conf"
     elif [[ -n "${isDNS}" ]]; then
         conf="$(awk '{sub("CN = cname", "CN =  '${2}'")}1' "${base_path}/certs/${1}.conf")"
-        echo "${conf}" > "${base_path}/certs/${1}.conf"     
+        echo "${conf}" > "${base_path}/certs/${1}.conf"
         conf="$(awk '{sub("IP.1 = cip", "DNS.1 = '${2}'")}1' "${base_path}/certs/${1}.conf")"
-        echo "${conf}" > "${base_path}/certs/${1}.conf" 
+        echo "${conf}" > "${base_path}/certs/${1}.conf"
     else
-        logger_cert -e "The given information does not match with an IP address or a DNS".  
-        exit 1 
-    fi   
+        logger_cert -e "The given information does not match with an IP address or a DNS."
+        exit 1
+    fi
 
 }
 
@@ -140,7 +138,7 @@ function generateFilebeatcertificates() {
             eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${wazuh_servers_node_names[i]}-key.pem -out ${base_path}/certs/${wazuh_servers_node_names[i]}.csr -config ${base_path}/certs/${wazuh_servers_node_names[i]}.conf -days 3650 ${debug_cert}"
             eval "openssl x509 -req -in ${base_path}/certs/${wazuh_servers_node_names[i]}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${wazuh_servers_node_names[i]}.pem -extfile ${base_path}/certs/${wazuh_servers_node_names[i]}.conf -extensions v3_req -days 3650 ${debug_cert}"
         done
-    fi  
+    fi
 
 }
 
@@ -395,7 +393,7 @@ function readConfig() {
         elif [ $(grep -io master <<< ${wazuh_servers_node_types[*]} | wc -l) -ne 1 ]; then
             logger_cert -e "Wazuh cluster needs a single master node."
             exit 1
-        elif [ $(grep -io worker <<< ${wazuh_servers_node_types[*]} | wc -l) -ne $(( ${#wazuh_servers_node_types[@]} - 1 ))  ]; then
+        elif [ $(grep -io worker <<< ${wazuh_servers_node_types[*]} | wc -l) -ne $(( ${#wazuh_servers_node_types[@]} - 1 )) ]; then
             logger_cert -e "Incorrect number of workers."
             exit 1
         fi
