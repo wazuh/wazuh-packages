@@ -42,7 +42,7 @@ test-02-copyKibanacerts-assert() {
     tar -xf /tmp/tarfile.tar -C /etc/kibana/certs/ ./kibana1-key.pem  && mv /etc/kibana/certs/kibana1-key.pem /etc/kibana/certs/kibana-key.pem
     tar -xf /tmp/tarfile.tar -C /etc/kibana/certs/ ./root-ca.pem
     chown -R kibana:kibana /etc/kibana/
-    chmod -R 500 /etc/kibana/certs
+    chmod -R 500 /etc/kibana/certs/
     chmod 440 /etc/kibana/certs/*
 }
 
@@ -129,11 +129,12 @@ test-09-configureKibana-dist-one-kibana-node-one-elastic-node-assert() {
     mkdir /usr/share/kibana/data
     chown -R kibana:kibana /usr/share/kibana/
     sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana-4.3.0_7.10.2-1.zip
+    copyKibanacerts
+    modifyKibanaLogin
     setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node
     echo 'server.host: "'1.1.1.1'"' >> /etc/kibana/kibana.yml
     echo "elasticsearch.hosts: https://1.1.1.1:9200" >> /etc/kibana/kibana.yml
-    modifyKibanaLogin
-    copyKibanacerts
+    getConfig kibana/kibana_unattended_distributed.yml /etc/kibana/kibana.yml
 }
 
 test-10-configureKibana-dist-two-kibana-nodes-two-elastic-nodes() {
@@ -151,13 +152,14 @@ test-10-configureKibana-dist-two-kibana-nodes-two-elastic-nodes-assert() {
     mkdir /usr/share/kibana/data
     chown -R kibana:kibana /usr/share/kibana/
     sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana-4.3.0_7.10.2-1.zip
+    copyKibanacerts
+    modifyKibanaLogin
     setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node
     echo 'server.host: "2.2.2.2"' >> /etc/kibana/kibana.yml
     echo "elasticsearch.hosts:" >> /etc/kibana/kibana.yml
     echo "  - https://1.1.1.1:9200" >> /etc/kibana/kibana.yml
     echo "  - https://2.2.2.2:9200" >> /etc/kibana/kibana.yml
-    modifyKibanaLogin
-    copyKibanacerts
+    getConfig kibana/kibana_unattended_distributed.yml /etc/kibana/kibana.yml
 }
 
 test-ASSERT-FAIL-11-configureKibana-dist-error-downloading-plugin() {
@@ -176,7 +178,7 @@ test-12-configureKibana-AIO() {
     kibana_node_ips=("1.1.1.1")
     elasticsearch_node_names=("elastic1")
     elasticsearch_node_ips=("1.1.1.1")
-    configureKibanaAIO
+    configureKibana
 }
 
 test-12-configureKibana-AIO-assert() {
@@ -185,14 +187,15 @@ test-12-configureKibana-AIO-assert() {
     chown -R kibana:kibana /usr/share/kibana/
     sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana-4.3.0_7.10.2-1.zip
     copyKibanacerts
-    setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node
     modifyKibanaLogin
+    setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node
+    getConfig kibana/kibana_unattended.yml /etc/kibana/kibana.yml
 }
 
 test-ASSERT-FAIL-13-configureKibanaAIO-error-downloading-plugin() {
     load-configureKibanaAIO
     @mockfalse sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana-4.3.0_7.10.2-1.zip
-    configureKibanaAIO
+    configureKibana
 }
 
 function load-initializeKibana() {

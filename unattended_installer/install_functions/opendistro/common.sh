@@ -1,5 +1,5 @@
-# Wazuh installer - common.sh library. 
-# Copyright (C) 2015-2021, Wazuh Inc.
+# Wazuh installer - common.sh functions. 
+# Copyright (C) 2015, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
@@ -269,6 +269,7 @@ function restoreWazuhrepo() {
         eval "sed -i 's/unstable/stable/g' ${file} ${debug}"
         logger "The Wazuh repository set to production."
     fi
+
 }
 
 function rollBack() {
@@ -295,7 +296,6 @@ function rollBack() {
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge wazuh-manager -y ${debug}"
         fi 
-        
     fi
 
     if [[ ( -n "${wazuh_remaining_files}"  || -n "${wazuhinstalled}" ) && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
@@ -355,49 +355,19 @@ function rollBack() {
         eval "rm -rf /etc/kibana/ ${debug}"
     fi
 
-    if [ -d "/var/log/elasticsearch" ]; then
-        eval "rm -rf /var/log/elasticsearch/ ${debug}"
-    fi
+    elements_to_remove=(    "/var/log/elasticsearch/"
+                            "/var/log/filebeat/"
+                            "/etc/systemd/system/elasticsearch.service.wants/"
+                            "/securityadmin_demo.sh"
+                            "/etc/systemd/system/multi-user.target.wants/wazuh-manager.service"
+                            "/etc/systemd/system/multi-user.target.wants/filebeat.service"
+                            "/etc/systemd/system/multi-user.target.wants/elasticsearch.service"
+                            "/etc/systemd/system/multi-user.target.wants/kibana.service"
+                            "/etc/systemd/system/kibana.service"
+                            "/lib/firewalld/services/kibana.xml"
+                            "/lib/firewalld/services/elasticsearch.xml" )
 
-    if [ -d "/var/log/filebeat" ]; then
-        eval "rm -rf /var/log/filebeat/ ${debug}"
-    fi
-
-    if [ -f "/securityadmin_demo.sh" ]; then
-        eval "rm -f /securityadmin_demo.sh ${debug}"
-    fi
-
-    if [ -f "/etc/systemd/system/multi-user.target.wants/wazuh-manager.service" ]; then
-        eval "rm -f /etc/systemd/system/multi-user.target.wants/wazuh-manager.service ${debug}"
-    fi
-
-    if [ -f "/etc/systemd/system/multi-user.target.wants/filebeat.service" ]; then
-        eval "rm -f /etc/systemd/system/multi-user.target.wants/filebeat.service ${debug}"
-    fi
-
-    if [ -f "/etc/systemd/system/multi-user.target.wants/elasticsearch.service" ]; then
-        eval "rm -f /etc/systemd/system/multi-user.target.wants/elasticsearch.service ${debug}"
-    fi
-
-    if [ -f "/etc/systemd/system/multi-user.target.wants/kibana.service" ]; then
-        eval "rm -f /etc/systemd/system/multi-user.target.wants/kibana.service ${debug}"
-    fi
-
-    if [ -f "/etc/systemd/system/kibana.service" ]; then
-        eval "rm -f /etc/systemd/system/kibana.service ${debug}"
-    fi
-
-    if [ -f "/lib/firewalld/services/kibana.xml" ]; then
-        eval "rm -f /lib/firewalld/services/kibana.xml ${debug}"
-    fi
-
-    if [ -f "/lib/firewalld/services/elasticsearch.xml" ]; then
-        eval "rm -f /lib/firewalld/services/elasticsearch.xml ${debug}"
-    fi
-
-    if [ -d "/etc/systemd/system/elasticsearch.service.wants" ]; then
-        eval "rm -rf /etc/systemd/system/elasticsearch.service.wants ${debug}"
-    fi
+    eval "rm -rf ${elements_to_remove[*]}"
 
     if [ -z "${uninstall}" ]; then
         if [ -n "${rollback_conf}" ] || [ -n "${overwrite}" ]; then

@@ -1,81 +1,64 @@
-# Wazuh installer - kibana.sh library. 
-# Copyright (C) 2015-2022, Wazuh Inc.
+# Wazuh installer - kibana.sh functions. 
+# Copyright (C) 2015, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-k_certs_path="/etc/kibana/certs/"
+readonly k_certs_path="/etc/kibana/certs/"
 
 function configureKibana() {
 
-    eval "getConfig kibana/kibana_unattended_distributed.yml /etc/kibana/kibana.yml ${debug}"
-    eval "mkdir /usr/share/kibana/data ${debug}"
-    eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
-    eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install ${kibana_wazuh_plugin} ${debug}"
-    if [  "$?" != 0  ]; then
-        logger -e "Wazuh Kibana plugin could not be installed."
-        rollBack
-        exit 1
-    fi
-    logger "Wazuh Kibana plugin installed."
-    eval "setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node ${debug}"
-
-    if [ "${#kibana_node_names[@]}" -eq 1 ]; then
-        pos=0
-        ip=${kibana_node_ips[0]}
-    else
-        for i in "${!kibana_node_names[@]}"; do
-            if [[ "${kibana_node_names[i]}" == "${kiname}" ]]; then
-                pos="${i}";
-            fi
-        done
-        ip=${kibana_node_ips[pos]}
-    fi
-
-    echo 'server.host: "'${ip}'"' >> /etc/kibana/kibana.yml
-
-    if [ "${#elasticsearch_node_names[@]}" -eq 1 ]; then
-        echo "elasticsearch.hosts: https://"${elasticsearch_node_ips[0]}":9200" >> /etc/kibana/kibana.yml
-    else
-        echo "elasticsearch.hosts:" >> /etc/kibana/kibana.yml
-        for i in "${elasticsearch_node_ips[@]}"; do
-                echo "  - https://${i}:9200" >> /etc/kibana/kibana.yml
-        done
-    fi
-
-    modifyKibanaLogin
-    copyKibanacerts
-
-}
-
-function configureKibanaAIO() {
-
-    logger "Starting Wazuh Kibana plugin installation."
-
-    pos=0
-    
-    eval "getConfig kibana/kibana_unattended.yml /etc/kibana/kibana.yml ${debug}"
     eval "mkdir /usr/share/kibana/data ${debug}"
     eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
     eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${kibana_wazuh_plugin}' ${debug}"
-    if [ "$?" != 0  ]; then
+    if [ "$?" != 0 ]; then
         logger -e "Wazuh Kibana plugin could not be installed."
         rollBack
         exit 1
     fi
     logger "Wazuh Kibana plugin installation finished."
+
     copyKibanacerts
-    eval "setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node ${debug}"
     modifyKibanaLogin
+    eval "setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node ${debug}"
+
+    if [ -n "${AIO}" ]; then
+        eval "getConfig kibana/kibana_unattended.yml /etc/kibana/kibana.yml ${debug}"
+    else
+        eval "getConfig kibana/kibana_unattended_distributed.yml /etc/kibana/kibana.yml ${debug}"
+        if [ "${#kibana_node_names[@]}" -eq 1 ]; then
+            pos=0
+            ip=${kibana_node_ips[0]}
+        else
+            for i in "${!kibana_node_names[@]}"; do
+                if [[ "${kibana_node_names[i]}" == "${kiname}" ]]; then
+                    pos="${i}";
+                fi
+            done
+            ip=${kibana_node_ips[pos]}
+        fi
+
+        echo 'server.host: "'${ip}'"' >> /etc/kibana/kibana.yml
+
+        if [ "${#elasticsearch_node_names[@]}" -eq 1 ]; then
+            echo "elasticsearch.hosts: https://"${elasticsearch_node_ips[0]}":9200" >> /etc/kibana/kibana.yml
+        else
+            echo "elasticsearch.hosts:" >> /etc/kibana/kibana.yml
+            for i in "${elasticsearch_node_ips[@]}"; do
+                    echo "  - https://${i}:9200" >> /etc/kibana/kibana.yml
+            done
+        fi
+    fi
+
     logger "Kibana post-install configuration finished."
 
 }
 
 function copyKibanacerts() {
 
-    eval "mkdir /etc/kibana/certs ${debug}"
+    eval "mkdir ${k_certs_path} ${debug}"
     if [ -f "${tar_file}" ]; then
     
         name=${kibana_node_names[pos]}
@@ -84,8 +67,8 @@ function copyKibanacerts() {
         eval "tar -xf ${tar_file} -C ${k_certs_path} ./${name}-key.pem  && mv ${k_certs_path}${name}-key.pem ${k_certs_path}kibana-key.pem ${debug}"
         eval "tar -xf ${tar_file} -C ${k_certs_path} ./root-ca.pem ${debug}"
         eval "chown -R kibana:kibana /etc/kibana/ ${debug}"
-        eval "chmod -R 500 /etc/kibana/certs ${debug}"
-        eval "chmod 440 /etc/kibana/certs/* ${debug}"
+        eval "chmod -R 500 ${k_certs_path} ${debug}"
+        eval "chmod 440 ${k_certs_path}* ${debug}"
         logger "Kibana certificate setup finished."
     else
         logger -e "No certificates found. Kibana could not be initialized."
@@ -99,6 +82,7 @@ function initializeKibana() {
     logger "Starting Kibana (this may take a while)."
     getPass "admin"
     j=0
+
     if [ "${#kibana_node_names[@]}" -eq 1 ]; then
         nodes_kibana_ip=${kibana_node_ips[0]}
     else
@@ -113,6 +97,7 @@ function initializeKibana() {
         sleep 10
         j=$((j+1))
     done
+
     if [ "${#wazuh_servers_node_names[@]}" -eq 1 ]; then
         wazuh_api_address=${wazuh_servers_node_ips[0]}
     else

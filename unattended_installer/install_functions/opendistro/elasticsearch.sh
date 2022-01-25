@@ -1,12 +1,12 @@
-# Wazuh installer - elasticsearch.sh library. 
-# Copyright (C) 2015-2022, Wazuh Inc.
+# Wazuh installer - elasticsearch.sh functions. 
+# Copyright (C) 2015, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-e_certs_path="/etc/elasticsearch/certs/"
+readonly e_certs_path="/etc/elasticsearch/certs/"
 
 function applyLog4j2Mitigation() {
 
@@ -33,49 +33,13 @@ function applyLog4j2Mitigation() {
 function configureElasticsearch() {
 
     logger "Configuring Elasticsearch."
-
-    eval "getConfig elasticsearch/elasticsearch_unattended_distributed.yml /etc/elasticsearch/elasticsearch.yml ${debug}"
+    eval "export JAVA_HOME=/usr/share/elasticsearch/jdk/"
     eval "getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml ${debug}"
     eval "getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml ${debug}"
     eval "getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml ${debug}"
+    eval "rm -f /etc/elasticsearch/{esnode-key.pem,esnode.pem,kirk-key.pem,kirk.pem,root-ca.pem} ${debug}"
     
-    if [ "${#elasticsearch_node_names[@]}" -eq 1 ]; then
-        pos=0
-        echo "node.name: ${einame}" >> /etc/elasticsearch/elasticsearch.yml
-        echo "network.host: ${elasticsearch_node_ips[0]}" >> /etc/elasticsearch/elasticsearch.yml
-        echo "cluster.initial_master_nodes: ${einame}" >> /etc/elasticsearch/elasticsearch.yml
-
-        echo "opendistro_security.nodes_dn:" >> /etc/elasticsearch/elasticsearch.yml
-        echo '        - CN='${einame}',OU=Docu,O=Wazuh,L=California,C=US' >> /etc/elasticsearch/elasticsearch.yml
-    else
-        echo "node.name: ${einame}" >> /etc/elasticsearch/elasticsearch.yml
-        echo "cluster.initial_master_nodes:" >> /etc/elasticsearch/elasticsearch.yml
-        for i in "${elasticsearch_node_names[@]}"; do
-            echo '        - "'${i}'"' >> /etc/elasticsearch/elasticsearch.yml
-        done
-
-        echo "discovery.seed_hosts:" >> /etc/elasticsearch/elasticsearch.yml
-        for i in "${elasticsearch_node_ips[@]}"; do
-            echo '        - "'${i}'"' >> /etc/elasticsearch/elasticsearch.yml
-        done
-
-        for i in "${!elasticsearch_node_names[@]}"; do
-            if [[ "${elasticsearch_node_names[i]}" == "${einame}" ]]; then
-                pos="${i}";
-            fi
-        done
-
-        echo "network.host: ${elasticsearch_node_ips[pos]}" >> /etc/elasticsearch/elasticsearch.yml
-
-        echo "opendistro_security.nodes_dn:" >> /etc/elasticsearch/elasticsearch.yml
-        for i in "${elasticsearch_node_names[@]}"; do
-                echo '        - CN='${i}',OU=Docu,O=Wazuh,L=California,C=US' >> /etc/elasticsearch/elasticsearch.yml
-        done
-
-    fi
-
-    eval "rm /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem -f ${debug}"
-    eval "mkdir /etc/elasticsearch/certs ${debug}"
+    copyCertificatesElasticsearch
 
     # Configure JVM options for Elasticsearch
     ram_gb=$(free -g | awk '/^Mem:/{print $2}')
@@ -87,58 +51,63 @@ function configureElasticsearch() {
     eval "sed -i "s/-Xms1g/-Xms${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
     eval "sed -i "s/-Xmx1g/-Xmx${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
 
-    applyLog4j2Mitigation
+    if [ -n "${AIO}" ]; then
+        eval "getConfig elasticsearch/elasticsearch_all_in_one.yml /etc/elasticsearch/elasticsearch.yml ${debug}"
+    else
+        eval "getConfig elasticsearch/elasticsearch_unattended_distributed.yml /etc/elasticsearch/elasticsearch.yml ${debug}"
+        if [ "${#elasticsearch_node_names[@]}" -eq 1 ]; then
+            pos=0
+            echo "node.name: ${einame}" >> /etc/elasticsearch/elasticsearch.yml
+            echo "network.host: ${elasticsearch_node_ips[0]}" >> /etc/elasticsearch/elasticsearch.yml
+            echo "cluster.initial_master_nodes: ${einame}" >> /etc/elasticsearch/elasticsearch.yml
 
+            echo "opendistro_security.nodes_dn:" >> /etc/elasticsearch/elasticsearch.yml
+            echo '        - CN='${einame}',OU=Docu,O=Wazuh,L=California,C=US' >> /etc/elasticsearch/elasticsearch.yml
+        else
+            echo "node.name: ${einame}" >> /etc/elasticsearch/elasticsearch.yml
+            echo "cluster.initial_master_nodes:" >> /etc/elasticsearch/elasticsearch.yml
+            for i in "${elasticsearch_node_names[@]}"; do
+                echo '        - "'${i}'"' >> /etc/elasticsearch/elasticsearch.yml
+            done
+
+            echo "discovery.seed_hosts:" >> /etc/elasticsearch/elasticsearch.yml
+            for i in "${elasticsearch_node_ips[@]}"; do
+                echo '        - "'${i}'"' >> /etc/elasticsearch/elasticsearch.yml
+            done
+
+            for i in "${!elasticsearch_node_names[@]}"; do
+                if [[ "${elasticsearch_node_names[i]}" == "${einame}" ]]; then
+                    pos="${i}";
+                fi
+            done
+
+            echo "network.host: ${elasticsearch_node_ips[pos]}" >> /etc/elasticsearch/elasticsearch.yml
+
+            echo "opendistro_security.nodes_dn:" >> /etc/elasticsearch/elasticsearch.yml
+            for i in "${elasticsearch_node_names[@]}"; do
+                    echo '        - CN='${i}',OU=Docu,O=Wazuh,L=California,C=US' >> /etc/elasticsearch/elasticsearch.yml
+            done
+        fi
+    fi
+
+    applyLog4j2Mitigation
     jv=$(java -version 2>&1 | grep -o -m1 '1.8.0' )
     if [ "$jv" == "1.8.0" ]; then
         echo "root hard nproc 4096" >> /etc/security/limits.conf
         echo "root soft nproc 4096" >> /etc/security/limits.conf
         echo "elasticsearch hard nproc 4096" >> /etc/security/limits.conf
         echo "elasticsearch soft nproc 4096" >> /etc/security/limits.conf
-        echo "bootstrap.system_call_filter: false" >> /etc/elasticsearch/elasticsearch.yml
+        echo -ne "\nbootstrap.system_call_filter: false" >> /etc/elasticsearch/elasticsearch.yml
     fi
 
-    copyCertificatesElasticsearch
-
+    eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
     eval "rm ${e_certs_path}client-certificates.readme ${e_certs_path}elasticsearch_elasticsearch_config_snippet.yml -f ${debug}"
-    eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
-
-}
-
-function configureElasticsearchAIO() {
-
-    pos=0
-
-    eval "getConfig elasticsearch/elasticsearch_all_in_one.yml /etc/elasticsearch/elasticsearch.yml ${debug}"
-    eval "getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml ${debug}"
-    eval "getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml ${debug}"
-    eval "getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml ${debug}"
-    
-    eval "rm /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem -f ${debug}"
-    eval "export JAVA_HOME=/usr/share/elasticsearch/jdk/"
-
-    eval "mkdir ${e_certs_path} ${debug}"
-    copyCertificatesElasticsearch
-    
-    # Configure JVM options for Elasticsearch
-    ram_gb=$(free -g | awk '/^Mem:/{print $2}')
-    ram=$(( ram_gb / 2 ))
-
-    if [ "${ram}" -eq "0" ]; then
-        ram=1;
-    fi    
-    eval "sed -i "s/-Xms1g/-Xms${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
-    eval "sed -i "s/-Xmx1g/-Xmx${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
-
-    eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
-
-    applyLog4j2Mitigation
     logger "Elasticsearch post-install configuration finished."
-
 }
 
 function copyCertificatesElasticsearch() {
     
+    eval "mkdir -p ${e_certs_path} ${debug}"
     name=${elasticsearch_node_names[pos]}
 
     if [ -f "${tar_file}" ]; then

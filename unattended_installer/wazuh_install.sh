@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Wazuh installer
-# Copyright (C) 2015-2022, Wazuh Inc.
+# Copyright (C) 2015, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
@@ -9,30 +9,30 @@
 # Foundation.
 
 ## Package vars
-wazuh_major="4.3"
-wazuh_version="4.3.0"
-wazuh_revision="1"
-elasticsearch_oss_version="7.10.2"
-elasticsearch_basic_version="7.12.1"
-opendistro_version="1.13.2"
-opendistro_revision="1"
-wazuh_kibana_plugin_revision="1"
+readonly wazuh_major="4.3"
+readonly wazuh_version="4.3.0"
+readonly wazuh_revision="1"
+readonly elasticsearch_oss_version="7.10.2"
+readonly elasticsearch_basic_version="7.12.1"
+readonly opendistro_version="1.13.2"
+readonly opendistro_revision="1"
+readonly wazuh_kibana_plugin_revision="1"
 
 ## Links and paths to resources
-functions_path="install_functions/opendistro"
-config_path="config/opendistro"
-resources="https://packages-dev.wazuh.com/resources/${wazuh_major}"
-resources_functions="${resources}/${functions_path}"
-resources_config="${resources}/${config_path}"
-base_path="$(dirname $(readlink -f "$0"))"
-config_file="${base_path}/config.yml"
-tar_file="${base_path}/configurations.tar"
+readonly functions_path="install_functions/opendistro"
+readonly config_path="config/opendistro"
+readonly resources="https://packages-dev.wazuh.com/resources/${wazuh_major}"
+readonly resources_functions="${resources}/${functions_path}"
+readonly resources_config="${resources}/${config_path}"
+readonly base_path="$(dirname $(readlink -f "$0"))"
+readonly config_file="${base_path}/config.yml"
+readonly tar_file="${base_path}/configurations.tar"
 
 ## JAVA_HOME
 export JAVA_HOME=/usr/share/elasticsearch/jdk/
 
 ## Debug variable used during the installation
-logfile="/var/log/wazuh-unattended-installation.log"
+readonly logfile="/var/log/wazuh-unattended-installation.log"
 debug=">> ${logfile} 2>&1"
 
 trap cleanExit SIGINT
@@ -129,11 +129,14 @@ function importFunction() {
         if [ -f "${base_path}/${functions_path}/${1}" ]; then
             cat "${base_path}/${functions_path}/${1}" | grep 'main $@' > /dev/null 2>&1
             has_main=$?
+
             if [ $has_main = 0 ]; then
                 sed -i 's/main $@//' "${base_path}/${functions_path}/${1}"
                 sed -i '$ d' "${base_path}/${functions_path}/${1}"
             fi
+            # Loading functions
             . "${base_path}/${functions_path}/${1}"
+
             if [ $has_main = 0 ]; then
                 echo 'main $@' >> "${base_path}/${functions_path}/${1}"
             fi
@@ -221,7 +224,7 @@ function main() {
                     getHelp
                     exit 1
                 fi
-                config_file=${2}
+                config_file="${2}"
                 shift 2
                 ;;
             "-F"|"--force-kibana")
@@ -242,7 +245,7 @@ function main() {
                     exit 1
                 fi
                 kibana=1
-                kiname=${2}
+                kiname="${2}"
                 shift 2
                 ;;
             "-l"|"--local")
@@ -264,7 +267,7 @@ function main() {
                     exit 1
                 fi
                 tar_conf="1"
-                tar_file=${2}
+                tar_file="${2}"
                 shift 2
                 ;;
             "-u"|"--uninstall")
@@ -283,16 +286,16 @@ function main() {
                     exit 1
                 fi
                 wazuh=1
-                winame=${2}
+                winame="${2}"
                 shift 2
                 ;;
             *)
-                echo "Unknow option: ${1}"
+                echo "Unknow option: "${1}""
                 getHelp
         esac
     done
 
-    if [ "$EUID" -ne 0 ]; then
+    if [ "${EUID}" -ne 0 ]; then
         logger -e "This script must be run as root."
         exit 1
     fi
@@ -303,7 +306,7 @@ function main() {
         trap "kill -9 ${spin_pid} ${debug}" EXIT
     fi
 
-# -------------- Library import ----------------------------
+# -------------- Functions import -----------------------------------
 
     importFunction "checks.sh"
     importFunction "common.sh"
@@ -372,12 +375,15 @@ function main() {
         addWazuhrepo
     fi
 
+# -------------- Elasticsearch or Start Elasticsearch cluster case---
+
+    if [ -n "${elasticsearch}" ] || [ -n "${start_elastic_cluster}" ] ; then
+        importFunction "elasticsearch.sh"
+    fi
+
 # -------------- Elasticsearch case  --------------------------------
 
     if [ -n "${elasticsearch}" ]; then
-
-        importFunction "elasticsearch.sh"
-
         installElasticsearch 
         configureElasticsearch
         startService "elasticsearch"
@@ -387,7 +393,6 @@ function main() {
 # -------------- Start Elasticsearch cluster case  ------------------
 
     if [ -n "${start_elastic_cluster}" ]; then
-        importFunction "elasticsearch.sh"
         startElasticsearchCluster
         changePasswords
     fi
@@ -434,16 +439,16 @@ function main() {
         importFunction "kibana.sh"
 
         installElasticsearch
-        configureElasticsearchAIO
+        configureElasticsearch
         startService "elasticsearch"
         initializeElasticsearch
         installWazuh
         startService "wazuh-manager"
         installFilebeat
-        configureFilebeatAIO
+        configureFilebeat
         startService "filebeat"
         installKibana
-        configureKibanaAIO
+        configureKibana
         startService "kibana"
         changePasswords
         initializeKibanaAIO

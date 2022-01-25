@@ -132,18 +132,18 @@ test-09-configureElasticsearch-dist-one-elastic-node-assert() {
     getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml
     getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml
 
-    rm /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem -f
-    mkdir /etc/elasticsearch/certs
+    rm -f /etc/elasticsearch/{esnode-key.pem, esnode.pem, kirk-key.pem, kirk.pem, root-ca.pem}
+    copyCertificatesElasticsearch
 
     sed -i "s/-Xms1g/-Xms1g/" /etc/elasticsearch/jvm.options
     sed -i "s/-Xmx1g/-Xmx1g/" /etc/elasticsearch/jvm.options
 
+    getConfig elasticsearch/elasticsearch_unattended_distributed.yml /etc/elasticsearch/elasticsearch.yml
+
     applyLog4j2Mitigation
 
-    copyCertificatesElasticsearch
-
-    rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml -f
     /usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer
+    rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml -f
 
 }
 
@@ -165,22 +165,18 @@ test-10-configureElasticsearch-dist-two-elastic-nodes-assert() {
     getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml
     getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml
 
-    rm /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem -f
-    mkdir /etc/elasticsearch/certs
+    rm -f /etc/elasticsearch/{esnode-key.pem, esnode.pem, kirk-key.pem, kirk.pem, root-ca.pem}
+    copyCertificatesElasticsearch
 
     sed -i "s/-Xms1g/-Xms1g/" /etc/elasticsearch/jvm.options
     sed -i "s/-Xmx1g/-Xmx1g/" /etc/elasticsearch/jvm.options
 
+    getConfig elasticsearch/elasticsearch_unattended_distributed.yml /etc/elasticsearch/elasticsearch.yml
+
     applyLog4j2Mitigation
 
-    copyCertificatesElasticsearch
-
-    rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml -f
     /usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer
-}
-
-function load-configureElasticsearchAIO() {
-    @load_function "${base_dir}/elasticsearch.sh" configureElasticsearchAIO
+    rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml -f
 }
 
 test-11-configureElasticsearch-AIO() {
@@ -189,7 +185,9 @@ test-11-configureElasticsearch-AIO() {
     elasticsearch_node_ips=("1.1.1.1")
     @mock free -g === @out "1"
     @mocktrue awk '/^Mem:/{print $2}'
-    configureElasticsearchAIO
+    @mock java -version === @out
+    @mock grep -o -m1 '1.8.0' === @out 1.8.0
+    configureElasticsearch
 }
 
 test-11-configureElasticsearch-AIO-assert() {
@@ -199,15 +197,19 @@ test-11-configureElasticsearch-AIO-assert() {
     getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml
     
     export JAVA_HOME=/usr/share/elasticsearch/jdk/
-    rm /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem -f
+    rm -f /etc/elasticsearch/{esnode-key.pem, esnode.pem, kirk-key.pem, kirk.pem, root-ca.pem}
 
-    mkdir /etc/elasticsearch/certs/
     copyCertificatesElasticsearch
 
     sed -i 's/-Xms1g/-Xms1g/' /etc/elasticsearch/jvm.options
     sed -i 's/-Xmx1g/-Xmx1g/' /etc/elasticsearch/jvm.options
 
+    getConfig elasticsearch/elasticsearch_all_in_one.yml /etc/elasticsearch/elasticsearch.yml
+
     applyLog4j2Mitigation
+
+    rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml -f
+
 }
 
 function load-initializeElasticsearch() {
