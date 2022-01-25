@@ -11,7 +11,7 @@ function load-checkSystem() {
     @load_function "${base_dir}/checks.sh" checkSystem
 }
 
-test-ASSERT-FAIL-1-checkSystem-empty() {
+test-ASSERT-FAIL-01-checkSystem-empty() {
     load-checkSystem
     @mock command -v yum === @false
     @mock command -v zypper === @false
@@ -19,7 +19,7 @@ test-ASSERT-FAIL-1-checkSystem-empty() {
     checkSystem
 }
 
-test-2-checkSystem-yum() {
+test-02-checkSystem-yum() {
     load-checkSystem
     @mock command -v yum === @echo /usr/bin/yum
     @mock command -v zypper === @false
@@ -29,14 +29,14 @@ test-2-checkSystem-yum() {
     echo "$sep"
 }
 
-test-2-checkSystem-yum-assert() {
+test-02-checkSystem-yum-assert() {
     sys_type="yum"
     sep="-"
     echo "$sys_type"
     echo "$sep"
 }
 
-test-3-checkSystem-zypper() {
+test-03-checkSystem-zypper() {
     load-checkSystem
     @mock command -v yum === @false
     @mock command -v zypper === @echo /usr/bin/zypper
@@ -46,14 +46,14 @@ test-3-checkSystem-zypper() {
     @echo "$sep"
 }
 
-test-3-checkSystem-zypper-assert() {
+test-03-checkSystem-zypper-assert() {
     sys_type="zypper"
     sep="-"
     @echo "$sys_type"
     @echo "$sep"
 }
 
-test-4-checkSystem-apt() {
+test-04-checkSystem-apt() {
     load-checkSystem
     @mock command -v yum === @false
     @mock command -v zypper === @false
@@ -63,7 +63,7 @@ test-4-checkSystem-apt() {
     echo "$sep"
 }
 
-test-4-checkSystem-apt-assert() {
+test-04-checkSystem-apt-assert() {
     sys_type="apt-get"
     sep="="
     echo "$sys_type"
@@ -74,28 +74,28 @@ function load-checkNames() {
     @load_function "${base_dir}/checks.sh" checkNames
 }
 
-test-ASSERT-FAIL-5-checkNames-elastic-kibana-equals() {
+test-ASSERT-FAIL-05-checkNames-elastic-kibana-equals() {
     load-checkNames
     einame="node1"
     kiname="node1"
     checkNames
 }
 
-test-ASSERT-FAIL-6-checkNames-elastic-wazuh-equals() {
+test-ASSERT-FAIL-06-checkNames-elastic-wazuh-equals() {
     load-checkNames
     einame="node1"
     winame="node1"
     checkNames
 }
 
-test-ASSERT-FAIL-7-checkNames-kibana-wazuh-equals() {
+test-ASSERT-FAIL-07-checkNames-kibana-wazuh-equals() {
     load-checkNames
     kiname="node1"
     winame="node1"
     checkNames
 }
 
-test-ASSERT-FAIL-8-checkNames-wazuh-node-name-not-in-config() {
+test-ASSERT-FAIL-08-checkNames-wazuh-node-name-not-in-config() {
     load-checkNames
     winame="node1"
     wazuh_servers_node_names=(wazuh node10)
@@ -104,7 +104,7 @@ test-ASSERT-FAIL-8-checkNames-wazuh-node-name-not-in-config() {
     checkNames
 }
 
-test-ASSERT-FAIL-9-checkNames-kibana-node-name-not-in-config() {
+test-ASSERT-FAIL-09-checkNames-kibana-node-name-not-in-config() {
     load-checkNames
     kiname="node1"
     kibana_node_names=(kibana node10)

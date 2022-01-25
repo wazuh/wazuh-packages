@@ -409,7 +409,7 @@ test-27-rollBack-aio-all-installed-yum-assert() {
     rm -rf /usr/share/kibana/
     rm -rf /etc/kibana/
 
-    rm -rf /var/log/elasticsearch/ /var/log/filebeat/ /etc/systemd/system/elasticsearch.service.wants/ /securityadmin_demo.sh  /etc/systemd/system/multi-user.target.wants/wazuh-manager.service  /etc/systemd/system/multi-user.target.wants/filebeat.service  /etc/systemd/system/multi-user.target.wants/elasticsearch.service  /etc/systemd/system/multi-user.target.wants/kibana.service  /etc/systemd/system/kibana.service /lib/firewalld/services/kibana.xml /lib/firewalld/services/elasticsearch.xml
+    rm  -rf  /var/log/elasticsearch/  /var/log/filebeat/  /etc/systemd/system/elasticsearch.service.wants/  /securityadmin_demo.sh  /etc/systemd/system/multi-user.target.wants/wazuh-manager.service  /etc/systemd/system/multi-user.target.wants/filebeat.service  /etc/systemd/system/multi-user.target.wants/elasticsearch.service  /etc/systemd/system/multi-user.target.wants/kibana.service  /etc/systemd/system/kibana.service  /lib/firewalld/services/kibana.xml  /lib/firewalld/services/elasticsearch.xml
 }
 
 test-28-rollBack-aio-all-installed-zypper() {
@@ -893,7 +893,7 @@ test-44-rollBack-nothing-installed-remove-zypper-repo-assert() {
     rm -rf /var/log/elasticsearch/ /var/log/filebeat/ /etc/systemd/system/elasticsearch.service.wants/ /securityadmin_demo.sh  /etc/systemd/system/multi-user.target.wants/wazuh-manager.service  /etc/systemd/system/multi-user.target.wants/filebeat.service  /etc/systemd/system/multi-user.target.wants/elasticsearch.service  /etc/systemd/system/multi-user.target.wants/kibana.service  /etc/systemd/system/kibana.service /lib/firewalld/services/kibana.xml /lib/firewalld/services/elasticsearch.xml
 }
 
-test-45-rollBack-nothing-installed-remove-zypper-repo() {
+test-45-rollBack-nothing-installed-remove-apt-repo() {
     load-rollBack
     @mkdir -p /etc/apt/sources.list.d
     @touch /etc/apt/sources.list.d/wazuh.list
@@ -901,151 +901,36 @@ test-45-rollBack-nothing-installed-remove-zypper-repo() {
     @rm /etc/apt/sources.list.d/wazuh.list
 }
 
-test-45-rollBack-nothing-installed-remove-zypper-repo-assert() {
+test-45-rollBack-nothing-installed-remove-apt-repo-assert() {
     rm /etc/apt/sources.list.d/wazuh.list
+
+    rm -rf /var/log/elasticsearch/ /var/log/filebeat/ /etc/systemd/system/elasticsearch.service.wants/ /securityadmin_demo.sh  /etc/systemd/system/multi-user.target.wants/wazuh-manager.service  /etc/systemd/system/multi-user.target.wants/filebeat.service  /etc/systemd/system/multi-user.target.wants/elasticsearch.service  /etc/systemd/system/multi-user.target.wants/kibana.service  /etc/systemd/system/kibana.service /lib/firewalld/services/kibana.xml /lib/firewalld/services/elasticsearch.xml
+
 }
 
-test-46-rollBack-nothing-installed-remove-/var/log/elasticsearch/() {
+test-46-rollBack-nothing-installed-remove-files() {
     load-rollBack
     @mkdir -p /var/log/elasticsearch/
     rollBack
     @rmdir /var/log/elasticsearch
 }
 
-test-46-rollBack-nothing-installed-remove-/var/log/elasticsearch/-assert() {
-    rm -rf /var/log/elasticsearch/
-}
-
-test-47-rollBack-nothing-installed-remove-/var/log/filebeat/() {
-    load-rollBack
-    @mkdir -p /var/log/filebeat/
-    rollBack
-    @rmdir /var/log/filebeat/
-}
-
-test-47-rollBack-nothing-installed-remove-/var/log/filebeat/-assert() {
-    rm -rf /var/log/filebeat/
-}
-
-test-48-rollBack-nothing-installed-remove-/securityadmin_demo.sh() {
-    load-rollBack
-    #@mocktrue -f /securityadmin_demo.sh
-    @touch /securityadmin_demo.sh
-    rollBack
-    @rm /securityadmin_demo.sh
-}
-
-test-48-rollBack-nothing-installed-remove-/securityadmin_demo.sh-assert() {
-    rm -f /securityadmin_demo.sh
-}
-
-test-49-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/wazuh-manager.service() {
-    load-rollBack
-    @mkdir -p /etc/systemd/system/multi-user.target.wants/
-    @touch /etc/systemd/system/multi-user.target.wants/wazuh-manager.service
-    rollBack
-    @rm /etc/systemd/system/multi-user.target.wants/wazuh-manager.service
-}
-
-test-49-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/wazuh-manager.service-assert() {
-    rm -f /etc/systemd/system/multi-user.target.wants/wazuh-manager.service
-}
-
-test-50-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/filebeat.service() {
-    load-rollBack
-    @mkdir -p /etc/systemd/system/multi-user.target.wants/
-    @touch /etc/systemd/system/multi-user.target.wants/filebeat.service
-    rollBack
-    @rm /etc/systemd/system/multi-user.target.wants/filebeat.service
-}
-
-test-50-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/filebeat.service-assert() {
-    rm -f /etc/systemd/system/multi-user.target.wants/filebeat.service
-}
-
-test-51-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/elasticsearch.service() {
-    load-rollBack
-    @mkdir -p /etc/systemd/system/multi-user.target.wants/
-    @touch /etc/systemd/system/multi-user.target.wants/elasticsearch.service
-    rollBack
-    @rm /etc/systemd/system/multi-user.target.wants/elasticsearch.service
-}
-
-test-51-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/elasticsearch.service-assert() {
-    rm -f /etc/systemd/system/multi-user.target.wants/elasticsearch.service
-}
-
-test-52-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/kibana.service() {
-    load-rollBack
-    @mkdir -p /etc/systemd/system/multi-user.target.wants/
-    @touch /etc/systemd/system/multi-user.target.wants/kibana.service
-    rollBack
-    @rm /etc/systemd/system/multi-user.target.wants/kibana.service
-}
-
-test-52-rollBack-nothing-installed-remove-/etc/systemd/system/multi-user.target.wants/kibana.service-assert() {
-    rm -f /etc/systemd/system/multi-user.target.wants/kibana.service
-}
-
-test-53-rollBack-nothing-installed-remove-/etc/systemd/system/kibana.service() {
-    load-rollBack
-    @mkdir -p /etc/systemd/system/
-    @touch /etc/systemd/system/kibana.service
-    rollBack
-    @rm /etc/systemd/system/kibana.service
-}
-
-test-53-rollBack-nothing-installed-remove-/etc/systemd/system/kibana.service-assert() {
-    rm -f /etc/systemd/system/kibana.service
-}
-
-test-54-rollBack-nothing-installed-remove-/lib/firewalld/services/kibana.xml() {
-    load-rollBack
-    @mkdir -p /lib/firewalld/services/
-    @touch /lib/firewalld/services/kibana.xml
-    rollBack
-    @rm /lib/firewalld/services/kibana.xml
-}
-
-test-54-rollBack-nothing-installed-remove-/lib/firewalld/services/kibana.xml-assert() {
-    rm -f /lib/firewalld/services/kibana.xml
-}
-
-test-55-rollBack-nothing-installed-remove-/lib/firewalld/services/elasticsearch.xml() {
-    load-rollBack
-    @mkdir -p /lib/firewalld/services/
-    @touch /lib/firewalld/services/elasticsearch.xml
-    rollBack
-    @rm /lib/firewalld/services/elasticsearch.xml
-}
-
-test-55-rollBack-nothing-installed-remove-/lib/firewalld/services/elasticsearch.xml-assert() {
-    rm -f /lib/firewalld/services/elasticsearch.xml
-}
-
-test-56-rollBack-nothing-installed-remove-/etc/systemd/system/elasticsearch.service.wants() {
-    load-rollBack
-    @mkdir -p /etc/systemd/system/elasticsearch.service.wants
-    rollBack
-    @rmdir /etc/systemd/system/elasticsearch.service.wants/
-}
-
-test-56-rollBack-nothing-installed-remove-/etc/systemd/system/elasticsearch.service.wants-assert() {
-    rm -rf /etc/systemd/system/elasticsearch.service.wants
+test-46-rollBack-nothing-installed-remove-files-assert() {
+    rm -rf /var/log/elasticsearch/ /var/log/filebeat/ /etc/systemd/system/elasticsearch.service.wants/ /securityadmin_demo.sh /etc/systemd/system/multi-user.target.wants/wazuh-manager.service /etc/systemd/system/multi-user.target.wants/filebeat.service /etc/systemd/system/multi-user.target.wants/elasticsearch.service /etc/systemd/system/multi-user.target.wants/kibana.service /etc/systemd/system/kibana.service /lib/firewalld/services/kibana.xml /lib/firewalld/services/elasticsearch.xml
 }
 
 function load-createCertificates() {
     @load_function "${base_dir}/common.sh" createCertificates
 }
 
-test-57-createCertificates-aio() {
+test-47-createCertificates-aio() {
     load-createCertificates
     AIO=1
     base_path=/tmp
     createCertificates
 }
 
-test-57-createCertificates-aio-assert() {
+test-47-createCertificates-aio-assert() {
     getConfig certificate/config_aio.yml /tmp/config.yml
 
     readConfig
@@ -1060,13 +945,13 @@ test-57-createCertificates-aio-assert() {
     cleanFiles
 }
 
-test-58-createCertificates-no-aio() {
+test-48-createCertificates-no-aio() {
     load-createCertificates
     base_path=/tmp
     createCertificates
 }
 
-test-58-createCertificates-no-aio-assert() {
+test-48-createCertificates-no-aio-assert() {
 
     readConfig
 
@@ -1084,13 +969,13 @@ function load-changePasswords() {
     @load_function "${base_dir}/common.sh" changePasswords
 }
 
-test-ASSERT-FAIL-59-changePasswords-no-tarfile() {
+test-ASSERT-FAIL-49-changePasswords-no-tarfile() {
     load-changePasswords
     tar_file=
     changePasswords
 }
 
-test-60-changePasswords-with-tarfile() {
+test-50-changePasswords-with-tarfile() {
     load-changePasswords
     tar_file=tarfile.tar
     base_path=/tmp
@@ -1101,7 +986,7 @@ test-60-changePasswords-with-tarfile() {
     @rm /tmp/password_file.yml
 }
 
-test-60-changePasswords-with-tarfile-assert() {
+test-50-changePasswords-with-tarfile-assert() {
     checkInstalledPass
     readPasswordFileUsers
     changePassword
@@ -1109,7 +994,7 @@ test-60-changePasswords-with-tarfile-assert() {
     @echo 
 }
 
-test-61-changePasswords-with-tarfile-aio() {
+test-51-changePasswords-with-tarfile-aio() {
     load-changePasswords
     tar_file=tarfile.tar
     base_path=/tmp
@@ -1121,7 +1006,7 @@ test-61-changePasswords-with-tarfile-aio() {
     @rm /tmp/password_file.yml
 }
 
-test-61-changePasswords-with-tarfile-aio-assert() {
+test-51-changePasswords-with-tarfile-aio-assert() {
     checkInstalledPass
     readUsers
     readPasswordFileUsers
@@ -1134,7 +1019,7 @@ test-61-changePasswords-with-tarfile-aio-assert() {
     @echo 1
 }
 
-test-62-changePasswords-with-tarfile-start-elastic-cluster() {
+test-52-changePasswords-with-tarfile-start-elastic-cluster() {
     load-changePasswords
     tar_file=tarfile.tar
     base_path=/tmp
@@ -1146,7 +1031,7 @@ test-62-changePasswords-with-tarfile-start-elastic-cluster() {
     @rm /tmp/password_file.yml
 }
 
-test-62-changePasswords-with-tarfile-start-elastic-cluster-assert() {
+test-52-changePasswords-with-tarfile-start-elastic-cluster-assert() {
     checkInstalledPass
     readUsers
     readPasswordFileUsers
@@ -1163,7 +1048,7 @@ function load-getPass() {
     @load_function "${base_dir}/common.sh" getPass
 }
 
-test-63-getPass-no-args() {
+test-53-getPass-no-args() {
     load-getPass
     users=(kibanaserver admin)
     passwords=(kibanaserver_pass admin_pass)
@@ -1171,11 +1056,11 @@ test-63-getPass-no-args() {
     @echo $u_pass
 }
 
-test-63-getPass-no-args-assert() {
+test-53-getPass-no-args-assert() {
     @echo
 }
 
-test-64-getPass-admin() {
+test-54-getPass-admin() {
     load-getPass
     users=(kibanaserver admin)
     passwords=(kibanaserver_pass admin_pass)
@@ -1183,7 +1068,7 @@ test-64-getPass-admin() {
     @echo $u_pass
 }
 
-test-64-getPass-admin-assert() {
+test-54-getPass-admin-assert() {
     @echo admin_pass
 }
 
@@ -1191,12 +1076,12 @@ function load-startService() {
     @load_function "${base_dir}/common.sh" startService
 }
 
-test-ASSERT-FAIL-65-startService-no-args() {
+test-ASSERT-FAIL-55-startService-no-args() {
     load-startService
     startService
 }
 
-test-ASSERT-FAIL-66-startService-no-service-manager() {
+test-ASSERT-FAIL-56-startService-no-service-manager() {
     load-startService
     @mockfalse ps -e
     @mockfalse grep -E -q "^\ *1\ .*systemd$"
@@ -1205,7 +1090,7 @@ test-ASSERT-FAIL-66-startService-no-service-manager() {
     startService wazuh-manager
 }
 
-test-67-startService-systemd() {
+test-57-startService-systemd() {
     load-startService
     @mockfalse ps -e === @out 
     @mocktrue grep -E -q "^\ *1\ .*systemd$"
@@ -1213,13 +1098,13 @@ test-67-startService-systemd() {
     startService wazuh-manager
 }
 
-test-67-startService-systemd-assert() {
+test-57-startService-systemd-assert() {
     systemctl daemon-reload
     systemctl enable wazuh-manager.service
     systemctl start wazuh-manager.service
 }
 
-test-68-startService-systemd-error() {
+test-58-startService-systemd-error() {
     load-startService
     @mock ps -e === @out 
     @mocktrue grep -E -q "^\ *1\ .*systemd$"
@@ -1228,14 +1113,14 @@ test-68-startService-systemd-error() {
     startService wazuh-manager
 }
 
-test-68-startService-systemd-error-assert() {
+test-58-startService-systemd-error-assert() {
     systemctl daemon-reload
     systemctl enable wazuh-manager.service
     rollBack
     exit 1
 }
 
-test-69-startService-initd() {
+test-59-startService-initd() {
     load-startService
     @mock ps -e === @out 
     @mockfalse grep -E -q "^\ *1\ .*systemd$"
@@ -1247,7 +1132,7 @@ test-69-startService-initd() {
     @rm /etc/init.d/wazuh-manager
 }
 
-test-69-startService-initd-assert() {
+test-59-startService-initd-assert() {
     @mkdir -p /etc/init.d
     @touch /etc/init.d/wazuh-manager
     chkconfig wazuh-manager on
@@ -1256,7 +1141,7 @@ test-69-startService-initd-assert() {
     @rm /etc/init.d/wazuh-manager
 }
 
-test-70-startService-initd-error() {
+test-60-startService-initd-error() {
     load-startService
     @mock ps -e === @out 
     @mockfalse grep -E -q "^\ *1\ .*systemd$"
@@ -1268,7 +1153,7 @@ test-70-startService-initd-error() {
     @rm /etc/init.d/wazuh-manager
 }
 
-test-70-startService-initd-error-assert() {
+test-60-startService-initd-error-assert() {
     @mkdir -p /etc/init.d
     @touch /etc/init.d/wazuh-manager
     @chmod +x /etc/init.d/wazuh-manager
@@ -1280,7 +1165,7 @@ test-70-startService-initd-error-assert() {
     @rm /etc/init.d/wazuh-manager
 }
 
-test-71-startService-rc.d/init.d() {
+test-61-startService-rc.d/init.d() {
     load-startService
     @mock ps -e === @out 
     @mockfalse grep -E -q "^\ *1\ .*systemd$"
@@ -1294,7 +1179,7 @@ test-71-startService-rc.d/init.d() {
     @rm /etc/rc.d/init.d/wazuh-manager
 }
 
-test-71-startService-rc.d/init.d-assert() {
+test-61-startService-rc.d/init.d-assert() {
     @mkdir -p /etc/rc.d/init.d
     @touch /etc/rc.d/init.d/wazuh-manager
     @chmod +x /etc/rc.d/init.d/wazuh-manager
@@ -1306,14 +1191,14 @@ function load-readPasswordFileUsers() {
     @load_function "${base_dir}/common.sh" readPasswordFileUsers
 }
 
-test-ASSERT-FAIL-72-readPasswordFileUsers-file-incorrect() {
+test-ASSERT-FAIL-62-readPasswordFileUsers-file-incorrect() {
     load-readPasswordFileUsers
     p_file=/tmp/passfile.yml
     @mock grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' /tmp/passfile.yml === @echo 0
     readPasswordFileUsers
 }
 
-test-73-readPasswordFileUsers-changeall-correct() {
+test-63-readPasswordFileUsers-changeall-correct() {
     load-readPasswordFileUsers
     p_file=/tmp/passfile.yml
     @mock grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' /tmp/passfile.yml === @echo 1
@@ -1330,14 +1215,14 @@ test-73-readPasswordFileUsers-changeall-correct() {
     @echo ${passwords[*]}
 }
 
-test-73-readPasswordFileUsers-changeall-correct-assert() {
+test-63-readPasswordFileUsers-changeall-correct-assert() {
     @echo wazuh kibanaserver
     @echo wazuhpassword kibanaserverpassword
     @echo wazuh kibanaserver
     @echo wazuhpassword kibanaserverpassword
 }
 
-test-74-readPasswordFileUsers-changeall-user-doesnt-exist() {
+test-64-readPasswordFileUsers-changeall-user-doesnt-exist() {
     load-readPasswordFileUsers
     p_file=/tmp/passfile.yml
     @mock grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' /tmp/passfile.yml === @echo 1
@@ -1354,14 +1239,14 @@ test-74-readPasswordFileUsers-changeall-user-doesnt-exist() {
     @echo ${passwords[*]}
 }
 
-test-74-readPasswordFileUsers-changeall-user-doesnt-exist-assert() {
+test-64-readPasswordFileUsers-changeall-user-doesnt-exist-assert() {
     @echo wazuh kibanaserver admin
     @echo wazuhpassword kibanaserverpassword
     @echo wazuh kibanaserver
     @echo wazuhpassword kibanaserverpassword
 }
 
-test-75-readPasswordFileUsers-no-changeall-kibana-correct() {
+test-65-readPasswordFileUsers-no-changeall-kibana-correct() {
     load-readPasswordFileUsers
     p_file=/tmp/passfile.yml
     @mock grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' /tmp/passfile.yml === @echo 1
@@ -1379,14 +1264,14 @@ test-75-readPasswordFileUsers-no-changeall-kibana-correct() {
     @echo ${passwords[*]}
 }
 
-test-75-readPasswordFileUsers-no-changeall-kibana-correct-assert() {
+test-65-readPasswordFileUsers-no-changeall-kibana-correct-assert() {
     @echo wazuh kibanaserver admin
     @echo wazuhpassword kibanaserverpassword adminpassword
     @echo kibanaserver admin
     @echo kibanaserverpassword adminpassword
 }
 
-test-76-readPasswordFileUsers-no-changeall-filebeat-correct() {
+test-66-readPasswordFileUsers-no-changeall-filebeat-correct() {
     load-readPasswordFileUsers
     p_file=/tmp/passfile.yml
     @mock grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' /tmp/passfile.yml === @echo 1
@@ -1404,7 +1289,7 @@ test-76-readPasswordFileUsers-no-changeall-filebeat-correct() {
     @echo ${passwords[*]}
 }
 
-test-76-readPasswordFileUsers-no-changeall-filebeat-correct-assert() {
+test-66-readPasswordFileUsers-no-changeall-filebeat-correct-assert() {
     @echo wazuh kibanaserver admin
     @echo wazuhpassword kibanaserverpassword adminpassword
     @echo admin

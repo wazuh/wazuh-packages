@@ -136,7 +136,6 @@ test-10-configureFilebeat-no-previous-variables() {
 }
 
 test-10-configureFilebeat-no-previous-variables-assert() {
-    getConfig filebeat/filebeat_distributed.yml /etc/filebeat/filebeat.yml
     curl -so /etc/filebeat/wazuh-template.json --max-time 300
     chmod go+r /etc/filebeat/wazuh-template.json
     getConfig filebeat/filebeat_distributed.yml /etc/filebeat/filebeat.yml
@@ -155,7 +154,6 @@ test-11-configureFilebeat-one-elastic-node() {
 }
 
 test-11-configureFilebeat-one-elastic-node-assert() {
-    getConfig filebeat/filebeat_distributed.yml /etc/filebeat/filebeat.yml
     curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/4.3/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300
     chmod go+r /etc/filebeat/wazuh-template.json
     getConfig filebeat/filebeat_distributed.yml /etc/filebeat/filebeat.yml
@@ -175,7 +173,6 @@ test-12-configureFilebeat-more-than-one-elastic-node() {
 }
 
 test-12-configureFilebeat-more-than-one-elastic-node-assert() {
-    getConfig filebeat/filebeat_distributed.yml /etc/filebeat/filebeat.yml
     curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/4.3/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300
     chmod go+r /etc/filebeat/wazuh-template.json
     getConfig filebeat/filebeat_distributed.yml /etc/filebeat/filebeat.yml
@@ -186,21 +183,17 @@ test-12-configureFilebeat-more-than-one-elastic-node-assert() {
     copyCertificatesFilebeat
 }
 
-function load-configureFilebeatAIO() {
-    @load_function "${base_dir}/filebeat.sh" configureFilebeatAIO
-}
-
-test-13-configureFilebeatAIO-no-previous-variables() {
-    load-configureFilebeatAIO
+test-13-configureFilebeat-AIO-no-previous-variables() {
+    load-configureFilebeat
     filebeat_wazuh_template=""
     filebeat_wazuh_module=""
     @mocktrue curl -s --max-time 300
     @mock tar -xvz -C /usr/share/filebeat/module
+    AIO=1
     configureFilebeat
 }
 
-test-13-configureFilebeatAIO-no-previous-variables-assert() {
-    getConfig filebeat/filebeat_unattended.yml /etc/filebeat/filebeat.yml
+test-13-configureFilebeat-AIO-no-previous-variables-assert() {
     curl -so /etc/filebeat/wazuh-template.json --max-time 300
     chmod go+r /etc/filebeat/wazuh-template.json
     getConfig filebeat/filebeat_unattended.yml /etc/filebeat/filebeat.yml
@@ -208,15 +201,15 @@ test-13-configureFilebeatAIO-no-previous-variables-assert() {
     copyCertificatesFilebeat
 }
 
-test-14-configureFilebeatAIO() {
-    load-configureFilebeatAIO
+test-14-configureFilebeat-AIO() {
+    load-configureFilebeat
     @mocktrue curl -s ${filebeat_wazuh_module} --max-time 300
     @mock tar -xvz -C /usr/share/filebeat/module
+    AIO=1
     configureFilebeat
 }
 
-test-14-configureFilebeatAIO-assert() {
-    getConfig filebeat/filebeat_unattended.yml /etc/filebeat/filebeat.yml
+test-14-configureFilebeat-AIO-assert() {
     curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/4.3/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300
     chmod go+r /etc/filebeat/wazuh-template.json
     getConfig filebeat/filebeat_unattended.yml /etc/filebeat/filebeat.yml
