@@ -32,6 +32,7 @@ test-02-copyCertificatesElasticsearch() {
 }
 
 test-02-copyCertificatesElasticsearch-assert() {
+    mkdir -p /etc/elasticsearch/certs/
     tar -xf /tmp/tarfile.tar -C /etc/elasticsearch/certs/ ./elastic1.pem  && mv /etc/elasticsearch/certs/elastic1.pem /etc/elasticsearch/certs/elasticsearch.pem
     tar -xf /tmp/tarfile.tar -C /etc/elasticsearch/certs/ ./elastic1-key.pem  && mv /etc/elasticsearch/certs/elastic1-key.pem /etc/elasticsearch/certs/elasticsearch-key.pem
     tar -xf /tmp/tarfile.tar -C /etc/elasticsearch/certs/ ./root-ca.pem
@@ -127,12 +128,11 @@ test-09-configureElasticsearch-dist-one-elastic-node() {
 }
 
 test-09-configureElasticsearch-dist-one-elastic-node-assert() {
-    getConfig elasticsearch/elasticsearch_unattended_distributed.yml /etc/elasticsearch/elasticsearch.yml
     getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml
     getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml
     getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml
 
-    rm -f /etc/elasticsearch/{esnode-key.pem, esnode.pem, kirk-key.pem, kirk.pem, root-ca.pem}
+    rm -f /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem 
     copyCertificatesElasticsearch
 
     sed -i "s/-Xms1g/-Xms1g/" /etc/elasticsearch/jvm.options
@@ -160,12 +160,11 @@ test-10-configureElasticsearch-dist-two-elastic-nodes() {
 }
 
 test-10-configureElasticsearch-dist-two-elastic-nodes-assert() {
-    getConfig elasticsearch/elasticsearch_unattended_distributed.yml /etc/elasticsearch/elasticsearch.yml
     getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml
     getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml
     getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml
 
-    rm -f /etc/elasticsearch/{esnode-key.pem, esnode.pem, kirk-key.pem, kirk.pem, root-ca.pem}
+    rm -f /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem
     copyCertificatesElasticsearch
 
     sed -i "s/-Xms1g/-Xms1g/" /etc/elasticsearch/jvm.options
@@ -180,31 +179,31 @@ test-10-configureElasticsearch-dist-two-elastic-nodes-assert() {
 }
 
 test-11-configureElasticsearch-AIO() {
-    load-configureElasticsearchAIO
+    load-configureElasticsearch
     elasticsearch_node_names=("elastic1")
     elasticsearch_node_ips=("1.1.1.1")
     @mock free -g === @out "1"
     @mocktrue awk '/^Mem:/{print $2}'
     @mock java -version === @out
     @mock grep -o -m1 '1.8.0' === @out 1.8.0
+
     configureElasticsearch
 }
 
 test-11-configureElasticsearch-AIO-assert() {
-    getConfig elasticsearch/elasticsearch_all_in_one.yml /etc/elasticsearch/elasticsearch.yml
     getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml
     getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml
     getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml
     
     export JAVA_HOME=/usr/share/elasticsearch/jdk/
-    rm -f /etc/elasticsearch/{esnode-key.pem, esnode.pem, kirk-key.pem, kirk.pem, root-ca.pem}
+    rm -f /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem
 
     copyCertificatesElasticsearch
 
     sed -i 's/-Xms1g/-Xms1g/' /etc/elasticsearch/jvm.options
     sed -i 's/-Xmx1g/-Xmx1g/' /etc/elasticsearch/jvm.options
 
-    getConfig elasticsearch/elasticsearch_all_in_one.yml /etc/elasticsearch/elasticsearch.yml
+    getConfig elasticsearch/elasticsearch_unattended_distributed.yml /etc/elasticsearch/elasticsearch.yml
 
     applyLog4j2Mitigation
 
