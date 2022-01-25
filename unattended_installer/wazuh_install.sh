@@ -339,6 +339,9 @@ function main() {
     else
         checkHealth
     fi
+    if [ -n "${AIO}" ] ; then
+        rm -f "${tar_file}"
+    fi
     checkArguments
 
 # -------------- Configuration creation case  -----------------------

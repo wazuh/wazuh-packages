@@ -192,7 +192,7 @@ function modifyKibanaLogin() {
     eval "rmdir /tmp/custom_welcome ${debug}"
 
     # Edit CSS theme
-    eval "getConfig kibana/customWelcomeKibana.css /tmp/ ${debug}"
+    eval "getConfig kibana/customWelcomeKibana.css /tmp/customWelcomeKibana.css ${debug}"
     eval "cat /tmp/customWelcomeKibana.css | tee -a /usr/share/kibana/src/core/server/core_app/assets/legacy_light_theme.css ${debug}"
     eval "rm -f /tmp/customWelcomeKibana.css"
 
