@@ -4,7 +4,7 @@ today="$(date +"%d_%m_%y")"
 logfile="./${today}-unit_test.log"
 echo "-------------------------" >> ${logfile}
 debug=">> ${logfile}"
-ALL_FILES=("common" "checks" "wazuh" "filebeat" "kibana" "elasticsearch")
+ALL_FILES=("common" "checks" "wazuh" "filebeat" "kibana" "elasticsearch" "wazuh-cert-tool" "wazuh-passwords-tool")
 IMAGE_NAME="unattended-installer-unit-tests-launcher"
 SHARED_VOLUME="$(pwd -P)/tmp/"
 
@@ -69,7 +69,7 @@ function testFile() {
     elif [ -f ../../../unattended_installer/install_functions/elasticsearch_basic/${1}.sh ]; then
         eval "cp ../../../unattended_installer/install_functions/elasticsearch_basic/${1}.sh ${SHARED_VOLUME} ${debug}"
     elif [ -f ../../../unattended_installer/${1}.sh ]; then
-        eval "cp ../../../unattended_installer/${1}.sh ${debug}"
+        eval "cp ../../../unattended_installer/${1}.sh ${SHARED_VOLUME} ${debug}"
     else 
         logger -e "File ${1}.sh could not be found."
         return
