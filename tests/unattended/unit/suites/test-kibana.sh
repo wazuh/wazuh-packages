@@ -37,7 +37,7 @@ test-02-copyKibanacerts() {
 }
 
 test-02-copyKibanacerts-assert() {
-    mkdir /etc/kibana/certs
+    mkdir /etc/kibana/certs/
     tar -xf /tmp/tarfile.tar -C /etc/kibana/certs/ ./kibana1.pem  && mv /etc/kibana/certs/kibana1.pem /etc/kibana/certs/kibana.pem
     tar -xf /tmp/tarfile.tar -C /etc/kibana/certs/ ./kibana1-key.pem  && mv /etc/kibana/certs/kibana1-key.pem /etc/kibana/certs/kibana-key.pem
     tar -xf /tmp/tarfile.tar -C /etc/kibana/certs/ ./root-ca.pem
@@ -125,7 +125,6 @@ test-09-configureKibana-dist-one-kibana-node-one-elastic-node() {
 }
 
 test-09-configureKibana-dist-one-kibana-node-one-elastic-node-assert() {
-    getConfig kibana/kibana_unattended_distributed.yml /etc/kibana/kibana.yml
     mkdir /usr/share/kibana/data
     chown -R kibana:kibana /usr/share/kibana/
     sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana-4.3.0_7.10.2-1.zip
@@ -148,7 +147,6 @@ test-10-configureKibana-dist-two-kibana-nodes-two-elastic-nodes() {
 }
 
 test-10-configureKibana-dist-two-kibana-nodes-two-elastic-nodes-assert() {
-    getConfig kibana/kibana_unattended_distributed.yml /etc/kibana/kibana.yml
     mkdir /usr/share/kibana/data
     chown -R kibana:kibana /usr/share/kibana/
     sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana-4.3.0_7.10.2-1.zip
@@ -168,21 +166,17 @@ test-ASSERT-FAIL-11-configureKibana-dist-error-downloading-plugin() {
     configureKibana
 }
 
-function load-configureKibanaAIO() {
-    @load_function "${base_dir}/kibana.sh" configureKibanaAIO
-}
-
 test-12-configureKibana-AIO() {
-    load-configureKibanaAIO
+    load-configureKibana
     kibana_node_names=("kibana1")
     kibana_node_ips=("1.1.1.1")
     elasticsearch_node_names=("elastic1")
     elasticsearch_node_ips=("1.1.1.1")
+    AIO=1
     configureKibana
 }
 
 test-12-configureKibana-AIO-assert() {
-    getConfig kibana/kibana_unattended.yml /etc/kibana/kibana.yml
     mkdir /usr/share/kibana/data
     chown -R kibana:kibana /usr/share/kibana/
     sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana-4.3.0_7.10.2-1.zip
@@ -192,9 +186,10 @@ test-12-configureKibana-AIO-assert() {
     getConfig kibana/kibana_unattended.yml /etc/kibana/kibana.yml
 }
 
-test-ASSERT-FAIL-13-configureKibanaAIO-error-downloading-plugin() {
-    load-configureKibanaAIO
+test-ASSERT-FAIL-13-configureKibana--AIO-error-downloading-plugin() {
+    load-configureKibana
     @mockfalse sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana-4.3.0_7.10.2-1.zip
+    AIO=1
     configureKibana
 }
 
