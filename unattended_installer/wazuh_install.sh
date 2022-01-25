@@ -293,6 +293,10 @@ function main() {
                 echo "Unknow option: "${1}""
                 getHelp
         esac
+
+        # This assignment will be present during all testing stages. 
+        # It must be removed when the unattended installer is published. 
+        development=1
     done
 
     if [ "${EUID}" -ne 0 ]; then
