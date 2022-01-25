@@ -311,6 +311,8 @@ main() {
             esac
         done    
 
+        readInstances
+
         if [ -n "${debugEnabled}" ]; then
             debug=""           
         fi
