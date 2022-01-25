@@ -266,62 +266,32 @@ test-11-checkInstalledPass-all-installed-yum() {
 
     @mocktrue yum list installed
 
-    @mock grep wazuh-manager === @echo wazuh-manager.x86_64  4.3.0-1  @wazuh
-    @mkdir /var/ossec/
-
     @mock grep opendistroforelasticsearch === @echo opendistroforelasticsearch.x86_64 1.13.2-1 @wazuh
     @mock grep -v kibana
-    @mkdir /var/lib/elasticsearch/
-    @mkdir /usr/share/elasticsearch/
-    @mkdir /etc/elasticsearch/
 
     @mock grep filebeat === @echo filebeat.x86_64 7.10.2-1 @wazuh
-    @mkdir /var/lib/filebeat/
-    @mkdir /usr/share/filebeat/
-    @mkdir /etc/filebeat/
 
     @mock grep opendistroforelasticsearch-kibana === @echo opendistroforelasticsearch-kibana.x86_64
-    @mkdir /var/lib/kibana/
-    @mkdir /usr/share/kibana/
-    @mkdir /etc/kibana/
+
+    @mock grep "opendistro_security.ssl.transport.pemtrustedcas_filepath: " /etc/elasticsearch/elasticsearch.yml === @out "pem_path"
+
+    adminpem=
+    adminkey=
 
     checkInstalledPass
-    @echo $wazuhinstalled
-    @echo $wazuh_remaining_files
-    @rmdir /var/ossec
 
     @echo $elasticsearchinstalled
-    @echo $elastic_remaining_files
-    @rmdir /var/lib/elasticsearch/
-    @rmdir /usr/share/elasticsearch/
-    @rmdir /etc/elasticsearch/
-
     @echo $filebeatinstalled
-    @echo $filebeat_remaining_files
-    @rmdir /var/lib/filebeat/
-    @rmdir /usr/share/filebeat/
-    @rmdir /etc/filebeat/
-
     @echo $kibanainstalled
-    @echo $kibana_remaining_files
-    @rmdir /var/lib/kibana/
-    @rmdir /usr/share/kibana/
-    @rmdir /etc/kibana/
-
 }
 
 test-11-checkInstalledPass-all-installed-yum-assert() {
-    @echo "wazuh-manager.x86_64 4.3.0-1 @wazuh"
-    @echo 1
+
+    readAdmincerts
 
     @echo "opendistroforelasticsearch.x86_64 1.13.2-1 @wazuh"
-    @echo 1
-
     @echo "filebeat.x86_64 7.10.2-1 @wazuh"
-    @echo 1
-
     @echo "opendistroforelasticsearch-kibana.x86_64"
-    @echo 1
 }
 
 test-12-checkInstalledPass-all-installed-zypper() {
@@ -331,62 +301,33 @@ test-12-checkInstalledPass-all-installed-zypper() {
     @mocktrue zypper packages
     @mock grep i+
 
-    @mock grep wazuh-manager === @echo "i+ | EL-20211102 - Wazuh | wazuh-manager | 4.3.0-1 | x86_64"
-    @mkdir /var/ossec
-
     @mock grep opendistroforelasticsearch === @echo "i+ | EL-20211102 - Wazuh | opendistroforelasticsearch | 1.13.2-1 | x86_64"
     @mock grep -v kibana
-    @mkdir /var/lib/elasticsearch/
-    @mkdir /usr/share/elasticsearch
-    @mkdir /etc/elasticsearch
 
     @mock grep filebeat === @echo "i+ | EL-20211102 - Wazuh | filebeat | 7.10.2-1 | x86_64"
-    @mkdir /var/lib/filebeat/
-    @mkdir /usr/share/filebeat
-    @mkdir /etc/filebeat
 
     @mock grep opendistroforelasticsearch-kibana === @echo "i+ | EL-20211102 - Wazuh | opendistroforelasticsearch-kibana | 1.13.2-1 | x86_64"
-    @mkdir /var/lib/kibana/
-    @mkdir /usr/share/kibana
-    @mkdir /etc/kibana
+
+    @mock grep "opendistro_security.ssl.transport.pemtrustedcas_filepath: " /etc/elasticsearch/elasticsearch.yml === @out "pem_path"
+
+    adminpem=
+    adminkey=
 
     checkInstalledPass
-    @echo $wazuhinstalled
-    @echo $wazuh_remaining_files
-    @rmdir /var/ossec
 
     @echo $elasticsearchinstalled
-    @echo $elastic_remaining_files
-    @rmdir /var/lib/elasticsearch/
-    @rmdir /usr/share/elasticsearch
-    @rmdir /etc/elasticsearch
-
     @echo $filebeatinstalled
-    @echo $filebeat_remaining_files
-    @rmdir /var/lib/filebeat/
-    @rmdir /usr/share/filebeat
-    @rmdir /etc/filebeat
-
     @echo $kibanainstalled
-    @echo $kibana_remaining_files
-    @rmdir /var/lib/kibana/
-    @rmdir /usr/share/kibana
-    @rmdir /etc/kibana
 
 }
 
 test-12-checkInstalledPass-all-installed-zypper-assert() {
-    @echo "i+ | EL-20211102 - Wazuh | wazuh-manager | 4.3.0-1 | x86_64"
-    @echo 1
+
+    readAdmincerts
 
     @echo "i+ | EL-20211102 - Wazuh | opendistroforelasticsearch | 1.13.2-1 | x86_64"
-    @echo 1
-
     @echo "i+ | EL-20211102 - Wazuh | filebeat | 7.10.2-1 | x86_64"
-    @echo 1
-
     @echo "i+ | EL-20211102 - Wazuh | opendistroforelasticsearch-kibana | 1.13.2-1 | x86_64"
-    @echo 1
 }
 
 test-13-checkInstalledPass-all-installed-apt() {
@@ -395,65 +336,36 @@ test-13-checkInstalledPass-all-installed-apt() {
 
     @mocktrue apt list --installed
 
-    @mock grep wazuh-manager === @echo wazuh-manager/now 4.2.5-1 amd64 [installed,local]
-    @mkdir /var/ossec
-
     @mock grep opendistroforelasticsearch === @echo opendistroforelasticsearch/stable,now 1.13.2-1 amd64 [installed]
     @mock grep -v kibana
-    @mkdir /var/lib/elasticsearch/
-    @mkdir /usr/share/elasticsearch
-    @mkdir /etc/elasticsearch
 
     @mock grep filebeat === @echo filebeat/now 7.10.2 amd64 [installed,local]
-    @mkdir /var/lib/filebeat/
-    @mkdir /usr/share/filebeat
-    @mkdir /etc/filebeat
 
     @mock grep opendistroforelasticsearch-kibana === @echo opendistroforelasticsearch-kibana/now 1.13.2 amd64 [installed,local]
-    @mkdir /var/lib/kibana/
-    @mkdir /usr/share/kibana
-    @mkdir /etc/kibana
+
+    @mock grep "opendistro_security.ssl.transport.pemtrustedcas_filepath: " /etc/elasticsearch/elasticsearch.yml === @out "pem_path"
+
+    adminpem=
+    adminkey=
 
     checkInstalledPass
-    @echo $wazuhinstalled
-    @echo $wazuh_remaining_files
-    @rmdir /var/ossec
 
     @echo $elasticsearchinstalled
-    @echo $elastic_remaining_files
-    @rmdir /var/lib/elasticsearch/
-    @rmdir /usr/share/elasticsearch
-    @rmdir /etc/elasticsearch
-
     @echo $filebeatinstalled
-    @echo $filebeat_remaining_files
-    @rmdir /var/lib/filebeat/
-    @rmdir /usr/share/filebeat
-    @rmdir /etc/filebeat
-
     @echo $kibanainstalled
-    @echo $kibana_remaining_files
-    @rmdir /var/lib/kibana/
-    @rmdir /usr/share/kibana
-    @rmdir /etc/kibana
 
 }
 
 test-13-checkInstalledPass-all-installed-apt-assert() {
-    @echo "wazuh-manager/now 4.2.5-1 amd64 [installed,local]"
-    @echo 1
+
+    readAdmincerts
 
     @echo "opendistroforelasticsearch/stable,now 1.13.2-1 amd64 [installed]"
-    @echo 1
-
     @echo "filebeat/now 7.10.2 amd64 [installed,local]"
-    @echo 1
-
     @echo "opendistroforelasticsearch-kibana/now 1.13.2 amd64 [installed,local]"
-    @echo 1
 }
 
-test-14-checkInstalledPass-nothing-installed-apt() {
+test-ASSERT-FAIL-14-checkInstalledPass-nothing-installed-apt() {
     load-checkInstalledPass
     sys_type="apt-get"
 
@@ -468,35 +380,12 @@ test-14-checkInstalledPass-nothing-installed-apt() {
 
     @mock grep opendistroforelasticsearch-kibana
 
+    @mock grep "opendistro_security.ssl.transport.pemtrustedcas_filepath: " /etc/elasticsearch/elasticsearch.yml === @out "pem_path"
+
     checkInstalledPass
-    @echo $wazuhinstalled
-    @echo $wazuh_remaining_files
-
-    @echo $elasticsearchinstalled
-    @echo $elastic_remaining_files
-
-    @echo $filebeatinstalled
-    @echo $filebeat_remaining_files
-
-    @echo $kibanainstalled
-    @echo $kibana_remaining_files
 }
 
-test-14-checkInstalledPass-nothing-installed-apt-assert() {
-    @echo ""
-    @echo ""
-
-    @echo ""
-    @echo ""
-
-    @echo ""
-    @echo ""
-
-    @echo ""
-    @echo ""
-}
-
-test-15-checkInstalledPass-nothing-installed-yum() {
+test-ASSERT-FAIL-15-checkInstalledPass-nothing-installed-yum() {
     load-checkInstalledPass
     sys_type="yum"
 
@@ -511,35 +400,12 @@ test-15-checkInstalledPass-nothing-installed-yum() {
 
     @mock grep opendistroforelasticsearch-kibana
 
+    @mock grep "opendistro_security.ssl.transport.pemtrustedcas_filepath: " /etc/elasticsearch/elasticsearch.yml === @out "pem_path"
+
     checkInstalledPass
-    @echo $wazuhinstalled
-    @echo $wazuh_remaining_files
-
-    @echo $elasticsearchinstalled
-    @echo $elastic_remaining_files
-
-    @echo $filebeatinstalled
-    @echo $filebeat_remaining_files
-
-    @echo $kibanainstalled
-    @echo $kibana_remaining_files
 }
 
-test-15-checkInstalledPass-nothing-installed-yum-assert() {
-    @echo ""
-    @echo ""
-
-    @echo ""
-    @echo ""
-
-    @echo ""
-    @echo ""
-
-    @echo ""
-    @echo ""
-}
-
-test-16-checkInstalledPass-nothing-installed-zypper() {
+test-ASSERT-FAIL-16-checkInstalledPass-nothing-installed-zypper() {
     load-checkInstalledPass
     sys_type="zypper"
 
@@ -555,30 +421,7 @@ test-16-checkInstalledPass-nothing-installed-zypper() {
 
     @mock grep opendistroforelasticsearch-kibana
 
+    @mock grep "opendistro_security.ssl.transport.pemtrustedcas_filepath: " /etc/elasticsearch/elasticsearch.yml === @out "pem_path"
+
     checkInstalledPass
-    @echo $wazuhinstalled
-    @echo $wazuh_remaining_files
-
-    @echo $elasticsearchinstalled
-    @echo $elastic_remaining_files
-
-    @echo $filebeatinstalled
-    @echo $filebeat_remaining_files
-
-    @echo $kibanainstalled
-    @echo $kibana_remaining_files
-}
-
-test-16-checkInstalledPass-nothing-installed-zypper-assert() {
-    @echo ""
-    @echo ""
-
-    @echo ""
-    @echo ""
-
-    @echo ""
-    @echo ""
-
-    @echo ""
-    @echo ""
 }
