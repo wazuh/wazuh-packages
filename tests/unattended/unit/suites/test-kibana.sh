@@ -330,6 +330,6 @@ test-21-modifyKibanaLogin-assert() {
     cp -f /tmp/custom_welcome/template.js.hbs /usr/share/kibana/src/legacy/ui/ui_render/bootstrap/template.js.hbs
     rm -f /tmp/custom_welcome/*
     rmdir /tmp/custom_welcome
-    getConfig kibana/customWelcomeKibana.css /tmp/
+    getConfig kibana/customWelcomeKibana.css /tmp/customWelcomeKibana.css
     rm -f /tmp/customWelcomeKibana.css
 }
