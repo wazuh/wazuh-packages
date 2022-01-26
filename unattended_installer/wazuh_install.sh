@@ -163,24 +163,44 @@ function importFunction() {
 }
 
 function logger() {
-
     now=$(date +'%d/%m/%Y %H:%M:%S')
-    case ${1} in 
-        "-e")
-            mtype="ERROR:"
-            message="${2}"
-            ;;
-        "-w")
-            mtype="WARNING:"
-            message="${2}"
-            ;;
-        *)
-            mtype="INFO:"
-            message="${1}"
-            ;;
-    esac
-    echo "${now} ${mtype} ${message}" | tee -a ${logfile}
-
+    mtype="INFO:"
+    debugLogger=
+    disableHeader=
+    if [ -n "${1}" ]; then
+        while [ -n "${1}" ]; do
+            case ${1} in
+                "-e")
+                    mtype="ERROR:"
+                    shift 1
+                    ;;
+                "-w")
+                    mtype="WARNING:"
+                    shift 1
+                    ;;
+                "-dh")
+                    disableHeader=1
+                    shift 1
+                    ;;
+                "-d")
+                    debugLogger=1
+                    shift 1
+                    ;;
+                *)
+                    message="${1}"
+                    shift 1
+                    ;;
+            esac
+        done
+    fi
+    
+    if [ -z "${debugLogger}" ] || ( [ -n "${debugLogger}" ] && [ -n "${debugEnabled}" ] ); then
+        if [ -n "${disableHeader}" ]; then
+            echo "${message}" | tee -a ${logfile}
+        else
+            echo "${now} ${mtype} ${message}" | tee -a ${logfile}
+        fi
+    fi
 }
 
 function main() {
@@ -321,6 +341,7 @@ function main() {
 
     checkIfInstalled
     if [ -n "${uninstall}" ]; then
+        logger -dh "-------------------------------------Uninstall-------------------------------------"
         logger "Removing all installed components."
         rollBack
         logger "All components removed."
@@ -348,6 +369,7 @@ function main() {
 
     # Creation certificate case: Only AIO and -c option can create certificates. 
     if [ -n "${configurations}" ] || [ -n "${AIO}" ]; then
+            logger -dh "-------------------------------Certificate creation--------------------------------"
         if [ -n "${configurations}" ]; then
             checkOpenSSL
         fi
@@ -378,6 +400,7 @@ function main() {
 # -------------- Prerequisites and Wazuh repo  ----------------------
 
     if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
+        logger -dh "---------------------------------Pre-installation----------------------------------"
         installPrerequisites
         addWazuhrepo
     fi
@@ -391,7 +414,8 @@ function main() {
 # -------------- Elasticsearch case  --------------------------------
 
     if [ -n "${elasticsearch}" ]; then
-        installElasticsearch 
+        logger -dh "---------------------------Open Distro for Elasticsearch---------------------------"
+        installElasticsearch
         configureElasticsearch
         startService "elasticsearch"
         initializeElasticsearch
@@ -407,6 +431,7 @@ function main() {
 # -------------- Kibana case  ---------------------------------------
 
     if [ -n "${kibana}" ]; then
+        logger -dh "--------------------------------------Kibana---------------------------------------"
 
         importFunction "kibana.sh"
 
@@ -421,6 +446,7 @@ function main() {
 # -------------- Wazuh case  ---------------------------------------
 
     if [ -n "${wazuh}" ]; then
+        logger -dh "---------------------------------------Wazuh---------------------------------------"
 
         importFunction "wazuh.sh"
         importFunction "filebeat.sh"
@@ -432,7 +458,7 @@ function main() {
         startService "wazuh-manager"
         installFilebeat
         configureFilebeat
-        changePasswords 
+        changePasswords
         startService "filebeat"
     fi
 
@@ -445,15 +471,18 @@ function main() {
         importFunction "elasticsearch.sh"
         importFunction "kibana.sh"
 
+        logger -dh "---------------------------Open Distro for Elasticsearch---------------------------"
         installElasticsearch
         configureElasticsearch
         startService "elasticsearch"
         initializeElasticsearch
+        logger -dh "---------------------------------------Wazuh---------------------------------------"
         installWazuh
         startService "wazuh-manager"
         installFilebeat
         configureFilebeat
         startService "filebeat"
+        logger -dh "--------------------------------------Kibana---------------------------------------"
         installKibana
         configureKibana
         startService "kibana"
@@ -467,8 +496,8 @@ function main() {
         restoreWazuhrepo
     fi
 
-    if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}"  ]; then
-        logger "Installation finished."
+    if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
+        logger "Installation finished. You can find in ${tar_file} all the certificates created, as well as password_file.yml, with the passwords for all users and config.yml, with the nodes of all of the components and their ips."
     elif [ -n "${start_elastic_cluster}" ]; then
         logger "Elasticsearch cluster started."
     fi

@@ -22,7 +22,7 @@ kibana_wazuh_plugin="${repobaseurl}/ui/kibana/wazuh_kibana-${wazuh_version}_${el
 
 function addWazuhrepo() {
 
-    logger "Adding the Wazuh repository."
+    logger -d "Adding the Wazuh repository."
 
     if [ -n "${development}" ]; then
         if [ "${sys_type}" == "yum" ]; then
@@ -47,9 +47,9 @@ function addWazuhrepo() {
             eval "apt-get update -q ${debug}"
         fi
     else
-        logger "Wazuh repository already exists. Skipping addition."
+        logger -d "Wazuh repository already exists. Skipping addition."
     fi
-    logger "Wazuh repository added."
+    logger -d "Wazuh repository added."
 
 }
 
@@ -151,7 +151,7 @@ function getPass() {
 
 function installPrerequisites() {
 
-    logger "Starting all necessary utility installation."
+    logger "Starting the installation of dependencies."
 
     openssl=""
     if [ -z "$(command -v openssl)" ]; then
@@ -161,7 +161,7 @@ function installPrerequisites() {
     if [ "${sys_type}" == "yum" ]; then
         eval "yum install curl unzip wget libcap tar gnupg ${openssl} -y ${debug}"
     elif [ "${sys_type}" == "zypper" ]; then
-        eval "zypper -n install curl unzip wget ${debug}"         
+        eval "zypper -n install curl unzip wget ${debug}"
         eval "zypper -n install libcap-progs tar gnupg ${openssl} ${debug} || zypper -n install libcap2 tar gnupg ${openssl} ${debug}"
     elif [ "${sys_type}" == "apt-get" ]; then
         eval "apt-get update -q ${debug}"
@@ -172,9 +172,9 @@ function installPrerequisites() {
         logger -e "Prerequisites could not be installed"
         exit 1
     else
-        logger "All necessary utility installation finished."
+        logger "Installation of dependencies finished."
     fi
-    
+
 }
 
 function readPasswordFileUsers() {
@@ -262,12 +262,12 @@ function restoreWazuhrepo() {
         elif [ "${sys_type}" == "apt-get" ] && [ -f "/etc/apt/sources.list.d/wazuh.list" ]; then
             file="/etc/apt/sources.list.d/wazuh.list"
         else
-            logger -w "Wazuh repository does not exists."
+            logger -w -d "Wazuh repository does not exists."
         fi
         eval "sed -i 's/-dev//g' ${file} ${debug}"
         eval "sed -i 's/pre-release/4.x/g' ${file} ${debug}"
         eval "sed -i 's/unstable/stable/g' ${file} ${debug}"
-        logger "The Wazuh repository set to production."
+        logger -d "The Wazuh repository set to production."
     fi
 
 }
