@@ -78,12 +78,6 @@ if [ "$REMOVE_DIRS" = "true" ]; then
         echo " OK"
     fi
 
-    # Delete the data directory if we are purging
-    if [ -d /etc/init.d/"${NAME}" ]; then
-        rm -rf /etc/init.d/"${NAME}"
-        echo " OK"
-    fi
-
     # Delete the config directory if we are purging
     if [ "$REMOVE_CONFIG_DIRECTORY" = "true" ]; then
         rm -rf "${CONFIG_DIR}"

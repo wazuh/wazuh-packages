@@ -55,7 +55,6 @@ override_dh_install:
 	mkdir -p ${TARGET_DIR}${CONFIG_DIR}/certs
 	mkdir -p ${TARGET_DIR}${INSTALLATION_DIR}
 	mkdir -p ${TARGET_DIR}/etc/systemd/system
-	mkdir -p ${TARGET_DIR}/etc/init.d
 	mkdir -p ${TARGET_DIR}/etc/default
 
 	cp ${DASHBOARD_FILE}/etc/node.options ${TARGET_DIR}${CONFIG_DIR}
@@ -73,10 +72,10 @@ override_dh_install:
 
 
 	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/services/wazuh-dashboard.service ${TARGET_DIR}/etc/systemd/system/wazuh-dashboard.service 
-	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/services/wazuh-dashboard ${TARGET_DIR}/etc/init.d/${NAME}
+	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/services/wazuh-dashboard ${TARGET_DIR}/etc/systemd/system/${NAME}
 	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/services/default ${TARGET_DIR}/etc/default/${NAME}
 
-	chmod 644 ${TARGET_DIR}/etc/init.d/${NAME}
+	chmod 644 ${TARGET_DIR}/etc/systemd/system/${NAME}
 	chmod 644 ${TARGET_DIR}/etc/systemd/system/wazuh-dashboard.service 
 	chmod 644 ${TARGET_DIR}/etc/default/${NAME}
 
@@ -96,7 +95,7 @@ override_dh_install:
 	chown -R ${USER}:${GROUP} ${TARGET_DIR}${INSTALLATION_DIR}
 	chown -R ${USER}:${GROUP} ${TARGET_DIR}${CONFIG_DIR}
 	chown ${USER}:${GROUP} ${TARGET_DIR}/etc/systemd/system/wazuh-dashboard.service
-	chown ${USER}:${GROUP} ${TARGET_DIR}/etc/init.d/${NAME}
+	chown ${USER}:${GROUP} ${TARGET_DIR}/etc/systemd/system/${NAME}
 	chown ${USER}:${GROUP} ${TARGET_DIR}/etc/default/${NAME}
 
 	sudo -u ${USER} ${TARGET_DIR}${INSTALLATION_DIR}/bin/opensearch-dashboards-plugin install https://s3.amazonaws.com/warehouse.wazuh.com/stack/dashboard/wazuh-1.2.0.zip
