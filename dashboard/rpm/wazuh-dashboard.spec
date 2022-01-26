@@ -70,7 +70,7 @@ mkdir -p %{buildroot}/etc/default
 
 
 cp %{DASHBOARD_FILE}/etc/node.options %{buildroot}%{CONFIG_DIR}
-cp %{DASHBOARD_FILE}/etc/wazuh-dashboard.yml %{buildroot}%{CONFIG_DIR}
+cp %{DASHBOARD_FILE}/etc/dashboard.yml %{buildroot}%{CONFIG_DIR}
 mv %{DASHBOARD_FILE}/* %{buildroot}%{INSTALL_DIR}
 
 # Set custom welcome styles
@@ -230,7 +230,7 @@ rm -fr %{buildroot}
 
 %attr(0750, %{USER}, %{GROUP}) "/etc/init.d/wazuh-dashboard"
 %attr(0750, %{USER}, %{GROUP}) "/etc/default/wazuh-dashboard"
-%config(noreplace) %attr(0640, %{USER}, %{GROUP}) "%{CONFIG_DIR}/wazuh-dashboard.yml"
+%config(noreplace) %attr(0640, %{USER}, %{GROUP}) "%{CONFIG_DIR}/dashboard.yml"
 %dir %attr(0750, %{USER}, %{GROUP}) %{CONFIG_DIR}/certs
 %config(noreplace) %attr(0640, %{USER}, %{GROUP}) "%{CONFIG_DIR}/certs/*"
 %dir %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/src"

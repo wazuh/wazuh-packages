@@ -27,7 +27,7 @@ chown -R "${NAME}":"${NAME}" /etc/default/"${NAME}"
 chown -R "${NAME}":"${NAME}" /etc/systemd/system/"${NAME}"
 chmod 750 /etc/systemd/system/wazuh-dashboard
 chmod 750 /etc/default/wazuh-dashboard
-chmod 640 "${CONFIG_DIR}"/wazuh-dashboard.yml
+chmod 640 "${CONFIG_DIR}"/dashboard.yml
 chmod 750 "${CONFIG_DIR}"/certs
 chmod 400 "${CONFIG_DIR}"/certs/*
 chmod 640 "${CONFIG_DIR}"/node.options

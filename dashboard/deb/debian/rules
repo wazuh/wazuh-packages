@@ -58,7 +58,7 @@ override_dh_install:
 	mkdir -p ${TARGET_DIR}/etc/default
 
 	cp ${DASHBOARD_FILE}/etc/node.options ${TARGET_DIR}${CONFIG_DIR}
-	cp ${DASHBOARD_FILE}/etc/wazuh-dashboard.yml ${TARGET_DIR}${CONFIG_DIR}
+	cp ${DASHBOARD_FILE}/etc/dashboard.yml ${TARGET_DIR}${CONFIG_DIR}
 	mv ${DASHBOARD_FILE}/* ${TARGET_DIR}${INSTALLATION_DIR}
 
 	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/custom_welcome/template.js.hbs ${TARGET_DIR}${INSTALLATION_DIR}/src/legacy/ui/ui_render/bootstrap/template.js.hbs
