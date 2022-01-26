@@ -58,49 +58,10 @@ if [ -z "$2" ]; then
   chown ${USER}:${GROUP} ${LIB_DIR}/batch_metrics_enabled.conf
   chown ${USER}:${GROUP} ${LIB_DIR}
 
-  CLK_TCK=$(getconf CLK_TCK)
-  echo >> /etc/wazuh-indexer/jvm.options
-  echo '## OpenDistro Performance Analyzer' >> /etc/wazuh-indexer/jvm.options
-  echo "-Dclk.tck=$CLK_TCK" >> /etc/wazuh-indexer/jvm.options
-  echo "-Djdk.attach.allowAttachSelf=true" >> /etc/wazuh-indexer/jvm.options
-  echo "-Djava.security.policy=file:///usr/share/wazuh-indexer/plugins/opendistro-performance-analyzer/pa_config/es_security.policy" >> /etc/wazuh-indexer/jvm.options
 
   # ---------------------------------------------------------------------------
 
-  echo "${USER} hard nproc 4096" >> /etc/security/limits.conf
-  echo "${USER} soft nproc 4096" >> /etc/security/limits.conf
-  echo "${USER} hard nofile 65535" >> /etc/security/limits.conf
-  echo "${USER} soft nofile 65535" >> /etc/security/limits.conf
-
-  sysctl -w vm.max_map_count=262144 > /dev/null 2>&1 
-
-  if command -v sudo > /dev/null 2>&1; then
-      sudo -u ${USER} CLK_TK=`getconf CLK_TCK` OPENSEARCH_PATH_CONF=${CONFIG_DIR} ${INSTALLATION_DIR}/bin/opensearch --quiet > /dev/null 2>&1 &
-  else
-      CLK_TK=`getconf CLK_TCK` OPENSEARCH_PATH_CONF=${CONFIG_DIR} ${INSTALLATION_DIR}/bin/opensearch --quiet > /dev/null 2>&1 &
-  fi
-
-	sleep 15
-
-	chmod +x ${INSTALLATION_DIR}/plugins/opensearch-security/tools/securityadmin.sh 
-
-  if command -v sudo > /dev/null 2>&1; then
-      sudo -u ${USER} OPENSEARCH_PATH_CONF=${CONFIG_DIR} JAVA_HOME=${INSTALLATION_DIR}/jdk ${INSTALLATION_DIR}/plugins/opensearch-security/tools/securityadmin.sh -icl -p 9800 -cd ${INSTALLATION_DIR}/plugins/opensearch-security/securityconfig/ -nhnv -cacert ${CONFIG_DIR}/certs/root-ca.pem -cert ${CONFIG_DIR}/certs/admin.pem -key ${CONFIG_DIR}/certs/admin-key.pem >> ${LOG_DIR}/securityadmin.log
-  else
-      OPENSEARCH_PATH_CONF=${CONFIG_DIR} JAVA_HOME=${INSTALLATION_DIR}/jdk ${INSTALLATION_DIR}/plugins/opensearch-security/tools/securityadmin.sh -icl -p 9800 -cd ${INSTALLATION_DIR}/plugins/opensearch-security/securityconfig/ -nhnv -cacert ${CONFIG_DIR}/certs/root-ca.pem -cert ${CONFIG_DIR}/certs/admin.pem -key ${CONFIG_DIR}/certs/admin-key.pem >> ${LOG_DIR}/securityadmin.log
-  fi
-
-	sleep 5
-
-	kill -15 `pgrep -f opensearch` > /dev/null 2>&1
-
-	sleep 10
-
-  rm -rf ${LOG_DIR}/* > /dev/null 2>&1
-
-  # ---------------------------------------------------------------------------
-
-  # Set files permissions
+# Set files permissions
   chmod 750 ${CONFIG_DIR}
   chmod 750 ${LIB_DIR}
   chmod 750 ${LOG_DIR}
@@ -997,6 +958,34 @@ if [ -z "$2" ]; then
   chmod 640 ${INSTALLATION_DIR}/jdk/jmods/jdk.aot.jmod
   chmod 640 ${INSTALLATION_DIR}/jdk/jmods/jdk.jconsole.jmod
   chmod 640 ${INSTALLATION_DIR}/jdk/jmods/java.instrument.jmod
+
+  # ---------------------------------------------------------------------------
+
+  # Setting performance analyzer options
+  CLK_TCK=$(getconf CLK_TCK)
+  echo >> /etc/wazuh-indexer/jvm.options
+  echo '## OpenDistro Performance Analyzer' >> /etc/wazuh-indexer/jvm.options
+  echo "-Dclk.tck=$CLK_TCK" >> /etc/wazuh-indexer/jvm.options
+  echo "-Djdk.attach.allowAttachSelf=true" >> /etc/wazuh-indexer/jvm.options
+  echo "-Djava.security.policy=file:///usr/share/wazuh-indexer/plugins/opendistro-performance-analyzer/pa_config/es_security.policy" >> /etc/wazuh-indexer/jvm.options
+
+  # ---------------------------------------------------------------------------
+
+  # Setting Security Admin default configuration
+  echo "${USER} hard nproc 4096" >> /etc/security/limits.conf
+  echo "${USER} soft nproc 4096" >> /etc/security/limits.conf
+  echo "${USER} hard nofile 65535" >> /etc/security/limits.conf
+  echo "${USER} soft nofile 65535" >> /etc/security/limits.conf
+
+  sysctl -w vm.max_map_count=262144 > /dev/null 2>&1 
+  CLK_TK=`getconf CLK_TCK` OPENSEARCH_PATH_CONF=${CONFIG_DIR} runuser ${USER} --shell="/bin/bash" --command="${INSTALLATION_DIR}/bin/opensearch --quiet" > /dev/null 2>&1 &
+
+	sleep 15
+
+  OPENSEARCH_PATH_CONF=${CONFIG_DIR} JAVA_HOME=${INSTALLATION_DIR}/jdk runuser ${USER} --shell="/bin/bash" --command="${INSTALLATION_DIR}/plugins/opensearch-security/tools/securityadmin.sh -icl -p 9800 -cd ${INSTALLATION_DIR}/plugins/opensearch-security/securityconfig/ -nhnv -cacert ${CONFIG_DIR}/certs/root-ca.pem -cert ${CONFIG_DIR}/certs/admin.pem -key ${CONFIG_DIR}/certs/admin-key.pem" >> ${LOG_DIR}/securityadmin.log
+
+	kill -15 `pgrep -f opensearch` > /dev/null 2>&1
+  rm -rf ${LOG_DIR}/* > /dev/null 2>&1
 
 else
   # otherwise it is an upgrade

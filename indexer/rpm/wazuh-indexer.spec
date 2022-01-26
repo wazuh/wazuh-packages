@@ -129,19 +129,14 @@ if [ $1 = 1 ];then # Install
         echo "bootstrap.system_call_filter: false" >> %{CONFIG_DIR}/opensearch.yml
     fi
 
-    sysctl -w vm.max_map_count=262144 > /dev/null 2>&1 
-    sudo -u %{USER} CLK_TK=`/usr/bin/getconf CLK_TCK` OPENSEARCH_PATH_CONF=%{CONFIG_DIR} %{INSTALL_DIR}/bin/opensearch --quiet > /dev/null 2>&1 &
+    sysctl -w vm.max_map_count=262144 > /dev/null 2>&1
+    CLK_TK=`getconf CLK_TCK` OPENSEARCH_PATH_CONF=%{CONFIG_DIR} runuser %{USER} --shell="/bin/bash" --command="%{INSTALL_DIR}/bin/opensearch --quiet" > /dev/null 2>&1 &
 
     sleep 15
 
-    sudo -u %{USER} OPENSEARCH_PATH_CONF=%{CONFIG_DIR} JAVA_HOME=%{INSTALL_DIR}/jdk %{INSTALL_DIR}/plugins/opensearch-security/tools/securityadmin.sh -cd %{INSTALL_DIR}/plugins/opensearch-security/securityconfig -icl -p 9800 -cd %{INSTALL_DIR}/plugins/opensearch-security/securityconfig -nhnv -cacert %{CONFIG_DIR}/certs/root-ca.pem -cert %{CONFIG_DIR}/certs/admin.pem -key %{CONFIG_DIR}/certs/admin-key.pem >> %{LOG_DIR}/securityadmin.log
-
-    sleep 5
+    OPENSEARCH_PATH_CONF=%{CONFIG_DIR} JAVA_HOME=%{INSTALL_DIR}/jdk runuser %{USER} --shell="/bin/bash" --command="%{INSTALL_DIR}/plugins/opensearch-security/tools/securityadmin.sh -icl -p 9800 -cd %{INSTALL_DIR}/plugins/opensearch-security/securityconfig -nhnv -cacert %{CONFIG_DIR}/certs/root-ca.pem -cert %{CONFIG_DIR}/certs/admin.pem -key %{CONFIG_DIR}/certs/admin-key.pem" >> %{LOG_DIR}/securityadmin.log
 
     kill -15 `pgrep -f opensearch` > /dev/null 2>&1
-
-    sleep 10
-
     rm -rf %{LOG_DIR}/* > /dev/null 2>&1
 fi
 
