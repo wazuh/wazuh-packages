@@ -341,7 +341,7 @@ function main() {
 
     checkIfInstalled
     if [ -n "${uninstall}" ]; then
-        logger -dh "-------------------------------------Uninstall-------------------------------------"
+        logger -dh "------------------------------------ Uninstall ------------------------------------"
         logger "Removing all installed components."
         rollBack
         logger "All components removed."
@@ -369,7 +369,7 @@ function main() {
 
     # Creation certificate case: Only AIO and -c option can create certificates. 
     if [ -n "${configurations}" ] || [ -n "${AIO}" ]; then
-            logger -dh "-------------------------------Certificate creation--------------------------------"
+        logger -dh "----------------------------- Creating configurations -----------------------------"
         if [ -n "${configurations}" ]; then
             checkOpenSSL
         fi
@@ -400,7 +400,7 @@ function main() {
 # -------------- Prerequisites and Wazuh repo  ----------------------
 
     if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
-        logger -dh "---------------------------------Pre-installation----------------------------------"
+        logger -dh "-------------------------------- Pre-installation ---------------------------------"
         installPrerequisites
         addWazuhrepo
     fi
@@ -414,7 +414,7 @@ function main() {
 # -------------- Elasticsearch case  --------------------------------
 
     if [ -n "${elasticsearch}" ]; then
-        logger -dh "---------------------------Open Distro for Elasticsearch---------------------------"
+        logger -dh "-------------------------- Open Distro for Elasticsearch --------------------------"
         installElasticsearch
         configureElasticsearch
         startService "elasticsearch"
@@ -431,7 +431,7 @@ function main() {
 # -------------- Kibana case  ---------------------------------------
 
     if [ -n "${kibana}" ]; then
-        logger -dh "--------------------------------------Kibana---------------------------------------"
+        logger -dh "------------------------------------- Kibana --------------------------------------"
 
         importFunction "kibana.sh"
 
@@ -446,7 +446,7 @@ function main() {
 # -------------- Wazuh case  ---------------------------------------
 
     if [ -n "${wazuh}" ]; then
-        logger -dh "---------------------------------------Wazuh---------------------------------------"
+        logger -dh "-------------------------------------- Wazuh --------------------------------------"
 
         importFunction "wazuh.sh"
         importFunction "filebeat.sh"
@@ -471,18 +471,18 @@ function main() {
         importFunction "elasticsearch.sh"
         importFunction "kibana.sh"
 
-        logger -dh "---------------------------Open Distro for Elasticsearch---------------------------"
+        logger -dh "-------------------------- Open Distro for Elasticsearch --------------------------"
         installElasticsearch
         configureElasticsearch
         startService "elasticsearch"
         initializeElasticsearch
-        logger -dh "---------------------------------------Wazuh---------------------------------------"
+        logger -dh "-------------------------------------- Wazuh --------------------------------------"
         installWazuh
         startService "wazuh-manager"
         installFilebeat
         configureFilebeat
         startService "filebeat"
-        logger -dh "--------------------------------------Kibana---------------------------------------"
+        logger -dh "------------------------------------- Kibana --------------------------------------"
         installKibana
         configureKibana
         startService "kibana"
