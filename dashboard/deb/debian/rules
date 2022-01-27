@@ -98,9 +98,23 @@ override_dh_install:
 	chown ${USER}:${GROUP} ${TARGET_DIR}/etc/systemd/system/${NAME}
 	chown ${USER}:${GROUP} ${TARGET_DIR}/etc/default/${NAME}
 
-	sudo -u ${USER} ${TARGET_DIR}${INSTALLATION_DIR}/bin/opensearch-dashboards-plugin install https://s3.amazonaws.com/warehouse.wazuh.com/stack/dashboard/wazuh-1.2.0.zip
+	runuser ${USER} --shell="/bin/bash" --command="${TARGET_DIR}${INSTALLATION_DIR}/bin/opensearch-dashboards-plugin install https://s3.amazonaws.com/warehouse.wazuh.com/stack/dashboard/wazuh-1.2.0.zip" 
 
 	find ${TARGET_DIR}${INSTALLATION_DIR}/plugins/wazuh/ -exec chown ${USER}:${GROUP} {} \;
+	chown -R "${NAME}":"${NAME}" "${TARGET_DIR}${CONFIG_DIR}"
+	chown -R "${NAME}":"${NAME}" "${TARGET_DIR}${INSTALLATION_DIR}"
+	chown -R "${NAME}":"${NAME}" ${TARGET_DIR}/etc/default/"${NAME}"
+	chown -R "${NAME}":"${NAME}" ${TARGET_DIR}/etc/systemd/system/"${NAME}"
+	chmod 750 ${TARGET_DIR}/etc/systemd/system/wazuh-dashboard
+	chmod 750 ${TARGET_DIR}/etc/default/wazuh-dashboard
+	chmod 640 "${TARGET_DIR}${CONFIG_DIR}"/dashboard.yml
+	chmod 750 "${TARGET_DIR}${CONFIG_DIR}"/certs
+	chmod 400 "${TARGET_DIR}${CONFIG_DIR}"/certs/*
+	chmod 640 "${TARGET_DIR}${CONFIG_DIR}"/node.options
+	chmod 640 ${TARGET_DIR}/etc/systemd/system/wazuh-dashboard.service
+	find "${TARGET_DIR}${INSTALLATION_DIR}" -type d -exec chmod 750 {} \;
+	find "${TARGET_DIR}${INSTALLATION_DIR}" -type f -perm 644 -exec chmod 640 {} \;
+	find "${TARGET_DIR}${INSTALLATION_DIR}" -type f -perm 755 -exec chmod 750 {} \;
 
 
 #override_dh_auto_clean:

@@ -114,9 +114,7 @@ chown %{USER}:%{GROUP} %{buildroot}/etc/init.d/wazuh-dashboard
 
 
 
-cd %{buildroot}%{INSTALL_DIR}
-sudo -u %{USER} bin/opensearch-dashboards-plugin install https://s3.amazonaws.com/warehouse.wazuh.com/stack/dashboard/wazuh-1.2.0.zip
-
+runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install https://s3.amazonaws.com/warehouse.wazuh.com/stack/dashboard/wazuh-1.2.0.zip" 
 find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -exec chown %{USER}:%{GROUP} {} \;
 
 # -----------------------------------------------------------------------------

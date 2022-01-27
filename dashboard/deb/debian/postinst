@@ -19,22 +19,8 @@ export PID_DIR=/run/"${NAME}"
 # Setting Owner and group of own folders
 mkdir -p ${PID_DIR}
 mkdir -p ${LOG_DIR}
-chown -R "${NAME}":"${NAME}" "${PID_DIR}"
-chown -R "${NAME}":"${NAME}" "${CONFIG_DIR}"
-chown -R "${NAME}":"${NAME}" "${INSTALLATION_DIR}"
 chown -R "${NAME}":"${NAME}" "${LOG_DIR}"
-chown -R "${NAME}":"${NAME}" /etc/default/"${NAME}"
-chown -R "${NAME}":"${NAME}" /etc/systemd/system/"${NAME}"
-chmod 750 /etc/systemd/system/wazuh-dashboard
-chmod 750 /etc/default/wazuh-dashboard
-chmod 640 "${CONFIG_DIR}"/dashboard.yml
-chmod 750 "${CONFIG_DIR}"/certs
-chmod 400 "${CONFIG_DIR}"/certs/*
-chmod 640 "${CONFIG_DIR}"/node.options
-chmod 640 /etc/systemd/system/wazuh-dashboard.service
-find "${INSTALLATION_DIR}" -type d -exec chmod 750 {} \;
-find "${INSTALLATION_DIR}" -type f -perm 644 -exec chmod 640 {} \;
-find "${INSTALLATION_DIR}" -type f -perm 755 -exec chmod 750 {} \;
+chown -R "${NAME}":"${NAME}" "${PID_DIR}"
 
 
 case "$1" in
