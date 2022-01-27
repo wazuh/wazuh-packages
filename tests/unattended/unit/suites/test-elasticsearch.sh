@@ -9,7 +9,7 @@ source "${base_dir}"/bach.sh
 }
 
 function load-copyCertificatesElasticsearch() {
-    @load_function "${base_dir}/elasticsearch.sh" copyCertificatesElasticsearch
+    @load_function "${base_dir}/indexer.sh" copyCertificatesElasticsearch
 }
 
 test-ASSERT-FAIL-01-copyCertificatesElasticsearch-no-tarfile() {
@@ -41,7 +41,7 @@ test-02-copyCertificatesElasticsearch-assert() {
 }
 
 function load-installElasticsearch() {
-    @load_function "${base_dir}/elasticsearch.sh" installElasticsearch
+    @load_function "${base_dir}/indexer.sh" installElasticsearch
 }
 
 test-03-installElasticsearch-zypper() {
@@ -112,7 +112,7 @@ test-ASSERT-FAIL-08-installElasticsearch-apt-error() {
 }
 
 function load-configureElasticsearch() {
-    @load_function "${base_dir}/elasticsearch.sh" configureElasticsearch
+    @load_function "${base_dir}/indexer.sh" configureElasticsearch
 }
 
 test-09-configureElasticsearch-dist-one-elastic-node() {
@@ -212,7 +212,7 @@ test-11-configureElasticsearch-AIO-assert() {
 }
 
 function load-initializeElasticsearch() {
-    @load_function "${base_dir}/elasticsearch.sh" initializeElasticsearch
+    @load_function "${base_dir}/indexer.sh" initializeElasticsearch
 }
 
 test-12-initializeElasticsearch-one-node() {
@@ -251,7 +251,7 @@ test-ASSERT-FAIL-14-initializeElasticsearch-error-connecting() {
 }
 
 function load-applyLog4j2Mitigation() {
-    @load_function "${base_dir}/elasticsearch.sh" applyLog4j2Mitigation
+    @load_function "${base_dir}/indexer.sh" applyLog4j2Mitigation
 }
 
 test-15-applyLog4j2Mitigation() {

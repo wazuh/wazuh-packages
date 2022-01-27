@@ -20,7 +20,7 @@ readonly wazuh_kibana_plugin_revision="1"
 readonly wazuh_install_vesion="0.1"
 
 ## Links and paths to resources
-readonly functions_path="install_functions/opendistro"
+readonly functions_path="install_functions"
 readonly config_path="config/opendistro"
 readonly resources="https://packages-dev.wazuh.com/resources/${wazuh_major}"
 readonly resources_functions="${resources}/${functions_path}"
@@ -403,7 +403,7 @@ function main() {
 # -------------- Elasticsearch or Start Elasticsearch cluster case---
 
     if [ -n "${elasticsearch}" ] || [ -n "${start_elastic_cluster}" ] ; then
-        importFunction "elasticsearch.sh"
+        importFunction "indexer.sh"
     fi
 
 # -------------- Elasticsearch case  --------------------------------
@@ -428,7 +428,7 @@ function main() {
     if [ -n "${kibana}" ]; then
         logger "------------------------------------- Kibana --------------------------------------"
 
-        importFunction "kibana.sh"
+        importFunction "dashboard.sh"
 
         installKibana 
         configureKibana
@@ -443,7 +443,7 @@ function main() {
     if [ -n "${wazuh}" ]; then
         logger "----------------------------------- Wazuh server ----------------------------------"
 
-        importFunction "wazuh.sh"
+        importFunction "manager.sh"
         importFunction "filebeat.sh"
 
         installWazuh
@@ -461,10 +461,10 @@ function main() {
 
     if [ -n "${AIO}" ]; then
 
-        importFunction "wazuh.sh"
+        importFunction "manager.sh"
         importFunction "filebeat.sh"
-        importFunction "elasticsearch.sh"
-        importFunction "kibana.sh"
+        importFunction "indexer.sh"
+        importFunction "dashboard.sh"
 
         logger "-------------------------- Open Distro for Elasticsearch --------------------------"
         installElasticsearch
