@@ -80,7 +80,7 @@ function createClusterKey() {
 
 function changePasswords() {
 
-    logger "Setting passwords."
+    logger -d "Setting passwords."
     if [ -f "${tar_file}" ]; then
         eval "tar -xf ${tar_file} -C ${base_path} ./password_file.yml ${debug}"
         p_file="${base_path}/password_file.yml"
@@ -200,7 +200,7 @@ User:
     fileusers=(${sfileusers})
     filepasswords=(${sfilepasswords})
 
-    if [ -n "${verboseenabled}" ]; then
+    if [ -n "${debugEnabled}" ]; then
         logger "Users in the file: ${fileusers[*]}"
         logger "Passwords in the file: ${filepasswords[*]}"
     fi
@@ -215,7 +215,7 @@ User:
                 fi
             done
             if [ "${supported}" = false ] && [ -n "${elasticsearchinstalled}" ]; then
-                logger -e "The given user ${fileusers[j]} does not exist"
+                logger -e -d "The given user ${fileusers[j]} does not exist"
             fi
         done
     else
@@ -240,7 +240,7 @@ User:
                 fi
             done
             if [ "${supported}" = "false" ] && [ -n "${elasticsearchinstalled}" ] && [ -n "${changeall}" ]; then
-                logger -e "The given user ${fileusers[j]} does not exist"
+                logger -e -d "The given user ${fileusers[j]} does not exist"
             fi
         done
 

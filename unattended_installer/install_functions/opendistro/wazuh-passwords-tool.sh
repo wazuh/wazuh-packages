@@ -166,7 +166,7 @@ function generateHash() {
             fi
             hashes+=("${nhash}")
         done
-        logger_pass "Password hashes generated."
+        logger_pass -d "Password hashes generated."
     else
         logger_pass "Generating password hash"
         hash=$(bash /usr/share/elasticsearch/plugins/opendistro_security/tools/hash.sh -p ${password} | grep -v WARNING)
@@ -561,7 +561,7 @@ function restartService() {
             fi
             exit 1;
         else
-            logger_pass "${1^} started"
+            logger_pass -d "${1^} started"
         fi
     elif ps -e | grep -E -q "^\ *1\ .*init$"; then
         eval "/etc/init.d/${1} restart ${debug_pass}"
@@ -572,7 +572,7 @@ function restartService() {
             fi
             exit 1;
         else
-            logger_pass "${1^} started"
+            logger_pass -d "${1^} started"
         fi     
     elif [ -x "/etc/rc.d/init.d/${1}" ] ; then
         eval "/etc/rc.d/init.d/${1} restart ${debug_pass}"
@@ -583,7 +583,7 @@ function restartService() {
             fi
             exit 1;
         else
-            logger_pass "${1^} started"
+            logger_pass -d "${1^} started"
         fi
     else
         if [[ $(type -t rollBack) == "function" ]]; then
@@ -597,7 +597,7 @@ function restartService() {
 
 function runSecurityAdmin() {
     
-    logger_pass "Loading new passwords changes."
+    logger_pass -d "Loading new passwords changes."
     eval "cp /usr/share/elasticsearch/backup/* /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ ${debug_pass}"
     eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug_pass}"
     if [  "$?" != 0  ]; then
@@ -619,7 +619,7 @@ function runSecurityAdmin() {
         if [ -z "${AIO}" ] && [ -z "${elasticsearch}" ] && [ -z "${kibana}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ]; then
             logger_pass -w "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
         else
-            logger_pass "Passwords changed."
+            logger_pass -d "Passwords changed."
         fi
     fi
 

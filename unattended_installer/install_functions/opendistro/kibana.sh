@@ -69,7 +69,7 @@ function copyKibanacerts() {
         eval "chown -R kibana:kibana /etc/kibana/ ${debug}"
         eval "chmod -R 500 ${k_certs_path} ${debug}"
         eval "chmod 440 ${k_certs_path}* ${debug}"
-        logger "Kibana certificate setup finished."
+        logger -d "Kibana certificate setup finished."
     else
         logger -e "No certificates found. Kibana could not be initialized."
         exit 1

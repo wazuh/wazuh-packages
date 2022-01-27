@@ -32,7 +32,7 @@ function applyLog4j2Mitigation() {
 
 function configureElasticsearch() {
 
-    logger "Configuring Elasticsearch."
+    logger -d "Configuring Elasticsearch."
     eval "export JAVA_HOME=/usr/share/elasticsearch/jdk/"
     eval "getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml ${debug}"
     eval "getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml ${debug}"
@@ -187,7 +187,7 @@ function startElasticsearchCluster() {
         rollBack
         exit 1
     else
-        logger "wazuh-alerts template inserted into the Elasticsearch cluster."
+        logger -d "wazuh-alerts template inserted into the Elasticsearch cluster."
     fi
 
 }
