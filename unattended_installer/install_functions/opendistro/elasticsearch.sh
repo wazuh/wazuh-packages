@@ -32,7 +32,7 @@ function applyLog4j2Mitigation() {
 
 function configureElasticsearch() {
 
-    logger "Configuring Elasticsearch."
+    logger -d "Configuring Elasticsearch."
     eval "export JAVA_HOME=/usr/share/elasticsearch/jdk/"
     eval "getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml ${debug}"
     eval "getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml ${debug}"
@@ -175,11 +175,11 @@ function startElasticsearchCluster() {
     eval "export JAVA_HOME=/usr/share/elasticsearch/jdk/"
     eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem -h ${elasticsearch_cluster_ip} > /dev/null ${debug}"
     if [  "$?" != 0  ]; then
-        logger -e "The Elasticsearch cluster could not be initialized."
+        logger -e "The Elasticsearch cluster security configuration could not be initialized."
         rollBack
         exit 1
     else
-        logger "Elasticsearch cluster initialized."
+        logger "Elasticsearch cluster security configuration initialized."
     fi
     eval "curl --silent ${filebeat_wazuh_template} | curl -X PUT 'https://${elasticsearch_node_ips[pos]}:9200/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k --silent ${debug}"
     if [  "$?" != 0  ]; then
@@ -187,7 +187,7 @@ function startElasticsearchCluster() {
         rollBack
         exit 1
     else
-        logger "wazuh-alerts template inserted into the Elasticsearch cluster."
+        logger -d "wazuh-alerts template inserted into the Elasticsearch cluster."
     fi
 
 }

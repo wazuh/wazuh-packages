@@ -36,24 +36,44 @@ function checkOpenSSL() {
 }
 
 function logger_cert() {
-
     now=$(date +'%d/%m/%Y %H:%M:%S')
-    case ${1} in 
-        "-e")
-            mtype="ERROR:"
-            message="${2}"
-            ;;
-        "-w")
-            mtype="WARNING:"
-            message="${2}"
-            ;;
-        *)
-            mtype="INFO:"
-            message="${1}"
-            ;;
-    esac
-    echo "${now} ${mtype} ${message}" | tee -a ${logfile}
-
+    mtype="INFO:"
+    debugLogger=
+    disableHeader=
+    if [ -n "${1}" ]; then
+        while [ -n "${1}" ]; do
+            case ${1} in
+                "-e")
+                    mtype="ERROR:"
+                    shift 1
+                    ;;
+                "-w")
+                    mtype="WARNING:"
+                    shift 1
+                    ;;
+                "-dh")
+                    disableHeader=1
+                    shift 1
+                    ;;
+                "-d")
+                    debugLogger=1
+                    shift 1
+                    ;;
+                *)
+                    message="${1}"
+                    shift 1
+                    ;;
+            esac
+        done
+    fi
+    
+    if [ -z "${debugLogger}" ] || ( [ -n "${debugLogger}" ] && [ -n "${debugEnabled}" ] ); then
+        if [ -n "${disableHeader}" ]; then
+            echo "${message}" | tee -a ${logfile}
+        else
+            echo "${now} ${mtype} ${message}" | tee -a ${logfile}
+        fi
+    fi
 }
 
 function generateAdmincertificate() {
@@ -159,7 +179,7 @@ function generateKibanacertificates() {
 
 function generateRootCAcertificate() {
 
-    logger_cert "Creating the Root certificate."
+    logger_cert "Creating the root certificate."
 
     eval "openssl req -x509 -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/root-ca.key -out ${base_path}/certs/root-ca.pem -batch -subj '/OU=Docu/O=Wazuh/L=California/' -days 3650 ${debug_cert}"
 

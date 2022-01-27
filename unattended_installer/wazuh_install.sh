@@ -17,6 +17,7 @@ readonly elasticsearch_basic_version="7.12.1"
 readonly opendistro_version="1.13.2"
 readonly opendistro_revision="1"
 readonly wazuh_kibana_plugin_revision="1"
+readonly wazuh_install_vesion="0.1"
 
 ## Links and paths to resources
 readonly functions_path="install_functions/opendistro"
@@ -163,24 +164,36 @@ function importFunction() {
 }
 
 function logger() {
-
     now=$(date +'%d/%m/%Y %H:%M:%S')
-    case ${1} in 
-        "-e")
-            mtype="ERROR:"
-            message="${2}"
-            ;;
-        "-w")
-            mtype="WARNING:"
-            message="${2}"
-            ;;
-        *)
-            mtype="INFO:"
-            message="${1}"
-            ;;
-    esac
-    echo "${now} ${mtype} ${message}" | tee -a ${logfile}
-
+    mtype="INFO:"
+    debugLogger=
+    disableHeader=
+    if [ -n "${1}" ]; then
+        while [ -n "${1}" ]; do
+            case ${1} in
+                "-e")
+                    mtype="ERROR:"
+                    shift 1
+                    ;;
+                "-w")
+                    mtype="WARNING:"
+                    shift 1
+                    ;;
+                "-d")
+                    debugLogger=1
+                    shift 1
+                    ;;
+                *)
+                    message="${1}"
+                    shift 1
+                    ;;
+            esac
+        done
+    fi
+    
+    if [ -z "${debugLogger}" ] || ( [ -n "${debugLogger}" ] && [ -n "${debugEnabled}" ] ); then
+            echo "${now} ${mtype} ${message}" | tee -a ${logfile}
+    fi
 }
 
 function main() {
@@ -317,10 +330,13 @@ function main() {
     importFunction "wazuh-cert-tool.sh"
     importFunction "wazuh-passwords-tool.sh"
 
+    logger "Starting Wazuh unattended installer. Wazuh version: ${wazuh_version}. Wazuh installer version: ${wazuh_install_vesion}"
+
 # -------------- Uninstall case  ------------------------------------
 
     checkIfInstalled
     if [ -n "${uninstall}" ]; then
+        logger "------------------------------------ Uninstall ------------------------------------"
         logger "Removing all installed components."
         rollBack
         logger "All components removed."
@@ -348,6 +364,7 @@ function main() {
 
     # Creation certificate case: Only AIO and -c option can create certificates. 
     if [ -n "${configurations}" ] || [ -n "${AIO}" ]; then
+        logger "------------------------------- Configuration files -------------------------------"
         if [ -n "${configurations}" ]; then
             checkOpenSSL
         fi
@@ -378,6 +395,7 @@ function main() {
 # -------------- Prerequisites and Wazuh repo  ----------------------
 
     if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
+        logger "---------------------------------- Dependencies -----------------------------------"
         installPrerequisites
         addWazuhrepo
     fi
@@ -391,7 +409,8 @@ function main() {
 # -------------- Elasticsearch case  --------------------------------
 
     if [ -n "${elasticsearch}" ]; then
-        installElasticsearch 
+        logger "-------------------------- Open Distro for Elasticsearch --------------------------"
+        installElasticsearch
         configureElasticsearch
         startService "elasticsearch"
         initializeElasticsearch
@@ -407,6 +426,7 @@ function main() {
 # -------------- Kibana case  ---------------------------------------
 
     if [ -n "${kibana}" ]; then
+        logger "------------------------------------- Kibana --------------------------------------"
 
         importFunction "kibana.sh"
 
@@ -421,6 +441,7 @@ function main() {
 # -------------- Wazuh case  ---------------------------------------
 
     if [ -n "${wazuh}" ]; then
+        logger "----------------------------------- Wazuh server ----------------------------------"
 
         importFunction "wazuh.sh"
         importFunction "filebeat.sh"
@@ -432,7 +453,7 @@ function main() {
         startService "wazuh-manager"
         installFilebeat
         configureFilebeat
-        changePasswords 
+        changePasswords
         startService "filebeat"
     fi
 
@@ -445,15 +466,18 @@ function main() {
         importFunction "elasticsearch.sh"
         importFunction "kibana.sh"
 
+        logger "-------------------------- Open Distro for Elasticsearch --------------------------"
         installElasticsearch
         configureElasticsearch
         startService "elasticsearch"
         initializeElasticsearch
+        logger "-------------------------------------- Wazuh --------------------------------------"
         installWazuh
         startService "wazuh-manager"
         installFilebeat
         configureFilebeat
         startService "filebeat"
+        logger "------------------------------------- Kibana --------------------------------------"
         installKibana
         configureKibana
         startService "kibana"
@@ -467,8 +491,8 @@ function main() {
         restoreWazuhrepo
     fi
 
-    if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}"  ]; then
-        logger "Installation finished."
+    if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
+        logger "Installation finished. You can find in ${tar_file} all the certificates created, as well as password_file.yml, with the passwords for all users and config.yml, with the nodes of all of the components and their ips."
     elif [ -n "${start_elastic_cluster}" ]; then
         logger "Elasticsearch cluster started."
     fi

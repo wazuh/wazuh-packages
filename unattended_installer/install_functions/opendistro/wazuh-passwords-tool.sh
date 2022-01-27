@@ -143,20 +143,20 @@ function checkUser() {
 
 function createBackUp() {
     
-    logger_pass "Creating password backup."
+    logger_pass -d "Creating password backup."
     eval "mkdir /usr/share/elasticsearch/backup ${debug_pass}"
     eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -backup /usr/share/elasticsearch/backup -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug_pass}"
     if [ "$?" != 0 ]; then
         logger_pass -e "The backup could not be created"
         exit 1;
     fi
-    logger_pass "Password backup created"
+    logger_pass -d "Password backup created"
 }
 
 function generateHash() {
     
     if [ -n "${changeall}" ]; then
-        logger_pass "Generating password hashes."
+        logger_pass -d "Generating password hashes."
         for i in "${!passwords[@]}"
         do
             nhash=$(bash /usr/share/elasticsearch/plugins/opendistro_security/tools/hash.sh -p "${passwords[i]}" | grep -v WARNING)
@@ -166,7 +166,7 @@ function generateHash() {
             fi
             hashes+=("${nhash}")
         done
-        logger_pass "Password hashes generated."
+        logger_pass -d "Password hashes generated."
     else
         logger_pass "Generating password hash"
         hash=$(bash /usr/share/elasticsearch/plugins/opendistro_security/tools/hash.sh -p ${password} | grep -v WARNING)
@@ -174,7 +174,7 @@ function generateHash() {
             logger_pass -e "Hash generation failed."
             exit 1;
         fi
-        logger_pass "Password hash generated."
+        logger_pass -d "Password hash generated."
     fi
 
 }
@@ -182,19 +182,19 @@ function generateHash() {
 function generatePassword() {
 
     if [ -n "${nuser}" ]; then
-        logger_pass "Generating random password"
+        logger_pass -d "Generating random password."
         password=$(< /dev/urandom tr -dc A-Za-z0-9 | head -c${1:-32};echo;)
         if [  "$?" != 0  ]; then
-            logger_pass -e "The password has not been generated."
+            logger_pass -e "The password could not been generated."
             exit 1;
         fi
     else
-        logger_pass "Generating random passwords."
+        logger_pass -d "Generating random passwords."
         for i in "${!users[@]}"; do
             PASS=$(< /dev/urandom tr -dc A-Za-z0-9 | head -c${1:-32};echo;)
             passwords+=("${PASS}")
-            if [  "$?" != 0  ]; then
-                logger_pass -e "The password has not been generated."
+            if [ "$?" != 0 ]; then
+                logger_pass -e "The password could not been generated."
                 exit 1;
             fi
         done
@@ -277,24 +277,44 @@ function getNetworkHost() {
 }
 
 function logger_pass() {
-
     now=$(date +'%d/%m/%Y %H:%M:%S')
-    case ${1} in 
-        "-e")
-            mtype="ERROR:"
-            message="${2}"
-            ;;
-        "-w")
-            mtype="WARNING:"
-            message="${2}"
-            ;;
-        *)
-            mtype="INFO:"
-            message="${1}"
-            ;;
-    esac
-    echo "$now $mtype $message" | tee -a ${logfile}
-
+    mtype="INFO:"
+    debugLogger=
+    disableHeader=
+    if [ -n "${1}" ]; then
+        while [ -n "${1}" ]; do
+            case ${1} in
+                "-e")
+                    mtype="ERROR:"
+                    shift 1
+                    ;;
+                "-w")
+                    mtype="WARNING:"
+                    shift 1
+                    ;;
+                "-dh")
+                    disableHeader=1
+                    shift 1
+                    ;;
+                "-d")
+                    debugLogger=1
+                    shift 1
+                    ;;
+                *)
+                    message="${1}"
+                    shift 1
+                    ;;
+            esac
+        done
+    fi
+    
+    if [ -z "${debugLogger}" ] || ( [ -n "${debugLogger}" ] && [ -n "${debugEnabled}" ] ); then
+        if [ -n "${disableHeader}" ]; then
+            echo "${message}" | tee -a ${logfile}
+        else
+            echo "${now} ${mtype} ${message}" | tee -a ${logfile}
+        fi
+    fi
 }
 
 function main() {
@@ -310,7 +330,7 @@ function main() {
             "-a"|"--change-all")
                 changeall=1
                 shift 1
-                ;;                
+                ;;
             "-u"|"--user")
                 nuser=${2}
                 shift
@@ -353,7 +373,7 @@ function main() {
         
         if [ -n "${verboseenabled}" ]; then
             debug_pass="2>&1 | tee -a ${logfile}"
-        fi 
+        fi
 
         if [ -n "${gen_file}" ]; then
             generatePasswordFile 
@@ -370,32 +390,32 @@ function main() {
 
         if [ -n "${nuser}" ] && [ -n "${changeall}" ]; then
             getHelp
-        fi 
+        fi
 
         if [ -n "${password}" ] && [ -n "${changeall}" ]; then
             getHelp
-        fi 
+        fi
         
         if [ -n "${nuser}" ] && [ -n "${p_file}" ]; then
             getHelp
-        fi 
+        fi
 
         if [ -n "${password}" ] && [ -n "${p_file}" ]; then
             getHelp
-        fi         
+        fi
 
         if [ -z "${nuser}" ] && [ -n "${password}" ]; then
             getHelp
-        fi   
+        fi
 
         if [ -z "${nuser}" ] && [ -z "${password}" ] && [ -z "${changeall}" ] && [ -z  "${p_file}" ]; then
             getHelp
-        fi 
+        fi
 
         if [ -n "${nuser}" ]; then
             readUsers
             checkUser
-        fi          
+        fi
 
         if [ -n "${nuser}" ] && [ -z "${password}" ]; then
             autopass=1
@@ -405,15 +425,15 @@ function main() {
         if [ -n "${changeall}" ]; then
             readUsers
             generatePassword
-        fi               
+        fi
 
         if [ -n "${p_file}" ] && [ -z "${changeall}" ]; then
             readUsers
-        fi	    
+        fi
 
         if [ -n "${p_file}" ]; then
             readFileUsers
-        fi  
+        fi
 
         getNetworkHost
         createBackUp
@@ -423,7 +443,7 @@ function main() {
 
     else
 
-        getHelp        
+        getHelp
 
     fi
 
@@ -541,7 +561,7 @@ function restartService() {
             fi
             exit 1;
         else
-            logger_pass "${1^} started"
+            logger_pass -d "${1^} started"
         fi
     elif ps -e | grep -E -q "^\ *1\ .*init$"; then
         eval "/etc/init.d/${1} restart ${debug_pass}"
@@ -552,7 +572,7 @@ function restartService() {
             fi
             exit 1;
         else
-            logger_pass "${1^} started"
+            logger_pass -d "${1^} started"
         fi     
     elif [ -x "/etc/rc.d/init.d/${1}" ] ; then
         eval "/etc/rc.d/init.d/${1} restart ${debug_pass}"
@@ -563,7 +583,7 @@ function restartService() {
             fi
             exit 1;
         else
-            logger_pass "${1^} started"
+            logger_pass -d "${1^} started"
         fi
     else
         if [[ $(type -t rollBack) == "function" ]]; then
@@ -577,7 +597,7 @@ function restartService() {
 
 function runSecurityAdmin() {
     
-    logger_pass "Loading new passwords changes."
+    logger_pass -d "Loading new passwords changes."
     eval "cp /usr/share/elasticsearch/backup/* /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ ${debug_pass}"
     eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug_pass}"
     if [  "$?" != 0  ]; then
@@ -599,7 +619,7 @@ function runSecurityAdmin() {
         if [ -z "${AIO}" ] && [ -z "${elasticsearch}" ] && [ -z "${kibana}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ]; then
             logger_pass -w "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
         else
-            logger_pass "Passwords changed."
+            logger_pass -d "Passwords changed."
         fi
     fi
 
