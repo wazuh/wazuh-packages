@@ -17,6 +17,7 @@ readonly elasticsearch_basic_version="7.12.1"
 readonly opendistro_version="1.13.2"
 readonly opendistro_revision="1"
 readonly wazuh_kibana_plugin_revision="1"
+readonly wazuh_install_vesion="0.1"
 
 ## Links and paths to resources
 readonly functions_path="install_functions/opendistro"
@@ -336,6 +337,8 @@ function main() {
     importFunction "common.sh"
     importFunction "wazuh-cert-tool.sh"
     importFunction "wazuh-passwords-tool.sh"
+
+    logger "Starting Wazuh unattended installer. Wazuh version: ${wazuh_version}. Wazuh installer version: ${wazuh_install_vesion}"
 
 # -------------- Uninstall case  ------------------------------------
 
