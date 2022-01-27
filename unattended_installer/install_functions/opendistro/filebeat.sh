@@ -54,6 +54,7 @@ function copyCertificatesFilebeat() {
 
 function installFilebeat() {
 
+    uninstall_module_name="filebeat"
     logger "Starting filebeat installation."
     
     if [ "${sys_type}" == "zypper" ]; then
