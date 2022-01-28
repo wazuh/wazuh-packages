@@ -1,10 +1,10 @@
-wazuh-dashboard (VERSION-RELEASE) unstable; urgency=low
+wazuh-dashboards (VERSION-RELEASE) unstable; urgency=low
 
   * More info: https://documentation.wazuh.com/current/release-notes/
 
  -- Wazuh, Inc <info@wazuh.com>  Sat, 04 Dec 2021 14:04:26 +0000
 
- wazuh-dashboard (4.2.5-RELEASE) UNRELEASED; urgency=low
+ wazuh-dashboards (4.2.5-RELEASE) UNRELEASED; urgency=low
 
   * More info: https://documentation.wazuh.com/current/release-notes/
 

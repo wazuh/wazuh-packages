@@ -1,5 +1,5 @@
 #!/bin/sh
-# postinst script for Wazuh-dashboard
+# postinst script for wazuh-dashboards
 # Copyright (C) 2015-2022, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
@@ -9,7 +9,7 @@
 
 set -e
 
-export NAME=wazuh-dashboard
+export NAME=wazuh-dashboards
 export CONFIG_DIR=/etc/"${NAME}"
 export INSTALLATION_DIR=/usr/share/"${NAME}"
 export LOG_DIR=/var/log/"${NAME}"

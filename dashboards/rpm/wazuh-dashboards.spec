@@ -5,15 +5,15 @@
 # and/or modify it under the terms of the GNU General Public
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
-Summary:     Wazuh dashboard is a user interface and visualization tool for security-related data. Documentation can be found at https://documentation.wazuh.com/current/getting-started/components/wazuh-dashboard.html
-Name:        wazuh-dashboard
+Summary:     Wazuh dashboards is a user interface and visualization tool for security-related data. Documentation can be found at https://documentation.wazuh.com/current/getting-started/components/wazuh-dashboards.html
+Name:        wazuh-dashboards
 Version:     %{_version}
 Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
 Source0:     %{name}-%{version}.tar.gz
 URL:         https://www.wazuh.com/
-buildroot:   %{_tmppath}/%{name}-%{version}-%{release}-wazuh-dashboard-%(%{__id_u} -n)
+buildroot:   %{_tmppath}/%{name}-%{version}-%{release}-wazuh-dashboards-%(%{__id_u} -n)
 Vendor:      Wazuh, Inc <info@wazuh.com>
 Packager:    Wazuh, Inc <info@wazuh.com>
 Requires(pre):    /usr/sbin/groupadd /usr/sbin/useradd
@@ -31,7 +31,7 @@ ExclusiveOS: linux
 %global LOG_DIR /var/log/%{name}
 %global PID_DIR /run/%{name}
 %global INSTALL_DIR /usr/share/%{name}
-%global DASHBOARD_FILE wazuh-dashboard-base-linux-x64
+%global DASHBOARD_FILE wazuh-dashboards-base-linux-x64
 
 # -----------------------------------------------------------------------------
 
@@ -70,7 +70,7 @@ mkdir -p %{buildroot}/etc/default
 
 
 cp %{DASHBOARD_FILE}/etc/node.options %{buildroot}%{CONFIG_DIR}
-cp %{DASHBOARD_FILE}/etc/dashboard.yml %{buildroot}%{CONFIG_DIR}
+cp %{DASHBOARD_FILE}/etc/dashboards.yml %{buildroot}%{CONFIG_DIR}
 mv %{DASHBOARD_FILE}/* %{buildroot}%{INSTALL_DIR}
 
 # Set custom welcome styles
@@ -85,21 +85,21 @@ cp %{buildroot}%{INSTALL_DIR}/etc/custom_welcome/Assets/default_branding/wazuh_m
 cp %{buildroot}%{INSTALL_DIR}/etc/custom_welcome/Assets/Favicons/* %{buildroot}%{INSTALL_DIR}/src/core/server/core_app/assets/favicons/
 cp %{buildroot}%{INSTALL_DIR}/etc/custom_welcome/Assets/Favicons/favicon-32x32.png %{buildroot}%{INSTALL_DIR}/src/core/server/core_app/assets/favicons/favicon.ico
 
-cp %{buildroot}%{INSTALL_DIR}/etc/services/wazuh-dashboard.service %{buildroot}/etc/systemd/system/wazuh-dashboard.service 
-cp %{buildroot}%{INSTALL_DIR}/etc/services/wazuh-dashboard %{buildroot}/etc/init.d/wazuh-dashboard
-cp %{buildroot}%{INSTALL_DIR}/etc/services/default %{buildroot}/etc/default/wazuh-dashboard
+cp %{buildroot}%{INSTALL_DIR}/etc/services/wazuh-dashboards.service %{buildroot}/etc/systemd/system/wazuh-dashboards.service 
+cp %{buildroot}%{INSTALL_DIR}/etc/services/wazuh-dashboards %{buildroot}/etc/init.d/wazuh-dashboards
+cp %{buildroot}%{INSTALL_DIR}/etc/services/default %{buildroot}/etc/default/wazuh-dashboards
 
-chmod 640 %{buildroot}/etc/init.d/wazuh-dashboard
-chmod 640 %{buildroot}/etc/systemd/system/wazuh-dashboard.service 
-chmod 640 %{buildroot}/etc/default/wazuh-dashboard
+chmod 640 %{buildroot}/etc/init.d/wazuh-dashboards
+chmod 640 %{buildroot}/etc/systemd/system/wazuh-dashboards.service 
+chmod 640 %{buildroot}/etc/default/wazuh-dashboards
 
 curl -O https://s3.amazonaws.com/warehouse.wazuh.com/stack/demo-certs.tar.gz
 
 tar -xf demo-certs.tar.gz && rm -f demo-certs.tar.gz
 
 
-cp certs/demo-dashboard.pem %{buildroot}%{CONFIG_DIR}/certs/wazuh-dashboard.pem
-cp certs/demo-dashboard-key.pem %{buildroot}%{CONFIG_DIR}/certs/wazuh-dashboard-key.pem
+cp certs/demo-dashboard.pem %{buildroot}%{CONFIG_DIR}/certs/wazuh-dashboards.pem
+cp certs/demo-dashboard-key.pem %{buildroot}%{CONFIG_DIR}/certs/wazuh-dashboards-key.pem
 cp certs/root-ca.pem %{buildroot}%{CONFIG_DIR}/certs/root-ca.pem
 chmod 640 %{buildroot}%{CONFIG_DIR}/certs/*
 
@@ -109,8 +109,8 @@ rm -rf %{buildroot}%{INSTALL_DIR}/etc/
 find %{buildroot}%{INSTALL_DIR} -exec chown %{USER}:%{GROUP} {} \;
 find %{buildroot}%{CONFIG_DIR} -exec chown %{USER}:%{GROUP} {} \;
 
-chown %{USER}:%{GROUP} %{buildroot}/etc/systemd/system/wazuh-dashboard.service
-chown %{USER}:%{GROUP} %{buildroot}/etc/init.d/wazuh-dashboard
+chown %{USER}:%{GROUP} %{buildroot}/etc/systemd/system/wazuh-dashboards.service
+chown %{USER}:%{GROUP} %{buildroot}/etc/init.d/wazuh-dashboards
 
 
 
@@ -120,26 +120,26 @@ find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -exec chown %{USER}:%{GROUP} {} \
 # -----------------------------------------------------------------------------
 
 %pre
-# Create the wazuh-dashboard group if it doesn't exists
+# Create the wazuh-dashboards group if it doesn't exists
 if command -v getent > /dev/null 2>&1 && ! getent group %{GROUP} > /dev/null 2>&1; then
   groupadd -r %{GROUP}
-elif ! id -g wazuh-dashboard > /dev/null 2>&1; then
+elif ! id -g wazuh-dashboards > /dev/null 2>&1; then
   groupadd -r %{GROUP}
 fi
-# Create the wazuh-dashboard user if it doesn't exists
+# Create the wazuh-dashboards user if it doesn't exists
 if ! id -u %{USER} > /dev/null 2>&1; then
-  useradd -g %{GROUP} -G %{USER} -d %{INSTALL_DIR}/ -r -s /sbin/nologin wazuh-dashboard
+  useradd -g %{GROUP} -G %{USER} -d %{INSTALL_DIR}/ -r -s /sbin/nologin wazuh-dashboards
 fi
 
 # Stop the services to upgrade the package
 if [ $1 = 2 ]; then
-  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-dashboard > /dev/null 2>&1; then
-    systemctl stop wazuh-dashboard.service > /dev/null 2>&1
-    touch %{INSTALL_DIR}/wazuh-dashboard.restart
+  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-dashboards > /dev/null 2>&1; then
+    systemctl stop wazuh-dashboards.service > /dev/null 2>&1
+    touch %{INSTALL_DIR}/wazuh-dashboards.restart
   # Check for SysV
-  elif command -v service > /dev/null 2>&1 && service wazuh-dashboard status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
-    service wazuh-dashboard stop > /dev/null 2>&1
-    touch %{INSTALL_DIR}/wazuh-dashboard.restart
+  elif command -v service > /dev/null 2>&1 && service wazuh-dashboards status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
+    service wazuh-dashboards stop > /dev/null 2>&1
+    touch %{INSTALL_DIR}/wazuh-dashboards.restart
   fi
 fi
 
@@ -152,12 +152,12 @@ setcap 'cap_net_bind_service=+ep' %{INSTALL_DIR}/node/bin/node
 
 %preun
 if [ $1 = 0 ];then # Remove
-  echo -n "Stopping wazuh-dashboard service..."
-  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-dashboard > /dev/null 2>&1; then
-      systemctl stop wazuh-dashboard.service > /dev/null 2>&1
+  echo -n "Stopping wazuh-dashboards service..."
+  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-dashboards > /dev/null 2>&1; then
+      systemctl stop wazuh-dashboards.service > /dev/null 2>&1
   # Check for SysV
-  elif command -v service > /dev/null 2>&1 && service wazuh-dashboard status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
-    service wazuh-dashboard stop > /dev/null 2>&1
+  elif command -v service > /dev/null 2>&1 && service wazuh-dashboards status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
+    service wazuh-dashboards stop > /dev/null 2>&1
   fi
 fi
 
@@ -167,11 +167,11 @@ fi
 if [ $1 = 0 ];then
   # If the package is been uninstalled
   if [ $1 = 0 ];then
-    # Remove the wazuh-dashboard user if it exists
+    # Remove the wazuh-dashboards user if it exists
     if id -u %{USER} > /dev/null 2>&1; then
       userdel %{USER} >/dev/null 2>&1
     fi
-    # Remove the wazuh-dashboard group if it exists
+    # Remove the wazuh-dashboards group if it exists
     if command -v getent > /dev/null 2>&1 && getent group %{GROUP} > /dev/null 2>&1; then
       groupdel %{GROUP} >/dev/null 2>&1
     elif id -g %{GROUP} > /dev/null 2>&1; then
@@ -179,7 +179,7 @@ if [ $1 = 0 ];then
     fi
   fi
 
-  # Remove /etc/wazuh-dashboard and /usr/share/wazuh-dashboard dirs
+  # Remove /etc/wazuh-dashboards and /usr/share/wazuh-dashboards dirs
   rm -rf %{CONFIG_DIR}
   rm -rf %{INSTALL_DIR}
   if [ -d %{LOG_DIR} ]; then
@@ -200,13 +200,13 @@ if [ ! -d %{PID_DIR} ]; then
     chown %{USER}:%{GROUP} %{PID_DIR}
 fi
 
-if [ -f %{INSTALL_DIR}/wazuh-dashboard.restart ]; then
-  rm -f %{INSTALL_DIR}/wazuh-dashboard.restart
+if [ -f %{INSTALL_DIR}/wazuh-dashboards.restart ]; then
+  rm -f %{INSTALL_DIR}/wazuh-dashboards.restart
   if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 ; then
     systemctl daemon-reload > /dev/null 2>&1
-    systemctl restart wazuh-dashboard.service > /dev/null 2>&1
-  elif command -v service > /dev/null 2>&1 && service wazuh-dashboard status 2>/dev/null | grep "running" > /dev/null 2>&1; then
-    service wazuh-dashboard restart > /dev/null 2>&1
+    systemctl restart wazuh-dashboards.service > /dev/null 2>&1
+  elif command -v service > /dev/null 2>&1 && service wazuh-dashboards status 2>/dev/null | grep "running" > /dev/null 2>&1; then
+    service wazuh-dashboards restart > /dev/null 2>&1
   fi
 fi
 
@@ -226,9 +226,9 @@ rm -fr %{buildroot}
 %files
 %defattr(0640,%{USER},%{GROUP},0750)
 
-%attr(0750, %{USER}, %{GROUP}) "/etc/init.d/wazuh-dashboard"
-%attr(0750, %{USER}, %{GROUP}) "/etc/default/wazuh-dashboard"
-%config(noreplace) %attr(0640, %{USER}, %{GROUP}) "%{CONFIG_DIR}/dashboard.yml"
+%attr(0750, %{USER}, %{GROUP}) "/etc/init.d/wazuh-dashboards"
+%attr(0750, %{USER}, %{GROUP}) "/etc/default/wazuh-dashboards"
+%config(noreplace) %attr(0640, %{USER}, %{GROUP}) "%{CONFIG_DIR}/dashboards.yml"
 %dir %attr(0750, %{USER}, %{GROUP}) %{CONFIG_DIR}/certs
 %config(noreplace) %attr(0640, %{USER}, %{GROUP}) "%{CONFIG_DIR}/certs/*"
 %dir %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/src"
@@ -415,7 +415,7 @@ rm -fr %{buildroot}
 %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/bin/opensearch-dashboards-plugin"
 %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/bin/opensearch-dashboards-keystore"
 %attr(640, %{USER}, %{GROUP}) "%{CONFIG_DIR}/node.options"
-%attr(640, %{USER}, %{GROUP}) "/etc/systemd/system/wazuh-dashboard.service"
+%attr(640, %{USER}, %{GROUP}) "/etc/systemd/system/wazuh-dashboards.service"
 
 
 
