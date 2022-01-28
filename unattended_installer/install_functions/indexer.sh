@@ -35,15 +35,15 @@ function configureIndexer() {
         eval "getConfig indexer/indexer_unattended_distributed.yml /etc/wazuh-indexer/opensearch.yml ${debug}"
         if [ "${#indexer_node_names[@]}" -eq 1 ]; then
             pos=0
-            echo "node.name: ${einame}" >> /etc/wazuh-indexer/opensearch.yml
+            echo "node.name: ${indxname}" >> /etc/wazuh-indexer/opensearch.yml
             echo "network.host: ${indexer_node_ips[0]}" >> /etc/wazuh-indexer/opensearch.yml
-            echo "cluster.initial_master_nodes: ${einame}" >> /etc/wazuh-indexer/opensearch.yml
+            echo "cluster.initial_master_nodes: ${indxname}" >> /etc/wazuh-indexer/opensearch.yml
 
             echo "plugins.security.nodes_dn:" >> /etc/wazuh-indexer/opensearch.yml
-            echo '        - CN='${einame}',OU=Docu,O=Wazuh,L=California,C=US' >> /etc/wazuh-indexer/opensearch.yml
+            echo '        - CN='${indxname}',OU=Docu,O=Wazuh,L=California,C=US' >> /etc/wazuh-indexer/opensearch.yml
         else
             eval "rm -rf /var/lib/wazuh-indexer/ ${debug}"
-            echo "node.name: ${einame}" >> /etc/wazuh-indexer/opensearch.yml
+            echo "node.name: ${indxname}" >> /etc/wazuh-indexer/opensearch.yml
             echo "cluster.initial_master_nodes:" >> /etc/wazuh-indexer/opensearch.yml
             for i in "${indexer_node_names[@]}"; do
                 echo '        - "'${i}'"' >> /etc/wazuh-indexer/opensearch.yml
@@ -55,7 +55,7 @@ function configureIndexer() {
             done
 
             for i in "${!indexer_node_names[@]}"; do
-                if [[ "${indexer_node_names[i]}" == "${einame}" ]]; then
+                if [[ "${indexer_node_names[i]}" == "${indxname}" ]]; then
                     pos="${i}";
                 fi
             done

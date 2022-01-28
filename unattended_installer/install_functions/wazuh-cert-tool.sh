@@ -201,16 +201,16 @@ function getHelp() {
     echo -e "        -ca, --root-ca-certificates"
     echo -e "                Creates the root-ca certificates."
     echo -e ""
-    echo -e "        -e,  --elasticsearch-certificates"
-    echo -e "                Creates the Elasticsearch certificates."
-    echo -e ""
-    echo -e "        -k,  --kibana-certificates"
-    echo -e "                Creates the Kibana certificates."
-    echo -e ""
     echo -e "        -v,  --verbose"
     echo -e "                Enables verbose mode."
     echo -e ""
-    echo -e "        -w,  --wazuh-certificates"
+    echo -e "        -wd,  --wazuh-dashboard-certificates"
+    echo -e "                Creates the Wazuh dashboard certificates."
+    echo -e ""
+    echo -e "        -wi,  --wazuh-indexer-certificates"
+    echo -e "                Creates the Wazuh indexer certificates."
+    echo -e ""
+    echo -e "        -ws,  --wazuh-server-certificates"
     echo -e "                Creates the Wazuh server certificates."
 
     exit 1
@@ -245,24 +245,24 @@ function main() {
                 ca=1
                 shift 1
                 ;;
-            "-e"|"--elasticsearch-certificates")
-                celasticsearch=1
-                shift 1
-                ;;
-            "-w"|"--wazuh-certificates")
-                cwazuh=1
-                shift 1
-                ;;
-            "-k"|"--kibana-certificates")
-                ckibana=1
-                shift 1
+            "-h"|"--help")
+                getHelp
                 ;;
             "-v"|"--verbose")
                 debugEnabled=1
                 shift 1
                 ;;
-            "-h"|"--help")
-                getHelp
+            "-wd"|"--wazuh-dashboard-certificates")
+                cdashboard=1
+                shift 1
+                ;;
+            "-wi"|"--wazuh-indexer-certificates")
+                cindexer=1
+                shift 1
+                ;;
+            "-ws"|"--wazuh-server-certificates")
+                cserver=1
+                shift 1
                 ;;
             *)
                 getHelp
@@ -285,17 +285,17 @@ function main() {
             logger_cert "Authority certificates created."
         fi
 
-        if [[ -n "${celasticsearch}" ]]; then
+        if [[ -n "${cindexer}" ]]; then
             generateIndexercertificates
             logger_cert "Wazuh indexer certificates created."
         fi
 
-        if [[ -n "${cwazuh}" ]]; then
+        if [[ -n "${cserver}" ]]; then
             generateFilebeatcertificates
             logger_cert "Wazuh server certificates created."
         fi
 
-        if [[ -n "${ckibana}" ]]; then
+        if [[ -n "${cdashboard}" ]]; then
             generateDashboardcertificates
             logger_cert "Wazuh dashboard certificates created."
         fi
@@ -419,7 +419,7 @@ function readConfig() {
         fi
 
         if [ "${#dashboard_node_names[@]}" -ne "${#dashboard_node_ips[@]}" ]; then 
-            logger_cert -e "Different number of Kibana node names and IPs."
+            logger_cert -e "Different number of dashboard node names and IPs."
             exit 1
         fi
 

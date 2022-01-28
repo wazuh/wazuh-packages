@@ -78,11 +78,11 @@ function changePassword() {
 function checkInstalledPass() {
     
     if [ "${sys_type}" == "yum" ]; then
-        indexerchinstalled=$(yum list installed 2>/dev/null | grep wazuh-indexer | grep -v kibana)
+        indexerchinstalled=$(yum list installed 2>/dev/null | grep wazuh-indexer)
     elif [ "${sys_type}" == "zypper" ]; then
-        indexerchinstalled=$(zypper packages | grep wazuh-indexer | grep -v kibana | grep i+)
+        indexerchinstalled=$(zypper packages | grep wazuh-indexer | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
-        indexerchinstalled=$(apt list --installed 2>/dev/null | grep wazuh-indexer | grep -v kibana)
+        indexerchinstalled=$(apt list --installed 2>/dev/null | grep wazuh-indexer)
     fi
 
     if [ "${sys_type}" == "yum" ]; then
@@ -616,7 +616,7 @@ function runSecurityAdmin() {
     fi
 
     if [ -n "${changeall}" ]; then
-        if [ -z "${AIO}" ] && [ -z "${elasticsearch}" ] && [ -z "${kibana}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ]; then
+        if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ]; then
             logger_pass -w "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/wazuh-dashboard/dashboard.yml if necessary and restart the services."
         else
             logger_pass -d "Passwords changed."

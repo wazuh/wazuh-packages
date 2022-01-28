@@ -25,14 +25,14 @@ function checkArguments() {
             exit 1
     fi
 
-    if [[ -n "${configurations}" && ( -n "${AIO}" || -n "${elasticsearch}" || -n "${kibana}" || -n "${wazuh}" || -n "${overwrite}" || -n "${start_elastic_cluster}" || -n "${tar_conf}" || -n "${uninstall}" ) ]]; then
+    if [[ -n "${configurations}" && ( -n "${AIO}" || -n "${indexer}" || -n "${dashboard}" || -n "${wazuh}" || -n "${overwrite}" || -n "${start_elastic_cluster}" || -n "${tar_conf}" || -n "${uninstall}" ) ]]; then
         logger -e "The argument -c|--create-configurations can't be used with -a, -k, -e, -u or -w arguments."
         exit 1
     fi
 
     # -------------- Overwrite --------------------------------------
 
-    if [ -n "${overwrite}" ] && [ -z "${AIO}" ] && [ -z "${elasticsearch}" ] && [ -z "${kibana}" ] && [ -z "${wazuh}" ]; then 
+    if [ -n "${overwrite}" ] && [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ]; then 
         logger -e "The argument -o|--overwrite must be used with -a, -k, -e or -w. If you want to uninstall all the components use -u|--uninstall"
         exit 1
     fi
@@ -84,7 +84,7 @@ function checkArguments() {
 
     # -------------- Elasticsearch ----------------------------------
 
-    if [ -n "${elasticsearch}" ]; then
+    if [ -n "${indexer}" ]; then
 
         if [ -n "${indexerchinstalled}" ] || [ -n "${indexer_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
@@ -98,7 +98,7 @@ function checkArguments() {
 
     # -------------- Kibana -----------------------------------------
 
-    if [ -n "${kibana}" ]; then
+    if [ -n "${dashboard}" ]; then
         if [ -n "${dashboardinstalled}" ] || [ -n "${dashboard_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
                 rollBack
@@ -133,14 +133,14 @@ function checkArguments() {
 
     # -------------- Cluster start ----------------------------------
 
-    if [[ -n "${start_elastic_cluster}" && ( -n "${AIO}" || -n "${elasticsearch}" || -n "${kibana}" || -n "${wazuh}" || -n "${overwrite}" || -n "${configurations}" || -n "${tar_conf}" || -n "${uninstall}") ]]; then
+    if [[ -n "${start_elastic_cluster}" && ( -n "${AIO}" || -n "${indexer}" || -n "${dashboard}" || -n "${wazuh}" || -n "${overwrite}" || -n "${configurations}" || -n "${tar_conf}" || -n "${uninstall}") ]]; then
         logger -e "The argument -s|--start-cluster can't be used with -a, -k, -e or -w arguments."
         exit 1
     fi
 
     # -------------- Global -----------------------------------------
 
-    if [ -z "${AIO}" ] && [ -z "${elasticsearch}" ] && [ -z "${kibana}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ] && [ -z "${configurations}" ] && [ -z "${uninstall}"]; then
+    if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ] && [ -z "${configurations}" ] && [ -z "${uninstall}"]; then
         logger -e "At least one of these arguments is necessary -a|--all-in-one, -c|--create-configurations, -e|--elasticsearch <elasticsearch-node-name>, -k|--kibana <kibana-node-name>, -s|--start-cluster, -w|--wazuh-server <wazuh-node-name>, -u|--uninstall"
         exit 1
     fi 
@@ -150,7 +150,7 @@ function checkArguments() {
 function checkHealth() {
 
     checkSpecs
-    if [ -n "${elasticsearch}" ]; then
+    if [ -n "${indexer}" ]; then
         if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
             logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
             exit 1
@@ -159,7 +159,7 @@ function checkHealth() {
         fi
     fi
 
-    if [ -n "${kibana}" ]; then
+    if [ -n "${dashboard}" ]; then
         if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
             logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
             exit 1
@@ -243,17 +243,17 @@ function checkIfInstalled() {
 # This function ensures different names in the config.yml file. 
 function checkNames() {
 
-    if [ -n "${einame}" ] && [ -n "${kiname}" ] && [ "${einame}" == "${kiname}" ]; then
+    if [ -n "${indxname}" ] && [ -n "${dashname}" ] && [ "${indxname}" == "${dashname}" ]; then
         logger -e "The node names for Elastisearch and Kibana must be different."
         exit 1
     fi
 
-    if [ -n "${einame}" ] && [ -n "${winame}" ] && [ "${einame}" == "${winame}" ]; then
+    if [ -n "${indxname}" ] && [ -n "${winame}" ] && [ "${indxname}" == "${winame}" ]; then
         logger -e "The node names for Elastisearch and Wazuh must be different."
         exit 1
     fi
 
-    if [ -n "${winame}" ] && [ -n "${kiname}" ] && [ "${winame}" == "${kiname}" ]; then
+    if [ -n "${winame}" ] && [ -n "${dashname}" ] && [ "${winame}" == "${dashname}" ]; then
         logger -e "The node names for Wazuh and Kibana must be different."
         exit 1
     fi
@@ -263,13 +263,13 @@ function checkNames() {
         exit 1
     fi 
 
-    if [ -n "${einame}" ] && [ -z "$(echo "${indexer_node_names[@]}" | grep -w "${einame}")" ]; then
-        logger -e "The Elasticsearch node name ${einame} does not appear on the configuration file."
+    if [ -n "${indxname}" ] && [ -z "$(echo "${indexer_node_names[@]}" | grep -w "${indxname}")" ]; then
+        logger -e "The Elasticsearch node name ${indxname} does not appear on the configuration file."
         exit 1
     fi
 
-    if [ -n "${kiname}" ] && [ -z "$(echo "${dashboard_node_names[@]}" | grep -w "${kiname}")" ]; then
-        logger -e "The Kibana node name ${kiname} does not appear on the configuration file."
+    if [ -n "${dashname}" ] && [ -z "$(echo "${dashboard_node_names[@]}" | grep -w "${dashname}")" ]; then
+        logger -e "The Kibana node name ${dashname} does not appear on the configuration file."
         exit 1
     fi
 
@@ -283,16 +283,16 @@ function checkPreviousCertificates() {
         exit 1
     fi
 
-    if [ -n "${einame}" ]; then
-        if ! $(tar -tf "${tar_file}" | grep -q "${einame}".pem) || ! $(tar -tf "${tar_file}" | grep -q "${einame}"-key.pem); then
-            logger -e "There is no certificate for the elasticsearch node ${einame} in ${tar_file}."
+    if [ -n "${indxname}" ]; then
+        if ! $(tar -tf "${tar_file}" | grep -q "${indxname}".pem) || ! $(tar -tf "${tar_file}" | grep -q "${indxname}"-key.pem); then
+            logger -e "There is no certificate for the elasticsearch node ${indxname} in ${tar_file}."
             exit 1
         fi
     fi
 
-    if [ -n "${kiname}" ]; then
-        if ! $(tar -tf "${tar_file}" | grep -q "${kiname}".pem) || ! $(tar -tf "${tar_file}" | grep -q "${kiname}"-key.pem); then
-            logger -e "There is no certificate for the kibana node ${kiname} in ${tar_file}."
+    if [ -n "${dashname}" ]; then
+        if ! $(tar -tf "${tar_file}" | grep -q "${dashname}".pem) || ! $(tar -tf "${tar_file}" | grep -q "${dashname}"-key.pem); then
+            logger -e "There is no certificate for the kibana node ${dashname} in ${tar_file}."
             exit 1
         fi
     fi

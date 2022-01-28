@@ -21,7 +21,7 @@ function configureDashboard() {
             ip=${dashboard_node_ips[0]}
         else
             for i in "${!dashboard_node_names[@]}"; do
-                if [[ "${dashboard_node_names[i]}" == "${kiname}" ]]; then
+                if [[ "${dashboard_node_names[i]}" == "${dashname}" ]]; then
                     pos="${i}";
                 fi
             done
@@ -75,7 +75,7 @@ function initializeDashboard() {
         nodes_dashboard_ip=${dashboard_node_ips[0]}
     else
         for i in "${!dashboard_node_names[@]}"; do
-            if [[ "${dashboard_node_names[i]}" == "${kiname}" ]]; then
+            if [[ "${dashboard_node_names[i]}" == "${dashname}" ]]; then
                 pos="${i}";
             fi
         done

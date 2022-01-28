@@ -221,7 +221,7 @@ User:
         finalusers=()
         finalpasswords=()
 
-        if [ -n "${dashboardinstalled}" ] &&  [ -n "${kibana}" ]; then 
+        if [ -n "${dashboardinstalled}" ] &&  [ -n "${dashboard}" ]; then 
             users=( kibanaserver admin )
         fi
 
@@ -301,7 +301,7 @@ function rollBack() {
         eval "rm -rf /var/ossec/ ${debug}"
     fi
 
-    if [[ -n "${indexerchinstalled}" && ( -n "${elasticsearch}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
+    if [[ -n "${indexerchinstalled}" && ( -n "${indexer}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         logger -w "Removing Wazuh indexer."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-indexer -y ${debug}"
@@ -312,7 +312,7 @@ function rollBack() {
         fi 
     fi
 
-    if [[ ( -n "${indexer_remaining_files}" || -n "${indexerchinstalled}" ) && ( -n "${elasticsearch}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
+    if [[ ( -n "${indexer_remaining_files}" || -n "${indexerchinstalled}" ) && ( -n "${indexer}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         eval "rm -rf /var/lib/wazuh-indexer/ ${debug}"
         eval "rm -rf /usr/share/wazuh-indexer/ ${debug}"
         eval "rm -rf /etc/wazuh-indexer/ ${debug}"
@@ -335,7 +335,7 @@ function rollBack() {
         eval "rm -rf /etc/filebeat/ ${debug}"
     fi
 
-    if [[ -n "${dashboardinstalled}" && ( -n "${kibana}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
+    if [[ -n "${dashboardinstalled}" && ( -n "${dashboard}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         logger -w "Removing Wazuh Dashboard."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-dashboard -y ${debug}"
@@ -346,7 +346,7 @@ function rollBack() {
         fi
     fi
 
-    if [[ ( -n "${dashboard_remaining_files}" || -n "${dashboardinstalled}" ) && ( -n "${kibana}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
+    if [[ ( -n "${dashboard_remaining_files}" || -n "${dashboardinstalled}" ) && ( -n "${dashboard}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         eval "rm -rf /var/lib/wazuh-dashboard/ ${debug}"
         eval "rm -rf /usr/share/wazuh-dashboard/ ${debug}"
         eval "rm -rf /etc/wazuh-dashboard/ ${debug}"
