@@ -53,7 +53,7 @@ function checkArguments() {
             logger "Elasticsearch components were not found on the system so it was not uninstalled."
         fi
 
-        if [ -z "${kibanainstalled}" ] && [ -z "${kibana_remaining_files}" ]; then
+        if [ -z "${dashboardinstalled}" ] && [ -z "${dashboard_remaining_files}" ]; then
             logger "Kibana components were found on the system so it was not uninstalled."
         fi
 
@@ -72,7 +72,7 @@ function checkArguments() {
             exit 1
         fi
 
-        if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ] || [ -n "${indexerchinstalled}" ] || [ -n "${indexer_remaining_files}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ] || [ -n "${kibanainstalled}" ] || [ -n "${kibana_remaining_files}" ]; then
+        if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ] || [ -n "${indexerchinstalled}" ] || [ -n "${indexer_remaining_files}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ] || [ -n "${dashboardinstalled}" ] || [ -n "${dashboard_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
                 rollBack
             else
@@ -99,7 +99,7 @@ function checkArguments() {
     # -------------- Kibana -----------------------------------------
 
     if [ -n "${kibana}" ]; then
-        if [ -n "${kibanainstalled}" ] || [ -n "${kibana_remaining_files}" ]; then
+        if [ -n "${dashboardinstalled}" ] || [ -n "${dashboard_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
                 rollBack
             else 
@@ -227,15 +227,15 @@ function checkIfInstalled() {
     fi
 
     if [ "${sys_type}" == "yum" ]; then
-        kibanainstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch-kibana)
+        dashboardinstalled=$(yum list installed 2>/dev/null | grep wazuh-dashboard)
     elif [ "${sys_type}" == "zypper" ]; then
-        kibanainstalled=$(zypper packages | grep opendistroforelasticsearch-kibana | grep i+)
+        dashboardinstalled=$(zypper packages | grep wazuh-dashboard | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
-        kibanainstalled=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch-kibana)
+        dashboardinstalled=$(apt list --installed  2>/dev/null | grep wazuh-dashboard)
     fi
 
-    if [ -d "/var/lib/kibana/" ] || [ -d "/usr/share/kibana" ] || [ -d "/etc/kibana" ]; then
-        kibana_remaining_files=1
+    if [ -d "/var/lib/wazuh-dashboard/" ] || [ -d "/usr/share/wazuh-dashboard" ] || [ -d "/etc/wazuh-dashboard" ]; then
+        dashboard_remaining_files=1
     fi
 
 }
@@ -268,7 +268,7 @@ function checkNames() {
         exit 1
     fi
 
-    if [ -n "${kiname}" ] && [ -z "$(echo "${kibana_node_names[@]}" | grep -w "${kiname}")" ]; then
+    if [ -n "${kiname}" ] && [ -z "$(echo "${dashboard_node_names[@]}" | grep -w "${kiname}")" ]; then
         logger -e "The Kibana node name ${kiname} does not appear on the configuration file."
         exit 1
     fi

@@ -1,8 +1,8 @@
 nodes:
-  # Elasticsearch server nodes
-  elasticsearch:
-    name: <elasticsearch-node-name>
-    ip: <elasticsearch-node-ip>
+  # Wazuh indexer server nodes
+  indexer:
+    name: <indexer-node-name>
+    ip: <indexer-node-ip>
     # name: <elasticsearch-node-name>
     # ip: <elasticsearch-node-ip>
 
@@ -16,7 +16,7 @@ nodes:
     # ip: <wazuh-manager-ip>
     # node_type: worker
 
-  # Kibana node
-  kibana:
-    name: <kibana-node-name>
-    ip: <kibana-node-ip>
+  # Wazuh dashboard node
+  dashboard:
+    name: <dashboard-node-name>
+    ip: <dashboard-node-ip>

@@ -6,38 +6,16 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-readonly e_certs_path="/etc/wazuh-indexer/certs/"
-
-function applyLog4j2Mitigation() {
-
-    eval "curl -so /tmp/apache-log4j-2.17.1-bin.tar.gz https://packages.wazuh.com/utils/log4j/apache-log4j-2.17.1-bin.tar.gz ${debug}"
-    eval "tar -xf /tmp/apache-log4j-2.17.1-bin.tar.gz -C /tmp/"
-
-    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-api-2.17.1.jar /usr/share/wazuh-indexer/lib/  ${debug}"
-    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-core-2.17.1.jar /usr/share/wazuh-indexer/lib/ ${debug}"
-    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-slf4j-impl-2.17.1.jar /usr/share/wazuh-indexer/plugins/opensearch-security/ ${debug}"
-    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-api-2.17.1.jar /usr/share/wazuh-indexer/performance-analyzer-rca/lib/ ${debug}"
-    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-core-2.17.1.jar /usr/share/wazuh-indexer/performance-analyzer-rca/lib/ ${debug}"
-
-    eval "rm -f /usr/share/wazuh-indexer/lib//log4j-api-2.11.1.jar ${debug}"
-    eval "rm -f /usr/share/wazuh-indexer/lib/log4j-core-2.11.1.jar ${debug}"
-    eval "rm -f /usr/share/wazuh-indexer/plugins/opensearch-security/log4j-slf4j-impl-2.11.1.jar ${debug}"
-    eval "rm -f /usr/share/wazuh-indexer/performance-analyzer-rca/lib/log4j-api-2.13.0.jar ${debug}"
-    eval "rm -f /usr/share/wazuh-indexer/performance-analyzer-rca/lib/log4j-core-2.13.0.jar ${debug}"
-
-    eval "rm -rf /tmp/apache-log4j-2.17.1-bin ${debug}"
-    eval "rm -f /tmp/apache-log4j-2.17.1-bin.tar.gz ${debug}"
-
-}
+readonly i_certs_path="/etc/wazuh-indexer/certs/"
 
 function configureIndexer() {
 
     logger -d "Configuring Wazuh indexer."
     eval "export JAVA_HOME=/usr/share/wazuh-indexer/jdk/"
-    eval "getConfig indexer/roles/roles.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/roles.yml ${debug}"
-    eval "getConfig indexer/roles/roles_mapping.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/roles_mapping.yml ${debug}"
-    eval "getConfig indexer/roles/internal_users.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/internal_users.yml ${debug}"
-    eval "rm -f /etc/wazuh-indexer/{esnode-key.pem,esnode.pem,kirk-key.pem,kirk.pem,root-ca.pem} ${debug}"
+    # eval "getConfig indexer/roles/roles.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/roles.yml ${debug}"
+    # eval "getConfig indexer/roles/roles_mapping.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/roles_mapping.yml ${debug}"
+    # eval "getConfig indexer/roles/internal_users.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/internal_users.yml ${debug}"
+    # eval "rm -f /etc/wazuh-indexer/{esnode-key.pem,esnode.pem,kirk-key.pem,kirk.pem,root-ca.pem} ${debug}"
     
     copyCertificatesIndexer
 
@@ -64,6 +42,7 @@ function configureIndexer() {
             echo "plugins.security.nodes_dn:" >> /etc/wazuh-indexer/opensearch.yml
             echo '        - CN='${einame}',OU=Docu,O=Wazuh,L=California,C=US' >> /etc/wazuh-indexer/opensearch.yml
         else
+            eval "rm -rf /var/lib/wazuh-indexer/ ${debug}"
             echo "node.name: ${einame}" >> /etc/wazuh-indexer/opensearch.yml
             echo "cluster.initial_master_nodes:" >> /etc/wazuh-indexer/opensearch.yml
             for i in "${indexer_node_names[@]}"; do
@@ -105,15 +84,15 @@ function configureIndexer() {
 
 function copyCertificatesIndexer() {
     
-    eval "rm -f ${e_certs_path}/* ${debug}"
+    eval "rm -f ${i_certs_path}/* ${debug}"
     name=${indexer_node_names[pos]}
 
     if [ -f "${tar_file}" ]; then
-        eval "tar -xf ${tar_file} -C ${e_certs_path} ./${name}.pem  && mv ${e_certs_path}${name}.pem ${e_certs_path}indexer.pem ${debug}"
-        eval "tar -xf ${tar_file} -C ${e_certs_path} ./${name}-key.pem  && mv ${e_certs_path}${name}-key.pem ${e_certs_path}indexer-key.pem ${debug}"
-        eval "tar -xf ${tar_file} -C ${e_certs_path} ./root-ca.pem  ${debug}"
-        eval "tar -xf ${tar_file} -C ${e_certs_path} ./admin.pem  ${debug}"
-        eval "tar -xf ${tar_file} -C ${e_certs_path} ./admin-key.pem  ${debug}"
+        eval "tar -xf ${tar_file} -C ${i_certs_path} ./${name}.pem  && mv ${i_certs_path}${name}.pem ${i_certs_path}indexer.pem ${debug}"
+        eval "tar -xf ${tar_file} -C ${i_certs_path} ./${name}-key.pem  && mv ${i_certs_path}${name}-key.pem ${i_certs_path}indexer-key.pem ${debug}"
+        eval "tar -xf ${tar_file} -C ${i_certs_path} ./root-ca.pem  ${debug}"
+        eval "tar -xf ${tar_file} -C ${i_certs_path} ./admin.pem  ${debug}"
+        eval "tar -xf ${tar_file} -C ${i_certs_path} ./admin-key.pem  ${debug}"
     else
         logger -e "No certificates found. Could not initialize Wazuh indexer"
         exit 1;
@@ -125,7 +104,7 @@ function initializeIndexer() {
 
     logger "Starting Wazuh indexer cluster."
     i=0
-    until $(curl -XGET https://${indexer_node_ips[pos]}:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null) || [ "${i}" -eq 12 ]; do
+    until $(curl -XGET https://${indexer_node_ips[pos]}:9700/ -uadmin:admin -k --max-time 120 --silent --output /dev/null) || [ "${i}" -eq 12 ]; do
         sleep 10
         i=$((i+1))
     done
@@ -134,9 +113,7 @@ function initializeIndexer() {
         rollBack
         exit 1
     fi
-    if [ "${#indexer_node_names[@]}" -eq 1 ]; then
-        start_elastic_cluster=1
-        startIndexerCluster
+    if [ "${#indexer_node_names[@]}" -eq 1 ] && [ -z "${AIO}" ]; then
         changePasswords
     fi
 
@@ -169,9 +146,8 @@ function installIndexer() {
 
 function startIndexerCluster() {
 
-    eval "indexer_cluster_ip=( $(cat /etc/wazuh-indexer/opensearch.yml | grep network.host | sed 's/network.host:\s//') )"
     eval "export JAVA_HOME=/usr/share/wazuh-indexer/jdk/"
-    eval "/usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ -icl -nhnv -cacert /etc/wazuh-indexer/certs/root-ca.pem -cert /etc/wazuh-indexer/certs/admin.pem -key /etc/wazuh-indexer/certs/admin-key.pem -h ${indexer_cluster_ip} > /dev/null ${debug}"
+    eval "/usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -p 9800 -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ -icl -nhnv -cacert /etc/wazuh-indexer/certs/root-ca.pem -cert /etc/wazuh-indexer/certs/admin.pem -key /etc/wazuh-indexer/certs/admin-key.pem -h ${indexer_node_ips[pos]} > /dev/null ${debug}"
     if [  "$?" != 0  ]; then
         logger -e "The Wazuh indexer cluster security configuration could not be initialized."
         rollBack
@@ -179,7 +155,7 @@ function startIndexerCluster() {
     else
         logger "Wazuh indexer cluster security configuration initialized."
     fi
-    eval "curl --silent ${filebeat_wazuh_template} | curl -X PUT 'https://${indexer_node_ips[pos]}:9200/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k --silent ${debug}"
+    eval "curl --silent ${filebeat_wazuh_template} | curl -X PUT 'https://${indexer_node_ips[pos]}:9700/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k --silent ${debug}"
     if [  "$?" != 0  ]; then
         logger -e "The wazuh-alerts template could not be inserted into the Wazuh indexer cluster."
         rollBack

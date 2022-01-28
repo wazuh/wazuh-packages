@@ -18,7 +18,6 @@ fi
 
 filebeat_wazuh_template="https://raw.githubusercontent.com/wazuh/wazuh/${wazuh_major}/extensions/elasticsearch/7.x/wazuh-template.json"
 filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.1.tar.gz"
-kibana_wazuh_plugin="${repobaseurl}/ui/kibana/wazuh_kibana-${wazuh_version}_${filebeat_version}-${wazuh_kibana_plugin_revision}.zip"
 
 function addWazuhrepo() {
 
@@ -65,9 +64,9 @@ function createCertificates() {
 
     generateRootCAcertificate
     generateAdmincertificate
-    generateElasticsearchcertificates
+    generateIndexercertificates
     generateFilebeatcertificates
-    generateKibanacertificates
+    generateDashboardcertificates
     cleanFiles
 
 }
@@ -222,7 +221,7 @@ User:
         finalusers=()
         finalpasswords=()
 
-        if [ -n "${kibanainstalled}" ] &&  [ -n "${kibana}" ]; then 
+        if [ -n "${dashboardinstalled}" ] &&  [ -n "${kibana}" ]; then 
             users=( kibanaserver admin )
         fi
 
@@ -336,34 +335,34 @@ function rollBack() {
         eval "rm -rf /etc/filebeat/ ${debug}"
     fi
 
-    if [[ -n "${kibanainstalled}" && ( -n "${kibana}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        logger -w "Removing Kibana."
+    if [[ -n "${dashboardinstalled}" && ( -n "${kibana}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
+        logger -w "Removing Wazuh Dashboard."
         if [ "${sys_type}" == "yum" ]; then
-            eval "yum remove opendistroforelasticsearch-kibana -y ${debug}"
+            eval "yum remove wazuh-dashboard -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
-            eval "zypper -n remove opendistroforelasticsearch-kibana ${debug}"
+            eval "zypper -n remove wazuh-dashboard ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
-            eval "apt remove --purge opendistroforelasticsearch-kibana -y ${debug}"
+            eval "apt remove --purge wazuh-dashboard -y ${debug}"
         fi
     fi
 
-    if [[ ( -n "${kibana_remaining_files}" || -n "${kibanainstalled}" ) && ( -n "${kibana}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        eval "rm -rf /var/lib/kibana/ ${debug}"
-        eval "rm -rf /usr/share/kibana/ ${debug}"
-        eval "rm -rf /etc/kibana/ ${debug}"
+    if [[ ( -n "${dashboard_remaining_files}" || -n "${dashboardinstalled}" ) && ( -n "${kibana}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
+        eval "rm -rf /var/lib/wazuh-dashboard/ ${debug}"
+        eval "rm -rf /usr/share/wazuh-dashboard/ ${debug}"
+        eval "rm -rf /etc/wazuh-dashboard/ ${debug}"
     fi
 
     elements_to_remove=(    "/var/log/elasticsearch/"
                             "/var/log/filebeat/"
-                            "/etc/systemd/system/elasticsearch.service.wants/"
+                            "/etc/systemd/system/opensearch.service.wants/"
                             "/securityadmin_demo.sh"
                             "/etc/systemd/system/multi-user.target.wants/wazuh-manager.service"
                             "/etc/systemd/system/multi-user.target.wants/filebeat.service"
-                            "/etc/systemd/system/multi-user.target.wants/elasticsearch.service"
-                            "/etc/systemd/system/multi-user.target.wants/kibana.service"
-                            "/etc/systemd/system/kibana.service"
-                            "/lib/firewalld/services/kibana.xml"
-                            "/lib/firewalld/services/elasticsearch.xml" )
+                            "/etc/systemd/system/multi-user.target.wants/opensearch.service"
+                            "/etc/systemd/system/multi-user.target.wants/wazuh-dashboard.service"
+                            "/etc/systemd/system/wazuh-dashboard.service"
+                            "/lib/firewalld/services/dashboard.xml"
+                            "/lib/firewalld/services/opensearch.xml" )
 
     eval "rm -rf ${elements_to_remove[*]}"
 

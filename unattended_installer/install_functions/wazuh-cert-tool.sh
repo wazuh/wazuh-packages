@@ -133,10 +133,10 @@ function generateCertificateconfiguration() {
 
 }
 
-function generateElasticsearchcertificates() {
+function generateIndexercertificates() {
 
     if [ ${#indexer_node_names[@]} -gt 0 ]; then
-        logger_cert "Creating the Elasticsearch certificates."
+        logger_cert "Creating the Wazuh indexer certificates."
 
         for i in "${!indexer_node_names[@]}"; do
             generateCertificateconfiguration "${indexer_node_names[i]}" "${indexer_node_ips[i]}"
@@ -162,16 +162,16 @@ function generateFilebeatcertificates() {
 
 }
 
-function generateKibanacertificates() {
+function generateDashboardcertificates() {
     
-    if [ ${#kibana_node_names[@]} -gt 0 ]; then
-        logger_cert "Creating the Kibana certificate."
+    if [ ${#dashboard_node_names[@]} -gt 0 ]; then
+        logger_cert "Creating the Wazuh dashboard certificate."
 
-        for i in "${!kibana_node_names[@]}"; do
-            generateCertificateconfiguration "${kibana_node_names[i]}" "${kibana_node_ips[i]}"
-            eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${kibana_node_names[i]}-key.pem -out ${base_path}/certs/${kibana_node_names[i]}.csr -config ${base_path}/certs/${kibana_node_names[i]}.conf -days 3650 ${debug_cert}"
-            eval "openssl x509 -req -in ${base_path}/certs/${kibana_node_names[i]}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${kibana_node_names[i]}.pem -extfile ${base_path}/certs/${kibana_node_names[i]}.conf -extensions v3_req -days 3650 ${debug_cert}"
-            eval "chmod 444 ${base_path}/certs/${kibana_node_names[i]}-key.pem ${debug_cert}"    
+        for i in "${!dashboard_node_names[@]}"; do
+            generateCertificateconfiguration "${dashboard_node_names[i]}" "${dashboard_node_ips[i]}"
+            eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${dashboard_node_names[i]}-key.pem -out ${base_path}/certs/${dashboard_node_names[i]}.csr -config ${base_path}/certs/${dashboard_node_names[i]}.conf -days 3650 ${debug_cert}"
+            eval "openssl x509 -req -in ${base_path}/certs/${dashboard_node_names[i]}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${dashboard_node_names[i]}.pem -extfile ${base_path}/certs/${dashboard_node_names[i]}.conf -extensions v3_req -days 3650 ${debug_cert}"
+            eval "chmod 444 ${base_path}/certs/${dashboard_node_names[i]}-key.pem ${debug_cert}"    
         done
     fi
 
@@ -286,8 +286,8 @@ function main() {
         fi
 
         if [[ -n "${celasticsearch}" ]]; then
-            generateElasticsearchcertificates
-            logger_cert "Elasticsearch certificates created."
+            generateIndexercertificates
+            logger_cert "Wazuh indexer certificates created."
         fi
 
         if [[ -n "${cwazuh}" ]]; then
@@ -296,17 +296,17 @@ function main() {
         fi
 
         if [[ -n "${ckibana}" ]]; then
-            generateKibanacertificates
-            logger_cert "Kibana certificates created."
+            generateDashboardcertificates
+            logger_cert "Wazuh dashboard certificates created."
         fi
 
     else
         readConfig
         generateRootCAcertificate
         generateAdmincertificate
-        generateElasticsearchcertificates
+        generateIndexercertificates
         generateFilebeatcertificates
-        generateKibanacertificates
+        generateDashboardcertificates
         cleanFiles
     fi
 
@@ -341,25 +341,25 @@ function readConfig() {
             exit 1
         fi
         eval "$(parse_yaml "${config_file}")"
-        eval "indexer_node_names=( $(parse_yaml "${config_file}" | grep nodes_elasticsearch_name | sed 's/nodes_elasticsearch_name=//') )"
+        eval "indexer_node_names=( $(parse_yaml "${config_file}" | grep nodes_indexer_name | sed 's/nodes_indexer_name=//') )"
         eval "wazuh_servers_node_names=( $(parse_yaml "${config_file}" | grep nodes_wazuh_servers_name | sed 's/nodes_wazuh_servers_name=//') )"
-        eval "kibana_node_names=( $(parse_yaml "${config_file}" | grep nodes_kibana_name | sed 's/nodes_kibana_name=//') )"
+        eval "dashboard_node_names=( $(parse_yaml "${config_file}" | grep nodes_dashboard_name | sed 's/nodes_dashboard_name=//') )"
 
-        eval "indexer_node_ips=( $(parse_yaml "${config_file}" | grep nodes_elasticsearch_ip | sed 's/nodes_elasticsearch_ip=//') )"
+        eval "indexer_node_ips=( $(parse_yaml "${config_file}" | grep nodes_indexer_ip | sed 's/nodes_indexer_ip=//') )"
         eval "wazuh_servers_node_ips=( $(parse_yaml "${config_file}" | grep nodes_wazuh_servers_ip | sed 's/nodes_wazuh_servers_ip=//') )"
-        eval "kibana_node_ips=( $(parse_yaml "${config_file}" | grep nodes_kibana_ip | sed 's/nodes_kibana_ip=//') )"
+        eval "dashboard_node_ips=( $(parse_yaml "${config_file}" | grep nodes_dashboard_ip | sed 's/nodes_dashboard_ip=//') )"
 
         eval "wazuh_servers_node_types=( $(parse_yaml "${config_file}" | grep nodes_wazuh_servers_node_type | sed 's/nodes_wazuh_servers_node_type=//') )"
 
         unique_names=($(echo "${indexer_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
         if [ "${#unique_names[@]}" -ne "${#indexer_node_names[@]}" ]; then 
-            logger_cert -e "Duplicated Elasticsearch node names."
+            logger_cert -e "Duplicated indexer node names."
             exit 1
         fi
 
         unique_ips=($(echo "${indexer_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
         if [ "${#unique_ips[@]}" -ne "${#indexer_node_ips[@]}" ]; then 
-            logger_cert -e "Duplicated Elasticsearch node ips."
+            logger_cert -e "Duplicated indexer node ips."
             exit 1
         fi
 
@@ -375,15 +375,15 @@ function readConfig() {
             exit 1
         fi
 
-        unique_names=($(echo "${kibana_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
-        if [ "${#unique_names[@]}" -ne "${#kibana_node_names[@]}" ]; then 
-            logger_cert -e "Duplicated Kibana node names."
+        unique_names=($(echo "${dashboard_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+        if [ "${#unique_names[@]}" -ne "${#dashboard_node_names[@]}" ]; then 
+            logger_cert -e "Duplicated dashboard node names."
             exit 1
         fi
 
-        unique_ips=($(echo "${kibana_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
-        if [ "${#unique_ips[@]}" -ne "${#kibana_node_ips[@]}" ]; then 
-            logger_cert -e "Duplicated Kibana node ips."
+        unique_ips=($(echo "${dashboard_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+        if [ "${#unique_ips[@]}" -ne "${#dashboard_node_ips[@]}" ]; then 
+            logger_cert -e "Duplicated dashboard node ips."
             exit 1
         fi
 
@@ -418,7 +418,7 @@ function readConfig() {
             exit 1
         fi
 
-        if [ "${#kibana_node_names[@]}" -ne "${#kibana_node_ips[@]}" ]; then 
+        if [ "${#dashboard_node_names[@]}" -ne "${#dashboard_node_ips[@]}" ]; then 
             logger_cert -e "Different number of Kibana node names and IPs."
             exit 1
         fi

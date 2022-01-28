@@ -15,7 +15,6 @@ readonly wazuh_revision="1"
 readonly filebeat_version="7.10.2"
 readonly opendistro_version="1.13.2"
 readonly opendistro_revision="1"
-readonly wazuh_kibana_plugin_revision="1"
 readonly wazuh_install_vesion="0.1"
 
 ## Links and paths to resources
@@ -222,7 +221,7 @@ function main() {
                 ;;
             "-e"|"--elasticsearch")
                 if [ -z "${2}" ]; then
-                    logger -e "Arguments contain errors. Probably missing <node-name> after -e|--elasticsearch."
+                    logger -e "Arguments contain errors. Probably missing <node-name> after -e|--opensearch."
                     getHelp
                     exit 1
                 fi
@@ -423,15 +422,15 @@ function main() {
 # -------------- Kibana case  ---------------------------------------
 
     if [ -n "${kibana}" ]; then
-        logger "------------------------------------- Kibana --------------------------------------"
+        logger "------------------------------------- Wazuh Dashboard --------------------------------------"
 
         importFunction "dashboard.sh"
 
-        installKibana 
-        configureKibana
+        installDashboard 
+        configureDashboard
         changePasswords
-        startService "kibana"
-        initializeKibana
+        startService "wazuh-dashboard"
+        initializeDashboard
 
     fi
 
@@ -463,23 +462,23 @@ function main() {
         importFunction "indexer.sh"
         importFunction "dashboard.sh"
 
-        logger "-------------------------- Open Distro for Elasticsearch --------------------------"
+        logger "-------------------------- Wazuh Indexer --------------------------"
         installIndexer
         configureIndexer
-        startService "elasticsearch"
+        startService "wazuh-indexer"
         initializeIndexer
-        logger "-------------------------------------- Wazuh --------------------------------------"
+        logger "-------------------------------------- Wazuh Manager --------------------------------------"
         installWazuh
         startService "wazuh-manager"
         installFilebeat
         configureFilebeat
         startService "filebeat"
-        logger "------------------------------------- Kibana --------------------------------------"
-        installKibana
-        configureKibana
-        startService "kibana"
+        logger "------------------------------------- Wazuh Dashboard --------------------------------------"
+        installDashboard
+        configureDashboard
+        startService "wazuh-dashboard"
         changePasswords
-        initializeKibanaAIO
+        initializeDashboardAIO
     fi
 
 # -------------------------------------------------------------------

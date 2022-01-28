@@ -32,7 +32,7 @@ function changePassword() {
             if [ "${users[i]}" == "admin" ]; then
                 adminpass=${passwords[i]}
             elif [ "${users[i]}" == "kibanaserver" ]; then
-                kibpass=${passwords[i]}
+                dashpass=${passwords[i]}
             fi
 
         done
@@ -44,7 +44,7 @@ function changePassword() {
         if [ "${nuser}" == "admin" ]; then
             adminpass=${password}
         elif [ "${nuser}" == "kibanaserver" ]; then
-            kibpass=${password}
+            dashpass=${password}
         fi
 
     fi
@@ -63,13 +63,13 @@ function changePassword() {
 
     if [ "$nuser" == "kibanaserver" ] || [ -n "$changeall" ]; then
 
-        if [ -n "${kibanainstalled}" ] && [ -n "${kibpass}" ]; then
-            wazuhkibold=$(grep "password:" /etc/kibana/kibana.yml )
-            rk="elasticsearch.password: "
-            wazuhkibold="${wazuhkibold//$rk}"
-            conf="$(awk '{sub("elasticsearch.password: .*", "elasticsearch.password: '${kibpass}'")}1' /etc/kibana/kibana.yml)"
-            echo "${conf}" > /etc/kibana/kibana.yml 
-            restartService "kibana"
+        if [ -n "${dashboardinstalled}" ] && [ -n "${dashpass}" ]; then
+            wazuhdashold=$(grep "password:" /etc/wazuh-dashboard/dashboard.yml )
+            rk="opensearch.password: "
+            wazuhdashold="${wazuhdashold//$rk}"
+            conf="$(awk '{sub("opensearch.password: .*", "opensearch.password: '${dashpass}'")}1' /etc/wazuh-dashboard/dashboard.yml)"
+            echo "${conf}" > /etc/wazuh-dashboard/dashboard.yml 
+            restartService "wazuh-dashboard"
         fi
     fi
 
@@ -78,11 +78,11 @@ function changePassword() {
 function checkInstalledPass() {
     
     if [ "${sys_type}" == "yum" ]; then
-        indexerchinstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch | grep -v kibana)
+        indexerchinstalled=$(yum list installed 2>/dev/null | grep wazuh-indexer | grep -v kibana)
     elif [ "${sys_type}" == "zypper" ]; then
-        indexerchinstalled=$(zypper packages | grep opendistroforelasticsearch | grep -v kibana | grep i+)
+        indexerchinstalled=$(zypper packages | grep wazuh-indexer | grep -v kibana | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
-        indexerchinstalled=$(apt list --installed 2>/dev/null | grep opendistroforelasticsearch | grep -v kibana)
+        indexerchinstalled=$(apt list --installed 2>/dev/null | grep wazuh-indexer | grep -v kibana)
     fi
 
     if [ "${sys_type}" == "yum" ]; then
@@ -94,15 +94,15 @@ function checkInstalledPass() {
     fi
 
     if [ "${sys_type}" == "yum" ]; then
-        kibanainstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch-kibana)
+        dashboardinstalled=$(yum list installed 2>/dev/null | grep wazuh-dashboard)
     elif [ "${sys_type}" == "zypper" ]; then
-        kibanainstalled=$(zypper packages | grep opendistroforelasticsearch-kibana | grep i+)
+        dashboardinstalled=$(zypper packages | grep wazuh-dashboard | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
-        kibanainstalled=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch-kibana)
+        dashboardinstalled=$(apt list --installed  2>/dev/null | grep wazuh-dashboard)
     fi
 
-    if [ -z "${indexerchinstalled}" ] && [ -z "${kibanainstalled}" ] && [ -z "${filebeatinstalled}" ]; then
-        logger_pass -e "Open Distro is not installed on the system."
+    if [ -z "${indexerchinstalled}" ] && [ -z "${dashboardinstalled}" ] && [ -z "${filebeatinstalled}" ]; then
+        logger_pass -e "Cannot find Wazuh indexer, Wazuh dashboard or Filebeat on the system."
         exit 1;
     else
         if [ -n "${indexerchinstalled}" ]; then
@@ -145,7 +145,7 @@ function createBackUp() {
     
     logger_pass -d "Creating password backup."
     eval "mkdir /usr/share/wazuh-indexer/backup ${debug_pass}"
-    eval "/usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -backup /usr/share/wazuh-indexer/backup -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug_pass}"
+    eval "/usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -p 9800 -backup /usr/share/wazuh-indexer/backup -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug_pass}"
     if [ "$?" != 0 ]; then
         logger_pass -e "The backup could not be created"
         exit 1;
@@ -161,7 +161,7 @@ function generateHash() {
         do
             nhash=$(bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "${passwords[i]}" | grep -v WARNING)
             if [  "$?" != 0  ]; then
-                 -e "Hash generation failed."
+                logger_pass -e "Hash generation failed."
                 exit 1;
             fi
             hashes+=("${nhash}")
@@ -599,7 +599,7 @@ function runSecurityAdmin() {
     
     logger_pass -d "Loading new passwords changes."
     eval "cp /usr/share/wazuh-indexer/backup/* /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ ${debug_pass}"
-    eval "/usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug_pass}"
+    eval "/usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -p 9800 -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug_pass}"
     if [  "$?" != 0  ]; then
         logger_pass -e "Could not load the changes."
         exit 1;
@@ -608,16 +608,16 @@ function runSecurityAdmin() {
 
     if [[ -n "${nuser}" ]] && [[ -n ${autopass} ]]; then
         logger_pass $'\nThe password for user '${nuser}' is '${password}''
-        logger_pass -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
+        logger_pass -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/wazuh-dashboard/dashboard.yml if necessary and restart the services."
     fi
 
     if [[ -n "${nuser}" ]] && [[ -z ${autopass} ]]; then
-        logger_pass -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
+        logger_pass -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/wazuh-dashboard/dashboard.yml if necessary and restart the services."
     fi
 
     if [ -n "${changeall}" ]; then
         if [ -z "${AIO}" ] && [ -z "${elasticsearch}" ] && [ -z "${kibana}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ]; then
-            logger_pass -w "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
+            logger_pass -w "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/wazuh-dashboard/dashboard.yml if necessary and restart the services."
         else
             logger_pass -d "Passwords changed."
         fi
