@@ -18,7 +18,7 @@ fi
 
 filebeat_wazuh_template="https://raw.githubusercontent.com/wazuh/wazuh/${wazuh_major}/extensions/elasticsearch/7.x/wazuh-template.json"
 filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.1.tar.gz"
-kibana_wazuh_plugin="${repobaseurl}/ui/kibana/wazuh_kibana-${wazuh_version}_${elasticsearch_oss_version}-${wazuh_kibana_plugin_revision}.zip"
+kibana_wazuh_plugin="${repobaseurl}/ui/kibana/wazuh_kibana-${wazuh_version}_${filebeat_version}-${wazuh_kibana_plugin_revision}.zip"
 
 function addWazuhrepo() {
 
@@ -303,20 +303,18 @@ function rollBack() {
     fi
 
     if [[ -n "${indexerchinstalled}" && ( -n "${elasticsearch}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        logger -w "Removing Elasticsearch."
+        logger -w "Removing Wazuh indexer."
         if [ "${sys_type}" == "yum" ]; then
-            eval "yum remove opendistroforelasticsearch -y ${debug}"
-            eval "yum remove elasticsearch* -y ${debug}"
-            eval "yum remove opendistro-* -y ${debug}"
+            eval "yum remove wazuh-indexer -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
-            eval "zypper -n remove opendistroforelasticsearch elasticsearch* opendistro-* ${debug}"
+            eval "zypper -n remove wazuh-indexer ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
-            eval "apt remove --purge ^elasticsearch* ^opendistro-* ^opendistroforelasticsearch -y ${debug}"
+            eval "apt remove --purge ^wazuh-indexer -y ${debug}"
         fi 
     fi
 
-    if [[ ( -n "${elastic_remaining_files}" || -n "${indexerchinstalled}" ) && ( -n "${elasticsearch}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        eval "rm -rf /var/lib/elasticsearch/ ${debug}"
+    if [[ ( -n "${indexer_remaining_files}" || -n "${indexerchinstalled}" ) && ( -n "${elasticsearch}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
+        eval "rm -rf /var/lib/wazuh-indexer/ ${debug}"
         eval "rm -rf /usr/share/wazuh-indexer/ ${debug}"
         eval "rm -rf /etc/wazuh-indexer/ ${debug}"
     fi

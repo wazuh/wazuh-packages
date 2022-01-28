@@ -49,7 +49,7 @@ function checkArguments() {
             logger "Filebeat components were not found on the system so it was not uninstalled."
         fi
 
-        if [ -z "${indexerchinstalled}" ] && [ -z "${elastic_remaining_files}" ]; then
+        if [ -z "${indexerchinstalled}" ] && [ -z "${indexer_remaining_files}" ]; then
             logger "Elasticsearch components were not found on the system so it was not uninstalled."
         fi
 
@@ -72,7 +72,7 @@ function checkArguments() {
             exit 1
         fi
 
-        if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ] || [ -n "${indexerchinstalled}" ] || [ -n "${elastic_remaining_files}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ] || [ -n "${kibanainstalled}" ] || [ -n "${kibana_remaining_files}" ]; then
+        if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ] || [ -n "${indexerchinstalled}" ] || [ -n "${indexer_remaining_files}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ] || [ -n "${kibanainstalled}" ] || [ -n "${kibana_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
                 rollBack
             else
@@ -86,7 +86,7 @@ function checkArguments() {
 
     if [ -n "${elasticsearch}" ]; then
 
-        if [ -n "${indexerchinstalled}" ] || [ -n "${elastic_remaining_files}" ]; then
+        if [ -n "${indexerchinstalled}" ] || [ -n "${indexer_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
                 rollBack
             else 
@@ -203,15 +203,15 @@ function checkIfInstalled() {
     fi
 
     if [ "${sys_type}" == "yum" ]; then
-        indexerchinstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch | grep -v kibana)
+        indexerchinstalled=$(yum list installed 2>/dev/null | grep wazuh-indexer | grep -v kibana)
     elif [ "${sys_type}" == "zypper" ]; then
-        indexerchinstalled=$(zypper packages | grep opendistroforelasticsearch | grep -v kibana | grep i+)
+        indexerchinstalled=$(zypper packages | grep wazuh-indexer | grep -v kibana | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
-        indexerchinstalled=$(apt list --installed 2>/dev/null | grep opendistroforelasticsearch | grep -v kibana)
+        indexerchinstalled=$(apt list --installed 2>/dev/null | grep wazuh-indexer | grep -v kibana)
     fi
 
-    if [ -d "/var/lib/elasticsearch/" ] || [ -d "/usr/share/wazuh-indexer" ] || [ -d "/etc/wazuh-indexer" ] || [ -f "${base_path}/search-guard-tlstool*" ]; then
-        elastic_remaining_files=1
+    if [ -d "/var/lib/wazuh-indexer/" ] || [ -d "/usr/share/wazuh-indexer" ] || [ -d "/etc/wazuh-indexer" ] || [ -f "${base_path}/search-guard-tlstool*" ]; then
+        indexer_remaining_files=1
     fi
 
     if [ "${sys_type}" == "yum" ]; then

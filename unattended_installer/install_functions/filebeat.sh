@@ -55,11 +55,10 @@ function copyCertificatesFilebeat() {
 function installFilebeat() {
 
     logger "Starting filebeat installation."
-    
     if [ "${sys_type}" == "zypper" ]; then
-        eval "zypper -n install filebeat-${elasticsearch_oss_version} ${debug}"
+        eval "zypper -n install filebeat-${filebeat_version} ${debug}"
     else
-        eval "${sys_type} install filebeat${sep}${elasticsearch_oss_version} -y -q  ${debug}"
+        eval "${sys_type} install filebeat${sep}${filebeat_version} -y -q  ${debug}"
     fi
     if [  "$?" != 0  ]; then
         logger -e "Filebeat installation failed"
