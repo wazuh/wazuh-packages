@@ -101,6 +101,9 @@ override_dh_install:
 	runuser ${USER} --shell="/bin/bash" --command="${TARGET_DIR}${INSTALLATION_DIR}/bin/opensearch-dashboards-plugin install https://s3.amazonaws.com/warehouse.wazuh.com/stack/dashboard/wazuh-1.2.0.zip" 
 
 	find ${TARGET_DIR}${INSTALLATION_DIR}/plugins/wazuh/ -exec chown ${USER}:${GROUP} {} \;
+
+override_dh_fixperms:
+
 	chown -R "${NAME}":"${NAME}" "${TARGET_DIR}${CONFIG_DIR}"
 	chown -R "${NAME}":"${NAME}" "${TARGET_DIR}${INSTALLATION_DIR}"
 	chown -R "${NAME}":"${NAME}" ${TARGET_DIR}/etc/default/"${NAME}"
