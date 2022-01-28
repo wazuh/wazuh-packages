@@ -29,7 +29,7 @@ REMOVE_SERVICE=false
 case "$1" in
 
     # Debian ####################################################
-    remove)
+    remove|purge)
         STOP_REQUIRED=true
         REMOVE_SERVICE=true
     ;;

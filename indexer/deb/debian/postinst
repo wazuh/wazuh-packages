@@ -89,16 +89,15 @@ if [ -z "$2" ]; then
 
   max_map_count=$(cat /proc/sys/vm/max_map_count)
   if [ "${max_map_count}" -lt 262144 ]; then
-      if command -v sysctl; then
-          sysctl -w vm.max_map_count=262144 > /dev/null 2>&1
-          configure_indexer()
+      if command -v sysctl > /dev/null 2>&1 && sysctl -w vm.max_map_count=262144 > /dev/null 2>&1; then
+          configure_indexer
       else
           echo "[WARNING] Sysctl command not available and vm.max_map_count is lower than 262144"
           echo "The security admin default configuration cannot run"
           echo "Increase vm.max_map_count to 262144 and launch security config tool"
       fi
   else
-    configure_indexer()
+    configure_indexer
   fi
 
 else

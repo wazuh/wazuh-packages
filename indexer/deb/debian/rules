@@ -122,6 +122,10 @@ override_dh_install:
 		chown $(USER):$(GROUP) -R $(TARGET_DIR)
 		chmod ug+x $(TARGET_DIR)$(INSTALLATION_DIR)/*
 
+# -----------------------------------------------------------------------------
+
+override_dh_fixperms:
+		dh_fixperms
 		# Set files permissions
 		chmod 750 $(TARGET_DIR)$(CONFIG_DIR)
 		chmod 750 $(TARGET_DIR)$(LIB_DIR)
@@ -1019,6 +1023,7 @@ override_dh_install:
 		chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/jmods/jdk.aot.jmod
 		chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/jmods/jdk.jconsole.jmod
 		chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/jmods/java.instrument.jmod
+
 
 # -----------------------------------------------------------------------------
 
