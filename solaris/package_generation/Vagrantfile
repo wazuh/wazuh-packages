@@ -4,10 +4,10 @@
 require 'getoptlong'
 
 os = {
-    'solaris11' => {'box' => 'wazuh/solaris11', 'ip' => '172.16.1.44', 'folder' => 'solaris11'},
-    'solaris10' => {'box' => 'wazuh/solaris10', 'ip' => '172.16.1.45', 'folder' => 'solaris10'},
-    'solaris11_cmake' => {'box' => 'wazuh/solaris11_cmake', 'ip' => '172.16.1.46', 'folder' => 'solaris11'},
-    'solaris10_cmake' => {'box' => 'wazuh/solaris10_cmake', 'ip' => '172.16.1.47', 'folder' => 'solaris10'},
+    'solaris11' => {'box' => 'wazuh/solaris11', 'ip' => '192.168.56.44', 'folder' => 'solaris11'},
+    'solaris10' => {'box' => 'wazuh/solaris10', 'ip' => '192.168.56.45', 'folder' => 'solaris10'},
+    'solaris11_cmake' => {'box' => 'wazuh/solaris11_cmake', 'ip' => '192.168.56.46', 'folder' => 'solaris11'},
+    'solaris10_cmake' => {'box' => 'wazuh/solaris10_cmake', 'ip' => '192.168.56.47', 'folder' => 'solaris10'},
 }
 
 ###################################################
