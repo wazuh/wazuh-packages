@@ -214,7 +214,7 @@ User:
                     supported=true
                 fi
             done
-            if [ "${supported}" = false ] && [ -n "${elasticsearchinstalled}" ]; then
+            if [ "${supported}" = false ] && [ -n "${indexerchinstalled}" ]; then
                 logger -e -d "The given user ${fileusers[j]} does not exist"
             fi
         done
@@ -239,7 +239,7 @@ User:
                     supported=true
                 fi
             done
-            if [ "${supported}" = "false" ] && [ -n "${elasticsearchinstalled}" ] && [ -n "${changeall}" ]; then
+            if [ "${supported}" = "false" ] && [ -n "${indexerchinstalled}" ] && [ -n "${changeall}" ]; then
                 logger -e -d "The given user ${fileusers[j]} does not exist"
             fi
         done
@@ -302,7 +302,7 @@ function rollBack() {
         eval "rm -rf /var/ossec/ ${debug}"
     fi
 
-    if [[ -n "${elasticsearchinstalled}" && ( -n "${elasticsearch}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
+    if [[ -n "${indexerchinstalled}" && ( -n "${elasticsearch}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         logger -w "Removing Elasticsearch."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove opendistroforelasticsearch -y ${debug}"
@@ -315,10 +315,10 @@ function rollBack() {
         fi 
     fi
 
-    if [[ ( -n "${elastic_remaining_files}" || -n "${elasticsearchinstalled}" ) && ( -n "${elasticsearch}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
+    if [[ ( -n "${elastic_remaining_files}" || -n "${indexerchinstalled}" ) && ( -n "${elasticsearch}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         eval "rm -rf /var/lib/elasticsearch/ ${debug}"
-        eval "rm -rf /usr/share/elasticsearch/ ${debug}"
-        eval "rm -rf /etc/elasticsearch/ ${debug}"
+        eval "rm -rf /usr/share/wazuh-indexer/ ${debug}"
+        eval "rm -rf /etc/wazuh-indexer/ ${debug}"
     fi
 
     if [[ -n "${filebeatinstalled}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then

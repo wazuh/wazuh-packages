@@ -135,14 +135,14 @@ function generateCertificateconfiguration() {
 
 function generateElasticsearchcertificates() {
 
-    if [ ${#elasticsearch_node_names[@]} -gt 0 ]; then
+    if [ ${#indexer_node_names[@]} -gt 0 ]; then
         logger_cert "Creating the Elasticsearch certificates."
 
-        for i in "${!elasticsearch_node_names[@]}"; do
-            generateCertificateconfiguration "${elasticsearch_node_names[i]}" "${elasticsearch_node_ips[i]}"
-            eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${elasticsearch_node_names[i]}-key.pem -out ${base_path}/certs/${elasticsearch_node_names[i]}.csr -config ${base_path}/certs/${elasticsearch_node_names[i]}.conf -days 3650 ${debug_cert}"
-            eval "openssl x509 -req -in ${base_path}/certs/${elasticsearch_node_names[i]}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${elasticsearch_node_names[i]}.pem -extfile ${base_path}/certs/${elasticsearch_node_names[i]}.conf -extensions v3_req -days 3650 ${debug_cert}"
-            eval "chmod 444 ${base_path}/certs/${elasticsearch_node_names[i]}-key.pem ${debug_cert}"    
+        for i in "${!indexer_node_names[@]}"; do
+            generateCertificateconfiguration "${indexer_node_names[i]}" "${indexer_node_ips[i]}"
+            eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${indexer_node_names[i]}-key.pem -out ${base_path}/certs/${indexer_node_names[i]}.csr -config ${base_path}/certs/${indexer_node_names[i]}.conf -days 3650 ${debug_cert}"
+            eval "openssl x509 -req -in ${base_path}/certs/${indexer_node_names[i]}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${indexer_node_names[i]}.pem -extfile ${base_path}/certs/${indexer_node_names[i]}.conf -extensions v3_req -days 3650 ${debug_cert}"
+            eval "chmod 444 ${base_path}/certs/${indexer_node_names[i]}-key.pem ${debug_cert}"    
         done
     fi
 
@@ -341,24 +341,24 @@ function readConfig() {
             exit 1
         fi
         eval "$(parse_yaml "${config_file}")"
-        eval "elasticsearch_node_names=( $(parse_yaml "${config_file}" | grep nodes_elasticsearch_name | sed 's/nodes_elasticsearch_name=//') )"
+        eval "indexer_node_names=( $(parse_yaml "${config_file}" | grep nodes_elasticsearch_name | sed 's/nodes_elasticsearch_name=//') )"
         eval "wazuh_servers_node_names=( $(parse_yaml "${config_file}" | grep nodes_wazuh_servers_name | sed 's/nodes_wazuh_servers_name=//') )"
         eval "kibana_node_names=( $(parse_yaml "${config_file}" | grep nodes_kibana_name | sed 's/nodes_kibana_name=//') )"
 
-        eval "elasticsearch_node_ips=( $(parse_yaml "${config_file}" | grep nodes_elasticsearch_ip | sed 's/nodes_elasticsearch_ip=//') )"
+        eval "indexer_node_ips=( $(parse_yaml "${config_file}" | grep nodes_elasticsearch_ip | sed 's/nodes_elasticsearch_ip=//') )"
         eval "wazuh_servers_node_ips=( $(parse_yaml "${config_file}" | grep nodes_wazuh_servers_ip | sed 's/nodes_wazuh_servers_ip=//') )"
         eval "kibana_node_ips=( $(parse_yaml "${config_file}" | grep nodes_kibana_ip | sed 's/nodes_kibana_ip=//') )"
 
         eval "wazuh_servers_node_types=( $(parse_yaml "${config_file}" | grep nodes_wazuh_servers_node_type | sed 's/nodes_wazuh_servers_node_type=//') )"
 
-        unique_names=($(echo "${elasticsearch_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
-        if [ "${#unique_names[@]}" -ne "${#elasticsearch_node_names[@]}" ]; then 
+        unique_names=($(echo "${indexer_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+        if [ "${#unique_names[@]}" -ne "${#indexer_node_names[@]}" ]; then 
             logger_cert -e "Duplicated Elasticsearch node names."
             exit 1
         fi
 
-        unique_ips=($(echo "${elasticsearch_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
-        if [ "${#unique_ips[@]}" -ne "${#elasticsearch_node_ips[@]}" ]; then 
+        unique_ips=($(echo "${indexer_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+        if [ "${#unique_ips[@]}" -ne "${#indexer_node_ips[@]}" ]; then 
             logger_cert -e "Duplicated Elasticsearch node ips."
             exit 1
         fi

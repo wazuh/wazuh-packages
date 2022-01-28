@@ -26,11 +26,11 @@ test-03-getConfig-local() {
     base_path="/tmp"
     config_path="example"
     local=1
-    getConfig elasticsearch.yml /tmp/elasticsearch/elasticsearch.yml
+    getConfig opensearch.yml /tmp/elasticsearch/opensearch.yml
 }
 
 test-03-getConfig-local-assert() {
-    cp /tmp/example/elasticsearch.yml /tmp/elasticsearch/elasticsearch.yml
+    cp /tmp/example/opensearch.yml /tmp/elasticsearch/opensearch.yml
 }
 
 test-04-getConfig-online() {
@@ -39,11 +39,11 @@ test-04-getConfig-online() {
     config_path="example"
     resources_config="example.com/config"
     local=
-    getConfig elasticsearch.yml /tmp/elasticsearch/elasticsearch.yml
+    getConfig opensearch.yml /tmp/elasticsearch/opensearch.yml
 }
 
 test-04-getConfig-online-assert() {
-    curl -f -so /tmp/elasticsearch/elasticsearch.yml example.com/config/elasticsearch.yml
+    curl -f -so /tmp/elasticsearch/opensearch.yml example.com/config/opensearch.yml
 }
 
 test-05-getConfig-local-error() {
@@ -51,8 +51,8 @@ test-05-getConfig-local-error() {
     base_path="/tmp"
     config_path="example"
     local=1
-    @mockfalse cp /tmp/example/elasticsearch.yml /tmp/elasticsearch/elasticsearch.yml
-    getConfig elasticsearch.yml /tmp/elasticsearch/elasticsearch.yml
+    @mockfalse cp /tmp/example/opensearch.yml /tmp/elasticsearch/opensearch.yml
+    getConfig opensearch.yml /tmp/elasticsearch/opensearch.yml
 }
 
 test-05-getConfig-local-error-assert() {
@@ -66,8 +66,8 @@ test-06-getConfig-online-error() {
     config_path="example"
     resources_config="example.com/config"
     local=
-    @mockfalse curl -f -so /tmp/elasticsearch/elasticsearch.yml example.com/config/elasticsearch.yml
-    getConfig elasticsearch.yml /tmp/elasticsearch/elasticsearch.yml
+    @mockfalse curl -f -so /tmp/elasticsearch/opensearch.yml example.com/config/opensearch.yml
+    getConfig opensearch.yml /tmp/elasticsearch/opensearch.yml
 }
 
 test-06-getConfig-online-error-assert() {
@@ -370,7 +370,7 @@ function load-rollBack {
 
 test-27-rollBack-aio-all-installed-yum() {
     load-rollBack
-    elasticsearchinstalled=1
+    indexerchinstalled=1
     wazuhinstalled=1
     kibanainstalled=1
     filebeatinstalled=1
@@ -394,8 +394,8 @@ test-27-rollBack-aio-all-installed-yum-assert() {
     yum remove opendistro-* -y
     
     rm -rf /var/lib/elasticsearch/
-    rm -rf /usr/share/elasticsearch/
-    rm -rf /etc/elasticsearch/
+    rm -rf /usr/share/wazuh-indexer/
+    rm -rf /etc/wazuh-indexer/
     
     yum remove filebeat -y
     
@@ -414,7 +414,7 @@ test-27-rollBack-aio-all-installed-yum-assert() {
 
 test-28-rollBack-aio-all-installed-zypper() {
     load-rollBack
-    elasticsearchinstalled=1
+    indexerchinstalled=1
     wazuhinstalled=1
     kibanainstalled=1
     filebeatinstalled=1
@@ -437,8 +437,8 @@ test-28-rollBack-aio-all-installed-zypper-assert() {
     zypper -n remove opendistroforelasticsearch elasticsearch* opendistro-*
     
     rm -rf /var/lib/elasticsearch/
-    rm -rf /usr/share/elasticsearch/
-    rm -rf /etc/elasticsearch/
+    rm -rf /usr/share/wazuh-indexer/
+    rm -rf /etc/wazuh-indexer/
     
     zypper -n remove filebeat
     
@@ -457,7 +457,7 @@ test-28-rollBack-aio-all-installed-zypper-assert() {
 
 test-29-rollBack-aio-all-installed-apt() {
     load-rollBack
-    elasticsearchinstalled=1
+    indexerchinstalled=1
     wazuhinstalled=1
     kibanainstalled=1
     filebeatinstalled=1
@@ -479,8 +479,8 @@ test-29-rollBack-aio-all-installed-apt-assert() {
     apt remove --purge ^elasticsearch* ^opendistro-* ^opendistroforelasticsearch -y
     
     rm -rf /var/lib/elasticsearch/
-    rm -rf /usr/share/elasticsearch/
-    rm -rf /etc/elasticsearch/
+    rm -rf /usr/share/wazuh-indexer/
+    rm -rf /etc/wazuh-indexer/
     
     apt remove --purge filebeat -y
     
@@ -499,7 +499,7 @@ test-29-rollBack-aio-all-installed-apt-assert() {
 
 test-30-rollBack-elasticsearch-installation-all-installed-yum() {
     load-rollBack
-    elasticsearchinstalled=1
+    indexerchinstalled=1
     wazuhinstalled=1
     kibanainstalled=1
     filebeatinstalled=1
@@ -519,15 +519,15 @@ test-30-rollBack-elasticsearch-installation-all-installed-yum-assert() {
     yum remove opendistro-* -y
     
     rm -rf /var/lib/elasticsearch/
-    rm -rf /usr/share/elasticsearch/
-    rm -rf /etc/elasticsearch/
+    rm -rf /usr/share/wazuh-indexer/
+    rm -rf /etc/wazuh-indexer/
 
     rm -rf /var/log/elasticsearch/ /var/log/filebeat/ /etc/systemd/system/elasticsearch.service.wants/ /securityadmin_demo.sh  /etc/systemd/system/multi-user.target.wants/wazuh-manager.service  /etc/systemd/system/multi-user.target.wants/filebeat.service  /etc/systemd/system/multi-user.target.wants/elasticsearch.service  /etc/systemd/system/multi-user.target.wants/kibana.service  /etc/systemd/system/kibana.service /lib/firewalld/services/kibana.xml /lib/firewalld/services/elasticsearch.xml
 }
 
 test-31-rollBack-elasticsearch-installation-all-installed-zypper() {
     load-rollBack
-    elasticsearchinstalled=1
+    indexerchinstalled=1
     wazuhinstalled=1
     kibanainstalled=1
     filebeatinstalled=1
@@ -545,15 +545,15 @@ test-31-rollBack-elasticsearch-installation-all-installed-zypper-assert() {
     zypper -n remove opendistroforelasticsearch elasticsearch* opendistro-*
     
     rm -rf /var/lib/elasticsearch/
-    rm -rf /usr/share/elasticsearch/
-    rm -rf /etc/elasticsearch/
+    rm -rf /usr/share/wazuh-indexer/
+    rm -rf /etc/wazuh-indexer/
 
     rm -rf /var/log/elasticsearch/ /var/log/filebeat/ /etc/systemd/system/elasticsearch.service.wants/ /securityadmin_demo.sh  /etc/systemd/system/multi-user.target.wants/wazuh-manager.service  /etc/systemd/system/multi-user.target.wants/filebeat.service  /etc/systemd/system/multi-user.target.wants/elasticsearch.service  /etc/systemd/system/multi-user.target.wants/kibana.service  /etc/systemd/system/kibana.service /lib/firewalld/services/kibana.xml /lib/firewalld/services/elasticsearch.xml
 }
 
 test-32-rollBack-elasticsearch-installation-all-installed-apt() {
     load-rollBack
-    elasticsearchinstalled=1
+    indexerchinstalled=1
     wazuhinstalled=1
     kibanainstalled=1
     filebeatinstalled=1
@@ -571,15 +571,15 @@ test-32-rollBack-elasticsearch-installation-all-installed-apt-assert() {
     apt remove --purge ^elasticsearch* ^opendistro-* ^opendistroforelasticsearch -y
     
     rm -rf /var/lib/elasticsearch/
-    rm -rf /usr/share/elasticsearch/
-    rm -rf /etc/elasticsearch/
+    rm -rf /usr/share/wazuh-indexer/
+    rm -rf /etc/wazuh-indexer/
 
     rm -rf /var/log/elasticsearch/ /var/log/filebeat/ /etc/systemd/system/elasticsearch.service.wants/ /securityadmin_demo.sh  /etc/systemd/system/multi-user.target.wants/wazuh-manager.service  /etc/systemd/system/multi-user.target.wants/filebeat.service  /etc/systemd/system/multi-user.target.wants/elasticsearch.service  /etc/systemd/system/multi-user.target.wants/kibana.service  /etc/systemd/system/kibana.service /lib/firewalld/services/kibana.xml /lib/firewalld/services/elasticsearch.xml
 }
 
 test-33-rollBack-wazuh-installation-all-installed-yum() {
     load-rollBack
-    elasticsearchinstalled=1
+    indexerchinstalled=1
     wazuhinstalled=1
     kibanainstalled=1
     filebeatinstalled=1
@@ -609,7 +609,7 @@ test-33-rollBack-wazuh-installation-all-installed-yum-assert() {
 
 test-34-rollBack-wazuh-installation-all-installed-zypper() {
     load-rollBack
-    elasticsearchinstalled=1
+    indexerchinstalled=1
     wazuhinstalled=1
     kibanainstalled=1
     filebeatinstalled=1
@@ -640,7 +640,7 @@ test-34-rollBack-wazuh-installation-all-installed-zypper-assert() {
 
 test-35-rollBack-wazuh-installation-all-installed-apt() {
     load-rollBack
-    elasticsearchinstalled=1
+    indexerchinstalled=1
     wazuhinstalled=1
     kibanainstalled=1
     filebeatinstalled=1
@@ -670,7 +670,7 @@ test-35-rollBack-wazuh-installation-all-installed-apt-assert() {
 
 test-36-rollBack-kibana-installation-all-installed-yum() {
     load-rollBack
-    elasticsearchinstalled=1
+    indexerchinstalled=1
     wazuhinstalled=1
     kibanainstalled=1
     filebeatinstalled=1
@@ -696,7 +696,7 @@ test-36-rollBack-kibana-installation-all-installed-yum-assert() {
 
 test-37-rollBack-kibana-installation-all-installed-zypper() {
     load-rollBack
-    elasticsearchinstalled=1
+    indexerchinstalled=1
     wazuhinstalled=1
     kibanainstalled=1
     filebeatinstalled=1
@@ -722,7 +722,7 @@ test-37-rollBack-kibana-installation-all-installed-zypper-assert() {
 
 test-38-rollBack-kibana-installation-all-installed-apt() {
     load-rollBack
-    elasticsearchinstalled=1
+    indexerchinstalled=1
     wazuhinstalled=1
     kibanainstalled=1
     filebeatinstalled=1
@@ -748,7 +748,7 @@ test-38-rollBack-kibana-installation-all-installed-apt-assert() {
 
 test-39-rollBack-aio-nothing-installed() {
     load-rollBack
-    elasticsearchinstalled=
+    indexerchinstalled=
     wazuhinstalled=
     kibanainstalled=
     filebeatinstalled=
@@ -765,7 +765,7 @@ test-39-rollBack-aio-nothing-installed() {
 
 test-40-rollBack-aio-all-remaining-files-yum() {
     load-rollBack
-    elasticsearchinstalled=
+    indexerchinstalled=
     wazuhinstalled=
     kibanainstalled=
     filebeatinstalled=
@@ -783,8 +783,8 @@ test-40-rollBack-aio-all-remaining-files-yum-assert() {
     rm -rf /var/ossec/
     
     rm -rf /var/lib/elasticsearch/
-    rm -rf /usr/share/elasticsearch/
-    rm -rf /etc/elasticsearch/
+    rm -rf /usr/share/wazuh-indexer/
+    rm -rf /etc/wazuh-indexer/
     
     rm -rf /var/lib/filebeat/
     rm -rf /usr/share/filebeat/
@@ -799,7 +799,7 @@ test-40-rollBack-aio-all-remaining-files-yum-assert() {
 
 test-41-rollBack-aio-all-remaining-files-zypper() {
     load-rollBack
-    elasticsearchinstalled=
+    indexerchinstalled=
     wazuhinstalled=
     kibanainstalled=
     filebeatinstalled=
@@ -817,8 +817,8 @@ test-41-rollBack-aio-all-remaining-files-zypper-assert() {
     rm -rf /var/ossec/
     
     rm -rf /var/lib/elasticsearch/
-    rm -rf /usr/share/elasticsearch/
-    rm -rf /etc/elasticsearch/
+    rm -rf /usr/share/wazuh-indexer/
+    rm -rf /etc/wazuh-indexer/
     
     rm -rf /var/lib/filebeat/
     rm -rf /usr/share/filebeat/
@@ -833,7 +833,7 @@ test-41-rollBack-aio-all-remaining-files-zypper-assert() {
 
 test-42-rollBack-aio-all-remaining-files-apt() {
     load-rollBack
-    elasticsearchinstalled=
+    indexerchinstalled=
     wazuhinstalled=
     kibanainstalled=
     filebeatinstalled=
@@ -851,8 +851,8 @@ test-42-rollBack-aio-all-remaining-files-apt-assert() {
     rm -rf /var/ossec/
     
     rm -rf /var/lib/elasticsearch/
-    rm -rf /usr/share/elasticsearch/
-    rm -rf /etc/elasticsearch/
+    rm -rf /usr/share/wazuh-indexer/
+    rm -rf /etc/wazuh-indexer/
     
     rm -rf /var/lib/filebeat/
     rm -rf /usr/share/filebeat/

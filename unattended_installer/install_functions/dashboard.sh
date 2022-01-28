@@ -42,11 +42,11 @@ function configureKibana() {
 
         echo 'server.host: "'${ip}'"' >> /etc/kibana/kibana.yml
 
-        if [ "${#elasticsearch_node_names[@]}" -eq 1 ]; then
-            echo "elasticsearch.hosts: https://"${elasticsearch_node_ips[0]}":9200" >> /etc/kibana/kibana.yml
+        if [ "${#indexer_node_names[@]}" -eq 1 ]; then
+            echo "elasticsearch.hosts: https://"${indexer_node_ips[0]}":9200" >> /etc/kibana/kibana.yml
         else
             echo "elasticsearch.hosts:" >> /etc/kibana/kibana.yml
-            for i in "${elasticsearch_node_ips[@]}"; do
+            for i in "${indexer_node_ips[@]}"; do
                     echo "  - https://${i}:9200" >> /etc/kibana/kibana.yml
             done
         fi
@@ -117,12 +117,12 @@ function initializeKibana() {
         failed_nodes=()
         logger "${flag}" "Cannot connect to Kibana."
 
-        for i in "${!elasticsearch_node_ips[@]}"; do
-            curl=$(curl -XGET https://${elasticsearch_node_ips[i]}:9200/ -uadmin:${u_pass} -k -w %{http_code} -s -o /dev/null)
+        for i in "${!indexer_node_ips[@]}"; do
+            curl=$(curl -XGET https://${indexer_node_ips[i]}:9200/ -uadmin:${u_pass} -k -w %{http_code} -s -o /dev/null)
             exit_code=$?
             if [[ "${exit_code}" -eq "7" ]]; then
                 failed_connect=1
-                failed_nodes+=("${elasticsearch_node_names[i]}")
+                failed_nodes+=("${indexer_node_names[i]}")
             fi 
         done
         logger "${flag}" "Failed to connect with ${failed_nodes[*]}. Connection refused."

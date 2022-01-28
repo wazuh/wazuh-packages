@@ -40,7 +40,7 @@ def get_elasticsearch_username():
     return (dictionary.get('output.elasticsearch','username').get('username'))
 
 def get_elasticsearch_ip():
-    stream = open("/etc/elasticsearch/elasticsearch.yml", 'r')
+    stream = open("/etc/wazuh-indexer/opensearch.yml", 'r')
     dictionary = yaml.safe_load(stream)
     return (dictionary.get('network.host'))
 
@@ -179,7 +179,7 @@ def test_check_filebeat_process():
 
 @pytest.mark.elastic
 def test_check_elasticsearch_process():
-    assert check_call("ps -xa | grep \"/usr/share/elasticsearch/jdk/bin/java\" | grep -v grep | cut -d \" \" -f15", shell=True) != ""
+    assert check_call("ps -xa | grep \"/usr/share/wazuh-indexer/jdk/bin/java\" | grep -v grep | cut -d \" \" -f15", shell=True) != ""
 
 @pytest.mark.kibana
 def test_check_kibana_process():

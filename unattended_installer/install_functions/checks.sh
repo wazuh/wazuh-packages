@@ -49,7 +49,7 @@ function checkArguments() {
             logger "Filebeat components were not found on the system so it was not uninstalled."
         fi
 
-        if [ -z "${elasticsearchinstalled}" ] && [ -z "${elastic_remaining_files}" ]; then
+        if [ -z "${indexerchinstalled}" ] && [ -z "${elastic_remaining_files}" ]; then
             logger "Elasticsearch components were not found on the system so it was not uninstalled."
         fi
 
@@ -72,7 +72,7 @@ function checkArguments() {
             exit 1
         fi
 
-        if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ] || [ -n "${elasticsearchinstalled}" ] || [ -n "${elastic_remaining_files}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ] || [ -n "${kibanainstalled}" ] || [ -n "${kibana_remaining_files}" ]; then
+        if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ] || [ -n "${indexerchinstalled}" ] || [ -n "${elastic_remaining_files}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ] || [ -n "${kibanainstalled}" ] || [ -n "${kibana_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
                 rollBack
             else
@@ -86,7 +86,7 @@ function checkArguments() {
 
     if [ -n "${elasticsearch}" ]; then
 
-        if [ -n "${elasticsearchinstalled}" ] || [ -n "${elastic_remaining_files}" ]; then
+        if [ -n "${indexerchinstalled}" ] || [ -n "${elastic_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
                 rollBack
             else 
@@ -203,14 +203,14 @@ function checkIfInstalled() {
     fi
 
     if [ "${sys_type}" == "yum" ]; then
-        elasticsearchinstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch | grep -v kibana)
+        indexerchinstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch | grep -v kibana)
     elif [ "${sys_type}" == "zypper" ]; then
-        elasticsearchinstalled=$(zypper packages | grep opendistroforelasticsearch | grep -v kibana | grep i+)
+        indexerchinstalled=$(zypper packages | grep opendistroforelasticsearch | grep -v kibana | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
-        elasticsearchinstalled=$(apt list --installed 2>/dev/null | grep opendistroforelasticsearch | grep -v kibana)
+        indexerchinstalled=$(apt list --installed 2>/dev/null | grep opendistroforelasticsearch | grep -v kibana)
     fi
 
-    if [ -d "/var/lib/elasticsearch/" ] || [ -d "/usr/share/elasticsearch" ] || [ -d "/etc/elasticsearch" ] || [ -f "${base_path}/search-guard-tlstool*" ]; then
+    if [ -d "/var/lib/elasticsearch/" ] || [ -d "/usr/share/wazuh-indexer" ] || [ -d "/etc/wazuh-indexer" ] || [ -f "${base_path}/search-guard-tlstool*" ]; then
         elastic_remaining_files=1
     fi
 
@@ -263,7 +263,7 @@ function checkNames() {
         exit 1
     fi 
 
-    if [ -n "${einame}" ] && [ -z "$(echo "${elasticsearch_node_names[@]}" | grep -w "${einame}")" ]; then
+    if [ -n "${einame}" ] && [ -z "$(echo "${indexer_node_names[@]}" | grep -w "${einame}")" ]; then
         logger -e "The Elasticsearch node name ${einame} does not appear on the configuration file."
         exit 1
     fi

@@ -61,7 +61,7 @@ wazuh_admin:
   hidden: false
   backend_roles: []
   attributes: {}
-  opendistro_security_roles: []
+  opensearch-security_roles: []
   static: false
   
 wazuh_user:
@@ -70,5 +70,5 @@ wazuh_user:
   hidden: false
   backend_roles: []
   attributes: {}
-  opendistro_security_roles: []
+  opensearch-security_roles: []
   static: false  

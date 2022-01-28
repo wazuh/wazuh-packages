@@ -25,8 +25,8 @@ function changePassword() {
     if [ -n "${changeall}" ]; then
         for i in "${!passwords[@]}"
         do
-            if [ -n "${elasticsearchinstalled}" ] && [ -f "/usr/share/elasticsearch/backup/internal_users.yml" ]; then
-                awk -v new=${hashes[i]} 'prev=="'${users[i]}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/elasticsearch/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
+            if [ -n "${indexerchinstalled}" ] && [ -f "/usr/share/wazuh-indexer/backup/internal_users.yml" ]; then
+                awk -v new=${hashes[i]} 'prev=="'${users[i]}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/wazuh-indexer/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/wazuh-indexer/backup/internal_users.yml
             fi
             
             if [ "${users[i]}" == "admin" ]; then
@@ -37,8 +37,8 @@ function changePassword() {
 
         done
     else
-        if [ -n "${elasticsearchinstalled}" ] && [ -f "/usr/share/elasticsearch/backup/internal_users.yml" ]; then
-            awk -v new="$hash" 'prev=="'${nuser}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/elasticsearch/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
+        if [ -n "${indexerchinstalled}" ] && [ -f "/usr/share/wazuh-indexer/backup/internal_users.yml" ]; then
+            awk -v new="$hash" 'prev=="'${nuser}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/wazuh-indexer/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/wazuh-indexer/backup/internal_users.yml
         fi
 
         if [ "${nuser}" == "admin" ]; then
@@ -78,11 +78,11 @@ function changePassword() {
 function checkInstalledPass() {
     
     if [ "${sys_type}" == "yum" ]; then
-        elasticsearchinstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch | grep -v kibana)
+        indexerchinstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch | grep -v kibana)
     elif [ "${sys_type}" == "zypper" ]; then
-        elasticsearchinstalled=$(zypper packages | grep opendistroforelasticsearch | grep -v kibana | grep i+)
+        indexerchinstalled=$(zypper packages | grep opendistroforelasticsearch | grep -v kibana | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
-        elasticsearchinstalled=$(apt list --installed 2>/dev/null | grep opendistroforelasticsearch | grep -v kibana)
+        indexerchinstalled=$(apt list --installed 2>/dev/null | grep opendistroforelasticsearch | grep -v kibana)
     fi
 
     if [ "${sys_type}" == "yum" ]; then
@@ -101,13 +101,13 @@ function checkInstalledPass() {
         kibanainstalled=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch-kibana)
     fi
 
-    if [ -z "${elasticsearchinstalled}" ] && [ -z "${kibanainstalled}" ] && [ -z "${filebeatinstalled}" ]; then
+    if [ -z "${indexerchinstalled}" ] && [ -z "${kibanainstalled}" ] && [ -z "${filebeatinstalled}" ]; then
         logger_pass -e "Open Distro is not installed on the system."
         exit 1;
     else
-        if [ -n "${elasticsearchinstalled}" ]; then
-            capem=$(grep "opendistro_security.ssl.transport.pemtrustedcas_filepath: " /etc/elasticsearch/elasticsearch.yml )
-            rcapem="opendistro_security.ssl.transport.pemtrustedcas_filepath: "
+        if [ -n "${indexerchinstalled}" ]; then
+            capem=$(grep "plugins.security.ssl.transport.pemtrustedcas_filepath: " /etc/wazuh-indexer/opensearch.yml )
+            rcapem="plugins.security.ssl.transport.pemtrustedcas_filepath: "
             capem="${capem//$rcapem}"
             if [[ -z "${adminpem}" ]] || [[ -z "${adminkey}" ]]; then
                 readAdmincerts
@@ -144,8 +144,8 @@ function checkUser() {
 function createBackUp() {
     
     logger_pass -d "Creating password backup."
-    eval "mkdir /usr/share/elasticsearch/backup ${debug_pass}"
-    eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -backup /usr/share/elasticsearch/backup -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug_pass}"
+    eval "mkdir /usr/share/wazuh-indexer/backup ${debug_pass}"
+    eval "/usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -backup /usr/share/wazuh-indexer/backup -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug_pass}"
     if [ "$?" != 0 ]; then
         logger_pass -e "The backup could not be created"
         exit 1;
@@ -159,7 +159,7 @@ function generateHash() {
         logger_pass -d "Generating password hashes."
         for i in "${!passwords[@]}"
         do
-            nhash=$(bash /usr/share/elasticsearch/plugins/opendistro_security/tools/hash.sh -p "${passwords[i]}" | grep -v WARNING)
+            nhash=$(bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "${passwords[i]}" | grep -v WARNING)
             if [  "$?" != 0  ]; then
                  -e "Hash generation failed."
                 exit 1;
@@ -169,7 +169,7 @@ function generateHash() {
         logger_pass -d "Password hashes generated."
     else
         logger_pass "Generating password hash"
-        hash=$(bash /usr/share/elasticsearch/plugins/opendistro_security/tools/hash.sh -p ${password} | grep -v WARNING)
+        hash=$(bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p ${password} | grep -v WARNING)
         if [  "$?" != 0  ]; then
             logger_pass -e "Hash generation failed."
             exit 1;
@@ -261,7 +261,7 @@ function getHelp() {
 }
 
 function getNetworkHost() {
-    IP=$(grep -hr "network.host:" /etc/elasticsearch/elasticsearch.yml)
+    IP=$(grep -hr "network.host:" /etc/wazuh-indexer/opensearch.yml)
     NH="network.host: "
     IP="${IP//$NH}"
 
@@ -369,7 +369,7 @@ function main() {
             esac
         done
 
-        export JAVA_HOME=/usr/share/elasticsearch/jdk/
+        export JAVA_HOME=/usr/share/wazuh-indexer/jdk/
         
         if [ -n "${verboseenabled}" ]; then
             debug_pass="2>&1 | tee -a ${logfile}"
@@ -451,17 +451,17 @@ function main() {
 
 function readAdmincerts() {
 
-    if [[ -f /etc/elasticsearch/certs/admin.pem ]]; then
-        adminpem="/etc/elasticsearch/certs/admin.pem"
+    if [[ -f /etc/wazuh-indexer/certs/admin.pem ]]; then
+        adminpem="/etc/wazuh-indexer/certs/admin.pem"
     else
         logger_pass -e "No admin certificate indicated. Please run the script with the option -c <path-to-certificate>."
         exit 1;
     fi
 
-    if [[ -f /etc/elasticsearch/certs/admin-key.pem ]]; then
-        adminkey="/etc/elasticsearch/certs/admin-key.pem"
-    elif [[ -f /etc/elasticsearch/certs/admin.key ]]; then
-        adminkey="/etc/elasticsearch/certs/admin.key"
+    if [[ -f /etc/wazuh-indexer/certs/admin-key.pem ]]; then
+        adminkey="/etc/wazuh-indexer/certs/admin-key.pem"
+    elif [[ -f /etc/wazuh-indexer/certs/admin.key ]]; then
+        adminkey="/etc/wazuh-indexer/certs/admin.key"
     else
         logger_pass -e "No admin certificate key indicated. Please run the script with the option -k <path-to-key-certificate>."
         exit 1;
@@ -506,7 +506,7 @@ User:
                     supported=true
                 fi
             done
-            if [ "${supported}" = false ] && [ -n "${elasticsearchinstalled}" ]; then
+            if [ "${supported}" = false ] && [ -n "${indexerchinstalled}" ]; then
                 logger_pass -e "The given user ${fileusers[j]} does not exist"
             fi
         done
@@ -523,7 +523,7 @@ User:
                     supported=true
                 fi
             done
-            if [ ${supported} = false ] && [ -n "${elasticsearchinstalled}" ]; then
+            if [ ${supported} = false ] && [ -n "${indexerchinstalled}" ]; then
                 logger_pass -e "The given user ${fileusers[j]} does not exist"
             fi
         done
@@ -539,7 +539,7 @@ User:
 
 function readUsers() {
 
-    susers=$(grep -B 1 hash: /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml | grep -v hash: | grep -v "-" | awk '{ print substr( $0, 1, length($0)-1 ) }')
+    susers=$(grep -B 1 hash: /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/internal_users.yml | grep -v hash: | grep -v "-" | awk '{ print substr( $0, 1, length($0)-1 ) }')
     users=($susers)
 
 }
@@ -598,13 +598,13 @@ function restartService() {
 function runSecurityAdmin() {
     
     logger_pass -d "Loading new passwords changes."
-    eval "cp /usr/share/elasticsearch/backup/* /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ ${debug_pass}"
-    eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug_pass}"
+    eval "cp /usr/share/wazuh-indexer/backup/* /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ ${debug_pass}"
+    eval "/usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug_pass}"
     if [  "$?" != 0  ]; then
         logger_pass -e "Could not load the changes."
         exit 1;
     fi
-    eval "rm -rf /usr/share/elasticsearch/backup/ ${debug_pass}"
+    eval "rm -rf /usr/share/wazuh-indexer/backup/ ${debug_pass}"
 
     if [[ -n "${nuser}" ]] && [[ -n ${autopass} ]]; then
         logger_pass $'\nThe password for user '${nuser}' is '${password}''

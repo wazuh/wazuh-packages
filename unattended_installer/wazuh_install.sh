@@ -12,8 +12,6 @@
 readonly wazuh_major="4.3"
 readonly wazuh_version="4.3.0"
 readonly wazuh_revision="1"
-readonly elasticsearch_oss_version="7.10.2"
-readonly elasticsearch_basic_version="7.12.1"
 readonly opendistro_version="1.13.2"
 readonly opendistro_revision="1"
 readonly wazuh_kibana_plugin_revision="1"
@@ -21,7 +19,7 @@ readonly wazuh_install_vesion="0.1"
 
 ## Links and paths to resources
 readonly functions_path="install_functions"
-readonly config_path="config/opendistro"
+readonly config_path="config"
 readonly resources="https://packages-dev.wazuh.com/resources/${wazuh_major}"
 readonly resources_functions="${resources}/${functions_path}"
 readonly resources_config="${resources}/${config_path}"
@@ -30,7 +28,7 @@ readonly config_file="${base_path}/config.yml"
 readonly tar_file="${base_path}/configurations.tar"
 
 ## JAVA_HOME
-export JAVA_HOME=/usr/share/elasticsearch/jdk/
+export JAVA_HOME=/usr/share/wazuh-indexer/jdk/
 
 ## Debug variable used during the installation
 readonly logfile="/var/log/wazuh-unattended-installation.log"
@@ -410,16 +408,16 @@ function main() {
 
     if [ -n "${elasticsearch}" ]; then
         logger "-------------------------- Open Distro for Elasticsearch --------------------------"
-        installElasticsearch
-        configureElasticsearch
+        installIndexer
+        configureIndexer
         startService "elasticsearch"
-        initializeElasticsearch
+        initializeIndexer
     fi
 
 # -------------- Start Elasticsearch cluster case  ------------------
 
     if [ -n "${start_elastic_cluster}" ]; then
-        startElasticsearchCluster
+        startIndexerCluster
         changePasswords
     fi
 
@@ -467,10 +465,10 @@ function main() {
         importFunction "dashboard.sh"
 
         logger "-------------------------- Open Distro for Elasticsearch --------------------------"
-        installElasticsearch
-        configureElasticsearch
+        installIndexer
+        configureIndexer
         startService "elasticsearch"
-        initializeElasticsearch
+        initializeIndexer
         logger "-------------------------------------- Wazuh --------------------------------------"
         installWazuh
         startService "wazuh-manager"

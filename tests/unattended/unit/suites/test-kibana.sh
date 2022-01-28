@@ -119,8 +119,8 @@ test-09-configureKibana-dist-one-kibana-node-one-elastic-node() {
     load-configureKibana
     kibana_node_names=("kibana1")
     kibana_node_ips=("1.1.1.1")
-    elasticsearch_node_names=("elastic1")
-    elasticsearch_node_ips=("1.1.1.1")
+    indexer_node_names=("elastic1")
+    indexer_node_ips=("1.1.1.1")
     configureKibana
 }
 
@@ -141,8 +141,8 @@ test-10-configureKibana-dist-two-kibana-nodes-two-elastic-nodes() {
     kiname="kibana2"
     kibana_node_names=("kibana1" "kibana2")
     kibana_node_ips=("1.1.1.1" "2.2.2.2")
-    elasticsearch_node_names=("elastic1" "elastic2")
-    elasticsearch_node_ips=("1.1.1.1" "2.2.2.2")
+    indexer_node_names=("elastic1" "elastic2")
+    indexer_node_ips=("1.1.1.1" "2.2.2.2")
     configureKibana
 }
 
@@ -170,8 +170,8 @@ test-12-configureKibana-AIO() {
     load-configureKibana
     kibana_node_names=("kibana1")
     kibana_node_ips=("1.1.1.1")
-    elasticsearch_node_names=("elastic1")
-    elasticsearch_node_ips=("1.1.1.1")
+    indexer_node_names=("elastic1")
+    indexer_node_ips=("1.1.1.1")
     AIO=1
     configureKibana
 }

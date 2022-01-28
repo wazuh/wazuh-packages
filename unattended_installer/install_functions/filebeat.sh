@@ -17,12 +17,12 @@ function configureFilebeat(){
         eval "getConfig filebeat/filebeat_unattended.yml /etc/filebeat/filebeat.yml ${debug}"
     else
         eval "getConfig filebeat/filebeat_distributed.yml /etc/filebeat/filebeat.yml ${debug}"
-        if [ ${#elasticsearch_node_names[@]} -eq 1 ]; then
+        if [ ${#indexer_node_names[@]} -eq 1 ]; then
             echo "output.elasticsearch.hosts:" >> /etc/filebeat/filebeat.yml
-            echo "  - ${elasticsearch_node_ips[0]}"  >> /etc/filebeat/filebeat.yml
+            echo "  - ${indexer_node_ips[0]}"  >> /etc/filebeat/filebeat.yml
         else
             echo "output.elasticsearch.hosts:" >> /etc/filebeat/filebeat.yml
-            for i in "${elasticsearch_node_ips[@]}"; do
+            for i in "${indexer_node_ips[@]}"; do
                 echo "  - ${i}" >> /etc/filebeat/filebeat.yml
             done
         fi
