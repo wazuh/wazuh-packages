@@ -134,7 +134,7 @@ if [ $1 = 1 ];then # Install
 
     sleep 15
 
-    OPENSEARCH_PATH_CONF=%{CONFIG_DIR} JAVA_HOME=%{INSTALL_DIR}/jdk runuser %{USER} --shell="/bin/bash" --command="%{INSTALL_DIR}/plugins/opensearch-security/tools/securityadmin.sh -icl -p 9800 -cd %{INSTALL_DIR}/plugins/opensearch-security/securityconfig -nhnv -cacert %{CONFIG_DIR}/certs/root-ca.pem -cert %{CONFIG_DIR}/certs/admin.pem -key %{CONFIG_DIR}/certs/admin-key.pem" >> %{LOG_DIR}/securityadmin.log
+    OPENSEARCH_PATH_CONF=%{CONFIG_DIR} JAVA_HOME=%{INSTALL_DIR}/jdk runuser %{USER} --shell="/bin/bash" --command="%{INSTALL_DIR}/plugins/opensearch-security/tools/securityadmin.sh -icl -p 9800 -cd %{INSTALL_DIR}/plugins/opensearch-security/securityconfig -nhnv -cacert %{CONFIG_DIR}/certs/root-ca.pem -cert %{CONFIG_DIR}/certs/admin.pem -key %{CONFIG_DIR}/certs/admin-key.pem -h 127.0.0.1" >> %{LOG_DIR}/securityadmin.log
 
     kill -15 `pgrep -f opensearch` > /dev/null 2>&1
     rm -rf %{LOG_DIR}/* > /dev/null 2>&1
