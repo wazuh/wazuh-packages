@@ -338,19 +338,17 @@ function main() {
 
     logger "Starting Wazuh unattended installer. Wazuh version: ${wazuh_version}. Wazuh installer version: ${wazuh_install_vesion}"
 
-# -------------- Uninstall case  ------------------------------------
+# -------------- Prerequisites and Wazuh repo  ----------------------
 
-    checkIfInstalled
-    if [ -n "${uninstall}" ]; then
-        logger "------------------------------------ Uninstall ------------------------------------"
-        logger "Removing all installed components."
-        rollBack
-        logger "All components removed."
-        exit 0
+    if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
+        logger "---------------------------------- Dependencies -----------------------------------"
+        installPrerequisites
+        addWazuhrepo
     fi
 
 # -------------- Preliminary checks  --------------------------------
 
+    checkTools
     if [ -z "${configurations}" ] && [ -z "${AIO}" ]; then
         checkPreviousCertificates
     fi
@@ -365,6 +363,17 @@ function main() {
         rm -f "${tar_file}"
     fi
     checkArguments
+
+# -------------- Uninstall case  ------------------------------------
+
+    checkIfInstalled
+    if [ -n "${uninstall}" ]; then
+        logger "------------------------------------ Uninstall ------------------------------------"
+        logger "Removing all installed components."
+        rollBack
+        logger "All components removed."
+        exit 0
+    fi
 
 # -------------- Configuration creation case  -----------------------
 
@@ -396,14 +405,6 @@ function main() {
     # Distributed architecture: node names must be different
     if [[ -z "${AIO}" && ( -n "${elasticsearch}"  || -n "${kibana}" || -n "${wazuh}" )]]; then
         checkNames
-    fi
-
-# -------------- Prerequisites and Wazuh repo  ----------------------
-
-    if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
-        logger "---------------------------------- Dependencies -----------------------------------"
-        installPrerequisites
-        addWazuhrepo
     fi
 
 # -------------- Elasticsearch or Start Elasticsearch cluster case---
