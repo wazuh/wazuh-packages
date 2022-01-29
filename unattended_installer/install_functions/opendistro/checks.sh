@@ -74,6 +74,7 @@ function checkArguments() {
 
         if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ] || [ -n "${elasticsearchinstalled}" ] || [ -n "${elastic_remaining_files}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ] || [ -n "${kibanainstalled}" ] || [ -n "${kibana_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
+                uninstall_module_name="wazuh"
                 rollBack
             else
                 logger -e "Some the Wazuh components were found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. NOTE: This will erase all the existing configuration and data."
@@ -88,6 +89,7 @@ function checkArguments() {
 
         if [ -n "${elasticsearchinstalled}" ] || [ -n "${elastic_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
+                uninstall_module_name="elasticsearch"
                 rollBack
             else 
                 logger -e "Elasticsearch is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
@@ -101,6 +103,7 @@ function checkArguments() {
     if [ -n "${kibana}" ]; then
         if [ -n "${kibanainstalled}" ] || [ -n "${kibana_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
+                uninstall_module_name="kibana"
                 rollBack
             else 
                 logger -e "Kibana is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
@@ -133,10 +136,18 @@ function checkArguments() {
 
     # -------------- Cluster start ----------------------------------
 
-    if [[ -n "${start_elastic_cluster}" && ( -n "${AIO}" || -n "${elasticsearch}" || -n "${kibana}" || -n "${wazuh}" || -n "${overwrite}" || -n "${configurations}" || -n "${tar_conf}" || -n "${uninstall}") ]]; then
-        logger -e "The argument -s|--start-cluster can't be used with -a, -k, -e or -w arguments."
+    if [[ -n "${start_elastic_cluster}" && ( -z "${elasticsearchinstalled}" || -z "${elastic_remaining_files}") ]]; then
+        logger -e "The argument -s|--start-cluster need elasticsearch installed. Run the script with the parameter first --elasticsearch <elasticsearch-node-name>."
         exit 1
+    else
+        if [[ -n "${start_elastic_cluster}" && ( -n "${AIO}" || -n "${elasticsearch}" || -n "${kibana}" || -n "${wazuh}" || -n "${overwrite}" || -n "${configurations}" || -n "${tar_conf}" || -n "${uninstall}") ]]; then
+            logger -e "The argument -s|--start-cluster can't be used with -a, -k, -e or -w arguments."
+            exit 1
+        fi
     fi
+
+
+
 
     # -------------- Global -----------------------------------------
 
@@ -145,6 +156,29 @@ function checkArguments() {
         exit 1
     fi 
 
+}
+
+function checkTools() {
+
+    # -------------- Check tools required to run the script (awk, sed, etc.) -----------------------------------------
+
+    toolList=(      "uname"
+                    "free"
+                    "tar"
+                    "awk"
+                    "free"
+                    "sed")
+
+    eval "rm -rf ${elements_to_remove[*]}"
+
+    for command in "${toolList[@]}"
+    do
+        if [ -z "$(command -v $command)" ]; then
+            logger_cert -e "$command not installed. This command is necessary for the correct operation of this script."
+            exit 1
+        fi
+    done
+    
 }
 
 function checkHealth() {
