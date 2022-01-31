@@ -141,18 +141,25 @@ if [ $1 = 1 ];then # Install
         echo "bootstrap.system_call_filter: false" >> %{CONFIG_DIR}/opensearch.yml
     fi
 
-    max_map_count=$(cat /proc/sys/vm/max_map_count)
-    if [ "${max_map_count}" -lt 262144 ]; then
-        if command -v sysctl > /dev/null 2>&1 && sysctl -w vm.max_map_count=262144 > /dev/null 2>&1; then
-            configure_indexer
+    if [ ! -d "%{LIB_DIR}" ]; then
+        max_map_count=$(cat /proc/sys/vm/max_map_count)
+        if [ "${max_map_count}" -lt 262144 ]; then
+            if command -v sysctl > /dev/null 2>&1 && sysctl -w vm.max_map_count=262144 > /dev/null 2>&1; then
+                configure_indexer
+            else
+                echo "[WARNING] Sysctl command not available and vm.max_map_count is lower than 262144"
+                echo "The security admin default configuration cannot run"
+                echo "Increase vm.max_map_count to 262144 and launch security config tool"
+            fi
         else
-            echo "[WARNING] Sysctl command not available and vm.max_map_count is lower than 262144"
-            echo "The security admin default configuration cannot run"
-            echo "Increase vm.max_map_count to 262144 and launch security config tool"
+          configure_indexer
         fi
     else
-      configure_indexer
+        echo "[WARNING] %{LIB_DIR} directory found."
+        echo "Cannot configure Security Admin."
+        echo "Perform security configuration manually."
     fi
+
 fi
 
 if [ $1 = 2 ];then # Upgrade
