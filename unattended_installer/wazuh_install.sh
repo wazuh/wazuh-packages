@@ -86,7 +86,9 @@ function getHelp() {
     echo -e "        -F,  --force-dashboard"
     echo -e "                Ignore indexer cluster related errors in kibana installation"
     echo -e ""
-    echo -e "        -h,  --help"
+    echo -e "        -Fos,  --force-os"
+    echo -e "                Force the installation on not supported operating systems and versions"
+    echo -e ""
     echo -e "                Shows help."
     echo -e ""
     echo -e "        -i,  --ignore-health-check"
@@ -228,8 +230,12 @@ function main() {
                 config_file="${2}"
                 shift 2
                 ;;
-            "-F"|"--force-kibana")
+            "-F"|"--force-dashboard")
                 force=1
+                shift 1
+                ;;
+            "-Fos"|"--force-os")
+                force_os=1
                 shift 1
                 ;;
             "-h"|"--help")
@@ -348,6 +354,8 @@ function main() {
     fi
     checkArch
     checkSystem
+    . "${base_path}/${functions_path}/dist-detect.sh"
+    checkDist
     if [ -n "${ignore}" ]; then
         logger -w "Health-check ignored."
     else

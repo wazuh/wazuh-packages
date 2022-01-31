@@ -6,6 +6,20 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
+systems_list=("centos","ubuntu","debian","fedora","amazonlinux","redhat","opensuse-leap", "opensuse-tumbleweed","suse","oraclelinux","rocky","alma")
+centos_version=("7","8")
+ubuntu_version=("16","18","20")
+debian_version=("8","9","10","11")
+fedora_version=("31","32","33","34","35")
+amazon_version=("2_base")
+redhat_version=("7","8")
+opensuse_version=("15")
+opensuse_subversion=("3","2")
+suse_version=("12","15")
+oracle_version=("7","8")
+rocky_version=("8.5")
+alma_version=("8.5")
+
 function checkArch() {
 
     arch=$(uname -m)
@@ -329,4 +343,123 @@ function checkSystem() {
         exit 1
     fi
 
+}
+
+function checkDist() {
+    if (echo ${system_version} | grep -w -q ${DIST_NAME}); then
+        if [ -n "${force_os}" ]; then
+            logger -w "Unattended installation not supported for this operating system. Option --force-os used"
+        else
+            logger -e "Unattended installation not supported for this operating system. Use option --force-os to force the installation"
+            exit 1
+        fi
+    fi
+
+    if [ "${DIST_NAME}" == "centos" ] && ! (echo ${centos_version} | grep -w -q ${DIST_VER}); then
+        if [ -n "${force_os}" ]; then
+            logger -w "Unattended installation not supported for this version of CentOS, only 7 and later. Option --force-os used"
+        else
+            logger -e "Unattended installation not supported for this version of CentOS, only 7 and later. Use option --force-os to force the installation"
+            exit 1
+        fi
+    fi
+
+    if [ "${DIST_NAME}" == "ubuntu" ] && ! (echo ${ubuntu_version} | grep -w -q ${DIST_VER}); then
+        if [ -n "${force_os}" ]; then
+            logger -w "Unattended installation not supported for this version of Ubuntu, only xenial, bionic or focal. Option --force-os used"
+        else
+            logger -e "Unattended installation not supported for this version of Ubuntu, only xenial, bionic or focal. Use option --force-os to force the installation"
+            exit 1
+        fi
+    fi
+
+    if [ "${DIST_NAME}" == "debian" ] && ! (echo ${debian_version} | grep -w -q ${DIST_VER}); then
+        if [ -n "${force_os}" ]; then
+            logger -w "Unattended installation not supported for this version of Debian, only jessy, stretch, buster and bullseye. Option --force-os used"
+        else
+            logger -e "Unattended installation not supported for this version of Debian, only jessy, stretch, buster and bullseye. Use option --force-os to force the installation"
+            exit 1
+        fi
+    fi
+
+    if [ "${DIST_NAME}" == "fedora" ] && ! (echo ${fedora_version} | grep -w -q ${DIST_VER}); then
+        if [ -n "${force_os}" ]; then
+            logger -w "Unattended installation not supported for this version of Fedora, only 31 and later. Option --force-os used"
+        else
+            logger -e "Unattended installation not supported for this version of Fedora, only 31 and later. Use option --force-os to force the installation"
+            exit 1
+        fi
+    fi
+
+    if [ "${DIST_NAME}" == "fedora" ] && ! (echo ${fedora_version} | grep -w -q ${DIST_VER}); then
+        if [ -n "${force_os}" ]; then
+            logger -w "Unattended installation not supported for this version of Fedora, only 31 and later. Option --force-os used"
+        else
+            logger -e "Unattended installation not supported for this version of Fedora, only 31 and later. Use option --force-os to force the installation"
+            exit 1
+        fi
+    fi
+
+    if [ "${DIST_NAME}" == "amazonlinux" ] && ! (echo ${amazon_version} | grep -w -q ${DIST_VER}); then
+        if [ -n "${force_os}" ]; then
+            logger -w "Unattended installation not supported for this version of Amazon Linux, only version 2 is supported. Option --force-os used"
+        else
+            logger -e "Unattended installation not supported for this version of Amazon Linux, only version 2 is supported. Use option --force-os to force the installation"
+            exit 1
+        fi
+    fi
+
+    if [ "${DIST_NAME}" == "redhat" ] && ! (echo ${redhat_version} | grep -w -q ${DIST_VER}); then
+        if [ -n "${force_os}" ]; then
+            logger -w "Unattended installation not supported for this version of RedHat, only 7 and 8. Option --force-os used"
+        else
+            logger -e "Unattended installation not supported for this version of RedHat, only 7 and 8. Use option --force-os to force the installation"
+            exit 1
+        fi
+    fi
+
+    if [ "${DIST_NAME}" == "opensuse-leap" ] && ( ( ! (echo ${opensuse_version} | grep -w -q ${DIST_VER}) ) || ( (echo ${opensuse_version} | grep -w -q ${DIST_VER}) && | (echo ${opensuse_version} | grep -w -q ${DIST_VER}) ) ); then
+        if [ -n "${force_os}" ]; then
+            logger -w "Unattended installation not supported for this version of OpenSuse, only 15.2, 15.3 and Tumbleweed. Option --force-os used"
+        else
+            logger -e "Unattended installation not supported for this version of OpenSuse, only 15.2, 15.3 and Tumbleweed. Use option --force-os to force the installation"
+            exit 1
+        fi
+    fi
+
+    if [ "${DIST_NAME}" == "suse" ] && ! (echo ${suse_version} | grep -w -q ${DIST_VER}); then
+        if [ -n "${force_os}" ]; then
+            logger -w "Unattended installation not supported for this version of Suse, only 12 and 15. Option --force-os used"
+        else
+            logger -e "Unattended installation not supported for this version of Suse, only 12 and 15. Use option --force-os to force the installation"
+            exit 1
+        fi
+    fi
+
+    if [ "${DIST_NAME}" == "oraclelinux" ] && ! (echo ${oracle_version} | grep -w -q ${DIST_VER}); then
+        if [ -n "${force_os}" ]; then
+            logger -w "Unattended installation not supported for this version of Oracle Linux, only 7 and 8. Option --force-os used"
+        else
+            logger -e "Unattended installation not supported for this version of Oracle Linux, only 7 and 8. Use option --force-os to force the installation"
+            exit 1
+        fi
+    fi
+
+    if [ "${DIST_NAME}" == "rockylinux" ] && ! (echo ${rocky_version} | grep -w -q ${DIST_VER}); then
+        if [ -n "${force_os}" ]; then
+            logger -w "Unattended installation not supported for this version of Rocky Linux, only 8.5 vesion is supported. Option --force-os used"
+        else
+            logger -e "Unattended installation not supported for this version of Rocky Linux, only 8.5 vesion is supported. Use option --force-os to force the installation"
+            exit 1
+        fi
+    fi
+
+    if [ "${DIST_NAME}" == "almalinux" ] && ! (echo ${alma_version} | grep -w -q ${DIST_VER}); then
+        if [ -n "${force_os}" ]; then
+            logger -w "Unattended installation not supported for this version of Alma Linux, only 8.5 vesion is supported. Option --force-os used"
+        else
+            logger -e "Unattended installation not supported for this version of Alma Linux, only 8.5 vesion is supported. Use option --force-os to force the installation"
+            exit 1
+        fi
+    fi
 }
