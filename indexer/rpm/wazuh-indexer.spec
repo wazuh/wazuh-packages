@@ -141,7 +141,7 @@ if [ $1 = 1 ];then # Install
         echo "bootstrap.system_call_filter: false" >> %{CONFIG_DIR}/opensearch.yml
     fi
 
-    if [ ! -d "%{LIB_DIR}" ]; then
+    if [ ! -n "ls -A %{LIB_DIR} 2> /dev/null" ]; then
         max_map_count=$(cat /proc/sys/vm/max_map_count)
         if [ "${max_map_count}" -lt 262144 ]; then
             if command -v sysctl > /dev/null 2>&1 && sysctl -w vm.max_map_count=262144 > /dev/null 2>&1; then
