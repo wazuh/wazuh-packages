@@ -169,8 +169,6 @@ function checkTools() {
                     "free"
                     "sed")
 
-    eval "rm -rf ${elements_to_remove[*]}"
-
     for command in "${toolList[@]}"
     do
         if [ -z "$(command -v $command)" ]; then
