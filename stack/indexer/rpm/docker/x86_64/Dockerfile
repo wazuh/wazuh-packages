@@ -1,4 +1,4 @@
-FROM centos:8
+FROM centos:7
 
 # Install all the necessary tools to build the packages
 RUN yum clean all && yum update -y
