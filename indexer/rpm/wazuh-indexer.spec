@@ -120,17 +120,6 @@ fi
 
 %post
 
-configure_indexer(){
-    CLK_TK=`getconf CLK_TCK` OPENSEARCH_PATH_CONF=%{CONFIG_DIR} runuser %{USER} --shell="/bin/bash" --command="%{INSTALL_DIR}/bin/opensearch --quiet" > /dev/null 2>&1 &
-
-    sleep 15
-
-    OPENSEARCH_PATH_CONF=%{CONFIG_DIR} JAVA_HOME=%{INSTALL_DIR}/jdk runuser %{USER} --shell="/bin/bash" --command="%{INSTALL_DIR}/plugins/opensearch-security/tools/securityadmin.sh -icl -p 9800 -cd %{INSTALL_DIR}/plugins/opensearch-security/securityconfig -nhnv -cacert %{CONFIG_DIR}/certs/root-ca.pem -cert %{CONFIG_DIR}/certs/admin.pem -key %{CONFIG_DIR}/certs/admin-key.pem -h 127.0.0.1" >> %{LOG_DIR}/securityadmin.log
-
-    kill -15 `pgrep -f opensearch` > /dev/null 2>&1
-    rm -rf %{LOG_DIR}/* > /dev/null 2>&1
-}
-
 if [ $1 = 1 ];then # Install
     echo "%{USER} hard nproc 4096" >> /etc/security/limits.conf
     echo "%{USER} soft nproc 4096" >> /etc/security/limits.conf
@@ -139,25 +128,6 @@ if [ $1 = 1 ];then # Install
     if [[ "$(uname -a)" =~ "centos6" ]] || [[ "$(uname -a)" =~ "el6" ]];then
         echo "### Disabled filter install on CentOS 6 systems ###" >> %{CONFIG_DIR}/opensearch.yml
         echo "bootstrap.system_call_filter: false" >> %{CONFIG_DIR}/opensearch.yml
-    fi
-
-    if [ ! -n "ls -A %{LIB_DIR} 2> /dev/null" ]; then
-        max_map_count=$(cat /proc/sys/vm/max_map_count)
-        if [ "${max_map_count}" -lt 262144 ]; then
-            if command -v sysctl > /dev/null 2>&1 && sysctl -w vm.max_map_count=262144 > /dev/null 2>&1; then
-                configure_indexer
-            else
-                echo "[WARNING] Sysctl command not available and vm.max_map_count is lower than 262144"
-                echo "The security admin default configuration cannot run"
-                echo "Increase vm.max_map_count to 262144 and launch security config tool"
-            fi
-        else
-          configure_indexer
-        fi
-    else
-        echo "[WARNING] %{LIB_DIR} directory found."
-        echo "Cannot configure Security Admin."
-        echo "Perform security configuration manually."
     fi
 
 fi

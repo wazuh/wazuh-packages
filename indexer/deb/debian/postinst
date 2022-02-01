@@ -37,17 +37,6 @@ if command -v systemctl > /dev/null 2>&1; then
     systemctl restart systemd-sysctl.service > /dev/null 2>&1 || true
 fi
 
-configure_indexer(){
-    CLK_TK=`getconf CLK_TCK` OPENSEARCH_PATH_CONF=${CONFIG_DIR} runuser ${USER} --shell="/bin/bash" --command="${INSTALLATION_DIR}/bin/opensearch --quiet" > /dev/null 2>&1 &
-
-    sleep 15
-
-    OPENSEARCH_PATH_CONF=${CONFIG_DIR} JAVA_HOME=${INSTALLATION_DIR}/jdk runuser ${USER} --shell="/bin/bash" --command="${INSTALLATION_DIR}/plugins/opensearch-security/tools/securityadmin.sh -icl -p 9800 -cd ${INSTALLATION_DIR}/plugins/opensearch-security/securityconfig/ -nhnv -cacert ${CONFIG_DIR}/certs/root-ca.pem -cert ${CONFIG_DIR}/certs/admin.pem -key ${CONFIG_DIR}/certs/admin-key.pem -h 127.0.0.1" >> ${LOG_DIR}/securityadmin.log
-
-    kill -15 `pgrep -f opensearch` > /dev/null 2>&1
-    rm -rf ${LOG_DIR}/* > /dev/null 2>&1
-}
-
 # Below codeblock is using the fact that postinst script is called with the most-recently configured version.
 # In other words, a fresh installed will be called like "postinst configure" with no previous version ($2 is null)
 if [ -z "$2" ]; then
@@ -86,25 +75,6 @@ if [ -z "$2" ]; then
   echo "${USER} soft nproc 4096" >> /etc/security/limits.conf
   echo "${USER} hard nofile 65535" >> /etc/security/limits.conf
   echo "${USER} soft nofile 65535" >> /etc/security/limits.conf
-
-  if [ ! -n "ls -A ${LIB_DIR} 2> /dev/null" ]; then
-      max_map_count=$(cat /proc/sys/vm/max_map_count)
-      if [ "${max_map_count}" -lt 262144 ]; then
-          if command -v sysctl > /dev/null 2>&1 && sysctl -w vm.max_map_count=262144 > /dev/null 2>&1; then
-              configure_indexer
-          else
-              echo "[WARNING] Sysctl command not available and vm.max_map_count is lower than 262144"
-              echo "The security admin default configuration cannot run"
-              echo "Increase vm.max_map_count to 262144 and launch security config tool"
-          fi
-      else
-        configure_indexer
-      fi
-  else
-      echo "[WARNING] ${LIB_DIR} directory found."
-      echo "Cannot configure Security Admin."
-      echo "Perform security configuration manually."
-  fi
 
 else
   # otherwise it is an upgrade
