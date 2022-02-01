@@ -9,12 +9,12 @@
 # Foundation.
 
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
-ARCHITECTURE="x86_64"
+ARCHITECTURE="amd64"
 OUTDIR="${CURRENT_PATH}/output"
 REVISION="1"
 BUILD_DOCKER="yes"
-RPM_X86_BUILDER="rpm_indexer_builder_x86"
-RPM_BUILDER_DOCKERFILE="${CURRENT_PATH}/docker"
+DEB_AMD64_BUILDER="deb_indexer_builder_amd64"
+DEB_BUILDER_DOCKERFILE="${CURRENT_PATH}/docker"
 FUTURE="no"
 
 trap ctrl_c INT
@@ -32,7 +32,7 @@ ctrl_c() {
     clean 1
 }
 
-build_rpm() {
+build_deb() {
     CONTAINER_NAME="$1"
     DOCKERFILE_PATH="$2"
 
@@ -44,14 +44,15 @@ build_rpm() {
         docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || return 1
     fi
 
-    # Build the RPM package with a Docker container
+
+    # Build the Debian package with a Docker container
     if [ "${REFERENCE}" ];then
         docker run -t --rm -v ${OUTDIR}/:/tmp:Z \
             ${CONTAINER_NAME} ${ARCHITECTURE} ${REVISION} \
             ${FUTURE} ${REFERENCE} || return 1
     else
         docker run -t --rm -v ${OUTDIR}/:/tmp:Z \
-            -v ${CURRENT_PATH}/../..:/root:Z \
+            -v ${CURRENT_PATH}/../../..:/root:Z \
             ${CONTAINER_NAME} ${ARCHITECTURE} \
             ${REVISION} ${FUTURE} || return 1
     fi
@@ -65,14 +66,14 @@ build() {
     BUILD_NAME=""
     FILE_PATH=""
     if [ "${ARCHITECTURE}" = "x86_64" ] || [ "${ARCHITECTURE}" = "amd64" ]; then
-        ARCHITECTURE="x86_64"
-        BUILD_NAME="${RPM_X86_BUILDER}"
-        FILE_PATH="${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
+        ARCHITECTURE="amd64"
+        BUILD_NAME="${DEB_AMD64_BUILDER}"
+        FILE_PATH="${DEB_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
     else
-        echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too)"
+        echo "Invalid architecture. Choose: amd64 (x86_64 is accepted too)"
         return 1
     fi
-    build_rpm ${BUILD_NAME} ${FILE_PATH} || return 1
+    build_deb ${BUILD_NAME} ${FILE_PATH} || return 1
 
     return 0
 }
@@ -81,7 +82,7 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -a, --architecture <arch>  [Optional] Target architecture of the package [x86_64]."
+    echo "    -a, --architecture <arch>  [Optional] Target architecture of the package [amd64]."
     echo "    -r, --revision <rev>       [Optional] Package revision. By default: 1."
     echo "    -s, --store <path>         [Optional] Set the destination path of package. By default, an output folder will be created."
     echo "    --reference <ref>          [Optional] wazuh-packages branch to download SPECs, not used by default."

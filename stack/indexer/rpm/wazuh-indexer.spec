@@ -129,6 +129,7 @@ if [ $1 = 1 ];then # Install
         echo "### Disabled filter install on CentOS 6 systems ###" >> %{CONFIG_DIR}/opensearch.yml
         echo "bootstrap.system_call_filter: false" >> %{CONFIG_DIR}/opensearch.yml
     fi
+
 fi
 
 if [ $1 = 2 ];then # Upgrade

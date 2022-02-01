@@ -47,10 +47,10 @@ mkdir ${build_dir}/${pkg_name}
 # Including spec file
 if [ "${spec_reference}" ];then
     curl -sL https://github.com/wazuh/wazuh-packages/tarball/${spec_reference} | tar zx
-    cp ./wazuh*/indexer/rpm/${target}.spec ${rpm_build_dir}/SPECS/${pkg_name}.spec
+    cp ./wazuh*/stack/indexer/rpm/${target}.spec ${rpm_build_dir}/SPECS/${pkg_name}.spec
     cp -r ./wazuh*/* /root/
 else
-    cp /root/indexer/rpm/${target}.spec ${rpm_build_dir}/SPECS/${pkg_name}.spec
+    cp /root/stack/indexer/rpm/${target}.spec ${rpm_build_dir}/SPECS/${pkg_name}.spec
 fi
 
 # Generating source tar.gz

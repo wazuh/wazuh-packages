@@ -42,10 +42,10 @@ mkdir -p ${sources_dir}/debian
 # Including spec file
 if [ "${spec_reference}" ];then
     curl -sL https://github.com/wazuh/wazuh-packages/tarball/${spec_reference} | tar zx
-    cp -r ./wazuh*/indexer/deb/debian/* ${sources_dir}/debian/
+    cp -r ./wazuh*/stack/indexer/deb/debian/* ${sources_dir}/debian/
     cp -r ./wazuh*/* /root/
 else
-    cp -r /root/indexer/deb/debian/* ${sources_dir}/debian/
+    cp -r /root/stack/indexer/deb/debian/* ${sources_dir}/debian/
 fi
 
 # Generating directory structure to build the .deb package
