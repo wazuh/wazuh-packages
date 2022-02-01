@@ -147,6 +147,62 @@ function checkArguments() {
 
 }
 
+function checkFirewalls() {
+
+
+    firewallsList=( "iptables"
+                    "nft"
+                    "firewall-cmd")
+    
+    portsTCPLists=( "1514"
+                    "1515"
+                    "1516"
+                    "514"
+                    "55000"
+                    "9200"
+                    "9300"
+                    "9400"
+                    "443")
+
+    for command in "${firewallsList[@]}"; do
+
+        if [ -n "$(command -v $command)" ]; then
+            logger_cert -w "The $command command is present on this system. This could affect the correct communication between Wazuh components. We will proceed to try to validate firewall rules that may affect the processes and report what is found."
+            firewallstatus='true'
+
+            if [ $command == "iptables" ]; then
+                logger -w "iptables report:"
+                for port in "${portsTCPLists[@]}"; do
+                    if [ -n "$($command -L -n | grep DROP | grep $port)" ]; then
+                        logger -w "                 ...port $port must be open in your firewall rules."
+                    fi
+                done
+
+            elif [ $command == "nft" ]; then
+                logger -w "nft report:"
+                for port in "${portsTCPLists[@]}"; do
+                    if [ -n "$($command list ruleset | grep drop | grep $port)" ]; then
+                        logger -w "                 ...port $port must be open in your firewall rules."
+                    fi
+                done
+
+            elif [ $command == "firewall-cmd" ]; then
+                logger -w "firewall-cmd report:"
+                for port in "${portsTCPLists[@]}"; do
+                    if [ -n "$($command --list-all | grep $port)" ]; then
+                        logger -w "                 ...port $port must be open in your firewall rules."
+                    fi
+                done
+            fi
+        fi
+    done
+
+    if [ -n "${firewallstatus}" ]; then
+        logger -w "Please check your firewall. And make the recommended fixes. To then repeat the installation of Wazuh."
+        exit 1
+    fi
+}
+
 function checkHealth() {
 
     checkSpecs

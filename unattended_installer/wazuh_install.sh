@@ -358,6 +358,11 @@ function main() {
     fi
     checkArguments
 
+    if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
+        logger "---------------------------------- Check firewalls -----------------------------------"
+        checkFirewalls
+    fi
+
 # -------------- Configuration creation case  -----------------------
 
     # Creation certificate case: Only AIO and -c option can create certificates. 
