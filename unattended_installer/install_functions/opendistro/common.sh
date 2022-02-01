@@ -276,7 +276,7 @@ function rollBack() {
 
     if [ -z "${uninstall}" ]; then
         logger "Cleaning the installation."
-    fi  
+    fi
 
     if [ -f "/etc/yum.repos.d/wazuh.repo" ]; then
         eval "rm /etc/yum.repos.d/wazuh.repo"
