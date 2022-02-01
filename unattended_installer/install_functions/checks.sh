@@ -6,19 +6,21 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-systems_list=("centos","ubuntu","debian","fedora","amazonlinux","redhat","opensuse-leap", "opensuse-tumbleweed","suse","oraclelinux","rocky","alma")
+systems_list=("centos","ubuntu","debian","fedora","amzn","rhel","opensuse-leap", "opensuse-tumbleweed","sles","ol","rocky","almalinux")
 centos_version=("7","8")
 ubuntu_version=("16","18","20")
 debian_version=("8","9","10","11")
 fedora_version=("31","32","33","34","35")
-amazon_version=("2_base")
+amazon_version=("2")
 redhat_version=("7","8")
 opensuse_version=("15")
 opensuse_subversion=("3","2")
 suse_version=("12","15")
 oracle_version=("7","8")
-rocky_version=("8.5")
-alma_version=("8.5")
+rocky_version=("8")
+rocky_subversion=("5")
+alma_version=("8")
+alma_subversion=("5")
 
 function checkArch() {
 
@@ -391,15 +393,6 @@ function checkDist() {
         fi
     fi
 
-    if [ "${DIST_NAME}" == "fedora" ] && ! (echo ${fedora_version} | grep -w -q ${DIST_VER}); then
-        if [ -n "${force_os}" ]; then
-            logger -w "Unattended installation not supported for this version of Fedora, only 31 and later. Option --force-os used"
-        else
-            logger -e "Unattended installation not supported for this version of Fedora, only 31 and later. Use option --force-os to force the installation"
-            exit 1
-        fi
-    fi
-
     if [ "${DIST_NAME}" == "amazonlinux" ] && ! (echo ${amazon_version} | grep -w -q ${DIST_VER}); then
         if [ -n "${force_os}" ]; then
             logger -w "Unattended installation not supported for this version of Amazon Linux, only version 2 is supported. Option --force-os used"
@@ -409,7 +402,7 @@ function checkDist() {
         fi
     fi
 
-    if [ "${DIST_NAME}" == "redhat" ] && ! (echo ${redhat_version} | grep -w -q ${DIST_VER}); then
+    if [ "${DIST_NAME}" == "rhel" ] && ! (echo ${redhat_version} | grep -w -q ${DIST_VER}); then
         if [ -n "${force_os}" ]; then
             logger -w "Unattended installation not supported for this version of RedHat, only 7 and 8. Option --force-os used"
         else
@@ -418,7 +411,7 @@ function checkDist() {
         fi
     fi
 
-    if [ "${DIST_NAME}" == "opensuse-leap" ] && ( ( ! (echo ${opensuse_version} | grep -w -q ${DIST_VER}) ) || ( (echo ${opensuse_version} | grep -w -q ${DIST_VER}) && | (echo ${opensuse_version} | grep -w -q ${DIST_VER}) ) ); then
+    if [ "${DIST_NAME}" == "opensuse-leap" ] && ( ( ! (echo ${opensuse_version} | grep -w -q ${DIST_VER}) ) || ( (echo ${opensuse_version} | grep -w -q ${DIST_VER}) && ! (echo ${opensuse_subversion} | grep -w -q ${DIST_SUBVER}) ) ); then
         if [ -n "${force_os}" ]; then
             logger -w "Unattended installation not supported for this version of OpenSuse, only 15.2, 15.3 and Tumbleweed. Option --force-os used"
         else
@@ -427,7 +420,7 @@ function checkDist() {
         fi
     fi
 
-    if [ "${DIST_NAME}" == "suse" ] && ! (echo ${suse_version} | grep -w -q ${DIST_VER}); then
+    if [ "${DIST_NAME}" == "sles" ] && ! (echo ${suse_version} | grep -w -q ${DIST_VER}); then
         if [ -n "${force_os}" ]; then
             logger -w "Unattended installation not supported for this version of Suse, only 12 and 15. Option --force-os used"
         else
@@ -445,7 +438,7 @@ function checkDist() {
         fi
     fi
 
-    if [ "${DIST_NAME}" == "rockylinux" ] && ! (echo ${rocky_version} | grep -w -q ${DIST_VER}); then
+    if [ "${DIST_NAME}" == "rockylinux" ] && ( ! (echo ${rocky_version} | grep -w -q ${DIST_VER}) || ! (echo ${rocky_subversion} | grep -w -q ${DIST_SUBVER}) ); then
         if [ -n "${force_os}" ]; then
             logger -w "Unattended installation not supported for this version of Rocky Linux, only 8.5 vesion is supported. Option --force-os used"
         else
@@ -454,7 +447,7 @@ function checkDist() {
         fi
     fi
 
-    if [ "${DIST_NAME}" == "almalinux" ] && ! (echo ${alma_version} | grep -w -q ${DIST_VER}); then
+    if [ "${DIST_NAME}" == "almalinux" ] && ( ! (echo ${alma_version} | grep -w -q ${DIST_VER}) || ! (echo ${alma_subversion} | grep -w -q ${DIST_SUBVER}) ); then
         if [ -n "${force_os}" ]; then
             logger -w "Unattended installation not supported for this version of Alma Linux, only 8.5 vesion is supported. Option --force-os used"
         else
