@@ -43,8 +43,9 @@ function configureWazuhCluster() {
 
 function installWazuh() {
 
-    uninstall_component_name="manager"
     logger "Starting the Wazuh manager installation."
+
+    uninstall_component_name="manager"
     if [ "${sys_type}" == "zypper" ]; then
         eval "${sys_type} -n install wazuh-manager=${wazuh_version}-${wazuh_revision} ${debug}"
     else
@@ -62,6 +63,7 @@ function installWazuh() {
 
 
 function uninstallWazuh() {
+
     logger "Cleaning the installation. Wazuh and Filebeat will be uninstalled."
 
     if [[ -n "${wazuhinstalled}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]];then

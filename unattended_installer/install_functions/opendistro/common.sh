@@ -273,6 +273,7 @@ function restoreWazuhrepo() {
 }
 
 function rollBack() {
+
     logger "Cleaning the installation."
 	component=$1
     if [ -n "${AIO}" ] ; then
@@ -303,6 +304,7 @@ function rollBack() {
             logger "Installation cleaned. Check the ${logfile} file to learn more about the issue."
         fi
     fi
+
 }
 
 function startService() {
