@@ -167,7 +167,7 @@ function checkFirewalls() {
     for command in "${firewallsList[@]}"; do
 
         if [ -n "$(command -v $command)" ]; then
-            logger_cert -w "The $command command is present on this system. This could affect the correct communication between Wazuh components. We will proceed to try to validate firewall rules that may affect the processes and report what is found."
+            logger_cert "The $command command is present on this system. This could affect the correct communication between Wazuh components. We will proceed to try to validate firewall rules that may affect the processes and report what is found."
             firewallstatus='true'
 
             if [ $command == "iptables" ]; then
