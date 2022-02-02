@@ -406,16 +406,16 @@ function main() {
 
     if [ -n "${indexer}" ]; then
         logger "-------------------------- Wazuh Indexer --------------------------"
-        installIndexer
-        configureIndexer
+        indexer_install
+        indexer_configure
         startService "wazuh-indexer"
-        initializeIndexer
+        indexer_initialize
     fi
 
 # -------------- Start Elasticsearch cluster case  ------------------
 
     if [ -n "${start_elastic_cluster}" ]; then
-        startIndexerCluster
+        indexer_startCluster
         changePasswords
     fi
 
@@ -426,11 +426,11 @@ function main() {
 
         importFunction "dashboard.sh"
 
-        installDashboard 
-        configureDashboard
+        dashboard_install 
+        dashboard_configure
         changePasswords
         startService "wazuh-dashboard"
-        initializeDashboard
+        dashboard_initialize
 
     fi
 
@@ -442,13 +442,13 @@ function main() {
         importFunction "manager.sh"
         importFunction "filebeat.sh"
 
-        installWazuh
+        manager_install
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
             configureWazuhCluster 
         fi
         startService "wazuh-manager"
-        installFilebeat
-        configureFilebeat
+        filebeat_install
+        filebeat_configure
         changePasswords
         startService "filebeat"
     fi
@@ -463,22 +463,22 @@ function main() {
         importFunction "dashboard.sh"
 
         logger "-------------------------- Wazuh Indexer --------------------------"
-        installIndexer
-        configureIndexer
+        indexer_install
+        indexer_configure
         startService "wazuh-indexer"
-        initializeIndexer
+        indexer_initialize
         logger "-------------------------------------- Wazuh Manager --------------------------------------"
-        installWazuh
+        manager_install
         startService "wazuh-manager"
-        installFilebeat
-        configureFilebeat
+        filebeat_install
+        filebeat_configure
         startService "filebeat"
         logger "------------------------------------- Wazuh Dashboard --------------------------------------"
-        installDashboard
-        configureDashboard
+        dashboard_install
+        dashboard_configure
         startService "wazuh-dashboard"
         changePasswords
-        initializeDashboardAIO
+        dashboard_initializeAIO
     fi
 
 # -------------------------------------------------------------------

@@ -6,7 +6,7 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-function configureWazuhCluster() {
+function manager_startCluster() {
 
     for i in "${!wazuh_servers_node_names[@]}"; do
         if [[ "${wazuh_servers_node_names[i]}" == "${winame}" ]]; then
@@ -41,7 +41,7 @@ function configureWazuhCluster() {
 
 }
 
-function installWazuh() {
+function manager_install() {
 
     logger "Starting the Wazuh manager installation."
     if [ "${sys_type}" == "zypper" ]; then
