@@ -1,4 +1,4 @@
-# Wazuh installer - common.sh functions. 
+# Wazuh installer - common.sh functions.
 # Copyright (C) 2015, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
@@ -89,7 +89,7 @@ function changePasswords() {
             readUsers
         fi
         readPasswordFileUsers
-    else 
+    else
         logger -e "Cannot find passwords-file. Exiting"
         exit 1
     fi
@@ -98,7 +98,7 @@ function changePasswords() {
         createBackUp
         generateHash
     fi
-    
+
     changePassword
 
     if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
@@ -221,11 +221,11 @@ User:
         finalusers=()
         finalpasswords=()
 
-        if [ -n "${dashboardinstalled}" ] &&  [ -n "${dashboard}" ]; then 
+        if [ -n "${dashboardinstalled}" ] &&  [ -n "${dashboard}" ]; then
             users=( kibanaserver admin )
         fi
 
-        if [ -n "${filebeatinstalled}" ] && [ -n "${wazuh}" ]; then 
+        if [ -n "${filebeatinstalled}" ] && [ -n "${wazuh}" ]; then
             users=( admin )
         fi
 
@@ -275,7 +275,7 @@ function rollBack() {
 
     if [ -z "${uninstall}" ]; then
         logger "Cleaning the installation."
-    fi  
+    fi
 
     if [ -f "/etc/yum.repos.d/wazuh.repo" ]; then
         eval "rm /etc/yum.repos.d/wazuh.repo"
@@ -294,7 +294,7 @@ function rollBack() {
             eval "rm -f /etc/init.d/wazuh-manager ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge wazuh-manager -y ${debug}"
-        fi 
+        fi
     fi
 
     if [[ ( -n "${wazuh_remaining_files}"  || -n "${wazuhinstalled}" ) && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
@@ -309,7 +309,7 @@ function rollBack() {
             eval "zypper -n remove wazuh-indexer ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge ^wazuh-indexer -y ${debug}"
-        fi 
+        fi
     fi
 
     if [[ ( -n "${indexer_remaining_files}" || -n "${indexerchinstalled}" ) && ( -n "${indexer}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
@@ -406,7 +406,7 @@ function startService() {
             exit 1
         else
             logger "${1^} service started."
-        fi     
+        fi
     elif [ -x "/etc/rc.d/init.d/${1}" ] ; then
         eval "/etc/rc.d/init.d/${1} start ${debug}"
         if [  "$?" != 0  ]; then
