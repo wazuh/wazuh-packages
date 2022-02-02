@@ -351,7 +351,12 @@ function checkPreviousCertificates() {
 
 function checkSpecs() {
 
-    cores=$(cat /proc/cpuinfo | grep -c processor )
+    coresFile=/etc/resolv.conf
+    if [ -f "$coresFile" ]; then
+        cores=$(cat "$coresFile" | grep -c processor )
+    else
+        logger -e "The $coresFile does not exist."
+    fi
     ram_gb=$(free -m | awk '/^Mem:/{print $2}')
 
 }
