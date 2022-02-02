@@ -159,7 +159,7 @@ function initializeKibanaAIO() {
 
 function installKibana() {
     
-    uninstall_component_name="kibana"
+    uninstall_component_name="Kibana"
     logger "Starting Kibana installation."
     if [ "${sys_type}" == "zypper" ]; then
         eval "zypper -n install opendistroforelasticsearch-kibana=${opendistro_version} ${debug}"
@@ -174,6 +174,35 @@ function installKibana() {
         kibanainstalled="1"
         logger "Kibana installation finished."
     fi
+
+}
+
+
+function uninstallKibana() {
+    logger "Cleaning the installation. Kibana will be uninstalled."
+
+    if [[ -n "${kibanainstalled}" && ( -n "${kibana}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
+        logger -w "Removing Kibana."
+        if [ "${sys_type}" == "yum" ]; then
+            eval "yum remove opendistroforelasticsearch-kibana -y ${debug}"
+        elif [ "${sys_type}" == "zypper" ]; then
+            eval "zypper -n remove opendistroforelasticsearch-kibana ${debug}"
+        elif [ "${sys_type}" == "apt-get" ]; then
+            eval "apt remove --purge opendistroforelasticsearch-kibana -y ${debug}"
+        fi
+    fi
+
+    if [[ ( -n "${kibana_remaining_files}" || -n "${kibanainstalled}" ) && ( -n "${kibana}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
+        eval "rm -rf /var/lib/kibana/ ${debug}"
+        eval "rm -rf /usr/share/kibana/ ${debug}"
+        eval "rm -rf /etc/kibana/ ${debug}"
+    fi
+
+    elements_to_remove=(    "/etc/systemd/system/multi-user.target.wants/kibana.service"
+                            "/etc/systemd/system/kibana.service"
+                            "/lib/firewalld/services/kibana.xml" )
+
+    eval "rm -rf ${elements_to_remove[*]}"
 
 }
 

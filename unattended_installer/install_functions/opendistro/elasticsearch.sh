@@ -148,7 +148,7 @@ function initializeElasticsearch() {
 
 function installElasticsearch() {
 
-    uninstall_component_name="elasticsearch"
+    uninstall_component_name="Elasticsearch"
     logger "Starting Open Distro for Elasticsearch installation."
 
     if [ "${sys_type}" == "yum" ]; then
@@ -169,6 +169,41 @@ function installElasticsearch() {
     fi
 
 }
+
+function uninstallElasticsearch() {
+    logger "Cleaning the installation. Elasticsearch will be uninstalled."
+
+    if [[ -n "${elasticsearchinstalled}" && ( -n "${elasticsearch}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
+        logger -w "Removing Elasticsearch."
+        if [ "${sys_type}" == "yum" ]; then
+            eval "yum remove opendistroforelasticsearch -y ${debug}"
+            eval "yum remove elasticsearch* -y ${debug}"
+            eval "yum remove opendistro-* -y ${debug}"
+        elif [ "${sys_type}" == "zypper" ]; then
+            eval "zypper -n remove opendistroforelasticsearch elasticsearch* opendistro-* ${debug}"
+        elif [ "${sys_type}" == "apt-get" ]; then
+            eval "apt remove --purge ^elasticsearch* ^opendistro-* ^opendistroforelasticsearch -y ${debug}"
+        fi 
+    fi
+
+    if [[ ( -n "${elastic_remaining_files}" || -n "${elasticsearchinstalled}" ) && ( -n "${elasticsearch}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
+        eval "rm -rf /var/lib/elasticsearch/ ${debug}"
+        eval "rm -rf /usr/share/elasticsearch/ ${debug}"
+        eval "rm -rf /etc/elasticsearch/ ${debug}"
+    fi
+
+    elements_to_remove=(    "/var/log/elasticsearch/"
+                            "/etc/systemd/system/elasticsearch.service.wants/"
+                            "/securityadmin_demo.sh"
+                            "/etc/systemd/system/multi-user.target.wants/elasticsearch.service"
+                            "/etc/systemd/system/multi-user.target.wants/kibana.service"
+                            "/etc/systemd/system/kibana.service"
+                            "/lib/firewalld/services/kibana.xml"
+                            "/lib/firewalld/services/elasticsearch.xml" )
+
+    eval "rm -rf ${elements_to_remove[*]}"
+}
+
 
 function startElasticsearchCluster() {
 

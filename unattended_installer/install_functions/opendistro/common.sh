@@ -273,27 +273,18 @@ function restoreWazuhrepo() {
 }
 
 function rollBack() {
-    if [ ! -z "${uninstall}" ] || [ ! -z "${uninstall_component_name}" ]; then
-        logger "Cleaning the installation."
-        
-        if [ "${uninstall_component_name}" == "wazuh" ]; then
-            logger "Cleaning the installation. Wazuh and Filebeat will be uninstalled."
-            rollBackWazuh
-        fi
-        if [ "${uninstall_component_name}" == "elasticsearch" ]; then
-            logger "Cleaning the installation. Elasticsearch will be uninstalled."
-            rollBackElasticsearch
-        fi
-        if [ "${uninstall_component_name}" == "kibana" ]; then
-            logger "Cleaning the installation. Kibana will be uninstalled."
-            rollBackKibana
-        fi
-        if [ "${uninstall_component_name}" == "all" ]; then
-            logger "Cleaning the installation. All packages and components will be uninstalled."
-            rollBackWazuh
-            rollBackElasticsearch
-            rollBackKibana
-        fi
+    logger "Cleaning the installation."
+	component=$1
+    if [ -n "${AIO}" ] ; then
+        component="all"
+    fi
+    if $component != "all"; then 
+        eval "uninstall$component"
+    else
+        logger "Cleaning the installation. All packages and components will be uninstalled."
+        eval "uninstallWazuh"
+        eval "uninstallElasticsearch"
+        eval "uninstallKibana"
     fi
 
     if [ -f "/etc/yum.repos.d/wazuh.repo" ]; then
@@ -303,6 +294,7 @@ function rollBack() {
     elif [ -f "/etc/apt/sources.list.d/wazuh.list" ]; then
         eval "rm /etc/apt/sources.list.d/wazuh.list"
     fi
+    logger "Cleaning the installation. Repositories were removed."
 
     if [ -z "${uninstall}" ]; then
         if [ -n "${rollback_conf}" ] || [ -n "${overwrite}" ]; then
@@ -311,112 +303,6 @@ function rollBack() {
             logger "Installation cleaned. Check the ${logfile} file to learn more about the issue."
         fi
     fi
-
-}
-
-function rollBackWazuh() {
-
-    if [[ -n "${wazuhinstalled}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]];then
-        logger -w "Removing the Wazuh manager."
-        if [ "${sys_type}" == "yum" ]; then
-            eval "yum remove wazuh-manager -y ${debug}"
-        elif [ "${sys_type}" == "zypper" ]; then
-            eval "zypper -n remove wazuh-manager ${debug}"
-            eval "rm -f /etc/init.d/wazuh-manager ${debug}"
-        elif [ "${sys_type}" == "apt-get" ]; then
-            eval "apt remove --purge wazuh-manager -y ${debug}"
-        fi 
-    fi
-
-    if [[ ( -n "${wazuh_remaining_files}"  || -n "${wazuhinstalled}" ) && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        eval "rm -rf /var/ossec/ ${debug}"
-    fi
-
-    if [[ -n "${filebeatinstalled}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        logger -w "Removing Filebeat."
-        if [ "${sys_type}" == "yum" ]; then
-            eval "yum remove filebeat -y ${debug}"
-        elif [ "${sys_type}" == "zypper" ]; then
-            eval "zypper -n remove filebeat ${debug}"
-        elif [ "${sys_type}" == "apt-get" ]; then
-            eval "apt remove --purge filebeat -y ${debug}"
-        fi
-    fi
-
-    if [[ ( -n "${filebeat_remaining_files}" || -n "${filebeatinstalled}" ) && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        eval "rm -rf /var/lib/filebeat/ ${debug}"
-        eval "rm -rf /usr/share/filebeat/ ${debug}"
-        eval "rm -rf /etc/filebeat/ ${debug}"
-    fi
-
-    elements_to_remove=(    "/var/log/filebeat/"
-                            "/etc/systemd/system/multi-user.target.wants/wazuh-manager.service"
-                            "/etc/systemd/system/multi-user.target.wants/filebeat.service"
-                        )
-
-    eval "rm -rf ${elements_to_remove[*]}"
-
-}
-
-function rollBackElasticsearch() {
-
-    if [[ -n "${elasticsearchinstalled}" && ( -n "${elasticsearch}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        logger -w "Removing Elasticsearch."
-        if [ "${sys_type}" == "yum" ]; then
-            eval "yum remove opendistroforelasticsearch -y ${debug}"
-            eval "yum remove elasticsearch* -y ${debug}"
-            eval "yum remove opendistro-* -y ${debug}"
-        elif [ "${sys_type}" == "zypper" ]; then
-            eval "zypper -n remove opendistroforelasticsearch elasticsearch* opendistro-* ${debug}"
-        elif [ "${sys_type}" == "apt-get" ]; then
-            eval "apt remove --purge ^elasticsearch* ^opendistro-* ^opendistroforelasticsearch -y ${debug}"
-        fi 
-    fi
-
-    if [[ ( -n "${elastic_remaining_files}" || -n "${elasticsearchinstalled}" ) && ( -n "${elasticsearch}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        eval "rm -rf /var/lib/elasticsearch/ ${debug}"
-        eval "rm -rf /usr/share/elasticsearch/ ${debug}"
-        eval "rm -rf /etc/elasticsearch/ ${debug}"
-    fi
-
-    elements_to_remove=(    "/var/log/elasticsearch/"
-                            "/etc/systemd/system/elasticsearch.service.wants/"
-                            "/securityadmin_demo.sh"
-                            "/etc/systemd/system/multi-user.target.wants/elasticsearch.service"
-                            "/etc/systemd/system/multi-user.target.wants/kibana.service"
-                            "/etc/systemd/system/kibana.service"
-                            "/lib/firewalld/services/kibana.xml"
-                            "/lib/firewalld/services/elasticsearch.xml" )
-
-    eval "rm -rf ${elements_to_remove[*]}"
-
-}
-
-function rollBackKibana() {
-
-    if [[ -n "${kibanainstalled}" && ( -n "${kibana}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        logger -w "Removing Kibana."
-        if [ "${sys_type}" == "yum" ]; then
-            eval "yum remove opendistroforelasticsearch-kibana -y ${debug}"
-        elif [ "${sys_type}" == "zypper" ]; then
-            eval "zypper -n remove opendistroforelasticsearch-kibana ${debug}"
-        elif [ "${sys_type}" == "apt-get" ]; then
-            eval "apt remove --purge opendistroforelasticsearch-kibana -y ${debug}"
-        fi
-    fi
-
-    if [[ ( -n "${kibana_remaining_files}" || -n "${kibanainstalled}" ) && ( -n "${kibana}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        eval "rm -rf /var/lib/kibana/ ${debug}"
-        eval "rm -rf /usr/share/kibana/ ${debug}"
-        eval "rm -rf /etc/kibana/ ${debug}"
-    fi
-
-    elements_to_remove=(    "/etc/systemd/system/multi-user.target.wants/kibana.service"
-                            "/etc/systemd/system/kibana.service"
-                            "/lib/firewalld/services/kibana.xml" )
-
-    eval "rm -rf ${elements_to_remove[*]}"
-
 }
 
 function startService() {

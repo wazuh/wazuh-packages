@@ -54,7 +54,7 @@ function copyCertificatesFilebeat() {
 
 function installFilebeat() {
 
-    uninstall_component_name="filebeat"
+    uninstall_component_name="Wazuh"
     logger "Starting filebeat installation."
     
     if [ "${sys_type}" == "zypper" ]; then
