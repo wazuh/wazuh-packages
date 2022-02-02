@@ -174,7 +174,7 @@ function checkFirewalls() {
                 logger "iptables report:"
                 for port in "${portsTCPLists[@]}"; do
                     if [ -n "$($command -L -n | grep DROP | grep $port)" ]; then
-                        logger -w "                 ...port $port must be open in your firewall rules."
+                        logger "                 ...port $port must be open in your firewall rules."
                     fi
                 done
 
@@ -182,7 +182,7 @@ function checkFirewalls() {
                 logger "nft report:"
                 for port in "${portsTCPLists[@]}"; do
                     if [ -n "$($command list ruleset | grep drop | grep $port)" ]; then
-                        logger -w "                 ...port $port must be open in your firewall rules."
+                        logger "                 ...port $port must be open in your firewall rules."
                     fi
                 done
 
@@ -190,7 +190,7 @@ function checkFirewalls() {
                 logger "firewall-cmd report:"
                 for port in "${portsTCPLists[@]}"; do
                     if [ -n "$($command --list-all | grep $port)" ]; then
-                        logger -w "                 ...port $port must be open in your firewall rules."
+                        logger "                 ...port $port must be open in your firewall rules."
                     fi
                 done
             fi
