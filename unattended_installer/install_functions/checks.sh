@@ -152,6 +152,7 @@ function checkFirewalls() {
 
     firewallsList=( "iptables"
                     "nft"
+                    "ufw"
                     "firewall-cmd")
     
     portsTCPLists=( "1514"
@@ -182,6 +183,14 @@ function checkFirewalls() {
                 logger "nft report:"
                 for port in "${portsTCPLists[@]}"; do
                     if [ -n "$($command list ruleset | grep drop | grep $port)" ]; then
+                        logger "                 ...port $port must be open in your firewall rules."
+                    fi
+                done
+
+            elif [ $command == "ufw" ]; then
+                logger "ufw report:"
+                for port in "${portsTCPLists[@]}"; do
+                    if [ -n "$(cat /etc/ufw/user.rules | grep DROP | grep $port)" ]; then
                         logger "                 ...port $port must be open in your firewall rules."
                     fi
                 done
