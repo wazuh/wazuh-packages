@@ -21,14 +21,14 @@ elif [ -n "$(command -v apt-get)" ]; then
 fi
 
 function changePassword() {
-    
+
     if [ -n "${changeall}" ]; then
         for i in "${!passwords[@]}"
         do
             if [ -n "${elasticsearchinstalled}" ] && [ -f "/usr/share/elasticsearch/backup/internal_users.yml" ]; then
                 awk -v new=${hashes[i]} 'prev=="'${users[i]}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/elasticsearch/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
             fi
-            
+
             if [ "${users[i]}" == "admin" ]; then
                 adminpass=${passwords[i]}
             elif [ "${users[i]}" == "kibanaserver" ]; then
@@ -58,7 +58,7 @@ function changePassword() {
             conf="$(awk '{sub("password: .*", "password: '${adminpass}'")}1' /etc/filebeat/filebeat.yml)"
             echo "${conf}" > /etc/filebeat/filebeat.yml
             restartService "filebeat"
-        fi 
+        fi
     fi
 
     if [ "$nuser" == "kibanaserver" ] || [ -n "$changeall" ]; then
@@ -68,7 +68,7 @@ function changePassword() {
             rk="elasticsearch.password: "
             wazuhkibold="${wazuhkibold//$rk}"
             conf="$(awk '{sub("elasticsearch.password: .*", "elasticsearch.password: '${kibpass}'")}1' /etc/kibana/kibana.yml)"
-            echo "${conf}" > /etc/kibana/kibana.yml 
+            echo "${conf}" > /etc/kibana/kibana.yml
             restartService "kibana"
         fi
     fi
@@ -76,7 +76,7 @@ function changePassword() {
 }
 
 function checkInstalledPass() {
-    
+
     if [ "${sys_type}" == "yum" ]; then
         elasticsearchinstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch | grep -v kibana)
     elif [ "${sys_type}" == "zypper" ]; then
@@ -122,7 +122,7 @@ function checkRoot() {
     if [ "$EUID" -ne 0 ]; then
         logger_pass -e "This script must be run as root."
         exit 1;
-    fi 
+    fi
 
 }
 
@@ -142,7 +142,7 @@ function checkUser() {
 }
 
 function createBackUp() {
-    
+
     logger_pass -d "Creating password backup."
     eval "mkdir /usr/share/elasticsearch/backup ${debug_pass}"
     eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -backup /usr/share/elasticsearch/backup -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug_pass}"
@@ -154,14 +154,14 @@ function createBackUp() {
 }
 
 function generateHash() {
-    
+
     if [ -n "${changeall}" ]; then
         logger_pass -d "Generating password hashes."
         for i in "${!passwords[@]}"
         do
             nhash=$(bash /usr/share/elasticsearch/plugins/opendistro_security/tools/hash.sh -p "${passwords[i]}" | grep -v WARNING)
             if [  "$?" != 0  ]; then
-                 -e "Hash generation failed."
+                logger_pass -e "Hash generation failed."
                 exit 1;
             fi
             hashes+=("${nhash}")
@@ -307,7 +307,7 @@ function logger_pass() {
             esac
         done
     fi
-    
+
     if [ -z "${debugLogger}" ] || ( [ -n "${debugLogger}" ] && [ -n "${debugEnabled}" ] ); then
         if [ -n "${disableHeader}" ]; then
             echo "${message}" | tee -a ${logfile}
@@ -345,12 +345,12 @@ function main() {
                 adminpem=${2}
                 shift
                 shift
-                ;; 
+                ;;
             "-k"|"--certkey")
                 adminkey=${2}
                 shift
                 shift
-                ;; 
+                ;;
             "-f"|"--file")
                 p_file=${2}
                 shift
@@ -360,7 +360,7 @@ function main() {
                 gen_file=${2}
                 shift
                 shift
-                ;;  
+                ;;
             "-h"|"--help")
                 getHelp
                 ;;
@@ -370,13 +370,13 @@ function main() {
         done
 
         export JAVA_HOME=/usr/share/elasticsearch/jdk/
-        
+
         if [ -n "${verboseenabled}" ]; then
             debug_pass="2>&1 | tee -a ${logfile}"
         fi
 
         if [ -n "${gen_file}" ]; then
-            generatePasswordFile 
+            generatePasswordFile
             if [ -z "${p_file}" ] && [ -z "${nuser}" ] && [ -z "${changeall}" ]; then
                 exit 0
             fi
@@ -395,7 +395,7 @@ function main() {
         if [ -n "${password}" ] && [ -n "${changeall}" ]; then
             getHelp
         fi
-        
+
         if [ -n "${nuser}" ] && [ -n "${p_file}" ]; then
             getHelp
         fi
@@ -483,7 +483,7 @@ User:
   name: kibanaserver
   password: kibanaserverpassword"
 
-	    exit 1
+        exit 1
     fi
 
     sfileusers=$(grep name: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
@@ -573,7 +573,7 @@ function restartService() {
             exit 1;
         else
             logger_pass -d "${1^} started"
-        fi     
+        fi
     elif [ -x "/etc/rc.d/init.d/${1}" ] ; then
         eval "/etc/rc.d/init.d/${1} restart ${debug_pass}"
         if [  "$?" != 0  ]; then
@@ -596,7 +596,7 @@ function restartService() {
 }
 
 function runSecurityAdmin() {
-    
+
     logger_pass -d "Loading new passwords changes."
     eval "cp /usr/share/elasticsearch/backup/* /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ ${debug_pass}"
     eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug_pass}"

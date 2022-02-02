@@ -1,4 +1,4 @@
-# Wazuh installer - common.sh functions. 
+# Wazuh installer - common.sh functions.
 # Copyright (C) 2015, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
@@ -90,7 +90,7 @@ function changePasswords() {
             readUsers
         fi
         readPasswordFileUsers
-    else 
+    else
         logger -e "Cannot find passwords-file. Exiting"
         exit 1
     fi
@@ -99,7 +99,7 @@ function changePasswords() {
         createBackUp
         generateHash
     fi
-    
+
     changePassword
 
     if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
@@ -191,7 +191,7 @@ User:
   name: kibanaserver
   password: kibanaserverpassword"
 
-	    exit 1
+        exit 1
     fi
 
     sfileusers=$(grep name: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
@@ -222,11 +222,11 @@ User:
         finalusers=()
         finalpasswords=()
 
-        if [ -n "${kibanainstalled}" ] &&  [ -n "${kibana}" ]; then 
+        if [ -n "${kibanainstalled}" ] &&  [ -n "${kibana}" ]; then
             users=( kibanaserver admin )
         fi
 
-        if [ -n "${filebeatinstalled}" ] && [ -n "${wazuh}" ]; then 
+        if [ -n "${filebeatinstalled}" ] && [ -n "${wazuh}" ]; then
             users=( admin )
         fi
 
@@ -278,7 +278,7 @@ function rollBack() {
     if [ -n "${AIO}" ] ; then
         component="all"
     fi
-    if $component != "all"; then 
+    if $component != "all"; then
         eval "uninstall$component"
     else
         logger "Cleaning the installation. All packages and components will be uninstalled."
@@ -335,7 +335,7 @@ function startService() {
             exit 1
         else
             logger "${1^} service started."
-        fi     
+        fi
     elif [ -x "/etc/rc.d/init.d/${1}" ] ; then
         eval "/etc/rc.d/init.d/${1} start ${debug}"
         if [  "$?" != 0  ]; then

@@ -60,7 +60,7 @@ function copyKibanacerts() {
 
     eval "mkdir ${k_certs_path} ${debug}"
     if [ -f "${tar_file}" ]; then
-    
+
         name=${kibana_node_names[pos]}
 
         eval "tar -xf ${tar_file} -C ${k_certs_path} ./${name}.pem  && mv ${k_certs_path}${name}.pem ${k_certs_path}kibana.pem ${debug}"
@@ -123,7 +123,7 @@ function initializeKibana() {
             if [[ "${exit_code}" -eq "7" ]]; then
                 failed_connect=1
                 failed_nodes+=("${elasticsearch_node_names[i]}")
-            fi 
+            fi
         done
         logger "${flag}" "Failed to connect with ${failed_nodes[*]}. Connection refused."
         if [ -z "${force}" ]; then
@@ -158,8 +158,8 @@ function initializeKibanaAIO() {
 }
 
 function installKibana() {
-    
-    uninstall_component_name="Kibana"
+
+    uninstall_component_name="kibana"
     logger "Starting Kibana installation."
     if [ "${sys_type}" == "zypper" ]; then
         eval "zypper -n install opendistroforelasticsearch-kibana=${opendistro_version} ${debug}"
@@ -170,7 +170,7 @@ function installKibana() {
         logger -e "Kibana installation failed"
         rollBack
         exit 1
-    else    
+    else
         kibanainstalled="1"
         logger "Kibana installation finished."
     fi

@@ -39,9 +39,9 @@ debug=">> ${logfile} 2>&1"
 trap cleanExit SIGINT
 
 function cleanExit() {
-    
+
     rollback_conf=""
-    
+
     if [ -n "$spin_pid" ]; then
         eval "kill -9 $spin_pid ${debug}"
     fi
@@ -52,7 +52,7 @@ function cleanExit() {
     done
     if [[ "${rollback_conf}" =~ [N|n] ]]; then
         exit 1
-    else 
+    else
         rollBack
         exit 1
     fi
@@ -81,10 +81,10 @@ function getHelp() {
     echo -e "        -ds,  --disable-spinner"
     echo -e "                Disables the spinner indicator."
     echo -e ""
-    echo -e "        -e,  --elasticsearch <elasticsearch-node-name>"
+    echo -e "        -e,  --elasticsearch [elasticsearch-node-name]"
     echo -e "                Elasticsearch installation."
     echo -e ""
-    echo -e "        -f,  --fileconfig <path-to-config-yml>"
+    echo -e "        -f,  --fileconfig [path-to-config-yml]"
     echo -e "                Path to config file. By default: ${base_path}/config.yml"
     echo -e ""
     echo -e "        -F,  --force-kibana"
@@ -96,7 +96,7 @@ function getHelp() {
     echo -e "        -i,  --ignore-health-check"
     echo -e "                Ignores the health-check."
     echo -e ""
-    echo -e "        -k,  --kibana <kibana-node-name>"
+    echo -e "        -k,  --kibana [kibana-node-name]"
     echo -e "                Kibana installation."
     echo -e ""
     echo -e "        -l,  --local"
@@ -108,19 +108,16 @@ function getHelp() {
     echo -e "        -s,  --start-cluster"
     echo -e "                Starts the Elasticsearch cluster."
     echo -e ""
-    echo -e "        -t,  --tar <path-to-certs-tar>"
+    echo -e "        -t,  --tar [path-to-certs-tar]"
     echo -e "                Path to tar containing certificate files. By default: ${base_path}/configurations.tar"
     echo -e ""
-    echo -e "        -u,  --uninstall <component-name>"
-    echo -e "                NOTE: This will erase all the existing configuration and data."
-    echo -e "                component-name=Wazuh. NOTE: Uninstalls Wazuh and Filebeat."
-    echo -e "                component-name=Elasticsearch. NOTE: Uninstalls Elasticsearch."
-    echo -e "                component-name=Kibana. NOTE: Uninstalls Kibana."
+    echo -e "        -u,  --uninstall [component-name]"
+    echo -e "                Use 'all' for complete components uninstall, 'manager', 'elasticsearch' or 'kibana' for single component uninstall."
     echo -e ""
     echo -e "        -v,  --verbose"
     echo -e "                Shows the complete installation output."
     echo -e ""
-    echo -e "        -w,  --wazuh-server <wazuh-node-name>"
+    echo -e "        -w,  --wazuh-server [wazuh-node-name]"
     echo -e "                Wazuh server installation. It includes Filebeat."
     echo -e ""
     exit 1
@@ -316,7 +313,7 @@ function main() {
                 getHelp
         esac
 
-        # This assignment will be present during all testing stages. 
+        # This assignment will be present during all testing stages.
         # It must be removed when the unattended installer is published. 
         development=1
     done
@@ -371,7 +368,7 @@ function main() {
 
 # -------------- Configuration creation case  -----------------------
 
-    # Creation certificate case: Only AIO and -c option can create certificates. 
+    # Creation certificate case: Only AIO and -c option can create certificates.
     if [ -n "${configurations}" ] || [ -n "${AIO}" ]; then
         logger "------------------------------- Configuration files -------------------------------"
         if [ -n "${configurations}" ]; then
@@ -383,7 +380,7 @@ function main() {
         fi
         gen_file="${base_path}/certs/password_file.yml"
         generatePasswordFile
-        # Using cat instead of simple cp because OpenSUSE unknown error. 
+        # Using cat instead of simple cp because OpenSUSE unknown error.
         eval "cat '${config_file}' > '${base_path}/certs/config.yml'"
         eval "tar -zcf '${tar_file}' -C '${base_path}/certs/' . ${debug}"
         eval "rm -rf '${base_path}/certs' ${debug}"
@@ -395,7 +392,7 @@ function main() {
         readConfig
         rm -f "${config_file}"
     fi
-    
+
     # Distributed architecture: node names must be different
     if [[ -z "${AIO}" && ( -n "${elasticsearch}"  || -n "${kibana}" || -n "${wazuh}" )]]; then
         checkNames
@@ -439,7 +436,7 @@ function main() {
 
         importFunction "kibana.sh"
 
-        installKibana 
+        installKibana
         configureKibana
         changePasswords
         startService "kibana"
@@ -457,7 +454,7 @@ function main() {
 
         installWazuh
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
-            configureWazuhCluster 
+            configureWazuhCluster
         fi
         startService "wazuh-manager"
         installFilebeat

@@ -1,4 +1,4 @@
-# Wazuh installer - elasticsearch.sh functions. 
+# Wazuh installer - elasticsearch.sh functions.
 # Copyright (C) 2015, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
@@ -38,7 +38,7 @@ function configureElasticsearch() {
     eval "getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml ${debug}"
     eval "getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml ${debug}"
     eval "rm -f /etc/elasticsearch/{esnode-key.pem,esnode.pem,kirk-key.pem,kirk.pem,root-ca.pem} ${debug}"
-    
+
     copyCertificatesElasticsearch
 
     # Configure JVM options for Elasticsearch
@@ -106,7 +106,7 @@ function configureElasticsearch() {
 }
 
 function copyCertificatesElasticsearch() {
-    
+
     eval "mkdir -p ${e_certs_path} ${debug}"
     name=${elasticsearch_node_names[pos]}
 
@@ -148,7 +148,7 @@ function initializeElasticsearch() {
 
 function installElasticsearch() {
 
-    uninstall_component_name="Elasticsearch"
+    uninstall_component_name="elasticsearch"
     logger "Starting Open Distro for Elasticsearch installation."
 
     if [ "${sys_type}" == "yum" ]; then
@@ -183,7 +183,7 @@ function uninstallElasticsearch() {
             eval "zypper -n remove opendistroforelasticsearch elasticsearch* opendistro-* ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge ^elasticsearch* ^opendistro-* ^opendistroforelasticsearch -y ${debug}"
-        fi 
+        fi
     fi
 
     if [[ ( -n "${elastic_remaining_files}" || -n "${elasticsearchinstalled}" ) && ( -n "${elasticsearch}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then

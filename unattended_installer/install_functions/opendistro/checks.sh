@@ -1,4 +1,4 @@
-# Wazuh installer - checks.sh functions. 
+# Wazuh installer - checks.sh functions.
 # Copyright (C) 2015, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
@@ -21,8 +21,8 @@ function checkArguments() {
     # -------------- Configurations ---------------------------------
 
     if [[ ( -n "${AIO}"  || -n "${configurations}" ) && -f "${tar_file}" ]]; then
-            logger -e "File ${tar_file} exists. Please remove it if you want to use a new configuration."
-            exit 1
+        logger -e "File ${tar_file} exists. Please remove it if you want to use a new configuration."
+        exit 1
     fi
 
     if [[ -n "${configurations}" && ( -n "${AIO}" || -n "${elasticsearch}" || -n "${kibana}" || -n "${wazuh}" || -n "${overwrite}" || -n "${start_elastic_cluster}" || -n "${tar_conf}" || -n "${uninstall}" ) ]]; then
@@ -89,7 +89,7 @@ function checkArguments() {
         if [ -n "${elasticsearchinstalled}" ] || [ -n "${elastic_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
                 rollBack
-            else 
+            else
                 logger -e "Elasticsearch is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
             fi
@@ -102,7 +102,7 @@ function checkArguments() {
         if [ -n "${kibanainstalled}" ] || [ -n "${kibana_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
                 rollBack
-            else 
+            else
                 logger -e "Kibana is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
             fi
@@ -115,7 +115,7 @@ function checkArguments() {
         if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
                 rollBack
-            else 
+            else
                 logger -e "Wazuh is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
             fi
@@ -143,7 +143,7 @@ function checkArguments() {
     if [ -z "${AIO}" ] && [ -z "${elasticsearch}" ] && [ -z "${kibana}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ] && [ -z "${configurations}" ] && [ -z "${uninstall}"]; then
         logger -e "At least one of these arguments is necessary -a|--all-in-one, -c|--create-configurations, -e|--elasticsearch <elasticsearch-node-name>, -k|--kibana <kibana-node-name>, -s|--start-cluster, -w|--wazuh-server <wazuh-node-name>, -u|--uninstall"
         exit 1
-    fi 
+    fi
 
 }
 
@@ -240,7 +240,7 @@ function checkIfInstalled() {
 
 }
 
-# This function ensures different names in the config.yml file. 
+# This function ensures different names in the config.yml file.
 function checkNames() {
 
     if [ -n "${einame}" ] && [ -n "${kiname}" ] && [ "${einame}" == "${kiname}" ]; then
@@ -261,7 +261,7 @@ function checkNames() {
     if [ -n "${winame}" ] && [ -z "$(echo "${wazuh_servers_node_names[@]}" | grep -w "${winame}")" ]; then
         logger -e "The Wazuh server node name ${winame} does not appear on the configuration file."
         exit 1
-    fi 
+    fi
 
     if [ -n "${einame}" ] && [ -z "$(echo "${elasticsearch_node_names[@]}" | grep -w "${einame}")" ]; then
         logger -e "The Elasticsearch node name ${einame} does not appear on the configuration file."

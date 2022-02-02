@@ -1,4 +1,4 @@
-# Wazuh installer - wazuh.sh functions. 
+# Wazuh installer - wazuh.sh functions.
 # Copyright (C) 2015, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
@@ -43,7 +43,7 @@ function configureWazuhCluster() {
 
 function installWazuh() {
 
-    uninstall_component_name="Wazuh"
+    uninstall_component_name="manager"
     logger "Starting the Wazuh manager installation."
     if [ "${sys_type}" == "zypper" ]; then
         eval "${sys_type} -n install wazuh-manager=${wazuh_version}-${wazuh_revision} ${debug}"
@@ -73,7 +73,7 @@ function uninstallWazuh() {
             eval "rm -f /etc/init.d/wazuh-manager ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge wazuh-manager -y ${debug}"
-        fi 
+        fi
     fi
 
     if [[ ( -n "${wazuh_remaining_files}"  || -n "${wazuhinstalled}" ) && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
