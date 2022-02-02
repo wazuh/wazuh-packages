@@ -6,21 +6,11 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-systems_list=("centos","ubuntu","debian","fedora","amzn","rhel","opensuse-leap", "opensuse-tumbleweed","sles","ol","rocky","almalinux")
+systems_list=("centos","ubuntu","amzn","rhel")
 centos_version=("7","8")
 ubuntu_version=("16","18","20")
-debian_version=("8","9","10","11")
-fedora_version=("31","32","33","34","35")
 amazon_version=("2")
 redhat_version=("7","8")
-opensuse_version=("15")
-opensuse_subversion=("3","2")
-suse_version=("12","15")
-oracle_version=("7","8")
-rocky_version=("8")
-rocky_subversion=("5")
-alma_version=("8")
-alma_subversion=("5")
 
 function checkArch() {
 
