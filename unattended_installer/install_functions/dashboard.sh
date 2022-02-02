@@ -8,9 +8,9 @@
 
 readonly d_certs_path="/etc/wazuh-dashboard/certs/"
 
-function configureDashboard() {
+function dashboard_configure() {
 
-    copyDashboardcerts
+    dashboard_copyCertificates
 
     if [ -n "${AIO}" ]; then
         eval "getConfig dashboard/dashboard_unattended.yml /etc/wazuh-dashboard/dashboard.yml ${debug}"
@@ -44,7 +44,7 @@ function configureDashboard() {
 
 }
 
-function copyDashboardcerts() {
+function dashboard_copyCertificates() {
 
     eval "rm -f ${d_certs_path}/* ${debug}"
     if [ -f "${tar_file}" ]; then
@@ -65,7 +65,7 @@ function copyDashboardcerts() {
 
 }
 
-function initializeDashboard() {
+function dashboard_initialize() {
 
     logger "Starting Wazuh dashboard  (this may take a while)."
     getPass "admin"
@@ -127,7 +127,7 @@ function initializeDashboard() {
 
 }
 
-function initializeDashboardAIO() {
+function dashboard_initializeAIO() {
 
     logger "Starting Wazuh dashboard (this may take a while)."
     getPass "admin"
@@ -145,7 +145,7 @@ function initializeDashboardAIO() {
 
 }
 
-function installDashboard() {
+function dashboard_install() {
     
     logger "Starting Wazuh dashboard installation."
     if [ "${sys_type}" == "zypper" ]; then

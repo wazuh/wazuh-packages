@@ -8,7 +8,7 @@
 
 readonly f_cert_path="/etc/filebeat/certs/"
 
-function configureFilebeat(){
+function filebeat_configure(){
 
     eval "curl -so /etc/filebeat/wazuh-template.json ${filebeat_wazuh_template} --max-time 300 ${debug}"
     eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
@@ -29,12 +29,12 @@ function configureFilebeat(){
     fi
 
     eval "mkdir /etc/filebeat/certs ${debug}"
-    copyCertificatesFilebeat
+    filebeat_copyCertificates
 
     logger "Filebeat post-install configuration finished."
 }
 
-function copyCertificatesFilebeat() {
+function filebeat_copyCertificates() {
 
     if [ -f "${tar_file}" ]; then
         if [ -n "${AIO}" ]; then
@@ -52,7 +52,7 @@ function copyCertificatesFilebeat() {
 
 }
 
-function installFilebeat() {
+function filebeat_install() {
 
     logger "Starting filebeat installation."
     if [ "${sys_type}" == "zypper" ]; then

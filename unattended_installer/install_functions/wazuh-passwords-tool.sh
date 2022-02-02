@@ -142,15 +142,16 @@ function checkUser() {
 }
 
 function createBackUp() {
-    
+
     logger_pass -d "Creating password backup."
     eval "mkdir /usr/share/wazuh-indexer/backup ${debug_pass}"
-    eval "/usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -p 9800 -backup /usr/share/wazuh-indexer/backup -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug_pass}"
+    eval "OPENSEARCH_PATH_CONF=\"/etc/wazuh-indexer\" /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig -icl -p 9800 -backup /usr/share/wazuh-indexer/backup -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -h ${IP} ${debug_pass}"
     if [ "$?" != 0 ]; then
         logger_pass -e "The backup could not be created"
         exit 1;
     fi
     logger_pass -d "Password backup created"
+
 }
 
 function generateHash() {
@@ -370,7 +371,7 @@ function main() {
         done
 
         export JAVA_HOME=/usr/share/wazuh-indexer/jdk/
-        
+
         if [ -n "${verboseenabled}" ]; then
             debug_pass="2>&1 | tee -a ${logfile}"
         fi
