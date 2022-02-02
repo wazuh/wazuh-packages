@@ -336,6 +336,8 @@ function main() {
     importFunction "wazuh-cert-tool.sh"
     importFunction "wazuh-passwords-tool.sh"
 
+    checkTools
+
     logger "Starting Wazuh unattended installer. Wazuh version: ${wazuh_version}. Wazuh installer version: ${wazuh_install_vesion}"
 
 # -------------- Prerequisites and Wazuh repo  ----------------------
@@ -347,8 +349,8 @@ function main() {
     fi
 
 # -------------- Preliminary checks  --------------------------------
+    
 
-    checkTools
     if [ -z "${configurations}" ] && [ -z "${AIO}" ]; then
         checkPreviousCertificates
     fi

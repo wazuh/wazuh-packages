@@ -162,22 +162,31 @@ function checkTools() {
 
     # -------------- Check tools required to run the script (awk, sed, etc.) -----------------------------------------
 
-    toolList=(      "uname"
-                    "free"
-                    "tar"
-                    "awk"
-                    "free"
-                    "sed")
+    toolList=(  "awk" "cat" "chown" "cp" "curl" "echo" "export"
+                "free" "grep" "kill" "mkdir" "mv" "rm" "sed"
+                "sudo" "tar" "touch" "uname")
 
-    eval "rm -rf ${elements_to_remove[*]}"
-
+    missingtoolsList=()
     for command in "${toolList[@]}"
     do
         if [ -z "$(command -v $command)" ]; then
-            logger_cert -e "$command not installed. This command is necessary for the correct operation of this script."
-            exit 1
+            missingtoolsList+=($command)
+            missingtoolsStatus="true"
         fi
     done
+
+    if [ -n "${missingtoolsStatus}" ]; then
+
+        logger "---------------------------------- Missing tool -----------------------------------"
+        logger "Missing tool report:"
+        for tool in "${missingtoolsList[@]}"; do
+            if [ -n "$($command -L -n | grep DROP | grep $port)" ]; then
+                logger "                 ...$missingtoolsList is not installed. "
+        done
+        logger "                 ...All this command's are necessary for the correct use of this tool."
+        exit 1
+
+    fi
     
 }
 
