@@ -43,7 +43,7 @@ function configureWazuhCluster() {
 
 function installWazuh() {
 
-    uninstall_module_name="wazuh"
+    uninstall_component_name="wazuh"
     logger "Starting the Wazuh manager installation."
     if [ "${sys_type}" == "zypper" ]; then
         eval "${sys_type} -n install wazuh-manager=${wazuh_version}-${wazuh_revision} ${debug}"

@@ -148,7 +148,7 @@ function initializeElasticsearch() {
 
 function installElasticsearch() {
 
-    uninstall_module_name="elasticsearch"
+    uninstall_component_name="elasticsearch"
     logger "Starting Open Distro for Elasticsearch installation."
 
     if [ "${sys_type}" == "yum" ]; then

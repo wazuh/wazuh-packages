@@ -159,7 +159,7 @@ function initializeKibanaAIO() {
 
 function installKibana() {
     
-    uninstall_module_name="kibana"
+    uninstall_component_name="kibana"
     logger "Starting Kibana installation."
     if [ "${sys_type}" == "zypper" ]; then
         eval "zypper -n install opendistroforelasticsearch-kibana=${opendistro_version} ${debug}"

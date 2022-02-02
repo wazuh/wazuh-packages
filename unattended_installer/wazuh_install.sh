@@ -111,7 +111,7 @@ function getHelp() {
     echo -e "        -t,  --tar <path-to-certs-tar>"
     echo -e "                Path to tar containing certificate files. By default: ${base_path}/configurations.tar"
     echo -e ""
-    echo -e "        -u,  --uninstall <app-module-name>"
+    echo -e "        -u,  --uninstall <component-name>"
     echo -e "                Uninstalls all Wazuh components. NOTE: This will erase all the existing configuration and data."
     echo -e ""
     echo -e "        -v,  --verbose"
@@ -285,12 +285,12 @@ function main() {
                 ;;
             "-u"|"--uninstall")
                 if [ -z "${2}" ]; then
-                    logger -e "Error on arguments. Probably missing <app-module-name> after -u|--uninstall."
+                    logger -e "Error on arguments. Probably missing <component-name> after -u|--uninstall."
                     getHelp
                     exit 1
                 fi
                 uninstall=1
-                uninstall_module_name="${2}"
+                uninstall_component_name="${2}"
                 shift 2
                 ;;
             "-v"|"--verbose")

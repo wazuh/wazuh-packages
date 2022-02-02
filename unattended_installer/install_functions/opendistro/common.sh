@@ -273,22 +273,22 @@ function restoreWazuhrepo() {
 }
 
 function rollBack() {
-    if [ ! -z "${uninstall}" ] || [ ! -z "${uninstall_module_name}" ]; then
+    if [ ! -z "${uninstall}" ] || [ ! -z "${uninstall_component_name}" ]; then
         logger "Cleaning the installation."
         
-        if [ "${uninstall_module_name}" == "wazuh" ]; then
+        if [ "${uninstall_component_name}" == "wazuh" ]; then
             logger "Cleaning the installation. Wazuh and Filebeat will be uninstalled."
             rollBackWazuh
         fi
-        if [ "${uninstall_module_name}" == "elasticsearch" ]; then
+        if [ "${uninstall_component_name}" == "elasticsearch" ]; then
             logger "Cleaning the installation. Elasticsearch will be uninstalled."
             rollBackElasticsearch
         fi
-        if [ "${uninstall_module_name}" == "kibana" ]; then
+        if [ "${uninstall_component_name}" == "kibana" ]; then
             logger "Cleaning the installation. Kibana will be uninstalled."
             rollBackKibana
         fi
-        if [ "${uninstall_module_name}" == "all" ]; then
+        if [ "${uninstall_component_name}" == "all" ]; then
             logger "Cleaning the installation. All packages and components will be uninstalled."
             rollBackWazuh
             rollBackElasticsearch
