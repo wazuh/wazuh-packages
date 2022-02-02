@@ -330,6 +330,11 @@ function main() {
 
     logger "Starting Wazuh unattended installer. Wazuh version: ${wazuh_version}. Wazuh installer version: ${wazuh_install_vesion}"
 
+    if [ -z "${configurations}" ] && [ -z "${start_elastic_cluster}" ] ; then
+        logger "---------------------------------- Check firewalls -----------------------------------"
+        checkFirewalls
+    fi
+
 # -------------- Uninstall case  ------------------------------------
 
     checkIfInstalled
@@ -357,11 +362,6 @@ function main() {
         rm -f "${tar_file}"
     fi
     checkArguments
-
-    if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
-        logger "---------------------------------- Check firewalls -----------------------------------"
-        checkFirewalls
-    fi
 
 # -------------- Configuration creation case  -----------------------
 
