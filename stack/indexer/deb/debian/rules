@@ -109,6 +109,8 @@ override_dh_install:
 		cp -pr $(REPO_DIR)/config/opensearch/roles/roles.yml $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/securityconfig/
 		cp -pr $(REPO_DIR)/config/opensearch/roles/internal_users.yml $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/securityconfig/
 
+		cp /root/stack/indexer/securityadmin_wrapper.sh $(TARGET_DIR)$(INSTALLATION_DIR)/bin/
+
 		# Create group and user in chroot environment
 		groupadd -r $(GROUP)
 		useradd --system \
@@ -201,6 +203,7 @@ override_dh_fixperms:
 		chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-env-from-file
 		chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-upgrade
 		chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/systemd-entrypoint
+		chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/securityadmin_wrapper.sh
 		chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/lib
 		chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/hppc-0.8.1.jar
 		chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/lucene-highlighter-8.10.1.jar
