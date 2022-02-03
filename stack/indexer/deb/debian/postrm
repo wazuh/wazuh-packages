@@ -22,7 +22,7 @@ export LOG_DIR="/var/log/${NAME}"
 #       $1=remove    : indicates a removal
 #       $1=purge     : indicates an upgrade
 
-# source the default env file
+# Source the default env file
 if [ -f "/etc/default/${NAME}" ]; then
     . "/etc/default/${NAME}"
 fi
