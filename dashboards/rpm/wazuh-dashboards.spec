@@ -98,8 +98,8 @@ curl -O https://s3.amazonaws.com/warehouse.wazuh.com/stack/demo-certs.tar.gz
 tar -xf demo-certs.tar.gz && rm -f demo-certs.tar.gz
 
 
-cp certs/demo-dashboard.pem %{buildroot}%{CONFIG_DIR}/certs/wazuh-dashboards.pem
-cp certs/demo-dashboard-key.pem %{buildroot}%{CONFIG_DIR}/certs/wazuh-dashboards-key.pem
+cp certs/demo-dashboard.pem %{buildroot}%{CONFIG_DIR}/certs/demo-dashboard.pem
+cp certs/demo-dashboard-key.pem %{buildroot}%{CONFIG_DIR}/certs/demo-dashboard-key.pem
 cp certs/root-ca.pem %{buildroot}%{CONFIG_DIR}/certs/root-ca.pem
 chmod 640 %{buildroot}%{CONFIG_DIR}/certs/*
 
