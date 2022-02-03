@@ -42,7 +42,7 @@ fi
 if [ -z "$2" ]; then
   # If $2 is null, this is an install	
 
-  # Setting Owner and group of own folders
+  # Setting owner and group
   chown -R ${USER}:${GROUP} ${CONFIG_DIR}
   chown -R ${USER}:${GROUP} ${INSTALLATION_DIR}
   chown -R ${USER}:${GROUP} ${LOG_DIR}
