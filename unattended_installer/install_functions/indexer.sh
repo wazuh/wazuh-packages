@@ -40,9 +40,8 @@ function indexer_configure() {
             echo "cluster.initial_master_nodes: ${indxname}" >> /etc/wazuh-indexer/opensearch.yml
 
             echo "plugins.security.nodes_dn:" >> /etc/wazuh-indexer/opensearch.yml
-            echo '        - CN='${indxname}',OU=Docu,O=Wazuh,L=California,C=US' >> /etc/wazuh-indexer/opensearch.yml
+            echo '        - CN='${indxname}',OU=Wazuh,O=Wazuh,L=California,C=US' >> /etc/wazuh-indexer/opensearch.yml
         else
-            eval "rm -rf /var/lib/wazuh-indexer/ ${debug}"
             echo "node.name: ${indxname}" >> /etc/wazuh-indexer/opensearch.yml
             echo "cluster.initial_master_nodes:" >> /etc/wazuh-indexer/opensearch.yml
             for i in "${indexer_node_names[@]}"; do
@@ -64,7 +63,7 @@ function indexer_configure() {
 
             echo "plugins.security.nodes_dn:" >> /etc/wazuh-indexer/opensearch.yml
             for i in "${indexer_node_names[@]}"; do
-                    echo '        - CN='${i}',OU=Docu,O=Wazuh,L=California,C=US' >> /etc/wazuh-indexer/opensearch.yml
+                    echo '        - CN='${i}',OU=Wazuh,O=Wazuh,L=California,C=US' >> /etc/wazuh-indexer/opensearch.yml
             done
         fi
     fi
@@ -115,7 +114,7 @@ function indexer_initialize() {
     fi
 
     if [ -n "${AIO}" ]; then
-        eval "sudo -u wazuh-indexer JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig -icl -p 9800 -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig -nhnv -cacert ${i_certs_path}root-ca.pem -cert ${i_certs_path}admin.pem -key ${i_certs_path}admin-key.pem -h 127.0.0.1"
+        eval "sudo -u wazuh-indexer JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig -icl -p 9800 -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig -nhnv -cacert ${i_certs_path}root-ca.pem -cert ${i_certs_path}admin.pem -key ${i_certs_path}admin-key.pem -h 127.0.0.1 ${debug}"
     fi
 
     if [ "${#indexer_node_names[@]}" -eq 1 ] && [ -z "${AIO}" ]; then
@@ -147,11 +146,14 @@ function indexer_install() {
         logger "Wazuh indexer installation finished."
     fi
 
+    eval "sysctl -q -w vm.max_map_count=262144 ${debug}"
+
 }
 
 function indexer_startCluster() {
 
-    eval "sudo -u wazuh-indexer JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -p 9800 -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ -icl -nhnv -cacert /etc/wazuh-indexer/certs/root-ca.pem -cert /etc/wazuh-indexer/certs/admin.pem -key /etc/wazuh-indexer/certs/admin-key.pem -h ${indexer_node_ips[pos]} ${debug}"
+    eval "wazuh_indexer_ip=( $(cat /etc/wazuh-indexer/opensearch.yml | grep network.host | sed 's/network.host:\s//') )"
+    eval "sudo -u wazuh-indexer JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -p 9800 -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ -icl -nhnv -cacert /etc/wazuh-indexer/certs/root-ca.pem -cert /etc/wazuh-indexer/certs/admin.pem -key /etc/wazuh-indexer/certs/admin-key.pem -h ${wazuh_indexer_ip} ${debug}"
     if [  "$?" != 0  ]; then
         logger -e "The Wazuh indexer cluster security configuration could not be initialized."
         rollBack

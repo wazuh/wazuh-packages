@@ -66,7 +66,7 @@ function createCertificates() {
     generateAdmincertificate
     generateIndexercertificates
     generateFilebeatcertificates
-    generateDashboardcertificates
+    generateDashboardscertificates
     cleanFiles
 
 }
@@ -221,7 +221,7 @@ User:
         finalusers=()
         finalpasswords=()
 
-        if [ -n "${dashboardinstalled}" ] &&  [ -n "${dashboard}" ]; then
+        if [ -n "${dashboardsinstalled}" ] &&  [ -n "${dashboards}" ]; then
             users=( kibanaserver admin )
         fi
 
@@ -335,8 +335,8 @@ function rollBack() {
         eval "rm -rf /etc/filebeat/ ${debug}"
     fi
 
-    if [[ -n "${dashboardinstalled}" && ( -n "${dashboard}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        logger -w "Removing Wazuh Dashboard."
+    if [[ -n "${dashboardsinstalled}" && ( -n "${dashboards}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
+        logger -w "Removing Wazuh dashboards."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-dashboards -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
@@ -346,10 +346,11 @@ function rollBack() {
         fi
     fi
 
-    if [[ ( -n "${dashboard_remaining_files}" || -n "${dashboardinstalled}" ) && ( -n "${dashboard}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
+    if [[ ( -n "${dashboards_remaining_files}" || -n "${dashboardsinstalled}" ) && ( -n "${dashboards}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         eval "rm -rf /var/lib/wazuh-dashboards/ ${debug}"
         eval "rm -rf /usr/share/wazuh-dashboards/ ${debug}"
         eval "rm -rf /etc/wazuh-dashboards/ ${debug}"
+        eval "rm -rf /run/wazuh-dashboards/ ${debug}"
     fi
 
     elements_to_remove=(    "/var/log/elasticsearch/"
@@ -361,7 +362,7 @@ function rollBack() {
                             "/etc/systemd/system/multi-user.target.wants/opensearch.service"
                             "/etc/systemd/system/multi-user.target.wants/wazuh-dashboards.service"
                             "/etc/systemd/system/wazuh-dashboards.service"
-                            "/lib/firewalld/services/dashboard.xml"
+                            "/lib/firewalld/services/dashboards.xml"
                             "/lib/firewalld/services/opensearch.xml" )
 
     eval "rm -rf ${elements_to_remove[*]}"

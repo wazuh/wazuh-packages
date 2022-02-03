@@ -20,15 +20,10 @@ function filebeat_configure(){
         if [ ${#indexer_node_names[@]} -eq 1 ]; then
             eval "sed '/^output.elasticsearch:/a \ \ hosts: [\"${indexer_node_ips[0]}:9700\"]' /etc/filebeat/filebeat.yml" > /etc/filebeat/filebeat.yml
         else
-            ips_list=""
-            for i in ${!indexer_node_ips[@]}; do
-                if [ i -eq ${#indexer_node_ips[@]} ]; then
-                    ips_list+="\"${indexer_node_ips[0]}:9700\""
-                else
-                    ips_list+="\"${indexer_node_ips[0]}:9700\", "
-                fi
+            echo "output.elasticsearch.hosts:" >> /etc/filebeat/filebeat.yml
+            for i in "${indexer_node_ips[@]}"; do
+                echo "  - ${i}:9700" >> /etc/filebeat/filebeat.yml
             done
-            eval "sed '/^output.elasticsearch:/a \ \ hosts: [${ips_list}]' /etc/filebeat/filebeat.yml" > /etc/filebeat/filebeat.yml
         fi
     fi
 
