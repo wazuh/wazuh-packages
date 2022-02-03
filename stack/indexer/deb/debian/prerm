@@ -18,7 +18,7 @@ export CONFIG_DIR=/etc/wazuh-indexer
 #       $1=remove    : indicates a removal
 #       $1=upgrade   : indicates an upgrade
 
-# source the default env file
+# Source the default env file
 if [ -f "/etc/default/wazuh-indexer" ]; then
     . "/etc/default/wazuh-indexer"
 fi

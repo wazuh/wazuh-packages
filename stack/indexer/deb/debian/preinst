@@ -23,7 +23,7 @@ err_exit() {
     exit 1
 }
 
-# source the default env file
+# Source the default env file
 if [ -f "/etc/default/wazuh-indexer" ]; then
     . "/etc/default/wazuh-indexer"
 fi

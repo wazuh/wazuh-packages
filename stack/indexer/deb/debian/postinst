@@ -27,7 +27,7 @@ set -e
 #   On Debian,
 #       $1=configure : is set to 'configure' and if $2 is set, it is an upgrade
 
-# source the default env file
+# Source the default env file
 if [ -f "/etc/default/wazuh-indexer" ]; then
     . "/etc/default/wazuh-indexer"
 fi
@@ -77,7 +77,7 @@ if [ -z "$2" ]; then
   echo "${USER} soft nofile 65535" >> /etc/security/limits.conf
 
 else
-  # otherwise it is an upgrade
+  # Otherwise it is an upgrade
     echo -n "Restarting wazuh-indexer service..."
     if command -v systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-indexer > /dev/null 2>&1; then
         systemctl daemon-reload > /dev/null 2>&1
