@@ -148,7 +148,6 @@ function initializeElasticsearch() {
 
 function installElasticsearch() {
 
-    uninstall_component_name="elasticsearch"
     logger "Starting Open Distro for Elasticsearch installation."
 
     if [ "${sys_type}" == "yum" ]; then
@@ -161,6 +160,7 @@ function installElasticsearch() {
 
     if [  "$?" != 0  ]; then
         logger -e "Elasticsearch installation failed."
+        elasticsearchinstalled="elasticsearch"
         rollBack
         exit 1
     else
@@ -170,7 +170,7 @@ function installElasticsearch() {
 
 }
 
-function uninstallElasticsearch() {
+function uninstallelasticsearch() {
     logger "Cleaning the installation. Elasticsearch will be uninstalled."
 
     if [[ -n "${elasticsearchinstalled}" && ( -n "${elasticsearch}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then

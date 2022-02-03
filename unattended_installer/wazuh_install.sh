@@ -141,7 +141,7 @@ function importFunction() {
             if [ $has_main = 0 ]; then
                 echo 'main $@' >> "${base_path}/${functions_path}/${1}"
             fi
-        else 
+        else
             logger -e "Unable to find resource in path ${base_path}/${functions_path}/${1}."
             exit 1
         fi
@@ -190,7 +190,7 @@ function logger() {
             esac
         done
     fi
-    
+
     if [ -z "${debugLogger}" ] || ( [ -n "${debugLogger}" ] && [ -n "${debugEnabled}" ] ); then
             echo "${now} ${mtype} ${message}" | tee -a ${logfile}
     fi
@@ -314,7 +314,7 @@ function main() {
         esac
 
         # This assignment will be present during all testing stages.
-        # It must be removed when the unattended installer is published. 
+        # It must be removed when the unattended installer is published.
         development=1
     done
 

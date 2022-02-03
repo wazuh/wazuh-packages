@@ -1,4 +1,4 @@
-# Wazuh installer - kibana.sh functions. 
+# Wazuh installer - kibana.sh functions.
 # Copyright (C) 2015, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
@@ -157,9 +157,8 @@ function initializeKibanaAIO() {
 
 }
 
-function installKibana() {
+function installkibana() {
 
-    uninstall_component_name="kibana"
     logger "Starting Kibana installation."
     if [ "${sys_type}" == "zypper" ]; then
         eval "zypper -n install opendistroforelasticsearch-kibana=${opendistro_version} ${debug}"
@@ -168,6 +167,7 @@ function installKibana() {
     fi
     if [  "$?" != 0  ]; then
         logger -e "Kibana installation failed"
+        kibanainstalled="kibana"
         rollBack
         exit 1
     else
@@ -177,8 +177,7 @@ function installKibana() {
 
 }
 
-
-function uninstallKibana() {
+function uninstallkibana() {
     logger "Cleaning the installation. Kibana will be uninstalled."
 
     if [[ -n "${kibanainstalled}" && ( -n "${kibana}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then

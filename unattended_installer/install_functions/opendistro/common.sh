@@ -274,19 +274,28 @@ function restoreWazuhrepo() {
 
 function rollBack() {
 
+    componentList=()
+    componentList+=($wazuhinstaller)
+    componentList+=($filebeatinstalled)
+    componentList+=($elasticsearchinstalled)
+    componentList+=($kibanainstalled)
+    componentList+=($uninstall_component_name)
+
     logger "Cleaning the installation."
-	component=$1
-    if [ -n "${AIO}" ] ; then
-        component="all"
-    fi
-    if $component != "all"; then
-        eval "uninstall$component"
-    else
+
+    if [ -n "${AIO}" ] || [ "${uninstall_component_name}" == "all" ] ; then
         logger "Cleaning the installation. All packages and components will be uninstalled."
-        eval "uninstallWazuh"
-        eval "uninstallElasticsearch"
-        eval "uninstallKibana"
+        eval "uninstallmanager"
+        eval "uninstallelasticsearch"
+        eval "uninstallkibana"
     fi
+
+    for component in "${!componentList[@]}"; do
+
+        if [ "${component}" == "manager" ] || [ "${component}" == "elastichsearch" ] || [ "${component}" == "kibana" ] ; then
+            eval "uninstall$component"
+        fi
+    done
 
     if [ -f "/etc/yum.repos.d/wazuh.repo" ]; then
         eval "rm /etc/yum.repos.d/wazuh.repo"

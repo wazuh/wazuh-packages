@@ -54,7 +54,6 @@ function copyCertificatesFilebeat() {
 
 function installFilebeat() {
 
-    uninstall_component_name="manager"
     logger "Starting filebeat installation."
 
     if [ "${sys_type}" == "zypper" ]; then
@@ -64,6 +63,8 @@ function installFilebeat() {
     fi
     if [  "$?" != 0  ]; then
         logger -e "Filebeat installation failed"
+        filebeatinstalled="manager"
+        rollBack
         exit 1
     else
         logger "Filebeat installation finished."

@@ -45,7 +45,6 @@ function installWazuh() {
 
     logger "Starting the Wazuh manager installation."
 
-    uninstall_component_name="manager"
     if [ "${sys_type}" == "zypper" ]; then
         eval "${sys_type} -n install wazuh-manager=${wazuh_version}-${wazuh_revision} ${debug}"
     else
@@ -53,6 +52,7 @@ function installWazuh() {
     fi
     if [  "$?" != 0  ]; then
         logger -e "Wazuh installation failed"
+        wazuhinstaller="manager"
         rollBack
         exit 1
     else
@@ -62,7 +62,7 @@ function installWazuh() {
 }
 
 
-function uninstallWazuh() {
+function uninstallmanager() {
 
     logger "Cleaning the installation. Wazuh and Filebeat will be uninstalled."
 
