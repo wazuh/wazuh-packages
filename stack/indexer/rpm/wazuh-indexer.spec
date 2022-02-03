@@ -1,4 +1,4 @@
-# Wazuh package SPEC
+# Wazuh indexer SPEC
 # Copyright (C) 2015-2022, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
