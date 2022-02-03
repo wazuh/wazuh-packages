@@ -6,16 +6,16 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-readonly d_certs_path="/etc/wazuh-dashboard/certs/"
+readonly d_certs_path="/etc/wazuh-dashboards/certs/"
 
 function dashboard_configure() {
 
     dashboard_copyCertificates
 
     if [ -n "${AIO}" ]; then
-        eval "getConfig dashboard/dashboard_unattended.yml /etc/wazuh-dashboard/dashboard.yml ${debug}"
+        eval "getConfig dashboard/dashboard_unattended.yml /etc/wazuh-dashboards/dashboard.yml ${debug}"
     else
-        eval "getConfig dashboard/dashboard_unattended_distributed.yml /etc/wazuh-dashboard/dashboard.yml ${debug}"
+        eval "getConfig dashboard/dashboard_unattended_distributed.yml /etc/wazuh-dashboards/dashboard.yml ${debug}"
         if [ "${#dashboard_node_names[@]}" -eq 1 ]; then
             pos=0
             ip=${dashboard_node_ips[0]}
@@ -28,14 +28,14 @@ function dashboard_configure() {
             ip=${dashboard_node_ips[pos]}
         fi
 
-        echo 'server.host: "'${ip}'"' >> /etc/wazuh-dashboard/dashboard.yml
+        echo 'server.host: "'${ip}'"' >> /etc/wazuh-dashboards/dashboard.yml
 
         if [ "${#indexer_node_names[@]}" -eq 1 ]; then
-            echo "opensearch.hosts: https://"${indexer_node_ips[0]}":9700" >> /etc/wazuh-dashboard/dashboard.yml
+            echo "opensearch.hosts: https://"${indexer_node_ips[0]}":9700" >> /etc/wazuh-dashboards/dashboard.yml
         else
-            echo "opensearch.hosts:" >> /etc/wazuh-dashboard/dashboard.yml
+            echo "opensearch.hosts:" >> /etc/wazuh-dashboards/dashboard.yml
             for i in "${indexer_node_ips[@]}"; do
-                    echo "  - https://${i}:9700" >> /etc/wazuh-dashboard/dashboard.yml
+                    echo "  - https://${i}:9700" >> /etc/wazuh-dashboards/dashboard.yml
             done
         fi
     fi
@@ -54,7 +54,7 @@ function dashboard_copyCertificates() {
         eval "tar -xf ${tar_file} -C ${d_certs_path} ./${name}.pem  && mv ${d_certs_path}${name}.pem ${d_certs_path}dashboard.pem ${debug}"
         eval "tar -xf ${tar_file} -C ${d_certs_path} ./${name}-key.pem  && mv ${d_certs_path}${name}-key.pem ${d_certs_path}dashboard-key.pem ${debug}"
         eval "tar -xf ${tar_file} -C ${d_certs_path} ./root-ca.pem ${debug}"
-        eval "chown -R wazuh-dashboard:wazuh-dashboard /etc/wazuh-dashboard/ ${debug}"
+        eval "chown -R wazuh-dashboards:wazuh-dashboards /etc/wazuh-dashboards/ ${debug}"
         eval "chmod -R 500 ${d_certs_path} ${debug}"
         eval "chmod 440 ${d_certs_path}* ${debug}"
         logger -d "Wazuh dashboard certificate setup finished."
@@ -95,7 +95,7 @@ function dashboard_initialize() {
             fi
         done
     fi
-    eval "sed -i 's,url: https://localhost,url: https://${wazuh_api_address},g' /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml ${debug}"
+    eval "sed -i 's,url: https://localhost,url: https://${wazuh_api_address},g' /usr/share/wazuh-dashboards/data/wazuh/config/wazuh.yml ${debug}"
 
     if [ ${j} -eq 12 ]; then
         flag="-w"
@@ -141,7 +141,7 @@ function dashboard_initializeAIO() {
         exit 1
     fi
     logger "Wazuh dashboard started."
-    logger "You can access the web interface https://<wazuh-dashboard-host-ip>. The credentials are admin:${u_pass}"
+    logger "You can access the web interface https://<wazuh-dashboards-host-ip>. The credentials are admin:${u_pass}"
 
 }
 
@@ -149,9 +149,9 @@ function dashboard_install() {
     
     logger "Starting Wazuh dashboard installation."
     if [ "${sys_type}" == "zypper" ]; then
-        eval "zypper -n install wazuh-dashboard=${wazuh_version}-${wazuh_revision} ${debug}"
+        eval "zypper -n install wazuh-dashboards=${wazuh_version}-${wazuh_revision} ${debug}"
     else
-        eval "${sys_type} install wazuh-dashboard${sep}${wazuh_version}-${wazuh_revision} -y ${debug}"
+        eval "${sys_type} install wazuh-dashboards${sep}${wazuh_version}-${wazuh_revision} -y ${debug}"
     fi
     if [  "$?" != 0  ]; then
         logger -e "Wazuh dashboard installation failed"

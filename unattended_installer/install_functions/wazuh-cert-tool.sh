@@ -204,7 +204,7 @@ function getHelp() {
     echo -e "        -v,  --verbose"
     echo -e "                Enables verbose mode."
     echo -e ""
-    echo -e "        -wd,  --wazuh-dashboard-certificates"
+    echo -e "        -wd,  --wazuh-dashboards-certificates"
     echo -e "                Creates the Wazuh dashboard certificates."
     echo -e ""
     echo -e "        -wi,  --wazuh-indexer-certificates"
@@ -252,7 +252,7 @@ function main() {
                 debugEnabled=1
                 shift 1
                 ;;
-            "-wd"|"--wazuh-dashboard-certificates")
+            "-wd"|"--wazuh-dashboards-certificates")
                 cdashboard=1
                 shift 1
                 ;;

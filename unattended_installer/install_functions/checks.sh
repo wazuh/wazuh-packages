@@ -227,14 +227,14 @@ function checkIfInstalled() {
     fi
 
     if [ "${sys_type}" == "yum" ]; then
-        dashboardinstalled=$(yum list installed 2>/dev/null | grep wazuh-dashboard)
+        dashboardinstalled=$(yum list installed 2>/dev/null | grep wazuh-dashboards)
     elif [ "${sys_type}" == "zypper" ]; then
-        dashboardinstalled=$(zypper packages | grep wazuh-dashboard | grep i+)
+        dashboardinstalled=$(zypper packages | grep wazuh-dashboards | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
-        dashboardinstalled=$(apt list --installed  2>/dev/null | grep wazuh-dashboard)
+        dashboardinstalled=$(apt list --installed  2>/dev/null | grep wazuh-dashboards)
     fi
 
-    if [ -d "/var/lib/wazuh-dashboard/" ] || [ -d "/usr/share/wazuh-dashboard" ] || [ -d "/etc/wazuh-dashboard" ]; then
+    if [ -d "/var/lib/wazuh-dashboards/" ] || [ -d "/usr/share/wazuh-dashboards" ] || [ -d "/etc/wazuh-dashboards" ]; then
         dashboard_remaining_files=1
     fi
 

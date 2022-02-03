@@ -338,18 +338,18 @@ function rollBack() {
     if [[ -n "${dashboardinstalled}" && ( -n "${dashboard}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         logger -w "Removing Wazuh Dashboard."
         if [ "${sys_type}" == "yum" ]; then
-            eval "yum remove wazuh-dashboard -y ${debug}"
+            eval "yum remove wazuh-dashboards -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
-            eval "zypper -n remove wazuh-dashboard ${debug}"
+            eval "zypper -n remove wazuh-dashboards ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
-            eval "apt remove --purge wazuh-dashboard -y ${debug}"
+            eval "apt remove --purge wazuh-dashboards -y ${debug}"
         fi
     fi
 
     if [[ ( -n "${dashboard_remaining_files}" || -n "${dashboardinstalled}" ) && ( -n "${dashboard}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        eval "rm -rf /var/lib/wazuh-dashboard/ ${debug}"
-        eval "rm -rf /usr/share/wazuh-dashboard/ ${debug}"
-        eval "rm -rf /etc/wazuh-dashboard/ ${debug}"
+        eval "rm -rf /var/lib/wazuh-dashboards/ ${debug}"
+        eval "rm -rf /usr/share/wazuh-dashboards/ ${debug}"
+        eval "rm -rf /etc/wazuh-dashboards/ ${debug}"
     fi
 
     elements_to_remove=(    "/var/log/elasticsearch/"
@@ -359,8 +359,8 @@ function rollBack() {
                             "/etc/systemd/system/multi-user.target.wants/wazuh-manager.service"
                             "/etc/systemd/system/multi-user.target.wants/filebeat.service"
                             "/etc/systemd/system/multi-user.target.wants/opensearch.service"
-                            "/etc/systemd/system/multi-user.target.wants/wazuh-dashboard.service"
-                            "/etc/systemd/system/wazuh-dashboard.service"
+                            "/etc/systemd/system/multi-user.target.wants/wazuh-dashboards.service"
+                            "/etc/systemd/system/wazuh-dashboards.service"
                             "/lib/firewalld/services/dashboard.xml"
                             "/lib/firewalld/services/opensearch.xml" )
 

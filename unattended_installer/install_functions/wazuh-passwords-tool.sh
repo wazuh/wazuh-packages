@@ -64,12 +64,12 @@ function changePassword() {
     if [ "$nuser" == "kibanaserver" ] || [ -n "$changeall" ]; then
 
         if [ -n "${dashboardinstalled}" ] && [ -n "${dashpass}" ]; then
-            wazuhdashold=$(grep "password:" /etc/wazuh-dashboard/dashboard.yml )
+            wazuhdashold=$(grep "password:" /etc/wazuh-dashboards/dashboard.yml )
             rk="opensearch.password: "
             wazuhdashold="${wazuhdashold//$rk}"
-            conf="$(awk '{sub("opensearch.password: .*", "opensearch.password: '${dashpass}'")}1' /etc/wazuh-dashboard/dashboard.yml)"
-            echo "${conf}" > /etc/wazuh-dashboard/dashboard.yml 
-            restartService "wazuh-dashboard"
+            conf="$(awk '{sub("opensearch.password: .*", "opensearch.password: '${dashpass}'")}1' /etc/wazuh-dashboards/dashboard.yml)"
+            echo "${conf}" > /etc/wazuh-dashboards/dashboard.yml 
+            restartService "wazuh-dashboards"
         fi
     fi
 
@@ -94,11 +94,11 @@ function checkInstalledPass() {
     fi
 
     if [ "${sys_type}" == "yum" ]; then
-        dashboardinstalled=$(yum list installed 2>/dev/null | grep wazuh-dashboard)
+        dashboardinstalled=$(yum list installed 2>/dev/null | grep wazuh-dashboards)
     elif [ "${sys_type}" == "zypper" ]; then
-        dashboardinstalled=$(zypper packages | grep wazuh-dashboard | grep i+)
+        dashboardinstalled=$(zypper packages | grep wazuh-dashboards | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
-        dashboardinstalled=$(apt list --installed  2>/dev/null | grep wazuh-dashboard)
+        dashboardinstalled=$(apt list --installed  2>/dev/null | grep wazuh-dashboards)
     fi
 
     if [ -z "${indexerchinstalled}" ] && [ -z "${dashboardinstalled}" ] && [ -z "${filebeatinstalled}" ]; then
@@ -610,16 +610,16 @@ function runSecurityAdmin() {
 
     if [[ -n "${nuser}" ]] && [[ -n ${autopass} ]]; then
         logger_pass $'\nThe password for user '${nuser}' is '${password}''
-        logger_pass -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/wazuh-dashboard/dashboard.yml if necessary and restart the services."
+        logger_pass -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/wazuh-dashboards/dashboard.yml if necessary and restart the services."
     fi
 
     if [[ -n "${nuser}" ]] && [[ -z ${autopass} ]]; then
-        logger_pass -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/wazuh-dashboard/dashboard.yml if necessary and restart the services."
+        logger_pass -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/wazuh-dashboards/dashboard.yml if necessary and restart the services."
     fi
 
     if [ -n "${changeall}" ]; then
         if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ]; then
-            logger_pass -w "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/wazuh-dashboard/dashboard.yml if necessary and restart the services."
+            logger_pass -w "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/wazuh-dashboards/dashboard.yml if necessary and restart the services."
         else
             logger_pass -d "Passwords changed."
         fi

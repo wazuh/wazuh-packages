@@ -83,7 +83,7 @@ function indexer_configure() {
 }
 
 function indexer_copyCertificates() {
-    
+
     eval "rm -f ${i_certs_path}/* ${debug}"
     name=${indexer_node_names[pos]}
 
@@ -104,7 +104,7 @@ function indexer_initialize() {
 
     logger "Starting Wazuh indexer cluster."
     i=0
-    until $(curl -XGET https://${indexer_node_ips[pos]}:9700/ -uadmin:admin -k --max-time 120 --silent --output /dev/null) || [ "${i}" -eq 12 ]; do
+    until curl -XGET https://${indexer_node_ips[pos]}:9700/ -uadmin:admin -k --max-time 120 --silent --output /dev/null || [ "${i}" -eq 12 ]; do
         sleep 10
         i=$((i+1))
     done

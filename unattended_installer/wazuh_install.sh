@@ -37,9 +37,9 @@ debug=">> ${logfile} 2>&1"
 trap cleanExit SIGINT
 
 function cleanExit() {
-    
+
     rollback_conf=""
-    
+
     if [ -n "$spin_pid" ]; then
         eval "kill -9 $spin_pid ${debug}"
     fi
@@ -50,7 +50,7 @@ function cleanExit() {
     done
     if [[ "${rollback_conf}" =~ [N|n] ]]; then
         exit 1
-    else 
+    else
         rollBack
         exit 1
     fi
@@ -110,7 +110,7 @@ function getHelp() {
     echo -e "        -v,  --verbose"
     echo -e "                Shows the complete installation output."
     echo -e ""
-    echo -e "        -wd,  --wazuh-dashboard <dashboard-node-name>"
+    echo -e "        -wd,  --wazuh-dashboards <dashboard-node-name>"
     echo -e "                Wazuh dashboard installation."
     echo -e ""
     echo -e "        -wi,  --wazuh-indexer <indexer-node-name>"
@@ -139,7 +139,7 @@ function importFunction() {
             if [ $has_main = 0 ]; then
                 echo 'main $@' >> "${base_path}/${functions_path}/${1}"
             fi
-        else 
+        else
             logger -e "Unable to find resource in path ${base_path}/${functions_path}/${1}."
             exit 1
         fi
@@ -270,9 +270,9 @@ function main() {
                 debug="2>&1 | tee -a ${logfile}"
                 shift 1
                 ;;
-            "-wd"|"--wazuh-dashboard")
+            "-wd"|"--wazuh-dashboards")
                 if [ -z "${2}" ]; then
-                    logger -e "Error on arguments. Probably missing <node-name> after -wd|---wazuh-dashboard"
+                    logger -e "Error on arguments. Probably missing <node-name> after -wd|---wazuh-dashboards"
                     getHelp
                     exit 1
                 fi
@@ -305,8 +305,8 @@ function main() {
                 getHelp
         esac
 
-        # This assignment will be present during all testing stages. 
-        # It must be removed when the unattended installer is published. 
+        # This assignment will be present during all testing stages.
+        # It must be removed when the unattended installer is published.
         development=1
     done
 
@@ -360,7 +360,7 @@ function main() {
 
 # -------------- Configuration creation case  -----------------------
 
-    # Creation certificate case: Only AIO and -c option can create certificates. 
+    # Creation certificate case: Only AIO and -c option can create certificates.
     if [ -n "${configurations}" ] || [ -n "${AIO}" ]; then
         logger "------------------------------- Configuration files -------------------------------"
         if [ -n "${configurations}" ]; then
@@ -372,7 +372,7 @@ function main() {
         fi
         gen_file="${base_path}/certs/password_file.yml"
         generatePasswordFile
-        # Using cat instead of simple cp because OpenSUSE unknown error. 
+        # Using cat instead of simple cp because OpenSUSE unknown error.
         eval "cat '${config_file}' > '${base_path}/certs/config.yml'"
         eval "tar -zcf '${tar_file}' -C '${base_path}/certs/' . ${debug}"
         eval "rm -rf '${base_path}/certs' ${debug}"
@@ -384,7 +384,7 @@ function main() {
         readConfig
         rm -f "${config_file}"
     fi
-    
+
     # Distributed architecture: node names must be different
     if [[ -z "${AIO}" && ( -n "${indexer}"  || -n "${dashboard}" || -n "${wazuh}" )]]; then
         checkNames
@@ -429,7 +429,7 @@ function main() {
         dashboard_install 
         dashboard_configure
         changePasswords
-        startService "wazuh-dashboard"
+        startService "wazuh-dashboards"
         dashboard_initialize
 
     fi
@@ -476,7 +476,7 @@ function main() {
         logger "------------------------------------- Wazuh Dashboard --------------------------------------"
         dashboard_install
         dashboard_configure
-        startService "wazuh-dashboard"
+        startService "wazuh-dashboards"
         changePasswords
         dashboard_initializeAIO
     fi
