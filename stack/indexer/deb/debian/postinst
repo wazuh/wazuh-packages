@@ -37,7 +37,7 @@ if command -v systemctl > /dev/null 2>&1; then
     systemctl restart systemd-sysctl.service > /dev/null 2>&1 || true
 fi
 
-# Below codeblock is using the fact that postinst script is called with the most-recently configured version.
+# The codeblock below is using the fact that postinst script is called with the most-recently configured version.
 # In other words, a fresh installed will be called like "postinst configure" with no previous version ($2 is null)
 if [ -z "$2" ]; then
   # If $2 is null, this is an install	
