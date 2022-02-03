@@ -125,11 +125,6 @@ if [ $1 = 1 ];then # Install
     echo "%{USER} soft nproc 4096" >> /etc/security/limits.conf
     echo "%{USER} hard nofile 65535" >> /etc/security/limits.conf
     echo "%{USER} soft nofile 65535" >> /etc/security/limits.conf
-    if [[ "$(uname -a)" =~ "centos6" ]] || [[ "$(uname -a)" =~ "el6" ]];then
-        echo "### Disabled filter install on CentOS 6 systems ###" >> %{CONFIG_DIR}/opensearch.yml
-        echo "bootstrap.system_call_filter: false" >> %{CONFIG_DIR}/opensearch.yml
-    fi
-
 fi
 
 if [ $1 = 2 ];then # Upgrade
