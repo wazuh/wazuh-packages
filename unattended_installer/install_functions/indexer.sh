@@ -8,7 +8,7 @@
 
 readonly i_certs_path="/etc/wazuh-indexer/certs/"
 
-function configureIndexer() {
+function indexer_configure() {
 
     logger -d "Configuring Wazuh indexer."
     eval "export JAVA_HOME=/usr/share/wazuh-indexer/jdk/"
@@ -16,8 +16,8 @@ function configureIndexer() {
     # eval "getConfig indexer/roles/roles_mapping.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/roles_mapping.yml ${debug}"
     # eval "getConfig indexer/roles/internal_users.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/internal_users.yml ${debug}"
     # eval "rm -f /etc/wazuh-indexer/{esnode-key.pem,esnode.pem,kirk-key.pem,kirk.pem,root-ca.pem} ${debug}"
-
-    copyCertificatesIndexer
+    
+    indexer_copyCertificates
 
     # Configure JVM options for Wazuh indexer
     ram_gb=$(free -g | awk '/^Mem:/{print $2}')
@@ -82,7 +82,7 @@ function configureIndexer() {
     logger "Wazuh indexer post-install configuration finished."
 }
 
-function copyCertificatesIndexer() {
+function indexer_copyCertificates() {
     
     eval "rm -f ${i_certs_path}/* ${debug}"
     name=${indexer_node_names[pos]}
@@ -100,7 +100,7 @@ function copyCertificatesIndexer() {
 
 }
 
-function initializeIndexer() {
+function indexer_initialize() {
 
     logger "Starting Wazuh indexer cluster."
     i=0
@@ -126,7 +126,7 @@ function initializeIndexer() {
 
 }
 
-function installIndexer() {
+function indexer_install() {
 
     logger "Starting Wazuh indexer installation."
 
@@ -149,7 +149,7 @@ function installIndexer() {
 
 }
 
-function startIndexerCluster() {
+function indexer_startCluster() {
 
     eval "sudo -u wazuh-indexer JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -p 9800 -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ -icl -nhnv -cacert /etc/wazuh-indexer/certs/root-ca.pem -cert /etc/wazuh-indexer/certs/admin.pem -key /etc/wazuh-indexer/certs/admin-key.pem -h ${indexer_node_ips[pos]} ${debug}"
     if [  "$?" != 0  ]; then
