@@ -173,8 +173,8 @@ function installElasticsearch() {
 function uninstallelasticsearch() {
     logger "Elasticsearch will be uninstalled."
 
-    if [[ -n "${elasticsearchinstalled}" && ( -n "${elasticsearch}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        logger -w "Removing Elasticsearch."
+    if [[ -n "${elasticsearchinstalled}" ]]; then
+        logger -w "Removing Elasticsearch packages."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove opendistroforelasticsearch -y ${debug}"
             eval "yum remove elasticsearch* -y ${debug}"
@@ -186,22 +186,25 @@ function uninstallelasticsearch() {
         fi
     fi
 
-    if [[ ( -n "${elastic_remaining_files}" || -n "${elasticsearchinstalled}" ) && ( -n "${elasticsearch}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        eval "rm -rf /var/lib/elasticsearch/ ${debug}"
-        eval "rm -rf /usr/share/elasticsearch/ ${debug}"
-        eval "rm -rf /etc/elasticsearch/ ${debug}"
+    if [[ -n "${elastic_remaining_files}" ]]; then
+        logger -w "Removing Elasticsearch files."
+
+        elements_to_remove=(    "/var/log/elasticsearch/"
+                                "/etc/systemd/system/elasticsearch.service.wants/"
+                                "/securityadmin_demo.sh"
+                                "/etc/systemd/system/multi-user.target.wants/elasticsearch.service"
+                                "/etc/systemd/system/multi-user.target.wants/kibana.service"
+                                "/etc/systemd/system/kibana.service"
+                                "/lib/firewalld/services/kibana.xml"
+                                "/lib/firewalld/services/elasticsearch.xml"
+                                "/var/lib/elasticsearch/"
+                                "/usr/share/elasticsearch/"
+                                "/etc/elasticsearch/" )
+
+        eval "rm -rf ${elements_to_remove[*]} ${debug}"
     fi
 
-    elements_to_remove=(    "/var/log/elasticsearch/"
-                            "/etc/systemd/system/elasticsearch.service.wants/"
-                            "/securityadmin_demo.sh"
-                            "/etc/systemd/system/multi-user.target.wants/elasticsearch.service"
-                            "/etc/systemd/system/multi-user.target.wants/kibana.service"
-                            "/etc/systemd/system/kibana.service"
-                            "/lib/firewalld/services/kibana.xml"
-                            "/lib/firewalld/services/elasticsearch.xml" )
 
-    eval "rm -rf ${elements_to_remove[*]}"
 }
 
 

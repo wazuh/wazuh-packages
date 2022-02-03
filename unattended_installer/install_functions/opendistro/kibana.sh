@@ -180,8 +180,8 @@ function installKibana() {
 function uninstallkibana() {
     logger "Kibana will be uninstalled."
 
-    if [[ -n "${kibanainstalled}" && ( -n "${kibana}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        logger -w "Removing Kibana."
+    if [[ -n "${kibanainstalled}" ]]; then
+        logger -w "Removing Kibana packages."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove opendistroforelasticsearch-kibana -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
@@ -191,17 +191,18 @@ function uninstallkibana() {
         fi
     fi
 
-    if [[ ( -n "${kibana_remaining_files}" || -n "${kibanainstalled}" ) && ( -n "${kibana}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        eval "rm -rf /var/lib/kibana/ ${debug}"
-        eval "rm -rf /usr/share/kibana/ ${debug}"
-        eval "rm -rf /etc/kibana/ ${debug}"
-    fi
+    if [[ -n "${kibana_remaining_files}" ]]; then
+        logger -w "Removing Kibana files."
 
-    elements_to_remove=(    "/etc/systemd/system/multi-user.target.wants/kibana.service"
-                            "/etc/systemd/system/kibana.service"
-                            "/lib/firewalld/services/kibana.xml" )
+        elements_to_remove=(    "/etc/systemd/system/multi-user.target.wants/kibana.service"
+                                "/etc/systemd/system/kibana.service"
+                                "/lib/firewalld/services/kibana.xml"
+                                "/etc/kibana/"
+                                "/usr/share/kibana/"
+                                "/etc/kibana/" )
 
-    eval "rm -rf ${elements_to_remove[*]}"
+        eval "rm -rf ${elements_to_remove[*]} ${debug}"
+        fi
 
 }
 
