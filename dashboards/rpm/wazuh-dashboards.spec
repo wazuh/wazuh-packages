@@ -417,8 +417,3 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) "%{CONFIG_DIR}/node.options"
 %attr(640, %{USER}, %{GROUP}) "/etc/systemd/system/wazuh-dashboards.service"
 
-
-
-%changelog
-* Wed Apr 28 2021 support <info@wazuh.com> - 4.3.0
-- More info: https://documentation.wazuh.com/current/release-notes/
