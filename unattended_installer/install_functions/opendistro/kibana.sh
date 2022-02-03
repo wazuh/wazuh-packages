@@ -157,7 +157,7 @@ function initializeKibanaAIO() {
 
 }
 
-function installkibana() {
+function installKibana() {
 
     logger "Starting Kibana installation."
     if [ "${sys_type}" == "zypper" ]; then
@@ -178,7 +178,7 @@ function installkibana() {
 }
 
 function uninstallkibana() {
-    logger "Cleaning the installation. Kibana will be uninstalled."
+    logger "Kibana will be uninstalled."
 
     if [[ -n "${kibanainstalled}" && ( -n "${kibana}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         logger -w "Removing Kibana."

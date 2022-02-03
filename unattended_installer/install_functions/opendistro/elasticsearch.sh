@@ -171,7 +171,7 @@ function installElasticsearch() {
 }
 
 function uninstallelasticsearch() {
-    logger "Cleaning the installation. Elasticsearch will be uninstalled."
+    logger "Elasticsearch will be uninstalled."
 
     if [[ -n "${elasticsearchinstalled}" && ( -n "${elasticsearch}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         logger -w "Removing Elasticsearch."

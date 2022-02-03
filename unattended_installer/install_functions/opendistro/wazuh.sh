@@ -64,10 +64,10 @@ function installWazuh() {
 
 function uninstallmanager() {
 
-    logger "Cleaning the installation. Wazuh and Filebeat will be uninstalled."
+    logger "Wazuh and Filebeat will be uninstalled."
 
     if [[ -n "${wazuhinstalled}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]];then
-        logger -w "Removing the Wazuh manager."
+        logger -w "Removing Wazuh and Filebeat."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-manager -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
