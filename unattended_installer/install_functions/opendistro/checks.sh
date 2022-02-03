@@ -32,8 +32,8 @@ function checkArguments() {
 
     # -------------- Overwrite --------------------------------------
 
-    if [ -n "${overwrite}" ] && [ -z "${AIO}" ] && [ -z "${elasticsearch}" ] && [ -z "${kibana}" ] && [ -z "${wazuh}" ]; then 
-        logger -e "The argument -o|--overwrite must be used with -a, -k, -e or -w. If you want to uninstall all the components use -u|--uninstall"
+    if [ -n "${overwrite}" ] && [ -z "${AIO}" ] && [ -z "${elasticsearch}" ] && [ -z "${kibana}" ] && [ -z "${wazuh}" ]; then
+        logger -e "The argument -o|--overwrite must be used with -a, -k, -e or -w. If you want to uninstall all the components use -u|--uninstall."
         exit 1
     fi
 
@@ -41,25 +41,33 @@ function checkArguments() {
 
     if [ -n "${uninstall}" ]; then
 
-        if [ -z "${wazuhinstalled}" ] && [ -z "${wazuh_remaining_files}" ]; then
-            logger "Wazuh manager components were not found on the system so it was not uninstalled."
-        fi
-
-        if [ -z "${filebeatinstalled}" ] && [ -z "${filebeat_remaining_files}" ]; then
-            logger "Filebeat components were not found on the system so it was not uninstalled."
-        fi
-
-        if [ -z "${elasticsearchinstalled}" ] && [ -z "${elastic_remaining_files}" ]; then
-            logger "Elasticsearch components were not found on the system so it was not uninstalled."
-        fi
-
-        if [ -z "${kibanainstalled}" ] && [ -z "${kibana_remaining_files}" ]; then
-            logger "Kibana components were found on the system so it was not uninstalled."
-        fi
-
         if [ -n "$AIO" ] || [ -n "$elasticsearch" ] || [ -n "$kibana" ] || [ -n "$wazuh" ]; then
-            logger -e "The argument -u|--uninstall can't be used with -a, -k, -e or -w. If you want to overwrite the components use -o|--overwrite"
+        logger -e "The argument -u|--uninstall can't be used with -a, -k, -e or -w. If you want to overwrite the components use -o|--overwrite."
+        exit 1
+        fi
+
+        if ! [ ${uninstall_component_name} == "all" -o ${uninstall_component_name} == "manager" -o ${uninstall_component_name} == "elasticsearch" -o ${uninstall_component_name} == "kibana" ]; then
+            logger -e "The argument -u|--uninstall only accepts the following parameters: all, manager, elasticsearch or kibana."
             exit 1
+        fi
+
+        if [ ${uninstall_component_name} == "all" ] || [ ${uninstall_component_name} == "manager" ]; then
+            if [ -z "${wazuhinstalled}" ] && [ -z "${wazuh_remaining_files}" ]; then
+                logger "Wazuh manager components were not found on the system so it was not uninstalled."
+            fi
+            if [ -z "${filebeatinstalled}" ] && [ -z "${filebeat_remaining_files}" ]; then
+                logger "Filebeat components were not found on the system so it was not uninstalled."
+            fi
+        fi
+        if [ ${uninstall_component_name} == "all" ] || [ ${uninstall_component_name} == "elasticsearch" ]; then
+            if [ -z "${elasticsearchinstalled}" ] && [ -z "${elastic_remaining_files}" ]; then
+                logger "Elasticsearch components were not found on the system so it was not uninstalled."
+            fi
+        fi
+        if [ ${uninstall_component_name} == "all" ] || [ ${uninstall_component_name} == "kibana" ]; then
+            if [ -z "${kibanainstalled}" ] && [ -z "${kibana_remaining_files}" ]; then
+                logger "Kibana components were not found on the system so it was not uninstalled."
+            fi
         fi
     fi
 
@@ -140,7 +148,7 @@ function checkArguments() {
 
     # -------------- Global -----------------------------------------
 
-    if [ -z "${AIO}" ] && [ -z "${elasticsearch}" ] && [ -z "${kibana}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ] && [ -z "${configurations}" ] && [ -z "${uninstall}"]; then
+    if [[ -z "${AIO}" && -z "${elasticsearch}" && -z "${kibana}" && -z "${wazuh}" && -z "${start_elastic_cluster}" && -z "${configurations}" && -z "${uninstall}" ]]; then
         logger -e "At least one of these arguments is necessary -a|--all-in-one, -c|--create-configurations, -e|--elasticsearch <elasticsearch-node-name>, -k|--kibana <kibana-node-name>, -s|--start-cluster, -w|--wazuh-server <wazuh-node-name>, -u|--uninstall"
         exit 1
     fi
