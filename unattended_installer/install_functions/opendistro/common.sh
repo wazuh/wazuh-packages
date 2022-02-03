@@ -290,6 +290,16 @@ function rollBack() {
         uninstallkibana
     fi
 
+    if [ -n "${overwrite}" ] && [ -n "${wazuh}" ]; then
+        uninstallmanager
+    fi
+    if [ -n "${overwrite}" ] && [ -n "${elasticsearch}" ]; then
+        uninstallelasticsearch
+    fi
+    if [ -n "${overwrite}" ] && [ -n "${kibana}" ]; then
+        uninstallkibana
+    fi
+
     for component in "${componentList[@]}"; do
         if [ "${component}" == "manager" ] || [ "${component}" == "elastichsearch" ] || [ "${component}" == "kibana" ] ; then
             eval "uninstall$component"
