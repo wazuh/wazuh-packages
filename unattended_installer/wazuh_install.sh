@@ -338,22 +338,8 @@ function main() {
 
     logger "Starting Wazuh unattended installer. Wazuh version: ${wazuh_version}. Wazuh installer version: ${wazuh_install_vesion}"
 
-# -------------- Uninstall case  ------------------------------------
-
-    checkIfInstalled
-    if [ -n "${uninstall}" ]; then
-        logger "------------------------------------ Uninstall ------------------------------------"
-        logger "Removing all installed components."
-        rollBack
-        logger "All components removed."
-        exit 0
-    fi
-
 # -------------- Preliminary checks  --------------------------------
 
-    if [ -z "${configurations}" ] && [ -z "${AIO}" ]; then
-        checkPreviousCertificates
-    fi
     checkArch
     checkSystem
     if [ -n "${ignore}" ]; then
@@ -364,7 +350,27 @@ function main() {
     if [ -n "${AIO}" ] ; then
         rm -f "${tar_file}"
     fi
+    checkIfInstalled
     checkArguments
+
+# -------------- Uninstall case  ------------------------------------
+
+    if [ -n "${uninstall}" ]; then
+        importFunction "wazuh.sh"
+        importFunction "filebeat.sh"
+        importFunction "elasticsearch.sh"
+        importFunction "kibana.sh"
+        logger "------------------------------------ Uninstall ------------------------------------"
+        rollBack
+        logger "All components removed."
+        exit 0
+    fi
+
+# -------------- Preliminary steps  --------------------------------
+
+    if [ -z "${configurations}" ] && [ -z "${AIO}" ]; then
+        checkPreviousCertificates
+    fi
 
 # -------------- Configuration creation case  -----------------------
 
