@@ -275,23 +275,22 @@ function restoreWazuhrepo() {
 function rollBack() {
 
     componentList=()
-    componentList+=($wazuhinstaller)
-    componentList+=($filebeatinstalled)
-    componentList+=($elasticsearchinstalled)
-    componentList+=($kibanainstalled)
-    componentList+=($uninstall_component_name)
+    componentList+=("${wazuhinstaller}")
+    componentList+=("${filebeatinstalled}")
+    componentList+=("${elasticsearchinstalled}")
+    componentList+=("${kibanainstalled}")
+    componentList+=("${uninstall_component_name}")
 
-    logger "Cleaning the installation."
+    logger "Removing components and cleaning the installation."
 
     if [ -n "${AIO}" ] || [ "${uninstall_component_name}" == "all" ] ; then
-        logger "Cleaning the installation. All packages and components will be uninstalled."
-        eval "uninstallmanager"
-        eval "uninstallelasticsearch"
-        eval "uninstallkibana"
+        logger "All packages and components will be uninstalled."
+        uninstallmanager
+        uninstallelasticsearch
+        uninstallkibana
     fi
 
-    for component in "${!componentList[@]}"; do
-
+    for component in "${componentList[@]}"; do
         if [ "${component}" == "manager" ] || [ "${component}" == "elastichsearch" ] || [ "${component}" == "kibana" ] ; then
             eval "uninstall$component"
         fi
@@ -304,16 +303,16 @@ function rollBack() {
     elif [ -f "/etc/apt/sources.list.d/wazuh.list" ]; then
         eval "rm /etc/apt/sources.list.d/wazuh.list"
     fi
-    logger "Cleaning the installation. Repositories were removed."
 
-    if [ -z "${uninstall}" ]; then
-        if [ -n "${rollback_conf}" ] || [ -n "${overwrite}" ]; then
-            logger "Installation cleaned."
-        else
-            logger "Installation cleaned. Check the ${logfile} file to learn more about the issue."
-        fi
+    logger "Repositories were removed."
+
+    if [ -n "${rollback_conf}" ] || [ -n "${overwrite}" ]; then
+        logger "Installation cleaned."
     fi
 
+    if [ -z "${uninstall}" ]; then
+        logger "Check the ${logfile} file to learn more about the issue."
+    fi
 }
 
 function startService() {
