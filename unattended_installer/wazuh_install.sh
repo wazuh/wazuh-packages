@@ -290,7 +290,7 @@ function main() {
                 indxname="${2}"
                 shift 2
                 ;;
-            "-w"|"--wazuh-server")
+            "-ws"|"--wazuh-server")
                 if [ -z "${2}" ]; then
                     logger -e "Error on arguments. Probably missing <node-name> after -w|--wazuh-server"
                     getHelp
