@@ -1,5 +1,5 @@
 # Wazuh package SPEC
-# Copyright (C) 2015-2022, Wazuh Inc.
+# Copyright (C) 2021, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
@@ -45,9 +45,6 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 
 %prep
 
-# -----------------------------------------------------------------------------
-
-%setup -q
 
 curl -kOL https://s3.amazonaws.com/warehouse.wazuh.com/stack/dashboard/%{DASHBOARD_FILE}.tar.gz
 groupadd %{GROUP}
@@ -121,16 +118,17 @@ find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -exec chown %{USER}:%{GROUP} {} \
 
 %pre
 # Create the wazuh-dashboards group if it doesn't exists
-if command -v getent > /dev/null 2>&1 && ! getent group %{GROUP} > /dev/null 2>&1; then
-  groupadd -r %{GROUP}
-elif ! id -g wazuh-dashboards > /dev/null 2>&1; then
-  groupadd -r %{GROUP}
+if [ $1 = 1 ]; then
+  if command -v getent > /dev/null 2>&1 && ! getent group %{GROUP} > /dev/null 2>&1; then
+    groupadd -r %{GROUP}
+  elif ! id -g wazuh-dashboards > /dev/null 2>&1; then
+    groupadd -r %{GROUP}
+  fi
+  # Create the wazuh-dashboards user if it doesn't exists
+  if ! id -u %{USER} > /dev/null 2>&1; then
+    useradd -g %{GROUP} -G %{USER} -d %{INSTALL_DIR}/ -r -s /sbin/nologin wazuh-dashboards
+  fi
 fi
-# Create the wazuh-dashboards user if it doesn't exists
-if ! id -u %{USER} > /dev/null 2>&1; then
-  useradd -g %{GROUP} -G %{USER} -d %{INSTALL_DIR}/ -r -s /sbin/nologin wazuh-dashboards
-fi
-
 # Stop the services to upgrade the package
 if [ $1 = 2 ]; then
   if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-dashboards > /dev/null 2>&1; then
@@ -180,7 +178,6 @@ if [ $1 = 0 ];then
   fi
 
   # Remove /etc/wazuh-dashboards and /usr/share/wazuh-dashboards dirs
-  rm -rf %{CONFIG_DIR}
   rm -rf %{INSTALL_DIR}
   rm -rf %{PID_DIR}
   if [ -d %{LOG_DIR} ]; then
@@ -203,12 +200,8 @@ fi
 
 if [ -f %{INSTALL_DIR}/wazuh-dashboards.restart ]; then
   rm -f %{INSTALL_DIR}/wazuh-dashboards.restart
-  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 ; then
-    systemctl daemon-reload > /dev/null 2>&1
-    systemctl restart wazuh-dashboards.service > /dev/null 2>&1
-  elif command -v service > /dev/null 2>&1 && service wazuh-dashboards status 2>/dev/null | grep "running" > /dev/null 2>&1; then
-    service wazuh-dashboards restart > /dev/null 2>&1
-  fi
+  service wazuh-dashboards restart > /dev/null 2>&1
+
 fi
 
 # -----------------------------------------------------------------------------
