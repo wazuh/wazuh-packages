@@ -16,8 +16,6 @@ function indexer_configure() {
     # eval "getConfig indexer/roles/roles_mapping.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/roles_mapping.yml ${debug}"
     # eval "getConfig indexer/roles/internal_users.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/internal_users.yml ${debug}"
     # eval "rm -f /etc/wazuh-indexer/{esnode-key.pem,esnode.pem,kirk-key.pem,kirk.pem,root-ca.pem} ${debug}"
-    
-    indexer_copyCertificates
 
     # Configure JVM options for Wazuh indexer
     ram_gb=$(free -g | awk '/^Mem:/{print $2}')
@@ -67,6 +65,8 @@ function indexer_configure() {
             done
         fi
     fi
+
+    indexer_copyCertificates
 
     jv=$(java -version 2>&1 | grep -o -m1 '1.8.0' )
     if [ "$jv" == "1.8.0" ]; then

@@ -13,9 +13,9 @@ function dashboards_configure() {
     dashboards_copyCertificates
 
     if [ -n "${AIO}" ]; then
-        eval "getConfig dashboard/dashboards_unattended.yml /etc/wazuh-dashboards/dashboards.yml ${debug}"
+        eval "getConfig dashboards/dashboards_unattended.yml /etc/wazuh-dashboards/dashboards.yml ${debug}"
     else
-        eval "getConfig dashboard/dashboards_unattended_distributed.yml /etc/wazuh-dashboards/dashboards.yml ${debug}"
+        eval "getConfig dashboards/dashboards_unattended_distributed.yml /etc/wazuh-dashboards/dashboards.yml ${debug}"
         if [ "${#dashboards_node_names[@]}" -eq 1 ]; then
             pos=0
             ip=${dashboards_node_ips[0]}
