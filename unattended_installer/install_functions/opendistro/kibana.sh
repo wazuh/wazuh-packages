@@ -1,4 +1,4 @@
-# Wazuh installer - kibana.sh functions. 
+# Wazuh installer - kibana.sh functions.
 # Copyright (C) 2015, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
@@ -60,7 +60,7 @@ function copyKibanacerts() {
 
     eval "mkdir ${k_certs_path} ${debug}"
     if [ -f "${tar_file}" ]; then
-    
+
         name=${kibana_node_names[pos]}
 
         eval "tar -xf ${tar_file} -C ${k_certs_path} ./${name}.pem  && mv ${k_certs_path}${name}.pem ${k_certs_path}kibana.pem ${debug}"
@@ -123,7 +123,7 @@ function initializeKibana() {
             if [[ "${exit_code}" -eq "7" ]]; then
                 failed_connect=1
                 failed_nodes+=("${elasticsearch_node_names[i]}")
-            fi 
+            fi
         done
         logger "${flag}" "Failed to connect with ${failed_nodes[*]}. Connection refused."
         if [ -z "${force}" ]; then
@@ -158,8 +158,7 @@ function initializeKibanaAIO() {
 }
 
 function installKibana() {
-    
-    uninstall_module_name="kibana"
+
     logger "Starting Kibana installation."
     if [ "${sys_type}" == "zypper" ]; then
         eval "zypper -n install opendistroforelasticsearch-kibana=${opendistro_version} ${debug}"
@@ -168,12 +167,42 @@ function installKibana() {
     fi
     if [  "$?" != 0  ]; then
         logger -e "Kibana installation failed"
+        kibanainstalled="kibana"
         rollBack
         exit 1
-    else    
+    else
         kibanainstalled="1"
         logger "Kibana installation finished."
     fi
+
+}
+
+function uninstallkibana() {
+    logger "Kibana will be uninstalled."
+
+    if [[ -n "${kibanainstalled}" ]]; then
+        logger -w "Removing Kibana packages."
+        if [ "${sys_type}" == "yum" ]; then
+            eval "yum remove opendistroforelasticsearch-kibana -y ${debug}"
+        elif [ "${sys_type}" == "zypper" ]; then
+            eval "zypper -n remove opendistroforelasticsearch-kibana ${debug}"
+        elif [ "${sys_type}" == "apt-get" ]; then
+            eval "apt remove --purge opendistroforelasticsearch-kibana -y ${debug}"
+        fi
+    fi
+
+    if [[ -n "${kibana_remaining_files}" ]]; then
+        logger -w "Removing Kibana files."
+
+        elements_to_remove=(    "/etc/systemd/system/multi-user.target.wants/kibana.service"
+                                "/etc/systemd/system/kibana.service"
+                                "/lib/firewalld/services/kibana.xml"
+                                "/etc/kibana/"
+                                "/usr/share/kibana/"
+                                "/etc/kibana/" )
+
+        eval "rm -rf ${elements_to_remove[*]} ${debug}"
+        fi
 
 }
 

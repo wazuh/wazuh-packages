@@ -1,4 +1,4 @@
-# Wazuh installer - wazuh.sh functions. 
+# Wazuh installer - wazuh.sh functions.
 # Copyright (C) 2015, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
@@ -43,8 +43,8 @@ function configureWazuhCluster() {
 
 function installWazuh() {
 
-    uninstall_module_name="wazuh"
     logger "Starting the Wazuh manager installation."
+
     if [ "${sys_type}" == "zypper" ]; then
         eval "${sys_type} -n install wazuh-manager=${wazuh_version}-${wazuh_revision} ${debug}"
     else
@@ -52,10 +52,61 @@ function installWazuh() {
     fi
     if [  "$?" != 0  ]; then
         logger -e "Wazuh installation failed"
+        wazuhinstaller="manager"
         rollBack
         exit 1
     else
         wazuhinstalled="1"
         logger "Wazuh manager installation finished."
     fi
+}
+
+
+function uninstallmanager() {
+
+    logger "Wazuh and Filebeat will be uninstalled."
+
+    if [[ -n "${wazuhinstalled}" ]];then
+        logger -w "Removing Wazuh packages."
+        if [ "${sys_type}" == "yum" ]; then
+            eval "yum remove wazuh-manager -y ${debug}"
+        elif [ "${sys_type}" == "zypper" ]; then
+            eval "zypper -n remove wazuh-manager ${debug}"
+            eval "rm -f /etc/init.d/wazuh-manager ${debug}"
+        elif [ "${sys_type}" == "apt-get" ]; then
+            eval "apt remove --purge wazuh-manager -y ${debug}"
+        fi
+    fi
+
+    if [[ -n "${wazuh_remaining_files}" ]]; then
+        logger -w "Removing Wazuh files."
+        eval "rm -rf /var/ossec/ ${debug}"
+    fi
+
+    if [[ -n "${filebeatinstalled}" ]]; then
+        logger -w "Removing Filebeat packages."
+        if [ "${sys_type}" == "yum" ]; then
+            eval "yum remove filebeat -y ${debug}"
+        elif [ "${sys_type}" == "zypper" ]; then
+            eval "zypper -n remove filebeat ${debug}"
+        elif [ "${sys_type}" == "apt-get" ]; then
+            eval "apt remove --purge filebeat -y ${debug}"
+        fi
+    fi
+
+    if [[ -n "${filebeat_remaining_files}" ]]; then
+        logger -w "Removing Filebeat files."
+        elements_to_remove=(    "/var/log/filebeat/"
+                                "/etc/systemd/system/multi-user.target.wants/wazuh-manager.service"
+                                "/etc/systemd/system/multi-user.target.wants/filebeat.service"
+                                "/var/lib/filebeat/"
+                                "/usr/share/filebeat/"
+                                "/etc/filebeat/"
+                            )
+        eval "rm -rf ${elements_to_remove[*]} ${debug}"
+    fi
+
+
+
+
 }

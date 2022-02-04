@@ -81,10 +81,10 @@ function getHelp() {
     echo -e "        -ds,  --disable-spinner"
     echo -e "                Disables the spinner indicator."
     echo -e ""
-    echo -e "        -e,  --elasticsearch <elasticsearch-node-name>"
+    echo -e "        -e,  --elasticsearch [elasticsearch-node-name]"
     echo -e "                Elasticsearch installation."
     echo -e ""
-    echo -e "        -f,  --fileconfig <path-to-config-yml>"
+    echo -e "        -f,  --fileconfig [path-to-config-yml]"
     echo -e "                Path to config file. By default: ${base_path}/config.yml"
     echo -e ""
     echo -e "        -F,  --force-kibana"
@@ -96,7 +96,7 @@ function getHelp() {
     echo -e "        -i,  --ignore-health-check"
     echo -e "                Ignores the health-check."
     echo -e ""
-    echo -e "        -k,  --kibana <kibana-node-name>"
+    echo -e "        -k,  --kibana [kibana-node-name]"
     echo -e "                Kibana installation."
     echo -e ""
     echo -e "        -l,  --local"
@@ -108,16 +108,16 @@ function getHelp() {
     echo -e "        -s,  --start-cluster"
     echo -e "                Starts the Elasticsearch cluster."
     echo -e ""
-    echo -e "        -t,  --tar <path-to-certs-tar>"
+    echo -e "        -t,  --tar [path-to-certs-tar]"
     echo -e "                Path to tar containing certificate files. By default: ${base_path}/configurations.tar"
     echo -e ""
-    echo -e "        -u,  --uninstall <app-module-name>"
-    echo -e "                Uninstalls all Wazuh components. NOTE: This will erase all the existing configuration and data."
+    echo -e "        -u,  --uninstall [component-name]"
+    echo -e "                Use 'all' for complete components uninstall, 'manager', 'elasticsearch' or 'kibana' for single component uninstall."
     echo -e ""
     echo -e "        -v,  --verbose"
     echo -e "                Shows the complete installation output."
     echo -e ""
-    echo -e "        -w,  --wazuh-server <wazuh-node-name>"
+    echo -e "        -w,  --wazuh-server [wazuh-node-name]"
     echo -e "                Wazuh server installation. It includes Filebeat."
     echo -e ""
     exit 1
@@ -285,12 +285,12 @@ function main() {
                 ;;
             "-u"|"--uninstall")
                 if [ -z "${2}" ]; then
-                    logger -e "Error on arguments. Probably missing <app-module-name> after -u|--uninstall."
+                    logger -e "Error on arguments. Probably missing <component-name> after -u|--uninstall."
                     getHelp
                     exit 1
                 fi
                 uninstall=1
-                uninstall_module_name="${2}"
+                uninstall_component_name="${2}"
                 shift 2
                 ;;
             "-v"|"--verbose")
@@ -340,20 +340,8 @@ function main() {
 
     logger "Starting Wazuh unattended installer. Wazuh version: ${wazuh_version}. Wazuh installer version: ${wazuh_install_vesion}"
 
-# -------------- Prerequisites and Wazuh repo  ----------------------
-
-    if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
-        logger "---------------------------------- Dependencies -----------------------------------"
-        installPrerequisites
-        addWazuhrepo
-    fi
-
 # -------------- Preliminary checks  --------------------------------
 
-
-    if [ -z "${configurations}" ] && [ -z "${AIO}" ]; then
-        checkPreviousCertificates
-    fi
     checkArch
     checkSystem
     if [ -n "${ignore}" ]; then
@@ -370,11 +358,21 @@ function main() {
 # -------------- Uninstall case  ------------------------------------
 
     if [ -n "${uninstall}" ]; then
+
+        importFunction "wazuh.sh"
+        importFunction "filebeat.sh"
+        importFunction "elasticsearch.sh"
+        importFunction "kibana.sh"
         logger "------------------------------------ Uninstall ------------------------------------"
-        logger "Removing all installed components."
         rollBack
         logger "All components removed."
         exit 0
+    fi
+
+# -------------- Preliminary steps  --------------------------------
+
+    if [ -z "${configurations}" ] && [ -z "${AIO}" ]; then
+        checkPreviousCertificates
     fi
 
 # -------------- Configuration creation case  -----------------------

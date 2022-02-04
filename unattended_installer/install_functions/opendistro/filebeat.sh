@@ -1,4 +1,4 @@
-# Wazuh installer - filebeat.sh functions. 
+# Wazuh installer - filebeat.sh functions.
 # Copyright (C) 2015, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
@@ -54,9 +54,8 @@ function copyCertificatesFilebeat() {
 
 function installFilebeat() {
 
-    uninstall_module_name="filebeat"
     logger "Starting filebeat installation."
-    
+
     if [ "${sys_type}" == "zypper" ]; then
         eval "zypper -n install filebeat-${elasticsearch_oss_version} ${debug}"
     else
@@ -64,6 +63,8 @@ function installFilebeat() {
     fi
     if [  "$?" != 0  ]; then
         logger -e "Filebeat installation failed"
+        filebeatinstalled="manager"
+        rollBack
         exit 1
     else
         logger "Filebeat installation finished."
