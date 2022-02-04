@@ -11,4 +11,5 @@ server.ssl.enabled: true
 server.ssl.key: "/etc/wazuh-dashboards/certs/kibana-key.pem"
 server.ssl.certificate: "/etc/wazuh-dashboards/certs/kibana.pem"
 opensearch.ssl.certificateAuthorities: ["/etc/wazuh-dashboards/certs/root-ca.pem"]
-server.defaultRoute: /app/wazuh?security_tenant=global
+uiSettings.overrides.defaultRoute: /app/wazuh?security_tenant=global
+logging.dest: "/var/log/wazuh-dashboards/wazuh-dashboards.log"
