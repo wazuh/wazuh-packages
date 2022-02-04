@@ -32,7 +32,9 @@ if [ -f "/etc/default/wazuh-indexer" ]; then
     . "/etc/default/wazuh-indexer"
 fi
 
-# to pick up /usr/lib/sysctl.d/wazuh-indexer.conf
+export OPENSEARCH_PATH_CONF=${OPENSEARCH_PATH_CONF:-%{CONFIG_DIR}}
+
+# To pick up /usr/lib/sysctl.d/wazuh-indexer.conf
 if command -v systemctl > /dev/null 2>&1; then
     systemctl restart systemd-sysctl.service > /dev/null 2>&1 || true
 fi
@@ -102,4 +104,18 @@ else
         /etc/rc.d/init.d/wazuh-indexer restart > /dev/null 2>&1
     fi
     echo " OK"
+fi
+
+if [ ! -f "${CONFIG_DIR}"/opensearch.keystore ]; then
+    "${INSTALLATION_DIR}"/bin/opensearch-keystore create
+    chown "${USER}:${GROUP}" "${CONFIG_DIR}"/opensearch.keystore
+    chmod 660 "${CONFIG_DIR}"/opensearch.keystore
+    md5sum "${CONFIG_DIR}"/opensearch.keystore > "${CONFIG_DIR}"/.opensearch.keystore.initial_md5sum
+else
+    if "${INSTALLATION_DIR}"/bin/opensearch-keystore has-passwd --silent ; then
+      echo "### Warning: unable to upgrade encrypted keystore" 1>&2
+      echo " Please run opensearch-keystore upgrade and enter password" 1>&2
+    else
+      "${INSTALLATION_DIR}"/bin/opensearch-keystore upgrade
+    fi
 fi

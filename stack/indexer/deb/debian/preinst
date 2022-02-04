@@ -10,6 +10,7 @@
 set -e 
 
 export NAME=wazuh-indexer
+export CONFIG_DIR="/etc/${NAME}"
 
 #
 # This script is executed in the pre-installation phase
@@ -27,6 +28,8 @@ err_exit() {
 if [ -f "/etc/default/wazuh-indexer" ]; then
     . "/etc/default/wazuh-indexer"
 fi
+
+export OPENSEARCH_PATH_CONF=${OPENSEARCH_PATH_CONF:-%{CONFIG_DIR}}
 
 case "$1" in
 

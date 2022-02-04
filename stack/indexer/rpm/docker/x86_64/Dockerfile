@@ -1,4 +1,4 @@
-FROM centos:7
+FROM rockylinux:8.5
 
 # Install all the necessary tools to build the packages
 RUN yum clean all && yum update -y

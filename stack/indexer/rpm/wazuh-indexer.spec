@@ -122,11 +122,18 @@ fi
 
 %post
 
+export OPENSEARCH_PATH_CONF=${OPENSEARCH_PATH_CONF:-%{CONFIG_DIR}}
+
 if [ $1 = 1 ];then # Install
     echo "%{USER} hard nproc 4096" >> /etc/security/limits.conf
     echo "%{USER} soft nproc 4096" >> /etc/security/limits.conf
     echo "%{USER} hard nofile 65535" >> /etc/security/limits.conf
     echo "%{USER} soft nofile 65535" >> /etc/security/limits.conf
+
+    # To pick up /usr/lib/sysctl.d/wazuh-indexer.conf
+    if command -v systemctl > /dev/null 2>&1; then
+        systemctl restart systemd-sysctl > /dev/null 2>&1 || true
+    fi
 fi
 
 if [ $1 = 2 ];then # Upgrade
@@ -159,6 +166,9 @@ fi
 # -----------------------------------------------------------------------------
 
 %preun
+
+export OPENSEARCH_PATH_CONF=${OPENSEARCH_PATH_CONF:-%{CONFIG_DIR}}
+
 if [ $1 = 0 ];then # Remove
     echo -n "Stopping wazuh-indexer service..."
     if command -v systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-indexer > /dev/null 2>&1; then
@@ -201,6 +211,8 @@ fi
 
 %postun
 
+export OPENSEARCH_PATH_CONF=${OPENSEARCH_PATH_CONF:-%{CONFIG_DIR}}
+
 if [ $1 = 0 ];then
     # Cleaning limits file
     sed -i '/%{USER}/d' /etc/security/limits.conf
@@ -219,6 +231,26 @@ if [ $1 = 0 ];then
 
     # Remove lingering folders and files
     rm -rf %{INSTALL_DIR}
+fi
+
+# -----------------------------------------------------------------------------
+
+%posttrans
+
+export OPENSEARCH_PATH_CONF=${OPENSEARCH_PATH_CONF:-%{CONFIG_DIR}}
+
+if [ ! -f "%{CONFIG_DIR}"/opensearch.keystore ]; then
+    "%{INSTALL_DIR}"/bin/opensearch-keystore create
+    chown %{USER}:%{GROUP} "%{CONFIG_DIR}"/opensearch.keystore
+    chmod 660 "%{CONFIG_DIR}"/opensearch.keystore
+    md5sum "%{CONFIG_DIR}"/opensearch.keystore > "%{CONFIG_DIR}"/.opensearch.keystore.initial_md5sum
+else
+    if "%{INSTALL_DIR}"/bin/opensearch-keystore has-passwd --silent ; then
+      echo "### Warning: unable to upgrade encrypted keystore" 1>&2
+      echo " Please run opensearch-keystore upgrade and enter password" 1>&2
+    else
+      "%{INSTALL_DIR}"/bin/opensearch-keystore upgrade
+    fi
 fi
 
 # -----------------------------------------------------------------------------

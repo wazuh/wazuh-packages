@@ -23,6 +23,8 @@ if [ -f "/etc/default/wazuh-indexer" ]; then
     . "/etc/default/wazuh-indexer"
 fi
 
+export OPENSEARCH_PATH_CONF=${OPENSEARCH_PATH_CONF:-%{CONFIG_DIR}}
+
 STOP_REQUIRED=false
 REMOVE_SERVICE=false
 
