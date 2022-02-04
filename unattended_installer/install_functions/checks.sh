@@ -206,16 +206,16 @@ function checkFirewalls() {
     done
 
     if [ -n "${iptablesBlockedPortList}" ]; then
-        logger "iptables blocked port report: ${iptablesBlockedPortList} open the recommended ports."
+        logger "iptables blocked port report: ${iptablesBlockedPortList} this ports must be open."
     fi
     if [ -n "${nftBlockedPortList}" ]; then
-        logger "nft blocked port report: ${nftBlockedPortList} open the recommended ports."
+        logger "nft blocked port report: ${nftBlockedPortList} this ports must be open."
     fi
     if [ -n "${ufwBlockedPortList}" ]; then
-        logger "ufw blocked port report: ${ufwBlockedPortList} open the recommended ports."
+        logger "ufw blocked port report: ${ufwBlockedPortList} this ports must be open."
     fi
     if [ -n "${firewall_cmdBlockedPortList}" ]; then
-        logger "firewall-cmd blocked port report: ${firewall_cmdBlockedPortList} open the recommended ports."
+        logger "firewall-cmd blocked port report: ${firewall_cmdBlockedPortList} this ports must be open."
     fi
 
     if [ -n "${iptablesBlockedPortList}" ] || [ -n "${firewallstatus}" ] || [ -n "${firewallstatus}" ] || [ -n "${firewallstatus}" ]; then
