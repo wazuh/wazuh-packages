@@ -107,7 +107,7 @@ opts.each do |opt, arg|
         else
             cpus=arg
         end
-     when '--checksum'
+    when '--checksum'
         checksum="yes"
     end
 end

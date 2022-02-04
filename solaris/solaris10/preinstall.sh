@@ -1,6 +1,6 @@
-#!/bin/ksh
+#!/bin/sh
 # preinstall script for wazuh-agent
-# Wazuh, Inc 2015-2020
+# Wazuh, Inc 2015-2022
 
 if [ ! -f /etc/ossec-init.conf ]; then
     DIR="/var/ossec"
@@ -47,8 +47,7 @@ fi
 case $type in
     upgrade)
 
-    if [ -d "$DIR" ]
-		    then
+    if [ -d "$DIR" ]; then
         if [ -f ${DIR}/etc/ossec.conf ]; then
             cp  ${DIR}/etc/ossec.conf  ${DIR}/etc/ossec.conf.deborig
             chmod 0600 ${DIR}/etc/ossec.conf.deborig

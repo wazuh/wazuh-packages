@@ -11,7 +11,7 @@
             name="wazuh-install_multi-user-server" grouping="optional_all">
             <service_fmri value="svc:/milestone/multi-user-server" />
         </dependent>
-        <exec_method timeout_seconds="60" type="method" name="start"
+        <exec_method timeout_seconds="60" type="method" name="refresh"
                      exec="var/ossec/installation_scripts/postinstall.sh"/>
         <property_group type="framework" name="startd">
                      <propval type="astring" name="duration" value="transient"/>

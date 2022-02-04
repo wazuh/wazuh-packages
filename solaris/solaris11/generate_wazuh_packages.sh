@@ -1,6 +1,6 @@
 #!/bin/bash
 # Created by Wazuh, Inc. <info@wazuh.com>.
-# Copyright (C) 2018 Wazuh Inc.
+# Copyright (C) 2015-2022, Wazuh Inc.
 # This program is a free software; you can redistribute it and/or modify it under the terms of GPLv2
 # Wazuh Solaris 11 Package builder.
 
@@ -26,18 +26,13 @@ control_binary=""
 trap ctrl_c INT
 
 set_control_binary() {
-  if [ -e ${SOURCE}/src/VERSION ]; then
-    wazuh_version=`cat ${SOURCE}/src/VERSION`
-    number_version=`echo "${wazuh_version}" | cut -d v -f 2`
-    major=`echo $number_version | cut -d . -f 1`
-    minor=`echo $number_version | cut -d . -f 2`
-
-    if [ "$major" -le "4" ] && [ "$minor" -le "1" ]; then
-      control_binary="ossec-control"
-    else
-      control_binary="wazuh-control"
+    if [ -e ${SOURCE}/src/VERSION ]; then
+        wazuh_version=`cat ${SOURCE}/src/VERSION`
+        number_version=`echo "${wazuh_version}" | cut -d v -f 2`
+        major=`echo $number_version | cut -d . -f 1`
+        minor=`echo $number_version | cut -d . -f 2`
+        control_binary="wazuh-control"
     fi
-  fi
 }
 
 build_environment() {
@@ -66,7 +61,7 @@ build_environment() {
     /opt/csw/bin/pkgutil -y -i gcc5core
     /opt/csw/bin/pkgutil -y -i gcc5g++
 
-     # Compile GCC-5.5 and CMake
+    # Compile GCC-5.5 and CMake
     curl -L http://packages.wazuh.com/utils/gcc/gcc-5.5.0.tar.gz | gtar xz
     cd gcc-5.5.0
     curl -L http://packages.wazuh.com/utils/gcc/mpfr-2.4.2.tar.bz2 | gtar xj
@@ -102,8 +97,7 @@ build_environment() {
     ln -sf /usr/local/bin/cmake /usr/bin/cmake
 }
 
-compute_version_revision()
-{
+compute_version_revision() {
     wazuh_version=$(cat ${SOURCE}/src/VERSION | cut -d "-" -f1 | cut -c 2-)
     revision="$(cat ${SOURCE}/src/REVISION)"
 
@@ -127,11 +121,7 @@ download_source() {
 }
 
 check_version(){
-    if [ "${major_version}" -eq "3" ]; then
-        if [ "${minor_version}" -ge "5" ]; then
-            deps_version="true"
-        fi
-    elif [ "${major_version}" -gt "3" ]; then
+    if [ "${major_version}" -gt "3" ]; then
         deps_version="true"
     fi
 }
@@ -170,14 +160,6 @@ compile() {
     cp $SOURCE/ruleset/sca/sunos/* ${install_path}/tmp/sca/sunos/
     rm -f ${install_path}/ruleset/sca/*
 
-    useradd -g ossec ossec
-    groupadd ossec
-    mkdir ${install_path}/logs/ossec
-    mkdir ${install_path}/queue/ossec
-    chown ossec:ossec ${install_path}/logs/ossec
-    chown ossec:ossec ${install_path}/queue/ossec
-    chmod 0750 ${install_path}/logs/ossec
-    chmod 0770 ${install_path}/queue/ossec
 }
 
 create_package() {
@@ -202,6 +184,7 @@ create_package() {
     pkgsend generate ${install_path} | pkgfmt > wazuh-agent.p5m.1
     sed "s|<INSTALL_PATH>|${install_path}|" ${current_path}/postinstall.sh > ${current_path}/postinstall.sh.new
     mv ${current_path}/postinstall.sh.new ${current_path}/postinstall.sh
+
     python solaris_fix.py -t SPECS/template_agent_${VERSION}.json -p wazuh-agent.p5m.1 # Fix p5m.1 file
     mv wazuh-agent.p5m.1.aux.fixed wazuh-agent.p5m.1
     # Add the preserve=install-only tag to the configuration files
@@ -213,15 +196,18 @@ create_package() {
     echo "file smf_manifest.xml path=lib/svc/manifest/site/post-install.xml owner=root group=sys mode=0744 restart_fmri=svc:/system/manifest-import:default" >> wazuh-agent.p5m.1
     echo "dir  path=var/ossec/installation_scripts owner=root group=bin mode=0755" >> wazuh-agent.p5m.1
     echo "file postinstall.sh path=var/ossec/installation_scripts/postinstall.sh owner=root group=bin mode=0744" >> wazuh-agent.p5m.1
-    
     echo "file wazuh-agent path=etc/init.d/wazuh-agent owner=root group=sys mode=0744" >> wazuh-agent.p5m.1
     echo "file S97wazuh-agent path=etc/rc2.d/S97wazuh-agent owner=root group=sys mode=0744" >> wazuh-agent.p5m.1
     echo "file S97wazuh-agent path=etc/rc3.d/S97wazuh-agent owner=root group=sys mode=0744" >> wazuh-agent.p5m.1
+
     # Add user and group wazuh
     echo "group groupname=wazuh" >> wazuh-agent.p5m.1
-    echo "group groupname=ossec" >> wazuh-agent.p5m.1
     echo "user username=wazuh group=wazuh" >> wazuh-agent.p5m.1
+
+    # Necessary to upgrade from < 4.3 versions
+    echo "group groupname=ossec" >> wazuh-agent.p5m.1
     echo "user username=ossec group=ossec" >> wazuh-agent.p5m.1
+
     pkgmogrify -DARCH=`uname -p` wazuh-agent.p5m.1 wazuh-agent.mog | pkgfmt > wazuh-agent.p5m.2
     pkgsend -s http://localhost:9001 publish -d ${install_path} -d /etc/init.d -d /etc/rc2.d -d /etc/rc3.d -d ${current_path} wazuh-agent.p5m.2 > pack
     package=`cat pack | grep wazuh | cut -c 13-` # This extracts the name of the package generated in the previous step
@@ -271,7 +257,7 @@ create_repo() {
 
 uninstall() {
     echo ${current_path}
-    ${current_path}/uninstall.sh
+    ${current_path}/uninstall.sh ${install_path} ${control_binary}
     rm -f `find /etc | grep wazuh`
     rm -f /etc/rc3.d/S97wazuh-agent
     rm -f /etc/rc2.d/S97wazuh-agent
@@ -280,10 +266,9 @@ uninstall() {
 clean() {
     rm -rf ${SOURCE}
     cd ${current_path}
-    uninstall
-    pkg unset-publisher wazuh
-    zfs destroy rpool/wazuh
+    uninstall ${install_path}
     umount /wazuh
+    zfs destroy rpool/wazuh
     rm -rf /wazuh
     rm -rf $SOURCE/wazuh
     rm -f wazuh-agent.p5m*
@@ -298,17 +283,33 @@ ctrl_c() {
 
 
 show_help() {
-  echo
-  echo "Usage: $0 [OPTIONS]"
-  echo
-  echo "    -b, --branch <branch>               Select Git branch or tag e.g. $wazuh_branch."
-  echo "    -e, --environment                   Install all the packages necessaries to build the pkg package."
-  echo "    -s, --store  <pkg_directory>        Directory to store the resulting pkg package. By default, an output folder will be created."
-  echo "    -p, --install-path <pkg_home>       Installation path for the package. By default: /var."
-  echo "    -c, --checksum                      Compute the SHA512 checksum of the pkg package."
-  echo "    -h, --help                          Shows this help."
-  echo
-  exit $1
+    echo -e ""
+    echo -e "NAME"
+    echo -e "        $(basename $0) - Generate a Solaris 11 package"
+    echo -e ""
+    echo -e "SYNOPSIS"
+    echo -e "        $(basename $0) [OPTIONS]"
+    echo -e ""
+    echo -e "DESCRIPTION"
+    echo -e "        -b, --branch <branch>"
+    echo -e "                Select Git branch or tag e.g. ${wazuh_branch}."
+    echo -e ""
+    echo -e "        -c, --checksum"
+    echo -e "                Compute the SHA512 checksum of the package."
+    echo -e ""
+    echo -e "        -e, --environment"
+    echo -e "                Install all the packages necessaries to build the package."
+    echo -e ""
+    echo -e "        -h, --help"
+    echo -e "                Shows this help."
+    echo -e ""
+    echo -e "        -p, --install-path <pkg_home>"
+    echo -e "                Installation path for the package. By default: /var."
+    echo -e ""
+    echo -e "        -s, --store  <pkg_directory>"
+    echo -e "                Directory to store the resulting package. By default, an output folder will be created."
+    echo -e ""
+    exit $1
 }
 
 build_package() {
@@ -322,82 +323,81 @@ build_package() {
 
 # Main function, processes user input
 main() {
-  # If the script is called without arguments
-  # show the help
-  if [[ -z $1 ]] ; then
-    show_help 0
-  fi
+    # If the script is called without arguments
+    # show the help
+    if [[ -z $1 ]] ; then
+        show_help 0
+    fi
 
-  build_env="no"
-  build_pkg="no"
+    build_env="no"
+    build_pkg="no"
 
-  while [ -n "$1" ]
-  do
-    case $1 in
-        "-b"|"--branch")
-            if [ -n "$2" ]
-            then
-                wazuh_branch="$2"
-                build_pkg="yes"
-                shift 2
-            else
+    while [ -n "$1" ]; do
+        case $1 in
+            "-b"|"--branch")
+                if [ -n "$2" ]
+                then
+                    wazuh_branch="$2"
+                    build_pkg="yes"
+                    shift 2
+                else
+                    show_help 1
+                fi
+            ;;
+            "-h"|"--help")
+                show_help
+                exit 0
+            ;;
+            "-e"|"--environment" )
+                build_environment
+                exit 0
+            ;;
+            "-p"|"--install-path")
+                if [ -n "$2" ]
+                then
+                    install_path="$2"
+                    shift 2
+                else
+                    show_help 1
+                fi
+            ;;
+            "-s"|"--store")
+                if [ -n "$2" ]
+                then
+                    target_dir="$2"
+                    shift 2
+                else
+                    show_help 1
+                fi
+            ;;
+            "-c" | "--checksum")
+                if [ -n "$2" ]; then
+                    checksum_dir="$2"
+                    compute_checksums="yes"
+                    shift 2
+                else
+                    compute_checksums="yes"
+                    shift 1
+                fi
+            ;;
+            *)
                 show_help 1
-            fi
-        ;;
-        "-h"|"--help")
-            show_help
-            exit 0
-        ;;
-        "-e"|"--environment" )
-            build_environment
-            exit 0
-        ;;
-        "-p"|"--install-path")
-            if [ -n "$2" ]
-            then
-                install_path="$2"
-                shift 2
-            else
-                show_help 1
-            fi
-        ;;
-        "-s"|"--store")
-            if [ -n "$2" ]
-            then
-                target_dir="$2"
-                shift 2
-            else
-                show_help 1
-            fi
-        ;;
-        "-c" | "--checksum")
-            if [ -n "$2" ]; then
-                checksum_dir="$2"
-                compute_checksums="yes"
-                shift 2
-            else
-                compute_checksums="yes"
-                shift 1
-            fi
-        ;;
-        *)
-          show_help 1
-    esac
-  done
+        esac
+    done
 
-  if [[ "${build_env}" = "yes" ]]; then
-    build_environment || exit 1
-  fi
+    if [[ "${build_env}" = "yes" ]]; then
+        build_environment || exit 1
+    fi
 
-  if [ -z "${checksum_dir}" ]; then
-    checksum_dir="${target_dir}"
-  fi
+    if [ -z "${checksum_dir}" ]; then
+        checksum_dir="${target_dir}"
+    fi
 
-  if [[ "${build_pkg}" = "yes" ]]; then
-    build_package || exit 1
-  fi
+    if [[ "${build_pkg}" = "yes" ]]; then
+        build_package || exit 1
+    fi
 
-  return 0
+    return 0
 }
 
 main "$@"
