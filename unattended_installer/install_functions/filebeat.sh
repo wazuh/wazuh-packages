@@ -1,4 +1,4 @@
-# Wazuh installer - filebeat.sh functions. 
+# Wazuh installer - filebeat.sh functions.
 # Copyright (C) 2015, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it

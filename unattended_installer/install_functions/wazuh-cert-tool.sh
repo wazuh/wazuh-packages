@@ -66,7 +66,7 @@ function logger_cert() {
             esac
         done
     fi
-    
+
     if [ -z "${debugLogger}" ] || ( [ -n "${debugLogger}" ] && [ -n "${debugEnabled}" ] ); then
         if [ -n "${disableHeader}" ]; then
             echo "${message}" | tee -a ${logfile}
@@ -82,6 +82,7 @@ function generateAdmincertificate() {
     eval "openssl pkcs8 -inform PEM -outform PEM -in ${base_path}/certs/admin-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out ${base_path}/certs/admin-key.pem ${debug_cert}"
     eval "openssl req -new -key ${base_path}/certs/admin-key.pem -out ${base_path}/certs/admin.csr -batch -subj '/C=US/L=California/O=Wazuh/OU=Wazuh/CN=admin' ${debug_cert}"
     eval "openssl x509 -days 3650 -req -in ${base_path}/certs/admin.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -sha256 -out ${base_path}/certs/admin.pem ${debug_cert}"
+    eval "chmod 444 ${base_path}/certs/admin*.pem ${debug_cert}"
 
 }
 
@@ -94,20 +95,20 @@ function generateCertificateconfiguration() {
         default_md = sha256
         distinguished_name = req_distinguished_name
         x509_extensions = v3_req
-        
+
         [req_distinguished_name]
         C = US
         L = California
         O = Wazuh
         OU = Wazuh
         CN = cname
-        
+
         [ v3_req ]
         authorityKeyIdentifier=keyid,issuer
         basicConstraints = CA:FALSE
         keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
         subjectAltName = @alt_names
-        
+
         [alt_names]
         IP.1 = cip
 	EOF
@@ -142,7 +143,7 @@ function generateIndexercertificates() {
             generateCertificateconfiguration "${indexer_node_names[i]}" "${indexer_node_ips[i]}"
             eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${indexer_node_names[i]}-key.pem -out ${base_path}/certs/${indexer_node_names[i]}.csr -config ${base_path}/certs/${indexer_node_names[i]}.conf -days 3650 ${debug_cert}"
             eval "openssl x509 -req -in ${base_path}/certs/${indexer_node_names[i]}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${indexer_node_names[i]}.pem -extfile ${base_path}/certs/${indexer_node_names[i]}.conf -extensions v3_req -days 3650 ${debug_cert}"
-            eval "chmod 444 ${base_path}/certs/${indexer_node_names[i]}-key.pem ${debug_cert}"    
+            eval "chmod 444 ${base_path}/certs/${indexer_node_names[i]}-key.pem ${debug_cert}"
         done
     fi
 
@@ -225,7 +226,7 @@ function main() {
     fi
 
     checkOpenSSL
-    
+
     if [[ -d ${base_path}/certs ]]; then
         logger_cert -e "Folder ${base_path}/certs already exists. Please, remove the /certs folder to create new certificates."
         exit 1
@@ -427,7 +428,7 @@ function readConfig() {
         logger_cert -e "No configuration file found. ${config_file}."
         exit 1
     fi
-    
+
 }
 
 main $@

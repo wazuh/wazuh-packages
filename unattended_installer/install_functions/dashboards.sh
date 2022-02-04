@@ -1,4 +1,4 @@
-# Wazuh installer - dashboards.sh functions. 
+# Wazuh installer - dashboards.sh functions.
 # Copyright (C) 2015, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
@@ -146,7 +146,7 @@ function dashboards_initializeAIO() {
 }
 
 function dashboards_install() {
-    
+
     logger "Starting Wazuh dashboards installation."
     if [ "${sys_type}" == "zypper" ]; then
         eval "zypper -n install wazuh-dashboards=${wazuh_version}-${wazuh_revision} ${debug}"
@@ -157,7 +157,7 @@ function dashboards_install() {
         logger -e "Wazuh dashboards installation failed"
         rollBack
         exit 1
-    else    
+    else
         dashboardsinstalled="1"
         logger "Wazuh dashboards installation finished."
     fi

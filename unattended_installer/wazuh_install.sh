@@ -188,7 +188,7 @@ function logger() {
             esac
         done
     fi
-    
+
     if [ -z "${debugLogger}" ] || ( [ -n "${debugLogger}" ] && [ -n "${debugEnabled}" ] ); then
             echo "${now} ${mtype} ${message}" | tee -a ${logfile}
     fi

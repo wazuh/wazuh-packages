@@ -2,7 +2,7 @@ node.master: true
 node.data: true
 node.ingest: true
 
-cluster.name: wazuh-cluster
+cluster.name: wazuh-indexer-cluster
 cluster.routing.allocation.disk.threshold_enabled: false
 
 http.port: 9700-9799

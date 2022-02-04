@@ -168,7 +168,7 @@ function installPrerequisites() {
     fi
 
     if [  "$?" != 0  ]; then
-        logger -e "Prerequisites could not be installed"
+        logger -e "Prerequisites could not be installed, probably due to the OS repositories. Please check them."
         exit 1
     else
         logger "Installation of dependencies finished."

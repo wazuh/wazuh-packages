@@ -21,14 +21,14 @@ elif [ -n "$(command -v apt-get)" ]; then
 fi
 
 function changePassword() {
-    
+
     if [ -n "${changeall}" ]; then
         for i in "${!passwords[@]}"
         do
             if [ -n "${indexerchinstalled}" ] && [ -f "/usr/share/wazuh-indexer/backup/internal_users.yml" ]; then
                 awk -v new=${hashes[i]} 'prev=="'${users[i]}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/wazuh-indexer/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/wazuh-indexer/backup/internal_users.yml
             fi
-            
+
             if [ "${users[i]}" == "admin" ]; then
                 adminpass=${passwords[i]}
             elif [ "${users[i]}" == "kibanaserver" ]; then
@@ -58,7 +58,7 @@ function changePassword() {
             conf="$(awk '{sub("password: .*", "password: '${adminpass}'")}1' /etc/filebeat/filebeat.yml)"
             echo "${conf}" > /etc/filebeat/filebeat.yml
             restartService "filebeat"
-        fi 
+        fi
     fi
 
     if [ "$nuser" == "kibanaserver" ] || [ -n "$changeall" ]; then
@@ -68,7 +68,7 @@ function changePassword() {
             rk="opensearch.password: "
             wazuhdashold="${wazuhdashold//$rk}"
             conf="$(awk '{sub("opensearch.password: .*", "opensearch.password: '${dashpass}'")}1' /etc/wazuh-dashboards/dashboards.yml)"
-            echo "${conf}" > /etc/wazuh-dashboards/dashboards.yml 
+            echo "${conf}" > /etc/wazuh-dashboards/dashboards.yml
             restartService "wazuh-dashboards"
         fi
     fi
@@ -76,7 +76,7 @@ function changePassword() {
 }
 
 function checkInstalledPass() {
-    
+
     if [ "${sys_type}" == "yum" ]; then
         indexerchinstalled=$(yum list installed 2>/dev/null | grep wazuh-indexer)
     elif [ "${sys_type}" == "zypper" ]; then
@@ -122,7 +122,7 @@ function checkRoot() {
     if [ "$EUID" -ne 0 ]; then
         logger_pass -e "This script must be run as root."
         exit 1;
-    fi 
+    fi
 
 }
 
@@ -155,7 +155,7 @@ function createBackUp() {
 }
 
 function generateHash() {
-    
+
     if [ -n "${changeall}" ]; then
         logger_pass -d "Generating password hashes."
         for i in "${!passwords[@]}"
@@ -308,7 +308,7 @@ function logger_pass() {
             esac
         done
     fi
-    
+
     if [ -z "${debugLogger}" ] || ( [ -n "${debugLogger}" ] && [ -n "${debugEnabled}" ] ); then
         if [ -n "${disableHeader}" ]; then
             echo "${message}" | tee -a ${logfile}
@@ -346,12 +346,12 @@ function main() {
                 adminpem=${2}
                 shift
                 shift
-                ;; 
+                ;;
             "-k"|"--certkey")
                 adminkey=${2}
                 shift
                 shift
-                ;; 
+                ;;
             "-f"|"--file")
                 p_file=${2}
                 shift
@@ -361,7 +361,7 @@ function main() {
                 gen_file=${2}
                 shift
                 shift
-                ;;  
+                ;;
             "-h"|"--help")
                 getHelp
                 ;;
@@ -377,7 +377,7 @@ function main() {
         fi
 
         if [ -n "${gen_file}" ]; then
-            generatePasswordFile 
+            generatePasswordFile
             if [ -z "${p_file}" ] && [ -z "${nuser}" ] && [ -z "${changeall}" ]; then
                 exit 0
             fi
@@ -396,7 +396,7 @@ function main() {
         if [ -n "${password}" ] && [ -n "${changeall}" ]; then
             getHelp
         fi
-        
+
         if [ -n "${nuser}" ] && [ -n "${p_file}" ]; then
             getHelp
         fi

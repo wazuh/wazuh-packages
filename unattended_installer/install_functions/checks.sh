@@ -1,4 +1,4 @@
-# Wazuh installer - checks.sh functions. 
+# Wazuh installer - checks.sh functions.
 # Copyright (C) 2015, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
@@ -89,7 +89,7 @@ function checkArguments() {
         if [ -n "${indexerchinstalled}" ] || [ -n "${indexer_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
                 rollBack
-            else 
+            else
                 logger -e "Elasticsearch is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
             fi
@@ -102,7 +102,7 @@ function checkArguments() {
         if [ -n "${dashboardsinstalled}" ] || [ -n "${dashboards_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
                 rollBack
-            else 
+            else
                 logger -e "Kibana is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
             fi
@@ -115,7 +115,7 @@ function checkArguments() {
         if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
                 rollBack
-            else 
+            else
                 logger -e "Wazuh is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
             fi
@@ -143,7 +143,7 @@ function checkArguments() {
     if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboards}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ] && [ -z "${configurations}" ] && [ -z "${uninstall}"]; then
         logger -e "At least one of these arguments is necessary -a|--all-in-one, -c|--create-configurations, -e|--elasticsearch <elasticsearch-node-name>, -k|--kibana <kibana-node-name>, -s|--start-cluster, -w|--wazuh-server <wazuh-node-name>, -u|--uninstall"
         exit 1
-    fi 
+    fi
 
 }
 
@@ -240,7 +240,7 @@ function checkIfInstalled() {
 
 }
 
-# This function ensures different names in the config.yml file. 
+# This function ensures different names in the config.yml file.
 function checkNames() {
 
     if [ -n "${indxname}" ] && [ -n "${dashname}" ] && [ "${indxname}" == "${dashname}" ]; then
@@ -261,7 +261,7 @@ function checkNames() {
     if [ -n "${winame}" ] && [ -z "$(echo "${wazuh_servers_node_names[@]}" | grep -w "${winame}")" ]; then
         logger -e "The Wazuh server node name ${winame} does not appear on the configuration file."
         exit 1
-    fi 
+    fi
 
     if [ -n "${indxname}" ] && [ -z "$(echo "${indexer_node_names[@]}" | grep -w "${indxname}")" ]; then
         logger -e "The Elasticsearch node name ${indxname} does not appear on the configuration file."

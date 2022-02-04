@@ -1,4 +1,4 @@
-# Wazuh installer - indexer.sh functions. 
+# Wazuh installer - indexer.sh functions.
 # Copyright (C) 2015, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
@@ -12,10 +12,6 @@ function indexer_configure() {
 
     logger -d "Configuring Wazuh indexer."
     eval "export JAVA_HOME=/usr/share/wazuh-indexer/jdk/"
-    # eval "getConfig indexer/roles/roles.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/roles.yml ${debug}"
-    # eval "getConfig indexer/roles/roles_mapping.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/roles_mapping.yml ${debug}"
-    # eval "getConfig indexer/roles/internal_users.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/internal_users.yml ${debug}"
-    # eval "rm -f /etc/wazuh-indexer/{esnode-key.pem,esnode.pem,kirk-key.pem,kirk.pem,root-ca.pem} ${debug}"
 
     # Configure JVM options for Wazuh indexer
     ram_gb=$(free -g | awk '/^Mem:/{print $2}')
@@ -76,8 +72,7 @@ function indexer_configure() {
         echo "wazuh-indexer soft nproc 4096" >> /etc/security/limits.conf
         echo -ne "\nbootstrap.system_call_filter: false" >> /etc/wazuh-indexer/opensearch.yml
     fi
-    ## preguntar si aun hace falta quitarlo
-    # eval "/usr/share/wazuh-indexer/bin/opensearch-plugin remove opendistro-performance-analyzer ${debug}"
+
     logger "Wazuh indexer post-install configuration finished."
 }
 
