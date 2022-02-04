@@ -32,7 +32,7 @@ if [ -f "/etc/default/wazuh-indexer" ]; then
     . "/etc/default/wazuh-indexer"
 fi
 
-export OPENSEARCH_PATH_CONF=${OPENSEARCH_PATH_CONF:-%{CONFIG_DIR}}
+export OPENSEARCH_PATH_CONF=${OPENSEARCH_PATH_CONF:-${CONFIG_DIR}}
 
 # To pick up /usr/lib/sysctl.d/wazuh-indexer.conf
 if command -v systemctl > /dev/null 2>&1; then

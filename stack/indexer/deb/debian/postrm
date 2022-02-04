@@ -27,7 +27,7 @@ if [ -f "/etc/default/${NAME}" ]; then
     . "/etc/default/${NAME}"
 fi
 
-export OPENSEARCH_PATH_CONF=${OPENSEARCH_PATH_CONF:-%{CONFIG_DIR}}
+export OPENSEARCH_PATH_CONF=${OPENSEARCH_PATH_CONF:-${CONFIG_DIR}}
 
 REMOVE_DIRS=false
 REMOVE_CONFIG_DIRECTORY=false
