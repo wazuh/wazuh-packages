@@ -182,6 +182,7 @@ if [ $1 = 0 ];then
   # Remove /etc/wazuh-dashboards and /usr/share/wazuh-dashboards dirs
   rm -rf %{CONFIG_DIR}
   rm -rf %{INSTALL_DIR}
+  rm -rf %{PID_DIR}
   if [ -d %{LOG_DIR} ]; then
       rmdir --ignore-fail-on-non-empty %{LOG_DIR}
   fi
