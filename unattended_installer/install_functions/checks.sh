@@ -1,4 +1,4 @@
-# Wazuh installer - checks.sh functions. 
+# Wazuh installer - checks.sh functions.
 # Copyright (C) 2015, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
@@ -32,7 +32,7 @@ function checkArguments() {
 
     # -------------- Overwrite --------------------------------------
 
-    if [ -n "${overwrite}" ] && [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ]; then 
+    if [ -n "${overwrite}" ] && [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ]; then
         logger -e "The argument -o|--overwrite must be used with -a, -k, -e or -w. If you want to uninstall all the components use -u|--uninstall"
         exit 1
     fi
@@ -89,7 +89,7 @@ function checkArguments() {
         if [ -n "${indexerchinstalled}" ] || [ -n "${indexer_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
                 rollBack
-            else 
+            else
                 logger -e "Elasticsearch is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
             fi
@@ -102,7 +102,7 @@ function checkArguments() {
         if [ -n "${dashboardinstalled}" ] || [ -n "${dashboard_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
                 rollBack
-            else 
+            else
                 logger -e "Kibana is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
             fi
@@ -115,7 +115,7 @@ function checkArguments() {
         if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
                 rollBack
-            else 
+            else
                 logger -e "Wazuh is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
             fi
@@ -143,7 +143,7 @@ function checkArguments() {
     if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ] && [ -z "${configurations}" ] && [ -z "${uninstall}"]; then
         logger -e "At least one of these arguments is necessary -a|--all-in-one, -c|--create-configurations, -e|--elasticsearch <elasticsearch-node-name>, -k|--kibana <kibana-node-name>, -s|--start-cluster, -w|--wazuh-server <wazuh-node-name>, -u|--uninstall"
         exit 1
-    fi 
+    fi
 
 }
 
@@ -154,60 +154,72 @@ function checkFirewalls() {
                     "nft"
                     "ufw"
                     "firewall-cmd")
-    
+
     portsTCPLists=( "1514"
                     "1515"
                     "1516"
-                    "514"
                     "55000"
                     "9200"
                     "9300"
                     "9400"
                     "443")
 
+    iptablesBlockedPortList=()
+    nftBlockedPortList=()
+    ufwBlockedPortList=()
+    firewall_cmdBlockedPortList=()
+
     for command in "${firewallsList[@]}"; do
 
-        if [ -n "$(command -v $command)" ]; then
-            logger_cert "The $command command is present on this system. This could affect the correct communication between Wazuh components. We will proceed to try to validate firewall rules that may affect the processes and report what is found."
-            firewallstatus='true'
+        if [ -n "$(command -v ${command})" ]; then
+            logger -d "The $command command is present on this system. This could affect the correct communication between Wazuh components. We will proceed to try to validate firewall rules that may affect the processes and report what is found."
 
             if [ $command == "iptables" ]; then
-                logger "iptables report:"
                 for port in "${portsTCPLists[@]}"; do
-                    if [ -n "$($command -L -n | grep DROP | grep $port)" ]; then
-                        logger "                 ...port $port must be open in your firewall rules."
+                    if [ -n "$($command -L -n) | grep DROP | grep "^$port$" )" ]; then
+                        iptablesBlockedPortList+="${port}, "
                     fi
                 done
 
             elif [ $command == "nft" ]; then
-                logger "nft report:"
                 for port in "${portsTCPLists[@]}"; do
-                    if [ -n "$($command list ruleset | grep drop | grep $port)" ]; then
-                        logger "                 ...port $port must be open in your firewall rules."
+                    if [ -n "$($command list ruleset) | grep drop | grep "^$port$" )" ]; then
+                        nftBlockedPortList+="${port}, "
                     fi
                 done
 
             elif [ $command == "ufw" ]; then
-                logger "ufw report:"
                 for port in "${portsTCPLists[@]}"; do
-                    if [ -n "$(cat /etc/ufw/user.rules | grep DROP | grep $port)" ]; then
-                        logger "                 ...port $port must be open in your firewall rules."
+                    if [ -n "$(cat /etc/ufw/user.rules) | grep DROP | grep "^$port$" )" ]; then
+                        ufwBlockedPortList+="${port}, "
                     fi
                 done
 
             elif [ $command == "firewall-cmd" ]; then
-                logger "firewall-cmd report:"
                 for port in "${portsTCPLists[@]}"; do
-                    if [ -n "$($command --list-all | grep $port)" ]; then
-                        logger "                 ...port $port must be open in your firewall rules."
+                    if [ -n "$($command --list-all) | grep "^$port$" )" ]; then
+                        firewall_cmdBlockedPortList+="${port}, "
                     fi
                 done
             fi
         fi
     done
 
-    if [ -n "${firewallstatus}" ]; then
-        logger -w "Please check your firewall. And make the recommended fixes. To then repeat the installation of Wazuh."
+    if [ -n "${iptablesBlockedPortList}" ]; then
+        logger "iptables blocked port report: ${iptablesBlockedPortList} open the recommended ports."
+    fi
+    if [ -n "${nftBlockedPortList}" ]; then
+        logger "nft blocked port report: ${nftBlockedPortList} open the recommended ports."
+    fi
+    if [ -n "${ufwBlockedPortList}" ]; then
+        logger "ufw blocked port report: ${ufwBlockedPortList} open the recommended ports."
+    fi
+    if [ -n "${firewall_cmdBlockedPortList}" ]; then
+        logger "firewall-cmd blocked port report: ${firewall_cmdBlockedPortList} open the recommended ports."
+    fi
+
+    if [ -n "${iptablesBlockedPortList}" ] || [ -n "${firewallstatus}" ] || [ -n "${firewallstatus}" ] || [ -n "${firewallstatus}" ]; then
+        logger -w "Please check your firewall. To then repeat the installation of Wazuh."
         exit 1
     fi
 }
@@ -305,7 +317,7 @@ function checkIfInstalled() {
 
 }
 
-# This function ensures different names in the config.yml file. 
+# This function ensures different names in the config.yml file.
 function checkNames() {
 
     if [ -n "${indxname}" ] && [ -n "${dashname}" ] && [ "${indxname}" == "${dashname}" ]; then
@@ -326,7 +338,7 @@ function checkNames() {
     if [ -n "${winame}" ] && [ -z "$(echo "${wazuh_servers_node_names[@]}" | grep -w "${winame}")" ]; then
         logger -e "The Wazuh server node name ${winame} does not appear on the configuration file."
         exit 1
-    fi 
+    fi
 
     if [ -n "${indxname}" ] && [ -z "$(echo "${indexer_node_names[@]}" | grep -w "${indxname}")" ]; then
         logger -e "The Elasticsearch node name ${indxname} does not appear on the configuration file."
