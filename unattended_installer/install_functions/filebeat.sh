@@ -18,7 +18,8 @@ function filebeat_configure(){
     else
         eval "getConfig filebeat/filebeat_distributed.yml /etc/filebeat/filebeat.yml ${debug}"
         if [ ${#indexer_node_names[@]} -eq 1 ]; then
-            eval "sed '/^output.elasticsearch:/a \ \ hosts: [\"${indexer_node_ips[0]}:9700\"]' /etc/filebeat/filebeat.yml" > /etc/filebeat/filebeat.yml
+            echo "output.elasticsearch.hosts:" >> /etc/filebeat/filebeat.yml
+            echo "  - ${indexer_node_ips[0]}:9700" >> /etc/filebeat/filebeat.yml
         else
             echo "output.elasticsearch.hosts:" >> /etc/filebeat/filebeat.yml
             for i in "${indexer_node_ips[@]}"; do
