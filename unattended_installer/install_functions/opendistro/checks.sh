@@ -1,4 +1,4 @@
-# Wazuh installer - checks.sh functions. 
+# Wazuh installer - checks.sh functions.
 # Copyright (C) 2015, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
@@ -32,7 +32,7 @@ function checkArguments() {
 
     # -------------- Overwrite --------------------------------------
 
-    if [ -n "${overwrite}" ] && [ -z "${AIO}" ] && [ -z "${elasticsearch}" ] && [ -z "${kibana}" ] && [ -z "${wazuh}" ]; then 
+    if [ -n "${overwrite}" ] && [ -z "${AIO}" ] && [ -z "${elasticsearch}" ] && [ -z "${kibana}" ] && [ -z "${wazuh}" ]; then
         logger -e "The argument -o|--overwrite must be used with -a, -k, -e or -w. If you want to uninstall all the components use -u|--uninstall"
         exit 1
     fi
@@ -91,7 +91,7 @@ function checkArguments() {
             if [ -n "${overwrite}" ]; then
                 uninstall_module_name="elasticsearch"
                 rollBack
-            else 
+            else
                 logger -e "Elasticsearch is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
             fi
@@ -105,7 +105,7 @@ function checkArguments() {
             if [ -n "${overwrite}" ]; then
                 uninstall_module_name="kibana"
                 rollBack
-            else 
+            else
                 logger -e "Kibana is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
             fi
@@ -118,7 +118,7 @@ function checkArguments() {
         if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
                 rollBack
-            else 
+            else
                 logger -e "Wazuh is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
             fi
@@ -139,22 +139,18 @@ function checkArguments() {
     if [[ -n "${start_elastic_cluster}" && ( -z "${elasticsearchinstalled}" || -z "${elastic_remaining_files}") ]]; then
         logger -e "The argument -s|--start-cluster need elasticsearch installed. Run the script with the parameter first --elasticsearch <elasticsearch-node-name>."
         exit 1
-    else
-        if [[ -n "${start_elastic_cluster}" && ( -n "${AIO}" || -n "${elasticsearch}" || -n "${kibana}" || -n "${wazuh}" || -n "${overwrite}" || -n "${configurations}" || -n "${tar_conf}" || -n "${uninstall}") ]]; then
-            logger -e "The argument -s|--start-cluster can't be used with -a, -k, -e or -w arguments."
-            exit 1
-        fi
     fi
-
-
-
+    if [[ -n "${start_elastic_cluster}" && ( -n "${AIO}" || -n "${elasticsearch}" || -n "${kibana}" || -n "${wazuh}" || -n "${overwrite}" || -n "${configurations}" || -n "${tar_conf}" || -n "${uninstall}") ]]; then
+        logger -e "The argument -s|--start-cluster can't be used with -a, -k, -e or -w arguments."
+        exit 1
+    fi
 
     # -------------- Global -----------------------------------------
 
-    if [ -z "${AIO}" ] && [ -z "${elasticsearch}" ] && [ -z "${kibana}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ] && [ -z "${configurations}" ] && [ -z "${uninstall}"]; then
+    if [ -z "${AIO}" ] && [ -z "${elasticsearch}" ] && [ -z "${kibana}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ] && [ -z "${configurations}" ] && [ -z "${uninstall}" ]; then
         logger -e "At least one of these arguments is necessary -a|--all-in-one, -c|--create-configurations, -e|--elasticsearch <elasticsearch-node-name>, -k|--kibana <kibana-node-name>, -s|--start-cluster, -w|--wazuh-server <wazuh-node-name>, -u|--uninstall"
         exit 1
-    fi 
+    fi
 
 }
 
@@ -169,63 +165,72 @@ function checkTools() {
     missingtoolsList=()
     for command in "${toolList[@]}"
     do
-        if [ -z "$(command -v $command)" ]; then
-            missingtoolsList+=($command)
-            missingtoolsStatus="true"
+        if [ -z "$(command -v ${command})" ]; then
+            missingtoolsList+="${command}, "
         fi
     done
 
-    if [ -n "${missingtoolsStatus}" ]; then
+    if [ -n "${missingtoolsList}" ]; then
 
         logger "---------------------------------- Missing tool -----------------------------------"
-        logger "Missing tool report:"
-        for tool in "${missingtoolsList[@]}"; do
-            if [ -n "$($command -L -n | grep DROP | grep $port)" ]; then
-                logger "                 ...$missingtoolsList is not installed. "
-        done
-        logger "                 ...All this command's are necessary for the correct use of this tool."
+        logger "Missing tool report: ${missingtoolsList} are not installed. All this command's are necessary for the correct use of this tool."
         exit 1
 
     fi
-    
+
 }
 
 function checkHealth() {
 
     checkSpecs
-    if [ -n "${elasticsearch}" ]; then
-        if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
-            logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
-            exit 1
-        else
-            logger "Check recommended minimum hardware requirements for Elasticsearch done."
-        fi
+    if [ -z "${cores}" ]; then
+        logger -w "The script needs to parse the file '${coresFile}' to check the minimum required hardware of CPU cores."
+        logger -w "Use the --ignore-health-check parameter to dismiss the recommended minimum hardware requirements check."
+        exit 1
+    fi
+    if [ -z "${ram_gb}" ]; then
+        logger - w "The command 'free' is required to check the minimum required hardware of RAM."
+        logger -w "Use the --ignore-health-check parameter to dismiss the recommended minimum hardware requirements check."
+        exit 1
     fi
 
-    if [ -n "${kibana}" ]; then
-        if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
-            logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
-            exit 1
-        else
-            logger "Check recommended minimum hardware requirements for Kibana done."
-        fi
-    fi
+    if [ -n "${cores}" ] && [ -n "${ram_gb}" ]; then
 
-    if [ -n "${wazuh}" ]; then
-        if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 1700 ]; then
-            logger -e "Your system does not meet the recommended minimum hardware requirements of 2Gb of RAM and 2 CPU cores . If you want to proceed with the installation use the -i option to ignore these requirements."
-            exit 1
-        else
-            logger "Check recommended minimum hardware requirements for Wazuh Manager done."
+        if [ -n "${elasticsearch}" ]; then
+            if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
+                logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
+                exit 1
+            else
+                logger "Check recommended minimum hardware requirements for Elasticsearch done."
+            fi
         fi
-    fi
 
-    if [ -n "${aio}" ]; then
-        if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
-            logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
-            exit 1
-        else
-            logger "Check recommended minimum hardware requirements for AIO done."
+        if [ -n "${kibana}" ]; then
+            if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
+                logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
+                exit 1
+            else
+                logger "Check recommended minimum hardware requirements for Kibana done."
+            fi
+        fi
+
+        if [ -n "${wazuh}" ]; then
+            if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 1700 ]; then
+                logger -e "Your system does not meet the recommended minimum hardware requirements of 2Gb of RAM and 2 CPU cores . If you want to proceed with the installation use the -i option to ignore these requirements."
+                exit 1
+            else
+                logger "Check recommended minimum hardware requirements for Wazuh Manager done."
+            fi
+        fi
+
+        if [ -n "${aio}" ]; then
+            echo "${cores}"
+            if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
+                logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
+                exit 1
+            else
+                logger "Check recommended minimum hardware requirements for AIO done."
+            fi
         fi
     fi
 
@@ -283,7 +288,7 @@ function checkIfInstalled() {
 
 }
 
-# This function ensures different names in the config.yml file. 
+# This function ensures different names in the config.yml file.
 function checkNames() {
 
     if [ -n "${einame}" ] && [ -n "${kiname}" ] && [ "${einame}" == "${kiname}" ]; then
@@ -304,7 +309,7 @@ function checkNames() {
     if [ -n "${winame}" ] && [ -z "$(echo "${wazuh_servers_node_names[@]}" | grep -w "${winame}")" ]; then
         logger -e "The Wazuh server node name ${winame} does not appear on the configuration file."
         exit 1
-    fi 
+    fi
 
     if [ -n "${einame}" ] && [ -z "$(echo "${elasticsearch_node_names[@]}" | grep -w "${einame}")" ]; then
         logger -e "The Elasticsearch node name ${einame} does not appear on the configuration file."
@@ -351,7 +356,7 @@ function checkPreviousCertificates() {
 
 function checkSpecs() {
 
-    coresFile=/etc/resolv.conf
+    coresFile="/proc/cpuinfo"
     if [ -f "$coresFile" ]; then
         cores=$(cat "$coresFile" | grep -c processor )
     else
