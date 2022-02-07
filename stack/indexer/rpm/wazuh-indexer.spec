@@ -92,13 +92,13 @@ cp certs/root-ca.pem ${RPM_BUILD_ROOT}%{CONFIG_DIR}/certs/
 
 cp %{REPO_DIR}/install_functions/wazuh-cert-tool.sh ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/tools/
 cp %{REPO_DIR}/install_functions/wazuh-passwords-tool.sh ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/tools/
-cp %{REPO_DIR}/config/opensearch/certificate/config_aio.yml ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/tools/config.yml
+cp %{REPO_DIR}/config/certificate/config.yml ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/tools/config.yml
 
-cp %{REPO_DIR}/config/opensearch/roles/internal_users.yml ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/securityconfig/
-cp %{REPO_DIR}/config/opensearch/roles/roles.yml ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/securityconfig/
-cp %{REPO_DIR}/config/opensearch/roles/roles_mapping.yml ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/securityconfig/
+cp %{REPO_DIR}/config/indexer/roles/internal_users.yml ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/securityconfig/
+cp %{REPO_DIR}/config/indexer/roles/roles.yml ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/securityconfig/
+cp %{REPO_DIR}/config/indexer/roles/roles_mapping.yml ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/securityconfig/
 
-cp /root/stack/indexer/securityadmin_wrapper.sh ${RPM_BUILD_ROOT}%{INSTALL_DIR}/bin/
+cp /root/stack/indexer/indexerSecurityInitializer.sh ${RPM_BUILD_ROOT}%{INSTALL_DIR}/bin/
 
 # -----------------------------------------------------------------------------
 
@@ -341,7 +341,7 @@ rm -fr %{buildroot}
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-env-from-file
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-upgrade
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/systemd-entrypoint
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/securityadmin_wrapper.sh
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/indexerSecurityInitializer.sh
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/hppc-0.8.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/lucene-highlighter-8.10.1.jar
