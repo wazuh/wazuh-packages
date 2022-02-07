@@ -200,6 +200,10 @@ if [ $1 = 2 ]; then
   fi
   %{_localstatedir}/bin/ossec-control stop > /dev/null 2>&1 || %{_localstatedir}/bin/wazuh-control stop > /dev/null 2>&1
 fi
+if pgrep -f ossec-authd > /dev/null 2>&1; then
+    kill -15 $(pgrep -f ossec-authd)
+fi
+
 
 # Remove/relocate existing SQLite databases
 rm -f %{_localstatedir}/var/db/cluster.db* || true

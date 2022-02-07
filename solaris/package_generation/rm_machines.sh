@@ -1,4 +1,6 @@
-#/bin/bash!
+#!/bin/bash
+# remove vagrant machines script
+# Wazuh, Inc 2015-2022
 
 machine_id=`vboxmanage list vms | grep ${1} | cut -d "{" -f2 | cut -d "}" -f1`
 

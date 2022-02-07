@@ -2,6 +2,7 @@
 
 DEBUG=$1
 WAZUH_VERSION=$2
+SYSTEM_USER=$3
 
 [[ ${DEBUG} = "yes" ]] && set -ex || set -e
 

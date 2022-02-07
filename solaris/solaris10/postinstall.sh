@@ -1,6 +1,6 @@
-#!/bin/ksh
+#!/bin/sh
 # postinst script for wazuh-agent
-# Wazuh, Inc 2015-2020
+# Wazuh, Inc 2015-2022
 
 OSSEC_HIDS_TMP_DIR="/tmp/wazuh-agent"
 DIR="/var/ossec"
