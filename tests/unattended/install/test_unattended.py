@@ -29,17 +29,17 @@ else:
     services = p.stdout
 p.kill()
 
-def get_elasticsearch_password():
+def get_indexer_password():
     stream = open("/etc/filebeat/filebeat.yml", 'r')
     dictionary = yaml.safe_load(stream)
     return (dictionary.get('output.elasticsearch','password').get('password'))
 
-def get_elasticsearch_username():
+def get_indexer_username():
     stream = open("/etc/filebeat/filebeat.yml", 'r')
     dictionary = yaml.safe_load(stream)
     return (dictionary.get('output.elasticsearch','username').get('username'))
 
-def get_elasticsearch_ip():
+def get_indexer_ip():
     stream = open("/etc/wazuh-indexer/opensearch.yml", 'r')
     dictionary = yaml.safe_load(stream)
     return (dictionary.get('network.host'))
@@ -58,7 +58,7 @@ def api_call_elasticsearch(host,query,address,api_protocol,api_user,api_pass,api
     elif (query != ""): # Executing query search
         if (api_pass != "" and api_pass != ""):
             response = subprocess.check_output("curl -H \'Content-Type: application/json\'"
-                                + " --max-time 15" 
+                                + " --max-time 15"
                                 + " -k -u "     + api_user + ":" + api_pass
                                 + " -d '"        + json.dumps(query) + "' "
                                 + api_protocol + "://" + address + ":" + api_port
@@ -73,7 +73,7 @@ def api_call_elasticsearch(host,query,address,api_protocol,api_user,api_pass,api
     return response
 
 def get_kibana_password():
-    stream = open("/etc/kibana/kibana.yml", 'r')
+    stream = open("/etc/wazuh-dashboards/dashboards.yml", 'r')
     dictionary = yaml.safe_load(stream)
     return (dictionary.get('elasticsearch.password'))
 
@@ -83,15 +83,15 @@ def get_kibana_username():
     return (dictionary.get('elasticsearch.username'))
 
 def get_elasticsearch_cluster_status():
-    ip = get_elasticsearch_ip()
+    ip = get_indexer_ip()
     resp = requests.get('https://'+ip+':9200/_cluster/health',
-                        auth=(get_elasticsearch_username(), 
-                        get_elasticsearch_password()), 
+                        auth=(get_indexer_username(), 
+                        get_indexer_password()), 
                         verify=False)
     return (resp.json()['status'])
 
 def get_kibana_status():
-    ip = get_elasticsearch_ip()
+    ip = get_indexer_ip()
     resp = requests.get('https://'+ip,
                         auth=(get_kibana_username(), 
                         get_kibana_password()), 
@@ -101,7 +101,7 @@ def get_kibana_status():
 def get_wazuh_api_status():
 
     protocol = 'https'
-    host = get_elasticsearch_ip()
+    host = get_indexer_ip()
     port = 55000
     user = 'wazuh'
     password = 'wazuh'
@@ -275,7 +275,7 @@ def test_check_alerts():
         }
     }
 
-    response = api_call_elasticsearch(get_elasticsearch_ip(),query,get_elasticsearch_ip(),'https',get_elasticsearch_username(),get_elasticsearch_password(),'9200')
+    response = api_call_elasticsearch(get_indexer_ip(),query,get_indexer_ip(),'https',get_indexer_username(),get_indexer_password(),'9200')
     response_dict = json.loads(response)
 
     assert (response_dict["hits"]["total"]["value"] > 0)
