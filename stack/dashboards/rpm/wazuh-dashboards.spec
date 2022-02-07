@@ -151,10 +151,10 @@ setcap 'cap_net_bind_service=+ep' %{INSTALL_DIR}/node/bin/node
 %preun
 if [ $1 = 0 ];then # Remove
   echo -n "Stopping wazuh-dashboards service..."
-  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-dashboards > /dev/null 2>&1; then
+  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
       systemctl stop wazuh-dashboards.service > /dev/null 2>&1
   # Check for SysV
-  elif command -v service > /dev/null 2>&1 && service wazuh-dashboards status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
+  elif command -v service > /dev/null 2>&1; then
     service wazuh-dashboards stop > /dev/null 2>&1
   fi
 fi
@@ -202,7 +202,12 @@ fi
 
 if [ -f %{INSTALL_DIR}/wazuh-dashboards.restart ]; then
   rm -f %{INSTALL_DIR}/wazuh-dashboards.restart
-  service wazuh-dashboards restart > /dev/null 2>&1
+  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
+    systemctl restart wazuh-dashboards.service > /dev/null 2>&1
+  # Check for SysV
+  elif command -v service > /dev/null 2>&1; then
+    service wazuh-dashboards restart > /dev/null 2>&1
+  fi
 
 fi
 
