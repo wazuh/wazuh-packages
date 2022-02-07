@@ -85,8 +85,8 @@ override_dh_install:
 
 	tar -xf demo-certs.tar.gz
 
-	cp certs/demo-dashboard.pem ${TARGET_DIR}${CONFIG_DIR}/certs/demo-dashboard.pem
-	cp certs/demo-dashboard-key.pem ${TARGET_DIR}${CONFIG_DIR}/certs/demo-dashboard-key.pem
+	cp certs/demo-dashboard.pem ${TARGET_DIR}${CONFIG_DIR}/certs/demo-dashboards.pem
+	cp certs/demo-dashboard-key.pem ${TARGET_DIR}${CONFIG_DIR}/certs/demo-dashboards-key.pem
 	cp certs/root-ca.pem ${TARGET_DIR}${CONFIG_DIR}/certs/root-ca.pem
 	chmod 644 ${TARGET_DIR}${CONFIG_DIR}/certs/*
 

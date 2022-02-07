@@ -1,4 +1,4 @@
-# Wazuh package SPEC
+# Wazuh Dashboards SPEC
 # Copyright (C) 2021, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
@@ -95,8 +95,8 @@ curl -O https://s3.amazonaws.com/warehouse.wazuh.com/stack/demo-certs.tar.gz
 tar -xf demo-certs.tar.gz && rm -f demo-certs.tar.gz
 
 
-cp certs/demo-dashboard.pem %{buildroot}%{CONFIG_DIR}/certs/demo-dashboard.pem
-cp certs/demo-dashboard-key.pem %{buildroot}%{CONFIG_DIR}/certs/demo-dashboard-key.pem
+cp certs/demo-dashboard.pem %{buildroot}%{CONFIG_DIR}/certs/demo-dashboards.pem
+cp certs/demo-dashboard-key.pem %{buildroot}%{CONFIG_DIR}/certs/demo-dashboards-key.pem
 cp certs/root-ca.pem %{buildroot}%{CONFIG_DIR}/certs/root-ca.pem
 chmod 640 %{buildroot}%{CONFIG_DIR}/certs/*
 
@@ -179,7 +179,9 @@ if [ $1 = 0 ];then
 
   # Remove /etc/wazuh-dashboards and /usr/share/wazuh-dashboards dirs
   rm -rf %{INSTALL_DIR}
-  rm -rf %{PID_DIR}
+  if [ -d %{PID_DIR} ]; then
+    rm -rf %{PID_DIR}
+  fi
   if [ -d %{LOG_DIR} ]; then
       rmdir --ignore-fail-on-non-empty %{LOG_DIR}
   fi
