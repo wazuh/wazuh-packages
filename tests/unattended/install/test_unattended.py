@@ -21,13 +21,14 @@ warnings.filterwarnings('ignore', message='Unverified HTTPS request')
 # ----------------------------- Aux functions -----------------------------
 
 
-services = None
-p = Popen(['/var/ossec/bin/wazuh-control', 'status'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
-if sys.version_info[0] < 3:
-    services = p.stdout.read()
-else:
-    services = p.stdout
-p.kill()
+def read_services():
+    services = None
+    p = Popen(['/var/ossec/bin/wazuh-control', 'status'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    if sys.version_info[0] < 3:
+        services = p.stdout.read()
+    else:
+        services = p.stdout
+    p.kill()
 
 def get_indexer_password():
     stream = open("/etc/filebeat/filebeat.yml", 'r')
@@ -47,29 +48,24 @@ def get_indexer_ip():
 def api_call_elasticsearch(host,query,address,api_protocol,api_user,api_pass,api_port):
 
     if (query == ""):   # Calling ES API without query
-        if (api_pass != "" and api_pass != ""): # If credentials provided
-            response = subprocess.check_output("curl --max-time 15"
-                                + " -k -u "     + api_user + ":" + api_pass + " "
-                                + api_protocol + "://" + address + ":" + api_port,
-                                shell=True)
+        if (api_user != "" and api_pass != ""): # If credentials provided
+            resp = requests.get(api_protocol + '://' + address + ':' + api_port,
+                   auth=(api_user,
+                   api_pass),
+                   verify=False)
         else:
-            response = subprocess.check_output("curl --max-time 15 " + api_protocol + "://" + address + ":" + api_port, shell=True)
+            resp = requests.get(api_protocol + '://' + address + ':' + api_port, verify=False)
 
-    elif (query != ""): # Executing query search
+    else: # Executing query search
         if (api_pass != "" and api_pass != ""):
-            response = subprocess.check_output("curl -H \'Content-Type: application/json\'"
-                                + " --max-time 15"
-                                + " -k -u "     + api_user + ":" + api_pass
-                                + " -d '"        + json.dumps(query) + "' "
-                                + api_protocol + "://" + address + ":" + api_port
-                                + "/wazuh-alerts-4.x-*/_search",
-                                shell=True)
+            resp = requests.post(api_protocol + '://' + address + ':' + api_port + "/wazuh-alerts-4.x-*/_search",
+                        json=query,
+                        auth=(api_user,
+                        api_pass),
+                        verify=False)
         else:
-            response = subprocess.check_output("curl --max-time 15 " + api_protocol + "://" + address + ":" + api_port, shell=True)
-
-    else:
-        response = "Error. Unable to classify Elasticsearch API call"
-
+            resp = requests.get(api_protocol + "://" + address + ":" + api_port)
+    response = resp.json()
     return response
 
 def get_dashboards_password():
@@ -90,11 +86,11 @@ def get_elasticsearch_cluster_status():
                         verify=False)
     return (resp.json()['status'])
 
-def get_kibana_status():
+def get_dashboards_status():
     ip = get_indexer_ip()
     resp = requests.get('https://'+ip,
-                        auth=(get_kibana_username(),
-                        get_kibana_password()),
+                        auth=(get_dashboards_username(),
+                        get_dashboards_password()),
                         verify=False)
     return (resp.status_code)
 
@@ -169,28 +165,28 @@ def test_check_wazuh_manager_clusterd():
 def test_check_filebeat_process():
     assert check_call("ps -xa | grep \"/usr/share/filebeat/bin/filebeat\" | grep -v grep", shell=True) != ""
 
-@pytest.mark.elastic
+@pytest.mark.indexer
 def test_check_elasticsearch_process():
     assert check_call("ps -xa | grep \"/usr/share/wazuh-indexer/jdk/bin/java\" | grep -v grep | cut -d \" \" -f15", shell=True) != ""
 
-@pytest.mark.kibana
-def test_check_kibana_process():
-    assert check_call("ps -xa | grep \"/usr/share/kibana/bin/../node/bin/node\" | grep -v grep", shell=True) != ""
+@pytest.mark.dashboards
+def test_check_dashboards_process():
+    assert check_call("ps -xa | grep \"/usr/share/wazuh-dashboards/bin/../node/bin/node\" | grep -v grep", shell=True) != ""
 
-@pytest.mark.elastic
+@pytest.mark.indexer
 def test_check_elasticsearch_cluster_status_not_red():
     assert get_elasticsearch_cluster_status() != "red"
 
-@pytest.mark.elastic_cluster
+@pytest.mark.indexer_cluster
 def test_check_elasticsearch_cluster_status_not_yellow():
-    assert get_elasticsearch_cluster_status() != "yellow" 
+    assert get_elasticsearch_cluster_status() != "yellow"
 
-@pytest.mark.kibana
-def test_check_kibana_status():
-    assert get_kibana_status() == 200
+@pytest.mark.dashboards
+def test_check_dashboards_status():
+    assert get_dashboards_status() == 200
 
 @pytest.mark.wazuh
-def test_test_check_wazuh_api_status():
+def test_check_wazuh_api_status():
     assert get_wazuh_api_status() == "Wazuh API REST"
 
 @pytest.mark.wazuh
@@ -233,7 +229,7 @@ def test_check_api_log_errors():
                 break
     assert found_error == False, line
 
-@pytest.mark.elastic
+@pytest.mark.indexer
 def test_check_alerts():
     node_name = socket.gethostname()
     query = {
@@ -253,6 +249,7 @@ def test_check_alerts():
     }
 
     response = api_call_elasticsearch(get_indexer_ip(),query,get_indexer_ip(),'https',get_indexer_username(),get_indexer_password(),'9700')
-    response_dict = json.loads(response)
 
-    assert (response_dict["hits"]["total"]["value"] > 0)
+    print(response)
+
+    assert (response["hits"]["total"]["value"] > 0)
