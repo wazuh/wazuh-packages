@@ -8,11 +8,39 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-HOST="127.0.0.1"
+HOST=""
 INSTALL_PATH="/usr/share/wazuh-indexer"
 CONFIG_PATH="/etc/wazuh-indexer"
 OPTIONS="-icl -nhnv"
-PORT="9800"
+
+# -----------------------------------------------------------------------------
+
+getNetworkHost() {
+    HOST=$(grep -hr "network.host:" "${CONFIG_PATH}"/opensearch.yml)
+    NH="network.host: "
+    HOST="${HOST//$NH}"
+
+    # Allow to find ip with an interface
+    if [[ "${HOST}" =~ _.*_ ]]; then
+        interface="${HOST//_}"
+        HOST=$(ip -o -4 addr list ${interface} | awk '{print $4}' | cut -d/ -f1)
+    fi
+
+    if [ "${HOST}" = "0.0.0.0" ]; then
+        HOST="127.0.0.1"
+    fi
+}
+
+# -----------------------------------------------------------------------------
+
+PORT=$(grep -hr 'transport.tcp.port' "${CONFIG_PATH}/opensearch.yml")
+if [ "${PORT}" ]; then
+    PORT=$(echo ${PORT} | cut -d' ' -f2 | cut -d'-' -f1)
+else
+    PORT="9300"
+fi
+
+# -----------------------------------------------------------------------------
 
 securityadmin() {
 SECURITY_PATH="${INSTALL_PATH}/plugins/opensearch-security"
@@ -26,7 +54,7 @@ help() {
     echo "Usage: $0 [OPTIONS]"
     echo
     echo "    -h, --host <host>     [Optional] Target IP or DNS to configure security."
-    echo "    -p, --port <port>     [Optional] wazuh-indexer security port, by default ${PORT}."
+    echo "    -p, --port <port>     [Optional] wazuh-indexer security port."
     echo "    --options <options>   [Optional] Custom securityadmin options."
     echo "    -h, --help            Show this help."
     echo
@@ -35,6 +63,8 @@ help() {
 
 
 main() {
+    getNetworkHost
+
     while [ -n "$1" ]
     do
         case "$1" in

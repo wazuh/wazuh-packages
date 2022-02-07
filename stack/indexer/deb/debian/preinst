@@ -1,6 +1,6 @@
 #!/bin/sh
 # postinst script for Wazuh-indexer
-# Copyright (C) 2015-2022, Wazuh Inc.
+# Copyright (C) 2021, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
@@ -10,6 +10,7 @@
 set -e 
 
 export NAME=wazuh-indexer
+export CONFIG_DIR="/etc/${NAME}"
 
 #
 # This script is executed in the pre-installation phase
@@ -27,6 +28,8 @@ err_exit() {
 if [ -f "/etc/default/wazuh-indexer" ]; then
     . "/etc/default/wazuh-indexer"
 fi
+
+export OPENSEARCH_PATH_CONF=${OPENSEARCH_PATH_CONF:-${CONFIG_DIR}}
 
 case "$1" in
 
