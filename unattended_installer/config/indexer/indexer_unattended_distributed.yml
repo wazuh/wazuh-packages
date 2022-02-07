@@ -2,6 +2,7 @@ node.master: true
 node.data: true
 node.ingest: true
 
+cluster.name: wazuh-indexer-cluster
 cluster.routing.allocation.disk.threshold_enabled: false
 
 http.port: 9700-9799
@@ -9,6 +10,7 @@ transport.tcp.port: 9800-9899
 node.max_local_storage_nodes: "3"
 path.data: /var/lib/wazuh-indexer
 path.logs: /var/log/wazuh-indexer
+
 
 plugins.security.ssl.http.pemcert_filepath: /etc/wazuh-indexer/certs/indexer.pem
 plugins.security.ssl.http.pemkey_filepath: /etc/wazuh-indexer/certs/indexer-key.pem
@@ -22,11 +24,9 @@ plugins.security.ssl.transport.resolve_hostname: false
 
 plugins.security.audit.type: internal_opensearch
 plugins.security.authcz.admin_dn:
-- "CN=admin,OU=Docu,O=Wazuh,L=California,C=US"
+- "CN=admin,OU=Wazuh,O=Wazuh,L=California,C=US"
 plugins.security.check_snapshot_restore_write_privileges: true
 plugins.security.enable_snapshot_restore_privilege: true
-plugins.security.nodes_dn:
-- "CN=indexer,OU=Docu,O=Wazuh,L=California,C=US"
 plugins.security.restapi.roles_enabled:
 - "all_access"
 - "security_rest_api_access"

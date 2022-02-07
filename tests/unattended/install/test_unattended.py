@@ -21,25 +21,26 @@ warnings.filterwarnings('ignore', message='Unverified HTTPS request')
 # ----------------------------- Aux functions -----------------------------
 
 
-services = None
-p = Popen(['/var/ossec/bin/wazuh-control', 'status'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
-if sys.version_info[0] < 3:
-    services = p.stdout.read()
-else:
-    services = p.stdout
-p.kill()
+def read_services():
+    services = None
+    p = Popen(['/var/ossec/bin/wazuh-control', 'status'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    if sys.version_info[0] < 3:
+        services = p.stdout.read()
+    else:
+        services = p.stdout
+    p.kill()
 
-def get_elasticsearch_password():
+def get_indexer_password():
     stream = open("/etc/filebeat/filebeat.yml", 'r')
     dictionary = yaml.safe_load(stream)
     return (dictionary.get('output.elasticsearch','password').get('password'))
 
-def get_elasticsearch_username():
+def get_indexer_username():
     stream = open("/etc/filebeat/filebeat.yml", 'r')
     dictionary = yaml.safe_load(stream)
     return (dictionary.get('output.elasticsearch','username').get('username'))
 
-def get_elasticsearch_ip():
+def get_indexer_ip():
     stream = open("/etc/wazuh-indexer/opensearch.yml", 'r')
     dictionary = yaml.safe_load(stream)
     return (dictionary.get('network.host'))
@@ -47,61 +48,56 @@ def get_elasticsearch_ip():
 def api_call_elasticsearch(host,query,address,api_protocol,api_user,api_pass,api_port):
 
     if (query == ""):   # Calling ES API without query
-        if (api_pass != "" and api_pass != ""): # If credentials provided
-            response = subprocess.check_output("curl --max-time 15"
-                                + " -k -u "     + api_user + ":" + api_pass + " "
-                                + api_protocol + "://" + address + ":" + api_port,
-                                shell=True)
+        if (api_user != "" and api_pass != ""): # If credentials provided
+            resp = requests.get(api_protocol + '://' + address + ':' + api_port,
+                   auth=(api_user,
+                   api_pass),
+                   verify=False)
         else:
-            response = subprocess.check_output("curl --max-time 15 " + api_protocol + "://" + address + ":" + api_port, shell=True)
+            resp = requests.get(api_protocol + '://' + address + ':' + api_port, verify=False)
 
-    elif (query != ""): # Executing query search
+    else: # Executing query search
         if (api_pass != "" and api_pass != ""):
-            response = subprocess.check_output("curl -H \'Content-Type: application/json\'"
-                                + " --max-time 15" 
-                                + " -k -u "     + api_user + ":" + api_pass
-                                + " -d '"        + json.dumps(query) + "' "
-                                + api_protocol + "://" + address + ":" + api_port
-                                + "/wazuh-alerts-4.x-*/_search",
-                                shell=True)
+            resp = requests.post(api_protocol + '://' + address + ':' + api_port + "/wazuh-alerts-4.x-*/_search",
+                        json=query,
+                        auth=(api_user,
+                        api_pass),
+                        verify=False)
         else:
-            response = subprocess.check_output("curl --max-time 15 " + api_protocol + "://" + address + ":" + api_port, shell=True)
-
-    else:
-        response = "Error. Unable to classify Elasticsearch API call"
-
+            resp = requests.get(api_protocol + "://" + address + ":" + api_port)
+    response = resp.json()
     return response
 
-def get_kibana_password():
-    stream = open("/etc/kibana/kibana.yml", 'r')
+def get_dashboards_password():
+    stream = open("/etc/wazuh-dashboards/dashboards.yml", 'r')
     dictionary = yaml.safe_load(stream)
-    return (dictionary.get('elasticsearch.password'))
+    return (dictionary.get('opensearch.password'))
 
-def get_kibana_username():
-    stream = open("/etc/kibana/kibana.yml", 'r')
+def get_dashboards_username():
+    stream = open("/etc/wazuh-dashboards/dashboards.yml", 'r')
     dictionary = yaml.safe_load(stream)
-    return (dictionary.get('elasticsearch.username'))
+    return (dictionary.get('opensearch.username'))
 
 def get_elasticsearch_cluster_status():
-    ip = get_elasticsearch_ip()
-    resp = requests.get('https://'+ip+':9200/_cluster/health',
-                        auth=(get_elasticsearch_username(), 
-                        get_elasticsearch_password()), 
+    ip = get_indexer_ip()
+    resp = requests.get('https://'+ip+':9700/_cluster/health',
+                        auth=(get_indexer_username(),
+                        get_indexer_password()),
                         verify=False)
     return (resp.json()['status'])
 
-def get_kibana_status():
-    ip = get_elasticsearch_ip()
+def get_dashboards_status():
+    ip = get_indexer_ip()
     resp = requests.get('https://'+ip,
-                        auth=(get_kibana_username(), 
-                        get_kibana_password()), 
+                        auth=(get_dashboards_username(),
+                        get_dashboards_password()),
                         verify=False)
     return (resp.status_code)
 
 def get_wazuh_api_status():
 
     protocol = 'https'
-    host = get_elasticsearch_ip()
+    host = get_indexer_ip()
     port = 55000
     user = 'wazuh'
     password = 'wazuh'
@@ -117,17 +113,9 @@ def get_wazuh_api_status():
                         'Authorization': f'Bearer {token}'}
     response = requests.get(f"{protocol}://{host}:{port}/?pretty=true", headers=requests_headers, verify=False)
 
-    return response.json()['data']['title'] 
+    return response.json()['data']['title']
 
-def is_fedora_suse():
-    if os.path.exists('/etc/os-release'):
-        with open('/etc/os-release', 'r') as f:
-            for line in f.readlines():
-                if 'Fedora 33' in line or 'Fedora 34' in line or 'Fedora Linux 35' in line or 'SUSE Linux Enterprise Server 15' in line or 'tumbleweed' in line:
-                    return True
-
-
-# ----------------------------- Tests ----------------------------- 
+# ----------------------------- Tests -----------------------------
 
 @pytest.mark.wazuh
 def test_check_wazuh_manager_authd():
@@ -177,53 +165,38 @@ def test_check_wazuh_manager_clusterd():
 def test_check_filebeat_process():
     assert check_call("ps -xa | grep \"/usr/share/filebeat/bin/filebeat\" | grep -v grep", shell=True) != ""
 
-@pytest.mark.elastic
+@pytest.mark.indexer
 def test_check_elasticsearch_process():
     assert check_call("ps -xa | grep \"/usr/share/wazuh-indexer/jdk/bin/java\" | grep -v grep | cut -d \" \" -f15", shell=True) != ""
 
-@pytest.mark.kibana
-def test_check_kibana_process():
-    assert check_call("ps -xa | grep \"/usr/share/kibana/bin/../node/bin/node\" | grep -v grep", shell=True) != ""
+@pytest.mark.dashboards
+def test_check_dashboards_process():
+    assert check_call("ps -xa | grep \"/usr/share/wazuh-dashboards/bin/../node/bin/node\" | grep -v grep", shell=True) != ""
 
-@pytest.mark.elastic
+@pytest.mark.indexer
 def test_check_elasticsearch_cluster_status_not_red():
     assert get_elasticsearch_cluster_status() != "red"
 
-@pytest.mark.elastic_cluster
+@pytest.mark.indexer_cluster
 def test_check_elasticsearch_cluster_status_not_yellow():
-    assert get_elasticsearch_cluster_status() != "yellow" 
+    assert get_elasticsearch_cluster_status() != "yellow"
 
-@pytest.mark.kibana
-def test_check_kibana_status():
-    assert get_kibana_status() == 200
+@pytest.mark.dashboards
+def test_check_dashboards_status():
+    assert get_dashboards_status() == 200
 
 @pytest.mark.wazuh
-def test_test_check_wazuh_api_status():
+def test_check_wazuh_api_status():
     assert get_wazuh_api_status() == "Wazuh API REST"
 
-#This test was replaced with the one bellow because of an issue with Fedora 33 and 34
-#The change should be reverted for 4.4.0 when this issue is resolved https://github.com/wazuh/wazuh/issues/10324
-#@pytest.mark.wazuh
-#def test_check_log_errors():
-#    found_error = False
-#    with open('/var/ossec/logs/ossec.log', 'r') as f:
-#        for line in f.readlines():
-#            if 'ERROR' in line:
-#                found_error = True
-#                break
-#    assert found_error == False, line
-
 @pytest.mark.wazuh
-def test_check_ossec_log_errors():
+def test_check_log_errors():
     found_error = False
     with open('/var/ossec/logs/ossec.log', 'r') as f:
         for line in f.readlines():
             if 'ERROR' in line:
                 found_error = True
-                if is_fedora_suse():
-                    if "ERROR: Failed to open database '/var/lib/rpm/Packages': No such file or directory" in line:
-                        found_error = False
-                        print("Error detected as exception.")
+                break
     assert found_error == False, line
 
 @pytest.mark.wazuh_cluster
@@ -256,7 +229,7 @@ def test_check_api_log_errors():
                 break
     assert found_error == False, line
 
-@pytest.mark.elastic
+@pytest.mark.indexer
 def test_check_alerts():
     node_name = socket.gethostname()
     query = {
@@ -275,7 +248,8 @@ def test_check_alerts():
         }
     }
 
-    response = api_call_elasticsearch(get_elasticsearch_ip(),query,get_elasticsearch_ip(),'https',get_elasticsearch_username(),get_elasticsearch_password(),'9200')
-    response_dict = json.loads(response)
+    response = api_call_elasticsearch(get_indexer_ip(),query,get_indexer_ip(),'https',get_indexer_username(),get_indexer_password(),'9700')
 
-    assert (response_dict["hits"]["total"]["value"] > 0)
+    print(response)
+
+    assert (response["hits"]["total"]["value"] > 0)
