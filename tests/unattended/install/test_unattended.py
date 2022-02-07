@@ -72,29 +72,29 @@ def api_call_elasticsearch(host,query,address,api_protocol,api_user,api_pass,api
 
     return response
 
-def get_kibana_password():
+def get_dashboards_password():
     stream = open("/etc/wazuh-dashboards/dashboards.yml", 'r')
     dictionary = yaml.safe_load(stream)
-    return (dictionary.get('elasticsearch.password'))
+    return (dictionary.get('opensearch.password'))
 
-def get_kibana_username():
-    stream = open("/etc/kibana/kibana.yml", 'r')
+def get_dashboards_username():
+    stream = open("/etc/wazuh-dashboards/dashboards.yml", 'r')
     dictionary = yaml.safe_load(stream)
-    return (dictionary.get('elasticsearch.username'))
+    return (dictionary.get('opensearch.username'))
 
 def get_elasticsearch_cluster_status():
     ip = get_indexer_ip()
-    resp = requests.get('https://'+ip+':9200/_cluster/health',
-                        auth=(get_indexer_username(), 
-                        get_indexer_password()), 
+    resp = requests.get('https://'+ip+':9700/_cluster/health',
+                        auth=(get_indexer_username(),
+                        get_indexer_password()),
                         verify=False)
     return (resp.json()['status'])
 
 def get_kibana_status():
     ip = get_indexer_ip()
     resp = requests.get('https://'+ip,
-                        auth=(get_kibana_username(), 
-                        get_kibana_password()), 
+                        auth=(get_kibana_username(),
+                        get_kibana_password()),
                         verify=False)
     return (resp.status_code)
 
@@ -117,17 +117,9 @@ def get_wazuh_api_status():
                         'Authorization': f'Bearer {token}'}
     response = requests.get(f"{protocol}://{host}:{port}/?pretty=true", headers=requests_headers, verify=False)
 
-    return response.json()['data']['title'] 
+    return response.json()['data']['title']
 
-def is_fedora_suse():
-    if os.path.exists('/etc/os-release'):
-        with open('/etc/os-release', 'r') as f:
-            for line in f.readlines():
-                if 'Fedora 33' in line or 'Fedora 34' in line or 'Fedora Linux 35' in line or 'SUSE Linux Enterprise Server 15' in line or 'tumbleweed' in line:
-                    return True
-
-
-# ----------------------------- Tests ----------------------------- 
+# ----------------------------- Tests -----------------------------
 
 @pytest.mark.wazuh
 def test_check_wazuh_manager_authd():
@@ -201,29 +193,14 @@ def test_check_kibana_status():
 def test_test_check_wazuh_api_status():
     assert get_wazuh_api_status() == "Wazuh API REST"
 
-#This test was replaced with the one bellow because of an issue with Fedora 33 and 34
-#The change should be reverted for 4.4.0 when this issue is resolved https://github.com/wazuh/wazuh/issues/10324
-#@pytest.mark.wazuh
-#def test_check_log_errors():
-#    found_error = False
-#    with open('/var/ossec/logs/ossec.log', 'r') as f:
-#        for line in f.readlines():
-#            if 'ERROR' in line:
-#                found_error = True
-#                break
-#    assert found_error == False, line
-
 @pytest.mark.wazuh
-def test_check_ossec_log_errors():
+def test_check_log_errors():
     found_error = False
     with open('/var/ossec/logs/ossec.log', 'r') as f:
         for line in f.readlines():
             if 'ERROR' in line:
                 found_error = True
-                if is_fedora_suse():
-                    if "ERROR: Failed to open database '/var/lib/rpm/Packages': No such file or directory" in line:
-                        found_error = False
-                        print("Error detected as exception.")
+                break
     assert found_error == False, line
 
 @pytest.mark.wazuh_cluster
@@ -275,7 +252,7 @@ def test_check_alerts():
         }
     }
 
-    response = api_call_elasticsearch(get_indexer_ip(),query,get_indexer_ip(),'https',get_indexer_username(),get_indexer_password(),'9200')
+    response = api_call_elasticsearch(get_indexer_ip(),query,get_indexer_ip(),'https',get_indexer_username(),get_indexer_password(),'9700')
     response_dict = json.loads(response)
 
     assert (response_dict["hits"]["total"]["value"] > 0)
