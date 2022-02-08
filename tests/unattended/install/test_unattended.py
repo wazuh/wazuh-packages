@@ -30,6 +30,11 @@ def read_services():
         services = p.stdout
     p.kill()
 
+def get_wazuh_version():
+    wazuh_version = None
+    wazuh_version = subprocess.getoutput('/var/ossec/bin/wazuh-control info | grep VERSION | cut -d "=" -f2 | sed s/\\"//g')
+    return wazuh_version
+
 def get_indexer_password():
     stream = open("/etc/filebeat/filebeat.yml", 'r')
     dictionary = yaml.safe_load(stream)
@@ -196,7 +201,11 @@ def test_check_log_errors():
         for line in f.readlines():
             if 'ERROR' in line:
                 found_error = True
-                break
+                if get_wazuh_version() == 'v4.3.0':
+                    if 'ERROR: Cluster error detected' in line or 'agent-upgrade: ERROR: (8123): There has been an error executing the request in the tasks manager.' in line:
+                        found_error = False
+                    else:
+                      break
     assert found_error == False, line
 
 @pytest.mark.wazuh_cluster
@@ -216,7 +225,11 @@ def test_check_cluster_log_errors():
         for line in f.readlines():
             if 'ERROR' in line:
                 found_error = True
-                break
+                if get_wazuh_version() == 'v4.3.0':
+                    if 'Could not connect to master' in line or 'Worker node is not connected to master' in line or 'Connection reset by peer' in line:
+                        found_error = False
+                    else:
+                      break
     assert found_error == False, line
 
 @pytest.mark.wazuh_cluster
