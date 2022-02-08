@@ -8,22 +8,18 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-set -ex
+set -e
 
-reference=$1
-version=$2
+version="${1}"
+reference="${2}"
 BASE_DIR=/tmp/output/wazuh-indexer-base
 
 # -----------------------------------------------------------------------------
 
 # Including files
 if [ "${reference}" ];then
-    curl -sL https://github.com/wazuh/wazuh-packages/tarball/${reference} | tar xzf
+    curl -sL https://github.com/wazuh/wazuh-packages/tarball/"${reference}" | tar xz
     cp -r ./wazuh*/* /root/
-fi
-
-if [ -z "${version}" ]; then
-    version=1.2.4
 fi
 
 # -----------------------------------------------------------------------------
@@ -31,8 +27,9 @@ fi
 mkdir -p /tmp/output
 cd /tmp/output
 
-curl -OL https://artifacts.opensearch.org/releases/bundle/opensearch/"${version}"/opensearch-"${version}"-linux-x64.tar.gz | tar xzf
+curl -sL https://artifacts.opensearch.org/releases/bundle/opensearch/"${version}"/opensearch-"${version}"-linux-x64.tar.gz | tar xz
 
+# Remove unnecessary files and set up configuration
 mv opensearch-"${version}" "${BASE_DIR}"
 cd "${BASE_DIR}"
 find -type l -exec rm -rf {} \;
@@ -53,6 +50,7 @@ git clone https://github.com/opensearch-project/OpenSearch.git --branch="${versi
 cd OpenSearch/modules/systemd
 export JAVA_HOME=/etc/alternatives/java_sdk_11
 ../../gradlew build || true
+mkdir -p "${BASE_DIR}"/modules/systemd
 cp build/distributions/systemd-"${version}"-SNAPSHOT.jar "${BASE_DIR}"/modules/systemd/systemd-"${version}".jar
 cp build/resources/test/plugin-security.policy "${BASE_DIR}"/modules/systemd/
 cp build/generated-resources/plugin-descriptor.properties "${BASE_DIR}"/modules/systemd/
@@ -62,5 +60,7 @@ rm -rf OpenSearch
 
 # -----------------------------------------------------------------------------
 
+# Base output
 cd /tmp/output
 tar cvf wazuh-indexer-base-linux-x64.tar.gz wazuh-indexer-base 
+rm -rf "${BASE_DIR}"
