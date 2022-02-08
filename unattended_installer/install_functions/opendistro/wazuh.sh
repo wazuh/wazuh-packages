@@ -66,9 +66,9 @@ function uninstallmanager() {
 
     logger "Wazuh and Filebeat will be uninstalled."
 
-    # remove packages
+    # Remove packages
     if [[ -n "${wazuhinstalled}" ]];then
-        logger -w "Removing Wazuh packages."
+        logger -w "Removing Wazuh manager."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-manager -y ${debug} &"
             wait
@@ -84,7 +84,7 @@ function uninstallmanager() {
     fi
 
     if [[ -n "${filebeatinstalled}" ]]; then
-        logger -w "Removing Filebeat packages."
+        logger -w "Removing Filebeat."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove filebeat -y ${debug} &"
             wait
@@ -97,7 +97,7 @@ function uninstallmanager() {
         fi
     fi
 
-    # remove files
+    # Remove files
     until [ -z "${wazuh_remaining_files}" ]
     do
         logger -w "Removing Wazuh files."

@@ -282,7 +282,7 @@ function rollBack() {
 
     logger "Analyzing components to uninstall and clean."
 
-    # Uninstall case!
+    # Uninstall case
     if [ -n "${AIO}" ] || [ "${uninstall_component_name}" == "all" ] || [ "${uninstall_component_name}" == "manager" ]; then
         if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ]; then
             uninstallmanager
@@ -317,7 +317,7 @@ function rollBack() {
         uninstallkibana
     fi
 
-    # rollBack case!
+    # rollBack case
     for component in "${componentList[@]}"; do
         if [ "${component}" == "manager" ] || [ "${component}" == "elastichsearch" ] || [ "${component}" == "kibana" ] ; then
             eval "uninstall$component"

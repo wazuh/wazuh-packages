@@ -178,6 +178,7 @@ function installKibana() {
 }
 
 function uninstallkibana() {
+
     logger "Kibana will be uninstalled."
 
     if [[ -n "${kibanainstalled}" ]]; then

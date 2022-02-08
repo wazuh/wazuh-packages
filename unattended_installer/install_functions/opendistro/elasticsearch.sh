@@ -171,6 +171,7 @@ function installElasticsearch() {
 }
 
 function uninstallelasticsearch() {
+
     logger "Elasticsearch will be uninstalled."
 
     if [[ -n "${elasticsearchinstalled}" ]]; then
