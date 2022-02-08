@@ -55,6 +55,8 @@ cd ${build_dir}/${target} && tar -czf ${pkg_name}.orig.tar.gz "${pkg_name}"
 # Configure the package with the different parameters
 sed -i "s:VERSION:${version}:g" ${sources_dir}/debian/changelog
 sed -i "s:RELEASE:${release}:g" ${sources_dir}/debian/changelog
+sed -i "s:VERSION:${version}:g" ${sources_dir}/debian/rules
+sed -i "s:RELEASE:${release}:g" ${sources_dir}/debian/rules
 sed -i "s:export INSTALLATION_DIR=.*:export INSTALLATION_DIR=${directory_base}:g" ${sources_dir}/debian/rules
 
 # Installing build dependencies

@@ -29,7 +29,7 @@ export NAME=wazuh-dashboards
 export CONFIG_DIR=/etc/${NAME}
 export INSTALLATION_DIR=/usr/share/${NAME}
 export LOG_DIR=/var/log/${NAME}
-export DASHBOARD_FILE=wazuh-dashboards-base-linux-x64
+export DASHBOARD_FILE=wazuh-dashboards-base-VERSION-RELEASE-linux-x64
 export USER=${NAME}
 export GROUP=${NAME}
 
@@ -57,9 +57,9 @@ override_dh_install:
 	mkdir -p ${TARGET_DIR}/etc/systemd/system
 	mkdir -p ${TARGET_DIR}/etc/default
 
-	cp ${DASHBOARD_FILE}/etc/node.options ${TARGET_DIR}${CONFIG_DIR}
-	cp ${DASHBOARD_FILE}/etc/dashboards.yml ${TARGET_DIR}${CONFIG_DIR}
-	mv ${DASHBOARD_FILE}/* ${TARGET_DIR}${INSTALLATION_DIR}
+	cp wazuh-dashboards-base/etc/node.options ${TARGET_DIR}${CONFIG_DIR}
+	cp wazuh-dashboards-base/etc/dashboards.yml ${TARGET_DIR}${CONFIG_DIR}
+	mv wazuh-dashboards-base/* ${TARGET_DIR}${INSTALLATION_DIR}
 
 	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/custom_welcome/template.js.hbs ${TARGET_DIR}${INSTALLATION_DIR}/src/legacy/ui/ui_render/bootstrap/template.js.hbs
 	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/custom_welcome/light_theme.style.css ${TARGET_DIR}${INSTALLATION_DIR}/src/core/server/core_app/assets/legacy_light_theme.css
@@ -69,6 +69,7 @@ override_dh_install:
 	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/custom_welcome/Assets/default_branding/wazuh_mark_default_mode.svg ${TARGET_DIR}${INSTALLATION_DIR}/src/core/server/core_app/assets/default_branding/opensearch_mark_default_mode.svg
 	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/custom_welcome/Assets/Favicons/* ${TARGET_DIR}${INSTALLATION_DIR}/src/core/server/core_app/assets/favicons/
 	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/custom_welcome/Assets/Favicons/favicon-32x32.png ${TARGET_DIR}${INSTALLATION_DIR}/src/core/server/core_app/assets/favicons/favicon.ico
+	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/opensearch_dashboards_config.js ${TARGET_DIR}${INSTALLATION_DIR}/src/core/server/opensearch_dashboards_config.js
 
 
 	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/services/wazuh-dashboards.service ${TARGET_DIR}/etc/systemd/system/wazuh-dashboards.service 

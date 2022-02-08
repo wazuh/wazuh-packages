@@ -31,7 +31,7 @@ ExclusiveOS: linux
 %global LOG_DIR /var/log/%{name}
 %global PID_DIR /run/%{name}
 %global INSTALL_DIR /usr/share/%{name}
-%global DASHBOARD_FILE wazuh-dashboards-base-linux-x64
+%global DASHBOARD_FILE wazuh-dashboards-base-%{version}-%{release}-linux-x64
 
 # -----------------------------------------------------------------------------
 
@@ -66,9 +66,9 @@ mkdir -p %{buildroot}/etc/init.d
 mkdir -p %{buildroot}/etc/default
 
 
-cp %{DASHBOARD_FILE}/etc/node.options %{buildroot}%{CONFIG_DIR}
-cp %{DASHBOARD_FILE}/etc/dashboards.yml %{buildroot}%{CONFIG_DIR}
-mv %{DASHBOARD_FILE}/* %{buildroot}%{INSTALL_DIR}
+cp wazuh-dashboards-base/etc/node.options %{buildroot}%{CONFIG_DIR}
+cp wazuh-dashboards-base/etc/dashboards.yml %{buildroot}%{CONFIG_DIR}
+mv wazuh-dashboards-base/* %{buildroot}%{INSTALL_DIR}
 
 # Set custom welcome styles
 
@@ -81,6 +81,7 @@ cp %{buildroot}%{INSTALL_DIR}/etc/custom_welcome/Assets/default_branding/wazuh_m
 cp %{buildroot}%{INSTALL_DIR}/etc/custom_welcome/Assets/default_branding/wazuh_mark_default_mode.svg %{buildroot}%{INSTALL_DIR}/src/core/server/core_app/assets/default_branding/opensearch_mark_default_mode.svg
 cp %{buildroot}%{INSTALL_DIR}/etc/custom_welcome/Assets/Favicons/* %{buildroot}%{INSTALL_DIR}/src/core/server/core_app/assets/favicons/
 cp %{buildroot}%{INSTALL_DIR}/etc/custom_welcome/Assets/Favicons/favicon-32x32.png %{buildroot}%{INSTALL_DIR}/src/core/server/core_app/assets/favicons/favicon.ico
+cp %{buildroot}%{INSTALL_DIR}/etc/opensearch_dashboards_config.js %{buildroot}%{INSTALL_DIR}/src/core/server/opensearch_dashboards_config.js
 
 cp %{buildroot}%{INSTALL_DIR}/etc/services/wazuh-dashboards.service %{buildroot}/etc/systemd/system/wazuh-dashboards.service 
 cp %{buildroot}%{INSTALL_DIR}/etc/services/wazuh-dashboards %{buildroot}/etc/init.d/wazuh-dashboards

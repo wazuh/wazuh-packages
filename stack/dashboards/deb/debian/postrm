@@ -72,9 +72,21 @@ if [ "$REMOVE_DIRS" = "true" ]; then
         echo " OK"
     fi
 
-    if [ -d /etc/default/"${NAME}" ]; then
+    if [ -f /etc/default/"${NAME}" ]; then
         echo -n "Deleting Default File..."
         rm -rf /etc/default/"${NAME}"
+        echo " OK"
+    fi
+
+    if [ -f /etc/systemd/system/"${NAME}" ]; then
+        echo -n "Deleting Init.d File..."
+        rm -rf /etc/systemd/system/"${NAME}"
+        echo " OK"
+    fi
+
+    if [ -f /etc/systemd/system/"${NAME}".service ]; then
+        echo -n "Deleting Service File..."
+        rm -rf /etc/systemd/system/"${NAME}".service
         echo " OK"
     fi
 
