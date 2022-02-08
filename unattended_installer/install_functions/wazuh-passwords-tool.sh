@@ -13,11 +13,11 @@ if [[ -z "${logfile}" ]]; then
 fi
 debug_pass=">> ${logfile} 2>&1"
 if [ -n "$(command -v yum)" ]; then
-    readonly sys_type="yum"
+    sys_type="yum"
 elif [ -n "$(command -v zypper)" ]; then
-    readonly sys_type="zypper"
+    sys_type="zypper"
 elif [ -n "$(command -v apt-get)" ]; then
-    readonly sys_type="apt-get"
+    sys_type="apt-get"
 fi
 
 function changePassword() {

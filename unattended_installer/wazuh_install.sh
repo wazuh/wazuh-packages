@@ -394,7 +394,7 @@ function main() {
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboards}" ] || [ -n "${wazuh}" ]; then
         logger "------------------------------------ Dependencies -------------------------------------"
         common_installPrerequisites
-        common_addWazuhrepo
+        common_addWazuhRepo
     fi
 # -------------- Elasticsearch or Start Elasticsearch cluster case---
 

@@ -19,7 +19,7 @@ fi
 readonly filebeat_wazuh_template="https://raw.githubusercontent.com/wazuh/wazuh/${wazuh_major}/extensions/elasticsearch/7.x/wazuh-template.json"
 readonly filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.1.tar.gz"
 
-function common_addWazuhrepo() {
+function common_addWazuhRepo() {
 
     logger -d "Adding the Wazuh repository."
 

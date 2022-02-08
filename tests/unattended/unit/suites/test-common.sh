@@ -157,12 +157,12 @@ test-12-common_installPrerequisites-apt-assert() {
     apt-get install apt-transport-https curl unzip wget libcap2-bin tar gnupg -y
 }
 
-function load-common_addWazuhrepo() {
-    @load_function "${base_dir}/common.sh" common_addWazuhrepo
+function load-common_addWazuhRepo() {
+    @load_function "${base_dir}/common.sh" common_addWazuhRepo
 }
 
-test-13-common_addWazuhrepo-yum() {
-    load-common_addWazuhrepo
+test-13-common_addWazuhRepo-yum() {
+    load-common_addWazuhRepo
     development=1
     sys_type="yum"
     debug=""
@@ -170,16 +170,16 @@ test-13-common_addWazuhrepo-yum() {
     releasever=""
     @mocktrue echo -e '[wazuh]\ngpgcheck=1\ngpgkey=\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=/yum/\nprotect=1'
     @mocktrue tee /etc/yum.repos.d/wazuh.repo
-    common_addWazuhrepo
+    common_addWazuhRepo
 }
 
-test-13-common_addWazuhrepo-yum-assert() {
+test-13-common_addWazuhRepo-yum-assert() {
     rm -f /etc/yum.repos.d/wazuh.repo
     rpm --import
 }
 
-test-14-common_addWazuhrepo-zypper() {
-    load-common_addWazuhrepo
+test-14-common_addWazuhRepo-zypper() {
+    load-common_addWazuhRepo
     development=1
     sys_type="zypper"
     debug=""
@@ -190,16 +190,16 @@ test-14-common_addWazuhrepo-zypper() {
     @rm /etc/apt/sources.list.d/wazuh.list
     @mocktrue echo -e '[wazuh]\ngpgcheck=1\ngpgkey=\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=/yum/\nprotect=1'
     @mocktrue tee /etc/zypp/repos.d/wazuh.repo
-    common_addWazuhrepo
+    common_addWazuhRepo
 }
 
-test-14-common_addWazuhrepo-zypper-assert() {
+test-14-common_addWazuhRepo-zypper-assert() {
     rm -f /etc/zypp/repos.d/wazuh.repo
     rpm --import
 }
 
-test-15-common_addWazuhrepo-apt() {
-    load-common_addWazuhrepo
+test-15-common_addWazuhRepo-apt() {
+    load-common_addWazuhRepo
     development=1
     sys_type="apt-get"
     debug=""
@@ -212,40 +212,40 @@ test-15-common_addWazuhrepo-apt() {
     @mocktrue apt-key add -
     @mocktrue echo "deb /apt/  main"
     @mocktrue tee /etc/apt/sources.list.d/wazuh.list
-    common_addWazuhrepo
+    common_addWazuhRepo
 }
 
-test-15-common_addWazuhrepo-apt-assert() {
+test-15-common_addWazuhRepo-apt-assert() {
     rm -f /etc/apt/sources.list.d/wazuh.list
     apt-get update -q
 }
 
-test-16-common_addWazuhrepo-apt-file-present() {
-    load-common_addWazuhrepo
+test-16-common_addWazuhRepo-apt-file-present() {
+    load-common_addWazuhRepo
     development=""
     @mkdir -p /etc/yum.repos.d
     @touch /etc/yum.repos.d/wazuh.repo
-    common_addWazuhrepo
+    common_addWazuhRepo
     @assert-success
     @rm /etc/yum.repos.d/wazuh.repo
 }
 
-test-17-common_addWazuhrepo-zypper-file-present() {
-    load-common_addWazuhrepo
+test-17-common_addWazuhRepo-zypper-file-present() {
+    load-common_addWazuhRepo
     development=""
     @mkdir -p /etc/zypp/repos.d/
     @touch /etc/zypp/repos.d/wazuh.repo
-    common_addWazuhrepo
+    common_addWazuhRepo
     @assert-success
     @rm /etc/zypp/repos.d/wazuh.repo
 }
 
-test-18-common_addWazuhrepo-yum-file-present() {
-    load-common_addWazuhrepo
+test-18-common_addWazuhRepo-yum-file-present() {
+    load-common_addWazuhRepo
     development=""
     @mkdir -p /etc/apt/sources.list.d/
     @touch /etc/apt/sources.list.d/wazuh.list
-    common_addWazuhrepo
+    common_addWazuhRepo
     @assert-success
     @rm /etc/apt/sources.list.d/wazuh.list
 }
