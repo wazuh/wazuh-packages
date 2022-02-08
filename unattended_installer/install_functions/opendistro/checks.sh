@@ -161,43 +161,17 @@ function checkArguments() {
 
 }
 
-function checkTools() {
-
-    # -------------- Check tools required to run the script (awk, sed, etc.) -----------------------------------------
-
-    toolList=(  "awk" "cat" "chown" "cp" "curl" "echo" "export"
-                "free" "grep" "kill" "mkdir" "mv" "rm" "sed"
-                "sudo" "tar" "touch" "uname")
-
-    missingtoolsList=()
-    for command in "${toolList[@]}"
-    do
-        if [ -z "$(command -v ${command})" ]; then
-            missingtoolsList+="${command}, "
-        fi
-    done
-
-    if [ -n "${missingtoolsList}" ]; then
-
-        logger "---------------------------------- Missing tool -----------------------------------"
-        logger "Missing tool report: ${missingtoolsList} are not installed. All this command's are necessary for the correct use of this tool."
-        exit 1
-
-    fi
-
-}
-
 function checkHealth() {
 
     checkSpecs
     if [ -z "${cores}" ]; then
-        logger -w "The script needs to parse the file '${coresFile}' to check the minimum required hardware of CPU cores."
-        logger -w "Use the --ignore-health-check parameter to dismiss the recommended minimum hardware requirements check."
+        logger -e "The script needs to parse the file '${coresFile}' to check the minimum required hardware of CPU cores."
+        logger "Use the --ignore-health-check parameter to dismiss the recommended minimum hardware requirements check."
         exit 1
     fi
     if [ -z "${ram_gb}" ]; then
-        logger - w "The command 'free' is required to check the minimum required hardware of RAM."
-        logger -w "Use the --ignore-health-check parameter to dismiss the recommended minimum hardware requirements check."
+        logger -e "The command 'free' is required to check the minimum required hardware of RAM."
+        logger "Use the --ignore-health-check parameter to dismiss the recommended minimum hardware requirements check."
         exit 1
     fi
 
@@ -369,7 +343,23 @@ function checkSpecs() {
     else
         logger -e "The $coresFile does not exist."
     fi
-    ram_gb=$(free -m | awk '/^Mem:/{print $2}')
+
+    if [ -n "$(command -v free)" ]; then
+        ram_gb=$(free -m | awk '/^Mem:/{print $2}')
+    else
+        memFile="/proc/meminfo"
+        if [ -f "$memFile" ]; then
+            MEMinKB=$(cat "$memFile" | grep MemTotal | awk '/^MemTotal:/{print $2}')
+            ram_gb=$(( $MEMinKB / 1024 ))
+        else
+            logger -e "The $coresFile does not exist."
+        fi
+    fi
+
+
+
+
+
 
 }
 
@@ -387,6 +377,32 @@ function checkSystem() {
     else
         logger -e "Couldn'd find type of system"
         exit 1
+    fi
+
+}
+
+function checkTools() {
+
+    # -------------- Check tools required to run the script (awk, sed, etc.) -----------------------------------------
+
+    toolList=(  "awk" "cat" "chown" "cp" "curl" "echo" "export"
+                "free" "grep" "kill" "mkdir" "mv" "rm" "sed"
+                "sudo" "tar" "touch" "uname")
+
+    missingtoolsList=()
+    for command in "${toolList[@]}"
+    do
+        if [ -z "$(command -v ${command})" ]; then
+            missingtoolsList+="${command}, "
+        fi
+    done
+
+    if [ -n "${missingtoolsList}" ]; then
+
+        logger "---------------------------------- Missing tools -----------------------------------"
+        logger "The following command or commands are not present in the system: ${missingtoolsList} and must it is / they are necessary for the correct use of this tool."
+        exit 1
+
     fi
 
 }
