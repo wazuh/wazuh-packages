@@ -83,6 +83,9 @@ cp %{buildroot}%{INSTALL_DIR}/etc/custom_welcome/Assets/Favicons/* %{buildroot}%
 cp %{buildroot}%{INSTALL_DIR}/etc/custom_welcome/Assets/Favicons/favicon-32x32.png %{buildroot}%{INSTALL_DIR}/src/core/server/core_app/assets/favicons/favicon.ico
 cp %{buildroot}%{INSTALL_DIR}/etc/opensearch_dashboards_config.js %{buildroot}%{INSTALL_DIR}/src/core/server/opensearch_dashboards_config.js
 
+mkdir -p %{buildroot}%{INSTALL_DIR}/config
+cp %{buildroot}%{INSTALL_DIR}/etc/secret %{buildroot}%{INSTALL_DIR}/config/secret
+
 cp %{buildroot}%{INSTALL_DIR}/etc/services/wazuh-dashboards.service %{buildroot}/etc/systemd/system/wazuh-dashboards.service 
 cp %{buildroot}%{INSTALL_DIR}/etc/services/wazuh-dashboards %{buildroot}/etc/init.d/wazuh-dashboards
 cp %{buildroot}%{INSTALL_DIR}/etc/services/default %{buildroot}/etc/default/wazuh-dashboards
@@ -209,6 +212,11 @@ if [ -f %{INSTALL_DIR}/wazuh-dashboards.restart ]; then
   fi
 
 fi
+
+runuser %{USER} --shell="/bin/bash" --command="%{INSTALL_DIR}/bin/opensearch-dashboards-keystore create"
+runuser %{USER} --shell="/bin/bash" --command="cat %{INSTALL_DIR}/config/secret | %{INSTALL_DIR}/bin/opensearch-dashboards-keystore add opensearch.username --stdin"
+runuser %{USER} --shell="/bin/bash" --command="cat %{INSTALL_DIR}/config/secret | %{INSTALL_DIR}/bin/opensearch-dashboards-keystore add opensearch.password --stdin"
+rm -f %{INSTALL_DIR}/config/secret
 
 # -----------------------------------------------------------------------------
 
@@ -414,6 +422,8 @@ rm -fr %{buildroot}
 %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/bin/opensearch-dashboards"
 %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/bin/opensearch-dashboards-plugin"
 %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/bin/opensearch-dashboards-keystore"
+%dir %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/config"
+%attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/config/secret"
 %attr(640, %{USER}, %{GROUP}) "%{CONFIG_DIR}/node.options"
 %attr(640, %{USER}, %{GROUP}) "/etc/systemd/system/wazuh-dashboards.service"
 
