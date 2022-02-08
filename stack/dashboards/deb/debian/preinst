@@ -27,14 +27,11 @@ case "$1" in
     # Debian ####################################################
     install)
         # environment configuration
-        if [ ! -d "${INSTALLATION_DIR}" ]; then
-            mkdir -p "${CONFIG_DIR}"
-            mkdir -p "${INSTALLATION_DIR}"
-            mkdir -p "${LOG_DIR}"
-        else
-            rm -rf "${INSTALLATION_DIR}"
-            mkdir -p "${INSTALLATION_DIR}"
-        fi
+        mkdir -p "${CONFIG_DIR}"
+        mkdir -p "${INSTALLATION_DIR}"
+        mkdir -p "${LOG_DIR}"
+
+        
         # Create wazuh-dashboards group if not existing
         if ! getent group "${NAME}" > /dev/null 2>&1 ; then
             echo -n "Creating ${NAME} group..."
