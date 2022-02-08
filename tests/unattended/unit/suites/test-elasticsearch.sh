@@ -128,9 +128,9 @@ test-09-configureIndexer-dist-one-elastic-node() {
 }
 
 test-09-configureIndexer-dist-one-elastic-node-assert() {
-    getConfig elasticsearch/roles/roles.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/roles.yml
-    getConfig elasticsearch/roles/roles_mapping.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/roles_mapping.yml
-    getConfig elasticsearch/roles/internal_users.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/internal_users.yml
+    common_getConfig elasticsearch/roles/roles.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/roles.yml
+    common_getConfig elasticsearch/roles/roles_mapping.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/roles_mapping.yml
+    common_getConfig elasticsearch/roles/internal_users.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/internal_users.yml
 
     rm -f /etc/wazuh-indexer/esnode-key.pem /etc/wazuh-indexer/esnode.pem /etc/wazuh-indexer/kirk-key.pem /etc/wazuh-indexer/kirk.pem /etc/wazuh-indexer/root-ca.pem 
     copyCertificatesIndexer
@@ -138,7 +138,7 @@ test-09-configureIndexer-dist-one-elastic-node-assert() {
     sed -i "s/-Xms1g/-Xms1g/" /etc/wazuh-indexer/jvm.options
     sed -i "s/-Xmx1g/-Xmx1g/" /etc/wazuh-indexer/jvm.options
 
-    getConfig elasticsearch/elasticsearch_unattended_distributed.yml /etc/wazuh-indexer/opensearch.yml
+    common_getConfig elasticsearch/elasticsearch_unattended_distributed.yml /etc/wazuh-indexer/opensearch.yml
 
     applyLog4j2Mitigation
 
@@ -160,9 +160,9 @@ test-10-configureIndexer-dist-two-elastic-nodes() {
 }
 
 test-10-configureIndexer-dist-two-elastic-nodes-assert() {
-    getConfig elasticsearch/roles/roles.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/roles.yml
-    getConfig elasticsearch/roles/roles_mapping.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/roles_mapping.yml
-    getConfig elasticsearch/roles/internal_users.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/internal_users.yml
+    common_getConfig elasticsearch/roles/roles.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/roles.yml
+    common_getConfig elasticsearch/roles/roles_mapping.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/roles_mapping.yml
+    common_getConfig elasticsearch/roles/internal_users.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/internal_users.yml
 
     rm -f /etc/wazuh-indexer/esnode-key.pem /etc/wazuh-indexer/esnode.pem /etc/wazuh-indexer/kirk-key.pem /etc/wazuh-indexer/kirk.pem /etc/wazuh-indexer/root-ca.pem
     copyCertificatesIndexer
@@ -170,7 +170,7 @@ test-10-configureIndexer-dist-two-elastic-nodes-assert() {
     sed -i "s/-Xms1g/-Xms1g/" /etc/wazuh-indexer/jvm.options
     sed -i "s/-Xmx1g/-Xmx1g/" /etc/wazuh-indexer/jvm.options
 
-    getConfig elasticsearch/elasticsearch_unattended_distributed.yml /etc/wazuh-indexer/opensearch.yml
+    common_getConfig elasticsearch/elasticsearch_unattended_distributed.yml /etc/wazuh-indexer/opensearch.yml
 
     applyLog4j2Mitigation
 
@@ -191,9 +191,9 @@ test-11-configureIndexer-AIO() {
 }
 
 test-11-configureIndexer-AIO-assert() {
-    getConfig elasticsearch/roles/roles.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/roles.yml
-    getConfig elasticsearch/roles/roles_mapping.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/roles_mapping.yml
-    getConfig elasticsearch/roles/internal_users.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/internal_users.yml
+    common_getConfig elasticsearch/roles/roles.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/roles.yml
+    common_getConfig elasticsearch/roles/roles_mapping.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/roles_mapping.yml
+    common_getConfig elasticsearch/roles/internal_users.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/internal_users.yml
     
     export JAVA_HOME=/usr/share/wazuh-indexer/jdk/
     rm -f /etc/wazuh-indexer/esnode-key.pem /etc/wazuh-indexer/esnode.pem /etc/wazuh-indexer/kirk-key.pem /etc/wazuh-indexer/kirk.pem /etc/wazuh-indexer/root-ca.pem
@@ -203,7 +203,7 @@ test-11-configureIndexer-AIO-assert() {
     sed -i 's/-Xms1g/-Xms1g/' /etc/wazuh-indexer/jvm.options
     sed -i 's/-Xmx1g/-Xmx1g/' /etc/wazuh-indexer/jvm.options
 
-    getConfig elasticsearch/elasticsearch_unattended_distributed.yml /etc/wazuh-indexer/opensearch.yml
+    common_getConfig elasticsearch/elasticsearch_unattended_distributed.yml /etc/wazuh-indexer/opensearch.yml
 
     applyLog4j2Mitigation
 
@@ -227,7 +227,7 @@ test-12-initializeIndexer-one-node() {
 
 test-12-initializeIndexer-one-node-assert() {
     startIndexerCluster
-    changePasswords
+    common_changePasswords
     @echo 1
 }
 

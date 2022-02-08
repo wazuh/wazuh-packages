@@ -9,12 +9,12 @@
 # Foundation.
 
 if [ -z "${base_path}" ]; then
-    base_path="$(dirname "$(readlink -f "$0")")"
-    config_file="${base_path}/config.yml"
+    readonly base_path="$(dirname "$(readlink -f "$0")")"
+    readonly config_file="${base_path}/config.yml"
 fi
 
 if [[ -z "${logfile}" ]]; then
-    logfile="/var/log/wazuh-cert-tool.log"
+    readonly logfile="/var/log/wazuh-cert-tool.log"
 fi
 
 debug_cert=">> ${logfile} 2>&1"

@@ -51,7 +51,7 @@ function cleanExit() {
     if [[ "${rollback_conf}" =~ [N|n] ]]; then
         exit 1
     else
-        rollBack
+        common_rollBack
         exit 1
     fi
 
@@ -332,11 +332,11 @@ function main() {
 
 # -------------- Uninstall case  ------------------------------------
 
-    checkIfInstalled
+    checks_installed
     if [ -n "${uninstall}" ]; then
         logger "-------------------------------------- Uninstall --------------------------------------"
         logger "Removing all installed components."
-        rollBack
+        common_rollBack
         logger "All components removed."
         exit 0
     fi
@@ -344,19 +344,19 @@ function main() {
 # -------------- Preliminary checks  --------------------------------
 
     if [ -z "${configurations}" ] && [ -z "${AIO}" ]; then
-        checkPreviousCertificates
+        checks_previousCertificate
     fi
-    checkArch
-    checkSystem
+    checks_arch
+    checks_system
     if [ -n "${ignore}" ]; then
         logger -w "Health-check ignored."
     else
-        checkHealth
+        checks_health
     fi
     if [ -n "${AIO}" ] ; then
         rm -f "${tar_file}"
     fi
-    checkArguments
+    checks_arguments
 
 # -------------- Configuration creation case  -----------------------
 
@@ -366,9 +366,9 @@ function main() {
         if [ -n "${configurations}" ]; then
             checkOpenSSL
         fi
-        createCertificates
+        common_createCertificates
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
-            createClusterKey
+            common_createClusterKey
         fi
         gen_file="${base_path}/certs/password_file.yml"
         generatePasswordFile
@@ -380,21 +380,21 @@ function main() {
     fi
 
     if [ -z "${configurations}" ]; then
-        extractConfig
+        common_extractConfig
         readConfig
         rm -f "${config_file}"
     fi
 
     # Distributed architecture: node names must be different
     if [[ -z "${AIO}" && ( -n "${indexer}"  || -n "${dashboards}" || -n "${wazuh}" )]]; then
-        checkNames
+        checks_names
     fi
 
 # -------------- Prerequisites and Wazuh repo  ----------------------
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboards}" ] || [ -n "${wazuh}" ]; then
         logger "------------------------------------ Dependencies -------------------------------------"
-        installPrerequisites
-        addWazuhrepo
+        common_installPrerequisites
+        common_addWazuhrepo
     fi
 # -------------- Elasticsearch or Start Elasticsearch cluster case---
 
@@ -408,7 +408,7 @@ function main() {
         logger "------------------------------------ Wazuh indexer ------------------------------------"
         indexer_install
         indexer_configure
-        startService "wazuh-indexer"
+        common_startService "wazuh-indexer"
         indexer_initialize
     fi
 
@@ -416,7 +416,7 @@ function main() {
 
     if [ -n "${start_elastic_cluster}" ]; then
         indexer_startCluster
-        changePasswords
+        common_changePasswords
     fi
 
 # -------------- Kibana case  ---------------------------------------
@@ -428,8 +428,8 @@ function main() {
 
         dashboards_install
         dashboards_configure
-        changePasswords
-        startService "wazuh-dashboards"
+        common_changePasswords
+        common_startService "wazuh-dashboards"
         dashboards_initialize
 
     fi
@@ -446,11 +446,11 @@ function main() {
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
             manager_startCluster
         fi
-        startService "wazuh-manager"
+        common_startService "wazuh-manager"
         filebeat_install
         filebeat_configure
-        changePasswords
-        startService "filebeat"
+        common_changePasswords
+        common_startService "filebeat"
     fi
 
 # -------------- AIO case  ------------------------------------------
@@ -465,26 +465,26 @@ function main() {
         logger "------------------------------------ Wazuh indexer ------------------------------------"
         indexer_install
         indexer_configure
-        startService "wazuh-indexer"
+        common_startService "wazuh-indexer"
         indexer_initialize
         logger "------------------------------------- Wazuh server ------------------------------------"
         manager_install
-        startService "wazuh-manager"
+        common_startService "wazuh-manager"
         filebeat_install
         filebeat_configure
-        startService "filebeat"
+        common_startService "filebeat"
         logger "---------------------------------- Wazuh dashboards -----------------------------------"
         dashboards_install
         dashboards_configure
-        startService "wazuh-dashboards"
-        changePasswords
+        common_startService "wazuh-dashboards"
+        common_changePasswords
         dashboards_initializeAIO
     fi
 
 # -------------------------------------------------------------------
 
     if [ -z "${configurations}" ]; then
-        restoreWazuhrepo
+        common_restoreWazuhrepo
     fi
 
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboards}" ] || [ -n "${wazuh}" ]; then

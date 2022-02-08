@@ -13,9 +13,9 @@ function dashboards_configure() {
     dashboards_copyCertificates
 
     if [ -n "${AIO}" ]; then
-        eval "getConfig dashboards/dashboards_unattended.yml /etc/wazuh-dashboards/dashboards.yml ${debug}"
+        eval "common_getConfig dashboards/dashboards_unattended.yml /etc/wazuh-dashboards/dashboards.yml ${debug}"
     else
-        eval "getConfig dashboards/dashboards_unattended_distributed.yml /etc/wazuh-dashboards/dashboards.yml ${debug}"
+        eval "common_getConfig dashboards/dashboards_unattended_distributed.yml /etc/wazuh-dashboards/dashboards.yml ${debug}"
         if [ "${#dashboards_node_names[@]}" -eq 1 ]; then
             pos=0
             ip=${dashboards_node_ips[0]}
@@ -68,7 +68,7 @@ function dashboards_copyCertificates() {
 function dashboards_initialize() {
 
     logger "Starting Wazuh dashboards  (this may take a while)."
-    getPass "admin"
+    common_getPass "admin"
     j=0
 
     if [ "${#dashboards_node_names[@]}" -eq 1 ]; then
@@ -116,7 +116,7 @@ function dashboards_initialize() {
         logger "${flag}" "Failed to connect with ${failed_nodes[*]}. Connection refused."
         if [ -z "${force}" ]; then
             logger "If want to install Wazuh dashboards without waiting for the Wazuh indexer cluster, use the -F option"
-            rollBack
+            common_rollBack
             exit 1
         else
             logger "When Wazuh dashboards is able to connect to your Elasticsearch cluster, you can access the web interface https://${nodes_dashboards_ip}. The credentials are admin:${u_pass}"
@@ -130,14 +130,14 @@ function dashboards_initialize() {
 function dashboards_initializeAIO() {
 
     logger "Starting Wazuh dashboards (this may take a while)."
-    getPass "admin"
+    common_getPass "admin"
     until [ "$(curl -XGET https://localhost/status -uadmin:${u_pass} -k -w %{http_code} -s -o /dev/null)" -eq "200" ] || [ "${i}" -eq 12 ]; do
         sleep 10
         i=$((i+1))
     done
     if [ ${i} -eq 12 ]; then
         logger -e "Cannot connect to Wazuh dashboards."
-        rollBack
+        common_rollBack
         exit 1
     fi
     logger "Wazuh dashboards started."
@@ -155,7 +155,7 @@ function dashboards_install() {
     fi
     if [  "$?" != 0  ]; then
         logger -e "Wazuh dashboards installation failed"
-        rollBack
+        common_rollBack
         exit 1
     else
         dashboardsinstalled="1"

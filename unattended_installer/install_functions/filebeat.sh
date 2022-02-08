@@ -14,9 +14,9 @@ function filebeat_configure(){
     eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
     eval "curl -s ${filebeat_wazuh_module} --max-time 300 | tar -xvz -C /usr/share/filebeat/module ${debug}"
     if [ -n "${AIO}" ]; then
-        eval "getConfig filebeat/filebeat_unattended.yml /etc/filebeat/filebeat.yml ${debug}"
+        eval "common_getConfig filebeat/filebeat_unattended.yml /etc/filebeat/filebeat.yml ${debug}"
     else
-        eval "getConfig filebeat/filebeat_distributed.yml /etc/filebeat/filebeat.yml ${debug}"
+        eval "common_getConfig filebeat/filebeat_distributed.yml /etc/filebeat/filebeat.yml ${debug}"
         if [ ${#indexer_node_names[@]} -eq 1 ]; then
             echo -e "\noutput.elasticsearch.hosts:" >> /etc/filebeat/filebeat.yml
             echo "  - ${indexer_node_ips[0]}:9700" >> /etc/filebeat/filebeat.yml

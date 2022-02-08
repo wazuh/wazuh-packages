@@ -127,9 +127,9 @@ test-05-changePassword-changeall-all-users-all-installed-assert() {
     awk -v new=22 'prev=="admin:"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/wazuh-indexer/backup/internal_users.yml
     mv -f internal_users.yml_tmp /usr/share/wazuh-indexer/backup/internal_users.yml
     echo "admin_configuration_string"
-    restartService "filebeat"
+    recommon_startService "filebeat"
     echo "kibanaserver_configuration_string"
-    restartService "kibana"
+    recommon_startService "kibana"
 }
 
 test-06-changePassword-nuser-kibanaserver-kibana-installed() {
@@ -154,7 +154,7 @@ test-06-changePassword-nuser-kibanaserver-kibana-installed-assert() {
     awk -v new="11" 'prev=="kibanaserver:"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/wazuh-indexer/backup/internal_users.yml
     mv -f internal_users.yml_tmp /usr/share/wazuh-indexer/backup/internal_users.yml
     echo "kibanaserver_configuration_string"
-    restartService "kibana"
+    recommon_startService "kibana"
 }
 
 test-07-changePassword-nuser-kibanaserver-kibana-not-installed() {
@@ -203,7 +203,7 @@ test-08-changePassword-nuser-admin-filebeat-installed-assert() {
     awk -v new=11 'prev=="admin:"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/wazuh-indexer/backup/internal_users.yml
     mv -f internal_users.yml_tmp /usr/share/wazuh-indexer/backup/internal_users.yml
     echo "admin_configuration_string"
-    restartService "filebeat"
+    recommon_startService "filebeat"
 }
 
 test-09-changePassword-nuser-admin-filebeat-not-installed() {
@@ -631,97 +631,97 @@ test-28-readUsers-assert() {
     @echo "kibanaserver admin"
 }
 
-function load-restartService() {
-    @load_function "${base_dir}/wazuh-passwords-tool.sh" restartService
+function load-recommon_startService() {
+    @load_function "${base_dir}/wazuh-passwords-tool.sh" recommon_startService
 }
 
-test-ASSERT-FAIL-29-restartService-no-args() {
-    load-restartService
-    restartService
+test-ASSERT-FAIL-29-recommon_startService-no-args() {
+    load-recommon_startService
+    recommon_startService
 }
 
-test-ASSERT-FAIL-30-restartService-no-service-manager() {
-    load-restartService
+test-ASSERT-FAIL-30-recommon_startService-no-service-manager() {
+    load-recommon_startService
     @mockfalse ps -e
     @mockfalse grep -E -q "^\ *1\ .*systemd$"
     @mockfalse grep -E -q "^\ *1\ .*init$"
     @rm /etc/init.d/wazuh
-    restartService wazuh-manager
+    recommon_startService wazuh-manager
 }
 
-test-31-restartService-systemd() {
-    load-restartService
+test-31-recommon_startService-systemd() {
+    load-recommon_startService
     @mockfalse ps -e === @out 
     @mocktrue grep -E -q "^\ *1\ .*systemd$"
     @mockfalse grep -E -q "^\ *1\ .*init$"
-    restartService wazuh-manager
+    recommon_startService wazuh-manager
 }
 
-test-31-restartService-systemd-assert() {
+test-31-recommon_startService-systemd-assert() {
     systemctl daemon-reload
     systemctl restart wazuh-manager.service
 }
 
-test-32-restartService-systemd-error() {
-    load-restartService
+test-32-recommon_startService-systemd-error() {
+    load-recommon_startService
     @mock ps -e === @out 
     @mocktrue grep -E -q "^\ *1\ .*systemd$"
     @mockfalse grep -E -q "^\ *1\ .*init$"
     @mockfalse systemctl restart wazuh-manager.service
-    @mock type -t rollBack === @out "function"
-    restartService wazuh-manager
+    @mock type -t common_rollBack === @out "function"
+    recommon_startService wazuh-manager
 }
 
-test-32-restartService-systemd-error-assert() {
+test-32-recommon_startService-systemd-error-assert() {
     systemctl daemon-reload
-    rollBack
+    common_rollBack
     exit 1
 }
 
-test-33-restartService-initd() {
-    load-restartService
+test-33-recommon_startService-initd() {
+    load-recommon_startService
     @mock ps -e === @out 
     @mockfalse grep -E -q "^\ *1\ .*systemd$"
     @mocktrue grep -E -q "^\ *1\ .*init$"
     @mkdir -p /etc/init.d
     @touch /etc/init.d/wazuh-manager
     @chmod +x /etc/init.d/wazuh-manager
-    restartService wazuh-manager
+    recommon_startService wazuh-manager
     @rm /etc/init.d/wazuh-manager
 }
 
-test-33-restartService-initd-assert() {
+test-33-recommon_startService-initd-assert() {
     @mkdir -p /etc/init.d
     @touch /etc/init.d/wazuh-manager
     /etc/init.d/wazuh-manager restart
     @rm /etc/init.d/wazuh-manager
 }
 
-test-34-restartService-initd-error() {
-    load-restartService
+test-34-recommon_startService-initd-error() {
+    load-recommon_startService
     @mock ps -e === @out 
     @mockfalse grep -E -q "^\ *1\ .*systemd$"
     @mocktrue grep -E -q "^\ *1\ .*init$"
     @mkdir -p /etc/init.d
     @touch /etc/init.d/wazuh-manager
     #/etc/init.d/wazuh-manager is not executable -> It will fail
-    @mock type -t rollBack === @out "function"
-    restartService wazuh-manager
+    @mock type -t common_rollBack === @out "function"
+    recommon_startService wazuh-manager
     @rm /etc/init.d/wazuh-manager
 }
 
-test-34-restartService-initd-error-assert() {
+test-34-recommon_startService-initd-error-assert() {
     @mkdir -p /etc/init.d
     @touch /etc/init.d/wazuh-manager
     @chmod +x /etc/init.d/wazuh-manager
     /etc/init.d/wazuh-manager restart
-    rollBack
+    common_rollBack
     exit 1
     @rm /etc/init.d/wazuh-manager
 }
 
-test-35-restartService-rc.d/init.d() {
-    load-restartService
+test-35-recommon_startService-rc.d/init.d() {
+    load-recommon_startService
     @mock ps -e === @out 
     @mockfalse grep -E -q "^\ *1\ .*systemd$"
     @mockfalse grep -E -q "^\ *1\ .*init$"
@@ -730,11 +730,11 @@ test-35-restartService-rc.d/init.d() {
     @touch /etc/rc.d/init.d/wazuh-manager
     @chmod +x /etc/rc.d/init.d/wazuh-manager
 
-    restartService wazuh-manager
+    recommon_startService wazuh-manager
     @rm /etc/rc.d/init.d/wazuh-manager
 }
 
-test-35-restartService-rc.d/init.d-assert() {
+test-35-recommon_startService-rc.d/init.d-assert() {
     @mkdir -p /etc/rc.d/init.d
     @touch /etc/rc.d/init.d/wazuh-manager
     @chmod +x /etc/rc.d/init.d/wazuh-manager

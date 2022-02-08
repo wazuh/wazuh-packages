@@ -6,7 +6,7 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-function checkArch() {
+function checks_arch() {
 
     arch=$(uname -m)
 
@@ -16,7 +16,7 @@ function checkArch() {
     fi
 }
 
-function checkArguments() {
+function checks_arguments() {
 
     # -------------- Configurations ---------------------------------
 
@@ -147,9 +147,9 @@ function checkArguments() {
 
 }
 
-function checkHealth() {
+function checks_health() {
 
-    checkSpecs
+    checks_specifications
     if [ -n "${indexer}" ]; then
         if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
             logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
@@ -188,7 +188,7 @@ function checkHealth() {
 
 }
 
-function checkIfInstalled() {
+function checks_installed() {
 
     if [ "${sys_type}" == "yum" ]; then
         wazuhinstalled=$(yum list installed 2>/dev/null | grep wazuh-manager)
@@ -241,7 +241,7 @@ function checkIfInstalled() {
 }
 
 # This function ensures different names in the config.yml file.
-function checkNames() {
+function checks_names() {
 
     if [ -n "${indxname}" ] && [ -n "${dashname}" ] && [ "${indxname}" == "${dashname}" ]; then
         logger -e "The node names for Elastisearch and Kibana must be different."
@@ -276,7 +276,7 @@ function checkNames() {
 }
 
 # This function checks if the target certificates are created before to start the installation.
-function checkPreviousCertificates() {
+function checks_previousCertificate() {
 
     if [ ! -f "${tar_file}" ]; then
         logger -e "No certificates file found (${tar_file}). Run the script with the option -c|--certificates to create automatically or copy them from the node where they were created."
@@ -306,14 +306,14 @@ function checkPreviousCertificates() {
 
 }
 
-function checkSpecs() {
+function checks_specifications() {
 
     cores=$(cat /proc/cpuinfo | grep -c processor )
     ram_gb=$(free -m | awk '/^Mem:/{print $2}')
 
 }
 
-function checkSystem() {
+function checks_system() {
 
     if [ -n "$(command -v yum)" ]; then
         sys_type="yum"
