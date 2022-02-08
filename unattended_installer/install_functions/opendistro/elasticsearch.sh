@@ -204,7 +204,6 @@ function uninstallelasticsearch() {
         eval "rm -rf ${elements_to_remove[*]} ${debug}"
     fi
 
-
 }
 
 
