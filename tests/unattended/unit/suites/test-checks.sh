@@ -116,8 +116,8 @@ test-ASSERT-FAIL-09-checkNames-kibana-node-name-not-in-config() {
 test-ASSERT-FAIL-10-checkNames-elasticsearch-node-name-not-in-config() {
     load-checkNames
     einame="node1"
-    elasticsearch_node_names=(elasticsearch node10)
-    @mock echo ${elasticsearch_node_names[@]} === @out elasticsearch node10
+    indexer_node_names=(elasticsearch node10)
+    @mock echo ${indexer_node_names[@]} === @out elasticsearch node10
     @mock grep -w $einame === @false
     checkNames
 }
@@ -127,11 +127,11 @@ test-11-checkNames-all-correct-installing-elastic() {
     einame="elasticsearch1"
     kiname="kibana1"
     winame="wazuh1"
-    elasticsearch_node_names=(elasticsearch1 node1)
+    indexer_node_names=(elasticsearch1 node1)
     wazuh_servers_node_names=(wazuh1 node2)
     kibana_node_names=(kibana1 node3)
     elasticsearch=1
-    @mock echo ${elasticsearch_node_names[@]} === @out elasticsearch1 node1
+    @mock echo ${indexer_node_names[@]} === @out elasticsearch1 node1
     @mock echo ${wazuh_servers_node_names[@]} === @out wazuh1 node2
     @mock echo ${kibana_node_names[@]} === @out kibana1 node3
     @mock grep -w $einame
@@ -146,11 +146,11 @@ test-12-checkNames-all-correct-installing-wazuh() {
     einame="elasticsearch1"
     kiname="kibana1"
     winame="wazuh1"
-    elasticsearch_node_names=(elasticsearch1 node1)
+    indexer_node_names=(elasticsearch1 node1)
     wazuh_servers_node_names=(wazuh1 node2)
     kibana_node_names=(kibana1 node3)
     wazuh=1
-    @mock echo ${elasticsearch_node_names[@]} === @out elasticsearch1 node1
+    @mock echo ${indexer_node_names[@]} === @out elasticsearch1 node1
     @mock echo ${wazuh_servers_node_names[@]} === @out wazuh1 node2
     @mock echo ${kibana_node_names[@]} === @out kibana1 node3
     @mock grep -w $einame
@@ -165,11 +165,11 @@ test-13-checkNames-all-correct-installing-kibana() {
     einame="elasticsearch1"
     kiname="kibana1"
     winame="wazuh1"
-    elasticsearch_node_names=(elasticsearch1 node1)
+    indexer_node_names=(elasticsearch1 node1)
     wazuh_servers_node_names=(wazuh1 node2)
     kibana_node_names=(kibana1 node3)
     kibana=1
-    @mock echo ${elasticsearch_node_names[@]} === @out elasticsearch1 node1
+    @mock echo ${indexer_node_names[@]} === @out elasticsearch1 node1
     @mock echo ${wazuh_servers_node_names[@]} === @out wazuh1 node2
     @mock echo ${kibana_node_names[@]} === @out kibana1 node3
     @mock grep -w $einame
@@ -239,7 +239,7 @@ test-ASSERT-FAIL-19-checkArguments-overwrite-with-no-component-installed() {
 test-20-checkArguments-uninstall-no-component-installed() {
     load-checkArguments
     uninstall=1
-    elasticsearchinstalled=""
+    indexerchinstalled=""
     elastic_remaining_files=""
     wazuhinstalled=""
     wazuh_remaining_files=""
@@ -319,7 +319,7 @@ test-ASSERT-FAIL-29-checkArguments-install-aio-wazuh-files-no-overwrite() {
 test-ASSERT-FAIL-30-checkArguments-install-aio-elastic-installed-no-overwrite() {
     load-checkArguments
     AIO=1
-    elasticsearchinstalled=1
+    indexerchinstalled=1
     overwrite=
     checkArguments
 }
@@ -375,7 +375,7 @@ test-35-checkArguments-install-aio-wazuh-files-overwrite-assert() {
 test-36-checkArguments-install-aio-elastic-installed-overwrite() {
     load-checkArguments
     AIO=1
-    elasticsearchinstalled=1
+    indexerchinstalled=1
     overwrite=1
     checkArguments
 }
@@ -423,7 +423,7 @@ test-39-checkArguments-install-aio-kibana-files-overwrite-assert() {
 test-ASSERT-FAIL-40-checkArguments-install-elastic-already-installed-no-overwrite() {
     load-checkArguments
     elasticsearch=1
-    elasticsearchinstalled=1
+    indexerchinstalled=1
     overwrite=
     checkArguments
 }
@@ -439,7 +439,7 @@ test-ASSERT-FAIL-41-checkArguments-install-elastic-remaining-files-no-overwrite(
 test-42-checkArguments-install-elastic-already-installed-overwrite() {
     load-checkArguments
     elasticsearch=1
-    elasticsearchinstalled=1
+    indexerchinstalled=1
     overwrite=1
     checkArguments
 }
@@ -707,8 +707,8 @@ test-69-checkIfInstalled-all-installed-yum() {
     @mock grep opendistroforelasticsearch === @echo opendistroforelasticsearch.x86_64 1.13.2-1 @wazuh
     @mock grep -v kibana
     @mkdir /var/lib/elasticsearch/
-    @mkdir /usr/share/elasticsearch
-    @mkdir /etc/elasticsearch
+    @mkdir /usr/share/wazuh-indexer
+    @mkdir /etc/wazuh-indexer
 
     @mock grep filebeat === @echo filebeat.x86_64 7.10.2-1 @wazuh
     @mkdir /var/lib/filebeat/
@@ -725,11 +725,11 @@ test-69-checkIfInstalled-all-installed-yum() {
     @echo $wazuh_remaining_files
     @rmdir /var/ossec
 
-    @echo $elasticsearchinstalled
+    @echo $indexerchinstalled
     @echo $elastic_remaining_files
     @rmdir /var/lib/elasticsearch/
-    @rmdir /usr/share/elasticsearch
-    @rmdir /etc/elasticsearch
+    @rmdir /usr/share/wazuh-indexer
+    @rmdir /etc/wazuh-indexer
 
     @echo $filebeatinstalled
     @echo $filebeat_remaining_files
@@ -772,8 +772,8 @@ test-70-checkIfInstalled-all-installed-zypper() {
     @mock grep opendistroforelasticsearch === @echo "i+ | EL-20211102 - Wazuh | opendistroforelasticsearch | 1.13.2-1 | x86_64"
     @mock grep -v kibana
     @mkdir /var/lib/elasticsearch/
-    @mkdir /usr/share/elasticsearch
-    @mkdir /etc/elasticsearch
+    @mkdir /usr/share/wazuh-indexer
+    @mkdir /etc/wazuh-indexer
 
     @mock grep filebeat === @echo "i+ | EL-20211102 - Wazuh | filebeat | 7.10.2-1 | x86_64"
     @mkdir /var/lib/filebeat/
@@ -790,11 +790,11 @@ test-70-checkIfInstalled-all-installed-zypper() {
     @echo $wazuh_remaining_files
     @rmdir /var/ossec
 
-    @echo $elasticsearchinstalled
+    @echo $indexerchinstalled
     @echo $elastic_remaining_files
     @rmdir /var/lib/elasticsearch/
-    @rmdir /usr/share/elasticsearch
-    @rmdir /etc/elasticsearch
+    @rmdir /usr/share/wazuh-indexer
+    @rmdir /etc/wazuh-indexer
 
     @echo $filebeatinstalled
     @echo $filebeat_remaining_files
@@ -836,8 +836,8 @@ test-71-checkIfInstalled-all-installed-apt() {
     @mock grep opendistroforelasticsearch === @echo opendistroforelasticsearch/stable,now 1.13.2-1 amd64 [installed]
     @mock grep -v kibana
     @mkdir /var/lib/elasticsearch/
-    @mkdir /usr/share/elasticsearch
-    @mkdir /etc/elasticsearch
+    @mkdir /usr/share/wazuh-indexer
+    @mkdir /etc/wazuh-indexer
 
     @mock grep filebeat === @echo filebeat/now 7.10.2 amd64 [installed,local]
     @mkdir /var/lib/filebeat/
@@ -854,11 +854,11 @@ test-71-checkIfInstalled-all-installed-apt() {
     @echo $wazuh_remaining_files
     @rmdir /var/ossec
 
-    @echo $elasticsearchinstalled
+    @echo $indexerchinstalled
     @echo $elastic_remaining_files
     @rmdir /var/lib/elasticsearch/
-    @rmdir /usr/share/elasticsearch
-    @rmdir /etc/elasticsearch
+    @rmdir /usr/share/wazuh-indexer
+    @rmdir /etc/wazuh-indexer
 
     @echo $filebeatinstalled
     @echo $filebeat_remaining_files
@@ -907,7 +907,7 @@ test-72-checkIfInstalled-nothing-installed-apt() {
     @echo $wazuhinstalled
     @echo $wazuh_remaining_files
 
-    @echo $elasticsearchinstalled
+    @echo $indexerchinstalled
     @echo $elastic_remaining_files
 
     @echo $filebeatinstalled
@@ -950,7 +950,7 @@ test-73-checkIfInstalled-nothing-installed-yum() {
     @echo $wazuhinstalled
     @echo $wazuh_remaining_files
 
-    @echo $elasticsearchinstalled
+    @echo $indexerchinstalled
     @echo $elastic_remaining_files
 
     @echo $filebeatinstalled
@@ -994,7 +994,7 @@ test-74-checkIfInstalled-nothing-installed-zypper() {
     @echo $wazuhinstalled
     @echo $wazuh_remaining_files
 
-    @echo $elasticsearchinstalled
+    @echo $indexerchinstalled
     @echo $elastic_remaining_files
 
     @echo $filebeatinstalled

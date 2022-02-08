@@ -148,7 +148,7 @@ test-11-configureFilebeat-one-elastic-node() {
     load-configureFilebeat
     @mocktrue curl -s ${filebeat_wazuh_module} --max-time 300
     @mock tar -xvz -C /usr/share/filebeat/module
-    elasticsearch_node_names=("elastic1")
+    indexer_node_names=("elastic1")
     elasticesarch_node_ips=("1.1.1.1")
     configureFilebeat
 }
@@ -167,7 +167,7 @@ test-12-configureFilebeat-more-than-one-elastic-node() {
     load-configureFilebeat
     @mocktrue curl -s ${filebeat_wazuh_module} --max-time 300
     @mock tar -xvz -C /usr/share/filebeat/module
-    elasticsearch_node_names=("elastic1" "elastic2")
+    indexer_node_names=("elastic1" "elastic2")
     elasticesarch_node_ips=("1.1.1.1" "2.2.2.2")
     configureFilebeat
 }

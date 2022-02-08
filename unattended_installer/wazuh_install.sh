@@ -12,16 +12,14 @@
 readonly wazuh_major="4.3"
 readonly wazuh_version="4.3.0"
 readonly wazuh_revision="1"
-readonly elasticsearch_oss_version="7.10.2"
-readonly elasticsearch_basic_version="7.12.1"
+readonly filebeat_version="7.10.2"
 readonly opendistro_version="1.13.2"
 readonly opendistro_revision="1"
-readonly wazuh_kibana_plugin_revision="1"
 readonly wazuh_install_vesion="0.1"
 
 ## Links and paths to resources
-readonly functions_path="install_functions/opendistro"
-readonly config_path="config/opendistro"
+readonly functions_path="install_functions"
+readonly config_path="config"
 readonly resources="https://packages-dev.wazuh.com/resources/${wazuh_major}"
 readonly resources_functions="${resources}/${functions_path}"
 readonly resources_config="${resources}/${config_path}"
@@ -30,7 +28,7 @@ readonly config_file="${base_path}/config.yml"
 readonly tar_file="${base_path}/configurations.tar"
 
 ## JAVA_HOME
-export JAVA_HOME=/usr/share/elasticsearch/jdk/
+export JAVA_HOME=/usr/share/wazuh-indexer/jdk/
 
 ## Debug variable used during the installation
 readonly logfile="/var/log/wazuh-unattended-installation.log"
@@ -39,9 +37,9 @@ debug=">> ${logfile} 2>&1"
 trap cleanExit SIGINT
 
 function cleanExit() {
-    
+
     rollback_conf=""
-    
+
     if [ -n "$spin_pid" ]; then
         eval "kill -9 $spin_pid ${debug}"
     fi
@@ -52,7 +50,7 @@ function cleanExit() {
     done
     if [[ "${rollback_conf}" =~ [N|n] ]]; then
         exit 1
-    else 
+    else
         rollBack
         exit 1
     fi
@@ -81,23 +79,18 @@ function getHelp() {
     echo -e "        -ds,  --disable-spinner"
     echo -e "                Disables the spinner indicator."
     echo -e ""
-    echo -e "        -e,  --elasticsearch <elasticsearch-node-name>"
-    echo -e "                Elasticsearch installation."
     echo -e ""
     echo -e "        -f,  --fileconfig <path-to-config-yml>"
     echo -e "                Path to config file. By default: ${base_path}/config.yml"
     echo -e ""
-    echo -e "        -F,  --force-kibana"
-    echo -e "                Ignore Elasticsearch cluster related errors in kibana installation"
+    echo -e "        -F,  --force-dashboards"
+    echo -e "                Ignore indexer cluster related errors in kibana installation"
     echo -e ""
     echo -e "        -h,  --help"
     echo -e "                Shows help."
     echo -e ""
     echo -e "        -i,  --ignore-health-check"
     echo -e "                Ignores the health-check."
-    echo -e ""
-    echo -e "        -k,  --kibana <kibana-node-name>"
-    echo -e "                Kibana installation."
     echo -e ""
     echo -e "        -l,  --local"
     echo -e "                Use local files."
@@ -106,7 +99,7 @@ function getHelp() {
     echo -e "                Overwrites previously installed components. NOTE: This will erase all the existing configuration and data."
     echo -e ""
     echo -e "        -s,  --start-cluster"
-    echo -e "                Starts the Elasticsearch cluster."
+    echo -e "                Starts the indexer cluster."
     echo -e ""
     echo -e "        -t,  --tar <path-to-certs-tar>"
     echo -e "                Path to tar containing certificate files. By default: ${base_path}/configurations.tar"
@@ -117,9 +110,14 @@ function getHelp() {
     echo -e "        -v,  --verbose"
     echo -e "                Shows the complete installation output."
     echo -e ""
-    echo -e "        -w,  --wazuh-server <wazuh-node-name>"
-    echo -e "                Wazuh server installation. It includes Filebeat."
+    echo -e "        -wd,  --wazuh-dashboards <dashboards-node-name>"
+    echo -e "                Wazuh dashboards installation."
     echo -e ""
+    echo -e "        -wi,  --wazuh-indexer <indexer-node-name>"
+    echo -e "                Wazuh indexer installation."
+    echo -e ""
+    echo -e "        -ws,  --wazuh-server <wazuh-node-name>"
+    echo -e "                Wazuh server installation. It includes Filebeat."
     exit 1
 
 }
@@ -141,7 +139,7 @@ function importFunction() {
             if [ $has_main = 0 ]; then
                 echo 'main $@' >> "${base_path}/${functions_path}/${1}"
             fi
-        else 
+        else
             logger -e "Unable to find resource in path ${base_path}/${functions_path}/${1}."
             exit 1
         fi
@@ -190,7 +188,7 @@ function logger() {
             esac
         done
     fi
-    
+
     if [ -z "${debugLogger}" ] || ( [ -n "${debugLogger}" ] && [ -n "${debugEnabled}" ] ); then
             echo "${now} ${mtype} ${message}" | tee -a ${logfile}
     fi
@@ -221,16 +219,6 @@ function main() {
                 disableSpinner=1
                 shift 1
                 ;;
-            "-e"|"--elasticsearch")
-                if [ -z "${2}" ]; then
-                    logger -e "Arguments contain errors. Probably missing <node-name> after -e|--elasticsearch."
-                    getHelp
-                    exit 1
-                fi
-                elasticsearch=1
-                einame="${2}"
-                shift 2
-                ;;
             "-f"|"--fileconfig")
                 if [ -z "${2}" ]; then
                     logger -e "Error on arguments. Probably missing <path-to-config-yml> after -f|--fileconfig"
@@ -250,16 +238,6 @@ function main() {
             "-i"|"--ignore-health-check")
                 ignore=1
                 shift 1
-                ;;
-            "-k"|"--kibana")
-                if [ -z "${2}" ]; then
-                    logger -e "Error on arguments. Probably missing <node-name> after -k|--kibana"
-                    getHelp
-                    exit 1
-                fi
-                kibana=1
-                kiname="${2}"
-                shift 2
                 ;;
             "-l"|"--local")
                 local=1
@@ -292,7 +270,27 @@ function main() {
                 debug="2>&1 | tee -a ${logfile}"
                 shift 1
                 ;;
-            "-w"|"--wazuh-server")
+            "-wd"|"--wazuh-dashboards")
+                if [ -z "${2}" ]; then
+                    logger -e "Error on arguments. Probably missing <node-name> after -wd|---wazuh-dashboards"
+                    getHelp
+                    exit 1
+                fi
+                dashboards=1
+                dashname="${2}"
+                shift 2
+                ;;
+            "-wi"|"--wazuh-indexer")
+                if [ -z "${2}" ]; then
+                    logger -e "Arguments contain errors. Probably missing <node-name> after -wi|--wazuh-indexer."
+                    getHelp
+                    exit 1
+                fi
+                indexer=1
+                indxname="${2}"
+                shift 2
+                ;;
+            "-ws"|"--wazuh-server")
                 if [ -z "${2}" ]; then
                     logger -e "Error on arguments. Probably missing <node-name> after -w|--wazuh-server"
                     getHelp
@@ -307,8 +305,8 @@ function main() {
                 getHelp
         esac
 
-        # This assignment will be present during all testing stages. 
-        # It must be removed when the unattended installer is published. 
+        # This assignment will be present during all testing stages.
+        # It must be removed when the unattended installer is published.
         development=1
     done
 
@@ -336,7 +334,7 @@ function main() {
 
     checkIfInstalled
     if [ -n "${uninstall}" ]; then
-        logger "------------------------------------ Uninstall ------------------------------------"
+        logger "-------------------------------------- Uninstall --------------------------------------"
         logger "Removing all installed components."
         rollBack
         logger "All components removed."
@@ -362,9 +360,9 @@ function main() {
 
 # -------------- Configuration creation case  -----------------------
 
-    # Creation certificate case: Only AIO and -c option can create certificates. 
+    # Creation certificate case: Only AIO and -c option can create certificates.
     if [ -n "${configurations}" ] || [ -n "${AIO}" ]; then
-        logger "------------------------------- Configuration files -------------------------------"
+        logger "--------------------------------- Configuration files ---------------------------------"
         if [ -n "${configurations}" ]; then
             checkOpenSSL
         fi
@@ -374,7 +372,7 @@ function main() {
         fi
         gen_file="${base_path}/certs/password_file.yml"
         generatePasswordFile
-        # Using cat instead of simple cp because OpenSUSE unknown error. 
+        # Using cat instead of simple cp because OpenSUSE unknown error.
         eval "cat '${config_file}' > '${base_path}/certs/config.yml'"
         eval "tar -zcf '${tar_file}' -C '${base_path}/certs/' . ${debug}"
         eval "rm -rf '${base_path}/certs' ${debug}"
@@ -386,73 +384,71 @@ function main() {
         readConfig
         rm -f "${config_file}"
     fi
-    
+
     # Distributed architecture: node names must be different
-    if [[ -z "${AIO}" && ( -n "${elasticsearch}"  || -n "${kibana}" || -n "${wazuh}" )]]; then
+    if [[ -z "${AIO}" && ( -n "${indexer}"  || -n "${dashboards}" || -n "${wazuh}" )]]; then
         checkNames
     fi
 
 # -------------- Prerequisites and Wazuh repo  ----------------------
-
-    if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
-        logger "---------------------------------- Dependencies -----------------------------------"
+    if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboards}" ] || [ -n "${wazuh}" ]; then
+        logger "------------------------------------ Dependencies -------------------------------------"
         installPrerequisites
         addWazuhrepo
     fi
-
 # -------------- Elasticsearch or Start Elasticsearch cluster case---
 
-    if [ -n "${elasticsearch}" ] || [ -n "${start_elastic_cluster}" ] ; then
-        importFunction "elasticsearch.sh"
+    if [ -n "${indexer}" ] || [ -n "${start_elastic_cluster}" ] ; then
+        importFunction "indexer.sh"
     fi
 
 # -------------- Elasticsearch case  --------------------------------
 
-    if [ -n "${elasticsearch}" ]; then
-        logger "-------------------------- Open Distro for Elasticsearch --------------------------"
-        installElasticsearch
-        configureElasticsearch
-        startService "elasticsearch"
-        initializeElasticsearch
+    if [ -n "${indexer}" ]; then
+        logger "------------------------------------ Wazuh indexer ------------------------------------"
+        indexer_install
+        indexer_configure
+        startService "wazuh-indexer"
+        indexer_initialize
     fi
 
 # -------------- Start Elasticsearch cluster case  ------------------
 
     if [ -n "${start_elastic_cluster}" ]; then
-        startElasticsearchCluster
+        indexer_startCluster
         changePasswords
     fi
 
 # -------------- Kibana case  ---------------------------------------
 
-    if [ -n "${kibana}" ]; then
-        logger "------------------------------------- Kibana --------------------------------------"
+    if [ -n "${dashboards}" ]; then
+        logger "---------------------------------- Wazuh dashboards -----------------------------------"
 
-        importFunction "kibana.sh"
+        importFunction "dashboards.sh"
 
-        installKibana 
-        configureKibana
+        dashboards_install
+        dashboards_configure
         changePasswords
-        startService "kibana"
-        initializeKibana
+        startService "wazuh-dashboards"
+        dashboards_initialize
 
     fi
 
 # -------------- Wazuh case  ---------------------------------------
 
     if [ -n "${wazuh}" ]; then
-        logger "----------------------------------- Wazuh server ----------------------------------"
+        logger "------------------------------------- Wazuh server ------------------------------------"
 
-        importFunction "wazuh.sh"
+        importFunction "manager.sh"
         importFunction "filebeat.sh"
 
-        installWazuh
+        manager_install
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
-            configureWazuhCluster 
+            manager_startCluster
         fi
         startService "wazuh-manager"
-        installFilebeat
-        configureFilebeat
+        filebeat_install
+        filebeat_configure
         changePasswords
         startService "filebeat"
     fi
@@ -461,28 +457,28 @@ function main() {
 
     if [ -n "${AIO}" ]; then
 
-        importFunction "wazuh.sh"
+        importFunction "manager.sh"
         importFunction "filebeat.sh"
-        importFunction "elasticsearch.sh"
-        importFunction "kibana.sh"
+        importFunction "indexer.sh"
+        importFunction "dashboards.sh"
 
-        logger "-------------------------- Open Distro for Elasticsearch --------------------------"
-        installElasticsearch
-        configureElasticsearch
-        startService "elasticsearch"
-        initializeElasticsearch
-        logger "-------------------------------------- Wazuh --------------------------------------"
-        installWazuh
+        logger "------------------------------------ Wazuh indexer ------------------------------------"
+        indexer_install
+        indexer_configure
+        startService "wazuh-indexer"
+        indexer_initialize
+        logger "------------------------------------- Wazuh server ------------------------------------"
+        manager_install
         startService "wazuh-manager"
-        installFilebeat
-        configureFilebeat
+        filebeat_install
+        filebeat_configure
         startService "filebeat"
-        logger "------------------------------------- Kibana --------------------------------------"
-        installKibana
-        configureKibana
-        startService "kibana"
+        logger "---------------------------------- Wazuh dashboards -----------------------------------"
+        dashboards_install
+        dashboards_configure
+        startService "wazuh-dashboards"
         changePasswords
-        initializeKibanaAIO
+        dashboards_initializeAIO
     fi
 
 # -------------------------------------------------------------------
@@ -491,7 +487,7 @@ function main() {
         restoreWazuhrepo
     fi
 
-    if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
+    if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboards}" ] || [ -n "${wazuh}" ]; then
         logger "Installation finished. You can find in ${tar_file} all the certificates created, as well as password_file.yml, with the passwords for all users and config.yml, with the nodes of all of the components and their ips."
     elif [ -n "${start_elastic_cluster}" ]; then
         logger "Elasticsearch cluster started."

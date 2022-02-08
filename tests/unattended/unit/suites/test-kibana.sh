@@ -14,7 +14,7 @@ source "${base_dir}"/bach.sh
 }
 
 function load-copyKibanacerts() {
-    @load_function "${base_dir}/kibana.sh" copyKibanacerts
+    @load_function "${base_dir}/dashboard.sh" copyKibanacerts
 }
 
 test-ASSERT-FAIL-01-copyKibanacerts-no-tarfile() {
@@ -47,7 +47,7 @@ test-02-copyKibanacerts-assert() {
 }
 
 function load-installKibana() {
-    @load_function "${base_dir}/kibana.sh" installKibana
+    @load_function "${base_dir}/dashboard.sh" installKibana
 }
 
 test-03-installKibana-zypper() {
@@ -112,15 +112,15 @@ test-ASSERT-FAIL-08-installKibana-apt-error() {
 }
 
 function load-configureKibana() {
-    @load_function "${base_dir}/kibana.sh" configureKibana
+    @load_function "${base_dir}/dashboard.sh" configureKibana
 }
 
 test-09-configureKibana-dist-one-kibana-node-one-elastic-node() {
     load-configureKibana
     kibana_node_names=("kibana1")
     kibana_node_ips=("1.1.1.1")
-    elasticsearch_node_names=("elastic1")
-    elasticsearch_node_ips=("1.1.1.1")
+    indexer_node_names=("elastic1")
+    indexer_node_ips=("1.1.1.1")
     configureKibana
 }
 
@@ -141,8 +141,8 @@ test-10-configureKibana-dist-two-kibana-nodes-two-elastic-nodes() {
     kiname="kibana2"
     kibana_node_names=("kibana1" "kibana2")
     kibana_node_ips=("1.1.1.1" "2.2.2.2")
-    elasticsearch_node_names=("elastic1" "elastic2")
-    elasticsearch_node_ips=("1.1.1.1" "2.2.2.2")
+    indexer_node_names=("elastic1" "elastic2")
+    indexer_node_ips=("1.1.1.1" "2.2.2.2")
     configureKibana
 }
 
@@ -170,8 +170,8 @@ test-12-configureKibana-AIO() {
     load-configureKibana
     kibana_node_names=("kibana1")
     kibana_node_ips=("1.1.1.1")
-    elasticsearch_node_names=("elastic1")
-    elasticsearch_node_ips=("1.1.1.1")
+    indexer_node_names=("elastic1")
+    indexer_node_ips=("1.1.1.1")
     AIO=1
     configureKibana
 }
@@ -194,7 +194,7 @@ test-ASSERT-FAIL-13-configureKibana--AIO-error-downloading-plugin() {
 }
 
 function load-initializeKibana() {
-    @load_function "${base_dir}/kibana.sh" initializeKibana
+    @load_function "${base_dir}/dashboard.sh" initializeKibana
 }
 
 test-14-initializeKibana-distributed-one-kibana-node-one-wazuh-node-curl-correct() {
@@ -285,7 +285,7 @@ test-18-initializeKibana-distributed-two-kibana-nodes-two-wazuh-nodes-curl-error
 }
 
 function load-initializeKibanaAIO() {
-    @load_function "${base_dir}/kibana.sh" initializeKibanaAIO
+    @load_function "${base_dir}/dashboard.sh" initializeKibanaAIO
 }
 
 test-19-initializeKibanaAIO-curl-correct() {
@@ -310,7 +310,7 @@ test-ASSERT-FAIL-20-initializeKibanaAIO-curl-error() {
 }
 
 function load-modifyKibanaLogin() {
-    @load_function "${base_dir}/kibana.sh" modifyKibanaLogin
+    @load_function "${base_dir}/dashboard.sh" modifyKibanaLogin
 }
 
 test-21-modifyKibanaLogin() {

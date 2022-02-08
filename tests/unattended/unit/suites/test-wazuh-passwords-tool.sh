@@ -99,14 +99,14 @@ function load-changePassword() {
 test-05-changePassword-changeall-all-users-all-installed() {
     load-changePassword
     changeall=1
-    elasticsearchinstalled=1
+    indexerchinstalled=1
     filebeatinstalled=1
     kibanainstalled=1
     users=( "kibanaserver" "admin" )
     passwords=( "kibanaserverpassword" "adminpassword" )
     hashes=( "11" "22")
-    @mkdir -p /usr/share/elasticsearch/backup/
-    @touch /usr/share/elasticsearch/backup/internal_users.yml
+    @mkdir -p /usr/share/wazuh-indexer/backup/
+    @touch /usr/share/wazuh-indexer/backup/internal_users.yml
     @mkdir -p /etc/filebeat
     @touch /etc/filebeat/filebeat.yml
     @mkdir -p /etc/kibana
@@ -116,16 +116,16 @@ test-05-changePassword-changeall-all-users-all-installed() {
     @mock grep "password:" /etc/kibana/kibana.yml === @out "kibanapasswordold"
     @mock awk '{sub("elasticsearch.password: .*", "elasticsearch.password: kibanaserverpassword")}1' /etc/kibana/kibana.yml === @out "kibanaserver_configuration_string"
     changePassword
-    @rm /usr/share/elasticsearch/backup/internal_users.yml
+    @rm /usr/share/wazuh-indexer/backup/internal_users.yml
     @rm /etc/filebeat/filebeat.yml
     @rm /etc/kibana/kibana.yml
 }
 
 test-05-changePassword-changeall-all-users-all-installed-assert() {
-    awk -v new=11 'prev=="kibanaserver:"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/elasticsearch/backup/internal_users.yml
-    mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
-    awk -v new=22 'prev=="admin:"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/elasticsearch/backup/internal_users.yml
-    mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
+    awk -v new=11 'prev=="kibanaserver:"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/wazuh-indexer/backup/internal_users.yml
+    mv -f internal_users.yml_tmp /usr/share/wazuh-indexer/backup/internal_users.yml
+    awk -v new=22 'prev=="admin:"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/wazuh-indexer/backup/internal_users.yml
+    mv -f internal_users.yml_tmp /usr/share/wazuh-indexer/backup/internal_users.yml
     echo "admin_configuration_string"
     restartService "filebeat"
     echo "kibanaserver_configuration_string"
@@ -134,74 +134,74 @@ test-05-changePassword-changeall-all-users-all-installed-assert() {
 
 test-06-changePassword-nuser-kibanaserver-kibana-installed() {
     load-changePassword
-    @mkdir -p /usr/share/elasticsearch/backup/
-    @touch /usr/share/elasticsearch/backup/internal_users.yml
+    @mkdir -p /usr/share/wazuh-indexer/backup/
+    @touch /usr/share/wazuh-indexer/backup/internal_users.yml
     @mkdir -p /etc/kibana
     @touch /etc/kibana/kibana.yml
     nuser="kibanaserver"
     password="kibanaserverpassword"
     hash="11"
     kibanainstalled=1
-    elasticsearchinstalled=1
+    indexerchinstalled=1
     @mock grep "password:" /etc/kibana/kibana.yml === @out "kibanapasswordold"
     @mock awk '{sub("elasticsearch.password: .*", "elasticsearch.password: kibanaserverpassword")}1' /etc/kibana/kibana.yml === @out "kibanaserver_configuration_string"
     changePassword
-    @rm /usr/share/elasticsearch/backup/internal_users.yml
+    @rm /usr/share/wazuh-indexer/backup/internal_users.yml
     @rm /etc/kibana/kibana.yml
 }
 
 test-06-changePassword-nuser-kibanaserver-kibana-installed-assert() {
-    awk -v new="11" 'prev=="kibanaserver:"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/elasticsearch/backup/internal_users.yml
-    mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
+    awk -v new="11" 'prev=="kibanaserver:"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/wazuh-indexer/backup/internal_users.yml
+    mv -f internal_users.yml_tmp /usr/share/wazuh-indexer/backup/internal_users.yml
     echo "kibanaserver_configuration_string"
     restartService "kibana"
 }
 
 test-07-changePassword-nuser-kibanaserver-kibana-not-installed() {
     load-changePassword
-    @mkdir -p /usr/share/elasticsearch/backup/
-    @touch /usr/share/elasticsearch/backup/internal_users.yml
+    @mkdir -p /usr/share/wazuh-indexer/backup/
+    @touch /usr/share/wazuh-indexer/backup/internal_users.yml
     @mkdir -p /etc/kibana
     @touch /etc/kibana/kibana.yml
     nuser="kibanaserver"
     password="kibanaserverpassword"
     hash="11"
     kibanainstalled=
-    elasticsearchinstalled=1
+    indexerchinstalled=1
     @mock grep "password:" /etc/kibana/kibana.yml === @out "kibanapasswordold"
     @mock awk '{sub("elasticsearch.password: .*", "elasticsearch.password: kibanaserverpassword")}1' /etc/kibana/kibana.yml === @out "kibanaserver_configuration_string"
     changePassword
-    @rm /usr/share/elasticsearch/backup/internal_users.yml
+    @rm /usr/share/wazuh-indexer/backup/internal_users.yml
     @rm /etc/kibana/kibana.yml
 }
 
 test-07-changePassword-nuser-kibanaserver-kibana-not-installed-assert() {
-    awk -v new="11" 'prev=="kibanaserver:"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/elasticsearch/backup/internal_users.yml
-    mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
+    awk -v new="11" 'prev=="kibanaserver:"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/wazuh-indexer/backup/internal_users.yml
+    mv -f internal_users.yml_tmp /usr/share/wazuh-indexer/backup/internal_users.yml
 }
 
 test-08-changePassword-nuser-admin-filebeat-installed() {
     load-changePassword
     changeall=
-    elasticsearchinstalled=1
+    indexerchinstalled=1
     filebeatinstalled=1
     nuser="admin"
     password="adminpassword"
     hash="11"
-    @mkdir -p /usr/share/elasticsearch/backup/
-    @touch /usr/share/elasticsearch/backup/internal_users.yml
+    @mkdir -p /usr/share/wazuh-indexer/backup/
+    @touch /usr/share/wazuh-indexer/backup/internal_users.yml
     @mkdir -p /etc/filebeat
     @touch /etc/filebeat/filebeat.yml
     @mock grep "password:" /etc/filebeat/filebeat.yml === @out "wazuhpasswordold"
     @mock awk '{sub("password: .*", "password: adminpassword")}1' /etc/filebeat/filebeat.yml === @out "admin_configuration_string"
     changePassword
-    @rm /usr/share/elasticsearch/backup/internal_users.yml
+    @rm /usr/share/wazuh-indexer/backup/internal_users.yml
     @rm /etc/filebeat/filebeat.yml
 }
 
 test-08-changePassword-nuser-admin-filebeat-installed-assert() {
-    awk -v new=11 'prev=="admin:"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/elasticsearch/backup/internal_users.yml
-    mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
+    awk -v new=11 'prev=="admin:"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/wazuh-indexer/backup/internal_users.yml
+    mv -f internal_users.yml_tmp /usr/share/wazuh-indexer/backup/internal_users.yml
     echo "admin_configuration_string"
     restartService "filebeat"
 }
@@ -209,38 +209,38 @@ test-08-changePassword-nuser-admin-filebeat-installed-assert() {
 test-09-changePassword-nuser-admin-filebeat-not-installed() {
     load-changePassword
     changeall=
-    elasticsearchinstalled=1
+    indexerchinstalled=1
     filebeatinstalled=
     nuser="admin"
     password="adminpassword"
     hash="11"
-    @mkdir -p /usr/share/elasticsearch/backup/
-    @touch /usr/share/elasticsearch/backup/internal_users.yml
+    @mkdir -p /usr/share/wazuh-indexer/backup/
+    @touch /usr/share/wazuh-indexer/backup/internal_users.yml
     @mkdir -p /etc/filebeat
     @touch /etc/filebeat/filebeat.yml
     @mock grep "password:" /etc/filebeat/filebeat.yml === @out "wazuhpasswordold"
     @mock awk '{sub("password: .*", "password: adminpassword")}1' /etc/filebeat/filebeat.yml === @out "admin_configuration_string"
     changePassword
-    @rm /usr/share/elasticsearch/backup/internal_users.yml
+    @rm /usr/share/wazuh-indexer/backup/internal_users.yml
     @rm /etc/filebeat/filebeat.yml
 }
 
 test-09-changePassword-nuser-admin-filebeat-not-installed-assert() {
-    awk -v new=11 'prev=="admin:"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/elasticsearch/backup/internal_users.yml
-    mv -f internal_users.yml_tmp /usr/share/elasticsearch/backup/internal_users.yml
+    awk -v new=11 'prev=="admin:"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/wazuh-indexer/backup/internal_users.yml
+    mv -f internal_users.yml_tmp /usr/share/wazuh-indexer/backup/internal_users.yml
 }
 
 test-10-changePassword-changeall-all-users-nothing-installed() {
     load-changePassword
     changeall=1
-    elasticsearchinstalled=
+    indexerchinstalled=
     filebeatinstalled=
     kibanainstalled=
     users=( "kibanaserver" "admin" )
     passwords=( "kibanaserverpassword" "adminpassword" )
     hashes=( "11" "22")
-    @mkdir -p /usr/share/elasticsearch/backup/
-    @touch /usr/share/elasticsearch/backup/internal_users.yml
+    @mkdir -p /usr/share/wazuh-indexer/backup/
+    @touch /usr/share/wazuh-indexer/backup/internal_users.yml
     @mkdir -p /etc/filebeat
     @touch /etc/filebeat/filebeat.yml
     @mkdir -p /etc/kibana
@@ -251,7 +251,7 @@ test-10-changePassword-changeall-all-users-nothing-installed() {
     @mock awk '{sub("elasticsearch.password: .*", "elasticsearch.password: kibanaserverpassword")}1' /etc/kibana/kibana.yml === @out "kibanaserver_configuration_string"
     changePassword
     @assert-success
-    @rm /usr/share/elasticsearch/backup/internal_users.yml
+    @rm /usr/share/wazuh-indexer/backup/internal_users.yml
     @rm /etc/filebeat/filebeat.yml
     @rm /etc/kibana/kibana.yml
 }
@@ -273,14 +273,14 @@ test-11-checkInstalledPass-all-installed-yum() {
 
     @mock grep opendistroforelasticsearch-kibana === @echo opendistroforelasticsearch-kibana.x86_64
 
-    @mock grep "opendistro_security.ssl.transport.pemtrustedcas_filepath: " /etc/elasticsearch/elasticsearch.yml === @out "pem_path"
+    @mock grep "plugins.security.ssl.transport.pemtrustedcas_filepath: " /etc/wazuh-indexer/opensearch.yml === @out "pem_path"
 
     adminpem=
     adminkey=
 
     checkInstalledPass
 
-    @echo $elasticsearchinstalled
+    @echo $indexerchinstalled
     @echo $filebeatinstalled
     @echo $kibanainstalled
 }
@@ -308,14 +308,14 @@ test-12-checkInstalledPass-all-installed-zypper() {
 
     @mock grep opendistroforelasticsearch-kibana === @echo "i+ | EL-20211102 - Wazuh | opendistroforelasticsearch-kibana | 1.13.2-1 | x86_64"
 
-    @mock grep "opendistro_security.ssl.transport.pemtrustedcas_filepath: " /etc/elasticsearch/elasticsearch.yml === @out "pem_path"
+    @mock grep "plugins.security.ssl.transport.pemtrustedcas_filepath: " /etc/wazuh-indexer/opensearch.yml === @out "pem_path"
 
     adminpem=
     adminkey=
 
     checkInstalledPass
 
-    @echo $elasticsearchinstalled
+    @echo $indexerchinstalled
     @echo $filebeatinstalled
     @echo $kibanainstalled
 
@@ -343,14 +343,14 @@ test-13-checkInstalledPass-all-installed-apt() {
 
     @mock grep opendistroforelasticsearch-kibana === @echo opendistroforelasticsearch-kibana/now 1.13.2 amd64 [installed,local]
 
-    @mock grep "opendistro_security.ssl.transport.pemtrustedcas_filepath: " /etc/elasticsearch/elasticsearch.yml === @out "pem_path"
+    @mock grep "plugins.security.ssl.transport.pemtrustedcas_filepath: " /etc/wazuh-indexer/opensearch.yml === @out "pem_path"
 
     adminpem=
     adminkey=
 
     checkInstalledPass
 
-    @echo $elasticsearchinstalled
+    @echo $indexerchinstalled
     @echo $filebeatinstalled
     @echo $kibanainstalled
 
@@ -380,7 +380,7 @@ test-ASSERT-FAIL-14-checkInstalledPass-nothing-installed-apt() {
 
     @mock grep opendistroforelasticsearch-kibana
 
-    @mock grep "opendistro_security.ssl.transport.pemtrustedcas_filepath: " /etc/elasticsearch/elasticsearch.yml === @out "pem_path"
+    @mock grep "plugins.security.ssl.transport.pemtrustedcas_filepath: " /etc/wazuh-indexer/opensearch.yml === @out "pem_path"
 
     checkInstalledPass
 }
@@ -400,7 +400,7 @@ test-ASSERT-FAIL-15-checkInstalledPass-nothing-installed-yum() {
 
     @mock grep opendistroforelasticsearch-kibana
 
-    @mock grep "opendistro_security.ssl.transport.pemtrustedcas_filepath: " /etc/elasticsearch/elasticsearch.yml === @out "pem_path"
+    @mock grep "plugins.security.ssl.transport.pemtrustedcas_filepath: " /etc/wazuh-indexer/opensearch.yml === @out "pem_path"
 
     checkInstalledPass
 }
@@ -421,7 +421,7 @@ test-ASSERT-FAIL-16-checkInstalledPass-nothing-installed-zypper() {
 
     @mock grep opendistroforelasticsearch-kibana
 
-    @mock grep "opendistro_security.ssl.transport.pemtrustedcas_filepath: " /etc/elasticsearch/elasticsearch.yml === @out "pem_path"
+    @mock grep "plugins.security.ssl.transport.pemtrustedcas_filepath: " /etc/wazuh-indexer/opensearch.yml === @out "pem_path"
 
     checkInstalledPass
 }
@@ -497,7 +497,7 @@ function load-getNetworkHost() {
 
 test-21-getNetworkHost() {
     load-getNetworkHost
-    @mock grep -hr "network.host:" /etc/elasticsearch/elasticsearch.yml === @out "network.host: 1.1.1.1"
+    @mock grep -hr "network.host:" /etc/wazuh-indexer/opensearch.yml === @out "network.host: 1.1.1.1"
     getNetworkHost
     @echo ${IP}
 }
@@ -508,7 +508,7 @@ test-21-getNetworkHost-assert() {
 
 test-22-getNetworkHost-interface() {
     load-getNetworkHost
-    @mock grep -hr "network.host:" /etc/elasticsearch/elasticsearch.yml === @out "network.host: _wlps01_"
+    @mock grep -hr "network.host:" /etc/wazuh-indexer/opensearch.yml === @out "network.host: _wlps01_"
     @mock ip -o -4 addr list wlps01 === @out "1.1.1.1"
     @mock awk '{print $4}' === @out ""
     @mock cut -d/ -f1 === @out ""
@@ -522,7 +522,7 @@ test-22-getNetworkHost-interface-assert() {
 
 test-23-getNetworkHost-localhost() {
     load-getNetworkHost
-    @mock grep -hr "network.host:" /etc/elasticsearch/elasticsearch.yml === @out "network.host: 0.0.0.0"
+    @mock grep -hr "network.host:" /etc/wazuh-indexer/opensearch.yml === @out "network.host: 0.0.0.0"
     getNetworkHost
     @echo ${IP}
 }
@@ -537,80 +537,80 @@ function load-readAdmincerts() {
 
 test-ASSERT-FAIL-24-readAdmincerts-no-admin.pem() {
     load-readAdmincerts
-    if [[ -f /etc/elasticsearch/certs/admin.pem ]]; then
-        @rm -f /etc/elasticsearch/certs/admin.pem
+    if [[ -f /etc/wazuh-indexer/certs/admin.pem ]]; then
+        @rm -f /etc/wazuh-indexer/certs/admin.pem
     fi
     readAdmincerts
 }
 
 test-ASSERT-FAIL-25-readAdmincerts-no-admin_key.pem() {
     load-readAdmincerts
-    @mkdir -p /etc/elasticsearch/certs
-    if [[ ! -f /etc/elasticsearch/certs/admin.pem ]]; then
-        @touch /etc/elasticsearch/certs/admin.pem
+    @mkdir -p /etc/wazuh-indexer/certs
+    if [[ ! -f /etc/wazuh-indexer/certs/admin.pem ]]; then
+        @touch /etc/wazuh-indexer/certs/admin.pem
     fi
-    if [[ -f /etc/elasticsearch/certs/admin-key.pem ]]; then
-        @rm -f /etc/elasticsearch/certs/admin-key.pem
+    if [[ -f /etc/wazuh-indexer/certs/admin-key.pem ]]; then
+        @rm -f /etc/wazuh-indexer/certs/admin-key.pem
     fi
 
-    if [[ -f /etc/elasticsearch/certs/admin.key ]]; then
-        @rm -f /etc/elasticsearch/certs/admin.key
+    if [[ -f /etc/wazuh-indexer/certs/admin.key ]]; then
+        @rm -f /etc/wazuh-indexer/certs/admin.key
     fi
     readAdmincerts
-    @rm /etc/elasticsearch/certs/admin.pem
-    @rmdir /etc/elasticsearch/certs
+    @rm /etc/wazuh-indexer/certs/admin.pem
+    @rmdir /etc/wazuh-indexer/certs
 }
 
 test-26-readAdmincerts-all-correct-admin_key.pem() {
     load-readAdmincerts
-    @mkdir -p /etc/elasticsearch/certs
-    if [[ ! -f /etc/elasticsearch/certs/admin.pem ]]; then
-        @touch /etc/elasticsearch/certs/admin.pem
+    @mkdir -p /etc/wazuh-indexer/certs
+    if [[ ! -f /etc/wazuh-indexer/certs/admin.pem ]]; then
+        @touch /etc/wazuh-indexer/certs/admin.pem
     fi
-    if [[ ! -f /etc/elasticsearch/certs/admin-key.pem ]]; then
-        @touch /etc/elasticsearch/certs/admin-key.pem
+    if [[ ! -f /etc/wazuh-indexer/certs/admin-key.pem ]]; then
+        @touch /etc/wazuh-indexer/certs/admin-key.pem
     fi
 
-    if [[ -f /etc/elasticsearch/certs/admin.key ]]; then
-        @rm -f /etc/elasticsearch/certs/admin.key
+    if [[ -f /etc/wazuh-indexer/certs/admin.key ]]; then
+        @rm -f /etc/wazuh-indexer/certs/admin.key
     fi
     readAdmincerts
-    @rm /etc/elasticsearch/certs/admin.pem
-    @rm /etc/elasticsearch/certs/admin-key.pem
-    @rmdir /etc/elasticsearch/certs
+    @rm /etc/wazuh-indexer/certs/admin.pem
+    @rm /etc/wazuh-indexer/certs/admin-key.pem
+    @rmdir /etc/wazuh-indexer/certs
     @echo $adminpem
     @echo $adminkey
 }
 
 test-26-readAdmincerts-all-correct-admin_key.pem-assert() {
-    @echo "/etc/elasticsearch/certs/admin.pem"
-    @echo "/etc/elasticsearch/certs/admin-key.pem"
+    @echo "/etc/wazuh-indexer/certs/admin.pem"
+    @echo "/etc/wazuh-indexer/certs/admin-key.pem"
 }
 
 test-27-readAdmincerts-all-correct-admin.key() {
     load-readAdmincerts
-    @mkdir -p /etc/elasticsearch/certs
-    if [[ ! -f /etc/elasticsearch/certs/admin.pem ]]; then
-        @touch /etc/elasticsearch/certs/admin.pem
+    @mkdir -p /etc/wazuh-indexer/certs
+    if [[ ! -f /etc/wazuh-indexer/certs/admin.pem ]]; then
+        @touch /etc/wazuh-indexer/certs/admin.pem
     fi
-    if [[ -f /etc/elasticsearch/certs/admin-key.pem ]]; then
-        @rm -f /etc/elasticsearch/certs/admin-key.pem
+    if [[ -f /etc/wazuh-indexer/certs/admin-key.pem ]]; then
+        @rm -f /etc/wazuh-indexer/certs/admin-key.pem
     fi
 
-    if [[ ! -f /etc/elasticsearch/certs/admin.key ]]; then
-        @touch /etc/elasticsearch/certs/admin.key
+    if [[ ! -f /etc/wazuh-indexer/certs/admin.key ]]; then
+        @touch /etc/wazuh-indexer/certs/admin.key
     fi
     readAdmincerts
-    @rm /etc/elasticsearch/certs/admin.pem
-    @rm /etc/elasticsearch/certs/admin.key
-    @rmdir /etc/elasticsearch/certs
+    @rm /etc/wazuh-indexer/certs/admin.pem
+    @rm /etc/wazuh-indexer/certs/admin.key
+    @rmdir /etc/wazuh-indexer/certs
     @echo $adminpem
     @echo $adminkey
 }
 
 test-27-readAdmincerts-all-correct-admin.key-assert() {
-    @echo "/etc/elasticsearch/certs/admin.pem"
-    @echo "/etc/elasticsearch/certs/admin.key"
+    @echo "/etc/wazuh-indexer/certs/admin.pem"
+    @echo "/etc/wazuh-indexer/certs/admin.key"
 }
 
 function load-readUsers() {
@@ -619,7 +619,7 @@ function load-readUsers() {
 
 test-28-readUsers() {
     load-readUsers
-    @mock grep -B 1 hash: /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml === @out
+    @mock grep -B 1 hash: /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/internal_users.yml === @out
     @mock grep -v hash: === @out
     @mock grep -v "-" === @out
     @mock awk '{ print substr( $0, 1, length($0)-1 ) }' === @out "kibanaserver admin"
@@ -751,8 +751,8 @@ test-36-generateHash-changeall() {
     passwords=("kibanaserverpassword" "adminpassword")
     changeall=1
     @mock grep -v WARNING === @out ""
-    @mock bash /usr/share/elasticsearch/plugins/opendistro_security/tools/hash.sh -p "kibanaserverpassword" === @out "11111111"
-    @mock bash /usr/share/elasticsearch/plugins/opendistro_security/tools/hash.sh -p "adminpassword" === @out "22222222"
+    @mock bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "kibanaserverpassword" === @out "11111111"
+    @mock bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "adminpassword" === @out "22222222"
     generateHash
     @echo ${hashes[@]}
 }
@@ -766,8 +766,8 @@ test-ASSERT-FAIL-37-generateHash-changeall-error() {
     passwords=("kibanaserverpassword" "adminpassword")
     changeall=1
     @mockfalse grep -v WARNING
-    @mock bash /usr/share/elasticsearch/plugins/opendistro_security/tools/hash.sh -p "kibanaserverpassword" === @out "11111111"
-    @mockfalse bash /usr/share/elasticsearch/plugins/opendistro_security/tools/hash.sh -p "adminpassword"
+    @mock bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "kibanaserverpassword" === @out "11111111"
+    @mockfalse bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "adminpassword"
     generateHash
     @echo ${hashes[@]}
 }
@@ -778,7 +778,7 @@ test-38-generateHash-nuser() {
     password="kibanaserverpassword"
     changeall=
     @mock grep -v WARNING === @out ""
-    @mock bash /usr/share/elasticsearch/plugins/opendistro_security/tools/hash.sh -p "kibanaserverpassword" === @out "11111111"
+    @mock bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "kibanaserverpassword" === @out "11111111"
     generateHash
     @echo ${hash}
 }
@@ -793,6 +793,6 @@ test-ASSERT-FAIL-39-generateHash-nuser-error() {
     password="kibanaserverpassword"
     changeall=
     @mockfalse grep -v WARNING
-    @mockfalse bash /usr/share/elasticsearch/plugins/opendistro_security/tools/hash.sh -p "kibanaserverpassword"
+    @mockfalse bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "kibanaserverpassword"
     generateHash
 }

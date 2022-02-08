@@ -8,7 +8,7 @@ source "${base_dir}"/bach.sh
 }
 
 function load-installWazuh() {
-    @load_function "${base_dir}/wazuh.sh" installWazuh
+    @load_function "${base_dir}/manager.sh" installWazuh
 }
 
 test-01-installWazuh-zypper-error() {
@@ -100,7 +100,7 @@ test-06-installWazuh-yum-assert() {
 }
 
 function load-configureWazuhCluster() {
-    @load_function "${base_dir}/wazuh.sh" configureWazuhCluster
+    @load_function "${base_dir}/manager.sh" configureWazuhCluster
 }
 
 test-07-configureWazuhCluster() {

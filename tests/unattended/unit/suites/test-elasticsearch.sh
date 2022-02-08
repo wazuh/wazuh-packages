@@ -5,253 +5,253 @@ source "${base_dir}"/bach.sh
 
 @setup-test {
     @ignore logger
-    e_certs_path="/etc/elasticsearch/certs/"
+    e_certs_path="/etc/wazuh-indexer/certs/"
 }
 
-function load-copyCertificatesElasticsearch() {
-    @load_function "${base_dir}/elasticsearch.sh" copyCertificatesElasticsearch
+function load-copyCertificatesIndexer() {
+    @load_function "${base_dir}/indexer.sh" copyCertificatesIndexer
 }
 
-test-ASSERT-FAIL-01-copyCertificatesElasticsearch-no-tarfile() {
-    load-copyCertificatesElasticsearch
+test-ASSERT-FAIL-01-copyCertificatesIndexer-no-tarfile() {
+    load-copyCertificatesIndexer
     tar_file=/tmp/tarfile.tar
     if [ -f ${tar_file} ]; then
         @rm ${tar_file}
     fi
-    copyCertificatesElasticsearch
+    copyCertificatesIndexer
 }
 
-test-02-copyCertificatesElasticsearch() {
-    load-copyCertificatesElasticsearch
+test-02-copyCertificatesIndexer() {
+    load-copyCertificatesIndexer
     tar_file=/tmp/tarfile.tar
     @touch ${tar_file}
     pos=0
-    elasticsearch_node_names=("elastic1" "elastic2")
+    indexer_node_names=("elastic1" "elastic2")
     debug=
-    copyCertificatesElasticsearch
+    copyCertificatesIndexer
 }
 
-test-02-copyCertificatesElasticsearch-assert() {
-    mkdir -p /etc/elasticsearch/certs/
-    tar -xf /tmp/tarfile.tar -C /etc/elasticsearch/certs/ ./elastic1.pem  && mv /etc/elasticsearch/certs/elastic1.pem /etc/elasticsearch/certs/elasticsearch.pem
-    tar -xf /tmp/tarfile.tar -C /etc/elasticsearch/certs/ ./elastic1-key.pem  && mv /etc/elasticsearch/certs/elastic1-key.pem /etc/elasticsearch/certs/elasticsearch-key.pem
-    tar -xf /tmp/tarfile.tar -C /etc/elasticsearch/certs/ ./root-ca.pem
-    tar -xf /tmp/tarfile.tar -C /etc/elasticsearch/certs/ ./admin.pem
-    tar -xf /tmp/tarfile.tar -C /etc/elasticsearch/certs/ ./admin-key.pem
+test-02-copyCertificatesIndexer-assert() {
+    mkdir -p /etc/wazuh-indexer/certs/
+    tar -xf /tmp/tarfile.tar -C /etc/wazuh-indexer/certs/ ./elastic1.pem  && mv /etc/wazuh-indexer/certs/elastic1.pem /etc/wazuh-indexer/certs/indexer.pem
+    tar -xf /tmp/tarfile.tar -C /etc/wazuh-indexer/certs/ ./elastic1-key.pem  && mv /etc/wazuh-indexer/certs/elastic1-key.pem /etc/wazuh-indexer/certs/indexer-key.pem
+    tar -xf /tmp/tarfile.tar -C /etc/wazuh-indexer/certs/ ./root-ca.pem
+    tar -xf /tmp/tarfile.tar -C /etc/wazuh-indexer/certs/ ./admin.pem
+    tar -xf /tmp/tarfile.tar -C /etc/wazuh-indexer/certs/ ./admin-key.pem
 }
 
-function load-installElasticsearch() {
-    @load_function "${base_dir}/elasticsearch.sh" installElasticsearch
+function load-installIndexer() {
+    @load_function "${base_dir}/indexer.sh" installIndexer
 }
 
-test-03-installElasticsearch-zypper() {
-    load-installElasticsearch
+test-03-installIndexer-zypper() {
+    load-installIndexer
     sys_type="zypper"
     opendistro_version="1.13.2"
     opendistro_revision="1"
-    installElasticsearch
+    installIndexer
 }
 
-test-03-installElasticsearch-zypper-assert() {
+test-03-installIndexer-zypper-assert() {
     zypper -n install opendistroforelasticsearch=1.13.2-1
 }
 
-test-ASSERT-FAIL-04-installElasticsearch-zypper-error() {
-    load-installElasticsearch
+test-ASSERT-FAIL-04-installIndexer-zypper-error() {
+    load-installIndexer
     sys_type="zypper"
     opendistro_version="1.13.2"
     opendistro_revision="1"
     @mockfalse zypper -n install opendistroforelasticsearch=1.13.2-1
-    installElasticsearch
+    installIndexer
 }
 
-test-05-installElasticsearch-yum() {
-    load-installElasticsearch
+test-05-installIndexer-yum() {
+    load-installIndexer
     sys_type="yum"
     sep="-"
     opendistro_version="1.13.2"
     opendistro_revision="1"
-    installElasticsearch
+    installIndexer
 }
 
-test-05-installElasticsearch-yum-assert() {
+test-05-installIndexer-yum-assert() {
     yum install opendistroforelasticsearch-1.13.2-1 -y
 }
 
-test-ASSERT-FAIL-06-installElasticsearch-yum-error() {
-    load-installElasticsearch
+test-ASSERT-FAIL-06-installIndexer-yum-error() {
+    load-installIndexer
     sys_type="yum"
     sep="-"
     opendistro_version="1.13.2"
     opendistro_revision="1"
     @mockfalse yum install opendistroforelasticsearch-1.13.2-1 -y 
-    installElasticsearch
+    installIndexer
 }
 
-test-07-installElasticsearch-apt() {
-    load-installElasticsearch
+test-07-installIndexer-apt() {
+    load-installIndexer
     sys_type="apt-get"
     sep="="
     opendistro_version="1.13.2"
     opendistro_revision="1"
-    installElasticsearch
+    installIndexer
 }
 
-test-07-installElasticsearch-apt-assert() {
+test-07-installIndexer-apt-assert() {
     apt install elasticsearch-oss opendistroforelasticsearch -y 
 }
 
-test-ASSERT-FAIL-08-installElasticsearch-apt-error() {
-    load-installElasticsearch
+test-ASSERT-FAIL-08-installIndexer-apt-error() {
+    load-installIndexer
     sys_type="apt-get"
     sep="="
     opendistro_version="1.13.2"
     opendistro_revision="1"
     @mockfalse apt install elasticsearch-oss opendistroforelasticsearch -y 
-    installElasticsearch
+    installIndexer
 }
 
-function load-configureElasticsearch() {
-    @load_function "${base_dir}/elasticsearch.sh" configureElasticsearch
+function load-configureIndexer() {
+    @load_function "${base_dir}/indexer.sh" configureIndexer
 }
 
-test-09-configureElasticsearch-dist-one-elastic-node() {
-    load-configureElasticsearch
-    elasticsearch_node_names=("elastic1")
-    elasticsearch_node_ips=("1.1.1.1")
+test-09-configureIndexer-dist-one-elastic-node() {
+    load-configureIndexer
+    indexer_node_names=("elastic1")
+    indexer_node_ips=("1.1.1.1")
     @mocktrue free -g
     @mocktrue awk '/^Mem:/{print $2}'
     @mock java -version === @out
     @mock grep -o -m1 '1.8.0' === @out 1.8.0
     einame="elastic1"
-    configureElasticsearch
+    configureIndexer
 }
 
-test-09-configureElasticsearch-dist-one-elastic-node-assert() {
-    getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml
-    getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml
-    getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml
+test-09-configureIndexer-dist-one-elastic-node-assert() {
+    getConfig elasticsearch/roles/roles.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/roles.yml
+    getConfig elasticsearch/roles/roles_mapping.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/roles_mapping.yml
+    getConfig elasticsearch/roles/internal_users.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/internal_users.yml
 
-    rm -f /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem 
-    copyCertificatesElasticsearch
+    rm -f /etc/wazuh-indexer/esnode-key.pem /etc/wazuh-indexer/esnode.pem /etc/wazuh-indexer/kirk-key.pem /etc/wazuh-indexer/kirk.pem /etc/wazuh-indexer/root-ca.pem 
+    copyCertificatesIndexer
 
-    sed -i "s/-Xms1g/-Xms1g/" /etc/elasticsearch/jvm.options
-    sed -i "s/-Xmx1g/-Xmx1g/" /etc/elasticsearch/jvm.options
+    sed -i "s/-Xms1g/-Xms1g/" /etc/wazuh-indexer/jvm.options
+    sed -i "s/-Xmx1g/-Xmx1g/" /etc/wazuh-indexer/jvm.options
 
-    getConfig elasticsearch/elasticsearch_unattended_distributed.yml /etc/elasticsearch/elasticsearch.yml
+    getConfig elasticsearch/elasticsearch_unattended_distributed.yml /etc/wazuh-indexer/opensearch.yml
 
     applyLog4j2Mitigation
 
-    /usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer
-    rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml -f
+    /usr/share/wazuh-indexer/bin/opensearch-plugin remove opendistro-performance-analyzer
+    rm /etc/wazuh-indexer/certs/client-certificates.readme /etc/wazuh-indexer/certs/elasticsearch_elasticsearch_config_snippet.yml -f
 
 }
 
-test-10-configureElasticsearch-dist-two-elastic-nodes() {
-    load-configureElasticsearch
-    elasticsearch_node_names=("elastic1" "elastic2")
-    elasticsearch_node_ips=("1.1.1.1", "1.1.2.2")
+test-10-configureIndexer-dist-two-elastic-nodes() {
+    load-configureIndexer
+    indexer_node_names=("elastic1" "elastic2")
+    indexer_node_ips=("1.1.1.1", "1.1.2.2")
     @mock free -g === @out "1"
     @mocktrue awk '/^Mem:/{print $2}'
     @mock java -version === @out
     @mock grep -o -m1 '1.8.0' === @out 1.8.0
     einame="elastic2"
-    configureElasticsearch
+    configureIndexer
 }
 
-test-10-configureElasticsearch-dist-two-elastic-nodes-assert() {
-    getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml
-    getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml
-    getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml
+test-10-configureIndexer-dist-two-elastic-nodes-assert() {
+    getConfig elasticsearch/roles/roles.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/roles.yml
+    getConfig elasticsearch/roles/roles_mapping.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/roles_mapping.yml
+    getConfig elasticsearch/roles/internal_users.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/internal_users.yml
 
-    rm -f /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem
-    copyCertificatesElasticsearch
+    rm -f /etc/wazuh-indexer/esnode-key.pem /etc/wazuh-indexer/esnode.pem /etc/wazuh-indexer/kirk-key.pem /etc/wazuh-indexer/kirk.pem /etc/wazuh-indexer/root-ca.pem
+    copyCertificatesIndexer
 
-    sed -i "s/-Xms1g/-Xms1g/" /etc/elasticsearch/jvm.options
-    sed -i "s/-Xmx1g/-Xmx1g/" /etc/elasticsearch/jvm.options
+    sed -i "s/-Xms1g/-Xms1g/" /etc/wazuh-indexer/jvm.options
+    sed -i "s/-Xmx1g/-Xmx1g/" /etc/wazuh-indexer/jvm.options
 
-    getConfig elasticsearch/elasticsearch_unattended_distributed.yml /etc/elasticsearch/elasticsearch.yml
+    getConfig elasticsearch/elasticsearch_unattended_distributed.yml /etc/wazuh-indexer/opensearch.yml
 
     applyLog4j2Mitigation
 
-    /usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer
-    rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml -f
+    /usr/share/wazuh-indexer/bin/opensearch-plugin remove opendistro-performance-analyzer
+    rm /etc/wazuh-indexer/certs/client-certificates.readme /etc/wazuh-indexer/certs/elasticsearch_elasticsearch_config_snippet.yml -f
 }
 
-test-11-configureElasticsearch-AIO() {
-    load-configureElasticsearch
-    elasticsearch_node_names=("elastic1")
-    elasticsearch_node_ips=("1.1.1.1")
+test-11-configureIndexer-AIO() {
+    load-configureIndexer
+    indexer_node_names=("elastic1")
+    indexer_node_ips=("1.1.1.1")
     @mock free -g === @out "1"
     @mocktrue awk '/^Mem:/{print $2}'
     @mock java -version === @out
     @mock grep -o -m1 '1.8.0' === @out 1.8.0
 
-    configureElasticsearch
+    configureIndexer
 }
 
-test-11-configureElasticsearch-AIO-assert() {
-    getConfig elasticsearch/roles/roles.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml
-    getConfig elasticsearch/roles/roles_mapping.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml
-    getConfig elasticsearch/roles/internal_users.yml /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml
+test-11-configureIndexer-AIO-assert() {
+    getConfig elasticsearch/roles/roles.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/roles.yml
+    getConfig elasticsearch/roles/roles_mapping.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/roles_mapping.yml
+    getConfig elasticsearch/roles/internal_users.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/internal_users.yml
     
-    export JAVA_HOME=/usr/share/elasticsearch/jdk/
-    rm -f /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem
+    export JAVA_HOME=/usr/share/wazuh-indexer/jdk/
+    rm -f /etc/wazuh-indexer/esnode-key.pem /etc/wazuh-indexer/esnode.pem /etc/wazuh-indexer/kirk-key.pem /etc/wazuh-indexer/kirk.pem /etc/wazuh-indexer/root-ca.pem
 
-    copyCertificatesElasticsearch
+    copyCertificatesIndexer
 
-    sed -i 's/-Xms1g/-Xms1g/' /etc/elasticsearch/jvm.options
-    sed -i 's/-Xmx1g/-Xmx1g/' /etc/elasticsearch/jvm.options
+    sed -i 's/-Xms1g/-Xms1g/' /etc/wazuh-indexer/jvm.options
+    sed -i 's/-Xmx1g/-Xmx1g/' /etc/wazuh-indexer/jvm.options
 
-    getConfig elasticsearch/elasticsearch_unattended_distributed.yml /etc/elasticsearch/elasticsearch.yml
+    getConfig elasticsearch/elasticsearch_unattended_distributed.yml /etc/wazuh-indexer/opensearch.yml
 
     applyLog4j2Mitigation
 
-    rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml -f
+    rm /etc/wazuh-indexer/certs/client-certificates.readme /etc/wazuh-indexer/certs/elasticsearch_elasticsearch_config_snippet.yml -f
 
 }
 
-function load-initializeElasticsearch() {
-    @load_function "${base_dir}/elasticsearch.sh" initializeElasticsearch
+function load-initializeIndexer() {
+    @load_function "${base_dir}/indexer.sh" initializeIndexer
 }
 
-test-12-initializeElasticsearch-one-node() {
-    load-initializeElasticsearch
-    elasticsearch_node_names=("elastic1")
-    elasticsearch_node_ips=("1.1.1.1")
+test-12-initializeIndexer-one-node() {
+    load-initializeIndexer
+    indexer_node_names=("elastic1")
+    indexer_node_ips=("1.1.1.1")
     pos=0
     @mocktrue curl -XGET https://1.1.1.1:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null
-    initializeElasticsearch
+    initializeIndexer
     @echo ${start_elastic_cluster}
 }
 
-test-12-initializeElasticsearch-one-node-assert() {
-    startElasticsearchCluster
+test-12-initializeIndexer-one-node-assert() {
+    startIndexerCluster
     changePasswords
     @echo 1
 }
 
-test-13-initializeElasticsearch-two-nodes() {
-    load-initializeElasticsearch
-    elasticsearch_node_names=("elastic1" "elastic2")
-    elasticsearch_node_ips=("1.1.1.1" "1.1.2.2")
+test-13-initializeIndexer-two-nodes() {
+    load-initializeIndexer
+    indexer_node_names=("elastic1" "elastic2")
+    indexer_node_ips=("1.1.1.1" "1.1.2.2")
     pos=1
     @mocktrue curl -XGET https://1.1.2.2:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null
-    initializeElasticsearch
+    initializeIndexer
     @assert-success
 }
 
-test-ASSERT-FAIL-14-initializeElasticsearch-error-connecting() {
-    load-initializeElasticsearch
-    elasticsearch_node_names=("elastic1")
-    elasticsearch_node_ips=("1.1.1.1")
+test-ASSERT-FAIL-14-initializeIndexer-error-connecting() {
+    load-initializeIndexer
+    indexer_node_names=("elastic1")
+    indexer_node_ips=("1.1.1.1")
     pos=0
     @mockfalse curl -XGET https://1.1.1.1:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null
-    initializeElasticsearch
+    initializeIndexer
 }
 
 function load-applyLog4j2Mitigation() {
-    @load_function "${base_dir}/elasticsearch.sh" applyLog4j2Mitigation
+    @load_function "${base_dir}/indexer.sh" applyLog4j2Mitigation
 }
 
 test-15-applyLog4j2Mitigation() {
@@ -263,17 +263,17 @@ test-15-applyLog4j2Mitigation-assert() {
     curl -so /tmp/apache-log4j-2.17.1-bin.tar.gz https://packages.wazuh.com/utils/log4j/apache-log4j-2.17.1-bin.tar.gz
     tar -xf /tmp/apache-log4j-2.17.1-bin.tar.gz -C /tmp/
 
-    cp /tmp/apache-log4j-2.17.1-bin/log4j-api-2.17.1.jar /usr/share/elasticsearch/lib/
-    cp /tmp/apache-log4j-2.17.1-bin/log4j-core-2.17.1.jar /usr/share/elasticsearch/lib/
-    cp /tmp/apache-log4j-2.17.1-bin/log4j-slf4j-impl-2.17.1.jar /usr/share/elasticsearch/plugins/opendistro_security/
-    cp /tmp/apache-log4j-2.17.1-bin/log4j-api-2.17.1.jar /usr/share/elasticsearch/performance-analyzer-rca/lib/
-    cp /tmp/apache-log4j-2.17.1-bin/log4j-core-2.17.1.jar /usr/share/elasticsearch/performance-analyzer-rca/lib/
+    cp /tmp/apache-log4j-2.17.1-bin/log4j-api-2.17.1.jar /usr/share/wazuh-indexer/lib/
+    cp /tmp/apache-log4j-2.17.1-bin/log4j-core-2.17.1.jar /usr/share/wazuh-indexer/lib/
+    cp /tmp/apache-log4j-2.17.1-bin/log4j-slf4j-impl-2.17.1.jar /usr/share/wazuh-indexer/plugins/opensearch-security/
+    cp /tmp/apache-log4j-2.17.1-bin/log4j-api-2.17.1.jar /usr/share/wazuh-indexer/performance-analyzer-rca/lib/
+    cp /tmp/apache-log4j-2.17.1-bin/log4j-core-2.17.1.jar /usr/share/wazuh-indexer/performance-analyzer-rca/lib/
 
-    rm -f /usr/share/elasticsearch/lib//log4j-api-2.11.1.jar
-    rm -f /usr/share/elasticsearch/lib/log4j-core-2.11.1.jar
-    rm -f /usr/share/elasticsearch/plugins/opendistro_security/log4j-slf4j-impl-2.11.1.jar
-    rm -f /usr/share/elasticsearch/performance-analyzer-rca/lib/log4j-api-2.13.0.jar
-    rm -f /usr/share/elasticsearch/performance-analyzer-rca/lib/log4j-core-2.13.0.jar
+    rm -f /usr/share/wazuh-indexer/lib//log4j-api-2.11.1.jar
+    rm -f /usr/share/wazuh-indexer/lib/log4j-core-2.11.1.jar
+    rm -f /usr/share/wazuh-indexer/plugins/opensearch-security/log4j-slf4j-impl-2.11.1.jar
+    rm -f /usr/share/wazuh-indexer/performance-analyzer-rca/lib/log4j-api-2.13.0.jar
+    rm -f /usr/share/wazuh-indexer/performance-analyzer-rca/lib/log4j-core-2.13.0.jar
 
     rm -rf /tmp/apache-log4j-2.17.1-bin
     rm -f /tmp/apache-log4j-2.17.1-bin.tar.gz
