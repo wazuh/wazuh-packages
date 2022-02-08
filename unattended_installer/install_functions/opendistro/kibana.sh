@@ -202,7 +202,7 @@ function uninstallkibana() {
                                 "/etc/kibana/" )
 
         eval "rm -rf ${elements_to_remove[*]} ${debug}"
-        fi
+    fi
 
 }
 

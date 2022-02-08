@@ -338,16 +338,20 @@ function main() {
 
     checkTools
 
-    logger "Starting Wazuh unattended installer. Wazuh version: ${wazuh_version}. Wazuh installer version: ${wazuh_install_vesion}"
+    if [ -z "${uninstall}" ]; then
+        logger "Starting Wazuh unattended installer. Wazuh version: ${wazuh_version}. Wazuh installer version: ${wazuh_install_vesion}"
+    fi
 
 # -------------- Preliminary checks  --------------------------------
 
     checkArch
     checkSystem
-    if [ -n "${ignore}" ]; then
-        logger -w "Health-check ignored."
-    else
-        checkHealth
+    if [ -z "${uninstall}" ]; then
+        if [ -n "${ignore}" ]; then
+            logger -w "Health-check ignored."
+        else
+            checkHealth
+        fi
     fi
     if [ -n "${AIO}" ] ; then
         rm -f "${tar_file}"
@@ -365,7 +369,6 @@ function main() {
         importFunction "kibana.sh"
         logger "------------------------------------ Uninstall ------------------------------------"
         rollBack
-        logger "All components removed."
         exit 0
     fi
 

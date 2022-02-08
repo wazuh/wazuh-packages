@@ -50,24 +50,6 @@ function checkArguments() {
             exit 1
         fi
 
-        if [ ${uninstall_component_name} == "all" ] || [ ${uninstall_component_name} == "manager" ]; then
-            if [ -z "${wazuhinstalled}" ] && [ -z "${wazuh_remaining_files}" ]; then
-                logger "Wazuh manager components were not found on the system so it was not uninstalled."
-            fi
-            if [ -z "${filebeatinstalled}" ] && [ -z "${filebeat_remaining_files}" ]; then
-                logger "Filebeat components were not found on the system so it was not uninstalled."
-            fi
-        fi
-        if [ ${uninstall_component_name} == "all" ] || [ ${uninstall_component_name} == "elasticsearch" ]; then
-            if [ -z "${elasticsearchinstalled}" ] && [ -z "${elastic_remaining_files}" ]; then
-                logger "Elasticsearch components were not found on the system so it was not uninstalled."
-            fi
-        fi
-        if [ ${uninstall_component_name} == "all" ] || [ ${uninstall_component_name} == "kibana" ]; then
-            if [ -z "${kibanainstalled}" ] && [ -z "${kibana_remaining_files}" ]; then
-                logger "Kibana components were not found on the system so it was not uninstalled."
-            fi
-        fi
     fi
 
     # -------------- All-In-One -------------------------------------
@@ -227,20 +209,12 @@ function checkIfInstalled() {
         wazuhinstalled=$(apt list --installed  2>/dev/null | grep wazuh-manager)
     fi
 
-    if [ -d "/var/ossec" ]; then
-        wazuh_remaining_files=1
-    fi
-
     if [ "${sys_type}" == "yum" ]; then
         elasticsearchinstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch | grep -v kibana)
     elif [ "${sys_type}" == "zypper" ]; then
         elasticsearchinstalled=$(zypper packages | grep opendistroforelasticsearch | grep -v kibana | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
         elasticsearchinstalled=$(apt list --installed 2>/dev/null | grep opendistroforelasticsearch | grep -v kibana)
-    fi
-
-    if [ -d "/var/lib/elasticsearch/" ] || [ -d "/usr/share/elasticsearch" ] || [ -d "/etc/elasticsearch" ] || [ -f "${base_path}/search-guard-tlstool*" ]; then
-        elastic_remaining_files=1
     fi
 
     if [ "${sys_type}" == "yum" ]; then
@@ -251,10 +225,6 @@ function checkIfInstalled() {
         filebeatinstalled=$(apt list --installed  2>/dev/null | grep filebeat)
     fi
 
-    if [ -d "/var/lib/filebeat/" ] || [ -d "/usr/share/filebeat" ] || [ -d "/etc/filebeat" ]; then
-        filebeat_remaining_files=1
-    fi
-
     if [ "${sys_type}" == "yum" ]; then
         kibanainstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch-kibana)
     elif [ "${sys_type}" == "zypper" ]; then
@@ -263,10 +233,43 @@ function checkIfInstalled() {
         kibanainstalled=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch-kibana)
     fi
 
+    checkWazuhRemainingFiles
+    checkFilebeatRemainingFiles
+    checkElasticRemainingFiles
+    checkKibanaRemainingFiles
+
+}
+
+function checkWazuhRemainingFiles() {
+    if [ -d "/var/ossec" ]; then
+        wazuh_remaining_files=1
+    else
+        wazuh_remaining_files=""
+    fi
+}
+
+function checkFilebeatRemainingFiles() {
+    if [ -d "/var/lib/filebeat/" ] || [ -d "/usr/share/filebeat" ] || [ -d "/etc/filebeat" ]; then
+        filebeat_remaining_files=1
+    else
+        filebeat_remaining_files=""
+    fi
+}
+
+function checkElasticRemainingFiles() {
+    if [ -d "/var/lib/elasticsearch/" ] || [ -d "/usr/share/elasticsearch" ] || [ -d "/etc/elasticsearch" ] || [ -f "${base_path}/search-guard-tlstool*" ]; then
+        elastic_remaining_files=1
+    else
+        elastic_remaining_files=""
+    fi
+}
+
+function checkKibanaRemainingFiles() {
     if [ -d "/var/lib/kibana/" ] || [ -d "/usr/share/kibana" ] || [ -d "/etc/kibana" ]; then
         kibana_remaining_files=1
+    else
+        kibana_remaining_files=""
     fi
-
 }
 
 # This function ensures different names in the config.yml file.

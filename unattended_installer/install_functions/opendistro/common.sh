@@ -275,21 +275,38 @@ function restoreWazuhrepo() {
 function rollBack() {
 
     componentList=()
-    componentList+=("${wazuhinstaller}")
+    componentList+=("${wazuhinstalled}")
     componentList+=("${filebeatinstalled}")
     componentList+=("${elasticsearchinstalled}")
     componentList+=("${kibanainstalled}")
-    componentList+=("${uninstall_component_name}")
 
-    logger "Removing components and cleaning the installation."
+    logger "Analyzing components to uninstall and clean."
 
-    if [ -n "${AIO}" ] || [ "${uninstall_component_name}" == "all" ] ; then
-        logger "All packages and components will be uninstalled."
-        uninstallmanager
-        uninstallelasticsearch
-        uninstallkibana
+    # Uninstall case!
+    if [ -n "${AIO}" ] || [ "${uninstall_component_name}" == "all" ] || [ "${uninstall_component_name}" == "manager" ]; then
+        if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ]; then
+            uninstallmanager
+        else
+            logger "Wazuh manager components were not found on the system so it was not uninstalled."
+        fi
+    fi
+    if [ -n "${AIO}" ] || [ "${uninstall_component_name}" == "all" ] || [ "${uninstall_component_name}" == "elasticsearch" ]; then
+        if [ -n "${elasticsearchinstalled}" ] || [ -n "${elastic_remaining_files}" ]; then
+            uninstallelasticsearch
+        else
+
+            logger "Elasticsearch components were not found on the system so it was not uninstalled."
+        fi
+    fi
+    if [ -n "${AIO}" ] || [ ${uninstall_component_name} == "all" ] || [ ${uninstall_component_name} == "kibana" ] ; then
+        if [ -n "${kibanainstalled}" ] || [ -n "${kibana_remaining_files}" ]; then
+            uninstallkibana
+        else
+            logger "Kibana components were not found on the system so it was not uninstalled."
+        fi
     fi
 
+    # Overwrite case
     if [ -n "${overwrite}" ] && [ -n "${wazuh}" ]; then
         uninstallmanager
     fi
@@ -300,21 +317,20 @@ function rollBack() {
         uninstallkibana
     fi
 
+    # rollBack case!
     for component in "${componentList[@]}"; do
         if [ "${component}" == "manager" ] || [ "${component}" == "elastichsearch" ] || [ "${component}" == "kibana" ] ; then
             eval "uninstall$component"
         fi
     done
 
-    if [ -f "/etc/yum.repos.d/wazuh.repo" ]; then
-        eval "rm /etc/yum.repos.d/wazuh.repo"
-    elif [ -f "/etc/zypp/repos.d/wazuh.repo" ]; then
-        eval "rm /etc/zypp/repos.d/wazuh.repo"
-    elif [ -f "/etc/apt/sources.list.d/wazuh.list" ]; then
-        eval "rm /etc/apt/sources.list.d/wazuh.list"
-    fi
+    checkIfInstalled
 
-    logger "Repositories were removed."
+    if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ] || [ -n "${elasticsearchinstalled}" ] || [ -n "${elastic_remaining_files}" ] || [ -n "${kibanainstalled}" ] || [ -n "${kibana_remaining_files}" ]; then
+        logger -w "Some Wazuh components are still installed on this host."
+    else
+        rollBackRepositories
+    fi
 
     if [ -n "${rollback_conf}" ] || [ -n "${overwrite}" ]; then
         logger "Installation cleaned."
@@ -323,6 +339,27 @@ function rollBack() {
     if [ -z "${uninstall}" ]; then
         logger "Check the ${logfile} file to learn more about the issue."
     fi
+
+    logger "The uninstall process is complete."
+}
+
+function rollBackRepositories() {
+
+    if [ -f "/etc/yum.repos.d/wazuh.repo" ]; then
+        eval "rm /etc/yum.repos.d/wazuh.repo"
+        deleteRepositorie="true"
+    elif [ -f "/etc/zypp/repos.d/wazuh.repo" ]; then
+        eval "rm /etc/zypp/repos.d/wazuh.repo"
+        deleteRepositorie="true"
+    elif [ -f "/etc/apt/sources.list.d/wazuh.list" ]; then
+        eval "rm /etc/apt/sources.list.d/wazuh.list"
+        deleteRepositorie="true"
+    fi
+
+    if [ -n "${deleteRepositorie}" ]; then
+        logger "Repositories were removed."
+    fi
+
 }
 
 function startService() {
