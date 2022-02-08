@@ -164,17 +164,15 @@ fi
 %postun
 if [ $1 = 0 ];then
   # If the package is been uninstalled
-  if [ $1 = 0 ];then
-    # Remove the wazuh-dashboards user if it exists
-    if id -u %{USER} > /dev/null 2>&1; then
-      userdel %{USER} >/dev/null 2>&1
-    fi
-    # Remove the wazuh-dashboards group if it exists
-    if command -v getent > /dev/null 2>&1 && getent group %{GROUP} > /dev/null 2>&1; then
-      groupdel %{GROUP} >/dev/null 2>&1
-    elif id -g %{GROUP} > /dev/null 2>&1; then
-      groupdel %{GROUP} >/dev/null 2>&1
-    fi
+  # Remove the wazuh-dashboards user if it exists
+  if id -u %{USER} > /dev/null 2>&1; then
+    userdel %{USER} >/dev/null 2>&1
+  fi
+  # Remove the wazuh-dashboards group if it exists
+  if command -v getent > /dev/null 2>&1 && getent group %{GROUP} > /dev/null 2>&1; then
+    groupdel %{GROUP} >/dev/null 2>&1
+  elif id -g %{GROUP} > /dev/null 2>&1; then
+    groupdel %{GROUP} >/dev/null 2>&1
   fi
 
   # Remove /etc/wazuh-dashboards and /usr/share/wazuh-dashboards dirs
