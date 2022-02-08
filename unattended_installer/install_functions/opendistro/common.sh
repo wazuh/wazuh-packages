@@ -274,11 +274,7 @@ function restoreWazuhrepo() {
 
 function rollBack() {
 
-    componentList=()
-    componentList+=("${wazuhinstalled}")
-    componentList+=("${filebeatinstalled}")
-    componentList+=("${elasticsearchinstalled}")
-    componentList+=("${kibanainstalled}")
+    componentList=("${wazuhinstalled}" "${filebeatinstalled}" "${elasticsearchinstalled}" "${kibanainstalled}")
 
     logger "Analyzing components to uninstall and clean."
 
