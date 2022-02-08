@@ -369,6 +369,14 @@ function main() {
         exit 0
     fi
 
+# -------------- Prerequisites and Wazuh repo  ----------------------
+
+    if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
+        logger "---------------------------------- Dependencies -----------------------------------"
+        installPrerequisites
+        addWazuhrepo
+    fi
+
 # -------------- Preliminary steps  --------------------------------
 
     if [ -z "${configurations}" ] && [ -z "${AIO}" ]; then
