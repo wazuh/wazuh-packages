@@ -24,9 +24,9 @@ function indexer_configure() {
     eval "sed -i "s/-Xmx1g/-Xmx${ram}g/" /etc/wazuh-indexer/jvm.options ${debug}"
 
     if [ -n "${AIO}" ]; then
-        eval "getConfig indexer/indexer_all_in_one.yml /etc/wazuh-indexer/opensearch.yml ${debug}"
+        eval "common_getConfig indexer/indexer_all_in_one.yml /etc/wazuh-indexer/opensearch.yml ${debug}"
     else
-        eval "getConfig indexer/indexer_unattended_distributed.yml /etc/wazuh-indexer/opensearch.yml ${debug}"
+        eval "common_getConfig indexer/indexer_unattended_distributed.yml /etc/wazuh-indexer/opensearch.yml ${debug}"
         if [ "${#indexer_node_names[@]}" -eq 1 ]; then
             pos=0
             echo "node.name: ${indxname}" >> /etc/wazuh-indexer/opensearch.yml
@@ -104,7 +104,7 @@ function indexer_initialize() {
     done
     if [ ${i} -eq 12 ]; then
         logger -e "Cannot start Wazuh indexer cluster."
-        rollBack
+        common_rollBack
         exit 1
     fi
 
@@ -113,7 +113,7 @@ function indexer_initialize() {
     fi
 
     if [ "${#indexer_node_names[@]}" -eq 1 ] && [ -z "${AIO}" ]; then
-        changePasswords
+        common_changePasswords
     fi
 
     logger "Wazuh indexer cluster started."
@@ -134,7 +134,7 @@ function indexer_install() {
 
     if [  "$?" != 0  ]; then
         logger -e "Wazuh indexer installation failed."
-        rollBack
+        common_rollBack
         exit 1
     else
         indexerchinstalled="1"
@@ -151,7 +151,7 @@ function indexer_startCluster() {
     eval "sudo -u wazuh-indexer JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -p 9800 -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ -icl -nhnv -cacert /etc/wazuh-indexer/certs/root-ca.pem -cert /etc/wazuh-indexer/certs/admin.pem -key /etc/wazuh-indexer/certs/admin-key.pem -h ${wazuh_indexer_ip} ${debug}"
     if [  "$?" != 0  ]; then
         logger -e "The Wazuh indexer cluster security configuration could not be initialized."
-        rollBack
+        common_rollBack
         exit 1
     else
         logger "Wazuh indexer cluster security configuration initialized."
@@ -159,7 +159,7 @@ function indexer_startCluster() {
     eval "curl --silent ${filebeat_wazuh_template} | curl -X PUT 'https://${indexer_node_ips[pos]}:9700/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k --silent ${debug}"
     if [  "$?" != 0  ]; then
         logger -e "The wazuh-alerts template could not be inserted into the Wazuh indexer cluster."
-        rollBack
+        common_rollBack
         exit 1
     else
         logger -d "The wazuh-alerts template inserted into the Wazuh indexer cluster."

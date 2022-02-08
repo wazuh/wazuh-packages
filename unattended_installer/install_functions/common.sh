@@ -7,19 +7,19 @@
 # Foundation.
 
 if [ -n "${development}" ]; then
-    repogpg="https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH"
-    repobaseurl="https://packages-dev.wazuh.com/pre-release"
-    reporelease="unstable"
+    readonly repogpg="https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH"
+    readonly repobaseurl="https://packages-dev.wazuh.com/pre-release"
+    readonly reporelease="unstable"
 else
-    repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"
-    repobaseurl="https://packages.wazuh.com/4.x"
-    reporelease="stable"
+    readonly repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"
+    readonly repobaseurl="https://packages.wazuh.com/4.x"
+    readonly reporelease="stable"
 fi
 
-filebeat_wazuh_template="https://raw.githubusercontent.com/wazuh/wazuh/${wazuh_major}/extensions/elasticsearch/7.x/wazuh-template.json"
-filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.1.tar.gz"
+readonly filebeat_wazuh_template="https://raw.githubusercontent.com/wazuh/wazuh/${wazuh_major}/extensions/elasticsearch/7.x/wazuh-template.json"
+readonly filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.1.tar.gz"
 
-function addWazuhrepo() {
+function common_addWazuhRepo() {
 
     logger -d "Adding the Wazuh repository."
 
@@ -52,10 +52,10 @@ function addWazuhrepo() {
 
 }
 
-function createCertificates() {
+function common_createCertificates() {
 
     if [ -n "${AIO}" ]; then
-        eval "getConfig certificate/config_aio.yml ${base_path}/config.yml ${debug}"
+        eval "common_getConfig certificate/config_aio.yml ${base_path}/config.yml ${debug}"
     fi
 
     readConfig
@@ -71,13 +71,13 @@ function createCertificates() {
 
 }
 
-function createClusterKey() {
+function common_createClusterKey() {
 
     openssl rand -hex 16 >> "${base_path}/certs/clusterkey"
 
 }
 
-function changePasswords() {
+function common_changePasswords() {
 
     logger -d "Setting passwords."
     if [ -f "${tar_file}" ]; then
@@ -88,7 +88,7 @@ function changePasswords() {
             changeall=1
             readUsers
         fi
-        readPasswordFileUsers
+        common_readPasswordFileUsers
     else
         logger -e "Cannot find passwords-file. Exiting"
         exit 1
@@ -108,7 +108,7 @@ function changePasswords() {
 
 }
 
-function extractConfig() {
+function common_extractConfig() {
 
     if ! $(tar -tf "${tar_file}" | grep -q config.yml); then
         logger -e "There is no config.yml file in ${tar_file}."
@@ -118,10 +118,10 @@ function extractConfig() {
 
 }
 
-function getConfig() {
+function common_getConfig() {
 
     if [ "$#" -ne 2 ]; then
-        logger -e "getConfig should be called with two arguments"
+        logger -e "common_getConfig should be called with two arguments"
         exit 1
     fi
 
@@ -132,13 +132,13 @@ function getConfig() {
     fi
     if [ "$?" != 0 ]; then
         logger -e "Unable to find configuration file ${1}. Exiting."
-        rollBack
+        common_rollBack
         exit 1
     fi
 
 }
 
-function getPass() {
+function common_getPass() {
 
     for i in "${!users[@]}"; do
         if [ "${users[i]}" == "${1}" ]; then
@@ -148,7 +148,7 @@ function getPass() {
 
 }
 
-function installPrerequisites() {
+function common_installPrerequisites() {
 
     logger "Starting the installation of dependencies."
 
@@ -176,7 +176,7 @@ function installPrerequisites() {
 
 }
 
-function readPasswordFileUsers() {
+function common_readPasswordFileUsers() {
 
     filecorrect=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' "${p_file}")
     if [ "${filecorrect}" -ne 1 ]; then
@@ -251,7 +251,7 @@ User:
 
 }
 
-function restoreWazuhrepo() {
+function common_restoreWazuhrepo() {
 
     if [ -n "${development}" ]; then
         if [ "${sys_type}" == "yum" ] && [ -f "/etc/yum.repos.d/wazuh.repo" ]; then
@@ -271,7 +271,7 @@ function restoreWazuhrepo() {
 
 }
 
-function rollBack() {
+function common_rollBack() {
 
     if [ -z "${uninstall}" ]; then
         logger "Cleaning the installation."
@@ -368,7 +368,7 @@ function rollBack() {
     eval "rm -rf ${elements_to_remove[*]}"
 
     if [ -z "${uninstall}" ]; then
-        if [ -n "${rollback_conf}" ] || [ -n "${overwrite}" ]; then
+        if [ -n "${srollback_conf}" ] || [ -n "${overwrite}" ]; then
             logger "Installation cleaned."
         else
             logger "Installation cleaned. Check the ${logfile} file to learn more about the issue."
@@ -377,10 +377,10 @@ function rollBack() {
 
 }
 
-function startService() {
+function common_startService() {
 
     if [ "$#" -ne 1 ]; then
-        logger -e "startService must be called with 1 argument."
+        logger -e "common_startService must be called with 1 argument."
         exit 1
     fi
 
@@ -392,7 +392,7 @@ function startService() {
         eval "systemctl start ${1}.service ${debug}"
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
-            rollBack
+            common_rollBack
             exit 1
         else
             logger "${1^} service started."
@@ -403,7 +403,7 @@ function startService() {
         eval "/etc/init.d/${1} start ${debug}"
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
-            rollBack
+            common_rollBack
             exit 1
         else
             logger "${1^} service started."
@@ -412,7 +412,7 @@ function startService() {
         eval "/etc/rc.d/init.d/${1} start ${debug}"
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
-            rollBack
+            common_rollBack
             exit 1
         else
             logger "${1^} service started."
