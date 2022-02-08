@@ -1,6 +1,6 @@
 #!/bin/sh
 # postinst script for Wazuh-indexer
-# Copyright (C) 2015-2022, Wazuh Inc.
+# Copyright (C) 2021, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
@@ -26,6 +26,8 @@ export LOG_DIR="/var/log/${NAME}"
 if [ -f "/etc/default/${NAME}" ]; then
     . "/etc/default/${NAME}"
 fi
+
+export OPENSEARCH_PATH_CONF=${OPENSEARCH_PATH_CONF:-${CONFIG_DIR}}
 
 REMOVE_DIRS=false
 REMOVE_CONFIG_DIRECTORY=false
