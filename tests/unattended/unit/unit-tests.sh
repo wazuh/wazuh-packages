@@ -8,7 +8,7 @@ ALL_FILES=("common" "checks" "wazuh" "filebeat" "kibana" "elasticsearch" "wazuh-
 IMAGE_NAME="unattended-installer-unit-tests-launcher"
 SHARED_VOLUME="$(pwd -P)/tmp/"
 
-function logger() {
+function common_logger() {
 
     now=$(date +'%d/%m/%Y %H:%M:%S')
     case ${1} in 
@@ -33,26 +33,26 @@ function logger() {
 function createImage() {
 
     if [ ! -f docker-unit-testing-tool/Dockerfile ]; then
-        logger -e "No Dockerfile found to create the environment."
+        common_logger -e "No Dockerfile found to create the environment."
         exit 1
     fi
 
     if [ -n "${rebuild_image}" ]; then
-        logger "Removing old image."
+        common_logger "Removing old image."
         eval "docker rmi ${IMAGE_NAME} ${debug}"
     fi
 
     if [ -z "$(docker images | grep ${IMAGE_NAME})" ]; then
-        logger "Building image."
+        common_logger "Building image."
         eval "docker build -t ${IMAGE_NAME} docker-unit-testing-tool ${debug}"
         if [ "$?" != 0 ]; then
-            logger -e "Docker encountered some error."
+            common_logger -e "Docker encountered some error."
             exit 1
         else 
-            logger "Docker image built successfully."
+            common_logger "Docker image built successfully."
         fi
     else
-        logger "Docker image found."
+        common_logger "Docker image found."
     fi
     eval "mkdir -p ${SHARED_VOLUME} ${debug}"
     eval "cp framework/bach.sh ${SHARED_VOLUME} ${debug}"
@@ -60,7 +60,7 @@ function createImage() {
 
 function testFile() {
 
-    logger "Unit tests for ${1}.sh."
+    common_logger "Unit tests for ${1}.sh."
 
 
     eval "cp suites/test-${1}.sh ${SHARED_VOLUME}"
@@ -71,20 +71,20 @@ function testFile() {
     elif [ -f ../../../unattended_installer/${1}.sh ]; then
         eval "cp ../../../unattended_installer/${1}.sh ${SHARED_VOLUME} ${debug}"
     else 
-        logger -e "File ${1}.sh could not be found."
+        common_logger -e "File ${1}.sh could not be found."
         return
     fi
 
     eval "docker run -t --rm --volume ${SHARED_VOLUME}:/tests/unattended/ --env TERM=xterm-256color ${IMAGE_NAME} ${1} | tee -a ${logfile}"
     if [ "$?" != 0 ]; then
-        logger -e "Docker encountered some error running the unit tests for ${1}.sh"
+        common_logger -e "Docker encountered some error running the unit tests for ${1}.sh"
     else 
-        logger "All unit tests for the functions in ${1}.sh finished."
+        common_logger "All unit tests for the functions in ${1}.sh finished."
     fi
 }
 
 function clean() {
-    logger "Cleaning temporary files."
+    common_logger "Cleaning temporary files."
     eval "rm -rf ${SHARED_VOLUME} ${debug}"
 }
 
@@ -161,7 +161,7 @@ main() {
     done
 
     if [ -n "${all_tests}" ] && [ ${#TEST_FILES[@]} -gt 0 ]; then
-        logger -e "Cannot use options -a and -f in the same run."
+        common_logger -e "Cannot use options -a and -f in the same run."
         exit 1
     fi
 

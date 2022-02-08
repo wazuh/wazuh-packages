@@ -4,8 +4,8 @@ base_dir="$(cd "$(dirname "$BASH_SOURCE")"; pwd -P; cd - >/dev/null;)"
 source "${base_dir}"/bach.sh
 
 @setup-test {
-    @ignore logger
-    f_cert_path="/etc/filebeat/certs/"
+    @ignore common_logger
+    filebeat_cert_path="/etc/filebeat/certs/"
     wazuh_major="4.3"
     filebeat_wazuh_template="https://raw.githubusercontent.com/wazuh/wazuh/${wazuh_major}/extensions/elasticsearch/7.x/wazuh-template.json"
     repobaseurl="https://packages.wazuh.com/4.x"

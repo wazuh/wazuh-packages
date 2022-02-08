@@ -20,7 +20,7 @@ In order to have homogenous developments, this document shows some rules to be t
 - Use `$(command)` instead of classic `` `command` ``.
 - Use `${var}` instead of `$(var)`.
 - Variables should always be quoted: `"${var}"`.
-- Use logger function instead of `echo`.
+- Use common_logger function instead of `echo`.
 - Prevent commands from failure by catching the result of a command with `$?`.
 - Take control of every possible long command setting up timeouts.
 - Every needed resource must be obtained (on-line and off-line). This resource must be checked if exist in the desired path (libraries).

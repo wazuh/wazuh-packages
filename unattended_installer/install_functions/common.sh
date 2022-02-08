@@ -1,3 +1,4 @@
+#!/bin/bash
 # Wazuh installer - common.sh functions.
 # Copyright (C) 2015, Wazuh Inc.
 #
@@ -6,22 +7,148 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-if [ -n "${development}" ]; then
-    readonly repogpg="https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH"
-    readonly repobaseurl="https://packages-dev.wazuh.com/pre-release"
-    readonly reporelease="unstable"
-else
-    readonly repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"
-    readonly repobaseurl="https://packages.wazuh.com/4.x"
-    readonly reporelease="stable"
-fi
 
-readonly filebeat_wazuh_template="https://raw.githubusercontent.com/wazuh/wazuh/${wazuh_major}/extensions/elasticsearch/7.x/wazuh-template.json"
-readonly filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.1.tar.gz"
 
-function common_addWazuhRepo() {
 
-    logger -d "Adding the Wazuh repository."
+
+function common_cleanExit() {
+
+    rollback_conf=""
+
+    if [ -n "$spin_pid" ]; then
+        eval "kill -9 $spin_pid ${debug}"
+    fi
+
+    until [[ "${rollback_conf}" =~ ^[N|Y|n|y]$ ]]; do
+        echo -ne "\nDo you want to clean the ongoing installation?[Y/N]"
+        read -r rollback_conf
+    done
+    if [[ "${rollback_conf}" =~ [N|n] ]]; then
+        exit 1
+    else
+        common_rollBack
+        exit 1
+    fi
+
+}
+
+function common_spin() {
+
+    trap "{ tput el1; exit 0; }" 15
+    spinner="/|\\-/|\\-"
+    trap "echo ''" EXIT
+    while :
+    do
+        for i in $(seq 0 7)
+        do
+            echo -n "${spinner:$i:1}"
+            echo -en "\010"
+            sleep 0.1
+        done
+    done
+}
+
+function common_logger() {
+    now=$(date +'%d/%m/%Y %H:%M:%S')
+    mtype="INFO:"
+    debugLogger=
+    disableHeader=
+    if [ -n "${1}" ]; then
+        while [ -n "${1}" ]; do
+            case ${1} in
+                "-e")
+                    mtype="ERROR:"
+                    shift 1
+                    ;;
+                "-w")
+                    mtype="WARNING:"
+                    shift 1
+                    ;;
+                "-d")
+                    debugLogger=1
+                    shift 1
+                    ;;
+                *)
+                    message="${1}"
+                    shift 1
+                    ;;
+            esac
+        done
+    fi
+
+    if [ -z "${debugLogger}" ] || ( [ -n "${debugLogger}" ] && [ -n "${debugEnabled}" ] ); then
+            echo "${now} ${mtype} ${message}" | tee -a ${logfile}
+    fi
+}
+
+function common_getHelp() {
+
+    echo -e ""
+    echo -e "NAME"
+    echo -e "        $(basename "$0") - Install and configure Wazuh central components."
+    echo -e ""
+    echo -e "SYNOPSIS"
+    echo -e "        $(basename "$0") [OPTIONS] -a | -c | -e <elasticsearch-node-name> | -k <kibana-node-name> | -s | -w <wazuh-node-name>"
+    echo -e ""
+    echo -e "DESCRIPTION"
+    echo -e "        -a,  --all-in-one"
+    echo -e "                All-In-One installation."
+    echo -e ""
+    echo -e "        -c,  --create-configurations"
+    echo -e "                Creates configurations.tar file containing config.yml, certificates, passwords and cluster key."
+    echo -e ""
+    echo -e "        -d,  --development"
+    echo -e "                Uses development repository."
+    echo -e ""
+    echo -e "        -ds,  --disable-spinner"
+    echo -e "                Disables the spinner indicator."
+    echo -e ""
+    echo -e ""
+    echo -e "        -f,  --fileconfig <path-to-config-yml>"
+    echo -e "                Path to config file. By default: ${base_path}/config.yml"
+    echo -e ""
+    echo -e "        -F,  --force-dashboards"
+    echo -e "                Ignore indexer cluster related errors in kibana installation"
+    echo -e ""
+    echo -e "        -h,  --help"
+    echo -e "                Shows help."
+    echo -e ""
+    echo -e "        -i,  --ignore-health-check"
+    echo -e "                Ignores the health-check."
+    echo -e ""
+    echo -e "        -l,  --local"
+    echo -e "                Use local files."
+    echo -e ""
+    echo -e "        -o,  --overwrite"
+    echo -e "                Overwrites previously installed components. NOTE: This will erase all the existing configuration and data."
+    echo -e ""
+    echo -e "        -s,  --start-cluster"
+    echo -e "                Starts the indexer cluster."
+    echo -e ""
+    echo -e "        -t,  --tar <path-to-certs-tar>"
+    echo -e "                Path to tar containing certificate files. By default: ${base_path}/configurations.tar"
+    echo -e ""
+    echo -e "        -u,  --uninstall"
+    echo -e "                Uninstalls all Wazuh components. NOTE: This will erase all the existing configuration and data."
+    echo -e ""
+    echo -e "        -v,  --verbose"
+    echo -e "                Shows the complete installation output."
+    echo -e ""
+    echo -e "        -wd,  --wazuh-dashboards <dashboards-node-name>"
+    echo -e "                Wazuh dashboards installation."
+    echo -e ""
+    echo -e "        -wi,  --wazuh-indexer <indexer-node-name>"
+    echo -e "                Wazuh indexer installation."
+    echo -e ""
+    echo -e "        -ws,  --wazuh-server <wazuh-node-name>"
+    echo -e "                Wazuh server installation. It includes Filebeat."
+    exit 1
+
+}
+
+function common_addWazuhrepo() {
+
+    common_logger -d "Adding the Wazuh repository."
 
     if [ -n "${development}" ]; then
         if [ "${sys_type}" == "yum" ]; then
@@ -46,9 +173,9 @@ function common_addWazuhRepo() {
             eval "apt-get update -q ${debug}"
         fi
     else
-        logger -d "Wazuh repository already exists. Skipping addition."
+        common_logger -d "Wazuh repository already exists. Skipping addition."
     fi
-    logger -d "Wazuh repository added."
+    common_logger -d "Wazuh repository added."
 
 }
 
@@ -79,7 +206,7 @@ function common_createClusterKey() {
 
 function common_changePasswords() {
 
-    logger -d "Setting passwords."
+    common_logger -d "Setting passwords."
     if [ -f "${tar_file}" ]; then
         eval "tar -xf ${tar_file} -C ${base_path} ./password_file.yml ${debug}"
         p_file="${base_path}/password_file.yml"
@@ -90,7 +217,7 @@ function common_changePasswords() {
         fi
         common_readPasswordFileUsers
     else
-        logger -e "Cannot find passwords-file. Exiting"
+        common_logger -e "Cannot find passwords-file. Exiting"
         exit 1
     fi
     if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
@@ -111,7 +238,7 @@ function common_changePasswords() {
 function common_extractConfig() {
 
     if ! $(tar -tf "${tar_file}" | grep -q config.yml); then
-        logger -e "There is no config.yml file in ${tar_file}."
+        common_logger -e "There is no config.yml file in ${tar_file}."
         exit 1
     fi
     eval "tar -xf ${tar_file} -C ${base_path} ./config.yml ${debug}"
@@ -121,7 +248,7 @@ function common_extractConfig() {
 function common_getConfig() {
 
     if [ "$#" -ne 2 ]; then
-        logger -e "common_getConfig should be called with two arguments"
+        common_logger -e "common_getConfig should be called with two arguments"
         exit 1
     fi
 
@@ -131,7 +258,7 @@ function common_getConfig() {
         curl -f -so "${2}" "${resources_config}/${1}"
     fi
     if [ "$?" != 0 ]; then
-        logger -e "Unable to find configuration file ${1}. Exiting."
+        common_logger -e "Unable to find configuration file ${1}. Exiting."
         common_rollBack
         exit 1
     fi
@@ -150,7 +277,7 @@ function common_getPass() {
 
 function common_installPrerequisites() {
 
-    logger "Starting the installation of dependencies."
+    common_logger "Starting the installation of dependencies."
 
     openssl=""
     if [ -z "$(command -v openssl)" ]; then
@@ -168,10 +295,10 @@ function common_installPrerequisites() {
     fi
 
     if [  "$?" != 0  ]; then
-        logger -e "Prerequisites could not be installed, probably due to the OS repositories. Please check them."
+        common_logger -e "Prerequisites could not be installed, probably due to the OS repositories. Please check them."
         exit 1
     else
-        logger "Installation of dependencies finished."
+        common_logger "Installation of dependencies finished."
     fi
 
 }
@@ -180,7 +307,7 @@ function common_readPasswordFileUsers() {
 
     filecorrect=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' "${p_file}")
     if [ "${filecorrect}" -ne 1 ]; then
-        logger -e "The password file doesn't have a correct format.
+        common_logger -e "The password file doesn't have a correct format.
 
 It must have this format:
 User:
@@ -200,8 +327,8 @@ User:
     filepasswords=(${sfilepasswords})
 
     if [ -n "${debugEnabled}" ]; then
-        logger "Users in the file: ${fileusers[*]}"
-        logger "Passwords in the file: ${filepasswords[*]}"
+        common_logger "Users in the file: ${fileusers[*]}"
+        common_logger "Passwords in the file: ${filepasswords[*]}"
     fi
 
     if [ -n "${changeall}" ]; then
@@ -214,7 +341,7 @@ User:
                 fi
             done
             if [ "${supported}" = false ] && [ -n "${indexerchinstalled}" ]; then
-                logger -e -d "The given user ${fileusers[j]} does not exist"
+                common_logger -e -d "The given user ${fileusers[j]} does not exist"
             fi
         done
     else
@@ -239,7 +366,7 @@ User:
                 fi
             done
             if [ "${supported}" = "false" ] && [ -n "${indexerchinstalled}" ] && [ -n "${changeall}" ]; then
-                logger -e -d "The given user ${fileusers[j]} does not exist"
+                common_logger -e -d "The given user ${fileusers[j]} does not exist"
             fi
         done
 
@@ -261,12 +388,12 @@ function common_restoreWazuhrepo() {
         elif [ "${sys_type}" == "apt-get" ] && [ -f "/etc/apt/sources.list.d/wazuh.list" ]; then
             file="/etc/apt/sources.list.d/wazuh.list"
         else
-            logger -w -d "Wazuh repository does not exists."
+            common_logger -w -d "Wazuh repository does not exists."
         fi
         eval "sed -i 's/-dev//g' ${file} ${debug}"
         eval "sed -i 's/pre-release/4.x/g' ${file} ${debug}"
         eval "sed -i 's/unstable/stable/g' ${file} ${debug}"
-        logger -d "The Wazuh repository set to production."
+        common_logger -d "The Wazuh repository set to production."
     fi
 
 }
@@ -274,7 +401,7 @@ function common_restoreWazuhrepo() {
 function common_rollBack() {
 
     if [ -z "${uninstall}" ]; then
-        logger "Cleaning the installation."
+        common_logger "Cleaning the installation."
     fi
 
     if [ -f "/etc/yum.repos.d/wazuh.repo" ]; then
@@ -286,7 +413,7 @@ function common_rollBack() {
     fi
 
     if [[ -n "${wazuhinstalled}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]];then
-        logger -w "Removing the Wazuh manager."
+        common_logger -w "Removing the Wazuh manager."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-manager -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
@@ -302,7 +429,7 @@ function common_rollBack() {
     fi
 
     if [[ -n "${indexerchinstalled}" && ( -n "${indexer}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        logger -w "Removing Wazuh indexer."
+        common_logger -w "Removing Wazuh indexer."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-indexer -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
@@ -319,7 +446,7 @@ function common_rollBack() {
     fi
 
     if [[ -n "${filebeatinstalled}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        logger -w "Removing Filebeat."
+        common_logger -w "Removing Filebeat."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove filebeat -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
@@ -336,7 +463,7 @@ function common_rollBack() {
     fi
 
     if [[ -n "${dashboardsinstalled}" && ( -n "${dashboards}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        logger -w "Removing Wazuh dashboards."
+        common_logger -w "Removing Wazuh dashboards."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-dashboards -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
@@ -369,9 +496,9 @@ function common_rollBack() {
 
     if [ -z "${uninstall}" ]; then
         if [ -n "${srollback_conf}" ] || [ -n "${overwrite}" ]; then
-            logger "Installation cleaned."
+            common_logger "Installation cleaned."
         else
-            logger "Installation cleaned. Check the ${logfile} file to learn more about the issue."
+            common_logger "Installation cleaned. Check the ${logfile} file to learn more about the issue."
         fi
     fi
 
@@ -380,45 +507,45 @@ function common_rollBack() {
 function common_startService() {
 
     if [ "$#" -ne 1 ]; then
-        logger -e "common_startService must be called with 1 argument."
+        common_logger -e "common_startService must be called with 1 argument."
         exit 1
     fi
 
-    logger "Starting service ${1}."
+    common_logger "Starting service ${1}."
 
     if ps -e | grep -E -q "^\ *1\ .*systemd$"; then
         eval "systemctl daemon-reload ${debug}"
         eval "systemctl enable ${1}.service ${debug}"
         eval "systemctl start ${1}.service ${debug}"
         if [  "$?" != 0  ]; then
-            logger -e "${1^} could not be started."
+            common_logger -e "${1^} could not be started."
             common_rollBack
             exit 1
         else
-            logger "${1^} service started."
+            common_logger "${1^} service started."
         fi
     elif ps -e | grep -E -q "^\ *1\ .*init$"; then
         eval "chkconfig ${1} on ${debug}"
         eval "service ${1} start ${debug}"
         eval "/etc/init.d/${1} start ${debug}"
         if [  "$?" != 0  ]; then
-            logger -e "${1^} could not be started."
+            common_logger -e "${1^} could not be started."
             common_rollBack
             exit 1
         else
-            logger "${1^} service started."
+            common_logger "${1^} service started."
         fi
     elif [ -x "/etc/rc.d/init.d/${1}" ] ; then
         eval "/etc/rc.d/init.d/${1} start ${debug}"
         if [  "$?" != 0  ]; then
-            logger -e "${1^} could not be started."
+            common_logger -e "${1^} could not be started."
             common_rollBack
             exit 1
         else
-            logger "${1^} service started."
+            common_logger "${1^} service started."
         fi
     else
-        logger -e "${1^} could not start. No service manager found on the system."
+        common_logger -e "${1^} could not start. No service manager found on the system."
         exit 1
     fi
 

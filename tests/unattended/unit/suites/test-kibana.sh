@@ -4,7 +4,7 @@ base_dir="$(cd "$(dirname "$BASH_SOURCE")"; pwd -P; cd - >/dev/null;)"
 source "${base_dir}"/bach.sh
 
 @setup-test {
-    @ignore logger
+    @ignore common_logger
     k_certs_path="/etc/kibana/certs/"
     wazuh_version="4.3.0"
     elasticsearch_oss_version="7.10.2"

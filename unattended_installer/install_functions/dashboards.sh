@@ -6,8 +6,6 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-readonly d_certs_path="/etc/wazuh-dashboards/certs/"
-
 function dashboards_configure() {
 
     dashboards_copyCertificates
@@ -40,26 +38,26 @@ function dashboards_configure() {
         fi
     fi
 
-    logger "Wazuh dashboards post-install configuration finished."
+    common_logger "Wazuh dashboards post-install configuration finished."
 
 }
 
 function dashboards_copyCertificates() {
 
-    eval "rm -f ${d_certs_path}/* ${debug}"
+    eval "rm -f ${dashboard_cert_path}/* ${debug}"
     if [ -f "${tar_file}" ]; then
 
         name=${dashboards_node_names[pos]}
 
-        eval "tar -xf ${tar_file} -C ${d_certs_path} ./${name}.pem  && mv ${d_certs_path}${name}.pem ${d_certs_path}dashboards.pem ${debug}"
-        eval "tar -xf ${tar_file} -C ${d_certs_path} ./${name}-key.pem  && mv ${d_certs_path}${name}-key.pem ${d_certs_path}dashboards-key.pem ${debug}"
-        eval "tar -xf ${tar_file} -C ${d_certs_path} ./root-ca.pem ${debug}"
+        eval "tar -xf ${tar_file} -C ${dashboard_cert_path} ./${name}.pem  && mv ${dashboard_cert_path}${name}.pem ${dashboard_cert_path}dashboards.pem ${debug}"
+        eval "tar -xf ${tar_file} -C ${dashboard_cert_path} ./${name}-key.pem  && mv ${dashboard_cert_path}${name}-key.pem ${dashboard_cert_path}dashboards-key.pem ${debug}"
+        eval "tar -xf ${tar_file} -C ${dashboard_cert_path} ./root-ca.pem ${debug}"
         eval "chown -R wazuh-dashboards:wazuh-dashboards /etc/wazuh-dashboards/ ${debug}"
-        eval "chmod -R 500 ${d_certs_path} ${debug}"
-        eval "chmod 440 ${d_certs_path}* ${debug}"
-        logger -d "Wazuh dashboards certificate setup finished."
+        eval "chmod -R 500 ${dashboard_cert_path} ${debug}"
+        eval "chmod 440 ${dashboard_cert_path}* ${debug}"
+        common_logger -d "Wazuh dashboards certificate setup finished."
     else
-        logger -e "No certificates found. Wazuh dashboards  could not be initialized."
+        common_logger -e "No certificates found. Wazuh dashboards  could not be initialized."
         exit 1
     fi
 
@@ -67,7 +65,7 @@ function dashboards_copyCertificates() {
 
 function dashboards_initialize() {
 
-    logger "Starting Wazuh dashboards  (this may take a while)."
+    common_logger "Starting Wazuh dashboards  (this may take a while)."
     common_getPass "admin"
     j=0
 
@@ -103,7 +101,7 @@ function dashboards_initialize() {
             flag="-e"
         fi
         failed_nodes=()
-        logger "${flag}" "Cannot connect to Wazuh dashboards."
+        common_logger "${flag}" "Cannot connect to Wazuh dashboards."
 
         for i in "${!indexer_node_ips[@]}"; do
             curl=$(curl -XGET https://${indexer_node_ips[i]}:9700/ -uadmin:${u_pass} -k -w %{http_code} -s -o /dev/null)
@@ -113,53 +111,53 @@ function dashboards_initialize() {
                 failed_nodes+=("${indexer_node_names[i]}")
             fi 
         done
-        logger "${flag}" "Failed to connect with ${failed_nodes[*]}. Connection refused."
+        common_logger "${flag}" "Failed to connect with ${failed_nodes[*]}. Connection refused."
         if [ -z "${force}" ]; then
-            logger "If want to install Wazuh dashboards without waiting for the Wazuh indexer cluster, use the -F option"
+            common_logger "If want to install Wazuh dashboards without waiting for the Wazuh indexer cluster, use the -F option"
             common_rollBack
             exit 1
         else
-            logger "When Wazuh dashboards is able to connect to your Elasticsearch cluster, you can access the web interface https://${nodes_dashboards_ip}. The credentials are admin:${u_pass}"
+            common_logger "When Wazuh dashboards is able to connect to your Elasticsearch cluster, you can access the web interface https://${nodes_dashboards_ip}. The credentials are admin:${u_pass}"
         fi
     else
-        logger "You can access the web interface https://${nodes_dashboards_ip}. The credentials are admin:${u_pass}"
+        common_logger "You can access the web interface https://${nodes_dashboards_ip}. The credentials are admin:${u_pass}"
     fi
 
 }
 
 function dashboards_initializeAIO() {
 
-    logger "Starting Wazuh dashboards (this may take a while)."
+    common_logger "Starting Wazuh dashboards (this may take a while)."
     common_getPass "admin"
     until [ "$(curl -XGET https://localhost/status -uadmin:${u_pass} -k -w %{http_code} -s -o /dev/null)" -eq "200" ] || [ "${i}" -eq 12 ]; do
         sleep 10
         i=$((i+1))
     done
     if [ ${i} -eq 12 ]; then
-        logger -e "Cannot connect to Wazuh dashboards."
+        common_logger -e "Cannot connect to Wazuh dashboards."
         common_rollBack
         exit 1
     fi
-    logger "Wazuh dashboards started."
-    logger "You can access the web interface https://<wazuh-dashboards-host-ip>. The credentials are admin:${u_pass}"
+    common_logger "Wazuh dashboards started."
+    common_logger "You can access the web interface https://<wazuh-dashboards-host-ip>. The credentials are admin:${u_pass}"
 
 }
 
 function dashboards_install() {
 
-    logger "Starting Wazuh dashboards installation."
+    common_logger "Starting Wazuh dashboards installation."
     if [ "${sys_type}" == "zypper" ]; then
         eval "zypper -n install wazuh-dashboards=${wazuh_version}-${wazuh_revision} ${debug}"
     else
         eval "${sys_type} install wazuh-dashboards${sep}${wazuh_version}-${wazuh_revision} -y ${debug}"
     fi
     if [  "$?" != 0  ]; then
-        logger -e "Wazuh dashboards installation failed"
+        common_logger -e "Wazuh dashboards installation failed"
         common_rollBack
         exit 1
     else
         dashboardsinstalled="1"
-        logger "Wazuh dashboards installation finished."
+        common_logger "Wazuh dashboards installation finished."
     fi
 
 }
