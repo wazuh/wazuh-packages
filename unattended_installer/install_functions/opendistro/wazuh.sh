@@ -66,9 +66,10 @@ function uninstallmanager() {
 
     logger "Wazuh and Filebeat will be uninstalled."
 
-    # Remove packages
+    # Remove Wazuh
+    logger -w "Removing Wazuh manager."
     if [[ -n "${wazuhinstalled}" ]];then
-        logger -w "Removing Wazuh manager."
+
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-manager -y ${debug} &"
             wait
@@ -83,8 +84,16 @@ function uninstallmanager() {
         fi
     fi
 
+    until [ -z "${wazuh_remaining_files}" ]
+    do
+        eval "rm -rf /var/ossec/ ${debug}"
+        checkWazuhRemainingFiles
+    done
+
+    # Remove Filebeat
+    logger -w "Removing Filebeat."
     if [[ -n "${filebeatinstalled}" ]]; then
-        logger -w "Removing Filebeat."
+
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove filebeat -y ${debug} &"
             wait
@@ -97,17 +106,8 @@ function uninstallmanager() {
         fi
     fi
 
-    # Remove files
-    until [ -z "${wazuh_remaining_files}" ]
-    do
-        logger -w "Removing Wazuh files."
-        eval "rm -rf /var/ossec/ ${debug}"
-        checkWazuhRemainingFiles
-    done
-
     until [ -z "${filebeat_remaining_files}" ]
     do
-        logger -w "Removing Filebeat files."
         elements_to_remove=(    "/var/log/filebeat/"
                                 "/etc/systemd/system/multi-user.target.wants/wazuh-manager.service"
                                 "/etc/systemd/system/multi-user.target.wants/filebeat.service"
