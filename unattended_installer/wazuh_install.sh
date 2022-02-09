@@ -336,6 +336,8 @@ function main() {
     importFunction "wazuh-cert-tool.sh"
     importFunction "wazuh-passwords-tool.sh"
 
+    checkTools
+
     if [ -z "${uninstall}" ]; then
         logger "Starting Wazuh unattended installer. Wazuh version: ${wazuh_version}. Wazuh installer version: ${wazuh_install_vesion}"
     fi
@@ -360,6 +362,7 @@ function main() {
 # -------------- Uninstall case  ------------------------------------
 
     if [ -n "${uninstall}" ]; then
+
         importFunction "wazuh.sh"
         importFunction "filebeat.sh"
         importFunction "elasticsearch.sh"
@@ -367,6 +370,14 @@ function main() {
         logger "------------------------------------ Uninstall ------------------------------------"
         rollBack
         exit 0
+    fi
+
+# -------------- Prerequisites and Wazuh repo  ----------------------
+
+    if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
+        logger "---------------------------------- Dependencies -----------------------------------"
+        installPrerequisites
+        addWazuhrepo
     fi
 
 # -------------- Preliminary steps  --------------------------------
@@ -405,14 +416,6 @@ function main() {
     # Distributed architecture: node names must be different
     if [[ -z "${AIO}" && ( -n "${elasticsearch}"  || -n "${kibana}" || -n "${wazuh}" )]]; then
         checkNames
-    fi
-
-# -------------- Prerequisites and Wazuh repo  ----------------------
-
-    if [ -n "${AIO}" ] || [ -n "${elasticsearch}" ] || [ -n "${kibana}" ] || [ -n "${wazuh}" ]; then
-        logger "---------------------------------- Dependencies -----------------------------------"
-        installPrerequisites
-        addWazuhrepo
     fi
 
 # -------------- Elasticsearch or Start Elasticsearch cluster case---

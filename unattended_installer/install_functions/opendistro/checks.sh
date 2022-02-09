@@ -31,7 +31,6 @@ function checkArguments() {
     fi
 
     # -------------- Overwrite --------------------------------------
-
     if [ -n "${overwrite}" ] && [ -z "${AIO}" ] && [ -z "${elasticsearch}" ] && [ -z "${kibana}" ] && [ -z "${wazuh}" ]; then
         logger -e "The argument -o|--overwrite must be used with -a, -k, -e or -w. If you want to uninstall all the components use -u|--uninstall."
         exit 1
@@ -64,6 +63,7 @@ function checkArguments() {
 
         if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ] || [ -n "${elasticsearchinstalled}" ] || [ -n "${elastic_remaining_files}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ] || [ -n "${kibanainstalled}" ] || [ -n "${kibana_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
+                uninstall_module_name="wazuh"
                 rollBack
             else
                 logger -e "Some the Wazuh components were found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. NOTE: This will erase all the existing configuration and data."
@@ -78,6 +78,7 @@ function checkArguments() {
 
         if [ -n "${elasticsearchinstalled}" ] || [ -n "${elastic_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
+                uninstall_module_name="elasticsearch"
                 rollBack
             else
                 logger -e "Elasticsearch is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
@@ -91,6 +92,7 @@ function checkArguments() {
     if [ -n "${kibana}" ]; then
         if [ -n "${kibanainstalled}" ] || [ -n "${kibana_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
+                uninstall_module_name="kibana"
                 rollBack
             else
                 logger -e "Kibana is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
@@ -123,6 +125,10 @@ function checkArguments() {
 
     # -------------- Cluster start ----------------------------------
 
+    if [[ -n "${start_elastic_cluster}" && ( -z "${elasticsearchinstalled}" || -z "${elastic_remaining_files}") ]]; then
+        logger -e "The argument -s|--start-cluster need elasticsearch installed. Run the script with the parameter first --elasticsearch <elasticsearch-node-name>."
+        exit 1
+    fi
     if [[ -n "${start_elastic_cluster}" && ( -n "${AIO}" || -n "${elasticsearch}" || -n "${kibana}" || -n "${wazuh}" || -n "${overwrite}" || -n "${configurations}" || -n "${tar_conf}" || -n "${uninstall}") ]]; then
         logger -e "The argument -s|--start-cluster can't be used with -a, -k, -e or -w arguments."
         exit 1
@@ -140,39 +146,54 @@ function checkArguments() {
 function checkHealth() {
 
     checkSpecs
-    if [ -n "${elasticsearch}" ]; then
-        if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
-            logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
-            exit 1
-        else
-            logger "Check recommended minimum hardware requirements for Elasticsearch done."
-        fi
+    if [ -z "${cores}" ]; then
+        logger -e "The script needs to parse the file '${coresFile}' to check the minimum required hardware of CPU cores."
+        logger "Use the --ignore-health-check parameter to dismiss the recommended minimum hardware requirements check."
+        exit 1
+    fi
+    if [ -z "${ram_gb}" ]; then
+        logger -e "The command 'free' is required to check the minimum required hardware of RAM."
+        logger "Use the --ignore-health-check parameter to dismiss the recommended minimum hardware requirements check."
+        exit 1
     fi
 
-    if [ -n "${kibana}" ]; then
-        if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
-            logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
-            exit 1
-        else
-            logger "Check recommended minimum hardware requirements for Kibana done."
-        fi
-    fi
+    if [ -n "${cores}" ] && [ -n "${ram_gb}" ]; then
 
-    if [ -n "${wazuh}" ]; then
-        if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 1700 ]; then
-            logger -e "Your system does not meet the recommended minimum hardware requirements of 2Gb of RAM and 2 CPU cores . If you want to proceed with the installation use the -i option to ignore these requirements."
-            exit 1
-        else
-            logger "Check recommended minimum hardware requirements for Wazuh Manager done."
+        if [ -n "${elasticsearch}" ]; then
+            if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
+                logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
+                exit 1
+            else
+                logger "Check recommended minimum hardware requirements for Elasticsearch done."
+            fi
         fi
-    fi
 
-    if [ -n "${aio}" ]; then
-        if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
-            logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
-            exit 1
-        else
-            logger "Check recommended minimum hardware requirements for AIO done."
+        if [ -n "${kibana}" ]; then
+            if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
+                logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
+                exit 1
+            else
+                logger "Check recommended minimum hardware requirements for Kibana done."
+            fi
+        fi
+
+        if [ -n "${wazuh}" ]; then
+            if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 1700 ]; then
+                logger -e "Your system does not meet the recommended minimum hardware requirements of 2Gb of RAM and 2 CPU cores . If you want to proceed with the installation use the -i option to ignore these requirements."
+                exit 1
+            else
+                logger "Check recommended minimum hardware requirements for Wazuh Manager done."
+            fi
+        fi
+
+        if [ -n "${aio}" ]; then
+            echo "${cores}"
+            if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
+                logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
+                exit 1
+            else
+                logger "Check recommended minimum hardware requirements for AIO done."
+            fi
         fi
     fi
 
@@ -319,8 +340,29 @@ function checkPreviousCertificates() {
 
 function checkSpecs() {
 
-    cores=$(cat /proc/cpuinfo | grep -c processor )
-    ram_gb=$(free -m | awk '/^Mem:/{print $2}')
+    coresFile="/proc/cpuinfo"
+    if [ -f "$coresFile" ]; then
+        cores=$(cat "$coresFile" | grep -c processor )
+    else
+        logger -e "The $coresFile does not exist."
+    fi
+
+    if [ -n "$(command -v free)" ]; then
+        ram_gb=$(free -m | awk '/^Mem:/{print $2}')
+    else
+        memFile="/proc/meminfo"
+        if [ -f "$memFile" ]; then
+            MEMinKB=$(cat "$memFile" | grep MemTotal | awk '/^MemTotal:/{print $2}')
+            ram_gb=$(( $MEMinKB / 1024 ))
+        else
+            logger -e "The $coresFile does not exist."
+        fi
+    fi
+
+
+
+
+
 
 }
 
@@ -338,6 +380,32 @@ function checkSystem() {
     else
         logger -e "Couldn'd find type of system"
         exit 1
+    fi
+
+}
+
+function checkTools() {
+
+    # -------------- Check tools required to run the script (awk, sed, etc.) -----------------------------------------
+
+    toolList=(  "awk" "cat" "chown" "cp" "curl" "echo" "export"
+                "free" "grep" "kill" "mkdir" "mv" "rm" "sed"
+                "sudo" "tar" "touch" "uname")
+
+    missingtoolsList=()
+    for command in "${toolList[@]}"
+    do
+        if [ -z "$(command -v ${command})" ]; then
+            missingtoolsList+="${command}, "
+        fi
+    done
+
+    if [ -n "${missingtoolsList}" ]; then
+
+        logger "---------------------------------- Missing tools -----------------------------------"
+        logger "The following command or commands are not present in the system: ${missingtoolsList} and must it is / they are necessary for the correct use of this tool."
+        exit 1
+
     fi
 
 }
