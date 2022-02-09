@@ -355,7 +355,7 @@ function checkSpecs() {
             MEMinKB=$(cat "$memFile" | grep MemTotal | awk '/^MemTotal:/{print $2}')
             ram_gb=$(( $MEMinKB / 1024 ))
         else
-            logger -e "The $coresFile does not exist."
+            logger -e "The $memFile does not exist."
         fi
     fi
 
@@ -403,7 +403,7 @@ function checkTools() {
     if [ -n "${missingtoolsList}" ]; then
 
         logger "---------------------------------- Missing tools -----------------------------------"
-        logger "The following command or commands are not present in the system: ${missingtoolsList} and must it is / they are necessary for the correct use of this tool."
+        logger "The following command or commands are not present in the system: ${missingtoolsList}. Those tools are necessary for the correct use of this tool."
         exit 1
 
     fi
