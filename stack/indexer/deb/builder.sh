@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Wazuh package builder
+# Wazuh indexer builder
 # Copyright (C) 2021, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
@@ -9,12 +9,14 @@
 # Foundation.
 
 set -ex
+
 # Script parameters to build the package
 target="wazuh-indexer"
 architecture=$1
 release=$2
 future=$3
-spec_reference=$4
+base_location=$4
+spec_reference=$5
 directory_base="/usr/share/wazuh-indexer"
 
 if [ -z "${release}" ]; then
@@ -54,14 +56,13 @@ cd ${build_dir}/${target} && tar -czf ${pkg_name}.orig.tar.gz "${pkg_name}"
 # Configure the package with the different parameters
 sed -i "s:VERSION:${version}:g" ${sources_dir}/debian/changelog
 sed -i "s:RELEASE:${release}:g" ${sources_dir}/debian/changelog
-sed -i "s:export INSTALLATION_DIR=.*:export INSTALLATION_DIR=${directory_base}:g" ${sources_dir}/debian/rules
 
 # Installing build dependencies
 cd ${sources_dir}
 mk-build-deps -ir -t "apt-get -o Debug::pkgProblemResolver=yes -y"
 
 # Build package
-debuild -b -uc -us
+debuild --no-lintian -eINSTALLATION_DIR="${directory_base}" -eBASE="${base_location}" -eBASE_VERSION="${version}" -b -uc -us
 
 deb_file="${target}_${version}-${release}_${architecture}.deb"
 
