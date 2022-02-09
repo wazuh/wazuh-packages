@@ -9,65 +9,65 @@ source "${base_dir}"/bach.sh
     base_path="/tmp/wazuh-cert-tool"
 }
 
-function load-cleanFiles() {
-    @load_function "${base_dir}/wazuh-cert-tool.sh" cleanFiles
+function load-cert_cleanFiles() {
+    @load_function "${base_dir}/wazuh-cert-tool.sh" cert_cleanFiles
 }
 
-test-01-cleanFiles() {
-    load-cleanFiles
-    cleanFiles
+test-01-cert_cleanFiles() {
+    load-cert_cleanFiles
+    cert_cleanFiles
 }
 
-test-01-cleanFiles-assert() {
+test-01-cert_cleanFiles-assert() {
     rm -f /tmp/wazuh-cert-tool/certs/*.csr
     rm -f /tmp/wazuh-cert-tool/certs/*.srl
     rm -f /tmp/wazuh-cert-tool/certs/*.conf
     rm -f /tmp/wazuh-cert-tool/certs/admin-key-temp.pem
 }
 
-function load-checkOpenSSL() {
-    @load_function "${base_dir}/wazuh-cert-tool.sh" checkOpenSSL
+function load-cert_checkOpenSSL() {
+    @load_function "${base_dir}/wazuh-cert-tool.sh" cert_checkOpenSSL
 }
 
-test-02-checkOpenSSL-no-openssl() {
-    load-checkOpenSSL
+test-02-cert_checkOpenSSL-no-openssl() {
+    load-cert_checkOpenSSL
     @mockfalse command -v openssl
-    checkOpenSSL
+    cert_checkOpenSSL
 }
 
-test-02-checkOpenSSL-no-openssl-assert() {
+test-02-cert_checkOpenSSL-no-openssl-assert() {
     exit 1
 }
 
-test-03-checkOpenSSL-correct() {
-    load-checkOpenSSL
+test-03-cert_checkOpenSSL-correct() {
+    load-cert_checkOpenSSL
     @mock command -v openssl === @out "/bin/openssl"
-    checkOpenSSL
+    cert_checkOpenSSL
     @assert-success
 }
 
-function load-generateAdmincertificate() {
-    @load_function "${base_dir}/wazuh-cert-tool.sh" generateAdmincertificate
+function load-cert_generateAdmincertificate() {
+    @load_function "${base_dir}/wazuh-cert-tool.sh" cert_generateAdmincertificate
 }
 
-test-04-generateAdmincertificate() {
-    load-generateAdmincertificate
-    generateAdmincertificate
+test-04-cert_generateAdmincertificate() {
+    load-cert_generateAdmincertificate
+    cert_generateAdmincertificate
 }
 
-test-04-generateAdmincertificate-assert() {
+test-04-cert_generateAdmincertificate-assert() {
     openssl genrsa -out /tmp/wazuh-cert-tool/certs/admin-key-temp.pem 2048
     openssl pkcs8 -inform PEM -outform PEM -in /tmp/wazuh-cert-tool/certs/admin-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out /tmp/wazuh-cert-tool/certs/admin-key.pem
     openssl req -new -key /tmp/wazuh-cert-tool/certs/admin-key.pem -out /tmp/wazuh-cert-tool/certs/admin.csr -batch -subj '/C=US/L=California/O=Wazuh/OU=Docu/CN=admin'
     openssl x509 -days 3650 -req -in /tmp/wazuh-cert-tool/certs/admin.csr -CA /tmp/wazuh-cert-tool/certs/root-ca.pem -CAkey /tmp/wazuh-cert-tool/certs/root-ca.key -CAcreateserial -sha256 -out /tmp/wazuh-cert-tool/certs/admin.pem
 }
 
-function load-generateCertificateconfiguration() {
-    @load_function "${base_dir}/wazuh-cert-tool.sh" generateCertificateconfiguration
+function load-cert_generateCertificateconfiguration() {
+    @load_function "${base_dir}/wazuh-cert-tool.sh" cert_generateCertificateconfiguration
 }
 
-test-05-generateCertificateconfiguration-IP() {
-    load-generateCertificateconfiguration
+test-05-cert_generateCertificateconfiguration-IP() {
+    load-cert_generateCertificateconfiguration
     @mkdir -p /tmp/wazuh-cert-tool/certs
     @touch /tmp/wazuh-cert-tool/certs/wazuh1.conf
     @mock echo 1.1.1.1 === @out ""
@@ -76,18 +76,18 @@ test-05-generateCertificateconfiguration-IP() {
     @mock grep -P "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$" === @out "1.1.1.1"
     @mock grep -P "^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$" === @out ""
     @mocktrue cat
-    generateCertificateconfiguration "wazuh1" "1.1.1.1"
+    cert_generateCertificateconfiguration "wazuh1" "1.1.1.1"
     @rm /tmp/wazuh-cert-tool/certs/wazuh1.conf
     @rmdir /tmp/wazuh-cert-tool/certs
 }
 
-test-05-generateCertificateconfiguration-IP-assert() {
+test-05-cert_generateCertificateconfiguration-IP-assert() {
     echo "conf"
     echo "conf2"
 }
 
-test-06-generateCertificateconfiguration-DNS() {
-    load-generateCertificateconfiguration
+test-06-cert_generateCertificateconfiguration-DNS() {
+    load-cert_generateCertificateconfiguration
     @mkdir -p /tmp/wazuh-cert-tool/certs
     @touch /tmp/wazuh-cert-tool/certs/wazuh1.conf
     @mock echo 1.1.1.1 === @out ""
@@ -97,19 +97,19 @@ test-06-generateCertificateconfiguration-DNS() {
     @mock grep -P "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$" === @out ""
     @mock grep -P "^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$" === @out "1.1.1.1"
     @mocktrue cat
-    generateCertificateconfiguration "wazuh1" "1.1.1.1"
+    cert_generateCertificateconfiguration "wazuh1" "1.1.1.1"
     @rm /tmp/wazuh-cert-tool/certs/wazuh1.conf
     @rmdir /tmp/wazuh-cert-tool/certs
 }
 
-test-06-generateCertificateconfiguration-DNS-assert() {
+test-06-cert_generateCertificateconfiguration-DNS-assert() {
     echo "conf"
     echo "conf2"
     echo "conf3"
 }
 
-test-07-generateCertificateconfiguration-error() {
-    load-generateCertificateconfiguration
+test-07-cert_generateCertificateconfiguration-error() {
+    load-cert_generateCertificateconfiguration
     @mkdir -p /tmp/wazuh-cert-tool/certs
     @touch /tmp/wazuh-cert-tool/certs/wazuh1.conf
     @mock echo 1.1.1.1 === @out ""
@@ -119,27 +119,27 @@ test-07-generateCertificateconfiguration-error() {
     @mockfalse grep -P "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"
     @mockfalse grep -P "^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$"
     @mocktrue cat
-    generateCertificateconfiguration "wazuh1" "1.1.1.1"
+    cert_generateCertificateconfiguration "wazuh1" "1.1.1.1"
     @rm /tmp/wazuh-cert-tool/certs/wazuh1.conf
     @rmdir /tmp/wazuh-cert-tool/certs
 }
 
-test-07-generateCertificateconfiguration-error-assert() {
+test-07-cert_generateCertificateconfiguration-error-assert() {
     echo "conf"
     exit 1
 }
 
 
-function load-generateRootCAcertificate() {
-    @load_function "${base_dir}/wazuh-cert-tool.sh" generateRootCAcertificate
+function load-cert_generateRootCAcertificate() {
+    @load_function "${base_dir}/wazuh-cert-tool.sh" cert_generateRootCAcertificate
 }
 
-test-08-generateRootCAcertificate() {
-    load-generateRootCAcertificate
-    generateRootCAcertificate
+test-08-cert_generateRootCAcertificate() {
+    load-cert_generateRootCAcertificate
+    cert_generateRootCAcertificate
 }
 
-test-08-generateRootCAcertificate-assert() {
+test-08-cert_generateRootCAcertificate-assert() {
     openssl req -x509 -new -nodes -newkey rsa:2048 -keyout /tmp/wazuh-cert-tool/certs/root-ca.key -out /tmp/wazuh-cert-tool/certs/root-ca.pem -batch -subj '/OU=Docu/O=Wazuh/L=California/' -days 3650
 }
 
@@ -162,40 +162,40 @@ test-10-generateElasticsearchcertificates-two-nodes() {
 }
 
 test-10-generateElasticsearchcertificates-two-nodes-assert() {
-    generateCertificateconfiguration elastic1 1.1.1.1
+    cert_generateCertificateconfiguration elastic1 1.1.1.1
     openssl req -new -nodes -newkey rsa:2048 -keyout /tmp/wazuh-cert-tool/certs/elastic1-key.pem -out /tmp/wazuh-cert-tool/certs/elastic1.csr -config /tmp/wazuh-cert-tool/certs/elastic1.conf -days 3650
     openssl x509 -req -in /tmp/wazuh-cert-tool/certs/elastic1.csr -CA /tmp/wazuh-cert-tool/certs/root-ca.pem -CAkey /tmp/wazuh-cert-tool/certs/root-ca.key -CAcreateserial -out /tmp/wazuh-cert-tool/certs/elastic1.pem -extfile /tmp/wazuh-cert-tool/certs/elastic1.conf -extensions v3_req -days 3650
     chmod 444 /tmp/wazuh-cert-tool/certs/elastic1-key.pem
-    generateCertificateconfiguration elastic2 1.1.1.2
+    cert_generateCertificateconfiguration elastic2 1.1.1.2
     openssl req -new -nodes -newkey rsa:2048 -keyout /tmp/wazuh-cert-tool/certs/elastic2-key.pem -out /tmp/wazuh-cert-tool/certs/elastic2.csr -config /tmp/wazuh-cert-tool/certs/elastic2.conf -days 3650
     openssl x509 -req -in /tmp/wazuh-cert-tool/certs/elastic2.csr -CA /tmp/wazuh-cert-tool/certs/root-ca.pem -CAkey /tmp/wazuh-cert-tool/certs/root-ca.key -CAcreateserial -out /tmp/wazuh-cert-tool/certs/elastic2.pem -extfile /tmp/wazuh-cert-tool/certs/elastic2.conf -extensions v3_req -days 3650
     chmod 444 /tmp/wazuh-cert-tool/certs/elastic2-key.pem
 
 }
 
-function load-generateFilebeatcertificates() {
-    @load_function "${base_dir}/wazuh-cert-tool.sh" generateFilebeatcertificates
+function load-cert_generateFilebeatcertificates() {
+    @load_function "${base_dir}/wazuh-cert-tool.sh" cert_generateFilebeatcertificates
 }
 
-test-11-generateFilebeatcertificates-no-nodes() {
-    load-generateFilebeatcertificates
+test-11-cert_generateFilebeatcertificates-no-nodes() {
+    load-cert_generateFilebeatcertificates
     wazuh_servers_node_names=()
-    generateFilebeatcertificates
+    cert_generateFilebeatcertificates
     @assert-success
 }
 
-test-12-generateFilebeatcertificates-two-nodes() {
-    load-generateFilebeatcertificates
+test-12-cert_generateFilebeatcertificates-two-nodes() {
+    load-cert_generateFilebeatcertificates
     wazuh_servers_node_names=("wazuh1" "wazuh2")
     wazuh_servers_node_ips=("1.1.1.1" "1.1.1.2")
-    generateFilebeatcertificates
+    cert_generateFilebeatcertificates
 }
 
-test-12-generateFilebeatcertificates-two-nodes-assert() {
-    generateCertificateconfiguration "wazuh1" "1.1.1.1"
+test-12-cert_generateFilebeatcertificates-two-nodes-assert() {
+    cert_generateCertificateconfiguration "wazuh1" "1.1.1.1"
     openssl req -new -nodes -newkey rsa:2048 -keyout /tmp/wazuh-cert-tool/certs/wazuh1-key.pem -out /tmp/wazuh-cert-tool/certs/wazuh1.csr -config /tmp/wazuh-cert-tool/certs/wazuh1.conf -days 3650
     openssl x509 -req -in /tmp/wazuh-cert-tool/certs/wazuh1.csr -CA /tmp/wazuh-cert-tool/certs/root-ca.pem -CAkey /tmp/wazuh-cert-tool/certs/root-ca.key -CAcreateserial -out /tmp/wazuh-cert-tool/certs/wazuh1.pem -extfile /tmp/wazuh-cert-tool/certs/wazuh1.conf -extensions v3_req -days 3650
-    generateCertificateconfiguration "wazuh2" "1.1.1.2"
+    cert_generateCertificateconfiguration "wazuh2" "1.1.1.2"
     openssl req -new -nodes -newkey rsa:2048 -keyout /tmp/wazuh-cert-tool/certs/wazuh2-key.pem -out /tmp/wazuh-cert-tool/certs/wazuh2.csr -config /tmp/wazuh-cert-tool/certs/wazuh2.conf -days 3650
     openssl x509 -req -in /tmp/wazuh-cert-tool/certs/wazuh2.csr -CA /tmp/wazuh-cert-tool/certs/root-ca.pem -CAkey /tmp/wazuh-cert-tool/certs/root-ca.key -CAcreateserial -out /tmp/wazuh-cert-tool/certs/wazuh2.pem -extfile /tmp/wazuh-cert-tool/certs/wazuh2.conf -extensions v3_req -days 3650
 
@@ -220,43 +220,43 @@ test-14-generateKibanacertificates-two-nodes() {
 }
 
 test-14-generateKibanacertificates-two-nodes-assert() {
-    generateCertificateconfiguration "kibana1" "1.1.1.1"
+    cert_generateCertificateconfiguration "kibana1" "1.1.1.1"
     openssl req -new -nodes -newkey rsa:2048 -keyout /tmp/wazuh-cert-tool/certs/kibana1-key.pem -out /tmp/wazuh-cert-tool/certs/kibana1.csr -config /tmp/wazuh-cert-tool/certs/kibana1.conf -days 3650
     openssl x509 -req -in /tmp/wazuh-cert-tool/certs/kibana1.csr -CA /tmp/wazuh-cert-tool/certs/root-ca.pem -CAkey /tmp/wazuh-cert-tool/certs/root-ca.key -CAcreateserial -out /tmp/wazuh-cert-tool/certs/kibana1.pem -extfile /tmp/wazuh-cert-tool/certs/kibana1.conf -extensions v3_req -days 3650
     chmod 444 /tmp/wazuh-cert-tool/certs/kibana1-key.pem
-    generateCertificateconfiguration "kibana2" "1.1.1.2"
+    cert_generateCertificateconfiguration "kibana2" "1.1.1.2"
     openssl req -new -nodes -newkey rsa:2048 -keyout /tmp/wazuh-cert-tool/certs/kibana2-key.pem -out /tmp/wazuh-cert-tool/certs/kibana2.csr -config /tmp/wazuh-cert-tool/certs/kibana2.conf -days 3650
     openssl x509 -req -in /tmp/wazuh-cert-tool/certs/kibana2.csr -CA /tmp/wazuh-cert-tool/certs/root-ca.pem -CAkey /tmp/wazuh-cert-tool/certs/root-ca.key -CAcreateserial -out /tmp/wazuh-cert-tool/certs/kibana2.pem -extfile /tmp/wazuh-cert-tool/certs/kibana2.conf -extensions v3_req -days 3650
     chmod 444 /tmp/wazuh-cert-tool/certs/kibana2-key.pem
 }
 
-function load-readConfig() {
-    @load_function "${base_dir}/wazuh-cert-tool.sh" readConfig
+function load-cert_readConfig() {
+    @load_function "${base_dir}/wazuh-cert-tool.sh" cert_readConfig
     config_file="${base_path}/config.yml"
 }
 
-test-ASSERT-FAIL-15-readConfig-empty-file() {
-    load-readConfig
+test-ASSERT-FAIL-15-cert_readConfig-empty-file() {
+    load-cert_readConfig
     @mkdir -p ${base_dir}
     @rm "${config_file}"
     @touch ${config_file}
-    readConfig
+    cert_readConfig
     @rm ${config_file}
 }
 
-test-ASSERT-FAIL-16-readConfig-no-file() {
-    load-readConfig
+test-ASSERT-FAIL-16-cert_readConfig-no-file() {
+    load-cert_readConfig
     @rm "${config_file}"
-    readConfig
+    cert_readConfig
 }
 
-test-ASSERT-FAIL-17-readConfig-duplicated-elastic-node-names() {
-    load-readConfig
+test-ASSERT-FAIL-17-cert_readConfig-duplicated-elastic-node-names() {
+    load-cert_readConfig
     @mkdir -p "${base_path}"
     @touch "${config_file}"
     @echo "config_file" > "${config_file}"
     
-    @mock parse_yaml /tmp/wazuh-cert-tool/config.yml === @out
+    @mock cert_parseYaml /tmp/wazuh-cert-tool/config.yml === @out
     @mock grep nodes_elasticsearch_name === @out "elastic1 elastic1 elastic2"
     @mock sed 's/nodes_elasticsearch_name=//'
     @mock grep nodes_wazuh_servers_name === @out "wazuh1 wazuh2"
@@ -293,17 +293,17 @@ test-ASSERT-FAIL-17-readConfig-duplicated-elastic-node-names() {
     @mock grep -io master === @out 1
     @mock grep -io worker === @out 1
 
-    readConfig
+    cert_readConfig
     @rm "${config_file}"
 }
 
-test-ASSERT-FAIL-18-readConfig-duplicated-elastic-node-ips() {
-    load-readConfig
+test-ASSERT-FAIL-18-cert_readConfig-duplicated-elastic-node-ips() {
+    load-cert_readConfig
     @mkdir -p "${base_path}"
     @touch "${config_file}"
     @echo "config_file" > "${config_file}"
     
-    @mock parse_yaml /tmp/wazuh-cert-tool/config.yml === @out
+    @mock cert_parseYaml /tmp/wazuh-cert-tool/config.yml === @out
     @mock grep nodes_elasticsearch_name === @out "elastic1 elastic2"
     @mock sed 's/nodes_elasticsearch_name=//'
     @mock grep nodes_wazuh_servers_name === @out "wazuh1 wazuh2"
@@ -340,17 +340,17 @@ test-ASSERT-FAIL-18-readConfig-duplicated-elastic-node-ips() {
     @mock grep -io master === @out 1
     @mock grep -io worker === @out 1
     
-    readConfig
+    cert_readConfig
     @rm "${config_file}"
 }
 
-test-ASSERT-FAIL-19-readConfig-duplicated-wazuh-node-names() {
-    load-readConfig
+test-ASSERT-FAIL-19-cert_readConfig-duplicated-wazuh-node-names() {
+    load-cert_readConfig
     @mkdir -p "${base_path}"
     @touch "${config_file}"
     @echo "config_file" > "${config_file}"
     
-    @mock parse_yaml /tmp/wazuh-cert-tool/config.yml === @out
+    @mock cert_parseYaml /tmp/wazuh-cert-tool/config.yml === @out
     @mock grep nodes_elasticsearch_name === @out "elastic1 elastic2"
     @mock sed 's/nodes_elasticsearch_name=//'
     @mock grep nodes_wazuh_servers_name === @out "wazuh1 wazuh2"
@@ -386,17 +386,17 @@ test-ASSERT-FAIL-19-readConfig-duplicated-wazuh-node-names() {
     @mock grep -io master === @out 1
     @mock grep -io worker === @out 1
     
-    readConfig
+    cert_readConfig
     @rm "${config_file}"
 }
 
-test-ASSERT-FAIL-20-readConfig-duplicated-wazuh-node-ips() {
-    load-readConfig
+test-ASSERT-FAIL-20-cert_readConfig-duplicated-wazuh-node-ips() {
+    load-cert_readConfig
     @mkdir -p "${base_path}"
     @touch "${config_file}"
     @echo "config_file" > "${config_file}"
     
-    @mock parse_yaml /tmp/wazuh-cert-tool/config.yml === @out
+    @mock cert_parseYaml /tmp/wazuh-cert-tool/config.yml === @out
     @mock grep nodes_elasticsearch_name === @out "elastic1 elastic2"
     @mock sed 's/nodes_elasticsearch_name=//'
     @mock grep nodes_wazuh_servers_name === @out "wazuh1 wazuh2"
@@ -433,17 +433,17 @@ test-ASSERT-FAIL-20-readConfig-duplicated-wazuh-node-ips() {
     @mock grep -io master === @out 1
     @mock grep -io worker === @out 1
     
-    readConfig
+    cert_readConfig
     @rm "${config_file}"
 }
 
-test-ASSERT-FAIL-21-readConfig-duplicated-kibana-node-names() {
-    load-readConfig
+test-ASSERT-FAIL-21-cert_readConfig-duplicated-kibana-node-names() {
+    load-cert_readConfig
     @mkdir -p "${base_path}"
     @touch "${config_file}"
     @echo "config_file" > "${config_file}"
     
-    @mock parse_yaml /tmp/wazuh-cert-tool/config.yml === @out
+    @mock cert_parseYaml /tmp/wazuh-cert-tool/config.yml === @out
     @mock grep nodes_elasticsearch_name === @out "elastic1 elastic2"
     @mock sed 's/nodes_elasticsearch_name=//'
     @mock grep nodes_wazuh_servers_name === @out "wazuh1 wazuh2"
@@ -480,17 +480,17 @@ test-ASSERT-FAIL-21-readConfig-duplicated-kibana-node-names() {
     @mock grep -io master === @out 1
     @mock grep -io worker === @out 1
     
-    readConfig
+    cert_readConfig
     @rm "${config_file}"
 }
 
-test-ASSERT-FAIL-22-readConfig-duplicated-kibana-node-ips() {
-    load-readConfig
+test-ASSERT-FAIL-22-cert_readConfig-duplicated-kibana-node-ips() {
+    load-cert_readConfig
     @mkdir -p "${base_path}"
     @touch "${config_file}"
     @echo "config_file" > "${config_file}"
     
-    @mock parse_yaml /tmp/wazuh-cert-tool/config.yml === @out
+    @mock cert_parseYaml /tmp/wazuh-cert-tool/config.yml === @out
     @mock grep nodes_elasticsearch_name === @out "elastic1 elastic2"
     @mock sed 's/nodes_elasticsearch_name=//'
     @mock grep nodes_wazuh_servers_name === @out "wazuh1 wazuh2"
@@ -526,17 +526,17 @@ test-ASSERT-FAIL-22-readConfig-duplicated-kibana-node-ips() {
     @mock grep -io master === @out 1
     @mock grep -io worker === @out 1
     
-    readConfig
+    cert_readConfig
     @rm "${config_file}"
 }
 
-test-ASSERT-FAIL-23-readConfig-different-number-of-wazuh-names-and-ips() {
-    load-readConfig
+test-ASSERT-FAIL-23-cert_readConfig-different-number-of-wazuh-names-and-ips() {
+    load-cert_readConfig
     @mkdir -p "${base_path}"
     @touch "${config_file}"
     @echo "config_file" > "${config_file}"
     
-    @mock parse_yaml /tmp/wazuh-cert-tool/config.yml === @out
+    @mock cert_parseYaml /tmp/wazuh-cert-tool/config.yml === @out
     @mock grep nodes_elasticsearch_name === @out "elastic1 elastic2"
     @mock sed 's/nodes_elasticsearch_name=//'
     @mock grep nodes_wazuh_servers_name === @out "wazuh1"
@@ -572,17 +572,17 @@ test-ASSERT-FAIL-23-readConfig-different-number-of-wazuh-names-and-ips() {
     @mock grep -io master === @out 1
     @mock grep -io worker === @out 1
     
-    readConfig
+    cert_readConfig
     @rm "${config_file}"
 }
 
-test-ASSERT-FAIL-24-readConfig-incorrect-wazuh-node-type() {
-    load-readConfig
+test-ASSERT-FAIL-24-cert_readConfig-incorrect-wazuh-node-type() {
+    load-cert_readConfig
     @mkdir -p "${base_path}"
     @touch "${config_file}"
     @echo "config_file" > "${config_file}"
     
-    @mock parse_yaml /tmp/wazuh-cert-tool/config.yml === @out
+    @mock cert_parseYaml /tmp/wazuh-cert-tool/config.yml === @out
     @mock grep nodes_elasticsearch_name === @out "elastic1 elastic2"
     @mock sed 's/nodes_elasticsearch_name=//'
     @mock grep nodes_wazuh_servers_name === @out "wazuh1 wazuh2"
@@ -619,17 +619,17 @@ test-ASSERT-FAIL-24-readConfig-incorrect-wazuh-node-type() {
     @mock grep -io master === @out 1
     @mock grep -io worker === @out 1
     
-    readConfig
+    cert_readConfig
     @rm "${config_file}"
 }
 
-test-ASSERT-FAIL-25-readConfig-wazuh-node-type-one-node() {
-    load-readConfig
+test-ASSERT-FAIL-25-cert_readConfig-wazuh-node-type-one-node() {
+    load-cert_readConfig
     @mkdir -p "${base_path}"
     @touch "${config_file}"
     @echo "config_file" > "${config_file}"
     
-    @mock parse_yaml /tmp/wazuh-cert-tool/config.yml === @out
+    @mock cert_parseYaml /tmp/wazuh-cert-tool/config.yml === @out
     @mock grep nodes_elasticsearch_name === @out "elastic1 elastic2"
     @mock sed 's/nodes_elasticsearch_name=//'
     @mock grep nodes_wazuh_servers_name === @out "wazuh1"
@@ -665,17 +665,17 @@ test-ASSERT-FAIL-25-readConfig-wazuh-node-type-one-node() {
     @mock grep -io master === @out 1
     @mock grep -io worker === @out 1
     
-    readConfig
+    cert_readConfig
     @rm "${config_file}"
 }
 
-test-ASSERT-FAIL-26-readConfig-less-wazuh-node-types-than-nodes() {
-    load-readConfig
+test-ASSERT-FAIL-26-cert_readConfig-less-wazuh-node-types-than-nodes() {
+    load-cert_readConfig
     @mkdir -p "${base_path}"
     @touch "${config_file}"
     @echo "config_file" > "${config_file}"
     
-    @mock parse_yaml /tmp/wazuh-cert-tool/config.yml === @out
+    @mock cert_parseYaml /tmp/wazuh-cert-tool/config.yml === @out
     @mock grep nodes_elasticsearch_name === @out "elastic1 elastic2"
     @mock sed 's/nodes_elasticsearch_name=//'
     @mock grep nodes_wazuh_servers_name === @out "wazuh1 wazuh2"
@@ -712,17 +712,17 @@ test-ASSERT-FAIL-26-readConfig-less-wazuh-node-types-than-nodes() {
     @mock grep -io master === @out 1
     @mock grep -io worker === @out 1
     
-    readConfig
+    cert_readConfig
     @rm "${config_file}"
 }
 
-test-ASSERT-FAIL-27-readConfig-different-number-of-kibana-names-and-ips() {
-    load-readConfig
+test-ASSERT-FAIL-27-cert_readConfig-different-number-of-kibana-names-and-ips() {
+    load-cert_readConfig
     @mkdir -p "${base_path}"
     @touch "${config_file}"
     @echo "config_file" > "${config_file}"
     
-    @mock parse_yaml /tmp/wazuh-cert-tool/config.yml === @out
+    @mock cert_parseYaml /tmp/wazuh-cert-tool/config.yml === @out
     @mock grep nodes_elasticsearch_name === @out "elastic1 elastic2"
     @mock sed 's/nodes_elasticsearch_name=//'
     @mock grep nodes_wazuh_servers_name === @out "wazuh1 wazuh2"
@@ -759,17 +759,17 @@ test-ASSERT-FAIL-27-readConfig-different-number-of-kibana-names-and-ips() {
     @mock grep -io master === @out 1
     @mock grep -io worker === @out 1
 
-    readConfig
+    cert_readConfig
     @rm "${config_file}"
 }
 
-test-28-readConfig-everything-correct() {
-    load-readConfig
+test-28-cert_readConfig-everything-correct() {
+    load-cert_readConfig
     @mkdir -p "${base_path}"
     @touch "${config_file}"
     @echo "config_file" > "${config_file}"
     
-    @mock parse_yaml /tmp/wazuh-cert-tool/config.yml === @out
+    @mock cert_parseYaml /tmp/wazuh-cert-tool/config.yml === @out
     @mock grep nodes_elasticsearch_name === @out "elastic1 elastic2"
     @mock sed 's/nodes_elasticsearch_name=//'
     @mock grep nodes_wazuh_servers_name === @out "wazuh1 wazuh2"
@@ -806,7 +806,7 @@ test-28-readConfig-everything-correct() {
     @mock grep -io master === @out 1
     @mock grep -io worker === @out 1
 
-    readConfig
+    cert_readConfig
     @rm "${config_file}"
     @echo "${indexer_node_names[@]}"
     @echo "${indexer_node_ips[@]}"
@@ -816,7 +816,7 @@ test-28-readConfig-everything-correct() {
     @echo "${kibana_node_ips[@]}"
 }
 
-test-28-readConfig-everything-correct-assert() {
+test-28-cert_readConfig-everything-correct-assert() {
     @echo elastic1 elastic2
     @echo 1.1.1.1 1.1.1.2
     @echo wazuh1 wazuh2

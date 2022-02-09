@@ -933,16 +933,16 @@ test-47-common_createCertificates-aio() {
 test-47-common_createCertificates-aio-assert() {
     common_getConfig certificate/config_aio.yml /tmp/config.yml
 
-    readConfig
+    cert_readConfig
 
     mkdir /tmp/certs
 
-    generateRootCAcertificate
-    generateAdmincertificate
+    cert_generateRootCAcertificate
+    cert_generateAdmincertificate
     generateElasticsearchcertificates
-    generateFilebeatcertificates
+    cert_generateFilebeatcertificates
     generateKibanacertificates
-    cleanFiles
+    cert_cleanFiles
 }
 
 test-48-common_createCertificates-no-aio() {
@@ -953,16 +953,16 @@ test-48-common_createCertificates-no-aio() {
 
 test-48-common_createCertificates-no-aio-assert() {
 
-    readConfig
+    cert_readConfig
 
     mkdir /tmp/certs
 
-    generateRootCAcertificate
-    generateAdmincertificate
+    cert_generateRootCAcertificate
+    cert_generateAdmincertificate
     generateElasticsearchcertificates
-    generateFilebeatcertificates
+    cert_generateFilebeatcertificates
     generateKibanacertificates
-    cleanFiles
+    cert_cleanFiles
 }
 
 function load-common_changePasswords() {
@@ -987,9 +987,9 @@ test-50-common_changePasswords-with-tarfile() {
 }
 
 test-50-common_changePasswords-with-tarfile-assert() {
-    checkInstalledPass
+    passwords-checkInstalledPass
     common_readPasswordFileUsers
-    changePassword
+    passwords-changePassword
     rm -rf /tmp/password_file.yml
     @echo 
 }
@@ -1007,14 +1007,14 @@ test-51-common_changePasswords-with-tarfile-aio() {
 }
 
 test-51-common_changePasswords-with-tarfile-aio-assert() {
-    checkInstalledPass
-    readUsers
+    passwords-checkInstalledPass
+    passwords-readUsers
     common_readPasswordFileUsers
-    getNetworkHost
-    createBackUp
-    generateHash
-    changePassword
-    runSecurityAdmin
+    passwords-getNetworkHost
+    passwords-createBackUp
+    passwords-generateHash
+    passwords-changePassword
+    passwords-runSecurityAdmin
     rm -rf /tmp/password_file.yml
     @echo 1
 }
@@ -1032,14 +1032,14 @@ test-52-common_changePasswords-with-tarfile-start-elastic-cluster() {
 }
 
 test-52-common_changePasswords-with-tarfile-start-elastic-cluster-assert() {
-    checkInstalledPass
-    readUsers
+    passwords-checkInstalledPass
+    passwords-readUsers
     common_readPasswordFileUsers
-    getNetworkHost
-    createBackUp
-    generateHash
-    changePassword
-    runSecurityAdmin
+    passwords-getNetworkHost
+    passwords-createBackUp
+    passwords-generateHash
+    passwords-changePassword
+    passwords-runSecurityAdmin
     rm -rf /tmp/password_file.yml
     @echo 1
 }

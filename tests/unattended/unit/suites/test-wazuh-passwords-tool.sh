@@ -7,19 +7,19 @@ source "${base_dir}"/bach.sh
     @ignore logger_pass
 }
 
-function load-readFileUsers() {
-    @load_function "${base_dir}/wazuh-passwords-tool.sh" readFileUsers
+function load-passwords-readFileUsers() {
+    @load_function "${base_dir}/wazuh-passwords-tool.sh" passwords-readFileUsers
 }
 
-test-ASSERT-FAIL-01-readFileUsers-file-incorrect() {
-    load-readFileUsers
+test-ASSERT-FAIL-01-passwords-readFileUsers-file-incorrect() {
+    load-passwords-readFileUsers
     p_file=/tmp/passfile.yml
     @mock grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' /tmp/passfile.yml === @echo 0
-    readFileUsers
+    passwords-readFileUsers
 }
 
-test-02-readFileUsers-changeall-correct() {
-    load-readFileUsers
+test-02-passwords-readFileUsers-changeall-correct() {
+    load-passwords-readFileUsers
     p_file=/tmp/passfile.yml
     @mock grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' /tmp/passfile.yml === @echo 1
     @mock grep name: /tmp/passfile.yml === @echo wazuh kibanaserver
@@ -28,22 +28,22 @@ test-02-readFileUsers-changeall-correct() {
     @mock awk '{ print substr( $2, 1, length($2) ) }'
     changeall=1
     users=( wazuh kibanaserver )
-    readFileUsers
+    passwords-readFileUsers
     @echo ${fileusers[*]}
     @echo ${filepasswords[*]}
     @echo ${users[*]}
     @echo ${passwords[*]}
 }
 
-test-02-readFileUsers-changeall-correct-assert() {
+test-02-passwords-readFileUsers-changeall-correct-assert() {
     @echo wazuh kibanaserver
     @echo wazuhpassword kibanaserverpassword
     @echo wazuh kibanaserver
     @echo wazuhpassword kibanaserverpassword
 }
 
-test-03-readFileUsers-changeall-user-doesnt-exist() {
-    load-readFileUsers
+test-03-passwords-readFileUsers-changeall-user-doesnt-exist() {
+    load-passwords-readFileUsers
     p_file=/tmp/passfile.yml
     @mock grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' /tmp/passfile.yml === @echo 1
     @mock grep name: /tmp/passfile.yml === @out wazuh kibanaserver admin
@@ -52,22 +52,22 @@ test-03-readFileUsers-changeall-user-doesnt-exist() {
     @mock awk '{ print substr( $2, 1, length($2) ) }'
     changeall=1
     users=( wazuh kibanaserver )
-    readFileUsers
+    passwords-readFileUsers
     @echo ${fileusers[*]}
     @echo ${filepasswords[*]}
     @echo ${users[*]}
     @echo ${passwords[*]}
 }
 
-test-03-readFileUsers-changeall-user-doesnt-exist-assert() {
+test-03-passwords-readFileUsers-changeall-user-doesnt-exist-assert() {
     @echo wazuh kibanaserver admin
     @echo wazuhpassword kibanaserverpassword
     @echo wazuh kibanaserver
     @echo wazuhpassword kibanaserverpassword
 }
 
-test-04-readFileUsers-no-changeall-correct() {
-    load-readFileUsers
+test-04-passwords-readFileUsers-no-changeall-correct() {
+    load-passwords-readFileUsers
     p_file=/tmp/passfile.yml
     @mock grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' /tmp/passfile.yml === @echo 1
     @mock grep name: /tmp/passfile.yml === @out wazuh kibanaserver admin
@@ -78,26 +78,26 @@ test-04-readFileUsers-no-changeall-correct() {
     kibanainstalled=1
     kibana=1
     users=( kibanaserver admin )
-    readFileUsers
+    passwords-readFileUsers
     @echo ${fileusers[*]}
     @echo ${filepasswords[*]}
     @echo ${users[*]}
     @echo ${passwords[*]}
 }
 
-test-04-readFileUsers-no-changeall-correct-assert() {
+test-04-passwords-readFileUsers-no-changeall-correct-assert() {
     @echo wazuh kibanaserver admin
     @echo wazuhpassword kibanaserverpassword adminpassword
     @echo kibanaserver admin
     @echo kibanaserverpassword adminpassword
 }
 
-function load-changePassword() {
-    @load_function "${base_dir}/wazuh-passwords-tool.sh" changePassword
+function load-passwords-changePassword() {
+    @load_function "${base_dir}/wazuh-passwords-tool.sh" passwords-changePassword
 }
 
-test-05-changePassword-changeall-all-users-all-installed() {
-    load-changePassword
+test-05-passwords-changePassword-changeall-all-users-all-installed() {
+    load-passwords-changePassword
     changeall=1
     indexerchinstalled=1
     filebeatinstalled=1
@@ -115,13 +115,13 @@ test-05-changePassword-changeall-all-users-all-installed() {
     @mock awk '{sub("password: .*", "password: adminpassword")}1' /etc/filebeat/filebeat.yml === @out "admin_configuration_string"
     @mock grep "password:" /etc/kibana/kibana.yml === @out "kibanapasswordold"
     @mock awk '{sub("elasticsearch.password: .*", "elasticsearch.password: kibanaserverpassword")}1' /etc/kibana/kibana.yml === @out "kibanaserver_configuration_string"
-    changePassword
+    passwords-changePassword
     @rm /usr/share/wazuh-indexer/backup/internal_users.yml
     @rm /etc/filebeat/filebeat.yml
     @rm /etc/kibana/kibana.yml
 }
 
-test-05-changePassword-changeall-all-users-all-installed-assert() {
+test-05-passwords-changePassword-changeall-all-users-all-installed-assert() {
     awk -v new=11 'prev=="kibanaserver:"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/wazuh-indexer/backup/internal_users.yml
     mv -f internal_users.yml_tmp /usr/share/wazuh-indexer/backup/internal_users.yml
     awk -v new=22 'prev=="admin:"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/wazuh-indexer/backup/internal_users.yml
@@ -132,8 +132,8 @@ test-05-changePassword-changeall-all-users-all-installed-assert() {
     recommon_startService "kibana"
 }
 
-test-06-changePassword-nuser-kibanaserver-kibana-installed() {
-    load-changePassword
+test-06-passwords-changePassword-nuser-kibanaserver-kibana-installed() {
+    load-passwords-changePassword
     @mkdir -p /usr/share/wazuh-indexer/backup/
     @touch /usr/share/wazuh-indexer/backup/internal_users.yml
     @mkdir -p /etc/kibana
@@ -145,20 +145,20 @@ test-06-changePassword-nuser-kibanaserver-kibana-installed() {
     indexerchinstalled=1
     @mock grep "password:" /etc/kibana/kibana.yml === @out "kibanapasswordold"
     @mock awk '{sub("elasticsearch.password: .*", "elasticsearch.password: kibanaserverpassword")}1' /etc/kibana/kibana.yml === @out "kibanaserver_configuration_string"
-    changePassword
+    passwords-changePassword
     @rm /usr/share/wazuh-indexer/backup/internal_users.yml
     @rm /etc/kibana/kibana.yml
 }
 
-test-06-changePassword-nuser-kibanaserver-kibana-installed-assert() {
+test-06-passwords-changePassword-nuser-kibanaserver-kibana-installed-assert() {
     awk -v new="11" 'prev=="kibanaserver:"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/wazuh-indexer/backup/internal_users.yml
     mv -f internal_users.yml_tmp /usr/share/wazuh-indexer/backup/internal_users.yml
     echo "kibanaserver_configuration_string"
     recommon_startService "kibana"
 }
 
-test-07-changePassword-nuser-kibanaserver-kibana-not-installed() {
-    load-changePassword
+test-07-passwords-changePassword-nuser-kibanaserver-kibana-not-installed() {
+    load-passwords-changePassword
     @mkdir -p /usr/share/wazuh-indexer/backup/
     @touch /usr/share/wazuh-indexer/backup/internal_users.yml
     @mkdir -p /etc/kibana
@@ -170,18 +170,18 @@ test-07-changePassword-nuser-kibanaserver-kibana-not-installed() {
     indexerchinstalled=1
     @mock grep "password:" /etc/kibana/kibana.yml === @out "kibanapasswordold"
     @mock awk '{sub("elasticsearch.password: .*", "elasticsearch.password: kibanaserverpassword")}1' /etc/kibana/kibana.yml === @out "kibanaserver_configuration_string"
-    changePassword
+    passwords-changePassword
     @rm /usr/share/wazuh-indexer/backup/internal_users.yml
     @rm /etc/kibana/kibana.yml
 }
 
-test-07-changePassword-nuser-kibanaserver-kibana-not-installed-assert() {
+test-07-passwords-changePassword-nuser-kibanaserver-kibana-not-installed-assert() {
     awk -v new="11" 'prev=="kibanaserver:"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/wazuh-indexer/backup/internal_users.yml
     mv -f internal_users.yml_tmp /usr/share/wazuh-indexer/backup/internal_users.yml
 }
 
-test-08-changePassword-nuser-admin-filebeat-installed() {
-    load-changePassword
+test-08-passwords-changePassword-nuser-admin-filebeat-installed() {
+    load-passwords-changePassword
     changeall=
     indexerchinstalled=1
     filebeatinstalled=1
@@ -194,20 +194,20 @@ test-08-changePassword-nuser-admin-filebeat-installed() {
     @touch /etc/filebeat/filebeat.yml
     @mock grep "password:" /etc/filebeat/filebeat.yml === @out "wazuhpasswordold"
     @mock awk '{sub("password: .*", "password: adminpassword")}1' /etc/filebeat/filebeat.yml === @out "admin_configuration_string"
-    changePassword
+    passwords-changePassword
     @rm /usr/share/wazuh-indexer/backup/internal_users.yml
     @rm /etc/filebeat/filebeat.yml
 }
 
-test-08-changePassword-nuser-admin-filebeat-installed-assert() {
+test-08-passwords-changePassword-nuser-admin-filebeat-installed-assert() {
     awk -v new=11 'prev=="admin:"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/wazuh-indexer/backup/internal_users.yml
     mv -f internal_users.yml_tmp /usr/share/wazuh-indexer/backup/internal_users.yml
     echo "admin_configuration_string"
     recommon_startService "filebeat"
 }
 
-test-09-changePassword-nuser-admin-filebeat-not-installed() {
-    load-changePassword
+test-09-passwords-changePassword-nuser-admin-filebeat-not-installed() {
+    load-passwords-changePassword
     changeall=
     indexerchinstalled=1
     filebeatinstalled=
@@ -220,18 +220,18 @@ test-09-changePassword-nuser-admin-filebeat-not-installed() {
     @touch /etc/filebeat/filebeat.yml
     @mock grep "password:" /etc/filebeat/filebeat.yml === @out "wazuhpasswordold"
     @mock awk '{sub("password: .*", "password: adminpassword")}1' /etc/filebeat/filebeat.yml === @out "admin_configuration_string"
-    changePassword
+    passwords-changePassword
     @rm /usr/share/wazuh-indexer/backup/internal_users.yml
     @rm /etc/filebeat/filebeat.yml
 }
 
-test-09-changePassword-nuser-admin-filebeat-not-installed-assert() {
+test-09-passwords-changePassword-nuser-admin-filebeat-not-installed-assert() {
     awk -v new=11 'prev=="admin:"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/wazuh-indexer/backup/internal_users.yml
     mv -f internal_users.yml_tmp /usr/share/wazuh-indexer/backup/internal_users.yml
 }
 
-test-10-changePassword-changeall-all-users-nothing-installed() {
-    load-changePassword
+test-10-passwords-changePassword-changeall-all-users-nothing-installed() {
+    load-passwords-changePassword
     changeall=1
     indexerchinstalled=
     filebeatinstalled=
@@ -249,19 +249,19 @@ test-10-changePassword-changeall-all-users-nothing-installed() {
     @mock awk '{sub("password: .*", "password: adminpassword")}1' /etc/filebeat/filebeat.yml === @out "admin_configuration_string"
     @mock grep "password:" /etc/kibana/kibana.yml === @out "kibanapasswordold"
     @mock awk '{sub("elasticsearch.password: .*", "elasticsearch.password: kibanaserverpassword")}1' /etc/kibana/kibana.yml === @out "kibanaserver_configuration_string"
-    changePassword
+    passwords-changePassword
     @assert-success
     @rm /usr/share/wazuh-indexer/backup/internal_users.yml
     @rm /etc/filebeat/filebeat.yml
     @rm /etc/kibana/kibana.yml
 }
 
-function load-checkInstalledPass() {
-    @load_function "${base_dir}/wazuh-passwords-tool.sh" checkInstalledPass
+function load-passwords-checkInstalledPass() {
+    @load_function "${base_dir}/wazuh-passwords-tool.sh" passwords-checkInstalledPass
 }
 
-test-11-checkInstalledPass-all-installed-yum() {
-    load-checkInstalledPass
+test-11-passwords-checkInstalledPass-all-installed-yum() {
+    load-passwords-checkInstalledPass
     sys_type="yum"
 
     @mocktrue yum list installed
@@ -278,24 +278,24 @@ test-11-checkInstalledPass-all-installed-yum() {
     adminpem=
     adminkey=
 
-    checkInstalledPass
+    passwords-checkInstalledPass
 
     @echo $indexerchinstalled
     @echo $filebeatinstalled
     @echo $kibanainstalled
 }
 
-test-11-checkInstalledPass-all-installed-yum-assert() {
+test-11-passwords-checkInstalledPass-all-installed-yum-assert() {
 
-    readAdmincerts
+    passwords-readAdmincerts
 
     @echo "opendistroforelasticsearch.x86_64 1.13.2-1 @wazuh"
     @echo "filebeat.x86_64 7.10.2-1 @wazuh"
     @echo "opendistroforelasticsearch-kibana.x86_64"
 }
 
-test-12-checkInstalledPass-all-installed-zypper() {
-    load-checkInstalledPass
+test-12-passwords-checkInstalledPass-all-installed-zypper() {
+    load-passwords-checkInstalledPass
     sys_type="zypper"
 
     @mocktrue zypper packages
@@ -313,7 +313,7 @@ test-12-checkInstalledPass-all-installed-zypper() {
     adminpem=
     adminkey=
 
-    checkInstalledPass
+    passwords-checkInstalledPass
 
     @echo $indexerchinstalled
     @echo $filebeatinstalled
@@ -321,17 +321,17 @@ test-12-checkInstalledPass-all-installed-zypper() {
 
 }
 
-test-12-checkInstalledPass-all-installed-zypper-assert() {
+test-12-passwords-checkInstalledPass-all-installed-zypper-assert() {
 
-    readAdmincerts
+    passwords-readAdmincerts
 
     @echo "i+ | EL-20211102 - Wazuh | opendistroforelasticsearch | 1.13.2-1 | x86_64"
     @echo "i+ | EL-20211102 - Wazuh | filebeat | 7.10.2-1 | x86_64"
     @echo "i+ | EL-20211102 - Wazuh | opendistroforelasticsearch-kibana | 1.13.2-1 | x86_64"
 }
 
-test-13-checkInstalledPass-all-installed-apt() {
-    load-checkInstalledPass
+test-13-passwords-checkInstalledPass-all-installed-apt() {
+    load-passwords-checkInstalledPass
     sys_type="apt-get"
 
     @mocktrue apt list --installed
@@ -348,7 +348,7 @@ test-13-checkInstalledPass-all-installed-apt() {
     adminpem=
     adminkey=
 
-    checkInstalledPass
+    passwords-checkInstalledPass
 
     @echo $indexerchinstalled
     @echo $filebeatinstalled
@@ -356,17 +356,17 @@ test-13-checkInstalledPass-all-installed-apt() {
 
 }
 
-test-13-checkInstalledPass-all-installed-apt-assert() {
+test-13-passwords-checkInstalledPass-all-installed-apt-assert() {
 
-    readAdmincerts
+    passwords-readAdmincerts
 
     @echo "opendistroforelasticsearch/stable,now 1.13.2-1 amd64 [installed]"
     @echo "filebeat/now 7.10.2 amd64 [installed,local]"
     @echo "opendistroforelasticsearch-kibana/now 1.13.2 amd64 [installed,local]"
 }
 
-test-ASSERT-FAIL-14-checkInstalledPass-nothing-installed-apt() {
-    load-checkInstalledPass
+test-ASSERT-FAIL-14-passwords-checkInstalledPass-nothing-installed-apt() {
+    load-passwords-checkInstalledPass
     sys_type="apt-get"
 
     @mocktrue apt list --installed
@@ -382,11 +382,11 @@ test-ASSERT-FAIL-14-checkInstalledPass-nothing-installed-apt() {
 
     @mock grep "plugins.security.ssl.transport.pemtrustedcas_filepath: " /etc/wazuh-indexer/opensearch.yml === @out "pem_path"
 
-    checkInstalledPass
+    passwords-checkInstalledPass
 }
 
-test-ASSERT-FAIL-15-checkInstalledPass-nothing-installed-yum() {
-    load-checkInstalledPass
+test-ASSERT-FAIL-15-passwords-checkInstalledPass-nothing-installed-yum() {
+    load-passwords-checkInstalledPass
     sys_type="yum"
 
     @mocktrue yum list installed
@@ -402,11 +402,11 @@ test-ASSERT-FAIL-15-checkInstalledPass-nothing-installed-yum() {
 
     @mock grep "plugins.security.ssl.transport.pemtrustedcas_filepath: " /etc/wazuh-indexer/opensearch.yml === @out "pem_path"
 
-    checkInstalledPass
+    passwords-checkInstalledPass
 }
 
-test-ASSERT-FAIL-16-checkInstalledPass-nothing-installed-zypper() {
-    load-checkInstalledPass
+test-ASSERT-FAIL-16-passwords-checkInstalledPass-nothing-installed-zypper() {
+    load-passwords-checkInstalledPass
     sys_type="zypper"
 
     @mocktrue zypper packages
@@ -423,48 +423,48 @@ test-ASSERT-FAIL-16-checkInstalledPass-nothing-installed-zypper() {
 
     @mock grep "plugins.security.ssl.transport.pemtrustedcas_filepath: " /etc/wazuh-indexer/opensearch.yml === @out "pem_path"
 
-    checkInstalledPass
+    passwords-checkInstalledPass
 }
 
-function load-checkUser() {
-    @load_function "${base_dir}/wazuh-passwords-tool.sh" checkUser
+function load-passwords-checkUser() {
+    @load_function "${base_dir}/wazuh-passwords-tool.sh" passwords-checkUser
 }
 
-test-ASSERT-FAIL-17-checkUser-no-nuser() {
-    load-checkUser
+test-ASSERT-FAIL-17-passwords-checkUser-no-nuser() {
+    load-passwords-checkUser
     users=( "kibanaserver" "admin" )
     nuser=
-    checkUser
+    passwords-checkUser
 }
 
-test-ASSERT-FAIL-18-checkUser-incorrect-user() {
-    load-checkUser
+test-ASSERT-FAIL-18-passwords-checkUser-incorrect-user() {
+    load-passwords-checkUser
     users=( "kibanaserver" "admin" )
     nuser="wazuh"
-    checkUser
+    passwords-checkUser
 }
 
-test-19-checkUser-correct() {
-    load-checkUser
+test-19-passwords-checkUser-correct() {
+    load-passwords-checkUser
     users=( "kibanaserver" "admin" )
     nuser="admin"
-    checkUser
+    passwords-checkUser
     @assert-success
 }
 
-function load-generatePasswordFile() {
-    @load_function "${base_dir}/wazuh-passwords-tool.sh" generatePasswordFile
+function load-passwords-generatePasswordFile() {
+    @load_function "${base_dir}/wazuh-passwords-tool.sh" passwords-generatePasswordFile
 }
 
-test-20-generatePasswordFile() {
-    load-generatePasswordFile
+test-20-passwords-generatePasswordFile() {
+    load-passwords-generatePasswordFile
     gen_file="/tmp/genfile.yml"
     passwords=("pass" "pass" "pass" "pass" "pass" "pass" "pass" "pass")
-    generatePasswordFile
+    passwords-generatePasswordFile
 }
 
-test-20-generatePasswordFile-assert() {
-    generatePassword
+test-20-passwords-generatePasswordFile-assert() {
+    passwords-generatePassword
     echo "User:"
     echo "  name: admin"
     echo "  password: pass"
@@ -491,60 +491,60 @@ test-20-generatePasswordFile-assert() {
     echo "  password: pass"
 }
 
-function load-getNetworkHost() {
-    @load_function "${base_dir}/wazuh-passwords-tool.sh" getNetworkHost
+function load-passwords-getNetworkHost() {
+    @load_function "${base_dir}/wazuh-passwords-tool.sh" passwords-getNetworkHost
 }
 
-test-21-getNetworkHost() {
-    load-getNetworkHost
+test-21-passwords-getNetworkHost() {
+    load-passwords-getNetworkHost
     @mock grep -hr "network.host:" /etc/wazuh-indexer/opensearch.yml === @out "network.host: 1.1.1.1"
-    getNetworkHost
+    passwords-getNetworkHost
     @echo ${IP}
 }
 
-test-21-getNetworkHost-assert() {
+test-21-passwords-getNetworkHost-assert() {
     @echo 1.1.1.1
 }
 
-test-22-getNetworkHost-interface() {
-    load-getNetworkHost
+test-22-passwords-getNetworkHost-interface() {
+    load-passwords-getNetworkHost
     @mock grep -hr "network.host:" /etc/wazuh-indexer/opensearch.yml === @out "network.host: _wlps01_"
     @mock ip -o -4 addr list wlps01 === @out "1.1.1.1"
     @mock awk '{print $4}' === @out ""
     @mock cut -d/ -f1 === @out ""
-    getNetworkHost
+    passwords-getNetworkHost
     @echo ${IP}
 }
 
-test-22-getNetworkHost-interface-assert() {
+test-22-passwords-getNetworkHost-interface-assert() {
     @echo 1.1.1.1
 }
 
-test-23-getNetworkHost-localhost() {
-    load-getNetworkHost
+test-23-passwords-getNetworkHost-localhost() {
+    load-passwords-getNetworkHost
     @mock grep -hr "network.host:" /etc/wazuh-indexer/opensearch.yml === @out "network.host: 0.0.0.0"
-    getNetworkHost
+    passwords-getNetworkHost
     @echo ${IP}
 }
 
-test-23-getNetworkHost-localhost-assert() {
+test-23-passwords-getNetworkHost-localhost-assert() {
     @echo "localhost"
 }
 
-function load-readAdmincerts() {
-    @load_function "${base_dir}/wazuh-passwords-tool.sh" readAdmincerts
+function load-passwords-readAdmincerts() {
+    @load_function "${base_dir}/wazuh-passwords-tool.sh" passwords-readAdmincerts
 }
 
-test-ASSERT-FAIL-24-readAdmincerts-no-admin.pem() {
-    load-readAdmincerts
+test-ASSERT-FAIL-24-passwords-readAdmincerts-no-admin.pem() {
+    load-passwords-readAdmincerts
     if [[ -f /etc/wazuh-indexer/certs/admin.pem ]]; then
         @rm -f /etc/wazuh-indexer/certs/admin.pem
     fi
-    readAdmincerts
+    passwords-readAdmincerts
 }
 
-test-ASSERT-FAIL-25-readAdmincerts-no-admin_key.pem() {
-    load-readAdmincerts
+test-ASSERT-FAIL-25-passwords-readAdmincerts-no-admin_key.pem() {
+    load-passwords-readAdmincerts
     @mkdir -p /etc/wazuh-indexer/certs
     if [[ ! -f /etc/wazuh-indexer/certs/admin.pem ]]; then
         @touch /etc/wazuh-indexer/certs/admin.pem
@@ -556,13 +556,13 @@ test-ASSERT-FAIL-25-readAdmincerts-no-admin_key.pem() {
     if [[ -f /etc/wazuh-indexer/certs/admin.key ]]; then
         @rm -f /etc/wazuh-indexer/certs/admin.key
     fi
-    readAdmincerts
+    passwords-readAdmincerts
     @rm /etc/wazuh-indexer/certs/admin.pem
     @rmdir /etc/wazuh-indexer/certs
 }
 
-test-26-readAdmincerts-all-correct-admin_key.pem() {
-    load-readAdmincerts
+test-26-passwords-readAdmincerts-all-correct-admin_key.pem() {
+    load-passwords-readAdmincerts
     @mkdir -p /etc/wazuh-indexer/certs
     if [[ ! -f /etc/wazuh-indexer/certs/admin.pem ]]; then
         @touch /etc/wazuh-indexer/certs/admin.pem
@@ -574,7 +574,7 @@ test-26-readAdmincerts-all-correct-admin_key.pem() {
     if [[ -f /etc/wazuh-indexer/certs/admin.key ]]; then
         @rm -f /etc/wazuh-indexer/certs/admin.key
     fi
-    readAdmincerts
+    passwords-readAdmincerts
     @rm /etc/wazuh-indexer/certs/admin.pem
     @rm /etc/wazuh-indexer/certs/admin-key.pem
     @rmdir /etc/wazuh-indexer/certs
@@ -582,13 +582,13 @@ test-26-readAdmincerts-all-correct-admin_key.pem() {
     @echo $adminkey
 }
 
-test-26-readAdmincerts-all-correct-admin_key.pem-assert() {
+test-26-passwords-readAdmincerts-all-correct-admin_key.pem-assert() {
     @echo "/etc/wazuh-indexer/certs/admin.pem"
     @echo "/etc/wazuh-indexer/certs/admin-key.pem"
 }
 
-test-27-readAdmincerts-all-correct-admin.key() {
-    load-readAdmincerts
+test-27-passwords-readAdmincerts-all-correct-admin.key() {
+    load-passwords-readAdmincerts
     @mkdir -p /etc/wazuh-indexer/certs
     if [[ ! -f /etc/wazuh-indexer/certs/admin.pem ]]; then
         @touch /etc/wazuh-indexer/certs/admin.pem
@@ -600,7 +600,7 @@ test-27-readAdmincerts-all-correct-admin.key() {
     if [[ ! -f /etc/wazuh-indexer/certs/admin.key ]]; then
         @touch /etc/wazuh-indexer/certs/admin.key
     fi
-    readAdmincerts
+    passwords-readAdmincerts
     @rm /etc/wazuh-indexer/certs/admin.pem
     @rm /etc/wazuh-indexer/certs/admin.key
     @rmdir /etc/wazuh-indexer/certs
@@ -608,26 +608,26 @@ test-27-readAdmincerts-all-correct-admin.key() {
     @echo $adminkey
 }
 
-test-27-readAdmincerts-all-correct-admin.key-assert() {
+test-27-passwords-readAdmincerts-all-correct-admin.key-assert() {
     @echo "/etc/wazuh-indexer/certs/admin.pem"
     @echo "/etc/wazuh-indexer/certs/admin.key"
 }
 
-function load-readUsers() {
-    @load_function "${base_dir}/wazuh-passwords-tool.sh" readUsers
+function load-passwords-readUsers() {
+    @load_function "${base_dir}/wazuh-passwords-tool.sh" passwords-readUsers
 }
 
-test-28-readUsers() {
-    load-readUsers
+test-28-passwords-readUsers() {
+    load-passwords-readUsers
     @mock grep -B 1 hash: /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/internal_users.yml === @out
     @mock grep -v hash: === @out
     @mock grep -v "-" === @out
     @mock awk '{ print substr( $0, 1, length($0)-1 ) }' === @out "kibanaserver admin"
-    readUsers
+    passwords-readUsers
     @echo ${users[@]}
 }
 
-test-28-readUsers-assert() {
+test-28-passwords-readUsers-assert() {
     @echo "kibanaserver admin"
 }
 
@@ -742,57 +742,57 @@ test-35-recommon_startService-rc.d/init.d-assert() {
     @rm /etc/rc.d/init.d/wazuh-manager
 }
 
-function load-generateHash() {
-    @load_function "${base_dir}/wazuh-passwords-tool.sh" generateHash
+function load-passwords-generateHash() {
+    @load_function "${base_dir}/wazuh-passwords-tool.sh" passwords-generateHash
 }
 
-test-36-generateHash-changeall() {
-    load-generateHash
+test-36-passwords-generateHash-changeall() {
+    load-passwords-generateHash
     passwords=("kibanaserverpassword" "adminpassword")
     changeall=1
     @mock grep -v WARNING === @out ""
     @mock bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "kibanaserverpassword" === @out "11111111"
     @mock bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "adminpassword" === @out "22222222"
-    generateHash
+    passwords-generateHash
     @echo ${hashes[@]}
 }
 
-test-36-generateHash-changeall-assert() {
+test-36-passwords-generateHash-changeall-assert() {
     @echo "11111111 22222222"
 }
 
-test-ASSERT-FAIL-37-generateHash-changeall-error() {
-    load-generateHash
+test-ASSERT-FAIL-37-passwords-generateHash-changeall-error() {
+    load-passwords-generateHash
     passwords=("kibanaserverpassword" "adminpassword")
     changeall=1
     @mockfalse grep -v WARNING
     @mock bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "kibanaserverpassword" === @out "11111111"
     @mockfalse bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "adminpassword"
-    generateHash
+    passwords-generateHash
     @echo ${hashes[@]}
 }
 
-test-38-generateHash-nuser() {
-    load-generateHash
+test-38-passwords-generateHash-nuser() {
+    load-passwords-generateHash
     nuser="kibanaserver"
     password="kibanaserverpassword"
     changeall=
     @mock grep -v WARNING === @out ""
     @mock bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "kibanaserverpassword" === @out "11111111"
-    generateHash
+    passwords-generateHash
     @echo ${hash}
 }
 
-test-38-generateHash-nuser-assert() {
+test-38-passwords-generateHash-nuser-assert() {
     @echo "11111111"
 }
 
-test-ASSERT-FAIL-39-generateHash-nuser-error() {
-    load-generateHash
+test-ASSERT-FAIL-39-passwords-generateHash-nuser-error() {
+    load-passwords-generateHash
     nuser="kibanaserver"
     password="kibanaserverpassword"
     changeall=
     @mockfalse grep -v WARNING
     @mockfalse bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "kibanaserverpassword"
-    generateHash
+    passwords-generateHash
 }

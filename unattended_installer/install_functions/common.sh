@@ -116,9 +116,6 @@ function common_getHelp() {
     echo -e "        -i,  --ignore-health-check"
     echo -e "                Ignores the health-check."
     echo -e ""
-    echo -e "        -l,  --local"
-    echo -e "                Use local files."
-    echo -e ""
     echo -e "        -o,  --overwrite"
     echo -e "                Overwrites previously installed components. NOTE: This will erase all the existing configuration and data."
     echo -e ""
@@ -146,7 +143,7 @@ function common_getHelp() {
 
 }
 
-function common_addWazuhrepo() {
+function common_addWazuhRepo() {
 
     common_logger -d "Adding the Wazuh repository."
 
@@ -185,16 +182,16 @@ function common_createCertificates() {
         eval "common_getConfig certificate/config_aio.yml ${base_path}/config.yml ${debug}"
     fi
 
-    readConfig
+    cert_readConfig
 
     mkdir "${base_path}/certs"
 
-    generateRootCAcertificate
-    generateAdmincertificate
-    generateIndexercertificates
-    generateFilebeatcertificates
-    generateDashboardscertificates
-    cleanFiles
+    cert_generateRootCAcertificate
+    cert_generateAdmincertificate
+    cert_generateIndexercertificates
+    cert_generateFilebeatcertificates
+    cert_generateDashboardscertificates
+    cert_cleanFiles
 
 }
 
@@ -210,10 +207,10 @@ function common_changePasswords() {
     if [ -f "${tar_file}" ]; then
         eval "tar -xf ${tar_file} -C ${base_path} ./password_file.yml ${debug}"
         p_file="${base_path}/password_file.yml"
-        checkInstalledPass
+        passwords-checkInstalledPass
         if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
             changeall=1
-            readUsers
+            passwords-readUsers
         fi
         common_readPasswordFileUsers
     else
@@ -221,15 +218,15 @@ function common_changePasswords() {
         exit 1
     fi
     if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
-        getNetworkHost
-        createBackUp
-        generateHash
+        passwords-getNetworkHost
+        passwords-createBackUp
+        passwords-generateHash
     fi
 
-    changePassword
+    passwords-changePassword
 
     if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
-        runSecurityAdmin
+        passwords-runSecurityAdmin
     fi
     rm -rf "${p_file}"
 
@@ -252,17 +249,13 @@ function common_getConfig() {
         exit 1
     fi
 
-    if [ -n "${local}" ]; then
-        cp "${base_path}/${config_path}/${1}" "${2}"
-    else
-        curl -f -so "${2}" "${resources_config}/${1}"
-    fi
-    if [ "$?" != 0 ]; then
+    config_name="config_file$(eval "echo ${1} | sed 's|/|_|g;s|.yml||'")"
+    if [ -z "${config_name}" ]; then
         common_logger -e "Unable to find configuration file ${1}. Exiting."
         common_rollBack
         exit 1
     fi
-
+    echo "${config_name}" > "${2}"
 }
 
 function common_getPass() {

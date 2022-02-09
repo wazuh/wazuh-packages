@@ -74,7 +74,7 @@ function checks_arguments() {
 
         if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ] || [ -n "${indexerchinstalled}" ] || [ -n "${indexer_remaining_files}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ] || [ -n "${dashboardsinstalled}" ] || [ -n "${dashboards_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
-                rollBack
+                common_rollback
             else
                 common_logger -e "Some the Wazuh components were found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. NOTE: This will erase all the existing configuration and data."
                 exit 1
@@ -88,7 +88,7 @@ function checks_arguments() {
 
         if [ -n "${indexerchinstalled}" ] || [ -n "${indexer_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
-                rollBack
+                common_rollback
             else
                 common_logger -e "Elasticsearch is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
@@ -101,7 +101,7 @@ function checks_arguments() {
     if [ -n "${dashboards}" ]; then
         if [ -n "${dashboardsinstalled}" ] || [ -n "${dashboards_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
-                rollBack
+                common_rollback
             else
                 common_logger -e "Kibana is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
@@ -114,7 +114,7 @@ function checks_arguments() {
     if [ -n "${wazuh}" ]; then
         if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
-                rollBack
+                common_rollback
             else
                 common_logger -e "Wazuh is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
@@ -123,7 +123,7 @@ function checks_arguments() {
 
         if [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
-                rollBack
+                common_rollback
             else
                 common_logger -e "Filebeat is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
@@ -140,7 +140,7 @@ function checks_arguments() {
 
     # -------------- Global -----------------------------------------
 
-    if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboards}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ] && [ -z "${configurations}" ] && [ -z "${uninstall}"]; then
+    if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboards}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ] && [ -z "${configurations}" ] && [ -z "${uninstall}" ]; then
         common_logger -e "At least one of these arguments is necessary -a|--all-in-one, -c|--create-configurations, -e|--elasticsearch <elasticsearch-node-name>, -k|--kibana <kibana-node-name>, -s|--start-cluster, -w|--wazuh-server <wazuh-node-name>, -u|--uninstall"
         exit 1
     fi

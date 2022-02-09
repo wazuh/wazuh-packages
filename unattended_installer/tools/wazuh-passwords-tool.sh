@@ -20,7 +20,7 @@ elif [ -n "$(command -v apt-get)" ]; then
     sys_type="apt-get"
 fi
 
-function changePassword() {
+function passwords-changePassword() {
 
     if [ -n "${changeall}" ]; then
         for i in "${!passwords[@]}"
@@ -57,7 +57,7 @@ function changePassword() {
             wazuhold="${wazuhold//$ra}"
             conf="$(awk '{sub("password: .*", "password: '${adminpass}'")}1' /etc/filebeat/filebeat.yml)"
             echo "${conf}" > /etc/filebeat/filebeat.yml
-            restartService "filebeat"
+            passwords-restartService "filebeat"
         fi
     fi
 
@@ -69,13 +69,13 @@ function changePassword() {
             wazuhdashold="${wazuhdashold//$rk}"
             conf="$(awk '{sub("opensearch.password: .*", "opensearch.password: '${dashpass}'")}1' /etc/wazuh-dashboards/dashboards.yml)"
             echo "${conf}" > /etc/wazuh-dashboards/dashboards.yml
-            restartService "wazuh-dashboards"
+            passwords-restartService "wazuh-dashboards"
         fi
     fi
 
 }
 
-function checkInstalledPass() {
+function passwords-checkInstalledPass() {
 
     if [ "${sys_type}" == "yum" ]; then
         indexerchinstalled=$(yum list installed 2>/dev/null | grep wazuh-indexer)
@@ -102,7 +102,7 @@ function checkInstalledPass() {
     fi
 
     if [ -z "${indexerchinstalled}" ] && [ -z "${dashboardsinstalled}" ] && [ -z "${filebeatinstalled}" ]; then
-        logger_pass -e "Cannot find Wazuh indexer, Wazuh dashboards or Filebeat on the system."
+        logger -e "Cannot find Wazuh indexer, Wazuh dashboards or Filebeat on the system."
         exit 1;
     else
         if [ -n "${indexerchinstalled}" ]; then
@@ -110,7 +110,7 @@ function checkInstalledPass() {
             rcapem="plugins.security.ssl.transport.pemtrustedcas_filepath: "
             capem="${capem//$rcapem}"
             if [[ -z "${adminpem}" ]] || [[ -z "${adminkey}" ]]; then
-                readAdmincerts
+                passwords-readAdmincerts
             fi
         fi
     fi
@@ -120,13 +120,13 @@ function checkInstalledPass() {
 function checkRoot() {
 
     if [ "$EUID" -ne 0 ]; then
-        logger_pass -e "This script must be run as root."
+        logger -e "This script must be run as root."
         exit 1;
     fi
 
 }
 
-function checkUser() {
+function passwords-checkUser() {
 
     for i in "${!users[@]}"; do
         if [ "${users[i]}" == "${nuser}" ]; then
@@ -135,77 +135,77 @@ function checkUser() {
     done
 
     if [ -z "${exists}" ]; then
-        logger_pass -e "The given user does not exist"
+        logger -e "The given user does not exist"
         exit 1;
     fi
 
 }
 
-function createBackUp() {
+function passwords-createBackUp() {
 
-    logger_pass -d "Creating password backup."
+    logger -d "Creating password backup."
     eval "mkdir /usr/share/wazuh-indexer/backup ${debug_pass}"
     eval "JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -icl -p 9800 -backup /usr/share/wazuh-indexer/backup -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -h ${IP} ${debug_pass}"
     if [ "$?" != 0 ]; then
-        logger_pass -e "The backup could not be created"
+        logger -e "The backup could not be created"
         exit 1;
     fi
-    logger_pass -d "Password backup created"
+    logger -d "Password backup created"
 
 }
 
-function generateHash() {
+function passwords-generateHash() {
 
     if [ -n "${changeall}" ]; then
-        logger_pass -d "Generating password hashes."
+        logger -d "Generating password hashes."
         for i in "${!passwords[@]}"
         do
             nhash=$(bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "${passwords[i]}" | grep -v WARNING)
             if [  "$?" != 0  ]; then
-                logger_pass -e "Hash generation failed."
+                logger -e "Hash generation failed."
                 exit 1;
             fi
             hashes+=("${nhash}")
         done
-        logger_pass -d "Password hashes generated."
+        logger -d "Password hashes generated."
     else
-        logger_pass "Generating password hash"
+        logger "Generating password hash"
         hash=$(bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p ${password} | grep -v WARNING)
         if [  "$?" != 0  ]; then
-            logger_pass -e "Hash generation failed."
+            logger -e "Hash generation failed."
             exit 1;
         fi
-        logger_pass -d "Password hash generated."
+        logger -d "Password hash generated."
     fi
 
 }
 
-function generatePassword() {
+function passwords-generatePassword() {
 
     if [ -n "${nuser}" ]; then
-        logger_pass -d "Generating random password."
+        logger -d "Generating random password."
         password=$(< /dev/urandom tr -dc A-Za-z0-9 | head -c${1:-32};echo;)
         if [  "$?" != 0  ]; then
-            logger_pass -e "The password could not been generated."
+            logger -e "The password could not been generated."
             exit 1;
         fi
     else
-        logger_pass -d "Generating random passwords."
+        logger -d "Generating random passwords."
         for i in "${!users[@]}"; do
             PASS=$(< /dev/urandom tr -dc A-Za-z0-9 | head -c${1:-32};echo;)
             passwords+=("${PASS}")
             if [ "$?" != 0 ]; then
-                logger_pass -e "The password could not been generated."
+                logger -e "The password could not been generated."
                 exit 1;
             fi
         done
     fi
 }
 
-function generatePasswordFile() {
+function passwords-generatePasswordFile() {
 
     users=( admin kibanaserver kibanaro logstash readall snapshotrestore wazuh_admin wazuh_user )
-    generatePassword
+    passwords-generatePassword
     for i in "${!users[@]}"; do
         echo "User:" >> "${gen_file}"
         echo "  name: ${users[${i}]}" >> "${gen_file}"
@@ -261,7 +261,7 @@ function getHelp() {
 
 }
 
-function getNetworkHost() {
+function passwords-getNetworkHost() {
     IP=$(grep -hr "network.host:" /etc/wazuh-indexer/opensearch.yml)
     NH="network.host: "
     IP="${IP//$NH}"
@@ -277,7 +277,7 @@ function getNetworkHost() {
     fi
 }
 
-function logger_pass() {
+function logger() {
     now=$(date +'%d/%m/%Y %H:%M:%S')
     mtype="INFO:"
     debugLogger=
@@ -377,13 +377,13 @@ function main() {
         fi
 
         if [ -n "${gen_file}" ]; then
-            generatePasswordFile
+            passwords-generatePasswordFile
             if [ -z "${p_file}" ] && [ -z "${nuser}" ] && [ -z "${changeall}" ]; then
                 exit 0
             fi
         fi
 
-        checkInstalledPass
+        passwords-checkInstalledPass
 
         if [ -n "${p_file}" ] && [ ! -f "${p_file}" ]; then
             getHelp
@@ -414,33 +414,33 @@ function main() {
         fi
 
         if [ -n "${nuser}" ]; then
-            readUsers
-            checkUser
+            passwords-readUsers
+            passwords-checkUser
         fi
 
         if [ -n "${nuser}" ] && [ -z "${password}" ]; then
             autopass=1
-            generatePassword
+            passwords-generatePassword
         fi
 
         if [ -n "${changeall}" ]; then
-            readUsers
-            generatePassword
+            passwords-readUsers
+            passwords-generatePassword
         fi
 
         if [ -n "${p_file}" ] && [ -z "${changeall}" ]; then
-            readUsers
+            passwords-readUsers
         fi
 
         if [ -n "${p_file}" ]; then
-            readFileUsers
+            passwords-readFileUsers
         fi
 
-        getNetworkHost
-        createBackUp
-        generateHash
-        changePassword
-        runSecurityAdmin
+        passwords-getNetworkHost
+        passwords-createBackUp
+        passwords-generateHash
+        passwords-changePassword
+        passwords-runSecurityAdmin
 
     else
 
@@ -450,12 +450,12 @@ function main() {
 
 }
 
-function readAdmincerts() {
+function passwords-readAdmincerts() {
 
     if [[ -f /etc/wazuh-indexer/certs/admin.pem ]]; then
         adminpem="/etc/wazuh-indexer/certs/admin.pem"
     else
-        logger_pass -e "No admin certificate indicated. Please run the script with the option -c <path-to-certificate>."
+        logger -e "No admin certificate indicated. Please run the script with the option -c <path-to-certificate>."
         exit 1;
     fi
 
@@ -464,17 +464,17 @@ function readAdmincerts() {
     elif [[ -f /etc/wazuh-indexer/certs/admin.key ]]; then
         adminkey="/etc/wazuh-indexer/certs/admin.key"
     else
-        logger_pass -e "No admin certificate key indicated. Please run the script with the option -k <path-to-key-certificate>."
+        logger -e "No admin certificate key indicated. Please run the script with the option -k <path-to-key-certificate>."
         exit 1;
     fi
 
 }
 
-function readFileUsers() {
+function passwords-readFileUsers() {
 
     filecorrect=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' "${p_file}")
     if [ "${filecorrect}" -ne 1 ]; then
-        logger_pass -e "The password file doesn't have a correct format.
+        logger -e "The password file doesn't have a correct format.
 
 It must have this format:
 User:
@@ -494,8 +494,8 @@ User:
     filepasswords=(${sfilepasswords})
 
     if [ -n "${verboseenabled}" ]; then
-        logger_pass "Users in the file: ${fileusers[*]}"
-        logger_pass "Passwords in the file: ${filepasswords[*]}"
+        logger "Users in the file: ${fileusers[*]}"
+        logger "Passwords in the file: ${filepasswords[*]}"
     fi
 
     if [ -n "${changeall}" ]; then
@@ -508,7 +508,7 @@ User:
                 fi
             done
             if [ "${supported}" = false ] && [ -n "${indexerchinstalled}" ]; then
-                logger_pass -e "The given user ${fileusers[j]} does not exist"
+                logger -e "The given user ${fileusers[j]} does not exist"
             fi
         done
     else
@@ -525,7 +525,7 @@ User:
                 fi
             done
             if [ ${supported} = false ] && [ -n "${indexerchinstalled}" ]; then
-                logger_pass -e "The given user ${fileusers[j]} does not exist"
+                logger -e "The given user ${fileusers[j]} does not exist"
             fi
         done
 
@@ -538,17 +538,17 @@ User:
 
 }
 
-function readUsers() {
+function passwords-readUsers() {
 
     susers=$(grep -B 1 hash: /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/internal_users.yml | grep -v hash: | grep -v "-" | awk '{ print substr( $0, 1, length($0)-1 ) }')
     users=($susers)
 
 }
 
-function restartService() {
+function passwords-restartService() {
 
     if [ "$#" -ne 1 ]; then
-        logger_pass -e "restartService must be called with 1 argument."
+        logger -e "passwords-restartService must be called with 1 argument."
         exit 1
     fi
 
@@ -556,74 +556,74 @@ function restartService() {
         eval "systemctl daemon-reload ${debug_pass}"
         eval "systemctl restart ${1}.service ${debug_pass}"
         if [  "$?" != 0  ]; then
-            logger_pass -e "${1^} could not be started."
+            logger -e "${1^} could not be started."
             if [[ $(type -t common_rollBack) == "function" ]]; then
                 common_rollBack
             fi
             exit 1;
         else
-            logger_pass -d "${1^} started"
+            logger -d "${1^} started"
         fi
     elif ps -e | grep -E -q "^\ *1\ .*init$"; then
         eval "/etc/init.d/${1} restart ${debug_pass}"
         if [  "$?" != 0  ]; then
-            logger_pass -e "${1^} could not be started."
+            logger -e "${1^} could not be started."
             if [[ $(type -t common_rollBack) == "function" ]]; then
                 common_rollBack
             fi
             exit 1;
         else
-            logger_pass -d "${1^} started"
+            logger -d "${1^} started"
         fi
     elif [ -x "/etc/rc.d/init.d/${1}" ] ; then
         eval "/etc/rc.d/init.d/${1} restart ${debug_pass}"
         if [  "$?" != 0  ]; then
-            logger_pass -e "${1^} could not be started."
+            logger -e "${1^} could not be started."
             if [[ $(type -t common_rollBack) == "function" ]]; then
                 common_rollBack
             fi
             exit 1;
         else
-            logger_pass -d "${1^} started"
+            logger -d "${1^} started"
         fi
     else
         if [[ $(type -t common_rollBack) == "function" ]]; then
             common_rollBack
         fi
-        logger_pass -e "${1^} could not start. No service manager found on the system."
+        logger -e "${1^} could not start. No service manager found on the system."
         exit 1;
     fi
 
 }
 
-function runSecurityAdmin() {
+function passwords-runSecurityAdmin() {
 
-    logger_pass -d "Loading new passwords changes."
+    logger -d "Loading new passwords changes."
     eval "cp /usr/share/wazuh-indexer/backup/* /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ ${debug_pass}"
     eval "OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -p 9800 -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug_pass}"
     if [  "$?" != 0  ]; then
-        logger_pass -e "Could not load the changes."
+        logger -e "Could not load the changes."
         exit 1;
     fi
     eval "rm -rf /usr/share/wazuh-indexer/backup/ ${debug_pass}"
 
     if [[ -n "${nuser}" ]] && [[ -n ${autopass} ]]; then
-        logger_pass $'\nThe password for user '${nuser}' is '${password}''
-        logger_pass -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/wazuh-dashboards/dashboards.yml if necessary and restart the services."
+        logger $'\nThe password for user '${nuser}' is '${password}''
+        logger -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/wazuh-dashboards/dashboards.yml if necessary and restart the services."
     fi
 
     if [[ -n "${nuser}" ]] && [[ -z ${autopass} ]]; then
-        logger_pass -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/wazuh-dashboards/dashboards.yml if necessary and restart the services."
+        logger -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/wazuh-dashboards/dashboards.yml if necessary and restart the services."
     fi
 
     if [ -n "${changeall}" ]; then
         if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboards}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ]; then
-            logger_pass -w "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/wazuh-dashboards/dashboards.yml if necessary and restart the services."
+            logger -w "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/wazuh-dashboards/dashboards.yml if necessary and restart the services."
         else
-            logger_pass -d "Passwords changed."
+            logger -d "Passwords changed."
         fi
     fi
 
 }
 
-main $@
+main "$@"

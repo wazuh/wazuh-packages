@@ -8,77 +8,11 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-## Package vars
-readonly wazuh_major="4.3"
-readonly wazuh_version="4.3.0"
-readonly wazuh_revision="1"
-readonly filebeat_version="7.10.2"
-readonly opendistro_version="1.13.2"
-readonly opendistro_revision="1"
-readonly wazuh_install_vesion="0.1"
-
-## Links and paths to resources
-readonly functions_path="install_functions"
-readonly config_path="config"
-readonly resources="https://packages-dev.wazuh.com/resources/${wazuh_major}"
-readonly resources_functions="${resources}/${functions_path}"
-readonly resources_config="${resources}/${config_path}"
-readonly base_path="$(dirname $(readlink -f "$0"))"
-readonly config_file="${base_path}/config.yml"
-readonly tar_file="${base_path}/configurations.tar"
-
-## JAVA_HOME
-export JAVA_HOME=/usr/share/wazuh-indexer/jdk/
-
-## Debug variable used during the installation
-readonly logfile="/var/log/wazuh-unattended-installation.log"
-debug=">> ${logfile} 2>&1"
-
-trap common_cleanExit SIGINT
-
-function importFunction() {
-
-    if [ -n "${local}" ]; then
-        if [ -f "${base_path}/${functions_path}/${1}" ]; then
-            cat "${base_path}/${functions_path}/${1}" | grep 'main $@' > /dev/null 2>&1
-            has_main=$?
-
-            if [ $has_main = 0 ]; then
-                sed -i 's/main $@//' "${base_path}/${functions_path}/${1}"
-                sed -i '$ d' "${base_path}/${functions_path}/${1}"
-            fi
-            # Loading functions
-            . "${base_path}/${functions_path}/${1}"
-
-            if [ $has_main = 0 ]; then
-                echo 'main $@' >> "${base_path}/${functions_path}/${1}"
-            fi
-        else
-            common_logger -e "Unable to find resource in path ${base_path}/${functions_path}/${1}."
-            exit 1
-        fi
-    else
-        if ( curl -f -so "/tmp/${1}" "${resources_functions}/${1}" ); then
-            sed -i 's/main $@//' "/tmp/${1}"
-            . "/tmp/${1}"
-            rm -f "/tmp/${1}"
-        elif [ -f "${base_path}/${functions_path}/${1}" ]; then
-            common_logger -e "Unable to download resource ${resources_functions}/${1}. Local file detected in ${base_path}/${functions_path}/, you may want to use the -l option."
-            rm -f "/tmp/${1}"
-            exit 1
-        else
-            common_logger -e "Unable to find resource ${resources_functions}/${1}."
-            rm -f "/tmp/${1}"
-            exit 1
-        fi
-    fi
-
-}
 
 function main() {
 
     if [ -z "${1}" ]; then
-        getHelp
+        common_getHelp
     fi
 
     while [ -n "${1}" ]
@@ -103,7 +37,7 @@ function main() {
             "-f"|"--fileconfig")
                 if [ -z "${2}" ]; then
                     common_logger -e "Error on arguments. Probably missing <path-to-config-yml> after -f|--fileconfig"
-                    getHelp
+                    common_getHelp
                     exit 1
                 fi
                 config_file="${2}"
@@ -114,14 +48,10 @@ function main() {
                 shift 1
                 ;;
             "-h"|"--help")
-                getHelp
+                common_getHelp
                 ;;
             "-i"|"--ignore-health-check")
                 ignore=1
-                shift 1
-                ;;
-            "-l"|"--local")
-                local=1
                 shift 1
                 ;;
             "-o"|"--overwrite")
@@ -135,7 +65,7 @@ function main() {
             "-t"|"--tar")
                 if [ -z "${2}" ]; then
                     common_logger -e "Error on arguments. Probably missing <path-to-certs-tar> after -t|--tar"
-                    getHelp
+                    common_getHelp
                     exit 1
                 fi
                 tar_conf="1"
@@ -154,7 +84,7 @@ function main() {
             "-wd"|"--wazuh-dashboards")
                 if [ -z "${2}" ]; then
                     common_logger -e "Error on arguments. Probably missing <node-name> after -wd|---wazuh-dashboards"
-                    getHelp
+                    common_getHelp
                     exit 1
                 fi
                 dashboards=1
@@ -164,7 +94,7 @@ function main() {
             "-wi"|"--wazuh-indexer")
                 if [ -z "${2}" ]; then
                     common_logger -e "Arguments contain errors. Probably missing <node-name> after -wi|--wazuh-indexer."
-                    getHelp
+                    common_getHelp
                     exit 1
                 fi
                 indexer=1
@@ -174,7 +104,7 @@ function main() {
             "-ws"|"--wazuh-server")
                 if [ -z "${2}" ]; then
                     common_logger -e "Error on arguments. Probably missing <node-name> after -w|--wazuh-server"
-                    getHelp
+                    common_getHelp
                     exit 1
                 fi
                 wazuh=1
@@ -183,7 +113,7 @@ function main() {
                 ;;
             *)
                 echo "Unknow option: "${1}""
-                getHelp
+                common_getHelp
         esac
 
         # This assignment will be present during all testing stages.
@@ -197,17 +127,10 @@ function main() {
     fi
 
     if [ -z "${disableSpinner}" ]; then
-        spin &
+        common_spin &
         spin_pid=$!
         trap "kill -9 ${spin_pid} ${debug}" EXIT
     fi
-
-# -------------- Functions import -----------------------------------
-
-    importFunction "checks.sh"
-    importFunction "common.sh"
-    importFunction "wazuh-cert-tool.sh"
-    importFunction "wazuh-passwords-tool.sh"
 
     common_logger "Starting Wazuh unattended installer. Wazuh version: ${wazuh_version}. Wazuh installer version: ${wazuh_install_vesion}"
 
@@ -245,14 +168,14 @@ function main() {
     if [ -n "${configurations}" ] || [ -n "${AIO}" ]; then
         common_logger "--------------------------------- Configuration files ---------------------------------"
         if [ -n "${configurations}" ]; then
-            checkOpenSSL
+            cert_checkOpenSSL
         fi
         common_createCertificates
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
             common_createClusterKey
         fi
         gen_file="${base_path}/certs/password_file.yml"
-        generatePasswordFile
+        passwords-generatePasswordFile
         # Using cat instead of simple cp because OpenSUSE unknown error.
         eval "cat '${config_file}' > '${base_path}/certs/config.yml'"
         eval "tar -zcf '${tar_file}' -C '${base_path}/certs/' . ${debug}"
@@ -262,7 +185,7 @@ function main() {
 
     if [ -z "${configurations}" ]; then
         common_extractConfig
-        readConfig
+        cert_readConfig
         rm -f "${config_file}"
     fi
 
@@ -276,11 +199,6 @@ function main() {
         common_logger "------------------------------------ Dependencies -------------------------------------"
         common_installPrerequisites
         common_addWazuhRepo
-    fi
-# -------------- Elasticsearch or Start Elasticsearch cluster case---
-
-    if [ -n "${indexer}" ] || [ -n "${start_elastic_cluster}" ] ; then
-        importFunction "indexer.sh"
     fi
 
 # -------------- Elasticsearch case  --------------------------------
@@ -305,8 +223,6 @@ function main() {
     if [ -n "${dashboards}" ]; then
         common_logger "---------------------------------- Wazuh dashboards -----------------------------------"
 
-        importFunction "dashboards.sh"
-
         dashboards_install
         dashboards_configure
         common_changePasswords
@@ -319,9 +235,6 @@ function main() {
 
     if [ -n "${wazuh}" ]; then
         common_logger "------------------------------------- Wazuh server ------------------------------------"
-
-        importFunction "manager.sh"
-        importFunction "filebeat.sh"
 
         manager_install
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
@@ -337,11 +250,6 @@ function main() {
 # -------------- AIO case  ------------------------------------------
 
     if [ -n "${AIO}" ]; then
-
-        importFunction "manager.sh"
-        importFunction "filebeat.sh"
-        importFunction "indexer.sh"
-        importFunction "dashboards.sh"
 
         common_logger "------------------------------------ Wazuh indexer ------------------------------------"
         indexer_install
@@ -375,22 +283,3 @@ function main() {
     fi
 
 }
-
-function spin() {
-
-    trap "{ tput el1; exit 0; }" 15
-    spinner="/|\\-/|\\-"
-    trap "echo ''" EXIT
-    while :
-    do
-        for i in $(seq 0 7)
-        do
-            echo -n "${spinner:$i:1}"
-            echo -en "\010"
-            sleep 0.1
-        done
-    done
-
-}
-
-main "$@"
