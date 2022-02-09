@@ -27,11 +27,11 @@ export DH_OPTIONS
 export TARGET_DIR=${CURDIR}/debian/wazuh-dashboards
 export NAME=wazuh-dashboards
 export CONFIG_DIR=/etc/${NAME}
-export INSTALLATION_DIR=/usr/share/${NAME}
+export INSTALLATION_DIR=$(INSTALLATION_DIR)
 export LOG_DIR=/var/log/${NAME}
-export DASHBOARD_FILE=wazuh-dashboards-base-VERSION-RELEASE-linux-x64
 export USER=${NAME}
 export GROUP=${NAME}
+export DASHBOARD_FILE=wazuh-dashboards-base-$(BASE_VERSION)-linux-x64.tar.xz
 
 # -----------------------------------------------------------------------------
 
@@ -53,85 +53,90 @@ override_dh_auto_install:
 # -----------------------------------------------------------------------------
 
 override_dh_install:
-	curl -kOL https://s3.amazonaws.com/warehouse.wazuh.com/stack/dashboard/${DASHBOARD_FILE}.tar.xz
+	if [ "$(BASE)" = "s3" ]; then \
+		curl -kOL https://s3.amazonaws.com/warehouse.wazuh.com/stack/dashboard/$(DASHBOARD_FILE) ;\
+	else \
+		cp /root/output/wazuh-dashboards-base-$(BASE_VERSION)-linux-x64.tar.xz ./ ;\
+	fi
+	
 
-	groupadd ${GROUP}
-	useradd -g ${GROUP} ${USER}
+	groupadd $(GROUP)
+	useradd -g $(GROUP) $(USER)
 
-	tar -xf ${DASHBOARD_FILE}.tar.xz
+	tar -xf $(DASHBOARD_FILE)
 
-	mkdir -p ${TARGET_DIR}${CONFIG_DIR}/certs
-	mkdir -p ${TARGET_DIR}${INSTALLATION_DIR}
-	mkdir -p ${TARGET_DIR}/etc/systemd/system
-	mkdir -p ${TARGET_DIR}/etc/default
+	mkdir -p $(TARGET_DIR)$(CONFIG_DIR)/certs
+	mkdir -p $(TARGET_DIR)$(INSTALLATION_DIR)
+	mkdir -p $(TARGET_DIR)/etc/systemd/system
+	mkdir -p $(TARGET_DIR)/etc/default
 
-	cp wazuh-dashboards-base/etc/node.options ${TARGET_DIR}${CONFIG_DIR}
-	cp wazuh-dashboards-base/etc/dashboards.yml ${TARGET_DIR}${CONFIG_DIR}
-	mv wazuh-dashboards-base/* ${TARGET_DIR}${INSTALLATION_DIR}
+	cp wazuh-dashboards-base/etc/node.options $(TARGET_DIR)$(CONFIG_DIR)
+	cp wazuh-dashboards-base/etc/dashboards.yml $(TARGET_DIR)$(CONFIG_DIR)
+	mv wazuh-dashboards-base/* $(TARGET_DIR)$(INSTALLATION_DIR)
 
-	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/custom_welcome/template.js.hbs ${TARGET_DIR}${INSTALLATION_DIR}/src/legacy/ui/ui_render/bootstrap/template.js.hbs
-	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/custom_welcome/light_theme.style.css ${TARGET_DIR}${INSTALLATION_DIR}/src/core/server/core_app/assets/legacy_light_theme.css
-	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/custom_welcome/*svg ${TARGET_DIR}${INSTALLATION_DIR}/src/core/server/core_app/assets/
-	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/custom_welcome/Assets/default_branding/wazuh_logo_white.svg ${TARGET_DIR}${INSTALLATION_DIR}/src/core/server/core_app/assets/default_branding/opensearch_logo.svg
-	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/custom_welcome/Assets/default_branding/wazuh_mark_dark_mode.svg ${TARGET_DIR}${INSTALLATION_DIR}/src/core/server/core_app/assets/default_branding/opensearch_mark_dark_mode.svg
-	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/custom_welcome/Assets/default_branding/wazuh_mark_default_mode.svg ${TARGET_DIR}${INSTALLATION_DIR}/src/core/server/core_app/assets/default_branding/opensearch_mark_default_mode.svg
-	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/custom_welcome/Assets/Favicons/* ${TARGET_DIR}${INSTALLATION_DIR}/src/core/server/core_app/assets/favicons/
-	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/custom_welcome/Assets/Favicons/favicon-32x32.png ${TARGET_DIR}${INSTALLATION_DIR}/src/core/server/core_app/assets/favicons/favicon.ico
-	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/opensearch_dashboards_config.js ${TARGET_DIR}${INSTALLATION_DIR}/src/core/server/opensearch_dashboards_config.js
+	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/custom_welcome/template.js.hbs $(TARGET_DIR)$(INSTALLATION_DIR)/src/legacy/ui/ui_render/bootstrap/template.js.hbs
+	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/custom_welcome/light_theme.style.css $(TARGET_DIR)$(INSTALLATION_DIR)/src/core/server/core_app/assets/legacy_light_theme.css
+	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/custom_welcome/*svg $(TARGET_DIR)$(INSTALLATION_DIR)/src/core/server/core_app/assets/
+	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/custom_welcome/Assets/default_branding/wazuh_logo_white.svg $(TARGET_DIR)$(INSTALLATION_DIR)/src/core/server/core_app/assets/default_branding/opensearch_logo.svg
+	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/custom_welcome/Assets/default_branding/wazuh_mark_dark_mode.svg $(TARGET_DIR)$(INSTALLATION_DIR)/src/core/server/core_app/assets/default_branding/opensearch_mark_dark_mode.svg
+	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/custom_welcome/Assets/default_branding/wazuh_mark_default_mode.svg $(TARGET_DIR)$(INSTALLATION_DIR)/src/core/server/core_app/assets/default_branding/opensearch_mark_default_mode.svg
+	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/custom_welcome/Assets/Favicons/* $(TARGET_DIR)$(INSTALLATION_DIR)/src/core/server/core_app/assets/favicons/
+	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/custom_welcome/Assets/Favicons/favicon-32x32.png $(TARGET_DIR)$(INSTALLATION_DIR)/src/core/server/core_app/assets/favicons/favicon.ico
+	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/opensearch_dashboards_config.js $(TARGET_DIR)$(INSTALLATION_DIR)/src/core/server/opensearch_dashboards_config.js
 
 
-	mkdir -p ${TARGET_DIR}${INSTALLATION_DIR}/config
-	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/secret ${TARGET_DIR}${INSTALLATION_DIR}/config/secret
+	mkdir -p $(TARGET_DIR)$(INSTALLATION_DIR)/config
+	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/secret $(TARGET_DIR)$(INSTALLATION_DIR)/config/secret
 
-	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/services/wazuh-dashboards.service ${TARGET_DIR}/etc/systemd/system/wazuh-dashboards.service 
-	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/services/wazuh-dashboards ${TARGET_DIR}/etc/systemd/system/${NAME}
-	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/services/default ${TARGET_DIR}/etc/default/${NAME}
+	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/services/wazuh-dashboards.service $(TARGET_DIR)/etc/systemd/system/wazuh-dashboards.service 
+	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/services/wazuh-dashboards $(TARGET_DIR)/etc/systemd/system/$(NAME)
+	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/services/default $(TARGET_DIR)/etc/default/$(NAME)
 
-	chmod 644 ${TARGET_DIR}/etc/systemd/system/${NAME}
-	chmod 644 ${TARGET_DIR}/etc/systemd/system/wazuh-dashboards.service 
-	chmod 644 ${TARGET_DIR}/etc/default/${NAME}
+	chmod 644 $(TARGET_DIR)/etc/systemd/system/$(NAME)
+	chmod 644 $(TARGET_DIR)/etc/systemd/system/wazuh-dashboards.service 
+	chmod 644 $(TARGET_DIR)/etc/default/$(NAME)
 
-	rm -rf ${TARGET_DIR}${INSTALLATION_DIR}/etc
+	rm -rf $(TARGET_DIR)$(INSTALLATION_DIR)/etc
 
 	curl -O https://s3.amazonaws.com/warehouse.wazuh.com/stack/demo-certs.tar.gz
 
 	tar -xf demo-certs.tar.gz
 
-	cp certs/demo-dashboard.pem ${TARGET_DIR}${CONFIG_DIR}/certs/demo-dashboards.pem
-	cp certs/demo-dashboard-key.pem ${TARGET_DIR}${CONFIG_DIR}/certs/demo-dashboards-key.pem
-	cp certs/root-ca.pem ${TARGET_DIR}${CONFIG_DIR}/certs/root-ca.pem
-	chmod 644 ${TARGET_DIR}${CONFIG_DIR}/certs/*
+	cp certs/demo-dashboard.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/demo-dashboards.pem
+	cp certs/demo-dashboard-key.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/demo-dashboards-key.pem
+	cp certs/root-ca.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/root-ca.pem
+	chmod 644 $(TARGET_DIR)$(CONFIG_DIR)/certs/*
 
 	rm -rf certs/
 
-	chown -R ${USER}:${GROUP} ${TARGET_DIR}${INSTALLATION_DIR}
-	chown -R ${USER}:${GROUP} ${TARGET_DIR}${CONFIG_DIR}
-	chown ${USER}:${GROUP} ${TARGET_DIR}/etc/systemd/system/wazuh-dashboards.service
-	chown ${USER}:${GROUP} ${TARGET_DIR}/etc/systemd/system/${NAME}
-	chown ${USER}:${GROUP} ${TARGET_DIR}/etc/default/${NAME}
+	chown -R $(USER):$(GROUP) $(TARGET_DIR)$(INSTALLATION_DIR)
+	chown -R $(USER):$(GROUP) $(TARGET_DIR)$(CONFIG_DIR)
+	chown $(USER):$(GROUP) $(TARGET_DIR)/etc/systemd/system/wazuh-dashboards.service
+	chown $(USER):$(GROUP) $(TARGET_DIR)/etc/systemd/system/$(NAME)
+	chown $(USER):$(GROUP) $(TARGET_DIR)/etc/default/$(NAME)
 
-	runuser ${USER} --shell="/bin/bash" --command="${TARGET_DIR}${INSTALLATION_DIR}/bin/opensearch-dashboards-plugin install https://s3.amazonaws.com/warehouse.wazuh.com/stack/dashboard/wazuh-1.2.0.zip" 
+	runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install https://s3.amazonaws.com/warehouse.wazuh.com/stack/dashboard/wazuh-1.2.0.zip" 
 
-	find ${TARGET_DIR}${INSTALLATION_DIR}/plugins/wazuh/ -exec chown ${USER}:${GROUP} {} \;
+	find $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/wazuh/ -exec chown $(USER):$(GROUP) {} \;
 
 # -----------------------------------------------------------------------------
 
 override_dh_fixperms:
 
-	chown -R "${NAME}":"${NAME}" "${TARGET_DIR}${CONFIG_DIR}"
-	chown -R "${NAME}":"${NAME}" "${TARGET_DIR}${INSTALLATION_DIR}"
-	chown -R "${NAME}":"${NAME}" ${TARGET_DIR}/etc/default/"${NAME}"
-	chown -R "${NAME}":"${NAME}" ${TARGET_DIR}/etc/systemd/system/"${NAME}"
-	chmod 750 ${TARGET_DIR}/etc/systemd/system/wazuh-dashboards
-	chmod 750 ${TARGET_DIR}/etc/default/wazuh-dashboards
-	chmod 640 "${TARGET_DIR}${CONFIG_DIR}"/dashboards.yml
-	chmod 750 "${TARGET_DIR}${CONFIG_DIR}"/certs
-	chmod 400 "${TARGET_DIR}${CONFIG_DIR}"/certs/*
-	chmod 640 "${TARGET_DIR}${CONFIG_DIR}"/node.options
-	chmod 640 ${TARGET_DIR}/etc/systemd/system/wazuh-dashboards.service
-	find "${TARGET_DIR}${INSTALLATION_DIR}" -type d -exec chmod 750 {} \;
-	find "${TARGET_DIR}${INSTALLATION_DIR}" -type f -perm 644 -exec chmod 640 {} \;
-	find "${TARGET_DIR}${INSTALLATION_DIR}" -type f -perm 755 -exec chmod 750 {} \;
+	chown -R "$(NAME)":"$(NAME)" "$(TARGET_DIR)$(CONFIG_DIR)"
+	chown -R "$(NAME)":"$(NAME)" "$(TARGET_DIR)$(INSTALLATION_DIR)"
+	chown -R "$(NAME)":"$(NAME)" $(TARGET_DIR)/etc/default/"$(NAME)"
+	chown -R "$(NAME)":"$(NAME)" $(TARGET_DIR)/etc/systemd/system/"$(NAME)"
+	chmod 750 $(TARGET_DIR)/etc/systemd/system/wazuh-dashboards
+	chmod 750 $(TARGET_DIR)/etc/default/wazuh-dashboards
+	chmod 640 "$(TARGET_DIR)$(CONFIG_DIR)"/dashboards.yml
+	chmod 750 "$(TARGET_DIR)$(CONFIG_DIR)"/certs
+	chmod 400 "$(TARGET_DIR)$(CONFIG_DIR)"/certs/*
+	chmod 640 "$(TARGET_DIR)$(CONFIG_DIR)"/node.options
+	chmod 640 $(TARGET_DIR)/etc/systemd/system/wazuh-dashboards.service
+	find "$(TARGET_DIR)$(INSTALLATION_DIR)" -type d -exec chmod 750 {} \;
+	find "$(TARGET_DIR)$(INSTALLATION_DIR)" -type f -perm 644 -exec chmod 640 {} \;
+	find "$(TARGET_DIR)$(INSTALLATION_DIR)" -type f -perm 755 -exec chmod 750 {} \;
 
 # -----------------------------------------------------------------------------
 

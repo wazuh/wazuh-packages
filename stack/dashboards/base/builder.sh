@@ -12,7 +12,7 @@ set -ex
 
 # Script parameters to build the package
 opensearch_version="${1}"
-release="${2}"
+future="${2}"
 reference="${3}"
 BASE_DIR=/tmp/output/wazuh-dashboards-base
 
@@ -26,6 +26,10 @@ if [ "${reference}" ];then
 else
     version=$(cat /root/VERSION)
 fi
+if [ "${future}" = "yes" ];then
+    version="99.99.0"
+fi
+
 
 # -----------------------------------------------------------------------------
 
@@ -39,7 +43,7 @@ fi
 curl -sL https://artifacts.opensearch.org/releases/bundle/opensearch-dashboards/"${opensearch_version}"/opensearch-dashboards-"${opensearch_version}"-linux-x64.tar.gz | tar xz
 
 # Remove unnecessary files and set up configuration
-mv opensearch-dashboards-"${opensearch_version}"-linux-x64 "${BASE_DIR}"
+mv opensearch-dashboards-* "${BASE_DIR}"
 cd "${BASE_DIR}"
 find -type l -exec rm -rf {} \;
 rm -rf ./config/*
@@ -50,5 +54,5 @@ cp -r /root/stack/dashboards/base/files/etc ./
 
 # Base output
 cd /tmp/output
-tar -cJf wazuh-dashboards-base-"${version}"-"${release}"-linux-x64.tar.xz wazuh-dashboards-base
+tar -cJf wazuh-dashboards-base-"${version}"-linux-x64.tar.xz wazuh-dashboards-base
 rm -rf "${BASE_DIR}"

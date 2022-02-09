@@ -16,6 +16,8 @@ BUILD_DOCKER="yes"
 DEB_AMD64_BUILDER="deb_dashboard_builder_amd64"
 DEB_BUILDER_DOCKERFILE="${CURRENT_PATH}/docker"
 FUTURE="no"
+BASE="s3"
+BASE_PATH="${CURRENT_PATH}/../base/output"
 
 trap ctrl_c INT
 
@@ -46,15 +48,19 @@ build_deb() {
 
 
     # Build the Debian package with a Docker container
+    VOLUMES="-v ${OUTDIR}/:/tmp:Z"
     if [ "${REFERENCE}" ];then
-        docker run -t --rm -v ${OUTDIR}/:/tmp:Z \
+        docker run -t --rm ${VOLUMES} \
             ${CONTAINER_NAME} ${ARCHITECTURE} ${REVISION} \
-            ${FUTURE} ${REFERENCE} || return 1
+            ${FUTURE} ${BASE} ${REFERENCE} || return 1
     else
-        docker run -t --rm -v ${OUTDIR}/:/tmp:Z \
+        if [ "${BASE}" = "local" ];then
+            VOLUMES="${VOLUMES} -v ${BASE_PATH}:/root/output:Z"
+        fi
+        docker run -t --rm ${VOLUMES} \
             -v ${CURRENT_PATH}/../../..:/root:Z \
             ${CONTAINER_NAME} ${ARCHITECTURE} \
-            ${REVISION} ${FUTURE} || return 1
+            ${REVISION} ${FUTURE} ${BASE} || return 1
     fi
 
     echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
@@ -88,6 +94,8 @@ help() {
     echo "    --reference <ref>          [Optional] wazuh-packages branch to download SPECs, not used by default."
     echo "    --dont-build-docker        [Optional] Locally built docker image will be used instead of generating a new one."
     echo "    --future                   [Optional] Build test future package x.30.0 Used for development purposes."
+    echo "    --base <s3/local>          [Optional] Base file location, use local or s3, default: s3"
+    echo "    --base-path                [Optional] If base is local, you can indicate the full path where the base is located, default: stack/dashboards/base/output"
     echo "    -h, --help                 Show this help."
     echo
     exit $1
@@ -132,6 +140,22 @@ main() {
         "--future")
             FUTURE="yes"
             shift 1
+            ;;
+        "--base")
+            if [ -n "$2" ]; then
+                BASE="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
+        "--base-path")
+            if [ -n "$2" ]; then
+                BASE_PATH="$2"
+                shift 2
+            else
+                help 1
+            fi
             ;;
         "-s"|"--store")
             if [ -n "$2" ]; then

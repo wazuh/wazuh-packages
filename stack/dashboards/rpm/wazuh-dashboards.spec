@@ -31,7 +31,7 @@ ExclusiveOS: linux
 %global LOG_DIR /var/log/%{name}
 %global PID_DIR /run/%{name}
 %global INSTALL_DIR /usr/share/%{name}
-%global DASHBOARD_FILE wazuh-dashboards-base-%{version}-%{release}-linux-x64
+%global DASHBOARD_FILE wazuh-dashboards-base-%{version}-linux-x64.tar.xz
 
 # -----------------------------------------------------------------------------
 
@@ -45,8 +45,12 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 
 %prep
 
-
-curl -kOL https://s3.amazonaws.com/warehouse.wazuh.com/stack/dashboard/%{DASHBOARD_FILE}.tar.xz
+# Set up required files
+if [ "%{_base}" = "s3" ];then
+    curl -kOL https://s3.amazonaws.com/warehouse.wazuh.com/stack/dashboard/%{DASHBOARD_FILE}
+else
+    cp /root/output/wazuh-dashboards-base-%{version}-linux-x64.tar.xz ./
+fi
 groupadd %{GROUP}
 useradd -g %{GROUP} %{USER}
 
@@ -54,7 +58,7 @@ useradd -g %{GROUP} %{USER}
 
 %build
 
-tar -xf %{DASHBOARD_FILE}.tar.xz
+tar -xf %{DASHBOARD_FILE}
 
 # -----------------------------------------------------------------------------
 
