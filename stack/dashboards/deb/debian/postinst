@@ -36,6 +36,11 @@ case "$1" in
             fi
         fi
 
+        runuser "${NAME}" --shell="/bin/bash" --command="${INSTALLATION_DIR}/bin/opensearch-dashboards-keystore create"
+        runuser "${NAME}" --shell="/bin/bash" --command="cat ${INSTALLATION_DIR}/config/secret | ${INSTALLATION_DIR}/bin/opensearch-dashboards-keystore add opensearch.username --stdin"
+        runuser "${NAME}" --shell="/bin/bash" --command="cat ${INSTALLATION_DIR}/config/secret | ${INSTALLATION_DIR}/bin/opensearch-dashboards-keystore add opensearch.password --stdin"
+        rm -f ${INSTALLATION_DIR}/config/secret
+
     ;;
 
 
@@ -45,7 +50,7 @@ case "$1" in
 
 
     *)
-        echo "postinst called with unknown argument \`$1'" >22
+        echo "postinst called with unknown argument \`$1'" >&2
         exit 1
     ;;
 

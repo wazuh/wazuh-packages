@@ -72,6 +72,9 @@ override_dh_install:
 	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/opensearch_dashboards_config.js ${TARGET_DIR}${INSTALLATION_DIR}/src/core/server/opensearch_dashboards_config.js
 
 
+	mkdir -p ${TARGET_DIR}${INSTALLATION_DIR}/config
+	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/secret ${TARGET_DIR}${INSTALLATION_DIR}/config/secret
+
 	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/services/wazuh-dashboards.service ${TARGET_DIR}/etc/systemd/system/wazuh-dashboards.service 
 	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/services/wazuh-dashboards ${TARGET_DIR}/etc/systemd/system/${NAME}
 	cp ${TARGET_DIR}${INSTALLATION_DIR}/etc/services/default ${TARGET_DIR}/etc/default/${NAME}
