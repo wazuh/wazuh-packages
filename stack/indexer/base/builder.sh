@@ -33,15 +33,18 @@ curl -sL https://artifacts.opensearch.org/releases/bundle/opensearch/"${version}
 mv opensearch-"${version}" "${BASE_DIR}"
 cd "${BASE_DIR}"
 find -type l -exec rm -rf {} \;
+find -name "*.bat" -exec rm -rf {} \;
 rm -rf README.md manifest.yml opensearch-tar-install.sh logs
 sed -i 's|OPENSEARCH_DISTRIBUTION_TYPE=tar|OPENSEARCH_DISTRIBUTION_TYPE=rpm|g' bin/opensearch-env
 cp -r /root/stack/indexer/base/files/systemd-entrypoint bin/
 cp -r /root/stack/indexer/base/files/etc ./
 cp -r /root/stack/indexer/base/files/usr ./
+cp -r ./config/log4j2.properties ./etc/wazuh-indexer/
 cp -r ./config/opensearch-reports-scheduler ./etc/wazuh-indexer/
 cp -r ./config/opensearch-observability ./etc/wazuh-indexer/
 cp -r ./config/jvm.options.d ./etc/wazuh-indexer/
 rm -rf ./config
+rm -rf ./plugins/opensearch-security/tools/install_demo_configuration.sh
 
 # -----------------------------------------------------------------------------
 
@@ -62,5 +65,5 @@ rm -rf OpenSearch
 
 # Base output
 cd /tmp/output
-tar cvf wazuh-indexer-base-linux-x64.tar.gz wazuh-indexer-base 
+tar -Jcvf wazuh-indexer-base-$(cat /root/VERSION)-linux-x64.tar.xz wazuh-indexer-base 
 rm -rf "${BASE_DIR}"

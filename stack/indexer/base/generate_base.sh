@@ -8,7 +8,7 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-set -e
+set -ex
 
 reference=""
 version="1.2.4"
