@@ -321,7 +321,7 @@ function common_rollBack() {
         fi
     done
 
-    checkIfInstalled
+    checks_installed_component
 
     if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ] || [ -n "${indexerchinstalled}" ] || [ -n "${indexer_remaining_files}" ] || [ -n "${dashboardsinstalled}" ] || [ -n "${dashboards_remaining_files}" ]; then
         logger -w "Some Wazuh components are still installed on this host."

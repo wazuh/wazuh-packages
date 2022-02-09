@@ -44,6 +44,7 @@ function checks_arguments() {
         if [ -n "$AIO" ] || [ -n "$indexer" ] || [ -n "$dashboards" ] || [ -n "$wazuh" ]; then
         logger -e "The argument -u|--uninstall can't be used with -a, -wd, -wi or -ws. If you want to overwrite the components use -o|--overwrite."
         exit 1
+        fi
 
         if ! [ ${uninstall_component_name} == "all" -o ${uninstall_component_name} == "manager" -o ${uninstall_component_name} == "indexer" -o ${uninstall_component_name} == "dashboard" ]; then
             logger -e "The argument -u|--uninstall only accepts the following parameters: all, manager, indexer or dashboard."
@@ -129,7 +130,7 @@ function checks_arguments() {
 
     # -------------- Global -----------------------------------------
 
-    if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboards}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ] && [ -z "${configurations}" ] && [ -z "${uninstall}"]; then
+    if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboards}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ] && [ -z "${configurations}" ] && [ -z "${uninstall}" ]; then
         logger -e "At least one of these arguments is necessary -a|--all-in-one, -c|--create-configurations, -wi|--wazuh-indexer <indexer-node-name>, -wd|--wazuh-dashboards <dashboards-node-name>, -s|--start-cluster, -ws|--wazuh-server <wazuh-node-name>, -u|--uninstall"
         exit 1
     fi
@@ -177,7 +178,7 @@ function checks_health() {
 
 }
 
-function checks_installed() {
+function checks_installed_component() {
 
     if [ "${sys_type}" == "yum" ]; then
         wazuhinstalled=$(yum list installed 2>/dev/null | grep wazuh-manager)

@@ -339,20 +339,20 @@ function main() {
 
 # -------------- Preliminary checks  --------------------------------
 
-    checkArch
-    checkSystem
+    checks_arch
+    checks_system
     if [ -z "${uninstall}" ]; then
         if [ -n "${ignore}" ]; then
             logger -w "Health-check ignored."
         else
-            checkHealth
+            checks_health
         fi
     fi
     if [ -n "${AIO}" ] ; then
         rm -f "${tar_file}"
     fi
-    checkIfInstalled
-    checkArguments
+    checks_installed_component
+    checks_arguments
 
 # -------------- Uninstall case  ------------------------------------
 
