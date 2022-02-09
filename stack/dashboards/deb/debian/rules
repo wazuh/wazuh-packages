@@ -33,24 +33,32 @@ export DASHBOARD_FILE=wazuh-dashboards-base-VERSION-RELEASE-linux-x64
 export USER=${NAME}
 export GROUP=${NAME}
 
-
+# -----------------------------------------------------------------------------
 
 %:
 	dh $@
 
+# -----------------------------------------------------------------------------
+
 override_dh_shlibdeps:
+
+# -----------------------------------------------------------------------------
 
 override_dh_auto_configure:
 
+# -----------------------------------------------------------------------------
+
 override_dh_auto_install:
 
+# -----------------------------------------------------------------------------
+
 override_dh_install:
-	curl -kOL https://s3.amazonaws.com/warehouse.wazuh.com/stack/dashboard/${DASHBOARD_FILE}.tar.gz
+	curl -kOL https://s3.amazonaws.com/warehouse.wazuh.com/stack/dashboard/${DASHBOARD_FILE}.tar.xz
 
 	groupadd ${GROUP}
 	useradd -g ${GROUP} ${USER}
 
-	tar -xf ${DASHBOARD_FILE}.tar.gz
+	tar -xf ${DASHBOARD_FILE}.tar.xz
 
 	mkdir -p ${TARGET_DIR}${CONFIG_DIR}/certs
 	mkdir -p ${TARGET_DIR}${INSTALLATION_DIR}
@@ -106,6 +114,8 @@ override_dh_install:
 
 	find ${TARGET_DIR}${INSTALLATION_DIR}/plugins/wazuh/ -exec chown ${USER}:${GROUP} {} \;
 
+# -----------------------------------------------------------------------------
+
 override_dh_fixperms:
 
 	chown -R "${NAME}":"${NAME}" "${TARGET_DIR}${CONFIG_DIR}"
@@ -123,10 +133,11 @@ override_dh_fixperms:
 	find "${TARGET_DIR}${INSTALLATION_DIR}" -type f -perm 644 -exec chmod 640 {} \;
 	find "${TARGET_DIR}${INSTALLATION_DIR}" -type f -perm 755 -exec chmod 750 {} \;
 
-
-#override_dh_auto_clean:
+# -----------------------------------------------------------------------------
 
 override_dh_strip:
 	dh_strip --no-automatic-dbgsym
+
+# -----------------------------------------------------------------------------
 
 .PHONY: override_dh_strip override_dh_auto_clean override_dh_auto_build override_dh_auto_configure

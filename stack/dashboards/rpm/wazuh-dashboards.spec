@@ -46,7 +46,7 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 %prep
 
 
-curl -kOL https://s3.amazonaws.com/warehouse.wazuh.com/stack/dashboard/%{DASHBOARD_FILE}.tar.gz
+curl -kOL https://s3.amazonaws.com/warehouse.wazuh.com/stack/dashboard/%{DASHBOARD_FILE}.tar.xz
 groupadd %{GROUP}
 useradd -g %{GROUP} %{USER}
 
@@ -54,7 +54,7 @@ useradd -g %{GROUP} %{USER}
 
 %build
 
-tar -xf %{DASHBOARD_FILE}.tar.gz
+tar -xf %{DASHBOARD_FILE}.tar.xz
 
 # -----------------------------------------------------------------------------
 

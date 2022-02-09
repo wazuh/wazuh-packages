@@ -27,7 +27,7 @@ clean() {
     exit_code=$1
 
     # Clean the files
-    rm -rf ${DOCKERFILE_PATH}/{*.sh,*.tar.gz,*-dashboards-*}
+    rm -rf ${DOCKERFILE_PATH}/{*.sh,*.tar.xz,*-dashboards-*}
     
     exit ${exit_code}
 }

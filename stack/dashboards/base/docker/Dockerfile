@@ -6,7 +6,8 @@ RUN yum install -y \
     curl \
     tar \
     findutils \
-    git
+    git \
+    xz
     
 
 # Add the scripts to build the RPM package

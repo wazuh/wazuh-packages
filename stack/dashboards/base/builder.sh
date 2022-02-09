@@ -50,5 +50,5 @@ cp -r /root/stack/dashboards/base/files/etc ./
 
 # Base output
 cd /tmp/output
-tar cvf wazuh-dashboards-base-"${version}"-"${release}"-linux-x64.tar.gz wazuh-dashboards-base 
+tar -cJf wazuh-dashboards-base-"${version}"-"${release}"-linux-x64.tar.xz wazuh-dashboards-base
 rm -rf "${BASE_DIR}"
