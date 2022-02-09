@@ -64,7 +64,7 @@ function getHelp() {
     echo -e "        $(basename "$0") - Install and configure Wazuh central components."
     echo -e ""
     echo -e "SYNOPSIS"
-    echo -e "        $(basename "$0") [OPTIONS] -a | -c | -e <elasticsearch-node-name> | -k <kibana-node-name> | -s | -w <wazuh-node-name>"
+    echo -e "        $(basename "$0") [OPTIONS] -a | -c | -wi <indexer-node-name> | -wd <dashboards-node-name> | -s | -ws <wazuh-node-name>"
     echo -e ""
     echo -e "DESCRIPTION"
     echo -e "        -a,  --all-in-one"
@@ -79,12 +79,11 @@ function getHelp() {
     echo -e "        -ds,  --disable-spinner"
     echo -e "                Disables the spinner indicator."
     echo -e ""
-    echo -e ""
     echo -e "        -f,  --fileconfig [path-to-config-yml]"
     echo -e "                Path to config file. By default: ${base_path}/config.yml"
     echo -e ""
     echo -e "        -F,  --force-dashboards"
-    echo -e "                Ignore indexer cluster related errors in kibana installation"
+    echo -e "                Ignore Wazuh indexer cluster related errors in Wazuh dashboard installation."
     echo -e ""
     echo -e "        -h,  --help"
     echo -e "                Shows help."
@@ -105,7 +104,7 @@ function getHelp() {
     echo -e "                Path to tar containing certificate files. By default: ${base_path}/configurations.tar"
     echo -e ""
     echo -e "        -u,  --uninstall [component-name]"
-    echo -e "                Use 'all' for complete components uninstall, 'manager', 'elasticsearch' or 'kibana' for single component uninstall."
+    echo -e "                Use 'all' for complete components uninstall, 'manager', 'indexer' or 'dashboard' for single component uninstall."
     echo -e ""
     echo -e "        -v,  --verbose"
     echo -e "                Shows the complete installation output."
@@ -228,7 +227,7 @@ function main() {
                 config_file="${2}"
                 shift 2
                 ;;
-            "-F"|"--force-kibana")
+            "-F"|"--force-dashboards")
                 force=1
                 shift 1
                 ;;
@@ -298,7 +297,7 @@ function main() {
                 ;;
             "-ws"|"--wazuh-server")
                 if [ -z "${2}" ]; then
-                    logger -e "Error on arguments. Probably missing <node-name> after -w|--wazuh-server"
+                    logger -e "Error on arguments. Probably missing <node-name> after -ws|--wazuh-server"
                     getHelp
                     exit 1
                 fi
@@ -358,10 +357,10 @@ function main() {
 # -------------- Uninstall case  ------------------------------------
 
     if [ -n "${uninstall}" ]; then
-        importFunction "wazuh.sh"
+        importFunction "manager.sh"
         importFunction "filebeat.sh"
-        importFunction "elasticsearch.sh"
-        importFunction "kibana.sh"
+        importFunction "indexer.sh"
+        importFunction "dashboards.sh"
         logger "------------------------------------ Uninstall ------------------------------------"
         rollBack
         exit 0

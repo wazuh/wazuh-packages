@@ -119,7 +119,7 @@ function dashboards_initialize() {
             common_rollBack
             exit 1
         else
-            logger "When Wazuh dashboards is able to connect to your Elasticsearch cluster, you can access the web interface https://${nodes_dashboards_ip}. The credentials are admin:${u_pass}"
+            logger "When Wazuh dashboards is able to connect to your Wazuh indexer cluster, you can access the web interface https://${nodes_dashboards_ip}. The credentials are admin:${u_pass}"
         fi
     else
         logger "You can access the web interface https://${nodes_dashboards_ip}. The credentials are admin:${u_pass}"

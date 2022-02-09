@@ -273,7 +273,7 @@ function common_restoreWazuhrepo() {
 
 function common_rollBack() {
 
-    componentList=("${wazuhinstalled}" "${filebeatinstalled}" "${elasticsearchinstalled}" "${kibanainstalled}")
+    componentList=("${wazuhinstalled}" "${filebeatinstalled}" "${indexerchinstalled}" "${dashboardsinstalled}")
 
     logger "Analyzing components to uninstall and clean."
 
@@ -286,8 +286,8 @@ function common_rollBack() {
         fi
     fi
     # Uninstall case: indexer
-    if [ -n "${AIO}" ] || [ "${uninstall_component_name}" == "all" ] || [ "${uninstall_component_name}" == "elasticsearch" ]; then
-        if [ -n "${indexerchinstalled}" ] || [ -n "${elastic_remaining_files}" ]; then
+    if [ -n "${AIO}" ] || [ "${uninstall_component_name}" == "all" ] || [ "${uninstall_component_name}" == "indexer" ]; then
+        if [ -n "${indexerchinstalled}" ] || [ -n "${indexer_remaining_files}" ]; then
             indexer_uninstall
         else
 
@@ -295,7 +295,7 @@ function common_rollBack() {
         fi
     fi
     # Uninstall case: dashboard
-    if [ -n "${AIO}" ] || [ ${uninstall_component_name} == "all" ] || [ ${uninstall_component_name} == "kibana" ] ; then
+    if [ -n "${AIO}" ] || [ ${uninstall_component_name} == "all" ] || [ ${uninstall_component_name} == "dashboard" ] ; then
         if [ -n "${dashboardsinstalled}" ] || [ -n "${dashboards_remaining_files}" ]; then
             dashboards_uninstall
         else
@@ -316,14 +316,14 @@ function common_rollBack() {
 
     # rollBack case
     for component in "${componentList[@]}"; do
-        if [ "${component}" == "manager" ] || [ "${component}" == "elastichsearch" ] || [ "${component}" == "kibana" ] ; then
+        if [ "${component}" == "manager" ] || [ "${component}" == "indexer" ] || [ "${component}" == "dashboards" ] ; then
             eval "uninstall$component"
         fi
     done
 
     checkIfInstalled
 
-    if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ] || [ -n "${elasticsearchinstalled}" ] || [ -n "${elastic_remaining_files}" ] || [ -n "${kibanainstalled}" ] || [ -n "${kibana_remaining_files}" ]; then
+    if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ] || [ -n "${indexerchinstalled}" ] || [ -n "${indexer_remaining_files}" ] || [ -n "${dashboardsinstalled}" ] || [ -n "${dashboards_remaining_files}" ]; then
         logger -w "Some Wazuh components are still installed on this host."
     else
         rollBackRepositories

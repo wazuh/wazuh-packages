@@ -171,7 +171,7 @@ function indexer_uninstall() {
 
     logger "Starting Wazuh indexer uninstall."
 
-    if [[ -n "${elasticsearchinstalled}" ]]; then
+    if [[ -n "${indexerchinstalled}" ]]; then
         logger -w "Removing Wazuh packages."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-indexer -y ${debug}"
@@ -182,7 +182,7 @@ function indexer_uninstall() {
         fi
     fi
 
-    if [[ -n "${elastic_remaining_files}" ]]; then
+    if [[ -n "${indexer_remaining_files}" ]]; then
         logger -w "Removing Wazuh indexer files."
 
         elements_to_remove=(    "/etc/systemd/system/multi-user.target.wants/elasticsearch.service"
@@ -191,6 +191,7 @@ function indexer_uninstall() {
                                 "/usr/share/wazuh-indexer"
                                 "/etc/wazuh-indexer/"
                                 "/var/log/elasticsearch/"
+                                "/var/log/wazuh-indexer/"
                                 "/etc/systemd/system/opensearch.service.wants/"
                                 "/securityadmin_demo.sh"
                                 "/etc/systemd/system/multi-user.target.wants/opensearch.service"

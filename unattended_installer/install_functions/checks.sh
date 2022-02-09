@@ -42,11 +42,11 @@ function checks_arguments() {
     if [ -n "${uninstall}" ]; then
 
         if [ -n "$AIO" ] || [ -n "$indexer" ] || [ -n "$dashboards" ] || [ -n "$wazuh" ]; then
-        logger -e "The argument -u|--uninstall can't be used with -a, -k, -e or -w. If you want to overwrite the components use -o|--overwrite."
+        logger -e "The argument -u|--uninstall can't be used with -a, -wd, -wi or -ws. If you want to overwrite the components use -o|--overwrite."
         exit 1
 
-        if ! [ ${uninstall_component_name} == "all" -o ${uninstall_component_name} == "manager" -o ${uninstall_component_name} == "elasticsearch" -o ${uninstall_component_name} == "kibana" ]; then
-            logger -e "The argument -u|--uninstall only accepts the following parameters: all, manager, elasticsearch or kibana."
+        if ! [ ${uninstall_component_name} == "all" -o ${uninstall_component_name} == "manager" -o ${uninstall_component_name} == "indexer" -o ${uninstall_component_name} == "dashboard" ]; then
+            logger -e "The argument -u|--uninstall only accepts the following parameters: all, manager, indexer or dashboard."
             exit 1
         fi
 
@@ -56,8 +56,8 @@ function checks_arguments() {
 
     if [ -n "${AIO}" ]; then
 
-        if [ -n "$elasticsearch" ] || [ -n "$kibana" ] || [ -n "$wazuh" ]; then
-            logger -e "Argument -a|--all-in-one is not compatible with -e|--elasticsearch, -k|--kibana or -w|--wazuh-server"
+        if [ -n "$indexer" ] || [ -n "$dashboards" ] || [ -n "$wazuh" ]; then
+            logger -e "Argument -a|--all-in-one is not compatible with -wi, -wd or -ws"
             exit 1
         fi
 
@@ -71,7 +71,7 @@ function checks_arguments() {
         fi
     fi
 
-    # -------------- Elasticsearch ----------------------------------
+    # -------------- Wazuh indexer ----------------------------------
 
     if [ -n "${indexer}" ]; then
 
@@ -79,33 +79,33 @@ function checks_arguments() {
             if [ -n "${overwrite}" ]; then
                 rollBack
             else
-                logger -e "Elasticsearch is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
+                logger -e "Wazuh indexer is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
             fi
         fi
     fi
 
-    # -------------- Kibana -----------------------------------------
+    # -------------- Wazuh dashboard -----------------------------------------
 
     if [ -n "${dashboards}" ]; then
         if [ -n "${dashboardsinstalled}" ] || [ -n "${dashboards_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
                 rollBack
             else
-                logger -e "Kibana is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
+                logger -e "Wazuh dashboard is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
             fi
         fi
     fi
 
-    # -------------- Wazuh ------------------------------------------
+    # -------------- Wazuh manager ------------------------------------------
 
     if [ -n "${wazuh}" ]; then
         if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
                 rollBack
             else
-                logger -e "Wazuh is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
+                logger -e "Wazuh manager is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
             fi
         fi
@@ -130,7 +130,7 @@ function checks_arguments() {
     # -------------- Global -----------------------------------------
 
     if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboards}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ] && [ -z "${configurations}" ] && [ -z "${uninstall}"]; then
-        logger -e "At least one of these arguments is necessary -a|--all-in-one, -c|--create-configurations, -e|--elasticsearch <elasticsearch-node-name>, -k|--kibana <kibana-node-name>, -s|--start-cluster, -w|--wazuh-server <wazuh-node-name>, -u|--uninstall"
+        logger -e "At least one of these arguments is necessary -a|--all-in-one, -c|--create-configurations, -wi|--wazuh-indexer <indexer-node-name>, -wd|--wazuh-dashboards <dashboards-node-name>, -s|--start-cluster, -ws|--wazuh-server <wazuh-node-name>, -u|--uninstall"
         exit 1
     fi
 
@@ -144,7 +144,7 @@ function checks_health() {
             logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
             exit 1
         else
-            logger "Check recommended minimum hardware requirements for Elasticsearch done."
+            logger "Check recommended minimum hardware requirements for Wazuh indexer done."
         fi
     fi
 
@@ -153,7 +153,7 @@ function checks_health() {
             logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
             exit 1
         else
-            logger "Check recommended minimum hardware requirements for Kibana done."
+            logger "Check recommended minimum hardware requirements for Wazuh dashboard done."
         fi
     fi
 
@@ -254,17 +254,17 @@ function checkDashboardRemainingFiles() {
 function checks_names() {
 
     if [ -n "${indxname}" ] && [ -n "${dashname}" ] && [ "${indxname}" == "${dashname}" ]; then
-        logger -e "The node names for Elastisearch and Kibana must be different."
+        logger -e "The node names for Wazuh indexer and Wazuh Dashboard must be different."
         exit 1
     fi
 
     if [ -n "${indxname}" ] && [ -n "${winame}" ] && [ "${indxname}" == "${winame}" ]; then
-        logger -e "The node names for Elastisearch and Wazuh must be different."
+        logger -e "The node names for Wazuh indexer and Wazuh manager must be different."
         exit 1
     fi
 
     if [ -n "${winame}" ] && [ -n "${dashname}" ] && [ "${winame}" == "${dashname}" ]; then
-        logger -e "The node names for Wazuh and Kibana must be different."
+        logger -e "The node names for Wazuh manager and Wazuh dashboard must be different."
         exit 1
     fi
 
@@ -274,12 +274,12 @@ function checks_names() {
     fi
 
     if [ -n "${indxname}" ] && [ -z "$(echo "${indexer_node_names[@]}" | grep -w "${indxname}")" ]; then
-        logger -e "The Elasticsearch node name ${indxname} does not appear on the configuration file."
+        logger -e "The Wazuh indexer node name ${indxname} does not appear on the configuration file."
         exit 1
     fi
 
     if [ -n "${dashname}" ] && [ -z "$(echo "${dashboards_node_names[@]}" | grep -w "${dashname}")" ]; then
-        logger -e "The Kibana node name ${dashname} does not appear on the configuration file."
+        logger -e "The Wazuh dashboard node name ${dashname} does not appear on the configuration file."
         exit 1
     fi
 
@@ -295,21 +295,21 @@ function checks_previousCertificate() {
 
     if [ -n "${indxname}" ]; then
         if ! $(tar -tf "${tar_file}" | grep -q "${indxname}".pem) || ! $(tar -tf "${tar_file}" | grep -q "${indxname}"-key.pem); then
-            logger -e "There is no certificate for the elasticsearch node ${indxname} in ${tar_file}."
+            logger -e "There is no certificate for the Wazuh indexer node ${indxname} in ${tar_file}."
             exit 1
         fi
     fi
 
     if [ -n "${dashname}" ]; then
         if ! $(tar -tf "${tar_file}" | grep -q "${dashname}".pem) || ! $(tar -tf "${tar_file}" | grep -q "${dashname}"-key.pem); then
-            logger -e "There is no certificate for the kibana node ${dashname} in ${tar_file}."
+            logger -e "There is no certificate for the Wazuh dashboard node ${dashname} in ${tar_file}."
             exit 1
         fi
     fi
 
     if [ -n "${winame}" ]; then
         if ! $(tar -tf "${tar_file}" | grep -q "${winame}".pem) || ! $(tar -tf "${tar_file}" | grep -q "${winame}"-key.pem); then
-            logger -e "There is no certificate for the wazuh server node ${winame} in ${tar_file}."
+            logger -e "There is no certificate for the Wazuh manager node ${winame} in ${tar_file}."
             exit 1
         fi
     fi
