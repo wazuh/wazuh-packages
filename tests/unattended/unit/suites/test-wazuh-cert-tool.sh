@@ -149,15 +149,15 @@ function load-generateElasticsearchcertificates() {
 
 test-09-generateElasticsearchcertificates-no-nodes() {
     load-generateElasticsearchcertificates
-    elasticsearch_node_names=()
+    indexer_node_names=()
     generateElasticsearchcertificates
     @assert-success
 }
 
 test-10-generateElasticsearchcertificates-two-nodes() {
     load-generateElasticsearchcertificates
-    elasticsearch_node_names=("elastic1" "elastic2")
-    elasticsearch_node_ips=("1.1.1.1" "1.1.1.2")
+    indexer_node_names=("elastic1" "elastic2")
+    indexer_node_ips=("1.1.1.1" "1.1.1.2")
     generateElasticsearchcertificates
 }
 
@@ -808,8 +808,8 @@ test-28-readConfig-everything-correct() {
 
     readConfig
     @rm "${config_file}"
-    @echo "${elasticsearch_node_names[@]}"
-    @echo "${elasticsearch_node_ips[@]}"
+    @echo "${indexer_node_names[@]}"
+    @echo "${indexer_node_ips[@]}"
     @echo "${wazuh_servers_node_names[@]}"
     @echo "${wazuh_servers_node_ips[@]}"
     @echo "${kibana_node_names[@]}"

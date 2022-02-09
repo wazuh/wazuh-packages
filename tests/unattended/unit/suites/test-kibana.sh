@@ -14,7 +14,7 @@ source "${base_dir}"/bach.sh
 }
 
 function load-copyKibanacerts() {
-    @load_function "${base_dir}/kibana.sh" copyKibanacerts
+    @load_function "${base_dir}/dashboard.sh" copyKibanacerts
 }
 
 test-ASSERT-FAIL-01-copyKibanacerts-no-tarfile() {
@@ -47,7 +47,7 @@ test-02-copyKibanacerts-assert() {
 }
 
 function load-installKibana() {
-    @load_function "${base_dir}/kibana.sh" installKibana
+    @load_function "${base_dir}/dashboard.sh" installKibana
 }
 
 test-03-installKibana-zypper() {
@@ -112,15 +112,15 @@ test-ASSERT-FAIL-08-installKibana-apt-error() {
 }
 
 function load-configureKibana() {
-    @load_function "${base_dir}/kibana.sh" configureKibana
+    @load_function "${base_dir}/dashboard.sh" configureKibana
 }
 
 test-09-configureKibana-dist-one-kibana-node-one-elastic-node() {
     load-configureKibana
     kibana_node_names=("kibana1")
     kibana_node_ips=("1.1.1.1")
-    elasticsearch_node_names=("elastic1")
-    elasticsearch_node_ips=("1.1.1.1")
+    indexer_node_names=("elastic1")
+    indexer_node_ips=("1.1.1.1")
     configureKibana
 }
 
@@ -133,7 +133,7 @@ test-09-configureKibana-dist-one-kibana-node-one-elastic-node-assert() {
     setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node
     echo 'server.host: "'1.1.1.1'"' >> /etc/kibana/kibana.yml
     echo "elasticsearch.hosts: https://1.1.1.1:9200" >> /etc/kibana/kibana.yml
-    getConfig kibana/kibana_unattended_distributed.yml /etc/kibana/kibana.yml
+    common_getConfig kibana/kibana_unattended_distributed.yml /etc/kibana/kibana.yml
 }
 
 test-10-configureKibana-dist-two-kibana-nodes-two-elastic-nodes() {
@@ -141,8 +141,8 @@ test-10-configureKibana-dist-two-kibana-nodes-two-elastic-nodes() {
     kiname="kibana2"
     kibana_node_names=("kibana1" "kibana2")
     kibana_node_ips=("1.1.1.1" "2.2.2.2")
-    elasticsearch_node_names=("elastic1" "elastic2")
-    elasticsearch_node_ips=("1.1.1.1" "2.2.2.2")
+    indexer_node_names=("elastic1" "elastic2")
+    indexer_node_ips=("1.1.1.1" "2.2.2.2")
     configureKibana
 }
 
@@ -157,7 +157,7 @@ test-10-configureKibana-dist-two-kibana-nodes-two-elastic-nodes-assert() {
     echo "elasticsearch.hosts:" >> /etc/kibana/kibana.yml
     echo "  - https://1.1.1.1:9200" >> /etc/kibana/kibana.yml
     echo "  - https://2.2.2.2:9200" >> /etc/kibana/kibana.yml
-    getConfig kibana/kibana_unattended_distributed.yml /etc/kibana/kibana.yml
+    common_getConfig kibana/kibana_unattended_distributed.yml /etc/kibana/kibana.yml
 }
 
 test-ASSERT-FAIL-11-configureKibana-dist-error-downloading-plugin() {
@@ -170,8 +170,8 @@ test-12-configureKibana-AIO() {
     load-configureKibana
     kibana_node_names=("kibana1")
     kibana_node_ips=("1.1.1.1")
-    elasticsearch_node_names=("elastic1")
-    elasticsearch_node_ips=("1.1.1.1")
+    indexer_node_names=("elastic1")
+    indexer_node_ips=("1.1.1.1")
     AIO=1
     configureKibana
 }
@@ -183,7 +183,7 @@ test-12-configureKibana-AIO-assert() {
     copyKibanacerts
     modifyKibanaLogin
     setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node
-    getConfig kibana/kibana_unattended.yml /etc/kibana/kibana.yml
+    common_getConfig kibana/kibana_unattended.yml /etc/kibana/kibana.yml
 }
 
 test-ASSERT-FAIL-13-configureKibana--AIO-error-downloading-plugin() {
@@ -194,7 +194,7 @@ test-ASSERT-FAIL-13-configureKibana--AIO-error-downloading-plugin() {
 }
 
 function load-initializeKibana() {
-    @load_function "${base_dir}/kibana.sh" initializeKibana
+    @load_function "${base_dir}/dashboard.sh" initializeKibana
 }
 
 test-14-initializeKibana-distributed-one-kibana-node-one-wazuh-node-curl-correct() {
@@ -209,7 +209,7 @@ test-14-initializeKibana-distributed-one-kibana-node-one-wazuh-node-curl-correct
 }
 
 test-14-initializeKibana-distributed-one-kibana-node-one-wazuh-node-curl-correct-assert() {
-    getPass "admin"
+    common_getPass "admin"
     sed -i 's,url: https://localhost,url: https://2.2.2.2,g' /usr/share/kibana/data/wazuh/config/wazuh.yml
 }
 
@@ -237,7 +237,7 @@ test-16-initializeKibana-distributed-two-kibana-nodes-two-wazuh-nodes-curl-corre
 }
 
 test-16-initializeKibana-distributed-two-kibana-nodes-two-wazuh-nodes-curl-correct-assert() {
-    getPass "admin"
+    common_getPass "admin"
     sed -i 's,url: https://localhost,url: https://1.1.2.2,g' /usr/share/kibana/data/wazuh/config/wazuh.yml
 }
 
@@ -268,7 +268,7 @@ test-18-initializeKibana-distributed-two-kibana-nodes-two-wazuh-nodes-curl-error
 }
 
 test-18-initializeKibana-distributed-two-kibana-nodes-two-wazuh-nodes-curl-error-force-assert() {
-    getPass  admin
+    common_getPass  admin
     sleep  10
     sleep  10
     sleep  10
@@ -285,7 +285,7 @@ test-18-initializeKibana-distributed-two-kibana-nodes-two-wazuh-nodes-curl-error
 }
 
 function load-initializeKibanaAIO() {
-    @load_function "${base_dir}/kibana.sh" initializeKibanaAIO
+    @load_function "${base_dir}/dashboard.sh" initializeKibanaAIO
 }
 
 test-19-initializeKibanaAIO-curl-correct() {
@@ -298,7 +298,7 @@ test-19-initializeKibanaAIO-curl-correct() {
 }
 
 test-19-initializeKibanaAIO-curl-correct-assert() {
-    getPass "admin"
+    common_getPass "admin"
 }
 
 
@@ -310,7 +310,7 @@ test-ASSERT-FAIL-20-initializeKibanaAIO-curl-error() {
 }
 
 function load-modifyKibanaLogin() {
-    @load_function "${base_dir}/kibana.sh" modifyKibanaLogin
+    @load_function "${base_dir}/dashboard.sh" modifyKibanaLogin
 }
 
 test-21-modifyKibanaLogin() {
@@ -330,6 +330,6 @@ test-21-modifyKibanaLogin-assert() {
     cp -f /tmp/custom_welcome/template.js.hbs /usr/share/kibana/src/legacy/ui/ui_render/bootstrap/template.js.hbs
     rm -f /tmp/custom_welcome/*
     rmdir /tmp/custom_welcome
-    getConfig kibana/customWelcomeKibana.css /tmp/customWelcomeKibana.css
+    common_getConfig kibana/customWelcomeKibana.css /tmp/customWelcomeKibana.css
     rm -f /tmp/customWelcomeKibana.css
 }

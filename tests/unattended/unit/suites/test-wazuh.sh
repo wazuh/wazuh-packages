@@ -8,7 +8,7 @@ source "${base_dir}"/bach.sh
 }
 
 function load-installWazuh() {
-    @load_function "${base_dir}/wazuh.sh" installWazuh
+    @load_function "${base_dir}/manager.sh" installWazuh
 }
 
 test-01-installWazuh-zypper-error() {
@@ -21,7 +21,7 @@ test-01-installWazuh-zypper-error() {
 }
 
 test-01-installWazuh-zypper-error-assert() {
-    rollBack
+    common_rollBack
     exit 1
 }
 
@@ -36,7 +36,7 @@ test-02-installWazuh-apt-error() {
 }
 
 test-02-installWazuh-apt-error-assert() {
-    rollBack
+    common_rollBack
     exit 1
 }
 
@@ -51,7 +51,7 @@ test-03-installWazuh-yum-error() {
 }
 
 test-03-installWazuh-yum-error-assert() {
-    rollBack
+    common_rollBack
     exit 1
 }
 
@@ -100,7 +100,7 @@ test-06-installWazuh-yum-assert() {
 }
 
 function load-configureWazuhCluster() {
-    @load_function "${base_dir}/wazuh.sh" configureWazuhCluster
+    @load_function "${base_dir}/manager.sh" configureWazuhCluster
 }
 
 test-07-configureWazuhCluster() {

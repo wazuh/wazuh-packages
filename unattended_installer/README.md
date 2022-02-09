@@ -150,7 +150,7 @@ Example <details><summary>Output</summary>
 07/01/2022 19:14:51 INFO: Starting Open Distro for Elasticsearch installation.
 07/01/2022 19:15:34 INFO: Open Distro for Elasticsearch installation finished.
 07/01/2022 19:15:36 INFO: Elasticsearch post-install configuration finished.
-07/01/2022 19:15:36 INFO: Starting service elasticsearch.
+07/01/2022 19:15:36 INFO: Starting service opensearch.
 07/01/2022 19:15:50 INFO: Elasticsearch service started.
 07/01/2022 19:15:50 INFO: Starting Elasticsearch cluster.
 07/01/2022 19:16:01 INFO: Elasticsearch cluster initialized.
@@ -307,8 +307,8 @@ Install Elasticsearch node:
 07/01/2022 19:53:00 INFO: Wazuh repository added.
 07/01/2022 19:53:00 INFO: Starting Open Distro for Elasticsearch installation.
 07/01/2022 19:53:37 INFO: Open Distro for Elasticsearch installation finished.
-07/01/2022 19:53:37 INFO: Configuring Elasticsearch.
-07/01/2022 19:53:41 INFO: Starting service elasticsearch.
+07/01/2022 19:53:37 INFO: Configuring opensearch.
+07/01/2022 19:53:41 INFO: Starting service opensearch.
 07/01/2022 19:54:35 INFO: Elasticsearch service started.
 07/01/2022 19:54:35 INFO: Starting Elasticsearch cluster.
 07/01/2022 19:54:36 INFO: Elasticsearch cluster started.
@@ -464,8 +464,8 @@ Install Elasticsearch:
 07/01/2022 18:23:55 INFO: Wazuh repository added.
 07/01/2022 18:23:55 INFO: Starting Open Distro for Elasticsearch installation.
 07/01/2022 18:24:18 INFO: Open Distro for Elasticsearch installation finished.
-07/01/2022 18:24:18 INFO: Configuring Elasticsearch.
-07/01/2022 18:24:21 INFO: Starting service elasticsearch.
+07/01/2022 18:24:18 INFO: Configuring opensearch.
+07/01/2022 18:24:21 INFO: Starting service opensearch.
 07/01/2022 18:24:57 INFO: Elasticsearch service started.
 07/01/2022 18:24:57 INFO: Starting Elasticsearch cluster.
 07/01/2022 18:24:57 INFO: Elasticsearch cluster started.
