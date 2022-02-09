@@ -67,9 +67,13 @@ mkdir -p ${RPM_BUILD_ROOT}%{LOG_DIR}
 mkdir -p ${RPM_BUILD_ROOT}%{LIB_DIR}
 mkdir -p ${RPM_BUILD_ROOT}%{SYS_DIR}
 
-# Download required sources
-curl -kOL https://s3.amazonaws.com/warehouse.wazuh.com/stack/indexer/wazuh-indexer-base-linux-x64.tar.gz
-tar -xzf wazuh-indexer-*.tar.gz && rm -f wazuh-indexer-*.tar.gz
+# Set up required files
+if [ "%{_base}" = "s3" ];then
+    curl -kOL https://packages-dev.wazuh.com/stack/indexer/base/wazuh-indexer-base-%{version}-linux-x64.tar.xz
+else
+    cp /root/output/wazuh-indexer-base-%{version}-linux-x64.tar.xz ./
+fi
+tar -xf wazuh-indexer-*.tar.xz && rm -f wazuh-indexer-*.tar.xz
 chown -R %{USER}:%{GROUP} wazuh-indexer-*/*
 
 # Copy base files into RPM_BUILD_ROOT directory

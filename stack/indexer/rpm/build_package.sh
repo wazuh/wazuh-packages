@@ -8,6 +8,8 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
+set -e
+
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ARCHITECTURE="x86_64"
 OUTDIR="${CURRENT_PATH}/output"
@@ -16,6 +18,7 @@ BUILD_DOCKER="yes"
 RPM_X86_BUILDER="rpm_indexer_builder_x86"
 RPM_BUILDER_DOCKERFILE="${CURRENT_PATH}/docker"
 FUTURE="no"
+BASE="s3"
 
 trap ctrl_c INT
 
@@ -45,15 +48,19 @@ build_rpm() {
     fi
 
     # Build the RPM package with a Docker container
+    VOLUMES="-v ${OUTDIR}/:/tmp:Z"
     if [ "${REFERENCE}" ];then
-        docker run -t --rm -v ${OUTDIR}/:/tmp:Z \
+        docker run -t --rm ${VOLUMES} \
             ${CONTAINER_NAME} ${ARCHITECTURE} ${REVISION} \
-            ${FUTURE} ${REFERENCE} || return 1
+            ${FUTURE} ${BASE} ${REFERENCE} || return 1
     else
-        docker run -t --rm -v ${OUTDIR}/:/tmp:Z \
+        if [ "${BASE}" = "local" ];then
+            VOLUMES="${VOLUMES} -v ${CURRENT_PATH}/../base/output:/root/output:Z"
+        fi
+        docker run -t --rm ${VOLUMES} \
             -v ${CURRENT_PATH}/../../..:/root:Z \
             ${CONTAINER_NAME} ${ARCHITECTURE} \
-            ${REVISION} ${FUTURE} || return 1
+            ${REVISION} ${FUTURE} ${BASE} || return 1
     fi
 
     echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
@@ -87,6 +94,7 @@ help() {
     echo "    --reference <ref>          [Optional] wazuh-packages branch to download SPECs, not used by default."
     echo "    --dont-build-docker        [Optional] Locally built docker image will be used instead of generating a new one."
     echo "    --future                   [Optional] Build test future package x.30.0 Used for development purposes."
+    echo "    --base <s3/local>          [Optional] Base file location, use local or s3, default: s3"
     echo "    -h, --help                 Show this help."
     echo
     exit $1
@@ -131,6 +139,14 @@ main() {
         "--future")
             FUTURE="yes"
             shift 1
+            ;;
+        "--base")
+            if [ -n "$2" ]; then
+                BASE="$2"
+                shift 2
+            else
+                help 1
+            fi
             ;;
         "-s"|"--store")
             if [ -n "$2" ]; then

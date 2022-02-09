@@ -9,12 +9,14 @@
 # Foundation.
 
 set -ex
+
 # Script parameters to build the package
 target="wazuh-indexer"
 architecture=$1
 release=$2
 future=$3
-spec_reference=$4
+base_location=$4
+spec_reference=$5
 directory_base="/usr/share/wazuh-indexer"
 rpmbuild="rpmbuild"
 
@@ -57,8 +59,10 @@ fi
 cd ${build_dir} && tar czf "${rpm_build_dir}/SOURCES/${pkg_name}.tar.gz" "${pkg_name}"
 
 # Building RPM
+ls -lah /root/output
 /usr/bin/rpmbuild --define "_topdir ${rpm_build_dir}" --define "_version ${version}" \
     --define "_release ${release}" --define "_localstatedir ${directory_base}" \
+    --define "_base ${base_location}" \
     --target ${architecture} -ba ${rpm_build_dir}/SPECS/${pkg_name}.spec
 
 cd ${pkg_path} && sha512sum ${rpm_file} > /tmp/${rpm_file}.sha512
