@@ -8,7 +8,7 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-set -ex
+set -e
 
 reference=""
 version="1.2.4"
@@ -66,7 +66,7 @@ help() {
     echo "Usage: $0 [OPTIONS]"
     echo
     echo "    --version <version>   [Optional] OpenSearch version, by default 1.2.4"
-    echo "    --reference <ref>     [Required] wazuh-packages branch or tag"
+    echo "    --reference <ref>     [Optional] wazuh-packages branch or tag"
     echo "    -h, --help            Show this help."
     echo
     exit "${1}"
