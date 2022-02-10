@@ -333,7 +333,22 @@ function main() {
     importFunction "wazuh-cert-tool.sh"
     importFunction "wazuh-passwords-tool.sh"
 
+    if [ -n "${uninstall}" ] || [ -n "${overwrite}" ] || [ -n "${AIO}" ] || [ -n "${wazuh}" ]; then
+        importFunction "manager.sh"
+        importFunction "filebeat.sh"
+    fi
+    if [ -n "${uninstall}" ] || [ -n "${overwrite}" ] || [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${start_elastic_cluster}" ]; then
+        importFunction "indexer.sh"
+    fi
+
+    if [ -n "${uninstall}" ] || [ -n "${overwrite}" ] || [ -n "${AIO}" ] || [ -n "${dashboards}" ]; then
+        importFunction "dashboards.sh"
+    fi
+
+# -------------- Wazuh unattended installer  --------------------------------
+
     if [ -z "${uninstall}" ]; then
+        logger "------------------------------------ Wazuh unattended installer ------------------------------------"
         logger "Starting Wazuh unattended installer. Wazuh version: ${wazuh_version}. Wazuh installer version: ${wazuh_install_vesion}"
     fi
 
@@ -354,17 +369,55 @@ function main() {
     checks_installed_component
     checks_arguments
 
-# -------------- Uninstall case  ------------------------------------
+# -------------- Uninstall and Overwrite case  ------------------------------------
 
     if [ -n "${uninstall}" ]; then
-        importFunction "manager.sh"
-        importFunction "filebeat.sh"
-        importFunction "indexer.sh"
-        importFunction "dashboards.sh"
         logger "------------------------------------ Uninstall ------------------------------------"
-        rollBack
+        common_rollBack
+        logger "Check the ${logfile} file to learn more about the issue."
+        logger "The uninstall process is complete."
         exit 0
     fi
+
+    if [ -n "${overwrite}" ]; then
+        logger "------------------------------------ Overwrite installation ------------------------------------"
+        if [ -n "${AIO}" ] ; then
+            wazuhinstalled="manager"
+            common_rollBack
+            indexerchinstalled="indexer"
+            common_rollBack
+            dashboardsinstalled="dashboards"
+            common_rollBack
+        fi
+        if [ -n "${wazuh}" ]; then
+            wazuhinstalled="manager"
+            common_rollBack
+        fi
+        if [ -n "${indexer}" ]; then
+            indexerchinstalled="indexer"
+            common_rollBack
+        fi
+        if [ -n "${dashboards}" ]; then
+            dashboardsinstalled="dashboards"
+            common_rollBack
+        fi
+
+        if [ -n "${rollback_conf}" ] || [ -n "${overwrite}" ]; then
+            logger "Overwrite: installation cleaned."
+        fi
+    fi
+
+# # -------------- Uninstall case  ------------------------------------
+
+#     if [ -n "${uninstall}" ]; then
+#         importFunction "manager.sh"
+#         importFunction "filebeat.sh"
+#         importFunction "indexer.sh"
+#         importFunction "dashboards.sh"
+#         logger "------------------------------------ Uninstall ------------------------------------"
+#         common_rollBack
+#         exit 0
+#     fi
 
 # -------------- Preliminary steps  --------------------------------
 
@@ -410,11 +463,6 @@ function main() {
         common_installPrerequisites
         common_addWazuhRepo
     fi
-# -------------- Elasticsearch or Start Elasticsearch cluster case---
-
-    if [ -n "${indexer}" ] || [ -n "${start_elastic_cluster}" ] ; then
-        importFunction "indexer.sh"
-    fi
 
 # -------------- Elasticsearch case  --------------------------------
 
@@ -437,9 +485,6 @@ function main() {
 
     if [ -n "${dashboards}" ]; then
         logger "---------------------------------- Wazuh dashboards -----------------------------------"
-
-        importFunction "dashboards.sh"
-
         dashboards_install
         dashboards_configure
         common_changePasswords
@@ -451,11 +496,8 @@ function main() {
 # -------------- Wazuh case  ---------------------------------------
 
     if [ -n "${wazuh}" ]; then
+
         logger "------------------------------------- Wazuh server ------------------------------------"
-
-        importFunction "manager.sh"
-        importFunction "filebeat.sh"
-
         manager_install
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
             manager_startCluster
@@ -470,11 +512,6 @@ function main() {
 # -------------- AIO case  ------------------------------------------
 
     if [ -n "${AIO}" ]; then
-
-        importFunction "manager.sh"
-        importFunction "filebeat.sh"
-        importFunction "indexer.sh"
-        importFunction "dashboards.sh"
 
         logger "------------------------------------ Wazuh indexer ------------------------------------"
         indexer_install
