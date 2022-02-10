@@ -392,6 +392,9 @@ function common_startService() {
         eval "systemctl start ${1}.service ${debug}"
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
+            if [ -n "$(command -v journalctl)" ]; then
+                eval "journalctl -r -u ${1} >> ${logfile}"
+            fi
             common_rollBack
             exit 1
         else
@@ -403,6 +406,9 @@ function common_startService() {
         eval "/etc/init.d/${1} start ${debug}"
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
+            if [ -n "$(command -v journalctl)" ]; then
+                eval "journalctl -r -u ${1} >> ${logfile}"
+            fi
             common_rollBack
             exit 1
         else
@@ -412,6 +418,9 @@ function common_startService() {
         eval "/etc/rc.d/init.d/${1} start ${debug}"
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
+            if [ -n "$(command -v journalctl)" ]; then
+                eval "journalctl -r -u ${1} >> ${logfile}"
+            fi
             common_rollBack
             exit 1
         else
