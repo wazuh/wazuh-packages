@@ -1,5 +1,5 @@
 #!/bin/sh
-# postinst script for wazuh-dashboards
+# postinst script for wazuh-dashboard
 # Copyright (C) 2021, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
@@ -9,7 +9,7 @@
 
 set -e
 
-export NAME=wazuh-dashboards
+export NAME=wazuh-dashboard
 export CONFIG_DIR=/etc/"${NAME}"
 export INSTALLATION_DIR=/usr/share/"${NAME}"
 export LOG_DIR=/var/log/"${NAME}"
@@ -69,24 +69,6 @@ if [ "$REMOVE_DIRS" = "true" ]; then
     if [ -d "${INSTALLATION_DIR}" ]; then
         echo -n "Deleting installation directory..."
         rm -rf "${INSTALLATION_DIR}"
-        echo " OK"
-    fi
-
-    if [ -f /etc/default/"${NAME}" ]; then
-        echo -n "Deleting Default File..."
-        rm -rf /etc/default/"${NAME}"
-        echo " OK"
-    fi
-
-    if [ -f /etc/systemd/system/"${NAME}" ]; then
-        echo -n "Deleting Init.d File..."
-        rm -rf /etc/systemd/system/"${NAME}"
-        echo " OK"
-    fi
-
-    if [ -f /etc/systemd/system/"${NAME}".service ]; then
-        echo -n "Deleting Service File..."
-        rm -rf /etc/systemd/system/"${NAME}".service
         echo " OK"
     fi
 

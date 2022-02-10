@@ -95,7 +95,7 @@ help() {
     echo "    --dont-build-docker        [Optional] Locally built docker image will be used instead of generating a new one."
     echo "    --future                   [Optional] Build test future package x.30.0 Used for development purposes."
     echo "    --base <s3/local>          [Optional] Base file location, use local or s3, default: s3"
-    echo "    --base-path                [Optional] If base is local, you can indicate the full path where the base is located, default: stack/dashboards/base/output"
+    echo "    --base-path                [Optional] If base is local, you can indicate the full path where the base is located, default: stack/dashboard/base/output"
     echo "    -h, --help                 Show this help."
     echo
     exit $1

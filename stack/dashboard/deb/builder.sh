@@ -10,13 +10,13 @@
 
 set -ex
 # Script parameters to build the package
-target="wazuh-dashboards"
+target="wazuh-dashboard"
 architecture=$1
 release=$2
 future=$3
 base_location=$4
 spec_reference=$5
-directory_base="/usr/share/wazuh-dashboards"
+directory_base="/usr/share/wazuh-dashboard"
 
 if [ -z "${release}" ]; then
     release="1"
@@ -43,10 +43,10 @@ mkdir -p ${sources_dir}/debian
 # Including spec file
 if [ "${spec_reference}" ];then
     curl -sL https://github.com/wazuh/wazuh-packages/tarball/${spec_reference} | tar zx
-    cp -r ./wazuh*/stack/dashboards/deb/debian/* ${sources_dir}/debian/
+    cp -r ./wazuh*/stack/dashboard/deb/debian/* ${sources_dir}/debian/
     cp -r ./wazuh*/* /root/
 else
-    cp -r /root/stack/dashboards/deb/debian/* ${sources_dir}/debian/
+    cp -r /root/stack/dashboard/deb/debian/* ${sources_dir}/debian/
 fi
 
 

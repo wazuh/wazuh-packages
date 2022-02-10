@@ -10,13 +10,13 @@
 
 set -ex
 # Script parameters to build the package
-target="wazuh-dashboards"
+target="wazuh-dashboard"
 architecture=$1
 release=$2
 future=$3
 base_location=$4
 spec_reference=$5
-directory_base="/usr/share/wazuh-dashboards"
+directory_base="/usr/share/wazuh-dashboard"
 rpmbuild="rpmbuild"
 
 if [ -z "${release}" ]; then
@@ -49,10 +49,10 @@ mkdir ${build_dir}/${pkg_name}
 # Including spec file
 if [ "${spec_reference}" ];then
     curl -sL https://github.com/wazuh/wazuh-packages/tarball/${spec_reference} | tar zx
-    cp ./wazuh*/stack/dashboards/rpm/${target}.spec ${rpm_build_dir}/SPECS/${pkg_name}.spec
+    cp ./wazuh*/stack/dashboard/rpm/${target}.spec ${rpm_build_dir}/SPECS/${pkg_name}.spec
     cp -r ./wazuh*/* /root/
 else
-    cp /root/stack/dashboards/rpm/${target}.spec ${rpm_build_dir}/SPECS/${pkg_name}.spec
+    cp /root/stack/dashboard/rpm/${target}.spec ${rpm_build_dir}/SPECS/${pkg_name}.spec
 fi
 
 

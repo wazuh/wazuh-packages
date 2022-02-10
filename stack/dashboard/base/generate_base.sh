@@ -14,7 +14,7 @@ set -e
 reference=""
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 DOCKERFILE_PATH="${CURRENT_PATH}/docker"
-CONTAINER_NAME="dashboards_base_builder"
+CONTAINER_NAME="dashboard_base_builder"
 OPENSEARCH_VERSION="1.2.0"
 OUTDIR="${CURRENT_PATH}/output"
 FUTURE="no"

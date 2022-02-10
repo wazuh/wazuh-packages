@@ -1,5 +1,5 @@
 #!/bin/sh
-# postinst script for wazuh-dashboards
+# postinst script for wazuh-dashboard
 # Copyright (C) 2021, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
@@ -17,7 +17,7 @@ set -e
 #       $1=upgrade : indicates an upgrade
 
 # configuration variables
-export NAME=wazuh-dashboards
+export NAME=wazuh-dashboard
 export CONFIG_DIR=/etc/"${NAME}"
 export INSTALLATION_DIR=/usr/share/"${NAME}"
 export LOG_DIR=/var/log/"${NAME}"
@@ -32,13 +32,13 @@ case "$1" in
         mkdir -p "${LOG_DIR}"
 
         
-        # Create wazuh-dashboards group if not existing
+        # Create wazuh-dashboard group if not existing
         if ! getent group "${NAME}" > /dev/null 2>&1 ; then
             echo -n "Creating ${NAME} group..."
             addgroup --quiet --system "${NAME}"
             echo " OK"
         fi
-        # Create wazuh-dashboards user if not existing
+        # Create wazuh-dashboard user if not existing
         if ! id "${NAME}" > /dev/null 2>&1 ; then
             echo -n "Creating ${NAME} user..."
             adduser --quiet \

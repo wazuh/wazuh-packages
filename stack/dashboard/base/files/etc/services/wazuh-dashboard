@@ -1,10 +1,10 @@
 #!/bin/sh
 # chkconfig: 2345 95 20
-# description: Wazuh Dashboards
-name=wazuh-dashboards
-program=/usr/share/wazuh-dashboards/bin/opensearch-dashboards
-args=-c\\\ /etc/wazuh-dashboards/dashboards.yml
-PID_DIR="/run/wazuh-dashboards"
+# description: Wazuh dashboard
+name=wazuh-dashboard
+program=/usr/share/wazuh-dashboard/bin/opensearch-dashboards
+args=-c\\\ /etc/wazuh-dashboard/dashboard.yml
+PID_DIR="/run/wazuh-dashboard"
 pidfile="$PID_DIR/$name.pid"
 
 [ -r /etc/default/$name ] && . /etc/default/$name
@@ -15,7 +15,7 @@ export NODE_OPTIONS
 [ -z "$nice" ] && nice=0
 
 trace() {
-  logger -t "/etc/init.d/wazuh-dashboards" "$@"
+  logger -t "/etc/init.d/wazuh-dashboard" "$@"
 }
 
 emit() {
@@ -26,19 +26,19 @@ emit() {
 start() {
 
   # Ensure the log directory is setup correctly.
-  [ ! -d "/var/log/wazuh-dashboards/" ] && mkdir "/var/log/wazuh-dashboards/"
-  chown "$user":"$group" "/var/log/wazuh-dashboards/"
-  chmod 755 "/var/log/wazuh-dashboards/"
+  [ ! -d "/var/log/wazuh-dashboard/" ] && mkdir "/var/log/wazuh-dashboard/"
+  chown "$user":"$group" "/var/log/wazuh-dashboard/"
+  chmod 755 "/var/log/wazuh-dashboard/"
 
 
   # Setup any environmental stuff beforehand
 
   # Ensure that the PID_DIR exists (it is cleaned at OS startup time)
   if [ -n "$PID_DIR" ] && [ ! -e "$PID_DIR" ]; then
-      mkdir -p "$PID_DIR" && chown wazuh-dashboards:wazuh-dashboards "$PID_DIR"
+      mkdir -p "$PID_DIR" && chown wazuh-dashboard:wazuh-dashboard "$PID_DIR"
   fi
   if [ -n "$pidfile" ] && [ ! -e "$pidfile" ]; then
-      touch "$pidfile" && chown wazuh-dashboards:wazuh-dashboards "$pidfile"
+      touch "$pidfile" && chown wazuh-dashboard:wazuh-dashboard "$pidfile"
   fi
 
 
@@ -111,7 +111,7 @@ force_stop() {
 
 case "$1" in
   force-start|start|stop|force-stop|restart)
-    trace "Attempting '$1' on wazuh-dashboards"
+    trace "Attempting '$1' on wazuh-dashboard"
     ;;
 esac
 

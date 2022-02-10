@@ -1,5 +1,5 @@
-user="wazuh-dashboards"
-group="wazuh-dashboards"
+user="wazuh-dashboard"
+group="wazuh-dashboard"
 chroot="/"
 chdir="/"
 nice=""

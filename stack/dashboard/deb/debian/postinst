@@ -1,5 +1,5 @@
 #!/bin/sh
-# postinst script for wazuh-dashboards
+# postinst script for wazuh-dashboard
 # Copyright (C) 2021, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
@@ -9,7 +9,7 @@
 
 set -e
 
-export NAME=wazuh-dashboards
+export NAME=wazuh-dashboard
 export CONFIG_DIR=/etc/"${NAME}"
 export INSTALLATION_DIR=/usr/share/"${NAME}"
 export LOG_DIR=/var/log/"${NAME}"
@@ -30,9 +30,9 @@ case "$1" in
         rm -f "${INSTALLATION_DIR}"/"${NAME}".restart
             if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 ; then
                 systemctl daemon-reload > /dev/null 2>&1
-                systemctl restart wazuh-dashboards.service > /dev/null 2>&1
-            elif command -v service > /dev/null 2>&1 && service wazuh-dashboards status 2>/dev/null | grep "running" > /dev/null 2>&1; then
-                service wazuh-dashboards restart > /dev/null 2>&1
+                systemctl restart wazuh-dashboard.service > /dev/null 2>&1
+            elif command -v service > /dev/null 2>&1 && service wazuh-dashboard status 2>/dev/null | grep "running" > /dev/null 2>&1; then
+                service wazuh-dashboard restart > /dev/null 2>&1
             fi
         fi
 

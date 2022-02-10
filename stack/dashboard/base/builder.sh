@@ -14,7 +14,7 @@ set -ex
 opensearch_version="${1}"
 future="${2}"
 reference="${3}"
-BASE_DIR=/tmp/output/wazuh-dashboards-base
+BASE_DIR=/tmp/output/wazuh-dashboard-base
 
 # -----------------------------------------------------------------------------
 
@@ -47,12 +47,15 @@ mv opensearch-dashboards-* "${BASE_DIR}"
 cd "${BASE_DIR}"
 find -type l -exec rm -rf {} \;
 rm -rf ./config/*
-cp -r /root/stack/dashboards/base/files/etc ./
+cp -r /root/stack/dashboard/base/files/etc ./
+find -type d -exec chmod 750 {} \;
+find -type f -perm 644 -exec chmod 640 {} \;
+find -type f -perm 755 -exec chmod 750 {} \;
 
 
 # -----------------------------------------------------------------------------
 
 # Base output
 cd /tmp/output
-tar -cJf wazuh-dashboards-base-"${version}"-linux-x64.tar.xz wazuh-dashboards-base
+tar -cJf wazuh-dashboard-base-"${version}"-linux-x64.tar.xz wazuh-dashboard-base
 rm -rf "${BASE_DIR}"
