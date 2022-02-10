@@ -46,7 +46,7 @@ function checks_arguments() {
         exit 1
         fi
 
-        if ! [ ${uninstall_component_name} == "all" -o ${uninstall_component_name} == "manager" -o ${uninstall_component_name} == "indexer" -o ${uninstall_component_name} == "dashboard" ]; then
+        if ! [ "${uninstall_component_name}" == "all" -o "${uninstall_component_name}" == "manager" -o "${uninstall_component_name}" == "indexer" -o "${uninstall_component_name}" == "dashboard" ]; then
             logger -e "The argument -u|--uninstall only accepts the following parameters: all, manager, indexer or dashboard."
             exit 1
         fi
@@ -63,9 +63,7 @@ function checks_arguments() {
         fi
 
         if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ] || [ -n "${indexerchinstalled}" ] || [ -n "${indexer_remaining_files}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ] || [ -n "${dashboardsinstalled}" ] || [ -n "${dashboards_remaining_files}" ]; then
-            if [ -n "${overwrite}" ]; then
-                rollBack
-            else
+            if [ -z "${overwrite}" ]; then
                 logger -e "Some the Wazuh components were found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. NOTE: This will erase all the existing configuration and data."
                 exit 1
             fi
@@ -77,9 +75,7 @@ function checks_arguments() {
     if [ -n "${indexer}" ]; then
 
         if [ -n "${indexerchinstalled}" ] || [ -n "${indexer_remaining_files}" ]; then
-            if [ -n "${overwrite}" ]; then
-                rollBack
-            else
+            if [ -z "${overwrite}" ]; then
                 logger -e "Wazuh indexer is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
             fi
@@ -90,9 +86,7 @@ function checks_arguments() {
 
     if [ -n "${dashboards}" ]; then
         if [ -n "${dashboardsinstalled}" ] || [ -n "${dashboards_remaining_files}" ]; then
-            if [ -n "${overwrite}" ]; then
-                rollBack
-            else
+            if [ -z "${overwrite}" ]; then
                 logger -e "Wazuh dashboard is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
             fi
@@ -103,18 +97,14 @@ function checks_arguments() {
 
     if [ -n "${wazuh}" ]; then
         if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ]; then
-            if [ -n "${overwrite}" ]; then
-                rollBack
-            else
+            if [ -z "${overwrite}" ]; then
                 logger -e "Wazuh manager is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
             fi
         fi
 
         if [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ]; then
-            if [ -n "${overwrite}" ]; then
-                rollBack
-            else
+            if [ -z "${overwrite}" ]; then
                 logger -e "Filebeat is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
             fi
