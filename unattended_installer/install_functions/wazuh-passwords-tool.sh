@@ -9,7 +9,7 @@
 # Foundation.
 
 if [[ -z "${logfile}" ]]; then
-    logfile="/var/log/wazuh-password-tool.log"
+    readonly logfile="/var/log/wazuh-password-tool.log"
 fi
 debug_pass=">> ${logfile} 2>&1"
 if [ -n "$(command -v yum)" ]; then
@@ -557,8 +557,8 @@ function restartService() {
         eval "systemctl restart ${1}.service ${debug_pass}"
         if [  "$?" != 0  ]; then
             logger_pass -e "${1^} could not be started."
-            if [[ $(type -t rollBack) == "function" ]]; then
-                rollBack
+            if [[ $(type -t common_rollBack) == "function" ]]; then
+                common_rollBack
             fi
             exit 1;
         else
@@ -568,8 +568,8 @@ function restartService() {
         eval "/etc/init.d/${1} restart ${debug_pass}"
         if [  "$?" != 0  ]; then
             logger_pass -e "${1^} could not be started."
-            if [[ $(type -t rollBack) == "function" ]]; then
-                rollBack
+            if [[ $(type -t common_rollBack) == "function" ]]; then
+                common_rollBack
             fi
             exit 1;
         else
@@ -579,16 +579,16 @@ function restartService() {
         eval "/etc/rc.d/init.d/${1} restart ${debug_pass}"
         if [  "$?" != 0  ]; then
             logger_pass -e "${1^} could not be started."
-            if [[ $(type -t rollBack) == "function" ]]; then
-                rollBack
+            if [[ $(type -t common_rollBack) == "function" ]]; then
+                common_rollBack
             fi
             exit 1;
         else
             logger_pass -d "${1^} started"
         fi
     else
-        if [[ $(type -t rollBack) == "function" ]]; then
-            rollBack
+        if [[ $(type -t common_rollBack) == "function" ]]; then
+            common_rollBack
         fi
         logger_pass -e "${1^} could not start. No service manager found on the system."
         exit 1;
