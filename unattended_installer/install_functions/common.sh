@@ -66,7 +66,7 @@ function common_createCertificates() {
     generateAdmincertificate
     generateIndexercertificates
     generateFilebeatcertificates
-    generateDashboardscertificates
+    generatedashboardcertificates
     cleanFiles
 
 }
@@ -221,7 +221,7 @@ User:
         finalusers=()
         finalpasswords=()
 
-        if [ -n "${dashboardsinstalled}" ] &&  [ -n "${dashboards}" ]; then
+        if [ -n "${dashboardinstalled}" ] &&  [ -n "${dashboard}" ]; then
             users=( kibanaserver admin )
         fi
 
@@ -273,7 +273,7 @@ function common_restoreWazuhrepo() {
 
 function common_rollBack() {
 
-    componentList=("${wazuhinstalled}" "${filebeatinstalled}" "${indexerchinstalled}" "${dashboardsinstalled}")
+    componentList=("${wazuhinstalled}" "${filebeatinstalled}" "${indexerchinstalled}" "${dashboardinstalled}")
 
     logger "Analyzing components to uninstall and clean."
 
@@ -296,23 +296,23 @@ function common_rollBack() {
     fi
     # Uninstall case: dashboard
     if [ "${uninstall_component_name}" == "all" ] || [ "${uninstall_component_name}" == "dashboard" ]; then
-        if [ -n "${dashboardsinstalled}" ] || [ -n "${dashboards_remaining_files}" ]; then
-            dashboards_uninstall
+        if [ -n "${dashboardinstalled}" ] || [ -n "${dashboard_remaining_files}" ]; then
+            dashboard_uninstall
         else
-            logger "Wazuh dashboards components were not found on the system so it was not uninstalled."
+            logger "Wazuh dashboard components were not found on the system so it was not uninstalled."
         fi
     fi
 
     # Overwrite case
     for component in "${componentList[@]}"; do
-        if [ "${component}" == "manager" ] || [ "${component}" == "indexer" ] || [ "${component}" == "dashboards" ] ; then
+        if [ "${component}" == "manager" ] || [ "${component}" == "indexer" ] || [ "${component}" == "dashboard" ] ; then
             eval "${component}_uninstall"
         fi
     done
 
     checks_installed_component
 
-    if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ] || [ -n "${indexerchinstalled}" ] || [ -n "${indexer_remaining_files}" ] || [ -n "${dashboardsinstalled}" ] || [ -n "${dashboards_remaining_files}" ]; then
+    if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ] || [ -n "${indexerchinstalled}" ] || [ -n "${indexer_remaining_files}" ] || [ -n "${dashboardinstalled}" ] || [ -n "${dashboard_remaining_files}" ]; then
         logger -w "Some Wazuh components are still installed on this host."
     else
         rollBackRepositories

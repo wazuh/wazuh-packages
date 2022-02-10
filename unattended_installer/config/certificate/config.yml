@@ -19,6 +19,6 @@ nodes:
     # node_type: worker
 
   # Wazuh dashboards node
-  dashboards:
-    name: dashboards
-    ip: <dashboards-node-ip>
+  dashboard:
+    name: dashboard
+    ip: <dashboard-node-ip>
