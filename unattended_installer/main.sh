@@ -126,6 +126,13 @@ function main() {
         exit 1
     fi
 
+
+    if [ -n "${development}" ]; then
+        repogpg="https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH"
+        repobaseurl="https://packages-dev.wazuh.com/pre-release"
+        reporelease="unstable"
+    fi
+
     if [ -z "${disableSpinner}" ]; then
         common_spin &
         spin_pid=$!
@@ -175,7 +182,7 @@ function main() {
             common_createClusterKey
         fi
         gen_file="${base_path}/certs/password_file.yml"
-        passwords-generatePasswordFile
+        passwords_generatePasswordFile
         # Using cat instead of simple cp because OpenSUSE unknown error.
         eval "cat '${config_file}' > '${base_path}/certs/config.yml'"
         eval "tar -zcf '${tar_file}' -C '${base_path}/certs/' . ${debug}"

@@ -7,10 +7,6 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-
-
-
-
 function common_cleanExit() {
 
     rollback_conf=""
@@ -207,26 +203,26 @@ function common_changePasswords() {
     if [ -f "${tar_file}" ]; then
         eval "tar -xf ${tar_file} -C ${base_path} ./password_file.yml ${debug}"
         p_file="${base_path}/password_file.yml"
-        passwords-checkInstalledPass
+        passwords_checkInstalledPass
         if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
             changeall=1
-            passwords-readUsers
+            passwords_readUsers
         fi
         common_readPasswordFileUsers
     else
-        common_logger -e "Cannot find passwords-file. Exiting"
+        common_logger -e "Cannot find passwords_file. Exiting"
         exit 1
     fi
     if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
-        passwords-getNetworkHost
-        passwords-createBackUp
-        passwords-generateHash
+        passwords_getNetworkHost
+        passwords_createBackUp
+        passwords_generateHash
     fi
 
-    passwords-changePassword
+    passwords_changePassword
 
     if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
-        passwords-runSecurityAdmin
+        passwords_runSecurityAdmin
     fi
     rm -rf "${p_file}"
 

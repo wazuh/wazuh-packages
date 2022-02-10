@@ -20,15 +20,9 @@ readonly tar_file="${base_path}/configurations.tar"
 readonly filebeat_wazuh_template="https://raw.githubusercontent.com/wazuh/wazuh/${wazuh_major}/extensions/elasticsearch/7.x/wazuh-template.json"
 readonly filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.1.tar.gz"
 
-if [ -n "${development}" ]; then
-    readonly repogpg="https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH"
-    readonly repobaseurl="https://packages-dev.wazuh.com/pre-release"
-    readonly reporelease="unstable"
-else
-    readonly repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"
-    readonly repobaseurl="https://packages.wazuh.com/4.x"
-    readonly reporelease="stable"
-fi
+repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"
+repobaseurl="https://packages.wazuh.com/4.x"
+reporelease="stable"
 
 readonly dashboard_cert_path="/etc/wazuh-dashboards/certs/"
 readonly filebeat_cert_path="/etc/filebeat/certs/"

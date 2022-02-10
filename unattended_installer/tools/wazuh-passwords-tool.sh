@@ -20,7 +20,7 @@ elif [ -n "$(command -v apt-get)" ]; then
     sys_type="apt-get"
 fi
 
-function passwords-changePassword() {
+function passwords_changePassword() {
 
     if [ -n "${changeall}" ]; then
         for i in "${!passwords[@]}"
@@ -57,7 +57,7 @@ function passwords-changePassword() {
             wazuhold="${wazuhold//$ra}"
             conf="$(awk '{sub("password: .*", "password: '${adminpass}'")}1' /etc/filebeat/filebeat.yml)"
             echo "${conf}" > /etc/filebeat/filebeat.yml
-            passwords-restartService "filebeat"
+            passwords_restartService "filebeat"
         fi
     fi
 
@@ -69,13 +69,13 @@ function passwords-changePassword() {
             wazuhdashold="${wazuhdashold//$rk}"
             conf="$(awk '{sub("opensearch.password: .*", "opensearch.password: '${dashpass}'")}1' /etc/wazuh-dashboards/dashboards.yml)"
             echo "${conf}" > /etc/wazuh-dashboards/dashboards.yml
-            passwords-restartService "wazuh-dashboards"
+            passwords_restartService "wazuh-dashboards"
         fi
     fi
 
 }
 
-function passwords-checkInstalledPass() {
+function passwords_checkInstalledPass() {
 
     if [ "${sys_type}" == "yum" ]; then
         indexerchinstalled=$(yum list installed 2>/dev/null | grep wazuh-indexer)
@@ -110,7 +110,7 @@ function passwords-checkInstalledPass() {
             rcapem="plugins.security.ssl.transport.pemtrustedcas_filepath: "
             capem="${capem//$rcapem}"
             if [[ -z "${adminpem}" ]] || [[ -z "${adminkey}" ]]; then
-                passwords-readAdmincerts
+                passwords_readAdmincerts
             fi
         fi
     fi
@@ -126,7 +126,7 @@ function checkRoot() {
 
 }
 
-function passwords-checkUser() {
+function passwords_checkUser() {
 
     for i in "${!users[@]}"; do
         if [ "${users[i]}" == "${nuser}" ]; then
@@ -141,7 +141,7 @@ function passwords-checkUser() {
 
 }
 
-function passwords-createBackUp() {
+function passwords_createBackUp() {
 
     logger -d "Creating password backup."
     eval "mkdir /usr/share/wazuh-indexer/backup ${debug_pass}"
@@ -154,7 +154,7 @@ function passwords-createBackUp() {
 
 }
 
-function passwords-generateHash() {
+function passwords_generateHash() {
 
     if [ -n "${changeall}" ]; then
         logger -d "Generating password hashes."
@@ -180,7 +180,7 @@ function passwords-generateHash() {
 
 }
 
-function passwords-generatePassword() {
+function passwords_generatePassword() {
 
     if [ -n "${nuser}" ]; then
         logger -d "Generating random password."
@@ -202,10 +202,10 @@ function passwords-generatePassword() {
     fi
 }
 
-function passwords-generatePasswordFile() {
+function passwords_generatePasswordFile() {
 
     users=( admin kibanaserver kibanaro logstash readall snapshotrestore wazuh_admin wazuh_user )
-    passwords-generatePassword
+    passwords_generatePassword
     for i in "${!users[@]}"; do
         echo "User:" >> "${gen_file}"
         echo "  name: ${users[${i}]}" >> "${gen_file}"
@@ -261,7 +261,7 @@ function getHelp() {
 
 }
 
-function passwords-getNetworkHost() {
+function passwords_getNetworkHost() {
     IP=$(grep -hr "network.host:" /etc/wazuh-indexer/opensearch.yml)
     NH="network.host: "
     IP="${IP//$NH}"
@@ -377,13 +377,13 @@ function main() {
         fi
 
         if [ -n "${gen_file}" ]; then
-            passwords-generatePasswordFile
+            passwords_generatePasswordFile
             if [ -z "${p_file}" ] && [ -z "${nuser}" ] && [ -z "${changeall}" ]; then
                 exit 0
             fi
         fi
 
-        passwords-checkInstalledPass
+        passwords_checkInstalledPass
 
         if [ -n "${p_file}" ] && [ ! -f "${p_file}" ]; then
             getHelp
@@ -414,33 +414,33 @@ function main() {
         fi
 
         if [ -n "${nuser}" ]; then
-            passwords-readUsers
-            passwords-checkUser
+            passwords_readUsers
+            passwords_checkUser
         fi
 
         if [ -n "${nuser}" ] && [ -z "${password}" ]; then
             autopass=1
-            passwords-generatePassword
+            passwords_generatePassword
         fi
 
         if [ -n "${changeall}" ]; then
-            passwords-readUsers
-            passwords-generatePassword
+            passwords_readUsers
+            passwords_generatePassword
         fi
 
         if [ -n "${p_file}" ] && [ -z "${changeall}" ]; then
-            passwords-readUsers
+            passwords_readUsers
         fi
 
         if [ -n "${p_file}" ]; then
-            passwords-readFileUsers
+            passwords_readFileUsers
         fi
 
-        passwords-getNetworkHost
-        passwords-createBackUp
-        passwords-generateHash
-        passwords-changePassword
-        passwords-runSecurityAdmin
+        passwords_getNetworkHost
+        passwords_createBackUp
+        passwords_generateHash
+        passwords_changePassword
+        passwords_runSecurityAdmin
 
     else
 
@@ -450,7 +450,7 @@ function main() {
 
 }
 
-function passwords-readAdmincerts() {
+function passwords_readAdmincerts() {
 
     if [[ -f /etc/wazuh-indexer/certs/admin.pem ]]; then
         adminpem="/etc/wazuh-indexer/certs/admin.pem"
@@ -470,7 +470,7 @@ function passwords-readAdmincerts() {
 
 }
 
-function passwords-readFileUsers() {
+function passwords_readFileUsers() {
 
     filecorrect=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' "${p_file}")
     if [ "${filecorrect}" -ne 1 ]; then
@@ -538,17 +538,17 @@ User:
 
 }
 
-function passwords-readUsers() {
+function passwords_readUsers() {
 
     susers=$(grep -B 1 hash: /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/internal_users.yml | grep -v hash: | grep -v "-" | awk '{ print substr( $0, 1, length($0)-1 ) }')
     users=($susers)
 
 }
 
-function passwords-restartService() {
+function passwords_restartService() {
 
     if [ "$#" -ne 1 ]; then
-        logger -e "passwords-restartService must be called with 1 argument."
+        logger -e "passwords_restartService must be called with 1 argument."
         exit 1
     fi
 
@@ -596,7 +596,7 @@ function passwords-restartService() {
 
 }
 
-function passwords-runSecurityAdmin() {
+function passwords_runSecurityAdmin() {
 
     logger -d "Loading new passwords changes."
     eval "cp /usr/share/wazuh-indexer/backup/* /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ ${debug_pass}"
