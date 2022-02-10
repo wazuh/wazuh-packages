@@ -150,8 +150,10 @@ function dashboards_install() {
     logger "Starting Wazuh dashboards installation."
     if [ "${sys_type}" == "zypper" ]; then
         eval "zypper -n install wazuh-dashboards=${wazuh_version}-${wazuh_revision} ${debug}"
-    else
-        eval "${sys_type} install wazuh-dashboards${sep}${wazuh_version}-${wazuh_revision} -y ${debug}"
+    elif [ "${sys_type}" == "yum" ]; then
+        eval "yum install wazuh-dashboards${sep}${wazuh_version}-${wazuh_revision} -y ${debug}"
+    elif [ "${sys_type}" == "apt-get" ]; then
+        eval "DEBIAN_FRONTEND=noninteractive apt install wazuh-dashboards${sep}${wazuh_version}-${wazuh_revision} -y ${debug}"
     fi
     if [  "$?" != 0  ]; then
         logger -e "Wazuh dashboards installation failed"

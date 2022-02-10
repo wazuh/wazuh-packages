@@ -57,8 +57,10 @@ function filebeat_install() {
     logger "Starting filebeat installation."
     if [ "${sys_type}" == "zypper" ]; then
         eval "zypper -n install filebeat-${filebeat_version} ${debug}"
-    else
-        eval "${sys_type} install filebeat${sep}${filebeat_version} -y -q  ${debug}"
+    elif [ "${sys_type}" == "yum" ]; then
+        eval "yum install filebeat${sep}${filebeat_version} -y -q  ${debug}"
+    elif [ "${sys_type}" == "apt-get" ]; then
+        eval "DEBIAN_FRONTEND=noninteractive apt install filebeat${sep}${filebeat_version} -y -q  ${debug}"
     fi
     if [  "$?" != 0  ]; then
         logger -e "Filebeat installation failed"
