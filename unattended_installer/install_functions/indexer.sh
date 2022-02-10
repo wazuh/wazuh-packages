@@ -173,7 +173,7 @@ function indexer_uninstall() {
     logger "Starting Wazuh indexer uninstall."
 
     if [[ -n "${indexerchinstalled}" ]]; then
-        logger -w "Removing Wazuh packages."
+        logger -w "Removing Wazuh indexer packages."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-indexer -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
