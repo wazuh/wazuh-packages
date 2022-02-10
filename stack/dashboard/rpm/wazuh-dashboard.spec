@@ -88,7 +88,6 @@ cp %{buildroot}%{INSTALL_DIR}/etc/custom_welcome/Assets/Favicons/favicon-32x32.p
 cp %{buildroot}%{INSTALL_DIR}/etc/opensearch_dashboards_config.js %{buildroot}%{INSTALL_DIR}/src/core/server/opensearch_dashboards_config.js
 
 mkdir -p %{buildroot}%{INSTALL_DIR}/config
-cp %{buildroot}%{INSTALL_DIR}/etc/secret %{buildroot}%{INSTALL_DIR}/config/secret
 
 cp %{buildroot}%{INSTALL_DIR}/etc/services/wazuh-dashboard.service %{buildroot}/etc/systemd/system/wazuh-dashboard.service 
 cp %{buildroot}%{INSTALL_DIR}/etc/services/wazuh-dashboard %{buildroot}/etc/init.d/wazuh-dashboard
@@ -154,6 +153,10 @@ fi
 %post
 setcap 'cap_net_bind_service=+ep' %{INSTALL_DIR}/node/bin/node
 
+runuser %{USER} --shell="/bin/bash" --command="%{INSTALL_DIR}/bin/opensearch-dashboards-keystore create" > /dev/null 2>&1
+runuser %{USER} --shell="/bin/bash" --command="echo kibanaserver | %{INSTALL_DIR}/bin/opensearch-dashboards-keystore add opensearch.username --stdin" > /dev/null 2>&1
+runuser %{USER} --shell="/bin/bash" --command="echo kibanaserver | %{INSTALL_DIR}/bin/opensearch-dashboards-keystore add opensearch.password --stdin" > /dev/null 2>&1
+
 # -----------------------------------------------------------------------------
 
 %preun
@@ -217,10 +220,6 @@ if [ -f %{INSTALL_DIR}/wazuh-dashboard.restart ]; then
 
 fi
 
-runuser %{USER} --shell="/bin/bash" --command="%{INSTALL_DIR}/bin/opensearch-dashboards-keystore create"
-runuser %{USER} --shell="/bin/bash" --command="cat %{INSTALL_DIR}/config/secret | %{INSTALL_DIR}/bin/opensearch-dashboards-keystore add opensearch.username --stdin"
-runuser %{USER} --shell="/bin/bash" --command="cat %{INSTALL_DIR}/config/secret | %{INSTALL_DIR}/bin/opensearch-dashboards-keystore add opensearch.password --stdin"
-rm -f %{INSTALL_DIR}/config/secret
 
 # -----------------------------------------------------------------------------
 
@@ -428,6 +427,5 @@ rm -fr %{buildroot}
 %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/bin/opensearch-dashboards-plugin"
 %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/bin/opensearch-dashboards-keystore"
 %dir %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/config"
-%attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/config/secret"
 %attr(640, %{USER}, %{GROUP}) "%{CONFIG_DIR}/node.options"
 %attr(640, %{USER}, %{GROUP}) "/etc/systemd/system/wazuh-dashboard.service"

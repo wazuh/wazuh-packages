@@ -86,7 +86,6 @@ override_dh_install:
 
 
 	mkdir -p $(TARGET_DIR)$(INSTALLATION_DIR)/config
-	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/secret $(TARGET_DIR)$(INSTALLATION_DIR)/config/secret
 
 	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/services/wazuh-dashboard.service $(TARGET_DIR)/etc/systemd/system/wazuh-dashboard.service 
 	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/services/wazuh-dashboard $(TARGET_DIR)/etc/systemd/system/$(NAME)

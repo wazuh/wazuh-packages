@@ -37,9 +37,8 @@ case "$1" in
         fi
 
         runuser "${NAME}" --shell="/bin/bash" --command="${INSTALLATION_DIR}/bin/opensearch-dashboards-keystore create"
-        runuser "${NAME}" --shell="/bin/bash" --command="cat ${INSTALLATION_DIR}/config/secret | ${INSTALLATION_DIR}/bin/opensearch-dashboards-keystore add opensearch.username --stdin"
-        runuser "${NAME}" --shell="/bin/bash" --command="cat ${INSTALLATION_DIR}/config/secret | ${INSTALLATION_DIR}/bin/opensearch-dashboards-keystore add opensearch.password --stdin"
-        rm -f ${INSTALLATION_DIR}/config/secret
+        runuser "${NAME}" --shell="/bin/bash" --command="echo kibanaserver | ${INSTALLATION_DIR}/bin/opensearch-dashboards-keystore add opensearch.username --stdin"
+        runuser "${NAME}" --shell="/bin/bash" --command="echo kibanaserver | ${INSTALLATION_DIR}/bin/opensearch-dashboards-keystore add opensearch.password --stdin"
 
     ;;
 
