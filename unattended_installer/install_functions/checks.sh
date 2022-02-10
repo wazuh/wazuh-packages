@@ -177,7 +177,7 @@ function checks_health() {
         fi
     fi
 
-    if [ -n "${aio}" ]; then
+    if [ -n "${AIO}" ]; then
         if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
             logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
             exit 1
