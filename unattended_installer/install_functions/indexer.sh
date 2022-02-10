@@ -134,6 +134,7 @@ function indexer_install() {
 
     if [  "$?" != 0  ]; then
         logger -e "Wazuh indexer installation failed."
+        indexerchinstalled="indexer"
         common_rollBack
         exit 1
     else

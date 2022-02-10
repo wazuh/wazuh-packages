@@ -51,7 +51,7 @@ function manager_install() {
         eval "${sys_type} install wazuh-manager${sep}${wazuh_version}-${wazuh_revision} -y ${debug}"
     fi
     if [  "$?" != 0  ]; then
-        logger -e "Wazuh installation failed"
+        logger -e "Wazuh installation failed."
         wazuhinstalled="manager"
         common_rollBack
         exit 1
@@ -63,7 +63,7 @@ function manager_install() {
 
 function manager_uninstall() {
 
-    logger "Wazuh and Filebeat will be uninstalled."
+    logger "Wazuh manager and Filebeat will be uninstalled."
 
     # Remove Wazuh
     logger -w "Removing Wazuh manager."

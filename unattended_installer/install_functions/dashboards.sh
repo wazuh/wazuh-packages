@@ -154,7 +154,8 @@ function dashboards_install() {
         eval "${sys_type} install wazuh-dashboards${sep}${wazuh_version}-${wazuh_revision} -y ${debug}"
     fi
     if [  "$?" != 0  ]; then
-        logger -e "Wazuh dashboards installation failed"
+        logger -e "Wazuh dashboards installation failed."
+        dashboardsinstalled="dashboard"
         common_rollBack
         exit 1
     else
