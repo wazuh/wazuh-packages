@@ -278,7 +278,7 @@ function common_rollBack() {
     logger "Analyzing components to uninstall and clean."
 
     # Uninstall case: manager
-    if [ -n "${AIO}" ] || [ "${uninstall_component_name}" == "all" ] || [ "${uninstall_component_name}" == "manager" ]; then
+    if [ "${uninstall_component_name}" == "all" ] || [ "${uninstall_component_name}" == "manager" ]; then
         if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ]; then
             manager_uninstall
         else
@@ -286,7 +286,7 @@ function common_rollBack() {
         fi
     fi
     # Uninstall case: indexer
-    if [ -n "${AIO}" ] || [ "${uninstall_component_name}" == "all" ] || [ "${uninstall_component_name}" == "indexer" ]; then
+    if [ "${uninstall_component_name}" == "all" ] || [ "${uninstall_component_name}" == "indexer" ]; then
         if [ -n "${indexerchinstalled}" ] || [ -n "${indexer_remaining_files}" ]; then
             indexer_uninstall
         else
@@ -295,7 +295,7 @@ function common_rollBack() {
         fi
     fi
     # Uninstall case: dashboard
-    if [ -n "${AIO}" ] || [ ${uninstall_component_name} == "all" ] || [ ${uninstall_component_name} == "dashboard" ] ; then
+    if [ "${uninstall_component_name}" == "all" ] || [ "${uninstall_component_name}" == "dashboard" ]; then
         if [ -n "${dashboardsinstalled}" ] || [ -n "${dashboards_remaining_files}" ]; then
             dashboards_uninstall
         else
@@ -304,20 +304,9 @@ function common_rollBack() {
     fi
 
     # Overwrite case
-    if [ -n "${overwrite}" ] && [ -n "${wazuh}" ]; then
-        manager_uninstall
-    fi
-    if [ -n "${overwrite}" ] && [ -n "${indexer}" ]; then
-        indexer_uninstall
-    fi
-    if [ -n "${overwrite}" ] && [ -n "${dashboards}" ]; then
-        uninstallkibana
-    fi
-
-    # rollBack case
     for component in "${componentList[@]}"; do
         if [ "${component}" == "manager" ] || [ "${component}" == "indexer" ] || [ "${component}" == "dashboards" ] ; then
-            eval "uninstall$component"
+            eval "${component}_uninstall"
         fi
     done
 
@@ -329,15 +318,6 @@ function common_rollBack() {
         rollBackRepositories
     fi
 
-    if [ -n "${rollback_conf}" ] || [ -n "${overwrite}" ]; then
-        logger "Installation cleaned."
-    fi
-
-    if [ -z "${uninstall}" ]; then
-        logger "Check the ${logfile} file to learn more about the issue."
-    fi
-
-    logger "The uninstall process is complete."
 }
 
 function rollBackRepositories() {
