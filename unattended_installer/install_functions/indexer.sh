@@ -10,7 +10,7 @@
 
 function indexer_configure() {
 
-    common_logger -d "Configuring Wazuh indexer."
+    logger -d "Configuring Wazuh indexer."
     eval "export JAVA_HOME=/usr/share/wazuh-indexer/jdk/"
 
     # Configure JVM options for Wazuh indexer
@@ -73,7 +73,7 @@ function indexer_configure() {
         echo -ne "\nbootstrap.system_call_filter: false" >> /etc/wazuh-indexer/opensearch.yml
     fi
 
-    common_logger "Wazuh indexer post-install configuration finished."
+    logger "Wazuh indexer post-install configuration finished."
 }
 
 function indexer_copyCertificates() {
@@ -88,7 +88,7 @@ function indexer_copyCertificates() {
         eval "tar -xf ${tar_file} -C ${indexer_certs_path} ./admin.pem  ${debug}"
         eval "tar -xf ${tar_file} -C ${indexer_certs_path} ./admin-key.pem  ${debug}"
     else
-        common_logger -e "No certificates found. Could not initialize Wazuh indexer"
+        logger -e "No certificates found. Could not initialize Wazuh indexer"
         exit 1;
     fi
 
@@ -96,14 +96,14 @@ function indexer_copyCertificates() {
 
 function indexer_initialize() {
 
-    common_logger "Starting Wazuh indexer cluster."
+    logger "Starting Wazuh indexer cluster."
     i=0
     until curl -XGET https://${indexer_node_ips[pos]}:9700/ -uadmin:admin -k --max-time 120 --silent --output /dev/null || [ "${i}" -eq 12 ]; do
         sleep 10
         i=$((i+1))
     done
     if [ ${i} -eq 12 ]; then
-        common_logger -e "Cannot start Wazuh indexer cluster."
+        logger -e "Cannot start Wazuh indexer cluster."
         common_rollBack
         exit 1
     fi
@@ -116,13 +116,13 @@ function indexer_initialize() {
         common_changePasswords
     fi
 
-    common_logger "Wazuh indexer cluster started."
+    logger "Wazuh indexer cluster started."
 
 }
 
 function indexer_install() {
 
-    common_logger "Starting Wazuh indexer installation."
+    logger "Starting Wazuh indexer installation."
 
     if [ "${sys_type}" == "yum" ]; then
         eval "yum install wazuh-indexer-${wazuh_version}-${wazuh_revision} -y ${debug}"
@@ -133,12 +133,12 @@ function indexer_install() {
     fi
 
     if [  "$?" != 0  ]; then
-        common_logger -e "Wazuh indexer installation failed."
+        logger -e "Wazuh indexer installation failed."
         common_rollBack
         exit 1
     else
         indexerchinstalled="1"
-        common_logger "Wazuh indexer installation finished."
+        logger "Wazuh indexer installation finished."
     fi
 
     eval "sysctl -q -w vm.max_map_count=262144 ${debug}"
@@ -150,19 +150,19 @@ function indexer_startCluster() {
     eval "wazuh_indexer_ip=( $(cat /etc/wazuh-indexer/opensearch.yml | grep network.host | sed 's/network.host:\s//') )"
     eval "sudo -u wazuh-indexer JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -p 9800 -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ -icl -nhnv -cacert /etc/wazuh-indexer/certs/root-ca.pem -cert /etc/wazuh-indexer/certs/admin.pem -key /etc/wazuh-indexer/certs/admin-key.pem -h ${wazuh_indexer_ip} ${debug}"
     if [  "$?" != 0  ]; then
-        common_logger -e "The Wazuh indexer cluster security configuration could not be initialized."
+        logger -e "The Wazuh indexer cluster security configuration could not be initialized."
         common_rollBack
         exit 1
     else
-        common_logger "Wazuh indexer cluster security configuration initialized."
+        logger "Wazuh indexer cluster security configuration initialized."
     fi
     eval "curl --silent ${filebeat_wazuh_template} | curl -X PUT 'https://${indexer_node_ips[pos]}:9700/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k --silent ${debug}"
     if [  "$?" != 0  ]; then
-        common_logger -e "The wazuh-alerts template could not be inserted into the Wazuh indexer cluster."
+        logger -e "The wazuh-alerts template could not be inserted into the Wazuh indexer cluster."
         common_rollBack
         exit 1
     else
-        common_logger -d "The wazuh-alerts template inserted into the Wazuh indexer cluster."
+        logger -d "The wazuh-alerts template inserted into the Wazuh indexer cluster."
     fi
 
 }

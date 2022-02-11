@@ -43,7 +43,7 @@ function manager_startCluster() {
 
 function manager_install() {
 
-    common_logger "Starting the Wazuh manager installation."
+    logger "Starting the Wazuh manager installation."
     if [ "${sys_type}" == "zypper" ]; then
         eval "${sys_type} -n install wazuh-manager=${wazuh_version}-${wazuh_revision} ${debug}"
     elif [ "${sys_type}" == "yum" ]; then
@@ -52,11 +52,11 @@ function manager_install() {
         eval "DEBIAN_FRONTEND=noninteractive ${sys_type} install wazuh-manager${sep}${wazuh_version}-${wazuh_revision} -y ${debug}"
     fi
     if [  "$?" != 0  ]; then
-        common_logger -e "Wazuh installation failed"
+        logger -e "Wazuh installation failed"
         common_rollBack
         exit 1
     else
         wazuhinstalled="1"
-        common_logger "Wazuh manager installation finished."
+        logger "Wazuh manager installation finished."
     fi
 }

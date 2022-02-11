@@ -558,7 +558,7 @@ function passwords_restartService() {
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
             if [ -n "$(command -v journalctl)" ]; then
-                eval "journalctl -r -u ${1} >> ${logfile}"
+                eval "journalctl -u ${1} >> ${logfile}"
             fi
             if [[ $(type -t common_rollBack) == "function" ]]; then
                 common_rollBack
@@ -572,7 +572,7 @@ function passwords_restartService() {
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
             if [ -n "$(command -v journalctl)" ]; then
-                eval "journalctl -r -u ${1} >> ${logfile}"
+                eval "journalctl -u ${1} >> ${logfile}"
             fi
             if [[ $(type -t common_rollBack) == "function" ]]; then
                 common_rollBack
@@ -586,7 +586,7 @@ function passwords_restartService() {
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
             if [ -n "$(command -v journalctl)" ]; then
-                eval "journalctl -r -u ${1} >> ${logfile}"
+                eval "journalctl -u ${1} >> ${logfile}"
             fi
             if [[ $(type -t common_rollBack) == "function" ]]; then
                 common_rollBack

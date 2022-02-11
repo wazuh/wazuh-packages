@@ -36,7 +36,7 @@ function main() {
                 ;;
             "-f"|"--fileconfig")
                 if [ -z "${2}" ]; then
-                    common_logger -e "Error on arguments. Probably missing <path-to-config-yml> after -f|--fileconfig"
+                    logger -e "Error on arguments. Probably missing <path-to-config-yml> after -f|--fileconfig"
                     common_getHelp
                     exit 1
                 fi
@@ -64,7 +64,7 @@ function main() {
                 ;;
             "-t"|"--tar")
                 if [ -z "${2}" ]; then
-                    common_logger -e "Error on arguments. Probably missing <path-to-certs-tar> after -t|--tar"
+                    logger -e "Error on arguments. Probably missing <path-to-certs-tar> after -t|--tar"
                     common_getHelp
                     exit 1
                 fi
@@ -83,7 +83,7 @@ function main() {
                 ;;
             "-wd"|"--wazuh-dashboards")
                 if [ -z "${2}" ]; then
-                    common_logger -e "Error on arguments. Probably missing <node-name> after -wd|---wazuh-dashboards"
+                    logger -e "Error on arguments. Probably missing <node-name> after -wd|---wazuh-dashboards"
                     common_getHelp
                     exit 1
                 fi
@@ -93,7 +93,7 @@ function main() {
                 ;;
             "-wi"|"--wazuh-indexer")
                 if [ -z "${2}" ]; then
-                    common_logger -e "Arguments contain errors. Probably missing <node-name> after -wi|--wazuh-indexer."
+                    logger -e "Arguments contain errors. Probably missing <node-name> after -wi|--wazuh-indexer."
                     common_getHelp
                     exit 1
                 fi
@@ -103,7 +103,7 @@ function main() {
                 ;;
             "-ws"|"--wazuh-server")
                 if [ -z "${2}" ]; then
-                    common_logger -e "Error on arguments. Probably missing <node-name> after -w|--wazuh-server"
+                    logger -e "Error on arguments. Probably missing <node-name> after -w|--wazuh-server"
                     common_getHelp
                     exit 1
                 fi
@@ -122,7 +122,7 @@ function main() {
     done
 
     if [ "${EUID}" -ne 0 ]; then
-        common_logger -e "This script must be run as root."
+        logger -e "This script must be run as root."
         exit 1
     fi
 
@@ -139,16 +139,16 @@ function main() {
         trap "kill -9 ${spin_pid} ${debug}" EXIT
     fi
 
-    common_logger "Starting Wazuh unattended installer. Wazuh version: ${wazuh_version}. Wazuh installer version: ${wazuh_install_vesion}"
+    logger "Starting Wazuh unattended installer. Wazuh version: ${wazuh_version}. Wazuh installer version: ${wazuh_install_vesion}"
 
 # -------------- Uninstall case  ------------------------------------
 
     checks_installed
     if [ -n "${uninstall}" ]; then
-        common_logger "-------------------------------------- Uninstall --------------------------------------"
-        common_logger "Removing all installed components."
+        logger "-------------------------------------- Uninstall --------------------------------------"
+        logger "Removing all installed components."
         common_rollBack
-        common_logger "All components removed."
+        logger "All components removed."
         exit 0
     fi
 
@@ -160,7 +160,7 @@ function main() {
     checks_arch
     checks_system
     if [ -n "${ignore}" ]; then
-        common_logger -w "Health-check ignored."
+        logger -w "Health-check ignored."
     else
         checks_health
     fi
@@ -173,7 +173,7 @@ function main() {
 
     # Creation certificate case: Only AIO and -c option can create certificates.
     if [ -n "${configurations}" ] || [ -n "${AIO}" ]; then
-        common_logger "--------------------------------- Configuration files ---------------------------------"
+        logger "--------------------------------- Configuration files ---------------------------------"
         if [ -n "${configurations}" ]; then
             cert_checkOpenSSL
         fi
@@ -187,7 +187,7 @@ function main() {
         eval "cat '${config_file}' > '${base_path}/certs/config.yml'"
         eval "tar -zcf '${tar_file}' -C '${base_path}/certs/' . ${debug}"
         eval "rm -rf '${base_path}/certs' ${debug}"
-        common_logger "Configuration files created: ${tar_file}"
+        logger "Configuration files created: ${tar_file}"
     fi
 
     if [ -z "${configurations}" ]; then
@@ -203,7 +203,7 @@ function main() {
 
 # -------------- Prerequisites and Wazuh repo  ----------------------
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboards}" ] || [ -n "${wazuh}" ]; then
-        common_logger "------------------------------------ Dependencies -------------------------------------"
+        logger "------------------------------------ Dependencies -------------------------------------"
         common_installPrerequisites
         common_addWazuhRepo
     fi
@@ -211,7 +211,7 @@ function main() {
 # -------------- Elasticsearch case  --------------------------------
 
     if [ -n "${indexer}" ]; then
-        common_logger "------------------------------------ Wazuh indexer ------------------------------------"
+        logger "------------------------------------ Wazuh indexer ------------------------------------"
         indexer_install
         indexer_configure
         common_startService "wazuh-indexer"
@@ -228,7 +228,7 @@ function main() {
 # -------------- Kibana case  ---------------------------------------
 
     if [ -n "${dashboards}" ]; then
-        common_logger "---------------------------------- Wazuh dashboards -----------------------------------"
+        logger "---------------------------------- Wazuh dashboards -----------------------------------"
 
         dashboards_install
         dashboards_configure
@@ -241,7 +241,7 @@ function main() {
 # -------------- Wazuh case  ---------------------------------------
 
     if [ -n "${wazuh}" ]; then
-        common_logger "------------------------------------- Wazuh server ------------------------------------"
+        logger "------------------------------------- Wazuh server ------------------------------------"
 
         manager_install
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
@@ -258,18 +258,18 @@ function main() {
 
     if [ -n "${AIO}" ]; then
 
-        common_logger "------------------------------------ Wazuh indexer ------------------------------------"
+        logger "------------------------------------ Wazuh indexer ------------------------------------"
         indexer_install
         indexer_configure
         common_startService "wazuh-indexer"
         indexer_initialize
-        common_logger "------------------------------------- Wazuh server ------------------------------------"
+        logger "------------------------------------- Wazuh server ------------------------------------"
         manager_install
         common_startService "wazuh-manager"
         filebeat_install
         filebeat_configure
         common_startService "filebeat"
-        common_logger "---------------------------------- Wazuh dashboards -----------------------------------"
+        logger "---------------------------------- Wazuh dashboards -----------------------------------"
         dashboards_install
         dashboards_configure
         common_startService "wazuh-dashboards"
@@ -284,9 +284,9 @@ function main() {
     fi
 
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboards}" ] || [ -n "${wazuh}" ]; then
-        common_logger "Installation finished. You can find in ${tar_file} all the certificates created, as well as password_file.yml, with the passwords for all users and config.yml, with the nodes of all of the components and their ips."
+        logger "Installation finished. You can find in ${tar_file} all the certificates created, as well as password_file.yml, with the passwords for all users and config.yml, with the nodes of all of the components and their ips."
     elif [ -n "${start_elastic_cluster}" ]; then
-        common_logger "Elasticsearch cluster started."
+        logger "Elasticsearch cluster started."
     fi
 
 }
