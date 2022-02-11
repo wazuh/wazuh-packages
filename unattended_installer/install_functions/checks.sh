@@ -147,7 +147,6 @@ function checks_arguments() {
 
 }
 
-<<<<<<< unify-unatteded-check-firewalls
 function checkFirewalls() {
 
 
