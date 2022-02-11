@@ -174,34 +174,37 @@ function checkFirewalls() {
         if [ -n "$(command -v ${command})" ]; then
             logger -d "The $command command is present on this system. This could affect the correct communication between Wazuh components. We will proceed to try to validate firewall rules that may affect the processes and report what is found."
 
-            if [ $command == "iptables" ]; then
-                for port in "${portsTCPLists[@]}"; do
-                    if [ -n "$($command -L -n) | grep DROP | grep "^$port$" )" ]; then
-                        iptablesBlockedPortList+="${port}, "
-                    fi
-                done
+            case ${command} in
+                iptables )
+                    for port in "${portsTCPLists[@]}"; do
+                        if [ -n "$(${command} -L -n | grep DROP | grep "^$port$" )" ]; then
+                            iptablesBlockedPortList+="${port}, "
+                        fi
+                    done
+                    ;;
+                nft )
+                    for port in "${portsTCPLists[@]}"; do
+                        if [ -n "$(${command} list ruleset | grep drop | grep "^$port$" )" ]; then
+                            nftBlockedPortList+="${port}, "
+                        fi
+                    done
+                    ;;
+                ufw )
+                    for port in "${portsTCPLists[@]}"; do
+                        if [ -n "$(cat /etc/ufw/user.rules | grep DROP | grep "^$port$" )" ]; then
+                            ufwBlockedPortList+="${port}, "
+                        fi
+                    done
+                    ;;
+                firewall-cmd )
+                    for port in "${portsTCPLists[@]}"; do
+                        if [ -n "$(${command}  --list-all | grep "^$port$" )" ]; then
+                            firewall_cmdBlockedPortList+="${port}, "
+                        fi
+                    done
+                    ;;
+            esac
 
-            elif [ $command == "nft" ]; then
-                for port in "${portsTCPLists[@]}"; do
-                    if [ -n "$($command list ruleset) | grep drop | grep "^$port$" )" ]; then
-                        nftBlockedPortList+="${port}, "
-                    fi
-                done
-
-            elif [ $command == "ufw" ]; then
-                for port in "${portsTCPLists[@]}"; do
-                    if [ -n "$(cat /etc/ufw/user.rules) | grep DROP | grep "^$port$" )" ]; then
-                        ufwBlockedPortList+="${port}, "
-                    fi
-                done
-
-            elif [ $command == "firewall-cmd" ]; then
-                for port in "${portsTCPLists[@]}"; do
-                    if [ -n "$($command --list-all) | grep "^$port$" )" ]; then
-                        firewall_cmdBlockedPortList+="${port}, "
-                    fi
-                done
-            fi
         fi
     done
 
@@ -219,7 +222,7 @@ function checkFirewalls() {
     fi
 
     if [ -n "${iptablesBlockedPortList}" ] || [ -n "${firewallstatus}" ] || [ -n "${firewallstatus}" ] || [ -n "${firewallstatus}" ]; then
-        logger -w "Please check your firewall. To then repeat the installation of Wazuh."
+        logger -e "Please check your firewall. To then repeat the installation of Wazuh."
         exit 1
     fi
 }
