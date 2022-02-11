@@ -63,7 +63,7 @@ function changePassword() {
 
     if [ "$nuser" == "kibanaserver" ] || [ -n "$changeall" ]; then
 
-        if [ -n "${dashboardsinstalled}" ] && [ -n "${dashpass}" ]; then
+        if [ -n "${dashboardinstalled}" ] && [ -n "${dashpass}" ]; then
             wazuhdashold=$(grep "password:" /etc/wazuh-dashboard/dashboard.yml )
             rk="opensearch.password: "
             wazuhdashold="${wazuhdashold//$rk}"
@@ -94,14 +94,14 @@ function checkInstalledPass() {
     fi
 
     if [ "${sys_type}" == "yum" ]; then
-        dashboardsinstalled=$(yum list installed 2>/dev/null | grep wazuh-dashboard)
+        dashboardinstalled=$(yum list installed 2>/dev/null | grep wazuh-dashboard)
     elif [ "${sys_type}" == "zypper" ]; then
-        dashboardsinstalled=$(zypper packages | grep wazuh-dashboard | grep i+)
+        dashboardinstalled=$(zypper packages | grep wazuh-dashboard | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
-        dashboardsinstalled=$(apt list --installed  2>/dev/null | grep wazuh-dashboard)
+        dashboardinstalled=$(apt list --installed  2>/dev/null | grep wazuh-dashboard)
     fi
 
-    if [ -z "${indexerchinstalled}" ] && [ -z "${dashboardsinstalled}" ] && [ -z "${filebeatinstalled}" ]; then
+    if [ -z "${indexerchinstalled}" ] && [ -z "${dashboardinstalled}" ] && [ -z "${filebeatinstalled}" ]; then
         logger_pass -e "Cannot find Wazuh indexer, Wazuh dashboard or Filebeat on the system."
         exit 1;
     else
@@ -617,7 +617,7 @@ function runSecurityAdmin() {
     fi
 
     if [ -n "${changeall}" ]; then
-        if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboards}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ]; then
+        if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ]; then
             logger_pass -w "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/wazuh-dashboard/dashboard.yml if necessary and restart the services."
         else
             logger_pass -d "Passwords changed."

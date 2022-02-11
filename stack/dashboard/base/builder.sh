@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Wazuh package builder
+# Wazuh dashboard base builder
 # Copyright (C) 2021, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
