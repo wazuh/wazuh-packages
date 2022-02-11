@@ -134,6 +134,7 @@ function indexer_install() {
 
     if [  "$?" != 0  ]; then
         logger -e "Wazuh indexer installation failed."
+        indexerchinstalled="indexer"
         common_rollBack
         exit 1
     else
@@ -163,6 +164,42 @@ function indexer_startCluster() {
         exit 1
     else
         logger -d "The wazuh-alerts template inserted into the Wazuh indexer cluster."
+    fi
+
+}
+
+function indexer_uninstall() {
+
+    logger "Starting Wazuh indexer uninstall."
+
+    if [[ -n "${indexerchinstalled}" ]]; then
+        logger -w "Removing Wazuh indexer packages."
+        if [ "${sys_type}" == "yum" ]; then
+            eval "yum remove wazuh-indexer -y ${debug}"
+        elif [ "${sys_type}" == "zypper" ]; then
+            eval "zypper -n remove wazuh-indexer ${debug}"
+        elif [ "${sys_type}" == "apt-get" ]; then
+            eval "apt remove --purge ^wazuh-indexer -y ${debug}"
+        fi
+    fi
+
+    if [[ -n "${indexer_remaining_files}" ]]; then
+        logger -w "Removing Wazuh indexer files."
+
+        elements_to_remove=(    "/etc/systemd/system/multi-user.target.wants/elasticsearch.service"
+                                "/etc/systemd/system/kibana.service"
+                                "/var/lib/wazuh-indexer/"
+                                "/usr/share/wazuh-indexer"
+                                "/etc/wazuh-indexer/"
+                                "/var/log/elasticsearch/"
+                                "/var/log/wazuh-indexer/"
+                                "/etc/systemd/system/opensearch.service.wants/"
+                                "/securityadmin_demo.sh"
+                                "/etc/systemd/system/multi-user.target.wants/opensearch.service"
+                                "/lib/firewalld/services/opensearch.xml"
+                                "${base_path}/search-guard-tlstool*" )
+
+        eval "rm -rf ${elements_to_remove[*]} ${debug}"
     fi
 
 }

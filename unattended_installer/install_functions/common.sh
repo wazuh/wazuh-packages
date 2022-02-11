@@ -66,7 +66,7 @@ function common_createCertificates() {
     generateAdmincertificate
     generateIndexercertificates
     generateFilebeatcertificates
-    generateDashboardscertificates
+    generatedashboardcertificates
     cleanFiles
 
 }
@@ -190,7 +190,7 @@ User:
   name: kibanaserver
   password: kibanaserverpassword"
 
-	    exit 1
+        exit 1
     fi
 
     sfileusers=$(grep name: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
@@ -221,7 +221,7 @@ User:
         finalusers=()
         finalpasswords=()
 
-        if [ -n "${dashboardsinstalled}" ] &&  [ -n "${dashboards}" ]; then
+        if [ -n "${dashboardinstalled}" ] &&  [ -n "${dashboard}" ]; then
             users=( kibanaserver admin )
         fi
 
@@ -273,106 +273,68 @@ function common_restoreWazuhrepo() {
 
 function common_rollBack() {
 
-    if [ -z "${uninstall}" ]; then
-        logger "Cleaning the installation."
+    componentList=("${wazuhinstalled}" "${filebeatinstalled}" "${indexerchinstalled}" "${dashboardinstalled}")
+
+    logger "Analyzing components to uninstall and clean."
+
+    # Uninstall case: manager
+    if [ "${uninstall_component_name}" == "all" ] || [ "${uninstall_component_name}" == "manager" ]; then
+        if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ]; then
+            manager_uninstall
+        else
+            logger "Wazuh manager components were not found on the system so it was not uninstalled."
+        fi
     fi
+    # Uninstall case: indexer
+    if [ "${uninstall_component_name}" == "all" ] || [ "${uninstall_component_name}" == "indexer" ]; then
+        if [ -n "${indexerchinstalled}" ] || [ -n "${indexer_remaining_files}" ]; then
+            indexer_uninstall
+        else
+
+            logger "Wazuh indexer components were not found on the system so it was not uninstalled."
+        fi
+    fi
+    # Uninstall case: dashboard
+    if [ "${uninstall_component_name}" == "all" ] || [ "${uninstall_component_name}" == "dashboard" ]; then
+        if [ -n "${dashboardinstalled}" ] || [ -n "${dashboard_remaining_files}" ]; then
+            dashboard_uninstall
+        else
+            logger "Wazuh dashboard components were not found on the system so it was not uninstalled."
+        fi
+    fi
+
+    # Overwrite case
+    for component in "${componentList[@]}"; do
+        if [ "${component}" == "manager" ] || [ "${component}" == "indexer" ] || [ "${component}" == "dashboard" ] ; then
+            eval "${component}_uninstall"
+        fi
+    done
+
+    checks_installed_component
+
+    if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ] || [ -n "${indexerchinstalled}" ] || [ -n "${indexer_remaining_files}" ] || [ -n "${dashboardinstalled}" ] || [ -n "${dashboard_remaining_files}" ]; then
+        logger -w "Some Wazuh components are still installed on this host."
+    else
+        rollBackRepositories
+    fi
+
+}
+
+function rollBackRepositories() {
 
     if [ -f "/etc/yum.repos.d/wazuh.repo" ]; then
         eval "rm /etc/yum.repos.d/wazuh.repo"
+        deleteRepositorie="true"
     elif [ -f "/etc/zypp/repos.d/wazuh.repo" ]; then
         eval "rm /etc/zypp/repos.d/wazuh.repo"
+        deleteRepositorie="true"
     elif [ -f "/etc/apt/sources.list.d/wazuh.list" ]; then
         eval "rm /etc/apt/sources.list.d/wazuh.list"
+        deleteRepositorie="true"
     fi
 
-    if [[ -n "${wazuhinstalled}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]];then
-        logger -w "Removing the Wazuh manager."
-        if [ "${sys_type}" == "yum" ]; then
-            eval "yum remove wazuh-manager -y ${debug}"
-        elif [ "${sys_type}" == "zypper" ]; then
-            eval "zypper -n remove wazuh-manager ${debug}"
-            eval "rm -f /etc/init.d/wazuh-manager ${debug}"
-        elif [ "${sys_type}" == "apt-get" ]; then
-            eval "apt remove --purge wazuh-manager -y ${debug}"
-        fi
-    fi
-
-    if [[ ( -n "${wazuh_remaining_files}"  || -n "${wazuhinstalled}" ) && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        eval "rm -rf /var/ossec/ ${debug}"
-    fi
-
-    if [[ -n "${indexerchinstalled}" && ( -n "${indexer}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        logger -w "Removing Wazuh indexer."
-        if [ "${sys_type}" == "yum" ]; then
-            eval "yum remove wazuh-indexer -y ${debug}"
-        elif [ "${sys_type}" == "zypper" ]; then
-            eval "zypper -n remove wazuh-indexer ${debug}"
-        elif [ "${sys_type}" == "apt-get" ]; then
-            eval "apt remove --purge ^wazuh-indexer -y ${debug}"
-        fi
-    fi
-
-    if [[ ( -n "${indexer_remaining_files}" || -n "${indexerchinstalled}" ) && ( -n "${indexer}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        eval "rm -rf /var/lib/wazuh-indexer/ ${debug}"
-        eval "rm -rf /usr/share/wazuh-indexer/ ${debug}"
-        eval "rm -rf /etc/wazuh-indexer/ ${debug}"
-    fi
-
-    if [[ -n "${filebeatinstalled}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        logger -w "Removing Filebeat."
-        if [ "${sys_type}" == "yum" ]; then
-            eval "yum remove filebeat -y ${debug}"
-        elif [ "${sys_type}" == "zypper" ]; then
-            eval "zypper -n remove filebeat ${debug}"
-        elif [ "${sys_type}" == "apt-get" ]; then
-            eval "apt remove --purge filebeat -y ${debug}"
-        fi
-    fi
-
-    if [[ ( -n "${filebeat_remaining_files}" || -n "${filebeatinstalled}" ) && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        eval "rm -rf /var/lib/filebeat/ ${debug}"
-        eval "rm -rf /usr/share/filebeat/ ${debug}"
-        eval "rm -rf /etc/filebeat/ ${debug}"
-    fi
-
-    if [[ -n "${dashboardsinstalled}" && ( -n "${dashboards}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        logger -w "Removing Wazuh dashboards."
-        if [ "${sys_type}" == "yum" ]; then
-            eval "yum remove wazuh-dashboards -y ${debug}"
-        elif [ "${sys_type}" == "zypper" ]; then
-            eval "zypper -n remove wazuh-dashboards ${debug}"
-        elif [ "${sys_type}" == "apt-get" ]; then
-            eval "apt remove --purge wazuh-dashboards -y ${debug}"
-        fi
-    fi
-
-    if [[ ( -n "${dashboards_remaining_files}" || -n "${dashboardsinstalled}" ) && ( -n "${dashboards}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        eval "rm -rf /var/lib/wazuh-dashboards/ ${debug}"
-        eval "rm -rf /usr/share/wazuh-dashboards/ ${debug}"
-        eval "rm -rf /etc/wazuh-dashboards/ ${debug}"
-        eval "rm -rf /run/wazuh-dashboards/ ${debug}"
-    fi
-
-    elements_to_remove=(    "/var/log/elasticsearch/"
-                            "/var/log/filebeat/"
-                            "/etc/systemd/system/opensearch.service.wants/"
-                            "/securityadmin_demo.sh"
-                            "/etc/systemd/system/multi-user.target.wants/wazuh-manager.service"
-                            "/etc/systemd/system/multi-user.target.wants/filebeat.service"
-                            "/etc/systemd/system/multi-user.target.wants/opensearch.service"
-                            "/etc/systemd/system/multi-user.target.wants/wazuh-dashboards.service"
-                            "/etc/systemd/system/wazuh-dashboards.service"
-                            "/lib/firewalld/services/dashboards.xml"
-                            "/lib/firewalld/services/opensearch.xml" )
-
-    eval "rm -rf ${elements_to_remove[*]}"
-
-    if [ -z "${uninstall}" ]; then
-        if [ -n "${srollback_conf}" ] || [ -n "${overwrite}" ]; then
-            logger "Installation cleaned."
-        else
-            logger "Installation cleaned. Check the ${logfile} file to learn more about the issue."
-        fi
+    if [ -n "${deleteRepositorie}" ]; then
+        logger "Repositories were removed."
     fi
 
 }

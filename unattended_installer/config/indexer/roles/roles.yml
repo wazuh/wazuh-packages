@@ -2,7 +2,7 @@ _meta:
   type: "roles"
   config_version: 2
 
-# Restrict users so they can only view visualization and dashboards on kibana
+# Restrict users so they can only view visualization and dashboard on kibana
 kibana_read_only:
   reserved: true
 
@@ -142,7 +142,7 @@ wazuh_ui_user:
     allowed_actions:
     - "read"
   tenant_permissions: []
-  static: false        
+  static: false
 
 wazuh_ui_admin:
   reserved: true
@@ -160,4 +160,4 @@ wazuh_ui_admin:
     - "manage"
     - "index"
   tenant_permissions: []
-  static: false  
+  static: false

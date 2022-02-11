@@ -44,6 +44,7 @@ function manager_startCluster() {
 function manager_install() {
 
     logger "Starting the Wazuh manager installation."
+
     if [ "${sys_type}" == "zypper" ]; then
         eval "${sys_type} -n install wazuh-manager=${wazuh_version}-${wazuh_revision} ${debug}"
     elif [ "${sys_type}" == "yum" ]; then
@@ -52,11 +53,71 @@ function manager_install() {
         eval "DEBIAN_FRONTEND=noninteractive ${sys_type} install wazuh-manager${sep}${wazuh_version}-${wazuh_revision} -y ${debug}"
     fi
     if [  "$?" != 0  ]; then
-        logger -e "Wazuh installation failed"
+        logger -e "Wazuh installation failed."
+        wazuhinstalled="manager"
         common_rollBack
         exit 1
     else
         wazuhinstalled="1"
         logger "Wazuh manager installation finished."
     fi
+}
+
+function manager_uninstall() {
+
+    logger "Wazuh manager and Filebeat will be uninstalled."
+
+    # Remove Wazuh
+    logger -w "Removing Wazuh manager."
+    if [[ -n "${wazuhinstalled}" ]];then
+
+        if [ "${sys_type}" == "yum" ]; then
+            eval "yum remove wazuh-manager -y ${debug} &"
+            wait
+        elif [ "${sys_type}" == "zypper" ]; then
+            eval "zypper -n remove wazuh-manager ${debug} &"
+            wait
+            eval "rm -f /etc/init.d/wazuh-manager ${debug} &"
+            wait
+        elif [ "${sys_type}" == "apt-get" ]; then
+            eval "apt remove --purge wazuh-manager -y ${debug} &"
+            wait
+        fi
+    fi
+
+    until [ -z "${wazuh_remaining_files}" ]
+    do
+        eval "rm -rf /var/ossec/ ${debug}"
+        checkWazuhRemainingFiles
+    done
+
+    # Remove Filebeat
+    logger -w "Removing Filebeat."
+    if [[ -n "${filebeatinstalled}" ]]; then
+
+        if [ "${sys_type}" == "yum" ]; then
+            eval "yum remove filebeat -y ${debug} &"
+            wait
+        elif [ "${sys_type}" == "zypper" ]; then
+            eval "zypper -n remove filebeat ${debug} &"
+            wait
+        elif [ "${sys_type}" == "apt-get" ]; then
+            eval "apt remove --purge filebeat -y ${debug} &"
+            wait
+        fi
+    fi
+
+    until [ -z "${filebeat_remaining_files}" ]
+    do
+        elements_to_remove=(    "/var/log/filebeat/"
+                                "/etc/systemd/system/multi-user.target.wants/wazuh-manager.service"
+                                "/etc/systemd/system/multi-user.target.wants/filebeat.service"
+                                "/var/lib/filebeat/"
+                                "/usr/share/filebeat/"
+                                "/etc/filebeat/"
+                            )
+        eval "rm -rf ${elements_to_remove[*]} ${debug}"
+        checkFilebeatRemainingFiles
+    done
+
 }

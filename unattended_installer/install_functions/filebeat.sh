@@ -63,7 +63,9 @@ function filebeat_install() {
         eval "DEBIAN_FRONTEND=noninteractive apt install filebeat${sep}${filebeat_version} -y -q  ${debug}"
     fi
     if [  "$?" != 0  ]; then
-        logger -e "Filebeat installation failed"
+        logger -e "Filebeat installation failed."
+        filebeatinstalled="manager"
+        common_rollBack
         exit 1
     else
         logger "Filebeat installation finished."
