@@ -133,7 +133,7 @@ test-09-configureKibana-dist-one-kibana-node-one-elastic-node-assert() {
     setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node
     echo 'server.host: "'1.1.1.1'"' >> /etc/kibana/kibana.yml
     echo "elasticsearch.hosts: https://1.1.1.1:9200" >> /etc/kibana/kibana.yml
-    getConfig kibana/kibana_unattended_distributed.yml /etc/kibana/kibana.yml
+    common_getConfig kibana/kibana_unattended_distributed.yml /etc/kibana/kibana.yml
 }
 
 test-10-configureKibana-dist-two-kibana-nodes-two-elastic-nodes() {
@@ -157,7 +157,7 @@ test-10-configureKibana-dist-two-kibana-nodes-two-elastic-nodes-assert() {
     echo "elasticsearch.hosts:" >> /etc/kibana/kibana.yml
     echo "  - https://1.1.1.1:9200" >> /etc/kibana/kibana.yml
     echo "  - https://2.2.2.2:9200" >> /etc/kibana/kibana.yml
-    getConfig kibana/kibana_unattended_distributed.yml /etc/kibana/kibana.yml
+    common_getConfig kibana/kibana_unattended_distributed.yml /etc/kibana/kibana.yml
 }
 
 test-ASSERT-FAIL-11-configureKibana-dist-error-downloading-plugin() {
@@ -183,7 +183,7 @@ test-12-configureKibana-AIO-assert() {
     copyKibanacerts
     modifyKibanaLogin
     setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node
-    getConfig kibana/kibana_unattended.yml /etc/kibana/kibana.yml
+    common_getConfig kibana/kibana_unattended.yml /etc/kibana/kibana.yml
 }
 
 test-ASSERT-FAIL-13-configureKibana--AIO-error-downloading-plugin() {
@@ -209,7 +209,7 @@ test-14-initializeKibana-distributed-one-kibana-node-one-wazuh-node-curl-correct
 }
 
 test-14-initializeKibana-distributed-one-kibana-node-one-wazuh-node-curl-correct-assert() {
-    getPass "admin"
+    common_getPass "admin"
     sed -i 's,url: https://localhost,url: https://2.2.2.2,g' /usr/share/kibana/data/wazuh/config/wazuh.yml
 }
 
@@ -237,7 +237,7 @@ test-16-initializeKibana-distributed-two-kibana-nodes-two-wazuh-nodes-curl-corre
 }
 
 test-16-initializeKibana-distributed-two-kibana-nodes-two-wazuh-nodes-curl-correct-assert() {
-    getPass "admin"
+    common_getPass "admin"
     sed -i 's,url: https://localhost,url: https://1.1.2.2,g' /usr/share/kibana/data/wazuh/config/wazuh.yml
 }
 
@@ -268,7 +268,7 @@ test-18-initializeKibana-distributed-two-kibana-nodes-two-wazuh-nodes-curl-error
 }
 
 test-18-initializeKibana-distributed-two-kibana-nodes-two-wazuh-nodes-curl-error-force-assert() {
-    getPass  admin
+    common_getPass  admin
     sleep  10
     sleep  10
     sleep  10
@@ -298,7 +298,7 @@ test-19-initializeKibanaAIO-curl-correct() {
 }
 
 test-19-initializeKibanaAIO-curl-correct-assert() {
-    getPass "admin"
+    common_getPass "admin"
 }
 
 
@@ -330,6 +330,6 @@ test-21-modifyKibanaLogin-assert() {
     cp -f /tmp/custom_welcome/template.js.hbs /usr/share/kibana/src/legacy/ui/ui_render/bootstrap/template.js.hbs
     rm -f /tmp/custom_welcome/*
     rmdir /tmp/custom_welcome
-    getConfig kibana/customWelcomeKibana.css /tmp/customWelcomeKibana.css
+    common_getConfig kibana/customWelcomeKibana.css /tmp/customWelcomeKibana.css
     rm -f /tmp/customWelcomeKibana.css
 }

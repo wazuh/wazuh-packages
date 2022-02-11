@@ -9,7 +9,7 @@
 # Foundation.
 
 if [[ -z "${logfile}" ]]; then
-    logfile="/var/log/wazuh-password-tool.log"
+    readonly logfile="/var/log/wazuh-password-tool.log"
 fi
 debug_pass=">> ${logfile} 2>&1"
 if [ -n "$(command -v yum)" ]; then
@@ -21,14 +21,14 @@ elif [ -n "$(command -v apt-get)" ]; then
 fi
 
 function changePassword() {
-    
+
     if [ -n "${changeall}" ]; then
         for i in "${!passwords[@]}"
         do
             if [ -n "${indexerchinstalled}" ] && [ -f "/usr/share/wazuh-indexer/backup/internal_users.yml" ]; then
                 awk -v new=${hashes[i]} 'prev=="'${users[i]}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/wazuh-indexer/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/wazuh-indexer/backup/internal_users.yml
             fi
-            
+
             if [ "${users[i]}" == "admin" ]; then
                 adminpass=${passwords[i]}
             elif [ "${users[i]}" == "kibanaserver" ]; then
@@ -58,25 +58,25 @@ function changePassword() {
             conf="$(awk '{sub("password: .*", "password: '${adminpass}'")}1' /etc/filebeat/filebeat.yml)"
             echo "${conf}" > /etc/filebeat/filebeat.yml
             restartService "filebeat"
-        fi 
+        fi
     fi
 
     if [ "$nuser" == "kibanaserver" ] || [ -n "$changeall" ]; then
 
-        if [ -n "${dashboardinstalled}" ] && [ -n "${dashpass}" ]; then
-            wazuhdashold=$(grep "password:" /etc/wazuh-dashboard/dashboard.yml )
+        if [ -n "${dashboardsinstalled}" ] && [ -n "${dashpass}" ]; then
+            wazuhdashold=$(grep "password:" /etc/wazuh-dashboards/dashboards.yml )
             rk="opensearch.password: "
             wazuhdashold="${wazuhdashold//$rk}"
-            conf="$(awk '{sub("opensearch.password: .*", "opensearch.password: '${dashpass}'")}1' /etc/wazuh-dashboard/dashboard.yml)"
-            echo "${conf}" > /etc/wazuh-dashboard/dashboard.yml 
-            restartService "wazuh-dashboard"
+            conf="$(awk '{sub("opensearch.password: .*", "opensearch.password: '${dashpass}'")}1' /etc/wazuh-dashboards/dashboards.yml)"
+            echo "${conf}" > /etc/wazuh-dashboards/dashboards.yml
+            restartService "wazuh-dashboards"
         fi
     fi
 
 }
 
 function checkInstalledPass() {
-    
+
     if [ "${sys_type}" == "yum" ]; then
         indexerchinstalled=$(yum list installed 2>/dev/null | grep wazuh-indexer)
     elif [ "${sys_type}" == "zypper" ]; then
@@ -94,15 +94,15 @@ function checkInstalledPass() {
     fi
 
     if [ "${sys_type}" == "yum" ]; then
-        dashboardinstalled=$(yum list installed 2>/dev/null | grep wazuh-dashboard)
+        dashboardsinstalled=$(yum list installed 2>/dev/null | grep wazuh-dashboards)
     elif [ "${sys_type}" == "zypper" ]; then
-        dashboardinstalled=$(zypper packages | grep wazuh-dashboard | grep i+)
+        dashboardsinstalled=$(zypper packages | grep wazuh-dashboards | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
-        dashboardinstalled=$(apt list --installed  2>/dev/null | grep wazuh-dashboard)
+        dashboardsinstalled=$(apt list --installed  2>/dev/null | grep wazuh-dashboards)
     fi
 
-    if [ -z "${indexerchinstalled}" ] && [ -z "${dashboardinstalled}" ] && [ -z "${filebeatinstalled}" ]; then
-        logger_pass -e "Cannot find Wazuh indexer, Wazuh dashboard or Filebeat on the system."
+    if [ -z "${indexerchinstalled}" ] && [ -z "${dashboardsinstalled}" ] && [ -z "${filebeatinstalled}" ]; then
+        logger_pass -e "Cannot find Wazuh indexer, Wazuh dashboards or Filebeat on the system."
         exit 1;
     else
         if [ -n "${indexerchinstalled}" ]; then
@@ -122,7 +122,7 @@ function checkRoot() {
     if [ "$EUID" -ne 0 ]; then
         logger_pass -e "This script must be run as root."
         exit 1;
-    fi 
+    fi
 
 }
 
@@ -142,19 +142,20 @@ function checkUser() {
 }
 
 function createBackUp() {
-    
+
     logger_pass -d "Creating password backup."
     eval "mkdir /usr/share/wazuh-indexer/backup ${debug_pass}"
-    eval "/usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -p 9800 -backup /usr/share/wazuh-indexer/backup -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug_pass}"
+    eval "JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -icl -p 9800 -backup /usr/share/wazuh-indexer/backup -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -h ${IP} ${debug_pass}"
     if [ "$?" != 0 ]; then
         logger_pass -e "The backup could not be created"
         exit 1;
     fi
     logger_pass -d "Password backup created"
+
 }
 
 function generateHash() {
-    
+
     if [ -n "${changeall}" ]; then
         logger_pass -d "Generating password hashes."
         for i in "${!passwords[@]}"
@@ -307,7 +308,7 @@ function logger_pass() {
             esac
         done
     fi
-    
+
     if [ -z "${debugLogger}" ] || ( [ -n "${debugLogger}" ] && [ -n "${debugEnabled}" ] ); then
         if [ -n "${disableHeader}" ]; then
             echo "${message}" | tee -a ${logfile}
@@ -345,12 +346,12 @@ function main() {
                 adminpem=${2}
                 shift
                 shift
-                ;; 
+                ;;
             "-k"|"--certkey")
                 adminkey=${2}
                 shift
                 shift
-                ;; 
+                ;;
             "-f"|"--file")
                 p_file=${2}
                 shift
@@ -360,7 +361,7 @@ function main() {
                 gen_file=${2}
                 shift
                 shift
-                ;;  
+                ;;
             "-h"|"--help")
                 getHelp
                 ;;
@@ -370,13 +371,13 @@ function main() {
         done
 
         export JAVA_HOME=/usr/share/wazuh-indexer/jdk/
-        
+
         if [ -n "${verboseenabled}" ]; then
             debug_pass="2>&1 | tee -a ${logfile}"
         fi
 
         if [ -n "${gen_file}" ]; then
-            generatePasswordFile 
+            generatePasswordFile
             if [ -z "${p_file}" ] && [ -z "${nuser}" ] && [ -z "${changeall}" ]; then
                 exit 0
             fi
@@ -395,7 +396,7 @@ function main() {
         if [ -n "${password}" ] && [ -n "${changeall}" ]; then
             getHelp
         fi
-        
+
         if [ -n "${nuser}" ] && [ -n "${p_file}" ]; then
             getHelp
         fi
@@ -556,8 +557,11 @@ function restartService() {
         eval "systemctl restart ${1}.service ${debug_pass}"
         if [  "$?" != 0  ]; then
             logger_pass -e "${1^} could not be started."
-            if [[ $(type -t rollBack) == "function" ]]; then
-                rollBack
+            if [ -n "$(command -v journalctl)" ]; then
+                eval "journalctl -r -u ${1} >> ${logfile}"
+            fi
+            if [[ $(type -t common_rollBack) == "function" ]]; then
+                common_rollBack
             fi
             exit 1;
         else
@@ -567,27 +571,33 @@ function restartService() {
         eval "/etc/init.d/${1} restart ${debug_pass}"
         if [  "$?" != 0  ]; then
             logger_pass -e "${1^} could not be started."
-            if [[ $(type -t rollBack) == "function" ]]; then
-                rollBack
+            if [ -n "$(command -v journalctl)" ]; then
+                eval "journalctl -r -u ${1} >> ${logfile}"
+            fi
+            if [[ $(type -t common_rollBack) == "function" ]]; then
+                common_rollBack
             fi
             exit 1;
         else
             logger_pass -d "${1^} started"
-        fi     
+        fi
     elif [ -x "/etc/rc.d/init.d/${1}" ] ; then
         eval "/etc/rc.d/init.d/${1} restart ${debug_pass}"
         if [  "$?" != 0  ]; then
             logger_pass -e "${1^} could not be started."
-            if [[ $(type -t rollBack) == "function" ]]; then
-                rollBack
+            if [ -n "$(command -v journalctl)" ]; then
+                eval "journalctl -r -u ${1} >> ${logfile}"
+            fi
+            if [[ $(type -t common_rollBack) == "function" ]]; then
+                common_rollBack
             fi
             exit 1;
         else
             logger_pass -d "${1^} started"
         fi
     else
-        if [[ $(type -t rollBack) == "function" ]]; then
-            rollBack
+        if [[ $(type -t common_rollBack) == "function" ]]; then
+            common_rollBack
         fi
         logger_pass -e "${1^} could not start. No service manager found on the system."
         exit 1;
@@ -596,10 +606,10 @@ function restartService() {
 }
 
 function runSecurityAdmin() {
-    
+
     logger_pass -d "Loading new passwords changes."
     eval "cp /usr/share/wazuh-indexer/backup/* /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ ${debug_pass}"
-    eval "/usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -p 9800 -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug_pass}"
+    eval "OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -p 9800 -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug_pass}"
     if [  "$?" != 0  ]; then
         logger_pass -e "Could not load the changes."
         exit 1;
@@ -608,16 +618,16 @@ function runSecurityAdmin() {
 
     if [[ -n "${nuser}" ]] && [[ -n ${autopass} ]]; then
         logger_pass $'\nThe password for user '${nuser}' is '${password}''
-        logger_pass -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/wazuh-dashboard/dashboard.yml if necessary and restart the services."
+        logger_pass -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/wazuh-dashboards/dashboards.yml if necessary and restart the services."
     fi
 
     if [[ -n "${nuser}" ]] && [[ -z ${autopass} ]]; then
-        logger_pass -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/wazuh-dashboard/dashboard.yml if necessary and restart the services."
+        logger_pass -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/wazuh-dashboards/dashboards.yml if necessary and restart the services."
     fi
 
     if [ -n "${changeall}" ]; then
-        if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ]; then
-            logger_pass -w "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/wazuh-dashboard/dashboard.yml if necessary and restart the services."
+        if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboards}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ]; then
+            logger_pass -w "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/wazuh-dashboards/dashboards.yml if necessary and restart the services."
         else
             logger_pass -d "Passwords changed."
         fi

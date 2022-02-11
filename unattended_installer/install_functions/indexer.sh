@@ -1,4 +1,4 @@
-# Wazuh installer - indexer.sh functions. 
+# Wazuh installer - indexer.sh functions.
 # Copyright (C) 2015, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
@@ -8,16 +8,10 @@
 
 readonly i_certs_path="/etc/wazuh-indexer/certs/"
 
-function configureIndexer() {
+function indexer_configure() {
 
     logger -d "Configuring Wazuh indexer."
     eval "export JAVA_HOME=/usr/share/wazuh-indexer/jdk/"
-    # eval "getConfig indexer/roles/roles.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/roles.yml ${debug}"
-    # eval "getConfig indexer/roles/roles_mapping.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/roles_mapping.yml ${debug}"
-    # eval "getConfig indexer/roles/internal_users.yml /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/internal_users.yml ${debug}"
-    # eval "rm -f /etc/wazuh-indexer/{esnode-key.pem,esnode.pem,kirk-key.pem,kirk.pem,root-ca.pem} ${debug}"
-    
-    copyCertificatesIndexer
 
     # Configure JVM options for Wazuh indexer
     ram_gb=$(free -g | awk '/^Mem:/{print $2}')
@@ -30,9 +24,9 @@ function configureIndexer() {
     eval "sed -i "s/-Xmx1g/-Xmx${ram}g/" /etc/wazuh-indexer/jvm.options ${debug}"
 
     if [ -n "${AIO}" ]; then
-        eval "getConfig indexer/indexer_all_in_one.yml /etc/wazuh-indexer/opensearch.yml ${debug}"
+        eval "common_getConfig indexer/indexer_all_in_one.yml /etc/wazuh-indexer/opensearch.yml ${debug}"
     else
-        eval "getConfig indexer/indexer_unattended_distributed.yml /etc/wazuh-indexer/opensearch.yml ${debug}"
+        eval "common_getConfig indexer/indexer_unattended_distributed.yml /etc/wazuh-indexer/opensearch.yml ${debug}"
         if [ "${#indexer_node_names[@]}" -eq 1 ]; then
             pos=0
             echo "node.name: ${indxname}" >> /etc/wazuh-indexer/opensearch.yml
@@ -40,9 +34,8 @@ function configureIndexer() {
             echo "cluster.initial_master_nodes: ${indxname}" >> /etc/wazuh-indexer/opensearch.yml
 
             echo "plugins.security.nodes_dn:" >> /etc/wazuh-indexer/opensearch.yml
-            echo '        - CN='${indxname}',OU=Docu,O=Wazuh,L=California,C=US' >> /etc/wazuh-indexer/opensearch.yml
+            echo '        - CN='${indxname}',OU=Wazuh,O=Wazuh,L=California,C=US' >> /etc/wazuh-indexer/opensearch.yml
         else
-            eval "rm -rf /var/lib/wazuh-indexer/ ${debug}"
             echo "node.name: ${indxname}" >> /etc/wazuh-indexer/opensearch.yml
             echo "cluster.initial_master_nodes:" >> /etc/wazuh-indexer/opensearch.yml
             for i in "${indexer_node_names[@]}"; do
@@ -64,10 +57,12 @@ function configureIndexer() {
 
             echo "plugins.security.nodes_dn:" >> /etc/wazuh-indexer/opensearch.yml
             for i in "${indexer_node_names[@]}"; do
-                    echo '        - CN='${i}',OU=Docu,O=Wazuh,L=California,C=US' >> /etc/wazuh-indexer/opensearch.yml
+                    echo '        - CN='${i}',OU=Wazuh,O=Wazuh,L=California,C=US' >> /etc/wazuh-indexer/opensearch.yml
             done
         fi
     fi
+
+    indexer_copyCertificates
 
     jv=$(java -version 2>&1 | grep -o -m1 '1.8.0' )
     if [ "$jv" == "1.8.0" ]; then
@@ -77,13 +72,12 @@ function configureIndexer() {
         echo "wazuh-indexer soft nproc 4096" >> /etc/security/limits.conf
         echo -ne "\nbootstrap.system_call_filter: false" >> /etc/wazuh-indexer/opensearch.yml
     fi
-    ## preguntar si aun hace falta quitarlo
-    # eval "/usr/share/wazuh-indexer/bin/opensearch-plugin remove opendistro-performance-analyzer ${debug}"
+
     logger "Wazuh indexer post-install configuration finished."
 }
 
-function copyCertificatesIndexer() {
-    
+function indexer_copyCertificates() {
+
     eval "rm -f ${i_certs_path}/* ${debug}"
     name=${indexer_node_names[pos]}
 
@@ -100,28 +94,33 @@ function copyCertificatesIndexer() {
 
 }
 
-function initializeIndexer() {
+function indexer_initialize() {
 
     logger "Starting Wazuh indexer cluster."
     i=0
-    until $(curl -XGET https://${indexer_node_ips[pos]}:9700/ -uadmin:admin -k --max-time 120 --silent --output /dev/null) || [ "${i}" -eq 12 ]; do
+    until curl -XGET https://${indexer_node_ips[pos]}:9700/ -uadmin:admin -k --max-time 120 --silent --output /dev/null || [ "${i}" -eq 12 ]; do
         sleep 10
         i=$((i+1))
     done
     if [ ${i} -eq 12 ]; then
         logger -e "Cannot start Wazuh indexer cluster."
-        rollBack
+        common_rollBack
         exit 1
     fi
+
+    if [ -n "${AIO}" ]; then
+        eval "sudo -u wazuh-indexer JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig -icl -p 9800 -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig -nhnv -cacert ${i_certs_path}root-ca.pem -cert ${i_certs_path}admin.pem -key ${i_certs_path}admin-key.pem -h 127.0.0.1 ${debug}"
+    fi
+
     if [ "${#indexer_node_names[@]}" -eq 1 ] && [ -z "${AIO}" ]; then
-        changePasswords
+        common_changePasswords
     fi
 
     logger "Wazuh indexer cluster started."
 
 }
 
-function installIndexer() {
+function indexer_install() {
 
     logger "Starting Wazuh indexer installation."
 
@@ -130,27 +129,29 @@ function installIndexer() {
     elif [ "${sys_type}" == "zypper" ]; then
         eval "zypper -n install wazuh-indexer=${wazuh_version}-${wazuh_revision} ${debug}"
     elif [ "${sys_type}" == "apt-get" ]; then
-        eval "apt install wazuh-indexer=${wazuh_version}-${wazuh_revision} -y ${debug}"
+        eval "DEBIAN_FRONTEND=noninteractive apt install wazuh-indexer=${wazuh_version}-${wazuh_revision} -y ${debug}"
     fi
 
     if [  "$?" != 0  ]; then
         logger -e "Wazuh indexer installation failed."
-        rollBack
+        common_rollBack
         exit 1
     else
         indexerchinstalled="1"
         logger "Wazuh indexer installation finished."
     fi
 
+    eval "sysctl -q -w vm.max_map_count=262144 ${debug}"
+
 }
 
-function startIndexerCluster() {
+function indexer_startCluster() {
 
-    eval "export JAVA_HOME=/usr/share/wazuh-indexer/jdk/"
-    eval "/usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -p 9800 -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ -icl -nhnv -cacert /etc/wazuh-indexer/certs/root-ca.pem -cert /etc/wazuh-indexer/certs/admin.pem -key /etc/wazuh-indexer/certs/admin-key.pem -h ${indexer_node_ips[pos]} > /dev/null ${debug}"
+    eval "wazuh_indexer_ip=( $(cat /etc/wazuh-indexer/opensearch.yml | grep network.host | sed 's/network.host:\s//') )"
+    eval "sudo -u wazuh-indexer JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -p 9800 -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ -icl -nhnv -cacert /etc/wazuh-indexer/certs/root-ca.pem -cert /etc/wazuh-indexer/certs/admin.pem -key /etc/wazuh-indexer/certs/admin-key.pem -h ${wazuh_indexer_ip} ${debug}"
     if [  "$?" != 0  ]; then
         logger -e "The Wazuh indexer cluster security configuration could not be initialized."
-        rollBack
+        common_rollBack
         exit 1
     else
         logger "Wazuh indexer cluster security configuration initialized."
@@ -158,7 +159,7 @@ function startIndexerCluster() {
     eval "curl --silent ${filebeat_wazuh_template} | curl -X PUT 'https://${indexer_node_ips[pos]}:9700/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k --silent ${debug}"
     if [  "$?" != 0  ]; then
         logger -e "The wazuh-alerts template could not be inserted into the Wazuh indexer cluster."
-        rollBack
+        common_rollBack
         exit 1
     else
         logger -d "The wazuh-alerts template inserted into the Wazuh indexer cluster."

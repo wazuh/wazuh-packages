@@ -12,9 +12,9 @@ plugins.security.ssl.http.pemcert_filepath: /etc/wazuh-indexer/certs/indexer.pem
 plugins.security.ssl.http.pemkey_filepath: /etc/wazuh-indexer/certs/indexer-key.pem
 plugins.security.ssl.http.pemtrustedcas_filepath: /etc/wazuh-indexer/certs/root-ca.pem
 plugins.security.nodes_dn:
-- CN=node-1,OU=Docu,O=Wazuh,L=California,C=US
+- CN=node-1,OU=Wazuh,O=Wazuh,L=California,C=US
 plugins.security.authcz.admin_dn:
-- CN=admin,OU=Docu,O=Wazuh,L=California,C=US
+- CN=admin,OU=Wazuh,O=Wazuh,L=California,C=US
 
 plugins.security.audit.type: internal_elasticsearch
 plugins.security.enable_snapshot_restore_privilege: true
@@ -25,3 +25,6 @@ node.max_local_storage_nodes: 3
 
 path.data: /var/lib/elasticsearch
 path.logs: /var/log/elasticsearch
+
+### Option to allow Filebeat-oss 7.10.2 to work ###
+compatibility.override_main_response_version: true

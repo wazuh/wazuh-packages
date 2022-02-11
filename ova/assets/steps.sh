@@ -46,7 +46,7 @@ systemConfig() {
 preInstall() {
 
   # Disable passwords change
-  sed -i "s/changePasswords/#changePasswords/g" ${RESOURCES_PATH}/${INSTALLER}
+  sed -i "s/common_changePasswords/#common_changePasswords/g" ${RESOURCES_PATH}/${INSTALLER}
 
 }
 

@@ -21,7 +21,7 @@ test-01-installWazuh-zypper-error() {
 }
 
 test-01-installWazuh-zypper-error-assert() {
-    rollBack
+    common_rollBack
     exit 1
 }
 
@@ -36,7 +36,7 @@ test-02-installWazuh-apt-error() {
 }
 
 test-02-installWazuh-apt-error-assert() {
-    rollBack
+    common_rollBack
     exit 1
 }
 
@@ -51,7 +51,7 @@ test-03-installWazuh-yum-error() {
 }
 
 test-03-installWazuh-yum-error-assert() {
-    rollBack
+    common_rollBack
     exit 1
 }
 

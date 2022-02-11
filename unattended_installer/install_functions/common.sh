@@ -1,4 +1,4 @@
-# Wazuh installer - common.sh functions. 
+# Wazuh installer - common.sh functions.
 # Copyright (C) 2015, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
@@ -7,19 +7,19 @@
 # Foundation.
 
 if [ -n "${development}" ]; then
-    repogpg="https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH"
-    repobaseurl="https://packages-dev.wazuh.com/pre-release"
-    reporelease="unstable"
+    readonly repogpg="https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH"
+    readonly repobaseurl="https://packages-dev.wazuh.com/pre-release"
+    readonly reporelease="unstable"
 else
-    repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"
-    repobaseurl="https://packages.wazuh.com/4.x"
-    reporelease="stable"
+    readonly repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"
+    readonly repobaseurl="https://packages.wazuh.com/4.x"
+    readonly reporelease="stable"
 fi
 
-filebeat_wazuh_template="https://raw.githubusercontent.com/wazuh/wazuh/${wazuh_major}/extensions/elasticsearch/7.x/wazuh-template.json"
-filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.1.tar.gz"
+readonly filebeat_wazuh_template="https://raw.githubusercontent.com/wazuh/wazuh/${wazuh_major}/extensions/elasticsearch/7.x/wazuh-template.json"
+readonly filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.1.tar.gz"
 
-function addWazuhrepo() {
+function common_addWazuhRepo() {
 
     logger -d "Adding the Wazuh repository."
 
@@ -36,10 +36,10 @@ function addWazuhrepo() {
     if [ ! -f "/etc/yum.repos.d/wazuh.repo" ] && [ ! -f "/etc/zypp/repos.d/wazuh.repo" ] && [ ! -f "/etc/apt/sources.list.d/wazuh.list" ] ; then
         if [ "${sys_type}" == "yum" ]; then
             eval "rpm --import ${repogpg} ${debug}"
-            eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-\$releasever - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo ${debug}"
+            eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-\${releasever} - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
             eval "rpm --import ${repogpg} ${debug}"
-            eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-\$releasever - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/zypp/repos.d/wazuh.repo ${debug}"
+            eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-\${releasever} - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/zypp/repos.d/wazuh.repo ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "curl -s ${repogpg} --max-time 300 | apt-key add - ${debug}"
             eval "echo \"deb ${repobaseurl}/apt/ ${reporelease} main\" | tee /etc/apt/sources.list.d/wazuh.list ${debug}"
@@ -52,10 +52,10 @@ function addWazuhrepo() {
 
 }
 
-function createCertificates() {
+function common_createCertificates() {
 
     if [ -n "${AIO}" ]; then
-        eval "getConfig certificate/config_aio.yml ${base_path}/config.yml ${debug}"
+        eval "common_getConfig certificate/config_aio.yml ${base_path}/config.yml ${debug}"
     fi
 
     readConfig
@@ -66,18 +66,18 @@ function createCertificates() {
     generateAdmincertificate
     generateIndexercertificates
     generateFilebeatcertificates
-    generateDashboardcertificates
+    generateDashboardscertificates
     cleanFiles
 
 }
 
-function createClusterKey() {
+function common_createClusterKey() {
 
     openssl rand -hex 16 >> "${base_path}/certs/clusterkey"
 
 }
 
-function changePasswords() {
+function common_changePasswords() {
 
     logger -d "Setting passwords."
     if [ -f "${tar_file}" ]; then
@@ -88,8 +88,8 @@ function changePasswords() {
             changeall=1
             readUsers
         fi
-        readPasswordFileUsers
-    else 
+        common_readPasswordFileUsers
+    else
         logger -e "Cannot find passwords-file. Exiting"
         exit 1
     fi
@@ -98,7 +98,7 @@ function changePasswords() {
         createBackUp
         generateHash
     fi
-    
+
     changePassword
 
     if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
@@ -108,7 +108,7 @@ function changePasswords() {
 
 }
 
-function extractConfig() {
+function common_extractConfig() {
 
     if ! $(tar -tf "${tar_file}" | grep -q config.yml); then
         logger -e "There is no config.yml file in ${tar_file}."
@@ -118,10 +118,10 @@ function extractConfig() {
 
 }
 
-function getConfig() {
+function common_getConfig() {
 
     if [ "$#" -ne 2 ]; then
-        logger -e "getConfig should be called with two arguments"
+        logger -e "common_getConfig should be called with two arguments"
         exit 1
     fi
 
@@ -132,13 +132,13 @@ function getConfig() {
     fi
     if [ "$?" != 0 ]; then
         logger -e "Unable to find configuration file ${1}. Exiting."
-        rollBack
+        common_rollBack
         exit 1
     fi
 
 }
 
-function getPass() {
+function common_getPass() {
 
     for i in "${!users[@]}"; do
         if [ "${users[i]}" == "${1}" ]; then
@@ -148,7 +148,7 @@ function getPass() {
 
 }
 
-function installPrerequisites() {
+function common_installPrerequisites() {
 
     logger "Starting the installation of dependencies."
 
@@ -164,11 +164,11 @@ function installPrerequisites() {
         eval "zypper -n install libcap-progs tar gnupg ${openssl} ${debug} || zypper -n install libcap2 tar gnupg ${openssl} ${debug}"
     elif [ "${sys_type}" == "apt-get" ]; then
         eval "apt-get update -q ${debug}"
-        eval "apt-get install apt-transport-https curl unzip wget libcap2-bin tar gnupg ${openssl} -y ${debug}"
+        eval "DEBIAN_FRONTEND=noninteractive apt install apt-transport-https curl unzip wget libcap2-bin tar software-properties-common gnupg ${openssl} -y ${debug}"
     fi
 
     if [  "$?" != 0  ]; then
-        logger -e "Prerequisites could not be installed"
+        logger -e "Prerequisites could not be installed, probably due to the OS repositories. Please check them."
         exit 1
     else
         logger "Installation of dependencies finished."
@@ -176,7 +176,7 @@ function installPrerequisites() {
 
 }
 
-function readPasswordFileUsers() {
+function common_readPasswordFileUsers() {
 
     filecorrect=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' "${p_file}")
     if [ "${filecorrect}" -ne 1 ]; then
@@ -221,11 +221,11 @@ User:
         finalusers=()
         finalpasswords=()
 
-        if [ -n "${dashboardinstalled}" ] &&  [ -n "${dashboard}" ]; then 
+        if [ -n "${dashboardsinstalled}" ] &&  [ -n "${dashboards}" ]; then
             users=( kibanaserver admin )
         fi
 
-        if [ -n "${filebeatinstalled}" ] && [ -n "${wazuh}" ]; then 
+        if [ -n "${filebeatinstalled}" ] && [ -n "${wazuh}" ]; then
             users=( admin )
         fi
 
@@ -251,7 +251,7 @@ User:
 
 }
 
-function restoreWazuhrepo() {
+function common_restoreWazuhrepo() {
 
     if [ -n "${development}" ]; then
         if [ "${sys_type}" == "yum" ] && [ -f "/etc/yum.repos.d/wazuh.repo" ]; then
@@ -271,11 +271,11 @@ function restoreWazuhrepo() {
 
 }
 
-function rollBack() {
+function common_rollBack() {
 
     if [ -z "${uninstall}" ]; then
         logger "Cleaning the installation."
-    fi  
+    fi
 
     if [ -f "/etc/yum.repos.d/wazuh.repo" ]; then
         eval "rm /etc/yum.repos.d/wazuh.repo"
@@ -294,7 +294,7 @@ function rollBack() {
             eval "rm -f /etc/init.d/wazuh-manager ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge wazuh-manager -y ${debug}"
-        fi 
+        fi
     fi
 
     if [[ ( -n "${wazuh_remaining_files}"  || -n "${wazuhinstalled}" ) && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
@@ -309,7 +309,7 @@ function rollBack() {
             eval "zypper -n remove wazuh-indexer ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge ^wazuh-indexer -y ${debug}"
-        fi 
+        fi
     fi
 
     if [[ ( -n "${indexer_remaining_files}" || -n "${indexerchinstalled}" ) && ( -n "${indexer}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
@@ -335,21 +335,22 @@ function rollBack() {
         eval "rm -rf /etc/filebeat/ ${debug}"
     fi
 
-    if [[ -n "${dashboardinstalled}" && ( -n "${dashboard}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        logger -w "Removing Wazuh Dashboard."
+    if [[ -n "${dashboardsinstalled}" && ( -n "${dashboards}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
+        logger -w "Removing Wazuh dashboards."
         if [ "${sys_type}" == "yum" ]; then
-            eval "yum remove wazuh-dashboard -y ${debug}"
+            eval "yum remove wazuh-dashboards -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
-            eval "zypper -n remove wazuh-dashboard ${debug}"
+            eval "zypper -n remove wazuh-dashboards ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
-            eval "apt remove --purge wazuh-dashboard -y ${debug}"
+            eval "apt remove --purge wazuh-dashboards -y ${debug}"
         fi
     fi
 
-    if [[ ( -n "${dashboard_remaining_files}" || -n "${dashboardinstalled}" ) && ( -n "${dashboard}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        eval "rm -rf /var/lib/wazuh-dashboard/ ${debug}"
-        eval "rm -rf /usr/share/wazuh-dashboard/ ${debug}"
-        eval "rm -rf /etc/wazuh-dashboard/ ${debug}"
+    if [[ ( -n "${dashboards_remaining_files}" || -n "${dashboardsinstalled}" ) && ( -n "${dashboards}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
+        eval "rm -rf /var/lib/wazuh-dashboards/ ${debug}"
+        eval "rm -rf /usr/share/wazuh-dashboards/ ${debug}"
+        eval "rm -rf /etc/wazuh-dashboards/ ${debug}"
+        eval "rm -rf /run/wazuh-dashboards/ ${debug}"
     fi
 
     elements_to_remove=(    "/var/log/elasticsearch/"
@@ -359,15 +360,15 @@ function rollBack() {
                             "/etc/systemd/system/multi-user.target.wants/wazuh-manager.service"
                             "/etc/systemd/system/multi-user.target.wants/filebeat.service"
                             "/etc/systemd/system/multi-user.target.wants/opensearch.service"
-                            "/etc/systemd/system/multi-user.target.wants/wazuh-dashboard.service"
-                            "/etc/systemd/system/wazuh-dashboard.service"
-                            "/lib/firewalld/services/dashboard.xml"
+                            "/etc/systemd/system/multi-user.target.wants/wazuh-dashboards.service"
+                            "/etc/systemd/system/wazuh-dashboards.service"
+                            "/lib/firewalld/services/dashboards.xml"
                             "/lib/firewalld/services/opensearch.xml" )
 
     eval "rm -rf ${elements_to_remove[*]}"
 
     if [ -z "${uninstall}" ]; then
-        if [ -n "${rollback_conf}" ] || [ -n "${overwrite}" ]; then
+        if [ -n "${srollback_conf}" ] || [ -n "${overwrite}" ]; then
             logger "Installation cleaned."
         else
             logger "Installation cleaned. Check the ${logfile} file to learn more about the issue."
@@ -376,10 +377,10 @@ function rollBack() {
 
 }
 
-function startService() {
+function common_startService() {
 
     if [ "$#" -ne 1 ]; then
-        logger -e "startService must be called with 1 argument."
+        logger -e "common_startService must be called with 1 argument."
         exit 1
     fi
 
@@ -391,7 +392,10 @@ function startService() {
         eval "systemctl start ${1}.service ${debug}"
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
-            rollBack
+            if [ -n "$(command -v journalctl)" ]; then
+                eval "journalctl -r -u ${1} >> ${logfile}"
+            fi
+            common_rollBack
             exit 1
         else
             logger "${1^} service started."
@@ -402,16 +406,22 @@ function startService() {
         eval "/etc/init.d/${1} start ${debug}"
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
-            rollBack
+            if [ -n "$(command -v journalctl)" ]; then
+                eval "journalctl -r -u ${1} >> ${logfile}"
+            fi
+            common_rollBack
             exit 1
         else
             logger "${1^} service started."
-        fi     
+        fi
     elif [ -x "/etc/rc.d/init.d/${1}" ] ; then
         eval "/etc/rc.d/init.d/${1} start ${debug}"
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
-            rollBack
+            if [ -n "$(command -v journalctl)" ]; then
+                eval "journalctl -r -u ${1} >> ${logfile}"
+            fi
+            common_rollBack
             exit 1
         else
             logger "${1^} service started."
