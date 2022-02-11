@@ -6,7 +6,7 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-function checkArch() {
+function checks_arch() {
 
     arch=$(uname -m)
 
@@ -16,7 +16,7 @@ function checkArch() {
     fi
 }
 
-function checkArguments() {
+function checks_arguments() {
 
     # -------------- Configurations ---------------------------------
 
@@ -25,7 +25,7 @@ function checkArguments() {
             exit 1
     fi
 
-    if [[ -n "${configurations}" && ( -n "${AIO}" || -n "${indexer}" || -n "${dashboard}" || -n "${wazuh}" || -n "${overwrite}" || -n "${start_elastic_cluster}" || -n "${tar_conf}" || -n "${uninstall}" ) ]]; then
+    if [[ -n "${configurations}" && ( -n "${AIO}" || -n "${indexer}" || -n "${dashboards}" || -n "${wazuh}" || -n "${overwrite}" || -n "${start_elastic_cluster}" || -n "${tar_conf}" || -n "${uninstall}" ) ]]; then
         logger -e "The argument -c|--create-configurations can't be used with -a, -k, -e, -u or -w arguments."
         exit 1
     fi
@@ -53,7 +53,7 @@ function checkArguments() {
             logger "Elasticsearch components were not found on the system so it was not uninstalled."
         fi
 
-        if [ -z "${dashboardinstalled}" ] && [ -z "${dashboard_remaining_files}" ]; then
+        if [ -z "${dashboardsinstalled}" ] && [ -z "${dashboards_remaining_files}" ]; then
             logger "Kibana components were found on the system so it was not uninstalled."
         fi
 
@@ -72,7 +72,7 @@ function checkArguments() {
             exit 1
         fi
 
-        if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ] || [ -n "${indexerchinstalled}" ] || [ -n "${indexer_remaining_files}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ] || [ -n "${dashboardinstalled}" ] || [ -n "${dashboard_remaining_files}" ]; then
+        if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ] || [ -n "${indexerchinstalled}" ] || [ -n "${indexer_remaining_files}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ] || [ -n "${dashboardsinstalled}" ] || [ -n "${dashboards_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
                 rollBack
             else
@@ -98,8 +98,8 @@ function checkArguments() {
 
     # -------------- Kibana -----------------------------------------
 
-    if [ -n "${dashboard}" ]; then
-        if [ -n "${dashboardinstalled}" ] || [ -n "${dashboard_remaining_files}" ]; then
+    if [ -n "${dashboards}" ]; then
+        if [ -n "${dashboardsinstalled}" ] || [ -n "${dashboards_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
                 rollBack
             else
@@ -133,20 +133,21 @@ function checkArguments() {
 
     # -------------- Cluster start ----------------------------------
 
-    if [[ -n "${start_elastic_cluster}" && ( -n "${AIO}" || -n "${indexer}" || -n "${dashboard}" || -n "${wazuh}" || -n "${overwrite}" || -n "${configurations}" || -n "${tar_conf}" || -n "${uninstall}") ]]; then
+    if [[ -n "${start_elastic_cluster}" && ( -n "${AIO}" || -n "${indexer}" || -n "${dashboards}" || -n "${wazuh}" || -n "${overwrite}" || -n "${configurations}" || -n "${tar_conf}" || -n "${uninstall}") ]]; then
         logger -e "The argument -s|--start-cluster can't be used with -a, -k, -e or -w arguments."
         exit 1
     fi
 
     # -------------- Global -----------------------------------------
 
-    if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ] && [ -z "${configurations}" ] && [ -z "${uninstall}"]; then
+    if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboards}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ] && [ -z "${configurations}" ] && [ -z "${uninstall}"]; then
         logger -e "At least one of these arguments is necessary -a|--all-in-one, -c|--create-configurations, -e|--elasticsearch <elasticsearch-node-name>, -k|--kibana <kibana-node-name>, -s|--start-cluster, -w|--wazuh-server <wazuh-node-name>, -u|--uninstall"
         exit 1
     fi
 
 }
 
+<<<<<<< unify-unatteded-check-firewalls
 function checkFirewalls() {
 
 
@@ -227,9 +228,9 @@ function checkFirewalls() {
     fi
 }
 
-function checkHealth() {
+function checks_health() {
 
-    checkSpecs
+    checks_specifications
     if [ -n "${indexer}" ]; then
         if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
             logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
@@ -239,7 +240,7 @@ function checkHealth() {
         fi
     fi
 
-    if [ -n "${dashboard}" ]; then
+    if [ -n "${dashboards}" ]; then
         if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
             logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
             exit 1
@@ -257,7 +258,7 @@ function checkHealth() {
         fi
     fi
 
-    if [ -n "${aio}" ]; then
+    if [ -n "${AIO}" ]; then
         if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
             logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
             exit 1
@@ -268,7 +269,7 @@ function checkHealth() {
 
 }
 
-function checkIfInstalled() {
+function checks_installed() {
 
     if [ "${sys_type}" == "yum" ]; then
         wazuhinstalled=$(yum list installed 2>/dev/null | grep wazuh-manager)
@@ -307,21 +308,21 @@ function checkIfInstalled() {
     fi
 
     if [ "${sys_type}" == "yum" ]; then
-        dashboardinstalled=$(yum list installed 2>/dev/null | grep wazuh-dashboard)
+        dashboardsinstalled=$(yum list installed 2>/dev/null | grep wazuh-dashboards)
     elif [ "${sys_type}" == "zypper" ]; then
-        dashboardinstalled=$(zypper packages | grep wazuh-dashboard | grep i+)
+        dashboardsinstalled=$(zypper packages | grep wazuh-dashboards | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
-        dashboardinstalled=$(apt list --installed  2>/dev/null | grep wazuh-dashboard)
+        dashboardsinstalled=$(apt list --installed  2>/dev/null | grep wazuh-dashboards)
     fi
 
-    if [ -d "/var/lib/wazuh-dashboard/" ] || [ -d "/usr/share/wazuh-dashboard" ] || [ -d "/etc/wazuh-dashboard" ]; then
-        dashboard_remaining_files=1
+    if [ -d "/var/lib/wazuh-dashboards/" ] || [ -d "/usr/share/wazuh-dashboards" ] || [ -d "/etc/wazuh-dashboards" ] || [ -d "/run/wazuh-dashboards/" ]; then
+        dashboards_remaining_files=1
     fi
 
 }
 
 # This function ensures different names in the config.yml file.
-function checkNames() {
+function checks_names() {
 
     if [ -n "${indxname}" ] && [ -n "${dashname}" ] && [ "${indxname}" == "${dashname}" ]; then
         logger -e "The node names for Elastisearch and Kibana must be different."
@@ -348,7 +349,7 @@ function checkNames() {
         exit 1
     fi
 
-    if [ -n "${dashname}" ] && [ -z "$(echo "${dashboard_node_names[@]}" | grep -w "${dashname}")" ]; then
+    if [ -n "${dashname}" ] && [ -z "$(echo "${dashboards_node_names[@]}" | grep -w "${dashname}")" ]; then
         logger -e "The Kibana node name ${dashname} does not appear on the configuration file."
         exit 1
     fi
@@ -356,7 +357,7 @@ function checkNames() {
 }
 
 # This function checks if the target certificates are created before to start the installation.
-function checkPreviousCertificates() {
+function checks_previousCertificate() {
 
     if [ ! -f "${tar_file}" ]; then
         logger -e "No certificates file found (${tar_file}). Run the script with the option -c|--certificates to create automatically or copy them from the node where they were created."
@@ -386,14 +387,14 @@ function checkPreviousCertificates() {
 
 }
 
-function checkSpecs() {
+function checks_specifications() {
 
     cores=$(cat /proc/cpuinfo | grep -c processor )
     ram_gb=$(free -m | awk '/^Mem:/{print $2}')
 
 }
 
-function checkSystem() {
+function checks_system() {
 
     if [ -n "$(command -v yum)" ]; then
         sys_type="yum"
