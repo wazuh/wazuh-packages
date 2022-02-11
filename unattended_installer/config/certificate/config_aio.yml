@@ -5,6 +5,6 @@ nodes:
   wazuh_servers:
     name: filebeat
     ip: 127.0.0.1
-  dashboards:
-    name: dashboards
+  dashboard:
+    name: dashboard
     ip: 127.0.0.1

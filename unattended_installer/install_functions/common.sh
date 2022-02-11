@@ -66,7 +66,7 @@ function common_createCertificates() {
     generateAdmincertificate
     generateIndexercertificates
     generateFilebeatcertificates
-    generateDashboardscertificates
+    generatedashboardcertificates
     cleanFiles
 
 }
@@ -221,7 +221,7 @@ User:
         finalusers=()
         finalpasswords=()
 
-        if [ -n "${dashboardsinstalled}" ] &&  [ -n "${dashboards}" ]; then
+        if [ -n "${dashboardinstalled}" ] &&  [ -n "${dashboard}" ]; then
             users=( kibanaserver admin )
         fi
 
@@ -335,22 +335,22 @@ function common_rollBack() {
         eval "rm -rf /etc/filebeat/ ${debug}"
     fi
 
-    if [[ -n "${dashboardsinstalled}" && ( -n "${dashboards}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        logger -w "Removing Wazuh dashboards."
+    if [[ -n "${dashboardinstalled}" && ( -n "${dashboard}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
+        logger -w "Removing Wazuh dashboard."
         if [ "${sys_type}" == "yum" ]; then
-            eval "yum remove wazuh-dashboards -y ${debug}"
+            eval "yum remove wazuh-dashboard -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
-            eval "zypper -n remove wazuh-dashboards ${debug}"
+            eval "zypper -n remove wazuh-dashboard ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
-            eval "apt remove --purge wazuh-dashboards -y ${debug}"
+            eval "apt remove --purge wazuh-dashboard -y ${debug}"
         fi
     fi
 
-    if [[ ( -n "${dashboards_remaining_files}" || -n "${dashboardsinstalled}" ) && ( -n "${dashboards}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        eval "rm -rf /var/lib/wazuh-dashboards/ ${debug}"
-        eval "rm -rf /usr/share/wazuh-dashboards/ ${debug}"
-        eval "rm -rf /etc/wazuh-dashboards/ ${debug}"
-        eval "rm -rf /run/wazuh-dashboards/ ${debug}"
+    if [[ ( -n "${dashboard_remaining_files}" || -n "${dashboardinstalled}" ) && ( -n "${dashboard}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
+        eval "rm -rf /var/lib/wazuh-dashboard/ ${debug}"
+        eval "rm -rf /usr/share/wazuh-dashboard/ ${debug}"
+        eval "rm -rf /etc/wazuh-dashboard/ ${debug}"
+        eval "rm -rf /run/wazuh-dashboard/ ${debug}"
     fi
 
     elements_to_remove=(    "/var/log/elasticsearch/"
@@ -360,9 +360,9 @@ function common_rollBack() {
                             "/etc/systemd/system/multi-user.target.wants/wazuh-manager.service"
                             "/etc/systemd/system/multi-user.target.wants/filebeat.service"
                             "/etc/systemd/system/multi-user.target.wants/opensearch.service"
-                            "/etc/systemd/system/multi-user.target.wants/wazuh-dashboards.service"
-                            "/etc/systemd/system/wazuh-dashboards.service"
-                            "/lib/firewalld/services/dashboards.xml"
+                            "/etc/systemd/system/multi-user.target.wants/wazuh-dashboard.service"
+                            "/etc/systemd/system/wazuh-dashboard.service"
+                            "/lib/firewalld/services/dashboard.xml"
                             "/lib/firewalld/services/opensearch.xml" )
 
     eval "rm -rf ${elements_to_remove[*]}"

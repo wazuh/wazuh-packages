@@ -73,13 +73,13 @@ def api_call_elasticsearch(host,query,address,api_protocol,api_user,api_pass,api
     response = resp.json()
     return response
 
-def get_dashboards_password():
-    stream = open("/etc/wazuh-dashboards/dashboards.yml", 'r')
+def get_dashboard_password():
+    stream = open("/etc/wazuh-dashboard/dashboard.yml", 'r')
     dictionary = yaml.safe_load(stream)
     return (dictionary.get('opensearch.password'))
 
-def get_dashboards_username():
-    stream = open("/etc/wazuh-dashboards/dashboards.yml", 'r')
+def get_dashboard_username():
+    stream = open("/etc/wazuh-dashboard/dashboard.yml", 'r')
     dictionary = yaml.safe_load(stream)
     return (dictionary.get('opensearch.username'))
 
@@ -91,11 +91,11 @@ def get_elasticsearch_cluster_status():
                         verify=False)
     return (resp.json()['status'])
 
-def get_dashboards_status():
+def get_dashboard_status():
     ip = get_indexer_ip()
     resp = requests.get('https://'+ip,
-                        auth=(get_dashboards_username(),
-                        get_dashboards_password()),
+                        auth=(get_dashboard_username(),
+                        get_dashboard_password()),
                         verify=False)
     return (resp.status_code)
 
@@ -174,9 +174,9 @@ def test_check_filebeat_process():
 def test_check_elasticsearch_process():
     assert check_call("ps -xa | grep \"/usr/share/wazuh-indexer/jdk/bin/java\" | grep -v grep | cut -d \" \" -f15", shell=True) != ""
 
-@pytest.mark.dashboards
-def test_check_dashboards_process():
-    assert check_call("ps -xa | grep \"/usr/share/wazuh-dashboards/bin/../node/bin/node\" | grep -v grep", shell=True) != ""
+@pytest.mark.dashboard
+def test_check_dashboard_process():
+    assert check_call("ps -xa | grep \"/usr/share/wazuh-dashboard/bin/../node/bin/node\" | grep -v grep", shell=True) != ""
 
 @pytest.mark.indexer
 def test_check_elasticsearch_cluster_status_not_red():
@@ -186,9 +186,9 @@ def test_check_elasticsearch_cluster_status_not_red():
 def test_check_elasticsearch_cluster_status_not_yellow():
     assert get_elasticsearch_cluster_status() != "yellow"
 
-@pytest.mark.dashboards
-def test_check_dashboards_status():
-    assert get_dashboards_status() == 200
+@pytest.mark.dashboard
+def test_check_dashboard_status():
+    assert get_dashboard_status() == 200
 
 @pytest.mark.wazuh
 def test_check_wazuh_api_status():
