@@ -67,9 +67,13 @@ mkdir -p ${RPM_BUILD_ROOT}%{LOG_DIR}
 mkdir -p ${RPM_BUILD_ROOT}%{LIB_DIR}
 mkdir -p ${RPM_BUILD_ROOT}%{SYS_DIR}
 
-# Download required sources
-curl -kOL https://s3.amazonaws.com/warehouse.wazuh.com/stack/indexer/wazuh-indexer-base-linux-x64.tar.gz
-tar -xzf wazuh-indexer-*.tar.gz && rm -f wazuh-indexer-*.tar.gz
+# Set up required files
+if [ "%{_base}" = "s3" ];then
+    curl -kOL https://packages-dev.wazuh.com/stack/indexer/base/wazuh-indexer-base-%{version}-linux-x64.tar.xz
+else
+    cp /root/output/wazuh-indexer-base-%{version}-linux-x64.tar.xz ./
+fi
+tar -xf wazuh-indexer-*.tar.xz && rm -f wazuh-indexer-*.tar.xz
 chown -R %{USER}:%{GROUP} wazuh-indexer-*/*
 
 # Copy base files into RPM_BUILD_ROOT directory
@@ -118,6 +122,34 @@ if [ $1 = 1 ];then # Install
     fi
 fi
 
+# Stop the services to upgrade the package
+if [ $1 = 2 ]; then
+  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet %{name} > /dev/null 2>&1; then
+    systemctl stop %{name}.service > /dev/null 2>&1
+    touch %{INSTALL_DIR}/%{name}.restart
+  # Check for SysV
+  elif command -v service > /dev/null 2>&1 && service %{name} status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
+    service %{name} stop > /dev/null 2>&1
+    touch %{INSTALL_DIR}/%{name}.restart
+  elif [ -x /etc/init.d/%{name} ]; then
+      if command -v invoke-rc.d >/dev/null; then
+          invoke-rc.d %{name} stop > /dev/null 2>&1
+          touch %{INSTALL_DIR}/%{name}.restart
+      else
+          /etc/init.d/%{name} stop > /dev/null 2>&1
+          touch %{INSTALL_DIR}/%{name}.restart
+      fi
+
+  # Older Suse linux distributions do not ship with systemd
+  # but do not have an /etc/init.d/ directory
+  # this tries to stop the %{name} service on these
+  # as well without failing this script
+  elif [ -x /etc/rc.d/init.d/%{name} ] ; then
+      /etc/rc.d/init.d/%{name} stop > /dev/null 2>&1
+      touch %{INSTALL_DIR}/%{name}.restart
+  fi
+fi
+
 # -----------------------------------------------------------------------------
 
 %post
@@ -136,33 +168,6 @@ if [ $1 = 1 ];then # Install
     fi
 fi
 
-if [ $1 = 2 ];then # Upgrade
-    echo -n "Restarting wazuh-indexer service..."
-    if command -v systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-indexer > /dev/null 2>&1; then
-        systemctl daemon-reload > /dev/null 2>&1
-        systemctl restart wazuh-indexer.service > /dev/null 2>&1
-
-    # Check for SysV
-    elif command -v service > /dev/null 2>&1; then
-        service wazuh-indexer restart > /dev/null 2>&1
-
-    elif [ -x /etc/init.d/wazuh-indexer ]; then
-        if command -v invoke-rc.d >/dev/null; then
-            invoke-rc.d wazuh-indexer restart > /dev/null 2>&1
-        else
-            /etc/init.d/wazuh-indexer restart > /dev/null 2>&1
-        fi
-
-    # Older Suse linux distributions do not ship with systemd
-    # but do not have an /etc/init.d/ directory
-    # this tries to stop the wazuh-indexer service on these
-    # as well without failing this script
-    elif [ -x /etc/rc.d/init.d/wazuh-indexer ] ; then
-        /etc/rc.d/init.d/wazuh-indexer restart > /dev/null 2>&1
-    fi
-    echo " OK"
-fi
-
 # -----------------------------------------------------------------------------
 
 %preun
@@ -171,26 +176,20 @@ export OPENSEARCH_PATH_CONF=${OPENSEARCH_PATH_CONF:-%{CONFIG_DIR}}
 
 if [ $1 = 0 ];then # Remove
     echo -n "Stopping wazuh-indexer service..."
-    if command -v systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-indexer > /dev/null 2>&1; then
-        systemctl --no-reload stop wazuh-indexer.service > /dev/null 2>&1
+    if command -v systemctl > /dev/null 2>&1 && systemctl is-active --quiet %{name} > /dev/null 2>&1; then
+        systemctl --no-reload stop %{name}.service > /dev/null 2>&1
 
     # Check for SysV
     elif command -v service > /dev/null 2>&1; then
-        service wazuh-indexer stop > /dev/null 2>&1
-
-    elif [ -x /etc/init.d/wazuh-indexer ]; then
+        service %{name} stop > /dev/null 2>&1
+    elif [ -x /etc/init.d/%{name} ]; then
         if command -v invoke-rc.d >/dev/null; then
-            invoke-rc.d wazuh-indexer stop > /dev/null 2>&1
+            invoke-rc.d %{name} stop > /dev/null 2>&1
         else
-            /etc/init.d/wazuh-indexer stop > /dev/null 2>&1
+            /etc/init.d/%{name} stop > /dev/null 2>&1
         fi
-
-    # Older Suse linux distributions do not ship with systemd
-    # but do not have an /etc/init.d/ directory
-    # this tries to stop the wazuh-indexer service on these
-    # as well without failing this script
-    elif [ -x /etc/rc.d/init.d/wazuh-indexer ] ; then
-        /etc/rc.d/init.d/wazuh-indexer stop > /dev/null 2>&1
+    elif [ -x /etc/rc.d/init.d/%{name} ] ; then
+        /etc/rc.d/init.d/%{name} stop > /dev/null 2>&1
     else # Anything else
         kill -15 `pgrep -f opensearch` > /dev/null 2>&1
     fi
@@ -198,12 +197,12 @@ if [ $1 = 0 ];then # Remove
 
     # Check for systemd
     if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
-        systemctl disable wazuh-indexer > /dev/null 2>&1
+        systemctl disable %{name} > /dev/null 2>&1
         systemctl daemon-reload > /dev/null 2>&1
     # Check for SysV
     elif command -v service > /dev/null 2>&1 && command -v chkconfig > /dev/null 2>&1; then
-        chkconfig wazuh-indexer off > /dev/null 2>&1
-        chkconfig --del wazuh-indexer > /dev/null 2>&1
+        chkconfig %{name} off > /dev/null 2>&1
+        chkconfig --del %{name} > /dev/null 2>&1
     fi
 fi
 
@@ -238,6 +237,28 @@ fi
 %posttrans
 
 export OPENSEARCH_PATH_CONF=${OPENSEARCH_PATH_CONF:-%{CONFIG_DIR}}
+
+if [ -f %{INSTALL_DIR}/%{name}.restart ]; then
+    echo -n "Starting wazuh-indexer service..."
+    rm -f %{INSTALL_DIR}/%{name}.restart
+    if command -v systemctl > /dev/null 2>&1; then
+        systemctl daemon-reload > /dev/null 2>&1
+        systemctl restart %{name}.service > /dev/null 2>&1
+
+    # Check for SysV
+    elif command -v service > /dev/null 2>&1; then
+        service %{name} restart > /dev/null 2>&1
+    elif [ -x /etc/init.d/%{name} ]; then
+        if command -v invoke-rc.d >/dev/null; then
+            invoke-rc.d %{name} restart > /dev/null 2>&1
+        else
+            /etc/init.d/%{name} restart > /dev/null 2>&1
+        fi
+    elif [ -x /etc/rc.d/init.d/%{name} ] ; then
+        /etc/rc.d/init.d/%{name} restart > /dev/null 2>&1
+    fi
+    echo " OK"
+fi
 
 if [ ! -f "%{CONFIG_DIR}"/opensearch.keystore ]; then
     "%{INSTALL_DIR}"/bin/opensearch-keystore create
