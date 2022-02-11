@@ -25,3 +25,6 @@ node.max_local_storage_nodes: 3
 
 path.data: /var/lib/elasticsearch
 path.logs: /var/log/elasticsearch
+
+### Option to allow Filebeat-oss 7.10.2 to work ###
+compatibility.override_main_response_version: true

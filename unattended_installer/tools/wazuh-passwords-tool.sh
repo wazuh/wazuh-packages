@@ -11,7 +11,7 @@
 if [[ -z "${logfile}" ]]; then
     readonly logfile="/var/log/wazuh-password-tool.log"
 fi
-debug_pass=">> ${logfile} 2>&1"
+debug=">> ${logfile} 2>&1"
 if [ -n "$(command -v yum)" ]; then
     sys_type="yum"
 elif [ -n "$(command -v zypper)" ]; then
@@ -144,8 +144,8 @@ function passwords_checkUser() {
 function passwords_createBackUp() {
 
     logger -d "Creating password backup."
-    eval "mkdir /usr/share/wazuh-indexer/backup ${debug_pass}"
-    eval "JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -icl -p 9800 -backup /usr/share/wazuh-indexer/backup -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -h ${IP} ${debug_pass}"
+    eval "mkdir /usr/share/wazuh-indexer/backup ${debug}"
+    eval "JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -icl -p 9800 -backup /usr/share/wazuh-indexer/backup -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -h ${IP} ${debug}"
     if [ "$?" != 0 ]; then
         logger -e "The backup could not be created"
         exit 1;
@@ -373,7 +373,7 @@ function main() {
         export JAVA_HOME=/usr/share/wazuh-indexer/jdk/
 
         if [ -n "${verboseenabled}" ]; then
-            debug_pass="2>&1 | tee -a ${logfile}"
+            debug="2>&1 | tee -a ${logfile}"
         fi
 
         if [ -n "${gen_file}" ]; then
@@ -553,10 +553,13 @@ function passwords_restartService() {
     fi
 
     if ps -e | grep -E -q "^\ *1\ .*systemd$"; then
-        eval "systemctl daemon-reload ${debug_pass}"
-        eval "systemctl restart ${1}.service ${debug_pass}"
+        eval "systemctl daemon-reload ${debug}"
+        eval "systemctl restart ${1}.service ${debug}"
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
+            if [ -n "$(command -v journalctl)" ]; then
+                eval "journalctl -r -u ${1} >> ${logfile}"
+            fi
             if [[ $(type -t common_rollBack) == "function" ]]; then
                 common_rollBack
             fi
@@ -565,9 +568,12 @@ function passwords_restartService() {
             logger -d "${1^} started"
         fi
     elif ps -e | grep -E -q "^\ *1\ .*init$"; then
-        eval "/etc/init.d/${1} restart ${debug_pass}"
+        eval "/etc/init.d/${1} restart ${debug}"
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
+            if [ -n "$(command -v journalctl)" ]; then
+                eval "journalctl -r -u ${1} >> ${logfile}"
+            fi
             if [[ $(type -t common_rollBack) == "function" ]]; then
                 common_rollBack
             fi
@@ -576,9 +582,12 @@ function passwords_restartService() {
             logger -d "${1^} started"
         fi
     elif [ -x "/etc/rc.d/init.d/${1}" ] ; then
-        eval "/etc/rc.d/init.d/${1} restart ${debug_pass}"
+        eval "/etc/rc.d/init.d/${1} restart ${debug}"
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
+            if [ -n "$(command -v journalctl)" ]; then
+                eval "journalctl -r -u ${1} >> ${logfile}"
+            fi
             if [[ $(type -t common_rollBack) == "function" ]]; then
                 common_rollBack
             fi
@@ -599,13 +608,13 @@ function passwords_restartService() {
 function passwords_runSecurityAdmin() {
 
     logger -d "Loading new passwords changes."
-    eval "cp /usr/share/wazuh-indexer/backup/* /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ ${debug_pass}"
-    eval "OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -p 9800 -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug_pass}"
+    eval "cp /usr/share/wazuh-indexer/backup/* /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ ${debug}"
+    eval "OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -p 9800 -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug}"
     if [  "$?" != 0  ]; then
         logger -e "Could not load the changes."
         exit 1;
     fi
-    eval "rm -rf /usr/share/wazuh-indexer/backup/ ${debug_pass}"
+    eval "rm -rf /usr/share/wazuh-indexer/backup/ ${debug}"
 
     if [[ -n "${nuser}" ]] && [[ -n ${autopass} ]]; then
         logger $'\nThe password for user '${nuser}' is '${password}''
