@@ -55,7 +55,8 @@ prepare_env() {
     wazuh_version=$(python -c 'import json, os; f=open("/tmp/package.json"); pkg=json.load(f); f.close();\
                     print(pkg["version"])')
     kibana_version=$(python -c 'import json, os; f=open("/tmp/package.json"); pkg=json.load(f); f.close();\
-                     print(pkg["kibana"]["version"])')
+                    plugin_platform_version=pkg.get("pluginPlatform", {}).get("version") or pkg.get("kibana", {}).get("version");\
+                    print(plugin_platform_version)')
     aux_kibana_version=$kibana_version
 
     if [ "${wazuh_version}" \< "4.2.2" ] && [ "${kibana_version}" \> "7.10.2" ]; then
