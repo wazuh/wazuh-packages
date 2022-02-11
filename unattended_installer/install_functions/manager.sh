@@ -47,8 +47,10 @@ function manager_install() {
 
     if [ "${sys_type}" == "zypper" ]; then
         eval "${sys_type} -n install wazuh-manager=${wazuh_version}-${wazuh_revision} ${debug}"
-    else
+    elif [ "${sys_type}" == "yum" ]; then
         eval "${sys_type} install wazuh-manager${sep}${wazuh_version}-${wazuh_revision} -y ${debug}"
+    elif [ "${sys_type}" == "apt-get" ]; then
+        eval "DEBIAN_FRONTEND=noninteractive ${sys_type} install wazuh-manager${sep}${wazuh_version}-${wazuh_revision} -y ${debug}"
     fi
     if [  "$?" != 0  ]; then
         logger -e "Wazuh installation failed."

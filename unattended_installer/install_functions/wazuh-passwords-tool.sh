@@ -557,6 +557,9 @@ function restartService() {
         eval "systemctl restart ${1}.service ${debug_pass}"
         if [  "$?" != 0  ]; then
             logger_pass -e "${1^} could not be started."
+            if [ -n "$(command -v journalctl)" ]; then
+                eval "journalctl -r -u ${1} >> ${logfile}"
+            fi
             if [[ $(type -t common_rollBack) == "function" ]]; then
                 common_rollBack
             fi
@@ -568,6 +571,9 @@ function restartService() {
         eval "/etc/init.d/${1} restart ${debug_pass}"
         if [  "$?" != 0  ]; then
             logger_pass -e "${1^} could not be started."
+            if [ -n "$(command -v journalctl)" ]; then
+                eval "journalctl -r -u ${1} >> ${logfile}"
+            fi
             if [[ $(type -t common_rollBack) == "function" ]]; then
                 common_rollBack
             fi
@@ -579,6 +585,9 @@ function restartService() {
         eval "/etc/rc.d/init.d/${1} restart ${debug_pass}"
         if [  "$?" != 0  ]; then
             logger_pass -e "${1^} could not be started."
+            if [ -n "$(command -v journalctl)" ]; then
+                eval "journalctl -r -u ${1} >> ${logfile}"
+            fi
             if [[ $(type -t common_rollBack) == "function" ]]; then
                 common_rollBack
             fi

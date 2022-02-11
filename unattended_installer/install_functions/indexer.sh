@@ -129,7 +129,7 @@ function indexer_install() {
     elif [ "${sys_type}" == "zypper" ]; then
         eval "zypper -n install wazuh-indexer=${wazuh_version}-${wazuh_revision} ${debug}"
     elif [ "${sys_type}" == "apt-get" ]; then
-        eval "apt install wazuh-indexer=${wazuh_version}-${wazuh_revision} -y ${debug}"
+        eval "DEBIAN_FRONTEND=noninteractive apt install wazuh-indexer=${wazuh_version}-${wazuh_revision} -y ${debug}"
     fi
 
     if [  "$?" != 0  ]; then

@@ -164,7 +164,7 @@ function common_installPrerequisites() {
         eval "zypper -n install libcap-progs tar gnupg ${openssl} ${debug} || zypper -n install libcap2 tar gnupg ${openssl} ${debug}"
     elif [ "${sys_type}" == "apt-get" ]; then
         eval "apt-get update -q ${debug}"
-        eval "apt-get install apt-transport-https curl unzip wget libcap2-bin tar software-properties-common gnupg ${openssl} -y ${debug}"
+        eval "DEBIAN_FRONTEND=noninteractive apt install apt-transport-https curl unzip wget libcap2-bin tar software-properties-common gnupg ${openssl} -y ${debug}"
     fi
 
     if [  "$?" != 0  ]; then
@@ -354,6 +354,9 @@ function common_startService() {
         eval "systemctl start ${1}.service ${debug}"
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
+            if [ -n "$(command -v journalctl)" ]; then
+                eval "journalctl -r -u ${1} >> ${logfile}"
+            fi
             common_rollBack
             exit 1
         else
@@ -365,6 +368,9 @@ function common_startService() {
         eval "/etc/init.d/${1} start ${debug}"
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
+            if [ -n "$(command -v journalctl)" ]; then
+                eval "journalctl -r -u ${1} >> ${logfile}"
+            fi
             common_rollBack
             exit 1
         else
@@ -374,6 +380,9 @@ function common_startService() {
         eval "/etc/rc.d/init.d/${1} start ${debug}"
         if [  "$?" != 0  ]; then
             logger -e "${1^} could not be started."
+            if [ -n "$(command -v journalctl)" ]; then
+                eval "journalctl -r -u ${1} >> ${logfile}"
+            fi
             common_rollBack
             exit 1
         else
