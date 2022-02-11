@@ -241,7 +241,7 @@ rm -fr %{buildroot}
 %attr(0750, %{USER}, %{GROUP}) "/etc/default/wazuh-dashboard"
 %config(noreplace) %attr(0640, %{USER}, %{GROUP}) "%{CONFIG_DIR}/dashboard.yml"
 %dir %attr(0750, %{USER}, %{GROUP}) %{CONFIG_DIR}/certs
-%config(noreplace) %attr(0640, %{USER}, %{GROUP}) "%{CONFIG_DIR}/certs/*"
+%config(noreplace) %attr(0400, %{USER}, %{GROUP}) "%{CONFIG_DIR}/certs/*"
 %dir %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/src"
 %dir %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/src/core"
 %attr(-, %{USER}, %{GROUP}) "%{INSTALL_DIR}/src/core/*"
