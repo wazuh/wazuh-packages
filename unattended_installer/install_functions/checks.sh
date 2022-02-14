@@ -49,7 +49,7 @@ function checks_arguments() {
             logger "Filebeat components were not found on the system so it was not uninstalled."
         fi
 
-        if [ -z "${indexerchinstalled}" ] && [ -z "${indexer_remaining_files}" ]; then
+        if [ -z "${indexerinstalled}" ] && [ -z "${indexer_remaining_files}" ]; then
             logger "Elasticsearch components were not found on the system so it was not uninstalled."
         fi
 
@@ -72,9 +72,9 @@ function checks_arguments() {
             exit 1
         fi
 
-        if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ] || [ -n "${indexerchinstalled}" ] || [ -n "${indexer_remaining_files}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ] || [ -n "${dashboardinstalled}" ] || [ -n "${dashboard_remaining_files}" ]; then
+        if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ] || [ -n "${indexerinstalled}" ] || [ -n "${indexer_remaining_files}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ] || [ -n "${dashboardinstalled}" ] || [ -n "${dashboard_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
-                rollBack
+                common_rollBack
             else
                 logger -e "Some the Wazuh components were found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. NOTE: This will erase all the existing configuration and data."
                 exit 1
@@ -86,9 +86,9 @@ function checks_arguments() {
 
     if [ -n "${indexer}" ]; then
 
-        if [ -n "${indexerchinstalled}" ] || [ -n "${indexer_remaining_files}" ]; then
+        if [ -n "${indexerinstalled}" ] || [ -n "${indexer_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
-                rollBack
+                common_rollBack
             else
                 logger -e "Elasticsearch is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
@@ -101,7 +101,7 @@ function checks_arguments() {
     if [ -n "${dashboard}" ]; then
         if [ -n "${dashboardinstalled}" ] || [ -n "${dashboard_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
-                rollBack
+                common_rollBack
             else
                 logger -e "Kibana is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
@@ -114,7 +114,7 @@ function checks_arguments() {
     if [ -n "${wazuh}" ]; then
         if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
-                rollBack
+                common_rollBack
             else
                 logger -e "Wazuh is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
@@ -123,7 +123,7 @@ function checks_arguments() {
 
         if [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
-                rollBack
+                common_rollBack
             else
                 logger -e "Filebeat is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
@@ -203,11 +203,11 @@ function checks_installed() {
     fi
 
     if [ "${sys_type}" == "yum" ]; then
-        indexerchinstalled=$(yum list installed 2>/dev/null | grep wazuh-indexer | grep -v kibana)
+        indexerinstalled=$(yum list installed 2>/dev/null | grep wazuh-indexer | grep -v kibana)
     elif [ "${sys_type}" == "zypper" ]; then
-        indexerchinstalled=$(zypper packages | grep wazuh-indexer | grep -v kibana | grep i+)
+        indexerinstalled=$(zypper packages | grep wazuh-indexer | grep -v kibana | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
-        indexerchinstalled=$(apt list --installed 2>/dev/null | grep wazuh-indexer | grep -v kibana)
+        indexerinstalled=$(apt list --installed 2>/dev/null | grep wazuh-indexer | grep -v kibana)
     fi
 
     if [ -d "/var/lib/wazuh-indexer/" ] || [ -d "/usr/share/wazuh-indexer" ] || [ -d "/etc/wazuh-indexer" ] || [ -f "${base_path}/search-guard-tlstool*" ]; then

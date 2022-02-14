@@ -25,7 +25,7 @@ function changePassword() {
     if [ -n "${changeall}" ]; then
         for i in "${!passwords[@]}"
         do
-            if [ -n "${indexerchinstalled}" ] && [ -f "/usr/share/wazuh-indexer/backup/internal_users.yml" ]; then
+            if [ -n "${indexerinstalled}" ] && [ -f "/usr/share/wazuh-indexer/backup/internal_users.yml" ]; then
                 awk -v new=${hashes[i]} 'prev=="'${users[i]}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/wazuh-indexer/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/wazuh-indexer/backup/internal_users.yml
             fi
 
@@ -37,7 +37,7 @@ function changePassword() {
 
         done
     else
-        if [ -n "${indexerchinstalled}" ] && [ -f "/usr/share/wazuh-indexer/backup/internal_users.yml" ]; then
+        if [ -n "${indexerinstalled}" ] && [ -f "/usr/share/wazuh-indexer/backup/internal_users.yml" ]; then
             awk -v new="$hash" 'prev=="'${nuser}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/wazuh-indexer/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/wazuh-indexer/backup/internal_users.yml
         fi
 
@@ -78,11 +78,11 @@ function changePassword() {
 function checkInstalledPass() {
 
     if [ "${sys_type}" == "yum" ]; then
-        indexerchinstalled=$(yum list installed 2>/dev/null | grep wazuh-indexer)
+        indexerinstalled=$(yum list installed 2>/dev/null | grep wazuh-indexer)
     elif [ "${sys_type}" == "zypper" ]; then
-        indexerchinstalled=$(zypper packages | grep wazuh-indexer | grep i+)
+        indexerinstalled=$(zypper packages | grep wazuh-indexer | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
-        indexerchinstalled=$(apt list --installed 2>/dev/null | grep wazuh-indexer)
+        indexerinstalled=$(apt list --installed 2>/dev/null | grep wazuh-indexer)
     fi
 
     if [ "${sys_type}" == "yum" ]; then
@@ -101,11 +101,11 @@ function checkInstalledPass() {
         dashboardinstalled=$(apt list --installed  2>/dev/null | grep wazuh-dashboard)
     fi
 
-    if [ -z "${indexerchinstalled}" ] && [ -z "${dashboardinstalled}" ] && [ -z "${filebeatinstalled}" ]; then
+    if [ -z "${indexerinstalled}" ] && [ -z "${dashboardinstalled}" ] && [ -z "${filebeatinstalled}" ]; then
         logger_pass -e "Cannot find Wazuh indexer, Wazuh dashboard or Filebeat on the system."
         exit 1;
     else
-        if [ -n "${indexerchinstalled}" ]; then
+        if [ -n "${indexerinstalled}" ]; then
             capem=$(grep "plugins.security.ssl.transport.pemtrustedcas_filepath: " /etc/wazuh-indexer/opensearch.yml )
             rcapem="plugins.security.ssl.transport.pemtrustedcas_filepath: "
             capem="${capem//$rcapem}"
@@ -507,7 +507,7 @@ User:
                     supported=true
                 fi
             done
-            if [ "${supported}" = false ] && [ -n "${indexerchinstalled}" ]; then
+            if [ "${supported}" = false ] && [ -n "${indexerinstalled}" ]; then
                 logger_pass -e "The given user ${fileusers[j]} does not exist"
             fi
         done
@@ -524,7 +524,7 @@ User:
                     supported=true
                 fi
             done
-            if [ ${supported} = false ] && [ -n "${indexerchinstalled}" ]; then
+            if [ ${supported} = false ] && [ -n "${indexerinstalled}" ]; then
                 logger_pass -e "The given user ${fileusers[j]} does not exist"
             fi
         done
