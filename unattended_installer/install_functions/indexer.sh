@@ -137,7 +137,7 @@ function indexer_install() {
         common_rollBack
         exit 1
     else
-        indexerchinstalled="1"
+        indexerinstalled="1"
         logger "Wazuh indexer installation finished."
     fi
 

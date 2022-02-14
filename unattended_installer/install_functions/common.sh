@@ -213,7 +213,7 @@ User:
                     supported=true
                 fi
             done
-            if [ "${supported}" = false ] && [ -n "${indexerchinstalled}" ]; then
+            if [ "${supported}" = false ] && [ -n "${indexerinstalled}" ]; then
                 logger -e -d "The given user ${fileusers[j]} does not exist"
             fi
         done
@@ -238,7 +238,7 @@ User:
                     supported=true
                 fi
             done
-            if [ "${supported}" = "false" ] && [ -n "${indexerchinstalled}" ] && [ -n "${changeall}" ]; then
+            if [ "${supported}" = "false" ] && [ -n "${indexerinstalled}" ] && [ -n "${changeall}" ]; then
                 logger -e -d "The given user ${fileusers[j]} does not exist"
             fi
         done
@@ -301,7 +301,7 @@ function common_rollBack() {
         eval "rm -rf /var/ossec/ ${debug}"
     fi
 
-    if [[ -n "${indexerchinstalled}" && ( -n "${indexer}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
+    if [[ -n "${indexerinstalled}" && ( -n "${indexer}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         logger -w "Removing Wazuh indexer."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-indexer -y ${debug}"
@@ -312,7 +312,7 @@ function common_rollBack() {
         fi
     fi
 
-    if [[ ( -n "${indexer_remaining_files}" || -n "${indexerchinstalled}" ) && ( -n "${indexer}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
+    if [[ ( -n "${indexer_remaining_files}" || -n "${indexerinstalled}" ) && ( -n "${indexer}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         eval "rm -rf /var/lib/wazuh-indexer/ ${debug}"
         eval "rm -rf /usr/share/wazuh-indexer/ ${debug}"
         eval "rm -rf /etc/wazuh-indexer/ ${debug}"
