@@ -32,6 +32,7 @@ export LOG_DIR=/var/log/${NAME}
 export USER=${NAME}
 export GROUP=${NAME}
 export DASHBOARD_FILE=wazuh-dashboard-base-$(BASE_VERSION)-linux-x64.tar.xz
+export OD_VERSION=1.2.0
 
 # -----------------------------------------------------------------------------
 
@@ -83,6 +84,7 @@ override_dh_install:
 	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/custom_welcome/Assets/Favicons/* $(TARGET_DIR)$(INSTALLATION_DIR)/src/core/server/core_app/assets/favicons/
 	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/custom_welcome/Assets/Favicons/favicon-32x32.png $(TARGET_DIR)$(INSTALLATION_DIR)/src/core/server/core_app/assets/favicons/favicon.ico
 	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/opensearch_dashboards_config.js $(TARGET_DIR)$(INSTALLATION_DIR)/src/core/server/opensearch_dashboards_config.js
+	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/http_service.js $(TARGET_DIR)$(INSTALLATION_DIR)/src/core/server/http/http_service.js
 
 
 	mkdir -p $(TARGET_DIR)$(INSTALLATION_DIR)/config
@@ -114,7 +116,7 @@ override_dh_install:
 	chown $(USER):$(GROUP) $(TARGET_DIR)/etc/systemd/system/$(NAME)
 	chown $(USER):$(GROUP) $(TARGET_DIR)/etc/default/$(NAME)
 
-	runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install https://s3.amazonaws.com/warehouse.wazuh.com/stack/dashboard/wazuh-1.2.0.zip" 
+	runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install https://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-$(BASE_VERSION)-$(OD_VERSION).zip" 
 
 	find $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/wazuh/ -exec chown $(USER):$(GROUP) {} \;
 

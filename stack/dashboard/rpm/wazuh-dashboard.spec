@@ -32,6 +32,7 @@ ExclusiveOS: linux
 %global PID_DIR /run/%{name}
 %global INSTALL_DIR /usr/share/%{name}
 %global DASHBOARD_FILE wazuh-dashboard-base-%{version}-linux-x64.tar.xz
+%global OD_VERSION 1.2.0
 
 # -----------------------------------------------------------------------------
 
@@ -86,6 +87,7 @@ cp %{buildroot}%{INSTALL_DIR}/etc/custom_welcome/Assets/default_branding/wazuh_m
 cp %{buildroot}%{INSTALL_DIR}/etc/custom_welcome/Assets/Favicons/* %{buildroot}%{INSTALL_DIR}/src/core/server/core_app/assets/favicons/
 cp %{buildroot}%{INSTALL_DIR}/etc/custom_welcome/Assets/Favicons/favicon-32x32.png %{buildroot}%{INSTALL_DIR}/src/core/server/core_app/assets/favicons/favicon.ico
 cp %{buildroot}%{INSTALL_DIR}/etc/opensearch_dashboards_config.js %{buildroot}%{INSTALL_DIR}/src/core/server/opensearch_dashboards_config.js
+cp %{buildroot}%{INSTALL_DIR}/etc/http_service.js %{buildroot}%{INSTALL_DIR}/src/core/server/http/http_service.js
 
 mkdir -p %{buildroot}%{INSTALL_DIR}/config
 
@@ -118,7 +120,7 @@ chown %{USER}:%{GROUP} %{buildroot}/etc/init.d/wazuh-dashboard
 
 
 
-runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install https://s3.amazonaws.com/warehouse.wazuh.com/stack/dashboard/wazuh-1.2.0.zip" 
+runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install https://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-%{version}-%{OD_VERSION}.zip" 
 find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -exec chown %{USER}:%{GROUP} {} \;
 
 # -----------------------------------------------------------------------------
