@@ -167,11 +167,11 @@ class HttpService {
       path: '/{p*}',
       method: '*',
       handler: (req, responseToolkit) => {
-        this.log.debug(`Wazuh Dashboard server is not ready yet ${req.method}:${req.url.href}.`); // If server is not ready yet, because plugins or core can perform
+        this.log.debug(`Wazuh dashboard server is not ready yet ${req.method}:${req.url.href}.`); // If server is not ready yet, because plugins or core can perform
         // long running tasks (build assets, saved objects migrations etc.)
         // we should let client know that and ask to retry after 30 seconds.
 
-        return responseToolkit.response('Wazuh Dashboard server is not ready yet').code(503).header('Retry-After', '30');
+        return responseToolkit.response('Wazuh dashboard server is not ready yet').code(503).header('Retry-After', '30');
       }
     });
     await this.notReadyServer.start();
