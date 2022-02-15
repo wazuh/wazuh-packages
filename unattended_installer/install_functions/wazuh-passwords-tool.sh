@@ -288,7 +288,6 @@ function logger_pass() {
     now=$(date +'%d/%m/%Y %H:%M:%S')
     mtype="INFO:"
     debugLogger=
-    disableHeader=
     if [ -n "${1}" ]; then
         while [ -n "${1}" ]; do
             case ${1} in
@@ -300,12 +299,9 @@ function logger_pass() {
                     mtype="WARNING:"
                     shift 1
                     ;;
-                "-dh")
-                    disableHeader=1
-                    shift 1
-                    ;;
                 "-d")
                     debugLogger=1
+                    mtype="DEBUG:"
                     shift 1
                     ;;
                 *)
@@ -317,11 +313,7 @@ function logger_pass() {
     fi
 
     if [ -z "${debugLogger}" ] || ( [ -n "${debugLogger}" ] && [ -n "${debugEnabled}" ] ); then
-        if [ -n "${disableHeader}" ]; then
-            echo "${message}" | tee -a ${logfile}
-        else
             echo "${now} ${mtype} ${message}" | tee -a ${logfile}
-        fi
     fi
 }
 

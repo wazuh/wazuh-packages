@@ -165,7 +165,6 @@ function logger() {
     now=$(date +'%d/%m/%Y %H:%M:%S')
     mtype="INFO:"
     debugLogger=
-    disableHeader=
     if [ -n "${1}" ]; then
         while [ -n "${1}" ]; do
             case ${1} in
@@ -179,6 +178,7 @@ function logger() {
                     ;;
                 "-d")
                     debugLogger=1
+                    mtype="DEBUG:"
                     shift 1
                     ;;
                 *)

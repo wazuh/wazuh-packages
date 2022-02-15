@@ -51,12 +51,9 @@ function logger_cert() {
                     mtype="WARNING:"
                     shift 1
                     ;;
-                "-dh")
-                    disableHeader=1
-                    shift 1
-                    ;;
                 "-d")
                     debugLogger=1
+                    mtype="DEBUG:"
                     shift 1
                     ;;
                 *)
@@ -68,11 +65,7 @@ function logger_cert() {
     fi
 
     if [ -z "${debugLogger}" ] || ( [ -n "${debugLogger}" ] && [ -n "${debugEnabled}" ] ); then
-        if [ -n "${disableHeader}" ]; then
-            echo "${message}" | tee -a ${logfile}
-        else
             echo "${now} ${mtype} ${message}" | tee -a ${logfile}
-        fi
     fi
 }
 
