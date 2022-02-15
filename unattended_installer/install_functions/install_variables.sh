@@ -18,11 +18,11 @@ readonly config_file="${base_path}/config.yml"
 readonly tar_file="${base_path}/configurations.tar"
 
 readonly filebeat_wazuh_template="https://raw.githubusercontent.com/wazuh/wazuh/${wazuh_major}/extensions/elasticsearch/7.x/wazuh-template.json"
-readonly filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.1.tar.gz"
 
 repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"
 repobaseurl="https://packages.wazuh.com/4.x"
 reporelease="stable"
+filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.1.tar.gz"
 
 readonly dashboard_cert_path="/etc/wazuh-dashboard/certs/"
 readonly filebeat_cert_path="/etc/filebeat/certs/"

@@ -131,6 +131,7 @@ function main() {
         repogpg="https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH"
         repobaseurl="https://packages-dev.wazuh.com/pre-release"
         reporelease="unstable"
+        filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.1.tar.gz"
     fi
 
     if [ -z "${disableSpinner}" ]; then
