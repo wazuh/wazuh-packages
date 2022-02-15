@@ -163,7 +163,7 @@ function cert_generateFilebeatcertificates() {
 
 }
 
-function generatedashboardcertificates() {
+function cert_generateDashboardcertificates() {
 
     if [ ${#dashboard_node_names[@]} -gt 0 ]; then
         logger -d "Creating the Wazuh dashboard certificates."

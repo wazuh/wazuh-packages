@@ -24,6 +24,6 @@ repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"
 repobaseurl="https://packages.wazuh.com/4.x"
 reporelease="stable"
 
-readonly dashboard_cert_path="/etc/wazuh-dashboards/certs/"
+readonly dashboard_cert_path="/etc/wazuh-dashboard/certs/"
 readonly filebeat_cert_path="/etc/filebeat/certs/"
 readonly indexer_certs_path="/etc/wazuh-indexer/certs/"
