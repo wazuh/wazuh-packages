@@ -484,7 +484,7 @@ function common_rollBack() {
     eval "rm -rf ${elements_to_remove[*]}"
 
     if [ -z "${uninstall}" ]; then
-        if [ -n "${srollback_conf}" ] || [ -n "${overwrite}" ]; then
+        if [ -n "${rollback_conf}" ] || [ -n "${overwrite}" ]; then
             logger "Installation cleaned."
         else
             logger "Installation cleaned. Check the ${logfile} file to learn more about the issue."

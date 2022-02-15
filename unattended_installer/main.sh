@@ -144,6 +144,7 @@ function main() {
 
 # -------------- Uninstall case  ------------------------------------
 
+    checks_system
     checks_installed
     if [ -n "${uninstall}" ]; then
         logger "-------------------------------------- Uninstall --------------------------------------"
@@ -159,7 +160,6 @@ function main() {
         checks_previousCertificate
     fi
     checks_arch
-    checks_system
     if [ -n "${ignore}" ]; then
         logger -w "Health-check ignored."
     else
