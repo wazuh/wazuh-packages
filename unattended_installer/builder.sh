@@ -103,7 +103,7 @@ function build_installer() {
     done
 
     ## Main function and call to it
-    sed -n '/^function main\(\)/,/^}/p' "${base_path}/main.sh" >> "${output_script_path}"
+    sed -n '/^function main\(\)/,/^}/p' "${resources_install_modules}/main.sh" >> "${output_script_path}"
     echo >> "${output_script_path}" 
     echo "main \"\$@\"" >> "${output_script_path}"
 

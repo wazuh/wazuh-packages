@@ -43,7 +43,7 @@ function main() {
                 config_file="${2}"
                 shift 2
                 ;;
-            "-F"|"--force-kibana")
+            "-F"|"--force-dashboard")
                 force=1
                 shift 1
                 ;;
@@ -209,7 +209,7 @@ function main() {
         common_addWazuhRepo
     fi
 
-# -------------- Elasticsearch case  --------------------------------
+# -------------- Wazuh Indexer case -------------------------------
 
     if [ -n "${indexer}" ]; then
         logger "------------------------------------ Wazuh indexer ------------------------------------"
@@ -226,7 +226,7 @@ function main() {
         common_changePasswords
     fi
 
-# -------------- Kibana case  ---------------------------------------
+# -------------- Wazuh Dashboard case  ------------------------------
 
     if [ -n "${dashboard}" ]; then
         logger "---------------------------------- Wazuh dashboard -----------------------------------"

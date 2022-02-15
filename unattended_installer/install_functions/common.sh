@@ -84,7 +84,7 @@ function common_getHelp() {
     echo -e "        $(basename "$0") - Install and configure Wazuh central components."
     echo -e ""
     echo -e "SYNOPSIS"
-    echo -e "        $(basename "$0") [OPTIONS] -a | -c | -e <elasticsearch-node-name> | -k <kibana-node-name> | -s | -w <wazuh-node-name>"
+    echo -e "        $(basename "$0") [OPTIONS] -a | -c | -s | -wi <indexer-node-name> | -wd <dashboards-node-name> | -ws <wazuh-node-name>"
     echo -e ""
     echo -e "DESCRIPTION"
     echo -e "        -a,  --all-in-one"
@@ -103,8 +103,8 @@ function common_getHelp() {
     echo -e "        -f,  --fileconfig <path-to-config-yml>"
     echo -e "                Path to config file. By default: ${base_path}/config.yml"
     echo -e ""
-    echo -e "        -F,  --force-dashboards"
-    echo -e "                Ignore indexer cluster related errors in kibana installation"
+    echo -e "        -F,  --force-dashboard"
+    echo -e "                Ignore indexer cluster related errors in Wazuh Dashboard installation"
     echo -e ""
     echo -e "        -h,  --help"
     echo -e "                Shows help."
@@ -303,8 +303,8 @@ User:
   name: wazuh
   password: wazuhpassword
 User:
-  name: kibanaserver
-  password: kibanaserverpassword"
+  name: admin
+  password: adminpassword"
 
 	    exit 1
     fi
