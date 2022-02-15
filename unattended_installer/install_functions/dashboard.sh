@@ -140,6 +140,7 @@ function dashboard_initializeAIO() {
         common_rollBack
         exit 1
     fi
+
     logger "Wazuh dashboard started."
     logger "You can access the web interface https://<wazuh-dashboard-host-ip>. The credentials are admin:${u_pass}"
 
