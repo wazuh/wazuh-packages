@@ -32,7 +32,6 @@ ExclusiveOS: linux
 %global PID_DIR /run/%{name}
 %global INSTALL_DIR /usr/share/%{name}
 %global DASHBOARD_FILE wazuh-dashboard-base-%{version}-linux-x64.tar.xz
-%global OD_VERSION 1.2.0
 
 # -----------------------------------------------------------------------------
 
@@ -120,7 +119,7 @@ chown %{USER}:%{GROUP} %{buildroot}/etc/init.d/wazuh-dashboard
 
 
 
-runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install https://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-%{version}-%{OD_VERSION}.zip" 
+runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install https://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-%{version}.zip" 
 find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -exec chown %{USER}:%{GROUP} {} \;
 
 # -----------------------------------------------------------------------------

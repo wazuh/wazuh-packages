@@ -32,7 +32,6 @@ export LOG_DIR=/var/log/${NAME}
 export USER=${NAME}
 export GROUP=${NAME}
 export DASHBOARD_FILE=wazuh-dashboard-base-$(BASE_VERSION)-linux-x64.tar.xz
-export OD_VERSION=1.2.0
 
 # -----------------------------------------------------------------------------
 
@@ -116,7 +115,7 @@ override_dh_install:
 	chown $(USER):$(GROUP) $(TARGET_DIR)/etc/systemd/system/$(NAME)
 	chown $(USER):$(GROUP) $(TARGET_DIR)/etc/default/$(NAME)
 
-	runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install https://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-$(BASE_VERSION)-$(OD_VERSION).zip" 
+	runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install https://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-$(BASE_VERSION).zip" 
 
 	find $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/wazuh/ -exec chown $(USER):$(GROUP) {} \;
 
