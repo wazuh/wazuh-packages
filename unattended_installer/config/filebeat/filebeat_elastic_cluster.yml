@@ -2,8 +2,8 @@
 output.elasticsearch:
   hosts: ["<elasticsearch_ip_node_1>:9700", "<elasticsearch_ip_node_2>:9700", "<elasticsearch_ip_node_3>:9700"]
   protocol: https
-  username: "admin"
-  password: "admin"
+  username: ${username}
+  password: ${password}
   ssl.certificate_authorities:
     - /etc/filebeat/certs/root-ca.pem
   ssl.certificate: "/etc/filebeat/certs/filebeat.pem"
