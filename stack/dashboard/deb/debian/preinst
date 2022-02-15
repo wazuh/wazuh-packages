@@ -29,7 +29,6 @@ case "$1" in
         # environment configuration
         mkdir -p "${CONFIG_DIR}"
         mkdir -p "${INSTALLATION_DIR}"
-        mkdir -p "${LOG_DIR}"
 
         
         # Create wazuh-dashboard group if not existing
@@ -51,6 +50,12 @@ case "$1" in
                     "${NAME}"
             echo " OK"
         fi  
+
+        if [ -d "${LOG_DIR}" ]; then
+            chown -R "${NAME}":"${NAME}" "${LOG_DIR}" 
+        else
+            mkdir -p "${LOG_DIR}"
+        fi
     
     ;;
     upgrade)

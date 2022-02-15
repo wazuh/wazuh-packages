@@ -136,6 +136,12 @@ if [ $1 = 1 ]; then
   if ! id -u %{USER} > /dev/null 2>&1; then
     useradd -g %{GROUP} -G %{USER} -d %{INSTALL_DIR}/ -r -s /sbin/nologin wazuh-dashboard
   fi
+  if [ -d %{LOG_DIR} ]; then
+      chown -R %{USER}:%{GROUP} %{LOG_DIR}
+  else
+      mkdir -p %{LOG_DIR}
+      chown %{USER}:%{GROUP} %{LOG_DIR}
+  fi
 fi
 # Stop the services to upgrade the package
 if [ $1 = 2 ]; then
@@ -202,10 +208,6 @@ fi
 
 # posttrans code is the last thing executed in a install/upgrade
 %posttrans
-if [ ! -d %{LOG_DIR} ]; then
-    mkdir -p %{LOG_DIR}
-    chown %{USER}:%{GROUP} %{LOG_DIR}
-fi
 if [ ! -d %{PID_DIR} ]; then
     mkdir -p %{PID_DIR}
     chown %{USER}:%{GROUP} %{PID_DIR}
