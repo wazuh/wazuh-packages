@@ -8,6 +8,68 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
+function getHelp() {
+
+    echo -e ""
+    echo -e "NAME"
+    echo -e "        $(basename "$0") - Install and configure Wazuh central components."
+    echo -e ""
+    echo -e "SYNOPSIS"
+    echo -e "        $(basename "$0") [OPTIONS] -a | -c | -s | -wi <indexer-node-name> | -wd <dashboards-node-name> | -ws <wazuh-node-name>"
+    echo -e ""
+    echo -e "DESCRIPTION"
+    echo -e "        -a,  --all-in-one"
+    echo -e "                All-In-One installation."
+    echo -e ""
+    echo -e "        -c,  --create-configurations"
+    echo -e "                Creates configurations.tar file containing config.yml, certificates, passwords and cluster key."
+    echo -e ""
+    echo -e "        -d,  --development"
+    echo -e "                Uses development repository."
+    echo -e ""
+    echo -e "        -ds,  --disable-spinner"
+    echo -e "                Disables the spinner indicator."
+    echo -e ""
+    echo -e ""
+    echo -e "        -f,  --fileconfig <path-to-config-yml>"
+    echo -e "                Path to config file. By default: ${base_path}/config.yml"
+    echo -e ""
+    echo -e "        -F,  --force-dashboard"
+    echo -e "                Ignore indexer cluster related errors in Wazuh Dashboard installation"
+    echo -e ""
+    echo -e "        -h,  --help"
+    echo -e "                Shows help."
+    echo -e ""
+    echo -e "        -i,  --ignore-health-check"
+    echo -e "                Ignores the health-check."
+    echo -e ""
+    echo -e "        -o,  --overwrite"
+    echo -e "                Overwrites previously installed components. NOTE: This will erase all the existing configuration and data."
+    echo -e ""
+    echo -e "        -s,  --start-cluster"
+    echo -e "                Starts the indexer cluster."
+    echo -e ""
+    echo -e "        -t,  --tar <path-to-certs-tar>"
+    echo -e "                Path to tar containing certificate files. By default: ${base_path}/configurations.tar"
+    echo -e ""
+    echo -e "        -u,  --uninstall"
+    echo -e "                Uninstalls all Wazuh components. NOTE: This will erase all the existing configuration and data."
+    echo -e ""
+    echo -e "        -v,  --verbose"
+    echo -e "                Shows the complete installation output."
+    echo -e ""
+    echo -e "        -wd,  --wazuh-dashboards <dashboards-node-name>"
+    echo -e "                Wazuh dashboards installation."
+    echo -e ""
+    echo -e "        -wi,  --wazuh-indexer <indexer-node-name>"
+    echo -e "                Wazuh indexer installation."
+    echo -e ""
+    echo -e "        -ws,  --wazuh-server <wazuh-node-name>"
+    echo -e "                Wazuh server installation. It includes Filebeat."
+    exit 1
+
+}
+
 
 function main() {
 
@@ -36,7 +98,7 @@ function main() {
                 ;;
             "-f"|"--fileconfig")
                 if [ -z "${2}" ]; then
-                    logger -e "Error on arguments. Probably missing <path-to-config-yml> after -f|--fileconfig"
+                    common_logger -e "Error on arguments. Probably missing <path-to-config-yml> after -f|--fileconfig"
                     common_getHelp
                     exit 1
                 fi
@@ -64,7 +126,7 @@ function main() {
                 ;;
             "-t"|"--tar")
                 if [ -z "${2}" ]; then
-                    logger -e "Error on arguments. Probably missing <path-to-certs-tar> after -t|--tar"
+                    common_logger -e "Error on arguments. Probably missing <path-to-certs-tar> after -t|--tar"
                     common_getHelp
                     exit 1
                 fi
@@ -83,7 +145,7 @@ function main() {
                 ;;
             "-wd"|"--wazuh-dashboard")
                 if [ -z "${2}" ]; then
-                    logger -e "Error on arguments. Probably missing <node-name> after -wd|---wazuh-dashboard"
+                    common_logger -e "Error on arguments. Probably missing <node-name> after -wd|---wazuh-dashboard"
                     common_getHelp
                     exit 1
                 fi
@@ -93,7 +155,7 @@ function main() {
                 ;;
             "-wi"|"--wazuh-indexer")
                 if [ -z "${2}" ]; then
-                    logger -e "Arguments contain errors. Probably missing <node-name> after -wi|--wazuh-indexer."
+                    common_logger -e "Arguments contain errors. Probably missing <node-name> after -wi|--wazuh-indexer."
                     common_getHelp
                     exit 1
                 fi
@@ -103,7 +165,7 @@ function main() {
                 ;;
             "-ws"|"--wazuh-server")
                 if [ -z "${2}" ]; then
-                    logger -e "Error on arguments. Probably missing <node-name> after -w|--wazuh-server"
+                    common_logger -e "Error on arguments. Probably missing <node-name> after -w|--wazuh-server"
                     common_getHelp
                     exit 1
                 fi
@@ -122,7 +184,7 @@ function main() {
     done
 
     if [ "${EUID}" -ne 0 ]; then
-        logger -e "This script must be run as root."
+        common_logger -e "This script must be run as root."
         exit 1
     fi
 
@@ -140,17 +202,17 @@ function main() {
         trap "kill -9 ${spin_pid} ${debug}" EXIT
     fi
 
-    logger "Starting Wazuh unattended installer. Wazuh version: ${wazuh_version}. Wazuh installer version: ${wazuh_install_vesion}"
+    common_logger "Starting Wazuh unattended installer. Wazuh version: ${wazuh_version}. Wazuh installer version: ${wazuh_install_vesion}"
 
 # -------------- Uninstall case  ------------------------------------
 
-    checks_system
-    checks_installed
+    common_checkSystem
+    common_checkInstalled
     if [ -n "${uninstall}" ]; then
-        logger "-------------------------------------- Uninstall --------------------------------------"
-        logger "Removing all installed components."
+        common_logger "-------------------------------------- Uninstall --------------------------------------"
+        common_logger "Removing all installed components."
         common_rollBack
-        logger "All components removed."
+        common_logger "All components removed."
         exit 0
     fi
 
@@ -161,7 +223,7 @@ function main() {
     fi
     checks_arch
     if [ -n "${ignore}" ]; then
-        logger -w "Health-check ignored."
+        common_logger -w "Health-check ignored."
     else
         checks_health
     fi
@@ -174,7 +236,7 @@ function main() {
 
     # Creation certificate case: Only AIO and -c option can create certificates.
     if [ -n "${configurations}" ] || [ -n "${AIO}" ]; then
-        logger "--------------------------------- Configuration files ---------------------------------"
+        common_logger "--------------------------------- Configuration files ---------------------------------"
         if [ -n "${configurations}" ]; then
             cert_checkOpenSSL
         fi
@@ -185,10 +247,70 @@ function main() {
         gen_file="${base_path}/certs/password_file.yml"
         passwords_generatePasswordFile
         # Using cat instead of simple cp because OpenSUSE unknown error.
-        eval "cat '${config_file}' > '${base_path}/certs/config.yml'"
+        eval "cat '${config_file}' > function common_getHelp() {
+
+    echo -e ""
+    echo -e "NAME"
+    echo -e "        $(basename "$0") - Install and configure Wazuh central components."
+    echo -e ""
+    echo -e "SYNOPSIS"
+    echo -e "        $(basename "$0") [OPTIONS] -a | -c | -s | -wi <indexer-node-name> | -wd <dashboards-node-name> | -ws <wazuh-node-name>"
+    echo -e ""
+    echo -e "DESCRIPTION"
+    echo -e "        -a,  --all-in-one"
+    echo -e "                All-In-One installation."
+    echo -e ""
+    echo -e "        -c,  --create-configurations"
+    echo -e "                Creates configurations.tar file containing config.yml, certificates, passwords and cluster key."
+    echo -e ""
+    echo -e "        -d,  --development"
+    echo -e "                Uses development repository."
+    echo -e ""
+    echo -e "        -ds,  --disable-spinner"
+    echo -e "                Disables the spinner indicator."
+    echo -e ""
+    echo -e ""
+    echo -e "        -f,  --fileconfig <path-to-config-yml>"
+    echo -e "                Path to config file. By default: ${base_path}/config.yml"
+    echo -e ""
+    echo -e "        -F,  --force-dashboard"
+    echo -e "                Ignore indexer cluster related errors in Wazuh Dashboard installation"
+    echo -e ""
+    echo -e "        -h,  --help"
+    echo -e "                Shows help."
+    echo -e ""
+    echo -e "        -i,  --ignore-health-check"
+    echo -e "                Ignores the health-check."
+    echo -e ""
+    echo -e "        -o,  --overwrite"
+    echo -e "                Overwrites previously installed components. NOTE: This will erase all the existing configuration and data."
+    echo -e ""
+    echo -e "        -s,  --start-cluster"
+    echo -e "                Starts the indexer cluster."
+    echo -e ""
+    echo -e "        -t,  --tar <path-to-certs-tar>"
+    echo -e "                Path to tar containing certificate files. By default: ${base_path}/configurations.tar"
+    echo -e ""
+    echo -e "        -u,  --uninstall"
+    echo -e "                Uninstalls all Wazuh components. NOTE: This will erase all the existing configuration and data."
+    echo -e ""
+    echo -e "        -v,  --verbose"
+    echo -e "                Shows the complete installation output."
+    echo -e ""
+    echo -e "        -wd,  --wazuh-dashboards <dashboards-node-name>"
+    echo -e "                Wazuh dashboards installation."
+    echo -e ""
+    echo -e "        -wi,  --wazuh-indexer <indexer-node-name>"
+    echo -e "                Wazuh indexer installation."
+    echo -e ""
+    echo -e "        -ws,  --wazuh-server <wazuh-node-name>"
+    echo -e "                Wazuh server installation. It includes Filebeat."
+    exit 1
+
+}'${base_path}/certs/config.yml'"
         eval "tar -zcf '${tar_file}' -C '${base_path}/certs/' . ${debug}"
         eval "rm -rf '${base_path}/certs' ${debug}"
-        logger "Configuration files created: ${tar_file}"
+        common_logger "Configuration files created: ${tar_file}"
     fi
 
     if [ -z "${configurations}" ]; then
@@ -204,7 +326,7 @@ function main() {
 
 # -------------- Prerequisites and Wazuh repo  ----------------------
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
-        logger "------------------------------------ Dependencies -------------------------------------"
+        common_logger "------------------------------------ Dependencies -------------------------------------"
         common_installPrerequisites
         common_addWazuhRepo
     fi
@@ -212,7 +334,7 @@ function main() {
 # -------------- Wazuh Indexer case -------------------------------
 
     if [ -n "${indexer}" ]; then
-        logger "------------------------------------ Wazuh indexer ------------------------------------"
+        common_logger "------------------------------------ Wazuh indexer ------------------------------------"
         indexer_install
         indexer_configure
         common_startService "wazuh-indexer"
@@ -229,7 +351,7 @@ function main() {
 # -------------- Wazuh Dashboard case  ------------------------------
 
     if [ -n "${dashboard}" ]; then
-        logger "---------------------------------- Wazuh dashboard -----------------------------------"
+        common_logger "---------------------------------- Wazuh dashboard -----------------------------------"
 
         dashboard_install
         dashboard_configure
@@ -242,7 +364,7 @@ function main() {
 # -------------- Wazuh case  ---------------------------------------
 
     if [ -n "${wazuh}" ]; then
-        logger "------------------------------------- Wazuh server ------------------------------------"
+        common_logger "------------------------------------- Wazuh server ------------------------------------"
 
         manager_install
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
@@ -259,18 +381,18 @@ function main() {
 
     if [ -n "${AIO}" ]; then
 
-        logger "------------------------------------ Wazuh indexer ------------------------------------"
+        common_logger "------------------------------------ Wazuh indexer ------------------------------------"
         indexer_install
         indexer_configure
         common_startService "wazuh-indexer"
         indexer_initialize
-        logger "------------------------------------- Wazuh server ------------------------------------"
+        common_logger "------------------------------------- Wazuh server ------------------------------------"
         manager_install
         common_startService "wazuh-manager"
         filebeat_install
         filebeat_configure
         common_startService "filebeat"
-        logger "---------------------------------- Wazuh dashboard -----------------------------------"
+        common_logger "---------------------------------- Wazuh dashboard -----------------------------------"
         dashboard_install
         dashboard_configure
         common_startService "wazuh-dashboard"
@@ -285,9 +407,9 @@ function main() {
     fi
 
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
-        logger "Installation finished. You can find in ${tar_file} all the certificates created, as well as password_file.yml, with the passwords for all users and config.yml, with the nodes of all of the components and their ips."
+        common_logger "Installation finished. You can find in ${tar_file} all the certificates created, as well as password_file.yml, with the passwords for all users and config.yml, with the nodes of all of the components and their ips."
     elif [ -n "${start_elastic_cluster}" ]; then
-        logger "Elasticsearch cluster started."
+        common_logger "Elasticsearch cluster started."
     fi
 
 }

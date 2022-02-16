@@ -38,7 +38,7 @@ function dashboard_configure() {
         fi
     fi
 
-    logger "Wazuh dashboard post-install configuration finished."
+    common_logger "Wazuh dashboard post-install configuration finished."
 
 }
 
@@ -55,9 +55,9 @@ function dashboard_copyCertificates() {
         eval "chown -R wazuh-dashboard:wazuh-dashboard /etc/wazuh-dashboard/ ${debug}"
         eval "chmod -R 500 ${dashboard_cert_path} ${debug}"
         eval "chmod 440 ${dashboard_cert_path}* ${debug}"
-        logger -d "Wazuh dashboard certificate setup finished."
+        common_logger -d "Wazuh dashboard certificate setup finished."
     else
-        logger -e "No certificates found. Wazuh dashboard  could not be initialized."
+        common_logger -e "No certificates found. Wazuh dashboard  could not be initialized."
         exit 1
     fi
 
@@ -65,7 +65,7 @@ function dashboard_copyCertificates() {
 
 function dashboard_initialize() {
 
-    logger "Starting Wazuh dashboard  (this may take a while)."
+    common_logger "Starting Wazuh dashboard  (this may take a while)."
     common_getPass "admin"
     j=0
 
@@ -101,7 +101,7 @@ function dashboard_initialize() {
             flag="-e"
         fi
         failed_nodes=()
-        logger "${flag}" "Cannot connect to Wazuh dashboard."
+        common_logger "${flag}" "Cannot connect to Wazuh dashboard."
 
         for i in "${!indexer_node_ips[@]}"; do
             curl=$(curl -XGET https://${indexer_node_ips[i]}:9700/ -uadmin:${u_pass} -k -w %{http_code} -s -o /dev/null)
@@ -111,42 +111,42 @@ function dashboard_initialize() {
                 failed_nodes+=("${indexer_node_names[i]}")
             fi 
         done
-        logger "${flag}" "Failed to connect with ${failed_nodes[*]}. Connection refused."
+        common_logger "${flag}" "Failed to connect with ${failed_nodes[*]}. Connection refused."
         if [ -z "${force}" ]; then
-            logger "If want to install Wazuh dashboard without waiting for the Wazuh indexer cluster, use the -F option"
+            common_logger "If want to install Wazuh dashboard without waiting for the Wazuh indexer cluster, use the -F option"
             common_rollBack
             exit 1
         else
-            logger "When Wazuh dashboard is able to connect to your Elasticsearch cluster, you can access the web interface https://${nodes_dashboard_ip}. The credentials are admin:${u_pass}"
+            common_logger "When Wazuh dashboard is able to connect to your Elasticsearch cluster, you can access the web interface https://${nodes_dashboard_ip}. The credentials are admin:${u_pass}"
         fi
     else
-        logger "You can access the web interface https://${nodes_dashboard_ip}. The credentials are admin:${u_pass}"
+        common_logger "You can access the web interface https://${nodes_dashboard_ip}. The credentials are admin:${u_pass}"
     fi
 
 }
 
 function dashboard_initializeAIO() {
 
-    logger "Starting Wazuh dashboard (this may take a while)."
+    common_logger "Starting Wazuh dashboard (this may take a while)."
     common_getPass "admin"
     until [ "$(curl -XGET https://localhost/status -uadmin:${u_pass} -k -w %{http_code} -s -o /dev/null)" -eq "200" ] || [ "${i}" -eq 12 ]; do
         sleep 10
         i=$((i+1))
     done
     if [ ${i} -eq 12 ]; then
-        logger -e "Cannot connect to Wazuh dashboard."
+        common_logger -e "Cannot connect to Wazuh dashboard."
         common_rollBack
         exit 1
     fi
 
-    logger "Wazuh dashboard started."
-    logger "You can access the web interface https://<wazuh-dashboard-host-ip>. The credentials are admin:${u_pass}"
+    common_logger "Wazuh dashboard started."
+    common_logger "You can access the web interface https://<wazuh-dashboard-host-ip>. The credentials are admin:${u_pass}"
 
 }
 
 function dashboard_install() {
 
-    logger "Starting Wazuh dashboard installation."
+    common_logger "Starting Wazuh dashboard installation."
     if [ "${sys_type}" == "zypper" ]; then
         eval "zypper -n install wazuh-dashboard=${wazuh_version}-${wazuh_revision} ${debug}"
     elif [ "${sys_type}" == "yum" ]; then
@@ -155,12 +155,12 @@ function dashboard_install() {
         eval "DEBIAN_FRONTEND=noninteractive apt install wazuh-dashboard${sep}${wazuh_version}-${wazuh_revision} -y ${debug}"
     fi
     if [  "$?" != 0  ]; then
-        logger -e "Wazuh dashboard installation failed"
+        common_logger -e "Wazuh dashboard installation failed"
         common_rollBack
         exit 1
     else
         dashboardinstalled="1"
-        logger "Wazuh dashboard installation finished."
+        common_logger "Wazuh dashboard installation finished."
     fi
 
 }

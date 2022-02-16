@@ -29,7 +29,7 @@ function filebeat_configure(){
     eval "mkdir /etc/filebeat/certs ${debug}"
     filebeat_copyCertificates
 
-    logger "Filebeat post-install configuration finished."
+    common_logger "Filebeat post-install configuration finished."
 }
 
 function filebeat_copyCertificates() {
@@ -44,7 +44,7 @@ function filebeat_copyCertificates() {
             eval "tar -xf ${tar_file} -C ${filebeat_cert_path} ./root-ca.pem ${debug}"
         fi
     else
-        logger -e "No certificates found. Could not initialize Filebeat"
+        common_logger -e "No certificates found. Could not initialize Filebeat"
         exit 1;
     fi
 
@@ -52,7 +52,7 @@ function filebeat_copyCertificates() {
 
 function filebeat_install() {
 
-    logger "Starting filebeat installation."
+    common_logger "Starting filebeat installation."
     if [ "${sys_type}" == "zypper" ]; then
         eval "zypper -n install filebeat-${filebeat_version} ${debug}"
     elif [ "${sys_type}" == "yum" ]; then
@@ -61,10 +61,10 @@ function filebeat_install() {
         eval "DEBIAN_FRONTEND=noninteractive apt install filebeat${sep}${filebeat_version} -y -q  ${debug}"
     fi
     if [  "$?" != 0  ]; then
-        logger -e "Filebeat installation failed"
+        common_logger -e "Filebeat installation failed"
         exit 1
     else
-        logger "Filebeat installation finished."
+        common_logger "Filebeat installation finished."
         filebeatinstalled="1"
     fi
 

@@ -1,6 +1,4 @@
-#!/bin/bash
-
-# Program to generate the certificates necessary for Wazuh installation
+# Certificate tool - Library functions
 # Copyright (C) 2015, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
@@ -8,16 +6,6 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-if [ -z "${base_path}" ]; then
-    readonly base_path="$(dirname "$(readlink -f "$0")")"
-    readonly config_file="${base_path}/config.yml"
-fi
-
-if [[ -z "${logfile}" ]]; then
-    readonly logfile="/var/log/wazuh-cert-tool.log"
-fi
-
-debug=">> ${logfile} 2>&1"
 
 function cert_cleanFiles() {
 
@@ -30,49 +18,8 @@ function cert_cleanFiles() {
 
 function cert_checkOpenSSL() {
     if [ -z "$(command -v openssl)" ]; then
-        logger -e "OpenSSL not installed."
+        common_logger -e "OpenSSL not installed."
         exit 1
-    fi
-}
-
-function logger() {
-    now=$(date +'%d/%m/%Y %H:%M:%S')
-    mtype="INFO:"
-    debugLogger=
-    disableHeader=
-    if [ -n "${1}" ]; then
-        while [ -n "${1}" ]; do
-            case ${1} in
-                "-e")
-                    mtype="ERROR:"
-                    shift 1
-                    ;;
-                "-w")
-                    mtype="WARNING:"
-                    shift 1
-                    ;;
-                "-dh")
-                    disableHeader=1
-                    shift 1
-                    ;;
-                "-d")
-                    debugLogger=1
-                    shift 1
-                    ;;
-                *)
-                    message="${1}"
-                    shift 1
-                    ;;
-            esac
-        done
-    fi
-
-    if [ -z "${debugLogger}" ] || ( [ -n "${debugLogger}" ] && [ -n "${debugEnabled}" ] ); then
-        if [ -n "${disableHeader}" ]; then
-            echo "${message}" | tee -a ${logfile}
-        else
-            echo "${now} ${mtype} ${message}" | tee -a ${logfile}
-        fi
     fi
 }
 
@@ -128,7 +75,7 @@ function cert_generateCertificateconfiguration() {
         conf="$(awk '{sub("IP.1 = cip", "DNS.1 = '${2}'")}1' "${base_path}/certs/${1}.conf")"
         echo "${conf}" > "${base_path}/certs/${1}.conf"
     else
-        logger -e "The given information does not match with an IP address or a DNS."
+        common_logger -e "The given information does not match with an IP address or a DNS."
         exit 1
     fi
 
@@ -137,7 +84,7 @@ function cert_generateCertificateconfiguration() {
 function cert_generateIndexercertificates() {
 
     if [ ${#indexer_node_names[@]} -gt 0 ]; then
-        logger -d "Creating the Wazuh indexer certificates."
+        common_logger -d "Creating the Wazuh indexer certificates."
 
         for i in "${!indexer_node_names[@]}"; do
             cert_generateCertificateconfiguration "${indexer_node_names[i]}" "${indexer_node_ips[i]}"
@@ -152,7 +99,7 @@ function cert_generateIndexercertificates() {
 function cert_generateFilebeatcertificates() {
 
     if [ ${#wazuh_servers_node_names[@]} -gt 0 ]; then
-        logger -d "Creating the Wazuh server certificates."
+        common_logger -d "Creating the Wazuh server certificates."
 
         for i in "${!wazuh_servers_node_names[@]}"; do
             cert_generateCertificateconfiguration "${wazuh_servers_node_names[i]}" "${wazuh_servers_node_ips[i]}"
@@ -166,7 +113,7 @@ function cert_generateFilebeatcertificates() {
 function cert_generateDashboardcertificates() {
 
     if [ ${#dashboard_node_names[@]} -gt 0 ]; then
-        logger -d "Creating the Wazuh dashboard certificates."
+        common_logger -d "Creating the Wazuh dashboard certificates."
 
         for i in "${!dashboard_node_names[@]}"; do
             cert_generateCertificateconfiguration "${dashboard_node_names[i]}" "${dashboard_node_ips[i]}"
@@ -180,136 +127,9 @@ function cert_generateDashboardcertificates() {
 
 function cert_generateRootCAcertificate() {
 
-    logger -d "Creating the root certificate."
+    common_logger -d "Creating the root certificate."
 
     eval "openssl req -x509 -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/root-ca.key -out ${base_path}/certs/root-ca.pem -batch -subj '/OU=Wazuh/O=Wazuh/L=California/' -days 3650 ${debug}"
-
-}
-
-function getHelp() {
-
-    echo -e ""
-    echo -e "NAME"
-    echo -e "        wazuh-cert-tool.sh - Manages the creation of certificates of the Wazuh components."
-    echo -e ""
-    echo -e "SYNOPSIS"
-    echo -e "        wazuh-cert-tool.sh [OPTIONS]"
-    echo -e ""
-    echo -e "DESCRIPTION"
-    echo -e "        -a,  --admin-certificates"
-    echo -e "                Creates the admin certificates."
-    echo -e ""
-    echo -e "        -ca, --root-ca-certificates"
-    echo -e "                Creates the root-ca certificates."
-    echo -e ""
-    echo -e "        -v,  --verbose"
-    echo -e "                Enables verbose mode."
-    echo -e ""
-    echo -e "        -wd,  --wazuh-dashboard-certificates"
-    echo -e "                Creates the Wazuh dashboard certificates."
-    echo -e ""
-    echo -e "        -wi,  --wazuh-indexer-certificates"
-    echo -e "                Creates the Wazuh indexer certificates."
-    echo -e ""
-    echo -e "        -ws,  --wazuh-server-certificates"
-    echo -e "                Creates the Wazuh server certificates."
-
-    exit 1
-
-}
-
-function main() {
-
-    if [ "$EUID" -ne 0 ]; then
-        logger -e "This script must be run as root."
-        exit 1
-    fi
-
-    cert_checkOpenSSL
-
-    if [[ -d ${base_path}/certs ]]; then
-        logger -e "Folder ${base_path}/certs already exists. Please, remove the /certs folder to create new certificates."
-        exit 1
-    else
-        mkdir "${base_path}/certs"
-    fi
-
-    if [ -n "${1}" ]; then
-        while [ -n "${1}" ]
-        do
-            case "${1}" in
-            "-a"|"--admin-certificates")
-                cadmin=1
-                shift 1
-                ;;
-            "-ca"|"--root-ca-certificate")
-                ca=1
-                shift 1
-                ;;
-            "-h"|"--help")
-                getHelp
-                ;;
-            "-v"|"--verbose")
-                debugEnabled=1
-                shift 1
-                ;;
-            "-wd"|"--wazuh-dashboard-certificates")
-                cdashboard=1
-                shift 1
-                ;;
-            "-wi"|"--wazuh-indexer-certificates")
-                cindexer=1
-                shift 1
-                ;;
-            "-ws"|"--wazuh-server-certificates")
-                cserver=1
-                shift 1
-                ;;
-            *)
-                getHelp
-            esac
-        done
-
-        cert_readConfig
-
-        if [ -n "${debugEnabled}" ]; then
-            debug="2>&1 | tee -a ${logfile}"
-        fi
-
-        if [[ -n "${cadmin}" ]]; then
-            cert_generateAdmincertificate
-            logger "Admin certificates created."
-        fi
-
-        if [[ -n "${ca}" ]]; then
-            cert_generateRootCAcertificate
-            logger "Authority certificates created."
-        fi
-
-        if [[ -n "${cindexer}" ]]; then
-            cert_generateIndexercertificates
-            logger "Wazuh indexer certificates created."
-        fi
-
-        if [[ -n "${cserver}" ]]; then
-            cert_generateFilebeatcertificates
-            logger "Wazuh server certificates created."
-        fi
-
-        if [[ -n "${cdashboard}" ]]; then
-            cert_generateDashboardcertificates
-            logger "Wazuh dashboard certificates created."
-        fi
-
-    else
-        cert_readConfig
-        cert_generateRootCAcertificate
-        cert_generateAdmincertificate
-        cert_generateIndexercertificates
-        cert_generateFilebeatcertificates
-        cert_generateDashboardcertificates
-        cert_cleanFiles
-    fi
 
 }
 
@@ -338,7 +158,7 @@ function cert_readConfig() {
 
     if [ -f "${config_file}" ]; then
         if [ ! -s "${config_file}" ]; then
-            logger -e "File ${config_file} is empty"
+            common_logger -e "File ${config_file} is empty"
             exit 1
         fi
         eval "$(cert_parseYaml "${config_file}")"
@@ -354,81 +174,79 @@ function cert_readConfig() {
 
         unique_names=($(echo "${indexer_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
         if [ "${#unique_names[@]}" -ne "${#indexer_node_names[@]}" ]; then 
-            logger -e "Duplicated indexer node names."
+            common_logger -e "Duplicated indexer node names."
             exit 1
         fi
 
         unique_ips=($(echo "${indexer_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
         if [ "${#unique_ips[@]}" -ne "${#indexer_node_ips[@]}" ]; then 
-            logger -e "Duplicated indexer node ips."
+            common_logger -e "Duplicated indexer node ips."
             exit 1
         fi
 
         unique_names=($(echo "${wazuh_servers_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
         if [ "${#unique_names[@]}" -ne "${#wazuh_servers_node_names[@]}" ]; then 
-            logger -e "Duplicated Wazuh server node names."
+            common_logger -e "Duplicated Wazuh server node names."
             exit 1
         fi
 
         unique_ips=($(echo "${wazuh_servers_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
         if [ "${#unique_ips[@]}" -ne "${#wazuh_servers_node_ips[@]}" ]; then 
-            logger -e "Duplicated Wazuh server node ips."
+            common_logger -e "Duplicated Wazuh server node ips."
             exit 1
         fi
 
         unique_names=($(echo "${dashboard_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
         if [ "${#unique_names[@]}" -ne "${#dashboard_node_names[@]}" ]; then
-            logger -e "Duplicated dashboard node names."
+            common_logger -e "Duplicated dashboard node names."
             exit 1
         fi
 
         unique_ips=($(echo "${dashboard_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
         if [ "${#unique_ips[@]}" -ne "${#dashboard_node_ips[@]}" ]; then
-            logger -e "Duplicated dashboard node ips."
+            common_logger -e "Duplicated dashboard node ips."
             exit 1
         fi
 
         if [ "${#wazuh_servers_node_names[@]}" -ne "${#wazuh_servers_node_ips[@]}" ]; then 
-            logger -e "Different number of Wazuh server node names and IPs."
+            common_logger -e "Different number of Wazuh server node names and IPs."
             exit 1
         fi
 
         for i in "${wazuh_servers_node_types[@]}"; do
             if ! echo "$i" | grep -ioq master && ! echo "$i" | grep -ioq worker; then
-                logger -e "Incorrect node_type $i must be master or worker"
+                common_logger -e "Incorrect node_type $i must be master or worker"
                 exit 1
             fi
         done
 
         if [ "${#wazuh_servers_node_names[@]}" -le 1 ]; then
             if [ "${#wazuh_servers_node_types[@]}" -ne 0 ]; then
-                logger -e "The tag node_type can only be used with more than one Wazuh server."
+                common_logger -e "The tag node_type can only be used with more than one Wazuh server."
                 exit 1
             fi
         elif [ "${#wazuh_servers_node_names[@]}" -gt "${#wazuh_servers_node_types[@]}" ]; then
-            logger -e "The tag node_type needs to be specified for all Wazuh server nodes."
+            common_logger -e "The tag node_type needs to be specified for all Wazuh server nodes."
             exit 1
         elif [ "${#wazuh_servers_node_names[@]}" -lt "${#wazuh_servers_node_types[@]}" ]; then
-            logger -e "Found extra node_type tags."
+            common_logger -e "Found extra node_type tags."
             exit 1
         elif [ $(grep -io master <<< ${wazuh_servers_node_types[*]} | wc -l) -ne 1 ]; then
-            logger -e "Wazuh cluster needs a single master node."
+            common_logger -e "Wazuh cluster needs a single master node."
             exit 1
         elif [ $(grep -io worker <<< ${wazuh_servers_node_types[*]} | wc -l) -ne $(( ${#wazuh_servers_node_types[@]} - 1 )) ]; then
-            logger -e "Incorrect number of workers."
+            common_logger -e "Incorrect number of workers."
             exit 1
         fi
 
         if [ "${#dashboard_node_names[@]}" -ne "${#dashboard_node_ips[@]}" ]; then
-            logger -e "Different number of dashboard node names and IPs."
+            common_logger -e "Different number of dashboard node names and IPs."
             exit 1
         fi
 
     else
-        logger -e "No configuration file found. ${config_file}."
+        common_logger -e "No configuration file found. ${config_file}."
         exit 1
     fi
 
 }
-
-main "$@"

@@ -18,7 +18,7 @@ readonly resources_config="${base_path}/${config_path}"
 readonly resources_tools="${base_path}/${tools_path}"
 readonly builder_logfile="/var/log/wazuh_unattended_builder.log"
 
-function common_getHelp() {
+function builder_getHelp() {
 
     echo -e ""
     echo -e "NAME"

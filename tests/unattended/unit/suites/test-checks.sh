@@ -7,63 +7,63 @@ source "${base_dir}"/bach.sh
     @ignore common_logger
 }
 
-function load-checks_system() {
-    @load_function "${base_dir}/checks.sh" checks_system
+function load-common_checkSystem() {
+    @load_function "${base_dir}/checks.sh" common_checkSystem
 }
 
-test-ASSERT-FAIL-01-checks_system-empty() {
-    load-checks_system
+test-ASSERT-FAIL-01-common_checkSystem-empty() {
+    load-common_checkSystem
     @mock command -v yum === @false
     @mock command -v zypper === @false
     @mock command -v apt-get === @false
-    checks_system
+    common_checkSystem
 }
 
-test-02-checks_system-yum() {
-    load-checks_system
+test-02-common_checkSystem-yum() {
+    load-common_checkSystem
     @mock command -v yum === @echo /usr/bin/yum
     @mock command -v zypper === @false
     @mock command -v apt-get === @false
-    checks_system
+    common_checkSystem
     echo "$sys_type"
     echo "$sep"
 }
 
-test-02-checks_system-yum-assert() {
+test-02-common_checkSystem-yum-assert() {
     sys_type="yum"
     sep="-"
     echo "$sys_type"
     echo "$sep"
 }
 
-test-03-checks_system-zypper() {
-    load-checks_system
+test-03-common_checkSystem-zypper() {
+    load-common_checkSystem
     @mock command -v yum === @false
     @mock command -v zypper === @echo /usr/bin/zypper
     @mock command -v apt-get === @false
-    checks_system
+    common_checkSystem
     @echo "$sys_type"
     @echo "$sep"
 }
 
-test-03-checks_system-zypper-assert() {
+test-03-common_checkSystem-zypper-assert() {
     sys_type="zypper"
     sep="-"
     @echo "$sys_type"
     @echo "$sep"
 }
 
-test-04-checks_system-apt() {
-    load-checks_system
+test-04-common_checkSystem-apt() {
+    load-common_checkSystem
     @mock command -v yum === @false
     @mock command -v zypper === @false
     @mock command -v apt-get === @echo /usr/bin/apt-get
-    checks_system
+    common_checkSystem
     echo "$sys_type"
     echo "$sep"
 }
 
-test-04-checks_system-apt-assert() {
+test-04-common_checkSystem-apt-assert() {
     sys_type="apt-get"
     sep="="
     echo "$sys_type"
@@ -691,12 +691,12 @@ test-68-checks_health-wazuh-2-cores-1700-ram() {
     @assert-success
 }
 
-function load-checks_installed() {
-    @load_function "${base_dir}/checks.sh" checks_installed
+function load-common_checkInstalled() {
+    @load_function "${base_dir}/checks.sh" common_checkInstalled
 }
 
-test-69-checks_installed-all-installed-yum() {
-    load-checks_installed
+test-69-common_checkInstalled-all-installed-yum() {
+    load-common_checkInstalled
     sys_type="yum"
 
     @mocktrue yum list installed
@@ -720,7 +720,7 @@ test-69-checks_installed-all-installed-yum() {
     @mkdir /usr/share/kibana
     @mkdir /etc/kibana
 
-    checks_installed
+    common_checkInstalled
     @echo $wazuhinstalled
     @echo $wazuh_remaining_files
     @rmdir /var/ossec
@@ -745,7 +745,7 @@ test-69-checks_installed-all-installed-yum() {
 
 }
 
-test-69-checks_installed-all-installed-yum-assert() {
+test-69-common_checkInstalled-all-installed-yum-assert() {
     @echo "wazuh-manager.x86_64 4.3.0-1 @wazuh"
     @echo 1
 
@@ -759,8 +759,8 @@ test-69-checks_installed-all-installed-yum-assert() {
     @echo 1
 }
 
-test-70-checks_installed-all-installed-zypper() {
-    load-checks_installed
+test-70-common_checkInstalled-all-installed-zypper() {
+    load-common_checkInstalled
     sys_type="zypper"
 
     @mocktrue zypper packages
@@ -785,7 +785,7 @@ test-70-checks_installed-all-installed-zypper() {
     @mkdir /usr/share/kibana
     @mkdir /etc/kibana
 
-    checks_installed
+    common_checkInstalled
     @echo $wazuhinstalled
     @echo $wazuh_remaining_files
     @rmdir /var/ossec
@@ -810,7 +810,7 @@ test-70-checks_installed-all-installed-zypper() {
 
 }
 
-test-70-checks_installed-all-installed-zypper-assert() {
+test-70-common_checkInstalled-all-installed-zypper-assert() {
     @echo "i+ | EL-20211102 - Wazuh | wazuh-manager | 4.3.0-1 | x86_64"
     @echo 1
 
@@ -824,8 +824,8 @@ test-70-checks_installed-all-installed-zypper-assert() {
     @echo 1
 }
 
-test-71-checks_installed-all-installed-apt() {
-    load-checks_installed
+test-71-common_checkInstalled-all-installed-apt() {
+    load-common_checkInstalled
     sys_type="apt-get"
 
     @mocktrue apt list --installed
@@ -849,7 +849,7 @@ test-71-checks_installed-all-installed-apt() {
     @mkdir /usr/share/kibana
     @mkdir /etc/kibana
 
-    checks_installed
+    common_checkInstalled
     @echo $wazuhinstalled
     @echo $wazuh_remaining_files
     @rmdir /var/ossec
@@ -874,7 +874,7 @@ test-71-checks_installed-all-installed-apt() {
 
 }
 
-test-71-checks_installed-all-installed-apt-assert() {
+test-71-common_checkInstalled-all-installed-apt-assert() {
     @echo "wazuh-manager/now 4.2.5-1 amd64 [installed,local]"
     @echo 1
 
@@ -888,8 +888,8 @@ test-71-checks_installed-all-installed-apt-assert() {
     @echo 1
 }
 
-test-72-checks_installed-nothing-installed-apt() {
-    load-checks_installed
+test-72-common_checkInstalled-nothing-installed-apt() {
+    load-common_checkInstalled
     sys_type="apt-get"
 
     @mocktrue apt list --installed
@@ -903,7 +903,7 @@ test-72-checks_installed-nothing-installed-apt() {
 
     @mock grep opendistroforelasticsearch-kibana
 
-    checks_installed
+    common_checkInstalled
     @echo $wazuhinstalled
     @echo $wazuh_remaining_files
 
@@ -917,7 +917,7 @@ test-72-checks_installed-nothing-installed-apt() {
     @echo $kibana_remaining_files
 }
 
-test-72-checks_installed-nothing-installed-apt-assert() {
+test-72-common_checkInstalled-nothing-installed-apt-assert() {
     @echo ""
     @echo ""
 
@@ -931,8 +931,8 @@ test-72-checks_installed-nothing-installed-apt-assert() {
     @echo ""
 }
 
-test-73-checks_installed-nothing-installed-yum() {
-    load-checks_installed
+test-73-common_checkInstalled-nothing-installed-yum() {
+    load-common_checkInstalled
     sys_type="yum"
 
     @mocktrue yum list installed
@@ -946,7 +946,7 @@ test-73-checks_installed-nothing-installed-yum() {
 
     @mock grep opendistroforelasticsearch-kibana
 
-    checks_installed
+    common_checkInstalled
     @echo $wazuhinstalled
     @echo $wazuh_remaining_files
 
@@ -960,7 +960,7 @@ test-73-checks_installed-nothing-installed-yum() {
     @echo $kibana_remaining_files
 }
 
-test-73-checks_installed-nothing-installed-yum-assert() {
+test-73-common_checkInstalled-nothing-installed-yum-assert() {
     @echo ""
     @echo ""
 
@@ -974,8 +974,8 @@ test-73-checks_installed-nothing-installed-yum-assert() {
     @echo ""
 }
 
-test-74-checks_installed-nothing-installed-zypper() {
-    load-checks_installed
+test-74-common_checkInstalled-nothing-installed-zypper() {
+    load-common_checkInstalled
     sys_type="zypper"
 
     @mocktrue zypper packages
@@ -990,7 +990,7 @@ test-74-checks_installed-nothing-installed-zypper() {
 
     @mock grep opendistroforelasticsearch-kibana
 
-    checks_installed
+    common_checkInstalled
     @echo $wazuhinstalled
     @echo $wazuh_remaining_files
 
@@ -1004,7 +1004,7 @@ test-74-checks_installed-nothing-installed-zypper() {
     @echo $kibana_remaining_files
 }
 
-test-74-checks_installed-nothing-installed-zypper-assert() {
+test-74-common_checkInstalled-nothing-installed-zypper-assert() {
     @echo ""
     @echo ""
 
