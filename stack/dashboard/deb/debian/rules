@@ -98,7 +98,7 @@ override_dh_install:
 
 	rm -rf $(TARGET_DIR)$(INSTALLATION_DIR)/etc
 
-	curl -O https://s3.amazonaws.com/warehouse.wazuh.com/stack/demo-certs.tar.gz
+	curl -O https://packages-dev.wazuh.com/stack/demo-certs.tar.gz
 
 	tar -xf demo-certs.tar.gz
 

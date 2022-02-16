@@ -98,7 +98,7 @@ chmod 640 %{buildroot}/etc/init.d/wazuh-dashboard
 chmod 640 %{buildroot}/etc/systemd/system/wazuh-dashboard.service 
 chmod 640 %{buildroot}/etc/default/wazuh-dashboard
 
-curl -O https://s3.amazonaws.com/warehouse.wazuh.com/stack/demo-certs.tar.gz
+curl -O https://packages-dev.wazuh.com/stack/demo-certs.tar.gz
 
 tar -xf demo-certs.tar.gz && rm -f demo-certs.tar.gz
 
