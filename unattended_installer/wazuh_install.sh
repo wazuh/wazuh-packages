@@ -367,7 +367,7 @@ function main() {
             checkOpenSSL
         fi
         common_createCertificates
-        if [ -n "${wazuh_servers_node_types[*]}" ]; then
+        if [ -n "${server_node_types[*]}" ]; then
             common_createClusterKey
         fi
         gen_file="${base_path}/certs/password_file.yml"
@@ -443,7 +443,7 @@ function main() {
         importFunction "filebeat.sh"
 
         manager_install
-        if [ -n "${wazuh_servers_node_types[*]}" ]; then
+        if [ -n "${server_node_types[*]}" ]; then
             manager_startCluster
         fi
         common_startService "wazuh-manager"
