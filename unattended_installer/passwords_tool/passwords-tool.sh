@@ -73,6 +73,20 @@ function passwords_checkUser() {
 
 function passwords_createBackUp() {
 
+    if [ -z "${indexerinstalled}" ] && [ -z "${dashboardsinstalled}" ] && [ -z "${filebeatinstalled}" ]; then
+        common_logger -e "Cannot find Wazuh indexer, Wazuh dashboards or Filebeat on the system."
+        exit 1;
+    else
+        if [ -n "${indexerinstalled}" ]; then
+            capem=$(grep "plugins.security.ssl.transport.pemtrustedcas_filepath: " /etc/wazuh-indexer/opensearch.yml )
+            rcapem="plugins.security.ssl.transport.pemtrustedcas_filepath: "
+            capem="${capem//$rcapem}"
+            if [[ -z "${adminpem}" ]] || [[ -z "${adminkey}" ]]; then
+                passwords_readAdmincerts
+            fi
+        fi
+    fi
+
     common_logger -d "Creating password backup."
     eval "mkdir /usr/share/wazuh-indexer/backup ${debug}"
     eval "JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -icl -p 9800 -backup /usr/share/wazuh-indexer/backup -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -h ${IP} ${debug}"

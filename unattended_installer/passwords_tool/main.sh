@@ -120,8 +120,8 @@ function main() {
             fi
         fi
 
-        common_checkInstalled
         common_checkSystem
+        common_checkInstalled
 
         if [ -n "${p_file}" ] && [ ! -f "${p_file}" ]; then
             getHelp
