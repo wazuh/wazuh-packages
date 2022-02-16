@@ -2,8 +2,13 @@ network.host: "0.0.0.0"
 node.name: "node-1"
 cluster.initial_master_nodes:
 - "node-1"
+- "node-2"
+- "node-3"
 cluster.name: "wazuh-cluster"
-
+#discovery.seed_hosts:
+#  - "node-1-ip"
+#  - "node-2-ip"
+#  - "node-3-ip"
 http.port: 9700-9799
 transport.tcp.port: 9800-9899
 node.max_local_storage_nodes: "3"
@@ -34,7 +39,9 @@ plugins.security.authcz.admin_dn:
 plugins.security.check_snapshot_restore_write_privileges: true
 plugins.security.enable_snapshot_restore_privilege: true
 plugins.security.nodes_dn:
-- "CN=demo-indexer,OU=Docu,O=Wazuh,L=California,C=US"
+- "CN=node-1,OU=Docu,O=Wazuh,L=California,C=US"
+#- "CN=node-2,OU=Docu,O=Wazuh,L=California,C=US"
+#- "CN=node-3,OU=Docu,O=Wazuh,L=California,C=US"
 plugins.security.restapi.roles_enabled:
 - "all_access"
 - "security_rest_api_access"
