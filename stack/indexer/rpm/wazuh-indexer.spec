@@ -84,7 +84,7 @@ rm -rf wazuh-indexer-*/usr
 cp -pr wazuh-indexer-*/* ${RPM_BUILD_ROOT}%{INSTALL_DIR}/
 
 # Download demo certificates
-curl -kOL https://s3.amazonaws.com/warehouse.wazuh.com/stack/demo-certs.tar.gz
+curl -kOL https://packages-dev.wazuh.com/stack/demo-certs.tar.gz
 tar xzf demo-certs.tar.gz && rm -f demo-certs.tar.gz
 chown -R %{USER}:%{GROUP} certs
 mkdir -p ${RPM_BUILD_ROOT}%{CONFIG_DIR}/certs/
