@@ -1,21 +1,17 @@
 from datetime import datetime
 import pytest
-import time
-import os
-import re
 import json
 import sys
-import platform
+import tarfile
 from subprocess import Popen, PIPE, check_output
 import yaml
 import requests
-import urllib
 import socket
 from base64 import b64encode
 import warnings
 import subprocess
 from subprocess import check_call
-from bs4 import BeautifulSoup
+
 warnings.filterwarnings('ignore', message='Unverified HTTPS request')
 
 # ----------------------------- Aux functions -----------------------------
@@ -30,24 +26,29 @@ def read_services():
         services = p.stdout
     p.kill()
 
+def get_password(username):
+    pass_dict={'User': {'name': 'tmp_user', 'password': 'tmp_pass'}}
+    tmp_yaml=""
+
+    with tarfile.open("../../../unattended_installer/configurations.tar") as configurations:
+        configurations.extract("./password_file.yml")
+
+    with open("./password_file.yml", 'r') as pass_file:
+        while pass_dict["User"]["name"] != username:
+            for i in range(3):
+                tmp_yaml+=pass_file.readline()
+                pass_dict=yaml.safe_load(tmp_yaml)
+    return pass_dict["User"]["password"]
+
 def get_wazuh_version():
     wazuh_version = None
     wazuh_version = subprocess.getoutput('/var/ossec/bin/wazuh-control info | grep VERSION | cut -d "=" -f2 | sed s/\\"//g')
     return wazuh_version
 
-def get_indexer_password():
-    stream = open("/etc/filebeat/filebeat.yml", 'r')
-    dictionary = yaml.safe_load(stream)
-    return (dictionary.get('output.elasticsearch','password').get('password'))
-
-def get_indexer_username():
-    stream = open("/etc/filebeat/filebeat.yml", 'r')
-    dictionary = yaml.safe_load(stream)
-    return (dictionary.get('output.elasticsearch','username').get('username'))
-
 def get_indexer_ip():
-    stream = open("/etc/wazuh-indexer/opensearch.yml", 'r')
-    dictionary = yaml.safe_load(stream)
+    
+    with open("/etc/wazuh-indexer/opensearch.yml", 'r') as stream:
+        dictionary = yaml.safe_load(stream)
     return (dictionary.get('network.host'))
 
 def api_call_elasticsearch(host,query,address,api_protocol,api_user,api_pass,api_port):
@@ -73,29 +74,19 @@ def api_call_elasticsearch(host,query,address,api_protocol,api_user,api_pass,api
     response = resp.json()
     return response
 
-def get_dashboards_password():
-    stream = open("/etc/wazuh-dashboards/dashboards.yml", 'r')
-    dictionary = yaml.safe_load(stream)
-    return (dictionary.get('opensearch.password'))
-
-def get_dashboards_username():
-    stream = open("/etc/wazuh-dashboards/dashboards.yml", 'r')
-    dictionary = yaml.safe_load(stream)
-    return (dictionary.get('opensearch.username'))
-
 def get_elasticsearch_cluster_status():
     ip = get_indexer_ip()
     resp = requests.get('https://'+ip+':9700/_cluster/health',
-                        auth=(get_indexer_username(),
-                        get_indexer_password()),
+                        auth=("admin",
+                        get_password("admin")),
                         verify=False)
     return (resp.json()['status'])
 
-def get_dashboards_status():
+def get_dashboard_status():
     ip = get_indexer_ip()
     resp = requests.get('https://'+ip,
-                        auth=(get_dashboards_username(),
-                        get_dashboards_password()),
+                        auth=("kibanaserver",
+                        get_password("kibanaserver")),
                         verify=False)
     return (resp.status_code)
 
@@ -174,9 +165,9 @@ def test_check_filebeat_process():
 def test_check_elasticsearch_process():
     assert check_call("ps -xa | grep \"/usr/share/wazuh-indexer/jdk/bin/java\" | grep -v grep | cut -d \" \" -f15", shell=True) != ""
 
-@pytest.mark.dashboards
-def test_check_dashboards_process():
-    assert check_call("ps -xa | grep \"/usr/share/wazuh-dashboards/bin/../node/bin/node\" | grep -v grep", shell=True) != ""
+@pytest.mark.dashboard
+def test_check_dashboard_process():
+    assert check_call("ps -xa | grep \"/usr/share/wazuh-dashboard/bin/../node/bin/node\" | grep -v grep", shell=True) != ""
 
 @pytest.mark.indexer
 def test_check_elasticsearch_cluster_status_not_red():
@@ -186,9 +177,9 @@ def test_check_elasticsearch_cluster_status_not_red():
 def test_check_elasticsearch_cluster_status_not_yellow():
     assert get_elasticsearch_cluster_status() != "yellow"
 
-@pytest.mark.dashboards
-def test_check_dashboards_status():
-    assert get_dashboards_status() == 200
+@pytest.mark.dashboard
+def test_check_dashboard_status():
+    assert get_dashboard_status() == 200
 
 @pytest.mark.wazuh
 def test_check_wazuh_api_status():
@@ -261,7 +252,7 @@ def test_check_alerts():
         }
     }
 
-    response = api_call_elasticsearch(get_indexer_ip(),query,get_indexer_ip(),'https',get_indexer_username(),get_indexer_password(),'9700')
+    response = api_call_elasticsearch(get_indexer_ip(),query,get_indexer_ip(),'https',"admin",get_password("admin"),'9700')
 
     print(response)
 
