@@ -54,7 +54,7 @@ override_dh_auto_install:
 
 override_dh_install:
 	if [ "$(BASE)" = "s3" ]; then \
-		curl -kOL https://s3.amazonaws.com/warehouse.wazuh.com/stack/dashboard/$(DASHBOARD_FILE) ;\
+		curl -kOL https://packages-dev.wazuh.com/stack/dashboard/base/$(DASHBOARD_FILE) ;\
 	else \
 		cp /root/output/wazuh-dashboard-base-$(BASE_VERSION)-linux-x64.tar.xz ./ ;\
 	fi

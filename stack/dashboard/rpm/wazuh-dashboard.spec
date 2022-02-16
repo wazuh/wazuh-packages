@@ -47,7 +47,7 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 
 # Set up required files
 if [ "%{_base}" = "s3" ];then
-    curl -kOL https://s3.amazonaws.com/warehouse.wazuh.com/stack/dashboard/%{DASHBOARD_FILE}
+    curl -kOL https://packages-dev.wazuh.com/stack/dashboard/base/%{DASHBOARD_FILE}
 else
     cp /root/output/wazuh-dashboard-base-%{version}-linux-x64.tar.xz ./
 fi
