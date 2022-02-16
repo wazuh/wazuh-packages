@@ -10,7 +10,7 @@ nodes:
 
   # Wazuh server nodes
   # Use node_type only with more than one Wazuh manager
-  wazuh_servers:
+  server:
     name: wazuh-1
     ip: <wazuh-manager-ip>
     # node_type: master
