@@ -40,11 +40,7 @@ function getHelp() {
 
 function main() {
 
-    if [ "$EUID" -ne 0 ]; then
-        common_logger -e "This script must be run as root."
-        exit 1
-    fi
-
+    common_checkRoot
     cert_checkOpenSSL
 
     if [[ -d ${base_path}/certs ]]; then

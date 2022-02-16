@@ -270,8 +270,8 @@ function passwords_restartService() {
             if [ -n "$(command -v journalctl)" ]; then
                 eval "journalctl -u ${1} >> ${logfile}"
             fi
-            if [[ $(type -t common_rollBack) == "function" ]]; then
-                common_rollBack
+            if [[ $(type -t installCommon_rollBack) == "function" ]]; then
+                installCommon_rollBack
             fi
             exit 1;
         else
@@ -284,8 +284,8 @@ function passwords_restartService() {
             if [ -n "$(command -v journalctl)" ]; then
                 eval "journalctl -u ${1} >> ${logfile}"
             fi
-            if [[ $(type -t common_rollBack) == "function" ]]; then
-                common_rollBack
+            if [[ $(type -t installCommon_rollBack) == "function" ]]; then
+                installCommon_rollBack
             fi
             exit 1;
         else
@@ -298,16 +298,16 @@ function passwords_restartService() {
             if [ -n "$(command -v journalctl)" ]; then
                 eval "journalctl -u ${1} >> ${logfile}"
             fi
-            if [[ $(type -t common_rollBack) == "function" ]]; then
-                common_rollBack
+            if [[ $(type -t installCommon_rollBack) == "function" ]]; then
+                installCommon_rollBack
             fi
             exit 1;
         else
             common_logger -d "${1^} started"
         fi
     else
-        if [[ $(type -t common_rollBack) == "function" ]]; then
-            common_rollBack
+        if [[ $(type -t installCommon_rollBack) == "function" ]]; then
+            installCommon_rollBack
         fi
         common_logger -e "${1^} could not start. No service manager found on the system."
         exit 1;

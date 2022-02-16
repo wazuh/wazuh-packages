@@ -55,6 +55,8 @@ function getHelp() {
 
 function main() {
 
+    common_checkRoot
+
     if [ -n "${1}" ]; then
         while [ -n "${1}" ]
         do

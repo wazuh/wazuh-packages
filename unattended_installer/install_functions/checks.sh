@@ -74,7 +74,7 @@ function checks_arguments() {
 
         if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ] || [ -n "${indexerinstalled}" ] || [ -n "${indexer_remaining_files}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ] || [ -n "${dashboardinstalled}" ] || [ -n "${dashboard_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
-                common_rollBack
+                installCommon_rollBack
             else
                 common_logger -e "Some the Wazuh components were found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. NOTE: This will erase all the existing configuration and data."
                 exit 1
@@ -88,7 +88,7 @@ function checks_arguments() {
 
         if [ -n "${indexerinstalled}" ] || [ -n "${indexer_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
-                common_rollBack
+                installCommon_rollBack
             else
                 common_logger -e "Elasticsearch is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
@@ -101,7 +101,7 @@ function checks_arguments() {
     if [ -n "${dashboard}" ]; then
         if [ -n "${dashboardinstalled}" ] || [ -n "${dashboard_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
-                common_rollBack
+                installCommon_rollBack
             else
                 common_logger -e "Wazuh Dashboard is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
@@ -114,7 +114,7 @@ function checks_arguments() {
     if [ -n "${wazuh}" ]; then
         if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
-                common_rollBack
+                installCommon_rollBack
             else
                 common_logger -e "Wazuh is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
@@ -123,7 +123,7 @@ function checks_arguments() {
 
         if [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
-                common_rollBack
+                installCommon_rollBack
             else
                 common_logger -e "Filebeat is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1

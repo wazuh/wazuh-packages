@@ -73,6 +73,8 @@ function getHelp() {
 
 function main() {
 
+    common_checkRoot
+
     if [ -z "${1}" ]; then
         common_getHelp
     fi
@@ -183,12 +185,6 @@ function main() {
         development=1
     done
 
-    if [ "${EUID}" -ne 0 ]; then
-        common_logger -e "This script must be run as root."
-        exit 1
-    fi
-
-
     if [ -n "${development}" ]; then
         repogpg="https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH"
         repobaseurl="https://packages-dev.wazuh.com/pre-release"
@@ -197,7 +193,7 @@ function main() {
     fi
 
     if [ -z "${disableSpinner}" ]; then
-        common_spin &
+        installCommon_spin &
         spin_pid=$!
         trap "kill -9 ${spin_pid} ${debug}" EXIT
     fi
@@ -211,7 +207,7 @@ function main() {
     if [ -n "${uninstall}" ]; then
         common_logger "-------------------------------------- Uninstall --------------------------------------"
         common_logger "Removing all installed components."
-        common_rollBack
+        installCommon_rollBack
         common_logger "All components removed."
         exit 0
     fi
@@ -240,81 +236,21 @@ function main() {
         if [ -n "${configurations}" ]; then
             cert_checkOpenSSL
         fi
-        common_createCertificates
+        installCommon_createCertificates
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
-            common_createClusterKey
+            installCommon_createClusterKey
         fi
         gen_file="${base_path}/certs/password_file.yml"
         passwords_generatePasswordFile
         # Using cat instead of simple cp because OpenSUSE unknown error.
-        eval "cat '${config_file}' > function common_getHelp() {
-
-    echo -e ""
-    echo -e "NAME"
-    echo -e "        $(basename "$0") - Install and configure Wazuh central components."
-    echo -e ""
-    echo -e "SYNOPSIS"
-    echo -e "        $(basename "$0") [OPTIONS] -a | -c | -s | -wi <indexer-node-name> | -wd <dashboards-node-name> | -ws <wazuh-node-name>"
-    echo -e ""
-    echo -e "DESCRIPTION"
-    echo -e "        -a,  --all-in-one"
-    echo -e "                All-In-One installation."
-    echo -e ""
-    echo -e "        -c,  --create-configurations"
-    echo -e "                Creates configurations.tar file containing config.yml, certificates, passwords and cluster key."
-    echo -e ""
-    echo -e "        -d,  --development"
-    echo -e "                Uses development repository."
-    echo -e ""
-    echo -e "        -ds,  --disable-spinner"
-    echo -e "                Disables the spinner indicator."
-    echo -e ""
-    echo -e ""
-    echo -e "        -f,  --fileconfig <path-to-config-yml>"
-    echo -e "                Path to config file. By default: ${base_path}/config.yml"
-    echo -e ""
-    echo -e "        -F,  --force-dashboard"
-    echo -e "                Ignore indexer cluster related errors in Wazuh Dashboard installation"
-    echo -e ""
-    echo -e "        -h,  --help"
-    echo -e "                Shows help."
-    echo -e ""
-    echo -e "        -i,  --ignore-health-check"
-    echo -e "                Ignores the health-check."
-    echo -e ""
-    echo -e "        -o,  --overwrite"
-    echo -e "                Overwrites previously installed components. NOTE: This will erase all the existing configuration and data."
-    echo -e ""
-    echo -e "        -s,  --start-cluster"
-    echo -e "                Starts the indexer cluster."
-    echo -e ""
-    echo -e "        -t,  --tar <path-to-certs-tar>"
-    echo -e "                Path to tar containing certificate files. By default: ${base_path}/configurations.tar"
-    echo -e ""
-    echo -e "        -u,  --uninstall"
-    echo -e "                Uninstalls all Wazuh components. NOTE: This will erase all the existing configuration and data."
-    echo -e ""
-    echo -e "        -v,  --verbose"
-    echo -e "                Shows the complete installation output."
-    echo -e ""
-    echo -e "        -wd,  --wazuh-dashboards <dashboards-node-name>"
-    echo -e "                Wazuh dashboards installation."
-    echo -e ""
-    echo -e "        -wi,  --wazuh-indexer <indexer-node-name>"
-    echo -e "                Wazuh indexer installation."
-    echo -e ""
-    echo -e "        -ws,  --wazuh-server <wazuh-node-name>"
-    echo -e "                Wazuh server installation. It includes Filebeat."
-    exit 1
-
-}'${base_path}/certs/config.yml'"
+        eval "cat '${config_file}' > '${base_path}/certs/config.yml'"
         eval "tar -zcf '${tar_file}' -C '${base_path}/certs/' . ${debug}"
         eval "rm -rf '${base_path}/certs' ${debug}"
         common_logger "Configuration files created: ${tar_file}"
     fi
 
     if [ -z "${configurations}" ]; then
-        common_extractConfig
+        installCommon_extractConfig
         cert_readConfig
         rm -f "${config_file}"
     fi
@@ -327,8 +263,8 @@ function main() {
 # -------------- Prerequisites and Wazuh repo  ----------------------
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
         common_logger "------------------------------------ Dependencies -------------------------------------"
-        common_installPrerequisites
-        common_addWazuhRepo
+        installCommon_installPrerequisites
+        installCommon_addWazuhRepo
     fi
 
 # -------------- Wazuh Indexer case -------------------------------
@@ -337,7 +273,7 @@ function main() {
         common_logger "------------------------------------ Wazuh indexer ------------------------------------"
         indexer_install
         indexer_configure
-        common_startService "wazuh-indexer"
+        installCommon_startService "wazuh-indexer"
         indexer_initialize
     fi
 
@@ -345,7 +281,7 @@ function main() {
 
     if [ -n "${start_elastic_cluster}" ]; then
         indexer_startCluster
-        common_changePasswords
+        installCommon_changePasswords
     fi
 
 # -------------- Wazuh Dashboard case  ------------------------------
@@ -355,8 +291,8 @@ function main() {
 
         dashboard_install
         dashboard_configure
-        common_changePasswords
-        common_startService "wazuh-dashboard"
+        installCommon_changePasswords
+        installCommon_startService "wazuh-dashboard"
         dashboard_initialize
 
     fi
@@ -370,11 +306,11 @@ function main() {
         if [ -n "${wazuh_servers_node_types[*]}" ]; then
             manager_startCluster
         fi
-        common_startService "wazuh-manager"
+        installCommon_startService "wazuh-manager"
         filebeat_install
         filebeat_configure
-        common_changePasswords
-        common_startService "filebeat"
+        installCommon_changePasswords
+        installCommon_startService "filebeat"
     fi
 
 # -------------- AIO case  ------------------------------------------
@@ -384,26 +320,26 @@ function main() {
         common_logger "------------------------------------ Wazuh indexer ------------------------------------"
         indexer_install
         indexer_configure
-        common_startService "wazuh-indexer"
+        installCommon_startService "wazuh-indexer"
         indexer_initialize
         common_logger "------------------------------------- Wazuh server ------------------------------------"
         manager_install
-        common_startService "wazuh-manager"
+        installCommon_startService "wazuh-manager"
         filebeat_install
         filebeat_configure
-        common_startService "filebeat"
+        installCommon_startService "filebeat"
         common_logger "---------------------------------- Wazuh dashboard -----------------------------------"
         dashboard_install
         dashboard_configure
-        common_startService "wazuh-dashboard"
-        common_changePasswords
+        installCommon_startService "wazuh-dashboard"
+        installCommon_changePasswords
         dashboard_initializeAIO
     fi
 
 # -------------------------------------------------------------------
 
     if [ -z "${configurations}" ]; then
-        common_restoreWazuhrepo
+        installCommon_restoreWazuhrepo
     fi
 
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then

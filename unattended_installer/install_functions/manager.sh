@@ -53,7 +53,7 @@ function manager_install() {
     fi
     if [  "$?" != 0  ]; then
         common_logger -e "Wazuh installation failed"
-        common_rollBack
+        installCommon_rollBack
         exit 1
     else
         wazuhinstalled="1"
