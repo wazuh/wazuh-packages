@@ -47,7 +47,7 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 
 # Set up required files
 if [ "%{_base}" = "s3" ];then
-    curl -kOL https://s3.amazonaws.com/warehouse.wazuh.com/stack/dashboard/%{DASHBOARD_FILE}
+    curl -kOL https://packages-dev.wazuh.com/stack/dashboard/base/%{DASHBOARD_FILE}
 else
     cp /root/output/wazuh-dashboard-base-%{version}-linux-x64.tar.xz ./
 fi
@@ -86,6 +86,7 @@ cp %{buildroot}%{INSTALL_DIR}/etc/custom_welcome/Assets/default_branding/wazuh_m
 cp %{buildroot}%{INSTALL_DIR}/etc/custom_welcome/Assets/Favicons/* %{buildroot}%{INSTALL_DIR}/src/core/server/core_app/assets/favicons/
 cp %{buildroot}%{INSTALL_DIR}/etc/custom_welcome/Assets/Favicons/favicon-32x32.png %{buildroot}%{INSTALL_DIR}/src/core/server/core_app/assets/favicons/favicon.ico
 cp %{buildroot}%{INSTALL_DIR}/etc/opensearch_dashboards_config.js %{buildroot}%{INSTALL_DIR}/src/core/server/opensearch_dashboards_config.js
+cp %{buildroot}%{INSTALL_DIR}/etc/http_service.js %{buildroot}%{INSTALL_DIR}/src/core/server/http/http_service.js
 
 mkdir -p %{buildroot}%{INSTALL_DIR}/config
 
@@ -97,7 +98,7 @@ chmod 640 %{buildroot}/etc/init.d/wazuh-dashboard
 chmod 640 %{buildroot}/etc/systemd/system/wazuh-dashboard.service 
 chmod 640 %{buildroot}/etc/default/wazuh-dashboard
 
-curl -O https://s3.amazonaws.com/warehouse.wazuh.com/stack/demo-certs.tar.gz
+curl -O https://packages-dev.wazuh.com/stack/demo-certs.tar.gz
 
 tar -xf demo-certs.tar.gz && rm -f demo-certs.tar.gz
 
@@ -118,7 +119,7 @@ chown %{USER}:%{GROUP} %{buildroot}/etc/init.d/wazuh-dashboard
 
 
 
-runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install https://s3.amazonaws.com/warehouse.wazuh.com/stack/dashboard/wazuh-1.2.0.zip" 
+runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-%{version}.zip" 
 find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -exec chown %{USER}:%{GROUP} {} \;
 
 # -----------------------------------------------------------------------------
@@ -134,6 +135,12 @@ if [ $1 = 1 ]; then
   # Create the wazuh-dashboard user if it doesn't exists
   if ! id -u %{USER} > /dev/null 2>&1; then
     useradd -g %{GROUP} -G %{USER} -d %{INSTALL_DIR}/ -r -s /sbin/nologin wazuh-dashboard
+  fi
+  if [ -d %{LOG_DIR} ]; then
+      chown -R %{USER}:%{GROUP} %{LOG_DIR}
+  else
+      mkdir -p %{LOG_DIR}
+      chown %{USER}:%{GROUP} %{LOG_DIR}
   fi
 fi
 # Stop the services to upgrade the package
@@ -153,10 +160,11 @@ fi
 %post
 setcap 'cap_net_bind_service=+ep' %{INSTALL_DIR}/node/bin/node
 
-runuser %{USER} --shell="/bin/bash" --command="%{INSTALL_DIR}/bin/opensearch-dashboards-keystore create" > /dev/null 2>&1
-runuser %{USER} --shell="/bin/bash" --command="echo kibanaserver | %{INSTALL_DIR}/bin/opensearch-dashboards-keystore add opensearch.username --stdin" > /dev/null 2>&1
-runuser %{USER} --shell="/bin/bash" --command="echo kibanaserver | %{INSTALL_DIR}/bin/opensearch-dashboards-keystore add opensearch.password --stdin" > /dev/null 2>&1
-
+if [ ! -f %{INSTALLATION_DIR}/config/opensearch_dashboards.keystore ]; then
+  runuser %{USER} --shell="/bin/bash" --command="%{INSTALL_DIR}/bin/opensearch-dashboards-keystore create" > /dev/null 2>&1
+  runuser %{USER} --shell="/bin/bash" --command="echo kibanaserver | %{INSTALL_DIR}/bin/opensearch-dashboards-keystore add opensearch.username --stdin" > /dev/null 2>&1
+  runuser %{USER} --shell="/bin/bash" --command="echo kibanaserver | %{INSTALL_DIR}/bin/opensearch-dashboards-keystore add opensearch.password --stdin" > /dev/null 2>&1
+fi
 # -----------------------------------------------------------------------------
 
 %preun
@@ -200,10 +208,6 @@ fi
 
 # posttrans code is the last thing executed in a install/upgrade
 %posttrans
-if [ ! -d %{LOG_DIR} ]; then
-    mkdir -p %{LOG_DIR}
-    chown %{USER}:%{GROUP} %{LOG_DIR}
-fi
 if [ ! -d %{PID_DIR} ]; then
     mkdir -p %{PID_DIR}
     chown %{USER}:%{GROUP} %{PID_DIR}

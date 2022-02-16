@@ -54,7 +54,7 @@ override_dh_auto_install:
 
 override_dh_install:
 	if [ "$(BASE)" = "s3" ]; then \
-		curl -kOL https://s3.amazonaws.com/warehouse.wazuh.com/stack/dashboard/$(DASHBOARD_FILE) ;\
+		curl -kOL https://packages-dev.wazuh.com/stack/dashboard/base/$(DASHBOARD_FILE) ;\
 	else \
 		cp /root/output/wazuh-dashboard-base-$(BASE_VERSION)-linux-x64.tar.xz ./ ;\
 	fi
@@ -83,6 +83,7 @@ override_dh_install:
 	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/custom_welcome/Assets/Favicons/* $(TARGET_DIR)$(INSTALLATION_DIR)/src/core/server/core_app/assets/favicons/
 	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/custom_welcome/Assets/Favicons/favicon-32x32.png $(TARGET_DIR)$(INSTALLATION_DIR)/src/core/server/core_app/assets/favicons/favicon.ico
 	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/opensearch_dashboards_config.js $(TARGET_DIR)$(INSTALLATION_DIR)/src/core/server/opensearch_dashboards_config.js
+	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/http_service.js $(TARGET_DIR)$(INSTALLATION_DIR)/src/core/server/http/http_service.js
 
 
 	mkdir -p $(TARGET_DIR)$(INSTALLATION_DIR)/config
@@ -97,7 +98,7 @@ override_dh_install:
 
 	rm -rf $(TARGET_DIR)$(INSTALLATION_DIR)/etc
 
-	curl -O https://s3.amazonaws.com/warehouse.wazuh.com/stack/demo-certs.tar.gz
+	curl -O https://packages-dev.wazuh.com/stack/demo-certs.tar.gz
 
 	tar -xf demo-certs.tar.gz
 
@@ -114,7 +115,7 @@ override_dh_install:
 	chown $(USER):$(GROUP) $(TARGET_DIR)/etc/systemd/system/$(NAME)
 	chown $(USER):$(GROUP) $(TARGET_DIR)/etc/default/$(NAME)
 
-	runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install https://s3.amazonaws.com/warehouse.wazuh.com/stack/dashboard/wazuh-1.2.0.zip" 
+	runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-$(BASE_VERSION).zip" 
 
 	find $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/wazuh/ -exec chown $(USER):$(GROUP) {} \;
 
