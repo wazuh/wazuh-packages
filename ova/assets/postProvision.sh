@@ -8,7 +8,7 @@ ASSETS_PATH="${CURRENT_PATH}/assets"
 CUSTOM_PATH="${ASSETS_PATH}/custom"
 SYSTEM_USER="wazuh-user"
 
-systemctl stop wazuh-manager elasticsearch filebeat kibana
+systemctl stop wazuh-manager wazuh-indexer filebeat wazuh-dashboard
 
 # Remove everything related to vagrant
 mv ${CUSTOM_PATH}/removeVagrant.service /etc/systemd/system/

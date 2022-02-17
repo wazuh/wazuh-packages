@@ -22,7 +22,7 @@ scriptpath=$(
 OUTPUT_DIR="${scriptpath}/output"
 CHECKSUM_DIR="${scriptpath}/checksum"
 
-UNATTENDED_RESOURCES_FOLDER="unattended_scripts"
+UNATTENDED_RESOURCES_FOLDER="unattended_installer"
 UNATTENDED_PATH="../${UNATTENDED_RESOURCES_FOLDER}"
 UNATTENDED_SCRIPT="wazuh_install.sh"
 
@@ -178,8 +178,7 @@ main() {
     cp -r ../${UNATTENDED_RESOURCES_FOLDER} .
 
     WAZUH_VERSION=$(cat ${UNATTENDED_PATH}/${UNATTENDED_SCRIPT} | grep "wazuh_version=" | cut -d "\"" -f 2)
-    OPENDISTRO_VERSION=$(cat ${UNATTENDED_PATH}/${UNATTENDED_SCRIPT} | grep "elasticsearch_oss_version=" | cut -d "\"" -f 2)
-    OVA_VERSION="${WAZUH_VERSION}_${OPENDISTRO_VERSION}"
+    OVA_VERSION="${WAZUH_VERSION}"
 
     # Build OVA file (no standard)
     echo "Version to build: ${OVA_VERSION} with ${REPO} repository"
@@ -188,7 +187,7 @@ main() {
     rm -rf ${UNATTENDED_RESOURCES_FOLDER}
 
     # Standarize OVA
-    bash setOVADefault.sh "${scriptpath}" "${OUTPUT_DIR}/${OVA_VM}" "${OUTPUT_DIR}/${OVA_VM}" "${scriptpath}/wazuh_ovf_template" "${WAZUH_VERSION}" "${OPENDISTRO_VERSION}" || clean 1
+    bash setOVADefault.sh "${scriptpath}" "${OUTPUT_DIR}/${OVA_VM}" "${OUTPUT_DIR}/${OVA_VM}" "${scriptpath}/wazuh_ovf_template" "${WAZUH_VERSION}"  || clean 1
     
     if [ "${CHECKSUM}" = "yes" ]; then
         mkdir -p ${CHECKSUM_DIR}

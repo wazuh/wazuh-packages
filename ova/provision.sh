@@ -3,7 +3,7 @@
 PACKAGES_REPOSITORY=$1
 DEBUG=$2
 
-RESOURCES_PATH="/tmp/unattended_scripts"
+RESOURCES_PATH="/tmp/unattended_installer"
 INSTALLER="wazuh_install.sh"
 WAZUH_VERSION=$(cat ${RESOURCES_PATH}/${INSTALLER} | grep "wazuh_version=" | cut -d "\"" -f 2)
 SYSTEM_USER="wazuh-user"
@@ -34,7 +34,7 @@ preInstall
 
 bash ${RESOURCES_PATH}/${INSTALLER} ${BASH_ARGS}
 
-systemctl stop kibana filebeat elasticsearch
+systemctl stop wazuh-dashboard filebeat wazuh-installer
 systemctl enable wazuh-manager
 
 clean
