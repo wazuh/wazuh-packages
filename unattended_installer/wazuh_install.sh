@@ -83,7 +83,7 @@ function getHelp() {
     echo -e "        -f,  --fileconfig <path-to-config-yml>"
     echo -e "                Path to config file. By default: ${base_path}/config.yml"
     echo -e ""
-    echo -e "        -F,  --force-dashboards"
+    echo -e "        -F,  --force-dashboard"
     echo -e "                Ignore indexer cluster related errors in kibana installation"
     echo -e ""
     echo -e "        -h,  --help"
@@ -110,8 +110,8 @@ function getHelp() {
     echo -e "        -v,  --verbose"
     echo -e "                Shows the complete installation output."
     echo -e ""
-    echo -e "        -wd,  --wazuh-dashboards <dashboards-node-name>"
-    echo -e "                Wazuh dashboards installation."
+    echo -e "        -wd,  --wazuh-dashboard <dashboard-node-name>"
+    echo -e "                Wazuh dashboard installation."
     echo -e ""
     echo -e "        -wi,  --wazuh-indexer <indexer-node-name>"
     echo -e "                Wazuh indexer installation."
@@ -165,7 +165,6 @@ function logger() {
     now=$(date +'%d/%m/%Y %H:%M:%S')
     mtype="INFO:"
     debugLogger=
-    disableHeader=
     if [ -n "${1}" ]; then
         while [ -n "${1}" ]; do
             case ${1} in
@@ -179,6 +178,7 @@ function logger() {
                     ;;
                 "-d")
                     debugLogger=1
+                    mtype="DEBUG:"
                     shift 1
                     ;;
                 *)
@@ -270,13 +270,13 @@ function main() {
                 debug="2>&1 | tee -a ${logfile}"
                 shift 1
                 ;;
-            "-wd"|"--wazuh-dashboards")
+            "-wd"|"--wazuh-dashboard")
                 if [ -z "${2}" ]; then
-                    logger -e "Error on arguments. Probably missing <node-name> after -wd|---wazuh-dashboards"
+                    logger -e "Error on arguments. Probably missing <node-name> after -wd|---wazuh-dashboard"
                     getHelp
                     exit 1
                 fi
-                dashboards=1
+                dashboard=1
                 dashname="${2}"
                 shift 2
                 ;;
@@ -372,7 +372,7 @@ function main() {
             checkOpenSSL
         fi
         common_createCertificates
-        if [ -n "${wazuh_servers_node_types[*]}" ]; then
+        if [ -n "${server_node_types[*]}" ]; then
             common_createClusterKey
         fi
         gen_file="${base_path}/certs/password_file.yml"
@@ -391,12 +391,12 @@ function main() {
     fi
 
     # Distributed architecture: node names must be different
-    if [[ -z "${AIO}" && ( -n "${indexer}"  || -n "${dashboards}" || -n "${wazuh}" )]]; then
+    if [[ -z "${AIO}" && ( -n "${indexer}"  || -n "${dashboard}" || -n "${wazuh}" )]]; then
         checks_names
     fi
 
 # -------------- Prerequisites and Wazuh repo  ----------------------
-    if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboards}" ] || [ -n "${wazuh}" ]; then
+    if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
         logger "------------------------------------ Dependencies -------------------------------------"
         common_installPrerequisites
         common_addWazuhRepo
@@ -426,16 +426,16 @@ function main() {
 
 # -------------- Kibana case  ---------------------------------------
 
-    if [ -n "${dashboards}" ]; then
-        logger "---------------------------------- Wazuh dashboards -----------------------------------"
+    if [ -n "${dashboard}" ]; then
+        logger "---------------------------------- Wazuh dashboard -----------------------------------"
 
-        importFunction "dashboards.sh"
+        importFunction "dashboard.sh"
 
-        dashboards_install
-        dashboards_configure
+        dashboard_install
+        dashboard_configure
         common_changePasswords
-        common_startService "wazuh-dashboards"
-        dashboards_initialize
+        common_startService "wazuh-dashboard"
+        dashboard_initialize
 
     fi
 
@@ -448,7 +448,7 @@ function main() {
         importFunction "filebeat.sh"
 
         manager_install
-        if [ -n "${wazuh_servers_node_types[*]}" ]; then
+        if [ -n "${server_node_types[*]}" ]; then
             manager_startCluster
         fi
         common_startService "wazuh-manager"
@@ -465,7 +465,7 @@ function main() {
         importFunction "manager.sh"
         importFunction "filebeat.sh"
         importFunction "indexer.sh"
-        importFunction "dashboards.sh"
+        importFunction "dashboard.sh"
 
         logger "------------------------------------ Wazuh indexer ------------------------------------"
         indexer_install
@@ -478,12 +478,12 @@ function main() {
         filebeat_install
         filebeat_configure
         common_startService "filebeat"
-        logger "---------------------------------- Wazuh dashboards -----------------------------------"
-        dashboards_install
-        dashboards_configure
-        common_startService "wazuh-dashboards"
+        logger "---------------------------------- Wazuh dashboard -----------------------------------"
+        dashboard_install
+        dashboard_configure
+        common_startService "wazuh-dashboard"
         common_changePasswords
-        dashboards_initializeAIO
+        dashboard_initializeAIO
     fi
 
 # -------------------------------------------------------------------
@@ -492,7 +492,7 @@ function main() {
         common_restoreWazuhrepo
     fi
 
-    if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboards}" ] || [ -n "${wazuh}" ]; then
+    if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
         logger "Installation finished. You can find in ${tar_file} all the certificates created, as well as password_file.yml, with the passwords for all users and config.yml, with the nodes of all of the components and their ips."
     elif [ -n "${start_elastic_cluster}" ]; then
         logger "Elasticsearch cluster started."

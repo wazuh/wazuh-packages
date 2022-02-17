@@ -25,12 +25,13 @@ function checks_arguments() {
             exit 1
     fi
 
-    if [[ -n "${configurations}" && ( -n "${AIO}" || -n "${indexer}" || -n "${dashboards}" || -n "${wazuh}" || -n "${overwrite}" || -n "${start_elastic_cluster}" || -n "${tar_conf}" || -n "${uninstall}" ) ]]; then
+    if [[ -n "${configurations}" && ( -n "${AIO}" || -n "${indexer}" || -n "${dashboard}" || -n "${wazuh}" || -n "${overwrite}" || -n "${start_elastic_cluster}" || -n "${tar_conf}" || -n "${uninstall}" ) ]]; then
         logger -e "The argument -c|--create-configurations can't be used with -a, -k, -e, -u or -w arguments."
         exit 1
     fi
 
     # -------------- Overwrite --------------------------------------
+
 
     if [ -n "${overwrite}" ] && [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ]; then
         logger -e "The argument -o|--overwrite must be used with -a, -k, -e or -w. If you want to uninstall all the components use -u|--uninstall"
@@ -49,11 +50,11 @@ function checks_arguments() {
             logger "Filebeat components were not found on the system so it was not uninstalled."
         fi
 
-        if [ -z "${indexerchinstalled}" ] && [ -z "${indexer_remaining_files}" ]; then
+        if [ -z "${indexerinstalled}" ] && [ -z "${indexer_remaining_files}" ]; then
             logger "Elasticsearch components were not found on the system so it was not uninstalled."
         fi
 
-        if [ -z "${dashboardsinstalled}" ] && [ -z "${dashboards_remaining_files}" ]; then
+        if [ -z "${dashboardinstalled}" ] && [ -z "${dashboard_remaining_files}" ]; then
             logger "Kibana components were found on the system so it was not uninstalled."
         fi
 
@@ -72,9 +73,9 @@ function checks_arguments() {
             exit 1
         fi
 
-        if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ] || [ -n "${indexerchinstalled}" ] || [ -n "${indexer_remaining_files}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ] || [ -n "${dashboardsinstalled}" ] || [ -n "${dashboards_remaining_files}" ]; then
+        if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ] || [ -n "${indexerinstalled}" ] || [ -n "${indexer_remaining_files}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ] || [ -n "${dashboardinstalled}" ] || [ -n "${dashboard_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
-                rollBack
+                common_rollBack
             else
                 logger -e "Some the Wazuh components were found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. NOTE: This will erase all the existing configuration and data."
                 exit 1
@@ -86,9 +87,9 @@ function checks_arguments() {
 
     if [ -n "${indexer}" ]; then
 
-        if [ -n "${indexerchinstalled}" ] || [ -n "${indexer_remaining_files}" ]; then
+        if [ -n "${indexerinstalled}" ] || [ -n "${indexer_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
-                rollBack
+                common_rollBack
             else
                 logger -e "Elasticsearch is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
@@ -98,10 +99,10 @@ function checks_arguments() {
 
     # -------------- Kibana -----------------------------------------
 
-    if [ -n "${dashboards}" ]; then
-        if [ -n "${dashboardsinstalled}" ] || [ -n "${dashboards_remaining_files}" ]; then
+    if [ -n "${dashboard}" ]; then
+        if [ -n "${dashboardinstalled}" ] || [ -n "${dashboard_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
-                rollBack
+                common_rollBack
             else
                 logger -e "Kibana is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
@@ -114,7 +115,7 @@ function checks_arguments() {
     if [ -n "${wazuh}" ]; then
         if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
-                rollBack
+                common_rollBack
             else
                 logger -e "Wazuh is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
@@ -123,7 +124,7 @@ function checks_arguments() {
 
         if [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
-                rollBack
+                common_rollBack
             else
                 logger -e "Filebeat is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
@@ -133,14 +134,14 @@ function checks_arguments() {
 
     # -------------- Cluster start ----------------------------------
 
-    if [[ -n "${start_elastic_cluster}" && ( -n "${AIO}" || -n "${indexer}" || -n "${dashboards}" || -n "${wazuh}" || -n "${overwrite}" || -n "${configurations}" || -n "${tar_conf}" || -n "${uninstall}") ]]; then
+    if [[ -n "${start_elastic_cluster}" && ( -n "${AIO}" || -n "${indexer}" || -n "${dashboard}" || -n "${wazuh}" || -n "${overwrite}" || -n "${configurations}" || -n "${tar_conf}" || -n "${uninstall}") ]]; then
         logger -e "The argument -s|--start-cluster can't be used with -a, -k, -e or -w arguments."
         exit 1
     fi
 
     # -------------- Global -----------------------------------------
 
-    if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboards}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ] && [ -z "${configurations}" ] && [ -z "${uninstall}"]; then
+    if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ] && [ -z "${configurations}" ] && [ -z "${uninstall}"]; then
         logger -e "At least one of these arguments is necessary -a|--all-in-one, -c|--create-configurations, -e|--elasticsearch <elasticsearch-node-name>, -k|--kibana <kibana-node-name>, -s|--start-cluster, -w|--wazuh-server <wazuh-node-name>, -u|--uninstall"
         exit 1
     fi
@@ -239,7 +240,7 @@ function checks_health() {
         fi
     fi
 
-    if [ -n "${dashboards}" ]; then
+    if [ -n "${dashboard}" ]; then
         if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
             logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
             exit 1
@@ -283,11 +284,11 @@ function checks_installed() {
     fi
 
     if [ "${sys_type}" == "yum" ]; then
-        indexerchinstalled=$(yum list installed 2>/dev/null | grep wazuh-indexer | grep -v kibana)
+        indexerinstalled=$(yum list installed 2>/dev/null | grep wazuh-indexer | grep -v kibana)
     elif [ "${sys_type}" == "zypper" ]; then
-        indexerchinstalled=$(zypper packages | grep wazuh-indexer | grep -v kibana | grep i+)
+        indexerinstalled=$(zypper packages | grep wazuh-indexer | grep -v kibana | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
-        indexerchinstalled=$(apt list --installed 2>/dev/null | grep wazuh-indexer | grep -v kibana)
+        indexerinstalled=$(apt list --installed 2>/dev/null | grep wazuh-indexer | grep -v kibana)
     fi
 
     if [ -d "/var/lib/wazuh-indexer/" ] || [ -d "/usr/share/wazuh-indexer" ] || [ -d "/etc/wazuh-indexer" ] || [ -f "${base_path}/search-guard-tlstool*" ]; then
@@ -307,15 +308,15 @@ function checks_installed() {
     fi
 
     if [ "${sys_type}" == "yum" ]; then
-        dashboardsinstalled=$(yum list installed 2>/dev/null | grep wazuh-dashboards)
+        dashboardinstalled=$(yum list installed 2>/dev/null | grep wazuh-dashboard)
     elif [ "${sys_type}" == "zypper" ]; then
-        dashboardsinstalled=$(zypper packages | grep wazuh-dashboards | grep i+)
+        dashboardinstalled=$(zypper packages | grep wazuh-dashboard | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
-        dashboardsinstalled=$(apt list --installed  2>/dev/null | grep wazuh-dashboards)
+        dashboardinstalled=$(apt list --installed  2>/dev/null | grep wazuh-dashboard)
     fi
 
-    if [ -d "/var/lib/wazuh-dashboards/" ] || [ -d "/usr/share/wazuh-dashboards" ] || [ -d "/etc/wazuh-dashboards" ] || [ -d "/run/wazuh-dashboards/" ]; then
-        dashboards_remaining_files=1
+    if [ -d "/var/lib/wazuh-dashboard/" ] || [ -d "/usr/share/wazuh-dashboard" ] || [ -d "/etc/wazuh-dashboard" ] || [ -d "/run/wazuh-dashboard/" ]; then
+        dashboard_remaining_files=1
     fi
 
 }
@@ -338,7 +339,7 @@ function checks_names() {
         exit 1
     fi
 
-    if [ -n "${winame}" ] && [ -z "$(echo "${wazuh_servers_node_names[@]}" | grep -w "${winame}")" ]; then
+    if [ -n "${winame}" ] && [ -z "$(echo "${server_node_names[@]}" | grep -w "${winame}")" ]; then
         logger -e "The Wazuh server node name ${winame} does not appear on the configuration file."
         exit 1
     fi
@@ -348,7 +349,7 @@ function checks_names() {
         exit 1
     fi
 
-    if [ -n "${dashname}" ] && [ -z "$(echo "${dashboards_node_names[@]}" | grep -w "${dashname}")" ]; then
+    if [ -n "${dashname}" ] && [ -z "$(echo "${dashboard_node_names[@]}" | grep -w "${dashname}")" ]; then
         logger -e "The Kibana node name ${dashname} does not appear on the configuration file."
         exit 1
     fi

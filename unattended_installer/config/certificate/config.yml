@@ -4,13 +4,13 @@ nodes:
     name: node-1
     ip: <indexer-node-ip>
     # name: node-2
-    # ip: <elasticsearch-node-ip>
+    # ip: <indexer-node-ip>
     # name: node-3
-    # ip: <elasticsearch-node-ip>
+    # ip: <indexer-node-ip>
 
   # Wazuh server nodes
   # Use node_type only with more than one Wazuh manager
-  wazuh_servers:
+  server:
     name: wazuh-1
     ip: <wazuh-manager-ip>
     # node_type: master
@@ -18,7 +18,7 @@ nodes:
     # ip: <wazuh-manager-ip>
     # node_type: worker
 
-  # Wazuh dashboards node
-  dashboards:
-    name: dashboards
-    ip: <dashboards-node-ip>
+  # Wazuh dashboard node
+  dashboard:
+    name: dashboard
+    ip: <dashboard-node-ip>

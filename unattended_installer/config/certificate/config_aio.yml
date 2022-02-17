@@ -2,9 +2,9 @@ nodes:
   indexer:
     name: indexer
     ip: 127.0.0.1
-  wazuh_servers:
-    name: filebeat
+  server:
+    name: server
     ip: 127.0.0.1
-  dashboards:
-    name: dashboards
+  dashboard:
+    name: dashboard
     ip: 127.0.0.1
