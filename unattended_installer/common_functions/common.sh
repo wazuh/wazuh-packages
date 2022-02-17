@@ -1,4 +1,4 @@
-# Common functions for unattended installer and
+# Common functions for unattended installer,
 # wazuh-passwords-tool and wazuh-cert-tool
 # Copyright (C) 2015, Wazuh Inc.
 #

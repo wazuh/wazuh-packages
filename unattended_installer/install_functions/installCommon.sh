@@ -1,4 +1,3 @@
-#!/bin/bash
 # Wazuh installer - common.sh functions.
 # Copyright (C) 2015, Wazuh Inc.
 #
