@@ -258,7 +258,7 @@ function checks_names() {
         exit 1
     fi
 
-    if [ -n "${winame}" ] && [ -z "$(echo "${wazuh_servers_node_names[@]}" | grep -w "${winame}")" ]; then
+    if [ -n "${winame}" ] && [ -z "$(echo "${server_node_names[@]}" | grep -w "${winame}")" ]; then
         logger -e "The Wazuh server node name ${winame} does not appear on the configuration file."
         exit 1
     fi

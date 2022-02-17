@@ -51,7 +51,7 @@ def get_indexer_ip():
         dictionary = yaml.safe_load(stream)
     return (dictionary.get('network.host'))
 
-def api_call_elasticsearch(host,query,address,api_protocol,api_user,api_pass,api_port):
+def api_call_indexer(host,query,address,api_protocol,api_user,api_pass,api_port):
 
     if (query == ""):   # Calling ES API without query
         if (api_user != "" and api_pass != ""): # If credentials provided
@@ -74,7 +74,7 @@ def api_call_elasticsearch(host,query,address,api_protocol,api_user,api_pass,api
     response = resp.json()
     return response
 
-def get_elasticsearch_cluster_status():
+def get_indexer_cluster_status():
     ip = get_indexer_ip()
     resp = requests.get('https://'+ip+':9700/_cluster/health',
                         auth=("admin",
@@ -162,7 +162,7 @@ def test_check_filebeat_process():
     assert check_call("ps -xa | grep \"/usr/share/filebeat/bin/filebeat\" | grep -v grep", shell=True) != ""
 
 @pytest.mark.indexer
-def test_check_elasticsearch_process():
+def test_check_indexer_process():
     assert check_call("ps -xa | grep \"/usr/share/wazuh-indexer/jdk/bin/java\" | grep -v grep | cut -d \" \" -f15", shell=True) != ""
 
 @pytest.mark.dashboard
@@ -170,12 +170,12 @@ def test_check_dashboard_process():
     assert check_call("ps -xa | grep \"/usr/share/wazuh-dashboard/bin/../node/bin/node\" | grep -v grep", shell=True) != ""
 
 @pytest.mark.indexer
-def test_check_elasticsearch_cluster_status_not_red():
-    assert get_elasticsearch_cluster_status() != "red"
+def test_check_indexer_cluster_status_not_red():
+    assert get_indexer_cluster_status() != "red"
 
 @pytest.mark.indexer_cluster
-def test_check_elasticsearch_cluster_status_not_yellow():
-    assert get_elasticsearch_cluster_status() != "yellow"
+def test_check_indexer_cluster_status_not_yellow():
+    assert get_indexer_cluster_status() != "yellow"
 
 @pytest.mark.dashboard
 def test_check_dashboard_status():
@@ -252,7 +252,7 @@ def test_check_alerts():
         }
     }
 
-    response = api_call_elasticsearch(get_indexer_ip(),query,get_indexer_ip(),'https',"admin",get_password("admin"),'9700')
+    response = api_call_indexer(get_indexer_ip(),query,get_indexer_ip(),'https',"admin",get_password("admin"),'9700')
 
     print(response)
 
