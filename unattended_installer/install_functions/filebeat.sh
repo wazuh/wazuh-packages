@@ -29,6 +29,10 @@ function filebeat_configure(){
     eval "mkdir /etc/filebeat/certs ${debug}"
     filebeat_copyCertificates
 
+    eval "filebeat keystore create ${debug}"
+    eval "echo admin | filebeat keystore add username --force --stdin ${debug}"
+    eval "echo admin | filebeat keystore add password --force --stdin ${debug}"
+
     common_logger "Filebeat post-install configuration finished."
 }
 
