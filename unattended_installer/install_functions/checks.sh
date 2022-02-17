@@ -32,7 +32,8 @@ function checks_arguments() {
 
     # -------------- Overwrite --------------------------------------
 
-    if [ -n "${overwrite}" ] && [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ]; then 
+
+    if [ -n "${overwrite}" ] && [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ]; then
         logger -e "The argument -o|--overwrite must be used with -a, -k, -e or -w. If you want to uninstall all the components use -u|--uninstall"
         exit 1
     fi
@@ -145,6 +146,86 @@ function checks_arguments() {
         exit 1
     fi
 
+}
+
+function checkFirewalls() {
+
+
+    firewallsList=( "iptables"
+                    "nft"
+                    "ufw"
+                    "firewall-cmd")
+
+    portsTCPLists=( "1514"
+                    "1515"
+                    "1516"
+                    "55000"
+                    "9200"
+                    "9300"
+                    "9400"
+                    "443")
+
+    iptablesBlockedPortList=()
+    nftBlockedPortList=()
+    ufwBlockedPortList=()
+    firewall_cmdBlockedPortList=()
+
+    for command in "${firewallsList[@]}"; do
+
+        if [ -n "$(command -v ${command})" ]; then
+            logger -d "The $command command is present on this system. This could affect the correct communication between Wazuh components. We will proceed to try to validate firewall rules that may affect the processes and report what is found."
+
+            case ${command} in
+                iptables )
+                    for port in "${portsTCPLists[@]}"; do
+                        if [ -n "$(${command} -L -n | grep DROP | grep "^$port$" )" ]; then
+                            iptablesBlockedPortList+="${port}, "
+                        fi
+                    done
+                    ;;
+                nft )
+                    for port in "${portsTCPLists[@]}"; do
+                        if [ -n "$(${command} list ruleset | grep drop | grep "^$port$" )" ]; then
+                            nftBlockedPortList+="${port}, "
+                        fi
+                    done
+                    ;;
+                ufw )
+                    for port in "${portsTCPLists[@]}"; do
+                        if [ -n "$(cat /etc/ufw/user.rules | grep DROP | grep "^$port$" )" ]; then
+                            ufwBlockedPortList+="${port}, "
+                        fi
+                    done
+                    ;;
+                firewall-cmd )
+                    for port in "${portsTCPLists[@]}"; do
+                        if [ -n "$(${command}  --list-all | grep "^$port$" )" ]; then
+                            firewall_cmdBlockedPortList+="${port}, "
+                        fi
+                    done
+                    ;;
+            esac
+
+        fi
+    done
+
+    if [ -n "${iptablesBlockedPortList}" ]; then
+        logger "iptables blocked port report: ${iptablesBlockedPortList} this ports must be opened."
+    fi
+    if [ -n "${nftBlockedPortList}" ]; then
+        logger "nft blocked port report: ${nftBlockedPortList} this ports must be opened."
+    fi
+    if [ -n "${ufwBlockedPortList}" ]; then
+        logger "ufw blocked port report: ${ufwBlockedPortList} this ports must be opened."
+    fi
+    if [ -n "${firewall_cmdBlockedPortList}" ]; then
+        logger "firewall-cmd blocked port report: ${firewall_cmdBlockedPortList} this ports must be opened."
+    fi
+
+    if [ -n "${iptablesBlockedPortList}" ] || [ -n "${firewallstatus}" ] || [ -n "${firewallstatus}" ] || [ -n "${firewallstatus}" ]; then
+        logger -e "Please check your firewall. To then repeat the installation of Wazuh."
+        exit 1
+    fi
 }
 
 function checks_health() {

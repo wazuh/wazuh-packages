@@ -330,6 +330,11 @@ function main() {
 
     logger "Starting Wazuh unattended installer. Wazuh version: ${wazuh_version}. Wazuh installer version: ${wazuh_install_vesion}"
 
+    if [ -z "${configurations}" ] && [ -z "${start_elastic_cluster}" ] ; then
+        logger "---------------------------------- Check firewalls -----------------------------------"
+        checkFirewalls
+    fi
+
 # -------------- Uninstall case  ------------------------------------
 
     checks_installed
