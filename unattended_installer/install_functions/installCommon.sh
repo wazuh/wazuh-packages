@@ -183,7 +183,7 @@ function installCommon_installPrerequisites() {
         eval "zypper -n install curl unzip wget ${debug}"
         eval "zypper -n install libcap-progs tar gnupg ${openssl} ${debug} || zypper -n install libcap2 tar gnupg ${openssl} ${debug}"
     elif [ "${sys_type}" == "apt-get" ]; then
-        eval "apt-get update -q ${debug}"
+        eval "apt update -q ${debug}"
         eval "DEBIAN_FRONTEND=noninteractive apt install apt-transport-https curl unzip wget libcap2-bin tar software-properties-common gnupg ${openssl} -y ${debug}"
     fi
 
@@ -373,7 +373,7 @@ function installCommon_rollBack() {
         eval "rm -rf /run/wazuh-dashboard/ ${debug}"
     fi
 
-    elements_to_remove=(    "/var/log/elasticsearch/"
+    elements_to_remove=(    "/var/log/wazuh-indexer/"
                             "/var/log/filebeat/"
                             "/etc/systemd/system/opensearch.service.wants/"
                             "/securityadmin_demo.sh"

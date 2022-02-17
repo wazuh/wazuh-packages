@@ -60,7 +60,7 @@ function buildInstaller() {
 # Foundation." >> "${output_script_path}"
 
     ## Installation variables
-    cat ${resources_installer}/variables.sh >> "${output_script_path}"
+    cat ${resources_installer}/installVariables.sh >> "${output_script_path}"
     echo >> "${output_script_path}"
 
     ## Configuration files as variables
@@ -119,7 +119,7 @@ function buildPasswordsTool() {
 # Foundation." >> "${output_script_path}"
 
     ## Passwords tool variables
-    cat "${resources_passwords}/variables.sh" >> "${output_script_path}"
+    cat "${resources_passwords}/passwordsVariables.sh" >> "${output_script_path}"
     echo >> "${output_script_path}"
 
     ## Functions for all password function modules
@@ -157,7 +157,7 @@ function buildCertsTool() {
 # Foundation." >> "${output_script_path}"
 
     ## Certs tool variables
-    cat "${resources_certs}/variables.sh" >> "${output_script_path}"
+    cat "${resources_certs}/certVariables.sh" >> "${output_script_path}"
     echo >> "${output_script_path}"
 
     ## Functions for all certs tool function modules

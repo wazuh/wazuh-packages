@@ -6,8 +6,6 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-
-
 function indexer_configure() {
 
     common_logger -d "Configuring Wazuh indexer."
@@ -78,7 +76,7 @@ function indexer_configure() {
 
 function indexer_copyCertificates() {
 
-    eval "rm -f ${indexer_certs_path}/* ${debug}"
+    eval "rm -f ${indexer_certs_path}* ${debug}"
     name=${indexer_node_names[pos]}
 
     if [ -f "${tar_file}" ]; then

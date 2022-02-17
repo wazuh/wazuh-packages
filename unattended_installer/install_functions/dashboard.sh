@@ -44,7 +44,7 @@ function dashboard_configure() {
 
 function dashboard_copyCertificates() {
 
-    eval "rm -f ${dashboard_cert_path}/* ${debug}"
+    eval "rm -f ${dashboard_cert_path}* ${debug}"
     if [ -f "${tar_file}" ]; then
 
         name=${dashboard_node_names[pos]}

@@ -4,7 +4,14 @@ today="$(date +"%d_%m_%y")"
 logfile="./${today}-unit_test.log"
 echo "-------------------------" >> ${logfile}
 debug=">> ${logfile}"
-ALL_FILES=("common" "checks" "wazuh" "filebeat" "kibana" "elasticsearch" "wazuh-cert-tool" "wazuh-passwords-tool")
+install_files=("checks" "dashboard" "filebeat" "indexer" "installCommon" "manager")
+cert_files=("certFunctions")
+passwords_files=("passwordsFunctions")
+common_files=("common")
+install_dir="install_functions"
+cert_dir="cert_tool"
+passwords_dir="passwords_tool"
+common_dir="common_functions"
 IMAGE_NAME="unattended-installer-unit-tests-launcher"
 SHARED_VOLUME="$(pwd -P)/tmp/"
 
@@ -62,15 +69,16 @@ function testFile() {
 
     common_logger "Unit tests for ${1}.sh."
 
-
     eval "cp suites/test-${1}.sh ${SHARED_VOLUME}"
-    if [ -f ../../../unattended_installer/install_functions/opendistro/${1}.sh ]; then
-        eval "cp ../../../unattended_installer/install_functions/opendistro/${1}.sh ${SHARED_VOLUME} ${debug}"
-    elif [ -f ../../../unattended_installer/install_functions/elasticsearch_basic/${1}.sh ]; then
-        eval "cp ../../../unattended_installer/install_functions/elasticsearch_basic/${1}.sh ${SHARED_VOLUME} ${debug}"
-    elif [ -f ../../../unattended_installer/${1}.sh ]; then
-        eval "cp ../../../unattended_installer/${1}.sh ${SHARED_VOLUME} ${debug}"
-    else 
+    if printf '%s\n' "${install_files[@]}" | grep -F -x -q "${1}" ; then
+        eval "cp ../../../unattended_installer/${install_dir}/${1}.sh ${SHARED_VOLUME} ${debug}"
+    elif printf '%s\n' "${passwords_files[@]}" | grep -F -x -q "${1}"; then
+        eval "cp ../../../unattended_installer/${passwords_dir}/${1}.sh ${SHARED_VOLUME} ${debug}"
+    elif printf '%s\n' "${cert_files[@]}" | grep -F -x -q "${1}"; then
+        eval "cp ../../../unattended_installer/${cert_dir}/${1}.sh ${SHARED_VOLUME} ${debug}"
+    elif printf '%s\n' "${common_files[@]}" | grep -F -x -q "${1}"; then
+        eval "cp ../../../unattended_installer/${common_dir}/${1}.sh ${SHARED_VOLUME} ${debug}"
+    else
         common_logger -e "File ${1}.sh could not be found."
         return
     fi
@@ -138,9 +146,6 @@ main() {
                 while [ -n "${1}" ]; do
                     TEST_FILES+=("${1}")
                     shift 1
-                    if [ -z "${1}" ] || [[ "${1}" =~ -.* ]] || [ -z "$(echo ${ALL_FILES[@]} | grep -w "${1}")" ]; then
-                        break
-                    fi
                 done
                 ;;
             "-r"|"--rebuild-image")
@@ -173,7 +178,16 @@ main() {
     createImage
 
     if [ -n "${all_tests}" ]; then
-        for file in "${ALL_FILES[@]}"; do
+        for file in "${install_files[@]}"; do
+            testFile ${file}
+        done
+        for file in "${passwords_file[@]}"; do
+            testFile ${file}
+        done
+        for file in "${cert_file[@]}"; do
+            testFile ${file}
+        done
+        for file in "${common_file[@]}"; do
             testFile ${file}
         done
     else 

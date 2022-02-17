@@ -7,104 +7,104 @@ source "${base_dir}"/bach.sh
     @ignore common_logger
 }
 
-function load-installWazuh() {
-    @load_function "${base_dir}/manager.sh" installWazuh
+function load-manager_install() {
+    @load_function "${base_dir}/manager.sh" manager_install
 }
 
-test-01-installWazuh-zypper-error() {
-    load-installWazuh
+test-01-manager_install-zypper-error() {
+    load-manager_install
     sys_type="zypper"
     wazuh_version=1
     wazuh_revision=1
     @mockfalse zypper -n install wazuh-manager=1-1
-    installWazuh
+    manager_install
 }
 
-test-01-installWazuh-zypper-error-assert() {
-    common_rollBack
+test-01-manager_install-zypper-error-assert() {
+    installCommon_rollBack
     exit 1
 }
 
-test-02-installWazuh-apt-error() {
-    load-installWazuh
+test-02-manager_install-apt-error() {
+    load-manager_install
     sys_type="apt-get"
     sep="="
     wazuh_version=1
     wazuh_revision=1
     @mockfalse apt-get install wazuh-manager=1-1 -y
-    installWazuh
+    manager_install
 }
 
-test-02-installWazuh-apt-error-assert() {
-    common_rollBack
+test-02-manager_install-apt-error-assert() {
+    installCommon_rollBack
     exit 1
 }
 
-test-03-installWazuh-yum-error() {
-    load-installWazuh
+test-03-manager_install-yum-error() {
+    load-manager_install
     sys_type="yum"
     sep="-"
     wazuh_version=1
     wazuh_revision=1
     @mockfalse yum install wazuh-manager-1-1 -y
-    installWazuh
+    manager_install
 }
 
-test-03-installWazuh-yum-error-assert() {
-    common_rollBack
+test-03-manager_install-yum-error-assert() {
+    installCommon_rollBack
     exit 1
 }
 
-test-04-installWazuh-zypper() {
-    load-installWazuh
+test-04-manager_install-zypper() {
+    load-manager_install
     sys_type="zypper"
     wazuh_version=1
     wazuh_revision=1
-    installWazuh
+    manager_install
     @echo $wazuhinstalled
 }
 
-test-04-installWazuh-zypper-assert() {
+test-04-manager_install-zypper-assert() {
     zypper -n install wazuh-manager=1-1
     @echo 1
 }
 
-test-05-installWazuh-apt() {
-    load-installWazuh
+test-05-manager_install-apt() {
+    load-manager_install
     sys_type="apt-get"
     sep="="
     wazuh_version=1
     wazuh_revision=1
-    installWazuh
+    manager_install
     @echo $wazuhinstalled
 }
 
-test-05-installWazuh-apt-assert() {
+test-05-manager_install-apt-assert() {
     apt-get install wazuh-manager=1-1 -y
     @echo 1
 }
 
-test-06-installWazuh-yum() {
-    load-installWazuh
+test-06-manager_install-yum() {
+    load-manager_install
     sys_type="yum"
     sep="-"
     wazuh_version=1
     wazuh_revision=1
-    installWazuh
+    manager_install
     @echo $wazuhinstalled
 }
 
-test-06-installWazuh-yum-assert() {
+test-06-manager_install-yum-assert() {
     yum install wazuh-manager-1-1 -y
     @echo 1
 }
 
-function load-configureWazuhCluster() {
-    @load_function "${base_dir}/manager.sh" configureWazuhCluster
+function load-manager_startCluster() {
+    @load_function "${base_dir}/manager.sh" manager_startCluster
 }
 
-test-07-configureWazuhCluster() {
-    load-configureWazuhCluster
+test-07-manager_startCluster() {
+    load-manager_startCluster
     server_node_names=("wazuh" "node10")
     server_node_types=("master" "worker")
     server_node_ips=("1.1.1.1" "2.2.2.2")
@@ -116,12 +116,12 @@ test-07-configureWazuhCluster() {
     @mock grep -n "</cluster>" /var/ossec/etc/ossec.conf === @out 20
     @mocktrue sed -i -e "1,20s/<name>.*<\/name>/<name>wazuh_cluster<\/name>/"  -e  "1,20s/<node_name>.*<\/node_name>/<node_name>wazuh<\/node_name>/"  -e  "1,20s/<node_type>.*<\/node_type>/<node_type>master<\/node_type>/"  -e  "1,20s/<key>.*<\/key>/<key>68b6975cf186649490e2afbc6230c317<\/key>/"  -e  "1,20s/<port>.*<\/port>/<port>1516<\/port>/"  -e  "1,20s/<bind_addr>.*<\/bind_addr>/<bind_addr>0.0.0.0<\/bind_addr>/"  -e  "1,20s/<node>.*<\/node>/<node>1.1.1.1<\/node>/"  -e  "1,20s/<hidden>.*<\/hidden>/<hidden>no<\/hidden>/"  -e  "1,20s/<disabled>.*<\/disabled>/<disabled>no<\/disabled>/"  /var/ossec/etc/ossec.conf
 
-    configureWazuhCluster
+    manager_startCluster
     @echo $pos
     @echo $master_address
 }
 
-test-07-configureWazuhCluster-assert() {
+test-07-manager_startCluster-assert() {
     @echo 0
     @echo "1.1.1.1"
 }
