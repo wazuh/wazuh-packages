@@ -179,15 +179,15 @@ function load-cert_generateFilebeatcertificates() {
 
 test-11-cert_generateFilebeatcertificates-no-nodes() {
     load-cert_generateFilebeatcertificates
-    wazuh_servers_node_names=()
+    server_node_names=()
     cert_generateFilebeatcertificates
     @assert-success
 }
 
 test-12-cert_generateFilebeatcertificates-two-nodes() {
     load-cert_generateFilebeatcertificates
-    wazuh_servers_node_names=("wazuh1" "wazuh2")
-    wazuh_servers_node_ips=("1.1.1.1" "1.1.1.2")
+    server_node_names=("wazuh1" "wazuh2")
+    server_node_ips=("1.1.1.1" "1.1.1.2")
     cert_generateFilebeatcertificates
 }
 
@@ -810,8 +810,8 @@ test-28-cert_readConfig-everything-correct() {
     @rm "${config_file}"
     @echo "${indexer_node_names[@]}"
     @echo "${indexer_node_ips[@]}"
-    @echo "${wazuh_servers_node_names[@]}"
-    @echo "${wazuh_servers_node_ips[@]}"
+    @echo "${server_node_names[@]}"
+    @echo "${server_node_ips[@]}"
     @echo "${kibana_node_names[@]}"
     @echo "${kibana_node_ips[@]}"
 }

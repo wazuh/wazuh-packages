@@ -105,9 +105,9 @@ function load-configureWazuhCluster() {
 
 test-07-configureWazuhCluster() {
     load-configureWazuhCluster
-    wazuh_servers_node_names=("wazuh" "node10")
-    wazuh_servers_node_types=("master" "worker")
-    wazuh_servers_node_ips=("1.1.1.1" "2.2.2.2")
+    server_node_names=("wazuh" "node10")
+    server_node_types=("master" "worker")
+    server_node_ips=("1.1.1.1" "2.2.2.2")
     winame="wazuh"
     tarfile=/tmp/tarfile.tar
     @mock tar -axf "${tar_file}" ./clusterkey -O === @out 68b6975cf186649490e2afbc6230c317

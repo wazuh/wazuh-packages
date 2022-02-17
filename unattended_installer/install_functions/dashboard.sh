@@ -84,12 +84,12 @@ function dashboard_initialize() {
         j=$((j+1))
     done
 
-    if [ "${#wazuh_servers_node_names[@]}" -eq 1 ]; then
-        wazuh_api_address=${wazuh_servers_node_ips[0]}
+    if [ "${#server_node_names[@]}" -eq 1 ]; then
+        wazuh_api_address=${server_node_ips[0]}
     else
-        for i in "${!wazuh_servers_node_types[@]}"; do
-            if [[ "${wazuh_servers_node_types[i]}" == "master" ]]; then
-                wazuh_api_address=${wazuh_servers_node_ips[i]}
+        for i in "${!server_node_types[@]}"; do
+            if [[ "${server_node_types[i]}" == "master" ]]; then
+                wazuh_api_address=${server_node_ips[i]}
             fi
         done
     fi

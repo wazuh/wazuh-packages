@@ -235,7 +235,7 @@ function main() {
             cert_checkOpenSSL
         fi
         installCommon_createCertificates
-        if [ -n "${wazuh_servers_node_types[*]}" ]; then
+        if [ -n "${server_node_types[*]}" ]; then
             installCommon_createClusterKey
         fi
         gen_file="${base_path}/certs/password_file.yml"
@@ -301,7 +301,7 @@ function main() {
         common_logger "------------------------------------- Wazuh server ------------------------------------"
 
         manager_install
-        if [ -n "${wazuh_servers_node_types[*]}" ]; then
+        if [ -n "${server_node_types[*]}" ]; then
             manager_startCluster
         fi
         installCommon_startService "wazuh-manager"

@@ -203,8 +203,8 @@ test-14-initializeKibana-distributed-one-kibana-node-one-wazuh-node-curl-correct
     kibana_node_ips=("1.1.1.1")
     u_pass="user_password"
     @mock curl -XGET https://1.1.1.1/status -uadmin:user_password -k -w %{http_code} -s -o /dev/null === @out "200"
-    wazuh_servers_node_names=("wazuh1")
-    wazuh_servers_node_ips=("2.2.2.2")
+    server_node_names=("wazuh1")
+    server_node_ips=("2.2.2.2")
     initializeKibana
 }
 
@@ -219,8 +219,8 @@ test-ASSERT-FAIL-15-initializeKibana-distributed-one-kibana-node-one-wazuh-node-
     kibana_node_ips=("1.1.1.1")
     u_pass="user_password"
     @mock curl -XGET https://1.1.1.1/status -uadmin:user_password -k -w %{http_code} -s -o /dev/null === @out "0"
-    wazuh_servers_node_names=("wazuh1")
-    wazuh_servers_node_ips=("2.2.2.2")
+    server_node_names=("wazuh1")
+    server_node_ips=("2.2.2.2")
     initializeKibana
 }
 
@@ -230,9 +230,9 @@ test-16-initializeKibana-distributed-two-kibana-nodes-two-wazuh-nodes-curl-corre
     kibana_node_ips=("1.1.1.1" "1.1.1.2")
     u_pass="user_password"
     @mock curl -XGET https://1.1.1.1/status -uadmin:user_password -k -w %{http_code} -s -o /dev/null === @out "200"
-    wazuh_servers_node_names=("wazuh1" "wazuh2")
-    wazuh_servers_node_types=("worker" "master")
-    wazuh_servers_node_ips=("1.1.2.1" "1.1.2.2")
+    server_node_names=("wazuh1" "wazuh2")
+    server_node_types=("worker" "master")
+    server_node_ips=("1.1.2.1" "1.1.2.2")
     initializeKibana
 }
 
@@ -248,9 +248,9 @@ test-ASSERT-FAIL-17-initializeKibana-distributed-two-kibana-nodes-two-wazuh-node
     u_pass="user_password"
     force=
     @mock curl -XGET https://1.1.1.1/status -uadmin:user_password -k -w %{http_code} -s -o /dev/null === @out "0"
-    wazuh_servers_node_names=("wazuh1" "wazuh2")
-    wazuh_servers_node_types=("worker" "master")
-    wazuh_servers_node_ips=("1.1.2.1" "1.1.2.2")
+    server_node_names=("wazuh1" "wazuh2")
+    server_node_types=("worker" "master")
+    server_node_ips=("1.1.2.1" "1.1.2.2")
     initializeKibana
 }
 
@@ -261,9 +261,9 @@ test-18-initializeKibana-distributed-two-kibana-nodes-two-wazuh-nodes-curl-error
     u_pass="user_password"
     force=1
     @mock curl -XGET https://1.1.1.1/status -uadmin:user_password -k -w %{http_code} -s -o /dev/null === @out "0"
-    wazuh_servers_node_names=("wazuh1" "wazuh2")
-    wazuh_servers_node_types=("worker" "master")
-    wazuh_servers_node_ips=("1.1.2.1" "1.1.2.2")
+    server_node_names=("wazuh1" "wazuh2")
+    server_node_types=("worker" "master")
+    server_node_ips=("1.1.2.1" "1.1.2.2")
     initializeKibana
 }
 

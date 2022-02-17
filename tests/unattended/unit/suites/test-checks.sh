@@ -98,8 +98,8 @@ test-ASSERT-FAIL-07-checks_names-kibana-wazuh-equals() {
 test-ASSERT-FAIL-08-checks_names-wazuh-node-name-not-in-config() {
     load-checks_names
     winame="node1"
-    wazuh_servers_node_names=(wazuh node10)
-    @mock echo ${wazuh_servers_node_names[@]} === @out wazuh node10
+    server_node_names=(wazuh node10)
+    @mock echo ${server_node_names[@]} === @out wazuh node10
     @mock grep -w $winame === @false
     checks_names
 }
@@ -128,11 +128,11 @@ test-11-checks_names-all-correct-installing-elastic() {
     kiname="kibana1"
     winame="wazuh1"
     indexer_node_names=(elasticsearch1 node1)
-    wazuh_servers_node_names=(wazuh1 node2)
+    server_node_names=(wazuh1 node2)
     kibana_node_names=(kibana1 node3)
     elasticsearch=1
     @mock echo ${indexer_node_names[@]} === @out elasticsearch1 node1
-    @mock echo ${wazuh_servers_node_names[@]} === @out wazuh1 node2
+    @mock echo ${server_node_names[@]} === @out wazuh1 node2
     @mock echo ${kibana_node_names[@]} === @out kibana1 node3
     @mock grep -w $einame
     @mock grep -w $winame
@@ -147,11 +147,11 @@ test-12-checks_names-all-correct-installing-wazuh() {
     kiname="kibana1"
     winame="wazuh1"
     indexer_node_names=(elasticsearch1 node1)
-    wazuh_servers_node_names=(wazuh1 node2)
+    server_node_names=(wazuh1 node2)
     kibana_node_names=(kibana1 node3)
     wazuh=1
     @mock echo ${indexer_node_names[@]} === @out elasticsearch1 node1
-    @mock echo ${wazuh_servers_node_names[@]} === @out wazuh1 node2
+    @mock echo ${server_node_names[@]} === @out wazuh1 node2
     @mock echo ${kibana_node_names[@]} === @out kibana1 node3
     @mock grep -w $einame
     @mock grep -w $winame
@@ -166,11 +166,11 @@ test-13-checks_names-all-correct-installing-kibana() {
     kiname="kibana1"
     winame="wazuh1"
     indexer_node_names=(elasticsearch1 node1)
-    wazuh_servers_node_names=(wazuh1 node2)
+    server_node_names=(wazuh1 node2)
     kibana_node_names=(kibana1 node3)
     kibana=1
     @mock echo ${indexer_node_names[@]} === @out elasticsearch1 node1
-    @mock echo ${wazuh_servers_node_names[@]} === @out wazuh1 node2
+    @mock echo ${server_node_names[@]} === @out wazuh1 node2
     @mock echo ${kibana_node_names[@]} === @out kibana1 node3
     @mock grep -w $einame
     @mock grep -w $winame
