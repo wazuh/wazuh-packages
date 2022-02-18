@@ -4,16 +4,19 @@ All notable changes to this project will be documented in this file.
 ## [v4.4.0]
 
 - Add `libfimdb` [#989](https://github.com/wazuh/wazuh-packages/issues/989)
-## [v4.3.0]
-
 - Update SPECS [#1014](https://github.com/wazuh/wazuh-packages/pull/1014)
+- Add Azure integration files to Solaris 11 and RPM SPECS [#1167](https://github.com/wazuh/wazuh-packages/pull/1167)
+
 ## [v4.3.0]
 
+- Fix Solaris 11 upgrade from previous packages [#1147](https://github.com/wazuh/wazuh-packages/pull/1147)
+- Add new GCloud integration files to Solaris 11 [#1126](https://github.com/wazuh/wazuh-packages/pull/1126)
 - Update SPECS [#689](https://github.com/wazuh/wazuh-packages/pull/689)
 - Fix `find` error in CentOS 5 building [#888](https://github.com/wazuh/wazuh-packages/pull/888)
 - Add new SCA files to Solaris 11 [#944](https://github.com/wazuh/wazuh-packages/pull/944)
 - Improved support for ppc64le on CentOS and Debian [#915](https://github.com/wazuh/wazuh-packages/pull/975)
 - Fix error with wazuh user in Debian packages [#1005](https://github.com/wazuh/wazuh-packages/pull/1005)
+
 ## [v4.2.5]
 
 - Update SPECS [#991](https://github.com/wazuh/wazuh-packages/pull/991)

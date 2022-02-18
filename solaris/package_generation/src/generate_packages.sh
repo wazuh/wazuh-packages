@@ -1,6 +1,6 @@
 #!/bin/bash
 # Created by Wazuh, Inc. <info@wazuh.com>.
-# Copyright (C) 2019 Wazuh Inc.
+# Copyright (C) 2015-2022, Wazuh Inc.
 # This program is a free software; you can redistribute it and/or modify it under the terms of GPLv2
 # This script need packages generation scripts to be on the Solaris machine.
 
