@@ -12,7 +12,7 @@ HOSTNAME="wazuh-manager"
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ASSETS_PATH="${CURRENT_PATH}/assets"
 CUSTOM_PATH="${ASSETS_PATH}/custom"
-BASH_ARGS="-a -l -v"
+BASH_ARGS="-a -l -v -ds"
 
 
 if [[ ${DEBUG} = "yes" ]]; then
@@ -34,7 +34,7 @@ preInstall
 
 bash ${RESOURCES_PATH}/${INSTALLER} ${BASH_ARGS}
 
-systemctl stop wazuh-dashboard filebeat wazuh-installer
+systemctl stop wazuh-dashboard filebeat wazuh-indexer
 systemctl enable wazuh-manager
 
 clean
