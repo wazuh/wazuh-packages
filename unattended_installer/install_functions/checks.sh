@@ -50,14 +50,14 @@ function checks_arguments() {
         fi
 
         if [ -z "${indexerinstalled}" ] && [ -z "${indexer_remaining_files}" ]; then
-            common_logger "Elasticsearch components were not found on the system so it was not uninstalled."
+            common_logger "Wazuh Indexer components were not found on the system so it was not uninstalled."
         fi
 
         if [ -z "${dashboardinstalled}" ] && [ -z "${dashboard_remaining_files}" ]; then
             common_logger "Wazuh Dashboard components were found on the system so it was not uninstalled."
         fi
 
-        if [ -n "$AIO" ] || [ -n "$elasticsearch" ] || [ -n "$dashboard" ] || [ -n "$wazuh" ]; then
+        if [ -n "$AIO" ] || [ -n "$indexer" ] || [ -n "$dashboard" ] || [ -n "$wazuh" ]; then
             common_logger -e "It is not possible to uninstall and install in the same operation. If you want to overwrite the components use -o|--overwrite"
             exit 1
         fi
@@ -67,7 +67,7 @@ function checks_arguments() {
 
     if [ -n "${AIO}" ]; then
 
-        if [ -n "$elasticsearch" ] || [ -n "$dashbard" ] || [ -n "$wazuh" ]; then
+        if [ -n "$indexer" ] || [ -n "$dashboard" ] || [ -n "$wazuh" ]; then
             common_logger -e "Argument -a|--all-in-one is not compatible with -wi|--wazuh-indexer, -wd|--wazuh-dashboard or -ws|--wazuh-server"
             exit 1
         fi
@@ -82,7 +82,7 @@ function checks_arguments() {
         fi
     fi
 
-    # -------------- Elasticsearch ----------------------------------
+    # -------------- Indexer ----------------------------------
 
     if [ -n "${indexer}" ]; then
 
@@ -90,7 +90,7 @@ function checks_arguments() {
             if [ -n "${overwrite}" ]; then
                 installCommon_rollBack
             else
-                common_logger -e "Elasticsearch is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
+                common_logger -e "Wazuh Indexer is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
             fi
         fi
@@ -155,7 +155,7 @@ function checks_health() {
             common_logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
             exit 1
         else
-            common_logger "Check recommended minimum hardware requirements for Elasticsearch done."
+            common_logger "Check recommended minimum hardware requirements for Wazuh Indexer done."
         fi
     fi
 
@@ -212,7 +212,7 @@ function checks_names() {
     fi
 
     if [ -n "${indxname}" ] && [ -z "$(echo "${indexer_node_names[@]}" | grep -w "${indxname}")" ]; then
-        common_logger -e "The Elasticsearch node name ${indxname} does not appear on the configuration file."
+        common_logger -e "The Wazuh Indexer node name ${indxname} does not appear on the configuration file."
         exit 1
     fi
 
@@ -233,7 +233,7 @@ function checks_previousCertificate() {
 
     if [ -n "${indxname}" ]; then
         if ! $(tar -tf "${tar_file}" | grep -q "${indxname}".pem) || ! $(tar -tf "${tar_file}" | grep -q "${indxname}"-key.pem); then
-            common_logger -e "There is no certificate for the elasticsearch node ${indxname} in ${tar_file}."
+            common_logger -e "There is no certificate for the indexer node ${indxname} in ${tar_file}."
             exit 1
         fi
     fi
