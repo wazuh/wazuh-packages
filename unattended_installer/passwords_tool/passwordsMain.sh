@@ -70,31 +70,61 @@ function main() {
                 shift 1
                 ;;
             "-u"|"--user")
+                if [ -z ${2} ]; then
+                    echo "Argument --user needs a second argument"
+                    getHelp
+                    exit 1
+                fi
                 nuser=${2}
                 shift
                 shift
                 ;;
             "-p"|"--password")
+                if [ -z ${2} ]; then
+                    echo "Argument --password needs a second argument"
+                    getHelp
+                    exit 1
+                fi
                 password=${2}
                 shift
                 shift
                 ;;
             "-c"|"--cert")
+                if [ -z ${2} ]; then
+                    echo "Argument --cert needs a second argument"
+                    getHelp
+                    exit 1
+                fi
                 adminpem=${2}
                 shift
                 shift
                 ;;
             "-k"|"--certkey")
+                if [ -z ${2} ]; then
+                    echo "Argument --certkey needs a second argument"
+                    getHelp
+                    exit 1
+                fi
                 adminkey=${2}
                 shift
                 shift
                 ;;
             "-f"|"--file")
+                if [ -z ${2} ]; then
+                    echo "Argument --file needs a second argument"
+                    getHelp
+                    exit 1
+                fi
                 p_file=${2}
                 shift
                 shift
                 ;;
             "-gf"|"--generate-file")
+                if [ -z ${2} ]; then
+                    echo "Argument --generate-file needs a second argument"
+                    getHelp
+                    exit 1
+                fi
                 gen_file=${2}
                 shift
                 shift
