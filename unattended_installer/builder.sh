@@ -9,8 +9,7 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-base_path="/home/verdx/Documents/Wazuh/entorno/wazuh-packages/unattended_installer"
-##readonly base_path="$(dirname "$(readlink -f "$0")")"
+readonly base_path="$(dirname "$(readlink -f "$0")")"
 readonly resources_installer="${base_path}/install_functions"
 readonly resources_config="${base_path}/config"
 readonly resources_certs="${base_path}/cert_tool"
