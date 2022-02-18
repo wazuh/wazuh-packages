@@ -29,6 +29,10 @@ All notable changes to this project will be documented in this file.
 - Remove restore-permissions.sh from Debian Packages [#1060](https://github.com/wazuh/wazuh-packages/pull/1060)
 - Bump unattended 4.3.0 [#1048](https://github.com/wazuh/wazuh-packages/pull/1048)
 - Removed cd usages in unattended installer and fixed uninstaller 4.3 [#1012](https://github.com/wazuh/wazuh-packages/pull/1012)
+- Add ossec user and group during compilation [#1023](https://github.com/wazuh/wazuh-packages/pull/1023)
+- Removed warning and added text in wazuh-passwords-tool.sh final message 4.3 [#1020](https://github.com/wazuh/wazuh-packages/pull/1020)
+
+
 ## [v4.2.2]
 
 - Update SPECS [#846](https://github.com/wazuh/wazuh-packages/pull/846)
