@@ -351,6 +351,9 @@ function passwords_runSecurityAdmin() {
 
     if [ -n "${changeall}" ]; then
         if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ]; then
+            for i in "${!users[@]}"; do
+                common_logger $'The password for user '${users[i]}' is '${passwords[i]}''
+            done
             common_logger -w "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/wazuh-dashboard/dashboard.yml if necessary and restart the services."
         else
             common_logger -d "Passwords changed."
