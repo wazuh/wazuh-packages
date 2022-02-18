@@ -328,7 +328,7 @@ function installCommon_rollBack() {
         elif [ "${sys_type}" == "zypper" ]; then
             eval "zypper -n remove wazuh-indexer ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
-            eval "apt remove --purge ^wazuh-indexer -y ${debug}"
+            eval "apt remove --purge wazuh-indexer -y ${debug}"
         fi
     fi
 
