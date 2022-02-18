@@ -76,26 +76,6 @@ mv wazuh-dashboard-base/* %{buildroot}%{INSTALL_DIR}
 
 # Set custom welcome styles
 
-
-cp %{buildroot}%{INSTALL_DIR}/etc/custom_welcome/template.js.hbs %{buildroot}%{INSTALL_DIR}/src/legacy/ui/ui_render/bootstrap/template.js.hbs
-cp %{buildroot}%{INSTALL_DIR}/etc/custom_welcome/light_theme.style.css %{buildroot}%{INSTALL_DIR}/src/core/server/core_app/assets/legacy_light_theme.css
-cp %{buildroot}%{INSTALL_DIR}/etc/custom_welcome/*svg %{buildroot}%{INSTALL_DIR}/src/core/server/core_app/assets/
-cp %{buildroot}%{INSTALL_DIR}/etc/custom_welcome/Assets/default_branding/wazuh_logo_white.svg %{buildroot}%{INSTALL_DIR}/src/core/server/core_app/assets/default_branding/opensearch_logo.svg
-cp %{buildroot}%{INSTALL_DIR}/etc/custom_welcome/Assets/default_branding/wazuh_mark_dark_mode.svg %{buildroot}%{INSTALL_DIR}/src/core/server/core_app/assets/default_branding/opensearch_mark_dark_mode.svg
-cp %{buildroot}%{INSTALL_DIR}/etc/custom_welcome/Assets/default_branding/wazuh_mark_default_mode.svg %{buildroot}%{INSTALL_DIR}/src/core/server/core_app/assets/default_branding/opensearch_mark_default_mode.svg
-cp %{buildroot}%{INSTALL_DIR}/etc/custom_welcome/Assets/Favicons/* %{buildroot}%{INSTALL_DIR}/src/core/server/core_app/assets/favicons/
-cp %{buildroot}%{INSTALL_DIR}/etc/custom_welcome/Assets/Favicons/favicon-32x32.png %{buildroot}%{INSTALL_DIR}/src/core/server/core_app/assets/favicons/favicon.ico
-cp %{buildroot}%{INSTALL_DIR}/etc/opensearch_dashboards_config.js %{buildroot}%{INSTALL_DIR}/src/core/server/opensearch_dashboards_config.js
-cp %{buildroot}%{INSTALL_DIR}/etc/http_service.js %{buildroot}%{INSTALL_DIR}/src/core/server/http/http_service.js
-
-# Replace the redirection to `home` in the header logo
-sed -i "s'/app/home'/app/wazuh'g" %{buildroot}%{INSTALL_DIR}/src/core/target/public/core.entry.js
-# Replace others redirections to `home`
-sed -i 's/navigateToApp("home")/navigateToApp("wazuh")/g' %{buildroot}%{INSTALL_DIR}/src/core/target/public/core.entry.js
-# Build the compressed files
-gzip -c %{buildroot}%{INSTALL_DIR}/src/core/target/public/core.entry.js > %{buildroot}%{INSTALL_DIR}/src/core/target/public/core.entry.js.gz
-brotli -c %{buildroot}%{INSTALL_DIR}/src/core/target/public/core.entry.js > %{buildroot}%{INSTALL_DIR}/src/core/target/public/core.entry.js.br
-
 mkdir -p %{buildroot}%{INSTALL_DIR}/config
 
 cp %{buildroot}%{INSTALL_DIR}/etc/services/wazuh-dashboard.service %{buildroot}/etc/systemd/system/wazuh-dashboard.service 

@@ -74,26 +74,6 @@ override_dh_install:
 	cp wazuh-dashboard-base/etc/dashboard.yml $(TARGET_DIR)$(CONFIG_DIR)
 	mv wazuh-dashboard-base/* $(TARGET_DIR)$(INSTALLATION_DIR)
 
-	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/custom_welcome/template.js.hbs $(TARGET_DIR)$(INSTALLATION_DIR)/src/legacy/ui/ui_render/bootstrap/template.js.hbs
-	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/custom_welcome/light_theme.style.css $(TARGET_DIR)$(INSTALLATION_DIR)/src/core/server/core_app/assets/legacy_light_theme.css
-	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/custom_welcome/*svg $(TARGET_DIR)$(INSTALLATION_DIR)/src/core/server/core_app/assets/
-	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/custom_welcome/Assets/default_branding/wazuh_logo_white.svg $(TARGET_DIR)$(INSTALLATION_DIR)/src/core/server/core_app/assets/default_branding/opensearch_logo.svg
-	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/custom_welcome/Assets/default_branding/wazuh_mark_dark_mode.svg $(TARGET_DIR)$(INSTALLATION_DIR)/src/core/server/core_app/assets/default_branding/opensearch_mark_dark_mode.svg
-	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/custom_welcome/Assets/default_branding/wazuh_mark_default_mode.svg $(TARGET_DIR)$(INSTALLATION_DIR)/src/core/server/core_app/assets/default_branding/opensearch_mark_default_mode.svg
-	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/custom_welcome/Assets/Favicons/* $(TARGET_DIR)$(INSTALLATION_DIR)/src/core/server/core_app/assets/favicons/
-	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/custom_welcome/Assets/Favicons/favicon-32x32.png $(TARGET_DIR)$(INSTALLATION_DIR)/src/core/server/core_app/assets/favicons/favicon.ico
-	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/opensearch_dashboards_config.js $(TARGET_DIR)$(INSTALLATION_DIR)/src/core/server/opensearch_dashboards_config.js
-	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/http_service.js $(TARGET_DIR)$(INSTALLATION_DIR)/src/core/server/http/http_service.js
-
-	# Replace the redirection to `home` in the header logo
-	sed -i "s'/app/home'/app/wazuh'g" $(TARGET_DIR)$(INSTALLATION_DIR)/src/core/target/public/core.entry.js
-	# Replace others redirections to `home`
-	sed -i 's/navigateToApp("home")/navigateToApp("wazuh")/g' $(TARGET_DIR)$(INSTALLATION_DIR)/src/core/target/public/core.entry.js
-	# Build the compressed files
-	gzip -c $(TARGET_DIR)$(INSTALLATION_DIR)/src/core/target/public/core.entry.js > $(TARGET_DIR)$(INSTALLATION_DIR)/src/core/target/public/core.entry.js.gz
-	brotli -c $(TARGET_DIR)$(INSTALLATION_DIR)/src/core/target/public/core.entry.js > $(TARGET_DIR)$(INSTALLATION_DIR)/src/core/target/public/core.entry.js.br
-
-
 	mkdir -p $(TARGET_DIR)$(INSTALLATION_DIR)/config
 
 	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/services/wazuh-dashboard.service $(TARGET_DIR)/etc/systemd/system/wazuh-dashboard.service 
