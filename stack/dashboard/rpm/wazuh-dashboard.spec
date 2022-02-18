@@ -88,6 +88,14 @@ cp %{buildroot}%{INSTALL_DIR}/etc/custom_welcome/Assets/Favicons/favicon-32x32.p
 cp %{buildroot}%{INSTALL_DIR}/etc/opensearch_dashboards_config.js %{buildroot}%{INSTALL_DIR}/src/core/server/opensearch_dashboards_config.js
 cp %{buildroot}%{INSTALL_DIR}/etc/http_service.js %{buildroot}%{INSTALL_DIR}/src/core/server/http/http_service.js
 
+# Replace the redirection to `home` in the header logo
+sed -i "s'/app/home'/app/wazuh'g" %{buildroot}%{INSTALL_DIR}/src/core/target/public/core.entry.js
+# Replace others redirections to `home`
+sed -i 's/navigateToApp("home")/navigateToApp("wazuh")/g' %{buildroot}%{INSTALL_DIR}/src/core/target/public/core.entry.js
+# Build the compressed files
+gzip -c %{buildroot}%{INSTALL_DIR}/src/core/target/public/core.entry.js > %{buildroot}%{INSTALL_DIR}/src/core/target/public/core.entry.js.gz
+brotli -c %{buildroot}%{INSTALL_DIR}/src/core/target/public/core.entry.js > %{buildroot}%{INSTALL_DIR}/src/core/target/public/core.entry.js.br
+
 mkdir -p %{buildroot}%{INSTALL_DIR}/config
 
 cp %{buildroot}%{INSTALL_DIR}/etc/services/wazuh-dashboard.service %{buildroot}/etc/systemd/system/wazuh-dashboard.service 
