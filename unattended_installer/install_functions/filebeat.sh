@@ -40,7 +40,8 @@ function filebeat_copyCertificates() {
 
     if [ -f "${tar_file}" ]; then
         if [ -n "${AIO}" ]; then
-            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} --wildcards ./filebeat* ${debug}"
+            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} --wildcards ./${server_node_names[0]}.pem ${debug} && mv ${filebeat_cert_path}${server_node_names[0]}.pem ${filebeat_cert_path}filebeat.pem ${debug}"
+            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} --wildcards ./${server_node_names[0]}-key.pem ${debug} && mv ${filebeat_cert_path}${server_node_names[0]}-key.pem ${filebeat_cert_path}filebeat-key.pem ${debug}"
             eval "tar -xf ${tar_file} -C ${filebeat_cert_path} ./root-ca.pem ${debug}"
         else
             eval "tar -xf ${tar_file} -C ${filebeat_cert_path} ./${winame}.pem && mv ${filebeat_cert_path}${winame}.pem ${filebeat_cert_path}filebeat.pem ${debug}"
