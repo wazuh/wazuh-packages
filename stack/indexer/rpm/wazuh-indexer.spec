@@ -266,6 +266,8 @@ if [ ! -f "%{CONFIG_DIR}"/opensearch.keystore ]; then
     chmod 660 "%{CONFIG_DIR}"/opensearch.keystore
     md5sum "%{CONFIG_DIR}"/opensearch.keystore > "%{CONFIG_DIR}"/.opensearch.keystore.initial_md5sum
 else
+    chown %{USER}:%{GROUP} "%{CONFIG_DIR}"/opensearch.keystore
+    chmod 660 "%{CONFIG_DIR}"/opensearch.keystore
     if "%{INSTALL_DIR}"/bin/opensearch-keystore has-passwd --silent ; then
       echo "### Warning: unable to upgrade encrypted keystore" 1>&2
       echo " Please run opensearch-keystore upgrade and enter password" 1>&2
