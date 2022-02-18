@@ -74,7 +74,7 @@ function main() {
     common_checkRoot
 
     if [ -z "${1}" ]; then
-        common_getHelp
+        getHelp
     fi
 
     while [ -n "${1}" ]
@@ -99,7 +99,7 @@ function main() {
             "-f"|"--fileconfig")
                 if [ -z "${2}" ]; then
                     common_logger -e "Error on arguments. Probably missing <path-to-config-yml> after -f|--fileconfig"
-                    common_getHelp
+                    getHelp
                     exit 1
                 fi
                 config_file="${2}"
@@ -110,7 +110,7 @@ function main() {
                 shift 1
                 ;;
             "-h"|"--help")
-                common_getHelp
+                getHelp
                 ;;
             "-i"|"--ignore-health-check")
                 ignore=1
@@ -127,7 +127,7 @@ function main() {
             "-t"|"--tar")
                 if [ -z "${2}" ]; then
                     common_logger -e "Error on arguments. Probably missing <path-to-certs-tar> after -t|--tar"
-                    common_getHelp
+                    getHelp
                     exit 1
                 fi
                 tar_conf="1"
@@ -146,7 +146,7 @@ function main() {
             "-wd"|"--wazuh-dashboard")
                 if [ -z "${2}" ]; then
                     common_logger -e "Error on arguments. Probably missing <node-name> after -wd|---wazuh-dashboard"
-                    common_getHelp
+                    getHelp
                     exit 1
                 fi
                 dashboard=1
@@ -156,7 +156,7 @@ function main() {
             "-wi"|"--wazuh-indexer")
                 if [ -z "${2}" ]; then
                     common_logger -e "Arguments contain errors. Probably missing <node-name> after -wi|--wazuh-indexer."
-                    common_getHelp
+                    getHelp
                     exit 1
                 fi
                 indexer=1
@@ -166,7 +166,7 @@ function main() {
             "-ws"|"--wazuh-server")
                 if [ -z "${2}" ]; then
                     common_logger -e "Error on arguments. Probably missing <node-name> after -w|--wazuh-server"
-                    common_getHelp
+                    getHelp
                     exit 1
                 fi
                 wazuh=1
@@ -175,7 +175,7 @@ function main() {
                 ;;
             *)
                 echo "Unknow option: "${1}""
-                common_getHelp
+                getHelp
         esac
 
         # This assignment will be present during all testing stages.

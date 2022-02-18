@@ -89,10 +89,10 @@ function buildInstaller() {
     sed -n '/^function [a-zA-Z_]\(\)/,/^}/p' "${resources_common}/common.sh" >> "${output_script_path}"
 
     ## Certificate tool library functions
-    sed -n '/^function [a-zA-Z_]\(\)/,/^}/p' "${resources_certs}/cert-tool.sh" >> "${output_script_path}"
+    sed -n '/^function [a-zA-Z_]\(\)/,/^}/p' "${resources_certs}/certFunctions.sh" >> "${output_script_path}"
 
     ## Passwords tool library functions
-    sed -n '/^function [a-zA-Z_]\(\)/,/^}/p' "${resources_passwords}/passwords-tool.sh" >> "${output_script_path}"
+    sed -n '/^function [a-zA-Z_]\(\)/,/^}/p' "${resources_passwords}/passwordsFunctions.sh" >> "${output_script_path}"
 
     ## Main function and call to it
     echo >> "${output_script_path}"

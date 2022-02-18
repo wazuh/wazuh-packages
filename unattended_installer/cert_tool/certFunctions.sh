@@ -106,7 +106,8 @@ function cert_generateFilebeatcertificates() {
             eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${server_node_names[i]}-key.pem -out ${base_path}/certs/${server_node_names[i]}.csr -config ${base_path}/certs/${server_node_names[i]}.conf -days 3650 ${debug_cert}"
             eval "openssl x509 -req -in ${base_path}/certs/${server_node_names[i]}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${server_node_names[i]}.pem -extfile ${base_path}/certs/${server_node_names[i]}.conf -extensions v3_req -days 3650 ${debug_cert}"
         done
-
+    fi
+    
 }
 
 function cert_generateDashboardcertificates() {
