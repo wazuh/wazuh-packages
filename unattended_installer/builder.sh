@@ -32,6 +32,9 @@ function getHelp() {
     echo -e "        -c,  --cert-tool"
     echo -e "                Builds the certificate creation tool cert-tool.sh"
     echo -e ""
+    echo -e "        -d,  --development"
+    echo -e "                Use development repos"
+    echo -e ""
     echo -e "        -p,  --password-tool"
     echo -e "                Builds the password creation and modification tool password-tool.sh"
     echo -e ""
@@ -60,6 +63,18 @@ function buildInstaller() {
 
     ## Installation variables
     cat ${resources_installer}/installVariables.sh >> "${output_script_path}"
+    echo >> "${output_script_path}"
+    if [ -n "${development}" ]; then
+        echo 'repogpg="https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH"' >> "${output_script_path}"
+        echo 'repobaseurl="https://packages-dev.wazuh.com/pre-release"' >> "${output_script_path}"
+        echo 'reporelease="unstable"' >> "${output_script_path}"
+        echo 'filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.1.tar.gz"' >> "${output_script_path}"
+    else
+        echo 'repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"' >> "${output_script_path}"
+        echo 'repobaseurl="https://packages.wazuh.com/4.x"' >> "${output_script_path}"
+        echo 'reporelease="stable"' >> "${output_script_path}"
+        echo 'filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.1.tar.gz"' >> "${output_script_path}"
+    fi
     echo >> "${output_script_path}"
 
     ## Configuration files as variables
@@ -187,6 +202,10 @@ function builder_main() {
                 ;;
             "-c"|"--cert-tool")
                 certTool=1
+                shift 1
+                ;;
+            "-d"|"--development")
+                development=1
                 shift 1
                 ;;
             "-p"|"--password-tool")

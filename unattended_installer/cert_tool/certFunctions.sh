@@ -29,7 +29,7 @@ function cert_generateAdmincertificate() {
     eval "openssl pkcs8 -inform PEM -outform PEM -in ${base_path}/certs/admin-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out ${base_path}/certs/admin-key.pem ${debug}"
     eval "openssl req -new -key ${base_path}/certs/admin-key.pem -out ${base_path}/certs/admin.csr -batch -subj '/C=US/L=California/O=Wazuh/OU=Wazuh/CN=admin' ${debug}"
     eval "openssl x509 -days 3650 -req -in ${base_path}/certs/admin.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -sha256 -out ${base_path}/certs/admin.pem ${debug}"
-    eval "chmod 444 ${base_path}/certs/admin*.pem ${debug}"
+    eval "chmod 400 ${base_path}/certs/admin*.pem ${debug}"
 
 }
 
@@ -90,7 +90,7 @@ function cert_generateIndexercertificates() {
             cert_generateCertificateconfiguration "${indexer_node_names[i]}" "${indexer_node_ips[i]}"
             eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${indexer_node_names[i]}-key.pem -out ${base_path}/certs/${indexer_node_names[i]}.csr -config ${base_path}/certs/${indexer_node_names[i]}.conf -days 3650 ${debug}"
             eval "openssl x509 -req -in ${base_path}/certs/${indexer_node_names[i]}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${indexer_node_names[i]}.pem -extfile ${base_path}/certs/${indexer_node_names[i]}.conf -extensions v3_req -days 3650 ${debug}"
-            eval "chmod 444 ${base_path}/certs/${indexer_node_names[i]}-key.pem ${debug}"
+            eval "chmod 400 ${base_path}/certs/${indexer_node_names[i]}-key.pem ${debug}"
         done
     fi
 
@@ -119,7 +119,7 @@ function cert_generateDashboardcertificates() {
             cert_generateCertificateconfiguration "${dashboard_node_names[i]}" "${dashboard_node_ips[i]}"
             eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${dashboard_node_names[i]}-key.pem -out ${base_path}/certs/${dashboard_node_names[i]}.csr -config ${base_path}/certs/${dashboard_node_names[i]}.conf -days 3650 ${debug}"
             eval "openssl x509 -req -in ${base_path}/certs/${dashboard_node_names[i]}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${dashboard_node_names[i]}.pem -extfile ${base_path}/certs/${dashboard_node_names[i]}.conf -extensions v3_req -days 3650 ${debug}"
-            eval "chmod 444 ${base_path}/certs/${dashboard_node_names[i]}-key.pem ${debug}"
+            eval "chmod 400 ${base_path}/certs/${dashboard_node_names[i]}-key.pem ${debug}"
         done
     fi
 

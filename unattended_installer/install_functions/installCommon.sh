@@ -98,6 +98,7 @@ function installCommon_createCertificates() {
 function installCommon_createClusterKey() {
 
     openssl rand -hex 16 >> "${base_path}/certs/clusterkey"
+    chmod 600 ${base_path}/certs/clusterkey
 
 }
 
@@ -170,35 +171,55 @@ function installCommon_getPass() {
 
 function installCommon_installPrerequisites() {
 
-    common_logger "Starting the installation of dependencies."
-
-    openssl=""
-    if [ -z "$(command -v openssl)" ]; then
-        openssl="openssl"
-    fi
-
     if [ "${sys_type}" == "yum" ]; then
-        eval "yum install curl unzip wget libcap tar gnupg ${openssl} -y ${debug}"
-    elif [ "${sys_type}" == "zypper" ]; then
-        eval "zypper -n install curl unzip wget ${debug}"
-        eval "zypper -n install libcap-progs tar gnupg ${openssl} ${debug} || zypper -n install libcap2 tar gnupg ${openssl} ${debug}"
+        dependencies=( curl unzip wget libcap tar gnupg openssl )
+        not_installed=()
+        for dep in "${!dependencies[@]}"; do
+            if [ -z "$(yum list installed 2>/dev/null | grep ${dep})" ];then
+                not_installed+=("${dep}")
+            fi
+        done
+
+        if [ "${#not_installed[@]}" -gt 0 ]; then
+            common_logger "--- Dependencies ----"
+            for dep in "${!not_installed[@]}"; do
+                common_logger "Installing $dep"
+                eval "yum install ${dep} -y ${debug}"
+                if [  "$?" != 0  ]; then
+                    common_logger -e "Cannot install dependency: ${dep}"
+                    exit 1
+                fi
+            done
+        fi
+
     elif [ "${sys_type}" == "apt-get" ]; then
         eval "apt update -q ${debug}"
-        eval "DEBIAN_FRONTEND=noninteractive apt install apt-transport-https curl unzip wget libcap2-bin tar software-properties-common gnupg ${openssl} -y ${debug}"
-    fi
+        dependencies=( apt-transport-https curl unzip wget libcap2-bin tar software-properties-common gnupg openssl )
+        not_installed=()
 
-    if [  "$?" != 0  ]; then
-        common_logger -e "Prerequisites could not be installed, probably due to the OS repositories. Please check them."
-        exit 1
-    else
-        common_logger "Installation of dependencies finished."
-    fi
+        for dep in "${!dependencies[@]}"; do
+            if [ -z "$(yum list installed 2>/dev/null | grep ${dep})" ];then
+                not_installed+=("${dep}")
+            fi
+        done
+
+        if [ "${#not_installed[@]}" -gt 0 ]; then
+            common_logger "--- Dependencies ----"
+            for dep in "${!not_installed[@]}"; do
+                common_logger "Installing $dep"
+                eval "DEBIAN_FRONTEND=noninteractive apt install ${dep} -y ${debug}"
+                if [  "$?" != 0  ]; then
+                    common_logger -e "Cannot install dependency: ${dep}"
+                    exit 1
+                fi
+            done
+        fi
 
 }
 
 function installCommon_readPasswordFileUsers() {
 
-    filecorrect=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' "${p_file}")
+    filecorrect=$(grep -v '^#' "${p_file}" | grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z')
     if [ "${filecorrect}" -ne 1 ]; then
         common_logger -e "The password file doesn't have a correct format.
 
@@ -294,7 +315,7 @@ function installCommon_restoreWazuhrepo() {
 function installCommon_rollBack() {
 
     if [ -z "${uninstall}" ]; then
-        common_logger "Cleaning the installation."
+        common_logger "--- Removing existing Wazuh installation ---"
     fi
 
     if [ -f "/etc/yum.repos.d/wazuh.repo" ]; then
@@ -306,7 +327,7 @@ function installCommon_rollBack() {
     fi
 
     if [[ -n "${wazuhinstalled}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]];then
-        common_logger -w "Removing the Wazuh manager."
+        common_logger "Removing the Wazuh manager."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-manager -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
@@ -315,6 +336,7 @@ function installCommon_rollBack() {
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge wazuh-manager -y ${debug}"
         fi
+        common_logger "Wazuh manager removed."
     fi
 
     if [[ ( -n "${wazuh_remaining_files}"  || -n "${wazuhinstalled}" ) && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
@@ -322,7 +344,7 @@ function installCommon_rollBack() {
     fi
 
     if [[ -n "${indexerinstalled}" && ( -n "${indexer}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        common_logger -w "Removing Wazuh indexer."
+        common_logger "Removing Wazuh indexer."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-indexer -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
@@ -330,6 +352,7 @@ function installCommon_rollBack() {
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge wazuh-indexer -y ${debug}"
         fi
+        common_logger "Wazuh indexer removed."
     fi
 
     if [[ ( -n "${indexer_remaining_files}" || -n "${indexerinstalled}" ) && ( -n "${indexer}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
@@ -339,7 +362,7 @@ function installCommon_rollBack() {
     fi
 
     if [[ -n "${filebeatinstalled}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        common_logger -w "Removing Filebeat."
+        common_logger "Removing Filebeat."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove filebeat -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
@@ -347,6 +370,7 @@ function installCommon_rollBack() {
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge filebeat -y ${debug}"
         fi
+        common_logger "Filebeat removed."
     fi
 
     if [[ ( -n "${filebeat_remaining_files}" || -n "${filebeatinstalled}" ) && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
@@ -356,7 +380,7 @@ function installCommon_rollBack() {
     fi
 
     if [[ -n "${dashboardinstalled}" && ( -n "${dashboard}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        common_logger -w "Removing Wazuh dashboard."
+        common_logger "Removing Wazuh dashboard."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-dashboard -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
@@ -364,6 +388,7 @@ function installCommon_rollBack() {
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge wazuh-dashboard -y ${debug}"
         fi
+        common_logger "Wazuh dashboard removed."
     fi
 
     if [[ ( -n "${dashboard_remaining_files}" || -n "${dashboardinstalled}" ) && ( -n "${dashboard}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then

@@ -32,7 +32,8 @@ function common_logger() {
             message="${1}"
             ;;
     esac
-    echo "${now} ${mtype} ${message}" | tee -a ${logfile}
+    echo "${message}"
+    echo "${now} ${mtype} ${message}" >> ${logfile}
 
 }
 

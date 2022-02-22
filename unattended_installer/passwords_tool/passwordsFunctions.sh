@@ -149,12 +149,24 @@ function passwords_generatePassword() {
 function passwords_generatePasswordFile() {
 
     users=( admin kibanaserver kibanaro logstash readall snapshotrestore wazuh_admin wazuh_user )
+    user_description=(
+        "Wazuh indexer admin user"
+        "User used by Wazuh dashboard to connect with Wazuh indexer"
+        "Regular Dasboard user only has read permissions"
+        "Filebeat user has CRUD and CREATE permissions on filebeat indices"
+        "User with READ acces to all indices"
+        "User with permissions to perform snapshot and restore operations"
+        "Admin user used to comunicate with Wazuh API"
+        "Regular user able to query Wazuh API"
+    )
     passwords_generatePassword
     for i in "${!users[@]}"; do
+        echo "#${user_description[${i}]}" >> "${gen_file}"
         echo "User:" >> "${gen_file}"
         echo "  name: ${users[${i}]}" >> "${gen_file}"
         echo "  password: ${passwords[${i}]}" >> "${gen_file}"
     done
+    chmod 600 ${gen_file}
 
 }
 
@@ -195,8 +207,8 @@ function passwords_readAdmincerts() {
 }
 
 function passwords_readFileUsers() {
-
-    filecorrect=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' "${p_file}")
+    filecorrect=$(grep -v '^#' "${p_file}" | grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z')
+    echo ${filecorrect}
     if [ "${filecorrect}" -ne 1 ]; then
         common_logger -e "The password file doesn't have a correct format.
 

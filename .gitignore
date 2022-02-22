@@ -27,5 +27,5 @@ unattended_installer/certs*
 unattended_installer/configurations*
 unattended_installer/config.yml
 unattended_installer/.vscode
-unattended_installer/configurations.tar
+unattended_installer/wazuh-install-files.tar
 tests/unattended/unit/*.log

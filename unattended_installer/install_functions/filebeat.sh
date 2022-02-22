@@ -57,7 +57,7 @@ function filebeat_copyCertificates() {
 
 function filebeat_install() {
 
-    common_logger "Starting filebeat installation."
+    common_logger "Starting Filebeat installation."
     if [ "${sys_type}" == "zypper" ]; then
         eval "zypper -n install filebeat-${filebeat_version} ${debug}"
     elif [ "${sys_type}" == "yum" ]; then

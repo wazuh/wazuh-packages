@@ -76,7 +76,7 @@ function checks_arguments() {
             if [ -n "${overwrite}" ]; then
                 installCommon_rollBack
             else
-                common_logger -e "Some the Wazuh components were found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. NOTE: This will erase all the existing configuration and data."
+                common_logger -e "Some the Wazuh components were found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. This will erase all the existing configuration and data."
                 exit 1
             fi
         fi
@@ -154,8 +154,6 @@ function checks_health() {
         if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
             common_logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
             exit 1
-        else
-            common_logger "Check recommended minimum hardware requirements for Wazuh Indexer done."
         fi
     fi
 
@@ -163,8 +161,6 @@ function checks_health() {
         if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
             common_logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
             exit 1
-        else
-            common_logger "Check recommended minimum hardware requirements for Wazuh Dashboard done."
         fi
     fi
 
@@ -172,8 +168,6 @@ function checks_health() {
         if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 1700 ]; then
             common_logger -e "Your system does not meet the recommended minimum hardware requirements of 2Gb of RAM and 2 CPU cores . If you want to proceed with the installation use the -i option to ignore these requirements."
             exit 1
-        else
-            common_logger "Check recommended minimum hardware requirements for Wazuh Manager done."
         fi
     fi
 
@@ -181,8 +175,6 @@ function checks_health() {
         if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
             common_logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
             exit 1
-        else
-            common_logger "Check recommended minimum hardware requirements for AIO done."
         fi
     fi
 

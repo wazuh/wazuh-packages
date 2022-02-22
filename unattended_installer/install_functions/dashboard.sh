@@ -65,7 +65,7 @@ function dashboard_copyCertificates() {
 
 function dashboard_initialize() {
 
-    common_logger "Starting Wazuh dashboard  (this may take a while)."
+    common_logger "Starting Wazuh dashboard."
     installCommon_getPass "admin"
     j=0
 
@@ -117,17 +117,21 @@ function dashboard_initialize() {
             installCommon_rollBack
             exit 1
         else
-            common_logger "When Wazuh dashboard is able to connect to your Elasticsearch cluster, you can access the web interface https://${nodes_dashboard_ip}. The credentials are admin:${u_pass}"
+            common_logger "When Wazuh dashboard is able to connect to your Elasticsearch cluster, you can access the web interface https://${nodes_dashboard_ip}."
+            common_logger "User: admin"
+            common_logger "Password: ${u_pass}"
         fi
     else
-        common_logger "You can access the web interface https://${nodes_dashboard_ip}. The credentials are admin:${u_pass}"
+        common_logger "You can access the web interface https://${nodes_dashboard_ip}."
+        common_logger "User: admin"
+        common_logger "Password: ${u_pass}"
     fi
 
 }
 
 function dashboard_initializeAIO() {
 
-    common_logger "Starting Wazuh dashboard (this may take a while)."
+    common_logger "Starting Wazuh dashboard."
     installCommon_getPass "admin"
     until [ "$(curl -XGET https://localhost/status -uadmin:${u_pass} -k -w %{http_code} -s -o /dev/null)" -eq "200" ] || [ "${i}" -eq 12 ]; do
         sleep 10
@@ -140,7 +144,9 @@ function dashboard_initializeAIO() {
     fi
 
     common_logger "Wazuh dashboard started."
-    common_logger "You can access the web interface https://<wazuh-dashboard-host-ip>. The credentials are admin:${u_pass}"
+    common_logger "You can access the web interface https://<wazuh-dashboard-host-ip>."
+    common_logger "User: admin"
+    common_logger "Password: ${u_pass}"
 
 }
 
