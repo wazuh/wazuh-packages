@@ -18,5 +18,7 @@
     <true/>
     <key>com.apple.security.assets.movies.read-only</key>
     <true/>
+    <key>com.apple.system-task-ports.read</key>
+    <true/>
   </dict>
 </plist>
