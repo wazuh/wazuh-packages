@@ -44,7 +44,7 @@ function common_logger() {
 function common_checkRoot() {
 
     if [ "$EUID" -ne 0 ]; then
-        common_logger -e "This script must be run as root."
+        echo "This script must be run as root."
         exit 1;
     fi
 
