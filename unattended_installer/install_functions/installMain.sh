@@ -226,6 +226,7 @@ function main() {
     # Creation certificate case: Only AIO and -c option can create certificates.
     if [ -n "${configurations}" ] || [ -n "${AIO}" ]; then
         common_logger "--- Configuration files ---"
+        common_logger "Generating configuration files."
         if [ -n "${configurations}" ]; then
             cert_checkOpenSSL
         fi
@@ -240,7 +241,7 @@ function main() {
         eval "chown root:root ${base_path}/certs/*"
         eval "tar -zcf '${tar_file}' -C '${base_path}/certs/' . ${debug}"
         eval "rm -rf '${base_path}/certs' ${debug}"
-        common_logger "Configuration files created: ${tar_file}"
+        common_logger "Configuration files stored in ${tar_file}."
     fi
 
     if [ -z "${configurations}" ]; then
@@ -337,7 +338,6 @@ function main() {
 
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
         common_logger "Installation finished."
-        common_logger "In ${tar_file} you can find the password file and certificates"
     elif [ -n "${start_elastic_cluster}" ]; then
         common_logger "Elasticsearch cluster started."
     fi

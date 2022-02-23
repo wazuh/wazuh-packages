@@ -174,7 +174,7 @@ function installCommon_installPrerequisites() {
     if [ "${sys_type}" == "yum" ]; then
         dependencies=( curl unzip wget libcap tar gnupg openssl )
         not_installed=()
-        for dep in "${!dependencies[@]}"; do
+        for dep in "${dependencies[@]}"; do
             if [ -z "$(yum list installed 2>/dev/null | grep ${dep})" ];then
                 not_installed+=("${dep}")
             fi
@@ -182,11 +182,11 @@ function installCommon_installPrerequisites() {
 
         if [ "${#not_installed[@]}" -gt 0 ]; then
             common_logger "--- Dependencies ----"
-            for dep in "${!not_installed[@]}"; do
-                common_logger "Installing $dep"
+            for dep in "${not_installed[@]}"; do
+                common_logger "Installing $dep."
                 eval "yum install ${dep} -y ${debug}"
                 if [  "$?" != 0  ]; then
-                    common_logger -e "Cannot install dependency: ${dep}"
+                    common_logger -e "Cannot install dependency: ${dep}."
                     exit 1
                 fi
             done
@@ -197,7 +197,7 @@ function installCommon_installPrerequisites() {
         dependencies=( apt-transport-https curl unzip wget libcap2-bin tar software-properties-common gnupg openssl )
         not_installed=()
 
-        for dep in "${!dependencies[@]}"; do
+        for dep in "${dependencies[@]}"; do
             if [ -z "$(yum list installed 2>/dev/null | grep ${dep})" ];then
                 not_installed+=("${dep}")
             fi
@@ -205,11 +205,11 @@ function installCommon_installPrerequisites() {
 
         if [ "${#not_installed[@]}" -gt 0 ]; then
             common_logger "--- Dependencies ----"
-            for dep in "${!not_installed[@]}"; do
-                common_logger "Installing $dep"
+            for dep in "${not_installed[@]}"; do
+                common_logger "Installing $dep."
                 eval "DEBIAN_FRONTEND=noninteractive apt install ${dep} -y ${debug}"
                 if [  "$?" != 0  ]; then
-                    common_logger -e "Cannot install dependency: ${dep}"
+                    common_logger -e "Cannot install dependency: ${dep}."
                     exit 1
                 fi
             done
