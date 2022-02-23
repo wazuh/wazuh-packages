@@ -214,6 +214,7 @@ function installCommon_installPrerequisites() {
                 fi
             done
         fi
+    fi
 
 }
 

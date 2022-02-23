@@ -19,18 +19,18 @@ function getHelp() {
     echo -e "        -a,  --all-in-one"
     echo -e "                Install and configure Wazuh server, Wazuh indexer, Wazuh dashboard and filebeat"
     echo -e ""
-    echo -e "        -c,  --create-configurations"
-    echo -e "                Creates ${tar_file} file from ${config_file} containing the files that will be needed for installation. You will need to copy this file to other hosts in distributed deployments."
+    echo -e "        -c,  --configfile <path-to-config-yml>"
+    echo -e "                Path to config file. By default: ${base_path}/config.yml"
     echo -e ""
     echo -e "        -ds,  --disable-spinner"
     echo -e "                Disables the spinner indicator."
     echo -e ""
     echo -e ""
-    echo -e "        -f,  --fileconfig <path-to-config-yml>"
-    echo -e "                Path to config file. By default: ${base_path}/config.yml"
-    echo -e ""
     echo -e "        -F,  --force-dashboard"
     echo -e "                Ignore indexer cluster related errors in Wazuh Dashboard installation"
+    echo -e ""
+    echo -e "        -g,  --generate-configurations"
+    echo -e "                Generate ${tar_file} file from ${config_file} containing the files that will be needed for installation. You will need to copy this file to other hosts in distributed deployments."
     echo -e ""
     echo -e "        -h,  --help"
     echo -e "                Display this help and exit."
@@ -70,6 +70,7 @@ function getHelp() {
 
 
 function main() {
+    umask 177
 
     common_checkRoot
 
@@ -84,15 +85,12 @@ function main() {
                 AIO=1
                 shift 1
                 ;;
-            "-c"|"--create-configurations")
-                configurations=1
-                shift 1
-                ;;
+            
             "-ds"|"--disable-spinner")
                 disableSpinner=1
                 shift 1
                 ;;
-            "-f"|"--fileconfig")
+            "-c"|"--configfile")
                 if [ -z "${2}" ]; then
                     common_logger -e "Error on arguments. Probably missing <path-to-config-yml> after -f|--fileconfig"
                     getHelp
@@ -103,6 +101,10 @@ function main() {
                 ;;
             "-F"|"--force-dashboard")
                 force=1
+                shift 1
+                ;;
+            "-g"|"--generate-configurations")
+                configurations=1
                 shift 1
                 ;;
             "-h"|"--help")
@@ -235,6 +237,7 @@ function main() {
         passwords_generatePasswordFile
         # Using cat instead of simple cp because OpenSUSE unknown error.
         eval "cat '${config_file}' > '${base_path}/certs/config.yml'"
+        eval "chown root:root ${base_path}/certs/*"
         eval "tar -zcf '${tar_file}' -C '${base_path}/certs/' . ${debug}"
         eval "rm -rf '${base_path}/certs' ${debug}"
         common_logger "Configuration files created: ${tar_file}"

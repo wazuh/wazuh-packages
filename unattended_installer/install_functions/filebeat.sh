@@ -48,6 +48,7 @@ function filebeat_copyCertificates() {
             eval "tar -xf ${tar_file} -C ${filebeat_cert_path} ./${winame}-key.pem && mv ${filebeat_cert_path}${winame}-key.pem ${filebeat_cert_path}filebeat-key.pem ${debug}"
             eval "tar -xf ${tar_file} -C ${filebeat_cert_path} ./root-ca.pem ${debug}"
         fi
+        eval "chown root:root ${indexer_certs_path}/*"
     else
         common_logger -e "No certificates found. Could not initialize Filebeat"
         exit 1;

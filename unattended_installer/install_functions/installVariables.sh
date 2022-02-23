@@ -14,14 +14,10 @@ readonly filebeat_version="7.10.2"
 readonly wazuh_install_vesion="0.1"
 
 ## Links and paths to resources
-readonly functions_path="install_functions"
-readonly config_path="config"
 readonly resources="https://packages-dev.wazuh.com/resources/${wazuh_major}"
-readonly resources_functions="${resources}/${functions_path}"
-readonly resources_config="${resources}/${config_path}"
 readonly base_path="$(dirname $(readlink -f "$0"))"
-readonly config_file="${base_path}/config.yml"
-readonly tar_file="${base_path}/wazuh-install-files.tar"
+config_file="${base_path}/config.yml"
+tar_file="${base_path}/wazuh-install-files.tar"
 
 readonly filebeat_wazuh_template="https://raw.githubusercontent.com/wazuh/wazuh/${wazuh_major}/extensions/elasticsearch/7.x/wazuh-template.json"
 
