@@ -23,7 +23,7 @@ readonly filebeat_wazuh_template="https://raw.githubusercontent.com/wazuh/wazuh/
 
 readonly dashboard_cert_path="/etc/wazuh-dashboard/certs/"
 readonly filebeat_cert_path="/etc/filebeat/certs/"
-readonly indexer_certs_path="/etc/wazuh-indexer/certs/"
+readonly indexer_cert_path="/etc/wazuh-indexer/certs/"
 
 readonly logfile="/var/log/wazuh-unattended-installation.log"
 debug=">> ${logfile} 2>&1"

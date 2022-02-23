@@ -10,7 +10,7 @@ source "${base_dir}"/bach.sh
 
 function load-indexer_copyCertificates() {
     @load_function "${base_dir}/indexer.sh" indexer_copyCertificates
-    indexer_certs_path="/etc/wazuh-indexer/certs/"
+    indexer_cert_path="/etc/wazuh-indexer/certs/"
 }
 
 test-ASSERT-FAIL-01-indexer_copyCertificates-no-tarfile() {
