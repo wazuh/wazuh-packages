@@ -183,7 +183,7 @@ function main() {
 
     if [ -n "${showVersion}" ]; then
         common_logger "Wazuh version: ${wazuh_version}."
-        common_logger "Filebeat version: ${filebeat_version}"
+        common_logger "Filebeat version: ${filebeat_version}."
         common_logger "Wazuh installer version: ${wazuh_install_vesion}."
         exit 0
     fi
