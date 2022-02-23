@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Tool to create wazuh_install.sh, wazuh-cert-tool.sh
+# Tool to create wazuh-install.sh, wazuh-cert-tool.sh
 # and wazuh-passwords-tool.sh
 # Copyright (C) 2015, Wazuh Inc.
 #
@@ -45,7 +45,7 @@ function getHelp() {
 }
 
 function buildInstaller() {
-    output_script_path="${base_path}/wazuh_install.sh"
+    output_script_path="${base_path}/wazuh-install.sh"
 
     ## Create installer script
     echo -n > "${output_script_path}"
