@@ -166,7 +166,6 @@ function passwords_generatePasswordFile() {
         echo "  name: ${users[${i}]}" >> "${gen_file}"
         echo "  password: ${passwords[${i}]}" >> "${gen_file}"
     done
-    chmod 600 ${gen_file}
 
 }
 

@@ -40,6 +40,8 @@ function getHelp() {
 
 function main() {
 
+    umask 177
+
     common_checkRoot
     cert_checkOpenSSL
 

@@ -98,7 +98,6 @@ function installCommon_createCertificates() {
 function installCommon_createClusterKey() {
 
     openssl rand -hex 16 >> "${base_path}/certs/clusterkey"
-    chmod 600 ${base_path}/certs/clusterkey
 
 }
 

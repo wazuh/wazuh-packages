@@ -55,6 +55,8 @@ function getHelp() {
 
 function main() {
 
+    umask 177
+
     common_checkRoot
 
     if [ -n "${1}" ]; then
