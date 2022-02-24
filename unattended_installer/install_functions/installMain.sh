@@ -182,9 +182,9 @@ function main() {
     done
 
     if [ -n "${showVersion}" ]; then
-        common_logger "Wazuh version: ${wazuh_version}."
-        common_logger "Filebeat version: ${filebeat_version}."
-        common_logger "Wazuh installer version: ${wazuh_install_vesion}."
+        common_logger "Wazuh version: ${wazuh_version}"
+        common_logger "Filebeat version: ${filebeat_version}"
+        common_logger "Wazuh installation assistant version: ${wazuh_install_vesion}"
         exit 0
     fi
 
@@ -194,7 +194,7 @@ function main() {
         trap "kill -9 ${spin_pid} ${debug}" EXIT
     fi
 
-    common_logger "Starting Wazuh unattended installer."
+    common_logger "Starting Wazuh installation assistant."
 
 # -------------- Uninstall case  ------------------------------------
 
