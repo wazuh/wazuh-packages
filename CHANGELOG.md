@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [v4.3.0]
 
+- Fix AIX partition size [#1274](https://github.com/wazuh/wazuh-packages/pull/1274)
 - Fix Solaris 11 upgrade from previous packages [#1147](https://github.com/wazuh/wazuh-packages/pull/1147)
 - Add new GCloud integration files to Solaris 11 [#1126](https://github.com/wazuh/wazuh-packages/pull/1126)
 - Update SPECS [#689](https://github.com/wazuh/wazuh-packages/pull/689)
