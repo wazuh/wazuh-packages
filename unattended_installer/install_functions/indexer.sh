@@ -95,7 +95,7 @@ function indexer_copyCertificates() {
 
 function indexer_initialize() {
 
-    common_logger "Starting Wazuh indexer cluster."
+    common_logger "Initializing Wazuh indexer cluster security settings."
     i=0
     until curl -XGET https://${indexer_node_ips[pos]}:9700/ -uadmin:admin -k --max-time 120 --silent --output /dev/null || [ "${i}" -eq 12 ]; do
         sleep 10
@@ -121,7 +121,7 @@ function indexer_initialize() {
 
 function indexer_install() {
 
-    common_logger "Starting Wazuh indexer installation."
+    common_logger "Initializing Wazuh indexer cluster security settings."
 
     if [ "${sys_type}" == "yum" ]; then
         eval "yum install wazuh-indexer-${wazuh_version}-${wazuh_revision} -y ${debug}"

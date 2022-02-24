@@ -92,8 +92,9 @@ function checks_arguments() {
             common_logger -e "Filebeat already installed."
             installedComponent=1
         fi
-        if [-n "${installedComponent}"]; then
-            "If you want to overwrite the current installation, run this script back using the option -o/--overwrite. This will erase all the existing configuration and data."
+        if [ -n "${installedComponent}" ]; then
+            common_logger "If you want to overwrite the current installation, run this script back using the option -o/--overwrite. This will erase all the existing configuration and data."
+            exit 1
         fi
 
     fi
