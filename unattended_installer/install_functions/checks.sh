@@ -26,14 +26,14 @@ function checks_arguments() {
     fi
 
     if [[ -n "${configurations}" && ( -n "${AIO}" || -n "${indexer}" || -n "${dashboard}" || -n "${wazuh}" || -n "${overwrite}" || -n "${start_elastic_cluster}" || -n "${tar_conf}" || -n "${uninstall}" ) ]]; then
-        common_logger -e "The argument -c|--create-configurations can't be used with -a, -k, -e, -u or -w arguments."
+        common_logger -e "The argument -g|--generate-configurations can't be used with -a|--all-in-one, -o|--overwrite, -s|--start-cluster, -t|--tar, -u|--uninstall, -wd|--wazuh-dashboard, -wi|--wazuh-indexer, or -ws|--wazuh-server"
         exit 1
     fi
 
     # -------------- Overwrite --------------------------------------
 
     if [ -n "${overwrite}" ] && [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ]; then 
-        common_logger -e "The argument -o|--overwrite must be used with -a, -k, -e or -w. If you want to uninstall all the components use -u|--uninstall"
+        common_logger -e "The argument -o|--overwrite must be used in conjunction with -a|--all-in-one, -wd|--wazuh-dashboard, -wi|--wazuh-indexer, or -ws|--wazuh-server."
         exit 1
     fi
 
@@ -72,14 +72,30 @@ function checks_arguments() {
             exit 1
         fi
 
-        if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ] || [ -n "${indexerinstalled}" ] || [ -n "${indexer_remaining_files}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ] || [ -n "${dashboardinstalled}" ] || [ -n "${dashboard_remaining_files}" ]; then
-            if [ -n "${overwrite}" ]; then
-                installCommon_rollBack
-            else
-                common_logger -e "Some the Wazuh components were found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. This will erase all the existing configuration and data."
-                exit 1
-            fi
+        if [ -n "${overwrite}" ]; then
+            installCommon_rollBack
         fi
+
+        if [ -z "${overwrite}" ] && ([ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ]); then
+            common_logger -e "Wazuh manager already installed."
+            installedComponent=1
+        fi
+        if [ -z "${overwrite}" ] && ([ -n "${indexerinstalled}" ] || [ -n "${indexer_remaining_files}" ]);then 
+            common_logger -e "Wazuh indexer already installed."
+            installedComponent=1
+        fi
+        if [ -z "${overwrite}" ] && ([ -n "${dashboardinstalled}" ] || [ -n "${dashboard_remaining_files}" ]); then
+            common_logger -e "Wazuh dashboard already installed."
+            installedComponent=1
+        fi
+        if [ -z "${overwrite}" ] && ([ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ]); then
+            common_logger -e "Filebeat already installed."
+            installedComponent=1
+        fi
+        if [-n "${installedComponent}"]; then
+            "If you want to overwrite the current installation, run this script back using the option -o/--overwrite. This will erase all the existing configuration and data."
+        fi
+
     fi
 
     # -------------- Indexer ----------------------------------
@@ -134,14 +150,14 @@ function checks_arguments() {
     # -------------- Cluster start ----------------------------------
 
     if [[ -n "${start_elastic_cluster}" && ( -n "${AIO}" || -n "${indexer}" || -n "${dashboard}" || -n "${wazuh}" || -n "${overwrite}" || -n "${configurations}" || -n "${tar_conf}" || -n "${uninstall}") ]]; then
-        common_logger -e "The argument -s|--start-cluster can't be used with -a, -k, -e or -w arguments."
+        common_logger -e "The argument -s|--start-cluster can't be used with -a|--all-in-one, -g|--generate-configurations,-o|--overwrite , -u|--uninstall, -wi|--wazuh-indexer, -wd|--wazuh-dashboard, -s|--start-cluster, -ws|--wazuh-server."
         exit 1
     fi
 
     # -------------- Global -----------------------------------------
 
     if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ] && [ -z "${configurations}" ] && [ -z "${uninstall}"]; then
-        common_logger -e "At least one of these arguments is necessary -a|--all-in-one, -c|--create-configurations, -wi|--wazuh-indexer, -wd|--wazuh-dashboard, -s|--start-cluster, -ws|--wazuh-server, -u|--uninstall"
+        common_logger -e "At least one of these arguments is necessary -a|--all-in-one, -g|--generate-configurations, -wi|--wazuh-indexer, -wd|--wazuh-dashboard, -s|--start-cluster, -ws|--wazuh-server, -u|--uninstall"
         exit 1
     fi
 
@@ -219,7 +235,7 @@ function checks_names() {
 function checks_previousCertificate() {
 
     if [ ! -f "${tar_file}" ]; then
-        common_logger -e "No certificates file found (${tar_file}). Run the script with the option -c|--certificates to create automatically or copy them from the node where they were created."
+        common_logger -e "No certificates file found (${tar_file}). Run the script with the option -c|--certificates to create them or copy them from another node."
         exit 1
     fi
 
