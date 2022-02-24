@@ -194,7 +194,7 @@ function main() {
         trap "kill -9 ${spin_pid} ${debug}" EXIT
     fi
 
-    common_logger "Starting Wazuh installation assistant."
+    common_logger "Starting Wazuh installation assistant. Wazuh version: ${wazuh_version}"
 
 # -------------- Uninstall case  ------------------------------------
 
