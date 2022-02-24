@@ -193,6 +193,9 @@ function buildCertsTool() {
 }
 
 function builder_main() {
+
+    umask 066 
+
     while [ -n "${1}" ]
     do
         case "${1}" in
