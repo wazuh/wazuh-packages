@@ -25,7 +25,6 @@ function getHelp() {
     echo -e "        -ds,  --disable-spinner"
     echo -e "                Disables the spinner indicator."
     echo -e ""
-    echo -e ""
     echo -e "        -F,  --force-dashboard"
     echo -e "                Ignore indexer cluster related errors in Wazuh Dashboard installation"
     echo -e ""
@@ -96,6 +95,7 @@ function main() {
                     getHelp
                     exit 1
                 fi
+                file_conf=1
                 config_file="${2}"
                 shift 2
                 ;;
@@ -128,7 +128,7 @@ function main() {
                     getHelp
                     exit 1
                 fi
-                tar_conf="1"
+                tar_conf=1
                 tar_file="${2}"
                 shift 2
                 ;;
@@ -200,6 +200,7 @@ function main() {
 
     common_checkSystem
     common_checkInstalled
+    checks_arguments
     if [ -n "${uninstall}" ]; then
         installCommon_rollBack
         exit 0
@@ -219,7 +220,6 @@ function main() {
     if [ -n "${AIO}" ] ; then
         rm -f "${tar_file}"
     fi
-    checks_arguments
 
 # -------------- Configuration creation case  -----------------------
 
@@ -241,7 +241,7 @@ function main() {
         eval "chown root:root ${base_path}/certs/*"
         eval "tar -zcf '${tar_file}' -C '${base_path}/certs/' . ${debug}"
         eval "rm -rf '${base_path}/certs' ${debug}"
-        common_logger "Configuration files stored in ${tar_file}."
+        common_logger "Created ${tar_file}. Contains Wazuh cluster key, certificates, and passwords necessary for installation."
     fi
 
     if [ -z "${configurations}" ]; then
@@ -338,8 +338,10 @@ function main() {
 
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
         common_logger "Installation finished."
+        common_logger "The certificates and passwords used are stored in ${tar_file}."
     elif [ -n "${start_elastic_cluster}" ]; then
         common_logger "Elasticsearch cluster started."
+        common_logger "The certificates and passwords used are stored in ${tar_file}."
     fi
 
 }

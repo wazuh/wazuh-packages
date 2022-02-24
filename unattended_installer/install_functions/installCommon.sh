@@ -79,7 +79,7 @@ function installCommon_addWazuhRepo() {
 function installCommon_createCertificates() {
 
     if [ -n "${AIO}" ]; then
-        eval "installCommon_getConfig certificate/config_aio.yml ${base_path}/config.yml ${debug}"
+        eval "installCommon_getConfig certificate/config_aio.yml ${config_file} ${debug}"
     fi
 
     cert_readConfig

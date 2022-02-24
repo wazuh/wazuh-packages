@@ -20,13 +20,18 @@ function checks_arguments() {
 
     # -------------- Configurations ---------------------------------
 
-    if [[ ( -n "${AIO}"  || -n "${configurations}" ) && -f "${tar_file}" ]]; then
+    if [ -f "${tar_file}" ]; then
+        if [ -n "${AIO}" ]; then
+            rm -f "${tar_file}"
+        fi
+        if [ -n "${configurations}" ]; then
             common_logger -e "File ${tar_file} exists. Please remove it if you want to use a new configuration."
             exit 1
+        fi
     fi
 
     if [[ -n "${configurations}" && ( -n "${AIO}" || -n "${indexer}" || -n "${dashboard}" || -n "${wazuh}" || -n "${overwrite}" || -n "${start_elastic_cluster}" || -n "${tar_conf}" || -n "${uninstall}" ) ]]; then
-        common_logger -e "The argument -g|--generate-configurations can't be used with -a|--all-in-one, -o|--overwrite, -s|--start-cluster, -t|--tar, -u|--uninstall, -wd|--wazuh-dashboard, -wi|--wazuh-indexer, or -ws|--wazuh-server"
+        common_logger -e "The argument -g|--generate-configurations can't be used with -a|--all-in-one, -o|--overwrite, -s|--start-cluster, -t|--tar, -u|--uninstall, -wd|--wazuh-dashboard, -wi|--wazuh-indexer, or -ws|--wazuh-server."
         exit 1
     fi
 
@@ -40,6 +45,11 @@ function checks_arguments() {
     # -------------- Uninstall --------------------------------------
 
     if [ -n "${uninstall}" ]; then
+
+        if [ -n "$AIO" ] || [ -n "$indexer" ] || [ -n "$dashboard" ] || [ -n "$wazuh" ]; then
+            common_logger -e "It is not possible to uninstall and install in the same operation. If you want to overwrite the components use -o|--overwrite."
+            exit 1
+        fi
 
         if [ -z "${wazuhinstalled}" ] && [ -z "${wazuh_remaining_files}" ]; then
             common_logger "Wazuh manager components were not found on the system so it was not uninstalled."
@@ -57,10 +67,6 @@ function checks_arguments() {
             common_logger "Wazuh Dashboard components were found on the system so it was not uninstalled."
         fi
 
-        if [ -n "$AIO" ] || [ -n "$indexer" ] || [ -n "$dashboard" ] || [ -n "$wazuh" ]; then
-            common_logger -e "It is not possible to uninstall and install in the same operation. If you want to overwrite the components use -o|--overwrite"
-            exit 1
-        fi
     fi
 
     # -------------- All-In-One -------------------------------------
@@ -68,7 +74,7 @@ function checks_arguments() {
     if [ -n "${AIO}" ]; then
 
         if [ -n "$indexer" ] || [ -n "$dashboard" ] || [ -n "$wazuh" ]; then
-            common_logger -e "Argument -a|--all-in-one is not compatible with -wi|--wazuh-indexer, -wd|--wazuh-dashboard or -ws|--wazuh-server"
+            common_logger -e "Argument -a|--all-in-one is not compatible with -wi|--wazuh-indexer, -wd|--wazuh-dashboard or -ws|--wazuh-server."
             exit 1
         fi
 
@@ -93,7 +99,7 @@ function checks_arguments() {
             installedComponent=1
         fi
         if [ -n "${installedComponent}" ]; then
-            common_logger "If you want to overwrite the current installation, run this script back using the option -o/--overwrite. This will erase all the existing configuration and data."
+            common_logger "If you want to overwrite the current installation, run this script adding the option -o/--overwrite. This will erase all the existing configuration and data."
             exit 1
         fi
 
@@ -157,10 +163,15 @@ function checks_arguments() {
 
     # -------------- Global -----------------------------------------
 
-    if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ] && [ -z "${configurations}" ] && [ -z "${uninstall}"]; then
-        common_logger -e "At least one of these arguments is necessary -a|--all-in-one, -g|--generate-configurations, -wi|--wazuh-indexer, -wd|--wazuh-dashboard, -s|--start-cluster, -ws|--wazuh-server, -u|--uninstall"
+    if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ] && [ -z "${configurations}" ] && [ -z "${uninstall}" ]; then
+        common_logger -e "At least one of these arguments is necessary -a|--all-in-one, -g|--generate-configurations, -wi|--wazuh-indexer, -wd|--wazuh-dashboard, -s|--start-cluster, -ws|--wazuh-server, -u|--uninstall."
         exit 1
     fi
+
+    if [ -n "${force}" ] && [ -z  "${dashboard}" ]; then
+        common_logger -e "The -F|--force-dashboard argument needs to be used alongside -wd|--wazuh-dashboard."
+        exit 1
+    fi 
 
 }
 
@@ -239,7 +250,7 @@ function checks_names() {
 function checks_previousCertificate() {
 
     if [ ! -f "${tar_file}" ]; then
-        common_logger -e "No certificates file found (${tar_file}). Run the script with the option -c|--certificates to create them or copy them from another node."
+        common_logger -e "Cannot find ${tar_file}. Run the script with the option -g|--generate-configurations to create it or copy it from another node."
         exit 1
     fi
 
