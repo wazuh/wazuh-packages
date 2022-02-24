@@ -165,7 +165,10 @@ function checks_arguments() {
 
 function checks_health() {
 
+    logger "Verifying that your system meets the recommended minimum hardware requirements."
+    
     checks_specifications
+
     if [ -n "${indexer}" ]; then
         if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
             common_logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
