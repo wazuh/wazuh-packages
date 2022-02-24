@@ -36,8 +36,7 @@ function common_logger() {
     fi
 
     if [ -z "${debugLogger}" ] || ( [ -n "${debugLogger}" ] && [ -n "${debugEnabled}" ] ); then
-            echo "${message}"
-            echo "${now} ${mtype} ${message}" >> ${logfile}
+            echo "${now} ${mtype} ${message}" | tee -a ${logfile}
     fi
 }
 
