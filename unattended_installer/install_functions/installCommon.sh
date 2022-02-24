@@ -197,7 +197,7 @@ function installCommon_installPrerequisites() {
         not_installed=()
 
         for dep in "${dependencies[@]}"; do
-            if [ -z "$(yum list installed 2>/dev/null | grep ${dep})" ];then
+            if [ -z "$(apt list --installed 2>/dev/null | grep ${dep})" ];then
                 not_installed+=("${dep}")
             fi
         done
@@ -327,7 +327,7 @@ function installCommon_rollBack() {
     fi
 
     if [[ -n "${wazuhinstalled}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]];then
-        common_logger "Removing the Wazuh manager."
+        common_logger "Removing Wazuh manager."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-manager -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
