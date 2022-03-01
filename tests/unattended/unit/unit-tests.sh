@@ -4,11 +4,18 @@ today="$(date +"%d_%m_%y")"
 logfile="./${today}-unit_test.log"
 echo "-------------------------" >> ${logfile}
 debug=">> ${logfile}"
-ALL_FILES=("common" "checks" "wazuh" "filebeat" "kibana" "elasticsearch" "wazuh-cert-tool" "wazuh-passwords-tool")
+install_files=("checks" "dashboard" "filebeat" "indexer" "installCommon" "manager")
+cert_files=("certFunctions")
+passwords_files=("passwordsFunctions")
+common_files=("common")
+install_dir="install_functions"
+cert_dir="cert_tool"
+passwords_dir="passwords_tool"
+common_dir="common_functions"
 IMAGE_NAME="unattended-installer-unit-tests-launcher"
 SHARED_VOLUME="$(pwd -P)/tmp/"
 
-function logger() {
+function common_logger() {
 
     now=$(date +'%d/%m/%Y %H:%M:%S')
     case ${1} in 
@@ -25,7 +32,8 @@ function logger() {
             message="${1}"
             ;;
     esac
-    echo "${now} ${mtype} ${message}" | tee -a ${logfile}
+    echo "${message}"
+    echo "${now} ${mtype} ${message}" >> ${logfile}
 
 }
 
@@ -33,26 +41,26 @@ function logger() {
 function createImage() {
 
     if [ ! -f docker-unit-testing-tool/Dockerfile ]; then
-        logger -e "No Dockerfile found to create the environment."
+        common_logger -e "No Dockerfile found to create the environment."
         exit 1
     fi
 
     if [ -n "${rebuild_image}" ]; then
-        logger "Removing old image."
+        common_logger "Removing old image."
         eval "docker rmi ${IMAGE_NAME} ${debug}"
     fi
 
     if [ -z "$(docker images | grep ${IMAGE_NAME})" ]; then
-        logger "Building image."
+        common_logger "Building image."
         eval "docker build -t ${IMAGE_NAME} docker-unit-testing-tool ${debug}"
         if [ "$?" != 0 ]; then
-            logger -e "Docker encountered some error."
+            common_logger -e "Docker encountered some error."
             exit 1
         else 
-            logger "Docker image built successfully."
+            common_logger "Docker image built successfully."
         fi
     else
-        logger "Docker image found."
+        common_logger "Docker image found."
     fi
     eval "mkdir -p ${SHARED_VOLUME} ${debug}"
     eval "cp framework/bach.sh ${SHARED_VOLUME} ${debug}"
@@ -60,31 +68,32 @@ function createImage() {
 
 function testFile() {
 
-    logger "Unit tests for ${1}.sh."
-
+    common_logger "Unit tests for ${1}.sh."
 
     eval "cp suites/test-${1}.sh ${SHARED_VOLUME}"
-    if [ -f ../../../unattended_installer/install_functions/opendistro/${1}.sh ]; then
-        eval "cp ../../../unattended_installer/install_functions/opendistro/${1}.sh ${SHARED_VOLUME} ${debug}"
-    elif [ -f ../../../unattended_installer/install_functions/elasticsearch_basic/${1}.sh ]; then
-        eval "cp ../../../unattended_installer/install_functions/elasticsearch_basic/${1}.sh ${SHARED_VOLUME} ${debug}"
-    elif [ -f ../../../unattended_installer/${1}.sh ]; then
-        eval "cp ../../../unattended_installer/${1}.sh ${SHARED_VOLUME} ${debug}"
-    else 
-        logger -e "File ${1}.sh could not be found."
+    if printf '%s\n' "${install_files[@]}" | grep -F -x -q "${1}" ; then
+        eval "cp ../../../unattended_installer/${install_dir}/${1}.sh ${SHARED_VOLUME} ${debug}"
+    elif printf '%s\n' "${passwords_files[@]}" | grep -F -x -q "${1}"; then
+        eval "cp ../../../unattended_installer/${passwords_dir}/${1}.sh ${SHARED_VOLUME} ${debug}"
+    elif printf '%s\n' "${cert_files[@]}" | grep -F -x -q "${1}"; then
+        eval "cp ../../../unattended_installer/${cert_dir}/${1}.sh ${SHARED_VOLUME} ${debug}"
+    elif printf '%s\n' "${common_files[@]}" | grep -F -x -q "${1}"; then
+        eval "cp ../../../unattended_installer/${common_dir}/${1}.sh ${SHARED_VOLUME} ${debug}"
+    else
+        common_logger -e "File ${1}.sh could not be found."
         return
     fi
 
     eval "docker run -t --rm --volume ${SHARED_VOLUME}:/tests/unattended/ --env TERM=xterm-256color ${IMAGE_NAME} ${1} | tee -a ${logfile}"
     if [ "$?" != 0 ]; then
-        logger -e "Docker encountered some error running the unit tests for ${1}.sh"
+        common_logger -e "Docker encountered some error running the unit tests for ${1}.sh"
     else 
-        logger "All unit tests for the functions in ${1}.sh finished."
+        common_logger "All unit tests for the functions in ${1}.sh finished."
     fi
 }
 
 function clean() {
-    logger "Cleaning temporary files."
+    common_logger "Cleaning temporary files."
     eval "rm -rf ${SHARED_VOLUME} ${debug}"
 }
 
@@ -138,9 +147,6 @@ main() {
                 while [ -n "${1}" ]; do
                     TEST_FILES+=("${1}")
                     shift 1
-                    if [ -z "${1}" ] || [[ "${1}" =~ -.* ]] || [ -z "$(echo ${ALL_FILES[@]} | grep -w "${1}")" ]; then
-                        break
-                    fi
                 done
                 ;;
             "-r"|"--rebuild-image")
@@ -161,7 +167,7 @@ main() {
     done
 
     if [ -n "${all_tests}" ] && [ ${#TEST_FILES[@]} -gt 0 ]; then
-        logger -e "Cannot use options -a and -f in the same run."
+        common_logger -e "Cannot use options -a and -f in the same run."
         exit 1
     fi
 
@@ -173,7 +179,16 @@ main() {
     createImage
 
     if [ -n "${all_tests}" ]; then
-        for file in "${ALL_FILES[@]}"; do
+        for file in "${install_files[@]}"; do
+            testFile ${file}
+        done
+        for file in "${passwords_file[@]}"; do
+            testFile ${file}
+        done
+        for file in "${cert_file[@]}"; do
+            testFile ${file}
+        done
+        for file in "${common_file[@]}"; do
             testFile ${file}
         done
     else 

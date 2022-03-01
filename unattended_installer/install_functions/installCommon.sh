@@ -6,22 +6,46 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-if [ -n "${development}" ]; then
-    readonly repogpg="https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH"
-    readonly repobaseurl="https://packages-dev.wazuh.com/pre-release"
-    readonly reporelease="unstable"
-else
-    readonly repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"
-    readonly repobaseurl="https://packages.wazuh.com/4.x"
-    readonly reporelease="stable"
-fi
+function installCommon_cleanExit() {
 
-readonly filebeat_wazuh_template="https://raw.githubusercontent.com/wazuh/wazuh/${wazuh_major}/extensions/elasticsearch/7.x/wazuh-template.json"
-readonly filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.1.tar.gz"
+    rollback_conf=""
 
-function common_addWazuhRepo() {
+    if [ -n "$spin_pid" ]; then
+        eval "kill -9 $spin_pid ${debug}"
+    fi
 
-    logger -d "Adding the Wazuh repository."
+    until [[ "${rollback_conf}" =~ ^[N|Y|n|y]$ ]]; do
+        echo -ne "\nDo you want to clean the ongoing installation?[Y/N]"
+        read -r rollback_conf
+    done
+    if [[ "${rollback_conf}" =~ [N|n] ]]; then
+        exit 1
+    else
+        installCommon_rollBack
+        exit 1
+    fi
+
+}
+
+function installCommon_spin() {
+
+    trap "{ tput el1; exit 0; }" 15
+    spinner="/|\\-/|\\-"
+    trap "echo ''" EXIT
+    while :
+    do
+        for i in $(seq 0 7)
+        do
+            echo -n "${spinner:$i:1}"
+            echo -en "\010"
+            sleep 0.1
+        done
+    done
+}
+
+function installCommon_addWazuhRepo() {
+
+    common_logger -d "Adding the Wazuh repository."
 
     if [ -n "${development}" ]; then
         if [ "${sys_type}" == "yum" ]; then
@@ -46,99 +70,95 @@ function common_addWazuhRepo() {
             eval "apt-get update -q ${debug}"
         fi
     else
-        logger -d "Wazuh repository already exists. Skipping addition."
+        common_logger -d "Wazuh repository already exists. Skipping addition."
     fi
-    logger -d "Wazuh repository added."
+    common_logger -d "Wazuh repository added."
 
 }
 
-function common_createCertificates() {
+function installCommon_createCertificates() {
 
     if [ -n "${AIO}" ]; then
-        eval "common_getConfig certificate/config_aio.yml ${base_path}/config.yml ${debug}"
+        eval "installCommon_getConfig certificate/config_aio.yml ${config_file} ${debug}"
     fi
 
-    readConfig
+    cert_readConfig
 
     mkdir "${base_path}/certs"
 
-    generateRootCAcertificate
-    generateAdmincertificate
-    generateIndexercertificates
-    generateFilebeatcertificates
-    generatedashboardcertificates
-    cleanFiles
+    cert_generateRootCAcertificate
+    cert_generateAdmincertificate
+    cert_generateIndexercertificates
+    cert_generateFilebeatcertificates
+    cert_generateDashboardcertificates
+    cert_cleanFiles
 
 }
 
-function common_createClusterKey() {
+function installCommon_createClusterKey() {
 
     openssl rand -hex 16 >> "${base_path}/certs/clusterkey"
 
 }
 
-function common_changePasswords() {
+function installCommon_changePasswords() {
 
-    logger -d "Setting passwords."
+    common_logger -d "Setting passwords."
     if [ -f "${tar_file}" ]; then
         eval "tar -xf ${tar_file} -C ${base_path} ./password_file.yml ${debug}"
         p_file="${base_path}/password_file.yml"
-        checkInstalledPass
+        common_checkInstalled
         if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
             changeall=1
-            readUsers
+            passwords_readUsers
         fi
-        common_readPasswordFileUsers
+        installCommon_readPasswordFileUsers
     else
-        logger -e "Cannot find passwords-file. Exiting"
+        common_logger -e "Cannot find passwords_file. Exiting"
         exit 1
     fi
     if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
-        getNetworkHost
-        createBackUp
-        generateHash
+        passwords_getNetworkHost
+        passwords_createBackUp
+        passwords_generateHash
     fi
 
-    changePassword
+    passwords_changePassword
 
     if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
-        runSecurityAdmin
+        passwords_runSecurityAdmin
     fi
     rm -rf "${p_file}"
 
 }
 
-function common_extractConfig() {
+function installCommon_extractConfig() {
 
     if ! $(tar -tf "${tar_file}" | grep -q config.yml); then
-        logger -e "There is no config.yml file in ${tar_file}."
+        common_logger -e "There is no config.yml file in ${tar_file}."
         exit 1
     fi
     eval "tar -xf ${tar_file} -C ${base_path} ./config.yml ${debug}"
 
 }
 
-function common_getConfig() {
+function installCommon_getConfig() {
 
     if [ "$#" -ne 2 ]; then
-        logger -e "common_getConfig should be called with two arguments"
+        common_logger -e "installCommon_getConfig should be called with two arguments"
         exit 1
     fi
 
-    if [ -n "${local}" ]; then
-        cp "${base_path}/${config_path}/${1}" "${2}"
-    else
-        curl -f -so "${2}" "${resources_config}/${1}"
-    fi
-    if [ "$?" != 0 ]; then
-        logger -e "Unable to find configuration file ${1}. Exiting."
-        common_rollBack
+    config_name="config_file_$(eval "echo ${1} | sed 's|/|_|g;s|.yml||'")"
+    if [ -z "$(eval "echo \${${config_name}}")" ]; then
+        common_logger -e "Unable to find configuration file ${1}. Exiting."
+        installCommon_rollBack
         exit 1
     fi
-
+    eval "echo \"\${${config_name}}\"" > "${2}"
 }
 
-function common_getPass() {
+function installCommon_getPass() {
 
     for i in "${!users[@]}"; do
         if [ "${users[i]}" == "${1}" ]; then
@@ -148,47 +168,68 @@ function common_getPass() {
 
 }
 
-function common_installPrerequisites() {
-
-    logger "Starting the installation of dependencies."
-
-    openssl=""
-    if [ -z "$(command -v openssl)" ]; then
-        openssl="openssl"
-    fi
+function installCommon_installPrerequisites() {
 
     if [ "${sys_type}" == "yum" ]; then
-        eval "yum install curl unzip wget libcap tar gnupg ${openssl} -y ${debug}"
-    elif [ "${sys_type}" == "zypper" ]; then
-        eval "zypper -n install curl unzip wget ${debug}"
-        eval "zypper -n install libcap-progs tar gnupg ${openssl} ${debug} || zypper -n install libcap2 tar gnupg ${openssl} ${debug}"
-    elif [ "${sys_type}" == "apt-get" ]; then
-        eval "apt-get update -q ${debug}"
-        eval "DEBIAN_FRONTEND=noninteractive apt install apt-transport-https curl unzip wget libcap2-bin tar software-properties-common gnupg ${openssl} -y ${debug}"
-    fi
+        dependencies=( curl unzip wget libcap tar gnupg openssl )
+        not_installed=()
+        for dep in "${dependencies[@]}"; do
+            if [ -z "$(yum list installed 2>/dev/null | grep ${dep})" ];then
+                not_installed+=("${dep}")
+            fi
+        done
 
-    if [  "$?" != 0  ]; then
-        logger -e "Prerequisites could not be installed, probably due to the OS repositories. Please check them."
-        exit 1
-    else
-        logger "Installation of dependencies finished."
+        if [ "${#not_installed[@]}" -gt 0 ]; then
+            common_logger "--- Dependencies ----"
+            for dep in "${not_installed[@]}"; do
+                common_logger "Installing $dep."
+                eval "yum install ${dep} -y ${debug}"
+                if [  "$?" != 0  ]; then
+                    common_logger -e "Cannot install dependency: ${dep}."
+                    exit 1
+                fi
+            done
+        fi
+
+    elif [ "${sys_type}" == "apt-get" ]; then
+        eval "apt update -q ${debug}"
+        dependencies=( apt-transport-https curl unzip wget libcap2-bin tar software-properties-common gnupg openssl )
+        not_installed=()
+
+        for dep in "${dependencies[@]}"; do
+            if [ -z "$(apt list --installed 2>/dev/null | grep ${dep})" ];then
+                not_installed+=("${dep}")
+            fi
+        done
+
+        if [ "${#not_installed[@]}" -gt 0 ]; then
+            common_logger "--- Dependencies ----"
+            for dep in "${not_installed[@]}"; do
+                common_logger "Installing $dep."
+                eval "DEBIAN_FRONTEND=noninteractive apt install ${dep} -y ${debug}"
+                if [  "$?" != 0  ]; then
+                    common_logger -e "Cannot install dependency: ${dep}."
+                    exit 1
+                fi
+            done
+        fi
     fi
 
 }
 
-function common_readPasswordFileUsers() {
+function installCommon_readPasswordFileUsers() {
 
-    filecorrect=$(grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z' "${p_file}")
+    filecorrect=$(grep -v '^#' "${p_file}" | grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z')
     if [ "${filecorrect}" -ne 1 ]; then
-        logger -e "The password file doesn't have a correct format.
+        common_logger -e "The password file doesn't have a correct format.
 
 It must have this format:
 User:
   name: wazuh
   password: wazuhpassword
 User:
-  name: kibanaserver
-  password: kibanaserverpassword"
+  name: admin
+  password: adminpassword"
 
 	    exit 1
     fi
@@ -200,8 +241,8 @@ User:
     filepasswords=(${sfilepasswords})
 
     if [ -n "${debugEnabled}" ]; then
-        logger "Users in the file: ${fileusers[*]}"
-        logger "Passwords in the file: ${filepasswords[*]}"
+        common_logger "Users in the file: ${fileusers[*]}"
+        common_logger "Passwords in the file: ${filepasswords[*]}"
     fi
 
     if [ -n "${changeall}" ]; then
@@ -214,7 +255,7 @@ User:
                 fi
             done
             if [ "${supported}" = false ] && [ -n "${indexerinstalled}" ]; then
-                logger -e -d "The given user ${fileusers[j]} does not exist"
+                common_logger -e -d "The given user ${fileusers[j]} does not exist"
             fi
         done
     else
@@ -239,7 +280,7 @@ User:
                 fi
             done
             if [ "${supported}" = "false" ] && [ -n "${indexerinstalled}" ] && [ -n "${changeall}" ]; then
-                logger -e -d "The given user ${fileusers[j]} does not exist"
+                common_logger -e -d "The given user ${fileusers[j]} does not exist"
             fi
         done
 
@@ -251,7 +292,7 @@ User:
 
 }
 
-function common_restoreWazuhrepo() {
+function installCommon_restoreWazuhrepo() {
 
     if [ -n "${development}" ]; then
         if [ "${sys_type}" == "yum" ] && [ -f "/etc/yum.repos.d/wazuh.repo" ]; then
@@ -261,20 +302,20 @@ function common_restoreWazuhrepo() {
         elif [ "${sys_type}" == "apt-get" ] && [ -f "/etc/apt/sources.list.d/wazuh.list" ]; then
             file="/etc/apt/sources.list.d/wazuh.list"
         else
-            logger -w -d "Wazuh repository does not exists."
+            common_logger -w -d "Wazuh repository does not exists."
         fi
         eval "sed -i 's/-dev//g' ${file} ${debug}"
         eval "sed -i 's/pre-release/4.x/g' ${file} ${debug}"
         eval "sed -i 's/unstable/stable/g' ${file} ${debug}"
-        logger -d "The Wazuh repository set to production."
+        common_logger -d "The Wazuh repository set to production."
     fi
 
 }
 
-function common_rollBack() {
+function installCommon_rollBack() {
 
     if [ -z "${uninstall}" ]; then
-        logger "Cleaning the installation."
+        common_logger "--- Removing existing Wazuh installation ---"
     fi
 
     if [ -f "/etc/yum.repos.d/wazuh.repo" ]; then
@@ -286,7 +327,7 @@ function common_rollBack() {
     fi
 
     if [[ -n "${wazuhinstalled}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]];then
-        logger -w "Removing the Wazuh manager."
+        common_logger "Removing Wazuh manager."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-manager -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
@@ -295,6 +336,7 @@ function common_rollBack() {
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge wazuh-manager -y ${debug}"
         fi
+        common_logger "Wazuh manager removed."
     fi
 
     if [[ ( -n "${wazuh_remaining_files}"  || -n "${wazuhinstalled}" ) && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
@@ -302,14 +344,15 @@ function common_rollBack() {
     fi
 
     if [[ -n "${indexerinstalled}" && ( -n "${indexer}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        logger -w "Removing Wazuh indexer."
+        common_logger "Removing Wazuh indexer."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-indexer -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
             eval "zypper -n remove wazuh-indexer ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
-            eval "apt remove --purge ^wazuh-indexer -y ${debug}"
+            eval "apt remove --purge wazuh-indexer -y ${debug}"
         fi
+        common_logger "Wazuh indexer removed."
     fi
 
     if [[ ( -n "${indexer_remaining_files}" || -n "${indexerinstalled}" ) && ( -n "${indexer}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
@@ -319,7 +362,7 @@ function common_rollBack() {
     fi
 
     if [[ -n "${filebeatinstalled}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        logger -w "Removing Filebeat."
+        common_logger "Removing Filebeat."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove filebeat -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
@@ -327,6 +370,7 @@ function common_rollBack() {
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge filebeat -y ${debug}"
         fi
+        common_logger "Filebeat removed."
     fi
 
     if [[ ( -n "${filebeat_remaining_files}" || -n "${filebeatinstalled}" ) && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
@@ -336,7 +380,7 @@ function common_rollBack() {
     fi
 
     if [[ -n "${dashboardinstalled}" && ( -n "${dashboard}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        logger -w "Removing Wazuh dashboard."
+        common_logger "Removing Wazuh dashboard."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-dashboard -y ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
@@ -344,6 +388,7 @@ function common_rollBack() {
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge wazuh-dashboard -y ${debug}"
         fi
+        common_logger "Wazuh dashboard removed."
     fi
 
     if [[ ( -n "${dashboard_remaining_files}" || -n "${dashboardinstalled}" ) && ( -n "${dashboard}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
@@ -353,7 +398,7 @@ function common_rollBack() {
         eval "rm -rf /run/wazuh-dashboard/ ${debug}"
     fi
 
-    elements_to_remove=(    "/var/log/elasticsearch/"
+    elements_to_remove=(    "/var/log/wazuh-indexer/"
                             "/var/log/filebeat/"
                             "/etc/systemd/system/opensearch.service.wants/"
                             "/securityadmin_demo.sh"
@@ -368,66 +413,66 @@ function common_rollBack() {
     eval "rm -rf ${elements_to_remove[*]}"
 
     if [ -z "${uninstall}" ]; then
-        if [ -n "${srollback_conf}" ] || [ -n "${overwrite}" ]; then
-            logger "Installation cleaned."
+        if [ -n "${rollback_conf}" ] || [ -n "${overwrite}" ]; then
+            common_logger "Installation cleaned."
         else
-            logger "Installation cleaned. Check the ${logfile} file to learn more about the issue."
+            common_logger "Installation cleaned. Check the ${logfile} file to learn more about the issue."
         fi
     fi
 
 }
 
-function common_startService() {
+function installCommon_startService() {
 
     if [ "$#" -ne 1 ]; then
-        logger -e "common_startService must be called with 1 argument."
+        common_logger -e "installCommon_startService must be called with 1 argument."
         exit 1
     fi
 
-    logger "Starting service ${1}."
+    common_logger "Starting service ${1}."
 
     if ps -e | grep -E -q "^\ *1\ .*systemd$"; then
         eval "systemctl daemon-reload ${debug}"
         eval "systemctl enable ${1}.service ${debug}"
         eval "systemctl start ${1}.service ${debug}"
         if [  "$?" != 0  ]; then
-            logger -e "${1^} could not be started."
+            common_logger -e "${1^} could not be started."
             if [ -n "$(command -v journalctl)" ]; then
-                eval "journalctl -r -u ${1} >> ${logfile}"
+                eval "journalctl -u ${1} >> ${logfile}"
             fi
-            common_rollBack
+            installCommon_rollBack
             exit 1
         else
-            logger "${1^} service started."
+            common_logger "${1^} service started."
         fi
     elif ps -e | grep -E -q "^\ *1\ .*init$"; then
         eval "chkconfig ${1} on ${debug}"
         eval "service ${1} start ${debug}"
         eval "/etc/init.d/${1} start ${debug}"
         if [  "$?" != 0  ]; then
-            logger -e "${1^} could not be started."
+            common_logger -e "${1^} could not be started."
             if [ -n "$(command -v journalctl)" ]; then
-                eval "journalctl -r -u ${1} >> ${logfile}"
+                eval "journalctl -u ${1} >> ${logfile}"
             fi
-            common_rollBack
+            installCommon_rollBack
             exit 1
         else
-            logger "${1^} service started."
+            common_logger "${1^} service started."
         fi
     elif [ -x "/etc/rc.d/init.d/${1}" ] ; then
         eval "/etc/rc.d/init.d/${1} start ${debug}"
         if [  "$?" != 0  ]; then
-            logger -e "${1^} could not be started."
+            common_logger -e "${1^} could not be started."
             if [ -n "$(command -v journalctl)" ]; then
-                eval "journalctl -r -u ${1} >> ${logfile}"
+                eval "journalctl -u ${1} >> ${logfile}"
             fi
-            common_rollBack
+            installCommon_rollBack
             exit 1
         else
-            logger "${1^} service started."
+            common_logger "${1^} service started."
         fi
     else
-        logger -e "${1^} could not start. No service manager found on the system."
+        common_logger -e "${1^} could not start. No service manager found on the system."
         exit 1
     fi
 

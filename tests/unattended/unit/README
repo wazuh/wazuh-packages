@@ -27,3 +27,12 @@ DESCRIPTION
         -r,  --rebuild-image
                 Forces to rebuild the image.
 
+
+TIPS:
+    - When many tests are broken after a merge a good way to test them and
+    fix them in order bypassing the desorder in which they are run is to use
+    the fact that a bash script exits on an unknown character. Write a `Ç`
+    after the first test and run it, only the first one will be run. Whenever
+    a test is ready, you move the `Ç` character a test or some tests down.
+    That way, you don't have to scroll through 70 tests to find one and see if
+    it is fixed.

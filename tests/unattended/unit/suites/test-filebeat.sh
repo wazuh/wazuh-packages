@@ -4,52 +4,52 @@ base_dir="$(cd "$(dirname "$BASH_SOURCE")"; pwd -P; cd - >/dev/null;)"
 source "${base_dir}"/bach.sh
 
 @setup-test {
-    @ignore logger
-    f_cert_path="/etc/filebeat/certs/"
+    @ignore common_logger
+    filebeat_cert_path="/etc/filebeat/certs/"
     wazuh_major="4.3"
     filebeat_wazuh_template="https://raw.githubusercontent.com/wazuh/wazuh/${wazuh_major}/extensions/elasticsearch/7.x/wazuh-template.json"
     repobaseurl="https://packages.wazuh.com/4.x"
     filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.1.tar.gz"
 }
 
-function load-copyCertificatesFilebeat() {
-    @load_function "${base_dir}/filebeat.sh" copyCertificatesFilebeat
+function load-filebeat_copyCertificates() {
+    @load_function "${base_dir}/filebeat.sh" filebeat_copyCertificates
 }
 
-test-ASSERT-FAIL-01-copyCertificatesFilebeat-no-tarfile() {
-    load-copyCertificatesFilebeat
+test-ASSERT-FAIL-01-filebeat_copyCertificates-no-tarfile() {
+    load-filebeat_copyCertificates
     tar_file=/tmp/tarfile.tar
     if [ -f ${tar_file} ]; then
         @rm ${tar_file}
     fi
-    copyCertificatesFilebeat
+    filebeat_copyCertificates
 }
 
-test-02-copyCertificatesFilebeat-AIO() {
-    load-copyCertificatesFilebeat
+test-02-filebeat_copyCertificates-AIO() {
+    load-filebeat_copyCertificates
     tar_file=/tmp/tarfile.tar
     @touch ${tar_file}
     AIO=1
     debug=
-    copyCertificatesFilebeat
+    filebeat_copyCertificates
 }
 
-test-02-copyCertificatesFilebeat-AIO-assert() {
+test-02-filebeat_copyCertificates-AIO-assert() {
     tar -xf /tmp/tarfile.tar -C /etc/filebeat/certs/ --wildcards ./filebeat*
     tar -xf /tmp/tarfile.tar -C /etc/filebeat/certs/ ./root-ca.pem
 }
 
-test-03-copyCertificatesFilebeat-distributed() {
-    load-copyCertificatesFilebeat
+test-03-filebeat_copyCertificates-distributed() {
+    load-filebeat_copyCertificates
     tar_file=/tmp/tarfile.tar
     @touch ${tar_file}
     AIO=
     debug=
     winame="wazuh1"
-    copyCertificatesFilebeat
+    filebeat_copyCertificates
 }
 
-test-03-copyCertificatesFilebeat-distributed-assert() {
+test-03-filebeat_copyCertificates-distributed-assert() {
     tar -xf /tmp/tarfile.tar -C /etc/filebeat/certs/ ./wazuh1.pem
     mv /etc/filebeat/certs/wazuh1.pem /etc/filebeat/certs/filebeat.pem
     tar -xf /tmp/tarfile.tar -C /etc/filebeat/certs/ ./wazuh1-key.pem
@@ -57,162 +57,182 @@ test-03-copyCertificatesFilebeat-distributed-assert() {
     tar -xf /tmp/tarfile.tar -C /etc/filebeat/certs/ ./root-ca.pem
 }
 
-function load-installFilebeat() {
-    @load_function "${base_dir}/filebeat.sh" installFilebeat
+function load-filebeat_install() {
+    @load_function "${base_dir}/filebeat.sh" filebeat_install
 }
 
-test-04-installFilebeat-zypper() {
-    load-installFilebeat
+test-04-filebeat_install-zypper() {
+    load-filebeat_install
     sys_type="zypper"
-    elasticsearch_oss_version="7.10.2"
-    installFilebeat
+    filebeat_version="7.10.2"
+    filebeat_install
 }
 
-test-04-installFilebeat-zypper-assert() {
+test-04-filebeat_install-zypper-assert() {
     zypper -n install filebeat-7.10.2
 }
 
-test-ASSERT-FAIL-05-installFilebeat-zypper-error() {
-    load-installFilebeat
+test-ASSERT-FAIL-05-filebeat_install-zypper-error() {
+    load-filebeat_install
     sys_type="zypper"
-    elasticsearch_oss_version="7.10.2"
+    filebeat_version="7.10.2"
     @mockfalse zypper -n install filebeat-7.10.2
-    installFilebeat
+    filebeat_install
 }
 
-test-06-installFilebeat-yum() {
-    load-installFilebeat
+test-06-filebeat_install-yum() {
+    load-filebeat_install
     sys_type="yum"
     sep="-"
-    elasticsearch_oss_version="7.10.2"
-    installFilebeat
+    filebeat_version="7.10.2"
+    filebeat_install
 }
 
-test-06-installFilebeat-yum-assert() {
+test-06-filebeat_install-yum-assert() {
     yum install filebeat-7.10.2 -y -q
 }
 
-test-ASSERT-FAIL-07-installFilebeat-yum-error() {
-    load-installFilebeat
+test-ASSERT-FAIL-07-filebeat_install-yum-error() {
+    load-filebeat_install
     sys_type="yum"
     sep="-"
-    elasticsearch_oss_version="7.10.2"
+    filebeat_version="7.10.2"
     @mockfalse yum install filebeat-7.10.2 -y -q
-    installFilebeat
+    filebeat_install
 }
 
-test-08-installFilebeat-apt() {
-    load-installFilebeat
+test-08-filebeat_install-apt() {
+    load-filebeat_install
     sys_type="apt-get"
     sep="="
-    elasticsearch_oss_version="7.10.2"
-    installFilebeat
+    filebeat_version="7.10.2"
+    filebeat_install
 }
 
-test-08-installFilebeat-apt-assert() {
-    apt-get install filebeat=7.10.2 -y -q
+test-08-filebeat_install-apt-assert() {
+    apt install filebeat=7.10.2 -y -q
 }
 
-test-ASSERT-FAIL-09-installFilebeat-apt-error() {
-    load-installFilebeat
+test-ASSERT-FAIL-09-filebeat_install-apt-error() {
+    load-filebeat_install
     sys_type="apt-get"
     sep="="
-    elasticsearch_oss_version="7.10.2"
-    @mockfalse apt-get install filebeat=7.10.2 -y -q
-    installFilebeat
+    filebeat_version="7.10.2"
+    @mockfalse apt install filebeat=7.10.2 -y -q
+    filebeat_install
 }
 
-function load-configureFilebeat() {
-    @load_function "${base_dir}/filebeat.sh" configureFilebeat
+function load-filebeat_configure() {
+    @load_function "${base_dir}/filebeat.sh" filebeat_configure
 }
 
-test-10-configureFilebeat-no-previous-variables() {
-    load-configureFilebeat
+test-10-filebeat_configure-no-previous-variables() {
+    load-filebeat_configure
     filebeat_wazuh_template=""
     filebeat_wazuh_module=""
     @mocktrue curl -s --max-time 300
     @mock tar -xvz -C /usr/share/filebeat/module
-    configureFilebeat
+    @mocktrue echo admin
+    filebeat_configure
 }
 
-test-10-configureFilebeat-no-previous-variables-assert() {
+test-10-filebeat_configure-no-previous-variables-assert() {
     curl -so /etc/filebeat/wazuh-template.json --max-time 300
     chmod go+r /etc/filebeat/wazuh-template.json
-    common_getConfig filebeat/filebeat_distributed.yml /etc/filebeat/filebeat.yml
+    installCommon_getConfig filebeat/filebeat_distributed.yml /etc/filebeat/filebeat.yml
     echo "output.elasticsearch.hosts:" >> /etc/filebeat/filebeat.yml
     mkdir /etc/filebeat/certs
-    copyCertificatesFilebeat
+    filebeat_copyCertificates
+    filebeat keystore create
+    filebeat keystore add username --force --stdin
+    filebeat keystore add password --force --stdin
 }
 
-test-11-configureFilebeat-one-elastic-node() {
-    load-configureFilebeat
+test-11-filebeat_configure-one-elastic-node() {
+    load-filebeat_configure
     @mocktrue curl -s ${filebeat_wazuh_module} --max-time 300
     @mock tar -xvz -C /usr/share/filebeat/module
+    @mocktrue echo admin
     indexer_node_names=("elastic1")
     elasticesarch_node_ips=("1.1.1.1")
-    configureFilebeat
+    filebeat_configure
 }
 
-test-11-configureFilebeat-one-elastic-node-assert() {
+test-11-filebeat_configure-one-elastic-node-assert() {
     curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/4.3/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300
     chmod go+r /etc/filebeat/wazuh-template.json
-    common_getConfig filebeat/filebeat_distributed.yml /etc/filebeat/filebeat.yml
+    installCommon_getConfig filebeat/filebeat_distributed.yml /etc/filebeat/filebeat.yml
     echo "output.elasticsearch.hosts:" >> /etc/filebeat/filebeat.yml
     echo "  - 1.1.1.1" >> /etc/filebeat/filebeat.yml
     mkdir /etc/filebeat/certs
-    copyCertificatesFilebeat
+    filebeat_copyCertificates
+    filebeat keystore create
+    filebeat keystore add username --force --stdin
+    filebeat keystore add password --force --stdin
 }
 
-test-12-configureFilebeat-more-than-one-elastic-node() {
-    load-configureFilebeat
+test-12-filebeat_configure-more-than-one-elastic-node() {
+    load-filebeat_configure
     @mocktrue curl -s ${filebeat_wazuh_module} --max-time 300
     @mock tar -xvz -C /usr/share/filebeat/module
+    @mocktrue echo admin
     indexer_node_names=("elastic1" "elastic2")
     elasticesarch_node_ips=("1.1.1.1" "2.2.2.2")
-    configureFilebeat
+    filebeat_configure
 }
 
-test-12-configureFilebeat-more-than-one-elastic-node-assert() {
+test-12-filebeat_configure-more-than-one-elastic-node-assert() {
     curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/4.3/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300
     chmod go+r /etc/filebeat/wazuh-template.json
-    common_getConfig filebeat/filebeat_distributed.yml /etc/filebeat/filebeat.yml
+    installCommon_getConfig filebeat/filebeat_distributed.yml /etc/filebeat/filebeat.yml
     echo "output.elasticsearch.hosts:" >> /etc/filebeat/filebeat.yml
     echo "  - 1.1.1.1" >> /etc/filebeat/filebeat.yml
     echo "  - 2.2.2.2" >> /etc/filebeat/filebeat.yml
     mkdir /etc/filebeat/certs
-    copyCertificatesFilebeat
+    filebeat_copyCertificates
+    filebeat keystore create
+    filebeat keystore add username --force --stdin
+    filebeat keystore add password --force --stdin
 }
 
-test-13-configureFilebeat-AIO-no-previous-variables() {
-    load-configureFilebeat
+test-13-filebeat_configure-AIO-no-previous-variables() {
+    load-filebeat_configure
     filebeat_wazuh_template=""
     filebeat_wazuh_module=""
     @mocktrue curl -s --max-time 300
     @mock tar -xvz -C /usr/share/filebeat/module
+    @mocktrue echo admin
     AIO=1
-    configureFilebeat
+    filebeat_configure
 }
 
-test-13-configureFilebeat-AIO-no-previous-variables-assert() {
+test-13-filebeat_configure-AIO-no-previous-variables-assert() {
     curl -so /etc/filebeat/wazuh-template.json --max-time 300
     chmod go+r /etc/filebeat/wazuh-template.json
-    common_getConfig filebeat/filebeat_unattended.yml /etc/filebeat/filebeat.yml
+    installCommon_getConfig filebeat/filebeat_unattended.yml /etc/filebeat/filebeat.yml
     mkdir /etc/filebeat/certs
-    copyCertificatesFilebeat
+    filebeat_copyCertificates
+    filebeat keystore create
+    filebeat keystore add username --force --stdin
+    filebeat keystore add password --force --stdin
 }
 
-test-14-configureFilebeat-AIO() {
-    load-configureFilebeat
+test-14-filebeat_configure-AIO() {
+    load-filebeat_configure
     @mocktrue curl -s ${filebeat_wazuh_module} --max-time 300
     @mock tar -xvz -C /usr/share/filebeat/module
+    @mocktrue echo admin
     AIO=1
-    configureFilebeat
+    filebeat_configure
 }
 
-test-14-configureFilebeat-AIO-assert() {
+test-14-filebeat_configure-AIO-assert() {
     curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/4.3/extensions/elasticsearch/7.x/wazuh-template.json --max-time 300
     chmod go+r /etc/filebeat/wazuh-template.json
-    common_getConfig filebeat/filebeat_unattended.yml /etc/filebeat/filebeat.yml
+    installCommon_getConfig filebeat/filebeat_unattended.yml /etc/filebeat/filebeat.yml
     mkdir /etc/filebeat/certs
-    copyCertificatesFilebeat
+    filebeat_copyCertificates
+    filebeat keystore create
+    filebeat keystore add username --force --stdin
+    filebeat keystore add password --force --stdin
 }

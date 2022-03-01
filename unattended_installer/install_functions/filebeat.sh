@@ -6,17 +6,15 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-readonly f_cert_path="/etc/filebeat/certs/"
-
 function filebeat_configure(){
 
     eval "curl -so /etc/filebeat/wazuh-template.json ${filebeat_wazuh_template} --max-time 300 ${debug}"
     eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
     eval "curl -s ${filebeat_wazuh_module} --max-time 300 | tar -xvz -C /usr/share/filebeat/module ${debug}"
     if [ -n "${AIO}" ]; then
-        eval "common_getConfig filebeat/filebeat_unattended.yml /etc/filebeat/filebeat.yml ${debug}"
+        eval "installCommon_getConfig filebeat/filebeat_unattended.yml /etc/filebeat/filebeat.yml ${debug}"
     else
-        eval "common_getConfig filebeat/filebeat_distributed.yml /etc/filebeat/filebeat.yml ${debug}"
+        eval "installCommon_getConfig filebeat/filebeat_distributed.yml /etc/filebeat/filebeat.yml ${debug}"
         if [ ${#indexer_node_names[@]} -eq 1 ]; then
             echo -e "\noutput.elasticsearch.hosts:" >> /etc/filebeat/filebeat.yml
             echo "  - ${indexer_node_ips[0]}:9700" >> /etc/filebeat/filebeat.yml
@@ -35,22 +33,24 @@ function filebeat_configure(){
     eval "echo admin | filebeat keystore add username --force --stdin ${debug}"
     eval "echo admin | filebeat keystore add password --force --stdin ${debug}"
 
-    logger "Filebeat post-install configuration finished."
+    common_logger "Filebeat post-install configuration finished."
 }
 
 function filebeat_copyCertificates() {
 
     if [ -f "${tar_file}" ]; then
         if [ -n "${AIO}" ]; then
-            eval "tar -xf ${tar_file} -C ${f_cert_path} --wildcards ./filebeat* ${debug}"
-            eval "tar -xf ${tar_file} -C ${f_cert_path} ./root-ca.pem ${debug}"
+            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} --wildcards ./${server_node_names[0]}.pem ${debug} && mv ${filebeat_cert_path}${server_node_names[0]}.pem ${filebeat_cert_path}filebeat.pem ${debug}"
+            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} --wildcards ./${server_node_names[0]}-key.pem ${debug} && mv ${filebeat_cert_path}${server_node_names[0]}-key.pem ${filebeat_cert_path}filebeat-key.pem ${debug}"
+            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} ./root-ca.pem ${debug}"
         else
-            eval "tar -xf ${tar_file} -C ${f_cert_path} ./${winame}.pem && mv ${f_cert_path}${winame}.pem ${f_cert_path}filebeat.pem ${debug}"
-            eval "tar -xf ${tar_file} -C ${f_cert_path} ./${winame}-key.pem && mv ${f_cert_path}${winame}-key.pem ${f_cert_path}filebeat-key.pem ${debug}"
-            eval "tar -xf ${tar_file} -C ${f_cert_path} ./root-ca.pem ${debug}"
+            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} ./${winame}.pem && mv ${filebeat_cert_path}${winame}.pem ${filebeat_cert_path}filebeat.pem ${debug}"
+            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} ./${winame}-key.pem && mv ${filebeat_cert_path}${winame}-key.pem ${filebeat_cert_path}filebeat-key.pem ${debug}"
+            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} ./root-ca.pem ${debug}"
         fi
+        eval "chown root:root ${indexer_cert_path}/*"
     else
-        logger -e "No certificates found. Could not initialize Filebeat"
+        common_logger -e "No certificates found. Could not initialize Filebeat"
         exit 1;
     fi
 
@@ -58,7 +58,7 @@ function filebeat_copyCertificates() {
 
 function filebeat_install() {
 
-    logger "Starting filebeat installation."
+    common_logger "Starting Filebeat installation."
     if [ "${sys_type}" == "zypper" ]; then
         eval "zypper -n install filebeat-${filebeat_version} ${debug}"
     elif [ "${sys_type}" == "yum" ]; then
@@ -67,10 +67,10 @@ function filebeat_install() {
         eval "DEBIAN_FRONTEND=noninteractive apt install filebeat${sep}${filebeat_version} -y -q  ${debug}"
     fi
     if [  "$?" != 0  ]; then
-        logger -e "Filebeat installation failed"
+        common_logger -e "Filebeat installation failed"
         exit 1
     else
-        logger "Filebeat installation finished."
+        common_logger "Filebeat installation finished."
         filebeatinstalled="1"
     fi
 
