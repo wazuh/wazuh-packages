@@ -19,9 +19,8 @@ case "$1" in
       # Check for SysV
       elif command -v service > /dev/null 2>&1 && service wazuh-agent status 2>/dev/null | grep "running" > /dev/null 2>&1; then
           service wazuh-agent stop > /dev/null 2>&1
-      else
-          ${DIR}/bin/wazuh-control stop > /dev/null 2>&1
       fi
+      ${DIR}/bin/wazuh-control stop > /dev/null 2>&1
 
       # Save the conffiles
       mkdir -p ${DIR}/tmp/conffiles
