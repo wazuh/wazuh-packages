@@ -235,7 +235,7 @@ function builder_main() {
     if [ -n "${certTool}" ]; then
         buildCertsTool
     fi
-    chmod 711 ${output_script_path}
+    chmod 500 ${output_script_path}
 }
 
 builder_main "$@"
