@@ -71,7 +71,7 @@ override_dh_install:
 	mkdir -p $(TARGET_DIR)/etc/default
 
 	cp wazuh-dashboard-base/etc/node.options $(TARGET_DIR)$(CONFIG_DIR)
-	cp wazuh-dashboard-base/etc/dashboard.yml $(TARGET_DIR)$(CONFIG_DIR)
+	cp wazuh-dashboard-base/etc/opensearch_dashboards.yml $(TARGET_DIR)$(CONFIG_DIR)
 	mv wazuh-dashboard-base/* $(TARGET_DIR)$(INSTALLATION_DIR)
 
 	mkdir -p $(TARGET_DIR)$(INSTALLATION_DIR)/config
@@ -117,7 +117,7 @@ override_dh_fixperms:
 	chown -R "$(NAME)":"$(NAME)" $(TARGET_DIR)/etc/systemd/system/"$(NAME)"
 	chmod 750 $(TARGET_DIR)/etc/systemd/system/wazuh-dashboard
 	chmod 750 $(TARGET_DIR)/etc/default/wazuh-dashboard
-	chmod 640 "$(TARGET_DIR)$(CONFIG_DIR)"/dashboard.yml
+	chmod 640 "$(TARGET_DIR)$(CONFIG_DIR)"/opensearch_dashboards.yml
 	chmod 750 "$(TARGET_DIR)$(CONFIG_DIR)"/certs
 	chmod 400 "$(TARGET_DIR)$(CONFIG_DIR)"/certs/*
 	chmod 640 "$(TARGET_DIR)$(CONFIG_DIR)"/node.options
