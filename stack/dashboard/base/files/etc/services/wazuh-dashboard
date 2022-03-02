@@ -3,7 +3,7 @@
 # description: Wazuh dashboard
 name=wazuh-dashboard
 program=/usr/share/wazuh-dashboard/bin/opensearch-dashboards
-args=-c\\\ /etc/wazuh-dashboard/dashboard.yml
+args=-c\\\ /etc/wazuh-dashboard/opensearch_dashboards.yml
 PID_DIR="/run/wazuh-dashboard"
 pidfile="$PID_DIR/$name.pid"
 
