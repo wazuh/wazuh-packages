@@ -11,9 +11,9 @@ function dashboard_configure() {
     dashboard_copyCertificates
 
     if [ -n "${AIO}" ]; then
-        eval "installCommon_getConfig dashboard/dashboard_unattended.yml /etc/wazuh-dashboard/dashboard.yml ${debug}"
+        eval "installCommon_getConfig dashboard/dashboard_unattended.yml /etc/wazuh-dashboard/opensearch_dashboards.yml ${debug}"
     else
-        eval "installCommon_getConfig dashboard/dashboard_unattended_distributed.yml /etc/wazuh-dashboard/dashboard.yml ${debug}"
+        eval "installCommon_getConfig dashboard/dashboard_unattended_distributed.yml /etc/wazuh-dashboard/opensearch_dashboards.yml ${debug}"
         if [ "${#dashboard_node_names[@]}" -eq 1 ]; then
             pos=0
             ip=${dashboard_node_ips[0]}
@@ -26,14 +26,14 @@ function dashboard_configure() {
             ip=${dashboard_node_ips[pos]}
         fi
 
-        echo 'server.host: "'${ip}'"' >> /etc/wazuh-dashboard/dashboard.yml
+        echo 'server.host: "'${ip}'"' >> /etc/wazuh-dashboard/opensearch_dashboards.yml
 
         if [ "${#indexer_node_names[@]}" -eq 1 ]; then
-            echo "opensearch.hosts: https://"${indexer_node_ips[0]}":9700" >> /etc/wazuh-dashboard/dashboard.yml
+            echo "opensearch.hosts: https://"${indexer_node_ips[0]}":9200" >> /etc/wazuh-dashboard/opensearch_dashboards.yml
         else
-            echo "opensearch.hosts:" >> /etc/wazuh-dashboard/dashboard.yml
+            echo "opensearch.hosts:" >> /etc/wazuh-dashboard/opensearch_dashboards.yml
             for i in "${indexer_node_ips[@]}"; do
-                    echo "  - https://${i}:9700" >> /etc/wazuh-dashboard/dashboard.yml
+                    echo "  - https://${i}:9200" >> /etc/wazuh-dashboard/opensearch_dashboards.yml
             done
         fi
     fi
@@ -104,7 +104,7 @@ function dashboard_initialize() {
         common_logger "${flag}" "Cannot connect to Wazuh dashboard."
 
         for i in "${!indexer_node_ips[@]}"; do
-            curl=$(curl -XGET https://${indexer_node_ips[i]}:9700/ -uadmin:${u_pass} -k -w %{http_code} -s -o /dev/null)
+            curl=$(curl -XGET https://${indexer_node_ips[i]}:9200/ -uadmin:${u_pass} -k -w %{http_code} -s -o /dev/null)
             exit_code=$?
             if [[ "${exit_code}" -eq "7" ]]; then
                 failed_connect=1
