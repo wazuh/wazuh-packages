@@ -15,8 +15,8 @@
                      exec="var/ossec/installation_scripts/postinstall.sh"/>
         <exec_method timeout_seconds="60" type="method" name="start"
                      exec="var/ossec/installation_scripts/postinstall.sh"/>
-        <exec_method timeout_seconds="60" type="method" name="shutdown"
-                     exec="/var/ossec/bin/wazuh-control stop"/>
+        <exec_method timeout_seconds="60" type="method" name="stop"
+                     exec="'groupdel wazuh'"/>
         <property_group type="framework" name="startd">
                      <propval type="astring" name="duration" value="transient"/>
         </property_group>
