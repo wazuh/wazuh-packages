@@ -15,6 +15,9 @@ readonly resources_config="${base_path}/config"
 readonly resources_certs="${base_path}/cert_tool"
 readonly resources_passwords="${base_path}/passwords_tool"
 readonly resources_common="${base_path}/common_functions"
+# Architecture setup
+readonly architecture_indexer_api_port="9200"
+readonly architecture_indexer_communication_port="9300"
 
 function getHelp() {
 
@@ -194,7 +197,7 @@ function buildCertsTool() {
 
 function builder_main() {
 
-    umask 066 
+    umask 066
 
     while [ -n "${1}" ]
     do

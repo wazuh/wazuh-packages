@@ -17,11 +17,11 @@ function filebeat_configure(){
         eval "installCommon_getConfig filebeat/filebeat_distributed.yml /etc/filebeat/filebeat.yml ${debug}"
         if [ ${#indexer_node_names[@]} -eq 1 ]; then
             echo -e "\noutput.elasticsearch.hosts:" >> /etc/filebeat/filebeat.yml
-            echo "  - ${indexer_node_ips[0]}:9700" >> /etc/filebeat/filebeat.yml
+            echo "  - ${indexer_node_ips[0]}:${architecture_indexer_api_port}" >> /etc/filebeat/filebeat.yml
         else
             echo -e "\noutput.elasticsearch.hosts:" >> /etc/filebeat/filebeat.yml
             for i in "${indexer_node_ips[@]}"; do
-                echo "  - ${i}:9700" >> /etc/filebeat/filebeat.yml
+                echo "  - ${i}:${architecture_indexer_api_port}" >> /etc/filebeat/filebeat.yml
             done
         fi
     fi

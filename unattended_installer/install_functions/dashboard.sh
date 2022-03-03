@@ -29,11 +29,11 @@ function dashboard_configure() {
         echo 'server.host: "'${ip}'"' >> /etc/wazuh-dashboard/dashboard.yml
 
         if [ "${#indexer_node_names[@]}" -eq 1 ]; then
-            echo "opensearch.hosts: https://"${indexer_node_ips[0]}":9700" >> /etc/wazuh-dashboard/dashboard.yml
+            echo "opensearch.hosts: https://"${indexer_node_ips[0]}":"${architecture_indexer_api_port}"" >> /etc/wazuh-dashboard/dashboard.yml
         else
             echo "opensearch.hosts:" >> /etc/wazuh-dashboard/dashboard.yml
             for i in "${indexer_node_ips[@]}"; do
-                    echo "  - https://${i}:9700" >> /etc/wazuh-dashboard/dashboard.yml
+                    echo "  - https://${i}:${architecture_indexer_api_port}" >> /etc/wazuh-dashboard/dashboard.yml
             done
         fi
     fi
@@ -104,12 +104,12 @@ function dashboard_initialize() {
         common_logger "${flag}" "Cannot connect to Wazuh dashboard."
 
         for i in "${!indexer_node_ips[@]}"; do
-            curl=$(curl -XGET https://${indexer_node_ips[i]}:9700/ -uadmin:${u_pass} -k -w %{http_code} -s -o /dev/null)
+            curl=$(curl -XGET https://${indexer_node_ips[i]}:${architecture_indexer_api_port}/ -uadmin:${u_pass} -k -w %{http_code} -s -o /dev/null)
             exit_code=$?
             if [[ "${exit_code}" -eq "7" ]]; then
                 failed_connect=1
                 failed_nodes+=("${indexer_node_names[i]}")
-            fi 
+            fi
         done
         common_logger "${flag}" "Failed to connect with ${failed_nodes[*]}. Connection refused."
         if [ -z "${force}" ]; then
