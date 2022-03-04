@@ -192,7 +192,7 @@ test-12-indexer_initialize-one-node() {
     indexer_node_names=("elastic1")
     indexer_node_ips=("1.1.1.1")
     pos=0
-    @mocktrue curl -XGET https://1.1.1.1:9700/ -uadmin:admin -k --max-time 120 --silent --output /dev/null
+    @mocktrue curl -XGET https://1.1.1.1:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null
     indexer_initialize
 }
 
@@ -215,6 +215,6 @@ test-ASSERT-FAIL-14-indexer_initialize-error-connecting() {
     indexer_node_names=("elastic1")
     indexer_node_ips=("1.1.1.1")
     pos=0
-    @mockfalse curl -XGET https://1.1.1.1:9700/ -uadmin:admin -k --max-time 120 --silent --output /dev/null
+    @mockfalse curl -XGET https://1.1.1.1:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null
     indexer_initialize
 }

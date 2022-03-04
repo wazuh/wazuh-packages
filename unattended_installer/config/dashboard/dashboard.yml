@@ -1,5 +1,5 @@
 server.host: "<kibana-ip>"
-opensearch.hosts: https://<elasticsearch-ip>:9700
+opensearch.hosts: https://<elasticsearch-ip>:9200
 server.port: 443
 opensearch.ssl.verificationMode: certificate
 # opensearch.username: kibanaserver

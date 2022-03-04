@@ -97,7 +97,7 @@ function indexer_initialize() {
 
     common_logger "Initializing Wazuh indexer cluster security settings."
     i=0
-    until curl -XGET https://${indexer_node_ips[pos]}:9700/ -uadmin:admin -k --max-time 120 --silent --output /dev/null || [ "${i}" -eq 12 ]; do
+    until curl -XGET https://${indexer_node_ips[pos]}:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null || [ "${i}" -eq 12 ]; do
         sleep 10
         i=$((i+1))
     done
@@ -108,7 +108,7 @@ function indexer_initialize() {
     fi
 
     if [ -n "${AIO}" ]; then
-        eval "sudo -u wazuh-indexer JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig -icl -p 9800 -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig -nhnv -cacert ${indexer_cert_path}root-ca.pem -cert ${indexer_cert_path}admin.pem -key ${indexer_cert_path}admin-key.pem -h 127.0.0.1 ${debug}"
+        eval "sudo -u wazuh-indexer JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig -icl -p 9300 -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig -nhnv -cacert ${indexer_cert_path}root-ca.pem -cert ${indexer_cert_path}admin.pem -key ${indexer_cert_path}admin-key.pem -h 127.0.0.1 ${debug}"
     fi
 
     if [ "${#indexer_node_names[@]}" -eq 1 ] && [ -z "${AIO}" ]; then
@@ -147,7 +147,7 @@ function indexer_install() {
 function indexer_startCluster() {
 
     eval "wazuh_indexer_ip=( $(cat /etc/wazuh-indexer/opensearch.yml | grep network.host | sed 's/network.host:\s//') )"
-    eval "sudo -u wazuh-indexer JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -p 9800 -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ -icl -nhnv -cacert /etc/wazuh-indexer/certs/root-ca.pem -cert /etc/wazuh-indexer/certs/admin.pem -key /etc/wazuh-indexer/certs/admin-key.pem -h ${wazuh_indexer_ip} ${debug}"
+    eval "sudo -u wazuh-indexer JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -p 9300 -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ -icl -nhnv -cacert /etc/wazuh-indexer/certs/root-ca.pem -cert /etc/wazuh-indexer/certs/admin.pem -key /etc/wazuh-indexer/certs/admin-key.pem -h ${wazuh_indexer_ip} ${debug}"
     if [  "$?" != 0  ]; then
         common_logger -e "The Wazuh indexer cluster security configuration could not be initialized."
         installCommon_rollBack
@@ -155,7 +155,7 @@ function indexer_startCluster() {
     else
         common_logger "Wazuh indexer cluster security configuration initialized."
     fi
-    eval "curl --silent ${filebeat_wazuh_template} | curl -X PUT 'https://${indexer_node_ips[pos]}:9700/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k --silent ${debug}"
+    eval "curl --silent ${filebeat_wazuh_template} | curl -X PUT 'https://${indexer_node_ips[pos]}:9200/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k --silent ${debug}"
     if [  "$?" != 0  ]; then
         common_logger -e "The wazuh-alerts template could not be inserted into the Wazuh indexer cluster."
         installCommon_rollBack

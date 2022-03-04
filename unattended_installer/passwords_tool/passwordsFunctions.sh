@@ -89,7 +89,7 @@ function passwords_createBackUp() {
 
     common_logger -d "Creating password backup."
     eval "mkdir /usr/share/wazuh-indexer/backup ${debug}"
-    eval "JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -icl -p 9800 -backup /usr/share/wazuh-indexer/backup -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -h ${IP} ${debug}"
+    eval "JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -icl -p 9300 -backup /usr/share/wazuh-indexer/backup -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -h ${IP} ${debug}"
     if [ "$?" != 0 ]; then
         common_logger -e "The backup could not be created"
         exit 1;
@@ -344,7 +344,7 @@ function passwords_runSecurityAdmin() {
 
     common_logger -d "Loading new passwords changes."
     eval "cp /usr/share/wazuh-indexer/backup/* /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ ${debug}"
-    eval "OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -p 9800 -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug}"
+    eval "OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -p 9300 -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug}"
     if [  "$?" != 0  ]; then
         common_logger -e "Could not load the changes."
         exit 1;
@@ -357,7 +357,7 @@ function passwords_runSecurityAdmin() {
     fi
 
     if [[ -n "${nuser}" ]] && [[ -z ${autopass} ]]; then
-        common_logger -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/wazuh-dashboard/dashboard.yml if necessary and restart the services."
+        common_logger -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/wazuh-dashboard/opensearch_dashboards.yml if necessary and restart the services."
     fi
 
     if [ -n "${changeall}" ]; then
@@ -365,7 +365,7 @@ function passwords_runSecurityAdmin() {
             for i in "${!users[@]}"; do
                 common_logger $'The password for user '${users[i]}' is '${passwords[i]}''
             done
-            common_logger -w "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/wazuh-dashboard/dashboard.yml if necessary and restart the services."
+            common_logger -w "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/wazuh-dashboard/opensearch_dashboards.yml if necessary and restart the services."
         else
             common_logger -d "Passwords changed."
         fi
