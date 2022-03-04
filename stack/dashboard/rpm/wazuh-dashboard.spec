@@ -71,7 +71,7 @@ mkdir -p %{buildroot}/etc/default
 
 
 cp wazuh-dashboard-base/etc/node.options %{buildroot}%{CONFIG_DIR}
-cp wazuh-dashboard-base/etc/dashboard.yml %{buildroot}%{CONFIG_DIR}
+cp wazuh-dashboard-base/etc/opensearch_dashboards.yml %{buildroot}%{CONFIG_DIR}
 mv wazuh-dashboard-base/* %{buildroot}%{INSTALL_DIR}
 
 # Set custom welcome styles
@@ -231,7 +231,7 @@ rm -fr %{buildroot}
 
 %attr(0750, %{USER}, %{GROUP}) "/etc/init.d/wazuh-dashboard"
 %attr(0750, %{USER}, %{GROUP}) "/etc/default/wazuh-dashboard"
-%config(noreplace) %attr(0640, %{USER}, %{GROUP}) "%{CONFIG_DIR}/dashboard.yml"
+%config(noreplace) %attr(0640, %{USER}, %{GROUP}) "%{CONFIG_DIR}/opensearch_dashboards.yml"
 %dir %attr(0750, %{USER}, %{GROUP}) %{CONFIG_DIR}/certs
 %config(noreplace) %attr(0400, %{USER}, %{GROUP}) "%{CONFIG_DIR}/certs/*"
 %dir %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/src"

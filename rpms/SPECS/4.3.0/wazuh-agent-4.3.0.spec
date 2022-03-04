@@ -382,11 +382,10 @@ if [ $1 = 0 ]; then
   if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-agent > /dev/null 2>&1; then
     systemctl stop wazuh-agent.service > /dev/null 2>&1
   # Check for SysV
-  elif command -v service > /dev/null 2>&1 && service wazuh-agent status 2>/dev/null | grep "running" > /dev/null 2>&1; then
+  elif command -v service > /dev/null 2>&1 && service wazuh-agent status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
     service wazuh-agent stop > /dev/null 2>&1
-  else # Anything else
-    %{_localstatedir}/bin/wazuh-control stop > /dev/null 2>&1
   fi
+  %{_localstatedir}/bin/wazuh-control stop > /dev/null 2>&1
 
   # Check for systemd
   if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
@@ -464,7 +463,7 @@ if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
   if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 ; then
     systemctl daemon-reload > /dev/null 2>&1
     systemctl restart wazuh-agent.service > /dev/null 2>&1
-  elif command -v service > /dev/null 2>&1 && service wazuh-agent status 2>/dev/null | grep "running" > /dev/null 2>&1; then
+  elif command -v service > /dev/null 2>&1; then
     service wazuh-agent restart > /dev/null 2>&1
   else
     %{_localstatedir}/bin/wazuh-control restart > /dev/null 2>&1

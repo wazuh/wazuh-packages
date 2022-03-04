@@ -152,9 +152,11 @@ case "$1" in
             find ${DIR} -group ossec -user ossecr -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
             deluser ossecr > /dev/null 2>&1
         fi
-        delgroup ossec > /dev/null 2>&1
+        if getent group ossec > /dev/null 2>&1; then 
+            delgroup ossec > /dev/null 2>&1
+        fi
     fi
-    
+
     if [ ! -z "$2" ]; then
         if [ -f ${WAZUH_TMP_DIR}/wazuh.restart ] ; then
             if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
