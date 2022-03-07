@@ -143,7 +143,7 @@ function dashboard_initializeAIO() {
 
     common_logger "Wazuh dashboard started."
     common_logger "--- Summary ---"
-    common_logger "You can access the web interface https://<wazuh-dashboard-host-ip>.\n    User: admin\n    Password: ${u_pass}"
+    common_logger "You can access the web interface https://<wazuh-dashboard-ip>.\n    User: admin\n    Password: ${u_pass}"
 
 }
 

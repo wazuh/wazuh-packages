@@ -102,7 +102,7 @@ function indexer_initialize() {
         i=$((i+1))
     done
     if [ ${i} -eq 12 ]; then
-        common_logger -e "Cannot start Wazuh indexer cluster."
+        common_logger -e "Cannot initialize Wazuh indexer cluster."
         installCommon_rollBack
         exit 1
     fi
@@ -115,7 +115,7 @@ function indexer_initialize() {
         installCommon_changePasswords
     fi
 
-    common_logger "Wazuh indexer cluster started."
+    common_logger "Wazuh indexer cluster initialized."
 
 }
 
@@ -161,7 +161,7 @@ function indexer_startCluster() {
         installCommon_rollBack
         exit 1
     else
-        common_logger -d "The wazuh-alerts template inserted into the Wazuh indexer cluster."
+        common_logger -d "Inserted wazuh-alerts template into the Wazuh indexer cluster."
     fi
 
 }
