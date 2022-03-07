@@ -359,18 +359,18 @@ if id -g ossec > /dev/null 2>&1; then
   find %{_localstatedir} -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
   if id -u ossec > /dev/null 2>&1; then
     find %{_localstatedir} -group ossec -user ossec -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
-    userdel ossec
+    userdel ossec > /dev/null 2>&1
   fi
   if id -u ossecm > /dev/null 2>&1; then
     find %{_localstatedir} -group ossec -user ossecm -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
-    userdel ossecm
+    userdel ossecm > /dev/null 2>&1
   fi
   if id -u ossecr > /dev/null 2>&1; then
     find %{_localstatedir} -group ossec -user ossecr -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
-    userdel ossecr
+    userdel ossecr > /dev/null 2>&1
   fi
   if grep -q ossec /etc/group; then
-    groupdel ossec
+    groupdel ossec > /dev/null 2>&1
   fi
 fi
 
