@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [v4.3.0]
 
-
+- Fix user deletion warning RPM manager [#1302](https://github.com/wazuh/wazuh-packages/pull/1302)
 - Fix issue where Solaris 11 was not executed in clean installations [#1292](https://github.com/wazuh/wazuh-packages/pull/1292)
 - Fix error where Wazuh could continue running after uninstalling [#1280](https://github.com/wazuh/wazuh-packages/pull/1280)
 - Fix AIX partition size [#1274](https://github.com/wazuh/wazuh-packages/pull/1274)
