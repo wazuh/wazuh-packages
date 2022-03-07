@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 - Update SPECS [#1014](https://github.com/wazuh/wazuh-packages/pull/1014)
 - Add Azure integration files to Solaris 11 and RPM SPECS [#1167](https://github.com/wazuh/wazuh-packages/pull/1167)
+- Remove references to queue/agent-groups [#1299](https://github.com/wazuh/wazuh-packages/pull/1299)
+- Remove references to backup/groups [#1299](https://github.com/wazuh/wazuh-packages/pull/1299)
 
 ## [v4.3.0]
 
