@@ -563,6 +563,9 @@ if [ -f %{_sysconfdir}/ossec-init.conf ]; then
   rm -f %{_localstatedir}/etc/ossec-init.conf
 fi
 
+# Remove groups backup files
+rm -rf %{_localstatedir}/backup/groups
+
 %triggerin -- glibc
 [ -r %{_sysconfdir}/localtime ] && cp -fpL %{_sysconfdir}/localtime %{_localstatedir}/etc
  chown root:wazuh %{_localstatedir}/etc/localtime
