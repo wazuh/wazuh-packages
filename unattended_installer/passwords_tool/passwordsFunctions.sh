@@ -46,7 +46,7 @@ function passwords_changePassword() {
                 conf="$(awk '{sub("password: .*", "password: '${adminpass}'")}1' /etc/filebeat/filebeat.yml)"
                 echo "${conf}" > /etc/filebeat/filebeat.yml
             fi
-            restartService "filebeat"
+            passwords_restartService "filebeat"
         fi
     fi
 
@@ -61,7 +61,7 @@ function passwords_changePassword() {
                 conf="$(awk '{sub("opensearch.password: .*", "opensearch.password: '${dashpass}'")}1' /etc/wazuh-dashboard/opensearch_dashboards.yml)"
                 echo "${conf}" > /etc/wazuh-dashboard/opensearch_dashboards.yml
             fi
-            restartService "wazuh-dashboard"
+            passwords_restartService "wazuh-dashboard"
         fi
     fi
 

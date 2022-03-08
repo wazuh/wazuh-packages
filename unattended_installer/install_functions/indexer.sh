@@ -121,7 +121,7 @@ function indexer_initialize() {
 
 function indexer_install() {
 
-    common_logger "Initializing Wazuh indexer cluster security settings."
+    common_logger "Starting Wazuh indexer installation."
 
     if [ "${sys_type}" == "yum" ]; then
         eval "yum install wazuh-indexer-${wazuh_version}-${wazuh_revision} -y ${debug}"

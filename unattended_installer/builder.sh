@@ -93,7 +93,7 @@ function buildInstaller() {
 
     ## Functions for all install function modules
     install_modules=($(find "${resources_installer}" -type f))
-    install_modules_names=($(eval "echo \"${install_modules[@]}\" | sed 's,${resources_innstaller}/,,g'"))
+    install_modules_names=($(eval "echo \"${install_modules[*]}\" | sed 's,${resources_installer}/,,g'"))
     for i in "${!install_modules[@]}"; do
         echo "# ------------ ${install_modules_names[$i]} ------------ " >> "${output_script_path}"
         sed -n '/^function [a-zA-Z_]\(\)/,/^}/p' ${install_modules[$i]} >> "${output_script_path}"
