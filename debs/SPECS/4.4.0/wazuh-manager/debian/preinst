@@ -137,6 +137,11 @@ case "$1" in
         if [ -d ${DIR}/queue/rootcheck ]; then
             rm -rf ${DIR}/queue/rootcheck/* > /dev/null 2>&1
         fi
+
+        # Remove groups backup if exists
+        if [ -d ${DIR}/backup/groups ]; then
+            rm -rf ${DIR}/backup/groups* > /dev/null 2>&1
+        fi
     ;;
 
     abort-upgrade)
