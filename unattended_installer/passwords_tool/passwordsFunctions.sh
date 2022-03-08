@@ -36,20 +36,31 @@ function passwords_changePassword() {
     fi
 
     if [ "${nuser}" == "admin" ] || [ -n "${changeall}" ]; then
-
         if [ -n "${filebeatinstalled}" ]; then
-            wazuhold=$(grep "password:" /etc/filebeat/filebeat.yml )
-            ra="  password: "
-            wazuhold="${wazuhold//$ra}"
-            conf="$(awk '{sub("password: .*", "password: '${adminpass}'")}1' /etc/filebeat/filebeat.yml)"
-            echo "${conf}" > /etc/filebeat/filebeat.yml
+            if [ -n "$(filebeat keystore list | grep password)" ];then
+                eval "echo ${adminpass} | filebeat keystore add password --force --stdin ${debug}"
+            else
+                wazuhold=$(grep "password:" /etc/filebeat/filebeat.yml )
+                ra="  password: "
+                wazuhold="${wazuhold//$ra}"
+                conf="$(awk '{sub("password: .*", "password: '${adminpass}'")}1' /etc/filebeat/filebeat.yml)"
+                echo "${conf}" > /etc/filebeat/filebeat.yml
+            fi
             passwords_restartService "filebeat"
         fi
     fi
 
     if [ "$nuser" == "kibanaserver" ] || [ -n "$changeall" ]; then
         if [ -n "${dashboardinstalled}" ] && [ -n "${dashpass}" ]; then
-            eval "echo ${dashpass} | /usr/share/wazuh-dashboard/bin/opensearch-dashboards-keystore --allow-root add -f --stdin opensearch.password ${debug_pass}"
+            if [ -n "$(/usr/share/wazuh-dashboard/bin/opensearch-dashboards-keystore --allow-root list | grep opensearch.password)" ]; then
+                eval "echo ${dashpass} | /usr/share/wazuh-dashboard/bin/opensearch-dashboards-keystore --allow-root add -f --stdin opensearch.password ${debug_pass}"
+            else
+                wazuhdashold=$(grep "password:" /etc/wazuh-dashboard/opensearch_dashboards.yml )
+                rk="opensearch.password: "
+                wazuhdashold="${wazuhdashold//$rk}"
+                conf="$(awk '{sub("opensearch.password: .*", "opensearch.password: '${dashpass}'")}1' /etc/wazuh-dashboard/opensearch_dashboards.yml)"
+                echo "${conf}" > /etc/wazuh-dashboard/opensearch_dashboards.yml
+            fi
             passwords_restartService "wazuh-dashboard"
         fi
     fi
@@ -152,7 +163,7 @@ function passwords_generatePasswordFile() {
     user_description=(
         "Wazuh indexer admin user"
         "User used by Wazuh dashboard to connect with Wazuh indexer"
-        "Regular Dasboard user only has read permissions"
+        "Regular Dashboard user, only has read permissions"
         "Filebeat user has CRUD and CREATE permissions on filebeat indices"
         "User with READ acces to all indices"
         "User with permissions to perform snapshot and restore operations"
