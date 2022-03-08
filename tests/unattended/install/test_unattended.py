@@ -30,7 +30,7 @@ def get_password(username):
     pass_dict={'User': {'name': 'tmp_user', 'password': 'tmp_pass'}}
     tmp_yaml=""
 
-    with tarfile.open("../../../unattended_installer/configurations.tar") as configurations:
+    with tarfile.open("../../../unattended_installer/wazuh-install-files.tar") as configurations:
         configurations.extract("./password_file.yml")
 
     with open("./password_file.yml", 'r') as pass_file:
@@ -76,7 +76,7 @@ def api_call_indexer(host,query,address,api_protocol,api_user,api_pass,api_port)
 
 def get_indexer_cluster_status():
     ip = get_indexer_ip()
-    resp = requests.get('https://'+ip+':9700/_cluster/health',
+    resp = requests.get('https://'+ip+':9200/_cluster/health',
                         auth=("admin",
                         get_password("admin")),
                         verify=False)
@@ -252,7 +252,7 @@ def test_check_alerts():
         }
     }
 
-    response = api_call_indexer(get_indexer_ip(),query,get_indexer_ip(),'https',"admin",get_password("admin"),'9700')
+    response = api_call_indexer(get_indexer_ip(),query,get_indexer_ip(),'https',"admin",get_password("admin"),'9200')
 
     print(response)
 

@@ -4,8 +4,6 @@ cluster.initial_master_nodes:
 - "node-1"
 cluster.name: "wazuh-cluster"
 
-http.port: 9700-9799
-transport.tcp.port: 9800-9899
 node.max_local_storage_nodes: "3"
 path.data: /var/lib/wazuh-indexer
 path.logs: /var/log/wazuh-indexer

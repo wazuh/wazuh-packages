@@ -1,0 +1,241 @@
+#!/bin/bash
+
+# Tool to create wazuh-install.sh, wazuh-cert-tool.sh
+# and wazuh-passwords-tool.sh
+# Copyright (C) 2015, Wazuh Inc.
+#
+# This program is a free software; you can redistribute it
+# and/or modify it under the terms of the GNU General Public
+# License (version 2) as published by the FSF - Free Software
+# Foundation.
+
+readonly base_path="$(dirname "$(readlink -f "$0")")"
+readonly resources_installer="${base_path}/install_functions"
+readonly resources_config="${base_path}/config"
+readonly resources_certs="${base_path}/cert_tool"
+readonly resources_passwords="${base_path}/passwords_tool"
+readonly resources_common="${base_path}/common_functions"
+
+function getHelp() {
+
+    echo -e ""
+    echo -e "NAME"
+    echo -e "        $(basename "$0") - Build unattended installation files."
+    echo -e ""
+    echo -e "SYNOPSIS"
+    echo -e "        $(basename "$0") [-v] -i | -c | -p"
+    echo -e ""
+    echo -e "DESCRIPTION"
+    echo -e "        -i,  --installer"
+    echo -e "                Builds the unattended installer single file wazuh-install.sh"
+    echo -e ""
+    echo -e "        -c,  --cert-tool"
+    echo -e "                Builds the certificate creation tool cert-tool.sh"
+    echo -e ""
+    echo -e "        -d,  --development"
+    echo -e "                Use development repos"
+    echo -e ""
+    echo -e "        -p,  --password-tool"
+    echo -e "                Builds the password creation and modification tool password-tool.sh"
+    echo -e ""
+    echo -e "        -h,  --help"
+    echo -e "                Shows help."
+    exit 1
+
+}
+
+function buildInstaller() {
+    output_script_path="${base_path}/wazuh-install.sh"
+
+    ## Create installer script
+    echo -n > "${output_script_path}"
+
+    ## License
+    echo "#!/bin/bash
+
+# Wazuh installer
+# Copyright (C) 2015, Wazuh Inc.
+#
+# This program is a free software; you can redistribute it
+# and/or modify it under the terms of the GNU General Public
+# License (version 2) as published by the FSF - Free Software
+# Foundation." >> "${output_script_path}"
+
+    ## Installation variables
+    cat ${resources_installer}/installVariables.sh >> "${output_script_path}"
+    echo >> "${output_script_path}"
+    if [ -n "${development}" ]; then
+        echo 'repogpg="https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH"' >> "${output_script_path}"
+        echo 'repobaseurl="https://packages-dev.wazuh.com/pre-release"' >> "${output_script_path}"
+        echo 'reporelease="unstable"' >> "${output_script_path}"
+        echo 'filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.1.tar.gz"' >> "${output_script_path}"
+    else
+        echo 'repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"' >> "${output_script_path}"
+        echo 'repobaseurl="https://packages.wazuh.com/4.x"' >> "${output_script_path}"
+        echo 'reporelease="stable"' >> "${output_script_path}"
+        echo 'filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.1.tar.gz"' >> "${output_script_path}"
+    fi
+    echo >> "${output_script_path}"
+
+    ## Configuration files as variables
+    configuration_files=($(find "${resources_config}" -type f))
+    config_file_name=($(eval "echo "${configuration_files[@]}" | sed 's|${resources_config}||g;s|/|_|g;s|.yml||g'"))
+    for index in "${!config_file_name[@]}"; do
+        echo "config_file${config_file_name[$index]}=\"$(cat "${configuration_files[$index]}" | sed 's|\"|\\\"|g;s|\$|\\\$|g')\"" >> "${output_script_path}"
+        echo >> "${output_script_path}"
+    done
+
+    ## Sigint trap
+    echo "trap installCommon_cleanExit SIGINT" >> "${output_script_path}"
+
+    ## JAVA_HOME
+    echo "export JAVA_HOME=\"/usr/share/wazuh-indexer/jdk/\"" >> "${output_script_path}"
+
+    ## Functions for all install function modules
+    install_modules=($(find "${resources_installer}" -type f))
+    install_modules_names=($(eval "echo \"${install_modules[@]}\" | sed 's,${resources_innstaller}/,,g'"))
+    for i in "${!install_modules[@]}"; do
+        echo "# ------------ ${install_modules_names[$i]} ------------ " >> "${output_script_path}"
+        sed -n '/^function [a-zA-Z_]\(\)/,/^}/p' ${install_modules[$i]} >> "${output_script_path}"
+        echo >> "${output_script_path}"
+    done
+
+    ## Common functions
+    sed -n '/^function [a-zA-Z_]\(\)/,/^}/p' "${resources_common}/common.sh" >> "${output_script_path}"
+
+    ## Certificate tool library functions
+    sed -n '/^function [a-zA-Z_]\(\)/,/^}/p' "${resources_certs}/certFunctions.sh" >> "${output_script_path}"
+
+    ## Passwords tool library functions
+    sed -n '/^function [a-zA-Z_]\(\)/,/^}/p' "${resources_passwords}/passwordsFunctions.sh" >> "${output_script_path}"
+
+    ## Main function and call to it
+    echo >> "${output_script_path}"
+    echo "main \"\$@\"" >> "${output_script_path}"
+
+}
+
+function buildPasswordsTool() {
+    output_script_path="${base_path}/wazuh-passwords-tool.sh"
+
+    ## Create installer script
+    echo -n > "${output_script_path}"
+
+    ## License
+    echo "#!/bin/bash
+
+# Wazuh installer
+# Copyright (C) 2015, Wazuh Inc.
+#
+# This program is a free software; you can redistribute it
+# and/or modify it under the terms of the GNU General Public
+# License (version 2) as published by the FSF - Free Software
+# Foundation." >> "${output_script_path}"
+
+    ## Passwords tool variables
+    cat "${resources_passwords}/passwordsVariables.sh" >> "${output_script_path}"
+    echo >> "${output_script_path}"
+
+    ## Functions for all password function modules
+    passwords_modules=($(find "${resources_passwords}" -type f))
+    passwords_modules_names=($(eval "echo "${passwords_modules[@]}" | sed 's,${resources_passwords}/,,g'"))
+    for i in "${!passwords_modules[@]}"; do
+        echo "# ------------ ${passwords_modules_names[$i]} ------------ " >> "${output_script_path}"
+        sed -n '/^function [a-zA-Z_]\(\)/,/^}/p' "${passwords_modules[$i]}" >> "${output_script_path}"
+        echo >> "${output_script_path}"
+    done
+
+    ## Common functions
+    sed -n '/^function [a-zA-Z_]\(\)/,/^}/p' "${resources_common}/common.sh" >> "${output_script_path}"
+
+    ## Call to main function
+    echo >> "${output_script_path}"
+    echo "main \"\$@\"" >> "${output_script_path}"
+}
+
+function buildCertsTool() {
+    output_script_path="${base_path}/wazuh-certs-tool.sh"
+
+    ## Create installer script
+    echo -n > "${output_script_path}"
+
+    ## License
+    echo "#!/bin/bash
+
+# Wazuh installer
+# Copyright (C) 2015, Wazuh Inc.
+#
+# This program is a free software; you can redistribute it
+# and/or modify it under the terms of the GNU General Public
+# License (version 2) as published by the FSF - Free Software
+# Foundation." >> "${output_script_path}"
+
+    ## Certs tool variables
+    cat "${resources_certs}/certVariables.sh" >> "${output_script_path}"
+    echo >> "${output_script_path}"
+
+    ## Functions for all certs tool function modules
+    certs_modules=($(find "${resources_certs}" -type f))
+    certs_modules_names=($(eval "echo "${certs_modules[@]}" | sed 's,${resources_certs}/,,g'"))
+    for i in "${!certs_modules[@]}"; do
+        echo "# ------------ ${certs_modules_names[$i]} ------------ " >> "${output_script_path}"
+        sed -n '/^function [a-zA-Z_]\(\)/,/^}/p' "${certs_modules[$i]}" >> "${output_script_path}"
+        echo >> "${output_script_path}"
+    done
+
+    ## Common functions
+    sed -n '/^function [a-zA-Z_]\(\)/,/^}/p' "${resources_common}/common.sh" >> "${output_script_path}"
+
+    ## Call to main function
+    echo >> "${output_script_path}"
+    echo "main \"\$@\"" >> "${output_script_path}"
+
+}
+
+function builder_main() {
+
+    umask 066 
+
+    while [ -n "${1}" ]
+    do
+        case "${1}" in
+            "-i"|"--installer")
+                installer=1
+                shift 1
+                ;;
+            "-c"|"--cert-tool")
+                certTool=1
+                shift 1
+                ;;
+            "-d"|"--development")
+                development=1
+                shift 1
+                ;;
+            "-p"|"--password-tool")
+                passwordsTool=1
+                shift 1
+                ;;
+            "-h"|"--help")
+                getHelp
+                ;;
+            *)
+                echo "Unknow option: \"${1}\""
+                getHelp
+        esac
+    done
+
+    if [ -n "${installer}" ]; then
+        buildInstaller
+    fi
+
+    if [ -n "${passwordsTool}" ]; then
+        buildPasswordsTool
+    fi
+
+    if [ -n "${certTool}" ]; then
+        buildCertsTool
+    fi
+    chmod 500 ${output_script_path}
+}
+
+builder_main "$@"
