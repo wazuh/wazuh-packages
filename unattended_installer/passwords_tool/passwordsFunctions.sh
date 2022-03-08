@@ -163,7 +163,7 @@ function passwords_generatePasswordFile() {
     user_description=(
         "Wazuh indexer admin user"
         "User used by Wazuh dashboard to connect with Wazuh indexer"
-        "Regular Dasboard user only has read permissions"
+        "Regular Dashboard user, only has read permissions"
         "Filebeat user has CRUD and CREATE permissions on filebeat indices"
         "User with READ acces to all indices"
         "User with permissions to perform snapshot and restore operations"
