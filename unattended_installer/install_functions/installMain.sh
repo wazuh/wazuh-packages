@@ -34,8 +34,8 @@ function getHelp() {
     echo -e "        -h,  --help"
     echo -e "                Display this help and exit."
     echo -e ""
-    echo -e "        -i,  --ignore-hardware-check"
-    echo -e "                Ignore check for minimum hardware requirements."
+    echo -e "        -i,  --ignore-check"
+    echo -e "                Ignore check for system compatibility and minimum hardware requirements."
     echo -e ""
     echo -e "        -o,  --overwrite"
     echo -e "                Overwrites previously installed components. This will erase all the existing configuration and data."
@@ -110,7 +110,7 @@ function main() {
             "-h"|"--help")
                 getHelp
                 ;;
-            "-i"|"--ignore-hardware-check")
+            "-i"|"--ignore-check")
                 ignore=1
                 shift 1
                 ;;
@@ -198,6 +198,7 @@ function main() {
 
 # -------------- Uninstall case  ------------------------------------
 
+    check_dist
     common_checkSystem
     common_checkInstalled
     checks_arguments
