@@ -49,8 +49,8 @@ function dashboard_copyCertificates() {
 
         name=${dashboard_node_names[pos]}
 
-        eval "tar -xf ${tar_file} -C ${dashboard_cert_path} config_dir/${name}.pem  && mv ${dashboard_cert_path}${name}.pem ${dashboard_cert_path}dashboard.pem ${debug}"
-        eval "tar -xf ${tar_file} -C ${dashboard_cert_path} config_dir/${name}-key.pem  && mv ${dashboard_cert_path}${name}-key.pem ${dashboard_cert_path}dashboard-key.pem ${debug}"
+        eval "tar -xf ${tar_file} -C ${dashboard_cert_path} config_dir/${name}.pem  && mv config_dir/${dashboard_cert_path}${name}.pem ${dashboard_cert_path}dashboard.pem ${debug}"
+        eval "tar -xf ${tar_file} -C ${dashboard_cert_path} config_dir/${name}-key.pem  && mv config_dir/{dashboard_cert_path}${name}-key.pem ${dashboard_cert_path}dashboard-key.pem ${debug}"
         eval "tar -xf ${tar_file} -C ${dashboard_cert_path} config_dir/root-ca.pem ${debug}"
         eval "chown -R wazuh-dashboard:wazuh-dashboard /etc/wazuh-dashboard/ ${debug}"
         eval "chmod -R 500 ${dashboard_cert_path} ${debug}"
