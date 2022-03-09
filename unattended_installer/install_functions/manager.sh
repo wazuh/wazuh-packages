@@ -20,7 +20,7 @@ function manager_startCluster() {
         fi
     done
 
-    key=$(tar -axf "${tar_file}" ./clusterkey -O)
+    key=$(tar -axf "${tar_file}" config_dir/clusterkey -O)
     bind_address="0.0.0.0"
     port="1516"
     hidden="no"
