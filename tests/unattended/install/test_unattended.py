@@ -35,9 +35,9 @@ def get_password(username):
 
     with open("./password_file.yml", 'r') as pass_file:
         while pass_dict["User"]["name"] != username:
-            for i in range(3):
+            for i in range(4):
                 tmp_yaml+=pass_file.readline()
-                pass_dict=yaml.safe_load(tmp_yaml)
+            pass_dict=yaml.safe_load(tmp_yaml)
     return pass_dict["User"]["password"]
 
 def get_wazuh_version():
