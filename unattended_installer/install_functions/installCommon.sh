@@ -180,7 +180,7 @@ function installCommon_installPrerequisites() {
         done
 
         if [ "${#not_installed[@]}" -gt 0 ]; then
-            common_logger "--- Dependencies ----"
+            common_logger "--- Dependencies ---"
             for dep in "${not_installed[@]}"; do
                 common_logger "Installing $dep."
                 eval "yum install ${dep} -y ${debug}"
