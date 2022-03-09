@@ -6,7 +6,7 @@
 systemConfig() {
 
   echo "Upgrading the system. This may take a while ..."
-  #yum upgrade -y > /dev/null 2>&1
+  yum upgrade -y > /dev/null 2>&1
 
   # Disable kernel messages and edit background
   mv ${CUSTOM_PATH}/grub/wazuh.png /boot/grub2/
