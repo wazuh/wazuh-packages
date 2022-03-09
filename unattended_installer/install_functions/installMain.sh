@@ -238,10 +238,10 @@ function main() {
         passwords_generatePasswordFile
         # Using cat instead of simple cp because OpenSUSE unknown error.
         eval "cat '${config_file}' > '${base_path}/certs/config.yml'"
-        eval "mv ${base_path}/certs/ ${base_path}/config_dir/"
-        eval "chown root:root ${base_path}/config_dir/*"
-        eval "tar -zcf '${tar_file}' -C '${base_path}/' config_dir/ ${debug}"
-        eval "rm -rf '${base_path}/config_dir' ${debug}"
+        eval "mv ${base_path}/certs/ ${base_path}/wazuh-install-files/"
+        eval "chown root:root ${base_path}/wazuh-install-files/*"
+        eval "tar -zcf '${tar_file}' -C '${base_path}/' wazuh-install-files/ ${debug}"
+        eval "rm -rf '${base_path}/wazuh-install-files' ${debug}"
         common_logger "Created ${tar_file}. Contains Wazuh cluster key, certificates, and passwords necessary for installation."
     fi
 

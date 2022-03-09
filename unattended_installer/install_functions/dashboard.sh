@@ -49,10 +49,10 @@ function dashboard_copyCertificates() {
 
         name=${dashboard_node_names[pos]}
 
-        eval "tar -xf ${tar_file} -C ${dashboard_cert_path} config_dir/${name}.pem  && mv ${dashboard_cert_path}config_dir/${name}.pem ${dashboard_cert_path}dashboard.pem ${debug}"
-        eval "tar -xf ${tar_file} -C ${dashboard_cert_path} config_dir/${name}-key.pem  && mv ${dashboard_cert_path}config_dir/${name}-key.pem ${dashboard_cert_path}dashboard-key.pem ${debug}"
-        eval "tar -xf ${tar_file} -C ${dashboard_cert_path} config_dir/root-ca.pem && mv ${dashboard_cert_path}config_dir/root-ca.pem ${dashboard_cert_path}root-ca.pem ${debug}"
-        eval "rm -rf ${dashboard_cert_path}config_dir/"
+        eval "tar -xf ${tar_file} -C ${dashboard_cert_path} wazuh-install-files/${name}.pem  && mv ${dashboard_cert_path}wazuh-install-files/${name}.pem ${dashboard_cert_path}dashboard.pem ${debug}"
+        eval "tar -xf ${tar_file} -C ${dashboard_cert_path} wazuh-install-files/${name}-key.pem  && mv ${dashboard_cert_path}wazuh-install-files/${name}-key.pem ${dashboard_cert_path}dashboard-key.pem ${debug}"
+        eval "tar -xf ${tar_file} -C ${dashboard_cert_path} wazuh-install-files/root-ca.pem && mv ${dashboard_cert_path}wazuh-install-files/root-ca.pem ${dashboard_cert_path}root-ca.pem ${debug}"
+        eval "rm -rf ${dashboard_cert_path}wazuh-install-files/"
         eval "chown -R wazuh-dashboard:wazuh-dashboard /etc/wazuh-dashboard/ ${debug}"
         eval "chmod -R 500 ${dashboard_cert_path} ${debug}"
         eval "chown wazuh-dashboard:wazuh-dashboard ${dashboard_cert_path}*"
