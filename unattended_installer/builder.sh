@@ -65,6 +65,7 @@ function buildInstaller() {
     cat ${resources_installer}/installVariables.sh >> "${output_script_path}"
     echo >> "${output_script_path}"
     if [ -n "${development}" ]; then
+        echo 'development=1' >> "${output_script_path}"
         echo 'repogpg="https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH"' >> "${output_script_path}"
         echo 'repobaseurl="https://packages-dev.wazuh.com/pre-release"' >> "${output_script_path}"
         echo 'reporelease="unstable"' >> "${output_script_path}"
@@ -194,7 +195,7 @@ function buildCertsTool() {
 
 function builder_main() {
 
-    umask 066 
+    umask 066
 
     while [ -n "${1}" ]
     do
