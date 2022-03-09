@@ -41,6 +41,9 @@ systemConfig
 preInstall
 
 # Install
+if [[ "${DEBUG}" = "yes" ]]; then
+  sed -i "s/\#\!\/bin\/bash/\#\!\/bin\/bash\\nset -x/g" ${RESOURCES_PATH}/${INSTALLER}
+fi
 bash ${RESOURCES_PATH}/${INSTALLER} ${INSTALL_ARGS}
 
 systemctl stop wazuh-dashboard filebeat wazuh-indexer
