@@ -85,7 +85,7 @@ function indexer_copyCertificates() {
         eval "tar -xf ${tar_file} -C ${indexer_cert_path} ./root-ca.pem  ${debug}"
         eval "tar -xf ${tar_file} -C ${indexer_cert_path} ./admin.pem  ${debug}"
         eval "tar -xf ${tar_file} -C ${indexer_cert_path} ./admin-key.pem  ${debug}"
-        eval "chown wazuh-indexer:wazuh-indexer ${indexer_cert_path}/*"
+        eval "chown wazuh-indexer:wazuh-indexer ${indexer_cert_path}*"
     else
         common_logger -e "No certificates found. Could not initialize Wazuh indexer"
         exit 1;
