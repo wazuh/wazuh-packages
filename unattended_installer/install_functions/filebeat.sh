@@ -42,15 +42,15 @@ function filebeat_copyCertificates() {
         if [ -n "${AIO}" ]; then
             eval "tar -xf ${tar_file} -C ${filebeat_cert_path} --wildcards config_dir/${server_node_names[0]}.pem ${debug} && mv ${filebeat_cert_path}config_dir/${server_node_names[0]}.pem ${filebeat_cert_path}filebeat.pem ${debug}"
             eval "tar -xf ${tar_file} -C ${filebeat_cert_path} --wildcards config_dir/${server_node_names[0]}-key.pem ${debug} && mv ${filebeat_cert_path}config_dir/${server_node_names[0]}-key.pem ${filebeat_cert_path}filebeat-key.pem ${debug}"
-            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} config_dir/root-ca.pem ${debug}"
-            eval "rm -rf ${indexer_cert_path}config_dir/"
+            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} config_dir/root-ca.pem && mv ${filebeat_cert_path}config_dir/root-ca.pem ${filebeat_cert_path}root-ca.pem ${debug}"
+            eval "rm -rf ${filebeat_cert_path}config_dir/"
         else
             eval "tar -xf ${tar_file} -C ${filebeat_cert_path} config_dir/${winame}.pem && mv ${filebeat_cert_path}config_dir/${winame}.pem ${filebeat_cert_path}filebeat.pem ${debug}"
             eval "tar -xf ${tar_file} -C ${filebeat_cert_path} config_dir/${winame}-key.pem && mv ${filebeat_cert_path}config_dir/${winame}-key.pem ${filebeat_cert_path}filebeat-key.pem ${debug}"
-            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} config_dir/root-ca.pem && mv ${filebeat_cert_path}config_dir/root-ca.pem ${filebeat_cert_path} ${debug}"
-            eval "rm -rf ${indexer_cert_path}config_dir/"
+            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} config_dir/root-ca.pem && mv ${filebeat_cert_path}config_dir/root-ca.pem ${filebeat_cert_path}root-ca.pem ${debug}"
+            eval "rm -rf ${filebeat_cert_path}config_dir/"
         fi
-        eval "chown root:root ${indexer_cert_path}/*"
+        eval "chown root:root ${filebeat_cert_path}/*"
     else
         common_logger -e "No certificates found. Could not initialize Filebeat"
         exit 1;

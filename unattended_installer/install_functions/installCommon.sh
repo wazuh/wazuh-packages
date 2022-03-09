@@ -106,7 +106,7 @@ function installCommon_changePasswords() {
     common_logger -d "Setting passwords."
     if [ -f "${tar_file}" ]; then
         eval "tar -xf ${tar_file} -C ${base_path} config_dir/password_file.yml ${debug}"
-        p_file="${base_path}/password_file.yml"
+        p_file="${base_path}/config_dir/password_file.yml"
         common_checkInstalled
         if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
             changeall=1
