@@ -40,12 +40,12 @@ function filebeat_copyCertificates() {
 
     if [ -f "${tar_file}" ]; then
         if [ -n "${AIO}" ]; then
-            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} --wildcards config_dir/${server_node_names[0]}.pem ${debug} && mv config_dir/${filebeat_cert_path}${server_node_names[0]}.pem ${filebeat_cert_path}filebeat.pem ${debug}"
-            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} --wildcards config_dir/${server_node_names[0]}-key.pem ${debug} && mv config_dir/${filebeat_cert_path}${server_node_names[0]}-key.pem ${filebeat_cert_path}filebeat-key.pem ${debug}"
+            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} --wildcards config_dir/${server_node_names[0]}.pem ${debug} && mv config_dir${filebeat_cert_path}${server_node_names[0]}.pem ${filebeat_cert_path}filebeat.pem ${debug}"
+            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} --wildcards config_dir/${server_node_names[0]}-key.pem ${debug} && mv config_dir${filebeat_cert_path}${server_node_names[0]}-key.pem ${filebeat_cert_path}filebeat-key.pem ${debug}"
             eval "tar -xf ${tar_file} -C ${filebeat_cert_path} config_dir/root-ca.pem ${debug}"
         else
-            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} config_dir/${winame}.pem && mv config_dir/${filebeat_cert_path}${winame}.pem ${filebeat_cert_path}filebeat.pem ${debug}"
-            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} config_dir/${winame}-key.pem && mv config_dir/${filebeat_cert_path}${winame}-key.pem ${filebeat_cert_path}filebeat-key.pem ${debug}"
+            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} config_dir/${winame}.pem && mv config_dir${filebeat_cert_path}${winame}.pem ${filebeat_cert_path}filebeat.pem ${debug}"
+            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} config_dir/${winame}-key.pem && mv config_dir${filebeat_cert_path}${winame}-key.pem ${filebeat_cert_path}filebeat-key.pem ${debug}"
             eval "tar -xf ${tar_file} -C ${filebeat_cert_path} config_dir/root-ca.pem ${debug}"
         fi
         eval "chown root:root ${indexer_cert_path}/*"
