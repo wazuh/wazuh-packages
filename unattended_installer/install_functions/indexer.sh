@@ -82,9 +82,10 @@ function indexer_copyCertificates() {
     if [ -f "${tar_file}" ]; then
         eval "tar -xf ${tar_file} -C ${indexer_cert_path} config_dir/${name}.pem  && mv ${indexer_cert_path}config_dir/${name}.pem ${indexer_cert_path}indexer.pem ${debug}"
         eval "tar -xf ${tar_file} -C ${indexer_cert_path} config_dir/${name}-key.pem  && mv ${indexer_cert_path}config_dir/${name}-key.pem ${indexer_cert_path}indexer-key.pem ${debug}"
-        eval "tar -xf ${tar_file} -C ${indexer_cert_path} config_dir/root-ca.pem  ${debug}"
-        eval "tar -xf ${tar_file} -C ${indexer_cert_path} config_dir/admin.pem  ${debug}"
-        eval "tar -xf ${tar_file} -C ${indexer_cert_path} config_dir/admin-key.pem  ${debug}"
+        eval "tar -xf ${tar_file} -C ${indexer_cert_path} config_dir/root-ca.pem && mv ${indexer_cert_path}config_dir/root-ca.pem ${indexer_cert_path} ${debug}"
+        eval "tar -xf ${tar_file} -C ${indexer_cert_path} config_dir/admin.pem && mv ${indexer_cert_path}config_dir/admin.pem ${indexer_cert_path} ${debug}"
+        eval "tar -xf ${tar_file} -C ${indexer_cert_path} config_dir/admin-key.pem && mv ${indexer_cert_path}config_dir/admin-key.pem ${indexer_cert_path} ${debug}"
+        eval "rm -rf ${indexer_cert_path}config_dir/"
         eval "chown wazuh-indexer:wazuh-indexer ${indexer_cert_path}/*"
     else
         common_logger -e "No certificates found. Could not initialize Wazuh indexer"
