@@ -55,7 +55,7 @@ function dashboard_copyCertificates() {
         eval "rm -rf ${dashboard_cert_path}config_dir/"
         eval "chown -R wazuh-dashboard:wazuh-dashboard /etc/wazuh-dashboard/ ${debug}"
         eval "chmod -R 500 ${dashboard_cert_path} ${debug}"
-        eval "chown wazuh-dashboard:wazuh-dashboard ${dashboard_cert_path}/*"
+        eval "chown wazuh-dashboard:wazuh-dashboard ${dashboard_cert_path}*"
         common_logger -d "Wazuh dashboard certificate setup finished."
     else
         common_logger -e "No certificates found. Wazuh dashboard  could not be initialized."

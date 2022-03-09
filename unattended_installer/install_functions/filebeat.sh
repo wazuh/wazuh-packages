@@ -50,7 +50,7 @@ function filebeat_copyCertificates() {
             eval "tar -xf ${tar_file} -C ${filebeat_cert_path} config_dir/root-ca.pem && mv ${filebeat_cert_path}config_dir/root-ca.pem ${filebeat_cert_path}root-ca.pem ${debug}"
             eval "rm -rf ${filebeat_cert_path}config_dir/"
         fi
-        eval "chown root:root ${filebeat_cert_path}/*"
+        eval "chown root:root ${filebeat_cert_path}*"
     else
         common_logger -e "No certificates found. Could not initialize Filebeat"
         exit 1;
