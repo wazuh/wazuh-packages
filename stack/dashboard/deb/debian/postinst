@@ -12,14 +12,11 @@ set -e
 export NAME=wazuh-dashboard
 export CONFIG_DIR=/etc/"${NAME}"
 export INSTALLATION_DIR=/usr/share/"${NAME}"
-export LOG_DIR=/var/log/"${NAME}"
 export PID_DIR=/run/"${NAME}"
 
 
 # Setting Owner and group of own folders
 mkdir -p ${PID_DIR}
-mkdir -p ${LOG_DIR}
-chown -R "${NAME}":"${NAME}" "${LOG_DIR}"
 chown -R "${NAME}":"${NAME}" "${PID_DIR}"
 
 

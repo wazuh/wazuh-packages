@@ -12,7 +12,6 @@ set -e
 export NAME=wazuh-dashboard
 export CONFIG_DIR=/etc/"${NAME}"
 export INSTALLATION_DIR=/usr/share/"${NAME}"
-export LOG_DIR=/var/log/"${NAME}"
 export PID_DIR=/run/${NAME}
 
 #
@@ -55,10 +54,6 @@ esac
 
 
 if [ "$REMOVE_DIRS" = "true" ]; then
-
-    if [ -d "${LOG_DIR}" ]; then
-        rmdir --ignore-fail-on-non-empty "${LOG_DIR}"
-    fi
 
     if [ -d ${PID_DIR} ]; then
         echo -n "Deleting PID directory..."
