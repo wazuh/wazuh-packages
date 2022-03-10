@@ -20,7 +20,6 @@ set -e
 export NAME=wazuh-dashboard
 export CONFIG_DIR=/etc/"${NAME}"
 export INSTALLATION_DIR=/usr/share/"${NAME}"
-export LOG_DIR=/var/log/"${NAME}"
 
 
 case "$1" in
@@ -49,12 +48,6 @@ case "$1" in
                     --shell /bin/false \
                     "${NAME}"
             echo " OK"
-        fi  
-
-        if [ -d "${LOG_DIR}" ]; then
-            chown -R "${NAME}":"${NAME}" "${LOG_DIR}" 
-        else
-            mkdir -p "${LOG_DIR}"
         fi
     
     ;;

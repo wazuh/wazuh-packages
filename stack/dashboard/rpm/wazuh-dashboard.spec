@@ -28,7 +28,6 @@ ExclusiveOS: linux
 %global USER %{name}
 %global GROUP %{name}
 %global CONFIG_DIR /etc/%{name}
-%global LOG_DIR /var/log/%{name}
 %global PID_DIR /run/%{name}
 %global INSTALL_DIR /usr/share/%{name}
 %global DASHBOARD_FILE wazuh-dashboard-base-%{version}-linux-x64.tar.xz
@@ -124,12 +123,6 @@ if [ $1 = 1 ]; then
   if ! id -u %{USER} > /dev/null 2>&1; then
     useradd -g %{GROUP} -G %{USER} -d %{INSTALL_DIR}/ -r -s /sbin/nologin wazuh-dashboard
   fi
-  if [ -d %{LOG_DIR} ]; then
-      chown -R %{USER}:%{GROUP} %{LOG_DIR}
-  else
-      mkdir -p %{LOG_DIR}
-      chown %{USER}:%{GROUP} %{LOG_DIR}
-  fi
 fi
 # Stop the services to upgrade the package
 if [ $1 = 2 ]; then
@@ -186,9 +179,6 @@ if [ $1 = 0 ];then
   rm -rf %{INSTALL_DIR}
   if [ -d %{PID_DIR} ]; then
     rm -rf %{PID_DIR}
-  fi
-  if [ -d %{LOG_DIR} ]; then
-      rmdir --ignore-fail-on-non-empty %{LOG_DIR}
   fi
 fi
 
