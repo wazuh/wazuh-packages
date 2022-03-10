@@ -175,6 +175,29 @@ function checks_arguments() {
 
 }
 
+function check_dist() {
+    dist_detect
+    if [ "${DIST_NAME}" != "centos" ] && [ "${DIST_NAME}" != "rhel" ] && [ "${DIST_NAME}" != "amzn" ] && [ "${DIST_NAME}" != "Ubuntu" ]; then
+        notsupported=1
+    fi
+    if ([ "${DIST_NAME}" == "centos" ] || [ "${DIST_NAME}" == "rhel" ]) && ([ "${DIST_VER}" -ne "7" ] && [ "${DIST_VER}" -ne "8" ]); then
+        notsupported=1
+    fi
+    if ([ "${DIST_NAME}" == "amzn" ]) && ([ "${DIST_VER}" -ne "2" ]); then
+        notsupported=1
+    fi
+    if ([ "${DIST_NAME}" == "ubuntu" ]) && ([ "${DIST_VER}" -ne "16" ] && [ "${DIST_VER}" -ne "18" ] && [ "${DIST_VER}" -ne "20" ]); then
+        notsupported=1
+    fi
+    if ([ "${DIST_NAME}" == "ubuntu" ]) && ([ "${DIST_VER}" -eq "16" ] || [ "${DIST_VER}" -eq "18" ] || [ "${DIST_VER}" -eq "20" ]) &&  ([ "${DIST_SUBVER}" != "04" ]); then
+        notsupported=1
+    fi
+    if [ -n "${notsupported}" ] && [ -z "${ignore}" ]; then
+        common_logger -e "The system is not supported, supported systems are: Red Hat Enterprise Linux 7, 8; CentOS 7, 8; Amazon Linux 2; Ubuntu 16.04, 18.04, 20.04"
+        exit 1
+    fi
+}
+
 function checks_health() {
 
     logger "Verifying that your system meets the recommended minimum hardware requirements."

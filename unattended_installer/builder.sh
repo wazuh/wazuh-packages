@@ -15,6 +15,7 @@ readonly resources_config="${base_path}/config"
 readonly resources_certs="${base_path}/cert_tool"
 readonly resources_passwords="${base_path}/passwords_tool"
 readonly resources_common="${base_path}/common_functions"
+readonly source_branch="4.3"
 
 function getHelp() {
 
@@ -99,6 +100,11 @@ function buildInstaller() {
         sed -n '/^function [a-zA-Z_]\(\)/,/^}/p' ${install_modules[$i]} >> "${output_script_path}"
         echo >> "${output_script_path}"
     done
+
+    ## dist-detect.sh
+    echo "function dist_detect() {" >> "${output_script_path}"
+    curl -s "https://raw.githubusercontent.com/wazuh/wazuh/${source_branch}/src/init/dist-detect.sh" | sed '/^#/d' >> "${output_script_path}"
+    echo "}" >> "${output_script_path}"
 
     ## Common functions
     sed -n '/^function [a-zA-Z_]\(\)/,/^}/p' "${resources_common}/common.sh" >> "${output_script_path}"
