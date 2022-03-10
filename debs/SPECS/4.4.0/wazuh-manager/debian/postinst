@@ -139,6 +139,11 @@ case "$1" in
         rm -rf ${WAZUH_TMP_DIR}/group/
     fi
 
+    # Restore agent-groups files
+    if [ -d ${WAZUH_TMP_DIR}/agent-groups ]; then
+        mv ${WAZUH_TMP_DIR}/agent-groups ${DIR}/queue/
+    fi
+
     # Restore RBAC database
     if [ -f ${WAZUH_TMP_DIR}/rbac.db ]; then
         cp -fp ${WAZUH_TMP_DIR}/rbac.db ${DIR}/api/configuration/security/rbac.db
