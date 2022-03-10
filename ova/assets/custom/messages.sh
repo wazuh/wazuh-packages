@@ -20,31 +20,20 @@ EOF
 # User Welcome message
 cat > /etc/motd <<EOF
 
-              W.                   W.
-             WWW.                 WWW.
-            WWWWW.               WWWWW.
-           WWWWWWW.             WWWWWWW.
-          WWWWWWWWW.           WWWWWWWWW.
-         WWWWWWWWWWW.         WWWWWWWWWWW.
-        WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.
-       WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.
-     WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.
-    WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.
-  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.
-WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.
-  WWWWWWWW...WWWWWWWWWWWWWWWWWWWWWWWW...WWWWWWWW.
-    WWWWWWWW...WWWWWWWWWWWWWWWWWWWW..WWWWWWWW.
-       WWWWWWW...WWWWWWWWWWWWWWWW..WWWWWWWW.
-         WWWWWWWW...WWW....WWW...WWWWWWWW.
-           WWWWWWWW....WWWW....WWWWWWWW.
-              WWWWWWWWWWWWWWWWWWWWWWW.
-                WWWWWWWWWWWWWWWWWWW.
-                 WWWWWWWWWWWWWWWWW.
-                  WWWWWWWWWWWWWWW.
-                   WWWWWWWWWWWWW.
-                    WWWWWWWWWWW.
-                     WWWWWWWWW.
-                      WWWWWWW.
+
+        WWWWWW            WWWWWW           WWWWWW                        
+         WWWWWW          WWWWWWWW          WWWWWW                        
+          WWWWWW        WWWWWWWWWW        WWWWWW                         
+          &WWWWW       WWWWW WWWWW       WWWWWW                          
+           WWWWWW     WWWWWW  WWWWW     WWWWWW                           
+            WWWWWW    WWWWW    WWWWW    WWWWW                            
+             WWWWWW  WWWWW      WWWWW  WWWWWW                            
+             /WWWWW,WWWWW       WWWWW WWWWWW                             
+              WWWWWWWWWW         WWWWWWWWWW         WWWWW                
+               WWWWWWWW.          WWWWWWWW        WWWWWWWWW              
+                WWWWWWW            WWWWWW&        WWWWWWWWW              
+                 WWWWW              WWWWW          .WWWWW%               
+
 
 
          WAZUH Open Source Security Platform

@@ -109,7 +109,7 @@ function dashboard_initialize() {
             if [[ "${exit_code}" -eq "7" ]]; then
                 failed_connect=1
                 failed_nodes+=("${indexer_node_names[i]}")
-            fi 
+            fi
         done
         common_logger "${flag}" "Failed to connect with ${failed_nodes[*]}. Connection refused."
         if [ -z "${force}" ]; then
@@ -167,4 +167,3 @@ function dashboard_install() {
     fi
 
 }
-

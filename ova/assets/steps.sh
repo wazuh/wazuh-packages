@@ -21,11 +21,11 @@ systemConfig() {
   rm cron
 
   # Change root password (root:wazuh)
-  sed -i "s/root:.*:/root:\$1\$pNjjEA7K\$USjdNwjfh7A\.vHCf8suK41::0:99999:7:::/g" /etc/shadow 
+  sed -i "s/root:.*:/root:\$1\$pNjjEA7K\$USjdNwjfh7A\.vHCf8suK41::0:99999:7:::/g" /etc/shadow
 
   # Add custom user ($1$pNjjEA7K$USjdNwjfh7A.vHCf8suK41 -> wazuh)
   adduser ${SYSTEM_USER}
-  sed -i "s/${SYSTEM_USER}:!!/${SYSTEM_USER}:\$1\$pNjjEA7K\$USjdNwjfh7A\.vHCf8suK41/g" /etc/shadow 
+  sed -i "s/${SYSTEM_USER}:!!/${SYSTEM_USER}:\$1\$pNjjEA7K\$USjdNwjfh7A\.vHCf8suK41/g" /etc/shadow
 
   gpasswd -a ${SYSTEM_USER} wheel
   hostname ${HOSTNAME}
@@ -45,8 +45,8 @@ systemConfig() {
 # Edit unattended installer
 preInstall() {
 
-  # Disable passwords change
-  sed -i "s/common_changePasswords/#common_changePasswords/g" ${RESOURCES_PATH}/${INSTALLER}
+  # Avoid random passwords
+  sed -i "s/PASS=.*/PASS=\"\${users[i]}\"/g" ${RESOURCES_PATH}/${INSTALLER}
 
 }
 
