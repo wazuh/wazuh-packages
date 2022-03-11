@@ -63,6 +63,9 @@ function getHelp() {
     echo -e ""
     echo -e "        -ws,  --wazuh-server <wazuh-node-name>"
     echo -e "                Install and configure Wazuh server and Filebeat."
+    echo -e ""
+    echo -e "        -dw,  --download-wazuh <deb|rpm>"
+    echo -e "                Download Wazuh Package for Offline Install."
     exit 1
 
 }
@@ -167,12 +170,22 @@ function main() {
                 ;;
             "-ws"|"--wazuh-server")
                 if [ -z "${2}" ]; then
-                    common_logger -e "Error on arguments. Probably missing <node-name> after -w|--wazuh-server"
+                    common_logger -e "Error on arguments. Probably missing <node-name> after -ws|--wazuh-server"
                     getHelp
                     exit 1
                 fi
                 wazuh=1
                 winame="${2}"
+                shift 2
+                ;;
+            "-dw"|"--download-wazuh")
+                if [ -z "${2}" ]; then
+                    common_logger -e "Error on arguments. Probably missing <deb|rpm> after -wd|--download-wazuh"
+                    getHelp
+                    exit 1
+                fi
+                download=1
+                package_type="${2}"
                 shift 2
                 ;;
             *)
@@ -330,6 +343,15 @@ function main() {
         installCommon_changePasswords
         dashboard_initializeAIO
     fi
+
+# -------------- Offline case  ------------------------------------------
+
+    if [ -n "${download}" ]; then
+
+        common_logger "--- Download Packages ---"
+        offline_download
+    fi
+
 
 # -------------------------------------------------------------------
 
