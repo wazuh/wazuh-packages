@@ -63,6 +63,9 @@ function getHelp() {
     echo -e ""
     echo -e "        -ws,  --wazuh-server <wazuh-node-name>"
     echo -e "                Install and configure Wazuh server and Filebeat."
+    echo -e ""
+    echo -e "        -dw,  --download-wazuh <deb|rpm>"
+    echo -e "                Download Wazuh Package for Offline Install."
     exit 1
 
 }
@@ -167,12 +170,22 @@ function main() {
                 ;;
             "-ws"|"--wazuh-server")
                 if [ -z "${2}" ]; then
-                    common_logger -e "Error on arguments. Probably missing <node-name> after -w|--wazuh-server"
+                    common_logger -e "Error on arguments. Probably missing <node-name> after -ws|--wazuh-server"
                     getHelp
                     exit 1
                 fi
                 wazuh=1
                 winame="${2}"
+                shift 2
+                ;;
+            "-dw"|"--download-wazuh")
+                if [ -z "${2}" ]; then
+                    common_logger -e "Error on arguments. Probably missing <deb|rpm> after -dw|--download-wazuh"
+                    getHelp
+                    exit 1
+                fi
+                download=1
+                package_type="${2}"
                 shift 2
                 ;;
             *)
@@ -209,7 +222,7 @@ function main() {
 
 # -------------- Preliminary checks  --------------------------------
 
-    if [ -z "${configurations}" ] && [ -z "${AIO}" ]; then
+    if [ -z "${configurations}" ] && [ -z "${AIO}" ] && [ -z "${download}" ]; then
         checks_previousCertificate
     fi
     checks_arch
@@ -245,14 +258,14 @@ function main() {
         common_logger "Created ${tar_file}. Contains Wazuh cluster key, certificates, and passwords necessary for installation."
     fi
 
-    if [ -z "${configurations}" ]; then
+    if [ -z "${configurations}" ] && [ -z "${download}" ]; then
         installCommon_extractConfig
         cert_readConfig
         rm -f "${config_file}"
     fi
 
     # Distributed architecture: node names must be different
-    if [[ -z "${AIO}" && ( -n "${indexer}"  || -n "${dashboard}" || -n "${wazuh}" )]]; then
+    if [[ -z "${AIO}" && -z "${download}" && ( -n "${indexer}"  || -n "${dashboard}" || -n "${wazuh}" )]]; then
         checks_names
     fi
 
@@ -331,9 +344,17 @@ function main() {
         dashboard_initializeAIO
     fi
 
+# -------------- Offline case  ------------------------------------------
+
+    if [ -n "${download}" ]; then
+        common_logger "--- Download Packages ---"
+        offline_download
+    fi
+
+
 # -------------------------------------------------------------------
 
-    if [ -z "${configurations}" ]; then
+    if [ -z "${configurations}" ] && [ -z "${download}" ]; then
         installCommon_restoreWazuhrepo
     fi
 
