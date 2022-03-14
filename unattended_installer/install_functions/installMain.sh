@@ -347,7 +347,6 @@ function main() {
 # -------------- Offline case  ------------------------------------------
 
     if [ -n "${download}" ]; then
-
         common_logger "--- Download Packages ---"
         offline_download
     fi
