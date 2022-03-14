@@ -31,9 +31,9 @@ def get_password(username):
     tmp_yaml=""
 
     with tarfile.open("../../../unattended_installer/wazuh-install-files.tar") as configurations:
-        configurations.extract("./password_file.yml")
+        configurations.extract("./passwords.wazuh")
 
-    with open("./password_file.yml", 'r') as pass_file:
+    with open("./passwords.wazuh", 'r') as pass_file:
         while pass_dict["User"]["name"] != username:
             for i in range(4):
                 tmp_yaml+=pass_file.readline()
@@ -46,7 +46,7 @@ def get_wazuh_version():
     return wazuh_version
 
 def get_indexer_ip():
-    
+
     with open("/etc/wazuh-indexer/opensearch.yml", 'r') as stream:
         dictionary = yaml.safe_load(stream)
     return (dictionary.get('network.host'))
