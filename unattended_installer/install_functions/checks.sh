@@ -177,7 +177,7 @@ function checks_arguments() {
 
 function check_dist() {
     dist_detect
-    if [ "${DIST_NAME}" != "centos" ] && [ "${DIST_NAME}" != "rhel" ] && [ "${DIST_NAME}" != "amzn" ] && [ "${DIST_NAME}" != "Ubuntu" ]; then
+    if [ "${DIST_NAME}" != "centos" ] && [ "${DIST_NAME}" != "rhel" ] && [ "${DIST_NAME}" != "amzn" ] && [ "${DIST_NAME}" != "ubuntu" ]; then
         notsupported=1
     fi
     if ([ "${DIST_NAME}" == "centos" ] || [ "${DIST_NAME}" == "rhel" ]) && ([ "${DIST_VER}" -ne "7" ] && [ "${DIST_VER}" -ne "8" ]); then
