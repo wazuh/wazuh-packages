@@ -16,7 +16,7 @@ readonly wazuh_install_vesion="0.1"
 ## Links and paths to resources
 readonly resources="https://packages-dev.wazuh.com/resources/${wazuh_major}"
 readonly base_path="$(dirname $(readlink -f "$0"))"
-config_file="${base_path}/config.yml"
+config_file="${base_path}/wazuh-install-files/config.yml"
 tar_file="${base_path}/wazuh-install-files.tar"
 
 readonly filebeat_wazuh_template="https://raw.githubusercontent.com/wazuh/wazuh/${wazuh_major}/extensions/elasticsearch/7.x/wazuh-template.json"
