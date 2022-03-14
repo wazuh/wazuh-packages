@@ -11,80 +11,59 @@
 function offline_download() {
   
   common_logger "Starting Wazuh packages download."
-  BASE_DEST_FOLDER="wazuh-offline"
 
-  BASE_URL="https://packages.wazuh.com/4.x"
-
-  BASE_RESOURCES_URL="https://packages.wazuh.com/resources/${wazuh_version}"
-
-  WAZUH_DEB_BASE_URL="${BASE_URL}/apt/pool/main/w/wazuh-manager"
-  WAZUH_DEB_PACKAGES=( "wazuh-manager_${wazuh_version}-1_amd64.deb" )
-
-  FILEBEAT_DEB_BASE_URL="${BASE_URL}/apt/pool/main/f/filebeat"
-  FILEBEAT_DEB_PACKAGES=( "filebeat-oss-${filebeat_version}-amd64.deb" )
-
-  INDEXER_DEB_BASE_URL="${BASE_URL}/apt/pool/main/w/wazuh-indexer"
-  INDEXER_DEB_PACKAGES=( "wazuh-indexer_${wazuh_version}-1_amd64.deb" )
-
-  DASHBOARD_DEB_BASE_URL="${BASE_URL}/apt/pool/main/w/wazuh-dashboard"
-  DASHBOARD_DEB_PACKAGES=( "wazuh-dashboard_${wazuh_version}-1_amd64.deb" )
-
-  WAZUH_RPM_BASE_URL="${BASE_URL}/yum"
-  WAZUH_RPM_PACKAGES=( "wazuh-manager-${wazuh_version}-1.x86_64.rpm" )
-
-  FILEBEAT_RPM_BASE_URL="${BASE_URL}/yum"
-  FILEBEAT_RPM_PACKAGES=( "filebeat-oss-${filebeat_version}-x86_64.rpm" )
-
-  INDEXER_RPM_BASE_URL="${BASE_URL}/yum"
-  INDEXER_RPM_PACKAGES=( "wazuh-indexer-${wazuh_version}-1.x86_64.rpm" )
-
-  DASHBOARD_RPM_BASE_URL="${BASE_URL}/yum"
-  DASHBOARD_RPM_PACKAGES=( "wazuh-dashboard-${wazuh_version}-1.x86_64.rpm" )
-
-  printf "\nDownloading Wazuh $package_type packages for $ARCH...\n"
+  common_logger "Downloading Wazuh ${package_type} packages for ${arch}..."
 
   DEST_PATH="${BASE_DEST_FOLDER}/wazuh-packages"
 
   mkdir -p ${DEST_PATH} # Create folder if it does not exist
 
-  rm -f${VERBOSE} ${DEST_PATH}/* # Clean folder before downloading specific versions
+  rm -f ${VERBOSE} ${DEST_PATH}/* # Clean folder before downloading specific versions
 
-  case "$package_type" in
+  case "${package_type}" in
     "deb")
       for p in ${WAZUH_DEB_PACKAGES[@]}; do
           # Download packages for Wazuh
           curl -so ${DEST_PATH}/$p ${WAZUH_DEB_BASE_URL}/$p
+          common_logger "Wazuh deb package downloaded"
       done
       
       for p in ${FILEBEAT_DEB_PACKAGES[@]}; do
           # Download packages for Filebeat
           curl -so ${DEST_PATH}/$p ${FILEBEAT_DEB_BASE_URL}/$p
+          common_logger "Filebeat deb package downloaded"
       done
       for p in ${INDEXER_DEB_PACKAGES[@]}; do
           # Download packages for Wazuh Indexer
           curl -so ${DEST_PATH}/$p ${INDEXER_DEB_BASE_URL}/$p
+          common_logger "Wazuh Indexer deb package downloaded"
       done
       for p in ${DASHBOARD_DEB_PACKAGES[@]}; do
           # Download packages for Wazuh Dashboard
           curl -so ${DEST_PATH}/$p ${DASHBOARD_DEB_BASE_URL}/$p
+          common_logger "Wazuh Dashboard deb package downloaded"
       done
     ;;
     "rpm")
       for p in ${WAZUH_RPM_PACKAGES[@]}; do
           # Download packages for Wazuh
           curl -so ${DEST_PATH}/$p ${WAZUH_RPM_BASE_URL}/$p
+          common_logger "Wazuh rpm package downloaded"
       done
       for p in ${FILEBEAT_RPM_PACKAGES[@]}; do
           # Download packages for Filebeat
           curl -so ${DEST_PATH}/$p ${FILEBEAT_RPM_BASE_URL}/$p
+          common_logger "Filebeat rpm package downloaded"
       done
       for p in ${INDEXER_RPM_PACKAGES[@]}; do
           # Download packages for Wazuh Indexer
           curl -so ${DEST_PATH}/$p ${INDEXER_RPM_BASE_URL}/$p
+          common_logger "Wazuh Indexer rpm package downloaded"
       done
       for p in ${DASHBOARD_RPM_PACKAGES[@]}; do
           # Download packages for Wazuh Dashboard
           curl -so ${DEST_PATH}/$p ${DASHBOARD_RPM_BASE_URL}/$p
+          common_logger "Wazuh Dashboard rpm package downloaded"
       done
     ;;
     *)
@@ -92,5 +71,27 @@ function offline_download() {
       exit 0
     ;;
   esac
+
+  common_logger "The packages are in ${DEST_PATH}"
+
+  common_logger "Downloading Configuration Files"
+
+  DEST_PATH="${BASE_DEST_FOLDER}/wazuh-files"
+
+  mkdir -p ${DEST_PATH} # Create folder if it does not exist
+
+  rm -f ${VERBOSE} ${DEST_PATH}/* # Clean folder before downloading specific versions
+
+  curl -so ${DEST_PATH}/GPG-KEY-WAZUH https://packages.wazuh.com/key/GPG-KEY-WAZUH
+
+  curl -so ${DEST_PATH}/filebeat.yml ${resources}/open-distro/filebeat/7.x/filebeat_all_in_one.yml
+
+  curl -so ${DEST_PATH}/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/${wazuh_major}/extensions/elasticsearch/7.x/wazuh-template.json
+
+  curl -so ${DEST_PATH}/wazuh-filebeat-module.tar.gz ${BASE_URL}/filebeat/wazuh-filebeat-0.1.tar.gz
+
+  common_logger "The Configuration Files are in ${DEST_PATH}"
+
+  common_logger "You can follow the installation guide here https://documentation.wazuh.com/current/installation-guide/more-installation-alternatives/offline-installation.html"
 
 }

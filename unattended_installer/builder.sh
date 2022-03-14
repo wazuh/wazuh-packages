@@ -118,7 +118,7 @@ function buildInstaller() {
     sed -n '/^function [a-zA-Z_]\(\)/,/^}/p' "${resources_passwords}/passwordsFunctions.sh" >> "${output_script_path}"
 
     ## Downloader Wazuh Package
-    sed -n '/^function [a-zA-Z_]\(\)/,/^}/p' "${resources_download}/wazuh-offline-download.sh" >> "${output_script_path}"
+    cat ${resources_download}/wazuh-offline-download.sh >> "${output_script_path}"
 
     ## Main function and call to it
     echo >> "${output_script_path}"
