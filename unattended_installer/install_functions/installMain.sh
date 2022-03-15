@@ -237,7 +237,7 @@ function main() {
         gen_file="${base_path}/wazuh-install-files/password_file.yml"
         passwords_generatePasswordFile
         # Using cat instead of simple cp because OpenSUSE unknown error.
-        eval "mv ${base_path}/certs/ ${base_path}/wazuh-install-files/"
+        eval "mv ${base_path}/certs/* ${base_path}/wazuh-install-files/"
         eval "chown root:root ${base_path}/wazuh-install-files/*"
         eval "tar -zcf '${tar_file}' -C '${base_path}/' wazuh-install-files/ ${debug}"
         eval "rm -rf '${base_path}/wazuh-install-files' ${debug}"
