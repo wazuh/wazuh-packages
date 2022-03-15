@@ -128,7 +128,7 @@ function installCommon_changePasswords() {
     if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
         passwords_runSecurityAdmin
     fi
-    rm -rf "${p_file}"
+    rm -rf "${base_path}/wazuh-install-files"
 
 }
 
