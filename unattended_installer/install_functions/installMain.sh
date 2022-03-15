@@ -94,7 +94,7 @@ function main() {
                 ;;
             "-c"|"--configfile")
                 if [ -z "${2}" ]; then
-                    common_logger -e "Error on arguments. Probably missing <path-to-config-yml> after -f|--fileconfig"
+                    common_logger -e "Error on arguments. Probably missing <path-to-config-yml> after -c|--configfile"
                     getHelp
                     exit 1
                 fi
@@ -252,16 +252,16 @@ function main() {
         passwords_generatePasswordFile
         # Using cat instead of simple cp because OpenSUSE unknown error.
         eval "cat '${config_file}' > '${base_path}/certs/config.yml'"
-        eval "chown root:root ${base_path}/certs/*"
-        eval "tar -zcf '${tar_file}' -C '${base_path}/certs/' . ${debug}"
-        eval "rm -rf '${base_path}/certs' ${debug}"
+        eval "mv ${base_path}/certs/ ${base_path}/wazuh-install-files/"
+        eval "chown root:root ${base_path}/wazuh-install-files/*"
+        eval "tar -zcf '${tar_file}' -C '${base_path}/' wazuh-install-files/ ${debug}"
+        eval "rm -rf '${base_path}/wazuh-install-files' ${debug}"
         common_logger "Created ${tar_file}. Contains Wazuh cluster key, certificates, and passwords necessary for installation."
     fi
 
     if [ -z "${configurations}" ] && [ -z "${download}" ]; then
         installCommon_extractConfig
         cert_readConfig
-        rm -f "${config_file}"
     fi
 
     # Distributed architecture: node names must be different

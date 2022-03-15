@@ -76,16 +76,17 @@ function indexer_configure() {
 
 function indexer_copyCertificates() {
 
-    eval "rm -f ${indexer_cert_path}* ${debug}"
+    eval "rm -f ${indexer_cert_path}/* ${debug}"
     name=${indexer_node_names[pos]}
 
     if [ -f "${tar_file}" ]; then
-        eval "tar -xf ${tar_file} -C ${indexer_cert_path} ./${name}.pem  && mv ${indexer_cert_path}${name}.pem ${indexer_cert_path}indexer.pem ${debug}"
-        eval "tar -xf ${tar_file} -C ${indexer_cert_path} ./${name}-key.pem  && mv ${indexer_cert_path}${name}-key.pem ${indexer_cert_path}indexer-key.pem ${debug}"
-        eval "tar -xf ${tar_file} -C ${indexer_cert_path} ./root-ca.pem  ${debug}"
-        eval "tar -xf ${tar_file} -C ${indexer_cert_path} ./admin.pem  ${debug}"
-        eval "tar -xf ${tar_file} -C ${indexer_cert_path} ./admin-key.pem  ${debug}"
-        eval "chown wazuh-indexer:wazuh-indexer ${indexer_cert_path}*"
+        eval "tar -xf ${tar_file} -C ${indexer_cert_path} wazuh-install-files/${name}.pem  && mv ${indexer_cert_path}/wazuh-install-files/${name}.pem ${indexer_cert_path}/indexer.pem ${debug}"
+        eval "tar -xf ${tar_file} -C ${indexer_cert_path} wazuh-install-files/${name}-key.pem  && mv ${indexer_cert_path}/wazuh-install-files/${name}-key.pem ${indexer_cert_path}/indexer-key.pem ${debug}"
+        eval "tar -xf ${tar_file} -C ${indexer_cert_path} wazuh-install-files/root-ca.pem && mv ${indexer_cert_path}/wazuh-install-files/root-ca.pem ${indexer_cert_path}/ ${debug}"
+        eval "tar -xf ${tar_file} -C ${indexer_cert_path} wazuh-install-files/admin.pem && mv ${indexer_cert_path}/wazuh-install-files/admin.pem ${indexer_cert_path}/ ${debug}"
+        eval "tar -xf ${tar_file} -C ${indexer_cert_path} wazuh-install-files/admin-key.pem && mv ${indexer_cert_path}/wazuh-install-files/admin-key.pem ${indexer_cert_path}/ ${debug}"
+        eval "rm -rf ${indexer_cert_path}/wazuh-install-files/"
+        eval "chown wazuh-indexer:wazuh-indexer ${indexer_cert_path}/*"
     else
         common_logger -e "No certificates found. Could not initialize Wazuh indexer"
         exit 1;
@@ -108,7 +109,7 @@ function indexer_initialize() {
     fi
 
     if [ -n "${AIO}" ]; then
-        eval "sudo -u wazuh-indexer JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig -icl -p 9300 -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig -nhnv -cacert ${indexer_cert_path}root-ca.pem -cert ${indexer_cert_path}admin.pem -key ${indexer_cert_path}admin-key.pem -h 127.0.0.1 ${debug}"
+        eval "sudo -u wazuh-indexer JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig -icl -p 9300 -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig -nhnv -cacert ${indexer_cert_path}/root-ca.pem -cert ${indexer_cert_path}/admin.pem -key ${indexer_cert_path}/admin-key.pem -h 127.0.0.1 ${debug}"
     fi
 
     if [ "${#indexer_node_names[@]}" -eq 1 ] && [ -z "${AIO}" ]; then

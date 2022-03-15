@@ -105,8 +105,8 @@ function installCommon_changePasswords() {
 
     common_logger -d "Setting passwords."
     if [ -f "${tar_file}" ]; then
-        eval "tar -xf ${tar_file} -C ${base_path} ./password_file.yml ${debug}"
-        p_file="${base_path}/password_file.yml"
+        eval "tar -xf ${tar_file} -C ${base_path} wazuh-install-files/password_file.yml ${debug}"
+        p_file="${base_path}/wazuh-install-files/password_file.yml"
         common_checkInstalled
         if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
             changeall=1
@@ -134,11 +134,12 @@ function installCommon_changePasswords() {
 
 function installCommon_extractConfig() {
 
-    if ! $(tar -tf "${tar_file}" | grep -q config.yml); then
+    if ! $(tar -tf "${tar_file}" | grep -q wazuh-install-files/config.yml); then
         common_logger -e "There is no config.yml file in ${tar_file}."
         exit 1
     fi
-    eval "tar -xf ${tar_file} -C ${base_path} ./config.yml ${debug}"
+    eval "tar -xf ${tar_file} -C ${base_path} wazuh-install-files/config.yml ${debug}"
+    eval "mv ${base_path}/wazuh-install-files/config.yml ${base_path}/config.yml"
 
 }
 

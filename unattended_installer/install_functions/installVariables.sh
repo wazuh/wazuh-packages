@@ -24,9 +24,9 @@ tar_file="${base_path}/wazuh-install-files.tar"
 
 readonly filebeat_wazuh_template="https://raw.githubusercontent.com/wazuh/wazuh/${wazuh_major}/extensions/elasticsearch/7.x/wazuh-template.json"
 
-readonly dashboard_cert_path="/etc/wazuh-dashboard/certs/"
-readonly filebeat_cert_path="/etc/filebeat/certs/"
-readonly indexer_cert_path="/etc/wazuh-indexer/certs/"
+readonly dashboard_cert_path="/etc/wazuh-dashboard/certs"
+readonly filebeat_cert_path="/etc/filebeat/certs"
+readonly indexer_cert_path="/etc/wazuh-indexer/certs"
 
 readonly logfile="/var/log/wazuh-install.log"
 debug=">> ${logfile} 2>&1"
