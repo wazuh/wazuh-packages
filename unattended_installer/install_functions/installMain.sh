@@ -254,7 +254,7 @@ function main() {
         eval "cat '${config_file}' > '${base_path}/certs/config.yml'"
         eval "chown root:root ${base_path}/certs/*"
         eval "tar -zcf '${tar_file}' -C '${base_path}/certs/' . ${debug}"
-        eval "rm -rf '${base_path}/certs' ${debug}"
+        #eval "rm -rf '${base_path}/certs' ${debug}"
         common_logger "Created ${tar_file}. Contains Wazuh cluster key, certificates, and passwords necessary for installation."
     fi
 

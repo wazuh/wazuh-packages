@@ -1,14 +1,9 @@
 nodes:
-<<<<<<< HEAD
   # Wazuh indexer nodes
-=======
-  # Wazuh indexer server nodes
->>>>>>> fc0169db709cbcf396ec3c226282c7459aa028f4
   indexer:
     name: node-1
     ip: <indexer-node-ip>
     # name: node-2
-<<<<<<< HEAD
     # ip: <indexer-node-ip>
     # name: node-3
     # ip: <indexer-node-ip>
@@ -16,15 +11,6 @@ nodes:
   # Wazuh server nodes
   # Use node_type only with more than one Wazuh manager
   server:
-=======
-    # ip: <elasticsearch-node-ip>
-    # name: node-3
-    # ip: <elasticsearch-node-ip>
-
-  # Wazuh server nodes
-  # Use node_type only with more than one Wazuh manager
-  wazuh_servers:
->>>>>>> fc0169db709cbcf396ec3c226282c7459aa028f4
     name: wazuh-1
     ip: <wazuh-manager-ip>
     # node_type: master
@@ -32,11 +18,7 @@ nodes:
     # ip: <wazuh-manager-ip>
     # node_type: worker
 
-<<<<<<< HEAD
   # Wazuh dashboard nodes
-=======
-  # Wazuh dashboard node
->>>>>>> fc0169db709cbcf396ec3c226282c7459aa028f4
   dashboard:
     name: dashboard
     ip: <dashboard-node-ip>
