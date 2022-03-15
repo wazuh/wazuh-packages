@@ -79,7 +79,7 @@ function installCommon_addWazuhRepo() {
 function installCommon_createCertificates() {
 
     if [ -n "${AIO}" ]; then
-        mkdir "${base_path}/wazuh-install-files"
+        mkdir -p "${base_path}/wazuh-install-files"
         eval "installCommon_getConfig certificate/config_aio.yml ${config_file} ${debug}"
     fi
 
@@ -139,6 +139,7 @@ function installCommon_extractConfig() {
         common_logger -e "There is no config.yml file in ${tar_file}."
         exit 1
     fi
+    mkdir -p ${base_path}/wazuh-install-files
     eval "tar -xf ${tar_file} -C ${base_path} wazuh-install-files/config.yml ${debug}"
 
 }
