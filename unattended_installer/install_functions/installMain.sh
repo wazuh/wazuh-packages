@@ -234,14 +234,14 @@ function main() {
         if [ -n "${server_node_types[*]}" ]; then
             installCommon_createClusterKey
         fi
-        gen_file="${base_path}/wazuh-install-files/password_file.yml"
+        gen_file="${base_path}/certs/password_file.yml"
         passwords_generatePasswordFile
         # Using cat instead of simple cp because OpenSUSE unknown error.
-        eval "mv ${base_path}/certs/* ${base_path}/wazuh-install-files/"
+        eval "cat '${config_file}' > '${base_path}/certs/config.yml'"
+        eval "mv ${base_path}/certs/ ${base_path}/wazuh-install-files/"
         eval "chown root:root ${base_path}/wazuh-install-files/*"
         eval "tar -zcf '${tar_file}' -C '${base_path}/' wazuh-install-files/ ${debug}"
         eval "rm -rf '${base_path}/wazuh-install-files' ${debug}"
-        eval "rm -rf '${base_path}/certs' ${debug}"
         common_logger "Created ${tar_file}. Contains Wazuh cluster key, certificates, and passwords necessary for installation."
     fi
 
