@@ -957,7 +957,7 @@ test-48-installCommon_changePasswords-with-tarfile() {
     tar_file=tarfile.tar
     base_path=/tmp
     @touch $tar_file
-    @mock tar -xf tarfile.tar -C /tmp ./passwords.wazuh === @touch /tmp/passwords.wazuh
+    @mock tar -xf tarfile.tar -C /tmp wazuh-install-files/passwords.wazuh === @touch /tmp/passwords.wazuh
     installCommon_changePasswords
     @echo $changeall
     @rm /tmp/passwords.wazuh
@@ -977,7 +977,7 @@ test-49-installCommon_changePasswords-with-tarfile-aio() {
     base_path=/tmp
     AIO=1
     @touch $tar_file
-    @mock tar -xf tarfile.tar -C /tmp ./passwords.wazuh === @touch /tmp/passwords.wazuh
+    @mock tar -xf tarfile.tar -C /tmp wazuh-install-files/passwords.wazuh === @touch /tmp/passwords.wazuh
     installCommon_changePasswords
     @echo $changeall
     @rm /tmp/passwords.wazuh
@@ -1002,7 +1002,7 @@ test-50-installCommon_changePasswords-with-tarfile-start-elastic-cluster() {
     base_path=/tmp
     AIO=1
     @touch $tar_file
-    @mock tar -xf tarfile.tar -C /tmp ./passwords.wazuh === @touch /tmp/passwords.wazuh
+    @mock tar -xf tarfile.tar -C /tmp wazuh-install-files/passwords.wazuh === @touch /tmp/passwords.wazuh
     installCommon_changePasswords
     @echo $changeall
     @rm /tmp/passwords.wazuh

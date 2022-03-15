@@ -31,9 +31,9 @@ def get_password(username):
     tmp_yaml=""
 
     with tarfile.open("../../../unattended_installer/wazuh-install-files.tar") as configurations:
-        configurations.extract("./passwords.wazuh")
+        configurations.extract("wazuh-install-files/passwords.wazuh")
 
-    with open("./passwords.wazuh", 'r') as pass_file:
+    with open("wazuh-install-files/passwords.wazuh", 'r') as pass_file:
         while pass_dict["username"] != username:
             for i in range(4):
                 tmp_yaml+=pass_file.readline()
@@ -56,9 +56,9 @@ def api_call_indexer(host,query,address,api_protocol,api_user,api_pass,api_port)
     if (query == ""):   # Calling ES API without query
         if (api_user != "" and api_pass != ""): # If credentials provided
             resp = requests.get(api_protocol + '://' + address + ':' + api_port,
-                   auth=(api_user,
-                   api_pass),
-                   verify=False)
+                    auth=(api_user,
+                    api_pass),
+                    verify=False)
         else:
             resp = requests.get(api_protocol + '://' + address + ':' + api_port, verify=False)
 

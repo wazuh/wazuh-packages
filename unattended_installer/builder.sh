@@ -15,6 +15,7 @@ readonly resources_config="${base_path}/config"
 readonly resources_certs="${base_path}/cert_tool"
 readonly resources_passwords="${base_path}/passwords_tool"
 readonly resources_common="${base_path}/common_functions"
+readonly resources_download="${base_path}/downloader"
 readonly source_branch="4.3"
 
 function getHelp() {
@@ -115,6 +116,9 @@ function buildInstaller() {
 
     ## Passwords tool library functions
     sed -n '/^function [a-zA-Z_]\(\)/,/^}/p' "${resources_passwords}/passwordsFunctions.sh" >> "${output_script_path}"
+
+    ## Downloader Wazuh Package
+    cat ${resources_download}/wazuh-offline-download.sh >> "${output_script_path}"
 
     ## Main function and call to it
     echo >> "${output_script_path}"
