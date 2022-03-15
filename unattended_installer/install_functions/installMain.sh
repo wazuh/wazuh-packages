@@ -234,10 +234,9 @@ function main() {
         if [ -n "${server_node_types[*]}" ]; then
             installCommon_createClusterKey
         fi
-        gen_file="${base_path}/certs/password_file.yml"
+        gen_file="${base_path}/wazuh-install-files/password_file.yml"
         passwords_generatePasswordFile
         # Using cat instead of simple cp because OpenSUSE unknown error.
-        eval "cat '${config_file}' > '${base_path}/certs/config.yml'"
         eval "mv ${base_path}/certs/ ${base_path}/wazuh-install-files/"
         eval "chown root:root ${base_path}/wazuh-install-files/*"
         eval "tar -zcf '${tar_file}' -C '${base_path}/' wazuh-install-files/ ${debug}"
@@ -248,7 +247,6 @@ function main() {
     if [ -z "${configurations}" ]; then
         installCommon_extractConfig
         cert_readConfig
-        rm -f "${config_file}"
     fi
 
     # Distributed architecture: node names must be different
