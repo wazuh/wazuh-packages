@@ -91,7 +91,7 @@ function main() {
                 ;;
             "-c"|"--configfile")
                 if [ -z "${2}" ]; then
-                    common_logger -e "Error on arguments. Probably missing <path-to-config-yml> after -f|--fileconfig"
+                    common_logger -e "Error on arguments. Probably missing <path-to-config-yml> after -c|--configfile"
                     getHelp
                     exit 1
                 fi
