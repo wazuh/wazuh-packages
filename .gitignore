@@ -16,6 +16,7 @@ ova/Config_files/filebeat.yml
 *.key
 *.csr
 *.srl
+*.pkg.tar.zst
 wpk/versions
 solaris/packer/builds/
 solaris/packer/packer-solaris11_3-virtualbox/

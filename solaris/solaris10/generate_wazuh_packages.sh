@@ -1,8 +1,8 @@
 #!/bin/bash
 # Created by Wazuh, Inc. <info@wazuh.com>.
-# Copyright (C) 2018 Wazuh Inc.
+# Copyright (C) 2015-2022, Wazuh Inc.
 # This program is a free software; you can redistribute it and/or modify it under the terms of GPLv2
-# Wazuh Solaris 10 i386 Package builder.
+# Wazuh Solaris 10 Package builder.
 
 
 # CONFIGURATION VARIABLES
@@ -40,9 +40,9 @@ set_control_binary() {
     minor=`echo $number_version | cut -d . -f 2`
 
     if [ "$major" -le "4" ] && [ "$minor" -le "1" ]; then
-      control_binary="ossec-control"
+        control_binary="ossec-control"
     else
-      control_binary="wazuh-control"
+        control_binary="wazuh-control"
     fi
   fi
 }
@@ -231,7 +231,6 @@ package(){
     echo "i postinstall=postinstall.sh" >> "wazuh-agent_$VERSION.proto"
     echo "i preremove=preremove.sh" >> "wazuh-agent_$VERSION.proto"
     echo "i postremove=postremove.sh" >> "wazuh-agent_$VERSION.proto"
-    echo "f none /etc/ossec-init.conf  0640 root ossec" >> "wazuh-agent_$VERSION.proto"
     echo "f none /etc/init.d/wazuh-agent  0755 root root" >> "wazuh-agent_$VERSION.proto"
     echo "s none /etc/rc2.d/S97wazuh-agent=/etc/init.d/wazuh-agent" >> "wazuh-agent_$VERSION.proto"
     echo "s none /etc/rc3.d/S97wazuh-agent=/etc/init.d/wazuh-agent" >> "wazuh-agent_$VERSION.proto"
@@ -264,16 +263,15 @@ clean(){
     fi
 
     rm -r ${install_path}*
-    rm -f /etc/ossec-init.conf
 
-     # remove launchdaemons
+    # remove launchdaemons
     rm -f /etc/init.d/wazuh-agent
     rm -f /etc/rc2.d/S97wazuh-agent
     rm -f /etc/rc3.d/S97wazuh-agent
 
     ## Remove User and Groups
-    userdel ossec
-    groupdel ossec
+    userdel wazuh
+    groupdel wazuh
 }
 
 ctrl_c() {
@@ -289,25 +287,41 @@ build(){
     echo "| Building |"
     echo "------------"
 
-    groupadd ossec
-    useradd -g ossec ossec
+    groupadd wazuh
+    useradd -g wazuh wazuh
     installation
     package
 }
 
 
 show_help() {
-  echo
-  echo "Usage: $0 [OPTIONS]"
-  echo
-  echo "    -b, --branch <branch>               Select Git branch or tag e.g. $wazuh_branch"
-  echo "    -e, --environment                   Install all the packages necessaries to build the pkg package"
-  echo "    -s, --store  <pkg_directory>        Directory to store the resulting pkg package. By default, an output folder will be created."
-  echo "    -p, --install-path <pkg_home>       Installation path for the package. By default: /var"
-  echo "    -c, --checksum                      Compute the SHA512 checksum of the pkg package."
-  echo "    -h, --help                          Shows this help"
-  echo
-  exit $1
+    echo -e ""
+    echo -e "NAME"
+    echo -e "        $(basename $0) - Generate a Solaris 10 package"
+    echo -e ""
+    echo -e "SYNOPSIS"
+    echo -e "        $(basename $0) [OPTIONS]"
+    echo -e ""
+    echo -e "DESCRIPTION"
+    echo -e "        -b, --branch <branch>"
+    echo -e "                Select Git branch or tag e.g. ${wazuh_branch}."
+    echo -e ""
+    echo -e "        -c, --checksum"
+    echo -e "                Compute the SHA512 checksum of the package."
+    echo -e ""
+    echo -e "        -e, --environment"
+    echo -e "                Install all the packages necessaries to build the package."
+    echo -e ""
+    echo -e "        -h, --help"
+    echo -e "                Shows this help."
+    echo -e ""
+    echo -e "        -p, --install-path <pkg_home>"
+    echo -e "                Installation path for the package. By default: /var."
+    echo -e ""
+    echo -e "        -s, --store  <pkg_directory>"
+    echo -e "                Directory to store the resulting package. By default, an output folder will be created."
+    echo -e ""
+    exit $1
 }
 
 build_package(){

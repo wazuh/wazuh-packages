@@ -1,31 +1,19 @@
-#/bin/sh
+#!/bin/sh
+# uninstall script for wazuh-agent
+# Wazuh, Inc 2015-2022
 
-OSSEC_INIT="/etc/ossec-init.conf"
-control_binary="wazuh-control"
-
-set_control_binary() {
-  wazuh_version=$(grep VERSION ${OSSEC_INIT} | sed 's/VERSION="v//g' | sed 's/"//g')
-  number_version=`echo "${wazuh_version}" | cut -d v -f 2`
-  major=`echo $number_version | cut -d . -f 1`
-  minor=`echo $number_version | cut -d . -f 2`
-
-  if [ "$major" -le "4" ] && [ "$minor" -le "1" ]; then
-    control_binary="ossec-control"
-  fi
-}
-
-set_control_binary
+install_path=$1
+control_binary=$2
 
 ## Stop and remove application
-sudo ${INSTALL_PATH}/bin/${control_binary} stop
-sudo rm -r /var/ossec*
-sudo rm ${OSSEC_INIT}
+${install_path}/bin/${control_binary} stop
+rm -r /var/ossec*
 
 # remove launchdaemons
-sudo rm -f /etc/init.d/wazuh-agent
+rm -f /etc/init.d/wazuh-agent
 
 ## Remove User and Groups
-sudo userdel ossec
-sudo groupdel ossec
+userdel wazuh
+groupdel wazuh
 
 exit 0

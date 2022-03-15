@@ -1,0 +1,132 @@
+#!/bin/sh
+# postinst script for Wazuh-indexer
+# Copyright (C) 2021, Wazuh Inc.
+#
+# This program is a free software; you can redistribute it
+# and/or modify it under the terms of the GNU General Public
+# License (version 2) as published by the FSF - Free Software
+# Foundation.
+
+#DEBHELPER#
+
+export NAME=wazuh-indexer
+export USER=${NAME}
+export GROUP=${NAME}
+export CONFIG_DIR=/etc/${NAME}
+export INSTALLATION_DIR=/usr/share/${NAME}
+export LOG_DIR=/var/log/${NAME}
+export PID_DIR=/run/${NAME}
+export LIB_DIR=/var/lib/${NAME}
+export SYS_DIR=/usr/lib
+
+set -e 
+
+#
+# This script is executed in the post-installation phase
+#
+#   On Debian,
+#       $1=configure : is set to 'configure' and if $2 is set, it is an upgrade
+
+# Source the default env file
+if [ -f "/etc/default/wazuh-indexer" ]; then
+    . "/etc/default/wazuh-indexer"
+fi
+
+export OPENSEARCH_PATH_CONF=${OPENSEARCH_PATH_CONF:-${CONFIG_DIR}}
+
+# To pick up /usr/lib/sysctl.d/wazuh-indexer.conf
+if command -v systemctl > /dev/null 2>&1; then
+    systemctl restart systemd-sysctl.service > /dev/null 2>&1 || true
+fi
+
+case "$1" in
+    configure)
+        # The codeblock below is using the fact that postinst script is called with the most-recently configured version.
+        # In other words, a fresh installed will be called like "postinst configure" with no previous version ($2 is null)
+        if [ -z "$2" ]; then
+          # If $2 is null, this is an install	
+
+          # Setting owner and group
+          chown -R ${USER}:${GROUP} ${CONFIG_DIR}
+          chown -R ${USER}:${GROUP} ${INSTALLATION_DIR}
+          chown -R ${USER}:${GROUP} ${LOG_DIR}
+
+          # Prepare the RCA reader process for execution
+          mkdir -p "/var/lib/wazuh-indexer"
+          echo 'true' > ${LIB_DIR}/performance_analyzer_enabled.conf
+          echo 'true' > ${LIB_DIR}/rca_enabled.conf
+          # This is needed by the performance-analyzer service
+          echo 'false' > ${LIB_DIR}/batch_metrics_enabled.conf
+          chown ${USER}:${GROUP} ${LIB_DIR}/performance_analyzer_enabled.conf
+          chown ${USER}:${GROUP} ${LIB_DIR}/rca_enabled.conf
+          chown ${USER}:${GROUP} ${LIB_DIR}/batch_metrics_enabled.conf
+          chown ${USER}:${GROUP} ${LIB_DIR}
+
+          # ---------------------------------------------------------------------------
+
+          # Setting performance analyzer options
+          CLK_TCK=$(getconf CLK_TCK)
+          echo >> /etc/wazuh-indexer/jvm.options
+          echo '## OpenDistro Performance Analyzer' >> /etc/wazuh-indexer/jvm.options
+          echo "-Dclk.tck=$CLK_TCK" >> /etc/wazuh-indexer/jvm.options
+          echo "-Djdk.attach.allowAttachSelf=true" >> /etc/wazuh-indexer/jvm.options
+          echo "-Djava.security.policy=file:///usr/share/wazuh-indexer/plugins/opendistro-performance-analyzer/pa_config/es_security.policy" >> /etc/wazuh-indexer/jvm.options
+
+          # ---------------------------------------------------------------------------
+
+          # Setting Indexer default configuration
+          echo "${USER} hard nproc 4096" >> /etc/security/limits.conf
+          echo "${USER} soft nproc 4096" >> /etc/security/limits.conf
+          echo "${USER} hard nofile 65535" >> /etc/security/limits.conf
+          echo "${USER} soft nofile 65535" >> /etc/security/limits.conf
+
+        else # Otherwise it is an upgrade
+            if [ -f "${INSTALLATION_DIR}/${NAME}.restart" ]; then
+                echo -n "Restarting wazuh-indexer service..."
+                rm -f "${INSTALLATION_DIR}/${NAME}.restart"
+                if command -v systemctl > /dev/null 2>&1; then
+                    systemctl daemon-reload > /dev/null 2>&1
+                    systemctl restart wazuh-indexer.service > /dev/null 2>&1
+                # Check for SysV
+                elif command -v service > /dev/null 2>&1; then
+                    service wazuh-indexer restart > /dev/null 2>&1
+
+                elif [ -x /etc/init.d/wazuh-indexer ]; then
+                    if command -v invoke-rc.d >/dev/null; then
+                        invoke-rc.d wazuh-indexer restart > /dev/null 2>&1
+                    else
+                        /etc/init.d/wazuh-indexer restart > /dev/null 2>&1
+                    fi
+                elif [ -x /etc/rc.d/init.d/wazuh-indexer ]; then
+                    /etc/rc.d/init.d/wazuh-indexer restart > /dev/null 2>&1
+                fi
+                echo " OK"
+            fi
+        fi
+
+        if [ ! -f "${CONFIG_DIR}"/opensearch.keystore ]; then
+            "${INSTALLATION_DIR}"/bin/opensearch-keystore create
+            chown "${USER}:${GROUP}" "${CONFIG_DIR}"/opensearch.keystore
+            chmod 660 "${CONFIG_DIR}"/opensearch.keystore
+            md5sum "${CONFIG_DIR}"/opensearch.keystore > "${CONFIG_DIR}"/.opensearch.keystore.initial_md5sum
+        else
+            chown "${USER}:${GROUP}" "${CONFIG_DIR}"/opensearch.keystore
+            chmod 660 "${CONFIG_DIR}"/opensearch.keystore
+            if "${INSTALLATION_DIR}"/bin/opensearch-keystore has-passwd --silent ; then
+              echo "### Warning: unable to upgrade encrypted keystore" 1>&2
+              echo " Please run opensearch-keystore upgrade and enter password" 1>&2
+            else
+              "${INSTALLATION_DIR}"/bin/opensearch-keystore upgrade
+            fi
+        fi
+    ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+
+    ;;
+
+    *)
+        echo "pre remove script called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac

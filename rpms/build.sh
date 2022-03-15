@@ -67,7 +67,7 @@ cp -R wazuh-* ${build_dir}/${package_name}
 # Including spec file
 if [ "${use_local_specs}" = "no" ]; then
     curl -sL https://github.com/wazuh/wazuh-packages/tarball/${wazuh_packages_branch} | tar zx
-    specs_path=$(find . -type d -name "SPECS" -path "*rpms*")
+    specs_path=$(find ./wazuh* -type d -name "SPECS" -path "*rpms*")
 else
     specs_path="/specs"
 fi

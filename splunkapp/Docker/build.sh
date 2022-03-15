@@ -22,12 +22,17 @@ download_sources() {
     splunk_version=$(cat ${package_conf} | grep version -m 3 | cut -d ' ' -f 3 | head -n 3 | tail -1)
 }
 
+remove_execute_permissions() {
+    chmod -R -x+X * ./SplunkAppForWazuh/appserver
+}
 
 build_package() {
 
     download_sources
 
     cd ${build_dir}
+
+    remove_execute_permissions
 
     if [ -z ${revision} ]; then
         wazuh_splunk_pkg_name="wazuh_splunk-${wazuh_version}_${splunk_version}.tar.gz"

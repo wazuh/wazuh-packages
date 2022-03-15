@@ -60,7 +60,7 @@ build_perl() {
 }
 
 build_cmake() {
-  mv /opt/freeware/lib/gcc/powerpc-ibm-aix6.1.1.0/6.3.0/include-fixed/sys/socket.h /opt/freeware/lib/gcc/powerpc-ibm-aix6.1.1.0/6.3.0/include-fixed/sys/socket.h.bkp 
+  mv /opt/freeware/lib/gcc/powerpc-ibm-aix6.1.1.0/6.3.0/include-fixed/sys/socket.h /opt/freeware/lib/gcc/powerpc-ibm-aix6.1.1.0/6.3.0/include-fixed/sys/socket.h.bkp
   curl -OL http://packages.wazuh.com/utils/cmake/cmake-3.12.4.tar.gz
   gtar -zxf cmake-3.12.4.tar.gz && cd cmake-3.12.4
   ./bootstrap
@@ -77,9 +77,9 @@ build_environment() {
   if grep 'www.siteox.com' /etc/motd > /dev/null 2>&1; then
     for partition in "/home" "/opt"; do
       partition_size=$(df -m | grep $partition | awk -F' ' '{print $2}' | cut -d'.' -f1)
-      if [[ ${partition_size} -lt "3584" ]]; then
-        echo "Resizing $partition partition to 3.5GB"
-        chfs -a size=3584M $partition > /dev/null 2>&1
+      if [[ ${partition_size} -lt "2048" ]]; then
+        echo "Resizing $partition partition to 2GB"
+        chfs -a size=2048M $partition > /dev/null 2>&1
       fi
     done
   fi

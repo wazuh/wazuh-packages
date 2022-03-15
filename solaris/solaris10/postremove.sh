@@ -1,10 +1,11 @@
 #!/bin/sh
 # postremove script for wazuh-agent
+# Wazuh, Inc 2015-2022
 
-if getent passwd | grep "^ossec"; then
-  userdel ossec
+if getent passwd | grep "^wazuh"; then
+  userdel wazuh
 fi
 
-if getent group | grep "^ossec"; then
-  groupdel ossec
+if getent group | grep "^wazuh"; then
+  groupdel wazuh
 fi
