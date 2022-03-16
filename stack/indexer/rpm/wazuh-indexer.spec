@@ -118,7 +118,7 @@ if [ $1 = 1 ];then # Install
                 --gid %{GROUP} \
                 --shell /sbin/nologin \
                 --comment "%{USER} user" \
-                %{USER} > /dev/null 2>&1 
+                %{USER} > /dev/null 2>&1
     fi
 fi
 
@@ -417,11 +417,11 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/jopt-simple-5.0.2.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/lucene-spatial3d-8.10.1.jar
 %dir %attr(750, %{USER}, %{GROUP}) %{CONFIG_DIR}/certs
-%config(noreplace) %attr(400, %{USER}, %{GROUP}) %{CONFIG_DIR}/certs/admin.pem
-%config(noreplace) %attr(400, %{USER}, %{GROUP}) %{CONFIG_DIR}/certs/admin-key.pem
-%config(noreplace) %attr(400, %{USER}, %{GROUP}) %{CONFIG_DIR}/certs/demo-indexer.pem
-%config(noreplace) %attr(400, %{USER}, %{GROUP}) %{CONFIG_DIR}/certs/demo-indexer-key.pem
-%config(noreplace) %attr(400, %{USER}, %{GROUP}) %{CONFIG_DIR}/certs/root-ca.pem
+%config(noreplace) %attr(400, %{USER}, %{GROUP}) %ghost %{CONFIG_DIR}/certs/admin.pem
+%config(noreplace) %attr(400, %{USER}, %{GROUP}) %ghost %{CONFIG_DIR}/certs/admin-key.pem
+%config(noreplace) %attr(400, %{USER}, %{GROUP}) %ghost %{CONFIG_DIR}/certs/demo-indexer.pem
+%config(noreplace) %attr(400, %{USER}, %{GROUP}) %ghost %{CONFIG_DIR}/certs/demo-indexer-key.pem
+%config(noreplace) %attr(400, %{USER}, %{GROUP}) %ghost %{CONFIG_DIR}/certs/root-ca.pem
 %dir %attr(750, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-observability
 %attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-observability/observability.yml
 %dir %attr(750, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-reports-scheduler
