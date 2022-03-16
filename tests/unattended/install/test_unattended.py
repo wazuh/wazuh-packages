@@ -27,18 +27,18 @@ def read_services():
     p.kill()
 
 def get_password(username):
-    pass_dict={'User': {'name': 'tmp_user', 'password': 'tmp_pass'}}
+    pass_dict={'username': 'tmp_user', 'password': 'tmp_pass'}
     tmp_yaml=""
 
     with tarfile.open("../../../unattended_installer/wazuh-install-files.tar") as configurations:
-        configurations.extract("./password_file.yml")
+        configurations.extract("wazuh-install-files/passwords.wazuh")
 
-    with open("./password_file.yml", 'r') as pass_file:
-        while pass_dict["User"]["name"] != username:
+    with open("wazuh-install-files/passwords.wazuh", 'r') as pass_file:
+        while pass_dict["username"] != username:
             for i in range(4):
                 tmp_yaml+=pass_file.readline()
             pass_dict=yaml.safe_load(tmp_yaml)
-    return pass_dict["User"]["password"]
+    return pass_dict["password"]
 
 def get_wazuh_version():
     wazuh_version = None
@@ -46,7 +46,7 @@ def get_wazuh_version():
     return wazuh_version
 
 def get_indexer_ip():
-    
+
     with open("/etc/wazuh-indexer/opensearch.yml", 'r') as stream:
         dictionary = yaml.safe_load(stream)
     return (dictionary.get('network.host'))
@@ -56,9 +56,9 @@ def api_call_indexer(host,query,address,api_protocol,api_user,api_pass,api_port)
     if (query == ""):   # Calling ES API without query
         if (api_user != "" and api_pass != ""): # If credentials provided
             resp = requests.get(api_protocol + '://' + address + ':' + api_port,
-                   auth=(api_user,
-                   api_pass),
-                   verify=False)
+                    auth=(api_user,
+                    api_pass),
+                    verify=False)
         else:
             resp = requests.get(api_protocol + '://' + address + ':' + api_port, verify=False)
 

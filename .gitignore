@@ -32,4 +32,5 @@ unattended_installer/wazuh-install-files.tar
 unattended_installer/wazuh-install.sh
 unattended_installer/wazuh-certs-tool.sh
 unattended_installer/wazuh-passwords-tool.sh
+unattended_installer/passwords.wazuh
 tests/unattended/unit/*.log

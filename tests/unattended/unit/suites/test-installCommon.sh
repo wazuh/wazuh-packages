@@ -359,23 +359,23 @@ test-25-installCommon_rollBack-aio-all-installed-yum() {
 test-25-installCommon_rollBack-aio-all-installed-yum-assert() {
 
     yum remove wazuh-manager -y
-    
+
     rm -rf /var/ossec/
-    
+
     yum remove wazuh-indexer -y
-    
+
     rm -rf /var/lib/wazuh-indexer/
     rm -rf /usr/share/wazuh-indexer/
     rm -rf /etc/wazuh-indexer/
-    
+
     yum remove filebeat -y
-    
+
     rm -rf /var/lib/filebeat/
     rm -rf /usr/share/filebeat/
     rm -rf /etc/filebeat/
-    
+
     yum remove wazuh-dashboard -y
-    
+
     rm -rf /var/lib/wazuh-dashboard/
     rm -rf /usr/share/wazuh-dashboard/
     rm -rf /etc/wazuh-dashboard/
@@ -403,23 +403,23 @@ test-26-installCommon_rollBack-aio-all-installed-zypper() {
 test-26-installCommon_rollBack-aio-all-installed-zypper-assert() {
     zypper -n remove wazuh-manager
     rm -f /etc/init.d/wazuh-manager
-    
+
     rm -rf /var/ossec/
-    
+
     zypper -n remove wazuh-indexer
-    
+
     rm -rf /var/lib/wazuh-indexer/
     rm -rf /usr/share/wazuh-indexer/
     rm -rf /etc/wazuh-indexer/
-    
+
     zypper -n remove filebeat
-    
+
     rm -rf /var/lib/filebeat/
     rm -rf /usr/share/filebeat/
     rm -rf /etc/filebeat/
-    
+
     zypper -n remove wazuh-dashboard
-    
+
     rm -rf /var/lib/wazuh-dashboard/
     rm -rf /usr/share/wazuh-dashboard/
     rm -rf /etc/wazuh-dashboard/
@@ -446,23 +446,23 @@ test-27-installCommon_rollBack-aio-all-installed-apt() {
 
 test-27-installCommon_rollBack-aio-all-installed-apt-assert() {
     apt remove --purge wazuh-manager -y
-    
+
     rm -rf /var/ossec/
-    
+
     apt remove --purge ^wazuh-indexer -y
-    
+
     rm -rf /var/lib/wazuh-indexer/
     rm -rf /usr/share/wazuh-indexer/
     rm -rf /etc/wazuh-indexer/
-    
+
     apt remove --purge filebeat -y
-    
+
     rm -rf /var/lib/filebeat/
     rm -rf /usr/share/filebeat/
     rm -rf /etc/filebeat/
-    
+
     apt remove --purge wazuh-dashboard -y
-    
+
     rm -rf /var/lib/wazuh-dashboard/
     rm -rf /usr/share/wazuh-dashboard/
     rm -rf /etc/wazuh-dashboard/
@@ -489,7 +489,7 @@ test-28-installCommon_rollBack-indexer-installation-all-installed-yum() {
 
 test-28-installCommon_rollBack-indexer-installation-all-installed-yum-assert() {
     yum remove wazuh-indexer -y
-    
+
     rm -rf /var/lib/wazuh-indexer/
     rm -rf /usr/share/wazuh-indexer/
     rm -rf /etc/wazuh-indexer/
@@ -515,7 +515,7 @@ test-29-installCommon_rollBack-indexer-installation-all-installed-zypper() {
 
 test-29-installCommon_rollBack-indexer-installation-all-installed-zypper-assert() {
     zypper -n remove wazuh-indexer
-    
+
     rm -rf /var/lib/wazuh-indexer/
     rm -rf /usr/share/wazuh-indexer/
     rm -rf /etc/wazuh-indexer/
@@ -541,7 +541,7 @@ test-30-installCommon_rollBack-indexer-installation-all-installed-apt() {
 
 test-30-installCommon_rollBack-indexer-installation-all-installed-apt-assert() {
     apt remove --purge ^wazuh-indexer -y
-    
+
     rm -rf /var/lib/wazuh-indexer/
     rm -rf /usr/share/wazuh-indexer/
     rm -rf /etc/wazuh-indexer/
@@ -567,10 +567,10 @@ test-31-installCommon_rollBack-wazuh-installation-all-installed-yum() {
 
 test-31-installCommon_rollBack-wazuh-installation-all-installed-yum-assert() {
     yum remove wazuh-manager -y
-    
+
     rm -rf /var/ossec/
 
-    yum remove filebeat -y 
+    yum remove filebeat -y
 
     rm -rf /var/lib/filebeat/
     rm -rf /usr/share/filebeat/
@@ -598,7 +598,7 @@ test-32-installCommon_rollBack-wazuh-installation-all-installed-zypper() {
 test-32-installCommon_rollBack-wazuh-installation-all-installed-zypper-assert() {
     zypper -n remove wazuh-manager
     rm -f /etc/init.d/wazuh-manager
-    
+
     rm -rf /var/ossec/
 
     zypper -n remove filebeat
@@ -628,7 +628,7 @@ test-33-installCommon_rollBack-wazuh-installation-all-installed-apt() {
 
 test-33-installCommon_rollBack-wazuh-installation-all-installed-apt-assert() {
     apt remove --purge wazuh-manager -y
-    
+
     rm -rf /var/ossec/
 
     apt remove --purge filebeat -y
@@ -658,7 +658,7 @@ test-34-installCommon_rollBack-dashboard-installation-all-installed-yum() {
 
 test-34-installCommon_rollBack-dashboard-installation-all-installed-yum-assert() {
     yum remove wazuh-dashboard -y
-    
+
     rm -rf /var/lib/wazuh-dashboard/
     rm -rf /usr/share/wazuh-dashboard/
     rm -rf /etc/wazuh-dashboard/
@@ -685,7 +685,7 @@ test-35-installCommon_rollBack-dashboard-installation-all-installed-zypper() {
 
 test-35-installCommon_rollBack-dashboard-installation-all-installed-zypper-assert() {
     zypper -n remove wazuh-dashboard
-    
+
     rm -rf /var/lib/wazuh-dashboard/
     rm -rf /usr/share/wazuh-dashboard/
     rm -rf /etc/wazuh-dashboard/
@@ -712,7 +712,7 @@ test-36-installCommon_rollBack-dashboard-installation-all-installed-apt() {
 
 test-36-installCommon_rollBack-dashboard-installation-all-installed-apt-assert() {
     apt remove --purge wazuh-dashboard -y
-    
+
     rm -rf /var/lib/wazuh-dashboard/
     rm -rf /usr/share/wazuh-dashboard/
     rm -rf /etc/wazuh-dashboard/
@@ -756,15 +756,15 @@ test-38-installCommon_rollBack-aio-all-remaining-files-yum() {
 
 test-38-installCommon_rollBack-aio-all-remaining-files-yum-assert() {
     rm -rf /var/ossec/
-    
+
     rm -rf /var/lib/wazuh-indexer/
     rm -rf /usr/share/wazuh-indexer/
     rm -rf /etc/wazuh-indexer/
-    
+
     rm -rf /var/lib/filebeat/
     rm -rf /usr/share/filebeat/
     rm -rf /etc/filebeat/
-    
+
     rm -rf /var/lib/wazuh-dashboard/
     rm -rf /usr/share/wazuh-dashboard/
     rm -rf /etc/wazuh-dashboard/
@@ -791,15 +791,15 @@ test-39-installCommon_rollBack-aio-all-remaining-files-zypper() {
 
 test-39-installCommon_rollBack-aio-all-remaining-files-zypper-assert() {
     rm -rf /var/ossec/
-    
+
     rm -rf /var/lib/wazuh-indexer/
     rm -rf /usr/share/wazuh-indexer/
     rm -rf /etc/wazuh-indexer/
-    
+
     rm -rf /var/lib/filebeat/
     rm -rf /usr/share/filebeat/
     rm -rf /etc/filebeat/
-    
+
     rm -rf /var/lib/wazuh-dashboard/
     rm -rf /usr/share/wazuh-dashboard/
     rm -rf /etc/wazuh-dashboard/
@@ -826,15 +826,15 @@ test-40-installCommon_rollBack-aio-all-remaining-files-apt() {
 
 test-40-installCommon_rollBack-aio-all-remaining-files-apt-assert() {
     rm -rf /var/ossec/
-    
+
     rm -rf /var/lib/wazuh-indexer/
     rm -rf /usr/share/wazuh-indexer/
     rm -rf /etc/wazuh-indexer/
-    
+
     rm -rf /var/lib/filebeat/
     rm -rf /usr/share/filebeat/
     rm -rf /etc/filebeat/
-    
+
     rm -rf /var/lib/wazuh-dashboard/
     rm -rf /usr/share/wazuh-dashboard/
     rm -rf /etc/wazuh-dashboard/
@@ -957,18 +957,18 @@ test-48-installCommon_changePasswords-with-tarfile() {
     tar_file=tarfile.tar
     base_path=/tmp
     @touch $tar_file
-    @mock tar -xf tarfile.tar -C /tmp ./password_file.yml === @touch /tmp/password_file.yml
+    @mock tar -xf tarfile.tar -C /tmp wazuh-install-files/passwords.wazuh === @touch /tmp/passwords.wazuh
     installCommon_changePasswords
     @echo $changeall
-    @rm /tmp/password_file.yml
+    @rm /tmp/passwords.wazuh
 }
 
 test-48-installCommon_changePasswords-with-tarfile-assert() {
     common_checkInstalled
     installCommon_readPasswordFileUsers
     passwords_changePassword
-    rm -rf /tmp/password_file.yml
-    @echo 
+    rm -rf /tmp/passwords.wazuh
+    @echo
 }
 
 test-49-installCommon_changePasswords-with-tarfile-aio() {
@@ -977,10 +977,10 @@ test-49-installCommon_changePasswords-with-tarfile-aio() {
     base_path=/tmp
     AIO=1
     @touch $tar_file
-    @mock tar -xf tarfile.tar -C /tmp ./password_file.yml === @touch /tmp/password_file.yml
+    @mock tar -xf tarfile.tar -C /tmp wazuh-install-files/passwords.wazuh === @touch /tmp/passwords.wazuh
     installCommon_changePasswords
     @echo $changeall
-    @rm /tmp/password_file.yml
+    @rm /tmp/passwords.wazuh
 }
 
 test-49-installCommon_changePasswords-with-tarfile-aio-assert() {
@@ -992,7 +992,7 @@ test-49-installCommon_changePasswords-with-tarfile-aio-assert() {
     passwords_generateHash
     passwords_changePassword
     passwords_runSecurityAdmin
-    rm -rf /tmp/password_file.yml
+    rm -rf /tmp/passwords.wazuh
     @echo 1
 }
 
@@ -1002,10 +1002,10 @@ test-50-installCommon_changePasswords-with-tarfile-start-elastic-cluster() {
     base_path=/tmp
     AIO=1
     @touch $tar_file
-    @mock tar -xf tarfile.tar -C /tmp ./password_file.yml === @touch /tmp/password_file.yml
+    @mock tar -xf tarfile.tar -C /tmp wazuh-install-files/passwords.wazuh === @touch /tmp/passwords.wazuh
     installCommon_changePasswords
     @echo $changeall
-    @rm /tmp/password_file.yml
+    @rm /tmp/passwords.wazuh
 }
 
 test-50-installCommon_changePasswords-with-tarfile-start-elastic-cluster-assert() {
@@ -1017,7 +1017,7 @@ test-50-installCommon_changePasswords-with-tarfile-start-elastic-cluster-assert(
     passwords_generateHash
     passwords_changePassword
     passwords_runSecurityAdmin
-    rm -rf /tmp/password_file.yml
+    rm -rf /tmp/passwords.wazuh
     @echo 1
 }
 
@@ -1069,7 +1069,7 @@ test-ASSERT-FAIL-54-installCommon_startService-no-service-manager() {
 
 test-55-installCommon_startService-systemd() {
     load-installCommon_startService
-    @mockfalse ps -e === @out 
+    @mockfalse ps -e === @out
     @mocktrue grep -E -q "^\ *1\ .*systemd$"
     @mockfalse grep -E -q "^\ *1\ .*init$"
     installCommon_startService wazuh-manager
@@ -1083,7 +1083,7 @@ test-55-installCommon_startService-systemd-assert() {
 
 test-56-installCommon_startService-systemd-error() {
     load-installCommon_startService
-    @mock ps -e === @out 
+    @mock ps -e === @out
     @mocktrue grep -E -q "^\ *1\ .*systemd$"
     @mockfalse grep -E -q "^\ *1\ .*init$"
     @mockfalse systemctl start wazuh-manager.service
@@ -1099,7 +1099,7 @@ test-56-installCommon_startService-systemd-error-assert() {
 
 test-57-installCommon_startService-initd() {
     load-installCommon_startService
-    @mock ps -e === @out 
+    @mock ps -e === @out
     @mockfalse grep -E -q "^\ *1\ .*systemd$"
     @mocktrue grep -E -q "^\ *1\ .*init$"
     @mkdir -p /etc/init.d
@@ -1120,7 +1120,7 @@ test-57-installCommon_startService-initd-assert() {
 
 test-58-installCommon_startService-initd-error() {
     load-installCommon_startService
-    @mock ps -e === @out 
+    @mock ps -e === @out
     @mockfalse grep -E -q "^\ *1\ .*systemd$"
     @mocktrue grep -E -q "^\ *1\ .*init$"
     @mkdir -p /etc/init.d
@@ -1144,7 +1144,7 @@ test-58-installCommon_startService-initd-error-assert() {
 
 test-59-installCommon_startService-rc.d/init.d() {
     load-installCommon_startService
-    @mock ps -e === @out 
+    @mock ps -e === @out
     @mockfalse grep -E -q "^\ *1\ .*systemd$"
     @mockfalse grep -E -q "^\ *1\ .*init$"
 

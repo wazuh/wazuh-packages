@@ -162,20 +162,20 @@ function passwords_generatePasswordFile() {
     users=( admin kibanaserver kibanaro logstash readall snapshotrestore wazuh_admin wazuh_user )
     user_description=(
         "Wazuh indexer admin user"
-        "User used by Wazuh dashboard to connect with Wazuh indexer"
-        "Regular Dashboard user, only has read permissions"
-        "Filebeat user has CRUD and CREATE permissions on filebeat indices"
-        "User with READ acces to all indices"
+        "Wazuh dashboard user for establishing the connection with Wazuh indexer"
+        "Regular Dashboard user, only has read permissions to all indices and all permissions on the .kibana index"
+        "Filebeat user has CRUD and create index permissions on filebeat indices"
+        "User with READ access to all indices"
         "User with permissions to perform snapshot and restore operations"
         "Admin user used to comunicate with Wazuh API"
         "Regular user able to query Wazuh API"
     )
     passwords_generatePassword
     for i in "${!users[@]}"; do
-        echo "#${user_description[${i}]}" >> "${gen_file}"
-        echo "User:" >> "${gen_file}"
-        echo "  name: ${users[${i}]}" >> "${gen_file}"
+        echo "# ${user_description[${i}]}" >> "${gen_file}"
+        echo "  username: ${users[${i}]}" >> "${gen_file}"
         echo "  password: ${passwords[${i}]}" >> "${gen_file}"
+        echo ""	>> "${gen_file}"
     done
 
 }
@@ -217,23 +217,25 @@ function passwords_readAdmincerts() {
 }
 
 function passwords_readFileUsers() {
-    filecorrect=$(grep -v '^#' "${p_file}" | grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z')
-    echo ${filecorrect}
-    if [ "${filecorrect}" -ne 1 ]; then
+    filecorrect=$(grep -Ev '^#|^\s*$' "${p_file}" | grep -Pzc '\A(\s*username:[ \t]+\w+\s*password:[ \t]+[A-Za-z0-9_\-]+\s*)+\Z')
+    if [[ "${filecorrect}" -ne 1 ]]; then
         common_logger -e "The password file doesn't have a correct format.
 
 It must have this format:
-User:
-  name: admin
-  password: adminpassword
-User:
-  name: kibanaserver
-  password: kibanaserverpassword"
 
+# Description
+  username: name
+  password: password
+
+# Wazuh indexer admin user
+  username: kibanaserver
+  password: NiwXQw82pIf0dToiwczduLBnUPEvg7T0
+
+"
 	    exit 1
     fi
 
-    sfileusers=$(grep name: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
+    sfileusers=$(grep username: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
     sfilepasswords=$(grep password: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
 
     fileusers=(${sfileusers})
