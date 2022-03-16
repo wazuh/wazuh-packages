@@ -25,6 +25,10 @@ function cert_checkOpenSSL() {
 
 function cert_generateAdmincertificate() {
 
+    if [ ! -f ${base_path}/certs/root-ca.pem ]; then
+        cert_generateRootCAcertificate
+    fi
+
     eval "openssl genrsa -out ${base_path}/certs/admin-key-temp.pem 2048 ${debug}"
     eval "openssl pkcs8 -inform PEM -outform PEM -in ${base_path}/certs/admin-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out ${base_path}/certs/admin-key.pem ${debug}"
     eval "openssl req -new -key ${base_path}/certs/admin-key.pem -out ${base_path}/certs/admin.csr -batch -subj '/C=US/L=California/O=Wazuh/OU=Wazuh/CN=admin' ${debug}"
