@@ -21,11 +21,11 @@ systemConfig() {
   rm cron
 
   # Change root password (root:wazuh)
-  sed -i "s/root:.*:/root:\$1\$pNjjEA7K\$USjdNwjfh7A\.vHCf8suK41::0:99999:7:::/g" /etc/shadow 
+  sed -i "s/root:.*:/root:\$1\$pNjjEA7K\$USjdNwjfh7A\.vHCf8suK41::0:99999:7:::/g" /etc/shadow
 
   # Add custom user ($1$pNjjEA7K$USjdNwjfh7A.vHCf8suK41 -> wazuh)
   adduser ${SYSTEM_USER}
-  sed -i "s/${SYSTEM_USER}:!!/${SYSTEM_USER}:\$1\$pNjjEA7K\$USjdNwjfh7A\.vHCf8suK41/g" /etc/shadow 
+  sed -i "s/${SYSTEM_USER}:!!/${SYSTEM_USER}:\$1\$pNjjEA7K\$USjdNwjfh7A\.vHCf8suK41/g" /etc/shadow
 
   gpasswd -a ${SYSTEM_USER} wheel
   hostname ${HOSTNAME}
@@ -45,51 +45,14 @@ systemConfig() {
 # Edit unattended installer
 preInstall() {
 
-  # Set debug mode in unattended script
-  if [ "${DEBUG}" == "yes" ]; then
-    sed -i "s/\#\!\/bin\/bash/\#\!\/bin\/bash\nset -x/g" ${UNATTENDED_PATH}/${INSTALLER}
-  fi
-
-  # Change repository if dev is specified
-  if [ "${PACKAGES_REPOSITORY}" == "dev" ]; then
-    sed -i "s/packages\.wazuh\.com/packages-dev\.wazuh\.com/g" ${UNATTENDED_PATH}/${INSTALLER} 
-    sed -i "s/packages-dev\.wazuh\.com\/4\.x/packages-dev\.wazuh\.com\/pre-release/g" ${UNATTENDED_PATH}/${INSTALLER} 
-  fi
-
-  # Disable passwords change
-  sed -i "s/changePasswords$/#changePasswords/g" ${UNATTENDED_PATH}/${INSTALLER}
-
-  # Revert url to packages.wazuh.com to get filebeat gz
-  sed -i "s/'\${repobaseurl}'\/filebeat/https:\/\/packages.wazuh.com\/4.x\/filebeat/g" ${UNATTENDED_PATH}/${INSTALLER}
-
-}
-
-# Edit wazuh installation
-postInstall() {
-
-  # Change Wazuh repo dev to prod
-  if [ "${PACKAGES_REPOSITORY}" = "dev" ]; then
-    sed -i "s/-dev//g" /etc/yum.repos.d/wazuh.repo
-    sed -i "s/pre-release/4.x/g" /etc/yum.repos.d/wazuh.repo
-  fi
-
-  # Edit window title
-  sed -i "s/null, \"Elastic\"/null, \"Wazuh\"/g" /usr/share/kibana/src/core/server/rendering/views/template.js
-
-  curl -so ${CUSTOM_PATH}/custom_welcome.tar.gz https://wazuh-demo.s3-us-west-1.amazonaws.com/custom_welcome_opendistro_docker.tar.gz
-  tar -xf ${CUSTOM_PATH}/custom_welcome.tar.gz -C ${CUSTOM_PATH}
-  cp ${CUSTOM_PATH}/custom_welcome/wazuh_logo_circle.svg /usr/share/kibana/src/core/server/core_app/assets/
-  cp ${CUSTOM_PATH}/custom_welcome/wazuh_wazuh_bg.svg /usr/share/kibana/src/core/server/core_app/assets/
-  cp ${CUSTOM_PATH}/custom_welcome/template.js.hbs /usr/share/kibana/src/legacy/ui/ui_render/bootstrap/template.js.hbs
-
-  # Add custom css in kibana
-  less ${CUSTOM_PATH}/customWelcomeKibana.css >> /usr/share/kibana/src/core/server/core_app/assets/legacy_light_theme.css
+  # Avoid random passwords
+  sed -i "s/PASS=.*/PASS=\"\${users[i]}\"/g" ${RESOURCES_PATH}/${INSTALLER}
 
 }
 
 clean() {
 
-  rm /securityadmin_demo.sh
+  rm -f /securityadmin_demo.sh
   yum clean all
 
 }

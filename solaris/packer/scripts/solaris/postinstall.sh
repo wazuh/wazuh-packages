@@ -1,6 +1,6 @@
 #!/bin/sh
 # postinstall script for Solaris VMs
-# Wazuh, Inc 2015-2022
+# Wazuh, Inc 2015
 
 # install wazuh dependencies & some important packages
 
