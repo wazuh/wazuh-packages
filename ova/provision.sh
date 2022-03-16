@@ -20,10 +20,7 @@ if [[ "${PACKAGES_REPOSITORY}" == "dev" ]]; then
 fi
 
 if [[ "${DEBUG}" = "yes" ]]; then
-  set -ex
   INSTALL_ARGS+=" -v"
-else
-  set -e
 fi
 
 echo "Using ${PACKAGES_REPOSITORY} packages"
@@ -41,9 +38,6 @@ systemConfig
 preInstall
 
 # Install
-if [[ "${DEBUG}" = "yes" ]]; then
-  sed -i "s/\#\!\/bin\/bash/\#\!\/bin\/bash\\nset -x/g" ${RESOURCES_PATH}/${INSTALLER}
-fi
 bash ${RESOURCES_PATH}/${INSTALLER} ${INSTALL_ARGS}
 
 systemctl stop wazuh-dashboard filebeat wazuh-indexer

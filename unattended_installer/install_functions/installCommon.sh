@@ -105,8 +105,8 @@ function installCommon_changePasswords() {
 
     common_logger -d "Setting passwords."
     if [ -f "${tar_file}" ]; then
-        eval "tar -xf ${tar_file} -C ${base_path} wazuh-install-files/password_file.yml ${debug}"
-        p_file="${base_path}/wazuh-install-files/password_file.yml"
+        eval "tar -xf ${tar_file} -C ${base_path} wazuh-install-files/passwords.wazuh ${debug}"
+        p_file="${base_path}/wazuh-install-files/passwords.wazuh"
         common_checkInstalled
         if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
             changeall=1
@@ -114,7 +114,7 @@ function installCommon_changePasswords() {
         fi
         installCommon_readPasswordFileUsers
     else
-        common_logger -e "Cannot find passwords_file. Exiting"
+        common_logger -e "Cannot find passwords file. Exiting"
         exit 1
     fi
     if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
@@ -128,7 +128,7 @@ function installCommon_changePasswords() {
     if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
         passwords_runSecurityAdmin
     fi
-    rm -rf "${p_file}"
+    rm -rf "${base_path}/wazuh-install-files"
 
 }
 
@@ -220,22 +220,24 @@ function installCommon_installPrerequisites() {
 
 function installCommon_readPasswordFileUsers() {
 
-    filecorrect=$(grep -v '^#' "${p_file}" | grep -Pzc '\A(User:\s*name:\s*\w+\s*password:\s*[A-Za-z0-9_\-]+\s*)+\Z')
-    if [ "${filecorrect}" -ne 1 ]; then
+    filecorrect=$(grep -Ev '^#|^\s*$' "${p_file}" | grep -Pzc '\A(\s*username:[ \t]+\w+\s*password:[ \t]+[A-Za-z0-9_\-]+\s*)+\Z')
+    if [[ "${filecorrect}" -ne 1 ]]; then
         common_logger -e "The password file doesn't have a correct format.
 
-It must have this format:
-User:
-  name: wazuh
-  password: wazuhpassword
-User:
-  name: admin
-  password: adminpassword"
+# Description
+  username: name
+  password: password
+
+# Wazuh indexer admin user
+  username: kibanaserver
+  password: NiwXQw82pIf0dToiwczduLBnUPEvg7T0
+
+"
 
 	    exit 1
     fi
 
-    sfileusers=$(grep name: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
+    sfileusers=$(grep username: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
     sfilepasswords=$(grep password: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
 
     fileusers=(${sfileusers})

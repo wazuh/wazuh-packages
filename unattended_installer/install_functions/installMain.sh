@@ -87,7 +87,6 @@ function main() {
                 AIO=1
                 shift 1
                 ;;
-            
             "-ds"|"--disable-spinner")
                 disableSpinner=1
                 shift 1
@@ -248,7 +247,7 @@ function main() {
         if [ -n "${server_node_types[*]}" ]; then
             installCommon_createClusterKey
         fi
-        gen_file="${base_path}/certs/password_file.yml"
+        gen_file="${base_path}/certs/passwords.wazuh"
         passwords_generatePasswordFile
         # Using cat instead of simple cp because OpenSUSE unknown error.
         eval "cat '${config_file}' > '${base_path}/certs/config.yml'"
