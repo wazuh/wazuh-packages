@@ -48,11 +48,11 @@ function dashboard_copyCertificates() {
     if [ -f "${tar_file}" ]; then
 
         name=${dashboard_node_names[pos]}
-
-        eval "tar -xf ${tar_file} -C ${dashboard_cert_path} wazuh-install-files/${name}.pem  && mv ${dashboard_cert_path}/wazuh-install-files/${name}.pem ${dashboard_cert_path}/dashboard.pem ${debug}"
-        eval "tar -xf ${tar_file} -C ${dashboard_cert_path} wazuh-install-files/${name}-key.pem  && mv ${dashboard_cert_path}/wazuh-install-files/${name}-key.pem ${dashboard_cert_path}/dashboard-key.pem ${debug}"
-        eval "tar -xf ${tar_file} -C ${dashboard_cert_path} wazuh-install-files/root-ca.pem && mv ${dashboard_cert_path}/wazuh-install-files/root-ca.pem ${dashboard_cert_path}/root-ca.pem ${debug}"
-        eval "rm -rf ${dashboard_cert_path}/wazuh-install-files/"
+        eval "sed -i s/dashboard.pem/${name}.pem/ /etc/wazuh-dashboard/opensearch_dashboards.yml" 
+        eval "sed -i s/dashboard-key.pem/${name}-key.pem/ /etc/wazuh-dashboard/opensearch_dashboards.yml"
+        eval "tar -xf ${tar_file} -C ${dashboard_cert_path} wazuh-install-files/${name}.pem --strip-components 1"
+        eval "tar -xf ${tar_file} -C ${dashboard_cert_path} wazuh-install-files/${name}-key.pem --strip-components 1"
+        eval "tar -xf ${tar_file} -C ${dashboard_cert_path} wazuh-install-files/root-ca.pem --strip-components 1"
         eval "chown -R wazuh-dashboard:wazuh-dashboard /etc/wazuh-dashboard/ ${debug}"
         eval "chmod -R 500 ${dashboard_cert_path} ${debug}"
         eval "chown wazuh-dashboard:wazuh-dashboard ${dashboard_cert_path}/*"
