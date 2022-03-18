@@ -102,14 +102,14 @@ override_dh_install:
 	cp certs/demo-indexer-key.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/
 	cp certs/root-ca.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/
 
-	# Build wazuh-cert-tool
-	/root/stack/indexer/deb/builder.sh -c
+	# Build wazuh-certs-tool
+	$(REPO_DIR)/builder.sh -c
 
 	# Build wazuh-passwords-tool
-	/root/stack/indexer/deb/builder.sh -p
+	$(REPO_DIR)/builder.sh -p
 
 	# Copy the security tools
-	cp $(REPO_DIR)/wazuh-cert-tool.sh $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/
+	cp $(REPO_DIR)/wazuh-certs-tool.sh $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/
 	cp $(REPO_DIR)/wazuh-passwords-tool.sh $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/
 	cp /root/documentation-templates/wazuh/config.yml $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/config.yml
 
@@ -526,7 +526,7 @@ override_dh_fixperms:
 	chmod 740 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/hash.sh
 	chmod 740 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/securityadmin.sh
 	chmod 740 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/audit_config_migrater.sh
-	chmod 740 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/wazuh-cert-tool.sh
+	chmod 740 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/wazuh-certs-tool.sh
 	chmod 740 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/wazuh-passwords-tool.sh
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/jakarta.xml.ws-api-2.3.3.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/xmlschema-core-2.2.5.jar
