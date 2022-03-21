@@ -33,4 +33,4 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
       - name: builder-sh
-        run: echo ${{ needs.modified_files_list.outputs.arch }}
+        run: echo "var: ${{ needs.modified_files_list.outputs.arch }} "
