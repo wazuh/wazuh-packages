@@ -9,9 +9,6 @@
 
 function cert_cleanFiles() {
 
-    if [ -z "$(ls -A ${base_path}/certs)" ]; then
-        eval "rm -rf ${base_path}/certs"
-    fi
     eval "rm -f ${base_path}/certs/*.csr ${debug}"
     eval "rm -f ${base_path}/certs/*.srl ${debug}"
     eval "rm -f ${base_path}/certs/*.conf ${debug}"
