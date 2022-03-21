@@ -1,19 +1,33 @@
 name: pr-review
 on: 
   pull_request:
-    branches: [ 'poc-shellcheck-to4.3' ]
+    branches: [ 'poc-shellcheck-to4.3', 'master' ]
+
 jobs:
-  shellcheck:
-    name: runner / shellcheck
+  changedfiles:
     runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      all: ${{ steps.changes.outputs.all}}
+      ts: ${{ steps.changes.outputs.ts }}
     steps:
-      - name: Check out repository code
+        # Make sure we have some code to diff.
+      - name: Checkout repository
         uses: actions/checkout@v2
-      - name: shellcheck-github-pr-review
-        uses: ./unattended_installer/
-        with:
-          github_token: ${{ secrets.github_token }}
-          reporter: github-pr-review
-          pattern: '*.sh'
-          path: './unattended_installer'
-          exclude: './unattended_installer/Development-guide.md'
+      - name: Get changed files
+        id: changes
+        # Set outputs using the command.
+        run: |
+          echo "::set-output name=all::$(git diff --name-only --diff-filter=ACMRT ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | xargs)"
+          echo "::set-output name=ts::$(git diff --name-only --diff-filter=ACMRT ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep .ts$ | xargs)"
+  lint:
+    runs-on: ubuntu-latest
+    # require the first job to have ran
+    needs: changedfiles
+    # only run there are changed files
+    if: ${{needs.changedfiles.outputs.ts}}
+    steps:
+      - name: echo changed files
+        run: echo ${{needs.changedfiles.outputs.ts}}
+  
+
