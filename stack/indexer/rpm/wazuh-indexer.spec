@@ -108,7 +108,7 @@ cp %{REPO_DIR}/config/indexer/roles/internal_users.yml ${RPM_BUILD_ROOT}%{INSTAL
 cp %{REPO_DIR}/config/indexer/roles/roles.yml ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/securityconfig/
 cp %{REPO_DIR}/config/indexer/roles/roles_mapping.yml ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/securityconfig/
 
-cp /root/stack/indexer/indexerSecurityInitializer.sh ${RPM_BUILD_ROOT}%{INSTALL_DIR}/bin/
+cp /root/stack/indexer/indexer-security-init.sh ${RPM_BUILD_ROOT}%{INSTALL_DIR}/bin/
 
 # -----------------------------------------------------------------------------
 
@@ -370,7 +370,7 @@ rm -fr %{buildroot}
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-env-from-file
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-upgrade
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/systemd-entrypoint
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/indexerSecurityInitializer.sh
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/indexer-security-init.sh
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/hppc-0.8.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/lucene-highlighter-8.10.1.jar
