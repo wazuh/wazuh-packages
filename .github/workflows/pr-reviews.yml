@@ -2,6 +2,9 @@ name: pr-review
 on: 
   pull_request:
     branches: [ 'poc-shellcheck-to4.3' ]
+    paths:
+      - 'unattended_installer/**'
+
 jobs:
   shellcheck:
     name: runner / shellcheck
