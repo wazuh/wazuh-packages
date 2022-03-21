@@ -23,7 +23,7 @@ jobs:
         id: modified_files_list
         if: contains(steps.changed_files.outputs.all, 'cert_tool')
         run: |
-          echo ::set-output name=arch::$(echo 'cert-tool')
+          echo "::set-output name=arch::$(echo 'cert-tool')"
           echo "yes"
           
   Builder-Scripts:
