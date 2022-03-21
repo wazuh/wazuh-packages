@@ -1,0 +1,53 @@
+name: Wazuh Packages tools shellcheck
+
+on:
+  pull_request:
+    branches:
+      - 'shellcheck-github-actions-workflow'
+    paths:
+      - 'unattended_installer/**'
+  
+
+jobs:
+  build-artifacts:
+    runs-on: ubuntu-latest
+    name: Building artifacts
+    steps:
+    - name: Verify file changes
+      uses: tj-actions/verify-changed-files@v5.5
+      id: changed_files
+      with:
+        path: 'unattended_installer/**'
+    - name: Display changed files cert_tool
+      id: modified_files_list
+      if: contains(steps.changed_files.outputs.files_changed, 'cert_tool')
+      with:
+        stringArray: 'cert-tool'
+    - name: Display changed files install_functions
+      if: contains(steps.changed_files.outputs.files_changed, 'install_functions')
+      with:
+        stringArray: 'installer'
+    - name: Display changed files common_functions
+      if: contains(steps.changed_files.outputs.files_changed, 'common_functions')
+      with:
+        stringArray: '["installer","password-tool","cert-tool"]'
+    - name: Display changed files password-tool
+      if: contains(steps.changed_files.outputs.files_changed, 'password_tool')
+      with:
+        stringArray: 'password-tool'
+    - name: Display changed files install_functions
+      if: contains(steps.changed_files.outputs.files_changed, 'downloader')
+      with:
+        stringArray: 'installer'
+    - name: Display changed files install_functions
+      if: contains(steps.changed_files.outputs.files_changed, 'builder.sh')
+      with:
+        stringArray: 'builder.sh'
+
+    - name: run builder.sh
+      run: |
+        if [ $i != "builder.sh" ];then
+          for i in ${{ steps.modified_files_list.outputs.stringList }}; do
+            ./unattended_installer/builder.sh --$i
+          done
+        fi
