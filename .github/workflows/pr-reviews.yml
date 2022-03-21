@@ -6,10 +6,12 @@ on:
 jobs:
   Get-Changed-Files:
     runs-on: ubuntu-latest
+    outputs:
+      arch: ${{ steps.changed_files.outputs.arch }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2.1.0
-      - name: get files
+      - name: Get Files
         uses: jitterbit/get-changed-files@v1
         id: changed_files
         with:
