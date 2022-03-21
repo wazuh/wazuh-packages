@@ -58,30 +58,16 @@ function main() {
                     common_logger -e "Error on arguments. Probably missing </path/to/root-ca.pem> </path/to/root-ca.key> after -a|--admin-certificates"
                     getHelp
                     exit 1
-                fi
-                if  [[ -n "${2}" ]]; then
-                    #Validate that the user has entered the 2 files
-                    if [[ -z ${3} ]]; then
-                        if [[ ${2} == *".key" ]]; then
-                            common_logger -e "You have not entered a root-ca.pem"
-                            exit 1
-                        else
-                            common_logger -e "You have not entered a root-ca.key" 
-                            exit 1
-                        fi
-                    fi
+                else
                     cadmin=1
                     rootca="${2}"
                     rootcakey="${3}"
                     shift 3
-                else
-                    cadmin=1
-                    shift 1
                 fi
                 ;;
             "-A"|"--all")
                 if  [[ -n "${2}" ]]; then
-                    #Validate that the user has entered the 2 files
+                    # Validate that the user has entered the 2 files
                     if [[ -z ${3} ]]; then
                         if [[ ${2} == *".key" ]]; then
                             common_logger -e "You have not entered a root-ca.pem"
@@ -116,25 +102,11 @@ function main() {
                     common_logger -e "Error on arguments. Probably missing </path/to/root-ca.pem> </path/to/root-ca.key> after -wd|--wazuh-dashboard-certificates"
                     getHelp
                     exit 1
-                fi
-                if  [[ -n "${2}" ]]; then
-                    #Validate that the user has entered the 2 files
-                    if [[ -z ${3} ]]; then
-                        if [[ ${2} == *".key" ]]; then
-                            common_logger -e "You have not entered a root-ca.pem"
-                            exit 1
-                        else
-                            common_logger -e "You have not entered a root-ca.key" 
-                            exit 1
-                        fi
-                    fi
+                else
                     cdashboard=1
                     rootca="${2}"
                     rootcakey="${3}"
                     shift 3
-                else
-                    cdashboard=1
-                    shift 1
                 fi
                 ;;
             "-wi"|"--wazuh-indexer-certificates")
@@ -142,25 +114,11 @@ function main() {
                     common_logger -e "Error on arguments. Probably missing </path/to/root-ca.pem> </path/to/root-ca.key> after -wi|--wazuh-indexer-certificates"
                     getHelp
                     exit 1
-                fi
-                if  [[ -n "${2}" ]]; then
-                    #Validate that the user has entered the 2 files
-                    if [[ -z ${3} ]]; then
-                        if [[ ${2} == *".key" ]]; then
-                            common_logger -e "You have not entered a root-ca.pem"
-                            exit 1
-                        else
-                            common_logger -e "You have not entered a root-ca.key" 
-                            exit 1
-                        fi
-                    fi
+                else
                     cindexer=1
                     rootca="${2}"
                     rootcakey="${3}"
                     shift 3
-                else
-                    cindexer=1
-                    shift 1
                 fi
                 ;;
             "-ws"|"--wazuh-server-certificates")
@@ -168,25 +126,11 @@ function main() {
                     common_logger -e "Error on arguments. Probably missing </path/to/root-ca.pem> </path/to/root-ca.key> after -ws|--wazuh-server-certificates"
                     getHelp
                     exit 1
-                fi
-                if  [[ -n "${2}" ]]; then
-                    #Validate that the user has entered the 2 files
-                    if [[ -z ${3} ]]; then
-                        if [[ ${2} == *".key" ]]; then
-                            common_logger -e "You have not entered a root-ca.pem"
-                            exit 1
-                        else
-                            common_logger -e "You have not entered a root-ca.key" 
-                            exit 1
-                        fi
-                    fi
+                else
                     cserver=1
                     rootca="${2}"
                     rootcakey="${3}"
                     shift 3
-                else
-                    cserver=1
-                    shift 1
                 fi
                 ;;
             *)
