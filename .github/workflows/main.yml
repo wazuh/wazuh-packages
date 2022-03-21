@@ -1,0 +1,23 @@
+name: pr-review
+on: 
+  pull_request:
+    branches: [ 'poc-shellcheck-to4.3' ]
+    paths:
+      - 'unattended_installer/**'
+
+jobs:
+  build-artifacts:
+    runs-on: ubuntu-latest
+    name: Building artifacts
+    steps:
+    - name: Verify file changes
+      uses: tj-actions/verify-changed-files@v5.5
+      id: changed_files
+      with:
+        path: 'unattended_installer/**'
+        
+    - name: Display changed files cert_tool
+      id: modified_files_list
+      if: contains(steps.changed_files.outputs.files_changed, 'cert_tool')
+      run: |
+        echo ::set-output name=arch::$(echo 'cert-tool')
