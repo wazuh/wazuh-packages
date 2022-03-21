@@ -237,16 +237,18 @@ function builder_main() {
 
     if [ -n "${installer}" ]; then
         buildInstaller
+        chmod 500 ${output_script_path}
     fi
 
     if [ -n "${passwordsTool}" ]; then
         buildPasswordsTool
+        chmod 500 ${output_script_path}
     fi
 
     if [ -n "${certTool}" ]; then
         buildCertsTool
+        chmod 500 ${output_script_path}
     fi
-    chmod 500 ${output_script_path}
 }
 
 builder_main "$@"
