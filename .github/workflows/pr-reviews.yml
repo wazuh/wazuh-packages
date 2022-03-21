@@ -21,3 +21,4 @@ jobs:
       if: contains(steps.changed_files.outputs.files_changed, 'cert_tool')
       run: |
         echo ::set-output name=arch::$(echo 'cert-tool')
+
