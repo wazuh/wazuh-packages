@@ -4,18 +4,24 @@ on:
     branches: [ 'poc-shellcheck-to4.3', 'master' ]
 
 jobs:
-  test:
+  get-file-changes:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.1.0
-      - uses: jitterbit/get-changed-files@v1
-        id: abc
+      - name: checkout
+        uses: actions/checkout@v2.1.0
+      - name: get files
+        uses: jitterbit/get-changed-files@v1
+        id: changed_files
         with:
           format: 'csv'
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Printing
         run: |
           echo "All:"
-          echo "${{ steps.abc.outputs.all }}"
-
-
+          echo "${{ steps.changed_files.outputs.all }}"
+      - name: Display changed files cert_tool
+        id: modified_files_list
+        if: contains(steps.changed_files.outputs.all, 'cert_tool')
+        run: |
+          echo ::set-output name=arch::$(echo 'cert-tool')
+          echo "yes"
