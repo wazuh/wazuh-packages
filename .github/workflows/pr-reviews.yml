@@ -4,10 +4,10 @@ on:
     branches: [ 'poc-shellcheck-to4.3', 'master' ]
 
 jobs:
-  get-changed-files:
+  job1:
     runs-on: ubuntu-latest
     outputs:
-      file: ${{ steps.changed_files.outputs.arch }}
+      file: ${{ steps.step1.outputs.test }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2.1.0
@@ -21,14 +21,14 @@ jobs:
         run: |
           echo "${{ steps.changed_files.outputs.all }}"
       - name: Display changed files cert_tool
-        id: modified_files_list
+        id: step1
         if: contains(steps.changed_files.outputs.all, 'cert_tool')
-        run: echo "::set-output name=arch::cert-tool"
+        run: echo "::set-output name=test::cert-tool"
           
   Builder-Scripts:
     runs-on: ubuntu-latest
-    needs: get-changed-files
+    needs: job1
     steps:
       - name: builder-sh
-        run: echo ${{ needs.get-changed-files.outputs.file }}
+        run: echo ${{ needs.job1.outputs.file }}
   
