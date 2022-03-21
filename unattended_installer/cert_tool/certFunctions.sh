@@ -28,13 +28,14 @@ function cert_checkOpenSSL() {
 }
 
 function cert_checkRootCA() {
-    if  [[ -n ${rootca} ]]; then
-        read -p 'root-ca.key: ' rootcakey
-        while  [[ -z ${rootcakey} ]]; do
-            common_logger "You have to also enter the root-ca.key"
-            read -p 'root-ca.key: ' rootcakey
-            ((c++)) && ((c==3)) && common_logger -e "You have not entered a root-ca.key, exiting" && cert_cleanFiles && exit 1 
-        done
+    if  [[ -n ${rootca} || -n ${rootcakey} ]]; then
+        #Verify variables match keys
+        if [[ ${rootca} == *".key" ]]; then
+            ca_temp=${rootca}
+            rootca=${rootcakey}
+            rootcakey=${ca_temp}
+        fi
+        #Validate that files exist
         if [[ -e ${rootca} ]]; then
             eval "cp ${rootca} ${base_path}/certs/root-ca.pem ${debug}"
         else
