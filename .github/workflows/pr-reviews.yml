@@ -9,10 +9,10 @@ jobs:
     name: Building artifacts
     steps:
     - name: Verify file changes
-      uses: tj-actions/verify-changed-files@v5.5
+      uses: tj-actions/changed-files@v18.4
       id: changed_files
       with:
-        path: 'unattended_installer/**'
+        path: 'unattended_installer'
         
     - name: Display changed files cert_tool
       id: modified_files_list
