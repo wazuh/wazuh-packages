@@ -64,6 +64,7 @@ override_dh_install:
 
 	tar -xf $(DASHBOARD_FILE)
 
+	mkdir -p $(TARGET_DIR)$(CONFIG_DIR)
 	mkdir -p $(TARGET_DIR)$(INSTALLATION_DIR)
 	mkdir -p $(TARGET_DIR)/etc/systemd/system
 	mkdir -p $(TARGET_DIR)/etc/default

@@ -62,15 +62,25 @@ tar -xf %{DASHBOARD_FILE}
 # -----------------------------------------------------------------------------
 
 %install
+mkdir -p %{buildroot}%{CONFIG_DIR}
 mkdir -p %{buildroot}%{INSTALL_DIR}
 mkdir -p %{buildroot}/etc/systemd/system
 mkdir -p %{buildroot}/etc/init.d
 mkdir -p %{buildroot}/etc/default
 
+ls
+ls wazuh-dashboard-base
+ls wazuh-dashboard-base/etc/
 
 cp wazuh-dashboard-base/etc/node.options %{buildroot}%{CONFIG_DIR}
 cp wazuh-dashboard-base/etc/opensearch_dashboards.yml %{buildroot}%{CONFIG_DIR}
+
+ls %{buildroot}%{CONFIG_DIR}/
+
+
 mv wazuh-dashboard-base/* %{buildroot}%{INSTALL_DIR}
+
+
 
 # Set custom welcome styles
 
