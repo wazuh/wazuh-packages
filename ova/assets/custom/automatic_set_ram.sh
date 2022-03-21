@@ -8,5 +8,5 @@ if [ ${ram} -eq "0" ]; then
     ram=1;
 fi
 
-eval "sed -i "s/-Xms[0-9]*g/-Xms${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
-eval "sed -i "s/-Xmx[0-9]*g/-Xmx${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
+eval "sed -i "s/-Xms[0-9]*g/-Xms${ram}g/" /etc/wazuh-indexer/jvm.options ${debug}"
+eval "sed -i "s/-Xmx[0-9]*g/-Xmx${ram}g/" /etc/wazuh-indexer/jvm.options ${debug}"

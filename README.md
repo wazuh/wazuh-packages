@@ -34,4 +34,4 @@ If you want to contribute to our project please don't hesitate to send a pull re
 ## License and copyright
 
 WAZUH
-Copyright (C) 2015-2020 Wazuh Inc.  (License GPLv2)
+Copyright (C) 2015 Wazuh Inc.  (License GPLv2)

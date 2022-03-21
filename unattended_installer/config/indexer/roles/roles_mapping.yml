@@ -33,7 +33,7 @@ kibana_user:
   - "kibanauser"
   users:
   - "wazuh_user"
-  - "wazuh_admin"    
+  - "wazuh_admin"
   description: "Maps kibanauser to kibana_user"
 
 readall:

@@ -1,0 +1,38 @@
+Instructions to run uit tests:
+
+    - All tests are defined in files as such: tests-{script_name}.sh, where {script_name}.sh is the file we are testing.
+    - To run the tests we use the auxiliary script `unit-tests.sh`, which creates a clean docker environment on which to run the tests.
+    - Docker must be installed and running in the system and the user must have access.
+    - The docker image is kept, it isn't destroyed when the script finishes. If something in the Dockerfile is changed, run with `-r` to rebuild
+
+NAME
+        unit-tests.sh - Unit test for the Wazuh installer.
+
+SYNOPSIS
+        bash unit-tests.sh [OPTIONS] -a | -d | -f <file-list>
+
+DESCRIPTION
+        -a,  --test-all
+                Test all files.
+
+        -d,  --debug
+                Shows the complete installation output.
+
+        -f,  --files <file-list>
+                List of files to test. I.e. -f common checks
+
+        -h,  --help
+                Shows help.
+
+        -r,  --rebuild-image
+                Forces to rebuild the image.
+
+
+TIPS:
+    - When many tests are broken after a merge a good way to test them and
+    fix them in order bypassing the desorder in which they are run is to use
+    the fact that a bash script exits on an unknown character. Write a `Ç`
+    after the first test and run it, only the first one will be run. Whenever
+    a test is ready, you move the `Ç` character a test or some tests down.
+    That way, you don't have to scroll through 70 tests to find one and see if
+    it is fixed.

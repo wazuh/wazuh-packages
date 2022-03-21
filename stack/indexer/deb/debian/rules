@@ -92,17 +92,23 @@ override_dh_install:
 	# Copy installation files to final location
 	cp -pr $(BASE_DIR)/* $(TARGET_DIR)$(INSTALLATION_DIR)
 
+	# Build wazuh-certs-tool
+	$(REPO_DIR)/builder.sh -c
+
+	# Build wazuh-passwords-tool
+	$(REPO_DIR)/builder.sh -p
+
 	# Copy the security tools
-	cp $(REPO_DIR)/install_functions/wazuh-cert-tool.sh $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/
-	cp $(REPO_DIR)/install_functions/wazuh-passwords-tool.sh $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/
-	cp $(REPO_DIR)/config/certificate/config.yml $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/config.yml
+	cp $(REPO_DIR)/wazuh-certs-tool.sh $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/
+	cp $(REPO_DIR)/wazuh-passwords-tool.sh $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/
+	cp /root/documentation-templates/wazuh/config.yml $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/config.yml
 
 	# Copy Wazuh's config files for the security plugin
 	cp -pr $(REPO_DIR)/config/indexer/roles/roles_mapping.yml $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/securityconfig/
 	cp -pr $(REPO_DIR)/config/indexer/roles/roles.yml $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/securityconfig/
 	cp -pr $(REPO_DIR)/config/indexer/roles/internal_users.yml $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/securityconfig/
 
-	cp /root/stack/indexer/indexerSecurityInitializer.sh $(TARGET_DIR)$(INSTALLATION_DIR)/bin/
+	cp /root/stack/indexer/indexer-security-init.sh $(TARGET_DIR)$(INSTALLATION_DIR)/bin/
 
 	# Create group and user in chroot environment
 	groupadd -r $(GROUP)
@@ -199,7 +205,7 @@ override_dh_fixperms:
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-env-from-file
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-upgrade
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/systemd-entrypoint
-	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/indexerSecurityInitializer.sh
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/indexer-security-init.sh
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/lib
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/hppc-0.8.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/lucene-highlighter-8.10.1.jar
@@ -504,7 +510,7 @@ override_dh_fixperms:
 	chmod 740 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/hash.sh
 	chmod 740 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/securityadmin.sh
 	chmod 740 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/audit_config_migrater.sh
-	chmod 740 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/wazuh-cert-tool.sh
+	chmod 740 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/wazuh-certs-tool.sh
 	chmod 740 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/wazuh-passwords-tool.sh
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/jakarta.xml.ws-api-2.3.3.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/xmlschema-core-2.2.5.jar

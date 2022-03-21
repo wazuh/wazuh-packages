@@ -83,15 +83,21 @@ rm -rf wazuh-indexer-*/etc
 rm -rf wazuh-indexer-*/usr
 cp -pr wazuh-indexer-*/* ${RPM_BUILD_ROOT}%{INSTALL_DIR}/
 
-cp %{REPO_DIR}/install_functions/wazuh-cert-tool.sh ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/tools/
-cp %{REPO_DIR}/install_functions/wazuh-passwords-tool.sh ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/tools/
-cp %{REPO_DIR}/config/certificate/config.yml ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/tools/config.yml
+# Build wazuh-certs-tool
+%{REPO_DIR}/builder.sh -c
+
+# Build wazuh-passwords-tool
+%{REPO_DIR}/builder.sh -p
+
+cp %{REPO_DIR}/wazuh-certs-tool.sh ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/tools/
+cp %{REPO_DIR}/wazuh-passwords-tool.sh ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/tools/
+cp /root/documentation-templates/wazuh/config.yml ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/tools/config.yml
 
 cp %{REPO_DIR}/config/indexer/roles/internal_users.yml ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/securityconfig/
 cp %{REPO_DIR}/config/indexer/roles/roles.yml ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/securityconfig/
 cp %{REPO_DIR}/config/indexer/roles/roles_mapping.yml ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/securityconfig/
 
-cp /root/stack/indexer/indexerSecurityInitializer.sh ${RPM_BUILD_ROOT}%{INSTALL_DIR}/bin/
+cp /root/stack/indexer/indexer-security-init.sh ${RPM_BUILD_ROOT}%{INSTALL_DIR}/bin/
 
 # -----------------------------------------------------------------------------
 
@@ -353,7 +359,7 @@ rm -fr %{buildroot}
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-env-from-file
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-upgrade
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/systemd-entrypoint
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/indexerSecurityInitializer.sh
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/indexer-security-init.sh
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/hppc-0.8.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/lucene-highlighter-8.10.1.jar
@@ -658,7 +664,7 @@ rm -fr %{buildroot}
 %attr(740, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/hash.sh
 %attr(740, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/securityadmin.sh
 %attr(740, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/audit_config_migrater.sh
-%attr(740, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/wazuh-cert-tool.sh
+%attr(740, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/wazuh-certs-tool.sh
 %attr(740, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/wazuh-passwords-tool.sh
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/jakarta.xml.ws-api-2.3.3.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/xmlschema-core-2.2.5.jar
