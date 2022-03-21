@@ -36,6 +36,7 @@ function getHelp() {
     echo -e ""
     echo -e "        --all </path/to/root-ca.pem> </path/to/root-ca.key>"
     echo -e "                Creates Wazuh server, Wazuh indexer, Wazuh dashboard, and admin certificates, add root-ca.pem and root-ca.key or leave it empty so we can create a new one."
+    echo -e ""
 
     exit 1
 
