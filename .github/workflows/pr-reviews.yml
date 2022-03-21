@@ -4,32 +4,17 @@ on:
     branches: [ 'poc-shellcheck-to4.3', 'master' ]
 
 jobs:
-  changedfiles:
+  deploy:
     runs-on: ubuntu-latest
-    # Map a step output to a job output
-    outputs:
-      all: ${{ steps.changes.outputs.all}}
-      ts: ${{ steps.changes.outputs.ts }}
     steps:
-        # Make sure we have some code to diff.
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - name: Get changed files
-        id: changes
-        # Set outputs using the command.
-        run: |
-          echo "::set-output name=all::$(git diff --name-only --diff-filter=ACMRT ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | xargs)"
-          echo "::set-output name=ts::$(git diff --name-only --diff-filter=ACMRT ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep .ts$ | xargs)"
-  lint:
-    runs-on: ubuntu-latest
-    # require the first job to have ran
-    needs: changedfiles
-    # only run there are changed files
-    if: ${{needs.changedfiles.outputs.ts}}
-    steps:
-      - name: echo changed files
-        run: echo ${{needs.changedfiles.outputs.ts}}
-  
+    - uses: Stockopedia/action-get-changed-files@v1
+      id: get_changed
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        ignore: "**/+(.github)"
+        foldersOnly: false 
+        format: csv
+    - name: echo changed files
+      run: echo ${{needs.get_changed.outputs.changed}}
+
 
