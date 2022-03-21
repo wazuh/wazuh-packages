@@ -4,17 +4,18 @@ on:
     branches: [ 'poc-shellcheck-to4.3', 'master' ]
 
 jobs:
-  deploy:
+  test:
     runs-on: ubuntu-latest
     steps:
-    - uses: Stockopedia/action-get-changed-files@v1
-      id: get_changed
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        ignore: "**/+(.github)"
-        foldersOnly: false 
-        format: csv
-    - name: echo changed files
-      run: echo ${{needs.get_changed.outputs.changed}}
+      - uses: actions/checkout@v2.1.0
+      - uses: jitterbit/get-changed-files@v1
+        id: abc
+        with:
+          format: space-delimited
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Printing
+        run: |
+          echo "All:"
+          echo "${{ steps.abc.outputs.all }}"
 
 
