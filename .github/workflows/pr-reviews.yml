@@ -6,17 +6,18 @@ on:
       - 'unattended_installer/**'
 
 jobs:
-  shellcheck:
-    name: runner / shellcheck
+  build-artifacts:
     runs-on: ubuntu-latest
+    name: Building artifacts
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v2
-      - name: shellcheck-github-pr-review
-        uses: ./unattended_installer/
-        with:
-          github_token: ${{ secrets.github_token }}
-          reporter: github-pr-review
-          pattern: '*.sh'
-          path: './unattended_installer'
-          exclude: './unattended_installer/Development-guide.md'
+    - name: Verify file changes
+      uses: tj-actions/verify-changed-files@v5.5
+      id: changed_files
+      with:
+        path: 'unattended_installer/**'
+        
+    - name: Display changed files cert_tool
+      id: modified_files_list
+      if: contains(steps.changed_files.outputs.files_changed, 'cert_tool')
+      run: |
+        echo ::set-output name=arch::$(echo 'cert-tool')
