@@ -32,8 +32,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: Get-Changed-Files
     steps:
-      - name: Check out code
-        uses: actions/checkout@v2
       - name: builder-sh
         run: |
           echo "var: ${{ needs.Get-Changed-Files.outputs.arch }} "
