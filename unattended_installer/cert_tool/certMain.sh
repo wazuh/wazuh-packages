@@ -17,7 +17,10 @@ function getHelp() {
     echo -e ""
     echo -e "DESCRIPTION"
     echo -e "        -a,  --admin-certificates </path/to/root-ca.pem> </path/to/root-ca.key>"
-    echo -e "                Creates the admin certificates, add root-ca.pem and root-ca.key or leave it empty so we can create a new one."
+    echo -e "                Creates the admin certificates, add root-ca.pem and root-ca.key."
+    echo -e ""
+    echo -e "        -A, --all </path/to/root-ca.pem> </path/to/root-ca.key>"
+    echo -e "                Creates Wazuh server, Wazuh indexer, Wazuh dashboard, and admin certificates, add root-ca.pem and root-ca.key or leave it empty so we can create a new one."
     echo -e ""
     echo -e "        -ca, --root-ca-certificates"
     echo -e "                Creates the root-ca certificates."
@@ -26,16 +29,13 @@ function getHelp() {
     echo -e "                Enables verbose mode."
     echo -e ""
     echo -e "        -wd,  --wazuh-dashboard-certificates </path/to/root-ca.pem> </path/to/root-ca.key>"
-    echo -e "                Creates the Wazuh dashboard certificates, add root-ca.pem and root-ca.key or leave it empty so we can create a new one."
+    echo -e "                Creates the Wazuh dashboard certificates, add root-ca.pem and root-ca.key."
     echo -e ""
     echo -e "        -wi,  --wazuh-indexer-certificates </path/to/root-ca.pem> </path/to/root-ca.key>"
-    echo -e "                Creates the Wazuh indexer certificates, add root-ca.pem and root-ca.key or leave it empty so we can create a new one."
+    echo -e "                Creates the Wazuh indexer certificates, add root-ca.pem and root-ca.key."
     echo -e ""
     echo -e "        -ws,  --wazuh-server-certificates </path/to/root-ca.pem> </path/to/root-ca.key>"
-    echo -e "                Creates the Wazuh server certificates, add root-ca.pem and root-ca.key or leave it empty so we can create a new one."
-    echo -e ""
-    echo -e "        --all </path/to/root-ca.pem> </path/to/root-ca.key>"
-    echo -e "                Creates Wazuh server, Wazuh indexer, Wazuh dashboard, and admin certificates, add root-ca.pem and root-ca.key or leave it empty so we can create a new one."
+    echo -e "                Creates the Wazuh server certificates, add root-ca.pem and root-ca.key."
     echo -e ""
 
     exit 1
@@ -54,6 +54,11 @@ function main() {
         do
             case "${1}" in
             "-a"|"--admin-certificates")
+                if [[ -z "${2}" || -z "${3}" ]]; then
+                    common_logger -e "Error on arguments. Probably missing </path/to/root-ca.pem> </path/to/root-ca.key> after -a|--admin-certificates"
+                    getHelp
+                    exit 1
+                fi
                 if  [[ -n "${2}" ]]; then
                     #Validate that the user has entered the 2 files
                     if [[ -z ${3} ]]; then
@@ -74,6 +79,27 @@ function main() {
                     shift 1
                 fi
                 ;;
+            "-A"|"--all")
+                if  [[ -n "${2}" ]]; then
+                    #Validate that the user has entered the 2 files
+                    if [[ -z ${3} ]]; then
+                        if [[ ${2} == *".key" ]]; then
+                            common_logger -e "You have not entered a root-ca.pem"
+                            exit 1
+                        else
+                            common_logger -e "You have not entered a root-ca.key" 
+                            exit 1
+                        fi
+                    fi
+                    all=1
+                    rootca="${2}"
+                    rootcakey="${3}"
+                    shift 3
+                else
+                    all=1
+                    shift 1
+                fi
+                ;;
             "-ca"|"--root-ca-certificate")
                 ca=1
                 shift 1
@@ -86,6 +112,11 @@ function main() {
                 shift 1
                 ;;
             "-wd"|"--wazuh-dashboard-certificates")
+                if [[ -z "${2}" || -z "${3}" ]]; then
+                    common_logger -e "Error on arguments. Probably missing </path/to/root-ca.pem> </path/to/root-ca.key> after -wd|--wazuh-dashboard-certificates"
+                    getHelp
+                    exit 1
+                fi
                 if  [[ -n "${2}" ]]; then
                     #Validate that the user has entered the 2 files
                     if [[ -z ${3} ]]; then
@@ -107,6 +138,11 @@ function main() {
                 fi
                 ;;
             "-wi"|"--wazuh-indexer-certificates")
+                if [[ -z "${2}" || -z "${3}" ]]; then
+                    common_logger -e "Error on arguments. Probably missing </path/to/root-ca.pem> </path/to/root-ca.key> after -wi|--wazuh-indexer-certificates"
+                    getHelp
+                    exit 1
+                fi
                 if  [[ -n "${2}" ]]; then
                     #Validate that the user has entered the 2 files
                     if [[ -z ${3} ]]; then
@@ -128,27 +164,11 @@ function main() {
                 fi
                 ;;
             "-ws"|"--wazuh-server-certificates")
-                if  [[ -n "${2}" ]]; then
-                    #Validate that the user has entered the 2 files
-                    if [[ -z ${3} ]]; then
-                        if [[ ${2} == *".key" ]]; then
-                            common_logger -e "You have not entered a root-ca.pem"
-                            exit 1
-                        else
-                            common_logger -e "You have not entered a root-ca.key" 
-                            exit 1
-                        fi
-                    fi
-                    cserver=1
-                    rootca="${2}"
-                    rootcakey="${3}"
-                    shift 3
-                else
-                    cserver=1
-                    shift 1
+                if [[ -z "${2}" || -z "${3}" ]]; then
+                    common_logger -e "Error on arguments. Probably missing </path/to/root-ca.pem> </path/to/root-ca.key> after -ws|--wazuh-server-certificates"
+                    getHelp
+                    exit 1
                 fi
-                ;;
-            "--all")
                 if  [[ -n "${2}" ]]; then
                     #Validate that the user has entered the 2 files
                     if [[ -z ${3} ]]; then
@@ -160,12 +180,12 @@ function main() {
                             exit 1
                         fi
                     fi
-                    all=1
+                    cserver=1
                     rootca="${2}"
                     rootcakey="${3}"
                     shift 3
                 else
-                    all=1
+                    cserver=1
                     shift 1
                 fi
                 ;;
@@ -194,29 +214,7 @@ function main() {
             cert_checkRootCA
             cert_generateAdmincertificate
             common_logger "Admin certificates created."
-        fi
-
-        if [[ -n "${ca}" ]]; then
-            cert_generateRootCAcertificate
-            common_logger "Authority certificates created."
-        fi
-
-        if [[ -n "${cindexer}" ]]; then
-            cert_checkRootCA
-            cert_generateIndexercertificates
-            common_logger "Wazuh indexer certificates created."
-        fi
-
-        if [[ -n "${cserver}" ]]; then
-            cert_checkRootCA
-            cert_generateFilebeatcertificates
-            common_logger "Wazuh server certificates created."
-        fi
-
-        if [[ -n "${cdashboard}" ]]; then
-            cert_checkRootCA
-            cert_generateDashboardcertificates
-            common_logger "Wazuh dashboard certificates created."
+            cert_cleanFiles
         fi
 
         if [[ -n "${all}" ]]; then
@@ -229,6 +227,34 @@ function main() {
             common_logger "Wazuh server certificates created."
             cert_generateDashboardcertificates
             common_logger "Wazuh dashboard certificates created."
+            cert_cleanFiles
+        fi
+
+        if [[ -n "${ca}" ]]; then
+            cert_generateRootCAcertificate
+            common_logger "Authority certificates created."
+            cert_cleanFiles
+        fi
+
+        if [[ -n "${cindexer}" ]]; then
+            cert_checkRootCA
+            cert_generateIndexercertificates
+            common_logger "Wazuh indexer certificates created."
+            cert_cleanFiles
+        fi
+
+        if [[ -n "${cserver}" ]]; then
+            cert_checkRootCA
+            cert_generateFilebeatcertificates
+            common_logger "Wazuh server certificates created."
+            cert_cleanFiles
+        fi
+
+        if [[ -n "${cdashboard}" ]]; then
+            cert_checkRootCA
+            cert_generateDashboardcertificates
+            common_logger "Wazuh dashboard certificates created."
+            cert_cleanFiles
         fi
 
     else
