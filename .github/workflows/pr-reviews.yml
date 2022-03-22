@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix: 
-        tools: ${{ fromJson({"data":[{"tool":"cert-tool"},{"tool":"passwords-tool"}]}) }}
+        tools: ${{ fromJson({\"data\":[{\"tool\":\"cert-tool\"},{\"tool\":\"passwords-tool\"}]}) }}
     steps:
       - name: builder-sh
         run: echo ${{ matrix.tools }}
