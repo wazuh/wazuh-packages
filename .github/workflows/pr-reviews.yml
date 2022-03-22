@@ -29,11 +29,11 @@ jobs:
         run: echo "]" >> tools.json
       - name: Build Matrix
         id: set-matrix
-        run: echo '''::set-output name=tools_matrix::{\"include\":[{\"project\":\"foo\",\"config\":\"Debug\"},{\"project\":\"bar\",\"config\":\"Release\"}]}'''
+        run: echo $('''::set-output name=tools_matrix::{\"include\":[{\"project\":\"foo\",\"config\":\"Debug\"},{\"project\":\"bar\",\"config\":\"Release\"}]}''' | sed 's/ //g')
       - name: Build Matrix
         id: set-matrix-2
         run: |
-          SERVICES='${{ toJSON(github.event.client_payload.services) }}'
+          SERVICES='${{ toJSON("passwords-tool") }}'
           echo ::set-output name=tools::${SERVICES}
       - name: cat json
         run: echo ${{ steps.set-matrix.outputs.tools_matrix }}
