@@ -19,16 +19,16 @@ jobs:
         run: echo '{\\\"data\\\":[' > tools.json
       - name: Display changed files cert_tool
         if: contains(steps.changed_files.outputs.all, 'cert_tool')
-        run: echo '{\"tool\":\"cert-tool\"}' >> tools.json
+        run: echo '{\\\"tool\\\":\\\"cert-tool\\\"}' >> tools.json
       - name: Display changed files passwords_tool
         if: contains(steps.changed_files.outputs.all, 'passwords_tool')
-        run: echo ',{\"tool\":\"passwords-tool\"}' >> tools.json
+        run: echo ',{\\\"tool\\\":\\\"passwords-tool\\\"}' >> tools.json
       - name: Finish file
         run: echo ']}' >> tools.json
       - name: Build Matrix
         id: set-matrix
         run: |
-          TASKS=$(echo $(cat tools.json) | sed 's/ //g' )
+          TASKS=$(echo $(cat tools.json))
           echo "::set-output name=tools_matrix::$TASKS"
       - name: cat json
         run: echo ${{ steps.set-matrix.outputs.tools_matrix }}
