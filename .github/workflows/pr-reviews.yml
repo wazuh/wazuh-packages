@@ -28,7 +28,7 @@ jobs:
       - name: Finish file
         run: echo "]" >> tools.json
       - name: Finish file
-        run: echo "cat tools.json"
+        run: cat tools.json
       - name: Build Matrix
         id: set-matrix
         run: echo "::set-output name=tools_matrix::$(cat tools.json | jq -c '[.[]| .tool]')"
