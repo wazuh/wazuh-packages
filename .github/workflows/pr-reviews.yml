@@ -28,7 +28,7 @@ jobs:
       - name: Build Matrix
         id: set-matrix
         run: |
-          TASKS=$(cat tools.json)
+          TASKS=$(echo $(cat tools.json))
           echo "::set-output name=tools_matrix::${TASKS//'%'/'%25'}"
       - name: cat json
         run: echo ${{ steps.set-matrix.outputs.tools_matrix }}
