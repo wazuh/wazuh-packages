@@ -29,7 +29,9 @@ jobs:
         run: echo "]" >> tools.json
       - name: Build Matrix
         id: set-matrix
-        run: echo $('''::set-output name=tools_matrix::{\"include\":[{\"project\":\"foo\",\"config\":\"Debug\"},{\"project\":\"bar\",\"config\":\"Release\"}]}''' | sed 's/ //g')
+        run: |
+          TASKS=$(echo $(cat tools.json) | sed 's/ //g' )
+          echo "::set-output name=tools_matrix::$$TASKS"
       - name: Build Matrix
         id: set-matrix-2
         run: |
