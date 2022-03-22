@@ -27,7 +27,9 @@ jobs:
       - name: Display changed files passwords_tool
         id: changed-file
         if: contains(steps.changed_files.outputs.all, 'passwords_tool')
-        run: echo "::set-output name=param::param+password-tool"
+        run: |
+          JSON="${param ',password-tool'"
+          echo "::set-output name=param::password-tool"
           
   Builder-Scripts:
     runs-on: ubuntu-latest
