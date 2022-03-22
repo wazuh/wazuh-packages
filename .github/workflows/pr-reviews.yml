@@ -7,7 +7,7 @@ jobs:
   get-files:
     runs-on: ubuntu-latest
     outputs:
-      file: ${{ steps.changed-file.outputs.param }}
+      file: ${{ steps.cert-tool.outputs.param }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2.1.0
@@ -21,9 +21,13 @@ jobs:
         run: |
           echo "${{ steps.changed_files.outputs.all }}"
       - name: Display changed files cert_tool
-        id: changed-file
+        id: cert-tool
         if: contains(steps.changed_files.outputs.all, 'cert_tool')
         run: echo "::set-output name=param::cert-tool"
+      - name: Display changed files password_tool
+        id: changed-file
+        if: contains(steps.changed_files.outputs.all, 'password_tool')
+        run: echo "::set-output name=param::param+password-tool"
           
   Builder-Scripts:
     runs-on: ubuntu-latest
