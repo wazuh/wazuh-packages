@@ -29,7 +29,7 @@ jobs:
         run: echo "]" >> tools.json
       - name: Build Matrix
         id: set-matrix
-        run: echo '::set-output name=tools_matrix::[{\"tool\":\"cert-tool\"},{\"tool\":\"passwords-tool\"}]'
+        run: echo '::set-output name=tools_matrix::{\"data\":[{\"tool\":\"cert-tool\"},{\"tool\":\"passwords-tool\"}]}'
       - name: cat json
         run: echo ${{ steps.set-matrix.outputs.tools_matrix }}
     outputs:
