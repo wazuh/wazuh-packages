@@ -27,11 +27,11 @@ jobs:
         run: echo ',{"tool":"passwords-tool"}' >> tools.json
       - name: Finish file
         run: echo "]" >> tools.json
-      - name: Finish file
-        run: cat tools.json
       - name: Build Matrix
         id: set-matrix
         run: echo "::set-output name=tools_matrix::$(cat tools.json | jq -c '[.[]| .tool]')"
+      - name: cat json
+        run: echo ${{ tools_matrix }}
     outputs:
       tools_matrix: ${{ steps.set-matrix.outputs.tools_matrix }}
   
