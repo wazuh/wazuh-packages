@@ -25,21 +25,15 @@ jobs:
         id: changed-file
         if: contains(steps.changed_files.outputs.all, 'passwords_tool')
         run: echo ',{"tool":"passwords-tool"}' >> tools.csv
-      - name: cat tools
-        run: cat tools.csv
-
-  build-matrix:
-    runs-on: ubuntu-latest
-    needs: get-files
-    steps:
-      - id: set-matrix
+      - name: Build Matrix
+        id: set-matrix
         run: echo "::set-output name=tools_matrix::$(cat tools.csv | jq -c '[.[]| .tool]')"
     outputs:
       tools_matrix: ${{ steps.set-matrix.outputs.tools_matrix }}
   
   Builder-Scripts:
     runs-on: ubuntu-latest
-    needs: build-matrix
+    needs: get-files
     strategy:
       matrix:
         tools: ${{ fromJson(needs.build-matrix.outputs.tools_matrix) }}
