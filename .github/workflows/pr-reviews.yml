@@ -24,9 +24,9 @@ jobs:
         id: cert-tool
         if: contains(steps.changed_files.outputs.all, 'cert_tool')
         run: echo "::set-output name=param::cert-tool"
-      - name: Display changed files password_tool
+      - name: Display changed files passwords_tool
         id: changed-file
-        if: contains(steps.changed_files.outputs.all, 'password_tool')
+        if: contains(steps.changed_files.outputs.all, 'passwords_tool')
         run: echo "::set-output name=param::param+password-tool"
           
   Builder-Scripts:
