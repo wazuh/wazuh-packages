@@ -16,7 +16,7 @@ jobs:
           format: 'csv'
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Create tools file
-        run: echo '{\\"data\\":[' > tools.json
+        run: echo '{\\\"data\\\":[' > tools.json
       - name: Display changed files cert_tool
         if: contains(steps.changed_files.outputs.all, 'cert_tool')
         run: echo '{\"tool\":\"cert-tool\"}' >> tools.json
