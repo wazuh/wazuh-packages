@@ -30,17 +30,23 @@ jobs:
       - name: Build Matrix
         id: set-matrix
         run: echo '''::set-output name=tools_matrix::{\"include\":[{\"project\":\"foo\",\"config\":\"Debug\"},{\"project\":\"bar\",\"config\":\"Release\"}]}'''
+      - name: Build Matrix
+        id: set-matrix-2
+        run: |
+          SERVICES='${{ toJSON(github.event.client_payload.services) }}'
+          echo ::set-output name=tools::${SERVICES}
       - name: cat json
         run: echo ${{ steps.set-matrix.outputs.tools_matrix }}
     outputs:
       tools_matrix: ${{ steps.set-matrix.outputs.tools_matrix }}
+      tools_m: ${{ steps.set-matrix.outputs.tools }}
   
   job2:
     needs: get-files
     runs-on: ubuntu-latest
     strategy:
       matrix: 
-        tools: ${{ fromJson({\"data\":[{\"tool\":\"cert-tool\"},{\"tool\":\"passwords-tool\"}]}) }}
+        tools: ${{fromJson(needs.build-matrix-2.outputs.tools_m)}}
     steps:
       - name: builder-sh
         run: echo ${{ matrix.tools }}
