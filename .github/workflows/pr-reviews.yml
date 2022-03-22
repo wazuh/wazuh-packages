@@ -32,6 +32,8 @@ jobs:
         run: |
           TASKS=$(echo $(cat tools.json) | sed 's/ //g' )
           echo "::set-output name=tools_matrix::$TASKS"
+      - name: cat json
+        run: echo ${{ steps.set-matrix.outputs.tools_matrix }}
     outputs:
       tools_matrix: ${{ steps.set-matrix.outputs.tools_matrix }}
   
