@@ -235,6 +235,12 @@ function main() {
         rm -f "${tar_file}"
     fi
 
+# -------------- Prerequisites and Wazuh repo  ----------------------
+    if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
+        installCommon_installPrerequisites
+        installCommon_addWazuhRepo
+    fi
+
 # -------------- Configuration creation case  -----------------------
 
     # Creation certificate case: Only AIO and -g option can create certificates.
@@ -267,12 +273,6 @@ function main() {
     # Distributed architecture: node names must be different
     if [[ -z "${AIO}" && -z "${download}" && ( -n "${indexer}"  || -n "${dashboard}" || -n "${wazuh}" )]]; then
         checks_names
-    fi
-
-# -------------- Prerequisites and Wazuh repo  ----------------------
-    if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
-        installCommon_installPrerequisites
-        installCommon_addWazuhRepo
     fi
 
 # -------------- Wazuh Indexer case -------------------------------
