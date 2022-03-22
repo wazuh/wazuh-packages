@@ -207,6 +207,7 @@ function main() {
     fi
 
     common_logger "Starting Wazuh installation assistant. Wazuh version: ${wazuh_version}"
+    common_logger "The verbose logging will be redirected to the file: ${logfile}"
 
 # -------------- Uninstall case  ------------------------------------
 
@@ -255,7 +256,7 @@ function main() {
         eval "chown root:root ${base_path}/wazuh-install-files/*"
         eval "tar -zcf '${tar_file}' -C '${base_path}/' wazuh-install-files/ ${debug}"
         eval "rm -rf '${base_path}/wazuh-install-files' ${debug}"
-        common_logger "Created ${tar_file}. Contains Wazuh cluster key, certificates, and passwords necessary for installation."
+        common_logger "Created ${tar_file_name}. It contains Wazuh cluster key, certificates, and passwords necessary for installation."
     fi
 
     if [ -z "${configurations}" ] && [ -z "${download}" ]; then
