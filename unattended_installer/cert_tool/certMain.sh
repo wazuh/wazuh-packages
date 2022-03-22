@@ -139,14 +139,14 @@ function main() {
             esac
         done
 
-        if [[ -d ${base_path}/certs ]]; then
-            if [ ! -z "$(ls -A ${base_path}/certs)" ]; then
-                common_logger -e "Directory ${base_path}/certs already exists. Please, remove the certs directory to create new certificates."
-            exit 1
+        if [[ -d ${base_path}/wazuh-certificates ]]; then
+            if [ ! -z "$(ls -A ${base_path}/wazuh-certificates)" ]; then
+                common_logger -e "Directory ${base_path}/wazuh-certificates already exists. Please, remove the certs directory to create new certificates."
+                exit 1
             fi
-        else
-            eval "mkdir ${base_path}/certs"
         fi
+
+        mkdir "/tmp/wazuh-certificates"
 
         cert_readConfig
 
@@ -159,6 +159,7 @@ function main() {
             cert_generateAdmincertificate
             common_logger "Admin certificates created."
             cert_cleanFiles
+            eval "mv /tmp/wazuh-certificates ${base_path}/wazuh-certificates ${debug}"
         fi
 
         if [[ -n "${all}" ]]; then
@@ -172,12 +173,14 @@ function main() {
             cert_generateDashboardcertificates
             common_logger "Wazuh dashboard certificates created."
             cert_cleanFiles
+            eval "mv /tmp/wazuh-certificates ${base_path}/wazuh-certificates ${debug}"
         fi
 
         if [[ -n "${ca}" ]]; then
             cert_generateRootCAcertificate
             common_logger "Authority certificates created."
             cert_cleanFiles
+            eval "mv /tmp/wazuh-certificates ${base_path}/wazuh-certificates ${debug}"
         fi
 
         if [[ -n "${cindexer}" ]]; then
@@ -185,6 +188,7 @@ function main() {
             cert_generateIndexercertificates
             common_logger "Wazuh indexer certificates created."
             cert_cleanFiles
+            eval "mv /tmp/wazuh-certificates ${base_path}/wazuh-certificates ${debug}"
         fi
 
         if [[ -n "${cserver}" ]]; then
@@ -192,6 +196,7 @@ function main() {
             cert_generateFilebeatcertificates
             common_logger "Wazuh server certificates created."
             cert_cleanFiles
+            eval "mv /tmp/wazuh-certificates ${base_path}/wazuh-certificates ${debug}"
         fi
 
         if [[ -n "${cdashboard}" ]]; then
@@ -199,6 +204,7 @@ function main() {
             cert_generateDashboardcertificates
             common_logger "Wazuh dashboard certificates created."
             cert_cleanFiles
+            eval "mv /tmp/wazuh-certificates ${base_path}/wazuh-certificates ${debug}"
         fi
 
     else

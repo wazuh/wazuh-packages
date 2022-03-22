@@ -9,11 +9,11 @@
 
 function cert_cleanFiles() {
 
-    eval "rm -f ${base_path}/certs/*.csr ${debug}"
-    eval "rm -f ${base_path}/certs/*.srl ${debug}"
-    eval "rm -f ${base_path}/certs/*.conf ${debug}"
-    eval "rm -f ${base_path}/certs/admin-key-temp.pem ${debug}"
-
+    eval "rm -f /tmp/wazuh-certificates/*.csr ${debug}"
+    eval "rm -f /tmp/wazuh-certificates/*.srl ${debug}"
+    eval "rm -f /tmp/wazuh-certificates/*.conf ${debug}"
+    eval "rm -f /tmp/wazuh-certificates/admin-key-temp.pem ${debug}"
+    
 }
 
 function cert_checkOpenSSL() {
@@ -36,14 +36,14 @@ function cert_checkRootCA() {
         fi
         # Validate that files exist
         if [[ -e ${rootca} ]]; then
-            eval "cp ${rootca} ${base_path}/certs/root-ca.pem ${debug}"
+            eval "cp ${rootca} /tmp/wazuh-certificates/root-ca.pem ${debug}"
         else
             common_logger -e "The file ${rootca} does not exists"
             cert_cleanFiles
             exit 1
         fi
         if [[ -e ${rootcakey} ]]; then
-            eval "cp ${rootcakey} ${base_path}/certs/root-ca.key ${debug}"
+            eval "cp ${rootcakey} /tmp/wazuh-certificates/root-ca.key ${debug}"
         else
             common_logger -e "The file ${rootcakey} does not exists"
             cert_cleanFiles
@@ -57,16 +57,16 @@ function cert_checkRootCA() {
 
 function cert_generateAdmincertificate() {
 
-    eval "openssl genrsa -out ${base_path}/certs/admin-key-temp.pem 2048 ${debug}"
-    eval "openssl pkcs8 -inform PEM -outform PEM -in ${base_path}/certs/admin-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out ${base_path}/certs/admin-key.pem ${debug}"
-    eval "openssl req -new -key ${base_path}/certs/admin-key.pem -out ${base_path}/certs/admin.csr -batch -subj '/C=US/L=California/O=Wazuh/OU=Wazuh/CN=admin' ${debug}"
-    eval "openssl x509 -days 3650 -req -in ${base_path}/certs/admin.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -sha256 -out ${base_path}/certs/admin.pem ${debug}"
+    eval "openssl genrsa -out /tmp/wazuh-certificates/admin-key-temp.pem 2048 ${debug}"
+    eval "openssl pkcs8 -inform PEM -outform PEM -in /tmp/wazuh-certificates/admin-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out /tmp/wazuh-certificates/admin-key.pem ${debug}"
+    eval "openssl req -new -key /tmp/wazuh-certificates/admin-key.pem -out /tmp/wazuh-certificates/admin.csr -batch -subj '/C=US/L=California/O=Wazuh/OU=Wazuh/CN=admin' ${debug}"
+    eval "openssl x509 -days 3650 -req -in /tmp/wazuh-certificates/admin.csr -CA /tmp/wazuh-certificates/root-ca.pem -CAkey /tmp/wazuh-certificates/root-ca.key -CAcreateserial -sha256 -out /tmp/wazuh-certificates/admin.pem ${debug}"
 
 }
 
 function cert_generateCertificateconfiguration() {
 
-    cat > "${base_path}/certs/${1}.conf" <<- EOF
+    cat > "/tmp/wazuh-certificates/${1}.conf" <<- EOF
         [ req ]
         prompt = no
         default_bits = 2048
@@ -91,20 +91,20 @@ function cert_generateCertificateconfiguration() {
         IP.1 = cip
 	EOF
 
-    conf="$(awk '{sub("CN = cname", "CN = '${1}'")}1' "${base_path}/certs/${1}.conf")"
-    echo "${conf}" > "${base_path}/certs/${1}.conf"
+    conf="$(awk '{sub("CN = cname", "CN = '${1}'")}1' "/tmp/wazuh-certificates/${1}.conf")"
+    echo "${conf}" > "/tmp/wazuh-certificates/${1}.conf"
 
     isIP=$(echo "${2}" | grep -P "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")
     isDNS=$(echo "${2}" | grep -P "^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$" )
 
     if [[ -n "${isIP}" ]]; then
-        conf="$(awk '{sub("IP.1 = cip", "IP.1 = '${2}'")}1' "${base_path}/certs/${1}.conf")"
-        echo "${conf}" > "${base_path}/certs/${1}.conf"
+        conf="$(awk '{sub("IP.1 = cip", "IP.1 = '${2}'")}1' "/tmp/wazuh-certificates/${1}.conf")"
+        echo "${conf}" > "/tmp/wazuh-certificates/${1}.conf"
     elif [[ -n "${isDNS}" ]]; then
-        conf="$(awk '{sub("CN = cname", "CN =  '${2}'")}1' "${base_path}/certs/${1}.conf")"
-        echo "${conf}" > "${base_path}/certs/${1}.conf"
-        conf="$(awk '{sub("IP.1 = cip", "DNS.1 = '${2}'")}1' "${base_path}/certs/${1}.conf")"
-        echo "${conf}" > "${base_path}/certs/${1}.conf"
+        conf="$(awk '{sub("CN = cname", "CN =  '${2}'")}1' "/tmp/wazuh-certificates/${1}.conf")"
+        echo "${conf}" > "/tmp/wazuh-certificates/${1}.conf"
+        conf="$(awk '{sub("IP.1 = cip", "DNS.1 = '${2}'")}1' "/tmp/wazuh-certificates/${1}.conf")"
+        echo "${conf}" > "/tmp/wazuh-certificates/${1}.conf"
     else
         common_logger -e "The given information does not match with an IP address or a DNS."
         exit 1
@@ -119,8 +119,8 @@ function cert_generateIndexercertificates() {
 
         for i in "${!indexer_node_names[@]}"; do
             cert_generateCertificateconfiguration "${indexer_node_names[i]}" "${indexer_node_ips[i]}"
-            eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${indexer_node_names[i]}-key.pem -out ${base_path}/certs/${indexer_node_names[i]}.csr -config ${base_path}/certs/${indexer_node_names[i]}.conf -days 3650 ${debug}"
-            eval "openssl x509 -req -in ${base_path}/certs/${indexer_node_names[i]}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${indexer_node_names[i]}.pem -extfile ${base_path}/certs/${indexer_node_names[i]}.conf -extensions v3_req -days 3650 ${debug}"
+            eval "openssl req -new -nodes -newkey rsa:2048 -keyout /tmp/wazuh-certificates/${indexer_node_names[i]}-key.pem -out /tmp/wazuh-certificates/${indexer_node_names[i]}.csr -config /tmp/wazuh-certificates/${indexer_node_names[i]}.conf -days 3650 ${debug}"
+            eval "openssl x509 -req -in /tmp/wazuh-certificates/${indexer_node_names[i]}.csr -CA /tmp/wazuh-certificates/root-ca.pem -CAkey /tmp/wazuh-certificates/root-ca.key -CAcreateserial -out /tmp/wazuh-certificates/${indexer_node_names[i]}.pem -extfile /tmp/wazuh-certificates/${indexer_node_names[i]}.conf -extensions v3_req -days 3650 ${debug}"
         done
     fi
 
@@ -133,8 +133,8 @@ function cert_generateFilebeatcertificates() {
 
         for i in "${!server_node_names[@]}"; do
             cert_generateCertificateconfiguration "${server_node_names[i]}" "${server_node_ips[i]}"
-            eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${server_node_names[i]}-key.pem -out ${base_path}/certs/${server_node_names[i]}.csr -config ${base_path}/certs/${server_node_names[i]}.conf -days 3650 ${debug}"
-            eval "openssl x509 -req -in ${base_path}/certs/${server_node_names[i]}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${server_node_names[i]}.pem -extfile ${base_path}/certs/${server_node_names[i]}.conf -extensions v3_req -days 3650 ${debug}"
+            eval "openssl req -new -nodes -newkey rsa:2048 -keyout /tmp/wazuh-certificates/${server_node_names[i]}-key.pem -out /tmp/wazuh-certificates/${server_node_names[i]}.csr -config /tmp/wazuh-certificates/${server_node_names[i]}.conf -days 3650 ${debug}"
+            eval "openssl x509 -req -in /tmp/wazuh-certificates/${server_node_names[i]}.csr -CA /tmp/wazuh-certificates/root-ca.pem -CAkey /tmp/wazuh-certificates/root-ca.key -CAcreateserial -out /tmp/wazuh-certificates/${server_node_names[i]}.pem -extfile /tmp/wazuh-certificates/${server_node_names[i]}.conf -extensions v3_req -days 3650 ${debug}"
         done
     fi
 
@@ -147,8 +147,8 @@ function cert_generateDashboardcertificates() {
 
         for i in "${!dashboard_node_names[@]}"; do
             cert_generateCertificateconfiguration "${dashboard_node_names[i]}" "${dashboard_node_ips[i]}"
-            eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${dashboard_node_names[i]}-key.pem -out ${base_path}/certs/${dashboard_node_names[i]}.csr -config ${base_path}/certs/${dashboard_node_names[i]}.conf -days 3650 ${debug}"
-            eval "openssl x509 -req -in ${base_path}/certs/${dashboard_node_names[i]}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${dashboard_node_names[i]}.pem -extfile ${base_path}/certs/${dashboard_node_names[i]}.conf -extensions v3_req -days 3650 ${debug}"
+            eval "openssl req -new -nodes -newkey rsa:2048 -keyout /tmp/wazuh-certificates/${dashboard_node_names[i]}-key.pem -out /tmp/wazuh-certificates/${dashboard_node_names[i]}.csr -config /tmp/wazuh-certificates/${dashboard_node_names[i]}.conf -days 3650 ${debug}"
+            eval "openssl x509 -req -in /tmp/wazuh-certificates/${dashboard_node_names[i]}.csr -CA /tmp/wazuh-certificates/root-ca.pem -CAkey /tmp/wazuh-certificates/root-ca.key -CAcreateserial -out /tmp/wazuh-certificates/${dashboard_node_names[i]}.pem -extfile /tmp/wazuh-certificates/${dashboard_node_names[i]}.conf -extensions v3_req -days 3650 ${debug}"
 
         done
     fi
@@ -159,7 +159,7 @@ function cert_generateRootCAcertificate() {
 
     common_logger -d "Creating the root certificate."
 
-    eval "openssl req -x509 -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/root-ca.key -out ${base_path}/certs/root-ca.pem -batch -subj '/OU=Wazuh/O=Wazuh/L=California/' -days 3650 ${debug}"
+    eval "openssl req -x509 -new -nodes -newkey rsa:2048 -keyout /tmp/wazuh-certificates/root-ca.key -out /tmp/wazuh-certificates/root-ca.pem -batch -subj '/OU=Wazuh/O=Wazuh/L=California/' -days 3650 ${debug}"
 
 }
 
