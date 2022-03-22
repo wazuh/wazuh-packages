@@ -18,7 +18,7 @@ jobs:
       - name: set cert
         if: contains(steps.changed_files.outputs.all, 'cert_tool')
         run: |
-          echo 'VAR=cert_tool' >> $GITHUB_ENV
+          echo 'VAR=${{ env.VAR }} cert_tool' >> $GITHUB_ENV
       - name: set password
         if: contains(steps.changed_files.outputs.all, 'passwords_tool')
         run: |
