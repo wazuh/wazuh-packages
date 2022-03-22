@@ -28,13 +28,11 @@ jobs:
       - name: set cert
         if: contains(steps.changed_files.outputs.all, 'cert_tool')
         run: |
-          export json_var='{"tool":"cert-tool"}'
-          echo "json_var=$json_var" >> $GITHUB_ENV
+          echo 'json_var=$json_var "{"tool":"cert-tool"}"' >> $GITHUB_ENV
       - name: set password
         if: contains(steps.changed_files.outputs.all, 'passwords_tool')
         run: |
-          export json_var='{"tool":"passwords-tool"}'
-          echo "json_var=$json_var" >> $GITHUB_ENV
+          echo 'json_var=$json_var "{"tool":"passwords-tool"}"' >> $GITHUB_ENV
       - name: Build Matrix
         id: set-matrix
         run: |
@@ -43,7 +41,7 @@ jobs:
       - name: cat json
         run: echo ${{ steps.set-matrix.outputs.tools_matrix }}
       - name: echo json
-        run: echo $json_var
+        run: echo "${{ env.json_var }}
     outputs:
       tools_matrix: ${{ steps.set-matrix.outputs.tools_matrix }}
   
