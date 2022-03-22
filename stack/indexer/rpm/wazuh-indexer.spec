@@ -69,7 +69,7 @@ mkdir -p ${RPM_BUILD_ROOT}%{SYS_DIR}
 
 # Set up required files
 if [ "%{_base}" = "s3" ];then
-    curl -kOL https://packages-dev.wazuh.com/stack/indexer/base/wazuh-indexer-base-%{version}-linux-x64.tar.xz
+    curl -kOL https://packages-dev.wazuh.com/stack/indexer/base/wazuh-indexer-base-%{version}-testing-linux-x64.tar.xz
 else
     cp /root/output/wazuh-indexer-base-%{version}-linux-x64.tar.xz ./
 fi

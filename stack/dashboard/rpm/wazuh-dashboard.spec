@@ -30,7 +30,7 @@ ExclusiveOS: linux
 %global CONFIG_DIR /etc/%{name}
 %global PID_DIR /run/%{name}
 %global INSTALL_DIR /usr/share/%{name}
-%global DASHBOARD_FILE wazuh-dashboard-base-%{version}-linux-x64.tar.xz
+%global DASHBOARD_FILE wazuh-dashboard-base-%{version}-testing-linux-x64.tar.xz
 
 # -----------------------------------------------------------------------------
 
@@ -68,18 +68,10 @@ mkdir -p %{buildroot}/etc/systemd/system
 mkdir -p %{buildroot}/etc/init.d
 mkdir -p %{buildroot}/etc/default
 
-ls
-ls wazuh-dashboard-base
-ls wazuh-dashboard-base/etc/
-
 cp wazuh-dashboard-base/etc/node.options %{buildroot}%{CONFIG_DIR}
 cp wazuh-dashboard-base/etc/opensearch_dashboards.yml %{buildroot}%{CONFIG_DIR}
 
-ls %{buildroot}%{CONFIG_DIR}/
-
-
 mv wazuh-dashboard-base/* %{buildroot}%{INSTALL_DIR}
-
 
 
 # Set custom welcome styles
