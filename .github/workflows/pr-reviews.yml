@@ -28,7 +28,7 @@ jobs:
       - name: Build Matrix
         id: set-matrix
         run: |
-          echo "::set-output name=tools_matrix::$(cat tools.json)"
+          echo "::set-output name=tools_matrix::$(cat tools.json | sed 's/ //g' )"
       - name: cat json
         run: echo ${{ steps.set-matrix.outputs.tools_matrix }}
     outputs:
