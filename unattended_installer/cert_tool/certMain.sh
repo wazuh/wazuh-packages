@@ -16,8 +16,11 @@ function getHelp() {
     echo -e "        wazuh-cert-tool.sh [OPTIONS]"
     echo -e ""
     echo -e "DESCRIPTION"
-    echo -e "        -a,  --admin-certificates"
-    echo -e "                Creates the admin certificates."
+    echo -e "        -a,  --admin-certificates </path/to/root-ca.pem> </path/to/root-ca.key>"
+    echo -e "                Creates the admin certificates, add root-ca.pem and root-ca.key."
+    echo -e ""
+    echo -e "        -A, --all </path/to/root-ca.pem> </path/to/root-ca.key>"
+    echo -e "                Creates Wazuh server, Wazuh indexer, Wazuh dashboard, and admin certificates. Add a root-ca.pem and root-ca.key or leave it empty so a new one will be created."
     echo -e ""
     echo -e "        -ca, --root-ca-certificates"
     echo -e "                Creates the root-ca certificates."
@@ -25,14 +28,15 @@ function getHelp() {
     echo -e "        -v,  --verbose"
     echo -e "                Enables verbose mode."
     echo -e ""
-    echo -e "        -wd,  --wazuh-dashboard-certificates"
-    echo -e "                Creates the Wazuh dashboard certificates."
+    echo -e "        -wd,  --wazuh-dashboard-certificates </path/to/root-ca.pem> </path/to/root-ca.key>"
+    echo -e "                Creates the Wazuh dashboard certificates, add root-ca.pem and root-ca.key."
     echo -e ""
-    echo -e "        -wi,  --wazuh-indexer-certificates"
-    echo -e "                Creates the Wazuh indexer certificates."
+    echo -e "        -wi,  --wazuh-indexer-certificates </path/to/root-ca.pem> </path/to/root-ca.key>"
+    echo -e "                Creates the Wazuh indexer certificates, add root-ca.pem and root-ca.key."
     echo -e ""
-    echo -e "        -ws,  --wazuh-server-certificates"
-    echo -e "                Creates the Wazuh server certificates."
+    echo -e "        -ws,  --wazuh-server-certificates </path/to/root-ca.pem> </path/to/root-ca.key>"
+    echo -e "                Creates the Wazuh server certificates, add root-ca.pem and root-ca.key."
+    echo -e ""
 
     exit 1
 
@@ -45,20 +49,42 @@ function main() {
     common_checkRoot
     cert_checkOpenSSL
 
-    if [[ -d ${base_path}/certs ]]; then
-        common_logger -e "Directory ${base_path}/certs already exists. Please, remove the certs directory to create new certificates."
-        exit 1
-    else
-        mkdir "${base_path}/certs"
-    fi
-
     if [ -n "${1}" ]; then
         while [ -n "${1}" ]
         do
             case "${1}" in
             "-a"|"--admin-certificates")
-                cadmin=1
-                shift 1
+                if [[ -z "${2}" || -z "${3}" ]]; then
+                    common_logger -e "Error on arguments. Probably missing </path/to/root-ca.pem> </path/to/root-ca.key> after -a|--admin-certificates"
+                    getHelp
+                    exit 1
+                else
+                    cadmin=1
+                    rootca="${2}"
+                    rootcakey="${3}"
+                    shift 3
+                fi
+                ;;
+            "-A"|"--all")
+                if  [[ -n "${2}" ]]; then
+                    # Validate that the user has entered the 2 files
+                    if [[ -z ${3} ]]; then
+                        if [[ ${2} == *".key" ]]; then
+                            common_logger -e "You have not entered a root-ca.pem"
+                            exit 1
+                        else
+                            common_logger -e "You have not entered a root-ca.key" 
+                            exit 1
+                        fi
+                    fi
+                    all=1
+                    rootca="${2}"
+                    rootcakey="${3}"
+                    shift 3
+                else
+                    all=1
+                    shift 1
+                fi
                 ;;
             "-ca"|"--root-ca-certificate")
                 ca=1
@@ -72,21 +98,55 @@ function main() {
                 shift 1
                 ;;
             "-wd"|"--wazuh-dashboard-certificates")
-                cdashboard=1
-                shift 1
+                if [[ -z "${2}" || -z "${3}" ]]; then
+                    common_logger -e "Error on arguments. Probably missing </path/to/root-ca.pem> </path/to/root-ca.key> after -wd|--wazuh-dashboard-certificates"
+                    getHelp
+                    exit 1
+                else
+                    cdashboard=1
+                    rootca="${2}"
+                    rootcakey="${3}"
+                    shift 3
+                fi
                 ;;
             "-wi"|"--wazuh-indexer-certificates")
-                cindexer=1
-                shift 1
+                if [[ -z "${2}" || -z "${3}" ]]; then
+                    common_logger -e "Error on arguments. Probably missing </path/to/root-ca.pem> </path/to/root-ca.key> after -wi|--wazuh-indexer-certificates"
+                    getHelp
+                    exit 1
+                else
+                    cindexer=1
+                    rootca="${2}"
+                    rootcakey="${3}"
+                    shift 3
+                fi
                 ;;
             "-ws"|"--wazuh-server-certificates")
-                cserver=1
-                shift 1
+                if [[ -z "${2}" || -z "${3}" ]]; then
+                    common_logger -e "Error on arguments. Probably missing </path/to/root-ca.pem> </path/to/root-ca.key> after -ws|--wazuh-server-certificates"
+                    getHelp
+                    exit 1
+                else
+                    cserver=1
+                    rootca="${2}"
+                    rootcakey="${3}"
+                    shift 3
+                fi
                 ;;
             *)
+                echo "Unknow option: "${1}""
                 getHelp
             esac
         done
+
+        if [[ -d ${base_path}/certs ]]; then
+            if [ ! -z "$(ls -A ${base_path}/certs)" ]; then
+                common_logger -e "Directory ${base_path}/certs already exists. Please, remove the certs directory to create new certificates."
+            exit 1
+            fi
+        else
+            eval "mkdir ${base_path}/certs"
+        fi
 
         cert_readConfig
 
@@ -95,38 +155,54 @@ function main() {
         fi
 
         if [[ -n "${cadmin}" ]]; then
+            cert_checkRootCA
             cert_generateAdmincertificate
             common_logger "Admin certificates created."
+            cert_cleanFiles
+        fi
+
+        if [[ -n "${all}" ]]; then
+            cert_checkRootCA
+            cert_generateAdmincertificate
+            common_logger "Admin certificates created."
+            cert_generateIndexercertificates
+            common_logger "Wazuh indexer certificates created."
+            cert_generateFilebeatcertificates
+            common_logger "Wazuh server certificates created."
+            cert_generateDashboardcertificates
+            common_logger "Wazuh dashboard certificates created."
+            cert_cleanFiles
         fi
 
         if [[ -n "${ca}" ]]; then
             cert_generateRootCAcertificate
             common_logger "Authority certificates created."
+            cert_cleanFiles
         fi
 
         if [[ -n "${cindexer}" ]]; then
+            cert_checkRootCA
             cert_generateIndexercertificates
             common_logger "Wazuh indexer certificates created."
+            cert_cleanFiles
         fi
 
         if [[ -n "${cserver}" ]]; then
+            cert_checkRootCA
             cert_generateFilebeatcertificates
             common_logger "Wazuh server certificates created."
+            cert_cleanFiles
         fi
 
         if [[ -n "${cdashboard}" ]]; then
+            cert_checkRootCA
             cert_generateDashboardcertificates
             common_logger "Wazuh dashboard certificates created."
+            cert_cleanFiles
         fi
 
     else
-        cert_readConfig
-        cert_generateRootCAcertificate
-        cert_generateAdmincertificate
-        cert_generateIndexercertificates
-        cert_generateFilebeatcertificates
-        cert_generateDashboardcertificates
-        cert_cleanFiles
+        getHelp
     fi
 
 }

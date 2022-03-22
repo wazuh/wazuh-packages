@@ -207,6 +207,7 @@ function main() {
     fi
 
     common_logger "Starting Wazuh installation assistant. Wazuh version: ${wazuh_version}"
+    common_logger "The verbose logging will be redirected to the file: ${logfile}"
 
 # -------------- Uninstall case  ------------------------------------
 
@@ -234,6 +235,12 @@ function main() {
         rm -f "${tar_file}"
     fi
 
+# -------------- Prerequisites and Wazuh repo  ----------------------
+    if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
+        installCommon_installPrerequisites
+        installCommon_addWazuhRepo
+    fi
+
 # -------------- Configuration creation case  -----------------------
 
     # Creation certificate case: Only AIO and -g option can create certificates.
@@ -255,7 +262,7 @@ function main() {
         eval "chown root:root ${base_path}/wazuh-install-files/*"
         eval "tar -zcf '${tar_file}' -C '${base_path}/' wazuh-install-files/ ${debug}"
         eval "rm -rf '${base_path}/wazuh-install-files' ${debug}"
-        common_logger "Created ${tar_file}. Contains Wazuh cluster key, certificates, and passwords necessary for installation."
+        common_logger "Created ${tar_file_name}. It contains Wazuh cluster key, certificates, and passwords necessary for installation."
     fi
 
     if [ -z "${configurations}" ] && [ -z "${download}" ]; then
@@ -266,12 +273,6 @@ function main() {
     # Distributed architecture: node names must be different
     if [[ -z "${AIO}" && -z "${download}" && ( -n "${indexer}"  || -n "${dashboard}" || -n "${wazuh}" )]]; then
         checks_names
-    fi
-
-# -------------- Prerequisites and Wazuh repo  ----------------------
-    if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
-        installCommon_installPrerequisites
-        installCommon_addWazuhRepo
     fi
 
 # -------------- Wazuh Indexer case -------------------------------

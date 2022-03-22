@@ -9,7 +9,7 @@
 # Foundation.
 
 function offline_download() {
-  
+
   common_logger "Starting Wazuh packages download."
 
   common_logger "Downloading Wazuh ${package_type} packages for ${arch}..."
@@ -27,7 +27,7 @@ function offline_download() {
           curl -so ${DEST_PATH}/$p ${WAZUH_DEB_BASE_URL}/$p
           common_logger "Wazuh deb package downloaded"
       done
-      
+
       for p in ${FILEBEAT_DEB_PACKAGES[@]}; do
           # Download packages for Filebeat
           curl -so ${DEST_PATH}/$p ${FILEBEAT_DEB_BASE_URL}/$p

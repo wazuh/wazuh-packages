@@ -20,7 +20,8 @@ readonly resources="https://${bucket}/resources/${wazuh_major}"
 readonly BASE_URL="https://${bucket}/${repository}"
 readonly base_path="$(dirname $(readlink -f "$0"))"
 config_file="${base_path}/config.yml"
-tar_file="${base_path}/wazuh-install-files.tar"
+readonly tar_file_name="wazuh-install-files.tar"
+tar_file="${base_path}/${tar_file_name}"
 
 readonly filebeat_wazuh_template="https://raw.githubusercontent.com/wazuh/wazuh/${wazuh_major}/extensions/elasticsearch/7.x/wazuh-template.json"
 
