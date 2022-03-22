@@ -22,7 +22,7 @@ jobs:
       - name: set password
         if: contains(steps.changed_files.outputs.all, 'passwords_tool')
         run: |
-          echo 'VAR=$VAR passwords_tool' >> $GITHUB_ENV
+          echo 'VAR=${{ env.VAR }} passwords_tool' >> $GITHUB_ENV
       - name: Build Matrix
         id: set-matrix
         run: |
