@@ -33,7 +33,7 @@ jobs:
       - name: Build Matrix
         id: set-matrix-2
         run: |
-          SERVICES='${{ toJSON("passwords-tool") }}'
+          SERVICES='"passwords-tool'
           echo ::set-output name=tools::${SERVICES}
       - name: cat json
         run: echo ${{ steps.set-matrix.outputs.tools_matrix }}
