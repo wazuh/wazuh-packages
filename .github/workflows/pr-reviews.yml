@@ -25,13 +25,25 @@ jobs:
         run: echo ',{\\\"tool\\\":\\\"passwords-tool\\\"}' >> tools.json
       - name: Finish file
         run: echo ']\}' >> tools.json
+      - name: set cert
+        if: contains(steps.changed_files.outputs.all, 'cert_tool')
+        run: |
+          export json_var='{"tool":"cert-tool"}'
+          echo "::set-env name=json_var::$json_var"
+      - name: set password
+        if: contains(steps.changed_files.outputs.all, 'passwords_tool')
+        run: |
+          export json_var='{"tool":"passwords-tool"}'
+          echo "::set-env name=json_var::$json_var"
       - name: Build Matrix
         id: set-matrix
         run: |
           TASKS=$(echo $(cat tools.json)| sed 's/ //g' )
-          echo "::set-output name=tools_matrix::${TASKS//'%'/'%25'}"
+          echo "::set-output name=tools_matrix::${TASKS}"
       - name: cat json
         run: echo ${{ steps.set-matrix.outputs.tools_matrix }}
+      - name: echo json
+        run: echo $json_var
     outputs:
       tools_matrix: ${{ steps.set-matrix.outputs.tools_matrix }}
   
