@@ -84,7 +84,7 @@ function installCommon_createCertificates() {
 
     cert_readConfig
 
-    mkdir "${base_path}/certs"
+    mkdir "/tmp/wazuh-certificates/"
 
     cert_generateRootCAcertificate
     cert_generateAdmincertificate
@@ -92,12 +92,13 @@ function installCommon_createCertificates() {
     cert_generateFilebeatcertificates
     cert_generateDashboardcertificates
     cert_cleanFiles
+    mv /tmp/wazuh-certificates/ /tmp/wazuh-install-files
 
 }
 
 function installCommon_createClusterKey() {
 
-    openssl rand -hex 16 >> "${base_path}/certs/clusterkey"
+    openssl rand -hex 16 >> "/tmp/wazuh-install-files/clusterkey"
 
 }
 
