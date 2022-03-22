@@ -15,16 +15,6 @@ jobs:
         with:
           format: 'csv'
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Create tools file
-        run: echo '\{\\\"data\\\":[' > tools.json
-      - name: Display changed files cert_tool
-        if: contains(steps.changed_files.outputs.all, 'cert_tool')
-        run: echo '{\\\"tool\\\":\\\"cert-tool\\\"}' >> tools.json
-      - name: Display changed files passwords_tool
-        if: contains(steps.changed_files.outputs.all, 'passwords_tool')
-        run: echo ',{\\\"tool\\\":\\\"passwords-tool\\\"}' >> tools.json
-      - name: Finish file
-        run: echo ']\}' >> tools.json
       - name: set cert
         if: contains(steps.changed_files.outputs.all, 'cert_tool')
         run: |
@@ -41,7 +31,7 @@ jobs:
       - name: cat json
         run: echo ${{ steps.set-matrix.outputs.tools_matrix }}
       - name: echo json
-        run: echo "${{ env.VAR }}
+        run: echo "${{ env.VAR }}"
     outputs:
       tools_matrix: ${{ steps.set-matrix.outputs.tools_matrix }}
   
