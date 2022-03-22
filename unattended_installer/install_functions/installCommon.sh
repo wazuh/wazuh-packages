@@ -414,6 +414,14 @@ function installCommon_rollBack() {
                             "/lib/firewalld/services/opensearch.xml" )
 
     eval "rm -rf ${elements_to_remove[*]}"
+    
+    if [[ -d ${base_path}/wazuh-install-files ]]; then
+        eval "rm -rf ${base_path}/wazuh-install-files"
+    fi
+    
+    if [[ -f ${base_path}/wazuh-install-files.tar ]]; then
+        eval "rm -rf ${base_path}/wazuh-install-files.tar"
+    fi
 
     if [ -z "${uninstall}" ]; then
         if [ -n "${rollback_conf}" ] || [ -n "${overwrite}" ]; then
