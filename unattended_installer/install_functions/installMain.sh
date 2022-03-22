@@ -359,10 +359,8 @@ function main() {
 
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
         common_logger "Installation finished."
-        common_logger "The certificates and passwords used are stored in ${tar_file}."
     elif [ -n "${start_elastic_cluster}" ]; then
         common_logger "Elasticsearch cluster started."
-        common_logger "The certificates and passwords used are stored in ${tar_file}."
     fi
 
 }

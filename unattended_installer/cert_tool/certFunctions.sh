@@ -13,7 +13,7 @@ function cert_cleanFiles() {
     eval "rm -f /tmp/wazuh-certificates/*.srl ${debug}"
     eval "rm -f /tmp/wazuh-certificates/*.conf ${debug}"
     eval "rm -f /tmp/wazuh-certificates/admin-key-temp.pem ${debug}"
-    
+
 }
 
 function cert_checkOpenSSL() {
