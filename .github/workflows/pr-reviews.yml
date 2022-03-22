@@ -28,8 +28,8 @@ jobs:
       - name: Build Matrix
         id: set-matrix
         run: |
-          TASKS=$(echo $(cat tools.json) | sed 's/ //g')
-          echo "::set-output name=tools_matrix::{\"data\":[{\"tool\":\"cert-tool\"},{\"tool\":\"passwords-tool\"}]}"
+          TASKS=$(cat tools.json)
+          echo "::set-output name=tools_matrix::${TASKS//'%'/'%25'}"
       - name: cat json
         run: echo ${{ steps.set-matrix.outputs.tools_matrix }}
     outputs:
