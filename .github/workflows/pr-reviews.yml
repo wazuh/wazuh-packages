@@ -1,26 +1,17 @@
-name: pr-review
-on: 
-  pull_request:
-    branches: [ 'poc-shellcheck-to4.3', 'master' ]
-
+name: build
+on: push
 jobs:
-  matrix:
+  job1:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v2
       - id: set-matrix
-        run: |
-          TASKS=$(echo $(["cert-tool","passwords-tool"]) | sed 's/ //g' )
-          echo "::set-output name=matrix::$TASKS"
-  builder:
+        run: echo "::set-output name=matrix::{\"include\":[{\"project\":\"foo\",\"config\":\"Debug\"},{\"project\":\"bar\",\"config\":\"Release\"}]}"
+  job2:
+    needs: job1
     runs-on: ubuntu-latest
-    needs: [ matrix ]
     strategy:
-      matrix:
-        cfg: ${{ fromJson(needs.matrix.outputs.matrix) }}
+      matrix: ${{fromJSON(needs.job1.outputs.matrix)}}
     steps:
-      - name: builder-sh
-        run: echo ${{ matrix.cfg }}
-  
+      - run: build
