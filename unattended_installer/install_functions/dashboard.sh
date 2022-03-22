@@ -48,14 +48,13 @@ function dashboard_copyCertificates() {
     if [ -f "${tar_file}" ]; then
 
         name=${dashboard_node_names[pos]}
-
+        eval "mkdir ${dashboard_cert_path} ${debug}"
         eval "tar -xf ${tar_file} -C ${dashboard_cert_path} wazuh-install-files/${name}.pem  && mv ${dashboard_cert_path}/wazuh-install-files/${name}.pem ${dashboard_cert_path}/dashboard.pem ${debug}"
         eval "tar -xf ${tar_file} -C ${dashboard_cert_path} wazuh-install-files/${name}-key.pem  && mv ${dashboard_cert_path}/wazuh-install-files/${name}-key.pem ${dashboard_cert_path}/dashboard-key.pem ${debug}"
         eval "tar -xf ${tar_file} -C ${dashboard_cert_path} wazuh-install-files/root-ca.pem && mv ${dashboard_cert_path}/wazuh-install-files/root-ca.pem ${dashboard_cert_path}/root-ca.pem ${debug}"
         eval "rm -rf ${dashboard_cert_path}/wazuh-install-files/"
         eval "chown -R wazuh-dashboard:wazuh-dashboard /etc/wazuh-dashboard/ ${debug}"
         eval "chmod -R 500 ${dashboard_cert_path} ${debug}"
-        eval "chown wazuh-dashboard:wazuh-dashboard ${dashboard_cert_path}/*"
         common_logger -d "Wazuh dashboard certificate setup finished."
     else
         common_logger -e "No certificates found. Wazuh dashboard  could not be initialized."

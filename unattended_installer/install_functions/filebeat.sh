@@ -39,6 +39,7 @@ function filebeat_configure(){
 function filebeat_copyCertificates() {
 
     if [ -f "${tar_file}" ]; then
+        eval "mkdir ${filebeat_cert_path} ${debug}"
         if [ -n "${AIO}" ]; then
             eval "tar -xf ${tar_file} -C ${filebeat_cert_path} --wildcards wazuh-install-files/${server_node_names[0]}.pem ${debug} && mv ${filebeat_cert_path}/wazuh-install-files/${server_node_names[0]}.pem ${filebeat_cert_path}/filebeat.pem ${debug}"
             eval "tar -xf ${tar_file} -C ${filebeat_cert_path} --wildcards wazuh-install-files/${server_node_names[0]}-key.pem ${debug} && mv ${filebeat_cert_path}/wazuh-install-files/${server_node_names[0]}-key.pem ${filebeat_cert_path}/filebeat-key.pem ${debug}"
