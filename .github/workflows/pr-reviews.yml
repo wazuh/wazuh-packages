@@ -39,10 +39,11 @@ jobs:
     needs: get-files
     runs-on: ubuntu-latest
     strategy:
-      matrix: ${{ fromJson({"data":[{"tool":"cert-tool"},{"tool":"passwords-tool"}]}) }}
+      matrix: 
+        tools: ${{ fromJson({"data":[{"tool":"cert-tool"},{"tool":"passwords-tool"}]}) }}
     steps:
       - name: builder-sh
-        run: echo ${{ matrix.matrix }}
+        run: echo ${{ matrix.tools }}
   
   Builder-Scripts:
     runs-on: ubuntu-latest
