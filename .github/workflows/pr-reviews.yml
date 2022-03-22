@@ -42,7 +42,7 @@ jobs:
     needs: get-files
     strategy:
       matrix:
-        tools: ${{ fromJson(needs.build-matrix.outputs.tools_matrix) }}
+        tools: ${{ fromJson(needs.get-files.outputs.tools_matrix) }}
     steps:
       - name: builder-sh
         run: echo ${{ matrix.tools }}
