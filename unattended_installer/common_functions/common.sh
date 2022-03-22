@@ -8,6 +8,7 @@
 # Foundation.
 
 function common_logger() {
+
     now=$(date +'%d/%m/%Y %H:%M:%S')
     mtype="INFO:"
     debugLogger=
@@ -38,6 +39,7 @@ function common_logger() {
     if [ -z "${debugLogger}" ] || ( [ -n "${debugLogger}" ] && [ -n "${debugEnabled}" ] ); then
             printf "${now} ${mtype} ${message}\n" | tee -a ${logfile}
     fi
+
 }
 
 function common_checkRoot() {

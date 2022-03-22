@@ -8,20 +8,25 @@
 
 
 function cert_cleanFiles() {
+
     eval "rm -f ${base_path}/certs/*.csr ${debug}"
     eval "rm -f ${base_path}/certs/*.srl ${debug}"
     eval "rm -f ${base_path}/certs/*.conf ${debug}"
     eval "rm -f ${base_path}/certs/admin-key-temp.pem ${debug}"
+
 }
 
 function cert_checkOpenSSL() {
+
     if [ -z "$(command -v openssl)" ]; then
         common_logger -e "OpenSSL not installed."
         exit 1
     fi
+
 }
 
 function cert_checkRootCA() {
+
     if  [[ -n ${rootca} || -n ${rootcakey} ]]; then
         # Verify variables match keys
         if [[ ${rootca} == *".key" ]]; then
@@ -47,6 +52,7 @@ function cert_checkRootCA() {
     else
         cert_generateRootCAcertificate
     fi
+
 }
 
 function cert_generateAdmincertificate() {
@@ -55,6 +61,7 @@ function cert_generateAdmincertificate() {
     eval "openssl pkcs8 -inform PEM -outform PEM -in ${base_path}/certs/admin-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out ${base_path}/certs/admin-key.pem ${debug}"
     eval "openssl req -new -key ${base_path}/certs/admin-key.pem -out ${base_path}/certs/admin.csr -batch -subj '/C=US/L=California/O=Wazuh/OU=Wazuh/CN=admin' ${debug}"
     eval "openssl x509 -days 3650 -req -in ${base_path}/certs/admin.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -sha256 -out ${base_path}/certs/admin.pem ${debug}"
+
 }
 
 function cert_generateCertificateconfiguration() {
@@ -130,7 +137,7 @@ function cert_generateFilebeatcertificates() {
             eval "openssl x509 -req -in ${base_path}/certs/${server_node_names[i]}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${server_node_names[i]}.pem -extfile ${base_path}/certs/${server_node_names[i]}.conf -extensions v3_req -days 3650 ${debug}"
         done
     fi
-    
+
 }
 
 function cert_generateDashboardcertificates() {
@@ -153,6 +160,7 @@ function cert_generateRootCAcertificate() {
     common_logger -d "Creating the root certificate."
 
     eval "openssl req -x509 -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/root-ca.key -out ${base_path}/certs/root-ca.pem -batch -subj '/OU=Wazuh/O=Wazuh/L=California/' -days 3650 ${debug}"
+
 }
 
 function cert_parseYaml() {
