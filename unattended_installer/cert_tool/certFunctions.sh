@@ -17,10 +17,42 @@ function cert_cleanFiles() {
 }
 
 function cert_checkOpenSSL() {
+
     if [ -z "$(command -v openssl)" ]; then
         common_logger -e "OpenSSL not installed."
         exit 1
     fi
+
+}
+
+function cert_checkRootCA() {
+
+    if  [[ -n ${rootca} || -n ${rootcakey} ]]; then
+        # Verify variables match keys
+        if [[ ${rootca} == *".key" ]]; then
+            ca_temp=${rootca}
+            rootca=${rootcakey}
+            rootcakey=${ca_temp}
+        fi
+        # Validate that files exist
+        if [[ -e ${rootca} ]]; then
+            eval "cp ${rootca} ${base_path}/certs/root-ca.pem ${debug}"
+        else
+            common_logger -e "The file ${rootca} does not exists"
+            cert_cleanFiles
+            exit 1
+        fi
+        if [[ -e ${rootcakey} ]]; then
+            eval "cp ${rootcakey} ${base_path}/certs/root-ca.key ${debug}"
+        else
+            common_logger -e "The file ${rootcakey} does not exists"
+            cert_cleanFiles
+            exit 1
+        fi
+    else
+        cert_generateRootCAcertificate
+    fi
+
 }
 
 function cert_generateAdmincertificate() {
@@ -105,7 +137,7 @@ function cert_generateFilebeatcertificates() {
             eval "openssl x509 -req -in ${base_path}/certs/${server_node_names[i]}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${server_node_names[i]}.pem -extfile ${base_path}/certs/${server_node_names[i]}.conf -extensions v3_req -days 3650 ${debug}"
         done
     fi
-    
+
 }
 
 function cert_generateDashboardcertificates() {
@@ -117,6 +149,7 @@ function cert_generateDashboardcertificates() {
             cert_generateCertificateconfiguration "${dashboard_node_names[i]}" "${dashboard_node_ips[i]}"
             eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${base_path}/certs/${dashboard_node_names[i]}-key.pem -out ${base_path}/certs/${dashboard_node_names[i]}.csr -config ${base_path}/certs/${dashboard_node_names[i]}.conf -days 3650 ${debug}"
             eval "openssl x509 -req -in ${base_path}/certs/${dashboard_node_names[i]}.csr -CA ${base_path}/certs/root-ca.pem -CAkey ${base_path}/certs/root-ca.key -CAcreateserial -out ${base_path}/certs/${dashboard_node_names[i]}.pem -extfile ${base_path}/certs/${dashboard_node_names[i]}.conf -extensions v3_req -days 3650 ${debug}"
+
         done
     fi
 
