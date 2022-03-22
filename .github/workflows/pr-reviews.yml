@@ -16,18 +16,20 @@ jobs:
           format: 'csv'
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Create tools file
-        run: echo "" > tools.csv
+        run: echo "[" > tools.json
       - name: Display changed files cert_tool
         id: cert-tool
         if: contains(steps.changed_files.outputs.all, 'cert_tool')
-        run: echo '{"tool":"cert-tool"}' >> tools.csv
+        run: echo '{"tool":"cert-tool"}' >> tools.json
       - name: Display changed files passwords_tool
         id: changed-file
         if: contains(steps.changed_files.outputs.all, 'passwords_tool')
-        run: echo ',{"tool":"passwords-tool"}' >> tools.csv
+        run: echo ',{"tool":"passwords-tool"}' >> tools.json
+      - name: Finish file
+        run: echo "]" >> tools.json
       - name: Build Matrix
         id: set-matrix
-        run: echo "::set-output name=tools_matrix::$(cat tools.csv | jq -c '[.[]| .tool]')"
+        run: echo "::set-output name=tools_matrix::$(cat tools.json | jq -c '[.[]| .tool]')"
     outputs:
       tools_matrix: ${{ steps.set-matrix.outputs.tools_matrix }}
   
