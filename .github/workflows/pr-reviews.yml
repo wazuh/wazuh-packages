@@ -73,12 +73,14 @@ jobs:
         run: |
           if [ "${{ matrix.tool }}" != "builder.sh" ]; then
             bash unattended_installer/builder.sh --${{ matrix.tool }}
+            pwd
+            ls -la
           fi
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: "${{ matrix.tool }}"
-          path: "unattended_installer/${{ matrix.tool }}.sh"
+          path: "unattended_installer/*${{ matrix.tool }}.sh"
           
   shellcheck:
     name: runner / shellcheck
