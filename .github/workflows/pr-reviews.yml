@@ -57,7 +57,6 @@ jobs:
         uses: actions/download-artifact@v3
       - name: actions/checkout@v1
         run: |
-          ls -la
           ls -la artifacts-generated
       - name: shellcheck
         uses: reviewdog/action-shellcheck@v1
