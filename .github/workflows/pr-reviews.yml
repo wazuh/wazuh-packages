@@ -57,6 +57,8 @@ jobs:
       matrix: 
         tool: ${{ fromJson(needs.get-files.outputs.tools_matrix) }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2.1.0
       - name: builder-sh
         run: |
           echo ${{ matrix.tool }}
