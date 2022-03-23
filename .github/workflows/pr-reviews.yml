@@ -88,13 +88,16 @@ jobs:
     name: runner / shellcheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+      - name: actions/checkout@v1
+        run: ls -la
       - name: shellcheck
         uses: reviewdog/action-shellcheck@v1
         with:
           github_token: ${{ secrets.github_token }}
           reporter: github-pr-review
           pattern: '*.sh'
-          path: './unattended_installer'
-          exclude: './unattended_installer/Development-guide.md'
+          path: '.'
+          exclude: './Development-guide.md'
           
