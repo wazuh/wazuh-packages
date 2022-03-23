@@ -106,4 +106,3 @@ jobs:
           pattern: "*certs-tool.sh"
           exclude: "artifacts-generated/*.md"
           check_all_files_with_shebangs: "false"
-          
