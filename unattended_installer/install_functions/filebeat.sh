@@ -40,21 +40,21 @@ function filebeat_copyCertificates() {
 
     if [ -f "${tar_file}" ]; then
         if [ -n "${AIO}" ]; then
-            eval "sed -i s/filebeat.pem/${server_node_names[0]}.pem/ /etc/filebeat/filebeat.yml" 
-            eval "sed -i s/filebeat-key.pem/${server_node_names[0]}-key.pem/ /etc/filebeat/filebeat.yml"
-            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} --wildcards wazuh-install-files/${server_node_names[0]}.pem ${debug} --strip-components 1"
-            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} --wildcards wazuh-install-files/${server_node_names[0]}-key.pem ${debug} --strip-components 1"
-            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} wazuh-install-files/root-ca.pem --strip-components 1"
-            eval "rm -rf ${filebeat_cert_path}/wazuh-install-files/"
+            eval "sed -i s/filebeat.pem/${server_node_names[0]}.pem/ /etc/filebeat/filebeat.yml ${debug}" 
+            eval "sed -i s/filebeat-key.pem/${server_node_names[0]}-key.pem/ /etc/filebeat/filebeat.yml ${debug}"
+            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} --wildcards wazuh-install-files/${server_node_names[0]}.pem ${debug} --strip-components 1 ${debug}"
+            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} --wildcards wazuh-install-files/${server_node_names[0]}-key.pem ${debug} --strip-components 1 ${debug}"
+            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} wazuh-install-files/root-ca.pem --strip-components 1 ${debug}"
+            eval "rm -rf ${filebeat_cert_path}/wazuh-install-files/ ${debug}"
         else
-            eval "sed -i s/filebeat.pem/${winame}.pem/ /etc/filebeat/filebeat.yml" 
-            eval "sed -i s/filebeat-key.pem/${winame}-key.pem/ /etc/filebeat/filebeat.yml"
-            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} wazuh-install-files/${winame}.pem --strip-components 1"
-            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} wazuh-install-files/${winame}-key.pem --strip-components 1"
-            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} wazuh-install-files/root-ca.pem --strip-components 1"
-            eval "rm -rf ${filebeat_cert_path}/wazuh-install-files/"
+            eval "sed -i s/filebeat.pem/${winame}.pem/ /etc/filebeat/filebeat.yml ${debug}" 
+            eval "sed -i s/filebeat-key.pem/${winame}-key.pem/ /etc/filebeat/filebeat.yml ${debug}"
+            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} wazuh-install-files/${winame}.pem --strip-components 1 ${debug}"
+            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} wazuh-install-files/${winame}-key.pem --strip-components 1 ${debug}"
+            eval "tar -xf ${tar_file} -C ${filebeat_cert_path} wazuh-install-files/root-ca.pem --strip-components 1 ${debug}"
+            eval "rm -rf ${filebeat_cert_path}/wazuh-install-files/ ${debug}"
         fi
-        eval "chown root:root ${filebeat_cert_path}/*"
+        eval "chown root:root ${filebeat_cert_path}/* ${debug}"
     else
         common_logger -e "No certificates found. Could not initialize Filebeat"
         exit 1;
