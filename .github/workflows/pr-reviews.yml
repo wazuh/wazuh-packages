@@ -89,6 +89,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: Builder-Scripts
     steps:
+      - uses: actions/checkout@v1
       - name: Download all artifacts
         uses: actions/download-artifact@v3
       - name: actions/checkout@v1
