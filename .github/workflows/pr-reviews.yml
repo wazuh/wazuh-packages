@@ -71,4 +71,4 @@ jobs:
         run: |
           echo ${{ matrix.tool }}
           bash unattended_installer/builder.sh --${{ matrix.tool }}
-          ls -la
+          ls -la unattended_installer
