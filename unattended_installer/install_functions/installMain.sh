@@ -255,7 +255,7 @@ function main() {
     fi
 
     # Distributed architecture: node names must be different
-    if [[ -z "${AIO}" && -z "${download}" && ( -n "${indexer}"  || -n "${dashboard}" || -n "${wazuh}" )]]; then
+    if [[ -z "${AIO}" && -z "${download}" && ( -n "${indexer}"  || -n "${dashboard}" || -n "${wazuh}" ) ]]; then
         checks_names
     fi
 
