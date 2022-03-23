@@ -37,6 +37,15 @@ jobs:
         uses: './.github/actions/generate-artifacts/'
         with: 
           artifact: "${{ matrix.tool }}"
+      - name: Checkout
+        run: ls -la unattended_installer
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: artifacts-generated
+          path: |
+            unattended_installer/**tool.sh
+            unattended_installer/**install.sh
           
   shellcheck:
     name: runner / shellcheck
