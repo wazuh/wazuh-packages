@@ -78,7 +78,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: "${{ matrix.tool }}"
-          path: "${{ matrix.tool }}.sh"
+          path: "unattended_installer/${{ matrix.tool }}.sh"
           
   shellcheck:
     name: runner / shellcheck
