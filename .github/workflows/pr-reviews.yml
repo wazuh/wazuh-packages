@@ -71,8 +71,6 @@ jobs:
         run: |
           if [ "${{ matrix.tool }}" != "builder.sh" ]; then
             bash unattended_installer/builder.sh --${{ matrix.tool }}
-            pwd
-            ls -la unattended_installer
           fi
       - name: Upload artifact
         uses: actions/upload-artifact@v3
@@ -80,7 +78,7 @@ jobs:
           name: artifacts-generated
           path: |
             unattended_installer/**tool.sh
-            !unattended_installer/**/*.md
+            unattended_installer/**install.sh
           
   shellcheck:
     name: runner / shellcheck
@@ -94,14 +92,13 @@ jobs:
         run: |
           ls -la
           ls -la artifacts-generated
-          cat artifacts-generated/wazuh-certs-tool.sh
       - name: shellcheck
         uses: reviewdog/action-shellcheck@v1
         with:
           github_token: ${{ secrets.github_token }}
           reporter: github-pr-review
           path: "artifacts-generated"
-          pattern: "*certs-tool.sh"
+          pattern: "*.sh"
           exclude: "artifacts-generated/*.md"
           check_all_files_with_shebangs: "false"
 
