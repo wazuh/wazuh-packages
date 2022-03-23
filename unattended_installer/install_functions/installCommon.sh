@@ -308,7 +308,7 @@ function installCommon_restoreWazuhrepo() {
             common_logger -w -d "Wazuh repository does not exists."
         fi
         eval "sed -i 's/-dev//g' ${file} ${debug}"
-        eval "sed -i 's/pre-release/4.x/g' ${file} ${debug}"
+        eval "sed -i 's/trash/4.x/g' ${file} ${debug}"
         eval "sed -i 's/unstable/stable/g' ${file} ${debug}"
         common_logger -d "The Wazuh repository set to production."
     fi
