@@ -18,15 +18,17 @@ jobs:
       - name: set cert
         if: contains(steps.changed_files.outputs.all, 'cert_tool')
         run: |
-          echo 'VAR=${{ env.VAR }} cert_tool' >> $GITHUB_ENV
+          if [ -z "$var" ]; then
+            echo 'VAR=cert_tool' >> $GITHUB_ENV
+          fi
       - name: set password
         if: contains(steps.changed_files.outputs.all, 'passwords_tool')
         run: |
-          echo 'VAR=${{ env.VAR }} passwords_tool' >> $GITHUB_ENV
+          echo 'VAR=${{ env.VAR }},passwords_tool' >> $GITHUB_ENV
       - name: Build Matrix
         id: set-matrix
         run: |
-          TASKS=$(echo $(cat tools.json)| sed 's/ //g' )
+          TASKS=$(echo $("["${{ env.VAR }}"]"))
           echo "::set-output name=tools_matrix::${TASKS}"
       - name: cat json
         run: echo ${{ steps.set-matrix.outputs.tools_matrix }}
