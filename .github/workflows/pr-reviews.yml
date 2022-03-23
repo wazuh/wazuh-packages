@@ -64,4 +64,4 @@ jobs:
           echo ${{ matrix.tool }}
           pwd
           ls -la
-          bash unattended_installer/builder.sh -${{ matrix.tool }}
+          bash unattended_installer/builder.sh --${{ matrix.tool }}
