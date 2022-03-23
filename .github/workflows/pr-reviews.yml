@@ -102,6 +102,6 @@ jobs:
           github_token: ${{ secrets.github_token }}
           reporter: github-pr-review
           pattern: 'wazuh-certs-tool.sh'
-          path: 'artifacts-generated/wazuh-certs-tool.sh'
+          path: 'artifacts-generated'
           exclude: 'artifacts-generated/Development-guide.md'
           
