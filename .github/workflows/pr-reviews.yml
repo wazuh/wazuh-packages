@@ -18,7 +18,7 @@ jobs:
         with: 
           tool: steps.changed_files.outputs.all
       - name: Checkout
-        run: cat "${{ env.VAR }}"
+        run: echo "${{ env.VAR }}"
       - name: Build Matrix
         id: set-matrix
         run: |
