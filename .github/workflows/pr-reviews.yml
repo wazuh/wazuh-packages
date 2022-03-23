@@ -28,7 +28,7 @@ jobs:
       - name: Build Matrix
         id: set-matrix
         run: |
-          echo "::set-output name=tools_matrix::[\"cert_tool\",\"passwords_tool\"]"
+          echo "::set-output name=tools_matrix::[cert_tool,passwords_tool]"
       - name: cat json
         run: echo ${{ steps.set-matrix.outputs.tools_matrix }}
       - name: echo json
@@ -41,7 +41,7 @@ jobs:
     needs: get-files
     strategy:
       matrix: 
-        tool: [cert_tool,passwords_tool] #${{ fromJson(needs.get-files.outputs.tools_matrix) }}
+        tool: ${{ fromJson(needs.get-files.outputs.tools_matrix) }}
     steps:
       - name: builder-sh
         run: echo ${{ matrix }}
