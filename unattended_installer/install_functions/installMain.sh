@@ -252,6 +252,7 @@ function main() {
     if [ -z "${configurations}" ] && [ -z "${download}" ]; then
         installCommon_extractConfig
         cert_readConfig
+        eval "rm -f ${config_file}"
     fi
 
     # Distributed architecture: node names must be different
@@ -343,6 +344,7 @@ function main() {
     fi
 
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
+        eval "rm -rf /tmp/wazuh-install-files ${debug}"
         common_logger "Installation finished."
     elif [ -n "${start_elastic_cluster}" ]; then
         common_logger "Elasticsearch cluster started."
