@@ -7,6 +7,7 @@ runs:
   using: "composite" 
   steps:
     - name: set cert
+      shell: bash
       if: contains("${{ inputs.tool }}", 'cert_tool')
       run: |
         if [ -z "${{ env.VAR }}" ]; then
@@ -15,6 +16,7 @@ runs:
           echo 'VAR=${{ env.VAR }},\"cert-tool\"' >> $GITHUB_ENV
         fi
     - name: set password
+      shell: bash
       if: contains("${{ inputs.tool }}", 'passwords_tool')
       run: |
         if [ -z "${{ env.VAR }}" ]; then
@@ -23,6 +25,7 @@ runs:
           echo 'VAR=${{ env.VAR }},\"password-tool\"' >> $GITHUB_ENV
         fi
     - name: set install
+      shell: bash
       if: |
         contains("${{ inputs.tool }}", 'downloader') || 
         contains("${{ inputs.tool }}", 'install_functions')
@@ -33,10 +36,12 @@ runs:
           echo 'VAR=${{ env.VAR }},\"installer\"' >> $GITHUB_ENV
         fi
     - name: set all
+      shell: bash
       if: contains("${{ inputs.tool }}", 'common_functions')
       run: |
         echo 'VAR=\"cert-tool\",\"password-tool\",\"installer\"' >> $GITHUB_ENV
     - name: set builder
+      shell: bash
       if: contains(steps.changed_files.outputs.all, 'builder.sh')
       run: |
         if [ -z "${{ env.VAR }}" ]; then
