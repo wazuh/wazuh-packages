@@ -41,7 +41,7 @@ jobs:
     needs: get-files
     strategy:
       matrix: 
-        tool: ["cert_tool","passwords_tool"]
+        tool: ${{ fromJson(needs.get-files.outputs.tools_matrix) }}
     steps:
       - name: builder-sh
         run: echo ${{ matrix }}
