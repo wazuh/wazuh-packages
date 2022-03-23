@@ -251,8 +251,8 @@ function main() {
 
     if [ -z "${configurations}" ] && [ -z "${download}" ]; then
         installCommon_extractConfig
+        config_file="/tmp/wazuh-install-files/config.yml"
         cert_readConfig
-        eval "rm -f ${config_file}"
     fi
 
     # Distributed architecture: node names must be different
