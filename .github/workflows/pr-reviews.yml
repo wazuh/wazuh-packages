@@ -94,6 +94,7 @@ jobs:
         uses: actions/download-artifact@v3
       - name: actions/checkout@v1
         run: |
+          ls -la
           ls -la artifacts-generated
           cat artifacts-generated/wazuh-certs-tool.sh
       - name: shellcheck
