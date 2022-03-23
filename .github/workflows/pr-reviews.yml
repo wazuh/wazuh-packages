@@ -79,9 +79,9 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: dist-without-markdown
+          name: artifacts-generated
           path: |
-            unattended_installer/*${{ matrix.tool }}.sh
+            unattended_installer/**${{ matrix.tool }}.sh
             !unattended_installer/**/*.md
           
   shellcheck:
