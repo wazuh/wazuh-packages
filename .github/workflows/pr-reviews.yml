@@ -34,7 +34,7 @@ jobs:
       - name: set all
         if: contains(steps.changed_files.outputs.all, 'common_functions')
         run: |
-          bash .github/workflows/set-tools.sh common_functions
+          bash .github/workflows/set-tools.sh common_functions -xe
       - name: set builder
         if: contains(steps.changed_files.outputs.all, 'builder.sh')
         run: |
