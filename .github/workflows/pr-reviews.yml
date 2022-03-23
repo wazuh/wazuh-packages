@@ -92,7 +92,9 @@ jobs:
       - name: Download all artifacts
         uses: actions/download-artifact@v3
       - name: actions/checkout@v1
-        run: ls -la artifacts-generated
+        run: |
+          ls -la artifacts-generated
+          cat artifacts-generated/wazuh-certs-tool.sh
       - name: shellcheck
         uses: reviewdog/action-shellcheck@v1
         with:
