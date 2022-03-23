@@ -95,7 +95,7 @@ function installCommon_createCertificates() {
     if [ -d /tmp/wazuh-certificates/ ]; then
         eval "rm -rf /tmp/wazuh-certificates/ ${debug}"
     fi        
-    mkdir "/tmp/wazuh-certificates/ ${debug}"
+    eval "mkdir /tmp/wazuh-certificates/ ${debug}"
     
 
     cert_generateRootCAcertificate
@@ -120,8 +120,8 @@ function installCommon_createInstallFiles() {
     if [ -d /tmp/wazuh-install-files ]; then
         eval "rm -rf /tmp/wazuh-install-files ${debug}"
     fi 
-    
-    if mkdir /tmp/wazuh-install-files > /dev/null 2>&1; then
+
+    if eval "mkdir /tmp/wazuh-install-files ${debug}"; then
         common_logger "Generating configuration files."
         if [ -n "${configurations}" ]; then
             cert_checkOpenSSL
