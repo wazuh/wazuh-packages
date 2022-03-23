@@ -9,6 +9,6 @@ runs:
     - name: Generate artifacts
       shell: bash
       run: |
-        if [ "${{ artifact.tool }}" != "builder.sh" ]; then
-          bash unattended_installer/builder.sh --${{ artifact.tool }}
+        if [ "${{ inputs.artifact }}" != "builder.sh" ]; then
+          bash unattended_installer/builder.sh --${{ inputs.artifact }}
         fi
