@@ -246,23 +246,7 @@ function main() {
     # Creation certificate case: Only AIO and -g option can create certificates.
     if [ -n "${configurations}" ] || [ -n "${AIO}" ]; then
         common_logger "--- Configuration files ---"
-        common_logger "Generating configuration files."
-        if [ -n "${configurations}" ]; then
-            cert_checkOpenSSL
-        fi
-        installCommon_createCertificates
-        if [ -n "${server_node_types[*]}" ]; then
-            installCommon_createClusterKey
-        fi
-        gen_file="${base_path}/certs/passwords.wazuh"
-        passwords_generatePasswordFile
-        # Using cat instead of simple cp because OpenSUSE unknown error.
-        eval "cat '${config_file}' > '${base_path}/certs/config.yml'"
-        eval "mv ${base_path}/certs/ ${base_path}/wazuh-install-files/"
-        eval "chown root:root ${base_path}/wazuh-install-files/*"
-        eval "tar -zcf '${tar_file}' -C '${base_path}/' wazuh-install-files/ ${debug}"
-        eval "rm -rf '${base_path}/wazuh-install-files' ${debug}"
-        common_logger "Created ${tar_file_name}. It contains Wazuh cluster key, certificates, and passwords necessary for installation."
+        installCommon_createInstallFiles
     fi
 
     if [ -z "${configurations}" ] && [ -z "${download}" ]; then
@@ -360,10 +344,8 @@ function main() {
 
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
         common_logger "Installation finished."
-        common_logger "The certificates and passwords used are stored in ${tar_file}."
     elif [ -n "${start_elastic_cluster}" ]; then
         common_logger "Elasticsearch cluster started."
-        common_logger "The certificates and passwords used are stored in ${tar_file}."
     fi
 
 }
