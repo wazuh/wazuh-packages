@@ -81,7 +81,7 @@ jobs:
         with:
           name: artifacts-generated
           path: |
-            unattended_installer/**${{ matrix.tool }}.sh
+            unattended_installer/**tool.sh
             !unattended_installer/**/*.md
           
   shellcheck:
