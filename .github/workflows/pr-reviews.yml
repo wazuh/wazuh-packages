@@ -28,8 +28,7 @@ jobs:
       - name: Build Matrix
         id: set-matrix
         run: |
-          TASKS=$(echo $("["${{ env.VAR }}"]"))
-          echo "::set-output name=tools_matrix::["cert_tool","passwords_tool"]"
+          echo "::set-output name=tools_matrix::[\"cert_tool\",\"passwords_tool\"]"
       - name: cat json
         run: echo ${{ steps.set-matrix.outputs.tools_matrix }}
       - name: echo json
