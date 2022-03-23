@@ -89,7 +89,7 @@ function indexer_copyCertificates() {
         eval "rm -rf ${indexer_cert_path}/wazuh-install-files/"
         eval "chown -R wazuh-indexer:wazuh-indexer ${indexer_cert_path} ${debug}"
         eval "chmod 750 ${indexer_cert_path} ${debug}"
-        eval "chmod 400 ${indexer_cert_path}/* ${debug}"
+        eval "chmod 600 ${indexer_cert_path}/* ${debug}"
     else
         common_logger -e "No certificates found. Could not initialize Wazuh indexer"
         exit 1;
