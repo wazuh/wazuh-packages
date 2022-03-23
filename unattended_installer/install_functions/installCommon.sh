@@ -92,7 +92,11 @@ function installCommon_createCertificates() {
 
     cert_readConfig
 
-    mkdir "/tmp/wazuh-certificates/"
+    if [ -d /tmp/wazuh-certificates/ ]; then
+        eval "rm -rf /tmp/wazuh-certificates/ ${debug}"
+    fi        
+    mkdir "/tmp/wazuh-certificates/ ${debug}"
+    
 
     cert_generateRootCAcertificate
     cert_generateAdmincertificate
@@ -100,7 +104,8 @@ function installCommon_createCertificates() {
     cert_generateFilebeatcertificates
     cert_generateDashboardcertificates
     cert_cleanFiles
-    mv /tmp/wazuh-certificates/* /tmp/wazuh-install-files
+    eval "mv /tmp/wazuh-certificates/* /tmp/wazuh-install-files ${debug}"
+    eval "rm -rf /tmp/wazuh-certificates/ ${debug}"
 
 }
 
