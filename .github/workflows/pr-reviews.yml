@@ -32,7 +32,9 @@ jobs:
             echo 'VAR=${{ env.VAR }},\"password-tool\"' >> $GITHUB_ENV
           fi
       - name: set install
-        if: contains(steps.changed_files.outputs.all, 'downloader') || contains(steps.changed_files.outputs.all, 'install_functions')
+        if: |
+          contains(steps.changed_files.outputs.all, 'downloader') || 
+          contains(steps.changed_files.outputs.all, 'install_functions')
         run: |
           if [ -z "${{ env.VAR }}" ]; then
             echo 'VAR=\"installer\"' >> $GITHUB_ENV
@@ -68,11 +70,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2.1.0
       - name: Generate artifacts
-        if: "!contains(matrix.tool, 'builder.sh')"
         run: |
-          echo ${{ matrix.tool }}
-          bash unattended_installer/builder.sh --${{ matrix.tool }}
-          ls -la unattended_installer
+          if [ "${{ matrix.tool }}" != "builder.sh" ]; then
+            bash unattended_installer/builder.sh --${{ matrix.tool }}
+          fi
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: "${{ matrix.tool }}"
+          path: "${{ matrix.tool }}.sh"
           
   shellcheck:
     name: runner / shellcheck
@@ -88,6 +94,6 @@ jobs:
           github_token: ${{ secrets.github_token }}
           reporter: github-pr-review
           pattern: '*.sh'
-          path: 'unattended_installer'
+          path: '.'
           exclude: 'unattended_installer/Development-guide.md'
           
