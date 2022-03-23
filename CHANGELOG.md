@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [v4.4.0]
 
+- Add new GCloud integration file to Solaris 11 [#1384](https://github.com/wazuh/wazuh-packages/pull/1384)
 - Add centos8 vault repository due to EOL [#1308](https://github.com/wazuh/wazuh-packages/pull/1308)
 - Update SPECS [#1014](https://github.com/wazuh/wazuh-packages/pull/1014)
 - Add Azure integration files to Solaris 11 and RPM SPECS [#1167](https://github.com/wazuh/wazuh-packages/pull/1167)
