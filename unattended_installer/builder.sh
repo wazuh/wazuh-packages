@@ -62,9 +62,10 @@ function buildInstaller() {
 # and/or modify it under the terms of the GNU General Public
 # License (version 2) as published by the FSF - Free Software
 # Foundation." >> "${output_script_path}"
+    echo >> "${output_script_path}"
 
     ## Installation variables
-    cat ${resources_installer}/installVariables.sh >> "${output_script_path}"
+    grep -Ev '^#|^\s*$' ${resources_installer}/installVariables.sh >> "${output_script_path}"
     echo >> "${output_script_path}"
     if [ -n "${development}" ]; then
         echo 'development=1' >> "${output_script_path}"
@@ -98,9 +99,11 @@ function buildInstaller() {
     install_modules=($(find "${resources_installer}" -type f))
     install_modules_names=($(eval "echo \"${install_modules[*]}\" | sed 's,${resources_installer}/,,g'"))
     for i in "${!install_modules[@]}"; do
-        echo "# ------------ ${install_modules_names[$i]} ------------ " >> "${output_script_path}"
-        sed -n '/^function [a-zA-Z_]\(\)/,/^}/p' ${install_modules[$i]} >> "${output_script_path}"
-        echo >> "${output_script_path}"
+        if [ "${install_modules_names[$i]}" != "installVariables.sh" ]; then
+            echo "# ------------ ${install_modules_names[$i]} ------------ " >> "${output_script_path}"
+            sed -n '/^function [a-zA-Z_]\(\)/,/^}/p' ${install_modules[$i]} >> "${output_script_path}"
+            echo >> "${output_script_path}"
+        fi
     done
 
     ## dist-detect.sh
@@ -116,9 +119,6 @@ function buildInstaller() {
 
     ## Passwords tool library functions
     sed -n '/^function [a-zA-Z_]\(\)/,/^}/p' "${resources_passwords}/passwordsFunctions.sh" >> "${output_script_path}"
-
-    ## Downloader Wazuh Package
-    cat ${resources_download}/wazuh-offline-download.sh >> "${output_script_path}"
 
     ## Main function and call to it
     echo >> "${output_script_path}"
@@ -144,16 +144,18 @@ function buildPasswordsTool() {
 # Foundation." >> "${output_script_path}"
 
     ## Passwords tool variables
-    cat "${resources_passwords}/passwordsVariables.sh" >> "${output_script_path}"
+    grep -Ev '^#|^\s*$' "${resources_passwords}/passwordsVariables.sh" >> "${output_script_path}"
     echo >> "${output_script_path}"
 
     ## Functions for all password function modules
     passwords_modules=($(find "${resources_passwords}" -type f))
     passwords_modules_names=($(eval "echo "${passwords_modules[@]}" | sed 's,${resources_passwords}/,,g'"))
     for i in "${!passwords_modules[@]}"; do
-        echo "# ------------ ${passwords_modules_names[$i]} ------------ " >> "${output_script_path}"
-        sed -n '/^function [a-zA-Z_]\(\)/,/^}/p' "${passwords_modules[$i]}" >> "${output_script_path}"
-        echo >> "${output_script_path}"
+        if [ "${passwords_modules[$i]}" != "passwordsVariables.sh" ]; then
+            echo "# ------------ ${passwords_modules_names[$i]} ------------ " >> "${output_script_path}"
+            sed -n '/^function [a-zA-Z_]\(\)/,/^}/p' "${passwords_modules[$i]}" >> "${output_script_path}"
+            echo >> "${output_script_path}"
+        fi
     done
 
     ## Common functions
@@ -182,16 +184,18 @@ function buildCertsTool() {
 # Foundation." >> "${output_script_path}"
 
     ## Certs tool variables
-    cat "${resources_certs}/certVariables.sh" >> "${output_script_path}"
+    grep -Ev '^#|^\s*$' "${resources_certs}/certVariables.sh" >> "${output_script_path}"
     echo >> "${output_script_path}"
 
     ## Functions for all certs tool function modules
     certs_modules=($(find "${resources_certs}" -type f))
     certs_modules_names=($(eval "echo "${certs_modules[@]}" | sed 's,${resources_certs}/,,g'"))
     for i in "${!certs_modules[@]}"; do
-        echo "# ------------ ${certs_modules_names[$i]} ------------ " >> "${output_script_path}"
-        sed -n '/^function [a-zA-Z_]\(\)/,/^}/p' "${certs_modules[$i]}" >> "${output_script_path}"
-        echo >> "${output_script_path}"
+        if [ "${certs_modules[$i]}" != "certVariables.sh" ]; then
+            echo "# ------------ ${certs_modules_names[$i]} ------------ " >> "${output_script_path}"
+            sed -n '/^function [a-zA-Z_]\(\)/,/^}/p' "${certs_modules[$i]}" >> "${output_script_path}"
+            echo >> "${output_script_path}"
+        fi
     done
 
     ## Common functions

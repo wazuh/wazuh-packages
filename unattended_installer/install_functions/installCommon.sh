@@ -61,18 +61,26 @@ function installCommon_addWazuhRepo() {
         if [ "${sys_type}" == "yum" ]; then
             eval "rpm --import ${repogpg} ${debug}"
             eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-\${releasever} - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo ${debug}"
+            eval "chmod 644 /etc/yum.repos.d/wazuh.repo ${debug}"
         elif [ "${sys_type}" == "zypper" ]; then
             eval "rpm --import ${repogpg} ${debug}"
             eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-\${releasever} - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/zypp/repos.d/wazuh.repo ${debug}"
+            eval "chmod 644 /etc/zypp/repos.d/wazuh.repo ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "curl -s ${repogpg} --max-time 300 | apt-key add - ${debug}"
             eval "echo \"deb ${repobaseurl}/apt/ ${reporelease} main\" | tee /etc/apt/sources.list.d/wazuh.list ${debug}"
             eval "apt-get update -q ${debug}"
+            eval "chmod 644 /etc/apt/sources.list.d/wazuh.list ${debug}"
         fi
     else
         common_logger -d "Wazuh repository already exists. Skipping addition."
     fi
-    common_logger -d "Wazuh repository added."
+
+    if [ -n "${development}" ]; then
+        common_logger "Wazuh development repository added."
+    else
+        common_logger "Wazuh repository added."
+    fi
 
 }
 
@@ -84,7 +92,7 @@ function installCommon_createCertificates() {
 
     cert_readConfig
 
-    mkdir "${base_path}/certs"
+    mkdir "/tmp/wazuh-certificates/"
 
     cert_generateRootCAcertificate
     cert_generateAdmincertificate
@@ -92,13 +100,39 @@ function installCommon_createCertificates() {
     cert_generateFilebeatcertificates
     cert_generateDashboardcertificates
     cert_cleanFiles
+    mv /tmp/wazuh-certificates/* /tmp/wazuh-install-files
 
 }
 
 function installCommon_createClusterKey() {
 
-    openssl rand -hex 16 >> "${base_path}/certs/clusterkey"
+    openssl rand -hex 16 >> "/tmp/wazuh-install-files/clusterkey"
 
+}
+
+function installCommon_createInstallFiles() {
+    
+    if mkdir /tmp/wazuh-install-files > /dev/null 2>&1; then
+        common_logger "Generating configuration files."
+        if [ -n "${configurations}" ]; then
+            cert_checkOpenSSL
+        fi
+        installCommon_createCertificates
+        if [ -n "${server_node_types[*]}" ]; then
+            installCommon_createClusterKey
+        fi
+        gen_file="/tmp/wazuh-install-files/passwords.wazuh"
+        passwords_generatePasswordFile
+        # Using cat instead of simple cp because OpenSUSE unknown error.
+        eval "cat '${config_file}' > '/tmp/wazuh-install-files/config.yml'"
+        eval "chown root:root /tmp/wazuh-install-files/*"
+        eval "tar -zcf '${tar_file}' -C '/tmp/' wazuh-install-files/ ${debug}"
+        eval "rm -rf '/tmp/wazuh-install-files' ${debug}"
+        common_logger "Created ${tar_file_name}. It contains Wazuh cluster key, certificates, and passwords necessary for installation."
+    else
+        common_logger -e "Unable to create /tmp/wazuh-install-files"
+        exit 1
+    fi
 }
 
 function installCommon_changePasswords() {
@@ -411,7 +445,9 @@ function installCommon_rollBack() {
                             "/etc/systemd/system/multi-user.target.wants/wazuh-dashboard.service"
                             "/etc/systemd/system/wazuh-dashboard.service"
                             "/lib/firewalld/services/dashboard.xml"
-                            "/lib/firewalld/services/opensearch.xml" )
+                            "/lib/firewalld/services/opensearch.xml"
+                            "${base_path}/wazuh-install-files"
+                            "${base_path}/wazuh-install-files.tar" )
 
     eval "rm -rf ${elements_to_remove[*]}"
 

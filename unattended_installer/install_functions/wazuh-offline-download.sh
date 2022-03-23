@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Program to download Wazuh manager along Open Distro for Elasticsearch installation files
+# Wazuh installer: offline download
 # Copyright (C) 2015-2021, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
