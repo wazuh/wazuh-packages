@@ -31,6 +31,8 @@ jobs:
       matrix: 
         tool: ${{ fromJson(needs.get-artifacts.outputs.tools_matrix) }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2.1.0
       - name: Generate artifacts
         uses: './.github/actions/generate-artifacts/'
         with: 
