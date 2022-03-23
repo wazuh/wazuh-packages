@@ -17,8 +17,6 @@ jobs:
         uses: './.github/actions/get-tools/'
         with: 
           tool: steps.changed_files.outputs.all
-      - name: Checkout
-        run: echo "${{ env.VAR }}"
       - name: Build Matrix
         id: set-matrix
         run: |
@@ -33,20 +31,10 @@ jobs:
       matrix: 
         tool: ${{ fromJson(needs.get-artifacts.outputs.tools_matrix) }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2.1.0
       - name: Generate artifacts
-        run: |
-          if [ "${{ matrix.tool }}" != "builder.sh" ]; then
-            bash unattended_installer/builder.sh --${{ matrix.tool }}
-          fi
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: artifacts-generated
-          path: |
-            unattended_installer/**tool.sh
-            unattended_installer/**install.sh
+        uses: './.github/actions/generate-artifacts/'
+        with: 
+          artifact: "${{ matrix.tool }}"
           
   shellcheck:
     name: runner / shellcheck
