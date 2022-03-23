@@ -92,7 +92,7 @@ jobs:
       - name: Download all artifacts
         uses: actions/download-artifact@v3
       - name: actions/checkout@v1
-        run: ls -la
+        run: ls -la artifacts-generated
       - name: shellcheck
         uses: reviewdog/action-shellcheck@v1
         with:
