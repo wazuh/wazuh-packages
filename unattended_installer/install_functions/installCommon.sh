@@ -437,7 +437,9 @@ function installCommon_rollBack() {
                             "/etc/systemd/system/multi-user.target.wants/wazuh-dashboard.service"
                             "/etc/systemd/system/wazuh-dashboard.service"
                             "/lib/firewalld/services/dashboard.xml"
-                            "/lib/firewalld/services/opensearch.xml" )
+                            "/lib/firewalld/services/opensearch.xml"
+                            "${base_path}/wazuh-install-files"
+                            "${base_path}/wazuh-install-files.tar" )
 
     eval "rm -rf ${elements_to_remove[*]}"
 
