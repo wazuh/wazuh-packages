@@ -203,7 +203,7 @@ function main() {
     if [ -z "${disableSpinner}" ]; then
         installCommon_spin &
         spin_pid=$!
-        trap "kill -9 ${spin_pid} ${debug}" EXIT
+        trap "kill -9 ${spin_pid} > /dev/null 2>&1" EXIT
     fi
 
     common_logger "Starting Wazuh installation assistant. Wazuh version: ${wazuh_version}"
