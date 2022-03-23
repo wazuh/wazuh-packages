@@ -40,8 +40,8 @@ function filebeat_copyCertificates() {
 
     if [ -f "${tar_file}" ]; then
         if [ -n "${AIO}" ]; then
-            eval "sed -i s/filebeat.pem/${name}.pem/ /etc/filebeat/filebeat.yml" 
-            eval "sed -i s/filebeat-key.pem/${name}-key.pem/ /etc/filebeat/filebeat.yml"
+            eval "sed -i s/filebeat.pem/${server_node_names[0]}.pem/ /etc/filebeat/filebeat.yml" 
+            eval "sed -i s/filebeat-key.pem/${server_node_names[0]}-key.pem/ /etc/filebeat/filebeat.yml"
             eval "tar -xf ${tar_file} -C ${filebeat_cert_path} --wildcards wazuh-install-files/${server_node_names[0]}.pem ${debug} --strip-components 1"
             eval "tar -xf ${tar_file} -C ${filebeat_cert_path} --wildcards wazuh-install-files/${server_node_names[0]}-key.pem ${debug} --strip-components 1"
             eval "tar -xf ${tar_file} -C ${filebeat_cert_path} wazuh-install-files/root-ca.pem --strip-components 1"
