@@ -27,14 +27,14 @@ jobs:
         if: contains(steps.changed_files.outputs.all, 'passwords_tool')
         run: |
           if [ -z "${{ env.VAR }}" ]; then
-            echo 'VAR=\"passwords_tool\"' >> $GITHUB_ENV
+            echo 'VAR=\"passwords-tool\"' >> $GITHUB_ENV
           else
-            echo 'VAR=${{ env.VAR }},\"passwords_tool\"' >> $GITHUB_ENV
+            echo 'VAR=${{ env.VAR }},\"passwords-tool\"' >> $GITHUB_ENV
           fi
       - name: set all
         if: contains(steps.changed_files.outputs.all, 'common_functions')
         run: |
-          echo 'VAR=\"cert-tool\",\"passwords_tool\",\"installer\"' >> $GITHUB_ENV
+          echo 'VAR=\"cert-tool\",\"passwords-tool\",\"installer\"' >> $GITHUB_ENV
       - name: set builder
         if: contains(steps.changed_files.outputs.all, 'builder.sh')
         run: |
@@ -61,4 +61,5 @@ jobs:
         run: |
           echo ${{ matrix.tool }}
           pwd
+          ls -la
           bash unattended_installer/builder.sh -${{ matrix.tool }}
