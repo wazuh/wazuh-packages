@@ -246,22 +246,7 @@ function main() {
     # Creation certificate case: Only AIO and -g option can create certificates.
     if [ -n "${configurations}" ] || [ -n "${AIO}" ]; then
         common_logger "--- Configuration files ---"
-        common_logger "Generating configuration files."
-        if [ -n "${configurations}" ]; then
-            cert_checkOpenSSL
-        fi
-        installCommon_createCertificates
-        if [ -n "${server_node_types[*]}" ]; then
-            installCommon_createClusterKey
-        fi
-        gen_file="/tmp/wazuh-install-files/passwords.wazuh"
-        passwords_generatePasswordFile
-        # Using cat instead of simple cp because OpenSUSE unknown error.
-        eval "cat '${config_file}' > '/tmp/wazuh-install-files/config.yml'"
-        eval "chown root:root /tmp/wazuh-install-files/*"
-        eval "tar -zcf '${tar_file}' -C '/tmp/' wazuh-install-files/ ${debug}"
-        eval "rm -rf '/tmp/wazuh-install-files' ${debug}"
-        common_logger "Created ${tar_file_name}. It contains Wazuh cluster key, certificates, and passwords necessary for installation."
+        installCommon_createInstallFiles
     fi
 
     if [ -z "${configurations}" ] && [ -z "${download}" ]; then
