@@ -1,7 +1,5 @@
 name: pr-review
-on: 
-  pull_request:
-    branches: [ 'poc-shellcheck-to4.3', 'master' ]
+on: [ pull_request ]
 
 jobs:
   get-artifacts:
