@@ -99,6 +99,6 @@ jobs:
           github_token: ${{ secrets.github_token }}
           reporter: github-pr-review
           pattern: '*.sh'
-          path: '.'
-          exclude: './Development-guide.md'
+          path: 'artifacts-generated'
+          exclude: 'artifacts-generated/Development-guide.md'
           
