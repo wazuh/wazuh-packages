@@ -1,0 +1,14 @@
+name: 'Generate artifacts'
+description: 'Generating artifacts according changes'
+inputs:
+  artifact:
+    required: true
+runs:
+  using: "composite" 
+  steps:
+    - name: Generate artifacts
+      shell: bash
+      run: |
+        if [ "${{ inputs.artifact }}" != "builder.sh" ]; then
+          bash unattended_installer/builder.sh --${{ inputs.artifact }}
+        fi
