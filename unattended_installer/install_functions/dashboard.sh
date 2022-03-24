@@ -159,12 +159,13 @@ function dashboard_install() {
     elif [ "${sys_type}" == "apt-get" ]; then
         eval "DEBIAN_FRONTEND=noninteractive apt install wazuh-dashboard${sep}${wazuh_version}-${wazuh_revision} -y ${debug}"
     fi
-    if [  "$?" != 0  ]; then
+
+    common_checkInstalled
+    if [  "$?" != 0  ] || [ -z "${dashboardinstalled}" ]; then
         common_logger -e "Wazuh dashboard installation failed"
         installCommon_rollBack
         exit 1
     else
-        dashboardinstalled="1"
         common_logger "Wazuh dashboard installation finished."
     fi
 

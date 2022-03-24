@@ -72,12 +72,13 @@ function filebeat_install() {
     elif [ "${sys_type}" == "apt-get" ]; then
         eval "DEBIAN_FRONTEND=noninteractive apt install filebeat${sep}${filebeat_version} -y -q  ${debug}"
     fi
-    if [  "$?" != 0  ]; then
+    
+    common_checkInstalled
+    if [  "$?" != 0  ] || [ -z "${filebeatinstalled}" ]; then
         common_logger -e "Filebeat installation failed"
         exit 1
     else
         common_logger "Filebeat installation finished."
-        filebeatinstalled="1"
     fi
 
 }
