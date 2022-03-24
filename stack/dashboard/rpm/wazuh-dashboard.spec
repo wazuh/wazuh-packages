@@ -30,7 +30,7 @@ ExclusiveOS: linux
 %global CONFIG_DIR /etc/%{name}
 %global PID_DIR /run/%{name}
 %global INSTALL_DIR /usr/share/%{name}
-%global DASHBOARD_FILE wazuh-dashboard-base-%{version}-testing-linux-x64.tar.xz
+%global DASHBOARD_FILE wazuh-dashboard-base-%{version}-linux-x64.tar.xz
 
 # -----------------------------------------------------------------------------
 

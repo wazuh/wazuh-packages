@@ -9,11 +9,11 @@
 ## Package vars
 readonly wazuh_major="4.3"
 readonly wazuh_version="4.3.0"
-readonly wazuh_revision="0.0.0.todelete"
+readonly wazuh_revision="1"
 readonly filebeat_version="7.10.2"
 readonly wazuh_install_vesion="0.1"
 readonly bucket="packages-dev.wazuh.com"
-readonly repository="trash" #use 4.x for production
+readonly repository="pre-release" #use 4.x for production
 
 ## Links and paths to resources
 readonly resources="https://${bucket}/resources/${wazuh_major}"

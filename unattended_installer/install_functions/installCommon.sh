@@ -94,9 +94,9 @@ function installCommon_createCertificates() {
 
     if [ -d /tmp/wazuh-certificates/ ]; then
         eval "rm -rf /tmp/wazuh-certificates/ ${debug}"
-    fi        
+    fi
     eval "mkdir /tmp/wazuh-certificates/ ${debug}"
-    
+
 
     cert_generateRootCAcertificate
     cert_generateAdmincertificate
@@ -116,10 +116,10 @@ function installCommon_createClusterKey() {
 }
 
 function installCommon_createInstallFiles() {
-    
+
     if [ -d /tmp/wazuh-install-files ]; then
         eval "rm -rf /tmp/wazuh-install-files ${debug}"
-    fi 
+    fi
 
     if eval "mkdir /tmp/wazuh-install-files ${debug}"; then
         common_logger "Generating configuration files."
@@ -349,7 +349,7 @@ function installCommon_restoreWazuhrepo() {
             common_logger -w -d "Wazuh repository does not exists."
         fi
         eval "sed -i 's/-dev//g' ${file} ${debug}"
-        eval "sed -i 's/trash/4.x/g' ${file} ${debug}"
+        eval "sed -i 's/pre-release/4.x/g' ${file} ${debug}"
         eval "sed -i 's/unstable/stable/g' ${file} ${debug}"
         common_logger -d "The Wazuh repository set to production."
     fi
