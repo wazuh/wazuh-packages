@@ -53,6 +53,11 @@ function common_checkRoot() {
 
 function common_checkInstalled() {
 
+    wazuhinstalled=""
+    indexerinstalled=""
+    filebeatinstalled=""
+    dashboardinstalled=""
+
     if [ "${sys_type}" == "yum" ]; then
         wazuhinstalled=$(yum list installed 2>/dev/null | grep wazuh-manager)
     elif [ "${sys_type}" == "zypper" ]; then
