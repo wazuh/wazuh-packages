@@ -51,12 +51,14 @@ function manager_install() {
     elif [ "${sys_type}" == "apt-get" ]; then
         eval "DEBIAN_FRONTEND=noninteractive ${sys_type} install wazuh-manager${sep}${wazuh_version}-${wazuh_revision} -y ${debug}"
     fi
-    if [  "$?" != 0  ]; then
+    
+    install_result="$?"
+    common_checkInstalled
+    if [  "$install_result" != 0  ] || [ -z "${wazuh_installed}" ]; then
         common_logger -e "Wazuh installation failed"
         installCommon_rollBack
         exit 1
     else
-        wazuhinstalled="1"
         common_logger "Wazuh manager installation finished."
     fi
 }

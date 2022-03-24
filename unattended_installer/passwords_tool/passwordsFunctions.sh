@@ -11,7 +11,7 @@ function passwords_changePassword() {
     if [ -n "${changeall}" ]; then
         for i in "${!passwords[@]}"
         do
-            if [ -n "${indexerinstalled}" ] && [ -f "/usr/share/wazuh-indexer/backup/internal_users.yml" ]; then
+            if [ -n "${indexer_installed}" ] && [ -f "/usr/share/wazuh-indexer/backup/internal_users.yml" ]; then
                 awk -v new=${hashes[i]} 'prev=="'${users[i]}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/wazuh-indexer/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/wazuh-indexer/backup/internal_users.yml
             fi
 
@@ -23,7 +23,7 @@ function passwords_changePassword() {
 
         done
     else
-        if [ -n "${indexerinstalled}" ] && [ -f "/usr/share/wazuh-indexer/backup/internal_users.yml" ]; then
+        if [ -n "${indexer_installed}" ] && [ -f "/usr/share/wazuh-indexer/backup/internal_users.yml" ]; then
             awk -v new="$hash" 'prev=="'${nuser}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/wazuh-indexer/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/wazuh-indexer/backup/internal_users.yml
         fi
 
@@ -36,7 +36,7 @@ function passwords_changePassword() {
     fi
 
     if [ "${nuser}" == "admin" ] || [ -n "${changeall}" ]; then
-        if [ -n "${filebeatinstalled}" ]; then
+        if [ -n "${filebeat_installed}" ]; then
             if [ -n "$(filebeat keystore list | grep password)" ];then
                 eval "echo ${adminpass} | filebeat keystore add password --force --stdin ${debug}"
             else
@@ -51,7 +51,7 @@ function passwords_changePassword() {
     fi
 
     if [ "$nuser" == "kibanaserver" ] || [ -n "$changeall" ]; then
-        if [ -n "${dashboardinstalled}" ] && [ -n "${dashpass}" ]; then
+        if [ -n "${dashboard_installed}" ] && [ -n "${dashpass}" ]; then
             if [ -n "$(/usr/share/wazuh-dashboard/bin/opensearch-dashboards-keystore --allow-root list | grep opensearch.password)" ]; then
                 eval "echo ${dashpass} | /usr/share/wazuh-dashboard/bin/opensearch-dashboards-keystore --allow-root add -f --stdin opensearch.password ${debug_pass}"
             else
@@ -84,11 +84,11 @@ function passwords_checkUser() {
 
 function passwords_createBackUp() {
 
-    if [ -z "${indexerinstalled}" ] && [ -z "${dashboardsinstalled}" ] && [ -z "${filebeatinstalled}" ]; then
+    if [ -z "${indexer_installed}" ] && [ -z "${dashboardsinstalled}" ] && [ -z "${filebeat_installed}" ]; then
         common_logger -e "Cannot find Wazuh indexer, Wazuh dashboards or Filebeat on the system."
         exit 1;
     else
-        if [ -n "${indexerinstalled}" ]; then
+        if [ -n "${indexer_installed}" ]; then
             capem=$(grep "plugins.security.ssl.transport.pemtrustedcas_filepath: " /etc/wazuh-indexer/opensearch.yml )
             rcapem="plugins.security.ssl.transport.pemtrustedcas_filepath: "
             capem="${capem//$rcapem}"
@@ -255,7 +255,7 @@ It must have this format:
                     supported=true
                 fi
             done
-            if [ "${supported}" = false ] && [ -n "${indexerinstalled}" ]; then
+            if [ "${supported}" = false ] && [ -n "${indexer_installed}" ]; then
                 common_logger -e "The given user ${fileusers[j]} does not exist"
             fi
         done
@@ -272,7 +272,7 @@ It must have this format:
                     supported=true
                 fi
             done
-            if [ ${supported} = false ] && [ -n "${indexerinstalled}" ]; then
+            if [ ${supported} = false ] && [ -n "${indexer_installed}" ]; then
                 common_logger -e "The given user ${fileusers[j]} does not exist"
             fi
         done

@@ -100,7 +100,7 @@ test-05-passwords-changePassword-changeall-all-users-all-installed() {
     load-passwords-changePassword
     changeall=1
     indexerchinstalled=1
-    filebeatinstalled=1
+    filebeat_installed=1
     kibanainstalled=1
     users=( "kibanaserver" "admin" )
     passwords=( "kibanaserverpassword" "adminpassword" )
@@ -184,7 +184,7 @@ test-08-passwords-changePassword-nuser-admin-filebeat-installed() {
     load-passwords-changePassword
     changeall=
     indexerchinstalled=1
-    filebeatinstalled=1
+    filebeat_installed=1
     nuser="admin"
     password="adminpassword"
     hash="11"
@@ -210,7 +210,7 @@ test-09-passwords-changePassword-nuser-admin-filebeat-not-installed() {
     load-passwords-changePassword
     changeall=
     indexerchinstalled=1
-    filebeatinstalled=
+    filebeat_installed=
     nuser="admin"
     password="adminpassword"
     hash="11"
@@ -234,7 +234,7 @@ test-10-passwords-changePassword-changeall-all-users-nothing-installed() {
     load-passwords-changePassword
     changeall=1
     indexerchinstalled=
-    filebeatinstalled=
+    filebeat_installed=
     kibanainstalled=
     users=( "kibanaserver" "admin" )
     passwords=( "kibanaserverpassword" "adminpassword" )
@@ -281,7 +281,7 @@ test-11-passwords-checkInstalledPass-all-installed-yum() {
     passwords-checkInstalledPass
 
     @echo $indexerchinstalled
-    @echo $filebeatinstalled
+    @echo $filebeat_installed
     @echo $kibanainstalled
 }
 
@@ -316,7 +316,7 @@ test-12-passwords-checkInstalledPass-all-installed-zypper() {
     passwords-checkInstalledPass
 
     @echo $indexerchinstalled
-    @echo $filebeatinstalled
+    @echo $filebeat_installed
     @echo $kibanainstalled
 
 }
@@ -351,7 +351,7 @@ test-13-passwords-checkInstalledPass-all-installed-apt() {
     passwords-checkInstalledPass
 
     @echo $indexerchinstalled
-    @echo $filebeatinstalled
+    @echo $filebeat_installed
     @echo $kibanainstalled
 
 }

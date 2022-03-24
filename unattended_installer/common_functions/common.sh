@@ -53,12 +53,17 @@ function common_checkRoot() {
 
 function common_checkInstalled() {
 
+    wazuh_installed=""
+    indexer_installed=""
+    filebeat_installed=""
+    dashboard_installed=""
+
     if [ "${sys_type}" == "yum" ]; then
-        wazuhinstalled=$(yum list installed 2>/dev/null | grep wazuh-manager)
+        wazuh_installed=$(yum list installed 2>/dev/null | grep wazuh-manager)
     elif [ "${sys_type}" == "zypper" ]; then
-        wazuhinstalled=$(zypper packages | grep wazuh-manager | grep i+)
+        wazuh_installed=$(zypper packages | grep wazuh-manager | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
-        wazuhinstalled=$(apt list --installed  2>/dev/null | grep wazuh-manager)
+        wazuh_installed=$(apt list --installed  2>/dev/null | grep wazuh-manager)
     fi
 
     if [ -d "/var/ossec" ]; then
@@ -66,11 +71,11 @@ function common_checkInstalled() {
     fi
 
     if [ "${sys_type}" == "yum" ]; then
-        indexerinstalled=$(yum list installed 2>/dev/null | grep wazuh-indexer)
+        indexer_installed=$(yum list installed 2>/dev/null | grep wazuh-indexer)
     elif [ "${sys_type}" == "zypper" ]; then
-        indexerinstalled=$(zypper packages | grep wazuh-indexer | grep i+)
+        indexer_installed=$(zypper packages | grep wazuh-indexer | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
-        indexerinstalled=$(apt list --installed 2>/dev/null | grep wazuh-indexer)
+        indexer_installed=$(apt list --installed 2>/dev/null | grep wazuh-indexer)
     fi
 
     if [ -d "/var/lib/wazuh-indexer/" ] || [ -d "/usr/share/wazuh-indexer" ] || [ -d "/etc/wazuh-indexer" ] || [ -f "${base_path}/search-guard-tlstool*" ]; then
@@ -78,11 +83,11 @@ function common_checkInstalled() {
     fi
 
     if [ "${sys_type}" == "yum" ]; then
-        filebeatinstalled=$(yum list installed 2>/dev/null | grep filebeat)
+        filebeat_installed=$(yum list installed 2>/dev/null | grep filebeat)
     elif [ "${sys_type}" == "zypper" ]; then
-        filebeatinstalled=$(zypper packages | grep filebeat | grep i+)
+        filebeat_installed=$(zypper packages | grep filebeat | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
-        filebeatinstalled=$(apt list --installed  2>/dev/null | grep filebeat)
+        filebeat_installed=$(apt list --installed  2>/dev/null | grep filebeat)
     fi
 
     if [ -d "/var/lib/filebeat/" ] || [ -d "/usr/share/filebeat" ] || [ -d "/etc/filebeat" ]; then
@@ -90,11 +95,11 @@ function common_checkInstalled() {
     fi
 
     if [ "${sys_type}" == "yum" ]; then
-        dashboardinstalled=$(yum list installed 2>/dev/null | grep wazuh-dashboard)
+        dashboard_installed=$(yum list installed 2>/dev/null | grep wazuh-dashboard)
     elif [ "${sys_type}" == "zypper" ]; then
-        dashboardinstalled=$(zypper packages | grep wazuh-dashboard | grep i+)
+        dashboard_installed=$(zypper packages | grep wazuh-dashboard | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
-        dashboardinstalled=$(apt list --installed  2>/dev/null | grep wazuh-dashboard)
+        dashboard_installed=$(apt list --installed  2>/dev/null | grep wazuh-dashboard)
     fi
 
     if [ -d "/var/lib/wazuh-dashboard/" ] || [ -d "/usr/share/wazuh-dashboard" ] || [ -d "/etc/wazuh-dashboard" ] || [ -d "/run/wazuh-dashboard/" ]; then

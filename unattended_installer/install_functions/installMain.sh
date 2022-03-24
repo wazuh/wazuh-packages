@@ -227,7 +227,7 @@ function main() {
     fi
     checks_arch
     if [ -n "${ignore}" ]; then
-        common_logger -w "Health-check ignored."
+        common_logger -w "Hardware and system checks ignored."
     else
         checks_health
     fi

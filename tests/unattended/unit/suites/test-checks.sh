@@ -176,13 +176,13 @@ test-ASSERT-FAIL-15-checks_arguments-overwrite-with-no-component-installed() {
 test-16-checks_arguments-uninstall-no-component-installed() {
     load-checks_arguments
     uninstall=1
-    indexerinstalled=""
+    indexer_installed=""
     indexer_remaining_files=""
-    wazuhinstalled=""
+    wazuh_installed=""
     wazuh_remaining_files=""
-    dashboardinstalled=""
+    dashboard_installed=""
     dashboard_remaining_files=""
-    filebeatinstalled=""
+    filebeat_installed=""
     filebeat_remaining_files=""
     checks_arguments
     @assert-success
@@ -240,7 +240,7 @@ test-ASSERT-FAIL-23-checks_arguments-install-AIO-and-dashboard () {
 test-ASSERT-FAIL-24-checks_arguments-install-AIO-wazuh-installed-no-overwrite() {
     load-checks_arguments
     AIO=1
-    wazuhinstalled=1
+    wazuh_installed=1
     overwrite=
     checks_arguments
 }
@@ -256,7 +256,7 @@ test-ASSERT-FAIL-25-checks_arguments-install-AIO-wazuh-files-no-overwrite() {
 test-ASSERT-FAIL-26-checks_arguments-install-AIO-indexer-installed-no-overwrite() {
     load-checks_arguments
     AIO=1
-    indexerinstalled=1
+    indexer_installed=1
     overwrite=
     checks_arguments
 }
@@ -272,7 +272,7 @@ test-ASSERT-FAIL-27-checks_arguments-install-AIO-indexer-files-no-overwrite() {
 test-ASSERT-FAIL-28-checks_arguments-install-AIO-dashboard-installed-no-overwrite() {
     load-checks_arguments
     AIO=1
-    dashboardinstalled=1
+    dashboard_installed=1
     overwrite=
     checks_arguments
 }
@@ -288,7 +288,7 @@ test-ASSERT-FAIL-29-checks_arguments-install-AIO-dashboard-files-no-overwrite() 
 test-30-checks_arguments-install-AIO-wazuh-installed-overwrite() {
     load-checks_arguments
     AIO=1
-    wazuhinstalled=1
+    wazuh_installed=1
     overwrite=1
     checks_arguments
 }
@@ -312,7 +312,7 @@ test-31-checks_arguments-install-AIO-wazuh-files-overwrite-assert() {
 test-32-checks_arguments-install-AIO-indexer-installed-overwrite() {
     load-checks_arguments
     AIO=1
-    indexerinstalled=1
+    indexer_installed=1
     overwrite=1
     checks_arguments
 }
@@ -336,7 +336,7 @@ test-33-checks_arguments-install-AIO-indexer-files-overwrite-assert() {
 test-34-checks_arguments-install-AIO-dashboard-installed-overwrite() {
     load-checks_arguments
     AIO=1
-    dashboardinstalled=1
+    dashboard_installed=1
     overwrite=1
     checks_arguments
 }
@@ -360,7 +360,7 @@ test-35-checks_arguments-install-AIO-dashboard-files-overwrite-assert() {
 test-ASSERT-FAIL-36-checks_arguments-install-indexer-already-installed-no-overwrite() {
     load-checks_arguments
     indexer=1
-    indexerinstalled=1
+    indexer_installed=1
     overwrite=
     checks_arguments
 }
@@ -376,7 +376,7 @@ test-ASSERT-FAIL-37-checks_arguments-install-indexer-remaining-files-no-overwrit
 test-38-checks_arguments-install-indexer-already-installed-overwrite() {
     load-checks_arguments
     indexer=1
-    indexerinstalled=1
+    indexer_installed=1
     overwrite=1
     checks_arguments
 }
@@ -400,7 +400,7 @@ test-39-checks_arguments-install-indexer-remaining-files-overwrite-assert() {
 test-ASSERT-FAIL-40-checks_arguments-install-wazuh-already-installed-no-overwrite() {
     load-checks_arguments
     wazuh=1
-    wazuhinstalled=1
+    wazuh_installed=1
     overwrite=
     checks_arguments
 }
@@ -416,7 +416,7 @@ test-ASSERT-FAIL-41-checks_arguments-install-wazuh-remaining-files-no-overwrite(
 test-42-checks_arguments-install-wazuh-already-installed-overwrite() {
     load-checks_arguments
     wazuh=1
-    wazuhinstalled=1
+    wazuh_installed=1
     overwrite=1
     checks_arguments
 }
@@ -440,7 +440,7 @@ test-43-checks_arguments-install-wazuh-remaining-files-overwrite-assert() {
 test-ASSERT-FAIL-44-checks_arguments-install-wazuh-filebeat-already-installed-no-overwrite() {
     load-checks_arguments
     wazuh=1
-    filebeatinstalled=1
+    filebeat_installed=1
     overwrite=
     checks_arguments
 }
@@ -456,7 +456,7 @@ test-ASSERT-FAIL-45-checks_arguments-install-wazuh-filebeat-remaining-files-no-o
 test-46-checks_arguments-install-wazuh-filebeat-already-installed-overwrite() {
     load-checks_arguments
     wazuh=1
-    filebeatinstalled=1
+    filebeat_installed=1
     overwrite=1
     checks_arguments
 }
@@ -480,7 +480,7 @@ test-47-checks_arguments-install-wazuh-filebeat-remaining-files-overwrite-assert
 test-ASSERT-FAIL-48-checks_arguments-install-dashboard-already-installed-no-overwrite() {
     load-checks_arguments
     dashboard=1
-    dashboardinstalled=1
+    dashboard_installed=1
     overwrite=
     checks_arguments
 }
@@ -496,7 +496,7 @@ test-ASSERT-FAIL-49-checks_arguments-install-dashboard-remaining-files-no-overwr
 test-50-checks_arguments-install-dashboard-already-installed-overwrite() {
     load-checks_arguments
     dashboard=1
-    dashboardinstalled=1
+    dashboard_installed=1
     overwrite=1
     checks_arguments
 }

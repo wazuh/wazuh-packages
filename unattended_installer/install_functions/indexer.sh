@@ -133,12 +133,13 @@ function indexer_install() {
         eval "DEBIAN_FRONTEND=noninteractive apt install wazuh-indexer=${wazuh_version}-${wazuh_revision} -y ${debug}"
     fi
 
-    if [  "$?" != 0  ]; then
+    install_result="$?"
+    common_checkInstalled
+    if [  "$install_result" != 0  ] || [ -z "${indexer_installed}" ]; then
         common_logger -e "Wazuh indexer installation failed."
         installCommon_rollBack
         exit 1
     else
-        indexerinstalled="1"
         common_logger "Wazuh indexer installation finished."
     fi
 

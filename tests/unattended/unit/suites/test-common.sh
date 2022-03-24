@@ -99,23 +99,23 @@ test-05-common_checkInstalled-all-installed-yum() {
     @mkdir /etc/wazuh-dashboard
 
     common_checkInstalled
-    @echo $wazuhinstalled
+    @echo $wazuh_installed
     @echo $wazuh_remaining_files
     @rmdir /var/ossec
 
-    @echo $indexerinstalled
+    @echo $indexer_installed
     @echo $indexer_remaining_files
     @rmdir /var/lib/wazuh-indexer/
     @rmdir /usr/share/wazuh-indexer
     @rmdir /etc/wazuh-indexer
 
-    @echo $filebeatinstalled
+    @echo $filebeat_installed
     @echo $filebeat_remaining_files
     @rmdir /var/lib/filebeat/
     @rmdir /usr/share/filebeat
     @rmdir /etc/filebeat
 
-    @echo $dashboardinstalled
+    @echo $dashboard_installed
     @echo $dashboard_remaining_files
     @rmdir /var/lib/wazuh-dashboard/
     @rmdir /usr/share/wazuh-dashboard/
@@ -164,23 +164,23 @@ test-06-common_checkInstalled-all-installed-zypper() {
     @mkdir /etc/wazuh-dashboard
 
     common_checkInstalled
-    @echo $wazuhinstalled
+    @echo $wazuh_installed
     @echo $wazuh_remaining_files
     @rmdir /var/ossec
 
-    @echo $indexerinstalled
+    @echo $indexer_installed
     @echo $indexer_remaining_files
     @rmdir /var/lib/wazuh-indexer/
     @rmdir /usr/share/wazuh-indexer
     @rmdir /etc/wazuh-indexer
 
-    @echo $filebeatinstalled
+    @echo $filebeat_installed
     @echo $filebeat_remaining_files
     @rmdir /var/lib/filebeat/
     @rmdir /usr/share/filebeat
     @rmdir /etc/filebeat
 
-    @echo $dashboardinstalled
+    @echo $dashboard_installed
     @echo $dashboard_remaining_files
     @rmdir /var/lib/wazuh-dashboard/
     @rmdir /usr/share/wazuh-dashboard/
@@ -228,23 +228,23 @@ test-07-common_checkInstalled-all-installed-apt() {
     @mkdir /etc/wazuh-dashboard
 
     common_checkInstalled
-    @echo $wazuhinstalled
+    @echo $wazuh_installed
     @echo $wazuh_remaining_files
     @rmdir /var/ossec
 
-    @echo $indexerinstalled
+    @echo $indexer_installed
     @echo $indexer_remaining_files
     @rmdir /var/lib/wazuh-indexer/
     @rmdir /usr/share/wazuh-indexer
     @rmdir /etc/wazuh-indexer
 
-    @echo $filebeatinstalled
+    @echo $filebeat_installed
     @echo $filebeat_remaining_files
     @rmdir /var/lib/filebeat/
     @rmdir /usr/share/filebeat
     @rmdir /etc/filebeat
 
-    @echo $dashboardinstalled
+    @echo $dashboard_installed
     @echo $dashboard_remaining_files
     @rmdir /var/lib/wazuh-dashboard/
     @rmdir /usr/share/wazuh-dashboard/
@@ -282,16 +282,16 @@ test-08-common_checkInstalled-nothing-installed-apt() {
     @mock grep wazuh-dashboard
 
     common_checkInstalled
-    @echo $wazuhinstalled
+    @echo $wazuh_installed
     @echo $wazuh_remaining_files
 
-    @echo $indexerinstalled
+    @echo $indexer_installed
     @echo $indexer_remaining_files
 
-    @echo $filebeatinstalled
+    @echo $filebeat_installed
     @echo $filebeat_remaining_files
 
-    @echo $dashboardinstalled
+    @echo $dashboard_installed
     @echo $dashboard_remaining_files
 }
 
@@ -325,16 +325,16 @@ test-09-common_checkInstalled-nothing-installed-yum() {
     @mock grep wazuh-dashboard
 
     common_checkInstalled
-    @echo $wazuhinstalled
+    @echo $wazuh_installed
     @echo $wazuh_remaining_files
 
-    @echo $indexerinstalled
+    @echo $indexer_installed
     @echo $indexer_remaining_files
 
-    @echo $filebeatinstalled
+    @echo $filebeat_installed
     @echo $filebeat_remaining_files
 
-    @echo $dashboardinstalled
+    @echo $dashboard_installed
     @echo $dashboard_remaining_files
 }
 
@@ -369,16 +369,16 @@ test-10-common_checkInstalled-nothing-installed-zypper() {
     @mock grep wazuh-dashboard
 
     common_checkInstalled
-    @echo $wazuhinstalled
+    @echo $wazuh_installed
     @echo $wazuh_remaining_files
 
-    @echo $indexerinstalled
+    @echo $indexer_installed
     @echo $indexer_remaining_files
 
-    @echo $filebeatinstalled
+    @echo $filebeat_installed
     @echo $filebeat_remaining_files
 
-    @echo $dashboardinstalled
+    @echo $dashboard_installed
     @echo $dashboard_remaining_files
 }
 
