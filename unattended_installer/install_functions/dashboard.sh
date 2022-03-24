@@ -8,12 +8,12 @@
 
 function dashboard_configure() {
 
-    dashboard_copyCertificates
-
     if [ -n "${AIO}" ]; then
         eval "installCommon_getConfig dashboard/dashboard_unattended.yml /etc/wazuh-dashboard/opensearch_dashboards.yml ${debug}"
+        dashboard_copyCertificates
     else
         eval "installCommon_getConfig dashboard/dashboard_unattended_distributed.yml /etc/wazuh-dashboard/opensearch_dashboards.yml ${debug}"
+        dashboard_copyCertificates
         if [ "${#dashboard_node_names[@]}" -eq 1 ]; then
             pos=0
             ip=${dashboard_node_ips[0]}
