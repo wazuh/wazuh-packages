@@ -92,7 +92,11 @@ function installCommon_createCertificates() {
 
     cert_readConfig
 
-    mkdir "/tmp/wazuh-certificates/"
+    if [ -d /tmp/wazuh-certificates/ ]; then
+        eval "rm -rf /tmp/wazuh-certificates/ ${debug}"
+    fi        
+    eval "mkdir /tmp/wazuh-certificates/ ${debug}"
+    
 
     cert_generateRootCAcertificate
     cert_generateAdmincertificate
@@ -100,7 +104,8 @@ function installCommon_createCertificates() {
     cert_generateFilebeatcertificates
     cert_generateDashboardcertificates
     cert_cleanFiles
-    mv /tmp/wazuh-certificates/* /tmp/wazuh-install-files
+    eval "mv /tmp/wazuh-certificates/* /tmp/wazuh-install-files ${debug}"
+    eval "rm -rf /tmp/wazuh-certificates/ ${debug}"
 
 }
 
@@ -112,7 +117,11 @@ function installCommon_createClusterKey() {
 
 function installCommon_createInstallFiles() {
     
-    if mkdir /tmp/wazuh-install-files > /dev/null 2>&1; then
+    if [ -d /tmp/wazuh-install-files ]; then
+        eval "rm -rf /tmp/wazuh-install-files ${debug}"
+    fi 
+
+    if eval "mkdir /tmp/wazuh-install-files ${debug}"; then
         common_logger "Generating configuration files."
         if [ -n "${configurations}" ]; then
             cert_checkOpenSSL
@@ -139,8 +148,8 @@ function installCommon_changePasswords() {
 
     common_logger -d "Setting passwords."
     if [ -f "${tar_file}" ]; then
-        eval "tar -xf ${tar_file} -C ${base_path} wazuh-install-files/passwords.wazuh ${debug}"
-        p_file="${base_path}/wazuh-install-files/passwords.wazuh"
+        eval "tar -xf ${tar_file} -C /tmp wazuh-install-files/passwords.wazuh ${debug}"
+        p_file="/tmp/wazuh-install-files/passwords.wazuh"
         common_checkInstalled
         if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
             changeall=1
@@ -162,7 +171,6 @@ function installCommon_changePasswords() {
     if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
         passwords_runSecurityAdmin
     fi
-    rm -rf "${base_path}/wazuh-install-files"
 
 }
 
@@ -172,8 +180,7 @@ function installCommon_extractConfig() {
         common_logger -e "There is no config.yml file in ${tar_file}."
         exit 1
     fi
-    eval "tar -xf ${tar_file} -C ${base_path} wazuh-install-files/config.yml ${debug}"
-    eval "mv ${base_path}/wazuh-install-files/config.yml ${base_path}/config.yml"
+    eval "tar -xf ${tar_file} -C /tmp wazuh-install-files/config.yml ${debug}"
 
 }
 
@@ -445,9 +452,7 @@ function installCommon_rollBack() {
                             "/etc/systemd/system/multi-user.target.wants/wazuh-dashboard.service"
                             "/etc/systemd/system/wazuh-dashboard.service"
                             "/lib/firewalld/services/dashboard.xml"
-                            "/lib/firewalld/services/opensearch.xml"
-                            "${base_path}/wazuh-install-files"
-                            "${base_path}/wazuh-install-files.tar" )
+                            "/lib/firewalld/services/opensearch.xml" )
 
     eval "rm -rf ${elements_to_remove[*]}"
 

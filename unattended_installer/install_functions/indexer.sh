@@ -80,13 +80,14 @@ function indexer_copyCertificates() {
     name=${indexer_node_names[pos]}
 
     if [ -f "${tar_file}" ]; then
-        eval "tar -xf ${tar_file} -C ${indexer_cert_path} wazuh-install-files/${name}.pem  && mv ${indexer_cert_path}/wazuh-install-files/${name}.pem ${indexer_cert_path}/indexer.pem ${debug}"
-        eval "tar -xf ${tar_file} -C ${indexer_cert_path} wazuh-install-files/${name}-key.pem  && mv ${indexer_cert_path}/wazuh-install-files/${name}-key.pem ${indexer_cert_path}/indexer-key.pem ${debug}"
-        eval "tar -xf ${tar_file} -C ${indexer_cert_path} wazuh-install-files/root-ca.pem && mv ${indexer_cert_path}/wazuh-install-files/root-ca.pem ${indexer_cert_path}/ ${debug}"
-        eval "tar -xf ${tar_file} -C ${indexer_cert_path} wazuh-install-files/admin.pem && mv ${indexer_cert_path}/wazuh-install-files/admin.pem ${indexer_cert_path}/ ${debug}"
-        eval "tar -xf ${tar_file} -C ${indexer_cert_path} wazuh-install-files/admin-key.pem && mv ${indexer_cert_path}/wazuh-install-files/admin-key.pem ${indexer_cert_path}/ ${debug}"
-        eval "rm -rf ${indexer_cert_path}/wazuh-install-files/"
-        eval "chown wazuh-indexer:wazuh-indexer ${indexer_cert_path}/*"
+        eval "sed -i s/indexer.pem/${name}.pem/ /etc/wazuh-indexer/opensearch.yml ${debug}"
+        eval "sed -i s/indexer-key.pem/${name}-key.pem/ /etc/wazuh-indexer/opensearch.yml ${debug}"
+        eval "tar -xf ${tar_file} -C ${indexer_cert_path} wazuh-install-files/${name}.pem --strip-components 1 ${debug}"
+        eval "tar -xf ${tar_file} -C ${indexer_cert_path} wazuh-install-files/${name}-key.pem --strip-components 1 ${debug}"
+        eval "tar -xf ${tar_file} -C ${indexer_cert_path} wazuh-install-files/root-ca.pem --strip-components 1 ${debug}"
+        eval "tar -xf ${tar_file} -C ${indexer_cert_path} wazuh-install-files/admin.pem --strip-components 1 ${debug}"
+        eval "tar -xf ${tar_file} -C ${indexer_cert_path} wazuh-install-files/admin-key.pem --strip-components 1 ${debug}"
+        eval "chown wazuh-indexer:wazuh-indexer ${indexer_cert_path}/* ${debug}"
     else
         common_logger -e "No certificates found. Could not initialize Wazuh indexer"
         exit 1;
