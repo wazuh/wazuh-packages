@@ -51,19 +51,19 @@ function checks_arguments() {
             exit 1
         fi
 
-        if [ -z "${wazuhinstalled}" ] && [ -z "${wazuh_remaining_files}" ]; then
+        if [ -z "${wazuh_installed}" ] && [ -z "${wazuh_remaining_files}" ]; then
             common_logger "Wazuh manager components were not found on the system so it was not uninstalled."
         fi
 
-        if [ -z "${filebeatinstalled}" ] && [ -z "${filebeat_remaining_files}" ]; then
+        if [ -z "${filebeat_installed}" ] && [ -z "${filebeat_remaining_files}" ]; then
             common_logger "Filebeat components were not found on the system so it was not uninstalled."
         fi
 
-        if [ -z "${indexerinstalled}" ] && [ -z "${indexer_remaining_files}" ]; then
+        if [ -z "${indexer_installed}" ] && [ -z "${indexer_remaining_files}" ]; then
             common_logger "Wazuh Indexer components were not found on the system so it was not uninstalled."
         fi
 
-        if [ -z "${dashboardinstalled}" ] && [ -z "${dashboard_remaining_files}" ]; then
+        if [ -z "${dashboard_installed}" ] && [ -z "${dashboard_remaining_files}" ]; then
             common_logger "Wazuh Dashboard components were found on the system so it was not uninstalled."
         fi
 
@@ -82,19 +82,19 @@ function checks_arguments() {
             installCommon_rollBack
         fi
 
-        if [ -z "${overwrite}" ] && ([ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ]); then
+        if [ -z "${overwrite}" ] && ([ -n "${wazuh_installed}" ] || [ -n "${wazuh_remaining_files}" ]); then
             common_logger -e "Wazuh manager already installed."
             installedComponent=1
         fi
-        if [ -z "${overwrite}" ] && ([ -n "${indexerinstalled}" ] || [ -n "${indexer_remaining_files}" ]);then 
+        if [ -z "${overwrite}" ] && ([ -n "${indexer_installed}" ] || [ -n "${indexer_remaining_files}" ]);then 
             common_logger -e "Wazuh indexer already installed."
             installedComponent=1
         fi
-        if [ -z "${overwrite}" ] && ([ -n "${dashboardinstalled}" ] || [ -n "${dashboard_remaining_files}" ]); then
+        if [ -z "${overwrite}" ] && ([ -n "${dashboard_installed}" ] || [ -n "${dashboard_remaining_files}" ]); then
             common_logger -e "Wazuh dashboard already installed."
             installedComponent=1
         fi
-        if [ -z "${overwrite}" ] && ([ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ]); then
+        if [ -z "${overwrite}" ] && ([ -n "${filebeat_installed}" ] || [ -n "${filebeat_remaining_files}" ]); then
             common_logger -e "Filebeat already installed."
             installedComponent=1
         fi
@@ -109,7 +109,7 @@ function checks_arguments() {
 
     if [ -n "${indexer}" ]; then
 
-        if [ -n "${indexerinstalled}" ] || [ -n "${indexer_remaining_files}" ]; then
+        if [ -n "${indexer_installed}" ] || [ -n "${indexer_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
                 installCommon_rollBack
             else
@@ -122,7 +122,7 @@ function checks_arguments() {
     # -------------- Wazuh Dashboard --------------------------------
 
     if [ -n "${dashboard}" ]; then
-        if [ -n "${dashboardinstalled}" ] || [ -n "${dashboard_remaining_files}" ]; then
+        if [ -n "${dashboard_installed}" ] || [ -n "${dashboard_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
                 installCommon_rollBack
             else
@@ -135,7 +135,7 @@ function checks_arguments() {
     # -------------- Wazuh ------------------------------------------
 
     if [ -n "${wazuh}" ]; then
-        if [ -n "${wazuhinstalled}" ] || [ -n "${wazuh_remaining_files}" ]; then
+        if [ -n "${wazuh_installed}" ] || [ -n "${wazuh_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
                 installCommon_rollBack
             else
@@ -144,7 +144,7 @@ function checks_arguments() {
             fi
         fi
 
-        if [ -n "${filebeatinstalled}" ] || [ -n "${filebeat_remaining_files}" ]; then
+        if [ -n "${filebeat_installed}" ] || [ -n "${filebeat_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
                 installCommon_rollBack
             else

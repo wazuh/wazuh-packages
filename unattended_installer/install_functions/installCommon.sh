@@ -298,7 +298,7 @@ function installCommon_readPasswordFileUsers() {
                     supported=true
                 fi
             done
-            if [ "${supported}" = false ] && [ -n "${indexerinstalled}" ]; then
+            if [ "${supported}" = false ] && [ -n "${indexer_installed}" ]; then
                 common_logger -e -d "The given user ${fileusers[j]} does not exist"
             fi
         done
@@ -306,11 +306,11 @@ function installCommon_readPasswordFileUsers() {
         finalusers=()
         finalpasswords=()
 
-        if [ -n "${dashboardinstalled}" ] &&  [ -n "${dashboard}" ]; then
+        if [ -n "${dashboard_installed}" ] &&  [ -n "${dashboard}" ]; then
             users=( kibanaserver admin )
         fi
 
-        if [ -n "${filebeatinstalled}" ] && [ -n "${wazuh}" ]; then
+        if [ -n "${filebeat_installed}" ] && [ -n "${wazuh}" ]; then
             users=( admin )
         fi
 
@@ -323,7 +323,7 @@ function installCommon_readPasswordFileUsers() {
                     supported=true
                 fi
             done
-            if [ "${supported}" = "false" ] && [ -n "${indexerinstalled}" ] && [ -n "${changeall}" ]; then
+            if [ "${supported}" = "false" ] && [ -n "${indexer_installed}" ] && [ -n "${changeall}" ]; then
                 common_logger -e -d "The given user ${fileusers[j]} does not exist"
             fi
         done
@@ -370,7 +370,7 @@ function installCommon_rollBack() {
         eval "rm /etc/apt/sources.list.d/wazuh.list"
     fi
 
-    if [[ -n "${wazuhinstalled}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]];then
+    if [[ -n "${wazuh_installed}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]];then
         common_logger "Removing Wazuh manager."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-manager -y ${debug}"
@@ -383,11 +383,11 @@ function installCommon_rollBack() {
         common_logger "Wazuh manager removed."
     fi
 
-    if [[ ( -n "${wazuh_remaining_files}"  || -n "${wazuhinstalled}" ) && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
+    if [[ ( -n "${wazuh_remaining_files}"  || -n "${wazuh_installed}" ) && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         eval "rm -rf /var/ossec/ ${debug}"
     fi
 
-    if [[ -n "${indexerinstalled}" && ( -n "${indexer}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
+    if [[ -n "${indexer_installed}" && ( -n "${indexer}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         common_logger "Removing Wazuh indexer."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-indexer -y ${debug}"
@@ -399,13 +399,13 @@ function installCommon_rollBack() {
         common_logger "Wazuh indexer removed."
     fi
 
-    if [[ ( -n "${indexer_remaining_files}" || -n "${indexerinstalled}" ) && ( -n "${indexer}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
+    if [[ ( -n "${indexer_remaining_files}" || -n "${indexer_installed}" ) && ( -n "${indexer}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         eval "rm -rf /var/lib/wazuh-indexer/ ${debug}"
         eval "rm -rf /usr/share/wazuh-indexer/ ${debug}"
         eval "rm -rf /etc/wazuh-indexer/ ${debug}"
     fi
 
-    if [[ -n "${filebeatinstalled}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
+    if [[ -n "${filebeat_installed}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         common_logger "Removing Filebeat."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove filebeat -y ${debug}"
@@ -417,13 +417,13 @@ function installCommon_rollBack() {
         common_logger "Filebeat removed."
     fi
 
-    if [[ ( -n "${filebeat_remaining_files}" || -n "${filebeatinstalled}" ) && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
+    if [[ ( -n "${filebeat_remaining_files}" || -n "${filebeat_installed}" ) && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         eval "rm -rf /var/lib/filebeat/ ${debug}"
         eval "rm -rf /usr/share/filebeat/ ${debug}"
         eval "rm -rf /etc/filebeat/ ${debug}"
     fi
 
-    if [[ -n "${dashboardinstalled}" && ( -n "${dashboard}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
+    if [[ -n "${dashboard_installed}" && ( -n "${dashboard}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         common_logger "Removing Wazuh dashboard."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-dashboard -y ${debug}"
@@ -435,7 +435,7 @@ function installCommon_rollBack() {
         common_logger "Wazuh dashboard removed."
     fi
 
-    if [[ ( -n "${dashboard_remaining_files}" || -n "${dashboardinstalled}" ) && ( -n "${dashboard}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
+    if [[ ( -n "${dashboard_remaining_files}" || -n "${dashboard_installed}" ) && ( -n "${dashboard}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         eval "rm -rf /var/lib/wazuh-dashboard/ ${debug}"
         eval "rm -rf /usr/share/wazuh-dashboard/ ${debug}"
         eval "rm -rf /etc/wazuh-dashboard/ ${debug}"

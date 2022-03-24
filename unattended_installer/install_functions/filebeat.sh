@@ -73,8 +73,9 @@ function filebeat_install() {
         eval "DEBIAN_FRONTEND=noninteractive apt install filebeat${sep}${filebeat_version} -y -q  ${debug}"
     fi
     
+    install_result="$?"
     common_checkInstalled
-    if [  "$?" != 0  ] || [ -z "${filebeatinstalled}" ]; then
+    if [  "$install_result" != 0  ] || [ -z "${filebeat_installed}" ]; then
         common_logger -e "Filebeat installation failed"
         exit 1
     else

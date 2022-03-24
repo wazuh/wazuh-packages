@@ -52,8 +52,9 @@ function manager_install() {
         eval "DEBIAN_FRONTEND=noninteractive ${sys_type} install wazuh-manager${sep}${wazuh_version}-${wazuh_revision} -y ${debug}"
     fi
     
+    install_result="$?"
     common_checkInstalled
-    if [  "$?" != 0  ] || [ -z "${wazuhinstalled}" ]; then
+    if [  "$install_result" != 0  ] [ -z "${wazuh_installed}" ]; then
         common_logger -e "Wazuh installation failed"
         installCommon_rollBack
         exit 1
