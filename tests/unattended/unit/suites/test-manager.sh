@@ -61,7 +61,7 @@ test-04-manager_install-zypper() {
     wazuh_version=1
     wazuh_revision=1
     manager_install
-    @echo $wazuhinstalled
+    @echo $wazuh_installed
 }
 
 test-04-manager_install-zypper-assert() {
@@ -76,7 +76,7 @@ test-05-manager_install-apt() {
     wazuh_version=1
     wazuh_revision=1
     manager_install
-    @echo $wazuhinstalled
+    @echo $wazuh_installed
 }
 
 test-05-manager_install-apt-assert() {
@@ -91,7 +91,7 @@ test-06-manager_install-yum() {
     wazuh_version=1
     wazuh_revision=1
     manager_install
-    @echo $wazuhinstalled
+    @echo $wazuh_installed
 }
 
 test-06-manager_install-yum-assert() {

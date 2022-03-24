@@ -203,7 +203,7 @@ function main() {
     if [ -z "${disableSpinner}" ]; then
         installCommon_spin &
         spin_pid=$!
-        trap "kill -9 ${spin_pid} ${debug}" EXIT
+        trap "kill -9 ${spin_pid} > /dev/null 2>&1" EXIT
     fi
 
     common_logger "Starting Wazuh installation assistant. Wazuh version: ${wazuh_version}"
@@ -227,7 +227,7 @@ function main() {
     fi
     checks_arch
     if [ -n "${ignore}" ]; then
-        common_logger -w "Health-check ignored."
+        common_logger -w "Hardware and system checks ignored."
     else
         checks_health
     fi
@@ -251,11 +251,12 @@ function main() {
 
     if [ -z "${configurations}" ] && [ -z "${download}" ]; then
         installCommon_extractConfig
+        config_file="/tmp/wazuh-install-files/config.yml"
         cert_readConfig
     fi
 
     # Distributed architecture: node names must be different
-    if [[ -z "${AIO}" && -z "${download}" && ( -n "${indexer}"  || -n "${dashboard}" || -n "${wazuh}" )]]; then
+    if [[ -z "${AIO}" && -z "${download}" && ( -n "${indexer}"  || -n "${dashboard}" || -n "${wazuh}" ) ]]; then
         checks_names
     fi
 
@@ -343,6 +344,7 @@ function main() {
     fi
 
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
+        eval "rm -rf /tmp/wazuh-install-files ${debug}"
         common_logger "Installation finished."
     elif [ -n "${start_elastic_cluster}" ]; then
         common_logger "Elasticsearch cluster started."

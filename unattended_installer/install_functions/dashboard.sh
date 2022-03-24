@@ -8,12 +8,12 @@
 
 function dashboard_configure() {
 
-    dashboard_copyCertificates
-
     if [ -n "${AIO}" ]; then
         eval "installCommon_getConfig dashboard/dashboard_unattended.yml /etc/wazuh-dashboard/opensearch_dashboards.yml ${debug}"
+        dashboard_copyCertificates
     else
         eval "installCommon_getConfig dashboard/dashboard_unattended_distributed.yml /etc/wazuh-dashboard/opensearch_dashboards.yml ${debug}"
+        dashboard_copyCertificates
         if [ "${#dashboard_node_names[@]}" -eq 1 ]; then
             pos=0
             ip=${dashboard_node_ips[0]}
@@ -45,16 +45,18 @@ function dashboard_configure() {
 function dashboard_copyCertificates() {
 
     eval "rm -f ${dashboard_cert_path}/* ${debug}"
-    if [ -f "${tar_file}" ]; then
+    name=${dashboard_node_names[pos]}
 
-        name=${dashboard_node_names[pos]}
+    if [ -f "${tar_file}" ]; then
         eval "mkdir ${dashboard_cert_path} ${debug}"
-        eval "tar -xf ${tar_file} -C ${dashboard_cert_path} wazuh-install-files/${name}.pem  && mv ${dashboard_cert_path}/wazuh-install-files/${name}.pem ${dashboard_cert_path}/dashboard.pem ${debug}"
-        eval "tar -xf ${tar_file} -C ${dashboard_cert_path} wazuh-install-files/${name}-key.pem  && mv ${dashboard_cert_path}/wazuh-install-files/${name}-key.pem ${dashboard_cert_path}/dashboard-key.pem ${debug}"
-        eval "tar -xf ${tar_file} -C ${dashboard_cert_path} wazuh-install-files/root-ca.pem && mv ${dashboard_cert_path}/wazuh-install-files/root-ca.pem ${dashboard_cert_path}/root-ca.pem ${debug}"
-        eval "rm -rf ${dashboard_cert_path}/wazuh-install-files/"
+        eval "sed -i s/dashboard.pem/${name}.pem/ /etc/wazuh-dashboard/opensearch_dashboards.yml ${debug}"
+        eval "sed -i s/dashboard-key.pem/${name}-key.pem/ /etc/wazuh-dashboard/opensearch_dashboards.yml ${debug}"
+        eval "tar -xf ${tar_file} -C ${dashboard_cert_path} wazuh-install-files/${name}.pem --strip-components 1 ${debug}"
+        eval "tar -xf ${tar_file} -C ${dashboard_cert_path} wazuh-install-files/${name}-key.pem --strip-components 1 ${debug}"
+        eval "tar -xf ${tar_file} -C ${dashboard_cert_path} wazuh-install-files/root-ca.pem --strip-components 1 ${debug}"
         eval "chown -R wazuh-dashboard:wazuh-dashboard /etc/wazuh-dashboard/ ${debug}"
         eval "chmod -R 500 ${dashboard_cert_path} ${debug}"
+        eval "chown wazuh-dashboard:wazuh-dashboard ${dashboard_cert_path}/* ${debug}"
         common_logger -d "Wazuh dashboard certificate setup finished."
     else
         common_logger -e "No certificates found. Wazuh dashboard  could not be initialized."
@@ -158,12 +160,13 @@ function dashboard_install() {
     elif [ "${sys_type}" == "apt-get" ]; then
         eval "DEBIAN_FRONTEND=noninteractive apt install wazuh-dashboard${sep}${wazuh_version}-${wazuh_revision} -y ${debug}"
     fi
-    if [  "$?" != 0  ]; then
+    install_result="$?"
+    common_checkInstalled
+    if [  "$install_result" != 0  ] || [ -z "${dashboard_installed}" ]; then
         common_logger -e "Wazuh dashboard installation failed"
         installCommon_rollBack
         exit 1
     else
-        dashboardinstalled="1"
         common_logger "Wazuh dashboard installation finished."
     fi
 

@@ -342,10 +342,10 @@ function load-installCommon_rollBack {
 
 test-25-installCommon_rollBack-aio-all-installed-yum() {
     load-installCommon_rollBack
-    indexerinstalled=1
-    wazuhinstalled=1
-    dashboardinstalled=1
-    filebeatinstalled=1
+    indexer_installed=1
+    wazuh_installed=1
+    dashboard_installed=1
+    filebeat_installed=1
     wazuh_remaining_files=1
     indexer_remaining_files=1
     dashboard_remaining_files=1
@@ -386,10 +386,10 @@ test-25-installCommon_rollBack-aio-all-installed-yum-assert() {
 
 test-26-installCommon_rollBack-aio-all-installed-zypper() {
     load-installCommon_rollBack
-    indexerinstalled=1
-    wazuhinstalled=1
-    dashboardinstalled=1
-    filebeatinstalled=1
+    indexer_installed=1
+    wazuh_installed=1
+    dashboard_installed=1
+    filebeat_installed=1
     wazuh_remaining_files=1
     indexer_remaining_files=1
     dashboard_remaining_files=1
@@ -430,10 +430,10 @@ test-26-installCommon_rollBack-aio-all-installed-zypper-assert() {
 
 test-27-installCommon_rollBack-aio-all-installed-apt() {
     load-installCommon_rollBack
-    indexerinstalled=1
-    wazuhinstalled=1
-    dashboardinstalled=1
-    filebeatinstalled=1
+    indexer_installed=1
+    wazuh_installed=1
+    dashboard_installed=1
+    filebeat_installed=1
     wazuh_remaining_files=1
     indexer_remaining_files=1
     dashboard_remaining_files=1
@@ -473,10 +473,10 @@ test-27-installCommon_rollBack-aio-all-installed-apt-assert() {
 
 test-28-installCommon_rollBack-indexer-installation-all-installed-yum() {
     load-installCommon_rollBack
-    indexerinstalled=1
-    wazuhinstalled=1
-    dashboardinstalled=1
-    filebeatinstalled=1
+    indexer_installed=1
+    wazuh_installed=1
+    dashboard_installed=1
+    filebeat_installed=1
     wazuh_remaining_files=1
     indexer_remaining_files=1
     dashboard_remaining_files=1
@@ -499,10 +499,10 @@ test-28-installCommon_rollBack-indexer-installation-all-installed-yum-assert() {
 
 test-29-installCommon_rollBack-indexer-installation-all-installed-zypper() {
     load-installCommon_rollBack
-    indexerinstalled=1
-    wazuhinstalled=1
-    dashboardinstalled=1
-    filebeatinstalled=1
+    indexer_installed=1
+    wazuh_installed=1
+    dashboard_installed=1
+    filebeat_installed=1
     wazuh_remaining_files=1
     indexer_remaining_files=1
     dashboard_remaining_files=1
@@ -525,10 +525,10 @@ test-29-installCommon_rollBack-indexer-installation-all-installed-zypper-assert(
 
 test-30-installCommon_rollBack-indexer-installation-all-installed-apt() {
     load-installCommon_rollBack
-    indexerinstalled=1
-    wazuhinstalled=1
-    dashboardinstalled=1
-    filebeatinstalled=1
+    indexer_installed=1
+    wazuh_installed=1
+    dashboard_installed=1
+    filebeat_installed=1
     wazuh_remaining_files=1
     indexer_remaining_files=1
     dashboard_remaining_files=1
@@ -551,10 +551,10 @@ test-30-installCommon_rollBack-indexer-installation-all-installed-apt-assert() {
 
 test-31-installCommon_rollBack-wazuh-installation-all-installed-yum() {
     load-installCommon_rollBack
-    indexerinstalled=1
-    wazuhinstalled=1
-    dashboardinstalled=1
-    filebeatinstalled=1
+    indexer_installed=1
+    wazuh_installed=1
+    dashboard_installed=1
+    filebeat_installed=1
     wazuh_remaining_files=1
     indexer_remaining_files=1
     dashboard_remaining_files=1
@@ -581,10 +581,10 @@ test-31-installCommon_rollBack-wazuh-installation-all-installed-yum-assert() {
 
 test-32-installCommon_rollBack-wazuh-installation-all-installed-zypper() {
     load-installCommon_rollBack
-    indexerinstalled=1
-    wazuhinstalled=1
-    dashboardinstalled=1
-    filebeatinstalled=1
+    indexer_installed=1
+    wazuh_installed=1
+    dashboard_installed=1
+    filebeat_installed=1
     wazuh_remaining_files=1
     indexer_remaining_files=1
     dashboard_remaining_files=1
@@ -612,10 +612,10 @@ test-32-installCommon_rollBack-wazuh-installation-all-installed-zypper-assert() 
 
 test-33-installCommon_rollBack-wazuh-installation-all-installed-apt() {
     load-installCommon_rollBack
-    indexerinstalled=1
-    wazuhinstalled=1
-    dashboardinstalled=1
-    filebeatinstalled=1
+    indexer_installed=1
+    wazuh_installed=1
+    dashboard_installed=1
+    filebeat_installed=1
     wazuh_remaining_files=1
     indexer_remaining_files=1
     dashboard_remaining_files=1
@@ -642,10 +642,10 @@ test-33-installCommon_rollBack-wazuh-installation-all-installed-apt-assert() {
 
 test-34-installCommon_rollBack-dashboard-installation-all-installed-yum() {
     load-installCommon_rollBack
-    indexerinstalled=1
-    wazuhinstalled=1
-    dashboardinstalled=1
-    filebeatinstalled=1
+    indexer_installed=1
+    wazuh_installed=1
+    dashboard_installed=1
+    filebeat_installed=1
     wazuh_remaining_files=1
     indexer_remaining_files=1
     dashboard_remaining_files=1
@@ -669,10 +669,10 @@ test-34-installCommon_rollBack-dashboard-installation-all-installed-yum-assert()
 
 test-35-installCommon_rollBack-dashboard-installation-all-installed-zypper() {
     load-installCommon_rollBack
-    indexerinstalled=1
-    wazuhinstalled=1
-    dashboardinstalled=1
-    filebeatinstalled=1
+    indexer_installed=1
+    wazuh_installed=1
+    dashboard_installed=1
+    filebeat_installed=1
     wazuh_remaining_files=1
     indexer_remaining_files=1
     dashboard_remaining_files=1
@@ -696,10 +696,10 @@ test-35-installCommon_rollBack-dashboard-installation-all-installed-zypper-asser
 
 test-36-installCommon_rollBack-dashboard-installation-all-installed-apt() {
     load-installCommon_rollBack
-    indexerinstalled=1
-    wazuhinstalled=1
-    dashboardinstalled=1
-    filebeatinstalled=1
+    indexer_installed=1
+    wazuh_installed=1
+    dashboard_installed=1
+    filebeat_installed=1
     wazuh_remaining_files=1
     indexer_remaining_files=1
     dashboard_remaining_files=1
@@ -723,10 +723,10 @@ test-36-installCommon_rollBack-dashboard-installation-all-installed-apt-assert()
 
 test-37-installCommon_rollBack-aio-nothing-installed() {
     load-installCommon_rollBack
-    indexerinstalled=
-    wazuhinstalled=
-    dashboardinstalled=
-    filebeatinstalled=
+    indexer_installed=
+    wazuh_installed=
+    dashboard_installed=
+    filebeat_installed=
     wazuh_remaining_files=
     indexer_remaining_files=
     dashboard_remaining_files=
@@ -740,10 +740,10 @@ test-37-installCommon_rollBack-aio-nothing-installed() {
 
 test-38-installCommon_rollBack-aio-all-remaining-files-yum() {
     load-installCommon_rollBack
-    indexerinstalled=
-    wazuhinstalled=
-    dashboardinstalled=
-    filebeatinstalled=
+    indexer_installed=
+    wazuh_installed=
+    dashboard_installed=
+    filebeat_installed=
     wazuh_remaining_files=1
     indexer_remaining_files=1
     dashboard_remaining_files=1
@@ -775,10 +775,10 @@ test-38-installCommon_rollBack-aio-all-remaining-files-yum-assert() {
 
 test-39-installCommon_rollBack-aio-all-remaining-files-zypper() {
     load-installCommon_rollBack
-    indexerinstalled=
-    wazuhinstalled=
-    dashboardinstalled=
-    filebeatinstalled=
+    indexer_installed=
+    wazuh_installed=
+    dashboard_installed=
+    filebeat_installed=
     wazuh_remaining_files=1
     indexer_remaining_files=1
     dashboard_remaining_files=1
@@ -810,10 +810,10 @@ test-39-installCommon_rollBack-aio-all-remaining-files-zypper-assert() {
 
 test-40-installCommon_rollBack-aio-all-remaining-files-apt() {
     load-installCommon_rollBack
-    indexerinstalled=
-    wazuhinstalled=
-    dashboardinstalled=
-    filebeatinstalled=
+    indexer_installed=
+    wazuh_installed=
+    dashboard_installed=
+    filebeat_installed=
     wazuh_remaining_files=1
     indexer_remaining_files=1
     dashboard_remaining_files=1
@@ -1232,7 +1232,7 @@ test-63-installCommon_readPasswordFileUsers-no-changeall-kibana-correct() {
     @mock grep password: /tmp/passfile.yml === @out wazuhpassword kibanaserverpassword adminpassword
     @mock awk '{ print substr( $2, 1, length($2) ) }'
     changeall=
-    dashboardinstalled=1
+    dashboard_installed=1
     dashboard=1
     installCommon_readPasswordFileUsers
     @echo ${fileusers[*]}
@@ -1257,7 +1257,7 @@ test-64-installCommon_readPasswordFileUsers-no-changeall-filebeat-correct() {
     @mock grep password: /tmp/passfile.yml === @out wazuhpassword kibanaserverpassword adminpassword
     @mock awk '{ print substr( $2, 1, length($2) ) }'
     changeall=
-    filebeatinstalled=1
+    filebeat_installed=1
     wazuh=1
     installCommon_readPasswordFileUsers
     @echo ${fileusers[*]}

@@ -81,12 +81,13 @@ function indexer_copyCertificates() {
 
     if [ -f "${tar_file}" ]; then
         eval "mkdir ${indexer_cert_path} ${debug}"
-        eval "tar -xf ${tar_file} -C ${indexer_cert_path} wazuh-install-files/${name}.pem  && mv ${indexer_cert_path}/wazuh-install-files/${name}.pem ${indexer_cert_path}/indexer.pem ${debug}"
-        eval "tar -xf ${tar_file} -C ${indexer_cert_path} wazuh-install-files/${name}-key.pem  && mv ${indexer_cert_path}/wazuh-install-files/${name}-key.pem ${indexer_cert_path}/indexer-key.pem ${debug}"
-        eval "tar -xf ${tar_file} -C ${indexer_cert_path} wazuh-install-files/root-ca.pem && mv ${indexer_cert_path}/wazuh-install-files/root-ca.pem ${indexer_cert_path}/ ${debug}"
-        eval "tar -xf ${tar_file} -C ${indexer_cert_path} wazuh-install-files/admin.pem && mv ${indexer_cert_path}/wazuh-install-files/admin.pem ${indexer_cert_path}/ ${debug}"
-        eval "tar -xf ${tar_file} -C ${indexer_cert_path} wazuh-install-files/admin-key.pem && mv ${indexer_cert_path}/wazuh-install-files/admin-key.pem ${indexer_cert_path}/ ${debug}"
-        eval "rm -rf ${indexer_cert_path}/wazuh-install-files/"
+        eval "sed -i s/indexer.pem/${name}.pem/ /etc/wazuh-indexer/opensearch.yml ${debug}"
+        eval "sed -i s/indexer-key.pem/${name}-key.pem/ /etc/wazuh-indexer/opensearch.yml ${debug}"
+        eval "tar -xf ${tar_file} -C ${indexer_cert_path} wazuh-install-files/${name}.pem --strip-components 1 ${debug}"
+        eval "tar -xf ${tar_file} -C ${indexer_cert_path} wazuh-install-files/${name}-key.pem --strip-components 1 ${debug}"
+        eval "tar -xf ${tar_file} -C ${indexer_cert_path} wazuh-install-files/root-ca.pem --strip-components 1 ${debug}"
+        eval "tar -xf ${tar_file} -C ${indexer_cert_path} wazuh-install-files/admin.pem --strip-components 1 ${debug}"
+        eval "tar -xf ${tar_file} -C ${indexer_cert_path} wazuh-install-files/admin-key.pem --strip-components 1 ${debug}"eval "rm -rf ${indexer_cert_path}/wazuh-install-files/"
         eval "chown -R wazuh-indexer:wazuh-indexer ${indexer_cert_path} ${debug}"
         eval "chmod 750 ${indexer_cert_path} ${debug}"
         eval "chmod 600 ${indexer_cert_path}/* ${debug}"
@@ -135,12 +136,13 @@ function indexer_install() {
         eval "DEBIAN_FRONTEND=noninteractive apt install wazuh-indexer=${wazuh_version}-${wazuh_revision} -y ${debug}"
     fi
 
-    if [  "$?" != 0  ]; then
+    install_result="$?"
+    common_checkInstalled
+    if [  "$install_result" != 0  ] || [ -z "${indexer_installed}" ]; then
         common_logger -e "Wazuh indexer installation failed."
         installCommon_rollBack
         exit 1
     else
-        indexerinstalled="1"
         common_logger "Wazuh indexer installation finished."
     fi
 
