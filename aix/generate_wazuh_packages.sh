@@ -122,7 +122,6 @@ build_environment() {
   $rpm http://packages-dev.wazuh.com/deps/aix/popt-1.16-2.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/rsync-3.1.2-3.aix6.1.ppc.rpm || true
 #  $rpm http://packages-dev.wazuh.com/deps/aix//nano/nano-2.5.3-1.aix5.1.ppc.rpm || true
-  $rpm http://packages-dev.wazuh.com/deps/aix/curl-7.72.0-2.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/tar-1.32-1.aix6.1.ppc.rpm || true
 
   $rpm http://packages-dev.wazuh.com/deps/aix/ca-certificates-2020.06.01-2.aix6.1.ppc.rpm || true
