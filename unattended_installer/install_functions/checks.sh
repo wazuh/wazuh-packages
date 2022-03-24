@@ -64,7 +64,7 @@ function checks_arguments() {
         fi
 
         if [ -z "${dashboard_installed}" ] && [ -z "${dashboard_remaining_files}" ]; then
-            common_logger "Wazuh Dashboard components were found on the system so it was not uninstalled."
+            common_logger "Wazuh Dashboard components were not found on the system so it was not uninstalled."
         fi
 
     fi
