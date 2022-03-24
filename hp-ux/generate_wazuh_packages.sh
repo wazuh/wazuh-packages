@@ -8,15 +8,20 @@
 
 install_path="/var/ossec"
 current_path=`pwd`
+build_tools_path="/home/okkam"
 source_directory=${current_path}/wazuh-sources
 configuration_file="${source_directory}/etc/preloaded-vars.conf"
-PATH=$PATH:/usr/local/bin
 target_dir="${current_path}/output"
 checksum_dir=""
 wazuh_version=""
 wazuh_revision="1"
 depot_path=""
 control_binary=""
+
+# Needed variables to build Wazuh with custom GCC and cmake
+PATH=${build_tools_path}/bootstrap-gcc/gcc94_prefix/bin:${build_tools_path}/cmake_prefix_install/bin:$PATH:/usr/local/bin
+LD_LIBRARY_PATH=${build_tools_path}/bootstrap-gcc/gcc94_prefix/lib
+CXX=/home/okkam/bootstrap-gcc/gcc94_prefix/bin/g++
 
 build_environment() {
 
@@ -46,7 +51,6 @@ build_environment() {
     swinstall -s $depot \*
     /usr/local/bin/depothelper -f curl
     /usr/local/bin/depothelper -f unzip
-    /usr/local/bin/depothelper -f gcc
     /usr/local/bin/depothelper -f make
     /usr/local/bin/depothelper -f bash
     /usr/local/bin/depothelper -f gzip
@@ -59,6 +63,24 @@ build_environment() {
     /usr/local/bin/depothelper -f regex
     cp /usr/bin/perl /tmp/perl
     cp /usr/local/bin/perl5.10.1 /usr/bin/perl
+
+    # Install GCC 9.4
+    mkdir ${build_tools_path}
+    cd ${build_tools_path}
+    mkdir bootstrap-gcc
+    cd ${build_tools_path}/bootstrap-gcc
+    curl -k -SO https://packages.wazuh.com/utils/gcc/gcc_9.4_HPUX_build.tar.gz
+    gunzip gcc_9.4_HPUX_build.tar.gz
+    tar -xf gcc_9.4_HPUX_build.tar
+    rm -f gcc_9.4_HPUX_build.tar
+    cp -f ${build_tools_path}/bootstrap-gcc/gcc94_prefix/bin/gcc ${build_tools_path}/bootstrap-gcc/gcc94_prefix/bin/cc
+
+    # Install cmake 3.22.2
+    cd ${build_tools_path}
+    curl -k -SO https://packages.wazuh.com/utils/cmake/cmake_3.22.2_HPUX_build.tar.gz
+    gunzip cmake_3.22.2_HPUX_build.tar.gz
+    tar -xf cmake_3.22.2_HPUX_build.tar
+    rm -f cmake_3.22.2_HPUX_build.tar
 }
 
 config() {
@@ -165,6 +187,8 @@ clean() {
     find /sbin -name "*wazuh-agent*" -exec rm {} \;
     userdel wazuh
     groupdel wazuh
+
+    rm -rf ${build_tools_path}
 
     exit ${exit_code}
 }
