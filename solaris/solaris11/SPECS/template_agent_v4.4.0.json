@@ -1911,6 +1911,14 @@
         "type": "file",
         "user": "root"
     },
+    "/var/ossec/wodles/gcloud/exceptions.py": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
     "/var/ossec/wodles/gcloud/buckets": {
         "class": "static",
         "group": "wazuh",
