@@ -55,7 +55,7 @@ function manager_install() {
     install_result="$?"
     common_checkInstalled
     if [  "$install_result" != 0  ] || [ -z "${wazuh_installed}" ]; then
-        common_logger -e "Wazuh installation failed"
+        common_logger -e "Wazuh installation failed."
         installCommon_rollBack
         exit 1
     else

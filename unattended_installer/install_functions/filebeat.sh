@@ -76,7 +76,7 @@ function filebeat_install() {
     install_result="$?"
     common_checkInstalled
     if [  "$install_result" != 0  ] || [ -z "${filebeat_installed}" ]; then
-        common_logger -e "Filebeat installation failed"
+        common_logger -e "Filebeat installation failed."
         exit 1
     else
         common_logger "Filebeat installation finished."
