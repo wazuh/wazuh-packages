@@ -125,44 +125,51 @@ build_environment() {
   $rpm http://packages-dev.wazuh.com/deps/aix/curl-7.72.0-2.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/tar-1.32-1.aix6.1.ppc.rpm || true
 
+  $rpm http://packages-dev.wazuh.com/deps/aix/ca-certificates-2020.06.01-2.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/krb5-libs-1.18.4-1.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/libssh2-1.9.0-1.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/curl-7.79.1-1.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/curl-devel-7.79.1-1.aix6.1.ppc.rpm || true
+
+
   if [[ "${aix_major}" = "6" ]] || [[ "${aix_major}" = "7" ]]; then
   #  $rpm http://packages-dev.wazuh.com/deps/aix//isl/isl-0.18-1.aix5.1.ppc.rpm || true
     $rpm http://packages-dev.wazuh.com/deps/aix/mpfr-3.1.4-1.aix6.1.ppc.rpm || true
     $rpm http://packages-dev.wazuh.com/deps/aix/libmpc-1.0.3-2.aix6.1.ppc.rpm || true
     $rpm http://packages-dev.wazuh.com/deps/aix/file-5.32-1.aix6.1.ppc.rpm || true
     $rpm http://packages-dev.wazuh.com/deps/aix/file-libs-5.32-1.aix6.1.ppc.rpm || true
-    $rpm http://public.dhe.ibm.com/aix/freeSoftware/aixtoolbox/RPMS/ppc/perl/perl-5.28.0-1.aix6.1.ppc.rpm || true
+    $rpm https://packages-dev.wazuh.com/deps/aix/perl-5.30.3-2.aix6.1.ppc.rpm || true
   fi
 
   if [[ "${aix_major}" = "6" ]]; then
-    $rpm http://packages-dev.wazuh.com/deps/aix/gcc-6.3.0-1.aix6.1.ppc.rpm || true
-    $rpm http://packages-dev.wazuh.com/deps/aix/gcc-cpp-6.3.0-1.aix6.1.ppc.rpm || true
-    $rpm http://packages-dev.wazuh.com/deps/aix/libgcc-6.3.0-1.aix6.1.ppc.rpm || true
-    $rpm http://packages-dev.wazuh.com/deps/aix/libstdc++-6.3.0-1.aix6.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/gcc9-9.3.0-3.aix6.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/gcc9-cpp-9.3.0-3.aix6.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/libgcc9-9.3.0-3.aix6.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/libstdc++9-9.3.0-3.aix6.1.ppc.rpm || true
     $rpm http://packages-dev.wazuh.com/deps/aix/libstdc++-devel-6.3.0-1.aix6.1.ppc.rpm || true
-    $rpm http://packages-dev.wazuh.com/deps/aix/gcc-c++-6.3.0-1.aix6.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/libstdc++9-devel-9.3.0-3.aix6.1.ppc.rpm || true
 
   fi
 
   if [[ "${aix_major}" = "7" ]] && [[ "${aix_minor}" = "1" ]]; then
-    $rpm http://packages-dev.wazuh.com/deps/aix/gcc-6.3.0-1.aix7.1.ppc.rpm || true
-    $rpm http://packages-dev.wazuh.com/deps/aix/gcc-cpp-6.3.0-1.aix7.1.ppc.rpm || true
-    $rpm http://packages-dev.wazuh.com/deps/aix/libgcc-6.3.0-1.aix7.1.ppc.rpm || true
-    $rpm http://packages-dev.wazuh.com/deps/aix/libstdc++-6.3.0-1.aix7.1.ppc.rpm || true
-    $rpm http://packages-dev.wazuh.com/deps/aix/libstdc++-devel-6.3.0-1.aix7.1.ppc.rpm || true
-    $rpm http://packages-dev.wazuh.com/deps/aix/gcc-c++-6.3.0-1.aix7.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/gcc9-9.4.0-1.aix7.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/gcc9-cpp-9.4.0-1.aix7.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/libgcc9-9.4.0-1.aix7.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/libstdc++9-9.4.0-1.aix7.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/libstdc++9-devel-9.4.0-1.aix7.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/gcc9-c++-9.4.0-1.aix7.1.ppc.rpm || true
   fi
 
   if [[ "${aix_major}" = "7" ]] && [[ "${aix_minor}" = "2" ]]; then
-    $rpm http://packages-dev.wazuh.com/deps/aix/gcc-6.3.0-1.aix7.2.ppc.rpm || true
-    $rpm http://packages-dev.wazuh.com/deps/aix/gcc-cpp-6.3.0-1.aix7.2.ppc.rpm || true
-    $rpm http://packages-dev.wazuh.com/deps/aix/libgcc-6.3.0-1.aix7.2.ppc.rpm || true
-    $rpm http://packages-dev.wazuh.com/deps/aix/libstdc++-6.3.0-1.aix7.2.ppc.rpm || true
-    $rpm http://packages-dev.wazuh.com/deps/aix/libstdc++-devel-6.3.0-1.aix7.2.ppc.rpm || true
-    $rpm http://packages-dev.wazuh.com/deps/aix/gcc-c++-6.3.0-1.aix7.2.ppc.rpm|| true
+    $rpm http://packages-dev.wazuh.com/deps/aix/gcc9-9.4.0-1.aix7.2.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/gcc9-cpp-9.4.0-1.aix7.2.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/libgcc9-9.4.0-1.aix7.2.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/libstdc++9-9.4.0-1.aix7.2.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/libstdc++9-devel-9.4.0-1.aix7.2.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/gcc9-c++-9.4.0-1.aix7.2.ppc.rpm || true
   fi
 
-  build_perl
+  #build_perl
 
   if [[ "${aix_major}" = "6" ]] || [[ "${aix_major}" = "7" ]]; then
     build_cmake
