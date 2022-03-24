@@ -86,80 +86,80 @@ build_environment() {
 
   rpm="rpm -Uvh --nodeps"
 
-  $rpm http://www.oss4aix.org/download/RPMS/autoconf/autoconf-2.69-2.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/automake/automake-1.16.1-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/bash/bash-4.4-4.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/bzip2/bzip2-1.0.6-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/coreutils/coreutils-64bit-8.28-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/expat/expat-2.2.5-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/expat/expat-devel-2.2.5-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/gettext/gettext-0.17-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/glib2/glib2-2.38.2-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/glib/glib-devel-1.2.10-3.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/gmp/gmp-6.1.2-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/gmp/gmp-devel-6.1.2-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/grep/grep-3.1-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/gzip/gzip-1.8-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/info/info-6.4-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/libffi/libffi-3.2.1-2.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/libiconv/libiconv-1.15-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/libidn/libidn-1.33-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/libsigsegv/libsigsegv-2.12-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/libtool/libtool-2.4.6-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/m4/m4-1.4.18-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/make/make-4.2.1-1.aix5.3.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/openldap/openldap-2.4.44-0.1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/openssl/openssl-1.0.2u-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/openssl/openssl-devel-1.0.2u-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/pcre/pcre-8.41-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/pkg-config/pkg-config-0.29.1-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/readline/readline-7.0-3.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/sed/sed-4.5-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/wget/wget-1.19.2-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/zlib/zlib-1.2.11-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/python/python-2.7.13-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/python/python-libs-2.7.13-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/popt/popt-1.16-2.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/rsync/rsync-3.1.3-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/nano/nano-2.5.3-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/curl/curl-7.72.0-1.aix5.1.ppc.rpm || true
-  $rpm http://www.oss4aix.org/download/RPMS/tar/tar-1.32-1.aix5.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/autoconf-2.69-3.aix7.1.ppc.rpm || true
+#  $rpm http://packages-dev.wazuh.com/deps/aix//automake/automake-1.16.1-1.aix5.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/bash-4.4-4.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/bzip2-1.0.6-2.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/coreutils-8.25-1.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/expat-2.2.6-1.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/expat-devel-2.2.6-1.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/gettext-0.17-7.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/glib2-2.33.2-1.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/glib2-devel-2.33.2-1.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/gmp-6.1.1-1.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/gmp-devel-6.1.1-1.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/grep-3.0-1.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/gzip-1.8-1.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/info-6.4-1.aix5.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/libffi-3.2.1-2.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/libiconv-1.14-22.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/libidn-1.33-1.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/libsigsegv-2.10-2.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/libtool-2.4.6-1.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/m4-1.4.18-1.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/make-4.2.1-1.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/openldap-2.4.44-2.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/openssl-1.0.2u-1withsslv2.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/openssl-devel-1.0.2u-1withsslv2.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/pcre-8.42-1.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/pkg-config-0.29.1-1.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/readline-7.0-1.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/sed-4.7-2.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/wget-1.19-1.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/zlib-1.2.11-1.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/python-2.7.15-5.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/python-devel-2.7.15-5.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/popt-1.16-2.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/rsync-3.1.2-3.aix6.1.ppc.rpm || true
+#  $rpm http://packages-dev.wazuh.com/deps/aix//nano/nano-2.5.3-1.aix5.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/curl-7.72.0-2.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/tar-1.32-1.aix6.1.ppc.rpm || true
 
   if [[ "${aix_major}" = "6" ]] || [[ "${aix_major}" = "7" ]]; then
-    $rpm http://www.oss4aix.org/download/RPMS/isl/isl-0.18-1.aix5.1.ppc.rpm || true
-    $rpm http://www.oss4aix.org/download/RPMS/mpfr/mpfr-3.1.6-1.aix5.1.ppc.rpm || true
-    $rpm http://www.oss4aix.org/download/RPMS/libmpc/libmpc-1.0.3-1.aix5.1.ppc.rpm || true
-    $rpm http://www.oss4aix.org/download/RPMS/file/file-5.32-1.aix5.1.ppc.rpm || true
-    $rpm http://www.oss4aix.org/download/RPMS/file/file-libs-5.32-1.aix5.1.ppc.rpm || true
+  #  $rpm http://packages-dev.wazuh.com/deps/aix//isl/isl-0.18-1.aix5.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/mpfr-3.1.4-1.aix6.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/libmpc-1.0.3-2.aix6.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/file-5.32-1.aix6.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/file-libs-5.32-1.aix6.1.ppc.rpm || true
     $rpm http://public.dhe.ibm.com/aix/freeSoftware/aixtoolbox/RPMS/ppc/perl/perl-5.28.0-1.aix6.1.ppc.rpm || true
   fi
 
   if [[ "${aix_major}" = "6" ]]; then
-    $rpm http://www.oss4aix.org/download/RPMS/gcc/gcc-6.3.0-1.aix6.1.ppc.rpm || true
-    $rpm http://www.oss4aix.org/download/RPMS/gcc/gcc-cpp-6.3.0-1.aix6.1.ppc.rpm || true
-    $rpm http://www.oss4aix.org/download/RPMS/gcc/libgcc-6.3.0-1.aix6.1.ppc.rpm || true
-    $rpm http://www.oss4aix.org/download/RPMS/gcc/libstdc++-6.3.0-1.aix6.1.ppc.rpm || true
-    $rpm http://www.oss4aix.org/download/RPMS/gcc/libstdc++-devel-6.3.0-1.aix6.1.ppc.rpm || true
-    $rpm http://www.oss4aix.org/download/RPMS/gcc/gcc-c++-6.3.0-1.aix6.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/gcc-6.3.0-1.aix6.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/gcc-cpp-6.3.0-1.aix6.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/libgcc-6.3.0-1.aix6.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/libstdc++-6.3.0-1.aix6.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/libstdc++-devel-6.3.0-1.aix6.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/gcc-c++-6.3.0-1.aix6.1.ppc.rpm || true
 
   fi
 
   if [[ "${aix_major}" = "7" ]] && [[ "${aix_minor}" = "1" ]]; then
-    $rpm http://www.oss4aix.org/download/RPMS/gcc/gcc-6.3.0-1.aix7.1.ppc.rpm || true
-    $rpm http://www.oss4aix.org/download/RPMS/gcc/gcc-cpp-6.3.0-1.aix7.1.ppc.rpm || true
-    $rpm http://www.oss4aix.org/download/RPMS/gcc/libgcc-6.3.0-1.aix7.1.ppc.rpm || true
-    $rpm http://www.oss4aix.org/download/RPMS/gcc/libstdc++-6.3.0-1.aix7.1.ppc.rpm || true
-    $rpm http://www.oss4aix.org/download/RPMS/gcc/libstdc++-devel-6.3.0-1.aix7.1.ppc.rpm || true
-    $rpm http://www.oss4aix.org/download/RPMS/gcc/gcc-c++-6.3.0-1.aix7.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/gcc-6.3.0-1.aix7.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/gcc-cpp-6.3.0-1.aix7.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/libgcc-6.3.0-1.aix7.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/libstdc++-6.3.0-1.aix7.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/libstdc++-devel-6.3.0-1.aix7.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/gcc-c++-6.3.0-1.aix7.1.ppc.rpm || true
   fi
 
   if [[ "${aix_major}" = "7" ]] && [[ "${aix_minor}" = "2" ]]; then
-    $rpm http://www.oss4aix.org/download/RPMS/gcc/gcc-6.3.0-1.aix7.2.ppc.rpm || true
-    $rpm http://www.oss4aix.org/download/RPMS/gcc/gcc-cpp-6.3.0-1.aix7.2.ppc.rpm || true
-    $rpm http://www.oss4aix.org/download/RPMS/gcc/libgcc-6.3.0-1.aix7.2.ppc.rpm || true
-    $rpm http://www.oss4aix.org/download/RPMS/gcc/libstdc++-6.3.0-1.aix7.2.ppc.rpm || true
-    $rpm http://www.oss4aix.org/download/RPMS/gcc/libstdc++-devel-6.3.0-1.aix7.2.ppc.rpm || true
-    $rpm http://www.oss4aix.org/download/RPMS/gcc/gcc-c++-6.3.0-1.aix7.2.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/gcc-6.3.0-1.aix7.2.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/gcc-cpp-6.3.0-1.aix7.2.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/libgcc-6.3.0-1.aix7.2.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/libstdc++-6.3.0-1.aix7.2.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/libstdc++-devel-6.3.0-1.aix7.2.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/gcc-c++-6.3.0-1.aix7.2.ppc.rpm|| true
   fi
 
   build_perl
