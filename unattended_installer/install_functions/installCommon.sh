@@ -86,10 +86,11 @@ function installCommon_addWazuhRepo() {
 
 function installCommon_aptInstall() {
 
+    set -x
     i=0
     eval "DEBIAN_FRONTEND=noninteractive apt-get install ${1}${sep}${2} -y -q  ${debug}"
     install_result="$?"
-    while [ "${install_result}" -eq 200 ] || [ "${i}" -lt 12 ]; do
+    while [ "${install_result}" -eq 100 ] && [ "${i}" -lt 12 ]; do
         sleep 10
         i=$((i+1))
         eval "DEBIAN_FRONTEND=noninteractive apt-get install ${1}${sep}${2} -y -q  ${debug}"
@@ -99,6 +100,7 @@ function installCommon_aptInstall() {
     if [ "${i}" -eq 12 ]; then
         logger -e "Installation failed: ${1}. Cannot release apt lock because another process is using it."
     fi
+    set +x
     
 }
 
@@ -266,8 +268,8 @@ function installCommon_installPrerequisites() {
             common_logger "--- Dependencies ----"
             for dep in "${not_installed[@]}"; do
                 common_logger "Installing $dep."
-                eval "DEBIAN_FRONTEND=noninteractive apt install ${dep} -y ${debug}"
-                if [  "$?" != 0  ]; then
+                installCommon_aptInstall ${dep}
+                    if [  "$?" != 0  ]; then
                     common_logger -e "Cannot install dependency: ${dep}."
                     exit 1
                 fi
