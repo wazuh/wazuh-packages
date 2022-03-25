@@ -67,3 +67,4 @@ jobs:
           #pattern: "*.sh"
           exclude: "artifacts-generated/*.md"
           check_all_files_with_shebangs: "false"
+          fail_on_error: "true"
