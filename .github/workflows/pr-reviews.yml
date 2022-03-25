@@ -42,7 +42,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: artifacts-generated
+          name: artifacts_generated
           path: |
             unattended_installer/**tool.sh
             unattended_installer/**install.sh
@@ -65,8 +65,8 @@ jobs:
           github_token: ${{ secrets.github_token }}
           reporter: github-pr-review
           path: |
-            "artifacts-generated"
-            "src"
+            "artifacts_generated"
+            "wpk"
           pattern: "*.sh"
           #exclude: "artifacts-generated/*.md"
           #check_all_files_with_shebangs: "false"
