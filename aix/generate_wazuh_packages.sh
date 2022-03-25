@@ -87,7 +87,7 @@ build_environment() {
   rpm="rpm -Uvh --nodeps"
 
   $rpm http://packages-dev.wazuh.com/deps/aix/autoconf-2.69-3.aix7.1.ppc.rpm || true
-#  $rpm http://packages-dev.wazuh.com/deps/aix//automake/automake-1.16.1-1.aix5.1.ppc.rpm || true
+  $rpm https://packages-dev.wazuh.com/deps/aix/automake-1.16.2-1.aix6.1.noarch.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/bash-4.4-4.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/bzip2-1.0.6-2.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/coreutils-8.25-1.aix6.1.ppc.rpm || true
