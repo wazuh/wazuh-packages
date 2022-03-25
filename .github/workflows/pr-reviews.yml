@@ -58,7 +58,7 @@ jobs:
       - name: test
         run: |
           ls -ls
-          ls -la artifacts-generated
+          ls -la artifacts_generated
       - name: shellcheck
         uses: reviewdog/action-shellcheck@v1
         with:
