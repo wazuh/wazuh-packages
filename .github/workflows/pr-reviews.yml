@@ -76,6 +76,4 @@ jobs:
         run: |
           pwd
           ls -ls
-          ls -ls ..
-          ls -ls ../..
-          ls -ls ../../..
+          ls -la /home/runner/work/wazuh-packages/wazuh-packages/artifacts_generated
