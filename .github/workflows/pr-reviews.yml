@@ -67,7 +67,7 @@ jobs:
           reporter: github-pr-review
           path: |
             "/home/runner/work/wazuh-packages/wazuh-packages/artifacts_generated"
-            "wpk"
+            "./wpk"
           pattern: "*.sh"
           #exclude: "artifacts-generated/*.md"
           #check_all_files_with_shebangs: "false"
