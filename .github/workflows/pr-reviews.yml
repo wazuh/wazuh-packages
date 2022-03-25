@@ -76,3 +76,6 @@ jobs:
         run: |
           pwd
           ls -ls
+          ls -ls ..
+          ls -ls ../..
+          ls -ls ../../..
