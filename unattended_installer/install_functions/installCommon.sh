@@ -84,6 +84,24 @@ function installCommon_addWazuhRepo() {
 
 }
 
+function installCommon_aptInstall() {
+
+    i=0
+    eval "DEBIAN_FRONTEND=noninteractive apt-get install ${1}${sep}${2} -y -q  ${debug}"
+    install_result="$?"
+    while [ "${install_result}" -eq 200 ] || [ "${i}" -lt 12 ]; do
+        sleep 10
+        i=$((i+1))
+        eval "DEBIAN_FRONTEND=noninteractive apt-get install ${1}${sep}${2} -y -q  ${debug}"
+        install_result="$?"
+    done
+    
+    if [ "${i}" -eq 12 ]; then
+        logger -e "Installation failed: ${1}. Cannot release apt lock because another process is using it."
+    fi
+    
+}
+
 function installCommon_createCertificates() {
 
     if [ -n "${AIO}" ]; then

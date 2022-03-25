@@ -46,13 +46,14 @@ function manager_install() {
     common_logger "Starting the Wazuh manager installation."
     if [ "${sys_type}" == "zypper" ]; then
         eval "${sys_type} -n install wazuh-manager=${wazuh_version}-${wazuh_revision} ${debug}"
+        install_result="$?"
     elif [ "${sys_type}" == "yum" ]; then
         eval "${sys_type} install wazuh-manager${sep}${wazuh_version}-${wazuh_revision} -y ${debug}"
+        install_result="$?"
     elif [ "${sys_type}" == "apt-get" ]; then
-        eval "DEBIAN_FRONTEND=noninteractive ${sys_type} install wazuh-manager${sep}${wazuh_version}-${wazuh_revision} -y ${debug}"
+        installCommon_aptInstall "wazuh-manager" "${wazuh_version}-${wazuh_revision}"
     fi
     
-    install_result="$?"
     common_checkInstalled
     if [  "$install_result" != 0  ] || [ -z "${wazuh_installed}" ]; then
         common_logger -e "Wazuh installation failed."
