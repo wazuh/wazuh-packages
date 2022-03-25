@@ -70,10 +70,10 @@ jobs:
             "./wpk"
           pattern: "*.sh"
           #exclude: "artifacts-generated/*.md"
-          #check_all_files_with_shebangs: "false"
           fail_on_error: "true"
       - name: test 2
         run: |
           pwd
           ls -ls
           ls -la /home/runner/work/wazuh-packages/wazuh-packages/artifacts_generated
+
