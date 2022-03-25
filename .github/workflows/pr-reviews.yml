@@ -57,6 +57,7 @@ jobs:
         uses: actions/download-artifact@v3
       - name: test
         run: |
+          pwd
           ls -ls
           ls -la artifacts_generated
       - name: shellcheck
