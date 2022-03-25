@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 ## [v4.2.6]
 
 - Update SPECS [#1392](https://github.com/wazuh/wazuh-packages/pull/1392)
+
 ## [v4.2.5]
 
 - Update SPECS [#991](https://github.com/wazuh/wazuh-packages/pull/991)
