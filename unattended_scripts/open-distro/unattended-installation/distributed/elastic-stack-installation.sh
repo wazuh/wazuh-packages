@@ -10,7 +10,7 @@
 
 char="."
 debug='> /dev/null 2>&1'
-WAZUH_VER="4.2.5"
+WAZUH_VER="4.2.6"
 WAZUH_MAJOR="4.2"
 WAZUH_REV="1"
 ELK_VER="7.10.2"
