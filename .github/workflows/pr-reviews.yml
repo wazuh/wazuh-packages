@@ -55,7 +55,7 @@ jobs:
       - uses: actions/checkout@v1
       - name: Download all artifacts
         uses: actions/download-artifact@v3
-      - name: actions/checkout@v1
+      - name: test
         run: |
           ls -la artifacts-generated
       - name: shellcheck
@@ -63,7 +63,7 @@ jobs:
         with:
           github_token: ${{ secrets.github_token }}
           reporter: github-pr-review
-          path: "artifacts-generated"
+          path: "."
           pattern: "*.sh"
           exclude: "artifacts-generated/*.md"
           check_all_files_with_shebangs: "false"
