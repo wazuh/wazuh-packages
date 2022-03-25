@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [v4.3.0]
 
+- Remove demo certificates from indexer and dashboard packages [#1390](https://github.com/wazuh/wazuh-packages/pull/1390)
 - Add centos8 vault repository due to EOL [#1307](https://github.com/wazuh/wazuh-packages/pull/1307)
 - Fix user deletion warning RPM manager [#1302](https://github.com/wazuh/wazuh-packages/pull/1302)
 - Fix issue where Solaris 11 was not executed in clean installations [#1292](https://github.com/wazuh/wazuh-packages/pull/1292)

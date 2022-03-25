@@ -17,6 +17,11 @@ ova/Config_files/filebeat.yml
 *.csr
 *.srl
 *.pkg.tar.zst
+.gradle
+.java
+stack/dashboard/base/output
+stack/indexer/base/output
+.cache
 wpk/versions
 solaris/packer/builds/
 solaris/packer/packer-solaris11_3-virtualbox/

@@ -62,40 +62,30 @@ tar -xf %{DASHBOARD_FILE}
 # -----------------------------------------------------------------------------
 
 %install
-mkdir -p %{buildroot}%{CONFIG_DIR}/certs
+mkdir -p %{buildroot}%{CONFIG_DIR}
 mkdir -p %{buildroot}%{INSTALL_DIR}
 mkdir -p %{buildroot}/etc/systemd/system
 mkdir -p %{buildroot}/etc/init.d
 mkdir -p %{buildroot}/etc/default
 
-
 cp wazuh-dashboard-base/etc/node.options %{buildroot}%{CONFIG_DIR}
 cp wazuh-dashboard-base/etc/opensearch_dashboards.yml %{buildroot}%{CONFIG_DIR}
+
 mv wazuh-dashboard-base/* %{buildroot}%{INSTALL_DIR}
+
 
 # Set custom welcome styles
 
 mkdir -p %{buildroot}%{INSTALL_DIR}/config
 
-cp %{buildroot}%{INSTALL_DIR}/etc/services/wazuh-dashboard.service %{buildroot}/etc/systemd/system/wazuh-dashboard.service 
+cp %{buildroot}%{INSTALL_DIR}/etc/services/wazuh-dashboard.service %{buildroot}/etc/systemd/system/wazuh-dashboard.service
 cp %{buildroot}%{INSTALL_DIR}/etc/services/wazuh-dashboard %{buildroot}/etc/init.d/wazuh-dashboard
 cp %{buildroot}%{INSTALL_DIR}/etc/services/default %{buildroot}/etc/default/wazuh-dashboard
 
 chmod 640 %{buildroot}/etc/init.d/wazuh-dashboard
-chmod 640 %{buildroot}/etc/systemd/system/wazuh-dashboard.service 
+chmod 640 %{buildroot}/etc/systemd/system/wazuh-dashboard.service
 chmod 640 %{buildroot}/etc/default/wazuh-dashboard
 
-curl -O https://packages-dev.wazuh.com/stack/demo-certs.tar.gz
-
-tar -xf demo-certs.tar.gz && rm -f demo-certs.tar.gz
-
-
-cp certs/demo-dashboard.pem %{buildroot}%{CONFIG_DIR}/certs/demo-dashboard.pem
-cp certs/demo-dashboard-key.pem %{buildroot}%{CONFIG_DIR}/certs/demo-dashboard-key.pem
-cp certs/root-ca.pem %{buildroot}%{CONFIG_DIR}/certs/root-ca.pem
-chmod 640 %{buildroot}%{CONFIG_DIR}/certs/*
-
-rm -rf certs/
 rm -rf %{buildroot}%{INSTALL_DIR}/etc/
 
 find %{buildroot}%{INSTALL_DIR} -exec chown %{USER}:%{GROUP} {} \;
@@ -106,7 +96,7 @@ chown %{USER}:%{GROUP} %{buildroot}/etc/init.d/wazuh-dashboard
 
 
 
-runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-%{version}.zip" 
+runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-%{version}.zip"
 find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -exec chown %{USER}:%{GROUP} {} \;
 
 # -----------------------------------------------------------------------------
@@ -222,8 +212,6 @@ rm -fr %{buildroot}
 %attr(0750, %{USER}, %{GROUP}) "/etc/init.d/wazuh-dashboard"
 %attr(0750, %{USER}, %{GROUP}) "/etc/default/wazuh-dashboard"
 %config(noreplace) %attr(0640, %{USER}, %{GROUP}) "%{CONFIG_DIR}/opensearch_dashboards.yml"
-%dir %attr(0750, %{USER}, %{GROUP}) %{CONFIG_DIR}/certs
-%config(noreplace) %attr(0400, %{USER}, %{GROUP}) "%{CONFIG_DIR}/certs/*"
 %dir %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/src"
 %dir %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/src/core"
 %attr(-, %{USER}, %{GROUP}) "%{INSTALL_DIR}/src/core/*"

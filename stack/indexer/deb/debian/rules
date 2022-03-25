@@ -10,7 +10,7 @@
 # Modified to make a template file for a multi-binary package with separated
 # build-arch and build-indep targets by Bill Allombert 2001
 #
-# Modified by Wazuh 
+# Modified by Wazuh
 # Copyright (C) 2021, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
@@ -66,7 +66,7 @@ override_dh_install:
 	else \
 		cp /root/output/wazuh-indexer-base-$(BASE_VERSION)-linux-x64.tar.xz ./ ;\
 	fi
-	tar -xf $(INDEXER_FILE) 
+	tar -xf $(INDEXER_FILE)
 
 	# Copy to the target
 	mkdir -p $(TARGET_DIR)$(INSTALLATION_DIR)
@@ -91,16 +91,6 @@ override_dh_install:
 
 	# Copy installation files to final location
 	cp -pr $(BASE_DIR)/* $(TARGET_DIR)$(INSTALLATION_DIR)
-
-	# Download demo certificates
-	curl -kOL https://packages-dev.wazuh.com/stack/demo-certs.tar.gz
-	tar xzvf demo-certs.tar.gz && rm -f demo-certs.tar.gz
-	mkdir -p $(TARGET_DIR)$(CONFIG_DIR)/certs/
-	cp certs/admin.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/
-	cp certs/admin-key.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/
-	cp certs/demo-indexer.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/
-	cp certs/demo-indexer-key.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/
-	cp certs/root-ca.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/
 
 	# Build wazuh-certs-tool
 	$(REPO_DIR)/builder.sh -c
@@ -267,12 +257,6 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/spatial4j-0.7.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/jopt-simple-5.0.2.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/lucene-spatial3d-8.10.1.jar
-	chmod 750 $(TARGET_DIR)$(CONFIG_DIR)/certs
-	chmod 400 $(TARGET_DIR)$(CONFIG_DIR)/certs/admin.pem
-	chmod 400 $(TARGET_DIR)$(CONFIG_DIR)/certs/admin-key.pem
-	chmod 400 $(TARGET_DIR)$(CONFIG_DIR)/certs/demo-indexer.pem
-	chmod 400 $(TARGET_DIR)$(CONFIG_DIR)/certs/demo-indexer-key.pem
-	chmod 400 $(TARGET_DIR)$(CONFIG_DIR)/certs/root-ca.pem
 	chmod 750 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-observability
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-observability/observability.yml
 	chmod 750 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-reports-scheduler

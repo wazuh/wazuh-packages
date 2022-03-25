@@ -10,7 +10,7 @@
 # Modified to make a template file for a multi-binary package with separated
 # build-arch and build-indep targets by Bill Allombert 2001
 #
-# Modified by Wazuh 
+# Modified by Wazuh
 # Copyright (C) 2021, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
@@ -57,14 +57,14 @@ override_dh_install:
 	else \
 		cp /root/output/wazuh-dashboard-base-$(BASE_VERSION)-linux-x64.tar.xz ./ ;\
 	fi
-	
+
 
 	groupadd $(GROUP)
 	useradd -g $(GROUP) $(USER)
 
 	tar -xf $(DASHBOARD_FILE)
 
-	mkdir -p $(TARGET_DIR)$(CONFIG_DIR)/certs
+	mkdir -p $(TARGET_DIR)$(CONFIG_DIR)
 	mkdir -p $(TARGET_DIR)$(INSTALLATION_DIR)
 	mkdir -p $(TARGET_DIR)/etc/systemd/system
 	mkdir -p $(TARGET_DIR)/etc/default
@@ -75,26 +75,15 @@ override_dh_install:
 
 	mkdir -p $(TARGET_DIR)$(INSTALLATION_DIR)/config
 
-	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/services/wazuh-dashboard.service $(TARGET_DIR)/etc/systemd/system/wazuh-dashboard.service 
+	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/services/wazuh-dashboard.service $(TARGET_DIR)/etc/systemd/system/wazuh-dashboard.service
 	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/services/wazuh-dashboard $(TARGET_DIR)/etc/systemd/system/$(NAME)
 	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/services/default $(TARGET_DIR)/etc/default/$(NAME)
 
 	chmod 644 $(TARGET_DIR)/etc/systemd/system/$(NAME)
-	chmod 644 $(TARGET_DIR)/etc/systemd/system/wazuh-dashboard.service 
+	chmod 644 $(TARGET_DIR)/etc/systemd/system/wazuh-dashboard.service
 	chmod 644 $(TARGET_DIR)/etc/default/$(NAME)
 
 	rm -rf $(TARGET_DIR)$(INSTALLATION_DIR)/etc
-
-	curl -O https://packages-dev.wazuh.com/stack/demo-certs.tar.gz
-
-	tar -xf demo-certs.tar.gz
-
-	cp certs/demo-dashboard.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/demo-dashboard.pem
-	cp certs/demo-dashboard-key.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/demo-dashboard-key.pem
-	cp certs/root-ca.pem $(TARGET_DIR)$(CONFIG_DIR)/certs/root-ca.pem
-	chmod 644 $(TARGET_DIR)$(CONFIG_DIR)/certs/*
-
-	rm -rf certs/
 
 	chown -R $(USER):$(GROUP) $(TARGET_DIR)$(INSTALLATION_DIR)
 	chown -R $(USER):$(GROUP) $(TARGET_DIR)$(CONFIG_DIR)
@@ -102,7 +91,7 @@ override_dh_install:
 	chown $(USER):$(GROUP) $(TARGET_DIR)/etc/systemd/system/$(NAME)
 	chown $(USER):$(GROUP) $(TARGET_DIR)/etc/default/$(NAME)
 
-	runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-$(BASE_VERSION).zip" 
+	runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-$(BASE_VERSION).zip"
 
 	find $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/wazuh/ -exec chown $(USER):$(GROUP) {} \;
 
@@ -117,8 +106,6 @@ override_dh_fixperms:
 	chmod 750 $(TARGET_DIR)/etc/systemd/system/wazuh-dashboard
 	chmod 750 $(TARGET_DIR)/etc/default/wazuh-dashboard
 	chmod 640 "$(TARGET_DIR)$(CONFIG_DIR)"/opensearch_dashboards.yml
-	chmod 750 "$(TARGET_DIR)$(CONFIG_DIR)"/certs
-	chmod 400 "$(TARGET_DIR)$(CONFIG_DIR)"/certs/*
 	chmod 640 "$(TARGET_DIR)$(CONFIG_DIR)"/node.options
 	chmod 640 $(TARGET_DIR)/etc/systemd/system/wazuh-dashboard.service
 	find "$(TARGET_DIR)$(INSTALLATION_DIR)" -type d -exec chmod 750 {} \;
