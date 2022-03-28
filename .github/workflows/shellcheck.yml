@@ -37,20 +37,24 @@ jobs:
         uses: './.github/actions/generate-artifacts/'
         with: 
           artifact: "${{ matrix.key }}"
+      - name: ls
+        run: |
+          ls -la
+          ls -la unattended_installer
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: artifacts_generated
           path: |
-            'unattended_installer/**.sh'
-            '!unattended_installer/builder.sh'
+            unattended_installer/*.sh
+            !unattended_installer/builder.sh
       - name: Upload artifact
         if: contains(matrix.key, 'builder.sh')
         uses: actions/upload-artifact@v3
         with:
           name: artifacts_generated
           path: |
-            'unattended_installer/builder.sh'
+            unattended_installer/builder.sh
             
   Shellcheck-for-libraries:
     name: Shellcheck / runner for libraries
@@ -95,13 +99,3 @@ jobs:
               body: '👋 Thanks for reporting!'
             })
             
-  pr_commented:
-    # This job only runs for pull request comments
-    name: PR comment
-    if: ${{ github.event.issue.pull_request }}
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          echo A comment on PR $NUMBER
-        env:
-          NUMBER: ${{ github.event.issue.number }}
