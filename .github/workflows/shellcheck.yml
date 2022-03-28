@@ -33,6 +33,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2.1.0
+      - name: Build
+        run: |
+          echo "key: ${{ matrix.key }} path: ${{ matrix.path }}"
       - name: Generate artifacts
         uses: './.github/actions/generate-artifacts/'
         with: 
