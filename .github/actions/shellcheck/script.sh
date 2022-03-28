@@ -47,17 +47,23 @@ fi
 if [ -z "${files_with_pattern}" ] && [ -z "${files_with_shebang:-}" ]; then
   echo "No matching files found to check."
   exit 0
-else
-  echo "${files_with_pattern}"
-  echo "${files_with_shebang:-}"
 fi
 
 FILES="${files_with_pattern} ${files_with_shebang:-}"
+echo $FILES
 
 echo '::group:: Running shellcheck ...'
 if [ "${INPUT_REPORTER}" = 'github-pr-review' ]; then
-  # erroformat: https://git.io/JeGMU
-  # shellcheck disable=SC2086
+  echo '''shellcheck -f json  ${INPUT_SHELLCHECK_FLAGS:-'--external-sources'} ${FILES} \
+    | jq -r '.[] | "\(.file):\(.line):\(.column):\(.level):\(.message) [SC\(.code)](https://github.com/koalaman/shellcheck/wiki/SC\(.code))"' \
+    | reviewdog \
+        -efm="%f:%l:%c:%t%*[^:]:%m" \
+        -name="shellcheck" \
+        -reporter=github-pr-review \
+        -filter-mode="${INPUT_FILTER_MODE}" \
+        -fail-on-error="${INPUT_FAIL_ON_ERROR}" \
+        -level="${INPUT_LEVEL}" \
+        ${INPUT_REVIEWDOG_FLAGS}'''
   shellcheck -f json  ${INPUT_SHELLCHECK_FLAGS:-'--external-sources'} ${FILES} \
     | jq -r '.[] | "\(.file):\(.line):\(.column):\(.level):\(.message) [SC\(.code)](https://github.com/koalaman/shellcheck/wiki/SC\(.code))"' \
     | reviewdog \
