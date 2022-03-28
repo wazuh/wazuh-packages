@@ -66,8 +66,7 @@ if [ "${INPUT_REPORTER}" = 'github-pr-review' ]; then
         ${INPUT_REVIEWDOG_FLAGS}
   EXIT_CODE=$?
 else
-  output=$(shellcheck -f checkstyle ${INPUT_SHELLCHECK_FLAGS:-'--external-sources'} ${FILES} \
-  | jq -r '.[] | "\(.file):\(.line):\(.column):\(.level):\(.message) [SC\(.code)](https://github.com/koalaman/shellcheck/wiki/SC\(.code))"') >> $GITHUB_ENV
+  output=$(shellcheck -f checkstyle ${INPUT_SHELLCHECK_FLAGS:-'--external-sources'} ${FILES} >> $GITHUB_ENV
   EXIT_CODE=$?
 fi
 echo '::endgroup::'
