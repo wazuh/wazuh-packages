@@ -54,7 +54,7 @@ echo $FILES
 
 echo '::group:: Running shellcheck ...'
 if [ "${INPUT_REPORTER}" = 'github-pr-review' ]; then
-  shellcheck -f json  ${INPUT_SHELLCHECK_FLAGS:-'--external-sources'} ./unattended_installer/builder.sh \
+  shellcheck -f json  ${INPUT_SHELLCHECK_FLAGS:-'--external-sources'} ${FILES} \
     | jq -r '.[] | "\(.file):\(.line):\(.column):\(.level):\(.message) [SC\(.code)](https://github.com/koalaman/shellcheck/wiki/SC\(.code))"' \
     | reviewdog \
         -efm="%f:%l:%c:%t%*[^:]:%m" \
@@ -66,8 +66,6 @@ if [ "${INPUT_REPORTER}" = 'github-pr-review' ]; then
         ${INPUT_REVIEWDOG_FLAGS}
   EXIT_CODE=$?
 else
-  # github-pr-check,github-check (GitHub Check API) doesn't support markdown annotation.
-  # shellcheck disable=SC2086
   shellcheck -f checkstyle ${INPUT_SHELLCHECK_FLAGS:-'--external-sources'} ${FILES} \
     | reviewdog \
         -f="checkstyle" \
@@ -82,9 +80,7 @@ fi
 echo '::endgroup::'
 
 echo '::group:: Running shellcheck (suggestion) ...'
-# -reporter must be github-pr-review for the suggestion feature.
-# shellcheck disable=SC2086
-shellcheck -f diff ./unattended_installer/builder.sh \
+shellcheck -f diff ${FILES} \
   | reviewdog \
       -name="shellcheck (suggestion)" \
       -f=diff \
@@ -96,7 +92,8 @@ shellcheck -f diff ./unattended_installer/builder.sh \
 EXIT_CODE_SUGGESTION=$?
 echo '::endgroup::'
 
-echo "${EXIT_CODE}"
+echo "EXIT_CODE: ${EXIT_CODE}"
+echo "EXIT_CODE_SUGGESTION: ${EXIT_CODE_SUGGESTION}"
 
 if [ "${EXIT_CODE}" -ne 0 ] || [ "${EXIT_CODE_SUGGESTION}" -ne 0 ]; then
   exit $((EXIT_CODE + EXIT_CODE_SUGGESTION))
