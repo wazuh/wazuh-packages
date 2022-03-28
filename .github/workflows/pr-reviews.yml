@@ -18,9 +18,7 @@ jobs:
           tool: steps.changed_files.outputs.all
       - name: files
         run: |
-          for changed_file in ${{ steps.changed_files.outputs.all }}; do
-            echo "Do something with this ${changed_file}."
-          done
+          echo ${{ env.VAR }}
       - name: Build Matrix
         id: set-matrix
         run: |
