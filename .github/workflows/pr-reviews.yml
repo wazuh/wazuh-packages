@@ -15,7 +15,7 @@ jobs:
       - name: set tool
         uses: './.github/actions/get-tools/'
         with: 
-          tool: steps.changed_files.outputs.all
+          tool: "${{ steps.changed_files.outputs.all }}"
       - name: Printing
         run: |
           echo "All:"
