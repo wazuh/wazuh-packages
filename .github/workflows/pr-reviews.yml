@@ -71,6 +71,7 @@ jobs:
           pattern: "*.sh"
           #exclude: "artifacts-generated/*.md"
           fail_on_error: "true"
+          check_all_files_with_shebangs: "true"
       - name: test 2
         run: |
           pwd
