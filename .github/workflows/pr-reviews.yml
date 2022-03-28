@@ -60,7 +60,7 @@ jobs:
           pwd
           ls -ls
           ls -la artifacts_generated
-          ls -la $GITHUB_ACTION_PATH
+          cat artifacts_generated/wazuh-passwords-tool.sh
       - name: shellcheck
         uses: reviewdog/action-shellcheck@v1
         with:
