@@ -69,10 +69,17 @@ jobs:
           pattern: "*.sh"
           exclude: "*.md"
           fail_on_error: "true"
-
+      - name: shellcheck custom
+        uses: './.github/actions/shellcheck/'
+        with:
+          github_token: ${{ secrets.github_token }}
+          reporter: github-pr-review
+          path: "artifacts_generated"
+          pattern: "*.sh"
+          exclude: "*.md"
+          fail_on_error: "true"
       - name: test 2
         run: |
           pwd
           ls -ls
           ls -la /home/runner/work/wazuh-packages/wazuh-packages/artifacts_generated
-
