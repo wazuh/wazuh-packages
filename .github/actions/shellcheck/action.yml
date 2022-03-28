@@ -61,7 +61,7 @@ runs:
     - uses: reviewdog/action-setup@v1
       with:
         reviewdog_version: v0.14.0
-    - run: $GITHUB_ACTION_PATH/script.sh
+    - run: .github/actions/shellcheck/script.sh
       shell: bash
       env:
         SHELLCHECK_VERSION: 0.8.0
