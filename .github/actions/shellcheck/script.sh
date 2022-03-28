@@ -51,11 +51,10 @@ fi
 
 FILES="${files_with_pattern} ${files_with_shebang:-}"
 echo $FILES
-chmod 775 ./artifacts_generated/builder.sh
 
 echo '::group:: Running shellcheck ...'
 if [ "${INPUT_REPORTER}" = 'github-pr-review' ]; then
-  shellcheck -f json  ${INPUT_SHELLCHECK_FLAGS:-'--external-sources'} ./unattended_installer/builder.sh \
+  shellcheck -f json  ${INPUT_SHELLCHECK_FLAGS:-'--external-sources'} $FILES \
     | jq -r '.[] | "\(.file):\(.line):\(.column):\(.level):\(.message) [SC\(.code)](https://github.com/koalaman/shellcheck/wiki/SC\(.code))"' \
     | reviewdog \
         -efm="%f:%l:%c:%t%*[^:]:%m" \
@@ -81,7 +80,7 @@ fi
 echo '::endgroup::'
 
 echo '::group:: Running shellcheck (suggestion) ...'
-shellcheck -f diff ./unattended_installer/builder.sh \
+shellcheck -f diff $FILES \
   | reviewdog \
       -name="shellcheck (suggestion)" \
       -f=diff \
@@ -90,19 +89,6 @@ shellcheck -f diff ./unattended_installer/builder.sh \
       -filter-mode="${INPUT_FILTER_MODE}" \
       -fail-on-error="${INPUT_FAIL_ON_ERROR}" \
       ${INPUT_REVIEWDOG_FLAGS}
-EXIT_CODE_SUGGESTION=$?
-echo '::endgroup::'
-
-echo '::group:: Running shellcheck 2...'
-if [ "${INPUT_REPORTER}" = 'github-pr-review' ]; then
-  shellcheck -f json  ${INPUT_SHELLCHECK_FLAGS:-'--external-sources'} ./artifacts_generated/builder.sh \
-    | jq -r '.[] | "\(.file):\(.line):\(.column):\(.level):\(.message) [SC\(.code)](https://github.com/koalaman/shellcheck/wiki/SC\(.code))"' 
-  EXIT_CODE=$?
-fi
-echo '::endgroup::'
-
-echo '::group:: Running shellcheck 2(suggestion) ...'
-shellcheck -f diff ./artifacts_generated/builder.sh 
 EXIT_CODE_SUGGESTION=$?
 echo '::endgroup::'
 
