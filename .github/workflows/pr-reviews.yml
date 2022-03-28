@@ -65,9 +65,7 @@ jobs:
         with:
           github_token: ${{ secrets.github_token }}
           reporter: github-pr-review
-          path: |
-            /home/runner/work/wazuh-packages/wazuh-packages/artifacts_generated/
-            ./wpk/
+          path: "/home/runner/work/wazuh-packages/wazuh-packages/artifacts_generated/."
           pattern: "*.sh"
           #exclude: "artifacts-generated/*.md"
           fail_on_error: "true"
