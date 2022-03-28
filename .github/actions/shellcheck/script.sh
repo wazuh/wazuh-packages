@@ -55,7 +55,7 @@ chmod 775 ./artifacts_generated/builder.sh
 
 echo '::group:: Running shellcheck ...'
 if [ "${INPUT_REPORTER}" = 'github-pr-review' ]; then
-  shellcheck -f json  ${INPUT_SHELLCHECK_FLAGS:-'--external-sources'} ./artifacts_generated/builder.sh \
+  shellcheck -f json  ${INPUT_SHELLCHECK_FLAGS:-'--external-sources'} ./unattended_installer/builder.sh \
     | jq -r '.[] | "\(.file):\(.line):\(.column):\(.level):\(.message) [SC\(.code)](https://github.com/koalaman/shellcheck/wiki/SC\(.code))"' \
     | reviewdog \
         -efm="%f:%l:%c:%t%*[^:]:%m" \
@@ -81,7 +81,7 @@ fi
 echo '::endgroup::'
 
 echo '::group:: Running shellcheck (suggestion) ...'
-shellcheck -f diff ./artifacts_generated/builder.sh \
+shellcheck -f diff ./unattended_installer/builder.sh \
   | reviewdog \
       -name="shellcheck (suggestion)" \
       -f=diff \
@@ -95,30 +95,14 @@ echo '::endgroup::'
 
 echo '::group:: Running shellcheck 2...'
 if [ "${INPUT_REPORTER}" = 'github-pr-review' ]; then
-  shellcheck -f json  ${INPUT_SHELLCHECK_FLAGS:-'--external-sources'} ./unattended_installer/builder.sh \
-    | jq -r '.[] | "\(.file):\(.line):\(.column):\(.level):\(.message) [SC\(.code)](https://github.com/koalaman/shellcheck/wiki/SC\(.code))"' \
-    | reviewdog \
-        -efm="%f:%l:%c:%t%*[^:]:%m" \
-        -name="shellcheck" \
-        -reporter=github-pr-review \
-        -filter-mode="${INPUT_FILTER_MODE}" \
-        -fail-on-error="${INPUT_FAIL_ON_ERROR}" \
-        -level="${INPUT_LEVEL}" \
-        ${INPUT_REVIEWDOG_FLAGS}
+  shellcheck -f json  ${INPUT_SHELLCHECK_FLAGS:-'--external-sources'} ./artifacts_generated/builder.sh \
+    | jq -r '.[] | "\(.file):\(.line):\(.column):\(.level):\(.message) [SC\(.code)](https://github.com/koalaman/shellcheck/wiki/SC\(.code))"' 
   EXIT_CODE=$?
 fi
 echo '::endgroup::'
 
 echo '::group:: Running shellcheck 2(suggestion) ...'
-shellcheck -f diff ./unattended_installer/builder.sh \
-  | reviewdog \
-      -name="shellcheck (suggestion)" \
-      -f=diff \
-      -f.diff.strip=1 \
-      -reporter="github-pr-review" \
-      -filter-mode="${INPUT_FILTER_MODE}" \
-      -fail-on-error="${INPUT_FAIL_ON_ERROR}" \
-      ${INPUT_REVIEWDOG_FLAGS}
+shellcheck -f diff ./artifacts_generated/builder.sh 
 EXIT_CODE_SUGGESTION=$?
 echo '::endgroup::'
 
