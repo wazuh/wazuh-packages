@@ -46,10 +46,7 @@ runs:
       shell: bash
       if: contains(inputs.tool, 'common_functions')
       run: |
-        echo 'VAR={\"key\":\"cert-tool\",\"path\":\"unattended_installer/cert_tool\"},\
-        {\"key\":\"password-tool\",\"path\":\"unattended_installer/passwords_tool\"},\
-        {\"key\":\"installer\",\"path\":\"unattended_installer/install_functions\"},\
-        {\"key\":\"installer\",\"path\":\"unattended_installer/downloader\"}' >> $GITHUB_ENV
+        echo 'VAR={\"key\":\"cert-tool\",\"path\":\"unattended_installer/cert_tool\"},{\"key\":\"password-tool\",\"path\":\"unattended_installer/passwords_tool\"},{\"key\":\"installer\",\"path\":\"unattended_installer/install_functions\"},{\"key\":\"installer\",\"path\":\"unattended_installer/downloader\"}' >> $GITHUB_ENV
     - name: Set builder.sh
       shell: bash
       if: contains(inputs.tool, 'builder.sh')
