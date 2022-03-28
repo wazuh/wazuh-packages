@@ -60,7 +60,7 @@ jobs:
       - name: test 2
         run: |
           pwd
-          chmod 775 artifacts_generated
+          chmod -R 775 artifacts_generated
           ls -ls artifacts_generated
       - name: test 3
         run: |
