@@ -17,7 +17,7 @@ runs:
         fi
     - name: Set passwords_tool
       shell: bash
-      if: contains(inputs.tool, 'passwords_tools')
+      if: contains(inputs.tool, 'passwords_tool')
       run: |
         if [ -z "${{ env.VAR }}" ]; then
           echo 'VAR={\"key\":\"password-tool\",\"path\":\"unattended_installer/passwords_tool\"}' >> $GITHUB_ENV
@@ -26,7 +26,7 @@ runs:
         fi
     - name: Set installer
       shell: bash
-      if: contains(inputs.tool, 'install_functionss')
+      if: contains(inputs.tool, 'install_functions')
       run: |
         if [ -z "${{ env.VAR }}" ]; then
           echo 'VAR={\"key\":\"installer\",\"path\":\"unattended_installer/install_functions\"}' >> $GITHUB_ENV
@@ -35,7 +35,7 @@ runs:
         fi
     - name: Set downloader
       shell: bash
-      if: contains(inputs.tool, 'downloaders')
+      if: contains(inputs.tool, 'downloader')
       run: |
         if [ -z "${{ env.VAR }}" ]; then
           echo 'VAR={\"key\":\"installer\",\"path\":\"unattended_installer/downloader\"}' >> $GITHUB_ENV
@@ -44,7 +44,7 @@ runs:
         fi
     - name: Set all
       shell: bash
-      if: contains(inputs.tool, 'common_functionss')
+      if: contains(inputs.tool, 'common_functions')
       run: |
         echo 'VAR={\"key\":\"cert-tool\",\"path\":\"unattended_installer/cert_tool\"},\
         {\"key\":\"password-tool\",\"path\":\"unattended_installer/passwords_tool\"},\
