@@ -48,6 +48,8 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: artifacts_generated
+          path: |
+            'unattended_installer/builder.sh'
             
   Shellcheck-for-libraries:
     name: Shellcheck / runner for libraries
