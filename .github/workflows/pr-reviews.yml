@@ -36,18 +36,12 @@ jobs:
         uses: './.github/actions/generate-artifacts/'
         with: 
           artifact: "${{ matrix.tool }}"
-      - name: Fix permission
-        run: |
-          ls -la
-          ls -la unattended_installer
-          chmod -R 755 unattended_installer
-          ls -la unattended_installer
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: artifacts_generated
           path: |
-            unattended_installer/builder.sh
+            unattended_installer/**tool.sh
           
   shellcheck:
     name: runner / shellcheck
