@@ -54,8 +54,8 @@ echo $FILES
 
 echo '::group:: Running shellcheck ...'
 if [ "${INPUT_REPORTER}" = 'github-pr-review' ]; then
-  echo '''shellcheck -f json  ${INPUT_SHELLCHECK_FLAGS:-'--external-sources'} ${FILES} \
-    | jq -r '.[] | "\(.file):\(.line):\(.column):\(.level):\(.message) [SC\(.code)](https://github.com/koalaman/shellcheck/wiki/SC\(.code))"' \
+  echo '''shellcheck -f json  ${INPUT_SHELLCHECK_FLAGS:-"--external-sources"} ${FILES} \
+    | jq -r ".[] | "\(.file):\(.line):\(.column):\(.level):\(.message) [SC\(.code)](https://github.com/koalaman/shellcheck/wiki/SC\(.code))"" \
     | reviewdog \
         -efm="%f:%l:%c:%t%*[^:]:%m" \
         -name="shellcheck" \
@@ -105,6 +105,8 @@ shellcheck -f diff ${FILES} \
       ${INPUT_REVIEWDOG_FLAGS}
 EXIT_CODE_SUGGESTION=$?
 echo '::endgroup::'
+
+echo "${EXIT_CODE}"
 
 if [ "${EXIT_CODE}" -ne 0 ] || [ "${EXIT_CODE_SUGGESTION}" -ne 0 ]; then
   exit $((EXIT_CODE + EXIT_CODE_SUGGESTION))
