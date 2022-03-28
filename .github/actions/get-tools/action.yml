@@ -6,11 +6,7 @@ inputs:
 runs:
   using: "composite" 
   steps:
-    - name: printing
-      shell: bash
-      run: |
-        echo "${{ inputs.tool }}"
-    - name: set cert
+    - name: Set cert_tool
       shell: bash
       if: contains(inputs.tool, 'cert_tool')
       run: |
@@ -19,7 +15,7 @@ runs:
         else
           echo 'VAR=${{ env.VAR }},\"cert-tool\"' >> $GITHUB_ENV
         fi
-    - name: set password
+    - name: Set passwords_tool
       shell: bash
       if: contains(inputs.tool, 'passwords_tool')
       run: |
@@ -28,7 +24,7 @@ runs:
         else
           echo 'VAR=${{ env.VAR }},\"password-tool\"' >> $GITHUB_ENV
         fi
-    - name: set install
+    - name: Set installer
       shell: bash
       if: |
         contains(inputs.tool, 'downloader') || 
@@ -39,17 +35,12 @@ runs:
         else
           echo 'VAR=${{ env.VAR }},\"installer\"' >> $GITHUB_ENV
         fi
-    - name: set all
+    - name: Set all
       shell: bash
       if: contains(inputs.tool, 'common_functions')
       run: |
         echo 'VAR=\"cert-tool\",\"password-tool\",\"installer\"' >> $GITHUB_ENV
-    - name: set pepe
-      shell: bash
-      if: contains(inputs.tool, 'pepe')
-      run: |
-        echo 'VAR=\"pepe\"' >> $GITHUB_ENV
-    - name: set builder
+    - name: Set builder.sh
       shell: bash
       if: contains(inputs.tool, 'builder.sh')
       run: |
