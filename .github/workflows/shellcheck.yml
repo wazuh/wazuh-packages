@@ -37,12 +37,17 @@ jobs:
         uses: './.github/actions/generate-artifacts/'
         with: 
           artifact: "${{ matrix.key }}"
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3
+      - name: Upload artifact 2
+        uses: actions/upload-artifact@v2
         with:
           name: artifacts_generated
-          path: |
-            'unattended_installer/**.sh', '!unattended_installer/builder.sh'
+          paths: 'unattended_installer/**.sh', '!unattended_installer/builder.sh'
+      #- name: Upload artifact
+      #  uses: actions/upload-artifact@v3
+      #  with:
+      #    name: artifacts_generated
+      #    path: |
+      #      'unattended_installer/**.sh', '!unattended_installer/builder.sh'
       - name: Upload artifact
         if: contains(matrix.key, 'builder.sh')
         uses: actions/upload-artifact@v3
