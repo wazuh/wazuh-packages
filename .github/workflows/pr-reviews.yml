@@ -54,14 +54,6 @@ jobs:
       - uses: actions/checkout@v1
       - name: Download all artifacts
         uses: actions/download-artifact@v3
-      - name: shellcheck
-        uses: './.github/actions/shellcheck/'
-        with:
-          github_token: ${{ secrets.github_token }}
-          reporter: github-pr-review
-          path: "./artifacts_generated"
-          pattern: "*.sh"
-          fail_on_error: "true"
       - name: test 2
         run: |
           pwd
@@ -72,3 +64,11 @@ jobs:
           pwd
           ls -ls
           cat ./unattended_installer/builder.sh
+      - name: shellcheck
+        uses: './.github/actions/shellcheck/'
+        with:
+          github_token: ${{ secrets.github_token }}
+          reporter: github-pr-review
+          path: "./artifacts_generated"
+          pattern: "*.sh"
+          fail_on_error: "true"
