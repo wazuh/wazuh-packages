@@ -37,7 +37,7 @@ jobs:
         with: 
           artifact: "${{ matrix.tool }}"
       - name: Fix permission
-        run: chmod 755 unattended_installer
+        run: chmod -R 755 unattended_installer
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
