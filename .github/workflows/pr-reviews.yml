@@ -44,8 +44,6 @@ jobs:
         with:
           name: artifacts_generated
           path: |
-            unattended_installer/**tool.sh
-            unattended_installer/**install.sh
             unattended_installer/builder.sh
           
   shellcheck:
