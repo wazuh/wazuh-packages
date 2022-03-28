@@ -10,7 +10,6 @@ runs:
       shell: bash
       if: contains("${{ inputs.tool }}", 'cert_tool')
       run: |
-        echo "${{ inputs.tool }}"
         if [ -z "${{ env.VAR }}" ]; then
           echo 'VAR=\"cert-tool\"' >> $GITHUB_ENV
         else
@@ -20,7 +19,6 @@ runs:
       shell: bash
       if: contains("${{ inputs.tool }}", 'passwords_tool')
       run: |
-        echo "${{ inputs.tool }}"
         if [ -z "${{ env.VAR }}" ]; then
           echo 'VAR=\"password-tool\"' >> $GITHUB_ENV
         else
@@ -32,7 +30,6 @@ runs:
         contains("${{ inputs.tool }}", 'downloader') || 
         contains("${{ inputs.tool }}", 'install_functions')
       run: |
-        echo "${{ inputs.tool }}"
         if [ -z "${{ env.VAR }}" ]; then
           echo 'VAR=\"installer\"' >> $GITHUB_ENV
         else
@@ -42,13 +39,16 @@ runs:
       shell: bash
       if: contains("${{ inputs.tool }}", 'common_functions')
       run: |
-        echo "${{ inputs.tool }}"
         echo 'VAR=\"cert-tool\",\"password-tool\",\"installer\"' >> $GITHUB_ENV
+    - name: set pepe
+      shell: bash
+      if: contains("${{ inputs.tool }}", 'pepe')
+      run: |
+        echo 'VAR=\"pepe\"' >> $GITHUB_ENV
     - name: set builder
       shell: bash
       if: contains(steps.changed_files.outputs.all, 'builder.sh')
       run: |
-        echo "${{ inputs.tool }}"
         if [ -z "${{ env.VAR }}" ]; then
           echo 'VAR=\"builder.sh\"' >> $GITHUB_ENV
         else
