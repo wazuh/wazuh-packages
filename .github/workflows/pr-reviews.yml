@@ -12,7 +12,7 @@ jobs:
         id: changed_files
         with:
           format: 'csv'
-          token: ${{ secrets.GITHUB_TOKEN }}
+          #token: ${{ secrets.GITHUB_TOKEN }}
       - name: set tool
         uses: './.github/actions/get-tools/'
         with: 
@@ -37,8 +37,8 @@ jobs:
         uses: './.github/actions/generate-artifacts/'
         with: 
           artifact: "${{ matrix.tool }}"
-      - name: Checkout
-        run: ls -la unattended_installer
+      - name: Fix Permisions
+        run: chmod 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
@@ -59,16 +59,14 @@ jobs:
           pwd
           chmod 775 artifacts_generated
           ls -ls artifacts_generated
-          cat ./artifacts_generated/builder.sh
       - name: test 3
         run: |
           pwd
           ls -ls unattended_installer
-          cat ./unattended_installer/builder.sh
       - name: shellcheck
         uses: './.github/actions/shellcheck/'
         with:
-          github_token: ${{ secrets.github_token }}
+          #github_token: ${{ secrets.github_token }}
           reporter: github-pr-review
           path: "./artifacts_generated"
           pattern: "*.sh"
