@@ -78,6 +78,7 @@ jobs:
           path: "artifacts_generated"
           pattern: "*.sh"
           exclude: "*.md"
+          fail_on_error: "true"
       - name: test 2
         run: |
           pwd
