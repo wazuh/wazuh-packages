@@ -62,6 +62,8 @@ jobs:
           pwd
           chmod -R 775 artifacts_generated
           ls -ls artifacts_generated
+          cp ./unattended_installer/builder.sh artifacts_generated
+          ls -ls artifacts_generated
       - name: test 3
         run: |
           pwd
