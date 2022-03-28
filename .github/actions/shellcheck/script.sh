@@ -54,7 +54,7 @@ echo $FILES
 
 echo '::group:: Running shellcheck ...'
 if [ "${INPUT_REPORTER}" = 'github-pr-review' ]; then
-  shellcheck -f json  ${INPUT_SHELLCHECK_FLAGS:-'--external-sources'} artifacts_generated/wazuh-passwords-tool.sh \
+  shellcheck -f json  ${INPUT_SHELLCHECK_FLAGS:-'--external-sources'} ./unattended_installer/common_functions/common.sh \
     | jq -r '.[] | "\(.file):\(.line):\(.column):\(.level):\(.message) [SC\(.code)](https://github.com/koalaman/shellcheck/wiki/SC\(.code))"' \
     | reviewdog \
         -efm="%f:%l:%c:%t%*[^:]:%m" \
