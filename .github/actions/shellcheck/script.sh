@@ -51,7 +51,7 @@ fi
 
 FILES="${files_with_pattern} ${files_with_shebang:-}"
 echo $FILES
-chmod 775 ${FILES}
+chmod 775 ./artifacts_generated/builder.sh
 
 echo '::group:: Running shellcheck ...'
 if [ "${INPUT_REPORTER}" = 'github-pr-review' ]; then
