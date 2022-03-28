@@ -46,6 +46,7 @@ jobs:
           path: |
             unattended_installer/**tool.sh
             unattended_installer/**install.sh
+            unattended_installer/builder.sh
           
   shellcheck:
     name: runner / shellcheck
@@ -55,29 +56,13 @@ jobs:
       - uses: actions/checkout@v1
       - name: Download all artifacts
         uses: actions/download-artifact@v3
-      - name: test
-        run: |
-          pwd
-          ls -ls
-          ls -la artifacts_generated
-          cat artifacts_generated/wazuh-passwords-tool.sh
       - name: shellcheck
-        uses: reviewdog/action-shellcheck@v1
-        with:
-          github_token: ${{ secrets.github_token }}
-          reporter: github-pr-review
-          path: artifacts_generated
-          pattern: "*.sh"
-          exclude: "*.md"
-          fail_on_error: "true"
-      - name: shellcheck custom
         uses: './.github/actions/shellcheck/'
         with:
           github_token: ${{ secrets.github_token }}
           reporter: github-pr-review
-          path: "artifacts_generated"
+          path: "./artifacts_generated"
           pattern: "*.sh"
-          exclude: "*.md"
           fail_on_error: "true"
       - name: test 2
         run: |
