@@ -65,12 +65,11 @@ jobs:
         with:
           github_token: ${{ secrets.github_token }}
           reporter: github-pr-review
-          path: "$GITHUB_ACTION_PATH/artifacts_generated"
+          path: $GITHUB_ACTION_PATH/artifacts_generated
           pattern: "*.sh"
           exclude: "*.md"
           fail_on_error: "true"
-      #- name: shellcheck custom
-      #  uses: './.github/actions/shellcheck/'
+
       - name: test 2
         run: |
           pwd
