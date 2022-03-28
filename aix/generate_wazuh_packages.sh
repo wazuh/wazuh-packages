@@ -1,5 +1,5 @@
 #!/bin/ksh
-
+set -x  
 # Script to build Wazuh RPM package for AIX
 # Copyright (C) 2015-2020, Wazuh Inc.
 #
@@ -9,6 +9,7 @@
 # Foundation.
 
 # Script configuration variables
+
 current_path="$( cd $(dirname $0) ; pwd -P )"
 install_path="/var/ossec"
 reference="master"
@@ -50,7 +51,7 @@ build_perl() {
 
   wget http://www.cpan.org/src/5.0/perl-5.10.1.tar.gz
   gunzip perl-5.10.1.tar.gz && tar -xvf perl-5.10.1.tar
-  cd perl-5.10.1 && ./Configure -des -Dcc='gcc'
+  cd perl-5.10.1 &&   
   make && make install
   ln -fs /usr/local/bin/perl /bin/perl
   ln -fs /usr/local/bin/perl /opt/freeware/bin/perl
@@ -61,8 +62,8 @@ build_perl() {
 
 build_cmake() {
   mv /opt/freeware/lib/gcc/powerpc-ibm-aix6.1.1.0/6.3.0/include-fixed/sys/socket.h /opt/freeware/lib/gcc/powerpc-ibm-aix6.1.1.0/6.3.0/include-fixed/sys/socket.h.bkp 
-  curl -OL http://packages.wazuh.com/utils/cmake/cmake-3.12.4.tar.gz
-  gtar -zxf cmake-3.12.4.tar.gz && cd cmake-3.12.4
+  wget http://packages.wazuh.com/utils/cmake/cmake-3.12.4.tar.gz
+  gunzip cmake-3.12.4.tar.gz && tar -xvf cmake-3.12.4.tar && cd cmake-3.12.4
   ./bootstrap
   sed ' 1 s/.*/&-Wl,-bbigtoc/' Source/CMakeFiles/ctest.dir/link.txt | tee Source/CMakeFiles/ctest.dir/link.txt
   sed ' 1 s/.*/&-Wl,-bbigtoc/' Source/CMakeFiles/cpack.dir/link.txt | tee Source/CMakeFiles/cpack.dir/link.txt
@@ -87,7 +88,7 @@ build_environment() {
   rpm="rpm -Uvh --nodeps"
 
   $rpm http://packages-dev.wazuh.com/deps/aix/autoconf-2.69-3.aix7.1.ppc.rpm || true
-  $rpm https://packages-dev.wazuh.com/deps/aix/automake-1.16.2-1.aix6.1.noarch.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/automake-1.16.2-1.aix6.1.noarch.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/bash-4.4-4.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/bzip2-1.0.6-2.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/coreutils-8.25-1.aix6.1.ppc.rpm || true
@@ -123,13 +124,7 @@ build_environment() {
   $rpm http://packages-dev.wazuh.com/deps/aix/rsync-3.1.2-3.aix6.1.ppc.rpm || true
   # $rpm http://packages-dev.wazuh.com/deps/aix/nano-2.5.3-1.aix5.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/tar-1.32-1.aix6.1.ppc.rpm || true
-
-  $rpm http://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/deps/aix/ca-certificates-2020.06.01-2.aix6.1.ppc.rpm || true
-  $rpm http://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/deps/aix/krb5-libs-1.18.4-1.aix6.1.ppc.rpm || true
-  $rpm http://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/deps/aix/libssh2-1.9.0-1.aix6.1.ppc.rpm || true
-  $rpm http://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/deps/aix/curl-7.79.1-1.aix6.1.ppc.rpm || true
-  $rpm http://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/deps/aix/curl-devel-7.79.1-1.aix6.1.ppc.rpm || true
-
+  $rpm http://packages-dev.wazuh.com/deps/aix/curl-7.79.1-1.aix6.1.ppc.rpm || true
 
   if [[ "${aix_major}" = "6" ]] || [[ "${aix_major}" = "7" ]]; then
     # $rpm http://packages-dev.wazuh.com/deps/aix//isl/isl-0.18-1.aix5.1.ppc.rpm || true
@@ -137,35 +132,17 @@ build_environment() {
     $rpm http://packages-dev.wazuh.com/deps/aix/libmpc-1.0.3-2.aix6.1.ppc.rpm || true
     $rpm http://packages-dev.wazuh.com/deps/aix/file-5.32-1.aix6.1.ppc.rpm || true
     $rpm http://packages-dev.wazuh.com/deps/aix/file-libs-5.32-1.aix6.1.ppc.rpm || true
-    $rpm http://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/deps/aix/perl-5.30.3-2.aix6.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/perl-5.30.3-2.aix6.1.ppc.rpm || true
   fi
 
   if [[ "${aix_major}" = "6" ]]; then
-    $rpm http://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/deps/aix/gcc9-9.3.0-3.aix6.1.ppc.rpm || true
-    $rpm http://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/deps/aix/gcc9-cpp-9.3.0-3.aix6.1.ppc.rpm || true
-    $rpm http://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/deps/aix/libgcc9-9.3.0-3.aix6.1.ppc.rpm || true
-    $rpm http://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/deps/aix/libstdc%2B%2B9-9.3.0-3.aix6.1.ppc.rpm || true
-    $rpm http://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/deps/aix/libstdc%2B%2B9-devel-9.3.0-3.aix6.1.ppc.rpm || true
-    $rpm http://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/deps/aix/gcc9-c%2B%2B-9.3.0-3.aix6.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/gcc-6.3.0-1.aix6.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/gcc-cpp-6.3.0-1.aix6.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/libgcc-6.3.0-1.aix6.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/libstdc%2B%2B-6.3.0-1.aix6.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/libstdc%2B%2B-devel-6.3.0-1.aix6.1.ppc.rpm || true
+    $rpm http://packages-dev.wazuh.com/deps/aix/gcc-c%2B%2B-6.3.0-1.aix6.1.ppc.rpm || true
 
-  fi
-
-  if [[ "${aix_major}" = "7" ]] && [[ "${aix_minor}" = "1" ]]; then
-    $rpm http://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/deps/aix/gcc9-9.4.0-1.aix7.1.ppc.rpm || true
-    $rpm http://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/deps/aix/gcc9-cpp-9.4.0-1.aix7.1.ppc.rpm || true
-    $rpm http://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/deps/aix/libgcc9-9.4.0-1.aix7.1.ppc.rpm || true
-    $rpm http://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/deps/aix/libstdc%2B%2B9-9.4.0-1.aix7.1.ppc.rpm || true
-    $rpm http://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/deps/aix/libstdc%2B%2B9-devel-9.4.0-1.aix7.1.ppc.rpm || true
-    $rpm http://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/deps/aix/gcc9-c%2B%2B-9.4.0-1.aix7.1.ppc.rpm || true
-  fi
-
-  if [[ "${aix_major}" = "7" ]] && [[ "${aix_minor}" = "2" ]]; then
-    $rpm http://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/deps/aix/gcc9-9.4.0-1.aix7.2.ppc.rpm || true
-    $rpm http://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/deps/aix/gcc9-cpp-9.4.0-1.aix7.2.ppc.rpm || true
-    $rpm http://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/deps/aix/libgcc9-9.4.0-1.aix7.2.ppc.rpm || true
-    $rpm http://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/deps/aix/libstdc%2B%2B9-9.4.0-1.aix7.2.ppc.rpm || true
-    $rpm http://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/deps/aix/libstdc%2B%2B9-devel-9.4.0-1.aix7.2.ppc.rpm || true
-    $rpm http://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/deps/aix/gcc9-c%2B%2B-9.4.0-1.aix7.2.ppc.rpm || true
   fi
   build_perl
 
@@ -177,7 +154,7 @@ build_environment() {
 
 build_package() {
 
-  source_code="https://api.github.com/repos/wazuh/wazuh/tarball/${reference}"
+  source_code="http://api.github.com/repos/wazuh/wazuh/tarball/${reference}"
 
   rm -f wazuh.tar.gz && wget -O wazuh.tar.gz --no-check-certificate ${source_code}
   rm -rf wazuh-wazuh-* wazuh-agent-*
