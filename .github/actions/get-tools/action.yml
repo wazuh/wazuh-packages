@@ -12,7 +12,7 @@ runs:
         echo "${{ inputs.tool }}"
     - name: set cert
       shell: bash
-      if: contains("${{ inputs.tool }}", 'cert_tool')
+      if: contains(inputs.tool, 'cert_tool')
       run: |
         if [ -z "${{ env.VAR }}" ]; then
           echo 'VAR=\"cert-tool\"' >> $GITHUB_ENV
@@ -21,7 +21,7 @@ runs:
         fi
     - name: set password
       shell: bash
-      if: contains("${{ inputs.tool }}", 'passwords_tool')
+      if: contains(inputs.tool, 'passwords_tool')
       run: |
         if [ -z "${{ env.VAR }}" ]; then
           echo 'VAR=\"password-tool\"' >> $GITHUB_ENV
@@ -31,8 +31,8 @@ runs:
     - name: set install
       shell: bash
       if: |
-        contains("${{ inputs.tool }}", 'downloader') || 
-        contains("${{ inputs.tool }}", 'install_functions')
+        contains(inputs.tool, 'downloader') || 
+        contains(inputs.tool, 'install_functions')
       run: |
         if [ -z "${{ env.VAR }}" ]; then
           echo 'VAR=\"installer\"' >> $GITHUB_ENV
@@ -41,17 +41,17 @@ runs:
         fi
     - name: set all
       shell: bash
-      if: contains("${{ inputs.tool }}", 'common_functions')
+      if: contains(inputs.tool, 'common_functions')
       run: |
         echo 'VAR=\"cert-tool\",\"password-tool\",\"installer\"' >> $GITHUB_ENV
     - name: set pepe
       shell: bash
-      if: contains("${{ inputs.tool }}", 'pepe')
+      if: contains(inputs.tool, 'pepe')
       run: |
         echo 'VAR=\"pepe\"' >> $GITHUB_ENV
     - name: set builder
       shell: bash
-      if: contains(steps.changed_files.outputs.all, 'builder.sh')
+      if: contains(inputs.tool, 'builder.sh')
       run: |
         if [ -z "${{ env.VAR }}" ]; then
           echo 'VAR=\"builder.sh\"' >> $GITHUB_ENV
