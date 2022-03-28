@@ -71,7 +71,7 @@ jobs:
           exclude: "*.md"
           fail_on_error: "true"
       - name: shellcheck custom
-        uses: './.github/actions/shellcheck'
+        uses: './.github/actions/shellcheck/'
         with:
           github_token: ${{ secrets.github_token }}
           reporter: github-pr-review
