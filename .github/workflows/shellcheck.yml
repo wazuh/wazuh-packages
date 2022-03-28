@@ -54,7 +54,7 @@ jobs:
       - name: Shellcheck for libraries of artifacts
         uses: './.github/actions/shellcheck/'
         with:
-          reporter: github-pr-check
+          reporter: github-check
           path: "./artifacts_generated"
           pattern: "*.sh"
           fail_on_error: "false"
