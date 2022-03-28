@@ -66,4 +66,9 @@ jobs:
         run: |
           pwd
           ls -ls
-          ls -la /home/runner/work/wazuh-packages/wazuh-packages/artifacts_generated
+          cat ./artifacts_generated/builder.sh
+      - name: test 3
+        run: |
+          pwd
+          ls -ls
+          cat ./unattended_installer/builder.sh
