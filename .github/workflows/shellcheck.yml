@@ -63,7 +63,7 @@ jobs:
   Shellcheck-for-artifacts:
     name: Shellcheck / runner for artifacts
     runs-on: ubuntu-latest
-    needs: Builder-scripts
+    needs: [Get-changes, Builder-scripts]
     steps:
       - uses: actions/checkout@v1
       - name: Download all artifacts
@@ -88,7 +88,7 @@ jobs:
             })
             
   pr_commented:
-    # This job only runs for pull request comments
+    needs: [Get-changes, Builder-scripts, Shellcheck-for-artifacts]
     name: PR comment
     if: ${{ github.event.issue.pull_request }}
     runs-on: ubuntu-latest
