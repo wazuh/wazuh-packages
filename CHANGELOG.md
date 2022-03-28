@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [v4.3.0]
 
+- Remove ip message from OVA [1395](https://github.com/wazuh/wazuh-packages/pull/1395)
 - Remove demo certificates from indexer and dashboard packages [#1390](https://github.com/wazuh/wazuh-packages/pull/1390)
 - Add centos8 vault repository due to EOL [#1307](https://github.com/wazuh/wazuh-packages/pull/1307)
 - Fix user deletion warning RPM manager [#1302](https://github.com/wazuh/wazuh-packages/pull/1302)
