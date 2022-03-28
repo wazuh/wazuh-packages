@@ -36,7 +36,7 @@ jobs:
       - name: Generate artifacts
         uses: './.github/actions/generate-artifacts/'
         with: 
-          artifact: "${{ matrix.tool }}"
+          artifact: "${{ matrix.key }}"
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
