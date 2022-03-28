@@ -42,10 +42,10 @@ runs:
         echo 'VAR=\"cert-tool\",\"password-tool\",\"installer\"' >> $GITHUB_ENV
     - name: Set builder.sh
       shell: bash
-      if: contains(inputs.tool, 'builder.shs')
+      if: contains(inputs.tool, 'builder.sh')
       run: |
         if [ -z "${{ env.VAR }}" ]; then
-          echo 'VAR=\"builder.sh\"' >> $GITHUB_ENV
+          echo 'VAR={\"key\":\"builder.sh\",\"path\":\"unattended_installer\"}' >> $GITHUB_ENV
         else
-          echo 'VAR=${{ env.VAR }},\"builder.sh\"' >> $GITHUB_ENV
+          echo 'VAR=${{ env.VAR }},{\"key\":\"builder.sh\",\"path\":\"unattended_installer\"}' >> $GITHUB_ENV
         fi
