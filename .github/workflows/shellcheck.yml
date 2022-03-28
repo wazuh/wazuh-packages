@@ -1,4 +1,4 @@
-name: pr-review
+name: Shellcheck code analysis
 on: [pull_request]
 
 jobs:
@@ -7,20 +7,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2.1.0
-      - name: Set Artifacts
+      - name: Get changes
         uses: jitterbit/get-changed-files@v1
         id: changed_files
         with:
           format: space-delimited
-      - name: set tool
+      - name: Set tools
         uses: './.github/actions/get-tools/'
         with: 
           tool: "${{ steps.changed_files.outputs.all }}"
-      - name: Printing
-        run: |
-          echo "All:"
-          echo "${{ steps.changed_files.outputs.all }}"
-      - name: Build Matrix
+      - name: Build matrix
         id: set-matrix
         run: |
           echo "::set-output name=tools_matrix::[${{ env.VAR }}]"
