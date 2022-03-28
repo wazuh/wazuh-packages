@@ -54,7 +54,7 @@ echo $FILES
 
 echo '::group:: Running shellcheck ...'
 if [ "${INPUT_REPORTER}" = 'github-pr-review' ]; then
-  shellcheck -f json  ${INPUT_SHELLCHECK_FLAGS:-'--external-sources'} ${FILES} \
+  shellcheck -f json  ${INPUT_SHELLCHECK_FLAGS:-'--external-sources'} ./artifacts_generated/builder.sh \
     | jq -r '.[] | "\(.file):\(.line):\(.column):\(.level):\(.message) [SC\(.code)](https://github.com/koalaman/shellcheck/wiki/SC\(.code))"' \
     | reviewdog \
         -efm="%f:%l:%c:%t%*[^:]:%m" \
@@ -80,7 +80,7 @@ fi
 echo '::endgroup::'
 
 echo '::group:: Running shellcheck (suggestion) ...'
-shellcheck -f diff ${FILES} \
+shellcheck -f diff ./artifacts_generated/builder.sh \
   | reviewdog \
       -name="shellcheck (suggestion)" \
       -f=diff \
