@@ -68,8 +68,9 @@ jobs:
           reporter: github-pr-review
           path: "./artifacts_generated"
           pattern: "*.sh"
-          fail_on_error: "true"
-      - uses: actions/github-script@v3
+          fail_on_error: "false"
+      - name: Comments into issue
+        uses: actions/github-script@v3
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
