@@ -23,7 +23,8 @@ jobs:
     outputs:
       tools_matrix: ${{ steps.set-matrix.outputs.tools_matrix }}
   
-  Builder-Scripts:
+  Builder-scripts:
+    name: Builder scripts artifacts
     runs-on: ubuntu-latest
     needs: Get-changes
     strategy:
@@ -62,7 +63,7 @@ jobs:
   Shellcheck-for-artifacts:
     name: Shellcheck / runner for artifacts
     runs-on: ubuntu-latest
-    needs: Builder-Scripts
+    needs: Builder-scripts
     steps:
       - uses: actions/checkout@v1
       - name: Download all artifacts
@@ -85,3 +86,14 @@ jobs:
               repo: context.repo.repo,
               body: '👋 Thanks for reporting!'
             })
+            
+  pr_commented:
+    # This job only runs for pull request comments
+    name: PR comment
+    if: ${{ github.event.issue.pull_request }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo A comment on PR $NUMBER
+        env:
+          NUMBER: ${{ github.event.issue.number }}
