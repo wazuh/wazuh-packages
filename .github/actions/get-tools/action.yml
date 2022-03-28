@@ -6,6 +6,10 @@ inputs:
 runs:
   using: "composite" 
   steps:
+    - name: printing
+      shell: bash
+      run: |
+        echo "${{ inputs.tool }}"
     - name: set cert
       shell: bash
       if: contains("${{ inputs.tool }}", 'cert_tool')
@@ -40,11 +44,6 @@ runs:
       if: contains("${{ inputs.tool }}", 'common_functions')
       run: |
         echo 'VAR=\"cert-tool\",\"password-tool\",\"installer\"' >> $GITHUB_ENV
-    - name: set pepe
-      shell: bash
-      if: contains("${{ inputs.tool }}", 'pepe')
-      run: |
-        echo 'VAR=\"pepe\"' >> $GITHUB_ENV
     - name: set builder
       shell: bash
       if: contains(steps.changed_files.outputs.all, 'builder.sh')
