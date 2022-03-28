@@ -57,12 +57,12 @@ jobs:
       - name: test 2
         run: |
           pwd
-          ls -ls
+          ls -ls artifacts_generated
           cat ./artifacts_generated/builder.sh
       - name: test 3
         run: |
           pwd
-          ls -ls
+          ls -ls unattended_installer
           cat ./unattended_installer/builder.sh
       - name: shellcheck
         uses: './.github/actions/shellcheck/'
