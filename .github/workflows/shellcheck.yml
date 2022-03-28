@@ -52,10 +52,10 @@ jobs:
       - name: Shellcheck for libraries of artifacts
         uses: './.github/actions/shellcheck/'
         with:
-          reporter: github-check
+          reporter: github-pr-review
           path: |
-            "./unattended_installer/cert_tool"
-            "./unattended_installer/passwords_tool"
+            unattended_installer/cert_tool
+            unattended_installer/passwords_tool
           pattern: "*.sh"
           fail_on_error: "false"
           
