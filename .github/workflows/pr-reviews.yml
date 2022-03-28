@@ -16,6 +16,8 @@ jobs:
         uses: './.github/actions/get-tools/'
         with: 
           tool: steps.changed_files.outputs.all
+      - name: files
+        run: echo steps.changed_files.outputs.all
       - name: Build Matrix
         id: set-matrix
         run: |
