@@ -9,9 +9,8 @@ SYSTEM_USER=$3
 # OVA Welcome message
 cat > /etc/issue <<EOF
 
-Welcome to the Wazuh OVA version 
+Welcome to the Wazuh OVA version
 Wazuh - ${WAZUH_VERSION}
-Access the Wazuh Web Interface at https://\4{eth0}
 Use wazuh/wazuh to login
 Thank you for using Wazuh!
 
@@ -21,18 +20,18 @@ EOF
 cat > /etc/motd <<EOF
 
 
-        WWWWWW            WWWWWW           WWWWWW                        
-         WWWWWW          WWWWWWWW          WWWWWW                        
-          WWWWWW        WWWWWWWWWW        WWWWWW                         
-          &WWWWW       WWWWW WWWWW       WWWWWW                          
-           WWWWWW     WWWWWW  WWWWW     WWWWWW                           
-            WWWWWW    WWWWW    WWWWW    WWWWW                            
-             WWWWWW  WWWWW      WWWWW  WWWWWW                            
-             /WWWWW,WWWWW       WWWWW WWWWWW                             
-              WWWWWWWWWW         WWWWWWWWWW         WWWWW                
-               WWWWWWWW.          WWWWWWWW        WWWWWWWWW              
-                WWWWWWW            WWWWWW&        WWWWWWWWW              
-                 WWWWW              WWWWW          .WWWWW%               
+        WWWWWW            WWWWWW           WWWWWW
+         WWWWWW          WWWWWWWW          WWWWWW
+          WWWWWW        WWWWWWWWWW        WWWWWW
+          &WWWWW       WWWWW WWWWW       WWWWWW
+           WWWWWW     WWWWWW  WWWWW     WWWWWW
+            WWWWWW    WWWWW    WWWWW    WWWWW
+             WWWWWW  WWWWW      WWWWW  WWWWWW
+             /WWWWW,WWWWW       WWWWW WWWWWW
+              WWWWWWWWWW         WWWWWWWWWW         WWWWW
+               WWWWWWWW.          WWWWWWWW        WWWWWWWWW
+                WWWWWWW            WWWWWW&        WWWWWWWWW
+                 WWWWW              WWWWW          .WWWWW%
 
 
 
