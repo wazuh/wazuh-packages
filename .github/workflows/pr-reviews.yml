@@ -11,7 +11,7 @@ jobs:
         uses: jitterbit/get-changed-files@v1
         id: changed_files
         with:
-          format: 'csv'
+          format: space-delimited
       - name: set tool
         uses: './.github/actions/get-tools/'
         with: 
