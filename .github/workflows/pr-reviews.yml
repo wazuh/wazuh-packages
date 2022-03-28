@@ -37,8 +37,6 @@ jobs:
         uses: './.github/actions/generate-artifacts/'
         with: 
           artifact: "${{ matrix.tool }}"
-      - name: Fix Permisions
-        run: chmod 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
