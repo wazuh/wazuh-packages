@@ -84,7 +84,7 @@ echo '::endgroup::'
 echo '::group:: Running shellcheck (suggestion) ...'
 # -reporter must be github-pr-review for the suggestion feature.
 # shellcheck disable=SC2086
-shellcheck -f diff ${FILES} \
+shellcheck -f diff ./unattended_installer/common_functions/common.sh \
   | reviewdog \
       -name="shellcheck (suggestion)" \
       -f=diff \
