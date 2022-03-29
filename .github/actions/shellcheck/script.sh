@@ -66,7 +66,7 @@ if [ "${INPUT_REPORTER}" = 'github-pr-review' ]; then
         ${INPUT_REVIEWDOG_FLAGS}
   EXIT_CODE=$?
 else
-  shellcheck -f checkstyle ${INPUT_SHELLCHECK_FLAGS:-'--external-sources'} ${FILES}
+  shellcheck -f json ${INPUT_SHELLCHECK_FLAGS:-'--external-sources'} ${FILES}
   EXIT_CODE=$?
 fi
 echo '::endgroup::'
