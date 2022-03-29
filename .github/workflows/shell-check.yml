@@ -28,6 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: Get-changes
     strategy:
+      fail-fast: false
       matrix: ${{ fromJson(needs.Get-changes.outputs.tools_matrix) }}
     steps:
       - name: Checkout
