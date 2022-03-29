@@ -88,12 +88,17 @@ function installCommon_aptInstall() {
 
     set -x
     i=0
-    eval "DEBIAN_FRONTEND=noninteractive apt-get install ${1}${sep}${2} -y -q  ${debug}"
+    if [ -n "${2}" ]; then
+        installer=${1}${sep}${2}
+    else
+        installer=${1}
+    fi
+    eval "DEBIAN_FRONTEND=noninteractive apt-get install ${installer} -y -q  ${debug}"
     install_result="$?"
     while [ "${install_result}" -eq 100 ] && [ "${i}" -lt 12 ]; do
         sleep 10
         i=$((i+1))
-        eval "DEBIAN_FRONTEND=noninteractive apt-get install ${1}${sep}${2} -y -q  ${debug}"
+        eval "DEBIAN_FRONTEND=noninteractive apt-get install ${installer} -y -q  ${debug}"
         install_result="$?"
     done
     
