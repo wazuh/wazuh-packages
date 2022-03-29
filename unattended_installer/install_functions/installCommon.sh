@@ -86,18 +86,18 @@ function installCommon_addWazuhRepo() {
 
 function installCommon_aptInstall() {
 
-        i=0
+    i=0
     if [ -n "${2}" ]; then
         installer=${1}${sep}${2}
     else
         installer=${1}
     fi
-    eval "DEBIAN_FRONTEND=noninteractive apt-get install ${installer} -y -q  ${debug}"
+    eval "DEBIAN_FRONTEND=noninteractive apt-get install ${installer} -y -q ${debug}"
     install_result="$?"
     while [ "${install_result}" -eq 100 ] && [ "${i}" -lt 12 ]; do
         sleep 10
         i=$((i+1))
-        eval "DEBIAN_FRONTEND=noninteractive apt-get install ${installer} -y -q  ${debug}"
+        eval "DEBIAN_FRONTEND=noninteractive apt-get install ${installer} -y -q ${debug}"
         install_result="$?"
     done
     
