@@ -94,21 +94,20 @@ jobs:
           body="${body//$'\n'/'%0A'}"
           body="${body//$'\r'/'%0D'}" 
           echo "::set-output name=body::$body"
-      - name: Comments into issue
-        uses: peter-evans/create-or-update-comment@v2
-        with:
-          issue-number: context.issue.number
-          body: ${{ steps.get-comment-body.outputs.body }}
       #- name: Comments into issue
-      #  uses: actions/github-script@v3
+      #  uses: peter-evans/create-or-update-comment@v2
       #  with:
-      #    github-token: ${{secrets.GITHUB_TOKEN}}
-      #    script: |
-      #      const fs = require('fs')
-      #      github.issues.createComment({
-      #        issue_number: context.issue.number,
-      #        owner: context.repo.owner,
-      #        repo: context.repo.repo,
-      #        body: fs.readFileSync('output.md')
-      #      })
+      #    issue-number: context.issue.number
+      #    body: ${{ steps.get-comment-body.outputs.body }}
+      - name: Comments into issue
+        uses: actions/github-script@v3
+        with:
+          script: |
+            const fs = require('fs')
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: ${{ steps.get-comment-body.outputs.body }}
+            })
             
