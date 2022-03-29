@@ -27,8 +27,8 @@ jobs:
     name: Builder scripts artifacts
     runs-on: ubuntu-latest
     needs: Get-changes
+    if: ${{ needs.Get-changes.outputs.tools_matrix != '[]' && needs.Get-changes.outputs.tools_matrix != '' }}
     strategy:
-      fail-fast: false
       matrix: ${{ fromJson(needs.Get-changes.outputs.tools_matrix) }}
     steps:
       - name: Checkout
