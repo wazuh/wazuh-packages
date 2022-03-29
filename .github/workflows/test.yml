@@ -12,7 +12,8 @@ jobs:
         with: 
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review
-          path: "unattended_installer/builder.sh"
+          path: |
+            unattended_installer/cert_tool
           pattern: "*.sh"
           level: info
           fail_on_error: true
