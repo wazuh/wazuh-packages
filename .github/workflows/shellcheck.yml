@@ -86,7 +86,8 @@ jobs:
         run: |
           ls -la 
           cat output.md
-      - id: get-comment-body
+      - name: Get shellcheck output
+        id: get-comment-body
         run: |
           body="$(cat output.md)"
           body="${body//'%'/'%25'}"
@@ -96,7 +97,7 @@ jobs:
       - name: Comments into issue
         uses: peter-evans/create-or-update-comment@v2
         with:
-          issue-number: 1
+          issue-number: context.issue.number
           body: ${{ steps.get-comment-body.outputs.body }}
       #- name: Comments into issue
       #  uses: actions/github-script@v3
