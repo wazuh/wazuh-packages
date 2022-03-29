@@ -90,6 +90,7 @@ jobs:
         id: get-comment-body
         run: |
           body="$(cat output.md)"
+          body="sed -i 's/.//g' ${body}"
           body="${body//'%'/'%25'}"
           body="${body//$'\n'/'%0A'}"
           body="${body//$'\r'/'%0D'}" 
