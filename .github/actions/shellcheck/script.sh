@@ -50,6 +50,7 @@ if [ -z "${files_with_pattern}" ] && [ -z "${files_with_shebang:-}" ]; then
 fi
 
 FILES="${files_with_pattern} ${files_with_shebang:-}"
+echo "CHECKING FILES:"
 echo $FILES
 
 echo '::group:: Running shellcheck ...'
