@@ -75,9 +75,6 @@ jobs:
       - uses: actions/checkout@v1
       - name: Download all artifacts
         uses: actions/download-artifact@v3
-      - name: ls
-        run: |
-          ls -la artifacts_generated
       - name: Shellcheck for artifacts generated
         uses: './.github/actions/shellcheck/'
         with:
@@ -94,10 +91,11 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
+            const fs = require('fs')
             github.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '${{ env.OUTPUT }}'
+              body: fs.readFileSync('output.md')
             })
             
