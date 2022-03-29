@@ -52,7 +52,7 @@ runs:
       if: contains(inputs.tool, 'builder.sh')
       run: |
         if [ -z "${{ env.VAR }}" ]; then
-          echo 'VAR={\"key\":\"builder.sh\",\"path\":\"unattended_installer\"}' >> $GITHUB_ENV
+          echo 'VAR={\"key\":\"builder.sh\",\"path\":\"unattended_installer/builder.sh\"}' >> $GITHUB_ENV
         else
-          echo 'VAR=${{ env.VAR }},{\"key\":\"builder.sh\",\"path\":\"unattended_installer\"}' >> $GITHUB_ENV
+          echo 'VAR=${{ env.VAR }},{\"key\":\"builder.sh\",\"path\":\"unattended_installer/builder.sh\"}' >> $GITHUB_ENV
         fi
