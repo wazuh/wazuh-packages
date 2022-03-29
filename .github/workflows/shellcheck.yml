@@ -29,7 +29,6 @@ jobs:
     needs: Get-changes
     strategy:
       matrix: ${{ fromJson(needs.Get-changes.outputs.tools_matrix) }}
-        #tool: ${{ fromJson(needs.Get-changes.outputs.tools_matrix) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2.1.0
@@ -37,10 +36,6 @@ jobs:
         uses: './.github/actions/generate-artifacts/'
         with: 
           artifact: "${{ matrix.key }}"
-      - name: ls
-        run: |
-          ls -la
-          ls -la unattended_installer
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
@@ -90,6 +85,9 @@ jobs:
           path: "./artifacts_generated"
           pattern: "*.sh"
           fail_on_error: "false"
+      - name: ls
+        run: |
+          ls -la 
       - name: Comments into issue
         uses: actions/github-script@v3
         with:
