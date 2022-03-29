@@ -67,7 +67,6 @@ if [ "${INPUT_REPORTER}" = 'github-pr-review' ]; then
   EXIT_CODE=$?
 else
   shellcheck -f json ${INPUT_SHELLCHECK_FLAGS:-'--external-sources'} ${FILES} | jq -r '.[] | "\(.file):\(.line):\(.column):\(.level):\(.message) [SC\(.code)](https://github.com/koalaman/shellcheck/wiki/SC\(.code))"' > output.md
-  cat output.md >> $GITHUB_ENV
 # | jq -r ".[] | "\(.file):\(.line):\(.column):\(.level):\(.message) [SC\(.code)](https://github.com/koalaman/shellcheck/wiki/SC\(.code))"")' >> $GITHUB_ENV
   EXIT_CODE=$?
 fi
