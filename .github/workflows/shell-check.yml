@@ -90,8 +90,7 @@ jobs:
         uses: './.github/actions/shellcheck/'
         with:
           reporter: github-pr-check
-          path: |
-            artifacts_generated
+          path: "./artifacts_generated"
           pattern: "*.sh"
           fail_on_error: "false"
       - name: Get shellcheck output
