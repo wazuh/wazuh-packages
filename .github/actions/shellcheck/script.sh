@@ -66,7 +66,9 @@ if [ "${INPUT_REPORTER}" = 'github-pr-review' ]; then
         ${INPUT_REVIEWDOG_FLAGS}
   EXIT_CODE=$?
 else
-  shellcheck -f json ${INPUT_SHELLCHECK_FLAGS:-'--external-sources'} ${FILES}
+  output=`sellcheck -f json ${INPUT_SHELLCHECK_FLAGS:-'--external-sources'} ${FILES} \
+  | jq -r '.[] | "\(.file):\(.line):\(.column):\(.level):\(.message) [SC\(.code)](https://github.com/koalaman/shellcheck/wiki/SC\(.code))"'`
+  echo $output=output.md
   EXIT_CODE=$?
 fi
 echo '::endgroup::'
