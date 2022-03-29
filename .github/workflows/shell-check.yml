@@ -63,7 +63,7 @@ jobs:
     name: Shellcheck / runner for libraries
     runs-on: ubuntu-latest
     needs: Get-changes
-    if: ${{ needs.Get-changes.outputs.empty_matrix == 'false' }}
+    if: ${{ needs.Get-changes.outputs.empty_matrix != 'true' }}
     strategy:
       matrix: ${{ fromJson(needs.Get-changes.outputs.tools_matrix) }}
     steps:
