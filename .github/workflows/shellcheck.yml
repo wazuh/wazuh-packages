@@ -95,11 +95,11 @@ jobs:
           body="${body//$'\r'/'%0D'}" 
           body="${body//'.'/''}"
           echo "::set-output name=body::$body"
-      #- name: Comments into issue
-      #  uses: peter-evans/create-or-update-comment@v2
-      #  with:
-      #    issue-number: context.issue.number
-      #    body: ${{ steps.get-comment-body.outputs.body }}
+      - name: Comments into issue
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          issue-number: ${{ github.event.number }}
+          body: ${{ steps.get-comment-body.outputs.body }}
       - name: Comments into issue
         uses: actions/github-script@v3
         with:
