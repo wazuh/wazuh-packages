@@ -73,7 +73,7 @@ fi
 echo '::endgroup::'
 
 echo '::group:: Running shellcheck (suggestion) ...'
-shellcheck -f diff $FILES \
+shellcheck -f diff ${FILES} \
   | reviewdog \
       -name="shellcheck (suggestion)" \
       -f=diff \
