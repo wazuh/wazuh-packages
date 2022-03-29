@@ -1,5 +1,5 @@
 name: 'Run shellcheck with reviewdog'
-description: 'Run shellcheck on pull requests to improve code review experience.'
+description: '🐶 Run shellcheck with reviewdog on pull requests to improve code review experience.'
 author: 'haya14busa (reviewdog)'
 inputs:
   github_token:
