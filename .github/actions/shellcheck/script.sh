@@ -78,7 +78,7 @@ shellcheck -f diff ${FILES} \
       -name="shellcheck (suggestion)" \
       -f=diff \
       -f.diff.strip=1 \
-      -reporter=github-pr-review \
+      -reporter="github-pr-review" \
       -filter-mode="${INPUT_FILTER_MODE}" \
       -fail-on-error="${INPUT_FAIL_ON_ERROR}" \
       ${INPUT_REVIEWDOG_FLAGS}
