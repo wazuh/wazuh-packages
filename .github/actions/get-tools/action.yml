@@ -56,3 +56,4 @@ runs:
         else
           echo 'VAR=${{ env.VAR }},{\"key\":\"builder.sh\",\"path\":\"unattended_installer\"}' >> $GITHUB_ENV
         fi
+
