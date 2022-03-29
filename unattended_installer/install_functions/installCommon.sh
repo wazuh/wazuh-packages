@@ -101,10 +101,6 @@ function installCommon_aptInstall() {
         install_result="$?"
     done
     
-    if [ "${i}" -eq 12 ]; then
-        logger -e "Installation failed: ${1}. Cannot release apt lock because another process is using it."
-    fi
-    
 }
 
 function installCommon_createCertificates() {
@@ -272,7 +268,7 @@ function installCommon_installPrerequisites() {
             for dep in "${not_installed[@]}"; do
                 common_logger "Installing $dep."
                 installCommon_aptInstall ${dep}
-                    if [  "$?" != 0  ]; then
+                if [ "${install_result}" != 0 ]; then
                     common_logger -e "Cannot install dependency: ${dep}."
                     exit 1
                 fi
