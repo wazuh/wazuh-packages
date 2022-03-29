@@ -86,8 +86,7 @@ function installCommon_addWazuhRepo() {
 
 function installCommon_aptInstall() {
 
-    set -x
-    i=0
+        i=0
     if [ -n "${2}" ]; then
         installer=${1}${sep}${2}
     else
@@ -105,7 +104,6 @@ function installCommon_aptInstall() {
     if [ "${i}" -eq 12 ]; then
         logger -e "Installation failed: ${1}. Cannot release apt lock because another process is using it."
     fi
-    set +x
     
 }
 
