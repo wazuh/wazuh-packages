@@ -10,8 +10,10 @@ jobs:
       - name: Shellcheck for libraries of artifacts
         uses: './.github/actions/shellcheck/'
         with: 
-          github_token: ${{ secrets.github_token }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review
           path: "unattended_installer/builder.sh"
           pattern: "*.sh"
-          fail_on_error: "false"
+          level: info
+          fail_on_error: true
+          shellcheck_flags: --severity=style
