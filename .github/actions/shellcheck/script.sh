@@ -73,7 +73,15 @@ fi
 echo '::endgroup::'
 
 echo '::group:: Running shellcheck (suggestion) ...'
-shellcheck -f diff ${FILES} 
+shellcheck -f diff ${FILES} \
+  | reviewdog \
+      -name="shellcheck (suggestion)" \
+      -f=diff \
+      -f.diff.strip=1 \
+      -reporter=github-pr-review \
+      -filter-mode="${INPUT_FILTER_MODE}" \
+      -fail-on-error="${INPUT_FAIL_ON_ERROR}" \
+      ${INPUT_REVIEWDOG_FLAGS}
 EXIT_CODE_SUGGESTION=$?
 echo '::endgroup::'
 
