@@ -23,7 +23,7 @@ jobs:
       - name: Check matrix
         id: check-matrix
         run: |
-          if [ -z ${{ env.VAR }}];then
+          if [ -z "${{ env.VAR }}"];then
             echo "::set-output name=empty_matrix::true"
           fi
     outputs:
