@@ -29,7 +29,7 @@ aix_version=$(oslevel)
 aix_major=$(echo ${aix_version} | cut -d'.' -f 1)
 aix_minor=$(echo ${aix_version} | cut -d'.' -f 2)
 
-export PATH=/opt/freeware/bin:$PATH
+export PATH=$PATH:/opt/freeware/bin
 
 show_help() {
   echo
@@ -50,7 +50,7 @@ show_help() {
 build_perl() {
 
   wget http://www.cpan.org/src/5.0/perl-5.10.1.tar.gz
-  gunzip perl-5.10.1.tar.gz && tar -xvf perl-5.10.1.tar
+  gunzip perl-5.10.1.tar.gz && tar -xf perl-5.10.1.tar
   cd perl-5.10.1 &&   
   make && make install
   ln -fs /usr/local/bin/perl /bin/perl
@@ -63,7 +63,8 @@ build_perl() {
 build_cmake() {
   mv /opt/freeware/lib/gcc/powerpc-ibm-aix6.1.1.0/6.3.0/include-fixed/sys/socket.h /opt/freeware/lib/gcc/powerpc-ibm-aix6.1.1.0/6.3.0/include-fixed/sys/socket.h.bkp 
   wget http://packages.wazuh.com/utils/cmake/cmake-3.12.4.tar.gz
-  gunzip cmake-3.12.4.tar.gz && tar -xvf cmake-3.12.4.tar && cd cmake-3.12.4
+  ln -s /usr/bin/make /usr/bin/gmake
+  gunzip cmake-3.12.4.tar.gz && tar -xf cmake-3.12.4.tar && cd cmake-3.12.4
   ./bootstrap
   sed ' 1 s/.*/&-Wl,-bbigtoc/' Source/CMakeFiles/ctest.dir/link.txt | tee Source/CMakeFiles/ctest.dir/link.txt
   sed ' 1 s/.*/&-Wl,-bbigtoc/' Source/CMakeFiles/cpack.dir/link.txt | tee Source/CMakeFiles/cpack.dir/link.txt
@@ -87,7 +88,8 @@ build_environment() {
 
   rpm="rpm -Uvh --nodeps"
 
-  $rpm http://packages-dev.wazuh.com/deps/aix/autoconf-2.69-3.aix7.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/libiconv-1.14-22.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/autoconf-2.71-1.aix6.1.noarch.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/automake-1.16.2-1.aix6.1.noarch.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/bash-4.4-4.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/bzip2-1.0.6-2.aix6.1.ppc.rpm || true
@@ -103,12 +105,11 @@ build_environment() {
   $rpm http://packages-dev.wazuh.com/deps/aix/gzip-1.8-1.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/info-6.4-1.aix5.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/libffi-3.2.1-2.aix6.1.ppc.rpm || true
-  $rpm http://packages-dev.wazuh.com/deps/aix/libiconv-1.14-22.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/libidn-1.33-1.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/libsigsegv-2.10-2.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/libtool-2.4.6-1.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/m4-1.4.18-1.aix6.1.ppc.rpm || true
-  $rpm http://packages-dev.wazuh.com/deps/aix/make-4.2.1-1.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/make-4.3-3.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/openldap-2.4.44-2.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/openssl-1.0.2u-1withsslv2.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/openssl-devel-1.0.2u-1withsslv2.aix6.1.ppc.rpm || true
@@ -125,6 +126,9 @@ build_environment() {
   # $rpm http://packages-dev.wazuh.com/deps/aix/nano-2.5.3-1.aix5.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/tar-1.32-1.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/curl-7.79.1-1.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/readline-devel-7.0-1.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/guile-1.8.8-2.aix6.1.ppc.rpm || true
+
 
   if [[ "${aix_major}" = "6" ]] || [[ "${aix_major}" = "7" ]]; then
     # $rpm http://packages-dev.wazuh.com/deps/aix//isl/isl-0.18-1.aix5.1.ppc.rpm || true
