@@ -11,7 +11,9 @@ jobs:
         uses: './.github/actions/shellcheck/'
         with: 
           reporter: github-pr-review
-          path: "unattended_installer/builder.sh"
+          path: |
+            "unattended_installer/test.sh"
+            "unattended_installer/builder.sh"
           pattern: "*.sh"
           fail_on_error: "false"
           
