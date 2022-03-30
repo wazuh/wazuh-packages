@@ -1,0 +1,58 @@
+name: 'Get Tools'
+description: 'Getting tools to generate .sh'
+inputs:
+  tool:
+    required: true
+runs:
+  using: "composite" 
+  steps:
+    - name: Set cert_tool
+      shell: bash
+      if: contains(inputs.tool, 'cert_tool')
+      run: |
+        if [ -z "${{ env.VAR }}" ]; then
+          echo 'VAR={\"key\":\"cert-tool\",\"path\":\"unattended_installer/cert_tool\"}' >> $GITHUB_ENV
+        else
+          echo 'VAR=${{ env.VAR }},{\"key\":\"cert-tool\",\"path\":\"unattended_installer/cert_tool\"}' >> $GITHUB_ENV
+        fi
+    - name: Set passwords_tool
+      shell: bash
+      if: contains(inputs.tool, 'passwords_tool')
+      run: |
+        if [ -z "${{ env.VAR }}" ]; then
+          echo 'VAR={\"key\":\"password-tool\",\"path\":\"unattended_installer/passwords_tool\"}' >> $GITHUB_ENV
+        else
+          echo 'VAR=${{ env.VAR }},{\"key\":\"password-tool\",\"path\":\"unattended_installer/passwords_tool\"}' >> $GITHUB_ENV
+        fi
+    - name: Set installer
+      shell: bash
+      if: contains(inputs.tool, 'install_functions')
+      run: |
+        if [ -z "${{ env.VAR }}" ]; then
+          echo 'VAR={\"key\":\"installer\",\"path\":\"unattended_installer/install_functions\"}' >> $GITHUB_ENV
+        else
+          echo 'VAR=${{ env.VAR }},{\"key\":\"installer\",\"path\":\"unattended_installer/install_functions\"}' >> $GITHUB_ENV
+        fi
+    - name: Set downloader
+      shell: bash
+      if: contains(inputs.tool, 'downloader')
+      run: |
+        if [ -z "${{ env.VAR }}" ]; then
+          echo 'VAR={\"key\":\"installer\",\"path\":\"unattended_installer/downloader\"}' >> $GITHUB_ENV
+        else
+          echo 'VAR=${{ env.VAR }},{\"key\":\"installer\",\"path\":\"unattended_installer/downloader\"}' >> $GITHUB_ENV
+        fi
+    - name: Set all
+      shell: bash
+      if: contains(inputs.tool, 'common_functions')
+      run: |
+        echo 'VAR={\"key\":\"cert-tool\",\"path\":\"unattended_installer/cert_tool\"},{\"key\":\"password-tool\",\"path\":\"unattended_installer/passwords_tool\"},{\"key\":\"installer\",\"path\":\"unattended_installer/install_functions\"},{\"key\":\"installer\",\"path\":\"unattended_installer/downloader\"}' >> $GITHUB_ENV
+    - name: Set builder.sh
+      shell: bash
+      if: contains(inputs.tool, 'builder.sh')
+      run: |
+        if [ -z "${{ env.VAR }}" ]; then
+          echo 'VAR={\"key\":\"builder.sh\",\"path\":\"unattended_installer/builder.sh\"}' >> $GITHUB_ENV
+        else
+          echo 'VAR=${{ env.VAR }},{\"key\":\"builder.sh\",\"path\":\"unattended_installer/builder.sh\"}' >> $GITHUB_ENV
+        fi
