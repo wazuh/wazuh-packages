@@ -18,5 +18,5 @@ jobs:
           path: "unattended_installer/test.sh"
           pattern: "*.sh"
           fail_on_error: "false"
-          
+          check_all_files_with_shebangs: "true" 
  
