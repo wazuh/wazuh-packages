@@ -78,6 +78,7 @@ jobs:
           path: "${{ matrix.path }}"
           pattern: "*.sh"
           fail_on_error: "false"
+          check_all_files_with_shebangs: "true"
   
   Shellcheck-for-artifacts:
     name: Shellcheck / runner for artifacts
@@ -95,6 +96,7 @@ jobs:
           path: "./artifacts_generated"
           pattern: "*.sh"
           fail_on_error: "false"
+          check_all_files_with_shebangs: "true"
       - name: Get shellcheck output
         id: get-comment-body
         run: |
