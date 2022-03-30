@@ -131,13 +131,14 @@ function indexer_install() {
 
     if [ "${sys_type}" == "yum" ]; then
         eval "yum install wazuh-indexer-${wazuh_version}-${wazuh_revision} -y ${debug}"
+        install_result="$?"
     elif [ "${sys_type}" == "zypper" ]; then
         eval "zypper -n install wazuh-indexer=${wazuh_version}-${wazuh_revision} ${debug}"
+        install_result="$?"
     elif [ "${sys_type}" == "apt-get" ]; then
-        eval "DEBIAN_FRONTEND=noninteractive apt install wazuh-indexer=${wazuh_version}-${wazuh_revision} -y ${debug}"
+        installCommon_aptInstall "wazuh-indexer" "${wazuh_version}-${wazuh_revision}"
     fi
 
-    install_result="$?"
     common_checkInstalled
     if [  "$install_result" != 0  ] || [ -z "${indexer_installed}" ]; then
         common_logger -e "Wazuh indexer installation failed."

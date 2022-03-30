@@ -84,6 +84,25 @@ function installCommon_addWazuhRepo() {
 
 }
 
+function installCommon_aptInstall() {
+
+    i=0
+    if [ -n "${2}" ]; then
+        installer=${1}${sep}${2}
+    else
+        installer=${1}
+    fi
+    eval "DEBIAN_FRONTEND=noninteractive apt-get install ${installer} -y -q ${debug}"
+    install_result="$?"
+    while [ "${install_result}" -eq 100 ] && [ "${i}" -lt 12 ]; do
+        sleep 10
+        i=$((i+1))
+        eval "DEBIAN_FRONTEND=noninteractive apt-get install ${installer} -y -q ${debug}"
+        install_result="$?"
+    done
+    
+}
+
 function installCommon_createCertificates() {
 
     if [ -n "${AIO}" ]; then
@@ -248,8 +267,8 @@ function installCommon_installPrerequisites() {
             common_logger "--- Dependencies ----"
             for dep in "${not_installed[@]}"; do
                 common_logger "Installing $dep."
-                eval "DEBIAN_FRONTEND=noninteractive apt install ${dep} -y ${debug}"
-                if [  "$?" != 0  ]; then
+                installCommon_aptInstall ${dep}
+                if [ "${install_result}" != 0 ]; then
                     common_logger -e "Cannot install dependency: ${dep}."
                     exit 1
                 fi

@@ -67,10 +67,12 @@ function filebeat_install() {
     common_logger "Starting Filebeat installation."
     if [ "${sys_type}" == "zypper" ]; then
         eval "zypper -n install filebeat-${filebeat_version} ${debug}"
+        install_result="$?"
     elif [ "${sys_type}" == "yum" ]; then
         eval "yum install filebeat${sep}${filebeat_version} -y -q  ${debug}"
+        install_result="$?"
     elif [ "${sys_type}" == "apt-get" ]; then
-        eval "DEBIAN_FRONTEND=noninteractive apt install filebeat${sep}${filebeat_version} -y -q  ${debug}"
+        installCommon_aptInstall "filebeat" "${filebeat_version}"
     fi
 
     install_result="$?"
