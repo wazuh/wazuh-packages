@@ -7,6 +7,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
+      - name: ls
+        run: |
+          ls -la
+          ls -la unattended_installer
       - name: Shellcheck
         uses: './.github/actions/shellcheck/'
         with: 
