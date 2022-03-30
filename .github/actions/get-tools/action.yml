@@ -6,6 +6,15 @@ inputs:
 runs:
   using: "composite" 
   steps:
+    - name: Test
+      shell: bash
+      if: contains(inputs.tool, 'test.sh')
+      run: |
+        if [ -z "${{ env.VAR }}" ]; then
+          echo 'VAR={\"key\":\"test.sh\",\"path\":\"unattended_installer/test.sh\"}' >> $GITHUB_ENV
+        else
+          echo 'VAR=${{ env.VAR }},{\"key\":\"test.sh\",\"path\":\"unattended_installer/test.sh\"}' >> $GITHUB_ENV
+        fi
     - name: Set cert_tool
       shell: bash
       if: contains(inputs.tool, 'cert_tool')
