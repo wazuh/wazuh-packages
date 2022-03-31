@@ -1,6 +1,6 @@
 # Wazuh - Filebeat configuration file
 output.elasticsearch:
-  hosts: ["<elasticsearch_ip>:9200"]
+  hosts: ["127.0.0.1:9200"]
   protocol: https
   username: ${username}
   password: ${password}
@@ -20,3 +20,11 @@ filebeat.modules:
       enabled: true
     archives:
       enabled: false
+
+logging.level: info
+logging.to_files: true
+logging.files:
+  path: /var/log/filebeat
+  name: filebeat
+  keepfiles: 7
+  permissions: 0644
