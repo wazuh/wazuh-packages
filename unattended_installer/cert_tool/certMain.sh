@@ -145,8 +145,10 @@ function main() {
                 exit 1
             fi
         fi
-
-        mkdir "/tmp/wazuh-certificates"
+        
+        if [[ ! -d "/tmp/wazuh-certificates" ]]; then
+            mkdir "/tmp/wazuh-certificates"
+        fi
 
         cert_readConfig
 
