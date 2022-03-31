@@ -54,8 +54,8 @@ function filebeat_copyCertificates() {
             eval "tar -xf ${tar_file} -C ${filebeat_cert_path} wazuh-install-files/root-ca.pem --strip-components 1 ${debug}"
             eval "rm -rf ${filebeat_cert_path}/wazuh-install-files/ ${debug}"
         fi
-        eval "chmod 500 ${dashboard_cert_path} ${debug}"
-        eval "chmod 400 ${dashboard_cert_path}/* ${debug}"
+        eval "chmod 500 ${filebeat_cert_path} ${debug}"
+        eval "chmod 400 ${filebeat_cert_path}/* ${debug}"
         eval "chown root:root ${filebeat_cert_path}/* ${debug}"
     else
         common_logger -e "No certificates found. Could not initialize Filebeat"

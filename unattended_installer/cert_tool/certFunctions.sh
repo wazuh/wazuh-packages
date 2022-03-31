@@ -61,7 +61,7 @@ function cert_generateAdmincertificate() {
     eval "openssl pkcs8 -inform PEM -outform PEM -in /tmp/wazuh-certificates/admin-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out /tmp/wazuh-certificates/admin-key.pem ${debug}"
     eval "openssl req -new -key /tmp/wazuh-certificates/admin-key.pem -out /tmp/wazuh-certificates/admin.csr -batch -subj '/C=US/L=California/O=Wazuh/OU=Wazuh/CN=admin' ${debug}"
     eval "openssl x509 -days 3650 -req -in /tmp/wazuh-certificates/admin.csr -CA /tmp/wazuh-certificates/root-ca.pem -CAkey /tmp/wazuh-certificates/root-ca.key -CAcreateserial -sha256 -out /tmp/wazuh-certificates/admin.pem ${debug}"
-    cert_setpermisions
+
 }
 
 function cert_generateCertificateconfiguration() {
@@ -122,7 +122,6 @@ function cert_generateIndexercertificates() {
             eval "openssl req -new -nodes -newkey rsa:2048 -keyout /tmp/wazuh-certificates/${indexer_node_names[i]}-key.pem -out /tmp/wazuh-certificates/${indexer_node_names[i]}.csr -config /tmp/wazuh-certificates/${indexer_node_names[i]}.conf -days 3650 ${debug}"
             eval "openssl x509 -req -in /tmp/wazuh-certificates/${indexer_node_names[i]}.csr -CA /tmp/wazuh-certificates/root-ca.pem -CAkey /tmp/wazuh-certificates/root-ca.key -CAcreateserial -out /tmp/wazuh-certificates/${indexer_node_names[i]}.pem -extfile /tmp/wazuh-certificates/${indexer_node_names[i]}.conf -extensions v3_req -days 3650 ${debug}"
         done
-        cert_setpermisions
     fi
 
 }
@@ -137,7 +136,6 @@ function cert_generateFilebeatcertificates() {
             eval "openssl req -new -nodes -newkey rsa:2048 -keyout /tmp/wazuh-certificates/${server_node_names[i]}-key.pem -out /tmp/wazuh-certificates/${server_node_names[i]}.csr -config /tmp/wazuh-certificates/${server_node_names[i]}.conf -days 3650 ${debug}"
             eval "openssl x509 -req -in /tmp/wazuh-certificates/${server_node_names[i]}.csr -CA /tmp/wazuh-certificates/root-ca.pem -CAkey /tmp/wazuh-certificates/root-ca.key -CAcreateserial -out /tmp/wazuh-certificates/${server_node_names[i]}.pem -extfile /tmp/wazuh-certificates/${server_node_names[i]}.conf -extensions v3_req -days 3650 ${debug}"
         done
-        cert_setpermisions
     fi
 
 }
@@ -153,7 +151,6 @@ function cert_generateDashboardcertificates() {
             eval "openssl x509 -req -in /tmp/wazuh-certificates/${dashboard_node_names[i]}.csr -CA /tmp/wazuh-certificates/root-ca.pem -CAkey /tmp/wazuh-certificates/root-ca.key -CAcreateserial -out /tmp/wazuh-certificates/${dashboard_node_names[i]}.pem -extfile /tmp/wazuh-certificates/${dashboard_node_names[i]}.conf -extensions v3_req -days 3650 ${debug}"
 
         done
-        cert_setpermisions
     fi
 
 }
@@ -163,7 +160,7 @@ function cert_generateRootCAcertificate() {
     common_logger -d "Creating the root certificate."
 
     eval "openssl req -x509 -new -nodes -newkey rsa:2048 -keyout /tmp/wazuh-certificates/root-ca.key -out /tmp/wazuh-certificates/root-ca.pem -batch -subj '/OU=Wazuh/O=Wazuh/L=California/' -days 3650 ${debug}"
-    cert_setpermisions
+
 }
 
 function cert_parseYaml() {

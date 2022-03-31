@@ -161,6 +161,7 @@ function main() {
             cert_generateAdmincertificate
             common_logger "Admin certificates created."
             cert_cleanFiles
+            cert_setpermisions
             eval "mv /tmp/wazuh-certificates ${base_path}/wazuh-certificates ${debug}"
         fi
 
@@ -175,6 +176,7 @@ function main() {
             cert_generateDashboardcertificates
             common_logger "Wazuh dashboard certificates created."
             cert_cleanFiles
+            cert_setpermisions
             eval "mv /tmp/wazuh-certificates ${base_path}/wazuh-certificates ${debug}"
         fi
 
@@ -190,6 +192,7 @@ function main() {
             cert_generateIndexercertificates
             common_logger "Wazuh indexer certificates created."
             cert_cleanFiles
+            cert_setpermisions
             eval "mv /tmp/wazuh-certificates ${base_path}/wazuh-certificates ${debug}"
         fi
 
@@ -198,6 +201,7 @@ function main() {
             cert_generateFilebeatcertificates
             common_logger "Wazuh server certificates created."
             cert_cleanFiles
+            cert_setpermisions
             eval "mv /tmp/wazuh-certificates ${base_path}/wazuh-certificates ${debug}"
         fi
 
@@ -206,6 +210,7 @@ function main() {
             cert_generateDashboardcertificates
             common_logger "Wazuh dashboard certificates created."
             cert_cleanFiles
+            cert_setpermisions
             eval "mv /tmp/wazuh-certificates ${base_path}/wazuh-certificates ${debug}"
         fi
 
