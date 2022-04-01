@@ -20,18 +20,18 @@ EOF
 cat > /etc/motd <<EOF
 
 
-        WWWWWW            WWWWWW           WWWWWW
-         WWWWWW          WWWWWWWW          WWWWWW
-          WWWWWW        WWWWWWWWWW        WWWWWW
-          &WWWWW       WWWWW WWWWW       WWWWWW
-           WWWWWW     WWWWWW  WWWWW     WWWWWW
-            WWWWWW    WWWWW    WWWWW    WWWWW
+       WWWWWW             WWWWWW             WWWWWW
+        WWWWWW           WWWWWWWW           WWWWWW
+         WWWWWW         WWWWWWWWWW         WWWWWW
+          WWWWWW       WWWWW  WWWWW       WWWWWW
+           WWWWWW     WWWWWW  WWWWWW     WWWWWW
+            WWWWWW    WWWWW    WWWWW    WWWWWW
              WWWWWW  WWWWW      WWWWW  WWWWWW
-             /WWWWW,WWWWW       WWWWW WWWWWW
+              WWWWW WWWWW       WWWWW WWWWWW
               WWWWWWWWWW         WWWWWWWWWW         WWWWW
-               WWWWWWWW.          WWWWWWWW        WWWWWWWWW
-                WWWWWWW            WWWWWW&        WWWWWWWWW
-                 WWWWW              WWWWW          .WWWWW%
+               WWWWWWWW           WWWWWWWW        WWWWWWWWW
+                WWWWWWW           WWWWWWW         WWWWWWWWW
+                 WWWWW             WWWWW            WWWWW
 
 
 
