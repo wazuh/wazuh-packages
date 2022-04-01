@@ -106,7 +106,7 @@ find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -exec chown %{USER}:%{GROUP} {} \
 if [ $1 = 1 ]; then
   if command -v getent > /dev/null 2>&1 && ! getent group %{GROUP} > /dev/null 2>&1; then
     groupadd -r %{GROUP}
-  elif ! id -g wazuh-dashboard > /dev/null 2>&1; then
+  elif ! id -g %{GROUP} > /dev/null 2>&1; then
     groupadd -r %{GROUP}
   fi
   # Create the wazuh-dashboard user if it doesn't exists
