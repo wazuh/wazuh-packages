@@ -191,6 +191,7 @@ function cert_readConfig() {
             common_logger -e "File ${config_file} is empty"
             exit 1
         fi
+        eval "$(cert_convertCRLFtoLF "${config_file}")"
         eval "$(cert_parseYaml "${config_file}")"
         eval "indexer_node_names=( $(cert_parseYaml "${config_file}" | grep nodes_indexer_name | sed 's/nodes_indexer_name=//') )"
         eval "server_node_names=( $(cert_parseYaml "${config_file}" | grep nodes_server_name | sed 's/nodes_server_name=//') )"
@@ -284,4 +285,10 @@ function cert_readConfig() {
 function cert_setpermisions() {
     eval "chmod 500 /tmp/wazuh-certificates ${debug}"
     eval "chmod 400 /tmp/wazuh-certificates/* ${debug}"
+}
+
+function cert_convertCRLFtoLF() {
+    eval "( config_path="$(dirname "$(readlink -f "$1")")" )"
+    eval "tr -d '\015' < $1 > ${config_path}/new_config.yml"
+    eval "mv ${config_path}/new_config.yml $1"
 }
