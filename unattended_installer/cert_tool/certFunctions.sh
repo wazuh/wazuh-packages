@@ -280,3 +280,8 @@ function cert_readConfig() {
     fi
 
 }
+
+function cert_setpermisions() {
+    eval "chmod 500 /tmp/wazuh-certificates ${debug}"
+    eval "chmod 400 /tmp/wazuh-certificates/* ${debug}"
+}
