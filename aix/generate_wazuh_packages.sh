@@ -206,7 +206,7 @@ build_package() {
   init_scripts="/etc/rc.d/init.d"
   sysconfdir="/etc"
 
-  rpm --define '_tmppath /tmp' --define "_topdir ${rpm_build_dir}" --define "_localstatedir ${install_path}" \
+  rpmbuild --define '_tmppath /tmp' --define "_topdir ${rpm_build_dir}" --define "_localstatedir ${install_path}" \
   --define "_init_scripts ${init_scripts}" --define "_sysconfdir ${sysconfdir}" \
   -bb ${rpm_build_dir}/SPECS/${package_name}-aix.spec
 
