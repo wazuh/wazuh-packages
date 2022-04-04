@@ -288,7 +288,6 @@ function cert_setpermisions() {
 }
 
 function cert_convertCRLFtoLF() {
-    eval "( config_path="$(dirname "$(readlink -f "$1")")" )"
-    eval "tr -d '\015' < $1 > ${config_path}/new_config.yml"
-    eval "mv ${config_path}/new_config.yml $1"
+    eval "tr -d '\015' < $1 > /tmp/wazuh-install-files/new_config.yml"
+    eval "mv /tmp/wazuh-install-files/new_config.yml $1"
 }
