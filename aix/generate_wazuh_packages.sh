@@ -120,7 +120,6 @@ build_environment() {
   $rpm http://packages-dev.wazuh.com/deps/aix/sed-4.7-2.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/wget-1.19-1.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/zlib-1.2.11-1.aix6.1.ppc.rpm || true
-  $rpm http://packages-dev.wazuh.com/deps/aix/python-2.6-1.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/popt-1.16-2.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/rsync-3.1.2-3.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/tar-1.32-1.aix6.1.ppc.rpm || true
@@ -128,6 +127,13 @@ build_environment() {
   $rpm http://packages-dev.wazuh.com/deps/aix/readline-devel-7.0-1.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/guile-1.8.8-2.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/unixODBC-2.3.1-1.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/db-4.8.24-4.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/gdbm-1.10-1.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/ncurses-6.2-2.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/sqlite-3.33.0-1.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/sqlite-libs-3.33.0-1.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/python-2.7.15-1.aix6.1.ppc.rpm || true
+
 
 
   if [[ "${aix_major}" = "6" ]] || [[ "${aix_major}" = "7" ]]; then
@@ -206,7 +212,7 @@ build_package() {
   init_scripts="/etc/rc.d/init.d"
   sysconfdir="/etc"
 
-  rpmbuild --define '_tmppath /tmp' --define "_topdir ${rpm_build_dir}" --define "_localstatedir ${install_path}" \
+  rpm --define '_tmppath /tmp' --define "_topdir ${rpm_build_dir}" --define "_localstatedir ${install_path}" \
   --define "_init_scripts ${init_scripts}" --define "_sysconfdir ${sysconfdir}" \
   -bb ${rpm_build_dir}/SPECS/${package_name}-aix.spec
 
