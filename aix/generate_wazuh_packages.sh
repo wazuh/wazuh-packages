@@ -1,7 +1,7 @@
-#!/bin/ksh
+#!/bin/bash
 
-# Script to build Wazuh RPM package for AIX
-# Copyright (C) 2015-2020, Wazuh Inc.
+# Wazuh package generator
+# Copyright (C) 2015, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
