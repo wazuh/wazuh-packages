@@ -96,7 +96,7 @@ build_environment() {
   $rpm http://packages-dev.wazuh.com/deps/aix/coreutils-8.25-1.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/expat-2.2.6-1.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/expat-devel-2.2.6-1.aix6.1.ppc.rpm || true
-  $rpm http://packages-dev.wazuh.com/deps/aix/gettext-0.17-7.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/gettext-0.17-1.aix5.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/glib2-2.33.2-1.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/glib2-devel-2.33.2-1.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/gmp-6.1.1-1.aix6.1.ppc.rpm || true
@@ -109,29 +109,27 @@ build_environment() {
   $rpm http://packages-dev.wazuh.com/deps/aix/libsigsegv-2.10-2.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/libtool-2.4.6-1.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/m4-1.4.18-1.aix6.1.ppc.rpm || true
-  $rpm http://packages-dev.wazuh.com/deps/aix/make-4.3-3.aix6.1.ppc.rpm || true
-  $rpm http://packages-dev.wazuh.com/deps/aix/openldap-2.4.44-2.aix6.1.ppc.rpm || true
-  $rpm http://packages-dev.wazuh.com/deps/aix/openssl-1.0.2u-1withsslv2.aix6.1.ppc.rpm || true
-  $rpm http://packages-dev.wazuh.com/deps/aix/openssl-devel-1.0.2u-1withsslv2.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/make-4.3-1.aix5.3.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/openldap-2.4.44-6.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/openssl-1.0.2g-3.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/openssl-devel-1.0.2g-3.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/pcre-8.42-1.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/pkg-config-0.29.1-1.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/readline-7.0-1.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/sed-4.7-2.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/wget-1.19-1.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/zlib-1.2.11-1.aix6.1.ppc.rpm || true
-  $rpm http://packages-dev.wazuh.com/deps/aix/python-2.7.15-5.aix6.1.ppc.rpm || true
-  $rpm http://packages-dev.wazuh.com/deps/aix/python-devel-2.7.15-5.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/python-2.6-1.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/popt-1.16-2.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/rsync-3.1.2-3.aix6.1.ppc.rpm || true
-  # $rpm http://packages-dev.wazuh.com/deps/aix/nano-2.5.3-1.aix5.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/tar-1.32-1.aix6.1.ppc.rpm || true
-  $rpm http://packages-dev.wazuh.com/deps/aix/curl-7.79.1-1.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/curl-7.72.0-1.aix5.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/readline-devel-7.0-1.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/guile-1.8.8-2.aix6.1.ppc.rpm || true
+  $rpm http://packages-dev.wazuh.com/deps/aix/unixODBC-2.3.1-1.aix6.1.ppc.rpm || true
 
 
   if [[ "${aix_major}" = "6" ]] || [[ "${aix_major}" = "7" ]]; then
-    # $rpm http://packages-dev.wazuh.com/deps/aix//isl/isl-0.18-1.aix5.1.ppc.rpm || true
     $rpm http://packages-dev.wazuh.com/deps/aix/mpfr-3.1.4-1.aix6.1.ppc.rpm || true
     $rpm http://packages-dev.wazuh.com/deps/aix/libmpc-1.0.3-2.aix6.1.ppc.rpm || true
     $rpm http://packages-dev.wazuh.com/deps/aix/file-5.32-1.aix6.1.ppc.rpm || true
