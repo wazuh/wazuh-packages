@@ -36,7 +36,7 @@ export LIB_DIR=/var/lib/${NAME}
 export PID_DIR=/run/${NAME}
 export SYS_DIR=/usr/lib
 export BASE_DIR=${NAME}-*
-export INDEXER_FILE=wazuh-indexer-base-$(BASE_VERSION)-1429-linux-x64.tar.xz
+export INDEXER_FILE=wazuh-indexer-base-$(BASE_VERSION)-linux-x64.tar.xz
 export REPO_DIR=/root/unattended_installer
 
 # -----------------------------------------------------------------------------

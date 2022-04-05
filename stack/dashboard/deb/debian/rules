@@ -30,7 +30,7 @@ export CONFIG_DIR=/etc/${NAME}
 export INSTALLATION_DIR=$(INSTALLATION_DIR)
 export USER=${NAME}
 export GROUP=${NAME}
-export DASHBOARD_FILE=wazuh-dashboard-base-$(BASE_VERSION)-1429-linux-x64.tar.xz
+export DASHBOARD_FILE=wazuh-dashboard-base-$(BASE_VERSION)-linux-x64.tar.xz
 
 # -----------------------------------------------------------------------------
 
