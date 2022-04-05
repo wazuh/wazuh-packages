@@ -112,13 +112,12 @@ function indexer_initialize() {
         installCommon_rollBack
         exit 1
     fi
-    f=0
-    
+    f=0    
     for r in "${indexer_node_ips[@]}"; do
-        nc -z ${r} 9300   
-        until $? -eq 1 || [ "${f}" -eq 12 ]; do
+        nc -z "${r}" 9300
+        until [ "$?" -eq 0 ] || [ "${f}" -eq 12 ]; do
             sleep 10
-            f=$((i+1))
+            f=$((f+1))
         done
         if [ ${f} -eq 12 ]; then
             common_logger -e "Cannot initialize Wazuh indexer cluster."
