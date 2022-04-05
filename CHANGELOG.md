@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [v4.3.0]
 
+- Set as warning the unhandled promises in wazuh dashboard [#1434](https://github.com/wazuh/wazuh-packages/pull/1434/)
 - Remove ip message from OVA [#1395](https://github.com/wazuh/wazuh-packages/pull/1395)
 - Remove demo certificates from indexer and dashboard packages [#1390](https://github.com/wazuh/wazuh-packages/pull/1390)
 - Add centos8 vault repository due to EOL [#1307](https://github.com/wazuh/wazuh-packages/pull/1307)

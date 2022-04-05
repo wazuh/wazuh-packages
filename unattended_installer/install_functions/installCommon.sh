@@ -104,7 +104,7 @@ function installCommon_aptInstall() {
         eval "tail -n 2 ${logfile} | grep 'Could not get lock'"
         grep_result="$?"
     done
-    
+
 }
 
 function installCommon_createCertificates() {
