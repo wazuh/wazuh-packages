@@ -70,7 +70,7 @@ function buildInstaller() {
     if [ -n "${development}" ]; then
         echo 'development=1' >> "${output_script_path}"
         echo 'repogpg="https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH"' >> "${output_script_path}"
-        echo 'repobaseurl="https://packages-dev.wazuh.com/pre-release"' >> "${output_script_path}"
+        echo 'repobaseurl="https://packages-dev.wazuh.com/trash"' >> "${output_script_path}"
         echo 'reporelease="unstable"' >> "${output_script_path}"
         echo 'filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.1.tar.gz"' >> "${output_script_path}"
     else
