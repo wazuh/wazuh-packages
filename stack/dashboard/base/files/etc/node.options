@@ -4,3 +4,6 @@
 
 ## max size of old space in megabytes
 #--max-old-space-size=4096
+
+# Treat unhandled promises as warnings instead fatal
+-unhandled-rejections=warn
