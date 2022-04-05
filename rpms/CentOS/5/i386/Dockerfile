@@ -3,6 +3,9 @@ FROM scratch
 # Add the tar.gz with all the files needed
 ADD centos-5-i386.tar.gz /
 
+RUN rm /etc/yum.repos.d/* && echo "exactarch=1" >> /etc/yum.conf
+COPY CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo
+
 RUN linux32 yum install -y gcc-c++
 
 # Install Perl 5.10
@@ -38,6 +41,8 @@ RUN curl -OL http://packages.wazuh.com/utils/cmake/cmake-3.12.4.tar.gz && \
     tar -zxvf cmake-3.12.4.tar.gz && cd cmake-3.12.4 && \
     linux32 ./bootstrap && linux32 make -j2 && linux32 make install && \
     cd / && rm -rf cmake-*
+
+RUN ln -fs $(which gcc) $(which cc)
 
 # Add the scripts to build the RPM package
 ADD build.sh /usr/local/bin/build_package

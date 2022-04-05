@@ -45,6 +45,8 @@ RUN curl -OL http://packages.wazuh.com/utils/cmake/cmake-3.12.4.tar.gz && \
     tar -zxvf cmake-3.12.4.tar.gz && cd cmake-3.12.4 && \
     ./bootstrap && make -j2 && make install && cd / && rm -rf cmake-*
 
+RUN ln -fs $(which gcc) $(which cc)
+
 # Add the scripts to build the RPM package
 ADD build.sh /usr/local/bin/build_package
 RUN chmod +x /usr/local/bin/build_package
