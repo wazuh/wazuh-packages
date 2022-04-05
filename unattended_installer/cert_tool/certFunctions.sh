@@ -193,15 +193,15 @@ function cert_readConfig() {
         fi
         eval "$(cert_convertCRLFtoLF "${config_file}")"
         eval "$(cert_parseYaml "${config_file}")"
-        eval "indexer_node_names=( $(cert_parseYaml "${config_file}" | grep nodes_indexer_name | sed 's/nodes_indexer_name=//') )"
-        eval "server_node_names=( $(cert_parseYaml "${config_file}" | grep nodes_server_name | sed 's/nodes_server_name=//') )"
-        eval "dashboard_node_names=( $(cert_parseYaml "${config_file}" | grep nodes_dashboard_name | sed 's/nodes_dashboard_name=//') )"
+        eval "indexer_node_names=( $(cert_parseYaml "${config_file}" | grep nodes_indexer_name | sed 's/nodes_indexer_name=//' | sed -r 's/\s+//g') )"
+        eval "server_node_names=( $(cert_parseYaml "${config_file}" | grep nodes_server_name | sed 's/nodes_server_name=//' | sed -r 's/\s+//g') )"
+        eval "dashboard_node_names=( $(cert_parseYaml "${config_file}" | grep nodes_dashboard_name | sed 's/nodes_dashboard_name=//' | sed -r 's/\s+//g') )"
 
-        eval "indexer_node_ips=( $(cert_parseYaml "${config_file}" | grep nodes_indexer_ip | sed 's/nodes_indexer_ip=//') )"
-        eval "server_node_ips=( $(cert_parseYaml "${config_file}" | grep nodes_server_ip | sed 's/nodes_server_ip=//') )"
-        eval "dashboard_node_ips=( $(cert_parseYaml "${config_file}" | grep nodes_dashboard_ip | sed 's/nodes_dashboard_ip=//') )"
+        eval "indexer_node_ips=( $(cert_parseYaml "${config_file}" | grep nodes_indexer_ip | sed 's/nodes_indexer_ip=//' | sed -r 's/\s+//g') )"
+        eval "server_node_ips=( $(cert_parseYaml "${config_file}" | grep nodes_server_ip | sed 's/nodes_server_ip=//' | sed -r 's/\s+//g') )"
+        eval "dashboard_node_ips=( $(cert_parseYaml "${config_file}" | grep nodes_dashboard_ip | sed 's/nodes_dashboard_ip=//' | sed -r 's/\s+//g') )"
 
-        eval "server_node_types=( $(cert_parseYaml "${config_file}" | grep nodes_server_node_type | sed 's/nodes_server_node_type=//') )"
+        eval "server_node_types=( $(cert_parseYaml "${config_file}" | grep nodes_server_node_type | sed 's/nodes_server_node_type=//' | sed -r 's/\s+//g') )"
 
         unique_names=($(echo "${indexer_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
         if [ "${#unique_names[@]}" -ne "${#indexer_node_names[@]}" ]; then 
