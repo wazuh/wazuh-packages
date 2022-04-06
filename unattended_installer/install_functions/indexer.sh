@@ -161,8 +161,7 @@ function indexer_startCluster() {
             retries=$((retries+1))
         done
         if [ ${retries} -eq 12 ]; then
-            common_logger -e "Cannot initialize Wazuh indexer cluster. Unable to connect to node ${ip_to_test} on port 9300. Review your firewall/network configuration before and try again."
-            installCommon_rollBack
+            common_logger -e "Connectivity check failed on node ${ip_to_test} port 9300. Possible causes: Wazuh indexer not installed on the node, the Wazuh indexer service is not running or you have connectivity issues with that node. Please check this before trying again."
             exit 1
         fi
     done
