@@ -112,19 +112,6 @@ function indexer_initialize() {
         installCommon_rollBack
         exit 1
     fi
-    f=0    
-    for r in "${indexer_node_ips[@]}"; do
-        nc -z "${r}" 9300
-        until [ "$?" -eq 0 ] || [ "${f}" -eq 12 ]; do
-            sleep 10
-            f=$((f+1))
-        done
-        if [ ${f} -eq 12 ]; then
-            common_logger -e "Cannot initialize Wazuh indexer cluster."
-            installCommon_rollBack
-            exit 1
-        fi
-    done
     
     if [ -n "${AIO}" ]; then
         eval "sudo -u wazuh-indexer JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig -icl -p 9300 -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig -nhnv -cacert ${indexer_cert_path}/root-ca.pem -cert ${indexer_cert_path}/admin.pem -key ${indexer_cert_path}/admin-key.pem -h 127.0.0.1 ${debug}"
@@ -166,6 +153,19 @@ function indexer_install() {
 }
 
 function indexer_startCluster() {
+    
+    f=0    
+    for r in "${indexer_node_ips[@]}"; do
+        until eval "nc -z ${r} 9300" || [ "${f}" -eq 12 ]; do
+            sleep 10
+            f=$((f+1))
+        done
+        if [ ${f} -eq 12 ]; then
+            common_logger -e "Cannot initialize Wazuh indexer cluster. Unable to connect to node ${r} on port 9300."
+            installCommon_rollBack
+            exit 1
+        fi
+    done
 
     eval "wazuh_indexer_ip=( $(cat /etc/wazuh-indexer/opensearch.yml | grep network.host | sed 's/network.host:\s//') )"
     eval "sudo -u wazuh-indexer JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -p 9300 -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ -icl -nhnv -cacert /etc/wazuh-indexer/certs/root-ca.pem -cert /etc/wazuh-indexer/certs/admin.pem -key /etc/wazuh-indexer/certs/admin-key.pem -h ${wazuh_indexer_ip} ${debug}"
@@ -184,5 +184,5 @@ function indexer_startCluster() {
     else
         common_logger -d "Inserted wazuh-alerts template into the Wazuh indexer cluster."
     fi
-
+    
 }

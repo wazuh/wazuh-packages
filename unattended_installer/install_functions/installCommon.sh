@@ -175,7 +175,7 @@ function installCommon_changePasswords() {
         eval "tar -xf ${tar_file} -C /tmp wazuh-install-files/passwords.wazuh ${debug}"
         p_file="/tmp/wazuh-install-files/passwords.wazuh"
         common_checkInstalled
-        if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
+        if [ -n "${start_indexer_cluster}" ] || [ -n "${AIO}" ]; then
             changeall=1
             passwords_readUsers
         fi
@@ -184,7 +184,7 @@ function installCommon_changePasswords() {
         common_logger -e "Cannot find passwords file. Exiting"
         exit 1
     fi
-    if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
+    if [ -n "${start_indexer_cluster}" ] || [ -n "${AIO}" ]; then
         passwords_getNetworkHost
         passwords_createBackUp
         passwords_generateHash
@@ -192,7 +192,7 @@ function installCommon_changePasswords() {
 
     passwords_changePassword
 
-    if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
+    if [ -n "${start_indexer_cluster}" ] || [ -n "${AIO}" ]; then
         passwords_runSecurityAdmin
     fi
 
@@ -491,7 +491,7 @@ function installCommon_rollBack() {
 }
 
 function installCommon_startService() {
-
+    
     if [ "$#" -ne 1 ]; then
         common_logger -e "installCommon_startService must be called with 1 argument."
         exit 1
@@ -543,5 +543,5 @@ function installCommon_startService() {
         common_logger -e "${1^} could not start. No service manager found on the system."
         exit 1
     fi
-
+    
 }
