@@ -161,7 +161,7 @@ function installCommon_createInstallFiles() {
         eval "chown root:root /tmp/wazuh-install-files/*"
         eval "tar -zcf '${tar_file}' -C '/tmp/' wazuh-install-files/ ${debug}"
         eval "rm -rf '/tmp/wazuh-install-files' ${debug}"
-        common_logger "Created ${tar_file_name}. It contains Wazuh cluster key, certificates, and passwords necessary for installation."
+        common_logger "Created ${tar_file_name}. It contains the Wazuh cluster key, certificates, and passwords necessary for installation."
     else
         common_logger -e "Unable to create /tmp/wazuh-install-files"
         exit 1
