@@ -491,7 +491,7 @@ function installCommon_rollBack() {
 }
 
 function installCommon_startService() {
-    
+
     if [ "$#" -ne 1 ]; then
         common_logger -e "installCommon_startService must be called with 1 argument."
         exit 1
@@ -543,5 +543,5 @@ function installCommon_startService() {
         common_logger -e "${1^} could not start. No service manager found on the system."
         exit 1
     fi
-    
+
 }
