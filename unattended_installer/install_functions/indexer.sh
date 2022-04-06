@@ -154,14 +154,14 @@ function indexer_install() {
 
 function indexer_startCluster() {
 
-    f=0    
-    for r in "${indexer_node_ips[@]}"; do
-        until eval "nc -z ${r} 9300" || [ "${f}" -eq 12 ]; do
+    retries=0    
+    for ip_to_test in "${indexer_node_ips[@]}"; do
+        until eval "nc -z ${ip_to_test} 9300" || [ "${retries}" -eq 12 ]; do
             sleep 10
-            f=$((f+1))
+            retries=$((retries+1))
         done
-        if [ ${f} -eq 12 ]; then
-            common_logger -e "Cannot initialize Wazuh indexer cluster. Unable to connect to node ${r} on port 9300."
+        if [ ${retries} -eq 12 ]; then
+            common_logger -e "Cannot initialize Wazuh indexer cluster. Unable to connect to node ${ip_to_test} on port 9300."
             installCommon_rollBack
             exit 1
         fi

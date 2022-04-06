@@ -270,7 +270,7 @@ function main() {
         indexer_initialize
     fi
 
-# -------------- Start Elasticsearch cluster case  ------------------
+# -------------- Start Wazuh Indexer cluster case  ------------------
 
     if [ -n "${start_indexer_cluster}" ]; then
         indexer_startCluster
