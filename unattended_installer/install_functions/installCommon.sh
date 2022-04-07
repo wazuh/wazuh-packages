@@ -504,43 +504,43 @@ function installCommon_startService() {
         eval "systemctl enable ${1}.service ${debug}"
         eval "systemctl start ${1}.service ${debug}"
         if [  "$?" != 0  ]; then
-            common_logger -e "${1^} could not be started."
+            common_logger -e "${1} could not be started."
             if [ -n "$(command -v journalctl)" ]; then
                 eval "journalctl -u ${1} >> ${logfile}"
             fi
             installCommon_rollBack
             exit 1
         else
-            common_logger "${1^} service started."
+            common_logger "${1} service started."
         fi
     elif ps -e | grep -E -q "^\ *1\ .*init$"; then
         eval "chkconfig ${1} on ${debug}"
         eval "service ${1} start ${debug}"
         eval "/etc/init.d/${1} start ${debug}"
         if [  "$?" != 0  ]; then
-            common_logger -e "${1^} could not be started."
+            common_logger -e "${1} could not be started."
             if [ -n "$(command -v journalctl)" ]; then
                 eval "journalctl -u ${1} >> ${logfile}"
             fi
             installCommon_rollBack
             exit 1
         else
-            common_logger "${1^} service started."
+            common_logger "${1} service started."
         fi
     elif [ -x "/etc/rc.d/init.d/${1}" ] ; then
         eval "/etc/rc.d/init.d/${1} start ${debug}"
         if [  "$?" != 0  ]; then
-            common_logger -e "${1^} could not be started."
+            common_logger -e "${1} could not be started."
             if [ -n "$(command -v journalctl)" ]; then
                 eval "journalctl -u ${1} >> ${logfile}"
             fi
             installCommon_rollBack
             exit 1
         else
-            common_logger "${1^} service started."
+            common_logger "${1} service started."
         fi
     else
-        common_logger -e "${1^} could not start. No service manager found on the system."
+        common_logger -e "${1} could not start. No service manager found on the system."
         exit 1
     fi
 
