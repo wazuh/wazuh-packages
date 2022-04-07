@@ -175,7 +175,7 @@ function installCommon_changePasswords() {
         eval "tar -xf ${tar_file} -C /tmp wazuh-install-files/passwords.wazuh ${debug}"
         p_file="/tmp/wazuh-install-files/passwords.wazuh"
         common_checkInstalled
-        if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
+        if [ -n "${start_indexer_cluster}" ] || [ -n "${AIO}" ]; then
             changeall=1
             passwords_readUsers
         fi
@@ -184,7 +184,7 @@ function installCommon_changePasswords() {
         common_logger -e "Cannot find passwords file. Exiting"
         exit 1
     fi
-    if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
+    if [ -n "${start_indexer_cluster}" ] || [ -n "${AIO}" ]; then
         passwords_getNetworkHost
         passwords_createBackUp
         passwords_generateHash
@@ -192,7 +192,7 @@ function installCommon_changePasswords() {
 
     passwords_changePassword
 
-    if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
+    if [ -n "${start_indexer_cluster}" ] || [ -n "${AIO}" ]; then
         passwords_runSecurityAdmin
     fi
 
@@ -237,7 +237,7 @@ function installCommon_getPass() {
 function installCommon_installPrerequisites() {
 
     if [ "${sys_type}" == "yum" ]; then
-        dependencies=( curl unzip wget libcap tar gnupg openssl )
+        dependencies=( curl unzip wget libcap tar gnupg openssl nmap-ncat )
         not_installed=()
         for dep in "${dependencies[@]}"; do
             if [ -z "$(yum list installed 2>/dev/null | grep ${dep})" ];then
@@ -259,7 +259,7 @@ function installCommon_installPrerequisites() {
 
     elif [ "${sys_type}" == "apt-get" ]; then
         eval "apt update -q ${debug}"
-        dependencies=( apt-transport-https curl unzip wget libcap2-bin tar software-properties-common gnupg openssl )
+        dependencies=( apt-transport-https curl unzip wget libcap2-bin tar software-properties-common gnupg openssl netcat )
         not_installed=()
 
         for dep in "${dependencies[@]}"; do
