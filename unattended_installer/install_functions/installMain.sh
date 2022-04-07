@@ -207,7 +207,7 @@ function main() {
     fi
 
     common_logger "Starting Wazuh installation assistant. Wazuh version: ${wazuh_version}"
-    common_logger "Verbose logging will be redirected to ${logfile}"
+    common_logger "Verbose logging redirected to ${logfile}"
 
 # -------------- Uninstall case  ------------------------------------
 
