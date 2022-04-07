@@ -121,7 +121,7 @@ function main() {
                 shift 1
                 ;;
             "-s"|"--start-cluster")
-                start_elastic_cluster=1
+                start_indexer_cluster=1
                 shift 1
                 ;;
             "-t"|"--tar")
@@ -270,9 +270,9 @@ function main() {
         indexer_initialize
     fi
 
-# -------------- Start Elasticsearch cluster case  ------------------
+# -------------- Start Wazuh Indexer cluster case  ------------------
 
-    if [ -n "${start_elastic_cluster}" ]; then
+    if [ -n "${start_indexer_cluster}" ]; then
         indexer_startCluster
         installCommon_changePasswords
     fi
@@ -346,8 +346,8 @@ function main() {
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
         eval "rm -rf /tmp/wazuh-install-files ${debug}"
         common_logger "Installation finished."
-    elif [ -n "${start_elastic_cluster}" ]; then
-        common_logger "Elasticsearch cluster started."
+    elif [ -n "${start_indexer_cluster}" ]; then
+        common_logger "Wazuh indexer cluster started."
     fi
 
 }

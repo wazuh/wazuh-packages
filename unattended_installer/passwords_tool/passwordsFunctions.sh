@@ -374,7 +374,7 @@ function passwords_runSecurityAdmin() {
     fi
 
     if [ -n "${changeall}" ]; then
-        if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_elastic_cluster}" ]; then
+        if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_indexer_cluster}" ]; then
             for i in "${!users[@]}"; do
                 common_logger $'The password for user '${users[i]}' is '${passwords[i]}''
             done
