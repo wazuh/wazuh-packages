@@ -48,6 +48,11 @@ function dashboard_copyCertificates() {
     name=${dashboard_node_names[pos]}
 
     if [ -f "${tar_file}" ]; then
+        if [ -z "$(tar -tvf ${tar_file} | grep ${name})" ]; then
+            common_logger -e "Tar file does not contain certificate for the node ${name}."
+            installCommon_rollBack
+            exit 1;
+        fi
         eval "mkdir ${dashboard_cert_path} ${debug}"
         eval "sed -i s/dashboard.pem/${name}.pem/ /etc/wazuh-dashboard/opensearch_dashboards.yml ${debug}"
         eval "sed -i s/dashboard-key.pem/${name}-key.pem/ /etc/wazuh-dashboard/opensearch_dashboards.yml ${debug}"
