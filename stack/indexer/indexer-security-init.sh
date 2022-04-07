@@ -42,11 +42,17 @@ fi
 
 # -----------------------------------------------------------------------------
 
+eval "wazuh_indexer_root_ca=( $(cat /etc/wazuh-indexer/opensearch.yml | grep plugins.security.ssl.transport.pemtrustedcas_filepath | sed 's/plugins.security.ssl.transport.pemtrustedcas_filepath:\s//') )"
+WAZUH_INDEXER_ADMIN_PATH = "${wazuh_indexer_root_ca%%/root-ca.*}"
 securityadmin() {
 SECURITY_PATH="${INSTALL_PATH}/plugins/opensearch-security"
 
-OPENSEARCH_PATH_CONF="${CONFIG_PATH}" JAVA_HOME="${INSTALL_PATH}/jdk" runuser wazuh-indexer --shell="/bin/bash" --command="${SECURITY_PATH}/tools/securityadmin.sh -cd ${SECURITY_PATH}/securityconfig -cacert ${CONFIG_PATH}/certs/root-ca.pem -cert ${CONFIG_PATH}/certs/admin.pem -key ${CONFIG_PATH}/certs/admin-key.pem -h ${HOST} -p ${PORT} ${OPTIONS}"
-
+if [ -f "${WAZUH_INDEXER_ADMIN_PATH}/admin.pem" ] && [ -f "${WAZUH_INDEXER_ADMIN_PATH}/admin-key.pem" ]; then
+    OPENSEARCH_PATH_CONF="${CONFIG_PATH}" JAVA_HOME="${INSTALL_PATH}/jdk" runuser wazuh-indexer --shell="/bin/bash" --command="${SECURITY_PATH}/tools/securityadmin.sh -cd ${SECURITY_PATH}/securityconfig -cacert ${wazuh_indexer_root_ca} -cert ${CONFIG_PATH}/certs/admin.pem -key ${CONFIG_PATH}/certs/admin-key.pem -h ${HOST} -p ${PORT} ${OPTIONS}"
+else
+    echo "ERROR: admin.pem and admin-key.pem could not be found in ${WAZUH_INDEXER_ADMIN_PATH}. You must execute the following command:" JAVA_HOME="/usr/share/wazuh-indexer/jdk" runuser wazuh-indexer --shell="/bin/bash" --command="/usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -cd /usr/share/wazuh-indexer/plugins/opensearch-security/plugins/opensearch-security/securityconfig -cacert ${wazuh_indexer_root_ca} -cert $/etc/wazuh-indexer/certs/admin.pem -key /etc/wazuh-indexer/certs/admin-key.pem -h ${HOST} -p ${PORT} ${OPTIONS}"" "
+    exit 1
+fi
 }
 
 help() {
