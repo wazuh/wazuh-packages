@@ -122,7 +122,7 @@ function dashboard_initialize() {
         else
             common_logger "--- Summary ---"
             common_logger "When Wazuh dashboard is able to connect to your Elasticsearch cluster, you can access the web interface https://${nodes_dashboard_ip}.\n    User: admin\n    Password: ${u_pass}"
-            common_logger "Remember that the password can be seen in the file ${logfile}"
+            common_logger "The password can be seen in the file ${logfile}"
         fi
     else
         common_logger "Wazuh dashboard web application initialized."
