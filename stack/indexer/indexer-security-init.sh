@@ -42,8 +42,8 @@ fi
 
 # -----------------------------------------------------------------------------
 
-WAZUH_INDEXER_ROOT_CA=$(cat /etc/wazuh-indexer/opensearch.yml | grep http.pemtrustedcas | sed 's/.*: //')"
-WAZUH_INDEXER_ADMIN_PATH="${WAZUH_INDEXER_ROOT_CA%%/root-ca.*}"
+WAZUH_INDEXER_ROOT_CA="$(cat /etc/wazuh-indexer/opensearch.yml | grep http.pemtrustedcas | sed 's/.*: //')"
+WAZUH_INDEXER_ADMIN_PATH="$(dirname $WAZUH_INDEXER_ROOT_CA)"
 securityadmin() {
 SECURITY_PATH="${INSTALL_PATH}/plugins/opensearch-security"
 
