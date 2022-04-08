@@ -1,10 +1,10 @@
 nodes:
   indexer:
-    name: indexer
-    ip: 127.0.0.1
+    - name: indexer
+      ip: 127.0.0.1
   server:
-    name: server
-    ip: 127.0.0.1
+    - name: server
+      ip: 127.0.0.1
   dashboard:
-    name: dashboard
-    ip: 127.0.0.1
+    - name: dashboard
+      ip: 127.0.0.1

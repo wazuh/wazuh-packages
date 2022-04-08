@@ -40,6 +40,11 @@ function filebeat_copyCertificates() {
 
     if [ -f "${tar_file}" ]; then
         if [ -n "${AIO}" ]; then
+            if [ -z "$(tar -tvf ${tar_file} | grep ${server_node_names[0]})" ]; then
+                common_logger -e "Tar file does not contain certificate for the node ${server_node_names[0]}."
+                installCommon_rollBack
+                exit 1;
+            fi
             eval "sed -i s/filebeat.pem/${server_node_names[0]}.pem/ /etc/filebeat/filebeat.yml ${debug}"
             eval "sed -i s/filebeat-key.pem/${server_node_names[0]}-key.pem/ /etc/filebeat/filebeat.yml ${debug}"
             eval "tar -xf ${tar_file} -C ${filebeat_cert_path} --wildcards wazuh-install-files/${server_node_names[0]}.pem --strip-components 1 ${debug}"
@@ -47,6 +52,11 @@ function filebeat_copyCertificates() {
             eval "tar -xf ${tar_file} -C ${filebeat_cert_path} wazuh-install-files/root-ca.pem --strip-components 1 ${debug}"
             eval "rm -rf ${filebeat_cert_path}/wazuh-install-files/ ${debug}"
         else
+            if [ -z "$(tar -tvf ${tar_file} | grep ${winame})" ]; then
+                common_logger -e "Tar file does not contain certificate for the node ${winame}."
+                installCommon_rollBack
+                exit 1;
+            fi
             eval "sed -i s/filebeat.pem/${winame}.pem/ /etc/filebeat/filebeat.yml ${debug}"
             eval "sed -i s/filebeat-key.pem/${winame}-key.pem/ /etc/filebeat/filebeat.yml ${debug}"
             eval "tar -xf ${tar_file} -C ${filebeat_cert_path} wazuh-install-files/${winame}.pem --strip-components 1 ${debug}"

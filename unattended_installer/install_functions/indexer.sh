@@ -80,6 +80,11 @@ function indexer_copyCertificates() {
     name=${indexer_node_names[pos]}
 
     if [ -f "${tar_file}" ]; then
+        if [ -z "$(tar -tvf ${tar_file} | grep ${name})" ]; then
+            common_logger -e "Tar file does not contain certificate for the node ${name}."
+            installCommon_rollBack
+            exit 1;
+        fi
         eval "mkdir ${indexer_cert_path} ${debug}"
         eval "sed -i s/indexer.pem/${name}.pem/ /etc/wazuh-indexer/opensearch.yml ${debug}"
         eval "sed -i s/indexer-key.pem/${name}-key.pem/ /etc/wazuh-indexer/opensearch.yml ${debug}"
@@ -94,6 +99,7 @@ function indexer_copyCertificates() {
         eval "chmod 400 ${indexer_cert_path}/* ${debug}"
     else
         common_logger -e "No certificates found. Could not initialize Wazuh indexer"
+        installCommon_rollBack
         exit 1;
     fi
 

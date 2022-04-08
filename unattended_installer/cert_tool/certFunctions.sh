@@ -169,9 +169,10 @@ function cert_parseYaml() {
     local s='[[:space:]]*'
     local w='[a-zA-Z0-9_]*'
     local fs=$(echo @|tr @ '\034')
+    sed -re "s|^(\s+)-\s+name|\1  name|" ${1} |
     sed -ne "s|^\($s\):|\1|" \
             -e "s|^\($s\)\($w\)$s:$s[\"']\(.*\)[\"']$s\$|\1$fs\2$fs\3|p" \
-            -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p"  ${1} |
+            -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p" |
     awk -F$fs '{
         indent = length($1)/2;
         vname[indent] = $2;
@@ -193,15 +194,15 @@ function cert_readConfig() {
         fi
         eval "$(cert_convertCRLFtoLF "${config_file}")"
         eval "$(cert_parseYaml "${config_file}")"
-        eval "indexer_node_names=( $(cert_parseYaml "${config_file}" | grep nodes_indexer_name | sed 's/nodes_indexer_name=//' | sed -r 's/\s+//g') )"
-        eval "server_node_names=( $(cert_parseYaml "${config_file}" | grep nodes_server_name | sed 's/nodes_server_name=//' | sed -r 's/\s+//g') )"
-        eval "dashboard_node_names=( $(cert_parseYaml "${config_file}" | grep nodes_dashboard_name | sed 's/nodes_dashboard_name=//' | sed -r 's/\s+//g') )"
+        eval "indexer_node_names=( $(cert_parseYaml "${config_file}" | grep nodes_indexer__name | sed 's/nodes_indexer__name=//' | sed -r 's/\s+//g') )"
+        eval "server_node_names=( $(cert_parseYaml "${config_file}" | grep nodes_server__name | sed 's/nodes_server__name=//' | sed -r 's/\s+//g') )"
+        eval "dashboard_node_names=( $(cert_parseYaml "${config_file}" | grep nodes_dashboard__name | sed 's/nodes_dashboard__name=//' | sed -r 's/\s+//g') )"
 
-        eval "indexer_node_ips=( $(cert_parseYaml "${config_file}" | grep nodes_indexer_ip | sed 's/nodes_indexer_ip=//' | sed -r 's/\s+//g') )"
-        eval "server_node_ips=( $(cert_parseYaml "${config_file}" | grep nodes_server_ip | sed 's/nodes_server_ip=//' | sed -r 's/\s+//g') )"
-        eval "dashboard_node_ips=( $(cert_parseYaml "${config_file}" | grep nodes_dashboard_ip | sed 's/nodes_dashboard_ip=//' | sed -r 's/\s+//g') )"
+        eval "indexer_node_ips=( $(cert_parseYaml "${config_file}" | grep nodes_indexer__ip | sed 's/nodes_indexer__ip=//' | sed -r 's/\s+//g') )"
+        eval "server_node_ips=( $(cert_parseYaml "${config_file}" | grep nodes_server__ip | sed 's/nodes_server__ip=//' | sed -r 's/\s+//g') )"
+        eval "dashboard_node_ips=( $(cert_parseYaml "${config_file}" | grep nodes_dashboard__ip | sed 's/nodes_dashboard__ip=//' | sed -r 's/\s+//g') )"
 
-        eval "server_node_types=( $(cert_parseYaml "${config_file}" | grep nodes_server_node_type | sed 's/nodes_server_node_type=//' | sed -r 's/\s+//g') )"
+        eval "server_node_types=( $(cert_parseYaml "${config_file}" | grep nodes_server__node_type | sed 's/nodes_server__node_type=//' | sed -r 's/\s+//g') )"
 
         unique_names=($(echo "${indexer_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
         if [ "${#unique_names[@]}" -ne "${#indexer_node_names[@]}" ]; then 
