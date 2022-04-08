@@ -12,7 +12,7 @@
 char="."
 debug='>> /var/log/wazuh-unattended-installation.log 2>&1'
 WAZUH_MAJOR="4.2"
-WAZUH_VER="4.2.5"
+WAZUH_VER="4.2.6"
 WAZUH_REV="1"
 ELK_VER="7.10.2"
 OD_VER="1.13.2"
@@ -134,6 +134,28 @@ checkArch() {
         exit 1;
     fi
     
+}
+
+applyLog4j2Mitigation(){
+
+    eval "curl -so /tmp/apache-log4j-2.17.1-bin.tar.gz https://packages.wazuh.com/utils/log4j/apache-log4j-2.17.1-bin.tar.gz ${debug}"
+    eval "tar -xf /tmp/apache-log4j-2.17.1-bin.tar.gz -C /tmp/"
+
+    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-api-2.17.1.jar /usr/share/elasticsearch/lib/  ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-core-2.17.1.jar /usr/share/elasticsearch/lib/ ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-slf4j-impl-2.17.1.jar /usr/share/elasticsearch/plugins/opendistro_security/ ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-api-2.17.1.jar /usr/share/elasticsearch/performance-analyzer-rca/lib/ ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-core-2.17.1.jar /usr/share/elasticsearch/performance-analyzer-rca/lib/ ${debug}"
+
+    eval "rm -f /usr/share/elasticsearch/lib//log4j-api-2.11.1.jar ${debug}"
+    eval "rm -f /usr/share/elasticsearch/lib/log4j-core-2.11.1.jar ${debug}"
+    eval "rm -f /usr/share/elasticsearch/plugins/opendistro_security/log4j-slf4j-impl-2.11.1.jar ${debug}"
+    eval "rm -f /usr/share/elasticsearch/performance-analyzer-rca/lib/log4j-api-2.13.0.jar ${debug}"
+    eval "rm -f /usr/share/elasticsearch/performance-analyzer-rca/lib/log4j-core-2.13.0.jar ${debug}"
+
+    eval "rm -rf /tmp/apache-log4j-2.17.1-bin ${debug}"
+    eval "rm -f /tmp/apache-log4j-2.17.1-bin.tar.gz ${debug}"
+
 }
 
 startService() {
@@ -284,28 +306,14 @@ installElasticsearch() {
 
         ## Create certificates
         eval "mkdir /etc/elasticsearch/certs ${debug}"
-        eval "cd /etc/elasticsearch/certs ${debug}"
         eval "curl -so ~/wazuh-cert-tool.sh ${resources}/open-distro/tools/certificate-utility/wazuh-cert-tool.sh --max-time 300 ${debug}"
+	eval "curl -so ~/instances.yml ${resources}/open-distro/tools/certificate-utility/instances.yml"
+	eval "grep -A 4 'Elasticsearch nodes' ~/instances.yml | sed  's/<node-name>/elasticsearch/; s/node-IP/127.0.0.1/' >> ~/instances_tmp.yml"
+	eval "grep -A 4 'Wazuh server nodes' ~/instances.yml | sed  's/<node-name>/filebeat/; s/node-IP/127.0.0.1/' >> ~/instances_tmp.yml"
+	eval "grep -A 4 'Kibana node' ~/instances.yml | sed  's/<node-name>/kibana/; s/node-IP/127.0.0.1/' >> ~/instances_tmp.yml"
+	eval "mv -f ~/instances_tmp.yml ~/instances.yml"
 
-        echo "# Elasticsearch nodes" >> ~/instances.yml
-        echo "elasticsearch-nodes:" >> ~/instances.yml
-        echo "- name: elasticsearch" >> ~/instances.yml
-        echo "    ip:" >> ~/instances.yml
-        echo "    - 127.0.0.1" >> ~/instances.yml
-
-        echo "# Wazuh server nodes" >> ~/instances.yml
-        echo "wazuh-servers:" >> ~/instances.yml
-        echo "- name: filebeat" >> ~/instances.yml
-        echo "    ip:" >> ~/instances.yml
-        echo "    - 127.0.0.1" >> ~/instances.yml
-
-        echo "# Kibana node"  >> ~/instances.yml
-        echo "kibana:"  >> ~/instances.yml
-        echo "- name: kibana" >> ~/instances.yml
-        echo "    ip:" >> ~/instances.yml
-        echo "    - 127.0.0.1" >> ~/instances.yml
-
-        export JAVA_HOME=/usr/share/elasticsearch/jdk/
+       export JAVA_HOME=/usr/share/elasticsearch/jdk/
         bash ~/wazuh-cert-tool.sh
 
         if [  "$?" != 0  ]; then
@@ -328,7 +336,9 @@ installElasticsearch() {
         fi    
         eval "sed -i "s/-Xms1g/-Xms${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
         eval "sed -i "s/-Xmx1g/-Xmx${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
-     
+
+        applyLog4j2Mitigation
+
         eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
         # Start Elasticsearch
         startService "elasticsearch"
@@ -337,9 +347,9 @@ installElasticsearch() {
             echo -ne ${char}
             sleep 10
         done    
+        echo ""
 
-        eval "cd /usr/share/elasticsearch/plugins/opendistro_security/tools/ ${debug}"
-        eval "./securityadmin.sh -cd ../securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem ${debug}"
+        eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem ${debug}"
         logger "Done"
         
     fi
@@ -396,7 +406,6 @@ installKibana() {
         eval "curl -so /etc/kibana/kibana.yml ${resources}/open-distro/kibana/7.x/kibana_unattended.yml --max-time 300 ${debug}"
         eval "mkdir /usr/share/kibana/data ${debug}"
         eval "chown -R kibana:kibana /usr/share/kibana/ ${debug}"
-        eval "cd /usr/share/kibana ${debug}"
         eval "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install '${repobaseurl}'/ui/kibana/wazuh_kibana-${WAZUH_VER}_${ELK_VER}-${WAZUH_KIB_PLUG_REV}.zip ${debug}"
         if [  "$?" != 0  ]; then
             logger -e "Wazuh Kibana plugin could not be installed."
@@ -435,7 +444,7 @@ checkInstalled() {
     if [ "${sys_type}" == "yum" ]; then
         wazuhinstalled=$(yum list installed 2>/dev/null | grep wazuh-manager)
     elif [ "${sys_type}" == "zypper" ]; then
-        wazuhinstalled=$(zypper packages --installed | grep wazuh-manager | grep i+)
+        wazuhinstalled=$(zypper packages --installed-only | grep wazuh-manager | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
         wazuhinstalled=$(apt list --installed  2>/dev/null | grep wazuh-manager)
     fi    
@@ -451,7 +460,7 @@ checkInstalled() {
     if [ "${sys_type}" == "yum" ]; then
         elasticinstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch)
     elif [ "${sys_type}" == "zypper" ]; then
-        elasticinstalled=$(zypper packages --installed | grep opendistroforelasticsearch | grep i+ | grep noarch)
+        elasticinstalled=$(zypper packages --installed-only | grep opendistroforelasticsearch | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
         elasticinstalled=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch)
     fi 
@@ -467,7 +476,7 @@ checkInstalled() {
     if [ "${sys_type}" == "yum" ]; then
         filebeatinstalled=$(yum list installed 2>/dev/null | grep filebeat)
     elif [ "${sys_type}" == "zypper" ]; then
-        filebeatinstalled=$(zypper packages --installed | grep filebeat | grep i+ | grep noarch)
+        filebeatinstalled=$(zypper packages --installed-only | grep filebeat | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
         filebeatinstalled=$(apt list --installed  2>/dev/null | grep filebeat)
     fi 
@@ -483,7 +492,7 @@ checkInstalled() {
     if [ "${sys_type}" == "yum" ]; then
         kibanainstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch-kibana)
     elif [ "${sys_type}" == "zypper" ]; then
-        kibanainstalled=$(zypper packages --installed | grep opendistroforelasticsearch-kibana | grep i+)
+        kibanainstalled=$(zypper packages --installed-only | grep opendistroforelasticsearch-kibana | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
         kibanainstalled=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch-kibana)
     fi 
@@ -496,7 +505,7 @@ checkInstalled() {
         fi  
     fi  
 
-    if [ -z "${wazuhinstalled}" ] || [ -z "${elasticinstalled}" ] || [ -z "${filebeatinstalled}" ] || [ -z "${kibanainstalled}" ] && [ -n "${uninstall}" ]; then 
+    if [ -z "${wazuhinstalled}" ] && [ -z "${elasticinstalled}" ] && [ -z "${filebeatinstalled}" ] && [ -z "${kibanainstalled}" ] && [ -n "${uninstall}" ]; then 
         logger -e "No Wazuh components were found on the system."
         exit 1;        
     fi
@@ -546,7 +555,7 @@ networkCheck() {
 specsCheck() {
 
     cores=$(cat /proc/cpuinfo | grep processor | wc -l)
-    ram_gb=$(free -m | awk '/^Mem:/{print $2}')
+    ram_gb=$(free --giga | awk '/^Mem:/{print $2}')
     
 }
 
@@ -554,8 +563,8 @@ specsCheck() {
 healthCheck() {
 
     specsCheck
-    if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]; then
-        logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
+    if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 4 ]; then
+        logger -e "Your system does not meet the recommended minimum hardware requirements of 4GB of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
         exit 1;
     else
         logger "Starting the installation..."
@@ -607,6 +616,7 @@ checkInstallation() {
         echo -ne $char
         sleep 10
     done
+    echo ""
 
     setWazuhUserRBACPermissions
  

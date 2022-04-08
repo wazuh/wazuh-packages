@@ -10,7 +10,7 @@
 
 char="."
 debug='> /dev/null 2>&1'
-WAZUH_VER="4.2.5"
+WAZUH_VER="4.2.6"
 WAZUH_MAJOR="4.2"
 WAZUH_REV="1"
 ELK_VER="7.10.2"
@@ -58,6 +58,28 @@ checkArch() {
         logger -e "Uncompatible system. This script must be run on a 64-bit system."
         exit 1;
     fi
+}
+
+applyLog4j2Mitigation(){
+
+    eval "curl -so /tmp/apache-log4j-2.17.1-bin.tar.gz https://packages.wazuh.com/utils/log4j/apache-log4j-2.17.1-bin.tar.gz ${debug}"
+    eval "tar -xf /tmp/apache-log4j-2.17.1-bin.tar.gz -C /tmp/"
+
+    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-api-2.17.1.jar /usr/share/elasticsearch/lib/  ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-core-2.17.1.jar /usr/share/elasticsearch/lib/ ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-slf4j-impl-2.17.1.jar /usr/share/elasticsearch/plugins/opendistro_security/ ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-api-2.17.1.jar /usr/share/elasticsearch/performance-analyzer-rca/lib/ ${debug}"
+    eval "cp /tmp/apache-log4j-2.17.1-bin/log4j-core-2.17.1.jar /usr/share/elasticsearch/performance-analyzer-rca/lib/ ${debug}"
+
+    eval "rm -f /usr/share/elasticsearch/lib//log4j-api-2.11.1.jar ${debug}"
+    eval "rm -f /usr/share/elasticsearch/lib/log4j-core-2.11.1.jar ${debug}"
+    eval "rm -f /usr/share/elasticsearch/plugins/opendistro_security/log4j-slf4j-impl-2.11.1.jar ${debug}"
+    eval "rm -f /usr/share/elasticsearch/performance-analyzer-rca/lib/log4j-api-2.13.0.jar ${debug}"
+    eval "rm -f /usr/share/elasticsearch/performance-analyzer-rca/lib/log4j-core-2.13.0.jar ${debug}"
+
+    eval "rm -rf /tmp/apache-log4j-2.17.1-bin ${debug}"
+    eval "rm -f /tmp/apache-log4j-2.17.1-bin.tar.gz ${debug}"
+
 }
 
 startService() {
@@ -323,6 +345,8 @@ installElasticsearch() {
         eval "sed -i "s/-Xms1g/-Xms${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
         eval "sed -i "s/-Xmx1g/-Xmx${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
 
+        applyLog4j2Mitigation
+
         jv=$(java -version 2>&1 | grep -o -m1 '1.8.0' )
         if [ "$jv" == "1.8.0" ]; then
             echo "root hard nproc 4096" >> /etc/security/limits.conf
@@ -414,6 +438,7 @@ copyCertificates() {
         eval "mv /etc/elasticsearch/certs/${IMN[pos]}_http.key /etc/elasticsearch/certs/elasticsearch_http.key ${debug}"
         eval "rm /etc/elasticsearch/certs/client-certificates.readme /etc/elasticsearch/certs/elasticsearch_elasticsearch_config_snippet.yml ~/search-guard-tlstool-1.8.zip -f ${debug}"
     fi
+
     eval "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer ${debug}"
     if [[ -n "${certificates}" ]] || [[ -n "${single}" ]]; then
         cp ~/config.yml /etc/elasticsearch/certs/
@@ -437,7 +462,7 @@ initializeElastic() {
         echo -ne ${char}
         sleep 10
     done
-
+    echo ""
     if [ -n "${single}" ]; then
         eval "cd /usr/share/elasticsearch/plugins/opendistro_security/tools/ ${debug}"
         eval "./securityadmin.sh -cd ../securityconfig/ -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin.key -h ${nip} ${debug}"
@@ -544,6 +569,7 @@ initializeKibana() {
         echo -ne ${char}
         sleep 10
     done
+    echo ""
     wip=$(grep -A 1 "Wazuh-master-configuration" ~/config.yml | tail -1)
     rm="- "
     wip="${wip//$rm}"
@@ -567,17 +593,17 @@ checkNodes() {
 healthCheck() {
 
     cores=$(cat /proc/cpuinfo | grep processor | wc -l)
-    ram_gb=$(free -m | awk '/^Mem:/{print $2}')
+    ram_gb=$(free --giga | awk '/^Mem:/{print $2}')
     if [ -n "${elastic}" ]; then
-        if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]; then
-            logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
+        if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 4 ]; then
+            logger -e "Your system does not meet the recommended minimum hardware requirements of 4GB of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
             exit 1;
         else
             logger "Starting the installation..."
         fi
     elif [ -n "${kibana}" ]; then
-        if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 3700 ]; then
-            logger -e "Your system does not meet the recommended minimum hardware requirements of 4Gb of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
+        if [ ${cores} -lt 2 ] || [ ${ram_gb} -lt 4 ]; then
+            logger -e "Your system does not meet the recommended minimum hardware requirements of 4GB of RAM and 2 CPU cores. If you want to proceed with the installation use the -i option to ignore these requirements."
             exit 1;
         else
             logger "Starting the installation..."

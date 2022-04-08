@@ -114,7 +114,7 @@ checkInstalled() {
     if [ "${SYS_TYPE}" == "yum" ]; then
         elasticinstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch)
     elif [ "${SYS_TYPE}" == "zypper" ]; then
-        elasticinstalled=$(zypper packages --installed | grep opendistroforelasticsearch | grep i+ | grep noarch)
+        elasticinstalled=$(zypper packages --installed-only | grep opendistroforelasticsearch | grep i+)
     elif [ "${SYS_TYPE}" == "apt-get" ]; then
         elasticinstalled=$(apt list --installed  2>/dev/null | grep 'opendistroforelasticsearch*')
     fi 
@@ -338,7 +338,7 @@ changePassword() {
         if [ "${SYS_TYPE}" == "yum" ]; then
             hasfilebeat=$(yum list installed 2>/dev/null | grep filebeat)
         elif [ "${SYS_TYPE}" == "zypper" ]; then
-            hasfilebeat=$(zypper packages --installed | grep filebeat | grep i+ | grep noarch)
+            hasfilebeat=$(zypper packages --installed-only | grep filebeat | grep i+)
         elif [ "${SYS_TYPE}" == "apt-get" ]; then
             hasfilebeat=$(apt list --installed  2>/dev/null | grep filebeat)
         fi 
@@ -359,7 +359,7 @@ changePassword() {
 	    if [ "${SYS_TYPE}" == "yum" ]; then
 		    haskibana=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch-kibana)
 	    elif [ "${SYS_TYPE}" == "zypper" ]; then
-		    haskibana=$(zypper packages --installed | grep opendistroforelasticsearch-kibana | grep i+)
+		    haskibana=$(zypper packages --installed-only | grep opendistroforelasticsearch-kibana | grep i+)
 	    elif [ "${SYS_TYPE}" == "apt-get" ]; then
 		    haskibana=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch-kibana)
 	    fi
@@ -380,7 +380,7 @@ changePassword() {
 	    if [ "${SYS_TYPE}" == "yum" ]; then
 		    haskibana=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch-kibana)
 	    elif [ "${SYS_TYPE}" == "zypper" ]; then
-		    haskibana=$(zypper packages --installed | grep opendistroforelasticsearch-kibana | grep i+)
+		    haskibana=$(zypper packages --installed-only | grep opendistroforelasticsearch-kibana | grep i+)
 	    elif [ "${SYS_TYPE}" == "apt-get" ]; then
 		    haskibana=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch-kibana)
 	    fi
@@ -413,21 +413,21 @@ runSecurityAdmin() {
     logger "Done"
 
     if [[ -n "${NUSER}" ]] && [[ -n ${AUTOPASS} ]]; then
-        logger "The password for user '${NUSER}' is '${PASSWORD}'"
-        logger "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
+        echo -e "The password for user '${NUSER}' is '${PASSWORD}'\n"
+        logger "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services. More info: https://documentation.wazuh.com/current/user-manual/elasticsearch/elastic-tuning.html#change-users-password"
     fi
 
     if [[ -n "${NUSER}" ]] && [[ -z ${AUTOPASS} ]]; then
-        logger "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
+        logger "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services. More info: https://documentation.wazuh.com/current/user-manual/elasticsearch/elastic-tuning.html#change-users-password"
     fi    
 
     if [ -n "${CHANGEALL}" ]; then
         
         for i in "${!USERS[@]}"
         do
-            logger "The password for ${USERS[i]} is ${PASSWORDS[i]}"
+            echo -e "The password for ${USERS[i]} is ${PASSWORDS[i]}\n"
         done
-        logger "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services."
+        logger "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/kibana/kibana.yml if necessary and restart the services. More info: https://documentation.wazuh.com/current/user-manual/elasticsearch/elastic-tuning.html#change-users-password"
     fi 
 
 }

@@ -94,18 +94,19 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -b, --branch <branch>     [Required] Select Git branch [${BRANCH}]. By default: master."
-    echo "    -j, --jobs <number>       [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 2."
-    echo "    -r, --revision <rev>      [Optional] Package revision. By default: 1."
-    echo "    -s, --store <path>        [Optional] Set the destination path of package. By default, an output folder will be created."
-    echo "    -p, --path <path>         [Optional] Installation path for the package. By default: /var/ossec."
-    echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
-    echo "    -c, --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
-    echo "    --dont-build-docker       [Optional] Locally built docker image will be used instead of generating a new one."
-    echo "    --sources <path>          [Optional] Absolute path containing wazuh source code. This option will use local source code instead of downloading it from GitHub."
-    echo "    --dev                     [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub."
-    echo "    --future                  [Optional] Build test future package x.30.0 Used for development purposes."
-    echo "    -h, --help                Show this help."
+    echo "    -b, --branch <branch>         [Required] Select Git branch [${BRANCH}]. By default: master."
+    echo "    -j, --jobs <number>           [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 2."
+    echo "    -r, --revision <rev>          [Optional] Package revision. By default: 1."
+    echo "    -s, --store <path>            [Optional] Set the destination path of package. By default, an output folder will be created."
+    echo "    -p, --path <path>             [Optional] Installation path for the package. By default: /var/ossec."
+    echo "    -d, --debug                   [Optional] Build the binaries with debug symbols. By default: no."
+    echo "    -c, --checksum <path>         [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
+    echo "    --dont-build-docker           [Optional] Locally built docker image will be used instead of generating a new one."
+    echo "    --sources <path>              [Optional] Absolute path containing wazuh source code. This option will use local source code instead of downloading it from GitHub."
+    echo "    --packages-branch <branch>    [Required] Select Git branch or tag from wazuh-packages repository. e.g ${PACKAGES_BRANCH}"
+    echo "    --dev                         [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub."
+    echo "    --future                      [Optional] Build test future package x.30.0 Used for development purposes."
+    echo "    -h, --help                    Show this help."
     echo
     exit $1
 }
@@ -113,6 +114,7 @@ help() {
 
 main() {
     BUILD="no"
+    PBRANCH="no"
     while [ -n "$1" ]
     do
         case "$1" in
@@ -189,7 +191,10 @@ main() {
         "--packages-branch")
             if [ -n "$2" ]; then
                 PACKAGES_BRANCH="$2"
+                PBRANCH="yes"
                 shift 2
+            else
+                help 1
             fi
             ;;
         "--dev")
@@ -212,6 +217,11 @@ main() {
             help 1
         esac
     done
+
+    if [[ "${BUILD}" == "no" ]] || [[ "${PBRANCH}" == "no" ]]; then
+        echo "It is required to use the (-b or --branch) and --packages-branch parameters"
+        clean 1
+    fi
 
     if [ -z "${CHECKSUMDIR}" ]; then
         CHECKSUMDIR="${OUTDIR}"

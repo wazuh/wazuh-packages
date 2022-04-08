@@ -12,4 +12,5 @@ server.ssl.key: "/etc/kibana/certs/kibana-key.pem"
 server.ssl.certificate: "/etc/kibana/certs/kibana.pem"
 elasticsearch.ssl.certificateAuthorities: ["/etc/kibana/certs/root-ca.pem"]
 server.defaultRoute: /app/wazuh?security_tenant=global
+telemetry.banner: false
 

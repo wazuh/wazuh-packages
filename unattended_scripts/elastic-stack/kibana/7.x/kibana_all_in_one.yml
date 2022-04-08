@@ -19,3 +19,4 @@ xpack.security.enabled: true
 elasticsearch.username: elastic
 uiSettings.overrides.defaultRoute: "/app/wazuh"
 elasticsearch.ssl.verificationMode: certificate
+telemetry.banner: false
