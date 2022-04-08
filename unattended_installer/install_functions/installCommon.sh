@@ -104,7 +104,7 @@ function installCommon_aptInstall() {
         eval "tail -n 2 ${logfile} | grep 'Could not get lock'"
         grep_result="$?"
     done
-    
+
 }
 
 function installCommon_createCertificates() {
@@ -161,7 +161,7 @@ function installCommon_createInstallFiles() {
         eval "chown root:root /tmp/wazuh-install-files/*"
         eval "tar -zcf '${tar_file}' -C '/tmp/' wazuh-install-files/ ${debug}"
         eval "rm -rf '/tmp/wazuh-install-files' ${debug}"
-        common_logger "Created ${tar_file_name}. It contains Wazuh cluster key, certificates, and passwords necessary for installation."
+        common_logger "Created ${tar_file_name}. It contains the Wazuh cluster key, certificates, and passwords necessary for installation."
     else
         common_logger -e "Unable to create /tmp/wazuh-install-files"
         exit 1
@@ -175,7 +175,7 @@ function installCommon_changePasswords() {
         eval "tar -xf ${tar_file} -C /tmp wazuh-install-files/passwords.wazuh ${debug}"
         p_file="/tmp/wazuh-install-files/passwords.wazuh"
         common_checkInstalled
-        if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
+        if [ -n "${start_indexer_cluster}" ] || [ -n "${AIO}" ]; then
             changeall=1
             passwords_readUsers
         fi
@@ -184,7 +184,7 @@ function installCommon_changePasswords() {
         common_logger -e "Cannot find passwords file. Exiting"
         exit 1
     fi
-    if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
+    if [ -n "${start_indexer_cluster}" ] || [ -n "${AIO}" ]; then
         passwords_getNetworkHost
         passwords_createBackUp
         passwords_generateHash
@@ -192,7 +192,7 @@ function installCommon_changePasswords() {
 
     passwords_changePassword
 
-    if [ -n "${start_elastic_cluster}" ] || [ -n "${AIO}" ]; then
+    if [ -n "${start_indexer_cluster}" ] || [ -n "${AIO}" ]; then
         passwords_runSecurityAdmin
     fi
 
@@ -237,7 +237,7 @@ function installCommon_getPass() {
 function installCommon_installPrerequisites() {
 
     if [ "${sys_type}" == "yum" ]; then
-        dependencies=( curl unzip wget libcap tar gnupg openssl )
+        dependencies=( curl unzip wget libcap tar gnupg openssl nmap-ncat )
         not_installed=()
         for dep in "${dependencies[@]}"; do
             if [ -z "$(yum list installed 2>/dev/null | grep ${dep})" ];then
@@ -259,7 +259,7 @@ function installCommon_installPrerequisites() {
 
     elif [ "${sys_type}" == "apt-get" ]; then
         eval "apt update -q ${debug}"
-        dependencies=( apt-transport-https curl unzip wget libcap2-bin tar software-properties-common gnupg openssl )
+        dependencies=( apt-transport-https curl unzip wget libcap2-bin tar software-properties-common gnupg openssl netcat )
         not_installed=()
 
         for dep in "${dependencies[@]}"; do
@@ -504,43 +504,43 @@ function installCommon_startService() {
         eval "systemctl enable ${1}.service ${debug}"
         eval "systemctl start ${1}.service ${debug}"
         if [  "$?" != 0  ]; then
-            common_logger -e "${1^} could not be started."
+            common_logger -e "${1} could not be started."
             if [ -n "$(command -v journalctl)" ]; then
                 eval "journalctl -u ${1} >> ${logfile}"
             fi
             installCommon_rollBack
             exit 1
         else
-            common_logger "${1^} service started."
+            common_logger "${1} service started."
         fi
     elif ps -e | grep -E -q "^\ *1\ .*init$"; then
         eval "chkconfig ${1} on ${debug}"
         eval "service ${1} start ${debug}"
         eval "/etc/init.d/${1} start ${debug}"
         if [  "$?" != 0  ]; then
-            common_logger -e "${1^} could not be started."
+            common_logger -e "${1} could not be started."
             if [ -n "$(command -v journalctl)" ]; then
                 eval "journalctl -u ${1} >> ${logfile}"
             fi
             installCommon_rollBack
             exit 1
         else
-            common_logger "${1^} service started."
+            common_logger "${1} service started."
         fi
     elif [ -x "/etc/rc.d/init.d/${1}" ] ; then
         eval "/etc/rc.d/init.d/${1} start ${debug}"
         if [  "$?" != 0  ]; then
-            common_logger -e "${1^} could not be started."
+            common_logger -e "${1} could not be started."
             if [ -n "$(command -v journalctl)" ]; then
                 eval "journalctl -u ${1} >> ${logfile}"
             fi
             installCommon_rollBack
             exit 1
         else
-            common_logger "${1^} service started."
+            common_logger "${1} service started."
         fi
     else
-        common_logger -e "${1^} could not start. No service manager found on the system."
+        common_logger -e "${1} could not start. No service manager found on the system."
         exit 1
     fi
 

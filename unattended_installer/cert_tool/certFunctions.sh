@@ -179,7 +179,7 @@ function cert_parseYaml() {
         for (i in vname) {if (i > indent) {delete vname[i]}}
         if (length($3) > 0) {
             vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
-            printf("%s%s%s=\"%s\"\n", "'$prefix'",vn, $2, $3);
+            printf("%s%s%s=%s\n", "'$prefix'",vn, $2, $3);
         }
     }'
 
@@ -192,16 +192,17 @@ function cert_readConfig() {
             common_logger -e "File ${config_file} is empty"
             exit 1
         fi
+        eval "$(cert_convertCRLFtoLF "${config_file}")"
         eval "$(cert_parseYaml "${config_file}")"
-        eval "indexer_node_names=( $(cert_parseYaml "${config_file}" | grep nodes_indexer__name | sed 's/nodes_indexer__name=//') )"
-        eval "server_node_names=( $(cert_parseYaml "${config_file}" | grep nodes_server__name | sed 's/nodes_server__name=//') )"
-        eval "dashboard_node_names=( $(cert_parseYaml "${config_file}" | grep nodes_dashboard__name | sed 's/nodes_dashboard__name=//') )"
+        eval "indexer_node_names=( $(cert_parseYaml "${config_file}" | grep nodes_indexer__name | sed 's/nodes_indexer__name=//' | sed -r 's/\s+//g') )"
+        eval "server_node_names=( $(cert_parseYaml "${config_file}" | grep nodes_server__name | sed 's/nodes_server__name=//' | sed -r 's/\s+//g') )"
+        eval "dashboard_node_names=( $(cert_parseYaml "${config_file}" | grep nodes_dashboard__name | sed 's/nodes_dashboard__name=//' | sed -r 's/\s+//g') )"
 
-        eval "indexer_node_ips=( $(cert_parseYaml "${config_file}" | grep nodes_indexer__ip | sed 's/nodes_indexer__ip=//') )"
-        eval "server_node_ips=( $(cert_parseYaml "${config_file}" | grep nodes_server__ip | sed 's/nodes_server__ip=//') )"
-        eval "dashboard_node_ips=( $(cert_parseYaml "${config_file}" | grep nodes_dashboard__ip | sed 's/nodes_dashboard__ip=//') )"
+        eval "indexer_node_ips=( $(cert_parseYaml "${config_file}" | grep nodes_indexer__ip | sed 's/nodes_indexer__ip=//' | sed -r 's/\s+//g') )"
+        eval "server_node_ips=( $(cert_parseYaml "${config_file}" | grep nodes_server__ip | sed 's/nodes_server__ip=//' | sed -r 's/\s+//g') )"
+        eval "dashboard_node_ips=( $(cert_parseYaml "${config_file}" | grep nodes_dashboard__ip | sed 's/nodes_dashboard__ip=//' | sed -r 's/\s+//g') )"
 
-        eval "server_node_types=( $(cert_parseYaml "${config_file}" | grep nodes_server__node_type | sed 's/nodes_server__node_type=//') )"
+        eval "server_node_types=( $(cert_parseYaml "${config_file}" | grep nodes_server__node_type | sed 's/nodes_server__node_type=//' | sed -r 's/\s+//g') )"
 
         unique_names=($(echo "${indexer_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
         if [ "${#unique_names[@]}" -ne "${#indexer_node_names[@]}" ]; then 
@@ -285,4 +286,12 @@ function cert_readConfig() {
 function cert_setpermisions() {
     eval "chmod 500 /tmp/wazuh-certificates ${debug}"
     eval "chmod 400 /tmp/wazuh-certificates/* ${debug}"
+}
+
+function cert_convertCRLFtoLF() {
+    if [[ ! -d "/tmp/wazuh-install-files" ]]; then
+        mkdir "/tmp/wazuh-install-files"
+    fi
+    eval "tr -d '\015' < $1 > /tmp/wazuh-install-files/new_config.yml"
+    eval "mv /tmp/wazuh-install-files/new_config.yml $1"
 }

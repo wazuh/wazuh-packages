@@ -126,12 +126,14 @@ function dashboard_initialize() {
             exit 1
         else
             common_logger "--- Summary ---"
-            common_logger "When Wazuh dashboard is able to connect to your Elasticsearch cluster, you can access the web interface https://${nodes_dashboard_ip}.\n    User: admin\n    Password: ${u_pass}"
+            common_logger "When Wazuh dashboard is able to connect to your Wazuh indexer cluster, you can access the web interface https://${nodes_dashboard_ip}.\n    User: admin\n    Password: ${u_pass}"
+            common_logger "The password can be seen in the file ${logfile}"
         fi
     else
         common_logger "Wazuh dashboard web application initialized."
         common_logger "--- Summary ---"
         common_logger "You can access the web interface https://${nodes_dashboard_ip}.\n    User: admin\n    Password: ${u_pass}"
+        common_logger "The password can be seen in the file ${logfile}"
     fi
 
 }
@@ -153,6 +155,7 @@ function dashboard_initializeAIO() {
     common_logger "Wazuh dashboard web application initialized."
     common_logger "--- Summary ---"
     common_logger "You can access the web interface https://<wazuh-dashboard-ip>.\n    User: admin\n    Password: ${u_pass}"
+    common_logger "The password can be seen in the file ${logfile}"
 
 }
 
