@@ -44,9 +44,9 @@ function getHelp() {
 
 function main() {
 
-    umask 177
+    umask 113
 
-    common_checkRoot
+    #common_checkRoot
     cert_checkOpenSSL
 
     if [ -n "${1}" ]; then
@@ -148,6 +148,7 @@ function main() {
         
         if [[ ! -d "/tmp/wazuh-certificates" ]]; then
             mkdir "/tmp/wazuh-certificates"
+            chmod 744 "/tmp/wazuh-certificates"
         fi
 
         cert_readConfig

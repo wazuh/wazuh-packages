@@ -26,6 +26,8 @@ function cert_checkOpenSSL() {
 }
 
 function cert_checkRootCA() {
+    echo "rootca: ${rootca}"
+    echo "rootcakey: ${rootcakey}"
 
     if  [[ -n ${rootca} || -n ${rootcakey} ]]; then
         # Verify variables match keys
@@ -158,9 +160,7 @@ function cert_generateDashboardcertificates() {
 function cert_generateRootCAcertificate() {
 
     common_logger -d "Creating the root certificate."
-
     eval "openssl req -x509 -new -nodes -newkey rsa:2048 -keyout /tmp/wazuh-certificates/root-ca.key -out /tmp/wazuh-certificates/root-ca.pem -batch -subj '/OU=Wazuh/O=Wazuh/L=California/' -days 3650 ${debug}"
-
 }
 
 function cert_parseYaml() {
@@ -284,14 +284,15 @@ function cert_readConfig() {
 }
 
 function cert_setpermisions() {
-    eval "chmod 500 /tmp/wazuh-certificates ${debug}"
-    eval "chmod 400 /tmp/wazuh-certificates/* ${debug}"
+    eval "chmod 755 /tmp/wazuh-certificates ${debug}"
+    eval "chmod 644 /tmp/wazuh-certificates/* ${debug}"
 }
 
 function cert_convertCRLFtoLF() {
     if [[ ! -d "/tmp/wazuh-install-files" ]]; then
         mkdir "/tmp/wazuh-install-files"
     fi
+    eval "chmod -R 755 /tmp/wazuh-install-files ${debug}"
     eval "tr -d '\015' < $1 > /tmp/wazuh-install-files/new_config.yml"
     eval "mv /tmp/wazuh-install-files/new_config.yml $1"
 }
