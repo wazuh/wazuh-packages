@@ -32,7 +32,7 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 %package -n wazuh-agent-debuginfo
 Summary: Debug info for Wazuh
 Group: Development/Libraries
-Requires: wazuh-agent(%{_arch}) = %{version}-%{release}
+Requires: wazuh-agent = %{version}-%{release}
 
 %description -n wazuh-agent-debuginfo
 This package contains files necessary for debugging the wazuh-agent with gdb.
@@ -620,7 +620,7 @@ rm -fr %{buildroot}
 
 %files -n wazuh-agent-debuginfo
 %dir %attr(750, root, root) %{_localstatedir}/.symbols
-%attr(660, root, root) %{_localstatedir}/.symbols/*
+%attr(640, root, root) %{_localstatedir}/.symbols/*
 
 %changelog
 * Sat Dec 25 2021 support <info@wazuh.com> - 4.4.0

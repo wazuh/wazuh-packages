@@ -17,7 +17,7 @@ Description: Wazuh helps you to gain security visibility into your infrastructur
 Package: wazuh-manager-dbg
 Architecture: any
 Section: devel
-Depends: wazuh-manager (= ${binary:Version})
+Conflicts: wazuh-manager (<< ${binary:Version}), wazuh-manager (>> ${binary:Version})
 Replaces: wazuh-manager-dbg
 Description: Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring.
  .

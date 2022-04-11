@@ -832,7 +832,7 @@ rm -fr %{buildroot}
 
 %files -n wazuh-agent-debuginfo
 %dir %attr(750, root, root) %{_localstatedir}/.symbols
-%attr(660, root, root) %{_localstatedir}/.symbols/*
+%attr(640, root, root) %{_localstatedir}/.symbols/*
 
 
 %changelog

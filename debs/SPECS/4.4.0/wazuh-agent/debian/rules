@@ -145,8 +145,8 @@ override_dh_install:
 	cp src/init/templates/wazuh-agent.service ${TARGET_DIR}/etc/systemd/system/
 
 	# Add debug symbols
-	mkdir -p ${TARGET_DIR_SYMS}/${INSTALLATION_DIR}/.symbols
-	cp src/symbols/* ${TARGET_DIR_SYMS}/${INSTALLATION_DIR}/.symbols
+	mkdir -p ${TARGET_DIR_SYMS}/${INSTALLATION_DIR}
+	mv ${TARGET_DIR}/${INSTALLATION_DIR}/.symbols ${TARGET_DIR_SYMS}/${INSTALLATION_DIR}/.symbols
 
 override_dh_auto_clean:
 	$(MAKE) -j$(JOBS) -C src clean
