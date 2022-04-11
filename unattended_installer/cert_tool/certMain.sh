@@ -44,7 +44,7 @@ function getHelp() {
 
 function main() {
 
-    umask 113
+    umask 177
 
     #common_checkRoot
     cert_checkOpenSSL
@@ -178,7 +178,7 @@ function main() {
             common_logger "Wazuh dashboard certificates created."
             cert_cleanFiles
             cert_setpermisions
-            #eval "mv /tmp/wazuh-certificates ${base_path}/wazuh-certificates ${debug}"
+            eval "mv /tmp/wazuh-certificates ${base_path}/wazuh-certificates ${debug}"
         fi
 
         if [[ -n "${ca}" ]]; then
