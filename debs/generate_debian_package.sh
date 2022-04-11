@@ -79,7 +79,7 @@ build_deb() {
         ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} \
         ${USE_LOCAL_SOURCE_CODE} ${FUTURE}|| return 1
 
-    echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
+    echo "Package $(ls -Art ${OUTDIR} | tail -n 2) added to ${OUTDIR}."
 
     return 0
 }
