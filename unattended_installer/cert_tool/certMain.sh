@@ -66,7 +66,7 @@ function main() {
                 fi
                 ;;
             "-A"|"--all")
-                if  [[ -n "${2}" ]]; then
+                if  [[ -n "${2}" && "${2}" != "-v" ]]; then
                     # Validate that the user has entered the 2 files
                     if [[ -z ${3} ]]; then
                         if [[ ${2} == *".key" ]]; then
@@ -178,7 +178,7 @@ function main() {
             common_logger "Wazuh dashboard certificates created."
             cert_cleanFiles
             cert_setpermisions
-            eval "mv /tmp/wazuh-certificates ${base_path}/wazuh-certificates ${debug}"
+            #eval "mv /tmp/wazuh-certificates ${base_path}/wazuh-certificates ${debug}"
         fi
 
         if [[ -n "${ca}" ]]; then

@@ -26,9 +26,6 @@ function cert_checkOpenSSL() {
 }
 
 function cert_checkRootCA() {
-    echo "rootca: ${rootca}"
-    echo "rootcakey: ${rootcakey}"
-
     if  [[ -n ${rootca} || -n ${rootcakey} ]]; then
         # Verify variables match keys
         if [[ ${rootca} == *".key" ]]; then
@@ -158,7 +155,6 @@ function cert_generateDashboardcertificates() {
 }
 
 function cert_generateRootCAcertificate() {
-
     common_logger -d "Creating the root certificate."
     eval "openssl req -x509 -new -nodes -newkey rsa:2048 -keyout /tmp/wazuh-certificates/root-ca.key -out /tmp/wazuh-certificates/root-ca.pem -batch -subj '/OU=Wazuh/O=Wazuh/L=California/' -days 3650 ${debug}"
 }
@@ -284,8 +280,7 @@ function cert_readConfig() {
 }
 
 function cert_setpermisions() {
-    eval "chmod 755 /tmp/wazuh-certificates ${debug}"
-    eval "chmod 644 /tmp/wazuh-certificates/* ${debug}"
+    eval "chmod -R 744 /tmp/wazuh-certificates ${debug}"
 }
 
 function cert_convertCRLFtoLF() {
