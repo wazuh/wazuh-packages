@@ -46,7 +46,6 @@ function main() {
 
     umask 177
 
-    #common_checkRoot
     cert_checkOpenSSL
 
     if [ -n "${1}" ]; then
