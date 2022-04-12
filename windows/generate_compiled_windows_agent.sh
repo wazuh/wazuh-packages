@@ -34,12 +34,12 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -b, --branch <branch>         [Required] Select Git branch [${BRANCH}]. By default: master."
-    echo "    -j, --jobs <number>           [Optional] Change number of parallel jobs when compiling the Windows agent. By default: 4."
-    echo "    -r, --revision <rev>          [Optional] Package revision. By default: 1."
-    echo "    -s, --store <path>            [Optional] Set the directory where the package will be stored. By default the current path."
-    echo "    -d, --debug                   [Optional] Build the binaries with debug symbols. By default: no."
-    echo "    -ds, --debug-symbols <path>   [Optional] Directy where there are the library and cv2pdb executables."
+    echo "    -b, --branch <branch>     [Required] Select Git branch [${BRANCH}]. By default: master."
+    echo "    -j, --jobs <number>       [Optional] Change number of parallel jobs when compiling the Windows agent. By default: 4."
+    echo "    -r, --revision <rev>      [Optional] Package revision. By default: 1."
+    echo "    -s, --store <path>        [Optional] Set the directory where the package will be stored. By default the current path."
+    echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
+    echo "    -cv, --cv2pdb-path <path> [Optional] Directory where there are the ddl library and cv2pdb executables."
     echo "    -h, --help                Show this help."
     echo
     exit $1
@@ -63,7 +63,7 @@ main() {
         "-h"|"--help")
             help 0
             ;;
-        "-ds"|"--debug-symbols")
+        "-cv"|"--cv2pdb-path")
             if [ -n "$2" ]; then
                 DEBUG_SYMBOLS_PATH="$2"
                 shift 2
