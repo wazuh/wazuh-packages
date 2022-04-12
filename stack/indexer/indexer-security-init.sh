@@ -47,8 +47,25 @@ fi
 
 securityadmin() {
 
+    if [ ! -d "$INSTALL_PATH" ]; then
+        echo "ERROR: it was not possible to find ${INSTALL_PATH}"
+        exit 1
+    elif [ ! -d "$SECURITY_PATH" ]; then
+        echo "ERROR: it was not possible to find ${SECURITY_PATH}"
+        exit 1
+    elif [ ! -d "${INSTALL_PATH}/jdk" ]; then
+        echo "ERROR: it was not possible to find ${INSTALL_PATH}/jdk"
+        exit 1
+    elif [ ! -d "$CONFIG_PATH" ]; then
+        echo "ERROR: it was not possible to find ${CONFIG_PATH}"
+        exit 1
+    fi
+
     if [ -f "${WAZUH_INDEXER_ADMIN_PATH}/admin.pem" ] && [ -f "${WAZUH_INDEXER_ADMIN_PATH}/admin-key.pem" ] && [ -f "${WAZUH_INDEXER_ROOT_CA}" ]; then
         OPENSEARCH_PATH_CONF="${CONFIG_PATH}" JAVA_HOME="${INSTALL_PATH}/jdk" runuser wazuh-indexer --shell="/bin/bash" --command="${SECURITY_PATH}/tools/securityadmin.sh -cd ${SECURITY_PATH}/securityconfig -cacert ${WAZUH_INDEXER_ROOT_CA} -cert ${WAZUH_INDEXER_ADMIN_PATH}/admin.pem -key ${WAZUH_INDEXER_ADMIN_PATH}/admin-key.pem -h ${HOST} -p ${PORT} ${OPTIONS}"
+    elif [ ! -f "${CONFIG_PATH}/opensearch.yml" ]; then
+        echo "ERROR: it was not possible to find /etc/wazuh-indexer/opensearch.yml"
+        exit 1
     else
         echo "ERROR: this tool try to find admin.pem and admin-key.pem in ${WAZUH_INDEXER_ADMIN_PATH} but it couldn't. In this case, you must run manually the Indexer security initializer by running the command: JAVA_HOME="/usr/share/wazuh-indexer/jdk" runuser wazuh-indexer --shell="/bin/bash" --command="/usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -cd /usr/share/wazuh-indexer/plugins/opensearch-security/plugins/opensearch-security/securityconfig -cacert /path/to/root-ca.pem -cert /path/to/admin.pem -key /path/to/admin-key.pem -h ${HOST} -p ${PORT} ${OPTIONS}" replacing /path/to/ by your certificates path."
         exit 1
