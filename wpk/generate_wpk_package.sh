@@ -60,15 +60,14 @@ function build_wpk_linux() {
     local BRANCH="${1}"
     local DESTINATION="${2}"
     local CONTAINER_NAME="${3}"
-    local ARCH_BUILD="${4}"
-    local JOBS="${5}"
-    local OUT_NAME="${6}"
-    local CHECKSUM="${7}"
-    local CHECKSUMDIR="${8}"
-    local INSTALLATION_PATH="${9}"
-    local AWS_REGION="${10}"
-    local WPK_KEY="${11}"
-    local WPK_CERT="${12}"
+    local JOBS="${4}"
+    local OUT_NAME="${5}"
+    local CHECKSUM="${6}"
+    local CHECKSUMDIR="${7}"
+    local INSTALLATION_PATH="${8}"
+    local AWS_REGION="${9}"
+    local WPK_KEY="${10}"
+    local WPK_CERT="${11}"
 
     if [ -n "${CHECKSUM}" ]; then
         CHECKSUM_FLAG="-c"
@@ -82,7 +81,7 @@ function build_wpk_linux() {
 
     docker run -t --rm -v ${KEYDIR}:/etc/wazuh:Z -v ${DESTINATION}:/var/local/wazuh:Z \
         -v ${CHECKSUMDIR}:/var/local/checksum:Z \
-        ${CONTAINER_NAME} -b ${BRANCH} -j ${JOBS} -o ${OUT_NAME} -p ${INSTALLATION_PATH} --aws-wpk-key-region ${AWS_REGION} ${WPK_KEY_FLAG} ${WPK_CERT_FLAG} ${CHECKSUM_FLAG} -a ${ARCH_BUILD}
+        ${CONTAINER_NAME} -b ${BRANCH} -j ${JOBS} -o ${OUT_NAME} -p ${INSTALLATION_PATH} --aws-wpk-key-region ${AWS_REGION} ${WPK_KEY_FLAG} ${WPK_CERT_FLAG} ${CHECKSUM_FLAG}
 
     return $?
 }
@@ -338,7 +337,7 @@ function main() {
         else
             build_container ${LINUX_BUILDER} ${LINUX_BUILDER_DOCKERFILE} || clean ${LINUX_BUILDER_DOCKERFILE} 1
             local CONTAINER_NAME="${LINUX_BUILDER}"
-            build_wpk_linux ${BRANCH} ${DESTINATION} ${CONTAINER_NAME} ${ARCHITECTURE} ${JOBS} ${OUT_NAME} ${CHECKSUM} ${CHECKSUMDIR} ${INSTALLATION_PATH} ${AWS_REGION} ${WPK_KEY} ${WPK_CERT}  || clean ${LINUX_BUILDER_DOCKERFILE} 1
+            build_wpk_linux ${BRANCH} ${DESTINATION} ${CONTAINER_NAME} ${JOBS} ${OUT_NAME} ${CHECKSUM} ${CHECKSUMDIR} ${INSTALLATION_PATH} ${AWS_REGION} ${WPK_KEY} ${WPK_CERT} || clean ${LINUX_BUILDER_DOCKERFILE} 1
             clean ${LINUX_BUILDER_DOCKERFILE} 0
         fi
     else

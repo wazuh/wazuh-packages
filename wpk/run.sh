@@ -8,7 +8,6 @@ OUT_NAME=""
 CHECKSUM="no"
 INSTALLATION_PATH="/var/ossec"
 PKG_NAME=""
-ARCHITECTURE="X86_64"
 HAVE_PKG_NAME_WIN=false
 HAVE_PKG_NAME_MAC=false
 AWS_REGION="us-east-1"
@@ -33,7 +32,6 @@ help() {
     echo "    -b,   --branch <branch>      [Required] Select Git branch or tag e.g. master"
     echo "    -o,   --output <name>        [Required] Name to the output package."
     echo "    -pn,  --package-name <name>  [Required for windows and macos] Package name to pack on wpk."
-    echo "    -a,   --architecture <name>  [Optional] Target architecture of the package. By default: x86_64"
     echo "    -r,   --revision <rev>       [Optional] Revision of the package. By default: 1."
     echo "    -p,   --path <path>          [Optional] Installation path for the package. By default: /var."
     echo "    -j,   --jobs <number>        [Optional] Number of parallel jobs when compiling."
@@ -88,12 +86,6 @@ main() {
                 elif [ "${PKG_NAME: -4}" == ".pkg" ]; then
                     HAVE_PKG_NAME_MAC=true
                 fi
-                shift 2
-            fi
-            ;;
-        "-a"|"--architecture")
-            if [ -n "${2}" ]; then
-                ARCHITECTURE="${2}"
                 shift 2
             fi
             ;;
@@ -183,8 +175,8 @@ main() {
         # Compile agent
         make -C src -j ${JOBS} TARGET=${BUILD_TARGET} || exit 1
         rm -rf ./src/symbols/.gitignore
-        tar -C src/symbols -czf ${OUTDIR}/wazuh-${BUILD_TARGET}-linux-${ARCHITECTURE}-debug-info-${WAZUH_VERSION}-${REVISION}.tar.gz .
-        echo "tar.gz symbols file created placed in ${OUTDIR} with name = wazuh-${BUILD_TARGET}-linux-${ARCHITECTURE}-debug-info-${WAZUH_VERSION}-${REVISION}.tar.gz"
+        tar -C src/symbols -czf ${OUTDIR}/wazuh-${BUILD_TARGET}-linux-x86_64-debug-info-${WAZUH_VERSION}-${REVISION}.tar.gz .
+        echo "tar.gz symbols file created placed in ${OUTDIR} with name = wazuh-${BUILD_TARGET}-linux-x86_64-debug-info-${WAZUH_VERSION}-${REVISION}.tar.gz"
         clean
         # Preload vars for installer
         preload

@@ -7,7 +7,7 @@ RUN curl -OL http://packages.wazuh.com/utils/gcc/gcc-9.4.0.tar.gz && \
     tar xzf gcc-9.4.0.tar.gz  && cd gcc-9.4.0/ && \
     linux32 ./contrib/download_prerequisites && \
     linux32 ./configure --prefix=/usr/local/gcc-9.4.0 --with-arch=armv7-a \
-        --with-float=hard --with-fpu=vfpv3-d16 --enable-languages=c,c++ --disable-multilib \
+        --with-float=hard --enable-languages=c,c++ --disable-multilib \
         --disable-libsanitizer && \
     linux32 make -j$(nproc) && linux32 make install && \
     ln -fs /usr/local/gcc-9.4.0/bin/g++ /usr/bin/c++ && cd / && rm -rf gcc-*
