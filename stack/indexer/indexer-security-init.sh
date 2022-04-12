@@ -19,12 +19,15 @@ SECURITY_PATH="${INSTALL_PATH}/plugins/opensearch-security"
 # -----------------------------------------------------------------------------
 
 getNetworkHost() {
+
     HOST=$(grep -hr "network.host:" "${CONFIG_PATH}"/opensearch.yml 2>&1)
     NH="network.host: "
     HOST="${HOST//$NH}"
 
     # Allow to find ip with an interface
-    if [[ "${HOST}" =~ _.*_ ]]; then
+    if [[ "${HOST}" =~ ^(([1-9]?[0-9]|1[0-9][0-9]|2([0-4][0-9]|5[0-5]))\.){3}([1-9]?[0-9]|1[0-9][0-9]|2([0-4][0-9]|5[0-5]))$ ]]; then
+        :
+    else
         interface="${HOST//_}"
         HOST=$(ip -o -4 addr list ${interface} | awk '{print $4}' | cut -d/ -f1)
     fi
@@ -32,6 +35,7 @@ getNetworkHost() {
     if [ "${HOST}" = "0.0.0.0" ]; then
         HOST="127.0.0.1"
     fi
+
 }
 
 # -----------------------------------------------------------------------------
