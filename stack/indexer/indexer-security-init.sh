@@ -8,14 +8,20 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
+CONFIG_PATH="/etc/wazuh-indexer"
+CONFIG_FILE="${CONFIG_PATH}/opensearch.yml"
+
+    if [ ! -f "${CONFIG_FILE}" ]; then
+        echo "ERROR: it was not possible to find ${CONFIG_FILE}"
+        exit 1
+    fi
+
 HOST=""
 INSTALL_PATH="/usr/share/wazuh-indexer"
-CONFIG_PATH="/etc/wazuh-indexer"
 OPTIONS="-icl -nhnv"
-WAZUH_INDEXER_ROOT_CA="$(cat /etc/wazuh-indexer/opensearch.yml 2>&1 | grep http.pemtrustedcas | sed 's/.*: //')"
+WAZUH_INDEXER_ROOT_CA="$(cat ${CONFIG_FILE} 2>&1 | grep http.pemtrustedcas | sed 's/.*: //')"
 WAZUH_INDEXER_ADMIN_PATH="$(dirname "${WAZUH_INDEXER_ROOT_CA}" 2>&1)"
 SECURITY_PATH="${INSTALL_PATH}/plugins/opensearch-security"
-CONFIG_FILE="${CONFIG_PATH}/opensearch.yml"
 
 # -----------------------------------------------------------------------------
 
@@ -59,10 +65,7 @@ securityadmin() {
 
     getPort
 
-    if [ ! -f "${CONFIG_FILE}" ]; then
-        echo "ERROR: it was not possible to find ${CONFIG_FILE}"
-        exit 1
-    elif [ ! -d "${INSTALL_PATH}" ]; then
+    if [ ! -d "${INSTALL_PATH}" ]; then
         echo "ERROR: it was not possible to find ${INSTALL_PATH}"
         exit 1
     elif [ ! -d "${SECURITY_PATH}" ]; then
