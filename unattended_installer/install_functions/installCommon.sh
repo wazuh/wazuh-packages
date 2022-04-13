@@ -127,7 +127,7 @@ function installCommon_createCertificates() {
     cert_generateFilebeatcertificates
     cert_generateDashboardcertificates
     cert_cleanFiles
-    cert_setpermisions
+    eval "chmod 400 /tmp/wazuh-certificates/* ${debug}"
     eval "mv /tmp/wazuh-certificates/* /tmp/wazuh-install-files ${debug}"
     eval "rm -rf /tmp/wazuh-certificates/ ${debug}"
 

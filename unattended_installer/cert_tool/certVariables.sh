@@ -8,5 +8,5 @@
 
 readonly base_path="$(dirname "$(readlink -f "$0")")"
 readonly config_file="${base_path}/config.yml"
-readonly logfile="/var/log/wazuh-cert-tool.log"
-debug=">> ${logfile} 2>&1"
+readonly logfile=""
+debug=">> /dev/null 2>&1"

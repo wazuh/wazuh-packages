@@ -46,7 +46,6 @@ function main() {
 
     umask 177
 
-    common_checkRoot
     cert_checkOpenSSL
 
     if [ -n "${1}" ]; then
@@ -66,7 +65,7 @@ function main() {
                 fi
                 ;;
             "-A"|"--all")
-                if  [[ -n "${2}" ]]; then
+                if  [[ -n "${2}" && "${2}" != "-v" ]]; then
                     # Validate that the user has entered the 2 files
                     if [[ -z ${3} ]]; then
                         if [[ ${2} == *".key" ]]; then
@@ -148,6 +147,7 @@ function main() {
         
         if [[ ! -d "/tmp/wazuh-certificates" ]]; then
             mkdir "/tmp/wazuh-certificates"
+            chmod 744 "/tmp/wazuh-certificates"
         fi
 
         cert_readConfig

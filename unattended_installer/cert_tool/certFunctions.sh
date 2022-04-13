@@ -284,14 +284,14 @@ function cert_readConfig() {
 }
 
 function cert_setpermisions() {
-    eval "chmod 500 /tmp/wazuh-certificates ${debug}"
-    eval "chmod 400 /tmp/wazuh-certificates/* ${debug}"
+    eval "chmod -R 744 /tmp/wazuh-certificates ${debug}"
 }
 
 function cert_convertCRLFtoLF() {
     if [[ ! -d "/tmp/wazuh-install-files" ]]; then
         mkdir "/tmp/wazuh-install-files"
     fi
+    eval "chmod -R 755 /tmp/wazuh-install-files ${debug}"
     eval "tr -d '\015' < $1 > /tmp/wazuh-install-files/new_config.yml"
     eval "mv /tmp/wazuh-install-files/new_config.yml $1"
 }
