@@ -260,6 +260,8 @@ if [ ! -f "%{CONFIG_DIR}"/opensearch.keystore ]; then
     chown %{USER}:%{GROUP} "%{CONFIG_DIR}"/opensearch.keystore
     chmod 660 "%{CONFIG_DIR}"/opensearch.keystore
     md5sum "%{CONFIG_DIR}"/opensearch.keystore > "%{CONFIG_DIR}"/.opensearch.keystore.initial_md5sum
+    chown %{USER}:%{GROUP} "%{CONFIG_DIR}"/.opensearch.keystore.initial_md5sum
+    chmod 600 "%{CONFIG_DIR}"/.opensearch.keystore.initial_md5sum
 else
     chown %{USER}:%{GROUP} "%{CONFIG_DIR}"/opensearch.keystore
     chmod 660 "%{CONFIG_DIR}"/opensearch.keystore
