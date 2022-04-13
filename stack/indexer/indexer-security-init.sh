@@ -13,63 +13,70 @@ INSTALL_PATH="/usr/share/wazuh-indexer"
 CONFIG_PATH="/etc/wazuh-indexer"
 OPTIONS="-icl -nhnv"
 WAZUH_INDEXER_ROOT_CA="$(cat /etc/wazuh-indexer/opensearch.yml 2>&1 | grep http.pemtrustedcas | sed 's/.*: //')"
-WAZUH_INDEXER_ADMIN_PATH="$(dirname $WAZUH_INDEXER_ROOT_CA 2>&1)"
+WAZUH_INDEXER_ADMIN_PATH="$(dirname "${WAZUH_INDEXER_ROOT_CA}" 2>&1)"
 SECURITY_PATH="${INSTALL_PATH}/plugins/opensearch-security"
+CONFIG_FILE="${CONFIG_PATH}/opensearch.yml"
 
 # -----------------------------------------------------------------------------
 
 getNetworkHost() {
 
-    HOST=$(grep -hr "network.host:" "${CONFIG_PATH}"/opensearch.yml 2>&1)
-    NH="network.host: "
-    HOST="${HOST//$NH}"
+    if [ -f "${CONFIG_FILE}" ]; then   
+        HOST=$(grep -hr "network.host:" "${CONFIG_FILE}" 2>&1)
+        NH="network.host: "
+        HOST="${HOST//$NH}"
 
-    # Allow to find ip with an interface
-    if [[ "${HOST}" =~ ^(([1-9]?[0-9]|1[0-9][0-9]|2([0-4][0-9]|5[0-5]))\.){3}([1-9]?[0-9]|1[0-9][0-9]|2([0-4][0-9]|5[0-5]))$ ]]; then
-        :
-    else
-        interface="${HOST//_}"
-        HOST=$(ip -o -4 addr list ${interface} | awk '{print $4}' | cut -d/ -f1)
+        # Allow to find ip with an interface
+        PATTERN="^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$"
+        if [[ ! "${HOST}" =~ ${PATTERN} ]]; then
+            interface="${HOST//_}"
+            HOST=$(ip -o -4 addr list "${interface}" | awk '{print $4}' | cut -d/ -f1)
+        fi
+
+        if [ "${HOST}" = "0.0.0.0" ]; then
+            HOST="127.0.0.1"
+        fi
     fi
-
-    if [ "${HOST}" = "0.0.0.0" ]; then
-        HOST="127.0.0.1"
-    fi
-
 }
 
 # -----------------------------------------------------------------------------
+getPort() {
 
-PORT=$(grep -hr 'transport.tcp.port' "${CONFIG_PATH}/opensearch.yml" 2>&1)
-if [ "${PORT}" ]; then
-    PORT=$(echo ${PORT} | cut -d' ' -f2 | cut -d'-' -f1)
-else
-    PORT="9300"
-fi
+    if [ -f "${CONFIG_FILE}" ]; then
+        PORT=$(grep -hr 'transport.tcp.port' "${CONFIG_FILE}" 2>&1)
+        if [ "${PORT}" ]; then
+            PORT=$(echo "${PORT}" | cut -d' ' -f2 | cut -d'-' -f1)
+        else
+            PORT="9300"
+        fi
+    fi
 
+}
 # -----------------------------------------------------------------------------
 
 securityadmin() {
 
-    if [ ! -d "$INSTALL_PATH" ]; then
+    getPort
+
+    if [ ! -f "${CONFIG_FILE}" ]; then
+        echo "ERROR: it was not possible to find ${CONFIG_FILE}"
+        exit 1
+    elif [ ! -d "${INSTALL_PATH}" ]; then
         echo "ERROR: it was not possible to find ${INSTALL_PATH}"
         exit 1
-    elif [ ! -d "$SECURITY_PATH" ]; then
+    elif [ ! -d "${SECURITY_PATH}" ]; then
         echo "ERROR: it was not possible to find ${SECURITY_PATH}"
         exit 1
     elif [ ! -d "${INSTALL_PATH}/jdk" ]; then
         echo "ERROR: it was not possible to find ${INSTALL_PATH}/jdk"
         exit 1
-    elif [ ! -d "$CONFIG_PATH" ]; then
+    elif [ ! -d "${CONFIG_PATH}" ]; then
         echo "ERROR: it was not possible to find ${CONFIG_PATH}"
         exit 1
     fi
 
     if [ -f "${WAZUH_INDEXER_ADMIN_PATH}/admin.pem" ] && [ -f "${WAZUH_INDEXER_ADMIN_PATH}/admin-key.pem" ] && [ -f "${WAZUH_INDEXER_ROOT_CA}" ]; then
         OPENSEARCH_PATH_CONF="${CONFIG_PATH}" JAVA_HOME="${INSTALL_PATH}/jdk" runuser wazuh-indexer --shell="/bin/bash" --command="${SECURITY_PATH}/tools/securityadmin.sh -cd ${SECURITY_PATH}/securityconfig -cacert ${WAZUH_INDEXER_ROOT_CA} -cert ${WAZUH_INDEXER_ADMIN_PATH}/admin.pem -key ${WAZUH_INDEXER_ADMIN_PATH}/admin-key.pem -h ${HOST} -p ${PORT} ${OPTIONS}"
-    elif [ ! -f "${CONFIG_PATH}/opensearch.yml" ]; then
-        echo "ERROR: it was not possible to find /etc/wazuh-indexer/opensearch.yml"
-        exit 1
     else
         echo "ERROR: this tool try to find admin.pem and admin-key.pem in ${WAZUH_INDEXER_ADMIN_PATH} but it couldn't. In this case, you must run manually the Indexer security initializer by running the command: JAVA_HOME="/usr/share/wazuh-indexer/jdk" runuser wazuh-indexer --shell="/bin/bash" --command="/usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -cd /usr/share/wazuh-indexer/plugins/opensearch-security/plugins/opensearch-security/securityconfig -cacert /path/to/root-ca.pem -cert /path/to/admin.pem -key /path/to/admin-key.pem -h ${HOST} -p ${PORT} ${OPTIONS}" replacing /path/to/ by your certificates path."
         exit 1
@@ -86,11 +93,12 @@ help() {
     echo "    --options <options>   [Optional] Custom securityadmin options."
     echo "    -h, --help            Show this help."
     echo
-    exit $1
+    exit "$1"
 }
 
 
 main() {
+
     getNetworkHost
 
     while [ -n "$1" ]
@@ -129,6 +137,7 @@ main() {
     done
 
     securityadmin
+
 }
 
 main "$@"
