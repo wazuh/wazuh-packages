@@ -11,10 +11,13 @@
 CONFIG_PATH="/etc/wazuh-indexer"
 CONFIG_FILE="${CONFIG_PATH}/opensearch.yml"
 
-    if [ ! -f "${CONFIG_FILE}" ]; then
-        echo "ERROR: it was not possible to find ${CONFIG_FILE}"
-        exit 1
-    fi
+if [ ! -d "${CONFIG_PATH}" ]; then
+    echo "ERROR: it was not possible to find ${CONFIG_PATH}"
+    exit 1
+elif [ ! -f "${CONFIG_FILE}" ]; then
+    echo "ERROR: it was not possible to find ${CONFIG_FILE}"
+    exit 1
+fi
 
 HOST=""
 INSTALL_PATH="/usr/share/wazuh-indexer"
@@ -73,9 +76,6 @@ securityadmin() {
         exit 1
     elif [ ! -d "${INSTALL_PATH}/jdk" ]; then
         echo "ERROR: it was not possible to find ${INSTALL_PATH}/jdk"
-        exit 1
-    elif [ ! -d "${CONFIG_PATH}" ]; then
-        echo "ERROR: it was not possible to find ${CONFIG_PATH}"
         exit 1
     fi
 
