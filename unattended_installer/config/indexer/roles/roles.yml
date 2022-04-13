@@ -141,8 +141,9 @@ wazuh_ui_user:
     masked_fields: []
     allowed_actions:
     - "read"
+    - "indices:admin/get"
   tenant_permissions: []
-  static: false        
+  static: false
 
 wazuh_ui_admin:
   reserved: true
