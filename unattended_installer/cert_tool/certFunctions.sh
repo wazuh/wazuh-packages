@@ -160,7 +160,7 @@ function cert_generateRootCAcertificate() {
     common_logger -d "Creating the root certificate."
 
     eval "openssl req -x509 -new -nodes -newkey rsa:2048 -keyout /tmp/wazuh-certificates/root-ca.key -out /tmp/wazuh-certificates/root-ca.pem -batch -subj '/OU=Wazuh/O=Wazuh/L=California/' -days 3650 ${debug}"
-    
+
 }
 
 function cert_parseYaml() {
