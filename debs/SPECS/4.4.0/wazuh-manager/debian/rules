@@ -193,8 +193,8 @@ override_dh_install:
 	cp etc/templates/config/ubuntu/20/04/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/ubuntu/20/04
 
 	# Add debug symbols
-	mkdir -p ${TARGET_DIR_SYMS}/${INSTALLATION_DIR}/.symbols
-	cp src/symbols/* ${TARGET_DIR_SYMS}/${INSTALLATION_DIR}/.symbols
+	mkdir -p ${TARGET_DIR_SYMS}/${INSTALLATION_DIR}
+	mv ${TARGET_DIR}/${INSTALLATION_DIR}/.symbols ${TARGET_DIR_SYMS}/${INSTALLATION_DIR}/.symbols
 
 override_dh_fixperms:
 	dh_fixperms

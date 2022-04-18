@@ -26,7 +26,7 @@ Wazuh helps you to gain security visibility into your infrastructure by monitori
 hosts at an operating system and application level. It provides the following capabilities:
 log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 
-%package -n wazuh-agent-debuginfo
+%package -n wazuh-manager-debuginfo
 Summary: Debug info for Wazuh
 Group: Development/Libraries
 Requires: wazuh-manager = %{version}-%{release}
@@ -830,7 +830,7 @@ rm -fr %{buildroot}
 %dir %attr(750, root, wazuh) %{_localstatedir}/wodles/gcloud
 %attr(750, root, wazuh) %{_localstatedir}/wodles/gcloud/*
 
-%files -n wazuh-agent-debuginfo
+%files -n wazuh-manager-debuginfo
 %dir %attr(750, root, root) %{_localstatedir}/.symbols
 %attr(640, root, root) %{_localstatedir}/.symbols/*
 
