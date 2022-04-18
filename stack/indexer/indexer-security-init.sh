@@ -116,6 +116,12 @@ main() {
         "-ho"|"--host")
             if [ -n "$2" ]; then
                 HOST="$2"
+                isIP=$(echo "${2}" | grep -P "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")
+                isDNS=$(echo "${2}" | grep -P "^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$")
+                if [[ -z "${isIP}" ]] &&  [[ -z "${isDNS}" ]]; then
+                    echo "The given information does not match with an IP address or a DNS."
+                    exit 1
+                fi
                 shift 2
             else
                 help 1
@@ -124,6 +130,10 @@ main() {
         "-p"|"--port")
             if [ -n "$2" ]; then
                 PORT="$2"
+                if [[ -z $(echo "${2}" | grep -P "^([1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$") ]]; then
+                    echo "The given information does not match with a valid PORT address."
+                    exit 1
+                fi
                 shift 2
             else
                 help 1
