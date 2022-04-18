@@ -39,22 +39,20 @@ SECURITY_PATH="${INSTALL_PATH}/plugins/opensearch-security"
 # -----------------------------------------------------------------------------
 
 getNetworkHost() {
+  
+    HOST=$(grep -hr "network.host:" "${CONFIG_FILE}" 2>&1)
+    NH="network.host: "
+    HOST="${HOST//$NH}"
 
-    if [ -f "${CONFIG_FILE}" ]; then   
-        HOST=$(grep -hr "network.host:" "${CONFIG_FILE}" 2>&1)
-        NH="network.host: "
-        HOST="${HOST//$NH}"
+    # Allow to find ip with an interface
+    PATTERN="^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$"
+    if [[ ! "${HOST}" =~ ${PATTERN} ]]; then
+        interface="${HOST//_}"
+        HOST=$(ip -o -4 addr list "${interface}" | awk '{print $4}' | cut -d/ -f1)
+    fi
 
-        # Allow to find ip with an interface
-        PATTERN="^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$"
-        if [[ ! "${HOST}" =~ ${PATTERN} ]]; then
-            interface="${HOST//_}"
-            HOST=$(ip -o -4 addr list "${interface}" | awk '{print $4}' | cut -d/ -f1)
-        fi
-
-        if [ "${HOST}" = "0.0.0.0" ]; then
-            HOST="127.0.0.1"
-        fi
+    if [ "${HOST}" = "0.0.0.0" ]; then
+        HOST="127.0.0.1"
     fi
 
 }
@@ -62,15 +60,13 @@ getNetworkHost() {
 # -----------------------------------------------------------------------------
 getPort() {
 
-    if [ -f "${CONFIG_FILE}" ]; then
-        PORT=$(grep -hr 'transport.tcp.port' "${CONFIG_FILE}" 2>&1)
-        if [ "${PORT}" ]; then
-            PORT=$(echo "${PORT}" | cut -d' ' -f2 | cut -d'-' -f1)
-        else
-            PORT="9300"
-        fi
+    PORT=$(grep -hr 'transport.tcp.port' "${CONFIG_FILE}" 2>&1)
+    if [ "${PORT}" ]; then
+        PORT=$(echo "${PORT}" | cut -d' ' -f2 | cut -d'-' -f1)
+    else
+        PORT="9300"
     fi
-
+  
 }
 # -----------------------------------------------------------------------------
 
