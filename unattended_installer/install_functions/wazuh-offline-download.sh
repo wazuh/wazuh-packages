@@ -84,7 +84,7 @@ function offline_download() {
 
   curl -so ${DEST_PATH}/GPG-KEY-WAZUH https://packages.wazuh.com/key/GPG-KEY-WAZUH
 
-  curl -so ${DEST_PATH}/filebeat.yml ${resources}/open-distro/filebeat/7.x/filebeat_all_in_one.yml
+  curl -so ${DEST_PATH}/filebeat.yml ${resources}/tpl/wazuh/filebeat/filebeat.yml
 
   curl -so ${DEST_PATH}/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/${wazuh_major}/extensions/elasticsearch/7.x/wazuh-template.json
 
