@@ -6,7 +6,6 @@ BRANCH=$1
 JOBS=$2
 DEBUG=$3
 REVISION=$4
-DEBUG_SYMBOLS_PATH=$5
 ZIP_NAME="windows_agent_${REVISION}.zip"
 
 URL_REPO=https://github.com/wazuh/wazuh/archive/${BRANCH}.zip
@@ -16,7 +15,7 @@ wget -O wazuh.zip ${URL_REPO} && unzip wazuh.zip
 
 # Compile the wazuh agent for Windows
 FLAGS="-j ${JOBS} "
-VERSION=$(cat wazuh-*/src/VERSION)
+VERSION=$(cat wazuh-*/src/VERSION | cut -dv -f2)
 ZIP_SYMBOLS_NAME="wazuh-agent-windows-x86_64-debug-info-${VERSION}-${REVISION}.zip"
 
 if [[ "${DEBUG}" = "yes" ]]; then
@@ -27,7 +26,7 @@ rm /wazuh-*/src/symbols/.gitignore
 
 make -C /wazuh-*/src deps TARGET=winagent ${FLAGS}
 
-if [ ! -z "${DEBUG_SYMBOLS_PATH}" ]; then
+if [ ! -z "/tools" ]; then
     make -C /wazuh-*/src TARGET=winagent ${FLAGS} WIN_STRIP_TOOL_PATH=/tools
 else
     make -C /wazuh-*/src TARGET=winagent ${FLAGS}
