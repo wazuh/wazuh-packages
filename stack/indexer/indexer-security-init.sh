@@ -43,6 +43,7 @@ getNetworkHost() {
     HOST=$(grep -hr "network.host:" "${CONFIG_FILE}" 2>&1)
     NH="network.host: "
     HOST="${HOST//$NH}"
+    HOST="${HOST//\"}"
 
     # Allow to find ip with an interface
     PATTERN="^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$"
