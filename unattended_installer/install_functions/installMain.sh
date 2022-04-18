@@ -182,6 +182,10 @@ function main() {
                     common_logger -e "Error on arguments. Probably missing <deb|rpm> after -dw|--download-wazuh"
                     getHelp
                     exit 1
+                elif [ "${2}" != "deb" ] && [ "${2}" != "rpm" ]; then
+                    common_logger -e "Error on arguments. Probably missing <deb|rpm> after -dw|--download-wazuh"
+                    getHelp
+                    exit 1
                 fi
                 download=1
                 package_type="${2}"
