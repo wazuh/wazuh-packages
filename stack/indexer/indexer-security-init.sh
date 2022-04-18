@@ -31,7 +31,7 @@ fi
 
 HOST=""
 OPTIONS="-icl -nhnv"
-WAZUH_INDEXER_ROOT_CA="$(cat ${CONFIG_FILE} 2>&1 | grep http.pemtrustedcas | sed 's/.*: //')"
+WAZUH_INDEXER_ROOT_CA="$(cat ${CONFIG_FILE} 2>&1 | grep http.pemtrustedcas | sed 's/.*: //' | tr -d "[\"\']")"
 WAZUH_INDEXER_ADMIN_PATH="$(dirname "${WAZUH_INDEXER_ROOT_CA}" 2>&1)"
 SECURITY_PATH="${INSTALL_PATH}/plugins/opensearch-security"
 
@@ -43,7 +43,7 @@ getNetworkHost() {
     HOST=$(grep -hr "network.host:" "${CONFIG_FILE}" 2>&1)
     NH="network.host: "
     HOST="${HOST//$NH}"
-    HOST="${HOST//\"}"
+    HOST=$(echo "${HOST}" | tr -d "[\"\']")
 
     # Allow to find ip with an interface
     PATTERN="^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$"
@@ -67,6 +67,7 @@ getPort() {
     else
         PORT="9300"
     fi
+    PORT=$(echo "${PORT}" | tr -d "[\"\']")
 
 }
 # -----------------------------------------------------------------------------
@@ -117,6 +118,7 @@ main() {
         "-ho"|"--host")
             if [ -n "$2" ]; then
                 HOST="$2"
+                HOST=$(echo "${HOST}" | tr -d "[\"\']")
                 isIP=$(echo "${2}" | grep -P "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")
                 isDNS=$(echo "${2}" | grep -P "^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$")
                 if [[ -z "${isIP}" ]] &&  [[ -z "${isDNS}" ]]; then
@@ -131,6 +133,7 @@ main() {
         "-p"|"--port")
             if [ -n "$2" ]; then
                 PORT="$2"
+                PORT=$(echo "${PORT}" | tr -d "[\"\']")
                 if [[ -z $(echo "${2}" | grep -P "^([1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$") ]]; then
                     echo "The given information does not match with a valid PORT number."
                     exit 1
