@@ -39,7 +39,7 @@ SECURITY_PATH="${INSTALL_PATH}/plugins/opensearch-security"
 # -----------------------------------------------------------------------------
 
 getNetworkHost() {
-  
+
     HOST=$(grep -hr "network.host:" "${CONFIG_FILE}" 2>&1)
     NH="network.host: "
     HOST="${HOST//$NH}"
@@ -66,7 +66,7 @@ getPort() {
     else
         PORT="9300"
     fi
-  
+
 }
 # -----------------------------------------------------------------------------
 
@@ -93,7 +93,7 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -h, --host <host>     [Optional] Target IP or DNS to configure security."
+    echo "    -ho, --host <host>    [Optional] Target IP or DNS to configure security."
     echo "    -p, --port <port>     [Optional] wazuh-indexer security port."
     echo "    --options <options>   [Optional] Custom securityadmin options."
     echo "    -h, --help            Show this help."
@@ -113,7 +113,7 @@ main() {
         "-h"|"--help")
             help 0
             ;;
-        "-h"|"--host")
+        "-ho"|"--host")
             if [ -n "$2" ]; then
                 HOST="$2"
                 shift 2
