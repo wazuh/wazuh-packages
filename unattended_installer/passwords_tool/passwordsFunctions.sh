@@ -84,8 +84,8 @@ function passwords_checkUser() {
 
 function passwords_createBackUp() {
 
-    if [ -z "${indexer_installed}" ] && [ -z "${dashboardsinstalled}" ] && [ -z "${filebeat_installed}" ]; then
-        common_logger -e "Cannot find Wazuh indexer, Wazuh dashboards or Filebeat on the system."
+    if [ -z "${indexer_installed}" ] && [ -z "${dashboardinstalled}" ] && [ -z "${filebeat_installed}" ]; then
+        common_logger -e "Cannot find Wazuh indexer, Wazuh dashboard or Filebeat on the system."
         exit 1;
     else
         if [ -n "${indexer_installed}" ]; then
@@ -366,7 +366,7 @@ function passwords_runSecurityAdmin() {
 
     if [[ -n "${nuser}" ]] && [[ -n ${autopass} ]]; then
         common_logger $'\nThe password for user '${nuser}' is '${password}''
-        common_logger -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/wazuh-dashboard/dashboards.yml if necessary and restart the services."
+        common_logger -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/wazuh-dashboard/opensearch_dashboards.yml if necessary and restart the services."
     fi
 
     if [[ -n "${nuser}" ]] && [[ -z ${autopass} ]]; then
