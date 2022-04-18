@@ -76,8 +76,6 @@ getPort() {
 
 securityadmin() {
 
-    getPort
-
     if [ ! -d "${SECURITY_PATH}" ]; then
         echo "ERROR: it was not possible to find ${SECURITY_PATH}"
         exit 1
@@ -111,6 +109,7 @@ help() {
 main() {
 
     getNetworkHost
+    getPort
 
     while [ -n "$1" ]
     do
