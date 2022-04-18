@@ -16,7 +16,7 @@ readonly bucket="packages-dev.wazuh.com"
 readonly repository="pre-release" #use 4.x for production
 
 ## Links and paths to resources
-readonly resources="https://${bucket}/resources/${wazuh_major}"
+readonly resources="https://${bucket}/${wazuh_major}"
 readonly BASE_URL="https://${bucket}/${repository}"
 readonly base_path="$(dirname $(readlink -f "$0"))"
 config_file="${base_path}/config.yml"
