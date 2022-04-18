@@ -9,22 +9,32 @@
 # Foundation.
 
 CONFIG_PATH="/etc/wazuh-indexer"
-CONFIG_FILE="${CONFIG_PATH}/opensearch.yml"
 
 if [ ! -d "${CONFIG_PATH}" ]; then
     echo "ERROR: it was not possible to find ${CONFIG_PATH}"
     exit 1
-elif [ ! -f "${CONFIG_FILE}" ]; then
+fi
+
+CONFIG_FILE="${CONFIG_PATH}/opensearch.yml"
+
+if [ ! -f "${CONFIG_FILE}" ]; then
     echo "ERROR: it was not possible to find ${CONFIG_FILE}"
     exit 1
 fi
 
-HOST=""
 INSTALL_PATH="/usr/share/wazuh-indexer"
+
+if [ ! -d "${INSTALL_PATH}" ]; then
+        echo "ERROR: it was not possible to find ${INSTALL_PATH}"
+        exit 1
+fi
+
+HOST=""
 OPTIONS="-icl -nhnv"
 WAZUH_INDEXER_ROOT_CA="$(cat ${CONFIG_FILE} 2>&1 | grep http.pemtrustedcas | sed 's/.*: //')"
 WAZUH_INDEXER_ADMIN_PATH="$(dirname "${WAZUH_INDEXER_ROOT_CA}" 2>&1)"
 SECURITY_PATH="${INSTALL_PATH}/plugins/opensearch-security"
+
 
 # -----------------------------------------------------------------------------
 
@@ -68,10 +78,7 @@ securityadmin() {
 
     getPort
 
-    if [ ! -d "${INSTALL_PATH}" ]; then
-        echo "ERROR: it was not possible to find ${INSTALL_PATH}"
-        exit 1
-    elif [ ! -d "${SECURITY_PATH}" ]; then
+    if [ ! -d "${SECURITY_PATH}" ]; then
         echo "ERROR: it was not possible to find ${SECURITY_PATH}"
         exit 1
     elif [ ! -d "${INSTALL_PATH}/jdk" ]; then
