@@ -131,7 +131,7 @@ main() {
             if [ -n "$2" ]; then
                 PORT="$2"
                 if [[ -z $(echo "${2}" | grep -P "^([1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$") ]]; then
-                    echo "The given information does not match with a valid PORT address."
+                    echo "The given information does not match with a valid PORT number."
                     exit 1
                 fi
                 shift 2
