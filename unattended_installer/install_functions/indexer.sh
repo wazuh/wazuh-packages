@@ -12,14 +12,13 @@ function indexer_configure() {
     eval "export JAVA_HOME=/usr/share/wazuh-indexer/jdk/"
 
     # Configure JVM options for Wazuh indexer
-    ram_gb=$(free -g | awk '/^Mem:/{print $2}')
-    ram=$(( ram_gb / 2 ))
+    ram="$(( ram_gb / 2 ))"
 
     if [ "${ram}" -eq "0" ]; then
-        ram=1;
+        ram=1024;
     fi
-    eval "sed -i "s/-Xms1g/-Xms${ram}g/" /etc/wazuh-indexer/jvm.options ${debug}"
-    eval "sed -i "s/-Xmx1g/-Xmx${ram}g/" /etc/wazuh-indexer/jvm.options ${debug}"
+    eval "sed -i "s/-Xms1g/-Xms${ram}m/" /etc/wazuh-indexer/jvm.options ${debug}"
+    eval "sed -i "s/-Xmx1g/-Xmx${ram}m/" /etc/wazuh-indexer/jvm.options ${debug}"
 
     if [ -n "${AIO}" ]; then
         eval "installCommon_getConfig indexer/indexer_all_in_one.yml /etc/wazuh-indexer/opensearch.yml ${debug}"
