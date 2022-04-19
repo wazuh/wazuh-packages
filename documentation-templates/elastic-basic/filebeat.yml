@@ -19,4 +19,5 @@ output.elasticsearch.protocol: https
 output.elasticsearch.ssl.certificate: /etc/filebeat/certs/filebeat.crt
 output.elasticsearch.ssl.key: /etc/filebeat/certs/filebeat.key
 output.elasticsearch.ssl.certificate_authorities: /etc/filebeat/certs/ca/ca.crt
+output.elasticsearch.ssl.verification_mode: strict
 output.elasticsearch.username: elastic
