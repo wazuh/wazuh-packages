@@ -74,8 +74,6 @@ function getHelp() {
 function main() {
     umask 177
 
-    common_checkRoot
-
     if [ -z "${1}" ]; then
         getHelp
     fi
@@ -85,6 +83,7 @@ function main() {
         case "${1}" in
             "-a"|"--all-in-one")
                 AIO=1
+                common_checkRoot
                 shift 1
                 ;;
             "-ds"|"--disable-spinner")
@@ -92,6 +91,7 @@ function main() {
                 shift 1
                 ;;
             "-c"|"--configfile")
+                common_checkRoot
                 if [ -z "${2}" ]; then
                     common_logger -e "Error on arguments. Probably missing <path-to-config-yml> after -c|--configfile"
                     getHelp
@@ -102,10 +102,12 @@ function main() {
                 shift 2
                 ;;
             "-F"|"--force-dashboard")
+                common_checkRoot
                 force=1
                 shift 1
                 ;;
             "-g"|"--generate-configurations")
+                common_checkRoot
                 configurations=1
                 shift 1
                 ;;
@@ -113,18 +115,22 @@ function main() {
                 getHelp
                 ;;
             "-i"|"--ignore-check")
+                common_checkRoot
                 ignore=1
                 shift 1
                 ;;
             "-o"|"--overwrite")
+                common_checkRoot
                 overwrite=1
                 shift 1
                 ;;
             "-s"|"--start-cluster")
+                common_checkRoot
                 start_indexer_cluster=1
                 shift 1
                 ;;
             "-t"|"--tar")
+                common_checkRoot
                 if [ -z "${2}" ]; then
                     common_logger -e "Error on arguments. Probably missing <path-to-certs-tar> after -t|--tar"
                     getHelp
@@ -135,6 +141,7 @@ function main() {
                 shift 2
                 ;;
             "-u"|"--uninstall")
+                common_checkRoot
                 uninstall=1
                 shift 1
                 ;;
@@ -148,6 +155,7 @@ function main() {
                 shift 1
                 ;;
             "-wd"|"--wazuh-dashboard")
+                common_checkRoot
                 if [ -z "${2}" ]; then
                     common_logger -e "Error on arguments. Probably missing <node-name> after -wd|---wazuh-dashboard"
                     getHelp
@@ -158,6 +166,7 @@ function main() {
                 shift 2
                 ;;
             "-wi"|"--wazuh-indexer")
+                common_checkRoot
                 if [ -z "${2}" ]; then
                     common_logger -e "Arguments contain errors. Probably missing <node-name> after -wi|--wazuh-indexer."
                     getHelp
@@ -168,6 +177,7 @@ function main() {
                 shift 2
                 ;;
             "-ws"|"--wazuh-server")
+                common_checkRoot
                 if [ -z "${2}" ]; then
                     common_logger -e "Error on arguments. Probably missing <node-name> after -ws|--wazuh-server"
                     getHelp
