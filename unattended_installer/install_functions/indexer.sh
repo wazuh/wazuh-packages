@@ -12,7 +12,8 @@ function indexer_configure() {
     eval "export JAVA_HOME=/usr/share/wazuh-indexer/jdk/"
 
     # Configure JVM options for Wazuh indexer
-    ram="$(( ram_gb / 2 ))"
+    ram_mb=$(free -m | awk '/^Mem:/{print $2}')
+    ram="$(( ram_mb / 2 ))"
 
     if [ "${ram}" -eq "0" ]; then
         ram=1024;
