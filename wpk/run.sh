@@ -164,7 +164,6 @@ main() {
     fi
 
     WAZUH_VERSION=$(cat src/VERSION)
-    SHORT_VERSION=$(echo ${WAZUH_VERSION} | cut -dv -f2)
     MAJOR=$(echo ${WAZUH_VERSION} | cut -dv -f2 | cut -d. -f1)
     MINOR=$(echo ${WAZUH_VERSION} | cut -d. -f2)
 
@@ -177,7 +176,7 @@ main() {
         # Compile agent
         make -C src -j ${JOBS} TARGET=${BUILD_TARGET} || exit 1
         rm -rf ./src/symbols/.gitignore
-        tar -C src/symbols -czf ${OUTDIR}/wazuh-${BUILD_TARGET}-linux-x86_64-debug-info-${SHORT_VERSION}-${REVISION}.tar.gz --owner=0 --group=0 .
+        tar -C src/symbols -czf ${OUTDIR}/wazuh-${BUILD_TARGET}-linux-x86_64-debug-info-${WAZUH_VERSION}-${REVISION}.tar.gz --owner=0 --group=0 .
         echo "tar.gz symbols file created placed in ${OUTDIR} with name = wazuh-${BUILD_TARGET}-linux-x86_64-debug-info-${WAZUH_VERSION}-${REVISION}.tar.gz"
         # Clean unuseful files
         clean
