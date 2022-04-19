@@ -84,7 +84,7 @@ function passwords_checkUser() {
 
 function passwords_createBackUp() {
 
-    if [ -z "${indexer_installed}" ] && [ -z "${dashboardinstalled}" ] && [ -z "${filebeat_installed}" ]; then
+    if [ -z "${indexer_installed}" ] && [ -z "${dashboard_installed}" ] && [ -z "${filebeat_installed}" ]; then
         common_logger -e "Cannot find Wazuh indexer, Wazuh dashboard or Filebeat on the system."
         exit 1;
     else
