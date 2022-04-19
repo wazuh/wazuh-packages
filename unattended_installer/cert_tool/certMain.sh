@@ -140,7 +140,7 @@ function main() {
 
         if [[ -d ${base_path}/wazuh-certificates ]]; then
             if [ ! -z "$(ls -A ${base_path}/wazuh-certificates)" ]; then
-                common_logger -e "Directory ${base_path}/wazuh-certificates already exists. Please, remove the certs directory to create new certificates."
+                common_logger -e "Directory wazuh-certificates already exists in the same path as the script. Please, remove the certs directory to create new certificates."
                 exit 1
             fi
         fi

@@ -25,7 +25,7 @@ function checks_arguments() {
             rm -f "${tar_file}"
         fi
         if [ -n "${configurations}" ]; then
-            common_logger -e "File ${tar_file} exists. Please remove it if you want to use a new configuration."
+            common_logger -e "File ${tar_file} already exists. Please remove it if you want to use a new configuration."
             exit 1
         fi
     fi

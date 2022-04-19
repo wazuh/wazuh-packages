@@ -277,7 +277,7 @@ function cert_readConfig() {
         fi
 
     else
-        common_logger -e "No configuration file found. ${config_file}."
+        common_logger -e "No configuration file found."
         exit 1
     fi
 
