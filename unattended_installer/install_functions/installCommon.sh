@@ -15,7 +15,7 @@ function installCommon_cleanExit() {
     fi
 
     until [[ "${rollback_conf}" =~ ^[N|Y|n|y]$ ]]; do
-        echo -ne "\nDo you want to clean the ongoing installation?[Y/N]"
+        echo -ne "\nDo you want to remove the ongoing installation?[Y/N]"
         read -r rollback_conf
     done
     if [[ "${rollback_conf}" =~ [N|n] ]]; then
