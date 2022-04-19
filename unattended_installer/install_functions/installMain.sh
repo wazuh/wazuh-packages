@@ -22,9 +22,6 @@ function getHelp() {
     echo -e "        -c,  --configfile <path-to-config-yml>"
     echo -e "                Path to the configuration file. By default: ${base_path}/config.yml"
     echo -e ""
-    echo -e "        -ds,  --disable-spinner"
-    echo -e "                Disables the spinner indicator."
-    echo -e ""
     echo -e "        -F,  --force-dashboard"
     echo -e "                Ignore Wazuh indexer cluster connection errors in Wazuh dashboard installation"
     echo -e ""
@@ -85,10 +82,6 @@ function main() {
         case "${1}" in
             "-a"|"--all-in-one")
                 AIO=1
-                shift 1
-                ;;
-            "-ds"|"--disable-spinner")
-                disableSpinner=1
                 shift 1
                 ;;
             "-c"|"--configfile")
@@ -198,12 +191,6 @@ function main() {
         common_logger "Filebeat version: ${filebeat_version}"
         common_logger "Wazuh installation assistant version: ${wazuh_install_vesion}"
         exit 0
-    fi
-
-    if [ -z "${disableSpinner}" ]; then
-        installCommon_spin &
-        spin_pid=$!
-        trap "kill -9 ${spin_pid} > /dev/null 2>&1" EXIT
     fi
 
     common_logger "Starting Wazuh installation assistant. Wazuh version: ${wazuh_version}"

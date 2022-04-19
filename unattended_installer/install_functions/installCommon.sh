@@ -27,22 +27,6 @@ function installCommon_cleanExit() {
 
 }
 
-function installCommon_spin() {
-
-    trap "{ tput el1; exit 0; }" 15
-    spinner="/|\\-/|\\-"
-    trap "echo ''" EXIT
-    while :
-    do
-        for i in $(seq 0 7)
-        do
-            echo -n "${spinner:$i:1}"
-            echo -en "\010"
-            sleep 0.1
-        done
-    done
-}
-
 function installCommon_addWazuhRepo() {
 
     common_logger -d "Adding the Wazuh repository."
