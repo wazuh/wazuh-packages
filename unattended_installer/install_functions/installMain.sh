@@ -79,9 +79,9 @@ function main() {
     fi
 
     arguments=( $@ )
-    for a in ${arguments[@]}; do
-        if [ "${a}" != "-dw" ] && [ "${a}" != "--download-wazuh" ] && [ "${a}" != "-V" ] && [ "${a}" != "-h" ]; then
-            if [[ "${a}" == -* ]]; then
+    for args in ${arguments[@]}; do
+        if [ "${args}" != "-dw" ] && [ "${args}" != "--download-wazuh" ] && [ "${args}" != "-V" ] && [ "${args}" != "-h" ]; then
+            if [[ "${args}" == -* ]]; then
                 common_checkRoot
             fi
         fi
