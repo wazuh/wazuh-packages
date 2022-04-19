@@ -19,13 +19,13 @@ function getHelp() {
     echo -e "        -a,  --all-in-one"
     echo -e "                Install and configure Wazuh server, Wazuh indexer, Wazuh dashboard and Filebeat."
     echo -e ""
-    echo -e "        -c,  --configfile <path-to-config-yml>"
+    echo -e "        -c,  --config-file <path-to-config-yml>"
     echo -e "                Path to the configuration file. By default the script will search for a file named config.yml in the same route"
     echo -e ""
-    echo -e "        -F,  --force-dashboard"
+    echo -e "        -fd,  --force-install-dahsboard"
     echo -e "                Ignore Wazuh indexer cluster connection errors in Wazuh dashboard installation"
     echo -e ""
-    echo -e "        -g,  --generate-configurations"
+    echo -e "        -g,  --generate-config-files"
     echo -e "                Generate wazuh-install-files.tar file containing the files that will be needed for installation from config.yml. In distributed deployments you will need to copy this file to other hosts."
     echo -e ""
     echo -e "        -h,  --help"
@@ -84,9 +84,9 @@ function main() {
                 AIO=1
                 shift 1
                 ;;
-            "-c"|"--configfile")
+            "-c"|"--config-file")
                 if [ -z "${2}" ]; then
-                    common_logger -e "Error on arguments. Probably missing <path-to-config-yml> after -c|--configfile"
+                    common_logger -e "Error on arguments. Probably missing <path-to-config-yml> after -c|--config-file"
                     getHelp
                     exit 1
                 fi
@@ -94,11 +94,11 @@ function main() {
                 config_file="${2}"
                 shift 2
                 ;;
-            "-F"|"--force-dashboard")
+            "-fd"|"--force-install-dahsboard")
                 force=1
                 shift 1
                 ;;
-            "-g"|"--generate-configurations")
+            "-g"|"--generate-config-files")
                 configurations=1
                 shift 1
                 ;;
