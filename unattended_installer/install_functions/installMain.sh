@@ -74,11 +74,18 @@ function getHelp() {
 function main() {
     umask 177
 
-    common_checkRoot
-
     if [ -z "${1}" ]; then
         getHelp
     fi
+
+    arguments=( $@ )
+    for args in ${arguments[@]}; do
+        if [ "${args}" != "-dw" ] && [ "${args}" != "--download-wazuh" ] && [ "${args}" != "-V" ] && [ "${args}" != "-h" ]; then
+            if [[ "${args}" == -* ]]; then
+                common_checkRoot
+            fi
+        fi
+    done
 
     while [ -n "${1}" ]
     do
@@ -178,7 +185,7 @@ function main() {
                 shift 2
                 ;;
             "-dw"|"--download-wazuh")
-                if [ -z "${2}" ]; then
+                if [ "${2}" != "deb" ] && [ "${2}" != "rpm" ]; then
                     common_logger -e "Error on arguments. Probably missing <deb|rpm> after -dw|--download-wazuh"
                     getHelp
                     exit 1
