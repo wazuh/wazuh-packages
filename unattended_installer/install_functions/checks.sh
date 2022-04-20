@@ -25,13 +25,13 @@ function checks_arguments() {
             rm -f "${tar_file}"
         fi
         if [ -n "${configurations}" ]; then
-            common_logger -e "File ${tar_file} exists. Please remove it if you want to use a new configuration."
+            common_logger -e "File ${tar_file} already exists. Please remove it if you want to use a new configuration."
             exit 1
         fi
     fi
 
     if [[ -n "${configurations}" && ( -n "${AIO}" || -n "${indexer}" || -n "${dashboard}" || -n "${wazuh}" || -n "${overwrite}" || -n "${start_indexer_cluster}" || -n "${tar_conf}" || -n "${uninstall}" ) ]]; then
-        common_logger -e "The argument -g|--generate-configurations can't be used with -a|--all-in-one, -o|--overwrite, -s|--start-cluster, -t|--tar, -u|--uninstall, -wd|--wazuh-dashboard, -wi|--wazuh-indexer, or -ws|--wazuh-server."
+        common_logger -e "The argument -g|--generate-config-files can't be used with -a|--all-in-one, -o|--overwrite, -s|--start-cluster, -t|--tar, -u|--uninstall, -wd|--wazuh-dashboard, -wi|--wazuh-indexer, or -ws|--wazuh-server."
         exit 1
     fi
 
@@ -52,19 +52,19 @@ function checks_arguments() {
         fi
 
         if [ -z "${wazuh_installed}" ] && [ -z "${wazuh_remaining_files}" ]; then
-            common_logger "Wazuh manager components were not found on the system so it was not uninstalled."
+            common_logger "Wazuh manager not found in the system so it was not uninstalled."
         fi
 
         if [ -z "${filebeat_installed}" ] && [ -z "${filebeat_remaining_files}" ]; then
-            common_logger "Filebeat components were not found on the system so it was not uninstalled."
+            common_logger "Filebeat not found in the system so it was not uninstalled."
         fi
 
         if [ -z "${indexer_installed}" ] && [ -z "${indexer_remaining_files}" ]; then
-            common_logger "Wazuh Indexer components were not found on the system so it was not uninstalled."
+            common_logger "Wazuh Indexer not found in the system so it was not uninstalled."
         fi
 
         if [ -z "${dashboard_installed}" ] && [ -z "${dashboard_remaining_files}" ]; then
-            common_logger "Wazuh Dashboard components were not found on the system so it was not uninstalled."
+            common_logger "Wazuh Dashboard not found in the system so it was not uninstalled."
         fi
 
     fi
@@ -157,19 +157,19 @@ function checks_arguments() {
     # -------------- Cluster start ----------------------------------
 
     if [[ -n "${start_indexer_cluster}" && ( -n "${AIO}" || -n "${indexer}" || -n "${dashboard}" || -n "${wazuh}" || -n "${overwrite}" || -n "${configurations}" || -n "${tar_conf}" || -n "${uninstall}") ]]; then
-        common_logger -e "The argument -s|--start-cluster can't be used with -a|--all-in-one, -g|--generate-configurations,-o|--overwrite , -u|--uninstall, -wi|--wazuh-indexer, -wd|--wazuh-dashboard, -s|--start-cluster, -ws|--wazuh-server."
+        common_logger -e "The argument -s|--start-cluster can't be used with -a|--all-in-one, -g|--generate-config-files,-o|--overwrite , -u|--uninstall, -wi|--wazuh-indexer, -wd|--wazuh-dashboard, -s|--start-cluster, -ws|--wazuh-server."
         exit 1
     fi
 
     # -------------- Global -----------------------------------------
 
     if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_indexer_cluster}" ] && [ -z "${configurations}" ] && [ -z "${uninstall}" ] && [ -z "${download}" ]; then
-        common_logger -e "At least one of these arguments is necessary -a|--all-in-one, -g|--generate-configurations, -wi|--wazuh-indexer, -wd|--wazuh-dashboard, -s|--start-cluster, -ws|--wazuh-server, -u|--uninstall, -dw|--download-wazuh."
+        common_logger -e "At least one of these arguments is necessary -a|--all-in-one, -g|--generate-config-files, -wi|--wazuh-indexer, -wd|--wazuh-dashboard, -s|--start-cluster, -ws|--wazuh-server, -u|--uninstall, -dw|--download-wazuh."
         exit 1
     fi
 
     if [ -n "${force}" ] && [ -z  "${dashboard}" ]; then
-        common_logger -e "The -F|--force-dashboard argument needs to be used alongside -wd|--wazuh-dashboard."
+        common_logger -e "The -fd|--force-install-dahsboard argument needs to be used alongside -wd|--wazuh-dashboard."
         exit 1
     fi 
 
@@ -273,7 +273,7 @@ function checks_names() {
 function checks_previousCertificate() {
 
     if [ ! -f "${tar_file}" ]; then
-        common_logger -e "Cannot find ${tar_file}. Run the script with the option -g|--generate-configurations to create it or copy it from another node."
+        common_logger -e "Cannot find ${tar_file}. Run the script with the option -g|--generate-config-files to create it or copy it from another node."
         exit 1
     fi
 

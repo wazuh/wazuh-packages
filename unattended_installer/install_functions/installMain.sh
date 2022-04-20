@@ -19,17 +19,14 @@ function getHelp() {
     echo -e "        -a,  --all-in-one"
     echo -e "                Install and configure Wazuh server, Wazuh indexer, Wazuh dashboard and Filebeat."
     echo -e ""
-    echo -e "        -c,  --configfile <path-to-config-yml>"
-    echo -e "                Path to the configuration file. By default: ${base_path}/config.yml"
+    echo -e "        -c,  --config-file <path-to-config-yml>"
+    echo -e "                Path to the configuration file. By default, the Wazuh installation assistant will search for a file named config.yml in the same path."
     echo -e ""
-    echo -e "        -ds,  --disable-spinner"
-    echo -e "                Disables the spinner indicator."
-    echo -e ""
-    echo -e "        -F,  --force-dashboard"
+    echo -e "        -fd,  --force-install-dahsboard"
     echo -e "                Ignore Wazuh indexer cluster connection errors in Wazuh dashboard installation"
     echo -e ""
-    echo -e "        -g,  --generate-configurations"
-    echo -e "                Generate ${tar_file} file from ${config_file} containing the files that will be needed for installation. You will need to copy this file to other hosts in distributed deployments."
+    echo -e "        -g,  --generate-config-files"
+    echo -e "                Generate wazuh-install-files.tar file containing the files that will be needed for installation from config.yml. In distributed deployments you will need to copy this file to other hosts."
     echo -e ""
     echo -e "        -h,  --help"
     echo -e "                Display this help and exit."
@@ -44,7 +41,7 @@ function getHelp() {
     echo -e "                Initialize Wazuh indexer cluster security settings."
     echo -e ""
     echo -e "        -t,  --tar <path-to-certs-tar>"
-    echo -e "                Path to tar containing certificate files. By default: ${base_path}/wazuh-install-files.tar"
+    echo -e "                Path to tar containing certificate files. By default, the Wazuh installation assistant will search for a file named wazuh-install-files.tar in the same path."
     echo -e ""
     echo -e "        -u,  --uninstall"
     echo -e "                Uninstalls all Wazuh components. This will erase all the existing configuration and data."
@@ -56,16 +53,16 @@ function getHelp() {
     echo -e "                Shows the version of the script and Wazuh packages."
     echo -e ""
     echo -e "        -wd,  --wazuh-dashboard <dashboard-node-name>"
-    echo -e "                Install and configure Wazuh dashboard."
+    echo -e "                Install and configure Wazuh dashboard, used for distributed environments."
     echo -e ""
     echo -e "        -wi,  --wazuh-indexer <indexer-node-name>"
-    echo -e "                Install and configure Wazuh indexer."
+    echo -e "                Install and configure Wazuh indexer, used for distributed environments."
     echo -e ""
     echo -e "        -ws,  --wazuh-server <wazuh-node-name>"
-    echo -e "                Install and configure Wazuh server and Filebeat."
+    echo -e "                Install and configure Wazuh server and Filebeat, used for distributed environments."
     echo -e ""
     echo -e "        -dw,  --download-wazuh <deb|rpm>"
-    echo -e "                Download Wazuh Package for Offline Install."
+    echo -e "                Download all the packages necessary for offline installation."
     exit 1
 
 }
@@ -94,13 +91,9 @@ function main() {
                 AIO=1
                 shift 1
                 ;;
-            "-ds"|"--disable-spinner")
-                disableSpinner=1
-                shift 1
-                ;;
-            "-c"|"--configfile")
+            "-c"|"--config-file")
                 if [ -z "${2}" ]; then
-                    common_logger -e "Error on arguments. Probably missing <path-to-config-yml> after -c|--configfile"
+                    common_logger -e "Error on arguments. Probably missing <path-to-config-yml> after -c|--config-file"
                     getHelp
                     exit 1
                 fi
@@ -108,11 +101,11 @@ function main() {
                 config_file="${2}"
                 shift 2
                 ;;
-            "-F"|"--force-dashboard")
+            "-fd"|"--force-install-dahsboard")
                 force=1
                 shift 1
                 ;;
-            "-g"|"--generate-configurations")
+            "-g"|"--generate-config-files")
                 configurations=1
                 shift 1
                 ;;
@@ -205,12 +198,6 @@ function main() {
         common_logger "Filebeat version: ${filebeat_version}"
         common_logger "Wazuh installation assistant version: ${wazuh_install_vesion}"
         exit 0
-    fi
-
-    if [ -z "${disableSpinner}" ]; then
-        installCommon_spin &
-        spin_pid=$!
-        trap "kill -9 ${spin_pid} > /dev/null 2>&1" EXIT
     fi
 
     common_logger "Starting Wazuh installation assistant. Wazuh version: ${wazuh_version}"

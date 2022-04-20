@@ -15,7 +15,7 @@ function installCommon_cleanExit() {
     fi
 
     until [[ "${rollback_conf}" =~ ^[N|Y|n|y]$ ]]; do
-        echo -ne "\nDo you want to clean the ongoing installation?[Y/N]"
+        echo -ne "\nDo you want to remove the ongoing installation?[Y/N]"
         read -r rollback_conf
     done
     if [[ "${rollback_conf}" =~ [N|n] ]]; then
@@ -25,22 +25,6 @@ function installCommon_cleanExit() {
         exit 1
     fi
 
-}
-
-function installCommon_spin() {
-
-    trap "{ tput el1; exit 0; }" 15
-    spinner="/|\\-/|\\-"
-    trap "echo ''" EXIT
-    while :
-    do
-        for i in $(seq 0 7)
-        do
-            echo -n "${spinner:$i:1}"
-            echo -en "\010"
-            sleep 0.1
-        done
-    done
 }
 
 function installCommon_addWazuhRepo() {
