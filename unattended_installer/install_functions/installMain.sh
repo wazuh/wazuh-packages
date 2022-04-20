@@ -20,7 +20,7 @@ function getHelp() {
     echo -e "                Install and configure Wazuh server, Wazuh indexer, Wazuh dashboard and Filebeat."
     echo -e ""
     echo -e "        -c,  --config-file <path-to-config-yml>"
-    echo -e "                Path to the configuration file. By default the script will search for a file named config.yml in the same route"
+    echo -e "                Path to the configuration file. By default, the Wazuh installation assistant will search for a file named config.yml in the same path."
     echo -e ""
     echo -e "        -fd,  --force-install-dahsboard"
     echo -e "                Ignore Wazuh indexer cluster connection errors in Wazuh dashboard installation"
