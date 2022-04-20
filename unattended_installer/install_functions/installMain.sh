@@ -41,7 +41,7 @@ function getHelp() {
     echo -e "                Initialize Wazuh indexer cluster security settings."
     echo -e ""
     echo -e "        -t,  --tar <path-to-certs-tar>"
-    echo -e "                Path to tar containing certificate files. By default the script will search for a file named wazuh-install-files.tar in the same route."
+    echo -e "                Path to tar containing certificate files. By default, the Wazuh installation assistant will search for a file named wazuh-install-files.tar in the same path."
     echo -e ""
     echo -e "        -u,  --uninstall"
     echo -e "                Uninstalls all Wazuh components. This will erase all the existing configuration and data."
