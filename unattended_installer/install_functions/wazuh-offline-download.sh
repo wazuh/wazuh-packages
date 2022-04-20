@@ -27,9 +27,9 @@ function offline_download() {
   do
 
     package_name="${package}_${package_type}_package"
-    eval "package_base_url="${package}_${package_type}_base_url""
+    eval "package_base_url=${package}_${package_type}_base_url"
 
-    eval "curl -so ${dest_path}/${package_name} ${package_base_url}/${package_name}"
+    eval "curl -so ${dest_path}/${!package_name} ${!package_base_url}/${!package_name}"
     if [  "$?" != 0  ]; then
         common_logger -e "The ${package} package could not be downloaded. Exiting."
         exit 1
@@ -53,25 +53,22 @@ function offline_download() {
     eval "mkdir -m700 -p ${dest_path}" # Create folder if it does not exist
   fi
 
-  files_to_download=( "https://packages.wazuh.com/key/GPG-KEY-WAZUH"
-                      "${resources}/tpl/wazuh/filebeat/filebeat.yml"
-                      "https://raw.githubusercontent.com/wazuh/wazuh/${wazuh_major}/extensions/elasticsearch/7.x/wazuh-template.json"
-                      "${base_url}/filebeat/wazuh-filebeat-0.1.tar.gz" )
+  files_to_download=( ${wazuh_gpg_key} ${filebeat_config_file} ${filebeat_wazuh_template} ${filebeat_wazuh_module} )
 
-  cd ${dest_path}
+  eval "cd ${dest_path}"
   for file in "${files_to_download[@]}"
   do
 
-    eval "curl -sO ${files_to_download}"
+    eval "curl -sO ${file}"
     if [  "$?" != 0  ]; then
-        common_logger -e "The resource ${files_to_download} could not be downloaded. Exiting."
+        common_logger -e "The resource ${file} could not be downloaded. Exiting."
         exit 1
     else
-        common_logger "The resource ${files_to_download} was downloaded."
+        common_logger "The resource ${file} was downloaded."
     fi
 
   done
-  cd -
+  eval "cd - > /dev/null"
 
   eval "chmod 500 ${base_dest_folder}"
 
