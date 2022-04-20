@@ -39,7 +39,7 @@ help() {
     echo "    -r, --revision <rev>      [Optional] Package revision. By default: 1."
     echo "    -s, --store <path>        [Optional] Set the directory where the package will be stored. By default the current path."
     echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
-    echo "    -cv, --cv2pdb-tool <path> [Optional] Path where the dll libraries and the cv2pdb executable to build debug symbols are located."
+    echo "    -c, --cv2pdb-tool <path>  [Optional] Path where the dll libraries and the cv2pdb executable to build debug symbols are located. Path must be absolute, if you use relative path won't work"
     echo "    -h, --help                Show this help."
     echo
     exit $1
@@ -63,7 +63,7 @@ main() {
         "-h"|"--help")
             help 0
             ;;
-        "-cv"|"--cv2pdb-tool")
+        "-c"|"--cv2pdb-tool")
             if [ -n "$2" ]; then
                 CV2PDB_TOOLS_PATH="$2"
                 shift 2
