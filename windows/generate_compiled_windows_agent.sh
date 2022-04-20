@@ -37,7 +37,7 @@ help() {
     echo "    -r, --revision <rev>      [Optional] Package revision. By default: 1."
     echo "    -s, --store <path>        [Optional] Set the directory where the package will be stored. By default the current path."
     echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
-    echo "    -c, --cv2pdb-tool <path>  [Optional] Absolute path where cv2pdb tools to build debug symbols are located."
+    echo "    -c, --cv2pdb-tool <path>  [Optional] Absolute path where cv2pdb tools to extract debug symbols are located."
     echo "    -h, --help                Show this help."
     echo
     exit $1
