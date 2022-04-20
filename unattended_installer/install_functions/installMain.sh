@@ -62,7 +62,7 @@ function getHelp() {
     echo -e "                Install and configure Wazuh server and Filebeat, used for distributed environments."
     echo -e ""
     echo -e "        -dw,  --download-wazuh <deb|rpm>"
-    echo -e "                Download all the packages necessary for the installation assistant."
+    echo -e "                Download all the packages necessary for offline installation."
     exit 1
 
 }

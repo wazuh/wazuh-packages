@@ -12,7 +12,7 @@ function offline_download() {
 
   common_logger "Starting Wazuh packages download."
 
-  common_logger "Downloading Wazuh ${package_type} packages for ${arch}..."
+  common_logger "Downloading Wazuh ${package_type} packages for ${arch}."
 
   DEST_PATH="${BASE_DEST_FOLDER}/wazuh-packages"
 
@@ -25,7 +25,7 @@ function offline_download() {
       for p in ${WAZUH_DEB_PACKAGES[@]}; do
           # Download packages for Wazuh
           curl -so ${DEST_PATH}/$p ${WAZUH_DEB_BASE_URL}/$p
-          common_logger "Wazuh deb package downloaded"
+          common_logger "Wazuh Manager deb package downloaded"
       done
 
       for p in ${FILEBEAT_DEB_PACKAGES[@]}; do
@@ -48,7 +48,7 @@ function offline_download() {
       for p in ${WAZUH_RPM_PACKAGES[@]}; do
           # Download packages for Wazuh
           curl -so ${DEST_PATH}/$p ${WAZUH_RPM_BASE_URL}/$p
-          common_logger "Wazuh rpm package downloaded"
+          common_logger "Wazuh Manager rpm package downloaded"
       done
       for p in ${FILEBEAT_RPM_PACKAGES[@]}; do
           # Download packages for Filebeat
@@ -72,7 +72,7 @@ function offline_download() {
     ;;
   esac
 
-  common_logger "The packages are in ${DEST_PATH}"
+  common_logger "Downloaded packages stored in ${DEST_PATH}"
 
   common_logger "Downloading Configuration Files"
 
