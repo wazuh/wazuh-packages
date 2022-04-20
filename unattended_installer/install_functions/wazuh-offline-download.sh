@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Wazuh installer: offline download
-# Copyright (C) 2015-2021, Wazuh Inc.
+# Copyright (C) 2021, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
@@ -11,85 +11,71 @@
 function offline_download() {
 
   common_logger "Starting Wazuh packages download."
-
   common_logger "Downloading Wazuh ${package_type} packages for ${arch}."
+  dest_path="${base_dest_folder}/wazuh-packages"
 
-  DEST_PATH="${BASE_DEST_FOLDER}/wazuh-packages"
+  if [ -d ${dest_path} ]; then
+    eval "rm -f ${dest_path}/*" # Clean folder before downloading specific versions
+    eval "chmod 700 ${dest_path}"
+  else
+    eval "mkdir -m700 -p ${dest_path}" # Create folder if it does not exist
+  fi
 
-  mkdir -p ${DEST_PATH} # Create folder if it does not exist
+  packages_to_download=( "manager" "filebeat" "indexer" "dashboard" )
 
-  rm -f ${VERBOSE} ${DEST_PATH}/* # Clean folder before downloading specific versions
+  for package in "${packages_to_download[@]}"
+  do
 
-  case "${package_type}" in
-    "deb")
-      for p in ${WAZUH_DEB_PACKAGES[@]}; do
-          # Download packages for Wazuh manager
-          curl -so ${DEST_PATH}/$p ${WAZUH_DEB_BASE_URL}/$p
-          common_logger "Wazuh manager deb package downloaded"
-      done
-      for p in ${FILEBEAT_DEB_PACKAGES[@]}; do
-          # Download packages for Filebeat
-          curl -so ${DEST_PATH}/$p ${FILEBEAT_DEB_BASE_URL}/$p
-          common_logger "Filebeat deb package downloaded"
-      done
-      for p in ${INDEXER_DEB_PACKAGES[@]}; do
-          # Download packages for Wazuh indexer
-          curl -so ${DEST_PATH}/$p ${INDEXER_DEB_BASE_URL}/$p
-          common_logger "Wazuh indexer deb package downloaded"
-      done
-      for p in ${DASHBOARD_DEB_PACKAGES[@]}; do
-          # Download packages for Wazuh dashboard
-          curl -so ${DEST_PATH}/$p ${DASHBOARD_DEB_BASE_URL}/$p
-          common_logger "Wazuh dashboard deb package downloaded"
-      done
-    ;;
-    "rpm")
-      for p in ${WAZUH_RPM_PACKAGES[@]}; do
-          # Download packages for Wazuh manager
-          curl -so ${DEST_PATH}/$p ${WAZUH_RPM_BASE_URL}/$p
-          common_logger "Wazuh manager rpm package downloaded"
-      done
-      for p in ${FILEBEAT_RPM_PACKAGES[@]}; do
-          # Download packages for Filebeat
-          curl -so ${DEST_PATH}/$p ${FILEBEAT_RPM_BASE_URL}/$p
-          common_logger "Filebeat rpm package downloaded"
-      done
-      for p in ${INDEXER_RPM_PACKAGES[@]}; do
-          # Download packages for Wazuh Indexer
-          curl -so ${DEST_PATH}/$p ${INDEXER_RPM_BASE_URL}/$p
-          common_logger "Wazuh indexer rpm package downloaded"
-      done
-      for p in ${DASHBOARD_RPM_PACKAGES[@]}; do
-          # Download packages for Wazuh Dashboard
-          curl -so ${DEST_PATH}/$p ${DASHBOARD_RPM_BASE_URL}/$p
-          common_logger "Wazuh dashboard rpm package downloaded"
-      done
-    ;;
-    *)
-      print_unknown_args
-      exit 0
-    ;;
-  esac
+    package_name="${package}_${package_type}_package"
+    eval "package_base_url=${package}_${package_type}_base_url"
 
-  common_logger "Downloaded packages stored in ${DEST_PATH}"
+    eval "curl -so ${dest_path}/${!package_name} ${!package_base_url}/${!package_name}"
+    if [  "$?" != 0  ]; then
+        common_logger -e "The ${package} package could not be downloaded. Exiting."
+        exit 1
+    else
+        common_logger "The ${package} package was downloaded."
+    fi
 
-  common_logger "Downloading Configuration Files"
+  done
 
-  DEST_PATH="${BASE_DEST_FOLDER}/wazuh-files"
+  common_logger "The packages are in ${dest_path}"
 
-  mkdir -p ${DEST_PATH} # Create folder if it does not exist
+# --------------------------------------------------
 
-  rm -f ${VERBOSE} ${DEST_PATH}/* # Clean folder before downloading specific versions
+  common_logger "Downloading configuration files and assets."
+  dest_path="${base_dest_folder}/wazuh-files"
 
-  curl -so ${DEST_PATH}/GPG-KEY-WAZUH https://packages.wazuh.com/key/GPG-KEY-WAZUH
+  if [ -d ${dest_path} ]; then
+    eval "rm -f ${dest_path}/*" # Clean folder before downloading specific versions
+    eval "chmod 700 ${dest_path}"
+  else
+    eval "mkdir -m700 -p ${dest_path}" # Create folder if it does not exist
+  fi
 
-  curl -so ${DEST_PATH}/filebeat.yml ${resources}/tpl/wazuh/filebeat/filebeat.yml
+  files_to_download=( ${wazuh_gpg_key} ${filebeat_config_file} ${filebeat_wazuh_template} ${filebeat_wazuh_module} )
 
-  curl -so ${DEST_PATH}/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/${wazuh_major}/extensions/elasticsearch/7.x/wazuh-template.json
+  eval "cd ${dest_path}"
+  for file in "${files_to_download[@]}"
+  do
 
-  curl -so ${DEST_PATH}/wazuh-filebeat-module.tar.gz ${BASE_URL}/filebeat/wazuh-filebeat-0.1.tar.gz
+    eval "curl -sO ${file}"
+    if [  "$?" != 0  ]; then
+        common_logger -e "The resource ${file} could not be downloaded. Exiting."
+        exit 1
+    else
+        common_logger "The resource ${file} was downloaded."
+    fi
 
-  common_logger "The Configuration Files are in ${DEST_PATH}"
+  done
+  eval "cd - > /dev/null"
+
+  eval "chmod 500 ${base_dest_folder}"
+
+  common_logger "The configuration files and assets are in ${dest_path}"
+
+  eval "tar -czf ${base_dest_folder}.tar.gz ${base_dest_folder}"
+  eval "chmod -R 700 ${base_dest_folder} && rm -rf ${base_dest_folder}"
 
   common_logger "You can follow the installation guide here https://documentation.wazuh.com/current/installation-guide/more-installation-alternatives/offline-installation.html"
 
