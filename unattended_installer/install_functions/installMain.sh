@@ -53,16 +53,16 @@ function getHelp() {
     echo -e "                Shows the version of the script and Wazuh packages."
     echo -e ""
     echo -e "        -wd,  --wazuh-dashboard <dashboard-node-name>"
-    echo -e "                Install and configure Wazuh dashboard."
+    echo -e "                Install and configure Wazuh dashboard, used for distributed environments."
     echo -e ""
     echo -e "        -wi,  --wazuh-indexer <indexer-node-name>"
-    echo -e "                Install and configure Wazuh indexer."
+    echo -e "                Install and configure Wazuh indexer, used for distributed environments."
     echo -e ""
     echo -e "        -ws,  --wazuh-server <wazuh-node-name>"
-    echo -e "                Install and configure Wazuh server and Filebeat."
+    echo -e "                Install and configure Wazuh server and Filebeat, used for distributed environments."
     echo -e ""
     echo -e "        -dw,  --download-wazuh <deb|rpm>"
-    echo -e "                Download Wazuh Package for Offline Install."
+    echo -e "                Download all the packages necessary for the installation assistant."
     exit 1
 
 }
