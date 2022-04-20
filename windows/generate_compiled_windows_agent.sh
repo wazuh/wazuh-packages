@@ -14,7 +14,9 @@ TAG=$1
 
 
 generate_compiled_win_agent() {
-if [ ! -d "${OUTDIR}" ]; then echo "Creating building directory at ${OUTDIR}"
+
+    if [ ! -d "${OUTDIR}" ]; then
+        echo "Creating building directory at ${OUTDIR}"
         mkdir -p ${OUTDIR}
     fi
 
