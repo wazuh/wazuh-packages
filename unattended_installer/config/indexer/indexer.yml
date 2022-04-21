@@ -16,7 +16,6 @@ plugins.security.nodes_dn:
 plugins.security.authcz.admin_dn:
 - CN=admin,OU=Wazuh,O=Wazuh,L=California,C=US
 
-plugins.security.audit.type: internal_elasticsearch
 plugins.security.enable_snapshot_restore_privilege: true
 plugins.security.check_snapshot_restore_write_privileges: true
 plugins.security.restapi.roles_enabled: ["all_access", "security_rest_api_access"]
