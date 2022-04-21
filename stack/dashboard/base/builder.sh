@@ -87,6 +87,10 @@ sed -i 's|opensearch_logo_h_default.a|"/ui/wazuh_logo_circle.svg"|g' ./plugins/s
 sed -i 's|Please login to OpenSearch Dashboards|Welcome to Wazuh|g' ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js
 # Replace OpenSearch login subtitle with Wazuh login subtitle
 sed -i 's|If you have forgotten your username or password, please ask your system administrator|The Open Source Security Platform|g' ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js
+# Disable first time pop-up tenant selector
+sed -i 's|setShouldShowTenantPopup(shouldShowTenantPopup)|setShouldShowTenantPopup(false)|g' ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
+gzip -c ./plugins/securityDashboards/target/public/securityDashboards.plugin.js > ./plugins/securityDashboards/target/public/securityDashboards.plugin.js.gz
+brotli -c ./plugins/securityDashboards/target/public/securityDashboards.plugin.js > ./plugins/securityDashboards/target/public/securityDashboards.plugin.js.br
 # Generate compressed files
 gzip -c ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js > ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js.gz
 brotli -c ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js > ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js.br
