@@ -78,14 +78,14 @@ function installCommon_aptInstall() {
     fi
     eval "DEBIAN_FRONTEND=noninteractive apt-get install ${installer} -y -q ${debug}"
     install_result="$?"
-    eval "tail -n 2 ${logfile} | grep 'Could not get lock'"
+    eval "tail -n 2 ${logfile} | grep -q 'Could not get lock'"
     grep_result="$?"
     while [ "${grep_result}" -eq 0 ] && [ "${i}" -lt 12 ]; do
         sleep 10
         i=$((i+1))
         eval "DEBIAN_FRONTEND=noninteractive apt-get install ${installer} -y -q ${debug}"
         install_result="$?"
-        eval "tail -n 2 ${logfile} | grep 'Could not get lock'"
+        eval "tail -n 2 ${logfile} | grep -q 'Could not get lock'"
         grep_result="$?"
     done
 
