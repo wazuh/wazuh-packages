@@ -388,16 +388,6 @@ if [ $1 = 0 ]; then
   fi
   %{_localstatedir}/bin/wazuh-control stop > /dev/null 2>&1
 
-  # Check for systemd
-  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
-    systemctl disable wazuh-agent > /dev/null 2>&1
-    systemctl daemon-reload > /dev/null 2>&1
-  # Check for SysV
-  elif command -v service > /dev/null 2>&1 && command -v chkconfig > /dev/null 2>&1; then
-    chkconfig wazuh-agent off > /dev/null 2>&1
-    chkconfig --del wazuh-agent > /dev/null 2>&1
-  fi
-
   # Remove the SELinux policy
   if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
     if [ $(getenforce) != "Disabled" ]; then
