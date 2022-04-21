@@ -35,6 +35,24 @@ WAZUH_INDEXER_ROOT_CA="$(cat ${CONFIG_FILE} 2>&1 | grep http.pemtrustedcas | sed
 WAZUH_INDEXER_ADMIN_PATH="$(dirname "${WAZUH_INDEXER_ROOT_CA}" 2>&1)"
 SECURITY_PATH="${INSTALL_PATH}/plugins/opensearch-security"
 
+# -----------------------------------------------------------------------------
+
+trap ctrl_c INT
+
+clean(){
+
+    exit_code=$1
+    indexer_process_id=$(pgrep -f wazuh-indexer -c)
+    if [ "${indexer_process_id}" -gt 1 ]; then
+        pkill -n -f wazuh-indexer
+    fi
+    exit "${exit_code}"
+    
+}
+
+ctrl_c() {
+    clean 1
+}
 
 # -----------------------------------------------------------------------------
 
