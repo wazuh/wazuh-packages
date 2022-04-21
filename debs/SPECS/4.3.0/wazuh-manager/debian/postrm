@@ -12,15 +12,6 @@ case "$1" in
             rm -rf ${WAZUH_TMP_DIR}
         fi
 
-        # Check for systemd
-        if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-manager > /dev/null 2>&1; then
-            systemctl disable wazuh-manager > /dev/null 2>&1
-            systemctl daemon-reload > /dev/null 2>&1
-        # Check for SysV
-        elif command -v service > /dev/null 2>&1 && service wazuh-manager status 2>/dev/null | grep "running" > /dev/null 2>&1; then
-            update-rc.d -f wazuh-manager remove > /dev/null 2>&1
-        fi
-
         # Back up the old configuration files as .save
         if [ ! -d ${DIR}/etc/shared/default ]; then
             mkdir -p ${DIR}/etc/shared/default

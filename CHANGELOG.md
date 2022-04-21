@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [v4.3.0]
 
+- Remove service disable from RPM and Debian packages [#1471](https://github.com/wazuh/wazuh-packages/pull/1480)
 - Disabled multitenancy by default in dashboard and changed the app default route [#1471](https://github.com/wazuh/wazuh-packages/pull/1471)
 - Set as warning the unhandled promises in wazuh dashboard [#1434](https://github.com/wazuh/wazuh-packages/pull/1434/)
 - Remove ip message from OVA [#1395](https://github.com/wazuh/wazuh-packages/pull/1395)
