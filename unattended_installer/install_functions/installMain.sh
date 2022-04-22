@@ -82,6 +82,11 @@ function main() {
                 common_checkRoot
             fi
         fi
+        if [ "${args}" == "-wi" ] && [ "${args}" == "-wd" ] && [ "${args}" == "-ws" ] && [ "${args}" == "--wazuh-dashboard" ] && [ "${args}" == "--wazuh-indexer" ] && [ "${args}" == "--wazuh-server" ]; then
+            if [[ "${2}" == -* ]]; then
+                common_logger -e "Error on argument ${args}. Probably missing <node-name> after ${args} or ${2} Can't start with -"
+            fi
+        fi
     done
 
     while [ -n "${1}" ]
