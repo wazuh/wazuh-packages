@@ -175,6 +175,9 @@ main() {
 
         # Compile agent
         make -C src -j ${JOBS} TARGET=${BUILD_TARGET} || exit 1
+        rm -rf ./src/symbols/.gitignore
+        tar -C src/symbols -czf ${OUTDIR}/wazuh-${BUILD_TARGET}-linux-x86_64-debug-info-${WAZUH_VERSION}-${REVISION}.tar.gz --owner=0 --group=0 .
+        echo "tar.gz symbols file created placed in ${OUTDIR} with name = wazuh-${BUILD_TARGET}-linux-x86_64-debug-info-${WAZUH_VERSION}-${REVISION}.tar.gz"
         # Clean unuseful files
         clean
         # Preload vars for installer
@@ -219,7 +222,7 @@ main() {
 clean() {
     rm -rf ./{api,framework}
     rm -rf doc wodles/oscap/content/* gen_ossec.sh add_localfiles.sh Jenkinsfile*
-    rm -rf src/{addagent,analysisd,client-agent,config,error_messages,external/*}
+    rm -rf src/{addagent,analysisd,client-agent,config,error_messages,external/*,symbols/*}
     rm -rf src/{headers,logcollector,monitord,os_auth,os_crypto,os_csyslogd}
     rm -rf src/{os_dbdos_execd,os_integrator,os_maild,os_netos_regex,os_xml,os_zlib}
     rm -rf src/{remoted,reportd,shared,syscheckd,tests,update,wazuh_db}
