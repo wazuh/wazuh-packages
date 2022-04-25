@@ -6,6 +6,7 @@ REVISION="1"
 DEBUG="no"
 OUTDIR="$(pwd)"
 REVISION="1"
+CV2PDB_TOOLS_PATH=""
 
 DOCKERFILE_PATH="./"
 DOCKER_IMAGE_NAME="compile_windows_agent"
@@ -20,7 +21,11 @@ generate_compiled_win_agent() {
     fi
 
     docker build -t ${DOCKER_IMAGE_NAME} ./ || exit 1
-    docker run --rm -v ${OUTDIR}:/shared ${DOCKER_IMAGE_NAME} ${BRANCH} ${JOBS} ${DEBUG} ${REVISION} || exit 1
+    if [ ! -z "{CV2PDB_TOOLS_PATH}" ]; then
+        docker run --rm -v ${OUTDIR}:/shared -v ${CV2PDB_TOOLS_PATH}:/tools ${DOCKER_IMAGE_NAME} ${BRANCH} ${JOBS} ${DEBUG} ${REVISION} || exit 1
+    else
+        docker run --rm -v ${OUTDIR}:/shared ${DOCKER_IMAGE_NAME} ${BRANCH} ${JOBS} ${DEBUG} ${REVISION} || exit 1
+    fi
     echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
 }
 
@@ -34,6 +39,7 @@ help() {
     echo "    -r, --revision <rev>      [Optional] Package revision. By default: 1."
     echo "    -s, --store <path>        [Optional] Set the directory where the package will be stored. By default the current path."
     echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
+    echo "    -c, --cv2pdb-tool <path>  [Optional] Absolute path where cv2pdb tools to extract debug symbols are located."
     echo "    -h, --help                Show this help."
     echo
     exit $1
@@ -56,6 +62,14 @@ main() {
             ;;
         "-h"|"--help")
             help 0
+            ;;
+        "-c"|"--cv2pdb-tool")
+            if [ -n "$2" ]; then
+                CV2PDB_TOOLS_PATH="$2"
+                shift 2
+            else
+                help 1
+            fi
             ;;
         "-j"|"--jobs")
             if [ -n "$2" ]; then
