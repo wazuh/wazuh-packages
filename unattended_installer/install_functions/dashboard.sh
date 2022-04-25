@@ -121,7 +121,7 @@ function dashboard_initialize() {
         done
         common_logger "${flag}" "Failed to connect with ${failed_nodes[*]}. Connection refused."
         if [ -z "${force}" ]; then
-            common_logger "If want to install Wazuh dashboard without waiting for the Wazuh indexer cluster, use the -F option"
+            common_logger "If want to install Wazuh dashboard without waiting for the Wazuh indexer cluster, use the -fd option"
             installCommon_rollBack
             exit 1
         else

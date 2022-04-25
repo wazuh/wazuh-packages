@@ -278,21 +278,21 @@ function checks_previousCertificate() {
     fi
 
     if [ -n "${indxname}" ]; then
-        if ! $(tar -tf "${tar_file}" | grep -q "${indxname}".pem) || ! $(tar -tf "${tar_file}" | grep -q "${indxname}"-key.pem); then
+        if ! $(tar -tf wazuh-install-files.tar wazuh-install-files/${indxname}.pem >/dev/null 2>&1) || ! $(tar -tf wazuh-install-files.tar wazuh-install-files/${indxname}-key.pem >/dev/null 2>&1); then
             common_logger -e "There is no certificate for the indexer node ${indxname} in ${tar_file}."
             exit 1
         fi
     fi
 
     if [ -n "${dashname}" ]; then
-        if ! $(tar -tf "${tar_file}" | grep -q "${dashname}".pem) || ! $(tar -tf "${tar_file}" | grep -q "${dashname}"-key.pem); then
+        if ! $(tar -tf wazuh-install-files.tar wazuh-install-files/${dashname}.pem >/dev/null 2>&1) || ! $(tar -tf wazuh-install-files.tar wazuh-install-files/${dashname}-key.pem >/dev/null 2>&1); then
             common_logger -e "There is no certificate for the Wazuh Dashboard node ${dashname} in ${tar_file}."
             exit 1
         fi
     fi
 
     if [ -n "${winame}" ]; then
-        if ! $(tar -tf "${tar_file}" | grep -q "${winame}".pem) || ! $(tar -tf "${tar_file}" | grep -q "${winame}"-key.pem); then
+        if ! $(tar -tf wazuh-install-files.tar wazuh-install-files/${winame}.pem >/dev/null 2>&1) || ! $(tar -tf wazuh-install-files.tar wazuh-install-files/${winame}-key.pem >/dev/null 2>&1); then
             common_logger -e "There is no certificate for the wazuh server node ${winame} in ${tar_file}."
             exit 1
         fi
