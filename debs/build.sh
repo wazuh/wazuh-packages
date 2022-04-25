@@ -94,10 +94,6 @@ if [ "${build_target}" == "api" ]; then
     fi
 fi
 
-if [[ "${debug}" == "yes" ]]; then
-    sed -i "s:dh_strip --no-automatic-dbgsym::g" ${sources_dir}/debian/rules
-fi
-
 # Installing build dependencies
 cd ${sources_dir}
 mk-build-deps -ir -t "apt-get -o Debug::pkgProblemResolver=yes -y"
@@ -113,10 +109,13 @@ else
 fi
 
 deb_file="wazuh-${build_target}_${wazuh_version}-${package_release}"
+dbg_file="wazuh-${build_target}-dbg_${wazuh_version}-${package_release}"
 if [[ "${architecture_target}" == "ppc64le" ]]; then
   deb_file="${deb_file}_ppc64el.deb"
+  dbg_file="${dbg_file}_ppc64el.deb"
 else
   deb_file="${deb_file}_${architecture_target}.deb"
+  dbg_file="${dbg_file}_${architecture_target}.deb"
 fi
 pkg_path="${build_dir}/${build_target}"
 
@@ -124,3 +123,5 @@ if [[ "${checksum}" == "yes" ]]; then
     cd ${pkg_path} && sha512sum ${deb_file} > /var/local/checksum/${deb_file}.sha512
 fi
 mv ${pkg_path}/${deb_file} /var/local/wazuh
+mv ${pkg_path}/${dbg_file} /var/local/wazuh
+

@@ -26,6 +26,14 @@ Wazuh helps you to gain security visibility into your infrastructure by monitori
 hosts at an operating system and application level. It provides the following capabilities:
 log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 
+%package -n wazuh-manager-debuginfo
+Summary: Debug info for Wazuh
+Group: Development/Libraries
+Requires: wazuh-manager = %{version}-%{release}
+
+%description -n wazuh-manager-debuginfo
+This package contains files necessary for debugging the wazuh-manager with gdb.
+
 %prep
 %setup -q
 
@@ -37,7 +45,7 @@ pushd src
 make clean
 
 # Build Wazuh sources
-make deps TARGET=server
+make -j%{_threads} deps TARGET=server
 make -j%{_threads} TARGET=server USE_SELINUX=yes DEBUG=%{_debugenabled}
 
 popd
@@ -163,9 +171,10 @@ install -m 0640 src/init/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/
 cp src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/src/
 cp src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/src/
 
-if [ %{_debugenabled} = "yes" ]; then
-  %{_rpmconfigdir}/find-debuginfo.sh
-fi
+# Add debug symbols
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.symbols
+cp src/symbols/* ${RPM_BUILD_ROOT}%{_localstatedir}/.symbols
+
 exit 0
 
 %pre
@@ -814,10 +823,9 @@ rm -fr %{buildroot}
 %dir %attr(750, root, wazuh) %{_localstatedir}/wodles/gcloud
 %attr(750, root, wazuh) %{_localstatedir}/wodles/gcloud/*
 
-%if %{_debugenabled} == "yes"
-/usr/lib/debug/%{_localstatedir}/*
-/usr/src/debug/%{name}-%{version}/*
-%endif
+%files -n wazuh-manager-debuginfo
+%dir %attr(750, root, root) %{_localstatedir}/.symbols
+%attr(640, root, root) %{_localstatedir}/.symbols/*
 
 
 %changelog

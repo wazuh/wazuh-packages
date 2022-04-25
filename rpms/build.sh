@@ -53,6 +53,7 @@ fi
 build_dir=/build_wazuh
 rpm_build_dir=${build_dir}/rpmbuild
 file_name="wazuh-${build_target}-${wazuh_version}-${package_release}"
+dbg_file="wazuh-${build_target}-debuginfo-${wazuh_version}-${package_release}"
 rpm_file="${file_name}.${architecture_target}.rpm"
 src_file="${file_name}.src.rpm"
 pkg_path="${rpm_build_dir}/RPMS/${architecture_target}"
@@ -80,6 +81,7 @@ if [[ "${future}" == "yes" ]]; then
     MINOR=$(echo $base_version | cut -d. -f2)
     wazuh_version="${MAJOR}.30.0"
     file_name="wazuh-${build_target}-${wazuh_version}-${package_release}"
+    dbg_file="wazuh-${build_target}-debuginfo-${wazuh_version}-${package_release}"
     old_name="wazuh-${build_target}-${base_version}-${package_release}"
     package_name=wazuh-${build_target}-${wazuh_version}
     old_package_name=wazuh-${build_target}-${base_version}
@@ -129,3 +131,4 @@ if [[ "${src}" == "yes" ]]; then
 fi
 
 find ${extract_path} -maxdepth 3 -type f -name "${file_name}*" -exec mv {} /var/local/wazuh \;
+find ${extract_path} -maxdepth 3 -type f -name "${dbg_file}*" -exec mv {} /var/local/wazuh \;

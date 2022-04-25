@@ -29,6 +29,14 @@ Wazuh helps you to gain security visibility into your infrastructure by monitori
 hosts at an operating system and application level. It provides the following capabilities:
 log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 
+%package -n wazuh-agent-debuginfo
+Summary: Debug info for Wazuh
+Group: Development/Libraries
+Requires: wazuh-agent = %{version}-%{release}
+
+%description -n wazuh-agent-debuginfo
+This package contains files necessary for debugging the wazuh-agent with gdb.
+
 %prep
 %setup -q
 
@@ -40,14 +48,14 @@ pushd src
 make clean
 
 %if 0%{?el} >= 6 || 0%{?rhel} >= 6
-    make deps TARGET=agent
+    make -j%{_threads} deps TARGET=agent
     make -j%{_threads} TARGET=agent USE_SELINUX=yes DEBUG=%{_debugenabled}
 %else
     %ifnarch x86_64
       MSGPACK="USE_MSGPACK_OPT=no"
     %endif
     deps_version=`cat Makefile | grep "DEPS_VERSION =" | cut -d " " -f 3`
-    make deps RESOURCES_URL=http://packages.wazuh.com/deps/${deps_version} TARGET=agent
+    make -j%{_threads} deps RESOURCES_URL=http://packages.wazuh.com/deps/${deps_version} TARGET=agent
     make -j%{_threads} TARGET=agent USE_AUDIT=no USE_SELINUX=yes USE_EXEC_ENVIRON=no DEBUG=%{_debugenabled} ${MSGPACK}
 
 %endif
@@ -168,9 +176,10 @@ install -m 0640 src/init/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/
 cp src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/src/
 cp src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/agent_installation_scripts/src/
 
-if [ %{_debugenabled} = "yes" ]; then
-  %{_rpmconfigdir}/find-debuginfo.sh
-fi
+# Add debug symbols
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.symbols
+cp src/symbols/* ${RPM_BUILD_ROOT}%{_localstatedir}/.symbols
+
 exit 0
 
 %pre
@@ -598,11 +607,9 @@ rm -fr %{buildroot}
 %dir %attr(750, root, wazuh) %{_localstatedir}/wodles/gcloud
 %attr(750, root, wazuh) %{_localstatedir}/wodles/gcloud/*
 
-%if %{_debugenabled} == "yes"
-/usr/lib/debug/%{_localstatedir}/*
-/usr/src/debug/%{name}-%{version}/*
-%endif
-
+%files -n wazuh-agent-debuginfo
+%dir %attr(750, root, root) %{_localstatedir}/.symbols
+%attr(640, root, root) %{_localstatedir}/.symbols/*
 
 %changelog
 * Fri May 05 2023 support <info@wazuh.com> - 4.5.0
