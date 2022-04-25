@@ -8,7 +8,6 @@ path_ova=$2
 dest_ova=$3
 ovf_path=$4
 wazuh_version=$5
-opendistro_version=$6
 file="wazuh-${wazuh_version}"
 mkdir -p ${workspace}/new-ova/
 

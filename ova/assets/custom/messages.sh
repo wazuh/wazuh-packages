@@ -11,7 +11,7 @@ cat > /etc/issue <<EOF
 
 Welcome to the Wazuh OVA version
 Wazuh - ${WAZUH_VERSION}
-Use wazuh/wazuh to login
+Use wazuh-user for username and wazuh for password to login
 Thank you for using Wazuh!
 
 EOF
