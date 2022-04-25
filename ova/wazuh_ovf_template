@@ -51,10 +51,10 @@
       <Item>
         <rasd:AllocationUnits>byte * 2^20</rasd:AllocationUnits>
         <rasd:Description>Memory Size</rasd:Description>
-        <rasd:ElementName>4096MB of memory</rasd:ElementName>
+        <rasd:ElementName>8192MB of memory</rasd:ElementName>
         <rasd:InstanceID>2</rasd:InstanceID>
         <rasd:ResourceType>4</rasd:ResourceType>
-        <rasd:VirtualQuantity>4096</rasd:VirtualQuantity>
+        <rasd:VirtualQuantity>8192</rasd:VirtualQuantity>
       </Item>
       <Item>
         <rasd:Address>1</rasd:Address>
