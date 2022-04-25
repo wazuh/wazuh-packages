@@ -147,7 +147,7 @@ function main() {
                 ;;
             "-v"|"--verbose")
                 debugEnabled=1
-                debug="&>> ${logfile}
+                debug="&>> ${logfile}"
                 shift 1
                 ;;
             "-V"|"--version")
