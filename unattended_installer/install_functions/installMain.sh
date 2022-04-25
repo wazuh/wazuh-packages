@@ -147,7 +147,7 @@ function main() {
                 ;;
             "-v"|"--verbose")
                 debugEnabled=1
-                debug="2>&1 | tee -a ${logfile}"
+                debug="&>> ${logfile}
                 shift 1
                 ;;
             "-V"|"--version")
