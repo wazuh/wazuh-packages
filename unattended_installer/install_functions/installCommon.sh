@@ -221,7 +221,11 @@ function installCommon_getPass() {
 function installCommon_installPrerequisites() {
 
     if [ "${sys_type}" == "yum" ]; then
-        dependencies=( curl unzip wget libcap tar gnupg openssl nmap-ncat )
+        if [ "${distro}" == "Red Hat Enterprise Linux" ] && [ "${rev_mayor}" == "8" ]; then
+            dependencies=( curl wget libcap tar gnupg openssl netcat )
+        else
+            dependencies=( curl wget libcap tar gnupg openssl nmap-ncat )
+        fi
         not_installed=()
         for dep in "${dependencies[@]}"; do
             if [ -z "$(yum list installed 2>/dev/null | grep ${dep})" ];then
@@ -243,7 +247,7 @@ function installCommon_installPrerequisites() {
 
     elif [ "${sys_type}" == "apt-get" ]; then
         eval "apt update -q ${debug}"
-        dependencies=( apt-transport-https curl unzip wget libcap2-bin tar software-properties-common gnupg openssl netcat )
+        dependencies=( apt-transport-https curl wget libcap2-bin tar software-properties-common gnupg openssl netcat )
         not_installed=()
 
         for dep in "${dependencies[@]}"; do

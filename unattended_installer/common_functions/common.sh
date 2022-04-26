@@ -117,6 +117,10 @@ function common_checkSystem() {
     if [ -n "$(command -v yum)" ]; then
         sys_type="yum"
         sep="-"
+        if [ -f /etc/redhat-release ] ; then
+            distro=`cat /etc/redhat-release |sed s/\ release.*//`
+            rev_mayor=`cat /etc/redhat-release | sed s/.*release\ // | sed s/\ .*// | cut -c1`
+        fi
     elif [ -n "$(command -v zypper)" ]; then
         sys_type="zypper"
         sep="-"
