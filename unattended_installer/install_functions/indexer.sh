@@ -161,7 +161,6 @@ function indexer_install() {
 function indexer_startCluster() {
 
     retries=0    
-    set -x
     for ip_to_test in "${indexer_node_ips[@]}"; do
         eval "curl -XGET https://172.16.1.19:9300/ -k -s -o /dev/null"
         e_code="$?"

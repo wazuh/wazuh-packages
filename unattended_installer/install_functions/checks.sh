@@ -169,7 +169,7 @@ function checks_arguments() {
     fi
 
     if [ -n "${force}" ] && [ -z  "${dashboard}" ]; then
-        common_logger -e "The -fd|--force-install-dahsboard argument needs to be used alongside -wd|--wazuh-dashboard."
+        common_logger -e "The -fd|--force-install-dashboard argument needs to be used alongside -wd|--wazuh-dashboard."
         exit 1
     fi 
 

@@ -154,7 +154,7 @@ function installCommon_createInstallFiles() {
 
 function installCommon_changePasswords() {
 
-    common_logger -d "Setting passwords."
+    common_logger -d "Setting Wazuh indexer cluster passwords."
     if [ -f "${tar_file}" ]; then
         eval "tar -xf ${tar_file} -C /tmp wazuh-install-files/passwords.wazuh ${debug}"
         p_file="/tmp/wazuh-install-files/passwords.wazuh"
@@ -291,11 +291,6 @@ function installCommon_readPasswordFileUsers() {
 
     fileusers=(${sfileusers})
     filepasswords=(${sfilepasswords})
-
-    if [ -n "${debugEnabled}" ]; then
-        common_logger "Users in the file: ${fileusers[*]}"
-        common_logger "Passwords in the file: ${filepasswords[*]}"
-    fi
 
     if [ -n "${changeall}" ]; then
         for j in "${!fileusers[@]}"; do
