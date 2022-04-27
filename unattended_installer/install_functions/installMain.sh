@@ -59,7 +59,7 @@ function getHelp() {
     echo -e "                Install and configure Wazuh indexer, used for distributed deployments."
     echo -e ""
     echo -e "        -ws,  --wazuh-server <server-node-name>"
-    echo -e "                Install and configure Wazuh server and Filebeat, used for distributed deployments."
+    echo -e "                Install and configure Wazuh manager and Filebeat, used for distributed deployments."
     echo -e ""
     echo -e "        -dw,  --download-wazuh <deb|rpm>"
     echo -e "                Download all the packages necessary for offline installation."
