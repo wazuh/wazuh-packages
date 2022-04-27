@@ -162,12 +162,12 @@ function indexer_startCluster() {
 
     retries=0    
     for ip_to_test in "${indexer_node_ips[@]}"; do
-        eval "curl -XGET https://172.16.1.19:9300/ -k -s -o /dev/null"
+        eval "curl -XGET https://"${ip_to_test}":9300/ -k -s -o /dev/null"
         e_code="$?"
         until [ "${e_code}" -ne 7 ] || [ "${retries}" -eq 12 ]; do
             sleep 10
             retries=$((retries+1))
-            eval "curl -XGET https://172.16.1.19:9300/ -k -s -o /dev/null"
+            eval "curl -XGET https://"${ip_to_test}":9300/ -k -s -o /dev/null"
             e_code="$?"
         done
         if [ ${retries} -eq 12 ]; then
