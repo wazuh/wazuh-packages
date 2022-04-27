@@ -271,33 +271,31 @@ function checks_names() {
 
 # This function checks if the target certificates are created before to start the installation.
 function checks_previousCertificate() {
-
     if [ ! -f "${tar_file}" ]; then
         common_logger -e "Cannot find ${tar_file}. Run the script with the option -g|--generate-config-files to create it or copy it from another node."
         exit 1
     fi
 
     if [ -n "${indxname}" ]; then
-        if ! $(tar -tf wazuh-install-files.tar wazuh-install-files/"${indxname}".pem >/dev/null 2>&1) || ! $(tar -tf wazuh-install-files.tar wazuh-install-files/"${indxname}"-key.pem >/dev/null 2>&1); then
+        if [ -z "$(tar -tf ${tar_file} | egrep ^wazuh-install-files/${indxname}.pem)" ] || [ -z "$(tar -tf ${tar_file} | egrep ^wazuh-install-files/${indxname}-key.pem)" ]; then
             common_logger -e "There is no certificate for the indexer node ${indxname} in ${tar_file}."
             exit 1
         fi
     fi
 
     if [ -n "${dashname}" ]; then
-        if ! $(tar -tf wazuh-install-files.tar wazuh-install-files/"${dashname}".pem >/dev/null 2>&1) || ! $(tar -tf wazuh-install-files.tar wazuh-install-files/"${dashname}"-key.pem >/dev/null 2>&1); then
+        if [ -z "$(tar -tf ${tar_file} | egrep ^wazuh-install-files/${dashname}.pem)" ] || [ -z "$(tar -tf ${tar_file} | egrep ^wazuh-install-files/${dashname}-key.pem)" ]; then
             common_logger -e "There is no certificate for the Wazuh Dashboard node ${dashname} in ${tar_file}."
             exit 1
         fi
     fi
 
     if [ -n "${winame}" ]; then
-        if ! $(tar -tf wazuh-install-files.tar wazuh-install-files/"${winame}".pem >/dev/null 2>&1) || ! $(tar -tf wazuh-install-files.tar wazuh-install-files/"${winame}"-key.pem >/dev/null 2>&1); then
+        if [ -z "$(tar -tf ${tar_file} | egrep ^wazuh-install-files/${winame}.pem)" ] || [ -z "$(tar -tf ${tar_file} | egrep ^wazuh-install-files/${winame}-key.pem)" ]; then
             common_logger -e "There is no certificate for the wazuh server node ${winame} in ${tar_file}."
             exit 1
         fi
     fi
-
 }
 
 function checks_specifications() {
