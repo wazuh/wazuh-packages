@@ -162,16 +162,19 @@ function indexer_startCluster() {
 
     retries=0    
     for ip_to_test in "${indexer_node_ips[@]}"; do
-        until eval "nc -z ${ip_to_test} 9300" || [ "${retries}" -eq 12 ]; do
+        eval "curl -XGET https://"${ip_to_test}":9300/ -k -s -o /dev/null"
+        e_code="$?"
+        until [ "${e_code}" -ne 7 ] || [ "${retries}" -eq 12 ]; do
             sleep 10
             retries=$((retries+1))
+            eval "curl -XGET https://"${ip_to_test}":9300/ -k -s -o /dev/null"
+            e_code="$?"
         done
         if [ ${retries} -eq 12 ]; then
             common_logger -e "Connectivity check failed on node ${ip_to_test} port 9300. Possible causes: Wazuh indexer not installed on the node, the Wazuh indexer service is not running or you have connectivity issues with that node. Please check this before trying again."
             exit 1
         fi
     done
-
     eval "wazuh_indexer_ip=( $(cat /etc/wazuh-indexer/opensearch.yml | grep network.host | sed 's/network.host:\s//') )"
     eval "sudo -u wazuh-indexer JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -p 9300 -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ -icl -nhnv -cacert /etc/wazuh-indexer/certs/root-ca.pem -cert /etc/wazuh-indexer/certs/admin.pem -key /etc/wazuh-indexer/certs/admin-key.pem -h ${wazuh_indexer_ip} ${debug}"
     if [  "$?" != 0  ]; then

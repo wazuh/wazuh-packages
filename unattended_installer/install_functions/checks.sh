@@ -169,7 +169,7 @@ function checks_arguments() {
     fi
 
     if [ -n "${force}" ] && [ -z  "${dashboard}" ]; then
-        common_logger -e "The -fd|--force-install-dahsboard argument needs to be used alongside -wd|--wazuh-dashboard."
+        common_logger -e "The -fd|--force-install-dashboard argument needs to be used alongside -wd|--wazuh-dashboard."
         exit 1
     fi 
 
@@ -271,33 +271,31 @@ function checks_names() {
 
 # This function checks if the target certificates are created before to start the installation.
 function checks_previousCertificate() {
-
     if [ ! -f "${tar_file}" ]; then
         common_logger -e "Cannot find ${tar_file}. Run the script with the option -g|--generate-config-files to create it or copy it from another node."
         exit 1
     fi
 
     if [ -n "${indxname}" ]; then
-        if ! $(tar -tf "${tar_file}" | grep -q "${indxname}".pem) || ! $(tar -tf "${tar_file}" | grep -q "${indxname}"-key.pem); then
+        if [ -z "$(tar -tf ${tar_file} | egrep ^wazuh-install-files/${indxname}.pem)" ] || [ -z "$(tar -tf ${tar_file} | egrep ^wazuh-install-files/${indxname}-key.pem)" ]; then
             common_logger -e "There is no certificate for the indexer node ${indxname} in ${tar_file}."
             exit 1
         fi
     fi
 
     if [ -n "${dashname}" ]; then
-        if ! $(tar -tf "${tar_file}" | grep -q "${dashname}".pem) || ! $(tar -tf "${tar_file}" | grep -q "${dashname}"-key.pem); then
+        if [ -z "$(tar -tf ${tar_file} | egrep ^wazuh-install-files/${dashname}.pem)" ] || [ -z "$(tar -tf ${tar_file} | egrep ^wazuh-install-files/${dashname}-key.pem)" ]; then
             common_logger -e "There is no certificate for the Wazuh Dashboard node ${dashname} in ${tar_file}."
             exit 1
         fi
     fi
 
     if [ -n "${winame}" ]; then
-        if ! $(tar -tf "${tar_file}" | grep -q "${winame}".pem) || ! $(tar -tf "${tar_file}" | grep -q "${winame}"-key.pem); then
+        if [ -z "$(tar -tf ${tar_file} | egrep ^wazuh-install-files/${winame}.pem)" ] || [ -z "$(tar -tf ${tar_file} | egrep ^wazuh-install-files/${winame}-key.pem)" ]; then
             common_logger -e "There is no certificate for the wazuh server node ${winame} in ${tar_file}."
             exit 1
         fi
     fi
-
 }
 
 function checks_specifications() {

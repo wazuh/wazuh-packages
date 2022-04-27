@@ -161,7 +161,7 @@ function passwords_generatePasswordFile() {
 
     users=( admin kibanaserver kibanaro logstash readall snapshotrestore wazuh_admin wazuh_user )
     user_description=(
-        "Wazuh indexer admin user"
+        "Admin user for the web user interface and Wazuh indexer. Use this user to log in to Wazuh dashboard"
         "Wazuh dashboard user for establishing the connection with Wazuh indexer"
         "Regular Dashboard user, only has read permissions to all indices and all permissions on the .kibana index"
         "Filebeat user has CRUD and create index permissions on filebeat indices"
