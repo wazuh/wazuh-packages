@@ -20,22 +20,29 @@ EOF
 cat > /etc/motd <<EOF
 
 
-       WWWWWW             WWWWWW             WWWWWW
-        WWWWWW           WWWWWWWW           WWWWWW
-         WWWWWW         WWWWWWWWWW         WWWWWW
-          WWWWWW       WWWWW  WWWWW       WWWWWW
-           WWWWWW     WWWWWW  WWWWWW     WWWWWW
-            WWWWWW    WWWWW    WWWWW    WWWWWW
-             WWWWWW  WWWWW      WWWWW  WWWWWW
-              WWWWW WWWWW       WWWWW WWWWWW
-              WWWWWWWWWW         WWWWWWWWWW         WWWWW
-               WWWWWWWW           WWWWWWWW        WWWWWWWWW
-                WWWWWWW           WWWWWWW         WWWWWWWWW
-                 WWWWW             WWWWW            WWWWW
-
+wwwwww.           wwwwwww.          wwwwwww.
+wwwwwww.          wwwwwww.          wwwwwww.
+ wwwwww.         wwwwwwwww.        wwwwwww.
+ wwwwwww.        wwwwwwwww.        wwwwwww.
+  wwwwww.       wwwwwwwwwww.      wwwwwww.
+  wwwwwww.      wwwwwwwwwww.      wwwwwww.
+   wwwwww.     wwwwww.wwwwww.    wwwwwww.
+   wwwwwww.    wwwww. wwwwww.    wwwwwww.
+    wwwwww.   wwwwww.  wwwwww.  wwwwwww.
+    wwwwwww.  wwwww.   wwwwww.  wwwwwww.
+     wwwwww. wwwwww.    wwwwww.wwwwwww.
+     wwwwwww.wwwww.     wwwwww.wwwwwww.
+      wwwwwwwwwwww.      wwwwwwwwwwww.
+      wwwwwwwwwww.       wwwwwwwwwwww.      oooooo
+       wwwwwwwwww.        wwwwwwwwww.      oooooooo
+       wwwwwwwww.         wwwwwwwwww.     oooooooooo
+        wwwwwwww.          wwwwwwww.      oooooooooo
+        wwwwwww.           wwwwwwww.       oooooooo
+         wwwwww.            wwwwww.         oooooo
 
 
          WAZUH Open Source Security Platform
                    www.wazuh.com
+
 
 EOF
