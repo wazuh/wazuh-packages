@@ -354,7 +354,6 @@ function installCommon_restoreWazuhrepo() {
         eval "sed -i 's/-dev//g' ${file} ${debug}"
         eval "sed -i 's/pre-release/4.x/g' ${file} ${debug}"
         eval "sed -i 's/unstable/stable/g' ${file} ${debug}"
-        common_logger -d "The Wazuh repository set to production."
     fi
 
 }
