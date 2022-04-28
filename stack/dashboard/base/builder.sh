@@ -56,10 +56,12 @@ cp ./etc/custom_welcome/Assets/Favicons/* ./src/core/server/core_app/assets/favi
 cp ./etc/custom_welcome/Assets/Favicons/favicon.ico ./src/core/server/core_app/assets/favicons/favicon.ico
 cp ./etc/opensearch_dashboards_config.js ./src/core/server/opensearch_dashboards_config.js
 cp ./etc/http_service.js ./src/core/server/http/http_service.js
-cp ./etc/opensearch-dashboards ./bin/opensearch-dashboards
 # Replace config path
+sed -i "s'\$DIR/config'/etc/wazuh-dashboard'g" ./bin/opensearch-dashboards
 sed -i "s'\$DIR/config'/etc/wazuh-dashboard'g" ./bin/opensearch-dashboards-keystore
 sed -i "s'\$DIR/config'/etc/wazuh-dashboard'g" ./bin/opensearch-dashboards-plugin
+sed -i "s'NODE_OPTIONS=\"--no-warnings --max-http-header-size=65536 \$OSD_NODE_OPTS \$NODE_OPTIONS\" NODE_ENV=production exec \"\${NODE}\" \"\${DIR}/src/cli/dist\" \${@}'NODE_OPTIONS=\"--no-warnings --max-http-header-size=65536 \$OSD_NODE_OPTS \$NODE_OPTIONS\"'g" ./bin/opensearch-dashboards
+echo "NODE_ENV=production exec \"\${NODE}\" \${NODE_OPTIONS} \"\${DIR}/src/cli/dist\" \${@}" >> ./bin/opensearch-dashboards
 # Replace the redirection to `home` in the header logo
 sed -i "s'/app/home'/app/wazuh'g" ./src/core/target/public/core.entry.js
 # Replace others redirections to `home`
