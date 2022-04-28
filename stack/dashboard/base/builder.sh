@@ -53,7 +53,7 @@ cp ./etc/custom_welcome/light_theme.style.css ./src/core/server/core_app/assets/
 cp ./etc/custom_welcome/*svg ./src/core/server/core_app/assets/
 cp ./etc/custom_welcome/Assets/default_branding/Solid_black.svg ./src/core/server/core_app/assets/default_branding/opensearch_logo.svg
 cp ./etc/custom_welcome/Assets/Favicons/* ./src/core/server/core_app/assets/favicons/
-cp ./etc/custom_welcome/Assets/Favicons/favicon-32x32.png ./src/core/server/core_app/assets/favicons/favicon.ico
+cp ./etc/custom_welcome/Assets/Favicons/favicon.ico ./src/core/server/core_app/assets/favicons/favicon.ico
 cp ./etc/opensearch_dashboards_config.js ./src/core/server/opensearch_dashboards_config.js
 cp ./etc/http_service.js ./src/core/server/http/http_service.js
 cp ./etc/opensearch-dashboards ./bin/opensearch-dashboards
