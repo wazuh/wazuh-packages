@@ -105,7 +105,7 @@ function passwords_createBackUp() {
         common_logger -e "The backup could not be created"
         exit 1;
     fi
-    common_logger -d "Password backup created"
+    common_logger -d "Password backup created in /usr/share/wazuh-indexer/backup."
 
 }
 
