@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [v4.3.0]
 
+- Fix dashboard ip messages [#1500](https://github.com/wazuh/wazuh-packages/pull/1500)
+- Improved APT locked message and retry time [#1499](https://github.com/wazuh/wazuh-packages/pull/1499)
+- Fix unhandled promise for dashboard [#1497](https://github.com/wazuh/wazuh-packages/pull/1497)
 - Update ova motd message 4.3 [#1494](https://github.com/wazuh/wazuh-packages/pull/1494)
 - Remove service disable from RPM and Debian packages [#1471](https://github.com/wazuh/wazuh-packages/pull/1480)
 - Disabled multitenancy by default in dashboard and changed the app default route [#1471](https://github.com/wazuh/wazuh-packages/pull/1471)
