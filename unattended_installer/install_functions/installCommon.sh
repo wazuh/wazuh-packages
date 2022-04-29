@@ -87,7 +87,7 @@ function installCommon_aptInstall() {
     while [ "${grep_result}" -eq 0 ] && [ "${attempt}" -lt 10 ]; do
         attempt=$((attempt+1))
         common_logger "An external process is using APT. This process has to end to proceed with the Wazuh installation. Next retry in ${seconds} seconds (${attempt}/10)"
-        sleep 30
+        sleep "${seconds}"
         eval "${command}"
         install_result="$?"
         eval "tail -n 2 ${logfile} | grep -q 'Could not get lock'"
