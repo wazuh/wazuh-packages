@@ -26,7 +26,7 @@ function getHelp() {
     echo -e "                Force Wazuh dashboard installation to continue even when it is not capable to connect to the Wazuh indexer."
     echo -e ""
     echo -e "        -g,  --generate-config-files"
-    echo -e "                Generate wazuh-install-files.tar file containing the files that will be needed for installation from config.yml. In distributed deployments you will need to copy this file to other hosts."
+    echo -e "                Generate wazuh-install-files.tar file containing the files that will be needed for installation from config.yml. In distributed deployments you will need to copy this file to all hosts."
     echo -e ""
     echo -e "        -h,  --help"
     echo -e "                Display this help and exit."

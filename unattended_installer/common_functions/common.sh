@@ -12,6 +12,7 @@ function common_logger() {
     now=$(date +'%d/%m/%Y %H:%M:%S')
     mtype="INFO:"
     debugLogger=
+    nolog=
     if [ -n "${1}" ]; then
         while [ -n "${1}" ]; do
             case ${1} in
@@ -28,6 +29,10 @@ function common_logger() {
                     mtype="DEBUG:"
                     shift 1
                     ;;
+                "-nl")
+                    nolog=1
+                    shift 1
+                    ;;
                 *)
                     message="${1}"
                     shift 1
@@ -37,7 +42,7 @@ function common_logger() {
     fi
 
     if [ -z "${debugLogger}" ] || ( [ -n "${debugLogger}" ] && [ -n "${debugEnabled}" ] ); then
-        if [ "$EUID" -eq 0 ]; then
+        if [ "$EUID" -eq 0 ] && [ -z "${nolog}" ]; then
             printf "${now} ${mtype} ${message}\n" | tee -a ${logfile}
         else
             printf "${now} ${mtype} ${message}\n"
