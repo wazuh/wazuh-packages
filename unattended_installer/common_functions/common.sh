@@ -12,6 +12,7 @@ function common_logger() {
     now=$(date +'%d/%m/%Y %H:%M:%S')
     mtype="INFO:"
     debugLogger=
+    nolog=
     if [ -n "${1}" ]; then
         while [ -n "${1}" ]; do
             case ${1} in

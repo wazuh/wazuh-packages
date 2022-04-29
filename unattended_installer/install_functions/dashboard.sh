@@ -125,12 +125,12 @@ function dashboard_initialize() {
             installCommon_rollBack
             exit 1
         else
-            common_logger "--- Summary ---"
+            common_logger -nl "--- Summary ---"
             common_logger -nl "When Wazuh dashboard is able to connect to your Wazuh indexer cluster, you can access the web interface https://${nodes_dashboard_ip}.\n    User: admin\n    Password: ${u_pass}"
         fi
     else
         common_logger "Wazuh dashboard web application initialized."
-        common_logger "--- Summary ---"
+        common_logger -nl "--- Summary ---"
         common_logger -nl "You can access the web interface https://${nodes_dashboard_ip}.\n    User: admin\n    Password: ${u_pass}"
     fi
 
@@ -151,7 +151,7 @@ function dashboard_initializeAIO() {
     fi
 
     common_logger "Wazuh dashboard web application initialized."
-    common_logger "--- Summary ---"
+    common_logger -nl "--- Summary ---"
     common_logger -nl "You can access the web interface https://<wazuh-dashboard-ip>.\n    User: admin\n    Password: ${u_pass}"
 
 }
