@@ -70,20 +70,25 @@ function installCommon_addWazuhRepo() {
 
 function installCommon_aptInstall() {
 
-    i=0
-    if [ -n "${2}" ]; then
-        installer=${1}${sep}${2}
+    package="${1}"
+    version="${2}"
+    attempt=0
+    if [ -n "${version}" ]; then
+        installer=${package}${sep}${version}
     else
-        installer=${1}
+        installer=${package}
     fi
-    eval "DEBIAN_FRONTEND=noninteractive apt-get install ${installer} -y -q ${debug}"
+    command="DEBIAN_FRONTEND=noninteractive apt-get install ${installer} -y -q ${debug}"
+    seconds=30
+    eval "${command}"
     install_result="$?"
     eval "tail -n 2 ${logfile} | grep -q 'Could not get lock'"
     grep_result="$?"
-    while [ "${grep_result}" -eq 0 ] && [ "${i}" -lt 12 ]; do
-        sleep 10
-        i=$((i+1))
-        eval "DEBIAN_FRONTEND=noninteractive apt-get install ${installer} -y -q ${debug}"
+    while [ "${grep_result}" -eq 0 ] && [ "${attempt}" -lt 10 ]; do
+        attempt=$((attempt+1))
+        common_logger "An external process is using APT. This process has to end to proceed with the Wazuh installation. Next retry in ${seconds} seconds (${attempt}/10)"
+        sleep "${seconds}"
+        eval "${command}"
         install_result="$?"
         eval "tail -n 2 ${logfile} | grep -q 'Could not get lock'"
         grep_result="$?"

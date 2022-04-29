@@ -121,7 +121,7 @@ function dashboard_initialize() {
         done
         common_logger "${flag}" "Failed to connect with ${failed_nodes[*]}. Connection refused."
         if [ -z "${force}" ]; then
-            common_logger "If want to install Wazuh dashboard without waiting for the Wazuh indexer cluster, use the -fd option"
+            common_logger "If you want to install Wazuh dashboard without waiting for the Wazuh indexer cluster, use the -fd option"
             installCommon_rollBack
             exit 1
         else
@@ -153,7 +153,6 @@ function dashboard_initializeAIO() {
     common_logger "Wazuh dashboard web application initialized."
     common_logger -nl "--- Summary ---"
     common_logger -nl "You can access the web interface https://<wazuh-dashboard-ip>.\n    User: admin\n    Password: ${u_pass}"
-
 }
 
 function dashboard_install() {
