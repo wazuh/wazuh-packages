@@ -86,35 +86,8 @@ function installCommon_aptInstall() {
     grep_result="$?"
     while [ "${grep_result}" -eq 0 ] && [ "${attempt}" -lt 10 ]; do
         attempt=$((attempt+1))
-        common_logger "An external process is using APT. This process has to end to proceed installation. Next retry in ${seconds} seconds (${attempt}/10)"
+        common_logger "An external process is using APT. This process has to end to proceed with the Wazuh installation. Next retry in ${seconds} seconds (${attempt}/10)"
         sleep 30
-        eval "${command}"
-        install_result="$?"
-        eval "tail -n 2 ${logfile} | grep -q 'Could not get lock'"
-        grep_result="$?"
-    done
-
-}
-
-function installCommon_yumInstall() {
-
-    package="${1}"
-    version="${2}"
-    attempt=0
-    if [ -n "${version}" ]; then
-        installer=${package}${sep}${version}
-    else
-        installer=${package}
-    fi
-    command="yum install ${installer} -y -q ${debug}"
-    eval "${command}"
-    install_result="$?"
-    eval "tail -n 2 ${logfile} | grep -q 'Could not get lock'"
-    grep_result="$?"
-    while [ "${grep_result}" -eq 0 ] && [ "${attempt}" -lt 10 ]; do
-        common_logger "Waiting for external locked YUM process to unlock (${attempt}/10)"
-        sleep 30
-        attempt=$((attempt+1))
         eval "${command}"
         install_result="$?"
         eval "tail -n 2 ${logfile} | grep -q 'Could not get lock'"
@@ -265,8 +238,7 @@ function installCommon_installPrerequisites() {
             common_logger "--- Dependencies ---"
             for dep in "${not_installed[@]}"; do
                 common_logger "Installing $dep."
-                installCommon_yumInstall ${dep}
-                #eval "yum install ${dep} -y ${debug}"
+                eval "yum install ${dep} -y ${debug}"
                 if [  "$?" != 0  ]; then
                     common_logger -e "Cannot install dependency: ${dep}."
                     exit 1
