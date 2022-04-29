@@ -241,11 +241,6 @@ It must have this format:
     fileusers=(${sfileusers})
     filepasswords=(${sfilepasswords})
 
-    if [ -n "${verboseenabled}" ]; then
-        common_logger "Users in the file: ${fileusers[*]}"
-        common_logger "Passwords in the file: ${filepasswords[*]}"
-    fi
-
     if [ -n "${changeall}" ]; then
         for j in "${!fileusers[@]}"; do
             supported=false
@@ -365,7 +360,7 @@ function passwords_runSecurityAdmin() {
     eval "rm -rf /usr/share/wazuh-indexer/backup/ ${debug}"
 
     if [[ -n "${nuser}" ]] && [[ -n ${autopass} ]]; then
-        common_logger $'\nThe password for user '${nuser}' is '${password}''
+        common_logger -nl $'\nThe password for user '${nuser}' is '${password}''
         common_logger -w "Password changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/wazuh-dashboard/opensearch_dashboards.yml if necessary and restart the services."
     fi
 
@@ -376,7 +371,7 @@ function passwords_runSecurityAdmin() {
     if [ -n "${changeall}" ]; then
         if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_indexer_cluster}" ]; then
             for i in "${!users[@]}"; do
-                common_logger $'The password for user '${users[i]}' is '${passwords[i]}''
+                common_logger -nl $'The password for user '${users[i]}' is '${passwords[i]}''
             done
             common_logger -w "Passwords changed. Remember to update the password in /etc/filebeat/filebeat.yml and /etc/wazuh-dashboard/opensearch_dashboards.yml if necessary and restart the services."
         else
