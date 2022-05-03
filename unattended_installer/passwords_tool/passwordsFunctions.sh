@@ -164,11 +164,11 @@ function passwords_generatePasswordFile() {
         "Admin user for the web user interface and Wazuh indexer. Use this user to log in to Wazuh dashboard"
         "Wazuh dashboard user for establishing the connection with Wazuh indexer"
         "Regular Dashboard user, only has read permissions to all indices and all permissions on the .kibana index"
-        "Filebeat user has CRUD and create index permissions on filebeat indices"
+        "Filebeat user for CRUD operations on Wazuh indices"
         "User with READ access to all indices"
         "User with permissions to perform snapshot and restore operations"
-        "Admin user used to comunicate with Wazuh API"
-        "Regular user able to query Wazuh API"
+        "Admin user used to communicate with Wazuh API"
+        "Regular user to query Wazuh API"
     )
     passwords_generatePassword
     for i in "${!users[@]}"; do
