@@ -54,8 +54,10 @@ cp ./etc/custom_welcome/*svg ./src/core/server/core_app/assets/
 cp ./etc/custom_welcome/Assets/default_branding/Solid_black.svg ./src/core/server/core_app/assets/default_branding/opensearch_logo.svg
 cp ./etc/custom_welcome/Assets/Favicons/* ./src/core/server/core_app/assets/favicons/
 cp ./etc/custom_welcome/Assets/Favicons/favicon.ico ./src/core/server/core_app/assets/favicons/favicon.ico
-cp ./etc/opensearch_dashboards_config.js ./src/core/server/opensearch_dashboards_config.js
 cp ./etc/http_service.js ./src/core/server/http/http_service.js
+cp ./etc/template.js ./src/core/server/rendering/views/template.js
+# Replace App Title
+sed -i "s|defaultValue: ''|defaultValue: \'Wazuh\'|g" ./src/core/server/opensearch_dashboards_config.js
 # Replace config path
 sed -i "s'\$DIR/config'/etc/wazuh-dashboard'g" ./bin/opensearch-dashboards
 sed -i "s'\$DIR/config'/etc/wazuh-dashboard'g" ./bin/opensearch-dashboards-keystore
