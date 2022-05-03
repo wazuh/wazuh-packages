@@ -199,6 +199,8 @@ function main() {
                 getHelp
         esac
     done
+    
+    cat /dev/null > "${logfile}"
 
     if [ -n "${showVersion}" ]; then
         common_logger "Wazuh version: ${wazuh_version}"
