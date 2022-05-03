@@ -10,7 +10,7 @@ function getHelp() {
 
     echo -e ""
     echo -e "NAME"
-    echo -e "        $(basename "$0") - Install and configure Wazuh central components: Wazuh manager, Wazuh indexer, and Wazuh dashboard."
+    echo -e "        $(basename "$0") - Install and configure Wazuh central components: Wazuh server, Wazuh indexer, and Wazuh dashboard."
     echo -e ""
     echo -e "SYNOPSIS"
     echo -e "        $(basename "$0") [OPTIONS] -a | -c | -s | -wi <indexer-node-name> | -wd <dashboard-node-name> | -ws <server-node-name>"
@@ -23,7 +23,7 @@ function getHelp() {
     echo -e "                Path to the configuration file used to generate wazuh-install-files.tar file containing the files that will be needed for installation. By default, the Wazuh installation assistant will search for a file named config.yml in the same path as the script."
     echo -e ""
     echo -e "        -fd,  --force-install-dashboard"
-    echo -e "                Force Wazuh dashboard installation to continue even when it is not capable to connect to the Wazuh indexer."
+    echo -e "                Force Wazuh dashboard installation to continue even when it is not capable of connecting to the Wazuh indexer."
     echo -e ""
     echo -e "        -g,  --generate-config-files"
     echo -e "                Generate wazuh-install-files.tar file containing the files that will be needed for installation from config.yml. In distributed deployments you will need to copy this file to all hosts."
@@ -199,7 +199,7 @@ function main() {
                 getHelp
         esac
     done
-    
+
     cat /dev/null > "${logfile}"
 
     if [ -n "${showVersion}" ]; then
