@@ -4,10 +4,10 @@
 Vagrant.configure("2") do |config|
 
   config.vm.box = "centos/7"
-  config.vm.hostname = "wazuh-manager"
+  config.vm.hostname = "wazuh-server"
   config.vm.provider "virtualbox" do |vb|
     vb.name = "vm_wazuh"
-    vb.memory = "4096"
+    vb.memory = "8192"
     vb.cpus = "4"
   end
 

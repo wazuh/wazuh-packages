@@ -13,12 +13,12 @@ systemConfig() {
   mv ${CUSTOM_PATH}/grub/grub /etc/default/
   grub2-mkconfig -o /boot/grub2/grub.cfg > /dev/null 2>&1
 
-  # Set dinamic ram of vm
+  # Update Wazuh indexer jvm heap
   mv ${CUSTOM_PATH}/automatic_set_ram.sh /etc/
-  chmod +x "/etc/automatic_set_ram.sh"
-  echo "@reboot . /etc/automatic_set_ram.sh" >> cron
-  crontab cron
-  rm cron
+  chmod 755 /etc/automatic_set_ram.sh
+  mv ${CUSTOM_PATH}/updateIndexerHeap.service /etc/systemd/system/
+  systemctl daemon-reload
+  systemctl enable updateIndexerHeap.service
 
   # Change root password (root:wazuh)
   sed -i "s/root:.*:/root:\$1\$pNjjEA7K\$USjdNwjfh7A\.vHCf8suK41::0:99999:7:::/g" /etc/shadow
