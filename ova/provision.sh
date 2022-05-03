@@ -7,7 +7,7 @@ RESOURCES_PATH="/tmp/unattended_installer"
 BUILDER="builder.sh"
 INSTALLER="wazuh-install.sh"
 SYSTEM_USER="wazuh-user"
-HOSTNAME="wazuh-manager"
+HOSTNAME="wazuh-server"
 
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ASSETS_PATH="${CURRENT_PATH}/assets"
@@ -27,7 +27,7 @@ echo "Using ${PACKAGES_REPOSITORY} packages"
 
 . ${ASSETS_PATH}/steps.sh
 
-# Buil install script
+# Build install script
 bash ${RESOURCES_PATH}/${BUILDER} ${BUILDER_ARGS}
 WAZUH_VERSION=$(cat ${RESOURCES_PATH}/${INSTALLER} | grep "wazuh_version=" | cut -d "\"" -f 2)
 
