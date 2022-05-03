@@ -113,7 +113,7 @@ function dashboard_initialize() {
 
         for i in "${!indexer_node_ips[@]}"; do
             curl=$(curl -XGET https://${indexer_node_ips[i]}:9200/ -uadmin:${u_pass} -k -w %{http_code} -s -o /dev/null)
-            exit_code=$?
+            exit_code=${PIPESTATUS[0]}
             if [[ "${exit_code}" -eq "7" ]]; then
                 failed_connect=1
                 failed_nodes+=("${indexer_node_names[i]}")
@@ -160,10 +160,10 @@ function dashboard_install() {
     common_logger "Starting Wazuh dashboard installation."
     if [ "${sys_type}" == "zypper" ]; then
         eval "zypper -n install wazuh-dashboard=${wazuh_version}-${wazuh_revision} ${debug}"
-        install_result="$?"
+        install_result="${PIPESTATUS[0]}"
     elif [ "${sys_type}" == "yum" ]; then
         eval "yum install wazuh-dashboard${sep}${wazuh_version}-${wazuh_revision} -y ${debug}"
-        install_result="$?"
+        install_result="${PIPESTATUS[0]}"
     elif [ "${sys_type}" == "apt-get" ]; then
         installCommon_aptInstall "wazuh-dashboard" "${wazuh_version}-${wazuh_revision}"
     fi

@@ -81,17 +81,17 @@ function installCommon_aptInstall() {
     command="DEBIAN_FRONTEND=noninteractive apt-get install ${installer} -y -q ${debug}"
     seconds=30
     eval "${command}"
-    install_result="$?"
+    install_result="${PIPESTATUS[0]}"
     eval "tail -n 2 ${logfile} | grep -q 'Could not get lock'"
-    grep_result="$?"
+    grep_result="${PIPESTATUS[0]}"
     while [ "${grep_result}" -eq 0 ] && [ "${attempt}" -lt 10 ]; do
         attempt=$((attempt+1))
         common_logger "An external process is using APT. This process has to end to proceed with the Wazuh installation. Next retry in ${seconds} seconds (${attempt}/10)"
         sleep "${seconds}"
         eval "${command}"
-        install_result="$?"
+        install_result="${PIPESTATUS[0]}"
         eval "tail -n 2 ${logfile} | grep -q 'Could not get lock'"
-        grep_result="$?"
+        grep_result="${PIPESTATUS[0]}"
     done
 
 }
@@ -239,7 +239,7 @@ function installCommon_installPrerequisites() {
             for dep in "${not_installed[@]}"; do
                 common_logger "Installing $dep."
                 eval "yum install ${dep} -y ${debug}"
-                if [  "$?" != 0  ]; then
+                if [  "${PIPESTATUS[0]}" != 0  ]; then
                     common_logger -e "Cannot install dependency: ${dep}."
                     exit 1
                 fi
@@ -486,7 +486,7 @@ function installCommon_startService() {
         eval "systemctl daemon-reload ${debug}"
         eval "systemctl enable ${1}.service ${debug}"
         eval "systemctl start ${1}.service ${debug}"
-        if [  "$?" != 0  ]; then
+        if [  "${PIPESTATUS[0]}" != 0  ]; then
             common_logger -e "${1} could not be started."
             if [ -n "$(command -v journalctl)" ]; then
                 eval "journalctl -u ${1} >> ${logfile}"
@@ -500,7 +500,7 @@ function installCommon_startService() {
         eval "chkconfig ${1} on ${debug}"
         eval "service ${1} start ${debug}"
         eval "/etc/init.d/${1} start ${debug}"
-        if [  "$?" != 0  ]; then
+        if [  "${PIPESTATUS[0]}" != 0  ]; then
             common_logger -e "${1} could not be started."
             if [ -n "$(command -v journalctl)" ]; then
                 eval "journalctl -u ${1} >> ${logfile}"
@@ -512,7 +512,7 @@ function installCommon_startService() {
         fi
     elif [ -x "/etc/rc.d/init.d/${1}" ] ; then
         eval "/etc/rc.d/init.d/${1} start ${debug}"
-        if [  "$?" != 0  ]; then
+        if [  "${PIPESTATUS[0]}" != 0  ]; then
             common_logger -e "${1} could not be started."
             if [ -n "$(command -v journalctl)" ]; then
                 eval "journalctl -u ${1} >> ${logfile}"
