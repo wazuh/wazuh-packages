@@ -30,7 +30,7 @@ function offline_download() {
     eval "package_base_url=${package}_${package_type}_base_url"
 
     eval "curl -so ${dest_path}/${!package_name} ${!package_base_url}/${!package_name}"
-    if [  "$?" != 0  ]; then
+    if [  "${PIPESTATUS[0]}" != 0  ]; then
         common_logger -e "The ${package} package could not be downloaded. Exiting."
         exit 1
     else
@@ -60,7 +60,7 @@ function offline_download() {
   do
 
     eval "curl -sO ${file}"
-    if [  "$?" != 0  ]; then
+    if [  "${PIPESTATUS[0]}" != 0  ]; then
         common_logger -e "The resource ${file} could not be downloaded. Exiting."
         exit 1
     else
