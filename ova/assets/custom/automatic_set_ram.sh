@@ -12,7 +12,7 @@ regex="^\-Xmx\K[0-9]+"
 file="/etc/wazuh-indexer/jvm.options"
 value=$(grep -oP ${regex} ${file})
 
-if [[ ${value} != ${ram} ]]; then
+if [[ "${value}" != "${ram}" ]]; then
     eval "sed -i "s/^-Xms.*$/-Xms${ram}m/" ${file} ${debug}"
     eval "sed -i "s/^-Xmx.*$/-Xmx${ram}m/" ${file} ${debug}"
 fi
