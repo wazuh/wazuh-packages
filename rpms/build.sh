@@ -117,7 +117,7 @@ fi
 # Building RPM
 $linux $rpmbuild --define "_sysconfdir /etc" --define "_topdir ${rpm_build_dir}" \
         --define "_threads ${threads}" --define "_release ${package_release}" \
-        --define "_localstatedir ${directory_base}" --define "_debugenabled ${debug}" \
+        --define "_localstatedir ${directory_base}" --define "_debugenabled \"${debug}\"" \
         --target ${architecture_target} -ba ${rpm_build_dir}/SPECS/${package_name}.spec
 
 if [[ "${checksum}" == "yes" ]]; then

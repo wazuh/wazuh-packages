@@ -26,10 +26,12 @@ RPM_ARMV7HL_BUILDER="rpm_builder_armv7hl"
 RPM_X86_BUILDER="rpm_builder_x86"
 RPM_I386_BUILDER="rpm_builder_i386"
 RPM_PPC64LE_BUILDER="rpm_builder_ppc64le"
+RPM_S390X_BUILDER="rpm_builder_s390x"
 RPM_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/6"
 RPM_AARCH64_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/7"
 RPM_ARMV7HL_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/7"
 RPM_PPC64LE_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/7"
+RPM_S390X_BUILDER_DOCKERFILE="${CURRENT_PATH}/Fedora/"
 LEGACY_RPM_X86_BUILDER="rpm_legacy_builder_x86"
 LEGACY_RPM_I386_BUILDER="rpm_legacy_builder_i386"
 LEGACY_RPM_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/5"
@@ -152,6 +154,9 @@ build() {
         elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "armv7hl" ]]; then
             BUILD_NAME="${RPM_ARMV7HL_BUILDER}"
             FILE_PATH="${RPM_ARMV7HL_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
+        elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "s390x" ]]; then
+            BUILD_NAME="${RPM_S390X_BUILDER}"
+            FILE_PATH="${RPM_S390X_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
         else
             echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too), ppc64le or i386"
             return 1
@@ -171,7 +176,7 @@ help() {
     echo
     echo "    -b, --branch <branch>        [Required] Select Git branch or tag e.g. $BRANCH"
     echo "    -t, --target <target>        [Required] Target package to build [manager/api/agent]."
-    echo "    -a, --architecture <arch>    [Optional] Target architecture of the package [x86_64/i386/ppc64le/aarch64/armv7hl]."
+    echo "    -a, --architecture <arch>    [Optional] Target architecture of the package [x86_64/i386/ppc64le/aarch64/armv7hl/s390x]."
     echo "    -r, --revision <rev>         [Optional] Package revision that append to version e.g. x.x.x-rev"
     echo "    -l, --legacy                 [Optional] Build package for CentOS 5."
     echo "    -s, --store <path>           [Optional] Set the destination path of package. By default, an output folder will be created."

@@ -17,7 +17,7 @@ AutoReqProv: no
 
 Requires: coreutils
 %if 0%{?el} >= 6 || 0%{?rhel} >= 6
-BuildRequires: coreutils glibc-devel automake autoconf libtool policycoreutils-python perl
+BuildRequires: coreutils glibc-devel automake autoconf libtool policycoreutils-python-utils perl
 %else
 BuildRequires: coreutils glibc-devel automake autoconf libtool policycoreutils perl
 %endif
@@ -608,11 +608,6 @@ rm -fr %{buildroot}
 %attr(750, root, wazuh) %{_localstatedir}/wodles/docker/*
 %dir %attr(750, root, wazuh) %{_localstatedir}/wodles/gcloud
 %attr(750, root, wazuh) %{_localstatedir}/wodles/gcloud/*
-
-%if %{_debugenabled} == "yes"
-/usr/lib/debug/%{_localstatedir}/*
-/usr/src/debug/%{name}-%{version}/*
-%endif
 
 
 %changelog
