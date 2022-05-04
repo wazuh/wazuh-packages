@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [v4.3.0]
 
+- Update ova requirements [#1510](https://github.com/wazuh/wazuh-packages/pull/1510)
 - Hide passwords in log file [#1496] (https://github.com/wazuh/wazuh-packages/pull/1496)
 - Fix dashboard ip messages [#1500](https://github.com/wazuh/wazuh-packages/pull/1500)
 - Improved APT locked message and retry time [#1499](https://github.com/wazuh/wazuh-packages/pull/1499)
