@@ -14,7 +14,7 @@ set -ex
 opensearch_version="${1}"
 future="${2}"
 reference="${3}"
-BASE_DIR=/tmp/output/wazuh-dashboard-base
+base_dir=/tmp/output/wazuh-dashboard-base
 
 # -----------------------------------------------------------------------------
 
@@ -29,7 +29,7 @@ fi
 if [ "${future}" = "yes" ];then
     version="99.99.0"
 fi
-
+wazuh_minor=$(echo ${version} | cut -c1-3)
 
 # -----------------------------------------------------------------------------
 
@@ -43,8 +43,8 @@ fi
 curl -sL https://artifacts.opensearch.org/releases/bundle/opensearch-dashboards/"${opensearch_version}"/opensearch-dashboards-"${opensearch_version}"-linux-x64.tar.gz | tar xz
 
 # Remove unnecessary files and set up configuration
-mv opensearch-dashboards-* "${BASE_DIR}"
-cd "${BASE_DIR}"
+mv opensearch-dashboards-* "${base_dir}"
+cd "${base_dir}"
 find -type l -exec rm -rf {} \;
 rm -rf ./config/*
 cp -r /root/stack/dashboard/base/files/etc ./
@@ -68,6 +68,20 @@ echo "NODE_ENV=production exec \"\${NODE}\" \${NODE_OPTIONS} \"\${DIR}/src/cli/d
 sed -i "s'/app/home'/app/wazuh'g" ./src/core/target/public/core.entry.js
 # Replace others redirections to `home`
 sed -i 's/navigateToApp("home")/navigateToApp("wazuh")/g' ./src/core/target/public/core.entry.js
+# Changed from Opensearch Documentation links to Wazuh Documentation
+# Help menu
+## Help header - Version
+sed -i 's|"core.ui.chrome.headerGlobalNav.helpMenuVersion",defaultMessage:"v {version}"|"core.ui.chrome.headerGlobalNav.helpMenuVersion",defaultMessage:"v'${version}'"|' ./src/core/target/public/core.entry.js
+## Help link - OpenSearch Dashboards documentation
+sed -i 's|OpenSearch Dashboards documentation|Wazuh documentation|' ./src/core/target/public/core.entry.js
+sed -i 's|OPENSEARCH_DASHBOARDS_DOCS="https://opensearch.org/docs/dashboards/"|OPENSEARCH_DASHBOARDS_DOCS="https://documentation.wazuh.com/'${wazuh_minor}'"|' ./src/core/target/public/core.entry.js
+## Help link - Ask OpenSearch
+sed -i 's|Ask OpenSearch|Ask Wazuh|' ./src/core/target/public/core.entry.js
+sed -i 's|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://github.com/opensearch-project"|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://wazuh.com/community/join-us-on-slack"|' ./src/core/target/public/core.entry.js
+## Help link - Give feedback
+sed -i 's|OPENSEARCH_DASHBOARDS_FEEDBACK_LINK="https://github.com/opensearch-project"|OPENSEARCH_DASHBOARDS_FEEDBACK_LINK="https://wazuh.com/community/join-us-on-slack"|' ./src/core/target/public/core.entry.js
+## Help link - Open an issue in GitHub
+sed -i 's|GITHUB_CREATE_ISSUE_LINK="https://github.com/opensearch-project/OpenSearch-Dashboards/issues/new/choose"|GITHUB_CREATE_ISSUE_LINK="https://github.com/wazuh/wazuh/issues/new/choose"|' ./src/core/target/public/core.entry.js
 # Build the compressed files
 gzip -c ./src/core/target/public/core.entry.js > ./src/core/target/public/core.entry.js.gz
 brotli -c ./src/core/target/public/core.entry.js > ./src/core/target/public/core.entry.js.br
@@ -99,6 +113,7 @@ brotli -c ./plugins/securityDashboards/target/public/securityDashboards.plugin.j
 gzip -c ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js > ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js.gz
 brotli -c ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js > ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js.br
 
+
 find -type d -exec chmod 750 {} \;
 find -type f -perm 644 -exec chmod 640 {} \;
 find -type f -perm 755 -exec chmod 750 {} \;
@@ -109,4 +124,4 @@ find -type f -perm 755 -exec chmod 750 {} \;
 # Base output
 cd /tmp/output
 tar -cJf wazuh-dashboard-base-"${version}"-linux-x64.tar.xz wazuh-dashboard-base
-rm -rf "${BASE_DIR}"
+rm -rf "${base_dir}"
