@@ -11,8 +11,9 @@ cat > /etc/issue <<EOF
 
 Welcome to the Wazuh OVA version
 Wazuh - ${WAZUH_VERSION}
-Use wazuh-user for username and wazuh for password to login
-Thank you for using Wazuh!
+Login credentials:
+  User: wazuh-user
+  Password: wazuh
 
 EOF
 
@@ -42,7 +43,7 @@ wwwwwww.          wwwwwww.          wwwwwww.
 
 
          WAZUH Open Source Security Platform
-                   www.wazuh.com
+                  https://wazuh.com
 
 
 EOF
