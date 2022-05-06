@@ -605,10 +605,11 @@ rm -fr %{buildroot}
 
 
 %changelog
-* Sat Dec 25 2021 support <info@wazuh.com> - 4.4.0
+* Thu Nov 03 2022 support <info@wazuh.com> - 4.4.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Wed Dec 15 2021 support <info@wazuh.com> - 4.3.0
+* Thu May 05 2022 support <info@wazuh.com> - 4.3.0
 - More info: https://documentation.wazuh.com/current/release-notes/
+* Fri Mar 25 2022 support <info@wazuh.com> - 4.2.6
 * Mon Nov 15 2021 support <info@wazuh.com> - 4.2.5
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Thu Oct 21 2021 support <info@wazuh.com> - 4.2.4
