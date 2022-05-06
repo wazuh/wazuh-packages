@@ -8,8 +8,7 @@ path_ova=$2
 dest_ova=$3
 ovf_path=$4
 wazuh_version=$5
-opendistro_version=$6
-file="wazuh-${wazuh_version}_${opendistro_version}"
+file="wazuh-${wazuh_version}"
 mkdir -p ${workspace}/new-ova/
 
 echo "Setting OVA to default"
@@ -25,7 +24,6 @@ echo "Files renamed"
 cp ${ovf_path} ${workspace}/new-ova/${file}.ovf
 
 sed -i "s/{WAZUH_VERSION}/${wazuh_version}/" ${workspace}/new-ova/${file}.ovf
-sed -i "s/{OPENDISTRO_VERSION}/${opendistro_version}/" ${workspace}/new-ova/${file}.ovf
 echo "OVF Version changed"
 
 ovf_size=$(stat --printf=%s ${workspace}/new-ova/${file}-disk-1.vmdk)
