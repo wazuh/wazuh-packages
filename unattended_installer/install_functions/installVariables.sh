@@ -9,7 +9,7 @@
 ## Package vars
 readonly wazuh_major="4.3"
 readonly wazuh_version="4.3.0"
-readonly wazuh_revision="1"
+readonly wazuh_revision="*"
 readonly filebeat_version="7.10.2"
 readonly wazuh_install_vesion="0.1"
 
