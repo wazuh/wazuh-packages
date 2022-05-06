@@ -65,22 +65,26 @@ function buildInstaller() {
     echo >> "${output_script_path}"
 
     ## Installation variables
-    grep -Ev '^#|^\s*$' ${resources_installer}/installVariables.sh >> "${output_script_path}"
-    echo >> "${output_script_path}"
     if [ -n "${development}" ]; then
-        echo 'development=1' >> "${output_script_path}"
-        echo 'repogpg="https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH"' >> "${output_script_path}"
-        echo 'repobaseurl="https://packages-dev.wazuh.com/pre-release"' >> "${output_script_path}"
-        echo 'reporelease="unstable"' >> "${output_script_path}"
-        echo 'filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.1.tar.gz"' >> "${output_script_path}"
+        echo 'readonly development=1' >> "${output_script_path}"
+        echo 'readonly repogpg="https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH"' >> "${output_script_path}"
+        echo 'readonly repobaseurl="https://packages-dev.wazuh.com/pre-release"' >> "${output_script_path}"
+        echo 'readonly reporelease="unstable"' >> "${output_script_path}"
+        echo 'readonly filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.1.tar.gz"' >> "${output_script_path}"
+        echo 'readonly bucket="packages-dev.wazuh.com"' >> "${output_script_path}"
+        echo 'readonly repository="pre-release"' >> "${output_script_path}"
     else
-        echo 'repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"' >> "${output_script_path}"
-        echo 'repobaseurl="https://packages.wazuh.com/4.x"' >> "${output_script_path}"
-        echo 'reporelease="stable"' >> "${output_script_path}"
-        echo 'filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.1.tar.gz"' >> "${output_script_path}"
+        echo 'readonly repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"' >> "${output_script_path}"
+        echo 'readonly repobaseurl="https://packages.wazuh.com/4.x"' >> "${output_script_path}"
+        echo 'readonly reporelease="stable"' >> "${output_script_path}"
+        echo 'readonly filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.1.tar.gz"' >> "${output_script_path}"
+        echo 'readonly bucket="packages.wazuh.com"' >> "${output_script_path}"
+        echo 'readonly repository="4.x"' >> "${output_script_path}"
     fi
     echo >> "${output_script_path}"
-
+    grep -Ev '^#|^\s*$' ${resources_installer}/installVariables.sh >> "${output_script_path}"
+    echo >> "${output_script_path}"
+    
     ## Configuration files as variables
     configuration_files=($(find "${resources_config}" -type f))
     config_file_name=($(eval "echo "${configuration_files[@]}" | sed 's|${resources_config}||g;s|/|_|g;s|.yml||g'"))

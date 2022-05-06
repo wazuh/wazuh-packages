@@ -12,8 +12,6 @@ readonly wazuh_version="4.3.0"
 readonly wazuh_revision="1"
 readonly filebeat_version="7.10.2"
 readonly wazuh_install_vesion="0.1"
-readonly bucket="packages-dev.wazuh.com"
-readonly repository="pre-release" #use 4.x for production
 
 ## Links and paths to resources
 readonly resources="https://${bucket}/${wazuh_major}"
