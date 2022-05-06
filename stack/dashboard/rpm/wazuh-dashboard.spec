@@ -205,7 +205,7 @@ rm -fr %{buildroot}
 # -----------------------------------------------------------------------------
 
 %files
-%defattr(-,%{USER},%{GROUP},-)
+%defattr(-,%{USER},%{GROUP})
 
 %attr(0750, %{USER}, %{GROUP}) "/etc/init.d/wazuh-dashboard"
 %attr(0750, %{USER}, %{GROUP}) "/etc/default/wazuh-dashboard"
