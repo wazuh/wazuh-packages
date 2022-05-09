@@ -1,5 +1,8 @@
 FROM centos:8
 
+RUN sed -i -e "s|mirrorlist=|#mirrorlist=|g" /etc/yum.repos.d/CentOS-*
+RUN sed -i -e "s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g" /etc/yum.repos.d/CentOS-*
+
 # Install dependencies
 RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-centostesting && \
     curl -sL https://rpm.nodesource.com/setup_10.x | bash - && \
