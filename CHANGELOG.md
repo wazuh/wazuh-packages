@@ -8,6 +8,8 @@ All notable changes to this project will be documented in this file.
 - Add centos8 vault repository due to EOL [#1308](https://github.com/wazuh/wazuh-packages/pull/1308)
 - Update SPECS [#1014](https://github.com/wazuh/wazuh-packages/pull/1014)
 - Add Azure integration files to Solaris 11 and RPM SPECS [#1167](https://github.com/wazuh/wazuh-packages/pull/1167)
+- Remove references to queue/agent-groups [#1299](https://github.com/wazuh/wazuh-packages/pull/1299)
+- Remove references to backup/groups [#1299](https://github.com/wazuh/wazuh-packages/pull/1299)
 - Add Azure's orm file to Solaris 11 SPEC [#1453](https://github.com/wazuh/wazuh-packages/pull/1453)
 
 ## [v4.3.0]
