@@ -14,6 +14,17 @@ All notable changes to this project will be documented in this file.
 
 ## [v4.3.0]
 
+- Update ova requirements [#1510](https://github.com/wazuh/wazuh-packages/pull/1510)
+- Hide passwords in log file [#1496](https://github.com/wazuh/wazuh-packages/pull/1496)
+- Fix dashboard ip messages [#1500](https://github.com/wazuh/wazuh-packages/pull/1500)
+- Improved APT locked message and retry time [#1499](https://github.com/wazuh/wazuh-packages/pull/1499)
+- Fix unhandled promise for dashboard [#1497](https://github.com/wazuh/wazuh-packages/pull/1497)
+- Update ova motd message 4.3 [#1494](https://github.com/wazuh/wazuh-packages/pull/1494)
+- Remove service disable from RPM and Debian packages [#1471](https://github.com/wazuh/wazuh-packages/pull/1480)
+- Disabled multitenancy by default in dashboard and changed the app default route [#1471](https://github.com/wazuh/wazuh-packages/pull/1471)
+- Set as warning the unhandled promises in wazuh dashboard [#1434](https://github.com/wazuh/wazuh-packages/pull/1434/)
+- Remove ip message from OVA [#1395](https://github.com/wazuh/wazuh-packages/pull/1395)
+- Remove demo certificates from indexer and dashboard packages [#1390](https://github.com/wazuh/wazuh-packages/pull/1390)
 - Add centos8 vault repository due to EOL [#1307](https://github.com/wazuh/wazuh-packages/pull/1307)
 - Fix user deletion warning RPM manager [#1302](https://github.com/wazuh/wazuh-packages/pull/1302)
 - Fix issue where Solaris 11 was not executed in clean installations [#1292](https://github.com/wazuh/wazuh-packages/pull/1292)
@@ -47,6 +58,9 @@ All notable changes to this project will be documented in this file.
 - Add ossec user and group during compilation [#1023](https://github.com/wazuh/wazuh-packages/pull/1023)
 - Removed warning and added text in wazuh-passwords-tool.sh final message 4.3 [#1020](https://github.com/wazuh/wazuh-packages/pull/1020)
 
+## [v4.2.6]
+
+- Update SPECS [#1392](https://github.com/wazuh/wazuh-packages/pull/1392)
 ## [v4.2.5]
 
 - Update SPECS [#991](https://github.com/wazuh/wazuh-packages/pull/991)

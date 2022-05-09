@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Wazuh package generator
-# Copyright (C) 2015-2020, Wazuh Inc.
+# Copyright (C) 2015, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
@@ -106,7 +106,7 @@ build() {
             build_deb ${DEB_AMD64_BUILDER} ${DEB_AMD64_BUILDER_DOCKERFILE} || return 1
         fi
 
-    elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]]; then
+    elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]] ; then
 
         BUILD_NAME=""
         FILE_PATH=""
@@ -131,7 +131,7 @@ build() {
         fi
         build_deb ${BUILD_NAME} ${FILE_PATH} || return 1
     else
-        echo "Invalid target. Choose: manager, agent or api."
+        echo "Invalid target. Choose: manager or agent."
         return 1
     fi
 
@@ -143,7 +143,7 @@ help() {
     echo "Usage: $0 [OPTIONS]"
     echo
     echo "    -b, --branch <branch>      [Required] Select Git branch [${BRANCH}]. By default: master."
-    echo "    -t, --target <target>      [Required] Target package to build: manager, api or agent."
+    echo "    -t, --target <target>      [Required] Target package to build: manager or agent."
     echo "    -a, --architecture <arch>  [Optional] Target architecture of the package [amd64/i386/ppc64le/arm64/armhf]."
     echo "    -j, --jobs <number>        [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 2."
     echo "    -r, --revision <rev>       [Optional] Package revision. By default: 1."

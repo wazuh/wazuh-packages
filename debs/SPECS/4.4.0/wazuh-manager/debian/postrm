@@ -1,6 +1,6 @@
 #!/bin/sh
 # postrm script for Wazuh
-# Wazuh, Inc 2015-2020
+# Wazuh, Inc 2015
 set -e
 DIR="/var/ossec"
 WAZUH_TMP_DIR="${DIR}/packages_files/manager_config_files"
@@ -10,15 +10,6 @@ case "$1" in
 
         if [ -d ${WAZUH_TMP_DIR} ]; then
             rm -rf ${WAZUH_TMP_DIR}
-        fi
-
-        # Check for systemd
-        if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-manager > /dev/null 2>&1; then
-            systemctl disable wazuh-manager > /dev/null 2>&1
-            systemctl daemon-reload > /dev/null 2>&1
-        # Check for SysV
-        elif command -v service > /dev/null 2>&1 && service wazuh-manager status 2>/dev/null | grep "running" > /dev/null 2>&1; then
-            update-rc.d -f wazuh-manager remove > /dev/null 2>&1
         fi
 
         # Back up the old configuration files as .save
@@ -59,10 +50,10 @@ case "$1" in
     ;;
 
     purge)
-        if getent passwd | grep -q "^wazuh" ; then
+        if getent passwd wazuh > /dev/null 2>&1 ; then
             deluser wazuh  > /dev/null 2>&1
         fi
-        if getent group | grep -q "^wazuh" ; then
+        if getent group wazuh > /dev/null 2>&1; then
             delgroup wazuh  > /dev/null 2>&1
         fi
         rm -rf ${DIR}

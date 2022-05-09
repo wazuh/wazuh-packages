@@ -1,6 +1,6 @@
 #!/bin/sh
 # checkinstall script for wazuh-agent
-# Wazuh, Inc 2015-2022
+# Wazuh, Inc 2015
 
 expected_platform="ARCH"
 platform=`uname -p`

@@ -359,19 +359,19 @@ if id -g ossec > /dev/null 2>&1; then
   find %{_localstatedir} -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
   if id -u ossec > /dev/null 2>&1; then
     find %{_localstatedir} -group ossec -user ossec -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
-    userdel ossec
+    userdel ossec > /dev/null 2>&1
   fi
   if id -u ossecm > /dev/null 2>&1; then
     find %{_localstatedir} -group ossec -user ossecm -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
-    userdel ossecm
+    userdel ossecm > /dev/null 2>&1
   fi
   if id -u ossecr > /dev/null 2>&1; then
     find %{_localstatedir} -group ossec -user ossecr -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
-    userdel ossecr
+    userdel ossecr > /dev/null 2>&1
   fi
-fi
-if grep -q ossec /etc/group; then
-  groupdel ossec
+  if grep -q ossec /etc/group; then
+    groupdel ossec > /dev/null 2>&1
+  fi
 fi
 
 %preun
@@ -383,21 +383,10 @@ if [ $1 = 0 ]; then
   if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-agent > /dev/null 2>&1; then
     systemctl stop wazuh-agent.service > /dev/null 2>&1
   # Check for SysV
-  elif command -v service > /dev/null 2>&1 && service wazuh-agent status 2>/dev/null | grep "running" > /dev/null 2>&1; then
+  elif command -v service > /dev/null 2>&1 && service wazuh-agent status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
     service wazuh-agent stop > /dev/null 2>&1
-  else # Anything else
-    %{_localstatedir}/bin/wazuh-control stop > /dev/null 2>&1
   fi
-
-  # Check for systemd
-  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
-    systemctl disable wazuh-agent > /dev/null 2>&1
-    systemctl daemon-reload > /dev/null 2>&1
-  # Check for SysV
-  elif command -v service > /dev/null 2>&1 && command -v chkconfig > /dev/null 2>&1; then
-    chkconfig wazuh-agent off > /dev/null 2>&1
-    chkconfig --del wazuh-agent > /dev/null 2>&1
-  fi
+  %{_localstatedir}/bin/wazuh-control stop > /dev/null 2>&1
 
   # Remove the SELinux policy
   if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
@@ -465,7 +454,7 @@ if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
   if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 ; then
     systemctl daemon-reload > /dev/null 2>&1
     systemctl restart wazuh-agent.service > /dev/null 2>&1
-  elif command -v service > /dev/null 2>&1 && service wazuh-agent status 2>/dev/null | grep "running" > /dev/null 2>&1; then
+  elif command -v service > /dev/null 2>&1; then
     service wazuh-agent restart > /dev/null 2>&1
   else
     %{_localstatedir}/bin/wazuh-control restart > /dev/null 2>&1
@@ -616,9 +605,11 @@ rm -fr %{buildroot}
 
 
 %changelog
-* Sat Dec 25 2021 support <info@wazuh.com> - 4.4.0
+* Thu Nov 03 2022 support <info@wazuh.com> - 4.4.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Wed Dec 15 2021 support <info@wazuh.com> - 4.3.0
+* Thu May 05 2022 support <info@wazuh.com> - 4.3.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Fri Mar 25 2022 support <info@wazuh.com> - 4.2.6
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Nov 15 2021 support <info@wazuh.com> - 4.2.5
 - More info: https://documentation.wazuh.com/current/release-notes/

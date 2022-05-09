@@ -1,6 +1,6 @@
 #!/bin/sh
 # uninstall script for wazuh-agent
-# Wazuh, Inc 2015-2022
+# Wazuh, Inc 2015
 
 install_path=$1
 control_binary=$2

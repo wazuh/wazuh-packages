@@ -56,7 +56,7 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.ssh
 # Copy the files into RPM_BUILD_ROOT directory
 sed "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/ossec-hids-aix.init > src/init/templates/ossec-hids-aix.init.tmp
 mv src/init/templates/ossec-hids-aix.init.tmp src/init/templates/ossec-hids-aix.init
-install -m 0750 src/init/templates/ossec-hids-aix.init ${RPM_BUILD_ROOT}%{_init_scripts}/wazuh-agent
+/opt/freeware/bin/install -m 0750 src/init/templates/ossec-hids-aix.init ${RPM_BUILD_ROOT}%{_init_scripts}/wazuh-agent
 cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
 
 # Add configuration scripts
@@ -290,9 +290,11 @@ rm -fr %{buildroot}
 %attr(750, root, wazuh) %{_localstatedir}/wodles/*
 
 %changelog
-* Sat Dec 25 2021 support <info@wazuh.com> - 4.4.0
+* Thu Nov 03 2022 support <info@wazuh.com> - 4.4.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Mon Nov 01 2021 support <info@wazuh.com> - 4.3.0
+* Thu May 05 2022 support <info@wazuh.com> - 4.3.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Fri Mar 25 2022 support <info@wazuh.com> - 4.2.6
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Nov 15 2021 support <info@wazuh.com> - 4.2.5
 - More info: https://documentation.wazuh.com/current/release-notes/

@@ -13,32 +13,32 @@ systemConfig() {
   mv ${CUSTOM_PATH}/grub/grub /etc/default/
   grub2-mkconfig -o /boot/grub2/grub.cfg > /dev/null 2>&1
 
-  # Set dinamic ram of vm
+  # Update Wazuh indexer jvm heap
   mv ${CUSTOM_PATH}/automatic_set_ram.sh /etc/
-  chmod +x "/etc/automatic_set_ram.sh"
-  echo "@reboot . /etc/automatic_set_ram.sh" >> cron
-  crontab cron
-  rm cron
+  chmod 755 /etc/automatic_set_ram.sh
+  mv ${CUSTOM_PATH}/updateIndexerHeap.service /etc/systemd/system/
+  systemctl daemon-reload
+  systemctl enable updateIndexerHeap.service
 
   # Change root password (root:wazuh)
-  sed -i "s/root:.*:/root:\$1\$pNjjEA7K\$USjdNwjfh7A\.vHCf8suK41::0:99999:7:::/g" /etc/shadow 
+  sed -i "s/root:.*:/root:\$1\$pNjjEA7K\$USjdNwjfh7A\.vHCf8suK41::0:99999:7:::/g" /etc/shadow
 
-  # Add user wazuh (wazuh:wazuh)
-  adduser wazuh
-  sed -i "s/wazuh:!!/wazuh:\$1\$pNjjEA7K\$USjdNwjfh7A\.vHCf8suK41/g" /etc/shadow 
+  # Add custom user ($1$pNjjEA7K$USjdNwjfh7A.vHCf8suK41 -> wazuh)
+  adduser ${SYSTEM_USER}
+  sed -i "s/${SYSTEM_USER}:!!/${SYSTEM_USER}:\$1\$pNjjEA7K\$USjdNwjfh7A\.vHCf8suK41/g" /etc/shadow
 
-  gpasswd -a wazuh wheel
-  hostname wazuh-manager
+  gpasswd -a ${SYSTEM_USER} wheel
+  hostname ${HOSTNAME}
 
   # AWS instance has this enabled
   sed -i "s/PermitRootLogin yes/#PermitRootLogin yes/g" /etc/ssh/sshd_config
 
-  # Ssh configuration
+  # SSH configuration
   sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/" /etc/ssh/sshd_config
   echo "PermitRootLogin no" >> /etc/ssh/sshd_config
 
   # Edit system custom welcome messages
-  sh ${CUSTOM_PATH}/messages.sh ${DEBUG} ${WAZUH_VERSION}
+  bash ${CUSTOM_PATH}/messages.sh ${DEBUG} ${WAZUH_VERSION} ${SYSTEM_USER}
 
 }
 
@@ -106,7 +106,7 @@ postInstall() {
 
 clean() {
 
-  rm /securityadmin_demo.sh
+  rm -f /securityadmin_demo.sh
   yum clean all
 
 }

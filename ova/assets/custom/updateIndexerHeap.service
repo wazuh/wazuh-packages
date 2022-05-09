@@ -1,0 +1,8 @@
+[Unit]
+Description=Update Wazuh Indexer jvm.option memory heap space
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+ExecStart=/bin/bash /etc/automatic_set_ram.sh

@@ -1,6 +1,6 @@
 #!/bin/sh
 # postremove script for wazuh-agent
-# Wazuh, Inc 2015-2022
+# Wazuh, Inc 2015
 
 if getent passwd | grep "^wazuh"; then
   userdel wazuh

@@ -2,7 +2,7 @@
 
 # Program to build the Wazuh Virtual Machine
 # Wazuh package generator
-# Copyright (C) 2015-2020, Wazuh Inc.
+# Copyright (C) 2015, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
@@ -22,23 +22,42 @@ scriptpath=$(
 OUTPUT_DIR="${scriptpath}/output"
 CHECKSUM_DIR="${scriptpath}/checksum"
 
-UNATTENDED_RESOURCES_FOLDER="unattended_scripts"
-UNATTENDED_PATH="../${UNATTENDED_RESOURCES_FOLDER}/open-distro/unattended-installation"
-UNATTENDED_SCRIPT="unattended-installation.sh"
+UNATTENDED_RESOURCES_FOLDER="unattended_installer"
+UNATTENDED_PATH="../${UNATTENDED_RESOURCES_FOLDER}"
+VERSION_FILE="../VERSION"
 
 PACKAGES_REPOSITORY="prod"
 CHECKSUM="no"
 DEBUG="no"
 
 help () {
-    echo
-    echo "General usage: $0 [OPTIONS]"
-    echo "  -r,    --repository       [Optional] Select the software repository [prod/dev]. By default: ${PACKAGES_REPOSITORY}"
-    echo "  -s,    --store <path>     [Optional] Set the destination absolute path where the OVA file will be stored."
-    echo "  -c,    --checksum         [Optional] Generate checksum [yes/no]. By default: ${CHECKSUM}"
-    echo "  -g,    --debug            [Optional] Set debug mode on [yes/no]. By default: ${DEBUG}"
-    echo "  -h,    --help             [  Util  ] Show this help."
-    echo
+    echo -e ""
+    echo -e "NAME"
+    echo -e "$(basename "$0") - Build Wazuh OVA."
+    echo -e ""
+    echo -e "SYNOPSIS"
+    echo -e "        $(basename "$0") -r | -s | -c | -f | -h"
+    echo -e ""
+    echo -e "DESCRIPTION"
+    echo -e "        -r,  --repository"
+    echo -e "                Use development or production repository."
+    echo -e "                Values: [prod|dev]. By default: ${PACKAGES_REPOSITORY}."
+    echo -e ""
+    echo -e "        -s,  --store"
+    echo -e "                Set the destination absolute path where the OVA file will be stored."
+    echo -e "                By default, a output folder will be created in ${OUTPUT_DIR}."
+    echo -e ""
+    echo -e "        -c,  --checksum"
+    echo -e "                Generate OVA checksum."
+    echo -e "                Values: [yes|no]. By default: ${CHECKSUM}."
+    echo -e ""
+    echo -e "        -g,  --debug"
+    echo -e "                Set debug mode."
+    echo -e "                Values: [yes|no]. By default: ${DEBUG}."
+    echo -e ""
+    echo -e "        -h,  --help"
+    echo -e "                Show this help."
+    echo ""
     exit $1
 }
 
@@ -49,7 +68,7 @@ clean() {
     vagrant destroy -f
     OVA_VMDK="wazuh-${OVA_VERSION}-disk001.vmdk"
     rm -f ${OVA_VM} ${OVF_VM} ${OVA_VMDK} ${OVA_FIXED}
-    
+
     exit ${exit_code}
 }
 
@@ -78,11 +97,11 @@ build_ova() {
 
     # Get machine name
     VM_EXPORT=$(vboxmanage list vms | grep -i vm_wazuh | cut -d "\"" -f2)
-    
+
     # Create OVA with machine
     vboxmanage export ${VM_EXPORT} -o ${OVA_VM} \
     --vsys 0 \
-    --product "Wazuh v${WAZUH_VERSION} OVA" \
+    --product "Wazuh v${OVA_VERSION} OVA" \
     --producturl "https://packages.wazuh.com/vm/wazuh-${OVA_VERSION}.ova" \
     --vendor "Wazuh, inc <info@wazuh.com>" --vendorurl "https://wazuh.com" \
     --version "$OVA_VERSION" --description "Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring." \
@@ -106,7 +125,7 @@ build_ova() {
 main() {
 
     while [ -n "$1" ]; do
-        
+
         case $1 in
             "-h" | "--help")
             help 0
@@ -177,9 +196,11 @@ main() {
 
     cp -r ../${UNATTENDED_RESOURCES_FOLDER} .
 
-    WAZUH_VERSION=$(cat ${UNATTENDED_PATH}/${UNATTENDED_SCRIPT} | grep "WAZUH_VER=" | cut -d "\"" -f 2)
-    OPENDISTRO_VERSION=$(cat ${UNATTENDED_PATH}/${UNATTENDED_SCRIPT} | grep "OD_VER=" | cut -d "\"" -f 2)
-    OVA_VERSION="${WAZUH_VERSION}_${OPENDISTRO_VERSION}"
+    OVA_VERSION=$(cat ${VERSION_FILE})
+    if [ "${OVA_VERSION:0:1}" == "v" ]; then
+        OVA_VERSION=${OVA_VERSION:1}
+    fi
+
 
     # Build OVA file (no standard)
     echo "Version to build: ${OVA_VERSION} with ${REPO} repository"
@@ -188,8 +209,8 @@ main() {
     rm -rf ${UNATTENDED_RESOURCES_FOLDER}
 
     # Standarize OVA
-    bash setOVADefault.sh "${scriptpath}" "${OUTPUT_DIR}/${OVA_VM}" "${OUTPUT_DIR}/${OVA_VM}" "${scriptpath}/wazuh_ovf_template" "${WAZUH_VERSION}" "${OPENDISTRO_VERSION}" || clean 1
-    
+    bash setOVADefault.sh "${scriptpath}" "${OUTPUT_DIR}/${OVA_VM}" "${OUTPUT_DIR}/${OVA_VM}" "${scriptpath}/wazuh_ovf_template" "${OVA_VERSION}"  || clean 1
+
     if [ "${CHECKSUM}" = "yes" ]; then
         mkdir -p ${CHECKSUM_DIR}
         cd ${OUTPUT_DIR} && sha512sum "${OVA_VM}" > "${CHECKSUM_DIR}/${OVA_VM}.sha512"
