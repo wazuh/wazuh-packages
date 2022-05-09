@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 
+## [v4.5.0]
+
 ## [v4.4.0]
 
 - Add new GCloud integration file to Solaris 11 [#1384](https://github.com/wazuh/wazuh-packages/pull/1384)
