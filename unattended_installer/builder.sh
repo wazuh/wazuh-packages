@@ -18,7 +18,6 @@ readonly resources_common="${base_path}/common_functions"
 readonly resources_download="${base_path}/downloader"
 readonly source_branch="4.3"
 
-
 function getHelp() {
 
     echo -e ""
