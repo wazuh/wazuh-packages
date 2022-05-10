@@ -1,6 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [v4.3.1]
+
+- Update SPECS [#1534](https://github.com/wazuh/wazuh-packages/pull/1534)
 
 ## [v4.3.0]
 
