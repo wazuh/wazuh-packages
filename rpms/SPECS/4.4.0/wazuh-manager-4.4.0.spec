@@ -583,7 +583,6 @@ rm -fr %{buildroot}
 %dir %attr(750, root, wazuh) %{_localstatedir}/api/scripts
 %attr(640, root, wazuh) %{_localstatedir}/api/scripts/wazuh-apid.py
 %dir %attr(750, root, wazuh) %{_localstatedir}/backup
-%dir %attr(750, wazuh, wazuh) %{_localstatedir}/backup/db
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/backup/agents
 %dir %attr(750, root, wazuh) %{_localstatedir}/backup/shared
 %dir %attr(750, root, wazuh) %{_localstatedir}/bin
