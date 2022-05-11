@@ -38,5 +38,7 @@ RUN curl -OL http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz && \
 ADD build.sh /usr/local/bin/build_package
 RUN chmod +x /usr/local/bin/build_package
 
+ADD wazuh.conf /usr/local/bin/wazuh.conf
+
 # Set the entrypoint
 ENTRYPOINT ["/usr/local/bin/build_package"]
