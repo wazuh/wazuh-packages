@@ -543,3 +543,10 @@ function installCommon_changePasswordAPI() {
     eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_WUI" -H "Content-Type: application/json" -d "$WAZUH_WUI_PASS" "https://localhost:55000/security/users/2" -o /dev/null'
 
 }
+
+function installCommon_updateDashborad_WUI_Password() {
+
+    password_wazuh_wui=$(cat /tmp/wazuh-install-files/passwords.wazuh | awk -F': ' '{print $2}' | tail -n 2 | head -n 1)
+    eval 'sed -i "s|password: wazuh-wui|password: ${password_wazuh_wui}|g" /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml'
+
+}
