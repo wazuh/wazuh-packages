@@ -274,7 +274,7 @@ function installCommon_installPrerequisites() {
 
 function installCommon_readPasswordFileUsers() {
 
-    filecorrect=$(grep -Ev '^#|^\s*$' "${p_file}" | grep -Pzc '\A(\s*username:[ \t]+\w+\s*password:[ \t]+[A-Za-z0-9_\-]+\s*)+\Z')
+    filecorrect=$(grep -Ev '^#|^\s*$' "${p_file}" | grep -Pzc '\A(\s*username:[ \t]+\w+\s*password:[ \t]+[A-Za-z0-9.^$*+?()[{\|]+\s*)+\Z')
     if [[ "${filecorrect}" -ne 1 ]]; then
         common_logger -e "The password file doesn't have a correct format.
 
@@ -526,5 +526,20 @@ function installCommon_startService() {
         common_logger -e "${1} could not start. No service manager found on the system."
         exit 1
     fi
+
+}
+
+function installCommon_changePasswordAPI() {
+
+    password_wazuh=$(cat /tmp/wazuh-install-files/passwords.wazuh | awk -F': ' '{print $2}' | tail -n 6 | head -n 1)
+    password_wazuh_wui=$(cat /tmp/wazuh-install-files/passwords.wazuh | awk -F': ' '{print $2}' | tail -n 2 | head -n 1)
+    WAZUH_PASS='{"password":"'"$password_wazuh"'"}'
+    WAZUH_WUI_PASS='{"password":"'"$password_wazuh_wui"'"}'
+
+    TOKEN=$(curl -s -u wazuh:wazuh -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
+    eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d "$WAZUH_PASS" "https://localhost:55000/security/users/1" -o /dev/null'
+
+    TOKEN_WUI=$(curl -s -u wazuh-wui:wazuh-wui -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
+    eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_WUI" -H "Content-Type: application/json" -d "$WAZUH_WUI_PASS" "https://localhost:55000/security/users/2" -o /dev/null'
 
 }
