@@ -92,18 +92,20 @@ function dashboard_initialize() {
         j=$((j+1))
     done
 
-    if [ "${#server_node_names[@]}" -eq 1 ]; then
-        wazuh_api_address=${server_node_ips[0]}
-    else
-        for i in "${!server_node_types[@]}"; do
-            if [[ "${server_node_types[i]}" == "master" ]]; then
-                wazuh_api_address=${server_node_ips[i]}
-            fi
-        done
-    fi
-    eval "sed -i 's,url: https://localhost,url: https://${wazuh_api_address},g' /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml ${debug}"
-
-    if [ ${j} -eq 12 ]; then
+    if [ ${j} -lt 12 ]; then
+        if [ "${#server_node_names[@]}" -eq 1 ]; then
+            wazuh_api_address=${server_node_ips[0]}
+        else
+            for i in "${!server_node_types[@]}"; do
+                if [[ "${server_node_types[i]}" == "master" ]]; then
+                    wazuh_api_address=${server_node_ips[i]}
+                fi
+            done
+        fi
+        if [ -f "/usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml" ]; then
+            eval "sed -i 's,url: https://localhost,url: https://${wazuh_api_address},g' /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml ${debug}"
+        fi
+    elif [ ${j} -eq 12 ]; then
         flag="-w"
         if [ -z "${force}" ]; then
             flag="-e"
