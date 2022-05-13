@@ -177,6 +177,7 @@ function passwords_generatePasswordFile() {
         echo "  password: ${passwords[${i}]}" >> "${gen_file}"
         echo ""	>> "${gen_file}"
     done
+    passwords_createPasswordAPI
 
 }
 
@@ -217,7 +218,7 @@ function passwords_readAdmincerts() {
 }
 
 function passwords_readFileUsers() {
-    filecorrect=$(grep -Ev '^#|^\s*$' "${p_file}" | grep -Pzc '\A(\s*username:[ \t]+\w+\s*password:[ \t]+[A-Za-z0-9_\-]+\s*)+\Z')
+    filecorrect=$(grep -Ev '^#|^\s*$' "${p_file}" | grep -Pzc '\A(\s*username:[ \t]+\w+\s*password:[ \t]+[A-Za-z0-9_.^$*+?()[{\|]+\s*)+\Z')
     if [[ "${filecorrect}" -ne 1 ]]; then
         common_logger -e "The password file doesn't have a correct format.
 
@@ -378,5 +379,21 @@ function passwords_runSecurityAdmin() {
             common_logger -d "Passwords changed."
         fi
     fi
+
+}
+
+function passwords_createPasswordAPI() {
+
+    password_wazuh=$(tr -dc 'A-Za-z0-9_.^$*+?()[{\|' </dev/urandom | head -c"${1:-32}";echo;)
+    password_wazuh_wui=$(tr -dc 'A-Za-z0-9_.^$*+?()[{\|' </dev/urandom | head -c"${1:-32}";echo;)
+
+    echo "# New password for wazuh API" >> "${gen_file}"
+    echo "  username: wazuh" >> "${gen_file}"
+    echo "  password: $password_wazuh" >> "${gen_file}"
+    echo ""	>> "${gen_file}"
+    echo "# New password for wazuh-wui API" >> "${gen_file}"
+    echo "  username: wazuh_wui" >> "${gen_file}"
+    echo "  password: $password_wazuh_wui" >> "${gen_file}"
+    echo ""	>> "${gen_file}"
 
 }
