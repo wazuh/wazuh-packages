@@ -584,6 +584,7 @@ rm -fr %{buildroot}
 %dir %attr(750, root, wazuh) %{_localstatedir}/active-response
 %dir %attr(750, root, wazuh) %{_localstatedir}/active-response/bin
 %attr(750, root, wazuh) %{_localstatedir}/active-response/bin/*
+%attr(750, root, root) %{_localstatedir}/active-response/bin/.debug
 %dir %attr(750, root, wazuh) %{_localstatedir}/api
 %dir %attr(770, root, wazuh) %{_localstatedir}/api/configuration
 %attr(660, root, wazuh) %config(noreplace) %{_localstatedir}/api/configuration/api.yaml
@@ -624,6 +625,7 @@ rm -fr %{buildroot}
 %attr(750, root, wazuh) %{_localstatedir}/bin/wazuh-clusterd
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-db
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-modulesd
+%attr(750, root, root) %{_localstatedir}/bin/.debug
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/etc
 %attr(660, root, wazuh) %config(noreplace) %{_localstatedir}/etc/ossec.conf
 %attr(640, root, wazuh) %config(noreplace) %{_localstatedir}/etc/client.keys
@@ -660,6 +662,7 @@ rm -fr %{buildroot}
 %dir %attr(750, root, wazuh) %{_localstatedir}/integrations
 %attr(750, root, wazuh) %{_localstatedir}/integrations/*
 %dir %attr(750, root, wazuh) %{_localstatedir}/lib
+%attr(750, root, root) %{_localstatedir}/lib/.debug
 %attr(750, root, wazuh) %{_localstatedir}/lib/libwazuhext.so
 %attr(750, root, wazuh) %{_localstatedir}/lib/libwazuhshared.so
 %attr(750, root, wazuh) %{_localstatedir}/lib/libdbsync.so
