@@ -546,7 +546,11 @@ function installCommon_changePasswordAPI() {
 
 function installCommon_updateDashborad_WUI_Password() {
 
-    password_wazuh_wui=$(cat /tmp/wazuh-install-files/passwords.wazuh | awk -F': ' '{print $2}' | tail -n 2 | head -n 1)
-    eval 'sed -i "s|password: wazuh-wui|password: ${password_wazuh_wui}|g" /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml'
+    if [ -f "/usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml" ]; then
+        password_wazuh_wui=$(cat /tmp/wazuh-install-files/passwords.wazuh | awk -F': ' '{print $2}' | tail -n 2 | head -n 1)
+        eval 'sed -i "s|password: wazuh-wui|password: ${password_wazuh_wui}|g" /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml'
+    else
+        echo "ERROR: File /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml does not exist"
+    fi
 
 }
