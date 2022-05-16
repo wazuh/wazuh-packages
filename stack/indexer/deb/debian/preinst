@@ -1,0 +1,92 @@
+#!/bin/sh
+# postinst script for Wazuh-indexer
+# Copyright (C) 2021, Wazuh Inc.
+#
+# This program is a free software; you can redistribute it
+# and/or modify it under the terms of the GNU General Public
+# License (version 2) as published by the FSF - Free Software
+# Foundation.
+
+set -e 
+
+export NAME=wazuh-indexer
+export CONFIG_DIR="/etc/${NAME}"
+export INSTALLATION_DIR="/usr/share/${NAME}"
+
+#
+# This script is executed in the pre-installation phase
+#
+#   On Debian,
+#       $1=install : indicates an new install
+#       $1=upgrade : indicates an upgrade
+
+err_exit() {
+    echo "$@" >&2
+    exit 1
+}
+
+# Source the default env file
+if [ -f "/etc/default/wazuh-indexer" ]; then
+    . "/etc/default/wazuh-indexer"
+fi
+
+export OPENSEARCH_PATH_CONF=${OPENSEARCH_PATH_CONF:-${CONFIG_DIR}}
+
+case "$1" in
+
+    # Debian ####################################################
+    install)
+
+        # Create wazuh-indexer group if not existing
+        if ! getent group ${NAME} > /dev/null 2>&1 ; then
+            echo -n "Creating ${NAME} group..."
+            addgroup --quiet --system ${NAME}
+            echo " OK"
+        fi
+
+        # Create wazuh-indexer user if not existing
+        if ! id ${NAME} > /dev/null 2>&1 ; then
+            echo -n "Creating ${NAME} user..."
+            adduser --quiet \
+                    --system \
+                    --no-create-home \
+                    --home /nonexistent \
+                    --ingroup ${NAME} \
+                    --disabled-password \
+                    --shell /bin/false \
+                    ${NAME}
+            echo " OK"
+        fi
+    ;;
+
+    upgrade)
+        # Stop the services to upgrade
+        if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet "${NAME}" > /dev/null 2>&1; then
+            systemctl stop "${NAME}".service > /dev/null 2>&1
+            touch "${INSTALLATION_DIR}/${NAME}.restart"
+        # Check for SysV
+        elif command -v service > /dev/null 2>&1 && service "${NAME}" status 2>/dev/null | grep "running" > /dev/null 2>&1; then
+            service "${NAME}" stop > /dev/null 2>&1
+            touch "${INSTALLATION_DIR}/${NAME}.restart"
+        elif [ -x /etc/init.d/wazuh-indexer ]; then
+            if command -v invoke-rc.d >/dev/null; then
+                invoke-rc.d wazuh-indexer stop > /dev/null 2>&1
+                touch "${INSTALLATION_DIR}/${NAME}.restart"
+            else
+                /etc/init.d/wazuh-indexer stop > /dev/null 2>&1
+                touch "${INSTALLATION_DIR}/${NAME}.restart"
+            fi
+        elif [ -x /etc/rc.d/init.d/wazuh-indexer ] ; then
+            /etc/rc.d/init.d/wazuh-indexer stop > /dev/null 2>&1
+            touch "${INSTALLATION_DIR}/${NAME}.restart"
+        fi
+    ;;
+
+    abort-deconfigure|abort-upgrade|abort-remove)
+    ;;
+
+    *)
+        err_exit "pre install script called with unknown argument \`$1'"
+    ;;
+esac
+

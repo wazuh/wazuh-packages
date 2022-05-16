@@ -1,0 +1,90 @@
+#!/bin/sh
+# postinst script for Wazuh-indexer
+# Copyright (C) 2021, Wazuh Inc.
+#
+# This program is a free software; you can redistribute it
+# and/or modify it under the terms of the GNU General Public
+# License (version 2) as published by the FSF - Free Software
+# Foundation.
+
+set -e 
+
+export CONFIG_DIR=/etc/wazuh-indexer
+
+#
+# This script is executed in the pre-remove phase
+#
+#   On Debian,
+#       $1=remove    : indicates a removal
+#       $1=upgrade   : indicates an upgrade
+
+# Source the default env file
+if [ -f "/etc/default/wazuh-indexer" ]; then
+    . "/etc/default/wazuh-indexer"
+fi
+
+export OPENSEARCH_PATH_CONF=${OPENSEARCH_PATH_CONF:-${CONFIG_DIR}}
+
+STOP_REQUIRED=false
+REMOVE_SERVICE=false
+
+case "$1" in
+
+    # Debian ####################################################
+    remove|purge)
+        STOP_REQUIRED=true
+        REMOVE_SERVICE=true
+    ;;
+
+    upgrade|deconfigure|failed-upgrade)
+    ;;
+
+    *)
+        echo "pre remove script called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+# Stops the service
+if [ "$STOP_REQUIRED" = "true" ]; then
+    echo -n "Stopping wazuh-indexer service..."
+    if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-indexer > /dev/null 2>&1; then
+        systemctl --no-reload stop wazuh-indexer.service > /dev/null 2>&1
+
+    # Check for SysV
+    elif command -v service > /dev/null 2>&1 && service wazuh-indexer status 2>/dev/null | grep "running" > /dev/null 2>&1; then
+        service wazuh-indexer stop > /dev/null 2>&1
+
+    elif [ -x /etc/init.d/wazuh-indexer ]; then
+        if command -v invoke-rc.d >/dev/null; then
+            invoke-rc.d wazuh-indexer stop > /dev/null 2>&1
+        else
+            /etc/init.d/wazuh-indexer stop > /dev/null 2>&1
+        fi
+
+    # Older Suse linux distributions do not ship with systemd
+    # but do not have an /etc/init.d/ directory
+    # this tries to stop the wazuh-indexer service on these
+    # as well without failing this script
+    elif [ -x /etc/rc.d/init.d/wazuh-indexer ] ; then
+        /etc/rc.d/init.d/wazuh-indexer stop > /dev/null 2>&1
+    else # Anything else
+        kill -15 `pgrep -f opensearch` > /dev/null 2>&1
+    fi
+    echo " OK"
+fi
+
+if [ "$REMOVE_SERVICE" = "true" ]; then
+    if command -v systemctl >/dev/null; then
+        systemctl disable wazuh-indexer.service > /dev/null 2>&1 || true
+    fi
+
+    if command -v chkconfig >/dev/null; then
+        chkconfig --del wazuh-indexer 2> /dev/null || true
+    fi
+
+    if command -v update-rc.d >/dev/null; then
+        update-rc.d wazuh-indexer remove >/dev/null || true
+    fi
+fi
+

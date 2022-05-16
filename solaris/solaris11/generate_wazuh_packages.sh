@@ -1,6 +1,6 @@
 #!/bin/bash
 # Created by Wazuh, Inc. <info@wazuh.com>.
-# Copyright (C) 2015-2022, Wazuh Inc.
+# Copyright (C) 2015, Wazuh Inc.
 # This program is a free software; you can redistribute it and/or modify it under the terms of GPLv2
 # Wazuh Solaris 11 Package builder.
 
@@ -180,7 +180,6 @@ create_package() {
 
 
     # Package generation process
-    svcbundle -o wazuh-agent.xml -s service-name=application/wazuh-agent -s start-method="${install_path}/bin/${control_binary} start" -s stop-method="${install_path}/bin/${control_binary} stop"
     pkgsend generate ${install_path} | pkgfmt > wazuh-agent.p5m.1
     sed "s|<INSTALL_PATH>|${install_path}|" ${current_path}/postinstall.sh > ${current_path}/postinstall.sh.new
     mv ${current_path}/postinstall.sh.new ${current_path}/postinstall.sh
