@@ -3,6 +3,7 @@ All notable changes to this project will be documented in this file.
 
 ## [v4.3.1]
 
+- Fix dashboard app name [#1551](https://github.com/wazuh/wazuh-packages/pull/1551)
 - Update SPECS [#1534](https://github.com/wazuh/wazuh-packages/pull/1534)
 
 ## [v4.3.0]
