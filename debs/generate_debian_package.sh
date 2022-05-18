@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Wazuh package generator
-# Copyright (C) 2015-2020, Wazuh Inc.
+# Copyright (C) 2015, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
@@ -56,7 +56,7 @@ build_deb() {
     DOCKERFILE_PATH="$2"
 
     # Copy the necessary files
-    cp build.sh ${DOCKERFILE_PATH}
+    cp ${CURRENT_PATH}/build.sh ${DOCKERFILE_PATH}
 
     # Create an optional parameter to share the local source code as a volume
     if [ ! -z "${LOCAL_SOURCE_CODE}" ]; then
@@ -106,7 +106,7 @@ build() {
             build_deb ${DEB_AMD64_BUILDER} ${DEB_AMD64_BUILDER_DOCKERFILE} || return 1
         fi
 
-    elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]]; then
+    elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]] ; then
 
         BUILD_NAME=""
         FILE_PATH=""
@@ -131,7 +131,7 @@ build() {
         fi
         build_deb ${BUILD_NAME} ${FILE_PATH} || return 1
     else
-        echo "Invalid target. Choose: manager, agent or api."
+        echo "Invalid target. Choose: manager or agent."
         return 1
     fi
 
@@ -142,20 +142,21 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -b, --branch <branch>     [Required] Select Git branch [${BRANCH}]. By default: master."
-    echo "    -t, --target <target>     [Required] Target package to build: manager, api or agent."
-    echo "    -a, --architecture <arch> [Optional] Target architecture of the package [amd64/i386/ppc64le/arm64/armhf]."
-    echo "    -j, --jobs <number>       [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 2."
-    echo "    -r, --revision <rev>      [Optional] Package revision. By default: 1."
-    echo "    -s, --store <path>        [Optional] Set the destination path of package. By default, an output folder will be created."
-    echo "    -p, --path <path>         [Optional] Installation path for the package. By default: /var/ossec."
-    echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
-    echo "    -c, --checksum <path>     [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
-    echo "    --dont-build-docker       [Optional] Locally built docker image will be used instead of generating a new one."
-    echo "    --sources <path>          [Optional] Absolute path containing wazuh source code. This option will use local source code instead of downloading it from GitHub."
-    echo "    --dev                     [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub."
-    echo "    --future                  [Optional] Build test future package x.30.0 Used for development purposes."
-    echo "    -h, --help                Show this help."
+    echo "    -b, --branch <branch>      [Required] Select Git branch [${BRANCH}]. By default: master."
+    echo "    -t, --target <target>      [Required] Target package to build: manager or agent."
+    echo "    -a, --architecture <arch>  [Optional] Target architecture of the package [amd64/i386/ppc64le/arm64/armhf]."
+    echo "    -j, --jobs <number>        [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 2."
+    echo "    -r, --revision <rev>       [Optional] Package revision. By default: 1."
+    echo "    -s, --store <path>         [Optional] Set the destination path of package. By default, an output folder will be created."
+    echo "    -p, --path <path>          [Optional] Installation path for the package. By default: /var/ossec."
+    echo "    -d, --debug                [Optional] Build the binaries with debug symbols. By default: no."
+    echo "    -c, --checksum <path>      [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
+    echo "    --dont-build-docker        [Optional] Locally built docker image will be used instead of generating a new one."
+    echo "    --sources <path>           [Optional] Absolute path containing wazuh source code. This option will use local source code instead of downloading it from GitHub."
+    echo "    --packages-branch <branch> [Optional] Select Git branch or tag from wazuh-packages repository. e.g master."
+    echo "    --dev                      [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub."
+    echo "    --future                   [Optional] Build test future package x.30.0 Used for development purposes."
+    echo "    -h, --help                 Show this help."
     echo
     exit $1
 }

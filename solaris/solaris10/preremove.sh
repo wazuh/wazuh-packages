@@ -1,5 +1,6 @@
 #!/bin/sh
 # preremove script for wazuh-agent
+# Wazuh, Inc 2015
 
 control_binary="wazuh-control"
 

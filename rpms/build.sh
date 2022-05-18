@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Wazuh package builder
-# Copyright (C) 2015-2020, Wazuh Inc.
+# Copyright (C) 2015, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
@@ -67,7 +67,7 @@ cp -R wazuh-* ${build_dir}/${package_name}
 # Including spec file
 if [ "${use_local_specs}" = "no" ]; then
     curl -sL https://github.com/wazuh/wazuh-packages/tarball/${wazuh_packages_branch} | tar zx
-    specs_path=$(find . -type d -name "SPECS" -path "*rpms*")
+    specs_path=$(find ./wazuh* -type d -name "SPECS" -path "*rpms*")
 else
     specs_path="/specs"
 fi

@@ -1,38 +1,46 @@
 #!/bin/bash
 
-WAZUH_VERSION=$1
-OPENDISTRO_VERSION=$2
-ELK_VERSION=$3
-PACKAGES_REPOSITORY=$4
-BRANCH=$5
-BRANCHDOC=$6
-DEBUG=$7
-UI_REVISION=$8
-INSTALLER="all-in-one-installation.sh"
+PACKAGES_REPOSITORY=$1
+DEBUG=$2
+
+RESOURCES_PATH="/tmp/unattended_installer"
+BUILDER="builder.sh"
+INSTALLER="wazuh-install.sh"
+SYSTEM_USER="wazuh-user"
+HOSTNAME="wazuh-server"
+
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ASSETS_PATH="${CURRENT_PATH}/assets"
 CUSTOM_PATH="${ASSETS_PATH}/custom"
+BUILDER_ARGS="-i"
+INSTALL_ARGS="-a"
 
-[[ ${DEBUG} = "yes" ]] && set -ex || set -e
+if [[ "${PACKAGES_REPOSITORY}" == "dev" ]]; then
+  BUILDER_ARGS+=" -d"
+fi
+
+if [[ "${DEBUG}" = "yes" ]]; then
+  INSTALL_ARGS+=" -v"
+fi
 
 echo "Using ${PACKAGES_REPOSITORY} packages"
 
 . ${ASSETS_PATH}/steps.sh
 
+# Build install script
+bash ${RESOURCES_PATH}/${BUILDER} ${BUILDER_ARGS}
+WAZUH_VERSION=$(cat ${RESOURCES_PATH}/${INSTALLER} | grep "wazuh_version=" | cut -d "\"" -f 2)
+
 # System configuration
 systemConfig
-
-curl -so ${INSTALLER} https://raw.githubusercontent.com/wazuh/wazuh-documentation/${BRANCHDOC}/resources/open-distro/unattended-installation/${INSTALLER} 
 
 # Edit installation script
 preInstall
 
-sh ${INSTALLER}
+# Install
+bash ${RESOURCES_PATH}/${INSTALLER} ${INSTALL_ARGS}
 
-systemctl stop kibana filebeat elasticsearch
+systemctl stop wazuh-dashboard filebeat wazuh-indexer
 systemctl enable wazuh-manager
-
-# Edit installation 
-postInstall
 
 clean

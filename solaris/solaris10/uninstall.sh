@@ -1,4 +1,6 @@
-#/bin/sh
+#!/bin/sh
+# uninstall script for wazuh-agent
+# Wazuh, Inc 2015
 
 control_binary="wazuh-control"
 
@@ -19,7 +21,7 @@ rm -rf /etc/rc2.d/S97wazuh-agent
 rm -rf /etc/rc3.d/S97wazuh-agent
 
 ## Remove User and Groups
-userdel ossec 2> /dev/null
-groupdel ossec 2> /dev/null
+userdel wazuh 2> /dev/null
+groupdel wazuh 2> /dev/null
 
 exit 0

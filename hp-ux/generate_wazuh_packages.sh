@@ -163,8 +163,8 @@ clean() {
     rm -rf ${install_path}
 
     find /sbin -name "*wazuh-agent*" -exec rm {} \;
-    userdel ossec
-    groupdel ossec
+    userdel wazuh
+    groupdel wazuh
 
     exit ${exit_code}
 }

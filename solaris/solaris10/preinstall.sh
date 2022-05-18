@@ -1,6 +1,6 @@
-#!/bin/ksh
+#!/bin/sh
 # preinstall script for wazuh-agent
-# Wazuh, Inc 2015-2020
+# Wazuh, Inc 2015
 
 if [ ! -f /etc/ossec-init.conf ]; then
     DIR="/var/ossec"
@@ -18,8 +18,8 @@ else
     type=upgrade
 fi
 
-USER="ossec"
-GROUP="ossec"
+USER="wazuh"
+GROUP="wazuh"
 OSSEC_HIDS_TMP_DIR="/tmp/wazuh-agent"
 OSMYSHELL="/sbin/nologin"
 
@@ -34,12 +34,12 @@ if [ ! -f ${OSMYSHELL} ]; then
     fi
 fi
 
-getent group | grep "^ossec"
+getent group | grep "^wazuh"
 if [ "$?" -eq 1 ]; then
     groupadd ${GROUP}
 fi
 
-getent passwd | grep "^ossec"
+getent passwd | grep "^wazuh"
 if [ "$?" -eq 1 ]; then
     useradd -d ${DIR} -s ${OSMYSHELL} -g ${GROUP} ${USER} > /dev/null 2>&1
 fi
@@ -47,8 +47,7 @@ fi
 case $type in
     upgrade)
 
-    if [ -d "$DIR" ]
-		    then
+    if [ -d "$DIR" ]; then
         if [ -f ${DIR}/etc/ossec.conf ]; then
             cp  ${DIR}/etc/ossec.conf  ${DIR}/etc/ossec.conf.deborig
             chmod 0600 ${DIR}/etc/ossec.conf.deborig

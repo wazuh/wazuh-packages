@@ -1,7 +1,7 @@
 #!/bin/bash
 # Program to build and package OSX wazuh-agent
 # Wazuh package generator
-# Copyright (C) 2015-2020, Wazuh Inc.
+# Copyright (C) 2015, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
@@ -185,6 +185,7 @@ function help() {
     echo "    -h, --help                    [  Util  ] Show this help."
     echo "    -i, --install-deps            [  Util  ] Install build dependencies (Packages)."
     echo "    -x, --install-xcode           [  Util  ] Install X-Code and brew. Can't be executed as root."
+    echo "    -v, --verbose                 [  Util  ] Show additional information during the package generation."
     echo
     echo "  Signing options:"
     echo "    --keychain                    [Optional] Keychain where the Certificates are installed."
