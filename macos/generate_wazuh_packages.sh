@@ -140,14 +140,7 @@ function build_package() {
         ${CURRENT_PATH}/uninstall.sh
     fi
 
-    packages_script_path=""
-
-    # build the sources
-    if [[ "${VERSION}" =~ ^2\. ]]; then
-        packages_script_path="package_files/2.x"
-    else
-        packages_script_path="package_files/${VERSION}"
-    fi
+    packages_script_path="package_files"
 
     cp ${packages_script_path}/*.sh ${CURRENT_PATH}/package_files/
     ${CURRENT_PATH}/package_files/build.sh "${INSTALLATION_PATH}" "${WAZUH_PATH}" ${JOBS}
