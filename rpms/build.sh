@@ -66,8 +66,9 @@ cp -R wazuh-* ${build_dir}/${package_name}
 
 # Including spec file
 if [ "${use_local_specs}" = "no" ]; then
-    curl -sL https://github.com/wazuh/wazuh-packages/tarball/${wazuh_packages_branch} | tar zx
-    specs_path=$(find ./wazuh* -type d -name "SPECS" -path "*rpms*")
+    specs_path="/d_specs"
+    mkdir -p "${specs_path}"
+    curl -L "https://raw.githubusercontent.com/wazuh/wazuh-packages/${wazuh_packages_branch}/rpms/SPECS/wazuh-${build_target}.spec" -o "/d_specs/wazuh-${build_target}.spec"
 else
     specs_path="/specs"
 fi
@@ -82,19 +83,16 @@ if [[ "${future}" == "yes" ]]; then
     old_name="wazuh-${build_target}-${base_version}-${package_release}"
     package_name=wazuh-${build_target}-${wazuh_version}
     old_package_name=wazuh-${build_target}-${base_version}
-    cp -r "${specs_path}/${base_version}" "${specs_path}/${wazuh_version}"
-    cd "${specs_path}/${wazuh_version}"
-    rename "${base_version}" "${wazuh_version}" *${base_version}*
-    cd -
+    cp -r "${specs_path}/" "${specs_path}/"
 
     # PREPARE FUTURE SPECS AND SOURCES
     mv "${build_dir}/${old_package_name}" "${build_dir}/${package_name}"
-    find "${build_dir}/${package_name}" "${specs_path}/${wazuh_version}" \( -name "*VERSION*" -o -name "*.spec" \) -exec sed -i "s/${base_version}/${wazuh_version}/g" {} \;
+    find "${build_dir}/${package_name}" "${specs_path}/" \( -name "*VERSION*" -o -name "*.spec" \) -exec sed -i "s/${base_version}/${wazuh_version}/g" {} \;
     sed -i "s/\$(VERSION)/${MAJOR}.${MINOR}/g" "${build_dir}/${package_name}/src/Makefile"
 
 fi
 
-cp ${specs_path}/${wazuh_version}/wazuh-${build_target}-${wazuh_version}.spec ${rpm_build_dir}/SPECS/${package_name}.spec
+cp ${specs_path}/wazuh-${build_target}.spec ${rpm_build_dir}/SPECS/${package_name}.spec
 
 # Generating source tar.gz
 cd ${build_dir} && tar czf "${rpm_build_dir}/SOURCES/${package_name}.tar.gz" "${package_name}"
