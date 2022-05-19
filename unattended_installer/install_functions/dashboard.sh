@@ -105,6 +105,11 @@ function dashboard_initialize() {
         if [ -f "/usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml" ]; then
             eval "sed -i 's,url: https://localhost,url: https://${wazuh_api_address},g' /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml ${debug}"
         fi
+
+        common_logger "Wazuh dashboard web application initialized."
+        common_logger -nl "--- Summary ---"
+        common_logger -nl "You can access the web interface https://${nodes_dashboard_ip}\n    User: admin\n    Password: ${u_pass}"
+
     elif [ ${j} -eq 12 ]; then
         flag="-w"
         if [ -z "${force}" ]; then
@@ -130,12 +135,7 @@ function dashboard_initialize() {
             common_logger -nl "--- Summary ---"
             common_logger -nl "When Wazuh dashboard is able to connect to your Wazuh indexer cluster, you can access the web interface https://${nodes_dashboard_ip}\n    User: admin\n    Password: ${u_pass}"
         fi
-    else
-        common_logger "Wazuh dashboard web application initialized."
-        common_logger -nl "--- Summary ---"
-        common_logger -nl "You can access the web interface https://${nodes_dashboard_ip}\n    User: admin\n    Password: ${u_pass}"
     fi
-
 }
 
 function dashboard_initializeAIO() {
