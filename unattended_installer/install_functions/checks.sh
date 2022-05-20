@@ -60,11 +60,11 @@ function checks_arguments() {
         fi
 
         if [ -z "${indexer_installed}" ] && [ -z "${indexer_remaining_files}" ]; then
-            common_logger "Wazuh Indexer not found in the system so it was not uninstalled."
+            common_logger "Wazuh indexer not found in the system so it was not uninstalled."
         fi
 
         if [ -z "${dashboard_installed}" ] && [ -z "${dashboard_remaining_files}" ]; then
-            common_logger "Wazuh Dashboard not found in the system so it was not uninstalled."
+            common_logger "Wazuh dashboard not found in the system so it was not uninstalled."
         fi
 
     fi
@@ -113,20 +113,20 @@ function checks_arguments() {
             if [ -n "${overwrite}" ]; then
                 installCommon_rollBack
             else
-                common_logger -e "Wazuh Indexer is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
+                common_logger -e "Wazuh indexer is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
             fi
         fi
     fi
 
-    # -------------- Wazuh Dashboard --------------------------------
+    # -------------- Wazuh dashboard --------------------------------
 
     if [ -n "${dashboard}" ]; then
         if [ -n "${dashboard_installed}" ] || [ -n "${dashboard_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
                 installCommon_rollBack
             else
-                common_logger -e "Wazuh Dashboard is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
+                common_logger -e "Wazuh dashboard is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
             fi
         fi
@@ -238,7 +238,7 @@ function checks_health() {
 function checks_names() {
 
     if [ -n "${indxname}" ] && [ -n "${dashname}" ] && [ "${indxname}" == "${dashname}" ]; then
-        common_logger -e "The node names for Wazuh Indexer and Wazuh Dashboard must be different."
+        common_logger -e "The node names for Wazuh indexer and Wazuh dashboard must be different."
         exit 1
     fi
 
@@ -248,7 +248,7 @@ function checks_names() {
     fi
 
     if [ -n "${winame}" ] && [ -n "${dashname}" ] && [ "${winame}" == "${dashname}" ]; then
-        common_logger -e "The node names for Wazuh Server and Wazuh Indexer must be different."
+        common_logger -e "The node names for Wazuh server and Wazuh indexer must be different."
         exit 1
     fi
 
@@ -258,12 +258,12 @@ function checks_names() {
     fi
 
     if [ -n "${indxname}" ] && [ -z "$(echo "${indexer_node_names[@]}" | grep -w "${indxname}")" ]; then
-        common_logger -e "The Wazuh Indexer node name ${indxname} does not appear on the configuration file."
+        common_logger -e "The Wazuh indexer node name ${indxname} does not appear on the configuration file."
         exit 1
     fi
 
     if [ -n "${dashname}" ] && [ -z "$(echo "${dashboard_node_names[@]}" | grep -w "${dashname}")" ]; then
-        common_logger -e "The Wazuh Dashboard node name ${dashname} does not appear on the configuration file."
+        common_logger -e "The Wazuh dashboard node name ${dashname} does not appear on the configuration file."
         exit 1
     fi
 
@@ -290,7 +290,7 @@ function checks_previousCertificate() {
 
     if [ -n "${dashname}" ]; then
         if [ -z "$(tar -tf ${tar_file} | egrep ^wazuh-install-files/${dashname}.pem)" ] || [ -z "$(tar -tf ${tar_file} | egrep ^wazuh-install-files/${dashname}-key.pem)" ]; then
-            common_logger -e "There is no certificate for the Wazuh Dashboard node ${dashname} in ${tar_file}."
+            common_logger -e "There is no certificate for the Wazuh dashboard node ${dashname} in ${tar_file}."
             exit 1
         fi
     fi

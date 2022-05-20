@@ -251,7 +251,7 @@ function main() {
         checks_names
     fi
 
-# -------------- Wazuh Indexer case -------------------------------
+# -------------- Wazuh indexer case -------------------------------
 
     if [ -n "${indexer}" ]; then
         common_logger "--- Wazuh indexer ---"
@@ -261,14 +261,14 @@ function main() {
         indexer_initialize
     fi
 
-# -------------- Start Wazuh Indexer cluster case  ------------------
+# -------------- Start Wazuh indexer cluster case  ------------------
 
     if [ -n "${start_indexer_cluster}" ]; then
         indexer_startCluster
         installCommon_changePasswords
     fi
 
-# -------------- Wazuh Dashboard case  ------------------------------
+# -------------- Wazuh dashboard case  ------------------------------
 
     if [ -n "${dashboard}" ]; then
         common_logger "--- Wazuh dashboard ----"
