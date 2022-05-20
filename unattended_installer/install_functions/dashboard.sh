@@ -87,6 +87,13 @@ function dashboard_initialize() {
         done
         nodes_dashboard_ip=${dashboard_node_ips[pos]}
     fi
+
+    if [ "${nodes_dashboard_ip}" == "localhost" ] || [[ "${nodes_dashboard_ip}" == 127.* ]]; then
+        print_ip="<wazuh-dashboard-ip>"
+    else
+        print_ip="${nodes_dashboard_ip}"
+    fi
+
     until [ "$(curl -XGET https://${nodes_dashboard_ip}/status -uadmin:${u_pass} -k -w %{http_code} -s -o /dev/null)" -eq "200" ] || [ "${j}" -eq "12" ]; do
         sleep 10
         j=$((j+1))
@@ -105,6 +112,11 @@ function dashboard_initialize() {
         if [ -f "/usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml" ]; then
             eval "sed -i 's,url: https://localhost,url: https://${wazuh_api_address},g' /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml ${debug}"
         fi
+
+        common_logger "Wazuh dashboard web application initialized."
+        common_logger -nl "--- Summary ---"
+        common_logger -nl "You can access the web interface https://${print_ip}\n    User: admin\n    Password: ${u_pass}"
+
     elif [ ${j} -eq 12 ]; then
         flag="-w"
         if [ -z "${force}" ]; then
@@ -128,12 +140,8 @@ function dashboard_initialize() {
             exit 1
         else
             common_logger -nl "--- Summary ---"
-            common_logger -nl "When Wazuh dashboard is able to connect to your Wazuh indexer cluster, you can access the web interface https://${nodes_dashboard_ip}\n    User: admin\n    Password: ${u_pass}"
-        fi
-    else
-        common_logger "Wazuh dashboard web application initialized."
-        common_logger -nl "--- Summary ---"
-        common_logger -nl "You can access the web interface https://${nodes_dashboard_ip}\n    User: admin\n    Password: ${u_pass}"
+            common_logger -nl "When Wazuh dashboard is able to connect to your Wazuh indexer cluster, you can access the web interface https://${print_ip}\n    User: admin\n    Password: ${u_pass}"
+        fi       
     fi
 
 }
