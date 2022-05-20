@@ -133,11 +133,15 @@ function dashboard_initialize() {
                 failed_nodes+=("${indexer_node_names[i]}")
             fi
             if [ "${curl}" == "OpenSearch Security not initialized." ]; then
-                common_logger "${flag}" "Wazuh indexer security settings not initialized. Please run the installation assistant using -s|--start-cluster in one of the wazuh indexer nodes."
+                sec_not_initialized=1
             fi
         done
         if [ -n "${failed_connect}" ]; then
             common_logger "${flag}" "Failed to connect with ${failed_nodes[*]}. Connection refused."
+        fi
+
+        if [ -n "${sec_not_initialized}" ]; then
+            common_logger "${flag}" "Wazuh indexer security settings not initialized. Please run the installation assistant using -s|--start-cluster in one of the wazuh indexer nodes."
         fi
         
         if [ -z "${force}" ]; then
