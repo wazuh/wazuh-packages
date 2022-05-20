@@ -267,6 +267,11 @@ function checks_names() {
         exit 1
     fi
 
+    if [[ "${dashname}" == -* ]] || [[ "${indxname}" == -* ]] || [[ "${winame}" == -* ]]; then
+        common_logger -e "Node name cannot start with \"-\""
+        exit 1
+    fi
+
 }
 
 # This function checks if the target certificates are created before to start the installation.
