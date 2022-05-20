@@ -75,22 +75,6 @@ function main() {
         getHelp
     fi
 
-    arguments=( $@ )
-    for args in ${arguments[@]}; do
-        if [ "${args}" != "-dw" ] && [ "${args}" != "--download-wazuh" ] && [ "${args}" != "-V" ] && [ "${args}" != "-h" ]; then
-            if [[ "${args}" == -* ]]; then
-                common_checkRoot
-            fi
-        fi
-        if [ "${args}" == "-wi" ] || [ "${args}" == "-wd" ] || [ "${args}" == "-ws" ] || [ "${args}" == "--wazuh-dashboard" ] || [ "${args}" == "--wazuh-indexer" ] || [ "${args}" == "--wazuh-server" ]; then
-            if [[ "${2}" == -* ]]; then
-                common_logger -e "Error on argument ${args}. Check the given <node-name>, the parameter ${2} cannot start with \"-\" or is incorrect"
-                getHelp
-                exit 1
-            fi
-        fi
-    done
-
     while [ -n "${1}" ]
     do
         case "${1}" in
@@ -202,6 +186,10 @@ function main() {
 
     cat /dev/null > "${logfile}"
 
+    if [ -z "${download}" ] && [ -z "${showVersion}" ]; then
+        common_checkRoot
+    fi
+
     if [ -n "${showVersion}" ]; then
         common_logger "Wazuh version: ${wazuh_version}"
         common_logger "Filebeat version: ${filebeat_version}"
@@ -263,7 +251,7 @@ function main() {
         checks_names
     fi
 
-# -------------- Wazuh Indexer case -------------------------------
+# -------------- Wazuh indexer case -------------------------------
 
     if [ -n "${indexer}" ]; then
         common_logger "--- Wazuh indexer ---"
@@ -273,14 +261,14 @@ function main() {
         indexer_initialize
     fi
 
-# -------------- Start Wazuh Indexer cluster case  ------------------
+# -------------- Start Wazuh indexer cluster case  ------------------
 
     if [ -n "${start_indexer_cluster}" ]; then
         indexer_startCluster
         installCommon_changePasswords
     fi
 
-# -------------- Wazuh Dashboard case  ------------------------------
+# -------------- Wazuh dashboard case  ------------------------------
 
     if [ -n "${dashboard}" ]; then
         common_logger "--- Wazuh dashboard ----"
