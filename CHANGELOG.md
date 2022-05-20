@@ -4,11 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [v4.5.0]
 
+- Add new shared library `libfimdb` for FIM in SPECS [#1275](https://github.com/wazuh/wazuh-packages/pull/1275)
+- Update HP-UX generation script to compile C++ modules of Wazuh [#1275](https://github.com/wazuh/wazuh-packages/pull/1275)
+
 ## [v4.4.0]
 
 - Add new GCloud integration file to Solaris 11 [#1384](https://github.com/wazuh/wazuh-packages/pull/1384)
 - Add centos8 vault repository due to EOL [#1308](https://github.com/wazuh/wazuh-packages/pull/1308)
-- Add `libfimdb` [#989](https://github.com/wazuh/wazuh-packages/issues/989)
 - Update SPECS [#1014](https://github.com/wazuh/wazuh-packages/pull/1014)
 - Add Azure integration files to Solaris 11 and RPM SPECS [#1167](https://github.com/wazuh/wazuh-packages/pull/1167)
 - Remove references to queue/agent-groups [#1299](https://github.com/wazuh/wazuh-packages/pull/1299)
