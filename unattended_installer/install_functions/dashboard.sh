@@ -126,14 +126,20 @@ function dashboard_initialize() {
         common_logger "${flag}" "Cannot connect to Wazuh dashboard."
 
         for i in "${!indexer_node_ips[@]}"; do
-            curl=$(curl -XGET https://${indexer_node_ips[i]}:9200/ -uadmin:${u_pass} -k -w %{http_code} -s -o /dev/null)
+            curl=$(curl -XGET https://${indexer_node_ips[i]}:9200/ -uadmin:${u_pass} -k -s)
             exit_code=${PIPESTATUS[0]}
             if [[ "${exit_code}" -eq "7" ]]; then
                 failed_connect=1
                 failed_nodes+=("${indexer_node_names[i]}")
             fi
+            if [ "${curl}" == "OpenSearch Security not initialized." ]; then
+                common_logger "${flag}" "Wazuh indexer security settings not initialized. Please run the installation assistant using -s|--start-cluster in one of the wazuh indexer nodes."
+            fi
         done
-        common_logger "${flag}" "Failed to connect with ${failed_nodes[*]}. Connection refused."
+        if [ -n "${failed_connect}" ]; then
+            common_logger "${flag}" "Failed to connect with ${failed_nodes[*]}. Connection refused."
+        fi
+        
         if [ -z "${force}" ]; then
             common_logger "If you want to install Wazuh dashboard without waiting for the Wazuh indexer cluster, use the -fd option"
             installCommon_rollBack
