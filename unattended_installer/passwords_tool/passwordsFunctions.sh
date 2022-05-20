@@ -382,10 +382,27 @@ function passwords_runSecurityAdmin() {
 
 }
 
+function passwords_genereatePasswordSpecialChar() {
+
+    choose() { echo ${1:RANDOM%${#1}:1} $RANDOM; }
+    pass="$({ choose '.*+?()[{\|'
+    choose '0123456789'
+    choose 'abcdefghijklmnopqrstuvwxyz'
+    choose 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    for i in $( seq 1 $(( 20 + RANDOM % 8 )) )
+        do
+            choose '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+        done
+    } | sort -R | awk '{printf "%s",$1}')"
+
+}
+
 function passwords_createPasswordAPI() {
 
-    password_wazuh=$(tr -dc 'A-Za-z0-9.*+?()[{\|' </dev/urandom | head -c"${1:-32}";echo;)
-    password_wazuh_wui=$(tr -dc 'A-Za-z0-9.*+?()[{\|' </dev/urandom | head -c"${1:-32}";echo;)
+    passwords_genereatePasswordSpecialChar
+    password_wazuh="${pass}"
+    passwords_genereatePasswordSpecialChar
+    password_wazuh_wui="${pass}"
 
     echo "# New password for wazuh API" >> "${gen_file}"
     echo "  username: wazuh" >> "${gen_file}"
@@ -395,5 +412,31 @@ function passwords_createPasswordAPI() {
     echo "  username: wazuh_wui" >> "${gen_file}"
     echo "  password: $password_wazuh_wui" >> "${gen_file}"
     echo ""	>> "${gen_file}"
+
+}
+
+function passwords_changePasswordAPI() {
+
+    password_wazuh=$(< /tmp/wazuh-install-files/passwords.wazuh awk '$2 == "wazuh" {getline;print;}' | awk -F': ' '{print $2}')
+    password_wazuh_wui=$(< /tmp/wazuh-install-files/passwords.wazuh awk '$2 == "wazuh_wui" {getline;print;}' | awk -F': ' '{print $2}')
+    WAZUH_PASS='{"password":"'"$password_wazuh"'"}'
+    WAZUH_WUI_PASS='{"password":"'"$password_wazuh_wui"'"}'
+
+    TOKEN=$(curl -s -u wazuh:wazuh -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
+    eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d "$WAZUH_PASS" "https://localhost:55000/security/users/1" -o /dev/null'
+
+    TOKEN_WUI=$(curl -s -u wazuh-wui:wazuh-wui -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
+    eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_WUI" -H "Content-Type: application/json" -d "$WAZUH_WUI_PASS" "https://localhost:55000/security/users/2" -o /dev/null'
+
+}
+
+function passwords_updateDashborad_WUI_Password() {
+
+    if [ -f "/usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml" ]; then
+        password_wazuh_wui=$(< /tmp/wazuh-install-files/passwords.wazuh awk '$2 == "wazuh_wui" {getline;print;}' | awk -F': ' '{print $2}')
+        eval 'sed -i "s|password: wazuh-wui|password: ${password_wazuh_wui}|g" /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml'
+    else
+        echo "ERROR: File /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml does not exist"
+    fi
 
 }
