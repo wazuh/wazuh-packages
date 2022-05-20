@@ -28,6 +28,7 @@ function configure() {
     echo USER_ENABLE_CISCAT="n" >> ${CONFIG}
     echo USER_ENABLE_ACTIVE_RESPONSE="y" >> ${CONFIG}
     echo USER_CA_STORE="n" >> ${CONFIG}
+    echo USER_DEBUG_SYMBOLS="y" >> ${CONFIG}
 }
 
 function build() {
