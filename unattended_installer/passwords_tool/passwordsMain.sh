@@ -19,6 +19,12 @@ function getHelp() {
     echo -e "        -a,  --change-all"
     echo -e "                Changes all the Wazuh indexer user passwords and prints them on screen."
     echo -e ""
+    echo -e "        -ai,  --api-id <currentPassword> <id>"
+    echo -e "                Change the Wazuh API password given the current password and id, it needs --user and --password"
+    echo -e ""
+    echo -e "        -ad,  --admin <adminUser> <adminPassword>"
+    echo -e "                Admin credentials for Wazuh API it is needed when the user given it is not an administrator"
+    echo -e ""
     echo -e "        -u,  --user <user>"
     echo -e "                Indicates the name of the user whose password will be changed."
     echo -e "                If no password specified it will generate a random one."
@@ -70,6 +76,42 @@ function main() {
             "-a"|"--change-all")
                 changeall=1
                 shift 1
+                ;;
+            "-ai"|"--api-id")
+                api=1
+                if [ -z ${2} ]; then
+                    echo "Argument --api-id needs a second argument"
+                    getHelp
+                    exit 1
+                fi
+                if [ -z ${3} ]; then
+                    echo "Argument --api-id needs a third argument"
+                    getHelp
+                    exit 1
+                fi
+                currentPassword=${2}
+                id=${3}
+                shift
+                shift
+                shift
+                ;;
+            "-ad"|"--admin")
+                api=1
+                if [ -z ${2} ]; then
+                    echo "Argument --admin needs a second argument"
+                    getHelp
+                    exit 1
+                fi
+                if [ -z ${3} ]; then
+                    echo "Argument --admin needs a third argument"
+                    getHelp
+                    exit 1
+                fi
+                adminUser=${2}
+                adminPassword=${3}
+                shift
+                shift
+                shift
                 ;;
             "-u"|"--user")
                 if [ -z ${2} ]; then
@@ -155,6 +197,8 @@ function main() {
         common_checkSystem
         common_checkInstalled
 
+        if [ -z "${api}" ]; then
+
         if [ -n "${p_file}" ] && [ ! -f "${p_file}" ]; then
             getHelp
         fi
@@ -212,10 +256,15 @@ function main() {
         passwords_changePassword
         passwords_runSecurityAdmin
 
+        else
+            if [ -z "${nuser}" ] && [ -n "${password}" ]; then
+            getHelp
+            fi
+
+            passwords_changePasswordAPI
+        fi
     else
-
         getHelp
-
     fi
 
 }

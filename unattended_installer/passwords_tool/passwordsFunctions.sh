@@ -417,16 +417,34 @@ function passwords_createPasswordAPI() {
 
 function passwords_changePasswordAPI() {
 
-    password_wazuh=$(< /tmp/wazuh-install-files/passwords.wazuh awk '$2 == "wazuh" {getline;print;}' | awk -F': ' '{print $2}')
-    password_wazuh_wui=$(< /tmp/wazuh-install-files/passwords.wazuh awk '$2 == "wazuh_wui" {getline;print;}' | awk -F': ' '{print $2}')
-    WAZUH_PASS='{"password":"'"$password_wazuh"'"}'
-    WAZUH_WUI_PASS='{"password":"'"$password_wazuh_wui"'"}'
+    #Change API password tool
 
-    TOKEN=$(curl -s -u wazuh:wazuh -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
-    eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d "$WAZUH_PASS" "https://localhost:55000/security/users/1" -o /dev/null'
+    if [[ -n "${nuser}" ]] && [[ -n "${password}" ]] && [[ -n "${currentPassword}" ]]; then
+        if [[ -n "${adminUser}" ]] && [[ -n "${adminPassword}" ]]; then
+        password_api="${password}"
+        WAZUH_PASS_API='{"password":"'"$password_api"'"}'
+        TOKEN_API=$(curl -s -u "${adminUser}":"${adminPassword}" -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
+        eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${id}" -o /dev/null'
+        common_logger -nl $'\nThe new password for user '${nuser}' is '${password}''
+        else
+        password_api="${password}"
+        WAZUH_PASS_API='{"password":"'"$password_api"'"}'
+        TOKEN_API=$(curl -s -u "${nuser}":"${currentPassword}" -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
+        eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${id}" -o /dev/null'
+        common_logger -nl $'\nThe new password for user '${nuser}' is '${password}''
+        fi
+    else
+        password_wazuh=$(< /tmp/wazuh-install-files/passwords.wazuh awk '$2 == "wazuh" {getline;print;}' | awk -F': ' '{print $2}')
+        password_wazuh_wui=$(< /tmp/wazuh-install-files/passwords.wazuh awk '$2 == "wazuh_wui" {getline;print;}' | awk -F': ' '{print $2}')
+        WAZUH_PASS='{"password":"'"$password_wazuh"'"}'
+        WAZUH_WUI_PASS='{"password":"'"$password_wazuh_wui"'"}'
 
-    TOKEN_WUI=$(curl -s -u wazuh-wui:wazuh-wui -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
-    eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_WUI" -H "Content-Type: application/json" -d "$WAZUH_WUI_PASS" "https://localhost:55000/security/users/2" -o /dev/null'
+        TOKEN=$(curl -s -u wazuh:wazuh -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
+        eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d "$WAZUH_PASS" "https://localhost:55000/security/users/1" -o /dev/null'
+
+        TOKEN_WUI=$(curl -s -u wazuh-wui:wazuh-wui -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
+        eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_WUI" -H "Content-Type: application/json" -d "$WAZUH_WUI_PASS" "https://localhost:55000/security/users/2" -o /dev/null'
+    fi
 
 }
 
