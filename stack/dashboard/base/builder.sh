@@ -113,6 +113,10 @@ brotli -c ./plugins/securityDashboards/target/public/securityDashboards.plugin.j
 gzip -c ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js > ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js.gz
 brotli -c ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js > ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js.br
 
+# Remove plugins
+/bin/bash ./bin/opensearch-dashboards-plugin remove queryWorkbenchDashboards --allow-root
+/bin/bash ./bin/opensearch-dashboards-plugin remove anomalyDetectionDashboards --allow-root
+/bin/bash ./bin/opensearch-dashboards-plugin remove observabilityDashboards --allow-root
 
 find -type d -exec chmod 750 {} \;
 find -type f -perm 644 -exec chmod 640 {} \;
