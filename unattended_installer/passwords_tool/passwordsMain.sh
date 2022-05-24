@@ -97,6 +97,7 @@ function main() {
                 ;;
             "-ad"|"--admin")
                 api=1
+                adminAPI=1
                 if [ -z ${2} ]; then
                     echo "Argument --admin needs a second argument"
                     getHelp
@@ -257,10 +258,15 @@ function main() {
         passwords_runSecurityAdmin
 
         else
-            if [ -z "${nuser}" ] && [ -n "${password}" ]; then
-            getHelp
-            fi
+            if [ -z "${currentPassword}" ] || [ -z "${id}" ] || [ -z "${nuser}" ] || [ -z "${password}" ]; then
+                getHelp
+                fi
 
+            if [ -n "${adminAPI}" ]; then
+                if [ -z "${currentPassword}" ] || [ -z "${id}" ] || [ -z "${nuser}" ] || [ -z "${password}" ] || [ -z "${adminUser}" ] || [ -z "${adminPassword}" ]; then
+                getHelp
+                fi
+            fi
             passwords_changePasswordAPI
         fi
     else

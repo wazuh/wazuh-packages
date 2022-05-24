@@ -419,16 +419,14 @@ function passwords_changePasswordAPI() {
 
     #Change API password tool
 
-    if [[ -n "${nuser}" ]] && [[ -n "${password}" ]] && [[ -n "${currentPassword}" ]]; then
-        if [[ -n "${adminUser}" ]] && [[ -n "${adminPassword}" ]]; then
-        password_api="${password}"
-        WAZUH_PASS_API='{"password":"'"$password_api"'"}'
+    if [[ -n "${api}" ]]; then
+        if [[ -n "${adminAPI}" ]]; then
+        WAZUH_PASS_API='{"password":"'"$password"'"}'
         TOKEN_API=$(curl -s -u "${adminUser}":"${adminPassword}" -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
         eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${id}" -o /dev/null'
         common_logger -nl $'\nThe new password for user '${nuser}' is '${password}''
         else
-        password_api="${password}"
-        WAZUH_PASS_API='{"password":"'"$password_api"'"}'
+        WAZUH_PASS_API='{"password":"'"$password"'"}'
         TOKEN_API=$(curl -s -u "${nuser}":"${currentPassword}" -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
         eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${id}" -o /dev/null'
         common_logger -nl $'\nThe new password for user '${nuser}' is '${password}''
