@@ -421,15 +421,19 @@ function passwords_changePasswordAPI() {
 
     if [[ -n "${api}" ]]; then
         if [[ -n "${adminAPI}" ]]; then
+        common_logger -nl $'Changing API user '${nuser}' password'
         WAZUH_PASS_API='{"password":"'"$password"'"}'
         TOKEN_API=$(curl -s -u "${adminUser}":"${adminPassword}" -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
         eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${id}" -o /dev/null'
-        common_logger -nl $'\nThe new password for user '${nuser}' is '${password}''
+        common_logger -nl $'API password changed'
+        common_logger -nl $'The new password for user '${nuser}' is '${password}''
         else
+        common_logger -nl $'Changing API user '${nuser}' password'
         WAZUH_PASS_API='{"password":"'"$password"'"}'
         TOKEN_API=$(curl -s -u "${nuser}":"${currentPassword}" -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
         eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${id}" -o /dev/null'
-        common_logger -nl $'\nThe new password for user '${nuser}' is '${password}''
+        common_logger -nl $'API password changed'
+        common_logger -nl $'The new password for user '${nuser}' is '${password}''
         fi
     else
         password_wazuh=$(< /tmp/wazuh-install-files/passwords.wazuh awk '$2 == "wazuh" {getline;print;}' | awk -F': ' '{print $2}')

@@ -19,11 +19,18 @@ function getHelp() {
     echo -e "        -a,  --change-all"
     echo -e "                Changes all the Wazuh indexer user passwords and prints them on screen."
     echo -e ""
-    echo -e "        -ai,  --api-id <currentPassword> <id>"
-    echo -e "                Change the Wazuh API password given the current password and id, it needs --user and --password"
+    echo -e "        -ai,  --api <currentPassword>"
+    echo -e "                Change the Wazuh API password given the current password, it needs --id-api ,--user and --password."
+    echo -e "                If not an administrator --admin-user and --admin-password need to be provided."
     echo -e ""
-    echo -e "        -ad,  --admin <adminUser> <adminPassword>"
-    echo -e "                Admin credentials for Wazuh API it is needed when the user given it is not an administrator"
+    echo -e "        -au,  --admin-user <adminUser>"
+    echo -e "                Admin user for Wazuh API it is needed when the user given it is not an administrator"
+    echo -e ""
+    echo -e "        -ap,  --admin-password <adminPassword>"
+    echo -e "                Password for Wazuh API admin user, it is needed when the user given it is not an administrator"
+    echo -e ""
+    echo -e "        -id,  --id-api <id>"
+    echo -e "                ID for Wazuh API user to be changed"
     echo -e ""
     echo -e "        -u,  --user <user>"
     echo -e "                Indicates the name of the user whose password will be changed."
@@ -77,40 +84,45 @@ function main() {
                 changeall=1
                 shift 1
                 ;;
-            "-ai"|"--api-id")
+            "-A"|"--api")
                 api=1
                 if [ -z ${2} ]; then
                     echo "Argument --api-id needs a second argument"
                     getHelp
                     exit 1
                 fi
-                if [ -z ${3} ]; then
-                    echo "Argument --api-id needs a third argument"
-                    getHelp
-                    exit 1
-                fi
                 currentPassword=${2}
-                id=${3}
-                shift
                 shift
                 shift
                 ;;
-            "-ad"|"--admin")
-                api=1
+            "-au"|"--admin-user")
                 adminAPI=1
                 if [ -z ${2} ]; then
                     echo "Argument --admin needs a second argument"
                     getHelp
                     exit 1
                 fi
-                if [ -z ${3} ]; then
-                    echo "Argument --admin needs a third argument"
+                adminUser=${2}
+                shift
+                shift
+                ;;
+            "-ap"|"--admin-password")
+                if [ -z ${2} ]; then
+                    echo "Argument --admin needs a second argument"
                     getHelp
                     exit 1
                 fi
-                adminUser=${2}
-                adminPassword=${3}
+                adminPassword=${2}
                 shift
+                shift
+                ;;
+            "-id"|"--id-api")
+                if [ -z ${2} ]; then
+                    echo "Argument --id-api needs a second argument"
+                    getHelp
+                    exit 1
+                fi
+                id=${2}
                 shift
                 shift
                 ;;
