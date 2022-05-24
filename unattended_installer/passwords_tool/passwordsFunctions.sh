@@ -218,7 +218,7 @@ function passwords_readAdmincerts() {
 }
 
 function passwords_readFileUsers() {
-    filecorrect=$(grep -Ev '^#|^\s*$' "${p_file}" | grep -Pzc '\A(\s*username:[ \t]+\w+\s*password:[ \t]+[A-Za-z0-9.*+?()[{\|]+\s*)+\Z')
+    filecorrect=$(grep -Ev '^#|^\s*$' "${p_file}" | grep -Pzc '\A(\s*username:[ \t]+\w+\s*password:[ \t]+[A-Za-z0-9.*+?]+\s*)+\Z')
     if [[ "${filecorrect}" -ne 1 ]]; then
         common_logger -e "The password file doesn't have a correct format.
 
@@ -385,7 +385,7 @@ function passwords_runSecurityAdmin() {
 function passwords_genereatePasswordSpecialChar() {
 
     choose() { echo ${1:RANDOM%${#1}:1} $RANDOM; }
-    pass="$({ choose '.*+?()[{\|'
+    pass="$({ choose '.*+?'
     choose '0123456789'
     choose 'abcdefghijklmnopqrstuvwxyz'
     choose 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
