@@ -196,14 +196,7 @@ function get_pkgproj_specs() {
 
     VERSION=$(< "${WAZUH_PATH}/src/VERSION"  cut -d "-" -f1 | cut -c 2-)
 
-    major="$(echo "$VERSION" | cut -d'.' -f 1)"
-    major_path="specs/${major}.x"
-
-    if [ ! -d "${CURRENT_PATH}/${major_path}" ]; then
-        echo "Warning: directory for Wazuh ${major}.x does not exists. Check the version selected."
-    fi
-
-    pkg_file="${major_path}/wazuh-agent-${VERSION}.pkgproj"
+    pkg_file="specs/wazuh-agent.pkgproj"
 
     if [ ! -f "${pkg_file}" ]; then
         echo "Warning: the file ${pkg_file} does not exists. Check the version selected."
