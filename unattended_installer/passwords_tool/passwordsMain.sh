@@ -92,8 +92,7 @@ function main() {
                     exit 1
                 fi
                 currentPassword=${2}
-                shift
-                shift
+                shift 2
                 ;;
             "-au"|"--admin-user")
                 adminAPI=1
@@ -103,8 +102,7 @@ function main() {
                     exit 1
                 fi
                 adminUser=${2}
-                shift
-                shift
+                shift 2
                 ;;
             "-ap"|"--admin-password")
                 if [ -z ${2} ]; then
@@ -113,8 +111,7 @@ function main() {
                     exit 1
                 fi
                 adminPassword=${2}
-                shift
-                shift
+                shift 2
                 ;;
             "-id"|"--id-api")
                 if [ -z ${2} ]; then
@@ -123,8 +120,7 @@ function main() {
                     exit 1
                 fi
                 id=${2}
-                shift
-                shift
+                shift 2
                 ;;
             "-u"|"--user")
                 if [ -z ${2} ]; then
@@ -133,8 +129,7 @@ function main() {
                     exit 1
                 fi
                 nuser=${2}
-                shift
-                shift
+                shift 2
                 ;;
             "-p"|"--password")
                 if [ -z ${2} ]; then
@@ -143,8 +138,7 @@ function main() {
                     exit 1
                 fi
                 password=${2}
-                shift
-                shift
+                shift 2
                 ;;
             "-c"|"--cert")
                 if [ -z ${2} ]; then
@@ -153,8 +147,7 @@ function main() {
                     exit 1
                 fi
                 adminpem=${2}
-                shift
-                shift
+                shift 2
                 ;;
             "-k"|"--certkey")
                 if [ -z ${2} ]; then
@@ -163,8 +156,7 @@ function main() {
                     exit 1
                 fi
                 adminkey=${2}
-                shift
-                shift
+                shift 2
                 ;;
             "-f"|"--file")
                 if [ -z ${2} ]; then
@@ -173,8 +165,7 @@ function main() {
                     exit 1
                 fi
                 p_file=${2}
-                shift
-                shift
+                shift 2
                 ;;
             "-gf"|"--generate-file")
                 if [ -z ${2} ]; then
@@ -183,8 +174,7 @@ function main() {
                     exit 1
                 fi
                 gen_file=${2}
-                shift
-                shift
+                shift 2
                 ;;
             "-h"|"--help")
                 getHelp
@@ -272,11 +262,11 @@ function main() {
         else
             if [ -z "${currentPassword}" ] || [ -z "${id}" ] || [ -z "${nuser}" ] || [ -z "${password}" ]; then
                 getHelp
-                fi
+            fi
 
             if [ -n "${adminAPI}" ]; then
                 if [ -z "${currentPassword}" ] || [ -z "${id}" ] || [ -z "${nuser}" ] || [ -z "${password}" ] || [ -z "${adminUser}" ] || [ -z "${adminPassword}" ]; then
-                getHelp
+                    getHelp
                 fi
             fi
             passwords_changePasswordAPI
