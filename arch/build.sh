@@ -74,9 +74,6 @@ if [[ "${future}" == "yes" ]]; then
     # PREPARE FUTURE SPECS AND SOURCES
     mkdir -p ${tmp_dir}
     cp -r ${sources_dir} "${tmp_sources_dir}"
-    if [[ ${specs_path} != ${tmp_specs_path} ]]; then
-        cp -r ${specs_path} "${tmp_specs_path}"
-    fi
     cp -r "${specs_path}" "${tmp_specs_path}"
     sources_dir="${tmp_sources_dir}"
     specs_path="${tmp_specs_path}"

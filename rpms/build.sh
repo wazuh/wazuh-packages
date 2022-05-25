@@ -66,9 +66,9 @@ cp -R wazuh-* ${build_dir}/${package_name}
 
 # Including spec file
 if [ "${use_local_specs}" = "no" ]; then
-    specs_path="/d_specs"
+    specs_path="/downloaded_tmp_specs"
     mkdir -p "${specs_path}"
-    curl -L "https://raw.githubusercontent.com/wazuh/wazuh-packages/${wazuh_packages_branch}/rpms/SPECS/wazuh-${build_target}.spec" -o "/d_specs/wazuh-${build_target}.spec"
+    curl -L "https://raw.githubusercontent.com/wazuh/wazuh-packages/${wazuh_packages_branch}/rpms/SPECS/wazuh-${build_target}.spec" -o "${specs_path}/wazuh-${build_target}.spec"
 else
     specs_path="/specs"
 fi
@@ -83,7 +83,6 @@ if [[ "${future}" == "yes" ]]; then
     old_name="wazuh-${build_target}-${base_version}-${package_release}"
     package_name=wazuh-${build_target}-${wazuh_version}
     old_package_name=wazuh-${build_target}-${base_version}
-    cp -r "${specs_path}/" "${specs_path}/"
 
     # PREPARE FUTURE SPECS AND SOURCES
     mv "${build_dir}/${old_package_name}" "${build_dir}/${package_name}"
