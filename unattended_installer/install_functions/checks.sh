@@ -189,11 +189,11 @@ function check_dist() {
     if ([ "${DIST_NAME}" == "ubuntu" ]) && ([ "${DIST_VER}" -ne "16" ] && [ "${DIST_VER}" -ne "18" ] && [ "${DIST_VER}" -ne "20" ]); then
         notsupported=1
     fi
-    if ([ "${DIST_NAME}" == "ubuntu" ]) && ([ "${DIST_VER}" -eq "16" ] || [ "${DIST_VER}" -eq "18" ] || [ "${DIST_VER}" -eq "20" ] || [ "${DIST_VER}" -eq "22" ]) &&  ([ "${DIST_SUBVER}" != "04" ]); then
+    if ([ "${DIST_NAME}" == "ubuntu" ]) && ([ "${DIST_VER}" -eq "16" ] || [ "${DIST_VER}" -eq "18" ] || [ "${DIST_VER}" -eq "20" ]) &&  ([ "${DIST_SUBVER}" != "04" ]); then
         notsupported=1
     fi
     if [ -n "${notsupported}" ] && [ -z "${ignore}" ]; then
-        common_logger -e "The recommended systems are: Red Hat Enterprise Linux 7, 8; CentOS 7, 8; Amazon Linux 2; Ubuntu 16.04, 18.04, 20.04, 22.04. The current system doesn't match this list. Use -i|--ignore-check to skip this check."
+        common_logger -e "The recommended systems are: Red Hat Enterprise Linux 7, 8; CentOS 7, 8; Amazon Linux 2; Ubuntu 16.04, 18.04, 20.04. The current system doesn't match this list. Use -i|--ignore-check to skip this check."
         exit 1
     fi
 }
