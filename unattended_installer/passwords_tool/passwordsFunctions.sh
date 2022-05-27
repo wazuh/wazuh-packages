@@ -420,19 +420,19 @@ function passwords_changePasswordAPI() {
 
     if [[ -n "${api}" ]]; then
         if [[ -n "${adminAPI}" ]]; then
-        common_logger -nl $'Changing API user '${nuser}' password'
+        common_logger -nl $"Changing API user ${nuser} password"
         WAZUH_PASS_API='{"password":"'"$password"'"}'
         TOKEN_API=$(curl -s -u "${adminUser}":"${adminPassword}" -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
         eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${id}" -o /dev/null'
-        common_logger -nl $'API password changed'
-        common_logger -nl $'The new password for user '${nuser}' is '${password}''
+        common_logger -nl $"API password changed"
+        common_logger -nl $"The new password for user ${nuser} is ${password}"
         else
-        common_logger -nl $'Changing API user '${nuser}' password'
+        common_logger -nl $"Changing API user ${nuser} password"
         WAZUH_PASS_API='{"password":"'"$password"'"}'
         TOKEN_API=$(curl -s -u "${nuser}":"${currentPassword}" -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
         eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${id}" -o /dev/null'
-        common_logger -nl $'API password changed'
-        common_logger -nl $'The new password for user '${nuser}' is '${password}''
+        common_logger -nl $"API password changed"
+        common_logger -nl $"The new password for user ${nuser} is ${password}"
         fi
     else
         password_wazuh=$(< /tmp/wazuh-install-files/passwords-api.wazuh awk '$2 == "wazuh" {getline;print;}' | awk -F': ' '{print $2}')
@@ -455,7 +455,7 @@ function passwords_updateDashborad_WUI_Password() {
         password_wazuh_wui=$(< /tmp/wazuh-install-files/passwords-api.wazuh awk '$2 == "wazuh_wui" {getline;print;}' | awk -F': ' '{print $2}')
         eval 'sed -i "s|password: wazuh-wui|password: ${password_wazuh_wui}|g" /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml'
     else
-        echo "ERROR: File /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml does not exist"
+        common_logger -e "File /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml does not exist"
     fi
 
 }
