@@ -177,7 +177,6 @@ function passwords_generatePasswordFile() {
         echo "  password: ${passwords[${i}]}" >> "${gen_file}"
         echo ""	>> "${gen_file}"
     done
-    passwords_createPasswordAPI
 
 }
 
@@ -404,14 +403,14 @@ function passwords_createPasswordAPI() {
     passwords_genereatePasswordSpecialChar
     password_wazuh_wui="${pass}"
 
-    echo "# New password for wazuh API" >> "${gen_file}"
-    echo "  username: wazuh" >> "${gen_file}"
-    echo "  password: $password_wazuh" >> "${gen_file}"
-    echo ""	>> "${gen_file}"
-    echo "# New password for wazuh-wui API" >> "${gen_file}"
-    echo "  username: wazuh_wui" >> "${gen_file}"
-    echo "  password: $password_wazuh_wui" >> "${gen_file}"
-    echo ""	>> "${gen_file}"
+    echo "# New password for wazuh API" >> "${api_file}"
+    echo "  username: wazuh" >> "${api_file}"
+    echo "  password: $password_wazuh" >> "${api_file}"
+    echo ""	>> "${api_file}"
+    echo "# New password for wazuh-wui API" >> "${api_file}"
+    echo "  username: wazuh_wui" >> "${api_file}"
+    echo "  password: $password_wazuh_wui" >> "${api_file}"
+    echo ""	>> "${api_file}"
 
 }
 
@@ -436,8 +435,8 @@ function passwords_changePasswordAPI() {
         common_logger -nl $'The new password for user '${nuser}' is '${password}''
         fi
     else
-        password_wazuh=$(< /tmp/wazuh-install-files/passwords.wazuh awk '$2 == "wazuh" {getline;print;}' | awk -F': ' '{print $2}')
-        password_wazuh_wui=$(< /tmp/wazuh-install-files/passwords.wazuh awk '$2 == "wazuh_wui" {getline;print;}' | awk -F': ' '{print $2}')
+        password_wazuh=$(< /tmp/wazuh-install-files/passwords-api.wazuh awk '$2 == "wazuh" {getline;print;}' | awk -F': ' '{print $2}')
+        password_wazuh_wui=$(< /tmp/wazuh-install-files/passwords-api.wazuh awk '$2 == "wazuh_wui" {getline;print;}' | awk -F': ' '{print $2}')
         WAZUH_PASS='{"password":"'"$password_wazuh"'"}'
         WAZUH_WUI_PASS='{"password":"'"$password_wazuh_wui"'"}'
 
@@ -453,7 +452,7 @@ function passwords_changePasswordAPI() {
 function passwords_updateDashborad_WUI_Password() {
 
     if [ -f "/usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml" ]; then
-        password_wazuh_wui=$(< /tmp/wazuh-install-files/passwords.wazuh awk '$2 == "wazuh_wui" {getline;print;}' | awk -F': ' '{print $2}')
+        password_wazuh_wui=$(< /tmp/wazuh-install-files/passwords-api.wazuh awk '$2 == "wazuh_wui" {getline;print;}' | awk -F': ' '{print $2}')
         eval 'sed -i "s|password: wazuh-wui|password: ${password_wazuh_wui}|g" /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml'
     else
         echo "ERROR: File /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml does not exist"

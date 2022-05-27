@@ -134,6 +134,8 @@ function dashboard_initialize() {
         common_logger -nl "You can access the web interface https://${nodes_dashboard_ip}\n    User: admin\n    Password: ${u_pass}"
     fi
 
+    passwords_updateDashborad_WUI_Password
+
 }
 
 function dashboard_initializeAIO() {
@@ -149,6 +151,8 @@ function dashboard_initializeAIO() {
         installCommon_rollBack
         exit 1
     fi
+
+    passwords_updateDashborad_WUI_Password
 
     common_logger "Wazuh dashboard web application initialized."
     common_logger -nl "--- Summary ---"

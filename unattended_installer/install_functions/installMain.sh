@@ -290,7 +290,6 @@ function main() {
         installCommon_changePasswords
         installCommon_startService "wazuh-dashboard"
         dashboard_initialize
-        passwords_updateDashborad_WUI_Password
 
     fi
 
@@ -333,7 +332,6 @@ function main() {
         installCommon_changePasswords
         passwords_changePasswordAPI
         dashboard_initializeAIO
-        passwords_updateDashborad_WUI_Password
         
     fi
 
