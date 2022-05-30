@@ -12,7 +12,7 @@
 char="."
 debug='>> /var/log/wazuh-unattended-installation.log 2>&1'
 WAZUH_MAJOR="4.2"
-WAZUH_VER="4.2.6"
+WAZUH_VER="4.2.7"
 WAZUH_REV="1"
 ELK_VER="7.10.2"
 OD_VER="1.13.2"
@@ -27,10 +27,10 @@ if [ -n "$(command -v yum)" ]; then
     sys_type="yum"
     sep="-"
 elif [ -n "$(command -v zypper)" ]; then
-    sys_type="zypper"   
-    sep="-"  
+    sys_type="zypper"
+    sep="-"
 elif [ -n "$(command -v apt-get)" ]; then
-    sys_type="apt-get"   
+    sys_type="apt-get"
     sep="="
 fi
 
@@ -38,7 +38,7 @@ fi
 logger() {
 
     now=$(date +'%m/%d/%Y %H:%M:%S')
-    case $1 in 
+    case $1 in
         "-e")
             mtype="ERROR:"
             message="$2"
@@ -58,9 +58,9 @@ logger() {
 rollBack() {
 
     if [ -z "${uninstall}" ]; then
-        logger -w "Cleaning the installation" 
-    fi   
-    
+        logger -w "Cleaning the installation"
+    fi
+
     if [ -n "${wazuhinstalled}" ]; then
         logger -w "Removing the Wazuh manager..."
         if [ "${sys_type}" == "yum" ]; then
@@ -69,9 +69,9 @@ rollBack() {
             eval "zypper -n remove wazuh-manager ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge wazuh-manager -y ${debug}"
-        fi 
+        fi
         eval "rm -rf /var/ossec/ ${debug}"
-    fi     
+    fi
 
     if [ -n "${elasticinstalled}" ]; then
         logger -w "Removing Elasticsearch..."
@@ -83,7 +83,7 @@ rollBack() {
             eval "zypper -n remove opendistroforelasticsearch elasticsearch* opendistro-* ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge opendistroforelasticsearch elasticsearch* opendistro-* -y ${debug}"
-        fi 
+        fi
         eval "rm -rf /var/lib/elasticsearch/ ${debug}"
         eval "rm -rf /usr/share/elasticsearch/ ${debug}"
         eval "rm -rf /etc/elasticsearch/ ${debug}"
@@ -99,7 +99,7 @@ rollBack() {
             eval "zypper -n remove filebeat ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge filebeat -y ${debug}"
-        fi 
+        fi
         eval "rm -rf /var/lib/filebeat/ ${debug}"
         eval "rm -rf /usr/share/filebeat/ ${debug}"
         eval "rm -rf /etc/filebeat/ ${debug}"
@@ -113,13 +113,13 @@ rollBack() {
             eval "zypper -n remove opendistroforelasticsearch-kibana ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge opendistroforelasticsearch-kibana -y ${debug}"
-        fi 
+        fi
         eval "rm -rf /var/lib/kibana/ ${debug}"
         eval "rm -rf /usr/share/kibana/ ${debug}"
         eval "rm -rf /etc/kibana/ ${debug}"
     fi
 
-    if [ -z "${uninstall}" ]; then    
+    if [ -z "${uninstall}" ]; then
         logger -w "Installation cleaned. Check the /var/log/wazuh-unattended-installation.log file to learn more about the issue."
     fi
 
@@ -133,7 +133,7 @@ checkArch() {
         logger -e "Uncompatible system. This script must be run on a 64-bit system."
         exit 1;
     fi
-    
+
 }
 
 applyLog4j2Mitigation(){
@@ -170,7 +170,7 @@ startService() {
             exit 1;
         else
             logger "${1^} started"
-        fi  
+        fi
     elif [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
         eval "chkconfig $1 on ${debug}"
         eval "service $1 start ${debug}"
@@ -181,7 +181,7 @@ startService() {
             exit 1;
         else
             logger "${1^} started"
-        fi     
+        fi
     elif [ -x /etc/rc.d/init.d/$1 ] ; then
         eval "/etc/rc.d/init.d/$1 start ${debug}"
         if [  "$?" != 0  ]; then
@@ -190,7 +190,7 @@ startService() {
             exit 1;
         else
             logger "${1^} started"
-        fi             
+        fi
     else
         logger -e "${1^} could not start. No service manager found on the system."
         exit 1;
@@ -219,11 +219,11 @@ installPrerequisites() {
     if [ ${sys_type} == "yum" ]; then
         eval "yum install curl unzip wget libcap -y ${debug}"
     elif [ ${sys_type} == "zypper" ]; then
-        eval "zypper -n install curl unzip wget ${debug}"         
+        eval "zypper -n install curl unzip wget ${debug}"
         eval "zypper -n install libcap-progs ${debug} || zypper -n install libcap2 ${debug}"
     elif [ ${sys_type} == "apt-get" ]; then
         eval "apt-get update -q $debug"
-        eval "apt-get install apt-transport-https curl unzip wget libcap2-bin -y ${debug}"        
+        eval "apt-get install apt-transport-https curl unzip wget libcap2-bin -y ${debug}"
     fi
 
     if [  "$?" != 0  ]; then
@@ -231,7 +231,7 @@ installPrerequisites() {
         exit 1;
     else
         logger "Done"
-    fi          
+    fi
 }
 
 
@@ -244,19 +244,19 @@ addWazuhrepo() {
         eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-\$releasever - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo ${debug}"
     elif [ ${sys_type} == "zypper" ]; then
         eval "rpm --import ${repogpg} ${debug}"
-        eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-\$releasever - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/zypp/repos.d/wazuh.repo ${debug}"            
+        eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-\$releasever - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/zypp/repos.d/wazuh.repo ${debug}"
     elif [ ${sys_type} == "apt-get" ]; then
         eval "curl -s ${repogpg} --max-time 300 | apt-key add - ${debug}"
         eval "echo "deb '${repobaseurl}'/apt/ stable main" | tee /etc/apt/sources.list.d/wazuh.list ${debug}"
         eval "apt-get update -q ${debug}"
-    fi    
+    fi
 
-    logger "Done" 
+    logger "Done"
 }
 
 ## Wazuh manager
 installWazuh() {
-    
+
     logger "Installing the Wazuh manager..."
     if [ ${sys_type} == "zypper" ]; then
         eval "zypper -n install wazuh-manager=${WAZUH_VER}-${WAZUH_REV} ${debug}"
@@ -270,7 +270,7 @@ installWazuh() {
     else
         wazuhinstalled="1"
         logger "Done"
-    fi   
+    fi
     startService "wazuh-manager"
 
 }
@@ -301,7 +301,7 @@ installElasticsearch() {
         eval "curl -so /etc/elasticsearch/elasticsearch.yml ${resources}/open-distro/elasticsearch/7.x/elasticsearch_unattended.yml --max-time 300 ${debug}"
         eval "curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml ${resources}/open-distro/elasticsearch/roles/roles.yml --max-time 300 ${debug}"
         eval "curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml ${resources}/open-distro/elasticsearch/roles/roles_mapping.yml --max-time 300 ${debug}"
-        eval "curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml ${resources}/open-distro/elasticsearch/roles/internal_users.yml --max-time 300 ${debug}"        
+        eval "curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml ${resources}/open-distro/elasticsearch/roles/internal_users.yml --max-time 300 ${debug}"
         eval "rm /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem -f ${debug}"
 
         ## Create certificates
@@ -322,18 +322,18 @@ installElasticsearch() {
             exit 1;
         else
             logger "Certificates created"
-        fi     
+        fi
         eval "cp ~/certs/elasticsearch* /etc/elasticsearch/certs/ ${debug}"
         eval "cp ~/certs/root-ca.pem /etc/elasticsearch/certs/ ${debug}"
         eval "cp ~/certs/admin* /etc/elasticsearch/certs/ ${debug}"
-        
+
         # Configure JVM options for Elasticsearch
         ram_gb=$(free -g | awk '/^Mem:/{print $2}')
         ram=$(( ${ram_gb} / 2 ))
 
         if [ ${ram} -eq "0" ]; then
             ram=1;
-        fi    
+        fi
         eval "sed -i "s/-Xms1g/-Xms${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
         eval "sed -i "s/-Xmx1g/-Xmx${ram}g/" /etc/elasticsearch/jvm.options ${debug}"
 
@@ -346,21 +346,21 @@ installElasticsearch() {
         until $(curl -XGET https://localhost:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null); do
             echo -ne ${char}
             sleep 10
-        done    
+        done
         echo ""
 
         eval "/usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -icl -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem ${debug}"
         logger "Done"
-        
+
     fi
 
 }
 
 ## Filebeat
 installFilebeat() {
-    
+
     logger "Installing Filebeat..."
-    
+
     if [ ${sys_type} == "zypper" ]; then
         eval "zypper -n install filebeat=${ELK_VER} ${debug}"
     else
@@ -390,7 +390,7 @@ installFilebeat() {
 
 ## Kibana
 installKibana() {
-    
+
     logger "Installing Open Distro for Kibana..."
     if [ ${sys_type} == "zypper" ]; then
         eval "zypper -n install opendistroforelasticsearch-kibana=${OD_VER} ${debug}"
@@ -401,7 +401,7 @@ installKibana() {
         logger -e "Kibana installation failed"
         rollBack
         exit 1;
-    else    
+    else
         kibanainstalled="1"
         eval "curl -so /etc/kibana/kibana.yml ${resources}/open-distro/kibana/7.x/kibana_unattended.yml --max-time 300 ${debug}"
         eval "mkdir /usr/share/kibana/data ${debug}"
@@ -412,7 +412,7 @@ installKibana() {
             rollBack
 
             exit 1;
-        fi     
+        fi
         eval "mkdir /etc/kibana/certs ${debug}"
         eval "cp ~/certs/kibana* /etc/kibana/certs/ ${debug}"
         eval "cp ~/certs/root-ca.pem /etc/kibana/certs/ ${debug}"
@@ -440,21 +440,21 @@ checkFlavor() {
 }
 
 checkInstalled() {
-    
+
     if [ "${sys_type}" == "yum" ]; then
         wazuhinstalled=$(yum list installed 2>/dev/null | grep wazuh-manager)
     elif [ "${sys_type}" == "zypper" ]; then
         wazuhinstalled=$(zypper packages --installed-only | grep wazuh-manager | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
         wazuhinstalled=$(apt list --installed  2>/dev/null | grep wazuh-manager)
-    fi    
+    fi
 
     if [ -n "${wazuhinstalled}" ]; then
         if [ ${sys_type} == "zypper" ]; then
             wazuhversion=$(echo ${wazuhinstalled} | awk '{print $11}')
         else
             wazuhversion=$(echo ${wazuhinstalled} | awk '{print $2}')
-        fi    
+        fi
     fi
 
     if [ "${sys_type}" == "yum" ]; then
@@ -463,14 +463,14 @@ checkInstalled() {
         elasticinstalled=$(zypper packages --installed-only | grep opendistroforelasticsearch | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
         elasticinstalled=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch)
-    fi 
+    fi
 
     if [ -n "${elasticinstalled}" ]; then
         if [ ${sys_type} == "zypper" ]; then
             odversion=$(echo ${elasticinstalled} | awk '{print $11}')
         else
             odversion=$(echo ${elasticinstalled} | awk '{print $2}')
-        fi  
+        fi
     fi
 
     if [ "${sys_type}" == "yum" ]; then
@@ -479,15 +479,15 @@ checkInstalled() {
         filebeatinstalled=$(zypper packages --installed-only | grep filebeat | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
         filebeatinstalled=$(apt list --installed  2>/dev/null | grep filebeat)
-    fi 
+    fi
 
     if [ -n "${filebeatinstalled}" ]; then
         if [ ${sys_type} == "zypper" ]; then
             filebeatversion=$(echo ${filebeatinstalled} | awk '{print $11}')
         else
             filebeatversion=$(echo ${filebeatinstalled} | awk '{print $2}')
-        fi  
-    fi    
+        fi
+    fi
 
     if [ "${sys_type}" == "yum" ]; then
         kibanainstalled=$(yum list installed 2>/dev/null | grep opendistroforelasticsearch-kibana)
@@ -495,25 +495,25 @@ checkInstalled() {
         kibanainstalled=$(zypper packages --installed-only | grep opendistroforelasticsearch-kibana | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
         kibanainstalled=$(apt list --installed  2>/dev/null | grep opendistroforelasticsearch-kibana)
-    fi 
+    fi
 
     if [ -n "${kibanainstalled}" ]; then
         if [ ${sys_type} == "zypper" ]; then
             kibanaversion=$(echo ${kibanainstalled} | awk '{print $11}')
         else
             kibanaversion=$(echo ${kibanainstalled} | awk '{print $2}')
-        fi  
-    fi  
-
-    if [ -z "${wazuhinstalled}" ] && [ -z "${elasticinstalled}" ] && [ -z "${filebeatinstalled}" ] && [ -z "${kibanainstalled}" ] && [ -n "${uninstall}" ]; then 
-        logger -e "No Wazuh components were found on the system."
-        exit 1;        
+        fi
     fi
 
-    if [ -n "${wazuhinstalled}" ] || [ -n "${elasticinstalled}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${kibanainstalled}" ]; then 
+    if [ -z "${wazuhinstalled}" ] && [ -z "${elasticinstalled}" ] && [ -z "${filebeatinstalled}" ] && [ -z "${kibanainstalled}" ] && [ -n "${uninstall}" ]; then
+        logger -e "No Wazuh components were found on the system."
+        exit 1;
+    fi
+
+    if [ -n "${wazuhinstalled}" ] || [ -n "${elasticinstalled}" ] || [ -n "${filebeatinstalled}" ] || [ -n "${kibanainstalled}" ]; then
         if [ -n "${ow}" ]; then
              overwrite
-        
+
         elif [ -n "${uninstall}" ]; then
             logger -w "Removing the installed items"
             rollBack
@@ -521,11 +521,11 @@ checkInstalled() {
             logger -e "All the Wazuh componets were found on this host. If you want to overwrite the current installation, run this script back using the option -o/--overwrite. NOTE: This will erase all the existing configuration and data."
             exit 1;
         fi
-    fi          
+    fi
 
 }
 
-overwrite() {  
+overwrite() {
     rollBack
     addWazuhrepo
     installPrerequisites
@@ -534,14 +534,14 @@ overwrite() {
     fi
     if [ -n "${elasticinstalled}" ]; then
         installElasticsearch
-    fi    
+    fi
     if [ -n "${filebeatinstalled}" ]; then
         installFilebeat
     fi
     if [ -n "${kibanainstalled}" ]; then
         installKibana
-    fi    
-    checkInstallation     
+    fi
+    checkInstallation
 }
 
 networkCheck() {
@@ -556,7 +556,7 @@ specsCheck() {
 
     cores=$(cat /proc/cpuinfo | grep processor | wc -l)
     ram_gb=$(free --giga | awk '/^Mem:/{print $2}')
-    
+
 }
 
 ## Health check
@@ -579,12 +579,12 @@ changePasswords() {
     else
         VERBOSE='> /dev/null 2>&1'
         bash ~/wazuh-passwords-tool.sh -a
-    fi    
-    
+    fi
+
     if [  "$?" != 0  ]; then
         logger -e "The passwords could not be changed"
         rollBack
-        exit 1; 
+        exit 1;
     fi
 }
 
@@ -599,7 +599,7 @@ checkInstallation() {
     if [  "$?" != 0  ]; then
         logger -e "Elasticsearch was not successfully installed."
         rollBack
-        exit 1;     
+        exit 1;
     else
         logger "Elasticsearch installation succeeded."
     fi
@@ -607,10 +607,10 @@ checkInstallation() {
     if [  "$?" != 0  ]; then
         logger -e "Filebeat was not successfully installed."
         rollBack
-        exit 1;     
+        exit 1;
     else
         logger "Filebeat installation succeeded."
-    fi    
+    fi
     logger "Initializing Kibana (this may take a while)"
     until [[ "$(curl -XGET https://localhost/status -I -uwazuh:${wazuhpass} -k -s --max-time 300 | grep "200 OK")" ]]; do
         echo -ne $char
@@ -619,7 +619,7 @@ checkInstallation() {
     echo ""
 
     setWazuhUserRBACPermissions
- 
+
     logger $'\nInstallation finished'
     logger $'\nYou can access the web interface https://<kibana_ip>. The credentials are wazuh:'${wazuhpass}''
 
@@ -638,38 +638,38 @@ main() {
     if [ "$EUID" -ne 0 ]; then
         logger -e "This script must be run as root."
         exit 1;
-    fi   
+    fi
 
     checkArch
     touch /var/log/wazuh-unattended-installation.log
 
-    if [ -n "$1" ]; then      
+    if [ -n "$1" ]; then
         while [ -n "$1" ]
         do
-            case "$1" in 
-            "-i"|"--ignore-healthcheck") 
-                ignore=1          
+            case "$1" in
+            "-i"|"--ignore-healthcheck")
+                ignore=1
                 shift 1
-                ;; 
-            "-v"|"--verbose") 
-                verbose=1          
+                ;;
+            "-v"|"--verbose")
+                verbose=1
                 shift 1
-                ;; 
-            "-o"|"--overwrite")  
-                ow=1 
-                shift 1     
-                ;;  
-            "-r"|"--uninstall")  
-                uninstall=1 
-                shift 1     
-                ;;                                                              
-            "-h"|"--help")        
+                ;;
+            "-o"|"--overwrite")
+                ow=1
+                shift 1
+                ;;
+            "-r"|"--uninstall")
+                uninstall=1
+                shift 1
+                ;;
+            "-h"|"--help")
                 getHelp
-                ;;                                         
+                ;;
             *)
                 getHelp
             esac
-        done    
+        done
 
         if [ -n "${verbose}" ]; then
             debug='2>&1 | tee -a /var/log/wazuh-unattended-installation.log'
@@ -678,32 +678,32 @@ main() {
         if [ -n "${uninstall}" ]; then
             checkInstalled
             exit 0;
-        fi        
-        
+        fi
+
         if [ -n "${ignore}" ]; then
-            logger -w "Health-check ignored."    
+            logger -w "Health-check ignored."
             checkInstalled
         else
             checkInstalled
-            healthCheck           
-        fi            
+            healthCheck
+        fi
         installPrerequisites
         addWazuhrepo
         installWazuh
         installElasticsearch
         installFilebeat
         installKibana
-        checkInstallation    
+        checkInstallation
     else
-        checkInstalled  
-        healthCheck   
+        checkInstalled
+        healthCheck
         installPrerequisites
         addWazuhrepo
         installWazuh
         installElasticsearch
         installFilebeat
         installKibana
-        checkInstallation  
+        checkInstallation
     fi
 
 }

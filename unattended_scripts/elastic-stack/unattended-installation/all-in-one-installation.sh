@@ -8,7 +8,7 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-WAZUH_VER="4.2.6"
+WAZUH_VER="4.2.7"
 WAZUH_REV="1"
 ELK_VER="7.14.2"
 WAZUH_KIB_PLUG_REV="1"
@@ -33,7 +33,7 @@ fi
 logger() {
 
     now=$(date +'%m/%d/%Y %H:%M:%S')
-    case $1 in 
+    case $1 in
         "-e")
             mtype="ERROR:"
             message="$2"
@@ -249,10 +249,10 @@ installElasticsearch() {
     if [ $sys_type == "yum" ]
     then
         eval "yum install elasticsearch-${ELK_VER} -y -q $debug"
-    elif [ $sys_type == "apt-get" ] 
+    elif [ $sys_type == "apt-get" ]
     then
         eval "apt-get install elasticsearch=${ELK_VER} -y -q $debug"
-    elif [ $sys_type == "zypper" ] 
+    elif [ $sys_type == "zypper" ]
     then
         eval "zypper -n install elasticsearch-${ELK_VER} $debug"
     fi
@@ -322,11 +322,11 @@ installFilebeat() {
     logger "Installing Filebeat..."
     if [ $sys_type == "yum" ]
     then
-        eval "yum install filebeat-${ELK_VER} -y -q  $debug"    
-    elif [ $sys_type == "zypper" ] 
+        eval "yum install filebeat-${ELK_VER} -y -q  $debug"
+    elif [ $sys_type == "zypper" ]
     then
         eval "zypper -n install filebeat-${ELK_VER} $debug"
-    elif [ $sys_type == "apt-get" ] 
+    elif [ $sys_type == "apt-get" ]
     then
         eval "apt-get install filebeat=${ELK_VER} -y -q  $debug"
     fi
@@ -359,11 +359,11 @@ installKibana() {
     logger "Installing Kibana..."
     if [ $sys_type == "yum" ]
     then
-        eval "yum install kibana-${ELK_VER} -y -q  $debug"    
-    elif [ $sys_type == "zypper" ] 
+        eval "yum install kibana-${ELK_VER} -y -q  $debug"
+    elif [ $sys_type == "zypper" ]
     then
         eval "zypper -n install kibana-${ELK_VER} $debug"
-    elif [ $sys_type == "apt-get" ] 
+    elif [ $sys_type == "apt-get" ]
     then
         eval "apt-get install kibana=${ELK_VER} -y -q  $debug"
     fi
@@ -412,7 +412,7 @@ healthCheck() {
         exit 1;
     elif [[ -f /etc/elasticsearch/elasticsearch.yml ]] && [[ -f /etc/kibana/kibana.yml ]] && [[ -f /etc/filebeat/filebeat.yml ]]; then
         logger -e "All the components have already been installed."
-        exit 1;    
+        exit 1;
     else
         logger "Starting the installation..."
     fi
@@ -448,7 +448,7 @@ checkInstallation() {
     echo -e "$passwords"
     logger $'\nInstallation finished'
     disableRepos
-    logger $'\nYou can access the web interface https://<kibana_ip>. The credentials are elastic:'$password''    
+    logger $'\nYou can access the web interface https://<kibana_ip>. The credentials are elastic:'$password''
     exit 0;
 
 }
@@ -492,14 +492,14 @@ main() {
             *)
                 getHelp
             esac
-        done 
+        done
 
         if [ "$EUID" -ne 0 ]; then
             logger -e "This script must be run as root."
             exit 1;
-        fi       
+        fi
 
-        checkArch    
+        checkArch
 
         if [ -n "$d" ]
         then
