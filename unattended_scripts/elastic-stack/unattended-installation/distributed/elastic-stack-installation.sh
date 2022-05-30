@@ -9,7 +9,7 @@
 # Foundation.
 
 WAZUH_MAJOR="4.2"
-WAZUH_VER="4.2.6"
+WAZUH_VER="4.2.7"
 WAZUH_REV="1"
 ELK_VER="7.14.2"
 WAZUH_KIB_PLUG_REV="1"
@@ -34,7 +34,7 @@ fi
 logger() {
 
     now=$(date +'%m/%d/%Y %H:%M:%S')
-    case $1 in 
+    case $1 in
         "-e")
             mtype="ERROR:"
             message="$2"
@@ -235,10 +235,10 @@ installElasticsearch() {
     if [ $sys_type == "yum" ]
     then
         eval "yum install elasticsearch-${ELK_VER} -y -q $debug"
-    elif [ $sys_type == "apt-get" ] 
+    elif [ $sys_type == "apt-get" ]
     then
         eval "apt-get install elasticsearch=${ELK_VER} -y -q $debug"
-    elif [ $sys_type == "zypper" ] 
+    elif [ $sys_type == "zypper" ]
     then
         eval "zypper -n install elasticsearch-${ELK_VER} $debug"
     fi
@@ -440,11 +440,11 @@ installKibana() {
     logger "Installing Kibana..."
     if [ $sys_type == "yum" ]
     then
-        eval "yum install kibana-${ELK_VER} -y -q  $debug"    
-    elif [ $sys_type == "zypper" ] 
+        eval "yum install kibana-${ELK_VER} -y -q  $debug"
+    elif [ $sys_type == "zypper" ]
     then
         eval "zypper -n install kibana-${ELK_VER} $debug"
-    elif [ $sys_type == "apt-get" ] 
+    elif [ $sys_type == "apt-get" ]
         then
         eval "apt-get install kibana=${ELK_VER} -y -q  $debug"
     fi
@@ -533,9 +533,9 @@ initializeKibana() {
     wip="${wip//$rw2}"
 
     conf="$(awk '{sub("url: https://localhost", "url: https://'"${wip}"'")}1' /usr/share/kibana/data/wazuh/config/wazuh.yml)"
-    echo "$conf" > /usr/share/kibana/data/wazuh/config/wazuh.yml  
-    logger $'\nYou can access the web interface https://'${kip}'. The credentials are elastic:'$epassword''    
-  
+    echo "$conf" > /usr/share/kibana/data/wazuh/config/wazuh.yml
+    logger $'\nYou can access the web interface https://'${kip}'. The credentials are elastic:'$epassword''
+
 }
 
 ## Check nodes
@@ -638,14 +638,14 @@ main() {
             *)
                 getHelp
             esac
-        done  
+        done
 
         if [ "$EUID" -ne 0 ]; then
             logger -e "This script must be run as root."
             exit 1;
-        fi  
+        fi
 
-        checkArch        
+        checkArch
 
         if [ -n "$d" ]
         then

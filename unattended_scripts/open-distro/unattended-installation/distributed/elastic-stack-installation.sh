@@ -10,7 +10,7 @@
 
 char="."
 debug='> /dev/null 2>&1'
-WAZUH_VER="4.2.6"
+WAZUH_VER="4.2.7"
 WAZUH_MAJOR="4.2"
 WAZUH_REV="1"
 ELK_VER="7.10.2"
@@ -23,10 +23,10 @@ if [ -n "$(command -v yum)" ]; then
     sys_type="yum"
     sep="-"
 elif [ -n "$(command -v zypper)" ]; then
-    sys_type="zypper"   
-    sep="-"  
+    sys_type="zypper"
+    sep="-"
 elif [ -n "$(command -v apt-get)" ]; then
-    sys_type="apt-get"   
+    sys_type="apt-get"
     sep="="
 fi
 
@@ -34,7 +34,7 @@ fi
 logger() {
 
     now=$(date +'%m/%d/%Y %H:%M:%S')
-    case $1 in 
+    case $1 in
         "-e")
             mtype="ERROR:"
             message="$2"
@@ -182,7 +182,7 @@ installPrerequisites() {
             else
                 echo -e '[AdoptOpenJDK] \nname=AdoptOpenJDK \nbaseurl=http://adoptopenjdk.jfrog.io/adoptopenjdk/rpm/system-ver/$releasever/$basearch\nenabled=1\ngpgcheck=1\ngpgkey=https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public' | eval "tee /etc/yum.repos.d/adoptopenjdk.repo ${debug}"
                 conf="$(awk '{sub("system-ver", "'"${os}"'")}1' /etc/yum.repos.d/adoptopenjdk.repo)"
-                echo "$conf" > /etc/yum.repos.d/adoptopenjdk.repo 
+                echo "$conf" > /etc/yum.repos.d/adoptopenjdk.repo
             fi
             eval "yum install adoptopenjdk-11-hotspot -y -q ${debug}"
         fi
@@ -398,15 +398,15 @@ createCertificates() {
             echo '    dn: CN="'${IMN[i]}'",OU=Docu,O=Wazuh,L=California,C=US' >> ~/searchguard/search-guard.yml
             echo '    ip:' >> ~/searchguard/search-guard.yml
             echo '      - "'${DSH[i]}'"' >> ~/searchguard/search-guard.yml
-        done      
+        done
     fi
     kip=$(grep -A 1 "Kibana-instance" ~/config.yml | tail -1)
     rm="- "
-    kip="${kip//$rm}"        
+    kip="${kip//$rm}"
     echo '  - name: "kibana"' >> ~/searchguard/search-guard.yml
     echo '    dn: CN="kibana",OU=Docu,O=Wazuh,L=California,C=US' >> ~/searchguard/search-guard.yml
     echo '    ip:' >> ~/searchguard/search-guard.yml
-    echo '      - "'${kip}'"' >> ~/searchguard/search-guard.yml      
+    echo '      - "'${kip}'"' >> ~/searchguard/search-guard.yml
     awk -v RS='' '/# Clients certificates/' ~/config.yml >> ~/searchguard/search-guard.yml
     eval "chmod +x ~/searchguard/tools/sgtlstool.sh ${debug}"
     eval "bash ~/searchguard/tools/sgtlstool.sh -c ~/searchguard/search-guard.yml -ca -crt -t /etc/elasticsearch/certs/ ${debug}"
@@ -529,7 +529,7 @@ installKibana() {
         eval "cd /etc/kibana/certs/ ${debug}"
         eval "tar -xf certs.tar kibana_http.pem kibana_http.key root-ca.pem ${debug}"
         eval "mv /etc/kibana/certs/kibana_http.key /etc/kibana/certs/kibana.key ${debug}"
-        eval "mv /etc/kibana/certs/kibana_http.pem /etc/kibana/certs/kibana.pem ${debug}"        
+        eval "mv /etc/kibana/certs/kibana_http.pem /etc/kibana/certs/kibana.pem ${debug}"
         logger "Kibana installed."
 
         copyKibanacerts iname
@@ -544,7 +544,7 @@ copyKibanacerts() {
     if [[ -f "/etc/elasticsearch/certs/kibana_http.pem" ]] && [[ -f "/etc/elasticsearch/certs/kibana_http.key" ]]; then
         eval "mv /etc/elasticsearch/certs/kibana_http* /etc/kibana/certs/ ${debug}"
         eval "mv /etc/kibana/certs/kibana_http.key /etc/kibana/certs/kibana.key ${debug}"
-        eval "mv /etc/kibana/certs/kibana_http.pem /etc/kibana/certs/kibana.pem ${debug}"          
+        eval "mv /etc/kibana/certs/kibana_http.pem /etc/kibana/certs/kibana.pem ${debug}"
     elif [ -f ~/certs.tar ]; then
         eval "cp ~/certs.tar /etc/kibana/certs/ ${debug}"
         eval "cd /etc/kibana/certs/ ${debug}"
@@ -552,7 +552,7 @@ copyKibanacerts() {
         # if [ ${iname} != "kibana" ]; then
         #     eval "mv /etc/kibana/certs/${iname}_http.pem /etc/kibana/certs/kibana.pem ${debug}"
         #     eval "mv /etc/kibana/certs/${iname}_http.key /etc/kibana/certs/kibana.key ${debug}"
-        # fi            
+        # fi
     else
         logger -e "No certificates found. Could not initialize Kibana"
         exit 1;
@@ -574,8 +574,8 @@ initializeKibana() {
     rm="- "
     wip="${wip//$rm}"
     conf="$(awk '{sub("url: https://localhost", "url: https://'"${wip}"'")}1' /usr/share/kibana/data/wazuh/config/wazuh.yml)"
-    echo "${conf}" > /usr/share/kibana/data/wazuh/config/wazuh.yml  
-    logger $'\nYou can access the web interface https://'${kip}'. The credentials are admin:admin'    
+    echo "${conf}" > /usr/share/kibana/data/wazuh/config/wazuh.yml
+    logger $'\nYou can access the web interface https://'${kip}'. The credentials are admin:admin'
 
 }
 

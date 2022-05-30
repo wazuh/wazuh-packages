@@ -11,7 +11,7 @@
 ## Check if system is based on yum or apt-get
 char="."
 debug='> /dev/null 2>&1'
-WAZUH_VER="4.2.6"
+WAZUH_VER="4.2.7"
 WAZUH_REV="1"
 ELK_VER="7.10.2"
 OD_VER="1.13.2"
@@ -20,10 +20,10 @@ if [ -n "$(command -v yum)" ]; then
     sys_type="yum"
     sep="-"
 elif [ -n "$(command -v zypper)" ]; then
-    sys_type="zypper"   
-    sep="-"  
+    sys_type="zypper"
+    sep="-"
 elif [ -n "$(command -v apt-get)" ]; then
-    sys_type="apt-get"   
+    sys_type="apt-get"
     sep="="
 fi
 
@@ -31,7 +31,7 @@ fi
 logger() {
 
     now=$(date +'%m/%d/%Y %H:%M:%S')
-    case $1 in 
+    case $1 in
         "-e")
             mtype="ERROR:"
             message="$2"
@@ -200,7 +200,7 @@ installFilebeat() {
     fi
 
     logger "Installing Filebeat..."
-    
+
     if [ ${sys_type} == "zypper" ]; then
         eval "zypper -n install filebeat-${ELK_VER} ${debug}"
     else
@@ -313,7 +313,7 @@ main() {
         fi
 
         checkArch
-                
+
         if [ -n "${debugEnabled}" ]
         then
             debug=""
