@@ -122,33 +122,9 @@ function dashboard_initialize() {
         if [ -z "${force}" ]; then
             flag="-e"
         fi
-        failed_nodes=()
         common_logger "${flag}" "Cannot connect to Wazuh dashboard."
-
-        for i in "${!indexer_node_ips[@]}"; do
-            curl=$(curl -XGET https://${indexer_node_ips[i]}:9200/ -uadmin:${u_pass} -k -s)
-            exit_code=${PIPESTATUS[0]}
-            if [[ "${exit_code}" -eq "7" ]]; then
-                failed_connect=1
-                failed_nodes+=("${indexer_node_names[i]}")
-            fi
-            if [ "${curl}" == "OpenSearch Security not initialized." ]; then
-                sec_not_initialized=1
-            fi
-        done
-        if [ -n "${failed_connect}" ]; then
-            common_logger "${flag}" "Failed to connect with ${failed_nodes[*]}. Connection refused."
-        fi
-
-        if [ -n "${sec_not_initialized}" ]; then
-            common_logger "${flag}" "Wazuh indexer security settings not initialized. Please run the installation assistant using -s|--start-cluster in one of the wazuh indexer nodes."
-        fi
         
-        if [ -z "${force}" ]; then
-            common_logger "If you want to install Wazuh dashboard without waiting for the Wazuh indexer cluster, use the -fd option"
-            installCommon_rollBack
-            exit 1
-        else
+        if [ -n "${force}" ]; then
             common_logger -nl "--- Summary ---"
             common_logger -nl "When Wazuh dashboard is able to connect to your Wazuh indexer cluster, you can access the web interface https://${print_ip}\n    User: admin\n    Password: ${u_pass}"
         fi       
@@ -176,6 +152,47 @@ function dashboard_initializeAIO() {
 }
 
 function dashboard_install() {
+
+    if [ "${#indexer_node_ips[@]}" -gt 0 ]; then
+        common_logger "Checking if Wazuh indexer nodes are active."
+        flag="-w"
+        if [ -z "${force}" ]; then
+            flag="-e"
+        fi
+        failed_nodes=()
+        for i in "${!indexer_node_ips[@]}"; do
+            curl=$(curl -XGET https://${indexer_node_ips[i]}:9200/ -uadmin:${u_pass} -k -s)
+            exit_code=${PIPESTATUS[0]}
+            if [[ "${exit_code}" -eq "7" ]]; then
+                failed_connect=1
+                failed_nodes+=("${indexer_node_names[i]}")
+            fi
+            if [ "${curl}" == "OpenSearch Security not initialized." ]; then
+                sec_not_initialized=1
+            fi
+        done
+        if [ -n "${failed_connect}" ]; then
+            common_logger "${flag}" "Failed to connect with ${failed_nodes[*]}. Connection refused."
+            if [ -z "${force}" ]; then
+                common_logger "If you want to install Wazuh dashboard without waiting for the Wazuh indexer cluster, use the -fd option"
+                installCommon_rollBack
+                exit 1
+            else
+                common_logger -nl "When Wazuh dashboard is able to connect to your Wazuh indexer cluster, you can access the web interface, credentials will be provided at the end of installation."
+            fi   
+        fi
+
+        if [ -n "${sec_not_initialized}" ]; then
+            common_logger "${flag}" "Wazuh indexer security settings not initialized. Please run the installation assistant using -s|--start-cluster in one of the wazuh indexer nodes."
+            if [ -z "${force}" ]; then
+                common_logger "If you want to install Wazuh dashboard without waiting for the Wazuh indexer cluster, use the -fd option"
+                installCommon_rollBack
+                exit 1
+            else
+                common_logger -nl "When Wazuh dashboard is able to connect to your Wazuh indexer cluster, you can access the web interface, credentials will be provided at the end of installation."
+            fi   
+        fi
+    fi
 
     common_logger "Starting Wazuh dashboard installation."
     if [ "${sys_type}" == "zypper" ]; then
