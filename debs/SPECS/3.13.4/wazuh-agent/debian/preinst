@@ -1,0 +1,111 @@
+#!/bin/sh
+# preinst script for wazuh-agent
+
+set -e
+
+# configuration variables
+DIR="/var/ossec"
+WAZUH_TMP_DIR="${DIR}/packages_files/agent_config_files"
+
+# environment configuration
+if [ ! -d ${WAZUH_TMP_DIR} ]; then
+    mkdir -p ${WAZUH_TMP_DIR}
+else
+    rm -rf ${WAZUH_TMP_DIR}
+    mkdir -p ${WAZUH_TMP_DIR}
+fi
+
+case "$1" in
+    install|upgrade)
+
+        if [ ! -z "$2" ] && [ ! -f ${DIR}/etc/ossec.conf ] ; then
+            touch ${WAZUH_TMP_DIR}/create_conf
+        fi
+
+        if [ -z "$2" ]
+        then
+            if [ -f ${DIR}/etc/ossec.conf ]; then
+                cp  ${DIR}/etc/ossec.conf  ${DIR}/etc/ossec.conf.deborig
+                chmod 0600 ${DIR}/etc/ossec.conf.deborig
+                chown root:root ${DIR}/etc/ossec.conf.deborig
+                echo "====================================================================================="
+                echo "= Backup from your ossec.conf has been created at ${DIR}/etc/ossec.conf.deborig ="
+                echo "= Please verify your ossec.conf configuration at ${DIR}/etc/ossec.conf          ="
+                echo "====================================================================================="
+            fi
+        fi
+        # Delete old service
+        if [ -f /etc/init.d/ossec ]; then
+            rm /etc/init.d/ossec
+        fi
+        # back up the current user rules
+        if [ -f ${DIR}/etc/client.keys ]; then
+            cp ${DIR}/etc/client.keys ${WAZUH_TMP_DIR}/client.keys
+        fi
+        if [ -f ${DIR}/etc/local_internal_options.conf ]; then
+            cp -p ${DIR}/etc/local_internal_options.conf ${WAZUH_TMP_DIR}/local_internal_options.conf
+        fi
+        if [ -f ${DIR}/etc/ossec.conf ]; then
+            cp -p ${DIR}/etc/ossec.conf ${WAZUH_TMP_DIR}/ossec.conf
+        fi
+
+        if [ -d ${DIR}/etc/shared ]; then
+            files="$(ls -A ${DIR}/etc/shared/*)"
+        fi
+
+        if [ ! -z "$files" ]; then
+            mkdir -p ${WAZUH_TMP_DIR}/group
+            cp -rp ${DIR}/etc/shared/* ${WAZUH_TMP_DIR}/group/
+        fi
+
+        # Backup the OpenSCAP policies if the module is enabled
+        if [ ! -z "$2" ]; then
+            if stat ${DIR}/wodles/oscap/content/* > /dev/null 2>&1; then
+                if grep -E -n '<wodle.*name="open-scap".*>' ${DIR}/etc/ossec.conf > /dev/null 2>&1 ; then
+                    is_disabled="no"
+                else
+                    is_disabled="yes"
+                fi
+
+                end_config_limit="99999999"
+                for start_config in $(grep -E -n '<wodle.*name="open-scap".*>'  ${DIR}/etc/ossec.conf | cut -d':' -f 1); do
+                    end_config="$(sed -n "${start_config},${end_config_limit}p"  ${DIR}/etc/ossec.conf | sed -n '/open-scap/,$p' | grep -n '</wodle>' | head -n 1 | cut -d':' -f 1)"
+                    end_config="$((start_config + end_config))"
+
+                    if [ -n "${start_config}" ] && [ -n "${end_config}" ]; then
+                        open_scap_conf="$(sed -n "${start_config},${end_config}p"  ${DIR}/etc/ossec.conf)"
+
+                        for line in $(echo ${open_scap_conf} | grep -n '<disabled>' | cut -d':' -f 1); do
+                            # Check if OpenSCAP is enabled
+                            if echo ${open_scap_conf} | sed -n ${line}p | grep "disabled>no" > /dev/null 2>&1 ; then
+                                is_disabled="no"
+
+                            # Check if OpenSCAP is disabled
+                            elif echo ${open_scap_conf} | sed -n ${line}p | grep "disabled>yes" > /dev/null 2>&1; then
+                                is_disabled="yes"
+                            fi
+                        done
+                    fi
+                done
+
+                if [ "${is_disabled}" = "no" ]; then
+                    mkdir -p ${WAZUH_TMP_DIR}/oscap
+                    cp -r ${DIR}/wodles/oscap/content/* ${WAZUH_TMP_DIR}/oscap
+                fi
+            fi
+        fi
+    ;;
+
+    abort-upgrade)
+
+    ;;
+
+    *)
+        echo "preinst called with unknown argument \`$1'" >&2
+        exit 1
+
+    ;;
+
+esac
+
+exit 0
