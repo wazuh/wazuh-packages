@@ -74,10 +74,7 @@ if [[ "${future}" == "yes" ]]; then
     # PREPARE FUTURE SPECS AND SOURCES
     mkdir -p ${tmp_dir}
     cp -r ${sources_dir} "${tmp_sources_dir}"
-    if [[ ${specs_path} != ${tmp_specs_path} ]]; then
-        cp -r ${specs_path} "${tmp_specs_path}"
-    fi
-    cp -r ${specs_path}/${base_version} "${tmp_specs_path}"/${wazuh_version}
+    cp -r "${specs_path}" "${tmp_specs_path}"
     sources_dir="${tmp_sources_dir}"
     specs_path="${tmp_specs_path}"
     find "${sources_dir}" "${specs_path}" \( -name "*VERSION*" -o -name "*changelog*" \) -exec sed -i "s/${base_version}/${wazuh_version}/g" {} \;
@@ -85,7 +82,7 @@ if [[ "${future}" == "yes" ]]; then
 fi
 
 cd ${sources_dir} && tar -czf ${pacman_dir}/${package_full_name}.tar.gz . 
-cp -pr ${specs_path}/${wazuh_version}/wazuh-${build_target}/arch/* ${pacman_dir}
+cp -pr ${specs_path}/wazuh-${build_target}/arch/* ${pacman_dir}
 
 # Configure the package with the different parameters
 sed -i "s:PARAM_VERSION:${wazuh_version}:g" ${pacman_dir}/PKGBUILD
