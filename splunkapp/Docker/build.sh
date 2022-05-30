@@ -10,7 +10,7 @@ splunk_version=""
 build_dir="/pkg"
 destination_dir="/wazuh_splunk_app"
 checksum_dir="/var/local/checksum"
-package_conf="${build_dir}/SplunkAppForWazuh/default/package.conf"
+package_json="${build_dir}/package.json"
 
 download_sources() {
     if ! curl -L https://github.com/wazuh/wazuh-splunk/tarball/${wazuh_branch} | tar zx ; then
@@ -18,8 +18,8 @@ download_sources() {
         exit 1
     fi
     mv wazuh-* ${build_dir}
-    wazuh_version=$(cat ${package_conf} | grep version -m 1 | cut -d ' ' -f 3)
-    splunk_version=$(cat ${package_conf} | grep version -m 3 | cut -d ' ' -f 3 | head -n 3 | tail -1)
+    wazuh_version=$(python -c 'import json, os; f=open("/pkg/package.json"); pkg=json.load(f); f.close(); print(pkg["version"])')
+    splunk_version=$(python -c 'import json, os; f=open("/pkg/package.json"); pkg=json.load(f); f.close(); print(pkg["splunk"])')
 }
 
 remove_execute_permissions() {
