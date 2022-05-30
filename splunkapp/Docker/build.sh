@@ -17,7 +17,7 @@ download_sources() {
         echo "Error downloading the source code from GitHub."
         exit 1
     fi
-    mv wazuh-*/* ${build_dir}
+    mv wazuh-* ${build_dir}
     wazuh_version=$(python -c "import json, os; f=open(\""${package_json}"\"); pkg=json.load(f); f.close(); print(pkg[\"version\"])")
     splunk_version=$(python -c "import json, os; f=open(\""${package_json}"\"); pkg=json.load(f); f.close(); print(pkg[\"splunk\"])")}
 }
