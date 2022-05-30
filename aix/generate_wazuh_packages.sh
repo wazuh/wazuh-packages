@@ -201,7 +201,7 @@ build_package() {
   tar cf ${package_name}.tar ${package_name} && gzip ${package_name}.tar
   mv ${package_name}.tar.gz ${rpm_build_dir}/SOURCES/
 
-  cp ${current_path}/SPECS/wazuh-agent-aix.spec ${rpm_build_dir}/SPECS/${package_name}-aix.spec
+  cp ${current_path}/SPECS/${wazuh_version}/wazuh-agent-${wazuh_version}-aix.spec ${rpm_build_dir}/SPECS
 
   socket_lib=$(find /opt/freeware/lib/gcc/*/6.3.0/include-fixed/sys/ -name socket.h)
 

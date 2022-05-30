@@ -70,10 +70,12 @@ if [[ "${future}" == "yes" ]]; then
     sources_dir="${build_dir}/${build_target}/${package_full_name}"
 
     # PREPARE FUTURE SPECS AND SOURCES
-    find "${build_dir}/${package_name}" "${specs_path}" \( -name "*VERSION*" -o -name "*changelog*" \) -exec sed -i "s/${base_version}/${wazuh_version}/g" {} \;
+    cp -r "${specs_path}/${base_version}" "${specs_path}/${wazuh_version}"
+    mv ${build_dir}/${build_target}/${old_package_name} ${build_dir}/${build_target}/${package_full_name}
+    find "${build_dir}/${package_name}" "${specs_path}/${wazuh_version}" \( -name "*VERSION*" -o -name "*changelog*" \) -exec sed -i "s/${base_version}/${wazuh_version}/g" {} \;
     sed -i "s/\$(VERSION)/${MAJOR}.${MINOR}/g" "${build_dir}/${build_target}/${package_full_name}/src/Makefile"
 fi
-cp -pr ${specs_path}/wazuh-${build_target}/debian ${sources_dir}/debian
+cp -pr ${specs_path}/${wazuh_version}/wazuh-${build_target}/debian ${sources_dir}/debian
 cp -p ${package_files}/gen_permissions.sh ${sources_dir}
 
 # Generating directory structure to build the .deb package
