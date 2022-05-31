@@ -161,7 +161,7 @@ build_package() {
 
   source_code="https://api.github.com/repos/wazuh/wazuh/tarball/${wazuh_branch}"
 
-  rm -f wazuh.tar.gz && wget -O wazuh.tar.gz --no-check-certificate ${source_code}
+  rm -f wazuh.tar.gz && curl -L ${source_code} -k -o wazuh.tar.gz -s
   rm -rf wazuh-wazuh-* wazuh-agent-*
   extracted_directory=$(gunzip -c wazuh.tar.gz | tar -xvf - | tail -n 1 | cut -d' ' -f2 | cut -d'/' -f1)
   wazuh_version=$(cat ${extracted_directory}/src/VERSION | cut -d'v' -f2)
