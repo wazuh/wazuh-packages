@@ -20,6 +20,7 @@ BuildRequires: coreutils automake autoconf libtool
 Wazuh is an open source security monitoring solution for threat detection, integrity monitoring, incident response and compliance.
 
 %prep
+set -x
 %setup -q
 ./gen_ossec.sh init agent %{_localstatedir} > ossec-init.conf
 cd src && gmake clean && gmake deps RESOURCES_URL=http://packages.wazuh.com/deps/3.13
@@ -27,6 +28,7 @@ gmake TARGET=agent USE_SELINUX=no PREFIX=%{_localstatedir} DISABLE_SHARED=yes DI
 cd ..
 
 %install
+set -x
 # Clean BUILDROOT
 rm -fr %{buildroot}
 
