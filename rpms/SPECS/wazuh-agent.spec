@@ -1,6 +1,6 @@
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-agent
-Version:     4.3.2
+Version:     4.3.3
 Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
@@ -603,6 +603,8 @@ rm -fr %{buildroot}
 
 
 %changelog
+* Tue May 31 2022 support <info@wazuh.com> - 4.3.3
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Mon May 30 2022 support <info@wazuh.com> - 4.3.2
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Wed May 18 2022 support <info@wazuh.com> - 4.3.1
