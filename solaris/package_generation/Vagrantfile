@@ -4,8 +4,8 @@
 require 'getoptlong'
 
 os = {
-        'solaris11'   => {'box' => 'wazuh/solaris11',          'ip' => '172.16.1.44'},
-        'solaris10'   => {'box' => 'wazuh/solaris10',          'ip' => '172.16.1.45'},
+        'solaris11'   => {'box' => 'wazuh/solaris11',          'ip' => '192.168.56.44'},
+        'solaris10'   => {'box' => 'wazuh/solaris10',          'ip' => '192.168.56.45'},
 }
 
 ###################################################
