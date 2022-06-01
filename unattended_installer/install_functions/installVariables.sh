@@ -9,12 +9,12 @@
 ## Package vars
 readonly wazuh_major="4.3"
 readonly wazuh_version="4.3.3"
-readonly wazuh_revision_deb="2"
-readonly wazuh_revision_rpm="2"
-readonly indexer_revision_deb="2"
-readonly indexer_revision_rpm="2"
-readonly dashboard_revision_deb="2"
-readonly dashboard_revision_rpm="2"
+readonly wazuh_revision_deb="1"
+readonly wazuh_revision_rpm="1"
+readonly indexer_revision_deb="1"
+readonly indexer_revision_rpm="1"
+readonly dashboard_revision_deb="1"
+readonly dashboard_revision_rpm="1"
 readonly filebeat_version="7.10.2"
 readonly wazuh_install_vesion="0.1"
 
