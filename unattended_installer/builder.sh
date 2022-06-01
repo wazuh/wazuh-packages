@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# Edited
 # Tool to create wazuh-install.sh, wazuh-cert-tool.sh
 # and wazuh-passwords-tool.sh
 # Copyright (C) 2015, Wazuh Inc.
