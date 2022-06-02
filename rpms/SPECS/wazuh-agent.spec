@@ -231,7 +231,9 @@ if [ $1 = 1 ]; then
   fi
 
   if [ ! -z "$sles" ]; then
-    install -m 755 %{_localstatedir}/packages_files/agent_installation_scripts/src/init/ossec-hids-suse.init /etc/init.d/wazuh-agent
+    if [ -d /etc/init.d ]; then
+      install -m 755 %{_localstatedir}/packages_files/agent_installation_scripts/src/init/ossec-hids-suse.init /etc/init.d/wazuh-agent
+    fi    
   fi
 
   touch %{_localstatedir}/logs/active-responses.log
