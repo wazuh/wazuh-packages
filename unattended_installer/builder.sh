@@ -8,7 +8,7 @@
 # and/or modify it under the terms of the GNU General Public
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
-
+# Test new pipeline name
 readonly base_path="$(dirname "$(readlink -f "$0")")"
 readonly resources_installer="${base_path}/install_functions"
 readonly resources_config="${base_path}/config"
