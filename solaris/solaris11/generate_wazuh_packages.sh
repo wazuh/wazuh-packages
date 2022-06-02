@@ -184,7 +184,7 @@ create_package() {
     sed "s|<INSTALL_PATH>|${install_path}|" ${current_path}/postinstall.sh > ${current_path}/postinstall.sh.new
     mv ${current_path}/postinstall.sh.new ${current_path}/postinstall.sh
 
-    python solaris_fix.py -t SPECS/template_agent_${VERSION}.json -p wazuh-agent.p5m.1 # Fix p5m.1 file
+    python solaris_fix.py -t SPECS/template_agent.json -p wazuh-agent.p5m.1 # Fix p5m.1 file
     mv wazuh-agent.p5m.1.aux.fixed wazuh-agent.p5m.1
     # Add the preserve=install-only tag to the configuration files
     for file in etc/ossec.conf etc/local_internal_options.conf etc/client.keys; do

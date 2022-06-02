@@ -8,6 +8,8 @@ os = {
     'solaris10' => {'box' => 'wazuh/solaris10', 'ip' => '192.168.56.45', 'folder' => 'solaris10'},
     'solaris11_cmake' => {'box' => 'wazuh/solaris11_cmake', 'ip' => '192.168.56.46', 'folder' => 'solaris11'},
     'solaris10_cmake' => {'box' => 'wazuh/solaris10_cmake', 'ip' => '192.168.56.47', 'folder' => 'solaris10'},
+    'solaris11_gcc9' => {'box' => 'wazuh/solaris11_gcc9', 'ip' => '192.168.56.48', 'folder' => 'solaris11'},
+    'solaris10_gcc9' => {'box' => 'wazuh/solaris10_gcc9', 'ip' => '192.168.56.49', 'folder' => 'solaris10'},
 }
 
 ###################################################
@@ -125,6 +127,10 @@ Vagrant.configure("2") do |config|
           elsif key == "solaris11_cmake"
             node.vm.box_url = 'https://ci.wazuh.com/vms/vagrant/solaris/11/i386/solaris11.3_cmake.box'
           elsif key == "solaris10_cmake"
+            node.vm.box_url = 'https://ci.wazuh.com/vms/vagrant/solaris/10/i386/solaris10_cmake.box'
+          elsif key == "solaris11_gcc9"
+            node.vm.box_url = 'https://ci.wazuh.com/vms/vagrant/solaris/11/i386/solaris11.3_cmake.box'
+          elsif key == "solaris10_gcc9"
             node.vm.box_url = 'https://ci.wazuh.com/vms/vagrant/solaris/10/i386/solaris10_cmake.box'
           end
 

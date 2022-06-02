@@ -73,14 +73,14 @@ prepare_env() {
 }
 
 
-download_plugin_platform_sources() {    
+download_plugin_platform_sources() {
     if ! git clone $plugin_platform_app_repo_url --branch "${plugin_platform_version}" --depth=1 plugin_platform_source; then
         echo "Error downloading OpenSearch-Dashboards source code from opensearch-project/OpenSearch-Dashboards GitHub repository."
         exit 1
     fi
-    
+
     mkdir -p plugin_platform_source/plugins
-    mv plugin_platform_source ${plugin_platform_dir}     
+    mv plugin_platform_source ${plugin_platform_dir}
 }
 
 
@@ -91,7 +91,7 @@ install_dependencies () {
 
     sed -i 's/node scripts\/build_ts_refs/node scripts\/build_ts_refs --allow-root/' ${plugin_platform_dir}/package.json
     sed -i 's/node scripts\/register_git_hook/node scripts\/register_git_hook --allow-root/' ${plugin_platform_dir}/package.json
-    
+
     yarn osd bootstrap --skip-opensearch-dashboards-plugins
 }
 
@@ -100,19 +100,19 @@ download_wazuh_app_sources() {
     if ! git clone $wazuh_app_clone_repo_url --branch ${wazuh_branch} --depth=1 ${plugin_platform_dir}/plugins/wazuh ; then
         echo "Error downloading the source code from wazuh-kibana-app GitHub repository."
         exit 1
-    fi      
+    fi
 }
 
 
 build_package(){
-   
+
     cd $source_dir
 
     # Set pkg name
     if [ -z "${app_revision}" ]; then
-        wazuh_app_pkg_name="wazuh_opensearch_dashboards-${wazuh_version}_${plugin_platform_version}.zip"
+        wazuh_app_pkg_name="wazuh-${wazuh_version}.zip"
     else
-        wazuh_app_pkg_name="wazuh_opensearch_dashboards-${wazuh_version}_${plugin_platform_version}-${app_revision}.zip"
+        wazuh_app_pkg_name="wazuh-${wazuh_version}-${app_revision}.zip"
     fi
 
     # Build the package
