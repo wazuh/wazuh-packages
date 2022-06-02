@@ -19,9 +19,9 @@ function getHelp() {
     echo -e "        -a,  --change-all"
     echo -e "                Changes all the Wazuh indexer user passwords and prints them on screen."
     echo -e ""
-    echo -e "        -ai,  --api <currentPassword>"
-    echo -e "                Change the Wazuh API password given the current password, it needs --id-api ,--user and --password."
-    echo -e "                If not an administrator --admin-user and --admin-password need to be provided."
+    echo -e "        -A,  --api <currentPassword>"
+    echo -e "                Change the Wazuh API password given the current password, it needs --id|-id-api ,-u|--user and -p|--password."
+    echo -e "                If not an administrator -au|--admin-user and -ap|--admin-password need to be provided."
     echo -e ""
     echo -e "        -au,  --admin-user <adminUser>"
     echo -e "                Admin user for Wazuh API it is needed when the user given it is not an administrator"
@@ -87,7 +87,7 @@ function main() {
             "-A"|"--api")
                 api=1
                 if [ -z ${2} ]; then
-                    echo "Argument --api-id needs a second argument"
+                    echo "Argument -A|--api needs a second argument"
                     getHelp
                     exit 1
                 fi
@@ -97,7 +97,7 @@ function main() {
             "-au"|"--admin-user")
                 adminAPI=1
                 if [ -z ${2} ]; then
-                    echo "Argument --admin needs a second argument"
+                    echo "Argument au|--admin-user needs a second argument"
                     getHelp
                     exit 1
                 fi
@@ -106,7 +106,7 @@ function main() {
                 ;;
             "-ap"|"--admin-password")
                 if [ -z ${2} ]; then
-                    echo "Argument --admin needs a second argument"
+                    echo "Argument -ap|--admin-password needs a second argument"
                     getHelp
                     exit 1
                 fi
@@ -115,7 +115,7 @@ function main() {
                 ;;
             "-id"|"--id-api")
                 if [ -z ${2} ]; then
-                    echo "Argument --id-api needs a second argument"
+                    echo "Argument -id|--id-api needs a second argument"
                     getHelp
                     exit 1
                 fi

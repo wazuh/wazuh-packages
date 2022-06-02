@@ -96,7 +96,7 @@ def get_wazuh_api_status():
     host = get_indexer_ip()
     port = 55000
     user = 'wazuh'
-    password = get_password("wazuh")
+    password = get_password(user)
     login_endpoint = 'security/user/authenticate'
 
     login_url = f"{protocol}://{host}:{port}/{login_endpoint}"

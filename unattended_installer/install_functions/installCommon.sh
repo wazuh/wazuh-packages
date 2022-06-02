@@ -145,7 +145,6 @@ function installCommon_createInstallFiles() {
         fi
         gen_file="/tmp/wazuh-install-files/passwords.wazuh"
         passwords_generatePasswordFile
-        api_file="/tmp/wazuh-install-files/passwords-api.wazuh"
         passwords_createPasswordAPI
         # Using cat instead of simple cp because OpenSUSE unknown error.
         eval "cat '${config_file}' > '/tmp/wazuh-install-files/config.yml'"
@@ -164,7 +163,6 @@ function installCommon_changePasswords() {
     common_logger -d "Setting Wazuh indexer cluster passwords."
     if [ -f "${tar_file}" ]; then
         eval "tar -xf ${tar_file} -C /tmp wazuh-install-files/passwords.wazuh ${debug}"
-        eval "tar -xf ${tar_file} -C /tmp wazuh-install-files/passwords-api.wazuh ${debug}"
         p_file="/tmp/wazuh-install-files/passwords.wazuh"
         common_checkInstalled
         if [ -n "${start_indexer_cluster}" ] || [ -n "${AIO}" ]; then

@@ -154,7 +154,7 @@ function dashboard_initialize() {
         fi       
     fi
 
-    passwords_updateDashborad_WUI_Password
+    passwords_updateDashboard_WUI_Password
 
 }
 
@@ -172,7 +172,7 @@ function dashboard_initializeAIO() {
         exit 1
     fi
 
-    passwords_updateDashborad_WUI_Password
+    passwords_updateDashboard_WUI_Password
 
     common_logger "Wazuh dashboard web application initialized."
     common_logger -nl "--- Summary ---"
