@@ -1,6 +1,6 @@
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-agent
-Version:     4.3.3
+Version:     4.3.4
 Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
@@ -231,7 +231,9 @@ if [ $1 = 1 ]; then
   fi
 
   if [ ! -z "$sles" ]; then
-    install -m 755 %{_localstatedir}/packages_files/agent_installation_scripts/src/init/ossec-hids-suse.init /etc/init.d/wazuh-agent
+    if [ -d /etc/init.d ]; then
+      install -m 755 %{_localstatedir}/packages_files/agent_installation_scripts/src/init/ossec-hids-suse.init /etc/init.d/wazuh-agent
+    fi    
   fi
 
   touch %{_localstatedir}/logs/active-responses.log
@@ -603,6 +605,8 @@ rm -fr %{buildroot}
 
 
 %changelog
+* Tue Jun 07 2022 support <info@wazuh.com> - 4.3.4
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Tue May 31 2022 support <info@wazuh.com> - 4.3.3
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon May 30 2022 support <info@wazuh.com> - 4.3.2
