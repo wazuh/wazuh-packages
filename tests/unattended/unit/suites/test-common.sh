@@ -80,7 +80,7 @@ test-05-common_checkInstalled-all-installed-yum() {
 
     @mocktrue yum list installed
 
-    @mock grep wazuh-manager === @echo wazuh-manager.x86_64  4.3.1-1 @wazuh
+    @mock grep wazuh-manager === @echo wazuh-manager.x86_64  4.3.4-1 @wazuh
     @mkdir /var/ossec
 
     @mock grep wazuh-indexer === @echo wazuh-indexer.x86_64 1.13.2-1 @wazuh
@@ -124,7 +124,7 @@ test-05-common_checkInstalled-all-installed-yum() {
 }
 
 test-05-common_checkInstalled-all-installed-yum-assert() {
-    @echo "wazuh-manager.x86_64 4.3.1-1 @wazuh"
+    @echo "wazuh-manager.x86_64 4.3.4-1 @wazuh"
     @echo 1
 
     @echo "wazuh-indexer.x86_64 1.13.2-1 @wazuh"
@@ -144,7 +144,7 @@ test-06-common_checkInstalled-all-installed-zypper() {
     @mocktrue zypper packages
     @mock grep i+
 
-    @mock grep wazuh-manager === @echo "i+ | EL-20211102 - Wazuh | wazuh-manager | 4.3.1-1 | x86_64"
+    @mock grep wazuh-manager === @echo "i+ | EL-20211102 - Wazuh | wazuh-manager | 4.3.4-1 | x86_64"
     @mkdir /var/ossec
 
     @mock grep wazuh-indexer === @echo "i+ | EL-20211102 - Wazuh | wazuh-indexer | 1.13.2-1 | x86_64"
@@ -189,7 +189,7 @@ test-06-common_checkInstalled-all-installed-zypper() {
 }
 
 test-06-common_checkInstalled-all-installed-zypper-assert() {
-    @echo "i+ | EL-20211102 - Wazuh | wazuh-manager | 4.3.1-1 | x86_64"
+    @echo "i+ | EL-20211102 - Wazuh | wazuh-manager | 4.3.4-1 | x86_64"
     @echo 1
 
     @echo "i+ | EL-20211102 - Wazuh | wazuh-indexer | 1.13.2-1 | x86_64"

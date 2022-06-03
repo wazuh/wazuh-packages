@@ -87,6 +87,13 @@ function dashboard_initialize() {
         done
         nodes_dashboard_ip=${dashboard_node_ips[pos]}
     fi
+
+    if [ "${nodes_dashboard_ip}" == "localhost" ] || [[ "${nodes_dashboard_ip}" == 127.* ]]; then
+        print_ip="<wazuh-dashboard-ip>"
+    else
+        print_ip="${nodes_dashboard_ip}"
+    fi
+
     until [ "$(curl -XGET https://${nodes_dashboard_ip}/status -uadmin:${u_pass} -k -w %{http_code} -s -o /dev/null)" -eq "200" ] || [ "${j}" -eq "12" ]; do
         sleep 10
         j=$((j+1))
@@ -105,6 +112,11 @@ function dashboard_initialize() {
         if [ -f "/usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml" ]; then
             eval "sed -i 's,url: https://localhost,url: https://${wazuh_api_address},g' /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml ${debug}"
         fi
+
+        common_logger "Wazuh dashboard web application initialized."
+        common_logger -nl "--- Summary ---"
+        common_logger -nl "You can access the web interface https://${print_ip}\n    User: admin\n    Password: ${u_pass}"
+
     elif [ ${j} -eq 12 ]; then
         flag="-w"
         if [ -z "${force}" ]; then
@@ -114,26 +126,32 @@ function dashboard_initialize() {
         common_logger "${flag}" "Cannot connect to Wazuh dashboard."
 
         for i in "${!indexer_node_ips[@]}"; do
-            curl=$(curl -XGET https://${indexer_node_ips[i]}:9200/ -uadmin:${u_pass} -k -w %{http_code} -s -o /dev/null)
+            curl=$(curl -XGET https://${indexer_node_ips[i]}:9200/ -uadmin:${u_pass} -k -s)
             exit_code=${PIPESTATUS[0]}
             if [[ "${exit_code}" -eq "7" ]]; then
                 failed_connect=1
                 failed_nodes+=("${indexer_node_names[i]}")
             fi
+            if [ "${curl}" == "OpenSearch Security not initialized." ]; then
+                sec_not_initialized=1
+            fi
         done
-        common_logger "${flag}" "Failed to connect with ${failed_nodes[*]}. Connection refused."
+        if [ -n "${failed_connect}" ]; then
+            common_logger "${flag}" "Failed to connect with ${failed_nodes[*]}. Connection refused."
+        fi
+
+        if [ -n "${sec_not_initialized}" ]; then
+            common_logger "${flag}" "Wazuh indexer security settings not initialized. Please run the installation assistant using -s|--start-cluster in one of the wazuh indexer nodes."
+        fi
+        
         if [ -z "${force}" ]; then
             common_logger "If you want to install Wazuh dashboard without waiting for the Wazuh indexer cluster, use the -fd option"
             installCommon_rollBack
             exit 1
         else
             common_logger -nl "--- Summary ---"
-            common_logger -nl "When Wazuh dashboard is able to connect to your Wazuh indexer cluster, you can access the web interface https://${nodes_dashboard_ip}\n    User: admin\n    Password: ${u_pass}"
-        fi
-    else
-        common_logger "Wazuh dashboard web application initialized."
-        common_logger -nl "--- Summary ---"
-        common_logger -nl "You can access the web interface https://${nodes_dashboard_ip}\n    User: admin\n    Password: ${u_pass}"
+            common_logger -nl "When Wazuh dashboard is able to connect to your Wazuh indexer cluster, you can access the web interface https://${print_ip}\n    User: admin\n    Password: ${u_pass}"
+        fi       
     fi
 
 }
