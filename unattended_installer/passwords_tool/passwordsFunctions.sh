@@ -12,7 +12,7 @@ function passwords_changePassword() {
         for i in "${!passwords[@]}"
         do
             if [ -n "${indexer_installed}" ] && [ -f "/usr/share/wazuh-indexer/backup/internal_users.yml" ]; then
-                awk -v new=${hashes[i]} 'prev=="'${users[i]}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/wazuh-indexer/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/wazuh-indexer/backup/internal_users.yml
+                awk -v new="${hashes[i]}" 'prev=="'"${users[i]}"':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/wazuh-indexer/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/wazuh-indexer/backup/internal_users.yml
             fi
 
             if [ "${users[i]}" == "admin" ]; then
@@ -24,7 +24,7 @@ function passwords_changePassword() {
         done
     else
         if [ -n "${indexer_installed}" ] && [ -f "/usr/share/wazuh-indexer/backup/internal_users.yml" ]; then
-            awk -v new="$hash" 'prev=="'${nuser}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/wazuh-indexer/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/wazuh-indexer/backup/internal_users.yml
+            awk -v new="$hash" 'prev=="'"${nuser}"':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/wazuh-indexer/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/wazuh-indexer/backup/internal_users.yml
         fi
 
         if [ "${nuser}" == "admin" ]; then
@@ -37,13 +37,13 @@ function passwords_changePassword() {
 
     if [ "${nuser}" == "admin" ] || [ -n "${changeall}" ]; then
         if [ -n "${filebeat_installed}" ]; then
-            if [ -n "$(filebeat keystore list | grep password)" ];then
+            if filebeat keystore list | grep -q password ; then
                 eval "echo ${adminpass} | filebeat keystore add password --force --stdin ${debug}"
             else
                 wazuhold=$(grep "password:" /etc/filebeat/filebeat.yml )
                 ra="  password: "
                 wazuhold="${wazuhold//$ra}"
-                conf="$(awk '{sub("password: .*", "password: '${adminpass}'")}1' /etc/filebeat/filebeat.yml)"
+                conf="$(awk '{sub("password: .*", "password: '"${adminpass}"'")}1' /etc/filebeat/filebeat.yml)"
                 echo "${conf}" > /etc/filebeat/filebeat.yml
             fi
             passwords_restartService "filebeat"
@@ -52,13 +52,13 @@ function passwords_changePassword() {
 
     if [ "$nuser" == "kibanaserver" ] || [ -n "$changeall" ]; then
         if [ -n "${dashboard_installed}" ] && [ -n "${dashpass}" ]; then
-            if [ -n "$(/usr/share/wazuh-dashboard/bin/opensearch-dashboards-keystore --allow-root list | grep opensearch.password)" ]; then
+            if /usr/share/wazuh-dashboard/bin/opensearch-dashboards-keystore --allow-root list | grep -q opensearch.password; then
                 eval "echo ${dashpass} | /usr/share/wazuh-dashboard/bin/opensearch-dashboards-keystore --allow-root add -f --stdin opensearch.password ${debug_pass}"
             else
                 wazuhdashold=$(grep "password:" /etc/wazuh-dashboard/opensearch_dashboards.yml )
                 rk="opensearch.password: "
                 wazuhdashold="${wazuhdashold//$rk}"
-                conf="$(awk '{sub("opensearch.password: .*", "opensearch.password: '${dashpass}'")}1' /etc/wazuh-dashboard/opensearch_dashboards.yml)"
+                conf="$(awk '{sub("opensearch.password: .*", "opensearch.password: '"${dashpass}"'")}1' /etc/wazuh-dashboard/opensearch_dashboards.yml)"
                 echo "${conf}" > /etc/wazuh-dashboard/opensearch_dashboards.yml
             fi
             passwords_restartService "wazuh-dashboard"
@@ -125,7 +125,7 @@ function passwords_generateHash() {
         common_logger -d "Password hashes generated."
     else
         common_logger "Generating password hash"
-        hash=$(bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p ${password} | grep -v WARNING)
+        hash=$(bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "${password}" | grep -v WARNING)
         if [  "${PIPESTATUS[0]}" != 0  ]; then
             common_logger -e "Hash generation failed."
             exit 1;
@@ -139,7 +139,7 @@ function passwords_generatePassword() {
 
     if [ -n "${nuser}" ]; then
         common_logger -d "Generating random password."
-        password=$(< /dev/urandom tr -dc A-Za-z0-9 | head -c${1:-32};echo;)
+        password=$(< /dev/urandom tr -dc A-Za-z0-9 | head -c"${1:-32}";echo;)
         if [  "${PIPESTATUS[0]}" != 0  ]; then
             common_logger -e "The password could not been generated."
             exit 1;
@@ -147,7 +147,7 @@ function passwords_generatePassword() {
     else
         common_logger -d "Generating random passwords."
         for i in "${!users[@]}"; do
-            PASS=$(< /dev/urandom tr -dc A-Za-z0-9 | head -c${1:-32};echo;)
+            PASS=$(< /dev/urandom tr -dc A-Za-z0-9 | head -c"${1:-32}";echo;)
             passwords+=("${PASS}")
             if [ "${PIPESTATUS[0]}" != 0 ]; then
                 common_logger -e "The password could not been generated."
@@ -172,10 +172,12 @@ function passwords_generatePasswordFile() {
     )
     passwords_generatePassword
     for i in "${!users[@]}"; do
-        echo "# ${user_description[${i}]}" >> "${gen_file}"
-        echo "  username: ${users[${i}]}" >> "${gen_file}"
-        echo "  password: ${passwords[${i}]}" >> "${gen_file}"
-        echo ""	>> "${gen_file}"
+        {
+        echo "# ${user_description[${i}]}" 
+        echo "  username: ${users[${i}]}"
+        echo "  password: ${passwords[${i}]}"
+        echo ""	
+        } >> "${gen_file}"
     done
 
 }
@@ -188,10 +190,10 @@ function passwords_getNetworkHost() {
     #allow to find ip with an interface
     if [[ ${IP} =~ _.*_ ]]; then
         interface="${IP//_}"
-        IP=$(ip -o -4 addr list ${interface} | awk '{print $4}' | cut -d/ -f1)
+        IP=$(ip -o -4 addr list "${interface}" | awk '{print $4}' | cut -d/ -f1)
     fi
 
-    if [ ${IP} == "0.0.0.0" ]; then
+    if [ "${IP}" == "0.0.0.0" ]; then
         IP="localhost"
     fi
 }
@@ -238,8 +240,8 @@ It must have this format:
     sfileusers=$(grep username: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
     sfilepasswords=$(grep password: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
 
-    fileusers=(${sfileusers})
-    filepasswords=(${sfilepasswords})
+    mapfile -t fileusers <<< "${sfileusers}"
+    mapfile -t filepasswords <<< "${sfilepasswords}"
 
     if [ -n "${changeall}" ]; then
         for j in "${!fileusers[@]}"; do
@@ -274,8 +276,8 @@ It must have this format:
 
         users=()
         passwords=()
-        users=(${finalusers[@]})
-        passwords=(${finalpasswords[@]})
+        mapfile -t users < <(printf '%s\n' "${finalusers[@]}")
+        mapfile -t passwords < <(printf '%s\n' "${finalpasswords[@]}")
         changeall=1
     fi
 
@@ -284,7 +286,7 @@ It must have this format:
 function passwords_readUsers() {
 
     susers=$(grep -B 1 hash: /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/internal_users.yml | grep -v hash: | grep -v "-" | awk '{ print substr( $0, 1, length($0)-1 ) }')
-    users=($susers)
+    mapfile -t users <<< "${susers[@]}"
 
 }
 
@@ -360,7 +362,7 @@ function passwords_runSecurityAdmin() {
     eval "rm -rf /usr/share/wazuh-indexer/backup/ ${debug}"
 
     if [[ -n "${nuser}" ]] && [[ -n ${autopass} ]]; then
-        common_logger -nl $'\nThe password for user '${nuser}' is '${password}''
+        common_logger -nl $'\nThe password for user '"${nuser}"' is '"${password}"''
         common_logger -w "Password changed. Remember to update the password in the Wazuh dashboard and Filebeat nodes if necessary, and restart the services."
     fi
 
@@ -371,7 +373,7 @@ function passwords_runSecurityAdmin() {
     if [ -n "${changeall}" ]; then
         if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_indexer_cluster}" ]; then
             for i in "${!users[@]}"; do
-                common_logger -nl $'The password for user '${users[i]}' is '${passwords[i]}''
+                common_logger -nl $'The password for user '"${users[i]}"' is '"${passwords[i]}"''
             done
             common_logger -w "Passwords changed. Remember to update the password in the Wazuh dashboard and Filebeat nodes if necessary, and restart the services."
         else

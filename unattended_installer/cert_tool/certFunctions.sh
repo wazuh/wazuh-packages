@@ -91,19 +91,19 @@ function cert_generateCertificateconfiguration() {
         IP.1 = cip
 	EOF
 
-    conf="$(awk '{sub("CN = cname", "CN = '${1}'")}1' "/tmp/wazuh-certificates/${1}.conf")"
+    conf="$(awk '{sub("CN = cname", "CN = '"${1}"'")}1' "/tmp/wazuh-certificates/${1}.conf")"
     echo "${conf}" > "/tmp/wazuh-certificates/${1}.conf"
 
     isIP=$(echo "${2}" | grep -P "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")
     isDNS=$(echo "${2}" | grep -P "^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$" )
 
     if [[ -n "${isIP}" ]]; then
-        conf="$(awk '{sub("IP.1 = cip", "IP.1 = '${2}'")}1' "/tmp/wazuh-certificates/${1}.conf")"
+        conf="$(awk '{sub("IP.1 = cip", "IP.1 = '"${2}"'")}1' "/tmp/wazuh-certificates/${1}.conf")"
         echo "${conf}" > "/tmp/wazuh-certificates/${1}.conf"
     elif [[ -n "${isDNS}" ]]; then
-        conf="$(awk '{sub("CN = cname", "CN =  '${2}'")}1' "/tmp/wazuh-certificates/${1}.conf")"
+        conf="$(awk '{sub("CN = cname", "CN =  '"${2}"'")}1' "/tmp/wazuh-certificates/${1}.conf")"
         echo "${conf}" > "/tmp/wazuh-certificates/${1}.conf"
-        conf="$(awk '{sub("IP.1 = cip", "DNS.1 = '${2}'")}1' "/tmp/wazuh-certificates/${1}.conf")"
+        conf="$(awk '{sub("IP.1 = cip", "DNS.1 = '"${2}"'")}1' "/tmp/wazuh-certificates/${1}.conf")"
         echo "${conf}" > "/tmp/wazuh-certificates/${1}.conf"
     else
         common_logger -e "The given information does not match with an IP address or a DNS."
@@ -168,18 +168,19 @@ function cert_parseYaml() {
     local prefix=${2}
     local s='[[:space:]]*'
     local w='[a-zA-Z0-9_]*'
-    local fs=$(echo @|tr @ '\034')
-    sed -re "s|^(\s+)-\s+name|\1  name|" ${1} |
+    local fs
+    fs=$(echo @|tr @ '\034')
+    sed -re "s|^(\s+)-\s+name|\1  name|" "${1}" |
     sed -ne "s|^\($s\):|\1|" \
             -e "s|^\($s\)\($w\)$s:$s[\"']\(.*\)[\"']$s\$|\1$fs\2$fs\3|p" \
             -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p" |
-    awk -F$fs '{
+    awk -F"$fs" '{
         indent = length($1)/2;
         vname[indent] = $2;
         for (i in vname) {if (i > indent) {delete vname[i]}}
         if (length($3) > 0) {
             vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
-            printf("%s%s%s=%s\n", "'$prefix'",vn, $2, $3);
+            printf("%s%s%s=%s\n", "'"$prefix"'",vn, $2, $3);
         }
     }'
 
@@ -204,37 +205,37 @@ function cert_readConfig() {
 
         eval "server_node_types=( $(cert_parseYaml "${config_file}" | grep nodes_server__node_type | sed 's/nodes_server__node_type=//' | sed -r 's/\s+//g') )"
 
-        unique_names=($(echo "${indexer_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+        unique_names=("$(echo "${indexer_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')")
         if [ "${#unique_names[@]}" -ne "${#indexer_node_names[@]}" ]; then 
             common_logger -e "Duplicated indexer node names."
             exit 1
         fi
 
-        unique_ips=($(echo "${indexer_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+        unique_ips=("$(echo "${indexer_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')")
         if [ "${#unique_ips[@]}" -ne "${#indexer_node_ips[@]}" ]; then 
             common_logger -e "Duplicated indexer node ips."
             exit 1
         fi
 
-        unique_names=($(echo "${server_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+        unique_names=("$(echo "${server_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')")
         if [ "${#unique_names[@]}" -ne "${#server_node_names[@]}" ]; then 
             common_logger -e "Duplicated Wazuh server node names."
             exit 1
         fi
 
-        unique_ips=($(echo "${server_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+        unique_ips=("$(echo "${server_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')")
         if [ "${#unique_ips[@]}" -ne "${#server_node_ips[@]}" ]; then 
             common_logger -e "Duplicated Wazuh server node ips."
             exit 1
         fi
 
-        unique_names=($(echo "${dashboard_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+        unique_names=("$(echo "${dashboard_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')")
         if [ "${#unique_names[@]}" -ne "${#dashboard_node_names[@]}" ]; then
             common_logger -e "Duplicated dashboard node names."
             exit 1
         fi
 
-        unique_ips=($(echo "${dashboard_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+        unique_ips=("$(echo "${dashboard_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')")
         if [ "${#unique_ips[@]}" -ne "${#dashboard_node_ips[@]}" ]; then
             common_logger -e "Duplicated dashboard node ips."
             exit 1
@@ -263,10 +264,10 @@ function cert_readConfig() {
         elif [ "${#server_node_names[@]}" -lt "${#server_node_types[@]}" ]; then
             common_logger -e "Found extra node_type tags."
             exit 1
-        elif [ $(grep -io master <<< ${server_node_types[*]} | wc -l) -ne 1 ]; then
+        elif [ "$(grep -io master <<< "${server_node_types[*]}" | wc -l)" -ne 1 ]; then
             common_logger -e "Wazuh cluster needs a single master node."
             exit 1
-        elif [ $(grep -io worker <<< ${server_node_types[*]} | wc -l) -ne $(( ${#server_node_types[@]} - 1 )) ]; then
+        elif [ "$(grep -io worker <<< "${server_node_types[*]}" | wc -l)" -ne $(( ${#server_node_types[@]} - 1 )) ]; then
             common_logger -e "Incorrect number of workers."
             exit 1
         fi

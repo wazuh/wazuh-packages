@@ -189,7 +189,7 @@ function installCommon_changePasswords() {
 
 function installCommon_extractConfig() {
 
-    if ! $(tar -tf "${tar_file}" | grep -q wazuh-install-files/config.yml); then
+    if ! tar -tf "${tar_file}" | grep -q wazuh-install-files/config.yml; then
         common_logger -e "There is no config.yml file in ${tar_file}."
         exit 1
     fi
@@ -229,7 +229,7 @@ function installCommon_installPrerequisites() {
         dependencies=( curl libcap tar gnupg openssl )
         not_installed=()
         for dep in "${dependencies[@]}"; do
-            if [ -z "$(yum list installed 2>/dev/null | grep ${dep})" ];then
+            if ! yum list installed 2>/dev/null | grep - q"${dep}" ;then
                 not_installed+=("${dep}")
             fi
         done
@@ -252,7 +252,7 @@ function installCommon_installPrerequisites() {
         not_installed=()
 
         for dep in "${dependencies[@]}"; do
-            if [ -z "$(apt list --installed 2>/dev/null | grep ${dep})" ];then
+            if ! apt list --installed 2>/dev/null | grep -q "${dep}"; then
                 not_installed+=("${dep}")
             fi
         done
@@ -261,7 +261,7 @@ function installCommon_installPrerequisites() {
             common_logger "--- Dependencies ----"
             for dep in "${not_installed[@]}"; do
                 common_logger "Installing $dep."
-                installCommon_aptInstall ${dep}
+                installCommon_aptInstall "${dep}"
                 if [ "${install_result}" != 0 ]; then
                     common_logger -e "Cannot install dependency: ${dep}."
                     exit 1
@@ -294,8 +294,8 @@ function installCommon_readPasswordFileUsers() {
     sfileusers=$(grep username: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
     sfilepasswords=$(grep password: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
 
-    fileusers=(${sfileusers})
-    filepasswords=(${sfilepasswords})
+    mapfile -t fileusers <<< "${fileusers[@]}"
+    mapfile -t filepasswords <<< "${sfilepasswords}"
 
     if [ -n "${changeall}" ]; then
         for j in "${!fileusers[@]}"; do
@@ -337,8 +337,8 @@ function installCommon_readPasswordFileUsers() {
         done
 
         users=()
-        users=(${finalusers[@]})
-        passwords=(${finalpasswords[@]})
+        mapfile -t users <<< "${finalusers[@]}"
+        mapfile -t passwords <<< "${finalpasswords[@]}"
         changeall=1
     fi
 

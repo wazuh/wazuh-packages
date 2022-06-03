@@ -53,7 +53,7 @@ function offline_download() {
     eval "mkdir -m700 -p ${dest_path}" # Create folder if it does not exist
   fi
 
-  files_to_download=( ${wazuh_gpg_key} ${filebeat_config_file} ${filebeat_wazuh_template} ${filebeat_wazuh_module} )
+  files_to_download=( "${wazuh_gpg_key}" "${filebeat_config_file}" "${filebeat_wazuh_template}" "${filebeat_wazuh_module}" )
 
   eval "cd ${dest_path}"
   for file in "${files_to_download[@]}"
