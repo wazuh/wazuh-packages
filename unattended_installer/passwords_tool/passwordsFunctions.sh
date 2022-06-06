@@ -398,18 +398,21 @@ function passwords_genereatePasswordSpecialChar() {
 
 function passwords_createPasswordAPI() {
 
-    passwords_genereatePasswordSpecialChar
-    password_wazuh="${pass}"
-    passwords_genereatePasswordSpecialChar
-    password_wazuh_wui="${pass}"
+    nuser="wazuh"
+    passwords_generatePassword
+    password_wazuh="${password}"
+    nuser="wazuh_wui"
+    passwords_generatePassword
+    password_wazuh_wui="${password}"
+    nuser=""
 
     echo "# New password for wazuh API" >> "${gen_file}"
     echo "  username: wazuh" >> "${gen_file}"
-    echo "  password: $password_wazuh" >> "${gen_file}"
+    echo "  password: ${password_wazuh}" >> "${gen_file}"
     echo ""	>> "${gen_file}"
     echo "# New password for wazuh-wui API" >> "${gen_file}"
     echo "  username: wazuh_wui" >> "${gen_file}"
-    echo "  password: $password_wazuh_wui" >> "${gen_file}"
+    echo "  password: ${password_wazuh_wui}" >> "${gen_file}"
     echo ""	>> "${gen_file}"
 
 }
