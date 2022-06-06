@@ -139,7 +139,7 @@ function passwords_generatePassword() {
 
     if [ -n "${nuser}" ]; then
         common_logger -d "Generating random password."
-        PASS=$(< /dev/urandom tr -dc "A-Za-z0-9\'.*+?" | head -c ${1:-31};echo;)
+        PASS=$(< /dev/urandom tr -dc "A-Za-z0-9.*+?" | head -c ${1:-31};echo;)
         END_PASS=$(< /dev/urandom tr -dc "\'.*+?" | head -c ${1:-1};echo;)
         password+="${PASS}${END_PASS}"
         if [  "${PIPESTATUS[0]}" != 0  ]; then
@@ -149,7 +149,7 @@ function passwords_generatePassword() {
     else
         common_logger -d "Generating random passwords."
         for i in "${!users[@]}"; do
-            PASS=$(< /dev/urandom tr -dc "A-Za-z0-9\'.*+?" | head -c ${1:-31};echo;)
+            PASS=$(< /dev/urandom tr -dc "A-Za-z0-9.*+?" | head -c ${1:-31};echo;)
             END_PASS=$(< /dev/urandom tr -dc "\'.*+?" | head -c ${1:-1};echo;)
             passwords+=("${PASS}${END_PASS}")
             if [ "${PIPESTATUS[0]}" != 0 ]; then
@@ -389,6 +389,7 @@ function passwords_createPasswordAPI() {
     nuser="wazuh"
     passwords_generatePassword
     password_wazuh="${password}"
+    password=""
     nuser="wazuh_wui"
     passwords_generatePassword
     password_wazuh_wui="${password}"
