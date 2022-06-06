@@ -8,7 +8,7 @@
 
 ## Package vars
 readonly wazuh_major="4.3"
-readonly wazuh_version="4.3.2"
+readonly wazuh_version="4.3.4"
 readonly wazuh_revision_deb="1"
 readonly wazuh_revision_rpm="1"
 readonly indexer_revision_deb="1"

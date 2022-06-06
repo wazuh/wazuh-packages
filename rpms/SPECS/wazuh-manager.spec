@@ -1,6 +1,6 @@
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-manager
-Version:     4.3.2
+Version:     4.3.4
 Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
@@ -180,7 +180,7 @@ fi
 # Create the wazuh user if it doesn't exists
 if ! id -u wazuh > /dev/null 2>&1; then
   useradd -g wazuh -G wazuh -d %{_localstatedir} -r -s /sbin/nologin wazuh
-fi 
+fi
 
 # Stop the services to upgrade the package
 if [ $1 = 2 ]; then
@@ -819,13 +819,27 @@ rm -fr %{buildroot}
 
 
 %changelog
+* Tue Jun 07 2022 support <info@wazuh.com> - 4.3.4
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Tue May 31 2022 support <info@wazuh.com> - 4.3.3
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Mon May 30 2022 support <info@wazuh.com> - 4.3.2
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Sun May 29 2022 support <info@wazuh.com> - 4.2.7
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Wed May 18 2022 support <info@wazuh.com> - 4.3.1
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Mon Nov 01 2021 support <info@wazuh.com> - 4.3.0
+* Thu May 05 2022 support <info@wazuh.com> - 4.3.0
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Wed Oct 06 2021 support <info@wazuh.com> - 4.2.2
+* Fri Mar 25 2022 support <info@wazuh.com> - 4.2.6
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Nov 15 2021 support <info@wazuh.com> - 4.2.5
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Thu Oct 21 2021 support <info@wazuh.com> - 4.2.4
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Wed Oct 06 2021 support <info@wazuh.com> - 4.2.3
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Tue Sep 28 2021 support <info@wazuh.com> - 4.2.2
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Sat Sep 25 2021 support <info@wazuh.com> - 4.2.1
 - More info: https://documentation.wazuh.com/current/release-notes/
