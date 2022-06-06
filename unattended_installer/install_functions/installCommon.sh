@@ -294,8 +294,8 @@ function installCommon_readPasswordFileUsers() {
     sfileusers=$(grep username: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
     sfilepasswords=$(grep password: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
 
-    mapfile -t fileusers <<< "${fileusers[@]}"
-    mapfile -t filepasswords <<< "${sfilepasswords}"
+    mapfile -t fileusers < <(echo "${sfileusers}")
+    mapfile -t filepasswords < <(echo "${sfilepasswords}")
 
     if [ -n "${changeall}" ]; then
         for j in "${!fileusers[@]}"; do
@@ -326,8 +326,8 @@ function installCommon_readPasswordFileUsers() {
             supported=false
             for i in "${!users[@]}"; do
                 if [[ "${users[i]}" == "${fileusers[j]}" ]]; then
-                    finalusers+=(${fileusers[j]})
-                    finalpasswords+=(${filepasswords[j]})
+                    finalusers+=("${fileusers[j]}")
+                    finalpasswords+=("${filepasswords[j]}")
                     supported=true
                 fi
             done
@@ -337,8 +337,8 @@ function installCommon_readPasswordFileUsers() {
         done
 
         users=()
-        mapfile -t users <<< "${finalusers[@]}"
-        mapfile -t passwords <<< "${finalpasswords[@]}"
+        mapfile -t users < <(printf "%s\n" "${finalusers[@]}")
+        mapfile -t passwords < <(printf "%s\n" "${finalpasswords[@]}")
         changeall=1
     fi
 

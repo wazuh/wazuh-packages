@@ -95,7 +95,6 @@ function dashboard_initialize() {
     fi
 
     until [ "$(curl -XGET https://"${nodes_dashboard_ip}"/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null)" -eq "200" ] || [ "${j}" -eq "12" ]; do
- 
         sleep 10
         j=$((j+1))
     done
