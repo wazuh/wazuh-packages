@@ -427,8 +427,8 @@ function passwords_changePasswordAPI() {
             common_logger -nl $"The new password for user ${nuser} is ${password}"
         fi
     else
-        password_wazuh=$(< ${p_file} awk '$2 == "wazuh" {getline;print;}' | awk -F': ' '{print $2}')
-        password_wazuh_wui=$(< ${p_file} awk '$2 == "wazuh_wui" {getline;print;}' | awk -F': ' '{print $2}')
+        password_wazuh=$(< "${p_file}" awk '$2 == "wazuh" {getline;print;}' | awk -F': ' '{print $2}')
+        password_wazuh_wui=$(< "${p_file}" awk '$2 == "wazuh_wui" {getline;print;}' | awk -F': ' '{print $2}')
         WAZUH_PASS='{"password":"'"$password_wazuh"'"}'
         WAZUH_WUI_PASS='{"password":"'"$password_wazuh_wui"'"}'
 
@@ -444,7 +444,7 @@ function passwords_changePasswordAPI() {
 function passwords_updateDashboard_WUI_Password() {
 
     if [ -f "/usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml" ]; then
-        password_wazuh_wui=$(< ${p_file} awk '$2 == "wazuh_wui" {getline;print;}' | awk -F': ' '{print $2}')
+        password_wazuh_wui=$(< "${p_file}" awk '$2 == "wazuh_wui" {getline;print;}' | awk -F': ' '{print $2}')
         eval 'sed -i "s|password: wazuh-wui|password: ${password_wazuh_wui}|g" /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml'
     else
         common_logger -e "File /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml does not exist"
