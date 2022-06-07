@@ -399,11 +399,11 @@ function passwords_createPasswordAPI() {
 
     echo "# New password for wazuh API" >> "${gen_file}"
     echo "  username: 'wazuh'" >> "${gen_file}"
-    echo "  password: ${password_wazuh}" >> "${gen_file}"
+    echo "  password: '${password_wazuh}'" >> "${gen_file}"
     echo ""	>> "${gen_file}"
     echo "# New password for wazuh-wui API" >> "${gen_file}"
     echo "  username: 'wazuh_wui'" >> "${gen_file}"
-    echo "  password: ${password_wazuh_wui}" >> "${gen_file}"
+    echo "  password: '${password_wazuh_wui}'" >> "${gen_file}"
     echo ""	>> "${gen_file}"
 
 }
@@ -429,8 +429,8 @@ function passwords_changePasswordAPI() {
             common_logger -nl $"The new password for user ${nuser} is ${password}"
         fi
     else
-        password_wazuh=$(< "${p_file}" awk '$2 == "wazuh" {getline;print;}' | awk -F': ' '{print $2}')
-        password_wazuh_wui=$(< "${p_file}" awk '$2 == "wazuh_wui" {getline;print;}' | awk -F': ' '{print $2}')
+        password_wazuh=$(grep -A 1 "username: 'wazuh'" "${p_file}" | tail -n1 | awk -F': ' '{print $2}' | sed -e "s/[\'\"]//g")
+        password_wazuh_wui=$(grep -A 1 "username: 'wazuh_wui'" "${p_file}" | tail -n1 | awk -F': ' '{print $2}' | sed -e "s/[\'\"]//g")
         WAZUH_PASS='{"password":"'"$password_wazuh"'"}'
         WAZUH_WUI_PASS='{"password":"'"$password_wazuh_wui"'"}'
 

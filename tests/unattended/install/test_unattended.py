@@ -96,7 +96,6 @@ def get_wazuh_api_status():
     port = 55000
     user = 'wazuh'
     password = get_password('wazuh')
-    print(password)
     login_endpoint = 'security/user/authenticate'
 
     login_url = f"{protocol}://{host}:{port}/{login_endpoint}"
@@ -108,7 +107,6 @@ def get_wazuh_api_status():
     requests_headers = {'Content-Type': 'application/json',
                         'Authorization': f'Bearer {token}'}
     response = requests.get(f"{protocol}://{host}:{port}/?pretty=true", headers=requests_headers, verify=False)
-    print(response)
     return response.json()['data']['title']
 
 # ----------------------------- Tests -----------------------------
