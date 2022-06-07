@@ -275,7 +275,7 @@ function installCommon_installPrerequisites() {
 
 function installCommon_readPasswordFileUsers() {
 
-    filecorrect=$(grep -Ev '^#|^\s*$' "${p_file}" | grep -Pzc '\A(\s*username:[ \t]+\w+\s*password:[ \t]+[A-Za-z0-9.*+?]+\s*)+\Z')
+    filecorrect=$(grep -Ev '^#|^\s*$' "${p_file}" | grep -Pzc "\A(\s*username:[ \t]+\w+\s*password:[ \t]+[A-Za-z0-9.*+?\']+\s*)+\Z")
     if [[ "${filecorrect}" -ne 1 ]]; then
         common_logger -e "The password file doesn't have a correct format.
 
@@ -289,7 +289,7 @@ function installCommon_readPasswordFileUsers() {
 
 "
 
-	    exit 1
+	    installCommon_rollBack
     fi
 
     sfileusers=$(grep username: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')

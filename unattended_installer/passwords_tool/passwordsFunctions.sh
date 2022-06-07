@@ -139,7 +139,7 @@ function passwords_generatePassword() {
 
     if [ -n "${nuser}" ]; then
         common_logger -d "Generating random password."
-        PASS=$(< /dev/urandom tr -dc "A-Za-z0-9.*+?" | head -c ${1:-31};echo;)
+        PASS=$(< /dev/urandom tr -dc "A-Za-z0-9\'.*+?" | head -c ${1:-31};echo;)
         END_PASS=$(< /dev/urandom tr -dc "\'.*+?" | head -c ${1:-1};echo;)
         password+="${PASS}${END_PASS}"
         if [  "${PIPESTATUS[0]}" != 0  ]; then
@@ -149,7 +149,7 @@ function passwords_generatePassword() {
     else
         common_logger -d "Generating random passwords."
         for i in "${!users[@]}"; do
-            PASS=$(< /dev/urandom tr -dc "A-Za-z0-9.*+?" | head -c ${1:-31};echo;)
+            PASS=$(< /dev/urandom tr -dc "A-Za-z0-9\'.*+?" | head -c ${1:-31};echo;)
             END_PASS=$(< /dev/urandom tr -dc "\'.*+?" | head -c ${1:-1};echo;)
             passwords+=("${PASS}${END_PASS}")
             if [ "${PIPESTATUS[0]}" != 0 ]; then
@@ -220,7 +220,9 @@ function passwords_readAdmincerts() {
 }
 
 function passwords_readFileUsers() {
-    filecorrect=$(grep -Ev '^#|^\s*$' "${p_file}" | grep -Pzc '\A(\s*username:[ \t]+\w+\s*password:[ \t]+[A-Za-z0-9.*+?]+\s*)+\Z')
+    set -x
+    filecorrect=$(grep -Ev '^#|^\s*$' "${p_file}" | grep -Pzc "\A(\s*username:[ \t]+\w+\s*password:[ \t]+[A-Za-z0-9.*+?\']+\s*)+\Z")
+    echo $filecorrect
     if [[ "${filecorrect}" -ne 1 ]]; then
         common_logger -e "The password file doesn't have a correct format.
 
@@ -237,7 +239,7 @@ It must have this format:
 "
 	    exit 1
     fi
-
+    set +x
     sfileusers=$(grep username: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
     sfilepasswords=$(grep password: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
 
