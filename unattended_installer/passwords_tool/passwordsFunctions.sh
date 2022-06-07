@@ -141,7 +141,7 @@ function passwords_generatePassword() {
         common_logger -d "Generating random password."
         PASS=$(< /dev/urandom tr -dc "A-Za-z0-9.*+?" | head -c ${1:-31};echo;)
         END_PASS=$(< /dev/urandom tr -dc ".*+?" | head -c ${1:-1};echo;)
-        password+="${PASS}${END_PASS}"
+        password="$(echo ${PASS}${END_PASS} | fold -w1 | shuf | tr -d '\n')"
         if [  "${PIPESTATUS[0]}" != 0  ]; then
             common_logger -e "The password could not been generated."
             exit 1;
@@ -151,7 +151,7 @@ function passwords_generatePassword() {
         for i in "${!users[@]}"; do
             PASS=$(< /dev/urandom tr -dc "A-Za-z0-9.*+?" | head -c ${1:-31};echo;)
             END_PASS=$(< /dev/urandom tr -dc ".*+?" | head -c ${1:-1};echo;)
-            passwords+=("${PASS}${END_PASS}")
+            passwords+=("$(echo ${PASS}${END_PASS} | fold -w1 | shuf | tr -d '\n')")
             if [ "${PIPESTATUS[0]}" != 0 ]; then
                 common_logger -e "The password could not been generated."
                 exit 1;
@@ -176,8 +176,8 @@ function passwords_generatePasswordFile() {
     passwords_generatePassword
     for i in "${!users[@]}"; do
         echo "# ${user_description[${i}]}" >> "${gen_file}"
-        echo "  username: ${users[${i}]}" >> "${gen_file}"
-        echo "  password: ${passwords[${i}]}" >> "${gen_file}"
+        echo "  username: '${users[${i}]}'" >> "${gen_file}"
+        echo "  password: '${passwords[${i}]}'" >> "${gen_file}"
         echo ""	>> "${gen_file}"
     done
 
@@ -220,11 +220,11 @@ function passwords_readAdmincerts() {
 }
 
 function passwords_readFileUsers() {
-    set -x
-    filecorrect=$(grep -Ev '^#|^\s*$' "${p_file}" | grep -Pzc "\A(\s*username:[ \t]+\w+\s*password:[ \t]+[A-Za-z0-9.*+?\']+\s*)+\Z")
+
+    filecorrect=$(grep -Ev '^#|^\s*$' "${p_file}" | grep -Pzc "\A(\s*username:[ \t]+[\'\"]?\w+[\'\"]?\s*password:[ \t]+[\'\"]?[A-Za-z0-9.*+?]+[\'\"]?\s*)+\Z")
     echo $filecorrect
     if [[ "${filecorrect}" -ne 1 ]]; then
-        common_logger -e "The password file doesn't have a correct format.
+        common_logger -e "The password file doesn't have a correct format or password uses invalid characters allowed characters A-Za-z0-9.*+?
 
 It must have this format:
 
@@ -239,9 +239,9 @@ It must have this format:
 "
 	    exit 1
     fi
-    set +x
-    sfileusers=$(grep username: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
-    sfilepasswords=$(grep password: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
+
+    sfileusers=$(grep username: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }' | sed -e "s/[\'\"]//g")
+    sfilepasswords=$(grep password: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }' | sed -e "s/[\'\"]//g")
 
     fileusers=(${sfileusers})
     filepasswords=(${sfilepasswords})
@@ -398,11 +398,11 @@ function passwords_createPasswordAPI() {
     nuser=""
 
     echo "# New password for wazuh API" >> "${gen_file}"
-    echo "  username: wazuh" >> "${gen_file}"
+    echo "  username: 'wazuh'" >> "${gen_file}"
     echo "  password: ${password_wazuh}" >> "${gen_file}"
     echo ""	>> "${gen_file}"
     echo "# New password for wazuh-wui API" >> "${gen_file}"
-    echo "  username: wazuh_wui" >> "${gen_file}"
+    echo "  username: 'wazuh_wui'" >> "${gen_file}"
     echo "  password: ${password_wazuh_wui}" >> "${gen_file}"
     echo ""	>> "${gen_file}"
 
