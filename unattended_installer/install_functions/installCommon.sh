@@ -221,7 +221,6 @@ function installCommon_getPass() {
             u_pass=${passwords[i]}
         fi
     done
-
 }
 
 function installCommon_installPrerequisites() {
@@ -292,8 +291,8 @@ function installCommon_readPasswordFileUsers() {
         exit 1
     fi
 
-    sfileusers=$(grep username: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
-    sfilepasswords=$(grep password: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
+    sfileusers=$(grep username: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }' | sed -e "s/[\'\"]//g")
+    sfilepasswords=$(grep password: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }' | sed -e "s/[\'\"]//g")
 
     fileusers=(${sfileusers})
     filepasswords=(${sfilepasswords})
