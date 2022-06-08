@@ -425,7 +425,7 @@ function passwords_changePasswordAPI() {
 function passwords_updateDashboard_WUI_Password() {
 
     if [ -f "/usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml" ]; then
-        password_wazuh_wui=$(< "${p_file}" awk '$2 == "wazuh_wui" {getline;print;}' | awk -F': ' '{print $2}')
+        password_wazuh_wui=$(grep -A 1 "username: 'wazuh_wui'" "${p_file}" | tail -n1 | awk -F': ' '{print $2}' | sed -e "s/[\'\"]//g")
         eval 'sed -i "s|password: wazuh-wui|password: ${password_wazuh_wui}|g" /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml'
     else
         common_logger -e "File /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml does not exist"
