@@ -31,7 +31,6 @@ ExclusiveOS: linux
 %global PID_DIR /run/%{name}
 %global INSTALL_DIR /usr/share/%{name}
 %global DASHBOARD_FILE wazuh-dashboard-base-%{version}-linux-x64.tar.xz
-%global REVISION 1
 
 # -----------------------------------------------------------------------------
 
@@ -93,9 +92,8 @@ find %{buildroot}%{CONFIG_DIR} -exec chown %{USER}:%{GROUP} {} \;
 chown %{USER}:%{GROUP} %{buildroot}/etc/systemd/system/wazuh-dashboard.service
 chown %{USER}:%{GROUP} %{buildroot}/etc/init.d/wazuh-dashboard
 
+runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-%{version}-%{release}.zip"
 
-
-runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-%{version}-%{REVISION}.zip"
 find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -exec chown %{USER}:%{GROUP} {} \;
 find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -type f -perm 644 -exec chmod 640 {} \;
 find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -type f -perm 755 -exec chmod 750 {} \;
