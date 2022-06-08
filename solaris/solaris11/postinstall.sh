@@ -29,6 +29,7 @@ if grep "^ossec:" /etc/group > /dev/null 2>&1; then
   find ${install_path} -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
   if grep "^ossec" /etc/passwd > /dev/null 2>&1; then
     find ${install_path} -group ossec -user ossec -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
+    find ${install_path} -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
     userdel ossec
   fi
   if grep "^ossecm" /etc/passwd > /dev/null 2>&1; then
