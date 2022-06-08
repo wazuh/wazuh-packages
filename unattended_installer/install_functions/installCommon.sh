@@ -145,7 +145,6 @@ function installCommon_createInstallFiles() {
         fi
         gen_file="/tmp/wazuh-install-files/passwords.wazuh"
         passwords_generatePasswordFile
-        passwords_createPasswordAPI
         # Using cat instead of simple cp because OpenSUSE unknown error.
         eval "cat '${config_file}' > '/tmp/wazuh-install-files/config.yml'"
         eval "chown root:root /tmp/wazuh-install-files/*"
@@ -276,7 +275,7 @@ function installCommon_readPasswordFileUsers() {
 
     filecorrect=$(grep -Ev '^#|^\s*$' "${p_file}" | grep -Pzc "\A(\s*username:[ \t]+[\'\"]?\w+[\'\"]?\s*password:[ \t]+[\'\"]?[A-Za-z0-9.*+?]+[\'\"]?\s*)+\Z")
     if [[ "${filecorrect}" -ne 1 ]]; then
-        common_logger -e "The password file doesn't have a correct format or password uses invalid characters allowed characters A-Za-z0-9.*+?
+        common_logger -e "The password file doesn't have a correct format or password uses invalid characters. Allowed characters: A-Za-z0-9.*+?
 
 # Description
   username: name

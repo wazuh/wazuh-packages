@@ -139,9 +139,9 @@ function passwords_generatePassword() {
 
     if [ -n "${nuser}" ]; then
         common_logger -d "Generating random password."
-        PASS=$(< /dev/urandom tr -dc "A-Za-z0-9.*+?" | head -c ${1:-31};echo;)
-        END_PASS=$(< /dev/urandom tr -dc ".*+?" | head -c ${1:-1};echo;)
-        password="$(echo ${PASS}${END_PASS} | fold -w1 | shuf | tr -d '\n')"
+        pass=$(< /dev/urandom tr -dc "A-Za-z0-9.*+?" | head -c ${1:-31};echo;)
+        special_char=$(< /dev/urandom tr -dc ".*+?" | head -c ${1:-1};echo;)
+        password="$(echo ${pass}${special_char} | fold -w1 | shuf | tr -d '\n')"
         if [  "${PIPESTATUS[0]}" != 0  ]; then
             common_logger -e "The password could not been generated."
             exit 1;
@@ -149,9 +149,9 @@ function passwords_generatePassword() {
     else
         common_logger -d "Generating random passwords."
         for i in "${!users[@]}"; do
-            PASS=$(< /dev/urandom tr -dc "A-Za-z0-9.*+?" | head -c ${1:-31};echo;)
-            END_PASS=$(< /dev/urandom tr -dc ".*+?" | head -c ${1:-1};echo;)
-            passwords+=("$(echo ${PASS}${END_PASS} | fold -w1 | shuf | tr -d '\n')")
+            pass=$(< /dev/urandom tr -dc "A-Za-z0-9.*+?" | head -c ${1:-31};echo;)
+            special_char=$(< /dev/urandom tr -dc ".*+?" | head -c ${1:-1};echo;)
+            passwords+=("$(echo ${pass}${special_char} | fold -w1 | shuf | tr -d '\n')")
             if [ "${PIPESTATUS[0]}" != 0 ]; then
                 common_logger -e "The password could not been generated."
                 exit 1;
@@ -162,7 +162,7 @@ function passwords_generatePassword() {
 
 function passwords_generatePasswordFile() {
 
-    users=( admin kibanaserver kibanaro logstash readall snapshotrestore wazuh_admin wazuh_user )
+    users=( admin kibanaserver kibanaro logstash readall snapshotrestore wazuh_admin wazuh_user wazuh wazuh_wui)
     user_description=(
         "Admin user for the web user interface and Wazuh indexer. Use this user to log in to Wazuh dashboard"
         "Wazuh dashboard user for establishing the connection with Wazuh indexer"
@@ -172,6 +172,8 @@ function passwords_generatePasswordFile() {
         "User with permissions to perform snapshot and restore operations"
         "Admin user used to communicate with Wazuh API"
         "Regular user to query Wazuh API"
+        "Password for wazuh API user"
+        "Password for wazuh-wui API user"
     )
     passwords_generatePassword
     for i in "${!users[@]}"; do
@@ -223,7 +225,7 @@ function passwords_readFileUsers() {
 
     filecorrect=$(grep -Ev '^#|^\s*$' "${p_file}" | grep -Pzc "\A(\s*username:[ \t]+[\'\"]?\w+[\'\"]?\s*password:[ \t]+[\'\"]?[A-Za-z0-9.*+?]+[\'\"]?\s*)+\Z")
     if [[ "${filecorrect}" -ne 1 ]]; then
-        common_logger -e "The password file doesn't have a correct format or password uses invalid characters allowed characters A-Za-z0-9.*+?
+        common_logger -e "The password file doesn't have a correct format or password uses invalid characters. Allowed characters: A-Za-z0-9.*+?
 
 It must have this format:
 
@@ -382,28 +384,6 @@ function passwords_runSecurityAdmin() {
             common_logger -d "Passwords changed."
         fi
     fi
-
-}
-
-function passwords_createPasswordAPI() {
-
-    nuser="wazuh"
-    passwords_generatePassword
-    password_wazuh="${password}"
-    password=""
-    nuser="wazuh_wui"
-    passwords_generatePassword
-    password_wazuh_wui="${password}"
-    nuser=""
-
-    echo "# New password for wazuh API" >> "${gen_file}"
-    echo "  username: 'wazuh'" >> "${gen_file}"
-    echo "  password: '${password_wazuh}'" >> "${gen_file}"
-    echo ""	>> "${gen_file}"
-    echo "# New password for wazuh-wui API" >> "${gen_file}"
-    echo "  username: 'wazuh_wui'" >> "${gen_file}"
-    echo "  password: '${password_wazuh_wui}'" >> "${gen_file}"
-    echo ""	>> "${gen_file}"
 
 }
 
