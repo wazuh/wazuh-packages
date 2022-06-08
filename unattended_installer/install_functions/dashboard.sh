@@ -143,7 +143,7 @@ function dashboard_initialize() {
         if [ -n "${sec_not_initialized}" ]; then
             common_logger "${flag}" "Wazuh indexer security settings not initialized. Please run the installation assistant using -s|--start-cluster in one of the wazuh indexer nodes."
         fi
-        
+
         if [ -z "${force}" ]; then
             common_logger "If you want to install Wazuh dashboard without waiting for the Wazuh indexer cluster, use the -fd option"
             installCommon_rollBack
@@ -151,7 +151,7 @@ function dashboard_initialize() {
         else
             common_logger -nl "--- Summary ---"
             common_logger -nl "When Wazuh dashboard is able to connect to your Wazuh indexer cluster, you can access the web interface https://${print_ip}\n    User: admin\n    Password: ${u_pass}"
-        fi       
+        fi
     fi
 
     passwords_updateDashboard_WUI_Password
