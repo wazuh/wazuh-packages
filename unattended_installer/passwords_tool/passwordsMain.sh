@@ -19,19 +19,6 @@ function getHelp() {
     echo -e "        -a,  --change-all"
     echo -e "                Changes all the Wazuh indexer user passwords and prints them on screen."
     echo -e ""
-    echo -e "        -A,  --api <currentPassword>"
-    echo -e "                Change the Wazuh API password given the current password, it needs --id|-id-api ,-u|--user and -p|--password."
-    echo -e "                If not an administrator -au|--admin-user and -ap|--admin-password need to be provided."
-    echo -e ""
-    echo -e "        -au,  --admin-user <adminUser>"
-    echo -e "                Admin user for Wazuh API it is needed when the user given it is not an administrator"
-    echo -e ""
-    echo -e "        -ap,  --admin-password <adminPassword>"
-    echo -e "                Password for Wazuh API admin user, it is needed when the user given it is not an administrator"
-    echo -e ""
-    echo -e "        -id,  --id-api <id>"
-    echo -e "                ID for Wazuh API user to be changed"
-    echo -e ""
     echo -e "        -u,  --user <user>"
     echo -e "                Indicates the name of the user whose password will be changed."
     echo -e "                If no password specified it will generate a random one."
@@ -84,44 +71,6 @@ function main() {
                 changeall=1
                 shift 1
                 ;;
-            "-A"|"--api")
-                api=1
-                if [ -z ${2} ]; then
-                    echo "Argument -A|--api needs a second argument"
-                    getHelp
-                    exit 1
-                fi
-                currentPassword=${2}
-                shift 2
-                ;;
-            "-au"|"--admin-user")
-                adminAPI=1
-                if [ -z ${2} ]; then
-                    echo "Argument au|--admin-user needs a second argument"
-                    getHelp
-                    exit 1
-                fi
-                adminUser=${2}
-                shift 2
-                ;;
-            "-ap"|"--admin-password")
-                if [ -z ${2} ]; then
-                    echo "Argument -ap|--admin-password needs a second argument"
-                    getHelp
-                    exit 1
-                fi
-                adminPassword=${2}
-                shift 2
-                ;;
-            "-id"|"--id-api")
-                if [ -z ${2} ]; then
-                    echo "Argument -id|--id-api needs a second argument"
-                    getHelp
-                    exit 1
-                fi
-                id=${2}
-                shift 2
-                ;;
             "-u"|"--user")
                 if [ -z ${2} ]; then
                     echo "Argument --user needs a second argument"
@@ -129,7 +78,8 @@ function main() {
                     exit 1
                 fi
                 nuser=${2}
-                shift 2
+                shift
+                shift
                 ;;
             "-p"|"--password")
                 if [ -z ${2} ]; then
@@ -138,7 +88,8 @@ function main() {
                     exit 1
                 fi
                 password=${2}
-                shift 2
+                shift
+                shift
                 ;;
             "-c"|"--cert")
                 if [ -z ${2} ]; then
@@ -147,7 +98,8 @@ function main() {
                     exit 1
                 fi
                 adminpem=${2}
-                shift 2
+                shift
+                shift
                 ;;
             "-k"|"--certkey")
                 if [ -z ${2} ]; then
@@ -156,7 +108,8 @@ function main() {
                     exit 1
                 fi
                 adminkey=${2}
-                shift 2
+                shift
+                shift
                 ;;
             "-f"|"--file")
                 if [ -z ${2} ]; then
@@ -165,7 +118,8 @@ function main() {
                     exit 1
                 fi
                 p_file=${2}
-                shift 2
+                shift
+                shift
                 ;;
             "-gf"|"--generate-file")
                 if [ -z ${2} ]; then
@@ -174,7 +128,8 @@ function main() {
                     exit 1
                 fi
                 gen_file=${2}
-                shift 2
+                shift
+                shift
                 ;;
             "-h"|"--help")
                 getHelp
@@ -199,8 +154,6 @@ function main() {
 
         common_checkSystem
         common_checkInstalled
-
-        if [ -z "${api}" ]; then
 
         if [ -n "${p_file}" ] && [ ! -f "${p_file}" ]; then
             getHelp
@@ -259,20 +212,10 @@ function main() {
         passwords_changePassword
         passwords_runSecurityAdmin
 
-        else
-            if [ -z "${currentPassword}" ] || [ -z "${id}" ] || [ -z "${nuser}" ] || [ -z "${password}" ]; then
-                getHelp
-            fi
-
-            if [ -n "${adminAPI}" ]; then
-                if [ -z "${currentPassword}" ] || [ -z "${id}" ] || [ -z "${nuser}" ] || [ -z "${password}" ] || [ -z "${adminUser}" ] || [ -z "${adminPassword}" ]; then
-                    getHelp
-                fi
-            fi
-            passwords_changePasswordAPI
-        fi
     else
+
         getHelp
+
     fi
 
 }
