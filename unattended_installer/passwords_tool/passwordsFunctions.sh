@@ -139,7 +139,9 @@ function passwords_generatePassword() {
 
     if [ -n "${nuser}" ]; then
         common_logger -d "Generating random password."
-        password=$(< /dev/urandom tr -dc A-Za-z0-9 | head -c${1:-32};echo;)
+        pass=$(< /dev/urandom tr -dc "A-Za-z0-9.*+?" | head -c ${1:-31};echo;)
+        special_char=$(< /dev/urandom tr -dc ".*+?" | head -c ${1:-1};echo;)
+        password="$(echo ${pass}${special_char} | fold -w1 | shuf | tr -d '\n')"
         if [  "${PIPESTATUS[0]}" != 0  ]; then
             common_logger -e "The password could not been generated."
             exit 1;
@@ -147,8 +149,9 @@ function passwords_generatePassword() {
     else
         common_logger -d "Generating random passwords."
         for i in "${!users[@]}"; do
-            PASS=$(< /dev/urandom tr -dc A-Za-z0-9 | head -c${1:-32};echo;)
-            passwords+=("${PASS}")
+            pass=$(< /dev/urandom tr -dc "A-Za-z0-9.*+?" | head -c ${1:-31};echo;)
+            special_char=$(< /dev/urandom tr -dc ".*+?" | head -c ${1:-1};echo;)
+            passwords+=("$(echo ${pass}${special_char} | fold -w1 | shuf | tr -d '\n')")
             if [ "${PIPESTATUS[0]}" != 0 ]; then
                 common_logger -e "The password could not been generated."
                 exit 1;
@@ -159,7 +162,7 @@ function passwords_generatePassword() {
 
 function passwords_generatePasswordFile() {
 
-    users=( admin kibanaserver kibanaro logstash readall snapshotrestore wazuh_admin wazuh_user )
+    users=( admin kibanaserver kibanaro logstash readall snapshotrestore wazuh_admin wazuh_user wazuh wazuh_wui)
     user_description=(
         "Admin user for the web user interface and Wazuh indexer. Use this user to log in to Wazuh dashboard"
         "Wazuh dashboard user for establishing the connection with Wazuh indexer"
@@ -169,12 +172,14 @@ function passwords_generatePasswordFile() {
         "User with permissions to perform snapshot and restore operations"
         "Admin user used to communicate with Wazuh API"
         "Regular user to query Wazuh API"
+        "Password for wazuh API user"
+        "Password for wazuh-wui API user"
     )
     passwords_generatePassword
     for i in "${!users[@]}"; do
         echo "# ${user_description[${i}]}" >> "${gen_file}"
-        echo "  username: ${users[${i}]}" >> "${gen_file}"
-        echo "  password: ${passwords[${i}]}" >> "${gen_file}"
+        echo "  username: '${users[${i}]}'" >> "${gen_file}"
+        echo "  password: '${passwords[${i}]}'" >> "${gen_file}"
         echo ""	>> "${gen_file}"
     done
 
@@ -217,9 +222,10 @@ function passwords_readAdmincerts() {
 }
 
 function passwords_readFileUsers() {
-    filecorrect=$(grep -Ev '^#|^\s*$' "${p_file}" | grep -Pzc '\A(\s*username:[ \t]+\w+\s*password:[ \t]+[A-Za-z0-9_\-]+\s*)+\Z')
+
+    filecorrect=$(grep -Ev '^#|^\s*$' "${p_file}" | grep -Pzc "\A(\s*username:[ \t]+[\'\"]?\w+[\'\"]?\s*password:[ \t]+[\'\"]?[A-Za-z0-9.*+?]+[\'\"]?\s*)+\Z")
     if [[ "${filecorrect}" -ne 1 ]]; then
-        common_logger -e "The password file doesn't have a correct format.
+        common_logger -e "The password file doesn't have a correct format or password uses invalid characters. Allowed characters: A-Za-z0-9.*+?
 
 It must have this format:
 
@@ -235,8 +241,8 @@ It must have this format:
 	    exit 1
     fi
 
-    sfileusers=$(grep username: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
-    sfilepasswords=$(grep password: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }')
+    sfileusers=$(grep username: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }' | sed -e "s/[\'\"]//g")
+    sfilepasswords=$(grep password: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }' | sed -e "s/[\'\"]//g")
 
     fileusers=(${sfileusers})
     filepasswords=(${sfilepasswords})
@@ -377,6 +383,52 @@ function passwords_runSecurityAdmin() {
         else
             common_logger -d "Passwords changed."
         fi
+    fi
+
+}
+
+function passwords_changePasswordAPI() {
+
+    #Change API password tool
+
+    if [[ -n "${api}" ]]; then
+        if [[ -n "${adminAPI}" ]]; then
+            common_logger $"Changing API user ${nuser} password"
+            WAZUH_PASS_API='{"password":"'"$password"'"}'
+            TOKEN_API=$(curl -s -u "${adminUser}":"${adminPassword}" -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
+            eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${id}" -o /dev/null'
+            common_logger $"API password changed"
+            common_logger -nl $"The new password for user ${nuser} is ${password}"
+        else
+            common_logger $"Changing API user ${nuser} password"
+            WAZUH_PASS_API='{"password":"'"$password"'"}'
+            TOKEN_API=$(curl -s -u "${nuser}":"${currentPassword}" -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
+            eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${id}" -o /dev/null'
+            common_logger $"API password changed"
+            common_logger -nl $"The new password for user ${nuser} is ${password}"
+        fi
+    else
+        password_wazuh=$(grep -A 1 "username: 'wazuh'" "${p_file}" | tail -n1 | awk -F': ' '{print $2}' | sed -e "s/[\'\"]//g")
+        password_wazuh_wui=$(grep -A 1 "username: 'wazuh_wui'" "${p_file}" | tail -n1 | awk -F': ' '{print $2}' | sed -e "s/[\'\"]//g")
+        WAZUH_PASS='{"password":"'"$password_wazuh"'"}'
+        WAZUH_WUI_PASS='{"password":"'"$password_wazuh_wui"'"}'
+
+        TOKEN=$(curl -s -u wazuh:wazuh -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
+        eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d "$WAZUH_PASS" "https://localhost:55000/security/users/1" -o /dev/null'
+
+        TOKEN_WUI=$(curl -s -u wazuh-wui:wazuh-wui -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
+        eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_WUI" -H "Content-Type: application/json" -d "$WAZUH_WUI_PASS" "https://localhost:55000/security/users/2" -o /dev/null'
+    fi
+
+}
+
+function passwords_updateDashboard_WUI_Password() {
+
+    if [ -f "/usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml" ]; then
+        password_wazuh_wui=$(< "${p_file}" awk '$2 == "wazuh_wui" {getline;print;}' | awk -F': ' '{print $2}')
+        eval 'sed -i "s|password: wazuh-wui|password: ${password_wazuh_wui}|g" /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml'
+    else
+        common_logger -e "File /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml does not exist"
     fi
 
 }

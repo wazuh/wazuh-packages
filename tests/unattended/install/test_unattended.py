@@ -16,7 +16,6 @@ warnings.filterwarnings('ignore', message='Unverified HTTPS request')
 
 # ----------------------------- Aux functions -----------------------------
 
-
 def read_services():
     services = None
     p = Popen(['/var/ossec/bin/wazuh-control', 'status'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
@@ -96,7 +95,7 @@ def get_wazuh_api_status():
     host = get_indexer_ip()
     port = 55000
     user = 'wazuh'
-    password = 'wazuh'
+    password = get_password('wazuh')
     login_endpoint = 'security/user/authenticate'
 
     login_url = f"{protocol}://{host}:{port}/{login_endpoint}"
@@ -108,7 +107,6 @@ def get_wazuh_api_status():
     requests_headers = {'Content-Type': 'application/json',
                         'Authorization': f'Bearer {token}'}
     response = requests.get(f"{protocol}://{host}:{port}/?pretty=true", headers=requests_headers, verify=False)
-
     return response.json()['data']['title']
 
 # ----------------------------- Tests -----------------------------
