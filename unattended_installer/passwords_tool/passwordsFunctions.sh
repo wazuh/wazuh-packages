@@ -222,7 +222,6 @@ function passwords_readAdmincerts() {
 function passwords_readFileUsers() {
 
     filecorrect=$(grep -Ev '^#|^\s*$' "${p_file}" | grep -Pzc "\A(\s*username:[ \t]+[\'\"]?\w+[\'\"]?\s*password:[ \t]+[\'\"]?[A-Za-z0-9.*+?]+[\'\"]?\s*)+\Z")
-    echo $filecorrect
     if [[ "${filecorrect}" -ne 1 ]]; then
         common_logger -e "The password file doesn't have a correct format or password uses invalid characters allowed characters A-Za-z0-9.*+?
 
