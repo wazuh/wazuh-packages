@@ -28,9 +28,9 @@ function offline_download() {
   dashboard_revision="1"
 
   if [ "${package_type}" == "rpm" ]; then
-    manager_rpm_package="wazuh-manager-${wazuh_version}-${manager_revision}.${arch}.${package_type}"
-    indexer_rpm_package="wazuh-indexer-${wazuh_version}-${indexer_revision}.${arch}.${package_type}"
-    dashboard_rpm_package="wazuh-dashboard-${wazuh_version}-${dashboard_revision}.${arch}.${package_type}"
+    manager_rpm_package="wazuh-manager-${wazuh_version}-${manager_revision}.x86_64.${package_type}"
+    indexer_rpm_package="wazuh-indexer-${wazuh_version}-${indexer_revision}.x86_64.${package_type}"
+    dashboard_rpm_package="wazuh-dashboard-${wazuh_version}-${dashboard_revision}.x86_64.${package_type}"
     manager_base_url="${manager_rpm_base_url}"
     indexer_base_url="${indexer_rpm_base_url}"
     dashboard_base_url="${dashboard_rpm_base_url}"
@@ -38,9 +38,9 @@ function offline_download() {
     indexer_package="${indexer_rpm_package}"
     dashboard_package="${dashboard_rpm_package}"
   elif [ "${package_type}" == "deb" ]; then
-    manager_deb_package="wazuh-manager_${wazuh_version}-${manager_revision}_${arch}.${package_type}"
-    indexer_deb_package="wazuh-indexer_${wazuh_version}-${indexer_revision}_${arch}.${package_type}"
-    dashboard_deb_package="wazuh-dashboard_${wazuh_version}-${dashboard_revision}_${arch}.${package_type}"
+    manager_deb_package="wazuh-manager_${wazuh_version}-${manager_revision}_amd64.${package_type}"
+    indexer_deb_package="wazuh-indexer_${wazuh_version}-${indexer_revision}_amd64.${package_type}"
+    dashboard_deb_package="wazuh-dashboard_${wazuh_version}-${dashboard_revision}_amd64.${package_type}"
     manager_base_url="${manager_deb_base_url}"
     indexer_base_url="${indexer_deb_base_url}"
     dashboard_base_url="${dashboard_deb_base_url}"
