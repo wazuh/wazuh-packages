@@ -419,6 +419,7 @@ rm -fr %{buildroot}
 %attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-reports-scheduler/reports-scheduler.yml
 %config(noreplace) %attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/jvm.options
 %config(noreplace) %attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch.yml
+%attr(440, %{USER}, %{GROUP}) %{INSTALL_DIR}/VERSION
 %dir %attr(750, %{USER}, %{GROUP}) %{CONFIG_DIR}/jvm.options.d
 %config(noreplace) %attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/log4j2.properties
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/NOTICE.txt

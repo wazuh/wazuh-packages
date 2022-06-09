@@ -69,7 +69,7 @@ help() {
     echo "    -s, --store <path>         [Optional] Set the destination path of package. By default, an output folder will be created."
     echo "    -v, --version <path>       [Optional] The OpenSearch-dashboards Version. By default, 1.2.0"
     echo "    --reference <ref>          [Optional] wazuh-packages branch or tag"
-    echo "    --future                   [Optional] Build test future package x.30.0 Used for development purposes."
+    echo "    --future                   [Optional] Build test future package 99.99.0 Used for development purposes."
     echo "    -h, --help                 Show this help."
     echo
     exit $1

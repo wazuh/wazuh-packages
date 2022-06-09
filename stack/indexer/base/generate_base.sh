@@ -11,12 +11,13 @@
 set -e
 
 reference=""
-version="1.2.4"
+OPENSEARCH_VERSION="1.2.4"
 
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 OUTDIR="${CURRENT_PATH}/output"
 DOCKERFILE_PATH="${CURRENT_PATH}/docker"
 CONTAINER_NAME="indexer_base_builder"
+FUTURE="no"
 
 # -----------------------------------------------------------------------------
 
@@ -47,11 +48,11 @@ build_base() {
     # Build the RPM package with a Docker container
     if [ "${reference}" ];then
         docker run -t --rm -v ${OUTDIR}/:/tmp/output:Z \
-            ${CONTAINER_NAME} ${version} ${reference} || return 1
+            ${CONTAINER_NAME} ${OPENSEARCH_VERSION} ${FUTURE} ${reference} || return 1
     else
         docker run -t --rm -v ${OUTDIR}/:/tmp/output:Z \
             -v ${CURRENT_PATH}/../../..:/root:Z \
-            ${CONTAINER_NAME} ${version} || return 1
+            ${CONTAINER_NAME} ${OPENSEARCH_VERSION} ${FUTURE} || return 1
     fi
 
     echo "Base file $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
@@ -67,6 +68,7 @@ help() {
     echo
     echo "    --version <version>   [Optional] OpenSearch version, by default 1.2.4"
     echo "    --reference <ref>     [Optional] wazuh-packages branch or tag"
+    echo "    --future              [Optional] Build test future package 99.99.0 Used for development purposes."
     echo "    -h, --help            Show this help."
     echo
     exit "${1}"
@@ -83,7 +85,7 @@ main() {
             ;;
         "--version")
             if [ -n "${2}" ]; then
-                version="${2}"
+                OPENSEARCH_VERSION="${2}"
                 shift 2
             else
                 help 1
@@ -96,6 +98,10 @@ main() {
             else
                 help 1
             fi
+            ;;
+        "--future")
+            FUTURE="yes"
+            shift 1
             ;;
         *)
             help 1

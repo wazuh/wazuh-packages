@@ -26,7 +26,7 @@ if [ "${reference}" ];then
 else
     version=$(cat /root/VERSION)
 fi
-if [ "${future}" = "yes" ];then
+if [ "${future}" == "yes" ];then
     version="99.99.0"
 fi
 wazuh_minor=$(echo ${version} | cut -c1-3)
@@ -112,6 +112,8 @@ brotli -c ./plugins/securityDashboards/target/public/securityDashboards.plugin.j
 # Generate compressed files
 gzip -c ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js > ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js.gz
 brotli -c ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js > ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js.br
+# Add VERSION file
+cp /root/VERSION .
 
 # Remove plugins
 /bin/bash ./bin/opensearch-dashboards-plugin remove queryWorkbenchDashboards --allow-root

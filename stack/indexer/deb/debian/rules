@@ -123,6 +123,9 @@ override_dh_install:
 	chown $(USER):$(GROUP) -R $(TARGET_DIR)
 	chmod ug+x $(TARGET_DIR)$(INSTALLATION_DIR)/*
 
+	chown $(USER):$(GROUP) $(TARGET_DIR)$(INSTALLATION_DIR)/VERSION
+	chmod 440 $(TARGET_DIR)$(INSTALLATION_DIR)/VERSION
+
 # -----------------------------------------------------------------------------
 
 override_dh_fixperms:
