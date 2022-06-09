@@ -23,6 +23,92 @@ function offline_download() {
 
   packages_to_download=( "manager" "filebeat" "indexer" "dashboard" )
 
+  manager_revision="1"
+  indexer_revision="1"
+  dashboard_revision="1"
+
+  if [ "${package_type}" == "rpm" ]; then
+    manager_rpm_package="wazuh-manager-${wazuh_version}-${manager_revision}.${arch}.${package_type}"
+    indexer_rpm_package="wazuh-indexer-${wazuh_version}-${indexer_revision}.${arch}.${package_type}"
+    dashboard_rpm_package="wazuh-dashboard-${wazuh_version}-${dashboard_revision}.${arch}.${package_type}"
+    manager_base_url="${manager_rpm_base_url}"
+    indexer_base_url="${indexer_rpm_base_url}"
+    dashboard_base_url="${dashboard_rpm_base_url}"
+    manager_package="${manager_rpm_package}"
+    indexer_package="${indexer_rpm_package}"
+    dashboard_package="${dashboard_rpm_package}"
+  elif [ "${package_type}" == "deb" ]; then
+    manager_deb_package="wazuh-manager_${wazuh_version}-${manager_revision}_${arch}.${package_type}"
+    indexer_deb_package="wazuh-indexer_${wazuh_version}-${indexer_revision}_${arch}.${package_type}"
+    dashboard_deb_package="wazuh-dashboard_${wazuh_version}-${dashboard_revision}_${arch}.${package_type}"
+    manager_base_url="${manager_deb_base_url}"
+    indexer_base_url="${indexer_deb_base_url}"
+    dashboard_base_url="${dashboard_deb_base_url}"
+    manager_package="${manager_deb_package}"
+    indexer_package="${indexer_deb_package}"
+    dashboard_package="${dashboard_deb_package}"
+  else
+    common_logger "Unsupported package type: ${package_type}"
+    exit 1
+  fi
+
+  while curl -s -o /dev/null -w "%{http_code}" "${manager_base_url}/${manager_package}" | grep -q "200"; do
+    manager_revision=$((manager_revision+1))
+    if [ "${package_type}" == "rpm" ]; then
+      manager_rpm_package="wazuh-manager-${wazuh_version}-${manager_revision}.x86_64.rpm"
+      manager_package="${manager_rpm_package}"
+    else
+      manager_deb_package="wazuh-manager_${wazuh_version}-${manager_revision}_amd64.deb"
+      manager_package="${manager_deb_package}"
+    fi
+  done
+  if [ "$manager_revision" -gt 1 ] && [ "$(curl -s -o /dev/null -w "%{http_code}" "${manager_base_url}/${manager_package}")" -ne "200" ]; then
+    manager_revision=$((manager_revision-1))
+    if [ "${package_type}" == "rpm" ]; then
+      manager_rpm_package="wazuh-manager-${wazuh_version}-${manager_revision}.x86_64.rpm"
+    else
+      manager_deb_package="wazuh-manager_${wazuh_version}-${manager_revision}_amd64.deb"
+    fi
+  fi
+
+  while curl -s -o /dev/null -w "%{http_code}" "${indexer_base_url}/${indexer_package}" | grep -q "200"; do
+    indexer_revision=$((indexer_revision+1))
+    if [ "${package_type}" == "rpm" ]; then
+      indexer_rpm_package="wazuh-indexer-${wazuh_version}-${indexer_revision}.x86_64.rpm"
+      indexer_package="${indexer_rpm_package}"
+    else
+      indexer_deb_package="wazuh-indexer_${wazuh_version}-${indexer_revision}_amd64.deb"
+      indexer_package="${indexer_deb_package}"
+    fi
+  done
+  if [ "$indexer_revision" -gt 1 ] && [ "$(curl -s -o /dev/null -w "%{http_code}" "${indexer_base_url}/${indexer_package}")" -ne "200" ]; then
+    indexer_revision=$((indexer_revision-1))
+    if [ "${package_type}" == "rpm" ]; then
+      indexer_rpm_package="wazuh-indexer-${wazuh_version}-${indexer_revision}.x86_64.rpm"
+    else
+      indexer_deb_package="wazuh-indexer_${wazuh_version}-${indexer_revision}_amd64.deb"
+    fi
+  fi
+
+  while curl -s -o /dev/null -w "%{http_code}" "${dashboard_base_url}/${dashboard_package}" | grep -q "200"; do
+    dashboard_revision=$((dashboard_revision+1))
+    if [ "${package_type}" == "rpm" ]; then
+      dashboard_rpm_package="wazuh-dashboard-${wazuh_version}-${dashboard_revision}.x86_64.rpm"
+      dashboard_package="${dashboard_rpm_package}"
+    else
+      dashboard_deb_package="wazuh-dashboard_${wazuh_version}-${dashboard_revision}_amd64.deb"
+      dashboard_package="${dashboard_deb_package}"
+    fi
+  done
+  if [ "$dashboard_revision" -gt 1 ] && [ "$(curl -s -o /dev/null -w "%{http_code}" "${dashboard_base_url}/${dashboard_package}")" -ne "200" ]; then
+    dashboard_revision=$((dashboard_revision-1))
+    if [ "${package_type}" == "rpm" ]; then
+      dashboard_rpm_package="wazuh-dashboard-${wazuh_version}-${dashboard_revision}.x86_64.rpm"
+    else
+      dashboard_deb_package="wazuh-dashboard_${wazuh_version}-${dashboard_revision}_amd64.deb"
+    fi
+  fi
+
   for package in "${packages_to_download[@]}"
   do
 
