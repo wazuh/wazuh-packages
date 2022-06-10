@@ -186,10 +186,10 @@ function check_dist() {
     if [ "${DIST_NAME}" == "amzn" ] && [ "${DIST_VER}" -ne "2" ]; then
         notsupported=1
     fi
-    if ([ "${DIST_NAME}" == "ubuntu" ]) && ([ "${DIST_VER}" -ne "16" ] && [ "${DIST_VER}" -ne "18" ] && [ "${DIST_VER}" -ne "20" ] && [ "${DIST_VER}" -ne "22" ]); then
+    if [ "${DIST_NAME}" == "ubuntu" ] && { [ "${DIST_VER}" -ne "16" ] && [ "${DIST_VER}" -ne "18" ] && [ "${DIST_VER}" -ne "20" ] && [ "${DIST_VER}" -ne "22" ]; }; then
         notsupported=1
     fi
-    if ([ "${DIST_NAME}" == "ubuntu" ]) && ([ "${DIST_VER}" -eq "16" ] || [ "${DIST_VER}" -eq "18" ] || [ "${DIST_VER}" -eq "20" ] || [ "${DIST_VER}" -eq "22" ]) &&  ([ "${DIST_SUBVER}" != "04" ]); then
+    if [ "${DIST_NAME}" == "ubuntu" ] && { [ "${DIST_VER}" -eq "16" ] || [ "${DIST_VER}" -eq "18" ] || [ "${DIST_VER}" -eq "20" ] || [ "${DIST_VER}" -eq "22" ]; } &&  [ "${DIST_SUBVER}" != "04" ]; then
         notsupported=1
     fi
     if [ -n "${notsupported}" ] && [ -z "${ignore}" ]; then

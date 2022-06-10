@@ -139,9 +139,9 @@ function passwords_generatePassword() {
 
     if [ -n "${nuser}" ]; then
         common_logger -d "Generating random password."
-        pass=$(< /dev/urandom tr -dc "A-Za-z0-9.*+?" | head -c ${1:-31};echo;)
-        special_char=$(< /dev/urandom tr -dc ".*+?" | head -c ${1:-1};echo;)
-        password="$(echo ${pass}${special_char} | fold -w1 | shuf | tr -d '\n')"
+        pass=$(< /dev/urandom tr -dc "A-Za-z0-9.*+?" | head -c "${1:-31}";echo;)
+        special_char=$(< /dev/urandom tr -dc ".*+?" | head -c "${1:-1}";echo;)
+        password="$(echo "${pass}""${special_char}" | fold -w1 | shuf | tr -d '\n')"
         if [  "${PIPESTATUS[0]}" != 0  ]; then
             common_logger -e "The password could not been generated."
             exit 1;
@@ -149,9 +149,9 @@ function passwords_generatePassword() {
     else
         common_logger -d "Generating random passwords."
         for i in "${!users[@]}"; do
-            pass=$(< /dev/urandom tr -dc "A-Za-z0-9.*+?" | head -c ${1:-31};echo;)
-            special_char=$(< /dev/urandom tr -dc ".*+?" | head -c ${1:-1};echo;)
-            passwords+=("$(echo ${pass}${special_char} | fold -w1 | shuf | tr -d '\n')")
+            pass=$(< /dev/urandom tr -dc "A-Za-z0-9.*+?" | head -c "${1:-31}";echo;)
+            special_char=$(< /dev/urandom tr -dc ".*+?" | head -c "${1:-1}";echo;)
+            passwords+=("$(echo "${pass}""${special_char}" | fold -w1 | shuf | tr -d '\n')")
             if [ "${PIPESTATUS[0]}" != 0 ]; then
                 common_logger -e "The password could not been generated."
                 exit 1;
@@ -177,10 +177,12 @@ function passwords_generatePasswordFile() {
     )
     passwords_generatePassword
     for i in "${!users[@]}"; do
-        echo "# ${user_description[${i}]}" >> "${gen_file}"
-        echo "  username: '${users[${i}]}'" >> "${gen_file}"
-        echo "  password: '${passwords[${i}]}'" >> "${gen_file}"
-        echo ""	>> "${gen_file}"
+    {
+        echo "# ${user_description[${i}]}"
+        echo "  username: '${users[${i}]}'"
+        echo "  password: '${passwords[${i}]}'" 
+        echo ""
+    } >> "${gen_file}"
     done
 
 }

@@ -86,7 +86,7 @@ function main() {
                 ;;
             "-A"|"--api")
                 api=1
-                if [ -z ${2} ]; then
+                if [ -z "${2}" ]; then
                     echo "Argument -A|--api needs a second argument"
                     getHelp
                     exit 1
@@ -96,7 +96,7 @@ function main() {
                 ;;
             "-au"|"--admin-user")
                 adminAPI=1
-                if [ -z ${2} ]; then
+                if [ -z "${2}" ]; then
                     echo "Argument au|--admin-user needs a second argument"
                     getHelp
                     exit 1
@@ -105,7 +105,7 @@ function main() {
                 shift 2
                 ;;
             "-ap"|"--admin-password")
-                if [ -z ${2} ]; then
+                if [ -z "${2}" ]; then
                     echo "Argument -ap|--admin-password needs a second argument"
                     getHelp
                     exit 1
@@ -114,7 +114,7 @@ function main() {
                 shift 2
                 ;;
             "-id"|"--id-api")
-                if [ -z ${2} ]; then
+                if [ -z "${2}" ]; then
                     echo "Argument -id|--id-api needs a second argument"
                     getHelp
                     exit 1
@@ -123,7 +123,7 @@ function main() {
                 shift 2
                 ;;
             "-u"|"--user")
-                if [ -z ${2} ]; then
+                if [ -z "${2}" ]; then
                     echo "Argument --user needs a second argument"
                     getHelp
                     exit 1
@@ -132,7 +132,7 @@ function main() {
                 shift 2
                 ;;
             "-p"|"--password")
-                if [ -z ${2} ]; then
+                if [ -z "${2}" ]; then
                     echo "Argument --password needs a second argument"
                     getHelp
                     exit 1
@@ -141,7 +141,7 @@ function main() {
                 shift 2
                 ;;
             "-c"|"--cert")
-                if [ -z ${2} ]; then
+                if [ -z "${2}" ]; then
                     echo "Argument --cert needs a second argument"
                     getHelp
                     exit 1
@@ -150,7 +150,7 @@ function main() {
                 shift 2
                 ;;
             "-k"|"--certkey")
-                if [ -z ${2} ]; then
+                if [ -z "${2}" ]; then
                     echo "Argument --certkey needs a second argument"
                     getHelp
                     exit 1
@@ -159,7 +159,7 @@ function main() {
                 shift 2
                 ;;
             "-f"|"--file")
-                if [ -z ${2} ]; then
+                if [ -z "${2}" ]; then
                     echo "Argument --file needs a second argument"
                     getHelp
                     exit 1
@@ -168,7 +168,7 @@ function main() {
                 shift 2
                 ;;
             "-gf"|"--generate-file")
-                if [ -z ${2} ]; then
+                if [ -z "${2}" ]; then
                     echo "Argument --generate-file needs a second argument"
                     getHelp
                     exit 1
