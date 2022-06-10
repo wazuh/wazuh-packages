@@ -30,7 +30,7 @@ ExclusiveOS: linux
 %global CONFIG_DIR /etc/%{name}
 %global PID_DIR /run/%{name}
 %global INSTALL_DIR /usr/share/%{name}
-%global DASHBOARD_FILE wazuh-dashboard-base-%{version}-linux-x64.tar.xz
+%global DASHBOARD_FILE wazuh-dashboard-base-%{version}-%{release}-linux-x64.tar.xz
 
 # -----------------------------------------------------------------------------
 
@@ -46,7 +46,7 @@ Wazuh dashboard is a user interface and visualization tool for security-related 
 if [ "%{_base}" = "s3" ];then
     curl -kOL https://packages-dev.wazuh.com/stack/dashboard/base/%{DASHBOARD_FILE}
 else
-    cp /root/output/wazuh-dashboard-base-%{version}-linux-x64.tar.xz ./
+    cp /root/output/%{DASHBOARD_FILE} ./
 fi
 groupadd %{GROUP}
 useradd -g %{GROUP} %{USER}

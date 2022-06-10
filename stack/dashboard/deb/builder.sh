@@ -10,63 +10,59 @@
 
 set -ex
 # Script parameters to build the package
-target="wazuh-dashboard"
-architecture=$1
-release=$2
-future=$3
-base_location=$4
-spec_reference=$5
-directory_base="/usr/share/wazuh-dashboard"
+TARGET="wazuh-dashboard"
+ARCHITECTURE=$1
+REVISION=$2
+FUTURE=$3
+BASE_LOCATION=$4
+REFERENCE=$5
+DIRECTORY_BASE="/usr/share/wazuh-dashboard"
 
-if [ -z "${release}" ]; then
-    release="1"
-fi
-
-if [ "${future}" = "yes" ];then
-    version="99.99.0"
+if [ "${FUTURE}" = "yes" ];then
+    VERSION="99.99.0"
 else
-    if [ "${spec_reference}" ];then
-        version=$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh-packages/${spec_reference}/VERSION | cat)
+    if [ "${REFERENCE}" ];then
+        VERSION=$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh-packages/${REFERENCE}/VERSION | cat)
     else
-        version=$(cat /root/VERSION)
+        VERSION=$(cat /root/VERSION)
     fi
 fi
 
 # Build directories
-build_dir=/build
-pkg_name="${target}-${version}"
-pkg_path="${build_dir}/${target}"
-sources_dir="${pkg_path}/${pkg_name}"
+BUILD_DIR=/build
+PKG_NAME="${TARGET}-${VERSION}"
+PKG_PATH="${BUILD_DIR}/${TARGET}"
+SOURCER_DIR="${PKG_PATH}/${PKG_NAME}"
 
-mkdir -p ${sources_dir}/debian
+mkdir -p ${SOURCER_DIR}/debian
 
 # Including spec file
-if [ "${spec_reference}" ];then
-    curl -sL https://github.com/wazuh/wazuh-packages/tarball/${spec_reference} | tar zx
-    cp -r ./wazuh*/stack/dashboard/deb/debian/* ${sources_dir}/debian/
+if [ "${REFERENCE}" ];then
+    curl -sL https://github.com/wazuh/wazuh-packages/tarball/${REFERENCE} | tar zx
+    cp -r ./wazuh*/stack/dashboard/deb/debian/* ${SOURCER_DIR}/debian/
     cp -r ./wazuh*/* /root/
 else
-    cp -r /root/stack/dashboard/deb/debian/* ${sources_dir}/debian/
+    cp -r /root/stack/dashboard/deb/debian/* ${SOURCER_DIR}/debian/
 fi
 
 
 # Generating directory structure to build the .deb package
-cd ${build_dir}/${target} && tar -czf ${pkg_name}.orig.tar.gz "${pkg_name}"
+cd ${BUILD_DIR}/${TARGET} && tar -czf ${PKG_NAME}.orig.tar.gz "${PKG_NAME}"
 
 # Configure the package with the different parameters
-sed -i "s:VERSION:${version}:g" ${sources_dir}/debian/changelog
-sed -i "s:RELEASE:${release}:g" ${sources_dir}/debian/changelog
-sed -i "s:export INSTALLATION_DIR=.*:export INSTALLATION_DIR=${directory_base}:g" ${sources_dir}/debian/rules
+sed -i "s:VERSION:${VERSION}:g" ${SOURCER_DIR}/debian/changelog
+sed -i "s:RELEASE:${REVISION}:g" ${SOURCER_DIR}/debian/changelog
+sed -i "s:export INSTALLATION_DIR=.*:export INSTALLATION_DIR=${DIRECTORY_BASE}:g" ${SOURCER_DIR}/debian/rules
 
 # Installing build dependencies
-cd ${sources_dir}
+cd ${SOURCER_DIR}
 mk-build-deps -ir -t "apt-get -o Debug::pkgProblemResolver=yes -y"
 
 # Build package
-debuild --no-lintian -eINSTALLATION_DIR="${directory_base}" -eBASE="${base_location}" -eBASE_VERSION="${version}" -b -uc -us
+debuild --no-lintian -eINSTALLATION_DIR="${DIRECTORY_BASE}" -eBASE="${BASE_LOCATION}" -eBASE_VERSION="${VERSION}" -eBASE_REVISION="${REVISION}" -b -uc -us
 
-deb_file="${target}_${version}-${release}_${architecture}.deb"
+DEB_FILE="${TARGET}_${VERSION}-${REVISION}_${ARCHITECTURE}.deb"
 
-cd ${pkg_path} && sha512sum ${deb_file} > /tmp/${deb_file}.sha512
+cd ${PKG_PATH} && sha512sum ${DEB_FILE} > /tmp/${DEB_FILE}.sha512
 
-mv ${pkg_path}/${deb_file} /tmp/
+mv ${PKG_PATH}/${DEB_FILE} /tmp/

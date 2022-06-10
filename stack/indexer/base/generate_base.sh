@@ -10,7 +10,7 @@
 
 set -e
 
-reference=""
+REFERENCE=""
 OPENSEARCH_VERSION="1.2.4"
 
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
@@ -18,6 +18,7 @@ OUTDIR="${CURRENT_PATH}/output"
 DOCKERFILE_PATH="${CURRENT_PATH}/docker"
 CONTAINER_NAME="indexer_base_builder"
 FUTURE="no"
+REVISION="1"
 
 # -----------------------------------------------------------------------------
 
@@ -46,13 +47,13 @@ build_base() {
     docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || return 1
 
     # Build the RPM package with a Docker container
-    if [ "${reference}" ];then
+    if [ "${REFERENCE}" ];then
         docker run -t --rm -v ${OUTDIR}/:/tmp/output:Z \
-            ${CONTAINER_NAME} ${OPENSEARCH_VERSION} ${FUTURE} ${reference} || return 1
+            ${CONTAINER_NAME} ${OPENSEARCH_VERSION} ${FUTURE} ${REVISION} ${REFERENCE} || return 1
     else
         docker run -t --rm -v ${OUTDIR}/:/tmp/output:Z \
             -v ${CURRENT_PATH}/../../..:/root:Z \
-            ${CONTAINER_NAME} ${OPENSEARCH_VERSION} ${FUTURE} || return 1
+            ${CONTAINER_NAME} ${OPENSEARCH_VERSION} ${FUTURE} ${REVISION} || return 1
     fi
 
     echo "Base file $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
@@ -66,9 +67,10 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    --version <version>   [Optional] OpenSearch version, by default 1.2.4"
+    echo "    --version <version>   [Optional] OpenSearch version, by default ${OPENSEARCH_VERSION}"
     echo "    --reference <ref>     [Optional] wazuh-packages branch or tag"
     echo "    --future              [Optional] Build test future package 99.99.0 Used for development purposes."
+    echo "    -r, --revision <rev>  [Optional] Package revision. By default ${REVISION}"
     echo "    -h, --help            Show this help."
     echo
     exit "${1}"
@@ -93,7 +95,7 @@ main() {
             ;;
         "--reference")
             if [ -n "${2}" ]; then
-                reference="${2}"
+                REFERENCE="${2}"
                 shift 2
             else
                 help 1
@@ -102,6 +104,14 @@ main() {
         "--future")
             FUTURE="yes"
             shift 1
+            ;;
+        "-r"|"--revision")
+            if [ -n "${2}" ]; then
+                REVISION="${2}"
+                shift 2
+            else
+                help 1
+            fi
             ;;
         *)
             help 1

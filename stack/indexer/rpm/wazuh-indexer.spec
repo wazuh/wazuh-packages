@@ -31,6 +31,7 @@ BuildRequires: tar shadow-utils
 %global SYS_DIR /usr/lib
 %global INSTALL_DIR /usr/share/%{name}
 %global REPO_DIR /root/unattended_installer
+%global INDEXER_FILE wazuh-indexer-base-%{version}-%{release}-linux-x64.tar.xz
 
 # -----------------------------------------------------------------------------
 
@@ -69,11 +70,11 @@ mkdir -p ${RPM_BUILD_ROOT}%{SYS_DIR}
 
 # Set up required files
 if [ "%{_base}" = "s3" ];then
-    curl -kOL https://packages-dev.wazuh.com/stack/indexer/base/wazuh-indexer-base-%{version}-linux-x64.tar.xz
+    curl -kOL https://packages-dev.wazuh.com/stack/indexer/base/%{INDEXER_FILE}
 else
-    cp /root/output/wazuh-indexer-base-%{version}-linux-x64.tar.xz ./
+    cp /root/output/%{INDEXER_FILE} ./
 fi
-tar -xf wazuh-indexer-*.tar.xz && rm -f wazuh-indexer-*.tar.xz
+tar -xf %{INDEXER_FILE} && rm -f %{INDEXER_FILE}
 chown -R %{USER}:%{GROUP} wazuh-indexer-*/*
 
 # Copy base files into RPM_BUILD_ROOT directory

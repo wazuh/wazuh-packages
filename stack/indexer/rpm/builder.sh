@@ -11,60 +11,55 @@
 set -ex
 
 # Script parameters to build the package
-target="wazuh-indexer"
-architecture=$1
-release=$2
-future=$3
-base_location=$4
-spec_reference=$5
-directory_base="/usr/share/wazuh-indexer"
-rpmbuild="rpmbuild"
+TARGET="wazuh-indexer"
+ARCHITECTURE=$1
+REVISION=$2
+FUTURE=$3
+BASE_LOCATION=$4
+REFERENCE=$5
+DIRECTORY_BASE="/usr/share/wazuh-indexer"
 
-if [ -z "${release}" ]; then
-    release="1"
-fi
-
-if [ "${future}" = "yes" ];then
-    version="99.99.0"
+if [ "${FUTURE}" = "yes" ];then
+    VERSION="99.99.0"
 else
-    if [ "${spec_reference}" ];then
-        version=$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh-packages/${spec_reference}/VERSION | cat)
+    if [ "${REFERENCE}" ];then
+        VERSION=$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh-packages/${REFERENCE}/VERSION | cat)
     else
-        version=$(cat /root/VERSION)
+        VERSION=$(cat /root/VERSION)
     fi
 fi
 
 # Build directories
-build_dir=/build
-rpm_build_dir=${build_dir}/rpmbuild
-file_name="${target}-${version}-${release}"
-pkg_path="${rpm_build_dir}/RPMS/${architecture}"
-rpm_file="${file_name}.${architecture}.rpm"
-mkdir -p ${rpm_build_dir}/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+BUILD_DIR=/build
+RPM_BUILD_DIR=${BUILD_DIR}/rpmbuild
+FILE_NAME="${TARGET}-${VERSION}-${REVISION}"
+PKG_PATH="${RPM_BUILD_DIR}/RPMS/${ARCHITECTURE}"
+RPM_FILE="${FILE_NAME}.${ARCHITECTURE}.rpm"
+mkdir -p ${RPM_BUILD_DIR}/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
 # Prepare the sources directory to build the source tar.gz
-pkg_name=${target}-${version}
-mkdir ${build_dir}/${pkg_name}
+PKG_NAME=${TARGET}-${VERSION}
+mkdir ${BUILD_DIR}/${PKG_NAME}
 
 # Including spec file
-if [ "${spec_reference}" ];then
-    curl -sL https://github.com/wazuh/wazuh-packages/tarball/${spec_reference} | tar zx
-    cp ./wazuh*/stack/indexer/rpm/${target}.spec ${rpm_build_dir}/SPECS/${pkg_name}.spec
+if [ "${REFERENCE}" ];then
+    curl -sL https://github.com/wazuh/wazuh-packages/tarball/${REFERENCE} | tar zx
+    cp ./wazuh*/stack/indexer/rpm/${TARGET}.spec ${RPM_BUILD_DIR}/SPECS/${PKG_NAME}.spec
     cp -r ./wazuh*/* /root/
 else
-    cp /root/stack/indexer/rpm/${target}.spec ${rpm_build_dir}/SPECS/${pkg_name}.spec
+    cp /root/stack/indexer/rpm/${TARGET}.spec ${RPM_BUILD_DIR}/SPECS/${PKG_NAME}.spec
 fi
 
 # Generating source tar.gz
-cd ${build_dir} && tar czf "${rpm_build_dir}/SOURCES/${pkg_name}.tar.gz" "${pkg_name}"
+cd ${BUILD_DIR} && tar czf "${RPM_BUILD_DIR}/SOURCES/${PKG_NAME}.tar.gz" "${PKG_NAME}"
 
 # Building RPM
-/usr/bin/rpmbuild --define "_topdir ${rpm_build_dir}" --define "_version ${version}" \
-    --define "_release ${release}" --define "_localstatedir ${directory_base}" \
-    --define "_base ${base_location}" \
-    --target ${architecture} -ba ${rpm_build_dir}/SPECS/${pkg_name}.spec
+/usr/bin/rpmbuild --define "_topdir ${RPM_BUILD_DIR}" --define "_version ${VERSION}" \
+    --define "_release ${REVISION}" --define "_localstatedir ${DIRECTORY_BASE}" \
+    --define "_base ${BASE_LOCATION}" \
+    --target ${ARCHITECTURE} -ba ${RPM_BUILD_DIR}/SPECS/${PKG_NAME}.spec
 
-cd ${pkg_path} && sha512sum ${rpm_file} > /tmp/${rpm_file}.sha512
+cd ${PKG_PATH} && sha512sum ${RPM_FILE} > /tmp/${RPM_FILE}.sha512
 
 
-find ${pkg_path}/ -maxdepth 3 -type f -name "${file_name}*" -exec mv {} /tmp/ \;
+find ${PKG_PATH}/ -maxdepth 3 -type f -name "${FILE_NAME}*" -exec mv {} /tmp/ \;

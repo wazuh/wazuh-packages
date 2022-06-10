@@ -59,8 +59,8 @@ build_deb() {
         fi
         docker run -t --rm ${VOLUMES} \
             -v ${CURRENT_PATH}/../../..:/root:Z \
-            ${CONTAINER_NAME} ${ARCHITECTURE} \
-            ${REVISION} ${FUTURE} ${BASE} || return 1
+            ${CONTAINER_NAME} ${ARCHITECTURE} ${REVISION} \
+            ${FUTURE} ${BASE} || return 1
     fi
 
     echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
@@ -103,31 +103,31 @@ help() {
 
 
 main() {
-    while [ -n "$1" ]
+    while [ -n "${1}" ]
     do
-        case "$1" in
+        case "${1}" in
         "-h"|"--help")
             help 0
             ;;
         "-a"|"--architecture")
-            if [ -n "$2" ]; then
-                ARCHITECTURE="$2"
+            if [ -n "${2}" ]; then
+                ARCHITECTURE="${2}"
                 shift 2
             else
                 help 1
             fi
             ;;
         "-r"|"--revision")
-            if [ -n "$2" ]; then
-                REVISION="$2"
+            if [ -n "${2}" ]; then
+                REVISION="${2}"
                 shift 2
             else
                 help 1
             fi
             ;;
         "--reference")
-            if [ -n "$2" ]; then
-                REFERENCE="$2"
+            if [ -n "${2}" ]; then
+                REFERENCE="${2}"
                 shift 2
             else
                 help 1
@@ -142,24 +142,24 @@ main() {
             shift 1
             ;;
         "--base")
-            if [ -n "$2" ]; then
-                BASE="$2"
+            if [ -n "${2}" ]; then
+                BASE="${2}"
                 shift 2
             else
                 help 1
             fi
             ;;
         "--base-path")
-            if [ -n "$2" ]; then
-                BASE_PATH="$2"
+            if [ -n "${2}" ]; then
+                BASE_PATH="${2}"
                 shift 2
             else
                 help 1
             fi
             ;;
         "-s"|"--store")
-            if [ -n "$2" ]; then
-                OUTDIR="$2"
+            if [ -n "${2}" ]; then
+                OUTDIR="${2}"
                 shift 2
             else
                 help 1

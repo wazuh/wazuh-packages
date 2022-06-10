@@ -10,33 +10,38 @@
 
 set -e
 
-opensearch_version="${1}"
-future="${2}"
-reference="${3}"
+OPENSEARCH_VERSION="${1}"
+FUTURE="${2}"
+REVISION="${3}"
+REFERENCE="${4}"
 BASE_DIR=/tmp/output/wazuh-indexer-base
-VERSION=$(cat /root/VERSION)
 
 # -----------------------------------------------------------------------------
 
 # Including files
-if [ "${reference}" ];then
-    curl -sL https://github.com/wazuh/wazuh-packages/tarball/"${reference}" | tar xz
+if [ "${REFERENCE}" ];then
+    curl -sL https://github.com/wazuh/wazuh-packages/tarball/"${REFERENCE}" | tar xz
     cp -r ./wazuh*/* /root/
+    VERSION=$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh-packages/${REFERENCE}/VERSION | cat)
+else
+    VERSION=$(cat /root/VERSION)
 fi
 
-if [ "${future}" == "yes" ];then
+if [ "${FUTURE}" == "yes" ];then
     VERSION="99.99.0"
 fi
+
+
 
 # -----------------------------------------------------------------------------
 
 mkdir -p /tmp/output
 cd /tmp/output
 
-curl -sL https://artifacts.opensearch.org/releases/bundle/opensearch/"${opensearch_version}"/opensearch-"${opensearch_version}"-linux-x64.tar.gz | tar xz
+curl -sL https://artifacts.opensearch.org/releases/bundle/opensearch/"${OPENSEARCH_VERSION}"/opensearch-"${OPENSEARCH_VERSION}"-linux-x64.tar.gz | tar xz
 
 # Remove unnecessary files and set up configuration
-mv opensearch-"${opensearch_version}" "${BASE_DIR}"
+mv opensearch-"${OPENSEARCH_VERSION}" "${BASE_DIR}"
 cd "${BASE_DIR}"
 find -type l -exec rm -rf {} \;
 find -name "*.bat" -exec rm -rf {} \;
@@ -56,12 +61,12 @@ cp /root/VERSION .
 # -----------------------------------------------------------------------------
 
 # Compile systemD module
-git clone https://github.com/opensearch-project/OpenSearch.git --branch="${opensearch_version}" --depth=1
+git clone https://github.com/opensearch-project/OpenSearch.git --branch="${OPENSEARCH_VERSION}" --depth=1
 cd OpenSearch/modules/systemd
 export JAVA_HOME=/etc/alternatives/java_sdk_11
 ../../gradlew build || true
 mkdir -p "${BASE_DIR}"/modules/systemd
-cp build/distributions/systemd-"${opensearch_version}"-SNAPSHOT.jar "${BASE_DIR}"/modules/systemd/systemd-"${opensearch_version}".jar
+cp build/distributions/systemd-"${OPENSEARCH_VERSION}"-SNAPSHOT.jar "${BASE_DIR}"/modules/systemd/systemd-"${OPENSEARCH_VERSION}".jar
 cp build/resources/test/plugin-security.policy "${BASE_DIR}"/modules/systemd/
 cp build/generated-resources/plugin-descriptor.properties "${BASE_DIR}"/modules/systemd/
 sed -i 's|-SNAPSHOT||g' "${BASE_DIR}"/modules/systemd/plugin-descriptor.properties
@@ -72,5 +77,5 @@ rm -rf OpenSearch
 
 # Base output
 cd /tmp/output
-tar -Jcvf wazuh-indexer-base-${VERSION}-linux-x64.tar.xz wazuh-indexer-base
+tar -Jcvf wazuh-indexer-base-"${VERSION}"-"${REVISION}"-linux-x64.tar.xz wazuh-indexer-base
 rm -rf "${BASE_DIR}"
