@@ -294,6 +294,7 @@ function main() {
         filebeat_install
         filebeat_configure
         installCommon_changePasswords
+        passwords_changePasswordAPI
         installCommon_startService "filebeat"
     fi
 
@@ -317,7 +318,9 @@ function main() {
         dashboard_configure
         installCommon_startService "wazuh-dashboard"
         installCommon_changePasswords
+        passwords_changePasswordAPI
         dashboard_initializeAIO
+        
     fi
 
 # -------------- Offline case  ------------------------------------------
