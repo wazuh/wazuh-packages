@@ -1,8 +1,8 @@
 DIR="PARAM_INSTALLATION_DIR"
 SCRIPTS_DIR="PARAM_INSTALLATION_SCRIPTS_DIR"
 SCA_BASE_DIR="${SCRIPTS_DIR}/sca"
-USER="ossec"
-GROUP="ossec"
+USER="wazuh"
+GROUP="wazuh"
 
 common() {
     # Install the SCA files
@@ -42,7 +42,7 @@ common() {
     fi
 
     touch ${DIR}/logs/active-responses.log
-    chown ossec:ossec ${DIR}/logs/active-responses.log
+    chown wazuh:wazuh ${DIR}/logs/active-responses.log
     chmod 0660 ${DIR}/logs/active-responses.log
 
     # Register and configure agent if Wazuh environment variables are defined
@@ -55,7 +55,7 @@ common() {
 
     # Fix /etc/ossec-init.conf
     chmod 640 /etc/ossec-init.conf
-    chown root:ossec /etc/ossec-init.conf
+    chown root:wazuh /etc/ossec-init.conf
     ${SCRIPTS_DIR}/fix_owner.sh 2>/dev/null
 }
 
@@ -67,7 +67,7 @@ post_upgrade() {
 }
 
 post_install() {
-    if ! getent group | grep -q "^ossec" ; then
+    if ! getent group | grep -q "^wazuh" ; then
         systemd-sysusers
     fi
 
