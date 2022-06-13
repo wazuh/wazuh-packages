@@ -67,6 +67,34 @@ function passwords_changePassword() {
 
 }
 
+function passwords_changePasswordApi() {
+
+    #Change API password tool
+
+    if [[ -n "${adminAPI}" ]]; then
+        common_logger $"Changing API user ${nuser} password"
+        WAZUH_PASS_API='{"password":"'"$password"'"}'
+        TOKEN_API=$(curl -s -u "${adminUser}":"${adminPassword}" -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
+        eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${nuser_id}" -o /dev/null'
+        common_logger $"API password changed"
+        common_logger -nl $"The new password for user ${nuser} is ${password}"
+    else
+        common_logger -e "No admin API specified"
+    fi        
+
+}
+
+function passwords_changeDashboardApiPassword() {
+
+    if [ -f "/usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml" ]; then
+        password_wazuh_wui=$(grep -A 1 "username: 'wazuh_wui'" "${p_file}" | tail -n1 | awk -F': ' '{print $2}' | sed -e "s/[\'\"]//g")
+        eval 'sed -i "s|password: wazuh-wui|password: ${password_wazuh_wui}|g" /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml'
+    else
+        common_logger -e "File /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml does not exist"
+    fi
+
+}
+
 function passwords_checkUser() {
 
     for i in "${!users[@]}"; do
@@ -162,7 +190,7 @@ function passwords_generatePassword() {
 
 function passwords_generatePasswordFile() {
 
-    users=( admin kibanaserver kibanaro logstash readall snapshotrestore wazuh_admin wazuh_user wazuh wazuh_wui)
+    users=( admin kibanaserver kibanaro logstash readall snapshotrestore wazuh_admin wazuh_user wazuh wazuh-wui)
     user_description=(
         "Admin user for the web user interface and Wazuh indexer. Use this user to log in to Wazuh dashboard"
         "Wazuh dashboard user for establishing the connection with Wazuh indexer"
@@ -184,6 +212,48 @@ function passwords_generatePasswordFile() {
     done
 
 }
+
+function passwords_getApiToken() {
+    TOKEN_API=$(curl -s -u "${adminUser}":"${adminPassword}" -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
+
+    if [ ${TOKEN_API} =~ "Invalid credentials"]; then
+        common_logger -e "Invalid admin user credentials"
+        if [[ $(type -t installCommon_rollBack) == "function" ]]; then
+                installCommon_rollBack
+        fi
+        exit 1
+    fi
+
+}
+
+function passwords_getApiUsers() {
+    api_users=( $(curl -s -k -X GET -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json"  "https://localhost:55000/security/users?pretty=true" | grep username | awk -F': ' '{print $2}' | sed -e "s/[\'\",]//g") )
+
+}
+
+function passwords_getApiIds() {
+    api_ids=( $(curl -s -k -X GET -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json"  "https://localhost:55000/security/users?pretty=true" | grep id | awk -F': ' '{print $2}' | sed -e "s/[\'\",]//g") )
+
+}
+
+function passwords_getApiUserId() {
+    nuser_id="noid"
+    for i in "${!api_users[@]}"; do
+        if [ "${nuser}" == "${api_users[i]}"]; then
+            nuser_id="${api_ids[i]}"
+        fi
+    done
+
+    if [ ${nuser_id} == "noid"]; then
+        common_logger -e "User ${nuser} is not registered in Wazuh API"
+        if [[ $(type -t installCommon_rollBack) == "function" ]]; then
+                installCommon_rollBack
+        fi
+        exit 1
+    fi
+
+}
+
 
 function passwords_getNetworkHost() {
     IP=$(grep -hr "network.host:" /etc/wazuh-indexer/opensearch.yml)
@@ -406,29 +476,8 @@ function passwords_changePasswordAPI() {
             eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${id}" -o /dev/null'
             common_logger $"API password changed"
             common_logger -nl $"The new password for user ${nuser} is ${password}"
-        fi
-    else
-        password_wazuh=$(grep -A 1 "username: 'wazuh'" "${p_file}" | tail -n1 | awk -F': ' '{print $2}' | sed -e "s/[\'\"]//g")
-        password_wazuh_wui=$(grep -A 1 "username: 'wazuh_wui'" "${p_file}" | tail -n1 | awk -F': ' '{print $2}' | sed -e "s/[\'\"]//g")
-        WAZUH_PASS='{"password":"'"$password_wazuh"'"}'
-        WAZUH_WUI_PASS='{"password":"'"$password_wazuh_wui"'"}'
-
-        TOKEN=$(curl -s -u wazuh:wazuh -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
-        eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d "$WAZUH_PASS" "https://localhost:55000/security/users/1" -o /dev/null'
-
-        TOKEN_WUI=$(curl -s -u wazuh-wui:wazuh-wui -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
-        eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_WUI" -H "Content-Type: application/json" -d "$WAZUH_WUI_PASS" "https://localhost:55000/security/users/2" -o /dev/null'
+        fi        
     fi
 
 }
 
-function passwords_updateDashboard_WUI_Password() {
-
-    if [ -f "/usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml" ]; then
-        password_wazuh_wui=$(grep -A 1 "username: 'wazuh_wui'" "${p_file}" | tail -n1 | awk -F': ' '{print $2}' | sed -e "s/[\'\"]//g")
-        eval 'sed -i "s|password: wazuh-wui|password: ${password_wazuh_wui}|g" /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml'
-    else
-        common_logger -e "File /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml does not exist"
-    fi
-
-}
