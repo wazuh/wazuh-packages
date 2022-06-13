@@ -10,15 +10,15 @@
 
 set -e
 
-REFERENCE=""
-OPENSEARCH_VERSION="1.2.4"
+reference=""
+opensearch_version="1.2.4"
 
-CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
-OUTDIR="${CURRENT_PATH}/output"
-DOCKERFILE_PATH="${CURRENT_PATH}/docker"
-CONTAINER_NAME="indexer_base_builder"
-FUTURE="no"
-REVISION="1"
+current_path="$( cd $(dirname $0) ; pwd -P )"
+outdir="${current_path}/output"
+dockerfile_path="${current_path}/docker"
+container_name="indexer_base_builder"
+future="no"
+revision="1"
 
 # -----------------------------------------------------------------------------
 
@@ -28,7 +28,7 @@ clean() {
     exit_code="${1}"
 
     # Clean the files
-    rm -rf "${DOCKERFILE_PATH}"/{*.sh,*.tar.gz}
+    rm -rf "${dockerfile_path}"/{*.sh,*.tar.gz}
 
     exit "${exit_code}"
 }
@@ -41,22 +41,22 @@ ctrl_c() {
 
 build_base() {
     # Copy the necessary files
-    cp ${CURRENT_PATH}/builder.sh ${DOCKERFILE_PATH}
+    cp ${current_path}/builder.sh ${dockerfile_path}
 
     # Build the Docker image
-    docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || return 1
+    docker build -t ${container_name} ${dockerfile_path} || return 1
 
     # Build the RPM package with a Docker container
-    if [ "${REFERENCE}" ];then
-        docker run -t --rm -v ${OUTDIR}/:/tmp/output:Z \
-            ${CONTAINER_NAME} ${OPENSEARCH_VERSION} ${FUTURE} ${REVISION} ${REFERENCE} || return 1
+    if [ "${reference}" ];then
+        docker run -t --rm -v ${outdir}/:/tmp/output:Z \
+            ${container_name} ${opensearch_version} ${future} ${revision} ${reference} || return 1
     else
-        docker run -t --rm -v ${OUTDIR}/:/tmp/output:Z \
-            -v ${CURRENT_PATH}/../../..:/root:Z \
-            ${CONTAINER_NAME} ${OPENSEARCH_VERSION} ${FUTURE} ${REVISION} || return 1
+        docker run -t --rm -v ${outdir}/:/tmp/output:Z \
+            -v ${current_path}/../../..:/root:Z \
+            ${container_name} ${opensearch_version} ${future} ${revision} || return 1
     fi
 
-    echo "Base file $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
+    echo "Base file $(ls -Art ${outdir} | tail -n 1) added to ${outdir}."
 
     return 0
 }
@@ -67,10 +67,10 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    --version <version>   [Optional] OpenSearch version, by default ${OPENSEARCH_VERSION}"
+    echo "    --version <version>   [Optional] OpenSearch version, by default ${opensearch_version}"
     echo "    --reference <ref>     [Optional] wazuh-packages branch or tag"
     echo "    --future              [Optional] Build test future package 99.99.0 Used for development purposes."
-    echo "    -r, --revision <rev>  [Optional] Package revision. By default ${REVISION}"
+    echo "    -r, --revision <rev>  [Optional] Package revision. By default ${revision}"
     echo "    -h, --help            Show this help."
     echo
     exit "${1}"
@@ -87,7 +87,7 @@ main() {
             ;;
         "--version")
             if [ -n "${2}" ]; then
-                OPENSEARCH_VERSION="${2}"
+                opensearch_version="${2}"
                 shift 2
             else
                 help 1
@@ -95,19 +95,19 @@ main() {
             ;;
         "--reference")
             if [ -n "${2}" ]; then
-                REFERENCE="${2}"
+                reference="${2}"
                 shift 2
             else
                 help 1
             fi
             ;;
         "--future")
-            FUTURE="yes"
+            future="yes"
             shift 1
             ;;
         "-r"|"--revision")
             if [ -n "${2}" ]; then
-                REVISION="${2}"
+                revision="${2}"
                 shift 2
             else
                 help 1

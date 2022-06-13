@@ -10,15 +10,15 @@
 
 set -e
 
-CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
-ARCHITECTURE="x86_64"
-OUTDIR="${CURRENT_PATH}/output"
-REVISION="1"
-BUILD_DOCKER="yes"
-RPM_X86_BUILDER="rpm_indexer_builder_x86"
-RPM_BUILDER_DOCKERFILE="${CURRENT_PATH}/docker"
-FUTURE="no"
-BASE="s3"
+current_path="$( cd $(dirname $0) ; pwd -P )"
+architecture="x86_64"
+outdir="${current_path}/output"
+revision="1"
+build_docker="yes"
+rpm_x86_builder="rpm_indexer_builder_x86"
+rpm_builder_dockerfile="${current_path}/docker"
+future="no"
+base="s3"
 
 trap ctrl_c INT
 
@@ -26,7 +26,7 @@ clean() {
     exit_code=$1
 
     # Clean the files
-    rm -rf ${DOCKERFILE_PATH}/{*.sh,*.tar.gz,wazuh-*}
+    rm -rf ${dockerfile_path}/{*.sh,*.tar.gz,wazuh-*}
 
     exit ${exit_code}
 }
@@ -36,50 +36,50 @@ ctrl_c() {
 }
 
 build_rpm() {
-    CONTAINER_NAME="$1"
-    DOCKERFILE_PATH="$2"
+    container_name="$1"
+    dockerfile_path="$2"
 
     # Copy the necessary files
-    cp ${CURRENT_PATH}/builder.sh ${DOCKERFILE_PATH}
+    cp ${current_path}/builder.sh ${dockerfile_path}
 
     # Build the Docker image
-    if [[ ${BUILD_DOCKER} == "yes" ]]; then
-        docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || return 1
+    if [[ ${build_docker} == "yes" ]]; then
+        docker build -t ${container_name} ${dockerfile_path} || return 1
     fi
 
     # Build the RPM package with a Docker container
-    VOLUMES="-v ${OUTDIR}/:/tmp:Z"
-    if [ "${REFERENCE}" ];then
-        docker run -t --rm ${VOLUMES} \
-            ${CONTAINER_NAME} ${ARCHITECTURE} ${REVISION} \
-            ${FUTURE} ${BASE} ${REFERENCE} || return 1
+    volumes="-v ${outdir}/:/tmp:Z"
+    if [ "${reference}" ];then
+        docker run -t --rm ${volumes} \
+            ${container_name} ${architecture} ${revision} \
+            ${future} ${base} ${reference} || return 1
     else
-        if [ "${BASE}" = "local" ];then
-            VOLUMES="${VOLUMES} -v ${CURRENT_PATH}/../base/output:/root/output:Z"
+        if [ "${base}" = "local" ];then
+            volumes="${volumes} -v ${current_path}/../base/output:/root/output:Z"
         fi
-        docker run -t --rm ${VOLUMES} \
-            -v ${CURRENT_PATH}/../../..:/root:Z \
-            ${CONTAINER_NAME} ${ARCHITECTURE} \
-            ${REVISION} ${FUTURE} ${BASE} || return 1
+        docker run -t --rm ${volumes} \
+            -v ${current_path}/../../..:/root:Z \
+            ${container_name} ${architecture} \
+            ${revision} ${future} ${base} || return 1
     fi
 
-    echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
+    echo "Package $(ls -Art ${outdir} | tail -n 1) added to ${outdir}."
 
     return 0
 }
 
 build() {
-    BUILD_NAME=""
-    FILE_PATH=""
-    if [ "${ARCHITECTURE}" = "x86_64" ] || [ "${ARCHITECTURE}" = "amd64" ]; then
-        ARCHITECTURE="x86_64"
-        BUILD_NAME="${RPM_X86_BUILDER}"
-        FILE_PATH="${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
+    build_name=""
+    file_path=""
+    if [ "${architecture}" = "x86_64" ] || [ "${architecture}" = "amd64" ]; then
+        architecture="x86_64"
+        build_name="${rpm_x86_builder}"
+        file_path="${rpm_builder_dockerfile}/${architecture}"
     else
         echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too)"
         return 1
     fi
-    build_rpm ${BUILD_NAME} ${FILE_PATH} || return 1
+    build_rpm ${build_name} ${file_path} || return 1
 
     return 0
 }
@@ -110,7 +110,7 @@ main() {
             ;;
         "-a"|"--architecture")
             if [ -n "$2" ]; then
-                ARCHITECTURE="$2"
+                architecture="$2"
                 shift 2
             else
                 help 1
@@ -118,7 +118,7 @@ main() {
             ;;
         "-r"|"--revision")
             if [ -n "$2" ]; then
-                REVISION="$2"
+                revision="$2"
                 shift 2
             else
                 help 1
@@ -126,23 +126,23 @@ main() {
             ;;
         "--reference")
             if [ -n "$2" ]; then
-                REFERENCE="$2"
+                reference="$2"
                 shift 2
             else
                 help 1
             fi
             ;;
         "--dont-build-docker")
-            BUILD_DOCKER="no"
+            build_docker="no"
             shift 1
             ;;
         "--future")
-            FUTURE="yes"
+            future="yes"
             shift 1
             ;;
         "--base")
             if [ -n "$2" ]; then
-                BASE="$2"
+                base="$2"
                 shift 2
             else
                 help 1
@@ -150,7 +150,7 @@ main() {
             ;;
         "-s"|"--store")
             if [ -n "$2" ]; then
-                OUTDIR="$2"
+                outdir="$2"
                 shift 2
             else
                 help 1

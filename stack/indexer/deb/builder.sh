@@ -11,57 +11,61 @@
 set -ex
 
 # Script parameters to build the package
-TARGET="wazuh-indexer"
-ARCHITECTURE=$1
-REVISION=$2
-FUTURE=$3
-BASE_LOCATION=$4
-REFERENCE=$5
-DIRECTORY_BASE="/usr/share/wazuh-indexer"
+target="wazuh-indexer"
+architecture=$1
+revision=$2
+future=$3
+base_location=$4
+reference=$5
+directory_base="/usr/share/wazuh-indexer"
 
-if [ "${FUTURE}" = "yes" ];then
-    VERSION="99.99.0"
+if [ -z "${revision}" ]; then
+    revision="1"
+fi
+
+if [ "${future}" = "yes" ];then
+    version="99.99.0"
 else
-    if [ "${REFERENCE}" ];then
-        VERSION=$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh-packages/${REFERENCE}/VERSION | cat)
+    if [ "${reference}" ];then
+        version=$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh-packages/${reference}/VERSION | cat)
     else
-        VERSION=$(cat /root/VERSION)
+        version=$(cat /root/VERSION)
     fi
 fi
 
 # Build directories
-BUILD_DIR=/build
-PKG_NAME="${TARGET}-${VERSION}"
-PKG_PATH="${BUILD_DIR}/${TARGET}"
-SOURCER_DIR="${PKG_PATH}/${PKG_NAME}"
+build_dir=/build
+pkg_name="${target}-${version}"
+pkg_path="${build_dir}/${target}"
+source_dir="${pkg_path}/${pkg_name}"
 
-mkdir -p ${SOURCER_DIR}/debian
+mkdir -p ${source_dir}/debian
 
 # Including spec file
-if [ "${REFERENCE}" ];then
-    curl -sL https://github.com/wazuh/wazuh-packages/tarball/${REFERENCE} | tar zx
-    cp -r ./wazuh*/stack/indexer/deb/debian/* ${SOURCER_DIR}/debian/
+if [ "${reference}" ];then
+    curl -sL https://github.com/wazuh/wazuh-packages/tarball/${reference} | tar zx
+    cp -r ./wazuh*/stack/indexer/deb/debian/* ${source_dir}/debian/
     cp -r ./wazuh*/* /root/
 else
-    cp -r /root/stack/indexer/deb/debian/* ${SOURCER_DIR}/debian/
+    cp -r /root/stack/indexer/deb/debian/* ${source_dir}/debian/
 fi
 
 # Generating directory structure to build the .deb package
-cd ${BUILD_DIR}/${TARGET} && tar -czf ${PKG_NAME}.orig.tar.gz "${PKG_NAME}"
+cd ${build_dir}/${target} && tar -czf ${pkg_name}.orig.tar.gz "${pkg_name}"
 
 # Configure the package with the different parameters
-sed -i "s:VERSION:${VERSION}:g" ${SOURCER_DIR}/debian/changelog
-sed -i "s:RELEASE:${REVISION}:g" ${SOURCER_DIR}/debian/changelog
+sed -i "s:VERSION:${version}:g" ${source_dir}/debian/changelog
+sed -i "s:RELEASE:${revision}:g" ${source_dir}/debian/changelog
 
 # Installing build dependencies
-cd ${SOURCER_DIR}
+cd ${source_dir}
 mk-build-deps -ir -t "apt-get -o Debug::pkgProblemResolver=yes -y"
 
 # Build package
-debuild --no-lintian -eINSTALLATION_DIR="${DIRECTORY_BASE}" -eBASE="${BASE_LOCATION}" -eBASE_VERSION="${VERSION}" -eBASE_REVISION="${REVISION}" -b -uc -us
+debuild --no-lintian -eINSTALLATION_DIR="${directory_base}" -eBASE="${base_location}" -eBASE_VERSION="${version}" -eBASE_REVISION="${revision}" -b -uc -us
 
-DEB_FILE="${TARGET}_${VERSION}-${REVISION}_${ARCHITECTURE}.deb"
+deb_file="${target}_${version}-${revision}_${architecture}.deb"
 
-cd ${PKG_PATH} && sha512sum ${DEB_FILE} > /tmp/${DEB_FILE}.sha512
+cd ${pkg_path} && sha512sum ${deb_file} > /tmp/${deb_file}.sha512
 
-mv ${PKG_PATH}/${DEB_FILE} /tmp/
+mv ${pkg_path}/${deb_file} /tmp/

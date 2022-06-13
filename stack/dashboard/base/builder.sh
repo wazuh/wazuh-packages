@@ -11,37 +11,41 @@
 set -ex
 
 # Script parameters to build the package
-OPENSEARCH_VERSION="${1}"
-FUTURE="${2}"
-REVISION="${3}"
-REFERENCE="${4}"
-BASE_DIR=/tmp/output/wazuh-dashboard-base
+opensearch_version="${1}"
+future="${2}"
+revision="${3}"
+reference="${4}"
+base_dir=/tmp/output/wazuh-dashboard-base
 
 # -----------------------------------------------------------------------------
 
+if [ -z "${revision}" ]; then
+    revision="1"
+fi
+
 # Including files
-if [ "${REFERENCE}" ];then
-    curl -sL https://github.com/wazuh/wazuh-packages/tarball/"${REFERENCE}" | tar xz
+if [ "${reference}" ];then
+    curl -sL https://github.com/wazuh/wazuh-packages/tarball/"${reference}" | tar xz
     cp -r ./wazuh*/* /root/
-    VERSION=$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh-packages/${REFERENCE}/VERSION | cat)
+    version=$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh-packages/${reference}/VERSION | cat)
 else
-    VERSION=$(cat /root/VERSION)
+    version=$(cat /root/VERSION)
 fi
-if [ "${FUTURE}" == "yes" ];then
-    VERSION="99.99.0"
+if [ "${future}" == "yes" ];then
+    version="99.99.0"
 fi
-WAZUH_MINOR=$(echo ${VERSION} | cut -c1-3)
+wazuh_minor=$(echo ${version} | cut -c1-3)
 
 # -----------------------------------------------------------------------------
 
 mkdir -p /tmp/output
 cd /tmp/output
 
-curl -sL https://artifacts.opensearch.org/releases/bundle/opensearch-dashboards/"${OPENSEARCH_VERSION}"/opensearch-dashboards-"${OPENSEARCH_VERSION}"-linux-x64.tar.gz | tar xz
+curl -sL https://artifacts.opensearch.org/releases/bundle/opensearch-dashboards/"${opensearch_version}"/opensearch-dashboards-"${opensearch_version}"-linux-x64.tar.gz | tar xz
 
 # Remove unnecessary files and set up configuration
-mv opensearch-dashboards-* "${BASE_DIR}"
-cd "${BASE_DIR}"
+mv opensearch-dashboards-* "${base_dir}"
+cd "${base_dir}"
 find -type l -exec rm -rf {} \;
 rm -rf ./config/*
 cp -r /root/stack/dashboard/base/files/etc ./
@@ -68,10 +72,10 @@ sed -i 's/navigateToApp("home")/navigateToApp("wazuh")/g' ./src/core/target/publ
 # Changed from Opensearch Documentation links to Wazuh Documentation
 # Help menu
 ## Help header - Version
-sed -i 's|"core.ui.chrome.headerGlobalNav.helpMenuVersion",defaultMessage:"v {version}"|"core.ui.chrome.headerGlobalNav.helpMenuVersion",defaultMessage:"v'${VERSION}'"|' ./src/core/target/public/core.entry.js
+sed -i 's|"core.ui.chrome.headerGlobalNav.helpMenuVersion",defaultMessage:"v {version}"|"core.ui.chrome.headerGlobalNav.helpMenuVersion",defaultMessage:"v'${version}'"|' ./src/core/target/public/core.entry.js
 ## Help link - OpenSearch Dashboards documentation
 sed -i 's|OpenSearch Dashboards documentation|Wazuh documentation|' ./src/core/target/public/core.entry.js
-sed -i 's|OPENSEARCH_DASHBOARDS_DOCS="https://opensearch.org/docs/dashboards/"|OPENSEARCH_DASHBOARDS_DOCS="https://documentation.wazuh.com/'${WAZUH_MINOR}'"|' ./src/core/target/public/core.entry.js
+sed -i 's|OPENSEARCH_DASHBOARDS_DOCS="https://opensearch.org/docs/dashboards/"|OPENSEARCH_DASHBOARDS_DOCS="https://documentation.wazuh.com/'${wazuh_minor}'"|' ./src/core/target/public/core.entry.js
 ## Help link - Ask OpenSearch
 sed -i 's|Ask OpenSearch|Ask Wazuh|' ./src/core/target/public/core.entry.js
 sed -i 's|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://github.com/opensearch-project"|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://wazuh.com/community/join-us-on-slack"|' ./src/core/target/public/core.entry.js
@@ -126,5 +130,5 @@ find -type f -perm 755 -exec chmod 750 {} \;
 
 # Base output
 cd /tmp/output
-tar -cJf wazuh-dashboard-base-"${VERSION}"-"${REVISION}"-linux-x64.tar.xz wazuh-dashboard-base
-rm -rf "${BASE_DIR}"
+tar -cJf wazuh-dashboard-base-"${version}"-"${revision}"-linux-x64.tar.xz wazuh-dashboard-base
+rm -rf "${base_dir}"
