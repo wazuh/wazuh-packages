@@ -68,6 +68,7 @@ function passwords_changePassword() {
 }
 
 function passwords_changePasswordApi() {
+    
     #Change API password tool
     if [ -n ${changeall} ]; then
         for i in "${!api_passwords[@]}"; do
@@ -75,12 +76,18 @@ function passwords_changePasswordApi() {
             WAZUH_PASS_API='{"password":"'"${api_passwords[i]}"'"}'
             eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null'
             common_logger -nl $"The password for Wazuh API user ${api_users[i]} is ${api_passwords[i]}"
+            if [ "${api_users[i]}" == "wazuh-wui" ] && [ -n "${dashboard_installed}" ]; then
+                passwords_changeDashboardApiPassword "${api_passwords[i]}"
+            fi
         done
     else
         passwords_getApiUserId ${nuser}
         WAZUH_PASS_API='{"password":"'"${password}"'"}'
         eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null'
-        common_logger -nl $"The password for Wazuh API user ${api_users[i]} is ${api_passwords[i]}"
+        common_logger -nl $"The password for Wazuh API user ${nuser} is ${password}"
+        if [ "${nuser}" == "wazuh-wui" ] && [ -n "${dashboard_installed}" ]; then
+                passwords_changeDashboardApiPassword "${password}"
+        fi
     fi
 
 }
@@ -88,10 +95,8 @@ function passwords_changePasswordApi() {
 function passwords_changeDashboardApiPassword() {
 
     if [ -f "/usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml" ]; then
-        password_wazuh_wui=$(grep -A 1 "username: 'wazuh-wui'" "${p_file}" | tail -n1 | awk -F': ' '{print $2}' | sed -e "s/[\'\"]//g")
-        eval 'sed -i "s|password: wazuh-wui|password: ${password_wazuh_wui}|g" /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml'
-    else
-        common_logger -e "File /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml does not exist"
+        eval 'sed -i "s|password: .*|password: ${1}|g" /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml'
+        common_logger "Updated wazuh-wui user password in wazuh dashboard. Remember to restart the service."
     fi
 
 }
