@@ -71,22 +71,16 @@ function passwords_changePasswordApi() {
     #Change API password tool
     if [ -n ${changeall} ]; then
         for i in "${!api_passwords[@]}"; do
-            common_logger $"Changing API user ${api_users[i]} password"
             passwords_getApiUserId ${api_users[i]}
             WAZUH_PASS_API='{"password":"'"${api_passwords[i]}"'"}'
-            TOKEN_API=$(curl -s -u "${adminUser}":"${adminPassword}" -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
             eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null'
-            common_logger $"API password changed"
-            common_logger -nl $"The new password for user ${api_users[i]} is ${api_passwords[i]}"
+            common_logger -nl $"The password for Wazuh API user ${api_users[i]} is ${api_passwords[i]}"
         done
     else
-        common_logger $"Changing API user ${nuser} password"
         passwords_getApiUserId ${nuser}
         WAZUH_PASS_API='{"password":"'"${password}"'"}'
-        TOKEN_API=$(curl -s -u "${adminUser}":"${adminPassword}" -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
         eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null'
-        common_logger $"API password changed"
-        common_logger -nl $"The new password for user ${nuser} is ${password}"
+        common_logger -nl $"The password for Wazuh API user ${api_users[i]} is ${api_passwords[i]}"
     fi
 
 }
@@ -192,7 +186,6 @@ function passwords_generatePassword() {
                 exit 1;
             fi
         done
-
         for i in "${!api_users[@]}"; do
             pass=$(< /dev/urandom tr -dc "A-Za-z0-9.*+?" | head -c ${1:-31};echo;)
             special_char=$(< /dev/urandom tr -dc ".*+?" | head -c ${1:-1};echo;)
@@ -232,8 +225,7 @@ function passwords_generatePasswordFile() {
 
 function passwords_getApiToken() {
     TOKEN_API=$(curl -s -u "${adminUser}":"${adminPassword}" -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
-
-    if [ ${TOKEN_API} =~ "Invalid credentials"]; then
+    if [[ ${TOKEN_API} =~ "Invalid credentials" ]]; then
         common_logger -e "Invalid admin user credentials"
         if [[ $(type -t installCommon_rollBack) == "function" ]]; then
                 installCommon_rollBack
@@ -255,13 +247,13 @@ function passwords_getApiIds() {
 
 function passwords_getApiUserId() {
     user_id="noid"
-    for i in "${!api_users[@]}"; do
-        if [ "${1}" == "${api_users[i]}"]; then
-            nuser_id="${api_ids[i]}"
+    for u in "${!api_users[@]}"; do
+        if [ "${1}" == "${api_users[u]}" ]; then
+            user_id="${api_ids[u]}"
         fi
     done
 
-    if [ ${nuser_id} == "noid"]; then
+    if [ ${user_id} == "noid" ]; then
         common_logger -e "User ${1} is not registered in Wazuh API"
         if [[ $(type -t installCommon_rollBack) == "function" ]]; then
                 installCommon_rollBack
@@ -466,40 +458,10 @@ function passwords_runSecurityAdmin() {
             for i in "${!users[@]}"; do
                 common_logger -nl $'The password for user '${users[i]}' is '${passwords[i]}''
             done
-            common_logger -w "Passwords changed. Remember to update the password in the Wazuh dashboard and Filebeat nodes if necessary, and restart the services."
+            common_logger -w "Wazuh indexer passwords changed. Remember to update the password in the Wazuh dashboard and Filebeat nodes if necessary, and restart the services."
         else
             common_logger -d "Passwords changed."
         fi
     fi
 
 }
-
-function passwords_changePasswordAPI() {
-
-    #Change API password tool
-
-    if [[ -n "${api}" ]]; then
-        if [ -n wazuh_installed ]; then 
-            
-            if [[ -n "${adminAPI}" ]]; then
-                common_logger $"Changing Wazuh API user ${nuser} password"
-                WAZUH_PASS_API='{"password":"'"$password"'"}'
-                TOKEN_API=$(curl -s -u "${adminUser}":"${adminPassword}" -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
-                eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${id}" -o /dev/null'
-                common_logger $"API password changed"
-                common_logger -nl $"The new password for Wazuh API user ${nuser} is ${password}."
-            else
-                common_logger $"Changing Wazuh API user ${nuser} password"
-                WAZUH_PASS_API='{"password":"'"$password"'"}'
-                TOKEN_API=$(curl -s -u "${nuser}":"${currentPassword}" -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
-                eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${id}" -o /dev/null'
-                common_logger $"API password changed"
-                common_logger -nl $"The new password for Wazuh API user ${nuser} is ${password}."
-            fi
-        else
-            logger -e "Wazuh server not installed cannot change Wazuh API passwords."
-        fi 
-    fi
-
-}
-

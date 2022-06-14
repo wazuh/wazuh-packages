@@ -224,6 +224,7 @@ function main() {
         if [ -n "${changeall}" ]; then
             passwords_readUsers
             if [ -n "${adminUser}" ] && [ -n "${adminPassword}" ]; then
+                passwords_getApiToken
                 passwords_getApiUsers
                 passwords_getApiIds
             else
@@ -249,7 +250,7 @@ function main() {
         fi
 
         if [ -n "${api}" ] || [ -n "${changeall}" ]; then
-            passwords_changePasswordAPI
+            passwords_changePasswordApi
         fi
 
     else
