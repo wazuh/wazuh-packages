@@ -183,79 +183,75 @@ function main() {
         common_checkSystem
         common_checkInstalled
 
-        if [ -z "${api}" ]; then
+        if [ -n "${p_file}" ] && [ ! -f "${p_file}" ]; then
+            getHelp
+        fi
 
-            if [ -n "${p_file}" ] && [ ! -f "${p_file}" ]; then
-                getHelp
+        if [ -n "${nuser}" ] && [ -n "${changeall}" ]; then
+            getHelp
+        fi
+
+        if [ -n "${password}" ] && [ -n "${changeall}" ]; then
+            getHelp
+        fi
+
+        if [ -n "${nuser}" ] && [ -n "${p_file}" ]; then
+            getHelp
+        fi
+
+        if [ -n "${password}" ] && [ -n "${p_file}" ]; then
+            getHelp
+        fi
+
+        if [ -z "${nuser}" ] && [ -n "${password}" ]; then
+            getHelp
+        fi
+
+        if [ -z "${nuser}" ] && [ -z "${password}" ] && [ -z "${changeall}" ] && [ -z  "${p_file}" ]; then
+            getHelp
+        fi
+
+        if [ -n "${nuser}" ]; then
+            passwords_readUsers
+            passwords_checkUser
+        fi
+
+        if [ -n "${nuser}" ] && [ -z "${password}" ]; then
+            autopass=1
+            passwords_generatePassword
+        fi
+
+        if [ -n "${changeall}" ]; then
+            passwords_readUsers
+            if [ -n "${adminUser}" ] && [ -n "${adminPassword}" ]; then
+                passwords_getApiUsers
+                passwords_getApiIds
+            else
+                common_logger "Wazuh API admin credentials not provided, Wazuh API passwords not changed"
             fi
+            passwords_generatePassword
+        fi
 
-            if [ -n "${nuser}" ] && [ -n "${changeall}" ]; then
-                getHelp
-            fi
+        if [ -n "${p_file}" ] && [ -z "${changeall}" ]; then
+            passwords_readUsers
+        fi
 
-            if [ -n "${password}" ] && [ -n "${changeall}" ]; then
-                getHelp
-            fi
+        if [ -n "${p_file}" ]; then
+            passwords_readFileUsers
+        fi
 
-            if [ -n "${nuser}" ] && [ -n "${p_file}" ]; then
-                getHelp
-            fi
-
-            if [ -n "${password}" ] && [ -n "${p_file}" ]; then
-                getHelp
-            fi
-
-            if [ -z "${nuser}" ] && [ -n "${password}" ]; then
-                getHelp
-            fi
-
-            if [ -z "${nuser}" ] && [ -z "${password}" ] && [ -z "${changeall}" ] && [ -z  "${p_file}" ]; then
-                getHelp
-            fi
-
-            if [ -n "${nuser}" ]; then
-                passwords_readUsers
-                passwords_checkUser
-            fi
-
-            if [ -n "${nuser}" ] && [ -z "${password}" ]; then
-                autopass=1
-                passwords_generatePassword
-            fi
-
-            if [ -n "${changeall}" ]; then
-                passwords_readUsers
-                passwords_generatePassword
-                if [ -n adminUser ] && [ -n adminPassword ]; then
-                    passwords_getApiUsers
-                    passwords_getApiIds
-                    passwords_changePasswordApi
-                else
-                    common_logger "Wazuh API admin credentials not provided, Wazuh API passwords not changed"
-                fi
-            fi
-
-            if [ -n "${p_file}" ] && [ -z "${changeall}" ]; then
-                passwords_readUsers
-            fi
-
-            if [ -n "${p_file}" ]; then
-                passwords_readFileUsers
-            fi
-
+        if [ -z "${api}" ] || [ -n "${changeall}" ]; then
             passwords_getNetworkHost
             passwords_createBackUp
             passwords_generateHash
             passwords_changePassword
             passwords_runSecurityAdmin
+        fi
 
-        else
-            if  [ -z "${nuser}" ] || [ -z "${password}" ] || [ -z "${adminUser}" ] || [ -z "${adminPassword}" ] || ; then
-                getHelp
-            fi
-            
+        if [ -n "${api}" ] || [ -n "${changeall}" ]; then
             passwords_changePasswordAPI
         fi
+
     else
         getHelp
     fi
