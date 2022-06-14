@@ -91,7 +91,7 @@ override_dh_install:
 	chown $(USER):$(GROUP) $(TARGET_DIR)/etc/systemd/system/$(NAME)
 	chown $(USER):$(GROUP) $(TARGET_DIR)/etc/default/$(NAME)
 
-	runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-$(BASE_VERSION)-${BASE_REVISION}.zip"
+	runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-4.3.4-1.zip"
 
 	find $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/wazuh/ -exec chown $(USER):$(GROUP) {} \;
 
