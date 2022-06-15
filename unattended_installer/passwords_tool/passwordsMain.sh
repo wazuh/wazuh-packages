@@ -221,7 +221,7 @@ function main() {
             passwords_generatePassword
         fi
 
-        if [ -n "${changeall}" ]; then
+        if [ -n "${changeall}" ] || [ -n "${p_file}" ]; then
             passwords_readUsers
             if [ -n "${adminUser}" ] && [ -n "${adminPassword}" ]; then
                 passwords_getApiToken
@@ -230,12 +230,11 @@ function main() {
             else
                 common_logger "Wazuh API admin credentials not provided, Wazuh API passwords not changed"
             fi
-            passwords_generatePassword
+            if [ -n "${changeall}" ]; then
+                passwords_generatePassword
+            fi
         fi
 
-        if [ -n "${p_file}" ] && [ -z "${changeall}" ]; then
-            passwords_readUsers
-        fi
 
         if [ -n "${p_file}" ]; then
             passwords_readFileUsers
@@ -250,7 +249,9 @@ function main() {
         fi
 
         if [ -n "${api}" ] || [ -n "${changeall}" ]; then
-            passwords_changePasswordApi
+            if [ -n "${adminUser}" ] && [ -n "${adminPassword}" ]; then
+                passwords_changePasswordApi
+            fi
         fi
 
     else

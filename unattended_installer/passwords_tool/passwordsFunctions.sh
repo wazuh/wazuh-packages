@@ -72,19 +72,27 @@ function passwords_changePasswordApi() {
     #Change API password tool
     if [ -n ${changeall} ]; then
         for i in "${!api_passwords[@]}"; do
-            passwords_getApiUserId ${api_users[i]}
-            WAZUH_PASS_API='{"password":"'"${api_passwords[i]}"'"}'
-            eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null'
-            common_logger -nl $"The password for Wazuh API user ${api_users[i]} is ${api_passwords[i]}"
+            if [ -n "${wazuh_installed}" ]; then
+                passwords_getApiUserId ${api_users[i]}
+                WAZUH_PASS_API='{"password":"'"${api_passwords[i]}"'"}'
+                eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null'
+                if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_indexer_cluster}" ]; then
+                    common_logger -nl $"The password for Wazuh API user ${api_users[i]} is ${api_passwords[i]}"
+                fi
+            fi
             if [ "${api_users[i]}" == "wazuh-wui" ] && [ -n "${dashboard_installed}" ]; then
                 passwords_changeDashboardApiPassword "${api_passwords[i]}"
             fi
         done
     else
-        passwords_getApiUserId ${nuser}
-        WAZUH_PASS_API='{"password":"'"${password}"'"}'
-        eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null'
-        common_logger -nl $"The password for Wazuh API user ${nuser} is ${password}"
+        if [ -n "${wazuh_installed}" ]; then
+            passwords_getApiUserId ${nuser}
+            WAZUH_PASS_API='{"password":"'"${password}"'"}'
+            eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null'
+            if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_indexer_cluster}" ]; then
+                common_logger -nl $"The password for Wazuh API user ${nuser} is ${password}"
+            fi
+        fi
         if [ "${nuser}" == "wazuh-wui" ] && [ -n "${dashboard_installed}" ]; then
                 passwords_changeDashboardApiPassword "${password}"
         fi
@@ -205,7 +213,8 @@ function passwords_generatePassword() {
 
 function passwords_generatePasswordFile() {
 
-    users=( admin kibanaserver kibanaro logstash readall snapshotrestore wazuh_admin wazuh_user wazuh wazuh-wui)
+    users=( admin kibanaserver kibanaro logstash readall snapshotrestore wazuh_admin wazuh_user )
+    api_users=( wazuh wazuh-wui )
     user_description=(
         "Admin user for the web user interface and Wazuh indexer. Use this user to log in to Wazuh dashboard"
         "Wazuh dashboard user for establishing the connection with Wazuh indexer"
@@ -215,14 +224,24 @@ function passwords_generatePasswordFile() {
         "User with permissions to perform snapshot and restore operations"
         "Admin user used to communicate with Wazuh API"
         "Regular user to query Wazuh API"
+    )
+    api_user_description=(
         "Password for wazuh API user"
         "Password for wazuh-wui API user"
     )
     passwords_generatePassword
+
     for i in "${!users[@]}"; do
         echo "# ${user_description[${i}]}" >> "${gen_file}"
-        echo "  username: '${users[${i}]}'" >> "${gen_file}"
-        echo "  password: '${passwords[${i}]}'" >> "${gen_file}"
+        echo "  indexer_username: '${users[${i}]}'" >> "${gen_file}"
+        echo "  indexer_password: '${passwords[${i}]}'" >> "${gen_file}"
+        echo ""	>> "${gen_file}"
+    done
+
+    for i in "${!api_users[@]}"; do
+        echo "# ${api_user_description[${i}]}" >> "${gen_file}"
+        echo "  api_username: '${api_users[${i}]}'" >> "${gen_file}"
+        echo "  api_password: '${api_passwords[${i}]}'" >> "${gen_file}"
         echo ""	>> "${gen_file}"
     done
 
@@ -307,29 +326,35 @@ function passwords_readAdmincerts() {
 
 function passwords_readFileUsers() {
 
-    filecorrect=$(grep -Ev '^#|^\s*$' "${p_file}" | grep -Pzc "\A(\s*username:[ \t]+[\'\"]?\w+[\'\"]?\s*password:[ \t]+[\'\"]?[A-Za-z0-9.*+?]+[\'\"]?\s*)+\Z")
+    filecorrect=$(grep -Ev '^#|^\s*$' "${p_file}" | grep -Pzc "\A(\s*(indexer_username|api_username|indexer_password|api_password):[ \t]+[\'\"]?[\w.*+?-]+[\'\"]?)+\Z")
     if [[ "${filecorrect}" -ne 1 ]]; then
         common_logger -e "The password file doesn't have a correct format or password uses invalid characters. Allowed characters: A-Za-z0-9.*+?
 
 It must have this format:
 
 # Description
-  username: name
-  password: password
+  indexer_username: name
+  indexer_password: password
 
-# Wazuh indexer admin user
-  username: kibanaserver
-  password: NiwXQw82pIf0dToiwczduLBnUPEvg7T0
+# Description
+  api_username: kibanaserver
+  api_password: NiwXQw82pIf0dToiwczduLBnUPEvg7T0
 
 "
 	    exit 1
     fi
 
-    sfileusers=$(grep username: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }' | sed -e "s/[\'\"]//g")
-    sfilepasswords=$(grep password: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }' | sed -e "s/[\'\"]//g")
+    sfileusers=$(grep indexer_username: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }' | sed -e "s/[\'\"]//g")
+    sfilepasswords=$(grep indexer_password: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }' | sed -e "s/[\'\"]//g")
+
+    sfileapiusers=$(grep api_username: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }' | sed -e "s/[\'\"]//g")
+    sfileapipasswords=$(grep api_password: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }' | sed -e "s/[\'\"]//g")
 
     fileusers=(${sfileusers})
     filepasswords=(${sfilepasswords})
+
+    fileapiusers=(${sfileapiusers})
+    fileapipasswords=(${sfileapipasswords})
 
     if [ -n "${changeall}" ]; then
         for j in "${!fileusers[@]}"; do
@@ -341,12 +366,27 @@ It must have this format:
                 fi
             done
             if [ "${supported}" = false ] && [ -n "${indexer_installed}" ]; then
-                common_logger -e "The given user ${fileusers[j]} does not exist"
+                common_logger -e "The user ${fileusers[j]} does not exist"
+            fi
+        done
+        for j in "${!fileapiusers[@]}"; do
+            supported=false
+            for i in "${!api_users[@]}"; do
+                if [[ "${api_users[i]}" == "${fileapiusers[j]}" ]]; then
+                    api_passwords[i]=${fileapipasswords[j]}
+                    supported=true
+                fi
+            done
+            if [ "${supported}" = false ] && [ -n "${indexer_installed}" ]; then
+                common_logger -e "The Wazuh API user ${fileapiusers[j]} does not exist"
             fi
         done
     else
         finalusers=()
         finalpasswords=()
+
+        finalapiusers=()
+        finalapipasswords=()
 
         for j in "${!fileusers[@]}"; do
             supported=false
@@ -358,7 +398,21 @@ It must have this format:
                 fi
             done
             if [ ${supported} = false ] && [ -n "${indexer_installed}" ]; then
-                common_logger -e "The given user ${fileusers[j]} does not exist"
+                common_logger -e "The user ${fileusers[j]} does not exist"
+            fi
+        done
+
+        for j in "${!fileapiusers[@]}"; do
+            supported=false
+            for i in "${!api_users[@]}"; do
+                if [[ "${api_users[i]}" == "${fileapiusers[j]}" ]]; then
+                    finalapiusers+=("${fileapiusers[j]}")
+                    finalapipasswords+=("${fileapipasswords[j]}")
+                    supported=true
+                fi
+            done
+            if [ ${supported} = false ] && [ -n "${indexer_installed}" ]; then
+                common_logger -e "The Wazuh API user ${fileapiusers[j]} does not exist"
             fi
         done
 
@@ -366,6 +420,9 @@ It must have this format:
         passwords=()
         users=(${finalusers[@]})
         passwords=(${finalpasswords[@]})
+        api_users=(${finalapiusers[@]})
+        api_passwords=(${finalapipasswords[@]})
+        
         changeall=1
     fi
 
