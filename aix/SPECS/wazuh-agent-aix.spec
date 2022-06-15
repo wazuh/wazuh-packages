@@ -1,6 +1,6 @@
 # Spec file for AIX systems
 Name:        wazuh-agent
-Version:     4.3.2
+Version:     4.3.4
 Release:     1
 License:     GPL
 URL:         https://www.wazuh.com/
@@ -290,13 +290,27 @@ rm -fr %{buildroot}
 %attr(750, root, wazuh) %{_localstatedir}/wodles/*
 
 %changelog
+* Tue Jun 07 2022 support <info@wazuh.com> - 4.3.4
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Tue May 31 2022 support <info@wazuh.com> - 4.3.3
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Mon May 30 2022 support <info@wazuh.com> - 4.3.2
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Thu Jun 09 2022 support <info@wazuh.com> - 4.3.1
+* Sun May 29 2022 support <info@wazuh.com> - 4.2.7
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Mon Nov 01 2021 support <info@wazuh.com> - 4.3.0
+* Wed May 18 2022 support <info@wazuh.com> - 4.3.1
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Wed Oct 06 2021 support <info@wazuh.com> - 4.2.2
+* Thu May 05 2022 support <info@wazuh.com> - 4.3.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Fri Mar 25 2022 support <info@wazuh.com> - 4.2.6
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Nov 15 2021 support <info@wazuh.com> - 4.2.5
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Thu Oct 21 2021 support <info@wazuh.com> - 4.2.4
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Wed Oct 06 2021 support <info@wazuh.com> - 4.2.3
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Tue Sep 28 2021 support <info@wazuh.com> - 4.2.2
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Sat Sep 25 2021 support <info@wazuh.com> - 4.2.1
 - More info: https://documentation.wazuh.com/current/release-notes/
