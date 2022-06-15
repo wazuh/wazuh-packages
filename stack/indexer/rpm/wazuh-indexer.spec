@@ -17,7 +17,7 @@ BuildRoot:   %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Vendor:      Wazuh, Inc <info@wazuh.com>
 Packager:    Wazuh, Inc <info@wazuh.com>
 AutoReqProv: no
-Requires: coreutils initscripts chkconfig
+Requires: coreutils
 ExclusiveOS: linux
 BuildRequires: tar shadow-utils
 
