@@ -168,6 +168,12 @@ function installCommon_changePasswords() {
             changeall=1
             passwords_readUsers
         fi
+        if [ -n "${wazuh_installed}" ]; then
+            passwords_getApiToken
+            passwords_getApiUsers
+            passwords_getApiIds
+        fi
+
         installCommon_readPasswordFileUsers
     else
         common_logger -e "Cannot find passwords file. Exiting"
@@ -184,7 +190,10 @@ function installCommon_changePasswords() {
     if [ -n "${start_indexer_cluster}" ] || [ -n "${AIO}" ]; then
         passwords_runSecurityAdmin
     fi
-
+    
+    if [ -n "${wazuh_installed}" ]; then
+        passwords_changePasswordApi
+    fi
 }
 
 function installCommon_extractConfig() {
@@ -273,17 +282,19 @@ function installCommon_installPrerequisites() {
 
 function installCommon_readPasswordFileUsers() {
 
-    filecorrect=$(grep -Ev '^#|^\s*$' "${p_file}" | grep -Pzc "\A(\s*username:[ \t]+[\'\"]?\w+[\'\"]?\s*password:[ \t]+[\'\"]?[A-Za-z0-9.*+?]+[\'\"]?\s*)+\Z")
+    filecorrect=$(grep -Ev '^#|^\s*$' "${p_file}" | grep -Pzc "\A(\s*(indexer_username|api_username|indexer_password|api_password):[ \t]+[\'\"]?[\w.*+?-]+[\'\"]?)+\Z")
     if [[ "${filecorrect}" -ne 1 ]]; then
         common_logger -e "The password file doesn't have a correct format or password uses invalid characters. Allowed characters: A-Za-z0-9.*+?
 
-# Description
-  username: name
-  password: password
+It must have this format:
 
-# Wazuh indexer admin user
-  username: kibanaserver
-  password: NiwXQw82pIf0dToiwczduLBnUPEvg7T0
+# Description
+  indexer_username: name
+  indexer_password: password
+
+# Description
+  api_username: kibanaserver
+  api_password: NiwXQw82pIf0dToiwczduLBnUPEvg7T0
 
 "
 	    installCommon_rollBack
@@ -293,8 +304,14 @@ function installCommon_readPasswordFileUsers() {
     sfileusers=$(grep username: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }' | sed -e "s/[\'\"]//g")
     sfilepasswords=$(grep password: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }' | sed -e "s/[\'\"]//g")
 
+    sfileapiusers=$(grep api_username: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }' | sed -e "s/[\'\"]//g")
+    sfileapipasswords=$(grep api_password: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }' | sed -e "s/[\'\"]//g")
+
     fileusers=(${sfileusers})
     filepasswords=(${sfilepasswords})
+
+    fileapiusers=(${sfileapiusers})
+    fileapipasswords=(${sfileapipasswords})
 
     if [ -n "${changeall}" ]; then
         for j in "${!fileusers[@]}"; do
@@ -309,9 +326,25 @@ function installCommon_readPasswordFileUsers() {
                 common_logger -e -d "The given user ${fileusers[j]} does not exist"
             fi
         done
+
+        for j in "${!fileapiusers[@]}"; do
+            supported=false
+            for i in "${!api_users[@]}"; do
+                if [[ "${api_users[i]}" == "${fileapiusers[j]}" ]]; then
+                    api_passwords[i]=${fileapipasswords[j]}
+                    supported=true
+                fi
+            done
+            if [ "${supported}" = false ] && [ -n "${indexer_installed}" ]; then
+                common_logger -e "The Wazuh API user ${fileapiusers[j]} does not exist"
+            fi
+        done
     else
         finalusers=()
         finalpasswords=()
+
+        finalapiusers=()
+        finalapipasswords=()
 
         if [ -n "${dashboard_installed}" ] &&  [ -n "${dashboard}" ]; then
             users=( kibanaserver admin )
@@ -335,9 +368,25 @@ function installCommon_readPasswordFileUsers() {
             fi
         done
 
+        for j in "${!fileapiusers[@]}"; do
+            supported=false
+            for i in "${!api_users[@]}"; do
+                if [[ "${api_users[i]}" == "${fileapiusers[j]}" ]]; then
+                    finalapiusers+=("${fileapiusers[j]}")
+                    finalapipasswords+=("${fileapipasswords[j]}")
+                    supported=true
+                fi
+            done
+            if [ ${supported} = false ] && [ -n "${indexer_installed}" ]; then
+                common_logger -e "The Wazuh API user ${fileapiusers[j]} does not exist"
+            fi
+        done
+
         users=()
         users=(${finalusers[@]})
         passwords=(${finalpasswords[@]})
+        api_users=(${finalapiusers[@]})
+        api_passwords=(${finalapipasswords[@]})
         changeall=1
     fi
 
