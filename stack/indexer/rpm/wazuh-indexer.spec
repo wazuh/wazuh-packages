@@ -127,11 +127,8 @@ if [ $1 = 2 ]; then
     service %{name} stop > /dev/null 2>&1
     touch %{INSTALL_DIR}/%{name}.restart
   elif [ -x /etc/init.d/%{name} ]; then
-      if command -v invoke-rc.d >/dev/null; then
+      if command -v invoke-rc.d >/dev/null && invoke-rc.d --quiet wazuh-indexer status > /dev/null 2>&1; then
           invoke-rc.d %{name} stop > /dev/null 2>&1
-          touch %{INSTALL_DIR}/%{name}.restart
-      else
-          /etc/init.d/%{name} stop > /dev/null 2>&1
           touch %{INSTALL_DIR}/%{name}.restart
       fi
 
