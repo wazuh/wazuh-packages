@@ -96,6 +96,39 @@ function installCommon_aptInstall() {
 
 }
 
+function installCommon_changePasswordApi() {
+    
+    #Change API password tool
+    if [ -n ${changeall} ]; then
+        for i in "${!api_passwords[@]}"; do
+            if [ -n "${wazuh}" ]; then
+                passwords_getApiUserId ${api_users[i]}
+                WAZUH_PASS_API='{"password":"'"${api_passwords[i]}"'"}'
+                eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null'
+                if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_indexer_cluster}" ]; then
+                    common_logger -nl $"The password for Wazuh API user ${api_users[i]} is ${api_passwords[i]}"
+                fi
+            fi
+            if [ "${api_users[i]}" == "wazuh-wui" ] && [ -n "${dashboard}" ]; then
+                passwords_changeDashboardApiPassword "${api_passwords[i]}"
+            fi
+        done
+    else
+        if [ -n "${wazuh}" ]; then
+            passwords_getApiUserId ${nuser}
+            WAZUH_PASS_API='{"password":"'"${password}"'"}'
+            eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null'
+            if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_indexer_cluster}" ]; then
+                common_logger -nl $"The password for Wazuh API user ${nuser} is ${password}"
+            fi
+        fi
+        if [ "${nuser}" == "wazuh-wui" ] && [ -n "${dashboard}" ]; then
+                passwords_changeDashboardApiPassword "${password}"
+        fi
+    fi
+
+}
+
 function installCommon_createCertificates() {
 
     if [ -n "${AIO}" ]; then
@@ -168,12 +201,15 @@ function installCommon_changePasswords() {
             changeall=1
             passwords_readUsers
         fi
-        if [ -n "${wazuh_installed}" ]; then
+        set -x
+        if [ -n "${wazuh}" ] && ([ "${server_node_types[pos]}" == "master" ] || [ "${#server_node_names[@]}" -eq 0 ]); then
             passwords_getApiToken
             passwords_getApiUsers
             passwords_getApiIds
+        else
+            api_users=( wazuh wazuh-wui )
         fi
-
+        set +x
         installCommon_readPasswordFileUsers
     else
         common_logger -e "Cannot find passwords file. Exiting"
@@ -190,10 +226,13 @@ function installCommon_changePasswords() {
     if [ -n "${start_indexer_cluster}" ] || [ -n "${AIO}" ]; then
         passwords_runSecurityAdmin
     fi
-    
-    if [ -n "${wazuh_installed}" ]; then
-        passwords_changePasswordApi
+
+    if [ -n "${wazuh}" ] || [ -n "${dashboard}" ] ; then
+        if [ "${server_node_types[pos]}" == "master" ] || [ "${#server_node_names[@]}" -eq 0 ] || [ -n "${dashboard_installed}" ]; then
+            installCommon_changePasswordApi
+        fi
     fi
+
 }
 
 function installCommon_extractConfig() {

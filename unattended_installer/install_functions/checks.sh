@@ -135,20 +135,11 @@ function checks_arguments() {
     # -------------- Wazuh ------------------------------------------
 
     if [ -n "${wazuh}" ]; then
-        if [ -n "${wazuh_installed}" ] || [ -n "${wazuh_remaining_files}" ]; then
+        if [ -n "${wazuh_installed}" ] || [ -n "${wazuh_remaining_files}" ] || [ -n "${filebeat_installed}" ] || [ -n "${filebeat_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
                 installCommon_rollBack
             else
                 common_logger -e "Wazuh is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
-                exit 1
-            fi
-        fi
-
-        if [ -n "${filebeat_installed}" ] || [ -n "${filebeat_remaining_files}" ]; then
-            if [ -n "${overwrite}" ]; then
-                installCommon_rollBack
-            else
-                common_logger -e "Filebeat is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
                 exit 1
             fi
         fi
