@@ -53,9 +53,11 @@ common() {
     # Restoring file permissions
     ${SCRIPTS_DIR}/restore-permissions.sh > /dev/null 2>&1 || :
 
-    # Fix /etc/ossec-init.conf
-    chmod 640 /etc/ossec-init.conf
-    chown root:${GROUP} /etc/ossec-init.conf
+    # Remove the deprecated /etc/ossec-init.conf file
+    if [ -f /etc/ossec-init.conf ] ; then
+        rm -f /etc/ossec-init.conf
+    fi
+
     ${SCRIPTS_DIR}/fix_owner.sh 2>/dev/null
 }
 
