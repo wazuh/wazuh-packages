@@ -113,7 +113,7 @@ function checks_arguments() {
             if [ -n "${overwrite}" ]; then
                 installCommon_rollBack
             else
-                common_logger -e "Wazuh indexer is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
+                common_logger -e "Wazuh indexer is already installed in this node or some of its files have not been removed. Use option -o|--overwrite to overwrite all components."
                 exit 1
             fi
         fi
@@ -126,7 +126,7 @@ function checks_arguments() {
             if [ -n "${overwrite}" ]; then
                 installCommon_rollBack
             else
-                common_logger -e "Wazuh dashboard is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
+                common_logger -e "Wazuh dashboard is already installed in this node or some of its files have not been removed. Use option -o|--overwrite to overwrite all components."
                 exit 1
             fi
         fi
@@ -139,7 +139,7 @@ function checks_arguments() {
             if [ -n "${overwrite}" ]; then
                 installCommon_rollBack
             else
-                common_logger -e "Wazuh is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
+                common_logger -e "Wazuh server components (wazuh-manager and filebeat) are already installed in this node or some of their files have not been removed. Use option -o|--overwrite to overwrite all components."
                 exit 1
             fi
         fi
