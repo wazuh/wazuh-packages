@@ -31,7 +31,7 @@ if [ "${reference}" ];then
 else
     version=$(cat /root/VERSION)
 fi
-if [ "${future}" == "yes" ];then
+if [ "${future}" = "yes" ];then
     version="99.99.0"
 fi
 wazuh_minor=$(echo ${version} | cut -c1-3)

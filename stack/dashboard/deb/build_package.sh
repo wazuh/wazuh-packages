@@ -54,7 +54,7 @@ build_deb() {
             ${container_name} ${architecture} ${revision} \
             ${future} ${base} ${reference} || return 1
     else
-        if [ "${base}" == "local" ];then
+        if [ "${base}" = "local" ];then
             volumes="${volumes} -v ${base_path}:/root/output:Z"
         fi
         docker run -t --rm ${volumes} \

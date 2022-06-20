@@ -31,7 +31,7 @@ else
     version=$(cat /root/VERSION)
 fi
 
-if [ "${future}" == "yes" ];then
+if [ "${future}" = "yes" ];then
     version="99.99.0"
 fi
 
