@@ -293,7 +293,7 @@ function passwords_getApiUserId() {
 
 
 function passwords_getNetworkHost() {
-    
+
     IP=$(grep -hr "network.host:" /etc/wazuh-indexer/opensearch.yml)
     NH="network.host: "
     IP="${IP//$NH}"
@@ -374,18 +374,21 @@ It must have this format:
                 common_logger -e "The user ${fileusers[j]} does not exist"
             fi
         done
-        for j in "${!fileapiusers[@]}"; do
-            supported=false
-            for i in "${!api_users[@]}"; do
-                if [[ "${api_users[i]}" == "${fileapiusers[j]}" ]]; then
-                    api_passwords[i]=${fileapipasswords[j]}
-                    supported=true
+
+        if [ -n "${adminUser}" ] && [ -n "${adminPassword}" ]; then
+            for j in "${!fileapiusers[@]}"; do
+                supported=false
+                for i in "${!api_users[@]}"; do
+                    if [[ "${api_users[i]}" == "${fileapiusers[j]}" ]]; then
+                        api_passwords[i]=${fileapipasswords[j]}
+                        supported=true
+                    fi
+                done
+                if [ "${supported}" = false ] && [ -n "${indexer_installed}" ]; then
+                    common_logger -e "The Wazuh API user ${fileapiusers[j]} does not exist"
                 fi
             done
-            if [ "${supported}" = false ] && [ -n "${indexer_installed}" ]; then
-                common_logger -e "The Wazuh API user ${fileapiusers[j]} does not exist"
-            fi
-        done
+        fi
     else
         finalusers=()
         finalpasswords=()
@@ -407,19 +410,21 @@ It must have this format:
             fi
         done
 
-        for j in "${!fileapiusers[@]}"; do
-            supported=false
-            for i in "${!api_users[@]}"; do
-                if [[ "${api_users[i]}" == "${fileapiusers[j]}" ]]; then
-                    finalapiusers+=("${fileapiusers[j]}")
-                    finalapipasswords+=("${fileapipasswords[j]}")
-                    supported=true
+        if [ -n "${adminUser}" ] && [ -n "${adminPassword}" ]; then
+            for j in "${!fileapiusers[@]}"; do
+                supported=false
+                for i in "${!api_users[@]}"; do
+                    if [[ "${api_users[i]}" == "${fileapiusers[j]}" ]]; then
+                        finalapiusers+=("${fileapiusers[j]}")
+                        finalapipasswords+=("${fileapipasswords[j]}")
+                        supported=true
+                    fi
+                done
+                if [ ${supported} = false ] && [ -n "${indexer_installed}" ]; then
+                    common_logger -e "The Wazuh API user ${fileapiusers[j]} does not exist"
                 fi
             done
-            if [ ${supported} = false ] && [ -n "${indexer_installed}" ]; then
-                common_logger -e "The Wazuh API user ${fileapiusers[j]} does not exist"
-            fi
-        done
+        fi
 
         users=()
         passwords=()
