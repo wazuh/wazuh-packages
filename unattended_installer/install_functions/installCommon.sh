@@ -201,7 +201,6 @@ function installCommon_changePasswords() {
             changeall=1
             passwords_readUsers
         fi
-        set -x
         if ([ -n "${wazuh}" ] || [ -n "${AIO}" ]) && ([ "${server_node_types[pos]}" == "master" ] || [ "${#server_node_names[@]}" -eq 1 ]); then
             passwords_getApiToken
             passwords_getApiUsers
@@ -209,7 +208,6 @@ function installCommon_changePasswords() {
         else
             api_users=( wazuh wazuh-wui )
         fi
-        set +x
         installCommon_readPasswordFileUsers
     else
         common_logger -e "Cannot find passwords file. Exiting"

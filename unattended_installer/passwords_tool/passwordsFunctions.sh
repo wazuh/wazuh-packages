@@ -248,6 +248,7 @@ function passwords_generatePasswordFile() {
 }
 
 function passwords_getApiToken() {
+
     TOKEN_API=$(curl -s -u "${adminUser}":"${adminPassword}" -k -X GET "https://localhost:55000/security/user/authenticate?raw=true")
     if [[ ${TOKEN_API} =~ "Invalid credentials" ]]; then
         common_logger -e "Invalid admin user credentials"
@@ -260,16 +261,19 @@ function passwords_getApiToken() {
 }
 
 function passwords_getApiUsers() {
+
     api_users=( $(curl -s -k -X GET -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json"  "https://localhost:55000/security/users?pretty=true" | grep username | awk -F': ' '{print $2}' | sed -e "s/[\'\",]//g") )
 
 }
 
 function passwords_getApiIds() {
+
     api_ids=( $(curl -s -k -X GET -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json"  "https://localhost:55000/security/users?pretty=true" | grep id | awk -F': ' '{print $2}' | sed -e "s/[\'\",]//g") )
 
 }
 
 function passwords_getApiUserId() {
+
     user_id="noid"
     for u in "${!api_users[@]}"; do
         if [ "${1}" == "${api_users[u]}" ]; then
@@ -289,6 +293,7 @@ function passwords_getApiUserId() {
 
 
 function passwords_getNetworkHost() {
+    
     IP=$(grep -hr "network.host:" /etc/wazuh-indexer/opensearch.yml)
     NH="network.host: "
     IP="${IP//$NH}"
