@@ -97,11 +97,11 @@ function installCommon_aptInstall() {
 }
 
 function installCommon_changePasswordApi() {
-    
+
     #Change API password tool
     if [ -n ${changeall} ]; then
         for i in "${!api_passwords[@]}"; do
-            if [ -n "${wazuh}" ]; then
+            if [ -n "${wazuh}" ] || [ -n "${AIO}" ]; then
                 passwords_getApiUserId ${api_users[i]}
                 WAZUH_PASS_API='{"password":"'"${api_passwords[i]}"'"}'
                 eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null'
@@ -114,7 +114,7 @@ function installCommon_changePasswordApi() {
             fi
         done
     else
-        if [ -n "${wazuh}" ]; then
+        if [ -n "${wazuh}" ] || [ -n "${AIO}" ]; then
             passwords_getApiUserId ${nuser}
             WAZUH_PASS_API='{"password":"'"${password}"'"}'
             eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null'
@@ -202,7 +202,7 @@ function installCommon_changePasswords() {
             passwords_readUsers
         fi
         set -x
-        if [ -n "${wazuh}" ] && ([ "${server_node_types[pos]}" == "master" ] || [ "${#server_node_names[@]}" -eq 0 ]); then
+        if ([ -n "${wazuh}" ] || [ -n "${AIO}" ]) && ([ "${server_node_types[pos]}" == "master" ] || [ "${#server_node_names[@]}" -eq 1 ]); then
             passwords_getApiToken
             passwords_getApiUsers
             passwords_getApiIds
@@ -227,7 +227,7 @@ function installCommon_changePasswords() {
         passwords_runSecurityAdmin
     fi
 
-    if [ -n "${wazuh}" ] || [ -n "${dashboard}" ] ; then
+    if [ -n "${wazuh}" ] || [ -n "${dashboard}" ] || [ -n "${AIO}" ]; then
         if [ "${server_node_types[pos]}" == "master" ] || [ "${#server_node_names[@]}" -eq 0 ] || [ -n "${dashboard_installed}" ]; then
             installCommon_changePasswordApi
         fi
