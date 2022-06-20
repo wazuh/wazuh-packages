@@ -126,7 +126,4 @@ package() {
 
 	mkdir -p ${pkgdir}/"PARAM_INSTALLATION_SCRIPTS_DIR"/etc/templates/config/ubuntu
 	cp -r etc/templates/config/ubuntu ${pkgdir}/"PARAM_INSTALLATION_SCRIPTS_DIR"/etc/templates/config/
-
-	# Generate ossec-init.conf
-	./gen_ossec.sh conf agent $(lsb_release -si) $(lsb_release -sr) "PARAM_INSTALLATION_DIR" > ${pkgdir}/"PARAM_INSTALLATION_SCRIPTS_DIR"/ossec-init.conf
 }
