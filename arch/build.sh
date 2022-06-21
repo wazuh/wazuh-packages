@@ -51,7 +51,7 @@ if [[ "${use_local_specs}" == "no" ]]; then
     specs_path=${tmp_specs_path}
     curl -sL https://github.com/wazuh/wazuh-packages/tarball/${wazuh_packages_branch} | tar zx
     specs_path=`pwd`/$(find . -type d -name "SPECS" -path "*arch*")
-    tmp_specs_path=${sepcs_path}
+    tmp_specs_path=${specs_path}
 else
     specs_path="/specs/SPECS"
 fi
