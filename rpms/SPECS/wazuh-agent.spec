@@ -228,12 +228,19 @@ if [ $1 = 1 ]; then
     elif `grep -q -i "\"opensuse" /etc/os-release` ; then
       sles="opensuse"
     fi
+    if `grep -q "Red Hat Enterprise Linux 9" /etc/os-release`; then
+      rhel="9"
+    fi
   fi
 
   if [ ! -z "$sles" ]; then
     if [ -d /etc/init.d ]; then
       install -m 755 %{_localstatedir}/packages_files/agent_installation_scripts/src/init/ossec-hids-suse.init /etc/init.d/wazuh-agent
     fi  
+  fi
+
+  if [ -n "${rhel+x}" ]; then
+    rm -rf %{_initrddir}/wazuh-agent
   fi
 
   touch %{_localstatedir}/logs/active-responses.log
