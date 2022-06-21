@@ -41,11 +41,11 @@ pacman_dir="${build_dir}/${build_target}/build"
 
 tmp_dir=${build_dir}/tmp
 tmp_sources_dir=${tmp_dir}/source
-tmp_specs_path=${tmp_dir}/specs
 
 mkdir -p "${pacman_dir}"
 
 if [[ "${use_local_specs}" == "no" ]]; then
+    tmp_specs_path=${tmp_dir}/specs
     mkdir -p ${tmp_specs_path}
     cd ${tmp_specs_path}
     specs_path=${tmp_specs_path}
@@ -67,9 +67,7 @@ if [[ "${future}" == "yes" ]]; then
     # PREPARE FUTURE SPECS AND SOURCES
     mkdir -p ${tmp_dir}
     cp -r ${sources_dir} "${tmp_sources_dir}"
-    cp -r "${specs_path}" "${tmp_specs_path}"
     sources_dir="${tmp_sources_dir}"
-    specs_path="${tmp_specs_path}"
     find "${sources_dir}" "${specs_path}" \( -name "*VERSION*" -o -name "*changelog*" \) -exec sed -i "s/${base_version}/${wazuh_version}/g" {} \;
     sed -i "s/\$(VERSION)/${MAJOR}.${MINOR}/g" "${sources_dir}/src/Makefile"
 fi
