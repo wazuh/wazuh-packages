@@ -1,7 +1,6 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-
 ## [v4.4.0]
 
 - Add new GCloud integration file to Solaris 11 [#1384](https://github.com/wazuh/wazuh-packages/pull/1384)
@@ -11,6 +10,11 @@ All notable changes to this project will be documented in this file.
 - Remove references to queue/agent-groups [#1299](https://github.com/wazuh/wazuh-packages/pull/1299)
 - Remove references to backup/groups [#1299](https://github.com/wazuh/wazuh-packages/pull/1299)
 - Add Azure's orm file to Solaris 11 SPEC [#1453](https://github.com/wazuh/wazuh-packages/pull/1453)
+
+## [v4.3.1]
+
+- Fix dashboard app name [#1551](https://github.com/wazuh/wazuh-packages/pull/1551)
+- Update SPECS [#1534](https://github.com/wazuh/wazuh-packages/pull/1534)
 
 ## [v4.3.0]
 
@@ -61,6 +65,7 @@ All notable changes to this project will be documented in this file.
 ## [v4.2.6]
 
 - Update SPECS [#1392](https://github.com/wazuh/wazuh-packages/pull/1392)
+
 ## [v4.2.5]
 
 - Update SPECS [#991](https://github.com/wazuh/wazuh-packages/pull/991)

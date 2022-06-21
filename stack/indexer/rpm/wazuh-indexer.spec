@@ -17,7 +17,7 @@ BuildRoot:   %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Vendor:      Wazuh, Inc <info@wazuh.com>
 Packager:    Wazuh, Inc <info@wazuh.com>
 AutoReqProv: no
-Requires: coreutils initscripts chkconfig
+Requires: coreutils
 ExclusiveOS: linux
 BuildRequires: tar shadow-utils
 
@@ -31,6 +31,7 @@ BuildRequires: tar shadow-utils
 %global SYS_DIR /usr/lib
 %global INSTALL_DIR /usr/share/%{name}
 %global REPO_DIR /root/unattended_installer
+%global INDEXER_FILE wazuh-indexer-base-%{version}-%{release}-linux-x64.tar.xz
 
 # -----------------------------------------------------------------------------
 
@@ -69,11 +70,11 @@ mkdir -p ${RPM_BUILD_ROOT}%{SYS_DIR}
 
 # Set up required files
 if [ "%{_base}" = "s3" ];then
-    curl -kOL https://packages-dev.wazuh.com/stack/indexer/base/wazuh-indexer-base-%{version}-linux-x64.tar.xz
+    curl -kOL https://packages-dev.wazuh.com/stack/indexer/base/%{INDEXER_FILE}
 else
-    cp /root/output/wazuh-indexer-base-%{version}-linux-x64.tar.xz ./
+    cp /root/output/%{INDEXER_FILE} ./
 fi
-tar -xf wazuh-indexer-*.tar.xz && rm -f wazuh-indexer-*.tar.xz
+tar -xf %{INDEXER_FILE} && rm -f %{INDEXER_FILE}
 chown -R %{USER}:%{GROUP} wazuh-indexer-*/*
 
 # Copy base files into RPM_BUILD_ROOT directory
@@ -416,6 +417,7 @@ rm -fr %{buildroot}
 %attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-reports-scheduler/reports-scheduler.yml
 %config(noreplace) %attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/jvm.options
 %config(noreplace) %attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch.yml
+%attr(440, %{USER}, %{GROUP}) %{INSTALL_DIR}/VERSION
 %dir %attr(750, %{USER}, %{GROUP}) %{CONFIG_DIR}/jvm.options.d
 %config(noreplace) %attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/log4j2.properties
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/NOTICE.txt

@@ -7,6 +7,7 @@
 # Foundation.
 
 ## Package vars
+<<<<<<< HEAD
 readonly wazuh_major="4.4"
 readonly wazuh_version="4.4.0"
 readonly wazuh_revision_deb="1"
