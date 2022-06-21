@@ -229,8 +229,8 @@ if [ $1 = 1 ]; then
       sles="opensuse"
     fi
     source /etc/os-release
-    if [ "${NAME}" = "Red Hat Enterprise Linux" ] && [ "$((${VERSION_ID:0:1}))" -ge "9" ]; then
-      rhel="true"
+    if [ "${NAME}" = "Red Hat Enterprise Linux" ] && [ "$((${VERSION_ID:0:1}))" -ge 9 ]; then
+      rm -rf %{_initrddir}/wazuh-agent
     fi
   fi
 
@@ -238,10 +238,6 @@ if [ $1 = 1 ]; then
     if [ -d /etc/init.d ]; then
       install -m 755 %{_localstatedir}/packages_files/agent_installation_scripts/src/init/ossec-hids-suse.init /etc/init.d/wazuh-agent
     fi  
-  fi
-
-  if [ -n "${rhel+x}" ]; then
-    rm -rf %{_initrddir}/wazuh-agent
   fi
 
   touch %{_localstatedir}/logs/active-responses.log
