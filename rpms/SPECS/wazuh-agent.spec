@@ -228,8 +228,9 @@ if [ $1 = 1 ]; then
     elif `grep -q -i "\"opensuse" /etc/os-release` ; then
       sles="opensuse"
     fi
-    if `grep -q "Red Hat Enterprise Linux 9" /etc/os-release`; then
-      rhel="9"
+    source /etc/os-release
+    if [ "${NAME}" = "Red Hat Enterprise Linux" ] && [ "$((${VERSION_ID:0:1}))" -ge "9" ]; then
+      rhel="true"
     fi
   fi
 
