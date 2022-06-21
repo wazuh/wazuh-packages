@@ -1,5 +1,6 @@
 DIR="PARAM_INSTALLATION_DIR"
 SCRIPTS_DIR="PARAM_INSTALLATION_SCRIPTS_DIR"
+WAZUH_TMP_DIR="${DIR}/packages_files/agent_config_files"
 SCA_BASE_DIR="${SCRIPTS_DIR}/sca"
 USER="wazuh"
 GROUP="wazuh"
@@ -81,4 +82,30 @@ post_install() {
     ${SCRIPTS_DIR}/add_localfiles.sh >> ${DIR}/etc/ossec.conf
 
     common
+}
+
+pre_remove() {
+    systemctl disable wazuh-agent.service 2>/dev/null || true
+    systemctl stop wazuh-agent.service 2>/dev/null || true
+}
+
+post_remove() {
+
+    if [ -d ${WAZUH_TMP_DIR} ]; then
+        rm -rf ${WAZUH_TMP_DIR}
+    fi
+
+    # If the directory is not empty, copy the files into ${DIR}/etc
+    if ls -A ${DIR}/tmp/conffiles > /dev/null 2>&1 ; then
+        if [ ! -d ${DIR}/etc ]; then
+            mkdir -p ${DIR}/etc
+        fi
+        mv ${DIR}/tmp/conffiles/* ${DIR}/etc
+    fi
+
+    rm -rf ${DIR}/tmp
+    rm -rf ${DIR}/ruleset
+    rm -rf ${DIR}/var
+    rm -rf ${DIR}/logs
+
 }
