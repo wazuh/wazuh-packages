@@ -190,7 +190,7 @@ def test_check_log_errors():
         for line in f.readlines():
             if 'ERROR' in line:
                 found_error = True
-                if get_wazuh_version() == 'v4.3.4':
+                if get_wazuh_version() == 'v4.4.0':
                     if 'ERROR: Cluster error detected' in line or 'agent-upgrade: ERROR: (8123): There has been an error executing the request in the tasks manager.' in line:
                         found_error = False
                     else:
@@ -214,7 +214,7 @@ def test_check_cluster_log_errors():
         for line in f.readlines():
             if 'ERROR' in line:
                 found_error = True
-                if get_wazuh_version() == 'v4.3.4':
+                if get_wazuh_version() == 'v4.4.0':
                     if 'Could not connect to master' in line or 'Worker node is not connected to master' in line or 'Connection reset by peer' in line:
                         found_error = False
                     else:
