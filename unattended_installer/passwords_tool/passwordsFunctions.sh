@@ -68,14 +68,18 @@ function passwords_changePassword() {
 }
 
 function passwords_changePasswordApi() {
-    
     #Change API password tool
-    if [ -n ${changeall} ]; then
+    if [ -n "${changeall}" ]; then
         for i in "${!api_passwords[@]}"; do
             if [ -n "${wazuh_installed}" ]; then
                 passwords_getApiUserId ${api_users[i]}
                 WAZUH_PASS_API='{"password":"'"${api_passwords[i]}"'"}'
                 eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null'
+                if [" ${api_users[i]}" == "${adminUser}" ]; then
+                    sleep 1
+                    adminPassword="${api_passwords[i]}"
+                    passwords_getApiToken
+                fi
                 if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_indexer_cluster}" ]; then
                     common_logger -nl $"The password for Wazuh API user ${api_users[i]} is ${api_passwords[i]}"
                 fi
@@ -97,7 +101,6 @@ function passwords_changePasswordApi() {
                 passwords_changeDashboardApiPassword "${password}"
         fi
     fi
-
 }
 
 function passwords_changeDashboardApiPassword() {
@@ -111,15 +114,35 @@ function passwords_changeDashboardApiPassword() {
 
 function passwords_checkUser() {
 
-    for i in "${!users[@]}"; do
-        if [ "${users[i]}" == "${nuser}" ]; then
-            exists=1
-        fi
-    done
+    if [ -n "${adminUser}" ] && [ -n "${adminPassword}" ]; then
+        for i in "${!api_users[@]}"; do
+            if [ "${api_users[i]}" == "${nuser}" ]; then
+                exists=1
+            fi
+        done
+    else
+        for i in "${!users[@]}"; do
+            if [ "${users[i]}" == "${nuser}" ]; then
+                exists=1
+            fi
+        done
+    fi
 
     if [ -z "${exists}" ]; then
         common_logger -e "The given user does not exist"
         exit 1;
+    fi
+
+}
+
+function passwords_checkPassword() {
+
+    if [ -z "$(echo $1 | grep [A-Z])" ] || [ -z "$(echo $1 | grep [a-z])" ] || [ -z "$(echo $1 | grep [1-9])" ] || [ -z "$(echo $1 | grep [.*+?-])" ] || [ "${#1}" -lt 8 ] || [ "${#1}" -gt 64 ]; then
+        common_logger -e "The password must have a length between 8 and 64 characters and contain at least one upper and lower case letter, a number and a symbol(.*+?-)."
+        if [[ $(type -t installCommon_rollBack) == "function" ]]; then
+                installCommon_rollBack
+        fi
+        exit 1
     fi
 
 }
@@ -366,6 +389,7 @@ It must have this format:
             supported=false
             for i in "${!users[@]}"; do
                 if [[ "${users[i]}" == "${fileusers[j]}" ]]; then
+                    passwords_checkPassword ${filepasswords[j]}
                     passwords[i]=${filepasswords[j]}
                     supported=true
                 fi
@@ -380,6 +404,7 @@ It must have this format:
                 supported=false
                 for i in "${!api_users[@]}"; do
                     if [[ "${api_users[i]}" == "${fileapiusers[j]}" ]]; then
+                        passwords_checkPassword ${fileapipasswords[j]}
                         api_passwords[i]=${fileapipasswords[j]}
                         supported=true
                     fi
@@ -400,6 +425,7 @@ It must have this format:
             supported=false
             for i in "${!users[@]}"; do
                 if [[ "${users[i]}" == "${fileusers[j]}" ]]; then
+                    passwords_checkPassword ${fileapipasswords[j]}
                     finalusers+=("${fileusers[j]}")
                     finalpasswords+=("${filepasswords[j]}")
                     supported=true
@@ -415,6 +441,7 @@ It must have this format:
                 supported=false
                 for i in "${!api_users[@]}"; do
                     if [[ "${api_users[i]}" == "${fileapiusers[j]}" ]]; then
+                        passwords_checkPassword ${fileapipasswords[j]}
                         finalapiusers+=("${fileapiusers[j]}")
                         finalapipasswords+=("${fileapipasswords[j]}")
                         supported=true

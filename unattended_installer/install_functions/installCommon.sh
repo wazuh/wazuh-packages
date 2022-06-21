@@ -97,19 +97,22 @@ function installCommon_aptInstall() {
 }
 
 function installCommon_changePasswordApi() {
-
+    set -x
     #Change API password tool
     if [ -n ${changeall} ]; then
         for i in "${!api_passwords[@]}"; do
             if [ -n "${wazuh}" ] || [ -n "${AIO}" ]; then
-                passwords_getApiUserId ${api_users[i]}
+                passwords_getApiUserId "${api_users[i]}"
                 WAZUH_PASS_API='{"password":"'"${api_passwords[i]}"'"}'
                 eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null'
-                if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_indexer_cluster}" ]; then
-                    common_logger -nl $"The password for Wazuh API user ${api_users[i]} is ${api_passwords[i]}"
+                echo ""
+                if [ "${api_users[i]}" == "${adminUser}" ]; then
+                    sleep 1
+                    adminPassword="${api_passwords[i]}"
+                    passwords_getApiToken
                 fi
             fi
-            if [ "${api_users[i]}" == "wazuh-wui" ] && [ -n "${dashboard}" ]; then
+            if [ "${api_users[i]}" == "wazuh-wui" ] && ([ -n "${dashboard}" ] || [ -n "${AIO}" ]); then
                 passwords_changeDashboardApiPassword "${api_passwords[i]}"
             fi
         done
@@ -118,15 +121,12 @@ function installCommon_changePasswordApi() {
             passwords_getApiUserId ${nuser}
             WAZUH_PASS_API='{"password":"'"${password}"'"}'
             eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null'
-            if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_indexer_cluster}" ]; then
-                common_logger -nl $"The password for Wazuh API user ${nuser} is ${password}"
-            fi
         fi
-        if [ "${nuser}" == "wazuh-wui" ] && [ -n "${dashboard}" ]; then
+        if [ "${nuser}" == "wazuh-wui" ] && ([ -n "${dashboard}" ] || [ -n "${AIO}" ]); then
                 passwords_changeDashboardApiPassword "${password}"
         fi
     fi
-
+    set +x
 }
 
 function installCommon_createCertificates() {

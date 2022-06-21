@@ -212,7 +212,13 @@ function main() {
         fi
 
         if [ -n "${nuser}" ]; then
-            passwords_readUsers
+            if [ -n "${adminUser}" ] && [ -n "${adminPassword}" ]; then
+                passwords_getApiToken
+                passwords_getApiUsers
+                passwords_getApiIds
+            else
+                passwords_readUsers
+            fi
             passwords_checkUser
         fi
 
