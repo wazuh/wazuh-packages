@@ -48,7 +48,7 @@ common() {
 
     # Register and configure agent if Wazuh environment variables are defined
     if [ -z "$2" ] ; then
-        ${SCRIPTS_DIR}/src/init/register_configure_agent.sh > /dev/null || :
+        ${SCRIPTS_DIR}/src/init/register_configure_agent.sh ${DIR} > /dev/null || :
     fi
 
     # Restoring file permissions
@@ -62,11 +62,30 @@ common() {
     ${SCRIPTS_DIR}/fix_owner.sh 2>/dev/null
 }
 
+pre_upgrade() {
+    if [ ! -d ${WAZUH_TMP_DIR} ]; then
+        mkdir -p ${WAZUH_TMP_DIR}
+    fi
+    if systemctl is-active --quiet wazuh-agent > /dev/null 2>&1; then
+        systemctl stop wazuh-agent.service > /dev/null 2>&1
+        touch ${WAZUH_TMP_DIR}/wazuh.restart
+    elif ${DIR}/bin/wazuh-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
+        ${DIR}/bin/wazuh-control stop > /dev/null 2>&1
+        touch ${WAZUH_TMP_DIR}/wazuh.restart
+    fi
+}
+
 post_upgrade() {
     ${SCRIPTS_DIR}/gen_ossec.sh conf agent Arch rolling > ${DIR}/etc/ossec.conf.new
     chmod 660 ${DIR}/etc/ossec.conf.new
 
     common
+
+    if [ -f ${WAZUH_TMP_DIR}/wazuh.restart ] ; then
+        rm -f ${WAZUH_TMP_DIR}/wazuh.restart
+        systemctl daemon-reload > /dev/null 2>&1
+        systemctl restart wazuh-agent.service > /dev/null 2>&1
+    fi
 }
 
 post_install() {
@@ -86,7 +105,11 @@ post_install() {
 
 pre_remove() {
     systemctl disable wazuh-agent.service 2>/dev/null || true
-    systemctl stop wazuh-agent.service 2>/dev/null || true
+    if systemctl is-active --quiet wazuh-agent > /dev/null 2>&1; then
+        systemctl stop wazuh-agent.service > /dev/null 2>&1
+    elif ${DIR}/bin/wazuh-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
+        ${DIR}/bin/wazuh-control stop > /dev/null 2>&1
+    fi
 }
 
 post_remove() {
