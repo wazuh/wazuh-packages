@@ -321,6 +321,13 @@ if [ $1 = 1 ]; then
   %{_localstatedir}/packages_files/manager_installation_scripts/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
 fi
 
+if [ -f /etc/os-release ]; then
+  source /etc/os-release
+  if [ "${NAME}" = "Red Hat Enterprise Linux" ] && [ "$((${VERSION_ID:0:1}))" -ge 9 ]; then
+    rm -f %{_initrddir}/wazuh-manager
+  fi
+fi
+
 # Generation auto-signed certificate if not exists
 if type openssl >/dev/null 2>&1 && [ ! -f "%{_localstatedir}/etc/sslmanager.key" ] && [ ! -f "%{_localstatedir}/etc/sslmanager.cert" ]; then
   openssl req -x509 -batch -nodes -days 365 -newkey rsa:2048 -subj "/C=US/ST=California/CN=Wazuh/" -keyout %{_localstatedir}/etc/sslmanager.key -out %{_localstatedir}/etc/sslmanager.cert 2>/dev/null
@@ -567,7 +574,7 @@ rm -fr %{buildroot}
 
 %files
 %defattr(-,root,wazuh)
-%{_initrddir}/wazuh-manager
+%config(missingok) %{_initrddir}/wazuh-manager
 %attr(640, root, wazuh) %verify(not md5 size mtime) %ghost %{_sysconfdir}/ossec-init.conf
 /usr/lib/systemd/system/wazuh-manager.service
 %dir %attr(750, root, wazuh) %{_localstatedir}
@@ -823,6 +830,18 @@ rm -fr %{buildroot}
 %changelog
 * Thu Nov 03 2022 support <info@wazuh.com> - 4.4.0
 - More info: https://documentation.wazuh.com/current/release-notes/
+* Wed Jun 29 2022 support <info@wazuh.com> - 4.3.5
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Tue Jun 07 2022 support <info@wazuh.com> - 4.3.4
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Tue May 31 2022 support <info@wazuh.com> - 4.3.3
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon May 30 2022 support <info@wazuh.com> - 4.3.2
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Sun May 29 2022 support <info@wazuh.com> - 4.2.7
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Wed May 18 2022 support <info@wazuh.com> - 4.3.1
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Thu May 05 2022 support <info@wazuh.com> - 4.3.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Fri Mar 25 2022 support <info@wazuh.com> - 4.2.6
@@ -841,7 +860,7 @@ rm -fr %{buildroot}
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Sat Apr 24 2021 support <info@wazuh.com> - 3.13.3
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Fri Apr 22 2021 support <info@wazuh.com> - 4.1.5
+* Thu Apr 22 2021 support <info@wazuh.com> - 4.1.5
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Mar 29 2021 support <info@wazuh.com> - 4.1.4
 - More info: https://documentation.wazuh.com/current/release-notes/
