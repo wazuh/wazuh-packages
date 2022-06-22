@@ -325,7 +325,6 @@ if [ -f /etc/os-release ]; then
   source /etc/os-release
   if [ "${NAME}" = "Red Hat Enterprise Linux" ] && [ "$((${VERSION_ID:0:1}))" -ge 9 ]; then
     rm -f %{_initrddir}/wazuh-manager
-    echo "LOL2" >> /out.log
   fi
 fi
 
