@@ -11,10 +11,52 @@ All notable changes to this project will be documented in this file.
 - Remove references to backup/groups [#1299](https://github.com/wazuh/wazuh-packages/pull/1299)
 - Add Azure's orm file to Solaris 11 SPEC [#1453](https://github.com/wazuh/wazuh-packages/pull/1453)
 
+## [v4.3.4]
+
+* Update SPECS to 4.3.3 by @DFolchA in https://github.com/wazuh/wazuh-packages/pull/1596
+* Fix changelogs dates 4.3 by @rauldpm in https://github.com/wazuh/wazuh-packages/pull/1598
+* Fix changelogs dates 4.3 by @rauldpm in https://github.com/wazuh/wazuh-packages/pull/1599
+* Fix gcc9 package generation by @okynos in https://github.com/wazuh/wazuh-packages/pull/1600
+* Simplified splunk packages builder by @fcaffieri in https://github.com/wazuh/wazuh-packages/pull/1595
+* Updated Wazuh logo in login page by @c-bordon in https://github.com/wazuh/wazuh-packages/pull/1606
+* Fix Suse init script installation in agent by @okynos in https://github.com/wazuh/wazuh-packages/pull/1613
+* Bump unattended tests 4.3.4 by @rauldpm in https://github.com/wazuh/wazuh-packages/pull/1610
+* Added Ubuntu 22 support by @alberpilot in https://github.com/wazuh/wazuh-packages/pull/1628
+* Added release number to dashboard app package by @okynos in https://github.com/wazuh/wazuh-packages/pull/1630
+* Updates for Wazuh dashboard to 4.3 by @c-bordon in https://github.com/wazuh/wazuh-packages/pull/1636
+* Installation assistant Wazuh API default password change by @miguelfdez99 in https://github.com/wazuh/wazuh-packages/pull/1548
+
+## [v4.3.3]
+
+## [v4.2.7]
+
+- Fix dependencies for AIX package building 4.2 by @DFolchA in https://github.com/wazuh/wazuh-packages/pull/1444
+- Add specs files to build Wazuh 4.2.7 by @wazuhci in https://github.com/wazuh/wazuh-packages/pull/1585
+- Bump unattended 4.2.7 by @rauldpm in https://github.com/wazuh/wazuh-packages/pull/1590
+- Increase ram in OVA vagrantfile by @rauldpm in https://github.com/wazuh/wazuh-packages/pull/1597
+
+## [v4.3.2]
+
+- Add specs files to build Wazuh 4.3.2 by @wazuhci in https://github.com/wazuh/wazuh-packages/pull/1557
+- Unattended improvements 4 3 by @DFolchA in https://github.com/wazuh/wazuh-packages/pull/1562
+- Remove unnecessary plugins from default Wazuh dashboard to 4.3 by @c-bordon in https://github.com/wazuh/wazuh-packages/pull/1568
+- Update changelog date by @DFolchA in https://github.com/wazuh/wazuh-packages/pull/1586
+- 4.3 change structure by @DFolchA in https://github.com/wazuh/wazuh-packages/pull/1580
+- Update filebeat module version by @DFolchA in https://github.com/wazuh/wazuh-packages/pull/1581
+- Fix solaris 11 generation 4.3 by @DFolchA in https://github.com/wazuh/wazuh-packages/pull/1594
+
 ## [v4.3.1]
 
-- Fix dashboard app name [#1551](https://github.com/wazuh/wazuh-packages/pull/1551)
-- Update SPECS [#1534](https://github.com/wazuh/wazuh-packages/pull/1534)
+- Changing welcome OVA and AMI message by @alberpilot in https://github.com/wazuh/wazuh-packages/pull/1514
+- Fix offline installation hardcoded repo by @DFolchA in https://github.com/wazuh/wazuh-packages/pull/1516
+- Install dashboard reporting dependencies OVA by @c-bordon in https://github.com/wazuh/wazuh-packages/pull/1519
+- Change default attributes in Wazuh dashboard package by @DFolchA in https://github.com/wazuh/wazuh-packages/pull/1518
+- Add specs files to build Wazuh 4.3.1 by @wazuhci in https://github.com/wazuh/wazuh-packages/pull/1534
+- Shellcheck github automation by @fcaffieri in https://github.com/wazuh/wazuh-packages/pull/1406
+- Shellcheck github automation by @fcaffieri in https://github.com/wazuh/wazuh-packages/pull/1535
+- Set dashboard revision to 1 by @DFolchA in https://github.com/wazuh/wazuh-packages/pull/1550
+- Fix sed error dashboard installation by @DFolchA in https://github.com/wazuh/wazuh-packages/pull/1546
+- Fix dashboard app name by @rauldpm in https://github.com/wazuh/wazuh-packages/pull/1551
 
 ## [v4.3.0]
 
