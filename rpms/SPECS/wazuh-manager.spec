@@ -1,6 +1,6 @@
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-manager
-Version:     4.3.5
+Version:     4.30.0
 Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
@@ -326,7 +326,6 @@ if [ -f /etc/os-release ]; then
   source /etc/os-release
   if [ "${NAME}" = "Red Hat Enterprise Linux" ] && [ "$((${VERSION_ID:0:1}))" -ge 9 ]; then
     rm -f %{_initrddir}/wazuh-manager
-    echo "LOL2" >> /out.log
   fi
 fi
 
@@ -827,7 +826,7 @@ rm -fr %{buildroot}
 
 
 %changelog
-* Wed Jun 29 2022 support <info@wazuh.com> - 4.3.5
+* Wed Jun 29 2022 support <info@wazuh.com> - 4.30.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Tue Jun 07 2022 support <info@wazuh.com> - 4.3.4
 - More info: https://documentation.wazuh.com/current/release-notes/
