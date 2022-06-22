@@ -298,19 +298,12 @@ if [ $1 = 1 ]; then
     elif `grep -q -i "\"opensuse" /etc/os-release` ; then
       sles="opensuse"
     fi
-    if `grep -q "Red Hat Enterprise Linux 9" /etc/os-release`; then
-      rhel="9"
-    fi
   fi
 
   if [ ! -z "$sles" ]; then
     if [ -d /etc/init.d ]; then
       install -m 755 %{_localstatedir}/packages_files/manager_installation_scripts/src/init/ossec-hids-suse.init /etc/init.d/wazuh-manager
     fi
-  fi
-
-  if [ -n "${rhel+x}" ]; then
-    rm -rf %{_initrddir}/wazuh-agent
   fi
 
   . %{_localstatedir}/packages_files/manager_installation_scripts/src/init/dist-detect.sh
@@ -327,6 +320,14 @@ if [ $1 = 1 ]; then
 
   # Add default local_files to ossec.conf
   %{_localstatedir}/packages_files/manager_installation_scripts/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
+fi
+
+if [ -f /etc/os-release ]; then
+  source /etc/os-release
+  if [ "${NAME}" = "Red Hat Enterprise Linux" ] && [ "$((${VERSION_ID:0:1}))" -ge 9 ]; then
+    rm -f %{_initrddir}/wazuh-manager
+    echo "LOL2" >> /out.log
+  fi
 fi
 
 # Generation auto-signed certificate if not exists
@@ -572,7 +573,7 @@ rm -fr %{buildroot}
 
 %files
 %defattr(-,root,wazuh)
-%{_initrddir}/wazuh-manager
+%config(missingok) %{_initrddir}/wazuh-manager
 %attr(640, root, wazuh) %verify(not md5 size mtime) %ghost %{_sysconfdir}/ossec-init.conf
 /usr/lib/systemd/system/wazuh-manager.service
 %dir %attr(750, root, wazuh) %{_localstatedir}
