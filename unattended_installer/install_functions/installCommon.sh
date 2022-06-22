@@ -51,7 +51,7 @@ function installCommon_addWazuhRepo() {
             eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-\${releasever} - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/zypp/repos.d/wazuh.repo ${debug}"
             eval "chmod 644 /etc/zypp/repos.d/wazuh.repo ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
-            eval "curl -s ${repogpg} | gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/GPG-KEY-WAZUH.gpg --import && chmod 644 /etc/apt/trusted.gpg.d/GPG-KEY-WAZUH.gpg ${debug}"
+            eval "curl -s ${repogpg} | gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/GPG-KEY-WAZUH.gpg --import ${debug} && chmod 644 /etc/apt/trusted.gpg.d/GPG-KEY-WAZUH.gpg ${debug}"
             eval "echo \"deb ${repobaseurl}/apt/ ${reporelease} main\" | tee /etc/apt/sources.list.d/wazuh.list ${debug}"
             eval "apt-get update -q ${debug}"
             eval "chmod 644 /etc/apt/sources.list.d/wazuh.list ${debug}"
