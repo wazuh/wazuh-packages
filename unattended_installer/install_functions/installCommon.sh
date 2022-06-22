@@ -355,6 +355,7 @@ It must have this format:
             supported=false
             for i in "${!users[@]}"; do
                 if [[ ${users[i]} == "${fileusers[j]}" ]]; then
+                    passwords_checkPassword ${filepasswords[j]}
                     passwords[i]=${filepasswords[j]}
                     supported=true
                 fi
@@ -368,6 +369,7 @@ It must have this format:
             supported=false
             for i in "${!api_users[@]}"; do
                 if [[ "${api_users[i]}" == "${fileapiusers[j]}" ]]; then
+                    passwords_checkPassword ${fileapipasswords[j]}
                     api_passwords[i]=${fileapipasswords[j]}
                     supported=true
                 fi
@@ -395,6 +397,7 @@ It must have this format:
             supported=false
             for i in "${!users[@]}"; do
                 if [[ "${users[i]}" == "${fileusers[j]}" ]]; then
+                    passwords_checkPassword ${filepasswords[j]}
                     finalusers+=(${fileusers[j]})
                     finalpasswords+=(${filepasswords[j]})
                     supported=true
@@ -409,6 +412,7 @@ It must have this format:
             supported=false
             for i in "${!api_users[@]}"; do
                 if [[ "${api_users[i]}" == "${fileapiusers[j]}" ]]; then
+                    passwords_checkPassword ${fileapipasswords[j]}
                     finalapiusers+=("${fileapiusers[j]}")
                     finalapipasswords+=("${fileapipasswords[j]}")
                     supported=true

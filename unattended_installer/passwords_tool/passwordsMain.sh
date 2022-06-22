@@ -227,6 +227,11 @@ function main() {
             passwords_generatePassword
         fi
 
+        if [ -n "${nuser}" ] && [ -n "${password}" ]; then
+            passwords_checkPassword "${password}"
+        fi
+        
+
         if [ -n "${changeall}" ] || [ -n "${p_file}" ]; then
             passwords_readUsers
             if [ -n "${adminUser}" ] && [ -n "${adminPassword}" ]; then

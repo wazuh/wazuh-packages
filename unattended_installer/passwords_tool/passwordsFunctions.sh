@@ -204,9 +204,12 @@ function passwords_generatePassword() {
 
     if [ -n "${nuser}" ]; then
         common_logger -d "Generating random password."
-        pass=$(< /dev/urandom tr -dc "A-Za-z0-9.*+?" | head -c ${1:-31};echo;)
+        pass=$(< /dev/urandom tr -dc "A-Za-z0-9.*+?" | head -c ${1:-28};echo;)
         special_char=$(< /dev/urandom tr -dc ".*+?" | head -c ${1:-1};echo;)
-        password="$(echo ${pass}${special_char} | fold -w1 | shuf | tr -d '\n')"
+        minus_char=$(< /dev/urandom tr -dc "a-z" | head -c ${1:-1};echo;)
+        mayus_char=$(< /dev/urandom tr -dc "A-Z" | head -c ${1:-1};echo;)
+        number_char=$(< /dev/urandom tr -dc "0-9" | head -c ${1:-1};echo;)
+        password="$(echo ${pass}${special_char}${minus_char}${mayus_char}${number_char} | fold -w1 | shuf | tr -d '\n')"
         if [  "${PIPESTATUS[0]}" != 0  ]; then
             common_logger -e "The password could not been generated."
             exit 1;
@@ -214,9 +217,12 @@ function passwords_generatePassword() {
     else
         common_logger -d "Generating random passwords."
         for i in "${!users[@]}"; do
-            pass=$(< /dev/urandom tr -dc "A-Za-z0-9.*+?" | head -c ${1:-31};echo;)
+            pass=$(< /dev/urandom tr -dc "A-Za-z0-9.*+?" | head -c ${1:-28};echo;)
             special_char=$(< /dev/urandom tr -dc ".*+?" | head -c ${1:-1};echo;)
-            passwords+=("$(echo ${pass}${special_char} | fold -w1 | shuf | tr -d '\n')")
+            minus_char=$(< /dev/urandom tr -dc "a-z" | head -c ${1:-1};echo;)
+            mayus_char=$(< /dev/urandom tr -dc "A-Z" | head -c ${1:-1};echo;)
+            number_char=$(< /dev/urandom tr -dc "0-9" | head -c ${1:-1};echo;)
+            passwords+=("$(echo ${pass}${special_char}${minus_char}${mayus_char}${number_char} | fold -w1 | shuf | tr -d '\n')")
             if [ "${PIPESTATUS[0]}" != 0 ]; then
                 common_logger -e "The password could not been generated."
                 exit 1;
