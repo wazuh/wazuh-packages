@@ -228,19 +228,12 @@ if [ $1 = 1 ]; then
     elif `grep -q -i "\"opensuse" /etc/os-release` ; then
       sles="opensuse"
     fi
-    if `grep -q "Red Hat Enterprise Linux 9" /etc/os-release`; then
-      rhel="9"
-    fi
   fi
 
   if [ ! -z "$sles" ]; then
     if [ -d /etc/init.d ]; then
       install -m 755 %{_localstatedir}/packages_files/agent_installation_scripts/src/init/ossec-hids-suse.init /etc/init.d/wazuh-agent
     fi  
-  fi
-
-  if [ -n "${rhel+x}" ]; then
-    rm -rf %{_initrddir}/wazuh-agent
   fi
 
   touch %{_localstatedir}/logs/active-responses.log
@@ -259,6 +252,13 @@ if [ $1 = 1 ]; then
 
   # Register and configure agent if Wazuh environment variables are defined
   %{_localstatedir}/packages_files/agent_installation_scripts/src/init/register_configure_agent.sh %{_localstatedir} > /dev/null || :
+fi
+
+if [ -f /etc/os-release ]; then
+  source /etc/os-release
+  if [ "${NAME}" = "Red Hat Enterprise Linux" ] && [ "$((${VERSION_ID:0:1}))" -ge 9 ]; then
+    rm -f %{_initrddir}/wazuh-agent
+  fi
 fi
 
 # Delete the installation files used to configure the agent
@@ -488,7 +488,7 @@ rm -fr %{buildroot}
 
 %files
 %defattr(-,root,root)
-%{_initrddir}/wazuh-agent
+%config(missingok) %{_initrddir}/wazuh-agent
 %attr(640, root, wazuh) %verify(not md5 size mtime) %ghost %{_sysconfdir}/ossec-init.conf
 /usr/lib/systemd/system/wazuh-agent.service
 %dir %attr(750, root, wazuh) %{_localstatedir}
