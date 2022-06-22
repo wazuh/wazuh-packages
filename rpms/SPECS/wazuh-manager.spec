@@ -297,10 +297,6 @@ if [ $1 = 1 ]; then
     elif `grep -q -i "\"opensuse" /etc/os-release` ; then
       sles="opensuse"
     fi
-    source /etc/os-release
-    if [ "${NAME}" = "Red Hat Enterprise Linux" ] && [ "$((${VERSION_ID:0:1}))" -ge 9 ]; then
-      rm -rf %{_initrddir}/wazuh-manager
-    fi
   fi
 
   if [ ! -z "$sles" ]; then
