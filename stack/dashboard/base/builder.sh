@@ -14,7 +14,8 @@ set -ex
 opensearch_version="${1}"
 future="${2}"
 revision="${3}"
-reference="${4}"
+architecture="${4}"
+reference="${5}"
 base_dir=/tmp/output/wazuh-dashboard-base
 
 # -----------------------------------------------------------------------------
@@ -41,7 +42,7 @@ wazuh_minor=$(echo ${version} | cut -c1-3)
 mkdir -p /tmp/output
 cd /tmp/output
 
-curl -sL https://artifacts.opensearch.org/releases/bundle/opensearch-dashboards/"${opensearch_version}"/opensearch-dashboards-"${opensearch_version}"-linux-x64.tar.gz | tar xz
+curl -sL https://artifacts.opensearch.org/releases/bundle/opensearch-dashboards/"${opensearch_version}"/opensearch-dashboards-"${opensearch_version}"-linux-${architecture}.tar.gz | tar xz
 
 # Remove unnecessary files and set up configuration
 mv opensearch-dashboards-* "${base_dir}"
@@ -130,5 +131,5 @@ find -type f -perm 755 -exec chmod 750 {} \;
 
 # Base output
 cd /tmp/output
-tar -cJf wazuh-dashboard-base-"${version}"-"${revision}"-linux-x64.tar.xz wazuh-dashboard-base
+tar -cJf wazuh-dashboard-base-"${version}"-"${revision}"-linux-${architecture}.tar.xz wazuh-dashboard-base
 rm -rf "${base_dir}"

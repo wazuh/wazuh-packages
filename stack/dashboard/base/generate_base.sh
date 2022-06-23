@@ -16,6 +16,7 @@ current_path="$( cd $(dirname $0) ; pwd -P )"
 dockerfile_path="${current_path}/docker"
 container_name="dashboard_base_builder"
 opensearch_version="1.2.0"
+architecture="x64"
 outdir="${current_path}/output"
 revision="1"
 future="no"
@@ -49,11 +50,11 @@ build() {
 
     if [ "${reference}" ];then
         docker run -t --rm -v ${outdir}/:/tmp/output:Z \
-            ${container_name} ${opensearch_version} ${future} ${revision} ${reference}  || return 1
+            ${container_name} ${opensearch_version} ${future} ${revision} ${architecture} ${reference} || return 1
     else
         docker run -t --rm -v ${outdir}/:/tmp/output:Z \
             -v ${current_path}/../../..:/root:Z \
-            ${container_name} ${opensearch_version} ${future} ${revision} || return 1
+            ${container_name} ${opensearch_version} ${future} ${revision} ${architecture} || return 1
     fi
 
     echo "Base file $(ls -Art ${outdir} | tail -n 1) added to ${outdir}."
@@ -67,6 +68,7 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
+    echo "    -a, --architecture <arch>  [Optional] Target architecture of the package [x64]."
     echo "    -s, --store <path>         [Optional] Set the destination path of package. By default, an output folder will be created."
     echo "    -v, --version <path>       [Optional] The OpenSearch-dashboards Version. By default, ${opensearch_version}"
     echo "    --reference <ref>          [Optional] wazuh-packages branch or tag"
@@ -85,6 +87,14 @@ main() {
         case "${1}" in
         "-h"|"--help")
             help 0
+            ;;
+        "-a"|"--architecture")
+            if [ -n "${2}" ]; then
+                architecture="${2}"
+                shift 2
+            else
+                help 1
+            fi
             ;;
         "-s"|"--store")
             if [ -n "${2}" ]; then
