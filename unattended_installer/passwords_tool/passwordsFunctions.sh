@@ -105,10 +105,16 @@ function passwords_changePasswordApi() {
 
 function passwords_changeDashboardApiPassword() {
 
-    if [ -f "/usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml" ]; then
-        eval 'sed -i "s|password: .*|password: ${1}|g" /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml'
-        common_logger "Updated wazuh-wui user password in wazuh dashboard. Remember to restart the service."
-    fi
+    j=0
+    until [ -n ${file_exists} ] || [ "${j}" -eq "12" ]; do
+        if [ -f "/usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml" ]; then
+            eval 'sed -i "s|password: .*|password: ${1}|g" /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml'
+            common_logger "Updated wazuh-wui user password in wazuh dashboard. Remember to restart the service."
+            file_exists=1
+        fi
+        sleep 5
+        j=$((j+1))
+    done
 
 }
 
