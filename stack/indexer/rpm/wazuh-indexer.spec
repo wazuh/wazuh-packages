@@ -31,7 +31,7 @@ BuildRequires: tar shadow-utils
 %global SYS_DIR /usr/lib
 %global INSTALL_DIR /usr/share/%{name}
 %global REPO_DIR /root/unattended_installer
-%global INDEXER_FILE wazuh-indexer-base-%{version}-%{release}-linux-x64.tar.xz
+%global INDEXER_FILE wazuh-indexer-base-%{version}-%{release}-linux-%{_architecture}.tar.xz
 
 # -----------------------------------------------------------------------------
 

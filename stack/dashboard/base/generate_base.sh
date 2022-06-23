@@ -68,7 +68,7 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -a, --architecture <arch>  [Optional] Target architecture of the package [x64]."
+    echo "    -a, --architecture <arch>  [Optional] Target architecture of the package [x64] or [arm64]."
     echo "    -s, --store <path>         [Optional] Set the destination path of package. By default, an output folder will be created."
     echo "    -v, --version <path>       [Optional] The OpenSearch-dashboards Version. By default, ${opensearch_version}"
     echo "    --reference <ref>          [Optional] wazuh-packages branch or tag"

@@ -16,7 +16,8 @@ architecture=$1
 revision=$2
 future=$3
 base_location=$4
-reference=$5
+architecture_base=$5
+reference=$6
 directory_base="/usr/share/wazuh-indexer"
 
 if [ -z "${revision}" ]; then
@@ -56,6 +57,7 @@ cd ${build_dir}/${target} && tar -czf ${pkg_name}.orig.tar.gz "${pkg_name}"
 # Configure the package with the different parameters
 sed -i "s:VERSION:${version}:g" ${source_dir}/debian/changelog
 sed -i "s:RELEASE:${revision}:g" ${source_dir}/debian/changelog
+sed -i "s:ARCHITECTURE:${architecture_base}:g" ${source_dir}/debian/rules
 
 # Installing build dependencies
 cd ${source_dir}

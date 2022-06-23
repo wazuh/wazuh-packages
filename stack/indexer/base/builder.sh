@@ -13,7 +13,8 @@ set -e
 opensearch_version="${1}"
 future="${2}"
 revision="${3}"
-reference="${4}"
+architecture="${4}"
+reference="${5}"
 base_dir=/tmp/output/wazuh-indexer-base
 
 # -----------------------------------------------------------------------------
@@ -42,7 +43,7 @@ fi
 mkdir -p /tmp/output
 cd /tmp/output
 
-curl -sL https://artifacts.opensearch.org/releases/bundle/opensearch/"${opensearch_version}"/opensearch-"${opensearch_version}"-linux-x64.tar.gz | tar xz
+curl -sL https://artifacts.opensearch.org/releases/bundle/opensearch/"${opensearch_version}"/opensearch-"${opensearch_version}"-linux-${architecture}.tar.gz | tar xz
 
 # Remove unnecessary files and set up configuration
 mv opensearch-"${opensearch_version}" "${base_dir}"
@@ -81,5 +82,5 @@ rm -rf OpenSearch
 
 # Base output
 cd /tmp/output
-tar -Jcvf wazuh-indexer-base-"${version}"-"${revision}"-linux-x64.tar.xz wazuh-indexer-base
+tar -Jcvf wazuh-indexer-base-"${version}"-"${revision}"-linux-${architecture}.tar.xz wazuh-indexer-base
 rm -rf "${base_dir}"
