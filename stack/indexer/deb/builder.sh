@@ -13,21 +13,21 @@ set -ex
 # Script parameters to build the package
 target="wazuh-indexer"
 architecture=$1
-release=$2
+revision=$2
 future=$3
 base_location=$4
-spec_reference=$5
+reference=$5
 directory_base="/usr/share/wazuh-indexer"
 
-if [ -z "${release}" ]; then
-    release="1"
+if [ -z "${revision}" ]; then
+    revision="1"
 fi
 
 if [ "${future}" = "yes" ];then
     version="99.99.0"
 else
-    if [ "${spec_reference}" ];then
-        version=$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh-packages/${spec_reference}/VERSION | cat)
+    if [ "${reference}" ];then
+        version=$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh-packages/${reference}/VERSION | cat)
     else
         version=$(cat /root/VERSION)
     fi
@@ -37,34 +37,34 @@ fi
 build_dir=/build
 pkg_name="${target}-${version}"
 pkg_path="${build_dir}/${target}"
-sources_dir="${pkg_path}/${pkg_name}"
+source_dir="${pkg_path}/${pkg_name}"
 
-mkdir -p ${sources_dir}/debian
+mkdir -p ${source_dir}/debian
 
 # Including spec file
-if [ "${spec_reference}" ];then
-    curl -sL https://github.com/wazuh/wazuh-packages/tarball/${spec_reference} | tar zx
-    cp -r ./wazuh*/stack/indexer/deb/debian/* ${sources_dir}/debian/
+if [ "${reference}" ];then
+    curl -sL https://github.com/wazuh/wazuh-packages/tarball/${reference} | tar zx
+    cp -r ./wazuh*/stack/indexer/deb/debian/* ${source_dir}/debian/
     cp -r ./wazuh*/* /root/
 else
-    cp -r /root/stack/indexer/deb/debian/* ${sources_dir}/debian/
+    cp -r /root/stack/indexer/deb/debian/* ${source_dir}/debian/
 fi
 
 # Generating directory structure to build the .deb package
 cd ${build_dir}/${target} && tar -czf ${pkg_name}.orig.tar.gz "${pkg_name}"
 
 # Configure the package with the different parameters
-sed -i "s:VERSION:${version}:g" ${sources_dir}/debian/changelog
-sed -i "s:RELEASE:${release}:g" ${sources_dir}/debian/changelog
+sed -i "s:VERSION:${version}:g" ${source_dir}/debian/changelog
+sed -i "s:RELEASE:${revision}:g" ${source_dir}/debian/changelog
 
 # Installing build dependencies
-cd ${sources_dir}
+cd ${source_dir}
 mk-build-deps -ir -t "apt-get -o Debug::pkgProblemResolver=yes -y"
 
 # Build package
-debuild --no-lintian -eINSTALLATION_DIR="${directory_base}" -eBASE="${base_location}" -eBASE_VERSION="${version}" -b -uc -us
+debuild --no-lintian -eINSTALLATION_DIR="${directory_base}" -eBASE="${base_location}" -eBASE_VERSION="${version}" -eBASE_REVISION="${revision}" -b -uc -us
 
-deb_file="${target}_${version}-${release}_${architecture}.deb"
+deb_file="${target}_${version}-${revision}_${architecture}.deb"
 
 cd ${pkg_path} && sha512sum ${deb_file} > /tmp/${deb_file}.sha512
 
