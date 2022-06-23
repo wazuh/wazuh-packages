@@ -14,6 +14,7 @@ outdir="${current_path}/output"
 revision="1"
 build_docker="yes"
 deb_amd64_builder="deb_indexer_builder_amd64"
+deb_arm64_builder="deb_indexer_builder_arm64"
 deb_builder_dockerfile="${current_path}/docker"
 future="no"
 base="s3"
@@ -74,8 +75,12 @@ build() {
         architecture="amd64"
         build_name="${deb_amd64_builder}"
         file_path="${deb_builder_dockerfile}/${architecture}"
+    elif [ "${architecture}" = "arm64" ] || [ "${architecture}" = "aarch64" ]; then
+        architecture="arm64"
+        build_name="${deb_arm64_builder}"
+        file_path="${deb_builder_dockerfile}/${architecture}"
     else
-        echo "Invalid architecture. Choose: amd64 (x86_64 is accepted too)"
+        echo "Invalid architecture. Choose one of amd64/x86_64/arm64/aarch64."
         return 1
     fi
     build_deb ${build_name} ${file_path} || return 1

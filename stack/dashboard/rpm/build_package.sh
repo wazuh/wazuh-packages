@@ -14,6 +14,7 @@ outdir="${current_path}/output"
 revision="1"
 build_docker="yes"
 rpm_x86_builder="rpm_dashboard_builder_x86"
+rpm_aarch64_builder="rpm_dashboard_builder_aarch64"
 rpm_builder_dockerfile="${current_path}/docker"
 future="no"
 base="s3"
@@ -74,8 +75,12 @@ build() {
         architecture="x86_64"
         build_name="${rpm_x86_builder}"
         file_path="${rpm_builder_dockerfile}/${architecture}"
+    elif [ "${architecture}" = "arm64" ] || [ "${architecture}" = "aarch64" ]; then
+        architecture="aarch64"
+        build_name="${rpm_aarch64_builder}"
+        file_path="${deb_builder_dockerfile}/${architecture}"
     else
-        echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too)"
+        echo "Invalid architecture. Choose one of amd64/x86_64/arm64/aarch64."
         return 1
     fi
     build_rpm ${build_name} ${file_path} || return 1
