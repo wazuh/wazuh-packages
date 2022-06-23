@@ -137,7 +137,7 @@ function passwords_checkUser() {
 
 function passwords_checkPassword() {
 
-    if [ -z "$(echo $1 | grep [A-Z])" ] || [ -z "$(echo $1 | grep [a-z])" ] || [ -z "$(echo $1 | grep [1-9])" ] || [ -z "$(echo $1 | grep [.*+?-])" ] || [ "${#1}" -lt 8 ] || [ "${#1}" -gt 64 ]; then
+    if [ -z "$(echo $1 | grep [A-Z])" ] || [ -z "$(echo $1 | grep [a-z])" ] || [ -z "$(echo $1 | grep [0-9])" ] || [ -z "$(echo $1 | grep [.*+?-])" ] || [ "${#1}" -lt 8 ] || [ "${#1}" -gt 64 ]; then
         common_logger -e "The password must have a length between 8 and 64 characters and contain at least one upper and lower case letter, a number and a symbol(.*+?-)."
         if [[ $(type -t installCommon_rollBack) == "function" ]]; then
                 installCommon_rollBack
