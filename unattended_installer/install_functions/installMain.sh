@@ -275,8 +275,8 @@ function main() {
 
         dashboard_install
         dashboard_configure
-        installCommon_changePasswords
         installCommon_startService "wazuh-dashboard"
+        installCommon_changePasswords
         dashboard_initialize
 
     fi
