@@ -105,7 +105,6 @@ function installCommon_changePasswordApi() {
                 passwords_getApiUserId "${api_users[i]}"
                 WAZUH_PASS_API='{"password":"'"${api_passwords[i]}"'"}'
                 eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null'
-                echo ""
                 if [ "${api_users[i]}" == "${adminUser}" ]; then
                     sleep 1
                     adminPassword="${api_passwords[i]}"
