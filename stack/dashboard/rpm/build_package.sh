@@ -80,7 +80,7 @@ build() {
         architecture="aarch64"
         architecture_base="arm64"
         build_name="${rpm_aarch64_builder}"
-        file_path="${deb_builder_dockerfile}/${architecture}"
+        file_path="${rpm_builder_dockerfile}/${architecture}"
     else
         echo "Invalid architecture. Choose one of amd64/x86_64/arm64/aarch64."
         return 1
