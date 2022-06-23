@@ -21,7 +21,7 @@ function getHelp() {
     echo -e "                To change API passwords -au|--admin-user and -ap|--admin-password are required"
     echo -e ""
     echo -e "        -A,  --api"
-    echo -e "                Change the Wazuh API password given the current password."
+    echo -e "                Change the Wazuh API password."
     echo -e "                Requires -u|--user, and -p|--password, -au|--admin-user and -ap|--admin-password."
     echo -e ""
     echo -e "        -au,  --admin-user <adminUser>"
@@ -84,7 +84,6 @@ function main() {
                 ;;
             "-A"|"--api")
                 api=1
-                currentPassword=${2}
                 shift 1
                 ;;
             "-au"|"--admin-user")

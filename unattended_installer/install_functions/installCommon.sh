@@ -97,7 +97,7 @@ function installCommon_aptInstall() {
 }
 
 function installCommon_changePasswordApi() {
-    set -x
+
     #Change API password tool
     if [ -n ${changeall} ]; then
         for i in "${!api_passwords[@]}"; do
@@ -126,7 +126,7 @@ function installCommon_changePasswordApi() {
                 passwords_changeDashboardApiPassword "${password}"
         fi
     fi
-    set +x
+    
 }
 
 function installCommon_createCertificates() {
