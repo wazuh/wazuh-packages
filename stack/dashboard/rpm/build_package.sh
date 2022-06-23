@@ -52,7 +52,7 @@ build_rpm() {
     if [ "${reference}" ];then
         docker run -t --rm ${volumes} \
             ${container_name} ${architecture} ${revision} \
-            ${future} ${base} ${reference} || return 1
+            ${future} ${base} ${architecture_base} ${reference} || return 1
     else
         if [ "${base}" = "local" ];then
             volumes="${volumes} -v ${base_path}:/root/output:Z"
@@ -60,7 +60,7 @@ build_rpm() {
         docker run -t --rm ${volumes} \
             -v ${current_path}/../../..:/root:Z \
             ${container_name} ${architecture} \
-            ${revision} ${future} ${base} || return 1
+            ${revision} ${future} ${base} ${architecture_base} || return 1
     fi
 
     echo "Package $(ls -Art ${outdir} | tail -n 1) added to ${outdir}."
@@ -73,10 +73,12 @@ build() {
     file_path=""
     if [ "${architecture}" = "x86_64" ] || [ "${architecture}" = "amd64" ]; then
         architecture="x86_64"
+        architecture_base="x64"
         build_name="${rpm_x86_builder}"
         file_path="${rpm_builder_dockerfile}/${architecture}"
     elif [ "${architecture}" = "arm64" ] || [ "${architecture}" = "aarch64" ]; then
         architecture="aarch64"
+        architecture_base="arm64"
         build_name="${rpm_aarch64_builder}"
         file_path="${deb_builder_dockerfile}/${architecture}"
     else

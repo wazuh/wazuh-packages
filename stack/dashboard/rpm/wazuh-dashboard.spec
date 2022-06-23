@@ -9,6 +9,7 @@ Summary:     Wazuh dashboard is a user interface and visualization tool for secu
 Name:        wazuh-dashboard
 Version:     %{_version}
 Release:     %{_release}
+Architecture: %{_architecture}
 License:     GPL
 Group:       System Environment/Daemons
 Source0:     %{name}-%{version}.tar.gz
@@ -30,7 +31,7 @@ ExclusiveOS: linux
 %global CONFIG_DIR /etc/%{name}
 %global PID_DIR /run/%{name}
 %global INSTALL_DIR /usr/share/%{name}
-%global DASHBOARD_FILE wazuh-dashboard-base-%{version}-%{release}-linux-x64.tar.xz
+%global DASHBOARD_FILE wazuh-dashboard-base-%{version}-%{release}-linux-%{architecture}.tar.xz
 
 # -----------------------------------------------------------------------------
 
