@@ -13,16 +13,21 @@ set -ex
 # Script parameters to build the package
 opensearch_version="${1}"
 future="${2}"
-reference="${3}"
+revision="${3}"
+reference="${4}"
 base_dir=/tmp/output/wazuh-dashboard-base
 
 # -----------------------------------------------------------------------------
+
+if [ -z "${revision}" ]; then
+    revision="1"
+fi
 
 # Including files
 if [ "${reference}" ];then
     curl -sL https://github.com/wazuh/wazuh-packages/tarball/"${reference}" | tar xz
     cp -r ./wazuh*/* /root/
-    version=$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh-packages/${spec_reference}/VERSION | cat)
+    version=$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh-packages/${reference}/VERSION | cat)
 else
     version=$(cat /root/VERSION)
 fi
@@ -35,10 +40,6 @@ wazuh_minor=$(echo ${version} | cut -c1-3)
 
 mkdir -p /tmp/output
 cd /tmp/output
-
-if [ -z "${release}" ]; then
-    release="1"
-fi
 
 curl -sL https://artifacts.opensearch.org/releases/bundle/opensearch-dashboards/"${opensearch_version}"/opensearch-dashboards-"${opensearch_version}"-linux-x64.tar.gz | tar xz
 
@@ -97,14 +98,14 @@ brotli -c ./src/plugins/dashboard/target/public/dashboard.chunk.1.js > ./src/plu
 # Remove `home` button from the sidebar menu
 sed -i 's|\["EuiHorizontalRule"\],{margin:"none"})),external_osdSharedDeps_React_default.a.createElement(external_osdSharedDeps_ElasticEui_\["EuiFlexItem"\],{grow:false,style:{flexShrink:0}},external_osdSharedDeps_React_default.a.createElement(external_osdSharedDeps_ElasticEui_\["EuiCollapsibleNavGroup"\]|["EuiHorizontalRule"],{margin:"none"})),false\&\&external_osdSharedDeps_React_default.a.createElem(external_osdSharedDeps_ElasticEui_["EuiFlexItem"],{grow:false,style:{flexShrink:0}},external_osdSharedDeps_React_default.a.createElement(external_osdSharedDeps_ElasticEui_["EuiCollapsibleNavGroup"]|' ./src/core/target/public/core.entry.js
 # Replace OpenSearch login default configuration title with Wazuh login title text
-sed -i 's|Please login to OpenSearch Dashboards|Welcome to Wazuh|g' ./plugins/securityDashboards/server/index.js
-sed -i 's|If you have forgotten your username or password, please ask your system administrator|The Open Source Security Platform|g' ./plugins/securityDashboards/server/index.js
+sed -i 's|Please login to OpenSearch Dashboards||g' ./plugins/securityDashboards/server/index.js
+sed -i 's|If you have forgotten your username or password, please ask your system administrator||g' ./plugins/securityDashboards/server/index.js
 # Replace OpenSearch login logo with Wazuh login logo
-sed -i 's|opensearch_logo_h_default.a|"/ui/wazuh_logo_circle.svg"|g' ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js
+sed -i 's|opensearch_logo_h_default.a|"/ui/Wazuh-Logo.svg"|g' ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js
 # Replace OpenSearch login title with Wazuh login title
-sed -i 's|Please login to OpenSearch Dashboards|Welcome to Wazuh|g' ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js
+sed -i 's|Please login to OpenSearch Dashboards||g' ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js
 # Replace OpenSearch login subtitle with Wazuh login subtitle
-sed -i 's|If you have forgotten your username or password, please ask your system administrator|The Open Source Security Platform|g' ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js
+sed -i 's|If you have forgotten your username or password, please ask your system administrator||g' ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js
 # Disable first time pop-up tenant selector
 sed -i 's|setShouldShowTenantPopup(shouldShowTenantPopup)|setShouldShowTenantPopup(false)|g' ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
 gzip -c ./plugins/securityDashboards/target/public/securityDashboards.plugin.js > ./plugins/securityDashboards/target/public/securityDashboards.plugin.js.gz
@@ -112,6 +113,8 @@ brotli -c ./plugins/securityDashboards/target/public/securityDashboards.plugin.j
 # Generate compressed files
 gzip -c ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js > ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js.gz
 brotli -c ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js > ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js.br
+# Add VERSION file
+cp /root/VERSION .
 
 # Remove plugins
 /bin/bash ./bin/opensearch-dashboards-plugin remove queryWorkbenchDashboards --allow-root
@@ -127,5 +130,5 @@ find -type f -perm 755 -exec chmod 750 {} \;
 
 # Base output
 cd /tmp/output
-tar -cJf wazuh-dashboard-base-"${version}"-linux-x64.tar.xz wazuh-dashboard-base
+tar -cJf wazuh-dashboard-base-"${version}"-"${revision}"-linux-x64.tar.xz wazuh-dashboard-base
 rm -rf "${base_dir}"
