@@ -1,4 +1,4 @@
-FROM arm64v8/debian:8
+FROM arm64v8/debian:9
 
 ENV DEBIAN_FRONTEND noninteractive
 
