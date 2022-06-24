@@ -250,7 +250,7 @@ function main() {
             passwords_readFileUsers
         fi
 
-        if [ -z "${api}" ] || [ -n "${changeall}" ]; then
+        if ([ -z "${api}" ] || [ -n "${changeall}" ]) && [ -n "${indexer_installed}" ]; then
             passwords_getNetworkHost
             passwords_createBackUp
             passwords_generateHash
