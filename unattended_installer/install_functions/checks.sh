@@ -180,20 +180,24 @@ function check_dist() {
     if [ "${DIST_NAME}" != "centos" ] && [ "${DIST_NAME}" != "rhel" ] && [ "${DIST_NAME}" != "amzn" ] && [ "${DIST_NAME}" != "ubuntu" ]; then
         notsupported=1
     fi
-    if ([ "${DIST_NAME}" == "centos" ] || [ "${DIST_NAME}" == "rhel" ]) && ([ "${DIST_VER}" -ne "7" ] && [ "${DIST_VER}" -ne "8" ]); then
+    if ([ "${DIST_NAME}" == "centos" ] || [ "${DIST_NAME}" == "rhel" ]) && ([ "${DIST_VER}" -ne "7" ] && [ "${DIST_VER}" -ne "8" ] && [ "${DIST_VER}" -ne "9" ]); then
         notsupported=1
     fi
     if ([ "${DIST_NAME}" == "amzn" ]) && ([ "${DIST_VER}" -ne "2" ]); then
         notsupported=1
     fi
-    if ([ "${DIST_NAME}" == "ubuntu" ]) && ([ "${DIST_VER}" -ne "16" ] && [ "${DIST_VER}" -ne "18" ] && [ "${DIST_VER}" -ne "20" ] && [ "${DIST_VER}" -ne "22" ]); then
-        notsupported=1
-    fi
-    if ([ "${DIST_NAME}" == "ubuntu" ]) && ([ "${DIST_VER}" -eq "16" ] || [ "${DIST_VER}" -eq "18" ] || [ "${DIST_VER}" -eq "20" ] || [ "${DIST_VER}" -eq "22" ]) &&  ([ "${DIST_SUBVER}" != "04" ]); then
-        notsupported=1
+    if [ "${DIST_NAME}" == "ubuntu" ]; then
+        if [ "${DIST_VER}" == "16" ] || [ "${DIST_VER}" == "18" ] ||
+           [ "${DIST_VER}" == "20" ] || [ "${DIST_VER}" == "22" ]; then
+            if [ "${DIST_SUBVER}" != "04" ]; then
+                notsupported=1             
+            fi
+        else
+            notsupported=1
+        fi
     fi
     if [ -n "${notsupported}" ] && [ -z "${ignore}" ]; then
-        common_logger -e "The recommended systems are: Red Hat Enterprise Linux 7, 8; CentOS 7, 8; Amazon Linux 2; Ubuntu 16.04, 18.04, 20.04, 22.04. The current system doesn't match this list. Use -i|--ignore-check to skip this check."
+        common_logger -e "The recommended systems are: Red Hat Enterprise Linux 7, 8, 9; CentOS 7, 8; Amazon Linux 2; Ubuntu 16.04, 18.04, 20.04, 22.04. The current system doesn't match this list. Use -i|--ignore-check to skip this check."
         exit 1
     fi
 }
