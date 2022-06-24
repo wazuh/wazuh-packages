@@ -215,7 +215,7 @@ function main() {
                 passwords_getApiToken
                 passwords_getApiUsers
                 passwords_getApiIds
-            else
+            elif [ -n "${indexer_installed}" ]; then
                 passwords_readUsers
             fi
             passwords_checkUser
