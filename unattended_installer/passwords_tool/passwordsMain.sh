@@ -232,7 +232,9 @@ function main() {
         
 
         if [ -n "${changeall}" ] || [ -n "${p_file}" ]; then
-            passwords_readUsers
+            if [ -n "${indexer_installed}" ]; then
+                passwords_readUsers
+            fi
             if [ -n "${adminUser}" ] && [ -n "${adminPassword}" ]; then
                 passwords_getApiToken
                 passwords_getApiUsers
