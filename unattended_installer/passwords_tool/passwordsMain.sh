@@ -238,7 +238,7 @@ function main() {
                 passwords_getApiUsers
                 passwords_getApiIds
             else
-                common_logger "Wazuh API admin credentials not provided, Wazuh API passwords not changed"
+                common_logger "Wazuh API admin credentials not provided, Wazuh API passwords not changed."
             fi
             if [ -n "${changeall}" ]; then
                 passwords_generatePassword
