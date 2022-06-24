@@ -8,7 +8,7 @@ license=(GPL2)
 source=('PARAM_SOURCE_FILE'
         'wazuh.sysusers')
 sha512sums=('SKIP'
-            'adce723356b0b533854700d4c367cedf4caba13146e1b754d60e72939d301d248a48f7b61d82c9104616f1e7720e4712cca9f37d3d4de37f1d0b5581c159f3d6')
+            'f677eff94751d7ac485511cac8a19a2fb0294cce3434f77b38c3ad62d7a63c1ed76d2fa6f48a18fdbe3a11f498625b1ce3c8e73dc3db768572b257c0dbeb594a')
 depends=('python' 'brotli')
 noextract=('PARAM_SOURCE_FILE')
 backup=('PARAM_INSTALLATION_BACKUP_DIR/etc/client.keys'
