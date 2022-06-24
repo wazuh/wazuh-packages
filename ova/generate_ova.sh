@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Program to build the Wazuh Virtual Machine
 # Wazuh package generator
@@ -15,7 +15,7 @@ set -e
 # CONFIGURATION VARIABLES
 
 scriptpath=$(
-    cd $(dirname $0)
+    cd "$(dirname "$0")"
     pwd -P
 )
 
@@ -58,18 +58,18 @@ help () {
     echo -e "        -h,  --help"
     echo -e "                Show this help."
     echo ""
-    exit $1
+    exit "$1"
 }
 
 clean() {
     exit_code=$1
 
-    cd ${scriptpath}
+    cd "${scriptpath}"
     vagrant destroy -f
     OVA_VMDK="wazuh-${OVA_VERSION}-disk001.vmdk"
-    rm -f ${OVA_VM} ${OVF_VM} ${OVA_VMDK} ${OVA_FIXED}
+    rm -f "${OVA_VM}" "${OVF_VM}" "${OVA_VMDK}" "${OVA_FIXED}"
 
-    exit ${exit_code}
+    exit "${exit_code}"
 }
 
 build_ova() {
@@ -82,7 +82,7 @@ build_ova() {
     export DEBUG
 
     if [ -e "${OUTPUT_DIR}/${OVA_VM}" ] || [ -e "${OUTPUT_DIR}/${OVF_VM}" ]; then
-        rm -f ${OUTPUT_DIR}/${OVA_VM} ${OUTPUT_DIR}/${OVF_VM}
+        rm -f "${OUTPUT_DIR}"/"${OVA_VM}" "${OUTPUT_DIR}"/"${OVF_VM}"
     fi
 
     if [ -e "${CHECKSUM_DIR}/${OVA_VM}.sha512" ]; then
@@ -99,7 +99,7 @@ build_ova() {
     VM_EXPORT=$(vboxmanage list vms | grep -i vm_wazuh | cut -d "\"" -f2)
 
     # Create OVA with machine
-    vboxmanage export ${VM_EXPORT} -o ${OVA_VM} \
+    vboxmanage export "${VM_EXPORT}" -o "${OVA_VM}" \
     --vsys 0 \
     --product "Wazuh v${OVA_VERSION} OVA" \
     --producturl "https://packages.wazuh.com/vm/wazuh-${OVA_VERSION}.ova" \
@@ -109,16 +109,16 @@ build_ova() {
 
     vagrant destroy -f
 
-    tar -xvf ${OVA_VM}
+    tar -xvf "${OVA_VM}"
 
     echo "Setting up ova for VMware ESXi"
 
     # Configure OVA for import to VMWare ESXi
-    python Ova2Ovf.py -s ${OVA_VM} -d ${OVA_FIXED}
+    python3 Ova2Ovf.py -s "${OVA_VM}" -d "${OVA_FIXED}"
 
     # Make output dir of OVA file
-    mkdir -p ${OUTPUT_DIR}
-    mv ${OVA_FIXED} ${OUTPUT_DIR}/${OVA_VM}
+    mkdir -p "${OUTPUT_DIR}"
+    mv "${OVA_FIXED}" "${OUTPUT_DIR}"/"${OVA_VM}"
 
 }
 
@@ -212,8 +212,8 @@ main() {
     bash setOVADefault.sh "${scriptpath}" "${OUTPUT_DIR}/${OVA_VM}" "${OUTPUT_DIR}/${OVA_VM}" "${scriptpath}/wazuh_ovf_template" "${OVA_VERSION}"  || clean 1
 
     if [ "${CHECKSUM}" = "yes" ]; then
-        mkdir -p ${CHECKSUM_DIR}
-        cd ${OUTPUT_DIR} && sha512sum "${OVA_VM}" > "${CHECKSUM_DIR}/${OVA_VM}.sha512"
+        mkdir -p "${CHECKSUM_DIR}"
+        cd "${OUTPUT_DIR}" && sha512sum "${OVA_VM}" > "${CHECKSUM_DIR}/${OVA_VM}.sha512"
         echo "Checksum created in ${CHECKSUM_DIR}/${OVA_VM}.sha512"
     fi
 
@@ -223,3 +223,4 @@ main() {
 }
 
 main "$@"
+
