@@ -1,8 +1,9 @@
 DIR="PARAM_INSTALLATION_DIR"
 SCRIPTS_DIR="PARAM_INSTALLATION_SCRIPTS_DIR"
+WAZUH_TMP_DIR="${DIR}/packages_files/agent_config_files"
 SCA_BASE_DIR="${SCRIPTS_DIR}/sca"
-USER="ossec"
-GROUP="ossec"
+USER="wazuh"
+GROUP="wazuh"
 
 common() {
     # Install the SCA files
@@ -42,21 +43,36 @@ common() {
     fi
 
     touch ${DIR}/logs/active-responses.log
-    chown ossec:ossec ${DIR}/logs/active-responses.log
+    chown ${USER}:${GROUP} ${DIR}/logs/active-responses.log
     chmod 0660 ${DIR}/logs/active-responses.log
 
     # Register and configure agent if Wazuh environment variables are defined
     if [ -z "$2" ] ; then
-        ${SCRIPTS_DIR}/src/init/register_configure_agent.sh > /dev/null || :
+        ${SCRIPTS_DIR}/src/init/register_configure_agent.sh ${DIR} > /dev/null || :
     fi
 
     # Restoring file permissions
     ${SCRIPTS_DIR}/restore-permissions.sh > /dev/null 2>&1 || :
 
-    # Fix /etc/ossec-init.conf
-    chmod 640 /etc/ossec-init.conf
-    chown root:ossec /etc/ossec-init.conf
+    # Remove the deprecated /etc/ossec-init.conf file
+    if [ -f /etc/ossec-init.conf ] ; then
+        rm -f /etc/ossec-init.conf
+    fi
+
     ${SCRIPTS_DIR}/fix_owner.sh 2>/dev/null
+}
+
+pre_upgrade() {
+    if [ ! -d ${WAZUH_TMP_DIR} ]; then
+        mkdir -p ${WAZUH_TMP_DIR}
+    fi
+    if systemctl is-active --quiet wazuh-agent > /dev/null 2>&1; then
+        systemctl stop wazuh-agent.service > /dev/null 2>&1
+        touch ${WAZUH_TMP_DIR}/wazuh.restart
+    elif ${DIR}/bin/wazuh-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
+        ${DIR}/bin/wazuh-control stop > /dev/null 2>&1
+        touch ${WAZUH_TMP_DIR}/wazuh.restart
+    fi
 }
 
 post_upgrade() {
@@ -64,10 +80,16 @@ post_upgrade() {
     chmod 660 ${DIR}/etc/ossec.conf.new
 
     common
+
+    if [ -f ${WAZUH_TMP_DIR}/wazuh.restart ] ; then
+        rm -f ${WAZUH_TMP_DIR}/wazuh.restart
+        systemctl daemon-reload > /dev/null 2>&1
+        systemctl restart wazuh-agent.service > /dev/null 2>&1
+    fi
 }
 
 post_install() {
-    if ! getent group | grep -q "^ossec" ; then
+    if ! getent group | grep -q "^${GROUP}" ; then
         systemd-sysusers
     fi
 
@@ -79,4 +101,34 @@ post_install() {
     ${SCRIPTS_DIR}/add_localfiles.sh >> ${DIR}/etc/ossec.conf
 
     common
+}
+
+pre_remove() {
+    systemctl disable wazuh-agent.service 2>/dev/null || true
+    if systemctl is-active --quiet wazuh-agent > /dev/null 2>&1; then
+        systemctl stop wazuh-agent.service > /dev/null 2>&1
+    elif ${DIR}/bin/wazuh-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
+        ${DIR}/bin/wazuh-control stop > /dev/null 2>&1
+    fi
+}
+
+post_remove() {
+
+    if [ -d ${WAZUH_TMP_DIR} ]; then
+        rm -rf ${WAZUH_TMP_DIR}
+    fi
+
+    # If the directory is not empty, copy the files into ${DIR}/etc
+    if ls -A ${DIR}/tmp/conffiles > /dev/null 2>&1 ; then
+        if [ ! -d ${DIR}/etc ]; then
+            mkdir -p ${DIR}/etc
+        fi
+        mv ${DIR}/tmp/conffiles/* ${DIR}/etc
+    fi
+
+    rm -rf ${DIR}/tmp
+    rm -rf ${DIR}/ruleset
+    rm -rf ${DIR}/var
+    rm -rf ${DIR}/logs
+
 }
