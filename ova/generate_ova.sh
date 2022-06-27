@@ -114,7 +114,15 @@ build_ova() {
     echo "Setting up ova for VMware ESXi"
 
     # Configure OVA for import to VMWare ESXi
-    python3 Ova2Ovf.py -s "${OVA_VM}" -d "${OVA_FIXED}"
+    if [ -n "$(command -v python)" ]; then
+        python Ova2Ovf.py -s "${OVA_VM}" -d "${OVA_FIXED}"
+    elif [ -n "$(command -v python3)" ]; then
+        python3 Ova2Ovf.py -s "${OVA_VM}" -d "${OVA_FIXED}"
+    else
+        echo "Cannot find python"
+        clean 1
+    fi
+    
 
     # Make output dir of OVA file
     mkdir -p "${OUTPUT_DIR}"
