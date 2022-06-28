@@ -18,6 +18,7 @@ deb_arm64_builder="deb_indexer_builder_arm64"
 deb_builder_dockerfile="${current_path}/docker"
 future="no"
 base="s3"
+base_path="${current_path}/../base/output"
 
 trap ctrl_c INT
 
@@ -55,7 +56,7 @@ build_deb() {
             ${future} ${base} ${architecture_base} ${reference} || return 1
     else
         if [ "${base}" = "local" ];then
-            volumes="${volumes} -v ${current_path}/../base/output:/root/output:Z"
+            volumes="${volumes} -v ${base_path}:/root/output:Z"
         fi
         docker run -t --rm ${volumes} \
             -v ${current_path}/../../..:/root:Z \
@@ -101,6 +102,7 @@ help() {
     echo "    --dont-build-docker        [Optional] Locally built docker image will be used instead of generating a new one."
     echo "    --future                   [Optional] Build test future package 99.99.0 Used for development purposes."
     echo "    --base <s3/local>          [Optional] Base file location, use local or s3, default: s3"
+    echo "    --base-path                [Optional] If base is local, you can indicate the full path where the base is located, default: stack/indexer/base/output"
     echo "    -h, --help                 Show this help."
     echo
     exit $1
@@ -149,6 +151,14 @@ main() {
         "--base")
             if [ -n "${2}" ]; then
                 base="${2}"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
+        "--base-path")
+            if [ -n "${2}" ]; then
+                base_path="${2}"
                 shift 2
             else
                 help 1
