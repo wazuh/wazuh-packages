@@ -12,22 +12,21 @@ set -ex
 # Script parameters to build the package
 target="wazuh-dashboard"
 architecture=$1
-release=$2
+revision=$2
 future=$3
 base_location=$4
-spec_reference=$5
+reference=$5
 directory_base="/usr/share/wazuh-dashboard"
-rpmbuild="rpmbuild"
 
-if [ -z "${release}" ]; then
-    release="1"
+if [ -z "${revision}" ]; then
+    revision="1"
 fi
 
 if [ "${future}" = "yes" ];then
     version="99.99.0"
 else
-    if [ "${spec_reference}" ];then
-        version=$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh-packages/${spec_reference}/VERSION | cat)
+    if [ "${reference}" ];then
+        version=$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh-packages/${reference}/VERSION | cat)
     else
         version=$(cat /root/VERSION)
     fi
@@ -36,7 +35,7 @@ fi
 # Build directories
 build_dir=/build
 rpm_build_dir=${build_dir}/rpmbuild
-file_name="${target}-${version}-${release}"
+file_name="${target}-${version}-${revision}"
 pkg_path="${rpm_build_dir}/RPMS/${architecture}"
 rpm_file="${file_name}.${architecture}.rpm"
 mkdir -p ${rpm_build_dir}/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
@@ -47,8 +46,8 @@ mkdir ${build_dir}/${pkg_name}
 
 
 # Including spec file
-if [ "${spec_reference}" ];then
-    curl -sL https://github.com/wazuh/wazuh-packages/tarball/${spec_reference} | tar zx
+if [ "${reference}" ];then
+    curl -sL https://github.com/wazuh/wazuh-packages/tarball/${reference} | tar zx
     cp ./wazuh*/stack/dashboard/rpm/${target}.spec ${rpm_build_dir}/SPECS/${pkg_name}.spec
     cp -r ./wazuh*/* /root/
 else
@@ -61,11 +60,10 @@ cd ${build_dir} && tar czf "${rpm_build_dir}/SOURCES/${pkg_name}.tar.gz" "${pkg_
 
 # Building RPM
 /usr/bin/rpmbuild --define "_topdir ${rpm_build_dir}" --define "_version ${version}" \
-    --define "_release ${release}" --define "_localstatedir ${directory_base}" \
+    --define "_release ${revision}" --define "_localstatedir ${directory_base}" \
     --define "_base ${base_location}" \
     --target ${architecture} -ba ${rpm_build_dir}/SPECS/${pkg_name}.spec
 
 cd ${pkg_path} && sha512sum ${rpm_file} > /tmp/${rpm_file}.sha512
-
 
 find ${pkg_path}/ -maxdepth 3 -type f -name "${file_name}*" -exec mv {} /tmp/ \;
