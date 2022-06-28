@@ -30,9 +30,9 @@ def get_password(username):
     tmp_yaml=""
 
     with tarfile.open("../../../unattended_installer/wazuh-install-files.tar") as configurations:
-        configurations.extract("wazuh-install-files/passwords.wazuh")
+        configurations.extract("wazuh-install-files/wazuh-passwords.txt")
 
-    with open("wazuh-install-files/passwords.wazuh", 'r') as pass_file:
+    with open("wazuh-install-files/wazuh-passwords.txt", 'r') as pass_file:
         while pass_dict["username"] != username:
             for i in range(4):
                 tmp_yaml+=pass_file.readline()
