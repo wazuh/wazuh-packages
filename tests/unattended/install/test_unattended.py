@@ -36,7 +36,13 @@ def get_password(username):
         while pass_dict["username"] != username:
             for i in range(4):
                 tmp_yaml+=pass_file.readline()
-            pass_dict=yaml.safe_load(tmp_yaml)
+            tmp_dict=yaml.safe_load(tmp_yaml)
+            if 'indexer_username' in tmp_dict:
+                pass_dict["username"]=tmp_dict["indexer_username"]
+                pass_dict["password"]=tmp_dict["indexer_password"]
+            if 'api_username' in tmp_dict:
+                pass_dict["username"]=tmp_dict["api_username"]
+                pass_dict["password"]=tmp_dict["api_password"]
     return pass_dict["password"]
 
 def get_wazuh_version():

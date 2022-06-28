@@ -55,3 +55,6 @@ readonly dashboard_rpm_base_url="${base_url}/yum"
 readonly dashboard_rpm_package="wazuh-dashboard-${wazuh_version}-${dashboard_revision_rpm}.x86_64.rpm"
 readonly wazuh_gpg_key="https://${bucket}/key/GPG-KEY-WAZUH"
 readonly filebeat_config_file="${resources}/tpl/wazuh/filebeat/filebeat.yml"
+
+adminUser="wazuh"
+adminPassword="wazuh"
