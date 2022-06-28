@@ -373,15 +373,17 @@ function passwords_readFileUsers() {
     if [[ "${filecorrect}" -ne 1 ]]; then
         common_logger -e "The password file doesn't have a correct format or password uses invalid characters. Allowed characters: A-Za-z0-9.*+?
 
-It must have this format:
+For Wazuh indexer users, the file must have this format:
 
 # Description
-  indexer_username: name
-  indexer_password: password
+  indexer_username: <user>
+  indexer_password: <password>
+
+For Wazuh API users, the file must have this format:
 
 # Description
-  api_username: kibanaserver
-  api_password: NiwXQw82pIf0dToiwczduLBnUPEvg7T0
+  api_username: <user>
+  api_password: <password>
 
 "
 	    exit 1
