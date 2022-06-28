@@ -67,6 +67,7 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
+    echo "    -s, --store <path>         [Optional] Set the destination path of package. By default, an output folder will be created."
     echo "    --version <version>   [Optional] OpenSearch version, by default ${opensearch_version}"
     echo "    --reference <ref>     [Optional] wazuh-packages branch or tag"
     echo "    --future              [Optional] Build test future package 99.99.0 Used for development purposes."
@@ -84,6 +85,14 @@ main() {
         case "${1}" in
         "-h"|"--help")
             help 0
+            ;;
+        "-s"|"--store")
+            if [ -n "${2}" ]; then
+                outdir="${2}"
+                shift 2
+            else
+                help 1
+            fi
             ;;
         "--version")
             if [ -n "${2}" ]; then
