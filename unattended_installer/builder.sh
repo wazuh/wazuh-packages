@@ -70,14 +70,14 @@ function buildInstaller() {
         echo 'readonly repogpg="https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH"' >> "${output_script_path}"
         echo 'readonly repobaseurl="https://packages-dev.wazuh.com/pre-release"' >> "${output_script_path}"
         echo 'readonly reporelease="unstable"' >> "${output_script_path}"
-        echo 'readonly filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.1.tar.gz"' >> "${output_script_path}"
+        echo 'readonly filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.2.tar.gz"' >> "${output_script_path}"
         echo 'readonly bucket="packages-dev.wazuh.com"' >> "${output_script_path}"
         echo 'readonly repository="pre-release"' >> "${output_script_path}"
     else
         echo 'readonly repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"' >> "${output_script_path}"
         echo 'readonly repobaseurl="https://packages.wazuh.com/4.x"' >> "${output_script_path}"
         echo 'readonly reporelease="stable"' >> "${output_script_path}"
-        echo 'readonly filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.1.tar.gz"' >> "${output_script_path}"
+        echo 'readonly filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.2.tar.gz"' >> "${output_script_path}"
         echo 'readonly bucket="packages.wazuh.com"' >> "${output_script_path}"
         echo 'readonly repository="4.x"' >> "${output_script_path}"
     fi

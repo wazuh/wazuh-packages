@@ -854,7 +854,7 @@ rm -fr %{buildroot}
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Wed Oct 06 2021 support <info@wazuh.com> - 4.2.3
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Wed Oct 06 2021 support <info@wazuh.com> - 4.2.2
+* Tue Sep 28 2021 support <info@wazuh.com> - 4.2.2
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Sat Sep 25 2021 support <info@wazuh.com> - 4.2.1
 - More info: https://documentation.wazuh.com/current/release-notes/

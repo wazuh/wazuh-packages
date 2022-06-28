@@ -19,6 +19,7 @@ future="no"
 base="s3"
 base_path="${current_path}/../base/output"
 
+
 trap ctrl_c INT
 
 clean() {
