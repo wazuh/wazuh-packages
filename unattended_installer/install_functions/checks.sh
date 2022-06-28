@@ -37,7 +37,7 @@ function checks_arguments() {
 
     # -------------- Overwrite --------------------------------------
 
-    if [ -n "${overwrite}" ] && [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ]; then 
+    if [ -n "${overwrite}" ] && [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ]; then
         common_logger -e "The argument -o|--overwrite must be used in conjunction with -a|--all-in-one, -wd|--wazuh-dashboard, -wi|--wazuh-indexer, or -ws|--wazuh-server."
         exit 1
     fi
@@ -86,7 +86,7 @@ function checks_arguments() {
             common_logger -e "Wazuh manager already installed."
             installedComponent=1
         fi
-        if [ -z "${overwrite}" ] && ([ -n "${indexer_installed}" ] || [ -n "${indexer_remaining_files}" ]);then 
+        if [ -z "${overwrite}" ] && ([ -n "${indexer_installed}" ] || [ -n "${indexer_remaining_files}" ]);then
             common_logger -e "Wazuh indexer already installed."
             installedComponent=1
         fi
@@ -162,7 +162,7 @@ function checks_arguments() {
     if [ -n "${force}" ] && [ -z  "${dashboard}" ]; then
         common_logger -e "The -fd|--force-install-dashboard argument needs to be used alongside -wd|--wazuh-dashboard."
         exit 1
-    fi 
+    fi
 
 }
 
@@ -181,14 +181,14 @@ function check_dist() {
         if [ "${DIST_VER}" == "16" ] || [ "${DIST_VER}" == "18" ] ||
            [ "${DIST_VER}" == "20" ] || [ "${DIST_VER}" == "22" ]; then
             if [ "${DIST_SUBVER}" != "04" ]; then
-                notsupported=1             
+                notsupported=1
             fi
         else
             notsupported=1
         fi
     fi
     if [ -n "${notsupported}" ] && [ -z "${ignore}" ]; then
-        common_logger -e "The recommended systems are: Red Hat Enterprise Linux 7, 8, 9; CentOS 7, 8; Amazon Linux 2; Ubuntu 16.04, 18.04, 20.04, 22.04. The current system doesn't match this list. Use -i|--ignore-check to skip this check."
+        common_logger -e "The recommended systems are: Red Hat Enterprise Linux 7, 8, 9; CentOS 7, 8; Amazon Linux 2; Ubuntu 16.04, 18.04, 20.04, 22.04. The current system does not match this list. Use -i|--ignore-check to skip this check."
         exit 1
     fi
 }
@@ -196,7 +196,7 @@ function check_dist() {
 function checks_health() {
 
     logger "Verifying that your system meets the recommended minimum hardware requirements."
-    
+
     checks_specifications
 
     if [ -n "${indexer}" ]; then
