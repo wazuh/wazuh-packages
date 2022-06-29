@@ -11,15 +11,15 @@
 set -ex
 
 # Script parameters to build the package
-build_target=$1
-wazuh_branch=$2
-architecture_target=$3
-package_release=$4
-jobs=$5
-dir_path=$6
-debug=$7
-checksum=$8
-wazuh_packages_branch=$9
+build_target=${1}
+wazuh_branch=${2}
+architecture_target=${3}
+package_release=${4}
+jobs=${5}
+dir_path=${6}
+debug=${7}
+checksum=${8}
+wazuh_packages_branch=${9}
 use_local_specs=${10}
 local_source_code=${11}
 future=${12}
@@ -28,17 +28,10 @@ if [ -z "${package_release}" ]; then
     package_release="1"
 fi
 
-if [ ${build_target} = "api" ]; then
-    if [ "${local_source_code}" = "no" ]; then
-        curl -sL https://github.com/wazuh/wazuh-api/tarball/${wazuh_branch} | tar zx
-    fi
-    wazuh_version="$(grep version wazuh*/package.json | cut -d '"' -f 4)"
-else
-    if [ "${local_source_code}" = "no" ]; then
-        curl -sL https://github.com/wazuh/wazuh/tarball/${wazuh_branch} | tar zx
-    fi
-    wazuh_version="$(cat wazuh*/src/VERSION | cut -d 'v' -f 2)"
+if [ "${local_source_code}" = "no" ]; then
+    curl -sL https://github.com/wazuh/wazuh/tarball/${wazuh_branch} | tar zx
 fi
+wazuh_version="$(cat wazuh*/src/VERSION | cut -d 'v' -f 2)"
 
 # Build directories
 build_dir=/build_wazuh
@@ -48,35 +41,33 @@ pacman_dir="${build_dir}/${build_target}/build"
 
 tmp_dir=${build_dir}/tmp
 tmp_sources_dir=${tmp_dir}/source
-tmp_specs_path=${tmp_dir}/specs
 
 mkdir -p "${pacman_dir}"
 
-if [ "${use_local_specs}" = "no" ]; then
+if [[ "${use_local_specs}" == "no" ]]; then
+    tmp_specs_path=${tmp_dir}/specs
     mkdir -p ${tmp_specs_path}
     cd ${tmp_specs_path}
     specs_path=${tmp_specs_path}
     curl -sL https://github.com/wazuh/wazuh-packages/tarball/${wazuh_packages_branch} | tar zx
     specs_path=`pwd`/$(find . -type d -name "SPECS" -path "*arch*")
-    tmp_specs_path=$specs_path
+    tmp_specs_path=${specs_path}
 else
     specs_path="/specs/SPECS"
 fi
 
 if [[ "${future}" == "yes" ]]; then
     # MODIFY VARIABLES
-    base_version=$wazuh_version
-    MAJOR=$(echo $base_version | cut -dv -f2 | cut -d. -f1)
-    MINOR=$(echo $base_version | cut -d. -f2)
-    wazuh_version="${MAJOR}.30.0"
+    base_version=${wazuh_version}
+    MAJOR=$(echo ${base_version} | cut -dv -f2 | cut -d. -f1)
+    MINOR=$(echo ${base_version} | cut -d. -f2)
+    wazuh_version="99.99.0"
     package_full_name=wazuh-${build_target}-${wazuh_version}
 
     # PREPARE FUTURE SPECS AND SOURCES
     mkdir -p ${tmp_dir}
     cp -r ${sources_dir} "${tmp_sources_dir}"
-    cp -r "${specs_path}" "${tmp_specs_path}"
     sources_dir="${tmp_sources_dir}"
-    specs_path="${tmp_specs_path}"
     find "${sources_dir}" "${specs_path}" \( -name "*VERSION*" -o -name "*changelog*" \) -exec sed -i "s/${base_version}/${wazuh_version}/g" {} \;
     sed -i "s/\$(VERSION)/${MAJOR}.${MINOR}/g" "${sources_dir}/src/Makefile"
 fi
@@ -116,25 +107,25 @@ cat >/usr/bin/install <<EOF
 
 for arg do
     shift
-    [ "\$last_arg" = "-o" ] && owner="\$arg"
-    [ "\$last_arg" = "-g" ] && group="\$arg"
-    last_arg="\$arg"
+    [[ "\${last_arg}" == "-o" ]] && owner="\${arg}"
+    [[ "\${last_arg}" == "-g" ]] && group="\${arg}"
+    last_arg="\${arg}"
 
-    [ "\$dual_arg" == "1" ] && dual_arg="0" continue
+    [[ "\${dual_arg}" == "1" ]] && dual_arg="0" continue
 
     # ignore the -o and -g flags
-    [ "\$arg" = "-o" ] && dual_arg="1" continue
-    [ "\$arg" = "-g" ] && dual_arg="1" continue
+    [[ "\${arg}" == "-o" ]] && dual_arg="1" continue
+    [[ "\${arg}" == "-g" ]] && dual_arg="1" continue
 
-    [[ ! "\$arg" =~ ^-.* ]] && dir="\$arg"
-    set -- "\$@" "\$arg"
+    [[ ! "\${arg}" =~ ^-.* ]] && dir="\${arg}"
+    set -- "\$@" "\${arg}"
 done
 
-if [ ! "\$owner" = "" ]; then
-    if [ ! "\$group" = "" ]; then
-        owner="\$owner:\$group"
+if [[ ! "\${owner}" == "" ]]; then
+    if [[ ! "\${group}" == "" ]]; then
+        owner="\${owner}:\${group}"
     fi
-    echo "chown -R \$owner \$dir" >> /tmp/fake-install.saved
+    echo "chown -R \${owner} \${dir}" >> /tmp/fake-install.saved
 fi
 
 exec real_install "\$@"
@@ -147,7 +138,7 @@ mv /usr/bin/{real_install,install}
 
 # copy the package out
 pkg_file="wazuh-${build_target}-${wazuh_version}-${package_release}-${architecture_target}.pkg.tar.zst"
-pkg_path="$pacman_dir"
+pkg_path="${pacman_dir}"
 
 if [[ "${checksum}" == "yes" ]]; then
     cd ${pkg_path} && sha512sum ${pkg_file} > /var/local/checksum/${pkg_file}.sha512

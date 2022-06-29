@@ -95,7 +95,7 @@ function cert_generateCertificateconfiguration() {
     echo "${conf}" > "/tmp/wazuh-certificates/${1}.conf"
 
     isIP=$(echo "${2}" | grep -P "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")
-    isDNS=$(echo "${2}" | grep -P "^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$" )
+    isDNS=$(echo "${2}" | grep -P "^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z-]{2,})+$" )
 
     if [[ -n "${isIP}" ]]; then
         conf="$(awk '{sub("IP.1 = cip", "IP.1 = '"${2}"'")}1' "/tmp/wazuh-certificates/${1}.conf")"
