@@ -82,9 +82,7 @@ if [ "$REMOVE_DIRS" = "true" ]; then
 
     # Delete performanceanalyzer directory
     if [ -d "/dev/shm/performanceanalyzer" ]; then
-        echo -n "Deleting performanceanalyzer directory..."
         rm -rf "/dev/shm/performanceanalyzer" > /dev/null 2>&1
-        echo " OK"
     fi
 fi
 
