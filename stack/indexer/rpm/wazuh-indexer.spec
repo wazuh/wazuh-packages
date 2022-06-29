@@ -222,6 +222,9 @@ if [ $1 = 0 ];then
     fi
 
     # Remove lingering folders and files
+    if [ -d /dev/shm/performanceanalyzer ]; then
+        rm -rf /dev/shm/performanceanalyzer
+    fi
     rm -rf %{INSTALL_DIR}
 fi
 
