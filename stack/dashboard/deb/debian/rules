@@ -91,7 +91,6 @@ override_dh_install:
 	chown $(USER):$(GROUP) $(TARGET_DIR)/etc/systemd/system/$(NAME)
 	chown $(USER):$(GROUP) $(TARGET_DIR)/etc/default/$(NAME)
 
-
 	if [ "$(BASE_VERSION)" = "99.99.0" ]; then \
 		runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/futures/ui/dashboard/wazuh-99.99.0-1.zip" ;\
 	else \
