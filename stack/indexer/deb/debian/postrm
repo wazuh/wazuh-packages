@@ -79,6 +79,11 @@ if [ "$REMOVE_DIRS" = "true" ]; then
     if [ -d "${LOG_DIR}" ]; then
         rmdir --ignore-fail-on-non-empty "${LOG_DIR}"
     fi
+
+    # Delete performanceanalyzer directory
+    if [ -d "/dev/shm/performanceanalyzer" ]; then
+        rm -rf "/dev/shm/performanceanalyzer" > /dev/null 2>&1
+    fi
 fi
 
 
