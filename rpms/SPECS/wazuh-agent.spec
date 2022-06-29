@@ -1,6 +1,6 @@
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-agent
-Version:     4.3.4
+Version:     4.3.5
 Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
@@ -254,6 +254,13 @@ if [ $1 = 1 ]; then
   %{_localstatedir}/packages_files/agent_installation_scripts/src/init/register_configure_agent.sh %{_localstatedir} > /dev/null || :
 fi
 
+if [ -f /etc/os-release ]; then
+  source /etc/os-release
+  if [ "${NAME}" = "Red Hat Enterprise Linux" ] && [ "$((${VERSION_ID:0:1}))" -ge 9 ]; then
+    rm -f %{_initrddir}/wazuh-agent
+  fi
+fi
+
 # Delete the installation files used to configure the agent
 rm -rf %{_localstatedir}/packages_files
 
@@ -481,7 +488,7 @@ rm -fr %{buildroot}
 
 %files
 %defattr(-,root,root)
-%{_initrddir}/wazuh-agent
+%config(missingok) %{_initrddir}/wazuh-agent
 %attr(640, root, wazuh) %verify(not md5 size mtime) %ghost %{_sysconfdir}/ossec-init.conf
 /usr/lib/systemd/system/wazuh-agent.service
 %dir %attr(750, root, wazuh) %{_localstatedir}
@@ -605,6 +612,8 @@ rm -fr %{buildroot}
 
 
 %changelog
+* Wed Jun 29 2022 support <info@wazuh.com> - 4.3.5
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Tue Jun 07 2022 support <info@wazuh.com> - 4.3.4
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Tue May 31 2022 support <info@wazuh.com> - 4.3.3
@@ -633,7 +642,7 @@ rm -fr %{buildroot}
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Sat Apr 24 2021 support <info@wazuh.com> - 3.13.3
 - More info: https://documentation.wazuh.com/current/release-notes/
-* Mon Apr 22 2021 support <info@wazuh.com> - 4.1.5
+* Thu Apr 22 2021 support <info@wazuh.com> - 4.1.5
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Mar 29 2021 support <info@wazuh.com> - 4.1.4
 - More info: https://documentation.wazuh.com/current/release-notes/
