@@ -22,6 +22,9 @@ function getHelp() {
     echo -e "        -c,  --config-file <path-to-config-yml>"
     echo -e "                Path to the configuration file used to generate wazuh-install-files.tar file containing the files that will be needed for installation. By default, the Wazuh installation assistant will search for a file named wazuh-config.yml in the same path as the script."
     echo -e ""
+    echo -e "        -dw,  --download-wazuh <deb|rpm>"
+    echo -e "                Download all the packages necessary for offline installation."
+    echo -e ""
     echo -e "        -fd,  --force-install-dashboard"
     echo -e "                Force Wazuh dashboard installation to continue even when it is not capable of connecting to the Wazuh indexer."
     echo -e ""
@@ -60,9 +63,6 @@ function getHelp() {
     echo -e ""
     echo -e "        -ws,  --wazuh-server <server-node-name>"
     echo -e "                Install and configure Wazuh manager and Filebeat, used for distributed deployments."
-    echo -e ""
-    echo -e "        -dw,  --download-wazuh <deb|rpm>"
-    echo -e "                Download all the packages necessary for offline installation."
     exit 1
 
 }
@@ -275,8 +275,8 @@ function main() {
 
         dashboard_install
         dashboard_configure
-        installCommon_changePasswords
         installCommon_startService "wazuh-dashboard"
+        installCommon_changePasswords
         dashboard_initialize
 
     fi
@@ -294,7 +294,6 @@ function main() {
         filebeat_install
         filebeat_configure
         installCommon_changePasswords
-        passwords_changePasswordAPI
         installCommon_startService "filebeat"
     fi
 
@@ -318,7 +317,6 @@ function main() {
         dashboard_configure
         installCommon_startService "wazuh-dashboard"
         installCommon_changePasswords
-        passwords_changePasswordAPI
         dashboard_initializeAIO
         
     fi
