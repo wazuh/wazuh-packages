@@ -177,11 +177,11 @@ exit 0
 # Create the wazuh group if it doesn't exists
 if command -v getent > /dev/null 2>&1 && ! getent group wazuh > /dev/null 2>&1; then
   groupadd -r wazuh
-elif ! id -g wazuh > /dev/null 2>&1; then
+elif ! getent group wazuh > /dev/null 2>&1; then
   groupadd -r wazuh
 fi
 # Create the wazuh user if it doesn't exists
-if ! id -u wazuh > /dev/null 2>&1; then
+if ! getent passwd wazuh > /dev/null 2>&1; then
   useradd -g wazuh -G wazuh -d %{_localstatedir} -r -s /sbin/nologin wazuh
 fi
 
@@ -364,18 +364,18 @@ chmod 0660 %{_localstatedir}/etc/ossec.conf
 
 # Remove old ossec user and group if exists and change ownwership of files
 
-if id -g ossec > /dev/null 2>&1; then
-  find %{_localstatedir} -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
-  if id -u ossec > /dev/null 2>&1; then
-    find %{_localstatedir} -group ossec -user ossec -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
+if getent group ossec > /dev/null 2>&1; then
+  find %{_localstatedir}/ -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
+  if getent passwd ossec > /dev/null 2>&1; then
+    find %{_localstatedir}/ -group ossec -user ossec -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
     userdel ossec > /dev/null 2>&1
   fi
-  if id -u ossecm > /dev/null 2>&1; then
-    find %{_localstatedir} -group ossec -user ossecm -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
+  if getent passwd ossecm > /dev/null 2>&1; then
+    find %{_localstatedir}/ -group ossec -user ossecm -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
     userdel ossecm > /dev/null 2>&1
   fi
-  if id -u ossecr > /dev/null 2>&1; then
-    find %{_localstatedir} -group ossec -user ossecr -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
+  if getent passwd ossecr > /dev/null 2>&1; then
+    find %{_localstatedir}/ -group ossec -user ossecr -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
     userdel ossecr > /dev/null 2>&1
   fi
   if grep -q ossec /etc/group; then
@@ -430,13 +430,13 @@ fi
 # If the package is been uninstalled
 if [ $1 = 0 ];then
   # Remove the wazuh user if it exists
-  if id -u wazuh > /dev/null 2>&1; then
+  if getent passwd wazuh > /dev/null 2>&1; then
     userdel wazuh >/dev/null 2>&1
   fi
   # Remove the wazuh group if it exists
   if command -v getent > /dev/null 2>&1 && getent group wazuh > /dev/null 2>&1; then
     groupdel wazuh >/dev/null 2>&1
-  elif id -g wazuh > /dev/null 2>&1; then
+  elif getent group wazuh > /dev/null 2>&1; then
     groupdel wazuh >/dev/null 2>&1
   fi
 
