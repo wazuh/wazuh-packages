@@ -18,13 +18,6 @@ elif id -g wazuh > /dev/null 2>&1; then
 fi
 
 # Remove lingering folders and files
-rm -rf ${directory_base}/etc/shared/
-rm -rf ${directory_base}/queue/
-rm -rf ${directory_base}/var/
-rm -rf ${directory_base}/bin/
-rm -rf ${directory_base}/logs/
-rm -rf ${directory_base}/backup/
-rm -rf ${directory_base}/ruleset/
-rm -rf ${directory_base}/tmp
+rm -rf ${directory_base}
 
 exit 0
