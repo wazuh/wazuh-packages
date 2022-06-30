@@ -29,7 +29,7 @@ else
     if [ "${spec_reference}" ];then
         export version=$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh-packages/${spec_reference}/VERSION | cat)
     else
-        export version=$(cat /root/VERSION)
+        export version=$(cat /root/repository/VERSION)
     fi
 fi
 
@@ -46,7 +46,7 @@ if [ "${spec_reference}" ];then
     curl -sL https://github.com/wazuh/wazuh-packages/tarball/${spec_reference} | tar zx
     cp -r ./wazuh*/alpine/SPECS/${target} ${spec_path}/
 else
-    cp -r /root/alpine/SPECS/${target} ${spec_path}/
+    cp -r /root/repository/alpine/SPECS/${target} ${spec_path}/
 fi
 
 # Building APK

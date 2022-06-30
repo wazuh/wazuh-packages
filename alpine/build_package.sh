@@ -54,7 +54,7 @@ build_apk() {
             ${reference} ${future} ${spec_reference} || return 1
     else
         docker run -t --rm ${volumes} \
-            -v ${current_path}/..:/root:Z \
+            -v ${current_path}/..:/root/repository:Z \
             ${container_name} ${architecture} \
             ${revision} ${reference} ${future} || return 1
     fi
