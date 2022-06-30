@@ -1,0 +1,14 @@
+#!/bin/sh
+
+set -ex
+
+# add something which happens after upgrade
+
+directory_base="DIRECTORY_BASE"
+
+if [ -f ${directory_base}/tmp/wazuh.restart ]; then
+  rm -f ${directory_base}/tmp/wazuh.restart
+  ${directory_base}/bin/wazuh-control restart > /dev/null 2>&1
+fi
+
+exit 0
