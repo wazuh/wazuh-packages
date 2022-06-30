@@ -94,7 +94,7 @@ function main() {
                 shift 1
                 ;;
             "-au"|"--admin-user")
-                if [ -z ${2} ]; then
+                if [ -z "${2}" ]; then
                     echo "Argument au|--admin-user needs a second argument"
                     getHelp
                     exit 1
@@ -259,7 +259,7 @@ function main() {
             passwords_readFileUsers
         fi
 
-        if ([ -z "${api}" ] || [ -n "${changeall}" ]) && [ -n "${indexer_installed}" ]; then
+        if { [ -z "${api}" ] || [ -n "${changeall}" ]; } && [ -n "${indexer_installed}" ]; then
             passwords_getNetworkHost
             passwords_createBackUp
             passwords_generateHash

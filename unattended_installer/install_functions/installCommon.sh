@@ -99,7 +99,7 @@ function installCommon_aptInstall() {
 function installCommon_changePasswordApi() {
 
     #Change API password tool
-    if [ -n ${changeall} ]; then
+    if [ -n "${changeall}" ]; then
         for i in "${!api_passwords[@]}"; do
             if [ -n "${wazuh}" ] || [ -n "${AIO}" ]; then
                 passwords_getApiUserId "${api_users[i]}"
@@ -111,17 +111,17 @@ function installCommon_changePasswordApi() {
                     passwords_getApiToken
                 fi
             fi
-            if [ "${api_users[i]}" == "wazuh-wui" ] && ([ -n "${dashboard}" ] || [ -n "${AIO}" ]); then
+            if [ "${api_users[i]}" == "wazuh-wui" ] && { [ -n "${dashboard}" ] || [ -n "${AIO}" ]; }; then
                 passwords_changeDashboardApiPassword "${api_passwords[i]}"
             fi
         done
     else
         if [ -n "${wazuh}" ] || [ -n "${AIO}" ]; then
-            passwords_getApiUserId ${nuser}
+            passwords_getApiUserId "${nuser}"
             WAZUH_PASS_API='{"password":"'"${password}"'"}'
             eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null'
         fi
-        if [ "${nuser}" == "wazuh-wui" ] && ([ -n "${dashboard}" ] || [ -n "${AIO}" ]); then
+        if [ "${nuser}" == "wazuh-wui" ] && { [ -n "${dashboard}" ] || [ -n "${AIO}" ]; }; then
                 passwords_changeDashboardApiPassword "${password}"
         fi
     fi
@@ -200,7 +200,7 @@ function installCommon_changePasswords() {
             changeall=1
             passwords_readUsers
         fi
-        if ([ -n "${wazuh}" ] || [ -n "${AIO}" ]) && ([ "${server_node_types[pos]}" == "master" ] || [ "${#server_node_names[@]}" -eq 1 ]); then
+        if { [ -n "${wazuh}" ] || [ -n "${AIO}" ]; } && { [ "${server_node_types[pos]}" == "master" ] || [ "${#server_node_names[@]}" -eq 1 ]; }; then
             passwords_getApiToken
             passwords_getApiUsers
             passwords_getApiIds
@@ -356,7 +356,7 @@ For Wazuh API users, the file must have this format:
             supported=false
             for i in "${!users[@]}"; do
                 if [[ ${users[i]} == "${fileusers[j]}" ]]; then
-                    passwords_checkPassword ${filepasswords[j]}
+                    passwords_checkPassword "${filepasswords[j]}"
                     passwords[i]=${filepasswords[j]}
                     supported=true
                 fi
@@ -370,7 +370,7 @@ For Wazuh API users, the file must have this format:
             supported=false
             for i in "${!api_users[@]}"; do
                 if [[ "${api_users[i]}" == "${fileapiusers[j]}" ]]; then
-                    passwords_checkPassword ${fileapipasswords[j]}
+                    passwords_checkPassword "${fileapipasswords[j]}"
                     api_passwords[i]=${fileapipasswords[j]}
                     supported=true
                 fi
@@ -398,7 +398,7 @@ For Wazuh API users, the file must have this format:
             supported=false
             for i in "${!users[@]}"; do
                 if [[ "${users[i]}" == "${fileusers[j]}" ]]; then
-                    passwords_checkPassword ${filepasswords[j]}
+                    passwords_checkPassword "${filepasswords[j]}"
                     finalusers+=(${fileusers[j]})
                     finalpasswords+=(${filepasswords[j]})
                     supported=true
@@ -413,7 +413,7 @@ For Wazuh API users, the file must have this format:
             supported=false
             for i in "${!api_users[@]}"; do
                 if [[ "${api_users[i]}" == "${fileapiusers[j]}" ]]; then
-                    passwords_checkPassword ${fileapipasswords[j]}
+                    passwords_checkPassword "${fileapipasswords[j]}"
                     finalapiusers+=("${fileapiusers[j]}")
                     finalapipasswords+=("${fileapipasswords[j]}")
                     supported=true
