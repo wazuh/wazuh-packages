@@ -6,7 +6,7 @@ source "${base_dir}"/bach.sh
 @setup-test {
     @ignore common_logger
     k_certs_path="/etc/wazuh-dashboard/certs/"
-    wazuh_version="4.3.5"
+    wazuh_version="4.3.6"
     elasticsearch_oss_version="7.10.2"
     wazuh_kibana_plugin_revision="1"
     repobaseurl="https://packages.wazuh.com/4.x"

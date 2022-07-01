@@ -957,17 +957,17 @@ test-48-installCommon_changePasswords-with-tarfile() {
     tar_file=tarfile.tar
     base_path=/tmp
     @touch $tar_file
-    @mock tar -xf tarfile.tar -C /tmp wazuh-install-files/passwords.wazuh === @touch /tmp/passwords.wazuh
+    @mock tar -xf tarfile.tar -C /tmp wazuh-install-files/wazuh-passwords.txt === @touch /tmp/wazuh-passwords.txt
     installCommon_changePasswords
     @echo $changeall
-    @rm /tmp/passwords.wazuh
+    @rm /tmp/wazuh-passwords.txt
 }
 
 test-48-installCommon_changePasswords-with-tarfile-assert() {
     common_checkInstalled
     installCommon_readPasswordFileUsers
     passwords_changePassword
-    rm -rf /tmp/passwords.wazuh
+    rm -rf /tmp/wazuh-passwords.txt
     @echo
 }
 
@@ -977,10 +977,10 @@ test-49-installCommon_changePasswords-with-tarfile-aio() {
     base_path=/tmp
     AIO=1
     @touch $tar_file
-    @mock tar -xf tarfile.tar -C /tmp wazuh-install-files/passwords.wazuh === @touch /tmp/passwords.wazuh
+    @mock tar -xf tarfile.tar -C /tmp wazuh-install-files/wazuh-passwords.txt === @touch /tmp/wazuh-passwords.txt
     installCommon_changePasswords
     @echo $changeall
-    @rm /tmp/passwords.wazuh
+    @rm /tmp/wazuh-passwords.txt
 }
 
 test-49-installCommon_changePasswords-with-tarfile-aio-assert() {
@@ -992,7 +992,7 @@ test-49-installCommon_changePasswords-with-tarfile-aio-assert() {
     passwords_generateHash
     passwords_changePassword
     passwords_runSecurityAdmin
-    rm -rf /tmp/passwords.wazuh
+    rm -rf /tmp/wazuh-passwords.txt
     @echo 1
 }
 
@@ -1002,10 +1002,10 @@ test-50-installCommon_changePasswords-with-tarfile-start-elastic-cluster() {
     base_path=/tmp
     AIO=1
     @touch $tar_file
-    @mock tar -xf tarfile.tar -C /tmp wazuh-install-files/passwords.wazuh === @touch /tmp/passwords.wazuh
+    @mock tar -xf tarfile.tar -C /tmp wazuh-install-files/wazuh-passwords.txt === @touch /tmp/wazuh-passwords.txt
     installCommon_changePasswords
     @echo $changeall
-    @rm /tmp/passwords.wazuh
+    @rm /tmp/wazuh-passwords.txt
 }
 
 test-50-installCommon_changePasswords-with-tarfile-start-elastic-cluster-assert() {
@@ -1017,7 +1017,7 @@ test-50-installCommon_changePasswords-with-tarfile-start-elastic-cluster-assert(
     passwords_generateHash
     passwords_changePassword
     passwords_runSecurityAdmin
-    rm -rf /tmp/passwords.wazuh
+    rm -rf /tmp/wazuh-passwords.txt
     @echo 1
 }
 

@@ -30,9 +30,9 @@ def get_password(username):
     tmp_yaml=""
 
     with tarfile.open("../../../unattended_installer/wazuh-install-files.tar") as configurations:
-        configurations.extract("wazuh-install-files/passwords.wazuh")
+        configurations.extract("wazuh-install-files/wazuh-passwords.txt")
 
-    with open("wazuh-install-files/passwords.wazuh", 'r') as pass_file:
+    with open("wazuh-install-files/wazuh-passwords.txt", 'r') as pass_file:
         while pass_dict["username"] != username:
             for i in range(4):
                 tmp_yaml+=pass_file.readline()
@@ -196,7 +196,7 @@ def test_check_log_errors():
         for line in f.readlines():
             if 'ERROR' in line:
                 found_error = True
-                if get_wazuh_version() == 'v4.3.5':
+                if get_wazuh_version() == 'v4.3.6':
                     if 'ERROR: Cluster error detected' in line or 'agent-upgrade: ERROR: (8123): There has been an error executing the request in the tasks manager.' in line:
                         found_error = False
                     else:
@@ -220,7 +220,7 @@ def test_check_cluster_log_errors():
         for line in f.readlines():
             if 'ERROR' in line:
                 found_error = True
-                if get_wazuh_version() == 'v4.3.5':
+                if get_wazuh_version() == 'v4.3.6':
                     if 'Could not connect to master' in line or 'Worker node is not connected to master' in line or 'Connection reset by peer' in line:
                         found_error = False
                     else:
