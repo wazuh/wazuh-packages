@@ -342,7 +342,7 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) "%{INSTALL_DIR}/src/cli/cli.js"
 %attr(640, %{USER}, %{GROUP}) "%{INSTALL_DIR}/src/cli/serve/serve.js"
 %attr(640, %{USER}, %{GROUP}) "%{INSTALL_DIR}/src/cli/serve/read_keystore.js"
-%attr(640, %{USER}, %{GROUP}) "%{INSTALL_DIR}/src/cli/serve/integration_tests/__fixtures__/invalid-wazuh-config.yml"
+%attr(640, %{USER}, %{GROUP}) "%{INSTALL_DIR}/src/cli/serve/integration_tests/__fixtures__/invalid_config.yml"
 %attr(640, %{USER}, %{GROUP}) "%{INSTALL_DIR}/src/cli/serve/integration_tests/__fixtures__/reload_logging_config/opensearch_dashboards_log_file.test.yml"
 %attr(640, %{USER}, %{GROUP}) "%{INSTALL_DIR}/src/cli/serve/integration_tests/__fixtures__/reload_logging_config/opensearch_dashboards_log_console.test.yml"
 %attr(640, %{USER}, %{GROUP}) "%{INSTALL_DIR}/src/cli/serve/integration_tests/__fixtures__/reload_logging_config/opensearch_dashboards.test.yml"

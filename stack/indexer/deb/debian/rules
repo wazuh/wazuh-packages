@@ -101,7 +101,7 @@ override_dh_install:
 	# Copy the security tools
 	cp $(REPO_DIR)/wazuh-certs-tool.sh $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/
 	cp $(REPO_DIR)/wazuh-passwords-tool.sh $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/
-	cp /root/documentation-templates/wazuh/wazuh-config.yml $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/wazuh-config.yml
+	cp /root/documentation-templates/wazuh/config.yml $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/config.yml
 
 	# Copy Wazuh's config files for the security plugin
 	cp -pr $(REPO_DIR)/config/indexer/roles/roles_mapping.yml $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/securityconfig/
@@ -495,7 +495,7 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/securityconfig/nodes_dn.yml
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/securityconfig/audit.yml
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/securityconfig/action_groups.yml
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/securityconfig/wazuh-config.yml
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/securityconfig/config.yml
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/securityconfig/roles_mapping.yml
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/securityconfig/roles.yml
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/securityconfig/opensearch.yml.example
@@ -509,7 +509,7 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/json-smart-2.4.7.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/xmlsec-2.2.3.jar
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/wazuh-config.yml
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/config.yml
 	chmod 740 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/hash.sh
 	chmod 740 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/securityadmin.sh
 	chmod 740 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/audit_config_migrater.sh

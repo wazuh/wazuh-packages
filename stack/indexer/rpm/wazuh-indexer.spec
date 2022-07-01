@@ -92,7 +92,7 @@ cp -pr wazuh-indexer-*/* ${RPM_BUILD_ROOT}%{INSTALL_DIR}/
 
 cp %{REPO_DIR}/wazuh-certs-tool.sh ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/tools/
 cp %{REPO_DIR}/wazuh-passwords-tool.sh ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/tools/
-cp /root/documentation-templates/wazuh/wazuh-config.yml ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/tools/wazuh-config.yml
+cp /root/documentation-templates/wazuh/config.yml ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/tools/config.yml
 
 cp %{REPO_DIR}/config/indexer/roles/internal_users.yml ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/securityconfig/
 cp %{REPO_DIR}/config/indexer/roles/roles.yml ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/securityconfig/
@@ -650,7 +650,7 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/securityconfig/nodes_dn.yml
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/securityconfig/audit.yml
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/securityconfig/action_groups.yml
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/securityconfig/wazuh-config.yml
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/securityconfig/config.yml
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/securityconfig/roles_mapping.yml
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/securityconfig/roles.yml
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/securityconfig/opensearch.yml.example
@@ -664,7 +664,7 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/json-smart-2.4.7.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/xmlsec-2.2.3.jar
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/wazuh-config.yml
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/config.yml
 %attr(740, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/hash.sh
 %attr(740, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/securityadmin.sh
 %attr(740, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/audit_config_migrater.sh
