@@ -223,9 +223,8 @@ function installCommon_changePasswords() {
     if [ -n "${start_indexer_cluster}" ] || [ -n "${AIO}" ]; then
         passwords_runSecurityAdmin
     fi
-
     if [ -n "${wazuh}" ] || [ -n "${dashboard}" ] || [ -n "${AIO}" ]; then
-        if [ "${server_node_types[pos]}" == "master" ] || [ "${#server_node_names[@]}" -eq 0 ] || [ -n "${dashboard_installed}" ]; then
+        if [ "${server_node_types[pos]}" == "master" ] || [ "${#server_node_names[@]}" -eq 1 ] || [ -n "${dashboard_installed}" ]; then
             installCommon_changePasswordApi
         fi
     fi
