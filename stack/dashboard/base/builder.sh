@@ -120,7 +120,7 @@ cp /root/VERSION .
 
 # Custom configs for Opensearch Dashboards 2.0.x
 if [ "${opensearch_major}" = "2" ] && [ "${opensearch_minor}" = "0" ];then
-    echo "entro por el if de la version 2.0"
+    cp ./etc/2.0/plugins_install_settings.js ./src/cli_plugin/install/settings.js
 fi
 
 # Remove plugins
