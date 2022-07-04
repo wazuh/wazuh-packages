@@ -16,6 +16,8 @@ future="${2}"
 revision="${3}"
 reference="${4}"
 base_dir=/tmp/output/wazuh-dashboard-base
+opensearch_major=$(echo "${opensearch_version}" | cut -d. -f1 )
+opensearch_minor=$(echo "${opensearch_version}" | cut -d. -f2 )
 
 # -----------------------------------------------------------------------------
 
@@ -115,6 +117,11 @@ gzip -c ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js
 brotli -c ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js > ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js.br
 # Add VERSION file
 cp /root/VERSION .
+
+# Custom configs for Opensearch Dashboards 2.0.x
+if [ "${opensearch_major}" = "2" ] && [ "${opensearch_minor}" = "0" ];then
+    echo "entro por el if de la version 2.0"
+fi
 
 # Remove plugins
 /bin/bash ./bin/opensearch-dashboards-plugin remove queryWorkbenchDashboards --allow-root
