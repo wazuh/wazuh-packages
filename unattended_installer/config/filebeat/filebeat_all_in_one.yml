@@ -20,3 +20,5 @@ filebeat.modules:
       enabled: true
     archives:
       enabled: false
+
+logging.metrics.enabled: false
