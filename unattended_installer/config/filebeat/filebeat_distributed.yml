@@ -27,3 +27,5 @@ logging.files:
   name: filebeat
   keepfiles: 7
   permissions: 0644
+
+logging.metrics.enabled: false
