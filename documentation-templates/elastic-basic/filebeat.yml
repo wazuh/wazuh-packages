@@ -23,3 +23,10 @@ output.elasticsearch.ssl.verification_mode: strict
 output.elasticsearch.username: elastic
 
 logging.metrics.enabled: false
+
+seccomp:
+  default_action: allow
+  syscalls:
+  - action: allow
+    names:
+    - rseq
