@@ -34,3 +34,10 @@ logging.files:
   permissions: 0644
 
 logging.metrics.enabled: false
+
+seccomp:
+default_action: allow
+syscalls:
+- action: allow
+  names:
+  - rseq
