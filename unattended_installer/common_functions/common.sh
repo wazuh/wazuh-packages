@@ -134,3 +134,12 @@ function common_checkSystem() {
     fi
 
 }
+
+function common_checkWazuhConfigYaml() {
+
+    filecorrect=$(cert_parseYaml "${config_file}" |grep -Ev '^#|^\s*$' | grep -Pzc "\A(\s*(nodes_indexer__name|nodes_indexer__ip|nodes_server__name|nodes_server__ip|nodes_server__node_type|nodes_dashboard__name|nodes_dashboard__ip)=.*?)+\Z")
+    if [[ "${filecorrect}" -ne 1 ]]; then
+        logger -e "The configuration file ${config_file} does not have a correct format."
+    fi
+
+}

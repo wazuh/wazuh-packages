@@ -193,6 +193,7 @@ function cert_readConfig() {
             exit 1
         fi
         eval "$(cert_convertCRLFtoLF "${config_file}")"
+        common_checkWazuhConfigYaml
         eval "$(cert_parseYaml "${config_file}")"
         eval "indexer_node_names=( $(cert_parseYaml "${config_file}" | grep nodes_indexer__name | sed 's/nodes_indexer__name=//' | sed -r 's/\s+//g') )"
         eval "server_node_names=( $(cert_parseYaml "${config_file}" | grep nodes_server__name | sed 's/nodes_server__name=//' | sed -r 's/\s+//g') )"
