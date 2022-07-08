@@ -104,9 +104,9 @@ override_dh_install:
 	cp /root/documentation-templates/wazuh/config.yml $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/config.yml
 
 	# Copy Wazuh's config files for the security plugin
-	cp -pr $(REPO_DIR)/config/indexer/roles/roles_mapping.yml $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/securityconfig/
-	cp -pr $(REPO_DIR)/config/indexer/roles/roles.yml $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/securityconfig/
-	cp -pr $(REPO_DIR)/config/indexer/roles/internal_users.yml $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/securityconfig/
+	cp -pr $(REPO_DIR)/config/indexer/roles/roles_mapping.yml $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/
+	cp -pr $(REPO_DIR)/config/indexer/roles/roles.yml $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/
+	cp -pr $(REPO_DIR)/config/indexer/roles/internal_users.yml $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/
 
 	cp /root/stack/indexer/indexer-security-init.sh $(TARGET_DIR)$(INSTALLATION_DIR)/bin/
 

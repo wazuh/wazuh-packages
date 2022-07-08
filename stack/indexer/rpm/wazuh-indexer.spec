@@ -90,10 +90,12 @@ cp -pr wazuh-indexer-*/* ${RPM_BUILD_ROOT}%{INSTALL_DIR}/
 # Build wazuh-passwords-tool
 %{REPO_DIR}/builder.sh -p
 
+# Copy the security tools
 cp %{REPO_DIR}/wazuh-certs-tool.sh ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/tools/
 cp %{REPO_DIR}/wazuh-passwords-tool.sh ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/tools/
 cp /root/documentation-templates/wazuh/config.yml ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/tools/config.yml
 
+# Copy Wazuh's config files for the security plugin
 cp %{REPO_DIR}/config/indexer/roles/internal_users.yml ${RPM_BUILD_ROOT}%{CONFIG_DIR}/opensearch-security
 cp %{REPO_DIR}/config/indexer/roles/roles.yml ${RPM_BUILD_ROOT}%{CONFIG_DIR}/opensearch-security
 cp %{REPO_DIR}/config/indexer/roles/roles_mapping.yml ${RPM_BUILD_ROOT}%{CONFIG_DIR}/opensearch-security
