@@ -60,7 +60,7 @@ def get_dashboard_ip():
 
     with open("/etc/wazuh-dashboard/opensearch_dashboards.yml", 'r') as stream:
         dictionary = yaml.safe_load(stream)
-    return (dictionary.get('network.host'))
+    return (dictionary.get('server.host'))
 
 def api_call_indexer(host,query,address,api_protocol,api_user,api_pass,api_port):
 
