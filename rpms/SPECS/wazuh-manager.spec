@@ -665,6 +665,8 @@ rm -fr %{buildroot}
 %attr(750, root, wazuh) %{_localstatedir}/lib/libsyscollector.so
 %attr(750, root, wazuh) %{_localstatedir}/lib/libsysinfo.so
 %attr(750, root, wazuh) %{_localstatedir}/lib/libjemalloc.so.2
+%attr(750, root, wazuh) %{_localstatedir}/lib/libstdc++.so.6
+%attr(750, root, wazuh) %{_localstatedir}/lib/libgcc_s.so.1
 %{_localstatedir}/lib/libpython3.9.so.1.0
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/logs
 %attr(660, wazuh, wazuh)  %ghost %{_localstatedir}/logs/active-responses.log
