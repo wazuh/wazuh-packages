@@ -62,6 +62,16 @@ def get_dashboard_ip():
         dictionary = yaml.safe_load(stream)
     return (dictionary.get('server.host'))
 
+def get_api_ip():
+
+    with open("/var/ossec/api/configuration/api.yaml", 'r') as stream:
+        dictionary = yaml.safe_load(stream)
+    try:
+      ip = dictionary.get('host')
+    except:
+      ip = '127.0.0.1'
+    return ip
+
 def api_call_indexer(host,query,address,api_protocol,api_user,api_pass,api_port):
 
     if (query == ""):   # Calling ES API without query
@@ -104,7 +114,7 @@ def get_dashboard_status():
 def get_wazuh_api_status():
 
     protocol = 'https'
-    host = get_indexer_ip()
+    host = get_api_ip()
     port = 55000
     user = 'wazuh'
     password = get_password('wazuh')
@@ -253,7 +263,7 @@ def test_check_alerts():
                     {
                         "wildcard": {
                             "agent.name": {
-                                "value": node_name
+                                "value": '*'
                             }
                         }
                     }
