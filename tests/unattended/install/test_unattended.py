@@ -56,6 +56,12 @@ def get_indexer_ip():
         dictionary = yaml.safe_load(stream)
     return (dictionary.get('network.host'))
 
+def get_dashboard_ip():
+
+    with open("/etc/wazuh-dashboard/opensearch_dashboards.yml", 'r') as stream:
+        dictionary = yaml.safe_load(stream)
+    return (dictionary.get('network.host'))
+
 def api_call_indexer(host,query,address,api_protocol,api_user,api_pass,api_port):
 
     if (query == ""):   # Calling ES API without query
@@ -88,7 +94,7 @@ def get_indexer_cluster_status():
     return (resp.json()['status'])
 
 def get_dashboard_status():
-    ip = get_indexer_ip()
+    ip = get_dashboard_ip()
     resp = requests.get('https://'+ip,
                         auth=("kibanaserver",
                         get_password("kibanaserver")),
