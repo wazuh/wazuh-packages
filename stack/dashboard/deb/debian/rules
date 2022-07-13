@@ -30,7 +30,7 @@ export CONFIG_DIR=/etc/${NAME}
 export INSTALLATION_DIR=$(INSTALLATION_DIR)
 export USER=${NAME}
 export GROUP=${NAME}
-export DASHBOARD_FILE=wazuh-dashboard-base-$(BASE_VERSION)-linux-x64.tar.xz
+export DASHBOARD_FILE=wazuh-dashboard-base-$(BASE_VERSION)-$(BASE_REVISION)-linux-x64.tar.xz
 
 # -----------------------------------------------------------------------------
 
@@ -55,7 +55,7 @@ override_dh_install:
 	if [ "$(BASE)" = "s3" ]; then \
 		curl -kOL https://packages-dev.wazuh.com/stack/dashboard/base/$(DASHBOARD_FILE) ;\
 	else \
-		cp /root/output/wazuh-dashboard-base-$(BASE_VERSION)-linux-x64.tar.xz ./ ;\
+		cp /root/output/$(DASHBOARD_FILE) ./ ;\
 	fi
 
 
@@ -91,7 +91,11 @@ override_dh_install:
 	chown $(USER):$(GROUP) $(TARGET_DIR)/etc/systemd/system/$(NAME)
 	chown $(USER):$(GROUP) $(TARGET_DIR)/etc/default/$(NAME)
 
-	runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-$(BASE_VERSION)-${RELEASE}.zip"
+	if [ "$(BASE_VERSION)" = "99.99.0" ]; then \
+		runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/futures/ui/dashboard/wazuh-99.99.0-1.zip" ;\
+	else \
+		runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-$(BASE_VERSION)-${BASE_REVISION}.zip" ;\
+	fi
 
 	find $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/wazuh/ -exec chown $(USER):$(GROUP) {} \;
 
@@ -103,6 +107,8 @@ override_dh_fixperms:
 	chown -R "$(NAME)":"$(NAME)" "$(TARGET_DIR)$(INSTALLATION_DIR)"
 	chown -R "$(NAME)":"$(NAME)" $(TARGET_DIR)/etc/default/"$(NAME)"
 	chown -R "$(NAME)":"$(NAME)" $(TARGET_DIR)/etc/systemd/system/"$(NAME)"
+	chown $(NAME):$(NAME) $(TARGET_DIR)$(INSTALLATION_DIR)/VERSION
+	chmod 440 $(TARGET_DIR)$(INSTALLATION_DIR)/VERSION
 	chmod 750 $(TARGET_DIR)/etc/systemd/system/wazuh-dashboard
 	chmod 750 $(TARGET_DIR)/etc/default/wazuh-dashboard
 	chmod 640 "$(TARGET_DIR)$(CONFIG_DIR)"/opensearch_dashboards.yml

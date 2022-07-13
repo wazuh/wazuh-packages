@@ -8,7 +8,7 @@
 
 ## Package vars
 readonly wazuh_major="4.3"
-readonly wazuh_version="4.3.4"
+readonly wazuh_version="4.3.6"
 readonly filebeat_version="7.10.2"
 readonly wazuh_install_vesion="0.1"
 
@@ -16,7 +16,7 @@ readonly wazuh_install_vesion="0.1"
 readonly resources="https://${bucket}/${wazuh_major}"
 readonly base_url="https://${bucket}/${repository}"
 readonly base_path="$(dirname $(readlink -f "$0"))"
-config_file="${base_path}/config.yml"
+config_file="${base_path}/wazuh-config.yml"
 readonly tar_file_name="wazuh-install-files.tar"
 tar_file="${base_path}/${tar_file_name}"
 
@@ -43,3 +43,6 @@ readonly indexer_rpm_base_url="${base_url}/yum"
 readonly dashboard_rpm_base_url="${base_url}/yum"
 readonly wazuh_gpg_key="https://${bucket}/key/GPG-KEY-WAZUH"
 readonly filebeat_config_file="${resources}/tpl/wazuh/filebeat/filebeat.yml"
+
+adminUser="wazuh"
+adminPassword="wazuh"

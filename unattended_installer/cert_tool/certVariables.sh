@@ -7,6 +7,6 @@
 # Foundation.
 
 readonly base_path="$(dirname "$(readlink -f "$0")")"
-readonly config_file="${base_path}/config.yml"
+readonly config_file="${base_path}/wazuh-config.yml"
 readonly logfile=""
 debug=">> /dev/null 2>&1"
