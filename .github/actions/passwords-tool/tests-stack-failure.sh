@@ -14,7 +14,7 @@ elif ! curl -s -u wazuh:wazuh -k -X GET "https://localhost:55000/security/user/a
 elif ! curl -s -u wazuuh:"${apiPass}" -k -X GET "https://localhost:55000/security/user/authenticate" | grep "Invalid credentials"; then
    exit 1
 elif ! curl -s -XGET https://localhost:9200/ -u admin:admin -k | grep "Unauthorized"; then
-   exit
+   exit 1
 elif ! curl -s -XGET https://localhost:9200/ -u adminnnn:"${adminPass}" -k | grep "Unauthorized"; then
-   exit
+   exit 1
 fi
