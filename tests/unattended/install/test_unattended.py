@@ -16,7 +16,6 @@ warnings.filterwarnings('ignore', message='Unverified HTTPS request')
 
 # ----------------------------- Aux functions -----------------------------
 
-
 def read_services():
     services = None
     p = Popen(['/var/ossec/bin/wazuh-control', 'status'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
@@ -31,13 +30,19 @@ def get_password(username):
     tmp_yaml=""
 
     with tarfile.open("../../../unattended_installer/wazuh-install-files.tar") as configurations:
-        configurations.extract("wazuh-install-files/passwords.wazuh")
+        configurations.extract("wazuh-install-files/wazuh-passwords.txt")
 
-    with open("wazuh-install-files/passwords.wazuh", 'r') as pass_file:
+    with open("wazuh-install-files/wazuh-passwords.txt", 'r') as pass_file:
         while pass_dict["username"] != username:
             for i in range(4):
                 tmp_yaml+=pass_file.readline()
-            pass_dict=yaml.safe_load(tmp_yaml)
+            tmp_dict=yaml.safe_load(tmp_yaml)
+            if 'indexer_username' in tmp_dict:
+                pass_dict["username"]=tmp_dict["indexer_username"]
+                pass_dict["password"]=tmp_dict["indexer_password"]
+            if 'api_username' in tmp_dict:
+                pass_dict["username"]=tmp_dict["api_username"]
+                pass_dict["password"]=tmp_dict["api_password"]
     return pass_dict["password"]
 
 def get_wazuh_version():
@@ -96,7 +101,7 @@ def get_wazuh_api_status():
     host = get_indexer_ip()
     port = 55000
     user = 'wazuh'
-    password = 'wazuh'
+    password = get_password('wazuh')
     login_endpoint = 'security/user/authenticate'
 
     login_url = f"{protocol}://{host}:{port}/{login_endpoint}"
@@ -108,7 +113,6 @@ def get_wazuh_api_status():
     requests_headers = {'Content-Type': 'application/json',
                         'Authorization': f'Bearer {token}'}
     response = requests.get(f"{protocol}://{host}:{port}/?pretty=true", headers=requests_headers, verify=False)
-
     return response.json()['data']['title']
 
 # ----------------------------- Tests -----------------------------
@@ -192,7 +196,7 @@ def test_check_log_errors():
         for line in f.readlines():
             if 'ERROR' in line:
                 found_error = True
-                if get_wazuh_version() == 'v4.3.4':
+                if get_wazuh_version() == 'v4.3.6':
                     if 'ERROR: Cluster error detected' in line or 'agent-upgrade: ERROR: (8123): There has been an error executing the request in the tasks manager.' in line:
                         found_error = False
                     else:
@@ -216,7 +220,7 @@ def test_check_cluster_log_errors():
         for line in f.readlines():
             if 'ERROR' in line:
                 found_error = True
-                if get_wazuh_version() == 'v4.3.4':
+                if get_wazuh_version() == 'v4.3.6':
                     if 'Could not connect to master' in line or 'Worker node is not connected to master' in line or 'Connection reset by peer' in line:
                         found_error = False
                     else:

@@ -232,17 +232,17 @@ case "$1" in
     # Remove old ossec user and group if exists and change ownwership of files
 
     if getent group ossec > /dev/null 2>&1; then
-        find ${DIR} -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
+        find ${DIR}/ -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
         if getent passwd ossec > /dev/null 2>&1; then
-            find ${DIR} -group ossec -user ossec -exec chown ${USER}:${GROUP} {} \; > /dev/null 2>&1 || true
+            find ${DIR}/ -group ossec -user ossec -exec chown ${USER}:${GROUP} {} \; > /dev/null 2>&1 || true
             deluser ossec > /dev/null 2>&1
         fi
         if getent passwd ossecm > /dev/null 2>&1; then
-            find ${DIR} -group ossec -user ossecm -exec chown ${USER}:${GROUP} {} \; > /dev/null 2>&1 || true
+            find ${DIR}/ -group ossec -user ossecm -exec chown ${USER}:${GROUP} {} \; > /dev/null 2>&1 || true
             deluser ossecm > /dev/null 2>&1
         fi
         if getent passwd ossecr > /dev/null 2>&1; then
-            find ${DIR} -group ossec -user ossecr -exec chown ${USER}:${GROUP} {} \; > /dev/null 2>&1 || true
+            find ${DIR}/ -group ossec -user ossecr -exec chown ${USER}:${GROUP} {} \; > /dev/null 2>&1 || true
             deluser ossecr > /dev/null 2>&1
         fi
         if getent group ossec > /dev/null 2>&1; then 

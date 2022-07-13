@@ -95,7 +95,7 @@ function cert_generateCertificateconfiguration() {
     echo "${conf}" > "${tmp_path}/${1}.conf"
 
     isIP=$(echo "${2}" | grep -P "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")
-    isDNS=$(echo "${2}" | grep -P "^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$" )
+    isDNS=$(echo "${2}" | grep -P "^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z-]{2,})+$" )
 
     if [[ -n "${isIP}" ]]; then
         conf="$(awk '{sub("IP.1 = cip", "IP.1 = '${2}'")}1' "${tmp_path}/${1}.conf")"
@@ -292,6 +292,6 @@ function cert_convertCRLFtoLF() {
         mkdir "/tmp/wazuh-install-files"
     fi
     eval "chmod -R 755 /tmp/wazuh-install-files ${debug}"
-    eval "tr -d '\015' < $1 > /tmp/wazuh-install-files/new_config.yml"
-    eval "mv /tmp/wazuh-install-files/new_config.yml $1"
+    eval "tr -d '\015' < $1 > /tmp/wazuh-install-files/new-wazuh-config.yml"
+    eval "mv /tmp/wazuh-install-files/new-wazuh-config.yml $1"
 }

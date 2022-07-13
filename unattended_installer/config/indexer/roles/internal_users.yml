@@ -54,21 +54,3 @@ snapshotrestore:
   backend_roles:
   - "snapshotrestore"
   description: "Demo snapshotrestore user"
-
-wazuh_admin:
-  hash: "$2y$12$d2awHiOYvZjI88VfsDON.u6buoBol0gYPJEgdG1ArKVE0OMxViFfu"
-  reserved: true
-  hidden: false
-  backend_roles: []
-  attributes: {}
-  opendistro_security_roles: []
-  static: false
-  
-wazuh_user:
-  hash: "$2y$12$BQixeoQdRubZdVf/7sq1suHwiVRnSst1.lPI2M0.GPZms4bq2D9vO"
-  reserved: true
-  hidden: false
-  backend_roles: []
-  attributes: {}
-  opendistro_security_roles: []
-  static: false  

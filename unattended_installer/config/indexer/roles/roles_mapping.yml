@@ -8,64 +8,70 @@ _meta:
 
 # Define your roles mapping here
 
-## Demo roles mapping
+## Default roles mapping
 
 all_access:
-  reserved: false
+  reserved: true
+  hidden: false
   backend_roles:
   - "admin"
+  hosts: []
+  users: []
+  and_backend_roles: []
   description: "Maps admin to all_access"
 
 own_index:
   reserved: false
+  hidden: false
+  backend_roles: []
+  hosts: []
   users:
   - "*"
+  and_backend_roles: []
   description: "Allow full access to an index named like the username"
 
 logstash:
   reserved: false
+  hidden: false
   backend_roles:
   - "logstash"
-
-kibana_user:
-  reserved: false
-  backend_roles:
-  - "kibanauser"
-  users:
-  - "wazuh_user"
-  - "wazuh_admin"
-  description: "Maps kibanauser to kibana_user"
+  hosts: []
+  users: []
+  and_backend_roles: []
 
 readall:
-  reserved: false
+  reserved: true
+  hidden: false
   backend_roles:
   - "readall"
+  hosts: []
+  users: []
+  and_backend_roles: []
 
 manage_snapshots:
-  reserved: false
+  reserved: true
+  hidden: false
   backend_roles:
   - "snapshotrestore"
+  hosts: []
+  users: []
+  and_backend_roles: []
 
 kibana_server:
   reserved: true
-  users:
-  - "kibanaserver"
-
-wazuh_ui_admin:
-  reserved: true
   hidden: false
   backend_roles: []
   hosts: []
   users:
-  - "wazuh_admin"
   - "kibanaserver"
   and_backend_roles: []
 
-wazuh_ui_user:
-  reserved: true
+kibana_user:
+  reserved: false
   hidden: false
-  backend_roles: []
+  backend_roles:
+  - "kibanauser"
   hosts: []
-  users:
-  - "wazuh_user"
+  users: []
   and_backend_roles: []
+  description: "Maps kibanauser to kibana_user"
