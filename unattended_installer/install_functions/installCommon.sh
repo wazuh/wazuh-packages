@@ -109,6 +109,7 @@ function installCommon_createCertificates() {
     fi
     eval "mkdir /tmp/wazuh-certificates/ ${debug}"
 
+    tmp_path="/tmp/wazuh-certificates/"
 
     cert_generateRootCAcertificate
     cert_generateAdmincertificate
