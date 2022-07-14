@@ -255,6 +255,7 @@ function main() {
 
     if [ -n "${indexer}" ]; then
         common_logger "--- Wazuh indexer ---"
+        installCommon_checkPortsIndexer
         indexer_install
         indexer_configure
         installCommon_startService "wazuh-indexer"
@@ -272,7 +273,7 @@ function main() {
 
     if [ -n "${dashboard}" ]; then
         common_logger "--- Wazuh dashboard ----"
-
+        installCommon_checkPortDashboard
         dashboard_install
         dashboard_configure
         installCommon_startService "wazuh-dashboard"
@@ -285,7 +286,7 @@ function main() {
 
     if [ -n "${wazuh}" ]; then
         common_logger "--- Wazuh server ---"
-
+         installCommon_checkPortsManager
         manager_install
         if [ -n "${server_node_types[*]}" ]; then
             manager_startCluster
@@ -302,17 +303,20 @@ function main() {
     if [ -n "${AIO}" ]; then
 
         common_logger "--- Wazuh indexer ---"
+        installCommon_checkPortsIndexer
         indexer_install
         indexer_configure
         installCommon_startService "wazuh-indexer"
         indexer_initialize
         common_logger "--- Wazuh server ---"
+        installCommon_checkPortsManager
         manager_install
         installCommon_startService "wazuh-manager"
         filebeat_install
         filebeat_configure
         installCommon_startService "filebeat"
         common_logger "--- Wazuh dashboard ---"
+        installCommon_checkPortDashboard
         dashboard_install
         dashboard_configure
         installCommon_startService "wazuh-dashboard"

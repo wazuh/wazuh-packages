@@ -618,3 +618,50 @@ function installCommon_startService() {
     fi
 
 }
+
+function installCommon_checkPortsManager {
+
+    ports=( 1514 1515 1516 55000 )
+    used_port=0
+    for i in "${!ports[@]}"; do
+        if [ -n "$(lsof -i:"${ports[i]}")" ]; then
+            used_port=1
+            common_logger -e "Port ${ports[i]} is being used. Please, close it and try again."
+        fi
+    done
+    if [ "${used_port}" -eq 1 ]; then
+        common_logger "The installation will exit."
+        installCommon_rollBack
+        exit 1
+    fi
+
+}
+
+function installCommon_checkPortsIndexer { 
+
+    ports=( 9200 9300 )
+    used_port=0
+    for i in "${!ports[@]}"; do
+        if [ -n "$(lsof -i:"${ports[i]}")" ]; then
+            used_port=1
+            common_logger -e "Port ${ports[i]} is being used. Please, close it and try again."
+        fi
+    done
+    if [ "${used_port}" -eq 1 ]; then
+        common_logger "The installation will exit."
+        installCommon_rollBack
+        exit 1
+    fi
+
+}
+
+function installCommon_checkPortDashboard {
+
+    if [ -n "$(lsof -i:443)" ]; then
+        common_logger -e "Port 443 is being used. Please, close it and try again."
+        common_logger "The installation will exit."
+        installCommon_rollBack
+        exit 1
+    fi
+
+}
