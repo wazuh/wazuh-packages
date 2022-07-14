@@ -111,11 +111,11 @@ find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -type d -exec chmod 750 {} \;
 if [ $1 = 1 ]; then
   if command -v getent > /dev/null 2>&1 && ! getent group %{GROUP} > /dev/null 2>&1; then
     groupadd -r %{GROUP}
-  elif ! id -g %{GROUP} > /dev/null 2>&1; then
+  elif ! getent group %{GROUP} > /dev/null 2>&1; then
     groupadd -r %{GROUP}
   fi
   # Create the wazuh-dashboard user if it doesn't exists
-  if ! id -u %{USER} > /dev/null 2>&1; then
+  if ! getent passwd %{USER} > /dev/null 2>&1; then
     useradd -g %{GROUP} -G %{USER} -d %{INSTALL_DIR}/ -r -s /sbin/nologin wazuh-dashboard
   fi
 fi
@@ -160,13 +160,13 @@ fi
 if [ $1 = 0 ];then
   # If the package is been uninstalled
   # Remove the wazuh-dashboard user if it exists
-  if id -u %{USER} > /dev/null 2>&1; then
+  if getent passwd %{USER} > /dev/null 2>&1; then
     userdel %{USER} >/dev/null 2>&1
   fi
   # Remove the wazuh-dashboard group if it exists
   if command -v getent > /dev/null 2>&1 && getent group %{GROUP} > /dev/null 2>&1; then
     groupdel %{GROUP} >/dev/null 2>&1
-  elif id -g %{GROUP} > /dev/null 2>&1; then
+  elif getent group %{GROUP} > /dev/null 2>&1; then
     groupdel %{GROUP} >/dev/null 2>&1
   fi
 
