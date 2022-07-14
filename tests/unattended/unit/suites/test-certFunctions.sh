@@ -232,7 +232,7 @@ test-14-generateKibanacertificates-two-nodes-assert() {
 
 function load-cert_readConfig() {
     @load_function "${base_dir}/wazuh-cert-tool.sh" cert_readConfig
-    config_file="${base_path}/config.yml"
+    config_file="${base_path}/wazuh-config.yml"
 }
 
 test-ASSERT-FAIL-15-cert_readConfig-empty-file() {
@@ -256,7 +256,7 @@ test-ASSERT-FAIL-17-cert_readConfig-duplicated-elastic-node-names() {
     @touch "${config_file}"
     @echo "config_file" > "${config_file}"
     
-    @mock cert_parseYaml /tmp/wazuh-cert-tool/config.yml === @out
+    @mock cert_parseYaml /tmp/wazuh-cert-tool/wazuh-config.yml === @out
     @mock grep nodes_elasticsearch_name === @out "elastic1 elastic1 elastic2"
     @mock sed 's/nodes_elasticsearch_name=//'
     @mock grep nodes_wazuh_servers_name === @out "wazuh1 wazuh2"
@@ -303,7 +303,7 @@ test-ASSERT-FAIL-18-cert_readConfig-duplicated-elastic-node-ips() {
     @touch "${config_file}"
     @echo "config_file" > "${config_file}"
     
-    @mock cert_parseYaml /tmp/wazuh-cert-tool/config.yml === @out
+    @mock cert_parseYaml /tmp/wazuh-cert-tool/wazuh-config.yml === @out
     @mock grep nodes_elasticsearch_name === @out "elastic1 elastic2"
     @mock sed 's/nodes_elasticsearch_name=//'
     @mock grep nodes_wazuh_servers_name === @out "wazuh1 wazuh2"
@@ -350,7 +350,7 @@ test-ASSERT-FAIL-19-cert_readConfig-duplicated-wazuh-node-names() {
     @touch "${config_file}"
     @echo "config_file" > "${config_file}"
     
-    @mock cert_parseYaml /tmp/wazuh-cert-tool/config.yml === @out
+    @mock cert_parseYaml /tmp/wazuh-cert-tool/wazuh-config.yml === @out
     @mock grep nodes_elasticsearch_name === @out "elastic1 elastic2"
     @mock sed 's/nodes_elasticsearch_name=//'
     @mock grep nodes_wazuh_servers_name === @out "wazuh1 wazuh2"
@@ -396,7 +396,7 @@ test-ASSERT-FAIL-20-cert_readConfig-duplicated-wazuh-node-ips() {
     @touch "${config_file}"
     @echo "config_file" > "${config_file}"
     
-    @mock cert_parseYaml /tmp/wazuh-cert-tool/config.yml === @out
+    @mock cert_parseYaml /tmp/wazuh-cert-tool/wazuh-config.yml === @out
     @mock grep nodes_elasticsearch_name === @out "elastic1 elastic2"
     @mock sed 's/nodes_elasticsearch_name=//'
     @mock grep nodes_wazuh_servers_name === @out "wazuh1 wazuh2"
@@ -443,7 +443,7 @@ test-ASSERT-FAIL-21-cert_readConfig-duplicated-kibana-node-names() {
     @touch "${config_file}"
     @echo "config_file" > "${config_file}"
     
-    @mock cert_parseYaml /tmp/wazuh-cert-tool/config.yml === @out
+    @mock cert_parseYaml /tmp/wazuh-cert-tool/wazuh-config.yml === @out
     @mock grep nodes_elasticsearch_name === @out "elastic1 elastic2"
     @mock sed 's/nodes_elasticsearch_name=//'
     @mock grep nodes_wazuh_servers_name === @out "wazuh1 wazuh2"
@@ -490,7 +490,7 @@ test-ASSERT-FAIL-22-cert_readConfig-duplicated-kibana-node-ips() {
     @touch "${config_file}"
     @echo "config_file" > "${config_file}"
     
-    @mock cert_parseYaml /tmp/wazuh-cert-tool/config.yml === @out
+    @mock cert_parseYaml /tmp/wazuh-cert-tool/wazuh-config.yml === @out
     @mock grep nodes_elasticsearch_name === @out "elastic1 elastic2"
     @mock sed 's/nodes_elasticsearch_name=//'
     @mock grep nodes_wazuh_servers_name === @out "wazuh1 wazuh2"
@@ -536,7 +536,7 @@ test-ASSERT-FAIL-23-cert_readConfig-different-number-of-wazuh-names-and-ips() {
     @touch "${config_file}"
     @echo "config_file" > "${config_file}"
     
-    @mock cert_parseYaml /tmp/wazuh-cert-tool/config.yml === @out
+    @mock cert_parseYaml /tmp/wazuh-cert-tool/wazuh-config.yml === @out
     @mock grep nodes_elasticsearch_name === @out "elastic1 elastic2"
     @mock sed 's/nodes_elasticsearch_name=//'
     @mock grep nodes_wazuh_servers_name === @out "wazuh1"
@@ -582,7 +582,7 @@ test-ASSERT-FAIL-24-cert_readConfig-incorrect-wazuh-node-type() {
     @touch "${config_file}"
     @echo "config_file" > "${config_file}"
     
-    @mock cert_parseYaml /tmp/wazuh-cert-tool/config.yml === @out
+    @mock cert_parseYaml /tmp/wazuh-cert-tool/wazuh-config.yml === @out
     @mock grep nodes_elasticsearch_name === @out "elastic1 elastic2"
     @mock sed 's/nodes_elasticsearch_name=//'
     @mock grep nodes_wazuh_servers_name === @out "wazuh1 wazuh2"
@@ -629,7 +629,7 @@ test-ASSERT-FAIL-25-cert_readConfig-wazuh-node-type-one-node() {
     @touch "${config_file}"
     @echo "config_file" > "${config_file}"
     
-    @mock cert_parseYaml /tmp/wazuh-cert-tool/config.yml === @out
+    @mock cert_parseYaml /tmp/wazuh-cert-tool/wazuh-config.yml === @out
     @mock grep nodes_elasticsearch_name === @out "elastic1 elastic2"
     @mock sed 's/nodes_elasticsearch_name=//'
     @mock grep nodes_wazuh_servers_name === @out "wazuh1"
@@ -675,7 +675,7 @@ test-ASSERT-FAIL-26-cert_readConfig-less-wazuh-node-types-than-nodes() {
     @touch "${config_file}"
     @echo "config_file" > "${config_file}"
     
-    @mock cert_parseYaml /tmp/wazuh-cert-tool/config.yml === @out
+    @mock cert_parseYaml /tmp/wazuh-cert-tool/wazuh-config.yml === @out
     @mock grep nodes_elasticsearch_name === @out "elastic1 elastic2"
     @mock sed 's/nodes_elasticsearch_name=//'
     @mock grep nodes_wazuh_servers_name === @out "wazuh1 wazuh2"
@@ -722,7 +722,7 @@ test-ASSERT-FAIL-27-cert_readConfig-different-number-of-kibana-names-and-ips() {
     @touch "${config_file}"
     @echo "config_file" > "${config_file}"
     
-    @mock cert_parseYaml /tmp/wazuh-cert-tool/config.yml === @out
+    @mock cert_parseYaml /tmp/wazuh-cert-tool/wazuh-config.yml === @out
     @mock grep nodes_elasticsearch_name === @out "elastic1 elastic2"
     @mock sed 's/nodes_elasticsearch_name=//'
     @mock grep nodes_wazuh_servers_name === @out "wazuh1 wazuh2"
@@ -769,7 +769,7 @@ test-28-cert_readConfig-everything-correct() {
     @touch "${config_file}"
     @echo "config_file" > "${config_file}"
     
-    @mock cert_parseYaml /tmp/wazuh-cert-tool/config.yml === @out
+    @mock cert_parseYaml /tmp/wazuh-cert-tool/wazuh-config.yml === @out
     @mock grep nodes_elasticsearch_name === @out "elastic1 elastic2"
     @mock sed 's/nodes_elasticsearch_name=//'
     @mock grep nodes_wazuh_servers_name === @out "wazuh1 wazuh2"
