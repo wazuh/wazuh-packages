@@ -135,6 +135,8 @@ function indexer_install() {
 
     common_logger "Starting Wazuh indexer installation."
 
+    checks_ports
+
     if [ "${sys_type}" == "yum" ]; then
         eval "yum install wazuh-indexer-${wazuh_version}-${indexer_revision_rpm} -y ${debug}"
         install_result="${PIPESTATUS[0]}"

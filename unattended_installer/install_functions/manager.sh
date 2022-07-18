@@ -44,6 +44,7 @@ function manager_startCluster() {
 function manager_install() {
 
     common_logger "Starting the Wazuh manager installation."
+    checks_ports
     if [ "${sys_type}" == "zypper" ]; then
         eval "${sys_type} -n install wazuh-manager=${wazuh_version}-${wazuh_revision_rpm} ${debug}"
         install_result="${PIPESTATUS[0]}"
