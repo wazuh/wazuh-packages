@@ -31,7 +31,7 @@ solaris/packer/sol-10-u11-ga-x86-dvd.iso
 solaris/packer/sol-11_3-text-x86.iso
 unattended_installer/certs*
 unattended_installer/configurations*
-unattended_installer/wazuh-config.yml
+unattended_installer/config.yml
 unattended_installer/.vscode
 unattended_installer/wazuh-install-files*
 unattended_installer/wazuh-install.sh
