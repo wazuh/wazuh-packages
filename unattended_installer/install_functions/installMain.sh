@@ -20,7 +20,7 @@ function getHelp() {
     echo -e "                Install and configure Wazuh server, Wazuh indexer, Wazuh dashboard."
     echo -e ""
     echo -e "        -c,  --config-file <path-to-config-yml>"
-    echo -e "                Path to the configuration file used to generate wazuh-install-files.tar file containing the files that will be needed for installation. By default, the Wazuh installation assistant will search for a file named wazuh-config.yml in the same path as the script."
+    echo -e "                Path to the configuration file used to generate wazuh-install-files.tar file containing the files that will be needed for installation. By default, the Wazuh installation assistant will search for a file named config.yml in the same path as the script."
     echo -e ""
     echo -e "        -dw,  --download-wazuh <deb|rpm>"
     echo -e "                Download all the packages necessary for offline installation."
@@ -29,7 +29,7 @@ function getHelp() {
     echo -e "                Force Wazuh dashboard installation to continue even when it is not capable of connecting to the Wazuh indexer."
     echo -e ""
     echo -e "        -g,  --generate-config-files"
-    echo -e "                Generate wazuh-install-files.tar file containing the files that will be needed for installation from wazuh-config.yml. In distributed deployments you will need to copy this file to all hosts."
+    echo -e "                Generate wazuh-install-files.tar file containing the files that will be needed for installation from config.yml. In distributed deployments you will need to copy this file to all hosts."
     echo -e ""
     echo -e "        -h,  --help"
     echo -e "                Display this help and exit."
@@ -242,7 +242,7 @@ function main() {
 
     if [ -z "${configurations}" ] && [ -z "${download}" ]; then
         installCommon_extractConfig
-        config_file="/tmp/wazuh-install-files/wazuh-config.yml"
+        config_file="/tmp/wazuh-install-files/config.yml"
         cert_readConfig
     fi
 
