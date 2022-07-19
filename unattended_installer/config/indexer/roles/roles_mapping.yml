@@ -64,7 +64,6 @@ kibana_server:
   hosts: []
   users:
   - "kibanaserver"
-  - "manage_wazuh_index"
   and_backend_roles: []
 
 kibana_user:
@@ -76,3 +75,13 @@ kibana_user:
   users: []
   and_backend_roles: []
   description: "Maps kibanauser to kibana_user"
+
+  # Wazuh monitoring and statistics index permissions
+manage_wazuh_index:
+  reserved: true
+  hidden: false
+  backend_roles: []
+  hosts: []
+  users:
+  - "kibanaserver"
+  and_backend_roles: []
