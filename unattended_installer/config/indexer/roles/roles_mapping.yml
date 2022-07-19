@@ -64,6 +64,7 @@ kibana_server:
   hosts: []
   users:
   - "kibanaserver"
+  - "manage_wazuh_index"
   and_backend_roles: []
 
 kibana_user:
