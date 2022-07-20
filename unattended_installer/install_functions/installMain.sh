@@ -224,7 +224,21 @@ function main() {
     fi
     if [ -n "${AIO}" ] ; then
         rm -f "${tar_file}"
+        checks_ports "${wazuh_aio_ports[@]}"
     fi
+    
+    if [ -n "${indexer}" ]; then
+        checks_ports "${wazuh_indexer_ports[@]}"
+    fi
+
+    if [ -n "${wazuh}" ]; then
+        checks_ports "${wazuh_manager_ports[@]}"
+    fi
+
+    if [ -n "${dashboard}" ]; then
+        checks_ports "${wazuh_dashboard_ports[@]}"
+    fi
+    
 
 # -------------- Prerequisites and Wazuh repo  ----------------------
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then

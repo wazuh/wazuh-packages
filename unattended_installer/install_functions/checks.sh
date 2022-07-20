@@ -305,51 +305,24 @@ function checks_specifications() {
 
 }
 
-function checks_ports {
+function checks_ports() {
 
     used_port=0
-    ports=( )
+    ports=("$@")
 
-    if ! command -v ss > /dev/null; then
-        if [ "${sys_type}" == "apt-get" ]; then
-            apt-get install -y ss > /dev/null
-        elif [ "${sys_type}" == "yum" ]; then
-            yum install -y ss > /dev/null
-        fi
-    fi
-
-    if [ -n "${AIO}" ]; then
-
-        if [ -z "${indexer_installed}" ]; then
-            ports=( 9200 9300 )
-        fi
-
-        if [ -z "${wazuh_installed}" ] && [ -n "${indexer_installed}" ]; then
-            ports=( 1514 1515 1516 55000 )
-        fi
-
-        if [ -n "${wazuh_installed}" ] && [ -n "${indexer_installed}" ] && [ -z "${dashboard_installed}" ]; then
-            ports=( 443 )
-        fi
-
+    if command -v ss > /dev/null; then
+        port_command="ss -lntup | grep -q "
     else
-
-        if [ -n "${indexer}" ]; then
-            ports=( 9200 9300 )
+        if command -v lsof > /dev/null; then
+            port_command="lsof -i:"
+        else
+            common_logger -w "Cannot find ss or lsof. Port checking will be skipped."
+            return 1
         fi
-
-        if [ -n "${wazuh}" ]; then
-            ports=( 1514 1515 1516 55000 )
-        fi
-
-        if [ -n "${dashboard}" ]; then
-            ports=( 443 )
-        fi
-        
     fi
 
     for i in "${!ports[@]}"; do
-        if ss -lntup | grep -q "${ports[i]}"; then
+        if eval "${port_command}""${ports[i]}" > /dev/null; then
             used_port=1
             common_logger -e "Port ${ports[i]} is being used by another process. Please, check it before installing Wazuh."
         fi
