@@ -178,11 +178,11 @@ function installCommon_createInstallFiles() {
         gen_file="/tmp/wazuh-install-files/wazuh-passwords.txt"
         passwords_generatePasswordFile
         # Using cat instead of simple cp because OpenSUSE unknown error.
-        eval "cat '${config_file}' > '/tmp/wazuh-install-files/wazuh-config.yml'"
+        eval "cat '${config_file}' > '/tmp/wazuh-install-files/config.yml'"
         eval "chown root:root /tmp/wazuh-install-files/*"
         eval "tar -zcf '${tar_file}' -C '/tmp/' wazuh-install-files/ ${debug}"
         eval "rm -rf '/tmp/wazuh-install-files' ${debug}"
-        eval "rm -rf ${config_file} ${debug}"
+	eval "rm -rf ${config_file} ${debug}"
         common_logger "Created ${tar_file_name}. It contains the Wazuh cluster key, certificates, and passwords necessary for installation."
     else
         common_logger -e "Unable to create /tmp/wazuh-install-files"
@@ -234,11 +234,11 @@ function installCommon_changePasswords() {
 
 function installCommon_extractConfig() {
 
-    if ! $(tar -tf "${tar_file}" | grep -q wazuh-install-files/wazuh-config.yml); then
-        common_logger -e "There is no wazuh-config.yml file in ${tar_file}."
+    if ! $(tar -tf "${tar_file}" | grep -q wazuh-install-files/config.yml); then
+        common_logger -e "There is no config.yml file in ${tar_file}."
         exit 1
     fi
-    eval "tar -xf ${tar_file} -C /tmp wazuh-install-files/wazuh-config.yml ${debug}"
+    eval "tar -xf ${tar_file} -C /tmp wazuh-install-files/config.yml ${debug}"
 
 }
 

@@ -26,7 +26,7 @@ test-03-installCommon_getConfig() {
     @mocktrue echo certificate/config_aio.yml
     @mock sed 's|/|_|g;s|.yml||' === @out "certificate_config_aio"
     @mock echo === @echo "Hello World"
-    installCommon_getConfig certificate/config_aio.yml ./wazuh-config.yml
+    installCommon_getConfig certificate/config_aio.yml ./config.yml
 }
 
 test-03-installCommon_getConfig-assert() {
@@ -39,7 +39,7 @@ test-04-installCommon_getConfig-error() {
     @mocktrue echo certificate/config_aio.yml
     @mock sed 's|/|_|g;s|.yml||' === @out "certificate_config_aio"
     @mock echo === @echo ""
-    installCommon_getConfig certificate/config_aio.yml ./wazuh-config.yml
+    installCommon_getConfig certificate/config_aio.yml ./config.yml
 }
 
 test-04-installCommon_getConfig-error-assert() {
@@ -908,7 +908,7 @@ test-45-installCommon_createCertificates-aio() {
 }
 
 test-45-installCommon_createCertificates-aio-assert() {
-    installCommon_getConfig certificate/config_aio.yml /tmp/wazuh-config.yml
+    installCommon_getConfig certificate/config_aio.yml /tmp/config.yml
 
     cert_readConfig
 
