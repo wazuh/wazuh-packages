@@ -178,8 +178,8 @@ function check_dist() {
         notsupported=1
     fi
     if [ "${DIST_NAME}" == "ubuntu" ]; then
-        if [ "${DIST_VER}" == "16" ] || [ "${DIST_VER}" == "18" ] ||
-           [ "${DIST_VER}" == "20" ] || [ "${DIST_VER}" == "22" ]; then
+        if  [ "${DIST_VER}" == "16" ] || [ "${DIST_VER}" == "18" ] ||
+            [ "${DIST_VER}" == "20" ] || [ "${DIST_VER}" == "22" ]; then
             if [ "${DIST_SUBVER}" != "04" ]; then
                 notsupported=1
             fi
