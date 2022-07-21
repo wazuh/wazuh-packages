@@ -178,10 +178,7 @@ function dashboard_initializeAIO() {
 function dashboard_install() {
 
     common_logger "Starting Wazuh dashboard installation."
-    if [ "${sys_type}" == "zypper" ]; then
-        eval "zypper -n install wazuh-dashboard=${wazuh_version}-${dashboard_revision_rpm} ${debug}"
-        install_result="${PIPESTATUS[0]}"
-    elif [ "${sys_type}" == "yum" ]; then
+    if [ "${sys_type}" == "yum" ]; then
         eval "yum install wazuh-dashboard${sep}${wazuh_version}-${dashboard_revision_rpm} -y ${debug}"
         install_result="${PIPESTATUS[0]}"
     elif [ "${sys_type}" == "apt-get" ]; then
