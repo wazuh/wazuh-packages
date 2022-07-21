@@ -291,10 +291,14 @@ function main() {
             manager_startCluster
         fi
         installCommon_startService "wazuh-manager"
-        filebeat_install
-        filebeat_configure
-        installCommon_changePasswords
-        installCommon_startService "filebeat"
+        try {
+            filebeat_install
+            filebeat_configure
+            installCommon_changePasswords
+            installCommon_startService "filebeat"
+        } catch {
+            installCommon_rollBack
+        }
     fi
 
 # -------------- AIO case  ------------------------------------------
