@@ -201,8 +201,11 @@ function main() {
     common_logger "Verbose logging redirected to ${logfile}"
 
 # -------------- Uninstall case  ------------------------------------
+    
+    if [ -z "${download}" ]; then
+        check_dist
+    fi
 
-    check_dist
     common_checkSystem
     common_checkInstalled
     checks_arguments
