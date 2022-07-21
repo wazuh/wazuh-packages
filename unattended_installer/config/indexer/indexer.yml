@@ -11,6 +11,13 @@ plugins.security.ssl.http.enabled: true
 plugins.security.ssl.http.pemcert_filepath: /etc/wazuh-indexer/certs/indexer.pem
 plugins.security.ssl.http.pemkey_filepath: /etc/wazuh-indexer/certs/indexer-key.pem
 plugins.security.ssl.http.pemtrustedcas_filepath: /etc/wazuh-indexer/certs/root-ca.pem
+plugins.security.ssl.http.enabled_ciphers:
+  - "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
+  - "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
+  - "TLS_ECDHE_ECDSA_WITH_AES_128_ GCM_SHA256"
+  - "TLS_ECDHE_ECDSA_WITH_AES_256_ GCM_SHA384"
+plugins.security.ssl.http.enabled_protocols:
+  - "TLSv1.2"
 plugins.security.nodes_dn:
 - CN=node-1,OU=Wazuh,O=Wazuh,L=California,C=US
 plugins.security.authcz.admin_dn:
