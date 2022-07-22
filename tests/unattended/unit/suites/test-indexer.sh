@@ -45,29 +45,7 @@ function load-indexer_install() {
     @load_function "${base_dir}/indexer.sh" indexer_install
 }
 
-test-03-indexer_install-zypper() {
-    load-indexer_install
-    sys_type="zypper"
-    wazuh_version="1.13.2"
-    wazuh_revision="1"
-    indexer_install
-}
-
-test-03-indexer_install-zypper-assert() {
-    zypper -n install wazuh-indexer=1.13.2-1
-    sysctl -q -w vm.max_map_count=262144
-}
-
-test-ASSERT-FAIL-04-indexer_install-zypper-error() {
-    load-indexer_install
-    sys_type="zypper"
-    wazuh_version="1.13.2"
-    wazuh_revision="1"
-    @mockfalse zypper -n install wazuh-indexer=1.13.2-1
-    indexer_install
-}
-
-test-05-indexer_install-yum() {
+test-03-indexer_install-yum() {
     load-indexer_install
     sys_type="yum"
     sep="-"
@@ -76,12 +54,12 @@ test-05-indexer_install-yum() {
     indexer_install
 }
 
-test-05-indexer_install-yum-assert() {
+test-03-indexer_install-yum-assert() {
     yum install wazuh-indexer-1.13.2-1 -y
     sysctl -q -w vm.max_map_count=262144
 }
 
-test-ASSERT-FAIL-06-indexer_install-yum-error() {
+test-ASSERT-FAIL-04-indexer_install-yum-error() {
     load-indexer_install
     sys_type="yum"
     sep="-"
@@ -91,7 +69,7 @@ test-ASSERT-FAIL-06-indexer_install-yum-error() {
     indexer_install
 }
 
-test-07-indexer_install-apt() {
+test-05-indexer_install-apt() {
     load-indexer_install
     sys_type="apt-get"
     sep="="
@@ -100,12 +78,12 @@ test-07-indexer_install-apt() {
     indexer_install
 }
 
-test-07-indexer_install-apt-assert() {
+test-05-indexer_install-apt-assert() {
     apt install wazuh-indexer=1.13.2-1 -y
     sysctl -q -w vm.max_map_count=262144
 }
 
-test-ASSERT-FAIL-08-indexer_install-apt-error() {
+test-ASSERT-FAIL-06-indexer_install-apt-error() {
     load-indexer_install
     sys_type="apt-get"
     sep="="
@@ -119,7 +97,7 @@ function load-indexer_configure() {
     @load_function "${base_dir}/indexer.sh" indexer_configure
 }
 
-test-09-indexer_configure-dist-one-elastic-node() {
+test-07-indexer_configure-dist-one-elastic-node() {
     load-indexer_configure
     indexer_node_names=("elastic1")
     indexer_node_ips=("1.1.1.1")
@@ -131,7 +109,7 @@ test-09-indexer_configure-dist-one-elastic-node() {
     indexer_configure
 }
 
-test-09-indexer_configure-dist-one-elastic-node-assert() {
+test-07-indexer_configure-dist-one-elastic-node-assert() {
 
     sed -i "s/-Xms1g/-Xms1g/" /etc/wazuh-indexer/jvm.options
     sed -i "s/-Xmx1g/-Xmx1g/" /etc/wazuh-indexer/jvm.options
@@ -141,7 +119,7 @@ test-09-indexer_configure-dist-one-elastic-node-assert() {
     indexer_copyCertificates
 }
 
-test-10-indexer_configure-dist-two-elastic-nodes() {
+test-08-indexer_configure-dist-two-elastic-nodes() {
     load-indexer_configure
     indexer_node_names=("elastic1" "elastic2")
     indexer_node_ips=("1.1.1.1", "1.1.2.2")
@@ -153,7 +131,7 @@ test-10-indexer_configure-dist-two-elastic-nodes() {
     indexer_configure
 }
 
-test-10-indexer_configure-dist-two-elastic-nodes-assert() {
+test-08-indexer_configure-dist-two-elastic-nodes-assert() {
     sed -i "s/-Xms1g/-Xms1g/" /etc/wazuh-indexer/jvm.options
     sed -i "s/-Xmx1g/-Xmx1g/" /etc/wazuh-indexer/jvm.options
 
@@ -162,7 +140,7 @@ test-10-indexer_configure-dist-two-elastic-nodes-assert() {
     indexer_copyCertificates
 }
 
-test-11-indexer_configure-AIO() {
+test-09-indexer_configure-AIO() {
     load-indexer_configure
     indexer_node_names=("elastic1")
     indexer_node_ips=("1.1.1.1")
@@ -174,7 +152,7 @@ test-11-indexer_configure-AIO() {
     indexer_configure
 }
 
-test-11-indexer_configure-AIO-assert() {
+test-09-indexer_configure-AIO-assert() {
     sed -i 's/-Xms1g/-Xms1g/' /etc/wazuh-indexer/jvm.options
     sed -i 's/-Xmx1g/-Xmx1g/' /etc/wazuh-indexer/jvm.options
 
@@ -187,7 +165,7 @@ function load-indexer_initialize() {
     @load_function "${base_dir}/indexer.sh" indexer_initialize
 }
 
-test-12-indexer_initialize-one-node() {
+test-10-indexer_initialize-one-node() {
     load-indexer_initialize
     indexer_node_names=("elastic1")
     indexer_node_ips=("1.1.1.1")
@@ -196,11 +174,11 @@ test-12-indexer_initialize-one-node() {
     indexer_initialize
 }
 
-test-12-indexer_initialize-one-node-assert() {
+test-10-indexer_initialize-one-node-assert() {
     installCommon_changePasswords
 }
 
-test-13-indexer_initialize-two-nodes() {
+test-11-indexer_initialize-two-nodes() {
     load-indexer_initialize
     indexer_node_names=("elastic1" "elastic2")
     indexer_node_ips=("1.1.1.1" "1.1.2.2")
@@ -210,7 +188,7 @@ test-13-indexer_initialize-two-nodes() {
     @assert-success
 }
 
-test-ASSERT-FAIL-14-indexer_initialize-error-connecting() {
+test-ASSERT-FAIL-12-indexer_initialize-error-connecting() {
     load-indexer_initialize
     indexer_node_names=("elastic1")
     indexer_node_ips=("1.1.1.1")

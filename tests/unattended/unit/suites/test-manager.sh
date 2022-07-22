@@ -11,21 +11,7 @@ function load-manager_install() {
     @load_function "${base_dir}/manager.sh" manager_install
 }
 
-test-01-manager_install-zypper-error() {
-    load-manager_install
-    sys_type="zypper"
-    wazuh_version=1
-    wazuh_revision=1
-    @mockfalse zypper -n install wazuh-manager=1-1
-    manager_install
-}
-
-test-01-manager_install-zypper-error-assert() {
-    installCommon_rollBack
-    exit 1
-}
-
-test-02-manager_install-apt-error() {
+test-01-manager_install-apt-error() {
     load-manager_install
     sys_type="apt-get"
     sep="="
@@ -35,12 +21,12 @@ test-02-manager_install-apt-error() {
     manager_install
 }
 
-test-02-manager_install-apt-error-assert() {
+test-01-manager_install-apt-error-assert() {
     installCommon_rollBack
     exit 1
 }
 
-test-03-manager_install-yum-error() {
+test-02-manager_install-yum-error() {
     load-manager_install
     sys_type="yum"
     sep="-"
@@ -50,26 +36,13 @@ test-03-manager_install-yum-error() {
     manager_install
 }
 
-test-03-manager_install-yum-error-assert() {
+test-02-manager_install-yum-error-assert() {
     installCommon_rollBack
     exit 1
 }
 
-test-04-manager_install-zypper() {
-    load-manager_install
-    sys_type="zypper"
-    wazuh_version=1
-    wazuh_revision=1
-    manager_install
-    @echo $wazuh_installed
-}
 
-test-04-manager_install-zypper-assert() {
-    zypper -n install wazuh-manager=1-1
-    @echo 1
-}
-
-test-05-manager_install-apt() {
+test-03-manager_install-apt() {
     load-manager_install
     sys_type="apt-get"
     sep="="
@@ -79,12 +52,12 @@ test-05-manager_install-apt() {
     @echo $wazuh_installed
 }
 
-test-05-manager_install-apt-assert() {
+test-03-manager_install-apt-assert() {
     apt-get install wazuh-manager=1-1 -y
     @echo 1
 }
 
-test-06-manager_install-yum() {
+test-04-manager_install-yum() {
     load-manager_install
     sys_type="yum"
     sep="-"
@@ -94,7 +67,7 @@ test-06-manager_install-yum() {
     @echo $wazuh_installed
 }
 
-test-06-manager_install-yum-assert() {
+test-04-manager_install-yum-assert() {
     yum install wazuh-manager-1-1 -y
     @echo 1
 }
@@ -103,7 +76,7 @@ function load-manager_startCluster() {
     @load_function "${base_dir}/manager.sh" manager_startCluster
 }
 
-test-07-manager_startCluster() {
+test-05-manager_startCluster() {
     load-manager_startCluster
     server_node_names=("wazuh" "node10")
     server_node_types=("master" "worker")
@@ -121,7 +94,7 @@ test-07-manager_startCluster() {
     @echo $master_address
 }
 
-test-07-manager_startCluster-assert() {
+test-05-manager_startCluster-assert() {
     @echo 0
     @echo "1.1.1.1"
 }
