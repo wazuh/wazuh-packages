@@ -183,10 +183,10 @@ function dashboard_install() {
 
     common_logger "Starting Wazuh dashboard installation."
     if [ "${sys_type}" == "yum" ]; then
-        eval "yum install wazuh-dashboard${sep}${wazuh_version}-${dashboard_revision_rpm} -y ${debug}"
+        eval "yum install wazuh-dashboard${sep}${wazuh_version} -y ${debug}"
         install_result="${PIPESTATUS[0]}"
     elif [ "${sys_type}" == "apt-get" ]; then
-        installCommon_aptInstall "wazuh-dashboard" "${wazuh_version}-${dashboard_revision_deb}"
+        installCommon_aptInstall "wazuh-dashboard" "${wazuh_version}-*"
     fi
     common_checkInstalled
     if [  "$install_result" != 0  ] || [ -z "${dashboard_installed}" ]; then
