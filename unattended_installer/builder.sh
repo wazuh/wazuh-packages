@@ -16,7 +16,7 @@ readonly resources_certs="${base_path}/cert_tool"
 readonly resources_passwords="${base_path}/passwords_tool"
 readonly resources_common="${base_path}/common_functions"
 readonly resources_download="${base_path}/downloader"
-readonly source_branch="4.3"
+readonly source_branch="4.4"
 
 function getHelp() {
 

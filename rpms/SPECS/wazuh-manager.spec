@@ -1,6 +1,6 @@
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-manager
-Version:     4.3.7
+Version:     4.4.0
 Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
@@ -203,7 +203,6 @@ fi
 if pgrep -f ossec-authd > /dev/null 2>&1; then
     kill -15 $(pgrep -f ossec-authd)
 fi
-
 
 # Remove/relocate existing SQLite databases
 rm -f %{_localstatedir}/var/db/cluster.db* || true
@@ -562,6 +561,9 @@ if [ -f %{_sysconfdir}/ossec-init.conf ]; then
   rm -f %{_localstatedir}/etc/ossec-init.conf
 fi
 
+# Remove groups backup files
+rm -rf %{_localstatedir}/backup/groups
+
 %triggerin -- glibc
 [ -r %{_sysconfdir}/localtime ] && cp -fpL %{_sysconfdir}/localtime %{_localstatedir}/etc
  chown root:wazuh %{_localstatedir}/etc/localtime
@@ -588,8 +590,8 @@ rm -fr %{buildroot}
 %dir %attr(750, root, wazuh) %{_localstatedir}/api/scripts
 %attr(640, root, wazuh) %{_localstatedir}/api/scripts/wazuh-apid.py
 %dir %attr(750, root, wazuh) %{_localstatedir}/backup
+%dir %attr(750, wazuh, wazuh) %{_localstatedir}/backup/db
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/backup/agents
-%dir %attr(750, wazuh, wazuh) %{_localstatedir}/backup/groups
 %dir %attr(750, root, wazuh) %{_localstatedir}/backup/shared
 %dir %attr(750, root, wazuh) %{_localstatedir}/bin
 %attr(750, root, root) %{_localstatedir}/bin/agent_control
@@ -662,6 +664,7 @@ rm -fr %{buildroot}
 %attr(750, root, wazuh) %{_localstatedir}/lib/librsync.so
 %attr(750, root, wazuh) %{_localstatedir}/lib/libsyscollector.so
 %attr(750, root, wazuh) %{_localstatedir}/lib/libsysinfo.so
+%attr(750, root, wazuh) %{_localstatedir}/lib/libjemalloc.so.2
 %{_localstatedir}/lib/libpython3.9.so.1.0
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/logs
 %attr(660, wazuh, wazuh)  %ghost %{_localstatedir}/logs/active-responses.log
@@ -694,7 +697,6 @@ rm -fr %{buildroot}
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/rhel/*
 %dir %attr(750, root, wazuh) %{_localstatedir}/queue
 %attr(600, root, wazuh) %ghost %{_localstatedir}/queue/agents-timestamp
-%dir %attr(770, root, wazuh) %{_localstatedir}/queue/agent-groups
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/agentless
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/alerts
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/cluster
@@ -828,6 +830,8 @@ rm -fr %{buildroot}
 
 
 %changelog
+* Thu Nov 03 2022 support <info@wazuh.com> - 4.4.0
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Aug 08 2022 support <info@wazuh.com> - 4.3.7
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Thu Jul 07 2022 support <info@wazuh.com> - 4.3.6
