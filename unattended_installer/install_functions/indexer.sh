@@ -138,9 +138,6 @@ function indexer_install() {
     if [ "${sys_type}" == "yum" ]; then
         eval "yum install wazuh-indexer-${wazuh_version}-${indexer_revision_rpm} -y ${debug}"
         install_result="${PIPESTATUS[0]}"
-    elif [ "${sys_type}" == "zypper" ]; then
-        eval "zypper -n install wazuh-indexer=${wazuh_version}-${indexer_revision_rpm} ${debug}"
-        install_result="${PIPESTATUS[0]}"
     elif [ "${sys_type}" == "apt-get" ]; then
         installCommon_aptInstall "wazuh-indexer" "${wazuh_version}-${indexer_revision_deb}"
     fi

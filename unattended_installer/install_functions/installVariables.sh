@@ -22,7 +22,7 @@ readonly wazuh_install_vesion="0.1"
 readonly resources="https://${bucket}/${wazuh_major}"
 readonly base_url="https://${bucket}/${repository}"
 readonly base_path="$(dirname $(readlink -f "$0"))"
-config_file="${base_path}/wazuh-config.yml"
+config_file="${base_path}/config.yml"
 readonly tar_file_name="wazuh-install-files.tar"
 tar_file="${base_path}/${tar_file_name}"
 
@@ -58,3 +58,8 @@ readonly filebeat_config_file="${resources}/tpl/wazuh/filebeat/filebeat.yml"
 
 adminUser="wazuh"
 adminPassword="wazuh"
+
+readonly wazuh_aio_ports=( 9200 9300 1514 1515 1516 55000 443)
+readonly wazuh_indexer_ports=( 9200 9300 )
+readonly wazuh_manager_ports=( 1514 1515 1516 55000 )
+readonly wazuh_dashboard_ports=( 443 )

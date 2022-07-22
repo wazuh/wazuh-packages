@@ -89,7 +89,6 @@ function buildInstaller() {
     configuration_files=($(find "${resources_config}" -type f))
     config_file_name=($(eval "echo "${configuration_files[@]}" | sed 's|${resources_config}||g;s|/|_|g;s|.yml||g'"))
     for index in "${!config_file_name[@]}"; do
-        config_file_name[$index]=$(echo "${config_file_name[$index]}" | sed 's|-|_|g')
         echo "config_file${config_file_name[$index]}=\"$(cat "${configuration_files[$index]}" | sed 's|\"|\\\"|g;s|\$|\\\$|g')\"" >> "${output_script_path}"
         echo >> "${output_script_path}"
     done
