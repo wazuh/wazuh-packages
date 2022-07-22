@@ -7,8 +7,8 @@
 # Foundation.
 
 ## Package vars
-readonly wazuh_major="4.4"
-readonly wazuh_version="4.4.0"
+readonly wazuh_major="4.5"
+readonly wazuh_version="4.5.0"
 readonly wazuh_revision_deb="1"
 readonly wazuh_revision_rpm="1"
 readonly indexer_revision_deb="1"
