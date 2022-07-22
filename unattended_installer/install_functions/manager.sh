@@ -44,10 +44,7 @@ function manager_startCluster() {
 function manager_install() {
 
     common_logger "Starting the Wazuh manager installation."
-    if [ "${sys_type}" == "zypper" ]; then
-        eval "${sys_type} -n install wazuh-manager=${wazuh_version}-${wazuh_revision_rpm} ${debug}"
-        install_result="${PIPESTATUS[0]}"
-    elif [ "${sys_type}" == "yum" ]; then
+    if [ "${sys_type}" == "yum" ]; then
         eval "${sys_type} install wazuh-manager${sep}${wazuh_version}-${wazuh_revision_rpm} -y ${debug}"
         install_result="${PIPESTATUS[0]}"
     elif [ "${sys_type}" == "apt-get" ]; then
