@@ -612,7 +612,7 @@ rm -fr %{buildroot}
 
 
 %changelog
-* Thu Jul 07 2022 support <info@wazuh.com> - 4.3.7
+* Mon Aug 08 2022 support <info@wazuh.com> - 4.3.7
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Thu Jul 07 2022 support <info@wazuh.com> - 4.3.6
 - More info: https://documentation.wazuh.com/current/release-notes/
