@@ -224,7 +224,21 @@ function main() {
     fi
     if [ -n "${AIO}" ] ; then
         rm -f "${tar_file}"
+        checks_ports "${wazuh_aio_ports[@]}"
     fi
+    
+    if [ -n "${indexer}" ]; then
+        checks_ports "${wazuh_indexer_ports[@]}"
+    fi
+
+    if [ -n "${wazuh}" ]; then
+        checks_ports "${wazuh_manager_ports[@]}"
+    fi
+
+    if [ -n "${dashboard}" ]; then
+        checks_ports "${wazuh_dashboard_ports[@]}"
+    fi
+    
 
 # -------------- Prerequisites and Wazuh repo  ----------------------
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
@@ -272,7 +286,6 @@ function main() {
 
     if [ -n "${dashboard}" ]; then
         common_logger "--- Wazuh dashboard ----"
-
         dashboard_install
         dashboard_configure
         installCommon_startService "wazuh-dashboard"
@@ -285,7 +298,6 @@ function main() {
 
     if [ -n "${wazuh}" ]; then
         common_logger "--- Wazuh server ---"
-
         manager_install
         if [ -n "${server_node_types[*]}" ]; then
             manager_startCluster
