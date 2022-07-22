@@ -254,11 +254,17 @@ function main() {
 # -------------- Wazuh indexer case -------------------------------
 
     if [ -n "${indexer}" ]; then
-        common_logger "--- Wazuh indexer ---"
-        indexer_install
-        indexer_configure
-        installCommon_startService "wazuh-indexer"
-        indexer_initialize
+        try {
+            common_logger "--- Wazuh indexer ---"
+            indexer_install
+            indexer_configure
+            installCommon_startService "wazuh-indexer"
+            indexer_initialize
+        } catch {
+            common_logger "Wazuh-indexer installation failed"
+            indexer_installed="true"
+            installCommon_rollBack
+        }
     fi
 
 # -------------- Start Wazuh indexer cluster case  ------------------
@@ -273,11 +279,17 @@ function main() {
     if [ -n "${dashboard}" ]; then
         common_logger "--- Wazuh dashboard ----"
 
-        dashboard_install
-        dashboard_configure
-        installCommon_startService "wazuh-dashboard"
-        installCommon_changePasswords
-        dashboard_initialize
+        try {
+            dashboard_install
+            dashboard_configure
+            installCommon_startService "wazuh-dashboard"
+            installCommon_changePasswords
+            dashboard_initialize
+        } catch {
+            common_logger "Wazuh-dashboard installation failed"
+            dashboard_installed="true"
+            installCommon_rollBack
+        }
 
     fi
 
@@ -285,18 +297,26 @@ function main() {
 
     if [ -n "${wazuh}" ]; then
         common_logger "--- Wazuh server ---"
+        try {
+            manager_install
+            if [ -n "${server_node_types[*]}" ]; then
+                manager_startCluster
+            fi
+            installCommon_startService "wazuh-manager"
+        } catch {
+            common_logger "Wazuh-manager installation failed"
+            wazuh_installed="true"
+            installCommon_rollBack
+        }
 
-        manager_install
-        if [ -n "${server_node_types[*]}" ]; then
-            manager_startCluster
-        fi
-        installCommon_startService "wazuh-manager"
         try {
             filebeat_install
             filebeat_configure
             installCommon_changePasswords
             installCommon_startService "filebeat"
         } catch {
+            common_logger "Filebeat installation failed"
+            filebeat_installed="true"
             installCommon_rollBack
         }
     fi
@@ -305,23 +325,28 @@ function main() {
 
     if [ -n "${AIO}" ]; then
 
-        common_logger "--- Wazuh indexer ---"
-        indexer_install
-        indexer_configure
-        installCommon_startService "wazuh-indexer"
-        indexer_initialize
-        common_logger "--- Wazuh server ---"
-        manager_install
-        installCommon_startService "wazuh-manager"
-        filebeat_install
-        filebeat_configure
-        installCommon_startService "filebeat"
-        common_logger "--- Wazuh dashboard ---"
-        dashboard_install
-        dashboard_configure
-        installCommon_startService "wazuh-dashboard"
-        installCommon_changePasswords
-        dashboard_initializeAIO
+        try {
+            common_logger "--- Wazuh indexer ---"
+            indexer_install
+            indexer_configure
+            installCommon_startService "wazuh-indexer"
+            indexer_initialize
+            common_logger "--- Wazuh server ---"
+            manager_install
+            installCommon_startService "wazuh-manager"
+            filebeat_install
+            filebeat_configure
+            installCommon_startService "filebeat"
+            common_logger "--- Wazuh dashboard ---"
+            dashboard_install
+            dashboard_configure
+            installCommon_startService "wazuh-dashboard"
+            installCommon_changePasswords
+            dashboard_initializeAIO
+        } catch {
+            common_logger "AIO installation failed"
+            installCommon_rollBack
+        }
         
     fi
 
