@@ -26,7 +26,11 @@ function dashboard_configure() {
             ip=${dashboard_node_ips[pos]}
         fi
 
-        echo 'server.host: "'${ip}'"' >> /etc/wazuh-dashboard/opensearch_dashboards.yml
+        if [[ "${ip}" != "127.0.0.1" ]]; then
+            echo 'server.host: "'${ip}'"' >> /etc/wazuh-dashboard/opensearch_dashboards.yml
+        else
+            echo 'server.host: '0.0.0.0'' >> /etc/wazuh-dashboard/opensearch_dashboards.yml
+        fi
 
         if [ "${#indexer_node_names[@]}" -eq 1 ]; then
             echo "opensearch.hosts: https://"${indexer_node_ips[0]}":9200" >> /etc/wazuh-dashboard/opensearch_dashboards.yml
