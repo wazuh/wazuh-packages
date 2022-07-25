@@ -91,19 +91,19 @@ function cert_generateCertificateconfiguration() {
         IP.1 = cip
 	EOF
 
-    conf="$(awk '{sub("CN = cname", "CN = '${1}'")}1' "${tmp_path}/${1}.conf")"
+    conf="$(awk '{sub("CN = cname", "CN = '"${1}"'")}1' "${tmp_path}/${1}.conf")"
     echo "${conf}" > "${tmp_path}/${1}.conf"
 
     isIP=$(echo "${2}" | grep -P "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")
     isDNS=$(echo "${2}" | grep -P "^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z-]{2,})+$" )
 
     if [[ -n "${isIP}" ]]; then
-        conf="$(awk '{sub("IP.1 = cip", "IP.1 = '${2}'")}1' "${tmp_path}/${1}.conf")"
+        conf="$(awk '{sub("IP.1 = cip", "IP.1 = '"${2}"'")}1' "${tmp_path}/${1}.conf")"
         echo "${conf}" > "${tmp_path}/${1}.conf"
     elif [[ -n "${isDNS}" ]]; then
-        conf="$(awk '{sub("CN = cname", "CN =  '${2}'")}1' "${tmp_path}/${1}.conf")"
+        conf="$(awk '{sub("CN = cname", "CN =  '"${2}"'")}1' "${tmp_path}/${1}.conf")"
         echo "${conf}" > "${tmp_path}/${1}.conf"
-        conf="$(awk '{sub("IP.1 = cip", "DNS.1 = '${2}'")}1' "${tmp_path}/${1}.conf")"
+        conf="$(awk '{sub("IP.1 = cip", "DNS.1 = '"${2}"'")}1' "${tmp_path}/${1}.conf")"
         echo "${conf}" > "${tmp_path}/${1}.conf"
     else
         common_logger -e "The given information does not match with an IP address or a DNS."
