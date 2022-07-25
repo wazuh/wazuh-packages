@@ -37,7 +37,7 @@ function getHelp() {
     echo -e "        -ws,  --wazuh-server-certificates </path/to/root-ca.pem> </path/to/root-ca.key>"
     echo -e "                Creates the Wazuh server certificates, add root-ca.pem and root-ca.key."
     echo -e ""
-    echo -e "        -tmp,  --tmp_path </path/to/tmp_dir>"
+    echo -e "        -tmp,  --cert_tmp_path </path/to/tmp_dir>"
     echo -e "                Modifies the default tmp directory (/tmp/wazuh-ceritificates) to the specified one."
     echo -e "                Must be used along with one of these options: -a, -A, -ca, -wi, -wd, -ws"
     echo -e ""
@@ -136,14 +136,14 @@ function main() {
                     shift 3
                 fi
                 ;;
-            "-tmp"|"--tmp_path")
-                if [[ ! -z "${3}" || ( "${cadmin}" == 1 || "${all}" == 1 || "${ca}" == 1 || "${cdashboard}" == 1 || "${cindexer}" == 1 || "${cserver}" == 1 ) ]]; then
+            "-tmp"|"--cert_tmp_path")
+                if [[ -n "${3}" || ( "${cadmin}" == 1 || "${all}" == 1 || "${ca}" == 1 || "${cdashboard}" == 1 || "${cindexer}" == 1 || "${cserver}" == 1 ) ]]; then
                     if [[ -z "${2}" || ! "${2}" == \/* ]]; then
                         common_logger -e "Error on arguments. Probably missing </path/to/tmp_dir> or path does not start with '/'."
                         getHelp
                         exit 1
                     else
-                        tmp_path="${2}"
+                        cert_tmp_path="${2}"
                         shift 2
                     fi
                 else
@@ -165,9 +165,9 @@ function main() {
             fi
         fi
         
-        if [[ ! -d "${tmp_path}" ]]; then
-            mkdir -p "${tmp_path}"
-            chmod 744 "${tmp_path}"
+        if [[ ! -d "${cert_tmp_path}" ]]; then
+            mkdir -p "${cert_tmp_path}"
+            chmod 744 "${cert_tmp_path}"
         fi
 
         cert_readConfig
@@ -182,7 +182,7 @@ function main() {
             common_logger "Admin certificates created."
             cert_cleanFiles
             cert_setpermisions
-            eval "mv ${tmp_path} ${base_path}/wazuh-certificates ${debug}"
+            eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
         fi
 
         if [[ -n "${all}" ]]; then
@@ -197,14 +197,14 @@ function main() {
             common_logger "Wazuh dashboard certificates created."
             cert_cleanFiles
             cert_setpermisions
-            eval "mv ${tmp_path} ${base_path}/wazuh-certificates ${debug}"
+            eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
         fi
 
         if [[ -n "${ca}" ]]; then
             cert_generateRootCAcertificate
             common_logger "Authority certificates created."
             cert_cleanFiles
-            eval "mv ${tmp_path} ${base_path}/wazuh-certificates ${debug}"
+            eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
         fi
 
         if [[ -n "${cindexer}" ]]; then
@@ -213,7 +213,7 @@ function main() {
             common_logger "Wazuh indexer certificates created."
             cert_cleanFiles
             cert_setpermisions
-            eval "mv ${tmp_path} ${base_path}/wazuh-certificates ${debug}"
+            eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
         fi
 
         if [[ -n "${cserver}" ]]; then
@@ -222,7 +222,7 @@ function main() {
             common_logger "Wazuh server certificates created."
             cert_cleanFiles
             cert_setpermisions
-            eval "mv ${tmp_path} ${base_path}/wazuh-certificates ${debug}"
+            eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
         fi
 
         if [[ -n "${cdashboard}" ]]; then
@@ -231,7 +231,7 @@ function main() {
             common_logger "Wazuh dashboard certificates created."
             cert_cleanFiles
             cert_setpermisions
-            eval "mv ${tmp_path} ${base_path}/wazuh-certificates ${debug}"
+            eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
         fi
 
     else
