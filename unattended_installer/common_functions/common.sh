@@ -137,7 +137,7 @@ function common_remove_gpg_key() {
     elif [ "${sys_type}" == "apt-get" ]; then
         if { apt-key list | grep "Wazuh"; } >/dev/null 2>&1; then
             key=$(apt-key list  2>/dev/null | grep -B 1 "Wazuh" | head -1)
-            apt-key del "${key}" 2>/dev/null
+            apt-key del "${key}" >/dev/null 2>&1
         else
             common_logger "Wazuh GPG key not found in the system"
             return 1
