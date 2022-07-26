@@ -11,7 +11,7 @@
 set -e
 
 reference=""
-opensearch_version="2.0.1"
+opensearch_version="2.1.0"
 
 current_path="$( cd $(dirname $0) ; pwd -P )"
 outdir="${current_path}/output"
