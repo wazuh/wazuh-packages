@@ -182,6 +182,7 @@ function indexer_startCluster() {
         common_logger -e "The Wazuh indexer cluster security configuration could not be initialized."
         common_logger -d "Rolling back to default cluster settings."
         eval "sudo -u wazuh-indexer JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -p 9300 -cd ~/backup/ -icl -nhnv -cacert /etc/wazuh-indexer/certs/root-ca.pem -cert /etc/wazuh-indexer/certs/admin.pem -key /etc/wazuh-indexer/certs/admin-key.pem -h ${wazuh_indexer_ip} ${debug} --diagnose"
+        eval "sudo -u wazuh-indexer rm -rf ~/backup"
         exit 1
     else
         common_logger "Wazuh indexer cluster security configuration initialized."
@@ -191,6 +192,7 @@ function indexer_startCluster() {
         common_logger -e "The wazuh-alerts template could not be inserted into the Wazuh indexer cluster."
         common_logger -d "Rolling back to default cluster settings."
         eval "sudo -u wazuh-indexer JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -p 9300 -cd ~/backup/ -icl -nhnv -cacert /etc/wazuh-indexer/certs/root-ca.pem -cert /etc/wazuh-indexer/certs/admin.pem -key /etc/wazuh-indexer/certs/admin-key.pem -h ${wazuh_indexer_ip} ${debug} --diagnose"
+        eval "sudo -u wazuh-indexer rm -rf ~/backup"
         exit 1
     else
         common_logger -d "Inserted wazuh-alerts template into the Wazuh indexer cluster."
