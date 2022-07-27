@@ -75,7 +75,7 @@ sed -i 's/navigateToApp("home")/navigateToApp("wazuh")/g' ./src/core/target/publ
 sed -i 's|"core.ui.chrome.headerGlobalNav.helpMenuVersion",defaultMessage:"v {version}"|"core.ui.chrome.headerGlobalNav.helpMenuVersion",defaultMessage:"v'${version}'"|' ./src/core/target/public/core.entry.js
 ## Help link - OpenSearch Dashboards documentation
 sed -i 's|OpenSearch Dashboards documentation|Wazuh documentation|' ./src/core/target/public/core.entry.js
-sed -i 's|OPENSEARCH_DASHBOARDS_DOCS="https://opensearch.org/docs/latest/dashboards/index/"|OPENSEARCH_DASHBOARDS_DOCS="https://documentation.wazuh.com/'${wazuh_minor}'"|' ./src/core/target/public/core.entry.js
+sed -i 's|href:opensearchDashboardsDocLink,|href:"https://documentation.wazuh.com/'${wazuh_minor}'",|' ./src/core/target/public/core.entry.js
 ## Help link - Ask OpenSearch
 sed -i 's|Ask OpenSearch|Ask Wazuh|' ./src/core/target/public/core.entry.js
 sed -i 's|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://github.com/opensearch-project"|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://wazuh.com/community/join-us-on-slack"|' ./src/core/target/public/core.entry.js

@@ -434,28 +434,28 @@ rm -fr %{buildroot}
 %attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-reports-scheduler/reports-scheduler.yml
 %config(noreplace) %attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/jvm.options
 %config(noreplace) %attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch.yml
-%attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-notifications-core/notifications-core.yml
-%attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-notifications/notifications.yml
-%attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/agent-stats-metadata
-%attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/log4j2.xml
-%attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/opensearch_security.policy
-%attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/performance-analyzer.properties
-%attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/plugin-stats-metadata
-%attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/rca.conf
-%attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/rca_idle_master.conf
-%attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/rca_master.conf
-%attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/supervisord.conf
-%attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/action_groups.yml
-%attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/audit.yml
-%attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/config.yml
-%attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/internal_users.yml
-%attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/nodes_dn.yml
-%attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/opensearch.yml.example
-%attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/roles.yml
-%attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/roles_mapping.yml
-%attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/tenants.yml
-%attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/whitelist.yml
-%attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/allowlist.yml
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-notifications-core/notifications-core.yml
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-notifications/notifications.yml
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/agent-stats-metadata
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/log4j2.xml
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/opensearch_security.policy
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/performance-analyzer.properties
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/plugin-stats-metadata
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/rca.conf
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/rca_idle_master.conf
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/rca_master.conf
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/supervisord.conf
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/action_groups.yml
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/audit.yml
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/config.yml
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/internal_users.yml
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/nodes_dn.yml
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/opensearch.yml.example
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/roles.yml
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/roles_mapping.yml
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/tenants.yml
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/whitelist.yml
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/allowlist.yml
 %attr(440, %{USER}, %{GROUP}) %{INSTALL_DIR}/VERSION
 %dir %attr(750, %{USER}, %{GROUP}) %{CONFIG_DIR}/jvm.options.d
 %config(noreplace) %attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/log4j2.properties

@@ -278,28 +278,28 @@ override_dh_fixperms:
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-reports-scheduler/reports-scheduler.yml
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/jvm.options
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch.yml
-	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-notifications-core/notifications-core.yml
-	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-notifications/notifications.yml
-	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-performance-analyzer/agent-stats-metadata
-	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-performance-analyzer/log4j2.xml
-	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-performance-analyzer/opensearch_security.policy
-	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-performance-analyzer/performance-analyzer.properties
-	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-performance-analyzer/plugin-stats-metadata
-	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-performance-analyzer/rca.conf
-	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-performance-analyzer/rca_idle_master.conf
-	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-performance-analyzer/rca_master.conf
-	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-performance-analyzer/supervisord.conf
-	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/action_groups.yml
-	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/audit.yml
-	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/config.yml
-	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/internal_users.yml
-	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/nodes_dn.yml
-	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/opensearch.yml.example
-	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/roles.yml
-	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/roles_mapping.yml
-	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/tenants.yml
-	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/whitelist.yml
-	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/allowlist.yml
+	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-notifications-core/notifications-core.yml
+	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-notifications/notifications.yml
+	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-performance-analyzer/agent-stats-metadata
+	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-performance-analyzer/log4j2.xml
+	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-performance-analyzer/opensearch_security.policy
+	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-performance-analyzer/performance-analyzer.properties
+	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-performance-analyzer/plugin-stats-metadata
+	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-performance-analyzer/rca.conf
+	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-performance-analyzer/rca_idle_master.conf
+	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-performance-analyzer/rca_master.conf
+	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-performance-analyzer/supervisord.conf
+	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/action_groups.yml
+	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/audit.yml
+	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/config.yml
+	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/internal_users.yml
+	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/nodes_dn.yml
+	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/opensearch.yml.example
+	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/roles.yml
+	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/roles_mapping.yml
+	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/tenants.yml
+	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/whitelist.yml
+	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/allowlist.yml
 	chmod 750 $(TARGET_DIR)$(CONFIG_DIR)/jvm.options.d
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/log4j2.properties
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/NOTICE.txt
