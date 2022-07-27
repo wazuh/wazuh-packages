@@ -535,6 +535,8 @@ function installCommon_rollBack() {
 
     eval "rm -rf ${elements_to_remove[*]}"
 
+    common_remove_gpg_key
+
     if [ -z "${uninstall}" ]; then
         if [ -n "${rollback_conf}" ] || [ -n "${overwrite}" ]; then
             common_logger "Installation cleaned."
