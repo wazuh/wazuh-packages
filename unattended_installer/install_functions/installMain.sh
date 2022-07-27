@@ -211,7 +211,6 @@ function main() {
     checks_arguments
     if [ -n "${uninstall}" ]; then
         installCommon_rollBack
-        common_remove_gpg_key
         exit 0
     fi
 
