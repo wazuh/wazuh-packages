@@ -129,22 +129,8 @@ asynchronous_search_read_access:
   cluster_permissions:
     - 'cluster:admin/opendistro/asynchronous_search/get'
 
-wazuh_ui_user:
-  reserved: true
-  hidden: false
-  cluster_permissions: []
-  index_permissions:
-  - index_patterns:
-    - "wazuh-*"
-    dls: ""
-    fls: []
-    masked_fields: []
-    allowed_actions:
-    - "read"
-  tenant_permissions: []
-  static: false
-
-wazuh_ui_admin:
+# Wazuh monitoring and statistics index permissions
+manage_wazuh_index:
   reserved: true
   hidden: false
   cluster_permissions: []

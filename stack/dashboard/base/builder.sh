@@ -57,6 +57,7 @@ cp ./etc/custom_welcome/Assets/Favicons/* ./src/core/server/core_app/assets/favi
 cp ./etc/custom_welcome/Assets/Favicons/favicon.ico ./src/core/server/core_app/assets/favicons/favicon.ico
 cp ./etc/http_service.js ./src/core/server/http/http_service.js
 cp ./etc/template.js ./src/core/server/rendering/views/template.js
+cp ./etc/styles.js ./src/core/server/rendering/views/styles.js
 # Replace App Title
 sed -i "s|defaultValue: ''|defaultValue: \'Wazuh\'|g" ./src/core/server/opensearch_dashboards_config.js
 # Replace config path
