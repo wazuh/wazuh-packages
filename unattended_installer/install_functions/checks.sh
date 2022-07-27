@@ -229,7 +229,7 @@ function checks_health() {
 
 }
 
-# This function ensures different names in the wazuh-config.yml file.
+# This function ensures different names in the config.yml file.
 function checks_names() {
 
     if [ -n "${indxname}" ] && [ -n "${dashname}" ] && [ "${indxname}" == "${dashname}" ]; then
