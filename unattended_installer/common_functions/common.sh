@@ -69,8 +69,6 @@ function common_checkInstalled() {
 
     if [ "${sys_type}" == "yum" ]; then
         wazuh_installed=$(yum list installed 2>/dev/null | grep wazuh-manager)
-    elif [ "${sys_type}" == "zypper" ]; then
-        wazuh_installed=$(zypper packages | grep wazuh-manager | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
         wazuh_installed=$(apt list --installed  2>/dev/null | grep wazuh-manager)
     fi
@@ -81,8 +79,6 @@ function common_checkInstalled() {
 
     if [ "${sys_type}" == "yum" ]; then
         indexer_installed=$(yum list installed 2>/dev/null | grep wazuh-indexer)
-    elif [ "${sys_type}" == "zypper" ]; then
-        indexer_installed=$(zypper packages | grep wazuh-indexer | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
         indexer_installed=$(apt list --installed 2>/dev/null | grep wazuh-indexer)
     fi
@@ -93,8 +89,6 @@ function common_checkInstalled() {
 
     if [ "${sys_type}" == "yum" ]; then
         filebeat_installed=$(yum list installed 2>/dev/null | grep filebeat)
-    elif [ "${sys_type}" == "zypper" ]; then
-        filebeat_installed=$(zypper packages | grep filebeat | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
         filebeat_installed=$(apt list --installed  2>/dev/null | grep filebeat)
     fi
@@ -105,8 +99,6 @@ function common_checkInstalled() {
 
     if [ "${sys_type}" == "yum" ]; then
         dashboard_installed=$(yum list installed 2>/dev/null | grep wazuh-dashboard)
-    elif [ "${sys_type}" == "zypper" ]; then
-        dashboard_installed=$(zypper packages | grep wazuh-dashboard | grep i+)
     elif [ "${sys_type}" == "apt-get" ]; then
         dashboard_installed=$(apt list --installed  2>/dev/null | grep wazuh-dashboard)
     fi
@@ -121,9 +113,6 @@ function common_checkSystem() {
 
     if [ -n "$(command -v yum)" ]; then
         sys_type="yum"
-        sep="-"
-    elif [ -n "$(command -v zypper)" ]; then
-        sys_type="zypper"
         sep="-"
     elif [ -n "$(command -v apt-get)" ]; then
         sys_type="apt-get"
@@ -141,6 +130,28 @@ function common_checkWazuhConfigYaml() {
     if [[ "${filecorrect}" -ne 1 ]]; then
         common_logger -e "The configuration file ${config_file} does not have a correct format."
         exit 1
+    fi
+
+}
+
+function common_remove_gpg_key() {
+    
+    if [ "${sys_type}" == "yum" ]; then
+        if { rpm -q gpg-pubkey --qf '%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n' | grep "Wazuh"; } >/dev/null ; then
+            key=$(rpm -q gpg-pubkey --qf '%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n' | grep "Wazuh Signing Key" | awk '{print $1}' )
+            rpm -e "${key}"
+        else
+            common_logger "Wazuh GPG key not found in the system"
+            return 1
+        fi
+    elif [ "${sys_type}" == "apt-get" ]; then
+        if { apt-key list | grep "Wazuh"; } >/dev/null 2>&1; then
+            key=$(apt-key list  2>/dev/null | grep -B 1 "Wazuh" | head -1)
+            apt-key del "${key}" >/dev/null 2>&1
+        else
+            common_logger "Wazuh GPG key not found in the system"
+            return 1
+        fi
     fi
 
 }
