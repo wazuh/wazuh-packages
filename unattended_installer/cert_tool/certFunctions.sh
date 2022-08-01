@@ -193,6 +193,7 @@ function cert_readConfig() {
             exit 1
         fi
         eval "$(cert_convertCRLFtoLF "${config_file}")"
+        common_checkWazuhConfigYaml
         eval "$(cert_parseYaml "${config_file}")"
         eval "indexer_node_names=( $(cert_parseYaml "${config_file}" | grep nodes_indexer__name | sed 's/nodes_indexer__name=//' | sed -r 's/\s+//g') )"
         eval "server_node_names=( $(cert_parseYaml "${config_file}" | grep nodes_server__name | sed 's/nodes_server__name=//' | sed -r 's/\s+//g') )"
@@ -292,6 +293,6 @@ function cert_convertCRLFtoLF() {
         mkdir "/tmp/wazuh-install-files"
     fi
     eval "chmod -R 755 /tmp/wazuh-install-files ${debug}"
-    eval "tr -d '\015' < $1 > /tmp/wazuh-install-files/new-config.yml"
-    eval "mv /tmp/wazuh-install-files/new-config.yml $1"
+    eval "tr -d '\015' < $1 > /tmp/wazuh-install-files/new_config.yml"
+    eval "mv /tmp/wazuh-install-files/new_config.yml $1"
 }

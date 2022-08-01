@@ -178,8 +178,8 @@ function check_dist() {
         notsupported=1
     fi
     if [ "${DIST_NAME}" == "ubuntu" ]; then
-        if [ "${DIST_VER}" == "16" ] || [ "${DIST_VER}" == "18" ] ||
-           [ "${DIST_VER}" == "20" ] || [ "${DIST_VER}" == "22" ]; then
+        if  [ "${DIST_VER}" == "16" ] || [ "${DIST_VER}" == "18" ] ||
+            [ "${DIST_VER}" == "20" ] || [ "${DIST_VER}" == "22" ]; then
             if [ "${DIST_SUBVER}" != "04" ]; then
                 notsupported=1
             fi
@@ -302,5 +302,36 @@ function checks_specifications() {
 
     cores=$(cat /proc/cpuinfo | grep -c processor )
     ram_gb=$(free -m | awk '/^Mem:/{print $2}')
+
+}
+
+function checks_ports() {
+
+    used_port=0
+    ports=("$@")
+
+    if command -v ss > /dev/null; then
+        port_command="ss -lntup | grep -q "
+    else
+        if command -v lsof > /dev/null; then
+            port_command="lsof -i:"
+        else
+            common_logger -w "Cannot find ss or lsof. Port checking will be skipped."
+            return 1
+        fi
+    fi
+
+    for i in "${!ports[@]}"; do
+        if eval "${port_command}""${ports[i]}" > /dev/null; then
+            used_port=1
+            common_logger -e "Port ${ports[i]} is being used by another process. Please, check it before installing Wazuh."
+        fi
+    done
+
+    if [ "${used_port}" -eq 1 ]; then
+        common_logger "The installation can not continue due to port usage by other processes."
+        installCommon_rollBack
+        exit 1
+    fi
 
 }
