@@ -91,23 +91,42 @@ function cert_generateCertificateconfiguration() {
         IP.1 = cip
 	EOF
 
-    conf="$(awk '{sub("CN = cname", "CN = '${1}'")}1' "/tmp/wazuh-certificates/${1}.conf")"
-    echo "${conf}" > "/tmp/wazuh-certificates/${1}.conf"
 
     isIP=$(echo "${2}" | grep -P "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")
     isDNS=$(echo "${2}" | grep -P "^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z-]{2,})+$" )
 
-    if [[ -n "${isIP}" ]]; then
-        conf="$(awk '{sub("IP.1 = cip", "IP.1 = '${2}'")}1' "/tmp/wazuh-certificates/${1}.conf")"
-        echo "${conf}" > "/tmp/wazuh-certificates/${1}.conf"
-    elif [[ -n "${isDNS}" ]]; then
-        conf="$(awk '{sub("CN = cname", "CN =  '${2}'")}1' "/tmp/wazuh-certificates/${1}.conf")"
-        echo "${conf}" > "/tmp/wazuh-certificates/${1}.conf"
-        conf="$(awk '{sub("IP.1 = cip", "DNS.1 = '${2}'")}1' "/tmp/wazuh-certificates/${1}.conf")"
-        echo "${conf}" > "/tmp/wazuh-certificates/${1}.conf"
+    conf="$(awk '{sub("CN = cname", "CN = '${1}'")}1' /tmp/wazuh-certificates/${1}.conf)"
+    echo "${conf}" > "/tmp/wazuh-certificates/${1}.conf"
+
+    if [ "${#@}" -gt 2 ]; then
+        sed -i '/IP.1/d' "/tmp/wazuh-certificates/${1}.conf"
+    for (( i=2; i<=${#@}; i++ )); do
+        isIP=$(echo "${!i}" | grep -P "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")
+        isDNS=$(echo "${!i}" | grep -P "^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z-]{2,})+$" )
+        j=$((i-1))
+        if [ "${isIP}" ]; then
+            printf '%s\n' "        IP.${j} = ${!i}" >> "/tmp/wazuh-certificates/${1}.conf"
+        elif [ "${isDNS}" ]; then
+            printf '%s\n' "        DNS.${j} = ${!i}" >> "/tmp/wazuh-certificates/${1}.conf"
+        else
+            common_logger -e "Invalid IP or DNS ${!i}"
+            cert_cleanFiles
+            exit 1
+        fi
+    done
+
     else
+        if [[ -n "${isIP}" ]]; then
+        conf="$(awk '{sub("IP.1 = cip", "IP.1 = '"${2}"'")}1' "/tmp/wazuh-certificates/${1}.conf")"
+        echo "${conf}" > "/tmp/wazuh-certificates/${1}.conf"
+        elif [[ -n "${isDNS}" ]]; then
+        conf="$(awk '{sub("CN = cname", "CN =  '"${2}"'")}1' "/tmp/wazuh-certificates/${1}.conf")"
+        echo "${conf}" > "/tmp/wazuh-certificates/${1}.conf"
+        echo "${conf}" > "/tmp/wazuh-certificates/${1}.conf"
+        else
         common_logger -e "The given information does not match with an IP address or a DNS."
         exit 1
+        fi
     fi
 
 }
@@ -132,9 +151,12 @@ function cert_generateFilebeatcertificates() {
         common_logger -d "Creating the Wazuh server certificates."
 
         for i in "${!server_node_names[@]}"; do
-            cert_generateCertificateconfiguration "${server_node_names[i]}" "${server_node_ips[i]}"
-            eval "openssl req -new -nodes -newkey rsa:2048 -keyout /tmp/wazuh-certificates/${server_node_names[i]}-key.pem -out /tmp/wazuh-certificates/${server_node_names[i]}.csr -config /tmp/wazuh-certificates/${server_node_names[i]}.conf -days 3650 ${debug}"
-            eval "openssl x509 -req -in /tmp/wazuh-certificates/${server_node_names[i]}.csr -CA /tmp/wazuh-certificates/root-ca.pem -CAkey /tmp/wazuh-certificates/root-ca.key -CAcreateserial -out /tmp/wazuh-certificates/${server_node_names[i]}.pem -extfile /tmp/wazuh-certificates/${server_node_names[i]}.conf -extensions v3_req -days 3650 ${debug}"
+            name="${server_node_names[i]}"
+            j=$((i+1))
+            declare -a server_ips=(server_node_ip_"$j"[@])
+            cert_generateCertificateconfiguration "${name}" "${!server_ips}"
+            eval "openssl req -new -nodes -newkey rsa:2048 -keyout /tmp/wazuh-certificates/${name}-key.pem -out /tmp/wazuh-certificates/${name}.csr  -config /tmp/wazuh-certificates/${name}.conf -days 3650"
+            eval "openssl x509 -req -in /tmp/wazuh-certificates/${name}.csr -CA /tmp/wazuh-certificates/root-ca.pem -CAkey /tmp/wazuh-certificates/root-ca.key -CAcreateserial -out /tmp/wazuh-certificates/${name}.pem -extfile /tmp/wazuh-certificates/${name}.conf -extensions v3_req -days 3650"
         done
     fi
 
@@ -163,27 +185,121 @@ function cert_generateRootCAcertificate() {
 
 }
 
-function cert_parseYaml() {
+function cert_parseYaml {
 
-    local prefix=${2}
-    local s='[[:space:]]*'
-    local w='[a-zA-Z0-9_]*'
-    local fs=$(echo @|tr @ '\034')
-    sed -re "s|^(\s+)-\s+name|\1  name|" ${1} |
-    sed -ne "s|^\($s\):|\1|" \
-            -e "s|^\($s\)\($w\)$s:$s[\"']\(.*\)[\"']$s\$|\1$fs\2$fs\3|p" \
-            -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p" |
-    awk -F$fs '{
-        indent = length($1)/2;
-        vname[indent] = $2;
-        for (i in vname) {if (i > indent) {delete vname[i]}}
-        if (length($3) > 0) {
-            vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
-            printf("%s%s%s=%s\n", "'$prefix'",vn, $2, $3);
+    local prefix=$2
+    local separator=${3:-_}
+    local indexfix
+    # Detect awk flavor
+    if awk --version 2>&1 | grep -q "GNU Awk" ; then
+    # GNU Awk detected
+    indexfix=-1
+    elif awk -Wv 2>&1 | grep -q "mawk" ; then
+    # mawk detected
+    indexfix=0
+    fi
+
+    local s='[[:space:]]*' sm='[ \t]*' w='[a-zA-Z0-9_]*' fs=${fs:-$(echo @|tr @ '\034')} i=${i:-  }
+    cat $1 | \
+    awk -F$fs "{multi=0; 
+        if(match(\$0,/$sm\|$sm$/)){multi=1; sub(/$sm\|$sm$/,\"\");}
+        if(match(\$0,/$sm>$sm$/)){multi=2; sub(/$sm>$sm$/,\"\");}
+        while(multi>0){
+            str=\$0; gsub(/^$sm/,\"\", str);
+            indent=index(\$0,str);
+            indentstr=substr(\$0, 0, indent+$indexfix) \"$i\";
+            obuf=\$0;
+            getline;
+            while(index(\$0,indentstr)){
+                obuf=obuf substr(\$0, length(indentstr)+1);
+                if (multi==1){obuf=obuf \"\\\\n\";}
+                if (multi==2){
+                    if(match(\$0,/^$sm$/))
+                        obuf=obuf \"\\\\n\";
+                        else obuf=obuf \" \";
+                }
+                getline;
+            }
+            sub(/$sm$/,\"\",obuf);
+            print obuf;
+            multi=0;
+            if(match(\$0,/$sm\|$sm$/)){multi=1; sub(/$sm\|$sm$/,\"\");}
+            if(match(\$0,/$sm>$sm$/)){multi=2; sub(/$sm>$sm$/,\"\");}
         }
-    }'
+    print}" | \
+    sed  -e "s|^\($s\)?|\1-|" \
+        -ne "s|^$s#.*||;s|$s#[^\"']*$||;s|^\([^\"'#]*\)#.*|\1|;t1;t;:1;s|^$s\$||;t2;p;:2;d" | \
+    sed -ne "s|,$s\]$s\$|]|" \
+        -e ":1;s|^\($s\)\($w\)$s:$s\(&$w\)\?$s\[$s\(.*\)$s,$s\(.*\)$s\]|\1\2: \3[\4]\n\1$i- \5|;t1" \
+        -e "s|^\($s\)\($w\)$s:$s\(&$w\)\?$s\[$s\(.*\)$s\]|\1\2: \3\n\1$i- \4|;" \
+        -e ":2;s|^\($s\)-$s\[$s\(.*\)$s,$s\(.*\)$s\]|\1- [\2]\n\1$i- \3|;t2" \
+        -e "s|^\($s\)-$s\[$s\(.*\)$s\]|\1-\n\1$i- \2|;p" | \
+    sed -ne "s|,$s}$s\$|}|" \
+        -e ":1;s|^\($s\)-$s{$s\(.*\)$s,$s\($w\)$s:$s\(.*\)$s}|\1- {\2}\n\1$i\3: \4|;t1" \
+        -e "s|^\($s\)-$s{$s\(.*\)$s}|\1-\n\1$i\2|;" \
+        -e ":2;s|^\($s\)\($w\)$s:$s\(&$w\)\?$s{$s\(.*\)$s,$s\($w\)$s:$s\(.*\)$s}|\1\2: \3 {\4}\n\1$i\5: \6|;t2" \
+        -e "s|^\($s\)\($w\)$s:$s\(&$w\)\?$s{$s\(.*\)$s}|\1\2: \3\n\1$i\4|;p" | \
+    sed  -e "s|^\($s\)\($w\)$s:$s\(&$w\)\(.*\)|\1\2:\4\n\3|" \
+        -e "s|^\($s\)-$s\(&$w\)\(.*\)|\1- \3\n\2|" | \
+    sed -ne "s|^\($s\):|\1|" \
+        -e "s|^\($s\)\(---\)\($s\)||" \
+        -e "s|^\($s\)\(\.\.\.\)\($s\)||" \
+        -e "s|^\($s\)-$s[\"']\(.*\)[\"']$s\$|\1$fs$fs\2|p;t" \
+        -e "s|^\($s\)\($w\)$s:$s[\"']\(.*\)[\"']$s\$|\1$fs\2$fs\3|p;t" \
+        -e "s|^\($s\)-$s\(.*\)$s\$|\1$fs$fs\2|" \
+        -e "s|^\($s\)\($w\)$s:$s[\"']\?\(.*\)$s\$|\1$fs\2$fs\3|" \
+        -e "s|^\($s\)[\"']\?\([^&][^$fs]\+\)[\"']$s\$|\1$fs$fs$fs\2|" \
+        -e "s|^\($s\)[\"']\?\([^&][^$fs]\+\)$s\$|\1$fs$fs$fs\2|" \
+        -e "s|$s\$||p" | \
+    awk -F$fs "{
+        gsub(/\t/,\"        \",\$1);
+        gsub(\"name: \", \"\");
+        if(NF>3){if(value!=\"\"){value = value \" \";}value = value  \$4;}
+        else {
+        if(match(\$1,/^&/)){anchor[substr(\$1,2)]=full_vn;getline};
+        indent = length(\$1)/length(\"$i\");
+        vname[indent] = \$2;
+        value= \$3;
+        for (i in vname) {if (i > indent) {delete vname[i]; idx[i]=0}}
+        if(length(\$2)== 0){  vname[indent]= ++idx[indent] };
+        vn=\"\"; for (i=0; i<indent; i++) { vn=(vn)(vname[i])(\"$separator\")}
+        vn=\"$prefix\" vn;
+        full_vn=vn vname[indent];
+        if(vn==\"$prefix\")vn=\"$prefix$separator\";
+        if(vn==\"_\")vn=\"__\";
+        }
+        assignment[full_vn]=value;
+        if(!match(assignment[vn], full_vn))assignment[vn]=assignment[vn] \" \" full_vn;
+        if(match(value,/^\*/)){
+            ref=anchor[substr(value,2)];
+            if(length(ref)==0){
+            printf(\"%s=\\\"%s\\\"\n\", full_vn, value);
+            } else {
+            for(val in assignment){
+                if((length(ref)>0)&&index(val, ref)==1){
+                    tmpval=assignment[val];
+                    sub(ref,full_vn,val);
+                if(match(val,\"$separator\$\")){
+                    gsub(ref,full_vn,tmpval);
+                } else if (length(tmpval) > 0) {
+                    printf(\"%s=\\\"%s\\\"\n\", val, tmpval);
+                }
+                assignment[val]=tmpval;
+                }
+            }
+        }
+    } else if (length(value) > 0) {
+        printf(\"%s=\\\"%s\\\"\n\", full_vn, value);
+    }
+    }END{
+        for(val in assignment){
+            if(match(val,\"$separator\$\"))
+                printf(\"%s=\\\"%s\\\"\n\", val, assignment[val]);
+        }
+    }"
 
 }
+
 
 function cert_readConfig() {
 
@@ -193,16 +309,20 @@ function cert_readConfig() {
             exit 1
         fi
         eval "$(cert_convertCRLFtoLF "${config_file}")"
-        eval "$(cert_parseYaml "${config_file}")"
-        eval "indexer_node_names=( $(cert_parseYaml "${config_file}" | grep nodes_indexer__name | sed 's/nodes_indexer__name=//' | sed -r 's/\s+//g') )"
-        eval "server_node_names=( $(cert_parseYaml "${config_file}" | grep nodes_server__name | sed 's/nodes_server__name=//' | sed -r 's/\s+//g') )"
-        eval "dashboard_node_names=( $(cert_parseYaml "${config_file}" | grep nodes_dashboard__name | sed 's/nodes_dashboard__name=//' | sed -r 's/\s+//g') )"
+        eval "indexer_node_names=( $(cert_parseYaml "${config_file}" | grep "nodes_indexer_[0-9]=" | cut -d = -f 2 ) )"
+        eval "server_node_names=( $(cert_parseYaml "${config_file}"  | grep "nodes_server_[0-9]=" | cut -d = -f 2 ) )"
+        eval "dashboard_node_names=( $(cert_parseYaml "${config_file}" | grep "nodes_dashboard_[0-9]=" | cut -d = -f 2) )"
+        eval "indexer_node_ips=( $(cert_parseYaml "${config_file}" | grep "nodes_indexer_[0-9]_ip=" | cut -d = -f 2) )"
+        eval "server_node_ips=( $(cert_parseYaml "${config_file}"  | grep "nodes_server_[0-9]_ip=" | cut -d = -f 2) )"
+        eval "dashboard_node_ips=( $(cert_parseYaml "${config_file}"  | grep "nodes_dashboard_[0-9]_ip=" | cut -d = -f 2 ) )"
+        eval "server_node_types=( $(cert_parseYaml "${config_file}"  | grep "nodes_server_[0-9]_node_type=" | cut -d = -f 2 ) )"
+        eval "number_server_ips=( $(cert_parseYaml "${config_file}" | grep -o -E 'nodes_server_[0-9]_ip' | sort -u | wc -l) )"
 
-        eval "indexer_node_ips=( $(cert_parseYaml "${config_file}" | grep nodes_indexer__ip | sed 's/nodes_indexer__ip=//' | sed -r 's/\s+//g') )"
-        eval "server_node_ips=( $(cert_parseYaml "${config_file}" | grep nodes_server__ip | sed 's/nodes_server__ip=//' | sed -r 's/\s+//g') )"
-        eval "dashboard_node_ips=( $(cert_parseYaml "${config_file}" | grep nodes_dashboard__ip | sed 's/nodes_dashboard__ip=//' | sed -r 's/\s+//g') )"
-
-        eval "server_node_types=( $(cert_parseYaml "${config_file}" | grep nodes_server__node_type | sed 's/nodes_server__node_type=//' | sed -r 's/\s+//g') )"
+        for i in $(seq 1 "${number_server_ips}"); do
+            string='nodes__server__'
+            nodes_server="${string}""${i}"
+            eval "server_node_ip_$i=( $( cert_parseYaml config.yml | grep "${nodes_server}" | sed '/\./!d' | cut -d = -f 2 | sed -r 's/\s+//g') )"
+        done
 
         unique_names=($(echo "${indexer_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
         if [ "${#unique_names[@]}" -ne "${#indexer_node_names[@]}" ]; then 
@@ -237,11 +357,6 @@ function cert_readConfig() {
         unique_ips=($(echo "${dashboard_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
         if [ "${#unique_ips[@]}" -ne "${#dashboard_node_ips[@]}" ]; then
             common_logger -e "Duplicated dashboard node ips."
-            exit 1
-        fi
-
-        if [ "${#server_node_names[@]}" -ne "${#server_node_ips[@]}" ]; then 
-            common_logger -e "Different number of Wazuh server node names and IPs."
             exit 1
         fi
 
