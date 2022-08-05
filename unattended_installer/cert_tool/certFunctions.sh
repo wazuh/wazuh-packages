@@ -198,7 +198,7 @@ function cert_parseYaml {
     fi
 
     local s='[[:space:]]*' sm='[ \t]*' w='[a-zA-Z0-9_]*' fs=${fs:-$(echo @|tr @ '\034')} i=${i:-  }
-    cat $1 | \
+    cat $1 2>/dev/null | \
     awk -F$fs "{multi=0; 
         if(match(\$0,/$sm\|$sm$/)){multi=1; sub(/$sm\|$sm$/,\"\");}
         if(match(\$0,/$sm>$sm$/)){multi=2; sub(/$sm>$sm$/,\"\");}
@@ -307,14 +307,26 @@ function cert_readConfig() {
             exit 1
         fi
         eval "$(cert_convertCRLFtoLF "${config_file}")"
-        eval "indexer_node_names=( $(cert_parseYaml "${config_file}" | grep "nodes_indexer_[0-9]=" | cut -d = -f 2 ) )"
-        eval "server_node_names=( $(cert_parseYaml "${config_file}"  | grep "nodes_server_[0-9]=" | cut -d = -f 2 ) )"
-        eval "dashboard_node_names=( $(cert_parseYaml "${config_file}" | grep "nodes_dashboard_[0-9]=" | cut -d = -f 2) )"
-        eval "indexer_node_ips=( $(cert_parseYaml "${config_file}" | grep "nodes_indexer_[0-9]_ip=" | cut -d = -f 2) )"
-        eval "server_node_ips=( $(cert_parseYaml "${config_file}"  | grep "nodes_server_[0-9]_ip=" | cut -d = -f 2) )"
-        eval "dashboard_node_ips=( $(cert_parseYaml "${config_file}"  | grep "nodes_dashboard_[0-9]_ip=" | cut -d = -f 2 ) )"
-        eval "server_node_types=( $(cert_parseYaml "${config_file}"  | grep "nodes_server_[0-9]_node_type=" | cut -d = -f 2 ) )"
-        eval "number_server_ips=( $(cert_parseYaml "${config_file}" | grep -o -E 'nodes_server_[0-9]_ip' | sort -u | wc -l) )"
+
+        if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${wazuh}" ] || [ -n "${dashboard}" ]; then
+            eval "indexer_node_names=( $(cert_parseYaml "${config_file}" | grep "nodes__indexer__[0-9]=" | cut -d = -f 2 ) )"
+            eval "server_node_names=( $(cert_parseYaml "${config_file}"  | grep "nodes__server__[0-9]=" | cut -d = -f 2 ) )"
+            eval "dashboard_node_names=( $(cert_parseYaml "${config_file}" | grep "nodes__dashboard__[0-9]=" | cut -d = -f 2) )"
+            eval "indexer_node_ips=( $(cert_parseYaml "${config_file}" | grep "nodes__indexer__[0-9]__ip=" | cut -d = -f 2) )"
+            eval "server_node_ips=( $(cert_parseYaml "${config_file}"  | grep "nodes__server__[0-9]__ip=" | cut -d = -f 2) )"
+            eval "dashboard_node_ips=( $(cert_parseYaml "${config_file}"  | grep "nodes__dashboard__[0-9]__ip=" | cut -d = -f 2 ) )"
+            eval "server_node_types=( $(cert_parseYaml "${config_file}"  | grep "nodes__server__[0-9]__node_type=" | cut -d = -f 2 ) )"
+            eval "number_server_ips=( $(cert_parseYaml "${config_file}" | grep -o -E 'nodes__server__[0-9]__ip' | sort -u | wc -l) )"
+        else
+            eval "indexer_node_names=( $(cert_parseYaml "${config_file}" | grep "nodes_indexer_[0-9]=" | cut -d = -f 2 ) )"
+            eval "server_node_names=( $(cert_parseYaml "${config_file}"  | grep "nodes_server_[0-9]=" | cut -d = -f 2 ) )"
+            eval "dashboard_node_names=( $(cert_parseYaml "${config_file}" | grep "nodes_dashboard_[0-9]=" | cut -d = -f 2) )"
+            eval "indexer_node_ips=( $(cert_parseYaml "${config_file}" | grep "nodes_indexer_[0-9]_ip=" | cut -d = -f 2) )"
+            eval "server_node_ips=( $(cert_parseYaml "${config_file}"  | grep "nodes_server_[0-9]_ip=" | cut -d = -f 2) )"
+            eval "dashboard_node_ips=( $(cert_parseYaml "${config_file}"  | grep "nodes_dashboard_[0-9]_ip=" | cut -d = -f 2 ) )"
+            eval "server_node_types=( $(cert_parseYaml "${config_file}"  | grep "nodes_server_[0-9]_node_type=" | cut -d = -f 2 ) )"
+            eval "number_server_ips=( $(cert_parseYaml "${config_file}" | grep -o -E 'nodes_server_[0-9]_ip' | sort -u | wc -l) )"
+        fi
 
         for i in $(seq 1 "${number_server_ips}"); do
             nodes_server=nodes__server__"${i}"__ip
