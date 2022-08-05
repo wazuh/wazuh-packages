@@ -468,6 +468,11 @@ function installCommon_rollBack() {
         common_logger "Wazuh manager removed."
     fi
 
+    if [[ -n "${wazuh_installed}" ]]; then
+        installCommon_removeService 'wazuh-manager'
+        common_logger "Wazuh manager service removed."
+    fi
+
     if [[ ( -n "${wazuh_remaining_files}"  || -n "${wazuh_installed}" ) && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         eval "rm -rf /var/ossec/ ${debug}"
     fi
@@ -488,6 +493,11 @@ function installCommon_rollBack() {
         eval "rm -rf /etc/wazuh-indexer/ ${debug}"
     fi
 
+    if [[ -n "${indexer_installed}" ]]; then
+        installCommon_removeService 'wazuh-indexer'
+        common_logger "Wazuh indexer service removed."
+    fi
+
     if [[ -n "${filebeat_installed}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         common_logger "Removing Filebeat."
         if [ "${sys_type}" == "yum" ]; then
@@ -502,6 +512,11 @@ function installCommon_rollBack() {
         eval "rm -rf /var/lib/filebeat/ ${debug}"
         eval "rm -rf /usr/share/filebeat/ ${debug}"
         eval "rm -rf /etc/filebeat/ ${debug}"
+    fi
+
+    if [[ -n "${filebeat_installed}" ]]; then
+        installCommon_removeService 'filebeat'
+        common_logger "Filebeat service removed."
     fi
 
     if [[ -n "${dashboard_installed}" && ( -n "${dashboard}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
@@ -519,6 +534,11 @@ function installCommon_rollBack() {
         eval "rm -rf /usr/share/wazuh-dashboard/ ${debug}"
         eval "rm -rf /etc/wazuh-dashboard/ ${debug}"
         eval "rm -rf /run/wazuh-dashboard/ ${debug}"
+    fi
+
+    if [[ -n "${dashboard_installed}" ]]; then
+        installCommon_removeService 'wazuh-dashboard'
+        common_logger "Wazuh dashboard service removed."
     fi
 
     elements_to_remove=(    "/var/log/wazuh-indexer/"
@@ -599,4 +619,60 @@ function installCommon_startService() {
         exit 1
     fi
 
+}
+
+function installCommon_removeService() {
+
+    if [ "$#" -ne 1 ]; then
+        common_logger -e "installCommon_removeService must be called with 1 argument."
+        exit 1
+    fi
+
+    common_logger "Removing service ${1}."
+
+    if ps -e | grep -E -q "^\ *1\ .*systemd$"; then
+        eval "systemctl disable ${1}.service ${debug}"
+        eval "systemctl stop ${1}.service ${debug}"
+        if [  "${PIPESTATUS[0]}" != 0  ]; then
+            common_logger -e "${1} could not be stopped and/or removed."
+            if [ -n "$(command -v journalctl)" ]; then
+                eval "journalctl -u ${1} >> ${logfile}"
+            fi
+            installCommon_rollBack
+            exit 1
+        else
+            common_logger "${1} service stopped and removed."
+        fi
+    elif ps -e | grep -E -q "^\ *1\ .*init$"; then
+        eval "chkconfig ${1} on ${debug}"
+        eval "service ${1} stop ${debug}"
+        eval "/etc/init.d/${1} stop ${debug}"
+        eval "update-rc.d -f ${1} remove"
+        if [  "${PIPESTATUS[0]}" != 0  ]; then
+            common_logger -e "${1} could not be stopped and/or removed."
+            if [ -n "$(command -v journalctl)" ]; then
+                eval "journalctl -u ${1} >> ${logfile}"
+            fi
+            installCommon_rollBack
+            exit 1
+        else
+            common_logger "${1} service stopped and removed."
+        fi
+    elif [ -x "/etc/rc.d/init.d/${1}" ] ; then
+        eval "/etc/rc.d/init.d/${1} stop ${debug}"
+        eval "update-rc.d -f ${1} remove"
+        if [  "${PIPESTATUS[0]}" != 0  ]; then
+            common_logger -e "${1} could not be stopped and/or removed."
+            if [ -n "$(command -v journalctl)" ]; then
+                eval "journalctl -u ${1} >> ${logfile}"
+            fi
+            installCommon_rollBack
+            exit 1
+        else
+            common_logger "${1} service stopped and removed."
+        fi
+    else
+        common_logger -e "${1} could not be removed. No service manager found on the system."
+        exit 1
+    fi
 }
