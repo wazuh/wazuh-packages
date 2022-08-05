@@ -157,7 +157,7 @@ function indexer_install() {
 
 function indexer_startCluster() {
 
-    retries=0    
+    retries=0
     for ip_to_test in "${indexer_node_ips[@]}"; do
         eval "curl -XGET https://"${ip_to_test}":9300/ -k -s -o /dev/null"
         e_code="${PIPESTATUS[0]}"
@@ -172,11 +172,18 @@ function indexer_startCluster() {
             exit 1
         fi
     done
-    eval "wazuh_indexer_ip=( $(cat /etc/wazuh-indexer/opensearch.yml | grep network.host | sed 's/network.host:\s//') )"
-    eval "sudo -u wazuh-indexer JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -p 9300 -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ -icl -nhnv -cacert /etc/wazuh-indexer/certs/root-ca.pem -cert /etc/wazuh-indexer/certs/admin.pem -key /etc/wazuh-indexer/certs/admin-key.pem -h ${wazuh_indexer_ip} ${debug}"
+    common_logger -d "Backing up default cluster settings."
+    backup="/usr/share/wazuh-indexer/backup/"
+    eval "sudo -u wazuh-indexer mkdir -p ${backup}"
+    eval "sudo -u wazuh-indexer JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -backup ${backup} -icl -nhnv -cacert /etc/wazuh-indexer/certs/root-ca.pem -cert /etc/wazuh-indexer/certs/admin.pem -key /etc/wazuh-indexer/certs/admin-key.pem ${debug} --diagnose"
+    common_logger -d "Back up completed. Applying security configuration."
+    eval "wazuh_indexer_ip=( $( grep network.host /etc/wazuh-indexer/opensearch.yml | sed 's/network.host:\s//') )"
+    eval "sudo -u wazuh-indexer JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -p 9300 -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ -icl -nhnv -cacert /etc/wazuh-indexer/certs/root-ca.pem -cert /etc/wazuh-indexer/certs/admin.pem -key /etc/wazuh-indexer/certs/admin-key.pem -h ${wazuh_indexer_ip} ${debug} --diagnose"
     if [  "${PIPESTATUS[0]}" != 0  ]; then
         common_logger -e "The Wazuh indexer cluster security configuration could not be initialized."
-        installCommon_rollBack
+        common_logger -d "Rolling back to default cluster settings."
+        eval "sudo -u wazuh-indexer JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -p 9300 -cd ${backup} -icl -nhnv -cacert /etc/wazuh-indexer/certs/root-ca.pem -cert /etc/wazuh-indexer/certs/admin.pem -key /etc/wazuh-indexer/certs/admin-key.pem -h ${wazuh_indexer_ip} ${debug} --diagnose"
+        eval "sudo -u wazuh-indexer rm -rf ${backup} ${debug}"
         exit 1
     else
         common_logger "Wazuh indexer cluster security configuration initialized."
@@ -184,10 +191,12 @@ function indexer_startCluster() {
     eval "curl --silent ${filebeat_wazuh_template} | curl -X PUT 'https://${indexer_node_ips[pos]}:9200/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k --silent ${debug}"
     if [  "${PIPESTATUS[0]}" != 0  ]; then
         common_logger -e "The wazuh-alerts template could not be inserted into the Wazuh indexer cluster."
-        installCommon_rollBack
+        common_logger -d "Rolling back to default cluster settings."
+        eval "sudo -u wazuh-indexer JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -p 9300 -cd ${backup} -icl -nhnv -cacert /etc/wazuh-indexer/certs/root-ca.pem -cert /etc/wazuh-indexer/certs/admin.pem -key /etc/wazuh-indexer/certs/admin-key.pem -h ${wazuh_indexer_ip} ${debug} --diagnose"
+        eval "sudo -u wazuh-indexer rm -rf ${backup} ${debug}"
         exit 1
     else
         common_logger -d "Inserted wazuh-alerts template into the Wazuh indexer cluster."
     fi
-
+    eval "sudo -u wazuh-indexer rm -rf ${backup} ${debug}"
 }
