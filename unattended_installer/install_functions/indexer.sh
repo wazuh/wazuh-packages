@@ -148,7 +148,9 @@ function indexer_install() {
     common_checkInstalled
     if [  "$install_result" != 0  ] || [ -z "${indexer_installed}" ]; then
         common_logger -e "Wazuh indexer installation failed."
-        installCommon_rollBack
+        if [ -z ${upgrade} ]; then
+            installCommon_rollBack
+        fi
         exit 1
     else
         common_logger "Wazuh indexer installation finished."

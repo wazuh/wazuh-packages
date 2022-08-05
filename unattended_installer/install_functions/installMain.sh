@@ -49,6 +49,9 @@ function getHelp() {
     echo -e "        -u,  --uninstall"
     echo -e "                Uninstalls all Wazuh components. This will erase all the existing configuration and data."
     echo -e ""
+    echo -e "        -up,  --upgrade"
+    echo -e "                Upgrades installed Wazuh components."
+    echo -e ""
     echo -e "        -v,  --verbose"
     echo -e "                Shows the complete installation output."
     echo -e ""
@@ -127,6 +130,10 @@ function main() {
                 ;;
             "-u"|"--uninstall")
                 uninstall=1
+                shift 1
+                ;;
+            "-up"|"--upgrade")
+                upgrade=1
                 shift 1
                 ;;
             "-v"|"--verbose")
@@ -209,8 +216,17 @@ function main() {
     common_checkSystem
     common_checkInstalled
     checks_arguments
+# -------------- Uninstall case  ------------------------------------
+
     if [ -n "${uninstall}" ]; then
         installCommon_rollBack
+        exit 0
+    fi
+
+# -------------- Upgrade case  ------------------------------------
+
+    if [ -n "${upgrade}" ]; then
+        upgrade_upgradeInstalled
         exit 0
     fi
 

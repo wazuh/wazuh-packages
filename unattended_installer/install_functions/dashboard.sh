@@ -191,7 +191,9 @@ function dashboard_install() {
     common_checkInstalled
     if [  "$install_result" != 0  ] || [ -z "${dashboard_installed}" ]; then
         common_logger -e "Wazuh dashboard installation failed."
-        installCommon_rollBack
+        if [ -z ${upgrade} ]; then
+            installCommon_rollBack
+        fi
         exit 1
     else
         common_logger "Wazuh dashboard installation finished."
