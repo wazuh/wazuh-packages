@@ -465,6 +465,8 @@ function installCommon_rollBack() {
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge wazuh-manager -y ${debug}"
         fi
+
+        installCommon_resetFirewall 'wazuh-manager'
         common_logger "Wazuh manager removed."
     fi
 
@@ -479,6 +481,8 @@ function installCommon_rollBack() {
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge wazuh-indexer -y ${debug}"
         fi
+
+        installCommon_resetFirewall 'wazuh-indexer'
         common_logger "Wazuh indexer removed."
     fi
 
@@ -511,6 +515,8 @@ function installCommon_rollBack() {
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge wazuh-dashboard -y ${debug}"
         fi
+
+        installCommon_resetFirewall 'wazuh-dashboard'
         common_logger "Wazuh dashboard removed."
     fi
 
@@ -599,4 +605,115 @@ function installCommon_startService() {
         exit 1
     fi
 
+}
+
+function installCommon_setupFirewall() {
+
+    if [ "$#" -ne 1 ]; then
+        common_logger -e "installCommon_setupFirewall must be called with 1 argument."
+        exit 1
+    fi
+
+    FIREWALLD_EXISTS=0
+    IPTABLES_EXISTS=0
+
+    if [ -x "$(command -v firewalld)" ]; then
+        FIREWALLD_EXISTS=1
+    fi
+
+    if [ -x "$(command -v iptables)" ]; then
+        IPTABLES_EXISTS=1
+    fi
+
+    if [[ ${FIREWALLD_EXISTS} -eq 1 ]] || [[ ${IPTABLES_EXISTS} -eq 1 ]]; then
+
+        common_logger "Setting up firewall rules for service ${1}."
+
+        if [ "${1}" == 'wazuh-manager' ]; then
+            ports=("1514" "1515" "1516" "55000")
+        elif [ "${1}" == 'wazuh-indexer' ]; then
+            ports=("9200" "9300-9400")
+        elif [ "${1}" == 'wazuh-dashboard' ]; then
+            ports=("443")
+        fi
+
+        for port_number in "${ports[@]}"; do
+            common_logger -d "Enabling port ${port_number} on the firewall."
+            if [ "${FIREWALLD_EXISTS}" -eq 1 ]; then
+                eval "sudo firewall-cmd --permanent --add-port=${port_number}/tcp ${debug}"
+            elif [ "${IPTABLES_EXISTS}" -eq 1 ]; then
+                eval "sudo iptables -I INPUT -p tcp -m tcp --dport ${port_number/-/:} -j ACCEPT ${debug}"
+            fi
+        done
+
+        if [ "${FIREWALLD_EXISTS}" -eq 1 ]; then
+            eval "sudo firewall-cmd --reload ${debug}"
+
+        elif [ "${IPTABLES_EXISTS}" -eq 1 ]; then
+            eval "sudo iptables-save ${debug}"
+        fi
+
+        common_logger -d "Firewall rules saved/reloaded."
+        common_logger "Successfully set up basic firewall rules for service ${1}."
+        common_logger "It is suggested to verify the rules on the host firewall in accordance with the Wazuh documentation."
+        return 0
+    fi
+
+    common_logger -e "Could not find a firewall. Please configure ports on the host firewall in accordance with the Wazuh documentation."
+    return 1
+}
+
+function installCommon_resetFirewall() {
+
+    if [ "$#" -ne 1 ]; then
+        common_logger -e "installCommon_resetFirewall must be called with 1 argument."
+        exit 1
+    fi
+
+    FIREWALLD_EXISTS=0
+    IPTABLES_EXISTS=0
+
+    if [ -x "$(command -v firewalld)" ]; then
+        FIREWALLD_EXISTS=1
+    fi
+
+    if [ -x "$(command -v iptables)" ]; then
+        IPTABLES_EXISTS=1
+    fi
+
+    if [[ ${FIREWALLD_EXISTS} -eq 1 ]] || [[ ${IPTABLES_EXISTS} -eq 1 ]]; then
+
+        common_logger "Removing firewall rules for service ${1}."
+
+        if [ "${1}" == 'wazuh-manager' ]; then
+            ports=("1514" "1515" "1516" "55000")
+        elif [ "${1}" == 'wazuh-indexer' ]; then
+            ports=("9200" "9300-9400")
+        elif [ "${1}" == 'wazuh-dashboard' ]; then
+            ports=("443")
+        fi
+
+        for port_number in "${ports[@]}"; do
+            common_logger -d "Removing port ${port_number} on the firewall."
+            if [ "${FIREWALLD_EXISTS}" -eq 1 ]; then
+                eval "sudo firewall-cmd --permanent --remove-port=${port_number}/tcp ${debug}"
+            elif [ "${IPTABLES_EXISTS}" -eq 1 ]; then
+                eval "sudo iptables -D INPUT -p tcp -m tcp --dport ${port_number/-/:} -j ACCEPT ${debug}"
+            fi
+        done
+
+        if [ "${FIREWALLD_EXISTS}" -eq 1 ]; then
+            eval "sudo firewall-cmd --reload ${debug}"
+
+        elif [ "${IPTABLES_EXISTS}" -eq 1 ]; then
+            eval "sudo iptables-save ${debug}"
+        fi
+        common_logger -d "Firewall rules saved/reloaded."
+        common_logger "Successfully removed firewall rules for service ${1}."
+        common_logger "It is suggested to verify the rules on the host firewall in accordance with the Wazuh documentation."
+        return 0
+    fi
+
+    common_logger -e "Could not find a firewall. Please configure ports on the host firewall in accordance with the Wazuh documentation."
+    return 1
 }

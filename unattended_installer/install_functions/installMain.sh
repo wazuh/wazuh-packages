@@ -273,6 +273,7 @@ function main() {
     if [ -n "${indexer}" ]; then
         common_logger "--- Wazuh indexer ---"
         indexer_install
+        installCommon_setupFirewall "wazuh-indexer"
         indexer_configure
         installCommon_startService "wazuh-indexer"
         indexer_initialize
@@ -290,6 +291,7 @@ function main() {
     if [ -n "${dashboard}" ]; then
         common_logger "--- Wazuh dashboard ----"
         dashboard_install
+        installCommon_setupFirewall "wazuh-dashboard"
         dashboard_configure
         installCommon_startService "wazuh-dashboard"
         installCommon_changePasswords
@@ -302,6 +304,7 @@ function main() {
     if [ -n "${wazuh}" ]; then
         common_logger "--- Wazuh server ---"
         manager_install
+        installCommon_setupFirewall "wazuh-manager"
         if [ -n "${server_node_types[*]}" ]; then
             manager_startCluster
         fi
@@ -318,17 +321,20 @@ function main() {
 
         common_logger "--- Wazuh indexer ---"
         indexer_install
+        installCommon_setupFirewall "wazuh-indexer"
         indexer_configure
         installCommon_startService "wazuh-indexer"
         indexer_initialize
         common_logger "--- Wazuh server ---"
         manager_install
+        installCommon_setupFirewall "wazuh-manager"
         installCommon_startService "wazuh-manager"
         filebeat_install
         filebeat_configure
         installCommon_startService "filebeat"
         common_logger "--- Wazuh dashboard ---"
         dashboard_install
+        installCommon_setupFirewall "wazuh-dashboard"
         dashboard_configure
         installCommon_startService "wazuh-dashboard"
         installCommon_changePasswords
