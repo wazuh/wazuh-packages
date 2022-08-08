@@ -37,7 +37,7 @@ function checks_arguments() {
 
     # -------------- Overwrite --------------------------------------
 
-    if [ -n "${overwrite}" ] && [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ]; then 
+    if [ -n "${overwrite}" ] && [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ]; then
         common_logger -e "The argument -o|--overwrite must be used in conjunction with -a|--all-in-one, -wd|--wazuh-dashboard, -wi|--wazuh-indexer, or -ws|--wazuh-server."
         exit 1
     fi
@@ -86,7 +86,7 @@ function checks_arguments() {
             common_logger -e "Wazuh manager already installed."
             installedComponent=1
         fi
-        if [ -z "${overwrite}" ] && ([ -n "${indexer_installed}" ] || [ -n "${indexer_remaining_files}" ]);then 
+        if [ -z "${overwrite}" ] && ([ -n "${indexer_installed}" ] || [ -n "${indexer_remaining_files}" ]);then
             common_logger -e "Wazuh indexer already installed."
             installedComponent=1
         fi
@@ -113,7 +113,7 @@ function checks_arguments() {
             if [ -n "${overwrite}" ]; then
                 installCommon_rollBack
             else
-                common_logger -e "Wazuh indexer is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
+                common_logger -e "Wazuh indexer is already installed in this node or some of its files have not been removed. Use option -o|--overwrite to overwrite all components."
                 exit 1
             fi
         fi
@@ -126,7 +126,7 @@ function checks_arguments() {
             if [ -n "${overwrite}" ]; then
                 installCommon_rollBack
             else
-                common_logger -e "Wazuh dashboard is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
+                common_logger -e "Wazuh dashboard is already installed in this node or some of its files have not been removed. Use option -o|--overwrite to overwrite all components."
                 exit 1
             fi
         fi
@@ -135,20 +135,11 @@ function checks_arguments() {
     # -------------- Wazuh ------------------------------------------
 
     if [ -n "${wazuh}" ]; then
-        if [ -n "${wazuh_installed}" ] || [ -n "${wazuh_remaining_files}" ]; then
+        if [ -n "${wazuh_installed}" ] || [ -n "${wazuh_remaining_files}" ] || [ -n "${filebeat_installed}" ] || [ -n "${filebeat_remaining_files}" ]; then
             if [ -n "${overwrite}" ]; then
                 installCommon_rollBack
             else
-                common_logger -e "Wazuh is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
-                exit 1
-            fi
-        fi
-
-        if [ -n "${filebeat_installed}" ] || [ -n "${filebeat_remaining_files}" ]; then
-            if [ -n "${overwrite}" ]; then
-                installCommon_rollBack
-            else
-                common_logger -e "Filebeat is already installed in this node or some of its files haven't been erased. Use option -o|--overwrite to overwrite all components."
+                common_logger -e "Wazuh server components (wazuh-manager and filebeat) are already installed in this node or some of their files have not been removed. Use option -o|--overwrite to overwrite all components."
                 exit 1
             fi
         fi
@@ -171,7 +162,7 @@ function checks_arguments() {
     if [ -n "${force}" ] && [ -z  "${dashboard}" ]; then
         common_logger -e "The -fd|--force-install-dashboard argument needs to be used alongside -wd|--wazuh-dashboard."
         exit 1
-    fi 
+    fi
 
 }
 
@@ -180,20 +171,24 @@ function check_dist() {
     if [ "${DIST_NAME}" != "centos" ] && [ "${DIST_NAME}" != "rhel" ] && [ "${DIST_NAME}" != "amzn" ] && [ "${DIST_NAME}" != "ubuntu" ]; then
         notsupported=1
     fi
-    if ([ "${DIST_NAME}" == "centos" ] || [ "${DIST_NAME}" == "rhel" ]) && ([ "${DIST_VER}" -ne "7" ] && [ "${DIST_VER}" -ne "8" ]); then
+    if ([ "${DIST_NAME}" == "centos" ] || [ "${DIST_NAME}" == "rhel" ]) && ([ "${DIST_VER}" -ne "7" ] && [ "${DIST_VER}" -ne "8" ] && [ "${DIST_VER}" -ne "9" ]); then
         notsupported=1
     fi
     if ([ "${DIST_NAME}" == "amzn" ]) && ([ "${DIST_VER}" -ne "2" ]); then
         notsupported=1
     fi
-    if ([ "${DIST_NAME}" == "ubuntu" ]) && ([ "${DIST_VER}" -ne "16" ] && [ "${DIST_VER}" -ne "18" ] && [ "${DIST_VER}" -ne "20" ] && [ "${DIST_VER}" -ne "22" ]); then
-        notsupported=1
-    fi
-    if ([ "${DIST_NAME}" == "ubuntu" ]) && ([ "${DIST_VER}" -eq "16" ] || [ "${DIST_VER}" -eq "18" ] || [ "${DIST_VER}" -eq "20" ] || [ "${DIST_VER}" -eq "22" ]) &&  ([ "${DIST_SUBVER}" != "04" ]); then
-        notsupported=1
+    if [ "${DIST_NAME}" == "ubuntu" ]; then
+        if  [ "${DIST_VER}" == "16" ] || [ "${DIST_VER}" == "18" ] ||
+            [ "${DIST_VER}" == "20" ] || [ "${DIST_VER}" == "22" ]; then
+            if [ "${DIST_SUBVER}" != "04" ]; then
+                notsupported=1
+            fi
+        else
+            notsupported=1
+        fi
     fi
     if [ -n "${notsupported}" ] && [ -z "${ignore}" ]; then
-        common_logger -e "The recommended systems are: Red Hat Enterprise Linux 7, 8; CentOS 7, 8; Amazon Linux 2; Ubuntu 16.04, 18.04, 20.04, 22.04. The current system doesn't match this list. Use -i|--ignore-check to skip this check."
+        common_logger -e "The recommended systems are: Red Hat Enterprise Linux 7, 8, 9; CentOS 7, 8; Amazon Linux 2; Ubuntu 16.04, 18.04, 20.04, 22.04. The current system does not match this list. Use -i|--ignore-check to skip this check."
         exit 1
     fi
 }
@@ -201,7 +196,7 @@ function check_dist() {
 function checks_health() {
 
     logger "Verifying that your system meets the recommended minimum hardware requirements."
-    
+
     checks_specifications
 
     if [ -n "${indexer}" ]; then
@@ -307,5 +302,36 @@ function checks_specifications() {
 
     cores=$(cat /proc/cpuinfo | grep -c processor )
     ram_gb=$(free -m | awk '/^Mem:/{print $2}')
+
+}
+
+function checks_ports() {
+
+    used_port=0
+    ports=("$@")
+
+    if command -v ss > /dev/null; then
+        port_command="ss -lntup | grep -q "
+    else
+        if command -v lsof > /dev/null; then
+            port_command="lsof -i:"
+        else
+            common_logger -w "Cannot find ss or lsof. Port checking will be skipped."
+            return 1
+        fi
+    fi
+
+    for i in "${!ports[@]}"; do
+        if eval "${port_command}""${ports[i]}" > /dev/null; then
+            used_port=1
+            common_logger -e "Port ${ports[i]} is being used by another process. Please, check it before installing Wazuh."
+        fi
+    done
+
+    if [ "${used_port}" -eq 1 ]; then
+        common_logger "The installation can not continue due to port usage by other processes."
+        installCommon_rollBack
+        exit 1
+    fi
 
 }

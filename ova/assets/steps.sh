@@ -49,7 +49,14 @@ systemConfig() {
 preInstall() {
 
   # Avoid random passwords
-  sed -i "s/PASS=.*/PASS=\"\${users[i]}\"/g" ${RESOURCES_PATH}/${INSTALLER}
+  sed -i "s/passwords+=\(.*\)/passwords+=\(\"\${users[i]}\"\)/g" ${RESOURCES_PATH}/${INSTALLER}
+  sed -i "s/api_passwords+=\(.*\)//g" ${RESOURCES_PATH}/${INSTALLER}
+  sed -i "s/passwords_checkPassword .*//g" ${RESOURCES_PATH}/${INSTALLER}
+  sed -i "s/filecorrect=.*/filecorrect=1/g" ${RESOURCES_PATH}/${INSTALLER}
+  sed -i "s/main \"\$@\"//g" ${RESOURCES_PATH}/${INSTALLER}
+  cat ${CUSTOM_PATH}/functions.sh >> ${RESOURCES_PATH}/${INSTALLER}
+  echo "" >> ${RESOURCES_PATH}/${INSTALLER}
+  echo "main \"\$@\"" >> ${RESOURCES_PATH}/${INSTALLER}
 
 }
 
