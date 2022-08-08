@@ -9,8 +9,20 @@
 function filebeat_configure(){
 
     eval "curl -so /etc/filebeat/wazuh-template.json ${filebeat_wazuh_template} --max-time 300 ${debug}"
+    if [ ! -f "/etc/filebeat/wazuh-template.json" ]; then
+        common_logger -e "Error downloading wazuh-template.json file."
+        installCommon_rollBack
+        exit 1
+    fi
+    
     eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
     eval "curl -s ${filebeat_wazuh_module} --max-time 300 | tar -xvz -C /usr/share/filebeat/module ${debug}"
+    if [ ! -d "/usr/share/filebeat/module" ]; then
+        common_logger -e "Error downloading wazuh filebeat module."
+        installCommon_rollBack
+        exit 1
+    fi
+
     if [ -n "${AIO}" ]; then
         eval "installCommon_getConfig filebeat/filebeat_unattended.yml /etc/filebeat/filebeat.yml ${debug}"
     else
@@ -77,10 +89,7 @@ function filebeat_copyCertificates() {
 function filebeat_install() {
 
     common_logger "Starting Filebeat installation."
-    if [ "${sys_type}" == "zypper" ]; then
-        eval "zypper -n install filebeat-${filebeat_version} ${debug}"
-        install_result="${PIPESTATUS[0]}"
-    elif [ "${sys_type}" == "yum" ]; then
+    if [ "${sys_type}" == "yum" ]; then
         eval "yum install filebeat${sep}${filebeat_version} -y -q  ${debug}"
         install_result="${PIPESTATUS[0]}"
     elif [ "${sys_type}" == "apt-get" ]; then
@@ -91,6 +100,7 @@ function filebeat_install() {
     common_checkInstalled
     if [  "$install_result" != 0  ] || [ -z "${filebeat_installed}" ]; then
         common_logger -e "Filebeat installation failed."
+        installCommon_rollBack
         exit 1
     else
         common_logger "Filebeat installation finished."

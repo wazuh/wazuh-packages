@@ -34,8 +34,6 @@ function installCommon_addWazuhRepo() {
     if [ -n "${development}" ]; then
         if [ "${sys_type}" == "yum" ]; then
             eval "rm -f /etc/yum.repos.d/wazuh.repo ${debug}"
-        elif [ "${sys_type}" == "zypper" ]; then
-            eval "rm -f /etc/zypp/repos.d/wazuh.repo ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "rm -f /etc/apt/sources.list.d/wazuh.list ${debug}"
         fi
@@ -46,10 +44,6 @@ function installCommon_addWazuhRepo() {
             eval "rpm --import ${repogpg} ${debug}"
             eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-\${releasever} - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo ${debug}"
             eval "chmod 644 /etc/yum.repos.d/wazuh.repo ${debug}"
-        elif [ "${sys_type}" == "zypper" ]; then
-            eval "rpm --import ${repogpg} ${debug}"
-            eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-\${releasever} - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/zypp/repos.d/wazuh.repo ${debug}"
-            eval "chmod 644 /etc/zypp/repos.d/wazuh.repo ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "curl -s ${repogpg} --max-time 300 | apt-key add - ${debug}"
             eval "echo \"deb ${repobaseurl}/apt/ ${reporelease} main\" | tee /etc/apt/sources.list.d/wazuh.list ${debug}"
@@ -141,6 +135,7 @@ function installCommon_createCertificates() {
     fi
     eval "mkdir /tmp/wazuh-certificates/ ${debug}"
 
+    cert_tmp_path="/tmp/wazuh-certificates/"
 
     cert_generateRootCAcertificate
     cert_generateAdmincertificate
@@ -177,11 +172,11 @@ function installCommon_createInstallFiles() {
         fi
         gen_file="/tmp/wazuh-install-files/wazuh-passwords.txt"
         passwords_generatePasswordFile
-        # Using cat instead of simple cp because OpenSUSE unknown error.
-        eval "cat '${config_file}' > '/tmp/wazuh-install-files/config.yml'"
+        eval "cp '${config_file}' '/tmp/wazuh-install-files/config.yml'"
         eval "chown root:root /tmp/wazuh-install-files/*"
         eval "tar -zcf '${tar_file}' -C '/tmp/' wazuh-install-files/ ${debug}"
         eval "rm -rf '/tmp/wazuh-install-files' ${debug}"
+	eval "rm -rf ${config_file} ${debug}"
         common_logger "Created ${tar_file_name}. It contains the Wazuh cluster key, certificates, and passwords necessary for installation."
     else
         common_logger -e "Unable to create /tmp/wazuh-install-files"
@@ -223,9 +218,8 @@ function installCommon_changePasswords() {
     if [ -n "${start_indexer_cluster}" ] || [ -n "${AIO}" ]; then
         passwords_runSecurityAdmin
     fi
-
     if [ -n "${wazuh}" ] || [ -n "${dashboard}" ] || [ -n "${AIO}" ]; then
-        if [ "${server_node_types[pos]}" == "master" ] || [ "${#server_node_names[@]}" -eq 0 ] || [ -n "${dashboard_installed}" ]; then
+        if [ "${server_node_types[pos]}" == "master" ] || [ "${#server_node_names[@]}" -eq 1 ] || [ -n "${dashboard_installed}" ]; then
             installCommon_changePasswordApi
         fi
     fi
@@ -439,8 +433,6 @@ function installCommon_restoreWazuhrepo() {
     if [ -n "${development}" ]; then
         if [ "${sys_type}" == "yum" ] && [ -f "/etc/yum.repos.d/wazuh.repo" ]; then
             file="/etc/yum.repos.d/wazuh.repo"
-        elif [ "${sys_type}" == "zypper" ] && [ -f "/etc/zypp/repos.d/wazuh.repo" ]; then
-            file="/etc/zypp/repos.d/wazuh.repo"
         elif [ "${sys_type}" == "apt-get" ] && [ -f "/etc/apt/sources.list.d/wazuh.list" ]; then
             file="/etc/apt/sources.list.d/wazuh.list"
         else
@@ -471,9 +463,6 @@ function installCommon_rollBack() {
         common_logger "Removing Wazuh manager."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-manager -y ${debug}"
-        elif [ "${sys_type}" == "zypper" ]; then
-            eval "zypper -n remove wazuh-manager ${debug}"
-            eval "rm -f /etc/init.d/wazuh-manager ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge wazuh-manager -y ${debug}"
         fi
@@ -488,8 +477,6 @@ function installCommon_rollBack() {
         common_logger "Removing Wazuh indexer."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-indexer -y ${debug}"
-        elif [ "${sys_type}" == "zypper" ]; then
-            eval "zypper -n remove wazuh-indexer ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge wazuh-indexer -y ${debug}"
         fi
@@ -506,8 +493,6 @@ function installCommon_rollBack() {
         common_logger "Removing Filebeat."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove filebeat -y ${debug}"
-        elif [ "${sys_type}" == "zypper" ]; then
-            eval "zypper -n remove filebeat ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge filebeat -y ${debug}"
         fi
@@ -524,8 +509,6 @@ function installCommon_rollBack() {
         common_logger "Removing Wazuh dashboard."
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-dashboard -y ${debug}"
-        elif [ "${sys_type}" == "zypper" ]; then
-            eval "zypper -n remove wazuh-dashboard ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt remove --purge wazuh-dashboard -y ${debug}"
         fi
@@ -552,6 +535,8 @@ function installCommon_rollBack() {
                             "/lib/firewalld/services/opensearch.xml" )
 
     eval "rm -rf ${elements_to_remove[*]}"
+
+    common_remove_gpg_key
 
     if [ -z "${uninstall}" ]; then
         if [ -n "${rollback_conf}" ] || [ -n "${overwrite}" ]; then

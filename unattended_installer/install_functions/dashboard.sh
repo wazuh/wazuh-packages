@@ -26,7 +26,11 @@ function dashboard_configure() {
             ip=${dashboard_node_ips[pos]}
         fi
 
-        echo 'server.host: "'"${ip}"'"' >> /etc/wazuh-dashboard/opensearch_dashboards.yml
+        if [[ "${ip}" != "127.0.0.1" ]]; then
+            echo 'server.host: "'${ip}'"' >> /etc/wazuh-dashboard/opensearch_dashboards.yml
+        else
+            echo 'server.host: '0.0.0.0'' >> /etc/wazuh-dashboard/opensearch_dashboards.yml
+        fi
 
         if [ "${#indexer_node_names[@]}" -eq 1 ]; then
             echo "opensearch.hosts: https://${indexer_node_ips[0]}:9200" >> /etc/wazuh-dashboard/opensearch_dashboards.yml
@@ -178,14 +182,11 @@ function dashboard_initializeAIO() {
 function dashboard_install() {
 
     common_logger "Starting Wazuh dashboard installation."
-    if [ "${sys_type}" == "zypper" ]; then
-        eval "zypper -n install wazuh-dashboard=${wazuh_version}-${dashboard_revision_rpm} ${debug}"
-        install_result="${PIPESTATUS[0]}"
-    elif [ "${sys_type}" == "yum" ]; then
-        eval "yum install wazuh-dashboard${sep}${wazuh_version}-${dashboard_revision_rpm} -y ${debug}"
+    if [ "${sys_type}" == "yum" ]; then
+        eval "yum install wazuh-dashboard${sep}${wazuh_version} -y ${debug}"
         install_result="${PIPESTATUS[0]}"
     elif [ "${sys_type}" == "apt-get" ]; then
-        installCommon_aptInstall "wazuh-dashboard" "${wazuh_version}-${dashboard_revision_deb}"
+        installCommon_aptInstall "wazuh-dashboard" "${wazuh_version}-*"
     fi
     common_checkInstalled
     if [  "$install_result" != 0  ] || [ -z "${dashboard_installed}" ]; then
