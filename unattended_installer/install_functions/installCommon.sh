@@ -267,7 +267,7 @@ function installCommon_installPrerequisites() {
         not_installed=()
         for dep in "${dependencies[@]}"; do
             if [ "${dep}" == "openssl" ]; then
-                if ! yum list installed 2>/dev/null | grep -q "${dep}".x86;then
+                if ! yum list installed 2>/dev/null | grep -q "${dep}\.";then
                 not_installed+=("${dep}")
                 fi
             elif ! yum list installed 2>/dev/null | grep -q "${dep}";then
