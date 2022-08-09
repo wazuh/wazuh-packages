@@ -38,12 +38,12 @@ function indexer_configure() {
             echo "node.name: ${indxname}" >> /etc/wazuh-indexer/opensearch.yml
             echo "cluster.initial_master_nodes:" >> /etc/wazuh-indexer/opensearch.yml
             for i in "${indexer_node_names[@]}"; do
-                echo '        - "'"${i}"'"' >> /etc/wazuh-indexer/opensearch.yml
+                echo "        - ${i}" >> /etc/wazuh-indexer/opensearch.yml
             done
 
             echo "discovery.seed_hosts:" >> /etc/wazuh-indexer/opensearch.yml
             for i in "${indexer_node_ips[@]}"; do
-                echo '        - "'"${i}"'"' >> /etc/wazuh-indexer/opensearch.yml
+                echo "        - ${i}" >> /etc/wazuh-indexer/opensearch.yml
             done
 
             for i in "${!indexer_node_names[@]}"; do
@@ -56,7 +56,7 @@ function indexer_configure() {
 
             echo "plugins.security.nodes_dn:" >> /etc/wazuh-indexer/opensearch.yml
             for i in "${indexer_node_names[@]}"; do
-                    echo '        - CN='"${i}"',OU=Wazuh,O=Wazuh,L=California,C=US' >> /etc/wazuh-indexer/opensearch.yml
+                    echo "        - CN=${i},OU=Wazuh,O=Wazuh,L=California,C=US" >> /etc/wazuh-indexer/opensearch.yml
             done
         fi
     fi
@@ -162,12 +162,12 @@ function indexer_startCluster() {
 
     retries=0    
     for ip_to_test in "${indexer_node_ips[@]}"; do
-        eval "curl -XGET https://""${ip_to_test}"":9300/ -k -s -o /dev/null"
+        eval "curl -XGET https://${ip_to_test}:9300/ -k -s -o /dev/null"
         e_code="${PIPESTATUS[0]}"
         until [ "${e_code}" -ne 7 ] || [ "${retries}" -eq 12 ]; do
             sleep 10
             retries=$((retries+1))
-            eval "curl -XGET https://""${ip_to_test}"":9300/ -k -s -o /dev/null"
+            eval "curl -XGET https://${ip_to_test}:9300/ -k -s -o /dev/null"
             e_code="${PIPESTATUS[0]}"
         done
         if [ ${retries} -eq 12 ]; then

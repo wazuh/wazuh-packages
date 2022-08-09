@@ -138,7 +138,7 @@ function main() {
                 ;;
             "-tmp"|"--cert_tmp_path")
                 if [[ -n "${3}" || ( "${cadmin}" == 1 || "${all}" == 1 || "${ca}" == 1 || "${cdashboard}" == 1 || "${cindexer}" == 1 || "${cserver}" == 1 ) ]]; then
-                    if [[ -z "${2}" || ! "${2}" == \/* ]]; then
+                    if [[ -z "${2}" || ! "${2}" == /* ]]; then
                         common_logger -e "Error on arguments. Probably missing </path/to/tmp_dir> or path does not start with '/'."
                         getHelp
                         exit 1
@@ -158,8 +158,8 @@ function main() {
             esac
         done
 
-        if [[ -d ${base_path}/wazuh-certificates ]]; then
-            if [ ! -z "$(ls -A ${base_path}/wazuh-certificates)" ]; then
+        if [[ -d "${base_path}"/wazuh-certificates ]]; then
+            if [ -n "$(ls -A "${base_path}"/wazuh-certificates)" ]; then
                 common_logger -e "Directory wazuh-certificates already exists in the same path as the script. Please, remove the certs directory to create new certificates."
                 exit 1
             fi

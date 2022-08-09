@@ -339,11 +339,11 @@ For Wazuh API users, the file must have this format:
     sfileapiusers=$(grep api_username: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }' | sed -e "s/[\'\"]//g")
     sfileapipasswords=$(grep api_password: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }' | sed -e "s/[\'\"]//g")
 
-    fileusers=(${sfileusers})
-    filepasswords=(${sfilepasswords})
 
-    fileapiusers=(${sfileapiusers})
-    fileapipasswords=(${sfileapipasswords})
+    mapfile -t fileusers < <(printf '%s\n' "${sfileusers}")
+    mapfile -t filepasswords < <(printf '%s\n' "${sfilepasswords}")
+    mapfile -t fileapiusers < <(printf '%s\n' "${sfileapiusers}")
+    mapfile -t fileapipasswords < <(printf '%s\n' "${sfileapipasswords}")
 
     if [ -n "${changeall}" ]; then
         for j in "${!fileusers[@]}"; do
@@ -419,10 +419,10 @@ For Wazuh API users, the file must have this format:
         done
 
         users=()
-        users=(${finalusers[@]})
-        passwords=(${finalpasswords[@]})
-        api_users=(${finalapiusers[@]})
-        api_passwords=(${finalapipasswords[@]})
+        mapfile -t users < <(printf '%s\n' "${finalusers[@]}")
+        mapfile -t passwords < <(printf '%s\n' "${finalpasswords[@]}")
+        mapfile -t api_users < <(printf '%s\n' "${finalapiusers[@]}")
+        mapfile -t api_passwords < <(printf '%s\n' "${finalapipasswords[@]}")
         changeall=1
     fi
 

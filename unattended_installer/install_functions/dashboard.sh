@@ -27,7 +27,7 @@ function dashboard_configure() {
         fi
 
         if [[ "${ip}" != "127.0.0.1" ]]; then
-            echo 'server.host: "'${ip}'"' >> /etc/wazuh-dashboard/opensearch_dashboards.yml
+            echo "server.host: ${ip}" >> /etc/wazuh-dashboard/opensearch_dashboards.yml
         else
             echo 'server.host: '0.0.0.0'' >> /etc/wazuh-dashboard/opensearch_dashboards.yml
         fi

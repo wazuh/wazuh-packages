@@ -247,17 +247,17 @@ function checks_names() {
         exit 1
     fi
 
-    if [ -n "${winame}" ] && [ -z "$(echo "${server_node_names[@]}" | grep -w "${winame}")" ]; then
+    if [ -n "${winame}" ] && ! echo "${server_node_names[@]}" | grep -w -q "${winame}"; then
         common_logger -e "The Wazuh server node name ${winame} does not appear on the configuration file."
         exit 1
     fi
 
-    if [ -n "${indxname}" ] && [ -z "$(echo "${indexer_node_names[@]}" | grep -w "${indxname}")" ]; then
+    if [ -n "${indxname}" ] && ! echo "${indexer_node_names[@]}" | grep -w -q "${indxname}"; then
         common_logger -e "The Wazuh indexer node name ${indxname} does not appear on the configuration file."
         exit 1
     fi
 
-    if [ -n "${dashname}" ] && [ -z "$(echo "${dashboard_node_names[@]}" | grep -w "${dashname}")" ]; then
+    if [ -n "${dashname}" ] && ! echo "${dashboard_node_names[@]}" | grep -w "${dashname}"; then
         common_logger -e "The Wazuh dashboard node name ${dashname} does not appear on the configuration file."
         exit 1
     fi

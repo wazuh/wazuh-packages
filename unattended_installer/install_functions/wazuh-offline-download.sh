@@ -14,7 +14,7 @@ function offline_download() {
   common_logger "Downloading Wazuh ${package_type} packages for ${arch}."
   dest_path="${base_dest_folder}/wazuh-packages"
 
-  if [ -d ${dest_path} ]; then
+  if [ -d "${dest_path}" ]; then
     eval "rm -f ${dest_path}/*" # Clean folder before downloading specific versions
     eval "chmod 700 ${dest_path}"
   else
@@ -132,7 +132,7 @@ function offline_download() {
   common_logger "Downloading configuration files and assets."
   dest_path="${base_dest_folder}/wazuh-files"
 
-  if [ -d ${dest_path} ]; then
+  if [ -d "${dest_path}" ]; then
     eval "rm -f ${dest_path}/*" # Clean folder before downloading specific versions
     eval "chmod 700 ${dest_path}"
   else
