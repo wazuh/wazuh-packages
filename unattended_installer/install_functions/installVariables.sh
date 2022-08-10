@@ -15,7 +15,8 @@ readonly wazuh_install_vesion="0.1"
 ## Links and paths to resources
 readonly resources="https://${bucket}/${wazuh_major}"
 readonly base_url="https://${bucket}/${repository}"
-readonly base_path="$(dirname $(readlink -f "$0"))"
+base_path="$(dirname "$(readlink -f "$0")")"
+readonly base_path
 config_file="${base_path}/config.yml"
 readonly tar_file_name="wazuh-install-files.tar"
 tar_file="${base_path}/${tar_file_name}"

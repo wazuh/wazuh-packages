@@ -14,7 +14,7 @@ function offline_download() {
   common_logger "Downloading Wazuh ${package_type} packages for ${arch}."
   dest_path="${base_dest_folder}/wazuh-packages"
 
-  if [ -d ${dest_path} ]; then
+  if [ -d "${dest_path}" ]; then
     eval "rm -f ${dest_path}/*" # Clean folder before downloading specific versions
     eval "chmod 700 ${dest_path}"
   else
@@ -132,14 +132,14 @@ function offline_download() {
   common_logger "Downloading configuration files and assets."
   dest_path="${base_dest_folder}/wazuh-files"
 
-  if [ -d ${dest_path} ]; then
+  if [ -d "${dest_path}" ]; then
     eval "rm -f ${dest_path}/*" # Clean folder before downloading specific versions
     eval "chmod 700 ${dest_path}"
   else
     eval "mkdir -m700 -p ${dest_path}" # Create folder if it does not exist
   fi
 
-  files_to_download=( ${wazuh_gpg_key} ${filebeat_config_file} ${filebeat_wazuh_template} ${filebeat_wazuh_module} )
+  files_to_download=( "${wazuh_gpg_key}" "${filebeat_config_file}" "${filebeat_wazuh_template}" "${filebeat_wazuh_module}" )
 
   eval "cd ${dest_path}"
   for file in "${files_to_download[@]}"

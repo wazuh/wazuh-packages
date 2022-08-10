@@ -52,7 +52,7 @@ function filebeat_copyCertificates() {
 
     if [ -f "${tar_file}" ]; then
         if [ -n "${AIO}" ]; then
-            if [ -z "$(tar -tvf ${tar_file} | grep ${server_node_names[0]})" ]; then
+            if ! tar -tvf "${tar_file}" | grep -q "${server_node_names[0]}" ; then
                 common_logger -e "Tar file does not contain certificate for the node ${server_node_names[0]}."
                 installCommon_rollBack
                 exit 1;
@@ -64,7 +64,7 @@ function filebeat_copyCertificates() {
             eval "tar -xf ${tar_file} -C ${filebeat_cert_path} wazuh-install-files/root-ca.pem --strip-components 1 ${debug}"
             eval "rm -rf ${filebeat_cert_path}/wazuh-install-files/ ${debug}"
         else
-            if [ -z "$(tar -tvf ${tar_file} | grep ${winame})" ]; then
+            if ! tar -tvf "${tar_file}" | grep -q "${winame}" ; then
                 common_logger -e "Tar file does not contain certificate for the node ${winame}."
                 installCommon_rollBack
                 exit 1;
