@@ -253,7 +253,7 @@ function passwords_generatePassword() {
 
 function passwords_generatePasswordFile() {
 
-    users=( admin kibanaserver kibanaro logstash readall snapshotrestore wazuh_admin wazuh_user )
+    users=( admin kibanaserver kibanaro logstash readall snapshotrestore )
     api_users=( wazuh wazuh-wui )
     user_description=(
         "Admin user for the web user interface and Wazuh indexer. Use this user to log in to Wazuh dashboard"
