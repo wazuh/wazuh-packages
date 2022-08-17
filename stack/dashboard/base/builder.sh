@@ -52,11 +52,12 @@ cp -r /root/stack/dashboard/base/files/etc ./
 cp ./etc/custom_welcome/template.js.hbs ./src/legacy/ui/ui_render/bootstrap/template.js.hbs
 cp ./etc/custom_welcome/light_theme.style.css ./src/core/server/core_app/assets/legacy_light_theme.css
 cp ./etc/custom_welcome/*svg ./src/core/server/core_app/assets/
-cp ./etc/custom_welcome/Assets/default_branding/Solid_black.svg ./src/core/server/core_app/assets/default_branding/opensearch_logo.svg
+cp ./etc/custom_welcome/Assets/default_branding/Solid_black.svg ./src/core/server/core_app/assets/default_branding/opensearch_logo_default_mode.svg
 cp ./etc/custom_welcome/Assets/Favicons/* ./src/core/server/core_app/assets/favicons/
 cp ./etc/custom_welcome/Assets/Favicons/favicon.ico ./src/core/server/core_app/assets/favicons/favicon.ico
 cp ./etc/http_service.js ./src/core/server/http/http_service.js
 cp ./etc/template.js ./src/core/server/rendering/views/template.js
+cp ./etc/styles.js ./src/core/server/rendering/views/styles.js
 # Replace App Title
 sed -i "s|defaultValue: ''|defaultValue: \'Wazuh\'|g" ./src/core/server/opensearch_dashboards_config.js
 # Replace config path
@@ -75,7 +76,7 @@ sed -i 's/navigateToApp("home")/navigateToApp("wazuh")/g' ./src/core/target/publ
 sed -i 's|"core.ui.chrome.headerGlobalNav.helpMenuVersion",defaultMessage:"v {version}"|"core.ui.chrome.headerGlobalNav.helpMenuVersion",defaultMessage:"v'${version}'"|' ./src/core/target/public/core.entry.js
 ## Help link - OpenSearch Dashboards documentation
 sed -i 's|OpenSearch Dashboards documentation|Wazuh documentation|' ./src/core/target/public/core.entry.js
-sed -i 's|OPENSEARCH_DASHBOARDS_DOCS="https://opensearch.org/docs/dashboards/"|OPENSEARCH_DASHBOARDS_DOCS="https://documentation.wazuh.com/'${wazuh_minor}'"|' ./src/core/target/public/core.entry.js
+sed -i 's|href:opensearchDashboardsDocLink,|href:"https://documentation.wazuh.com/'${wazuh_minor}'",|' ./src/core/target/public/core.entry.js
 ## Help link - Ask OpenSearch
 sed -i 's|Ask OpenSearch|Ask Wazuh|' ./src/core/target/public/core.entry.js
 sed -i 's|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://github.com/opensearch-project"|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://wazuh.com/community/join-us-on-slack"|' ./src/core/target/public/core.entry.js
@@ -115,6 +116,12 @@ gzip -c ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js
 brotli -c ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js > ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js.br
 # Add VERSION file
 cp /root/VERSION .
+# Add exception for wazuh plugin install
+wazuh_plugin="if (plugin.includes(\'wazuh\')) {\n    return plugin;\n  } else {\n    return \`\${LATEST_PLUGIN_BASE_URL}\/\${version}\/latest\/\${platform}\/\${arch}\/tar\/builds\/opensearch-dashboards\/plugins\/\${plugin}-\${version}.zip\`;\n  }"
+sed -i "s|return \`\${LATEST_PLUGIN_BASE_URL}\/\${version}\/latest\/\${platform}\/\${arch}\/tar\/builds\/opensearch-dashboards\/plugins\/\${plugin}-\${version}.zip\`;|$wazuh_plugin|" ./src/cli_plugin/install/settings.js
+# Changed package.json build number
+jq ".build.number=$(cat /root/VERSION | tr -d '.')" ./package.json > ./package.json.tmp
+mv ./package.json.tmp ./package.json
 
 # Remove plugins
 /bin/bash ./bin/opensearch-dashboards-plugin remove queryWorkbenchDashboards --allow-root
