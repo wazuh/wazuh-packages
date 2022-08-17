@@ -426,12 +426,6 @@ test-18-passwords-generatePasswordFile-assert() {
     echo "User:"
     echo "  name: snapshotrestore"
     echo "  password: pass"
-    echo "User:"
-    echo "  name: wazuh_admin"
-    echo "  password: pass"
-    echo "User:"
-    echo "  name: wazuh_user"
-    echo "  password: pass"
 }
 
 function load-passwords-getNetworkHost() {

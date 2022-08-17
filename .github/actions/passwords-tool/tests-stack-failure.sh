@@ -4,9 +4,9 @@ apiPass="$(cat wazuh-install-files/wazuh-passwords.txt | awk "/username: 'wazuh'
 adminPass="$(cat wazuh-install-files/wazuh-passwords.txt | awk "/username: 'admin'/{getline;print;}" | awk '{ print $2 }' | tr -d \')"
 
 if ! bash wazuh-passwords-tool.sh -u wazuuuh | grep "ERROR"; then
-  exit 1
-elif ! sudo bash wazuh-passwords-tool.sh -u wazuh_user -p password | grep "ERROR"; then
-  exit 1 
+   exit 1
+elif ! sudo bash wazuh-passwords-tool.sh -u admin -p password | grep "ERROR"; then
+   exit 1 
 elif ! sudo bash wazuh-passwords-tool.sh -au wazuh -ap "${adminPass}" -u wazuh -p password -A | grep "ERROR"; then
    exit 1
 elif ! curl -s -u wazuh:wazuh -k -X GET "https://localhost:55000/security/user/authenticate" | grep "Invalid credentials"; then
