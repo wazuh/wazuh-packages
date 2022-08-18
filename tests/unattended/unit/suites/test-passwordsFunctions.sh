@@ -562,7 +562,7 @@ function load-passwords-readUsers() {
 
 test-26-passwords-readUsers() {
     load-passwords-readUsers
-    @mock grep -B 1 hash: /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/internal_users.yml === @out
+    @mock grep -B 1 hash: /etc/wazuh-indexer/opensearch-security/internal_users.yml === @out
     @mock grep -v hash: === @out
     @mock grep -v "-" === @out
     @mock awk '{ print substr( $0, 1, length($0)-1 ) }' === @out "kibanaserver admin"
