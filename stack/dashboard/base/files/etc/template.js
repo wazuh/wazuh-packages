@@ -11,9 +11,9 @@ var _fonts = require("./fonts");
 
 var _styles = require("./styles");
 
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 /*
  * SPDX-License-Identifier: Apache-2.0
@@ -21,6 +21,9 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
  * The OpenSearch Contributors require contributions made to
  * this file be licensed under the Apache-2.0 license or a
  * compatible open source license.
+ *
+ * Any modifications Copyright OpenSearch Contributors. See
+ * GitHub history for details.
  */
 
 /*
@@ -40,11 +43,6 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- */
-
-/*
- * Modifications Copyright OpenSearch Contributors. See
- * GitHub history for details.
  */
 const Template = ({
   metadata: {
@@ -88,6 +86,7 @@ const Template = ({
   _react.default.createElement("path",{d:"M696.14,125.88c0,25.29-13.92,39.8-38.18,39.8s-38.32-14.51-38.32-39.8V44.7H592v83.39c0,46.91,35.51,63.56,65.92,63.56s65.77-16.65,65.77-63.56V44.7H696.14Z", fill:"black"}),
   _react.default.createElement("path",{d:"M883.3,93.62A85.09,85.09,0,0,0,878.86,76a56.88,56.88,0,0,0-9.46-16.64A45.46,45.46,0,0,0,853.3,47q-9.93-4.71-24.54-4.7-19.05,0-32.48,8.22A53,53,0,0,0,782.19,63V8.35h-24.4V187h27.66V113.71q0-12.52,2.8-21.27A37.82,37.82,0,0,1,796,78.35a28.86,28.86,0,0,1,11.42-7.76,39.44,39.44,0,0,1,13.83-2.42c7.47,0,13.55,1.53,18.2,4.57a31.27,31.27,0,0,1,10.82,12,52.22,52.22,0,0,1,5.22,16.12,107.39,107.39,0,0,1,1.38,16.89V187h27.66V108.75A114.2,114.2,0,0,0,883.3,93.62Z", fill:"black"}),
 	_react.default.createElement("circle",{fill:"#3585F9",cx:"937.12",cy:"167.6",r:"22.24"}));
+
 
   const loadingLogoDefault = (_injectedMetadata$bra = injectedMetadata.branding.loadingLogo) === null || _injectedMetadata$bra === void 0 ? void 0 : _injectedMetadata$bra.defaultUrl;
   const loadingLogoDarkMode = (_injectedMetadata$bra2 = injectedMetadata.branding.loadingLogo) === null || _injectedMetadata$bra2 === void 0 ? void 0 : _injectedMetadata$bra2.darkModeUrl;
