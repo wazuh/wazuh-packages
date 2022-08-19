@@ -186,7 +186,7 @@ rm -fr %{buildroot}
 %attr(660, ossec, ossec) %ghost %{_localstatedir}/logs/api.log
 
 %changelog
-* Sat Dec 31 2022 support <info@wazuh.com> - 3.13.5
+* Wed Aug 24 2022 support <info@wazuh.com> - 3.13.5
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon May 30 2022 support <info@wazuh.com> - 3.13.4
 - More info: https://documentation.wazuh.com/current/release-notes/
