@@ -188,7 +188,7 @@ function passwords_generateHash() {
         common_logger -d "Generating password hashes."
         for i in "${!passwords[@]}"
         do
-            nhash=$(bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "${passwords[i]}" | grep -v WARNING)
+            nhash=$(bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "${passwords[i]}" | grep -A 2 'issues' | tail -n 1)
             if [  "${PIPESTATUS[0]}" != 0  ]; then
                 common_logger -e "Hash generation failed."
                 exit 1;
@@ -198,7 +198,7 @@ function passwords_generateHash() {
         common_logger -d "Password hashes generated."
     else
         common_logger "Generating password hash"
-        hash=$(bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p ${password} | grep -v WARNING)
+        hash=$(bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "${password}" | grep -A 2 'issues' | tail -n 1)
         if [  "${PIPESTATUS[0]}" != 0  ]; then
             common_logger -e "Hash generation failed."
             exit 1;
@@ -553,9 +553,22 @@ function passwords_restartService() {
 
 function passwords_runSecurityAdmin() {
 
+    if [ -z "${indexer_installed}" ] && [ -z "${dashboard_installed}" ] && [ -z "${filebeat_installed}" ]; then
+        common_logger -e "Cannot find Wazuh indexer, Wazuh dashboard or Filebeat on the system."
+        exit 1;
+    else
+        if [ -n "${indexer_installed}" ]; then
+            capem=$(grep "plugins.security.ssl.transport.pemtrustedcas_filepath: " /etc/wazuh-indexer/opensearch.yml )
+            rcapem="plugins.security.ssl.transport.pemtrustedcas_filepath: "
+            capem="${capem//$rcapem}"
+            if [[ -z "${adminpem}" ]] || [[ -z "${adminkey}" ]]; then
+                passwords_readAdmincerts
+            fi
+        fi
+    fi
+
     common_logger -d "Loading new passwords changes."
-    eval "cp /etc/wazuh-indexer/backup/* /etc/wazuh-indexer/opensearch-security/ ${debug}"
-    eval "OPENSEARCH_CONF_DIR=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -p 9200 -cd /etc/wazuh-indexer/opensearch-security/ -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug}"
+    eval "OPENSEARCH_CONF_DIR=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -f /etc/wazuh-indexer/backup/internal_users.yml -t internalusers -p 9200 -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug}"
     if [  "${PIPESTATUS[0]}" != 0  ]; then
         common_logger -e "Could not load the changes."
         exit 1;
