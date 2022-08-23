@@ -82,19 +82,19 @@ function checks_arguments() {
             installCommon_rollBack
         fi
 
-        if [ -z "${overwrite}" ] && ([ -n "${wazuh_installed}" ] || [ -n "${wazuh_remaining_files}" ]); then
+        if  [ -z "${overwrite}" ] && { [ -n "${wazuh_installed}" ] || [ -n "${wazuh_remaining_files}" ]; }; then
             common_logger -e "Wazuh manager already installed."
             installedComponent=1
         fi
-        if [ -z "${overwrite}" ] && ([ -n "${indexer_installed}" ] || [ -n "${indexer_remaining_files}" ]);then
+        if [ -z "${overwrite}" ] && { [ -n "${indexer_installed}" ] || [ -n "${indexer_remaining_files}" ]; };then
             common_logger -e "Wazuh indexer already installed."
             installedComponent=1
         fi
-        if [ -z "${overwrite}" ] && ([ -n "${dashboard_installed}" ] || [ -n "${dashboard_remaining_files}" ]); then
+        if [ -z "${overwrite}" ] && { [ -n "${dashboard_installed}" ] || [ -n "${dashboard_remaining_files}" ]; }; then
             common_logger -e "Wazuh dashboard already installed."
             installedComponent=1
         fi
-        if [ -z "${overwrite}" ] && ([ -n "${filebeat_installed}" ] || [ -n "${filebeat_remaining_files}" ]); then
+        if [ -z "${overwrite}" ] && { [ -n "${filebeat_installed}" ] || [ -n "${filebeat_remaining_files}" ]; }; then
             common_logger -e "Filebeat already installed."
             installedComponent=1
         fi
@@ -171,10 +171,10 @@ function check_dist() {
     if [ "${DIST_NAME}" != "centos" ] && [ "${DIST_NAME}" != "rhel" ] && [ "${DIST_NAME}" != "amzn" ] && [ "${DIST_NAME}" != "ubuntu" ]; then
         notsupported=1
     fi
-    if ([ "${DIST_NAME}" == "centos" ] || [ "${DIST_NAME}" == "rhel" ]) && ([ "${DIST_VER}" -ne "7" ] && [ "${DIST_VER}" -ne "8" ] && [ "${DIST_VER}" -ne "9" ]); then
+    if { [ "${DIST_NAME}" == "centos" ] || [ "${DIST_NAME}" == "rhel" ]; } && { [ "${DIST_VER}" -ne "7" ] && [ "${DIST_VER}" -ne "8" ] && [ "${DIST_VER}" -ne "9" ]; }; then
         notsupported=1
     fi
-    if ([ "${DIST_NAME}" == "amzn" ]) && ([ "${DIST_VER}" -ne "2" ]); then
+    if [ "${DIST_NAME}" == "amzn" ] && [ "${DIST_VER}" -ne "2" ]; then
         notsupported=1
     fi
     if [ "${DIST_NAME}" == "ubuntu" ]; then
@@ -247,17 +247,17 @@ function checks_names() {
         exit 1
     fi
 
-    if [ -n "${winame}" ] && [ -z "$(echo "${server_node_names[@]}" | grep -w "${winame}")" ]; then
+    if [ -n "${winame}" ] && ! echo "${server_node_names[@]}" | grep -w -q "${winame}"; then
         common_logger -e "The Wazuh server node name ${winame} does not appear on the configuration file."
         exit 1
     fi
 
-    if [ -n "${indxname}" ] && [ -z "$(echo "${indexer_node_names[@]}" | grep -w "${indxname}")" ]; then
+    if [ -n "${indxname}" ] && ! echo "${indexer_node_names[@]}" | grep -w -q "${indxname}"; then
         common_logger -e "The Wazuh indexer node name ${indxname} does not appear on the configuration file."
         exit 1
     fi
 
-    if [ -n "${dashname}" ] && [ -z "$(echo "${dashboard_node_names[@]}" | grep -w "${dashname}")" ]; then
+    if [ -n "${dashname}" ] && ! echo "${dashboard_node_names[@]}" | grep -w "${dashname}"; then
         common_logger -e "The Wazuh dashboard node name ${dashname} does not appear on the configuration file."
         exit 1
     fi
@@ -277,21 +277,21 @@ function checks_previousCertificate() {
     fi
 
     if [ -n "${indxname}" ]; then
-        if [ -z "$(tar -tf ${tar_file} | egrep ^wazuh-install-files/${indxname}.pem)" ] || [ -z "$(tar -tf ${tar_file} | egrep ^wazuh-install-files/${indxname}-key.pem)" ]; then
+        if ! tar -tf "${tar_file}" | grep -q -E ^wazuh-install-files/"${indxname}".pem  || ! tar -tf "${tar_file}" | grep -q -E ^wazuh-install-files/"${indxname}"-key.pem; then
             common_logger -e "There is no certificate for the indexer node ${indxname} in ${tar_file}."
             exit 1
         fi
     fi
 
     if [ -n "${dashname}" ]; then
-        if [ -z "$(tar -tf ${tar_file} | egrep ^wazuh-install-files/${dashname}.pem)" ] || [ -z "$(tar -tf ${tar_file} | egrep ^wazuh-install-files/${dashname}-key.pem)" ]; then
+        if ! tar -tf "${tar_file}" | grep -q -E ^wazuh-install-files/"${dashname}".pem || ! tar -tf "${tar_file}" | grep -q -E ^wazuh-install-files/"${dashname}"-key.pem; then
             common_logger -e "There is no certificate for the Wazuh dashboard node ${dashname} in ${tar_file}."
             exit 1
         fi
     fi
 
     if [ -n "${winame}" ]; then
-        if [ -z "$(tar -tf ${tar_file} | egrep ^wazuh-install-files/${winame}.pem)" ] || [ -z "$(tar -tf ${tar_file} | egrep ^wazuh-install-files/${winame}-key.pem)" ]; then
+        if ! tar -tf "${tar_file}" | grep -q -E ^wazuh-install-files/"${winame}".pem || ! tar -tf "${tar_file}" | grep -q -E ^wazuh-install-files/"${winame}"-key.pem; then
             common_logger -e "There is no certificate for the wazuh server node ${winame} in ${tar_file}."
             exit 1
         fi
@@ -300,7 +300,7 @@ function checks_previousCertificate() {
 
 function checks_specifications() {
 
-    cores=$(cat /proc/cpuinfo | grep -c processor )
+    cores=$(grep -c processor /proc/cpuinfo)
     ram_gb=$(free -m | awk '/^Mem:/{print $2}')
 
 }

@@ -15,7 +15,8 @@ RUN yum install -y \
     gzip \
     autoconf \
     automake \
-    libtool
+    libtool \
+    jq
 
 RUN git clone https://github.com/google/brotli.git
 

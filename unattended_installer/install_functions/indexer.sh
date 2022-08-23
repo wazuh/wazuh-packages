@@ -27,22 +27,23 @@ function indexer_configure() {
         eval "installCommon_getConfig indexer/indexer_unattended_distributed.yml /etc/wazuh-indexer/opensearch.yml ${debug}"
         if [ "${#indexer_node_names[@]}" -eq 1 ]; then
             pos=0
-            echo "node.name: ${indxname}" >> /etc/wazuh-indexer/opensearch.yml
-            echo "network.host: ${indexer_node_ips[0]}" >> /etc/wazuh-indexer/opensearch.yml
-            echo "cluster.initial_master_nodes: ${indxname}" >> /etc/wazuh-indexer/opensearch.yml
-
-            echo "plugins.security.nodes_dn:" >> /etc/wazuh-indexer/opensearch.yml
-            echo '        - CN='${indxname}',OU=Wazuh,O=Wazuh,L=California,C=US' >> /etc/wazuh-indexer/opensearch.yml
+            {
+            echo "node.name: ${indxname}"
+            echo "network.host: ${indexer_node_ips[0]}" 
+            echo "cluster.initial_master_nodes: ${indxname}"
+            echo "plugins.security.nodes_dn:"
+            echo '        - CN='"${indxname}"',OU=Wazuh,O=Wazuh,L=California,C=US'
+            } >> /etc/wazuh-indexer/opensearch.yml
         else
             echo "node.name: ${indxname}" >> /etc/wazuh-indexer/opensearch.yml
             echo "cluster.initial_master_nodes:" >> /etc/wazuh-indexer/opensearch.yml
             for i in "${indexer_node_names[@]}"; do
-                echo '        - "'${i}'"' >> /etc/wazuh-indexer/opensearch.yml
+                echo "        - ${i}" >> /etc/wazuh-indexer/opensearch.yml
             done
 
             echo "discovery.seed_hosts:" >> /etc/wazuh-indexer/opensearch.yml
             for i in "${indexer_node_ips[@]}"; do
-                echo '        - "'${i}'"' >> /etc/wazuh-indexer/opensearch.yml
+                echo "        - ${i}" >> /etc/wazuh-indexer/opensearch.yml
             done
 
             for i in "${!indexer_node_names[@]}"; do
@@ -55,7 +56,7 @@ function indexer_configure() {
 
             echo "plugins.security.nodes_dn:" >> /etc/wazuh-indexer/opensearch.yml
             for i in "${indexer_node_names[@]}"; do
-                    echo '        - CN='${i}',OU=Wazuh,O=Wazuh,L=California,C=US' >> /etc/wazuh-indexer/opensearch.yml
+                    echo "        - CN=${i},OU=Wazuh,O=Wazuh,L=California,C=US" >> /etc/wazuh-indexer/opensearch.yml
             done
         fi
     fi
@@ -64,10 +65,12 @@ function indexer_configure() {
 
     jv=$(java -version 2>&1 | grep -o -m1 '1.8.0' )
     if [ "$jv" == "1.8.0" ]; then
-        echo "wazuh-indexer hard nproc 4096" >> /etc/security/limits.conf
-        echo "wazuh-indexer soft nproc 4096" >> /etc/security/limits.conf
-        echo "wazuh-indexer hard nproc 4096" >> /etc/security/limits.conf
-        echo "wazuh-indexer soft nproc 4096" >> /etc/security/limits.conf
+        {
+        echo "wazuh-indexer hard nproc 4096"
+        echo "wazuh-indexer soft nproc 4096"
+        echo "wazuh-indexer hard nproc 4096"
+        echo "wazuh-indexer soft nproc 4096"
+        } >> /etc/security/limits.conf
         echo -ne "\nbootstrap.system_call_filter: false" >> /etc/wazuh-indexer/opensearch.yml
     fi
 
@@ -80,7 +83,7 @@ function indexer_copyCertificates() {
     name=${indexer_node_names[pos]}
 
     if [ -f "${tar_file}" ]; then
-        if [ -z "$(tar -tvf ${tar_file} | grep ${name})" ]; then
+        if ! tar -tvf "${tar_file}" | grep -q "${name}" ; then
             common_logger -e "Tar file does not contain certificate for the node ${name}."
             installCommon_rollBack
             exit 1;
@@ -109,7 +112,7 @@ function indexer_initialize() {
 
     common_logger "Initializing Wazuh indexer cluster security settings."
     i=0
-    until curl -XGET https://${indexer_node_ips[pos]}:9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null || [ "${i}" -eq 12 ]; do
+    until curl -XGET https://"${indexer_node_ips[pos]}":9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null || [ "${i}" -eq 12 ]; do
         sleep 10
         i=$((i+1))
     done
@@ -136,10 +139,10 @@ function indexer_install() {
     common_logger "Starting Wazuh indexer installation."
 
     if [ "${sys_type}" == "yum" ]; then
-        eval "yum install wazuh-indexer-${wazuh_version}-${indexer_revision_rpm} -y ${debug}"
+        eval "yum install wazuh-indexer-${wazuh_version} -y ${debug}"
         install_result="${PIPESTATUS[0]}"
     elif [ "${sys_type}" == "apt-get" ]; then
-        installCommon_aptInstall "wazuh-indexer" "${wazuh_version}-${indexer_revision_deb}"
+        installCommon_aptInstall "wazuh-indexer" "${wazuh_version}-*"
     fi
 
     common_checkInstalled
@@ -159,12 +162,12 @@ function indexer_startCluster() {
 
     retries=0
     for ip_to_test in "${indexer_node_ips[@]}"; do
-        eval "curl -XGET https://"${ip_to_test}":9300/ -k -s -o /dev/null"
+        eval "curl -XGET https://${ip_to_test}:9300/ -k -s -o /dev/null"
         e_code="${PIPESTATUS[0]}"
         until [ "${e_code}" -ne 7 ] || [ "${retries}" -eq 12 ]; do
             sleep 10
             retries=$((retries+1))
-            eval "curl -XGET https://"${ip_to_test}":9300/ -k -s -o /dev/null"
+            eval "curl -XGET https://${ip_to_test}:9300/ -k -s -o /dev/null"
             e_code="${PIPESTATUS[0]}"
         done
         if [ ${retries} -eq 12 ]; then
