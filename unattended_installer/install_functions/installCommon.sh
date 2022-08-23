@@ -470,7 +470,6 @@ function installCommon_rollBack() {
 
     if [[ -n "${wazuh_installed}" ]]; then
         installCommon_removeService 'wazuh-manager'
-        common_logger "Wazuh manager service removed."
     fi
 
     if [[ ( -n "${wazuh_remaining_files}"  || -n "${wazuh_installed}" ) && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
@@ -495,7 +494,6 @@ function installCommon_rollBack() {
 
     if [[ -n "${indexer_installed}" ]]; then
         installCommon_removeService 'wazuh-indexer'
-        common_logger "Wazuh indexer service removed."
     fi
 
     if [[ -n "${filebeat_installed}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
@@ -516,7 +514,6 @@ function installCommon_rollBack() {
 
     if [[ -n "${filebeat_installed}" ]]; then
         installCommon_removeService 'filebeat'
-        common_logger "Filebeat service removed."
     fi
 
     if [[ -n "${dashboard_installed}" && ( -n "${dashboard}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
@@ -538,7 +535,6 @@ function installCommon_rollBack() {
 
     if [[ -n "${dashboard_installed}" ]]; then
         installCommon_removeService 'wazuh-dashboard'
-        common_logger "Wazuh dashboard service removed."
     fi
 
     elements_to_remove=(    "/var/log/wazuh-indexer/"
@@ -638,7 +634,6 @@ function installCommon_removeService() {
             if [ -n "$(command -v journalctl)" ]; then
                 eval "journalctl -u ${1} >> ${logfile}"
             fi
-            installCommon_rollBack
             exit 1
         else
             common_logger "${1} service stopped and removed."
@@ -649,11 +644,10 @@ function installCommon_removeService() {
         eval "/etc/init.d/${1} stop ${debug}"
         eval "update-rc.d -f ${1} remove"
         if [  "${PIPESTATUS[0]}" != 0  ]; then
-            common_logger -e "${1} could not be stopped and/or removed."
+            common_logger -e "${1} could not be stopped and/or removed. Consider stopping and removing it manually."
             if [ -n "$(command -v journalctl)" ]; then
                 eval "journalctl -u ${1} >> ${logfile}"
             fi
-            installCommon_rollBack
             exit 1
         else
             common_logger "${1} service stopped and removed."
@@ -662,17 +656,16 @@ function installCommon_removeService() {
         eval "/etc/rc.d/init.d/${1} stop ${debug}"
         eval "update-rc.d -f ${1} remove"
         if [  "${PIPESTATUS[0]}" != 0  ]; then
-            common_logger -e "${1} could not be stopped and/or removed."
+            common_logger -e "${1} could not be stopped and/or removed. Consider stopping and removing it manually."
             if [ -n "$(command -v journalctl)" ]; then
                 eval "journalctl -u ${1} >> ${logfile}"
             fi
-            installCommon_rollBack
             exit 1
         else
             common_logger "${1} service stopped and removed."
         fi
     else
-        common_logger -e "${1} could not be removed. No service manager found on the system."
+        common_logger -e "${1} could not be removed. No service manager found on the system. Consider stopping and removing it manually."
         exit 1
     fi
 }
