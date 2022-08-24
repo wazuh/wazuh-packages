@@ -1,8 +1,5 @@
 -Xms16g
 -Xmx16g
--XX:+UseConcMarkSweepGC
--XX:CMSInitiatingOccupancyFraction=75
--XX:+UseCMSInitiatingOccupancyOnly
 -XX:+AlwaysPreTouch
 -Xss1m
 -Djava.awt.headless=true

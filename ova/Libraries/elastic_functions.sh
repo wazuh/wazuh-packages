@@ -88,6 +88,8 @@ configure_kibana(){
 
 install_kibana_app(){
 
+    chown -R kibana:kibana ${usr_kibana}
+
     if [ "${STATUS_PACKAGES}" = "stable" ]; then
         #Wazuh-app production repository
         sudo -u kibana ${usr_kibana}/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip
@@ -95,8 +97,10 @@ install_kibana_app(){
 
     if [ "${STATUS_PACKAGES}" = "unstable" ]; then
         # Wazuh-app pre-release repository
-        sudo -u kibana ${usr_kibana}/bin/kibana-plugin install https://packages-dev.wazuh.com/pre-release/app/kibana/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip
+        sudo -u kibana ${usr_kibana}/bin/kibana-plugin install https://packages-dev.wazuh.com/pre-release-3.x/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip
     fi
+
+    setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node
 
     systemctl daemon-reload
     systemctl enable kibana.service
