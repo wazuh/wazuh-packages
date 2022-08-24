@@ -1,0 +1,59 @@
+#!/bin/sh
+# postrm script for Wazuh
+# Santiago Bassett <santiago.bassett@gmail.com>
+# 03/25/2014
+
+DIR="/var/ossec"
+WAZUH_API_DIR="${DIR}/api"
+WAZUH_TMP_DIR="${DIR}/packages_files/api_config_files"
+
+set -e
+
+case "$1" in
+    remove|failed-upgrade|abort-install|abort-upgrade|disappear)
+        if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
+            systemctl stop wazuh-api > /dev/null 2>&1
+            systemctl disable wazuh-api > /dev/null 2>&1
+            systemctl daemon-reload > /dev/null 2>&1
+        fi
+        if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
+            service wazuh-api stop
+        fi
+
+
+        if [ -f /etc/init.d/wazuh-api ]; then
+            rm /etc/init.d/wazuh-api
+        fi
+
+        if [ -L ${WAZUH_API_DIR}/configuration/auth/htpasswd ]; then
+            rm ${WAZUH_API_DIR}/configuration/auth/htpasswd
+        fi
+
+        if [ -d ${WAZUH_TMP_DIR} ]; then
+            rm -rf ${WAZUH_TMP_DIR} || true
+        fi
+    ;;
+    purge)
+        rm -rf ${WAZUH_API_DIR}/ ${DIR}/~api/
+    ;;
+    upgrade)
+        if [ -n "$(ps -e | egrep ^\ *1\ .*systemd$)" ]; then
+            systemctl stop wazuh-api.service
+        fi
+
+        if [ -n "$(ps -e | egrep ^\ *1\ .*init$)" ]; then
+
+           if ps axu | grep ${WAZUH_API_DIR}/app.js | grep -v grep > /dev/null ; then
+                service wazuh-api stop
+           fi
+        fi
+    ;;
+    *)
+        echo "postrm called with unknown argument \`$1'" >&2
+        exit 1
+
+    ;;
+
+esac
+
+exit 0

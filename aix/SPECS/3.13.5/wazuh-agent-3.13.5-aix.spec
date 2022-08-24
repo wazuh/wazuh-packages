@@ -1,6 +1,6 @@
 # Spec file for AIX systems
 Name:        wazuh-agent
-Version:     3.13.4
+Version:     3.13.5
 Release:     1
 License:     GPL
 URL:         https://www.wazuh.com/
@@ -262,6 +262,8 @@ rm -fr %{buildroot}
 
 
 %changelog
+* Wed Aug 24 2022 support <info@wazuh.com> - 3.13.5
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Mon May 30 2022 support <info@wazuh.com> - 3.13.4
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Sat Apr 24 2021 support <info@wazuh.com> - 3.13.3
