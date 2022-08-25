@@ -43,7 +43,7 @@ function common_logger() {
 
     if [ -z "${debugLogger}" ] || { [ -n "${debugLogger}" ] && [ -n "${debugEnabled}" ]; }; then
         if [ "$EUID" -eq 0 ] && [ -z "${nolog}" ]; then
-            printf "%s\n" "${now} ${mtype} ${message}" | tee -a "${logfile}"
+            printf "%s\n" "${now} ${mtype} ${message}" | tee -a ${logfile}
         else
             printf "%b\n" "${now} ${mtype} ${message}"
         fi
