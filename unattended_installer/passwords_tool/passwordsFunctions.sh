@@ -108,7 +108,7 @@ function passwords_changeDashboardApiPassword() {
     j=0
     until [ -n "${file_exists}" ] || [ "${j}" -eq "12" ]; do
         if [ -f "/usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml" ]; then
-            eval 'sed -i "s|password: .*|password: ${1}|g" /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml'
+            eval "sed -i 's|password: .*|password: \"${1}\"|g' /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml"
             if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_indexer_cluster}" ]; then
                 common_logger "Updated wazuh-wui user password in wazuh dashboard. Remember to restart the service."
             fi
@@ -515,7 +515,7 @@ function passwords_restartService() {
             fi
             exit 1;
         else
-            common_logger -d "${1} started"
+            common_logger -d "${1} started."
         fi
     elif ps -e | grep -E -q "^\ *1\ .*init$"; then
         eval "/etc/init.d/${1} restart ${debug}"
@@ -529,7 +529,7 @@ function passwords_restartService() {
             fi
             exit 1;
         else
-            common_logger -d "${1} started"
+            common_logger -d "${1} started."
         fi
     elif [ -x "/etc/rc.d/init.d/${1}" ] ; then
         eval "/etc/rc.d/init.d/${1} restart ${debug}"
@@ -543,7 +543,7 @@ function passwords_restartService() {
             fi
             exit 1;
         else
-            common_logger -d "${1} started"
+            common_logger -d "${1} started."
         fi
     else
         if [[ $(type -t installCommon_rollBack) == "function" ]]; then
