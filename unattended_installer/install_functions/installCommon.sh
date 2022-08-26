@@ -209,8 +209,6 @@ function installCommon_changePasswords() {
     fi
     if [ -n "${start_indexer_cluster}" ] || [ -n "${AIO}" ]; then
         passwords_getNetworkHost
-        eval "mkdir /etc/wazuh-indexer/backup/"
-        eval "cp /etc/wazuh-indexer/opensearch-security/* /etc/wazuh-indexer/backup/"
         passwords_generateHash
     fi
     

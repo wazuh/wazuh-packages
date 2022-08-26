@@ -8,6 +8,9 @@
 
 function passwords_changePassword() {
 
+    eval "mkdir /etc/wazuh-indexer/backup/"
+    eval "cp /etc/wazuh-indexer/opensearch-security/* /etc/wazuh-indexer/backup/"
+
     if [ -n "${changeall}" ]; then
         for i in "${!passwords[@]}"
         do
