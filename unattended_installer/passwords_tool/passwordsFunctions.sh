@@ -8,11 +8,14 @@
 
 function passwords_changePassword() {
 
+    eval "mkdir /etc/wazuh-indexer/backup/"
+    eval "cp /etc/wazuh-indexer/opensearch-security/* /etc/wazuh-indexer/backup/"
+
     if [ -n "${changeall}" ]; then
         for i in "${!passwords[@]}"
         do
-            if [ -n "${indexer_installed}" ] && [ -f "/usr/share/wazuh-indexer/backup/internal_users.yml" ]; then
-                awk -v new="${hashes[i]}" 'prev=="'"${users[i]}"':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/wazuh-indexer/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/wazuh-indexer/backup/internal_users.yml
+            if [ -n "${indexer_installed}" ] && [ -f "/etc/wazuh-indexer/backup/internal_users.yml" ]; then
+                awk -v new=${hashes[i]} 'prev=="'${users[i]}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /etc/wazuh-indexer/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /etc/wazuh-indexer/backup/internal_users.yml
             fi
 
             if [ "${users[i]}" == "admin" ]; then
@@ -23,8 +26,8 @@ function passwords_changePassword() {
 
         done
     else
-        if [ -n "${indexer_installed}" ] && [ -f "/usr/share/wazuh-indexer/backup/internal_users.yml" ]; then
-            awk -v new="$hash" 'prev=="'"${nuser}"':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /usr/share/wazuh-indexer/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /usr/share/wazuh-indexer/backup/internal_users.yml
+        if [ -n "${indexer_installed}" ] && [ -f "/etc/wazuh-indexer/backup/internal_users.yml" ]; then
+            awk -v new="$hash" 'prev=="'${nuser}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /etc/wazuh-indexer/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /etc/wazuh-indexer/backup/internal_users.yml
         fi
 
         if [ "${nuser}" == "admin" ]; then
@@ -172,13 +175,13 @@ function passwords_createBackUp() {
     fi
 
     common_logger -d "Creating password backup."
-    eval "mkdir /usr/share/wazuh-indexer/backup ${debug}"
-    eval "JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -icl -p 9300 -backup /usr/share/wazuh-indexer/backup -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -h ${IP} ${debug}"
+    eval "mkdir /etc/wazuh-indexer/backup ${debug}"
+    eval "JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_CONF_DIR=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -backup /etc/wazuh-indexer/backup -icl -p 9200 -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -h ${IP} ${debug}"
     if [ "${PIPESTATUS[0]}" != 0 ]; then
         common_logger -e "The backup could not be created"
         exit 1;
     fi
-    common_logger -d "Password backup created in /usr/share/wazuh-indexer/backup."
+    common_logger -d "Password backup created in /etc/wazuh-indexer/backup."
 
 }
 
@@ -188,7 +191,7 @@ function passwords_generateHash() {
         common_logger -d "Generating password hashes."
         for i in "${!passwords[@]}"
         do
-            nhash=$(bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "${passwords[i]}" | grep -v WARNING)
+            nhash=$(bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "${passwords[i]}" | grep -A 2 'issues' | tail -n 1)
             if [  "${PIPESTATUS[0]}" != 0  ]; then
                 common_logger -e "Hash generation failed."
                 exit 1;
@@ -198,7 +201,7 @@ function passwords_generateHash() {
         common_logger -d "Password hashes generated."
     else
         common_logger "Generating password hash"
-        hash=$(bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "${password}" | grep -v WARNING)
+        hash=$(bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "${password}" | grep -A 2 'issues' | tail -n 1)
         if [  "${PIPESTATUS[0]}" != 0  ]; then
             common_logger -e "Hash generation failed."
             exit 1;
@@ -490,7 +493,7 @@ For Wazuh API users, the file must have this format:
 
 function passwords_readUsers() {
 
-    susers=$(grep -B 1 hash: /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/internal_users.yml | grep -v hash: | grep -v "-" | awk '{ print substr( $0, 1, length($0)-1 ) }')
+    susers=$(grep -B 1 hash: /etc/wazuh-indexer/opensearch-security/internal_users.yml | grep -v hash: | grep -v "-" | awk '{ print substr( $0, 1, length($0)-1 ) }')
     mapfile -t users <<< "${susers[@]}"
 
 }
@@ -557,14 +560,27 @@ function passwords_restartService() {
 
 function passwords_runSecurityAdmin() {
 
+    if [ -z "${indexer_installed}" ] && [ -z "${dashboard_installed}" ] && [ -z "${filebeat_installed}" ]; then
+        common_logger -e "Cannot find Wazuh indexer, Wazuh dashboard or Filebeat on the system."
+        exit 1;
+    else
+        if [ -n "${indexer_installed}" ]; then
+            capem=$(grep "plugins.security.ssl.transport.pemtrustedcas_filepath: " /etc/wazuh-indexer/opensearch.yml )
+            rcapem="plugins.security.ssl.transport.pemtrustedcas_filepath: "
+            capem="${capem//$rcapem}"
+            if [[ -z "${adminpem}" ]] || [[ -z "${adminkey}" ]]; then
+                passwords_readAdmincerts
+            fi
+        fi
+    fi
+
     common_logger -d "Loading new passwords changes."
-    eval "cp /usr/share/wazuh-indexer/backup/* /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ ${debug}"
-    eval "OPENSEARCH_PATH_CONF=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -p 9300 -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/ -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug}"
+    eval "OPENSEARCH_CONF_DIR=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -f /etc/wazuh-indexer/backup/internal_users.yml -t internalusers -p 9200 -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug}"
     if [  "${PIPESTATUS[0]}" != 0  ]; then
         common_logger -e "Could not load the changes."
         exit 1;
     fi
-    eval "rm -rf /usr/share/wazuh-indexer/backup/ ${debug}"
+    eval "rm -rf /etc/wazuh-indexer/backup/ ${debug}"
 
     if [[ -n "${nuser}" ]] && [[ -n ${autopass} ]]; then
         common_logger -nl "The password for user ${nuser} is ${password}"
