@@ -122,6 +122,8 @@ function cert_generateIndexercertificates() {
             eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${cert_tmp_path}/${indexer_node_names[i]}-key.pem -out ${cert_tmp_path}/${indexer_node_names[i]}.csr -config ${cert_tmp_path}/${indexer_node_names[i]}.conf -days 3650 ${debug}"
             eval "openssl x509 -req -in ${cert_tmp_path}/${indexer_node_names[i]}.csr -CA ${cert_tmp_path}/root-ca.pem -CAkey ${cert_tmp_path}/root-ca.key -CAcreateserial -out ${cert_tmp_path}/${indexer_node_names[i]}.pem -extfile ${cert_tmp_path}/${indexer_node_names[i]}.conf -extensions v3_req -days 3650 ${debug}"
         done
+    else
+        return 1
     fi
 
 }
@@ -136,6 +138,8 @@ function cert_generateFilebeatcertificates() {
             eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${cert_tmp_path}/${server_node_names[i]}-key.pem -out ${cert_tmp_path}/${server_node_names[i]}.csr -config ${cert_tmp_path}/${server_node_names[i]}.conf -days 3650 ${debug}"
             eval "openssl x509 -req -in ${cert_tmp_path}/${server_node_names[i]}.csr -CA ${cert_tmp_path}/root-ca.pem -CAkey ${cert_tmp_path}/root-ca.key -CAcreateserial -out ${cert_tmp_path}/${server_node_names[i]}.pem -extfile ${cert_tmp_path}/${server_node_names[i]}.conf -extensions v3_req -days 3650 ${debug}"
         done
+    else
+        return 1
     fi
 
 }
@@ -149,8 +153,9 @@ function cert_generateDashboardcertificates() {
             cert_generateCertificateconfiguration "${dashboard_node_names[i]}" "${dashboard_node_ips[i]}"
             eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${cert_tmp_path}/${dashboard_node_names[i]}-key.pem -out ${cert_tmp_path}/${dashboard_node_names[i]}.csr -config ${cert_tmp_path}/${dashboard_node_names[i]}.conf -days 3650 ${debug}"
             eval "openssl x509 -req -in ${cert_tmp_path}/${dashboard_node_names[i]}.csr -CA ${cert_tmp_path}/root-ca.pem -CAkey ${cert_tmp_path}/root-ca.key -CAcreateserial -out ${cert_tmp_path}/${dashboard_node_names[i]}.pem -extfile ${cert_tmp_path}/${dashboard_node_names[i]}.conf -extensions v3_req -days 3650 ${debug}"
-
         done
+    else
+        return 1
     fi
 
 }
@@ -206,37 +211,37 @@ function cert_readConfig() {
 
         eval "server_node_types=( $(cert_parseYaml "${config_file}" | grep nodes_server__node_type | sed 's/nodes_server__node_type=//' | sed -r 's/\s+//g') )"
 
-        mapfile -t unique_names < <(printf "%s\n" "${indexer_node_names[@]}" | sort -u)
+        unique_names=($(echo "${indexer_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
         if [ "${#unique_names[@]}" -ne "${#indexer_node_names[@]}" ]; then 
             common_logger -e "Duplicated indexer node names."
             exit 1
         fi
 
-        mapfile -t unique_ips < <(printf "%s\n" "${indexer_node_ips[@]}" | sort -u)
+        unique_ips=($(echo "${indexer_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
         if [ "${#unique_ips[@]}" -ne "${#indexer_node_ips[@]}" ]; then 
             common_logger -e "Duplicated indexer node ips."
             exit 1
         fi
 
-        mapfile -t unique_names < <(printf "%s\n" "${server_node_names[@]}" | sort -u)
+        unique_names=($(echo "${server_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
         if [ "${#unique_names[@]}" -ne "${#server_node_names[@]}" ]; then 
             common_logger -e "Duplicated Wazuh server node names."
             exit 1
         fi
 
-        mapfile -t unique_ips < <(printf "%s\n" "${server_node_ips[@]}" | sort -u)
+        unique_ips=($(echo "${server_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
         if [ "${#unique_ips[@]}" -ne "${#server_node_ips[@]}" ]; then 
             common_logger -e "Duplicated Wazuh server node ips."
             exit 1
         fi
 
-        mapfile -t unique_names < <(printf "%s\n" "${dashboard_node_names[@]}" | sort -u)
+        unique_names=($(echo "${dashboard_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
         if [ "${#unique_names[@]}" -ne "${#dashboard_node_names[@]}" ]; then
             common_logger -e "Duplicated dashboard node names."
             exit 1
         fi
 
-        mapfile -t unique_ips < <(printf "%s\n" "${dashboard_node_ips[@]}" | sort -u)
+        unique_ips=($(echo "${dashboard_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
         if [ "${#unique_ips[@]}" -ne "${#dashboard_node_ips[@]}" ]; then
             common_logger -e "Duplicated dashboard node ips."
             exit 1

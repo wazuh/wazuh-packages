@@ -209,10 +209,9 @@ function installCommon_changePasswords() {
     fi
     if [ -n "${start_indexer_cluster}" ] || [ -n "${AIO}" ]; then
         passwords_getNetworkHost
-        passwords_createBackUp
         passwords_generateHash
     fi
-
+    
     passwords_changePassword
 
     if [ -n "${start_indexer_cluster}" ] || [ -n "${AIO}" ]; then
@@ -333,8 +332,8 @@ For Wazuh API users, the file must have this format:
         exit 1
     fi
 
-    sfileusers=$(grep username: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }' | sed -e "s/[\'\"]//g")
-    sfilepasswords=$(grep password: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }' | sed -e "s/[\'\"]//g")
+    sfileusers=$(grep indexer_username: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }' | sed -e "s/[\'\"]//g")
+    sfilepasswords=$(grep indexer_password: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }' | sed -e "s/[\'\"]//g")
 
     sfileapiusers=$(grep api_username: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }' | sed -e "s/[\'\"]//g")
     sfileapipasswords=$(grep api_password: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }' | sed -e "s/[\'\"]//g")
