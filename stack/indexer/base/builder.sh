@@ -10,10 +10,10 @@
 
 set -e
 
-opensearch_version="${1}"
-future="${2}"
-revision="${3}"
-reference="${4}"
+future="${1}"
+revision="${2}"
+reference="${3}"
+opensearch_version="1.2.4"
 base_dir=/tmp/output/wazuh-indexer-base
 
 # -----------------------------------------------------------------------------

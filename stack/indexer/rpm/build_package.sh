@@ -8,7 +8,7 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-set -e
+set -x
 
 current_path="$( cd $(dirname $0) ; pwd -P )"
 architecture="x86_64"
@@ -18,6 +18,8 @@ build_docker="yes"
 rpm_x86_builder="rpm_indexer_builder_x86"
 rpm_builder_dockerfile="${current_path}/docker"
 future="no"
+build_base="no"
+opensearch_version="1.2.4"
 base="s3"
 base_path="${current_path}/../base/output"
 
@@ -42,6 +44,7 @@ build_rpm() {
 
     # Copy the necessary files
     cp ${current_path}/builder.sh ${dockerfile_path}
+    cp ../base/builder.sh ${dockerfile_path}/builder_base.sh
 
     # Build the Docker image
     if [[ ${build_docker} == "yes" ]]; then
@@ -50,9 +53,23 @@ build_rpm() {
 
     # Build the RPM package with a Docker container
     volumes="-v ${outdir}/:/tmp:Z"
+
+    if [[ ${build_base} == "yes" ]]; then
+        if [ "${reference}" ];then
+        docker run -t --rm -v ${base_path}/:/tmp/output:Z \
+            ${container_name} /usr/local/bin/builder_base \
+            ${opensearch_version} ${future} ${revision} ${reference}  || return 1
+        else
+        docker run -t --rm -v ${base_path}/:/tmp/output:Z \
+            -v ${current_path}/../../..:/root:Z \
+            ${container_name} /usr/local/bin/builder_base \
+            ${opensearch_version} ${future} ${revision} || return 1            
+        fi        
+    fi
+
     if [ "${reference}" ];then
         docker run -t --rm ${volumes} \
-            ${container_name} ${architecture} ${revision} \
+            ${container_name} /usr/local/bin/builder ${architecture} ${revision} \
             ${future} ${base} ${reference} || return 1
     else
         if [ "${base}" = "local" ];then
@@ -60,7 +77,7 @@ build_rpm() {
         fi
         docker run -t --rm ${volumes} \
             -v ${current_path}/../../..:/root:Z \
-            ${container_name} ${architecture} \
+            ${container_name} /usr/local/bin/builder ${architecture} \
             ${revision} ${future} ${base} || return 1
     fi
 
@@ -95,6 +112,7 @@ help() {
     echo "    --reference <ref>          [Optional] wazuh-packages branch to download SPECs, not used by default."
     echo "    --dont-build-docker        [Optional] Locally built docker image will be used instead of generating a new one."
     echo "    --future                   [Optional] Build test future package 99.99.0 Used for development purposes."
+    echo "    --build-base               [Optional] Build dashboard base, you can indicate the opensearch version on which the new database will be based, default: 1.2.4 "
     echo "    --base <s3/local>          [Optional] Base file location, use local or s3, default: s3"
     echo "    --base-path                [Optional] If base is local, you can indicate the full path where the base is located, default: stack/indexer/base/output"
     echo "    -h, --help                 Show this help."
@@ -141,6 +159,16 @@ main() {
         "--future")
             future="yes"
             shift 1
+            ;;
+        "--build-base")
+            if  [[ -n "${2}" && "${2}" != "-"* ]]; then
+                build_base="yes"
+                opensearch_version="${2}"
+                shift 2
+            else
+                build_base="yes"
+                shift 1
+            fi
             ;;
         "--base")
             if [ -n "$2" ]; then

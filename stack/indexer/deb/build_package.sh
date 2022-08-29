@@ -8,6 +8,8 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
+set -x
+
 current_path="$( cd $(dirname $0) ; pwd -P )"
 architecture="amd64"
 outdir="${current_path}/output"
@@ -26,6 +28,7 @@ clean() {
 
     # Clean the files
     rm -rf ${dockerfile_path}/{*.sh,*.tar.gz,wazuh-*}
+    rm -rf ${dockerfile_path}/VERSION ${dockerfile_path}/files
 
     exit ${exit_code}
 }
@@ -40,18 +43,25 @@ build_deb() {
 
     # Copy the necessary files
     cp ${current_path}/builder.sh ${dockerfile_path}
+    cp ../base/builder.sh ${dockerfile_path}/builder_base.sh
+    cp -R ../base/files  ${dockerfile_path}/
+    cp ../../../VERSION ${dockerfile_path}/VERSION
+    version=$(cat ../../../VERSION)
 
     # Build the Docker image
     if [[ ${build_docker} == "yes" ]]; then
-        docker build -t ${container_name} ${dockerfile_path} || return 1
+        docker build --progress=plain --build-arg VERSION=${version} \
+        --build-arg FUTURE=${future} --build-arg REVISION=${revision} \
+        --build-arg REFERENCE=${reference} -t ${container_name} ${dockerfile_path} || return 1
     fi
 
 
     # Build the Debian package with a Docker container
     volumes="-v ${outdir}/:/tmp:Z"
+
     if [ "${reference}" ];then
         docker run -t --rm ${volumes} \
-            ${container_name} ${architecture} ${revision} \
+            ${container_name} /usr/local/bin/builder ${architecture} ${revision} \
             ${future} ${base} ${reference} || return 1
     else
         if [ "${base}" = "local" ];then
@@ -59,7 +69,7 @@ build_deb() {
         fi
         docker run -t --rm ${volumes} \
             -v ${current_path}/../../..:/root:Z \
-            ${container_name} ${architecture} \
+            ${container_name} /usr/local/bin/builder ${architecture} \
             ${revision} ${future} ${base} || return 1
     fi
 
@@ -94,8 +104,6 @@ help() {
     echo "    --reference <ref>          [Optional] wazuh-packages branch to download SPECs, not used by default."
     echo "    --dont-build-docker        [Optional] Locally built docker image will be used instead of generating a new one."
     echo "    --future                   [Optional] Build test future package 99.99.0 Used for development purposes."
-    echo "    --base <s3/local>          [Optional] Base file location, use local or s3, default: s3"
-    echo "    --base-path                [Optional] If base is local, you can indicate the full path where the base is located, default: stack/indexer/base/output"
     echo "    -h, --help                 Show this help."
     echo
     exit $1
@@ -140,22 +148,6 @@ main() {
         "--future")
             future="yes"
             shift 1
-            ;;
-        "--base")
-            if [ -n "${2}" ]; then
-                base="${2}"
-                shift 2
-            else
-                help 1
-            fi
-            ;;
-        "--base-path")
-            if [ -n "${2}" ]; then
-                base_path="${2}"
-                shift 2
-            else
-                help 1
-            fi
             ;;
         "-s"|"--store")
             if [ -n "${2}" ]; then
