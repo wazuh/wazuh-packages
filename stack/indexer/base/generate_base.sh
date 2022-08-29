@@ -11,7 +11,7 @@
 set -e
 
 reference=""
-opensearch_version="1.2.4"
+opensearch_version="2.1.0"
 
 current_path="$( cd $(dirname $0) ; pwd -P )"
 outdir="${current_path}/output"
@@ -68,7 +68,7 @@ help() {
     echo "Usage: $0 [OPTIONS]"
     echo
     echo "    -s, --store <path>         [Optional] Set the destination path of package. By default, an output folder will be created."
-    echo "    --version <version>   [Optional] OpenSearch version, by default ${opensearch_version}"
+    echo "    -v, --version <version>   [Optional] OpenSearch version, by default ${opensearch_version}"
     echo "    --reference <ref>     [Optional] wazuh-packages branch or tag"
     echo "    --future              [Optional] Build test future package 99.99.0 Used for development purposes."
     echo "    -r, --revision <rev>  [Optional] Package revision. By default ${revision}"
@@ -94,7 +94,7 @@ main() {
                 help 1
             fi
             ;;
-        "--version")
+        "-v"|"--version")
             if [ -n "${2}" ]; then
                 opensearch_version="${2}"
                 shift 2

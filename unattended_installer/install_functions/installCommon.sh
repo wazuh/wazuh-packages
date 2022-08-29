@@ -93,7 +93,7 @@ function installCommon_aptInstall() {
 function installCommon_changePasswordApi() {
 
     #Change API password tool
-    if [ -n ${changeall} ]; then
+    if [ -n "${changeall}" ]; then
         for i in "${!api_passwords[@]}"; do
             if [ -n "${wazuh}" ] || [ -n "${AIO}" ]; then
                 passwords_getApiUserId "${api_users[i]}"
@@ -105,17 +105,17 @@ function installCommon_changePasswordApi() {
                     passwords_getApiToken
                 fi
             fi
-            if [ "${api_users[i]}" == "wazuh-wui" ] && ([ -n "${dashboard}" ] || [ -n "${AIO}" ]); then
+            if [ "${api_users[i]}" == "wazuh-wui" ] && { [ -n "${dashboard}" ] || [ -n "${AIO}" ]; }; then
                 passwords_changeDashboardApiPassword "${api_passwords[i]}"
             fi
         done
     else
         if [ -n "${wazuh}" ] || [ -n "${AIO}" ]; then
-            passwords_getApiUserId ${nuser}
+            passwords_getApiUserId "${nuser}"
             WAZUH_PASS_API='{"password":"'"${password}"'"}'
             eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null'
         fi
-        if [ "${nuser}" == "wazuh-wui" ] && ([ -n "${dashboard}" ] || [ -n "${AIO}" ]); then
+        if [ "${nuser}" == "wazuh-wui" ] && { [ -n "${dashboard}" ] || [ -n "${AIO}" ]; }; then
                 passwords_changeDashboardApiPassword "${password}"
         fi
     fi
@@ -135,6 +135,7 @@ function installCommon_createCertificates() {
     fi
     eval "mkdir /tmp/wazuh-certificates/ ${debug}"
 
+    cert_tmp_path="/tmp/wazuh-certificates/"
 
     cert_generateRootCAcertificate
     cert_generateAdmincertificate
@@ -194,7 +195,7 @@ function installCommon_changePasswords() {
             changeall=1
             passwords_readUsers
         fi
-        if ([ -n "${wazuh}" ] || [ -n "${AIO}" ]) && ([ "${server_node_types[pos]}" == "master" ] || [ "${#server_node_names[@]}" -eq 1 ]); then
+        if { [ -n "${wazuh}" ] || [ -n "${AIO}" ]; } && { [ "${server_node_types[pos]}" == "master" ] || [ "${#server_node_names[@]}" -eq 1 ]; }; then
             passwords_getApiToken
             passwords_getApiUsers
             passwords_getApiIds
@@ -208,10 +209,9 @@ function installCommon_changePasswords() {
     fi
     if [ -n "${start_indexer_cluster}" ] || [ -n "${AIO}" ]; then
         passwords_getNetworkHost
-        passwords_createBackUp
         passwords_generateHash
     fi
-
+    
     passwords_changePassword
 
     if [ -n "${start_indexer_cluster}" ] || [ -n "${AIO}" ]; then
@@ -227,7 +227,7 @@ function installCommon_changePasswords() {
 
 function installCommon_extractConfig() {
 
-    if ! $(tar -tf "${tar_file}" | grep -q wazuh-install-files/config.yml); then
+    if ! tar -tf "${tar_file}" | grep -q wazuh-install-files/config.yml; then
         common_logger -e "There is no config.yml file in ${tar_file}."
         exit 1
     fi
@@ -266,7 +266,7 @@ function installCommon_installPrerequisites() {
         dependencies=( curl libcap tar gnupg openssl )
         not_installed=()
         for dep in "${dependencies[@]}"; do
-            if [ -z "$(yum list installed 2>/dev/null | grep ${dep})" ];then
+            if ! yum list installed 2>/dev/null | grep -q "${dep}" ;then
                 not_installed+=("${dep}")
             fi
         done
@@ -289,7 +289,7 @@ function installCommon_installPrerequisites() {
         not_installed=()
 
         for dep in "${dependencies[@]}"; do
-            if [ -z "$(apt list --installed 2>/dev/null | grep ${dep})" ];then
+            if ! apt list --installed 2>/dev/null | grep -q "${dep}"; then
                 not_installed+=("${dep}")
             fi
         done
@@ -298,7 +298,7 @@ function installCommon_installPrerequisites() {
             common_logger "--- Dependencies ----"
             for dep in "${not_installed[@]}"; do
                 common_logger "Installing $dep."
-                installCommon_aptInstall ${dep}
+                installCommon_aptInstall "${dep}"
                 if [ "${install_result}" != 0 ]; then
                     common_logger -e "Cannot install dependency: ${dep}."
                     exit 1
@@ -332,24 +332,24 @@ For Wazuh API users, the file must have this format:
         exit 1
     fi
 
-    sfileusers=$(grep username: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }' | sed -e "s/[\'\"]//g")
-    sfilepasswords=$(grep password: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }' | sed -e "s/[\'\"]//g")
+    sfileusers=$(grep indexer_username: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }' | sed -e "s/[\'\"]//g")
+    sfilepasswords=$(grep indexer_password: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }' | sed -e "s/[\'\"]//g")
 
     sfileapiusers=$(grep api_username: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }' | sed -e "s/[\'\"]//g")
     sfileapipasswords=$(grep api_password: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }' | sed -e "s/[\'\"]//g")
 
-    fileusers=(${sfileusers})
-    filepasswords=(${sfilepasswords})
 
-    fileapiusers=(${sfileapiusers})
-    fileapipasswords=(${sfileapipasswords})
+    mapfile -t fileusers < <(printf '%s\n' "${sfileusers}")
+    mapfile -t filepasswords < <(printf '%s\n' "${sfilepasswords}")
+    mapfile -t fileapiusers < <(printf '%s\n' "${sfileapiusers}")
+    mapfile -t fileapipasswords < <(printf '%s\n' "${sfileapipasswords}")
 
     if [ -n "${changeall}" ]; then
         for j in "${!fileusers[@]}"; do
             supported=false
             for i in "${!users[@]}"; do
                 if [[ ${users[i]} == "${fileusers[j]}" ]]; then
-                    passwords_checkPassword ${filepasswords[j]}
+                    passwords_checkPassword "${filepasswords[j]}"
                     passwords[i]=${filepasswords[j]}
                     supported=true
                 fi
@@ -363,7 +363,7 @@ For Wazuh API users, the file must have this format:
             supported=false
             for i in "${!api_users[@]}"; do
                 if [[ "${api_users[i]}" == "${fileapiusers[j]}" ]]; then
-                    passwords_checkPassword ${fileapipasswords[j]}
+                    passwords_checkPassword "${fileapipasswords[j]}"
                     api_passwords[i]=${fileapipasswords[j]}
                     supported=true
                 fi
@@ -391,7 +391,7 @@ For Wazuh API users, the file must have this format:
             supported=false
             for i in "${!users[@]}"; do
                 if [[ "${users[i]}" == "${fileusers[j]}" ]]; then
-                    passwords_checkPassword ${filepasswords[j]}
+                    passwords_checkPassword "${filepasswords[j]}"
                     finalusers+=(${fileusers[j]})
                     finalpasswords+=(${filepasswords[j]})
                     supported=true
@@ -406,7 +406,7 @@ For Wazuh API users, the file must have this format:
             supported=false
             for i in "${!api_users[@]}"; do
                 if [[ "${api_users[i]}" == "${fileapiusers[j]}" ]]; then
-                    passwords_checkPassword ${fileapipasswords[j]}
+                    passwords_checkPassword "${fileapipasswords[j]}"
                     finalapiusers+=("${fileapiusers[j]}")
                     finalapipasswords+=("${fileapipasswords[j]}")
                     supported=true
@@ -418,10 +418,10 @@ For Wazuh API users, the file must have this format:
         done
 
         users=()
-        users=(${finalusers[@]})
-        passwords=(${finalpasswords[@]})
-        api_users=(${finalapiusers[@]})
-        api_passwords=(${finalapipasswords[@]})
+        mapfile -t users < <(printf '%s\n' "${finalusers[@]}")
+        mapfile -t passwords < <(printf '%s\n' "${finalpasswords[@]}")
+        mapfile -t api_users < <(printf '%s\n' "${finalapiusers[@]}")
+        mapfile -t api_passwords < <(printf '%s\n' "${finalapipasswords[@]}")
         changeall=1
     fi
 
@@ -534,6 +534,8 @@ function installCommon_rollBack() {
                             "/lib/firewalld/services/opensearch.xml" )
 
     eval "rm -rf ${elements_to_remove[*]}"
+
+    common_remove_gpg_key
 
     if [ -z "${uninstall}" ]; then
         if [ -n "${rollback_conf}" ] || [ -n "${overwrite}" ]; then

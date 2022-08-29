@@ -426,12 +426,6 @@ test-18-passwords-generatePasswordFile-assert() {
     echo "User:"
     echo "  name: snapshotrestore"
     echo "  password: pass"
-    echo "User:"
-    echo "  name: wazuh_admin"
-    echo "  password: pass"
-    echo "User:"
-    echo "  name: wazuh_user"
-    echo "  password: pass"
 }
 
 function load-passwords-getNetworkHost() {
@@ -562,7 +556,7 @@ function load-passwords-readUsers() {
 
 test-26-passwords-readUsers() {
     load-passwords-readUsers
-    @mock grep -B 1 hash: /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/internal_users.yml === @out
+    @mock grep -B 1 hash: /etc/wazuh-indexer/opensearch-security/internal_users.yml === @out
     @mock grep -v hash: === @out
     @mock grep -v "-" === @out
     @mock awk '{ print substr( $0, 1, length($0)-1 ) }' === @out "kibanaserver admin"

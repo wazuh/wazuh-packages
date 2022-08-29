@@ -9,10 +9,10 @@
 
 function cert_cleanFiles() {
 
-    eval "rm -f /tmp/wazuh-certificates/*.csr ${debug}"
-    eval "rm -f /tmp/wazuh-certificates/*.srl ${debug}"
-    eval "rm -f /tmp/wazuh-certificates/*.conf ${debug}"
-    eval "rm -f /tmp/wazuh-certificates/admin-key-temp.pem ${debug}"
+    eval "rm -f ${cert_tmp_path}/*.csr ${debug}"
+    eval "rm -f ${cert_tmp_path}/*.srl ${debug}"
+    eval "rm -f ${cert_tmp_path}/*.conf ${debug}"
+    eval "rm -f ${cert_tmp_path}/admin-key-temp.pem ${debug}"
 
 }
 
@@ -36,14 +36,14 @@ function cert_checkRootCA() {
         fi
         # Validate that files exist
         if [[ -e ${rootca} ]]; then
-            eval "cp ${rootca} /tmp/wazuh-certificates/root-ca.pem ${debug}"
+            eval "cp ${rootca} ${cert_tmp_path}/root-ca.pem ${debug}"
         else
             common_logger -e "The file ${rootca} does not exists"
             cert_cleanFiles
             exit 1
         fi
         if [[ -e ${rootcakey} ]]; then
-            eval "cp ${rootcakey} /tmp/wazuh-certificates/root-ca.key ${debug}"
+            eval "cp ${rootcakey} ${cert_tmp_path}/root-ca.key ${debug}"
         else
             common_logger -e "The file ${rootcakey} does not exists"
             cert_cleanFiles
@@ -57,16 +57,16 @@ function cert_checkRootCA() {
 
 function cert_generateAdmincertificate() {
 
-    eval "openssl genrsa -out /tmp/wazuh-certificates/admin-key-temp.pem 2048 ${debug}"
-    eval "openssl pkcs8 -inform PEM -outform PEM -in /tmp/wazuh-certificates/admin-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out /tmp/wazuh-certificates/admin-key.pem ${debug}"
-    eval "openssl req -new -key /tmp/wazuh-certificates/admin-key.pem -out /tmp/wazuh-certificates/admin.csr -batch -subj '/C=US/L=California/O=Wazuh/OU=Wazuh/CN=admin' ${debug}"
-    eval "openssl x509 -days 3650 -req -in /tmp/wazuh-certificates/admin.csr -CA /tmp/wazuh-certificates/root-ca.pem -CAkey /tmp/wazuh-certificates/root-ca.key -CAcreateserial -sha256 -out /tmp/wazuh-certificates/admin.pem ${debug}"
+    eval "openssl genrsa -out ${cert_tmp_path}/admin-key-temp.pem 2048 ${debug}"
+    eval "openssl pkcs8 -inform PEM -outform PEM -in ${cert_tmp_path}/admin-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out ${cert_tmp_path}/admin-key.pem ${debug}"
+    eval "openssl req -new -key ${cert_tmp_path}/admin-key.pem -out ${cert_tmp_path}/admin.csr -batch -subj '/C=US/L=California/O=Wazuh/OU=Wazuh/CN=admin' ${debug}"
+    eval "openssl x509 -days 3650 -req -in ${cert_tmp_path}/admin.csr -CA ${cert_tmp_path}/root-ca.pem -CAkey ${cert_tmp_path}/root-ca.key -CAcreateserial -sha256 -out ${cert_tmp_path}/admin.pem ${debug}"
 
 }
 
 function cert_generateCertificateconfiguration() {
 
-    cat > "/tmp/wazuh-certificates/${1}.conf" <<- EOF
+    cat > "${cert_tmp_path}/${1}.conf" <<- EOF
         [ req ]
         prompt = no
         default_bits = 2048
@@ -136,9 +136,11 @@ function cert_generateIndexercertificates() {
 
         for i in "${!indexer_node_names[@]}"; do
             cert_generateCertificateconfiguration "${indexer_node_names[i]}" "${indexer_node_ips[i]}"
-            eval "openssl req -new -nodes -newkey rsa:2048 -keyout /tmp/wazuh-certificates/${indexer_node_names[i]}-key.pem -out /tmp/wazuh-certificates/${indexer_node_names[i]}.csr -config /tmp/wazuh-certificates/${indexer_node_names[i]}.conf -days 3650 ${debug}"
-            eval "openssl x509 -req -in /tmp/wazuh-certificates/${indexer_node_names[i]}.csr -CA /tmp/wazuh-certificates/root-ca.pem -CAkey /tmp/wazuh-certificates/root-ca.key -CAcreateserial -out /tmp/wazuh-certificates/${indexer_node_names[i]}.pem -extfile /tmp/wazuh-certificates/${indexer_node_names[i]}.conf -extensions v3_req -days 3650 ${debug}"
+            eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${cert_tmp_path}/${indexer_node_names[i]}-key.pem -out ${cert_tmp_path}/${indexer_node_names[i]}.csr -config ${cert_tmp_path}/${indexer_node_names[i]}.conf -days 3650 ${debug}"
+            eval "openssl x509 -req -in ${cert_tmp_path}/${indexer_node_names[i]}.csr -CA ${cert_tmp_path}/root-ca.pem -CAkey ${cert_tmp_path}/root-ca.key -CAcreateserial -out ${cert_tmp_path}/${indexer_node_names[i]}.pem -extfile ${cert_tmp_path}/${indexer_node_names[i]}.conf -extensions v3_req -days 3650 ${debug}"
         done
+    else
+        return 1
     fi
 
 }
@@ -156,6 +158,8 @@ function cert_generateFilebeatcertificates() {
             eval "openssl req -new -nodes -newkey rsa:2048 -keyout /tmp/wazuh-certificates/${server_name}-key.pem -out /tmp/wazuh-certificates/${server_name}.csr  -config /tmp/wazuh-certificates/${server_name}.conf -days 3650 ${debug}"
             eval "openssl x509 -req -in /tmp/wazuh-certificates/${server_name}.csr -CA /tmp/wazuh-certificates/root-ca.pem -CAkey /tmp/wazuh-certificates/root-ca.key -CAcreateserial -out /tmp/wazuh-certificates/${server_name}.pem -extfile /tmp/wazuh-certificates/${server_name}.conf -extensions v3_req -days 3650 ${debug}"
         done
+    else
+        return 1
     fi
 
 }
@@ -167,10 +171,11 @@ function cert_generateDashboardcertificates() {
 
         for i in "${!dashboard_node_names[@]}"; do
             cert_generateCertificateconfiguration "${dashboard_node_names[i]}" "${dashboard_node_ips[i]}"
-            eval "openssl req -new -nodes -newkey rsa:2048 -keyout /tmp/wazuh-certificates/${dashboard_node_names[i]}-key.pem -out /tmp/wazuh-certificates/${dashboard_node_names[i]}.csr -config /tmp/wazuh-certificates/${dashboard_node_names[i]}.conf -days 3650 ${debug}"
-            eval "openssl x509 -req -in /tmp/wazuh-certificates/${dashboard_node_names[i]}.csr -CA /tmp/wazuh-certificates/root-ca.pem -CAkey /tmp/wazuh-certificates/root-ca.key -CAcreateserial -out /tmp/wazuh-certificates/${dashboard_node_names[i]}.pem -extfile /tmp/wazuh-certificates/${dashboard_node_names[i]}.conf -extensions v3_req -days 3650 ${debug}"
-
+            eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${cert_tmp_path}/${dashboard_node_names[i]}-key.pem -out ${cert_tmp_path}/${dashboard_node_names[i]}.csr -config ${cert_tmp_path}/${dashboard_node_names[i]}.conf -days 3650 ${debug}"
+            eval "openssl x509 -req -in ${cert_tmp_path}/${dashboard_node_names[i]}.csr -CA ${cert_tmp_path}/root-ca.pem -CAkey ${cert_tmp_path}/root-ca.key -CAcreateserial -out ${cert_tmp_path}/${dashboard_node_names[i]}.pem -extfile ${cert_tmp_path}/${dashboard_node_names[i]}.conf -extensions v3_req -days 3650 ${debug}"
         done
+    else
+        return 1
     fi
 
 }
@@ -179,7 +184,7 @@ function cert_generateRootCAcertificate() {
 
     common_logger -d "Creating the root certificate."
 
-    eval "openssl req -x509 -new -nodes -newkey rsa:2048 -keyout /tmp/wazuh-certificates/root-ca.key -out /tmp/wazuh-certificates/root-ca.pem -batch -subj '/OU=Wazuh/O=Wazuh/L=California/' -days 3650 ${debug}"
+    eval "openssl req -x509 -new -nodes -newkey rsa:2048 -keyout ${cert_tmp_path}/root-ca.key -out ${cert_tmp_path}/root-ca.pem -batch -subj '/OU=Wazuh/O=Wazuh/L=California/' -days 3650 ${debug}"
 
 }
 
@@ -387,10 +392,10 @@ function cert_readConfig() {
         elif [ "${#server_node_names[@]}" -lt "${#server_node_types[@]}" ]; then
             common_logger -e "Found extra node_type tags."
             exit 1
-        elif [ $(grep -io master <<< ${server_node_types[*]} | wc -l) -ne 1 ]; then
+        elif [ "$(grep -io master <<< "${server_node_types[*]}" | wc -l)" -ne 1 ]; then
             common_logger -e "Wazuh cluster needs a single master node."
             exit 1
-        elif [ $(grep -io worker <<< ${server_node_types[*]} | wc -l) -ne $(( ${#server_node_types[@]} - 1 )) ]; then
+        elif [ "$(grep -io worker <<< "${server_node_types[*]}" | wc -l)" -ne $(( ${#server_node_types[@]} - 1 )) ]; then
             common_logger -e "Incorrect number of workers."
             exit 1
         fi
@@ -408,7 +413,7 @@ function cert_readConfig() {
 }
 
 function cert_setpermisions() {
-    eval "chmod -R 744 /tmp/wazuh-certificates ${debug}"
+    eval "chmod -R 744 ${cert_tmp_path} ${debug}"
 }
 
 function cert_convertCRLFtoLF() {
