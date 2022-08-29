@@ -95,19 +95,19 @@ function cert_generateCertificateconfiguration() {
     isIP=$(echo "${2}" | grep -P "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")
     isDNS=$(echo "${2}" | grep -P "^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z-]{2,})+$" )
 
-    conf="$(awk '{sub("CN = cname", "CN = '${1}'")}1' /tmp/wazuh-certificates/${1}.conf)"
-    echo "${conf}" > "/tmp/wazuh-certificates/${1}.conf"
+    conf="$(awk '{sub("CN = cname", "CN = '"${1}"'")}1' "${cert_tmp_path}/${1}.conf")"
+    echo "${conf}" > "${cert_tmp_path}/${1}.conf"
 
     if [ "${#@}" -gt 2 ]; then
-        sed -i '/IP.1/d' "/tmp/wazuh-certificates/${1}.conf"
+        sed -i '/IP.1/d' "${cert_tmp_path}/${1}.conf"
         for (( i=2; i<=${#@}; i++ )); do
             isIP=$(echo "${!i}" | grep -P "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")
             isDNS=$(echo "${!i}" | grep -P "^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z-]{2,})+$" )
             j=$((i-1))
             if [ "${isIP}" ]; then
-                printf '%s\n' "        IP.${j} = ${!i}" >> "/tmp/wazuh-certificates/${1}.conf"
+                printf '%s\n' "        IP.${j} = ${!i}" >> "${cert_tmp_path}/${1}.conf"
             elif [ "${isDNS}" ]; then
-                printf '%s\n' "        DNS.${j} = ${!i}" >> "/tmp/wazuh-certificates/${1}.conf"
+                printf '%s\n' "        DNS.${j} = ${!i}" >> "${cert_tmp_path}/${1}.conf"
             else
                 common_logger -e "Invalid IP or DNS ${!i}"
                 cert_cleanFiles
@@ -116,11 +116,11 @@ function cert_generateCertificateconfiguration() {
         done
     else
         if [[ -n "${isIP}" ]]; then
-            conf="$(awk '{sub("IP.1 = cip", "IP.1 = '"${2}"'")}1' "/tmp/wazuh-certificates/${1}.conf")"
-            echo "${conf}" > "/tmp/wazuh-certificates/${1}.conf"
+            conf="$(awk '{sub("IP.1 = cip", "IP.1 = '"${2}"'")}1' "${cert_tmp_path}/${1}.conf")"
+            echo "${conf}" > "${cert_tmp_path}/${1}.conf"
         elif [[ -n "${isDNS}" ]]; then
-            conf="$(awk '{sub("IP.1 = cip", "DNS.1 = '"${2}"'")}1' "/tmp/wazuh-certificates/${1}.conf")"
-            echo "${conf}" > "/tmp/wazuh-certificates/${1}.conf"
+            conf="$(awk '{sub("IP.1 = cip", "DNS.1 = '"${2}"'")}1' "${cert_tmp_path}/${1}.conf")"
+            echo "${conf}" > "${cert_tmp_path}/${1}.conf"
         else
             common_logger -e "The given information does not match with an IP address or a DNS."
             exit 1
@@ -155,8 +155,8 @@ function cert_generateFilebeatcertificates() {
             j=$((i+1))
             declare -a server_ips=(server_node_ip_"$j"[@])
             cert_generateCertificateconfiguration "${server_name}" "${!server_ips}"
-            eval "openssl req -new -nodes -newkey rsa:2048 -keyout /tmp/wazuh-certificates/${server_name}-key.pem -out /tmp/wazuh-certificates/${server_name}.csr  -config /tmp/wazuh-certificates/${server_name}.conf -days 3650 ${debug}"
-            eval "openssl x509 -req -in /tmp/wazuh-certificates/${server_name}.csr -CA /tmp/wazuh-certificates/root-ca.pem -CAkey /tmp/wazuh-certificates/root-ca.key -CAcreateserial -out /tmp/wazuh-certificates/${server_name}.pem -extfile /tmp/wazuh-certificates/${server_name}.conf -extensions v3_req -days 3650 ${debug}"
+            eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${cert_tmp_path}/${server_name}-key.pem -out ${cert_tmp_path}/${server_name}.csr  -config ${cert_tmp_path}/${server_name}.conf -days 3650 ${debug}"
+            eval "openssl x509 -req -in ${cert_tmp_path}/${server_name}.csr -CA ${cert_tmp_path}/root-ca.pem -CAkey ${cert_tmp_path}/root-ca.key -CAcreateserial -out ${cert_tmp_path}/${server_name}.pem -extfile ${cert_tmp_path}/${server_name}.conf -extensions v3_req -days 3650 ${debug}"
         done
     else
         return 1
