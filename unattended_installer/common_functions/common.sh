@@ -41,11 +41,11 @@ function common_logger() {
         done
     fi
 
-    if [ -z "${debugLogger}" ] || ( [ -n "${debugLogger}" ] && [ -n "${debugEnabled}" ] ); then
+    if [ -z "${debugLogger}" ] || { [ -n "${debugLogger}" ] && [ -n "${debugEnabled}" ]; }; then
         if [ "$EUID" -eq 0 ] && [ -z "${nolog}" ]; then
-            printf "${now} ${mtype} ${message}\n" | tee -a ${logfile}
+            printf "%s\n" "${now} ${mtype} ${message}" | tee -a ${logfile}
         else
-            printf "${now} ${mtype} ${message}\n"
+            printf "%b\n" "${now} ${mtype} ${message}"
         fi
     fi
 
@@ -120,6 +120,38 @@ function common_checkSystem() {
     else
         common_logger -e "Couldn'd find type of system"
         exit 1
+    fi
+
+}
+
+function common_checkWazuhConfigYaml() {
+
+    filecorrect=$(cert_parseYaml "${config_file}" | grep -Ev '^#|^\s*$' | grep -Pzc "\A(\s*(nodes_indexer__name|nodes_indexer__ip|nodes_server__name|nodes_server__ip|nodes_server__node_type|nodes_dashboard__name|nodes_dashboard__ip)=.*?)+\Z")
+    if [[ "${filecorrect}" -ne 1 ]]; then
+        common_logger -e "The configuration file ${config_file} does not have a correct format."
+        exit 1
+    fi
+
+}
+
+function common_remove_gpg_key() {
+    
+    if [ "${sys_type}" == "yum" ]; then
+        if { rpm -q gpg-pubkey --qf '%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n' | grep "Wazuh"; } >/dev/null ; then
+            key=$(rpm -q gpg-pubkey --qf '%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n' | grep "Wazuh Signing Key" | awk '{print $1}' )
+            rpm -e "${key}"
+        else
+            common_logger "Wazuh GPG key not found in the system"
+            return 1
+        fi
+    elif [ "${sys_type}" == "apt-get" ]; then
+        if { apt-key list | grep "Wazuh"; } >/dev/null 2>&1; then
+            key=$(apt-key list  2>/dev/null | grep -B 1 "Wazuh" | head -1)
+            apt-key del "${key}" >/dev/null 2>&1
+        else
+            common_logger "Wazuh GPG key not found in the system"
+            return 1
+        fi
     fi
 
 }

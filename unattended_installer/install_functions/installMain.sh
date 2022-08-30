@@ -179,7 +179,7 @@ function main() {
                 shift 2
                 ;;
             *)
-                echo "Unknow option: "${1}""
+                echo "Unknow option: ${1}"
                 getHelp
         esac
     done
