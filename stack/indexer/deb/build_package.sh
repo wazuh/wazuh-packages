@@ -8,8 +8,6 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-set -x
-
 current_path="$( cd $(dirname $0) ; pwd -P )"
 architecture="amd64"
 outdir="${current_path}/output"
@@ -18,8 +16,6 @@ build_docker="yes"
 deb_amd64_builder="deb_indexer_builder_amd64"
 deb_builder_dockerfile="${current_path}/docker"
 future="no"
-base="s3"
-base_path="${current_path}/../base/output"
 
 trap ctrl_c INT
 
@@ -46,7 +42,12 @@ build_deb() {
     cp ../base/builder.sh ${dockerfile_path}/builder_base.sh
     cp -R ../base/files  ${dockerfile_path}/
     cp ../../../VERSION ${dockerfile_path}/VERSION
-    version=$(cat ../../../VERSION)
+    
+    if [[ ${future} == "yes" ]]; then 
+        version="99.99.0"
+    else
+        version=$(cat ../../../VERSION)
+    fi
 
     # Build the Docker image
     if [[ ${build_docker} == "yes" ]]; then
@@ -61,15 +62,12 @@ build_deb() {
 
     if [ "${reference}" ];then
         docker run -t --rm ${volumes} \
-            ${container_name} /usr/local/bin/builder ${architecture} ${revision} \
+            ${container_name} ${architecture} ${revision} \
             ${future} ${base} ${reference} || return 1
     else
-        if [ "${base}" = "local" ];then
-            volumes="${volumes} -v ${base_path}:/root/output:Z"
-        fi
         docker run -t --rm ${volumes} \
             -v ${current_path}/../../..:/root:Z \
-            ${container_name} /usr/local/bin/builder ${architecture} \
+            ${container_name} ${architecture} \
             ${revision} ${future} ${base} || return 1
     fi
 

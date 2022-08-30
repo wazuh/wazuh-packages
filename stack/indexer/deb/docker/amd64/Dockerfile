@@ -24,14 +24,14 @@ RUN if [ $REFERENCE ];then \
     /usr/local/bin/builder_base $FUTURE $REVISION; \
     fi
 
-FROM ubuntu:16.04
+FROM debian:8
 
 ARG VERSION
 ARG REVISION
 
 ENV DEBIAN_FRONTEND noninteractive
 
-COPY --from=builder_base "/tmp/output/wazuh-indexer-base-$VERSION-$REVISION-linux-x64.tar.xz" "/root/output/wazuh-indexer-base-$VERSION-$REVISION-linux-x64.tar.xz"
+COPY --from=builder_base "/tmp/output/wazuh-indexer-base-$VERSION-$REVISION-linux-x64.tar.xz" "/opt/wazuh-indexer-base-$VERSION-$REVISION-linux-x64.tar.xz"
 
 # Installing necessary packages
 RUN apt-get update && apt-get install -y apt-utils \
@@ -47,9 +47,9 @@ RUN apt-get update && apt-get install -y apt-utils \
     procps \
     gawk
 
-# Add the script to build the Indexer base
-ADD builder_base.sh /usr/local/bin/builder_base
-RUN chmod +x /usr/local/bin/builder_base
+# Add the script to build the Debian package
+ADD builder.sh /usr/local/bin/builder
+RUN chmod +x /usr/local/bin/builder
 
 # Set the entrypoint
 ENTRYPOINT ["/usr/local/bin/builder"]
