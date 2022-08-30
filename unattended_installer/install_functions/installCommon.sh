@@ -266,7 +266,11 @@ function installCommon_installPrerequisites() {
         dependencies=( curl libcap tar gnupg openssl )
         not_installed=()
         for dep in "${dependencies[@]}"; do
-            if ! yum list installed 2>/dev/null | grep -q "${dep}" ;then
+            if [ "${dep}" == "openssl" ]; then
+                if ! yum list installed 2>/dev/null | grep -q "${dep}\.";then
+                    not_installed+=("${dep}")
+                fi
+            elif ! yum list installed 2>/dev/null | grep -q "${dep}";then
                 not_installed+=("${dep}")
             fi
         done
