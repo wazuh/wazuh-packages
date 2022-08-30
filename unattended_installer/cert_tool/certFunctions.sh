@@ -335,7 +335,7 @@ function cert_readConfig() {
 
         for i in $(seq 1 "${number_server_ips}"); do
             nodes_server=nodes__server__"${i}"__ip
-            eval "server_node_ip_$i=( $( cert_parseYaml config.yml | grep "${nodes_server}" | sed '/\./!d' | cut -d = -f 2 | sed -r 's/\s+//g') )"
+            eval "server_node_ip_$i=( $( cert_parseYaml "${config_file}" | grep "${nodes_server}" | sed '/\./!d' | cut -d = -f 2 | sed -r 's/\s+//g') )"
         done
 
         unique_names=($(echo "${indexer_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
