@@ -64,15 +64,22 @@ getNetworkHost() {
     HOST="${HOST//$NH}"
     HOST=$(echo "${HOST}" | tr -d "[\"\']")
 
+    isIP=$(echo "${HOST}" | grep -P "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")
+    isDNS=$(echo "${HOST}" | grep -P "^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$")
+
     # Allow to find ip with an interface
-    PATTERN="^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$"
-    if [[ ! "${HOST}" =~ ${PATTERN} ]]; then
+    if [ -z "${isIP}" ] && [ -z "${isDNS}" ]; then
         interface="${HOST//_}"
-        HOST=$(ip -o -4 addr list "${interface}" | awk '{print $4}' | cut -d/ -f1)
+        HOST=$(ip -o -4 addr list "${interface}" 2>/dev/null | awk '{print $4}' | cut -d/ -f1) 
     fi
 
     if [ "${HOST}" = "0.0.0.0" ]; then
         HOST="127.0.0.1"
+    fi
+
+    if [ -z "${HOST}" ]; then
+        echo "ERROR: network host not valid, check ${CONFIG_FILE}"
+        exit 1
     fi
 
 }
