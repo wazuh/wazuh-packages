@@ -70,7 +70,7 @@ getNetworkHost() {
     # Allow to find ip with an interface
     if [ -z "${isIP}" ] && [ -z "${isDNS}" ]; then
         interface="${HOST//_}"
-        HOST=$(ip -o -4 addr list "${interface}" 2>/dev/null | awk '{print $4}' | cut -d/ -f1) 
+        HOST=$(ip -o -4 addr list "${interface}" | awk '{print $4}' | cut -d/ -f1) 
     fi
 
     if [ "${HOST}" = "0.0.0.0" ]; then
