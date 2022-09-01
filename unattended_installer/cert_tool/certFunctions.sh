@@ -92,13 +92,10 @@ function cert_generateCertificateconfiguration() {
 	EOF
 
 
-    isIP=$(echo "${2}" | grep -P "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")
-    isDNS=$(echo "${2}" | grep -P "^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z-]{2,})+$" )
-
     conf="$(awk '{sub("CN = cname", "CN = '"${1}"'")}1' "${cert_tmp_path}/${1}.conf")"
     echo "${conf}" > "${cert_tmp_path}/${1}.conf"
 
-    if [ "${#@}" -gt 2 ]; then
+    if [ "${#@}" -gt 1 ]; then
         sed -i '/IP.1/d' "${cert_tmp_path}/${1}.conf"
         for (( i=2; i<=${#@}; i++ )); do
             isIP=$(echo "${!i}" | grep -P "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")
@@ -110,21 +107,12 @@ function cert_generateCertificateconfiguration() {
                 printf '%s\n' "        DNS.${j} = ${!i}" >> "${cert_tmp_path}/${1}.conf"
             else
                 common_logger -e "Invalid IP or DNS ${!i}"
-                cert_cleanFiles
                 exit 1
             fi
         done
     else
-        if [[ -n "${isIP}" ]]; then
-            conf="$(awk '{sub("IP.1 = cip", "IP.1 = '"${2}"'")}1' "${cert_tmp_path}/${1}.conf")"
-            echo "${conf}" > "${cert_tmp_path}/${1}.conf"
-        elif [[ -n "${isDNS}" ]]; then
-            conf="$(awk '{sub("IP.1 = cip", "DNS.1 = '"${2}"'")}1' "${cert_tmp_path}/${1}.conf")"
-            echo "${conf}" > "${cert_tmp_path}/${1}.conf"
-        else
-            common_logger -e "The given information does not match with an IP address or a DNS."
-            exit 1
-        fi
+        common_logger -e "No IP or DNS specified"
+        exit 1
     fi
 
 }
@@ -135,9 +123,10 @@ function cert_generateIndexercertificates() {
         common_logger -d "Creating the Wazuh indexer certificates."
 
         for i in "${!indexer_node_names[@]}"; do
-            cert_generateCertificateconfiguration "${indexer_node_names[i]}" "${indexer_node_ips[i]}"
-            eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${cert_tmp_path}/${indexer_node_names[i]}-key.pem -out ${cert_tmp_path}/${indexer_node_names[i]}.csr -config ${cert_tmp_path}/${indexer_node_names[i]}.conf -days 3650 ${debug}"
-            eval "openssl x509 -req -in ${cert_tmp_path}/${indexer_node_names[i]}.csr -CA ${cert_tmp_path}/root-ca.pem -CAkey ${cert_tmp_path}/root-ca.key -CAcreateserial -out ${cert_tmp_path}/${indexer_node_names[i]}.pem -extfile ${cert_tmp_path}/${indexer_node_names[i]}.conf -extensions v3_req -days 3650 ${debug}"
+            indexer_node_name=${indexer_node_names[$i]}
+            cert_generateCertificateconfiguration "${indexer_node_name}" "${indexer_node_ips[i]}"
+            eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${cert_tmp_path}/${indexer_node_name}-key.pem -out ${cert_tmp_path}/${indexer_node_name}.csr -config ${cert_tmp_path}/${indexer_node_name}.conf -days 3650 ${debug}"
+            eval "openssl x509 -req -in ${cert_tmp_path}/${indexer_node_name}.csr -CA ${cert_tmp_path}/root-ca.pem -CAkey ${cert_tmp_path}/root-ca.key -CAcreateserial -out ${cert_tmp_path}/${indexer_node_name}.pem -extfile ${cert_tmp_path}/${indexer_node_name}.conf -extensions v3_req -days 3650 ${debug}"
         done
     else
         return 1
@@ -170,9 +159,10 @@ function cert_generateDashboardcertificates() {
         common_logger -d "Creating the Wazuh dashboard certificates."
 
         for i in "${!dashboard_node_names[@]}"; do
-            cert_generateCertificateconfiguration "${dashboard_node_names[i]}" "${dashboard_node_ips[i]}"
-            eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${cert_tmp_path}/${dashboard_node_names[i]}-key.pem -out ${cert_tmp_path}/${dashboard_node_names[i]}.csr -config ${cert_tmp_path}/${dashboard_node_names[i]}.conf -days 3650 ${debug}"
-            eval "openssl x509 -req -in ${cert_tmp_path}/${dashboard_node_names[i]}.csr -CA ${cert_tmp_path}/root-ca.pem -CAkey ${cert_tmp_path}/root-ca.key -CAcreateserial -out ${cert_tmp_path}/${dashboard_node_names[i]}.pem -extfile ${cert_tmp_path}/${dashboard_node_names[i]}.conf -extensions v3_req -days 3650 ${debug}"
+            dashboard_node_name="${dashboard_node_names[i]}"
+            cert_generateCertificateconfiguration "${dashboard_node_name}" "${dashboard_node_ips[i]}"
+            eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${cert_tmp_path}/${dashboard_node_name}-key.pem -out ${cert_tmp_path}/${dashboard_node_name}.csr -config ${cert_tmp_path}/${dashboard_node_name}.conf -days 3650 ${debug}"
+            eval "openssl x509 -req -in ${cert_tmp_path}/${dashboard_node_name}.csr -CA ${cert_tmp_path}/root-ca.pem -CAkey ${cert_tmp_path}/root-ca.key -CAcreateserial -out ${cert_tmp_path}/${dashboard_node_name}.pem -extfile ${cert_tmp_path}/${dashboard_node_name}.conf -extensions v3_req -days 3650 ${debug}"
         done
     else
         return 1
@@ -188,7 +178,7 @@ function cert_generateRootCAcertificate() {
 
 }
 
-function cert_parseYaml {
+function cert_parseYaml() {
 
     local prefix=$2
     local separator=${3:-_}
