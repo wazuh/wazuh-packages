@@ -211,30 +211,45 @@ function main() {
         fi
 
         if [[ -n "${cindexer}" ]]; then
-            cert_checkRootCA
-            cert_generateIndexercertificates
-            common_logger "Wazuh indexer certificates created."
-            cert_cleanFiles
-            cert_setpermisions
-            eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
+            if [ ${#indexer_node_names[@]} -gt 0 ]; then
+                cert_checkRootCA
+                cert_generateIndexercertificates
+                common_logger "Wazuh indexer certificates created."
+                cert_cleanFiles
+                cert_setpermisions
+                eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
+            else
+                common_logger -e "Indexer node not present in config.yml."
+                exit 1
+            fi
         fi
 
         if [[ -n "${cserver}" ]]; then
-            cert_checkRootCA
-            cert_generateFilebeatcertificates
-            common_logger "Wazuh server certificates created."
-            cert_cleanFiles
-            cert_setpermisions
-            eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
+            if [ ${#server_node_names[@]} -gt 0 ]; then
+                cert_checkRootCA
+                cert_generateFilebeatcertificates
+                common_logger "Wazuh server certificates created."
+                cert_cleanFiles
+                cert_setpermisions
+                eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
+            else
+                common_logger -e "Server node not present in config.yml."
+                exit 1
+            fi
         fi
 
         if [[ -n "${cdashboard}" ]]; then
-            cert_checkRootCA
-            cert_generateDashboardcertificates
-            common_logger "Wazuh dashboard certificates created."
-            cert_cleanFiles
-            cert_setpermisions
-            eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
+            if [ ${#dashboard_node_names[@]} -gt 0 ]; then
+                cert_checkRootCA
+                cert_generateDashboardcertificates
+                common_logger "Wazuh dashboard certificates created."
+                cert_cleanFiles
+                cert_setpermisions
+                eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
+            else
+                common_logger -e "Dashboard node not present in config.yml."
+                exit 1
+            fi
         fi
 
     else
