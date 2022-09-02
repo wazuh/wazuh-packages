@@ -16,6 +16,11 @@ function cert_cleanFiles() {
 
 }
 
+function cert_cleanRootCA(){
+    eval "rm -f ${cert_tmp_path}/root-ca.pem ${debug}"
+    eval "rm -f ${cert_tmp_path}/root-ca.key ${debug}"
+}
+
 function cert_checkOpenSSL() {
 
     if [ -z "$(command -v openssl)" ]; then
