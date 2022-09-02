@@ -48,7 +48,7 @@ build_deb() {
     if [ "${reference}" ];then
         base_cmd+="--reference ${reference}"
     fi
-    ../base/generate_base.sh -s /tmp -r ${revision} ${base_cmd}
+    ../base/generate_base.sh -s ${base_path} -r ${revision} ${base_cmd}
 
     # Build the Docker image
     if [[ ${build_docker} == "yes" ]]; then
