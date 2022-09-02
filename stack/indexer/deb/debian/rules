@@ -61,11 +61,8 @@ override_dh_auto_install:
 override_dh_install:
 	rm -rf $(INSTALLATION_DIR)/
 
-	if [ "$(BASE)" = "s3" ]; then \
-		curl -kOL https://packages-dev.wazuh.com/stack/indexer/base/$(INDEXER_FILE) ;\
-	else \
-		cp /root/output/$(INDEXER_FILE) ./ ;\
-	fi
+	cp /opt/$(INDEXER_FILE) ./ ;\
+	
 	tar -xf $(INDEXER_FILE)
 
 	# Copy to the target

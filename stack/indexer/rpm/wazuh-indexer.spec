@@ -68,12 +68,8 @@ mkdir -p ${RPM_BUILD_ROOT}%{LOG_DIR}
 mkdir -p ${RPM_BUILD_ROOT}%{LIB_DIR}
 mkdir -p ${RPM_BUILD_ROOT}%{SYS_DIR}
 
-# Set up required files
-if [ "%{_base}" = "s3" ];then
-    curl -kOL https://packages-dev.wazuh.com/stack/indexer/base/%{INDEXER_FILE}
-else
-    cp /root/output/%{INDEXER_FILE} ./
-fi
+cp /opt/%{INDEXER_FILE} ./ ;\
+
 tar -xf %{INDEXER_FILE} && rm -f %{INDEXER_FILE}
 chown -R %{USER}:%{GROUP} wazuh-indexer-*/*
 
