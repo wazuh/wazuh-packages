@@ -186,21 +186,26 @@ function main() {
         fi
 
         if [[ -n "${all}" ]]; then
-            cert_checkRootCA
-            cert_generateAdmincertificate
-            common_logger "Admin certificates created."
-            if cert_generateIndexercertificates; then
-                common_logger "Wazuh indexer certificates created."
+            if [[ ${#indexer_node_names[@]} -gt 0 ]] && [[ ${#server_node_names[@]} -gt 0 ]] && [[ ${#dashboard_node_names[@]} -gt 0 ]]; then
+                cert_checkRootCA
+                cert_generateAdmincertificate
+                common_logger "Admin certificates created."
+                if cert_generateIndexercertificates; then
+                    common_logger "Wazuh indexer certificates created."
+                fi
+                if cert_generateFilebeatcertificates; then
+                    common_logger "Wazuh server certificates created."
+                fi
+                if cert_generateDashboardcertificates; then
+                    common_logger "Wazuh dashboard certificates created."
+                fi
+                cert_cleanFiles
+                cert_setpermisions
+                eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
+            else
+                common_logger -e "You must specify at least one indexer, one server and one dashboard node."
+                exit 1
             fi
-            if cert_generateFilebeatcertificates; then
-                common_logger "Wazuh server certificates created."
-            fi
-            if cert_generateDashboardcertificates; then
-                common_logger "Wazuh dashboard certificates created."
-            fi
-            cert_cleanFiles
-            cert_setpermisions
-            eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
         fi
 
         if [[ -n "${ca}" ]]; then
