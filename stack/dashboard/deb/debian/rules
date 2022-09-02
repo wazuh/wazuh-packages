@@ -52,12 +52,7 @@ override_dh_auto_install:
 # -----------------------------------------------------------------------------
 
 override_dh_install:
-	if [ "$(BASE)" = "s3" ]; then \
-		curl -kOL https://packages-dev.wazuh.com/stack/dashboard/base/$(DASHBOARD_FILE) ;\
-	else \
-		cp /root/output/$(DASHBOARD_FILE) ./ ;\
-	fi
-
+	cp /root/output/$(DASHBOARD_FILE) ./ ;\
 
 	groupadd $(GROUP)
 	useradd -g $(GROUP) $(USER)
@@ -92,7 +87,7 @@ override_dh_install:
 	chown $(USER):$(GROUP) $(TARGET_DIR)/etc/default/$(NAME)
 
 	if [ "$(BASE_VERSION)" = "99.99.0" ]; then \
-		runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/futures/ui/dashboard/wazuh-99.99.0-1.zip" ;\
+		runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/futures/ui/dashboard/wazuh-99.99.0-$(BASE_REVISION).zip" ;\
 	else \
 		runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-$(BASE_VERSION)-${BASE_REVISION}.zip" ;\
 	fi

@@ -42,12 +42,8 @@ Wazuh dashboard is a user interface and visualization tool for security-related 
 
 %prep
 
-# Set up required files
-if [ "%{_base}" = "s3" ];then
-    curl -kOL https://packages-dev.wazuh.com/stack/dashboard/base/%{DASHBOARD_FILE}
-else
-    cp /root/output/%{DASHBOARD_FILE} ./
-fi
+cp /root/output/%{DASHBOARD_FILE} ./
+
 groupadd %{GROUP}
 useradd -g %{GROUP} %{USER}
 
