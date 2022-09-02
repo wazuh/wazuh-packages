@@ -178,13 +178,8 @@ function main() {
 
         if [[ -n "${cadmin}" ]]; then
             cert_checkRootCA
-            if cert_generateAdmincertificate; then
-                cert_cleanRootCA
-                common_logger "Admin certificates created."
-            else
-                common_logger -e "Error creating admin certificates."
-                exit 1
-            fi
+            cert_generateAdmincertificate
+            common_logger "Admin certificates created."
             cert_cleanFiles
             cert_setpermisions
             eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
@@ -216,45 +211,45 @@ function main() {
         fi
 
         if [[ -n "${cindexer}" ]]; then
-            cert_checkRootCA
-            if cert_generateIndexercertificates; then
-                cert_cleanRootCA
+            if [ ${#indexer_node_names[@]} -gt 0 ]; then
+                cert_checkRootCA
+                cert_generateIndexercertificates
                 common_logger "Wazuh indexer certificates created."
+                cert_cleanFiles
+                cert_setpermisions
+                eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
             else
-                common_logger -e "Error creating Wazuh indexer certificates."
+                common_logger -e "Indexer node not present in config.yml."
                 exit 1
             fi
-            cert_cleanFiles
-            cert_setpermisions
-            eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
         fi
 
         if [[ -n "${cserver}" ]]; then
-            cert_checkRootCA
-            if cert_generateFilebeatcertificates; then
-                cert_cleanRootCA
+            if [ ${#server_node_names[@]} -gt 0 ]; then
+                cert_checkRootCA
+                cert_generateFilebeatcertificates
                 common_logger "Wazuh server certificates created."
+                cert_cleanFiles
+                cert_setpermisions
+                eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
             else
-                common_logger -e "Error creating Wazuh server certificates."
+                common_logger -e "Server node not present in config.yml."
                 exit 1
             fi
-            cert_cleanFiles
-            cert_setpermisions
-            eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
         fi
 
         if [[ -n "${cdashboard}" ]]; then
-            cert_checkRootCA
-            if cert_generateDashboardcertificates; then
-                cert_cleanRootCA
+            if [ ${#dashboard_node_names[@]} -gt 0 ]; then
+                cert_checkRootCA
+                cert_generateDashboardcertificates
                 common_logger "Wazuh dashboard certificates created."
+                cert_cleanFiles
+                cert_setpermisions
+                eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
             else
-                common_logger -e "Error creating Wazuh dashboard certificates."
+                common_logger -e "Dashboard node not present in config.yml."
                 exit 1
             fi
-            cert_cleanFiles
-            cert_setpermisions
-            eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
         fi
 
     else
