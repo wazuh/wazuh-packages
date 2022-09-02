@@ -63,12 +63,12 @@ build_deb() {
     if [ "${reference}" ];then
         docker run -t --rm ${volumes} \
             ${container_name} ${architecture} ${revision} \
-            ${future} ${base} ${reference} || return 1
+            ${future} ${reference} || return 1
     else
         docker run -t --rm ${volumes} \
             -v ${current_path}/../../..:/root:Z \
             ${container_name} ${architecture} ${revision} \
-            ${future} ${base} || return 1
+            ${future} || return 1
     fi
 
     echo "Package $(ls -Art ${outdir} | tail -n 1) added to ${outdir}."

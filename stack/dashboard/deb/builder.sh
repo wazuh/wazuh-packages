@@ -8,14 +8,13 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-set -ex
+set -e
 # Script parameters to build the package
 target="wazuh-dashboard"
 architecture=$1
 revision=$2
 future=$3
-base_location=$4
-reference=$5
+reference=$4
 directory_base="/usr/share/wazuh-dashboard"
 
 if [ -z "${revision}" ]; then
@@ -63,7 +62,7 @@ cd ${source_dir}
 mk-build-deps -ir -t "apt-get -o Debug::pkgProblemResolver=yes -y"
 
 # Build package
-debuild --no-lintian -eINSTALLATION_DIR="${directory_base}" -eBASE="${base_location}" -eBASE_VERSION="${version}" -eBASE_REVISION="${revision}" -b -uc -us
+debuild --no-lintian -eINSTALLATION_DIR="${directory_base}" -eBASE_VERSION="${version}" -eBASE_REVISION="${revision}" -b -uc -us
 
 deb_file="${target}_${version}-${revision}_${architecture}.deb"
 
