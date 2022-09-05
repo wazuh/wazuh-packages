@@ -541,6 +541,8 @@ function installCommon_rollBack() {
 
     common_remove_gpg_key
 
+    eval "systemctl daemon-reload ${debug}"
+
     if [ -z "${uninstall}" ]; then
         if [ -n "${rollback_conf}" ] || [ -n "${overwrite}" ]; then
             common_logger "Installation cleaned."
