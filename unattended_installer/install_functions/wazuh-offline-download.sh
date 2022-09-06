@@ -158,11 +158,11 @@ function offline_download() {
 
   eval "chmod 500 ${base_dest_folder}"
 
-  common_logger "The configuration files and assets are in ${dest_path}"
+  common_logger "The configuration files and assets are in wazuh-offline.tar.gz"
 
   eval "tar -czf ${base_dest_folder}.tar.gz ${base_dest_folder}"
   eval "chmod -R 700 ${base_dest_folder} && rm -rf ${base_dest_folder}"
 
-  common_logger "You can follow the installation guide here https://documentation.wazuh.com/current/installation-guide/more-installation-alternatives/offline-installation.html"
+  common_logger "You can follow the installation guide here https://documentation.wazuh.com/current/deployment-options/offline-installation.html"
 
 }
