@@ -30,7 +30,7 @@ export CONFIG_DIR=/etc/${NAME}
 export INSTALLATION_DIR=$(INSTALLATION_DIR)
 export USER=${NAME}
 export GROUP=${NAME}
-export DASHBOARD_FILE=wazuh-dashboard-base-$(BASE_VERSION)-$(BASE_REVISION)-linux-x64.tar.xz
+export DASHBOARD_FILE=wazuh-dashboard-base-$(VERSION)-$(REVISION)-linux-x64.tar.xz
 
 # -----------------------------------------------------------------------------
 
@@ -86,10 +86,10 @@ override_dh_install:
 	chown $(USER):$(GROUP) $(TARGET_DIR)/etc/systemd/system/$(NAME)
 	chown $(USER):$(GROUP) $(TARGET_DIR)/etc/default/$(NAME)
 
-	if [ "$(BASE_VERSION)" = "99.99.0" ]; then \
-		runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/futures/ui/dashboard/wazuh-99.99.0-$(BASE_REVISION).zip" ;\
+	if [ "$(VERSION)" = "99.99.0" ]; then \
+		runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/futures/ui/dashboard/wazuh-99.99.0-$(REVISION).zip" ;\
 	else \
-		runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-$(BASE_VERSION)-${BASE_REVISION}.zip" ;\
+		runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-$(VERSION)-${REVISION}.zip" ;\
 	fi
 
 	find $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/wazuh/ -exec chown $(USER):$(GROUP) {} \;

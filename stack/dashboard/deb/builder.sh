@@ -62,7 +62,7 @@ cd ${source_dir}
 mk-build-deps -ir -t "apt-get -o Debug::pkgProblemResolver=yes -y"
 
 # Build package
-debuild --no-lintian -eINSTALLATION_DIR="${directory_base}" -eBASE_VERSION="${version}" -eBASE_REVISION="${revision}" -b -uc -us
+debuild --no-lintian -eINSTALLATION_DIR="${directory_base}" -eVERSION="${version}" -eREVISION="${revision}" -b -uc -us
 
 deb_file="${target}_${version}-${revision}_${architecture}.deb"
 
