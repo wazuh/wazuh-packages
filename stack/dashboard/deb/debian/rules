@@ -52,7 +52,7 @@ override_dh_auto_install:
 # -----------------------------------------------------------------------------
 
 override_dh_install:
-	cp /root/output/$(DASHBOARD_FILE) ./ ;\
+	cp /root/output/$(DASHBOARD_FILE) ./
 
 	groupadd $(GROUP)
 	useradd -g $(GROUP) $(USER)
