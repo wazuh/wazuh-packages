@@ -18,7 +18,6 @@ build_docker="yes"
 rpm_x86_builder="rpm_indexer_builder_x86"
 rpm_builder_dockerfile="${current_path}/docker"
 future="no"
-base_path="/tmp"
 base_cmd=""
 
 trap ctrl_c INT
@@ -50,7 +49,7 @@ build_rpm() {
     if [ "${reference}" ];then
         base_cmd+="--reference ${reference}"
     fi
-    ../base/generate_base.sh -s ${base_path} -r ${revision} ${base_cmd}
+    ../base/generate_base.sh -s ${outdir} -r ${revision} ${base_cmd}
 
     # Build the Docker image
     if [[ ${build_docker} == "yes" ]]; then
@@ -61,12 +60,10 @@ build_rpm() {
     volumes="-v ${outdir}/:/tmp:Z"
     if [ "${reference}" ];then
         docker run -t --rm ${volumes} \
-            -v ${base_path}:/root/output:Z \
             ${container_name} ${architecture} ${revision} \
             ${future} ${reference} || return 1
     else
         docker run -t --rm ${volumes} \
-            -v ${base_path}:/root/output:Z \
             -v ${current_path}/../../..:/root:Z \
             ${container_name} ${architecture} \
             ${revision} ${future} || return 1

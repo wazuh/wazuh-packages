@@ -60,7 +60,7 @@ override_dh_auto_install:
 
 override_dh_install:
 	rm -rf $(INSTALLATION_DIR)/
-	cp /root/output/$(INDEXER_FILE) ./
+	cp /tmp/$(INDEXER_FILE) ./
 
 	tar -xf $(INDEXER_FILE)
 

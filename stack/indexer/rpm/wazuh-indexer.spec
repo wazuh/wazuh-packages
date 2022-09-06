@@ -69,7 +69,7 @@ mkdir -p ${RPM_BUILD_ROOT}%{LIB_DIR}
 mkdir -p ${RPM_BUILD_ROOT}%{SYS_DIR}
 
 # Set up required files
-cp /root/output/%{INDEXER_FILE} ./
+cp /tmp/%{INDEXER_FILE} ./
 
 tar -xf %{INDEXER_FILE} && rm -f %{INDEXER_FILE}
 chown -R %{USER}:%{GROUP} wazuh-indexer-*/*
