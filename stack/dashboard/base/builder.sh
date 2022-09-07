@@ -11,9 +11,10 @@
 set -e
 
 # Script parameters to build the package
-future="${1}"
-revision="${2}"
-reference="${3}"
+architecture="$1"
+revision="$2"
+future="$3"
+reference="$4"
 opensearch_version="2.1.0"
 base_dir=/opt/wazuh-dashboard-base
 
@@ -21,6 +22,10 @@ base_dir=/opt/wazuh-dashboard-base
 
 if [ -z "${revision}" ]; then
     revision="1"
+fi
+
+if [ "${architecture}" = "x86_64" ] || [ "${architecture}" = "amd64" ]; then
+    architecture="x64"
 fi
 
 # Including files
@@ -41,7 +46,7 @@ wazuh_minor=$(echo ${version} | cut -c1-3)
 mkdir -p /tmp/output
 cd /opt
 
-curl -sL https://artifacts.opensearch.org/releases/bundle/opensearch-dashboards/"${opensearch_version}"/opensearch-dashboards-"${opensearch_version}"-linux-x64.tar.gz | tar xz
+curl -sL https://artifacts.opensearch.org/releases/bundle/opensearch-dashboards/"${opensearch_version}"/opensearch-dashboards-"${opensearch_version}"-linux-${architecture}.tar.gz | tar xz
 
 # Remove unnecessary files and set up configuration
 mv opensearch-dashboards-* "${base_dir}"
@@ -137,6 +142,6 @@ find -type f -perm 755 -exec chmod 750 {} \;
 
 # Base output
 cd /opt
-tar -cJf wazuh-dashboard-base-"${version}"-"${revision}"-linux-x64.tar.xz wazuh-dashboard-base
+tar -cJf wazuh-dashboard-base-"${version}"-"${revision}"-linux-${architecture}.tar.xz wazuh-dashboard-base
 rm -rf "${base_dir}"
-cp wazuh-dashboard-base-"${version}"-"${revision}"-linux-x64.tar.xz /tmp/output/
+cp wazuh-dashboard-base-"${version}"-"${revision}"-linux-${architecture}.tar.xz /tmp/output/
