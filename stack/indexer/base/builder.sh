@@ -14,7 +14,7 @@ future="${1}"
 revision="${2}"
 reference="${3}"
 opensearch_version="2.1.0"
-base_dir=/tmp/output/wazuh-indexer-base
+base_dir=/opt/wazuh-indexer-base
 
 # -----------------------------------------------------------------------------
 
@@ -40,7 +40,7 @@ fi
 # -----------------------------------------------------------------------------
 
 mkdir -p /tmp/output
-cd /tmp/output
+cd /opt
 
 curl -sL https://artifacts.opensearch.org/releases/bundle/opensearch/"${opensearch_version}"/opensearch-"${opensearch_version}"-linux-x64.tar.gz | tar xz
 
@@ -80,6 +80,7 @@ rm -rf OpenSearch
 # -----------------------------------------------------------------------------
 
 # Base output
-cd /tmp/output
+cd /opt
 tar -Jcvf wazuh-indexer-base-"${version}"-"${revision}"-linux-x64.tar.xz wazuh-indexer-base
 rm -rf "${base_dir}"
+cp wazuh-indexer-base-"${version}"-"${revision}"-linux-x64.tar.xz /tmp/output

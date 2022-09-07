@@ -15,7 +15,7 @@ future="${1}"
 revision="${2}"
 reference="${3}"
 opensearch_version="2.1.0"
-base_dir=/tmp/output/wazuh-dashboard-base
+base_dir=/opt/wazuh-dashboard-base
 
 # -----------------------------------------------------------------------------
 
@@ -39,7 +39,7 @@ wazuh_minor=$(echo ${version} | cut -c1-3)
 # -----------------------------------------------------------------------------
 
 mkdir -p /tmp/output
-cd /tmp/output
+cd /opt
 
 curl -sL https://artifacts.opensearch.org/releases/bundle/opensearch-dashboards/"${opensearch_version}"/opensearch-dashboards-"${opensearch_version}"-linux-x64.tar.gz | tar xz
 
@@ -136,6 +136,7 @@ find -type f -perm 755 -exec chmod 750 {} \;
 # -----------------------------------------------------------------------------
 
 # Base output
-cd /tmp/output
+cd /opt
 tar -cJf wazuh-dashboard-base-"${version}"-"${revision}"-linux-x64.tar.xz wazuh-dashboard-base
 rm -rf "${base_dir}"
+cp wazuh-dashboard-base-"${version}"-"${revision}"-linux-x64.tar.xz /tmp/output/
