@@ -87,5 +87,4 @@ rm -rf OpenSearch
 # Base output
 cd /opt
 tar -Jcvf wazuh-indexer-base-"${version}"-"${revision}"-linux-${architecture}.tar.xz wazuh-indexer-base
-rm -rf "${base_dir}"
 cp wazuh-indexer-base-"${version}"-"${revision}"-linux-${architecture}.tar.xz /tmp/output

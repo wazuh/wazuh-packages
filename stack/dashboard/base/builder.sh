@@ -143,5 +143,4 @@ find -type f -perm 755 -exec chmod 750 {} \;
 # Base output
 cd /opt
 tar -cJf wazuh-dashboard-base-"${version}"-"${revision}"-linux-${architecture}.tar.xz wazuh-dashboard-base
-rm -rf "${base_dir}"
 cp wazuh-dashboard-base-"${version}"-"${revision}"-linux-${architecture}.tar.xz /tmp/output/
