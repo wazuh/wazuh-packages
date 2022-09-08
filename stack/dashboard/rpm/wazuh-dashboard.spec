@@ -30,7 +30,7 @@ ExclusiveOS: linux
 %global CONFIG_DIR /etc/%{name}
 %global PID_DIR /run/%{name}
 %global INSTALL_DIR /usr/share/%{name}
-%global DASHBOARD_FILE wazuh-dashboard-base-%{version}-linux-x64.tar.xz
+%global DASHBOARD_FILE wazuh-dashboard-base-%{version}-%{release}-linux-x64.tar.xz
 
 # -----------------------------------------------------------------------------
 
@@ -46,7 +46,7 @@ Wazuh dashboard is a user interface and visualization tool for security-related 
 if [ "%{_base}" = "s3" ];then
     curl -kOL https://packages-dev.wazuh.com/stack/dashboard/base/%{DASHBOARD_FILE}
 else
-    cp /root/output/wazuh-dashboard-base-%{version}-linux-x64.tar.xz ./
+    cp /root/output/%{DASHBOARD_FILE} ./
 fi
 groupadd %{GROUP}
 useradd -g %{GROUP} %{USER}
@@ -68,6 +68,7 @@ mkdir -p %{buildroot}/etc/default
 
 cp wazuh-dashboard-base/etc/node.options %{buildroot}%{CONFIG_DIR}
 cp wazuh-dashboard-base/etc/opensearch_dashboards.yml %{buildroot}%{CONFIG_DIR}
+cp wazuh-dashboard-base/VERSION %{buildroot}%{INSTALL_DIR}
 
 mv wazuh-dashboard-base/* %{buildroot}%{INSTALL_DIR}
 
@@ -92,14 +93,16 @@ find %{buildroot}%{CONFIG_DIR} -exec chown %{USER}:%{GROUP} {} \;
 chown %{USER}:%{GROUP} %{buildroot}/etc/systemd/system/wazuh-dashboard.service
 chown %{USER}:%{GROUP} %{buildroot}/etc/init.d/wazuh-dashboard
 
+if [ "%{version}" = "99.99.0" ];then
+    runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/futures/ui/dashboard/wazuh-99.99.0-1.zip"
+else
+    runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-%{version}-%{release}.zip"
+fi
 
-
-runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-%{version}.zip"
 find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -exec chown %{USER}:%{GROUP} {} \;
 find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -type f -perm 644 -exec chmod 640 {} \;
 find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -type f -perm 755 -exec chmod 750 {} \;
 find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -type d -exec chmod 750 {} \;
-
 
 # -----------------------------------------------------------------------------
 
@@ -108,11 +111,11 @@ find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -type d -exec chmod 750 {} \;
 if [ $1 = 1 ]; then
   if command -v getent > /dev/null 2>&1 && ! getent group %{GROUP} > /dev/null 2>&1; then
     groupadd -r %{GROUP}
-  elif ! id -g %{GROUP} > /dev/null 2>&1; then
+  elif ! getent group %{GROUP} > /dev/null 2>&1; then
     groupadd -r %{GROUP}
   fi
   # Create the wazuh-dashboard user if it doesn't exists
-  if ! id -u %{USER} > /dev/null 2>&1; then
+  if ! getent passwd %{USER} > /dev/null 2>&1; then
     useradd -g %{GROUP} -G %{USER} -d %{INSTALL_DIR}/ -r -s /sbin/nologin wazuh-dashboard
   fi
 fi
@@ -157,13 +160,13 @@ fi
 if [ $1 = 0 ];then
   # If the package is been uninstalled
   # Remove the wazuh-dashboard user if it exists
-  if id -u %{USER} > /dev/null 2>&1; then
+  if getent passwd %{USER} > /dev/null 2>&1; then
     userdel %{USER} >/dev/null 2>&1
   fi
   # Remove the wazuh-dashboard group if it exists
   if command -v getent > /dev/null 2>&1 && getent group %{GROUP} > /dev/null 2>&1; then
     groupdel %{GROUP} >/dev/null 2>&1
-  elif id -g %{GROUP} > /dev/null 2>&1; then
+  elif getent group %{GROUP} > /dev/null 2>&1; then
     groupdel %{GROUP} >/dev/null 2>&1
   fi
 
@@ -214,6 +217,7 @@ rm -fr %{buildroot}
 %attr(0750, %{USER}, %{GROUP}) "/etc/init.d/wazuh-dashboard"
 %attr(0750, %{USER}, %{GROUP}) "/etc/default/wazuh-dashboard"
 %config(noreplace) %attr(0640, %{USER}, %{GROUP}) "%{CONFIG_DIR}/opensearch_dashboards.yml"
+%attr(440, %{USER}, %{GROUP}) %{INSTALL_DIR}/VERSION
 %dir %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/src"
 %dir %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/src/core"
 %attr(-, %{USER}, %{GROUP}) "%{INSTALL_DIR}/src/core/*"

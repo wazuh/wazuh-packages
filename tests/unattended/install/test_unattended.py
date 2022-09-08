@@ -16,7 +16,6 @@ warnings.filterwarnings('ignore', message='Unverified HTTPS request')
 
 # ----------------------------- Aux functions -----------------------------
 
-
 def read_services():
     services = None
     p = Popen(['/var/ossec/bin/wazuh-control', 'status'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
@@ -31,13 +30,19 @@ def get_password(username):
     tmp_yaml=""
 
     with tarfile.open("../../../unattended_installer/wazuh-install-files.tar") as configurations:
-        configurations.extract("wazuh-install-files/passwords.wazuh")
+        configurations.extract("wazuh-install-files/wazuh-passwords.txt")
 
-    with open("wazuh-install-files/passwords.wazuh", 'r') as pass_file:
+    with open("wazuh-install-files/wazuh-passwords.txt", 'r') as pass_file:
         while pass_dict["username"] != username:
             for i in range(4):
                 tmp_yaml+=pass_file.readline()
-            pass_dict=yaml.safe_load(tmp_yaml)
+            tmp_dict=yaml.safe_load(tmp_yaml)
+            if 'indexer_username' in tmp_dict:
+                pass_dict["username"]=tmp_dict["indexer_username"]
+                pass_dict["password"]=tmp_dict["indexer_password"]
+            if 'api_username' in tmp_dict:
+                pass_dict["username"]=tmp_dict["api_username"]
+                pass_dict["password"]=tmp_dict["api_password"]
     return pass_dict["password"]
 
 def get_wazuh_version():
@@ -50,6 +55,22 @@ def get_indexer_ip():
     with open("/etc/wazuh-indexer/opensearch.yml", 'r') as stream:
         dictionary = yaml.safe_load(stream)
     return (dictionary.get('network.host'))
+
+def get_dashboard_ip():
+
+    with open("/etc/wazuh-dashboard/opensearch_dashboards.yml", 'r') as stream:
+        dictionary = yaml.safe_load(stream)
+    return (dictionary.get('server.host'))
+
+def get_api_ip():
+
+    with open("/var/ossec/api/configuration/api.yaml", 'r') as stream:
+        dictionary = yaml.safe_load(stream)
+    try:
+      ip = dictionary.get('host')
+    except:
+      ip = '127.0.0.1'
+    return ip
 
 def api_call_indexer(host,query,address,api_protocol,api_user,api_pass,api_port):
 
@@ -83,7 +104,7 @@ def get_indexer_cluster_status():
     return (resp.json()['status'])
 
 def get_dashboard_status():
-    ip = get_indexer_ip()
+    ip = get_dashboard_ip()
     resp = requests.get('https://'+ip,
                         auth=("kibanaserver",
                         get_password("kibanaserver")),
@@ -93,10 +114,10 @@ def get_dashboard_status():
 def get_wazuh_api_status():
 
     protocol = 'https'
-    host = get_indexer_ip()
+    host = get_api_ip()
     port = 55000
     user = 'wazuh'
-    password = 'wazuh'
+    password = get_password('wazuh')
     login_endpoint = 'security/user/authenticate'
 
     login_url = f"{protocol}://{host}:{port}/{login_endpoint}"
@@ -108,7 +129,6 @@ def get_wazuh_api_status():
     requests_headers = {'Content-Type': 'application/json',
                         'Authorization': f'Bearer {token}'}
     response = requests.get(f"{protocol}://{host}:{port}/?pretty=true", headers=requests_headers, verify=False)
-
     return response.json()['data']['title']
 
 # ----------------------------- Tests -----------------------------
@@ -192,7 +212,7 @@ def test_check_log_errors():
         for line in f.readlines():
             if 'ERROR' in line:
                 found_error = True
-                if get_wazuh_version() == 'v4.3.0':
+                if get_wazuh_version() == 'v4.5.0':
                     if 'ERROR: Cluster error detected' in line or 'agent-upgrade: ERROR: (8123): There has been an error executing the request in the tasks manager.' in line:
                         found_error = False
                     else:
@@ -216,7 +236,7 @@ def test_check_cluster_log_errors():
         for line in f.readlines():
             if 'ERROR' in line:
                 found_error = True
-                if get_wazuh_version() == 'v4.3.0':
+                if get_wazuh_version() == 'v4.5.0':
                     if 'Could not connect to master' in line or 'Worker node is not connected to master' in line or 'Connection reset by peer' in line:
                         found_error = False
                     else:
@@ -243,7 +263,7 @@ def test_check_alerts():
                     {
                         "wildcard": {
                             "agent.name": {
-                                "value": node_name
+                                "value": '*'
                             }
                         }
                     }

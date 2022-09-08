@@ -22,6 +22,9 @@ function getHelp() {
     echo -e "        -c,  --config-file <path-to-config-yml>"
     echo -e "                Path to the configuration file used to generate wazuh-install-files.tar file containing the files that will be needed for installation. By default, the Wazuh installation assistant will search for a file named config.yml in the same path as the script."
     echo -e ""
+    echo -e "        -dw,  --download-wazuh <deb|rpm>"
+    echo -e "                Download all the packages necessary for offline installation."
+    echo -e ""
     echo -e "        -fd,  --force-install-dashboard"
     echo -e "                Force Wazuh dashboard installation to continue even when it is not capable of connecting to the Wazuh indexer."
     echo -e ""
@@ -60,9 +63,6 @@ function getHelp() {
     echo -e ""
     echo -e "        -ws,  --wazuh-server <server-node-name>"
     echo -e "                Install and configure Wazuh manager and Filebeat, used for distributed deployments."
-    echo -e ""
-    echo -e "        -dw,  --download-wazuh <deb|rpm>"
-    echo -e "                Download all the packages necessary for offline installation."
     exit 1
 
 }
@@ -74,22 +74,6 @@ function main() {
     if [ -z "${1}" ]; then
         getHelp
     fi
-
-    arguments=( $@ )
-    for args in ${arguments[@]}; do
-        if [ "${args}" != "-dw" ] && [ "${args}" != "--download-wazuh" ] && [ "${args}" != "-V" ] && [ "${args}" != "-h" ]; then
-            if [[ "${args}" == -* ]]; then
-                common_checkRoot
-            fi
-        fi
-        if [ "${args}" == "-wi" ] || [ "${args}" == "-wd" ] || [ "${args}" == "-ws" ] || [ "${args}" == "--wazuh-dashboard" ] || [ "${args}" == "--wazuh-indexer" ] || [ "${args}" == "--wazuh-server" ]; then
-            if [[ "${2}" == -* ]]; then
-                common_logger -e "Error on argument ${args}. Check the given <node-name>, the parameter ${2} cannot start with \"-\" or is incorrect"
-                getHelp
-                exit 1
-            fi
-        fi
-    done
 
     while [ -n "${1}" ]
     do
@@ -195,12 +179,16 @@ function main() {
                 shift 2
                 ;;
             *)
-                echo "Unknow option: "${1}""
+                echo "Unknow option: ${1}"
                 getHelp
         esac
     done
 
     cat /dev/null > "${logfile}"
+
+    if [ -z "${download}" ] && [ -z "${showVersion}" ]; then
+        common_checkRoot
+    fi
 
     if [ -n "${showVersion}" ]; then
         common_logger "Wazuh version: ${wazuh_version}"
@@ -213,8 +201,11 @@ function main() {
     common_logger "Verbose logging redirected to ${logfile}"
 
 # -------------- Uninstall case  ------------------------------------
+    
+    if [ -z "${download}" ]; then
+        check_dist
+    fi
 
-    check_dist
     common_checkSystem
     common_checkInstalled
     checks_arguments
@@ -236,7 +227,21 @@ function main() {
     fi
     if [ -n "${AIO}" ] ; then
         rm -f "${tar_file}"
+        checks_ports "${wazuh_aio_ports[@]}"
     fi
+    
+    if [ -n "${indexer}" ]; then
+        checks_ports "${wazuh_indexer_ports[@]}"
+    fi
+
+    if [ -n "${wazuh}" ]; then
+        checks_ports "${wazuh_manager_ports[@]}"
+    fi
+
+    if [ -n "${dashboard}" ]; then
+        checks_ports "${wazuh_dashboard_ports[@]}"
+    fi
+    
 
 # -------------- Prerequisites and Wazuh repo  ----------------------
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
@@ -263,7 +268,7 @@ function main() {
         checks_names
     fi
 
-# -------------- Wazuh Indexer case -------------------------------
+# -------------- Wazuh indexer case -------------------------------
 
     if [ -n "${indexer}" ]; then
         common_logger "--- Wazuh indexer ---"
@@ -273,22 +278,21 @@ function main() {
         indexer_initialize
     fi
 
-# -------------- Start Wazuh Indexer cluster case  ------------------
+# -------------- Start Wazuh indexer cluster case  ------------------
 
     if [ -n "${start_indexer_cluster}" ]; then
         indexer_startCluster
         installCommon_changePasswords
     fi
 
-# -------------- Wazuh Dashboard case  ------------------------------
+# -------------- Wazuh dashboard case  ------------------------------
 
     if [ -n "${dashboard}" ]; then
         common_logger "--- Wazuh dashboard ----"
-
         dashboard_install
         dashboard_configure
-        installCommon_changePasswords
         installCommon_startService "wazuh-dashboard"
+        installCommon_changePasswords
         dashboard_initialize
 
     fi
@@ -297,7 +301,6 @@ function main() {
 
     if [ -n "${wazuh}" ]; then
         common_logger "--- Wazuh server ---"
-
         manager_install
         if [ -n "${server_node_types[*]}" ]; then
             manager_startCluster
@@ -330,6 +333,7 @@ function main() {
         installCommon_startService "wazuh-dashboard"
         installCommon_changePasswords
         dashboard_initializeAIO
+        
     fi
 
 # -------------- Offline case  ------------------------------------------

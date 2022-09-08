@@ -67,6 +67,7 @@ if [[ "${future}" == "yes" ]]; then
     old_name="wazuh-${build_target}-${base_version}-${package_release}"
     package_full_name=wazuh-${build_target}-${wazuh_version}
     old_package_name=wazuh-${build_target}-${base_version}
+    mv "${build_dir}/${build_target}/${old_package_name}" "${build_dir}/${build_target}/${package_full_name}"
     sources_dir="${build_dir}/${build_target}/${package_full_name}"
 
     # PREPARE FUTURE SPECS AND SOURCES

@@ -13,16 +13,21 @@ set -ex
 # Script parameters to build the package
 opensearch_version="${1}"
 future="${2}"
-reference="${3}"
+revision="${3}"
+reference="${4}"
 base_dir=/tmp/output/wazuh-dashboard-base
 
 # -----------------------------------------------------------------------------
+
+if [ -z "${revision}" ]; then
+    revision="1"
+fi
 
 # Including files
 if [ "${reference}" ];then
     curl -sL https://github.com/wazuh/wazuh-packages/tarball/"${reference}" | tar xz
     cp -r ./wazuh*/* /root/
-    version=$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh-packages/${spec_reference}/VERSION | cat)
+    version=$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh-packages/${reference}/VERSION | cat)
 else
     version=$(cat /root/VERSION)
 fi
@@ -36,10 +41,6 @@ wazuh_minor=$(echo ${version} | cut -c1-3)
 mkdir -p /tmp/output
 cd /tmp/output
 
-if [ -z "${release}" ]; then
-    release="1"
-fi
-
 curl -sL https://artifacts.opensearch.org/releases/bundle/opensearch-dashboards/"${opensearch_version}"/opensearch-dashboards-"${opensearch_version}"-linux-x64.tar.gz | tar xz
 
 # Remove unnecessary files and set up configuration
@@ -51,11 +52,12 @@ cp -r /root/stack/dashboard/base/files/etc ./
 cp ./etc/custom_welcome/template.js.hbs ./src/legacy/ui/ui_render/bootstrap/template.js.hbs
 cp ./etc/custom_welcome/light_theme.style.css ./src/core/server/core_app/assets/legacy_light_theme.css
 cp ./etc/custom_welcome/*svg ./src/core/server/core_app/assets/
-cp ./etc/custom_welcome/Assets/default_branding/Solid_black.svg ./src/core/server/core_app/assets/default_branding/opensearch_logo.svg
+cp ./etc/custom_welcome/Assets/default_branding/Solid_black.svg ./src/core/server/core_app/assets/default_branding/opensearch_logo_default_mode.svg
 cp ./etc/custom_welcome/Assets/Favicons/* ./src/core/server/core_app/assets/favicons/
 cp ./etc/custom_welcome/Assets/Favicons/favicon.ico ./src/core/server/core_app/assets/favicons/favicon.ico
 cp ./etc/http_service.js ./src/core/server/http/http_service.js
 cp ./etc/template.js ./src/core/server/rendering/views/template.js
+cp ./etc/styles.js ./src/core/server/rendering/views/styles.js
 # Replace App Title
 sed -i "s|defaultValue: ''|defaultValue: \'Wazuh\'|g" ./src/core/server/opensearch_dashboards_config.js
 # Replace config path
@@ -74,7 +76,7 @@ sed -i 's/navigateToApp("home")/navigateToApp("wazuh")/g' ./src/core/target/publ
 sed -i 's|"core.ui.chrome.headerGlobalNav.helpMenuVersion",defaultMessage:"v {version}"|"core.ui.chrome.headerGlobalNav.helpMenuVersion",defaultMessage:"v'${version}'"|' ./src/core/target/public/core.entry.js
 ## Help link - OpenSearch Dashboards documentation
 sed -i 's|OpenSearch Dashboards documentation|Wazuh documentation|' ./src/core/target/public/core.entry.js
-sed -i 's|OPENSEARCH_DASHBOARDS_DOCS="https://opensearch.org/docs/dashboards/"|OPENSEARCH_DASHBOARDS_DOCS="https://documentation.wazuh.com/'${wazuh_minor}'"|' ./src/core/target/public/core.entry.js
+sed -i 's|href:opensearchDashboardsDocLink,|href:"https://documentation.wazuh.com/'${wazuh_minor}'",|' ./src/core/target/public/core.entry.js
 ## Help link - Ask OpenSearch
 sed -i 's|Ask OpenSearch|Ask Wazuh|' ./src/core/target/public/core.entry.js
 sed -i 's|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://github.com/opensearch-project"|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://wazuh.com/community/join-us-on-slack"|' ./src/core/target/public/core.entry.js
@@ -97,14 +99,14 @@ brotli -c ./src/plugins/dashboard/target/public/dashboard.chunk.1.js > ./src/plu
 # Remove `home` button from the sidebar menu
 sed -i 's|\["EuiHorizontalRule"\],{margin:"none"})),external_osdSharedDeps_React_default.a.createElement(external_osdSharedDeps_ElasticEui_\["EuiFlexItem"\],{grow:false,style:{flexShrink:0}},external_osdSharedDeps_React_default.a.createElement(external_osdSharedDeps_ElasticEui_\["EuiCollapsibleNavGroup"\]|["EuiHorizontalRule"],{margin:"none"})),false\&\&external_osdSharedDeps_React_default.a.createElem(external_osdSharedDeps_ElasticEui_["EuiFlexItem"],{grow:false,style:{flexShrink:0}},external_osdSharedDeps_React_default.a.createElement(external_osdSharedDeps_ElasticEui_["EuiCollapsibleNavGroup"]|' ./src/core/target/public/core.entry.js
 # Replace OpenSearch login default configuration title with Wazuh login title text
-sed -i 's|Please login to OpenSearch Dashboards|Welcome to Wazuh|g' ./plugins/securityDashboards/server/index.js
-sed -i 's|If you have forgotten your username or password, please ask your system administrator|The Open Source Security Platform|g' ./plugins/securityDashboards/server/index.js
+sed -i 's|Please login to OpenSearch Dashboards||g' ./plugins/securityDashboards/server/index.js
+sed -i 's|If you have forgotten your username or password, please ask your system administrator||g' ./plugins/securityDashboards/server/index.js
 # Replace OpenSearch login logo with Wazuh login logo
-sed -i 's|opensearch_logo_h_default.a|"/ui/wazuh_logo_circle.svg"|g' ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js
+sed -i 's|opensearch_logo_h_default.a|"/ui/Wazuh-Logo.svg"|g' ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js
 # Replace OpenSearch login title with Wazuh login title
-sed -i 's|Please login to OpenSearch Dashboards|Welcome to Wazuh|g' ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js
+sed -i 's|Please login to OpenSearch Dashboards||g' ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js
 # Replace OpenSearch login subtitle with Wazuh login subtitle
-sed -i 's|If you have forgotten your username or password, please ask your system administrator|The Open Source Security Platform|g' ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js
+sed -i 's|If you have forgotten your username or password, please ask your system administrator||g' ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js
 # Disable first time pop-up tenant selector
 sed -i 's|setShouldShowTenantPopup(shouldShowTenantPopup)|setShouldShowTenantPopup(false)|g' ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
 gzip -c ./plugins/securityDashboards/target/public/securityDashboards.plugin.js > ./plugins/securityDashboards/target/public/securityDashboards.plugin.js.gz
@@ -112,6 +114,14 @@ brotli -c ./plugins/securityDashboards/target/public/securityDashboards.plugin.j
 # Generate compressed files
 gzip -c ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js > ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js.gz
 brotli -c ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js > ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js.br
+# Add VERSION file
+cp /root/VERSION .
+# Add exception for wazuh plugin install
+wazuh_plugin="if (plugin.includes(\'wazuh\')) {\n    return plugin;\n  } else {\n    return \`\${LATEST_PLUGIN_BASE_URL}\/\${version}\/latest\/\${platform}\/\${arch}\/tar\/builds\/opensearch-dashboards\/plugins\/\${plugin}-\${version}.zip\`;\n  }"
+sed -i "s|return \`\${LATEST_PLUGIN_BASE_URL}\/\${version}\/latest\/\${platform}\/\${arch}\/tar\/builds\/opensearch-dashboards\/plugins\/\${plugin}-\${version}.zip\`;|$wazuh_plugin|" ./src/cli_plugin/install/settings.js
+# Changed package.json build number
+jq ".build.number=$(cat /root/VERSION | tr -d '.')" ./package.json > ./package.json.tmp
+mv ./package.json.tmp ./package.json
 
 # Remove plugins
 /bin/bash ./bin/opensearch-dashboards-plugin remove queryWorkbenchDashboards --allow-root
@@ -127,5 +137,5 @@ find -type f -perm 755 -exec chmod 750 {} \;
 
 # Base output
 cd /tmp/output
-tar -cJf wazuh-dashboard-base-"${version}"-linux-x64.tar.xz wazuh-dashboard-base
+tar -cJf wazuh-dashboard-base-"${version}"-"${revision}"-linux-x64.tar.xz wazuh-dashboard-base
 rm -rf "${base_dir}"
