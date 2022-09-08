@@ -8,7 +8,7 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-set -ex
+set -e
 # Script parameters to build the package
 target="wazuh-dashboard"
 architecture=$1

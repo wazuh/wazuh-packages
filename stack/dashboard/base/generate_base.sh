@@ -15,6 +15,7 @@ reference=""
 current_path="$( cd $(dirname $0) ; pwd -P )"
 dockerfile_path="${current_path}/docker"
 container_name="dashboard_base_builder"
+architecture="x64"
 outdir="${current_path}/output"
 revision="1"
 future="no"
@@ -48,11 +49,11 @@ build() {
 
     if [ "${reference}" ];then
         docker run -t --rm -v ${outdir}/:/tmp/output:Z \
-            ${container_name} ${future} ${revision} ${reference}  || return 1
+            ${container_name} ${architecture} ${revision} ${future} ${reference}  || return 1
     else
         docker run -t --rm -v ${outdir}/:/tmp/output:Z \
             -v ${current_path}/../../..:/root:Z \
-            ${container_name} ${future} ${revision} || return 1
+            ${container_name} ${architecture} ${revision} ${future} || return 1
     fi
 
     echo "Base file $(ls -Art ${outdir} | tail -n 1) added to ${outdir}."
