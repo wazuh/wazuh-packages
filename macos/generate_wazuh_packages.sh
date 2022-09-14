@@ -158,6 +158,7 @@ function build_package() {
             mkdir -p ${CHECKSUMDIR}
             cd ${DESTINATION} && shasum -a512 "${pkg_name}" > "${CHECKSUMDIR}/${pkg_name}.sha512"
         fi
+        tar -C ${WAZUH_PATH}/src/symbols -czf ${DESTINATION}wazuh-agent-macos-amd64-debug-info-${VERSION}-${REVISION}.tar.gz .
         clean_and_exit 0
     else
         echo "ERROR: something went wrong while building the package."

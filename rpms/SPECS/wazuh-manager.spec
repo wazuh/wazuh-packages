@@ -26,6 +26,14 @@ Wazuh helps you to gain security visibility into your infrastructure by monitori
 hosts at an operating system and application level. It provides the following capabilities:
 log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 
+%package -n wazuh-manager-debuginfo
+Summary: Debug info for Wazuh
+Group: Development/Libraries
+Requires: wazuh-manager = %{version}-%{release}
+
+%description -n wazuh-manager-debuginfo
+This package contains files necessary for debugging the wazuh-manager with gdb.
+
 %prep
 %setup -q
 
@@ -37,7 +45,7 @@ pushd src
 make clean
 
 # Build Wazuh sources
-make deps TARGET=server
+make -j%{_threads} deps TARGET=server
 make -j%{_threads} TARGET=server USE_SELINUX=yes DEBUG=%{_debugenabled}
 
 popd
@@ -67,6 +75,7 @@ echo 'USER_CA_STORE="/path/to/my_cert.pem"' >> ./etc/preloaded-vars.conf
 echo 'USER_GENERATE_AUTHD_CERT="y"' >> ./etc/preloaded-vars.conf
 echo 'USER_AUTO_START="n"' >> ./etc/preloaded-vars.conf
 echo 'USER_CREATE_SSL_CERT="n"' >> ./etc/preloaded-vars.conf
+echo 'USER_DEBUG_SYMBOLS="y"' >> ./etc/preloaded-vars.conf
 ./install.sh
 
 # Create directories
@@ -166,9 +175,10 @@ install -m 0640 src/init/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/
 cp src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/src/
 cp src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/src/
 
-if [ %{_debugenabled} = "yes" ]; then
-  %{_rpmconfigdir}/find-debuginfo.sh
-fi
+# Add debug symbols
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.symbols
+cp src/symbols/* ${RPM_BUILD_ROOT}%{_localstatedir}/.symbols
+
 exit 0
 
 %pre
@@ -585,6 +595,7 @@ rm -fr %{buildroot}
 %dir %attr(750, root, wazuh) %{_localstatedir}/active-response
 %dir %attr(750, root, wazuh) %{_localstatedir}/active-response/bin
 %attr(750, root, wazuh) %{_localstatedir}/active-response/bin/*
+%attr(750, root, root) %{_localstatedir}/active-response/bin/.debug
 %dir %attr(750, root, wazuh) %{_localstatedir}/api
 %dir %attr(770, root, wazuh) %{_localstatedir}/api/configuration
 %attr(660, root, wazuh) %config(noreplace) %{_localstatedir}/api/configuration/api.yaml
@@ -625,6 +636,7 @@ rm -fr %{buildroot}
 %attr(750, root, wazuh) %{_localstatedir}/bin/wazuh-clusterd
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-db
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-modulesd
+%attr(750, root, root) %{_localstatedir}/bin/.debug
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/etc
 %attr(660, root, wazuh) %config(noreplace) %{_localstatedir}/etc/ossec.conf
 %attr(640, root, wazuh) %config(noreplace) %{_localstatedir}/etc/client.keys
@@ -661,6 +673,7 @@ rm -fr %{buildroot}
 %dir %attr(750, root, wazuh) %{_localstatedir}/integrations
 %attr(750, root, wazuh) %{_localstatedir}/integrations/*
 %dir %attr(750, root, wazuh) %{_localstatedir}/lib
+%attr(750, root, root) %{_localstatedir}/lib/.debug
 %attr(750, root, wazuh) %{_localstatedir}/lib/libwazuhext.so
 %attr(750, root, wazuh) %{_localstatedir}/lib/libwazuhshared.so
 %attr(750, root, wazuh) %{_localstatedir}/lib/libdbsync.so
@@ -828,10 +841,9 @@ rm -fr %{buildroot}
 %dir %attr(750, root, wazuh) %{_localstatedir}/wodles/gcloud
 %attr(750, root, wazuh) %{_localstatedir}/wodles/gcloud/*
 
-%if %{_debugenabled} == "yes"
-/usr/lib/debug/%{_localstatedir}/*
-/usr/src/debug/%{name}-%{version}/*
-%endif
+%files -n wazuh-manager-debuginfo
+%dir %attr(750, root, root) %{_localstatedir}/.symbols
+%attr(640, root, root) %{_localstatedir}/.symbols/*
 
 
 %changelog

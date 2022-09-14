@@ -17,6 +17,7 @@ export DH_VERBOSE=1
 export DH_OPTIONS
 
 export TARGET_DIR=${CURDIR}/debian/wazuh-agent
+export TARGET_DIR_SYMS=${CURDIR}/debian/wazuh-agent-dbg
 
 # Package build options
 export INSTALLATION_DIR="/var/ossec"
@@ -40,7 +41,7 @@ override_dh_install:
 	rm -rf $(INSTALLATION_DIR)/
 
 	# Build the binaries
-	make -C src deps TARGET=agent
+	make -j$(JOBS) -C src deps TARGET=agent
 	make -j$(JOBS) -C src/ TARGET=agent USE_SELINUX=yes DEBUG=$(DEBUG_ENABLED)
 
 	USER_LANGUAGE="en" \
@@ -58,6 +59,7 @@ override_dh_install:
 	USER_AGENT_SERVER_IP="MANAGER_IP" \
 	USER_CA_STORE="/path/to/my_cert.pem" \
 	USER_AUTO_START="n" \
+	USER_DEBUG_SYMBOLS="y" \
 	./install.sh
 
 	# Copying init.d script
@@ -145,11 +147,14 @@ override_dh_install:
 	sed -i "s:WAZUH_HOME_TMP:${INSTALLATION_DIR}:g" src/init/templates/wazuh-agent.service
 	cp src/init/templates/wazuh-agent.service ${TARGET_DIR}/etc/systemd/system/
 
+	# Add debug symbols
+	mkdir -p ${TARGET_DIR_SYMS}/${INSTALLATION_DIR}
+	mv ${TARGET_DIR}/${INSTALLATION_DIR}/.symbols ${TARGET_DIR_SYMS}/${INSTALLATION_DIR}/.symbols
+
 override_dh_auto_clean:
-	$(MAKE) -C src clean
+	$(MAKE) -j$(JOBS) -C src clean
 
 
 override_dh_strip:
-	dh_strip --no-automatic-dbgsym
 
 .PHONY: override_dh_install override_dh_strip override_dh_auto_clean override_dh_auto_build override_dh_auto_configure

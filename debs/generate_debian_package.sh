@@ -79,7 +79,7 @@ build_deb() {
         ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} \
         ${USE_LOCAL_SOURCE_CODE} ${FUTURE}|| return 1
 
-    echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
+    echo "Package $(ls -Art ${OUTDIR} | tail -n 2) added to ${OUTDIR}."
 
     return 0
 }
@@ -149,7 +149,7 @@ help() {
     echo "    -r, --revision <rev>       [Optional] Package revision. By default: 1."
     echo "    -s, --store <path>         [Optional] Set the destination path of package. By default, an output folder will be created."
     echo "    -p, --path <path>          [Optional] Installation path for the package. By default: /var/ossec."
-    echo "    -d, --debug                [Optional] Build the binaries with debug symbols. By default: no."
+    echo "    -d, --debug                [Optional] Build the binaries without optimizations. By default: no."
     echo "    -c, --checksum <path>      [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
     echo "    --dont-build-docker        [Optional] Locally built docker image will be used instead of generating a new one."
     echo "    --sources <path>           [Optional] Absolute path containing wazuh source code. This option will use local source code instead of downloading it from GitHub."
