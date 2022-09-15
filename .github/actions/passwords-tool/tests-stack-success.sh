@@ -46,7 +46,7 @@ for i in "${!users[@]}"; do
 done
 
 for i in "${!api_users[@]}"; do
-    if curl -s -u "${api_users[i]}":"${passapi[i]}" -w "%{http_code}" -k -X GET "https://localhost:55000/security/user/authenticate" | grep "401"; then
+    if curl -s -u "${api_users[i]}":"${passapi[i]}" -w "%{http_code}" -k -X POST "https://localhost:55000/security/user/authenticate" | grep "401"; then
         exit 1
     fi
 done
@@ -56,7 +56,7 @@ echo '::endgroup::'
 echo '::group:: Change single Wazuh API user.'
 
 bash wazuh-passwords-tool.sh -au wazuh -ap "${passapi[0]}" -u wazuh -p BkJt92r*ndzN.CkCYWn?d7i5Z7EaUt63 -A 
-    if curl -s -w "%{http_code}" -u wazuh:BkJt92r*ndzN.CkCYWn?d7i5Z7EaUt63 -k -X GET "https://localhost:55000/security/user/authenticate" | grep "401"; then
+    if curl -s -w "%{http_code}" -u wazuh:BkJt92r*ndzN.CkCYWn?d7i5Z7EaUt63 -k -X POST "https://localhost:55000/security/user/authenticate" | grep "401"; then
         exit 1
     fi
 echo '::endgroup::'
@@ -83,7 +83,7 @@ for i in "${!users[@]}"; do
 done
 
 for i in "${!api_users[@]}"; do
-    if curl -s -u "${api_users[i]}":"${passapif[i]}" -w "%{http_code}" -k -X GET "https://localhost:55000/security/user/authenticate" | grep "401"; then
+    if curl -s -u "${api_users[i]}":"${passapif[i]}" -w "%{http_code}" -k -X POST "https://localhost:55000/security/user/authenticate" | grep "401"; then
         exit 1
     fi
 done
