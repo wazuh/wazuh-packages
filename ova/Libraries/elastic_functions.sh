@@ -97,7 +97,7 @@ install_kibana_app(){
 
     if [ "${STATUS_PACKAGES}" = "unstable" ]; then
         # Wazuh-app pre-release repository
-        sudo -u kibana ${usr_kibana}/bin/kibana-plugin install https://packages-dev.wazuh.com/pre-release-3.x/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip
+        sudo -u kibana ${usr_kibana}/bin/kibana-plugin install https://packages-dev.wazuh.com/pre-release-3.x/wazuhapp/wazuhapp-${WAZUH_VERSION}_${ELK_VERSION}.zip
     fi
 
     setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node
