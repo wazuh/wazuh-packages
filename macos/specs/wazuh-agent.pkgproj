@@ -1026,10 +1026,7 @@
 						</dict>
 					</array>
 					<key>NAME</key>
-					<string>Processor</string>
-					<key>STATE</key>
-					<true/>
-				</dict>
+					<string>Processor</string>ro no me entero, que la rama 4.4 saca 
 				<dict>
 					<key>BEHAVIOR</key>
 					<integer>3</integer>
