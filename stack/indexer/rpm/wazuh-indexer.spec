@@ -210,18 +210,21 @@ if [ $1 = 0 ];then
     sed -i '/%{USER}/d' /etc/security/limits.conf
 
     # Remove the user if it exists
-    if id -u %{USER} > /dev/null 2>&1; then
+    if getent passwd %{USER} > /dev/null 2>&1; then
         userdel %{USER} >/dev/null 2>&1
     fi
 
     # Remove the group if it exists
     if command -v getent > /dev/null 2>&1 && getent group %{GROUP} > /dev/null 2>&1; then
         groupdel %{GROUP} >/dev/null 2>&1
-    elif id -g %{GROUP} > /dev/null 2>&1; then
+    elif getent group %{GROUP} > /dev/null 2>&1; then
         groupdel %{GROUP} >/dev/null 2>&1
     fi
 
     # Remove lingering folders and files
+    if [ -d /dev/shm/performanceanalyzer ]; then
+        rm -rf /dev/shm/performanceanalyzer
+    fi
     rm -rf %{INSTALL_DIR}
 fi
 

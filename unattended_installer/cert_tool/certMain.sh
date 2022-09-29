@@ -37,6 +37,10 @@ function getHelp() {
     echo -e "        -ws,  --wazuh-server-certificates </path/to/root-ca.pem> </path/to/root-ca.key>"
     echo -e "                Creates the Wazuh server certificates, add root-ca.pem and root-ca.key."
     echo -e ""
+    echo -e "        -tmp,  --cert_tmp_path </path/to/tmp_dir>"
+    echo -e "                Modifies the default tmp directory (/tmp/wazuh-ceritificates) to the specified one."
+    echo -e "                Must be used along with one of these options: -a, -A, -ca, -wi, -wd, -ws"
+    echo -e ""
 
     exit 1
 
@@ -65,7 +69,7 @@ function main() {
                 fi
                 ;;
             "-A"|"--all")
-                if  [[ -n "${2}" && "${2}" != "-v" ]]; then
+                if  [[ -n "${2}" && "${2}" != "-v" && "${2}" != "-tmp" ]]; then
                     # Validate that the user has entered the 2 files
                     if [[ -z ${3} ]]; then
                         if [[ ${2} == *".key" ]]; then
@@ -132,22 +136,38 @@ function main() {
                     shift 3
                 fi
                 ;;
+            "-tmp"|"--cert_tmp_path")
+                if [[ -n "${3}" || ( "${cadmin}" == 1 || "${all}" == 1 || "${ca}" == 1 || "${cdashboard}" == 1 || "${cindexer}" == 1 || "${cserver}" == 1 ) ]]; then
+                    if [[ -z "${2}" || ! "${2}" == /* ]]; then
+                        common_logger -e "Error on arguments. Probably missing </path/to/tmp_dir> or path does not start with '/'."
+                        getHelp
+                        exit 1
+                    else
+                        cert_tmp_path="${2}"
+                        shift 2
+                    fi
+                else
+                    common_logger -e "Error: -tmp must be used along with one of these options: -a, -A, -ca, -wi, -wd, -ws"
+                    getHelp
+                    exit 1
+                fi
+                ;;
             *)
-                echo "Unknow option: "${1}""
+                echo "Unknow option: ${1}"
                 getHelp
             esac
         done
 
-        if [[ -d ${base_path}/wazuh-certificates ]]; then
-            if [ ! -z "$(ls -A ${base_path}/wazuh-certificates)" ]; then
+        if [[ -d "${base_path}"/wazuh-certificates ]]; then
+            if [ -n "$(ls -A "${base_path}"/wazuh-certificates)" ]; then
                 common_logger -e "Directory wazuh-certificates already exists in the same path as the script. Please, remove the certs directory to create new certificates."
                 exit 1
             fi
         fi
         
-        if [[ ! -d "/tmp/wazuh-certificates" ]]; then
-            mkdir "/tmp/wazuh-certificates"
-            chmod 744 "/tmp/wazuh-certificates"
+        if [[ ! -d "${cert_tmp_path}" ]]; then
+            mkdir -p "${cert_tmp_path}"
+            chmod 744 "${cert_tmp_path}"
         fi
 
         cert_readConfig
@@ -162,29 +182,32 @@ function main() {
             common_logger "Admin certificates created."
             cert_cleanFiles
             cert_setpermisions
-            eval "mv /tmp/wazuh-certificates ${base_path}/wazuh-certificates ${debug}"
+            eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
         fi
 
         if [[ -n "${all}" ]]; then
             cert_checkRootCA
             cert_generateAdmincertificate
             common_logger "Admin certificates created."
-            cert_generateIndexercertificates
-            common_logger "Wazuh indexer certificates created."
-            cert_generateFilebeatcertificates
-            common_logger "Wazuh server certificates created."
-            cert_generateDashboardcertificates
-            common_logger "Wazuh dashboard certificates created."
+            if cert_generateIndexercertificates; then
+                common_logger "Wazuh indexer certificates created."
+            fi
+            if cert_generateFilebeatcertificates; then
+                common_logger "Wazuh server certificates created."
+            fi
+            if cert_generateDashboardcertificates; then
+                common_logger "Wazuh dashboard certificates created."
+            fi
             cert_cleanFiles
             cert_setpermisions
-            eval "mv /tmp/wazuh-certificates ${base_path}/wazuh-certificates ${debug}"
+            eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
         fi
 
         if [[ -n "${ca}" ]]; then
             cert_generateRootCAcertificate
             common_logger "Authority certificates created."
             cert_cleanFiles
-            eval "mv /tmp/wazuh-certificates ${base_path}/wazuh-certificates ${debug}"
+            eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
         fi
 
         if [[ -n "${cindexer}" ]]; then
@@ -193,7 +216,7 @@ function main() {
             common_logger "Wazuh indexer certificates created."
             cert_cleanFiles
             cert_setpermisions
-            eval "mv /tmp/wazuh-certificates ${base_path}/wazuh-certificates ${debug}"
+            eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
         fi
 
         if [[ -n "${cserver}" ]]; then
@@ -202,7 +225,7 @@ function main() {
             common_logger "Wazuh server certificates created."
             cert_cleanFiles
             cert_setpermisions
-            eval "mv /tmp/wazuh-certificates ${base_path}/wazuh-certificates ${debug}"
+            eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
         fi
 
         if [[ -n "${cdashboard}" ]]; then
@@ -211,7 +234,7 @@ function main() {
             common_logger "Wazuh dashboard certificates created."
             cert_cleanFiles
             cert_setpermisions
-            eval "mv /tmp/wazuh-certificates ${base_path}/wazuh-certificates ${debug}"
+            eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
         fi
 
     else

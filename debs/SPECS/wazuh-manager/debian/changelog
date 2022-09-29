@@ -1,3 +1,27 @@
+wazuh-manager (4.3.9-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Mon, 03 Oct 2022 15:00:00 +0000
+
+wazuh-manager (4.3.8-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Mon, 19 Sep 2022 15:00:00 +0000
+
+wazuh-manager (4.3.7-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Mon, 08 Aug 2022 15:00:00 +0000
+ 
+wazuh-manager (4.3.6-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Thu, 07 Jul 2022 15:00:00 +0000
+
 wazuh-manager (4.3.5-RELEASE) stable; urgency=low
 
   * More info: https://documentation.wazuh.com/current/release-notes/
@@ -147,6 +171,24 @@ wazuh-manager (4.0.0-RELEASE) stable; urgency=low
   * More info: https://documentation.wazuh.com/current/release-notes/
 
  -- Wazuh, Inc <info@wazuh.com>  Mon, 19 Oct 2020 06:59:39 +0000
+ 
+ wazuh-manager (3.13.6-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Wed, 21 Sep 2022 15:00:00 +0000
+
+ wazuh-manager (3.13.5-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Wed, 24 Aug 2022 15:00:00 +0000
+
+ wazuh-manager (3.13.4-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Mon, 30 May 2022 15:00:00 +0000
 
 wazuh-manager (3.13.3-RELEASE) stable; urgency=low
 
