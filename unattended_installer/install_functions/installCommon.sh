@@ -209,10 +209,9 @@ function installCommon_changePasswords() {
     fi
     if [ -n "${start_indexer_cluster}" ] || [ -n "${AIO}" ]; then
         passwords_getNetworkHost
-        passwords_createBackUp
         passwords_generateHash
     fi
-
+    
     passwords_changePassword
 
     if [ -n "${start_indexer_cluster}" ] || [ -n "${AIO}" ]; then
@@ -267,7 +266,11 @@ function installCommon_installPrerequisites() {
         dependencies=( curl libcap tar gnupg openssl )
         not_installed=()
         for dep in "${dependencies[@]}"; do
-            if ! yum list installed 2>/dev/null | grep -q "${dep}" ;then
+            if [ "${dep}" == "openssl" ]; then
+                if ! yum list installed 2>/dev/null | grep -q "${dep}\.";then
+                    not_installed+=("${dep}")
+                fi
+            elif ! yum list installed 2>/dev/null | grep -q "${dep}";then
                 not_installed+=("${dep}")
             fi
         done
@@ -285,7 +288,7 @@ function installCommon_installPrerequisites() {
         fi
 
     elif [ "${sys_type}" == "apt-get" ]; then
-        eval "apt update -q ${debug}"
+        eval "apt-get update -q ${debug}"
         dependencies=( apt-transport-https curl libcap2-bin tar software-properties-common gnupg openssl )
         not_installed=()
 
@@ -464,7 +467,7 @@ function installCommon_rollBack() {
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-manager -y ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
-            eval "apt remove --purge wazuh-manager -y ${debug}"
+            eval "apt-get remove --purge wazuh-manager -y ${debug}"
         fi
         common_logger "Wazuh manager removed."
     fi
@@ -478,7 +481,7 @@ function installCommon_rollBack() {
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-indexer -y ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
-            eval "apt remove --purge wazuh-indexer -y ${debug}"
+            eval "apt-get remove --purge wazuh-indexer -y ${debug}"
         fi
         common_logger "Wazuh indexer removed."
     fi
@@ -494,7 +497,7 @@ function installCommon_rollBack() {
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove filebeat -y ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
-            eval "apt remove --purge filebeat -y ${debug}"
+            eval "apt-get remove --purge filebeat -y ${debug}"
         fi
         common_logger "Filebeat removed."
     fi
@@ -510,7 +513,7 @@ function installCommon_rollBack() {
         if [ "${sys_type}" == "yum" ]; then
             eval "yum remove wazuh-dashboard -y ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
-            eval "apt remove --purge wazuh-dashboard -y ${debug}"
+            eval "apt-get remove --purge wazuh-dashboard -y ${debug}"
         fi
         common_logger "Wazuh dashboard removed."
     fi
@@ -537,6 +540,8 @@ function installCommon_rollBack() {
     eval "rm -rf ${elements_to_remove[*]}"
 
     common_remove_gpg_key
+
+    eval "systemctl daemon-reload ${debug}"
 
     if [ -z "${uninstall}" ]; then
         if [ -n "${rollback_conf}" ] || [ -n "${overwrite}" ]; then
