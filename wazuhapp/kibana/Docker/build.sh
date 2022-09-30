@@ -107,6 +107,8 @@ download_wazuh_app_sources() {
         echo "Error downloading the source code from wazuh-kibana-app GitHub repository."
         exit 1
     fi      
+    sed -i "s/title: 'Wazuh'/title: 'DefansSIEM'/g" ${kibana_dir}/plugins/wazuh/public/plugin.ts
+    sed -i "s/label: 'Wazuh'/label: 'DefansSIEM'/g" ${kibana_dir}/plugins/wazuh/public/plugin.ts
 }
 
 
