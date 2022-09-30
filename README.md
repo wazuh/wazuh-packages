@@ -111,7 +111,7 @@ If you want to contribute to our project please don't hesitate to send a pull re
                         >
                             https://github.com/wazuh/wazuh-packages
                         </a>
-                        &amp;&amp; cd wazuh-packages/wazuhapp &amp;&amp; git checkout v4.2.1
+                        &amp;&amp; cd wazuh-packages/wazuhapp &amp;&amp;
                     </b>
                 </span>
             </div>
@@ -125,10 +125,10 @@ If you want to contribute to our project please don't hesitate to send a pull re
                 <span style="font-size: 14px;"><br /></span>
             </div>
             <div>
-                <span style="font-size: 14px;">To modify the title:&nbsp; &nbsp; &nbsp;<b>sed -i "s/title: 'Wazuh'/title: 'YourTitle'/g" ${kibana_dir}/plugins/wazuh/public/plugin.ts</b></span>
+                <span style="font-size: 14px;">To modify the title:&nbsp; &nbsp; &nbsp;<b>sed -i "s/title: 'Wazuh'/title: 'DefanSIEM'/g" ${kibana_dir}/plugins/wazuh/public/plugin.ts</b></span>
             </div>
             <div>
-                <span style="font-size: 14px;">To modify the label:&nbsp; &nbsp;<b>sed -i "s/label: 'Wazuh'/label: 'YourLabel'/g" ${kibana_dir}/plugins/wazuh/public/plugin.ts</b></span>
+                <span style="font-size: 14px;">To modify the label:&nbsp; &nbsp;<b>sed -i "s/label: 'Wazuh'/label: 'DefanSIEM'/g" ${kibana_dir}/plugins/wazuh/public/plugin.ts</b></span>
             </div>
             <div>
                 <span style="font-size: 14px;"><br /></span>
