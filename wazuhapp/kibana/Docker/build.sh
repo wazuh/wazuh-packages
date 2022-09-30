@@ -9,9 +9,9 @@ app_revision=$3
 
 # Paths
 kibana_dir="/tmp/source"
-source_dir="${kibana_dir}/plugins/wazuh"
+source_dir="${kibana_dir}/plugins/defans"
 build_dir="${source_dir}/build"
-destination_dir="/wazuh_app"
+destination_dir="/defans_app"
 checksum_dir="/var/local/checksum"
 
 # Repositories URLs
@@ -107,8 +107,8 @@ download_wazuh_app_sources() {
         echo "Error downloading the source code from wazuh-kibana-app GitHub repository."
         exit 1
     fi      
-    sed -i "s/title: 'Wazuh'/title: 'DefansSIEM'/g" ${kibana_dir}/plugins/wazuh/public/plugin.ts
-    sed -i "s/label: 'Wazuh'/label: 'DefansSIEM'/g" ${kibana_dir}/plugins/wazuh/public/plugin.ts
+    sed -i "s/title: 'Wazuh'/title: 'DefanSIEM'/g" ${kibana_dir}/plugins/wazuh/public/plugin.ts
+    sed -i "s/label: 'Wazuh'/label: 'DefanSIEM'/g" ${kibana_dir}/plugins/wazuh/public/plugin.ts
 }
 
 
@@ -118,9 +118,9 @@ build_package(){
 
     # Set pkg name
     if [ -z "${app_revision}" ]; then
-        wazuh_app_pkg_name="wazuh_kibana-${wazuh_version}_${kibana_version}.zip"
+        wazuh_app_pkg_name="defans_kibana-${wazuh_version}_${kibana_version}.zip"
     else
-        wazuh_app_pkg_name="wazuh_kibana-${wazuh_version}_${kibana_version}-${app_revision}.zip"
+        wazuh_app_pkg_name="defans_kibana-${wazuh_version}_${kibana_version}-${app_revision}.zip"
     fi
 
     # Build the package

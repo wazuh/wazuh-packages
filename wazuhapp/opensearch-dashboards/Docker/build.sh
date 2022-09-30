@@ -15,8 +15,8 @@ destination_dir="/wazuh_app"
 checksum_dir="/var/local/checksum"
 
 # Repositories URLs
-wazuh_app_clone_repo_url="https://github.com/wazuh/wazuh-kibana-app.git"
-wazuh_app_raw_repo_url="https://raw.githubusercontent.com/wazuh/wazuh-kibana-app"
+wazuh_app_clone_repo_url="https://github.com/defanssecurity/defans-kibana-app.git"
+wazuh_app_raw_repo_url="https://raw.githubusercontent.com/defanssecurity/defans-kibana-app"
 plugin_platform_app_repo_url="https://github.com/opensearch-project/OpenSearch-Dashboards.git"
 plugin_platform_app_raw_repo_url="https://raw.githubusercontent.com/opensearch-project/OpenSearch-Dashboards"
 wazuh_app_package_json_url="${wazuh_app_raw_repo_url}/${wazuh_branch}/package.json"
@@ -101,6 +101,8 @@ download_wazuh_app_sources() {
         echo "Error downloading the source code from wazuh-kibana-app GitHub repository."
         exit 1
     fi
+    sed -i "s/title: 'Wazuh'/title: 'DefanSIEM'/g" ${kibana_dir}/plugins/wazuh/public/plugin.ts
+    sed -i "s/label: 'Wazuh'/label: 'DefanSIEM'/g" ${kibana_dir}/plugins/wazuh/public/plugin.ts
 }
 
 
