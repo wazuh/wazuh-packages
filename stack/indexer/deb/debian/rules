@@ -146,7 +146,7 @@ override_dh_fixperms:
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/bin
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/bin/performance-analyzer-rca
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/bin/performance-analyzer-agent
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/bin/performance-analyzer-agent
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/jackson-annotations-2.13.2.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/jackson-core-2.13.2.jar
@@ -215,8 +215,8 @@ override_dh_fixperms:
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-upgrade
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/systemd-entrypoint
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/indexer-security-init.sh
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-performance-analyzer/performance-analyzer-agent
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-performance-analyzer/performance-analyzer-agent-cli
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-performance-analyzer/performance-analyzer-agent
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-performance-analyzer/performance-analyzer-agent-cli
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/lib
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/hppc-0.8.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/log4j-api-2.17.1.jar
@@ -268,9 +268,7 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/tools/plugin-cli/bc-fips-1.0.2.3.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/tools/plugin-cli/opensearch-plugin-cli-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/tools/upgrade-cli/opensearch-upgrade-cli-2.3.0.jar
-	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/opensearch-observability
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-observability/observability.yml
-	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/opensearch-reports-scheduler
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-reports-scheduler/reports-scheduler.yml
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/jvm.options
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch.yml
@@ -297,7 +295,6 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/whitelist.yml
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/allowlist.yml
 	chmod 440 $(TARGET_DIR)$(INSTALLATION_DIR)/VERSION
-	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jvm.options.d
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/log4j2.properties
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/NOTICE.txt
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/LICENSE.txt
@@ -883,34 +880,34 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/man/man1/jdeps.1
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/man/man1/javap.1
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jarsigner
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/java
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/javac
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/javadoc
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/javap
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jcmd
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jconsole
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jdb
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jdeprscan
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jdeps
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jfr
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jhsdb
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jimage
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jinfo
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jlink
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jmap
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jmod
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jpackage
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jps
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jrunscript
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jshell
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jstack
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jstat
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jstatd
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/keytool
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/rmiregistry
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/serialver
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jar
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jarsigner
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/java
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/javac
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/javadoc
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/javap
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jcmd
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jconsole
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jdb
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jdeprscan
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jdeps
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jfr
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jhsdb
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jimage
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jinfo
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jlink
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jmap
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jmod
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jpackage
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jps
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jrunscript
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jshell
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jstack
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jstat
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/jstatd
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/keytool
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/rmiregistry
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/serialver
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/lib/jspawnhelper
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/release
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/legal
