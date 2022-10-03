@@ -908,7 +908,7 @@ override_dh_fixperms:
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/keytool
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/rmiregistry
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/bin/serialver
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/lib/jspawnhelper
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/lib/jspawnhelper
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/release
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/legal
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/legal/java.base
