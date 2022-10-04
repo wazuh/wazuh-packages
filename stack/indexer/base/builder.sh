@@ -51,7 +51,6 @@ curl -sL https://artifacts.opensearch.org/releases/bundle/opensearch/"${opensear
 
 # Remove unnecessary files and set up configuration
 mv opensearch-"${opensearch_version}" "${base_dir}"
-
 cd "${base_dir}"
 find -type l -exec rm -rf {} \;
 find -name "*.bat" -exec rm -rf {} \;
