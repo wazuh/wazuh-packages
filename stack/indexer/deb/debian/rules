@@ -137,10 +137,15 @@ override_dh_fixperms:
 	chmod 660 $(TARGET_DIR)/etc/default/$(NAME)
 	chown root:$(GROUP) $(TARGET_DIR)/etc/default/$(NAME)
 	chmod 750 $(TARGET_DIR)/etc/init.d/$(NAME)
+	chown root:root $(TARGET_DIR)/etc/init.d/$(NAME)
 	chmod 640 $(TARGET_DIR)$(SYS_DIR)/sysctl.d/$(NAME).conf
+	chown root:root $(TARGET_DIR)$(SYS_DIR)/sysctl.d/$(NAME).conf
 	chmod 640 $(TARGET_DIR)$(SYS_DIR)/systemd/system/$(NAME).service
+	chown root:root $(TARGET_DIR)$(SYS_DIR)/systemd/system/$(NAME).service
 	chmod 640 $(TARGET_DIR)$(SYS_DIR)/systemd/system/$(NAME)-performance-analyzer.service
+	chown root:root $(TARGET_DIR)$(SYS_DIR)/systemd/system/$(NAME)-performance-analyzer.service
 	chmod 640 $(TARGET_DIR)$(SYS_DIR)/tmpfiles.d/$(NAME).conf
+	chown root:root $(TARGET_DIR)$(SYS_DIR)/tmpfiles.d/$(NAME).conf
 
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca
@@ -268,12 +273,17 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/tools/plugin-cli/bc-fips-1.0.2.3.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/tools/plugin-cli/opensearch-plugin-cli-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/tools/upgrade-cli/opensearch-upgrade-cli-2.3.0.jar
+	chmod 750 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-observability
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-observability/observability.yml
+	chmod 750 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-reports-scheduler
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-reports-scheduler/reports-scheduler.yml
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/jvm.options
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch.yml
+	chmod 750 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-notifications-core
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-notifications-core/notifications-core.yml
+	chmod 750 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-notifications
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-notifications/notifications.yml
+	chmod 750 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-performance-analyzer
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-performance-analyzer/agent-stats-metadata
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-performance-analyzer/log4j2.xml
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-performance-analyzer/opensearch_security.policy
@@ -283,6 +293,7 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-performance-analyzer/rca_idle_master.conf
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-performance-analyzer/rca_master.conf
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-performance-analyzer/supervisord.conf
+	chmod 750 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/action_groups.yml
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/audit.yml
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/config.yml
@@ -294,6 +305,7 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/tenants.yml
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/whitelist.yml
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/allowlist.yml
+	chmod 750 $(TARGET_DIR)$(CONFIG_DIR)/jvm.options.d
 	chmod 440 $(TARGET_DIR)$(INSTALLATION_DIR)/VERSION
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/log4j2.properties
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/NOTICE.txt

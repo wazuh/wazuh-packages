@@ -431,8 +431,11 @@ rm -fr %{buildroot}
 %attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-reports-scheduler/reports-scheduler.yml
 %config(noreplace) %attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/jvm.options
 %config(noreplace) %attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch.yml
+%dir %attr(750, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-notifications-core
 %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-notifications-core/notifications-core.yml
+%dir %attr(750, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-notifications
 %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-notifications/notifications.yml
+%dir %attr(750, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer
 %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/agent-stats-metadata
 %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/log4j2.xml
 %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/opensearch_security.policy
@@ -442,6 +445,7 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/rca_idle_master.conf
 %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/rca_master.conf
 %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/supervisord.conf
+%dir %attr(750, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security
 %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/action_groups.yml
 %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/audit.yml
 %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/config.yml
