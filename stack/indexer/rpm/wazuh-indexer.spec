@@ -305,9 +305,6 @@ rm -fr %{buildroot}
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/bin/performance-analyzer-rca
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/bin/performance-analyzer-agent
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/jackson-annotations-2.13.2.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/jackson-core-2.13.2.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/jackson-databind-2.13.2.2.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/sqlite-jdbc-3.32.3.2.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/log4j-api-2.17.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/j2objc-annotations-1.3.jar
@@ -336,6 +333,9 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/grpc-stub-1.44.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/gson-2.8.9.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/guava-30.1.1-android.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/jackson-annotations-2.13.2.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/jackson-core-2.13.2.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/jackson-databind-2.13.2.2.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/netty-buffer-4.1.72.Final.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/netty-codec-4.1.72.Final.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/netty-codec-http-4.1.72.Final.jar
@@ -377,6 +377,7 @@ rm -fr %{buildroot}
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/hppc-0.8.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/log4j-api-2.17.1.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/snakeyaml-1.31.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/jna-5.5.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/log4j-core-2.17.1.jar
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/tools
@@ -387,6 +388,10 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/jts-core-1.15.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/t-digest-3.2.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/spatial4j-0.7.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/jackson-core-2.13.3.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/jackson-dataformat-cbor-2.13.3.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/jackson-dataformat-smile-2.13.3.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/jackson-dataformat-yaml-2.13.3.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/java-version-checker-2.3.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/joda-time-2.10.12.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/jopt-simple-5.0.4.jar
@@ -399,10 +404,6 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/opensearch-secure-sm-2.3.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/opensearch-x-content-2.3.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/HdrHistogram-2.1.12.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/jackson-core-2.13.3.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/jackson-dataformat-cbor-2.13.3.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/jackson-dataformat-smile-2.13.3.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/jackson-dataformat-yaml-2.13.3.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/lucene-analysis-common-9.3.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/lucene-backward-codecs-9.3.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/lucene-core-9.3.0.jar
@@ -417,13 +418,12 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/lucene-spatial-extras-9.3.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/lucene-spatial3d-9.3.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/lucene-suggest-9.3.0.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/snakeyaml-1.31.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/tools/upgrade-cli/jackson-annotations-2.13.3.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/tools/upgrade-cli/jackson-core-2.13.3.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/tools/upgrade-cli/jackson-databind-2.13.3.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/tools/keystore-cli/keystore-cli-2.3.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/tools/plugin-cli/bc-fips-1.0.2.3.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/tools/plugin-cli/opensearch-plugin-cli-2.3.0.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/tools/upgrade-cli/jackson-annotations-2.13.3.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/tools/upgrade-cli/jackson-core-2.13.3.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/tools/upgrade-cli/jackson-databind-2.13.3.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/tools/upgrade-cli/opensearch-upgrade-cli-2.3.0.jar
 %dir %attr(750, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-observability
 %attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-observability/observability.yml
@@ -488,18 +488,9 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-reports-scheduler/opensearch-reports-scheduler-2.3.0.0.jar
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/geo-2.3.0.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/httpasyncclient-4.1.5.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/httpcore-4.4.15.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/httpcore-nio-4.4.15.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/jackson-annotations-2.13.3.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/jackson-databind-2.13.3.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/spring-aop-5.3.22.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/spring-beans-5.3.22.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/spring-context-5.3.22.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/spring-core-5.3.22.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/spring-expression-5.3.22.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/spring-jcl-5.3.22.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/resilience4j-core-1.5.0.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/httpasyncclient-4.1.5.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/slf4j-api-1.7.30.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/druid-1.0.15.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/commons-lang3-3.10.jar
@@ -520,6 +511,7 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/httpclient-4.5.13.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/commons-codec-1.13.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/commons-math3-3.6.1.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/httpcore-nio-4.4.15.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/failureaccess-1.0.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/ST4-4.0.8.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/antlr-runtime-3.5.2.jar
@@ -530,6 +522,8 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/error_prone_annotations-2.7.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/guava-31.0.1-jre.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/icu4j-58.2.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/jackson-annotations-2.13.3.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/jackson-databind-2.13.3.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/javax.json-1.0.4.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/legacy-2.3.0.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/opensearch-2.3.0.0.jar
@@ -542,6 +536,12 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/ppl-2.3.0.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/protocol-2.3.0.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/reindex-client-2.3.0.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/spring-aop-5.3.22.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/spring-beans-5.3.22.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/spring-context-5.3.22.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/spring-core-5.3.22.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/spring-expression-5.3.22.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/spring-jcl-5.3.22.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/sql-2.3.0.0.jar
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-cross-cluster-replication
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-cross-cluster-replication/ipaddress-5.3.3.jar
@@ -576,27 +576,13 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-index-management/common-utils-2.3.0.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-index-management/commons-codec-1.13.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-index-management/httpclient-4.5.13.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-index-management/httpcore-4.4.15.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-index-management/kotlin-stdlib-1.6.10.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-index-management/kotlin-stdlib-common-1.6.10.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-index-management/kotlin-stdlib-jdk7-1.6.10.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-index-management/opensearch-index-management-2.3.0.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-index-management/opensearch-index-management-spi-2.3.0.0.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-index-management/httpcore-4.4.15.jar
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/jackson-annotations-2.13.2.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/jackson-databind-2.13.2.2.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/jackson-module-paranamer-2.13.2.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/netty-buffer-4.1.79.Final.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/netty-codec-4.1.79.Final.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/netty-codec-http-4.1.79.Final.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/netty-codec-http2-4.1.79.Final.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/netty-codec-socks-4.1.79.Final.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/netty-common-4.1.79.Final.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/netty-handler-4.1.79.Final.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/netty-handler-proxy-4.1.79.Final.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/netty-resolver-4.1.79.Final.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/netty-transport-4.1.79.Final.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/netty-transport-native-unix-common-4.1.79.Final.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/sqlite-jdbc-3.32.3.2.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/j2objc-annotations-1.3.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/jsr305-3.0.2.jar
@@ -624,6 +610,20 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/grpc-stub-1.44.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/gson-2.8.9.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/guava-30.1-jre.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/jackson-annotations-2.13.2.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/jackson-databind-2.13.2.2.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/jackson-module-paranamer-2.13.2.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/netty-buffer-4.1.79.Final.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/netty-codec-4.1.79.Final.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/netty-codec-http-4.1.79.Final.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/netty-codec-http2-4.1.79.Final.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/netty-codec-socks-4.1.79.Final.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/netty-common-4.1.79.Final.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/netty-handler-4.1.79.Final.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/netty-handler-proxy-4.1.79.Final.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/netty-resolver-4.1.79.Final.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/netty-transport-4.1.79.Final.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/netty-transport-native-unix-common-4.1.79.Final.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/opensearch-performance-analyzer-2.3.0.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/perfmark-api-0.23.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/performanceanalyzer-rca-2.3.0.0.jar
@@ -642,6 +642,7 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/jakarta.activation-1.2.2.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/commons-logging-1.2.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/json-path-2.4.0.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/httpasyncclient-4.1.5.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/bcprov-jdk15on-1.67.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/json-flattener-0.5.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/cxf-rt-rs-json-basic-3.4.5.jar
@@ -670,19 +671,7 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/json-smart-2.4.7.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/xmlsec-2.2.3.jar
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/httpasyncclient-4.1.5.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/httpcore-4.4.15.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/httpcore-nio-4.4.15.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/jackson-annotations-2.13.3.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/jackson-databind-2.13.3.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/netty-buffer-4.1.79.Final.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/netty-codec-4.1.79.Final.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/netty-codec-http-4.1.79.Final.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/netty-common-4.1.79.Final.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/netty-handler-4.1.79.Final.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/netty-resolver-4.1.79.Final.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/netty-transport-4.1.79.Final.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/netty-transport-native-unix-common-4.1.79.Final.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/SECURITY_ADMIN_TESTS.md
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/config.yml
 %attr(740, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/hash.sh
@@ -707,6 +696,7 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/commons-collections-3.2.2.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/commons-text-1.2.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/jakarta.annotation-api-1.3.5.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/httpcore-nio-4.4.15.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/opensaml-soap-api-3.4.5.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/aggs-matrix-stats-client-2.3.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/checker-qual-3.5.0.jar
@@ -716,12 +706,21 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/failureaccess-1.0.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/guava-30.0-jre.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/j2objc-annotations-1.3.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/jackson-annotations-2.13.3.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/jjwt-api-0.10.8.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/jjwt-impl-0.10.8.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/jjwt-jackson-0.10.8.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/lang-mustache-client-2.3.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/mapper-extras-client-2.3.0.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/netty-buffer-4.1.79.Final.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/netty-codec-4.1.79.Final.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/netty-codec-http-4.1.79.Final.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/netty-common-4.1.79.Final.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/netty-handler-4.1.79.Final.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/netty-resolver-4.1.79.Final.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/netty-transport-4.1.79.Final.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/netty-transport-native-unix-common-4.1.79.Final.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/opensearch-rest-client-2.3.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/opensearch-rest-high-level-client-2.3.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/opensearch-security-2.3.0.0.jar
@@ -731,6 +730,7 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/snappy-java-1.1.8.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/transport-netty4-client-2.3.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/zstd-jni-1.5.0-2.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/jackson-databind-2.13.3.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/kafka-clients-3.0.1.jar
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-asynchronous-search
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-asynchronous-search/plugin-descriptor.properties
@@ -738,12 +738,10 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-asynchronous-search/common-utils-2.3.0.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-asynchronous-search/opensearch-asynchronous-search-2.3.0.0.jar
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-anomaly-detection
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-anomaly-detection/commons-codec-1.15.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-anomaly-detection/httpasyncclient-4.1.5.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-anomaly-detection/httpcore-4.4.15.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-anomaly-detection/httpcore-nio-4.4.15.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-anomaly-detection/commons-lang3-3.12.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-anomaly-detection/commons-lang-2.6.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-anomaly-detection/httpcore-nio-4.4.15.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-anomaly-detection/httpasyncclient-4.1.5.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-anomaly-detection/gson-2.8.9.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-anomaly-detection/org.jacoco.ant-0.8.5.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-anomaly-detection/commons-pool2-2.10.0.jar
@@ -753,7 +751,9 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-anomaly-detection/memory-0.12.2.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-anomaly-detection/plugin-security.policy
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-anomaly-detection/httpclient-4.5.13.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-anomaly-detection/commons-codec-1.15.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-anomaly-detection/commons-math3-3.6.1.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-anomaly-detection/httpcore-4.4.15.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-anomaly-detection/failureaccess-1.0.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-anomaly-detection/common-utils-2.3.0.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-anomaly-detection/guava-31.0.1-jre.jar
@@ -778,6 +778,8 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-geospatial/plugin-descriptor.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-alerting
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-alerting/error_prone_annotations-2.3.4.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-alerting/httpcore-nio-4.4.15.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-alerting/httpasyncclient-4.1.5.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-alerting/cron-utils-9.1.6.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-alerting/slf4j-api-1.7.30.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-alerting/ipaddress-5.3.3.jar
@@ -796,6 +798,7 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-alerting/httpclient-4.5.13.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-alerting/kotlinx-coroutines-core-common-1.1.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-alerting/commons-codec-1.13.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-alerting/httpcore-4.4.15.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-alerting/failureaccess-1.0.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-alerting/alerting-core-2.3.0.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-alerting/common-utils-2.3.0.0.jar
@@ -811,11 +814,9 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-alerting/opensearch-rest-client-2.3.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-alerting/percolator-client-2.3.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-alerting/commons-logging-1.2.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-alerting/httpasyncclient-4.1.5.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-alerting/httpcore-4.4.15.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-alerting/httpcore-nio-4.4.15.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/common-utils-2.3.0.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/commons-beanutils-1.9.4.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/commons-codec-1.15.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/commons-collections-3.2.2.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/commons-collections4-4.4.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/commons-io-2.11.0.jar
@@ -823,18 +824,17 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/commons-logging-1.2.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/commons-math3-3.6.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/commons-text-1.9.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/commons-codec-1.15.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/httpasyncclient-4.1.5.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/httpcore-4.4.15.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/httpcore-nio-4.4.15.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/jackson-annotations-2.13.3.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/jackson-databind-2.13.3.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/tribuo-classification-core-4.2.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/tribuo-classification-sgd-4.2.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/tribuo-common-tree-4.2.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/gson-2.9.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/guava-31.0.1-jre.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/httpasyncclient-4.1.5.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/httpclient-4.5.13.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/httpcore-4.4.15.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/httpcore-nio-4.4.15.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/jackson-annotations-2.13.3.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/jackson-databind-2.13.3.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/jansi-2.4.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/javassist-3.26.0-GA.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/jline-builtins-3.21.0.jar
@@ -875,15 +875,15 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/tribuo-util-infotheory-4.2.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/tribuo-util-onnx-4.2.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/tribuo-util-tokenization-4.2.1.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications-core/httpclient-4.5.13.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications-core/httpcore-4.4.15.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications-core/jackson-annotations-2.13.3.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications-core/jackson-databind-2.13.3.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications-core/activation-1.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications-core/aws-java-sdk-core-1.12.48.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications-core/aws-java-sdk-ses-1.12.48.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications-core/aws-java-sdk-sns-1.12.48.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications-core/aws-java-sdk-sts-1.12.48.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications-core/httpclient-4.5.13.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications-core/httpcore-4.4.15.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications-core/jackson-annotations-2.13.3.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications-core/jackson-databind-2.13.3.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications-core/javax.mail-1.6.2.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications-core/kotlin-stdlib-1.6.10.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications-core/kotlin-stdlib-common-1.6.10.jar
@@ -917,9 +917,9 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/ingest-geoip/plugin-security.policy
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/ingest-geoip/geoip2-3.0.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/ingest-geoip/ingest-geoip-2.3.0.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/ingest-geoip/maxmind-db-2.0.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/ingest-geoip/jackson-annotations-2.13.3.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/ingest-geoip/jackson-databind-2.13.3.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/ingest-geoip/maxmind-db-2.0.0.jar
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/percolator
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/percolator/plugin-descriptor.properties
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/percolator/percolator-client-2.3.0.jar
@@ -978,17 +978,17 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/rank-eval/plugin-descriptor.properties
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/rank-eval/rank-eval-client-2.3.0.jar
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/opensearch-dashboards
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/opensearch-dashboards/httpcore-nio-4.4.15.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/opensearch-dashboards/httpasyncclient-4.1.5.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/opensearch-dashboards/reindex-client-2.3.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/opensearch-dashboards/plugin-descriptor.properties
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/opensearch-dashboards/opensearch-rest-client-2.3.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/opensearch-dashboards/httpclient-4.5.13.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/opensearch-dashboards/opensearch-dashboards-2.3.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/opensearch-dashboards/opensearch-ssl-config-2.3.0.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/opensearch-dashboards/commons-logging-1.2.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/opensearch-dashboards/commons-codec-1.15.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/opensearch-dashboards/httpasyncclient-4.1.5.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/opensearch-dashboards/httpcore-4.4.15.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/opensearch-dashboards/httpcore-nio-4.4.15.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/opensearch-dashboards/commons-logging-1.2.jar
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/ingest-user-agent
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/ingest-user-agent/ingest-user-agent-2.3.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/ingest-user-agent/plugin-descriptor.properties
@@ -999,17 +999,17 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/parent-join/plugin-descriptor.properties
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/parent-join/parent-join-client-2.3.0.jar
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/httpcore-nio-4.4.15.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/httpasyncclient-4.1.5.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/reindex-client-2.3.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/plugin-descriptor.properties
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/opensearch-rest-client-2.3.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/plugin-security.policy
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/httpclient-4.5.13.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/opensearch-ssl-config-2.3.0.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/commons-logging-1.2.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/commons-codec-1.15.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/httpasyncclient-4.1.5.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/httpcore-4.4.15.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/httpcore-nio-4.4.15.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/commons-logging-1.2.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/parent-join/plugin-descriptor.properties
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/transport-netty4/plugin-descriptor.properties
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/transport-netty4/plugin-security.policy
@@ -1044,35 +1044,34 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/man/man1/jdeps.1
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/man/man1/javap.1
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jar
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jarsigner
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/java
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/javac
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/javadoc
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/javap
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jcmd
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jconsole
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jdb
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jdeprscan
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jdeps
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jfr
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jhsdb
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jimage
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jinfo
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jlink
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jmap
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jmod
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jpackage
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jps
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jrunscript
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jshell
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jstack
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jstat
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jstatd
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/keytool
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/rmiregistry
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jrunscript
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jdeprscan
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jar
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jmap
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jps
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jstatd
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/java
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jdb
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jimage
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/javadoc
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jconsole
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jcmd
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jstack
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jinfo
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jpackage
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/serialver
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/jspawnhelper
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/javap
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/keytool
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jarsigner
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jhsdb
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jlink
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jfr
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jstat
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/javac
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jmod
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jshell
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/release
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.base
@@ -1182,6 +1181,7 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/security/public_suffix_list.dat
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/security/default.policy
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/librmi.so
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/jspawnhelper
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/jrt-fs.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libattach.so
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/include

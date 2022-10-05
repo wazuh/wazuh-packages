@@ -56,6 +56,7 @@ find -type l -exec rm -rf {} \;
 find -name "*.bat" -exec rm -rf {} \;
 rm -rf README.md manifest.yml opensearch-tar-install.sh logs
 sed -i 's|OPENSEARCH_DISTRIBUTION_TYPE=tar|OPENSEARCH_DISTRIBUTION_TYPE=rpm|g' bin/opensearch-env
+sed -i 's|"$OPENSEARCH_HOME"/config|/etc/wazuh-indexer|g' bin/opensearch-env 
 cp -r /root/stack/indexer/base/files/systemd-entrypoint bin/
 mkdir -p ./etc/wazuh-indexer/
 cp -r ./config/* ./etc/wazuh-indexer/
