@@ -8,8 +8,6 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-set -ex
-
 current_path="$( cd $(dirname $0) ; pwd -P )"
 architecture="x86_64"
 outdir="${current_path}/output"
@@ -18,6 +16,14 @@ build_docker="yes"
 apk_x86_builder="apk_agent_builder_x86"
 apk_builder_dockerfile="${current_path}/docker"
 future="no"
+jobs="2"
+spec_reference="master"
+installation_path="/var/ossec"
+aws_region="us-east-1"
+local_spec="no"
+local_source="no"
+private_key_id=""
+public_key_id=""
 
 trap ctrl_c INT
 
@@ -46,18 +52,23 @@ build_apk() {
         docker build -t ${container_name} ${dockerfile_path} || return 1
     fi
 
-    # Build the RPM package with a Docker container
-    volumes="-v ${outdir}/:/tmp:Z"
-    if [ "${spec_reference}" ];then
-        docker run -t --rm ${volumes} \
-            ${container_name} ${architecture} ${revision} \
-            ${reference} ${future} ${spec_reference} || return 1
-    else
-        docker run -t --rm ${volumes} \
-            -v ${current_path}/..:/root/repository:Z \
-            ${container_name} ${architecture} \
-            ${revision} ${reference} ${future} || return 1
+    # Build the Alpine package with a Docker container
+    volumes="-v ${outdir}/:/output:Z"
+    if [ "${local_spec}" = "yes" ];then
+        volumes="${volumes} -v ${current_path}/..:/root/repository:Z"
+        #packages_private_key packages_public_key us-east-1 
     fi
+
+    if [ "${local_source}" != "no" ];then
+        volumes="${volumes} -v ${local_source}:/wazuh:Z"
+    fi
+
+    docker run -t --rm ${volumes} \
+        ${container_name} ${reference} ${architecture} ${revision} ${jobs} \
+        ${installation_path} ${debug} ${spec_reference} ${local_spec} \
+        ${local_source} ${future} ${aws_region} ${private_key_id} \
+        ${public_key_id} || return 1
+
 
     echo "Package $(ls -Art ${outdir} | tail -n 1) added to ${outdir}."
 
@@ -84,12 +95,17 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    --reference <ref>          [Required] Select Git branch or tag from wazuh repository."
+    echo "    -b, --reference <ref>      [Required] Select Git branch or tag from wazuh repository."
     echo "    -a, --architecture <arch>  [Optional] Target architecture of the package [x86_64]."
+    echo "    -j, --jobs <number>        [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 2."
     echo "    -r, --revision <rev>       [Optional] Package revision. By default: 1."
     echo "    -s, --store <path>         [Optional] Set the destination path of package. By default, an output folder will be created."
-    echo "    --packages-reference <ref> [Optional] Select Git branch or tag from wazuh-packages repository. e.g ${spec_reference}"
+    echo "    -p, --path <path>          [Optional] Installation path for the package. By default: /var/ossec."
+    echo "    -d, --debug                [Optional] Build the binaries with debug symbols. By default: no."
     echo "    --dont-build-docker        [Optional] Locally built docker image will be used instead of generating a new one."
+    echo "    --sources <path>           [Optional] Absolute path containing wazuh source code. This option will use local source code instead of downloading it from GitHub."
+    echo "    --packages-reference <ref> [Optional] Select Git branch or tag from wazuh-packages repository. e.g ${spec_reference}"
+    echo "    --dev                      [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub."
     echo "    --future                   [Optional] Build test future package 99.99.0 Used for development purposes."
     echo "    -h, --help                 Show this help."
     echo
@@ -104,9 +120,25 @@ main() {
         "-h"|"--help")
             help 0
             ;;
+        "-b"|"--reference")
+            if [ -n "$2" ]; then
+                reference="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
         "-a"|"--architecture")
             if [ -n "$2" ]; then
                 architecture="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
+        "-j"|"--jobs")
+            if [ -n "$2" ]; then
+                jobs="$2"
                 shift 2
             else
                 help 1
@@ -120,17 +152,33 @@ main() {
                 help 1
             fi
             ;;
-        "--reference")
+        "-p"|"--path")
             if [ -n "$2" ]; then
-                reference="$2"
+                installation_path="$2"
                 shift 2
             else
                 help 1
             fi
             ;;
-        "--packages-reference")
+        "-d"|"--debug")
+            debug="yes"
+            shift 1
+            ;;
+        "--packages-reference"|"--packages-branch")
             if [ -n "$2" ]; then
                 spec_reference="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
+        "--dev")
+            local_spec="yes"
+            shift 1
+            ;;
+        "--sources")
+            if [ -n "$2" ]; then
+                local_source="$2"
                 shift 2
             else
                 help 1

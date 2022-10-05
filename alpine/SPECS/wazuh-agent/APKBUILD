@@ -17,14 +17,14 @@ builddir="${srcdir}/"
 
 build() {
   set -x
-  git clone https://github.com/wazuh/wazuh.git -b "${reference}" --depth=1
-  cd wazuh/src
+  cp -r /wazuh* ./
+  cd wazuh*/src
   sed -i '/#ifdef __linux__/,/#endif/d' shared/log_builder.c
   sed -i '/#ifdef __linux__/,/#endif/d' logcollector/logcollector.c
   make deps TARGET=agent EXTERNAL_SRC_ONLY=yes
 
   sed -i '15d' external/rpm/config.h || :
-  make -j"${jobs}" TARGET=agent
+  make -j"${jobs}" TARGET=agent DEBUG="${debug}"
 
   cd ..
   echo 'USER_LANGUAGE="en"' > ./etc/preloaded-vars.conf
