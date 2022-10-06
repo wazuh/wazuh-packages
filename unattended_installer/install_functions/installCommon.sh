@@ -60,10 +60,6 @@ function installCommon_addWazuhRepo() {
     else
         common_logger "Wazuh repository added."
     fi
-
-    echo "Stop"
-    read var1
-
 }
 
 function installCommon_aptInstall() {
