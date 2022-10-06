@@ -47,7 +47,7 @@ function installCommon_addWazuhRepo() {
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "curl -s ${repogpg} --max-time 300 | gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import - ${debug}"
             eval "chmod 644 /usr/share/keyrings/wazuh.gpg ${debug}"
-            eval "echo \"deb ${repobaseurl}/apt/ ${reporelease} main\" | tee /etc/apt/sources.list.d/wazuh.list ${debug}"
+            eval "echo \"deb [signed-by=/usr/share/keyrings/wazuh.gpg] ${repobaseurl}/apt/ ${reporelease} main\" | tee /etc/apt/sources.list.d/wazuh.list ${debug}"
             eval "apt-get update -q ${debug}"
             eval "chmod 644 /etc/apt/sources.list.d/wazuh.list ${debug}"
         fi
@@ -60,6 +60,9 @@ function installCommon_addWazuhRepo() {
     else
         common_logger "Wazuh repository added."
     fi
+
+    echo "Stop"
+    read var1
 
 }
 
