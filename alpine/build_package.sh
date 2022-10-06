@@ -53,7 +53,7 @@ build_apk() {
     fi
 
     # Build the Alpine package with a Docker container
-    volumes="-v ${outdir}/:/output:Z"
+    volumes="-v ${outdir}/:/var/local/wazuh:Z"
     if [ "${local_spec}" = "yes" ];then
         volumes="${volumes} -v ${current_path}/..:/root/repository:Z"
         #packages_private_key packages_public_key us-east-1 

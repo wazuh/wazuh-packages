@@ -81,4 +81,4 @@ abuild -F checksum
 abuild -F -r
 
 cd ${pkg_path} && sha512sum ${pkg_file} > /tmp/${pkg_file}.sha512
-find ${pkg_path}/ -maxdepth 3 -type f -name "${file_name}*" -exec mv {} /output/ \;
+find ${pkg_path}/ -maxdepth 3 -type f -name "${file_name}*" -exec mv {} /var/local/wazuh/ \;
