@@ -38,10 +38,7 @@ fi
 if [ "${local_source}" = "no" ]; then
     curl -sL https://github.com/wazuh/wazuh/tarball/${reference} | tar zx
 fi
-pwd
-ls -lah
 export version="$(cat wazuh*/src/VERSION | cut -d 'v' -f 2)"
-ls -lah /wazuh
 
 if [ "${future}" = "yes" ]; then
     export version="99.99.0"
