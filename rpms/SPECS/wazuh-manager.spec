@@ -26,6 +26,8 @@ Wazuh helps you to gain security visibility into your infrastructure by monitori
 hosts at an operating system and application level. It provides the following capabilities:
 log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 
+# Don't generate build_id links to prevent conflicts with other
+# packages, as azure-cli
 %global _build_id_links none
 
 %prep
