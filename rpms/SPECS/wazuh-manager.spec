@@ -27,7 +27,7 @@ hosts at an operating system and application level. It provides the following ca
 log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 
 # Don't generate build_id links to prevent conflicts with other
-# packages, as azure-cli
+# packages.
 %global _build_id_links none
 
 %prep
