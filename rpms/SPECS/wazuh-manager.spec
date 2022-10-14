@@ -26,6 +26,10 @@ Wazuh helps you to gain security visibility into your infrastructure by monitori
 hosts at an operating system and application level. It provides the following capabilities:
 log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 
+# Don't generate build_id links to prevent conflicts with other
+# packages.
+%global _build_id_links none
+
 %prep
 %setup -q
 
@@ -668,6 +672,8 @@ rm -fr %{buildroot}
 %attr(750, root, wazuh) %{_localstatedir}/lib/libsyscollector.so
 %attr(750, root, wazuh) %{_localstatedir}/lib/libsysinfo.so
 %attr(750, root, wazuh) %{_localstatedir}/lib/libjemalloc.so.2
+%attr(750, root, wazuh) %{_localstatedir}/lib/libstdc++.so.6
+%attr(750, root, wazuh) %{_localstatedir}/lib/libgcc_s.so.1
 %{_localstatedir}/lib/libpython3.9.so.1.0
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/logs
 %attr(660, wazuh, wazuh)  %ghost %{_localstatedir}/logs/active-responses.log
