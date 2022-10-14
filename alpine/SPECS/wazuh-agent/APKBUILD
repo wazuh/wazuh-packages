@@ -19,6 +19,7 @@ build() {
   set -x
   cp -r /wazuh* ./
   cd wazuh*/src
+
   make deps TARGET=agent EXTERNAL_SRC_ONLY=yes
   make -j"${jobs}" TARGET=agent DEBUG="${debug}"
 
