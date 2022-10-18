@@ -13,7 +13,11 @@ architecture="x86_64"
 outdir="${current_path}/output"
 revision="1"
 build_docker="yes"
+apk_x86_64_builder="apk_agent_builder_x86_64"
+apk_aarch64_builder="apk_agent_builder_aarch64"
 apk_x86_builder="apk_agent_builder_x86"
+apk_armhf_builder="apk_agent_builder_armhf"
+apk_ppc64le_builder="apk_agent_builder_ppc64le"
 apk_builder_dockerfile="${current_path}/docker"
 future="no"
 jobs="2"
@@ -81,12 +85,26 @@ build() {
     file_path=""
     if [ "${architecture}" = "x86_64" ] || [ "${architecture}" = "amd64" ]; then
         architecture="x86_64"
+        build_name="${apk_x86_64_builder}"
+    elif [ "${architecture}" = "arm64" ] || [ "${architecture}" = "aarch64" ] || \
+        [ "${architecture}" = "arm64v8" ]; then
+        architecture="aarch64"
+        build_name="${apk_arm64v8_builder}"
+    elif [ "${architecture}" = "i386" ] || [ "${architecture}" = "x86" ]; then
+        architecture="x86"
         build_name="${apk_x86_builder}"
-        file_path="${apk_builder_dockerfile}/${architecture}"
+    elif [ "${architecture}" = "armhf" ] || [ "${architecture}" = "arm32" ] || \
+          [ "${architecture}" = "arm32v7" ]; then
+        architecture="armhf"
+        build_name="${apk_armhf_builder}"
+    elif [ "${architecture}" = "ppc64le" ] || [ "${architecture}" = "ppc" ]; then
+        architecture="ppc64le"
+        build_name="${apk_ppc64le_builder}"
     else
         echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too)"
         return 1
     fi
+    file_path="${apk_builder_dockerfile}/${architecture}"
     build_apk ${build_name} ${file_path} || return 1
 
     return 0
