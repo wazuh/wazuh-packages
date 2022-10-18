@@ -201,7 +201,7 @@ function main() {
     common_logger "Verbose logging redirected to ${logfile}"
 
 # -------------- Uninstall case  ------------------------------------
-    
+
     if [ -z "${download}" ]; then
         check_dist
     fi
@@ -229,7 +229,7 @@ function main() {
         rm -f "${tar_file}"
         checks_ports "${wazuh_aio_ports[@]}"
     fi
-    
+
     if [ -n "${indexer}" ]; then
         checks_ports "${wazuh_indexer_ports[@]}"
     fi
@@ -241,7 +241,7 @@ function main() {
     if [ -n "${dashboard}" ]; then
         checks_ports "${wazuh_dashboard_ports[@]}"
     fi
-    
+
 
 # -------------- Prerequisites and Wazuh repo  ----------------------
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
@@ -333,7 +333,7 @@ function main() {
         installCommon_startService "wazuh-dashboard"
         installCommon_changePasswords
         dashboard_initializeAIO
-        
+
     fi
 
 # -------------- Offline case  ------------------------------------------
