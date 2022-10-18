@@ -77,7 +77,7 @@ cp %{buildroot}%{INSTALL_DIR}/etc/services/wazuh-dashboard.service %{buildroot}/
 cp %{buildroot}%{INSTALL_DIR}/etc/services/wazuh-dashboard %{buildroot}/etc/init.d/wazuh-dashboard
 cp %{buildroot}%{INSTALL_DIR}/etc/services/default %{buildroot}/etc/default/wazuh-dashboard
 
-chmod 640 %{buildroot}/etc/init.d/wazuh-dashboard
+chmod 750 %{buildroot}/etc/init.d/wazuh-dashboard
 chmod 640 %{buildroot}/etc/systemd/system/wazuh-dashboard.service
 chmod 640 %{buildroot}/etc/default/wazuh-dashboard
 
@@ -86,8 +86,8 @@ rm -rf %{buildroot}%{INSTALL_DIR}/etc/
 find %{buildroot}%{INSTALL_DIR} -exec chown %{USER}:%{GROUP} {} \;
 find %{buildroot}%{CONFIG_DIR} -exec chown %{USER}:%{GROUP} {} \;
 
-chown %{USER}:%{GROUP} %{buildroot}/etc/systemd/system/wazuh-dashboard.service
-chown %{USER}:%{GROUP} %{buildroot}/etc/init.d/wazuh-dashboard
+chown root:root %{buildroot}/etc/systemd/system/wazuh-dashboard.service
+chown root:root %{buildroot}/etc/init.d/wazuh-dashboard
 
 if [ "%{version}" = "99.99.0" ];then
     runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/futures/ui/dashboard/wazuh-99.99.0-%{release}.zip"
@@ -99,6 +99,7 @@ find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -exec chown %{USER}:%{GROUP} {} \
 find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -type f -perm 644 -exec chmod 640 {} \;
 find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -type f -perm 755 -exec chmod 750 {} \;
 find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -type d -exec chmod 750 {} \;
+find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -type f -perm 744 -exec chmod 740 {} \;
 
 # -----------------------------------------------------------------------------
 
@@ -210,7 +211,7 @@ rm -fr %{buildroot}
 %files
 %defattr(-,%{USER},%{GROUP})
 
-%attr(0750, %{USER}, %{GROUP}) "/etc/init.d/wazuh-dashboard"
+%attr(0750, root, root) "/etc/init.d/wazuh-dashboard"
 %attr(0750, %{USER}, %{GROUP}) "/etc/default/wazuh-dashboard"
 %config(noreplace) %attr(0640, %{USER}, %{GROUP}) "%{CONFIG_DIR}/opensearch_dashboards.yml"
 %attr(440, %{USER}, %{GROUP}) %{INSTALL_DIR}/VERSION
@@ -400,4 +401,4 @@ rm -fr %{buildroot}
 %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/bin/opensearch-dashboards-keystore"
 %dir %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/config"
 %attr(640, %{USER}, %{GROUP}) "%{CONFIG_DIR}/node.options"
-%attr(640, %{USER}, %{GROUP}) "/etc/systemd/system/wazuh-dashboard.service"
+%attr(640, root, root) "/etc/systemd/system/wazuh-dashboard.service"

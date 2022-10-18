@@ -199,6 +199,7 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/perfmark-api-0.23.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/protobuf-java-3.19.2.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/proto-google-common-protos-2.0.1.jar
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/config
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/config/agent-stats-metadata
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/config/log4j2.xml
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/config/opensearch_security.policy
@@ -220,6 +221,7 @@ override_dh_fixperms:
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-upgrade
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/systemd-entrypoint
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/indexer-security-init.sh
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-performance-analyzer
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-performance-analyzer/performance-analyzer-agent
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-performance-analyzer/performance-analyzer-agent-cli
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/lib
@@ -412,6 +414,7 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-knn/LICENSE.txt
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-knn/NOTICE.txt
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-knn/guava-30.0-jre.jar
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-knn/lib
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-knn/lib/libgomp.so.1
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-knn/lib/libopensearchknn_common.so
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-knn/lib/libopensearchknn_faiss.so
@@ -527,7 +530,6 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/json-smart-2.4.7.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/xmlsec-2.2.3.jar
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools
-
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/SECURITY_ADMIN_TESTS.md
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/config.yml
 	chmod 740 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/hash.sh
@@ -664,6 +666,7 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/kotlin-stdlib-jdk8-1.6.10.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/percolator-client-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/commons-logging-1.2.jar
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/common-utils-2.3.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/commons-beanutils-1.9.4.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/commons-codec-1.15.jar
@@ -725,6 +728,7 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/tribuo-util-infotheory-4.2.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/tribuo-util-onnx-4.2.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/tribuo-util-tokenization-4.2.1.jar
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications-core/
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications-core/activation-1.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications-core/aws-java-sdk-core-1.12.48.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications-core/aws-java-sdk-ses-1.12.48.jar
@@ -742,6 +746,7 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications-core/commons-logging-1.2.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications-core/plugin-descriptor.properties
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications-core/plugin-security.policy
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications/common-utils-2.3.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications/kotlin-stdlib-common-1.6.10.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications/kotlinx-coroutines-core-jvm-1.4.3.jar
@@ -860,7 +865,9 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/reindex/commons-codec-1.15.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/reindex/httpcore-4.4.15.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/reindex/commons-logging-1.2.jar
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/reindex/parent-join
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/reindex/parent-join/plugin-descriptor.properties
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/reindex/transport-netty4
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/reindex/transport-netty4/plugin-descriptor.properties
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/reindex/transport-netty4/plugin-security.policy
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk

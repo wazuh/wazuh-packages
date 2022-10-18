@@ -74,17 +74,10 @@ override_dh_install:
 	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/services/wazuh-dashboard $(TARGET_DIR)/etc/systemd/system/$(NAME)
 	cp $(TARGET_DIR)$(INSTALLATION_DIR)/etc/services/default $(TARGET_DIR)/etc/default/$(NAME)
 
-	chmod 644 $(TARGET_DIR)/etc/systemd/system/$(NAME)
-	chmod 644 $(TARGET_DIR)/etc/systemd/system/wazuh-dashboard.service
-	chmod 644 $(TARGET_DIR)/etc/default/$(NAME)
-
 	rm -rf $(TARGET_DIR)$(INSTALLATION_DIR)/etc
 
 	chown -R $(USER):$(GROUP) $(TARGET_DIR)$(INSTALLATION_DIR)
 	chown -R $(USER):$(GROUP) $(TARGET_DIR)$(CONFIG_DIR)
-	chown $(USER):$(GROUP) $(TARGET_DIR)/etc/systemd/system/wazuh-dashboard.service
-	chown $(USER):$(GROUP) $(TARGET_DIR)/etc/systemd/system/$(NAME)
-	chown $(USER):$(GROUP) $(TARGET_DIR)/etc/default/$(NAME)
 
 	if [ "$(VERSION)" = "99.99.0" ]; then \
 		runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/futures/ui/dashboard/wazuh-99.99.0-$(REVISION).zip" ;\
@@ -100,8 +93,9 @@ override_dh_fixperms:
 
 	chown -R "$(NAME)":"$(NAME)" "$(TARGET_DIR)$(CONFIG_DIR)"
 	chown -R "$(NAME)":"$(NAME)" "$(TARGET_DIR)$(INSTALLATION_DIR)"
-	chown -R "$(NAME)":"$(NAME)" $(TARGET_DIR)/etc/default/"$(NAME)"
-	chown -R "$(NAME)":"$(NAME)" $(TARGET_DIR)/etc/systemd/system/"$(NAME)"
+	chown root:root $(TARGET_DIR)/etc/systemd/system/wazuh-dashboard.service
+	chown root:root $(TARGET_DIR)/etc/systemd/system/"$(NAME)"
+	chown root:root $(TARGET_DIR)/etc/default/"$(NAME)"
 	chown $(NAME):$(NAME) $(TARGET_DIR)$(INSTALLATION_DIR)/VERSION
 	chmod 440 $(TARGET_DIR)$(INSTALLATION_DIR)/VERSION
 	chmod 750 $(TARGET_DIR)/etc/systemd/system/wazuh-dashboard
@@ -112,6 +106,7 @@ override_dh_fixperms:
 	find "$(TARGET_DIR)$(INSTALLATION_DIR)" -type d -exec chmod 750 {} \;
 	find "$(TARGET_DIR)$(INSTALLATION_DIR)" -type f -perm 644 -exec chmod 640 {} \;
 	find "$(TARGET_DIR)$(INSTALLATION_DIR)" -type f -perm 755 -exec chmod 750 {} \;
+	find "$(TARGET_DIR)$(INSTALLATION_DIR)" -type f -perm 744 -exec chmod 740 {} \;
 
 # -----------------------------------------------------------------------------
 
