@@ -92,7 +92,7 @@ chown root:root %{buildroot}/etc/init.d/wazuh-dashboard
 if [ "%{version}" = "99.99.0" ];then
     runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/futures/ui/dashboard/wazuh-99.99.0-%{release}.zip"
 else
-    runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-%{version}-%{release}.zip"
+    runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/warehouse/test/4.4/ui/dashboard/wazuh-%{version}-%{release}.zip"
 fi
 
 find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -exec chown %{USER}:%{GROUP} {} \;
@@ -210,11 +210,13 @@ rm -fr %{buildroot}
 
 %files
 %defattr(-,%{USER},%{GROUP})
+%dir %attr(750, %{USER}, %{GROUP}) %{CONFIG_DIR}
 
 %attr(0750, root, root) "/etc/init.d/wazuh-dashboard"
 %attr(0750, %{USER}, %{GROUP}) "/etc/default/wazuh-dashboard"
 %config(noreplace) %attr(0640, %{USER}, %{GROUP}) "%{CONFIG_DIR}/opensearch_dashboards.yml"
 %attr(440, %{USER}, %{GROUP}) %{INSTALL_DIR}/VERSION
+%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}
 %dir %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/src"
 %dir %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/src/core"
 %attr(-, %{USER}, %{GROUP}) "%{INSTALL_DIR}/src/core/*"

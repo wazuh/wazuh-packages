@@ -1095,8 +1095,10 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.base/unicode.md
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.security.sasl
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.scripting
+%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.dynalink
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.dynalink/dynalink.md
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.management
+%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.javadoc
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.javadoc/jqueryUI.md
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.javadoc/jquery.md
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.xml
@@ -1111,9 +1113,11 @@ rm -fr %{buildroot}
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.prefs
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.compiler
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.logging
+%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.internal.opt
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.internal.opt/jopt-simple.md
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.xml.crypto
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.xml.crypto/santuario.md
+%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.localedata
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.localedata/thaidict.md
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.sql.rowset
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.net.http
@@ -1121,7 +1125,9 @@ rm -fr %{buildroot}
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.sql
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.naming
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.datatransfer
+%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.internal.le
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.internal.le/jline.md
+%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.crypto.cryptoki
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.crypto.cryptoki/pkcs11cryptotoken.md
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.crypto.cryptoki/pkcs11wrapper.md
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.instrument

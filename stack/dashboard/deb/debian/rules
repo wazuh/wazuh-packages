@@ -26,10 +26,10 @@ export DH_OPTIONS
 
 export TARGET_DIR=${CURDIR}/debian/wazuh-dashboard
 export NAME=wazuh-dashboard
-export CONFIG_DIR=/etc/${NAME}
+export CONFIG_DIR=/etc/$(NAME)
 export INSTALLATION_DIR=$(INSTALLATION_DIR)
-export USER=${NAME}
-export GROUP=${NAME}
+export USER=$(NAME)
+export GROUP=$(NAME)
 export DASHBOARD_FILE=wazuh-dashboard-base-$(VERSION)-$(REVISION)-linux-x64.tar.xz
 
 # -----------------------------------------------------------------------------
@@ -82,7 +82,7 @@ override_dh_install:
 	if [ "$(VERSION)" = "99.99.0" ]; then \
 		runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/futures/ui/dashboard/wazuh-99.99.0-$(REVISION).zip" ;\
 	else \
-		runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-$(VERSION)-$(REVISION).zip" ;\
+		runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/warehouse/test/4.4/ui/dashboard/wazuh-$(VERSION)-$(REVISION).zip" ;\
 	fi
 
 	find $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/wazuh/ -exec chown $(USER):$(GROUP) {} \;
@@ -91,12 +91,14 @@ override_dh_install:
 
 override_dh_fixperms:
 
-	chown -R "$(NAME)":"$(NAME)" "$(TARGET_DIR)$(CONFIG_DIR)"
-	chown -R "$(NAME)":"$(NAME)" "$(TARGET_DIR)$(INSTALLATION_DIR)"
+	chmod 750 $(TARGET_DIR)$(CONFIG_DIR)
+	chown -R $(USER):$(GROUP) $(TARGET_DIR)$(CONFIG_DIR)
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)
+	chown -R $(USER):$(GROUP) $(TARGET_DIR)$(INSTALLATION_DIR)
 	chown root:root $(TARGET_DIR)/etc/systemd/system/wazuh-dashboard.service
 	chown root:root $(TARGET_DIR)/etc/systemd/system/"$(NAME)"
-	chown root:root $(TARGET_DIR)/etc/default/"$(NAME)"
-	chown $(NAME):$(NAME) $(TARGET_DIR)$(INSTALLATION_DIR)/VERSION
+	chown $(USER):$(GROUP) $(TARGET_DIR)/etc/default/"$(NAME)"
+	chown $(USER):$(GROUP) $(TARGET_DIR)$(INSTALLATION_DIR)/VERSION
 	chmod 440 $(TARGET_DIR)$(INSTALLATION_DIR)/VERSION
 	chmod 750 $(TARGET_DIR)/etc/systemd/system/wazuh-dashboard
 	chmod 750 $(TARGET_DIR)/etc/default/wazuh-dashboard
