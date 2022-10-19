@@ -124,7 +124,7 @@ def get_wazuh_api_status():
     basic_auth = f"{user}:{password}".encode()
     login_headers = {'Content-Type': 'application/json',
                     'Authorization': f'Basic {b64encode(basic_auth).decode()}'}
-    response = requests.get(login_url, headers=login_headers, verify=False)
+    response = requests.post(login_url, headers=login_headers, verify=False)
     token = json.loads(response.content.decode())['data']['token']
     requests_headers = {'Content-Type': 'application/json',
                         'Authorization': f'Bearer {token}'}
