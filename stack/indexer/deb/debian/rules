@@ -137,10 +137,15 @@ override_dh_fixperms:
 	chmod 660 $(TARGET_DIR)/etc/default/$(NAME)
 	chown root:$(GROUP) $(TARGET_DIR)/etc/default/$(NAME)
 	chmod 750 $(TARGET_DIR)/etc/init.d/$(NAME)
+	chown root:root $(TARGET_DIR)/etc/init.d/$(NAME)
 	chmod 640 $(TARGET_DIR)$(SYS_DIR)/sysctl.d/$(NAME).conf
+	chown root:root $(TARGET_DIR)$(SYS_DIR)/sysctl.d/$(NAME).conf
 	chmod 640 $(TARGET_DIR)$(SYS_DIR)/systemd/system/$(NAME).service
+	chown root:root $(TARGET_DIR)$(SYS_DIR)/systemd/system/$(NAME).service
 	chmod 640 $(TARGET_DIR)$(SYS_DIR)/systemd/system/$(NAME)-performance-analyzer.service
+	chown root:root $(TARGET_DIR)$(SYS_DIR)/systemd/system/$(NAME)-performance-analyzer.service
 	chmod 640 $(TARGET_DIR)$(SYS_DIR)/tmpfiles.d/$(NAME).conf
+	chown root:root $(TARGET_DIR)$(SYS_DIR)/tmpfiles.d/$(NAME).conf
 
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca
@@ -148,7 +153,7 @@ override_dh_fixperms:
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/bin/performance-analyzer-rca
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/bin/performance-analyzer-agent
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/performance-analyzer-rca-2.1.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/performance-analyzer-rca-2.3.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/sqlite-jdbc-3.32.3.2.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/log4j-api-2.17.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/j2objc-annotations-1.3.jar
@@ -177,9 +182,9 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/grpc-stub-1.44.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/gson-2.8.9.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/guava-30.1.1-android.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/jackson-annotations-2.12.6.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/jackson-core-2.12.6.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/jackson-databind-2.12.6.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/jackson-annotations-2.13.2.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/jackson-core-2.13.2.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/jackson-databind-2.13.2.2.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/netty-buffer-4.1.72.Final.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/netty-codec-4.1.72.Final.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/netty-codec-http-4.1.72.Final.jar
@@ -194,6 +199,7 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/perfmark-api-0.23.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/protobuf-java-3.19.2.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/proto-google-common-protos-2.0.1.jar
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/config
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/config/agent-stats-metadata
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/config/log4j2.xml
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/config/opensearch_security.policy
@@ -215,67 +221,71 @@ override_dh_fixperms:
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-upgrade
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/systemd-entrypoint
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/indexer-security-init.sh
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-performance-analyzer
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-performance-analyzer/performance-analyzer-agent
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-performance-analyzer/performance-analyzer-agent-cli
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/lib
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/hppc-0.8.1.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/opensearch-geo-2.1.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/opensearch-cli-2.1.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/java-version-checker-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/opensearch-geo-2.3.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/opensearch-cli-2.3.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/java-version-checker-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/log4j-api-2.17.1.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/snakeyaml-1.26.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/opensearch-x-content-2.1.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/opensearch-plugin-classloader-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/snakeyaml-1.31.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/opensearch-x-content-2.3.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/opensearch-plugin-classloader-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/jna-5.5.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/log4j-core-2.17.1.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/opensearch-launchers-2.1.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/opensearch-secure-sm-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/opensearch-launchers-2.3.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/opensearch-secure-sm-2.3.0.jar
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/tools
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/tools/plugin-cli
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/tools/plugin-cli/bcpg-fips-1.0.5.1.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/tools/plugin-cli/opensearch-plugin-cli-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/tools/plugin-cli/opensearch-plugin-cli-2.3.0.jar
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/tools/upgrade-cli
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/tools/upgrade-cli/opensearch-upgrade-cli-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/tools/upgrade-cli/opensearch-upgrade-cli-2.3.0.jar
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/tools/keystore-cli
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/tools/keystore-cli/keystore-cli-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/tools/keystore-cli/keystore-cli-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/jts-core-1.15.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/opensearch-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/opensearch-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/t-digest-3.2.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/opensearch-core-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/opensearch-core-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/spatial4j-0.7.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/jackson-core-2.13.2.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/jackson-dataformat-cbor-2.13.2.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/jackson-dataformat-smile-2.13.2.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/jackson-dataformat-yaml-2.13.2.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/jackson-core-2.13.3.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/jackson-dataformat-cbor-2.13.3.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/jackson-dataformat-smile-2.13.3.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/jackson-dataformat-yaml-2.13.3.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/joda-time-2.10.12.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/jopt-simple-5.0.4.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/HdrHistogram-2.1.12.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/lucene-analysis-common-9.2.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/lucene-backward-codecs-9.2.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/lucene-core-9.2.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/lucene-grouping-9.2.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/lucene-highlighter-9.2.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/lucene-join-9.2.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/lucene-memory-9.2.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/lucene-misc-9.2.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/lucene-queries-9.2.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/lucene-queryparser-9.2.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/lucene-sandbox-9.2.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/lucene-spatial-extras-9.2.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/lucene-spatial3d-9.2.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/lucene-suggest-9.2.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/lucene-analysis-common-9.3.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/lucene-backward-codecs-9.3.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/lucene-core-9.3.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/lucene-grouping-9.3.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/lucene-highlighter-9.3.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/lucene-join-9.3.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/lucene-memory-9.3.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/lucene-misc-9.3.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/lucene-queries-9.3.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/lucene-queryparser-9.3.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/lucene-sandbox-9.3.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/lucene-spatial-extras-9.3.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/lucene-spatial3d-9.3.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/lucene-suggest-9.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/tools/plugin-cli/bc-fips-1.0.2.3.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/tools/upgrade-cli/jackson-annotations-2.13.2.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/tools/upgrade-cli/jackson-core-2.13.2.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/tools/upgrade-cli/jackson-databind-2.13.2.2.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/tools/upgrade-cli/jackson-annotations-2.13.3.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/tools/upgrade-cli/jackson-core-2.13.3.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/lib/tools/upgrade-cli/jackson-databind-2.13.3.jar
 	chmod 750 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-observability
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-observability/observability.yml
 	chmod 750 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-reports-scheduler
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-reports-scheduler/reports-scheduler.yml
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/jvm.options
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch.yml
+	chmod 750 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-notifications-core
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-notifications-core/notifications-core.yml
+	chmod 750 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-notifications
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-notifications/notifications.yml
+	chmod 750 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-performance-analyzer
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-performance-analyzer/agent-stats-metadata
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-performance-analyzer/log4j2.xml
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-performance-analyzer/opensearch_security.policy
@@ -285,6 +295,7 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-performance-analyzer/rca_idle_master.conf
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-performance-analyzer/rca_master.conf
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-performance-analyzer/supervisord.conf
+	chmod 750 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/action_groups.yml
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/audit.yml
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/config.yml
@@ -297,13 +308,14 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/whitelist.yml
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/allowlist.yml
 	chmod 750 $(TARGET_DIR)$(CONFIG_DIR)/jvm.options.d
+	chmod 440 $(TARGET_DIR)$(INSTALLATION_DIR)/VERSION
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/log4j2.properties
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/NOTICE.txt
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/LICENSE.txt
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-observability
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-observability/opensearch-observability-2.1.0.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-observability/common-utils-2.1.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-observability/opensearch-observability-2.3.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-observability/common-utils-2.3.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-observability/kotlinx-coroutines-core-jvm-1.3.9.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-observability/plugin-descriptor.properties
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-observability/plugin-security.policy
@@ -313,29 +325,31 @@ override_dh_fixperms:
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-reports-scheduler
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-reports-scheduler/jsoup-1.14.3.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-reports-scheduler/json-flattener-0.1.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-reports-scheduler/common-utils-2.1.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-reports-scheduler/common-utils-2.3.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-reports-scheduler/json-20180813.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-reports-scheduler/kotlinx-coroutines-core-jvm-1.3.9.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-reports-scheduler/plugin-descriptor.properties
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-reports-scheduler/plugin-security.policy
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-reports-scheduler/opensearch-reports-scheduler-2.1.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-reports-scheduler/opensearch-reports-scheduler-2.3.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-reports-scheduler/gson-2.8.9.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-reports-scheduler/guava-31.0.1-jre.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-reports-scheduler/kotlin-stdlib-1.6.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-reports-scheduler/kotlin-stdlib-common-1.6.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-reports-scheduler/kotlin-test-1.6.0.jar
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/geo-2.3.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/httpcore-nio-4.4.15.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/resilience4j-core-1.5.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/core-2.1.0.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/httpcore-nio-4.4.12.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/httpasyncclient-4.1.4.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/protocol-2.1.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/core-2.3.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/httpcore-nio-4.4.15.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/httpasyncclient-4.1.5.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/protocol-2.3.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/slf4j-api-1.7.30.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/druid-1.0.15.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/sql-2.1.0.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/opensearch-2.1.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/sql-2.3.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/opensearch-2.3.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/commons-lang3-3.10.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/reindex-client-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/reindex-client-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/gson-2.8.9.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/j2objc-annotations-1.3.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/jsr305-3.0.2.jar
@@ -347,21 +361,21 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/plugin-descriptor.properties
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/LICENSE.txt
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/vavr-match-0.10.2.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/parent-join-client-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/parent-join-client-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/vavr-0.10.2.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/presto-matching-0.240.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/opensearch-rest-client-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/opensearch-rest-client-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/plugin-security.policy
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/httpclient-4.5.13.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/legacy-2.1.0.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/opensearch-ssl-config-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/legacy-2.3.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/opensearch-ssl-config-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/commons-codec-1.13.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/opensearch-sql-2.1.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/opensearch-sql-2.3.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/commons-math3-3.6.1.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/ppl-2.1.0.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/httpcore-4.4.12.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/ppl-2.3.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/httpcore-4.4.15.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/failureaccess-1.0.1.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/common-2.1.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/common-2.3.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/ST4-4.0.8.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/antlr-runtime-3.5.2.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/antlr4-4.7.1.jar
@@ -369,23 +383,23 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/error_prone_annotations-2.7.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/guava-31.0.1-jre.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/icu4j-58.2.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/jackson-annotations-2.13.2.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/jackson-databind-2.13.2.2.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/jackson-annotations-2.13.3.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/jackson-databind-2.13.3.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/javax.json-1.0.4.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/opensearch-ml-client-2.1.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/opensearch-ml-client-2.3.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/org.abego.treelayout.core-1.0.3.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/spring-aop-5.2.20.RELEASE.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/spring-beans-5.2.20.RELEASE.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/spring-context-5.2.20.RELEASE.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/spring-core-5.2.20.RELEASE.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/spring-expression-5.2.20.RELEASE.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/spring-jcl-5.2.20.RELEASE.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/spring-aop-5.3.22.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/spring-beans-5.3.22.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/spring-context-5.3.22.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/spring-core-5.3.22.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/spring-expression-5.3.22.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/spring-jcl-5.3.22.jar
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-cross-cluster-replication
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-cross-cluster-replication/ipaddress-5.3.3.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-cross-cluster-replication/common-utils-2.1.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-cross-cluster-replication/common-utils-2.3.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-cross-cluster-replication/annotations-13.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-cross-cluster-replication/plugin-descriptor.properties
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-cross-cluster-replication/opensearch-cross-cluster-replication-2.1.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-cross-cluster-replication/opensearch-cross-cluster-replication-2.3.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-cross-cluster-replication/kotlin-stdlib-1.6.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-cross-cluster-replication/kotlin-stdlib-common-1.6.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-cross-cluster-replication/kotlin-stdlib-jdk7-1.6.0.jar
@@ -393,38 +407,39 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-cross-cluster-replication/kotlinx-coroutines-core-jvm-1.6.0.jar
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-knn
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-knn/commons-lang-2.6.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-knn/opensearch-knn-2.1.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-knn/opensearch-knn-2.3.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-knn/plugin-descriptor.properties
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-knn/plugin-security.policy
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-knn/failureaccess-1.0.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-knn/LICENSE.txt
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-knn/NOTICE.txt
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-knn/guava-30.0-jre.jar
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-knn/lib
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-knn/lib/libgomp.so.1
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-knn/lib/libopensearchknn_common.so
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-knn/lib/libopensearchknn_faiss.so
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-knn/lib/libopensearchknn_nmslib.so
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-index-management
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-index-management/ipaddress-5.3.3.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-index-management/common-utils-2.1.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-index-management/common-utils-2.3.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-index-management/annotations-13.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-index-management/kotlinx-coroutines-core-jvm-1.3.9.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-index-management/plugin-descriptor.properties
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-index-management/opensearch-index-management-2.1.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-index-management/opensearch-index-management-2.3.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-index-management/plugin-security.policy
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-index-management/commons-codec-1.13.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-index-management/httpclient-4.5.13.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-index-management/httpcore-4.4.12.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-index-management/httpcore-4.4.15.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-index-management/kotlin-stdlib-1.6.10.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-index-management/kotlin-stdlib-common-1.6.10.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-index-management/kotlin-stdlib-jdk7-1.6.10.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-index-management/opensearch-index-management-spi-2.1.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-index-management/opensearch-index-management-spi-2.3.0.0.jar
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/sqlite-jdbc-3.32.3.2.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/j2objc-annotations-1.3.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/jsr305-3.0.2.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/opensearch-performance-analyzer-2.1.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/opensearch-performance-analyzer-2.3.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/plugin-descriptor.properties
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/annotations-4.1.1.4.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/plugin-security.policy
@@ -448,28 +463,28 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/grpc-stub-1.44.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/gson-2.8.9.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/guava-30.1-jre.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/jackson-annotations-2.12.6.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/jackson-databind-2.12.6.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/jackson-module-paranamer-2.12.6.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/netty-buffer-4.1.73.Final.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/netty-codec-4.1.73.Final.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/netty-codec-http-4.1.73.Final.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/netty-codec-http2-4.1.73.Final.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/netty-codec-socks-4.1.73.Final.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/netty-common-4.1.73.Final.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/netty-handler-4.1.73.Final.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/netty-handler-proxy-4.1.73.Final.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/netty-resolver-4.1.73.Final.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/netty-tcnative-classes-2.0.46.Final.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/netty-transport-4.1.73.Final.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/jackson-annotations-2.13.2.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/jackson-databind-2.13.2.2.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/jackson-module-paranamer-2.13.2.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/netty-buffer-4.1.79.Final.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/netty-codec-4.1.79.Final.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/netty-codec-http-4.1.79.Final.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/netty-codec-http2-4.1.79.Final.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/netty-codec-socks-4.1.79.Final.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/netty-common-4.1.79.Final.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/netty-handler-4.1.79.Final.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/netty-handler-proxy-4.1.79.Final.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/netty-resolver-4.1.79.Final.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/netty-transport-4.1.79.Final.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/netty-transport-native-unix-common-4.1.79.Final.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/perfmark-api-0.23.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/performanceanalyzer-rca-2.1.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/performanceanalyzer-rca-2.3.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/protobuf-java-3.19.2.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/proto-google-common-protos-2.0.1.jar
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-job-scheduler
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-job-scheduler/opensearch-job-scheduler-spi-2.1.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-job-scheduler/opensearch-job-scheduler-spi-2.3.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-job-scheduler/plugin-descriptor.properties
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-job-scheduler/opensearch-job-scheduler-2.1.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-job-scheduler/opensearch-job-scheduler-2.3.0.0.jar
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/opensaml-saml-api-3.4.5.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/commons-codec-1.14.jar
@@ -479,10 +494,10 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/jakarta.activation-1.2.2.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/commons-logging-1.2.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/json-path-2.4.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/aggs-matrix-stats-client-2.1.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/httpcore-nio-4.4.12.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/httpasyncclient-4.1.4.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/lang-mustache-client-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/aggs-matrix-stats-client-2.3.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/httpcore-nio-4.4.15.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/httpasyncclient-4.1.5.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/lang-mustache-client-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/bcprov-jdk15on-1.67.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/json-flattener-0.5.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/cxf-rt-rs-json-basic-3.4.5.jar
@@ -495,7 +510,7 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/opensaml-messaging-api-3.4.5.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/opensaml-storage-api-3.4.5.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/commons-lang-2.4.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/mapper-extras-client-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/mapper-extras-client-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/jakarta.xml.bind-api-2.3.3.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/opensaml-saml-impl-3.4.5.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/java-saml-core-2.5.0.jar
@@ -504,17 +519,18 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/commons-lang3-3.4.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/lz4-java-1.7.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/plugin-descriptor.properties
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/rank-eval-client-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/rank-eval-client-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/ldaptive-1.2.3.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/opensearch-security-2.1.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/opensearch-security-2.3.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/woodstox-core-6.2.6.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/eventbus-3.2.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/istack-commons-runtime-3.0.12.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/asm-9.1.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/parent-join-client-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/parent-join-client-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/json-smart-2.4.7.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/xmlsec-2.2.3.jar
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/SECURITY_ADMIN_TESTS.md
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/config.yml
 	chmod 740 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/hash.sh
 	chmod 740 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/securityadmin.sh
@@ -523,14 +539,14 @@ override_dh_fixperms:
 	chmod 740 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/wazuh-passwords-tool.sh
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/xmlschema-core-2.2.5.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/httpclient-cache-4.5.13.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/transport-netty4-client-2.1.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/opensearch-rest-client-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/transport-netty4-client-2.3.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/opensearch-rest-client-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/plugin-security.policy
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/opensaml-xmlsec-api-3.4.5.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/httpclient-4.5.13.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/zjsonpatch-0.4.4.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/accessors-smart-2.4.7.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/opensearch-rest-high-level-client-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/opensearch-rest-high-level-client-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/cxf-rt-security-3.4.5.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/java-support-7.5.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/stax2-api-4.2.1.jar
@@ -541,7 +557,7 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/commons-collections-3.2.2.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/commons-text-1.2.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/jakarta.annotation-api-1.3.5.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/httpcore-4.4.12.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/httpcore-4.4.15.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/opensaml-soap-api-3.4.5.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/checker-qual-3.5.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/compiler-0.9.10.jar
@@ -550,48 +566,49 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/failureaccess-1.0.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/guava-30.0-jre.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/j2objc-annotations-1.3.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/jackson-annotations-2.13.2.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/jackson-annotations-2.13.3.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/jjwt-api-0.10.8.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/jjwt-impl-0.10.8.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/jjwt-jackson-0.10.8.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/netty-buffer-4.1.73.Final.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/netty-codec-4.1.73.Final.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/netty-codec-http-4.1.73.Final.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/netty-common-4.1.73.Final.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/netty-handler-4.1.73.Final.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/netty-resolver-4.1.73.Final.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/netty-transport-4.1.73.Final.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/netty-buffer-4.1.79.Final.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/netty-codec-4.1.79.Final.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/netty-codec-http-4.1.79.Final.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/netty-common-4.1.79.Final.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/netty-handler-4.1.79.Final.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/netty-resolver-4.1.79.Final.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/netty-transport-4.1.79.Final.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/netty-transport-native-unix-common-4.1.79.Final.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/slf4j-api-1.7.30.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/snappy-java-1.1.8.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/zstd-jni-1.5.0-2.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/jackson-databind-2.13.2.2.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/jackson-databind-2.13.3.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/kafka-clients-3.0.1.jar
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-asynchronous-search
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-asynchronous-search/opensearch-asynchronous-search-2.1.0.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-asynchronous-search/common-utils-2.1.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-asynchronous-search/opensearch-asynchronous-search-2.3.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-asynchronous-search/common-utils-2.3.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-asynchronous-search/plugin-descriptor.properties
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-asynchronous-search/plugin-security.policy
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection/commons-lang3-3.12.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection/commons-lang-2.6.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection/httpcore-nio-4.4.12.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection/httpasyncclient-4.1.4.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection/httpcore-nio-4.4.15.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection/httpasyncclient-4.1.5.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection/gson-2.8.9.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection/common-utils-2.1.0.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection/opensearch-anomaly-detection-2.1.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection/common-utils-2.3.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection/opensearch-anomaly-detection-2.3.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection/org.jacoco.ant-0.8.5.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection/commons-pool2-2.10.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection/sketches-core-0.13.4.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection/org.jacoco.agent-0.8.5.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection/plugin-descriptor.properties
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection/memory-0.12.2.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection/opensearch-rest-client-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection/opensearch-rest-client-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection/plugin-security.policy
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection/httpclient-4.5.13.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection/commons-codec-1.13.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection/commons-codec-1.15.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection/commons-math3-3.6.1.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection/httpcore-4.4.12.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection/httpcore-4.4.15.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection/failureaccess-1.0.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection/guava-31.0.1-jre.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection/jackson-annotations-2.13.2.jar
@@ -605,15 +622,21 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection/randomcutforest-parkservices-3.0-rc3.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection/randomcutforest-serialization-3.0-rc3.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-anomaly-detection/commons-logging-1.2.jar
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-geospatial
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-geospatial/LICENSE.txt
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-geospatial/NOTICE.txt
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-geospatial/commons-lang3-3.12.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-geospatial/opensearch-geospatial-2.3.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-geospatial/plugin-descriptor.properties
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/error_prone_annotations-2.3.4.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/httpcore-nio-4.4.12.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/httpasyncclient-4.1.4.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/httpcore-nio-4.4.15.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/httpasyncclient-4.1.5.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/cron-utils-9.1.6.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/slf4j-api-1.7.30.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/ipaddress-5.3.3.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/j2objc-annotations-1.3.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/common-utils-2.1.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/common-utils-2.3.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/jsr305-3.0.2.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/javax.el-3.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/javassist-3.27.0-GA.jar
@@ -622,16 +645,16 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/annotations-13.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/guava-30.0-jre.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/plugin-descriptor.properties
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/alerting-core-2.1.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/alerting-core-2.3.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/google-java-format-1.10.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/checker-qual-3.5.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/opensearch-rest-client-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/opensearch-rest-client-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/plugin-security.policy
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/httpclient-4.5.13.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/opensearch-alerting-2.1.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/opensearch-alerting-2.3.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/kotlinx-coroutines-core-common-1.1.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/commons-codec-1.13.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/httpcore-4.4.12.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/httpcore-4.4.15.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/failureaccess-1.0.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/commons-beanutils-1.9.4.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/commons-collections-3.2.2.jar
@@ -641,11 +664,12 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/kotlin-stdlib-common-1.6.10.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/kotlin-stdlib-jdk7-1.6.10.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/kotlin-stdlib-jdk8-1.6.10.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/percolator-client-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/percolator-client-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-alerting/commons-logging-1.2.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/common-utils-2.1.0.0.jar
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/common-utils-2.3.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/commons-beanutils-1.9.4.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/commons-codec-1.13.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/commons-codec-1.15.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/commons-collections-3.2.2.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/commons-collections4-4.4.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/commons-io-2.11.0.jar
@@ -653,14 +677,17 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/commons-logging-1.2.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/commons-math3-3.6.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/commons-text-1.9.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/tribuo-classification-core-4.2.1.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/tribuo-classification-sgd-4.2.1.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/tribuo-common-tree-4.2.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/gson-2.9.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/guava-31.0.1-jre.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/httpasyncclient-4.1.4.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/httpasyncclient-4.1.5.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/httpclient-4.5.13.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/httpcore-4.4.12.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/httpcore-nio-4.4.12.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/jackson-annotations-2.13.2.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/jackson-databind-2.13.2.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/httpcore-4.4.15.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/httpcore-nio-4.4.15.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/jackson-annotations-2.13.3.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/jackson-databind-2.13.3.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/jansi-2.4.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/javassist-3.26.0-GA.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/jline-builtins-3.21.0.jar
@@ -672,10 +699,10 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/olcut-config-protobuf-5.2.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/olcut-core-5.2.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/opencsv-5.4.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/opensearch-ml-2.1.0.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/opensearch-ml-algorithms-2.1.0.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/opensearch-ml-common-2.1.0.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/opensearch-rest-client-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/opensearch-ml-2.3.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/opensearch-ml-algorithms-2.3.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/opensearch-ml-common-2.3.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/opensearch-rest-client-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/plugin-descriptor.properties
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/plugin-security.policy
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/protobuf-java-3.19.4.jar
@@ -701,98 +728,101 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/tribuo-util-infotheory-4.2.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/tribuo-util-onnx-4.2.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-ml/tribuo-util-tokenization-4.2.1.jar
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications-core/
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications-core/activation-1.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications-core/aws-java-sdk-core-1.12.48.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications-core/aws-java-sdk-ses-1.12.48.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications-core/aws-java-sdk-sns-1.12.48.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications-core/aws-java-sdk-sts-1.12.48.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications-core/httpclient-4.5.10.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications-core/httpcore-4.4.13.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications-core/jackson-annotations-2.13.2.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications-core/jackson-databind-2.13.2.2.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications-core/httpclient-4.5.13.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications-core/httpcore-4.4.15.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications-core/jackson-annotations-2.13.3.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications-core/jackson-databind-2.13.3.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications-core/javax.mail-1.6.2.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications-core/kotlin-stdlib-1.6.10.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications-core/kotlin-stdlib-common-1.6.10.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications-core/opensearch-notifications-core-2.1.0.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications-core/opensearch-notifications-core-spi-2.1.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications-core/opensearch-notifications-core-2.3.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications-core/opensearch-notifications-core-spi-2.3.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications-core/commons-logging-1.2.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications-core/plugin-descriptor.properties
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications-core/plugin-security.policy
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications/common-utils-2.1.0.0.jar
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications/common-utils-2.3.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications/kotlin-stdlib-common-1.6.10.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications/kotlinx-coroutines-core-jvm-1.4.3.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications/opensearch-notifications-2.1.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications/opensearch-notifications-2.3.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications/plugin-descriptor.properties
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications/plugin-security.policy
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/modules
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-common
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-common/jcodings-1.0.44.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-common/opensearch-grok-2.1.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-common/opensearch-dissect-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-common/opensearch-grok-2.3.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-common/opensearch-dissect-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-common/plugin-descriptor.properties
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-common/ingest-common-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-common/ingest-common-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-common/joni-2.1.43.jar
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/geo
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/geo/plugin-descriptor.properties
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/geo/geo-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/geo/geo-2.3.0.jar
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-geoip
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-geoip/GeoLite2-Country.mmdb
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-geoip/GeoLite2-City.mmdb
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-geoip/ingest-geoip-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-geoip/ingest-geoip-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-geoip/plugin-descriptor.properties
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-geoip/GeoLite2-ASN.mmdb
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-geoip/plugin-security.policy
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-geoip/geoip2-3.0.1.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-geoip/jackson-annotations-2.13.2.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-geoip/jackson-databind-2.13.2.2.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-geoip/jackson-annotations-2.13.3.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-geoip/jackson-databind-2.13.3.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-geoip/maxmind-db-2.0.0.jar
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/percolator
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/percolator/plugin-descriptor.properties
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/percolator/percolator-client-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/percolator/percolator-client-2.3.0.jar
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/analysis-common
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/analysis-common/plugin-descriptor.properties
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/analysis-common/analysis-common-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/analysis-common/analysis-common-2.3.0.jar
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/aggs-matrix-stats
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/aggs-matrix-stats/aggs-matrix-stats-client-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/aggs-matrix-stats/aggs-matrix-stats-client-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/aggs-matrix-stats/plugin-descriptor.properties
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/repository-url
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/repository-url/plugin-descriptor.properties
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/repository-url/plugin-security.policy
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/repository-url/repository-url-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/repository-url/repository-url-2.3.0.jar
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/lang-mustache
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/lang-mustache/lang-mustache-client-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/lang-mustache/lang-mustache-client-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/lang-mustache/plugin-descriptor.properties
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/lang-mustache/compiler-0.9.10.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/lang-mustache/plugin-security.policy
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/systemd
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/systemd/plugin-descriptor.properties
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/systemd/plugin-security.policy
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/systemd/systemd-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/systemd/systemd-2.3.0.jar
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/transport-netty4
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/transport-netty4/plugin-descriptor.properties
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/transport-netty4/transport-netty4-client-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/transport-netty4/transport-netty4-client-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/transport-netty4/plugin-security.policy
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/transport-netty4/netty-buffer-4.1.73.Final.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/transport-netty4/netty-codec-4.1.73.Final.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/transport-netty4/netty-codec-http-4.1.73.Final.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/transport-netty4/netty-common-4.1.73.Final.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/transport-netty4/netty-handler-4.1.73.Final.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/transport-netty4/netty-resolver-4.1.73.Final.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/transport-netty4/netty-transport-4.1.73.Final.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/transport-netty4/netty-buffer-4.1.79.Final.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/transport-netty4/netty-codec-4.1.79.Final.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/transport-netty4/netty-codec-http-4.1.79.Final.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/transport-netty4/netty-common-4.1.79.Final.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/transport-netty4/netty-handler-4.1.79.Final.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/transport-netty4/netty-resolver-4.1.79.Final.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/transport-netty4/netty-transport-4.1.79.Final.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/transport-netty4/netty-transport-native-unix-common-4.1.79.Final.jar
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/lang-expression
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/lang-expression/lang-expression-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/lang-expression/lang-expression-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/lang-expression/plugin-descriptor.properties
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/lang-expression/plugin-security.policy
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/lang-expression/antlr4-runtime-4.9.3.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/lang-expression/asm-9.3.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/lang-expression/asm-commons-9.3.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/lang-expression/asm-tree-9.3.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/lang-expression/lucene-expressions-9.2.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/lang-expression/lucene-expressions-9.3.0.jar
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/lang-painless
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/lang-painless/plugin-descriptor.properties
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/lang-painless/lang-painless-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/lang-painless/lang-painless-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/lang-painless/plugin-security.policy
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/lang-painless/opensearch-scripting-painless-spi-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/lang-painless/opensearch-scripting-painless-spi-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/lang-painless/antlr4-runtime-4.9.3.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/lang-painless/asm-9.3.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/lang-painless/asm-analysis-9.3.jar
@@ -801,41 +831,43 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/lang-painless/asm-util-9.3.jar
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/rank-eval
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/rank-eval/plugin-descriptor.properties
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/rank-eval/rank-eval-client-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/rank-eval/rank-eval-client-2.3.0.jar
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/opensearch-dashboards
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/opensearch-dashboards/httpcore-nio-4.4.12.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/opensearch-dashboards/httpasyncclient-4.1.4.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/opensearch-dashboards/reindex-client-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/opensearch-dashboards/httpcore-nio-4.4.15.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/opensearch-dashboards/httpasyncclient-4.1.5.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/opensearch-dashboards/reindex-client-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/opensearch-dashboards/plugin-descriptor.properties
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/opensearch-dashboards/opensearch-rest-client-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/opensearch-dashboards/opensearch-rest-client-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/opensearch-dashboards/httpclient-4.5.13.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/opensearch-dashboards/opensearch-dashboards-2.1.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/opensearch-dashboards/opensearch-ssl-config-2.1.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/opensearch-dashboards/commons-codec-1.13.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/opensearch-dashboards/httpcore-4.4.12.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/opensearch-dashboards/opensearch-dashboards-2.3.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/opensearch-dashboards/opensearch-ssl-config-2.3.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/opensearch-dashboards/commons-codec-1.15.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/opensearch-dashboards/httpcore-4.4.15.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/opensearch-dashboards/commons-logging-1.2.jar
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-user-agent
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-user-agent/ingest-user-agent-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-user-agent/ingest-user-agent-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-user-agent/plugin-descriptor.properties
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/mapper-extras
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/mapper-extras/mapper-extras-client-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/mapper-extras/mapper-extras-client-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/mapper-extras/plugin-descriptor.properties
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/parent-join
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/parent-join/plugin-descriptor.properties
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/parent-join/parent-join-client-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/parent-join/parent-join-client-2.3.0.jar
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/reindex
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/reindex/httpcore-nio-4.4.12.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/reindex/httpasyncclient-4.1.4.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/reindex/reindex-client-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/reindex/httpcore-nio-4.4.15.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/reindex/httpasyncclient-4.1.5.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/reindex/reindex-client-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/reindex/plugin-descriptor.properties
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/reindex/opensearch-rest-client-2.1.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/reindex/opensearch-rest-client-2.3.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/reindex/plugin-security.policy
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/reindex/httpclient-4.5.13.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/reindex/opensearch-ssl-config-2.1.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/reindex/commons-codec-1.13.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/reindex/httpcore-4.4.12.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/reindex/opensearch-ssl-config-2.3.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/reindex/commons-codec-1.15.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/reindex/httpcore-4.4.15.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/reindex/commons-logging-1.2.jar
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/reindex/parent-join
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/reindex/parent-join/plugin-descriptor.properties
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/reindex/transport-netty4
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/reindex/transport-netty4/plugin-descriptor.properties
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/reindex/transport-netty4/plugin-security.policy
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk
@@ -1116,7 +1148,6 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/lib/libjsvml.so
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/lib/libsyslookup.so
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/lib/security/blocked.certs
-
 
 # -----------------------------------------------------------------------------
 
