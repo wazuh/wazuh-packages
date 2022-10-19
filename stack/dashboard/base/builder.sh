@@ -136,6 +136,7 @@ mv ./package.json.tmp ./package.json
 find -type d -exec chmod 750 {} \;
 find -type f -perm 644 -exec chmod 640 {} \;
 find -type f -perm 755 -exec chmod 750 {} \;
+find -type f -perm 744 -exec chmod 740 {} \;
 
 
 # -----------------------------------------------------------------------------
