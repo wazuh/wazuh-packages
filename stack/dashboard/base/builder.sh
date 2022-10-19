@@ -8,14 +8,14 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-set -ex
+set -e
 
 # Script parameters to build the package
 architecture="$1"
 revision="$2"
 future="$3"
 reference="$4"
-opensearch_version="2.1.0"
+opensearch_version="2.3.0"
 base_dir=/opt/wazuh-dashboard-base
 
 # -----------------------------------------------------------------------------
@@ -136,6 +136,7 @@ mv ./package.json.tmp ./package.json
 find -type d -exec chmod 750 {} \;
 find -type f -perm 644 -exec chmod 640 {} \;
 find -type f -perm 755 -exec chmod 750 {} \;
+find -type f -perm 744 -exec chmod 740 {} \;
 
 
 # -----------------------------------------------------------------------------
