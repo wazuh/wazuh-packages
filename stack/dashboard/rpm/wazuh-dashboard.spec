@@ -59,7 +59,6 @@ tar -xf %{DASHBOARD_FILE}
 mkdir -p %{buildroot}%{CONFIG_DIR}
 mkdir -p %{buildroot}%{INSTALL_DIR}
 mkdir -p %{buildroot}/etc/systemd/system
-mkdir -p %{buildroot}/etc/init.d
 mkdir -p %{buildroot}/etc/default
 
 cp wazuh-dashboard-base/etc/node.options %{buildroot}%{CONFIG_DIR}
