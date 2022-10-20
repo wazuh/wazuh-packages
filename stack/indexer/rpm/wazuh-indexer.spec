@@ -158,6 +158,13 @@ if [ $1 = 1 ];then # Install
     if command -v systemctl > /dev/null 2>&1; then
         systemctl restart systemd-sysctl > /dev/null 2>&1 || true
     fi
+
+    if [ -f /etc/os-release ]; then
+      source /etc/os-release
+      if [ "${NAME}" = "Red Hat Enterprise Linux" ] && [ "$((${VERSION_ID:0:1}))" -ge 9 ]; then
+        rm -f /etc/init.d/wazuh-indexer
+      fi
+    fi
 fi
 
 # -----------------------------------------------------------------------------
@@ -293,7 +300,8 @@ rm -fr %{buildroot}
 %dir %attr(750, %{USER}, %{GROUP}) %{LOG_DIR}
 
 %config(noreplace) %attr(0660, root, %{GROUP}) "/etc/sysconfig/%{name}"
-%attr(0750, root, root) /etc/init.d/%{name}
+
+%config(missingok) /etc/init.d/%{name}
 %attr(0640, root, root) %{SYS_DIR}/sysctl.d/%{name}.conf
 %attr(0640, root, root) %{SYS_DIR}/systemd/system/%{name}.service
 %attr(0640, root, root) %{SYS_DIR}/systemd/system/%{name}-performance-analyzer.service
