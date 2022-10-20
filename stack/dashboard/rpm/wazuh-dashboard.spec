@@ -56,9 +56,11 @@ tar -xf %{DASHBOARD_FILE}
 # -----------------------------------------------------------------------------
 
 %install
+
 mkdir -p %{buildroot}%{CONFIG_DIR}
 mkdir -p %{buildroot}%{INSTALL_DIR}
 mkdir -p %{buildroot}/etc/systemd/system
+mkdir -p %{buildroot}/etc/init.d
 mkdir -p %{buildroot}/etc/default
 
 cp wazuh-dashboard-base/etc/node.options %{buildroot}%{CONFIG_DIR}
@@ -73,7 +75,9 @@ mkdir -p %{buildroot}%{INSTALL_DIR}/config
 
 cp %{buildroot}%{INSTALL_DIR}/etc/services/wazuh-dashboard.service %{buildroot}/etc/systemd/system/wazuh-dashboard.service
 cp %{buildroot}%{INSTALL_DIR}/etc/services/default %{buildroot}/etc/default/wazuh-dashboard
+cp %{buildroot}%{INSTALL_DIR}/etc/services/wazuh-dashboard %{buildroot}/etc/init.d/wazuh-dashboard
 
+chmod 750 %{buildroot}/etc/init.d/wazuh-dashboard
 chmod 640 %{buildroot}/etc/systemd/system/wazuh-dashboard.service
 chmod 640 %{buildroot}/etc/default/wazuh-dashboard
 
@@ -83,6 +87,7 @@ find %{buildroot}%{INSTALL_DIR} -exec chown %{USER}:%{GROUP} {} \;
 find %{buildroot}%{CONFIG_DIR} -exec chown %{USER}:%{GROUP} {} \;
 
 chown root:root %{buildroot}/etc/systemd/system/wazuh-dashboard.service
+chown root:root %{buildroot}/etc/init.d/wazuh-dashboard
 
 if [ "%{version}" = "99.99.0" ];then
     runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/futures/ui/dashboard/wazuh-99.99.0-%{release}.zip"
@@ -133,6 +138,14 @@ if [ ! -f %{INSTALLATION_DIR}/config/opensearch_dashboards.keystore ]; then
   runuser %{USER} --shell="/bin/bash" --command="echo kibanaserver | %{INSTALL_DIR}/bin/opensearch-dashboards-keystore add opensearch.username --stdin" > /dev/null 2>&1
   runuser %{USER} --shell="/bin/bash" --command="echo kibanaserver | %{INSTALL_DIR}/bin/opensearch-dashboards-keystore add opensearch.password --stdin" > /dev/null 2>&1
 fi
+
+if [ -f /etc/os-release ]; then
+  source /etc/os-release
+  if [ "${NAME}" = "Red Hat Enterprise Linux" ] && [ "$((${VERSION_ID:0:1}))" -ge 9 ]; then
+    rm -f /etc/init.d/wazuh-dashboard
+  fi
+fi
+
 # -----------------------------------------------------------------------------
 
 %preun
@@ -207,6 +220,7 @@ rm -fr %{buildroot}
 %defattr(-,%{USER},%{GROUP})
 %dir %attr(750, %{USER}, %{GROUP}) %{CONFIG_DIR}
 
+%config(missingok) "/etc/init.d/wazuh-dashboard"
 %attr(0750, %{USER}, %{GROUP}) "/etc/default/wazuh-dashboard"
 %config(noreplace) %attr(0640, %{USER}, %{GROUP}) "%{CONFIG_DIR}/opensearch_dashboards.yml"
 %attr(440, %{USER}, %{GROUP}) %{INSTALL_DIR}/VERSION
