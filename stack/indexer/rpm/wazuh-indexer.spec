@@ -159,12 +159,13 @@ if [ $1 = 1 ];then # Install
         systemctl restart systemd-sysctl > /dev/null 2>&1 || true
     fi
 
-    if [ -f /etc/os-release ]; then
-      source /etc/os-release
-      if [ "${NAME}" = "Red Hat Enterprise Linux" ] && [ "$((${VERSION_ID:0:1}))" -ge 9 ]; then
-        rm -f /etc/init.d/wazuh-indexer
-      fi
-    fi
+fi
+
+if [ -f /etc/os-release ]; then
+  source /etc/os-release
+  if [ "${NAME}" = "Red Hat Enterprise Linux" ] && [ "$((${VERSION_ID:0:1}))" -ge 9 ]; then
+    rm -f /etc/init.d/%{name}
+  fi
 fi
 
 # -----------------------------------------------------------------------------
