@@ -1,6 +1,6 @@
 # Spec file for AIX systems
 Name:        wazuh-agent
-Version:     3.7.0
+Version:     3.1.0
 Release:     1
 License:     GPL
 URL:         https://www.wazuh.com/
@@ -22,8 +22,8 @@ Wazuh is an open source security monitoring solution for threat detection, integ
 %prep
 %setup -q
 ./gen_ossec.sh init agent %{_localstatedir} > ossec-init.conf
-cd src && gmake clean && gmake deps RESOURCES_URL=http://packages.wazuh.com/deps/3.7
-gmake TARGET=agent USE_SELINUX=no PREFIX=%{_localstatedir} DISABLE_SHARED=yes DISABLE_SYSC=yes
+cd src && gmake clean
+gmake TARGET=local USE_SELINUX=no PREFIX=%{_localstatedir} DISABLE_SHARED=yes DISABLE_SYSC=yes
 cd ..
 
 %install
@@ -239,28 +239,6 @@ rm -fr %{buildroot}
 
 
 %changelog
-* Wed Nov 7 2018 support <support@wazuh.com> - 3.7.0
-- More info: https://documentation.wazuh.com/current/release-notes/
-* Wed Sep 7 2018 support <support@wazuh.com> - 3.6.0
-- More info: https://documentation.wazuh.com/current/release-notes/
-* Wed Jul 25 2018 support <support@wazuh.com> - 3.5.0
-- More info: https://documentation.wazuh.com/current/release-notes/
-* Wed Jul 11 2018 support <support@wazuh.com> - 3.4.0
-- More info: https://documentation.wazuh.com/current/release-notes/
-* Mon Jun 18 2018 support <support@wazuh.com> - 3.3.1
-- More info: https://documentation.wazuh.com/current/release-notes/
-* Mon Jun 11 2018 support <support@wazuh.com> - 3.3.0
-- More info: https://documentation.wazuh.com/current/release-notes/
-* Wed May 30 2018 support <support@wazuh.com> - 3.2.4
-- More info: https://documentation.wazuh.com/current/release-notes/
-* Thu May 10 2018 support <support@wazuh.com> - 3.2.3
-- More info: https://documentation.wazuh.com/current/release-notes/
-* Mon Apr 09 2018 support <support@wazuh.com> - 3.2.2
-- More info: https://documentation.wazuh.com/current/release-notes/
-* Wed Feb 21 2018 support <support@wazuh.com> - 3.2.1
-- More info: https://documentation.wazuh.com/current/release-notes/
-* Wed Feb 07 2018 support <support@wazuh.com> - 3.2.0
-- More info: https://documentation.wazuh.com/current/release-notes/
 * Thu Dec 21 2017 support <support@wazuh.com> - 3.1.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Nov 06 2017 support <support@wazuh.com> - 3.0.0
