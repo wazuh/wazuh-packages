@@ -16,6 +16,7 @@ revision=$2
 future=$3
 reference=$4
 directory_base="/usr/share/wazuh-dashboard"
+repository=$5
 
 if [ -z "${revision}" ]; then
     revision="1"
@@ -62,7 +63,11 @@ cd ${source_dir}
 mk-build-deps -ir -t "apt-get -o Debug::pkgProblemResolver=yes -y"
 
 # Build package
-debuild --no-lintian -eINSTALLATION_DIR="${directory_base}" -eVERSION="${version}" -eREVISION="${revision}" -b -uc -us
+if [ "${repository}" ];then
+    debuild --no-lintian -eINSTALLATION_DIR="${directory_base}" -eVERSION="${version}" -eREVISION="${revision}" -eS3_REPOSITORY="${repository}" -b -uc -us
+else
+    debuild --no-lintian -eINSTALLATION_DIR="${directory_base}" -eVERSION="${version}" -eREVISION="${revision}" -b -uc -us
+fi
 
 deb_file="${target}_${version}-${revision}_${architecture}.deb"
 

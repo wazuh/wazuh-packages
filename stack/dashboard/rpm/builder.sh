@@ -16,6 +16,7 @@ revision=$2
 future=$3
 reference=$4
 directory_base="/usr/share/wazuh-dashboard"
+repository=$5
 
 if [ -z "${revision}" ]; then
     revision="1"
@@ -29,6 +30,17 @@ else
     else
         version=$(cat /root/VERSION)
     fi
+fi
+
+if [ "${repository}" ];then
+    valid_url='(https?|ftp|file)://[-[:alnum:]\+&@#/%?=~_|!:,.;]*[-[:alnum:]\+&@#/%=~_|]'
+    if [[ $repository =~ $valid_url ]];then
+        url="${repository}"
+    else
+        url="https://packages-dev.wazuh.com/${repository}/ui/dashboard/wazuh-${version}-${revision}.zip"
+    fi
+else
+    url="https://packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-${version}-${revision}.zip"
 fi
 
 # Build directories
@@ -57,9 +69,12 @@ fi
 # Generating source tar.gz
 cd ${build_dir} && tar czf "${rpm_build_dir}/SOURCES/${pkg_name}.tar.gz" "${pkg_name}"
 
+echo "###### URL ${url}"
+
 # Building RPM
 /usr/bin/rpmbuild --define "_topdir ${rpm_build_dir}" --define "_version ${version}" \
     --define "_release ${revision}" --define "_localstatedir ${directory_base}" \
+    --define "_url ${url}" \
     --target ${architecture} -ba ${rpm_build_dir}/SPECS/${pkg_name}.spec
 
 cd ${pkg_path} && sha512sum ${rpm_file} > /tmp/${rpm_file}.sha512
