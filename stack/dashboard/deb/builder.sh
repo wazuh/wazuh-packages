@@ -32,6 +32,17 @@ else
     fi
 fi
 
+if [ "${repository}" ];then
+    valid_url='(https?|ftp|file)://[-[:alnum:]\+&@#/%?=~_|!:,.;]*[-[:alnum:]\+&@#/%=~_|]'
+    if [[ $repository =~ $valid_url ]];then
+        url="${repository}"
+    else
+        url="https://packages-dev.wazuh.com/${repository}/ui/dashboard/wazuh-${version}-${revision}.zip"
+    fi
+else
+    url="https://packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-${version}-${revision}.zip"
+fi
+
 # Build directories
 build_dir=/build
 pkg_name="${target}-${version}"
@@ -63,11 +74,7 @@ cd ${source_dir}
 mk-build-deps -ir -t "apt-get -o Debug::pkgProblemResolver=yes -y"
 
 # Build package
-if [ "${repository}" ];then
-    debuild --no-lintian -eINSTALLATION_DIR="${directory_base}" -eVERSION="${version}" -eREVISION="${revision}" -eS3_REPOSITORY="${repository}" -b -uc -us
-else
-    debuild --no-lintian -eINSTALLATION_DIR="${directory_base}" -eVERSION="${version}" -eREVISION="${revision}" -b -uc -us
-fi
+debuild --no-lintian -eINSTALLATION_DIR="${directory_base}" -eVERSION="${version}" -eREVISION="${revision}" -eURL="${url}" -b -uc -us
 
 deb_file="${target}_${version}-${revision}_${architecture}.deb"
 
