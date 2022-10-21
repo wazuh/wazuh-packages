@@ -89,8 +89,6 @@ find %{buildroot}%{CONFIG_DIR} -exec chown %{USER}:%{GROUP} {} \;
 chown root:root %{buildroot}/etc/systemd/system/wazuh-dashboard.service
 chown root:root %{buildroot}/etc/init.d/wazuh-dashboard
 
-echo -n "repository %{repository}"
-
 if [ "%{version}" = "99.99.0" ];then
     runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/futures/ui/dashboard/wazuh-99.99.0-%{release}.zip"
 else
