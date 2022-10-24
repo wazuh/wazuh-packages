@@ -14,9 +14,9 @@ target="wazuh-dashboard"
 architecture=$1
 revision=$2
 future=$3
-reference=$4
+repository=$4
+reference=$5
 directory_base="/usr/share/wazuh-dashboard"
-repository=$5
 
 if [ -z "${revision}" ]; then
     revision="1"
