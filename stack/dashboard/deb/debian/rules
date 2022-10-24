@@ -31,7 +31,6 @@ export INSTALLATION_DIR=$(INSTALLATION_DIR)
 export USER=$(NAME)
 export GROUP=$(NAME)
 export DASHBOARD_FILE=wazuh-dashboard-base-$(VERSION)-$(REVISION)-linux-x64.tar.xz
-export URL=$(URL)
 
 # -----------------------------------------------------------------------------
 
