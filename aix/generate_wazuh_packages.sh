@@ -40,10 +40,19 @@ show_help() {
   echo "    -e,  --environment            Install all the packages necessaries to build the RPM package"
   echo "    -s,  --store  <path>          Directory to store the resulting RPM package. By default: ${target_dir}"
   echo "    -p,  --install-path <path>    Installation path for the package. By default: ${install_path}"
-  echo "    -c,  --checksum <path>        Compute the SHA512 checksum of the RPM package."
+  echo "    -c,  --checksum <path>        Compute the SHA512 checksum of the RPM package. OpenSSL is required."
   echo "    -h,  --help                   Shows this help"
   echo
   exit $1
+}
+
+check_openssl() {
+  if [[ -z "$(command -v openssl)" && "${compute_checksums}" == "yes" ]]; then
+    echo "OpenSSL is not installed. OpenSSL is required to get the package checksum."
+    return 1
+  else
+    return 0
+  fi
 }
 
 # Function to install perl 5.10 on AIX
@@ -224,17 +233,19 @@ build_package() {
   rm -rf ${install_path} /etc/ossec-init.conf
   find /etc/ -name "*wazuh*" -exec rm {} \;
 
-  if [ ! -d ${target_dir} ]; then
+  if [[ ! -d ${target_dir} ]]; then
     mkdir -p ${target_dir}
   fi
 
   rpm_file=${package_name}-${revision}.aix${aix_major}.${aix_minor}.ppc.rpm
   mv ${rpm_build_dir}/RPMS/ppc/${rpm_file} ${target_dir}
 
-  if [ -f ${target_dir}/${rpm_file} ]; then
+  if [[ -f ${target_dir}/${rpm_file} ]]; then
     echo "Your package ${rpm_file} is stored in ${target_dir}"
     if [[ "${compute_checksums}" = "yes" ]]; then
-      cd ${target_dir} && echo "$(openssl dgst -sha512 ${rpm_file} | cut -d' ' -f2) ${rpm_file}" > "${checksum_dir}/${rpm_file}.sha512"
+      cd ${target_dir}
+      pkg_checksum="$(openssl dgst -sha512 ${rpm_file} | cut -d' ' -f "2")"
+      echo "${pkg_checksum} ${rpm_file}" > "${checksum_dir}/${rpm_file}.sha512"
     fi
   else
     echo "Error: RPM package could not be created"
@@ -317,6 +328,8 @@ main() {
           show_help 1
     esac
   done
+
+  check_openssl || exit 1
 
   if [[ "${build_env}" = "yes" ]]; then
     build_environment || exit 1
