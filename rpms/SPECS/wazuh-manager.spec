@@ -309,6 +309,7 @@ if [ $1 = 1 ]; then
   if [ ! -z "$sles" ]; then
     if [ -d /etc/init.d ]; then
       install -m 755 %{_localstatedir}/packages_files/manager_installation_scripts/src/init/ossec-hids-suse.init /etc/init.d/wazuh-manager
+      ln -sf ../wazuh-manager /etc/init.d/wazuh-manager
     fi
   fi
 
