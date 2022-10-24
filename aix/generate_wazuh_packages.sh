@@ -47,7 +47,7 @@ show_help() {
 }
 
 check_openssl() {
-  if [[ -z "$(command -v openssl)" && "${compute_checksums}" == "yes" ]]; then
+  if [[ -z "$(command -v openssl)" ]] && [[ "${compute_checksums}" = "yes" ]]; then
     echo "OpenSSL is not installed. OpenSSL is required to get the package checksum."
     return 1
   else
