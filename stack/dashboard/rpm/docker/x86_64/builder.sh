@@ -14,9 +14,9 @@ target="wazuh-dashboard"
 architecture=$1
 revision=$2
 future=$3
-reference=$4
+repository=$4
+reference=$5
 directory_base="/usr/share/wazuh-dashboard"
-repository=$5
 
 if [ -z "${revision}" ]; then
     revision="1"
@@ -45,39 +45,36 @@ fi
 
 # Build directories
 build_dir=/build
-pkg_name="${target}-${version}"
-pkg_path="${build_dir}/${target}"
-source_dir="${pkg_path}/${pkg_name}"
+rpm_build_dir=${build_dir}/rpmbuild
+file_name="${target}-${version}-${revision}"
+pkg_path="${rpm_build_dir}/RPMS/${architecture}"
+rpm_file="${file_name}.${architecture}.rpm"
+mkdir -p ${rpm_build_dir}/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
-mkdir -p ${source_dir}/debian
+# Prepare the sources directory to build the source tar.gz
+pkg_name=${target}-${version}
+mkdir ${build_dir}/${pkg_name}
+
 
 # Including spec file
 if [ "${reference}" ];then
     curl -sL https://github.com/wazuh/wazuh-packages/tarball/${reference} | tar zx
-    cp -r ./wazuh*/stack/dashboard/deb/debian/* ${source_dir}/debian/
+    cp ./wazuh*/stack/dashboard/rpm/${target}.spec ${rpm_build_dir}/SPECS/${pkg_name}.spec
     cp -r ./wazuh*/* /root/
 else
-    cp -r /root/stack/dashboard/deb/debian/* ${source_dir}/debian/
+    cp /root/stack/dashboard/rpm/${target}.spec ${rpm_build_dir}/SPECS/${pkg_name}.spec
 fi
 
 
-# Generating directory structure to build the .deb package
-cd ${build_dir}/${target} && tar -czf ${pkg_name}.orig.tar.gz "${pkg_name}"
+# Generating source tar.gz
+cd ${build_dir} && tar czf "${rpm_build_dir}/SOURCES/${pkg_name}.tar.gz" "${pkg_name}"
 
-# Configure the package with the different parameters
-sed -i "s:VERSION:${version}:g" ${source_dir}/debian/changelog
-sed -i "s:RELEASE:${revision}:g" ${source_dir}/debian/changelog
-sed -i "s:export INSTALLATION_DIR=.*:export INSTALLATION_DIR=${directory_base}:g" ${source_dir}/debian/rules
+# Building RPM
+/usr/bin/rpmbuild --define "_topdir ${rpm_build_dir}" --define "_version ${version}" \
+    --define "_release ${revision}" --define "_localstatedir ${directory_base}" \
+    --define "_url ${url}" \
+    --target ${architecture} -ba ${rpm_build_dir}/SPECS/${pkg_name}.spec
 
-# Installing build dependencies
-cd ${source_dir}
-mk-build-deps -ir -t "apt-get -o Debug::pkgProblemResolver=yes -y"
+cd ${pkg_path} && sha512sum ${rpm_file} > /tmp/${rpm_file}.sha512
 
-# Build package
-debuild --no-lintian -eINSTALLATION_DIR="${directory_base}" -eVERSION="${version}" -eREVISION="${revision}" -eURL="${url}" -b -uc -us
-
-deb_file="${target}_${version}-${revision}_${architecture}.deb"
-
-cd ${pkg_path} && sha512sum ${deb_file} > /tmp/${deb_file}.sha512
-
-mv ${pkg_path}/${deb_file} /tmp/
+find ${pkg_path}/ -maxdepth 3 -type f -name "${file_name}*" -exec mv {} /tmp/ \;
