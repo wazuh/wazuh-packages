@@ -245,7 +245,7 @@ build_package() {
     if [[ "${compute_checksums}" = "yes" ]]; then
       cd ${target_dir}
       pkg_checksum="$(openssl dgst -sha512 ${rpm_file} | cut -d' ' -f "2")"
-      echo "${pkg_checksum} ${rpm_file}" > "${checksum_dir}/${rpm_file}.sha512"
+      echo "${pkg_checksum}  ${rpm_file}" > "${checksum_dir}/${rpm_file}.sha512"
     fi
   else
     echo "Error: RPM package could not be created"
