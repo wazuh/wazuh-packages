@@ -162,10 +162,10 @@ build_package() {
   source_code="https://api.github.com/repos/wazuh/wazuh/tarball/${wazuh_branch}"
 
   rm -f wazuh.tar.gz && curl -L ${source_code} -k -o wazuh.tar.gz -s
-  rm -rf wazuh-wazuh-* wazuh-agent-*
+  rm -rf wazuh-wazuh-* wazuh-agent-* wazuh-local-*
   extracted_directory=$(gunzip -c wazuh.tar.gz | tar -xvf - | tail -n 1 | cut -d' ' -f2 | cut -d'/' -f1)
   wazuh_version=$(cat ${extracted_directory}/src/VERSION | cut -d'v' -f2)
-  cp -pr ${extracted_directory} wazuh-agent-${wazuh_version}
+  cp -pr ${extracted_directory} wazuh-local-${wazuh_version}
 
   rpm_build_dir="/opt/freeware/src/packages"
   mkdir -p ${rpm_build_dir}/BUILD
@@ -175,11 +175,11 @@ build_package() {
   mkdir -p ${rpm_build_dir}/SPECS
   mkdir -p ${rpm_build_dir}/SRPMS
 
-  package_name=wazuh-agent-${wazuh_version}
+  package_name=wazuh-local-${wazuh_version}
   tar cf ${package_name}.tar ${package_name} && gzip ${package_name}.tar
   mv ${package_name}.tar.gz ${rpm_build_dir}/SOURCES/
 
-  cp SPECS/${wazuh_version}/wazuh-agent-${wazuh_version}-aix.spec ${rpm_build_dir}/SPECS
+  cp SPECS/${wazuh_version}/wazuh-agent-${wazuh_version}-aix.spec ${rpm_build_dir}/SPECS/wazuh-local-${wazuh_version}-aix.spec
 
   if [[ ${aix_major} = "6" ]] && [[ -f /opt/freeware/lib/gcc/powerpc-ibm-aix6.1.1.0/6.3.0/include-fixed/sys/socket.h ]]; then
     ignored_lib=/opt/freeware/lib/gcc/powerpc-ibm-aix6.1.1.0/6.3.0/include-fixed/sys/socket.h
@@ -187,7 +187,7 @@ build_package() {
   fi
 
   package_release="1"
-  directory_base="/var"
+  directory_base="/var/ossec"
   init_scripts="/etc/rc.d/init.d"
   sysconfdir="/etc"
 
