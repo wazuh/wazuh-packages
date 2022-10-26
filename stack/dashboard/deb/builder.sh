@@ -14,7 +14,8 @@ target="wazuh-dashboard"
 architecture=$1
 revision=$2
 future=$3
-reference=$4
+repository=$4
+reference=$5
 directory_base="/usr/share/wazuh-dashboard"
 
 if [ -z "${revision}" ]; then
@@ -29,6 +30,17 @@ else
     else
         version=$(cat /root/VERSION)
     fi
+fi
+
+if [ "${repository}" ];then
+    valid_url='(https?|ftp|file)://[-[:alnum:]\+&@#/%?=~_|!:,.;]*[-[:alnum:]\+&@#/%=~_|]'
+    if [[ $repository =~ $valid_url ]];then
+        url="${repository}"
+    else
+        url="https://packages-dev.wazuh.com/${repository}/ui/dashboard/wazuh-${version}-${revision}.zip"
+    fi
+else
+    url="https://packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-${version}-${revision}.zip"
 fi
 
 # Build directories
@@ -62,7 +74,7 @@ cd ${source_dir}
 mk-build-deps -ir -t "apt-get -o Debug::pkgProblemResolver=yes -y"
 
 # Build package
-debuild --no-lintian -eINSTALLATION_DIR="${directory_base}" -eVERSION="${version}" -eREVISION="${revision}" -b -uc -us
+debuild --no-lintian -eINSTALLATION_DIR="${directory_base}" -eVERSION="${version}" -eREVISION="${revision}" -eURL="${url}" -b -uc -us
 
 deb_file="${target}_${version}-${revision}_${architecture}.deb"
 
