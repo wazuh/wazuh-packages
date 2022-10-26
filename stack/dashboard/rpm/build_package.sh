@@ -17,6 +17,7 @@ rpm_x86_builder="rpm_dashboard_builder_x86"
 rpm_builder_dockerfile="${current_path}/docker"
 future="no"
 base_cmd=""
+url=""
 
 trap ctrl_c INT
 
@@ -49,6 +50,10 @@ build_rpm() {
     fi
     ../base/generate_base.sh -s ${outdir} -r ${revision} ${base_cmd}
 
+    if [ "${repository}" ];then
+        url="${repository}"
+    fi
+
     # Build the Docker image
     if [[ ${build_docker} == "yes" ]]; then
         docker build -t ${container_name} ${dockerfile_path} || return 1
@@ -59,12 +64,12 @@ build_rpm() {
     if [ "${reference}" ];then
         docker run -t --rm ${volumes} \
             ${container_name} ${architecture} ${revision} \
-            ${future} ${reference} || return 1
+            ${future} ${url} ${reference} || return 1
     else
         docker run -t --rm ${volumes} \
             -v ${current_path}/../../..:/root:Z \
             ${container_name} ${architecture} \
-            ${revision} ${future} || return 1
+            ${revision} ${future} ${url} || return 1
     fi
 
     echo "Package $(ls -Art ${outdir} | tail -n 1) added to ${outdir}."
@@ -98,6 +103,7 @@ help() {
     echo "    --reference <ref>          [Optional] wazuh-packages branch to download SPECs, not used by default."
     echo "    --dont-build-docker        [Optional] Locally built docker image will be used instead of generating a new one."
     echo "    --future                   [Optional] Build test future package 99.99.0 Used for development purposes."
+    echo "    --app-url                  [Optional] Valid URL for custom app."
     echo "    -h, --help                 Show this help."
     echo
     exit $1
@@ -146,6 +152,14 @@ main() {
         "-s"|"--store")
             if [ -n "$2" ]; then
                 outdir="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
+        "--app-url")
+            if [ -n "$2" ]; then
+                repository="$2"
                 shift 2
             else
                 help 1
