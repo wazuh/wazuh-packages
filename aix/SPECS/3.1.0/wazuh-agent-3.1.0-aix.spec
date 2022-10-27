@@ -148,6 +148,13 @@ if [ $1 = 1 ]; then
   # Generating ossec.conf file
   . %{_localstatedir}/tmp/src/init/dist-detect.sh
   %{_localstatedir}/tmp/gen_ossec.sh conf local ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} %{_localstatedir} > %{_localstatedir}/etc/ossec.conf
+  sed "s/wazuh_database.sync_rootcheck=1/wazuh_database.sync_rootcheck=0/" %{_localstatedir}/etc/internal_options.conf > %{_localstatedir}/etc/internal_options.conf.tmp &&  mv %{_localstatedir}/etc/internal_options.conf.tmp %{_localstatedir}/etc/internal_options.conf
+  sed "s/wazuh_database.sync_agents=1/wazuh_database.sync_agents=0/" %{_localstatedir}/etc/internal_options.conf > %{_localstatedir}/etc/internal_options.conf.tmp &&  mv %{_localstatedir}/etc/internal_options.conf.tmp %{_localstatedir}/etc/internal_options.conf
+  
+
+  ## Disable syscheck and rootcheck
+  sed "s/<disabled>no</disabled>/<disabled>yes</disabled>/" %{_localstatedir}/etc/ossec.conf > %{_localstatedir}/etc/ossec.conf.tmp &&  mv %{_localstatedir}/etc/ossec.conf.tmp %{_localstatedir}/etc/ossec.conf
+
   chown root:ossec %{_localstatedir}/etc/ossec.conf
   chmod 0640 %{_localstatedir}/etc/ossec.conf
 

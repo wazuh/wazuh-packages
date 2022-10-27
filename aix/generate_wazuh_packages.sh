@@ -26,7 +26,7 @@ aix_version=$(oslevel)
 aix_major=$(echo ${aix_version} | cut -d'.' -f 1)
 aix_minor=$(echo ${aix_version} | cut -d'.' -f 2)
 
-export PATH=$PATH:/opt/freeware/bin
+export PATH=/opt/freeware/bin:$PATH
 
 show_help() {
   echo
