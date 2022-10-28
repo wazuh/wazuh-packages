@@ -457,6 +457,25 @@ fi
 
 # posttrans code is the last thing executed in a install/upgrade
 %posttrans
+
+sles=""
+  if [ -f /etc/SuSE-release ]; then
+    sles="suse"
+  elif [ -f /etc/os-release ]; then
+    if `grep -q "\"sles" /etc/os-release` ; then
+      sles="suse"
+    elif `grep -q -i "\"opensuse" /etc/os-release` ; then
+      sles="opensuse"
+    fi
+  fi
+
+  if [ ! -z "$sles" ]; then
+    if [ ! -d /etc/init.d/wazuh-agent ]; then
+      install -m 755 %{_localstatedir}/packages_files/agent_installation_scripts/src/init/ossec-hids-suse.init /etc/init.d/wazuh-agent
+      ln -sf ../wazuh-agent /etc/init.d/wazuh-agent
+    fi
+  fi
+
 if [ -f %{_sysconfdir}/systemd/system/wazuh-agent.service ]; then
   rm -rf %{_sysconfdir}/systemd/system/wazuh-agent.service
   systemctl daemon-reload > /dev/null 2>&1
