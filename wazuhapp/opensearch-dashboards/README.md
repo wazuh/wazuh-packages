@@ -1,5 +1,4 @@
-Wazuh OpenSearch Dashboards plugin package
-========================
+# Wazuh OpenSearch Dashboards plugin package
 
 In this repository, you can find the necessary tools to build a Wazuh OpenSearch Dashboards plugin package.
 
