@@ -1,5 +1,4 @@
-Wazuh packages
-==============
+# Wazuh packages
 
 [![Slack](https://img.shields.io/badge/slack-join-blue.svg)](https://wazuh.com/community/join-us-on-slack/)
 [![Email](https://img.shields.io/badge/email-join-blue.svg)](https://groups.google.com/forum/#!forum/wazuh)
@@ -24,8 +23,8 @@ In this repository, you can find the necessary tools to build a Wazuh package fo
 
 ## Branches
 
-* `master` branch contains the latest code, be aware of possible bugs on this branch.
-* `stable` branch on correspond to the last Wazuh stable version.
+- `master` branch contains the latest code, be aware of possible bugs on this branch.
+- `stable` branch on correspond to the last Wazuh stable version.
 
 ## Contribute
 
