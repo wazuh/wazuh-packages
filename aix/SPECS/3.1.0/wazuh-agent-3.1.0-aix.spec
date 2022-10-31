@@ -66,6 +66,8 @@ echo 'USER_AUTO_START="n"' >> ./etc/preloaded-vars.conf
 
 DISABLE_SHARED="yes" DISABLE_SYSC="yes" ./install.sh
 
+/var/ossec/bin/ossec-control enable client-syslog
+
 # Remove unnecessary files or directories
 rm -rf %{_localstatedir}/selinux
 
@@ -153,7 +155,16 @@ if [ $1 = 1 ]; then
   
 
   ## Disable syscheck and rootcheck
-  sed "s/<disabled>no</disabled>/<disabled>yes</disabled>/" %{_localstatedir}/etc/ossec.conf > %{_localstatedir}/etc/ossec.conf.tmp &&  mv %{_localstatedir}/etc/ossec.conf.tmp %{_localstatedir}/etc/ossec.conf
+  sed "s/<disabled>no/<disabled>yes/" %{_localstatedir}/etc/ossec.conf > %{_localstatedir}/etc/ossec.conf.tmp &&  mv %{_localstatedir}/etc/ossec.conf.tmp %{_localstatedir}/etc/ossec.conf
+
+  ## Add syslog configuration
+  syslog_conf="<ossec_config>
+  <syslog_output>
+    <server>127.0.0.1</server>
+  </syslog_output>
+</ossec_config>"
+
+  echo "$syslog_conf" >> %{_localstatedir}/etc/ossec.conf
 
   chown root:ossec %{_localstatedir}/etc/ossec.conf
   chmod 0640 %{_localstatedir}/etc/ossec.conf
@@ -291,6 +302,7 @@ rm -fr %{buildroot}
 %attr(640,root,ossec) %{_localstatedir}/framework/wazuh/*
 %attr(750,root,ossec) %{_localstatedir}/integrations/*
 %attr(750,root,root) %{_localstatedir}/bin/*
+%attr(640,root,ossec) %{_localstatedir}/bin/.process_list
 %attr(750,root,ossec) %{_localstatedir}/active-response/bin/*
 %attr(640,root,ossec) %{_localstatedir}/etc/ossec.conf
 %attr(640,root,ossec) %config(noreplace) %{_localstatedir}/etc/decoders/local_decoder.xml
