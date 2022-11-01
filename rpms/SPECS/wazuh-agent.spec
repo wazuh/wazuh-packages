@@ -471,7 +471,6 @@ sles=""
 
   if [ ! -z "$sles" ]; then
     if [ ! -d /etc/init.d/wazuh-agent ]; then
-      install -m 755 %{_localstatedir}/packages_files/agent_installation_scripts/src/init/ossec-hids-suse.init /etc/init.d/wazuh-agent
       ln -sf ../wazuh-agent /etc/init.d/wazuh-agent
     fi
   fi
