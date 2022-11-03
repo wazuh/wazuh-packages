@@ -309,7 +309,6 @@ if [ $1 = 1 ]; then
   if [ ! -z "$sles" ]; then
     if [ -d /etc/init.d ]; then
       install -m 755 %{_localstatedir}/packages_files/manager_installation_scripts/src/init/ossec-hids-suse.init /etc/init.d/wazuh-manager
-      ln -sf ../wazuh-manager /etc/init.d/wazuh-manager
     fi
   fi
 
@@ -540,21 +539,21 @@ fi
 %posttrans
 
 sles=""
-  if [ -f /etc/SuSE-release ]; then
+if [ -f /etc/SuSE-release ]; then
+  sles="suse"
+elif [ -f /etc/os-release ]; then
+  if `grep -q "\"sles" /etc/os-release` ; then
     sles="suse"
-  elif [ -f /etc/os-release ]; then
-    if `grep -q "\"sles" /etc/os-release` ; then
-      sles="suse"
-    elif `grep -q -i "\"opensuse" /etc/os-release` ; then
-      sles="opensuse"
-    fi
+  elif `grep -q -i "\"opensuse" /etc/os-release` ; then
+    sles="opensuse"
   fi
+fi
 
-  if [ ! -z "$sles" ]; then
-    if [ ! -d /etc/init.d/wazuh-manager ]; then
-      ln -sf ../wazuh-agent /etc/init.d/wazuh-manager
-    fi
+if [ ! -z "$sles" ]; then
+  if [ ! -d /etc/init.d/wazuh-manager ]; then
+    ln -sf ../wazuh-manager /etc/init.d/wazuh-manager
   fi
+fi
 
 if [ -f %{_sysconfdir}/systemd/system/wazuh-manager.service ]; then
   rm -rf %{_sysconfdir}/systemd/system/wazuh-manager.service
