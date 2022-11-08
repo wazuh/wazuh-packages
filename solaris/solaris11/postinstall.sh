@@ -59,5 +59,5 @@ rm -rf ${install_path}/queue/ossec/
 rm -rf ${SCA_TMP_DIR}
 
 # Remove upgrade files after install/upgrade
-rm -rf ${install_path}/installation_scripts/
-rm -rf /lib/svc/manifest/site/post-install.xml
+#rm -rf ${install_path}/installation_scripts/
+#rm -rf /lib/svc/manifest/site/post-install.xml
