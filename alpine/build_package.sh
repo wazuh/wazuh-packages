@@ -89,7 +89,7 @@ build() {
     elif [ "${architecture}" = "arm64" ] || [ "${architecture}" = "aarch64" ] || \
         [ "${architecture}" = "arm64v8" ]; then
         architecture="aarch64"
-        build_name="${apk_arm64v8_builder}"
+        build_name="${apk_aarch64_builder}"
     elif [ "${architecture}" = "i386" ] || [ "${architecture}" = "x86" ]; then
         architecture="x86"
         build_name="${apk_x86_builder}"
