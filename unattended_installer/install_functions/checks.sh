@@ -310,16 +310,17 @@ function checks_ports() {
     used_port=0
     ports=("$@")
 
-    if command -v ss > /dev/null; then
+    if command -v nc > /dev/null;then
+        port_command="nc -zv localhost "
+    elif command -v ss > /dev/null; then
         port_command="ss -lntup | grep -q "
+    elif command -v lsof > /dev/null; then
+        port_command="lsof -i:"
     else
-        if command -v lsof > /dev/null; then
-            port_command="lsof -i:"
-        else
-            common_logger -w "Cannot find ss or lsof. Port checking will be skipped."
-            return 1
-        fi
+        common_logger -w "Cannot find nc, ss or lsof. Port checking will be skipped."
+        return 1
     fi
+
 
     for i in "${!ports[@]}"; do
         if eval "${port_command}""${ports[i]}" > /dev/null; then
