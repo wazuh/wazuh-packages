@@ -1316,3 +1316,26 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libjsvml.so
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libsyslookup.so
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/security/blocked.certs
+
+%changelog
+* Thu Nov 03 2022 support <info@wazuh.com> - 4.4.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Oct 03 2022 support <info@wazuh.com> - 4.3.9
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Sep 19 2022 support <info@wazuh.com> - 4.3.8
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Aug 08 2022 support <info@wazuh.com> - 4.3.7
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Thu Jul 07 2022 support <info@wazuh.com> - 4.3.6
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Wed Jun 29 2022 support <info@wazuh.com> - 4.3.5
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Tue Jun 07 2022 support <info@wazuh.com> - 4.3.4
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Tue May 31 2022 support <info@wazuh.com> - 4.3.3
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon May 30 2022 support <info@wazuh.com> - 4.3.2
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Wed May 18 2022 support <info@wazuh.com> - 4.3.1
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Thu May 05 2022 support <info@wazuh.com> - 4.3.0
