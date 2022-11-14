@@ -27,13 +27,13 @@ In this repository, you can find the necessary tools to build a Wazuh package fo
 * `master` branch contains the latest code, be aware of possible bugs on this branch.
 * `stable` branch on correspond to the last Wazuh stable version.
 
-## Compatibility matrix
+## Distribution version matrix
 
 The following table shows the references for the versions of each component.
 
 ### Dashboard
 
-| Wazuh dashboard | Opensearch dasbhoards |
+| Wazuh dashboard | Opensearch dashboards |
 |-----------------|-----------------------|
 | 4.3.x           | 1.2.0                 |
 | 4.4.x           | 2.3.0                 |
@@ -42,7 +42,7 @@ The following table shows the references for the versions of each component.
 
 | Wazuh indexer   | Opensearch            |
 |-----------------|-----------------------|
-| 4.3.x           | 1.2.0                 |
+| 4.3.x           | 1.2.4                 |
 | 4.4.x           | 2.3.0                 |
 
 ## Contribute
