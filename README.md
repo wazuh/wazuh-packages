@@ -35,12 +35,14 @@ The following table shows the references for the versions of each component.
 
 | Wazuh dashboard | Opensearch dasbhoards |
 |-----------------|-----------------------|
+| 4.3.x           | 1.2.0                 |
 | 4.4.x           | 2.3.0                 |
 
 ### Indexer
 
 | Wazuh indexer   | Opensearch            |
 |-----------------|-----------------------|
+| 4.3.x           | 1.2.0                 |
 | 4.4.x           | 2.3.0                 |
 
 ## Contribute
