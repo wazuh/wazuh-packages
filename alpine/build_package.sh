@@ -17,6 +17,7 @@ apk_x86_64_builder="apk_agent_builder_x86_64"
 apk_aarch64_builder="apk_agent_builder_aarch64"
 apk_x86_builder="apk_agent_builder_x86"
 apk_armhf_builder="apk_agent_builder_armhf"
+apk_armv7_builder="apk_agent_builder_armv7"
 apk_ppc64le_builder="apk_agent_builder_ppc64le"
 apk_builder_dockerfile="${current_path}/docker"
 future="no"
@@ -48,6 +49,7 @@ ctrl_c() {
 build_apk() {
     container_name="$1"
     dockerfile_path="$2"
+    docker_flags="-t --rm"
 
     # Copy the necessary files
     cp ${current_path}/builder.sh ${dockerfile_path}
@@ -68,7 +70,11 @@ build_apk() {
         volumes="${volumes} -v ${local_source}:/wazuh:Z"
     fi
 
-    docker run -t --rm ${volumes} \
+    if [ "${architecture}" = "armhf" ] || [ "${architecture}" = "armv7" ]; then
+        docker_flags="${docker_flags} --security-opt seccomp=unconfined"
+    fi
+
+    docker run ${docker_flags} ${volumes} \
         ${container_name} ${reference} ${architecture} ${revision} ${jobs} \
         ${installation_path} ${debug} ${spec_reference} ${local_spec} \
         ${local_source} ${future} ${aws_region} ${private_key_id} \
@@ -93,10 +99,12 @@ build() {
     elif [ "${architecture}" = "i386" ] || [ "${architecture}" = "x86" ]; then
         architecture="x86"
         build_name="${apk_x86_builder}"
-    elif [ "${architecture}" = "armhf" ] || [ "${architecture}" = "arm32" ] || \
-          [ "${architecture}" = "arm32v7" ]; then
+    elif [ "${architecture}" = "armhf" ] || [ "${architecture}" = "arm32" ]; then
         architecture="armhf"
         build_name="${apk_armhf_builder}"
+    elif [ "${architecture}" = "armv7" ] || [ "${architecture}" = "arm32v7" ]; then
+        architecture="armv7"
+        build_name="${apk_armv7_builder}"
     elif [ "${architecture}" = "ppc64le" ] || [ "${architecture}" = "ppc" ]; then
         architecture="ppc64le"
         build_name="${apk_ppc64le_builder}"
@@ -115,9 +123,9 @@ help() {
     echo "Usage: $0 [OPTIONS]"
     echo
     echo "    -b, --reference <ref>      [Required] Select Git branch or tag from wazuh repository."
-    echo "    -a, --architecture <arch>  [Optional] Target architecture of the package [x86_64]."
+    echo "    -a, --architecture <arch>  [Optional] Target architecture of the package [x86_64/x86/armhf/armv7/aarch64/ppc64le]."
     echo "    -j, --jobs <number>        [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 2."
-    echo "    -r, --revision <rev>       [Optional] Package revision. By default: 1."
+    echo "    -r, --revision <rev>       [Optional] Package revision [Only numeric values allowed]. By default: 1."
     echo "    -s, --store <path>         [Optional] Set the destination path of package. By default, an output folder will be created."
     echo "    -p, --path <path>          [Optional] Installation path for the package. By default: /var/ossec."
     echo "    -d, --debug                [Optional] Build the binaries with debug symbols. By default: no."

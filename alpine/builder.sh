@@ -74,8 +74,14 @@ fi
 
 # Building APK
 cd ${spec_path}/${target}
-abuild -F checksum
-abuild -F -r
+if [ "${architecture}" = "x86" ] || [ "${architecture}" = "armhf" ] || \
+    [ "${architecture}" = "armv7" ]; then
+    linux32 abuild -F checksum
+    linux32 abuild -F -r
+else
+    abuild -F checksum
+    abuild -F -r
+fi
 
 cd ${pkg_path} && sha512sum ${pkg_file} > /tmp/${pkg_file}.sha512
 find ${pkg_path}/ -maxdepth 3 -type f -name "${file_name}*" -exec mv {} /var/local/wazuh/ \;

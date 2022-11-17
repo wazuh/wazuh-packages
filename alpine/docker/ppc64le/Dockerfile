@@ -1,4 +1,4 @@
-FROM ppc64le/alpine:3.16.0
+FROM ppc64le/alpine:3.13.0
 
 # Install all the necessary tools to build the packages
 RUN apk add ca-certificates curl alpine-sdk sudo less openssh \
