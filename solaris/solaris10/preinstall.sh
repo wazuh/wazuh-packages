@@ -39,7 +39,7 @@ if [ "$?" -eq 1 ]; then
     groupadd ${GROUP}
 fi
 
-getent passwd | grep "^wazuh"
+getent passwd wazuh
 if [ "$?" -eq 1 ]; then
     useradd -d ${DIR} -s ${OSMYSHELL} -g ${GROUP} ${USER} > /dev/null 2>&1
 fi
