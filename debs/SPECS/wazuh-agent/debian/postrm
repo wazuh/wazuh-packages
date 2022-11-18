@@ -40,10 +40,10 @@ case "$1" in
 
         purge)
 
-        if getent passwd | grep -q "^wazuh" ; then
+        if getent passwd wazuh ; then
             deluser wazuh > /dev/null 2>&1
         fi
-        if getent group | grep -q "^wazuh" ; then
+        if getent group wazuh ; then
             delgroup wazuh > /dev/null 2>&1
         fi
         rm -rf ${DIR}/*
