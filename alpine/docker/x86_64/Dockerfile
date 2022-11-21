@@ -1,4 +1,4 @@
-FROM amd64/alpine:3.13.0
+FROM amd64/alpine:3.12.12
 
 # Install all the necessary tools to build the packages
 RUN apk add ca-certificates curl alpine-sdk sudo less openssh \
