@@ -1,8 +1,6 @@
-Wazuh HP-UX packages
-====================
+# Wazuh HP-UX packages
 
 In this repository, you can find the necessary tools to build a Wazuh package for HP-UX.
-
 
 ## Building HP-UX packages
 
