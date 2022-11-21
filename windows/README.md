@@ -1,5 +1,4 @@
-Wazuh Windows packages
-======================
+# Wazuh Windows packages
 
 In this repository, you can find the necessary tools to build a Wazuh msi package for Windows.
 

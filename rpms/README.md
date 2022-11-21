@@ -1,5 +1,4 @@
-Wazuh RPM packages
-==================
+# Wazuh RPM packages
 
 In this repository, you can find the necessary tools to build a Wazuh package for RPM based OS.
 
