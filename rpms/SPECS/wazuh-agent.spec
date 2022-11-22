@@ -257,6 +257,22 @@ if [ $1 = 1 ]; then
   %{_localstatedir}/packages_files/agent_installation_scripts/src/init/register_configure_agent.sh %{_localstatedir} > /dev/null || :
 fi
 
+if [ -f /etc/SuSE-release ]; then
+  sles="suse"
+elif [ -f /etc/os-release ]; then
+  if grep -q "\"sles" /etc/os-release ; then
+    sles="suse"
+  elif grep -q -i "\"opensuse" /etc/os-release ; then
+    sles="opensuse"
+  fi
+fi
+
+if [ -n "$sles" ]; then
+  if [ ! -f /etc/init.d/wazuh-agent ]; then
+    ln -sf ../wazuh-agent /etc/init.d/wazuh-agent
+  fi
+fi
+
 if [ -f /etc/os-release ]; then
   source /etc/os-release
   if [ "${NAME}" = "Red Hat Enterprise Linux" ] && [ "$((${VERSION_ID:0:1}))" -ge 9 ]; then
@@ -456,24 +472,6 @@ fi
 
 # posttrans code is the last thing executed in a install/upgrade
 %posttrans
-
-sles=""
-if [ -f /etc/SuSE-release ]; then
-  sles="suse"
-elif [ -f /etc/os-release ]; then
-  if `grep -q "\"sles" /etc/os-release` ; then
-    sles="suse"
-  elif `grep -q -i "\"opensuse" /etc/os-release` ; then
-    sles="opensuse"
-  fi
-fi
-
-if [ ! -z "$sles" ]; then
-  if [ ! -d /etc/init.d/wazuh-agent ]; then
-    ln -sf ../wazuh-agent /etc/init.d/wazuh-agent
-  fi
-fi
-
 if [ -f %{_sysconfdir}/systemd/system/wazuh-agent.service ]; then
   rm -rf %{_sysconfdir}/systemd/system/wazuh-agent.service
   systemctl daemon-reload > /dev/null 2>&1

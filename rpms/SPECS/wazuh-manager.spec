@@ -328,6 +328,22 @@ if [ $1 = 1 ]; then
   %{_localstatedir}/packages_files/manager_installation_scripts/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
 fi
 
+if [ -f /etc/SuSE-release ]; then
+  sles="suse"
+elif [ -f /etc/os-release ]; then
+  if grep -q "\"sles" /etc/os-release ; then
+    sles="suse"
+  elif grep -q -i "\"opensuse" /etc/os-release ; then
+    sles="opensuse"
+  fi
+fi
+
+if [ -n "$sles" ]; then
+  if [ ! -f /etc/init.d/wazuh-manager ]; then
+    ln -sf ../wazuh-manager /etc/init.d/wazuh-manager
+  fi
+fi
+
 if [ -f /etc/os-release ]; then
   source /etc/os-release
   if [ "${NAME}" = "Red Hat Enterprise Linux" ] && [ "$((${VERSION_ID:0:1}))" -ge 9 ]; then
@@ -537,24 +553,6 @@ fi
 
 # posttrans code is the last thing executed in a install/upgrade
 %posttrans
-
-sles=""
-if [ -f /etc/SuSE-release ]; then
-  sles="suse"
-elif [ -f /etc/os-release ]; then
-  if `grep -q "\"sles" /etc/os-release` ; then
-    sles="suse"
-  elif `grep -q -i "\"opensuse" /etc/os-release` ; then
-    sles="opensuse"
-  fi
-fi
-
-if [ ! -z "$sles" ]; then
-  if [ ! -d /etc/init.d/wazuh-manager ]; then
-    ln -sf ../wazuh-manager /etc/init.d/wazuh-manager
-  fi
-fi
-
 if [ -f %{_sysconfdir}/systemd/system/wazuh-manager.service ]; then
   rm -rf %{_sysconfdir}/systemd/system/wazuh-manager.service
   systemctl daemon-reload > /dev/null 2>&1
