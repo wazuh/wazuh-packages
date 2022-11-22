@@ -16,7 +16,7 @@ URL_REPO=https://github.com/wazuh/wazuh/archive/${BRANCH}.zip
 wget -O wazuh.zip ${URL_REPO} && unzip wazuh.zip
 
 # Compile the wazuh agent for Windows
-FLAGS="-j ${JOBS} IMAGE_TRUST_CHECKS=${TRUST_VERIFICATION} CA_NAME=\"${CA_NAME}\" "
+FLAGS="-j ${JOBS} EXTERNAL_SRC_ONLY=yes IMAGE_TRUST_CHECKS=${TRUST_VERIFICATION} CA_NAME=\"${CA_NAME}\" "
 
 if [[ "${DEBUG}" = "yes" ]]; then
     FLAGS+="-d "
@@ -24,6 +24,9 @@ fi
 
 bash -c "make -C /wazuh-*/src deps TARGET=winagent ${FLAGS}"
 bash -c "make -C /wazuh-*/src TARGET=winagent ${FLAGS}"
+
+tar -zcf sqlite.tar.gz /wazuh-*/src/external/sqlite --owner=0 --group=0
+cp sqlite.tar.gz /shared
 
 rm -rf /wazuh-*/src/external
 
