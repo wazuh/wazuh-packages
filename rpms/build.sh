@@ -128,4 +128,6 @@ if [[ "${src}" == "yes" ]]; then
     extract_path="${rpm_build_dir}"
 fi
 
+tar -zcf /var/local/wazuh/sqlite.tar.gz ${rpm_build_dir}/BUILD/${package_name}/src/external/sqlite --owner=0 --group=0
+
 find ${extract_path} -maxdepth 3 -type f -name "${file_name}*" -exec mv {} /var/local/wazuh \;
