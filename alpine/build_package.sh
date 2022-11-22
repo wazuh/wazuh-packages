@@ -227,6 +227,14 @@ main() {
                 help 1
             fi
             ;;
+        "-t"|"--target")
+            if [ -n "$2" ]; then
+            echo "-t|--target has been disabled, It will set as agent by default."
+                shift 2
+            else
+                help 1
+            fi
+            ;;
         *)
             help 1
         esac
