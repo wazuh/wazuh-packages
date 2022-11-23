@@ -70,7 +70,8 @@ function buildInstaller() {
         echo 'readonly repogpg="https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH"' >> "${output_script_path}"
         echo 'readonly repobaseurl="https://packages-dev.wazuh.com/'${devrepo}'"' >> "${output_script_path}"
         echo 'readonly reporelease="unstable"' >> "${output_script_path}"
-        echo 'readonly filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.2.tar.gz"' >> "${output_script_path}"
+        echo 'readonly filebeat_wazuh_module_version="0.2"' >> "${output_script_path}"
+        echo 'readonly filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-${filebeat_wazuh_module_version}.tar.gz"' >> "${output_script_path}"
         echo 'readonly bucket="packages-dev.wazuh.com"' >> "${output_script_path}"
         echo 'readonly repository="'"${devrepo}"'"' >> "${output_script_path}"
     else
