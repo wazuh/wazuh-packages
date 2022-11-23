@@ -25,7 +25,7 @@ fi
 bash -c "make -C /wazuh-*/src deps TARGET=winagent ${FLAGS}"
 bash -c "make -C /wazuh-*/src TARGET=winagent ${FLAGS}"
 
-tar -zcf sqlite.tar.gz /wazuh-*/src/external/sqlite --owner=0 --group=0
+tar -zcf sqlite.tar.gz -C /wazuh-*/src/external sqlite --owner=0 --group=0
 cp sqlite.tar.gz /shared
 
 rm -rf /wazuh-*/src/external
