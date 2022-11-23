@@ -40,8 +40,8 @@ pushd src
 make clean
 
 %if 0%{?el} >= 6 || 0%{?rhel} >= 6
-    make deps TARGET=agent
-    make -j%{_threads} TARGET=agent USE_SELINUX=yes DEBUG=%{_debugenabled} EXTERNAL_SRC_ONLY=yes
+    make deps TARGET=agent EXTERNAL_SRC_ONLY=yes
+    make -j%{_threads} TARGET=agent USE_SELINUX=yes DEBUG=%{_debugenabled}
 %else
     %ifnarch x86_64
       MSGPACK="USE_MSGPACK_OPT=no"
