@@ -1,8 +1,6 @@
-Wazuh Virtual Machine
-=====================
+# Wazuh Virtual Machine
 
 In this repository, you can find the necessary tools to build your own OVA file with all Wazuh components installed.
-
 
 ## Building OVA file:
 

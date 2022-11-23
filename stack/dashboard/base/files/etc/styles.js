@@ -129,8 +129,8 @@ const Styles = ({
           }
 
           .osdLoaderWrap svg {
-            width: 512px;
-            height: 150px;
+            width: 384px;
+            height: 112px;
             margin: auto;
             line-height: 1;
           }
@@ -166,7 +166,7 @@ const Styles = ({
             height: 150px;
             padding: 10px 10px 10px 10px;
           }
-          
+
           .loadingLogo {
             height: 100%;
             max-width: 100%;

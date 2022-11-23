@@ -99,6 +99,8 @@ cp %{REPO_DIR}/config/indexer/roles/roles_mapping.yml ${RPM_BUILD_ROOT}%{CONFIG_
 
 cp /root/stack/indexer/indexer-security-init.sh ${RPM_BUILD_ROOT}%{INSTALL_DIR}/bin/
 
+chmod 750 ${RPM_BUILD_ROOT}/etc/init.d/wazuh-indexer
+
 # -----------------------------------------------------------------------------
 
 %pre
@@ -158,6 +160,14 @@ if [ $1 = 1 ];then # Install
     if command -v systemctl > /dev/null 2>&1; then
         systemctl restart systemd-sysctl > /dev/null 2>&1 || true
     fi
+
+fi
+
+if [ -f /etc/os-release ]; then
+  source /etc/os-release
+  if [ "${NAME}" = "Red Hat Enterprise Linux" ] && [ "$((${VERSION_ID:0:1}))" -ge 9 ]; then
+    rm -f /etc/init.d/%{name}
+  fi
 fi
 
 # -----------------------------------------------------------------------------
@@ -280,12 +290,6 @@ rm -fr %{buildroot}
 
 # -----------------------------------------------------------------------------
 
-%changelog
-* Tue Feb 01 2022 support <info@wazuh.com> - %{version}
-- More info: https://documentation.wazuh.com/current/release-notes/
-
-# -----------------------------------------------------------------------------
-
 %files
 %defattr(-, %{USER}, %{GROUP})
 %dir %attr(750, %{USER}, %{GROUP}) %{CONFIG_DIR}
@@ -293,7 +297,8 @@ rm -fr %{buildroot}
 %dir %attr(750, %{USER}, %{GROUP}) %{LOG_DIR}
 
 %config(noreplace) %attr(0660, root, %{GROUP}) "/etc/sysconfig/%{name}"
-%attr(0750, root, root) /etc/init.d/%{name}
+
+%config(missingok) /etc/init.d/%{name}
 %attr(0640, root, root) %{SYS_DIR}/sysctl.d/%{name}.conf
 %attr(0640, root, root) %{SYS_DIR}/systemd/system/%{name}.service
 %attr(0640, root, root) %{SYS_DIR}/systemd/system/%{name}-performance-analyzer.service
@@ -351,6 +356,7 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/performance-analyzer-rca-2.3.0.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/protobuf-java-3.19.2.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/proto-google-common-protos-2.0.1.jar
+%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/config
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/config/agent-stats-metadata
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/config/log4j2.xml
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/config/opensearch_security.policy
@@ -372,6 +378,7 @@ rm -fr %{buildroot}
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-upgrade
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/systemd-entrypoint
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/indexer-security-init.sh
+%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-performance-analyzer
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-performance-analyzer/performance-analyzer-agent
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-performance-analyzer/performance-analyzer-agent-cli
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib
@@ -562,6 +569,7 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-knn/LICENSE.txt
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-knn/NOTICE.txt
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-knn/guava-30.0-jre.jar
+%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-knn/lib
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-knn/lib/libgomp.so.1
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-knn/lib/libopensearchknn_common.so
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-knn/lib/libopensearchknn_faiss.so
@@ -814,6 +822,7 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-alerting/opensearch-rest-client-2.3.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-alerting/percolator-client-2.3.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-alerting/commons-logging-1.2.jar
+%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/common-utils-2.3.0.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/commons-beanutils-1.9.4.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/commons-codec-1.15.jar
@@ -875,6 +884,7 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/tribuo-util-infotheory-4.2.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/tribuo-util-onnx-4.2.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/tribuo-util-tokenization-4.2.1.jar
+%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications-core
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications-core/activation-1.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications-core/aws-java-sdk-core-1.12.48.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications-core/aws-java-sdk-ses-1.12.48.jar
@@ -892,6 +902,7 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications-core/commons-logging-1.2.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications-core/plugin-descriptor.properties
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications-core/plugin-security.policy
+%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications/common-utils-2.3.0.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications/kotlin-stdlib-common-1.6.10.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications/kotlinx-coroutines-core-jvm-1.4.3.jar
@@ -1010,7 +1021,9 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/commons-codec-1.15.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/httpcore-4.4.15.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/commons-logging-1.2.jar
+%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/parent-join
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/parent-join/plugin-descriptor.properties
+%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/transport-netty4
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/transport-netty4/plugin-descriptor.properties
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/transport-netty4/plugin-security.policy
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk
@@ -1087,8 +1100,10 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.base/unicode.md
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.security.sasl
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.scripting
+%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.dynalink
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.dynalink/dynalink.md
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.management
+%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.javadoc
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.javadoc/jqueryUI.md
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.javadoc/jquery.md
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.xml
@@ -1103,9 +1118,11 @@ rm -fr %{buildroot}
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.prefs
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.compiler
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.logging
+%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.internal.opt
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.internal.opt/jopt-simple.md
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.xml.crypto
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.xml.crypto/santuario.md
+%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.localedata
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.localedata/thaidict.md
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.sql.rowset
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.net.http
@@ -1113,7 +1130,9 @@ rm -fr %{buildroot}
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.sql
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.naming
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.datatransfer
+%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.internal.le
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.internal.le/jline.md
+%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.crypto.cryptoki
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.crypto.cryptoki/pkcs11cryptotoken.md
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.crypto.cryptoki/pkcs11wrapper.md
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.instrument
@@ -1291,3 +1310,27 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libjsvml.so
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libsyslookup.so
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/security/blocked.certs
+
+%changelog
+* Thu Nov 03 2022 support <info@wazuh.com> - 4.4.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Oct 03 2022 support <info@wazuh.com> - 4.3.9
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Sep 19 2022 support <info@wazuh.com> - 4.3.8
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Aug 08 2022 support <info@wazuh.com> - 4.3.7
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Thu Jul 07 2022 support <info@wazuh.com> - 4.3.6
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Wed Jun 29 2022 support <info@wazuh.com> - 4.3.5
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Tue Jun 07 2022 support <info@wazuh.com> - 4.3.4
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Tue May 31 2022 support <info@wazuh.com> - 4.3.3
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon May 30 2022 support <info@wazuh.com> - 4.3.2
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Wed May 18 2022 support <info@wazuh.com> - 4.3.1
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Thu May 05 2022 support <info@wazuh.com> - 4.3.0
+- More info: https://documentation.wazuh.com/current/release-notes/

@@ -1,8 +1,6 @@
-Wazuh macOS packages
-====================
+# Wazuh macOS packages
 
 In this repository, you can find the necessary tools to build a Wazuh package for macOS.
-
 
 ## Building macOS packages
 

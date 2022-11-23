@@ -218,18 +218,17 @@ main() {
 
 clean() {
     rm -rf ./{api,framework}
-    rm -rf doc wodles/oscap/content/* gen_ossec.sh add_localfiles.sh Jenkinsfile*
+    rm -rf doc gen_ossec.sh add_localfiles.sh Jenkinsfile*
     rm -rf src/{addagent,analysisd,client-agent,config,error_messages,external/*}
     rm -rf src/{headers,logcollector,monitord,os_auth,os_crypto,os_csyslogd}
-    rm -rf src/{os_dbdos_execd,os_integrator,os_maild,os_netos_regex,os_xml,os_zlib}
-    rm -rf src/{remoted,reportd,shared,syscheckd,tests,update,wazuh_db}
+    rm -rf src/{os_dbd,os_execd,os_integrator,os_maild,os_net,os_regex,os_xml,os_zlib}
+    rm -rf src/{remoted,reportd,shared,syscheckd,unit_tests,wazuh_db}
 
     if [[ "${BUILD_TARGET}" != "winagent" ]]; then
         rm -rf src/win32
     fi
 
     rm -rf src/*.a
-    rm -rf etc/{decoders,lists,rules}
 
     find etc/templates/config -not -name "sca.files" -delete 2>/dev/null
     find etc/templates/* -maxdepth 0 -not -name "en" -not -name "config" | xargs rm -rf
