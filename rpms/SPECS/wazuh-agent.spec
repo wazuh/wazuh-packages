@@ -257,6 +257,7 @@ if [ $1 = 1 ]; then
   %{_localstatedir}/packages_files/agent_installation_scripts/src/init/register_configure_agent.sh %{_localstatedir} > /dev/null || :
 fi
 
+#Enable service in openSUSE environment
 if [ -f /etc/SuSE-release ]; then
   sles="suse"
 elif [ -f /etc/os-release ]; then
@@ -268,9 +269,7 @@ elif [ -f /etc/os-release ]; then
 fi
 
 if [ -n "$sles" ]; then
-  if [ ! -f /etc/init.d/wazuh-agent ]; then
-    ln -sf ../wazuh-agent /etc/init.d/wazuh-agent
-  fi
+  ln -sf ../wazuh-agent /etc/init.d/wazuh-agent
 fi
 
 if [ -f /etc/os-release ]; then

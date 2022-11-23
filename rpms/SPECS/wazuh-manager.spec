@@ -328,6 +328,7 @@ if [ $1 = 1 ]; then
   %{_localstatedir}/packages_files/manager_installation_scripts/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
 fi
 
+#Enable service in openSUSE environment
 if [ -f /etc/SuSE-release ]; then
   sles="suse"
 elif [ -f /etc/os-release ]; then
@@ -339,9 +340,7 @@ elif [ -f /etc/os-release ]; then
 fi
 
 if [ -n "$sles" ]; then
-  if [ ! -f /etc/init.d/wazuh-manager ]; then
-    ln -sf ../wazuh-manager /etc/init.d/wazuh-manager
-  fi
+  ln -sf ../wazuh-manager /etc/init.d/wazuh-manager
 fi
 
 if [ -f /etc/os-release ]; then
