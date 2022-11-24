@@ -25,8 +25,10 @@ fi
 bash -c "make -C /wazuh-*/src deps TARGET=winagent ${FLAGS}"
 bash -c "make -C /wazuh-*/src TARGET=winagent ${FLAGS}"
 
-tar -zcf sqlite.tar.gz -C /wazuh-*/src/external sqlite --owner=0 --group=0
-cp sqlite.tar.gz /shared
+
+for library in ${rpm_build_dir}/BUILD/${package_name}/src/external/* ; do
+    tar -zcf /shared/$(basename $library).tar.gz -C /wazuh-*/src/external $(basename $library) --owner=0 --group=0
+done
 
 rm -rf /wazuh-*/src/external
 
