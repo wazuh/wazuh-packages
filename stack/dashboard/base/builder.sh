@@ -110,6 +110,26 @@ sed -i 's|If you have forgotten your username or password, please ask your syste
 sed -i 's|setShouldShowTenantPopup(shouldShowTenantPopup)|setShouldShowTenantPopup(false)|g' ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
 gzip -c ./plugins/securityDashboards/target/public/securityDashboards.plugin.js > ./plugins/securityDashboards/target/public/securityDashboards.plugin.js.gz
 brotli -c ./plugins/securityDashboards/target/public/securityDashboards.plugin.js > ./plugins/securityDashboards/target/public/securityDashboards.plugin.js.br
+# Change the python version used, so rmpbuild 4.14 doesn't give an error
+sed -i 's|#!/usr/bin/env python|#!/usr/bin/env python3|g' ./node_modules/node-gyp/gyp/pylib/gyp/MSVSSettings_test.py
+sed -i 's|#!/usr/bin/env python|#!/usr/bin/env python3|g' ./node_modules/node-gyp/gyp/pylib/gyp/__init__.py
+sed -i 's|#!/usr/bin/env python|#!/usr/bin/env python3|g' ./node_modules/node-gyp/gyp/pylib/gyp/flock_tool.py
+sed -i 's|#!/usr/bin/env python|#!/usr/bin/env python3|g' ./node_modules/node-gyp/gyp/pylib/gyp/mac_tool.py
+sed -i 's|#!/usr/bin/env python|#!/usr/bin/env python3|g' ./node_modules/node-gyp/gyp/pylib/gyp/generator/msvs_test.py
+sed -i 's|#!/usr/bin/env python|#!/usr/bin/env python3|g' ./node_modules/node-gyp/gyp/pylib/gyp/easy_xml_test.py
+sed -i 's|#!/usr/bin/env python|#!/usr/bin/env python3|g' ./node_modules/node-gyp/gyp/pylib/gyp/common_test.py
+sed -i 's|#!/usr/bin/env python|#!/usr/bin/env python3|g' ./node_modules/node-gyp/gyp/pylib/gyp/input_test.py
+sed -i 's|#!/usr/bin/env python|#!/usr/bin/env python3|g' ./node_modules/node-gyp/gyp/pylib/gyp/win_tool.py
+sed -i 's|#!/usr/bin/env python|#!/usr/bin/env python3|g' ./node_modules/node-gyp/gyp/test_gyp.py
+sed -i 's|#!/usr/bin/env python|#!/usr/bin/env python3|g' ./node_modules/node-gyp/gyp/tools/pretty_vcproj.py
+sed -i 's|#!/usr/bin/env python|#!/usr/bin/env python3|g' ./node_modules/node-gyp/gyp/tools/pretty_sln.py
+sed -i 's|#!/usr/bin/env python|#!/usr/bin/env python3|g' ./node_modules/node-gyp/gyp/tools/graphviz.py
+sed -i 's|#!/usr/bin/env python|#!/usr/bin/env python3|g' ./node_modules/node-gyp/gyp/tools/pretty_gyp.py
+sed -i 's|#!/usr/bin/env python|#!/usr/bin/env python3|g' ./node_modules/node-gyp/gyp/gyp_main.py
+sed -i 's|#!/usr/bin/env python|#!/usr/bin/env python3|g' ./node_modules/node-gyp/gyp/setup.py
+sed -i 's|#!/usr/bin/python|#!/usr/bin/python3|g' ./node_modules/re2/vendor/re2/make_unicode_groups.py
+sed -i 's|#!/usr/bin/python|#!/usr/bin/python3|g' ./node_modules/re2/vendor/re2/make_unicode_casefold.py
+
 # Generate compressed files
 gzip -c ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js > ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js.gz
 brotli -c ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js > ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js.br
