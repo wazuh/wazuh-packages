@@ -2,10 +2,10 @@
 # postremove script for wazuh-agent
 # Wazuh, Inc 2015
 
-if getent passwd | grep "^wazuh"; then
+if getent passwd wazuh; then
   userdel wazuh
 fi
 
-if getent group | grep "^wazuh"; then
+if getent group wazuh; then
   groupdel wazuh
 fi
