@@ -156,6 +156,7 @@ EOF
 chown root:wheel /Library/LaunchDaemons/com.wazuh.agent.plist
 chmod u=rw-,go=r-- /Library/LaunchDaemons/com.wazuh.agent.plist
 
+sudo mkdir /Library/Ossec/LoginItems
 sudo mkdir /Library/Ossec/LoginItems/WAZUH
 chown root:wheel /Library/Ossec/LoginItems/WAZUH
 
