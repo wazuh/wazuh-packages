@@ -229,7 +229,7 @@ function builder_main() {
             "-d"|"--development")
                 development=1
                 if [ -n "${2}" ] && [ "${2}" = "staging" ]; then
-                    devrepo="staging"
+                    devrepo="re-release"
                     shift 2
                 else
                     devrepo="pre-release"
