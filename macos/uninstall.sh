@@ -11,7 +11,7 @@ sudo /bin/rm -r /Library/Ossec*
 sudo /bin/rm -f /Library/LaunchDaemons/com.wazuh.agent.plist
 
 ## remove StartupItems
-sudo /bin/rm -rf /Library/Ossec/LoginItems/WAZUH
+sudo /bin/rm -rf /Library/TestingFolder/WAZUH
 
 ## Remove User and Groups
 sudo /usr/bin/dscl . -delete "/Users/wazuh"

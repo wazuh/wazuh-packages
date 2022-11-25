@@ -146,7 +146,7 @@ sudo tee /Library/LaunchDaemons/com.wazuh.agent.plist <<-'EOF'
      <string>com.wazuh.agent</string>
      <key>ProgramArguments</key>
      <array>
-         <string>/Library/Ossec/LoginItems/WAZUH/launcher.sh</string>
+         <string>/Library/TestingFolder/WAZUH/launcher.sh</string>
      </array>
      <key>RunAtLoad</key>
      <true/>
@@ -156,11 +156,11 @@ EOF
 chown root:wheel /Library/LaunchDaemons/com.wazuh.agent.plist
 chmod u=rw-,go=r-- /Library/LaunchDaemons/com.wazuh.agent.plist
 
-sudo mkdir /Library/Ossec/LoginItems
-sudo mkdir /Library/Ossec/LoginItems/WAZUH
-chown root:wheel /Library/Ossec/LoginItems/WAZUH
+sudo mkdir /Library/TestingFolder
+sudo mkdir /Library/TestingFolder/WAZUH
+chown root:wheel /Library/TestingFolder/WAZUH
 
-sudo tee /Library/Ossec/LoginItems/WAZUH/WAZUH <<-'EOF'
+sudo tee /Library/TestingFolder/WAZUH/WAZUH <<-'EOF'
 #!/bin/sh
 . /etc/rc.common
 
@@ -180,10 +180,10 @@ RestartService ()
 }
 RunService "$1"
 EOF
-chown root:wheel /Library/Ossec/LoginItems/WAZUH/WAZUH
-chmod u=rwx,go=r-x /Library/Ossec/LoginItems/WAZUH/WAZUH
+chown root:wheel /Library/TestingFolder/WAZUH/WAZUH
+chmod u=rwx,go=r-x /Library/TestingFolder/WAZUH/WAZUH
 
-sudo tee /Library/Ossec/LoginItems/WAZUH/StartupParameters.plist <<-'EOF'
+sudo tee /Library/TestingFolder/WAZUH/StartupParameters.plist <<-'EOF'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://
 www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -209,10 +209,10 @@ www.apple.com/DTDs/PropertyList-1.0.dtd">
 </dict>
 </plist>
 EOF
-chown root:wheel /Library/Ossec/LoginItems/WAZUH/StartupParameters.plist
-chmod u=rw-,go=r-- /Library/Ossec/LoginItems/WAZUH/StartupParameters.plist
+chown root:wheel /Library/TestingFolder/WAZUH/StartupParameters.plist
+chmod u=rw-,go=r-- /Library/TestingFolder/WAZUH/StartupParameters.plist
 
-sudo tee /Library/Ossec/LoginItems/WAZUH/launcher.sh <<-'EOF'
+sudo tee /Library/TestingFolder/WAZUH/launcher.sh <<-'EOF'
 #!/bin/sh
 
 DIRECTORY="/Library/Ossec"
@@ -232,5 +232,5 @@ while : ; do
 done
 EOF
 
-chown root:wheel /Library/Ossec/LoginItems/WAZUH/launcher.sh
-chmod u=rxw-,go=rx- /Library/Ossec/LoginItems/WAZUH/launcher.sh
+chown root:wheel /Library/TestingFolder/WAZUH/launcher.sh
+chmod u=rxw-,go=rx- /Library/TestingFolder/WAZUH/launcher.sh
