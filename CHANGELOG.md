@@ -1,12 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
-<<<<<<< HEAD
-=======
+
 ## [v4.5.0]
 
 - https://github.com/wazuh/wazuh-packages/releases/tag/v4.5.0
 
->>>>>>> 970be0e0 (Update CHANGELOG.md)
 ## [v4.4.0]
 
 - https://github.com/wazuh/wazuh-packages/releases/tag/v4.4.0
