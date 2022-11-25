@@ -1,6 +1,6 @@
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-manager
-Version:     4.4.0
+Version:     4.5.0
 Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
@@ -336,8 +336,8 @@ if [ -f /etc/os-release ]; then
 fi
 
 # Generation auto-signed certificate if not exists
-if type openssl >/dev/null 2>&1 && [ ! -f "%{_localstatedir}/etc/sslmanager.key" ] && [ ! -f "%{_localstatedir}/etc/sslmanager.cert" ]; then
-  openssl req -x509 -batch -nodes -days 365 -newkey rsa:2048 -subj "/C=US/ST=California/CN=Wazuh/" -keyout %{_localstatedir}/etc/sslmanager.key -out %{_localstatedir}/etc/sslmanager.cert 2>/dev/null
+if [ ! -f "%{_localstatedir}/etc/sslmanager.key" ] && [ ! -f "%{_localstatedir}/etc/sslmanager.cert" ]; then
+  %{_localstatedir}/bin/wazuh-authd -C 365 -B 2048 -S "/C=US/ST=California/CN=Wazuh/" -K %{_localstatedir}/etc/sslmanager.key -X %{_localstatedir}/etc/sslmanager.cert 2>/dev/null
   chmod 640 %{_localstatedir}/etc/sslmanager.key
   chmod 640 %{_localstatedir}/etc/sslmanager.cert
 fi
@@ -841,7 +841,9 @@ rm -fr %{buildroot}
 
 
 %changelog
-* Thu Nov 03 2022 support <info@wazuh.com> - 4.4.0
+* Wed Jan 18 2023 support <info@wazuh.com> - 4.4.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Thu Nov 10 2022 support <info@wazuh.com> - 4.3.10
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Mon Oct 03 2022 support <info@wazuh.com> - 4.3.9
 - More info: https://documentation.wazuh.com/current/release-notes/

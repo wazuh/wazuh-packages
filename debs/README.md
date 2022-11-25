@@ -1,5 +1,4 @@
-Wazuh DEB packages
-==================
+# Wazuh DEB packages
 
 In this repository, you can find the necessary tools to build a Wazuh package for Debian based OS.
 
