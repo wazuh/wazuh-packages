@@ -1,3 +1,9 @@
+wazuh-dashboard (VERSION-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Wed, 18 Jan 2023 12:31:50 +0000
+
 wazuh-dashboard (4.4.0-RELEASE) stable; urgency=low
 
   * More info: https://documentation.wazuh.com/current/release-notes/
@@ -69,3 +75,9 @@ wazuh-dashboard (4.3.0-RELEASE) stable; urgency=low
   * More info: https://documentation.wazuh.com/current/release-notes/
 
  -- Wazuh, Inc <info@wazuh.com>  Thu, 05 May 2022 12:15:57 +0000
+
+wazuh-dashboard (4.2.5-1) UNRELEASED; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Mon, 15 Nov 2021 16:47:07 +0000
