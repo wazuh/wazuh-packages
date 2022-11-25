@@ -295,22 +295,6 @@ fi
 
 # Fresh install code block
 if [ $1 = 1 ]; then
-  sles=""
-  if [ -f /etc/SuSE-release ]; then
-    sles="suse"
-  elif [ -f /etc/os-release ]; then
-    if `grep -q "\"sles" /etc/os-release` ; then
-      sles="suse"
-    elif `grep -q -i "\"opensuse" /etc/os-release` ; then
-      sles="opensuse"
-    fi
-  fi
-
-  if [ ! -z "$sles" ]; then
-    if [ -d /etc/init.d ]; then
-      install -m 755 %{_localstatedir}/packages_files/manager_installation_scripts/src/init/ossec-hids-suse.init /etc/init.d/wazuh-manager
-    fi
-  fi
 
   . %{_localstatedir}/packages_files/manager_installation_scripts/src/init/dist-detect.sh
 
@@ -328,20 +312,24 @@ if [ $1 = 1 ]; then
   %{_localstatedir}/packages_files/manager_installation_scripts/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
 fi
 
-#Enable service in openSUSE environment
-if [ -f /etc/SuSE-release ]; then
-  sles="suse"
-elif [ -f /etc/os-release ]; then
-  if grep -q "\"sles" /etc/os-release ; then
+# We create this fix for the operating system that decraped the SySV. For now, this fix is for suse/openSUSE
+sles=""
+  if [ -f /etc/SuSE-release ]; then
     sles="suse"
-  elif grep -q -i "\"opensuse" /etc/os-release ; then
-    sles="opensuse"
+  elif [ -f /etc/os-release ]; then
+    if `grep -q "\"sles" /etc/os-release` ; then
+      sles="suse"
+    elif `grep -q -i "\"opensuse" /etc/os-release` ; then
+      sles="opensuse"
+    fi
   fi
-fi
 
-if [ -n "$sles" ]; then
-  ln -sf ../wazuh-manager /etc/init.d/wazuh-manager
-fi
+  if [ ! -z "$sles" ] && [ $(ps --no-headers -o comm 1) == "systemd" ]; then
+    #If it's an upgrade and there is a service file in /etc/init.d/ we deleted.
+    if [ -f /etc/init.d/wazuh-manager ]; then
+      rm /etc/init.d/wazuh-manager
+    fi
+  fi
 
 if [ -f /etc/os-release ]; then
   source /etc/os-release

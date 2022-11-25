@@ -222,23 +222,6 @@ fi
 # If the package is being installed
 if [ $1 = 1 ]; then
 
-  sles=""
-  if [ -f /etc/SuSE-release ]; then
-    sles="suse"
-  elif [ -f /etc/os-release ]; then
-    if `grep -q "\"sles" /etc/os-release` ; then
-      sles="suse"
-    elif `grep -q -i "\"opensuse" /etc/os-release` ; then
-      sles="opensuse"
-    fi
-  fi
-
-  if [ ! -z "$sles" ]; then
-    if [ -d /etc/init.d ]; then
-      install -m 755 %{_localstatedir}/packages_files/agent_installation_scripts/src/init/ossec-hids-suse.init /etc/init.d/wazuh-agent
-    fi
-  fi
-
   touch %{_localstatedir}/logs/active-responses.log
   chown wazuh:wazuh %{_localstatedir}/logs/active-responses.log
   chmod 0660 %{_localstatedir}/logs/active-responses.log
@@ -257,27 +240,31 @@ if [ $1 = 1 ]; then
   %{_localstatedir}/packages_files/agent_installation_scripts/src/init/register_configure_agent.sh %{_localstatedir} > /dev/null || :
 fi
 
-#Enable service in openSUSE environment
-if [ -f /etc/SuSE-release ]; then
-  sles="suse"
-elif [ -f /etc/os-release ]; then
-  if grep -q "\"sles" /etc/os-release ; then
-    sles="suse"
-  elif grep -q -i "\"opensuse" /etc/os-release ; then
-    sles="opensuse"
-  fi
-fi
-
-if [ -n "$sles" ]; then
-  ln -sf ../wazuh-agent /etc/init.d/wazuh-agent
-fi
-
 if [ -f /etc/os-release ]; then
   source /etc/os-release
   if [ "${NAME}" = "Red Hat Enterprise Linux" ] && [ "$((${VERSION_ID:0:1}))" -ge 9 ]; then
     rm -f %{_initrddir}/wazuh-agent
   fi
 fi
+
+# We create this fix for the operating system that deprecated the SySV. For now, this fix is for suse/openSUSE
+sles=""
+  if [ -f /etc/SuSE-release ]; then
+    sles="suse"
+  elif [ -f /etc/os-release ]; then
+    if `grep -q "\"sles" /etc/os-release` ; then
+      sles="suse"
+    elif `grep -q -i "\"opensuse" /etc/os-release` ; then
+      sles="opensuse"
+    fi
+  fi
+
+  if [ ! -z "$sles" ] && [ $(ps --no-headers -o comm 1) == "systemd" ]; then
+    #If it's an upgrade and there is a service file in /etc/init.d/ we deleted.
+    if [ -f /etc/init.d/wazuh-agent ]; then
+      rm /etc/init.d/wazuh-agent
+    fi
+  fi
 
 # Delete the installation files used to configure the agent
 rm -rf %{_localstatedir}/packages_files
