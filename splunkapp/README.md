@@ -1,5 +1,4 @@
-Wazuh Splunk App package
-========================
+# Wazuh Splunk App package
 
 In this repository, you can find the necessary tools to build a Wazuh Splunk App package.
 

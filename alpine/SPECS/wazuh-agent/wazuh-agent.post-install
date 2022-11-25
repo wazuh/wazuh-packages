@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# add something which happens after install
+
+exit 0

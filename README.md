@@ -1,5 +1,4 @@
-Wazuh packages
-==============
+# Wazuh packages
 
 [![Slack](https://img.shields.io/badge/slack-join-blue.svg)](https://wazuh.com/community/join-us-on-slack/)
 [![Email](https://img.shields.io/badge/email-join-blue.svg)](https://groups.google.com/forum/#!forum/wazuh)
@@ -24,8 +23,26 @@ In this repository, you can find the necessary tools to build a Wazuh package fo
 
 ## Branches
 
-* `master` branch contains the latest code, be aware of possible bugs on this branch.
-* `stable` branch on correspond to the last Wazuh stable version.
+- `master` branch contains the latest code, be aware of possible bugs on this branch.
+- `stable` branch on correspond to the last Wazuh stable version.
+
+## Distribution version matrix
+
+The following table shows the references for the versions of each component.
+
+### Dashboard
+
+| Wazuh dashboard | Opensearch dashboards |
+|-----------------|-----------------------|
+| 4.3.x           | 1.2.0                 |
+| 4.4.x           | 2.3.0                 |
+
+### Indexer
+
+| Wazuh indexer   | Opensearch            |
+|-----------------|-----------------------|
+| 4.3.x           | 1.2.4                 |
+| 4.4.x           | 2.3.0                 |
 
 ## Contribute
 
