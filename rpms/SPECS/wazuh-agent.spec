@@ -247,8 +247,8 @@ if [ -f /etc/os-release ]; then
   fi
 fi
 
-# We create this fix for the operating system that deprecated the SySV. For now, this fix is for suse/openSUSE
-sles=""
+  # We create this fix for the operating system that deprecated the SySV. For now, this fix is for suse/openSUSE
+  sles=""
   if [ -f /etc/SuSE-release ]; then
     sles="suse"
   elif [ -f /etc/os-release ]; then

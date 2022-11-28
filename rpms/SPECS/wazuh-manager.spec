@@ -312,8 +312,8 @@ if [ $1 = 1 ]; then
   %{_localstatedir}/packages_files/manager_installation_scripts/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
 fi
 
-# We create this fix for the operating system that decraped the SySV. For now, this fix is for suse/openSUSE
-sles=""
+  # We create this fix for the operating system that decraped the SySV. For now, this fix is for suse/openSUSE
+  sles=""
   if [ -f /etc/SuSE-release ]; then
     sles="suse"
   elif [ -f /etc/os-release ]; then
