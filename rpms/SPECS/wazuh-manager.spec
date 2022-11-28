@@ -324,8 +324,7 @@ sles=""
     fi
   fi
 
-  if [ ! -z "$sles" ] && [ $(ps --no-headers -o comm 1) == "systemd" ]; then
-    #If it's an upgrade and there is a service file in /etc/init.d/ we deleted.
+  if [ -n "$sles" ] && [ $(ps --no-headers -o comm 1) == "systemd" ]; then
     if [ -f /etc/init.d/wazuh-manager ]; then
       rm -f /etc/init.d/wazuh-manager
     fi
