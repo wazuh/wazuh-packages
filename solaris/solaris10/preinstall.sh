@@ -34,13 +34,13 @@ if [ ! -f ${OSMYSHELL} ]; then
     fi
 fi
 
-getent group | grep "^wazuh"
-if [ "$?" -eq 1 ]; then
+getent group wazuh > /dev/null 2>&1
+if [ "$?" -ne 0 ]; then
     groupadd ${GROUP}
 fi
 
-getent passwd wazuh
-if [ "$?" -eq 1 ]; then
+getent passwd wazuh > /dev/null 2>&1
+if [ "$?" -ne 0 ]; then
     useradd -d ${DIR} -s ${OSMYSHELL} -g ${GROUP} ${USER} > /dev/null 2>&1
 fi
 
