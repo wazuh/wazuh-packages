@@ -146,7 +146,7 @@ sudo tee /Library/LaunchDaemons/com.wazuh.agent.plist <<-'EOF'
      <string>com.wazuh.agent</string>
      <key>ProgramArguments</key>
      <array>
-         <string>/Library/TestingFolder/WAZUH/launcher.sh</string>
+         <string>/Library/StartupItems/WAZUH/WAZUH</string>
      </array>
      <key>RunAtLoad</key>
      <true/>
@@ -156,11 +156,11 @@ EOF
 chown root:wheel /Library/LaunchDaemons/com.wazuh.agent.plist
 chmod u=rw-,go=r-- /Library/LaunchDaemons/com.wazuh.agent.plist
 
-sudo mkdir /Library/TestingFolder
-sudo mkdir /Library/TestingFolder/WAZUH
-chown root:wheel /Library/TestingFolder/WAZUH
+sudo mkdir /Library/StartupItems
+sudo mkdir /Library/StartupItems/WAZUH
+chown root:wheel /Library/StartupItems/WAZUH
 
-sudo tee /Library/TestingFolder/WAZUH/WAZUH <<-'EOF'
+sudo tee /Library/StartupItems/WAZUH/WAZUH <<-'EOF'
 #!/bin/sh
 . /etc/rc.common
 
@@ -180,10 +180,10 @@ RestartService ()
 }
 RunService "$1"
 EOF
-chown root:wheel /Library/TestingFolder/WAZUH/WAZUH
-chmod u=rwx,go=r-x /Library/TestingFolder/WAZUH/WAZUH
+chown root:wheel /Library/StartupItems/WAZUH/WAZUH
+chmod u=rwx,go=r-x /Library/StartupItems/WAZUH/WAZUH
 
-sudo tee /Library/TestingFolder/WAZUH/StartupParameters.plist <<-'EOF'
+sudo tee /Library/StartupItems/WAZUH/StartupParameters.plist <<-'EOF'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://
 www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -209,28 +209,35 @@ www.apple.com/DTDs/PropertyList-1.0.dtd">
 </dict>
 </plist>
 EOF
-chown root:wheel /Library/TestingFolder/WAZUH/StartupParameters.plist
-chmod u=rw-,go=r-- /Library/TestingFolder/WAZUH/StartupParameters.plist
+chown root:wheel /Library/StartupItems/WAZUH/StartupParameters.plist
+chmod u=rw-,go=r-- /Library/StartupItems/WAZUH/StartupParameters.plist
 
-sudo tee /Library/TestingFolder/WAZUH/launcher.sh <<-'EOF'
+sudo tee /Library/StartupItems/WAZUH/WAZUH <<-'EOF'
 #!/bin/sh
 
-DIRECTORY="/Library/Ossec"
-
-capture_sigterm() {
-    ${DIRECTORY}/bin/wazuh-control stop
-    exit $?
+# The start subroutine
+StartService() {
+    ${DIRECTORY}/bin/wazuh-control start
 }
 
-if ! ${DIRECTORY}/bin/wazuh-control start; then
-    ${DIRECTORY}/bin/wazuh-control stop
-fi
+ 
 
-while : ; do
-    trap capture_sigterm SIGTERM
-    sleep 3
-done
+# The stop subroutine
+StopService() {
+    ${DIRECTORY}/bin/wazuh-control stop
+}
+
+ 
+
+# The restart subroutine
+RestartService() {
+    ${DIRECTORY}/bin/wazuh-control stop
+    sleep 5
+    ${DIRECTORY}/bin/wazuh-control start
+} 
+
+RunService "$1"
 EOF
 
-chown root:wheel /Library/TestingFolder/WAZUH/launcher.sh
-chmod u=rxw-,go=rx- /Library/TestingFolder/WAZUH/launcher.sh
+chown root:wheel /Library/StartupItems/WAZUH/WAZUH
+chmod u=rxw-,go=rx- /Library/StartupItems/WAZUH/WAZUH
