@@ -6,7 +6,7 @@ REVISION="1"
 DEBUG="no"
 OUTDIR="$(pwd)"
 REVISION="1"
-TRUST_VERIFICATION="no"
+TRUST_VERIFICATION="1"
 
 DOCKERFILE_PATH="./"
 DOCKER_IMAGE_NAME="compile_windows_agent"
@@ -35,7 +35,7 @@ help() {
     echo "    -r, --revision <rev>      [Optional] Package revision. By default: 1."
     echo "    -s, --store <path>        [Optional] Set the directory where the package will be stored. By default the current path."
     echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
-    echo "    -t, --trust_verification  [Optional] Build the binaries with trust load images verification. By default: no."
+    echo "    -t, --trust_verification  [Optional] Build the binaries with trust load images verification. By default: 1 (only warnings)."
     echo "    -h, --help                Show this help."
     echo
     exit $1
