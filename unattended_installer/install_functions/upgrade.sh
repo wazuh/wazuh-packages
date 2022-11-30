@@ -11,17 +11,17 @@ function upgrade_getUpgradable {
 
   if [ -n "${wazuh_installed}" ]; then
     if [ "${sys_type}" == "yum" ]; then
-        manager_upgradable=$(yum check-update wazuh-manager | grep wazuh-manager | sed 's/  */ /g'| cut -d' ' -f2 | sed "s/-.*//g")
+        manager_upgradable=$(yum list wazuh-manager --show-duplicates | tail -n +8 | grep -A 5000 ${wazuh_installed} | grep ${wazuh_version} | tail -n +2)
     elif [ "${sys_type}" == "apt-get" ]; then
-        manager_upgradable=$(apt list wazuh-manager -a 2>/dev/null | grep "upgradable from" | cut -d' ' -f2 | sed -e "s/-.*//")
+        manager_upgradable=$(apt-get install wazuh-manager=${wazuh_version}-* --dry-run |grep "The following packages will be upgraded:")
     fi
   fi
 
   if [ -n "${filebeat_installed}" ]; then
     if [ "${sys_type}" == "yum" ]; then
-        filebeat_upgradable=$(yum check-update filebeat | grep filebeat | sed 's/  */ /g'| cut -d' ' -f2 | sed "s/-.*//g")
+        filebeat_upgradable=$(yum list filebeat --show-duplicates | tail -n +8 | grep -A 5000 ${filebeat_installed} | grep ${filebeat_version} | tail -n +2)
     elif [ "${sys_type}" == "apt-get" ]; then
-        filebeat_upgradable=$(apt list filebeat -a 2>/dev/null | grep "upgradable from" | cut -d' ' -f2 | sed -e "s/-.*//")
+        filebeat_upgradable=$(apt-get install filebeat=${filebeat_version} --dry-run |grep "The following packages will be upgraded:")
     fi
     installed_module_version=$(cat /usr/share/filebeat/module/wazuh/alerts/manifest.yml | grep "module_version" | cut -d" " -f2)
     installed_module_version_major=$(echo ${installed_module_version} | cut -d"." -f1)
@@ -35,17 +35,17 @@ function upgrade_getUpgradable {
 
   if [ -n "${indexer_installed}" ]; then
     if [ "${sys_type}" == "yum" ]; then
-        indexer_upgradable=$(yum check-update wazuh-indexer | grep wazuh-indexer | sed 's/  */ /g'| cut -d' ' -f2 | sed "s/-.*//g")
+        indexer_upgradable=$(yum list wazuh-indexer --show-duplicates | tail -n +8 | grep -A 5000 ${wazuh_installed} | grep ${wazuh_version} | tail -n +2)
     elif [ "${sys_type}" == "apt-get" ]; then
-        indexer_upgradable=$(apt list wazuh-indexer -a 2>/dev/null | grep "upgradable from" | cut -d' ' -f2 | sed -e "s/-.*//")
+        indexer_upgradable=$(apt-get install wazuh-indexer=${wazuh_version}-* --dry-run |grep "The following packages will be upgraded:")
     fi
   fi
 
   if [ -n "${dashboard_installed}" ]; then
     if [ "${sys_type}" == "yum" ]; then
-        dashboard_upgradable=$(yum check-update wazuh-dashboard | grep wazuh-dashboard | sed 's/  */ /g'| cut -d' ' -f2 | sed "s/-.*//g")
+        dashboard_upgradable=$(yum list wazuh-dashboard --show-duplicates | tail -n +8 | grep -A 5000 ${wazuh_installed} | grep ${wazuh_version} | tail -n +2)
     elif [ "${sys_type}" == "apt-get" ]; then
-        dashboard_upgradable=$(apt list wazuh-dashboard -a 2>/dev/null | grep "upgradable from" | cut -d' ' -f2 | sed -e "s/-.*//")
+        dashboard_upgradable=$(apt-get install wazuh-dashboard=${wazuh_version}-* --dry-run |grep "The following packages will be upgraded:")
     fi
   fi
 
@@ -60,27 +60,21 @@ function upgrade_upgradeInstalled(){
 
   if [ -n "${wazuh_installed}" ]; then
     if [ -n "${manager_upgradable}" ]; then
-      if [ "${manager_upgradable}" == "${wazuh_version}" ]; then
-        common_logger "Upgrading Wazuh Manager to ${manager_upgradable}"
-        eval "manager_install ${debug}"
-      else
-        common_logger -w "Wazuh manager can be upgraded but the version does not match the installation assistant version"
-      fi
+      common_logger "Upgrading Wazuh Manager to ${wazuh_version}"
+      eval "manager_install ${debug}"
+      installCommon_startService "wazuh-manager"
     else
-      common_logger -w "Wazuh manager is already installed and is up to date."
+      common_logger -w "Wazuh manager is already installed and the version is equal or greater than ${wazuh_version}."
     fi
   fi
 
   if [ -n "${filebeat_installed}" ]; then
     if [ -n "${filebeat_upgradable}" ]; then
-      if [ "${filebeat_upgradable}" == "${filebeat_version}" ]; then
-        common_logger "Upgrading Filebeat to ${filebeat_upgradable}"
-        eval "filebeat_install ${debug}"
-      else
-        common_logger -w "Filebeat can be upgraded but the version does not match the installation assistant version"
-      fi
+      common_logger "Upgrading Filebeat to ${filebeat_version}"
+      eval "filebeat_install ${debug}"
+      installCommon_startService "filebeat"
     else
-      common_logger -w "Filebeat is already installed and is up to date."
+      common_logger -w "Filebeat is already installed and the version is equal or greater than ${filebeat_version}."
     fi
 
     if [ -n ${module_upgradable} ];then
@@ -91,27 +85,21 @@ function upgrade_upgradeInstalled(){
 
   if [ -n "${indexer_installed}" ]; then
     if [ -n "${indexer_upgradable}" ]; then
-      if [ "${indexer_upgradable}" == "${wazuh_version}" ]; then
-        common_logger "Upgrading Wazuh Indexer to ${indexer_upgradable}"
-        eval "indexer_install ${debug}"
-      else
-        common_logger -w "Wazuh Indexer can be upgraded but the version does not match the installation assistant version"
-      fi
+      common_logger "Upgrading Wazuh Indexer to ${wazuh_version}"
+      eval "indexer_install ${debug}"
+      installCommon_startService "wazuh-indexer"
     else
-      common_logger -w "Wazuh Indexer is already installed and is up to date."
+      common_logger -w "Wazuh Indexer is already installed and the version is equal or greater than ${wazuh_version}."
     fi
   fi
 
   if [ -n "${dashboard_installed}" ]; then
     if [ -n "${dashboard_upgradable}" ]; then
-      if [ "${dashboard_upgradable}" == "${wazuh_version}" ]; then
-        common_logger "Upgrading Wazuh Dashboard to ${dashboard_upgradable}"
-        eval "dashboard_install ${debug}"
-      else
-        common_logger -w "Wazuh Dashboard can be upgraded but the version does not match the installation assistant version"
-      fi
+      common_logger "Upgrading Wazuh Dashboard to ${wazuh_version}"
+      eval "dashboard_install ${debug}"
+      installCommon_startService "wazuh-dashboard"
     else
-      common_logger -w "Wazuh Dashboard is already installed and is up to date."
+      common_logger -w "Wazuh Dashboard is already installed and the version is equal or greater than ${wazuh_version}."
     fi
   fi
   
