@@ -70,7 +70,7 @@ function common_checkInstalled() {
     if [ "${sys_type}" == "yum" ]; then
         wazuh_installed=$(yum list installed 2>/dev/null | grep wazuh-manager | sed 's/  */ /g'| cut -d' ' -f2 | sed "s/-.*//g")
     elif [ "${sys_type}" == "apt-get" ]; then
-        wazuh_installed=$(apt list --installed  2>/dev/null | grep wazuh-manager | cut -d' ' -f2 | sed -e "s/-.*//")
+        wazuh_installed=$(apt list --installed  2>/dev/null | grep wazuh-manager | cut -d' ' -f2 | sed "s/-.*//")
     fi
 
     if [ -d "/var/ossec" ]; then
@@ -80,7 +80,7 @@ function common_checkInstalled() {
     if [ "${sys_type}" == "yum" ]; then
         indexer_installed=$(yum list installed 2>/dev/null | grep wazuh-indexer | sed 's/  */ /g'| cut -d' ' -f2 | sed "s/-.*//g")
     elif [ "${sys_type}" == "apt-get" ]; then
-        indexer_installed=$(apt list --installed 2>/dev/null | grep wazuh-indexer | cut -d' ' -f2 | sed -e "s/-.*//")
+        indexer_installed=$(apt list --installed 2>/dev/null | grep wazuh-indexer | cut -d' ' -f2 | sed "s/-.*//")
     fi
 
     if [ -d "/var/lib/wazuh-indexer/" ] || [ -d "/usr/share/wazuh-indexer" ] || [ -d "/etc/wazuh-indexer" ] || [ -f "${base_path}/search-guard-tlstool*" ]; then
@@ -90,7 +90,7 @@ function common_checkInstalled() {
     if [ "${sys_type}" == "yum" ]; then
         filebeat_installed=$(yum list installed 2>/dev/null | grep filebeat | sed 's/  */ /g'| cut -d' ' -f2 | sed "s/-.*//g")
     elif [ "${sys_type}" == "apt-get" ]; then
-        filebeat_installed=$(apt list --installed  2>/dev/null | grep filebeat | cut -d' ' -f2 | sed -e "s/-.*//")
+        filebeat_installed=$(apt list --installed  2>/dev/null | grep filebeat | cut -d' ' -f2 | sed "s/-.*//")
     fi
 
     if [ -d "/var/lib/filebeat/" ] || [ -d "/usr/share/filebeat" ] || [ -d "/etc/filebeat" ]; then
@@ -100,7 +100,7 @@ function common_checkInstalled() {
     if [ "${sys_type}" == "yum" ]; then
         dashboard_installed=$(yum list installed 2>/dev/null | grep wazuh-dashboard | sed 's/  */ /g'| cut -d' ' -f2 | sed "s/-.*//g")
     elif [ "${sys_type}" == "apt-get" ]; then
-        dashboard_installed=$(apt list --installed  2>/dev/null | grep wazuh-dashboard | cut -d' ' -f2 | sed -e "s/-.*//")
+        dashboard_installed=$(apt list --installed  2>/dev/null | grep wazuh-dashboard | cut -d' ' -f2 | sed "s/-.*//")
     fi
 
     if [ -d "/var/lib/wazuh-dashboard/" ] || [ -d "/usr/share/wazuh-dashboard" ] || [ -d "/etc/wazuh-dashboard" ] || [ -d "/run/wazuh-dashboard/" ]; then

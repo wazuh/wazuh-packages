@@ -11,7 +11,7 @@ function upgrade_getUpgradable {
 
   if [ -n "${wazuh_installed}" ]; then
     if [ "${sys_type}" == "yum" ]; then
-        manager_upgradable=$(yum list wazuh-manager --show-duplicates | tail -n +8 | grep -A 5000 ${wazuh_installed} | grep ${wazuh_version} | tail -n +2)
+        manager_upgradable=$(yum list wazuh-manager --show-duplicates | tail -n +8 | grep -A 5000 ${wazuh_installed} | tail -n +2 | grep ${wazuh_version})
     elif [ "${sys_type}" == "apt-get" ]; then
         manager_upgradable=$(apt-get install wazuh-manager=${wazuh_version}-* --dry-run |grep "The following packages will be upgraded:")
     fi
@@ -19,7 +19,7 @@ function upgrade_getUpgradable {
 
   if [ -n "${filebeat_installed}" ]; then
     if [ "${sys_type}" == "yum" ]; then
-        filebeat_upgradable=$(yum list filebeat --show-duplicates | tail -n +8 | grep -A 5000 ${filebeat_installed} | grep ${filebeat_version} | tail -n +2)
+        filebeat_upgradable=$(yum list filebeat --show-duplicates | tail -n +8 | grep -A 5000 ${filebeat_installed} | tail -n +2 | grep ${filebeat_version})
     elif [ "${sys_type}" == "apt-get" ]; then
         filebeat_upgradable=$(apt-get install filebeat=${filebeat_version} --dry-run |grep "The following packages will be upgraded:")
     fi
@@ -35,7 +35,7 @@ function upgrade_getUpgradable {
 
   if [ -n "${indexer_installed}" ]; then
     if [ "${sys_type}" == "yum" ]; then
-        indexer_upgradable=$(yum list wazuh-indexer --show-duplicates | tail -n +8 | grep -A 5000 ${wazuh_installed} | grep ${wazuh_version} | tail -n +2)
+        indexer_upgradable=$(yum list wazuh-indexer --show-duplicates | tail -n +8 | grep -A 5000 ${wazuh_installed} | tail -n +2 | grep ${wazuh_version})
     elif [ "${sys_type}" == "apt-get" ]; then
         indexer_upgradable=$(apt-get install wazuh-indexer=${wazuh_version}-* --dry-run |grep "The following packages will be upgraded:")
     fi
@@ -43,7 +43,7 @@ function upgrade_getUpgradable {
 
   if [ -n "${dashboard_installed}" ]; then
     if [ "${sys_type}" == "yum" ]; then
-        dashboard_upgradable=$(yum list wazuh-dashboard --show-duplicates | tail -n +8 | grep -A 5000 ${wazuh_installed} | grep ${wazuh_version} | tail -n +2)
+        dashboard_upgradable=$(yum list wazuh-dashboard --show-duplicates | tail -n +8 | grep -A 5000 ${wazuh_installed} | tail -n +2 | grep ${wazuh_version})
     elif [ "${sys_type}" == "apt-get" ]; then
         dashboard_upgradable=$(apt-get install wazuh-dashboard=${wazuh_version}-* --dry-run |grep "The following packages will be upgraded:")
     fi
