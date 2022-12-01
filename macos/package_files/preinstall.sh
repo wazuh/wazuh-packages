@@ -31,7 +31,7 @@ elif [ -f ${DIR}/bin/ossec-control ]; then
     ${DIR}/bin/ossec-control stop
 fi
 
-if [ $(launchctl getenv WAZUH_PKG_UPGRADE) = true ]; then
+if [ "$(launchctl getenv WAZUH_PKG_UPGRADE)" = true ]; then
     mkdir -p ${DIR}/config_files/
     cp -r ${DIR}/etc/{ossec.conf,client.keys,local_internal_options.conf,shared} ${DIR}/config_files/
 
@@ -44,7 +44,7 @@ if [ $(launchctl getenv WAZUH_PKG_UPGRADE) = true ]; then
     fi
 fi
 
-if [ $(launchctl getenv WAZUH_PKG_UPGRADE) = true ]; then
+if [ "$(launchctl getenv WAZUH_PKG_UPGRADE)" = true ]; then
     if pkgutil --pkgs | grep -i wazuh-agent-etc > /dev/null 2>&1 ; then
         pkgutil --forget com.wazuh.pkg.wazuh-agent-etc
     fi
@@ -63,7 +63,7 @@ function check_errm
     if  [[ ${?} != "0" ]]
         then
         echo "${1}";
-        exit ${2};
+        exit "${2}";
         fi
 }
 
@@ -71,7 +71,7 @@ function check_errm
 unset -v i new_uid new_gid idvar;
 declare -i new_uid=0 new_gid=0 i=100 idvar=0;
 while [[ $idvar -eq 0 ]]; do
-    i=$[i+1]
+    i=$((i+1))
     if [[ -z "$(/usr/bin/dscl . -search /Users uid ${i})" ]] && [[ -z "$(/usr/bin/dscl . -search /Groups gid ${i})" ]];
         then
         new_uid=$i
@@ -90,7 +90,7 @@ if [[ $new_uid -eq 0 ]] || [[ $new_gid -eq 0 ]];
     echo "Getting unique id numbers (uid, gid) failed!";
     exit 1;
 fi
-if [[ ${new_uid} != ${new_gid} ]]
+if [[ ${new_uid} != "${new_gid}" ]]
     then
     echo "I failed to find matching free uid and gid!";
     exit 5;
