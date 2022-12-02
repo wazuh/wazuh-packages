@@ -11,6 +11,8 @@
 GROUP="wazuh"
 USER="wazuh"
 DIR="/Library/Ossec"
+LAUNCH_DAEMON_PATH="/Library/LaunchDaemons"
+STARTUP_ITEMS_PATH="/Library/StartupItems"
 INSTALLATION_SCRIPTS_DIR="${DIR}/packages_files/agent_installation_scripts"
 SCA_BASE_DIR="${INSTALLATION_SCRIPTS_DIR}/sca"
 
@@ -58,6 +60,19 @@ chown root:${GROUP} ${DIR}/etc/ossec.conf
 chmod 660 ${DIR}/etc/ossec.conf
 chown root:${GROUP} ${DIR}/etc/wpk_root.pem
 chmod 640 ${DIR}/etc/wpk_root.pem
+
+chown root:wheel ${LAUNCH_DAEMON_PATH}com.wazuh.agent.plist
+chmod 644 ${LAUNCH_DAEMON_PATH}com.wazuh.agent.plist
+
+
+chown root:wheel ${STARTUP_ITEMS_PATH}/WAZUH
+
+chown root:wheel ${STARTUP_ITEMS_PATH}/WAZUH/StartupParameters.plist
+chmod 644 ${STARTUP_ITEMS_PATH}/WAZUH/StartupParameters.plist
+
+
+chown root:wheel ${STARTUP_ITEMS_PATH}/WAZUH/WAZUH
+chmod 755 ${STARTUP_ITEMS_PATH}/WAZUH/WAZUH
 
 
 chmod 770 ${DIR}/.ssh
