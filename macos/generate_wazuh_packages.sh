@@ -8,7 +8,7 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-CURRENT_PATH="$( cd $(dirname ${0}) ; pwd -P )"
+CURRENT_PATH="$( cd "$(dirname "${0}")" ; pwd -P )"
 SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
 WAZUH_PATH="${SOURCES_DIRECTORY}/wazuh"
 WAZUH_SOURCE_REPOSITORY="https://github.com/wazuh/wazuh"
@@ -37,10 +37,10 @@ trap ctrl_c INT
 
 function clean_and_exit() {
     exit_code=$1
-    rm -f ${AGENT_PKG_FILE} ${CURRENT_PATH}/package_files/*.sh
+    rm -f "${AGENT_PKG_FILE}" "${CURRENT_PATH}"/package_files/*.sh
     rm -rf "${SOURCES_DIRECTORY}"
-    ${CURRENT_PATH}/uninstall.sh
-    exit ${exit_code}
+    "${CURRENT_PATH}"/uninstall.sh
+    exit "${exit_code}"
 }
 
 function ctrl_c() {
@@ -55,7 +55,7 @@ function notarize_pkg() {
     build_timestamp="$(date +"%m%d%Y%H%M%S")"
     if [ "${NOTARIZE}" = "yes" ]; then
         if sudo xcrun altool --notarize-app --primary-bundle-id "com.wazuh.agent.${VERSION}.${REVISION}.${build_timestamp}" \
-            --username "${DEVELOPER_ID}" --password "${ALTOOL_PASS}" --file ${DESTINATION}/${pkg_name} > request_info.txt ; then
+            --username "${DEVELOPER_ID}" --password "${ALTOOL_PASS}" --file "${DESTINATION}"/"${pkg_name}" > request_info.txt ; then
             echo "The package ${DESTINATION}/${pkg_name} was successfully upload for notarization."
             echo "Waiting ${sleep_time}s to get the results"
             sleep ${sleep_time}
@@ -63,11 +63,11 @@ function notarize_pkg() {
             uuid="$(grep -i requestuuid request_info.txt | cut -d' ' -f 3)"
 
             # Check notarization status
-            xcrun altool --notarization-info ${uuid} -u "${DEVELOPER_ID}" --password "${ALTOOL_PASS}" > request_result.txt
+            xcrun altool --notarization-info "${uuid}" -u "${DEVELOPER_ID}" --password "${ALTOOL_PASS}" > request_result.txt
             until ! grep -qi "in progress" request_result.txt ; do
                 echo "Package is not notarized yet. Waiting ${sleep_time}s"
                 sleep ${sleep_time}
-                xcrun altool --notarization-info ${uuid} -u "${DEVELOPER_ID}" --password "${ALTOOL_PASS}" > request_result.txt
+                xcrun altool --notarization-info "${uuid}" -u "${DEVELOPER_ID}" --password "${ALTOOL_PASS}" > request_result.txt
             done
 
             echo "Notarization ticket:"
@@ -76,7 +76,7 @@ function notarize_pkg() {
             if grep "Status: success" request_result.txt > /dev/null 2>&1 ; then
                 echo "Package is notarized and ready to go."
                 echo "Adding the ticket to the package."
-                if xcrun stapler staple -v ${DESTINATION}/${pkg_name} ; then
+                if xcrun stapler staple -v "${DESTINATION}"/"${pkg_name}" ; then
                     echo "Ticket added. Ready to release the package."
                     return 0
                 else
@@ -100,24 +100,24 @@ function notarize_pkg() {
 }
 
 function sign_binaries() {
-    if [ ! -z "${KEYCHAIN}" ] && [ ! -z "${CERT_APPLICATION_ID}" ] ; then
+    if [ -n "${KEYCHAIN}" ] && [ -n "${CERT_APPLICATION_ID}" ] ; then
         security -v unlock-keychain -p "${KC_PASS}" "${KEYCHAIN}" > /dev/null
         # Sign every single binary in Wazuh's installation. This also includes library files.
         for bin in $(find ${INSTALLATION_PATH} -exec file {} \; | grep bit | cut -d: -f1); do
-            codesign -f --sign "${CERT_APPLICATION_ID}" --entitlements ${ENTITLEMENTS_PATH} --deep --timestamp  --options=runtime --verbose=4 "${bin}"
+            codesign -f --sign "${CERT_APPLICATION_ID}" --entitlements "${ENTITLEMENTS_PATH}" --deep --timestamp  --options=runtime --verbose=4 "${bin}"
         done
         security -v lock-keychain "${KEYCHAIN}" > /dev/null
     fi
 }
 
 function sign_pkg() {
-    if [ ! -z "${KEYCHAIN}" ] && [ ! -z "${CERT_INSTALLER_ID}" ] ; then
+    if [ -n "${KEYCHAIN}" ] && [ -n "${CERT_INSTALLER_ID}" ] ; then
         # Unlock the keychain to use the certificate
         security -v unlock-keychain -p "${KC_PASS}" "${KEYCHAIN}"  > /dev/null
 
         # Sign the package
-        productsign --sign "${CERT_INSTALLER_ID}" --timestamp ${DESTINATION}/${pkg_name} ${DESTINATION}/${pkg_name}.signed
-        mv ${DESTINATION}/${pkg_name}.signed ${DESTINATION}/${pkg_name}
+        productsign --sign "${CERT_INSTALLER_ID}" --timestamp "${DESTINATION}"/"${pkg_name}" "${DESTINATION}"/"${pkg_name}".signed
+        mv "${DESTINATION}"/"${pkg_name}".signed "${DESTINATION}"/"${pkg_name}"
 
         security -v lock-keychain "${KEYCHAIN}" > /dev/null
     fi
@@ -130,33 +130,33 @@ function build_package() {
 
     get_pkgproj_specs
 
-    VERSION=$(cat ${WAZUH_PATH}/src/VERSION | cut -d "-" -f1 | cut -c 2-)
+    VERSION=$(cat "${WAZUH_PATH}"/src/VERSION | cut -d "-" -f1 | cut -c 2-)
 
     if [ -d "${INSTALLATION_PATH}" ]; then
 
         echo "\nThe wazuh agent is already installed on this machine."
         echo "Removing it from the system."
 
-        ${CURRENT_PATH}/uninstall.sh
+        "${CURRENT_PATH}"/uninstall.sh
     fi
 
     packages_script_path="package_files"
 
-    cp ${packages_script_path}/*.sh ${CURRENT_PATH}/package_files/
-    ${CURRENT_PATH}/package_files/build.sh "${INSTALLATION_PATH}" "${WAZUH_PATH}" ${JOBS}
+    cp ${packages_script_path}/*.sh "${CURRENT_PATH}"/package_files/
+    "${CURRENT_PATH}"/package_files/build.sh "${INSTALLATION_PATH}" "${WAZUH_PATH}" ${JOBS}
 
     # sign the binaries and the libraries
     sign_binaries
 
     # create package
-    if packagesbuild ${AGENT_PKG_FILE} --build-folder ${DESTINATION} ; then
+    if packagesbuild "${AGENT_PKG_FILE}" --build-folder "${DESTINATION}" ; then
         echo "The wazuh agent package for MacOS X has been successfully built."
         pkg_name="wazuh-agent-${VERSION}-${REVISION}.pkg"
         sign_pkg
         notarize_pkg
         if [[ "${CHECKSUM}" == "yes" ]]; then
-            mkdir -p ${CHECKSUMDIR}
-            cd ${DESTINATION} && shasum -a512 "${pkg_name}" > "${CHECKSUMDIR}/${pkg_name}.sha512"
+            mkdir -p "${CHECKSUMDIR}"
+            cd "${DESTINATION}" && shasum -a512 "${pkg_name}" > "${CHECKSUMDIR}/${pkg_name}.sha512"
         fi
         clean_and_exit 0
     else
