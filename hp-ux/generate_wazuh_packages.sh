@@ -42,21 +42,28 @@ build_environment() {
         depot=$depot_path
     fi
 
+    if [-z "${ftp_ip}" ] && [ -z "${ftp_port}" ] && [ -z "${ftp_user}" ] && [ -z "${ftp_pass}" ]; then
+    then
+        fpt_connection="-p ${ftp_ip}:{$ftp_port}:${ftp_user}:{$ftp_pass}"
+    else
+        fpt_connection=
+    fi
+
     #Install dependencies
     swinstall -s $depot \*
-    /usr/local/bin/depothelper -f curl
-    /usr/local/bin/depothelper -f unzip
-    /usr/local/bin/depothelper -f gcc
-    /usr/local/bin/depothelper -f make
-    /usr/local/bin/depothelper -f bash
-    /usr/local/bin/depothelper -f gzip
-    /usr/local/bin/depothelper -f automake
-    /usr/local/bin/depothelper -f autoconf
-    /usr/local/bin/depothelper -f libtool
-    /usr/local/bin/depothelper -f coreutils
-    /usr/local/bin/depothelper -f gdb
-    /usr/local/bin/depothelper -f perl-5.10.1
-    /usr/local/bin/depothelper -f regex
+    /usr/local/bin/depothelper $fpt_connection -f curl
+    /usr/local/bin/depothelper $fpt_connection -f unzip
+    /usr/local/bin/depothelper $fpt_connection -f gcc
+    /usr/local/bin/depothelper $fpt_connection -f make
+    /usr/local/bin/depothelper $fpt_connection -f bash
+    /usr/local/bin/depothelper $fpt_connection -f gzip
+    /usr/local/bin/depothelper $fpt_connection -f automake
+    /usr/local/bin/depothelper $fpt_connection -f autoconf
+    /usr/local/bin/depothelper $fpt_connection -f libtool
+    /usr/local/bin/depothelper $fpt_connection -f coreutils
+    /usr/local/bin/depothelper $fpt_connection -f gdb
+    /usr/local/bin/depothelper $fpt_connection -f perl-5.10.1
+    /usr/local/bin/depothelper $fpt_connection -f regex
     cp /usr/bin/perl /tmp/perl
     cp /usr/local/bin/perl5.10.1 /usr/bin/perl
 }
@@ -220,8 +227,49 @@ main() {
                 exit 0
             ;;
             "-e")
-                build_environment
-                exit 0
+                if [ -n "$2" ]
+                    then
+                    build_env="yes"
+                    shift 2
+                else
+                    show_help 1
+                fi
+            ;;
+            "--ftp_port")
+                if [ -n "$2" ]
+                    then
+                    ftp_port="$2"
+                    shift 2
+                else
+                    show_help 1
+                fi
+            ;;
+            "--ftp_ip")
+                if [ -n "$2" ]
+                    then
+                    ftp_ip="$2"
+                    shift 2
+                else
+                    show_help 1
+                fi
+            ;;
+            "--ftp_user")
+                if [ -n "$2" ]
+                    then
+                    ftp_user="$2"
+                    shift 2
+                else
+                    show_help 1
+                fi
+            ;;
+            "--ftp_pass")
+                if [ -n "$2" ]
+                    then
+                    ftp_pass="$2"
+                    shift 2
+                else
+                    show_help 1
+                fi
             ;;
             "-p")
                 if [ -n "$2" ]
@@ -267,6 +315,7 @@ main() {
 
     if [[ "${build_env}" = "yes" ]]; then
         build_environment || exit 1
+        exit 0
     fi
 
     if [ -z "${checksum_dir}" ]; then
