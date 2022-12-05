@@ -733,7 +733,7 @@
 													<key>PERMISSIONS</key>
 													<integer>493</integer>
 													<key>TYPE</key>
-													<integer>1</integer>
+													<integer>3</integer>
 													<key>UID</key>
 													<integer>0</integer>
 												</dict>
@@ -749,7 +749,7 @@
 													<key>PERMISSIONS</key>
 													<integer>493</integer>
 													<key>TYPE</key>
-													<integer>1</integer>
+													<integer>3</integer>
 													<key>UID</key>
 													<integer>0</integer>
 												</dict>
