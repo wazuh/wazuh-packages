@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 # Wazuh-indexer base builder
 # Copyright (C) 2022, Wazuh Inc.
 #
@@ -14,7 +16,7 @@ architecture="$1"
 revision="$2"
 future="$3"
 reference="$4"
-opensearch_version="2.3.0"
+opensearch_version="2.4.0"
 base_dir=/opt/wazuh-indexer-base
 
 # -----------------------------------------------------------------------------
