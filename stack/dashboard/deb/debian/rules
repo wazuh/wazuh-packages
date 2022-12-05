@@ -113,7 +113,7 @@ override_dh_fixperms:
 # -----------------------------------------------------------------------------
 
 override_dh_strip:
-	dh_strip --no-automatic-dbgsym
+	dh_strip --no-automatic-dbgsym -XlibGLESv2.so -XlibEGL.so
 
 # -----------------------------------------------------------------------------
 
