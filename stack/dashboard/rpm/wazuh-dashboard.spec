@@ -96,7 +96,7 @@ chown %{USER}:%{GROUP} %{buildroot}/etc/init.d/wazuh-dashboard
 if [ "%{version}" = "99.99.0" ];then
     runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/futures/ui/dashboard/wazuh-99.99.0-1.zip"
 else
-    runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-%{version}-%{release}.zip"
+    runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/warehouse/test/4.3/ui/dashboard/wazuh-%{version}-%{release}.zip"
 fi
 
 find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -exec chown %{USER}:%{GROUP} {} \;
