@@ -753,6 +753,7 @@
 													<key>UID</key>
 													<integer>0</integer>
 												</dict>
+											</array>
 											<key>GID</key>
 											<integer>0</integer>
 											<key>PATH</key>
@@ -767,7 +768,6 @@
 											<integer>0</integer>
 										</dict>
 									</array>
-									</array>
 									<key>GID</key>
 									<integer>0</integer>
 									<key>PATH</key>
@@ -780,6 +780,7 @@
 									<integer>1</integer>
 									<key>UID</key>
 									<integer>0</integer>
+								</dict>
 							</array>
 							<key>GID</key>
 							<integer>0</integer>
