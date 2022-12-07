@@ -39,7 +39,7 @@ trap ctrl_c INT
 
 function clean_and_exit() {
     exit_code=$1
-    # rm -f "${AGENT_PKG_FILE}" "${CURRENT_PATH}"/package_files/*.sh
+    rm -f "${AGENT_PKG_FILE}" # "${CURRENT_PATH}"/package_files/*.sh
     rm -rf "${SOURCES_DIRECTORY}"
     "${CURRENT_PATH}"/uninstall.sh
     exit "${exit_code}"
@@ -206,7 +206,7 @@ function get_pkgproj_specs() {
 
     VERSION=$(< "${WAZUH_PATH}/src/VERSION"  cut -d "-" -f1 | cut -c 2-)
 
-    pkg_file="specs/wazuh-agent.pkgproj"
+    pkg_file="${CURRENT_PATH}/specs/wazuh-agent.pkgproj"
 
     if [ ! -f "${pkg_file}" ]; then
         echo "Warning: the file ${pkg_file} does not exists. Check the version selected."
