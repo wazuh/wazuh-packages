@@ -151,6 +151,8 @@ function build_package() {
     sign_binaries
 
     # create package
+    read -p "Press enter to continue"
+
     if packagesbuild "${AGENT_PKG_FILE}" --build-folder "${DESTINATION}" ; then
         echo "The wazuh agent package for MacOS X has been successfully built."
         pkg_name="wazuh-agent-${VERSION}-${REVISION}.pkg"
