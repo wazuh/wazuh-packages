@@ -39,7 +39,7 @@ trap ctrl_c INT
 
 function clean_and_exit() {
     exit_code=$1
-    rm -f "${AGENT_PKG_FILE}" "${CURRENT_PATH}"/package_files/*.sh
+    # rm -f "${AGENT_PKG_FILE}" "${CURRENT_PATH}"/package_files/*.sh
     rm -rf "${SOURCES_DIRECTORY}"
     "${CURRENT_PATH}"/uninstall.sh
     exit "${exit_code}"
@@ -142,13 +142,15 @@ function build_package() {
         "${CURRENT_PATH}"/uninstall.sh
     fi
 
-    packages_script_path="package_files"
+    # packages_script_path="package_files"
 
-    cp ${packages_script_path}/*.sh "${CURRENT_PATH}"/package_files/
+    # cp ${packages_script_path}/*.sh "${CURRENT_PATH}"/package_files/
     "${CURRENT_PATH}"/package_files/build.sh "${INSTALLATION_PATH}" "${WAZUH_PATH}" ${JOBS}
 
     # sign the binaries and the libraries
     sign_binaries
+
+    cp "${CURRENT_PATH}"/package_files/com.wazuh.agent.plist "${LAUNCH_DAEMONS_PATH}"
 
     # create package
     read -p "Press enter to continue"
