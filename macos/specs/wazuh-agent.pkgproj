@@ -727,7 +727,7 @@
 													<key>GID</key>
 													<integer>0</integer>
 													<key>PATH</key>
-													<string>/Library/StartupItems/WAZUH/WAZUH</string>
+													<string>/Library/StartupItems/Wazuh/Wazuh</string>
 													<key>PATH_TYPE</key>
 													<integer>0</integer>
 													<key>PERMISSIONS</key>
@@ -743,7 +743,7 @@
 													<key>GID</key>
 													<integer>0</integer>
 													<key>PATH</key>
-													<string>/Library/StartupItems/WAZUH/StartupParameters.plist</string>
+													<string>/Library/StartupItems/Wazuh/StartupParameters.plist</string>
 													<key>PATH_TYPE</key>
 													<integer>0</integer>
 													<key>PERMISSIONS</key>
@@ -757,7 +757,7 @@
 											<key>GID</key>
 											<integer>0</integer>
 											<key>PATH</key>
-											<string>WAZUH</string>
+											<string>Wazuh</string>
 											<key>PATH_TYPE</key>
 											<integer>0</integer>
 											<key>PERMISSIONS</key>

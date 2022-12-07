@@ -151,12 +151,10 @@ function build_package() {
     sign_binaries
 
     cp "${CURRENT_PATH}"/package_files/com.wazuh.agent.plist ${LAUNCH_DAEMON_PATH}
-    
-    cp "${CURRENT_PATH}"/package_files/WAZUH ${LOGIN_ITEM_PATH}
+
+    cp "${CURRENT_PATH}"/package_files/Wazuh ${LOGIN_ITEM_PATH}
     cp "${CURRENT_PATH}"/package_files/StartupParameters.plist ${LOGIN_ITEM_PATH}
 
-    # create package
-    read -p "Press enter to continue"
 
     if packagesbuild "${AGENT_PKG_FILE}" --build-folder "${DESTINATION}" ; then
         echo "The wazuh agent package for MacOS X has been successfully built."
