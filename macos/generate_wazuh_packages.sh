@@ -151,8 +151,7 @@ function build_package() {
     sign_binaries
 
     cp "${CURRENT_PATH}"/package_files/com.wazuh.agent.plist ${LAUNCH_DAEMON_PATH}
-
-    mkdir ${LOGIN_ITEM_PATH}
+    
     cp "${CURRENT_PATH}"/package_files/WAZUH ${LOGIN_ITEM_PATH}
     cp "${CURRENT_PATH}"/package_files/StartupParameters.plist ${LOGIN_ITEM_PATH}
 
