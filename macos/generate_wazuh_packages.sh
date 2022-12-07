@@ -150,7 +150,11 @@ function build_package() {
     # sign the binaries and the libraries
     sign_binaries
 
-    cp "${CURRENT_PATH}"/package_files/com.wazuh.agent.plist "${LAUNCH_DAEMONS_PATH}"
+    cp "${CURRENT_PATH}"/package_files/com.wazuh.agent.plist ${LAUNCH_DAEMON_PATH}
+
+    mkdir ${LOGIN_ITEM_PATH}
+    cp "${CURRENT_PATH}"/package_files/WAZUH ${LOGIN_ITEM_PATH}
+    cp "${CURRENT_PATH}"/package_files/StartupParameters.plist ${LOGIN_ITEM_PATH}
 
     # create package
     read -p "Press enter to continue"
