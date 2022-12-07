@@ -1,24 +1,26 @@
 nodes:
   # Wazuh indexer nodes
   indexer:
-    - name: node-1
+    - name: indexer-1
       ip: <indexer-node-ip>
-    # - name: node-2
-    #   ip: <indexer-node-ip>
-    # - name: node-3
-    #   ip: <indexer-node-ip>
-
-  # Wazuh server nodes
-  # Use node_type only with more than one Wazuh manager
+    - name: indexer-2
+      ip: <indexer-node-ip>
+    - name: indexer-3
+      ip: <indexer-node-ip>
   server:
-    - name: wazuh-1
-      ip: <wazuh-manager-ip>
-    # node_type: master
-    # - name: wazuh-2
-    #   ip: <wazuh-manager-ip>
-    # node_type: worker
-
-  # Wazuh dashboard nodes
+    - name: server-1
+      ip: <server-node-ip>
+      node_type: master
+    - name: server-2
+      ip: <server-node-ip>
+      node_type: worker
+    - name: server-3
+      ip: <server-node-ip>
+      node_type: worker
   dashboard:
-    - name: dashboard
+    - name: dashboard-1
+      ip: <dashboard-node-ip>
+    - name: dashboard-2
+      ip: <dashboard-node-ip>
+    - name: dashboard-3
       ip: <dashboard-node-ip>
