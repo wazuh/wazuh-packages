@@ -139,19 +139,19 @@ dscl . create /Users/wazuh IsHidden 1
 
 # sudo tee /Library/LaunchDaemons/com.wazuh.agent.plist <<-'EOF'
 # <?xml version="1.0" encoding="UTF-8"?>
-#  <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-#  <plist version="1.0">
-#  <dict>
-#      <key>Label</key>
-#      <string>com.wazuh.agent</string>
-#      <key>ProgramArguments</key>
-#      <array>
-#          <string>/Library/StartupItems/WAZUH/WAZUH</string>
-#      </array>
-#      <key>RunAtLoad</key>
-#      <true/>
-#  </dict>
-#  </plist>
+# <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+# <plist version="1.0">
+# <dict>
+#     <key>Label</key>
+#     <string>com.wazuh.agent</string>
+#     <key>ProgramArguments</key>
+#     <array>
+#         <string>/Library/StartupItems/WAZUH/WAZUH</string>
+#     </array>
+#     <key>RunAtLoad</key>
+#     <true/>
+# </dict>
+# </plist>
 # EOF
 # chown root:wheel /Library/LaunchDaemons/com.wazuh.agent.plist
 # chmod u=rw-,go=r-- /Library/LaunchDaemons/com.wazuh.agent.plist
