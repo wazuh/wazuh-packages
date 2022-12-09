@@ -143,9 +143,6 @@ function build_package() {
         "${CURRENT_PATH}"/uninstall.sh
     fi
 
-    # packages_script_path="package_files"
-
-    # cp ${packages_script_path}/*.sh "${CURRENT_PATH}"/package_files/
     "${CURRENT_PATH}"/package_files/build.sh "${INSTALLATION_PATH}" "${WAZUH_PATH}" ${JOBS}
 
     # sign the binaries and the libraries
