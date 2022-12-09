@@ -1,7 +1,7 @@
 network.host: "127.0.0.1"
-node.name: "node-1"
+node.name: "indexer-1"
 cluster.initial_master_nodes:
-- "node-1"
+- "indexer-1"
 cluster.name: "wazuh-cluster"
 
 node.max_local_storage_nodes: "3"
