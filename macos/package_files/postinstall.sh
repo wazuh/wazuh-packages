@@ -126,7 +126,7 @@ fi
 ${INSTALLATION_SCRIPTS_DIR}/src/init/register_configure_agent.sh ${DIR} > /dev/null || :
 
 # Install the service
-${INSTALLATION_SCRIPTS_DIR}/src/init/darwin-init.sh ${DIR}
+# ${INSTALLATION_SCRIPTS_DIR}/src/init/darwin-init.sh ${DIR}
 
 # Remove temporary directory
 rm -rf ${DIR}/packages_files
