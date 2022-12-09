@@ -1,6 +1,6 @@
 network.host: 0.0.0.0
-node.name: node-1
-cluster.initial_master_nodes: node-1
+node.name: indexer-1
+cluster.initial_master_nodes: indexer-1
 
 plugins.security.ssl.transport.pemcert_filepath: /etc/wazuh-indexer/certs/indexer.pem
 plugins.security.ssl.transport.pemkey_filepath: /etc/wazuh-indexer/certs/indexer-key.pem
@@ -19,7 +19,7 @@ plugins.security.ssl.http.enabled_ciphers:
 plugins.security.ssl.http.enabled_protocols:
   - "TLSv1.2"
 plugins.security.nodes_dn:
-- CN=node-1,OU=Wazuh,O=Wazuh,L=California,C=US
+- CN=indexer-1,OU=Wazuh,O=Wazuh,L=California,C=US
 plugins.security.authcz.admin_dn:
 - CN=admin,OU=Wazuh,O=Wazuh,L=California,C=US
 
