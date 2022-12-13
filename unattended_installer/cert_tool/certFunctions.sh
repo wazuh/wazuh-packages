@@ -305,16 +305,20 @@ function cert_readConfig() {
 
         local parsed_config="$(cert_parseYaml "${config_file}")"
 
-        echo $parsed_config
+        echo '${parsed_config}'
 
-        eval "indexer_node_names=( echo $parsed_config | grep -E "nodes[_]+indexer[_]+[0-9]+=" | cut -d = -f 2 ) )"
-        eval "server_node_names=( echo $parsed_config | grep -E "nodes[_]+server[_]+[0-9]+=" | cut -d = -f 2 ) )"
-        eval "dashboard_node_names=( echo $parsed_config | grep -E "nodes[_]+dashboard[_]+[0-9]+=" | cut -d = -f 2) )"
-        eval "indexer_node_ips=( echo $parsed_config | grep -E "nodes[_]+indexer[_]+[0-9]+[_]+ip=" | cut -d = -f 2) )"
-        eval "server_node_ips=( echo $parsed_config | grep -E "nodes[_]+server[_]+[0-9]+[_]+ip=" | cut -d = -f 2) )"
-        eval "dashboard_node_ips=( echo $parsed_config | grep -E "nodes[_]+dashboard[_]+[0-9]+[_]+ip=" | cut -d = -f 2 ) )"
-        eval "server_node_types=( echo $parsed_config | grep -E "nodes[_]+server[_]+[0-9]+[_]+node_type=" | cut -d = -f 2 ) )"
-        eval "number_server_ips=( echo $parsed_config | grep -o -E "nodes[_]+server[_]+[0-9]+[_]+ip" | sort -u | wc -l) )"
+        set -x
+
+        eval "indexer_node_names=(grep -E "nodes[_]+indexer[_]+[0-9]+=" <<< echo '${parsed_config}' | cut -d = -f 2 ) )"
+        eval "server_node_names=(grep -E "nodes[_]+server[_]+[0-9]+=" <<< echo '${parsed_config}' | cut -d = -f 2 ) )"
+        eval "dashboard_node_names=(grep -E "nodes[_]+dashboard[_]+[0-9]+=" <<< echo '${parsed_config}' | cut -d = -f 2) )"
+        eval "indexer_node_ips=(grep -E "nodes[_]+indexer[_]+[0-9]+[_]+ip=" <<< echo '${parsed_config}' | cut -d = -f 2) )"
+        eval "server_node_ips=(grep -E "nodes[_]+server[_]+[0-9]+[_]+ip=" <<< echo '${parsed_config}' | cut -d = -f 2) )"
+        eval "dashboard_node_ips=(grep -E "nodes[_]+dashboard[_]+[0-9]+[_]+ip=" <<< echo '${parsed_config}' | cut -d = -f 2 ) )"
+        eval "server_node_types=(grep -E "nodes[_]+server[_]+[0-9]+[_]+node_type=" <<< echo '${parsed_config}' | cut -d = -f 2 ) )"
+        eval "number_server_ips=(grep -o -E "nodes[_]+server[_]+[0-9]+[_]+ip" <<< echo '${parsed_config}' | sort -u | wc -l) )"
+
+        set +x
 
         for i in $(seq 1 "${number_server_ips}"); do
             nodes_server="nodes[_]+server[_]+${i}[_]+ip"
