@@ -4,7 +4,7 @@ ENV DEBIAN_FRONTEND noninteractive
 
 # Installing necessary packages
 RUN apt-get update && apt-get install -y apt-utils && \
-    apt-get install -y \
+    apt-get install -y --force-yes \
     curl sudo wget expect gnupg build-essential \
     devscripts equivs selinux-basics procps gawk
 
