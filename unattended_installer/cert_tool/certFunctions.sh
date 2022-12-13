@@ -194,7 +194,7 @@ function cert_parseYaml() {
 
     local s='[[:space:]]*' sm='[ \t]*' w='[a-zA-Z0-9_]*' fs=${fs:-$(echo @|tr @ '\034')} i=${i:-  }
     cat $1 2>/dev/null | \
-    awk -F$fs "{multi=0; 
+    awk -F$fs "{multi=0;
         if(match(\$0,/$sm\|$sm$/)){multi=1; sub(/$sm\|$sm$/,\"\");}
         if(match(\$0,/$sm>$sm$/)){multi=2; sub(/$sm>$sm$/,\"\");}
         while(multi>0){
@@ -303,14 +303,18 @@ function cert_readConfig() {
         fi
         eval "$(cert_convertCRLFtoLF "${config_file}")"
 
-        eval "indexer_node_names=( $(cert_parseYaml "${config_file}" | grep -E "nodes[_]+indexer[_]+[0-9]+=" | cut -d = -f 2 ) )"
-        eval "server_node_names=( $(cert_parseYaml "${config_file}"  | grep -E "nodes[_]+server[_]+[0-9]+=" | cut -d = -f 2 ) )"
-        eval "dashboard_node_names=( $(cert_parseYaml "${config_file}" | grep -E "nodes[_]+dashboard[_]+[0-9]+=" | cut -d = -f 2) )"
-        eval "indexer_node_ips=( $(cert_parseYaml "${config_file}" | grep -E "nodes[_]+indexer[_]+[0-9]+[_]+ip=" | cut -d = -f 2) )"
-        eval "server_node_ips=( $(cert_parseYaml "${config_file}"  | grep -E "nodes[_]+server[_]+[0-9]+[_]+ip=" | cut -d = -f 2) )"
-        eval "dashboard_node_ips=( $(cert_parseYaml "${config_file}"  | grep -E "nodes[_]+dashboard[_]+[0-9]+[_]+ip=" | cut -d = -f 2 ) )"
-        eval "server_node_types=( $(cert_parseYaml "${config_file}"  | grep -E "nodes[_]+server[_]+[0-9]+[_]+node_type=" | cut -d = -f 2 ) )"
-        eval "number_server_ips=( $(cert_parseYaml "${config_file}" | grep -o -E 'nodes[_]+server[_]+[0-9]+[_]+ip' | sort -u | wc -l) )"
+        local parsed_config="$(cert_parseYaml "${config_file}")"
+
+        echo $parsed_config
+
+        eval "indexer_node_names=( echo $parsed_config | grep -E "nodes[_]+indexer[_]+[0-9]+=" | cut -d = -f 2 ) )"
+        eval "server_node_names=( echo $parsed_config | grep -E "nodes[_]+server[_]+[0-9]+=" | cut -d = -f 2 ) )"
+        eval "dashboard_node_names=( echo $parsed_config | grep -E "nodes[_]+dashboard[_]+[0-9]+=" | cut -d = -f 2) )"
+        eval "indexer_node_ips=( echo $parsed_config | grep -E "nodes[_]+indexer[_]+[0-9]+[_]+ip=" | cut -d = -f 2) )"
+        eval "server_node_ips=( echo $parsed_config | grep -E "nodes[_]+server[_]+[0-9]+[_]+ip=" | cut -d = -f 2) )"
+        eval "dashboard_node_ips=( echo $parsed_config | grep -E "nodes[_]+dashboard[_]+[0-9]+[_]+ip=" | cut -d = -f 2 ) )"
+        eval "server_node_types=( echo $parsed_config | grep -E "nodes[_]+server[_]+[0-9]+[_]+node_type=" | cut -d = -f 2 ) )"
+        eval "number_server_ips=( echo $parsed_config | grep -o -E "nodes[_]+server[_]+[0-9]+[_]+ip" | sort -u | wc -l) )"
 
         for i in $(seq 1 "${number_server_ips}"); do
             nodes_server="nodes[_]+server[_]+${i}[_]+ip"
