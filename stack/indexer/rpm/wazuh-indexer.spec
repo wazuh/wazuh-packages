@@ -322,13 +322,9 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/commons-io-2.7.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/jooq-3.10.8.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/failureaccess-1.0.1.jar
-#%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/animal-sniffer-annotations-1.19.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/bcpkix-jdk15on-1.70.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/bcprov-jdk15on-1.70.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/bcutil-jdk15on-1.70.jar
-#%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/checker-compat-qual-2.5.5.jar
-#%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/checker-qual-3.5.0.jar
-#%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/error_prone_annotations-2.9.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/grpc-api-1.49.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/grpc-context-1.49.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/grpc-core-1.49.0.jar
@@ -350,7 +346,6 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/netty-handler-4.1.77.Final.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/netty-handler-proxy-4.1.77.Final.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/netty-resolver-4.1.79.Final.jar
-#%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/netty-tcnative-classes-2.0.46.Final.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/netty-transport-4.1.79.Final.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/netty-transport-native-unix-common-4.1.79.Final.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/perfmark-api-0.25.0.jar
@@ -367,8 +362,6 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/config/performance-analyzer.properties
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/config/plugin-stats-metadata
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/config/rca.conf
-#%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/config/rca_idle_master.conf
-#%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/config/rca_master.conf
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/config/rca_cluster_manager.conf
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/config/rca_idle_cluster_manager.conf
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/config/supervisord.conf
@@ -456,8 +449,6 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/performance-analyzer.properties
 %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/plugin-stats-metadata
 %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/rca.conf
-#%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/rca_idle_master.conf
-#%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/rca_master.conf
 %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/rca_cluster_manager.conf
 %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/rca_idle_cluster_manager.conf
 %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/supervisord.conf
