@@ -13,6 +13,7 @@ function cert_cleanFiles() {
     eval "rm -f ${cert_tmp_path}/*.srl ${debug}"
     eval "rm -f ${cert_tmp_path}/*.conf ${debug}"
     eval "rm -f ${cert_tmp_path}/admin-key-temp.pem ${debug}"
+    eval "rm -f ${config_file}.parsed ${debug}"
 
 }
 
@@ -303,22 +304,25 @@ function cert_readConfig() {
         fi
         eval "$(cert_convertCRLFtoLF "${config_file}")"
 
-        local parsed_config="$(cert_parseYaml "${config_file}")"
+        eval "$(cert_parseYaml "${config_file}" | tee "${config_file}".parsed)"
 
-        echo '${parsed_config}'
+        eval "indexer_node_names=( $(grep -E "nodes[_]+indexer[_]+[0-9]+=" "${config_file}".parsed | cut -d = -f 2 ) )"
+        eval "server_node_names=( $(grep -E "nodes[_]+server[_]+[0-9]+=" "${config_file}".parsed | cut -d = -f 2 ) )"
+        eval "dashboard_node_names=( $(grep -E "nodes[_]+dashboard[_]+[0-9]+=" "${config_file}".parsed | cut -d = -f 2) )"
+        eval "indexer_node_ips=( $(grep -E "nodes[_]+indexer[_]+[0-9]+[_]+ip=" "${config_file}".parsed | cut -d = -f 2) )"
+        eval "server_node_ips=( $(grep -E "nodes[_]+server[_]+[0-9]+[_]+ip=" "${config_file}".parsed | cut -d = -f 2) )"
+        eval "dashboard_node_ips=( $(grep -E "nodes[_]+dashboard[_]+[0-9]+[_]+ip=" "${config_file}".parsed | cut -d = -f 2) )"
+        eval "server_node_types=( $(grep -E "nodes[_]+server[_]+[0-9]+[_]+node_type=" "${config_file}".parsed | cut -d = -f 2) )"
+        eval "number_server_ips=( $(grep -o -E "nodes[_]+server[_]+[0-9]+[_]+ip" "${config_file}".parsed | sort -u | wc -l) )"
 
-        set -x
+        eval "rm -f "${config_file}".parsed"
 
-        eval "indexer_node_names=(grep -E "nodes[_]+indexer[_]+[0-9]+=" <<< echo '${parsed_config}' | cut -d = -f 2 ) )"
-        eval "server_node_names=(grep -E "nodes[_]+server[_]+[0-9]+=" <<< echo '${parsed_config}' | cut -d = -f 2 ) )"
-        eval "dashboard_node_names=(grep -E "nodes[_]+dashboard[_]+[0-9]+=" <<< echo '${parsed_config}' | cut -d = -f 2) )"
-        eval "indexer_node_ips=(grep -E "nodes[_]+indexer[_]+[0-9]+[_]+ip=" <<< echo '${parsed_config}' | cut -d = -f 2) )"
-        eval "server_node_ips=(grep -E "nodes[_]+server[_]+[0-9]+[_]+ip=" <<< echo '${parsed_config}' | cut -d = -f 2) )"
-        eval "dashboard_node_ips=(grep -E "nodes[_]+dashboard[_]+[0-9]+[_]+ip=" <<< echo '${parsed_config}' | cut -d = -f 2 ) )"
-        eval "server_node_types=(grep -E "nodes[_]+server[_]+[0-9]+[_]+node_type=" <<< echo '${parsed_config}' | cut -d = -f 2 ) )"
-        eval "number_server_ips=(grep -o -E "nodes[_]+server[_]+[0-9]+[_]+ip" <<< echo '${parsed_config}' | sort -u | wc -l) )"
-
-        set +x
+        for ip in $(echo "${indexer_node_ips[@]}" "${server_node_ips[@]}" "${dashboard_node_ips[@]}"); do
+            if ! [[ $ip =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+                common_logger -e "Invalid IP address: ${ip}"
+                exit 1
+            fi
+        done
 
         for i in $(seq 1 "${number_server_ips}"); do
             nodes_server="nodes[_]+server[_]+${i}[_]+ip"
@@ -332,7 +336,7 @@ function cert_readConfig() {
         fi
 
         unique_ips=($(echo "${indexer_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
-        if [ "${#unique_ips[@]}" -ne "${#indexer_node_ips[@]}" ]; then 
+        if [ "${#unique_ips[@]}" -ne "${#indexer_node_ips[@]}" ]; then
             common_logger -e "Duplicated indexer node ips."
             exit 1
         fi
