@@ -42,7 +42,7 @@ build_environment() {
         depot=$depot_path
     fi
 
-    if [-z "${ftp_ip}" ] && [ -z "${ftp_port}" ] && [ -z "${ftp_user}" ] && [ -z "${ftp_pass}" ]; then
+    if [-z "${ftp_ip}" ] && [ -z "${ftp_port}" ] && [ -z "${ftp_user}" ] && [ -z "${ftp_pass}" ];
     then
         fpt_connection="-p ${ftp_ip}:{$ftp_port}:${ftp_user}:{$ftp_pass}"
     else
