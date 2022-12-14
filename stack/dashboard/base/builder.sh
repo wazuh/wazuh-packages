@@ -128,7 +128,6 @@ mv ./package.json.tmp ./package.json
 /bin/bash ./bin/opensearch-dashboards-plugin remove anomalyDetectionDashboards --allow-root
 /bin/bash ./bin/opensearch-dashboards-plugin remove observabilityDashboards --allow-root
 /bin/bash ./bin/opensearch-dashboards-plugin remove securityAnalyticsDashboards --allow-root
-/bin/bash ./bin/opensearch-dashboards-plugin remove notificationsDashboards --allow-root
 /bin/bash ./bin/opensearch-dashboards-plugin remove searchRelevanceDashboards --allow-root
 
 find -type d -exec chmod 750 {} \;
