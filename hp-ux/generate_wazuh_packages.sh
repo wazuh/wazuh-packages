@@ -62,7 +62,7 @@ build_environment() {
     /usr/local/bin/depothelper $fpt_connection -f libtool
     /usr/local/bin/depothelper $fpt_connection -f coreutils
     /usr/local/bin/depothelper $fpt_connection -f gdb
-    /usr/local/bin/depothelper $fpt_connection -f perl-5.10.1
+    /usr/local/bin/depothelper $fpt_connection -f perl
     /usr/local/bin/depothelper $fpt_connection -f regex
     cp /usr/bin/perl /tmp/perl
     cp /usr/local/bin/perl5.10.1 /usr/bin/perl
