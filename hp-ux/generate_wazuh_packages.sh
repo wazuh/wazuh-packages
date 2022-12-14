@@ -37,7 +37,7 @@ build_environment() {
     depot=""
     if [ -z "${depot_path}" ]
     then
-        depot=$current_path/depothelper-2.10-hppa_32-11.31.depot
+        depot=$current_path/depothelper-2.20-ia64_64-11.31.depot
     else
         depot=$depot_path
     fi
