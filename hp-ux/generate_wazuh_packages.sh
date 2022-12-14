@@ -227,13 +227,8 @@ main() {
                 exit 0
             ;;
             "-e")
-                if [ -n "$2" ]
-                    then
-                    build_env="yes"
-                    shift 2
-                else
-                    show_help 1
-                fi
+                build_env="yes"
+                shift 1
             ;;
             "--ftp_port")
                 if [ -n "$2" ]
