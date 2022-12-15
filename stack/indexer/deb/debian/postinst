@@ -14,12 +14,13 @@ export USER=${NAME}
 export GROUP=${NAME}
 export CONFIG_DIR=/etc/${NAME}
 export INSTALLATION_DIR=/usr/share/${NAME}
+export BACKUP_DIR=/usr/share/backup
 export LOG_DIR=/var/log/${NAME}
 export PID_DIR=/run/${NAME}
 export LIB_DIR=/var/lib/${NAME}
 export SYS_DIR=/usr/lib
 
-set -e 
+set -e
 
 #
 # This script is executed in the post-installation phase
@@ -44,7 +45,7 @@ case "$1" in
         # The codeblock below is using the fact that postinst script is called with the most-recently configured version.
         # In other words, a fresh installed will be called like "postinst configure" with no previous version ($2 is null)
         if [ -z "$2" ]; then
-          # If $2 is null, this is an install	
+          # If $2 is null, this is an install
 
           # Setting owner and group
           chown -R ${USER}:${GROUP} ${CONFIG_DIR}
@@ -81,6 +82,11 @@ case "$1" in
           echo "${USER} soft nofile 65535" >> /etc/security/limits.conf
 
         else # Otherwise it is an upgrade
+
+            if [ -d "${BACKUP_DIR}/securityconfig" ]; then
+                cp -r "${BACKUP_DIR}/securityconfig/*" "${CONFIG_DIR}/opensearch-security"
+            fi
+
             if [ -f "${INSTALLATION_DIR}/${NAME}.restart" ]; then
                 echo -n "Restarting wazuh-indexer service..."
                 rm -f "${INSTALLATION_DIR}/${NAME}.restart"
