@@ -7,7 +7,7 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-set -e
+set -ex
 
 export NAME=wazuh-indexer
 export CONFIG_DIR="/etc/${NAME}"
@@ -35,24 +35,30 @@ REMOVE_CONFIG_DIRECTORY=false
 REMOVE_USER_AND_GROUP=false
 BACKUP_SECURITYCONFIG=false
 
+echo "$1"
 case "$1" in
 
     # Debian ####################################################
     remove)
         REMOVE_DIRS=true
+        echo "remove AA"
     ;;
 
     purge)
         REMOVE_DIRS=true
         REMOVE_CONFIG_DIRECTORY=true
         REMOVE_USER_AND_GROUP=true
+
+        echo "remove AAA"
     ;;
 
     upgrade)
         BACKUP_SECURITYCONFIG=true
+        echo "remove AAAA"
     ;;
 
     failed-upgrade|abort-install|abort-upgrade|disappear|disappear)
+        echo "remove AAAA"
     ;;
 
     *)
