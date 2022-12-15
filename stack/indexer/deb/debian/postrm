@@ -7,12 +7,11 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-set -ex
+set -e
 
 export NAME=wazuh-indexer
 export CONFIG_DIR="/etc/${NAME}"
 export INSTALLATION_DIR="/usr/share/${NAME}"
-export BACKUP_DIR=/usr/share/backup
 export PID_DIR="/run/${NAME}"
 export LOG_DIR="/var/log/${NAME}"
 
@@ -33,32 +32,21 @@ export OPENSEARCH_PATH_CONF=${OPENSEARCH_PATH_CONF:-${CONFIG_DIR}}
 REMOVE_DIRS=false
 REMOVE_CONFIG_DIRECTORY=false
 REMOVE_USER_AND_GROUP=false
-BACKUP_SECURITYCONFIG=false
 
-echo "$1"
 case "$1" in
 
     # Debian ####################################################
     remove)
         REMOVE_DIRS=true
-        echo "remove AA"
     ;;
 
     purge)
         REMOVE_DIRS=true
         REMOVE_CONFIG_DIRECTORY=true
         REMOVE_USER_AND_GROUP=true
-
-        echo "remove AAA"
     ;;
 
-    upgrade)
-        BACKUP_SECURITYCONFIG=true
-        echo "remove AAAA"
-    ;;
-
-    failed-upgrade|abort-install|abort-upgrade|disappear|disappear)
-        echo "remove AAAA"
+    failed-upgrade|abort-install|abort-upgrade|disappear|upgrade|disappear)
     ;;
 
     *)
@@ -66,17 +54,6 @@ case "$1" in
         exit 1
     ;;
 esac
-
-if [ "$BACKUP_SECURITYCONFIG" = "true" ]; then
-    # Move the securityconfig files if they exist (4.3.x versions)
-    if [ -d "${INSTALLATION_DIR}/plugins/opensearch-security/securityconfig" ]; then
-        echo -n "Making backup of securityconfig files..."
-
-        mkdir "${BACKUP_DIR}"
-        mkdir "${BACKUP_DIR}/securityconfig"
-        cp "${INSTALLATION_DIR}/plugins/opensearch-security/securityconfig/*" "${BACKUP_DIR}/securityconfig"
-    fi
-fi
 
 if [ "$REMOVE_DIRS" = "true" ]; then
     if [ -d "${INSTALLATION_DIR}" ]; then
