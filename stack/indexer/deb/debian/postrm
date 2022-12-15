@@ -46,7 +46,7 @@ case "$1" in
         REMOVE_USER_AND_GROUP=true
     ;;
 
-    failed-upgrade|abort-install|abort-upgrade|disappear|upgrade|disappear)
+    failed-upgrade|abort-install|abort-upgrade|upgrade|disappear)
     ;;
 
     *)
