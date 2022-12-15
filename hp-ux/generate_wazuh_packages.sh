@@ -64,6 +64,7 @@ build_environment() {
     /usr/local/bin/depothelper $fpt_connection -f gdb
     /usr/local/bin/depothelper $fpt_connection -f perl
     /usr/local/bin/depothelper $fpt_connection -f regex
+    /usr/local/bin/depothelper $fpt_connection -f python
 }
 
 config() {
