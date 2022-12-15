@@ -323,6 +323,13 @@ function cert_readConfig() {
             eval "number_server_ips=( $(cert_parseYaml "${config_file}" | grep -o -E 'nodes_server_[0-9]_ip' | sort -u | wc -l) )"
         fi
 
+        for ip in $(echo "${indexer_node_ips[@]}" "${server_node_ips[@]}" "${dashboard_node_ips[@]}"); do
+            if ! [[ $ip =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+                common_logger -e "Invalid IP address: ${ip}"
+                exit 1
+            fi
+        done
+
         for i in $(seq 1 "${number_server_ips}"); do
             nodes_server=nodes__server__"${i}"__ip
             eval "server_node_ip_$i=( $( cert_parseYaml "${config_file}" | grep "${nodes_server}" | sed '/\./!d' | cut -d = -f 2 | sed -r 's/\s+//g') )"
