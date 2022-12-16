@@ -66,8 +66,7 @@ case "$1" in
             echo -n "Making backup of securityconfig files..."
 
             mkdir "${BACKUP_DIR}"
-            mkdir "${BACKUP_DIR}/securityconfig"
-            cp "${INSTALLATION_DIR}/plugins/opensearch-security/securityconfig/*" "${BACKUP_DIR}/securityconfig"
+            cp -r "${INSTALLATION_DIR}/plugins/opensearch-security/securityconfig/" "${BACKUP_DIR}"
         fi
 
         # Stop the services to upgrade
