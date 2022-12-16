@@ -83,9 +83,12 @@ case "$1" in
 
         else # Otherwise it is an upgrade
 
-            # If a backup of securityconfig files is done (4.3.x), restore them
+            # If the backup of securityconfig files is done (4.3.x), restore them
             if [ -d "${BACKUP_DIR}/securityconfig" ]; then
-                cp "${BACKUP_DIR}/securityconfig/*" "${CONFIG_DIR}/opensearch-security"
+                echo -n "Copying securityconfig files from backup..."
+                cp "${BACKUP_DIR}"/securityconfig/* "${CONFIG_DIR}/opensearch-security"
+
+                rm -rf "${BACKUP_DIR}"
             fi
 
             if [ -f "${INSTALLATION_DIR}/${NAME}.restart" ]; then
