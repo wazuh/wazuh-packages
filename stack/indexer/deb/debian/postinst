@@ -85,7 +85,7 @@ case "$1" in
 
             # If the backup of securityconfig files is done (4.3.x), restore them
             if [ -d "${BACKUP_DIR}/securityconfig" ]; then
-                echo -n "Copying securityconfig files from backup..."
+                echo -n "Copying securityconfig files from the backup..."
                 cp "${BACKUP_DIR}"/securityconfig/* "${CONFIG_DIR}/opensearch-security"
 
                 rm -rf "${BACKUP_DIR}"
