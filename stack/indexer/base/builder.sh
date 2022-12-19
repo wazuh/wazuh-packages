@@ -16,7 +16,7 @@ architecture="$1"
 revision="$2"
 future="$3"
 reference="$4"
-opensearch_version="2.4.0"
+opensearch_version="2.4.1"
 base_dir=/opt/wazuh-indexer-base
 
 # -----------------------------------------------------------------------------
