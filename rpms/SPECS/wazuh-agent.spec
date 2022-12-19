@@ -1,6 +1,6 @@
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-agent
-Version:     4.3.11
+Version:     4.4.0
 Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
@@ -222,23 +222,6 @@ fi
 # If the package is being installed
 if [ $1 = 1 ]; then
 
-  sles=""
-  if [ -f /etc/SuSE-release ]; then
-    sles="suse"
-  elif [ -f /etc/os-release ]; then
-    if `grep -q "\"sles" /etc/os-release` ; then
-      sles="suse"
-    elif `grep -q -i "\"opensuse" /etc/os-release` ; then
-      sles="opensuse"
-    fi
-  fi
-
-  if [ ! -z "$sles" ]; then
-    if [ -d /etc/init.d ]; then
-      install -m 755 %{_localstatedir}/packages_files/agent_installation_scripts/src/init/ossec-hids-suse.init /etc/init.d/wazuh-agent
-    fi
-  fi
-
   touch %{_localstatedir}/logs/active-responses.log
   chown wazuh:wazuh %{_localstatedir}/logs/active-responses.log
   chmod 0660 %{_localstatedir}/logs/active-responses.log
@@ -263,6 +246,24 @@ if [ -f /etc/os-release ]; then
     rm -f %{_initrddir}/wazuh-agent
   fi
 fi
+
+  # We create this fix for the operating system that deprecated the SySV. For now, this fix is for suse/openSUSE
+  sles=""
+  if [ -f /etc/SuSE-release ]; then
+    sles="suse"
+  elif [ -f /etc/os-release ]; then
+    if `grep -q "\"sles" /etc/os-release` ; then
+      sles="suse"
+    elif `grep -q -i "\"opensuse" /etc/os-release` ; then
+      sles="opensuse"
+    fi
+  fi
+
+  if [ -n "$sles" ] && [ $(ps --no-headers -o comm 1) == "systemd" ]; then
+    if [ -f /etc/init.d/wazuh-agent ]; then
+      rm -f /etc/init.d/wazuh-agent
+    fi
+  fi
 
 # Delete the installation files used to configure the agent
 rm -rf %{_localstatedir}/packages_files
@@ -546,6 +547,8 @@ rm -fr %{buildroot}
 %attr(750, root, wazuh) %{_localstatedir}/lib/librsync.so
 %attr(750, root, wazuh) %{_localstatedir}/lib/libsyscollector.so
 %attr(750, root, wazuh) %{_localstatedir}/lib/libsysinfo.so
+%attr(750, root, wazuh) %{_localstatedir}/lib/libstdc++.so.6
+%attr(750, root, wazuh) %{_localstatedir}/lib/libgcc_s.so.1
 %dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp
 %dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/generic
 %attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/generic/*
@@ -605,6 +608,8 @@ rm -fr %{buildroot}
 %attr(750, root, wazuh) %{_localstatedir}/wodles/*
 %dir %attr(750, root, wazuh) %{_localstatedir}/wodles/aws
 %attr(750, root, wazuh) %{_localstatedir}/wodles/aws/*
+%dir %attr(750, root, wazuh) %{_localstatedir}/wodles/azure
+%attr(750, root, wazuh) %{_localstatedir}/wodles/azure/*
 %dir %attr(750, root, wazuh) %{_localstatedir}/wodles/docker
 %attr(750, root, wazuh) %{_localstatedir}/wodles/docker/*
 %dir %attr(750, root, wazuh) %{_localstatedir}/wodles/gcloud
@@ -617,7 +622,7 @@ rm -fr %{buildroot}
 
 
 %changelog
-* Thu Dec 08 2022 support <info@wazuh.com> - 4.3.11
+* Wed Jan 18 2023 support <info@wazuh.com> - 4.4.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Thu Nov 10 2022 support <info@wazuh.com> - 4.3.10
 - More info: https://documentation.wazuh.com/current/release-notes/

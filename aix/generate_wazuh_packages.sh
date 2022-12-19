@@ -40,10 +40,19 @@ show_help() {
   echo "    -e,  --environment            Install all the packages necessaries to build the RPM package"
   echo "    -s,  --store  <path>          Directory to store the resulting RPM package. By default: ${target_dir}"
   echo "    -p,  --install-path <path>    Installation path for the package. By default: ${install_path}"
-  echo "    -c,  --checksum <path>        Compute the SHA512 checksum of the RPM package."
+  echo "    -c,  --checksum <path>        Compute the SHA512 checksum of the RPM package. OpenSSL is required."
   echo "    -h,  --help                   Shows this help"
   echo
   exit $1
+}
+
+check_openssl() {
+  if [[ -z "$(command -v openssl)" ]] && [[ "${compute_checksums}" = "yes" ]]; then
+    echo "OpenSSL is not installed. OpenSSL is required to get the package checksum."
+    return 1
+  else
+    return 0
+  fi
 }
 
 # Function to install perl 5.10 on AIX
@@ -62,7 +71,7 @@ build_perl() {
 
 build_cmake() {
   socket_lib=$(find /opt/freeware/lib/gcc/*/6.3.0/include-fixed/sys/ -name socket.h)
-  mv ${socket_lib} ${socket_lib}.bkp 
+  mv ${socket_lib} ${socket_lib}.bkp
   curl -LO http://packages.wazuh.com/utils/cmake/cmake-3.12.4.tar.gz -k -s
   ln -s /usr/bin/make /usr/bin/gmake
   gunzip cmake-3.12.4.tar.gz && tar -xf cmake-3.12.4.tar && cd cmake-3.12.4
@@ -170,7 +179,7 @@ build_environment() {
     $rpm http://packages-dev.wazuh.com/deps/aix/libstdc%2B%2B-devel-6.3.0-1.aix7.2.ppc.rpm || true
     $rpm http://packages-dev.wazuh.com/deps/aix/gcc-c%2B%2B-6.3.0-1.aix7.2.ppc.rpm || true
   fi
-  
+
   build_perl
 
   if [[ "${aix_major}" = "6" ]] || [[ "${aix_major}" = "7" ]]; then
@@ -224,17 +233,19 @@ build_package() {
   rm -rf ${install_path} /etc/ossec-init.conf
   find /etc/ -name "*wazuh*" -exec rm {} \;
 
-  if [ ! -d ${target_dir} ]; then
+  if [[ ! -d ${target_dir} ]]; then
     mkdir -p ${target_dir}
   fi
 
   rpm_file=${package_name}-${revision}.aix${aix_major}.${aix_minor}.ppc.rpm
   mv ${rpm_build_dir}/RPMS/ppc/${rpm_file} ${target_dir}
 
-  if [ -f ${target_dir}/${rpm_file} ]; then
+  if [[ -f ${target_dir}/${rpm_file} ]]; then
     echo "Your package ${rpm_file} is stored in ${target_dir}"
     if [[ "${compute_checksums}" = "yes" ]]; then
-      cd ${target_dir} && /usr/local/bin/shasum -a 512 ${rpm_file} > "${checksum_dir}/${rpm_file}.sha512"
+      cd ${target_dir}
+      pkg_checksum="$(openssl dgst -sha512 ${rpm_file} | cut -d' ' -f "2")"
+      echo "${pkg_checksum}  ${rpm_file}" > "${checksum_dir}/${rpm_file}.sha512"
     fi
   else
     echo "Error: RPM package could not be created"
@@ -317,6 +328,8 @@ main() {
           show_help 1
     esac
   done
+
+  check_openssl || exit 1
 
   if [[ "${build_env}" = "yes" ]]; then
     build_environment || exit 1

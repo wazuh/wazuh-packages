@@ -1,6 +1,6 @@
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-manager
-Version:     4.3.11
+Version:     4.4.0
 Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
@@ -25,6 +25,10 @@ ExclusiveOS: linux
 Wazuh helps you to gain security visibility into your infrastructure by monitoring
 hosts at an operating system and application level. It provides the following capabilities:
 log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
+
+# Don't generate build_id links to prevent conflicts with other
+# packages.
+%global _build_id_links none
 
 %prep
 %setup -q
@@ -207,7 +211,6 @@ if pgrep -f ossec-authd > /dev/null 2>&1; then
     kill -15 $(pgrep -f ossec-authd)
 fi
 
-
 # Remove/relocate existing SQLite databases
 rm -f %{_localstatedir}/var/db/cluster.db* || true
 rm -f %{_localstatedir}/var/db/.profile.db* || true
@@ -292,22 +295,6 @@ fi
 
 # Fresh install code block
 if [ $1 = 1 ]; then
-  sles=""
-  if [ -f /etc/SuSE-release ]; then
-    sles="suse"
-  elif [ -f /etc/os-release ]; then
-    if `grep -q "\"sles" /etc/os-release` ; then
-      sles="suse"
-    elif `grep -q -i "\"opensuse" /etc/os-release` ; then
-      sles="opensuse"
-    fi
-  fi
-
-  if [ ! -z "$sles" ]; then
-    if [ -d /etc/init.d ]; then
-      install -m 755 %{_localstatedir}/packages_files/manager_installation_scripts/src/init/ossec-hids-suse.init /etc/init.d/wazuh-manager
-    fi
-  fi
 
   . %{_localstatedir}/packages_files/manager_installation_scripts/src/init/dist-detect.sh
 
@@ -324,6 +311,24 @@ if [ $1 = 1 ]; then
   # Add default local_files to ossec.conf
   %{_localstatedir}/packages_files/manager_installation_scripts/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
 fi
+
+  # We create this fix for the operating system that decraped the SySV. For now, this fix is for suse/openSUSE
+  sles=""
+  if [ -f /etc/SuSE-release ]; then
+    sles="suse"
+  elif [ -f /etc/os-release ]; then
+    if `grep -q "\"sles" /etc/os-release` ; then
+      sles="suse"
+    elif `grep -q -i "\"opensuse" /etc/os-release` ; then
+      sles="opensuse"
+    fi
+  fi
+
+  if [ -n "$sles" ] && [ $(ps --no-headers -o comm 1) == "systemd" ]; then
+    if [ -f /etc/init.d/wazuh-manager ]; then
+      rm -f /etc/init.d/wazuh-manager
+    fi
+  fi
 
 if [ -f /etc/os-release ]; then
   source /etc/os-release
@@ -534,7 +539,6 @@ fi
 
 # posttrans code is the last thing executed in a install/upgrade
 %posttrans
-
 if [ -f %{_sysconfdir}/systemd/system/wazuh-manager.service ]; then
   rm -rf %{_sysconfdir}/systemd/system/wazuh-manager.service
   systemctl daemon-reload > /dev/null 2>&1
@@ -565,6 +569,9 @@ if [ -f %{_sysconfdir}/ossec-init.conf ]; then
   rm -f %{_localstatedir}/etc/ossec-init.conf
 fi
 
+# Remove groups backup files
+rm -rf %{_localstatedir}/backup/groups
+
 %triggerin -- glibc
 [ -r %{_sysconfdir}/localtime ] && cp -fpL %{_sysconfdir}/localtime %{_localstatedir}/etc
  chown root:wazuh %{_localstatedir}/etc/localtime
@@ -591,8 +598,8 @@ rm -fr %{buildroot}
 %dir %attr(750, root, wazuh) %{_localstatedir}/api/scripts
 %attr(640, root, wazuh) %{_localstatedir}/api/scripts/wazuh-apid.py
 %dir %attr(750, root, wazuh) %{_localstatedir}/backup
+%dir %attr(750, wazuh, wazuh) %{_localstatedir}/backup/db
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/backup/agents
-%dir %attr(750, wazuh, wazuh) %{_localstatedir}/backup/groups
 %dir %attr(750, root, wazuh) %{_localstatedir}/backup/shared
 %dir %attr(750, root, wazuh) %{_localstatedir}/bin
 %attr(750, root, root) %{_localstatedir}/bin/agent_control
@@ -665,6 +672,9 @@ rm -fr %{buildroot}
 %attr(750, root, wazuh) %{_localstatedir}/lib/librsync.so
 %attr(750, root, wazuh) %{_localstatedir}/lib/libsyscollector.so
 %attr(750, root, wazuh) %{_localstatedir}/lib/libsysinfo.so
+%attr(750, root, wazuh) %{_localstatedir}/lib/libjemalloc.so.2
+%attr(750, root, wazuh) %{_localstatedir}/lib/libstdc++.so.6
+%attr(750, root, wazuh) %{_localstatedir}/lib/libgcc_s.so.1
 %{_localstatedir}/lib/libpython3.9.so.1.0
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/logs
 %attr(660, wazuh, wazuh)  %ghost %{_localstatedir}/logs/active-responses.log
@@ -697,7 +707,6 @@ rm -fr %{buildroot}
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/rhel/*
 %dir %attr(750, root, wazuh) %{_localstatedir}/queue
 %attr(600, root, wazuh) %ghost %{_localstatedir}/queue/agents-timestamp
-%dir %attr(770, root, wazuh) %{_localstatedir}/queue/agent-groups
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/agentless
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/alerts
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/cluster
@@ -833,7 +842,7 @@ rm -fr %{buildroot}
 
 
 %changelog
-* Thu Dec 08 2022 support <info@wazuh.com> - 4.3.11
+* Wed Jan 18 2023 support <info@wazuh.com> - 4.4.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Thu Nov 10 2022 support <info@wazuh.com> - 4.3.10
 - More info: https://documentation.wazuh.com/current/release-notes/

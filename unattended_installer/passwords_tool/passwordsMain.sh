@@ -261,7 +261,6 @@ function main() {
 
         if { [ -z "${api}" ] || [ -n "${changeall}" ]; } && [ -n "${indexer_installed}" ]; then
             passwords_getNetworkHost
-            passwords_createBackUp
             passwords_generateHash
             passwords_changePassword
             passwords_runSecurityAdmin

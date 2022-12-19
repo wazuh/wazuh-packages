@@ -16,7 +16,7 @@ readonly resources_certs="${base_path}/cert_tool"
 readonly resources_passwords="${base_path}/passwords_tool"
 readonly resources_common="${base_path}/common_functions"
 readonly resources_download="${base_path}/downloader"
-readonly source_branch="4.3"
+readonly source_branch="4.4"
 
 function getHelp() {
 
@@ -34,8 +34,8 @@ function getHelp() {
     echo -e "        -c,  --cert-tool"
     echo -e "                Builds the certificate creation tool cert-tool.sh"
     echo -e ""
-    echo -e "        -d,  --development"
-    echo -e "                Use development repos"
+    echo -e "        -d [staging],  --development"
+    echo -e "                Use development repos. By default it uses pre-release. If staging is specified, it will be used"
     echo -e ""
     echo -e "        -p,  --password-tool"
     echo -e "                Builds the password creation and modification tool password-tool.sh"
@@ -68,11 +68,11 @@ function buildInstaller() {
     if [ -n "${development}" ]; then
         echo 'readonly development=1' >> "${output_script_path}"
         echo 'readonly repogpg="https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH"' >> "${output_script_path}"
-        echo 'readonly repobaseurl="https://packages-dev.wazuh.com/pre-release"' >> "${output_script_path}"
+        echo 'readonly repobaseurl="https://packages-dev.wazuh.com/'${devrepo}'"' >> "${output_script_path}"
         echo 'readonly reporelease="unstable"' >> "${output_script_path}"
         echo 'readonly filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.2.tar.gz"' >> "${output_script_path}"
         echo 'readonly bucket="packages-dev.wazuh.com"' >> "${output_script_path}"
-        echo 'readonly repository="pre-release"' >> "${output_script_path}"
+        echo 'readonly repository="'"${devrepo}"'"' >> "${output_script_path}"
     else
         echo 'readonly repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"' >> "${output_script_path}"
         echo 'readonly repobaseurl="https://packages.wazuh.com/4.x"' >> "${output_script_path}"
@@ -228,7 +228,13 @@ function builder_main() {
                 ;;
             "-d"|"--development")
                 development=1
-                shift 1
+                if [ -n "${2}" ] && [ "${2}" = "staging" ]; then
+                    devrepo="staging"
+                    shift 2
+                else
+                    devrepo="pre-release"
+                    shift 1
+                fi
                 ;;
             "-p"|"--password-tool")
                 passwordsTool=1

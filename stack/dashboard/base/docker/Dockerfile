@@ -17,7 +17,8 @@ RUN yum install -y \
     automake \
     libtool \
     python3-devel \
-    python3-pip
+    python3-pip \
+    jq
 
 RUN git clone https://github.com/google/brotli.git
 

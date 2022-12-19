@@ -1,0 +1,17 @@
+#!/bin/sh
+
+# add something which happens after install
+
+directory_base="DIRECTORY_BASE"
+
+touch ${directory_base}/logs/active-responses.log
+
+. ${directory_base}/packages_files/src/init/dist-detect.sh
+
+# Generating ossec.conf file
+${directory_base}/packages_files/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} ${directory_base} > ${directory_base}/etc/ossec.conf
+
+# Add default local_files to ossec.conf
+${directory_base}/packages_files/add_localfiles.sh ${directory_base} >> ${directory_base}/etc/ossec.conf
+
+exit 0

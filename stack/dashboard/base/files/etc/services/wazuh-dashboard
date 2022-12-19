@@ -1,6 +1,24 @@
 #!/bin/sh
 # chkconfig: 2345 95 20
 # description: Wazuh dashboard
+#
+# Source function libraries if present.
+# (It improves integration with systemd)
+#
+# Red Hat
+if [ -f /etc/rc.d/init.d/functions ]; then
+    . /etc/rc.d/init.d/functions
+
+# Debian
+elif [ -f /lib/lsb/init-functions ]; then
+    . /lib/lsb/init-functions
+
+# SUSE
+elif [ -f /etc/rc.status ]; then
+    . /etc/rc.status
+    rc_reset
+fi
+
 name=wazuh-dashboard
 program=/usr/share/wazuh-dashboard/bin/opensearch-dashboards
 args=-c\\\ /etc/wazuh-dashboard/opensearch_dashboards.yml
@@ -25,20 +43,15 @@ emit() {
 
 start() {
 
-  # Ensure the log directory is setup correctly.
-  [ ! -d "/var/log/wazuh-dashboard/" ] && mkdir "/var/log/wazuh-dashboard/"
-  chown "$user":"$group" "/var/log/wazuh-dashboard/"
-  chmod 755 "/var/log/wazuh-dashboard/"
-
 
   # Setup any environmental stuff beforehand
 
   # Ensure that the PID_DIR exists (it is cleaned at OS startup time)
   if [ -n "$PID_DIR" ] && [ ! -e "$PID_DIR" ]; then
-      mkdir -p "$PID_DIR" && chown wazuh-dashboard:wazuh-dashboard "$PID_DIR"
+      mkdir -p "$PID_DIR" && chown "$user":"$group" "$PID_DIR"
   fi
   if [ -n "$pidfile" ] && [ ! -e "$pidfile" ]; then
-      touch "$pidfile" && chown wazuh-dashboard:wazuh-dashboard "$pidfile"
+      touch "$pidfile" && chown "$user":"$group" "$pidfile"
   fi
 
 

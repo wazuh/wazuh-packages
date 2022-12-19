@@ -85,6 +85,9 @@ case "$1" in
     # Remove Vuln-detector database
     rm -f ${DIR}/queue/vulnerabilities/cve.db || true
 
+    # Remove groups backup files
+    rm -rf ${DIR}/backup/groups
+
     # Generation auto-signed certificate if not exists
     if type openssl >/dev/null 2>&1 && [ ! -f "${DIR}/etc/sslmanager.key" ] && [ ! -f "${DIR}/etc/sslmanager.cert" ]; then
         openssl req -x509 -batch -nodes -days 365 -newkey rsa:2048 -subj "/C=US/ST=California/CN=Wazuh/" -keyout ${DIR}/etc/sslmanager.key -out ${DIR}/etc/sslmanager.cert 2>/dev/null
@@ -134,6 +137,11 @@ case "$1" in
     if [ -d ${WAZUH_TMP_DIR}/group ]; then
         cp -rfp ${WAZUH_TMP_DIR}/group/* ${DIR}/etc/shared
         rm -rf ${WAZUH_TMP_DIR}/group/
+    fi
+
+    # Restore agent-groups files
+    if [ -d ${WAZUH_TMP_DIR}/agent-groups ]; then
+        mv ${WAZUH_TMP_DIR}/agent-groups ${DIR}/queue/
     fi
 
     # Restore RBAC database

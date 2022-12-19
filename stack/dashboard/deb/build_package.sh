@@ -16,8 +16,8 @@ build_docker="yes"
 deb_amd64_builder="deb_dashboard_builder_amd64"
 deb_builder_dockerfile="${current_path}/docker"
 future="no"
-base="s3"
-base_path="${current_path}/../base/output"
+base_cmd=""
+url=""
 
 trap ctrl_c INT
 
@@ -41,26 +41,35 @@ build_deb() {
     # Copy the necessary files
     cp ${current_path}/builder.sh ${dockerfile_path}
 
+    # Base generation
+    if [ "${future}" == "yes" ];then
+        base_cmd+="--future "
+    fi
+    if [ "${reference}" ];then
+        base_cmd+="--reference ${reference}"
+    fi
+    ../base/generate_base.sh -s ${outdir} -r ${revision} ${base_cmd}
+
+    if [ "${repository}" ];then
+        url="${repository}"
+    fi
+
     # Build the Docker image
     if [[ ${build_docker} == "yes" ]]; then
         docker build -t ${container_name} ${dockerfile_path} || return 1
     fi
-
 
     # Build the Debian package with a Docker container
     volumes="-v ${outdir}/:/tmp:Z"
     if [ "${reference}" ];then
         docker run -t --rm ${volumes} \
             ${container_name} ${architecture} ${revision} \
-            ${future} ${base} ${reference} || return 1
+            ${future} ${url} ${reference} || return 1
     else
-        if [ "${base}" = "local" ];then
-            volumes="${volumes} -v ${base_path}:/root/output:Z"
-        fi
         docker run -t --rm ${volumes} \
             -v ${current_path}/../../..:/root:Z \
             ${container_name} ${architecture} ${revision} \
-            ${future} ${base} || return 1
+            ${future} ${url}  || return 1
     fi
 
     echo "Package $(ls -Art ${outdir} | tail -n 1) added to ${outdir}."
@@ -94,8 +103,6 @@ help() {
     echo "    --reference <ref>          [Optional] wazuh-packages branch to download SPECs, not used by default."
     echo "    --dont-build-docker        [Optional] Locally built docker image will be used instead of generating a new one."
     echo "    --future                   [Optional] Build test future package 99.99.0 Used for development purposes."
-    echo "    --base <s3/local>          [Optional] Base file location, use local or s3, default: s3"
-    echo "    --base-path                [Optional] If base is local, you can indicate the full path where the base is located, default: stack/dashboard/base/output"
     echo "    -h, --help                 Show this help."
     echo
     exit $1
@@ -141,25 +148,17 @@ main() {
             future="yes"
             shift 1
             ;;
-        "--base")
-            if [ -n "${2}" ]; then
-                base="${2}"
-                shift 2
-            else
-                help 1
-            fi
-            ;;
-        "--base-path")
-            if [ -n "${2}" ]; then
-                base_path="${2}"
-                shift 2
-            else
-                help 1
-            fi
-            ;;
         "-s"|"--store")
             if [ -n "${2}" ]; then
                 outdir="${2}"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
+        "--app-url")
+            if [ -n "$2" ]; then
+                repository="$2"
                 shift 2
             else
                 help 1

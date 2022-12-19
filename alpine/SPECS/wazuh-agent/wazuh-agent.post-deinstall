@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# add something which happens after deinstall
+
+directory_base="DIRECTORY_BASE"
+
+# Remove the wazuh user if it exists
+if id -u wazuh > /dev/null 2>&1; then
+  deluser wazuh > /dev/null 2>&1
+fi
+# Remove the wazuh group if it exists
+if command -v getent > /dev/null 2>&1 && getent group wazuh > /dev/null 2>&1; then
+  delgroup wazuh > /dev/null 2>&1
+elif id -g wazuh > /dev/null 2>&1; then
+  delgroup wazuh > /dev/null 2>&1
+fi
+
+# Remove lingering folders and files
+rm -rf ${directory_base}
+
+exit 0
