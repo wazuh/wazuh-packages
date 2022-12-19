@@ -49,7 +49,7 @@ cd /opt
 curl -sL https://artifacts.opensearch.org/releases/bundle/opensearch-dashboards/"${opensearch_version}"/opensearch-dashboards-"${opensearch_version}"-linux-${architecture}.tar.gz | tar xz
 
 pip3 install pathfix.py
-/usr/bin/pathfix.py -pni "/usr/bin/python3 -s" opensearch-dashboards-"${opensearch_version}"-linux-"${architecture}"
+/usr/bin/pathfix.py -pni "/usr/bin/python3 -s" opensearch-dashboards-"${opensearch_version}" > /dev/null 2>&1
 
 # Remove unnecessary files and set up configuration
 mv opensearch-dashboards-* "${base_dir}"
