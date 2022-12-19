@@ -43,13 +43,13 @@ build_rpm() {
     cp ${current_path}/builder.sh ${dockerfile_path}
 
     # Base generation
-    if [ "${future}" == "yes" ];then
-        base_cmd+="--future "
-    fi
-    if [ "${reference}" ];then
-        base_cmd+="--reference ${reference}"
-    fi
-    ../base/generate_base.sh -s ${outdir} -r ${revision} ${base_cmd}
+    #if [ "${future}" == "yes" ];then
+    #    base_cmd+="--future "
+    #fi
+    #if [ "${reference}" ];then
+    #    base_cmd+="--reference ${reference}"
+    #fi
+    #../base/generate_base.sh -s ${outdir} -r ${revision} ${base_cmd}
 
     # Build the Docker image
     if [[ ${build_docker} == "yes" ]]; then

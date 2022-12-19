@@ -63,7 +63,6 @@ cp -r ./config/* ./etc/wazuh-indexer/
 rm -rf ./config
 cp -r /root/stack/indexer/base/files/etc/wazuh-indexer/* ./etc/wazuh-indexer/
 cp -r /root/stack/indexer/base/files/etc/sysconfig ./etc/
-cp -r /root/stack/indexer/base/files/etc/init.d ./etc/
 cp -r /root/stack/indexer/base/files/usr ./
 rm -rf ./plugins/opensearch-security/tools/install_demo_configuration.sh
 cp /root/VERSION .

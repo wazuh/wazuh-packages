@@ -69,14 +69,12 @@ override_dh_install:
 	mkdir -p $(TARGET_DIR)$(CONFIG_DIR)
 	mkdir -p $(TARGET_DIR)$(LIB_DIR)
 	mkdir -p $(TARGET_DIR)$(LOG_DIR)
-	mkdir -p $(TARGET_DIR)/etc/init.d
 	mkdir -p $(TARGET_DIR)/etc/default
 	mkdir -p $(TARGET_DIR)/usr/lib/tmpfiles.d
 	mkdir -p $(TARGET_DIR)/usr/lib/sysctl.d
 	mkdir -p $(TARGET_DIR)/usr/lib/systemd/system
 
 	# Move configuration files for wazuh-indexer
-	mv -f $(BASE_DIR)/etc/init.d/$(NAME) $(TARGET_DIR)/etc/init.d/$(NAME)
 	mv -f $(BASE_DIR)/etc/wazuh-indexer/* $(TARGET_DIR)$(CONFIG_DIR)
 	mv -f $(BASE_DIR)/etc/sysconfig/$(NAME) $(TARGET_DIR)/etc/default/
 	mv -f $(BASE_DIR)/usr/lib/tmpfiles.d/* $(TARGET_DIR)/usr/lib/tmpfiles.d/
@@ -136,8 +134,6 @@ override_dh_fixperms:
 
 	chmod 660 $(TARGET_DIR)/etc/default/$(NAME)
 	chown root:$(GROUP) $(TARGET_DIR)/etc/default/$(NAME)
-	chmod 750 $(TARGET_DIR)/etc/init.d/$(NAME)
-	chown root:root $(TARGET_DIR)/etc/init.d/$(NAME)
 	chmod 640 $(TARGET_DIR)$(SYS_DIR)/sysctl.d/$(NAME).conf
 	chown root:root $(TARGET_DIR)$(SYS_DIR)/sysctl.d/$(NAME).conf
 	chmod 640 $(TARGET_DIR)$(SYS_DIR)/systemd/system/$(NAME).service

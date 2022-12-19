@@ -99,8 +99,6 @@ cp %{REPO_DIR}/config/indexer/roles/roles_mapping.yml ${RPM_BUILD_ROOT}%{CONFIG_
 
 cp /root/stack/indexer/indexer-security-init.sh ${RPM_BUILD_ROOT}%{INSTALL_DIR}/bin/
 
-chmod 750 ${RPM_BUILD_ROOT}/etc/init.d/wazuh-indexer
-
 # -----------------------------------------------------------------------------
 
 %pre
@@ -128,19 +126,6 @@ if [ $1 = 2 ]; then
   elif command -v service > /dev/null 2>&1 && service %{name} status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
     service %{name} stop > /dev/null 2>&1
     touch %{INSTALL_DIR}/%{name}.restart
-  elif [ -x /etc/init.d/%{name} ]; then
-      if command -v invoke-rc.d >/dev/null && invoke-rc.d --quiet wazuh-indexer status > /dev/null 2>&1; then
-          invoke-rc.d %{name} stop > /dev/null 2>&1
-          touch %{INSTALL_DIR}/%{name}.restart
-      fi
-
-  # Older Suse linux distributions do not ship with systemd
-  # but do not have an /etc/init.d/ directory
-  # this tries to stop the %{name} service on these
-  # as well without failing this script
-  elif [ -x /etc/rc.d/init.d/%{name} ] ; then
-      /etc/rc.d/init.d/%{name} stop > /dev/null 2>&1
-      touch %{INSTALL_DIR}/%{name}.restart
   fi
 fi
 
@@ -163,13 +148,6 @@ if [ $1 = 1 ];then # Install
 
 fi
 
-if [ -f /etc/os-release ]; then
-  source /etc/os-release
-  if [ "${NAME}" = "Red Hat Enterprise Linux" ] && [ "$((${VERSION_ID:0:1}))" -ge 9 ]; then
-    rm -f /etc/init.d/%{name}
-  fi
-fi
-
 # -----------------------------------------------------------------------------
 
 %preun
@@ -184,14 +162,6 @@ if [ $1 = 0 ];then # Remove
     # Check for SysV
     elif command -v service > /dev/null 2>&1; then
         service %{name} stop > /dev/null 2>&1
-    elif [ -x /etc/init.d/%{name} ]; then
-        if command -v invoke-rc.d >/dev/null; then
-            invoke-rc.d %{name} stop > /dev/null 2>&1
-        else
-            /etc/init.d/%{name} stop > /dev/null 2>&1
-        fi
-    elif [ -x /etc/rc.d/init.d/%{name} ] ; then
-        /etc/rc.d/init.d/%{name} stop > /dev/null 2>&1
     else # Anything else
         kill -15 `pgrep -f opensearch` > /dev/null 2>&1
     fi
@@ -253,14 +223,6 @@ if [ -f %{INSTALL_DIR}/%{name}.restart ]; then
     # Check for SysV
     elif command -v service > /dev/null 2>&1; then
         service %{name} restart > /dev/null 2>&1
-    elif [ -x /etc/init.d/%{name} ]; then
-        if command -v invoke-rc.d >/dev/null; then
-            invoke-rc.d %{name} restart > /dev/null 2>&1
-        else
-            /etc/init.d/%{name} restart > /dev/null 2>&1
-        fi
-    elif [ -x /etc/rc.d/init.d/%{name} ] ; then
-        /etc/rc.d/init.d/%{name} restart > /dev/null 2>&1
     fi
     echo " OK"
 fi
@@ -298,7 +260,6 @@ rm -fr %{buildroot}
 
 %config(noreplace) %attr(0660, root, %{GROUP}) "/etc/sysconfig/%{name}"
 
-%config(missingok) /etc/init.d/%{name}
 %attr(0640, root, root) %{SYS_DIR}/sysctl.d/%{name}.conf
 %attr(0640, root, root) %{SYS_DIR}/systemd/system/%{name}.service
 %attr(0640, root, root) %{SYS_DIR}/systemd/system/%{name}-performance-analyzer.service
