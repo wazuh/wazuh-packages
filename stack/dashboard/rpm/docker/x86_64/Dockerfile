@@ -1,7 +1,7 @@
-FROM rockylinux:9
+FROM rockylinux:8.5
 
 # Install all the necessary tools to build the packages
-RUN yum clean all && yum update -y
+RUN yum clean all 
 RUN yum install -y openssh-clients sudo gnupg \
     yum-utils epel-release redhat-rpm-config rpm-devel \
     zlib zlib-devel rpm-build autoconf automake \
