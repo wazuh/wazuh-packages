@@ -141,14 +141,14 @@ function common_remove_gpg_key() {
             key=$(rpm -q gpg-pubkey --qf '%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n' | grep "Wazuh Signing Key" | awk '{print $1}' )
             rpm -e "${key}"
         else
-            common_logger "Wazuh GPG key was not found in the system."
+            common_logger "Wazuh GPG key not found in the system"
             return 1
         fi
     elif [ "${sys_type}" == "apt-get" ]; then
         if [ -f "/usr/share/keyrings/wazuh.gpg" ]; then
             rm -rf "/usr/share/keyrings/wazuh.gpg"
         else
-            common_logger "Wazuh GPG key was not found in the system"
+            common_logger "Wazuh GPG key not found in the system"
             return 1
         fi
     fi
