@@ -15,7 +15,7 @@ architecture="$1"
 revision="$2"
 future="$3"
 reference="$4"
-opensearch_version="2.4.0"
+opensearch_version="2.4.1"
 base_dir=/opt/wazuh-dashboard-base
 
 # -----------------------------------------------------------------------------
@@ -105,14 +105,14 @@ brotli -c ./src/plugins/dashboard/target/public/dashboard.chunk.1.js > ./src/plu
 # Remove `home` button from the sidebar menu
 sed -i 's|\["EuiHorizontalRule"\],{margin:"none"})),external_osdSharedDeps_React_default.a.createElement(external_osdSharedDeps_ElasticEui_\["EuiFlexItem"\],{grow:false,style:{flexShrink:0}},external_osdSharedDeps_React_default.a.createElement(external_osdSharedDeps_ElasticEui_\["EuiCollapsibleNavGroup"\]|["EuiHorizontalRule"],{margin:"none"})),false\&\&external_osdSharedDeps_React_default.a.createElem(external_osdSharedDeps_ElasticEui_["EuiFlexItem"],{grow:false,style:{flexShrink:0}},external_osdSharedDeps_React_default.a.createElement(external_osdSharedDeps_ElasticEui_["EuiCollapsibleNavGroup"]|' ./src/core/target/public/core.entry.js
 # Replace OpenSearch login default configuration title with Wazuh login title text
-sed -i 's|Please login to OpenSearch Dashboards||g' ./plugins/securityDashboards/server/index.js
-sed -i 's|If you have forgotten your username or password, please ask your system administrator||g' ./plugins/securityDashboards/server/index.js
+sed -i 's|Log in to OpenSearch Dashboards||g' ./plugins/securityDashboards/server/index.js
+sed -i 's|If you have forgotten your username or password, contact your system administrator.||g' ./plugins/securityDashboards/server/index.js
 # Replace OpenSearch login logo with Wazuh login logo
 sed -i 's|opensearch_logo_h_default.a|"/ui/Wazuh-Logo.svg"|g' ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js
 # Replace OpenSearch login title with Wazuh login title
-sed -i 's|Please login to OpenSearch Dashboards||g' ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js
+sed -i 's|Log in to OpenSearch Dashboards||g' ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js
 # Replace OpenSearch login subtitle with Wazuh login subtitle
-sed -i 's|If you have forgotten your username or password, please ask your system administrator||g' ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js
+sed -i 's|If you have forgotten your username or password, contact your system administrator.||g' ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js
 # Disable first time pop-up tenant selector
 sed -i 's|setShouldShowTenantPopup(shouldShowTenantPopup)|setShouldShowTenantPopup(false)|g' ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
 gzip -c ./plugins/securityDashboards/target/public/securityDashboards.plugin.js > ./plugins/securityDashboards/target/public/securityDashboards.plugin.js.gz
