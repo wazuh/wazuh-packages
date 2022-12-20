@@ -895,7 +895,7 @@
 				<key>USE_HFS+_COMPRESSION</key>
 				<false/>
 				<key>VERSION</key>
-				<string>4.3.11-1</string>
+				<string>4.5.0-1</string>
 			</dict>
 			<key>TYPE</key>
 			<integer>0</integer>
@@ -940,13 +940,7 @@
 								<key>OPTIONS</key>
 								<dict>
 									<key>HIDDEN</key>
-									<false/>
-									<key>STATE</key>
-									<integer>0</integer>
-								</dict>
-								<key>PACKAGE_UUID</key>
-								<string>7BC88EDC-74AB-498A-992B-DE940686D898</string>
-								<key>REQUIREMENTS</key>
+									<false/>t
 								<array/>
 								<key>TITLE</key>
 								<array>
@@ -1322,7 +1316,7 @@
 				</dict>
 			</array>
 			<key>NAME</key>
-			<string>wazuh-agent-4.3.11-1</string>
+			<string>wazuh-agent-4.5.0-1</string>
 			<key>PAYLOAD_ONLY</key>
 			<false/>
 			<key>TREAT_MISSING_PRESENTATION_DOCUMENTS_AS_WARNING</key>

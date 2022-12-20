@@ -8,13 +8,13 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-set -ex
+set -e
 # Script parameters to build the package
 target="wazuh-dashboard"
 architecture=$1
 revision=$2
 future=$3
-base_location=$4
+repository=$4
 reference=$5
 directory_base="/usr/share/wazuh-dashboard"
 
@@ -30,6 +30,17 @@ else
     else
         version=$(cat /root/VERSION)
     fi
+fi
+
+if [ "${repository}" ];then
+    valid_url='(https?|ftp|file)://[-[:alnum:]\+&@#/%?=~_|!:,.;]*[-[:alnum:]\+&@#/%=~_|]'
+    if [[ $repository =~ $valid_url ]];then
+        url="${repository}"
+    else
+        url="https://packages-dev.wazuh.com/${repository}/ui/dashboard/wazuh-${version}-${revision}.zip"
+    fi
+else
+    url="https://packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-${version}-${revision}.zip"
 fi
 
 # Build directories
@@ -61,7 +72,7 @@ cd ${build_dir} && tar czf "${rpm_build_dir}/SOURCES/${pkg_name}.tar.gz" "${pkg_
 # Building RPM
 /usr/bin/rpmbuild --define "_topdir ${rpm_build_dir}" --define "_version ${version}" \
     --define "_release ${revision}" --define "_localstatedir ${directory_base}" \
-    --define "_base ${base_location}" \
+    --define "_url ${url}" \
     --target ${architecture} -ba ${rpm_build_dir}/SPECS/${pkg_name}.spec
 
 cd ${pkg_path} && sha512sum ${rpm_file} > /tmp/${rpm_file}.sha512

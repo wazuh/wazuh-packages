@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# add something which happens before deinstall
+
+directory_base="DIRECTORY_BASE"
+
+if [ -f /var/ossec/var/run/wazuh-agentd-*.pid ]; then
+    ${directory_base}/bin/wazuh-control stop > /dev/null 2>&1
+fi
+
+exit 0

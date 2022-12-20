@@ -18,6 +18,7 @@
 /usr/bin/dscl . -delete "/Groups/wazuh"
 
 /usr/sbin/pkgutil --forget com.wazuh.pkg.wazuh-agent
+/usr/sbin/pkgutil --forget com.wazuh.pkg.wazuh-agent-etc
 
 # In case it was installed via Puppet pkgdmg provider
 

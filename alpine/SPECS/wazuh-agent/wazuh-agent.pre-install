@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# add something which happens before install
+
+directory_base="DIRECTORY_BASE"
+
+# Create the wazuh group if it doesn't exists
+if command -v getent > /dev/null 2>&1 && ! getent group wazuh > /dev/null 2>&1; then
+  addgroup -S wazuh
+elif ! id -g wazuh > /dev/null 2>&1; then
+  addgroup -S wazuh
+fi
+# Create the wazuh user if it doesn't exists
+if ! id -u wazuh > /dev/null 2>&1; then
+  adduser -S -G wazuh -h ${directory_base} -s /sbin/nologin wazuh
+fi
+
+exit 0

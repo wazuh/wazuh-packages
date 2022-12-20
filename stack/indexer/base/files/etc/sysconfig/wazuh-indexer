@@ -30,6 +30,9 @@ OPENSEARCH_PATH_CONF=/etc/wazuh-indexer
 # The number of seconds to wait before checking if Wazuh-indexer started successfully as a daemon process
 WI_STARTUP_SLEEP_TIME=5
 
+# Notification for systemd
+OPENSEARCH_SD_NOTIFY=true
+
 ################################
 # System properties
 ################################
