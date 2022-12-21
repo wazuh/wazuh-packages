@@ -106,6 +106,7 @@ function sign_binaries() {
         security -v unlock-keychain -p "${KC_PASS}" "${KEYCHAIN}" > /dev/null
         # Sign every single binary in Wazuh's installation. This also includes library files.
         for bin in $(find ${INSTALLATION_PATH} -exec file {} \; | grep bit | cut -d: -f1); do
+            echo "Signing ${bin}"
             codesign -f --sign "${CERT_APPLICATION_ID}" --entitlements "${ENTITLEMENTS_PATH}" --deep --timestamp  --options=runtime --verbose=4 "${bin}"
         done
         security -v lock-keychain "${KEYCHAIN}" > /dev/null

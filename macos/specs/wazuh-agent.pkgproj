@@ -940,7 +940,13 @@
 								<key>OPTIONS</key>
 								<dict>
 									<key>HIDDEN</key>
-									<false/>t
+									<false/>
+									<key>STATE</key>
+									<integer>0</integer>
+								</dict>
+								<key>PACKAGE_UUID</key>
+								<string>7BC88EDC-74AB-498A-992B-DE940686D898</string>
+								<key>REQUIREMENTS</key>
 								<array/>
 								<key>TITLE</key>
 								<array>
