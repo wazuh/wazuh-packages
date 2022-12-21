@@ -110,8 +110,8 @@ function sign_binaries() {
             codesign -f --sign "${CERT_APPLICATION_ID}" --entitlements "${ENTITLEMENTS_PATH}" --timestamp --options=runtime --verbose=4 "${bin}"
         done
 
-        cat "${LOGIN_ITEM_PATH}/Wazuh"
-        codesign --verbose -f --sign "${CERT_APPLICATION_ID}" --entitlements "${ENTITLEMENTS_PATH}" --timestamp --options=runtime --verbose=4 "${LOGIN_ITEM_PATH}/Wazuh"
+        result=$(codesign -f --sign "${CERT_APPLICATION_ID}" --entitlements "${ENTITLEMENTS_PATH}" --timestamp --options=runtime --verbose "${LOGIN_ITEM_PATH}/Wazuh")
+        echo "${result}"
         security -v lock-keychain "${KEYCHAIN}" > /dev/null
     fi
 }
