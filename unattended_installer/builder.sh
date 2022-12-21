@@ -47,6 +47,9 @@ function getHelp() {
 }
 
 function buildInstaller() {
+
+    checkFilebeatURL
+
     output_script_path="${base_path}/wazuh-install.sh"
 
     ## Create installer script
@@ -84,7 +87,7 @@ function buildInstaller() {
     echo >> "${output_script_path}"
     grep -Ev '^#|^\s*$' ${resources_installer}/installVariables.sh >> "${output_script_path}"
     echo >> "${output_script_path}"
-    
+
     ## Configuration files as variables
     configuration_files=($(find "${resources_config}" -type f))
     config_file_name=($(eval "echo "${configuration_files[@]}" | sed 's|${resources_config}||g;s|/|_|g;s|.yml||g'"))
@@ -262,6 +265,28 @@ function builder_main() {
     if [ -n "${certTool}" ]; then
         buildCertsTool
         chmod 644 ${output_script_path}
+    fi
+}
+
+function checkFilebeatURL() {
+
+	# Import variables
+	. ${resources_installer}/installVariables.sh
+	new_filebeat_url="https://raw.githubusercontent.com/wazuh/wazuh/master/extensions/elasticsearch/7.x/wazuh-template.json"
+
+	# Get the response of the URL and check it
+	response=$(curl --write-out '%{http_code}' --silent --output /dev/null $filebeat_wazuh_template)
+	if [ $response != "200" ]; then
+       	response=$(curl --write-out '%{http_code}' --silent --output /dev/null $new_filebeat_url)
+
+        # Display error if both URLs do not get the resource
+        if [ $response != "200" ]; then
+        	echo -e "Error: Could not get the Filebeat Wazuh template. "
+        # If matches, replace the variable of installVariables to the new one
+        else
+         	echo -e "Changing Filebeat URL..."
+            sed -i -E "s/http.+\\$\\{wazuh_major\\}.+wazuh-template.json/https:\/\/raw.githubusercontent.com\/wazuh\/wazuh\/master\/extensions\/elasticsearch\/7.x\/wazuh-template.json/" ${resources_installer}/installVariables.sh
+        fi
     fi
 }
 
