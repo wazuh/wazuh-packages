@@ -109,7 +109,9 @@ function sign_binaries() {
             echo "Signing ${bin}"
             codesign -f --sign "${CERT_APPLICATION_ID}" --entitlements "${ENTITLEMENTS_PATH}" --timestamp --options=runtime --verbose=4 "${bin}"
         done
-        codesign -f --sign "${CERT_APPLICATION_ID}" --entitlements "${ENTITLEMENTS_PATH}" --timestamp --options=runtime --verbose=4 "${LOGIN_ITEM_PATH}/Wazuh"
+
+        cat "${LOGIN_ITEM_PATH}/Wazuh"
+        codesign --verbose -f --sign "${CERT_APPLICATION_ID}" --entitlements "${ENTITLEMENTS_PATH}" --timestamp --options=runtime --verbose=4 "${LOGIN_ITEM_PATH}/Wazuh"
         security -v lock-keychain "${KEYCHAIN}" > /dev/null
     fi
 }
@@ -146,14 +148,13 @@ function build_package() {
 
     "${CURRENT_PATH}"/package_files/build.sh "${INSTALLATION_PATH}" "${WAZUH_PATH}" ${JOBS}
 
-    # sign the binaries and the libraries
-    sign_binaries
-
     cp "${CURRENT_PATH}"/package_files/com.wazuh.agent.plist ${LAUNCH_DAEMON_PATH}
 
     cp "${CURRENT_PATH}"/package_files/Wazuh ${LOGIN_ITEM_PATH}
     cp "${CURRENT_PATH}"/package_files/StartupParameters.plist ${LOGIN_ITEM_PATH}
 
+    # sign the binaries and the libraries
+    sign_binaries
 
     if packagesbuild "${AGENT_PKG_FILE}" --build-folder "${DESTINATION}" ; then
         echo "The wazuh agent package for MacOS X has been successfully built."
