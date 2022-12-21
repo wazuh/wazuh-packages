@@ -71,8 +71,8 @@ chown root:wheel ${STARTUP_ITEMS_PATH}/WAZUH/StartupParameters.plist
 chmod 644 ${STARTUP_ITEMS_PATH}/WAZUH/StartupParameters.plist
 
 
-chown root:wheel ${STARTUP_ITEMS_PATH}/WAZUH/WAZUH
-chmod 755 ${STARTUP_ITEMS_PATH}/WAZUH/WAZUH
+chown root:wheel ${STARTUP_ITEMS_PATH}/WAZUH/Wazuh
+chmod 755 ${STARTUP_ITEMS_PATH}/WAZUH/Wazuh
 
 
 chmod 770 ${DIR}/.ssh
