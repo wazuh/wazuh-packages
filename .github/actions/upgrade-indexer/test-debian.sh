@@ -32,7 +32,7 @@ function read_old_files() {
 		echo "Processing $f file..."
 		echo "# This is a test" >> $f
 		checksum=`md5sum $f | cut -d " " -f1`
-		
+
 		basename=`basename $f`
 		files_old[$basename]=$checksum
 	done
@@ -43,7 +43,7 @@ function read_new_files() {
 	for f in $FILES_NEW; do
 		echo "Processing $f file..."
 		checksum=`md5sum $f | cut -d " " -f1`
-		
+
 		basename=`basename $f`
 		files_new[$basename]=$checksum
 	done
@@ -63,7 +63,7 @@ function compare_files() {
 }
 
 echo 'Installing old wazuh-indexer'
-apt-get install ./wazuh-indexer_4.3.10-1_amd64.deb
+apt-get install ./wazuh-indexer_4.3.7-0.40320.20220825_amd64.deb
 
 read_old_files
 
