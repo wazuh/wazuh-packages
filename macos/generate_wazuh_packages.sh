@@ -107,11 +107,13 @@ function sign_binaries() {
         # Sign every single binary in Wazuh's installation. This also includes library files.
         for bin in $(find ${INSTALLATION_PATH} -exec file {} \; | grep bit | cut -d: -f1); do
             echo "Signing ${bin}"
-            codesign -f --sign "${CERT_APPLICATION_ID}" --entitlements "${ENTITLEMENTS_PATH}" --timestamp --options=runtime --verbose=4 "${bin}"
+            codesign -f --sign "${CERT_APPLICATION_ID}" --entitlements "${ENTITLEMENTS_PATH}" --timestamp --options=runtime --verbose "${bin}"
         done
 
+        set -ux
         result=$(codesign -f --sign "${CERT_APPLICATION_ID}" --entitlements "${ENTITLEMENTS_PATH}" --timestamp --options=runtime --verbose "${LOGIN_ITEM_PATH}/Wazuh")
         echo "The codesign for the Login Item has ended in ${result}."
+        set +ux
         security -v lock-keychain "${KEYCHAIN}" > /dev/null
     fi
 }
