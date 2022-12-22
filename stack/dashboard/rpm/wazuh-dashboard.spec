@@ -31,6 +31,8 @@ ExclusiveOS: linux
 %global PID_DIR /run/%{name}
 %global INSTALL_DIR /usr/share/%{name}
 %global DASHBOARD_FILE wazuh-dashboard-base-%{version}-%{release}-linux-x64.tar.xz
+%define _source_payload w9.gzdio
+%define _binary_payload w9.gzdio
 
 # -----------------------------------------------------------------------------
 
