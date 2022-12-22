@@ -1,0 +1,25 @@
+name: Test Wazuh indexer on upgrade - Debian
+on:
+  pull_request:
+    paths:
+      - 'stack/indexer/deb/debian/postrm'
+      - 'stack/indexer/deb/debian/postinst'
+      - 'stack/indexer/deb/debian/preinst'
+
+jobs:
+  Test-debian-indexer-upgrade:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build wazuh-indexer 4.3 package
+        working-directory: ./stack/indexer/deb
+        run: |
+          git checkout 4.3
+          ./build_package.sh
+      - name: Build wazuh-indexer issue-branch package
+        working-directory: ./stack/indexer/deb
+        run: |
+          git checkout 1850-wazuh-indexer-preserve-config-files-upon-upgrade-master
+          ./build_package.sh
+      - name: Run script
+        run: sudo bash .github/actions/upgrade-indexer/upgrade-indexer.sh
