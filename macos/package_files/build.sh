@@ -12,6 +12,8 @@ DESTINATION_PATH=$1
 SOURCES_PATH=$2
 BUILD_JOBS=$3
 INSTALLATION_SCRIPTS_DIR=${DESTINATION_PATH}/packages_files/agent_installation_scripts
+LOGIN_ITEM_PATH="/Library/StartupItems/WAZUH"
+LAUNCH_DAEMON_PATH="/Library/LaunchDaemons"
 
 function configure() {
     echo USER_LANGUAGE="en" > ${CONFIG}
@@ -75,6 +77,11 @@ function build() {
 
     cp ${SOURCES_PATH}/src/VERSION ${INSTALLATION_SCRIPTS_DIR}/src/
     cp ${SOURCES_PATH}/src/REVISION ${INSTALLATION_SCRIPTS_DIR}/src/
+
+    cp ${CURRENT_PATH}/package_files/com.wazuh.agent.plist ${LAUNCH_DAEMON_PATH}
+
+    cp ${CURRENT_PATH}/package_files/Wazuh ${LOGIN_ITEM_PATH}
+    cp ${CURRENT_PATH}/package_files/StartupParameters.plist ${LOGIN_ITEM_PATH}
 }
 
 build

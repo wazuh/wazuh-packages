@@ -17,7 +17,6 @@ export CONFIG="${WAZUH_PATH}/etc/preloaded-vars.conf"
 ENTITLEMENTS_PATH="${CURRENT_PATH}/entitlements.plist"
 INSTALLATION_PATH="/Library/Ossec"    # Installation path
 LOGIN_ITEM_PATH="/Library/StartupItems/WAZUH"
-LAUNCH_DAEMON_PATH="/Library/LaunchDaemons"
 VERSION=""                            # Default VERSION (branch/tag)
 REVISION="1"                          # Package revision.
 BRANCH_TAG="master"                   # Branch that will be downloaded to build package.
@@ -107,11 +106,10 @@ function sign_binaries() {
         # Sign every single binary in Wazuh's installation. This also includes library files.
         set -x
         for bin in $(find ${INSTALLATION_PATH} -exec file {} \; | grep bit | cut -d: -f1); do
-            echo "Signing ${bin}"
             codesign -f --sign "${CERT_APPLICATION_ID}" --entitlements "${ENTITLEMENTS_PATH}" --timestamp --options=runtime --verbose "${bin}"
         done
 
-        codesign -f --sign "${CERT_APPLICATION_ID}" --entitlements "${ENTITLEMENTS_PATH}" --timestamp --options=runtime --verbose "${LOGIN_ITEM_PATH}/Wazuh" && echo "Correctly signed Login Item" || echo "Error signing Login Item"
+        codesign -f --sign "${CERT_APPLICATION_ID}" --entitlements "${ENTITLEMENTS_PATH}" --deep --timestamp --options=runtime --verbose "${LOGIN_ITEM_PATH}/Wazuh" && echo "Correctly signed Login Item" || echo "Error signing Login Item"
         set +x
         security -v lock-keychain "${KEYCHAIN}" > /dev/null
     fi
@@ -148,11 +146,6 @@ function build_package() {
     fi
 
     "${CURRENT_PATH}"/package_files/build.sh "${INSTALLATION_PATH}" "${WAZUH_PATH}" ${JOBS}
-
-    cp "${CURRENT_PATH}"/package_files/com.wazuh.agent.plist ${LAUNCH_DAEMON_PATH}
-
-    cp "${CURRENT_PATH}"/package_files/Wazuh ${LOGIN_ITEM_PATH}
-    cp "${CURRENT_PATH}"/package_files/StartupParameters.plist ${LOGIN_ITEM_PATH}
 
     # sign the binaries and the libraries
     sign_binaries
