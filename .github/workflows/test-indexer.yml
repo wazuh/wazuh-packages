@@ -10,16 +10,21 @@ jobs:
   Test-debian-indexer-upgrade:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
       - name: Build wazuh-indexer 4.3 package
+        uses: actions/checkout@v3
+        with:
+          ref: 4.3
         working-directory: ./stack/indexer/deb
         run: |
-          git checkout 4.3
           ./build_package.sh
+          mv ./output/wazuh-indexer_4.3.10-1_amd64.deb ~/wazuh-indexer_4.3.10-1_amd64.deb
       - name: Build wazuh-indexer issue-branch package
+        uses: actions/checkout@v3
+        with:
+          ref: 1850-wazuh-indexer-preserve-config-files-upon-upgrade-master
         working-directory: ./stack/indexer/deb
         run: |
-          git checkout 1850-wazuh-indexer-preserve-config-files-upon-upgrade-master
           ./build_package.sh
+          mv ./output/wazuh-indexer_4.5.0-1_amd64.deb ~/wazuh-indexer_4.5.0-1_amd64.deb
       - name: Run script
-        run: sudo bash .github/actions/upgrade-indexer/upgrade-indexer.sh
+        run: sudo bash .github/actions/upgrade-indexer/upgrade-indexer-debian.sh
