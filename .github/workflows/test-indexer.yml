@@ -11,9 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download wazuh-indexer 4.3 package
-      - uses: wei/wget@v1
-        with:
-          args: https://packages-dev.wazuh.com/staging/apt/pool/main/w/wazuh-indexer/wazuh-indexer_4.3.7-0.40320.20220825_amd64.deb
+        run: wget https://packages-dev.wazuh.com/staging/apt/pool/main/w/wazuh-indexer/wazuh-indexer_4.3.7-0.40320.20220825_amd64.deb
       - uses: actions/checkout@v3
         with:
           ref: 1850-wazuh-indexer-preserve-config-files-upon-upgrade-master
