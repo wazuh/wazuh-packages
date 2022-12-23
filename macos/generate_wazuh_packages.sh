@@ -109,7 +109,9 @@ function sign_binaries() {
             codesign -f --sign "${CERT_APPLICATION_ID}" --entitlements "${ENTITLEMENTS_PATH}" --timestamp --options=runtime --verbose "${bin}"
         done
 
+        xattr -l "${LOGIN_ITEM_PATH}/Wazuh"
         codesign -f --sign "${CERT_APPLICATION_ID}" --entitlements "${ENTITLEMENTS_PATH}" --deep --timestamp --options=runtime --verbose "${LOGIN_ITEM_PATH}/Wazuh" && echo "Correctly signed Login Item" || echo "Error signing Login Item"
+        xattr -l "${LOGIN_ITEM_PATH}/Wazuh"
         set +x
         security -v lock-keychain "${KEYCHAIN}" > /dev/null
     fi
