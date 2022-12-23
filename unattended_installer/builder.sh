@@ -274,7 +274,7 @@ function builder_main() {
 function checkFilebeatURL() {
 
     # Import variables
-    . ${resources_installer}/installVariables.sh
+    eval "$(grep -E "filebeat_wazuh_template=" "unattended_installer/install_functions/installVariables.sh")"
     new_filebeat_url="https://raw.githubusercontent.com/wazuh/wazuh/master/extensions/elasticsearch/7.x/wazuh-template.json"
 
     # Get the response of the URL and check it
