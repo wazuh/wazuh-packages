@@ -223,8 +223,6 @@ show_help() {
 build_package() {
     download_source
     compile
-    create_package
-    clean 0
 }
 
 # Main function, processes user input
