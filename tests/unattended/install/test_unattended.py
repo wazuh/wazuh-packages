@@ -217,6 +217,8 @@ def test_check_log_errors():
                         found_error = False
                     else:
                       break
+                else:
+                    break
     assert found_error == False, line
 
 @pytest.mark.wazuh_cluster
@@ -241,6 +243,8 @@ def test_check_cluster_log_errors():
                         found_error = False
                     else:
                       break
+                else:
+                    break
     assert found_error == False, line
 
 @pytest.mark.wazuh_cluster
