@@ -276,16 +276,16 @@ function checkFilebeatURL() {
 
     # Get the response of the URL and check it
     response=$(curl --write-out '%{http_code}' --silent --output /dev/null $filebeat_wazuh_template)
-    if [ $response != "200" ]; then
+    if [ "${response}" != "200" ]; then
        	response=$(curl --write-out '%{http_code}' --silent --output /dev/null $new_filebeat_url)
 
         # Display error if both URLs do not get the resource
-        if [ $response != "200" ]; then
+        if [ "${response}" != "200" ]; then
             echo -e "Error: Could not get the Filebeat Wazuh template. "
         # If matches, replace the variable of installVariables to the new one
         else
             echo -e "Changing Filebeat URL..."
-            sed -i -E "s/http.+\\$\\{wazuh_major\\}.+wazuh-template.json/https:\/\/raw.githubusercontent.com\/wazuh\/wazuh\/master\/extensions\/elasticsearch\/7.x\/wazuh-template.json/" ${resources_installer}/installVariables.sh
+            sed -i -E "s|filebeat_wazuh_template=.*|filebeat_wazuh_template=${new_filebeat_url}|g" "${resources_installer}/installVariables.sh"
         fi
     fi
 }
