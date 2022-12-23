@@ -256,7 +256,7 @@ function builder_main() {
         buildInstaller
         chmod 500 ${output_script_path}
         if [ -n "${change_filebeat_url}" ]; then
-            sed -i -E "s|filebeat_wazuh_template=.*|filebeat_wazuh_template=\"https://raw.githubusercontent.com/wazuh/wazuh/\${wazuh_major}/extensions/elasticsearch/7.x/wazuh-template.json\"|g" "${resources_installer}/installVariables.sh"
+            sed -i -E "s|(https.+)master(.+wazuh-template.json)|\1\\$\\{wazuh_major\\}\2|"  "${resources_installer}/installVariables.sh"
         fi
     fi
 
@@ -288,7 +288,7 @@ function checkFilebeatURL() {
         # If matches, replace the variable of installVariables to the new one
         else
             echo -e "Changing Filebeat URL..."
-            sed -i -E "s|filebeat_wazuh_template=.*|filebeat_wazuh_template=${new_filebeat_url}|g" "${resources_installer}/installVariables.sh"
+            sed -i -E "s|filebeat_wazuh_template=.*|filebeat_wazuh_template=\"${new_filebeat_url}\"|g" "${resources_installer}/installVariables.sh"
             change_filebeat_url=1
         fi
     fi
