@@ -211,13 +211,8 @@ def test_check_log_errors():
     with open('/var/ossec/logs/ossec.log', 'r') as f:
         for line in f.readlines():
             if 'ERROR' in line:
-                found_error = True
-                if get_wazuh_version() == 'v4.5.0':
-                    if 'ERROR: Cluster error detected' in line or 'agent-upgrade: ERROR: (8123): There has been an error executing the request in the tasks manager.' in line:
-                        found_error = False
-                    else:
-                      break
-                else:
+                if 'ERROR: Cluster error detected' not in line and 'agent-upgrade: ERROR: (8123): There has been an error executing the request in the tasks manager.' not in line:
+                    found_error = True
                     break
     assert found_error == False, line
 
@@ -237,13 +232,8 @@ def test_check_cluster_log_errors():
     with open('/var/ossec/logs/cluster.log', 'r') as f:
         for line in f.readlines():
             if 'ERROR' in line:
-                found_error = True
-                if get_wazuh_version() == 'v4.5.0':
-                    if 'Could not connect to master' in line or 'Worker node is not connected to master' in line or 'Connection reset by peer' in line:
-                        found_error = False
-                    else:
-                      break
-                else:
+                if 'Could not connect to master' not in line and 'Worker node is not connected to master' not in line and 'Connection reset by peer' not in line:
+                    found_error = True
                     break
     assert found_error == False, line
 
