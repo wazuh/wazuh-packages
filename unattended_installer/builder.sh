@@ -255,6 +255,9 @@ function builder_main() {
     if [ -n "${installer}" ]; then
         buildInstaller
         chmod 500 ${output_script_path}
+        if [ -n "${change_filebeat_url}" ]; then
+            sed -i -E "s|filebeat_wazuh_template=.*|filebeat_wazuh_template=\"https://raw.githubusercontent.com/wazuh/wazuh/\${wazuh_major}/extensions/elasticsearch/7.x/wazuh-template.json\"|g" "${resources_installer}/installVariables.sh"
+        fi
     fi
 
     if [ -n "${passwordsTool}" ]; then
@@ -286,6 +289,7 @@ function checkFilebeatURL() {
         else
             echo -e "Changing Filebeat URL..."
             sed -i -E "s|filebeat_wazuh_template=.*|filebeat_wazuh_template=${new_filebeat_url}|g" "${resources_installer}/installVariables.sh"
+            change_filebeat_url=1
         fi
     fi
 }
