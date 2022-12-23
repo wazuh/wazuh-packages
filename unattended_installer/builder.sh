@@ -9,13 +9,13 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-readonly base_path="$(dirname "$(readlink -f "$0")")"
-readonly resources_installer="${base_path}/install_functions"
-readonly resources_config="${base_path}/config"
-readonly resources_certs="${base_path}/cert_tool"
-readonly resources_passwords="${base_path}/passwords_tool"
-readonly resources_common="${base_path}/common_functions"
-readonly resources_download="${base_path}/downloader"
+readonly base_path_builder="$(dirname "$(readlink -f "$0")")"
+readonly resources_installer="${base_path_builder}/install_functions"
+readonly resources_config="${base_path_builder}/config"
+readonly resources_certs="${base_path_builder}/cert_tool"
+readonly resources_passwords="${base_path_builder}/passwords_tool"
+readonly resources_common="${base_path_builder}/common_functions"
+readonly resources_download="${base_path_builder}/downloader"
 readonly source_branch="4.4"
 
 function getHelp() {
@@ -50,7 +50,7 @@ function buildInstaller() {
 
     checkFilebeatURL
 
-    output_script_path="${base_path}/wazuh-install.sh"
+    output_script_path="${base_path_builder}/wazuh-install.sh"
 
     ## Create installer script
     echo -n > "${output_script_path}"
@@ -134,7 +134,7 @@ function buildInstaller() {
 }
 
 function buildPasswordsTool() {
-    output_script_path="${base_path}/wazuh-passwords-tool.sh"
+    output_script_path="${base_path_builder}/wazuh-passwords-tool.sh"
 
     ## Create installer script
     echo -n > "${output_script_path}"
@@ -174,7 +174,7 @@ function buildPasswordsTool() {
 }
 
 function buildCertsTool() {
-    output_script_path="${base_path}/wazuh-certs-tool.sh"
+    output_script_path="${base_path_builder}/wazuh-certs-tool.sh"
 
     ## Create installer script
     echo -n > "${output_script_path}"
