@@ -68,11 +68,11 @@ chmod 644 ${LAUNCH_DAEMON_PATH}com.wazuh.agent.plist
 chown root:wheel ${STARTUP_ITEMS_PATH}/WAZUH
 
 chown root:wheel ${STARTUP_ITEMS_PATH}/WAZUH/StartupParameters.plist
-chmod 644 ${STARTUP_ITEMS_PATH}/WAZUH/StartupParameters.plist
+chmod 0644 ${STARTUP_ITEMS_PATH}/WAZUH/StartupParameters.plist
 
 
 chown root:wheel ${STARTUP_ITEMS_PATH}/WAZUH/Wazuh
-chmod 755 ${STARTUP_ITEMS_PATH}/WAZUH/Wazuh
+chmod 0744 ${STARTUP_ITEMS_PATH}/WAZUH/Wazuh
 
 
 chmod 770 ${DIR}/.ssh

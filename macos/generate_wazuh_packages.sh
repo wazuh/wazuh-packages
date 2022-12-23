@@ -111,7 +111,7 @@ function sign_binaries() {
 
         result=$(xattr -l "${LOGIN_ITEM_PATH}/Wazuh")
         echo ${result}
-        codesign -f --sign "${CERT_APPLICATION_ID}" --entitlements "${ENTITLEMENTS_PATH}" --deep --timestamp --options=runtime --verbose "${LOGIN_ITEM_PATH}/Wazuh" && echo "Correctly signed Login Item" || echo "Error signing Login Item"
+        codesign -f --sign "${CERT_APPLICATION_ID}" --identifier "com.wazuh.example" --entitlements "${ENTITLEMENTS_PATH}" --deep --timestamp --options=runtime --verbose "${LOGIN_ITEM_PATH}/Wazuh" && echo "Correctly signed Login Item" || echo "Error signing Login Item"
         result=$(codesign -dvvv "${LOGIN_ITEM_PATH}/Wazuh")
         echo ${result}
         result=$(xattr -l "${LOGIN_ITEM_PATH}/Wazuh")
