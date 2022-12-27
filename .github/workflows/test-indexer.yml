@@ -5,6 +5,7 @@ on:
       - 'stack/indexer/deb/debian/postrm'
       - 'stack/indexer/deb/debian/postinst'
       - 'stack/indexer/deb/debian/preinst'
+      - '.github/workflows/test-indexer.yml'
   workflow_dispatch:
 
 jobs:
