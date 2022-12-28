@@ -1,6 +1,7 @@
 #!/bin/bash
 FILES_OLD="/usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig"
 FILES_NEW="/etc/wazuh-indexer/opensearch-security"
+PACKAGE_NAME=$1
 declare -A files_old
 declare -A files_new
 
@@ -50,23 +51,21 @@ function compare_arrays() {
     done
 }
 
-# apt-get -y install wazuh-indexer
-# read_files "$FILES_OLD" files_old
-# echo "Old files..."
-# print_files files_old
-#
-# apt-get install ./$PACKAGE_NAME
-# read_files "$FILES_NEW" files_new
-# echo "New files..."
-# print_files files_new
+apt-get -y install wazuh-indexer
+read_files "$FILES_OLD" files_old
+echo "Old files..."
+print_files files_old
 
-echo "Nombre del paquete:"
-echo $1
+apt-get install ./$PACKAGE_NAME
+read_files "$FILES_NEW" files_new
+echo "New files..."
+print_files files_new
 
-# compare_arrays files_old files_new
+compare_arrays files_old files_new
 
 if [ $not_equal == true ]; then
         echo "Error: different checksums detected"
         exit 1
 fi
+echo "Same chechsums - Test passed correctly"
 exit 0
