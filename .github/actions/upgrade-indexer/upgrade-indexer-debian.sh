@@ -51,6 +51,8 @@ function compare_arrays() {
     done
 }
 
+pwd
+
 apt-get -y install wazuh-indexer
 read_files "$FILES_OLD" files_old
 echo "Old files..."
