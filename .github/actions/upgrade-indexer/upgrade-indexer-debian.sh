@@ -60,12 +60,12 @@ print_files files_old
 
 ls -l
 
-# apt-get install ./$PACKAGE_NAME
-# read_files "$FILES_NEW" files_new
-# echo "New files..."
-# print_files files_new
-#
-# compare_arrays files_old files_new
+apt-get install ./$PACKAGE_NAME
+read_files "$FILES_NEW" files_new
+echo "New files..."
+print_files files_new
+
+compare_arrays files_old files_new
 
 if [ $not_equal == true ]; then
         echo "Error: different checksums detected"
