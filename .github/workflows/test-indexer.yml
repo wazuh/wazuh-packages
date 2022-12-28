@@ -26,7 +26,7 @@ jobs:
       - name: Download new package
         run: |
           wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=12AgpaYEfEEuucCl-rKNClfHzkJ8fZFvb' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=12AgpaYEfEEuucCl-rKNClfHzkJ8fZFvb" -O wazuh-indexer_4.5.0-1_amd64.deb && rm -rf /tmp/cookies.txt
-          pwd
+          echo $(pwd)
       - name: Set env variable
         run: echo "PACKAGE_NAME=$(ls | grep .deb | head -n 1)" >> $GITHUB_ENV
       - name: Display env variable
