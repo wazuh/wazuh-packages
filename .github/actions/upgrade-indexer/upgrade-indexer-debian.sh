@@ -61,7 +61,7 @@ function compare_arrays() {
 # print_files files_new
 
 echo "Nombre del paquete:"
-echo $PACKAGE
+echo {{$env.PACKAGE}}
 
 # compare_arrays files_old files_new
 
