@@ -18,16 +18,16 @@ jobs:
       - name: Download wazuh-indexer release package
         run: |
           curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import && chmod 644 /usr/share/keyrings/wazuh.gpg
-          echo "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main" | tee -a /etc/apt/sources.list.d/wazuh.list
-          apt-get update
+          echo "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main" | sudo tee -a /etc/apt/sources.list.d/wazuh.list
+          sudo apt-get update
       - uses: actions/checkout@v3
         with:
           ref: 1850-wazuh-indexer-preserve-config-files-upon-upgrade-master
       - name: Build wazuh-indexer issue-branch package
         working-directory: ./stack/indexer/deb
         run: |
-          ./build_package.sh
-          export PACKAGE_NAME=`ls | grep .deb`
-          mv ./output/$PACKAGE_NAME ~/$PACKAGE_NAME
+          sudo ./build_package.sh
+          sudo export PACKAGE_NAME=`ls | grep .deb`
+          sudo mv ./output/$PACKAGE_NAME ~/$PACKAGE_NAME
       - name: Run script to compare checksums
         run: sudo bash .github/actions/upgrade-indexer/upgrade-indexer-debian.sh
