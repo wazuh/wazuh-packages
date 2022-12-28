@@ -31,6 +31,7 @@ jobs:
         run: |
           echo $PACKAGE_NAME
           export PACKAGE=$PACKAGE_NAME
+          echo $PACKAGE
       - name: Move wazuh-indexer issue-branch package
         run: sudo mv $PACKAGE_NAME ~/$PACKAGE_NAME
       - name: Run script to compare checksums
