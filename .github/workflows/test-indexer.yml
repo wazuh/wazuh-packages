@@ -28,8 +28,7 @@ jobs:
       - name: Set env variable
         env:
           PACKAGE_NAME: $(ls | grep .deb | head -n 1)
-      - name: Echo env variable
-        run: echo ${{ env.PACKAGE_NAME }}
+        run: echo $PACKAGE_NAME
       - name: Move wazuh-indexer issue-branch package
         run: |
           echo "PACKAGE_NAME=$(ls | grep .deb | head -n 1)" >> $GITHUB_ENV
