@@ -5,8 +5,6 @@ PACKAGE_NAME=$1
 declare -A files_old
 declare -A files_new
 
-not_equal=false
-
 # Prints associative array of the files passed by params
 function print_files() {
     local -n files=$1
@@ -26,7 +24,11 @@ function read_files() {
     for f in $1/*; do
         if [ -f $f ]; then
             echo "Processing $f file..."
-            echo "# This is a test" >> $f
+
+            if [ $2=="files_old" ]; then
+                echo "# This is a test" >> $f
+                echo "Changed file"
+            fi
             checksum=`md5sum $f | cut -d " " -f1`
 
             basename=`basename $f`
@@ -42,11 +44,11 @@ function compare_arrays() {
 
     for i in "${!array_old[@]}"; do
         echo "Comparing $i file checksum..."
-        if [[ "$array_old[$i]" == "$array_new[$i]" && $not_equal != true ]]; then
+        if [[ "$array_old[$i]" == "$array_new[$i]" ]]; then
             echo "$i - Same checksum"
         else
             echo "$i - Different checksum"
-            not_equal=true
+            break
         fi
     done
 }
