@@ -27,7 +27,7 @@ jobs:
         working-directory: ./stack/indexer/deb
         run: |
           sudo ./build_package.sh
-          echo "PACKAGE_NAME=$(ls ./output/ | grep .deb)" >> $GITHUB_ENV
+          echo "PACKAGE_NAME=$(ls ./output/ | grep .deb | head -n 1)" >> $GITHUB_ENV
           sudo mv ./output/$PACKAGE_NAME ~/$PACKAGE_NAME
       - name: Run script to compare checksums
         run: sudo bash .github/actions/upgrade-indexer/upgrade-indexer-debian.sh
