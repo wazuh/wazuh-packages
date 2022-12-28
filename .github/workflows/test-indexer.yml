@@ -30,9 +30,7 @@ jobs:
       - name: Display env variable
         run: |
           echo $PACKAGE_NAME
-          export PACKAGE=$PACKAGE_NAME
-          echo $PACKAGE
       - name: Move wazuh-indexer issue-branch package
         run: sudo mv $PACKAGE_NAME ~/$PACKAGE_NAME
       - name: Run script to compare checksums
-        run: sudo bash .github/actions/upgrade-indexer/upgrade-indexer-debian.sh
+        run: sudo bash .github/actions/upgrade-indexer/upgrade-indexer-debian.sh $PACKAGE_NAME
