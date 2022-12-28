@@ -50,12 +50,12 @@ function compare_arrays() {
     done
 }
 
-apt-get install ./wazuh-indexer_4.3.10-1_amd64.deb
+apt-get -y install wazuh-indexer
 read_files "$FILES_OLD" files_old
 echo "Old files..."
 print_files files_old
 
-apt-get install ./wazuh-indexer_4.5.0-1_amd64.deb
+apt-get install ./$PACKAGE_NAME
 read_files "$FILES_NEW" files_new
 echo "New files..."
 print_files files_new

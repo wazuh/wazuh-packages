@@ -1,5 +1,8 @@
 name: Test Wazuh indexer on upgrade - Debian
 on:
+  push:
+    branches:
+      - 1850-wazuh-indexer-preserve-config-files-upon-upgrade-master
   pull_request:
     paths:
       - 'stack/indexer/deb/debian/postrm'
@@ -12,8 +15,11 @@ jobs:
   Test-debian-indexer-upgrade:
     runs-on: ubuntu-latest
     steps:
-      - name: Download wazuh-indexer 4.3 package
-        run: wget https://packages-dev.wazuh.com/staging/apt/pool/main/w/wazuh-indexer/wazuh-indexer_4.3.7-0.40320.20220825_amd64.deb
+      - name: Download wazuh-indexer release package
+        run: |
+          curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import && chmod 644 /usr/share/keyrings/wazuh.gpg
+          echo "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main" | tee -a /etc/apt/sources.list.d/wazuh.list
+          apt-get update
       - uses: actions/checkout@v3
         with:
           ref: 1850-wazuh-indexer-preserve-config-files-upon-upgrade-master
@@ -21,6 +27,7 @@ jobs:
         working-directory: ./stack/indexer/deb
         run: |
           ./build_package.sh
-          mv ./output/wazuh-indexer_4.5.0-1_amd64.deb ~/wazuh-indexer_4.5.0-1_amd64.deb
+          export PACKAGE_NAME=`ls | grep .deb`
+          mv ./output/$PACKAGE_NAME ~/$PACKAGE_NAME
       - name: Run script to compare checksums
         run: sudo bash .github/actions/upgrade-indexer/upgrade-indexer-debian.sh
