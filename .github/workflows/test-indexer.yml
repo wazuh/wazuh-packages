@@ -25,6 +25,8 @@ jobs:
           ref: 1850-wazuh-indexer-preserve-config-files-upon-upgrade-master
       - name: Download new package
         run: wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=12AgpaYEfEEuucCl-rKNClfHzkJ8fZFvb' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=12AgpaYEfEEuucCl-rKNClfHzkJ8fZFvb" -O wazuh-indexer_4.5.0-1_amd64.deb && rm -rf /tmp/cookies.txt
+      - name: Create enviroment variables
+        run: cat .env > $GITHUB_ENV
       - name: Set env variable
         env:
           PACKAGE_NAME: echo $(ls | grep .deb | head -n 1)
