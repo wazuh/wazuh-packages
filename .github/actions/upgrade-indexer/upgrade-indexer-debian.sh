@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/usr/bin/env bash
 FILES_OLD="/usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig"
 FILES_NEW="/etc/wazuh-indexer/opensearch-security"
 declare -A files_old
@@ -57,6 +57,8 @@ function print_files() {
         echo "Value: ${files[$KEY]}"
     done
 }
+
+echo "PACKAGE NAME VALUE: $PACKAGE_NAME"
 
 echo "Installing old version of wazuh indexer..."
 apt-get -y install wazuh-indexer
