@@ -62,7 +62,7 @@ echo "PACKAGE NAME VALUE: $PACKAGE_NAME"
 echo "PACKAGE NAME VALUE: ${{ env.PACKAGE_NAME }}"
 eval "echo PACKAGE NAME VALUE: ${{ env.PACKAGE_NAME }}"
 
-TEST=${{ env.PACKAGE_NAME }}
+TEST=${env.PACKAGE_NAME}
 echo "Test: $TEST"
 
 echo "Installing old version of wazuh indexer..."
