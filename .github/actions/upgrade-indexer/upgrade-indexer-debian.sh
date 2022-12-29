@@ -58,7 +58,8 @@ function print_files() {
     done
 }
 
-echo "PACKAGE NAME VALUE: $PACKAGE_NAME"
+
+echo "PACKAGE NAME VALUE: ${PACKAGE_NAME}"
 echo "PACKAGE NAME VALUE: ${{ env.PACKAGE_NAME }}"
 eval "echo PACKAGE NAME VALUE: ${{ env.PACKAGE_NAME }}"
 
