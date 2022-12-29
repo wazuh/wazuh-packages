@@ -36,8 +36,9 @@ jobs:
           echo $PACKAGE_NAME
           echo $(ls)
       - name: Move package to home and run script
-        working-directory: ./stack/indexer/deb
         run: |
-          sudo cp ./$PACKAGE_NAME ~/$PACKAGE_NAME
+          sudo cp ./$PACKAGE_NAME /home/runner/wazuh-packages/
           echo $(ls ~/)
+          echo $(ls /home/runner/wazuh-packages/)
+          echo $(pwd)
           sudo bash .github/actions/upgrade-indexer/upgrade-indexer-debian.sh $PACKAGE_NAME
