@@ -36,11 +36,8 @@ jobs:
         working-directory: ./stack/indexer/deb
         run: |
           echo $PACKAGE_NAME
-          echo $(ls)
-          echo $(pwd)
-          echo $HOME
           echo $GITHUB_WORKSPACE
-          sudo cp ./$PACKAGE_NAME /home/runner/work/wazuh-packages/wazuh-packages/$PACKAGE_NAME
+          sudo cp ./$PACKAGE_NAME $GITHUB_WORKSPACE/$PACKAGE_NAME
       - name: Move package to home and run script
         run: |
           echo $(pwd)

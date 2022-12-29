@@ -68,7 +68,7 @@ echo "Old files..."
 print_files files_old
 
 echo "Installing new version of wazuh indexer..."
-apt-get install ~/$PACKAGE_NAME
+apt-get install ./$PACKAGE_NAME
 read_files "$FILES_NEW" files_new
 echo "New files..."
 print_files files_new
