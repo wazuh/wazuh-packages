@@ -62,6 +62,8 @@ cp ./etc/custom_welcome/light_theme.style.css ./src/core/server/core_app/assets/
 cp ./etc/custom_welcome/*svg ./src/core/server/core_app/assets/
 cp ./etc/custom_welcome/Assets/default_branding/logo_full_alpha.svg ./src/core/server/core_app/assets/default_branding/opensearch_logo_default_mode.svg
 cp ./etc/custom_welcome/Assets/default_branding/logo_full_alpha.svg ./src/core/server/core_app/assets/default_branding/opensearch_logo_dark_mode.svg
+cp ./etc/custom_welcome/Assets/default_branding/home.svg ./src/core/server/core_app/assets/default_branding/
+cp ./etc/custom_welcome/Assets/default_branding/home_dark_mode.svg ./src/core/server/core_app/assets/default_branding/
 cp ./etc/custom_welcome/Assets/Favicons/* ./src/core/server/core_app/assets/favicons/
 cp ./etc/custom_welcome/Assets/Favicons/favicon.ico ./src/core/server/core_app/assets/favicons/favicon.ico
 cp ./etc/http_service.js ./src/core/server/http/http_service.js
@@ -69,6 +71,7 @@ cp ./etc/template.js ./src/core/server/rendering/views/template.js
 cp ./etc/styles.js ./src/core/server/rendering/views/styles.js
 # Replace App Title
 sed -i "s|defaultValue: ''|defaultValue: \'Wazuh\'|g" ./src/core/server/opensearch_dashboards_config.js
+sed -i "90s|defaultValue: true|defaultValue: false|g" ./src/core/server/opensearch_dashboards_config.js
 # Replace config path
 sed -i "s'\$DIR/config'/etc/wazuh-dashboard'g" ./bin/opensearch-dashboards
 sed -i "s'\$DIR/config'/etc/wazuh-dashboard'g" ./bin/opensearch-dashboards-keystore
@@ -96,6 +99,12 @@ sed -i 's|GITHUB_CREATE_ISSUE_LINK="https://github.com/opensearch-project/OpenSe
 # Build the compressed files
 gzip -c ./src/core/target/public/core.entry.js > ./src/core/target/public/core.entry.js.gz
 brotli -c ./src/core/target/public/core.entry.js > ./src/core/target/public/core.entry.js.br
+# Replace home logo
+sed -i 's|opensearch_mark_default_mode.svg|home.svg|g' ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
+sed -i 's|opensearch_mark_dark_mode.svg|home_dark_mode.svg|g' ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
+# Build the compressed files
+gzip -c ./plugins/securityDashboards/target/public/securityDashboards.plugin.js > ./plugins/securityDashboards/target/public/securityDashboards.plugin.js.br
+brotli -c ./plugins/securityDashboards/target/public/securityDashboards.plugin.js > ./plugins/securityDashboards/target/public/securityDashboards.plugin.js.gz
 # Remove Overview plugin from the OpenSearch Dashboards menu.
 # Remove "updater" property and set the plugin "status" as inaccesible (status:1)
 sed -i 's|updater\$:appUpdater\$|status:1|' ./src/plugins/opensearch_dashboards_overview/target/public/opensearchDashboardsOverview.plugin.js
