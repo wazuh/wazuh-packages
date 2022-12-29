@@ -38,10 +38,10 @@ jobs:
           echo $PACKAGE_NAME
           echo $(ls)
           echo $(pwd)
-          sudo cp ./$PACKAGE_NAME /home/runner/work/wazuh-packages/$PACKAGE_NAME
+          echo $HOME
+          echo $GITHUB_WORKSPACE
+          sudo cp ./$PACKAGE_NAME /home/runner/work/wazuh-packages/wazuh-packages/$PACKAGE_NAME
       - name: Move package to home and run script
         run: |
-          echo $(ls ~/)
-          echo $(ls /home/runner/wazuh-packages/)
           echo $(pwd)
           sudo bash .github/actions/upgrade-indexer/upgrade-indexer-debian.sh $PACKAGE_NAME
