@@ -1,7 +1,6 @@
 #!/bin/env bash
 FILES_OLD="/usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig"
 FILES_NEW="/etc/wazuh-indexer/opensearch-security"
-PACKAGE_NAME=$1
 declare -A files_old
 declare -A files_new
 
