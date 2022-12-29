@@ -1,7 +1,7 @@
 #!/bin/bash
 FILES_OLD="/usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig"
 FILES_NEW="/etc/wazuh-indexer/opensearch-security"
-PACKAGE_NAME=$1
+NEW_PACKAGE=${{ env.PACKAGE_NAME }}
 declare -A files_old
 declare -A files_new
 
@@ -66,7 +66,7 @@ echo "Old files..."
 print_files files_old
 
 echo "Installing new version of wazuh indexer..."
-apt-get install ./$PACKAGE_NAME
+apt-get install ./$NEW_PACKAGE
 read_files "$FILES_NEW" files_new
 echo "New files..."
 print_files files_new
