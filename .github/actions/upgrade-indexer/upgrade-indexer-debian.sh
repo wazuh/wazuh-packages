@@ -59,6 +59,8 @@ function print_files() {
     done
 }
 
+echo $(ls)
+
 echo "Installing old version of wazuh indexer..."
 apt-get -y install wazuh-indexer
 read_files "$FILES_OLD" files_old
@@ -66,7 +68,7 @@ echo "Old files..."
 print_files files_old
 
 echo "Installing new version of wazuh indexer..."
-apt-get install ./$PACKAGE_NAME
+apt-get install ~/$PACKAGE_NAME
 read_files "$FILES_NEW" files_new
 echo "New files..."
 print_files files_new
