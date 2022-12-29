@@ -59,6 +59,8 @@ function print_files() {
 }
 
 echo "PACKAGE NAME VALUE: $PACKAGE_NAME"
+echo "PACKAGE NAME VALUE: ${{ env.PACKAGE_NAME }}"
+eval "echo PACKAGE NAME VALUE: ${{ env.PACKAGE_NAME }}"
 
 echo "Installing old version of wazuh indexer..."
 apt-get -y install wazuh-indexer
