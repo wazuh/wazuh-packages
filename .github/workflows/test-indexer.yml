@@ -37,7 +37,7 @@ jobs:
         run: |
           echo $PACKAGE_NAME
           echo $(ls)
-          sudo cp ./$PACKAGE_NAME /home/runner/wazuh-packages/
+          sudo cp ./$PACKAGE_NAME /home/runner/wazuh-packages/$PACKAGE_NAME
       - name: Move package to home and run script
         run: |
           echo $(ls ~/)
