@@ -1,7 +1,7 @@
 #!/bin/bash
 FILES_OLD="/usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig"
 FILES_NEW="/etc/wazuh-indexer/opensearch-security"
-NEW_PACKAGE= eval "echo ${{ env.PACKAGE_NAME }}"
+NEW_PACKAGE=eval "echo ${{ env.PACKAGE_NAME }}"
 declare -A files_old
 declare -A files_new
 
