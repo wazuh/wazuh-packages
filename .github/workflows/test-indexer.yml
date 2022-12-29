@@ -31,13 +31,15 @@ jobs:
         run: |
           wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=12AgpaYEfEEuucCl-rKNClfHzkJ8fZFvb' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=12AgpaYEfEEuucCl-rKNClfHzkJ8fZFvb" -O wazuh-indexer_4.5.0-1_amd64.deb && rm -rf /tmp/cookies.txt
           echo "PACKAGE_NAME=$(ls | grep .deb | head -n 1)" >> $GITHUB_ENV
+          echo $(pwd)
       - name: Display env variable and ls
+        working-directory: ./stack/indexer/deb
         run: |
           echo $PACKAGE_NAME
           echo $(ls)
+          sudo cp ./$PACKAGE_NAME /home/runner/wazuh-packages/
       - name: Move package to home and run script
         run: |
-          sudo cp ./$PACKAGE_NAME /home/runner/wazuh-packages/
           echo $(ls ~/)
           echo $(ls /home/runner/wazuh-packages/)
           echo $(pwd)
