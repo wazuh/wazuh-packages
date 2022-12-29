@@ -33,5 +33,3 @@ jobs:
           echo $PACKAGE_NAME
       - name: Run script to compare checksums
         run: sudo bash .github/actions/upgrade-indexer/upgrade-indexer-debian.sh
-        env:
-          PACKAGE_NAME: ${{ env.PACKAGE_NAME }}
