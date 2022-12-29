@@ -32,4 +32,4 @@ jobs:
         run: |
           echo $PACKAGE_NAME
       - name: Run script to compare checksums
-        run: sudo bash .github/actions/upgrade-indexer/upgrade-indexer-debian.sh
+        run: sudo bash .github/actions/upgrade-indexer/upgrade-indexer-debian.sh $PACKAGE_NAME
