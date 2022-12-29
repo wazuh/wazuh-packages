@@ -38,7 +38,8 @@ jobs:
       - name: Move package to home
         working-directory: ./stack/indexer/deb
         run: |
-          sudo mv ./$PACKAGE_NAME ~/$PACKAGE_NAME
+          sudo cp ./$PACKAGE_NAME ~/$PACKAGE_NAME
           echo $(ls ~/)
       - name: Run script to compare checksums
+        working-directory: ~/
         run: sudo bash .github/actions/upgrade-indexer/upgrade-indexer-debian.sh $PACKAGE_NAME
