@@ -96,15 +96,12 @@ sed -i 's|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://github.com/opensear
 sed -i 's|OPENSEARCH_DASHBOARDS_FEEDBACK_LINK="https://github.com/opensearch-project"|OPENSEARCH_DASHBOARDS_FEEDBACK_LINK="https://wazuh.com/community/join-us-on-slack"|' ./src/core/target/public/core.entry.js
 ## Help link - Open an issue in GitHub
 sed -i 's|GITHUB_CREATE_ISSUE_LINK="https://github.com/opensearch-project/OpenSearch-Dashboards/issues/new/choose"|GITHUB_CREATE_ISSUE_LINK="https://github.com/wazuh/wazuh/issues/new/choose"|' ./src/core/target/public/core.entry.js
+# Replace home logo
+sed -i 's|DEFAULT_MARK="opensearch_mark_default_mode.svg"|DEFAULT_MARK="home.svg"|g' ./src/core/target/public/core.entry.js
+sed -i 's|DEFAULT_DARK_MARK="opensearch_mark_dark_mode.svg"|DEFAULT_DARK_MARK="home_dark_mode.svg"|g' ./src/core/target/public/core.entry.js
 # Build the compressed files
 gzip -c ./src/core/target/public/core.entry.js > ./src/core/target/public/core.entry.js.gz
 brotli -c ./src/core/target/public/core.entry.js > ./src/core/target/public/core.entry.js.br
-# Replace home logo
-sed -i 's|opensearch_mark_default_mode.svg|home.svg|g' ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
-sed -i 's|opensearch_mark_dark_mode.svg|home_dark_mode.svg|g' ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
-# Build the compressed files
-gzip -c ./plugins/securityDashboards/target/public/securityDashboards.plugin.js > ./plugins/securityDashboards/target/public/securityDashboards.plugin.js.br
-brotli -c ./plugins/securityDashboards/target/public/securityDashboards.plugin.js > ./plugins/securityDashboards/target/public/securityDashboards.plugin.js.gz
 # Remove Overview plugin from the OpenSearch Dashboards menu.
 # Remove "updater" property and set the plugin "status" as inaccesible (status:1)
 sed -i 's|updater\$:appUpdater\$|status:1|' ./src/plugins/opensearch_dashboards_overview/target/public/opensearchDashboardsOverview.plugin.js
@@ -127,6 +124,9 @@ sed -i 's|Log in to OpenSearch Dashboards||g' ./plugins/securityDashboards/targe
 sed -i 's|If you have forgotten your username or password, contact your system administrator.||g' ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js
 # Disable first time pop-up tenant selector
 sed -i 's|setShouldShowTenantPopup(shouldShowTenantPopup)|setShouldShowTenantPopup(false)|g' ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
+# Replace home logo
+sed -i 's|DEFAULT_MARK="opensearch_mark_default_mode.svg"|DEFAULT_MARK="home.svg"|g' ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
+sed -i 's|DEFAULT_DARK_MARK="opensearch_mark_dark_mode.svg"|DEFAULT_DARK_MARK="home_dark_mode.svg"|g' ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
 gzip -c ./plugins/securityDashboards/target/public/securityDashboards.plugin.js > ./plugins/securityDashboards/target/public/securityDashboards.plugin.js.gz
 brotli -c ./plugins/securityDashboards/target/public/securityDashboards.plugin.js > ./plugins/securityDashboards/target/public/securityDashboards.plugin.js.br
 
