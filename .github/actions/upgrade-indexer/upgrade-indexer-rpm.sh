@@ -63,7 +63,7 @@ function print_files() {
             # Print the VALUE attached to that KEY
             echo "Value: ${files_old[$KEY]}"
         done
-    elif [ $2 == "new" ]; then
+    elif [ $1 == "new" ]; then
         for KEY in "${!files_new[@]}"; do
             # Print the KEY value
             echo "Key: $KEY"
