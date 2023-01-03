@@ -86,12 +86,17 @@ function print_files() {
     fi
 }
 
+echo "FILES_OLD VARIABLE: $FILES_OLD"
+
 echo "Checking version..."
 check_version
+echo "FILES_OLD VARIABLE: $FILES_OLD"
 
 echo "Installing old version of wazuh indexer..."
-preinstall_indexer_release
-yum -y install wazuh-indexer
+# preinstall_indexer_release
+# yum -y install wazuh-indexer
+curl 'https://packages-dev.wazuh.com/staging/yum/wazuh-indexer-4.4.0-1.x86_64.rpm' --output wazuh-indexer-4.4.0-1.x86_64.rpm
+rpm -i ./wazuh-indexer-4.4.0-1.x86_64.rpm
 
 read_files "$FILES_OLD" "old"
 echo "Old files..."
