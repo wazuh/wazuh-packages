@@ -1,8 +1,8 @@
 name: Test Wazuh indexer on upgrade - Debian
 on:
-  push:
-    branches:
-      - 1850-wazuh-indexer-preserve-config-files-upon-upgrade-master
+  #push:
+  #  branches:
+  #    - 1850-wazuh-indexer-preserve-config-files-upon-upgrade-master
   pull_request:
     paths:
       - 'stack/indexer/deb/debian/postrm'

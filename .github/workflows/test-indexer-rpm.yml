@@ -21,7 +21,7 @@ jobs:
       #    sudo ./build_package.sh
       #    echo "PACKAGE_NAME=$(ls ./output | grep .rpm | head -n 1)" >> $GITHUB_ENV
         run: |
-          wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1ppwDD8Pk-krr9RWOWHQL7HE_Bqmbx2Lw' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1ppwDD8Pk-krr9RWOWHQL7HE_Bqmbx2Lw" -O wazuh-indexer_4.5.0-1.x86_64.rpm && rm -rf /tmp/cookies.txt
+          wget 'https://packages-dev.wazuh.com/staging/yum/wazuh-indexer-4.5.0-40500.x86_64.rpm'
           echo "PACKAGE_NAME=$(ls | grep .rpm | head -n 1)" >> $GITHUB_ENV
       - name: Display env variable and move new package
         working-directory: ./stack/indexer/rpm
