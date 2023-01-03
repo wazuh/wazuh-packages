@@ -4,8 +4,21 @@ FILES_NEW="/etc/wazuh-indexer/opensearch-security"
 declare -A files_old
 declare -A files_new
 PACKAGE_NAME=$1
+WAZUH_VERSION=$(($2))
+REFERENCE_VERSION=43
 
 equal=true
+
+# Checks the version of Wazuh with 4.3 version, where path is different.
+function check_version() {
+    if [ $WAZUH_VERSION -gt $REFERENCE_VERSION ]; then
+        # same path
+        FILES_OLD=$FILES_NEW
+        echo "New path detected (/etc)"
+    else
+        echo "Old path detected (/usr/share)"
+    fi
+}
 
 # Compare the arrays, the loop ends if a different checksum is detected
 function compare_arrays() {
@@ -72,6 +85,9 @@ function print_files() {
         done
     fi
 }
+
+echo "Checking version..."
+check_version
 
 echo "Installing old version of wazuh indexer..."
 preinstall_indexer_release
