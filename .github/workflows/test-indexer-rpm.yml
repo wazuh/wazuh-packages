@@ -1,0 +1,38 @@
+name: Test Wazuh indexer on upgrade - RPM
+on:
+  push:
+    branches:
+      - 1850-wazuh-indexer-preserve-config-files-upon-upgrade-master
+  pull_request:
+    paths:
+      - 'stack/indexer/rpm/wazuh-indexer.spec'
+  workflow_dispatch:
+
+jobs:
+  Test-rpm-indexer-upgrade:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: 1850-wazuh-indexer-preserve-config-files-upon-upgrade-master
+      - name: Build wazuh-indexer issue-branch package and set env variable
+        working-directory: ./stack/indexer/rpm
+      #  run: |
+      #    sudo ./build_package.sh
+      #    echo "PACKAGE_NAME=$(ls ./output | grep .rpm | head -n 1)" >> $GITHUB_ENV
+        run: |
+          wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1ppwDD8Pk-krr9RWOWHQL7HE_Bqmbx2Lw' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1ppwDD8Pk-krr9RWOWHQL7HE_Bqmbx2Lw" -O wazuh-indexer_4.5.0-1.x86_64.rpm && rm -rf /tmp/cookies.txt
+          echo "PACKAGE_NAME=$(ls | grep .rpm | head -n 1)" >> $GITHUB_ENV
+      - name: Display env variable and move new package
+        working-directory: ./stack/indexer/rpm
+        run: |
+          echo $PACKAGE_NAME
+          mkdir $GITHUB_WORKSPACE/packages
+          sudo cp ./$PACKAGE_NAME $GITHUB_WORKSPACE/packages/$PACKAGE_NAME
+      # - name: Get Wazuh Version
+      #   run: echo "wazuh_minor=$(cat VERSION | cut -d'.' -f 2)" >> $GITHUB_ENV
+      - name: Launch docker
+        run: |
+          echo $(ls $GITHUB_WORKSPACE)
+          echo $(ls $GITHUB_WORKSPACE/packages/$PACKAGE_NAME)
+          sudo docker run -v $GITHUB_WORKSPACE/.github/actions/upgrade-indexer/:/tests -v $GITHUB_WORKSPACE/packages/:/packages centos:centos7 bash /tests/upgrade-indexer-rpm.sh /packages/$PACKAGE_NAME
