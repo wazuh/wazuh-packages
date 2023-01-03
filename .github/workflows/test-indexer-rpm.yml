@@ -12,11 +12,11 @@ jobs:
   Test-rpm-indexer-upgrade:
     runs-on: ubuntu-latest
     steps:
-      - name: Get Wazuh version
-        run: echo "WAZUH_VERSION=$(cat VERSION | cut -d' .' -f1-2 | sed 's|\.||')" >> $GITHUB_ENV
       - uses: actions/checkout@v3
         with:
           ref: 1850-wazuh-indexer-preserve-config-files-upon-upgrade-master
+      - name: Get Wazuh version
+        run: echo "WAZUH_VERSION=$(cat $GITHUB_WORKSPACE/VERSION | cut -d '.' -f1-2 | sed 's|\.||')" >> $GITHUB_ENV
       - name: Build wazuh-indexer issue-branch package and set env variable
         working-directory: ./stack/indexer/rpm
       #  run: |
@@ -26,7 +26,7 @@ jobs:
       #    wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1ppwDD8Pk-krr9RWOWHQL7HE_Bqmbx2Lw' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1ppwDD8Pk-krr9RWOWHQL7HE_Bqmbx2Lw" -O wazuh-indexer_4.5.0-1.x86_64.rpm && rm -rf /tmp/cookies.txt
       #    echo "PACKAGE_NAME=$(ls | grep .rpm | head -n 1)" >> $GITHUB_ENV
         run: |
-          wget 'https://packages-dev.wazuh.com/staging/yum/wazuh-indexer-4.4.0-1.x86_64.rpm'
+          wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1ppwDD8Pk-krr9RWOWHQL7HE_Bqmbx2Lw' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1ppwDD8Pk-krr9RWOWHQL7HE_Bqmbx2Lw" -O wazuh-indexer_4.5.0-1.x86_64.rpm && rm -rf /tmp/cookies.txt
           echo "PACKAGE_NAME=$(ls | grep .rpm | head -n 1)" >> $GITHUB_ENV
       - name: Display env variable and move new package
         working-directory: ./stack/indexer/rpm
