@@ -17,20 +17,15 @@ jobs:
           ref: 1850-wazuh-indexer-preserve-config-files-upon-upgrade-master
       - name: Build wazuh-indexer issue-branch package and set env variable
         working-directory: ./stack/indexer/rpm
-      #  run: |
-      #    sudo ./build_package.sh
-      #    echo "PACKAGE_NAME=$(ls ./output | grep .rpm | head -n 1)" >> $GITHUB_ENV
         run: |
-          wget 'https://packages-dev.wazuh.com/staging/yum/wazuh-indexer-4.5.0-40500.x86_64.rpm'
-          echo "PACKAGE_NAME=$(ls | grep .rpm | head -n 1)" >> $GITHUB_ENV
+          sudo ./build_package.sh
+          echo "PACKAGE_NAME=$(ls ./output | grep .rpm | head -n 1)" >> $GITHUB_ENV
       - name: Display env variable and move new package
         working-directory: ./stack/indexer/rpm
         run: |
           echo $PACKAGE_NAME
           mkdir $GITHUB_WORKSPACE/packages
-          sudo cp ./$PACKAGE_NAME $GITHUB_WORKSPACE/packages/$PACKAGE_NAME
-      # - name: Get Wazuh Version
-      #   run: echo "wazuh_minor=$(cat VERSION | cut -d'.' -f 2)" >> $GITHUB_ENV
+          sudo cp ./output/$PACKAGE_NAME $GITHUB_WORKSPACE/packages/$PACKAGE_NAME
       - name: Launch docker
         run: |
           echo $(ls $GITHUB_WORKSPACE)
