@@ -12,11 +12,11 @@ jobs:
   Test-rpm-indexer-upgrade:
     runs-on: ubuntu-latest
     steps:
-      - name: Get Wazuh version
-      - run: echo "WAZUH_VERSION=$(cat VERSION | cut -d' .' -f1-2 | sed 's|\.||')" >> $GITHUB_ENV
       - uses: actions/checkout@v3
         with:
           ref: 1850-wazuh-indexer-preserve-config-files-upon-upgrade-master
+      - name: Get Wazuh version
+      - run: echo "WAZUH_VERSION=$(cat VERSION | cut -d' .' -f1-2 | sed 's|\.||')" >> $GITHUB_ENV
       - name: Build wazuh-indexer issue-branch package and set env variable
         working-directory: ./stack/indexer/rpm
       #  run: |
