@@ -59,6 +59,8 @@ cp ./etc/custom_welcome/light_theme.style.css ./src/core/server/core_app/assets/
 cp ./etc/custom_welcome/*svg ./src/core/server/core_app/assets/
 cp ./etc/custom_welcome/Assets/default_branding/logo_full_alpha.svg ./src/core/server/core_app/assets/default_branding/opensearch_logo_default_mode.svg
 cp ./etc/custom_welcome/Assets/default_branding/logo_full_alpha.svg ./src/core/server/core_app/assets/default_branding/opensearch_logo_dark_mode.svg
+cp ./etc/custom_welcome/Assets/default_branding/home.svg ./src/core/server/core_app/assets/default_branding/
+cp ./etc/custom_welcome/Assets/default_branding/home_dark_mode.svg ./src/core/server/core_app/assets/default_branding/
 cp ./etc/custom_welcome/Assets/Favicons/* ./src/core/server/core_app/assets/favicons/
 cp ./etc/custom_welcome/Assets/Favicons/favicon.ico ./src/core/server/core_app/assets/favicons/favicon.ico
 cp ./etc/http_service.js ./src/core/server/http/http_service.js
@@ -66,6 +68,7 @@ cp ./etc/template.js ./src/core/server/rendering/views/template.js
 cp ./etc/styles.js ./src/core/server/rendering/views/styles.js
 # Replace App Title
 sed -i "s|defaultValue: ''|defaultValue: \'Wazuh\'|g" ./src/core/server/opensearch_dashboards_config.js
+sed -i "90s|defaultValue: true|defaultValue: false|g" ./src/core/server/opensearch_dashboards_config.js
 # Replace config path
 sed -i "s'\$DIR/config'/etc/wazuh-dashboard'g" ./bin/opensearch-dashboards
 sed -i "s'\$DIR/config'/etc/wazuh-dashboard'g" ./bin/opensearch-dashboards-keystore
@@ -90,6 +93,9 @@ sed -i 's|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://github.com/opensear
 sed -i 's|OPENSEARCH_DASHBOARDS_FEEDBACK_LINK="https://github.com/opensearch-project"|OPENSEARCH_DASHBOARDS_FEEDBACK_LINK="https://wazuh.com/community/join-us-on-slack"|' ./src/core/target/public/core.entry.js
 ## Help link - Open an issue in GitHub
 sed -i 's|GITHUB_CREATE_ISSUE_LINK="https://github.com/opensearch-project/OpenSearch-Dashboards/issues/new/choose"|GITHUB_CREATE_ISSUE_LINK="https://github.com/wazuh/wazuh/issues/new/choose"|' ./src/core/target/public/core.entry.js
+# Replace home logo
+sed -i 's|DEFAULT_MARK="opensearch_mark_default_mode.svg"|DEFAULT_MARK="home.svg"|g' ./src/core/target/public/core.entry.js
+sed -i 's|DEFAULT_DARK_MARK="opensearch_mark_dark_mode.svg"|DEFAULT_DARK_MARK="home_dark_mode.svg"|g' ./src/core/target/public/core.entry.js
 # Build the compressed files
 gzip -c ./src/core/target/public/core.entry.js > ./src/core/target/public/core.entry.js.gz
 brotli -c ./src/core/target/public/core.entry.js > ./src/core/target/public/core.entry.js.br
@@ -115,6 +121,9 @@ sed -i 's|Log in to OpenSearch Dashboards||g' ./plugins/securityDashboards/targe
 sed -i 's|If you have forgotten your username or password, contact your system administrator.||g' ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js
 # Disable first time pop-up tenant selector
 sed -i 's|setShouldShowTenantPopup(shouldShowTenantPopup)|setShouldShowTenantPopup(false)|g' ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
+# Replace home logo
+sed -i 's|DEFAULT_MARK="opensearch_mark_default_mode.svg"|DEFAULT_MARK="home.svg"|g' ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
+sed -i 's|DEFAULT_DARK_MARK="opensearch_mark_dark_mode.svg"|DEFAULT_DARK_MARK="home_dark_mode.svg"|g' ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
 gzip -c ./plugins/securityDashboards/target/public/securityDashboards.plugin.js > ./plugins/securityDashboards/target/public/securityDashboards.plugin.js.gz
 brotli -c ./plugins/securityDashboards/target/public/securityDashboards.plugin.js > ./plugins/securityDashboards/target/public/securityDashboards.plugin.js.br
 # Generate compressed files
