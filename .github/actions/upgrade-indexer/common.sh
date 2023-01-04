@@ -21,7 +21,7 @@ function check_system() {
 
 # Checks the version of Wazuh with 4.3 version, where path is different.
 function check_version() {
-    if [ $WAZUH_VERSION -gt $REFERENCE_VERSION ]; then
+    if [ $MAJOR_MINOR -gt $REFERENCE_VERSION ]; then
         # same path
         FILES_OLD=$FILES_NEW
         echo "New path detected (/etc)"
