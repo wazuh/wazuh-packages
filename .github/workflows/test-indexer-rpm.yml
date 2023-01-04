@@ -15,8 +15,8 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: 1850-wazuh-indexer-preserve-config-files-upon-upgrade-master
-      - name: Get Wazuh version
-        run: echo "WAZUH_VERSION=$(cat $GITHUB_WORKSPACE/VERSION | cut -d '.' -f1-2 | sed 's|\.||')" >> $GITHUB_ENV
+      #- name: Get Wazuh version
+      #  run: echo "WAZUH_VERSION=$(cat $GITHUB_WORKSPACE/VERSION | cut -d '.' -f1-2 | sed 's|\.||')" >> $GITHUB_ENV
       - name: Build wazuh-indexer issue-branch package and set env variable
         working-directory: ./stack/indexer/rpm
       #  run: |
@@ -38,7 +38,4 @@ jobs:
       # - name: Get Wazuh Version
       #   run: echo "wazuh_minor=$(cat VERSION | cut -d'.' -f 2)" >> $GITHUB_ENV
       - name: Launch docker
-        run: |
-          echo $(ls $GITHUB_WORKSPACE)
-          echo $(ls $GITHUB_WORKSPACE/packages/$PACKAGE_NAME)
-          sudo docker run -v $GITHUB_WORKSPACE/.github/actions/upgrade-indexer/:/tests -v $GITHUB_WORKSPACE/packages/:/packages centos:centos7 bash /tests/upgrade-indexer-rpm.sh /packages/$PACKAGE_NAME 44
+        run: sudo docker run -v $GITHUB_WORKSPACE/.github/actions/upgrade-indexer/:/tests -v $GITHUB_WORKSPACE/packages/:/packages centos:centos7 bash /tests/upgrade-indexer.sh /packages/$PACKAGE_NAME

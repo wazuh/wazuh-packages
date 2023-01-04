@@ -4,20 +4,29 @@ FILES_NEW="/etc/wazuh-indexer/opensearch-security"
 declare -A files_old
 declare -A files_new
 PACKAGE_NAME=$1
-WAZUH_VERSION=$(($2))
-REFERENCE_VERSION=43
 
-equal=true
+EQUAL=true
 
 # Checks the version of Wazuh with 4.3 version, where path is different.
-function check_version() {
-    if [ $WAZUH_VERSION -gt $REFERENCE_VERSION ]; then
-        # same path
-        FILES_OLD=$FILES_NEW
-        echo "New path detected (/etc)"
-    else
-        echo "Old path detected (/usr/share)"
+#function check_version() {
+#    if [ $WAZUH_VERSION -gt $REFERENCE_VERSION ]; then
+#        # same path
+#        FILES_OLD=$FILES_NEW
+#        echo "New path detected (/etc)"
+#    else
+#        echo "Old path detected (/usr/share)"
+#    fi
+#}
+
+# Check the system to differ between DEB and RPM
+function check_system() {
+
+    if [ -n "$(command -v yum)" ]; then
+        sys_type="rpm"
+    elif [ -n "$(command -v apt-get)" ]; then
+        sys_type="deb"
     fi
+
 }
 
 # Compare the arrays, the loop ends if a different checksum is detected
@@ -31,12 +40,19 @@ function compare_arrays() {
             echo "$i - Same checksum"
         else
             echo "$i - Different checksum"
-            equal=false
+            EQUAL=false
             break
         fi
     done
 }
 
+# Gets the absolute path of the script, used to load the common.sh file
+function get_absolute_path() {
+    RELATIVE_PATH="$(dirname -- "${BASH_SOURCE[0]}")"
+    ABSOLUTE_PATH="$(cd -- "$RELATIVE_PATH" && pwd)"
+}
+
+# Steps before installing the RPM release package
 function preinstall_indexer_release() {
     rpm --import https://packages.wazuh.com/key/GPG-KEY-WAZUH
     echo -e '[wazuh]\ngpgcheck=1\ngpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages.wazuh.com/4.x/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo
@@ -85,34 +101,3 @@ function print_files() {
         done
     fi
 }
-
-echo "FILES_OLD VARIABLE: $FILES_OLD"
-
-echo "Checking version..."
-check_version
-echo "FILES_OLD VARIABLE: $FILES_OLD"
-
-echo "Installing old version of wazuh indexer..."
-# preinstall_indexer_release
-# yum -y install wazuh-indexer
-curl 'https://packages-dev.wazuh.com/staging/yum/wazuh-indexer-4.4.0-1.x86_64.rpm' --output wazuh-indexer-4.4.0-1.x86_64.rpm
-rpm -i ./wazuh-indexer-4.4.0-1.x86_64.rpm
-
-read_files "$FILES_OLD" "old"
-echo "Old files..."
-print_files "old"
-
-echo "Installing new version of wazuh indexer..."
-rpm -Uvh --nofiledigest $PACKAGE_NAME
-read_files "$FILES_NEW" "new"
-echo "New files..."
-print_files "new"
-
-compare_arrays
-
-if [ $equal == false ]; then
-        echo "Error: different checksums detected"
-        exit 1
-fi
-echo "Same chechsums - Test passed correctly"
-exit 0
