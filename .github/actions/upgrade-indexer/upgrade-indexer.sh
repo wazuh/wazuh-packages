@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Gets the absolute path of the script, used to load the common.sh file
+function get_absolute_path() {
+    RELATIVE_PATH="$(dirname -- "${BASH_SOURCE[0]}")"
+    ABSOLUTE_PATH="$(cd -- "$RELATIVE_PATH" && pwd)"
+}
+
 get_absolute_path
 . $ABSOLUTE_PATH/common.sh
 check_system
