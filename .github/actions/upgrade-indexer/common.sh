@@ -4,19 +4,9 @@ FILES_NEW="/etc/wazuh-indexer/opensearch-security"
 declare -A files_old
 declare -A files_new
 PACKAGE_NAME=$1
+MAJOR_MINOR=$(($2))
 
 EQUAL=true
-
-# Checks the version of Wazuh with 4.3 version, where path is different.
-#function check_version() {
-#    if [ $WAZUH_VERSION -gt $REFERENCE_VERSION ]; then
-#        # same path
-#        FILES_OLD=$FILES_NEW
-#        echo "New path detected (/etc)"
-#    else
-#        echo "Old path detected (/usr/share)"
-#    fi
-#}
 
 # Check the system to differ between DEB and RPM
 function check_system() {
@@ -27,6 +17,17 @@ function check_system() {
         sys_type="deb"
     fi
 
+}
+
+# Checks the version of Wazuh with 4.3 version, where path is different.
+function check_version() {
+    if [ $WAZUH_VERSION -gt $REFERENCE_VERSION ]; then
+        # same path
+        FILES_OLD=$FILES_NEW
+        echo "New path detected (/etc)"
+    else
+        echo "Old path detected (/usr/share)"
+    fi
 }
 
 # Compare the arrays, the loop ends if a different checksum is detected
