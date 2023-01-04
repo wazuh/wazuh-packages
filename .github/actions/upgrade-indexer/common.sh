@@ -4,7 +4,7 @@ FILES_NEW="/etc/wazuh-indexer/opensearch-security"
 declare -A files_old
 declare -A files_new
 PACKAGE_NAME="$1"
-MAJOR_MINOR_RELEASE=$(("$2"))
+MAJOR_MINOR_RELEASE=$(($2))
 REFERENCE_VERSION=43
 
 EQUAL=true
@@ -18,6 +18,7 @@ function check_system() {
         sys_type="deb"
     else
         echo "Error: could not detect the system"
+        exit 1
     fi
 
 }
