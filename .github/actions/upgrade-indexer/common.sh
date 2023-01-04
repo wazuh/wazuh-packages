@@ -70,7 +70,7 @@ function read_files() {
         exit 1
     fi
 
-    for f in "$1/*"; do
+    for f in $1/*; do
         if [ -f "$f" ]; then
             echo "Processing $f file..."
 

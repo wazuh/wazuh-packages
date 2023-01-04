@@ -26,9 +26,6 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: 1850-wazuh-indexer-preserve-config-files-upon-upgrade-master
-      - uses: actions/checkout@v3
-        with:
-          ref: 1850-wazuh-indexer-preserve-config-files-upon-upgrade-master
       - name: Build wazuh-indexer issue-branch package and set env variable
         working-directory: ./stack/indexer/deb
         run: |
