@@ -119,7 +119,7 @@ function installCommon_changePasswordApi() {
                 passwords_changeDashboardApiPassword "${password}"
         fi
     fi
-    
+
 }
 
 function installCommon_createCertificates() {
@@ -211,7 +211,7 @@ function installCommon_changePasswords() {
         passwords_getNetworkHost
         passwords_generateHash
     fi
-    
+
     passwords_changePassword
 
     if [ -n "${start_indexer_cluster}" ] || [ -n "${AIO}" ]; then
@@ -263,7 +263,7 @@ function installCommon_getPass() {
 function installCommon_installPrerequisites() {
 
     if [ "${sys_type}" == "yum" ]; then
-        dependencies=( curl libcap tar gnupg openssl )
+        dependencies=( curl libcap tar gnupg openssl lsof )
         not_installed=()
         for dep in "${dependencies[@]}"; do
             if [ "${dep}" == "openssl" ]; then
@@ -289,7 +289,7 @@ function installCommon_installPrerequisites() {
 
     elif [ "${sys_type}" == "apt-get" ]; then
         eval "apt-get update -q ${debug}"
-        dependencies=( apt-transport-https curl libcap2-bin tar software-properties-common gnupg openssl )
+        dependencies=( apt-transport-https curl libcap2-bin tar software-properties-common gnupg openssl lsof )
         not_installed=()
 
         for dep in "${dependencies[@]}"; do
