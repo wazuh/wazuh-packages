@@ -9,13 +9,13 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-readonly base_path="$(dirname "$(readlink -f "$0")")"
-readonly resources_installer="${base_path}/install_functions"
-readonly resources_config="${base_path}/config"
-readonly resources_certs="${base_path}/cert_tool"
-readonly resources_passwords="${base_path}/passwords_tool"
-readonly resources_common="${base_path}/common_functions"
-readonly resources_download="${base_path}/downloader"
+readonly base_path_builder="$(dirname "$(readlink -f "$0")")"
+readonly resources_installer="${base_path_builder}/install_functions"
+readonly resources_config="${base_path_builder}/config"
+readonly resources_certs="${base_path_builder}/cert_tool"
+readonly resources_passwords="${base_path_builder}/passwords_tool"
+readonly resources_common="${base_path_builder}/common_functions"
+readonly resources_download="${base_path_builder}/downloader"
 readonly source_branch="4.4"
 
 function getHelp() {
@@ -47,7 +47,10 @@ function getHelp() {
 }
 
 function buildInstaller() {
-    output_script_path="${base_path}/wazuh-install.sh"
+
+    checkFilebeatURL
+
+    output_script_path="${base_path_builder}/wazuh-install.sh"
 
     ## Create installer script
     echo -n > "${output_script_path}"
@@ -84,7 +87,7 @@ function buildInstaller() {
     echo >> "${output_script_path}"
     grep -Ev '^#|^\s*$' ${resources_installer}/installVariables.sh >> "${output_script_path}"
     echo >> "${output_script_path}"
-    
+
     ## Configuration files as variables
     configuration_files=($(find "${resources_config}" -type f))
     config_file_name=($(eval "echo "${configuration_files[@]}" | sed 's|${resources_config}||g;s|/|_|g;s|.yml||g'"))
@@ -131,7 +134,7 @@ function buildInstaller() {
 }
 
 function buildPasswordsTool() {
-    output_script_path="${base_path}/wazuh-passwords-tool.sh"
+    output_script_path="${base_path_builder}/wazuh-passwords-tool.sh"
 
     ## Create installer script
     echo -n > "${output_script_path}"
@@ -171,7 +174,7 @@ function buildPasswordsTool() {
 }
 
 function buildCertsTool() {
-    output_script_path="${base_path}/wazuh-certs-tool.sh"
+    output_script_path="${base_path_builder}/wazuh-certs-tool.sh"
 
     ## Create installer script
     echo -n > "${output_script_path}"
@@ -252,6 +255,9 @@ function builder_main() {
     if [ -n "${installer}" ]; then
         buildInstaller
         chmod 500 ${output_script_path}
+        if [ -n "${change_filebeat_url}" ]; then
+            sed -i -E "s|(https.+)master(.+wazuh-template.json)|\1\\$\\{wazuh_major\\}\2|"  "${resources_installer}/installVariables.sh"
+        fi
     fi
 
     if [ -n "${passwordsTool}" ]; then
@@ -262,6 +268,29 @@ function builder_main() {
     if [ -n "${certTool}" ]; then
         buildCertsTool
         chmod 644 ${output_script_path}
+    fi
+}
+
+function checkFilebeatURL() {
+
+    # Import variables
+    eval "$(grep -E "filebeat_wazuh_template=" "unattended_installer/install_functions/installVariables.sh")"
+    new_filebeat_url="https://raw.githubusercontent.com/wazuh/wazuh/master/extensions/elasticsearch/7.x/wazuh-template.json"
+
+    # Get the response of the URL and check it
+    response=$(curl --write-out '%{http_code}' --silent --output /dev/null $filebeat_wazuh_template)
+    if [ "${response}" != "200" ]; then
+       	response=$(curl --write-out '%{http_code}' --silent --output /dev/null $new_filebeat_url)
+
+        # Display error if both URLs do not get the resource
+        if [ "${response}" != "200" ]; then
+            echo -e "Error: Could not get the Filebeat Wazuh template. "
+        # If matches, replace the variable of installVariables to the new one
+        else
+            echo -e "Changing Filebeat URL..."
+            sed -i -E "s|filebeat_wazuh_template=.*|filebeat_wazuh_template=\"${new_filebeat_url}\"|g" "${resources_installer}/installVariables.sh"
+            change_filebeat_url=1
+        fi
     fi
 }
 

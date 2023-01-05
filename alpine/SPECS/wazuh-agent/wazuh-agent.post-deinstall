@@ -1,7 +1,5 @@
 #!/bin/sh
 
-set -ex
-
 # add something which happens after deinstall
 
 directory_base="DIRECTORY_BASE"

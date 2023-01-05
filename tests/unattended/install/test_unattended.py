@@ -175,7 +175,7 @@ def test_check_wazuh_manager_apid():
 
 @pytest.mark.wazuh_cluster
 def test_check_wazuh_manager_clusterd():
-    assert check_call("ps -xa | grep wazuh-clusterd | grep -v grep", shell=True) != ""
+    assert check_call("ps -xa | grep clusterd.py | grep -v grep", shell=True) != ""
 
 @pytest.mark.wazuh
 def test_check_filebeat_process():
