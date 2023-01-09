@@ -98,7 +98,7 @@ function dashboard_initialize() {
         print_ip="${nodes_dashboard_ip}"
     fi
 
-    until [ "$(curl -XGET https://"${nodes_dashboard_ip}"/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null)" -eq "200" ] || [ "${j}" -eq "12" ]; do
+    until [ "$(curl -XGET https://"${nodes_dashboard_ip}"/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null --max-time 300 --retry 5 --retry-delay 5 --retry-max-time 300 --retry-all-errors)" -eq "200" ] || [ "${j}" -eq "12" ]; do
         sleep 10
         j=$((j+1))
     done
@@ -130,7 +130,7 @@ function dashboard_initialize() {
         common_logger "${flag}" "Cannot connect to Wazuh dashboard."
 
         for i in "${!indexer_node_ips[@]}"; do
-            curl=$(curl -XGET https://"${indexer_node_ips[i]}":9200/ -uadmin:"${u_pass}" -k -s)
+            curl=$(curl -XGET https://"${indexer_node_ips[i]}":9200/ -uadmin:"${u_pass}" -k -s --max-time 300 --retry 5 --retry-delay 5 --retry-max-time 300 --retry-all-errors)
             exit_code=${PIPESTATUS[0]}
             if [[ "${exit_code}" -eq "7" ]]; then
                 failed_connect=1
@@ -164,7 +164,7 @@ function dashboard_initializeAIO() {
 
     common_logger "Initializing Wazuh dashboard web application."
     installCommon_getPass "admin"
-    until [ "$(curl -XGET https://localhost/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null)" -eq "200" ] || [ "${i}" -eq 12 ]; do
+    until [ "$(curl -XGET https://localhost/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null --max-time 300 --retry 5 --retry-delay 5 --retry-max-time 300 --retry-all-errors)" -eq "200" ] || [ "${i}" -eq 12 ]; do
         sleep 10
         i=$((i+1))
     done

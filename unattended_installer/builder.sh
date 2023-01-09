@@ -84,7 +84,7 @@ function buildInstaller() {
     echo >> "${output_script_path}"
     grep -Ev '^#|^\s*$' ${resources_installer}/installVariables.sh >> "${output_script_path}"
     echo >> "${output_script_path}"
-    
+
     ## Configuration files as variables
     configuration_files=($(find "${resources_config}" -type f))
     config_file_name=($(eval "echo "${configuration_files[@]}" | sed 's|${resources_config}||g;s|/|_|g;s|.yml||g'"))
@@ -112,7 +112,7 @@ function buildInstaller() {
 
     ## dist-detect.sh
     echo "function dist_detect() {" >> "${output_script_path}"
-    curl -s "https://raw.githubusercontent.com/wazuh/wazuh/${source_branch}/src/init/dist-detect.sh" | sed '/^#/d' >> "${output_script_path}"
+    curl -s "https://raw.githubusercontent.com/wazuh/wazuh/${source_branch}/src/init/dist-detect.sh" --max-time 300 --retry 5 --retry-delay 5 --retry-max-time 300 --retry-all-errors | sed '/^#/d' >> "${output_script_path}"
     echo "}" >> "${output_script_path}"
 
     ## Common functions
@@ -262,6 +262,29 @@ function builder_main() {
     if [ -n "${certTool}" ]; then
         buildCertsTool
         chmod 644 ${output_script_path}
+    fi
+}
+
+function checkFilebeatURL() {
+
+    # Import variables
+    eval "$(grep -E "filebeat_wazuh_template=" "unattended_installer/install_functions/installVariables.sh")"
+    new_filebeat_url="https://raw.githubusercontent.com/wazuh/wazuh/master/extensions/elasticsearch/7.x/wazuh-template.json"
+
+    # Get the response of the URL and check it
+    response=$(curl --write-out '%{http_code}' --silent --output /dev/null $filebeat_wazuh_template --max-time 300 --retry 5 --retry-delay 5 --retry-max-time 300 --retry-all-errors)
+    if [ "${response}" != "200" ]; then
+       	response=$(curl --write-out '%{http_code}' --silent --output /dev/null $new_filebeat_url --max-time 300 --retry 5 --retry-delay 5 --retry-max-time 300 --retry-all-errors)
+
+        # Display error if both URLs do not get the resource
+        if [ "${response}" != "200" ]; then
+            echo -e "Error: Could not get the Filebeat Wazuh template. "
+        # If matches, replace the variable of installVariables to the new one
+        else
+            echo -e "Changing Filebeat URL..."
+            sed -i -E "s|filebeat_wazuh_template=.*|filebeat_wazuh_template=\"${new_filebeat_url}\"|g" "${resources_installer}/installVariables.sh"
+            change_filebeat_url=1
+        fi
     fi
 }
 
