@@ -12,7 +12,7 @@ GROUP="wazuh"
 USER="wazuh"
 DIR="/Library/Ossec"
 LAUNCH_DAEMON_PATH="/Library/LaunchDaemons"
-STARTUP_ITEMS_PATH="/Library/StartupItems"
+LOGIN_ITEM_PATH="/Library/StartupItems/WAZUH"
 INSTALLATION_SCRIPTS_DIR="${DIR}/packages_files/agent_installation_scripts"
 SCA_BASE_DIR="${INSTALLATION_SCRIPTS_DIR}/sca"
 
@@ -65,14 +65,15 @@ chown root:wheel ${LAUNCH_DAEMON_PATH}com.wazuh.agent.plist
 chmod 644 ${LAUNCH_DAEMON_PATH}com.wazuh.agent.plist
 
 
-chown root:wheel ${STARTUP_ITEMS_PATH}/WAZUH
+chown root:wheel ${LOGIN_ITEM_PATH}
 
-chown root:wheel ${STARTUP_ITEMS_PATH}/WAZUH/StartupParameters.plist
-chmod 644 ${STARTUP_ITEMS_PATH}/WAZUH/StartupParameters.plist
+chown root:wheel ${LOGIN_ITEM_PATH}/StartupParameters.plist
+chmod 644 ${LOGIN_ITEM_PATH}/StartupParameters.plist
 
 
-chown root:wheel ${STARTUP_ITEMS_PATH}/WAZUH/WAZUH
-chmod 755 ${STARTUP_ITEMS_PATH}/WAZUH/WAZUH
+tar -xf "${LOGIN_ITEM_PATH}/Wazuh.tar" -C "${LOGIN_ITEM_PATH}"
+chown root:wheel ${LOGIN_ITEM_PATH}/Wazuh
+chmod 755 ${LOGIN_ITEM_PATH}/Wazuh
 
 
 chmod 770 ${DIR}/.ssh

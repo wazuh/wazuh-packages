@@ -109,6 +109,8 @@ function sign_binaries() {
         for bin in $(find ${INSTALLATION_PATH} -exec file {} \; | grep bit | cut -d: -f1); do
             codesign -f --sign "${CERT_APPLICATION_ID}" --entitlements "${ENTITLEMENTS_PATH}" --deep --timestamp  --options=runtime --verbose=4 "${bin}"
         done
+        codesign -f --sign "${CERT_APPLICATION_ID}" --identifier "com.wazuh" --entitlements "${ENTITLEMENTS_PATH}" --deep --timestamp --options=runtime --verbose "${LOGIN_ITEM_PATH}/Wazuh"
+        tar -cf "${LOGIN_ITEM_PATH}/Wazuh.tar" "${LOGIN_ITEM_PATH}/Wazuh"
         security -v lock-keychain "${KEYCHAIN}" > /dev/null
     fi
 }
