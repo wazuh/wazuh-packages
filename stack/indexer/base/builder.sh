@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 # Wazuh-indexer base builder
 # Copyright (C) 2022, Wazuh Inc.
 #
@@ -10,16 +12,21 @@
 
 set -e
 
-opensearch_version="${1}"
-future="${2}"
-revision="${3}"
-reference="${4}"
-base_dir=/tmp/output/wazuh-indexer-base
+architecture="$1"
+revision="$2"
+future="$3"
+reference="$4"
+opensearch_version="2.4.1"
+base_dir=/opt/wazuh-indexer-base
 
 # -----------------------------------------------------------------------------
 
 if [ -z "${revision}" ]; then
     revision="1"
+fi
+
+if [ "${architecture}" = "x86_64" ] || [ "${architecture}" = "amd64" ]; then
+    architecture="x64"
 fi
 
 # Including files
@@ -40,9 +47,9 @@ fi
 # -----------------------------------------------------------------------------
 
 mkdir -p /tmp/output
-cd /tmp/output
+cd /opt
 
-curl -sL https://artifacts.opensearch.org/releases/bundle/opensearch/"${opensearch_version}"/opensearch-"${opensearch_version}"-linux-x64.tar.gz | tar xz
+curl -sL https://artifacts.opensearch.org/releases/bundle/opensearch/"${opensearch_version}"/opensearch-"${opensearch_version}"-linux-${architecture}.tar.gz | tar xz
 
 # Remove unnecessary files and set up configuration
 mv opensearch-"${opensearch_version}" "${base_dir}"
@@ -51,14 +58,15 @@ find -type l -exec rm -rf {} \;
 find -name "*.bat" -exec rm -rf {} \;
 rm -rf README.md manifest.yml opensearch-tar-install.sh logs
 sed -i 's|OPENSEARCH_DISTRIBUTION_TYPE=tar|OPENSEARCH_DISTRIBUTION_TYPE=rpm|g' bin/opensearch-env
+sed -i 's|"$OPENSEARCH_HOME"/config|/etc/wazuh-indexer|g' bin/opensearch-env 
 cp -r /root/stack/indexer/base/files/systemd-entrypoint bin/
-cp -r /root/stack/indexer/base/files/etc ./
-cp -r /root/stack/indexer/base/files/usr ./
-cp -r ./config/log4j2.properties ./etc/wazuh-indexer/
-cp -r ./config/opensearch-reports-scheduler ./etc/wazuh-indexer/
-cp -r ./config/opensearch-observability ./etc/wazuh-indexer/
-cp -r ./config/jvm.options.d ./etc/wazuh-indexer/
+mkdir -p ./etc/wazuh-indexer/
+cp -r ./config/* ./etc/wazuh-indexer/
 rm -rf ./config
+cp -r /root/stack/indexer/base/files/etc/wazuh-indexer/* ./etc/wazuh-indexer/
+cp -r /root/stack/indexer/base/files/etc/sysconfig ./etc/
+cp -r /root/stack/indexer/base/files/etc/init.d ./etc/
+cp -r /root/stack/indexer/base/files/usr ./
 rm -rf ./plugins/opensearch-security/tools/install_demo_configuration.sh
 cp /root/VERSION .
 
@@ -80,6 +88,6 @@ rm -rf OpenSearch
 # -----------------------------------------------------------------------------
 
 # Base output
-cd /tmp/output
-tar -Jcvf wazuh-indexer-base-"${version}"-"${revision}"-linux-x64.tar.xz wazuh-indexer-base
-rm -rf "${base_dir}"
+cd /opt
+tar -Jcvf wazuh-indexer-base-"${version}"-"${revision}"-linux-${architecture}.tar.xz wazuh-indexer-base
+cp wazuh-indexer-base-"${version}"-"${revision}"-linux-${architecture}.tar.xz /tmp/output

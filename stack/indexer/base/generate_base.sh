@@ -11,12 +11,11 @@
 set -e
 
 reference=""
-opensearch_version="1.2.4"
-
 current_path="$( cd $(dirname $0) ; pwd -P )"
 outdir="${current_path}/output"
 dockerfile_path="${current_path}/docker"
 container_name="indexer_base_builder"
+architecture="x64"
 future="no"
 revision="1"
 
@@ -49,11 +48,11 @@ build_base() {
     # Build the RPM package with a Docker container
     if [ "${reference}" ];then
         docker run -t --rm -v ${outdir}/:/tmp/output:Z \
-            ${container_name} ${opensearch_version} ${future} ${revision} ${reference} || return 1
+            ${container_name} ${architecture} ${revision} ${future} ${reference} || return 1
     else
         docker run -t --rm -v ${outdir}/:/tmp/output:Z \
             -v ${current_path}/../../..:/root:Z \
-            ${container_name} ${opensearch_version} ${future} ${revision} || return 1
+            ${container_name} ${architecture} ${revision} ${future} || return 1
     fi
 
     echo "Base file $(ls -Art ${outdir} | tail -n 1) added to ${outdir}."
@@ -68,7 +67,6 @@ help() {
     echo "Usage: $0 [OPTIONS]"
     echo
     echo "    -s, --store <path>         [Optional] Set the destination path of package. By default, an output folder will be created."
-    echo "    --version <version>   [Optional] OpenSearch version, by default ${opensearch_version}"
     echo "    --reference <ref>     [Optional] wazuh-packages branch or tag"
     echo "    --future              [Optional] Build test future package 99.99.0 Used for development purposes."
     echo "    -r, --revision <rev>  [Optional] Package revision. By default ${revision}"
@@ -89,14 +87,6 @@ main() {
         "-s"|"--store")
             if [ -n "${2}" ]; then
                 outdir="${2}"
-                shift 2
-            else
-                help 1
-            fi
-            ;;
-        "--version")
-            if [ -n "${2}" ]; then
-                opensearch_version="${2}"
                 shift 2
             else
                 help 1

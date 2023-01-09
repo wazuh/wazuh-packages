@@ -15,14 +15,15 @@ RUN yum install -y \
     gzip \
     autoconf \
     automake \
-    libtool
+    libtool \
+    python3-devel \
+    python3-pip \
+    jq
 
 RUN git clone https://github.com/google/brotli.git
 
 RUN cd brotli && ./bootstrap && ./configure --prefix=/usr --bindir=/usr/bin --sbindir=/usr/sbin --libexecdir=/usr/lib64/brotli --libdir=/usr/lib64/brotli --datarootdir=/usr/share --mandir=/usr/share/man/man1 --docdir=/usr/share/doc \
     && make && make install
-
-    
 
 # Add the scripts to build the RPM package
 ADD builder.sh /usr/local/bin/builder

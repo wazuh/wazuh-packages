@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# add something which happens after upgrade
+
+directory_base="DIRECTORY_BASE"
+
+cp -a ${directory_base}/tmp/etc/* ${directory_base}/etc/
+rm -rf ${directory_base}/tmp/etc
+
+if [ -f ${directory_base}/tmp/wazuh.restart ]; then
+  rm -f ${directory_base}/tmp/wazuh.restart
+  ${directory_base}/bin/wazuh-control restart > /dev/null 2>&1
+fi
+
+exit 0

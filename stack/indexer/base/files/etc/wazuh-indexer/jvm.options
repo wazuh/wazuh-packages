@@ -33,19 +33,19 @@
 ################################################################
 
 ## GC configuration
-8-13:-XX:+UseConcMarkSweepGC
-8-13:-XX:CMSInitiatingOccupancyFraction=75
-8-13:-XX:+UseCMSInitiatingOccupancyOnly
+8-10:-XX:+UseConcMarkSweepGC
+8-10:-XX:CMSInitiatingOccupancyFraction=75
+8-10:-XX:+UseCMSInitiatingOccupancyOnly
 
 ## G1GC Configuration
 # NOTE: G1 GC is only supported on JDK version 10 or later
 # to use G1GC, uncomment the next two lines and update the version on the
 # following three lines to your version of the JDK
-# 10-13:-XX:-UseConcMarkSweepGC
-# 10-13:-XX:-UseCMSInitiatingOccupancyOnly
-14-:-XX:+UseG1GC
-14-:-XX:G1ReservePercent=25
-14-:-XX:InitiatingHeapOccupancyPercent=30
+# 10:-XX:-UseConcMarkSweepGC
+# 10:-XX:-UseCMSInitiatingOccupancyOnly
+11-:-XX:+UseG1GC
+11-:-XX:G1ReservePercent=25
+11-:-XX:InitiatingHeapOccupancyPercent=30
 
 ## JVM temporary directory
 -Djava.io.tmpdir=${OPENSEARCH_TMPDIR}
@@ -58,7 +58,7 @@
 
 # specify an alternative path for heap dumps; ensure the directory exists and
 # has sufficient space
--XX:HeapDumpPath=data
+-XX:HeapDumpPath=/var/lib/wazuh-indexer
 
 # specify an alternative path for JVM fatal error logs
 -XX:ErrorFile=/var/log/wazuh-indexer/hs_err_pid%p.log
@@ -76,3 +76,11 @@
 # JDK 9+ GC logging
 9-:-Xlog:gc*,gc+age=trace,safepoint:file=/var/log/wazuh-indexer/gc.log:utctime,pid,tags:filecount=32,filesize=64m
 
+# Explicitly allow security manager (https://bugs.openjdk.java.net/browse/JDK-8270380)
+18-:-Djava.security.manager=allow
+
+## OpenSearch Performance Analyzer
+-Dclk.tck=100
+-Djdk.attach.allowAttachSelf=true
+-Djava.security.policy=file:///etc/wazuh-indexer/opensearch-performance-analyzer/opensearch_security.policy
+--add-opens=jdk.attach/sun.tools.attach=ALL-UNNAMED

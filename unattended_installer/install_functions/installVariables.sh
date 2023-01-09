@@ -7,8 +7,8 @@
 # Foundation.
 
 ## Package vars
-readonly wazuh_major="4.3"
-readonly wazuh_version="4.3.11"
+readonly wazuh_major="4.5"
+readonly wazuh_version="4.5.0"
 readonly filebeat_version="7.10.2"
 readonly wazuh_install_vesion="0.1"
 

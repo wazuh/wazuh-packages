@@ -31,6 +31,8 @@ ExclusiveOS: linux
 %global PID_DIR /run/%{name}
 %global INSTALL_DIR /usr/share/%{name}
 %global DASHBOARD_FILE wazuh-dashboard-base-%{version}-%{release}-linux-x64.tar.xz
+%define _source_payload w9.gzdio
+%define _binary_payload w9.gzdio
 
 # -----------------------------------------------------------------------------
 
@@ -42,12 +44,8 @@ Wazuh dashboard is a user interface and visualization tool for security-related 
 
 %prep
 
-# Set up required files
-if [ "%{_base}" = "s3" ];then
-    curl -kOL https://packages-dev.wazuh.com/stack/dashboard/base/%{DASHBOARD_FILE}
-else
-    cp /root/output/%{DASHBOARD_FILE} ./
-fi
+cp /tmp/%{DASHBOARD_FILE} ./
+
 groupadd %{GROUP}
 useradd -g %{GROUP} %{USER}
 
@@ -60,10 +58,11 @@ tar -xf %{DASHBOARD_FILE}
 # -----------------------------------------------------------------------------
 
 %install
+
 mkdir -p %{buildroot}%{CONFIG_DIR}
 mkdir -p %{buildroot}%{INSTALL_DIR}
 mkdir -p %{buildroot}/etc/systemd/system
-mkdir -p %{buildroot}/etc/init.d
+mkdir -p %{buildroot}%{_initrddir}
 mkdir -p %{buildroot}/etc/default
 
 cp wazuh-dashboard-base/etc/node.options %{buildroot}%{CONFIG_DIR}
@@ -72,16 +71,13 @@ cp wazuh-dashboard-base/VERSION %{buildroot}%{INSTALL_DIR}
 
 mv wazuh-dashboard-base/* %{buildroot}%{INSTALL_DIR}
 
-
 # Set custom welcome styles
 
 mkdir -p %{buildroot}%{INSTALL_DIR}/config
 
 cp %{buildroot}%{INSTALL_DIR}/etc/services/wazuh-dashboard.service %{buildroot}/etc/systemd/system/wazuh-dashboard.service
-cp %{buildroot}%{INSTALL_DIR}/etc/services/wazuh-dashboard %{buildroot}/etc/init.d/wazuh-dashboard
 cp %{buildroot}%{INSTALL_DIR}/etc/services/default %{buildroot}/etc/default/wazuh-dashboard
 
-chmod 640 %{buildroot}/etc/init.d/wazuh-dashboard
 chmod 640 %{buildroot}/etc/systemd/system/wazuh-dashboard.service
 chmod 640 %{buildroot}/etc/default/wazuh-dashboard
 
@@ -90,19 +86,19 @@ rm -rf %{buildroot}%{INSTALL_DIR}/etc/
 find %{buildroot}%{INSTALL_DIR} -exec chown %{USER}:%{GROUP} {} \;
 find %{buildroot}%{CONFIG_DIR} -exec chown %{USER}:%{GROUP} {} \;
 
-chown %{USER}:%{GROUP} %{buildroot}/etc/systemd/system/wazuh-dashboard.service
-chown %{USER}:%{GROUP} %{buildroot}/etc/init.d/wazuh-dashboard
+chown root:root %{buildroot}/etc/systemd/system/wazuh-dashboard.service
 
 if [ "%{version}" = "99.99.0" ];then
-    runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/futures/ui/dashboard/wazuh-99.99.0-1.zip"
+    runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/futures/ui/dashboard/wazuh-99.99.0-%{release}.zip"
 else
-    runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-%{version}-%{release}.zip"
+    runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install %{_url}"
 fi
 
 find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -exec chown %{USER}:%{GROUP} {} \;
 find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -type f -perm 644 -exec chmod 640 {} \;
 find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -type f -perm 755 -exec chmod 750 {} \;
 find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -type d -exec chmod 750 {} \;
+find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -type f -perm 744 -exec chmod 740 {} \;
 
 # -----------------------------------------------------------------------------
 
@@ -141,6 +137,7 @@ if [ ! -f %{INSTALLATION_DIR}/config/opensearch_dashboards.keystore ]; then
   runuser %{USER} --shell="/bin/bash" --command="echo kibanaserver | %{INSTALL_DIR}/bin/opensearch-dashboards-keystore add opensearch.username --stdin" > /dev/null 2>&1
   runuser %{USER} --shell="/bin/bash" --command="echo kibanaserver | %{INSTALL_DIR}/bin/opensearch-dashboards-keystore add opensearch.password --stdin" > /dev/null 2>&1
 fi
+
 # -----------------------------------------------------------------------------
 
 %preun
@@ -205,19 +202,14 @@ rm -fr %{buildroot}
 
 # -----------------------------------------------------------------------------
 
-%changelog
-* Mon Jan 10 2022 support <info@wazuh.com> - %{version}
-- More info: https://documentation.wazuh.com/current/release-notes/
-
-# -----------------------------------------------------------------------------
-
 %files
 %defattr(-,%{USER},%{GROUP})
+%dir %attr(750, %{USER}, %{GROUP}) %{CONFIG_DIR}
 
-%attr(0750, %{USER}, %{GROUP}) "/etc/init.d/wazuh-dashboard"
 %attr(0750, %{USER}, %{GROUP}) "/etc/default/wazuh-dashboard"
 %config(noreplace) %attr(0640, %{USER}, %{GROUP}) "%{CONFIG_DIR}/opensearch_dashboards.yml"
 %attr(440, %{USER}, %{GROUP}) %{INSTALL_DIR}/VERSION
+%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}
 %dir %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/src"
 %dir %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/src/core"
 %attr(-, %{USER}, %{GROUP}) "%{INSTALL_DIR}/src/core/*"
@@ -404,4 +396,32 @@ rm -fr %{buildroot}
 %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/bin/opensearch-dashboards-keystore"
 %dir %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/config"
 %attr(640, %{USER}, %{GROUP}) "%{CONFIG_DIR}/node.options"
-%attr(640, %{USER}, %{GROUP}) "/etc/systemd/system/wazuh-dashboard.service"
+%attr(640, root, root) "/etc/systemd/system/wazuh-dashboard.service"
+
+%changelog
+* Fri May 05 2023 support <info@wazuh.com> - %{version}
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Wed Jan 18 2023 support <info@wazuh.com> - 4.4.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Thu Nov 10 2022 support <info@wazuh.com> - 4.3.10
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Oct 03 2022 support <info@wazuh.com> - 4.3.9
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Sep 19 2022 support <info@wazuh.com> - 4.3.8
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Aug 08 2022 support <info@wazuh.com> - 4.3.7
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Thu Jul 07 2022 support <info@wazuh.com> - 4.3.6
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Wed Jun 29 2022 support <info@wazuh.com> - 4.3.5
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Tue Jun 07 2022 support <info@wazuh.com> - 4.3.4
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Tue May 31 2022 support <info@wazuh.com> - 4.3.3
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon May 30 2022 support <info@wazuh.com> - 4.3.2
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Wed May 18 2022 support <info@wazuh.com> - 4.3.1
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Thu May 05 2022 support <info@wazuh.com> - 4.3.0
+- More info: https://documentation.wazuh.com/current/release-notes/

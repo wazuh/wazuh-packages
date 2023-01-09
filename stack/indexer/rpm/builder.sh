@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 # Wazuh package builder
 # Copyright (C) 2021, Wazuh Inc.
 #
@@ -8,15 +10,14 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-set -ex
+set -e
 
 # Script parameters to build the package
 target="wazuh-indexer"
 architecture=$1
 revision=$2
 future=$3
-base_location=$4
-reference=$5
+reference=$4
 directory_base="/usr/share/wazuh-indexer"
 
 if [ -z "${revision}" ]; then
@@ -60,7 +61,6 @@ cd ${build_dir} && tar czf "${rpm_build_dir}/SOURCES/${pkg_name}.tar.gz" "${pkg_
 # Building RPM
 /usr/bin/rpmbuild --define "_topdir ${rpm_build_dir}" --define "_version ${version}" \
     --define "_release ${revision}" --define "_localstatedir ${directory_base}" \
-    --define "_base ${base_location}" \
     --target ${architecture} -ba ${rpm_build_dir}/SPECS/${pkg_name}.spec
 
 cd ${pkg_path} && sha512sum ${rpm_file} > /tmp/${rpm_file}.sha512
