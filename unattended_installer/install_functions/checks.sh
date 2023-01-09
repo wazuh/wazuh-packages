@@ -311,7 +311,7 @@ function checks_ports() {
     ports=("$@")
 
     if command -v lsof > /dev/null; then
-        port_command="lsof -i:"
+        port_command="lsof -sTCP:LISTEN  -i:"
     else
         common_logger -w "Cannot find lsof. Port checking will be skipped."
         return 1
