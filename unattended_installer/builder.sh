@@ -112,7 +112,7 @@ function buildInstaller() {
 
     ## dist-detect.sh
     echo "function dist_detect() {" >> "${output_script_path}"
-    curl -s "https://raw.githubusercontent.com/wazuh/wazuh/${source_branch}/src/init/dist-detect.sh" --max-time 300 --retry 5 --retry-delay 5 --retry-max-time 300 --retry-all-errors | sed '/^#/d' >> "${output_script_path}"
+    curl -s "https://raw.githubusercontent.com/wazuh/wazuh/${source_branch}/src/init/dist-detect.sh" --max-time 300 --retry 5 --retry-delay 5 | sed '/^#/d' >> "${output_script_path}"
     echo "}" >> "${output_script_path}"
 
     ## Common functions
@@ -272,9 +272,9 @@ function checkFilebeatURL() {
     new_filebeat_url="https://raw.githubusercontent.com/wazuh/wazuh/master/extensions/elasticsearch/7.x/wazuh-template.json"
 
     # Get the response of the URL and check it
-    response=$(curl --write-out '%{http_code}' --silent --output /dev/null $filebeat_wazuh_template --max-time 300 --retry 5 --retry-delay 5 --retry-max-time 300 --retry-all-errors)
+    response=$(curl --write-out '%{http_code}' --silent --output /dev/null $filebeat_wazuh_template --max-time 300 --retry 5 --retry-delay 5)
     if [ "${response}" != "200" ]; then
-       	response=$(curl --write-out '%{http_code}' --silent --output /dev/null $new_filebeat_url --max-time 300 --retry 5 --retry-delay 5 --retry-max-time 300 --retry-all-errors)
+       	response=$(curl --write-out '%{http_code}' --silent --output /dev/null $new_filebeat_url --max-time 300 --retry 5 --retry-delay 5)
 
         # Display error if both URLs do not get the resource
         if [ "${response}" != "200" ]; then

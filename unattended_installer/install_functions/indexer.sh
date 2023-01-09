@@ -112,7 +112,7 @@ function indexer_initialize() {
 
     common_logger "Initializing Wazuh indexer cluster security settings."
     i=0
-    until curl -XGET https://"${indexer_node_ips[pos]}":9200/ -uadmin:admin -k --max-time 120 --retry 5 --retry-delay 5 --retry-max-time 300 --retry-all-errors --silent --output /dev/null || [ "${i}" -eq 12 ]; do
+    until curl -XGET https://"${indexer_node_ips[pos]}":9200/ -uadmin:admin -k --max-time 120 --retry 5 --retry-delay 5 --silent --output /dev/null || [ "${i}" -eq 12 ]; do
         sleep 10
         i=$((i+1))
     done
@@ -162,12 +162,12 @@ function indexer_startCluster() {
 
     retries=0
     for ip_to_test in "${indexer_node_ips[@]}"; do
-        eval "curl -XGET https://"${ip_to_test}":9200/ -k -s -o /dev/null --max-time 300 --retry 5 --retry-delay 5 --retry-max-time 300 --retry-all-errors"
+        eval "curl -XGET https://"${ip_to_test}":9200/ -k -s -o /dev/null --max-time 300 --retry 5 --retry-delay 5"
         e_code="${PIPESTATUS[0]}"
         until [ "${e_code}" -ne 7 ] || [ "${retries}" -eq 12 ]; do
             sleep 10
             retries=$((retries+1))
-            eval "curl -XGET https://"${ip_to_test}":9200/ -k -s -o /dev/null --max-time 300 --retry 5 --retry-delay 5 --retry-max-time 300 --retry-all-errors"
+            eval "curl -XGET https://"${ip_to_test}":9200/ -k -s -o /dev/null --max-time 300 --retry 5 --retry-delay 5"
             e_code="${PIPESTATUS[0]}"
         done
         if [ ${retries} -eq 12 ]; then
@@ -183,7 +183,7 @@ function indexer_startCluster() {
     else
         common_logger "Wazuh indexer cluster security configuration initialized."
     fi
-    eval "curl --silent ${filebeat_wazuh_template} --max-time 300 --retry 5 --retry-delay 5 --retry-max-time 300 --retry-all-errors | curl -X PUT 'https://${indexer_node_ips[pos]}:9200/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k --silent ${debug} --max-time 300 --retry 5 --retry-delay 5 --retry-max-time 300 --retry-all-errors"
+    eval "curl --silent ${filebeat_wazuh_template} --max-time 300 --retry 5 --retry-delay 5 | curl -X PUT 'https://${indexer_node_ips[pos]}:9200/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k --silent ${debug} --max-time 300 --retry 5 --retry-delay 5 --retry-max-time 300 --retry-all-errors"
     if [  "${PIPESTATUS[0]}" != 0  ]; then
         common_logger -e "The wazuh-alerts template could not be inserted into the Wazuh indexer cluster."
         exit 1
