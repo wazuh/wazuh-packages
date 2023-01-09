@@ -52,19 +52,19 @@ function checks_arguments() {
         fi
 
         if [ -z "${wazuh_installed}" ] && [ -z "${wazuh_remaining_files}" ]; then
-            common_logger "Wazuh manager not found in the system so it was not uninstalled."
+            common_logger "Wazuh manager was not found in the system so it was not uninstalled."
         fi
 
         if [ -z "${filebeat_installed}" ] && [ -z "${filebeat_remaining_files}" ]; then
-            common_logger "Filebeat not found in the system so it was not uninstalled."
+            common_logger "Filebeat was not found in the system so it was not uninstalled."
         fi
 
         if [ -z "${indexer_installed}" ] && [ -z "${indexer_remaining_files}" ]; then
-            common_logger "Wazuh indexer not found in the system so it was not uninstalled."
+            common_logger "Wazuh indexer was not found in the system so it was not uninstalled."
         fi
 
         if [ -z "${dashboard_installed}" ] && [ -z "${dashboard_remaining_files}" ]; then
-            common_logger "Wazuh dashboard not found in the system so it was not uninstalled."
+            common_logger "Wazuh dashboard was not found in the system so it was not uninstalled."
         fi
 
     fi
