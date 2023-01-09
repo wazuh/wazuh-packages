@@ -55,7 +55,6 @@ mkdir -p ${rpm_build_dir}/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 pkg_name=${target}-${version}
 mkdir ${build_dir}/${pkg_name}
 
-
 # Including spec file
 if [ "${reference}" ];then
     curl -sL https://github.com/wazuh/wazuh-packages/tarball/${reference} | tar zx
@@ -64,7 +63,6 @@ if [ "${reference}" ];then
 else
     cp /root/stack/dashboard/rpm/${target}.spec ${rpm_build_dir}/SPECS/${pkg_name}.spec
 fi
-
 
 # Generating source tar.gz
 cd ${build_dir} && tar czf "${rpm_build_dir}/SOURCES/${pkg_name}.tar.gz" "${pkg_name}"

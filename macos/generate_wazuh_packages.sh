@@ -37,8 +37,8 @@ trap ctrl_c INT
 
 function clean_and_exit() {
     exit_code=$1
-    rm -f ${AGENT_PKG_FILE} ${CURRENT_PATH}/package_files/*.sh
     rm -rf "${SOURCES_DIRECTORY}"
+    rm "${CURRENT_PATH}"/specs/wazuh-agent.pkgproj-e
     ${CURRENT_PATH}/uninstall.sh
     exit ${exit_code}
 }

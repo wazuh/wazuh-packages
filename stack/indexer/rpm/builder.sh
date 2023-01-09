@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 # Wazuh package builder
 # Copyright (C) 2021, Wazuh Inc.
 #
