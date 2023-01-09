@@ -10,7 +10,7 @@ get_absolute_path
 check_system
 check_version
 
-echo "Installing old version of wazuh indexer..."
+echo "Installing old version of Wazuh Indexer..."
 if [ ${sys_type} == "deb" ]; then
     apt-get -y install wazuh-indexer
 elif [ ${sys_type} == "rpm" ]; then
@@ -25,7 +25,7 @@ read_files "${FILES_OLD}" "old"
 echo "Old files..."
 print_files "old"
 
-echo "Installing new version of wazuh indexer..."
+echo "Installing new version of Wazuh Indexer..."
 if [ ${sys_type} == "deb" ]; then
     apt-get install $PACKAGE_NAME
 elif [ ${sys_type} == "rpm" ]; then

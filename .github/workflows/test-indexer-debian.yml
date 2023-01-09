@@ -1,4 +1,4 @@
-name: Test Wazuh indexer upon upgrade - Debian
+name: Test Wazuh Indexer upon upgrade - Debian
 on:
   pull_request:
     paths:
@@ -24,13 +24,13 @@ jobs:
         run: echo "MAJOR_MINOR=$(echo $RELEASE_VERSION | cut -d '.' -f1-2 | sed "s|\.||")" >> $GITHUB_ENV
 
       - uses: actions/checkout@v3
-      - name: Build the Wazuh Indexer package and set env variable
+      - name: Build the Wazuh Indexer package and set enviroment variable
         working-directory: ./stack/indexer/deb
         run: |
           sudo ./build_package.sh
           echo "PACKAGE_NAME=$(ls ./output | grep .deb | head -n 1)" >> $GITHUB_ENV
 
-      - name: Display env variable and move new package
+      - name: Display enviroment variable and move new package
         working-directory: ./stack/indexer/deb
         run: |
           echo $PACKAGE_NAME

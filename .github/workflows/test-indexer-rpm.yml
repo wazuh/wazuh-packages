@@ -15,13 +15,13 @@ jobs:
         run: echo "MAJOR_MINOR=$(echo $RELEASE_VERSION | cut -d '.' -f1-2 | sed "s|\.||")" >> $GITHUB_ENV
 
       - uses: actions/checkout@v3
-      - name: Build the Wazuh indexer package and set env variable
+      - name: Build the Wazuh Indexer package and set enviroment variable
         working-directory: ./stack/indexer/rpm
         run: |
           sudo ./build_package.sh
           echo "PACKAGE_NAME=$(ls ./output | grep .rpm | head -n 1)" >> $GITHUB_ENV
 
-      - name: Display env variable and move new package
+      - name: Display enviroment variable and move new package
         working-directory: ./stack/indexer/rpm
         run: |
           echo $PACKAGE_NAME
