@@ -1,4 +1,4 @@
-name: Test Wazuh indexer upon upgrade - RPM
+name: Test Wazuh Indexer upon upgrade - RPM
 on:
   pull_request:
     paths:
@@ -9,13 +9,13 @@ jobs:
   Test-rpm-indexer-upgrade:
     runs-on: ubuntu-latest
     steps:
-      - name: Get the release version of Wazuh
+      - name: Get the release version of Wazuh (all components)
         run: echo "RELEASE_VERSION=$(jq -r 'map(select(.prerelease == false and .draft == false)) | .[] | .tag_name' <<< $(curl --silent https://api.github.com/repos/wazuh/wazuh/releases) | sed "s|v||g" | sort -rV | head -n 1)" >> $GITHUB_ENV
       - name: Get the major and minor of the release version
         run: echo "MAJOR_MINOR=$(echo $RELEASE_VERSION | cut -d '.' -f1-2 | sed "s|\.||")" >> $GITHUB_ENV
 
       - uses: actions/checkout@v3
-      - name: Build wazuh-indexer issue-branch package and set env variable
+      - name: Build the Wazuh indexer package and set env variable
         working-directory: ./stack/indexer/rpm
         run: |
           sudo ./build_package.sh

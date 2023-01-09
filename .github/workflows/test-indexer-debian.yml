@@ -11,20 +11,20 @@ jobs:
   Test-debian-indexer-upgrade:
     runs-on: ubuntu-latest
     steps:
-      - name: Download Wazuh indexer release package
+      - name: Download Wazuh Indexer release package
         run: |
           curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import && chmod 644 /usr/share/keyrings/wazuh.gpg
           echo "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main" | sudo tee -a /etc/apt/sources.list.d/wazuh.list
           sudo apt-get update
 
-      - name: Get the release version of Wazuh
+      - name: Get the release version of Wazuh (all components)
         run: echo "RELEASE_VERSION=$(jq -r 'map(select(.prerelease == false and .draft == false)) | .[] | .tag_name' <<< $(curl --silent https://api.github.com/repos/wazuh/wazuh/releases) | sed "s|v||g" | sort -rV | head -n 1)" >> $GITHUB_ENV
 
       - name: Get the major and minor of the release version
         run: echo "MAJOR_MINOR=$(echo $RELEASE_VERSION | cut -d '.' -f1-2 | sed "s|\.||")" >> $GITHUB_ENV
 
       - uses: actions/checkout@v3
-      - name: Build wazuh-indexer issue-branch package and set env variable
+      - name: Build the Wazuh Indexer package and set env variable
         working-directory: ./stack/indexer/deb
         run: |
           sudo ./build_package.sh
