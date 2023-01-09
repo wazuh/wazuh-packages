@@ -171,7 +171,7 @@ if [ -f /etc/os-release ]; then
 fi
 
 # If is an upgrade, move the securityconfig files if they exist (4.3.x versions)
-if [ $1 = 2 ]; then
+if [ ${1} = 2 ]; then
     if [ -d "%{INSTALL_DIR}"/plugins/opensearch-security/securityconfig ]; then
 
         if [ ! -d "%{CONFIG_DIR}"/opensearch-security ]; then

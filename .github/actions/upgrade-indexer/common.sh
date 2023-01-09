@@ -3,8 +3,8 @@ FILES_OLD="/usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig"
 FILES_NEW="/etc/wazuh-indexer/opensearch-security"
 declare -A files_old
 declare -A files_new
-PACKAGE_NAME="$1"
-MAJOR_MINOR_RELEASE=$(($2))
+PACKAGE_NAME="${1}"
+MAJOR_MINOR_RELEASE=$((${2}))
 REFERENCE_VERSION=43
 
 # Check the system to differ between DEB and RPM
@@ -44,9 +44,9 @@ function compare_arrays() {
         echo "Old: ${files_old[$i]}"
         echo "New: ${files_new[$i]}"
         if [[ "${files_old[$i]}" == "${files_new[$i]}" ]]; then
-            echo "$i - Same checksum."
+            echo "${i} - Same checksum."
         else
-            echo "$i - Different checksum."
+            echo "${i} - Different checksum."
             return 1
         fi
     done
@@ -63,26 +63,26 @@ function preinstall_indexer_release() {
 function read_files() {
 
     if [ ! -d "${1}" ]; then
-        echo "Error: the directory does not exist. $1."
+        echo "Error: the directory does not exist. ${1}."
         exit 1
     fi
 
     for f in ${1}/*; do
         if [ -f "${f}" ]; then
-            echo "Processing $f file..."
+            echo "Processing ${f} file..."
 
             # Change only the old files
             if [ "${2}" == "old" ]; then
-                echo "# This is a test" >> $f
+                echo "# This is a test" >> ${f}
                 echo "Changed file."
             fi
-            checksum=`md5sum $f | cut -d " " -f1`
+            checksum=`md5sum ${f} | cut -d " " -f1`
 
-            basename=`basename $f`
-            if [ "$2" == "old" ]; then
-                files_old["$basename"]="$checksum"
-            elif [ "$2" == "new" ]; then
-                files_new["$basename"]="$checksum"
+            basename=`basename ${f}`
+            if [ "${2}" == "old" ]; then
+                files_old["${basename}"]="${checksum}"
+            elif [ "${2}" == "new" ]; then
+                files_new["${basename}"]="${checksum}"
             fi
         fi
     done
@@ -97,8 +97,8 @@ function print_files() {
         fi
 
         for KEY in "${!files_old[@]}"; do
-            echo "Key: $KEY"
-            echo "Value: ${files_old[$KEY]}"
+            echo "Key: ${KEY}"
+            echo "Value: ${files_old[${KEY}]}"
         done
     elif [ "${1}" == "new" ]; then
         if [ "${#files_new[@]}" -eq 0 ]; then
@@ -107,8 +107,8 @@ function print_files() {
         fi
 
         for KEY in "${!files_new[@]}"; do
-            echo "Key: $KEY"
-            echo "Value: ${files_new[$KEY]}"
+            echo "Key: ${KEY}"
+            echo "Value: ${files_new[${KEY}]}"
         done
     fi
 }

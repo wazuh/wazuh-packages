@@ -2,18 +2,18 @@
 
 # Gets the absolute path of the script, used to load the common.sh file
 function get_absolute_path() {
-    ABSOLUTE_PATH="$( cd $(dirname $0) ; pwd -P )"
+    ABSOLUTE_PATH="$( cd $(dirname ${0}) ; pwd -P )"
 }
 
 get_absolute_path
-. $ABSOLUTE_PATH/common.sh
+. ${ABSOLUTE_PATH}/common.sh
 check_system
 check_version
 
 echo "Installing old version of wazuh indexer..."
-if [ $sys_type == "deb" ]; then
+if [ ${sys_type} == "deb" ]; then
     apt-get -y install wazuh-indexer
-elif [ $sys_type == "rpm" ]; then
+elif [ ${sys_type} == "rpm" ]; then
     preinstall_indexer_release
     yum -y install wazuh-indexer
 else
@@ -21,18 +21,18 @@ else
     exit 1
 fi
 
-read_files "$FILES_OLD" "old"
+read_files "${FILES_OLD}" "old"
 echo "Old files..."
 print_files "old"
 
 echo "Installing new version of wazuh indexer..."
-if [ $sys_type == "deb" ]; then
+if [ ${sys_type} == "deb" ]; then
     apt-get install $PACKAGE_NAME
-elif [ $sys_type == "rpm" ]; then
+elif [ ${sys_type} == "rpm" ]; then
     rpm -Uvh --nofiledigest $PACKAGE_NAME
 fi
 
-read_files "$FILES_NEW" "new"
+read_files "${FILES_NEW}" "new"
 echo "New files..."
 print_files "new"
 
