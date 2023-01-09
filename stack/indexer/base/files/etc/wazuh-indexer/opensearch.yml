@@ -1,14 +1,14 @@
 network.host: "0.0.0.0"
-node.name: "node-1"
+node.name: "indexer-1"
 cluster.initial_master_nodes:
-- "node-1"
-#- "node-2"
-#- "node-3"
+- "indexer-1"
+#- "indexer-2"
+#- "indexer-3"
 cluster.name: "wazuh-cluster"
 #discovery.seed_hosts:
-#  - "node-1-ip"
-#  - "node-2-ip"
-#  - "node-3-ip"
+#  - "indexer-1-ip"
+#  - "indexer-2-ip"
+#  - "indexer-3-ip"
 node.max_local_storage_nodes: "3"
 path.data: /var/lib/wazuh-indexer
 path.logs: /var/log/wazuh-indexer
@@ -28,9 +28,9 @@ plugins.security.authcz.admin_dn:
 plugins.security.check_snapshot_restore_write_privileges: true
 plugins.security.enable_snapshot_restore_privilege: true
 plugins.security.nodes_dn:
-- "CN=node-1,OU=Wazuh,O=Wazuh,L=California,C=US"
-#- "CN=node-2,OU=Wazuh,O=Wazuh,L=California,C=US"
-#- "CN=node-3,OU=Wazuh,O=Wazuh,L=California,C=US"
+- "CN=indexer-1,OU=Wazuh,O=Wazuh,L=California,C=US"
+#- "CN=indexer-2,OU=Wazuh,O=Wazuh,L=California,C=US"
+#- "CN=indexer-3,OU=Wazuh,O=Wazuh,L=California,C=US"
 plugins.security.restapi.roles_enabled:
 - "all_access"
 - "security_rest_api_access"
