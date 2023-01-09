@@ -1,0 +1,25 @@
+name: Add opened issues to projects
+
+on:
+  issues:
+    types:
+      - opened
+      - transferred
+
+jobs:
+  add-to-project:
+    name: Add issue to project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/add-to-project@v0.4.0
+        with:
+          # You can target a repository in a different organization
+          # to the issue
+          project-url: https://github.com/orgs/wazuh/projects/3
+          github-token: ${{ secrets.ADD_TO_PROJECT_PAT }}
+      - uses: actions/add-to-project@v0.4.0
+        with:
+          # You can target a repository in a different organization
+          # to the issue
+          project-url: https://github.com/orgs/wazuh/projects/15
+          github-token: ${{ secrets.ADD_TO_PROJECT_PAT }}
