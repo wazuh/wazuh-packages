@@ -98,7 +98,7 @@ function dashboard_initialize() {
         print_ip="${nodes_dashboard_ip}"
     fi
 
-    until [ "$(curl -XGET https://"${nodes_dashboard_ip}"/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null --max-time 300 --retry 5 --retry-delay 5)" -eq "200" ] || [ "${j}" -eq "12" ]; do
+    until [ "$(curl -XGET https://"${nodes_dashboard_ip}"/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null)" -eq "200" ] || [ "${j}" -eq "12" ]; do
         sleep 10
         j=$((j+1))
     done
@@ -164,7 +164,7 @@ function dashboard_initializeAIO() {
 
     common_logger "Initializing Wazuh dashboard web application."
     installCommon_getPass "admin"
-    until [ "$(curl -XGET https://localhost/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null --max-time 300 --retry 5 --retry-delay 5)" -eq "200" ] || [ "${i}" -eq 12 ]; do
+    until [ "$(curl -XGET https://localhost/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null)" -eq "200" ] || [ "${i}" -eq 12 ]; do
         sleep 10
         i=$((i+1))
     done
