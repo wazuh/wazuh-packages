@@ -2,8 +2,7 @@
 
 # Gets the absolute path of the script, used to load the common.sh file
 function get_absolute_path() {
-    RELATIVE_PATH="$(dirname -- "${BASH_SOURCE[0]}")"
-    ABSOLUTE_PATH="$(cd -- "$RELATIVE_PATH" && pwd)"
+    ABSOLUTE_PATH="$( cd $(dirname $0) ; pwd -P )"
 }
 
 get_absolute_path
@@ -38,7 +37,7 @@ echo "New files..."
 print_files "new"
 
 compare_arrays
-if [ $EQUAL == false ]; then
+if [ ! compare_arrays ]; then
         echo "Error: different checksums detected"
         exit 1
 fi
