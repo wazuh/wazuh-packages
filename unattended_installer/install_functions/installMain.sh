@@ -297,7 +297,7 @@ function main() {
 
     fi
 
-# -------------- Wazuh case  ---------------------------------------
+# -------------- Wazuh server case  ---------------------------------------
 
     if [ -n "${wazuh}" ]; then
         common_logger "--- Wazuh server ---"

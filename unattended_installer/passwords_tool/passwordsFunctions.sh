@@ -9,8 +9,10 @@
 function passwords_changePassword() {
 
     if [ -n "${changeall}" ]; then
-        eval "mkdir /etc/wazuh-indexer/backup/ 2>/dev/null"
-        eval "cp /etc/wazuh-indexer/opensearch-security/* /etc/wazuh-indexer/backup/ 2>/dev/null"
+        if [ -n "${indexer_installed}" ]; then
+            eval "mkdir /etc/wazuh-indexer/backup/ 2>/dev/null"
+            eval "cp /etc/wazuh-indexer/opensearch-security/* /etc/wazuh-indexer/backup/ 2>/dev/null"
+        fi
         for i in "${!passwords[@]}"
         do
             if [ -n "${indexer_installed}" ] && [ -f "/etc/wazuh-indexer/backup/internal_users.yml" ]; then
@@ -25,8 +27,10 @@ function passwords_changePassword() {
 
         done
     else
-        eval "mkdir /etc/wazuh-indexer/backup/ 2>/dev/null"
-        eval "cp /etc/wazuh-indexer/opensearch-security/* /etc/wazuh-indexer/backup/ 2>/dev/null"
+        if [ -z "${api}" ] && [ -n "${indexer_installed}" ]; then
+            eval "mkdir /etc/wazuh-indexer/backup/ 2>/dev/null"
+            eval "cp /etc/wazuh-indexer/opensearch-security/* /etc/wazuh-indexer/backup/ 2>/dev/null"
+        fi
         if [ -n "${indexer_installed}" ] && [ -f "/etc/wazuh-indexer/backup/internal_users.yml" ]; then
             awk -v new="$hash" 'prev=="'${nuser}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /etc/wazuh-indexer/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /etc/wazuh-indexer/backup/internal_users.yml
         fi
