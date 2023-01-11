@@ -8,7 +8,7 @@
 
 function passwords_changePassword() {
 
-    if [ -n "${indexer}" || -z "${api}" ]; then
+    if [ -n "${indexer}" ] || [ -z "${api}" ]; then
         eval "mkdir /etc/wazuh-indexer/backup/ 2>/dev/null"
         eval "cp /etc/wazuh-indexer/opensearch-security/* /etc/wazuh-indexer/backup/ 2>/dev/null"
     fi
