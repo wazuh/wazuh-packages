@@ -195,7 +195,7 @@ function installCommon_changePasswords() {
             changeall=1
             passwords_readUsers
         else
-            nobackup=1
+            no_indexer_backup=1
         fi
         if { [ -n "${wazuh}" ] || [ -n "${AIO}" ]; } && { [ "${server_node_types[pos]}" == "master" ] || [ "${#server_node_names[@]}" -eq 1 ]; }; then
             passwords_getApiToken
