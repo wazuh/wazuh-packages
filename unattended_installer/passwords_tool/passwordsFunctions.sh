@@ -9,7 +9,7 @@
 function passwords_changePassword() {
 
     if [ -n "${changeall}" ]; then
-        if [ -n "${indexer_installed}" ]; then
+        if [ -n "${indexer_installed}" ] && [ -z ${nobackup} ]; then
             eval "mkdir /etc/wazuh-indexer/backup/ 2>/dev/null"
             eval "cp /etc/wazuh-indexer/opensearch-security/* /etc/wazuh-indexer/backup/ 2>/dev/null"
         fi
