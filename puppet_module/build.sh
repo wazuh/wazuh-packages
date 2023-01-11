@@ -2,7 +2,6 @@
 
 wazuh_branch=$1
 checksum=$2
-revision=$3
 
 wazuh_version=""
 splunk_version=""
