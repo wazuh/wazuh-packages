@@ -21,7 +21,8 @@ control_binary=""
 # Needed variables to build Wazuh with custom GCC and cmake
 PATH=${build_tools_path}/bootstrap-gcc/gcc94_prefix/bin:${build_tools_path}/cmake_prefix_install/bin:$PATH:/usr/local/bin
 LD_LIBRARY_PATH=${build_tools_path}/bootstrap-gcc/gcc94_prefix/lib
-CXX=/home/okkam/bootstrap-gcc/gcc94_prefix/bin/g++
+export LD_LIBRARY_PATH
+CXX=${build_tools_path}/bootstrap-gcc/gcc94_prefix/bin/g++
 
 build_environment() {
 
