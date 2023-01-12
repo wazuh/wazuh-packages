@@ -54,10 +54,9 @@ function compare_arrays() {
             echo "${i} - Same checksum."
         else
             echo "${i} - Different checksum."
-            return 1
+            exit 1
         fi
     done
-    return 0
 
 }
 
