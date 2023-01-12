@@ -9,7 +9,7 @@ jobs:
   Test-security-config-files-preservation-Debian:
     runs-on: ubuntu-latest
     steps:
-      - name: Preinstall Wazuh indexer release package
+      - name: Install latest stable version of Wazuh indexer package
         run: |
           curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import && chmod 644 /usr/share/keyrings/wazuh.gpg
           echo "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main" | sudo tee -a /etc/apt/sources.list.d/wazuh.list
