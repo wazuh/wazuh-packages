@@ -1,53 +1,36 @@
 #!/bin/bash
 
 wazuh_branch=$1
-checksum=$2
+forge_token="08788f6be64beb40e4159f488470d585b6b8ec1edd8374f27a97f0b5b7ab14dc"
 
 wazuh_version=""
-splunk_version=""
 
 build_dir="/pkg"
-destination_dir="/wazuh_splunk_app"
-checksum_dir="/var/local/checksum"
-package_json="${build_dir}/package.json"
+destination_dir="/wazuh_puppet_module"
+version_file="${build_dir}/VERSION"
 
 download_sources() {
-    if ! curl -L https://github.com/wazuh/wazuh-splunk/tarball/${wazuh_branch} | tar zx ; then
+    if ! curl -L https://github.com/wazuh/wazuh-puppet/tarball/${wazuh_branch} | tar zx ; then
         echo "Error downloading the source code from GitHub."
         exit 1
     fi
     mv wazuh-* ${build_dir}
-    wazuh_version=$(python -c "import json, os; f=open(\""${package_json}"\"); pkg=json.load(f); f.close(); print(pkg[\"version\"])")
-    splunk_version=$(python -c "import json, os; f=open(\""${package_json}"\"); pkg=json.load(f); f.close(); print(pkg[\"splunk\"])")}
+    wazuh_version=$(grep -oP '^WAZUH-PUPPET_VERSION="\K[^"]+' ${version_file} | cut -d 'v' -f 2)
 }
 
-remove_execute_permissions() {
-    chmod -R -x+X * ./SplunkAppForWazuh/appserver
+publish_module() {
+    curl -X POST -H "Authorization: Bearer ${forge_token}" -d ${destination_dir}/wazuh-wazuh-${wazuh_version}.tar.gz -H "Content-Type: application/json" https://forgeapi.puppet.com/v3/releases
 }
 
-build_package() {
+build_module() {
 
     download_sources
 
-    cd ${build_dir}
+    cd ${build_dir}/wazuh-*
 
-    remove_execute_permissions
-
-    if [ -z ${revision} ]; then
-        wazuh_splunk_pkg_name="wazuh_splunk-${wazuh_version}_${splunk_version}.tar.gz"
-    else
-        wazuh_splunk_pkg_name="wazuh_splunk-${wazuh_version}_${splunk_version}-${revision}.tar.gz"
-    fi
-
-    tar -zcf ${wazuh_splunk_pkg_name} SplunkAppForWazuh
-
-    mv ${wazuh_splunk_pkg_name} ${destination_dir}
-
-    if [ ${checksum} = "yes" ]; then
-        cd ${destination_dir} && sha512sum "${wazuh_splunk_pkg_name}" > "${checksum_dir}/${wazuh_splunk_pkg_name}".sha512
-    fi
+    pdk build --force --target-dir=${destination_dir}
 
     exit 0
 }
 
-build_package
+build_module
