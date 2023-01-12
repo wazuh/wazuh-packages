@@ -10,6 +10,7 @@ function passwords_changePassword() {
 
     eval "mkdir /etc/wazuh-indexer/backup/ 2>/dev/null"
     eval "cp /etc/wazuh-indexer/opensearch-security/* /etc/wazuh-indexer/backup/ 2>/dev/null"
+    passwords_createBackUp
 
     if [ -n "${changeall}" ]; then
         for i in "${!passwords[@]}"
@@ -27,7 +28,7 @@ function passwords_changePassword() {
         done
     else
         if [ -n "${indexer_installed}" ] && [ -f "/etc/wazuh-indexer/backup/internal_users.yml" ]; then
-            awk -v new="$hash" 'prev=="'${nuser}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /etc/wazuh-indexer/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /etc/wazuh-indexer/backup/internal_users.yml
+            awk -v new="${hash}" 'prev=="'${nuser}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /etc/wazuh-indexer/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /etc/wazuh-indexer/backup/internal_users.yml
         fi
 
         if [ "${nuser}" == "admin" ]; then
