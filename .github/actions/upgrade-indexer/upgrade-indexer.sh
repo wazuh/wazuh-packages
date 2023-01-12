@@ -1,20 +1,17 @@
 #!/bin/bash
 
 # Gets the absolute path of the script, used to load the common.sh file
-function get_absolute_path() {
-    ABSOLUTE_PATH="$( cd $(dirname ${0}) ; pwd -P )"
-}
-
-get_absolute_path
+ABSOLUTE_PATH="$( cd $(dirname ${0}) ; pwd -P )"
 . ${ABSOLUTE_PATH}/common.sh
+
 check_system
 check_version
 
-echo "Installing old version of Wazuh Indexer..."
+echo "Installing old version of Wazuh indexer..."
 if [ ${sys_type} == "deb" ]; then
     apt-get -y install wazuh-indexer
 elif [ ${sys_type} == "rpm" ]; then
-    preinstall_indexer_release
+    add_production_repository
     yum -y install wazuh-indexer
 else
     echo "Error: No system detected"
@@ -23,23 +20,23 @@ fi
 
 read_files "${FILES_OLD}" "old"
 echo "Old files..."
-print_files "old"
+print_files "files_old"
 
-echo "Installing new version of Wazuh Indexer..."
+echo "Installing new version of Wazuh indexer..."
 if [ ${sys_type} == "deb" ]; then
     apt-get install $PACKAGE_NAME
 elif [ ${sys_type} == "rpm" ]; then
-    rpm -Uvh --nofiledigest $PACKAGE_NAME
+    yum -y localinstall $PACKAGE_NAME
 fi
 
 read_files "${FILES_NEW}" "new"
 echo "New files..."
-print_files "new"
+print_files "files_new"
 
 compare_arrays
 if [ ! compare_arrays ]; then
-        echo "Error: different checksums detected"
-        exit 1
+    echo "Error: different checksums detected"
+    exit 1
 fi
 echo "Same checksums - Test passed correctly"
 exit 0
