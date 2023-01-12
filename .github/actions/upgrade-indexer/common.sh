@@ -86,7 +86,6 @@ function read_files() {
                 echo "Changed file."
             fi
             checksum=`md5sum ${f} | cut -d " " -f1`
-            echo "Read checksum: ${checksum}"
             basename=`basename ${f}`
             if [ "${2}" == "old" ]; then
                 files_old["${basename}"]="${checksum}"

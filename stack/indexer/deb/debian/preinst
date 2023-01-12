@@ -11,7 +11,7 @@ set -e
 
 export NAME=wazuh-indexer
 export CONFIG_DIR="/etc/${NAME}"
-export BACKUP_DIR="${INSTALLATION_DIR}/backup"
+export BACKUP_DIR=/usr/share/wazuh-indexer-backup
 export INSTALLATION_DIR="/usr/share/${NAME}"
 
 #
