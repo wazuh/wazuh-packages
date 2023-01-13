@@ -110,7 +110,7 @@ function sign_binaries() {
         done
 
         codesign -f --sign "${CERT_APPLICATION_ID}" --identifier "com.wazuh.example" --entitlements "${ENTITLEMENTS_PATH}" --deep --timestamp --options=runtime --verbose "${LOGIN_ITEM_PATH}/Wazuh" && echo "Correctly signed Login Item" || echo "Error signing Login Item"
-        tar -cf "${LOGIN_ITEM_PATH}/Wazuh.tar" "${LOGIN_ITEM_PATH}/Wazuh" && echo "Correctly tarred Login Item" || echo "Error tarring Login Item"
+        tar -cf "${LOGIN_ITEM_PATH}/Wazuh.tar" -C "${LOGIN_ITEM_PATH}" Wazuh && echo "Correctly tarred Login Item" || echo "Error tarring Login Item"
 
         security -v lock-keychain "${KEYCHAIN}" > /dev/null
     fi
