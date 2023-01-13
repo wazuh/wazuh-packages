@@ -11,7 +11,7 @@ set -e
 
 export NAME=wazuh-indexer
 export CONFIG_DIR="/etc/${NAME}"
-export BACKUP_DIR=/usr/share/wazuh-indexer-backup
+export BACKUP_DIR="${CONFIG_DIR}/backup"
 export INSTALLATION_DIR="/usr/share/${NAME}"
 
 #
@@ -63,8 +63,6 @@ case "$1" in
     upgrade)
         # Move the securityconfig files if they exist (4.3.x versions)
         if [ -d "${INSTALLATION_DIR}/plugins/opensearch-security/securityconfig" ]; then
-            echo -n "Making a backup the of securityconfig files..."
-
             mkdir "${BACKUP_DIR}"
             cp -r "${INSTALLATION_DIR}/plugins/opensearch-security/securityconfig/" "${BACKUP_DIR}"
         fi

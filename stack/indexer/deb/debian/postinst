@@ -14,7 +14,7 @@ export USER=${NAME}
 export GROUP=${NAME}
 export CONFIG_DIR=/etc/${NAME}
 export INSTALLATION_DIR=/usr/share/${NAME}
-export BACKUP_DIR=/usr/share/wazuh-indexer-backup
+export BACKUP_DIR="${CONFIG_DIR}/backup"
 export LOG_DIR=/var/log/${NAME}
 export PID_DIR=/run/${NAME}
 export LIB_DIR=/var/lib/${NAME}
@@ -85,9 +85,7 @@ case "$1" in
 
             # If the backup of securityconfig files is done (4.3.x), restore them
             if [ -d "${BACKUP_DIR}/securityconfig" ]; then
-                echo -n "Copying securityconfig files from the backup..."
                 cp "${BACKUP_DIR}"/securityconfig/* "${CONFIG_DIR}/opensearch-security"
-
                 rm -rf "${BACKUP_DIR}"
             fi
 
