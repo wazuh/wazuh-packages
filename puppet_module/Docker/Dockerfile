@@ -1,6 +1,11 @@
-FROM centos:7
+FROM ubuntu:22.04
 
-RUN rpm -Uvh https://yum.puppet.com/puppet-tools-release-el-7.noarch.rpm && yum install -y pdk
+RUN apt update && apt install -y curl
+
+RUN curl -O https://apt.puppet.com/puppet-tools-release-focal.deb && \
+    dpkg -i puppet-tools-release-focal.deb && \
+    apt-get update && \
+    apt-get install pdk
 
 RUN pdk set config user.analytics.disabled false --type boolean --force
 

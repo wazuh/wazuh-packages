@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+set -e
 
 wazuh_branch=$1
 forge_token=$2
@@ -19,7 +19,7 @@ download_sources() {
 }
 
 publish_module() {
-    curl -X POST -H "Authorization: Bearer ${forge_token}" -H 'Content-Type: application/json' -d '{"file": "'$(base64 -w 0 ${destination_dir}/cbordon-test-${wazuh_version}.tar.gz)'"}' https://forgeapi.puppet.com/v3/releases
+    curl -X POST -H "Authorization: Bearer ${forge_token}" -H 'Content-Type: application/json' -d '{"file": "'$(base64 -w 0 ${destination_dir}/cbordon-test-${wazuh_version}.tar.gz)'"}' --fail-with-body https://forgeapi.puppet.com/v3/releases
 }
 
 build_module() {
@@ -27,8 +27,6 @@ build_module() {
     download_sources
 
     pdk build --force --target-dir=${destination_dir}
-
-    ls -la ${destination_dir}
 
     publish_module
 
