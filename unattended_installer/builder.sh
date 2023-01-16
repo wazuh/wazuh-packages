@@ -271,4 +271,27 @@ function builder_main() {
     fi
 }
 
+function checkFilebeatURL() {
+
+    # Import variables
+    eval "$(grep -E "filebeat_wazuh_template=" "${resources_installer}/installVariables.sh")"
+    new_filebeat_url="https://raw.githubusercontent.com/wazuh/wazuh/master/extensions/elasticsearch/7.x/wazuh-template.json"
+
+    # Get the response of the URL and check it
+    response=$(curl --write-out '%{http_code}' --silent --output /dev/null $filebeat_wazuh_template)
+    if [ "${response}" != "200" ]; then
+       	response=$(curl --write-out '%{http_code}' --silent --output /dev/null $new_filebeat_url)
+
+        # Display error if both URLs do not get the resource
+        if [ "${response}" != "200" ]; then
+            echo -e "Error: Could not get the Filebeat Wazuh template. "
+        # If matches, replace the variable of installVariables to the new one
+        else
+            echo -e "Changing Filebeat URL..."
+            sed -i -E "s|filebeat_wazuh_template=.*|filebeat_wazuh_template=\"${new_filebeat_url}\"|g" "${resources_installer}/installVariables.sh"
+            change_filebeat_url=1
+        fi
+    fi
+}
+
 builder_main "$@"
