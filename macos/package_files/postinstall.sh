@@ -71,6 +71,7 @@ chown root:wheel ${STARTUP_ITEMS_PATH}/WAZUH/StartupParameters.plist
 chmod 0644 ${STARTUP_ITEMS_PATH}/WAZUH/StartupParameters.plist
 
 tar -xf ${STARTUP_ITEMS_PATH}/WAZUH/Wazuh.tar -C ${STARTUP_ITEMS_PATH}/WAZUH/ && echo "Wazuh.tar extracted successfully" || echo "Wazuh.tar extraction failed"
+rm -rf ${STARTUP_ITEMS_PATH}/WAZUH/Wazuh.tar
 chown root:wheel ${STARTUP_ITEMS_PATH}/WAZUH/Wazuh
 chmod 0744 ${STARTUP_ITEMS_PATH}/WAZUH/Wazuh
 
