@@ -12,6 +12,7 @@ set -e
 
 wazuh_puppet_branch=""
 wazuh_forge_token=""
+environment="prod"
 current_path="$( cd $(dirname $0) ; pwd -P )"
 dockerfile_path="${current_path}/Docker"
 container_name="puppet_module_builder"
@@ -43,7 +44,7 @@ build() {
     # Build the Docker image
     docker build -t ${container_name} ${dockerfile_path} || return 1
 
-    docker run -t --rm ${container_name} ${wazuh_puppet_branch} ${wazuh_forge_token} || return 1
+    docker run -t --rm ${container_name} ${wazuh_puppet_branch} ${wazuh_forge_token} ${environment} || return 1
 
     return 0
 }
@@ -54,9 +55,10 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -b, --branch <path>        [Required] Set the destination path of package. By default, an output folder will be created."
-    echo "    -f, --forge-token <ref>    [Required] wazuh-packages branch or tag"
-    echo "    -h, --help                 Show this help."
+    echo "    -b, --branch <branch>           [Required] wazuh-puppet branch or tag"
+    echo "    -e, --environment <dev/prod>    [Optional] Set the environment in which the module will be published. By default, the environment is prod"
+    echo "    -f, --forge-token <token>       [Required] Token to post in the puppet forge"
+    echo "    -h, --help                      Show this help."
     echo
     exit $1
 }
@@ -78,6 +80,14 @@ main() {
                 help 1
             fi
             ;;
+        "-e"|"--environment")
+            if [ -n "${2}" ]; then
+                environment="${2}"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
         "-f"|"--forge-token")
             if [ -n "${2}" ]; then
                 wazuh_forge_token="${2}"
@@ -92,7 +102,7 @@ main() {
     done
 
     if [ -z "${wazuh_puppet_branch}" ] || [ -z "${wazuh_forge_token}" ]; then
-        echo "You must enter the 2 parameters, --branch and --forge-token"
+        echo "You must enter the parameters, --branch and --forge-token"
         exit $1
     fi
 

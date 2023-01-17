@@ -3,6 +3,7 @@ set -e
 
 wazuh_branch=$1
 forge_token=$2
+environment=$3
 
 wazuh_version=""
 
@@ -16,10 +17,19 @@ download_sources() {
     fi
     cd wazuh-*
     wazuh_version=$(grep -oP '^WAZUH-PUPPET_VERSION="\K[^"]+' ${version_file} | cut -d 'v' -f 2)
+
+    if [ ${environment} == 'dev' ]; then
+        account="cbordon"
+    else
+        account="wazuh"
+    fi
+
+    jq --arg a "${account}-${account}" '.name = $a' metadata.json > metadata.json.tmp
+    mv metadata.json.tmp metadata.json
 }
 
 publish_module() {
-    curl -X POST -H "Authorization: Bearer ${forge_token}" -H 'Content-Type: application/json' -d '{"file": "'$(base64 -w 0 ${destination_dir}/cbordon-test-${wazuh_version}.tar.gz)'"}' --fail-with-body https://forgeapi.puppet.com/v3/releases
+    curl -X POST -H "Authorization: Bearer ${forge_token}" -H 'Content-Type: application/json' -d '{"file": "'$(base64 -w 0 ${destination_dir}/${account}-${account}-${wazuh_version}.tar.gz)'"}' --fail-with-body https://forgeapi.puppet.com/v3/releases
 }
 
 build_module() {

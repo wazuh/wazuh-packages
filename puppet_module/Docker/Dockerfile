@@ -1,6 +1,6 @@
 FROM ubuntu:22.04
 
-RUN apt update && apt install -y curl
+RUN apt update && apt install -y curl jq
 
 RUN curl -O https://apt.puppet.com/puppet-tools-release-focal.deb && \
     dpkg -i puppet-tools-release-focal.deb && \
