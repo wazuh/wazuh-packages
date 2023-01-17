@@ -18,18 +18,18 @@ download_sources() {
     cd wazuh-*
     wazuh_version=$(grep -oP '^WAZUH-PUPPET_VERSION="\K[^"]+' ${version_file} | cut -d 'v' -f 2)
 
-    if [ ${environment} == 'dev' ]; then
-        account="cbordon"
+    if [[ ${environment} == 'dev' ]]; then
+        account="cbordon_dev"
     else
-        account="wazuh"
+        account="cbordon"
     fi
 
-    jq --arg a "${account}-${account}" '.name = $a' metadata.json > metadata.json.tmp
+    jq --arg a "cbordon-${account}" '.name = $a' metadata.json > metadata.json.tmp
     mv metadata.json.tmp metadata.json
 }
 
 publish_module() {
-    curl -X POST -H "Authorization: Bearer ${forge_token}" -H 'Content-Type: application/json' -d '{"file": "'$(base64 -w 0 ${destination_dir}/${account}-${account}-${wazuh_version}.tar.gz)'"}' --fail-with-body https://forgeapi.puppet.com/v3/releases
+    curl -X POST -H "Authorization: Bearer ${forge_token}" -H 'Content-Type: application/json' -d '{"file": "'$(base64 -w 0 ${destination_dir}/cbordon-${account}-${wazuh_version}.tar.gz)'"}' --fail-with-body https://forgeapi.puppet.com/v3/releases
 }
 
 build_module() {
