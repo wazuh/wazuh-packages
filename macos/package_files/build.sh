@@ -79,6 +79,8 @@ function build() {
     cp ${SOURCES_PATH}/src/REVISION ${INSTALLATION_SCRIPTS_DIR}/src/
 
     cp ${CURRENT_PATH}/package_files/com.wazuh.agent.plist ${LAUNCH_DAEMON_PATH}
+    echo "com.wazuh.agent.plist copied to ${LAUNCH_DAEMON_PATH}"
+    ls -la ${LAUNCH_DAEMON_PATH}
 
     cp ${CURRENT_PATH}/package_files/Wazuh ${LOGIN_ITEM_PATH}
     cp ${CURRENT_PATH}/package_files/StartupParameters.plist ${LOGIN_ITEM_PATH}
