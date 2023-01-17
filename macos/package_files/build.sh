@@ -81,6 +81,7 @@ function build() {
 
     cp ${CURRENT_PATH}/com.wazuh.agent.plist ${LAUNCH_DAEMON_PATH}
 
+    mkdir -p ${LOGIN_ITEM_PATH}
     cp ${CURRENT_PATH}/Wazuh ${LOGIN_ITEM_PATH}
     cp ${CURRENT_PATH}/StartupParameters.plist ${LOGIN_ITEM_PATH}
 }
