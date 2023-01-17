@@ -46,14 +46,14 @@ function check_version() {
 # Compare the arrays, the loop ends if a different checksum is detected
 function compare_arrays() {
 
-    for i in "${!files_old[@]}"; do
-        echo "Comparing $i file checksum..."
-        echo "Old: ${files_old[$i]}"
-        echo "New: ${files_new[$i]}"
-        if [[ "${files_old[$i]}" == "${files_new[$i]}" ]]; then
-            echo "${i} - Same checksum."
+    for file in "${!files_old[@]}"; do
+        echo "Comparing $file file checksum..."
+        echo "Old: ${files_old[$file]}"
+        echo "New: ${files_new[$file]}"
+        if [[ "${files_old[$file]}" == "${files_new[$file]}" ]]; then
+            echo "${file} - Same checksum."
         else
-            echo "${i} - Different checksum."
+            echo "${file} - Different checksum."
             exit 1
         fi
     done
@@ -76,17 +76,17 @@ function read_files() {
         exit 1
     fi
 
-    for f in ${1}/*; do
-        if [ -f "${f}" ]; then
-            echo "Processing ${f} file..."
+    for file in ${1}/*; do
+        if [ -f "${file}" ]; then
+            echo "Processing ${file} file..."
 
             # Change only the old files
             if [ "${2}" == "old" ]; then
-                echo "# This is a test" >> ${f}
+                echo "# Adding a new line to force changed checksum" >> ${f}
                 echo "Changed file."
             fi
-            checksum=`md5sum ${f} | cut -d " " -f1`
-            basename=`basename ${f}`
+            checksum=`md5sum ${file} | cut -d " " -f1`
+            basename=`basename ${file}`
             if [ "${2}" == "old" ]; then
                 files_old["${basename}"]="${checksum}"
             elif [ "${2}" == "new" ]; then

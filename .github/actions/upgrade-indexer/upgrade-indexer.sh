@@ -14,7 +14,7 @@ elif [ ${sys_type} == "rpm" ]; then
     add_production_repository
     yum -y install wazuh-indexer
 else
-    echo "Error: No system detected"
+    echo "Error: No system detected."
     exit 1
 fi
 
@@ -35,8 +35,8 @@ print_files "files_new"
 
 compare_arrays
 if [ "$?" -eq 0 ]; then
-    echo "Same checksums - Test passed correctly"
+    echo "Same checksums - Test passed correctly."
     exit 0
 fi
-echo "Error: different checksums detected"
+echo "Error: different checksums detected."
 exit 1
