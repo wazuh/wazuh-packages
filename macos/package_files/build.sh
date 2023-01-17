@@ -8,6 +8,7 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 set -exf
+CURRENT_PATH=$( cd $(dirname $0) ; pwd -P )
 DESTINATION_PATH=$1
 SOURCES_PATH=$2
 BUILD_JOBS=$3
@@ -78,15 +79,10 @@ function build() {
     cp ${SOURCES_PATH}/src/VERSION ${INSTALLATION_SCRIPTS_DIR}/src/
     cp ${SOURCES_PATH}/src/REVISION ${INSTALLATION_SCRIPTS_DIR}/src/
 
-    echo "Destination path: ${DESTINATION_PATH}"
-    echo "Source path: ${SOURCES_PATH}""
+    cp ${CURRENT_PATH}/com.wazuh.agent.plist ${LAUNCH_DAEMON_PATH}
 
-    cp ${DESTINATION_PATH}/package_files/com.wazuh.agent.plist ${LAUNCH_DAEMON_PATH}
-    echo "com.wazuh.agent.plist copied to ${LAUNCH_DAEMON_PATH}"
-    ls -la ${LAUNCH_DAEMON_PATH}
-
-    cp ${DESTINATION_PATH}/package_files/Wazuh ${LOGIN_ITEM_PATH}
-    cp ${DESTINATION_PATH}/package_files/StartupParameters.plist ${LOGIN_ITEM_PATH}
+    cp ${CURRENT_PATH}/Wazuh ${LOGIN_ITEM_PATH}
+    cp ${CURRENT_PATH}/StartupParameters.plist ${LOGIN_ITEM_PATH}
 }
 
 build
