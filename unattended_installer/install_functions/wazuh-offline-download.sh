@@ -115,7 +115,7 @@ function offline_download() {
     package_name="${package}_${package_type}_package"
     eval "package_base_url=${package}_${package_type}_base_url"
 
-    eval "curl -so ${dest_path}/${!package_name} ${!package_base_url}/${!package_name} --max-time 300 --retry 5 --retry-delay 5 --retry-connrefused"
+    eval "curl -so ${dest_path}/${!package_name} ${!package_base_url}/${!package_name} --max-time 300 --retry 5 --retry-delay 5 --retry-connrefused --fail"
     if [  "${PIPESTATUS[0]}" != 0  ]; then
         common_logger -e "The ${package} package could not be downloaded. Exiting."
         exit 1
