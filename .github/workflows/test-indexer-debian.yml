@@ -1,0 +1,36 @@
+name: Test the preserving of security config files upon upgrade - Wazuh indexer - Debian
+on:
+  pull_request:
+    paths:
+      - 'stack/indexer/deb/debian/*'
+  workflow_dispatch:
+
+jobs:
+  Test-security-config-files-preservation-Debian:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Preinstall the latest stable version of the Wazuh indexer package
+        run: |
+          curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import && chmod 644 /usr/share/keyrings/wazuh.gpg
+          echo "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main" | sudo tee -a /etc/apt/sources.list.d/wazuh.list
+          sudo apt-get update
+
+      - name: Get the latest stable Wazuh version (all components)
+        run: echo "LATEST_STABLE_VERSION=$(jq -r 'map(select(.prerelease == false and .draft == false)) | .[] | .tag_name' <<< $(curl --silent https://api.github.com/repos/wazuh/wazuh/releases) | sed "s|v||g" | sort -rV | head -n 1)" >> $GITHUB_ENV
+
+      - name: Get the major and minor of the latest stable version
+        run: echo "MAJOR_MINOR=$(echo $LATEST_STABLE_VERSION | cut -d '.' -f1-2 | sed "s|\.||")" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v3
+      - name: Build the Wazuh indexer package and set environment variable
+        working-directory: ./stack/indexer/deb
+        run: |
+          sudo ./build_package.sh
+          echo "PACKAGE_NAME=$(ls ./output | grep .deb | head -n 1)" >> $GITHUB_ENV
+
+      - name: Move the built package
+        working-directory: ./stack/indexer/deb
+        run: sudo cp ./output/$PACKAGE_NAME $GITHUB_WORKSPACE/$PACKAGE_NAME
+
+      - name: Run script
+        run: sudo bash $GITHUB_WORKSPACE/.github/actions/upgrade-indexer/upgrade-indexer.sh $GITHUB_WORKSPACE/$PACKAGE_NAME $MAJOR_MINOR
