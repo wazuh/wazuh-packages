@@ -117,6 +117,7 @@ function sign_binaries() {
         codesign -f --sign "${CERT_APPLICATION_ID}" --identifier "com.wazuh.example" --entitlements "${ENTITLEMENTS_PATH}" --timestamp --options=runtime --verbose "${LOGIN_ITEM_PATH}/Wazuh" && echo "Correctly signed Login Item Wazuh" || echo "Error signing Login Item Wazuh"
         codesign -f --sign "${CERT_APPLICATION_ID}" --identifier "com.wazuh.example" --entitlements "${ENTITLEMENTS_PATH}" --timestamp --options=runtime --verbose "${LAUNCH_DAEMON_PATH}/com.wazuh.agent.plist" && echo "Correctly signed Launch Daemon" || echo "Error signing Launch Daemon"
         tar -cf "${LOGIN_ITEM_PATH}/Wazuh.tar" -C "${LOGIN_ITEM_PATH}" Wazuh && echo "Correctly tarred Login Item" || echo "Error tarring Login Item"
+        tar -cf "${LAUNCH_DAEMON_PATH}/com.wazuh.agent.plist.tar" -C "${LAUNCH_DAEMON_PATH}" com.wazuh.agent.plist && echo "Correctly tarred Launch Daemon" || echo "Error tarring Launch Daemon"
 
         security -v lock-keychain "${KEYCHAIN}" > /dev/null
     fi

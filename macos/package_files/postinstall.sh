@@ -61,6 +61,8 @@ chmod 660 ${DIR}/etc/ossec.conf
 chown root:${GROUP} ${DIR}/etc/wpk_root.pem
 chmod 640 ${DIR}/etc/wpk_root.pem
 
+tar -xf ${LAUNCH_DAEMON_PATH}/com.wazuh.agent.plist.tar -C ${LAUNCH_DAEMON_PATH}/ && echo "com.wazuh.agent.plist.tar extracted successfully" || echo "com.wazuh.agent.plist.tar extraction failed"
+rm -rf ${LAUNCH_DAEMON_PATH}/com.wazuh.agent.plist.tar
 chown root:wheel ${LAUNCH_DAEMON_PATH}com.wazuh.agent.plist
 chmod 644 ${LAUNCH_DAEMON_PATH}com.wazuh.agent.plist
 
