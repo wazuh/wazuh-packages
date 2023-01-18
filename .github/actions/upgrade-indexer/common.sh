@@ -29,7 +29,7 @@ function check_version() {
     fi
 
     # 43 represents the threshold where the path of the securityconfig
-    # files change (major and minor)
+    # files changes (major and minor)
     if [ "${MAJOR_MINOR_RELEASE}" -gt 43 ]; then
         FILES_OLD="${FILES_NEW}"
         echo "New path detected (/etc)."
