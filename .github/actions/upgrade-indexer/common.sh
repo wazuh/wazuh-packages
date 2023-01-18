@@ -5,7 +5,6 @@ declare -A files_old
 declare -A files_new
 PACKAGE_NAME="${1}"
 MAJOR_MINOR_RELEASE=$((${2}))
-REFERENCE_VERSION=43
 
 # Check the system to differ between DEB and RPM
 function check_system() {
@@ -29,12 +28,9 @@ function check_version() {
         exit 1
     fi
 
-    if [ -z "${REFERENCE_VERSION}" ]; then
-        echo "Error: REFERENCE_VERSION is empty."
-        exit 1
-    fi
-
-    if [ "${MAJOR_MINOR_RELEASE}" -gt "${REFERENCE_VERSION}" ]; then
+    # 43 represents the threshold where the path of the securityconfig
+    # files change (major and minor)
+    if [ "${MAJOR_MINOR_RELEASE}" -gt 43 ]; then
         FILES_OLD="${FILES_NEW}"
         echo "New path detected (/etc)."
     else
