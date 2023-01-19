@@ -14,7 +14,8 @@ set -e
 architecture="$1"
 revision="$2"
 future="$3"
-reference="$4"
+repository=$4
+reference="$5"
 opensearch_version="2.4.1"
 base_dir=/opt/wazuh-dashboard-base
 
@@ -40,6 +41,18 @@ if [ "${future}" = "yes" ];then
     version="99.99.0"
 fi
 wazuh_minor=$(echo ${version} | cut -c1-3)
+
+# Obtain Wazuh plugin URL
+if [ "${repository}" ];then
+    valid_url='(https?|ftp|file)://[-[:alnum:]\+&@#/%?=~_|!:,.;]*[-[:alnum:]\+&@#/%=~_|]'
+    if [[ $repository =~ $valid_url ]];then
+        url="${repository}"
+    else
+        url="https://packages-dev.wazuh.com/${repository}/ui/dashboard/wazuh-${version}-${revision}.zip"
+    fi
+else
+    url="https://packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-${version}-${revision}.zip"
+fi
 
 # -----------------------------------------------------------------------------
 
@@ -134,9 +147,15 @@ cp /root/VERSION .
 # Add exception for wazuh plugin install
 wazuh_plugin="if (plugin.includes(\'wazuh\')) {\n    return plugin;\n  } else {\n    return \`\${LATEST_PLUGIN_BASE_URL}\/\${version}\/latest\/\${platform}\/\${arch}\/tar\/builds\/opensearch-dashboards\/plugins\/\${plugin}-\${version}.zip\`;\n  }"
 sed -i "s|return \`\${LATEST_PLUGIN_BASE_URL}\/\${version}\/latest\/\${platform}\/\${arch}\/tar\/builds\/opensearch-dashboards\/plugins\/\${plugin}-\${version}.zip\`;|$wazuh_plugin|" ./src/cli_plugin/install/settings.js
-# Changed package.json build number
-jq ".build.number=$(cat /root/VERSION | tr -d '.')" ./package.json > ./package.json.tmp
+# Generate build number for package.json
+curl -sO ${url}
+unzip wazuh-${version}-${revision}.zip 'opensearch-dashboards/wazuh/package.json'
+build_number=$(jq -r '.version' ./opensearch-dashboards/wazuh/package.json | tr -d '.')$(jq -r '.revision' ./opensearch-dashboards/wazuh/package.json)
+rm -f ./opensearch-dashboards/wazuh/package.json
+rm -f ./wazuh-${version}-${revision}.zip
+jq ".build.number=${build_number}" ./package.json > ./package.json.tmp
 mv ./package.json.tmp ./package.json
+
 
 # Remove plugins
 /bin/bash ./bin/opensearch-dashboards-plugin remove queryWorkbenchDashboards --allow-root
