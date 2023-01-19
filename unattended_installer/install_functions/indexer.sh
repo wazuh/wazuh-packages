@@ -162,7 +162,7 @@ function indexer_startCluster() {
 
     retries=0
     for ip_to_test in "${indexer_node_ips[@]}"; do
-        eval "curl -XGET https://"${ip_to_test}":9200/ -k -s -o /dev/null --max-time 300 --retry 5 --retry-delay 5 --retry-connrefused"
+        eval "curl -XGET https://"${ip_to_test}":9200/ -k -s -o /dev/null"
         e_code="${PIPESTATUS[0]}"
         until [ "${e_code}" -ne 7 ] || [ "${retries}" -eq 12 ]; do
             sleep 10
