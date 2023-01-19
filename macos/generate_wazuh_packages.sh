@@ -156,7 +156,7 @@ function build_package() {
     # sign the binaries and the libraries
     sign_binaries
 
-    if packagesbuild "${AGENT_PKG_FILE}" --build-folder "${DESTINATION}" --verbose; then
+    if packagesbuild --verbose "${AGENT_PKG_FILE}" --build-folder "${DESTINATION}" >/var/log/agent-generation.log 2>/var/log/agent-generation.log; then
         echo "The wazuh agent package for MacOS X has been successfully built."
         pkg_name="wazuh-agent-${VERSION}-${REVISION}.pkg"
         sign_pkg
