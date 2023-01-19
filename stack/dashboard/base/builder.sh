@@ -14,7 +14,7 @@ set -e
 architecture="$1"
 revision="$2"
 future="$3"
-repository=$4
+repository="$4"
 reference="$5"
 opensearch_version="2.4.1"
 base_dir=/opt/wazuh-dashboard-base
