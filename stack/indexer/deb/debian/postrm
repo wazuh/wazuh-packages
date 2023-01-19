@@ -7,7 +7,7 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-set -e 
+set -e
 
 export NAME=wazuh-indexer
 export CONFIG_DIR="/etc/${NAME}"
@@ -46,7 +46,7 @@ case "$1" in
         REMOVE_USER_AND_GROUP=true
     ;;
 
-    failed-upgrade|abort-install|abort-upgrade|disappear|upgrade|disappear)
+    failed-upgrade|abort-install|abort-upgrade|upgrade|disappear)
     ;;
 
     *)
