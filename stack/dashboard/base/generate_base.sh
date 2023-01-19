@@ -19,6 +19,7 @@ architecture="x64"
 outdir="${current_path}/output"
 revision="1"
 future="no"
+url=""
 
 # -----------------------------------------------------------------------------
 
@@ -44,16 +45,20 @@ build() {
     # Copy the necessary files
     cp ${current_path}/builder.sh ${dockerfile_path}
 
+    if [ "${repository}" ];then
+        url="${repository}"
+    fi
+
     # Build the Docker image
     docker build -t ${container_name} ${dockerfile_path} || return 1
 
     if [ "${reference}" ];then
         docker run -t --rm -v ${outdir}/:/tmp/output:Z \
-            ${container_name} ${architecture} ${revision} ${future} ${reference}  || return 1
+            ${container_name} ${architecture} ${revision} ${future} ${url} ${reference}  || return 1
     else
         docker run -t --rm -v ${outdir}/:/tmp/output:Z \
             -v ${current_path}/../../..:/root:Z \
-            ${container_name} ${architecture} ${revision} ${future} || return 1
+            ${container_name} ${architecture} ${revision} ${future} ${url} || return 1
     fi
 
     echo "Base file $(ls -Art ${outdir} | tail -n 1) added to ${outdir}."
@@ -67,6 +72,7 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
+    echo "    --app-url <url>            [Optional] Set the repository from where the Wazuh plugin should be downloaded. By default, will be used pre-release."
     echo "    -s, --store <path>         [Optional] Set the destination path of package. By default, an output folder will be created."
     echo "    --reference <ref>          [Optional] wazuh-packages branch or tag"
     echo "    --future                   [Optional] Build test future package 99.99.0 Used for development purposes."
@@ -84,6 +90,14 @@ main() {
         case "${1}" in
         "-h"|"--help")
             help 0
+            ;;
+        "--app-url")
+            if [ -n "$2" ]; then
+                repository="$2"
+                shift 2
+            else
+                help 1
+            fi
             ;;
         "-s"|"--store")
             if [ -n "${2}" ]; then
