@@ -151,7 +151,7 @@ sed -i "s|return \`\${LATEST_PLUGIN_BASE_URL}\/\${version}\/latest\/\${platform}
 curl -sO ${url}
 unzip wazuh-${version}-${revision}.zip 'opensearch-dashboards/wazuh/package.json'
 build_number=$(jq -r '.version' ./opensearch-dashboards/wazuh/package.json | tr -d '.')$(jq -r '.revision' ./opensearch-dashboards/wazuh/package.json)
-rm -f ./opensearch-dashboards/wazuh/package.json
+rm -rf ./opensearch-dashboards
 rm -f ./wazuh-${version}-${revision}.zip
 jq ".build.number=${build_number}" ./package.json > ./package.json.tmp
 mv ./package.json.tmp ./package.json
