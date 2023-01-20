@@ -1,8 +1,14 @@
 #!/bin/bash
 
 echo "Installing Wazuh Manager."
-yum install $PACKAGE_NAME
+yum install -y $PACKAGE_NAME
 
 echo "Enabling Wazuh Agent."
-systemctl daemon-reload
 systemctl enable wazuh-manager
+if [ "$?" -eq 0 ]; then
+    echo "Wazuh agent enabled - Test passed correctly."
+    exit 0
+else 
+    echo "Error: Wazuh agent not enabled."
+    exit 1
+fi
