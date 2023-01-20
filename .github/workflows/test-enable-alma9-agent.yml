@@ -1,12 +1,14 @@
-name: Test the preserving of security config files upon upgrade - Wazuh indexer - RPM
+name: Test the enabling of the Wazuh agent - AlmaLinux 9 - RPM
 on:
   pull_request:
     paths:
-      - 'stack/indexer/rpm/wazuh-indexer.spec'
+      - 'rpms/SPECS'
+      - 'rpms/generate_rpm_package.sh'
+      - 'rpms/build.sh'
   workflow_dispatch:
 
 jobs:
-  Test-security-config-files-preservation-RPM:
+  Test-enable-wazuh-agent-alma9:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
