@@ -25,4 +25,4 @@ jobs:
           sudo cp ./output/$PACKAGE_NAME $GITHUB_WORKSPACE/packages/$PACKAGE_NAME
 
       - name: Launch docker
-        run: sudo docker run -v $GITHUB_WORKSPACE/.github/actions/test-enable-rhel-derivatives/:/tests -v $GITHUB_WORKSPACE/packages/:/packages redhat/ubi9-init bash /tests/install-and-test-manager.sh
+        run: sudo docker run -v $GITHUB_WORKSPACE/.github/actions/test-enable-rhel9-derivatives/:/tests -v $GITHUB_WORKSPACE/packages/:/packages redhat/ubi9-init bash /tests/install-and-test-manager.sh
