@@ -242,7 +242,7 @@ fi
 
 if [ -f /etc/os-release ]; then
   source /etc/os-release
-  if ( [ "${NAME}" = "Red Hat Enterprise Linux" ] || [ "${NAME}" = "Rocky Linux" ] || [ "${NAME}" = "Red Hat Enterprise Linux" ] ) && [ "$((${VERSION_ID:0:1}))" -ge 9 ]; then
+  if ( [ "${NAME}" = "Red Hat Enterprise Linux" ] || [ "${NAME}" = "Rocky Linux" ] || [ "${NAME}" = "AlmaLinux" ] ) && [ "$((${VERSION_ID:0:1}))" -ge 9 ]; then
     rm -f %{_initrddir}/wazuh-agent
   fi
 fi
