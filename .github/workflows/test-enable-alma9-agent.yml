@@ -15,7 +15,7 @@ jobs:
       - name: Build the Wazuh agent package
         working-directory: ./rpms
         run: |
-          sudo ./bash generate_rpm_package.sh -b master -t agent -a x86_64 --dev
+          bash generate_rpm_package.sh -b master -t agent -a x86_64 --dev
           echo "PACKAGE_NAME=$(ls ./output | grep .rpm | head -n 1)" >> $GITHUB_ENV
 
       - name: Move the built package
