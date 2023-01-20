@@ -98,12 +98,7 @@ function dashboard_initialize() {
         print_ip="${nodes_dashboard_ip}"
     fi
 
-    until [ "$(curl -XGET https://"${nodes_dashboard_ip}"/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null)" -eq "200" ] || [ "${j}" -eq "12" ]; do
-        sleep 10
-        j=$((j+1))
-    done
-
-    if [ ${j} -lt 12 ]; then
+    if [ "$(curl -XGET https://"${nodes_dashboard_ip}"/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null --max-time 300 --retry 12 --retry-delay 10 --fail)" -eq "200" ]; then
         if [ "${#server_node_names[@]}" -eq 1 ]; then
             wazuh_api_address=${server_node_ips[0]}
         else
@@ -121,7 +116,7 @@ function dashboard_initialize() {
         common_logger -nl "--- Summary ---"
         common_logger -nl "You can access the web interface https://${print_ip}\n    User: admin\n    Password: ${u_pass}"
 
-    elif [ ${j} -eq 12 ]; then
+    else
         flag="-w"
         if [ -z "${force}" ]; then
             flag="-e"
@@ -130,13 +125,13 @@ function dashboard_initialize() {
         common_logger "${flag}" "Cannot connect to Wazuh dashboard."
 
         for i in "${!indexer_node_ips[@]}"; do
-            curl=$(curl -XGET https://"${indexer_node_ips[i]}":9200/ -uadmin:"${u_pass}" -k -s --max-time 300 --retry 5 --retry-delay 5 --retry-connrefused)
+            curl=$(curl -XGET https://"${indexer_node_ips[i]}":9200/ -uadmin:"${u_pass}" -k -s --max-time 300 --retry 5 --retry-delay 5 --retry-connrefused --fail)
             exit_code=${PIPESTATUS[0]}
             if [[ "${exit_code}" -eq "7" ]]; then
                 failed_connect=1
                 failed_nodes+=("${indexer_node_names[i]}")
             fi
-            if [ "${curl}" == "OpenSearch Security not initialized." ]; then
+            if [ "${curl}" == *"OpenSearch Security not initialized."* ]; then
                 sec_not_initialized=1
             fi
         done
@@ -164,11 +159,7 @@ function dashboard_initializeAIO() {
 
     common_logger "Initializing Wazuh dashboard web application."
     installCommon_getPass "admin"
-    until [ "$(curl -XGET https://localhost/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null)" -eq "200" ] || [ "${i}" -eq 12 ]; do
-        sleep 10
-        i=$((i+1))
-    done
-    if [ ${i} -eq 12 ]; then
+    if [ "$(curl -XGET https://localhost/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null --max-time 300 --retry 12 --retry-delay 10 --retry-connrefused --fail)" -ne "200" ]; then
         common_logger -e "Cannot connect to Wazuh dashboard."
         installCommon_rollBack
         exit 1

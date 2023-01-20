@@ -52,7 +52,7 @@ function offline_download() {
     exit 1
   fi
 
-  while curl -s -o /dev/null -w "%{http_code}" "${manager_base_url}/${manager_package}" --max-time 300 --retry 5 --retry-delay 5 --retry-connrefused | grep -q "200"; do
+  while curl -s -o /dev/null -w "%{http_code}" "${manager_base_url}/${manager_package}" --max-time 300 --retry 5 --retry-delay 5 --retry-connrefused --fail | grep -q "200"; do
     manager_revision=$((manager_revision+1))
     if [ "${package_type}" == "rpm" ]; then
       manager_rpm_package="wazuh-manager-${wazuh_version}-${manager_revision}.x86_64.rpm"
@@ -62,7 +62,7 @@ function offline_download() {
       manager_package="${manager_deb_package}"
     fi
   done
-  if [ "$manager_revision" -gt 1 ] && [ "$(curl -s -o /dev/null -w "%{http_code}" "${manager_base_url}/${manager_package}" --max-time 300 --retry 5 --retry-delay 5 --retry-connrefused )" -ne "200" ]; then
+  if [ "$manager_revision" -gt 1 ] && [ "$(curl -s -o /dev/null -w "%{http_code}" "${manager_base_url}/${manager_package}" --max-time 300 --retry 5 --retry-delay 5 --retry-connrefused --fail)" -ne "200" ]; then
     manager_revision=$((manager_revision-1))
     if [ "${package_type}" == "rpm" ]; then
       manager_rpm_package="wazuh-manager-${wazuh_version}-${manager_revision}.x86_64.rpm"
@@ -71,7 +71,7 @@ function offline_download() {
     fi
   fi
 
-  while curl -s -o /dev/null -w "%{http_code}" "${indexer_base_url}/${indexer_package}" --max-time 300 --retry 5 --retry-delay 5 --retry-connrefused | grep -q "200"; do
+  while curl -s -o /dev/null -w "%{http_code}" "${indexer_base_url}/${indexer_package}" --max-time 300 --retry 5 --retry-delay 5 --retry-connrefused --fail | grep -q "200"; do
     indexer_revision=$((indexer_revision+1))
     if [ "${package_type}" == "rpm" ]; then
       indexer_rpm_package="wazuh-indexer-${wazuh_version}-${indexer_revision}.x86_64.rpm"
@@ -81,7 +81,7 @@ function offline_download() {
       indexer_package="${indexer_deb_package}"
     fi
   done
-  if [ "$indexer_revision" -gt 1 ] && [ "$(curl -s -o /dev/null -w "%{http_code}" "${indexer_base_url}/${indexer_package}" --max-time 300 --retry 5 --retry-delay 5 --retry-connrefused )" -ne "200" ]; then
+  if [ "$indexer_revision" -gt 1 ] && [ "$(curl -s -o /dev/null -w "%{http_code}" "${indexer_base_url}/${indexer_package}" --max-time 300 --retry 5 --retry-delay 5 --retry-connrefused --fail)" -ne "200" ]; then
     indexer_revision=$((indexer_revision-1))
     if [ "${package_type}" == "rpm" ]; then
       indexer_rpm_package="wazuh-indexer-${wazuh_version}-${indexer_revision}.x86_64.rpm"
@@ -90,7 +90,7 @@ function offline_download() {
     fi
   fi
 
-  while curl -s -o /dev/null -w "%{http_code}" "${dashboard_base_url}/${dashboard_package}" --max-time 300 --retry 5 --retry-delay 5 --retry-connrefused | grep -q "200"; do
+  while curl -s -o /dev/null -w "%{http_code}" "${dashboard_base_url}/${dashboard_package}" --max-time 300 --retry 5 --retry-delay 5 --retry-connrefused --fail | grep -q "200"; do
     dashboard_revision=$((dashboard_revision+1))
     if [ "${package_type}" == "rpm" ]; then
       dashboard_rpm_package="wazuh-dashboard-${wazuh_version}-${dashboard_revision}.x86_64.rpm"
