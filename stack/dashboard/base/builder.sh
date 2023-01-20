@@ -47,6 +47,10 @@ if [ "${repository}" ];then
     valid_url='(https?|ftp|file)://[-[:alnum:]\+&@#/%?=~_|!:,.;]*[-[:alnum:]\+&@#/%=~_|]'
     if [[ $repository =~ $valid_url ]];then
         url="${repository}"
+        if ! curl --output /dev/null --silent --head --fail "${url}"; then
+        echo "The given URL to download the Wazuh plugin zip does not exist: ${url}"
+        exit 1
+        fi
     else
         url="https://packages-dev.wazuh.com/${repository}/ui/dashboard/wazuh-${version}-${revision}.zip"
     fi
@@ -149,10 +153,10 @@ wazuh_plugin="if (plugin.includes(\'wazuh\')) {\n    return plugin;\n  } else {\
 sed -i "s|return \`\${LATEST_PLUGIN_BASE_URL}\/\${version}\/latest\/\${platform}\/\${arch}\/tar\/builds\/opensearch-dashboards\/plugins\/\${plugin}-\${version}.zip\`;|$wazuh_plugin|" ./src/cli_plugin/install/settings.js
 # Generate build number for package.json
 curl -sO ${url}
-unzip wazuh-${version}-${revision}.zip 'opensearch-dashboards/wazuh/package.json'
+unzip *.zip 'opensearch-dashboards/wazuh/package.json'
 build_number=$(jq -r '.version' ./opensearch-dashboards/wazuh/package.json | tr -d '.')$(jq -r '.revision' ./opensearch-dashboards/wazuh/package.json)
 rm -rf ./opensearch-dashboards
-rm -f ./wazuh-${version}-${revision}.zip
+rm -f ./*.zip
 jq ".build.number=${build_number}" ./package.json > ./package.json.tmp
 mv ./package.json.tmp ./package.json
 
