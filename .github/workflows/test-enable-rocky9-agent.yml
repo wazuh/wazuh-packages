@@ -1,0 +1,26 @@
+name: Test the preserving of security config files upon upgrade - Wazuh indexer - RPM
+on:
+  pull_request:
+    paths:
+      - 'stack/indexer/rpm/wazuh-indexer.spec'
+  workflow_dispatch:
+
+jobs:
+  Test-security-config-files-preservation-RPM:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build the Wazuh agent package
+        working-directory: ./rpms
+        run: |
+          sudo ./bash generate_rpm_package.sh -b master -t agent -a x86_64 --dev
+          echo "PACKAGE_NAME=$(ls ./output | grep .rpm | head -n 1)" >> $GITHUB_ENV
+
+      - name: Move the built package
+        working-directory: ./rpms
+        run: |
+          mkdir $GITHUB_WORKSPACE/packages
+          sudo cp ./output/$PACKAGE_NAME $GITHUB_WORKSPACE/packages/$PACKAGE_NAME
+
+      - name: Launch docker
+        run: sudo docker run -v $GITHUB_WORKSPACE/.github/actions/test-enable-rhel-derivatives/:/tests -v $GITHUB_WORKSPACE/packages/:/packages rockylinux:9 bash /tests/install-and-test-agent.sh
