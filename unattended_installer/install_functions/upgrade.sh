@@ -86,7 +86,9 @@ function upgrade_upgradeInstalled(){
   if [ -n "${indexer_installed}" ]; then
     if [ -n "${indexer_upgradable}" ]; then
       common_logger "Upgrading Wazuh Indexer to ${wazuh_version}"
+      indexert_disableShardAllocation
       eval "indexer_install ${debug}"
+      indexert_enableShardAllocation
       installCommon_startService "wazuh-indexer"
     else
       common_logger -w "Wazuh Indexer is already installed and the version is equal or greater than ${wazuh_version}."

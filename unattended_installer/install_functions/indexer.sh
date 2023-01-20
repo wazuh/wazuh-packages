@@ -108,6 +108,34 @@ function indexer_copyCertificates() {
 
 }
 
+function indexert_disableShardAllocation() {
+
+    common_logger "Disabling shard allocation."
+    installCommon_getPass "admin"
+    eval "curl -XPUT https:127.0.0.1:9200/_cluster/settings -H 'Content-Type: application/json' -d '{\"persistent\": {\"cluster.routing.allocation.enable\": \"primaries\"}}' -uadmin:${u_pass} -k --silent ${debug}"
+    if [  "${PIPESTATUS[0]}" != 0  ]; then
+        common_logger -e "Shard allocation could not be disabled."
+        exit 1
+    else
+        common_logger "Shard allocation disabled."
+    fi
+
+    eval "curl -X POST https:127.0.0.1:9200/_flush/synced -uadmin:${u_pass} -k --silent ${debug}"
+}
+
+
+function indexert_enableShardAllocation() {
+
+    common_logger "Enabling shard allocation."
+    eval "curl -XPUT https:127.0.0.1:9200/_cluster/settings -H 'Content-Type: application/json' -d '{\"persistent\": {\"cluster.routing.allocation.enable\": \"all\"}}' -uadmin:${u_pass} -k --silent ${debug}"
+    if [  "${PIPESTATUS[0]}" != 0  ]; then
+        common_logger -e "Shard allocation could not be enabled."
+        exit 1
+    else
+        common_logger "Shard allocation enabled."
+    fi
+}
+
 function indexer_initialize() {
 
     common_logger "Initializing Wazuh indexer cluster security settings."
