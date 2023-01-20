@@ -2,7 +2,7 @@ name: Test the enabling of the Wazuh agent - Red Hat Enterprise Linux 9 - RPM
 on:
   pull_request:
     paths:
-      - 'rpms/SPECS'
+      - 'rpms/SPECS/*'
       - 'rpms/generate_rpm_package.sh'
       - 'rpms/build.sh'
   workflow_dispatch:
