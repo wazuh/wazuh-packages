@@ -25,4 +25,4 @@ jobs:
           sudo cp ./output/$PACKAGE_NAME $GITHUB_WORKSPACE/packages/$PACKAGE_NAME
 
       - name: Launch docker
-        run: sudo docker run -v $GITHUB_WORKSPACE/.github/actions/test-enable-rhel-derivatives/:/tests -v $GITHUB_WORKSPACE/packages/:/packages almalinux:latest bash /tests/install-and-test-agent.sh
+        run: sudo docker run -v $GITHUB_WORKSPACE/.github/actions/test-enable-rhel-derivatives/:/tests -v $GITHUB_WORKSPACE/packages/:/packages almalinux:9.1 bash /tests/install-and-test-agent.sh
