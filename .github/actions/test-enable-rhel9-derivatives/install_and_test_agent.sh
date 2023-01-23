@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Installing Wazuh Agent."
-yum install -y $PACKAGE_NAME
+yum install -y "/packages/$1"
 
 echo "Enabling Wazuh Agent."
 systemctl enable wazuh-agent
