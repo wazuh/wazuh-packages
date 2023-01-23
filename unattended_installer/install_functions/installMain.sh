@@ -134,7 +134,8 @@ function main() {
                 ;;
             "-up"|"--upgrade")
                 upgrade=1
-                shift 1
+                indexer_admin_pass="${2}"
+                shift 2
                 ;;
             "-v"|"--verbose")
                 debugEnabled=1

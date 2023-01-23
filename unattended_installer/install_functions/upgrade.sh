@@ -35,7 +35,7 @@ function upgrade_getUpgradable {
 
   if [ -n "${indexer_installed}" ]; then
     if [ "${sys_type}" == "yum" ]; then
-        indexer_upgradable=$(yum list wazuh-indexer --showduplicates | tail -n +8 | grep -A 5000 ${wazuh_installed} | tail -n +2 | grep ${wazuh_version})
+        indexer_upgradable=$(yum list wazuh-indexer --showduplicates | tail -n +8 | grep -A 5000 ${indexer_installed} | tail -n +2 | grep ${wazuh_version})
     elif [ "${sys_type}" == "apt-get" ]; then
         indexer_upgradable=$(apt-get install wazuh-indexer=${wazuh_version}-* --dry-run |grep "The following packages will be upgraded:")
     fi
@@ -86,9 +86,9 @@ function upgrade_upgradeInstalled(){
   if [ -n "${indexer_installed}" ]; then
     if [ -n "${indexer_upgradable}" ]; then
       common_logger "Upgrading Wazuh Indexer to ${wazuh_version}"
-      indexert_disableShardAllocation
+      indexer_disableShardAllocation
       eval "indexer_install ${debug}"
-      indexert_enableShardAllocation
+      indexer_enableShardAllocation
       installCommon_startService "wazuh-indexer"
     else
       common_logger -w "Wazuh Indexer is already installed and the version is equal or greater than ${wazuh_version}."

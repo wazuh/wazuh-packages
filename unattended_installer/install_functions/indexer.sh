@@ -108,11 +108,17 @@ function indexer_copyCertificates() {
 
 }
 
-function indexert_disableShardAllocation() {
+function indexer_disableShardAllocation() {
 
     common_logger "Disabling shard allocation."
-    installCommon_getPass "admin"
-    eval "curl -XPUT https:127.0.0.1:9200/_cluster/settings -H 'Content-Type: application/json' -d '{\"persistent\": {\"cluster.routing.allocation.enable\": \"primaries\"}}' -uadmin:${u_pass} -k --silent ${debug}"
+
+    if [ -z "indexer_admin_pass" ]; then
+        common_logger -e "Could not disable shard allocation. Admin password not found."
+        exit 1
+    fi
+
+    eval "curl -XPUT https://127.0.0.1:9200/_cluster/settings -H 'Content-Type: application/json' -d '{\"persistent\": {\"cluster.routing.allocation.enable\": \"primaries\"}}' -uadmin:${indexer_admin_pass} -k --silent ${debug}"
+    
     if [  "${PIPESTATUS[0]}" != 0  ]; then
         common_logger -e "Shard allocation could not be disabled."
         exit 1
@@ -120,14 +126,21 @@ function indexert_disableShardAllocation() {
         common_logger "Shard allocation disabled."
     fi
 
-    eval "curl -X POST https:127.0.0.1:9200/_flush/synced -uadmin:${u_pass} -k --silent ${debug}"
+    eval "curl -X POST https://127.0.0.1:9200/_flush/synced -uadmin:${u_pass} -k --silent ${debug}"
+
+    if [  "${PIPESTATUS[0]}" != 0  ]; then
+        common_logger -e "Could not flush synced."
+        exit 1
+    fi
 }
 
 
-function indexert_enableShardAllocation() {
+function indexer_enableShardAllocation() {
 
     common_logger "Enabling shard allocation."
-    eval "curl -XPUT https:127.0.0.1:9200/_cluster/settings -H 'Content-Type: application/json' -d '{\"persistent\": {\"cluster.routing.allocation.enable\": \"all\"}}' -uadmin:${u_pass} -k --silent ${debug}"
+
+    eval "curl -XPUT https://127.0.0.1:9200/_cluster/settings -H 'Content-Type: application/json' -d '{\"persistent\": {\"cluster.routing.allocation.enable\": \"all\"}}' -uadmin:${indexer_admin_pass} -k --silent ${debug}"
+
     if [  "${PIPESTATUS[0]}" != 0  ]; then
         common_logger -e "Shard allocation could not be enabled."
         exit 1
