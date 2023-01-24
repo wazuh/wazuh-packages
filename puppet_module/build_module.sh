@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Wazuh package generator
-# Copyright (C) 2022, Wazuh Inc.
+# Copyright (C) 2023, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
@@ -11,11 +11,10 @@
 set -e
 
 wazuh_puppet_branch=""
-wazuh_forge_token=""
-environment="prod"
 current_path="$( cd $(dirname $0) ; pwd -P )"
 dockerfile_path="${current_path}/Docker"
 container_name="puppet_module_builder"
+outdir="${current_path}/output"
 
 # -----------------------------------------------------------------------------
 
@@ -44,7 +43,9 @@ build() {
     # Build the Docker image
     docker build -t ${container_name} ${dockerfile_path} || return 1
 
-    docker run -t --rm ${container_name} ${wazuh_puppet_branch} ${wazuh_forge_token} ${environment} || return 1
+    docker run -t --rm -v ${outdir}/:/tmp/output:Z ${container_name} ${wazuh_puppet_branch} || return 1
+
+    echo "Puppet module file $(ls -Art ${outdir} | tail -n 1) added to ${outdir}."
 
     return 0
 }
@@ -53,13 +54,23 @@ build() {
 
 help() {
     echo
-    echo "Usage: $0 [OPTIONS]"
-    echo
-    echo "    -b, --branch <branch>           [Required] wazuh-puppet branch or tag"
-    echo "    -e, --environment <dev/prod>    [Optional] Set the environment in which the module will be published. By default, the environment is prod"
-    echo "    -f, --forge-token <token>       [Required] Token to post in the puppet forge"
-    echo "    -h, --help                      Show this help."
-    echo
+    echo -e ""
+    echo -e "NAME"
+    echo -e "        $(basename "${0}") - Build Wazuh Puppet module."
+    echo -e ""
+    echo -e "SYNOPSIS"
+    echo -e "        $(basename "${0}") [OPTIONS]"
+    echo -e ""
+    echo -e "DESCRIPTION"
+    echo -e "        -b, --branch <branch>"
+    echo -e "                Enter the branch or tag of the wazuh-puppet repository from which you want to build the module."
+    echo -e ""
+    echo -e "        -s, --store <path>"
+    echo -e "                [Optional] Set the destination path of package. By default, an output folder will be created."
+    echo -e ""
+    echo -e "        -h,  --help"
+    echo -e "                Shows help."
+    echo -e ""
     exit $1
 }
 
@@ -80,17 +91,9 @@ main() {
                 help 1
             fi
             ;;
-        "-e"|"--environment")
+        "-s"|"--store")
             if [ -n "${2}" ]; then
-                environment="${2}"
-                shift 2
-            else
-                help 1
-            fi
-            ;;
-        "-f"|"--forge-token")
-            if [ -n "${2}" ]; then
-                wazuh_forge_token="${2}"
+                outdir="${2}"
                 shift 2
             else
                 help 1
@@ -101,8 +104,8 @@ main() {
         esac
     done
 
-    if [ -z "${wazuh_puppet_branch}" ] || [ -z "${wazuh_forge_token}" ]; then
-        echo "You must enter the parameters, --branch and --forge-token"
+    if [ -z "${wazuh_puppet_branch}" ];  then
+        echo "Branch cannot be empty"
         exit $1
     fi
 
