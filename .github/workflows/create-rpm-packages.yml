@@ -1,0 +1,64 @@
+name: Build Wazuh Packages - RPM - All architectures
+on:
+  pull_request:
+    paths:
+      - 'rpms/SPECS/*'
+      - 'rpms/generate_rpm_package.sh'
+      - 'rpms/build.sh'
+  workflow_dispatch:
+
+jobs:
+  Wazuh-agent-rpm-package-builds-aarch64-armv7-ppc64le:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        type: [agent, manager]
+        arch : [aarch64, armv7]
+        distro: [ubuntu18.04]
+        include:
+          - arch: ppc64le
+            distro: alpine_latest
+            type: agent
+          - arch: ppc64le
+            distro: alpine_latest
+            type: manager
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: uraimo/run-on-arch-action@v2
+        name: Build the ${{ matrix.arch }} rpm Wazuh ${{ matrix.type }} package
+        working-directory: ./rpms
+        with:
+          arch: ${{ matrix.arch }}
+          distro: ${{ matrix.distro }}
+          githubToken: ${{ github.token }}
+          run: |
+            bash generate_rpm_package.sh -b master -t ${{ matrix.type }} -a ${{ matrix.arch }} --dev
+            echo "PACKAGE_NAME_${{ matrix.arch }}_${{ matrix.type }}=$(ls ./output | grep .rpm | head -n 1)" >> $GITHUB_ENV
+
+      - name: Upload Wazuh ${{ matrix.type }} ${{ matrix.arch }} package as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: $PACKAGE_NAME_${{ matrix.arch }}_${{ matrix.type }}
+          path: ./rpms/output/$PACKAGE_NAME_${{ matrix.arch }}_${{ matrix.type }}
+
+  Wazuh-agent-rpm-package-builds-x86_64-i386:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        type: [agent, manager]
+        arch : [x86_64, i386]
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build the ${{ matrix.arch }} rpm Wazuh ${{ matrix.type }} package
+        working-directory: ./rpms
+        run: |
+          bash generate_rpm_package.sh -b master -t ${{ matrix.type }} -a ${{ matrix.arch }} --dev
+          echo "PACKAGE_NAME_${{ matrix.arch }}_${{ matrix.type }}=$(ls ./output | grep .rpm | head -n 1)" >> $GITHUB_ENV
+
+      - name: Upload Wazuh ${{ matrix.type }} ${{ matrix.arch }} package as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: $PACKAGE_NAME_${{ matrix.arch }}_${{ matrix.type }}
+          path: ./rpms/output/$PACKAGE_NAME_${{ matrix.arch }}_${{ matrix.type }}
