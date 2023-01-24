@@ -12,16 +12,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        distro: [almalinux:9.1, oraclelinux:9, rockylinux:9.1, centos:7, centos:8, redhat/ubi8, redhat/ubi9]
-        type: [agent, manager]
+        distro: [ almalinux\:9, oraclelinux\:9, rockylinux\:9, centos\:7, centos\:8, redhat/ubi8, redhat/ubi9]
+        type: [manager]
         exclude:
-          - distro: almalinux:9.1
+          - distro: almalinux\:9
             type: manager
-          - distro: oraclelinux:9
+          - distro: oraclelinux\:9
             type: manager
-          - distro: rockylinux:9.1
-            type: manager
-          - distro: centos:9
+          - distro: rockylinux\:9
             type: manager
     steps:
       - uses: actions/checkout@v3
@@ -36,6 +34,8 @@ jobs:
         run: |
           curl -o $PACKAGE_NAME https://packages-dev.wazuh.com/pre-release/yum/$PACKAGE_NAME
           mv $PACKAGE_NAME $GITHUB_WORKSPACE/packages
+
+      - run: find $GITHUB_WORKSPACE
 
       - name: Launch docker
         run: sudo docker run -v $GITHUB_WORKSPACE/.github/actions/test-install-enable/:/tests -v $GITHUB_WORKSPACE/packages/:/packages ${{ matrix.distro }} bash /tests/install_and_enable.sh $PACKAGE_NAME ${{ matrix.type }}

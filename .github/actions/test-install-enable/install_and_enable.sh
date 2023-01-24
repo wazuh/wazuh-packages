@@ -1,6 +1,4 @@
 #!/bin/bash
-set -x
-ls -la /packages
 echo "Installing Wazuh $2."
 source /etc/os-release
 if [ "$ID" = "centos" ] && [ "$VERSION_ID" = "8" ]; then
@@ -18,4 +16,3 @@ else
     echo "Error: Wazuh $2 not enabled."
     exit 1
 fi
-set +x
