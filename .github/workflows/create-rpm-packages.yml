@@ -14,26 +14,27 @@ jobs:
       matrix:
         type: [agent, manager]
         arch : [aarch64, armv7]
-        distro: [ubuntu18.04]
-        include:
-          - arch: ppc64le
+        distro: [ubuntu18.04, alpine_latest]
+        exclude:
+          - arch: armv7
             distro: alpine_latest
-            type: agent
-          - arch: ppc64le
+          - arch: aarch64
             distro: alpine_latest
-            type: manager
+          - arch: ppc64le
+            distro: ubuntu18.04
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
 
-      - uses: uraimo/run-on-arch-action@v2
+      - uses: uraimo/run-on-arch-action@v2.5.0
         name: Build the ${{ matrix.arch }} rpm Wazuh ${{ matrix.type }} package
         with:
           arch: ${{ matrix.arch }}
           distro: ${{ matrix.distro }}
           githubToken: ${{ github.token }}
           run: |
-            bash ./rpms/generate_rpm_package.sh -b master -t ${{ matrix.type }} -a ${{ matrix.arch }} --dev
+            bash $GItHUB_WORKSPACE/.github/actions/common-tools/install_docker_on_ubuntu.sh
+            bash $GITHUB_WORKSPACE/rpms/generate_rpm_package.sh -b master -t ${{ matrix.type }} -a ${{ matrix.arch }} --dev
             echo "PACKAGE_NAME_${{ matrix.arch }}_${{ matrix.type }}=$(ls ./output | grep .rpm | head -n 1)" >> $GITHUB_ENV
 
       - name: Upload Wazuh ${{ matrix.type }} ${{ matrix.arch }} package as artifact
