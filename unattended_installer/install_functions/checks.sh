@@ -166,6 +166,26 @@ function checks_arguments() {
 
 }
 
+function check_curlVersion() {
+
+    if [ "${sys_type}" == "yum" ]; then
+        if ! yum list installed 2>/dev/null | grep -q curl; then
+            eval "yum install curl -y ${debug}"
+        fi
+    elif [ "${sys_type}" == "apt-get" ]; then
+        if ! apt list --installed 2>/dev/null | grep -q "${dep}"; then
+            installCommon_aptInstall "curl"
+        fi
+    fi
+
+    # --retry-connrefused was added in 7.52.0
+    curl_version=$(curl -V | head -n 1 | awk '{ print $2 }')
+    if [ $(check_versions ${curl_version} 7.52.0) == "0" ]; then
+        connrefused=0
+    fi
+
+}
+
 function check_dist() {
     dist_detect
     if [ "${DIST_NAME}" != "centos" ] && [ "${DIST_NAME}" != "rhel" ] && [ "${DIST_NAME}" != "amzn" ] && [ "${DIST_NAME}" != "ubuntu" ]; then
@@ -328,6 +348,17 @@ function checks_ports() {
         common_logger "The installation can not continue due to port usage by other processes."
         installCommon_rollBack
         exit 1
+    fi
+
+}
+
+# Checks if the first version is greater equal than the second
+function check_versions() {
+
+    if test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1"; then
+        echo 0
+    else
+        echo 1
     fi
 
 }

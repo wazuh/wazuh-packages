@@ -313,6 +313,25 @@ function installCommon_installPrerequisites() {
 
 }
 
+#
+function installCommon_curl() {
+    set -x
+    if [ -n "${connrefused}" ]; then
+        eval "curl $@ --retry-connrefused"
+        e_code="${PIPESTATUS[0]}"
+    else
+        retries=0
+        eval "curl $@"
+        e_code="${PIPESTATUS[0]}"
+        while [ "${e_code}" -eq 7 ] && [ "${retries}" -ne 12 ]; do
+            retries=$((retries+1))
+            eval "curl $@"
+            e_code="${PIPESTATUS[0]}"
+        done
+    fi
+    set +x
+}
+
 function installCommon_readPasswordFileUsers() {
 
     filecorrect=$(grep -Ev '^#|^\s*$' "${p_file}" | grep -Pzc "\A(\s*(indexer_username|api_username|indexer_password|api_password):[ \t]+[\'\"]?[\w.*+?-]+[\'\"]?)+\Z")

@@ -209,6 +209,7 @@ function main() {
     common_checkSystem
     common_checkInstalled
     checks_arguments
+    check_curlVersion
     if [ -n "${uninstall}" ]; then
         installCommon_rollBack
         exit 0
