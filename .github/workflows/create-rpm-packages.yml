@@ -31,9 +31,8 @@ jobs:
           arch: ${{ matrix.arch }}
           distro: ${{ matrix.distro }}
           githubToken: ${{ github.token }}
-          working-directory: ./rpms
           run: |
-            bash generate_rpm_package.sh -b master -t ${{ matrix.type }} -a ${{ matrix.arch }} --dev
+            bash ./rpms/generate_rpm_package.sh -b master -t ${{ matrix.type }} -a ${{ matrix.arch }} --dev
             echo "PACKAGE_NAME_${{ matrix.arch }}_${{ matrix.type }}=$(ls ./output | grep .rpm | head -n 1)" >> $GITHUB_ENV
 
       - name: Upload Wazuh ${{ matrix.type }} ${{ matrix.arch }} package as artifact
