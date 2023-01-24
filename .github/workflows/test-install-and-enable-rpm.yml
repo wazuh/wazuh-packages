@@ -1,0 +1,41 @@
+name: Test install and enable Wazuh agent and manager - RPM
+on:
+  pull_request:
+    paths:
+      - 'rpms/SPECS/*'
+      - 'rpms/generate_rpm_package.sh'
+      - 'rpms/build.sh'
+  workflow_dispatch:
+
+jobs:
+  Test-install-and-enable-rpm-systems:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        distro: [almalinux:9.1, oraclelinux:9, rockylinux:9.1, centos:7, centos:8, redhat/ubi8, redhat/ubi9]
+        type: [agent, manager]
+        exclude:
+          - distro: almalinux:9.1
+            type: manager
+          - distro: oraclelinux:9
+            type: manager
+          - distro: rockylinux:9.1
+            type: manager
+          - distro: centos:9
+            type: manager
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup directories and variables
+        run: |
+          mkdir $GITHUB_WORKSPACE/packages
+          echo 'PACKAGE_NAME=wazuh-${{ matrix.type }}-4.4.0-1.x86_64.rpm' >> $GITHUB_ENV
+
+      - name: Download the Wazuh ${{ matrix.type }} package for ${{ matrix.distro }}
+        working-directory: ./rpms
+        run: |
+          curl -o $PACKAGE_NAME https://packages-dev.wazuh.com/pre-release/yum/$PACKAGE_NAME
+          mv $PACKAGE_NAME $GITHUB_WORKSPACE/packages
+
+      - name: Launch docker
+        run: sudo docker run -v $GITHUB_WORKSPACE/.github/actions/test-install-enable/:/tests -v $GITHUB_WORKSPACE/packages/:/packages ${{ matrix.distro }} bash /tests/install_and_enable.sh $PACKAGE_NAME ${{ matrix.type }}
