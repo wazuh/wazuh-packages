@@ -40,8 +40,8 @@ jobs:
       - name: Upload Wazuh ${{ matrix.type }} ${{ matrix.arch }} package as artifact
         uses: actions/upload-artifact@v2
         with:
-          name: $PACKAGE_NAME_${{ matrix.arch }}_${{ matrix.type }}
-          path: ./rpms/output/$PACKAGE_NAME_${{ matrix.arch }}_${{ matrix.type }}
+          name: ${PACKAGE_NAME_${{ matrix.arch }}_${{ matrix.type }}}
+          path: ./rpms/output/${PACKAGE_NAME_${{ matrix.arch }}_${{ matrix.type }}}
 
   Wazuh-agent-rpm-package-builds-x86_64-i386:
     runs-on: ubuntu-latest
@@ -56,10 +56,10 @@ jobs:
         working-directory: ./rpms
         run: |
           bash generate_rpm_package.sh -b master -t ${{ matrix.type }} -a ${{ matrix.arch }} --dev
-          echo "PACKAGE_NAME_${{ matrix.arch }}_${{ matrix.type }}=$(ls ./output | grep .rpm | head -n 1)" >> $GITHUB_ENV
+          echo "{PACKAGE_NAME_${{ matrix.arch }}_${{ matrix.type }}}=$(ls ./output | grep .rpm | head -n 1)" >> $GITHUB_ENV
 
       - name: Upload Wazuh ${{ matrix.type }} ${{ matrix.arch }} package as artifact
         uses: actions/upload-artifact@v2
         with:
-          name: $PACKAGE_NAME_${{ matrix.arch }}_${{ matrix.type }}
-          path: ./rpms/output/$PACKAGE_NAME_${{ matrix.arch }}_${{ matrix.type }}
+          name: ${PACKAGE_NAME_${{ matrix.arch }}_${{ matrix.type }}}
+          path: ./rpms/output/${PACKAGE_NAME_${{ matrix.arch }}_${{ matrix.type }}}

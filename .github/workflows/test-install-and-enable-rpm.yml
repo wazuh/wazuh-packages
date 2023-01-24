@@ -56,9 +56,17 @@ jobs:
           echo 'PACKAGE_NAME=wazuh-${{ matrix.type }}-4.4.0-1.x86_64.rpm' >> $GITHUB_ENV
 
       - name: Download the Wazuh ${{ matrix.type }} package for ${{ matrix.imagename }}:${{ matrix.version }}
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: create-rpm-packages.yml
+          workflow_conclusion: success
+          name: $PACKAGE_NAME
+
+
+      - name: Download the Wazuh ${{ matrix.type }} package for ${{ matrix.imagename }}:${{ matrix.version }}
         working-directory: ./rpms
         run: |
-          curl -o $PACKAGE_NAME https://packages-dev.wazuh.com/pre-release/yum/$PACKAGE_NAME
+          #curl -o $PACKAGE_NAME https://packages-dev.wazuh.com/pre-release/yum/$PACKAGE_NAME
           mv $PACKAGE_NAME $GITHUB_WORKSPACE/packages
 
       - name: Launch docker
