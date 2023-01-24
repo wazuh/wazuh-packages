@@ -46,6 +46,7 @@ jobs:
           - imagename: redhat/ubi9
             version: latest
             type: manager
+      fail-fast: false
     steps:
       - uses: actions/checkout@v3
 

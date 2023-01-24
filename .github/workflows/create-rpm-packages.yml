@@ -22,6 +22,7 @@ jobs:
           - arch: ppc64le
             distro: alpine_latest
             type: manager
+      fail-fast: false
     steps:
       - uses: actions/checkout@v3
 
