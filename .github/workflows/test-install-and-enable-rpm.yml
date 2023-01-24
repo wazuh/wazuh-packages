@@ -12,14 +12,39 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        distro: [ almalinux\:9, oraclelinux\:9, rockylinux\:9, centos\:7, centos\:8, redhat/ubi8, redhat/ubi9]
-        type: [manager]
-        exclude:
-          - distro: almalinux\:9
+        include:
+          - imagename: almalinux
+            version: 9
+            type: agent
+          - imagename: oraclelinux
+            version: 9
+            type: agent
+          - imagename: rockylinux
+            version: 9
+            type: agent
+          - imagename: centos
+            version: 7
+            type: agent
+          - imagename: centos
+            version: 7
             type: manager
-          - distro: oraclelinux\:9
+          - imagename: centos
+            version: 8
+            type: agent
+          - imagename: centos
+            version: 8
             type: manager
-          - distro: rockylinux\:9
+          - imagename: redhat/ubi8
+            version: latest
+            type: agent
+          - imagename: redhat/ubi8
+            version: latest
+            type: manager
+          - imagename: redhat/ubi9
+            version: latest
+            type: agent
+          - imagename: redhat/ubi9
+            version: latest
             type: manager
     steps:
       - uses: actions/checkout@v3
@@ -29,13 +54,11 @@ jobs:
           mkdir $GITHUB_WORKSPACE/packages
           echo 'PACKAGE_NAME=wazuh-${{ matrix.type }}-4.4.0-1.x86_64.rpm' >> $GITHUB_ENV
 
-      - name: Download the Wazuh ${{ matrix.type }} package for ${{ matrix.distro }}
+      - name: Download the Wazuh ${{ matrix.type }} package for ${{ matrix.imagename }}:${{ matrix.version }}
         working-directory: ./rpms
         run: |
           curl -o $PACKAGE_NAME https://packages-dev.wazuh.com/pre-release/yum/$PACKAGE_NAME
           mv $PACKAGE_NAME $GITHUB_WORKSPACE/packages
 
-      - run: find $GITHUB_WORKSPACE
-
       - name: Launch docker
-        run: sudo docker run -v $GITHUB_WORKSPACE/.github/actions/test-install-enable/:/tests -v $GITHUB_WORKSPACE/packages/:/packages ${{ matrix.distro }} bash /tests/install_and_enable.sh $PACKAGE_NAME ${{ matrix.type }}
+        run: sudo docker run -v $GITHUB_WORKSPACE/.github/actions/test-install-enable/:/tests -v $GITHUB_WORKSPACE/packages/:/packages ${{ matrix.imagename }}:${{ matrix.version }} bash /tests/install_and_enable.sh $PACKAGE_NAME ${{ matrix.type }}
