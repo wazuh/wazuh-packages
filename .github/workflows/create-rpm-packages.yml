@@ -33,7 +33,7 @@ jobs:
           distro: ${{ matrix.distro }}
           githubToken: ${{ github.token }}
           run: |
-            bash $GItHUB_WORKSPACE/.github/actions/common-tools/install_docker_on_ubuntu.sh
+            bash $GITHUB_WORKSPACE/.github/actions/common-tools/install_docker_on_ubuntu.sh
             bash $GITHUB_WORKSPACE/rpms/generate_rpm_package.sh -b master -t ${{ matrix.type }} -a ${{ matrix.arch }} --dev
             echo "PACKAGE_NAME_${{ matrix.arch }}_${{ matrix.type }}=$(ls ./output | grep .rpm | head -n 1)" >> $GITHUB_ENV
 
