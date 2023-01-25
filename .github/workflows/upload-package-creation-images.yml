@@ -12,20 +12,32 @@ on:
   workflow_dispatch:
 
 jobs:
-  Upload-RPM-x86_64-image:
+  Upload-RPM-x86_64-i386-images:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        image: [ {CONTAINER_NAME: rpm_builder_x86, DOCKERFILE_PATH: rpms/CentOS/6/x86_64}, {CONTAINER_NAME: rpm_builder_i386, DOCKERFILE_PATH: rpms/CentOS/6/i386}, {CONTAINER_NAME: rpm_builder_aarch64, DOCKERFILE_PATH: rpms/CentOS/7/aarch64}, {CONTAINER_NAME: rpm_builder_ppc64le, DOCKERFILE_PATH: rpms/CentOS/7/ppc64le}, {CONTAINER_NAME: rpm_builder_armv7, DOCKERFILE_PATH: rpms/CentOS/7/armv7hl} ]
+        image: [ {CONTAINER_NAME: rpm_builder_x86, DOCKERFILE_PATH: rpms/CentOS/6/x86_64}, {CONTAINER_NAME: rpm_builder_i386, DOCKERFILE_PATH: rpms/CentOS/6/i386}]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
 
       - name: Build and push image ${{ matrix.image.CONTAINER_NAME }}_${{github.ref_name}} to Github Container Registry
-        uses: pmorelli92/github-container-registry-build-push@2.0.0
+        run:
+          bash $GITHUB_WORKSPACE/.github/actions/common-tools/build_and_push_image_to_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ matrix.image.CONTAINER_NAME }}_${{github.ref_name}} ./${{ matrix.image.DOCKERFILE_PATH }}
+
+  Upload-RPM-armv7-ppc64le-aarch64-images:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image: [ {CONTAINER_NAME: rpm_builder_aarch64, DOCKERFILE_PATH: rpms/CentOS/7/aarch64, ARCHITECTURE: aarch64, DISTRO: ubuntu18.04}, {CONTAINER_NAME: rpm_builder_ppc64le, DOCKERFILE_PATH: rpms/CentOS/7/ppc64le, ARCHITECTURE: ppc64le, DISTRO: alpine_latest}, {CONTAINER_NAME: rpm_builder_armv7, DOCKERFILE_PATH: rpms/CentOS/7/armv7hl, ARCHITECTURE: armv7 , DISTRO: ubuntu18.04} ]
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: uraimo/run-on-arch-action@v2.5.0
+        name: Build and push image ${{ matrix.image.CONTAINER_NAME }}_${{github.ref_name}} to Github Container Registry
         with:
-          github-push-secret: ${{secrets.GITHUB_TOKEN}}
-          docker-image-name: ${{ matrix.image.CONTAINER_NAME }}_${{github.ref_name}}
-          docker-image-tag: latest
-          dockerfile-path: ./${{ matrix.image.DOCKERFILE_PATH }}/Dockerfile
-          build-context: ./${{ matrix.image.DOCKERFILE_PATH }}
+          arch: ${{ matrix.image.ARCHITECTURE }}
+          distro: ${{ matrix.image.DISTRO }}
+          run:
+            bash $GITHUB_WORKSPACE/.github/actions/common-tools/build_and_push_image_to_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ matrix.image.CONTAINER_NAME }}_${{github.ref_name}} ./${{ matrix.image.DOCKERFILE_PATH }}
