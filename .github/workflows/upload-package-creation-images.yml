@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  Upload RPM x86_64 image:
+  Upload-RPM-x86_64-image:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -16,12 +16,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-  # run only if some file in 'src' folder was changed
-      - if: steps.changes.outputs.src == 'true'
-        name: Build and push image ${{ image.CONTAINER_NAME }} to GIthub Container Registry
+      - name: Build and push image ${{ matrix.image.CONTAINER_NAME }} to Github Container Registry
         uses: pmorelli92/github-container-registry-build-push@2.0.0
         with:
           github-push-secret: ${{secrets.GITHUB_TOKEN}}
-          docker-image-name: ${{ image.CONTAINER_NAME }}
+          docker-image-name: ${{ matrix.image.CONTAINER_NAME }}
           docker-image-tag: latest
-          dockerfile-path: ${{ image.DOCKERFILE_PATH }}/Dockerfile
+          dockerfile-path: ${{ matrix.image.DOCKERFILE_PATH }}/Dockerfile
