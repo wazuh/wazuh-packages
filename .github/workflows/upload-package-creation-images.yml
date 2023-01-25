@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        image: [ {CONTAINER_NAME: rpm_builder_aarch64, DOCKERFILE_PATH: rpms/CentOS/7/aarch64, ARCHITECTURE: aarch64, DISTRO: ubuntu18.04}, {CONTAINER_NAME: rpm_builder_ppc64le, DOCKERFILE_PATH: rpms/CentOS/7/ppc64le, ARCHITECTURE: ppc64le, DISTRO: alpine_latest}, {CONTAINER_NAME: rpm_builder_armv7, DOCKERFILE_PATH: rpms/CentOS/7/armv7hl, ARCHITECTURE: armv7 , DISTRO: ubuntu18.04} ]
+        image: [ {CONTAINER_NAME: rpm_builder_aarch64, DOCKERFILE_PATH: rpms/CentOS/7/aarch64, ARCHITECTURE: aarch64, DISTRO: alpine_latest}, {CONTAINER_NAME: rpm_builder_ppc64le, DOCKERFILE_PATH: rpms/CentOS/7/ppc64le, ARCHITECTURE: ppc64le, DISTRO: alpine_latest}, {CONTAINER_NAME: rpm_builder_armv7, DOCKERFILE_PATH: rpms/CentOS/7/armv7hl, ARCHITECTURE: armv7 , DISTRO: alpine_latest} ]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2

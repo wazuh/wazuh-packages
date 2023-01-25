@@ -1,5 +1,5 @@
 #!/bin/sh
 
-apk update
-apk add bash
-apk add docker docker-compose
+apk -q update
+apk -q add bash
+apk -q add docker docker-compose
