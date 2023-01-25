@@ -1,16 +1,17 @@
 GITHUB_PUSH_SECRET=$1
-DOCKER_IMAGE_NAME=$2
-BUILD_CONTEXT=$3
+GITHUB_USER=$2
+DOCKER_IMAGE_NAME=$3
+BUILD_CONTEXT=$4
 DOCKERFILE_PATH="$BUILD_CONTEXT/Dockerfile"
-if [ -n "$4" ]; then
-    DOCKER_IMAGE_TAG=$4
+if [ -n "$5" ]; then
+    DOCKER_IMAGE_TAG=$5
 else 
     DOCKER_IMAGE_TAG="latest"
 fi
 
 
 # Login to GHCR
-echo ${GITHUB_PUSH_SECRET} | docker login https://ghcr.io -u "wazuh"--password-stdin
+echo ${GITHUB_PUSH_SECRET} | docker login https://ghcr.io -u $GITHUB_USER --password-stdin
 
 # GITHUB_REPOSITORY is always org/repo syntax. Get the owner in case it is different than the actor (when working in an org)
 GITHUB_REPOSITORY="wazuh/wazuh-packages"

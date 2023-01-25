@@ -32,6 +32,7 @@ jobs:
           arch: ${{ matrix.arch }}
           distro: ${{ matrix.distro }}
           githubToken: ${{ github.token }}
+          dockerRunArgs: --volume /var/run/docker.sock:/var/run/docker.sock
           run: |
             sh $GITHUB_WORKSPACE/.github/actions/common-tools/setup_docker.sh
             bash $GITHUB_WORKSPACE/rpms/generate_rpm_package.sh -b master -t ${{ matrix.type }} -a ${{ matrix.arch }} --dev
