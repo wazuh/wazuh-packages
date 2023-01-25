@@ -183,7 +183,7 @@ function indexer_startCluster() {
     else
         common_logger "Wazuh indexer cluster security configuration initialized."
     fi
-    eval "installCommon_curl --silent ${filebeat_wazuh_template} --max-time 300 --retry 5 --retry-delay 5 | installCommon_curl -X PUT 'https://${indexer_node_ips[pos]}:9200/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k --silent --max-time 300 --retry 5 --retry-delay 5 ${debug}"
+    eval "installCommon_curl --silent ${filebeat_wazuh_template} --max-time 300 --retry 5 --retry-delay 5" | eval "installCommon_curl -X PUT 'https://${indexer_node_ips[pos]}:9200/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k --silent --max-time 300 --retry 5 --retry-delay 5 ${debug}"
     if [  "${PIPESTATUS[0]}" != 0  ]; then
         common_logger -e "The wazuh-alerts template could not be inserted into the Wazuh indexer cluster."
         exit 1
