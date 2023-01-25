@@ -10,12 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        image: [ \
-        {CONTAINER_NAME: 'rpm_builder_x86', DOCKERFILE_PATH: '$GITHUB_WORKSPACE/rpms/CentOS/6/x86_64'}, \
-        {CONTAINER_NAME: 'rpm_builder_i386', DOCKERFILE_PATH: '$GITHUB_WORKSPACE/rpms/CentOS/6/i386'}, \
-        {CONTAINER_NAME: 'rpm_builder_aarch64', DOCKERFILE_PATH: '$GITHUB_WORKSPACE/rpms/CentOS/7/aarch64'}, \
-        {CONTAINER_NAME: 'rpm_builder_ppc64le', DOCKERFILE_PATH: '$GITHUB_WORKSPACE/rpms/CentOS/7/ppc64le'}, \
-        {CONTAINER_NAME: 'rpm_builder_armv7', DOCKERFILE_PATH: '$GITHUB_WORKSPACE/rpms/CentOS/7/armv7hl'} ]
+        image: [ {CONTAINER_NAME: rpm_builder_x86, DOCKERFILE_PATH: $GITHUB_WORKSPACE/rpms/CentOS/6/x86_64}, {CONTAINER_NAME: rpm_builder_i386, DOCKERFILE_PATH: $GITHUB_WORKSPACE/rpms/CentOS/6/i386}, {CONTAINER_NAME: rpm_builder_aarch64, DOCKERFILE_PATH: $GITHUB_WORKSPACE/rpms/CentOS/7/aarch64}, {CONTAINER_NAME: rpm_builder_ppc64le, DOCKERFILE_PATH: $GITHUB_WORKSPACE/rpms/CentOS/7/ppc64le}, {CONTAINER_NAME: rpm_builder_armv7, DOCKERFILE_PATH: $GITHUB_WORKSPACE/rpms/CentOS/7/armv7hl} ]
+      fail-fast: false
     steps:
       - uses: actions/checkout@v2
 
