@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         type: [agent, manager]
-        arch : [aarch64, armv7]
+        arch : [aarch64, armv7, ppc64le]
         distro: [ubuntu18.04, alpine_latest]
         exclude:
           - arch: armv7
