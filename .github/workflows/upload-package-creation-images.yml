@@ -45,7 +45,7 @@ jobs:
           arch: ${{ matrix.image.ARCHITECTURE }}
           distro: ${{ matrix.image.DISTRO }}
           dockerRunArgs: --volume /var/run/docker.sock:/var/run/docker.sock
-          run:
+          run: |
             sh $GITHUB_WORKSPACE/.github/actions/common-tools/setup_docker.sh
             cp $GITHUB_WORKSPACE/rpms/build.sh $GITHUB_WORKSPACE/${{ matrix.image.DOCKERFILE_PATH }}
             bash $GITHUB_WORKSPACE/.github/actions/common-tools/build_and_push_image_to_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} ${{ matrix.image.CONTAINER_NAME }}_${{github.ref_name}} ${{ matrix.image.DOCKERFILE_PATH }}
