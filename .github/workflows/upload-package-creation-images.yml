@@ -8,7 +8,7 @@ on:
       - master
       - 4.4
     paths:
-      - './rpms/CentOS/*'
+      - 'rpms/CentOS/*'
   workflow_dispatch:
 
 jobs:
@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        image: [ {CONTAINER_NAME: rpm_builder_x86, DOCKERFILE_PATH: /rpms/CentOS/6/x86_64}, {CONTAINER_NAME: rpm_builder_i386, DOCKERFILE_PATH: /rpms/CentOS/6/i386}, {CONTAINER_NAME: rpm_builder_aarch64, DOCKERFILE_PATH: /rpms/CentOS/7/aarch64}, {CONTAINER_NAME: rpm_builder_ppc64le, DOCKERFILE_PATH: /rpms/CentOS/7/ppc64le}, {CONTAINER_NAME: rpm_builder_armv7, DOCKERFILE_PATH: /rpms/CentOS/7/armv7hl} ]
+        image: [ {CONTAINER_NAME: rpm_builder_x86, DOCKERFILE_PATH: rpms/CentOS/6/x86_64}, {CONTAINER_NAME: rpm_builder_i386, DOCKERFILE_PATH: rpms/CentOS/6/i386}, {CONTAINER_NAME: rpm_builder_aarch64, DOCKERFILE_PATH: rpms/CentOS/7/aarch64}, {CONTAINER_NAME: rpm_builder_ppc64le, DOCKERFILE_PATH: rpms/CentOS/7/ppc64le}, {CONTAINER_NAME: rpm_builder_armv7, DOCKERFILE_PATH: rpms/CentOS/7/armv7hl} ]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
@@ -27,4 +27,4 @@ jobs:
           github-push-secret: ${{secrets.GITHUB_TOKEN}}
           docker-image-name: ${{ matrix.image.CONTAINER_NAME }}
           docker-image-tag: latest
-          dockerfile-path: $GITHUB_WORKSPACE${{ matrix.image.DOCKERFILE_PATH }}/Dockerfile
+          dockerfile-path: ${{github.workspace}}/${{ matrix.image.DOCKERFILE_PATH }}/Dockerfile
