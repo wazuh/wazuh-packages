@@ -15,24 +15,14 @@ jobs:
         {CONTAINER_NAME: 'rpm_builder_i386', DOCKERFILE_PATH: '$GITHUB_WORKSPACE/rpms/CentOS/6/i386'}, \
         {CONTAINER_NAME: 'rpm_builder_aarch64', DOCKERFILE_PATH: '$GITHUB_WORKSPACE/rpms/CentOS/7/aarch64'}, \
         {CONTAINER_NAME: 'rpm_builder_ppc64le', DOCKERFILE_PATH: '$GITHUB_WORKSPACE/rpms/CentOS/7/ppc64le'}, \
-        {CONTAINER_NAME: 'rpm_builder_armv7', DOCKERFILE_PATH: '$GITHUB_WORKSPACE/rpms/CentOS/7/armv7hl'}
-        ]
+        {CONTAINER_NAME: 'rpm_builder_armv7', DOCKERFILE_PATH: '$GITHUB_WORKSPACE/rpms/CentOS/7/armv7hl'} ]
     steps:
-
       - uses: actions/checkout@v2
-      - uses: dorny/paths-filter@v2
-        id: changes
-        with:
-          filters: |
-            src:
-              - 'src/**'
 
   # run only if some file in 'src' folder was changed
-- if: steps.changes.outputs.src == 'true'
-  run: ...
-      - name: Build and push image ${{ image.CONTAINER_NAME }} to GIthub Container Registry
+      - if: steps.changes.outputs.src == 'true'
+        name: Build and push image ${{ image.CONTAINER_NAME }} to GIthub Container Registry
         uses: pmorelli92/github-container-registry-build-push@2.0.0
-        name: Build and Publish latest service image
         with:
           github-push-secret: ${{secrets.GITHUB_TOKEN}}
           docker-image-name: ${{ image.CONTAINER_NAME }}
