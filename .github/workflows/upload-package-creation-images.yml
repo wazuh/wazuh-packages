@@ -40,4 +40,5 @@ jobs:
           arch: ${{ matrix.image.ARCHITECTURE }}
           distro: ${{ matrix.image.DISTRO }}
           run:
+            bash $GITHUB_WORKSPACE/.github/actions/common-tools/install_docker_on_ubuntu.sh
             bash $GITHUB_WORKSPACE/.github/actions/common-tools/build_and_push_image_to_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ matrix.image.CONTAINER_NAME }}_${{github.ref_name}} ./${{ matrix.image.DOCKERFILE_PATH }}
