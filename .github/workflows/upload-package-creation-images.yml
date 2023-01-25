@@ -21,11 +21,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Build and push image ${{ matrix.image.CONTAINER_NAME }} to Github Container Registry
+      - name: Build and push image ${{ matrix.image.CONTAINER_NAME }}_${{github.ref_name}} to Github Container Registry
         uses: pmorelli92/github-container-registry-build-push@2.0.0
         with:
           github-push-secret: ${{secrets.GITHUB_TOKEN}}
-          docker-image-name: ${{ matrix.image.CONTAINER_NAME }}_${{github.branch}}
+          docker-image-name: ${{ matrix.image.CONTAINER_NAME }}_${{github.ref_name}}
           docker-image-tag: latest
           dockerfile-path: ./${{ matrix.image.DOCKERFILE_PATH }}/Dockerfile
           build-context: ./${{ matrix.image.DOCKERFILE_PATH }}
