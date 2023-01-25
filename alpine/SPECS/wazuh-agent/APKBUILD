@@ -68,5 +68,6 @@ package() {
   cp -a /wazuh-wazuh*/src/VERSION "${package_files_dir}/src"
   cp -a /wazuh-wazuh*/src/REVISION "${package_files_dir}/src"
   cp -a /wazuh-wazuh*/etc/templates/config/generic/* "${package_files_dir}/etc/templates/config/generic"
+  cp -a /wazuh-wazuh*/etc/templates/config/alpine/* "${package_files_dir}/etc/templates/config/alpine"
 }
 
