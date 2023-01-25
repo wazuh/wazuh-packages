@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'rpms/CentOS/*'
+      - '.github/workflows/upload-package-creation-images.yml'
   workflow_dispatch:
 
 jobs:
