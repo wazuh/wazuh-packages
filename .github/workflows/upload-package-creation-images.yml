@@ -27,4 +27,4 @@ jobs:
           github-push-secret: ${{secrets.GITHUB_TOKEN}}
           docker-image-name: ${{ matrix.image.CONTAINER_NAME }}
           docker-image-tag: latest
-          dockerfile-path: $GITHUB_WORKSPACE/${{ matrix.image.DOCKERFILE_PATH }}/Dockerfile
+          dockerfile-path: $GITHUB_WORKSPACE${{ matrix.image.DOCKERFILE_PATH }}/Dockerfile
