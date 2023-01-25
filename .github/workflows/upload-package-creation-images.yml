@@ -28,3 +28,4 @@ jobs:
           docker-image-name: ${{ matrix.image.CONTAINER_NAME }}
           docker-image-tag: latest
           dockerfile-path: ./${{ matrix.image.DOCKERFILE_PATH }}/Dockerfile
+          build-context: ./${{ matrix.image.DOCKERFILE_PATH }}
