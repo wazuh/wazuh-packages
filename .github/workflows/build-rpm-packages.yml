@@ -49,6 +49,7 @@ jobs:
       matrix:
         type: [agent, manager]
         arch : [x86_64, i386]
+      fail-fast: false
     steps:
       - uses: actions/checkout@v3
 
