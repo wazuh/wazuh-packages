@@ -28,7 +28,7 @@ jobs:
 
       - name: Build and push image ${{ matrix.image.CONTAINER_NAME }}_${{github.ref_name}} to Github Container Registry
         run:
-          bash $GITHUB_WORKSPACE/.github/actions/common-tools/build_and_push_image_to_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ matrix.image.CONTAINER_NAME }}_${{github.ref_name}} ${{ matrix.image.DOCKERFILE_PATH }}
+          bash $GITHUB_WORKSPACE/.github/actions/common-tools/build_and_push_image_to_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} ${{ matrix.image.CONTAINER_NAME }}_${{github.ref_name}} ${{ matrix.image.DOCKERFILE_PATH }}
 
   Upload-RPM-armv7-ppc64le-aarch64-images:
     runs-on: ubuntu-latest
@@ -44,7 +44,8 @@ jobs:
         with:
           arch: ${{ matrix.image.ARCHITECTURE }}
           distro: ${{ matrix.image.DISTRO }}
+          dockerRunArgs: --volume /var/run/docker.sock:/var/run/docker.sock
           run:
             sh $GITHUB_WORKSPACE/.github/actions/common-tools/setup_docker.sh
             cp $GITHUB_WORKSPACE/rpms/build.sh $GITHUB_WORKSPACE/${{ matrix.image.DOCKERFILE_PATH }}
-            bash $GITHUB_WORKSPACE/.github/actions/common-tools/build_and_push_image_to_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ matrix.image.CONTAINER_NAME }}_${{github.ref_name}} ${{ matrix.image.DOCKERFILE_PATH }}
+            bash $GITHUB_WORKSPACE/.github/actions/common-tools/build_and_push_image_to_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} ${{ matrix.image.CONTAINER_NAME }}_${{github.ref_name}} ${{ matrix.image.DOCKERFILE_PATH }}
