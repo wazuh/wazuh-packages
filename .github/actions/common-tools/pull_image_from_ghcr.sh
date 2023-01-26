@@ -21,7 +21,3 @@ IMAGE_ID=$(echo ${IMAGE_ID} | tr '[A-Z]' '[a-z]')
 
 echo "docker pull ${IMAGE_ID}"
 docker pull ${IMAGE_ID}
-
-docker rmi ghcr.io/wazuh/rpm_builder_x86_2053/merge:latest
-docker rmi ghcr.io/wazuh/rpm_builder_i386_2053/merge:latest
-docker rmi ghcr.io/wazuh/rpm_builder_aarch64_2053/merge:latest
