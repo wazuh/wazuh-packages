@@ -3,6 +3,8 @@ on:
   pull_request:
     paths:
       - '.github/workflows/upload-package-creation-images.yml'
+      - 'rpms/CentOS/*'
+      - 'rpms/build.sh'
   push:
     branches:
       - master
