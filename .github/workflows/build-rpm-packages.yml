@@ -33,19 +33,19 @@ jobs:
           if [ ${{ matrix.arch }} == "x86_64" ]; then echo "CONTAINER_NAME=rpm_builder_x86" >> $GITHUB_ENV ; else echo "CONTAINER_NAME=rpm_builder_${{ matrix.arch }}" >> $GITHUB_ENV ; fi
 
       - name: Download docker image for package building
-        if: "${{ matrix.arch }}" == "x86_64" || "${{ matrix.arch }}" == "i386"
+        if: ${{ ( matrix.image.arch == 'x86_64') || ( matrix.arch == 'i386' ) }}
         run:
           bash $GITHUB_WORKSPACE/.github/actions/common-tools/pull_image_from_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} ${{matrix.image.CONTAINER_NAME}} ${{ matrix.image.DOCKERFILE_PATH }} $TAG
 
       - name: Build the ${{ matrix.arch }} rpm Wazuh ${{ matrix.type }} package
-        if: "${{ matrix.arch }}" == "x86_64" || "${{ matrix.arch }}" == "i386"
+        if: ${{ ( matrix.image.arch == 'x86_64') || ( matrix.arch == 'i386' ) }}
         working-directory: ./rpms
         run: |
           bash generate_rpm_package.sh -b master -t ${{ matrix.type }} -a ${{ matrix.arch }} --dev
           echo "PACKAGE_NAME=$(ls ./output | grep .rpm | head -n 1)" >> $GITHUB_ENV
 
       - name: Build the ${{ matrix.arch }} rpm Wazuh ${{ matrix.type }} package
-        if: "${{ matrix.arch }}" != "x86_64" && "${{ matrix.arch }}" != "i386"
+        if: ${{ ( matrix.image.arch != 'x86_64') && ( matrix.arch != 'i386' )}}
         uses: uraimo/run-on-arch-action@v2.5.0
         with:
           arch: ${{ matrix.arch }}
