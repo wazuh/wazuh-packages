@@ -1,10 +1,8 @@
 GITHUB_PUSH_SECRET=$1
 GITHUB_USER=$2
 DOCKER_IMAGE_NAME=$3
-BUILD_CONTEXT=$4
-DOCKERFILE_PATH="$BUILD_CONTEXT/Dockerfile"
-if [ -n "$5" ]; then
-    DOCKER_IMAGE_TAG="$5"
+if [ -n "$4" ]; then
+    DOCKER_IMAGE_TAG="$4"
 else 
     DOCKER_IMAGE_TAG="latest"
 fi
@@ -21,6 +19,7 @@ GITHUB_OWNER="wazuh"
 IMAGE_ID=ghcr.io/${GITHUB_OWNER}/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
 IMAGE_ID=$(echo ${IMAGE_ID} | tr '[A-Z]' '[a-z]')
 
+echo "docker pull ${IMAGE_ID}"
 docker pull ${IMAGE_ID}
 
 docker rmi ghcr.io/wazuh/rpm_builder_x86_2053/merge:latest
