@@ -8,45 +8,15 @@ on:
   workflow_dispatch:
 
 jobs:
-  Wazuh-agent-rpm-package-builds-x86_64-i386:
+  Wazuh-agent-rpm-package-builds:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         type: [agent, manager]
-        arch : [x86_64, i386]
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Set tag as version
-        run:
-          if [ ! -z ${{ github.head_ref }} ]; then echo "TAG=${{ github.head_ref }}" >> $GITHUB_ENV; else echo "TAG=$(cat $GITHUB_WORKSPACE/VERSION)" >> $GITHUB_ENV ; fi
-          if [ ${{ matrix.arch }} == "x86_64" ]; then echo "CONTAINER_NAME=rpm_builder_x86" >> $GITHUB_ENV ; else echo "CONTAINER_NAME=${{ matrix.arch }}" >> $GITHUB_ENV ; fi
-
-      - name: Download docker image for package building
-        run:
-          bash $GITHUB_WORKSPACE/.github/actions/common-tools/pull_image_from_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} ${{matrix.image.CONTAINER_NAME}} ${{ matrix.image.DOCKERFILE_PATH }} $TAG
-
-      - name: Build the ${{ matrix.arch }} rpm Wazuh ${{ matrix.type }} package
-        working-directory: ./rpms
-        run: |
-          bash generate_rpm_package.sh -b master -t ${{ matrix.type }} -a ${{ matrix.arch }} --dev
-          echo "PACKAGE_NAME=$(ls ./output | grep .rpm | head -n 1)" >> $GITHUB_ENV
-
-      - name: Upload Wazuh ${{ matrix.type }} ${{ matrix.arch }} package as artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${PACKAGE_NAME}
-          path: ${{github.workspace}}/rpms/output/${PACKAGE_NAME}
-
-
-  Wazuh-agent-rpm-package-builds-aarch64-armv7-ppc64le:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        type: [agent, manager]
-        arch : [aarch64, armv7, ppc64le]
+        arch : [x86_64, i386, aarch64, armv7, ppc64le]
         distro: [ubuntu_latest]
       fail-fast: false
+
     steps:
       - uses: actions/checkout@v3
 
@@ -57,13 +27,26 @@ jobs:
           echo "::set-output name=all::$(git diff --name-only --diff-filter=ACMRT ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | xargs)"
           echo "::set-output name=ts::$(git diff --name-only --diff-filter=ACMRT ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep .ts$ | xargs)"
 
-      - name: Set tag and container name
+      - name: Set tag as version
         run: |
-          if [ ! -z ${{ github.head_ref }} && $(git diff --name-only --diff-filter=ACMRT ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | xargs | grep 'rpms/CentOS')]; then echo "TAG=${{ github.head_ref }}" >> $GITHUB_ENV; else echo "TAG=$(cat $GITHUB_WORKSPACE/VERSION)" >> $GITHUB_ENV ; fi
-          echo "CONTAINER_NAME=rpm_builder_${{ matrix.arch}}" >> $GITHUB_ENV
+          if [ ! -z ${{ github.head_ref }} ]; then echo "TAG=${{ github.head_ref }}" >> $GITHUB_ENV; else echo "TAG=$(cat $GITHUB_WORKSPACE/VERSION)" >> $GITHUB_ENV ; fi
+          if [ ${{ matrix.arch }} == "x86_64" ]; then echo "CONTAINER_NAME=rpm_builder_x86" >> $GITHUB_ENV ; else echo "CONTAINER_NAME=rpm_builder_${{ matrix.arch }}" >> $GITHUB_ENV ; fi
 
-      - uses: uraimo/run-on-arch-action@v2.5.0
-        name: Build the ${{ matrix.arch }} rpm Wazuh ${{ matrix.type }} package
+      - name: Download docker image for package building
+        if: "${{ matrix.arch }}" == "x86_64" || "${{ matrix.arch }}" == "i386"
+        run:
+          bash $GITHUB_WORKSPACE/.github/actions/common-tools/pull_image_from_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} ${{matrix.image.CONTAINER_NAME}} ${{ matrix.image.DOCKERFILE_PATH }} $TAG
+
+      - name: Build the ${{ matrix.arch }} rpm Wazuh ${{ matrix.type }} package
+        if: "${{ matrix.arch }}" == "x86_64" || "${{ matrix.arch }}" == "i386"
+        working-directory: ./rpms
+        run: |
+          bash generate_rpm_package.sh -b master -t ${{ matrix.type }} -a ${{ matrix.arch }} --dev
+          echo "PACKAGE_NAME=$(ls ./output | grep .rpm | head -n 1)" >> $GITHUB_ENV
+
+      - name: Build the ${{ matrix.arch }} rpm Wazuh ${{ matrix.type }} package
+        if: "${{ matrix.arch }}" != "x86_64" && "${{ matrix.arch }}" != "i386"
+        uses: uraimo/run-on-arch-action@v2.5.0
         with:
           arch: ${{ matrix.arch }}
           distro: ${{ matrix.distro }}
@@ -98,5 +81,5 @@ jobs:
       - name: Upload Wazuh ${{ matrix.type }} ${{ matrix.arch }} package as artifact
         uses: actions/upload-artifact@v2
         with:
-          name: ${PACKAGE_NAME_${{ matrix.arch }}_${{ matrix.type }}}
-          path: ${{github.workspace}}/rpms/output/${PACKAGE_NAME_${{ matrix.arch }}_${{ matrix.type }}}
+          name: ${PACKAGE_NAME}
+          path: ${{github.workspace}}/rpms/output/${PACKAGE_NAME}
