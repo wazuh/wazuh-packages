@@ -26,13 +26,13 @@ jobs:
         run:
           cp $GITHUB_WORKSPACE/rpms/build.sh $GITHUB_WORKSPACE/${{ matrix.image.DOCKERFILE_PATH }}
 
-      - name: Set image name
-        run: |
-          if [[ -n ${{github.base_ref}} ]]; then echo "IMAGE_NAME=${{ matrix.image.CONTAINER_NAME }}_${{github.base_ref}}" >> $GITHUB_ENV; else echo "IMAGE_NAME=${{ matrix.image.CONTAINER_NAME }}_${{github.ref_name}}" >> $GITHUB_ENV ; fi
+      - name: Set tag as version
+        run:
+          if [ ! -z ${{ github.base_ref }} ]; then echo "TAG=${{ github.base_ref }}" >> $GITHUB_ENV; else echo "TAG=$(cat $GITHUB_WORKSPACE/VERSION)" >> $GITHUB_ENV ; fi
 
       - name: Build and push image ${{ matrix.image.CONTAINER_NAME }}_${{github.ref_name}} to Github Container Registry
         run:
-          bash $GITHUB_WORKSPACE/.github/actions/common-tools/build_and_push_image_to_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} $IMAGE_NAME ${{ matrix.image.DOCKERFILE_PATH }}
+          bash $GITHUB_WORKSPACE/.github/actions/common-tools/build_and_push_image_to_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} ${{matrix.image.CONTAINER_NAME}} ${{ matrix.image.DOCKERFILE_PATH }} $TAG
 
   Upload-RPM-armv7-ppc64le-aarch64-images:
     runs-on: ubuntu-latest
@@ -43,12 +43,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set image name
+      - name: Set tag as version
         run: |
-          if [[ -n ${{github.base_ref}} ]]; then echo "IMAGE_NAME=${{ matrix.image.CONTAINER_NAME }}_${{github.base_ref}}" >> $GITHUB_ENV; else echo "IMAGE_NAME=${{ matrix.image.CONTAINER_NAME }}_${{github.ref_name}}" >> $GITHUB_ENV ; fi
+          if [ ! -z ${{ github.base_ref }} ]; then echo "TAG=${{ github.base_ref }}" >> $GITHUB_ENV; else echo "TAG=$(cat $GITHUB_WORKSPACE/VERSION)" >> $GITHUB_ENV ; fi
 
       - uses: uraimo/run-on-arch-action@v2.5.0
-        name: Build and push image $IMAGE_NAME to Github Container Registry
+        name: Build and push image ${{matrix.image.CONTAINER_NAME}} to Github Container Registry
         with:
           arch: ${{ matrix.image.ARCHITECTURE }}
           distro: ${{ matrix.image.DISTRO }}
@@ -56,4 +56,4 @@ jobs:
           run: |
             sh $GITHUB_WORKSPACE/.github/actions/common-tools/setup_docker.sh
             cp $GITHUB_WORKSPACE/rpms/build.sh $GITHUB_WORKSPACE/${{ matrix.image.DOCKERFILE_PATH }}
-            bash $GITHUB_WORKSPACE/.github/actions/common-tools/build_and_push_image_to_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} $IMAGE_NAME ${{ matrix.image.DOCKERFILE_PATH }}
+            bash $GITHUB_WORKSPACE/.github/actions/common-tools/build_and_push_image_to_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} ${{matrix.image.CONTAINER_NAME}} ${{ matrix.image.DOCKERFILE_PATH }} $TAG
