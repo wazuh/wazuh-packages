@@ -166,6 +166,7 @@ function checks_arguments() {
 
 }
 
+# Checks if the --retry-connrefused is available in curl
 function check_curlVersion() {
 
     if [ "${sys_type}" == "yum" ]; then
@@ -352,7 +353,7 @@ function checks_ports() {
 
 }
 
-# Checks if the first version is greater equal than the second one
+# Checks if the first version is greater equal than to second one
 function check_versions() {
 
     if test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1"; then

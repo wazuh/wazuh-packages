@@ -113,6 +113,7 @@ function indexer_initialize() {
     common_logger "Initializing Wazuh indexer cluster security settings."
     eval "installCommon_curl -XGET https://"${indexer_node_ips[pos]}":9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null"
     e_code="${PIPESTATUS[0]}"
+
     if [ "${e_code}" -ne "0" ]; then
         common_logger -e "Cannot initialize Wazuh indexer cluster."
         installCommon_rollBack
