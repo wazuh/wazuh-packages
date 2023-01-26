@@ -55,10 +55,8 @@ jobs:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           dockerRunArgs: |
             --volume /var/run/docker.sock:/var/run/docker.sock
-            --volume $GITHUB_WORKSPACE:/github/workspace
           env: |
             TAG: $TAG
-            GITHUB_WORKSPACE: "/github/workspace"
           install: |
             case "${{ matrix.image.DISTRO }}" in 
               ubuntu*)
