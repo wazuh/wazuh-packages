@@ -12,9 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        type: [agent, manager]
-        arch : [x86_64, i386, aarch64, armv7, ppc64le]
-        distro: [ubuntu_latest]
+        TYPE: [agent, manager]
+        ARCHITECTURE : [x86_64, i386, aarch64, armv7, ppc64le]
+        DISTRO: [ubuntu_latest]
       fail-fast: false
 
     steps:
@@ -30,26 +30,26 @@ jobs:
       - name: Set tag as version
         run: |
           if [ ! -z ${{ github.head_ref }} ]; then echo "TAG=${{ github.head_ref }}" >> $GITHUB_ENV; else echo "TAG=$(cat $GITHUB_WORKSPACE/VERSION)" >> $GITHUB_ENV ; fi
-          if [ ${{ matrix.arch }} == "x86_64" ]; then echo "CONTAINER_NAME=rpm_builder_x86" >> $GITHUB_ENV ; else echo "CONTAINER_NAME=rpm_builder_${{ matrix.arch }}" >> $GITHUB_ENV ; fi
+          if [ ${{ matrix.ARCHITECTURE }} == "x86_64" ]; then echo "CONTAINER_NAME=rpm_builder_x86" >> $GITHUB_ENV ; else echo "CONTAINER_NAME=rpm_builder_${{ matrix.ARCHITECTURE }}" >> $GITHUB_ENV ; fi
 
       - name: Download docker image for package building
-        if: ${{ ( matrix.image.arch == 'x86_64') || ( matrix.arch == 'i386' ) }}
+        if: ${{ ( matrix.ARCHITECTURE == 'x86_64') || ( matrix.ARCHITECTURE == 'i386' ) }}
         run:
           bash $GITHUB_WORKSPACE/.github/actions/common-tools/pull_image_from_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} ${{matrix.image.CONTAINER_NAME}} ${{ matrix.image.DOCKERFILE_PATH }} $TAG
 
-      - name: Build the ${{ matrix.arch }} rpm Wazuh ${{ matrix.type }} package
-        if: ${{ ( matrix.image.arch == 'x86_64') || ( matrix.arch == 'i386' ) }}
+      - name: Build the ${{ matrix.ARCHITECTURE }} rpm Wazuh ${{ matrix.TYPE }} package
+        if: ${{ ( matrix.ARCHITECTURE == 'x86_64') || ( matrix.ARCHITECTURE == 'i386' ) }}
         working-directory: ./rpms
         run: |
-          bash generate_rpm_package.sh -b master -t ${{ matrix.type }} -a ${{ matrix.arch }} --dev
+          bash generate_rpm_package.sh -b master -t ${{ matrix.TYPE }} -a ${{ matrix.ARCHITECTURE }} --dev
           echo "PACKAGE_NAME=$(ls ./output | grep .rpm | head -n 1)" >> $GITHUB_ENV
 
-      - name: Build the ${{ matrix.arch }} rpm Wazuh ${{ matrix.type }} package
-        if: ${{ ( matrix.image.arch != 'x86_64') && ( matrix.arch != 'i386' )}}
+      - name: Build the ${{ matrix.ARCHITECTURE }} rpm Wazuh ${{ matrix.TYPE }} package
+        if: ${{ ( matrix.ARCHITECTURE != 'x86_64') && ( matrix.ARCHITECTURE != 'i386' )}}
         uses: uraimo/run-on-arch-action@v2.5.0
         with:
-          arch: ${{ matrix.arch }}
-          distro: ${{ matrix.distro }}
+          arch: ${{ matrix.ARCHITECTURE }}
+          distro: ${{ matrix.DISTRO }}
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           dockerRunArgs: |
             --volume /var/run/docker.sock:/var/run/docker.sock
@@ -57,7 +57,7 @@ jobs:
             TAG: ${{ env.TAG }}
             CONTAINER_NAME: ${{ env.CONTAINER_NAME }}
           install: |
-            case "${{ matrix.image.DISTRO }}" in 
+            case "${{ matrix.DISTRO }}" in
               ubuntu*)
                 apt-get update
                 apt-get install -y -q ca-certificates curl gnupg lsb-release apt-utils
@@ -75,10 +75,10 @@ jobs:
               esac
           run: |
             bash $GITHUB_WORKSPACE/.github/actions/common-tools/pull_image_from_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} ${{ env.CONTAINER_NAME }} 1626-fix-rhel9-derived-services
-            bash $GITHUB_WORKSPACE/rpms/generate_rpm_package.sh -b master -t ${{ matrix.type }} -a ${{ matrix.arch }} --dev --dont-build-docker
-            echo "PACKAGE_NAME_${{ matrix.arch }}_${{ matrix.type }}=$(ls ./output | grep .rpm | head -n 1)" >> $GITHUB_ENV
+            bash $GITHUB_WORKSPACE/rpms/generate_rpm_package.sh -b master -t ${{ matrix.TYPE }} -a ${{ matrix.ARCHITECTURE }} --dev --dont-build-docker
+            echo "PACKAGE_NAME_${{ matrix.ARCHITECTURE }}_${{ matrix.TYPE }}=$(ls ./output | grep .rpm | head -n 1)" >> $GITHUB_ENV
 
-      - name: Upload Wazuh ${{ matrix.type }} ${{ matrix.arch }} package as artifact
+      - name: Upload Wazuh ${{ matrix.TYPE }} ${{ matrix.ARCHITECTURE }} package as artifact
         uses: actions/upload-artifact@v2
         with:
           name: ${PACKAGE_NAME}
