@@ -28,7 +28,7 @@ jobs:
 
       - name: Set tag as version
         run:
-          if [ ! -z ${{ github.base_ref }} ]; then echo "TAG=${{ github.base_ref }}" >> $GITHUB_ENV; else echo "TAG=$(cat $GITHUB_WORKSPACE/VERSION)" >> $GITHUB_ENV ; fi
+          if [ ! -z ${{ github.head_ref }} ]; then echo "TAG=${{ github.head_ref }}" >> $GITHUB_ENV; else echo "TAG=$(cat $GITHUB_WORKSPACE/VERSION)" >> $GITHUB_ENV ; fi
 
       - name: Build and push image ${{ matrix.image.CONTAINER_NAME }}_${{github.ref_name}} to Github Container Registry
         run:
@@ -45,7 +45,7 @@ jobs:
 
       - name: Set tag as version
         run: |
-          if [ ! -z ${{ github.base_ref }} ]; then echo "TAG=${{ github.base_ref }}" >> $GITHUB_ENV; else echo "TAG=$(cat $GITHUB_WORKSPACE/VERSION)" >> $GITHUB_ENV ; fi
+          if [ ! -z ${{ github.head_ref }} ]; then echo "TAG=${{ github.head_ref }}" >> $GITHUB_ENV; else echo "TAG=$(cat $GITHUB_WORKSPACE/VERSION)" >> $GITHUB_ENV ; fi
 
       - uses: uraimo/run-on-arch-action@v2.5.0
         name: Build and push image ${{matrix.image.CONTAINER_NAME}} to Github Container Registry
