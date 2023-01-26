@@ -8,42 +8,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  Wazuh-agent-rpm-package-builds-aarch64-armv7-ppc64le:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        type: [agent, manager]
-        arch : [aarch64, armv7, ppc64le]
-        distro: [ubuntu18.04, alpine_latest]
-        exclude:
-          - arch: armv7
-            distro: alpine_latest
-          - arch: aarch64
-            distro: alpine_latest
-          - arch: ppc64le
-            distro: ubuntu18.04
-      fail-fast: false
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: uraimo/run-on-arch-action@v2.5.0
-        name: Build the ${{ matrix.arch }} rpm Wazuh ${{ matrix.type }} package
-        with:
-          arch: ${{ matrix.arch }}
-          distro: ${{ matrix.distro }}
-          githubToken: ${{ github.token }}
-          dockerRunArgs: --volume /var/run/docker.sock:/var/run/docker.sock
-          run: |
-            sh $GITHUB_WORKSPACE/.github/actions/common-tools/setup_docker.sh
-            bash $GITHUB_WORKSPACE/rpms/generate_rpm_package.sh -b master -t ${{ matrix.type }} -a ${{ matrix.arch }} --dev
-            echo "PACKAGE_NAME_${{ matrix.arch }}_${{ matrix.type }}=$(ls ./output | grep .rpm | head -n 1)" >> $GITHUB_ENV
-
-      - name: Upload Wazuh ${{ matrix.type }} ${{ matrix.arch }} package as artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${PACKAGE_NAME_${{ matrix.arch }}_${{ matrix.type }}}
-          path: ${{github.workspace}}/rpms/output/${PACKAGE_NAME_${{ matrix.arch }}_${{ matrix.type }}}
-
   Wazuh-agent-rpm-package-builds-x86_64-i386:
     runs-on: ubuntu-latest
     strategy:
@@ -52,6 +16,14 @@ jobs:
         arch : [x86_64, i386]
     steps:
       - uses: actions/checkout@v3
+
+      - name: Set tag as version
+        run:
+          if [ ! -z ${{ github.head_ref }} ]; then echo "TAG=${{ github.head_ref }}" >> $GITHUB_ENV; else echo "TAG=$(cat $GITHUB_WORKSPACE/VERSION)" >> $GITHUB_ENV ; fi
+
+      - name: Download docker image for package building
+        run:
+          bash $GITHUB_WORKSPACE/.github/actions/common-tools/pull_image_from_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} ${{matrix.image.CONTAINER_NAME}} ${{ matrix.image.DOCKERFILE_PATH }} $TAG
 
       - name: Build the ${{ matrix.arch }} rpm Wazuh ${{ matrix.type }} package
         working-directory: ./rpms
@@ -64,3 +36,68 @@ jobs:
         with:
           name: ${PACKAGE_NAME}
           path: ${{github.workspace}}/rpms/output/${PACKAGE_NAME}
+
+
+  Wazuh-agent-rpm-package-builds-aarch64-armv7-ppc64le:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        type: [agent, manager]
+        arch : [aarch64, armv7, ppc64le]
+        distro: [ubuntu_latest]
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Get changed files
+        id: changes
+        # Set outputs using the command.
+        run: |
+          echo "::set-output name=all::$(git diff --name-only --diff-filter=ACMRT ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | xargs)"
+          echo "::set-output name=ts::$(git diff --name-only --diff-filter=ACMRT ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep .ts$ | xargs)"
+
+      - name: Set tag as version
+        run:
+          if [ ! -z ${{ github.head_ref }} && $(git diff --name-only --diff-filter=ACMRT ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | xargs | grep 'rpms/CentOS')]; then echo "TAG=${{ github.head_ref }}" >> $GITHUB_ENV; else echo "TAG=$(cat $GITHUB_WORKSPACE/VERSION)" >> $GITHUB_ENV ; fi
+
+      - name: Download docker image for package building
+        run:
+          bash $GITHUB_WORKSPACE/.github/actions/common-tools/pull_image_from_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} ${{matrix.image.CONTAINER_NAME}} ${{ matrix.image.DOCKERFILE_PATH }} 1626-fix-rhel9-derived-services
+
+      - uses: uraimo/run-on-arch-action@v2.5.0
+        name: Build the ${{ matrix.arch }} rpm Wazuh ${{ matrix.type }} package
+        with:
+          arch: ${{ matrix.arch }}
+          distro: ${{ matrix.distro }}
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          dockerRunArgs: |
+            --volume /var/run/docker.sock:/var/run/docker.sock
+          env: |
+            TAG: ${{ env.TAG }}
+          install: |
+            case "${{ matrix.image.DISTRO }}" in 
+              ubuntu*)
+                apt-get update
+                apt-get install -y -q ca-certificates curl gnupg lsb-release apt-utils
+                mkdir -p /etc/apt/keyrings
+                curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+                echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+                apt-get update
+                apt-get install -y -q docker-ce docker-ce-cli containerd.io
+                ;;
+              alpine*)
+                apk -q update
+                apk -q add bash
+                apk -q add docker docker-compose
+                ;;
+              esac
+          run: |
+            bash $GITHUB_WORKSPACE/.github/actions/common-tools/pull_image_from_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} ${{matrix.image.CONTAINER_NAME}} ${{ matrix.image.DOCKERFILE_PATH }} 1626-fix-rhel9-derived-services
+            bash $GITHUB_WORKSPACE/rpms/generate_rpm_package.sh -b master -t ${{ matrix.type }} -a ${{ matrix.arch }} --dev --dont-build-docker
+            echo "PACKAGE_NAME_${{ matrix.arch }}_${{ matrix.type }}=$(ls ./output | grep .rpm | head -n 1)" >> $GITHUB_ENV
+
+      - name: Upload Wazuh ${{ matrix.type }} ${{ matrix.arch }} package as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${PACKAGE_NAME_${{ matrix.arch }}_${{ matrix.type }}}
+          path: ${{github.workspace}}/rpms/output/${PACKAGE_NAME_${{ matrix.arch }}_${{ matrix.type }}}
