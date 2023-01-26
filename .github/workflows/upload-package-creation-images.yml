@@ -28,8 +28,7 @@ jobs:
 
       - name: Set image name
         run: |
-          if [[ -n ${{github.base_ref}} ]]; then IMAGE_NAME=${{ matrix.image.CONTAINER_NAME }}_${{github.base_ref}}; else IMAGE_NAME=${{ matrix.image.CONTAINER_NAME }}_${{github.ref_name}}; fi
-          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
+          if [[ -n ${{github.base_ref}} ]]; then echo "IMAGE_NAME=${{ matrix.image.CONTAINER_NAME }}_${{github.base_ref}}" >> $GITHUB_ENV; else echo "IMAGE_NAME=${{ matrix.image.CONTAINER_NAME }}_${{github.ref_name}}" >> $GITHUB_ENV ; fi
 
       - name: Build and push image ${{ matrix.image.CONTAINER_NAME }}_${{github.ref_name}} to Github Container Registry
         run:
@@ -46,8 +45,7 @@ jobs:
 
       - name: Set image name
         run: |
-          if [[ -n ${{github.base_ref}} ]]; then IMAGE_NAME=${{ matrix.image.CONTAINER_NAME }}_${{github.base_ref}}; else IMAGE_NAME=${{ matrix.image.CONTAINER_NAME }}_${{github.ref_name}}; fi
-          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
+          if [[ -n ${{github.base_ref}} ]]; then echo "IMAGE_NAME=${{ matrix.image.CONTAINER_NAME }}_${{github.base_ref}}" >> $GITHUB_ENV; else echo "IMAGE_NAME=${{ matrix.image.CONTAINER_NAME }}_${{github.ref_name}}" >> $GITHUB_ENV ; fi
 
       - uses: uraimo/run-on-arch-action@v2.5.0
         name: Build and push image $IMAGE_NAME to Github Container Registry
