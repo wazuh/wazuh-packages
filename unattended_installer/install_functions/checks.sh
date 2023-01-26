@@ -352,7 +352,7 @@ function checks_ports() {
 
 }
 
-# Checks if the first version is greater equal than the second
+# Checks if the first version is greater equal than the second one
 function check_versions() {
 
     if test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1"; then

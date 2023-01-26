@@ -98,7 +98,7 @@ function dashboard_initialize() {
         print_ip="${nodes_dashboard_ip}"
     fi
 
-    if [ "$(curl -XGET https://"${nodes_dashboard_ip}"/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null --max-time 300 --retry 12 --retry-delay 10 --fail)" -eq "200" ]; then
+    if [ "$(installCommon_curl -XGET https://"${nodes_dashboard_ip}"/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null --max-time 300 --retry 12 --retry-delay 10 --fail)" -eq "200" ]; then
         if [ "${#server_node_names[@]}" -eq 1 ]; then
             wazuh_api_address=${server_node_ips[0]}
         else
@@ -130,8 +130,7 @@ function dashboard_initialize() {
             if [[ "${exit_code}" -eq "7" ]]; then
                 failed_connect=1
                 failed_nodes+=("${indexer_node_names[i]}")
-            fi
-            if [ "${curl}" == *"OpenSearch Security not initialized."* ]; then
+            elif [ "${exit_code}" -eq "22" ]; then
                 sec_not_initialized=1
             fi
         done
