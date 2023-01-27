@@ -35,3 +35,8 @@ jobs:
       - name: Build and push image ${{ matrix.image.CONTAINER_NAME }} with tag ${{ env.TAG }} to Github Container Registry
         run:
           bash $GITHUB_WORKSPACE/.github/actions/common-tools/build_and_push_image_to_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} ${{matrix.image.CONTAINER_NAME}} ${{ matrix.image.DOCKERFILE_PATH }} $TAG
+
+      - name: Call create packages workflow
+        if: github.event_name == 'pull_request'
+        uses: ./.github/workflows/build-rpm-packages.yml
+        secrets: inherit
