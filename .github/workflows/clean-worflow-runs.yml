@@ -1,5 +1,6 @@
 name: Clean workflow runs
-on: workflow-dispatch
+on: 
+  workflow-dispatch:
 jobs:
   delete_runs:
     runs-on: ubuntu-latest

@@ -19,6 +19,7 @@ TARGET=""
 JOBS="2"
 DEBUG="no"
 BUILD_DOCKER="yes"
+DOCKER_TAG="latest"
 USER_PATH="no"
 SRC="no"
 RPM_AARCH64_BUILDER="rpm_builder_aarch64"
@@ -86,7 +87,7 @@ build_rpm() {
 
     # Build the Docker image
     if [[ ${BUILD_DOCKER} == "yes" ]]; then
-      docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || return 1
+      docker build -t ${CONTAINER_NAME}:${DOCKER_TAG} ${DOCKERFILE_PATH} || return 1
     fi
 
     # Build the RPM package with a Docker container
@@ -94,7 +95,7 @@ build_rpm() {
         -v ${CHECKSUMDIR}:/var/local/checksum:Z \
         -v ${LOCAL_SPECS}:/specs:Z \
         ${CUSTOM_CODE_VOL} \
-        ${CONTAINER_NAME} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
+        ${CONTAINER_NAME}:${DOCKER_TAG} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
         ${JOBS} ${REVISION} ${INSTALLATION_PATH} ${DEBUG} \
         ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} ${SRC} \
         ${LEGACY} ${USE_LOCAL_SOURCE_CODE} ${FUTURE}|| return 1
@@ -181,6 +182,7 @@ help() {
     echo "    -d, --debug                  [Optional] Build the binaries with debug symbols and create debuginfo packages. By default: no."
     echo "    -c, --checksum <path>        [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
     echo "    --dont-build-docker          [Optional] Locally built docker image will be used instead of generating a new one."
+    echo "    --tag                        [Optional] Tag to use with the docker image."
     echo "    --sources <path>             [Optional] Absolute path containing wazuh source code. This option will use local source code instead of downloading it from GitHub."
     echo "    --packages-branch <branch>   [Optional] Select Git branch or tag from wazuh-packages repository. e.g ${PACKAGES_BRANCH}"
     echo "    --dev                        [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub."
@@ -260,6 +262,14 @@ main() {
         "--dont-build-docker")
             BUILD_DOCKER="no"
             shift 1
+            ;;
+        "--tag")
+            if [ -n "$2" ]; then
+                TAG="$2"
+                shift 2
+            else
+                help 1
+            fi
             ;;
         "-c"|"--checksum")
             if [ -n "$2" ]; then
