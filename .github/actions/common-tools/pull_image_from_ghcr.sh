@@ -3,7 +3,7 @@ GITHUB_USER=$2
 DOCKER_IMAGE_NAME=$3
 if [ -n "$4" ]; then
     DOCKER_IMAGE_TAG="$4"
-else 
+else
     DOCKER_IMAGE_TAG="latest"
 fi
 

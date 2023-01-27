@@ -15,11 +15,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  Upload-RPM-x86_64-i386-images:
+  Upload-rpm-package-building-images:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        image: [ {CONTAINER_NAME: rpm_builder_x86, DOCKERFILE_PATH: rpms/CentOS/6/x86_64, ARCHITECTURE: x86_64}, {CONTAINER_NAME: rpm_builder_i386, DOCKERFILE_PATH: rpms/CentOS/6/i386, ARCHITECTURE: i386}, {CONTAINER_NAME: rpm_builder_aarch64, DOCKERFILE_PATH: rpms/CentOS/7/aarch64, ARCHITECTURE: aarch64, DISTRO: ubuntu_latest}, {CONTAINER_NAME: rpm_builder_ppc64le, DOCKERFILE_PATH: rpms/CentOS/7/ppc64le, ARCHITECTURE: ppc64le, DISTRO: ubuntu_latest}, {CONTAINER_NAME: rpm_builder_armv7, DOCKERFILE_PATH: rpms/CentOS/7/armv7hl, ARCHITECTURE: armv7 , DISTRO: ubuntu_latest}]
+        image: [ {CONTAINER_NAME: rpm_builder_x86, DOCKERFILE_PATH: rpms/CentOS/6/x86_64, ARCHITECTURE: x86_64}, {CONTAINER_NAME: rpm_builder_i386, DOCKERFILE_PATH: rpms/CentOS/6/i386, ARCHITECTURE: i386}]
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
@@ -31,43 +31,9 @@ jobs:
 
       - name: Set tag as version
         run:
-          if [ ! -z ${{ github.head_ref }} ]; then echo "TAG=${{ github.head_ref }}" >> $GITHUB_ENV; else echo "TAG=$(cat $GITHUB_WORKSPACE/VERSION)" >> $GITHUB_ENV ; fi
+          if [ "${{ github.event_name }}" == "pull_request" ]; then echo "TAG=${{ github.head_ref }}" >> $GITHUB_ENV; else echo "TAG=$(cat $GITHUB_WORKSPACE/VERSION)" >> $GITHUB_ENV ; fi
 
       - name: Build and push image ${{ matrix.image.CONTAINER_NAME }} to Github Container Registry
         if: ${{ ( matrix.image.ARCHITECTURE == 'x86_64') || ( matrix.image.ARCHITECTURE == 'i386' )}}
         run:
           bash $GITHUB_WORKSPACE/.github/actions/common-tools/build_and_push_image_to_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} ${{matrix.image.CONTAINER_NAME}} ${{ matrix.image.DOCKERFILE_PATH }} $TAG
-
-
-      - name: Build and push image ${{ matrix.image.CONTAINER_NAME }} to Github Container Registry
-        uses: uraimo/run-on-arch-action@v2.5.0
-        if: ${{ ( matrix.image.ARCHITECTURE != 'x86_64') && ( matrix.image.ARCHITECTURE != 'i386' )}}
-        with:
-          arch: ${{ matrix.image.ARCHITECTURE }}
-          distro: ${{ matrix.image.DISTRO }}
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
-          dockerRunArgs: |
-            --volume /var/run/docker.sock:/var/run/docker.sock
-          env: |
-            TAG: ${{ env.TAG }}
-          install: |
-            case "${{ matrix.image.DISTRO }}" in 
-              ubuntu*)
-                apt-get update
-                apt-get install -y -q ca-certificates curl gnupg lsb-release apt-utils
-                mkdir -p /etc/apt/keyrings
-                curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-                echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
-                apt-get update
-                apt-get install -y -q docker-ce docker-ce-cli containerd.io
-                ;;
-              alpine*)
-                apk -q update
-                apk -q add bash
-                apk -q add docker docker-compose
-                ;;
-              esac
-          run: |
-            cp $GITHUB_WORKSPACE/rpms/build.sh $GITHUB_WORKSPACE/${{ matrix.image.DOCKERFILE_PATH }}
-            echo "TAG=$TAG"
-            bash $GITHUB_WORKSPACE/.github/actions/common-tools/build_and_push_image_to_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} ${{matrix.image.CONTAINER_NAME}} ${{ matrix.image.DOCKERFILE_PATH }} ${TAG}

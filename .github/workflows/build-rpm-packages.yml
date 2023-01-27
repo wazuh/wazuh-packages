@@ -5,6 +5,8 @@ on:
       - 'rpms/SPECS/*'
       - 'rpms/generate_rpm_package.sh'
       - 'rpms/build.sh'
+      - 'rpms/CentOS/*'
+      - 'rpms/build.sh'
   workflow_dispatch:
 
 jobs:
@@ -13,23 +15,24 @@ jobs:
     strategy:
       matrix:
         TYPE: [agent, manager]
-        ARCHITECTURE : [x86_64, i386, aarch64, armv7, ppc64le]
-        DISTRO: [ubuntu_latest]
+        ARCHITECTURE : [x86_64, i386]
       fail-fast: false
 
     steps:
       - uses: actions/checkout@v3
 
       - name: Get changed files
-        id: changes
-        # Set outputs using the command.
-        run: |
-          echo "::set-output name=all::$(git diff --name-only --diff-filter=ACMRT ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | xargs)"
-          echo "::set-output name=ts::$(git diff --name-only --diff-filter=ACMRT ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep .ts$ | xargs)"
+        uses: dorny/paths-filter@v2
+          id: changes
+          with:
+            filters: |
+              rpm_images:
+                - 'rpms/CentOS/**'
+                - 'rpms/build.sh'
 
       - name: Set tag and container name
         run: |
-          if [ ! -z ${{ github.head_ref }} ]; then echo "TAG=${{ github.head_ref }}" >> $GITHUB_ENV; else echo "TAG=$(cat $GITHUB_WORKSPACE/VERSION)" >> $GITHUB_ENV ; fi
+          if [ "${{ steps.changes.outputs.src }}" == "true" ]; then echo "TAG=${{ github.head_ref }}" >> $GITHUB_ENV; else echo "TAG=$(cat $GITHUB_WORKSPACE/VERSION)" >> $GITHUB_ENV ; fi
           if [ "${{ matrix.ARCHITECTURE }}" == "x86_64" ]; then echo "CONTAINER_NAME=rpm_builder_x86" >> $GITHUB_ENV ; else echo "CONTAINER_NAME=rpm_builder_${{ matrix.ARCHITECTURE }}" >> $GITHUB_ENV ; fi
 
       - name: Download docker image for package building
@@ -43,43 +46,3 @@ jobs:
         run: |
           bash generate_rpm_package.sh -b master -t ${{ matrix.TYPE }} -a ${{ matrix.ARCHITECTURE }} --dev
           echo "PACKAGE_NAME=$(ls ./output | grep .rpm | head -n 1)" >> $GITHUB_ENV
-
-      - name: Build the ${{ matrix.ARCHITECTURE }} rpm Wazuh ${{ matrix.TYPE }} package
-        if: ${{ ( matrix.ARCHITECTURE != 'x86_64') && ( matrix.ARCHITECTURE != 'i386' )}}
-        uses: uraimo/run-on-arch-action@v2.5.0
-        with:
-          arch: ${{ matrix.ARCHITECTURE }}
-          distro: ${{ matrix.DISTRO }}
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
-          dockerRunArgs: |
-            --volume /var/run/docker.sock:/var/run/docker.sock
-          env: |
-            TAG: ${{ env.TAG }}
-            CONTAINER_NAME: ${{ env.CONTAINER_NAME }}
-          install: |
-            case "${{ matrix.DISTRO }}" in
-              ubuntu*)
-                apt-get update
-                apt-get install -y -q ca-certificates curl gnupg lsb-release apt-utils
-                mkdir -p /etc/apt/keyrings
-                curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-                echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
-                apt-get update
-                apt-get install -y -q docker-ce docker-ce-cli containerd.io
-                ;;
-              alpine*)
-                apk -q update
-                apk -q add bash
-                apk -q add docker docker-compose
-                ;;
-              esac
-          run: |
-            bash $GITHUB_WORKSPACE/.github/actions/common-tools/pull_image_from_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} ${{ env.CONTAINER_NAME }} 1626-fix-rhel9-derived-services
-            bash $GITHUB_WORKSPACE/rpms/generate_rpm_package.sh -b master -t ${{ matrix.TYPE }} -a ${{ matrix.ARCHITECTURE }} --dev --dont-build-docker
-            echo "PACKAGE_NAME_${{ matrix.ARCHITECTURE }}_${{ matrix.TYPE }}=$(ls ./output | grep .rpm | head -n 1)" >> $GITHUB_ENV
-
-      - name: Upload Wazuh ${{ matrix.TYPE }} ${{ matrix.ARCHITECTURE }} package as artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${PACKAGE_NAME}
-          path: ${{github.workspace}}/rpms/output/${PACKAGE_NAME}
