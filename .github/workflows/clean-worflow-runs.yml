@@ -1,9 +1,14 @@
 name: Clean workflow runs
-on:
+on: 
   workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 1'
+  pull_request:
+    paths:
+      - '.github/workflows/clean-workflow-runs.yml'
 
 jobs:
-  delete_runs:
+  Clean-runs:
     runs-on: ubuntu-latest
     steps:
       - name: Delete workflow runs
@@ -14,4 +19,3 @@ jobs:
             cancelled
             skipped
           save_period: 10
-          save_min_runs_number: 0
