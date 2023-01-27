@@ -2,7 +2,7 @@ name: Upload DEB package creation Docker images
 on:
   pull_request:
     paths:
-      - 'debs/Debian/*'
+      - 'debs/Debian/**'
       - 'debs/build.sh'
   push:
     branches:
@@ -33,7 +33,7 @@ jobs:
 
       - name: Build and push image ${{ matrix.image.CONTAINER_NAME }} with tag ${{ env.TAG }} to Github Container Registry
         run:
-          bash $GITHUB_WORKSPACE/.github/actions/common-tools/build_and_push_image_to_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} ${{matrix.image.CONTAINER_NAME}} ${{ matrix.image.DOCKERFILE_PATH }} $TAG
+          bash $GITHUB_WORKSPACE/.github/actions/common-tools/build_and_push_image_to_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} ${{matrix.image.CONTAINER_NAME}} ${{ matrix.image.DOCKERFILE_PATH }} ${{ env.TAG }}
 
   Call create packages workflow:
     if: github.event_name == 'pull_request'
