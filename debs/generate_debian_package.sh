@@ -241,7 +241,7 @@ main() {
             ;;
         "--tag")
             if [ -n "$2" ]; then
-                TAG="$2"
+                DOCKER_TAG="$2"
                 shift 2
             else
                 help 1
