@@ -27,7 +27,6 @@ jobs:
             rpm_images:
               - 'rpms/CentOS/**'
               - 'rpms/build.sh'
-              - '.github/workflows/upload-rpm-images.yml'
             rpm_packages:
               - 'rpms/SPECS/**'
               - 'rpms/generate_rpm_package.sh'

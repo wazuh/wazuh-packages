@@ -2,7 +2,6 @@ name: Upload DEB package creation Docker images
 on:
   pull_request:
     paths:
-      - '.github/workflows/upload-deb-images.yml'
       - 'debs/Debian/*'
       - 'debs/build.sh'
   push:
@@ -36,7 +35,7 @@ jobs:
         run:
           bash $GITHUB_WORKSPACE/.github/actions/common-tools/build_and_push_image_to_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} ${{matrix.image.CONTAINER_NAME}} ${{ matrix.image.DOCKERFILE_PATH }} $TAG
 
-      - name: Call create packages workflow
-        if: github.event_name == 'pull_request'
-        uses: ./.github/workflows/build-deb-packages.yml
-        secrets: inherit
+  Call create packages workflow:
+    if: github.event_name == 'pull_request'
+    uses: ./.github/workflows/build-deb-packages.yml
+    secrets: inherit
