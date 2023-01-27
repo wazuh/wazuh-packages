@@ -37,8 +37,9 @@ jobs:
           echo "CONTAINER_NAME=deb_builder_${{ matrix.ARCHITECTURE }}" >> $GITHUB_ENV
 
       - name: Download docker image for package building
-        run:
+        run: |
           bash $GITHUB_WORKSPACE/.github/actions/common-tools/pull_image_from_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} $CONTAINER_NAME ${{ env.TAG }}
+          echo $(docker images)
 
       - name: Build the ${{ matrix.ARCHITECTURE }} deb Wazuh ${{ matrix.TYPE }} package
         working-directory: ./debs
