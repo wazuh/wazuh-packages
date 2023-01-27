@@ -1,4 +1,4 @@
-name: Build Wazuh Packages - RPM - All architectures
+name: Build Wazuh Packages - RPM - x86_64 and i386
 on:
   pull_request:
     paths:
