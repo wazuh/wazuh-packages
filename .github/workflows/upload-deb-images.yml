@@ -15,7 +15,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  Upload-rpm-package-building-images:
+  Upload-deb-package-building-images:
     runs-on: ubuntu-latest
     strategy:
       matrix:
