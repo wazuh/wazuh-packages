@@ -38,6 +38,7 @@ jobs:
 
       - name: Download docker image for package building
         run:
+          echo "bash $GITHUB_WORKSPACE/.github/actions/common-tools/pull_image_from_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} $CONTAINER_NAME ${{ matrix.image.DOCKERFILE_PATH }} ${{ env.TAG }}"
           bash $GITHUB_WORKSPACE/.github/actions/common-tools/pull_image_from_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} $CONTAINER_NAME ${{ matrix.image.DOCKERFILE_PATH }} ${{ env.TAG }}
 
       - name: Build the ${{ matrix.ARCHITECTURE }} deb Wazuh ${{ matrix.TYPE }} package
