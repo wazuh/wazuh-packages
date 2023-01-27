@@ -44,5 +44,5 @@ jobs:
       - name: Build the ${{ matrix.ARCHITECTURE }} deb Wazuh ${{ matrix.TYPE }} package
         working-directory: ./debs
         run: |
-          bash generate_debian_package.sh -b master -t ${{ matrix.TYPE }} -a ${{ matrix.ARCHITECTURE }} --dev -j 2 --dont-build-docker
+          bash generate_debian_package.sh -b master -t ${{ matrix.TYPE }} -a ${{ matrix.ARCHITECTURE }} --dev -j 2 --dont-build-docker --tag ${{ env.TAG }}
           echo "PACKAGE_NAME=$(ls ./output | grep .deb | head -n 1)" >> $GITHUB_ENV
