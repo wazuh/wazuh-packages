@@ -36,7 +36,7 @@ jobs:
 
       - name: Set tag and container name
         run: |
-          if [ "${{ steps.changes.outputs.src }}" == "true" ]; then echo "TAG=${{ github.head_ref }}" >> $GITHUB_ENV; else echo "TAG=$(cat $GITHUB_WORKSPACE/VERSION)" >> $GITHUB_ENV ; fi
+          if [ "${{ steps.changes.outputs.src }}" == "true" ]; then echo "TAG=${{ github.head_ref }}" >> $GITHUB_ENV; else echo "TAG=$(sed 's/\([0-9]*\.[0-9]*\)\.[0-9]*/\1/' $GITHUB_WORKSPACE/VERSION)" >> $GITHUB_ENV ; fi
           if [ "${{ matrix.ARCHITECTURE }}" == "x86_64" ]; then echo "CONTAINER_NAME=rpm_builder_x86" >> $GITHUB_ENV ; else echo "CONTAINER_NAME=rpm_builder_${{ matrix.ARCHITECTURE }}" >> $GITHUB_ENV ; fi
 
       - name: Download docker image for package building
