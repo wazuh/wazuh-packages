@@ -39,10 +39,15 @@ jobs:
       - name: Download docker image for package building
         run: |
           bash $GITHUB_WORKSPACE/.github/actions/common-tools/pull_image_from_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} $CONTAINER_NAME ${{ env.TAG }}
-          echo $(docker images)
 
       - name: Build the ${{ matrix.ARCHITECTURE }} deb Wazuh ${{ matrix.TYPE }} package
         working-directory: ./debs
         run: |
           bash generate_debian_package.sh -b master -t ${{ matrix.TYPE }} -a ${{ matrix.ARCHITECTURE }} --dev -j 2 --dont-build-docker --tag ${{ env.TAG }}
           echo "PACKAGE_NAME=$(ls ./output | grep .deb | head -n 1)" >> $GITHUB_ENV
+
+      - name: Upload Wazuh ${{ matrix.TYPE }} ${{ matrix.ARCHITECTURE }} package as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.PACKAGE_NAME }}
+          path: ${{github.workspace}}/rpms/output/${{ env.PACKAGE_NAME }}
