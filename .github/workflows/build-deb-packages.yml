@@ -1,0 +1,50 @@
+name: Build Wazuh Packages - DEB - All architectures
+on:
+  pull_request:
+    paths:
+      - 'debs/SPECS/*'
+      - 'debs/generate_debian_package.sh'
+      - 'debs/Debian/*'
+      - 'debs/build.sh'
+      - '.github/workflows/upload-deb-images.yml'
+  workflow_dispatch:
+
+jobs:
+  Wazuh-agent-deb-package-builds:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        TYPE: [agent, manager]
+        ARCHITECTURE : [amd64, i386]
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Get changed files
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            deb_images:
+              - 'debs/Debian/**'
+              - 'debs/build.sh'
+              - '.github/workflows/upload-deb-images.yml'
+            deb_packages:
+              - 'debs/SPECS/**'
+              - 'debs/generate_debian_package.sh'
+
+      - name: Set tag and container name
+        run: |
+          if [ "${{ steps.changes.outputs.src }}" == "true" ]; then echo "TAG=${{ github.head_ref }}" >> $GITHUB_ENV; else echo "TAG=$(sed 's/\([0-9]*\.[0-9]*\)\.[0-9]*/\1/' $GITHUB_WORKSPACE/VERSION)" >> $GITHUB_ENV ; fi
+          echo "CONTAINER_NAME=deb_builder_${{ matrix.ARCHITECTURE }}" >> $GITHUB_ENV
+
+      - name: Download docker image for package building
+        run:
+          bash $GITHUB_WORKSPACE/.github/actions/common-tools/pull_image_from_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} $CONTAINER_NAME ${{ matrix.image.DOCKERFILE_PATH }} $TAG
+
+      - name: Build the ${{ matrix.ARCHITECTURE }} deb Wazuh ${{ matrix.TYPE }} package
+        working-directory: ./debs
+        run: |
+          bash generate_debian_package.sh -b master -t ${{ matrix.TYPE }} -a ${{ matrix.ARCHITECTURE }} --dev -j 2
+          echo "PACKAGE_NAME=$(ls ./output | grep .deb | head -n 1)" >> $GITHUB_ENV

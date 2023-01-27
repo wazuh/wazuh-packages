@@ -1,17 +1,17 @@
-name: Upload RPM package creation Docker images
+name: Upload DEB package creation Docker images
 on:
   pull_request:
     paths:
-      - '.github/workflows/upload-rpm-images.yml'
-      - 'rpms/CentOS/*'
-      - 'rpms/build.sh'
+      - '.github/workflows/upload-deb-images.yml'
+      - 'debs/Debian/*'
+      - 'debs/build.sh'
   push:
     branches:
       - master
       - 4.4
     paths:
-      - 'rpms/CentOS/*'
-      - 'rpms/build.sh'
+      - 'debs/Debian/*'
+      - 'debs/build.sh'
   workflow_dispatch:
 
 jobs:
@@ -19,14 +19,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        image: [ {CONTAINER_NAME: rpm_builder_x86, DOCKERFILE_PATH: rpms/CentOS/6/x86_64}, {CONTAINER_NAME: rpm_builder_i386, DOCKERFILE_PATH: rpms/CentOS/6/i386}]
+        image: [ {CONTAINER_NAME: deb_builder_amd64, DOCKERFILE_PATH: debs/Debian/amd64}, {CONTAINER_NAME: deb_builder_i386, DOCKERFILE_PATH: debs/Debian/i386}]
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
 
       - name: Copy build.sh to Dockerfile path
         run:
-          cp $GITHUB_WORKSPACE/rpms/build.sh $GITHUB_WORKSPACE/${{ matrix.image.DOCKERFILE_PATH }}
+          cp $GITHUB_WORKSPACE/debs/build.sh $GITHUB_WORKSPACE/${{ matrix.image.DOCKERFILE_PATH }}
 
       - name: Set tag as version
         run: 
