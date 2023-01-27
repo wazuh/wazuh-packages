@@ -4,9 +4,9 @@ on:
     paths:
       - 'rpms/SPECS/*'
       - 'rpms/generate_rpm_package.sh'
-      - 'rpms/build.sh'
       - 'rpms/CentOS/*'
       - 'rpms/build.sh'
+      - '.github/workflows/upload-rpm-images.yml'
   workflow_dispatch:
 
 jobs:
@@ -24,11 +24,15 @@ jobs:
       - name: Get changed files
         uses: dorny/paths-filter@v2
         id: changes
-          with:
-            filters: |
-              rpm_images:
-                - 'rpms/CentOS/**'
-                - 'rpms/build.sh'
+        with:
+          filters: |
+            rpm_images:
+              - 'rpms/CentOS/**'
+              - 'rpms/build.sh'
+              - '.github/workflows/upload-rpm-images.yml'
+            rpm_packages:
+              - 'rpms/SPECS/**'
+              - 'rpms/generate_rpm_package.sh'
 
       - name: Set tag and container name
         run: |
@@ -36,12 +40,10 @@ jobs:
           if [ "${{ matrix.ARCHITECTURE }}" == "x86_64" ]; then echo "CONTAINER_NAME=rpm_builder_x86" >> $GITHUB_ENV ; else echo "CONTAINER_NAME=rpm_builder_${{ matrix.ARCHITECTURE }}" >> $GITHUB_ENV ; fi
 
       - name: Download docker image for package building
-        if: ${{ ( matrix.ARCHITECTURE == 'x86_64') || ( matrix.ARCHITECTURE == 'i386' ) }}
         run:
           bash $GITHUB_WORKSPACE/.github/actions/common-tools/pull_image_from_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} $CONTAINER_NAME ${{ matrix.image.DOCKERFILE_PATH }} $TAG
 
       - name: Build the ${{ matrix.ARCHITECTURE }} rpm Wazuh ${{ matrix.TYPE }} package
-        if: ${{ ( matrix.ARCHITECTURE == 'x86_64') || ( matrix.ARCHITECTURE == 'i386' ) }}
         working-directory: ./rpms
         run: |
           bash generate_rpm_package.sh -b master -t ${{ matrix.TYPE }} -a ${{ matrix.ARCHITECTURE }} --dev
