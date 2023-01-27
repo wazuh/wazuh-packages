@@ -98,7 +98,7 @@ function dashboard_initialize() {
         print_ip="${nodes_dashboard_ip}"
     fi
 
-    if [ "$(installCommon_curl -XGET https://"${nodes_dashboard_ip}"/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null --max-time 300 --retry 12 --retry-delay 10 --fail)" -eq "200" ]; then
+    if [ "$(common_curl -XGET https://"${nodes_dashboard_ip}"/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null --max-time 300 --retry 12 --retry-delay 10 --fail)" -eq "200" ]; then
         if [ "${#server_node_names[@]}" -eq 1 ]; then
             wazuh_api_address=${server_node_ips[0]}
         else
@@ -125,7 +125,7 @@ function dashboard_initialize() {
         common_logger "${flag}" "Cannot connect to Wazuh dashboard."
 
         for i in "${!indexer_node_ips[@]}"; do
-            curl=$(installCommon_curl -XGET https://"${indexer_node_ips[i]}":9200/ -uadmin:"${u_pass}" -k -s --max-time 300 --retry 5 --retry-delay 5 --fail)
+            curl=$(common_curl -XGET https://"${indexer_node_ips[i]}":9200/ -uadmin:"${u_pass}" -k -s --max-time 300 --retry 5 --retry-delay 5 --fail)
             exit_code=${PIPESTATUS[0]}
             if [[ "${exit_code}" -eq "7" ]]; then
                 failed_connect=1
@@ -158,7 +158,7 @@ function dashboard_initializeAIO() {
 
     common_logger "Initializing Wazuh dashboard web application."
     installCommon_getPass "admin"
-    if [ "$(installCommon_curl -XGET https://localhost/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null --max-time 300 --retry 12 --retry-delay 10 --fail)" -ne "200" ]; then
+    if [ "$(common_curl -XGET https://localhost/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null --max-time 300 --retry 12 --retry-delay 10 --fail)" -ne "200" ]; then
         common_logger -e "Cannot connect to Wazuh dashboard."
         installCommon_rollBack
         exit 1

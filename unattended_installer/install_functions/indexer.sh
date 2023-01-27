@@ -111,7 +111,7 @@ function indexer_copyCertificates() {
 function indexer_initialize() {
 
     common_logger "Initializing Wazuh indexer cluster security settings."
-    eval "installCommon_curl -XGET https://"${indexer_node_ips[pos]}":9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null"
+    eval "common_curl -XGET https://"${indexer_node_ips[pos]}":9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null"
     e_code="${PIPESTATUS[0]}"
 
     if [ "${e_code}" -ne "0" ]; then
@@ -159,7 +159,7 @@ function indexer_install() {
 function indexer_startCluster() {
 
     for ip_to_test in "${indexer_node_ips[@]}"; do
-        eval "installCommon_curl -XGET https://"${ip_to_test}":9200/ -k -s -o /dev/null"
+        eval "common_curl -XGET https://"${ip_to_test}":9200/ -k -s -o /dev/null"
         e_code="${PIPESTATUS[0]}"
 
         if [ "${e_code}" -eq "7" ]; then
@@ -176,7 +176,7 @@ function indexer_startCluster() {
     else
         common_logger "Wazuh indexer cluster security configuration initialized."
     fi
-    eval "installCommon_curl --silent ${filebeat_wazuh_template} --max-time 300 --retry 5 --retry-delay 5" | eval "installCommon_curl -X PUT 'https://${indexer_node_ips[pos]}:9200/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k --silent --max-time 300 --retry 5 --retry-delay 5 ${debug}"
+    eval "common_curl --silent ${filebeat_wazuh_template} --max-time 300 --retry 5 --retry-delay 5" | eval "common_curl -X PUT 'https://${indexer_node_ips[pos]}:9200/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k --silent --max-time 300 --retry 5 --retry-delay 5 ${debug}"
     if [  "${PIPESTATUS[0]}" != 0  ]; then
         common_logger -e "The wazuh-alerts template could not be inserted into the Wazuh indexer cluster."
         exit 1
