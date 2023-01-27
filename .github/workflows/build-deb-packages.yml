@@ -27,7 +27,6 @@ jobs:
             deb_images:
               - 'debs/Debian/**'
               - 'debs/build.sh'
-              - '.github/workflows/upload-deb-images.yml'
             deb_packages:
               - 'debs/SPECS/**'
               - 'debs/generate_debian_package.sh'
