@@ -4,10 +4,8 @@ on:
     paths:
       - 'rpms/SPECS/*'
       - 'rpms/generate_rpm_package.sh'
-      - 'rpms/CentOS/*'
-      - 'rpms/build.sh'
-      - '.github/workflows/upload-rpm-images.yml'
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   Wazuh-agent-rpm-package-builds:
