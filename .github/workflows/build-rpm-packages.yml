@@ -43,5 +43,5 @@ jobs:
       - name: Build the ${{ matrix.ARCHITECTURE }} rpm Wazuh ${{ matrix.TYPE }} package
         working-directory: ./rpms
         run: |
-          bash generate_rpm_package.sh -b master -t ${{ matrix.TYPE }} -a ${{ matrix.ARCHITECTURE }} --dev -j 2
+          bash generate_rpm_package.sh -b master -t ${{ matrix.TYPE }} -a ${{ matrix.ARCHITECTURE }} --dev -j 2 --dont-build-docker
           echo "PACKAGE_NAME=$(ls ./output | grep .rpm | head -n 1)" >> $GITHUB_ENV
