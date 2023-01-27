@@ -1,4 +1,4 @@
-name: Build Wazuh Packages - DEB - All architectures
+name: Build Wazuh Packages - DEB - amd64 and i386
 on:
   pull_request:
     paths:

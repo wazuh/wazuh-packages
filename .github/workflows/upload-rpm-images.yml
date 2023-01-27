@@ -1,4 +1,4 @@
-name: Upload RPM package creation Docker images
+name: Upload package creation Docker images - RPM - x86 and i386
 on:
   pull_request:
     paths:

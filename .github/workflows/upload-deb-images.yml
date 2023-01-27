@@ -1,4 +1,4 @@
-name: Upload DEB package creation Docker images
+name: Upload package creation Docker images - DEB - amd64 and i386
 on:
   pull_request:
     paths:
