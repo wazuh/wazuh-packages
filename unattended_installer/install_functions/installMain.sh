@@ -209,7 +209,6 @@ function main() {
     common_checkSystem
     common_checkInstalled
     checks_arguments
-    check_curlVersion
     if [ -n "${uninstall}" ]; then
         installCommon_rollBack
         exit 0
@@ -247,6 +246,7 @@ function main() {
 # -------------- Prerequisites and Wazuh repo  ----------------------
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
         installCommon_installPrerequisites
+        check_curlVersion
         installCommon_addWazuhRepo
     fi
 
