@@ -8,12 +8,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        distro_name: ['ubuntu:xenial', 'ubuntu:bionic', 'ubuntu:focal', 'ubuntu:jammy', 'debian:stretch', 'debian:buster', 'debian:bullseye', 'amazonlinux:2']
+        distro_name: ['ubuntu:xenial', 'ubuntu:bionic', 'ubuntu:focal', 'ubuntu:jammy', 'debian:stretch', 'debian:buster', 'debian:bullseye']
         type: [agent, manager]
         arch: [amd64, i386]
         exclude:
-          - distro_name: amazonlinux:2
-            arch: i386
           - type: manager
             arch: i386
       fail-fast: false
