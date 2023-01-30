@@ -275,14 +275,10 @@ function installCommon_installPrerequisites() {
         not_installed=()
         for dep in "${dependencies[@]}"; do
             if [ "${dep}" == "openssl" ]; then
-                if ! yum list installed 2>/dev/null | grep -q "${dep}\.";then
+                if ! yum list installed 2>/dev/null | grep -q -E ^"${dep}\.";then
                     not_installed+=("${dep}")
                 fi
-            elif [ "${dep}" == "curl" ]; then
-                if ! yum list installed 2>/dev/null | grep -q -E ^"${dep}"; then
-                    not_installed+=("${dep}")
-                fi
-            elif ! yum list installed 2>/dev/null | grep -q "${dep}";then
+            elif ! yum list installed 2>/dev/null | grep -q -E ^"${dep}";then
                 not_installed+=("${dep}")
             fi
         done
@@ -305,11 +301,7 @@ function installCommon_installPrerequisites() {
         not_installed=()
 
         for dep in "${dependencies[@]}"; do
-            if [ "${dep}" == "curl" ]; then
-                if ! apt list --installed 2>/dev/null | grep -q -E ^"${dep}"; then
-                    not_installed+=("${dep}")
-                fi
-            elif ! apt list --installed 2>/dev/null | grep -q "${dep}"; then
+            if ! apt list --installed 2>/dev/null | grep -q -E ^"${dep}"; then
                 not_installed+=("${dep}")
             fi
         done
