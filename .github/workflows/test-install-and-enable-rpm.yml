@@ -1,11 +1,7 @@
 name: Test install and enable Wazuh agent and manager - RPM
 on:
-  pull_request:
-    paths:
-      - 'rpms/SPECS/*'
-      - 'rpms/generate_rpm_package.sh'
-      - 'rpms/build.sh'
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   Cancel-previous-runs:
@@ -21,62 +17,30 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        include:
-          - imagename: almalinux
-            version: 9
-            type: agent
-          - imagename: oraclelinux
-            version: 9
-            type: agent
-          - imagename: rockylinux
-            version: 9
-            type: agent
-          - imagename: centos
-            version: 7
-            type: agent
-          - imagename: centos
-            version: 7
-            type: manager
-          - imagename: centos
-            version: 8
-            type: agent
-          - imagename: centos
-            version: 8
-            type: manager
-          - imagename: redhat/ubi8
-            version: latest
-            type: agent
-          - imagename: redhat/ubi8
-            version: latest
-            type: manager
-          - imagename: redhat/ubi9
-            version: latest
-            type: agent
-          - imagename: redhat/ubi9
-            version: latest
-            type: manager
+        system: [{DISTRO: "oraclelinux", VERSION: 9}, {DISTRO: "almalinux", VERSION: 9}, {DISTRO: "rockylinux", VERSION: 9}, {DISTRO: "centos", VERSION: 7, 8}, {DISTRO: "redhat/ubi8", VERSION: latest}, {DISTRO: "redhat/ubi9", VERSION: latest"}]
+        type: [agent, manager]
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
 
       - name: Setup directories and variables
         run: |
-          mkdir $GITHUB_WORKSPACE/packages
-          echo 'PACKAGE_NAME=wazuh-${{ matrix.type }}-4.4.0-1.x86_64.rpm' >> $GITHUB_ENV
+          echo 'VERSION=$GITHUB_WORKSPACE/VERSION' >> $GITHUB_ENV
+          echo 'PACKAGE_NAME=wazuh-${{ matrix.type }}-${{ env.VERSION }}-test.x86_64.rpm' >> $GITHUB_ENV
 
-      - name: Download the Wazuh ${{ matrix.type }} package for ${{ matrix.imagename }}:${{ matrix.version }}
+      - name: Download the Wazuh ${{ matrix.type }} package for ${{ matrix.system.DISTRO }}:${{ matrix.system.VERSION }}
         uses: dawidd6/action-download-artifact@v2
         with:
-          workflow: create-rpm-packages.yml
+          workflow: build-rpm-packages.yml
           workflow_conclusion: success
           name: $PACKAGE_NAME
 
 
-      - name: Download the Wazuh ${{ matrix.type }} package for ${{ matrix.imagename }}:${{ matrix.version }}
+      - name: Move the Wazuh ${{ matrix.type }} package for ${{ matrix.system.DISTRO }}:${{ matrix.system.VERSION }} to the packages directory
         working-directory: ./rpms
         run: |
-          #curl -o $PACKAGE_NAME https://packages-dev.wazuh.com/pre-release/yum/$PACKAGE_NAME
+          mkdir $GITHUB_WORKSPACE/packages
           mv $PACKAGE_NAME $GITHUB_WORKSPACE/packages
 
       - name: Launch docker
-        run: sudo docker run -v $GITHUB_WORKSPACE/.github/actions/test-install-enable/:/tests -v $GITHUB_WORKSPACE/packages/:/packages ${{ matrix.imagename }}:${{ matrix.version }} bash /tests/install_and_enable.sh $PACKAGE_NAME ${{ matrix.type }}
+        run: sudo docker run -v $GITHUB_WORKSPACE/.github/actions/test-install-enable/:/tests -v $GITHUB_WORKSPACE/packages/:/packages ${{ matrix.system.DISTRO }}:${{ matrix.system.VERSION }} bash /tests/install_and_enable.sh $PACKAGE_NAME ${{ matrix.type }}
