@@ -15,7 +15,6 @@ jobs:
         {NAME: 'centos:7', ARCH: "x86_64"},
         {NAME: 'centos:8', ARCH: "x86_64"},
         {NAME: 'i386/centos:7', ARCH: "i386"},
-        {NAME: 'i386/centos:8', ARCH: "i386"},
         {NAME: 'redhat/ubi8:latest', ARCH: "x86_64"},
         {NAME: 'redhat/ubi9:latest', ARCH: "x86_64"}]
         type: [agent, manager]

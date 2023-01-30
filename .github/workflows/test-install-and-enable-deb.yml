@@ -23,12 +23,12 @@ jobs:
       - name: Setup directories and variables
         run: |
           VERSION=$(cat $GITHUB_WORKSPACE/VERSION)
-          echo "PACKAGE_NAME=wazuh-${{ matrix.type }}-$VERSION-test.${{ matrix.arch }}.rpm" >> $GITHUB_ENV
+          echo "PACKAGE_NAME=wazuh-${{ matrix.type }}-$VERSION-test.${{ matrix.arch }}.deb" >> $GITHUB_ENV
 
       - name: Download the Wazuh ${{ matrix.type }} package for ${{ matrix.distro_name }}
         uses: dawidd6/action-download-artifact@v2
         with:
-          workflow: build-rpm-packages.yml
+          workflow: build-deb-packages.yml
           workflow_conclusion: success
           name: ${{env.PACKAGE_NAME}}
           if_no_artifact_found: fail
