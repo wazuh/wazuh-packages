@@ -14,6 +14,9 @@ jobs:
       matrix:
         TYPE: [agent, manager]
         ARCHITECTURE : [amd64, i386]
+        exclude:
+          - TYPE: manager
+            ARCHITECTURE: i386
       fail-fast: false
 
     steps:
