@@ -29,13 +29,14 @@ jobs:
           workflow: build-rpm-packages.yml
           workflow_conclusion: success
           name: ${{env.PACKAGE_NAME}}
+          if_no_artifact_found: fail
 
 
       - name: Move the Wazuh ${{ matrix.type }} package for ${{ matrix.system.DISTRO }}:${{ matrix.system.VERSION }} to the packages directory
         working-directory: ./rpms
         run: |
           mkdir $GITHUB_WORKSPACE/packages
-          mv ${{env.PACKAGE_NAME}} $GITHUB_WORKSPACE/packages
+          mv ./${{env.PACKAGE_NAME}} $GITHUB_WORKSPACE/packages
 
       - name: Launch docker
         run: sudo docker run -v $GITHUB_WORKSPACE/.github/actions/test-install-enable/:/tests -v $GITHUB_WORKSPACE/packages/:/packages ${{ matrix.system.DISTRO }}:${{ matrix.system.VERSION }} bash /tests/install_and_enable.sh $PACKAGE_NAME ${{ matrix.type }}
