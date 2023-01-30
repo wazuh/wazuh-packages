@@ -1,0 +1,30 @@
+name: Offline installation test
+on:
+  pull_request:
+    paths:
+      - 'unattended_installer/passwords_tool/**'
+
+jobs:
+  Build-wazuh-install-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build wazuh-install script and use pre-release packages
+        working-directory: ./unattended_installer
+        run: |
+          bash builder.sh -i -d
+          sed -i 's|wazuh_major="4\.5"|wazuh_major="4\.4"|g' wazuh-install.sh
+          sed -i 's|wazuh_version="4\.5\(.*\)"|wazuh_version="4\.4\1"|g' wazuh-install.sh
+        shell: bash
+      - uses: actions/upload-artifact@v3
+        with:
+          name: script
+          path: |
+            unattended_installer/wazuh-install.sh
+          if-no-files-found: error
+  Test-offline-installation-debian:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run script
+        run: sudo bash $GITHUB_WORKSPACE/.github/actions/offline-installation/offline-installation.sh
+
+  Test-offline-installation-rpm:
