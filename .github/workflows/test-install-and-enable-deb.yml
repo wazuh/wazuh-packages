@@ -1,0 +1,43 @@
+name: Test install and enable Wazuh agent and manager - DEB
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  Test-install-and-enable-deb-systems:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        distro_name: [ubuntu:xenial, ubuntu:bionic, ubuntu:focal, ubuntu:jammy, debian:stretch, debian:buster, debian:bullseye, amazonlinux:2]
+        type: [agent, manager]
+        arch: [amd64, i386]
+        exclude:
+          - distro_name: amazonlinux:2
+            arch: i386
+          - type: manager
+            arch: i386
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup directories and variables
+        run: |
+          VERSION=$(cat $GITHUB_WORKSPACE/VERSION)
+          echo "PACKAGE_NAME=wazuh-${{ matrix.type }}-$VERSION-test.${{ matrix.arch }}.rpm" >> $GITHUB_ENV
+
+      - name: Download the Wazuh ${{ matrix.type }} package for ${{ matrix.distro_name }}
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: build-rpm-packages.yml
+          workflow_conclusion: success
+          name: ${{env.PACKAGE_NAME}}
+          if_no_artifact_found: fail
+
+
+      - name: Move the Wazuh ${{ matrix.type }} package for ${{ matrix.distro_name }} to the packages directory
+        run: |
+          mkdir $GITHUB_WORKSPACE/packages
+          mv ${{env.PACKAGE_NAME}} $GITHUB_WORKSPACE/packages
+
+      - name: Launch docker
+        run: sudo docker run -v $GITHUB_WORKSPACE/.github/actions/test-install-enable/:/tests -v $GITHUB_WORKSPACE/packages/:/packages ${{ matrix.distro_name }} bash /tests/install_and_enable.sh $PACKAGE_NAME ${{ matrix.type }}

@@ -58,3 +58,8 @@ jobs:
           name: ${{ env.PACKAGE_NAME }}
           path: ${{github.workspace}}/debs/output/${{ env.PACKAGE_NAME }}
           if-no-files-found: error
+
+  Test-install-packages-deb:
+    needs: Wazuh-agent-deb-package-builds
+    uses: ./.github/workflows/test-install-and-enable-deb.yml
+    secrets: inherit
