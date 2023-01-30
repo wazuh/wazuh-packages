@@ -1,18 +1,13 @@
 name: Test install and enable Wazuh agent and manager - RPM
 on:
+  pull_request:
+    paths:
+      - 'rpms/SPECS/*'
+      - 'rpms/generate_rpm_package.sh'
   workflow_dispatch:
   workflow_call:
 
 jobs:
-  Cancel-previous-runs:
-    name: 'Cancel Previous Runs'
-    runs-on: ubuntu-latest
-    timeout-minutes: 3
-    steps:
-      - uses: styfle/cancel-workflow-action
-        with:
-          workflow_id: ${{ github.run_id }}
-
   Test-install-and-enable-rpm-systems:
     runs-on: ubuntu-latest
     strategy:
