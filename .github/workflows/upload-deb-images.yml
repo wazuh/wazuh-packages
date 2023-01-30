@@ -38,5 +38,5 @@ jobs:
   Call-build-packages-workflow:
     needs: Upload-deb-package-building-images
     if: github.event_name == 'pull_request'
-    uses: wazuh/wazuh-packages/.github/workflows/build-deb-packages.yml@${{ github.sha }}
+    uses: .github/workflows/build-deb-packages.yml
     secrets: inherit
