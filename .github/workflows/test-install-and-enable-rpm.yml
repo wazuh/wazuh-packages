@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        system: [{DISTRO: "oraclelinux", VERSION: 9}, {DISTRO: "almalinux", VERSION: 9}, {DISTRO: "rockylinux", VERSION: 9}, {DISTRO: "centos", VERSION: 7, 8}, {DISTRO: "redhat/ubi8", VERSION: latest}, {DISTRO: "redhat/ubi9", VERSION: latest"}]
+        system: [{DISTRO: "oraclelinux", VERSION: 9}, {DISTRO: "almalinux", VERSION: 9}, {DISTRO: "rockylinux", VERSION: 9}, {DISTRO: "centos", VERSION: 7, 8}, {DISTRO: "redhat/ubi8", VERSION: latest}, {DISTRO: "redhat/ubi9", VERSION: latest}]
         type: [agent, manager]
       fail-fast: false
     steps:
