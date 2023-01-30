@@ -38,5 +38,5 @@ jobs:
   Call-build-packages-workflow:
     needs: Upload-rpm-package-building-images
     if: github.event_name == 'pull_request'
-    uses: wazuh/wazuh-packages/.github/workflows/build-rpm-packages.yml@${{ github.commit_ref }}
+    uses: wazuh/wazuh-packages/.github/workflows/build-rpm-packages.yml@${{ github.sha }}
     secrets: inherit
