@@ -22,9 +22,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - id: skip_check
-        uses: fkirc/skip-duplicate-actions@master
-
       - name: Get changed files
         uses: dorny/paths-filter@v2
         id: changes
