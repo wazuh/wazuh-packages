@@ -14,6 +14,8 @@ jobs:
         exclude:
           - type: manager
             arch: i386
+          - distro_name: 'ubuntu:jammy'
+            arch: i386
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
