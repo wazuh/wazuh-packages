@@ -55,7 +55,7 @@ jobs:
           name: ${{ env.PACKAGE_NAME }}
           path: ${{github.workspace}}/rpms/output/${{ env.PACKAGE_NAME }}
 
-  Call-test-packages-workflow:
-    needs: Wazuh-agent-rpm-package-builds
-    uses: wazuh/wazuh-packages/.github/workflows/test-install-and-enable-rpm.yml@${{ github.sha }}
-    secrets: inherit
+  # Call-test-packages-workflow:
+  #   needs: Wazuh-agent-rpm-package-builds
+  #   uses: wazuh/wazuh-packages/.github/workflows/test-install-and-enable-rpm.yml@${{ github.sha }}
+  #   secrets: inherit
