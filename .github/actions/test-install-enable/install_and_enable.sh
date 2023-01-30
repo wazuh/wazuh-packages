@@ -9,10 +9,9 @@ fi
 
 if [ -n "$(command -v yum)" ]; then
     sys_type="yum"
-    sep="-"
 elif [ -n "$(command -v apt-get)" ]; then
     sys_type="apt-get"
-    sep="="
+    apt-get update
 else
     common_logger -e "Couldn'd find type of system"
     exit 1
