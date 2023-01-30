@@ -1,9 +1,5 @@
 name: Test install and enable Wazuh agent and manager - RPM
 on:
-  pull_request:
-    paths:
-      - 'rpms/SPECS/*'
-      - 'rpms/generate_rpm_package.sh'
   workflow_dispatch:
   workflow_call:
 
@@ -12,8 +8,20 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        system: [{DISTRO: "oraclelinux", VERSION: 9}, {DISTRO: "almalinux", VERSION: 9}, {DISTRO: "rockylinux", VERSION: 9}, {DISTRO: "centos", VERSION: 7, 8}, {DISTRO: "redhat/ubi8", VERSION: latest}, {DISTRO: "redhat/ubi9", VERSION: latest}]
+        system: [
+        {NAME: "oraclelinux:9", ARCH: "x86_64"},
+        {NAME: "almalinux:9", ARCH: "x86_64"},
+        {NAME: "rockylinux:9", ARCH: "x86_64"},
+        {NAME: "centos:7", ARCH: "x86_64"},
+        {NAME: "centos:8", ARCH: "i386"},
+        {NAME: "i386/centos:7", ARCH: "x86_64"},
+        {NAME: "i386/centos:7", ARCH: "i386"},
+        {NAME: "redhat/ubi8:latest", ARCH: "x86_64"},
+        {NAME: "redhat/ubi9:latest", ARCH: "x86_64"}]
         type: [agent, manager]
+        exclude:
+          - system: {ARCH: "i386"}
+            type: manager
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
@@ -21,9 +29,9 @@ jobs:
       - name: Setup directories and variables
         run: |
           VERSION=$(cat $GITHUB_WORKSPACE/VERSION)
-          echo "PACKAGE_NAME=wazuh-${{ matrix.type }}-$VERSION-test.x86_64.rpm" >> $GITHUB_ENV
+          echo "PACKAGE_NAME=wazuh-${{ matrix.type }}-$VERSION-test.${{matrix.system.ARCH}}.rpm" >> $GITHUB_ENV
 
-      - name: Download the Wazuh ${{ matrix.type }} package for ${{ matrix.system.DISTRO }}:${{ matrix.system.VERSION }}
+      - name: Download the Wazuh ${{ matrix.type }} package for ${{ matrix.system.NAME }}
         uses: dawidd6/action-download-artifact@v2
         with:
           workflow: build-rpm-packages.yml
@@ -32,10 +40,10 @@ jobs:
           if_no_artifact_found: fail
 
 
-      - name: Move the Wazuh ${{ matrix.type }} package for ${{ matrix.system.DISTRO }}:${{ matrix.system.VERSION }} to the packages directory
+      - name: Move the Wazuh ${{ matrix.type }} package for ${{ matrix.system.NAME }} to the packages directory
         run: |
           mkdir $GITHUB_WORKSPACE/packages
           mv ${{env.PACKAGE_NAME}} $GITHUB_WORKSPACE/packages
 
       - name: Launch docker
-        run: sudo docker run -v $GITHUB_WORKSPACE/.github/actions/test-install-enable/:/tests -v $GITHUB_WORKSPACE/packages/:/packages ${{ matrix.system.DISTRO }}:${{ matrix.system.VERSION }} bash /tests/install_and_enable.sh $PACKAGE_NAME ${{ matrix.type }}
+        run: sudo docker run -v $GITHUB_WORKSPACE/.github/actions/test-install-enable/:/tests -v $GITHUB_WORKSPACE/packages/:/packages ${{ matrix.system.NAME }} bash /tests/install_and_enable.sh $PACKAGE_NAME ${{ matrix.type }}
