@@ -57,5 +57,5 @@ jobs:
 
   Call-test-packages-workflow:
     needs: Wazuh-agent-rpm-package-builds
-    uses: ./.github/workflows/test-install-and-enable-rpm.yml
+    uses: wazuh/wazuh-packages/.github/workflows/test-install-and-enable-rpm.yml
     secrets: inherit
