@@ -12,6 +12,7 @@ if [ -n "$(command -v yum)" ]; then
 elif [ -n "$(command -v apt-get)" ]; then
     sys_type="apt-get"
     apt-get update
+    apt-get install -y systemd
 else
     common_logger -e "Couldn'd find type of system"
     exit 1
