@@ -54,6 +54,7 @@ jobs:
         with:
           name: ${{ env.PACKAGE_NAME }}
           path: ${{github.workspace}}/rpms/output/${{ env.PACKAGE_NAME }}
+          if-no-files-found: error
 
   # Call-test-packages-workflow:
   #   needs: 
