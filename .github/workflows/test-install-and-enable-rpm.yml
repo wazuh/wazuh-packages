@@ -35,11 +35,9 @@ jobs:
       - uses: Wandalen/wretry.action@master
         name: Download the Wazuh ${{ matrix.type }} package for ${{ matrix.distro_name }}
         with:
-          action: dawidd6/action-download-artifact@v2
+          action: aochmann/actions-download-artifact@1.0.0
           with: |
             name: ${{env.PACKAGE_NAME}}
-            if_no_artifact_found: fail
-            check_artifacts: true
           attempt_limit: 5
           attempt_delay: 40000
 
