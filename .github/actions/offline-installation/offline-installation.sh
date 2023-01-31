@@ -4,8 +4,6 @@
 ABSOLUTE_PATH="$( cd $(dirname ${0}) ; pwd -P )"
 . ${ABSOLUTE_PATH}/common.sh
 
-set -x
-
 check_system
 download_packages
 
