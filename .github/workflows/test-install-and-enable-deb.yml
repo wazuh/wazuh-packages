@@ -24,7 +24,7 @@ jobs:
         run: |
           VERSION=$(cat $GITHUB_WORKSPACE/VERSION)
           REVISION=$( echo ${{ github.head_ref }})
-          echo "PACKAGE_NAME=wazuh-${{ matrix.type }}_$VERSION-$REVISION_${{ matrix.arch }}.deb" >> $GITHUB_ENV
+          echo "PACKAGE_NAME=wazuh-${{ matrix.type }}_${VERSION}-${REVISION_}${{ matrix.arch }}.deb" >> $GITHUB_ENV
           cat $GITHUB_ENV
 
       - uses: Wandalen/wretry.action@master
@@ -32,12 +32,11 @@ jobs:
         with:
           action: dawidd6/action-download-artifact@v2
           with: |
-            workflow: build-deb-packages.yml
-            workflow_conclusion: in_progress
+            commit: ${{ github.sha }}
             name: ${{env.PACKAGE_NAME}}
             if_no_artifact_found: fail
           attempt_limit: 15
-          attempt_delay: 20000
+          attempt_delay: 60000
 
       - name: Move the Wazuh ${{ matrix.type }} package for ${{ matrix.distro_name }} to the packages directory
         run: |
