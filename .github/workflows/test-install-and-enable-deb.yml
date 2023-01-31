@@ -29,18 +29,18 @@ jobs:
       - name: Download the Wazuh ${{ matrix.type }} package for ${{ matrix.system.NAME }}
         id: download-artifact
         uses: dawidd6/action-download-artifact@v2
-          with:
-            workflow: build-deb-packages.yml
-            workflow_conclusion: in_progress
-            name: ${{env.PACKAGE_NAME}}
-            if_no_artifact_found: fail
+        with:
+          workflow: build-deb-packages.yml
+          workflow_conclusion: in_progress
+          name: ${{env.PACKAGE_NAME}}
+          if_no_artifact_found: fail
 
       - name: Retry download if it has failed
         if: ${{ always() && steps.download-artifact.outcome == 'failure' }}
         uses: dawidd6/action-download-artifact@v2
-          with:
-            name: ${{env.PACKAGE_NAME}}
-            if_no_artifact_found: fail
+        with:
+          name: ${{env.PACKAGE_NAME}}
+          if_no_artifact_found: fail
 
       - name: Move the Wazuh ${{ matrix.type }} package for ${{ matrix.distro_name }} to the packages directory
         run: |
