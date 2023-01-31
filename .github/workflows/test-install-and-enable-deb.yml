@@ -23,7 +23,7 @@ jobs:
       - name: Setup directories and variables
         run: |
           VERSION=$(cat $GITHUB_WORKSPACE/VERSION)
-          REVISION=${{ github.head_ref }}
+          REVISION=$( echo ${{ github.head_ref }})
           echo "PACKAGE_NAME=wazuh-${{ matrix.type }}_$VERSION-$REVISION_${{ matrix.arch }}.deb" >> $GITHUB_ENV
           cat $GITHUB_ENV
 
@@ -36,8 +36,8 @@ jobs:
             workflow_conclusion: in_progress
             name: ${{env.PACKAGE_NAME}}
             if_no_artifact_found: fail
-          attempt_limit: 3
-          attempt_delay: 2000
+          attempt_limit: 15
+          attempt_delay: 20000
 
       - name: Move the Wazuh ${{ matrix.type }} package for ${{ matrix.distro_name }} to the packages directory
         run: |
