@@ -37,10 +37,9 @@ jobs:
         with:
           action: dawidd6/action-download-artifact@v2
           with: |
-            workflow: build-rpm-packages.yml
-            workflow_conclusion: in_progress
             name: ${{env.PACKAGE_NAME}}
             if_no_artifact_found: fail
+            check_artifacts: true
           attempt_limit: 5
           attempt_delay: 40000
 
