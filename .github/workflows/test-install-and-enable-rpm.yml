@@ -43,12 +43,12 @@ jobs:
           if_no_artifact_found: fail
 
       - name: Wait for the artifact to be uploaded
-        if: ${{ always() && steps.download-artifact.outcome == 'failure' }}
+        if: ${{ steps.download-artifact.outcome == 'failure' }}
         run: |
           sleep 60
 
       - name: Retry download if it has failed
-        if: ${{ always() && steps.download-artifact.outcome == 'failure' }}
+        if: ${{ steps.download-artifact.outcome == 'failure' }}
         uses: dawidd6/action-download-artifact@v2
         with:
           name: ${{env.PACKAGE_NAME}}
