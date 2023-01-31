@@ -2,7 +2,7 @@ name: Clean workflow runs
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * 1'
+    - cron: '0 0 * * Sunday'
 
 jobs:
   Clean-runs:
