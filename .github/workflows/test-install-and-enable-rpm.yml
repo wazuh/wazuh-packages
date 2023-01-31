@@ -42,8 +42,8 @@ jobs:
             workflow_conclusion: in_progress
             name: ${{env.PACKAGE_NAME}}
             if_no_artifact_found: fail
-          attempt_limit: 3
-          attempt_delay: 2000
+          attempt_limit: 15
+          attempt_delay: 20000
 
       - name: Move the Wazuh ${{ matrix.type }} package for ${{ matrix.system.NAME }} to the packages directory
         run: |
