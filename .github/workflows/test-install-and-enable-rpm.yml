@@ -32,17 +32,21 @@ jobs:
           REVISION=$( echo ${{ github.head_ref }} | sed 's/-/./g' )
           echo "PACKAGE_NAME=wazuh-${{ matrix.type }}-${VERSION}-${REVISION}.${{matrix.system.ARCH}}.rpm" >> $GITHUB_ENV
 
-      - uses: Wandalen/wretry.action@master
-        name: Download the Wazuh ${{ matrix.type }} package for ${{ matrix.distro_name }}
-        with:
-          action: dawidd6/action-download-artifact@v2
-          with: |
+      - name: Download the Wazuh ${{ matrix.type }} package for ${{ matrix.system.NAME }}
+        id: download-artifact
+        uses: dawidd6/action-download-artifact@v2
+          with:
             workflow: build-rpm-packages.yml
             workflow_conclusion: in_progress
             name: ${{env.PACKAGE_NAME}}
             if_no_artifact_found: fail
-          attempt_limit: 5
-          attempt_delay: 40000
+
+      - name: Retry download if it has failed
+        if: ${{ always() && steps.download-artifact.outcome == 'failure' }}
+        uses: dawidd6/action-download-artifact@v2
+          with:
+            name: ${{env.PACKAGE_NAME}}
+            if_no_artifact_found: fail
 
       - name: Move the Wazuh ${{ matrix.type }} package for ${{ matrix.system.NAME }} to the packages directory
         run: |
