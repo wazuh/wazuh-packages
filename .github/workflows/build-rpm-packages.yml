@@ -58,8 +58,7 @@ jobs:
           path: ${{github.workspace}}/rpms/output/${{ env.PACKAGE_NAME }}
           if-no-files-found: error
 
-      - uses: Wandalen/wretry.action@master
-        name: Wait for the artifact to be uploaded
+      - name: Wait for the artifact to be uploaded
         run: |
           sleep 60
 
