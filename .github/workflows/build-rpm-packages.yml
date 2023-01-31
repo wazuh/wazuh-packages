@@ -6,6 +6,8 @@ on:
       - 'rpms/generate_rpm_package.sh'
   workflow_dispatch:
   workflow_call:
+    input:
+
 
 jobs:
   Wazuh-agent-rpm-package-builds:
@@ -46,8 +48,8 @@ jobs:
       - name: Build the ${{ matrix.ARCHITECTURE }} rpm Wazuh ${{ matrix.TYPE }} package
         working-directory: ./rpms
         run: |
-          REVISION="${{ github.ref }}"
-          bash generate_rpm_package.sh -b master -t ${{ matrix.TYPE }} -a ${{ matrix.ARCHITECTURE }} --dev -j 2 --dont-build-docker --tag ${{ env.TAG }} -r REVISION
+          REVISION="${{ github.head_ref }}"
+          bash generate_rpm_package.sh -b master -t ${{ matrix.TYPE }} -a ${{ matrix.ARCHITECTURE }} --dev -j 2 --dont-build-docker --tag ${{ env.TAG }} -r $REVISION
           echo "PACKAGE_NAME=$(ls ./output | grep .rpm | head -n 1)" >> $GITHUB_ENV
 
       - name: Upload Wazuh ${{ matrix.TYPE }} ${{ matrix.ARCHITECTURE }} package as artifact
