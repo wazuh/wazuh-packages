@@ -67,6 +67,13 @@ jobs:
           attempt_limit: 5
           attempt_delay: 40000
 
+      - name: Download the Wazuh ${{ matrix.type }} package for ${{ matrix.distro_name }}
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          name: ${{env.PACKAGE_NAME}}
+          if_no_artifact_found: fail
+          check_artifacts: true
+
   Test-install-packages-rpm:
     needs: Wazuh-agent-rpm-package-builds
     uses: ./.github/workflows/test-install-and-enable-rpm.yml
