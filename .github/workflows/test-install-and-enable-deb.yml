@@ -23,17 +23,26 @@ jobs:
       - name: Setup directories and variables
         run: |
           VERSION=$(cat $GITHUB_WORKSPACE/VERSION)
-          REVISION="${{ github.ref }}"
+          REVISION="${{ github.head_ref }}"
           echo "PACKAGE_NAME=wazuh-${{ matrix.type }}_$VERSION-$REVISION_${{ matrix.arch }}.deb" >> $GITHUB_ENV
 
       - name: Download the Wazuh ${{ matrix.type }} package for ${{ matrix.distro_name }}
+        id: download_package
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: build-deb-packages.yml
+          workflow_conclusion: success
+          name: ${{env.PACKAGE_NAME}}
+          if_no_artifact_found: warn
+      
+      - name: Try again to download execution timetable from the last workflow if failed
+        if: ${{ always() && steps.download_package.outcome == 'failure' }}
         uses: dawidd6/action-download-artifact@v2
         with:
           workflow: build-deb-packages.yml
           workflow_conclusion: success
           name: ${{env.PACKAGE_NAME}}
           if_no_artifact_found: fail
-
 
       - name: Move the Wazuh ${{ matrix.type }} package for ${{ matrix.distro_name }} to the packages directory
         run: |
