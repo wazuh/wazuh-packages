@@ -27,13 +27,23 @@ jobs:
           echo "PACKAGE_NAME=wazuh-${{ matrix.type }}_${VERSION}-${REVISION}_${{ matrix.arch }}.deb" >> $GITHUB_ENV
 
       - uses: Wandalen/wretry.action@master
+        name: Check if artifact is uploaded
+        with:
+          action: xSAVIKx/artifact-exists-action@v0
+          with: |
+            name: ${{env.PACKAGE_NAME}}
+          attempt_limit: 5
+          attempt_delay: 40000
+
+      - uses: Wandalen/wretry.action@master
         name: Download the Wazuh ${{ matrix.type }} package for ${{ matrix.distro_name }}
         with:
           action: dawidd6/action-download-artifact@v2
           with: |
+            workflow: build-deb-packages.yml
+            workflow_conclusion: in_progress
             name: ${{env.PACKAGE_NAME}}
             if_no_artifact_found: fail
-            check_artifacts: true
           attempt_limit: 5
           attempt_delay: 40000
 
