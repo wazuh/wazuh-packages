@@ -59,24 +59,9 @@ jobs:
           if-no-files-found: error
 
       - uses: Wandalen/wretry.action@master
-        name: Check if artifact is uploaded
-        with:
-          action: xSAVIKx/artifact-exists-action@v0
-          with: |
-            name: ${{env.PACKAGE_NAME}}
-          attempt_limit: 5
-          attempt_delay: 40000
-
-      - uses: Wandalen/wretry.action@master
-        name: Download the Wazuh ${{ matrix.type }} package for ${{ matrix.distro_name }}
-        with:
-          action: dawidd6/action-download-artifact@v2
-          with: |
-            name: ${{env.PACKAGE_NAME}}
-            if_no_artifact_found: fail
-            check_artifacts: true
-          attempt_limit: 5
-          attempt_delay: 40000
+        name: Wait for the artifact to be uploaded
+        run: |
+          sleep 60
 
   Test-install-packages-rpm:
     needs: Wazuh-agent-rpm-package-builds
