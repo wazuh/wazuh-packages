@@ -235,6 +235,15 @@ function installCommon_extractConfig() {
 
 }
 
+function installCommon_getAPIPass() {
+
+    for i in "${!api_users[@]}"; do
+        if [ "${api_users[i]}" == "${1}" ]; then
+            api_pass=${api_passwords[i]}
+        fi
+    done
+}
+
 function installCommon_getConfig() {
 
     if [ "$#" -ne 2 ]; then

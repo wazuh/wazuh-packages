@@ -227,6 +227,7 @@ function main() {
 # -------------- Upgrade case  ------------------------------------
 
     if [ -n "${upgrade}" ]; then
+        checks_upgrade
         installCommon_addWazuhRepo
         upgrade_upgradeInstalled
         exit 0
