@@ -15,4 +15,5 @@ jobs:
           run_conclusions: |
             cancelled
             skipped
-          save_period: 10
+            timed_out
+          save_period: 5

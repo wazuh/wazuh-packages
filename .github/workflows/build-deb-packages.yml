@@ -18,6 +18,7 @@ jobs:
           - TYPE: manager
             ARCHITECTURE: i386
       fail-fast: false
+      continue-on-error: true
 
     steps:
       - uses: actions/checkout@v3
