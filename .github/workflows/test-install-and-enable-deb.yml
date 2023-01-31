@@ -23,7 +23,8 @@ jobs:
       - name: Setup directories and variables
         run: |
           VERSION=$(cat $GITHUB_WORKSPACE/VERSION)
-          echo "PACKAGE_NAME=wazuh-${{ matrix.type }}_$VERSION-test_${{ matrix.arch }}.deb" >> $GITHUB_ENV
+          REVISION="${{ github.ref }}"
+          echo "PACKAGE_NAME=wazuh-${{ matrix.type }}_$VERSION-$REVISION_${{ matrix.arch }}.deb" >> $GITHUB_ENV
 
       - name: Download the Wazuh ${{ matrix.type }} package for ${{ matrix.distro_name }}
         uses: dawidd6/action-download-artifact@v2
