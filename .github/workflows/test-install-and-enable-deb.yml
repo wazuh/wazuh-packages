@@ -26,26 +26,21 @@ jobs:
           REVISION=$( echo ${{ github.head_ref }})
           echo "PACKAGE_NAME=wazuh-${{ matrix.type }}_${VERSION}-${REVISION}_${{ matrix.arch }}.deb" >> $GITHUB_ENV
 
-      - uses: Wandalen/wretry.action@master
-        name: Check if artifact is uploaded
-        with:
-          action: xSAVIKx/artifact-exists-action@v0
-          with: |
-            name: ${{env.PACKAGE_NAME}}
-          attempt_limit: 5
-          attempt_delay: 40000
-
-      - uses: Wandalen/wretry.action@master
-        name: Download the Wazuh ${{ matrix.type }} package for ${{ matrix.distro_name }}
-        with:
-          action: dawidd6/action-download-artifact@v2
-          with: |
+      - name: Download the Wazuh ${{ matrix.type }} package for ${{ matrix.system.NAME }}
+        id: download-artifact
+        uses: dawidd6/action-download-artifact@v2
+          with:
             workflow: build-deb-packages.yml
             workflow_conclusion: in_progress
             name: ${{env.PACKAGE_NAME}}
             if_no_artifact_found: fail
-          attempt_limit: 5
-          attempt_delay: 40000
+
+      - name: Retry download if it has failed
+        if: ${{ always() && steps.download-artifact.outcome == 'failure' }}
+        uses: dawidd6/action-download-artifact@v2
+          with:
+            name: ${{env.PACKAGE_NAME}}
+            if_no_artifact_found: fail
 
       - name: Move the Wazuh ${{ matrix.type }} package for ${{ matrix.distro_name }} to the packages directory
         run: |
