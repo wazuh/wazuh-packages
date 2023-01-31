@@ -25,6 +25,7 @@ jobs:
           VERSION=$(cat $GITHUB_WORKSPACE/VERSION)
           REVISION="${{ github.head_ref }}"
           echo "PACKAGE_NAME=wazuh-${{ matrix.type }}_$VERSION-$REVISION_${{ matrix.arch }}.deb" >> $GITHUB_ENV
+          cat $GITHUB_ENV
 
       - name: Download the Wazuh ${{ matrix.type }} package for ${{ matrix.distro_name }}
         id: download_package

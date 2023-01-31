@@ -29,8 +29,9 @@ jobs:
       - name: Setup directories and variables
         run: |
           VERSION=$(cat $GITHUB_WORKSPACE/VERSION)
-          REVISION="${{ github.head_ref }}"
+          REVISION=$( echo ${{ github.head_ref }} | sed 's/-/./g' )
           echo "PACKAGE_NAME=wazuh-${{ matrix.type }}-$VERSION-$REVISION.${{matrix.system.ARCH}}.rpm" >> $GITHUB_ENV
+          cat $GITHUB_ENV
 
       - name: Download the Wazuh ${{ matrix.type }} package for ${{ matrix.system.NAME }}
         id: download_package
@@ -39,7 +40,7 @@ jobs:
           workflow: build-rpm-packages.yml
           workflow_conclusion: success
           name: ${{env.PACKAGE_NAME}}
-          if_no_artifact_found: fail
+          if_no_artifact_found: warn
 
       - name: Try again to download execution timetable from the last workflow if failed
         if: ${{ always() && steps.download_package.outcome == 'failure' }}
