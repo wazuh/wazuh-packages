@@ -3,11 +3,6 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '0 0 * * 1'
-  pull_request:
-    paths:
-      - 'rpms/SPECS/*'
-      - 'rpms/generate_rpm_package.sh'
-      - '.github/workflows/clean-workflow-runs.yml'
 
 jobs:
   Clean-runs:
