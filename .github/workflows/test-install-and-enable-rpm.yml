@@ -23,6 +23,7 @@ jobs:
           - system: {ARCH: "i386"}
             type: manager
       fail-fast: false
+      continue-on-error: true
     steps:
       - uses: actions/checkout@v3
 

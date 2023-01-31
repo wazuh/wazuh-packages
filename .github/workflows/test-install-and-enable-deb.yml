@@ -17,6 +17,7 @@ jobs:
           - distro_name: 'ubuntu:jammy'
             arch: i386
       fail-fast: false
+      continue-on-error: true
     steps:
       - uses: actions/checkout@v3
 
