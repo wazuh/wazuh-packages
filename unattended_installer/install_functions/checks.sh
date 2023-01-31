@@ -169,14 +169,6 @@ function checks_arguments() {
 # Checks if the --retry-connrefused is available in curl
 function check_curlVersion() {
 
-    if ! curl -V > /dev/null 2>&1 ; then
-        if [ "${sys_type}" == "yum" ]; then
-            eval "yum install curl -y ${debug}"
-        elif [ "${sys_type}" == "apt-get" ]; then
-            installCommon_aptInstall "curl"
-        fi
-    fi
-
     # --retry-connrefused was added in 7.52.0
     curl_version=$(curl -V | head -n 1 | awk '{ print $2 }')
     if [ $(check_versions ${curl_version} 7.52.0) == "0" ]; then
