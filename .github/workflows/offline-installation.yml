@@ -21,6 +21,7 @@ jobs:
           path: |
             unattended_installer/wazuh-install.sh
           if-no-files-found: error
+          
   Test-offline-installation-debian:
     runs-on: ubuntu-latest
     steps:
@@ -28,3 +29,7 @@ jobs:
         run: sudo bash $GITHUB_WORKSPACE/.github/actions/offline-installation/offline-installation.sh
 
   Test-offline-installation-rpm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Launch docker and run script
+        run: sudo docker run -v $GITHUB_WORKSPACE/.github/actions/offline-installation/:/tests centos:centos7 bash /tests/offline-installation.sh
