@@ -6,7 +6,6 @@ on:
       - 'rpms/generate_rpm_package.sh'
   workflow_dispatch:
   workflow_call:
-    input:
 
 
 jobs:
