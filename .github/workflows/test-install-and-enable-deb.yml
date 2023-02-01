@@ -38,8 +38,7 @@ jobs:
 
       - name: Wait for the artifact to be uploaded
         if: ${{ steps.download-artifact.outcome == 'failure' }}
-        run: |
-          sleep 60
+        run: sleep 90
 
       - name: Retry download if it has failed
         if: ${{ steps.download-artifact.outcome == 'failure' }}
