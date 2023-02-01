@@ -48,3 +48,9 @@ jobs:
     if: github.event_name == 'pull_request'
     uses: ./.github/workflows/build-rpm-packages.yml
     secrets: inherit
+
+  Test-packages-rpm:
+    needs: Build-packages-rpm
+    if: github.event_name == 'pull_request'
+    uses: ./.github/workflows/test-install-and-enable-rpm.yml
+    secrets: inherit
