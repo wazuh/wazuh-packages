@@ -1,5 +1,9 @@
 name: Test install and enable Wazuh agent and manager - RPM
 on:
+  pull_request:
+    paths:
+      - 'rpms/SPECS/*'
+      - 'rpms/generate_rpm_package.sh'
   workflow_dispatch:
   workflow_call:
 
@@ -24,6 +28,14 @@ jobs:
             type: manager
       fail-fast: false
     steps:
+      - name: Wait for the package to be built
+        uses: fountainhead/action-wait-for-check@v1.1.0
+        id: wait-for-build
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          checkName: Wazuh-agent-rpm-package-build
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
       - uses: actions/checkout@v3
 
       - name: Setup directories and variables
@@ -35,19 +47,6 @@ jobs:
       - name: Download the Wazuh ${{ matrix.type }} package for ${{ matrix.system.NAME }}
         id: download-artifact
         continue-on-error: true
-        uses: dawidd6/action-download-artifact@v2
-        with:
-          workflow: build-rpm-packages.yml
-          workflow_conclusion: in_progress
-          name: ${{env.PACKAGE_NAME}}
-          if_no_artifact_found: fail
-
-      - name: Wait for the artifact to be uploaded
-        if: ${{ steps.download-artifact.outcome == 'failure' }}
-        run: sleep 240
-
-      - name: Retry download if it has failed
-        if: ${{ steps.download-artifact.outcome == 'failure' }}
         uses: dawidd6/action-download-artifact@v2
         with:
           workflow: build-rpm-packages.yml

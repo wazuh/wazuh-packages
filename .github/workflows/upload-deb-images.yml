@@ -43,8 +43,14 @@ jobs:
         run:
           bash $GITHUB_WORKSPACE/.github/actions/ghcr-pull-and-push/build_and_push_image_to_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} ${{matrix.image.CONTAINER_NAME}} ${{ matrix.image.DOCKERFILE_PATH }} ${{ env.TAG }}
 
-  Build-packages-rpm:
+  Build-packages-deb:
     needs: Upload-deb-package-building-images
     if: github.event_name == 'pull_request'
     uses: ./.github/workflows/build-deb-packages.yml
+    secrets: inherit
+
+  Test-packages-deb:
+    needs: Build-packages-deb
+    if: github.event_name == 'pull_request'
+    uses: ./.github/workflows/test-install-and-enable-deb.yml
     secrets: inherit
