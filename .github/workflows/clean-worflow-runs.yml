@@ -1,8 +1,8 @@
 name: Clean workflow runs
 on:
-  workflow_dispatch:
   schedule:
     - cron: '0 0 * * 7'
+  workflow_dispatch:
 
 jobs:
   Clean-runs:
