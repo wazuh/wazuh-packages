@@ -8,18 +8,10 @@ on:
   workflow_call:
 
 jobs:
-  Test-install-and-enable-deb-systems:
+
+  Wait-for-package-building:
     runs-on: ubuntu-latest
     strategy:
-      matrix:
-        distro_name: ['ubuntu:xenial', 'ubuntu:bionic', 'ubuntu:focal', 'ubuntu:jammy', 'debian:stretch', 'debian:buster', 'debian:bullseye']
-        type: [agent, manager]
-        arch: [amd64, i386]
-        exclude:
-          - type: manager
-            arch: i386
-          - distro_name: 'ubuntu:jammy'
-            arch: i386
       fail-fast: false
     steps:
       - name: Cancel previous runs
@@ -39,6 +31,21 @@ jobs:
           interval: 60
           timeoutSeconds: 7200
 
+  Test-install-and-enable-deb-systems:
+    needs: Wait-for-package-building
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        distro_name: ['ubuntu:xenial', 'ubuntu:bionic', 'ubuntu:focal', 'ubuntu:jammy', 'debian:stretch', 'debian:buster', 'debian:bullseye']
+        type: [agent, manager]
+        arch: [amd64, i386]
+        exclude:
+          - type: manager
+            arch: i386
+          - distro_name: 'ubuntu:jammy'
+            arch: i386
+      fail-fast: false
+    steps:
       - uses: actions/checkout@v3
 
       - name: Setup directories and variables
