@@ -22,7 +22,6 @@ jobs:
         image: [ {CONTAINER_NAME: deb_builder_amd64, DOCKERFILE_PATH: debs/Debian/amd64}, {CONTAINER_NAME: deb_builder_i386, DOCKERFILE_PATH: debs/Debian/i386}]
       fail-fast: false
     steps:
-
       - name: Cancel previous runs
         uses: fkirc/skip-duplicate-actions@master
         with:
