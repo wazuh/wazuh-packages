@@ -25,6 +25,7 @@ jobs:
         with:
           cancel_others: 'true'
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          skip_after_successful_duplicate: 'false'
 
       - uses: actions/checkout@v3
 
