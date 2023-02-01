@@ -59,6 +59,7 @@ package() {
   package_files_dir="${pkgdir}${directory_base}/packages_files"
   mkdir -p "${pkgdir}${directory_base}/packages_files/src/init"
   mkdir -p "${pkgdir}${directory_base}/packages_files/etc/templates/config/generic/localfile-logs"
+  mkdir -p "${pkgdir}${directory_base}/packages_files/etc/templates/config/alpine"
   cp -a /wazuh-wazuh*/gen_ossec.sh "${package_files_dir}"
   cp -a /wazuh-wazuh*/add_localfiles.sh "${package_files_dir}"
   cp -a /wazuh-wazuh*/src/init/dist-detect.sh "${package_files_dir}/src/init"
@@ -68,5 +69,6 @@ package() {
   cp -a /wazuh-wazuh*/src/VERSION "${package_files_dir}/src"
   cp -a /wazuh-wazuh*/src/REVISION "${package_files_dir}/src"
   cp -a /wazuh-wazuh*/etc/templates/config/generic/* "${package_files_dir}/etc/templates/config/generic"
+  cp -a /wazuh-wazuh*/etc/templates/config/alpine/* "${package_files_dir}/etc/templates/config/alpine"
 }
 
