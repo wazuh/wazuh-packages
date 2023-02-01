@@ -42,6 +42,19 @@ jobs:
           name: ${{env.PACKAGE_NAME}}
           if_no_artifact_found: fail
 
+      - name: Wait for the artifact to be uploaded
+        if: ${{ steps.download-artifact.outcome == 'failure' }}
+        run: sleep 240
+
+      - name: Retry download if it has failed
+        if: ${{ steps.download-artifact.outcome == 'failure' }}
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: build-rpm-packages.yml
+          workflow_conclusion: in_progress
+          name: ${{env.PACKAGE_NAME}}
+          if_no_artifact_found: fail
+
       - name: Move the Wazuh ${{ matrix.type }} package for ${{ matrix.system.NAME }} to the packages directory
         run: |
           mkdir $GITHUB_WORKSPACE/packages
