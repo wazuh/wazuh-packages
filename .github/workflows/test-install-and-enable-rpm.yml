@@ -31,7 +31,6 @@ jobs:
           VERSION=$(cat $GITHUB_WORKSPACE/VERSION)
           REVISION=$( echo ${{ github.head_ref }} | sed 's/-/./g' )
           echo "PACKAGE_NAME=wazuh-${{ matrix.type }}-${VERSION}-${REVISION}.${{matrix.system.ARCH}}.rpm" >> $GITHUB_ENV
-          ls -la $GITHUB_WORKSPACE/debs/output/
 
       - name: Download the Wazuh ${{ matrix.type }} package for ${{ matrix.system.NAME }}
         id: download-artifact
