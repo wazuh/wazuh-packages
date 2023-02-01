@@ -33,7 +33,7 @@ jobs:
 
       - name: Build and push image ${{ matrix.image.CONTAINER_NAME }} with tag ${{ env.TAG }} to Github Container Registry
         run:
-          bash $GITHUB_WORKSPACE/.github/actions/common-tools/build_and_push_image_to_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} ${{matrix.image.CONTAINER_NAME}} ${{ matrix.image.DOCKERFILE_PATH }} ${{ env.TAG }}
+          bash $GITHUB_WORKSPACE/.github/actions/ghcr-pull-and-push/build_and_push_image_to_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} ${{matrix.image.CONTAINER_NAME}} ${{ matrix.image.DOCKERFILE_PATH }} ${{ env.TAG }}
 
   Build-packages-rpm:
     needs: Upload-deb-package-building-images
