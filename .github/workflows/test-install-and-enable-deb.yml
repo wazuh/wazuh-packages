@@ -29,6 +29,8 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           checkName: Wazuh-agent-deb-package-build
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          interval: 60
+          timeoutSeconds: 7200
 
       - uses: actions/checkout@v3
 
