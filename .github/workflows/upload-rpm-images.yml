@@ -22,6 +22,9 @@ jobs:
         image: [ {CONTAINER_NAME: rpm_builder_x86, DOCKERFILE_PATH: rpms/CentOS/6/x86_64}, {CONTAINER_NAME: rpm_builder_i386, DOCKERFILE_PATH: rpms/CentOS/6/i386}]
       fail-fast: false
     steps:
+
+      - uses: fkirc/skip-duplicate-actions@master
+
       - uses: actions/checkout@v3
 
       - name: Copy build.sh to Dockerfile path
