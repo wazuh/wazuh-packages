@@ -44,6 +44,8 @@ jobs:
         if: ${{ steps.download-artifact.outcome == 'failure' }}
         uses: dawidd6/action-download-artifact@v2
         with:
+          workflow: build-deb-packages.yml
+          workflow_conclusion: in_progress
           name: ${{env.PACKAGE_NAME}}
           if_no_artifact_found: fail
 
