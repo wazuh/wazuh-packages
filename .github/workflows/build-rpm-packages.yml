@@ -1,9 +1,5 @@
 name: Build Wazuh Packages - RPM - x86_64 and i386
 on:
-  pull_request:
-    paths:
-      - 'rpms/SPECS/*'
-      - 'rpms/generate_rpm_package.sh'
   workflow_dispatch:
   workflow_call:
 
