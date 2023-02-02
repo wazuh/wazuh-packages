@@ -21,14 +21,13 @@ jobs:
           skip_after_successful_duplicate: 'false'
 
       - name: Wait for the package to be built
-        uses: fountainhead/action-wait-for-check@v1.1.0
+        uses: ArcticLampyrid/action-wait-for-workflow@v1.1.0
         id: wait-for-build
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          checkName: Wazuh-agent-rpm-package-build
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          interval: 60
-          timeoutSeconds: 3600
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-rpm-packages.yml
+          sha: ${{ github.event.pull_request.head.sha || github.sha }}
+          wait-interval: 60
 
   Test-install-and-enable-rpm-systems:
     needs: Wait-for-package-building
