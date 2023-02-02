@@ -28,7 +28,7 @@ jobs:
           checkName: Wazuh-agent-rpm-package-build
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           interval: 60
-          timeoutSeconds: 7200
+          timeoutSeconds: 3600
 
   Test-install-and-enable-rpm-systems:
     needs: Wait-for-package-building
