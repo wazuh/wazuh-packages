@@ -21,7 +21,7 @@ jobs:
           skip_after_successful_duplicate: 'false'
 
       - name: Wait for the package to be built
-        uses: ArcticLampyrid/action-wait-for-workflow@v1.1.0
+        uses: ArcticLampyrid/action-wait-for-workflow@v1.0.3
         id: wait-for-build
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
