@@ -64,7 +64,7 @@ jobs:
         uses: dawidd6/action-download-artifact@v2
         with:
           workflow: build-rpm-packages.yml
-          workflow_conclusion: in_progress
+          workflow_conclusion: success
           name: ${{env.PACKAGE_NAME}}
           if_no_artifact_found: fail
 
