@@ -44,7 +44,7 @@ build_environment() {
 
     if [ -n "${ftp_ip}" ] && [ -n "${ftp_port}" ] && [ -n "${ftp_user}" ] && [ -n "${ftp_pass}" ]
     then
-        fpt_connection="-b 64 -p ${ftp_ip}:${ftp_port}:${ftp_user}:${ftp_pass}"
+        fpt_connection="-p ${ftp_ip}:${ftp_port}:${ftp_user}:${ftp_pass}"
     fi
 
     echo "fpt_connection: $fpt_connection"

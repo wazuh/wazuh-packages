@@ -630,6 +630,7 @@ rm -fr %{buildroot}
 %attr(750, root, wazuh) %{_localstatedir}/bin/wazuh-clusterd
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-db
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-modulesd
+%attr(750, root, root) %{_localstatedir}/bin/rbac_control
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/etc
 %attr(660, root, wazuh) %config(noreplace) %{_localstatedir}/etc/ossec.conf
 %attr(640, root, wazuh) %config(noreplace) %{_localstatedir}/etc/client.keys
