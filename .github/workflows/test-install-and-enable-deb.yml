@@ -30,8 +30,27 @@ jobs:
           sha: ${{ github.event.pull_request.head.sha || github.sha }}
           wait-interval: 60
 
+      - name: Get changed files
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            deb_images:
+              - 'debs/Debian/**'
+              - 'debs/build.sh'
+            deb_images_i386:
+              - 'debs/Debian/i386/**'
+              - 'debs/build.sh'
+            deb_images_amd64:
+              - 'debs/Debian/amd64/**'
+              - 'debs/build.sh'
+            deb_packages:
+              - 'debs/SPECS/**'
+              - 'debs/generate_debian_package.sh'
+
   Test-install-and-enable-deb-systems:
     needs: Wait-for-package-building
+    if: steps.changes.outputs.deb_packages == 'true' || (steps.changes.outputs.deb_images_i386 == 'true' && matrix.ARCHITECTURE == 'i386') || (steps.changes.outputs.deb_images_amd64 == 'true' && matrix.ARCHITECTURE == 'amd64')
     runs-on: ubuntu-latest
     strategy:
       matrix:
