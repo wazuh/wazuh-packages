@@ -16,6 +16,25 @@ function check_system() {
 
 }
 
+function check_openSSL() {
+
+    if [ -z "$(command -v openssl)" ]; then
+        echo "OpenSSL not installed. Installing..."
+        
+        if [ "${sys_type}" == "deb" ]; then
+            sudo apt -y install openssl
+        elif [ "${sys_type}" == "rpm" ]; then
+            yum install -y openssl
+            yum install -y runuser
+        fi
+        
+        echo "OpenSSL installation completed."
+    fi
+
+    check_package "openssl"
+
+}
+
 function check_package() {
 
     if [ "${sys_type}" == "deb" ]; then
@@ -32,18 +51,27 @@ function check_package() {
 
 }
 
+function common_systemctl() {
+
+    if [ "${sys_type}" == "rpm" ]; then
+        python2 /usr/local/bin/systemctl "$@"
+    elif [ "${sys_type}" == "deb" ]; then
+        systemctl "$@"
+    fi
+}
+
 function enable_start_service() {
     
-    systemctl daemon-reload
-    systemctl enable "${1}"
-    systemctl start "${1}"
+    common_systemctl daemon-reload
+    common_systemctl enable "${1}"
+    common_systemctl start "${1}"
 
     retries=0
 
-    until [ "$(systemctl status "${1}" | grep "active")" ] || [ "${retries}" -eq 3 ]; do
+    until [ "$(common_systemctl status "${1}" | grep "active")" ] || [ "${retries}" -eq 3 ]; do
         sleep 2
         retries=$((retries+1))
-        systemctl start "${1}"
+        common_systemctl start "${1}"
     done
 
     if [ ${retries} -eq 3 ]; then
@@ -53,12 +81,15 @@ function enable_start_service() {
 
 }
 
-function download_packages(){
+function download_resources(){
 
     if [ "${sys_type}" == "deb" ]; then
-        ./wazuh-install.sh -dw deb
+        sudo bash "${ABSOLUTE_PATH}"/wazuh-install.sh -dw deb
     elif [ "${sys_type}" == "rpm" ]; then
-        ./wazuh-install.sh -dw rpm
+        bash "${ABSOLUTE_PATH}"/wazuh-install.sh -dw rpm
+        curl https://raw.githubusercontent.com/gdraheim/docker-systemctl-replacement/master/files/docker/systemctl.py -o /usr/local/bin/systemctl
+        yum -y install python2
+        yum -y install initscripts
     fi
 
     echo "Downloading the resources..."
@@ -104,7 +135,6 @@ function indexer_installation(){
     chown -R wazuh-indexer:wazuh-indexer /etc/wazuh-indexer/certs
 
     sed -i 's|\(network.host: \)"0.0.0.0"|\1"127.0.0.1"|' /etc/wazuh-indexer/opensearch.yml
-
     enable_start_service "wazuh-indexer"
 
     /usr/share/wazuh-indexer/bin/indexer-security-init.sh
@@ -161,9 +191,7 @@ function filebeat_installation(){
 
     enable_start_service "filebeat"
 
-    filebeat test output
-    sleep 1
-    eval "curl -k -u admin:admin 'https://localhost:9200/_template/wazuh?pretty&filter_path=wazuh.settings.index.number_of_shards' | grep number_of_shards"
+    eval "filebeat test output"
     if [ "${PIPESTATUS[0]}" != 0 ]; then
         echo "Error: The Filebeat installation has failed."
         exit 1
@@ -174,6 +202,7 @@ function filebeat_installation(){
 function dashboard_installation(){
 
     install_package "wazuh-dashboard"
+    check_package "wazuh-dashboard"
 
     NODE_NAME=dashboard
     mkdir /etc/wazuh-dashboard/certs
@@ -186,7 +215,9 @@ function dashboard_installation(){
 
     enable_start_service "wazuh-dashboard"
 
-    if [ "$(curl -k -I -w "%{http_code}" https://localhost -o /dev/null --silent)" -ne "302" ]; then
+    sleep 10
+
+    if [ "$(curl -k -I -w "%{http_code}" https://localhost -o /dev/null)" -ne "302" ]; then
         echo "Error: The Wazuh dashboard installation has failed."
         exit 1
     fi

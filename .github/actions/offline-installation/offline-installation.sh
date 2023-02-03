@@ -5,7 +5,8 @@ ABSOLUTE_PATH="$( cd $(dirname ${0}) ; pwd -P )"
 . ${ABSOLUTE_PATH}/common.sh
 
 check_system
-download_packages
+install_dependencies
+download_resources
 
 indexer_installation
 echo "Wazuh indexer installation completed."
