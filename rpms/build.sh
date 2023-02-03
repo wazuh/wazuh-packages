@@ -73,7 +73,7 @@ else
     specs_path="/specs"
 fi
 
-if [[ "${future}" == "yes" ]]; then    
+if [[ "${future}" == "yes" ]]; then
     # MODIFY VARIABLES
     base_version=$wazuh_version
     MAJOR=$(echo $base_version | cut -dv -f2 | cut -d. -f1)
@@ -112,6 +112,7 @@ if [ "${legacy}" = "no" ]; then
 fi
 
 # Building RPM
+set -ex
 $linux $rpmbuild --define "_sysconfdir /etc" --define "_topdir ${rpm_build_dir}" \
         --define "_threads ${threads}" --define "_release ${package_release}" \
         --define "_localstatedir ${directory_base}" --define "_debugenabled ${debug}" \
