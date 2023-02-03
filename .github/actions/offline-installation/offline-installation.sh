@@ -9,14 +9,14 @@ install_dependencies
 download_resources
 
 indexer_installation
-echo "Wazuh indexer installation completed."
+echo "INFO: Wazuh indexer installation completed."
 
 manager_installation
-echo "Wazuh manager installation completed."
+echo "INFO: Wazuh manager installation completed."
 
 filebeat_installation
-echo "Filebeat installation completed."
+echo "INFO: Filebeat installation completed."
 
 dashboard_installation
-echo "Wazuh dashboard installation completed."
+echo "INFO: Wazuh dashboard installation completed."
 
