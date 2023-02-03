@@ -41,6 +41,23 @@ function check_file() {
 
 }
 
+function check_shards() {
+
+    retries=0
+    until [ "$(curl -s -k -u admin:admin "https://localhost:9200/_template/wazuh?pretty&filter_path=wazuh.settings.index.number_of_shards" | grep "number_of_shards")" ] || [ "${retries}" -eq 5 ]; do
+        sleep 5
+        retries=$((retries+1))
+    done
+
+    if [ ${retries} -eq 5 ]; then
+        echo "ERROR: Could not get the number of shards"
+        exit 1
+    fi
+    curl -s -k -u admin:admin "https://localhost:9200/_template/wazuh?pretty&filter_path=wazuh.settings.index.number_of_shards"
+    echo "INFO: Number of shards detected."
+
+}
+
 function dashboard_installation() {
 
     install_package "wazuh-dashboard"
@@ -59,16 +76,17 @@ function dashboard_installation() {
     if [ "${sys_type}" == "deb" ]; then
         enable_start_service "wazuh-dashboard"
     elif [ "${sys_type}" == "rpm" ]; then
-        /usr/share/wazuh-dashboard/bin/opensearch-dashboards "-c /etc/wazuh-dashboard/opensearch_dashboards.yml" --allow-root &
+        /usr/share/wazuh-dashboard/bin/opensearch-dashboards "-c /etc/wazuh-dashboard/opensearch_dashboards.yml" --allow-root > /dev/null 2>&1 &
     fi  
 
     sleep 10
 
     # In this context, 302 HTTP code refers to SSL certificates warning: success. 
-    if [ "$(curl -k -I -w "%{http_code}" https://localhost -o /dev/null --fail)" -ne "302" ]; then
+    if [ "$(curl -k -s -I -w "%{http_code}" https://localhost -o /dev/null --fail)" -ne "302" ]; then
         echo "ERROR: The Wazuh dashboard installation has failed."
         exit 1
     fi
+    echo "INFO: The Wazuh dashboard is ready."
 
 }
 
@@ -107,7 +125,6 @@ function enable_start_service() {
     systemctl start "${1}"
 
     retries=0
-
     until [ "$(systemctl status "${1}" | grep "active")" ] || [ "${retries}" -eq 3 ]; do
         sleep 2
         retries=$((retries+1))
@@ -152,7 +169,8 @@ function filebeat_installation() {
         /usr/share/filebeat/bin/filebeat --environment systemd -c /etc/filebeat/filebeat.yml --path.home /usr/share/filebeat --path.config /etc/filebeat --path.data /var/lib/filebeat --path.logs /var/log/filebeat &
     fi    
 
-    curl -k -u admin:admin "https://localhost:9200/_template/wazuh?pretty&filter_path=wazuh.settings.index.number_of_shards"
+    sleep 10
+    check_shards
     eval "filebeat test output"
     if [ "${PIPESTATUS[0]}" != 0 ]; then
         echo "ERROR: The Filebeat installation has failed."
@@ -164,7 +182,6 @@ function filebeat_installation() {
 function indexer_initialize() {
 
     retries=0
-
     until [ "$(cat /var/log/wazuh-indexer/wazuh-cluster.log | grep "Node started")" ] || [ "${retries}" -eq 5 ]; do
         sleep 5
         retries=$((retries+1))
@@ -173,10 +190,8 @@ function indexer_initialize() {
     if [ ${retries} -eq 5 ]; then
         echo "ERROR: The wazuh-indexer is not started"
         exit 1
-    else
-        /usr/share/wazuh-indexer/bin/indexer-security-init.sh
     fi
-
+    /usr/share/wazuh-indexer/bin/indexer-security-init.sh
 
 }
 
@@ -212,7 +227,7 @@ function indexer_installation() {
 
     indexer_initialize
     sleep 10
-    eval "curl -XGET https://localhost:9200 -u admin:admin -k --fail"
+    eval "curl -s -XGET https://localhost:9200 -u admin:admin -k --fail"
     if [ "${PIPESTATUS[0]}" != 0 ]; then
         echo "ERROR: The Wazuh indexer installation has failed."
         exit 1
