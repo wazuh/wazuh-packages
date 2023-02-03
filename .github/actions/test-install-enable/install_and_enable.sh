@@ -14,7 +14,7 @@ elif [ -n "$(command -v apt-get)" ]; then
     apt-get update
     apt-get install -y systemd
 else
-    common_logger -e "Couldn'd find type of system"
+    common_logger -e "Couldn't find type of system"
     exit 1
 fi
 

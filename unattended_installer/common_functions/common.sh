@@ -118,7 +118,7 @@ function common_checkSystem() {
         sys_type="apt-get"
         sep="="
     else
-        common_logger -e "Couldn'd find type of system"
+        common_logger -e "Couldn't find type of system"
         exit 1
     fi
 
