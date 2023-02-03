@@ -19,4 +19,3 @@ echo "INFO: Filebeat installation completed."
 
 dashboard_installation
 echo "INFO: Wazuh dashboard installation completed."
-

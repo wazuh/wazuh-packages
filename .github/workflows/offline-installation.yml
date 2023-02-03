@@ -2,12 +2,19 @@ name: Offline installation test
 on:
   pull_request:
     paths:
-      - 'unattended_installer/passwords_tool/**'
+      - 'unattended_installer/install_functions/wazuh-offline-download.sh'
+      
 
 jobs:
   Build-wazuh-install-script:
     runs-on: ubuntu-latest
     steps:
+      - name: Cancel previous runs
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          cancel_others: 'true'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          skip_after_successful_duplicate: 'false'
       - uses: actions/checkout@v2
       - name: Build wazuh-install script and use pre-release packages
         working-directory: ./unattended_installer
@@ -27,6 +34,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: Build-wazuh-install-script
     steps:
+      - name: Cancel previous runs
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          cancel_others: 'true'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          skip_after_successful_duplicate: 'false'
       - uses: actions/checkout@v2
       - uses: actions/download-artifact@v3
         with:
@@ -40,6 +53,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: Build-wazuh-install-script
     steps:
+      - name: Cancel previous runs
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          cancel_others: 'true'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          skip_after_successful_duplicate: 'false'
       - uses: actions/checkout@v2
       - uses: actions/download-artifact@v3
         with:
