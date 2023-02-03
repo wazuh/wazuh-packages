@@ -164,7 +164,7 @@ if [ $1 = 1 ];then # Install
 fi
 
 
-if [ ! -f /usr/lib/systemd/systemd-sysv-install ]; then
+if [ -f /usr/lib/systemd/systemd-sysv-install ]; then
     rm -f /etc/init.d/%{name}
 fi
 
