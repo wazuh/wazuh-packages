@@ -38,6 +38,12 @@ jobs:
             rpm_images:
               - 'rpms/CentOS/**'
               - 'rpms/build.sh'
+            rpm_images_i386:
+              - 'rpms/CentOS/6/i386/**'
+              - 'rpms/build.sh'
+            rpm_images_x86_64:
+              - 'rpms/CentOS/6/x86_64/**'
+              - 'rpms/build.sh'
             rpm_packages:
               - 'rpms/SPECS/**'
               - 'rpms/generate_rpm_package.sh'
@@ -54,6 +60,7 @@ jobs:
           bash $GITHUB_WORKSPACE/.github/actions/ghcr-pull-and-push/pull_image_from_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} $CONTAINER_NAME ${{ env.TAG }}
 
       - name: Build the ${{ matrix.ARCHITECTURE }} rpm Wazuh ${{ matrix.TYPE }} package
+        if : steps.changes.outputs.rpm_packages == 'true' || (steps.changes.outputs.rpm_images_i386 == 'true' && matrix.ARCHITECTURE == 'i386') || (steps.changes.outputs.rpm_images_x86_64 == 'true' && matrix.ARCHITECTURE == 'x86_64'
         working-directory: ./rpms
         run: |
           REVISION=$( echo ${{ github.head_ref }} | sed 's/-/./g' )

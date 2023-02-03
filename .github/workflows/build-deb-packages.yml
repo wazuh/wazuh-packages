@@ -37,6 +37,12 @@ jobs:
             deb_images:
               - 'debs/Debian/**'
               - 'debs/build.sh'
+            deb_images_i386:
+              - 'debs/Debian/i386/**'
+              - 'debs/build.sh'
+            deb_images_amd64:
+              - 'debs/Debian/amd64/**'
+              - 'debs/build.sh'
             deb_packages:
               - 'debs/SPECS/**'
               - 'debs/generate_debian_package.sh'
@@ -53,6 +59,7 @@ jobs:
           bash $GITHUB_WORKSPACE/.github/actions/ghcr-pull-and-push/pull_image_from_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} $CONTAINER_NAME ${{ env.TAG }}
 
       - name: Build the ${{ matrix.ARCHITECTURE }} deb Wazuh ${{ matrix.TYPE }} package
+        if: steps.changes.outputs.deb_packages == 'true' || (steps.changes.outputs.deb_images_i386 == 'true' && matrix.ARCHITECTURE == 'i386') || (steps.changes.outputs.deb_images_amd64 == 'true' && matrix.ARCHITECTURE == 'amd64')
         working-directory: ./debs
         run: |
           REVISION="${{ github.head_ref }}"
