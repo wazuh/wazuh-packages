@@ -81,13 +81,13 @@ echo 'USER_AUTO_START="n"' >> ./etc/preloaded-vars.conf
 %endif
 
 # Create directories
-if [ ! -f /usr/lib/systemd/systemd-sysv-install ]; then mkdir -p ${RPM_BUILD_ROOT}%{_initrddir}; fi
+if [ -f /usr/lib/systemd/systemd-sysv-install ]; then mkdir -p ${RPM_BUILD_ROOT}%{_initrddir}; fi
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.ssh
 
 # Copy the installed files into RPM_BUILD_ROOT directory
 cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
 mkdir -p ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
-if [ ! -f /usr/lib/systemd/systemd-sysv-install ]; then
+if [ -f /usr/lib/systemd/systemd-sysv-install ]; then
   sed -i "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/ossec-hids-rh.init
   install -m 0755 src/init/templates/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-agent
 fi
