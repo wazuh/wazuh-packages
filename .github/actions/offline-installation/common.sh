@@ -35,7 +35,7 @@ function check_system() {
 function check_file() {
 
     if [ ! -f "${1}" ]; then
-        echo "ERROR: The ${1} file could not be downloaded"
+        echo "ERROR: The ${1} file could not be downloaded."
         exit 1
     fi
 
@@ -50,7 +50,7 @@ function check_shards() {
     done
 
     if [ ${retries} -eq 5 ]; then
-        echo "ERROR: Could not get the number of shards"
+        echo "ERROR: Could not get the number of shards."
         exit 1
     fi
     curl -s -k -u admin:admin "https://localhost:9200/_template/wazuh?pretty&filter_path=wazuh.settings.index.number_of_shards"
@@ -80,7 +80,6 @@ function dashboard_installation() {
     fi  
 
     sleep 10
-
     # In this context, 302 HTTP code refers to SSL certificates warning: success. 
     if [ "$(curl -k -s -I -w "%{http_code}" https://localhost -o /dev/null --fail)" -ne "302" ]; then
         echo "ERROR: The Wazuh dashboard installation has failed."
@@ -112,7 +111,7 @@ function download_resources() {
     echo "INFO: Download finished."
 
     if [ ! -d ./wazuh-offline ]; then
-        echo "ERROR: could not download the resources."
+        echo "ERROR: Could not download the resources."
         exit 1
     fi
 
@@ -132,7 +131,7 @@ function enable_start_service() {
     done
 
     if [ ${retries} -eq 3 ]; then
-        echo "ERROR: The "${1}" service could not be started"
+        echo "ERROR: The "${1}" service could not be started."
         exit 1
     fi
 
@@ -188,7 +187,7 @@ function indexer_initialize() {
     done
 
     if [ ${retries} -eq 5 ]; then
-        echo "ERROR: The wazuh-indexer is not started"
+        echo "ERROR: The indexer node is not started."
         exit 1
     fi
     /usr/share/wazuh-indexer/bin/indexer-security-init.sh
