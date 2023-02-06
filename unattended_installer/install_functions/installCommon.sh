@@ -42,10 +42,18 @@ function installCommon_addWazuhRepo() {
     if [ ! -f "/etc/yum.repos.d/wazuh.repo" ] && [ ! -f "/etc/zypp/repos.d/wazuh.repo" ] && [ ! -f "/etc/apt/sources.list.d/wazuh.list" ] ; then
         if [ "${sys_type}" == "yum" ]; then
             eval "rpm --import ${repogpg} ${debug}"
+            if [ "${PIPESTATUS[0]}" != 0 ]; then
+                common_logger -e "Cannot import Wazuh GPG key"
+                exit 1
+            fi
             eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-\${releasever} - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo ${debug}"
             eval "chmod 644 /etc/yum.repos.d/wazuh.repo ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
-            eval "curl -s ${repogpg} --max-time 300 | gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import - ${debug}"
+            eval "common_curl -s ${repogpg} --max-time 300 --retry 5 --retry-delay 5 --fail | gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import - ${debug}"
+            if [ "${PIPESTATUS[0]}" != 0 ]; then
+                common_logger -e "Cannot import Wazuh GPG key"
+                exit 1
+            fi
             eval "chmod 644 /usr/share/keyrings/wazuh.gpg ${debug}"
             eval "echo \"deb [signed-by=/usr/share/keyrings/wazuh.gpg] ${repobaseurl}/apt/ ${reporelease} main\" | tee /etc/apt/sources.list.d/wazuh.list ${debug}"
             eval "apt-get update -q ${debug}"
@@ -97,8 +105,8 @@ function installCommon_changePasswordApi() {
         for i in "${!api_passwords[@]}"; do
             if [ -n "${wazuh}" ] || [ -n "${AIO}" ]; then
                 passwords_getApiUserId "${api_users[i]}"
-                WAZUH_PASS_API='{"password":"'"${api_passwords[i]}"'"}'
-                eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null'
+                WAZUH_PASS_API='{\"password\":\"'"${api_passwords[i]}"'\"}'
+                eval 'common_curl -s -k -X PUT -H \"Authorization: Bearer $TOKEN_API\" -H \"Content-Type: application/json\" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null --max-time 300 --retry 5 --retry-delay 5 --fail'
                 if [ "${api_users[i]}" == "${adminUser}" ]; then
                     sleep 1
                     adminPassword="${api_passwords[i]}"
@@ -112,8 +120,8 @@ function installCommon_changePasswordApi() {
     else
         if [ -n "${wazuh}" ] || [ -n "${AIO}" ]; then
             passwords_getApiUserId "${nuser}"
-            WAZUH_PASS_API='{"password":"'"${password}"'"}'
-            eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null'
+            WAZUH_PASS_API='{\"password\":\"'"${password}"'\"}'
+            eval 'common_curl -s -k -X PUT -H \"Authorization: Bearer $TOKEN_API\" -H \"Content-Type: application/json\" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null --max-time 300 --retry 5 --retry-delay 5 --fail'
         fi
         if [ "${nuser}" == "wazuh-wui" ] && { [ -n "${dashboard}" ] || [ -n "${AIO}" ]; }; then
                 passwords_changeDashboardApiPassword "${password}"
@@ -269,10 +277,10 @@ function installCommon_installPrerequisites() {
         not_installed=()
         for dep in "${dependencies[@]}"; do
             if [ "${dep}" == "openssl" ]; then
-                if ! yum list installed 2>/dev/null | grep -q "${dep}\.";then
+                if ! yum list installed 2>/dev/null | grep -q -E ^"${dep}\.";then
                     not_installed+=("${dep}")
                 fi
-            elif ! yum list installed 2>/dev/null | grep -q "${dep}";then
+            elif ! yum list installed 2>/dev/null | grep -q -E ^"${dep}";then
                 not_installed+=("${dep}")
             fi
         done
@@ -295,7 +303,7 @@ function installCommon_installPrerequisites() {
         not_installed=()
 
         for dep in "${dependencies[@]}"; do
-            if ! apt list --installed 2>/dev/null | grep -q "${dep}"; then
+            if ! apt list --installed 2>/dev/null | grep -q -E ^"${dep}"; then
                 not_installed+=("${dep}")
             fi
         done
