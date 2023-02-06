@@ -134,8 +134,29 @@ function common_checkWazuhConfigYaml() {
 
 }
 
+# Retries even if the --retry-connrefused is not available
+function common_curl() {
+
+    if [ -n "${curl_has_connrefused}" ]; then
+        eval "curl $@ --retry-connrefused"
+        e_code="${PIPESTATUS[0]}"
+    else
+        retries=0
+        eval "curl $@"
+        e_code="${PIPESTATUS[0]}"
+        while [ "${e_code}" -eq 7 ] && [ "${retries}" -ne 12 ]; do
+            retries=$((retries+1))
+            sleep 5
+            eval "curl $@"
+            e_code="${PIPESTATUS[0]}"
+        done
+    fi
+    return "${e_code}"
+
+}
+
 function common_remove_gpg_key() {
-    
+
     if [ "${sys_type}" == "yum" ]; then
         if { rpm -q gpg-pubkey --qf '%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n' | grep "Wazuh"; } >/dev/null ; then
             key=$(rpm -q gpg-pubkey --qf '%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n' | grep "Wazuh Signing Key" | awk '{print $1}' )
