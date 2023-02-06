@@ -14,4 +14,6 @@ ${directory_base}/packages_files/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER
 # Add default local_files to ossec.conf
 ${directory_base}/packages_files/add_localfiles.sh ${directory_base} >> ${directory_base}/etc/ossec.conf
 
+rm -rf ${directory_base}/packages_files
+
 exit 0
