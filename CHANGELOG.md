@@ -144,4 +144,7 @@ All notable changes to this project will be documented in this file.
 ### Removed
 
 - Wazuh API package has been removed. Now, the Wazuh API is embedded into the Wazuh Manager installation ([wazuh/wazuh#5721](https://github.com/wazuh/wazuh/pull/5721)).
+## [v4.5.5]
+
+- https://github.com/wazuh/wazuh-packages/releases/tag/v4.5.5
 - Removed OpenSCAP files and integration ([#466](https://github.com/wazuh/wazuh-packages/pull/466)).
