@@ -165,7 +165,7 @@ fi
 
 if [ -f /etc/os-release ]; then
   source /etc/os-release
-  if [ "${NAME}" = "Red Hat Enterprise Linux" ] && [ "$((${VERSION_ID:0:1}))" -ge 9 ]; then
+  if (( [ "${NAME}" = "Red Hat Enterprise Linux" ] || [ "${NAME}" = "Rocky Linux" ] || [ "${NAME}" = "AlmaLinux" ] || [ "CentOS Stream" ]) && [ "$((${VERSION_ID:0:1}))" -ge 9 ]) || ( [ "${NAME}" = "Fedora" ] && [ "$((${VERSION_ID}))" -ge 34 ] ); then
     rm -f /etc/init.d/%{name}
   fi
 fi
