@@ -1,3 +1,9 @@
+wazuh-manager (4.5.5-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/
+
+ -- Wazuh, Inc <info@wazuh.com>  Sat, 11 Feb 2023 11:50:16 +0000
+
 wazuh-manager (4.5.0-RELEASE) stable; urgency=low
 
   * More info: https://documentation.wazuh.com/current/release-notes/
