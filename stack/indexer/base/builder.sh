@@ -51,14 +51,15 @@ find -type l -exec rm -rf {} \;
 find -name "*.bat" -exec rm -rf {} \;
 rm -rf README.md manifest.yml opensearch-tar-install.sh logs
 sed -i 's|OPENSEARCH_DISTRIBUTION_TYPE=tar|OPENSEARCH_DISTRIBUTION_TYPE=rpm|g' bin/opensearch-env
+sed -i 's|"$OPENSEARCH_HOME"/config|/etc/wazuh-indexer|g' bin/opensearch-env 
 cp -r /root/stack/indexer/base/files/systemd-entrypoint bin/
-cp -r /root/stack/indexer/base/files/etc ./
-cp -r /root/stack/indexer/base/files/usr ./
-cp -r ./config/log4j2.properties ./etc/wazuh-indexer/
-cp -r ./config/opensearch-reports-scheduler ./etc/wazuh-indexer/
-cp -r ./config/opensearch-observability ./etc/wazuh-indexer/
-cp -r ./config/jvm.options.d ./etc/wazuh-indexer/
+mkdir -p ./etc/wazuh-indexer/
+cp -r ./config/* ./etc/wazuh-indexer/
 rm -rf ./config
+cp -r /root/stack/indexer/base/files/etc/wazuh-indexer/* ./etc/wazuh-indexer/
+cp -r /root/stack/indexer/base/files/etc/sysconfig ./etc/
+cp -r /root/stack/indexer/base/files/etc/init.d ./etc/
+cp -r /root/stack/indexer/base/files/usr ./
 rm -rf ./plugins/opensearch-security/tools/install_demo_configuration.sh
 cp /root/VERSION .
 
