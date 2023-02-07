@@ -23,8 +23,18 @@ fi
 $sys_type install -y "/packages/$1"
 
 echo "Enabling Wazuh $2."
-systemctl enable wazuh-$2
-if [ "$?" -eq 0 ]; then
+if ps -e | grep -E -q "^\ *1\ .*systemd$"; then
+    systemctl daemon-reload
+    systemctl enable wazuh-$2
+    output=$(echo $?)
+elif ps -e | grep -E -q "^\ *1\ .*init$"; then
+    chkconfig --add wazuh-$2
+    output=$(echo $?)
+else
+    /etc/rc.d/init.d/wazuh${2} start 
+    output=$(echo $?)
+fi
+if [ "$output" -eq 0 ]; then
     echo "Wazuh $2 enabled - Test passed correctly."
     exit 0
 else 

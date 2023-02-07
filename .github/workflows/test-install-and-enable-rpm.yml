@@ -47,7 +47,7 @@ jobs:
         {NAME: 'fedora:34', ARCH: "x86_64"},
         {NAME: 'opensuse/leap:latest', ARCH: "x86_64"},
         {NAME: 'opensuse/tumbleweed:latest', ARCH: "x86_64"},
-        {NAME: '386/opensuse/tumbleweed:latest', ARCH: "i386"}]
+        {NAME: 'i386/opensuse/tumbleweed:latest', ARCH: "i386"}]
         type: [agent, manager]
         exclude:
           - system: {ARCH: "i386"}
