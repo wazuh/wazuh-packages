@@ -175,6 +175,11 @@ function check_curlVersion() {
         curl_has_connrefused=0
     fi
 
+    curl_noproxy=""
+    if [ $(check_versions ${curl_version} 7.19.4) == "0" ]; then
+        curl_noproxy=" --noproxy '*'"
+    fi
+
 }
 
 function check_dist() {
