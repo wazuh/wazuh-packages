@@ -36,7 +36,6 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 ./gen_ossec.sh conf manager centos %rhel %{_localstatedir} > etc/ossec-server.conf
 
 %build
-%define initd_valid %( if [ -f /usr/lib/systemd/systemd-sysv-install ]; then echo "1" ; else echo "0"; fi )
 pushd src
 # Rebuild for server
 make clean
@@ -75,18 +74,11 @@ echo 'USER_CREATE_SSL_CERT="n"' >> ./etc/preloaded-vars.conf
 ./install.sh
 
 # Create directories
-%if %initd_valid
-  mkdir -p ${RPM_BUILD_ROOT}%{_initrddir}
-%endif
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.ssh
 
 # Copy the installed files into RPM_BUILD_ROOT directory
 cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
 mkdir -p ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
-%if %initd_valid
-  sed -i "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/ossec-hids-rh.init
-  install -m 0755 src/init/templates/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-manager
-%endif
 sed -i "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/wazuh-manager.service
 install -m 0644 src/init/templates/wazuh-manager.service ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
 
@@ -580,9 +572,6 @@ rm -fr %{buildroot}
 
 %files
 %defattr(-,root,wazuh)
-%if %initd_valid
-  %config(missingok) %{_initrddir}/wazuh-agent
-%endif
 %attr(640, root, wazuh) %verify(not md5 size mtime) %ghost %{_sysconfdir}/ossec-init.conf
 /usr/lib/systemd/system/wazuh-manager.service
 %dir %attr(750, root, wazuh) %{_localstatedir}
