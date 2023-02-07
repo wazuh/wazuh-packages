@@ -137,7 +137,8 @@ function common_checkWazuhConfigYaml() {
 # Retries even if the --retry-connrefused is not available
 function common_curl() {
 
-    curl="curl $@ ${curl_noproxy}"
+    curl="curl $@ ${noproxy}"
+
     if [ -n "${curl_has_connrefused}" ]; then
         eval "${curl} --retry-connrefused"
         e_code="${PIPESTATUS[0]}"

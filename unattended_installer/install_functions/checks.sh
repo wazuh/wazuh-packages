@@ -176,9 +176,9 @@ function check_curlVersion() {
     fi
 
     # --noproxy was added in 7.19.4
-    curl_noproxy=""
+    noproxy=""
     if [ $(check_versions ${curl_version} 7.19.4) == "0" ]; then
-        curl_noproxy=" --noproxy '*'"
+        noproxy=" --noproxy '*'"
     fi
 
 }
