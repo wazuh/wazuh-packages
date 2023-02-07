@@ -449,17 +449,17 @@ rm -f %{_localstatedir}/etc/shared/default/*.rpmnew
 # Remove old ossec user and group if exists and change ownwership of files
 
 if getent group ossec > /dev/null 2>&1; then
-  find %{_localstatedir}/ -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
+  find %{_localstatedir}/ -group ossec -user root -print0 | xargs -0 chown root:wazuh > /dev/null 2>&1 || true
   if getent passwd ossec > /dev/null 2>&1; then
-    find %{_localstatedir}/ -group ossec -user ossec -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
+    find %{_localstatedir}/ -group ossec -user ossec -print0 | xargs -0 chown wazuh:wazuh > /dev/null 2>&1 || true
     userdel ossec > /dev/null 2>&1
   fi
   if getent passwd ossecm > /dev/null 2>&1; then
-    find %{_localstatedir}/ -group ossec -user ossecm -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
+    find %{_localstatedir}/ -group ossec -user ossecm -print0 | xargs -0 chown wazuh:wazuh > /dev/null 2>&1 || true
     userdel ossecm > /dev/null 2>&1
   fi
   if getent passwd ossecr > /dev/null 2>&1; then
-    find %{_localstatedir}/ -group ossec -user ossecr -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
+    find %{_localstatedir}/ -group ossec -user ossecr -print0 | xargs -0 chown wazuh:wazuh > /dev/null 2>&1 || true
     userdel ossecr > /dev/null 2>&1
   fi
   if getent group ossec > /dev/null 2>&1; then

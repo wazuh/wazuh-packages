@@ -8,15 +8,15 @@
 
 function filebeat_configure(){
 
-    eval "curl -so /etc/filebeat/wazuh-template.json ${filebeat_wazuh_template} --max-time 300 ${debug}"
+    eval "common_curl -so /etc/filebeat/wazuh-template.json ${filebeat_wazuh_template} --max-time 300 --retry 5 --retry-delay 5 --fail ${debug}"
     if [ ! -f "/etc/filebeat/wazuh-template.json" ]; then
         common_logger -e "Error downloading wazuh-template.json file."
         installCommon_rollBack
         exit 1
     fi
-    
+
     eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
-    eval "curl -s ${filebeat_wazuh_module} --max-time 300 | tar -xvz -C /usr/share/filebeat/module ${debug}"
+    eval "common_curl -s ${filebeat_wazuh_module} --max-time 300 --retry 5 --retry-delay 5 --fail | tar -xvz -C /usr/share/filebeat/module ${debug}"
     if [ ! -d "/usr/share/filebeat/module" ]; then
         common_logger -e "Error downloading wazuh filebeat module."
         installCommon_rollBack
