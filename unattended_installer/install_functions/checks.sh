@@ -166,7 +166,7 @@ function checks_arguments() {
 
 }
 
-# Checks if the --retry-connrefused is available in curl
+# Checks if some parameters are available in curl
 function check_curlVersion() {
 
     # --retry-connrefused was added in 7.52.0
@@ -175,6 +175,7 @@ function check_curlVersion() {
         curl_has_connrefused=0
     fi
 
+    # --noproxy was added in 7.19.4
     curl_noproxy=""
     if [ $(check_versions ${curl_version} 7.19.4) == "0" ]; then
         curl_noproxy=" --noproxy '*'"
