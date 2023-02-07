@@ -35,7 +35,6 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 ./gen_ossec.sh conf agent centos %rhel %{_localstatedir} > etc/ossec-agent.conf
 
 %build
-%define initd_valid %( if [ -f /usr/lib/systemd/systemd-sysv-install ]; then echo "1" ; else echo "0"; fi )
 pushd src
 # Rebuild for agent
 make clean
@@ -82,18 +81,14 @@ echo 'USER_AUTO_START="n"' >> ./etc/preloaded-vars.conf
 %endif
 
 # Create directories
-%if %initd_valid
-  mkdir -p ${RPM_BUILD_ROOT}%{_initrddir}
-%endif
+mkdir -p ${RPM_BUILD_ROOT}%{_initrddir}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.ssh
 
 # Copy the installed files into RPM_BUILD_ROOT directory
 cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
 mkdir -p ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
-%if %initd_valid
-  sed -i "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/ossec-hids-rh.init
-  install -m 0755 src/init/templates/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-agent
-%endif
+sed -i "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/ossec-hids-rh.init
+install -m 0755 src/init/templates/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-agent
 sed -i "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/wazuh-agent.service
 install -m 0644 src/init/templates/wazuh-agent.service ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
 
@@ -245,24 +240,9 @@ if [ $1 = 1 ]; then
   %{_localstatedir}/packages_files/agent_installation_scripts/src/init/register_configure_agent.sh %{_localstatedir} > /dev/null || :
 fi
 
-
-  # We create this fix for the operating system that deprecated the SySV. For now, this fix is for suse/openSUSE
-  sles=""
-  if [ -f /etc/SuSE-release ]; then
-    sles="suse"
-  elif [ -f /etc/os-release ]; then
-    if `grep -q "\"sles" /etc/os-release` ; then
-      sles="suse"
-    elif `grep -q -i "\"opensuse" /etc/os-release` ; then
-      sles="opensuse"
-    fi
-  fi
-
-  if [ -n "$sles" ] && [ $(ps --no-headers -o comm 1) == "systemd" ]; then
-    if [ -f /etc/init.d/wazuh-agent ]; then
-      rm -f /etc/init.d/wazuh-agent
-    fi
-  fi
+if ps -e | grep -E -q "^\ *1\ .*systemd$"; then
+  rm -f %{_initrddir}/wazuh-agent
+fi
 
 # Delete the installation files used to configure the agent
 rm -rf %{_localstatedir}/packages_files
@@ -491,9 +471,7 @@ rm -fr %{buildroot}
 
 %files
 %defattr(-,root,root)
-%if %initd_valid
-  %config(missingok) %{_initrddir}/wazuh-agent
-%endif
+%config(missingok) %{_initrddir}/wazuh-agent
 %attr(640, root, wazuh) %verify(not md5 size mtime) %ghost %{_sysconfdir}/ossec-init.conf
 /usr/lib/systemd/system/wazuh-agent.service
 %dir %attr(750, root, wazuh) %{_localstatedir}
