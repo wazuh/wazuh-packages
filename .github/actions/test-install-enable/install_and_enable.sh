@@ -23,15 +23,16 @@ fi
 $sys_type install -y "/packages/$1"
 
 echo "Enabling Wazuh $2."
-if ps -p 1 -o comm= | grep -q "systemd"; then
+if command -v systemctl; then
     systemctl daemon-reload
     systemctl enable wazuh-$2
     output=$(echo $?)
-elif ps -p 1 -o comm= | grep -q "init"; then
+elif command -v service; then
     chkconfig --add wazuh-$2
+    service wazuh-$2 start
     output=$(echo $?)
 else
-    /etc/rc.d/init.d/wazuh${2} start 
+    /etc/rc.d/init.d/wazuh-$2 start
     output=$(echo $?)
 fi
 if [ "$output" -eq 0 ]; then
