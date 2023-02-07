@@ -165,9 +165,21 @@ fi
 
 if [ -f /etc/os-release ]; then
   source /etc/os-release
-  if [ "${NAME}" = "Red Hat Enterprise Linux" ] && [ "$((${VERSION_ID:0:1}))" -ge 9 ]; then
+  if (( [ "${NAME}" = "Red Hat Enterprise Linux" ] || [ "${NAME}" = "Rocky Linux" ] || [ "${NAME}" = "AlmaLinux" ] || [ "CentOS Stream" ]) && [ "$((${VERSION_ID:0:1}))" -ge 9 ]) || ( [ "${NAME}" = "Fedora" ] && [ "$((${VERSION_ID}))" -ge 34 ] ); then
     rm -f /etc/init.d/%{name}
   fi
+fi
+
+# If is an upgrade, move the securityconfig files if they exist (4.3.x versions)
+if [ ${1} = 2 ]; then
+    if [ -d "%{INSTALL_DIR}"/plugins/opensearch-security/securityconfig ]; then
+
+        if [ ! -d "%{CONFIG_DIR}"/opensearch-security ]; then
+            mkdir "%{CONFIG_DIR}"/opensearch-security
+        fi
+
+        cp -r "%{INSTALL_DIR}"/plugins/opensearch-security/securityconfig/* "%{CONFIG_DIR}"/opensearch-security
+    fi
 fi
 
 # -----------------------------------------------------------------------------
@@ -453,17 +465,17 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/rca_idle_cluster_manager.conf
 %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/supervisord.conf
 %dir %attr(750, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security
-%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/action_groups.yml
-%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/audit.yml
-%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/config.yml
-%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/internal_users.yml
-%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/nodes_dn.yml
-%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/opensearch.yml.example
-%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/roles.yml
-%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/roles_mapping.yml
-%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/tenants.yml
-%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/whitelist.yml
-%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/allowlist.yml
+%config(noreplace) %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/action_groups.yml
+%config(noreplace) %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/audit.yml
+%config(noreplace) %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/config.yml
+%config(noreplace) %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/internal_users.yml
+%config(noreplace) %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/nodes_dn.yml
+%config(noreplace) %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/opensearch.yml.example
+%config(noreplace) %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/roles.yml
+%config(noreplace) %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/roles_mapping.yml
+%config(noreplace) %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/tenants.yml
+%config(noreplace) %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/whitelist.yml
+%config(noreplace) %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/allowlist.yml
 %attr(440, %{USER}, %{GROUP}) %{INSTALL_DIR}/VERSION
 %dir %attr(750, %{USER}, %{GROUP}) %{CONFIG_DIR}/jvm.options.d
 %config(noreplace) %attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/log4j2.properties

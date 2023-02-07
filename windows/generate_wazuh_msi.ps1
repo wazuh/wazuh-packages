@@ -78,6 +78,7 @@ function BuildWazuhMsi(){
         & $SIGNTOOL_EXE sign /a /tr http://timestamp.digicert.com /td SHA256 ".\InstallerScripts.vbs"
         Write-Host "Signing .dll files..."
         & $SIGNTOOL_EXE sign /a /tr http://timestamp.digicert.com /td SHA256 "..\*.dll"
+        & $SIGNTOOL_EXE sign /a /tr http://timestamp.digicert.com /td SHA256 ".\*.dll"
         & $SIGNTOOL_EXE sign /a /tr http://timestamp.digicert.com /td SHA256 "..\data_provider\build\bin\sysinfo.dll"
         & $SIGNTOOL_EXE sign /a /tr http://timestamp.digicert.com /td SHA256 "..\shared_modules\dbsync\build\bin\dbsync.dll"
         & $SIGNTOOL_EXE sign /a /tr http://timestamp.digicert.com /td SHA256 "..\shared_modules\rsync\build\bin\rsync.dll"
