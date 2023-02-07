@@ -240,7 +240,7 @@ if [ $1 = 1 ]; then
   %{_localstatedir}/packages_files/agent_installation_scripts/src/init/register_configure_agent.sh %{_localstatedir} > /dev/null || :
 fi
 
-if ps -e | grep -E -q "^\ *1\ .*systemd$"; then
+if [[ -d /run/systemd/system ]]; then
   rm -f %{_initrddir}/wazuh-agent
 fi
 

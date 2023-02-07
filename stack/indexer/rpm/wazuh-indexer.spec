@@ -164,7 +164,7 @@ if [ $1 = 1 ];then # Install
 fi
 
 
-if ps -e | grep -E -q "^\ *1\ .*systemd$" ; then
+if [[ -d /run/systemd/system ]] ; then
     rm -f /etc/init.d/%{name}
 fi
 
