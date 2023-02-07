@@ -45,12 +45,16 @@ jobs:
         {NAME: 'redhat/ubi9:latest', ARCH: "x86_64"},
         {NAME: 'amazonlinux:2', ARCH: "x86_64"},
         {NAME: 'fedora:34', ARCH: "x86_64"},
-        {NAME: 'opensuse/leap:latest', ARCH: "x86_64"},
-        {NAME: 'opensuse/tumbleweed:latest', ARCH: "x86_64"},
-        {NAME: 'i386/opensuse/tumbleweed:latest', ARCH: "i386"}]
+        {NAME: 'opensuse/leap:latest', ARCH: "x86_64", INIT: "initd"},
+        {NAME: 'opensuse/tumbleweed:latest', ARCH: "x86_64", INIT: "initd"},
+        {NAME: 'i386/opensuse/tumbleweed:latest', ARCH: "i386", INIT: "initd"},
+        {NAME: 'centos:6.9', ARCH: "x86_64", INIT: "initd"},
+        {NAME: 'centos:5.11', ARCH: "x86_64", INIT: "initd"}]
         type: [agent, manager]
         exclude:
           - system: {ARCH: "i386"}
+            type: manager
+          - system: {INIT: "initd"}
             type: manager
       fail-fast: false
     steps:
@@ -100,4 +104,4 @@ jobs:
 
       - name: Launch docker
         if : steps.changes.outputs.rpm_packages == 'true' || (steps.changes.outputs.rpm_images_i386 == 'true' && matrix.ARCHITECTURE == 'i386') || (steps.changes.outputs.rpm_images_x86_64 == 'true' && matrix.ARCHITECTURE == 'x86_64')
-        run: sudo docker run -v $GITHUB_WORKSPACE/.github/actions/test-install-enable/:/tests -v $GITHUB_WORKSPACE/packages/:/packages ${{ matrix.system.NAME }} bash /tests/install_and_enable.sh $PACKAGE_NAME ${{ matrix.type }}
+        run: sudo docker run --privileged -v /run/systemd/system:/run/systemd/system -v $GITHUB_WORKSPACE/.github/actions/test-install-enable/:/tests -v $GITHUB_WORKSPACE/packages/:/packages ${{ matrix.system.NAME }} bash /tests/install_and_enable.sh $PACKAGE_NAME ${{ matrix.type }}
