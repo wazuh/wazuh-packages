@@ -293,10 +293,6 @@ if [ $1 = 2 ]; then
   fi
 fi
 
-if [[ -d /run/systemd/system ]]; then
-  rm -f %{_initrddir}/wazuh-agent
-fi
-
 # Fresh install code block
 if [ $1 = 1 ]; then
 
@@ -314,6 +310,10 @@ if [ $1 = 1 ]; then
 
   # Add default local_files to ossec.conf
   %{_localstatedir}/packages_files/manager_installation_scripts/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
+fi
+
+if [[ -d /run/systemd/system ]]; then
+  rm -f %{_initrddir}/wazuh-manager
 fi
 
 # Generation auto-signed certificate if not exists
