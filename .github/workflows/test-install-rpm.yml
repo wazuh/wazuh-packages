@@ -45,8 +45,7 @@ jobs:
         {NAME: 'redhat/ubi9:latest', ARCH: "x86_64"},
         {NAME: 'amazonlinux:2', ARCH: "x86_64"},
         {NAME: 'fedora:34', ARCH: "x86_64"},
-        {NAME: 'centos:6.9', ARCH: "x86_64", INIT: "initd"},
-        {NAME: 'centos:5.11', ARCH: "x86_64", INIT: "initd"}]
+        {NAME: 'centos:6.9', ARCH: "x86_64", INIT: "initd"}]
         type: [agent, manager]
         exclude:
           - system: {ARCH: "i386"}
