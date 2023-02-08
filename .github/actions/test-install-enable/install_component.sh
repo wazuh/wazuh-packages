@@ -11,8 +11,8 @@ fi
 
 if [ -f /etc/redhat-release ]; then
     VERSION=$(cat /etc/redhat-release)
-    if [ "$VERSION" = "CentOS release 5.11 (Final)" ] || [ "$VERSION" = "CentOS release 6.9 (Final)" ]; then
-        rm -rf /etc/yum.repos.d/*
+    if [ "$VERSION" = "CentOS release 6.9 (Final)" ]; then
+        curl https://www.getpagespeed.com/files/centos6-eol.repo --output /etc/yum.repos.d/CentOS-Base.repo
     fi
 fi
 
