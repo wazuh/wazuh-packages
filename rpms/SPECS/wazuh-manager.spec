@@ -74,10 +74,13 @@ echo 'USER_CREATE_SSL_CERT="n"' >> ./etc/preloaded-vars.conf
 ./install.sh
 
 # Create directories
+mkdir -p ${RPM_BUILD_ROOT}%{_initrddir}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.ssh
 
 # Copy the installed files into RPM_BUILD_ROOT directory
 cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
+sed -i "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/ossec-hids-rh.init
+install -m 0755 src/init/templates/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-manager
 mkdir -p ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
 sed -i "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/wazuh-manager.service
 install -m 0644 src/init/templates/wazuh-manager.service ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
@@ -288,6 +291,10 @@ if [ $1 = 2 ]; then
     rm -rf %{_localstatedir}/queue/sockets
     cp -rp %{_localstatedir}/queue/ossec %{_localstatedir}/queue/sockets
   fi
+fi
+
+if [[ -d /run/systemd/system ]]; then
+  rm -f %{_initrddir}/wazuh-agent
 fi
 
 # Fresh install code block
@@ -554,6 +561,7 @@ rm -fr %{buildroot}
 
 %files
 %defattr(-,root,wazuh)
+%config(missingok) %{_initrddir}/wazuh-manager
 %attr(640, root, wazuh) %verify(not md5 size mtime) %ghost %{_sysconfdir}/ossec-init.conf
 /usr/lib/systemd/system/wazuh-manager.service
 %dir %attr(750, root, wazuh) %{_localstatedir}
