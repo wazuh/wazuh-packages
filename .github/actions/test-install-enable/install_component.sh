@@ -14,7 +14,7 @@ elif [ -n "$(command -v apt-get)" ]; then
     apt-get update
     apt-get install -y systemd
 elif [ -n "$(command -v zypper)" ]; then
-    sys_type="zypper"
+    sys_type="zypper --no-gpg-checks"
 else
     common_logger -e "Couldn't find type of system"
     exit 1
