@@ -1,10 +1,19 @@
 #!/bin/bash
 echo "Installing Wazuh $2."
 
-source /etc/os-release
-if [ "$ID" = "centos" ] && [ "$VERSION_ID" = "8" ]; then
-    find /etc/yum.repos.d/ -type f -exec sed -i 's/mirrorlist/#mirrorlist/g' {} \;
-    find /etc/yum.repos.d/ -type f -exec sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' {} \;
+if [ -f /etc/os-release ]; then
+    source /etc/os-release
+    if [ "$ID" = "centos" ] && [ "$VERSION_ID" = "8" ]; then
+        find /etc/yum.repos.d/ -type f -exec sed -i 's/mirrorlist/#mirrorlist/g' {} \;
+        find /etc/yum.repos.d/ -type f -exec sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' {} \;
+    fi
+fi
+
+if [ -f /etc/redhat-release ]; then
+    VERSION=$(cat /etc/redhat-release)
+    if [ "$VERSION" = "CentOS release 5.11 (Final)" ] || [ "$VERSION" = "CentOS release 6.9 (Final)" ]; then
+        rm -rf /etc/yum.repos.d/*
+    fi
 fi
 
 if [ -n "$(command -v yum)" ]; then
