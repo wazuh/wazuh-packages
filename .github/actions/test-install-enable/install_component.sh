@@ -21,24 +21,3 @@ else
 fi
 
 $sys_type install -y "/packages/$1"
-
-echo "Enabling Wazuh $2."
-if command -v systemctl; then
-    systemctl daemon-reload
-    systemctl enable wazuh-$2
-    output=$(echo $?)
-elif command -v service; then
-    chkconfig --add wazuh-$2
-    service wazuh-$2 start
-    output=$(echo $?)
-else
-    /etc/rc.d/init.d/wazuh-$2 start
-    output=$(echo $?)
-fi
-if [ "$output" -eq 0 ]; then
-    echo "Wazuh $2 enabled - Test passed correctly."
-    exit 0
-else
-    echo "Error: Wazuh $2 not enabled."
-    exit 1
-fi

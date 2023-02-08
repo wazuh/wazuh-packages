@@ -104,4 +104,4 @@ jobs:
 
       - name: Launch docker
         if : steps.changes.outputs.rpm_packages == 'true' || (steps.changes.outputs.rpm_images_i386 == 'true' && matrix.ARCHITECTURE == 'i386') || (steps.changes.outputs.rpm_images_x86_64 == 'true' && matrix.ARCHITECTURE == 'x86_64')
-        run: sudo docker run --privileged -v /run/systemd/system:/run/systemd/system -v $GITHUB_WORKSPACE/.github/actions/test-install-enable/:/tests -v $GITHUB_WORKSPACE/packages/:/packages ${{ matrix.system.NAME }} bash /tests/install_and_enable.sh $PACKAGE_NAME ${{ matrix.type }}
+        run: sudo docker run -v $GITHUB_WORKSPACE/.github/actions/test-install-enable/:/tests -v $GITHUB_WORKSPACE/packages/:/packages ${{ matrix.system.NAME }} bash /tests/install_component.sh $PACKAGE_NAME ${{ matrix.type }}
