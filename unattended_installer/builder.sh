@@ -278,9 +278,9 @@ function checkFilebeatURL() {
     new_filebeat_url="https://raw.githubusercontent.com/wazuh/wazuh/master/extensions/elasticsearch/7.x/wazuh-template.json"
 
     # Get the response of the URL and check it
-    response=$(curl --write-out '%{http_code}' --silent --output /dev/null $filebeat_wazuh_template)
+    response=$(curl -I --write-out '%{http_code}' --silent --output /dev/null $filebeat_wazuh_template)
     if [ "${response}" != "200" ]; then
-       	response=$(curl --write-out '%{http_code}' --silent --output /dev/null $new_filebeat_url)
+       	response=$(curl -I --write-out '%{http_code}' --silent --output /dev/null $new_filebeat_url)
 
         # Display error if both URLs do not get the resource
         if [ "${response}" != "200" ]; then
