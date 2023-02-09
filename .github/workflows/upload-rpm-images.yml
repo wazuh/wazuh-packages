@@ -4,14 +4,10 @@ on:
     paths:
       - 'rpms/CentOS/**'
       - 'rpms/build.sh'
-  push:
-    branches:
-      - master
-      - 4.5
-      - 4.4
-    paths:
-      - 'rpms/CentOS/*'
-      - 'rpms/build.sh'
+    types:
+      - opened
+      - synchronize
+      - merged
   workflow_dispatch:
 
 jobs:
@@ -49,7 +45,7 @@ jobs:
 
       - name: Set tag as version
         run: 
-          if [ "${{ github.event_name }}" == "pull_request" ]; then echo "TAG=${{ github.head_ref }}" >> $GITHUB_ENV; else echo "TAG=$(sed 's/\([0-9]*\.[0-9]*\)\.[0-9]*/\1/' $GITHUB_WORKSPACE/VERSION)" >> $GITHUB_ENV; fi
+          if [ "${{ github.event.pull_request.merged }}" == "false" ]; then echo "TAG=${{ github.head_ref }}" >> $GITHUB_ENV; else echo "TAG=$(sed 's/\([0-9]*\.[0-9]*\)\.[0-9]*/\1/' $GITHUB_WORKSPACE/VERSION)" >> $GITHUB_ENV; fi
 
       - name: Build and push image ${{ matrix.image.CONTAINER_NAME }} with tag ${{ env.TAG }} to Github Container Registry
         if: ( steps.changes.outputs.i386 == 'true' && matrix.CONTAINER_NAME == 'rpm_builder_i386' ) || ( steps.changes.outputs.amd64 == 'true' && matrix.CONTAINER_NAME == 'rpm_builder_x86' )
