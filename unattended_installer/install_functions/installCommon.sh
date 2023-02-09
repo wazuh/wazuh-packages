@@ -270,10 +270,10 @@ function installCommon_getPass() {
     done
 }
 
-function installCommon_installPrerequisites() {
+function installCommon_installCheckDependencies() {
 
     if [ "${sys_type}" == "yum" ]; then
-        dependencies=( curl libcap tar gnupg openssl lsof )
+        dependencies=( systemd grep tar coreutils sed procps gawk lsof curl openssl )
         not_installed=()
         for dep in "${dependencies[@]}"; do
             if [ "${dep}" == "openssl" ]; then
@@ -299,7 +299,60 @@ function installCommon_installPrerequisites() {
 
     elif [ "${sys_type}" == "apt-get" ]; then
         eval "apt-get update -q ${debug}"
-        dependencies=( apt-transport-https curl libcap2-bin tar software-properties-common gnupg openssl lsof )
+        dependencies=( systemd grep tar coreutils sed procps gawk lsof curl openssl )
+        not_installed=()
+
+        for dep in "${dependencies[@]}"; do
+            if ! apt list --installed 2>/dev/null | grep -q -E ^"${dep}"; then
+                not_installed+=("${dep}")
+            fi
+        done
+
+        if [ "${#not_installed[@]}" -gt 0 ]; then
+            common_logger "--- Dependencies ----"
+            for dep in "${not_installed[@]}"; do
+                common_logger "Installing $dep."
+                installCommon_aptInstall "${dep}"
+                if [ "${install_result}" != 0 ]; then
+                    common_logger -e "Cannot install dependency: ${dep}."
+                    exit 1
+                fi
+            done
+        fi
+    fi
+
+}
+
+function installCommon_installPrerequisites() {
+
+    if [ "${sys_type}" == "yum" ]; then
+        dependencies=( libcap gnupg )
+        not_installed=()
+        for dep in "${dependencies[@]}"; do
+            if [ "${dep}" == "openssl" ]; then
+                if ! yum list installed 2>/dev/null | grep -q -E ^"${dep}\.";then
+                    not_installed+=("${dep}")
+                fi
+            elif ! yum list installed 2>/dev/null | grep -q -E ^"${dep}";then
+                not_installed+=("${dep}")
+            fi
+        done
+
+        if [ "${#not_installed[@]}" -gt 0 ]; then
+            common_logger "--- Dependencies ---"
+            for dep in "${not_installed[@]}"; do
+                common_logger "Installing $dep."
+                eval "yum install ${dep} -y ${debug}"
+                if [  "${PIPESTATUS[0]}" != 0  ]; then
+                    common_logger -e "Cannot install dependency: ${dep}."
+                    exit 1
+                fi
+            done
+        fi
+
+    elif [ "${sys_type}" == "apt-get" ]; then
+        eval "apt-get update -q ${debug}"
+        dependencies=( apt-transport-https libcap2-bin software-properties-common gnupg )
         not_installed=()
 
         for dep in "${dependencies[@]}"; do
