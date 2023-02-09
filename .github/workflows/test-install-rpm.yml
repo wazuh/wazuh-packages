@@ -1,4 +1,4 @@
-name: Test install and enable Wazuh agent and manager - RPM
+name: Test install Wazuh agent and manager - RPM
 on:
   pull_request:
     paths:
@@ -29,7 +29,7 @@ jobs:
           sha: ${{ github.event.pull_request.head.sha || github.sha }}
           wait-interval: 60
 
-  Test-install-and-enable-rpm-systems:
+  Test-install-rpm-systems:
     needs: Wait-for-package-building
     runs-on: ubuntu-latest
     strategy:
