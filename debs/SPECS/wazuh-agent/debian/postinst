@@ -19,10 +19,6 @@ case "$1" in
 
     OSMYSHELL="/sbin/nologin"
 
-    if [[ -d /run/systemd/system ]]; then
-        rm -f %{_initrddir}/wazuh-agent
-    fi
-
     if [ ! -f ${OSMYSHELL} ]; then
         if [ -f "/bin/false" ]; then
             OSMYSHELL="/bin/false"
