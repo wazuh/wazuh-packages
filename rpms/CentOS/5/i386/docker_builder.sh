@@ -89,3 +89,4 @@ fi
 tar --numeric-owner -c -C "$target" -zf /vagrant/$name.tar.gz .
 
 rm -rf "$target"
+ 

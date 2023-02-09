@@ -39,3 +39,4 @@ RUN chmod +x /usr/local/bin/build_package
 
 # Set the entrypoint
 ENTRYPOINT ["/usr/local/bin/build_package"]
+ 
