@@ -2,7 +2,7 @@ name: Test install Wazuh agent and manager - DEB
 on:
   pull_request:
     paths:
-      - 'debs/SPECS/*'
+      - 'debs/SPECS/**'
       - 'debs/generate_debian_package.sh'
   workflow_dispatch:
   workflow_call:
