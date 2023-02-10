@@ -365,18 +365,12 @@ function passwords_getNetworkHost() {
 
 function passwords_readAdmincerts() {
 
-    if [[ -f /etc/wazuh-indexer/certs/admin.pem ]]; then
-        adminpem="/etc/wazuh-indexer/certs/admin.pem"
-    else
+    if [[ ! -f "${adminpem}" ]]; then
         common_logger -e "No admin certificate indicated. Please run the script with the option -c <path-to-certificate>."
         exit 1;
     fi
 
-    if [[ -f /etc/wazuh-indexer/certs/admin-key.pem ]]; then
-        adminkey="/etc/wazuh-indexer/certs/admin-key.pem"
-    elif [[ -f /etc/wazuh-indexer/certs/admin.key ]]; then
-        adminkey="/etc/wazuh-indexer/certs/admin.key"
-    else
+    if [[ ! -f "${adminkey}" ]]; then
         common_logger -e "No admin certificate key indicated. Please run the script with the option -k <path-to-key-certificate>."
         exit 1;
     fi
