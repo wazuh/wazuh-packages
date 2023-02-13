@@ -48,6 +48,7 @@ jobs:
               - 'debs/generate_debian_package.sh'
 
       - name: Set tag and container name
+        if: steps.changes.outputs.deb_packages == 'true' || (steps.changes.outputs.deb_images_i386 == 'true' && matrix.ARCHITECTURE == 'i386') || (steps.changes.outputs.deb_images_amd64 == 'true' && matrix.ARCHITECTURE == 'amd64')
         run: |
           MAJOR=$(sed 's/\([0-9]*\.[0-9]*\)\.[0-9]*/\1/' $GITHUB_WORKSPACE/VERSION)
           if [ "${{ steps.changes.outputs.deb_images }}" == "true" ]; then echo "TAG=${{ github.head_ref }}" >> $GITHUB_ENV; else echo "TAG=$MAJOR" >> $GITHUB_ENV ; fi
@@ -55,6 +56,7 @@ jobs:
           echo "CONTAINER_NAME=deb_builder_${{ matrix.ARCHITECTURE }}" >> $GITHUB_ENV
 
       - name: Download docker image for package building
+        if: steps.changes.outputs.deb_packages == 'true' || (steps.changes.outputs.deb_images_i386 == 'true' && matrix.ARCHITECTURE == 'i386') || (steps.changes.outputs.deb_images_amd64 == 'true' && matrix.ARCHITECTURE == 'amd64')
         run: |
           bash $GITHUB_WORKSPACE/.github/actions/ghcr-pull-and-push/pull_image_from_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} $CONTAINER_NAME ${{ env.TAG }}
 
@@ -67,6 +69,7 @@ jobs:
           echo "PACKAGE_NAME=$(ls ./output | grep .deb | head -n 1)" >> $GITHUB_ENV
 
       - name: Upload Wazuh ${{ matrix.TYPE }} ${{ matrix.ARCHITECTURE }} package as artifact
+        if: steps.changes.outputs.deb_packages == 'true' || (steps.changes.outputs.deb_images_i386 == 'true' && matrix.ARCHITECTURE == 'i386') || (steps.changes.outputs.deb_images_amd64 == 'true' && matrix.ARCHITECTURE == 'amd64')
         uses: actions/upload-artifact@v2
         with:
           name: ${{ env.PACKAGE_NAME }}
