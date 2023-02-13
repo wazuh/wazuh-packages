@@ -8,7 +8,3 @@
 
 adminpem="/etc/wazuh-indexer/certs/admin.pem"
 adminkey="/etc/wazuh-indexer/certs/admin-key.pem"
-
-base_path="$(dirname "$(readlink -f "$0")")"
-readonly base_path
-config_file="${base_path}/config.yml"
