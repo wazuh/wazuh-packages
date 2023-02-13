@@ -2,7 +2,7 @@ name: Build Wazuh Packages - DEB - amd64 and i386
 on:
   pull_request:
     paths:
-      - 'debs/SPECS/*'
+      - 'debs/SPECS/**'
       - 'debs/generate_debian_package.sh'
   workflow_dispatch:
   workflow_call:

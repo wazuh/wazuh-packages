@@ -1,4 +1,4 @@
-name: Test install and enable Wazuh agent and manager - RPM
+name: Test install Wazuh agent and manager - RPM
 on:
   pull_request:
     paths:
@@ -29,7 +29,7 @@ jobs:
           sha: ${{ github.event.pull_request.head.sha || github.sha }}
           wait-interval: 60
 
-  Test-install-and-enable-rpm-systems:
+  Test-install-rpm-systems:
     needs: Wait-for-package-building
     runs-on: ubuntu-latest
     strategy:
@@ -44,10 +44,13 @@ jobs:
         {NAME: 'redhat/ubi8:latest', ARCH: "x86_64"},
         {NAME: 'redhat/ubi9:latest', ARCH: "x86_64"},
         {NAME: 'amazonlinux:2', ARCH: "x86_64"},
-        {NAME: 'fedora:34', ARCH: "x86_64"}]
+        {NAME: 'fedora:34', ARCH: "x86_64"},
+        {NAME: 'centos:6.9', ARCH: "x86_64", INIT: "initd"}]
         type: [agent, manager]
         exclude:
           - system: {ARCH: "i386"}
+            type: manager
+          - system: {INIT: "initd"}
             type: manager
       fail-fast: false
     steps:
@@ -97,4 +100,4 @@ jobs:
 
       - name: Launch docker
         if : steps.changes.outputs.rpm_packages == 'true' || (steps.changes.outputs.rpm_images_i386 == 'true' && matrix.ARCHITECTURE == 'i386') || (steps.changes.outputs.rpm_images_x86_64 == 'true' && matrix.ARCHITECTURE == 'x86_64')
-        run: sudo docker run -v $GITHUB_WORKSPACE/.github/actions/test-install-enable/:/tests -v $GITHUB_WORKSPACE/packages/:/packages ${{ matrix.system.NAME }} bash /tests/install_and_enable.sh $PACKAGE_NAME ${{ matrix.type }}
+        run: sudo docker run -v $GITHUB_WORKSPACE/.github/actions/test-install-components/:/tests -v $GITHUB_WORKSPACE/packages/:/packages ${{ matrix.system.NAME }} bash /tests/install_component.sh $PACKAGE_NAME ${{ matrix.type }}
