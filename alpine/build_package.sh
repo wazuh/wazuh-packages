@@ -161,7 +161,7 @@ help() {
     echo -e "               [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub."
     echo -e ""
     echo -e "       --future"
-    echo -e "               [Optional] Build test future package 99.99.0 Used for development purposes."
+    echo -e "               [Optional] Build test future package x.30.0 Used for development purposes."
     echo -e ""
     echo -e "       -h, --help"
     echo -e "               Show this help."

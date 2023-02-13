@@ -41,7 +41,8 @@ fi
 export version="$(cat wazuh*/src/VERSION | cut -d 'v' -f 2)"
 
 if [ "${future}" = "yes" ]; then
-    export version="99.99.0"
+    MAJOR=$(echo $version | cut -dv -f2 | cut -d. -f1)
+    export version="${MAJOR}.30.0"
 fi
 
 
