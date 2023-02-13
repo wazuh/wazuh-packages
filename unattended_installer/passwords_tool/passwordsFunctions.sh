@@ -512,7 +512,7 @@ function passwords_restartService() {
         exit 1
     fi
 
-    if ps -e | grep -E -q "^\ *1\ .*systemd$"; then
+    if [[ -d /run/systemd/system ]]; then
         eval "systemctl daemon-reload ${debug}"
         eval "systemctl restart ${1}.service ${debug}"
         if [  "${PIPESTATUS[0]}" != 0  ]; then
@@ -527,7 +527,7 @@ function passwords_restartService() {
         else
             common_logger -d "${1} started."
         fi
-    elif ps -e | grep -E -q "^\ *1\ .*init$"; then
+    elif ps -p 1 -o comm= | grep "init"; then
         eval "/etc/init.d/${1} restart ${debug}"
         if [  "${PIPESTATUS[0]}" != 0  ]; then
             common_logger -e "${1} could not be started."

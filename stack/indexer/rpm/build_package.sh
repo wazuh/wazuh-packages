@@ -8,8 +8,6 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-set -ex
-
 current_path="$( cd $(dirname $0) ; pwd -P )"
 architecture="x86_64"
 outdir="${current_path}/output"
@@ -157,6 +155,8 @@ main() {
             help 1
         esac
     done
+
+    set -ex
 
     build || clean 1
 

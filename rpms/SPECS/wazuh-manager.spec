@@ -79,9 +79,9 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.ssh
 
 # Copy the installed files into RPM_BUILD_ROOT directory
 cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
-mkdir -p ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
 sed -i "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/ossec-hids-rh.init
 install -m 0755 src/init/templates/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-manager
+mkdir -p ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
 sed -i "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/wazuh-manager.service
 install -m 0644 src/init/templates/wazuh-manager.service ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
 
@@ -312,29 +312,8 @@ if [ $1 = 1 ]; then
   %{_localstatedir}/packages_files/manager_installation_scripts/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
 fi
 
-  # We create this fix for the operating system that decraped the SySV. For now, this fix is for suse/openSUSE
-  sles=""
-  if [ -f /etc/SuSE-release ]; then
-    sles="suse"
-  elif [ -f /etc/os-release ]; then
-    if `grep -q "\"sles" /etc/os-release` ; then
-      sles="suse"
-    elif `grep -q -i "\"opensuse" /etc/os-release` ; then
-      sles="opensuse"
-    fi
-  fi
-
-  if [ -n "$sles" ] && [ $(ps --no-headers -o comm 1) == "systemd" ]; then
-    if [ -f /etc/init.d/wazuh-manager ]; then
-      rm -f /etc/init.d/wazuh-manager
-    fi
-  fi
-
-if [ -f /etc/os-release ]; then
-  source /etc/os-release
-  if (( [ "${NAME}" = "Red Hat Enterprise Linux" ] || [ "${NAME}" = "Rocky Linux" ] || [ "${NAME}" = "AlmaLinux" ] || [ "CentOS Stream" ]) && [ "$((${VERSION_ID:0:1}))" -ge 9 ]) || ( [ "${NAME}" = "Fedora" ] && [ "$((${VERSION_ID}))" -ge 34 ] ); then
-    rm -f %{_initrddir}/wazuh-manager
-  fi
+if [[ -d /run/systemd/system ]]; then
+  rm -f %{_initrddir}/wazuh-manager
 fi
 
 # Generation auto-signed certificate if not exists
