@@ -35,6 +35,10 @@ fi
 
 export OPENSEARCH_PATH_CONF=${OPENSEARCH_PATH_CONF:-${CONFIG_DIR}}
 
+if [ -d /run/systemd/system ]; then
+    rm -f /etc/init.d/wazuh-indexer
+fi
+
 # To pick up /usr/lib/sysctl.d/wazuh-indexer.conf
 if command -v systemctl > /dev/null 2>&1; then
     systemctl restart systemd-sysctl.service > /dev/null 2>&1 || true

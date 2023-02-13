@@ -17,7 +17,7 @@ case "$1" in
     SCA_BASE_DIR="${SCRIPTS_DIR}/sca"
 
     if [ -d /run/systemd/system ]; then
-        rm -f /etc/init.d/wazuh-agent
+        rm -f /etc/init.d/wazuh-manager
     fi
 
     if [ ! -f ${OSMYSHELL} ]; then
