@@ -85,6 +85,7 @@ function buildInstaller() {
         echo 'readonly repository="4.x"' >> "${output_script_path}"
     fi
     echo >> "${output_script_path}"
+    grep -Ev '^#|^\s*$' ${resources_common}/commonVariables.sh >> "${output_script_path}"
     grep -Ev '^#|^\s*$' ${resources_installer}/installVariables.sh >> "${output_script_path}"
     echo >> "${output_script_path}"
 
@@ -150,7 +151,8 @@ function buildPasswordsTool() {
 # License (version 2) as published by the FSF - Free Software
 # Foundation." >> "${output_script_path}"
 
-    ## Passwords tool variables
+    ## Common and Passwords tool variables
+    grep -Ev '^#|^\s*$' ${resources_common}/commonVariables.sh >> "${output_script_path}"
     grep -Ev '^#|^\s*$' "${resources_passwords}/passwordsVariables.sh" >> "${output_script_path}"
     echo >> "${output_script_path}"
 
@@ -190,7 +192,8 @@ function buildCertsTool() {
 # License (version 2) as published by the FSF - Free Software
 # Foundation." >> "${output_script_path}"
 
-    ## Certs tool variables
+    ## Common and Certs tool variables
+    grep -Ev '^#|^\s*$' ${resources_common}/commonVariables.sh >> "${output_script_path}"
     grep -Ev '^#|^\s*$' "${resources_certs}/certVariables.sh" >> "${output_script_path}"
     echo >> "${output_script_path}"
 
