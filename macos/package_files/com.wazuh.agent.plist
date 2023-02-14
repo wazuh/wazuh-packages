@@ -6,7 +6,7 @@
     <string>com.wazuh.agent</string>
     <key>ProgramArguments</key>
     <array>
-        <string>/Library/StartupItems/WAZUH/Wazuh</string>
+        <string>/Library/Ossec/Wazuh-startup</string>
     </array>
     <key>RunAtLoad</key>
     <true/>

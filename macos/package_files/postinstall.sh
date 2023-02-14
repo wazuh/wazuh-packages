@@ -61,20 +61,12 @@ chmod 660 ${DIR}/etc/ossec.conf
 chown root:${GROUP} ${DIR}/etc/wpk_root.pem
 chmod 640 ${DIR}/etc/wpk_root.pem
 
+chmod 0744 ${DIR}/Wazuh-startup
+chown root:wheel ${DIR}/Wazuh-startup
+
+chmod 0644 ${LAUNCH_DAEMON_PATH}com.wazuh.agent.plist
 chown root:wheel ${LAUNCH_DAEMON_PATH}com.wazuh.agent.plist
-chmod 644 ${LAUNCH_DAEMON_PATH}com.wazuh.agent.plist
-
-
-chown root:wheel ${LOGIN_ITEM_PATH}
-
-chown root:wheel ${LOGIN_ITEM_PATH}/StartupParameters.plist
-chmod 644 ${LOGIN_ITEM_PATH}/StartupParameters.plist
-
-
-tar -xf "${LOGIN_ITEM_PATH}/Wazuh.tar" -C "${LOGIN_ITEM_PATH}"
-chown root:wheel ${LOGIN_ITEM_PATH}/Wazuh
-chmod 755 ${LOGIN_ITEM_PATH}/Wazuh
-
+launchctl bootstrap system ${LAUNCH_DAEMON_PATH}com.wazuh.agent.plist
 
 chmod 770 ${DIR}/.ssh
 

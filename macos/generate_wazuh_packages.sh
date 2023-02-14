@@ -107,10 +107,8 @@ function sign_binaries() {
         security -v unlock-keychain -p "${KC_PASS}" "${KEYCHAIN}" > /dev/null
         # Sign every single binary in Wazuh's installation. This also includes library files.
         for bin in $(find ${INSTALLATION_PATH} -exec file {} \; | grep bit | cut -d: -f1); do
-            codesign -f --sign "${CERT_APPLICATION_ID}" --entitlements "${ENTITLEMENTS_PATH}" --deep --timestamp  --options=runtime --verbose=4 "${bin}"
+            codesign -f --sign "${CERT_APPLICATION_ID}" --identifier "com.wazuh.agent" --entitlements "${ENTITLEMENTS_PATH}" --deep --timestamp  --options=runtime --verbose=4 "${bin}"
         done
-        codesign -f --sign "${CERT_APPLICATION_ID}" --identifier "com.wazuh" --entitlements "${ENTITLEMENTS_PATH}" --deep --timestamp --options=runtime --verbose "${LOGIN_ITEM_PATH}/Wazuh"
-        tar -cf "${LOGIN_ITEM_PATH}/Wazuh.tar" "${LOGIN_ITEM_PATH}/Wazuh"
         security -v lock-keychain "${KEYCHAIN}" > /dev/null
     fi
 }
@@ -155,8 +153,7 @@ function build_package() {
 
     cp "${CURRENT_PATH}"/package_files/com.wazuh.agent.plist ${LAUNCH_DAEMON_PATH}
 
-    cp "${CURRENT_PATH}"/package_files/Wazuh ${LOGIN_ITEM_PATH}
-    cp "${CURRENT_PATH}"/package_files/StartupParameters.plist ${LOGIN_ITEM_PATH}
+    cp "${CURRENT_PATH}"/package_files/Wazuh-startup ${INSTALLATION_PATH}
 
 
     if packagesbuild "${AGENT_PKG_FILE}" --build-folder "${DESTINATION}" ; then
