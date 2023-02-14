@@ -1,8 +1,8 @@
-name: Test install and enable Wazuh agent and manager - DEB
+name: Test install Wazuh agent and manager - DEB
 on:
   pull_request:
     paths:
-      - 'debs/SPECS/*'
+      - 'debs/SPECS/**'
       - 'debs/generate_debian_package.sh'
   workflow_dispatch:
   workflow_call:
@@ -30,7 +30,7 @@ jobs:
           sha: ${{ github.event.pull_request.head.sha || github.sha }}
           wait-interval: 60
 
-  Test-install-and-enable-deb-systems:
+  Test-install-deb-systems:
     needs: Wait-for-package-building
     runs-on: ubuntu-latest
     strategy:
@@ -91,4 +91,4 @@ jobs:
 
       - name: Launch docker
         if: steps.changes.outputs.deb_packages == 'true' || (steps.changes.outputs.deb_images_i386 == 'true' && matrix.ARCHITECTURE == 'i386') || (steps.changes.outputs.deb_images_amd64 == 'true' && matrix.ARCHITECTURE == 'amd64')
-        run: sudo docker run -v $GITHUB_WORKSPACE/.github/actions/test-install-enable/:/tests -v $GITHUB_WORKSPACE/packages/:/packages ${{ matrix.arch }}/${{ matrix.distro_name }} bash /tests/install_and_enable.sh $PACKAGE_NAME ${{ matrix.type }}
+        run: sudo docker run -v $GITHUB_WORKSPACE/.github/actions/test-install-components/:/tests -v $GITHUB_WORKSPACE/packages/:/packages ${{ matrix.arch }}/${{ matrix.distro_name }} bash /tests/install_component.sh $PACKAGE_NAME ${{ matrix.type }}
