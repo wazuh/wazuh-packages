@@ -296,7 +296,7 @@ function installCommon_installCheckDependencies() {
     elif [ "${sys_type}" == "apt-get" ]; then
         eval "apt-get update -q ${debug}"
         dependencies=( systemd grep tar coreutils sed procps gawk lsof curl openssl )
-        installCommon_aptInstallList 
+        installCommon_aptInstallList "${dependencies[@]}"
     fi
 
 }
