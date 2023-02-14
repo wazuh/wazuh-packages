@@ -175,9 +175,6 @@ function passwords_createBackUp() {
             capem=$(grep "plugins.security.ssl.transport.pemtrustedcas_filepath: " /etc/wazuh-indexer/opensearch.yml )
             rcapem="plugins.security.ssl.transport.pemtrustedcas_filepath: "
             capem="${capem//$rcapem}"
-            if [[ -z "${adminpem}" ]] || [[ -z "${adminkey}" ]]; then
-                passwords_readAdmincerts
-            fi
         fi
     fi
 
@@ -361,26 +358,6 @@ function passwords_getNetworkHost() {
     if [ "${IP}" == "0.0.0.0" ]; then
         IP="localhost"
     fi
-}
-
-function passwords_readAdmincerts() {
-
-    if [[ -f /etc/wazuh-indexer/certs/admin.pem ]]; then
-        adminpem="/etc/wazuh-indexer/certs/admin.pem"
-    else
-        common_logger -e "No admin certificate indicated. Please run the script with the option -c <path-to-certificate>."
-        exit 1;
-    fi
-
-    if [[ -f /etc/wazuh-indexer/certs/admin-key.pem ]]; then
-        adminkey="/etc/wazuh-indexer/certs/admin-key.pem"
-    elif [[ -f /etc/wazuh-indexer/certs/admin.key ]]; then
-        adminkey="/etc/wazuh-indexer/certs/admin.key"
-    else
-        common_logger -e "No admin certificate key indicated. Please run the script with the option -k <path-to-key-certificate>."
-        exit 1;
-    fi
-
 }
 
 function passwords_readFileUsers() {
@@ -575,9 +552,6 @@ function passwords_runSecurityAdmin() {
             capem=$(grep "plugins.security.ssl.transport.pemtrustedcas_filepath: " /etc/wazuh-indexer/opensearch.yml )
             rcapem="plugins.security.ssl.transport.pemtrustedcas_filepath: "
             capem="${capem//$rcapem}"
-            if [[ -z "${adminpem}" ]] || [[ -z "${adminkey}" ]]; then
-                passwords_readAdmincerts
-            fi
         fi
     fi
 
