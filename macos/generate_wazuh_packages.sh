@@ -110,6 +110,8 @@ function sign_binaries() {
             codesign -f --sign "${CERT_APPLICATION_ID}" --identifier "com.wazuh.agent" --entitlements "${ENTITLEMENTS_PATH}" --timestamp --options=runtime --verbose "${bin}"
         done
 
+        codesign -f --sign "${CERT_APPLICATION_ID}" --identifier "com.wazuh.example" --entitlements "${ENTITLEMENTS_PATH}" --timestamp --options=runtime --verbose "${INSTALLATION_PATH}/Wazuh-startup" && echo "Correctly signed Login Item script Wazuh" || echo "Error signing Login Item Wazuh"
+
         security -v lock-keychain "${KEYCHAIN}" > /dev/null
     fi
 }
