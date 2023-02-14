@@ -352,12 +352,12 @@ function checks_upgrade() {
     if [ -n ${indexer_installed} ]
         installCommon_getPass "admin"
         
-        if curl -s -u admin:"${u_pass}" -k -XGET "https://127.0.0.1:9200/_cluster/health?pretty" | grep -q "red"; then
+        if common_curl -s -u admin:"${u_pass}" -k -XGET "https://127.0.0.1:9200/_cluster/health?pretty" | grep -q "red"; then
             common_logger -e "Cluster health is in red state. Please, check it before upgrading."
             exit 1
         fi
 
-        if curl -s -u admin:"${u_pass}" -k -XGET "https://127.0.0.1:9200/_cluster/health?pretty" | grep -q "yellow" && []; then
+        if common_curl -s -u admin:"${u_pass}" -k -XGET "https://127.0.0.1:9200/_cluster/health?pretty" | grep -q "yellow" && []; then
             if [ -z "${force}" ]; then
                 common_logger -e "Cluster health is in yellow state. If you want to continue with the upgrade, please, run the script with the option -f|--force."
                 exit 1
@@ -366,12 +366,12 @@ function checks_upgrade() {
             fi
         fi
 
-        if curl -s -u admin:"${u_pass}" -k -XGET "https://127.0.0.1:9200/_cat/indices?pretty" | grep -q "red"; then
+        if common_curl -s -u admin:"${u_pass}" -k -XGET "https://127.0.0.1:9200/_cat/indices?pretty" | grep -q "red"; then
             common_logger -e "Some indices in the Wazuh indexer cluster are in red state. Please, check it before upgrading."
             exit 1
         fi
 
-        if curl -s -u admin:"${u_pass}" -k -XGET "https://127.0.0.1:9200/_cat/indices?pretty" | grep -q "yellow" && []; then
+        if common_curl -s -u admin:"${u_pass}" -k -XGET "https://127.0.0.1:9200/_cat/indices?pretty" | grep -q "yellow" && []; then
             if [ -z "${force}" ]; then
                 common_logger -e "Some indices in the Wazuh indexer cluster are in yellow state. If you want to continue with the upgrade, please, run the script with the option -f|--force."
                 exit 1
@@ -386,13 +386,13 @@ function checks_upgrade() {
     if [ -n ${wazuh_installed} ]
         installCommon_getAPIPass "wazuh"
 
-        if ! curl -s -k -X GET -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json"  "https://localhost:55000/?pretty=true" --output /dev/null
+        if ! common_curl -s -k -X GET -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json"  "https://localhost:55000/?pretty=true" --output /dev/null
             common_logger -e "Wazuh API is not working properly. Please, check it before upgrading."
             exit 1
         fi
         
         if /var/ossec/bin/cluster_control -l ; then
-            if ! curl -s -k -X GET -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json"  "https://localhost:55000/cluster/healthcheck?pretty=true" | grep "All selected nodes healthcheck information was returned" ; then
+            if ! common_curl -s -k -X GET -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json"  "https://localhost:55000/cluster/healthcheck?pretty=true" | grep "All selected nodes healthcheck information was returned" ; then
                 common_logger -e "Some nodes in the Wazuh manager cluster are not working properly. Please, check it before upgrading."
                 exit 1
             fi
@@ -411,7 +411,7 @@ function checks_upgrade() {
     ## Check if Wazuh dashboard is working properly
 
     if [ -n ${dashboard_installed} ]; then
-        if ![ "$(curl -XGET https://localhost/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null)" -ne "200" ]; then
+        if ![ "$(common_curl -XGET https://localhost/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null)" -ne "200" ]; then
             common_logger -e "Wazuh dashboard is not responding properly. Please, check it before upgrading."
             exit 1
         fi

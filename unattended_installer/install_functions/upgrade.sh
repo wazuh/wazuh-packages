@@ -79,7 +79,7 @@ function upgrade_upgradeInstalled(){
 
     if [ -n ${module_upgradable} ];then
       common_logger "Upgrading Filebeat module to ${filebeat_wazuh_module_version}"
-      eval "curl -s ${filebeat_wazuh_module} --max-time 300 | tar -xvz -C /usr/share/filebeat/module ${debug}"
+      eval "common_curl -s ${filebeat_wazuh_module} --max-time 300 | tar -xvz -C /usr/share/filebeat/module ${debug}"
     fi
   fi
 
