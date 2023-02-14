@@ -61,22 +61,13 @@ chmod 660 ${DIR}/etc/ossec.conf
 chown root:${GROUP} ${DIR}/etc/wpk_root.pem
 chmod 640 ${DIR}/etc/wpk_root.pem
 
-tar -xf ${LAUNCH_DAEMON_PATH}/com.wazuh.agent.plist.tar -C ${LAUNCH_DAEMON_PATH}/ && echo "com.wazuh.agent.plist.tar extracted successfully" || echo "com.wazuh.agent.plist.tar extraction failed"
-rm -rf ${LAUNCH_DAEMON_PATH}/com.wazuh.agent.plist.tar
+chown root:wheel ${DIR}/Wazuh-startup
+chmod 0744 ${DIR}/Wazuh-startup
+
 chown root:wheel ${LAUNCH_DAEMON_PATH}com.wazuh.agent.plist
-chmod 644 ${LAUNCH_DAEMON_PATH}com.wazuh.agent.plist
+chmod 0644 ${LAUNCH_DAEMON_PATH}com.wazuh.agent.plist
 
-
-chown root:wheel ${STARTUP_ITEMS_PATH}/WAZUH
-
-chown root:wheel ${STARTUP_ITEMS_PATH}/WAZUH/StartupParameters.plist
-chmod 0644 ${STARTUP_ITEMS_PATH}/WAZUH/StartupParameters.plist
-
-tar -xf ${STARTUP_ITEMS_PATH}/WAZUH/Wazuh.tar -C ${STARTUP_ITEMS_PATH}/WAZUH/ && echo "Wazuh.tar extracted successfully" || echo "Wazuh.tar extraction failed"
-rm -rf ${STARTUP_ITEMS_PATH}/WAZUH/Wazuh.tar
-chown root:wheel ${STARTUP_ITEMS_PATH}/WAZUH/Wazuh
-chmod 0744 ${STARTUP_ITEMS_PATH}/WAZUH/Wazuh
-
+launchctl bootstrap system ${LAUNCH_DAEMON_PATH}com.wazuh.agent.plist
 
 chmod 770 ${DIR}/.ssh
 
