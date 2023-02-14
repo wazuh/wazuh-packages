@@ -52,19 +52,19 @@ function checks_arguments() {
         fi
 
         if [ -z "${wazuh_installed}" ] && [ -z "${wazuh_remaining_files}" ]; then
-            common_logger "Wazuh manager was not found in the system so it was not uninstalled."
+            common_logger "Wazuh manager not found in the system so it was not uninstalled."
         fi
 
         if [ -z "${filebeat_installed}" ] && [ -z "${filebeat_remaining_files}" ]; then
-            common_logger "Filebeat was not found in the system so it was not uninstalled."
+            common_logger "Filebeat not found in the system so it was not uninstalled."
         fi
 
         if [ -z "${indexer_installed}" ] && [ -z "${indexer_remaining_files}" ]; then
-            common_logger "Wazuh indexer was not found in the system so it was not uninstalled."
+            common_logger "Wazuh indexer not found in the system so it was not uninstalled."
         fi
 
         if [ -z "${dashboard_installed}" ] && [ -z "${dashboard_remaining_files}" ]; then
-            common_logger "Wazuh dashboard was not found in the system so it was not uninstalled."
+            common_logger "Wazuh dashboard not found in the system so it was not uninstalled."
         fi
 
     fi
@@ -154,14 +154,25 @@ function checks_arguments() {
 
     # -------------- Global -----------------------------------------
 
-    if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_indexer_cluster}" ] && [ -z "${configurations}" ] && [ -z "${uninstall}" ] && [ -z "${download}" ]; then
-        common_logger -e "At least one of these arguments is necessary -a|--all-in-one, -g|--generate-config-files, -wi|--wazuh-indexer, -wd|--wazuh-dashboard, -s|--start-cluster, -ws|--wazuh-server, -u|--uninstall, -dw|--download-wazuh."
+    if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_indexer_cluster}" ] && [ -z "${configurations}" ] && [ -z "${uninstall}" ] && [ -z "${download}" ] && [ -z "${upgrade}" ]; then
+        common_logger -e "At least one of these arguments is necessary -a|--all-in-one, -g|--generate-config-files, , -up|--upgrade, -wi|--wazuh-indexer, -wd|--wazuh-dashboard, -s|--start-cluster, -ws|--wazuh-server, -u|--uninstall, -dw|--download-wazuh."
         exit 1
     fi
 
     if [ -n "${force}" ] && [ -z  "${dashboard}" ]; then
         common_logger -e "The -fd|--force-install-dashboard argument needs to be used alongside -wd|--wazuh-dashboard."
         exit 1
+    fi
+
+}
+
+# Checks if the --retry-connrefused is available in curl
+function check_curlVersion() {
+
+    # --retry-connrefused was added in 7.52.0
+    curl_version=$(curl -V | head -n 1 | awk '{ print $2 }')
+    if [ $(check_versions ${curl_version} 7.52.0) == "0" ]; then
+        curl_has_connrefused=0
     fi
 
 }
@@ -298,27 +309,16 @@ function checks_previousCertificate() {
     fi
 }
 
-function checks_specifications() {
-
-    cores=$(grep -c processor /proc/cpuinfo)
-    ram_gb=$(free -m | awk '/^Mem:/{print $2}')
-
-}
-
 function checks_ports() {
 
     used_port=0
     ports=("$@")
 
-    if command -v ss > /dev/null; then
-        port_command="ss -lntup | grep -q "
+    if command -v lsof > /dev/null; then
+        port_command="lsof -sTCP:LISTEN  -i:"
     else
-        if command -v lsof > /dev/null; then
-            port_command="lsof -i:"
-        else
-            common_logger -w "Cannot find ss or lsof. Port checking will be skipped."
-            return 1
-        fi
+        common_logger -w "Cannot find lsof. Port checking will be skipped."
+        return 1
     fi
 
     for i in "${!ports[@]}"; do
@@ -332,6 +332,99 @@ function checks_ports() {
         common_logger "The installation can not continue due to port usage by other processes."
         installCommon_rollBack
         exit 1
+    fi
+
+}
+
+function checks_specifications() {
+
+    cores=$(grep -c processor /proc/cpuinfo)
+    ram_gb=$(free -m | awk '/^Mem:/{print $2}')
+
+}
+
+function checks_upgrade() {
+
+    installCommon_readPasswordFileUsers
+
+    ## Check if Wazuh indexer is working properly
+
+    if [ -n ${indexer_installed} ]
+        installCommon_getPass "admin"
+        
+        if common_curl -s -u admin:"${u_pass}" -k -XGET "https://127.0.0.1:9200/_cluster/health?pretty" | grep -q "red"; then
+            common_logger -e "Cluster health is in red state. Please, check it before upgrading."
+            exit 1
+        fi
+
+        if common_curl -s -u admin:"${u_pass}" -k -XGET "https://127.0.0.1:9200/_cluster/health?pretty" | grep -q "yellow" && []; then
+            if [ -z "${force}" ]; then
+                common_logger -e "Cluster health is in yellow state. If you want to continue with the upgrade, please, run the script with the option -f|--force."
+                exit 1
+            else
+                common_logger -w "Cluster health is in yellow state."
+            fi
+        fi
+
+        if common_curl -s -u admin:"${u_pass}" -k -XGET "https://127.0.0.1:9200/_cat/indices?pretty" | grep -q "red"; then
+            common_logger -e "Some indices in the Wazuh indexer cluster are in red state. Please, check it before upgrading."
+            exit 1
+        fi
+
+        if common_curl -s -u admin:"${u_pass}" -k -XGET "https://127.0.0.1:9200/_cat/indices?pretty" | grep -q "yellow" && []; then
+            if [ -z "${force}" ]; then
+                common_logger -e "Some indices in the Wazuh indexer cluster are in yellow state. If you want to continue with the upgrade, please, run the script with the option -f|--force."
+                exit 1
+            else
+                common_logger -w "Some indices in the Wazuh indexer cluster are in yellow state."
+            fi
+        fi
+    fi
+
+    ## Check if Wazuh server is working properly
+
+    if [ -n ${wazuh_installed} ]
+        installCommon_getAPIPass "wazuh"
+
+        if ! common_curl -s -k -X GET -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json"  "https://localhost:55000/?pretty=true" --output /dev/null
+            common_logger -e "Wazuh API is not working properly. Please, check it before upgrading."
+            exit 1
+        fi
+        
+        if /var/ossec/bin/cluster_control -l ; then
+            if ! common_curl -s -k -X GET -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json"  "https://localhost:55000/cluster/healthcheck?pretty=true" | grep "All selected nodes healthcheck information was returned" ; then
+                common_logger -e "Some nodes in the Wazuh manager cluster are not working properly. Please, check it before upgrading."
+                exit 1
+            fi
+        fi
+    fi
+
+    ## Check if Filebeat is working properly
+
+    if [ -n ${filebeat_installed} ]; then
+        if ! filebeat test output > /dev/null; then
+            common_logger -e "Filebeat is not working properly. Please, check it before upgrading."
+            exit 1
+        fi
+    fi
+
+    ## Check if Wazuh dashboard is working properly
+
+    if [ -n ${dashboard_installed} ]; then
+        if ![ "$(common_curl -XGET https://localhost/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null)" -ne "200" ]; then
+            common_logger -e "Wazuh dashboard is not responding properly. Please, check it before upgrading."
+            exit 1
+        fi
+    fi
+}
+
+# Checks if the first version is greater equal than to second one
+function check_versions() {
+
+    if test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1"; then
+        echo 0
+    else
+        echo 1
     fi
 
 }

@@ -68,9 +68,9 @@ function common_checkInstalled() {
     dashboard_installed=""
 
     if [ "${sys_type}" == "yum" ]; then
-        wazuh_installed=$(yum list installed 2>/dev/null | grep wazuh-manager)
+        wazuh_installed=$(yum list installed 2>/dev/null | grep wazuh-manager | sed 's/  */ /g'| cut -d' ' -f2 | sed "s/-.*//g")
     elif [ "${sys_type}" == "apt-get" ]; then
-        wazuh_installed=$(apt list --installed  2>/dev/null | grep wazuh-manager)
+        wazuh_installed=$(apt list --installed  2>/dev/null | grep wazuh-manager | cut -d' ' -f2 | sed "s/-.*//")
     fi
 
     if [ -d "/var/ossec" ]; then
@@ -78,9 +78,9 @@ function common_checkInstalled() {
     fi
 
     if [ "${sys_type}" == "yum" ]; then
-        indexer_installed=$(yum list installed 2>/dev/null | grep wazuh-indexer)
+        indexer_installed=$(yum list installed 2>/dev/null | grep wazuh-indexer | sed 's/  */ /g'| cut -d' ' -f2 | sed "s/-.*//g")
     elif [ "${sys_type}" == "apt-get" ]; then
-        indexer_installed=$(apt list --installed 2>/dev/null | grep wazuh-indexer)
+        indexer_installed=$(apt list --installed 2>/dev/null | grep wazuh-indexer | cut -d' ' -f2 | sed "s/-.*//")
     fi
 
     if [ -d "/var/lib/wazuh-indexer/" ] || [ -d "/usr/share/wazuh-indexer" ] || [ -d "/etc/wazuh-indexer" ] || [ -f "${base_path}/search-guard-tlstool*" ]; then
@@ -88,9 +88,9 @@ function common_checkInstalled() {
     fi
 
     if [ "${sys_type}" == "yum" ]; then
-        filebeat_installed=$(yum list installed 2>/dev/null | grep filebeat)
+        filebeat_installed=$(yum list installed 2>/dev/null | grep filebeat | sed 's/  */ /g'| cut -d' ' -f2 | sed "s/-.*//g")
     elif [ "${sys_type}" == "apt-get" ]; then
-        filebeat_installed=$(apt list --installed  2>/dev/null | grep filebeat)
+        filebeat_installed=$(apt list --installed  2>/dev/null | grep filebeat | cut -d' ' -f2 | sed "s/-.*//")
     fi
 
     if [ -d "/var/lib/filebeat/" ] || [ -d "/usr/share/filebeat" ] || [ -d "/etc/filebeat" ]; then
@@ -98,9 +98,9 @@ function common_checkInstalled() {
     fi
 
     if [ "${sys_type}" == "yum" ]; then
-        dashboard_installed=$(yum list installed 2>/dev/null | grep wazuh-dashboard)
+        dashboard_installed=$(yum list installed 2>/dev/null | grep wazuh-dashboard | sed 's/  */ /g'| cut -d' ' -f2 | sed "s/-.*//g")
     elif [ "${sys_type}" == "apt-get" ]; then
-        dashboard_installed=$(apt list --installed  2>/dev/null | grep wazuh-dashboard)
+        dashboard_installed=$(apt list --installed  2>/dev/null | grep wazuh-dashboard | cut -d' ' -f2 | sed "s/-.*//")
     fi
 
     if [ -d "/var/lib/wazuh-dashboard/" ] || [ -d "/usr/share/wazuh-dashboard" ] || [ -d "/etc/wazuh-dashboard" ] || [ -d "/run/wazuh-dashboard/" ]; then
@@ -118,7 +118,7 @@ function common_checkSystem() {
         sys_type="apt-get"
         sep="="
     else
-        common_logger -e "Couldn'd find type of system"
+        common_logger -e "Couldn't find type of system"
         exit 1
     fi
 
@@ -134,21 +134,42 @@ function common_checkWazuhConfigYaml() {
 
 }
 
+# Retries even if the --retry-connrefused is not available
+function common_curl() {
+
+    if [ -n "${curl_has_connrefused}" ]; then
+        eval "curl $@ --retry-connrefused"
+        e_code="${PIPESTATUS[0]}"
+    else
+        retries=0
+        eval "curl $@"
+        e_code="${PIPESTATUS[0]}"
+        while [ "${e_code}" -eq 7 ] && [ "${retries}" -ne 12 ]; do
+            retries=$((retries+1))
+            sleep 5
+            eval "curl $@"
+            e_code="${PIPESTATUS[0]}"
+        done
+    fi
+    return "${e_code}"
+
+}
+
 function common_remove_gpg_key() {
-    
+
     if [ "${sys_type}" == "yum" ]; then
         if { rpm -q gpg-pubkey --qf '%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n' | grep "Wazuh"; } >/dev/null ; then
             key=$(rpm -q gpg-pubkey --qf '%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n' | grep "Wazuh Signing Key" | awk '{print $1}' )
             rpm -e "${key}"
         else
-            common_logger "Wazuh GPG key was not found in the system."
+            common_logger "Wazuh GPG key not found in the system"
             return 1
         fi
     elif [ "${sys_type}" == "apt-get" ]; then
         if [ -f "/usr/share/keyrings/wazuh.gpg" ]; then
             rm -rf "/usr/share/keyrings/wazuh.gpg"
         else
-            common_logger "Wazuh GPG key was not found in the system"
+            common_logger "Wazuh GPG key not found in the system"
             return 1
         fi
     fi

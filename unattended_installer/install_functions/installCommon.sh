@@ -42,10 +42,18 @@ function installCommon_addWazuhRepo() {
     if [ ! -f "/etc/yum.repos.d/wazuh.repo" ] && [ ! -f "/etc/zypp/repos.d/wazuh.repo" ] && [ ! -f "/etc/apt/sources.list.d/wazuh.list" ] ; then
         if [ "${sys_type}" == "yum" ]; then
             eval "rpm --import ${repogpg} ${debug}"
+            if [ "${PIPESTATUS[0]}" != 0 ]; then
+                common_logger -e "Cannot import Wazuh GPG key"
+                exit 1
+            fi
             eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-\${releasever} - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo ${debug}"
             eval "chmod 644 /etc/yum.repos.d/wazuh.repo ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
-            eval "curl -s ${repogpg} --max-time 300 | gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import - ${debug}"
+            eval "common_curl -s ${repogpg} --max-time 300 --retry 5 --retry-delay 5 --fail | gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import - ${debug}"
+            if [ "${PIPESTATUS[0]}" != 0 ]; then
+                common_logger -e "Cannot import Wazuh GPG key"
+                exit 1
+            fi
             eval "chmod 644 /usr/share/keyrings/wazuh.gpg ${debug}"
             eval "echo \"deb [signed-by=/usr/share/keyrings/wazuh.gpg] ${repobaseurl}/apt/ ${reporelease} main\" | tee /etc/apt/sources.list.d/wazuh.list ${debug}"
             eval "apt-get update -q ${debug}"
@@ -97,8 +105,8 @@ function installCommon_changePasswordApi() {
         for i in "${!api_passwords[@]}"; do
             if [ -n "${wazuh}" ] || [ -n "${AIO}" ]; then
                 passwords_getApiUserId "${api_users[i]}"
-                WAZUH_PASS_API='{"password":"'"${api_passwords[i]}"'"}'
-                eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null'
+                WAZUH_PASS_API='{\"password\":\"'"${api_passwords[i]}"'\"}'
+                eval 'common_curl -s -k -X PUT -H \"Authorization: Bearer $TOKEN_API\" -H \"Content-Type: application/json\" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null --max-time 300 --retry 5 --retry-delay 5 --fail'
                 if [ "${api_users[i]}" == "${adminUser}" ]; then
                     sleep 1
                     adminPassword="${api_passwords[i]}"
@@ -112,14 +120,14 @@ function installCommon_changePasswordApi() {
     else
         if [ -n "${wazuh}" ] || [ -n "${AIO}" ]; then
             passwords_getApiUserId "${nuser}"
-            WAZUH_PASS_API='{"password":"'"${password}"'"}'
-            eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null'
+            WAZUH_PASS_API='{\"password\":\"'"${password}"'\"}'
+            eval 'common_curl -s -k -X PUT -H \"Authorization: Bearer $TOKEN_API\" -H \"Content-Type: application/json\" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null --max-time 300 --retry 5 --retry-delay 5 --fail'
         fi
         if [ "${nuser}" == "wazuh-wui" ] && { [ -n "${dashboard}" ] || [ -n "${AIO}" ]; }; then
                 passwords_changeDashboardApiPassword "${password}"
         fi
     fi
-    
+
 }
 
 function installCommon_createCertificates() {
@@ -213,7 +221,7 @@ function installCommon_changePasswords() {
         passwords_getNetworkHost
         passwords_generateHash
     fi
-    
+
     passwords_changePassword
 
     if [ -n "${start_indexer_cluster}" ] || [ -n "${AIO}" ]; then
@@ -235,6 +243,15 @@ function installCommon_extractConfig() {
     fi
     eval "tar -xf ${tar_file} -C /tmp wazuh-install-files/config.yml ${debug}"
 
+}
+
+function installCommon_getAPIPass() {
+
+    for i in "${!api_users[@]}"; do
+        if [ "${api_users[i]}" == "${1}" ]; then
+            api_pass=${api_passwords[i]}
+        fi
+    done
 }
 
 function installCommon_getConfig() {
@@ -265,14 +282,14 @@ function installCommon_getPass() {
 function installCommon_installPrerequisites() {
 
     if [ "${sys_type}" == "yum" ]; then
-        dependencies=( curl libcap tar gnupg openssl )
+        dependencies=( curl libcap tar gnupg openssl lsof )
         not_installed=()
         for dep in "${dependencies[@]}"; do
             if [ "${dep}" == "openssl" ]; then
-                if ! yum list installed 2>/dev/null | grep -q "${dep}\.";then
+                if ! yum list installed 2>/dev/null | grep -q -E ^"${dep}\.";then
                     not_installed+=("${dep}")
                 fi
-            elif ! yum list installed 2>/dev/null | grep -q "${dep}";then
+            elif ! yum list installed 2>/dev/null | grep -q -E ^"${dep}";then
                 not_installed+=("${dep}")
             fi
         done
@@ -291,11 +308,11 @@ function installCommon_installPrerequisites() {
 
     elif [ "${sys_type}" == "apt-get" ]; then
         eval "apt-get update -q ${debug}"
-        dependencies=( apt-transport-https curl libcap2-bin tar software-properties-common gnupg openssl )
+        dependencies=( apt-transport-https curl libcap2-bin tar software-properties-common gnupg openssl lsof )
         not_installed=()
 
         for dep in "${dependencies[@]}"; do
-            if ! apt list --installed 2>/dev/null | grep -q "${dep}"; then
+            if ! apt list --installed 2>/dev/null | grep -q -E ^"${dep}"; then
                 not_installed+=("${dep}")
             fi
         done
@@ -489,13 +506,9 @@ function installCommon_rollBack() {
     fi
 
     if [[ ( -n "${indexer_remaining_files}" || -n "${indexer_installed}" ) && ( -n "${indexer}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        common_logger "Removing Wazuh indexer."
-        if [ "${sys_type}" == "yum" ]; then
-            eval "yum remove wazuh-indexer -y ${debug}"
-        elif [ "${sys_type}" == "apt-get" ]; then
-            eval "apt-get remove --purge wazuh-indexer -y ${debug}"
-        fi
-        common_logger "Wazuh indexer removed."
+        eval "rm -rf /var/lib/wazuh-indexer/ ${debug}"
+        eval "rm -rf /usr/share/wazuh-indexer/ ${debug}"
+        eval "rm -rf /etc/wazuh-indexer/ ${debug}"
     fi
 
     if [[ -n "${filebeat_installed}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
@@ -568,7 +581,7 @@ function installCommon_startService() {
 
     common_logger "Starting service ${1}."
 
-    if ps -e | grep -E -q "^\ *1\ .*systemd$"; then
+    if [[ -d /run/systemd/system ]]; then
         eval "systemctl daemon-reload ${debug}"
         eval "systemctl enable ${1}.service ${debug}"
         eval "systemctl start ${1}.service ${debug}"
@@ -582,7 +595,7 @@ function installCommon_startService() {
         else
             common_logger "${1} service started."
         fi
-    elif ps -e | grep -E -q "^\ *1\ .*init$"; then
+    elif ps -p 1 -o comm= | grep "init"; then
         eval "chkconfig ${1} on ${debug}"
         eval "service ${1} start ${debug}"
         eval "/etc/init.d/${1} start ${debug}"

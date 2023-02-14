@@ -7,10 +7,11 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-set -e 
+set -e
 
 export NAME=wazuh-indexer
 export CONFIG_DIR="/etc/${NAME}"
+export BACKUP_DIR="${CONFIG_DIR}/upgrade_backup"
 export INSTALLATION_DIR="/usr/share/${NAME}"
 
 #
@@ -60,6 +61,12 @@ case "$1" in
     ;;
 
     upgrade)
+        # Move the securityconfig files if they exist (4.3.x versions)
+        if [ -d "${INSTALLATION_DIR}/plugins/opensearch-security/securityconfig" ]; then
+            mkdir "${BACKUP_DIR}"
+            cp -r "${INSTALLATION_DIR}/plugins/opensearch-security/securityconfig/" "${BACKUP_DIR}"
+        fi
+
         # Stop the services to upgrade
         if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet "${NAME}" > /dev/null 2>&1; then
             systemctl stop "${NAME}".service > /dev/null 2>&1

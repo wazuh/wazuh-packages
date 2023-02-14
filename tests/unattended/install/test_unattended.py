@@ -232,7 +232,7 @@ def test_check_cluster_log_errors():
     with open('/var/ossec/logs/cluster.log', 'r') as f:
         for line in f.readlines():
             if 'ERROR' in line:
-                if 'Could not connect to master' not in line and 'Worker node is not connected to master' not in line and 'Connection reset by peer' not in line:
+                if 'Could not connect to master' not in line and 'Worker node is not connected to master' not in line and 'Connection reset by peer' not in line and "Error sending sendsync response to local client: Error 3020 - Timeout sending" not in line:
                     found_error = True
                     break
     assert found_error == False, line

@@ -49,6 +49,9 @@ function getHelp() {
     echo -e "        -u,  --uninstall"
     echo -e "                Uninstalls all Wazuh components. This will erase all the existing configuration and data."
     echo -e ""
+    echo -e "        -up,  --upgrade"
+    echo -e "                Upgrades installed Wazuh components."
+    echo -e ""
     echo -e "        -v,  --verbose"
     echo -e "                Shows the complete installation output."
     echo -e ""
@@ -128,6 +131,11 @@ function main() {
             "-u"|"--uninstall")
                 uninstall=1
                 shift 1
+                ;;
+            "-up"|"--upgrade")
+                upgrade=1
+                indexer_admin_pass="${2}"
+                shift 2
                 ;;
             "-v"|"--verbose")
                 debugEnabled=1
@@ -209,8 +217,19 @@ function main() {
     common_checkSystem
     common_checkInstalled
     checks_arguments
+# -------------- Uninstall case  ------------------------------------
+
     if [ -n "${uninstall}" ]; then
         installCommon_rollBack
+        exit 0
+    fi
+
+# -------------- Upgrade case  ------------------------------------
+
+    if [ -n "${upgrade}" ]; then
+        checks_upgrade
+        installCommon_addWazuhRepo
+        upgrade_upgradeInstalled
         exit 0
     fi
 
@@ -246,6 +265,7 @@ function main() {
 # -------------- Prerequisites and Wazuh repo  ----------------------
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
         installCommon_installPrerequisites
+        check_curlVersion
         installCommon_addWazuhRepo
     fi
 
