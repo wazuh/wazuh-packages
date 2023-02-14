@@ -394,7 +394,7 @@ function main() {
         CHECKSUMDIR="${DESTINATION}"
     fi
 
-    if [[ "$BUILD" != "no" ]]; then
+    if [[ "${BUILD}" != "no" ]]; then
         check_root
         build_package
         "${CURRENT_PATH}/uninstall.sh"

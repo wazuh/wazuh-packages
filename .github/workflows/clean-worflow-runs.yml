@@ -1,0 +1,19 @@
+name: Clean workflow runs
+on:
+  schedule:
+    - cron: '0 0 * * 5'
+  workflow_dispatch:
+
+jobs:
+  Clean-runs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete workflow runs
+        uses: dmvict/clean-workflow-runs@v1.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          run_conclusions: |
+            cancelled
+            skipped
+            timed_out
+          save_period: 5
