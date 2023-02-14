@@ -13,7 +13,8 @@ checkdepends=""
 install="${pkgname}.pre-install ${pkgname}.post-install ${pkgname}.pre-upgrade ${pkgname}.post-upgrade ${pkgname}.pre-deinstall ${pkgname}.post-deinstall"
 subpackages=""
 source=""
-builddir="${srcdir}/"
+builddir="${srcdir}"
+options="!check"
 
 build() {
   set -x
@@ -42,8 +43,6 @@ build() {
   ./install.sh
 }
 
-check(){ :; }
-
 package() {
   set -x
   rootdir="${builddir}/.."
@@ -56,5 +55,20 @@ package() {
   sed -i "s|DIRECTORY_BASE|${directory_base}|g" "${rootdir}/${pkgname}.pre-deinstall"
   sed -i "s|DIRECTORY_BASE|${directory_base}|g" "${rootdir}/${pkgname}.post-deinstall"
   cp -a "${directory_base}"/* "${pkgdir}${directory_base}"
+
+  package_files_dir="${pkgdir}${directory_base}/packages_files"
+  mkdir -p "${pkgdir}${directory_base}/packages_files/src/init"
+  mkdir -p "${pkgdir}${directory_base}/packages_files/etc/templates/config/generic/localfile-logs"
+  mkdir -p "${pkgdir}${directory_base}/packages_files/etc/templates/config/alpine"
+  cp -a /wazuh-wazuh*/gen_ossec.sh "${package_files_dir}"
+  cp -a /wazuh-wazuh*/add_localfiles.sh "${package_files_dir}"
+  cp -a /wazuh-wazuh*/src/init/dist-detect.sh "${package_files_dir}/src/init"
+  cp -a /wazuh-wazuh*/src/init/shared.sh "${package_files_dir}/src/init"
+  cp -a /wazuh-wazuh*/src/init/inst-functions.sh "${package_files_dir}/src/init"
+  cp -a /wazuh-wazuh*/src/init/template-select.sh "${package_files_dir}/src/init"
+  cp -a /wazuh-wazuh*/src/VERSION "${package_files_dir}/src"
+  cp -a /wazuh-wazuh*/src/REVISION "${package_files_dir}/src"
+  cp -a /wazuh-wazuh*/etc/templates/config/generic/* "${package_files_dir}/etc/templates/config/generic"
+  cp -a /wazuh-wazuh*/etc/templates/config/alpine/* "${package_files_dir}/etc/templates/config/alpine"
 }
 

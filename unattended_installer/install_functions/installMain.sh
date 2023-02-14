@@ -265,6 +265,7 @@ function main() {
 # -------------- Prerequisites and Wazuh repo  ----------------------
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
         installCommon_installPrerequisites
+        check_curlVersion
         installCommon_addWazuhRepo
     fi
 
@@ -316,7 +317,7 @@ function main() {
 
     fi
 
-# -------------- Wazuh case  ---------------------------------------
+# -------------- Wazuh server case  ---------------------------------------
 
     if [ -n "${wazuh}" ]; then
         common_logger "--- Wazuh server ---"

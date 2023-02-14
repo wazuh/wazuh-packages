@@ -89,8 +89,8 @@ case "$1" in
     rm -rf ${DIR}/backup/groups
 
     # Generation auto-signed certificate if not exists
-    if type openssl >/dev/null 2>&1 && [ ! -f "${DIR}/etc/sslmanager.key" ] && [ ! -f "${DIR}/etc/sslmanager.cert" ]; then
-        openssl req -x509 -batch -nodes -days 365 -newkey rsa:2048 -subj "/C=US/ST=California/CN=Wazuh/" -keyout ${DIR}/etc/sslmanager.key -out ${DIR}/etc/sslmanager.cert 2>/dev/null
+    if [ ! -f "${DIR}/etc/sslmanager.key" ] && [ ! -f "${DIR}/etc/sslmanager.cert" ]; then
+        ${DIR}/bin/wazuh-authd -C 365 -B 2048 -S "/C=US/ST=California/CN=Wazuh/" -K ${DIR}/etc/sslmanager.key -X ${DIR}/etc/sslmanager.cert 2>/dev/null
     fi
 
     chmod 640 ${DIR}/etc/sslmanager.cert ${DIR}/etc/sslmanager.key > /dev/null 2>&1 || true
@@ -240,17 +240,17 @@ case "$1" in
     # Remove old ossec user and group if exists and change ownwership of files
 
     if getent group ossec > /dev/null 2>&1; then
-        find ${DIR}/ -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
+        find ${DIR}/ -group ossec -user root -print0 | xargs -0 chown root:wazuh > /dev/null 2>&1 || true
         if getent passwd ossec > /dev/null 2>&1; then
-            find ${DIR}/ -group ossec -user ossec -exec chown ${USER}:${GROUP} {} \; > /dev/null 2>&1 || true
+            find ${DIR}/ -group ossec -user ossec -print0 | xargs -0 chown ${USER}:${GROUP} > /dev/null 2>&1 || true
             deluser ossec > /dev/null 2>&1
         fi
         if getent passwd ossecm > /dev/null 2>&1; then
-            find ${DIR}/ -group ossec -user ossecm -exec chown ${USER}:${GROUP} {} \; > /dev/null 2>&1 || true
+            find ${DIR}/ -group ossec -user ossecm -print0 | xargs -0 chown ${USER}:${GROUP} > /dev/null 2>&1 || true
             deluser ossecm > /dev/null 2>&1
         fi
         if getent passwd ossecr > /dev/null 2>&1; then
-            find ${DIR}/ -group ossec -user ossecr -exec chown ${USER}:${GROUP} {} \; > /dev/null 2>&1 || true
+            find ${DIR}/ -group ossec -user ossecr -print0 | xargs -0 chown ${USER}:${GROUP} > /dev/null 2>&1 || true
             deluser ossecr > /dev/null 2>&1
         fi
         if getent group ossec > /dev/null 2>&1; then 

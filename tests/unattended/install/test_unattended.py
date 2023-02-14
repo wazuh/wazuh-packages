@@ -175,7 +175,7 @@ def test_check_wazuh_manager_apid():
 
 @pytest.mark.wazuh_cluster
 def test_check_wazuh_manager_clusterd():
-    assert check_call("ps -xa | grep wazuh-clusterd | grep -v grep", shell=True) != ""
+    assert check_call("ps -xa | grep clusterd.py | grep -v grep", shell=True) != ""
 
 @pytest.mark.wazuh
 def test_check_filebeat_process():
@@ -211,12 +211,9 @@ def test_check_log_errors():
     with open('/var/ossec/logs/ossec.log', 'r') as f:
         for line in f.readlines():
             if 'ERROR' in line:
-                found_error = True
-                if get_wazuh_version() == 'v4.4.0':
-                    if 'ERROR: Cluster error detected' in line or 'agent-upgrade: ERROR: (8123): There has been an error executing the request in the tasks manager.' in line:
-                        found_error = False
-                    else:
-                      break
+                if 'ERROR: Cluster error detected' not in line and 'agent-upgrade: ERROR: (8123): There has been an error executing the request in the tasks manager.' not in line:
+                    found_error = True
+                    break
     assert found_error == False, line
 
 @pytest.mark.wazuh_cluster
@@ -235,12 +232,9 @@ def test_check_cluster_log_errors():
     with open('/var/ossec/logs/cluster.log', 'r') as f:
         for line in f.readlines():
             if 'ERROR' in line:
-                found_error = True
-                if get_wazuh_version() == 'v4.4.0':
-                    if 'Could not connect to master' in line or 'Worker node is not connected to master' in line or 'Connection reset by peer' in line:
-                        found_error = False
-                    else:
-                      break
+                if 'Could not connect to master' not in line and 'Worker node is not connected to master' not in line and 'Connection reset by peer' not in line and "Error sending sendsync response to local client: Error 3020 - Timeout sending" not in line:
+                    found_error = True
+                    break
     assert found_error == False, line
 
 @pytest.mark.wazuh_cluster

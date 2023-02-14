@@ -166,6 +166,17 @@ function checks_arguments() {
 
 }
 
+# Checks if the --retry-connrefused is available in curl
+function check_curlVersion() {
+
+    # --retry-connrefused was added in 7.52.0
+    curl_version=$(curl -V | head -n 1 | awk '{ print $2 }')
+    if [ $(check_versions ${curl_version} 7.52.0) == "0" ]; then
+        curl_has_connrefused=0
+    fi
+
+}
+
 function check_dist() {
     dist_detect
     if [ "${DIST_NAME}" != "centos" ] && [ "${DIST_NAME}" != "rhel" ] && [ "${DIST_NAME}" != "amzn" ] && [ "${DIST_NAME}" != "ubuntu" ]; then
@@ -303,15 +314,11 @@ function checks_ports() {
     used_port=0
     ports=("$@")
 
-    if command -v ss > /dev/null; then
-        port_command="ss -lntup | grep -q "
+    if command -v lsof > /dev/null; then
+        port_command="lsof -sTCP:LISTEN  -i:"
     else
-        if command -v lsof > /dev/null; then
-            port_command="lsof -i:"
-        else
-            common_logger -w "Cannot find ss or lsof. Port checking will be skipped."
-            return 1
-        fi
+        common_logger -w "Cannot find lsof. Port checking will be skipped."
+        return 1
     fi
 
     for i in "${!ports[@]}"; do
@@ -411,3 +418,13 @@ function checks_upgrade() {
     fi
 }
 
+# Checks if the first version is greater equal than to second one
+function check_versions() {
+
+    if test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1"; then
+        echo 0
+    else
+        echo 1
+    fi
+
+}
