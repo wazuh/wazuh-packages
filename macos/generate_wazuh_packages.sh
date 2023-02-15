@@ -111,6 +111,7 @@ function sign_binaries() {
         done
 
         codesign -f --sign "${CERT_APPLICATION_ID}" --identifier "com.wazuh.example" --entitlements "${ENTITLEMENTS_PATH}" --timestamp --options=runtime --verbose "${INSTALLATION_PATH}/Wazuh-startup" && echo "Correctly signed Login Item script Wazuh" || echo "Error signing Login Item Wazuh"
+        codesign -dv "${INSTALLATION_PATH}/Wazuh-startup" && echo "Correctly verified Login Item script Wazuh" || echo "Error verifying Login Item Wazuh"
         tar -cf "${INSTALLATION_PATH}/Wazuh-startup.tar" -C "${INSTALLATION_PATH}" Wazuh-startup && echo "Correctly tarred Login Item" || echo "Error tarring Login Item"
 
 
