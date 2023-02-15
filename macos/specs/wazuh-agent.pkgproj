@@ -238,7 +238,7 @@
 											<key>GID</key>
 											<integer>0</integer>
 											<key>PATH</key>
-											<string>/Library/Ossec/Wazuh-startup</string>
+											<string>/Library/Ossec/Wazuh-startup.tar</string>
 											<key>PATH_TYPE</key>
 											<integer>0</integer>
 											<key>PERMISSIONS</key>
