@@ -62,7 +62,6 @@ chown root:${GROUP} ${DIR}/etc/wpk_root.pem
 chmod 640 ${DIR}/etc/wpk_root.pem
 
 tar -xf ${DIR}/Wazuh-startup.tar -C ${DIR} && echo "Wazuh.tar extracted successfully" || echo "Wazuh.tar extraction failed"
-rm -rf ${DIR}/Wazuh-startup.tar
 chown root:wheel ${DIR}/Wazuh-startup
 chmod 0744 ${DIR}/Wazuh-startup
 
