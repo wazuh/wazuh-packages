@@ -285,7 +285,7 @@ function checkDistDetectURL() {
     done
 
     if [[ "${retries}" -eq 12 ]] || [[ "${e_code}" -ne 0 ]]; then
-        echo -e "Error: Could not get the Filebeat Wazuh template. "
+        echo -e "Error: Could not get the dist-detect file."
         exit 1
     fi
 
