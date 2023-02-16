@@ -48,6 +48,7 @@ function getHelp() {
 
 function buildInstaller() {
 
+    checkDistDetectURL
     checkFilebeatURL
 
     output_script_path="${base_path_builder}/wazuh-install.sh"
