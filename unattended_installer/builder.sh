@@ -283,7 +283,7 @@ function checkDistDetectURL() {
     while [ "${e_code}" -eq 7 ] && [ "${retries}" -ne 12 ]; do
         retries=$((retries+1))
         sleep 5
-        eval "curl -s -o /dev/null 'https://raw.githubusercontent.com/wazuh/wazuh/${source_branch}/src/init/dist-detect.sh' --retry 5 --retry-delay 5 --max-time 300 --fail" 
+        eval "curl -s -o /dev/null 'https://raw.githubusercontent.com/wazuh/wazuh/${source_branch}/src/init/dist-detect.sh' --fail" 
         e_code="${PIPESTATUS[0]}"
     done
 
