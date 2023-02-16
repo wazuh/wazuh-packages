@@ -13,7 +13,7 @@ RUN echo "deb http://deb.debian.org/debian stretch contrib non-free" >> /etc/apt
     libdb5.3 libdb5.3 libssl1.0.2 gawk libsigsegv2
 
 # Add Debian's source repository and, Install NodeJS 12
-RUN apt-get update &&  apt-get build-dep python3.5 -y
+RUN apt-get update &&  apt-get build-dep python3.5 -y --allow-change-held-packages
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
     apt-get install --allow-change-held-packages -y nodejs
 

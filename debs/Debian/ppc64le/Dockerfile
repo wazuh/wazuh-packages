@@ -14,7 +14,7 @@ RUN echo "deb http://deb.debian.org/debian stretch main contrib non-free" >> /et
     cdbs devscripts equivs automake autoconf libtool libaudit-dev selinux-basics \
     libdb5.3 libdb5.3 libssl1.0.2 gawk libsigsegv2
 
-RUN apt-get update && apt-get build-dep python3.5 -y
+RUN apt-get update && apt-get build-dep python3.5 -y --allow-change-held-packages
 
 RUN curl -OL http://packages.wazuh.com/utils/gcc/gcc-9.4.0.tar.gz && \
     tar xzf gcc-9.4.0.tar.gz  && cd gcc-9.4.0/ && \
