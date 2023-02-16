@@ -274,6 +274,25 @@ function builder_main() {
     fi
 }
 
+function checkDistDetectURL() {
+
+    retries=0
+    eval "curl -s -o /dev/null 'https://raw.githubusercontent.com/wazuh/wazuh/${source_branch}/src/init/dist-detect.sh' --retry 5 --retry-delay 5 --max-time 300 --fail" 
+    e_code="${PIPESTATUS[0]}"
+    while [ "${e_code}" -eq 7 ] && [ "${retries}" -ne 12 ]; do
+        retries=$((retries+1))
+        sleep 5
+        eval "curl -s -o /dev/null 'https://raw.githubusercontent.com/wazuh/wazuh/${source_branch}/src/init/dist-detect.sh' --retry 5 --retry-delay 5 --max-time 300 --fail" 
+        e_code="${PIPESTATUS[0]}"
+    done
+
+    if [[ "${retries}" -eq 12 ]] || [[ "${e_code}" -ne 0 ]]; then
+        echo -e "Error: Could not get the Filebeat Wazuh template. "
+        exit 1
+    fi
+
+}
+
 function checkFilebeatURL() {
 
     # Import variables
