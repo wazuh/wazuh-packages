@@ -104,7 +104,7 @@ function installCommon_aptInstallList(){
     not_installed=()
 
     for dep in "${dependencies[@]}"; do
-        if ! apt list --installed 2>/dev/null | grep -q -E ^"${dep}"; then
+        if ! apt list --installed 2>/dev/null | grep -q -E ^"${dep}"\/; then
             not_installed+=("${dep}")
         fi
     done
@@ -298,7 +298,7 @@ function installCommon_getPass() {
 function installCommon_installCheckDependencies() {
 
     if [ "${sys_type}" == "yum" ]; then
-        dependencies=( systemd grep tar coreutils sed procps gawk lsof curl openssl )
+        dependencies=( systemd grep tar coreutils sed procps-ng gawk lsof curl openssl )
         installCommon_yumInstallList "${dependencies[@]}"
 
     elif [ "${sys_type}" == "apt-get" ]; then
@@ -312,7 +312,7 @@ function installCommon_installCheckDependencies() {
 function installCommon_installPrerequisites() {
 
     if [ "${sys_type}" == "yum" ]; then
-        dependencies=( libcap gnupg )
+        dependencies=( libcap gnupg2 )
         installCommon_yumInstallList "${dependencies[@]}"
 
     elif [ "${sys_type}" == "apt-get" ]; then
@@ -624,11 +624,7 @@ function installCommon_yumInstallList(){
     dependencies=("$@")
     not_installed=()
     for dep in "${dependencies[@]}"; do
-        if [ "${dep}" == "openssl" ]; then
-            if ! yum list installed 2>/dev/null | grep -q -E ^"${dep}\.";then
-                not_installed+=("${dep}")
-            fi
-        elif ! yum list installed 2>/dev/null | grep -q -E ^"${dep}";then
+        if ! yum list installed 2>/dev/null | grep -q -E ^"${dep}"\\.;then
             not_installed+=("${dep}")
         fi
     done
