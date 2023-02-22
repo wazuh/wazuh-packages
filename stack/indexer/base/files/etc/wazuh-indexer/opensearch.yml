@@ -13,6 +13,7 @@ node.max_local_storage_nodes: "3"
 path.data: /var/lib/wazuh-indexer
 path.logs: /var/log/wazuh-indexer
 
+plugins.security.allow_default_init_securityindex: true
 plugins.security.ssl.http.pemcert_filepath: /etc/wazuh-indexer/certs/indexer.pem
 plugins.security.ssl.http.pemkey_filepath: /etc/wazuh-indexer/certs/indexer-key.pem
 plugins.security.ssl.http.pemtrustedcas_filepath: /etc/wazuh-indexer/certs/root-ca.pem
