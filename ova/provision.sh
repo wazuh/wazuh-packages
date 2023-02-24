@@ -44,6 +44,5 @@ systemctl stop wazuh-dashboard filebeat wazuh-indexer wazuh-manager
 systemctl enable wazuh-manager
 rm -f /var/log/wazuh-indexer/*
 rm -f /var/log/filebeat/*
-rm -rf /var/ossec/logs/*
 
 clean
