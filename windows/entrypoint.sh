@@ -25,9 +25,12 @@ fi
 bash -c "make -C /wazuh-*/src deps TARGET=winagent ${FLAGS}"
 bash -c "make -C /wazuh-*/src TARGET=winagent ${FLAGS}"
 
+OUTPUT_DIR=/shared/$(date +%Y%m%d%H%M)
+
+mkdir -p $OUTPUT_DIR
 
 for library in ${rpm_build_dir}/BUILD/${package_name}/src/external/* ; do
-    tar -zcf /shared/$(basename $library).tar.gz -C /wazuh-*/src/external $(basename $library) --owner=0 --group=0
+    tar -zcf $OUTPUT_DIR/$(basename $library).tar.gz -C /wazuh-*/src/external $(basename $library) --owner=0 --group=0
 done
 
 rm -rf /wazuh-*/src/external

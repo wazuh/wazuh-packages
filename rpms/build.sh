@@ -138,8 +138,13 @@ if [[ "${src}" == "yes" ]]; then
     extract_path="${rpm_build_dir}"
 fi
 
+
+OUTPUT_DIR=/var/local/wazuh/$(date +%Y%m%d%H%M)
+
+mkdir -p $OUTPUT_DIR
+
 for library in ${rpm_build_dir}/BUILD/${package_name}/src/external/* ; do
-    tar -zcf /var/local/wazuh/$(basename $library).tar.gz -C ${rpm_build_dir}/BUILD/${package_name}/src/external $(basename $library) --owner=0 --group=0
+    tar -zcf $OUTPUT_DIR/$(basename $library).tar.gz -C ${rpm_build_dir}/BUILD/${package_name}/src/external $(basename $library) --owner=0 --group=0
 done
 
 
