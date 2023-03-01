@@ -41,7 +41,7 @@ pushd src
 make clean
 
 # Build Wazuh sources
-make deps TARGET=server
+make deps TARGET=server EXTERNAL_SRC_ONLY=yes
 make -j%{_threads} TARGET=server USE_SELINUX=yes DEBUG=%{_debugenabled}
 
 popd
