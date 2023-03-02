@@ -21,6 +21,7 @@ function installCommon_cleanExit() {
     if [[ "${rollback_conf}" =~ [N|n] ]]; then
         exit 1
     else
+        common_checkInstalled
         installCommon_rollBack
         exit 1
     fi
