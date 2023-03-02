@@ -303,11 +303,25 @@ function passwords_generatePasswordFile() {
 
 function passwords_getApiToken() {
 
-    TOKEN_API=$(curl -s -u "${adminUser}":"${adminPassword}" -k -X POST "https://localhost:55000/security/user/authenticate?raw=true")
-    if [[ ${TOKEN_API} =~ "Invalid credentials" ]]; then
+    retries=0
+    max_internal_error_retries=5
+
+    TOKEN_API=$(common_curl -s -u "${adminUser}":"${adminPassword}" -k -X POST "https://localhost:55000/security/user/authenticate?raw=true" --max-time 300 --retry 5 --retry-delay 5)
+    while [[ "${TOKEN_API}" =~ "Wazuh Internal Error" ]] && [ "${retries}" -lt "${max_internal_error_retries}" ]
+    do
+        TOKEN_API=$(common_curl -s -u "${adminUser}":"${adminPassword}" -k -X POST "https://localhost:55000/security/user/authenticate?raw=true" --max-time 300 --retry 5 --retry-delay 5)
+        retries=$((retries+1))
+    done
+    if [[ ${TOKEN_API} =~ "Wazuh Internal Error" ]]; then
+        common_logger -e "There was an error while trying to get the API token."
+        if [[ $(type -t installCommon_rollBack) == "function" ]]; then
+            installCommon_rollBack
+        fi
+        exit 1
+    elif [[ ${TOKEN_API} =~ "Invalid credentials" ]]; then
         common_logger -e "Invalid admin user credentials"
         if [[ $(type -t installCommon_rollBack) == "function" ]]; then
-                installCommon_rollBack
+            installCommon_rollBack
         fi
         exit 1
     fi
