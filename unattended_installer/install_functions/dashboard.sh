@@ -188,3 +188,18 @@ function dashboard_install() {
     fi
 
 }
+
+function dashboard_installDependencies() {
+
+    installCommon_checkChromium
+
+    if [ "${sys_type}" == "yum" ]; then
+        dependencies+=( nss xorg-x11-fonts-100dpi xorg-x11-fonts-75dpi xorg-x11-utils xorg-x11-fonts-cyrillic xorg-x11-fonts-Type1 xorg-x11-fonts-misc fontconfig freetype )
+        installCommon_yumInstallList "${dependencies[@]}"
+    
+    elif [ "${sys_type}" == "apt-get" ]; then
+        dependencies+=( libnss3-dev fonts-liberation libfontconfig1 )
+        installCommon_aptInstallList "${dependencies[@]}"
+    fi
+
+}

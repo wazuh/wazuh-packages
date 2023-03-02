@@ -261,6 +261,20 @@ function installCommon_changePasswords() {
 
 }
 
+function installCommon_checkChromium() {
+
+    if [ "${sys_type}" == "yum" ]; then
+        if (! yum list installed 2>/dev/null | grep -q -E ^"google-chrome-stable"\\.) && (yum list installed 2>/dev/null | grep -q -E ^"chromium"\\.); then
+            dependencies=(chromium)
+        fi
+    elif [ "${sys_type}" == "apt-get" ]; then
+        if (! apt list --installed 2>/dev/null | grep -q -E ^"google-chrome-stable"\/) && (apt list --installed 2>/dev/null | grep -q -E ^"chromium-browser"\/); then
+            dependencies=(chromium-browser)
+        fi
+    fi
+
+}
+
 function installCommon_extractConfig() {
 
     if ! tar -tf "${tar_file}" | grep -q wazuh-install-files/config.yml; then
