@@ -290,6 +290,7 @@ function main() {
 
     if [ -n "${dashboard}" ]; then
         common_logger "--- Wazuh dashboard ----"
+        dashboard_installDependencies
         dashboard_install
         dashboard_configure
         installCommon_startService "wazuh-dashboard"
@@ -329,6 +330,7 @@ function main() {
         filebeat_configure
         installCommon_startService "filebeat"
         common_logger "--- Wazuh dashboard ---"
+        dashboard_installDependencies
         dashboard_install
         dashboard_configure
         installCommon_startService "wazuh-dashboard"
