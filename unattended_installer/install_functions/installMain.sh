@@ -202,11 +202,16 @@ function main() {
 
 # -------------- Uninstall case  ------------------------------------
 
+    common_checkSystem
+
+    if [ -z "${uninstall}" ]; then
+        installCommon_installCheckDependencies
+    fi
+    
     if [ -z "${download}" ]; then
         check_dist
     fi
 
-    common_checkSystem
     common_checkInstalled
     checks_arguments
     if [ -n "${uninstall}" ]; then
