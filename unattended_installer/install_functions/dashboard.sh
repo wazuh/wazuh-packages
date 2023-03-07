@@ -169,7 +169,7 @@ function dashboard_initializeAIO() {
     max_dashboard_initialize_retries=5
     while [ "${http_code}" -ne "200" ] && [ "${retries}" -lt "${max_dashboard_initialize_retries}" ]
     do
-        common_logger -w "Wazuh dashboard web application not yet initialized. Waiting..."
+        common_logger "Wazuh dashboard web application not yet initialized. Waiting..."
         http_code="$(curl -XGET https://localhost/status -uadmin:\"${u_pass}\" -k -w %\"{http_code}\" -s -o /dev/null)"
         retries=$((retries+1))
         sleep 1
