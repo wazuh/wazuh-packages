@@ -170,6 +170,7 @@ function dashboard_initializeAIO() {
     while [ "${http_code}" -ne "200" ] && [ "${retries}" -lt "${max_dashboard_initialize_retries}" ]
     do
         http_code="$(common_curl -XGET https://localhost/status -uadmin:\"${u_pass}\" -k -w %\"{http_code}\" -s -o /dev/null --max-time 300 --retry 12 --retry-delay 10 --fail)"
+        common_logger -e "Wazuh dashboard installation failed. Retrying..."
         retries=$((retries+1))
         sleep 1
     done
