@@ -310,6 +310,7 @@ function passwords_getApiToken() {
     while [[ "${TOKEN_API}" =~ "Wazuh Internal Error" ]] && [ "${retries}" -lt "${max_internal_error_retries}" ]
     do
         TOKEN_API="$(common_curl -s -u \"${adminUser}\":\"${adminPassword}\" -k -X POST \"https://localhost:55000/security/user/authenticate?raw=true\" --max-time 300 --retry 5 --retry-delay 5)"
+        common_logger -e "There was an error while trying to get the API token. Retrying..."
         retries=$((retries+1))
         sleep 1
     done
