@@ -271,7 +271,7 @@ function installCommon_checkChromium() {
         if (! apt list --installed 2>/dev/null | grep -q -E ^"google-chrome-stable"\/) && (! apt list --installed 2>/dev/null | grep -q -E ^"chromium-browser"\/); then
             
             # Report generation doesn't work with Chromium in Ubuntu 22
-            if [ "${DIST_NAME}" == "ubuntu" ] && [ "${DIST_VER}" == "22" ]; then
+            if [[ "${DIST_NAME}" == "ubuntu" ]] && [[ "${DIST_VER}" == "22" || "${DIST_VER}" == "20" ]]; then
                 installCommon_aptInstallChrome
             else
                 dependencies=(chromium-browser)
