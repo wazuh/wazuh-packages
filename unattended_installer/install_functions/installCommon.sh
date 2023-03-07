@@ -267,6 +267,9 @@ function installCommon_checkChromium() {
         if (! yum list installed 2>/dev/null | grep -q -E ^"google-chrome-stable"\\.) && (! yum list installed 2>/dev/null | grep -q -E ^"chromium"\\.); then
             dependencies=(chromium)
         fi
+        if [ "${DIST_NAME}" == "amzn" ]; then
+            eval "amazon-linux-extras install epel -y ${debug}"
+        fi
     elif [ "${sys_type}" == "apt-get" ]; then
         if (! apt list --installed 2>/dev/null | grep -q -E ^"google-chrome-stable"\/) && (! apt list --installed 2>/dev/null | grep -q -E ^"chromium-browser"\/); then
             
