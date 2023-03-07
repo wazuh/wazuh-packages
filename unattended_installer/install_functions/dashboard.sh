@@ -162,22 +162,18 @@ function dashboard_initialize() {
 
 function dashboard_initializeAIO() {
 
-    set -ex
     common_logger "Initializing Wazuh dashboard web application."
     installCommon_getPass "admin"
-    echo "Before curl"
-    e_code="$(common_curl -XGET https://localhost/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null --max-time 300 --retry 12 --retry-delay 10 --fail)"
+    http_code="$(common_curl -XGET https://localhost/status -uadmin:\"${u_pass}\" -k -w %\"{http_code}\" -s -o /dev/null --max-time 300 --retry 12 --retry-delay 10 --fail)"
     retries=0
     max_dashboard_initialize_retries=5
-    read -p "Press enter to continue"
-    while [ "${e_code}" -ne "200" ] && [ "${retries}" -lt "${max_dashboard_initialize_retries}" ]
+    while [ "${http_code}" -ne "200" ] && [ "${retries}" -lt "${max_dashboard_initialize_retries}" ]
     do
-        echo "Before retry"
-        e_code="$(common_curl -XGET https://localhost/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null --max-time 300 --retry 12 --retry-delay 10 --fail)"
-        echo "After retry"
+        http_code="$(common_curl -XGET https://localhost/status -uadmin:\"${u_pass}\" -k -w %\"{http_code}\" -s -o /dev/null --max-time 300 --retry 12 --retry-delay 10 --fail)"
         retries=$((retries+1))
+        sleep 1
     done
-    if [ "${e_code}" -eq "200" ]; then
+    if [ "${http_code}" -eq "200" ]; then
         common_logger "Wazuh dashboard web application initialized."
         common_logger -nl "--- Summary ---"
         common_logger -nl "You can access the web interface https://<wazuh-dashboard-ip>\n    User: admin\n    Password: ${u_pass}"
@@ -186,7 +182,6 @@ function dashboard_initializeAIO() {
         installCommon_rollBack
         exit 1
     fi
-    set +ex
 }
 
 function dashboard_install() {
