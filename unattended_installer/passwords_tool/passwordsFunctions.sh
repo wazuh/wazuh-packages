@@ -309,7 +309,8 @@ function passwords_getApiToken() {
             installCommon_rollBack
         fi
         exit 1
-    elif [[ ${TOKEN_API} =~ "Invalid credentials" ]]; then
+    fi
+    if [[ ${TOKEN_API} =~ "Invalid credentials" ]]; then
         common_logger -e "Invalid admin user credentials"
         if [[ $(type -t installCommon_rollBack) == "function" ]]; then
             installCommon_rollBack
