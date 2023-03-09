@@ -244,7 +244,7 @@ function main() {
     fi
 
     if [ -n "${dashboard}" ]; then
-        checks_ports "${wazuh_dashboard_ports[@]}"
+        checks_ports "${wazuh_dashboard_port}"
     fi
 
 
