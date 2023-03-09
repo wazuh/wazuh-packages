@@ -115,8 +115,7 @@ function installCommon_aptInstallList(){
             common_logger "Installing $dep."
             installCommon_aptInstall "${dep}"
             if [ "${install_result}" != 0 ]; then
-                common_logger -e "Cannot install dependency: ${dep}."
-                exit 1
+                installCommon_checkOptionalInstallation
             fi
         done
     fi
@@ -150,6 +149,20 @@ function installCommon_changePasswordApi() {
         fi
         if [ "${nuser}" == "wazuh-wui" ] && { [ -n "${dashboard}" ] || [ -n "${AIO}" ]; }; then
                 passwords_changeDashboardApiPassword "${password}"
+        fi
+    fi
+
+}
+
+function installCommon_checkOptionalInstallation() {
+
+    if [ "${optional_installation}" != 1 ]; then
+        common_logger -e "Cannot install dependency: ${dep}."
+        exit 1
+    else
+        common_logger -w "Cannot install optional dependency: ${dep}."
+        if [ "${report_dependencies}" == 1 ]; then 
+            pdf_warning=1
         fi
     fi
 
@@ -334,11 +347,16 @@ function installCommon_installCheckDependencies() {
 
 function installCommon_aptInstallChrome() {
 
+    dep="chrome"
     chrome_package="/tmp/wazuh-install-files/chrome.deb"
     curl -so "${chrome_package}" https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
     
-    common_logger "Installing chrome."
+    common_logger "Installing ${dep}."
     installCommon_aptInstall "${chrome_package}"
+
+    if [ "${install_result}" != 0 ]; then
+        installCommon_checkOptionalInstallation
+    fi
     
 }
 
@@ -668,8 +686,7 @@ function installCommon_yumInstallList(){
             common_logger "Installing $dep."
             eval "yum install ${dep} -y ${debug}"
             if [  "${PIPESTATUS[0]}" != 0  ]; then
-                common_logger -e "Cannot install dependency: ${dep}."
-                exit 1
+                installCommon_checkOptionalInstallation
             fi
         done
     fi
