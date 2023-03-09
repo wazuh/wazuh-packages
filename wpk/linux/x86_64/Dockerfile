@@ -1,10 +1,10 @@
 FROM centos:6
 
 RUN rm /etc/yum.repos.d/* && echo "exactarch=1" >> /etc/yum.conf
-COPY CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo
+COPY linux/x86_64/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo
 
 RUN yum -y install epel-release && \
-    yum -y install gcc make git python34 python34-pip python34-devel python34-cffi \
+    yum -y install gcc make git \
     jq sudo gnupg automake \
     autoconf wget libtool policycoreutils-python \
     yum-utils epel-release redhat-rpm-config rpm-devel \
@@ -17,7 +17,26 @@ RUN yum -y install epel-release && \
     libarchive-devel elfutils-libelf-devel \
     elfutils-libelf patchelf elfutils-devel libgcrypt-devel
 
-RUN yum-builddep python34 -y
+RUN curl -OL http://packages.wazuh.com/utils/openssl/openssl-1.1.1a.tar.gz && \
+    tar xf openssl-1.1.1a.tar.gz && cd openssl-1.1.1a && \
+    ./config --prefix=/usr/ --openssldir=/usr/ shared zlib && \
+    make -j$(nproc) && make install && echo "/usr/lib" > /etc/ld.so.conf.d/openssl-1.1.1a.conf && \
+    ldconfig -v && cd / && rm -rf openssl-1.1.1a*    
+
+RUN yum install zlib-devel libffi-devel -y
+
+RUN wget https://www.python.org/ftp/python/3.7.16/Python-3.7.16.tgz
+
+RUN tar xvf Python-3.7.16.tgz
+
+RUN cd Python-3.7.16 &&  \
+    ./configure && \
+    make && \
+    make install
+
+RUN export PYTHONPATH=/usr/local/bin/python3.7
+
+RUN pip3 install cffi
 
 RUN curl -OL http://packages.wazuh.com/utils/gcc/gcc-9.4.0.tar.gz && \
     tar xzf gcc-9.4.0.tar.gz  && cd gcc-9.4.0/ && \
@@ -36,12 +55,6 @@ RUN curl -OL http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz && \
     ./bootstrap --no-system-curl CC=/usr/local/gcc-9.4.0/bin/gcc \
         CXX=/usr/local/gcc-9.4.0/bin/g++ && \
     make -j$(nproc) && make install && cd / && rm -rf cmake-*
-
-RUN curl -OL http://packages.wazuh.com/utils/openssl/openssl-1.1.1a.tar.gz && \
-    tar xf openssl-1.1.1a.tar.gz && cd openssl-1.1.1a && \
-    ./config --prefix=/usr/ --openssldir=/usr/ shared zlib && \
-    make -j$(nproc) && make install && echo "/usr/lib" > /etc/ld.so.conf.d/openssl-1.1.1a.conf && \
-    ldconfig -v && cd / && rm -rf openssl-1.1.1a*
 
 RUN pip3 install cryptography==2.9.2 typing awscli
 RUN pip3 install --upgrade botocore==1.20.54
