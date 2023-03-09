@@ -272,8 +272,8 @@ function installCommon_checkChromium() {
         fi
     elif [ "${sys_type}" == "apt-get" ]; then
         if (! apt list --installed 2>/dev/null | grep -q -E ^"google-chrome-stable"\/) && (! apt list --installed 2>/dev/null | grep -q -E ^"chromium-browser"\/); then
-            
-            # Report generation doesn't work with Chromium in Ubuntu 22
+
+            # Report generation doesn't work with Chromium in Ubuntu 22 and Ubuntu 20
             if [[ "${DIST_NAME}" == "ubuntu" ]] && [[ "${DIST_VER}" == "22" || "${DIST_VER}" == "20" ]]; then
                 installCommon_aptInstallChrome
             else
@@ -338,7 +338,7 @@ function installCommon_aptInstallChrome() {
     chrome_package="/tmp/wazuh-install-files/chrome.deb"
     curl -so "${chrome_package}" https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
     
-    common_logger "Installing chrome"
+    common_logger "Installing chrome."
     installCommon_aptInstall "${chrome_package}"
     
 }
