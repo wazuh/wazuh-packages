@@ -294,7 +294,7 @@ function passwords_generatePasswordFile() {
 function passwords_getApiToken() {
 
     retries=0
-    max_internal_error_retries=10
+    max_internal_error_retries=20
 
     TOKEN_API=$(curl -s -u "${adminUser}":"${adminPassword}" -k -X GET "https://localhost:55000/security/user/authenticate?raw=true" --max-time 300 --retry 5 --retry-delay 5)
     while [[ "${TOKEN_API}" =~ "Wazuh Internal Error" ]] && [ "${retries}" -lt "${max_internal_error_retries}" ]
@@ -302,7 +302,7 @@ function passwords_getApiToken() {
         common_logger "There was an error accessing the API. Retrying..."
         TOKEN_API=$(curl -s -u "${adminUser}":"${adminPassword}" -k -X GET "https://localhost:55000/security/user/authenticate?raw=true" --max-time 300 --retry 5 --retry-delay 5)
         retries=$((retries+1))
-        sleep 1
+        sleep 10
     done
     if [[ ${TOKEN_API} =~ "Wazuh Internal Error" ]]; then
         common_logger -e "There was an error while trying to get the API token."
