@@ -164,15 +164,15 @@ function dashboard_initializeAIO() {
 
     common_logger "Initializing Wazuh dashboard web application."
     installCommon_getPass "admin"
-    http_code="$(curl -XGET https://localhost/status -uadmin:\"${u_pass}\" -k -w %\"{http_code}\" -s -o /dev/null)"
+    http_code=$(curl -XGET https://localhost/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null)
     retries=0
-    max_dashboard_initialize_retries=10
+    max_dashboard_initialize_retries=20
     while [ "${http_code}" -ne "200" ] && [ "${retries}" -lt "${max_dashboard_initialize_retries}" ]
     do
-        http_code="$(curl -XGET https://localhost/status -uadmin:\"${u_pass}\" -k -w %\"{http_code}\" -s -o /dev/null)"
+        http_code=$(curl -XGET https://localhost/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null)
         common_logger "Wazuh dashboard web application not yet initialized. Waiting..."
         retries=$((retries+1))
-        sleep 1
+        sleep 15
     done
     if [ "${http_code}" -eq "200" ]; then
         common_logger "Wazuh dashboard web application initialized."

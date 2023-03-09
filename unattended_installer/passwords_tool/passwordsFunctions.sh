@@ -304,15 +304,15 @@ function passwords_generatePasswordFile() {
 function passwords_getApiToken() {
 
     retries=0
-    max_internal_error_retries=10
+    max_internal_error_retries=20
 
-    TOKEN_API="$(curl -s -u \"${adminUser}\":\"${adminPassword}\" -k -X POST \"https://localhost:55000/security/user/authenticate?raw=true\" --max-time 300 --retry 5 --retry-delay 5)"
+    TOKEN_API=$(curl -s -u "${adminUser}":"${adminPassword}" -k -X POST "https://localhost:55000/security/user/authenticate?raw=true" --max-time 300 --retry 5 --retry-delay 5)
     while [[ "${TOKEN_API}" =~ "Wazuh Internal Error" ]] && [ "${retries}" -lt "${max_internal_error_retries}" ]
     do
         common_logger "There was an error accessing the API. Retrying..."
-        TOKEN_API="$(curl -s -u \"${adminUser}\":\"${adminPassword}\" -k -X POST \"https://localhost:55000/security/user/authenticate?raw=true\" --max-time 300 --retry 5 --retry-delay 5)"
+        TOKEN_API=$(curl -s -u "${adminUser}":"${adminPassword}" -k -X POST "https://localhost:55000/security/user/authenticate?raw=true" --max-time 300 --retry 5 --retry-delay 5)
         retries=$((retries+1))
-        sleep 1
+        sleep 10
     done
     if [[ ${TOKEN_API} =~ "Wazuh Internal Error" ]]; then
         common_logger -e "There was an error while trying to get the API token."
@@ -344,6 +344,7 @@ function passwords_getApiIds() {
 
 function passwords_getApiUserId() {
 
+    set -x
     user_id="noid"
     for u in "${!api_users[@]}"; do
         if [ "${1}" == "${api_users[u]}" ]; then
@@ -358,6 +359,7 @@ function passwords_getApiUserId() {
         fi
         exit 1
     fi
+    set +x
 
 }
 
