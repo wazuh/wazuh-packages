@@ -344,7 +344,6 @@ function passwords_getApiIds() {
 
 function passwords_getApiUserId() {
 
-    set -x
     user_id="noid"
     for u in "${!api_users[@]}"; do
         if [ "${1}" == "${api_users[u]}" ]; then
@@ -359,7 +358,6 @@ function passwords_getApiUserId() {
         fi
         exit 1
     fi
-    set +x
 
 }
 
