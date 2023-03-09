@@ -34,8 +34,8 @@ function getHelp() {
     echo -e "        -c,  --cert-tool"
     echo -e "                Builds the certificate creation tool cert-tool.sh"
     echo -e ""
-    echo -e "        -d [staging],  --development"
-    echo -e "                Use development repos. By default it uses pre-release. If staging is specified, it will be used"
+    echo -e "        -d [pre-release|staging],  --development"
+    echo -e "                Use development repositories. By default it uses the pre-release package repository. If staging is specified, it will use that repository."
     echo -e ""
     echo -e "        -p,  --password-tool"
     echo -e "                Builds the password creation and modification tool password-tool.sh"
@@ -230,6 +230,9 @@ function builder_main() {
                 development=1
                 if [ -n "${2}" ] && [ "${2}" = "staging" ]; then
                     devrepo="staging"
+                    shift 2
+                elif [ -n "${2}" ] && [ "${2}" = "pre-release" ]; then
+                    devrepo="pre-release"
                     shift 2
                 else
                     devrepo="pre-release"
