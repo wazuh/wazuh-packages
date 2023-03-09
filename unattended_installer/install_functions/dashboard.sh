@@ -189,7 +189,11 @@ function dashboard_install() {
 
 }
 
-function dashboard_installDependencies() {
+function dashboard_installReportDependencies() {
+
+    # Flags that indicates that is an optional installation.
+    optional_installation=1
+    report_dependencies=1
 
     installCommon_checkChromium
 
@@ -201,5 +205,10 @@ function dashboard_installDependencies() {
         dependencies+=( libnss3-dev fonts-liberation libfontconfig1 )
         installCommon_aptInstallList "${dependencies[@]}"
     fi
+
+    if [ "${pdf_warning}" == 1 ]; then
+        common_logger -w "Dependencies skipped. PDF report generation may not work."
+    fi
+    optional_installation=0
 
 }
