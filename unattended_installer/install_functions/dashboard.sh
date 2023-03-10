@@ -198,16 +198,16 @@ function dashboard_installReportDependencies() {
     installCommon_checkChromium
 
     if [ "${sys_type}" == "yum" ]; then
-        dependencies+=( nss xorg-x11-fonts-100dpi xorg-x11-fonts-75dpi xorg-x11-utils xorg-x11-fonts-cyrillic xorg-x11-fonts-Type1 xorg-x11-fonts-misc fontconfig freetype )
-        installCommon_yumInstallList "${dependencies[@]}"
+        dashboard_dependencies+=( nss xorg-x11-fonts-100dpi xorg-x11-fonts-75dpi xorg-x11-utils xorg-x11-fonts-cyrillic xorg-x11-fonts-Type1 xorg-x11-fonts-misc fontconfig freetype )
+        installCommon_yumInstallList "${dashboard_dependencies[@]}"
     
     elif [ "${sys_type}" == "apt-get" ]; then
-        dependencies+=( libnss3-dev fonts-liberation libfontconfig1 )
-        installCommon_aptInstallList "${dependencies[@]}"
+        dashboard_dependencies+=( libnss3-dev fonts-liberation libfontconfig1 )
+        installCommon_aptInstallList "${dashboard_dependencies[@]}"
     fi
 
     if [ "${pdf_warning}" == 1 ]; then
-        common_logger -w "Dependencies skipped. PDF report generation may not work."
+        common_logger -w "Dashboard dependencies skipped. PDF report generation may not work."
     fi
     optional_installation=0
 
