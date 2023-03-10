@@ -4,7 +4,7 @@ RUN rm /etc/yum.repos.d/* && echo "exactarch=1" >> /etc/yum.conf
 COPY linux/x86_64/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo
 
 RUN yum -y install epel-release && \
-    yum -y install gcc make git \
+    yum -y install gcc make git gcc-c++ \
     jq sudo gnupg automake \
     autoconf wget libtool policycoreutils-python \
     yum-utils epel-release redhat-rpm-config rpm-devel \
@@ -16,6 +16,24 @@ RUN yum -y install epel-release && \
     openssl-devel libxml2-devel kexec-tools elfutils \
     libarchive-devel elfutils-libelf-devel \
     elfutils-libelf patchelf elfutils-devel libgcrypt-devel
+
+RUN curl -OL http://packages.wazuh.com/utils/gcc/gcc-9.4.0.tar.gz && \
+    tar xzf gcc-9.4.0.tar.gz  && cd gcc-9.4.0/ && \
+    ./contrib/download_prerequisites && \
+    ./configure --prefix=/usr/local/gcc-9.4.0 --enable-languages=c,c++ \
+        --disable-multilib --disable-libsanitizer && \
+    make -j$(nproc) && make install && \
+    ln -fs /usr/local/gcc-9.4.0/bin/g++ /usr/bin/c++ && cd / && rm -rf gcc-*
+
+ENV CPLUS_INCLUDE_PATH "/usr/local/gcc-9.4.0/include/c++/9.4.0/"
+ENV LD_LIBRARY_PATH "/usr/local/gcc-9.4.0/lib64/"
+ENV PATH "/usr/local/gcc-9.4.0/bin:${PATH}"
+
+RUN curl -OL http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz && \
+    tar -zxf cmake-3.18.3.tar.gz && cd cmake-3.18.3 && \
+    ./bootstrap --no-system-curl CC=/usr/local/gcc-9.4.0/bin/gcc \
+        CXX=/usr/local/gcc-9.4.0/bin/g++ && \
+    make -j$(nproc) && make install && cd / && rm -rf cmake-*
 
 RUN curl -OL http://packages.wazuh.com/utils/openssl/openssl-1.1.1a.tar.gz && \
     tar xf openssl-1.1.1a.tar.gz && cd openssl-1.1.1a && \
@@ -35,26 +53,6 @@ RUN cd Python-3.7.16 &&  \
     make install
 
 RUN export PYTHONPATH=/usr/local/bin/python3.7
-
-RUN pip3 install cffi
-
-RUN curl -OL http://packages.wazuh.com/utils/gcc/gcc-9.4.0.tar.gz && \
-    tar xzf gcc-9.4.0.tar.gz  && cd gcc-9.4.0/ && \
-    ./contrib/download_prerequisites && \
-    ./configure --prefix=/usr/local/gcc-9.4.0 --enable-languages=c,c++ \
-        --disable-multilib --disable-libsanitizer && \
-    make -j$(nproc) && make install && \
-    ln -fs /usr/local/gcc-9.4.0/bin/g++ /usr/bin/c++ && cd / && rm -rf gcc-*
-
-ENV CPLUS_INCLUDE_PATH "/usr/local/gcc-9.4.0/include/c++/9.4.0/"
-ENV LD_LIBRARY_PATH "/usr/local/gcc-9.4.0/lib64/"
-ENV PATH "/usr/local/gcc-9.4.0/bin:${PATH}"
-
-RUN curl -OL http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz && \
-    tar -zxf cmake-3.18.3.tar.gz && cd cmake-3.18.3 && \
-    ./bootstrap --no-system-curl CC=/usr/local/gcc-9.4.0/bin/gcc \
-        CXX=/usr/local/gcc-9.4.0/bin/g++ && \
-    make -j$(nproc) && make install && cd / && rm -rf cmake-*
 
 RUN pip3 install cryptography==2.9.2 typing awscli
 RUN pip3 install --upgrade botocore==1.20.54
