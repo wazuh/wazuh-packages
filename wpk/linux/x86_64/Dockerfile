@@ -1,7 +1,7 @@
 FROM centos:6
 
 RUN rm /etc/yum.repos.d/* && echo "exactarch=1" >> /etc/yum.conf
-COPY linux/x86_64/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo
+COPY CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo
 
 RUN yum -y install epel-release && \
     yum -y install gcc make git gcc-c++ \
