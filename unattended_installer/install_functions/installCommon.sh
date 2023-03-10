@@ -278,7 +278,7 @@ function installCommon_checkChromium() {
 
     if [ "${sys_type}" == "yum" ]; then
         if (! yum list installed 2>/dev/null | grep -q -E ^"google-chrome-stable"\\.) && (! yum list installed 2>/dev/null | grep -q -E ^"chromium"\\.); then
-            dependencies=(chromium)
+            dashboard_dependencies=(chromium)
         fi
         if [ "${DIST_NAME}" == "amzn" ]; then
             eval "amazon-linux-extras install epel -y ${debug}"
@@ -290,7 +290,7 @@ function installCommon_checkChromium() {
             if [[ "${DIST_NAME}" == "ubuntu" ]] && [[ "${DIST_VER}" == "22" || "${DIST_VER}" == "20" || "${DIST_VER}" == "18" ]]; then
                 installCommon_aptInstallChrome
             else
-                dependencies=(chromium-browser)
+                dashboard_dependencies=(chromium-browser)
             fi
         fi
     fi
