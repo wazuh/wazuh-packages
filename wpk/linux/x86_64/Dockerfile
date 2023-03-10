@@ -52,8 +52,6 @@ RUN cd Python-3.7.16 &&  \
     make && \
     make install
 
-RUN export PYTHONPATH=/usr/local/bin/python3.7
-
 RUN pip3 install cryptography==2.9.2 typing awscli
 RUN pip3 install --upgrade botocore==1.20.54
 
