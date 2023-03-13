@@ -281,14 +281,14 @@ function installCommon_checkChromium() {
             dashboard_dependencies=(chromium)
         fi
         if [ "${DIST_NAME}" == "amzn" ]; then
-            eval "amazon-linux-extras install epel -y ${debug}"
+            installCommon_installChrome
         fi
     elif [ "${sys_type}" == "apt-get" ]; then
         if (! apt list --installed 2>/dev/null | grep -q -E ^"google-chrome-stable"\/) && (! apt list --installed 2>/dev/null | grep -q -E ^"chromium-browser"\/); then
 
             # Report generation doesn't work with Chromium in Ubuntu 22 and Ubuntu 20
             if [[ "${DIST_NAME}" == "ubuntu" ]] && [[ "${DIST_VER}" == "22" || "${DIST_VER}" == "20" || "${DIST_VER}" == "18" ]]; then
-                installCommon_aptInstallChrome
+                installCommon_installChrome
             else
                 dashboard_dependencies=(chromium-browser)
             fi
@@ -346,19 +346,30 @@ function installCommon_installCheckDependencies() {
 
 }
 
-function installCommon_aptInstallChrome() {
+function installCommon_installChrome() {
 
     dep="chrome"
-    chrome_package="/tmp/wazuh-install-files/chrome.deb"
-    curl -so "${chrome_package}" https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-    
     common_logger "Installing ${dep}."
-    installCommon_aptInstall "${chrome_package}"
 
-    if [ "${install_result}" != 0 ]; then
-        installCommon_checkOptionalInstallation
+    if [ "${sys_type}" == "yum" ]; then
+        chrome_package="/tmp/wazuh-install-files/chrome.rpm"
+        curl -so "${chrome_package}" https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
+        eval "yum install ${chrome_package} -y ${debug}"
+
+        if [ "${PIPESTATUS[0]}" != 0 ]; then
+            installCommon_checkOptionalInstallation
+        fi
+
+    elif [ "${sys_type}" == "apt-get" ]; then
+        chrome_package="/tmp/wazuh-install-files/chrome.deb"
+        curl -so "${chrome_package}" https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+        installCommon_aptInstall "${chrome_package}"
+
+        if [ "${install_result}" != 0 ]; then
+            installCommon_checkOptionalInstallation
+        fi
     fi
-    
+
 }
 
 function installCommon_installPrerequisites() {
