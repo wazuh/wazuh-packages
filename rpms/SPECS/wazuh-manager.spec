@@ -214,7 +214,7 @@ fi
 # Remove/relocate existing SQLite databases
 rm -f %{_localstatedir}/var/db/cluster.db* || true
 rm -f %{_localstatedir}/var/db/.profile.db* || true
-rm -f %{_localstatedir}/var/db/agents/* || true
+rm -rf %{_localstatedir}/var/db/agents || true
 
 if [ -f %{_localstatedir}/var/db/global.db ]; then
   mv %{_localstatedir}/var/db/global.db %{_localstatedir}/queue/db/
@@ -796,7 +796,6 @@ rm -fr %{buildroot}
 %attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/windows/*
 %dir %attr(750, root, wazuh) %{_localstatedir}/var
 %dir %attr(770, root, wazuh) %{_localstatedir}/var/db
-%dir %attr(770, root, wazuh) %{_localstatedir}/var/db/agents
 %attr(660, root, wazuh) %{_localstatedir}/var/db/mitre.db
 %dir %attr(770, root, wazuh) %{_localstatedir}/var/download
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/var/multigroups
