@@ -5,7 +5,7 @@ ENV DEBIAN_FRONTEND noninteractive
 # Installing necessary packages
 RUN echo "deb http://deb.debian.org/debian stretch contrib non-free" >> /etc/apt/sources.list && \
     echo "deb-src http://deb.debian.org/debian stretch main contrib non-free" >> /etc/apt/sources.list && \
-    apt-get update && apt-get install -y apt-utils \
+    apt-get update && apt-get install -y --allow-change-held-packages apt-utils \
     curl gcc make wget sudo expect gnupg perl-base \
     perl libc-bin libc6 libc6-dev \
     build-essential cdbs devscripts equivs automake autoconf libtool \
@@ -13,9 +13,9 @@ RUN echo "deb http://deb.debian.org/debian stretch contrib non-free" >> /etc/apt
     libssl1.1 libssl-dev gawk libsigsegv2 procps libc6-armel-cross g++
 
 # Add Debian's source repository and, Install NodeJS 12
-RUN apt-get build-dep python3.5 -y
+RUN apt-get build-dep python3.5 -y --allow-change-held-packages
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
-    apt-get install -y nodejs
+    apt-get install -y --allow-change-held-packages nodejs
 
 RUN curl -OL http://packages.wazuh.com/utils/gcc/gcc-9.4.0.tar.gz && \
     tar xzf gcc-9.4.0.tar.gz  && cd gcc-9.4.0/ && \
