@@ -278,11 +278,13 @@ function installCommon_checkChromium() {
 
     if [ "${sys_type}" == "yum" ]; then
         if (! yum list installed 2>/dev/null | grep -q -E ^"google-chrome-stable"\\.) && (! yum list installed 2>/dev/null | grep -q -E ^"chromium"\\.); then
-            dashboard_dependencies=(chromium)
+            if [ "${DIST_NAME}" == "amzn" ]; then
+                installCommon_installChrome
+            else
+                dashboard_dependencies=(chromium)
+            fi
         fi
-        if [ "${DIST_NAME}" == "amzn" ]; then
-            installCommon_installChrome
-        fi
+        
     elif [ "${sys_type}" == "apt-get" ]; then
         if (! apt list --installed 2>/dev/null | grep -q -E ^"google-chrome-stable"\/) && (! apt list --installed 2>/dev/null | grep -q -E ^"chromium-browser"\/); then
 
@@ -353,7 +355,7 @@ function installCommon_installChrome() {
 
     if [ "${sys_type}" == "yum" ]; then
         chrome_package="/tmp/wazuh-install-files/chrome.rpm"
-        curl -so "${chrome_package}" https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
+        common_curl -so "${chrome_package}" https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm --max-time 100 --retry 5 --retry-delay 5 --fail
         eval "yum install ${chrome_package} -y ${debug}"
 
         if [ "${PIPESTATUS[0]}" != 0 ]; then
@@ -362,7 +364,7 @@ function installCommon_installChrome() {
 
     elif [ "${sys_type}" == "apt-get" ]; then
         chrome_package="/tmp/wazuh-install-files/chrome.deb"
-        curl -so "${chrome_package}" https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+        common_curl -so "${chrome_package}" https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb --max-time 100 --retry 5 --retry-delay 5 --fail
         installCommon_aptInstall "${chrome_package}"
 
         if [ "${install_result}" != 0 ]; then
