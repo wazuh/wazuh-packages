@@ -26,8 +26,5 @@ rm -rf ${CURRENT_PATH}/* ${CURRENT_PATH}/.gitignore
 find /var/log/ -type f -exec bash -c 'cat /dev/null > {}' \;
 find /var/ossec/logs/ -type f -exec bash -c 'cat /dev/null > {}' \;
 
-rm /root/anaconda-ks.cfg
-rm /root/original-ks.cfg
-
 history -c
 shutdown -r now > /dev/null 2>&1
