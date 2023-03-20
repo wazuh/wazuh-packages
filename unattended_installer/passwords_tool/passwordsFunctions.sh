@@ -8,10 +8,12 @@
 
 function passwords_changePassword() {
 
-    eval "mkdir /etc/wazuh-indexer/backup/ 2>/dev/null"
-    eval "cp /etc/wazuh-indexer/opensearch-security/* /etc/wazuh-indexer/backup/ 2>/dev/null"
-
     if [ -n "${changeall}" ]; then
+        if [ -n "${indexer_installed}" ] && [ -z ${no_indexer_backup} ]; then
+            eval "mkdir /etc/wazuh-indexer/backup/ 2>/dev/null"
+            eval "cp /etc/wazuh-indexer/opensearch-security/* /etc/wazuh-indexer/backup/ 2>/dev/null"
+            passwords_createBackUp
+        fi
         for i in "${!passwords[@]}"
         do
             if [ -n "${indexer_installed}" ] && [ -f "/etc/wazuh-indexer/backup/internal_users.yml" ]; then
@@ -26,8 +28,13 @@ function passwords_changePassword() {
 
         done
     else
+        if [ -z "${api}" ] && [ -n "${indexer_installed}" ]; then
+            eval "mkdir /etc/wazuh-indexer/backup/ 2>/dev/null"
+            eval "cp /etc/wazuh-indexer/opensearch-security/* /etc/wazuh-indexer/backup/ 2>/dev/null"
+            passwords_createBackUp
+        fi
         if [ -n "${indexer_installed}" ] && [ -f "/etc/wazuh-indexer/backup/internal_users.yml" ]; then
-            awk -v new="$hash" 'prev=="'${nuser}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /etc/wazuh-indexer/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /etc/wazuh-indexer/backup/internal_users.yml
+            awk -v new="${hash}" 'prev=="'${nuser}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /etc/wazuh-indexer/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /etc/wazuh-indexer/backup/internal_users.yml
         fi
 
         if [ "${nuser}" == "admin" ]; then
@@ -296,11 +303,27 @@ function passwords_generatePasswordFile() {
 
 function passwords_getApiToken() {
 
-    TOKEN_API=$(curl -s -u "${adminUser}":"${adminPassword}" -k -X POST "https://localhost:55000/security/user/authenticate?raw=true")
-    if [[ ${TOKEN_API} =~ "Invalid credentials" ]]; then
+    retries=0
+    max_internal_error_retries=20
+
+    TOKEN_API=$(curl -s -u "${adminUser}":"${adminPassword}" -k -X POST "https://localhost:55000/security/user/authenticate?raw=true" --max-time 300 --retry 5 --retry-delay 5)
+    while [[ "${TOKEN_API}" =~ "Wazuh Internal Error" ]] && [ "${retries}" -lt "${max_internal_error_retries}" ]
+    do
+        common_logger "There was an error accessing the API. Retrying..."
+        TOKEN_API=$(curl -s -u "${adminUser}":"${adminPassword}" -k -X POST "https://localhost:55000/security/user/authenticate?raw=true" --max-time 300 --retry 5 --retry-delay 5)
+        retries=$((retries+1))
+        sleep 10
+    done
+    if [[ ${TOKEN_API} =~ "Wazuh Internal Error" ]]; then
+        common_logger -e "There was an error while trying to get the API token."
+        if [[ $(type -t installCommon_rollBack) == "function" ]]; then
+            installCommon_rollBack
+        fi
+        exit 1
+    elif [[ ${TOKEN_API} =~ "Invalid credentials" ]]; then
         common_logger -e "Invalid admin user credentials"
         if [[ $(type -t installCommon_rollBack) == "function" ]]; then
-                installCommon_rollBack
+            installCommon_rollBack
         fi
         exit 1
     fi

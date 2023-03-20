@@ -255,7 +255,7 @@ const Template = ({
       defaultMessage: `${injectedMetadata.branding.applicationTitle} did not load properly. Check the server output for more information.`
     })
   }, i18n('core.ui.welcomeMessage', {
-    defaultMessage: `Loading ${injectedMetadata.branding.applicationTitle}`
+    defaultMessage: `Loading ...`
   })), renderBrandingEnabledOrDisabledLoadingBar())), /*#__PURE__*/_react.default.createElement("div", {
     className: "osdWelcomeView",
     id: "osd_legacy_browser_error",
