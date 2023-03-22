@@ -207,7 +207,7 @@ function dashboard_installReportDependencies() {
     fi
 
     if [ "${pdf_warning}" == 1 ]; then
-        common_logger -w "Dashboard dependencies skipped. PDF report generation may not work."
+        common_logger -w "Wazuh dashboard dependencies skipped. PDF report generation may not work."
     fi
     optional_installation=0
 
