@@ -3,7 +3,7 @@ set -e
 
 w_beats_branch="v7.10.2"
 w_wazuh_branch=$1
-w_filename=$2
+w_filename=""
 
 download_sources() {
     cd /tmp
@@ -17,6 +17,7 @@ download_sources() {
     # Fetch Wazuh module source files
     cd /tmp
     git clone https://github.com/wazuh/wazuh -b $w_wazuh_branch --single-branch --depth=1 > /dev/null 2>&1
+    w_filename="wazuh-filebeat-$(cat wazuh/src/VERSION | cut -d 'v' -f 2).tar.gz"
     cd /tmp/beats/filebeat
     cp -R /tmp/wazuh/extensions/filebeat/7.x/wazuh-module/* module/wazuh
 }

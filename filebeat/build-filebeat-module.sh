@@ -11,7 +11,6 @@
 set -e
 
 wazuh_branch=""
-filename="wazuh-filebeat-0.2.tar.gz"
 current_path="$( cd $(dirname $0) ; pwd -P )"
 dockerfile_path="${current_path}/docker"
 container_name="filebeat_module_builder"
@@ -44,8 +43,7 @@ build() {
     # Build the Docker image
     docker build -t ${container_name} ${dockerfile_path} || return 1
 
-    docker run -t --rm -v ${outdir}/:/tmp/output:Z ${container_name} \
-        ${wazuh_branch} ${filename} || return 1
+    docker run -t --rm -v ${outdir}/:/tmp/output:Z ${container_name} ${wazuh_branch} || return 1
 
     echo "Filebeat module file $(ls -Art ${outdir} | tail -n 1) added to ${outdir}."
 
@@ -64,9 +62,6 @@ help() {
     echo -e "        $(basename "${0}") [OPTIONS]"
     echo -e ""
     echo -e "DESCRIPTION"
-    echo -e "        -f, --filename <filename>"
-    echo -e "                [Optional] Enter the name of module file. By default, wazuh-filebeat-0.2.tar.gz"
-    echo -e ""
     echo -e "        -h,  --help"
     echo -e "                Shows help."
     echo -e ""
@@ -85,14 +80,6 @@ main() {
     while [ -n "${1}" ]
     do
         case "${1}" in
-        "-f"|"--filename")
-            if [ -n "${2}" ]; then
-                filename="${2}"
-                shift 2
-            else
-                help 1
-            fi
-            ;;
         "-h"|"--help")
             help 0
             ;;
