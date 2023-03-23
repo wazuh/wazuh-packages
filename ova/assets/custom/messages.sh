@@ -47,3 +47,5 @@ wwwwwww.          wwwwwww.          wwwwwww.
 
 
 EOF
+
+update-motd --disable
