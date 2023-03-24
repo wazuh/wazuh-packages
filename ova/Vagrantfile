@@ -3,7 +3,7 @@
 
 Vagrant.configure("2") do |config|
 
-  config.vm.box = "bento/amazonlinux-2"
+  config.vm.box = "gbailey/amzn2"
   config.vm.hostname = "wazuh-server"
   config.vm.provider "virtualbox" do |vb|
     vb.name = "vm_wazuh"
