@@ -18,9 +18,10 @@ Login credentials:
 EOF
 
 # User Welcome message
-cat > /etc/motd <<EOF
+cat > /etc/update-motd.d/30-banner <<EOF
 
-
+#!/bin/sh
+cat << EOF
 wwwwww.           wwwwwww.          wwwwwww.
 wwwwwww.          wwwwwww.          wwwwwww.
  wwwwww.         wwwwwwwww.        wwwwwww.
@@ -47,5 +48,3 @@ wwwwwww.          wwwwwww.          wwwwwww.
 
 
 EOF
-
-update-motd --disable
