@@ -1,6 +1,6 @@
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-manager
-Version:     4.4.0
+Version:     4.4.1
 Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
@@ -214,7 +214,7 @@ fi
 # Remove/relocate existing SQLite databases
 rm -f %{_localstatedir}/var/db/cluster.db* || true
 rm -f %{_localstatedir}/var/db/.profile.db* || true
-rm -f %{_localstatedir}/var/db/agents/* || true
+rm -rf %{_localstatedir}/var/db/agents || true
 
 if [ -f %{_localstatedir}/var/db/global.db ]; then
   mv %{_localstatedir}/var/db/global.db %{_localstatedir}/queue/db/
@@ -815,7 +815,6 @@ rm -fr %{buildroot}
 %attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/windows/*
 %dir %attr(750, root, wazuh) %{_localstatedir}/var
 %dir %attr(770, root, wazuh) %{_localstatedir}/var/db
-%dir %attr(770, root, wazuh) %{_localstatedir}/var/db/agents
 %attr(660, root, wazuh) %{_localstatedir}/var/db/mitre.db
 %dir %attr(770, root, wazuh) %{_localstatedir}/var/download
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/var/multigroups
@@ -842,6 +841,8 @@ rm -fr %{buildroot}
 
 
 %changelog
+* Mon Apr 17 2023 support <info@wazuh.com> - 4.4.1
+- More info: https://documentation.wazuh.com/current/release-notes/
 * Wed Jan 18 2023 support <info@wazuh.com> - 4.4.0
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Thu Nov 10 2022 support <info@wazuh.com> - 4.3.10
