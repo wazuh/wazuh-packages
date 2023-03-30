@@ -17,6 +17,8 @@ INSTALL_ARGS="-a"
 
 if [[ "${PACKAGES_REPOSITORY}" == "dev" ]]; then
   BUILDER_ARGS+=" -d"
+elif [[ "${PACKAGES_REPOSITORY}" == "staging" ]]; then
+  BUILDER_ARGS+=" -d staging"
 fi
 
 if [[ "${DEBUG}" = "yes" ]]; then
