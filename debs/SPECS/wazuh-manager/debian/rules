@@ -128,6 +128,7 @@ override_dh_install:
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/19
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/20
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/21
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/22
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian/7
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian/8
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian/9
@@ -166,6 +167,7 @@ override_dh_install:
 	cp etc/templates/config/darwin/18/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/19
 	cp etc/templates/config/darwin/20/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/20
 	cp etc/templates/config/darwin/21/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/21
+	cp etc/templates/config/darwin/21/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/22
 
 	cp etc/templates/config/debian/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian
 	cp etc/templates/config/debian/7/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/debian/7
