@@ -335,8 +335,6 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/bcpkix-jdk15on-1.70.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/bcprov-jdk15on-1.70.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/bcutil-jdk15on-1.70.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/gson-2.9.0.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/guava-31.1-android.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/grpc-api-1.52.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/grpc-context-1.52.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/grpc-core-1.52.1.jar
@@ -344,6 +342,8 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/grpc-protobuf-1.52.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/grpc-protobuf-lite-1.52.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/grpc-stub-1.52.1.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/gson-2.9.0.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/guava-31.1-android.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/jackson-annotations-2.14.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/jackson-core-2.14.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/jackson-databind-2.14.1.jar
@@ -358,9 +358,9 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/netty-resolver-4.1.86.Final.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/netty-transport-4.1.86.Final.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/netty-transport-native-unix-common-4.1.86.Final.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/protobuf-java-3.21.12.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/perfmark-api-0.25.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/performance-analyzer-rca-2.6.0.0.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/protobuf-java-3.21.12.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/proto-google-common-protos-2.9.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/animal-sniffer-annotations-1.21.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/checker-qual-3.12.0.jar
@@ -393,11 +393,13 @@ rm -fr %{buildroot}
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/hppc-0.8.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/log4j-api-2.17.1.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/snakeyaml-1.33.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/jna-5.5.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/log4j-core-2.17.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/log4j-jul-2.17.1.jar
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/tools
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/tools/plugin-cli
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/tools/plugin-cli/bcpg-fips-1.0.7.1.jar
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/tools/upgrade-cli
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/tools/keystore-cli
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/jts-core-1.15.0.jar
@@ -434,10 +436,8 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/lucene-spatial-extras-9.5.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/lucene-spatial3d-9.5.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/lucene-suggest-9.5.0.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/snakeyaml-1.33.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/tools/keystore-cli/keystore-cli-2.6.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/tools/plugin-cli/bc-fips-1.0.2.3.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/tools/plugin-cli/bcpg-fips-1.0.7.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/tools/plugin-cli/opensearch-plugin-cli-2.6.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/tools/upgrade-cli/jackson-annotations-2.14.2.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/tools/upgrade-cli/jackson-core-2.14.2.jar
@@ -497,10 +497,10 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-observability/json-flattener-0.15.1.jar
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-reports-scheduler
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-reports-scheduler/jsoup-1.15.3.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-reports-scheduler/json-flattener-0.15.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-reports-scheduler/jackson-annotations-2.14.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-reports-scheduler/jackson-databind-2.14.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-reports-scheduler/json-base-2.2.1.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-reports-scheduler/json-flattener-0.15.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-reports-scheduler/json-20180813.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-reports-scheduler/kotlinx-coroutines-core-jvm-1.3.9.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-reports-scheduler/plugin-descriptor.properties
@@ -948,12 +948,12 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/jsr305-3.0.2.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/log4j-slf4j-impl-2.19.0.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/onnxruntime_gpu-1.13.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/onnxruntime-engine-0.19.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/pytorch-engine-0.19.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/pytorch-model-zoo-0.19.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/slf4j-api-1.7.36.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/tokenizers-0.19.0.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/onnxruntime_gpu-1.13.1.jar
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications-core
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications-core/activation-1.1.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications-core/aws-java-sdk-core-1.12.48.jar

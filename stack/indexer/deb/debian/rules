@@ -169,14 +169,6 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/bcpkix-jdk15on-1.70.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/bcprov-jdk15on-1.70.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/bcutil-jdk15on-1.70.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/gson-2.9.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/guava-31.1-android.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/perfmark-api-0.25.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/performance-analyzer-rca-2.6.0.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/proto-google-common-protos-2.9.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/animal-sniffer-annotations-1.21.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/checker-qual-3.12.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/error_prone_annotations-2.14.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/grpc-api-1.52.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/grpc-context-1.52.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/grpc-core-1.52.1.jar
@@ -184,6 +176,8 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/grpc-protobuf-1.52.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/grpc-protobuf-lite-1.52.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/grpc-stub-1.52.1.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/gson-2.9.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/guava-31.1-android.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/jackson-annotations-2.14.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/jackson-core-2.14.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/jackson-databind-2.14.1.jar
@@ -198,7 +192,13 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/netty-resolver-4.1.86.Final.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/netty-transport-4.1.86.Final.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/netty-transport-native-unix-common-4.1.86.Final.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/perfmark-api-0.25.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/performance-analyzer-rca-2.6.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/protobuf-java-3.21.12.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/proto-google-common-protos-2.9.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/animal-sniffer-annotations-1.21.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/checker-qual-3.12.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/error_prone_annotations-2.14.0.jar
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/config
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/config/agent-stats-metadata
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/config/log4j2.xml
@@ -354,6 +354,7 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/httpcore-nio-4.4.15.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/httpasyncclient-4.1.5.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/protocol-2.6.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/slf4j-api-1.7.36.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/druid-1.0.15.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/sql-2.6.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/opensearch-2.6.0.0.jar
@@ -392,6 +393,8 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/error_prone_annotations-2.7.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/guava-31.0.1-jre.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/icu4j-58.2.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/jackson-annotations-2.14.2.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/jackson-databind-2.14.2.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/javax.json-1.0.4.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/opensearch-ml-client-2.6.0.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/org.abego.treelayout.core-1.0.3.jar
@@ -411,9 +414,6 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/okhttp-aws-signer-1.0.2.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/okio-jvm-2.8.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/prometheus-2.6.0.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/jackson-annotations-2.14.2.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/jackson-databind-2.14.2.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-sql/slf4j-api-1.7.36.jar
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-cross-cluster-replication
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-cross-cluster-replication/ipaddress-5.3.3.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-cross-cluster-replication/common-utils-2.6.0.0.jar
@@ -471,14 +471,9 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/bcpkix-jdk15on-1.70.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/bcprov-jdk15on-1.70.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/bcutil-jdk15on-1.70.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/checker-qual-3.29.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/commons-lang3-3.12.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/error_prone_annotations-2.9.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/gson-2.9.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/perfmark-api-0.25.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/performanceanalyzer-rca-2.6.0.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/protobuf-java-3.21.12.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/proto-google-common-protos-2.9.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/checker-qual-3.29.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/grpc-api-1.52.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/grpc-context-1.52.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/grpc-core-1.52.1.jar
@@ -486,6 +481,7 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/grpc-protobuf-1.52.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/grpc-protobuf-lite-1.52.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/grpc-stub-1.52.1.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/gson-2.9.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/guava-31.1-jre.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/jackson-annotations-2.14.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/jackson-databind-2.14.1.jar
@@ -501,6 +497,10 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/netty-resolver-4.1.87.Final.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/netty-transport-4.1.87.Final.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/netty-transport-native-unix-common-4.1.87.Final.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/perfmark-api-0.25.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/performanceanalyzer-rca-2.6.0.0.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/protobuf-java-3.21.12.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/proto-google-common-protos-2.9.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-performance-analyzer/protobuf-java-3.21.12.jar
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-job-scheduler
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-job-scheduler/opensearch-job-scheduler-spi-2.6.0.0.jar
@@ -818,11 +818,11 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-notifications/plugin-security.policy
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/modules
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-common
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-common/jcodings-1.0.58.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-common/opensearch-grok-2.6.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-common/opensearch-dissect-2.6.0.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-common/plugin-descriptor.properties
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-common/ingest-common-2.6.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-common/jcodings-1.0.58.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/ingest-common/joni-2.1.44.jar
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/geo
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/geo/plugin-descriptor.properties
