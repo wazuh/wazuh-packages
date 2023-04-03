@@ -17,6 +17,7 @@ deb_amd64_builder="deb_indexer_builder_amd64"
 deb_builder_dockerfile="${current_path}/docker"
 future="no"
 base_cmd=""
+build_base="yes"
 
 trap ctrl_c INT
 
@@ -40,14 +41,16 @@ build_deb() {
     # Copy the necessary files
     cp ${current_path}/builder.sh ${dockerfile_path}
 
-    # Base generation
-    if [ "${future}" == "yes" ];then
-        base_cmd+="--future "
+    if [ "${build_base}" == "yes" ];then
+        # Base generation
+        if [ "${future}" == "yes" ];then
+            base_cmd+="--future "
+        fi
+        if [ "${reference}" ];then
+            base_cmd+="--reference ${reference}"
+        fi
+        ../base/generate_base.sh -s ${outdir} -r ${revision} ${base_cmd}
     fi
-    if [ "${reference}" ];then
-        base_cmd+="--reference ${reference}"
-    fi
-    ../base/generate_base.sh -s ${outdir} -r ${revision} ${base_cmd}
 
     # Build the Docker image
     if [[ ${build_docker} == "yes" ]]; then
@@ -94,6 +97,7 @@ help() {
     echo "Usage: $0 [OPTIONS]"
     echo
     echo "    -a, --architecture <arch>  [Optional] Target architecture of the package [amd64]."
+    echo "    -b, --build-base <yes/no>  [Optional] Build a new base or use a existing one. By default, yes."
     echo "    -r, --revision <rev>       [Optional] Package revision. By default: 1."
     echo "    -s, --store <path>         [Optional] Set the destination path of package. By default, an output folder will be created."
     echo "    --reference <ref>          [Optional] wazuh-packages branch to download SPECs, not used by default."
@@ -115,6 +119,14 @@ main() {
         "-a"|"--architecture")
             if [ -n "${2}" ]; then
                 architecture="${2}"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
+        "-b"|"--build-base")
+            if [ -n "${2}" ]; then
+                build_base="${2}"
                 shift 2
             else
                 help 1
