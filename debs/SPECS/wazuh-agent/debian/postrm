@@ -40,10 +40,10 @@ case "$1" in
 
         purge)
 
-        if getent passwd wazuh ; then
+        if getent passwd wazuh >/dev/null 2>&1; then
             deluser wazuh > /dev/null 2>&1
         fi
-        if getent group wazuh ; then
+        if getent group wazuh >/dev/null 2>&1; then
             delgroup wazuh > /dev/null 2>&1
         fi
         rm -rf ${DIR}/*

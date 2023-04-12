@@ -163,11 +163,9 @@ if [ $1 = 1 ];then # Install
 
 fi
 
-if [ -f /etc/os-release ]; then
-  source /etc/os-release
-  if [ "${NAME}" = "Red Hat Enterprise Linux" ] && [ "$((${VERSION_ID:0:1}))" -ge 9 ]; then
+
+if [[ -d /run/systemd/system ]] ; then
     rm -f /etc/init.d/%{name}
-  fi
 fi
 
 # If is an upgrade, move the securityconfig files if they exist (4.3.x versions)

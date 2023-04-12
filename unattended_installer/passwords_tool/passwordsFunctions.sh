@@ -83,8 +83,8 @@ function passwords_changePasswordApi() {
         for i in "${!api_passwords[@]}"; do
             if [ -n "${wazuh_installed}" ]; then
                 passwords_getApiUserId "${api_users[i]}"
-                WAZUH_PASS_API='{"password":"'"${api_passwords[i]}"'"}'
-                eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null'
+                WAZUH_PASS_API='{\"password\":\"'"${api_passwords[i]}"'\"}'
+                eval 'common_curl -s -k -X PUT -H \"Authorization: Bearer $TOKEN_API\" -H \"Content-Type: application/json\" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null --max-time 300 --retry 5 --retry-delay 5 --fail'
                 if [ "${api_users[i]}" == "${adminUser}" ]; then
                     sleep 1
                     adminPassword="${api_passwords[i]}"
@@ -101,8 +101,8 @@ function passwords_changePasswordApi() {
     else
         if [ -n "${wazuh_installed}" ]; then
             passwords_getApiUserId "${nuser}"
-            WAZUH_PASS_API='{"password":"'"${password}"'"}'
-            eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null'
+            WAZUH_PASS_API='{\"password\":\"'"${password}"'\"}'
+            eval 'common_curl -s -k -X PUT -H \"Authorization: Bearer $TOKEN_API\" -H \"Content-Type: application/json\" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null --max-time 300 --retry 5 --retry-delay 5 --fail'
             if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_indexer_cluster}" ]; then
                 common_logger -nl $"The password for Wazuh API user ${nuser} is ${password}"
             fi
@@ -175,9 +175,6 @@ function passwords_createBackUp() {
             capem=$(grep "plugins.security.ssl.transport.pemtrustedcas_filepath: " /etc/wazuh-indexer/opensearch.yml )
             rcapem="plugins.security.ssl.transport.pemtrustedcas_filepath: "
             capem="${capem//$rcapem}"
-            if [[ -z "${adminpem}" ]] || [[ -z "${adminkey}" ]]; then
-                passwords_readAdmincerts
-            fi
         fi
     fi
 
@@ -284,18 +281,18 @@ function passwords_generatePasswordFile() {
     for i in "${!users[@]}"; do
         {
         echo "# ${user_description[${i}]}"
-        echo "  indexer_username: '${users[${i}]}'" 
-        echo "  indexer_password: '${passwords[${i}]}'" 
-        echo ""	
+        echo "  indexer_username: '${users[${i}]}'"
+        echo "  indexer_password: '${passwords[${i}]}'"
+        echo ""
         } >> "${gen_file}"
     done
 
     for i in "${!api_users[@]}"; do
         {
-        echo "# ${api_user_description[${i}]}" 
-        echo "  api_username: '${api_users[${i}]}'" 
+        echo "# ${api_user_description[${i}]}"
+        echo "  api_username: '${api_users[${i}]}'"
         echo "  api_password: '${api_passwords[${i}]}'"
-        echo ""	
+        echo ""
         } >> "${gen_file}"
     done
 
@@ -303,7 +300,7 @@ function passwords_generatePasswordFile() {
 
 function passwords_getApiToken() {
 
-    TOKEN_API=$(curl -s -u "${adminUser}":"${adminPassword}" -k -X POST "https://localhost:55000/security/user/authenticate?raw=true")
+    TOKEN_API=$(common_curl -s -u "${adminUser}":"${adminPassword}" -k -X POST "https://localhost:55000/security/user/authenticate?raw=true" --max-time 300 --retry 5 --retry-delay 5)
     if [[ ${TOKEN_API} =~ "Invalid credentials" ]]; then
         common_logger -e "Invalid admin user credentials"
         if [[ $(type -t installCommon_rollBack) == "function" ]]; then
@@ -316,13 +313,13 @@ function passwords_getApiToken() {
 
 function passwords_getApiUsers() {
 
-    mapfile -t api_users < <(curl -s -k -X GET -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json"  "https://localhost:55000/security/users?pretty=true" | grep username | awk -F': ' '{print $2}' | sed -e "s/[\'\",]//g")
+    mapfile -t api_users < <(common_curl -s -k -X GET -H \"Authorization: Bearer $TOKEN_API\" -H \"Content-Type: application/json\"  \"https://localhost:55000/security/users?pretty=true\" --max-time 300 --retry 5 --retry-delay 5 | grep username | awk -F': ' '{print $2}' | sed -e "s/[\'\",]//g")
 
 }
 
 function passwords_getApiIds() {
 
-    mapfile -t api_ids < <(curl -s -k -X GET -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json"  "https://localhost:55000/security/users?pretty=true" | grep id | awk -F': ' '{print $2}' | sed -e "s/[\'\",]//g")
+    mapfile -t api_ids < <(common_curl -s -k -X GET -H \"Authorization: Bearer $TOKEN_API\" -H \"Content-Type: application/json\"  \"https://localhost:55000/security/users?pretty=true\" --max-time 300 --retry 5 --retry-delay 5 | grep id | awk -F': ' '{print $2}' | sed -e "s/[\'\",]//g")
 
 }
 
@@ -361,26 +358,6 @@ function passwords_getNetworkHost() {
     if [ "${IP}" == "0.0.0.0" ]; then
         IP="localhost"
     fi
-}
-
-function passwords_readAdmincerts() {
-
-    if [[ -f /etc/wazuh-indexer/certs/admin.pem ]]; then
-        adminpem="/etc/wazuh-indexer/certs/admin.pem"
-    else
-        common_logger -e "No admin certificate indicated. Please run the script with the option -c <path-to-certificate>."
-        exit 1;
-    fi
-
-    if [[ -f /etc/wazuh-indexer/certs/admin-key.pem ]]; then
-        adminkey="/etc/wazuh-indexer/certs/admin-key.pem"
-    elif [[ -f /etc/wazuh-indexer/certs/admin.key ]]; then
-        adminkey="/etc/wazuh-indexer/certs/admin.key"
-    else
-        common_logger -e "No admin certificate key indicated. Please run the script with the option -k <path-to-key-certificate>."
-        exit 1;
-    fi
-
 }
 
 function passwords_readFileUsers() {
@@ -492,7 +469,7 @@ For Wazuh API users, the file must have this format:
         mapfile -t passwords < <(printf "%s\n" "${finalpasswords[@]}")
         mapfile -t api_users < <(printf "%s\n" "${finalapiusers[@]}")
         mapfile -t api_passwords < <(printf "%s\n" "${finalapipasswords[@]}")
-        
+
         changeall=1
     fi
 
@@ -512,7 +489,7 @@ function passwords_restartService() {
         exit 1
     fi
 
-    if ps -e | grep -E -q "^\ *1\ .*systemd$"; then
+    if [[ -d /run/systemd/system ]]; then
         eval "systemctl daemon-reload ${debug}"
         eval "systemctl restart ${1}.service ${debug}"
         if [  "${PIPESTATUS[0]}" != 0  ]; then
@@ -527,7 +504,7 @@ function passwords_restartService() {
         else
             common_logger -d "${1} started."
         fi
-    elif ps -e | grep -E -q "^\ *1\ .*init$"; then
+    elif ps -p 1 -o comm= | grep "init"; then
         eval "/etc/init.d/${1} restart ${debug}"
         if [  "${PIPESTATUS[0]}" != 0  ]; then
             common_logger -e "${1} could not be started."
@@ -575,9 +552,6 @@ function passwords_runSecurityAdmin() {
             capem=$(grep "plugins.security.ssl.transport.pemtrustedcas_filepath: " /etc/wazuh-indexer/opensearch.yml )
             rcapem="plugins.security.ssl.transport.pemtrustedcas_filepath: "
             capem="${capem//$rcapem}"
-            if [[ -z "${adminpem}" ]] || [[ -z "${adminkey}" ]]; then
-                passwords_readAdmincerts
-            fi
         fi
     fi
 

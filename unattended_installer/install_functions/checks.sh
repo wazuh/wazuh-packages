@@ -166,6 +166,17 @@ function checks_arguments() {
 
 }
 
+# Checks if the --retry-connrefused is available in curl
+function check_curlVersion() {
+
+    # --retry-connrefused was added in 7.52.0
+    curl_version=$(curl -V | head -n 1 | awk '{ print $2 }')
+    if [ $(check_versions ${curl_version} 7.52.0) == "0" ]; then
+        curl_has_connrefused=0
+    fi
+
+}
+
 function check_dist() {
     dist_detect
     if [ "${DIST_NAME}" != "centos" ] && [ "${DIST_NAME}" != "rhel" ] && [ "${DIST_NAME}" != "amzn" ] && [ "${DIST_NAME}" != "ubuntu" ]; then
@@ -328,6 +339,17 @@ function checks_ports() {
         common_logger "The installation can not continue due to port usage by other processes."
         installCommon_rollBack
         exit 1
+    fi
+
+}
+
+# Checks if the first version is greater equal than to second one
+function check_versions() {
+
+    if test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1"; then
+        echo 0
+    else
+        echo 1
     fi
 
 }
