@@ -69,6 +69,8 @@ build_cmake() {
   ./bootstrap
   sed ' 1 s/.*/&-Wl,-bbigtoc/' Source/CMakeFiles/ctest.dir/link.txt | tee Source/CMakeFiles/ctest.dir/link.txt
   sed ' 1 s/.*/&-Wl,-bbigtoc/' Source/CMakeFiles/cpack.dir/link.txt | tee Source/CMakeFiles/cpack.dir/link.txt
+  sed ' 1 s/.*/&-Wl,-bbigtoc/' Source/CMakeFiles/cmake.dir/link.txt | tee Source/CMakeFiles/cmake.dir/link.txt
+  sed ' 1 s/.*/&-Wl,-bbigtoc/' Tests/CMakeServerLib/CMakeFiles/CMakeServerLibTests.dir/link.txt | tee Tests/CMakeServerLib/CMakeFiles/CMakeServerLibTests.dir/link.txt
   gmake && gmake install && cd / && rm -rf cmake-3.12.4
   ln -fs /usr/local/bin/cmake /usr/bin/cmake
 }
@@ -77,15 +79,13 @@ build_cmake() {
 build_environment() {
 
   # Resizing partitions for Site Ox boxes (used by Wazuh team)
-  if grep 'www.siteox.com' /etc/motd > /dev/null 2>&1; then
-    for partition in "/home" "/opt"; do
-      partition_size=$(df -m | grep $partition | awk -F' ' '{print $2}' | cut -d'.' -f1)
-      if [[ ${partition_size} -lt "2048" ]]; then
-        echo "Resizing $partition partition to 2GB"
-        chfs -a size=2048M $partition > /dev/null 2>&1
-      fi
-    done
-  fi
+  for partition in "/home" "/opt" "/"; do
+    partition_size=$(df -m | grep $partition | awk -F' ' '{print $2}' | cut -d'.' -f1)
+    if [[ ${partition_size} -lt "2048" ]]; then
+      echo "Resizing $partition partition to 2GB"
+      chfs -a size=4096M $partition > /dev/null 2>&1
+    fi
+  done
 
   rpm="rpm -Uvh --nodeps"
 
