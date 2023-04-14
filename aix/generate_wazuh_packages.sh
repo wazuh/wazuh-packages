@@ -79,11 +79,11 @@ build_cmake() {
 build_environment() {
 
   # Resizing partitions for Site Ox boxes (used by Wazuh team)
-  for partition in "/home" "/opt" "/"; do
+  for partition in "/home" "/opt"; do
     partition_size=$(df -m | grep $partition | awk -F' ' '{print $2}' | cut -d'.' -f1)
     if [[ ${partition_size} -lt "2048" ]]; then
       echo "Resizing $partition partition to 2GB"
-      chfs -a size=4096M $partition > /dev/null 2>&1
+      chfs -a size=2048M $partition > /dev/null 2>&1
     fi
   done
 
@@ -112,8 +112,6 @@ build_environment() {
   $rpm http://packages-dev.wazuh.com/deps/aix/m4-1.4.18-1.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/make-4.3-1.aix5.3.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/openldap-2.4.44-6.aix6.1.ppc.rpm || true
-  $rpm http://packages-dev.wazuh.com/deps/aix/openssl-1.0.2g-3.aix6.1.ppc.rpm || true
-  $rpm http://packages-dev.wazuh.com/deps/aix/openssl-devel-1.0.2g-3.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/pcre-8.42-1.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/pkg-config-0.29.1-1.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/readline-7.0-1.aix6.1.ppc.rpm || true
@@ -123,15 +121,12 @@ build_environment() {
   $rpm http://packages-dev.wazuh.com/deps/aix/popt-1.16-2.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/rsync-3.1.2-3.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/tar-1.32-1.aix6.1.ppc.rpm || true
-  $rpm http://packages-dev.wazuh.com/deps/aix/curl-7.72.0-1.aix5.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/readline-devel-7.0-1.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/guile-1.8.8-2.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/unixODBC-2.3.1-1.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/db-4.8.24-4.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/gdbm-1.10-1.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/ncurses-6.2-2.aix6.1.ppc.rpm || true
-  $rpm http://packages-dev.wazuh.com/deps/aix/sqlite-3.33.0-1.aix6.1.ppc.rpm || true
-  $rpm http://packages-dev.wazuh.com/deps/aix/sqlite-libs-3.33.0-1.aix6.1.ppc.rpm || true
   $rpm http://packages-dev.wazuh.com/deps/aix/python-2.7.15-1.aix6.1.ppc.rpm || true
 
 
@@ -212,7 +207,7 @@ build_package() {
   init_scripts="/etc/rc.d/init.d"
   sysconfdir="/etc"
 
-  rpm --define '_tmppath /tmp' --define "_topdir ${rpm_build_dir}" --define "_localstatedir ${install_path}" \
+  rpmbuild --define '_tmppath /tmp' --define "_topdir ${rpm_build_dir}" --define "_localstatedir ${install_path}" \
   --define "_init_scripts ${init_scripts}" --define "_sysconfdir ${sysconfdir}" \
   -bb ${rpm_build_dir}/SPECS/${package_name}-aix.spec
 
