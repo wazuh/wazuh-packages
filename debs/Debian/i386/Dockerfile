@@ -5,7 +5,7 @@ ENV DEBIAN_FRONTEND noninteractive
 # Installing necessary packages
 RUN echo "deb http://archive.debian.org/debian/ wheezy contrib main non-free" > /etc/apt/sources.list && \
     echo "deb-src http://archive.debian.org/debian/ wheezy contrib main non-free" >> /etc/apt/sources.list && \
-    apt-get update && apt-get install -y apt-utils && \
+    apt-get update && apt-get install -y --force-yes apt-utils && \
     apt-get install -y --force-yes \
     curl gcc-multilib make wget sudo expect gnupg perl-base=5.14.2-21+deb7u3 \
     perl libc-bin=2.13-38+deb7u10 libc6=2.13-38+deb7u10 libc6-dev \
@@ -14,7 +14,7 @@ RUN echo "deb http://archive.debian.org/debian/ wheezy contrib main non-free" > 
     libssl1.0.0=1.0.1e-2+deb7u20 gawk libsigsegv2 procps
 
 # Add Debian's source repository
-RUN apt-get update && apt-get build-dep python3.2 -y
+RUN apt-get update && apt-get build-dep python3.2 -y --force-yes
 RUN sed -i "s;/\* To add :#define SO_REUSEPORT 15 \*/;#define SO_REUSEPORT 15;g" /usr/include/asm-generic/socket.h
 
 RUN curl -OL http://packages.wazuh.com/utils/gcc/gcc-9.4.0.tar.gz && \
