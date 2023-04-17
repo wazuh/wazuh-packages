@@ -1,6 +1,6 @@
 # Spec file for AIX systems
 Name:        wazuh-agent
-Version:     4.3.10
+Version:     4.3.11
 Release:     1
 License:     GPL
 URL:         https://www.wazuh.com/
