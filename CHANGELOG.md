@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 ## [v4.5.0]
 
 - https://github.com/wazuh/wazuh-packages/releases/tag/v4.5.0
+## [v4.4.2]
+
+- https://github.com/wazuh/wazuh-packages/releases/tag/v4.4.2
+
+## [v4.4.1]
+
+- https://github.com/wazuh/wazuh-packages/releases/tag/v4.4.1
 
 ## [v4.4.0]
 
