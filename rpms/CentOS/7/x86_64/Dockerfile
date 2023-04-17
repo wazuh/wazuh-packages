@@ -1,36 +1,31 @@
-FROM centos:6
+FROM centos:7
 
 # Install all the necessary tools to build the packages
-RUN rm /etc/yum.repos.d/* && echo "exactarch=1" >> /etc/yum.conf
-COPY CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo
-RUN yum clean all && yum update -y
-RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-6
 RUN yum install -y gcc make wget git \
-    openssh-clients sudo gnupg \
+    openssh-clients sudo gnupg file-devel\
     automake autoconf libtool policycoreutils-python \
-    yum-utils epel-release redhat-rpm-config rpm-devel \
-    autopoint gettext nspr nspr-devel \
-    nss nss-devel kenel-headers magic magic-devel \
-    db4 db4-devel zlib zlib-devel rpm-build bison \
+    yum-utils system-rpm-config rpm-devel \
+    gettext nspr nspr-devel \
+    nss nss-devel libdb libdb-devel \
+    zlib zlib-devel rpm-build bison \
     sharutils bzip2-devel xz-devel lzo-devel \
     e2fsprogs-devel libacl-devel libattr-devel \
     openssl-devel libxml2-devel kexec-tools elfutils \
-    libarchive-devel elfutils-libelf-devel \
-    elfutils-libelf patchelf elfutils-devel libgcrypt-devel
-
-RUN yum-builddep python34 -y
-
-RUN curl --silent --location https://rpm.nodesource.com/setup_8.x | bash -
-RUN yum install -y nodejs
+    libcurl-devel elfutils-libelf-devel \
+    elfutils-libelf elfutils-devel libgcrypt-devel \
+    libarchive-devel libarchive bluez-libs-devel bzip2 \
+    desktop-file-utils expat-devel findutils gcc-c++ gdbm-devel \
+    glibc-devel gmp-devel gnupg2 libappstream-glib \
+    libffi-devel libtirpc-devel libGL-devel libuuid-devel \
+    libX11-devel ncurses-devel pkgconfig readline-devel \
+    redhat-rpm-config sqlite-devel gdb tar tcl-devel tix-devel tk-devel \
+    valgrind-devel python-rpm-macros python3
 
 # Update rpmbuild, rpm and autoconf
 RUN curl -O http://packages.wazuh.com/utils/autoconf/autoconf-2.69.tar.gz && \
     gunzip autoconf-2.69.tar.gz && tar xvf autoconf-2.69.tar && \
     cd autoconf-2.69 && ./configure && make -j$(nproc) && \
     make install && cd / && rm -rf autoconf-*
-
-RUN curl -O https://packages.wazuh.com/utils/libarchive/libarchive-3.1.2-12.el7.src.rpm && \
-    rpmbuild --rebuild libarchive-3.1.2-12.el7.src.rpm && rpm -Uvh /root/rpmbuild/RPMS/x86_64/* --nodeps && rm -rf libarchive-*
 
 RUN curl -O http://packages.wazuh.com/utils/rpm/rpm-4.15.1.tar.bz2 && \
     tar -xjf rpm-4.15.1.tar.bz2 && cd rpm-4.15.1 && \
@@ -46,7 +41,8 @@ RUN curl -OL http://packages.wazuh.com/utils/gcc/gcc-9.4.0.tar.gz && \
     ./configure --prefix=/usr/local/gcc-9.4.0 --enable-languages=c,c++ \
         --disable-multilib --disable-libsanitizer && \
     make -j$(nproc) && make install && \
-    ln -fs /usr/local/gcc-9.4.0/bin/g++ /usr/bin/c++ && cd / && rm -rf gcc-*
+    ln -fs /usr/local/gcc-9.4.0/bin/g++ /usr/bin/c++ && \
+    ln -fs /usr/local/gcc-9.4.0/bin/gcc /usr/bin/cc && cd / && rm -rf gcc-*
 
 ENV CPLUS_INCLUDE_PATH "/usr/local/gcc-9.4.0/include/c++/9.4.0/"
 ENV LD_LIBRARY_PATH "/usr/local/gcc-9.4.0/lib64/"
