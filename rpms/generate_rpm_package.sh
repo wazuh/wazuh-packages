@@ -80,7 +80,7 @@ build_rpm() {
 
 
     # Download the legacy tar file if it is needed
-    if [ "${CONTAINER_NAME}" = "${LEGACY_RPM_I386_BUILDER}" ] && [ ! -f "${LEGACY_TAR_FILE}" ]; then
+    if [ "${CONTAINER_NAME}" == "${LEGACY_RPM_I386_BUILDER}" ] && [ ! -f "${LEGACY_TAR_FILE}" ]; then
         ${DOWNLOAD_TAR}
     fi
 
