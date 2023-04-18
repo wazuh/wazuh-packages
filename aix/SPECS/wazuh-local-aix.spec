@@ -84,80 +84,11 @@ cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
 # Install Vulnerability Detector files
 /opt/freeware/bin/install -m 0440 src/wazuh_modules/vulnerability_detector/*.json ${RPM_BUILD_ROOT}%{_localstatedir}/queue/vulnerabilities/dictionaries
 
-# Add configuration scripts
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/local_installation_scripts/
-cp gen_ossec.sh ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/local_installation_scripts/
-cp add_localfiles.sh ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/local_installation_scripts/
-
-# Templates for initscript
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/local_installation_scripts/src/init
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/local_installation_scripts/etc/templates/config/generic
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/local_installation_scripts/etc/templates/config/centos
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/local_installation_scripts/etc/templates/config/rhel
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/local_installation_scripts/etc/templates/config/suse
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/local_installation_scripts/etc/templates/config/sles
-
-# Install configuration assesment files and files templates
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/applications
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/generic
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ubuntu/
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles/
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/suse/
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sunos
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/windows
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/
-
-cp -r ruleset/sca/{applications,generic,mongodb,nginx,oracledb,centos,darwin,debian,rhel,sles,sunos,windows,amazon,ubuntu} ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp
-
-cp etc/templates/config/generic/{sca.files,sca.local.files} ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/generic
-
-cp etc/templates/config/amzn/1/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/1
-cp etc/templates/config/amzn/2/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/2
-
-cp etc/templates/config/centos/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos
-cp etc/templates/config/centos/8/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/8
-cp etc/templates/config/centos/7/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/7
-cp etc/templates/config/centos/6/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/6
-cp etc/templates/config/centos/5/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/5
-
-cp etc/templates/config/rhel/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel
-cp etc/templates/config/rhel/9/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/9
-cp etc/templates/config/rhel/8/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/8
-cp etc/templates/config/rhel/7/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/7
-cp etc/templates/config/rhel/6/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/6
-cp etc/templates/config/rhel/5/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/5
-
-cp etc/templates/config/sles/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles
-cp etc/templates/config/sles/11/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles/11
-cp etc/templates/config/sles/12/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles/12
-cp etc/templates/config/sles/15/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles/15
-
-cp etc/templates/config/suse/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/suse
-cp etc/templates/config/suse/11/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/suse/11
-cp etc/templates/config/suse/12/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/suse/12
-
-cp etc/templates/config/fedora/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora
-cp etc/templates/config/fedora/29/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/29
-cp etc/templates/config/fedora/30/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/30
-cp etc/templates/config/fedora/31/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/31
-cp etc/templates/config/fedora/32/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/32
-cp etc/templates/config/fedora/33/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/33
-cp etc/templates/config/fedora/34/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/34
-
-# Add SUSE initscript
-sed "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/ossec-hids-suse.init > src/init/templates/ossec-hids-suse.init
-cp -rp src/init/templates/ossec-hids-suse.init ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/local_installation_scripts/src/init/
-
 # Copy scap templates
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/local_installation_scripts/etc/templates/config/generic/
 cp -rp  etc/templates/config/generic/* ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/local_installation_scripts/etc/templates/config/generic
-cp -rp  etc/templates/config/centos/* ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/local_installation_scripts/etc/templates/config/centos
-cp -rp  etc/templates/config/rhel/* ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/local_installation_scripts/etc/templates/config/rhel
 
+mkdir -p %{RPM_BUILD_ROOT}%{_localstatedir}/packages_files/local_installation_scripts/src/init
 /opt/freeware/bin/install -m 0640 src/init/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/local_installation_scripts/src/init
 
 # Add installation scripts
@@ -383,49 +314,6 @@ else
   DIST_NAME="generic"
   DIST_VER=""
 fi
-
-SCA_DIR="${DIST_NAME}/${DIST_VER}"
-SCA_BASE_DIR="%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp"
-mkdir -p %{_localstatedir}/ruleset/sca
-
-SCA_TMP_DIR="${SCA_BASE_DIR}/${SCA_DIR}"
-
-# Install the configuration files needed for this hosts
-if [ -r "${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}/${DIST_SUBVER}/sca.files" ]; then
-  SCA_TMP_DIR="${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}/${DIST_SUBVER}"
-elif [ -r "${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}/sca.files" ]; then
-  SCA_TMP_DIR="${SCA_BASE_DIR}/${DIST_NAME}/${DIST_VER}"
-elif [ -r "${SCA_BASE_DIR}/${DIST_NAME}/sca.files" ]; then
-  SCA_TMP_DIR="${SCA_BASE_DIR}/${DIST_NAME}"
-else
-  SCA_TMP_DIR="${SCA_BASE_DIR}/generic"
-fi
-
-SCA_TMP_FILE="${SCA_TMP_DIR}/sca.files"
-
-if [ -r ${SCA_TMP_FILE} ] && [ -r ${SCA_BASE_DIR}/generic/sca.local.files ]; then
-
-  rm -f %{_localstatedir}/ruleset/sca/* || true
-
-  for sca_file in $(cat ${SCA_TMP_FILE}); do
-    if [ -f ${SCA_BASE_DIR}/${sca_file} ]; then
-      mv ${SCA_BASE_DIR}/${sca_file} %{_localstatedir}/ruleset/sca
-    fi
-  done
-
-  for sca_file in $(cat ${SCA_BASE_DIR}/generic/sca.local.files); do
-    filename=$(basename ${sca_file})
-    if [ -f "${SCA_BASE_DIR}/${sca_file}" ] && [ ! -f "%{_localstatedir}/ruleset/sca/${filename}" ]; then
-      mv ${SCA_BASE_DIR}/${sca_file} %{_localstatedir}/ruleset/sca/${filename}.disabled
-    fi
-  done
-fi
-
-# Fix sca permissions, group and owner
-chmod 640 %{_localstatedir}/ruleset/sca/*
-chown root:test %{_localstatedir}/ruleset/sca/*
-# Delete the temporary directory
-rm -rf ${SCA_BASE_DIR}
 
 # Add the SELinux policy
 if command -v getenforce > /dev/null 2>&1 && command -v semodule > /dev/null 2>&1; then
@@ -723,84 +611,6 @@ rm -fr %{buildroot}
 %dir %attr(770, root, test) %{_localstatedir}/.ssh
 %dir %attr(750, test, test) %{_localstatedir}/stats
 %dir %attr(1770, root, test) %{_localstatedir}/tmp
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/applications
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/applications/*
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/generic
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/generic/*
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/mongodb
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/mongodb/*
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/nginx
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/nginx/*
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/oracledb
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/oracledb/*
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/1
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/1/*
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/2
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/2/*
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/sca.files
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/5
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/5/*
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/6
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/6/*
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/7
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/7/*
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/8
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/8/*
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/15
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/15/*
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/16
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/16/*
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/17
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/17/*
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/18
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/18/*
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/19
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/19/*
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/20
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/20/*
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/21
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/21/*
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/*
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/sca.files
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/5
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/5/*
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/6
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/6/*
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/7
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/7/*
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/8
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/8/*
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/9
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/9/*
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles/sca.files
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles/11
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles/11/*
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles/12
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles/12/*
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles/15
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles/15/*
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sunos
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sunos/*
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/suse/sca.files
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/suse/11
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/suse/11/*
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/suse/12
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/suse/12/*
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ubuntu
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ubuntu/*
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amazon
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amazon/*
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/*
-%dir %attr(750, test, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/windows
-%attr(640, root, test) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/windows/*
 %dir %attr(750, root, test) %{_localstatedir}/var
 %dir %attr(770, root, test) %{_localstatedir}/var/db
 %dir %attr(770, root, test) %{_localstatedir}/var/db/agents
