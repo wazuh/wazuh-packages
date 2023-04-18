@@ -16,7 +16,7 @@ revision="$2"
 future="$3"
 repository="$4"
 reference="$5"
-opensearch_version="2.4.1"
+opensearch_version="2.6.0"
 base_dir=/opt/wazuh-dashboard-base
 
 # -----------------------------------------------------------------------------
