@@ -91,9 +91,9 @@ build_deb() {
 
 build() {
 
-    if [[ "${ARCHITECTURE}" = "x86_64" ]] || [[ "${ARCHITECTURE}" = "amd64" ]]; then
+    if [[ "${ARCHITECTURE}" == "x86_64" ]] || [[ "${ARCHITECTURE}" == "amd64" ]]; then
             ARCHITECTURE="amd64"
-    elif [[ "${ARCHITECTURE}" = "aarch64" ]] || [[ "${ARCHITECTURE}" = "arm64" ]]; then
+    elif [[ "${ARCHITECTURE}" == "aarch64" ]] || [[ "${ARCHITECTURE}" == "arm64" ]]; then
             ARCHITECTURE="arm64"
     elif [[ ${ARCHITECTURE} == "arm32" ]] || [[ ${ARCHITECTURE} == "armhf" ]] || [[ ${ARCHITECTURE} == "armv7hl" ]] ; then
         ARCHITECTURE="armhf"
@@ -102,13 +102,13 @@ build() {
     if [[ "${TARGET}" == "manager" ]]; then
         BUILD_NAME=""
         FILE_PATH=""
-        if [[ "${ARCHITECTURE}" = "amd64" ]]; then
+        if [[ "${ARCHITECTURE}" == "amd64" ]]; then
             BUILD_NAME="${DEB_MANAGER_AMD64_BUILDER}"
             FILE_PATH="${DEB_MANAGER_AMD64_BUILDER_DOCKERFILE}"
-        elif [[ "${ARCHITECTURE}" = "arm64" ]]; then
+        elif [[ "${ARCHITECTURE}" == "arm64" ]]; then
             BUILD_NAME="${DEB_MANAGER_ARM64_BUILDER}"
             FILE_PATH="${DEB_ARM64_BUILDER_DOCKERFILE}"
-        elif [[ "${ARCHITECTURE}" = "ppc64le" ]]; then
+        elif [[ "${ARCHITECTURE}" == "ppc64le" ]]; then
             BUILD_NAME="${DEB_MANAGER_PPC64LE_BUILDER}"
             FILE_PATH="${DEB_PPC64LE_BUILDER_DOCKERFILE}"
         else
@@ -118,19 +118,19 @@ build() {
         build_deb ${BUILD_NAME} ${FILE_PATH} || return 1
 
     elif [[ "${TARGET}" == "agent" ]] ; then
-        if [[ "${ARCHITECTURE}" = "amd64" ]]; then
+        if [[ "${ARCHITECTURE}" == "amd64" ]]; then
             BUILD_NAME="${DEB_AGENT_AMD64_BUILDER}"
             FILE_PATH="${DEB_AGENT_AMD64_BUILDER_DOCKERFILE}"
-        elif [[ "${ARCHITECTURE}" = "i386" ]]; then
+        elif [[ "${ARCHITECTURE}" == "i386" ]]; then
             BUILD_NAME="${DEB_AGENT_I386_BUILDER}"
             FILE_PATH="${DEB_AGENT_I386_BUILDER_DOCKERFILE}"
-        elif [[ "${ARCHITECTURE}" = "arm64" ]]; then
+        elif [[ "${ARCHITECTURE}" == "arm64" ]]; then
             BUILD_NAME="${DEB_AGENT_ARM64_BUILDER}"
             FILE_PATH="${DEB_ARM64_BUILDER_DOCKERFILE}"
-        elif [[ "${ARCHITECTURE}" = "ppc64le" ]]; then
+        elif [[ "${ARCHITECTURE}" == "ppc64le" ]]; then
             BUILD_NAME="${DEB_AGENT_PPC64LE_BUILDER}"
             FILE_PATH="${DEB_PPC64LE_BUILDER_DOCKERFILE}"
-        elif [[ "${ARCHITECTURE}" = "armhf" ]]; then
+        elif [[ "${ARCHITECTURE}" == "armhf" ]]; then
             BUILD_NAME="${DEB_AGENT_ARMHF_BUILDER}"
             FILE_PATH="${DEB_ARMHF_BUILDER_DOCKERFILE}"
         else
