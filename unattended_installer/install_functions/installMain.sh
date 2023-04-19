@@ -203,10 +203,6 @@ function main() {
 # -------------- Uninstall case  ------------------------------------
 
     common_checkSystem
-
-    if [ -z "${uninstall}" ]; then
-        installCommon_installCheckDependencies
-    fi
     
     if [ -z "${download}" ]; then
         check_dist
@@ -220,6 +216,10 @@ function main() {
     fi
 
 # -------------- Preliminary checks  --------------------------------
+
+    if [ -z "${uninstall}" ]; then
+        installCommon_installCheckDependencies
+    fi
 
     if [ -z "${configurations}" ] && [ -z "${AIO}" ] && [ -z "${download}" ]; then
         checks_previousCertificate
@@ -249,6 +249,7 @@ function main() {
 
 
 # -------------- Prerequisites and Wazuh repo  ----------------------
+
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
         installCommon_installPrerequisites
         installCommon_addWazuhRepo
