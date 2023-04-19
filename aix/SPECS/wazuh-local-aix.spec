@@ -9,9 +9,6 @@ URL:         https://www.wazuh.com/
 BuildRoot:   %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Vendor:      Wazuh, Inc <info@wazuh.com>
 Packager:    Wazuh, Inc <info@wazuh.com>
-Requires(pre):    /usr/sbin/groupadd /usr/sbin/useradd
-Requires(preun):  /sbin/service
-Requires(postun): /sbin/service /usr/sbin/groupdel /usr/sbin/userdel
 Conflicts:   ossec-hids ossec-hids-agent wazuh-agent wazuh-local wazuh-manager
 Obsoletes: wazuh-api < 4.0.0
 AutoReqProv: no
@@ -27,7 +24,6 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 %prep
 %setup -q
 set -x
-./gen_ossec.sh conf local centos %rhel %{_localstatedir} > etc/ossec-server.conf
 
 %build
 # Rebuild for server
@@ -37,7 +33,7 @@ gmake clean
 # Build Wazuh sources
 deps_version=`cat Makefile | grep "DEPS_VERSION =" | cut -d " " -f 3`
 gmake deps TARGET=local RESOURCES_URL=http://packages.wazuh.com/deps/${deps_version}
-gmake TARGET=local USE_SELINUX=no DEBUG=%{_debugenabled}
+gmake TARGET=local USE_SELINUX=no WAZUH_USER=%{_user} WAZUH_GROUP=%{_group} DEBUG=%{_debugenabled} 
 
 cd ..
 
@@ -81,6 +77,11 @@ mv src/init/templates/ossec-hids-aix.init.tmp src/init/templates/ossec-hids-aix.
 /opt/freeware/bin/install -m 0750 src/init/templates/ossec-hids-aix.init ${RPM_BUILD_ROOT}%{_init_scripts}/wazuh-local
 cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
 
+# Add configuration scripts
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/local_installation_scripts/
+cp gen_ossec.sh ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/local_installation_scripts/
+cp add_localfiles.sh ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/local_installation_scripts/
+
 # Install Vulnerability Detector files
 /opt/freeware/bin/install -m 0440 src/wazuh_modules/vulnerability_detector/*.json ${RPM_BUILD_ROOT}%{_localstatedir}/queue/vulnerabilities/dictionaries
 
@@ -88,8 +89,10 @@ cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/local_installation_scripts/etc/templates/config/generic/
 cp -rp  etc/templates/config/generic/* ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/local_installation_scripts/etc/templates/config/generic
 
-mkdir -p %{RPM_BUILD_ROOT}%{_localstatedir}/packages_files/local_installation_scripts/src/init
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/local_installation_scripts/src/init
 /opt/freeware/bin/install -m 0640 src/init/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/local_installation_scripts/src/init
+
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/etc/shared/default/
 
 # Add installation scripts
 cp src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/local_installation_scripts/src/
@@ -102,16 +105,13 @@ exit 0
 
 %pre
 
-# Create the test group if it doesn't exists
-if command -v getent > /dev/null 2>&1 && ! getent group test > /dev/null 2>&1; then
-  groupadd -r test
-elif ! getent group test > /dev/null 2>&1; then
-  groupadd -r test
+# Create group  and user if they don't exists
+if ! grep "^%{_group}:" /etc/group > /dev/null 2>&1; then
+  /usr/bin/mkgroup %{_group}
 fi
-
-# Create the test user if it doesn't exists
-if ! getent passwd test > /dev/null 2>&1; then
-  useradd -g test -G test -d %{_localstatedir} -r -s /sbin/nologin test
+if ! grep "^%{_user}" /etc/passwd > /dev/null 2>&1; then
+  /usr/sbin/useradd %{_user}
+  /usr/sbin/usermod -G %{_group} %{_user}
 fi
 
 # Stop the services to upgrade the package
@@ -150,7 +150,7 @@ fi
 
 if [ -f %{_localstatedir}/queue/db/global.db ]; then
   chmod 640 %{_localstatedir}/queue/db/global.db*
-  chown test:test %{_localstatedir}/queue/db/global.db*
+  chown %{_user}:%{_group} %{_localstatedir}/queue/db/global.db*
 fi
 
 # Remove Vuln-detector database
@@ -163,45 +163,6 @@ fi
 
 if [ -d %{_localstatedir}/queue/rootcheck ]; then
   rm -rf %{_localstatedir}/queue/rootcheck/* > /dev/null 2>&1
-fi
-
-# Delete old API backups
-if [ $1 = 2 ]; then
-  if [ -d %{_localstatedir}/~api ]; then
-    rm -rf %{_localstatedir}/~api
-  fi
-
-  if [ -f %{_sysconfdir}/ossec-init.conf ]; then
-    # Import the variables from ossec-init.conf file
-    . %{_sysconfdir}/ossec-init.conf
-  else
-    # Ask wazuh-control the version
-    VERSION=$(%{_localstatedir}/bin/wazuh-control info -v)
-  fi
-
-  # Get the major and minor version
-  MAJOR=$(echo $VERSION | cut -dv -f2 | cut -d. -f1)
-  MINOR=$(echo $VERSION | cut -d. -f2)
-
-  # Delete uncompatible DBs versions
-  if [ $MAJOR = 3 ] && [ $MINOR -lt 7 ]; then
-    rm -f %{_localstatedir}/queue/db/*.db*
-    rm -f %{_localstatedir}/queue/db/.template.db
-  fi
-
-  # Delete 3.X Wazuh API service
-  if [ "$MAJOR" = "3" ] && [ -d %{_localstatedir}/api ]; then
-    if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 ; then
-      systemctl stop wazuh-api.service > /dev/null 2>&1
-      systemctl disable wazuh-api.service > /dev/null 2>&1
-      rm -f /etc/systemd/system/wazuh-api.service
-    elif command -v service > /dev/null 2>&1 && command -v chkconfig > /dev/null 2>&1; then
-      service wazuh-api stop > /dev/null 2>&1
-      chkconfig wazuh-api off > /dev/null 2>&1
-      chkconfig --del wazuh-api > /dev/null 2>&1
-      rm -f /etc/rc.d/init.d/wazuh-api || true
-    fi
-  fi
 fi
 
 %post
@@ -245,8 +206,8 @@ if [ $1 = 1 ]; then
 
   touch %{_localstatedir}/logs/active-responses.log
   touch %{_localstatedir}/logs/integrations.log
-  chown test:test %{_localstatedir}/logs/active-responses.log
-  chown test:test %{_localstatedir}/logs/integrations.log
+  chown %{_user}:%{_group} %{_localstatedir}/logs/active-responses.log
+  chown %{_user}:%{_group} %{_localstatedir}/logs/integrations.log
   chmod 0660 %{_localstatedir}/logs/active-responses.log
   chmod 0640 %{_localstatedir}/logs/integrations.log
 
@@ -264,12 +225,9 @@ fi
 # Generation auto-signed certificate if not exists
 if type openssl >/dev/null 2>&1 && [ ! -f "%{_localstatedir}/etc/ssllocal.key" ] && [ ! -f "%{_localstatedir}/etc/ssllocal.cert" ]; then
   openssl req -x509 -batch -nodes -days 365 -newkey rsa:2048 -subj "/C=US/ST=California/CN=Wazuh/" -keyout %{_localstatedir}/etc/ssllocal.key -out %{_localstatedir}/etc/ssllocal.cert 2>/dev/null
-  chmod 640 %{_localstatedir}/etc/ssllocal.key
-  chmod 640 %{_localstatedir}/etc/ssllocal.cert
+  chmod 640 %{_localstatedir}/etc/ssllocal.key > /dev/null 2>&1
+  chmod 640 %{_localstatedir}/etc/ssllocal.cert > /dev/null 2>&1
 fi
-
-rm -f %{_localstatedir}/etc/shared/ar.conf  >/dev/null 2>&1
-rm -f %{_localstatedir}/etc/shared/merged.mg  >/dev/null 2>&1
 
 # CentOS
 if [ -r "/etc/centos-release" ]; then
@@ -326,29 +284,6 @@ fi
 # Delete the installation files used to configure the local
 rm -rf %{_localstatedir}/packages_files
 
-# Remove unnecessary files from default group
-rm -f %{_localstatedir}/etc/shared/default/*.rpmnew
-
-# Remove old ossec user and group if exists and change ownwership of files
-
-if getent group ossec > /dev/null 2>&1; then
-  find %{_localstatedir}/ -group ossec -user root -exec chown root:test {} \; > /dev/null 2>&1 || true
-  if getent passwd ossec > /dev/null 2>&1; then
-    find %{_localstatedir}/ -group ossec -user ossec -exec chown test:test {} \; > /dev/null 2>&1 || true
-    userdel ossec > /dev/null 2>&1
-  fi
-  if getent passwd ossecm > /dev/null 2>&1; then
-    find %{_localstatedir}/ -group ossec -user ossecm -exec chown test:test {} \; > /dev/null 2>&1 || true
-    userdel ossecm > /dev/null 2>&1
-  fi
-  if getent passwd ossecr > /dev/null 2>&1; then
-    find %{_localstatedir}/ -group ossec -user ossecr -exec chown test:test {} \; > /dev/null 2>&1 || true
-    userdel ossecr > /dev/null 2>&1
-  fi
-  if getent group ossec > /dev/null 2>&1; then
-    groupdel ossec > /dev/null 2>&1
-  fi
-fi
 
 %preun
 
@@ -409,7 +344,6 @@ if [ $1 = 0 ];then
   # Remove lingering folders and files
   rm -rf %{_localstatedir}/queue/
   rm -rf %{_localstatedir}/framework/
-  rm -rf %{_localstatedir}/api/
   rm -rf %{_localstatedir}/stats/
   rm -rf %{_localstatedir}/var/
   rm -rf %{_localstatedir}/bin/
@@ -460,35 +394,19 @@ fi
 rm -fr %{buildroot}
 
 %files
-%defattr(-,root, test)
+%defattr(-,root, %{_group})
 %config(missingok) %{_init_scripts}/wazuh-local
-%attr(640, root, test) %verify(not md5 size mtime) %ghost %{_sysconfdir}/ossec-init.conf
-%dir %attr(750, root, test) %{_localstatedir}
-%attr(750, root, test) %{_localstatedir}/agentless
-%dir %attr(750, root, test) %{_localstatedir}/active-response
-%dir %attr(750, root, test) %{_localstatedir}/active-response/bin
-%attr(750, root, test) %{_localstatedir}/active-response/bin/*
-%dir %attr(750, root, test) %{_localstatedir}/api
-%dir %attr(770, root, test) %{_localstatedir}/api/configuration
-%attr(660, root, test) %config(noreplace) %{_localstatedir}/api/configuration/api.yaml
-%dir %attr(770, root, test) %{_localstatedir}/api/configuration/security
-%dir %attr(770, root, test) %{_localstatedir}/api/configuration/ssl
-%dir %attr(750, root, test) %{_localstatedir}/api/scripts
-%attr(640, root, test) %{_localstatedir}/api/scripts/wazuh-apid.py
-%dir %attr(750, root, test) %{_localstatedir}/backup
-%dir %attr(750, test, test) %{_localstatedir}/backup/agents
-%dir %attr(750, test, test) %{_localstatedir}/backup/groups
-%dir %attr(750, root, test) %{_localstatedir}/backup/shared
-%dir %attr(750, root, test) %{_localstatedir}/bin
-%attr(750, root, root) %{_localstatedir}/bin/agent_control
-%attr(750, root, test) %{_localstatedir}/bin/agent_groups
-%attr(750, root, test) %{_localstatedir}/bin/agent_upgrade
+%attr(640, root, %{_group}) %verify(not md5 size mtime) %ghost %{_sysconfdir}/ossec-init.conf
+%dir %attr(750, root, %{_group}) %{_localstatedir}
+%attr(750, root, %{_group}) %{_localstatedir}/agentless
+%dir %attr(750, root, %{_group}) %{_localstatedir}/active-response
+%dir %attr(750, root, %{_group}) %{_localstatedir}/active-response/bin
+%attr(750, root, %{_group}) %{_localstatedir}/active-response/bin/*
+%dir %attr(750, root, %{_group}) %{_localstatedir}/bin
 %attr(750, root, root) %{_localstatedir}/bin/clear_stats
-%attr(750, root, test) %{_localstatedir}/bin/cluster_control
 %attr(750, root, root) %{_localstatedir}/bin/manage_agents
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-agentlessd
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-analysisd
-%attr(750, root, root) %{_localstatedir}/bin/wazuh-authd
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-control
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-csyslogd
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-dbd
@@ -496,73 +414,51 @@ rm -fr %{buildroot}
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-integratord
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-logcollector
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-logtest-legacy
-%attr(750, root, test) %{_localstatedir}/bin/wazuh-logtest
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-maild
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-monitord
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-regex
-%attr(750, root, root) %{_localstatedir}/bin/wazuh-remoted
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-reportd
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-syscheckd
-%attr(750, root, test) %{_localstatedir}/bin/verify-agent-conf
-%attr(750, root, test) %{_localstatedir}/bin/wazuh-apid
-%attr(750, root, test) %{_localstatedir}/bin/wazuh-clusterd
+%attr(750, root, %{_group}) %{_localstatedir}/bin/verify-agent-conf
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-db
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-modulesd
-%dir %attr(770, test, test) %{_localstatedir}/etc
-%attr(660, root, test) %config(noreplace) %{_localstatedir}/etc/ossec.conf
-%attr(640, root, test) %config(noreplace) %{_localstatedir}/etc/client.keys
-%attr(640, root, test) %{_localstatedir}/etc/internal_options*
-%attr(640, root, test) %config(noreplace) %{_localstatedir}/etc/local_internal_options.conf
-%attr(640, root, test) %{_localstatedir}/etc/localtime
-%dir %attr(770, root, test) %{_localstatedir}/etc/decoders
-%attr(660, test, test) %config(noreplace) %{_localstatedir}/etc/decoders/local_decoder.xml
-%dir %attr(770, root, test) %{_localstatedir}/etc/lists
-%dir %attr(770, test, test) %{_localstatedir}/etc/lists/amazon
-%attr(660, test, test) %config(noreplace) %{_localstatedir}/etc/lists/amazon/*
-%attr(660, test, test) %config(noreplace) %{_localstatedir}/etc/lists/audit-keys
-%attr(660, test, test) %config(noreplace) %{_localstatedir}/etc/lists/security-eventchannel
-%dir %attr(770, root, test) %{_localstatedir}/etc/shared
-%dir %attr(770, test, test) %{_localstatedir}/etc/shared/default
-%attr(660, test, test) %{_localstatedir}/etc/shared/agent-template.conf
-%attr(660, test, test) %config(noreplace) %{_localstatedir}/etc/shared/default/*
-%dir %attr(770, root, test) %{_localstatedir}/etc/rootcheck
-%attr(660, root, test) %{_localstatedir}/etc/rootcheck/*.txt
-%dir %attr(770, root, test) %{_localstatedir}/etc/rules
-%attr(660, test, test) %config(noreplace) %{_localstatedir}/etc/rules/local_rules.xml
-%dir %attr(750, root, test) %{_localstatedir}/framework
-%dir %attr(750, root, test) %{_localstatedir}/framework/python
-%{_localstatedir}/framework/python/*
-%dir %attr(750, root, test) %{_localstatedir}/framework/scripts
-%attr(640, root, test) %{_localstatedir}/framework/scripts/*.py
-%dir %attr(750, root, test) %{_localstatedir}/framework/wazuh
-%attr(640, root, test) %{_localstatedir}/framework/wazuh/*.py
-%dir %attr(750, root, test) %{_localstatedir}/framework/wazuh/core/cluster
-%attr(640, root, test) %{_localstatedir}/framework/wazuh/core/cluster/*.py
-%attr(640, root, test) %{_localstatedir}/framework/wazuh/core/cluster/*.json
-%dir %attr(750, root, test) %{_localstatedir}/framework/wazuh/core/cluster/dapi
-%attr(640, root, test) %{_localstatedir}/framework/wazuh/core/cluster/dapi/*.py
-%dir %attr(750, root, test) %{_localstatedir}/integrations
-%attr(750, root, test) %{_localstatedir}/integrations/*
-%dir %attr(750, root, test) %{_localstatedir}/lib
-%attr(750, root, test) %{_localstatedir}/lib/libwazuhext.so
-%attr(750, root, test) %{_localstatedir}/lib/libwazuhshared.so
-%attr(750, root, test) %{_localstatedir}/lib/libdbsync.so
-%attr(750, root, test) %{_localstatedir}/lib/librsync.so
-%attr(750, root, test) %{_localstatedir}/lib/libsyscollector.so
-%attr(750, root, test) %{_localstatedir}/lib/libsysinfo.so
-%{_localstatedir}/lib/libpython3.9.so.1.0
-%dir %attr(770, test, test) %{_localstatedir}/logs
-%attr(660, test, test)  %ghost %{_localstatedir}/logs/active-responses.log
-%attr(660, test, test) %ghost %{_localstatedir}/logs/api.log
-%attr(640, test, test) %ghost %{_localstatedir}/logs/integrations.log
-%attr(660, test, test) %ghost %{_localstatedir}/logs/ossec.log
-%attr(660, test, test) %ghost %{_localstatedir}/logs/ossec.json
-%dir %attr(750, test, test) %{_localstatedir}/logs/api
-%dir %attr(750, test, test) %{_localstatedir}/logs/archives
-%dir %attr(750, test, test) %{_localstatedir}/logs/alerts
-%dir %attr(750, test, test) %{_localstatedir}/logs/cluster
-%dir %attr(750, test, test) %{_localstatedir}/logs/firewall
-%dir %attr(750, test, test) %{_localstatedir}/logs/wazuh
+%dir %attr(770, %{_user}, %{_group}) %{_localstatedir}/etc
+%attr(660, root, %{_group}) %config(noreplace) %{_localstatedir}/etc/ossec.conf
+%attr(640, root, %{_group}) %config(noreplace) %{_localstatedir}/etc/client.keys
+%attr(640, root, %{_group}) %{_localstatedir}/etc/internal_options*
+%attr(640, root, %{_group}) %config(noreplace) %{_localstatedir}/etc/local_internal_options.conf
+%dir %attr(770, root, %{_group}) %{_localstatedir}/etc/decoders
+%attr(660, %{_user}, %{_group}) %config(noreplace) %{_localstatedir}/etc/decoders/local_decoder.xml
+%dir %attr(770, root, %{_group}) %{_localstatedir}/etc/lists
+%dir %attr(770, %{_user}, %{_group}) %{_localstatedir}/etc/lists/amazon
+%attr(660, %{_user}, %{_group}) %config(noreplace) %{_localstatedir}/etc/lists/amazon/*
+%attr(660, %{_user}, %{_group}) %config(noreplace) %{_localstatedir}/etc/lists/audit-keys
+%attr(660, %{_user}, %{_group}) %config(noreplace) %{_localstatedir}/etc/lists/security-eventchannel
+%dir %attr(770, root, %{_group}) %{_localstatedir}/etc/rootcheck
+%attr(660, root, %{_group}) %{_localstatedir}/etc/rootcheck/*.txt
+%dir %attr(770, root, %{_group}) %{_localstatedir}/etc/rules
+%attr(660, %{_user}, %{_group}) %config(noreplace) %{_localstatedir}/etc/rules/local_rules.xml
+%dir %attr(770, root, %{_group}) %{_localstatedir}/etc/shared
+%dir %attr(750, root, %{_group}) %{_localstatedir}/integrations
+%attr(750, root, %{_group}) %{_localstatedir}/integrations/*
+%dir %attr(750, root, %{_group}) %{_localstatedir}/lib
+%attr(750, root, %{_group}) %{_localstatedir}/lib/libwazuhext.so
+%attr(750, root, %{_group}) %{_localstatedir}/lib/libwazuhshared.so
+%attr(750, root, %{_group}) %{_localstatedir}/lib/libdbsync.so
+%attr(750, root, %{_group}) %{_localstatedir}/lib/librsync.so
+%attr(750, root, %{_group}) %{_localstatedir}/lib/libsyscollector.so
+%attr(750, root, %{_group}) %{_localstatedir}/lib/libsysinfo.so
+%dir %attr(770, %{_user}, %{_group}) %{_localstatedir}/logs
+%attr(660, %{_user}, %{_group})  %ghost %{_localstatedir}/logs/active-responses.log
+%attr(660, %{_user}, %{_group}) %ghost %{_localstatedir}/logs/api.log
+%attr(640, %{_user}, %{_group}) %ghost %{_localstatedir}/logs/integrations.log
+%attr(660, %{_user}, %{_group}) %ghost %{_localstatedir}/logs/ossec.log
+%attr(660, %{_user}, %{_group}) %ghost %{_localstatedir}/logs/ossec.json
+%dir %attr(750, %{_user}, %{_group}) %{_localstatedir}/logs/api
+%dir %attr(750, %{_user}, %{_group}) %{_localstatedir}/logs/archives
+%dir %attr(750, %{_user}, %{_group}) %{_localstatedir}/logs/alerts
+%dir %attr(750, %{_user}, %{_group}) %{_localstatedir}/logs/firewall
+%dir %attr(750, %{_user}, %{_group}) %{_localstatedir}/logs/wazuh
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/local_installation_scripts
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/local_installation_scripts/add_localfiles.sh
@@ -576,62 +472,44 @@ rm -fr %{buildroot}
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/local_installation_scripts/etc/templates/config
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/local_installation_scripts/etc/templates/config/generic
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/local_installation_scripts/etc/templates/config/generic/*
-%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/local_installation_scripts/etc/templates/config/centos
-%attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/local_installation_scripts/etc/templates/config/centos/*
-%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/local_installation_scripts/etc/templates/config/rhel
-%attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/local_installation_scripts/etc/templates/config/rhel/*
-%dir %attr(750, root, test) %{_localstatedir}/queue
-%attr(600, root, test) %ghost %{_localstatedir}/queue/agents-timestamp
-%dir %attr(770, root, test) %{_localstatedir}/queue/agent-groups
-%dir %attr(750, test, test) %{_localstatedir}/queue/agentless
-%dir %attr(770, test, test) %{_localstatedir}/queue/alerts
-%dir %attr(770, test, test) %{_localstatedir}/queue/cluster
-%dir %attr(750, test, test) %{_localstatedir}/queue/db
-%dir %attr(750, test, test) %{_localstatedir}/queue/diff
-%dir %attr(750, test, test) %{_localstatedir}/queue/fim
-%dir %attr(750, test, test) %{_localstatedir}/queue/fim/db
-%dir %attr(750, test, test) %{_localstatedir}/queue/syscollector
-%dir %attr(750, test, test) %{_localstatedir}/queue/syscollector/db
-%attr(640, root, test) %{_localstatedir}/queue/syscollector/norm_config.json
-%dir %attr(750, test, test) %{_localstatedir}/queue/fts
-%dir %attr(770, test, test) %{_localstatedir}/queue/rids
-%dir %attr(770, test, test) %{_localstatedir}/queue/tasks
-%dir %attr(770, test, test) %{_localstatedir}/queue/sockets
-%dir %attr(660, root, test) %{_localstatedir}/queue/vulnerabilities
-%dir %attr(440, root, test) %{_localstatedir}/queue/vulnerabilities/dictionaries
-%dir %attr(750, test, test) %{_localstatedir}/queue/logcollector
-%attr(0440, root, test) %{_localstatedir}/queue/vulnerabilities/dictionaries/cpe_helper.json
-%attr(0440, root, test) %ghost %{_localstatedir}/queue/vulnerabilities/dictionaries/msu.json.gz
-%dir %attr(750, root, test) %{_localstatedir}/ruleset
-%dir %attr(750, root, test) %{_localstatedir}/ruleset/sca
-%dir %attr(750, root, test) %{_localstatedir}/ruleset/decoders
-%attr(640, root, test) %{_localstatedir}/ruleset/decoders/*
-%dir %attr(750, root, test) %{_localstatedir}/ruleset/rules
-%attr(640, root, test) %{_localstatedir}/ruleset/rules/*
-%dir %attr(770, root, test) %{_localstatedir}/.ssh
-%dir %attr(750, test, test) %{_localstatedir}/stats
-%dir %attr(1770, root, test) %{_localstatedir}/tmp
-%dir %attr(750, root, test) %{_localstatedir}/var
-%dir %attr(770, root, test) %{_localstatedir}/var/db
-%dir %attr(770, root, test) %{_localstatedir}/var/db/agents
-%attr(660, root, test) %{_localstatedir}/var/db/mitre.db
-%dir %attr(770, root, test) %{_localstatedir}/var/download
-%dir %attr(770, test, test) %{_localstatedir}/var/multigroups
-%dir %attr(770, root, test) %{_localstatedir}/var/run
-%dir %attr(770, root, test) %{_localstatedir}/var/selinux
-%attr(640, root, test) %{_localstatedir}/var/selinux/*
-%dir %attr(770, root, test) %{_localstatedir}/var/upgrade
-%dir %attr(770, root, test) %{_localstatedir}/var/wodles
-%dir %attr(750, root, test) %{_localstatedir}/wodles
-%attr(750,root, test) %{_localstatedir}/wodles/*
-%dir %attr(750, root, test) %{_localstatedir}/wodles/aws
-%attr(750, root, test) %{_localstatedir}/wodles/aws/*
-%dir %attr(750, root, test) %{_localstatedir}/wodles/azure
-%attr(750, root, test) %{_localstatedir}/wodles/azure/*
-%dir %attr(750, root, test) %{_localstatedir}/wodles/docker
-%attr(750, root, test) %{_localstatedir}/wodles/docker/*
-%dir %attr(750, root, test) %{_localstatedir}/wodles/gcloud
-%attr(750, root, test) %{_localstatedir}/wodles/gcloud/*
+%dir %attr(750, root, %{_group}) %{_localstatedir}/queue
+%attr(600, root, %{_group}) %ghost %{_localstatedir}/queue/agents-timestamp
+%dir %attr(750, %{_user}, %{_group}) %{_localstatedir}/queue/agentless
+%dir %attr(770, %{_user}, %{_group}) %{_localstatedir}/queue/alerts
+%dir %attr(750, %{_user}, %{_group}) %{_localstatedir}/queue/db
+%dir %attr(750, %{_user}, %{_group}) %{_localstatedir}/queue/diff
+%dir %attr(750, %{_user}, %{_group}) %{_localstatedir}/queue/fim
+%dir %attr(750, %{_user}, %{_group}) %{_localstatedir}/queue/fim/db
+%dir %attr(750, %{_user}, %{_group}) %{_localstatedir}/queue/syscollector
+%dir %attr(750, %{_user}, %{_group}) %{_localstatedir}/queue/syscollector/db
+%attr(640, root, %{_group}) %{_localstatedir}/queue/syscollector/norm_config.json
+%dir %attr(750, %{_user}, %{_group}) %{_localstatedir}/queue/fts
+%dir %attr(770, %{_user}, %{_group}) %{_localstatedir}/queue/tasks
+%dir %attr(770, %{_user}, %{_group}) %{_localstatedir}/queue/sockets
+%dir %attr(660, root, %{_group}) %{_localstatedir}/queue/vulnerabilities
+%dir %attr(440, root, %{_group}) %{_localstatedir}/queue/vulnerabilities/dictionaries
+%dir %attr(750, %{_user}, %{_group}) %{_localstatedir}/queue/logcollector
+%attr(0440, root, %{_group}) %{_localstatedir}/queue/vulnerabilities/dictionaries/cpe_helper.json
+%attr(0440, root, %{_group}) %ghost %{_localstatedir}/queue/vulnerabilities/dictionaries/msu.json.gz
+%dir %attr(750, root, %{_group}) %{_localstatedir}/ruleset
+%dir %attr(750, root, %{_group}) %{_localstatedir}/ruleset/sca
+%dir %attr(750, root, %{_group}) %{_localstatedir}/ruleset/decoders
+%attr(640, root, %{_group}) %{_localstatedir}/ruleset/decoders/*
+%dir %attr(750, root, %{_group}) %{_localstatedir}/ruleset/rules
+%attr(640, root, %{_group}) %{_localstatedir}/ruleset/rules/*
+%dir %attr(770, root, %{_group}) %{_localstatedir}/.ssh
+%dir %attr(750, %{_user}, %{_group}) %{_localstatedir}/stats
+%dir %attr(1770, root, %{_group}) %{_localstatedir}/tmp
+%dir %attr(750, root, %{_group}) %{_localstatedir}/var
+%dir %attr(770, root, %{_group}) %{_localstatedir}/var/db
+%dir %attr(770, root, %{_group}) %{_localstatedir}/var/db/agents
+%dir %attr(770, root, %{_group}) %{_localstatedir}/var/download
+%dir %attr(770, %{_user}, %{_group}) %{_localstatedir}/var/multigroups
+%dir %attr(770, root, %{_group}) %{_localstatedir}/var/run
+%dir %attr(770, root, %{_group}) %{_localstatedir}/var/selinux
+%dir %attr(770, root, %{_group}) %{_localstatedir}/var/upgrade
+%dir %attr(770, root, %{_group}) %{_localstatedir}/var/wodles
+%dir %attr(750, root, %{_group}) %{_localstatedir}/wodles
 
 %changelog
 * Thu Nov 10 2022 support <info@wazuh.com> - 4.3.10

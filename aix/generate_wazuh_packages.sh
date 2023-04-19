@@ -208,7 +208,7 @@ build_package() {
   sysconfdir="/etc"
 
   rpmbuild --define '_tmppath /tmp' --define "_topdir ${rpm_build_dir}" --define "_localstatedir ${install_path}" \
-  --define "_init_scripts ${init_scripts}" --define "_sysconfdir ${sysconfdir}" --define "_release ${revision}"\
+  --define "_init_scripts ${init_scripts}" --define "_sysconfdir ${sysconfdir}" --define "_release ${revision}" --define "_group ${group}" --define "_user ${user}" \
   -bb ${rpm_build_dir}/SPECS/${package_name}-aix.spec
 
   if [[ ${aix_major} = "6" ]]; then
@@ -312,6 +312,24 @@ main() {
                 compute_checksums="yes"
                 shift 1
             fi
+        ;;
+        "-g"|"--group")
+          if [ -n "$2" ]
+          then
+            group="$2"
+            shift 2
+          else
+              show_help 1
+          fi
+        ;;
+        "-u"|"--user")
+          if [ -n "$2" ]
+          then
+            user="$2"
+            shift 2
+          else
+              show_help 1
+          fi
         ;;
         "-h"|"--help")
           show_help
