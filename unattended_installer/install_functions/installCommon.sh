@@ -90,6 +90,31 @@ function installCommon_aptInstall() {
 
 }
 
+function installCommon_aptInstallList(){
+
+    dependencies=("$@")
+    not_installed=()
+
+    for dep in "${dependencies[@]}"; do
+        if ! apt list --installed 2>/dev/null | grep -q -E ^"${dep}"\/; then
+            not_installed+=("${dep}")
+        fi
+    done
+
+    if [ "${#not_installed[@]}" -gt 0 ]; then
+        common_logger "--- Dependencies ----"
+        for dep in "${not_installed[@]}"; do
+            common_logger "Installing $dep."
+            installCommon_aptInstall "${dep}"
+            if [ "${install_result}" != 0 ]; then
+                common_logger -e "Cannot install dependency: ${dep}."
+                exit 1
+            fi
+        done
+    fi
+
+}
+
 function installCommon_changePasswordApi() {
 
     #Change API password tool
@@ -262,55 +287,30 @@ function installCommon_getPass() {
     done
 }
 
-function installCommon_installPrerequisites() {
+function installCommon_installCheckDependencies() {
 
     if [ "${sys_type}" == "yum" ]; then
-        dependencies=( curl libcap tar gnupg openssl )
-        not_installed=()
-        for dep in "${dependencies[@]}"; do
-            if [ "${dep}" == "openssl" ]; then
-                if ! yum list installed 2>/dev/null | grep -q "${dep}\.";then
-                    not_installed+=("${dep}")
-                fi
-            elif ! yum list installed 2>/dev/null | grep -q "${dep}";then
-                not_installed+=("${dep}")
-            fi
-        done
-
-        if [ "${#not_installed[@]}" -gt 0 ]; then
-            common_logger "--- Dependencies ---"
-            for dep in "${not_installed[@]}"; do
-                common_logger "Installing $dep."
-                eval "yum install ${dep} -y ${debug}"
-                if [  "${PIPESTATUS[0]}" != 0  ]; then
-                    common_logger -e "Cannot install dependency: ${dep}."
-                    exit 1
-                fi
-            done
-        fi
+        dependencies=( systemd grep tar coreutils sed procps-ng gawk lsof curl openssl )
+        installCommon_yumInstallList "${dependencies[@]}"
 
     elif [ "${sys_type}" == "apt-get" ]; then
         eval "apt-get update -q ${debug}"
-        dependencies=( apt-transport-https curl libcap2-bin tar software-properties-common gnupg openssl )
-        not_installed=()
+        dependencies=( systemd grep tar coreutils sed procps gawk lsof curl openssl )
+        installCommon_aptInstallList "${dependencies[@]}"
+    fi
 
-        for dep in "${dependencies[@]}"; do
-            if ! apt list --installed 2>/dev/null | grep -q "${dep}"; then
-                not_installed+=("${dep}")
-            fi
-        done
+}
 
-        if [ "${#not_installed[@]}" -gt 0 ]; then
-            common_logger "--- Dependencies ----"
-            for dep in "${not_installed[@]}"; do
-                common_logger "Installing $dep."
-                installCommon_aptInstall "${dep}"
-                if [ "${install_result}" != 0 ]; then
-                    common_logger -e "Cannot install dependency: ${dep}."
-                    exit 1
-                fi
-            done
-        fi
+function installCommon_installPrerequisites() {
+
+    if [ "${sys_type}" == "yum" ]; then
+        dependencies=( libcap gnupg2 )
+        installCommon_yumInstallList "${dependencies[@]}"
+
+    elif [ "${sys_type}" == "apt-get" ]; then
+        eval "apt-get update -q ${debug}"
+        dependencies=( apt-transport-https libcap2-bin software-properties-common gnupg )
+        installCommon_aptInstallList "${dependencies[@]}"
     fi
 
 }
@@ -611,6 +611,30 @@ function installCommon_startService() {
     else
         common_logger -e "${1} could not start. No service manager found on the system."
         exit 1
+    fi
+
+}
+
+function installCommon_yumInstallList(){
+
+    dependencies=("$@")
+    not_installed=()
+    for dep in "${dependencies[@]}"; do
+        if ! yum list installed 2>/dev/null | grep -q -E ^"${dep}"\\.;then
+            not_installed+=("${dep}")
+        fi
+    done
+
+    if [ "${#not_installed[@]}" -gt 0 ]; then
+        common_logger "--- Dependencies ---"
+        for dep in "${not_installed[@]}"; do
+            common_logger "Installing $dep."
+            eval "yum install ${dep} -y ${debug}"
+            if [  "${PIPESTATUS[0]}" != 0  ]; then
+                common_logger -e "Cannot install dependency: ${dep}."
+                exit 1
+            fi
+        done
     fi
 
 }
