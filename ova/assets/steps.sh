@@ -66,7 +66,12 @@ clean() {
   # Remove logs
   find /var/log/ -type f -exec bash -c 'cat /dev/null > {}' \;
   find /var/ossec/logs/ -type f -exec bash -c 'cat /dev/null > {}' \;
-  rm ~/.ssh/authorized_keys
+  if [ "$(ls -A /root/.ssh)" ]; then
+    rm /root/.ssh/*
+  fi
+  if [ "$(ls -A /home/${SYSTEM_USER}/.ssh)" ]; then
+    rm /home/${SYSTEM_USER}/.ssh/*
+  fi
 
   cat /dev/null > ~/.bash_history && history -c 
   shutdown -r now > /dev/null 2>&1
