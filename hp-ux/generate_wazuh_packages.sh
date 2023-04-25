@@ -309,7 +309,6 @@ main() {
 
     if [[ "${build_env}" = "yes" ]]; then
         build_environment || exit 1
-        exit 0
     fi
 
     if [ -z "${checksum_dir}" ]; then
