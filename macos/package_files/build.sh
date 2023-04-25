@@ -72,7 +72,7 @@ function build() {
     cp ${SOURCES_PATH}/etc/templates/config/darwin/19/sca.files ${INSTALLATION_SCRIPTS_DIR}/sca/darwin/19/
     cp ${SOURCES_PATH}/etc/templates/config/darwin/20/sca.files ${INSTALLATION_SCRIPTS_DIR}/sca/darwin/20/
     cp ${SOURCES_PATH}/etc/templates/config/darwin/21/sca.files ${INSTALLATION_SCRIPTS_DIR}/sca/darwin/21/
-    cp ${SOURCES_PATH}/etc/templates/config/darwin/21/sca.files ${INSTALLATION_SCRIPTS_DIR}/sca/darwin/22/
+    cp ${SOURCES_PATH}/etc/templates/config/darwin/22/sca.files ${INSTALLATION_SCRIPTS_DIR}/sca/darwin/22/
 
     cp ${SOURCES_PATH}/src/VERSION ${INSTALLATION_SCRIPTS_DIR}/src/
     cp ${SOURCES_PATH}/src/REVISION ${INSTALLATION_SCRIPTS_DIR}/src/
