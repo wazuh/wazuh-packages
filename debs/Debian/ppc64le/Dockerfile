@@ -3,10 +3,11 @@ FROM ppc64le/debian:stretch
 ENV DEBIAN_FRONTEND noninteractive
 
 # Installing necessary packages
-RUN echo "deb http://deb.debian.org/debian stretch main contrib non-free" >> /etc/apt/sources.list && \
-    echo "deb-src http://deb.debian.org/debian stretch main contrib non-free" >> /etc/apt/sources.list && \
-    apt-get update && apt-get install -y apt-utils && \
-    apt-get install -y --force-yes \
+RUN echo "deb http://archive.debian.org/debian stretch contrib main non-free" > /etc/apt/sources.list && \
+    echo "deb http://archive.debian.org/debian-security stretch/updates main" >> /etc/apt/sources.list && \
+    echo "deb-src http://archive.debian.org/debian stretch main" >> /etc/apt/sources.list && \
+    apt-get update && apt-get install -y --allow-change-held-packages apt-utils && \
+    apt-get install -y --allow-change-held-packages \
     curl gcc make sudo expect gnupg perl-base perl wget \
     libc-bin libc6 libc6-dev build-essential \
     cdbs devscripts equivs automake autoconf libtool libaudit-dev selinux-basics \
