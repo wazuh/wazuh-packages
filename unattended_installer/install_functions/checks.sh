@@ -310,15 +310,11 @@ function checks_ports() {
     used_port=0
     ports=("$@")
 
-    if command -v ss > /dev/null; then
-        port_command="ss -lntup | grep -q "
+    if command -v lsof > /dev/null; then
+        port_command="lsof -sTCP:LISTEN  -i:"
     else
-        if command -v lsof > /dev/null; then
-            port_command="lsof -i:"
-        else
-            common_logger -w "Cannot find ss or lsof. Port checking will be skipped."
-            return 1
-        fi
+        common_logger -w "Cannot find lsof. Port checking will be skipped."
+        return 1
     fi
 
     for i in "${!ports[@]}"; do
