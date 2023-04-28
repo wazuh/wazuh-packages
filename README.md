@@ -30,19 +30,21 @@ In this repository, you can find the necessary tools to build a Wazuh package fo
 
 The following table shows the references for the versions of each component.
 
-### Dashboard
+### Wazuh dashboard
 
 | Wazuh dashboard | Opensearch dashboards |
 |-----------------|-----------------------|
 | 4.3.x           | 1.2.0                 |
-| 4.4.x           | 2.4.1                 |
+| 4.4.0           | 2.4.1                 |
+| 4.4.1 - 4.4.2   | 2.6.0                 |
 
-### Indexer
+### Wazuh indexer
 
 | Wazuh indexer   | Opensearch            |
 |-----------------|-----------------------|
 | 4.3.x           | 1.2.4                 |
-| 4.4.x           | 2.4.1                 |
+| 4.4.0           | 2.4.1                 |
+| 4.4.1 - 4.4.2   | 2.6.0                 |
 
 ## Contribute
 

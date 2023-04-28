@@ -5,8 +5,9 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get -v
 
 # Installing necessary packages
-RUN echo "deb http://deb.debian.org/debian stretch main contrib non-free" >> /etc/apt/sources.list && \
-    echo "deb-src http://deb.debian.org/debian stretch main contrib non-free" >> /etc/apt/sources.list && \
+RUN echo "deb http://archive.debian.org/debian stretch contrib main non-free" > /etc/apt/sources.list && \
+    echo "deb http://archive.debian.org/debian-security stretch/updates main" >> /etc/apt/sources.list && \
+    echo "deb-src http://archive.debian.org/debian stretch main" >> /etc/apt/sources.list && \
     apt-get update && apt-get install -y --allow-change-held-packages apt-utils && \
     apt-get install -y --allow-change-held-packages \
     curl gcc make sudo expect gnupg perl-base perl wget \
