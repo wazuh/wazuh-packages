@@ -3,9 +3,10 @@ FROM arm64v8/debian:stretch
 ENV DEBIAN_FRONTEND noninteractive
 
 # Installing necessary packages
-RUN echo "deb http://deb.debian.org/debian stretch contrib non-free" >> /etc/apt/sources.list && \
-    echo "deb-src http://deb.debian.org/debian stretch main contrib non-free" >> /etc/apt/sources.list && \
-    apt-get update && apt-get install -y apt apt-utils  \
+RUN echo "deb http://archive.debian.org/debian stretch contrib main non-free" > /etc/apt/sources.list && \
+    echo "deb http://archive.debian.org/debian-security stretch/updates main" >> /etc/apt/sources.list && \
+    echo "deb-src http://archive.debian.org/debian stretch main" >> /etc/apt/sources.list && \
+    apt-get update && apt-get install -y --allow-change-held-packages apt apt-utils  \
     curl gcc g++ make sudo expect gnupg \
     perl-base perl wget libc-bin libc6 libc6-dev \
     build-essential cdbs devscripts equivs automake \
