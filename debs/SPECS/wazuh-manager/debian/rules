@@ -118,6 +118,7 @@ override_dh_install:
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/generic
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/amzn/1
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/amzn/2
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/amzn/2023
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/centos/5
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/centos/6
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/centos/7
@@ -161,6 +162,7 @@ override_dh_install:
 
 	cp etc/templates/config/amzn/1/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/amzn/1
 	cp etc/templates/config/amzn/2/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/amzn/2
+	cp etc/templates/config/amzn/2023/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/amzn/2023
 
 	cp etc/templates/config/darwin/15/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/15
 	cp etc/templates/config/darwin/16/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/16
