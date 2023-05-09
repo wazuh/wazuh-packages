@@ -221,6 +221,10 @@ function main() {
 
 # -------------- Preliminary checks  --------------------------------
 
+    if [ -z "${uninstall}" ]; then
+        installCommon_installCheckDependencies
+    fi
+
     if [ -z "${configurations}" ] && [ -z "${AIO}" ] && [ -z "${download}" ]; then
         checks_previousCertificate
     fi
@@ -249,6 +253,7 @@ function main() {
 
 
 # -------------- Prerequisites and Wazuh repo  ----------------------
+
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
         installCommon_installPrerequisites
         check_curlVersion

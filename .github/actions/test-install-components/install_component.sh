@@ -7,6 +7,11 @@ if [ -f /etc/os-release ]; then
         find /etc/yum.repos.d/ -type f -exec sed -i 's/mirrorlist/#mirrorlist/g' {} \;
         find /etc/yum.repos.d/ -type f -exec sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' {} \;
     fi
+
+    if [ "$ID" = "debian" ] && [ "$VERSION_ID" = "9" ]; then
+        echo "deb http://archive.debian.org/debian stretch contrib main non-free" > /etc/apt/sources.list
+        echo "deb http://archive.debian.org/debian-security stretch/updates main" >> /etc/apt/sources.list
+    fi
 fi
 
 if [ -f /etc/redhat-release ]; then
