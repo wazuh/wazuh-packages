@@ -3,8 +3,9 @@ FROM arm32v7/debian:stretch
 ENV DEBIAN_FRONTEND noninteractive
 
 # Installing necessary packages
-RUN echo "deb http://deb.debian.org/debian stretch contrib non-free" >> /etc/apt/sources.list && \
-    echo "deb-src http://deb.debian.org/debian stretch main contrib non-free" >> /etc/apt/sources.list && \
+RUN echo "deb http://archive.debian.org/debian stretch contrib main non-free" > /etc/apt/sources.list && \
+    echo "deb http://archive.debian.org/debian-security stretch/updates main" >> /etc/apt/sources.list && \
+    echo "deb-src http://archive.debian.org/debian stretch main" >> /etc/apt/sources.list && \
     apt-get update && apt-get install -y --allow-change-held-packages apt-utils \
     curl gcc make wget sudo expect gnupg perl-base \
     perl libc-bin libc6 libc6-dev \
