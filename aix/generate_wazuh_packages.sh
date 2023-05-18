@@ -222,14 +222,15 @@ build_package() {
   if [ ! -d ${target_dir} ]; then
     mkdir -p ${target_dir}
   fi
-
+  power=`prtconf | grep -i "Processor Type" | cut -d ":" -f2 | cut -d "_" -f2 | tr '[:upper:]' '[:lower:]'`
   rpm_file=${package_name}-${revision}.aix${aix_major}.${aix_minor}.ppc.rpm
-  mv ${rpm_build_dir}/RPMS/ppc/${rpm_file} ${target_dir}
+  rpm_file_final=${package_name}-${revision}.aix${aix_major}.${aix_minor}.${power}.ppc.rpm
+  mv ${rpm_build_dir}/RPMS/ppc/${rpm_file} ${target_dir}/${rpm_file_final}
 
-  if [ -f ${target_dir}/${rpm_file} ]; then
-    echo "Your package ${rpm_file} is stored in ${target_dir}"
+  if [ -f ${target_dir}/${rpm_file_final} ]; then
+    echo "Your package ${rpm_file_final} is stored in ${target_dir}"
     if [[ "${compute_checksums}" = "yes" ]]; then
-      cd ${target_dir} && /usr/local/bin/shasum -a 512 ${rpm_file} > "${checksum_dir}/${rpm_file}.sha512"
+      cd ${target_dir} && /usr/local/bin/shasum -a 512 ${rpm_file_final} > "${checksum_dir}/${rpm_file_final}.sha512"
     fi
   else
     echo "Error: RPM package could not be created"
