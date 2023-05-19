@@ -14,12 +14,6 @@ DIR="/Library/Ossec"
 INSTALLATION_SCRIPTS_DIR="${DIR}/packages_files/agent_installation_scripts"
 SCA_BASE_DIR="${INSTALLATION_SCRIPTS_DIR}/sca"
 
-if [ $(launchctl getenv WAZUH_PKG_UPGRADE) = true ]; then
-    rm -rf ${DIR}/etc/{ossec.conf,client.keys,local_internal_options.conf,shared}
-    cp -rf ${DIR}/config_files/{ossec.conf,client.keys,local_internal_options.conf,shared} ${DIR}/etc/
-    rm -rf ${DIR}/config_files/
-fi
-
 # Default for all directories
 chmod -R 750 ${DIR}/
 chown -R root:${GROUP} ${DIR}/
@@ -68,17 +62,10 @@ chown -R root:${GROUP} ${DIR}/var
 
 . ${INSTALLATION_SCRIPTS_DIR}/src/init/dist-detect.sh
 
-upgrade=$(launchctl getenv WAZUH_PKG_UPGRADE)
-restart=$(launchctl getenv WAZUH_RESTART)
+${INSTALLATION_SCRIPTS_DIR}/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} ${DIR} > ${DIR}/etc/ossec.conf
+chown root:wazuh ${DIR}/etc/ossec.conf
+chmod 0640 ${DIR}/etc/ossec.conf
 
-launchctl unsetenv WAZUH_PKG_UPGRADE
-launchctl unsetenv WAZUH_RESTART
-
-if [ "${upgrade}" = "false" ]; then
-    ${INSTALLATION_SCRIPTS_DIR}/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} ${DIR} > ${DIR}/etc/ossec.conf
-    chown root:wazuh ${DIR}/etc/ossec.conf
-    chmod 0640 ${DIR}/etc/ossec.conf
-fi
 
 SCA_DIR="${DIST_NAME}/${DIST_VER}"
 mkdir -p ${DIR}/ruleset/sca
@@ -140,6 +127,4 @@ if [ -f ${DIR}/queue/alerts/sockets ]; then
   rm ${DIR}/queue/alerts/sockets
 fi
 
-if ${upgrade} && ${restart}; then
-    ${DIR}/bin/wazuh-control restart
-fi
+
