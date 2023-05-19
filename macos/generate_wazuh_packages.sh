@@ -428,8 +428,8 @@ function main() {
     if [[ "$BUILD" != "no" ]]; then
         check_root
         modify_custom_install_path
-        #build_package
-        #"${CURRENT_PATH}/uninstall.sh"
+        build_package
+        "${CURRENT_PATH}/uninstall.sh"
     else
         echo "The branch has not been specified. No package will be generated."
         help 1
