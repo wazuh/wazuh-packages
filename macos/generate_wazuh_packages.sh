@@ -172,6 +172,7 @@ function help() {
     echo
     echo "  Build options:"
     echo "    -b, --branch <branch>         [Required] Select Git branch or tag e.g. $BRANCH"
+    echo "    -p, --install-path <path>     [Optional] Set the installation path directory."
     echo "    -s, --store-path <path>       [Optional] Set the destination absolute path of package."
     echo "    -j, --jobs <number>           [Optional] Number of parallel jobs when compiling."
     echo "    -r, --revision <rev>          [Optional] Package revision that append to version e.g. x.x.x-rev"
@@ -309,6 +310,14 @@ function main() {
                 help 1
             fi
             ;;
+        "-p"|"--install-path")
+            if [ -n "$2" ]; then
+                INSTALLATION_PATH="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
         "-j"|"--jobs")
             if [ -n "$2" ]; then
                 JOBS="$2"
@@ -419,8 +428,8 @@ function main() {
     if [[ "$BUILD" != "no" ]]; then
         check_root
         modify_custom_install_path
-        build_package
-        "${CURRENT_PATH}/uninstall.sh"
+        #build_package
+        #"${CURRENT_PATH}/uninstall.sh"
     else
         echo "The branch has not been specified. No package will be generated."
         help 1
