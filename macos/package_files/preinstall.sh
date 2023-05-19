@@ -146,7 +146,7 @@ sudo tee /Library/LaunchDaemons/com.wazuh.agent.plist <<-'EOF'
      <string>com.wazuh.agent</string>
      <key>ProgramArguments</key>
      <array>
-         <string>/Library/StartupItems/WAZUH/launcher.sh</string>
+         <string>/Library/StartupItems/WAZUH/Wazuh</string>
      </array>
      <key>RunAtLoad</key>
      <true/>
@@ -211,7 +211,7 @@ EOF
 chown root:wheel /Library/StartupItems/WAZUH/StartupParameters.plist
 chmod u=rw-,go=r-- /Library/StartupItems/WAZUH/StartupParameters.plist
 
-sudo tee /Library/StartupItems/WAZUH/launcher.sh <<-'EOF'
+sudo tee /Library/StartupItems/WAZUH/Wazuh <<-'EOF'
 #!/bin/sh
 
 DIRECTORY="/Library/Ossec"
@@ -231,5 +231,5 @@ while : ; do
 done
 EOF
 
-chown root:wheel /Library/StartupItems/WAZUH/launcher.sh
-chmod u=rxw-,go=rx- /Library/StartupItems/WAZUH/launcher.sh
+chown root:wheel /Library/StartupItems/WAZUH/Wazuh
+chmod u=rxw-,go=rx- /Library/StartupItems/WAZUH/Wazuh
