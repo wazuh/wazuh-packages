@@ -1,8 +1,8 @@
 #/bin/sh
 
 ## Stop and remove application
-sudo /Library/Ossec/bin/ossec-control stop
-sudo /bin/rm -r /Library/Ossec*
+sudo INSTALLATION_PATH/bin/ossec-control stop
+sudo /bin/rm -r INSTALLATION_PATH*
 
 ## stop and unload dispatcher
 #sudo /bin/launchctl unload /Library/LaunchDaemons/com.wazuh.agent.plist

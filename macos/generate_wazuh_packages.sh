@@ -15,6 +15,7 @@ WAZUH_SOURCE_REPOSITORY="https://github.com/wazuh/wazuh"
 AGENT_PKG_FILE="${CURRENT_PATH}/package_files/wazuh-agent.pkgproj"
 export CONFIG="${WAZUH_PATH}/etc/preloaded-vars.conf"
 ENTITLEMENTS_PATH="${CURRENT_PATH}/entitlements.plist"
+PKG_FILE="specs/wazuh-agent.pkgproj"
 INSTALLATION_PATH="/Library/Ossec"    # Installation path
 VERSION=""                            # Default VERSION (branch/tag)
 REVISION="1"                          # Package revision.
@@ -192,19 +193,48 @@ function help() {
     exit "$1"
 }
 
+function modify_custom_install_path() {
+    if [ -f "${CURRENT_PATH}/uninstall.sh" ]; then
+        echo "Modifiying uninstall.sh to set installation path."
+        sed -i -e "s:INSTALLATION_PATH:${INSTALLATION_PATH}:g" "${CURRENT_PATH}/uninstall.sh"
+    else
+        echo "Warning: the file ${CURRENT_PATH}/uninstall.sh does not exists."
+        exit 1
+    fi
+    if [ -f "${PKG_FILE}" ]; then
+        echo "Modifiying ${PKG_FILE} to set installation path."
+        sed -i -e "s:INSTALLATION_PATH:${INSTALLATION_PATH}:g" "${PKG_FILE}"
+    else
+        echo "Warning: the file ${PKG_FILE} does not exists."
+        exit 1
+    fi
+    if [ -f "${CURRENT_PATH}/package_files/postinstall.sh" ]; then
+        echo "Modifiying postinstall.sh to set installation path."
+        sed -i -e "s:INSTALLATION_PATH:${INSTALLATION_PATH}:g" "${CURRENT_PATH}/package_files/postinstall.sh"
+    else
+        echo "Warning: the file ${CURRENT_PATH}/package_files/postinstall.sh does not exists."
+        exit 1
+    fi
+    if [ -f "${CURRENT_PATH}/package_files/preinstall.sh" ]; then
+        echo "Modifiying preinstall.sh to set installation path."
+        sed -i -e "s:INSTALLATION_PATH:${INSTALLATION_PATH}:g" "${CURRENT_PATH}/package_files/preinstall.sh"
+    else
+        echo "Warning: the file "${CURRENT_PATH}/package_files/preinstall.sh" does not exists."
+        exit 1
+    fi
+}
+
 function get_pkgproj_specs() {
 
     VERSION=$(< "${WAZUH_PATH}/src/VERSION"  cut -d "-" -f1 | cut -c 2-)
 
-    pkg_file="specs/wazuh-agent.pkgproj"
-
-    if [ ! -f "${pkg_file}" ]; then
-        echo "Warning: the file ${pkg_file} does not exists. Check the version selected."
+    if [ ! -f "${PKG_FILE}" ]; then
+        echo "Warning: the file ${PKG_FILE} does not exists. Check the version selected."
         exit 1
     else
-        echo "Modifiying ${pkg_file} to match revision."
-        sed -i -e "s:${VERSION}-.*<:${VERSION}-${REVISION}<:g" "${pkg_file}"
-        cp "${pkg_file}" "${AGENT_PKG_FILE}"
+        echo "Modifiying ${PKG_FILE} to match revision."
+        sed -i -e "s:${VERSION}-.*<:${VERSION}-${REVISION}<:g" "${PKG_FILE}"
+        cp "${PKG_FILE}" "${AGENT_PKG_FILE}"
     fi
 
     return 0
@@ -388,6 +418,7 @@ function main() {
 
     if [[ "$BUILD" != "no" ]]; then
         check_root
+        modify_custom_install_path
         build_package
         "${CURRENT_PATH}/uninstall.sh"
     else
