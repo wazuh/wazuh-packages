@@ -11,6 +11,8 @@
 GROUP="wazuh"
 USER="wazuh"
 DIR="/Library/Ossec"
+LAUNCH_DAEMON_PATH="/Library/LaunchDaemons"
+STARTUP_ITEMS_PATH="/Library/StartupItems"
 INSTALLATION_SCRIPTS_DIR="${DIR}/packages_files/agent_installation_scripts"
 SCA_BASE_DIR="${INSTALLATION_SCRIPTS_DIR}/sca"
 
@@ -59,6 +61,14 @@ chmod 660 ${DIR}/etc/ossec.conf
 chown root:${GROUP} ${DIR}/etc/wpk_root.pem
 chmod 640 ${DIR}/etc/wpk_root.pem
 
+tar -xf ${DIR}/Wazuh.tar -C ${DIR}
+chown root:wheel ${DIR}/Wazuh
+chmod 0744 ${DIR}/Wazuh
+
+chown root:wheel ${LAUNCH_DAEMON_PATH}com.wazuh.agent.plist
+chmod 0644 ${LAUNCH_DAEMON_PATH}com.wazuh.agent.plist
+
+launchctl bootstrap system ${LAUNCH_DAEMON_PATH}com.wazuh.agent.plist
 
 chmod 770 ${DIR}/.ssh
 
@@ -109,9 +119,6 @@ fi
 
 # Register and configure agent if Wazuh environment variables are defined
 ${INSTALLATION_SCRIPTS_DIR}/src/init/register_configure_agent.sh ${DIR} > /dev/null || :
-
-# Install the service
-${INSTALLATION_SCRIPTS_DIR}/src/init/darwin-init.sh ${DIR}
 
 # Remove temporary directory
 rm -rf ${DIR}/packages_files

@@ -16,6 +16,8 @@ AGENT_PKG_FILE="${CURRENT_PATH}/package_files/wazuh-agent.pkgproj"
 export CONFIG="${WAZUH_PATH}/etc/preloaded-vars.conf"
 ENTITLEMENTS_PATH="${CURRENT_PATH}/entitlements.plist"
 INSTALLATION_PATH="/Library/Ossec"    # Installation path
+LOGIN_ITEM_PATH="/Library/StartupItems/WAZUH"
+LAUNCH_DAEMON_PATH="/Library/LaunchDaemons"
 VERSION=""                            # Default VERSION (branch/tag)
 REVISION="1"                          # Package revision.
 BRANCH_TAG="master"                   # Branch that will be downloaded to build package.
@@ -104,7 +106,7 @@ function sign_binaries() {
         security -v unlock-keychain -p "${KC_PASS}" "${KEYCHAIN}" > /dev/null
         # Sign every single binary in Wazuh's installation. This also includes library files.
         for bin in $(find ${INSTALLATION_PATH} -exec file {} \; | grep bit | cut -d: -f1); do
-            codesign -f --sign "${CERT_APPLICATION_ID}" --entitlements ${ENTITLEMENTS_PATH} --deep --timestamp  --options=runtime --verbose=4 "${bin}"
+            codesign -f --sign "${CERT_APPLICATION_ID}" --identifier "com.wazuh.agent" --entitlements "${ENTITLEMENTS_PATH}" --timestamp --options=runtime --verbose "${bin}"
         done
         security -v lock-keychain "${KEYCHAIN}" > /dev/null
     fi
@@ -140,16 +142,16 @@ function build_package() {
         ${CURRENT_PATH}/uninstall.sh
     fi
 
-    packages_script_path="package_files"
+    "${CURRENT_PATH}"/package_files/build.sh "${INSTALLATION_PATH}" "${WAZUH_PATH}" ${JOBS}
 
-    cp ${packages_script_path}/*.sh ${CURRENT_PATH}/package_files/
-    ${CURRENT_PATH}/package_files/build.sh "${INSTALLATION_PATH}" "${WAZUH_PATH}" ${JOBS}
+    # Add bundle identifier to the plist file
+    sed -iz "s|\(<key>AssociatedBundleIdentifiers<\/key>[\n\t ]*<string>com\.wazuh\.agent\)\(<\/string>\)|\1.${VERSION}.${REVISION}.${build_timestamp}\2|" "${LAUNCH_DAEMON_PATH}/com.wazuh.agent.plist"
 
     # sign the binaries and the libraries
     sign_binaries
 
     # create package
-    if packagesbuild ${AGENT_PKG_FILE} --build-folder ${DESTINATION} ; then
+    if packagesbuild --verbose "${AGENT_PKG_FILE}" --build-folder "${DESTINATION}" >/var/log/agent-generation.log 2>/var/log/agent-generation.log; then
         echo "The wazuh agent package for MacOS X has been successfully built."
         pkg_name="wazuh-agent-${VERSION}-${REVISION}.pkg"
         sign_pkg

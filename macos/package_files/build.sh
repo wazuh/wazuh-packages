@@ -8,10 +8,12 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 set -exf
+CURRENT_PATH=$( cd $(dirname $0) ; pwd -P )
 DESTINATION_PATH=$1
 SOURCES_PATH=$2
 BUILD_JOBS=$3
 INSTALLATION_SCRIPTS_DIR=${DESTINATION_PATH}/packages_files/agent_installation_scripts
+LAUNCH_DAEMON_PATH="/Library/LaunchDaemons"
 
 function configure() {
     echo USER_LANGUAGE="en" > ${CONFIG}
@@ -76,6 +78,9 @@ function build() {
 
     cp ${SOURCES_PATH}/src/VERSION ${INSTALLATION_SCRIPTS_DIR}/src/
     cp ${SOURCES_PATH}/src/REVISION ${INSTALLATION_SCRIPTS_DIR}/src/
+
+    cp ${CURRENT_PATH}/com.wazuh.agent.plist ${LAUNCH_DAEMON_PATH}
+    cp ${CURRENT_PATH}/Wazuh ${DESTINATION_PATH}
 }
 
 build

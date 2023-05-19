@@ -1,0 +1,21 @@
+#!/bin/sh
+# The start subroutine
+
+DIRECTORY="/Library/Ossec"
+
+StartService() {
+    ${DIRECTORY}/bin/wazuh-control start
+}
+
+# The stop subroutine
+StopService() {
+    ${DIRECTORY}/bin/wazuh-control stop
+}
+
+# The restart subroutine
+RestartService() {
+    ${DIRECTORY}/bin/wazuh-control stop
+    sleep 5
+    ${DIRECTORY}/bin/wazuh-control start
+} 
+RunService "$1"
