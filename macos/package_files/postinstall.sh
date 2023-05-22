@@ -124,14 +124,6 @@ if [[ $(dscl . -read /Groups/ossec) ]]; then
     find ${DIR}/ -group ossec -user ossec -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true
     sudo /usr/bin/dscl . -delete "/Users/ossec"
   fi
-  if [[ $(dscl . -read /Users/ossecm) ]]; then
-    find ${DIR}/ -group ossec -user ossecm -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true
-    sudo /usr/bin/dscl . -delete "/Users/ossecm"
-  fi
-  if [[ $(dscl . -read /Users/ossecr) ]]; then
-    find ${DIR}/ -group ossec -user ossecr -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true
-    sudo /usr/bin/dscl . -delete "/Users/ossecr"
-  fi
   sudo /usr/bin/dscl . -delete "/Groups/ossec"
 fi
 
