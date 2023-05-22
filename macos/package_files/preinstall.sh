@@ -9,6 +9,7 @@
 # $1 is the message
 # $2 is the error code
 
+set -x
 DIR="/Library/Ossec"
 
 if [ ! -d ${DIR} ]; then

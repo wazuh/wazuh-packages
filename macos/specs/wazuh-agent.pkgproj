@@ -778,6 +778,8 @@
 					<string>postinstall.sh</string>
 					<key>PATH_TYPE</key>
 					<integer>1</integer>
+					<key>com.apple.rootless.install</key>
+					<true/>
 				</dict>
 				<key>PREINSTALL_PATH</key>
 				<dict>
@@ -785,6 +787,8 @@
 					<string>preinstall.sh</string>
 					<key>PATH_TYPE</key>
 					<integer>1</integer>
+					<key>com.apple.rootless.install</key>
+					<true/>
 				</dict>
 				<key>RESOURCES</key>
 				<array/>
