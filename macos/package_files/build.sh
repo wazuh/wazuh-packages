@@ -77,9 +77,10 @@ function build() {
     cp ${SOURCES_PATH}/src/VERSION ${INSTALLATION_SCRIPTS_DIR}/src/
     cp ${SOURCES_PATH}/src/REVISION ${INSTALLATION_SCRIPTS_DIR}/src/
 
-    find /Library/Ossec
+    echo "Example error" > /Library/Ossec/logs/ossec.log
 
-    rm /Library/Ossec/logs/ossec.log
+    /Library/Ossec/bin/wazuh-control start
+
 }
 
 build
