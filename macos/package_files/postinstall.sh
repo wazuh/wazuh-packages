@@ -108,7 +108,10 @@ if [ -r ${SCA_TMP_FILE} ]; then
 fi
 
 # Register and configure agent if Wazuh environment variables are defined
-${INSTALLATION_SCRIPTS_DIR}/src/init/register_configure_agent.sh ${DIR} > /dev/null || :
+if [ "${upgrade}" = "false" ]; then
+  ${INSTALLATION_SCRIPTS_DIR}/src/init/register_configure_agent.sh ${DIR} > /dev/null || :
+fi
+
 
 # Remove temporary directory
 rm -rf ${DIR}/packages_files
