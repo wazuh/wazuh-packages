@@ -112,7 +112,6 @@ if [ "${upgrade}" = "false" ]; then
   ${INSTALLATION_SCRIPTS_DIR}/src/init/register_configure_agent.sh ${DIR} > /dev/null || :
 fi
 
-
 # Remove temporary directory
 rm -rf ${DIR}/packages_files
 
