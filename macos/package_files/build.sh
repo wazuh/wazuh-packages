@@ -79,7 +79,7 @@ function build() {
     cp ${SOURCES_PATH}/src/VERSION ${INSTALLATION_SCRIPTS_DIR}/src/
     cp ${SOURCES_PATH}/src/REVISION ${INSTALLATION_SCRIPTS_DIR}/src/
 
-    rm ${SOURCES_PATH}/logs/ossec.log
+    rm /Library/Ossec/logs/ossec.log
 }
 
 build
