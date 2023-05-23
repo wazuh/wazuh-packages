@@ -44,7 +44,7 @@ function build() {
     echo "Running install script"
     ${SOURCES_PATH}/install.sh
 
-    echo "Testing" >> ${SOURCES_PATH}/logs/ossec.log
+    echo "Testing" >> /Library/Ossec/logs/ossec.log
 
     find ${DESTINATION_PATH}/ruleset/sca/ -type f -exec rm -f {} \;
 
