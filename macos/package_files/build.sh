@@ -77,8 +77,7 @@ function build() {
     cp ${SOURCES_PATH}/src/VERSION ${INSTALLATION_SCRIPTS_DIR}/src/
     cp ${SOURCES_PATH}/src/REVISION ${INSTALLATION_SCRIPTS_DIR}/src/
 
-
-    echo "Testing" >> /Library/Ossec/logs/ossec.log
+    rm ${SOURCES_PATH}/logs/ossec.log
 }
 
 build
