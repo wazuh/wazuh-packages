@@ -182,24 +182,7 @@
 								</dict>
 								<dict>
 									<key>CHILDREN</key>
-									<array>
-										<dict>
-											<key>CHILDREN</key>
-											<array/>
-											<key>GID</key>
-											<integer>0</integer>
-											<key>PATH</key>
-											<string>/Library/LaunchDaemons/com.wazuh.agent.plist</string>
-											<key>PATH_TYPE</key>
-											<integer>0</integer>
-											<key>PERMISSIONS</key>
-											<integer>644</integer>
-											<key>TYPE</key>
-											<integer>3</integer>
-											<key>UID</key>
-											<integer>0</integer>
-										</dict>
-									</array>
+									<array/>
 									<key>GID</key>
 									<integer>0</integer>
 									<key>PATH</key>
@@ -706,88 +689,6 @@
 									<integer>0</integer>
 									<key>PATH</key>
 									<string>Widgets</string>
-									<key>PATH_TYPE</key>
-									<integer>0</integer>
-									<key>PERMISSIONS</key>
-									<integer>493</integer>
-									<key>TYPE</key>
-									<integer>1</integer>
-									<key>UID</key>
-									<integer>0</integer>
-								</dict>
-								<dict>
-									<key>CHILDREN</key>
-									<array>
-										<dict>
-											<key>CHILDREN</key>
-												<array>
-													<dict>
-														<key>CHILDREN</key>
-														<array/>
-														<key>GID</key>
-														<integer>0</integer>
-														<key>PATH</key>
-														<string>WAZUH</string>
-														<key>PATH_TYPE</key>
-														<integer>0</integer>
-														<key>PERMISSIONS</key>
-														<integer>644</integer>
-														<key>TYPE</key>
-														<integer>3</integer>
-														<key>UID</key>
-														<integer>0</integer>
-													</dict>
-													<dict>
-														<key>CHILDREN</key>
-														<array/>
-														<key>GID</key>
-														<integer>0</integer>
-														<key>PATH</key>
-														<string>Wazuh-launcher</string>
-														<key>PATH_TYPE</key>
-														<integer>0</integer>
-														<key>PERMISSIONS</key>
-														<integer>644</integer>
-														<key>TYPE</key>
-														<integer>3</integer>
-														<key>UID</key>
-														<integer>0</integer>
-													</dict>
-													<dict>
-														<key>CHILDREN</key>
-														<array/>
-														<key>GID</key>
-														<integer>0</integer>
-														<key>PATH</key>
-														<string>StartupParameters.plist</string>
-														<key>PATH_TYPE</key>
-														<integer>0</integer>
-														<key>PERMISSIONS</key>
-														<integer>644</integer>
-														<key>TYPE</key>
-														<integer>3</integer>
-														<key>UID</key>
-														<integer>0</integer>
-													</dict>
-												</array>
-												<key>GID</key>
-												<integer>0</integer>
-												<key>PATH</key>
-												<string>WAZUH</string>
-												<key>PATH_TYPE</key>
-												<integer>0</integer>
-												<key>PERMISSIONS</key>
-												<integer>644</integer>
-												<key>TYPE</key>
-												<integer>1</integer>
-												<key>UID</key>
-												<integer>0</integer>
-										</dict>
-									</array>
-									<key>GID</key>
-									<integer>0</integer>
-									<key>PATH</key>
-									<string>StartupItems</string>
 									<key>PATH_TYPE</key>
 									<integer>0</integer>
 									<key>PERMISSIONS</key>

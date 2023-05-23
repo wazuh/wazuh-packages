@@ -8,7 +8,6 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 set -exf
-CURRENT_PATH=$( cd $(dirname $0) ; pwd -P )
 DESTINATION_PATH=$1
 SOURCES_PATH=$2
 BUILD_JOBS=$3
@@ -77,8 +76,6 @@ function build() {
 
     cp ${SOURCES_PATH}/src/VERSION ${INSTALLATION_SCRIPTS_DIR}/src/
     cp ${SOURCES_PATH}/src/REVISION ${INSTALLATION_SCRIPTS_DIR}/src/
-
-    cp /Library/StartupItems/WAZUH/WAZUH ${CURRENT_PATH}
 }
 
 build

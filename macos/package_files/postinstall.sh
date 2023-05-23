@@ -112,8 +112,12 @@ if [ "${upgrade}" = "false" ]; then
   ${INSTALLATION_SCRIPTS_DIR}/src/init/register_configure_agent.sh ${DIR} > /dev/null || :
 fi
 
+# Install the service
+${INSTALLATION_SCRIPTS_DIR}/src/init/darwin-init.sh ${DIR}
+
 # Remove temporary directory
 rm -rf ${DIR}/packages_files
+
 
 # Remove old ossec user and group if exists and change ownwership of files
 

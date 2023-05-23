@@ -142,13 +142,14 @@ function build_package() {
 
     packages_script_path="package_files"
 
-    "${CURRENT_PATH}"/package_files/build.sh "${INSTALLATION_PATH}" "${WAZUH_PATH}" ${JOBS}
+    cp ${packages_script_path}/*.sh ${CURRENT_PATH}/package_files/
+    ${CURRENT_PATH}/package_files/build.sh "${INSTALLATION_PATH}" "${WAZUH_PATH}" ${JOBS}
 
     # sign the binaries and the libraries
     sign_binaries
 
     # create package
-    if packagesbuild --verbose "${AGENT_PKG_FILE}" --build-folder "${DESTINATION}" >/var/log/wazuh-agent-generation.log 2>/var/log/wazuh-agent-generation.log ; then
+    if packagesbuild ${AGENT_PKG_FILE} --build-folder ${DESTINATION} ; then
         echo "The wazuh agent package for MacOS X has been successfully built."
         pkg_name="wazuh-agent-${VERSION}-${REVISION}.pkg"
         sign_pkg
