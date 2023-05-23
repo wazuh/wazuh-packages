@@ -14,7 +14,19 @@ DIR="/Library/Ossec"
 INSTALLATION_SCRIPTS_DIR="${DIR}/packages_files/agent_installation_scripts"
 SCA_BASE_DIR="${INSTALLATION_SCRIPTS_DIR}/sca"
 
-if [ $(launchctl getenv WAZUH_PKG_UPGRADE) = true ]; then
+if [ -f "${DIR}/WAZUH_PKG_UPGRADE" ]; then
+  upgrade="true"
+fi
+
+rm -f ${DIR}/WAZUH_PKG_UPGRADE
+
+if [ -f "${DIR}/WAZUH_RESTART" ]; then
+  restart="true"
+fi
+
+rm -f ${DIR}/WAZUH_RESTART
+
+if [ -n "${upgrade}" ]; then
     rm -rf ${DIR}/etc/{ossec.conf,client.keys,local_internal_options.conf,shared}
     cp -rf ${DIR}/config_files/{ossec.conf,client.keys,local_internal_options.conf,shared} ${DIR}/etc/
     rm -rf ${DIR}/config_files/
@@ -68,13 +80,8 @@ chown -R root:${GROUP} ${DIR}/var
 
 . ${INSTALLATION_SCRIPTS_DIR}/src/init/dist-detect.sh
 
-upgrade=$(launchctl getenv WAZUH_PKG_UPGRADE)
-restart=$(launchctl getenv WAZUH_RESTART)
 
-launchctl unsetenv WAZUH_PKG_UPGRADE
-launchctl unsetenv WAZUH_RESTART
-
-if [ "${upgrade}" = "false" ]; then
+if [ -z "${upgrade}" ]; then
     ${INSTALLATION_SCRIPTS_DIR}/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} ${DIR} > ${DIR}/etc/ossec.conf
     chown root:wazuh ${DIR}/etc/ossec.conf
     chmod 0640 ${DIR}/etc/ossec.conf
@@ -108,7 +115,7 @@ if [ -r ${SCA_TMP_FILE} ]; then
 fi
 
 # Register and configure agent if Wazuh environment variables are defined
-if [ "${upgrade}" = "false" ]; then
+if [ -z "${upgrade}" ]; then
   ${INSTALLATION_SCRIPTS_DIR}/src/init/register_configure_agent.sh ${DIR} > /dev/null || :
 fi
 # Install the service
@@ -141,6 +148,6 @@ if [ -f ${DIR}/queue/alerts/sockets ]; then
   rm ${DIR}/queue/alerts/sockets
 fi
 
-if ${upgrade} && ${restart}; then
+if [ -n "${upgrade}" ] && [ -n "${restart}" ]; then
     ${DIR}/bin/wazuh-control restart
 fi

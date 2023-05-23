@@ -11,16 +11,14 @@
 
 DIR="/Library/Ossec"
 
-if [ ! -d ${DIR} ]; then
-    launchctl setenv WAZUH_PKG_UPGRADE false
-else
-    launchctl setenv WAZUH_PKG_UPGRADE true
+if [ -d ${DIR} ]; then
+    rm -f ${DIR}/WAZUH_PKG_UPGRADE
+    rm -f ${DIR}/WAZUH_RESTART
+    touch ${DIR}/WAZUH_PKG_UPGRADE
     if ${DIR}/bin/wazuh-control status | grep "is running" > /dev/null 2>&1; then
-        launchctl setenv WAZUH_RESTART true
+        touch ${DIR}/WAZUH_RESTART true
     elif ${DIR}/bin/ossec-control status | grep "is running" > /dev/null 2>&1; then
-        launchctl setenv WAZUH_RESTART true
-    else
-        launchctl setenv WAZUH_RESTART false
+        touch ${DIR}/WAZUH_RESTART true
     fi
 fi
 
