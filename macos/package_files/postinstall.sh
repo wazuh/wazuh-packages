@@ -8,8 +8,6 @@
 #  starting at 600 puts this in user space
 # -Added lines to append the ossec users to the group ossec
 #  so the the list GroupMembership works properly
-set -x
-
 GROUP="wazuh"
 USER="wazuh"
 DIR="/Library/Ossec"
@@ -110,7 +108,12 @@ if [ -r ${SCA_TMP_FILE} ]; then
 fi
 
 # Register and configure agent if Wazuh environment variables are defined
-${INSTALLATION_SCRIPTS_DIR}/src/init/register_configure_agent.sh ${DIR} > /tmp/configure.txt || :
+${INSTALLATION_SCRIPTS_DIR}/src/init/register_configure_agent.sh ${DIR} > /dev/null || :
+
+# Remove backup file created in register_configure_agent step
+if [ -e ${DIR}/etc/ossec.confre ]; then
+    rm -f ${DIR}/etc/ossec.confre || true
+fi
 
 # Install the service
 ${INSTALLATION_SCRIPTS_DIR}/src/init/darwin-init.sh ${DIR}
@@ -145,5 +148,3 @@ fi
 if ${upgrade} && ${restart}; then
     ${DIR}/bin/wazuh-control restart
 fi
-
-set +x
