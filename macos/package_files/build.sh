@@ -77,8 +77,7 @@ function build() {
     cp ${SOURCES_PATH}/src/VERSION ${INSTALLATION_SCRIPTS_DIR}/src/
     cp ${SOURCES_PATH}/src/REVISION ${INSTALLATION_SCRIPTS_DIR}/src/
 
-    cp -r /Library/StartupItems/WAZUH ${INSTALLATION_SCRIPTS_DIR}
-    cp /Library/LaunchDaemons/com.wazuh.agent.plist ${INSTALLATION_SCRIPTS_DIR}
+    cp /Library/StartupItems/WAZUH/WAZUH ${DESTINATION_PATH}
 }
 
 build
