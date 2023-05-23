@@ -1,7 +1,7 @@
 #/bin/sh
 
 ## Stop and remove application
-sudo /Library/Ossec/bin/ossec-control stop
+sudo /Library/Ossec/bin/wazuh-control stop
 sudo /bin/rm -r /Library/Ossec*
 
 ## stop and unload dispatcher
