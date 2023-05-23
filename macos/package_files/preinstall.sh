@@ -16,9 +16,9 @@ if [ -d ${DIR} ]; then
     rm -f ${DIR}/WAZUH_RESTART
     touch ${DIR}/WAZUH_PKG_UPGRADE
     if ${DIR}/bin/wazuh-control status | grep "is running" > /dev/null 2>&1; then
-        touch ${DIR}/WAZUH_RESTART true
+        touch ${DIR}/WAZUH_RESTART
     elif ${DIR}/bin/ossec-control status | grep "is running" > /dev/null 2>&1; then
-        touch ${DIR}/WAZUH_RESTART true
+        touch ${DIR}/WAZUH_RESTART
     fi
 fi
 
