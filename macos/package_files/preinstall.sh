@@ -11,16 +11,21 @@
 
 DIR="/Library/Ossec"
 
-if [ ! -d ${DIR} ]; then
-    launchctl setenv WAZUH_PKG_UPGRADE false
-else
-    launchctl setenv WAZUH_PKG_UPGRADE true
+if [ -d "${DIR}" ]; then
+    if [ -f "${DIR}/WAZUH_PKG_UPGRADE" ]; then
+        rm -f "${DIR}/WAZUH_PKG_UPGRADE"
+    fi
+    if [ -f "${DIR}/WAZUH_RESTART" ]; then
+        rm -f "${DIR}/WAZUH_RESTART"
+    fi
+    touch "${DIR}/WAZUH_PKG_UPGRADE"
+    upgrade="true"
     if ${DIR}/bin/wazuh-control status | grep "is running" > /dev/null 2>&1; then
-        launchctl setenv WAZUH_RESTART true
+        touch "${DIR}/WAZUH_RESTART"
+        restart="true"
     elif ${DIR}/bin/ossec-control status | grep "is running" > /dev/null 2>&1; then
-        launchctl setenv WAZUH_RESTART true
-    else
-        launchctl setenv WAZUH_RESTART false
+        touch "${DIR}/WAZUH_RESTART"
+        restart="true"
     fi
 fi
 
@@ -31,7 +36,7 @@ elif [ -f ${DIR}/bin/ossec-control ]; then
     ${DIR}/bin/ossec-control stop
 fi
 
-if [ $(launchctl getenv WAZUH_PKG_UPGRADE) = true ]; then
+if [ -n "${upgrade}" ]; then
     mkdir -p ${DIR}/config_files/
     cp -r ${DIR}/etc/{ossec.conf,client.keys,local_internal_options.conf,shared} ${DIR}/config_files/
 
@@ -44,7 +49,7 @@ if [ $(launchctl getenv WAZUH_PKG_UPGRADE) = true ]; then
     fi
 fi
 
-if [ $(launchctl getenv WAZUH_PKG_UPGRADE) = true ]; then
+if [ -n "${upgrade}" ]; then
     if pkgutil --pkgs | grep -i wazuh-agent-etc > /dev/null 2>&1 ; then
         pkgutil --forget com.wazuh.pkg.wazuh-agent-etc
     fi
