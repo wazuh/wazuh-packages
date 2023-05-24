@@ -18,13 +18,17 @@ if [ -f "${DIR}/WAZUH_PKG_UPGRADE" ]; then
   upgrade="true"
 fi
 
-rm -f ${DIR}/WAZUH_PKG_UPGRADE
+if [ -f "${DIR}/WAZUH_PKG_UPGRADE" ]; then
+  rm -f ${DIR}/WAZUH_PKG_UPGRADE
+fi
 
 if [ -f "${DIR}/WAZUH_RESTART" ]; then
   restart="true"
 fi
 
-rm -f ${DIR}/WAZUH_RESTART
+if [ -f "${DIR}/WAZUH_RESTART" ]; then
+  rm -f ${DIR}/WAZUH_RESTART
+fi
 
 if [ -n "${upgrade}" ]; then
     rm -rf ${DIR}/etc/{ossec.conf,client.keys,local_internal_options.conf,shared}

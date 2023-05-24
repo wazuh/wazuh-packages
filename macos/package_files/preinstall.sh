@@ -11,16 +11,20 @@
 
 DIR="/Library/Ossec"
 
-if [ -d ${DIR} ]; then
-    rm -f ${DIR}/WAZUH_PKG_UPGRADE
-    rm -f ${DIR}/WAZUH_RESTART
-    touch ${DIR}/WAZUH_PKG_UPGRADE
+if [ -d "${DIR}" ]; then
+    if [ -f "${DIR}/WAZUH_PKG_UPGRADE" ]; then
+        rm -f "${DIR}/WAZUH_PKG_UPGRADE"
+    fi
+    if [ -f "${DIR}/WAZUH_RESTART" ]; then
+        rm -f "${DIR}/WAZUH_RESTART"
+    fi
+    touch "${DIR}/WAZUH_PKG_UPGRADE"
     upgrade="true"
     if ${DIR}/bin/wazuh-control status | grep "is running" > /dev/null 2>&1; then
-        touch ${DIR}/WAZUH_RESTART
+        touch "${DIR}/WAZUH_RESTART"
         restart="true"
     elif ${DIR}/bin/ossec-control status | grep "is running" > /dev/null 2>&1; then
-        touch ${DIR}/WAZUH_RESTART
+        touch "${DIR}/WAZUH_RESTART"
         restart="true"
     fi
 fi
