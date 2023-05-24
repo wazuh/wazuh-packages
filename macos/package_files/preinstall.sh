@@ -156,62 +156,8 @@ EOF
 chown root:wheel /Library/LaunchDaemons/com.wazuh.agent.plist
 chmod u=rw-,go=r-- /Library/LaunchDaemons/com.wazuh.agent.plist
 
-sudo mkdir /Library/StartupItems/WAZUH
-chown root:wheel /Library/StartupItems/WAZUH
 
-sudo tee /Library/StartupItems/WAZUH/WAZUH <<-'EOF'
-#!/bin/sh
-. /etc/rc.common
-
-DIRECTORY="/Library/Ossec"
-
-StartService ()
-{
-        ${DIRECTORY}/bin/wazuh-control start
-}
-StopService ()
-{
-        ${DIRECTORY}/bin/wazuh-control stop
-}
-RestartService ()
-{
-        ${DIRECTORY}/bin/wazuh-control restart
-}
-RunService "$1"
-EOF
-chown root:wheel /Library/StartupItems/WAZUH/WAZUH
-chmod u=rwx,go=r-x /Library/StartupItems/WAZUH/WAZUH
-
-sudo tee /Library/StartupItems/WAZUH/StartupParameters.plist <<-'EOF'
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://
-www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-       <key>Description</key>
-       <string>WAZUH Security agent</string>
-       <key>Messages</key>
-       <dict>
-               <key>start</key>
-               <string>Starting Wazuh agent</string>
-               <key>stop</key>
-               <string>Stopping Wazuh agent</string>
-       </dict>
-       <key>Provides</key>
-       <array>
-               <string>WAZUH</string>
-       </array>
-       <key>Requires</key>
-       <array>
-               <string>IPFilter</string>
-       </array>
-</dict>
-</plist>
-EOF
-chown root:wheel /Library/StartupItems/WAZUH/StartupParameters.plist
-chmod u=rw-,go=r-- /Library/StartupItems/WAZUH/StartupParameters.plist
-
-sudo tee /Library/StartupItems/WAZUH/launcher.sh <<-'EOF'
+sudo tee /Library/Ossec/Wazuh-launcher.sh <<-'EOF'
 #!/bin/sh
 
 DIRECTORY="/Library/Ossec"
@@ -231,5 +177,5 @@ while : ; do
 done
 EOF
 
-chown root:wheel /Library/StartupItems/WAZUH/launcher.sh
-chmod u=rxw-,go=rx- /Library/StartupItems/WAZUH/launcher.sh
+chown root:wheel /Library/Ossec/Wazuh-launcher.sh
+chmod u=rxw-,go=rx- /Library/Ossec/Wazuh-launcher.sh
