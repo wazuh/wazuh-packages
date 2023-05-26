@@ -55,6 +55,8 @@ make -j%{_threads} TARGET=server USE_SELINUX=yes DEBUG=%{_debugenabled}
 popd
 
 %install
+
+echo "This is INSTALL"
 # Clean BUILDROOT
 rm -fr %{buildroot}
 
@@ -182,6 +184,7 @@ exit 0
 
 %pre
 
+echo "This is PRE"
 # Create the wazuh group if it doesn't exists
 if command -v getent > /dev/null 2>&1 && ! getent group wazuh > /dev/null 2>&1; then
   groupadd -r wazuh
@@ -285,6 +288,7 @@ fi
 
 %post
 
+echo "This is POST"
 echo "VERSION=\"$(%{_localstatedir}/bin/wazuh-control info -v)\"" > /etc/ossec-init.conf
 if [ $1 = 2 ]; then
   if [ -d %{_localstatedir}/logs/ossec ]; then
@@ -476,6 +480,8 @@ fi
 
 %preun
 
+echo "This is PREUN"
+
 if [ $1 = 0 ]; then
 
   # Stop the services before uninstall the package
@@ -503,6 +509,7 @@ fi
 
 %postun
 
+echo "This is POSTUN"
 # If the package is been uninstalled
 if [ $1 = 0 ];then
   # Remove the wazuh user if it exists
@@ -544,6 +551,8 @@ fi
 
 # posttrans code is the last thing executed in a install/upgrade
 %posttrans
+
+echo "This is POSTTRANS"
 if [ -f %{_sysconfdir}/systemd/system/wazuh-manager.service ]; then
   rm -rf %{_sysconfdir}/systemd/system/wazuh-manager.service
   systemctl daemon-reload > /dev/null 2>&1
@@ -583,6 +592,8 @@ rm -rf %{_localstatedir}/backup/groups
  chmod 0640 %{_localstatedir}/etc/localtime
 
 %clean
+
+echo "This is CLEAN"
 rm -fr %{buildroot}
 
 %files
