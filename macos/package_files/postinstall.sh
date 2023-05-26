@@ -14,7 +14,23 @@ DIR="/Library/Ossec"
 INSTALLATION_SCRIPTS_DIR="${DIR}/packages_files/agent_installation_scripts"
 SCA_BASE_DIR="${INSTALLATION_SCRIPTS_DIR}/sca"
 
-if [ $(launchctl getenv WAZUH_PKG_UPGRADE) = true ]; then
+if [ -f "${DIR}/WAZUH_PKG_UPGRADE" ]; then
+  upgrade="true"
+fi
+
+if [ -f "${DIR}/WAZUH_PKG_UPGRADE" ]; then
+  rm -f ${DIR}/WAZUH_PKG_UPGRADE
+fi
+
+if [ -f "${DIR}/WAZUH_RESTART" ]; then
+  restart="true"
+fi
+
+if [ -f "${DIR}/WAZUH_RESTART" ]; then
+  rm -f ${DIR}/WAZUH_RESTART
+fi
+
+if [ -n "${upgrade}" ]; then
     rm -rf ${DIR}/etc/{ossec.conf,client.keys,local_internal_options.conf,shared}
     cp -rf ${DIR}/config_files/{ossec.conf,client.keys,local_internal_options.conf,shared} ${DIR}/etc/
     rm -rf ${DIR}/config_files/
@@ -68,13 +84,8 @@ chown -R root:${GROUP} ${DIR}/var
 
 . ${INSTALLATION_SCRIPTS_DIR}/src/init/dist-detect.sh
 
-upgrade=$(launchctl getenv WAZUH_PKG_UPGRADE)
-restart=$(launchctl getenv WAZUH_RESTART)
 
-launchctl unsetenv WAZUH_PKG_UPGRADE
-launchctl unsetenv WAZUH_RESTART
-
-if [ "${upgrade}" = "false" ]; then
+if [ -z "${upgrade}" ]; then
     ${INSTALLATION_SCRIPTS_DIR}/gen_ossec.sh conf agent ${DIST_NAME} ${DIST_VER}.${DIST_SUBVER} ${DIR} > ${DIR}/etc/ossec.conf
     chown root:wazuh ${DIR}/etc/ossec.conf
     chmod 0640 ${DIR}/etc/ossec.conf
@@ -108,7 +119,14 @@ if [ -r ${SCA_TMP_FILE} ]; then
 fi
 
 # Register and configure agent if Wazuh environment variables are defined
-${INSTALLATION_SCRIPTS_DIR}/src/init/register_configure_agent.sh ${DIR} > /dev/null || :
+if [ -z "${upgrade}" ]; then
+  ${INSTALLATION_SCRIPTS_DIR}/src/init/register_configure_agent.sh ${DIR} > /dev/null || :
+fi
+
+# Remove backup file created in register_configure_agent step
+if [ -e ${DIR}/etc/ossec.confre ]; then
+    rm -f ${DIR}/etc/ossec.confre || true
+fi
 
 # Install the service
 ${INSTALLATION_SCRIPTS_DIR}/src/init/darwin-init.sh ${DIR}
@@ -120,17 +138,9 @@ rm -rf ${DIR}/packages_files
 
 if [[ $(dscl . -read /Groups/ossec) ]]; then
   find ${DIR}/ -group ossec -user root -exec chown root:wazuh {} \ > /dev/null 2>&1 || true
-  if [ $(dscl . -read /Users/ossec) ]]; then
+  if [[ $(dscl . -read /Users/ossec) ]]; then
     find ${DIR}/ -group ossec -user ossec -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true
     sudo /usr/bin/dscl . -delete "/Users/ossec"
-  fi
-  if [ $(dscl . -read /Users/ossecm) ]]; then
-    find ${DIR}/ -group ossec -user ossecm -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true
-    sudo /usr/bin/dscl . -delete "/Users/ossecm"
-  fi
-  if [ $(dscl . -read /Users/ossecr) ]]; then
-    find ${DIR}/ -group ossec -user ossecr -exec chown wazuh:wazuh {} \ > /dev/null 2>&1 || true
-    sudo /usr/bin/dscl . -delete "/Users/ossecr"
   fi
   sudo /usr/bin/dscl . -delete "/Groups/ossec"
 fi
@@ -140,6 +150,6 @@ if [ -f ${DIR}/queue/alerts/sockets ]; then
   rm ${DIR}/queue/alerts/sockets
 fi
 
-if ${upgrade} && ${restart}; then
+if [ -n "${upgrade}" ] && [ -n "${restart}" ]; then
     ${DIR}/bin/wazuh-control restart
 fi
