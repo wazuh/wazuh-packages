@@ -158,7 +158,7 @@ function build_package() {
             mkdir -p ${CHECKSUMDIR}
             cd ${DESTINATION} && shasum -a512 "${pkg_name}" > "${CHECKSUMDIR}/${pkg_name}.sha512"
         fi
-        clean_and_exit 0
+        #clean_and_exit 0
     else
         echo "ERROR: something went wrong while building the package."
         clean_and_exit 1
@@ -402,6 +402,7 @@ function main() {
             fi
             "${CURRENT_PATH}/uninstall.sh"
         done
+        clean_and_exit 0
     else
         echo "The branch has not been specified. No package will be generated."
         help 1
