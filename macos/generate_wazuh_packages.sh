@@ -388,8 +388,18 @@ function main() {
 
     if [[ "$BUILD" != "no" ]]; then
         check_root
-        build_package
-        "${CURRENT_PATH}/uninstall.sh"
+        repeat="yes"
+        while [ "$repeat" != "no" ]
+        do
+            build_package
+            if [ ! -s "/Library/Ossec/logs/ossec.logs" ]; then
+                echo "Error: ossec.log is empty. The package has not been generated."
+                sleep 5
+            else
+                repeat="no"
+            fi
+            "${CURRENT_PATH}/uninstall.sh"
+        done
     else
         echo "The branch has not been specified. No package will be generated."
         help 1
