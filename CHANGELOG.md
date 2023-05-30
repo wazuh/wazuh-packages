@@ -1,5 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file.
+## [v4.4.4]
+
+- https://github.com/wazuh/wazuh-packages/releases/tag/v4.4.4
+
+## [v4.4.3]
+
+- https://github.com/wazuh/wazuh-packages/releases/tag/v4.4.3
+
 ## [v4.4.2]
 
 - https://github.com/wazuh/wazuh-packages/releases/tag/v4.4.2
