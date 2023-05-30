@@ -394,7 +394,7 @@ function main() {
         while [ "$repeat" != "no" ]
         do
             build_package
-            if [ ! -s "/Library/Ossec/logs/ossec.logs" ]; then
+            if [ ! -s "/Library/Ossec/logs/ossec.log" ]; then
                 echo "Error: ossec.log is empty. The package has not been generated."
                 sleep 5
                 repetitions=$((repetitions+1))
