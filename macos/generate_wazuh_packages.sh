@@ -389,6 +389,7 @@ function main() {
     if [[ "$BUILD" != "no" ]]; then
         check_root
         repeat="yes"
+        echo "Build packages until ossec.log is not empty."
         while [ "$repeat" != "no" ]
         do
             build_package
@@ -396,6 +397,7 @@ function main() {
                 echo "Error: ossec.log is empty. The package has not been generated."
                 sleep 5
             else
+                echo "The log file is not empty. The package has been generated successfully."
                 repeat="no"
             fi
             "${CURRENT_PATH}/uninstall.sh"
