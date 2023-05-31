@@ -116,8 +116,7 @@ function installCommon_aptInstallList(){
             common_logger "Installing $dep."
             installCommon_aptInstall "${dep}"
             if [ "${install_result}" != 0 ]; then
-                common_logger -e "Cannot install dependency: ${dep}."
-                exit 1
+                installCommon_checkOptionalInstallation
             fi
         done
     fi
@@ -151,6 +150,20 @@ function installCommon_changePasswordApi() {
         fi
         if [ "${nuser}" == "wazuh-wui" ] && { [ -n "${dashboard}" ] || [ -n "${AIO}" ]; }; then
                 passwords_changeDashboardApiPassword "${password}"
+        fi
+    fi
+
+}
+
+function installCommon_checkOptionalInstallation() {
+
+    if [ "${optional_installation}" != 1 ]; then
+        common_logger -e "Cannot install dependency: ${dep}."
+        exit 1
+    else
+        common_logger -w "Cannot install optional dependency: ${dep}."
+        if [ "${report_dependencies}" == 1 ]; then 
+            pdf_warning=1
         fi
     fi
 
@@ -261,6 +274,31 @@ function installCommon_changePasswords() {
 
 }
 
+function installCommon_checkChromium() {
+
+    if [ "${sys_type}" == "yum" ]; then
+        if (! yum list installed 2>/dev/null | grep -q -E ^"google-chrome-stable"\\.) && (! yum list installed 2>/dev/null | grep -q -E ^"chromium"\\.); then
+            if [ "${DIST_NAME}" == "amzn" ]; then
+                installCommon_installChrome
+            else
+                dashboard_dependencies=(chromium)
+            fi
+        fi
+        
+    elif [ "${sys_type}" == "apt-get" ]; then
+        if (! apt list --installed 2>/dev/null | grep -q -E ^"google-chrome-stable"\/) && (! apt list --installed 2>/dev/null | grep -q -E ^"chromium-browser"\/); then
+
+            # Report generation doesn't work with Chromium in Ubuntu 22 and Ubuntu 20
+            if [[ "${DIST_NAME}" == "ubuntu" ]] && [[ "${DIST_VER}" == "22" || "${DIST_VER}" == "20" || "${DIST_VER}" == "18" ]]; then
+                installCommon_installChrome
+            else
+                dashboard_dependencies=(chromium-browser)
+            fi
+        fi
+    fi
+
+}
+
 function installCommon_extractConfig() {
 
     if ! tar -tf "${tar_file}" | grep -q wazuh-install-files/config.yml; then
@@ -306,6 +344,32 @@ function installCommon_installCheckDependencies() {
         eval "apt-get update -q ${debug}"
         dependencies=( systemd grep tar coreutils sed procps gawk lsof curl openssl )
         installCommon_aptInstallList "${dependencies[@]}"
+    fi
+
+}
+
+function installCommon_installChrome() {
+
+    dep="chrome"
+    common_logger "Installing ${dep}."
+
+    if [ "${sys_type}" == "yum" ]; then
+        chrome_package="/tmp/wazuh-install-files/chrome.rpm"
+        common_curl -so "${chrome_package}" https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm --max-time 100 --retry 5 --retry-delay 5 --fail
+        eval "yum install ${chrome_package} -y ${debug}"
+
+        if [ "${PIPESTATUS[0]}" != 0 ]; then
+            installCommon_checkOptionalInstallation
+        fi
+
+    elif [ "${sys_type}" == "apt-get" ]; then
+        chrome_package="/tmp/wazuh-install-files/chrome.deb"
+        common_curl -so "${chrome_package}" https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb --max-time 100 --retry 5 --retry-delay 5 --fail
+        installCommon_aptInstall "${chrome_package}"
+
+        if [ "${install_result}" != 0 ]; then
+            installCommon_checkOptionalInstallation
+        fi
     fi
 
 }
@@ -636,8 +700,7 @@ function installCommon_yumInstallList(){
             common_logger "Installing $dep."
             eval "yum install ${dep} -y ${debug}"
             if [  "${PIPESTATUS[0]}" != 0  ]; then
-                common_logger -e "Cannot install dependency: ${dep}."
-                exit 1
+                installCommon_checkOptionalInstallation
             fi
         done
     fi

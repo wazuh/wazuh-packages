@@ -1,3 +1,10 @@
+%if %{_debugenabled} == yes
+  %global _enable_debug_package 0
+  %global debug_package %{nil}
+  %global __os_install_post %{nil}
+  %define __strip /bin/true
+%endif
+
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-manager
 Version:     4.5.0
@@ -20,6 +27,7 @@ Requires: coreutils
 BuildRequires: coreutils glibc-devel automake autoconf libtool policycoreutils-python curl perl
 
 ExclusiveOS: linux
+
 
 %description
 Wazuh helps you to gain security visibility into your infrastructure by monitoring
@@ -108,8 +116,8 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/{applications,generic}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/{1,2}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/{8,7,6,5}
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/{15,16,17,18,19,20,21}
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/{7,8,9}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/{15,16,17,18,19,20,21,22}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/{7,8,9,10,11}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ubuntu/{12,14,16,18,20,22}/04
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/{9,8,7,6,5}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles/{11,12,15}
@@ -170,9 +178,6 @@ install -m 0640 src/init/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/
 cp src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/src/
 cp src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/src/
 
-if [ %{_debugenabled} = "yes" ]; then
-  %{_rpmconfigdir}/find-debuginfo.sh
-fi
 exit 0
 
 %pre
@@ -214,7 +219,7 @@ fi
 # Remove/relocate existing SQLite databases
 rm -f %{_localstatedir}/var/db/cluster.db* || true
 rm -f %{_localstatedir}/var/db/.profile.db* || true
-rm -f %{_localstatedir}/var/db/agents/* || true
+rm -rf %{_localstatedir}/var/db/agents || true
 
 if [ -f %{_localstatedir}/var/db/global.db ]; then
   mv %{_localstatedir}/var/db/global.db %{_localstatedir}/queue/db/
@@ -757,6 +762,8 @@ rm -fr %{buildroot}
 %attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/20/*
 %dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/21
 %attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/21/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/22
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/22/*
 %dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian
 %attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/*
 %dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel
@@ -796,7 +803,6 @@ rm -fr %{buildroot}
 %attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/windows/*
 %dir %attr(750, root, wazuh) %{_localstatedir}/var
 %dir %attr(770, root, wazuh) %{_localstatedir}/var/db
-%dir %attr(770, root, wazuh) %{_localstatedir}/var/db/agents
 %attr(660, root, wazuh) %{_localstatedir}/var/db/mitre.db
 %dir %attr(770, root, wazuh) %{_localstatedir}/var/download
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/var/multigroups
@@ -816,14 +822,14 @@ rm -fr %{buildroot}
 %dir %attr(750, root, wazuh) %{_localstatedir}/wodles/gcloud
 %attr(750, root, wazuh) %{_localstatedir}/wodles/gcloud/*
 
-%if %{_debugenabled} == "yes"
-/usr/lib/debug/%{_localstatedir}/*
-/usr/src/debug/%{name}-%{version}/*
-%endif
-
-
 %changelog
-* Fri May 05 2023 support <info@wazuh.com> - 4.5.0
+* Sun May 30 2023 support <info@wazuh.com> - 4.5.0
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon May 08 2023 support <info@wazuh.com> - 4.4.2
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Apr 24 2023 support <info@wazuh.com> - 4.3.11
+- More info: https://documentation.wazuh.com/current/release-notes/
+* Mon Apr 17 2023 support <info@wazuh.com> - 4.4.1
 - More info: https://documentation.wazuh.com/current/release-notes/
 * Wed Jan 18 2023 support <info@wazuh.com> - 4.4.0
 - More info: https://documentation.wazuh.com/current/release-notes/

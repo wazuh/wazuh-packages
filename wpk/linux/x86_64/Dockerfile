@@ -40,7 +40,18 @@ RUN curl -OL http://packages.wazuh.com/utils/openssl/openssl-1.1.1a.tar.gz && \
     tar xf openssl-1.1.1a.tar.gz && cd openssl-1.1.1a && \
     ./config --prefix=/usr/ --openssldir=/usr/ shared zlib && \
     make -j$(nproc) && make install && echo "/usr/lib" > /etc/ld.so.conf.d/openssl-1.1.1a.conf && \
-    ldconfig -v && cd / && rm -rf openssl-1.1.1a*
+    ldconfig -v && cd / && rm -rf openssl-1.1.1a*    
+
+RUN yum install zlib-devel libffi-devel -y
+
+RUN wget https://www.python.org/ftp/python/3.7.16/Python-3.7.16.tgz
+
+RUN tar xvf Python-3.7.16.tgz
+
+RUN cd Python-3.7.16 &&  \
+    ./configure && \
+    make && \
+    make install
 
 RUN yum install zlib-devel libffi-devel -y
 

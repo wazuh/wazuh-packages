@@ -158,15 +158,25 @@ function dashboard_initializeAIO() {
 
     common_logger "Initializing Wazuh dashboard web application."
     installCommon_getPass "admin"
-    if [ "$(common_curl -XGET https://localhost:"${wazuh_dashboard_port}"/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null --max-time 300 --retry 12 --retry-delay 10 --fail)" -ne "200" ]; then
-        common_logger -e "Cannot connect to Wazuh dashboard."
+    http_code=$(curl -XGET https://localhost/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null)
+    retries=0
+    max_dashboard_initialize_retries=20
+    while [ "${http_code}" -ne "200" ] && [ "${retries}" -lt "${max_dashboard_initialize_retries}" ]
+    do
+        http_code=$(curl -XGET https://localhost/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null)
+        common_logger "Wazuh dashboard web application not yet initialized. Waiting..."
+        retries=$((retries+1))
+        sleep 15
+    done
+    if [ "${http_code}" -eq "200" ]; then
+        common_logger "Wazuh dashboard web application initialized."
+        common_logger -nl "--- Summary ---"
+        common_logger -nl "You can access the web interface https://<wazuh-dashboard-ip>\n    User: admin\n    Password: ${u_pass}"
+    else
+        common_logger -e "Wazuh dashboard installation failed."
         installCommon_rollBack
         exit 1
     fi
-
-    common_logger "Wazuh dashboard web application initialized."
-    common_logger -nl "--- Summary ---"
-    common_logger -nl "You can access the web interface https://<wazuh-dashboard-ip>\n    User: admin\n    Password: ${u_pass}"
 }
 
 function dashboard_install() {
@@ -186,5 +196,29 @@ function dashboard_install() {
     else
         common_logger "Wazuh dashboard installation finished."
     fi
+
+}
+
+function dashboard_installReportDependencies() {
+
+    # Flags that indicates that is an optional installation.
+    optional_installation=1
+    report_dependencies=1
+
+    installCommon_checkChromium
+
+    if [ "${sys_type}" == "yum" ]; then
+        dashboard_dependencies+=( nss xorg-x11-fonts-100dpi xorg-x11-fonts-75dpi xorg-x11-utils xorg-x11-fonts-cyrillic xorg-x11-fonts-Type1 xorg-x11-fonts-misc fontconfig freetype )
+        installCommon_yumInstallList "${dashboard_dependencies[@]}"
+    
+    elif [ "${sys_type}" == "apt-get" ]; then
+        dashboard_dependencies+=( libnss3-dev fonts-liberation libfontconfig1 )
+        installCommon_aptInstallList "${dashboard_dependencies[@]}"
+    fi
+
+    if [ "${pdf_warning}" == 1 ]; then
+        common_logger -w "Wazuh dashboard dependencies skipped. PDF report generation may not work."
+    fi
+    optional_installation=0
 
 }
