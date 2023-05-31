@@ -16,6 +16,10 @@ case "$1" in
     SCRIPTS_DIR="${WAZUH_GLOBAL_TMP_DIR}/manager_installation_scripts"
     SCA_BASE_DIR="${SCRIPTS_DIR}/sca"
 
+    if [ -d /run/systemd/system ]; then
+        rm -f /etc/init.d/wazuh-manager
+    fi
+
     if [ ! -f ${OSMYSHELL} ]; then
         if [ -f "/bin/false" ]; then
             OSMYSHELL="/bin/false"
@@ -54,7 +58,7 @@ case "$1" in
     # Remove/relocate existing SQLite databases
     rm -f ${DIR}/var/db/cluster.db* || true
     rm -f ${DIR}/var/db/.profile.db* || true
-    rm -f ${DIR}/var/db/agents/* || true
+    rm -rf ${DIR}/var/db/agents || true
 
     if [ -f ${DIR}/var/db/global.db ]; then
         mv ${DIR}/var/db/global.db ${DIR}/queue/db/
@@ -240,17 +244,17 @@ case "$1" in
     # Remove old ossec user and group if exists and change ownwership of files
 
     if getent group ossec > /dev/null 2>&1; then
-        find ${DIR}/ -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
+        find ${DIR}/ -group ossec -user root -print0 | xargs -0 chown root:wazuh > /dev/null 2>&1 || true
         if getent passwd ossec > /dev/null 2>&1; then
-            find ${DIR}/ -group ossec -user ossec -exec chown ${USER}:${GROUP} {} \; > /dev/null 2>&1 || true
+            find ${DIR}/ -group ossec -user ossec -print0 | xargs -0 chown ${USER}:${GROUP} > /dev/null 2>&1 || true
             deluser ossec > /dev/null 2>&1
         fi
         if getent passwd ossecm > /dev/null 2>&1; then
-            find ${DIR}/ -group ossec -user ossecm -exec chown ${USER}:${GROUP} {} \; > /dev/null 2>&1 || true
+            find ${DIR}/ -group ossec -user ossecm -print0 | xargs -0 chown ${USER}:${GROUP} > /dev/null 2>&1 || true
             deluser ossecm > /dev/null 2>&1
         fi
         if getent passwd ossecr > /dev/null 2>&1; then
-            find ${DIR}/ -group ossec -user ossecr -exec chown ${USER}:${GROUP} {} \; > /dev/null 2>&1 || true
+            find ${DIR}/ -group ossec -user ossecr -print0 | xargs -0 chown ${USER}:${GROUP} > /dev/null 2>&1 || true
             deluser ossecr > /dev/null 2>&1
         fi
         if getent group ossec > /dev/null 2>&1; then 

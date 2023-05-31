@@ -51,4 +51,4 @@ adminPassword="wazuh"
 readonly wazuh_aio_ports=( 9200 9300 1514 1515 1516 55000 443)
 readonly wazuh_indexer_ports=( 9200 9300 )
 readonly wazuh_manager_ports=( 1514 1515 1516 55000 )
-readonly wazuh_dashboard_ports=( 443 )
+readonly wazuh_dashboard_port=443
