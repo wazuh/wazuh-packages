@@ -41,7 +41,7 @@ jobs:
               - 'debs/Debian/7/i386/**'
               - 'debs/build.sh'
             deb_images_manager_amd64:
-              - 'debs/Debian/8/md64/**'
+              - 'debs/Debian/8/amd64/**'
               - 'debs/build.sh'
             deb_images_agent_amd64:
               - 'debs/Debian/7/amd64/**'
