@@ -10,8 +10,6 @@ on:
 jobs:
   Wait-for-package-building:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
     steps:
       - name: Cancel previous runs
         uses: fkirc/skip-duplicate-actions@master
@@ -34,18 +32,18 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        system: [
-        {NAME: 'oraclelinux:9', ARCH: "x86_64"},
-        {NAME: 'almalinux:9', ARCH: "x86_64"},
-        {NAME: 'rockylinux:9', ARCH: "x86_64"},
-        {NAME: 'centos:7', ARCH: "x86_64"},
-        {NAME: 'centos:8', ARCH: "x86_64"},
-        {NAME: 'i386/centos:7', ARCH: "i386"},
-        {NAME: 'redhat/ubi8:latest', ARCH: "x86_64"},
-        {NAME: 'redhat/ubi9:latest', ARCH: "x86_64"},
-        {NAME: 'amazonlinux:2', ARCH: "x86_64"},
-        {NAME: 'fedora:34', ARCH: "x86_64"},
-        {NAME: 'centos:6.9', ARCH: "x86_64", INIT: "initd"}]
+        system:
+        - {NAME: 'oraclelinux:9', ARCH: "x86_64"}
+        - {NAME: 'almalinux:9', ARCH: "x86_64"}
+        - {NAME: 'rockylinux:9', ARCH: "x86_64"}
+        - {NAME: 'centos:7', ARCH: "x86_64"}
+        - {NAME: 'centos:8', ARCH: "x86_64"}
+        - {NAME: 'i386/centos:7', ARCH: "i386"}
+        - {NAME: 'redhat/ubi8:latest', ARCH: "x86_64"}
+        - {NAME: 'redhat/ubi9:latest', ARCH: "x86_64"}
+        - {NAME: 'amazonlinux:2', ARCH: "x86_64"}
+        - {NAME: 'fedora:34', ARCH: "x86_64"}
+        - {NAME: 'centos:6.9', ARCH: "x86_64", INIT: "initd"}
         type: [agent, manager]
         exclude:
           - system: {ARCH: "i386"}
@@ -69,6 +67,7 @@ jobs:
               - 'rpms/build.sh'
             rpm_images_x86_64:
               - 'rpms/CentOS/6/x86_64/**'
+              - 'rpms/CentOS/7/x86_64/**'
               - 'rpms/build.sh'
             rpm_packages:
               - 'rpms/SPECS/**'
