@@ -11,8 +11,6 @@ jobs:
 
   Wait-for-package-building:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
     steps:
       - name: Cancel previous runs
         uses: fkirc/skip-duplicate-actions@master
@@ -56,10 +54,11 @@ jobs:
               - 'debs/Debian/**'
               - 'debs/build.sh'
             deb_images_i386:
-              - 'debs/Debian/i386/**'
+              - 'debs/Debian/7/i386/**'
               - 'debs/build.sh'
             deb_images_amd64:
-              - 'debs/Debian/amd64/**'
+              - 'debs/Debian/7/amd64/**'
+              - 'debs/Debian/8/amd64/**'
               - 'debs/build.sh'
             deb_packages:
               - 'debs/SPECS/**'
