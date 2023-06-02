@@ -15,6 +15,7 @@ WAZUH_SOURCE_REPOSITORY="https://github.com/wazuh/wazuh"
 AGENT_PKG_FILE="${CURRENT_PATH}/package_files/wazuh-agent.pkgproj"
 export CONFIG="${WAZUH_PATH}/etc/preloaded-vars.conf"
 ENTITLEMENTS_PATH="${CURRENT_PATH}/entitlements.plist"
+ARCH="intel64"
 INSTALLATION_PATH="/Library/Ossec"    # Installation path
 VERSION=""                            # Default VERSION (branch/tag)
 REVISION="1"                          # Package revision.
@@ -170,6 +171,7 @@ function help() {
     echo "Usage: $0 [OPTIONS]"
     echo
     echo "  Build options:"
+    echo "    -a, --architecture <arch>     [Optional] Select architecture to build (intel64 or arm64). Default: intel64"
     echo "    -b, --branch <branch>         [Required] Select Git branch or tag e.g. $BRANCH"
     echo "    -s, --store-path <path>       [Optional] Set the destination absolute path of package."
     echo "    -j, --jobs <number>           [Optional] Number of parallel jobs when compiling."
@@ -196,7 +198,7 @@ function get_pkgproj_specs() {
 
     VERSION=$(< "${WAZUH_PATH}/src/VERSION"  cut -d "-" -f1 | cut -c 2-)
 
-    pkg_file="specs/wazuh-agent.pkgproj"
+    pkg_file="specs/wazuh-agent-${arch}.pkgproj"
 
     if [ ! -f "${pkg_file}" ]; then
         echo "Warning: the file ${pkg_file} does not exists. Check the version selected."
@@ -266,6 +268,14 @@ function main() {
     while [ -n "$1" ]
     do
         case "$1" in
+        "-a"|"--architecture")
+            if [ -n "$2" ]; then
+                ARCH="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
         "-b"|"--branch")
             if [ -n "$2" ]; then
                 BRANCH_TAG="$2"
@@ -385,6 +395,12 @@ function main() {
     fi
 
     testdep
+
+    if [ "${ARCH}" != "intel64" ] && [ "${ARCH}" != "arm64" ]; then
+        echo "Error: architecture not supported."
+        echo "Supported architectures: intel64, arm64"
+        exit 1
+    fi
 
     if [ -z "${CHECKSUMDIR}" ]; then
         CHECKSUMDIR="${DESTINATION}"
