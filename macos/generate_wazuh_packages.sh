@@ -236,6 +236,10 @@ function install_deps() {
         echo "Something went wrong installing packagesbuild."
     fi
 
+    if [ "$(uname -m)" = "arm64" ]; then 
+        echo "Installing dependencies for arm64 architecture"
+        brew install gcc binutils autoconf automake libtool cmake
+    fi
     exit 0
 }
 
