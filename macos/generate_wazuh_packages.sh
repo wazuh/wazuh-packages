@@ -12,7 +12,6 @@ CURRENT_PATH="$( cd $(dirname ${0}) ; pwd -P )"
 SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
 WAZUH_PATH="${SOURCES_DIRECTORY}/wazuh"
 WAZUH_SOURCE_REPOSITORY="https://github.com/wazuh/wazuh"
-AGENT_PKG_FILE="${CURRENT_PATH}/package_files/wazuh-agent.pkgproj"
 export CONFIG="${WAZUH_PATH}/etc/preloaded-vars.conf"
 ENTITLEMENTS_PATH="${CURRENT_PATH}/entitlements.plist"
 ARCH="intel64"
@@ -152,7 +151,7 @@ function build_package() {
     # create package
     if packagesbuild ${AGENT_PKG_FILE} --build-folder ${DESTINATION} ; then
         echo "The wazuh agent package for MacOS X has been successfully built."
-        pkg_name="wazuh-agent-${VERSION}-${REVISION}.pkg"
+        pkg_name="wazuh-agent-${VERSION}-${REVISION}.${ARCH}.pkg"
         sign_pkg
         notarize_pkg
         if [[ "${CHECKSUM}" == "yes" ]]; then
@@ -408,6 +407,7 @@ function main() {
 
     if [[ "$BUILD" != "no" ]]; then
         check_root
+        AGENT_PKG_FILE="${CURRENT_PATH}/package_files/wazuh-agent-${ARCH}.pkgproj"
         build_package
         "${CURRENT_PATH}/uninstall.sh"
     else
