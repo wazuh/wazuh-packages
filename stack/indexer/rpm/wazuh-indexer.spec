@@ -163,11 +163,21 @@ if [ $1 = 1 ];then # Install
 
 fi
 
-if [ -f /etc/os-release ]; then
-  source /etc/os-release
-  if [ "${NAME}" = "Red Hat Enterprise Linux" ] && [ "$((${VERSION_ID:0:1}))" -ge 9 ]; then
+
+if [[ -d /run/systemd/system ]] ; then
     rm -f /etc/init.d/%{name}
-  fi
+fi
+
+# If is an upgrade, move the securityconfig files if they exist (4.3.x versions)
+if [ ${1} = 2 ]; then
+    if [ -d "%{INSTALL_DIR}"/plugins/opensearch-security/securityconfig ]; then
+
+        if [ ! -d "%{CONFIG_DIR}"/opensearch-security ]; then
+            mkdir "%{CONFIG_DIR}"/opensearch-security
+        fi
+
+        cp -r "%{INSTALL_DIR}"/plugins/opensearch-security/securityconfig/* "%{CONFIG_DIR}"/opensearch-security
+    fi
 fi
 
 # If is an upgrade, move the securityconfig files if they exist (4.3.x versions)
@@ -1384,6 +1394,8 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/security/blocked.certs
 
 %changelog
+* Fri Jun 30 2023 support <info@wazuh.com> - %{version}
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-5-0.html
 * Thu May 25 2023 support <info@wazuh.com> - 4.4.3
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-4-3.html
 * Mon Apr 24 2023 support <info@wazuh.com> - 4.4.2

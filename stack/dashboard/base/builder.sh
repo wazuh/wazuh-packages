@@ -65,6 +65,9 @@ cd /opt
 
 curl -sL https://artifacts.opensearch.org/releases/bundle/opensearch-dashboards/"${opensearch_version}"/opensearch-dashboards-"${opensearch_version}"-linux-${architecture}.tar.gz | tar xz
 
+pip3 install pathfix.py
+/usr/bin/pathfix.py -pni "/usr/bin/python3 -s" opensearch-dashboards-"${opensearch_version}" > /dev/null 2>&1
+
 # Remove unnecessary files and set up configuration
 mv opensearch-dashboards-* "${base_dir}"
 cd "${base_dir}"
@@ -143,6 +146,7 @@ sed -i 's|DEFAULT_MARK="opensearch_mark_default_mode.svg"|DEFAULT_MARK="home.svg
 sed -i 's|DEFAULT_DARK_MARK="opensearch_mark_dark_mode.svg"|DEFAULT_DARK_MARK="home_dark_mode.svg"|g' ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
 gzip -c ./plugins/securityDashboards/target/public/securityDashboards.plugin.js > ./plugins/securityDashboards/target/public/securityDashboards.plugin.js.gz
 brotli -c ./plugins/securityDashboards/target/public/securityDashboards.plugin.js > ./plugins/securityDashboards/target/public/securityDashboards.plugin.js.br
+
 # Generate compressed files
 gzip -c ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js > ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js.gz
 brotli -c ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js > ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js.br

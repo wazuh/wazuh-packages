@@ -52,19 +52,19 @@ function checks_arguments() {
         fi
 
         if [ -z "${wazuh_installed}" ] && [ -z "${wazuh_remaining_files}" ]; then
-            common_logger "Wazuh manager was not found in the system so it was not uninstalled."
+            common_logger "Wazuh manager not found in the system so it was not uninstalled."
         fi
 
         if [ -z "${filebeat_installed}" ] && [ -z "${filebeat_remaining_files}" ]; then
-            common_logger "Filebeat was not found in the system so it was not uninstalled."
+            common_logger "Filebeat not found in the system so it was not uninstalled."
         fi
 
         if [ -z "${indexer_installed}" ] && [ -z "${indexer_remaining_files}" ]; then
-            common_logger "Wazuh indexer was not found in the system so it was not uninstalled."
+            common_logger "Wazuh indexer not found in the system so it was not uninstalled."
         fi
 
         if [ -z "${dashboard_installed}" ] && [ -z "${dashboard_remaining_files}" ]; then
-            common_logger "Wazuh dashboard was not found in the system so it was not uninstalled."
+            common_logger "Wazuh dashboard not found in the system so it was not uninstalled."
         fi
 
     fi
@@ -162,6 +162,17 @@ function checks_arguments() {
     if [ -n "${force}" ] && [ -z  "${dashboard}" ]; then
         common_logger -e "The -fd|--force-install-dashboard argument needs to be used alongside -wd|--wazuh-dashboard."
         exit 1
+    fi
+
+}
+
+# Checks if the --retry-connrefused is available in curl
+function check_curlVersion() {
+
+    # --retry-connrefused was added in 7.52.0
+    curl_version=$(curl -V | head -n 1 | awk '{ print $2 }')
+    if [ $(check_versions ${curl_version} 7.52.0) == "0" ]; then
+        curl_has_connrefused=0
     fi
 
 }
@@ -328,6 +339,17 @@ function checks_ports() {
         common_logger "The installation can not continue due to port usage by other processes."
         installCommon_rollBack
         exit 1
+    fi
+
+}
+
+# Checks if the first version is greater equal than to second one
+function check_versions() {
+
+    if test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1"; then
+        echo 0
+    else
+        echo 1
     fi
 
 }
