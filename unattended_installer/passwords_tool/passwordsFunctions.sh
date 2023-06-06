@@ -299,7 +299,6 @@ function passwords_generatePasswordFile() {
 }
 
 function passwords_getApiToken() {
-
     retries=0
     max_internal_error_retries=20
 

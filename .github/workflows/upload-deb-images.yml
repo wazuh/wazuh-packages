@@ -61,5 +61,5 @@ jobs:
   Test-packages-deb:
     needs: Build-packages-deb
     if: github.event_name == 'pull_request'
-    uses: ./.github/workflows/test-install-and-enable-deb.yml
+    uses: ./.github/workflows/test-install-deb.yml
     secrets: inherit
