@@ -1396,6 +1396,10 @@ rm -fr %{buildroot}
 %changelog
 * Fri Jun 30 2023 support <info@wazuh.com> - %{version}
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-5-0.html
+* Mon Jun 26 2023 support <info@wazuh.com> - 4.4.5
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-4-5.html
+* Tue Jun 13 2023 support <info@wazuh.com> - 4.4.4
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-4-4.html
 * Thu May 25 2023 support <info@wazuh.com> - 4.4.3
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-4-3.html
 * Mon Apr 24 2023 support <info@wazuh.com> - 4.4.2
@@ -1426,4 +1430,3 @@ rm -fr %{buildroot}
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-3-1.html
 * Thu May 05 2022 support <info@wazuh.com> - 4.3.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-3-0.html
-

@@ -7,7 +7,7 @@ DEBUG="no"
 OUTDIR="$(pwd)"
 REVISION="1"
 TRUST_VERIFICATION="1"
-CA_NAME="DigiCert High Assurance EV Root CA"
+CA_NAME="DigiCert Assured ID Root CA"
 
 DOCKERFILE_PATH="./"
 DOCKER_IMAGE_NAME="compile_windows_agent"
@@ -37,7 +37,7 @@ help() {
     echo "    -s, --store <path>        [Optional] Set the directory where the package will be stored. By default the current path."
     echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
     echo "    -t, --trust_verification  [Optional] Build the binaries with trust load images verification. By default: 1 (only warnings)."
-    echo "    -c, --ca_name <CA name>   [Optional] CA name to be used to verify the trust of the agent. By default: DigiCert High Assurance EV Root CA."
+    echo "    -c, --ca_name <CA name>   [Optional] CA name to be used to verify the trust of the agent. By default: DigiCert Assured ID Root CA."
     echo "    -h, --help                Show this help."
     echo
     exit $1
