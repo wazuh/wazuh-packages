@@ -73,16 +73,16 @@ function BuildWazuhMsi(){
     if($SIGN -eq "yes"){
         # Sign .exe files and the InstallerScripts.vbs
         Write-Host "Signing .exe files..."
-        & $SIGNTOOL_EXE sign /a /tr http://timestamp.digicert.com /td SHA256 ".\*.exe"
+        & $SIGNTOOL_EXE sign /a /tr http://timestamp.digicert.com /fd SHA256 /td SHA256 ".\*.exe"
         Write-Host "Signing .vbs files..."
-        & $SIGNTOOL_EXE sign /a /tr http://timestamp.digicert.com /td SHA256 ".\InstallerScripts.vbs"
+        & $SIGNTOOL_EXE sign /a /tr http://timestamp.digicert.com /fd SHA256 /td SHA256 ".\InstallerScripts.vbs"
         Write-Host "Signing .dll files..."
-        & $SIGNTOOL_EXE sign /a /tr http://timestamp.digicert.com /td SHA256 "..\*.dll"
-        & $SIGNTOOL_EXE sign /a /tr http://timestamp.digicert.com /td SHA256 ".\*.dll"
-        & $SIGNTOOL_EXE sign /a /tr http://timestamp.digicert.com /td SHA256 "..\data_provider\build\bin\sysinfo.dll"
-        & $SIGNTOOL_EXE sign /a /tr http://timestamp.digicert.com /td SHA256 "..\shared_modules\dbsync\build\bin\dbsync.dll"
-        & $SIGNTOOL_EXE sign /a /tr http://timestamp.digicert.com /td SHA256 "..\shared_modules\rsync\build\bin\rsync.dll"
-        & $SIGNTOOL_EXE sign /a /tr http://timestamp.digicert.com /td SHA256 "..\wazuh_modules\syscollector\build\bin\syscollector.dll"
+        & $SIGNTOOL_EXE sign /a /tr http://timestamp.digicert.com /fd SHA256 /td SHA256 "..\*.dll"
+        & $SIGNTOOL_EXE sign /a /tr http://timestamp.digicert.com /fd SHA256 /td SHA256 ".\*.dll"
+        & $SIGNTOOL_EXE sign /a /tr http://timestamp.digicert.com /fd SHA256 /td SHA256 "..\data_provider\build\bin\sysinfo.dll"
+        & $SIGNTOOL_EXE sign /a /tr http://timestamp.digicert.com /fd SHA256 /td SHA256 "..\shared_modules\dbsync\build\bin\dbsync.dll"
+        & $SIGNTOOL_EXE sign /a /tr http://timestamp.digicert.com /fd SHA256 /td SHA256 "..\shared_modules\rsync\build\bin\rsync.dll"
+        & $SIGNTOOL_EXE sign /a /tr http://timestamp.digicert.com /fd SHA256 /td SHA256 "..\wazuh_modules\syscollector\build\bin\syscollector.dll"
     }
 
     Write-Host "Building MSI installer..."
@@ -92,7 +92,7 @@ function BuildWazuhMsi(){
 
     if($SIGN -eq "yes"){
         Write-Host "Signing $MSI_NAME..."
-        & $SIGNTOOL_EXE sign /a /tr http://timestamp.digicert.com /d $MSI_NAME /td SHA256 $MSI_NAME
+        & $SIGNTOOL_EXE sign /a /tr http://timestamp.digicert.com /d $MSI_NAME /fd SHA256 /td SHA256 $MSI_NAME
     }
 }
 
