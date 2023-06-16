@@ -779,10 +779,24 @@
 					<key>PATH_TYPE</key>
 					<integer>1</integer>
 				</dict>
+				<key>POSTUPGRADE_PATH</key>
+				<dict>
+					<key>PATH</key>
+					<string>postupgrade.sh</string>
+					<key>PATH_TYPE</key>
+					<integer>1</integer>
+				</dict>
 				<key>PREINSTALL_PATH</key>
 				<dict>
 					<key>PATH</key>
 					<string>preinstall.sh</string>
+					<key>PATH_TYPE</key>
+					<integer>1</integer>
+				</dict>
+				<key>PREUPGRADE_PATH</key>
+				<dict>
+					<key>PATH</key>
+					<string>preupgrade.sh</string>
 					<key>PATH_TYPE</key>
 					<integer>1</integer>
 				</dict>
