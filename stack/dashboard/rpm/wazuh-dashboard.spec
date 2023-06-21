@@ -399,29 +399,39 @@ rm -fr %{buildroot}
 %attr(640, root, root) "/etc/systemd/system/wazuh-dashboard.service"
 
 %changelog
-* Fri May 05 2023 support <info@wazuh.com> - %{version}
-- More info: https://documentation.wazuh.com/current/release-notes/
+* Fri Jun 30 2023 support <info@wazuh.com> - %{version}
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-5-0.html
+* Mon Jun 26 2023 support <info@wazuh.com> - 4.4.5
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-4-5.html
+* Tue Jun 13 2023 support <info@wazuh.com> - 4.4.4
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-4-4.html
+* Thu May 25 2023 support <info@wazuh.com> - 4.4.3
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-4-3.html
+* Mon Apr 24 2023 support <info@wazuh.com> - 4.4.2
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-4-2.html
+* Mon Apr 17 2023 support <info@wazuh.com> - 4.4.1
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-4-1.html
 * Wed Jan 18 2023 support <info@wazuh.com> - 4.4.0
-- More info: https://documentation.wazuh.com/current/release-notes/
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-4-0.html
 * Thu Nov 10 2022 support <info@wazuh.com> - 4.3.10
-- More info: https://documentation.wazuh.com/current/release-notes/
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-3-10.html
 * Mon Oct 03 2022 support <info@wazuh.com> - 4.3.9
-- More info: https://documentation.wazuh.com/current/release-notes/
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-3-9.html
 * Mon Sep 19 2022 support <info@wazuh.com> - 4.3.8
-- More info: https://documentation.wazuh.com/current/release-notes/
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-3-8.html
 * Mon Aug 08 2022 support <info@wazuh.com> - 4.3.7
-- More info: https://documentation.wazuh.com/current/release-notes/
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-3-7.html
 * Thu Jul 07 2022 support <info@wazuh.com> - 4.3.6
-- More info: https://documentation.wazuh.com/current/release-notes/
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-3-6.html
 * Wed Jun 29 2022 support <info@wazuh.com> - 4.3.5
-- More info: https://documentation.wazuh.com/current/release-notes/
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-3-5.html
 * Tue Jun 07 2022 support <info@wazuh.com> - 4.3.4
-- More info: https://documentation.wazuh.com/current/release-notes/
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-3-4.html
 * Tue May 31 2022 support <info@wazuh.com> - 4.3.3
-- More info: https://documentation.wazuh.com/current/release-notes/
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-3-3.html
 * Mon May 30 2022 support <info@wazuh.com> - 4.3.2
-- More info: https://documentation.wazuh.com/current/release-notes/
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-3-2.html
 * Wed May 18 2022 support <info@wazuh.com> - 4.3.1
-- More info: https://documentation.wazuh.com/current/release-notes/
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-3-1.html
 * Thu May 05 2022 support <info@wazuh.com> - 4.3.0
-- More info: https://documentation.wazuh.com/current/release-notes/
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-3-0.html

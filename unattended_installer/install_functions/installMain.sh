@@ -221,6 +221,10 @@ function main() {
 
 # -------------- Preliminary checks  --------------------------------
 
+    if [ -z "${uninstall}" ]; then
+        installCommon_installCheckDependencies
+    fi
+
     if [ -z "${configurations}" ] && [ -z "${AIO}" ] && [ -z "${download}" ]; then
         checks_previousCertificate
     fi
@@ -249,6 +253,7 @@ function main() {
 
 
 # -------------- Prerequisites and Wazuh repo  ----------------------
+
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
         installCommon_installPrerequisites
         check_curlVersion
@@ -295,6 +300,7 @@ function main() {
 
     if [ -n "${dashboard}" ]; then
         common_logger "--- Wazuh dashboard ----"
+        dashboard_installReportDependencies
         dashboard_install
         dashboard_configure
         installCommon_startService "wazuh-dashboard"
@@ -334,6 +340,7 @@ function main() {
         filebeat_configure
         installCommon_startService "filebeat"
         common_logger "--- Wazuh dashboard ---"
+        dashboard_installReportDependencies
         dashboard_install
         dashboard_configure
         installCommon_startService "wazuh-dashboard"

@@ -1,9 +1,32 @@
 # Change Log
 All notable changes to this project will be documented in this file.
-
 ## [v4.5.0]
 
 - https://github.com/wazuh/wazuh-packages/releases/tag/v4.5.0
+
+## [v4.4.5]
+
+- https://github.com/wazuh/wazuh-packages/releases/tag/v4.4.5
+
+## [v4.4.4]
+
+- https://github.com/wazuh/wazuh-packages/releases/tag/v4.4.4
+
+## [v4.4.3]
+
+- https://github.com/wazuh/wazuh-packages/releases/tag/v4.4.3
+
+## [v4.4.2]
+
+- https://github.com/wazuh/wazuh-packages/releases/tag/v4.4.2
+
+## [v4.3.11]
+
+- https://github.com/wazuh/wazuh-packages/releases/tag/v4.3.11
+
+## [v4.4.1]
+
+- https://github.com/wazuh/wazuh-packages/releases/tag/v4.4.1
 
 ## [v4.4.0]
 
@@ -32,6 +55,7 @@ All notable changes to this project will be documented in this file.
 ## [v4.3.5]
 
 - https://github.com/wazuh/wazuh-packages/releases/tag/v4.3.5
+
 ## [v4.3.4]
 
 - https://github.com/wazuh/wazuh-packages/releases/tag/v4.3.4
@@ -40,13 +64,13 @@ All notable changes to this project will be documented in this file.
 
 - https://github.com/wazuh/wazuh-packages/releases/tag/v4.3.3
 
-## [v4.2.7]
-
-- https://github.com/wazuh/wazuh-packages/releases/tag/v4.2.7
-
 ## [v4.3.2]
 
 - https://github.com/wazuh/wazuh-packages/releases/tag/v4.3.2
+
+## [v4.2.7]
+
+- https://github.com/wazuh/wazuh-packages/releases/tag/v4.2.7
 
 ## [v4.3.1]
 
