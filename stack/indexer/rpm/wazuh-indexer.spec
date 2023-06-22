@@ -1394,7 +1394,9 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/security/blocked.certs
 
 %changelog
-* Fri Jun 30 2023 support <info@wazuh.com> - %{version}
+* Mon Sep 04 2023 support <info@wazuh.com> - %{version}
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-6-0.html
+* Fri Jun 30 2023 support <info@wazuh.com> - 4.5.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-5-0.html
 * Mon Jun 26 2023 support <info@wazuh.com> - 4.4.5
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-4-5.html

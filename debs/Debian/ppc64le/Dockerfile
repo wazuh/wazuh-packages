@@ -2,6 +2,8 @@ FROM ppc64le/debian:stretch
 
 ENV DEBIAN_FRONTEND noninteractive
 
+RUN apt-get -v
+
 # Installing necessary packages
 RUN echo "deb http://archive.debian.org/debian stretch contrib main non-free" > /etc/apt/sources.list && \
     echo "deb http://archive.debian.org/debian-security stretch/updates main" >> /etc/apt/sources.list && \
