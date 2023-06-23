@@ -1,10 +1,16 @@
-wazuh-indexer (VERSION-RELEASE) unstable; urgency=low
+wazuh-dashboard (VERSION-RELEASE) stable; urgency=low
 
-  * More info: https://documentation.wazuh.com/current/release-notes/release-4-5.0.html
+  * More info: https://documentation.wazuh.com/current/release-notes/release-4-7-0.html
 
- -- Wazuh, Inc <info@wazuh.com>  Fri, 30 Jun 2023 12:31:50 +0000
+ -- Wazuh, Inc <info@wazuh.com>  Sat, 28 Oct 2023 10:32:24 +0000
 
-wazuh-indexer (4.5.0-RELEASE) stable; urgency=low
+wazuh-dashboard (4.6.0-RELEASE) stable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/release-4-6-0.html
+
+ -- Wazuh, Inc <info@wazuh.com>  Mon, 04 Sep 2023 11:56:07 +0000
+
+wazuh-manager (4.5.0-RELEASE) stable; urgency=low
 
   * More info: https://documentation.wazuh.com/current/release-notes/release-4-5-0.html
 
