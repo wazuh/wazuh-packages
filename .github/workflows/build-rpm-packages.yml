@@ -53,7 +53,7 @@ jobs:
         run: |
           MAJOR=$(sed 's/\([0-9]*\.[0-9]*\)\.[0-9]*/\1/' $GITHUB_WORKSPACE/VERSION)
           if [ "${{ steps.changes.outputs.rpm_images }}" == "true" ]; then echo "TAG=${{ github.head_ref }}" >> $GITHUB_ENV; else echo "TAG=$MAJOR" >> $GITHUB_ENV ; fi
-          if [ $MAJOR == "4.6" ]; then echo "VERSION=master" >> $GITHUB_ENV $ ; else echo "VERSION=$MAJOR" >> $GITHUB_ENV; fi
+          if [ $MAJOR == "4.7" ]; then echo "VERSION=master" >> $GITHUB_ENV $ ; else echo "VERSION=$(cat $GITHUB_WORKSPACE/VERSION)" >> $GITHUB_ENV; fi
           if [ "${{ matrix.ARCHITECTURE }}" == "x86_64" ]; then echo "CONTAINER_NAME=rpm_builder_x86" >> $GITHUB_ENV ; else echo "CONTAINER_NAME=rpm_builder_${{ matrix.ARCHITECTURE }}" >> $GITHUB_ENV ; fi
 
       - name: Download docker image for package building
@@ -66,7 +66,7 @@ jobs:
         working-directory: ./rpms
         run: |
           REVISION=$( echo ${{ github.head_ref }} | sed 's/-/./g' )
-          bash generate_rpm_package.sh -b ${{ env.VERSION }} -t ${{ matrix.TYPE }} -a ${{ matrix.ARCHITECTURE }} --dev -j 2 --dont-build-docker --tag ${{ env.TAG }} -r $REVISION
+          bash generate_rpm_package.sh -b ${{ env.VERSION }} -t ${{ matrix.TYPE }} -a ${{ matrix.ARCHITECTURE }} --dev -j 2 --dont-build-docker -r $REVISION
           echo "PACKAGE_NAME=$(ls ./output | grep .rpm | head -n 1)" >> $GITHUB_ENV
 
       - name: Upload Wazuh ${{ matrix.TYPE }} ${{ matrix.ARCHITECTURE }} package as artifact
