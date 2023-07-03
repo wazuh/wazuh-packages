@@ -19,7 +19,7 @@ wazuh_app_clone_repo_url="https://github.com/wazuh/wazuh-kibana-app.git"
 wazuh_app_raw_repo_url="https://raw.githubusercontent.com/wazuh/wazuh-kibana-app"
 kibana_app_repo_url="https://github.com/elastic/kibana.git"
 kibana_app_raw_repo_url="https://raw.githubusercontent.com/elastic/kibana"
-wazuh_app_package_json_url="${wazuh_app_raw_repo_url}/${wazuh_branch}/package.json"
+wazuh_app_package_json_url="${wazuh_app_raw_repo_url}/${wazuh_branch}/plugins/main/package.json"
 
 # Script vars
 wazuh_version=""
@@ -79,14 +79,14 @@ prepare_env() {
 }
 
 
-download_kibana_sources() {    
+download_kibana_sources() {
     if ! git clone $kibana_app_repo_url --branch "v${aux_kibana_version}" --depth=1 kibana_source; then
         echo "Error downloading Kibana source code from elastic/kibana GitHub repository."
         exit 1
     fi
-    
+
     mkdir -p kibana_source/plugins
-    mv kibana_source ${kibana_dir}     
+    mv kibana_source ${kibana_dir}
 }
 
 
@@ -106,12 +106,12 @@ download_wazuh_app_sources() {
     if ! git clone $wazuh_app_clone_repo_url --branch ${wazuh_branch} --depth=1 ${kibana_dir}/plugins/wazuh ; then
         echo "Error downloading the source code from wazuh-kibana-app GitHub repository."
         exit 1
-    fi      
+    fi
 }
 
 
 build_package(){
-   
+
     cd $source_dir
 
     # Set pkg name
@@ -144,4 +144,3 @@ download_kibana_sources
 install_dependencies
 download_wazuh_app_sources
 build_package
-
