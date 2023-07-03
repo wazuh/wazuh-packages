@@ -95,8 +95,10 @@ case "$1" in
         fi
 
         # Set correct permissions, owner and group
-        chmod 640 ${DIR}/ruleset/sca/*
-        chown root:${GROUP} ${DIR}/ruleset/sca/*
+        if [ -z "$(ls -A ${DIR}/ruleset/sca/)" ]; then
+            chmod -R 640 ${DIR}/ruleset/sca/
+            chown -R root:${GROUP} ${DIR}/ruleset/sca/
+        fi
         # Delete the temporary directory
         rm -rf ${SCA_BASE_DIR}
 
