@@ -94,10 +94,11 @@ case "$1" in
             done
         fi
 
-        # Set correct permissions, owner and group
-        # There may not be any sca rules, so avoid wildcards
-        chmod -R u=rwX,g=rX,o= ${DIR}/ruleset/sca/
-        chown -R root:${GROUP} ${DIR}/ruleset/sca/
+        # Set correct permissions, owner and group. ruleset directory may be empty.
+        if [ -z "$(ls -A ${DIR}/ruleset/sca/)" ]; then
+            chmod -R u=rwX,g=rX,o= ${DIR}/ruleset/sca/
+            chown -R root:${GROUP} ${DIR}/ruleset/sca/
+        fi
         # Delete the temporary directory
         rm -rf ${SCA_BASE_DIR}
 
