@@ -1,6 +1,12 @@
 wazuh-indexer (VERSION-RELEASE) unstable; urgency=low
 
-  * More info: https://documentation.wazuh.com/current/release-notes/release-4-5.0.html
+  * More info: https://documentation.wazuh.com/current/release-notes/release-4-6-0.html
+
+ -- Wazuh, Inc <info@wazuh.com>  Fri, 08 Sep 2023 13:46:52 +0000
+
+wazuh-indexer (4.5.0-RELEASE) unstable; urgency=low
+
+  * More info: https://documentation.wazuh.com/current/release-notes/release-4-5-0.html
 
  -- Wazuh, Inc <info@wazuh.com>  Fri, 30 Jun 2023 12:31:50 +0000
 
@@ -27,7 +33,7 @@ wazuh-indexer (4.4.3-RELEASE) stable; urgency=low
   * More info: https://documentation.wazuh.com/current/release-notes/release-4-4-3.html
 
  -- Wazuh, Inc <info@wazuh.com>  Thu, 25 May 2023 12:31:50 +0000
- 
+
 wazuh-indexer (4.4.2-RELEASE) stable; urgency=low
 
   * More info: https://documentation.wazuh.com/current/release-notes/release-4-4-2.html
@@ -111,7 +117,7 @@ wazuh-indexer (4.3.0-RELEASE) unstable; urgency=low
   * More info: https://documentation.wazuh.com/current/release-notes/release-4-3-0.html
 
  -- Wazuh, Inc <info@wazuh.com>  Thu, 05 May 2022 12:15:57 +0000
- 
+
  wazuh-indexer (4.2.5-1) UNRELEASED; urgency=low
 
   * More info: https://documentation.wazuh.com/current/release-notes/
