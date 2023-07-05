@@ -69,6 +69,6 @@ clean() {
   find /var/ossec/logs/ -type f -exec bash -c 'cat /dev/null > {}' \;
 
   cat /dev/null > ~/.bash_history && history -c 
-  #shutdown -r now > /dev/null 2>&1
+  shutdown -r now > /dev/null 2>&1
 
 }
