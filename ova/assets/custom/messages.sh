@@ -12,7 +12,7 @@ cat > /etc/issue <<EOF
 Welcome to the Wazuh OVA version
 Wazuh - ${WAZUH_VERSION}
 Login credentials:
-  User: wazuh-user
+  User: ${SYSTEM_USER}
   Password: wazuh
 
 EOF
