@@ -97,12 +97,13 @@ install_dependencies () {
 
 
 download_wazuh_app_sources() {
-    if ! git clone $wazuh_app_clone_repo_url --branch ${wazuh_branch} --depth=1 ${plugin_platform_dir}/plugins/wazuh ; then
-        echo "Error downloading the source code from wazuh-kibana-app GitHub repository."
+    if ! git clone $wazuh_app_clone_repo_url --branch ${wazuh_branch} --depth=1 /tmp/wazuh-app ; then
+        echo "Error downloading the source code from wazuh-dashboard-app GitHub repository."
         exit 1
     fi
-}
 
+    cp -r /tmp/wazuh-app/plugins/main ${plugin_platform_dir}/plugins/wazuh
+}
 
 build_package(){
 
