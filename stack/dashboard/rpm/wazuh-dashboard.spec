@@ -397,6 +397,8 @@ rm -fr %{buildroot}
 %attr(640, root, root) "/etc/systemd/system/wazuh-dashboard.service"
 
 %changelog
+* Mon Jul 10 2023 support <info@wazuh.com> - 4.4.5
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-4-5.html
 * Tue Jun 13 2023 support <info@wazuh.com> - 4.4.4
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-4-4.html
 * Thu May 25 2023 support <info@wazuh.com> - 4.4.3
