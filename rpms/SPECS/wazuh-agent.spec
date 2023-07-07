@@ -17,8 +17,7 @@ BuildRoot:   %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Vendor:      Wazuh, Inc <info@wazuh.com>
 Packager:    Wazuh, Inc <info@wazuh.com>
 Requires(pre):    /usr/sbin/groupadd /usr/sbin/useradd
-Requires(preun):  /sbin/service
-Requires(postun): /sbin/service
+Requires(postun): /usr/sbin/groupdel /usr/sbin/userdel
 Conflicts:   ossec-hids ossec-hids-agent wazuh-manager wazuh-local
 AutoReqProv: no
 
