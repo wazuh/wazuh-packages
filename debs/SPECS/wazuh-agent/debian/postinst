@@ -96,8 +96,8 @@ case "$1" in
 
         # Set correct permissions, owner and group. ruleset directory may be empty.
         if [ -z "$(ls -A ${DIR}/ruleset/sca/)" ]; then
-            chmod -R u=rwX,g=rX,o= ${DIR}/ruleset/sca/
-            chown -R root:${GROUP} ${DIR}/ruleset/sca/
+            chmod --recursive u=rwX,g=rX,o= ${DIR}/ruleset/sca/
+            chown --recursive root:${GROUP} ${DIR}/ruleset/sca/
         fi
         # Delete the temporary directory
         rm -rf ${SCA_BASE_DIR}
