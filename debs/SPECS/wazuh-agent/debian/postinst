@@ -95,7 +95,7 @@ case "$1" in
         fi
 
         # Set correct permissions, owner and group. ruleset directory may be empty.
-        if [ -z "$(ls -A ${DIR}/ruleset/sca/)" ]; then
+        if [ -n "$(ls -A ${DIR}/ruleset/sca/)" ]; then
             chmod --recursive u=rwX,g=rX,o= ${DIR}/ruleset/sca/
             chown --recursive root:${GROUP} ${DIR}/ruleset/sca/
         fi
