@@ -23,11 +23,13 @@ DEB_I386_BUILDER="deb_builder_i386"
 DEB_PPC64LE_BUILDER="deb_builder_ppc64le"
 DEB_ARM64_BUILDER="deb_builder_arm64"
 DEB_ARMHF_BUILDER="deb_builder_armhf"
+DEB_S390X_BUILDER="deb_builder_s390x"
 DEB_AMD64_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/amd64"
 DEB_I386_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/i386"
 DEB_PPC64LE_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/ppc64le"
 DEB_ARM64_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/arm64"
 DEB_ARMHF_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/armhf"
+DEB_S390X_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/s390x"
 CHECKSUMDIR=""
 CHECKSUM="no"
 PACKAGES_BRANCH="master"
@@ -126,8 +128,11 @@ build() {
         elif [[ "${ARCHITECTURE}" = "armhf" ]]; then
             BUILD_NAME="${DEB_ARMHF_BUILDER}"
             FILE_PATH="${DEB_ARMHF_BUILDER_DOCKERFILE}"
+	elif [[ "${ARCHITECTURE}" = "s390x" ]]; then
+	    BUILD_NAME="${DEB_S390X_BUILDER}"
+	    FILE_PATH="${DEB_S390X_BUILDER_DOCKERFILE}"
         else
-            echo "Invalid architecture. Choose one of amd64/i386/ppc64le/arm64/arm32."
+            echo "Invalid architecture. Choose one of amd64/i386/ppc64le/arm64/arm32/s390x."
             return 1
         fi
         build_deb ${BUILD_NAME} ${FILE_PATH} || return 1
@@ -145,7 +150,7 @@ help() {
     echo
     echo "    -b, --branch <branch>      [Required] Select Git branch [${BRANCH}]. By default: master."
     echo "    -t, --target <target>      [Required] Target package to build: manager or agent."
-    echo "    -a, --architecture <arch>  [Optional] Target architecture of the package [amd64/i386/ppc64le/arm64/armhf]."
+    echo "    -a, --architecture <arch>  [Optional] Target architecture of the package [amd64/i386/ppc64le/arm64/armhf/s390x]."
     echo "    -j, --jobs <number>        [Optional] Change number of parallel jobs when compiling the manager or agent. By default: 2."
     echo "    -r, --revision <rev>       [Optional] Package revision. By default: 1."
     echo "    -s, --store <path>         [Optional] Set the destination path of package. By default, an output folder will be created."
