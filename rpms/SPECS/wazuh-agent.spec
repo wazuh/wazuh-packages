@@ -17,8 +17,7 @@ BuildRoot:   %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Vendor:      Wazuh, Inc <info@wazuh.com>
 Packager:    Wazuh, Inc <info@wazuh.com>
 Requires(pre):    /usr/sbin/groupadd /usr/sbin/useradd
-Requires(preun):  /sbin/service
-Requires(postun): /sbin/service
+Requires(postun): /usr/sbin/groupdel /usr/sbin/userdel
 Conflicts:   ossec-hids ossec-hids-agent wazuh-manager wazuh-local
 AutoReqProv: no
 
@@ -765,7 +764,7 @@ rm -fr %{buildroot}
 * Mon Jun 11 2018 support <support@wazuh.com> - 3.3.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-3-3-0.html
 * Wed May 30 2018 support <support@wazuh.com> - 3.2.4
-- More info: https://documentation.wazuh.com/current/release-notes/release-3-2-4.html 
+- More info: https://documentation.wazuh.com/current/release-notes/release-3-2-4.html
 * Thu May 10 2018 support <support@wazuh.com> - 3.2.3
 - More info: https://documentation.wazuh.com/current/release-notes/release-3-2-3.html
 * Mon Apr 09 2018 support <support@wazuh.com> - 3.2.2
