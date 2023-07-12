@@ -5,7 +5,6 @@ import re
 from packaging.version import Version
 
 format_string = "%m-%d-%Y"
-spec_format_string = "%a %b %d %Y"
 
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument('-v', '--version', action='store', dest='version', help='Version to bump to', required=True)
@@ -27,9 +26,10 @@ changelog_md_files = glob.glob('**/CHANGELOG.md', recursive=True)
 readme_md_files = glob.glob('**/README.md', recursive=True)
 
 ## Bump version in .spec files
+spec_format_string = "%a %b %d %Y"
 spec_date=date.strftime(spec_format_string)
 for spec_file in spec_files:
-    with open(spec_file, 'r') as file:
+    with open(spec_file, 'r+') as file:
         print('Bumping version in ' + spec_file)
         filedata = file.read()
         # Replace version and revision
@@ -39,10 +39,23 @@ for spec_file in spec_files:
         filedata = re.sub(regex, 'Revision:     ' + str(args.revision), filedata)
         # Add new version to changelog
         regex = r'%changelog'
-        changelog_string="* {} <info@wazuh.com> - {}\n- More info: https://documentation.wazuh.com/current/release-notes/release-{}-{}-{}.html".format(spec_date, version, version.major, version.minor, version.micro)
+        changelog_string="* {} support <info@wazuh.com> - {}\n- More info: https://documentation.wazuh.com/current/release-notes/release-{}-{}-{}.html".format(spec_date, version, version.major, version.minor, version.micro)
         filedata = re.sub(regex, '%changelog\n' + changelog_string, filedata)
 
+        with open(spec_file, 'w') as file:
+            file.write(filedata)
 
-    with open(spec_file, 'w') as file:
-        print('Writing version to ' + spec_file)
-        file.write(filedata)
+## Bump version in deb changelog files
+deb_changelog_format_string = "%a, %d %b %Y %H:%M:%S +0000"
+deb_changelog_date=date.strftime(deb_changelog_format_string)
+for changelog_file in changelog_files:
+    with open(changelog_file, 'r') as file:
+        print('Bumping version in ' + changelog_file)
+        filedata = file.read()
+        type=re.search(r'(wazuh-(agent|manager|indexer|dashboard))', filedata).group(1)
+        changelog_string="wazuh-{} ({}-RELEASE) stable; urgency=low\n\n  * More info: https://documentation.wazuh.com/current/release-notes/release-{}-{}-{}.html\n\n -- Wazuh, Inc <info@wazuh.com>  {}\n\n".format(type, version, version.major, version.minor, version.micro, deb_changelog_date)
+        # Add new version to changelog
+        filedata = changelog_string + filedata
+        
+        with open(changelog_file, 'w') as file:
+            file.write(filedata)
