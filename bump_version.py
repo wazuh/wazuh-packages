@@ -15,15 +15,15 @@ args = arg_parser.parse_args()
 date=datetime.datetime.strptime(args.date, format_string)
 version=Version(args.version)
 
-## Find files to bump .spec, changelog, pkginfo, .pkgproj, test-*.sh, installVariables.sh, CHANGELOG.md, README.md
+## Find files to bump .spec, changelog, pkginfo, .pkgproj, test-*.sh, installVariables.sh, CHANGELOG.md
 spec_files = glob.glob('**/*.spec', recursive=True)
 changelog_files = glob.glob('**/changelog', recursive=True)
+copyright_files = glob.glob('**/copyright', recursive=True)
 pkginfo_files = glob.glob('**/pkginfo', recursive=True)
 pkgproj_files = glob.glob('**/*.pkgproj', recursive=True)
 test_files = glob.glob('**/test-*.sh', recursive=True)
 install_variables_files = glob.glob('**/installVariables.sh', recursive=True)
 changelog_md_files = glob.glob('**/CHANGELOG.md', recursive=True)
-readme_md_files = glob.glob('**/README.md', recursive=True)
 
 ## Bump version in .spec files
 spec_format_string = "%a %b %d %Y"
@@ -58,6 +58,19 @@ for changelog_file in changelog_files:
         filedata = changelog_string + filedata
         
     with open(changelog_file, 'w') as file:
+        file.write(filedata)
+
+## Bump version in deb copyrigth files
+
+for copyrigth_file in copyright_files:
+    with open(copyrigth_file, 'r') as file:
+        print('Bumping version in ' + copyrigth_file)
+        filedata = file.read()
+        # Replace version and revision
+        regex = r'Wazuh, Inc <info@wazuh.com> on (\w+),\s(\d+)\s(\w+)\s(\d+)\s(\d+):(\d+):(\d+)\s\+(\d+)'
+        filedata = re.sub(regex, "Wazuh, Inc <info@wazuh.com> on {}".format(deb_changelog_date), filedata)
+    
+    with open(copyrigth_file, 'w') as file:
         file.write(filedata)
 
 ## Bump version in pkginfo files
@@ -120,5 +133,19 @@ for install_variables_file in install_variables_files:
         filedata = re.sub(regex, 'wazuh_version=\"{}\"'.format(version), filedata)
     
     with open(install_variables_file, 'w') as file:
+        file.write(filedata)
+
+## Bump version in CHANGELOG.md files
+
+for changelog_md_file in changelog_md_files:
+    with open(changelog_md_file, 'r') as file:
+        print('Bumping version in ' + changelog_md_file)
+        filedata = file.read()
+        # Add new version to changelog
+        regex=r'All notable changes to this project will be documented in this file.'
+        changelog_string="## [{}]\n\n- https://github.com/wazuh/wazuh-packages/releases/tag/v{}\n\n".format(version, version)
+        filedata = re.sub(regex, regex + '\n' + changelog_string + regex, filedata)
+
+    with open(changelog_md_file, 'w') as file:
         file.write(filedata)
         
