@@ -91,3 +91,34 @@ for pkgproj_file in pkgproj_files:
 
     with open(pkgproj_file, 'w') as file:
         file.write(filedata)
+
+## Bump version in test-*.sh files
+
+for test_file in test_files:
+    with open(test_file, 'r') as file:
+        print('Bumping version in ' + test_file)
+        filedata = file.read()
+        # Replace version and revision
+        regex = r'wazuh-manager.x86_64\s+(\d+\.\d+\.\d+)-(\d+)'
+        filedata = re.sub(regex, 'wazuh-manager.x86_64 {}-{}'.format(version, args.revision), filedata)
+        regex = r'wazuh_version=\"(\d+\.\d+\.\d+)\"'
+        filedata = re.sub(regex, 'wazuh_version=\"{}\"'.format(version), filedata)
+
+    with open(test_file, 'w') as file:
+        file.write(filedata)
+
+## Bump version in installVariables.sh files
+
+for install_variables_file in install_variables_files:
+    with open(install_variables_file, 'r') as file:
+        print('Bumping version in ' + install_variables_file)
+        filedata = file.read()
+        # Replace version and revision
+        regex = r'wazuh_major=\"(\d+\.\d+)\"'
+        filedata = re.sub(regex, 'wazuh_major=\"{}.{}\"'.format(version.major,version.minor), filedata)
+        regex = r'wazuh_version=\"(\d+\.\d+\.\d+)\"'
+        filedata = re.sub(regex, 'wazuh_version=\"{}\"'.format(version), filedata)
+    
+    with open(install_variables_file, 'w') as file:
+        file.write(filedata)
+        
