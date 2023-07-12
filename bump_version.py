@@ -29,7 +29,7 @@ readme_md_files = glob.glob('**/README.md', recursive=True)
 spec_format_string = "%a %b %d %Y"
 spec_date=date.strftime(spec_format_string)
 for spec_file in spec_files:
-    with open(spec_file, 'r+') as file:
+    with open(spec_file, 'r') as file:
         print('Bumping version in ' + spec_file)
         filedata = file.read()
         # Replace version and revision
@@ -42,8 +42,8 @@ for spec_file in spec_files:
         changelog_string="* {} support <info@wazuh.com> - {}\n- More info: https://documentation.wazuh.com/current/release-notes/release-{}-{}-{}.html".format(spec_date, version, version.major, version.minor, version.micro)
         filedata = re.sub(regex, '%changelog\n' + changelog_string, filedata)
 
-        with open(spec_file, 'w') as file:
-            file.write(filedata)
+    with open(spec_file, 'w') as file:
+        file.write(filedata)
 
 ## Bump version in deb changelog files
 deb_changelog_format_string = "%a, %d %b %Y %H:%M:%S +0000"
@@ -57,5 +57,37 @@ for changelog_file in changelog_files:
         # Add new version to changelog
         filedata = changelog_string + filedata
         
-        with open(changelog_file, 'w') as file:
-            file.write(filedata)
+    with open(changelog_file, 'w') as file:
+        file.write(filedata)
+
+## Bump version in pkginfo files
+
+pkginfo_format_string = "%d%b%Y"
+
+for pkginfo_file in pkginfo_files:
+    with open(pkginfo_file, 'r') as file:
+        print('Bumping version in ' + pkginfo_file)
+        filedata = file.read()
+        # Replace version and revision
+        regex = r'VERSION=(\d+\.\d+\.\d+)'
+        filedata = re.sub(regex, 'VERSION=\"{}\"'.format(version), filedata)
+        regex = r'PSTAMP=(.*)'
+        filedata = re.sub(regex, 'PSTAMP=\"{}\"'.format(date.strftime(pkginfo_format_string)), filedata)
+
+    with open(pkginfo_file, 'w') as file:
+        file.write(filedata)
+
+## Bump version in .pkgproj files
+
+for pkgproj_file in pkgproj_files:
+    with open(pkgproj_file, 'r') as file:
+        print('Bumping version in ' + pkgproj_file)
+        filedata = file.read()
+        # Replace version and revision
+        regex = r'<string>(\d+\.\d+\.\d+)-(\d+)</string>'
+        filedata = re.sub(regex, '<string>{}-{}</string>'.format(version, args.revision), filedata)
+        regex = r'<string>wazuh-agent-(\d+\.\d+\.\d+)-(\d+)</string>'
+        filedata = re.sub(regex, '<string>wazuh-agent-{}-{}</string>'.format(version, args.revision), filedata)
+
+    with open(pkgproj_file, 'w') as file:
+        file.write(filedata)
