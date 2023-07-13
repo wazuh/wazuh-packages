@@ -52,7 +52,7 @@ jobs:
         run: |
           MAJOR=$(sed 's/\([0-9]*\.[0-9]*\)\.[0-9]*/\1/' $GITHUB_WORKSPACE/VERSION)
           if [ "${{ steps.changes.outputs.deb_images }}" == "true" ]; then echo "TAG=${{ github.head_ref }}" >> $GITHUB_ENV; else echo "TAG=$MAJOR" >> $GITHUB_ENV ; fi
-          if [ $MAJOR == "4.7" ]; then echo "VERSION=master" >> $GITHUB_ENV; else echo "VERSION=$MAJOR" >> $GITHUB_ENV; fi
+          if [ $MAJOR == "4.7" ]; then echo "VERSION=master" >> $GITHUB_ENV ; else echo "VERSION=$(cat $GITHUB_WORKSPACE/VERSION)" >> $GITHUB_ENV; fi
           echo "CONTAINER_NAME=deb_builder_${{ matrix.ARCHITECTURE }}" >> $GITHUB_ENV
 
       - name: Download docker image for package building
