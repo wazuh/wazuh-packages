@@ -9,7 +9,7 @@ format_string = "%m-%d-%Y"
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument('-v', '--version', action='store', dest='version', help='Version to bump to', required=True)
 arg_parser.add_argument('-r', '--revision', action='store', dest='revision', help='Revision to bump to. Default: 1', default=1)
-arg_parser.add_argument('-d', '--date', action='store', dest='date', help='Date to bump to. Format: %m-%d-%Y. Default: today', default=datetime.date.today().strftime('%m-%d-%Y'))
+arg_parser.add_argument('-d', '--date', action='store', dest='date', help='Date to bump to. Format: m-d-Y. Default: today', default=datetime.date.today().strftime(format_string))
 args = arg_parser.parse_args()
 
 date=datetime.datetime.strptime(args.date, format_string)
