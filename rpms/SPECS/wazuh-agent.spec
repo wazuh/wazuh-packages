@@ -7,7 +7,7 @@
 
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-agent
-Version:     4.6.0
+Version:     4.7.0
 Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
@@ -17,8 +17,7 @@ BuildRoot:   %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Vendor:      Wazuh, Inc <info@wazuh.com>
 Packager:    Wazuh, Inc <info@wazuh.com>
 Requires(pre):    /usr/sbin/groupadd /usr/sbin/useradd
-Requires(preun):  /sbin/service
-Requires(postun): /sbin/service
+Requires(postun): /usr/sbin/groupdel /usr/sbin/userdel
 Conflicts:   ossec-hids ossec-hids-agent wazuh-manager wazuh-local
 AutoReqProv: no
 
@@ -600,8 +599,12 @@ rm -fr %{buildroot}
 %attr(750, root, wazuh) %{_localstatedir}/wodles/gcloud/*
 
 %changelog
-* Fri Sep 08 2023 support <info@wazuh.com> - 4.6.0
+* Sat Oct 28 2023 support <info@wazuh.com> - 4.7.0
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-7-0.html
+* Mon Sep 04 2023 support <info@wazuh.com> - 4.6.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-6-0.html
+* Tue Aug 01 2023 support <info@wazuh.com> - 4.5.1
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-5.1.html
 * Fri Jun 30 2023 support <info@wazuh.com> - 4.5.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-5-0.html
 * Mon Jun 26 2023 support <info@wazuh.com> - 4.4.5
@@ -747,7 +750,7 @@ rm -fr %{buildroot}
 * Mon Jun 11 2018 support <support@wazuh.com> - 3.3.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-3-3-0.html
 * Wed May 30 2018 support <support@wazuh.com> - 3.2.4
-- More info: https://documentation.wazuh.com/current/release-notes/release-3-2-4.html 
+- More info: https://documentation.wazuh.com/current/release-notes/release-3-2-4.html
 * Thu May 10 2018 support <support@wazuh.com> - 3.2.3
 - More info: https://documentation.wazuh.com/current/release-notes/release-3-2-3.html
 * Mon Apr 09 2018 support <support@wazuh.com> - 3.2.2
