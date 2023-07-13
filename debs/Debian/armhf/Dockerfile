@@ -25,7 +25,8 @@ RUN curl -OL http://packages.wazuh.com/utils/gcc/gcc-9.4.0.tar.gz && \
         --with-fpu=vfpv3-d16 --with-float=hard --enable-languages=c,c++ \
        --disable-multilib --disable-libsanitizer && \
     linux32 make -j$(nproc) && linux32 make install && \
-    ln -fs /usr/local/gcc-9.4.0/bin/g++ /usr/bin/c++ && cd / && rm -rf gcc-*
+    ln -fs /usr/local/gcc-9.4.0/bin/g++ /usr/bin/c++ && \
+    ln -fs /usr/local/gcc-9.4.0/bin/gcc /usr/bin/cc && cd / && rm -rf gcc-*
 
 ENV CPLUS_INCLUDE_PATH "/usr/local/gcc-9.4.0/include/c++/9.4.0/"
 ENV LD_LIBRARY_PATH "/usr/local/gcc-9.4.0/lib/"

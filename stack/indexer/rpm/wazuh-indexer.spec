@@ -163,11 +163,21 @@ if [ $1 = 1 ];then # Install
 
 fi
 
-if [ -f /etc/os-release ]; then
-  source /etc/os-release
-  if [ "${NAME}" = "Red Hat Enterprise Linux" ] && [ "$((${VERSION_ID:0:1}))" -ge 9 ]; then
+
+if [[ -d /run/systemd/system ]] ; then
     rm -f /etc/init.d/%{name}
-  fi
+fi
+
+# If is an upgrade, move the securityconfig files if they exist (4.3.x versions)
+if [ ${1} = 2 ]; then
+    if [ -d "%{INSTALL_DIR}"/plugins/opensearch-security/securityconfig ]; then
+
+        if [ ! -d "%{CONFIG_DIR}"/opensearch-security ]; then
+            mkdir "%{CONFIG_DIR}"/opensearch-security
+        fi
+
+        cp -r "%{INSTALL_DIR}"/plugins/opensearch-security/securityconfig/* "%{CONFIG_DIR}"/opensearch-security
+    fi
 fi
 
 # If is an upgrade, move the securityconfig files if they exist (4.3.x versions)
@@ -1384,13 +1394,21 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/security/blocked.certs
 
 %changelog
-* Wed Jul 19 2023 support <info@wazuh.com> - 4.5.0
+* Sat Oct 28 2023 support <info@wazuh.com> - %{version}
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-7-0.html
+* Mon Sep 04 2023 support <info@wazuh.com> - 4.6.0
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-6-0.html
+* Tue Aug 01 2023 support <info@wazuh.com> - 4.5.1
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-5.1.html
+* Fri Jun 30 2023 support <info@wazuh.com> - 4.5.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-5-0.html
+* Mon Jun 26 2023 support <info@wazuh.com> - 4.4.5
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-4-5.html
 * Tue Jun 13 2023 support <info@wazuh.com> - 4.4.4
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-4-4.html
 * Thu May 25 2023 support <info@wazuh.com> - 4.4.3
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-4-3.html
-* Mon Apr 24 2023 support <info@wazuh.com> - 4.4.2
+* Mon May 08 2023 support <info@wazuh.com> - 4.4.2
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-4-2.html
 * Mon Apr 17 2023 support <info@wazuh.com> - 4.4.1
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-4-1.html
@@ -1418,4 +1436,3 @@ rm -fr %{buildroot}
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-3-1.html
 * Thu May 05 2022 support <info@wazuh.com> - 4.3.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-3-0.html
-

@@ -118,7 +118,7 @@ function common_checkSystem() {
         sys_type="apt-get"
         sep="="
     else
-        common_logger -e "Couldn'd find type of system"
+        common_logger -e "Couldn't find type of system"
         exit 1
     fi
 
@@ -134,21 +134,42 @@ function common_checkWazuhConfigYaml() {
 
 }
 
+# Retries even if the --retry-connrefused is not available
+function common_curl() {
+
+    if [ -n "${curl_has_connrefused}" ]; then
+        eval "curl $@ --retry-connrefused"
+        e_code="${PIPESTATUS[0]}"
+    else
+        retries=0
+        eval "curl $@"
+        e_code="${PIPESTATUS[0]}"
+        while [ "${e_code}" -eq 7 ] && [ "${retries}" -ne 12 ]; do
+            retries=$((retries+1))
+            sleep 5
+            eval "curl $@"
+            e_code="${PIPESTATUS[0]}"
+        done
+    fi
+    return "${e_code}"
+
+}
+
 function common_remove_gpg_key() {
-    
+
     if [ "${sys_type}" == "yum" ]; then
         if { rpm -q gpg-pubkey --qf '%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n' | grep "Wazuh"; } >/dev/null ; then
             key=$(rpm -q gpg-pubkey --qf '%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n' | grep "Wazuh Signing Key" | awk '{print $1}' )
             rpm -e "${key}"
         else
-            common_logger "Wazuh GPG key was not found in the system."
+            common_logger "Wazuh GPG key not found in the system"
             return 1
         fi
     elif [ "${sys_type}" == "apt-get" ]; then
         if [ -f "/usr/share/keyrings/wazuh.gpg" ]; then
             rm -rf "/usr/share/keyrings/wazuh.gpg"
         else
-            common_logger "Wazuh GPG key was not found in the system"
+            common_logger "Wazuh GPG key not found in the system"
             return 1
         fi
     fi

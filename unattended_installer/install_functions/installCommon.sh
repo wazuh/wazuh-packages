@@ -21,6 +21,7 @@ function installCommon_cleanExit() {
     if [[ "${rollback_conf}" =~ [N|n] ]]; then
         exit 1
     else
+        common_checkInstalled
         installCommon_rollBack
         exit 1
     fi
@@ -42,10 +43,18 @@ function installCommon_addWazuhRepo() {
     if [ ! -f "/etc/yum.repos.d/wazuh.repo" ] && [ ! -f "/etc/zypp/repos.d/wazuh.repo" ] && [ ! -f "/etc/apt/sources.list.d/wazuh.list" ] ; then
         if [ "${sys_type}" == "yum" ]; then
             eval "rpm --import ${repogpg} ${debug}"
+            if [ "${PIPESTATUS[0]}" != 0 ]; then
+                common_logger -e "Cannot import Wazuh GPG key"
+                exit 1
+            fi
             eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-\${releasever} - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo ${debug}"
             eval "chmod 644 /etc/yum.repos.d/wazuh.repo ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
-            eval "curl -s ${repogpg} --max-time 300 | gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import - ${debug}"
+            eval "common_curl -s ${repogpg} --max-time 300 --retry 5 --retry-delay 5 --fail | gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import - ${debug}"
+            if [ "${PIPESTATUS[0]}" != 0 ]; then
+                common_logger -e "Cannot import Wazuh GPG key"
+                exit 1
+            fi
             eval "chmod 644 /usr/share/keyrings/wazuh.gpg ${debug}"
             eval "echo \"deb [signed-by=/usr/share/keyrings/wazuh.gpg] ${repobaseurl}/apt/ ${reporelease} main\" | tee /etc/apt/sources.list.d/wazuh.list ${debug}"
             eval "apt-get update -q ${debug}"
@@ -107,8 +116,7 @@ function installCommon_aptInstallList(){
             common_logger "Installing $dep."
             installCommon_aptInstall "${dep}"
             if [ "${install_result}" != 0 ]; then
-                common_logger -e "Cannot install dependency: ${dep}."
-                exit 1
+                installCommon_checkOptionalInstallation
             fi
         done
     fi
@@ -122,8 +130,8 @@ function installCommon_changePasswordApi() {
         for i in "${!api_passwords[@]}"; do
             if [ -n "${wazuh}" ] || [ -n "${AIO}" ]; then
                 passwords_getApiUserId "${api_users[i]}"
-                WAZUH_PASS_API='{"password":"'"${api_passwords[i]}"'"}'
-                eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null'
+                WAZUH_PASS_API='{\"password\":\"'"${api_passwords[i]}"'\"}'
+                eval 'common_curl -s -k -X PUT -H \"Authorization: Bearer $TOKEN_API\" -H \"Content-Type: application/json\" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null --max-time 300 --retry 5 --retry-delay 5 --fail'
                 if [ "${api_users[i]}" == "${adminUser}" ]; then
                     sleep 1
                     adminPassword="${api_passwords[i]}"
@@ -137,14 +145,28 @@ function installCommon_changePasswordApi() {
     else
         if [ -n "${wazuh}" ] || [ -n "${AIO}" ]; then
             passwords_getApiUserId "${nuser}"
-            WAZUH_PASS_API='{"password":"'"${password}"'"}'
-            eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null'
+            WAZUH_PASS_API='{\"password\":\"'"${password}"'\"}'
+            eval 'common_curl -s -k -X PUT -H \"Authorization: Bearer $TOKEN_API\" -H \"Content-Type: application/json\" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null --max-time 300 --retry 5 --retry-delay 5 --fail'
         fi
         if [ "${nuser}" == "wazuh-wui" ] && { [ -n "${dashboard}" ] || [ -n "${AIO}" ]; }; then
                 passwords_changeDashboardApiPassword "${password}"
         fi
     fi
-    
+
+}
+
+function installCommon_checkOptionalInstallation() {
+
+    if [ "${optional_installation}" != 1 ]; then
+        common_logger -e "Cannot install dependency: ${dep}."
+        exit 1
+    else
+        common_logger -w "Cannot install optional dependency: ${dep}."
+        if [ "${report_dependencies}" == 1 ]; then 
+            pdf_warning=1
+        fi
+    fi
+
 }
 
 function installCommon_createCertificates() {
@@ -238,7 +260,7 @@ function installCommon_changePasswords() {
         passwords_getNetworkHost
         passwords_generateHash
     fi
-    
+
     passwords_changePassword
 
     if [ -n "${start_indexer_cluster}" ] || [ -n "${AIO}" ]; then
@@ -247,6 +269,31 @@ function installCommon_changePasswords() {
     if [ -n "${wazuh}" ] || [ -n "${dashboard}" ] || [ -n "${AIO}" ]; then
         if [ "${server_node_types[pos]}" == "master" ] || [ "${#server_node_names[@]}" -eq 1 ] || [ -n "${dashboard_installed}" ]; then
             installCommon_changePasswordApi
+        fi
+    fi
+
+}
+
+function installCommon_checkChromium() {
+
+    if [ "${sys_type}" == "yum" ]; then
+        if (! yum list installed 2>/dev/null | grep -q -E ^"google-chrome-stable"\\.) && (! yum list installed 2>/dev/null | grep -q -E ^"chromium"\\.); then
+            if [ "${DIST_NAME}" == "amzn" ]; then
+                installCommon_installChrome
+            else
+                dashboard_dependencies=(chromium)
+            fi
+        fi
+        
+    elif [ "${sys_type}" == "apt-get" ]; then
+        if (! apt list --installed 2>/dev/null | grep -q -E ^"google-chrome-stable"\/) && (! apt list --installed 2>/dev/null | grep -q -E ^"chromium-browser"\/); then
+
+            # Report generation doesn't work with Chromium in Ubuntu 22 and Ubuntu 20
+            if [[ "${DIST_NAME}" == "ubuntu" ]] && [[ "${DIST_VER}" == "22" || "${DIST_VER}" == "20" || "${DIST_VER}" == "18" ]]; then
+                installCommon_installChrome
+            else
+                dashboard_dependencies=(chromium-browser)
+            fi
         fi
     fi
 
@@ -297,6 +344,32 @@ function installCommon_installCheckDependencies() {
         eval "apt-get update -q ${debug}"
         dependencies=( systemd grep tar coreutils sed procps gawk lsof curl openssl )
         installCommon_aptInstallList "${dependencies[@]}"
+    fi
+
+}
+
+function installCommon_installChrome() {
+
+    dep="chrome"
+    common_logger "Installing ${dep}."
+
+    if [ "${sys_type}" == "yum" ]; then
+        chrome_package="/tmp/wazuh-install-files/chrome.rpm"
+        common_curl -so "${chrome_package}" https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm --max-time 100 --retry 5 --retry-delay 5 --fail
+        eval "yum install ${chrome_package} -y ${debug}"
+
+        if [ "${PIPESTATUS[0]}" != 0 ]; then
+            installCommon_checkOptionalInstallation
+        fi
+
+    elif [ "${sys_type}" == "apt-get" ]; then
+        chrome_package="/tmp/wazuh-install-files/chrome.deb"
+        common_curl -so "${chrome_package}" https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb --max-time 100 --retry 5 --retry-delay 5 --fail
+        installCommon_aptInstall "${chrome_package}"
+
+        if [ "${install_result}" != 0 ]; then
+            installCommon_checkOptionalInstallation
+        fi
     fi
 
 }
@@ -489,13 +562,9 @@ function installCommon_rollBack() {
     fi
 
     if [[ ( -n "${indexer_remaining_files}" || -n "${indexer_installed}" ) && ( -n "${indexer}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        common_logger "Removing Wazuh indexer."
-        if [ "${sys_type}" == "yum" ]; then
-            eval "yum remove wazuh-indexer -y ${debug}"
-        elif [ "${sys_type}" == "apt-get" ]; then
-            eval "apt-get remove --purge wazuh-indexer -y ${debug}"
-        fi
-        common_logger "Wazuh indexer removed."
+        eval "rm -rf /var/lib/wazuh-indexer/ ${debug}"
+        eval "rm -rf /usr/share/wazuh-indexer/ ${debug}"
+        eval "rm -rf /etc/wazuh-indexer/ ${debug}"
     fi
 
     if [[ -n "${filebeat_installed}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
@@ -568,7 +637,7 @@ function installCommon_startService() {
 
     common_logger "Starting service ${1}."
 
-    if ps -e | grep -E -q "^\ *1\ .*systemd$"; then
+    if [[ -d /run/systemd/system ]]; then
         eval "systemctl daemon-reload ${debug}"
         eval "systemctl enable ${1}.service ${debug}"
         eval "systemctl start ${1}.service ${debug}"
@@ -582,7 +651,7 @@ function installCommon_startService() {
         else
             common_logger "${1} service started."
         fi
-    elif ps -e | grep -E -q "^\ *1\ .*init$"; then
+    elif ps -p 1 -o comm= | grep "init"; then
         eval "chkconfig ${1} on ${debug}"
         eval "service ${1} start ${debug}"
         eval "/etc/init.d/${1} start ${debug}"
@@ -631,8 +700,7 @@ function installCommon_yumInstallList(){
             common_logger "Installing $dep."
             eval "yum install ${dep} -y ${debug}"
             if [  "${PIPESTATUS[0]}" != 0  ]; then
-                common_logger -e "Cannot install dependency: ${dep}."
-                exit 1
+                installCommon_checkOptionalInstallation
             fi
         done
     fi

@@ -1,6 +1,6 @@
 # Spec file for AIX systems
 Name:        wazuh-agent
-Version:     4.5.0
+Version:     4.7.0
 Release:     1
 License:     GPL
 URL:         https://www.wazuh.com/
@@ -290,8 +290,16 @@ rm -fr %{buildroot}
 %attr(750, root, wazuh) %{_localstatedir}/wodles/*
 
 %changelog
-* Wed Jul 19 2023 support <info@wazuh.com> - 4.5.0
+* Sat Oct 28 2023 support <info@wazuh.com> - 4.7.0
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-7-0.html
+* Mon Sep 04 2023 support <info@wazuh.com> - 4.6.0
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-6-0.html
+* Tue Aug 01 2023 support <info@wazuh.com> - 4.5.1
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-5.1.html
+* Fri Jun 30 2023 support <info@wazuh.com> - 4.5.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-5-0.html
+* Mon Jun 26 2023 support <info@wazuh.com> - 4.4.5
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-4-5.html
 * Tue Jun 13 2023 support <info@wazuh.com> - 4.4.4
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-4-4.html
 * Thu May 25 2023 support <info@wazuh.com> - 4.4.3
@@ -433,7 +441,7 @@ rm -fr %{buildroot}
 * Mon Jun 11 2018 support <support@wazuh.com> - 3.3.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-3-3-0.html
 * Wed May 30 2018 support <support@wazuh.com> - 3.2.4
-- More info: https://documentation.wazuh.com/current/release-notes/release-3-2-4.html 
+- More info: https://documentation.wazuh.com/current/release-notes/release-3-2-4.html
 * Thu May 10 2018 support <support@wazuh.com> - 3.2.3
 - More info: https://documentation.wazuh.com/current/release-notes/release-3-2-3.html
 * Mon Apr 09 2018 support <support@wazuh.com> - 3.2.2

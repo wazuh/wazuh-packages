@@ -31,6 +31,8 @@ ExclusiveOS: linux
 %global PID_DIR /run/%{name}
 %global INSTALL_DIR /usr/share/%{name}
 %global DASHBOARD_FILE wazuh-dashboard-base-%{version}-%{release}-linux-x64.tar.xz
+%define _source_payload w9.gzdio
+%define _binary_payload w9.gzdio
 
 # -----------------------------------------------------------------------------
 
@@ -397,8 +399,16 @@ rm -fr %{buildroot}
 %attr(640, root, root) "/etc/systemd/system/wazuh-dashboard.service"
 
 %changelog
-* Wed Jul 19 2023 support <info@wazuh.com> - 4.5.0
+* Mon Sep 04 2023 support <info@wazuh.com> - %{version}
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-7-0.html
+* Sat Oct 28 2023 support <info@wazuh.com> - 4.6.0
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-6-0.html
+* Tue Aug 01 2023 support <info@wazuh.com> - 4.5.1
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-5.1.html
+* Fri Jun 30 2023 support <info@wazuh.com> - 4.5.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-5-0.html
+* Mon Jun 26 2023 support <info@wazuh.com> - 4.4.5
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-4-5.html
 * Tue Jun 13 2023 support <info@wazuh.com> - 4.4.4
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-4-4.html
 * Thu May 25 2023 support <info@wazuh.com> - 4.4.3

@@ -16,6 +16,8 @@ RUN yum install -y \
     autoconf \
     automake \
     libtool \
+    python3-devel \
+    python3-pip \
     jq \
     unzip
 
