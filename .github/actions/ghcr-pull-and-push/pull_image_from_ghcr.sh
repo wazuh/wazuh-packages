@@ -17,4 +17,4 @@ echo ${GITHUB_PUSH_SECRET} | docker login https://ghcr.io -u $GITHUB_USER --pass
 
 # Pull and rename image
 docker pull ${IMAGE_ID}
-docker image tag ghcr.io/${GITHUB_OWNER}/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} ${DOCKER_IMAGE_NAME}
+docker image tag ghcr.io/${GITHUB_OWNER}/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
