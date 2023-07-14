@@ -17,7 +17,7 @@ jobs:
   bump-version:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           ref: ${{ github.head_ref }}
@@ -29,7 +29,7 @@ jobs:
       #     branch: bump-version-${{ event.inputs.version }}
       #     sha: ${{ github.head_ref }}
 
-      # - uses: actions/checkout@v2
+      # - uses: actions/checkout@v3
       #   with:
       #     token: ${{ secrets.GITHUB_TOKEN }}
       #     ref: bump-version-${{ event.inputs.version }}
