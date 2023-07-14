@@ -12,7 +12,10 @@ on:
       date:
         description: 'Date to bump to. Default: today'
         required: false
-    
+
+env:
+  BASE_BRANCH: ${{ github.base_ref }}
+
 jobs:
   bump-version:
     runs-on: ubuntu-latest
@@ -21,43 +24,51 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           ref: ${{ github.head_ref }}
-      
-      # - uses: peterjgrainger/action-create-branch@v2.2.0
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     branch: bump-version-${{ event.inputs.version }}
-      #     sha: ${{ github.head_ref }}
 
-      # - uses: actions/checkout@v3
-      #   with:
-      #     token: ${{ secrets.GITHUB_TOKEN }}
-      #     ref: bump-version-${{ event.inputs.version }}
+      - uses: peterjgrainger/action-create-branch@v2.2.0
+        with:
+          branch: bump-version-${{ github.event.inputs.version }}
+          sha: ${{ github.head_ref }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: bump-version-${{ github.event.inputs.version }}
           
-      # - name: Set execution parameters
-      #   run: |
-      #     EXEC_PARAMS=""
-      #     if [ -n "${{ github.event.inputs.version }}" ]; then
-      #       echo "EXEC_PARAMS=EXEC_PARAMS+\" -v ${{ github.event.inputs.version }}\""
-      #     fi
-      #     if [ -n "${{ github.event.inputs.revision }}" ]; then
-      #       echo "EXEC_PARAMS=EXEC_PARAMS+\" -r ${{ github.event.inputs.revision }}\""
-      #     fi
-      #     if [ -n "${{ github.event.inputs.date }}" ]; then
-      #       echo "EXEC_PARAMS=EXEC_PARAMS+\" -d ${{ github.event.inputs.date }}\""
-      #     fi
-      #     echo "EXEC_PARAMS" >> $GITHUB_ENV            
-      #   shell: bash
+      - name: Set execution parameters
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            echo "VERSION=\"-v ${{ github.event.inputs.version }}\"" >> $GITHUB_ENV 
+          fi
+          if [ -n "${{ github.event.inputs.revision }}" ]; then
+            echo "REVISION=\"-r ${{ github.event.inputs.revision }}\"" >> $GITHUB_ENV 
+          fi
+          if [ -n "${{ github.event.inputs.date }}" ]; then
+            echo "DATE=\"-d ${{ github.event.inputs.date }}\"" >> $GITHUB_ENV
+          fi
+        shell: bash
 
-      # - name: Bump version
-      #   run: |
-      #     python3 ./bump_version.py $EXEC_PARAMS
-      #   shell: bash
-      
-      # - name: "Commit changes and push"
-      #   run: |
-      #       git config --global user.name "wazuhci"
-      #       git config --global user.email "wazuhci@wazuh.com"
-      #       git add .
-      #       git commit -m "Bump version to ${{ github.event.inputs.version }}"
-      #   shell: bash
+      - name: Bump version
+        run: |
+          python3 ./bump_version.py ${{ env.VERSION }} ${{ env.REVISION }} ${{ env.DATE }}
+        shell: bash
+
+      - name: "Commit changes and push"
+        run: |
+            git config --global user.name "wazuhci"
+            git config --global user.email "wazuhci@wazuh.com"
+            git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+            git add .
+            git commit -m "Bump version to ${{ github.event.inputs.version }}"
+            git push origin bump-version-${{ github.event.inputs.version }}
+        shell: bash
+
+      - name: "Create pull request"
+        run: |
+              gh pr create -B "${{ env.BASE_BRANCH }}" -H "bump-version-${{ github.event.inputs.version }}" \
+              --title 'Bump branch ${{ env.BASE_BRANCH }} to version ${{ github.event.inputs.version }}' \
+              --body 'Pull request to bump branch ${{ github.head_ref }} to version ${{ github.event.inputs.version }}.\nCreated by GitHub Action `Bump version - wazuh-packages`'
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
