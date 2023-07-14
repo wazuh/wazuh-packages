@@ -69,7 +69,7 @@ if [ "$STOP_REQUIRED" = "true" ]; then
     elif [ -x /etc/rc.d/init.d/wazuh-indexer ] ; then
         /etc/rc.d/init.d/wazuh-indexer stop > /dev/null 2>&1
     else # Anything else
-        kill -15 `pgrep -f opensearch` > /dev/null 2>&1
+        kill -15 `pgrep -f opensearch` > /dev/null 2>&1 || true
     fi
     echo " OK"
 fi
@@ -87,4 +87,3 @@ if [ "$REMOVE_SERVICE" = "true" ]; then
         update-rc.d wazuh-indexer remove >/dev/null || true
     fi
 fi
-
