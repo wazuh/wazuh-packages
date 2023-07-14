@@ -3,6 +3,9 @@ name: Bump version - wazuh-packages
 on:
   workflow_dispatch:
     inputs:
+      base_branch:
+        description: 'Base branch to create the PR'
+        required: true
       version:
         description: 'Version to bump to'
         required: true
@@ -12,9 +15,6 @@ on:
       date:
         description: 'Date to bump to. Default: today'
         required: false
-
-env:
-  BASE_BRANCH: ${{ github.base_ref }}
 
 jobs:
   bump-version:
@@ -67,8 +67,9 @@ jobs:
 
       - name: "Create pull request"
         run: |
-            gh pr create -B "${{ github.head_ref }}" -H "bump-version-${{ github.event.inputs.version }}" \
-            --title 'Bump branch ${{ env.BASE_BRANCH }} to version ${{ github.event.inputs.version }}' \
-            --body "Pull request to bump branch ${{ github.head_ref }} to version ${{ github.event.inputs.version }}.\nCreated by GitHub Action `Bump version - wazuh-packages`"
+            gh pr create -B "${{ github.event.inputs.base_branch }}" -H "bump-version-${{ github.event.inputs.version }}" \
+            --title 'Update branch ${{ github.event.inputs.base_branch }} to version ${{ github.event.inputs.version }}' \
+            --body 'Pull request to bump branch ${{ github.head_ref }} to version ${{ github.event.inputs.version }}.'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
