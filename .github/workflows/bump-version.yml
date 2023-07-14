@@ -61,6 +61,3 @@ jobs:
       #       git add .
       #       git commit -m "Bump version to ${{ github.event.inputs.version }}"
       #   shell: bash
-
-
-   
