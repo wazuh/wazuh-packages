@@ -67,8 +67,8 @@ jobs:
 
       - name: "Create pull request"
         run: |
-              gh pr create -B "${{ env.BASE_BRANCH }}" -H "bump-version-${{ github.event.inputs.version }}" \
-              --title 'Bump branch ${{ env.BASE_BRANCH }} to version ${{ github.event.inputs.version }}' \
-              --body 'Pull request to bump branch ${{ github.head_ref }} to version ${{ github.event.inputs.version }}.\nCreated by GitHub Action `Bump version - wazuh-packages`'
+            gh pr create -B "${{ github.head_ref }}" -H "bump-version-${{ github.event.inputs.version }}" \
+            --title 'Bump branch ${{ env.BASE_BRANCH }} to version ${{ github.event.inputs.version }}' \
+            --body "Pull request to bump branch ${{ github.head_ref }} to version ${{ github.event.inputs.version }}.\nCreated by GitHub Action `Bump version - wazuh-packages`"
         env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
