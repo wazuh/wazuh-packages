@@ -29,7 +29,7 @@ date=datetime.datetime.strptime(args.date, FORMAT_STRING)
 version=Version(args.version)
 
 ## Find files to bump .spec, changelog, pkginfo, .pkgproj, test-*.sh,
-## installVariables.sh, CHANGELOG.md
+## installVariables.sh, CHANGELOG.md, VERSION
 spec_files=glob.glob('**/*.spec', recursive=True)
 changelog_files=glob.glob('**/changelog', recursive=True)
 copyright_files=glob.glob('**/copyright', recursive=True)
@@ -38,6 +38,7 @@ pkgproj_files=glob.glob('**/*.pkgproj', recursive=True)
 test_files=glob.glob('**/test-*.sh', recursive=True)
 install_variables_files=glob.glob('**/installVariables.sh', recursive=True)
 changelog_md_files=glob.glob('**/CHANGELOG.md', recursive=True)
+version_files=glob.glob('**/VERSION', recursive=True)
 
 ## Bump version in .spec files
 SPEC_FORMAT_STRING="%a %b %d %Y"
@@ -185,4 +186,17 @@ for changelog_md_file in changelog_md_files:
                           filedata)
 
     with open(changelog_md_file, 'w', encoding="utf-8") as file:
+        file.write(filedata)
+
+## Bump version in VERSION files
+
+for version_file in version_files:
+    with open(version_file, 'r', encoding="utf-8") as file:
+        print('Bumping version in ' + version_file)
+        filedata=file.read()
+        # Replace version
+        REGEX=r'(\d+\.\d+\.\d+)'
+        filedata=re.sub(REGEX, f'{version}', filedata)
+
+    with open(version_file, 'w', encoding="utf-8") as file:
         file.write(filedata)
