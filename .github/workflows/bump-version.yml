@@ -25,9 +25,13 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           ref: ${{ github.event.inputs.base_branch }}
 
-      - uses: peterjgrainger/action-create-branch@v2.2.0
-        with:
-          branch: bump-version-${{ github.event.inputs.version }}
+      - name: Create branch for the bump
+        run: |
+            git config --global user.name "wazuhci"
+            git config --global user.email "wazuhci@wazuh.com"
+            git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+            git branch bump-version-${{ github.event.inputs.version }}
+            git push --set-upstream origin bump-version-${{ github.event.inputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
