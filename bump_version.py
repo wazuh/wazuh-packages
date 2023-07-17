@@ -72,7 +72,7 @@ for changelog_file in changelog_files:
         filedata=file.read()
         install_type=re.search(r'(wazuh-(agent|manager|indexer|dashboard))',
                                filedata).group(1)
-        changelog_string=(f"wazuh-{install_type} ({version}-RELEASE) stable; "
+        changelog_string=(f"{install_type} ({version}-RELEASE) stable; "
             "urgency=low\n\n  * More info: https://documentation.wazuh.com/"
             f"current/release-notes/release-{version.major}-{version.minor}-"
             f"{version.micro}.html\n\n -- "
