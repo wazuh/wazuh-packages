@@ -124,7 +124,7 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/su
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sunos
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/windows
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/{29,30,31,32,33,34}
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/almalinux/{9}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/almalinux/{8,9}
 
 cp -r ruleset/sca/{applications,generic,mongodb,nginx,oracledb,centos,darwin,debian,rhel,sles,sunos,windows,amazon,ubuntu,almalinux} ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp
 
@@ -319,7 +319,7 @@ if [ $1 = 1 ]; then
   %{_localstatedir}/packages_files/manager_installation_scripts/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
 fi
 
-  # We create this fix for the operating system that decraped the SySV. For now, this fix is for suse/openSUSE
+  # We create this fix for the operating system that deprecated SySV. For now, this fix is for suse/openSUSE
   sles=""
   if [ -f /etc/SuSE-release ]; then
     sles="suse"
@@ -354,9 +354,23 @@ fi
 rm -f %{_localstatedir}/etc/shared/ar.conf  >/dev/null 2>&1
 rm -f %{_localstatedir}/etc/shared/merged.mg  >/dev/null 2>&1
 
+#AlmaLinux
+if [ -r "/etc/almalinux-release" ]; then
+  DIST_NAME=almalinux
+  DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.*[0-9]{0,2}.*/\1/p' /etc/almalinux-release`
+#Rocky
+elif [ -r "/etc/rocky-release" ]; then
+  DIST_NAME=rocky
+  DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.*[0-9]{0,2}.*/\1/p' /etc/rocky-release`
 # CentOS
-if [ -r "/etc/centos-release" ]; then
-  DIST_NAME="centos"
+elif [ -r "/etc/centos-release" ]; then
+  if grep -q "AlmaLinux" /etc/centos-release; then
+    DIST_NAME=almalinux
+  elif grep -q "Rocky" /etc/centos-release; then
+    DIST_NAME=almalinux
+  else
+    DIST_NAME="centos"
+  fi
   DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.*[0-9]{0,2}.*/\1/p' /etc/centos-release`
 # Fedora
 elif [ -r "/etc/fedora-release" ]; then
@@ -364,7 +378,11 @@ elif [ -r "/etc/fedora-release" ]; then
     DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.*[0-9]{0,2}.*/\1/p' /etc/fedora-release`
 # RedHat
 elif [ -r "/etc/redhat-release" ]; then
-  if grep -q "CentOS" /etc/redhat-release; then
+  if grep -q "AlmaLinux" /etc/redhat-release; then
+    DIST_NAME=almalinux
+  elif grep -q "Rocky" /etc/redhat-release; then
+    DIST_NAME=almalinux
+  elif grep -q "CentOS" /etc/redhat-release; then
       DIST_NAME="centos"
   else
       DIST_NAME="rhel"
