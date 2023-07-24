@@ -65,7 +65,7 @@ test-ASSERT-FAIL-04-indexer_install-yum-error() {
     sep="-"
     wazuh_version="4.8.0"
     wazuh_revision="1"
-    @mockfalse yum install wazuh-indexer-1.13.2-1 -y 
+    @mockfalse yum install wazuh-indexer-1.13.2-1 -y
     indexer_install
 }
 
