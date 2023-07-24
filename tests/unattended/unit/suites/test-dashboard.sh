@@ -55,7 +55,7 @@ test-03-dashboard_install-yum() {
     load-dashboard_install
     sys_type="yum"
     sep="-"
-    wazuh_version="1.13.2"
+    wazuh_version="4.5.2"
     wazuh_revision="1"
     dashboard_install
 }
@@ -68,7 +68,7 @@ test-ASSERT-FAIL-04-dashboard_install-yum-error() {
     load-dashboard_install
     sys_type="yum"
     sep="-"
-    wazuh_version="1.13.2"
+    wazuh_version="4.5.2"
     wazuh_revision="1"
     @mockfalse yum install wazuh-dashboard-1.13.2-1 -y
     dashboard_install
@@ -78,7 +78,7 @@ test-05-dashboard_install-apt() {
     load-dashboard_install
     sys_type="apt-get"
     sep="="
-    wazuh_version="1.13.2"
+    wazuh_version="4.5.2"
     wazuh_revision="1"
     dashboard_install
 }
@@ -91,7 +91,7 @@ test-ASSERT-FAIL-06-dashboard_install-apt-error() {
     load-dashboard_install
     sys_type="apt-get"
     sep="="
-    wazuh_version="1.13.2"
+    wazuh_version="4.5.2"
     wazuh_revision="1"
     @mockfalse apt install wazuh-dashboard=1.13.2-1 -y
     dashboard_install
