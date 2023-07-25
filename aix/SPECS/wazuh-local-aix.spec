@@ -97,6 +97,8 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/etc/shared/default/
 # Add installation scripts
 cp src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/local_installation_scripts/src/
 cp src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/local_installation_scripts/src/
+sed "s:wazuh.thread_stack_size=.*:wazuh.thread_stack_size=2048:g" ${RPM_BUILD_ROOT}%{_localstatedir}/etc/internal_options.conf > ${RPM_BUILD_ROOT}%{_localstatedir}/etc/internal_options.conf.bkp
+mv ${RPM_BUILD_ROOT}%{_localstatedir}/etc/internal_options.conf.bkp ${RPM_BUILD_ROOT}%{_localstatedir}/etc/internal_options.conf
 
 if [ %{_debugenabled} = "yes" ]; then
   %{_rpmconfigdir}/find-debuginfo.sh
@@ -213,6 +215,15 @@ if [ $1 = 1 ]; then
 
   # Add default local_files to ossec.conf
   %{_localstatedir}/packages_files/local_installation_scripts/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
+  echo "
+<ossec_config>
+  <syslog_output>
+    <server>asep.apple.com</server>
+    <format>json</format>
+    <use_fqdn>yes</use_fqdn>
+  </syslog_output>
+</ossec_config>
+" >> %{_localstatedir}/etc/ossec.conf
 fi
 
 if [ -f /etc/os-release ]; then
