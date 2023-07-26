@@ -13,6 +13,11 @@ systemConfig() {
   mv ${CUSTOM_PATH}/grub/grub /etc/default/
   grub2-mkconfig -o /boot/grub2/grub.cfg > /dev/null 2>&1
 
+  # Enable fips
+  mv ${CUSTOM_PATH}/enable_fips.sh /tmp/
+  chmod 755 /tmp/enable_fips.sh
+  bash /tmp/enable_fips.sh
+
   # Update Wazuh indexer jvm heap
   mv ${CUSTOM_PATH}/automatic_set_ram.sh /etc/
   chmod 755 /etc/automatic_set_ram.sh
