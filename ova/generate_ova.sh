@@ -41,7 +41,7 @@ help () {
     echo -e "DESCRIPTION"
     echo -e "        -r,  --repository"
     echo -e "                Use development or production repository."
-    echo -e "                Values: [prod|dev]. By default: ${PACKAGES_REPOSITORY}."
+    echo -e "                Values: [prod|dev|staging]. By default: ${PACKAGES_REPOSITORY}."
     echo -e ""
     echo -e "        -s,  --store"
     echo -e "                Set the destination absolute path where the OVA file will be stored."
@@ -141,14 +141,14 @@ main() {
 
         "-r" | "--repository")
             if [ -n "$2" ]; then
-                if [ "$2" != "prod" ] && [ "$2" != "dev" ]; then
-                    echo "ERROR: Repository must be: [prod/dev]"
+                if [ "$2" != "prod" ] && [ "$2" != "dev" ] && [ "$2" != "staging" ]; then
+                    echo "ERROR: Repository must be: [prod/dev/staging]"
                     help 1
                 fi
                 PACKAGES_REPOSITORY="$2"
                 shift 2
             else
-                echo "ERROR: Value must be: [prod/dev]"
+                echo "ERROR: Value must be: [prod/dev/staging]"
                 help 1
             fi
         ;;
@@ -231,4 +231,3 @@ main() {
 }
 
 main "$@"
-
