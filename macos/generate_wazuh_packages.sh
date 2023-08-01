@@ -7,6 +7,7 @@
 # and/or modify it under the terms of the GNU General Public
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
+set -x
 
 CURRENT_PATH="$( cd $(dirname ${0}) ; pwd -P )"
 SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
@@ -150,8 +151,10 @@ function build_package() {
 
     # create package
     if packagesbuild ${AGENT_PKG_FILE} --build-folder ${DESTINATION} ; then
-        echo "The wazuh agent package for MacOS X has been successfully built."
+        echo "The wazuh agent package for MacOS has been successfully built."
         pkg_name="wazuh-agent-${VERSION}-${REVISION}.${ARCH}.pkg"
+        ls -l ${DESTINATION}/${pkg_name}
+        ls -l ${DESTINATION}/wazuh-agent-${VERSION}-${REVISION}*
         sign_pkg
         notarize_pkg
         if [[ "${CHECKSUM}" == "yes" ]]; then
