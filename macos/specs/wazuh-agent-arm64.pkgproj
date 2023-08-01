@@ -990,7 +990,7 @@
 				</array>
 			</dict>
 		</dict>
-		<key>PROJECT_REQUIREMENTS</key>
+		<!-- <key>PROJECT_REQUIREMENTS</key>
 		<dict>
 			<key>LIST</key>
 			<array>
@@ -1059,7 +1059,7 @@
 			<array/>
 			<key>ROOT_VOLUME_ONLY</key>
 			<true/>
-		</dict>
+		</dict> -->
 		<key>PROJECT_SETTINGS</key>
 		<dict>
 			<key>BUILD_FORMAT</key>
