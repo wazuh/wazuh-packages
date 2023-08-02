@@ -153,14 +153,14 @@ function build_package() {
     if packagesbuild ${AGENT_PKG_FILE} --build-folder ${DESTINATION} ; then
         echo "The wazuh agent package for MacOS has been successfully built."
         pkg_name="wazuh-agent-${VERSION}-${REVISION}.${ARCH}.pkg"
-        ls -l ${DESTINATION}/${pkg_name}
-        ls -l ${DESTINATION}/wazuh-agent-${VERSION}-${REVISION}*
         sign_pkg
         notarize_pkg
         if [[ "${CHECKSUM}" == "yes" ]]; then
             mkdir -p ${CHECKSUMDIR}
             cd ${DESTINATION} && shasum -a512 "${pkg_name}" > "${CHECKSUMDIR}/${pkg_name}.sha512"
         fi
+        ls -l ${DESTINATION}/${pkg_name}
+        ls -l ${DESTINATION}/wazuh-agent-${VERSION}-${REVISION}*
         clean_and_exit 0
     else
         echo "ERROR: something went wrong while building the package."
@@ -207,7 +207,7 @@ function get_pkgproj_specs() {
         exit 1
     else
         echo "Modifiying ${pkg_file} to match revision."
-        sed -i -e "s:${VERSION}-.*<:${VERSION}-${REVISION}<:g" "${pkg_file}"
+        sed -i -e "s:${VERSION}-.*<:${VERSION}-${REVISION}.${ARCH}<:g" "${pkg_file}"
         cp "${pkg_file}" "${AGENT_PKG_FILE}"
     fi
 
