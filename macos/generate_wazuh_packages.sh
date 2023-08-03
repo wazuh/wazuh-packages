@@ -158,8 +158,6 @@ function build_package() {
             mkdir -p ${CHECKSUMDIR}
             cd ${DESTINATION} && shasum -a512 "${pkg_name}" > "${CHECKSUMDIR}/${pkg_name}.sha512"
         fi
-        ls -l ${DESTINATION}/${pkg_name}
-        ls -l ${DESTINATION}/wazuh-agent-${VERSION}-${REVISION}*
         clean_and_exit 0
     else
         echo "ERROR: something went wrong while building the package."
@@ -239,7 +237,7 @@ function install_deps() {
         echo "Something went wrong installing packagesbuild."
     fi
 
-    if [ "$(uname -m)" = "arm64" ]; then 
+    if [ "$(uname -m)" = "arm64" ]; then
         echo "Installing dependencies for arm64 architecture"
         brew install gcc binutils autoconf automake libtool cmake
     fi
