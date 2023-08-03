@@ -150,7 +150,7 @@ function build_package() {
 
     # create package
     if packagesbuild ${AGENT_PKG_FILE} --build-folder ${DESTINATION} ; then
-        echo "The wazuh agent package for MacOS has been successfully built."
+        echo "The wazuh agent package for macOS has been successfully built."
         pkg_name="wazuh-agent-${VERSION}-${REVISION}.${ARCH}.pkg"
         sign_pkg
         notarize_pkg
