@@ -238,7 +238,7 @@ function install_deps() {
     fi
 
     if [ "$(uname -m)" = "arm64" ]; then
-        echo "Installing dependencies for arm64 architecture"
+        echo "Installing build dependencies for arm64 architecture"
         brew install gcc binutils autoconf automake libtool cmake
     fi
     exit 0
