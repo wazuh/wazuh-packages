@@ -170,7 +170,7 @@ function help() {
     echo "Usage: $0 [OPTIONS]"
     echo
     echo "  Build options:"
-    echo "    -a, --architecture <arch>     [Optional] Select architecture to build (intel64 or arm64). Default: intel64"
+    echo "    -a, --architecture <arch>     [Optional] Target architecture of the package [intel64/arm64]. By Default: intel64."
     echo "    -b, --branch <branch>         [Required] Select Git branch or tag e.g. $BRANCH"
     echo "    -s, --store-path <path>       [Optional] Set the destination absolute path of package."
     echo "    -j, --jobs <number>           [Optional] Number of parallel jobs when compiling."
