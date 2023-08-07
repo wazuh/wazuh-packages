@@ -340,3 +340,18 @@ function checks_ports() {
     fi
 
 }
+
+function checks_available_port() {
+    chosen_port="$1"
+    shift
+    ports_list=("$@")
+
+    if [ "$chosen_port" -ne "${http_port}" ]; then
+        for port in "${ports_list[@]}"; do
+            if [ "$chosen_port" -eq "$port" ]; then
+                common_logger -e "Port ${chosen_port} is reserved by Wazuh. Please, choose another port."
+                exit 1
+            fi
+        done
+    fi
+}

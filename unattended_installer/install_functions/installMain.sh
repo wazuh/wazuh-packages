@@ -120,7 +120,7 @@ function main() {
                     getHelp
                     exit 1
                 fi
-                port=1
+                port_specified=1
                 port_number="${2}"
                 shift 2
                 ;;
@@ -243,7 +243,13 @@ function main() {
     else
         checks_health
     fi
-    if [ -n "${AIO}" ] ; then
+
+    if [ -n "${port_specified}" ]; then
+        checks_available_port "${port_number}" "${wazuh_aio_ports[@]}"
+        dashboard_changePort "${port_number}"
+    fi
+    
+    if [ -n "${AIO}" ]; then
         rm -f "${tar_file}"
         checks_ports "${wazuh_aio_ports[@]}"
     fi
