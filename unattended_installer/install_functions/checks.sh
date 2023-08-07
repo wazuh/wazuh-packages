@@ -18,6 +18,15 @@ function checks_arch() {
 
 function checks_arguments() {
 
+    # -------------- Port option validation ---------------------
+
+    if [ -n "${port}" ]; then
+        if [ -z "${AIO}" ] && [ -z "${dashboard}" ]; then
+            common_logger -e "The argument -p|--port can only be used with -a|--all-in-one or -wd|--wazuh-dashboard."
+            exit 1
+        fi
+    fi
+
     # -------------- Configurations ---------------------------------
 
     if [ -f "${tar_file}" ]; then
