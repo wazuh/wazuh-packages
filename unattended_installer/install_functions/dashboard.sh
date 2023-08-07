@@ -52,6 +52,10 @@ function dashboard_configure() {
         fi
     fi
 
+    if [ -n "${port_specified}" ]; then
+        sed -i 's/server\.port: [0-9]\+$/server.port: '"${chosen_port}"'/' /etc/wazuh-dashboard/opensearch_dashboards.yml
+    fi
+
     common_logger "Wazuh dashboard post-install configuration finished."
 
 }
