@@ -129,7 +129,7 @@ function dashboard_initialize() {
 
         common_logger "Wazuh dashboard web application initialized."
         common_logger -nl "--- Summary ---"
-        common_logger -nl "You can access the web interface https://${print_ip}\n    User: admin\n    Password: ${u_pass}"
+        common_logger -nl "You can access the web interface https://${print_ip}:${http_port}\n    User: admin\n    Password: ${u_pass}"
 
     elif [ ${j} -eq 12 ]; then
         flag="-w"
@@ -187,7 +187,7 @@ function dashboard_initializeAIO() {
     if [ "${http_code}" -eq "200" ]; then
         common_logger "Wazuh dashboard web application initialized."
         common_logger -nl "--- Summary ---"
-        common_logger -nl "You can access the web interface https://<wazuh-dashboard-ip>\n    User: admin\n    Password: ${u_pass}"
+        common_logger -nl "You can access the web interface https://<wazuh-dashboard-ip>:${http_port}\n    User: admin\n    Password: ${u_pass}"
     else
         common_logger -e "Wazuh dashboard installation failed."
         installCommon_rollBack
