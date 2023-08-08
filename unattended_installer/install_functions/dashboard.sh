@@ -9,11 +9,10 @@
 function dashboard_changePort() {
 
     chosen_port="$1"
+    http_port="${chosen_port}" 
 
-    sed -i "s/^readonly http_port=.*/readonly http_port=${chosen_port}/" "$0"
     sed -i 's/server\.port: [0-9]\+$/server.port: '"${chosen_port}"'/' "$0"
-
-    common_logger "Port changed to ${chosen_port}."
+    common_logger "Wazuh web interface port will be ${chosen_port}."
 }
 
 function dashboard_configure() {
@@ -52,9 +51,7 @@ function dashboard_configure() {
         fi
     fi
 
-    if [ -n "${port_specified}" ]; then
-        sed -i 's/server\.port: [0-9]\+$/server.port: '"${chosen_port}"'/' /etc/wazuh-dashboard/opensearch_dashboards.yml
-    fi
+    sed -i 's/server\.port: [0-9]\+$/server.port: '"${chosen_port}"'/' /etc/wazuh-dashboard/opensearch_dashboards.yml
 
     common_logger "Wazuh dashboard post-install configuration finished."
 

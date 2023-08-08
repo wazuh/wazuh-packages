@@ -41,7 +41,7 @@ function getHelp() {
     echo -e "                Overwrites previously installed components. This will erase all the existing configuration and data."
     echo -e ""
     echo -e "        -p,  --port"
-    echo -e "                Specifies the Wazuh web user interface port. By default is the 443 TCP port."
+    echo -e "                Specifies the Wazuh web user interface port. By default is the 443 TCP port. Recommended ports are: 8443, 8444, 8080, 8888, 9000."
     echo -e ""
     echo -e "        -s,  --start-cluster"
     echo -e "                Initialize Wazuh indexer cluster security settings."
@@ -247,6 +247,8 @@ function main() {
     if [ -n "${port_specified}" ]; then
         checks_available_port "${port_number}" "${wazuh_aio_ports[@]}"
         dashboard_changePort "${port_number}"
+    else
+        dashboard_changePort "${http_port}"
     fi
     
     if [ -n "${AIO}" ]; then
