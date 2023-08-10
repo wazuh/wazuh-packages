@@ -6,6 +6,15 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
+function dashboard_changePort() {
+
+    chosen_port="$1"
+    http_port="${chosen_port}" 
+
+    sed -i 's/server\.port: [0-9]\+$/server.port: '"${chosen_port}"'/' "$0"
+    common_logger "Wazuh web interface port will be ${chosen_port}."
+}
+
 function dashboard_configure() {
 
     if [ -n "${AIO}" ]; then
@@ -41,6 +50,8 @@ function dashboard_configure() {
             done
         fi
     fi
+
+    sed -i 's/server\.port: [0-9]\+$/server.port: '"${chosen_port}"'/' /etc/wazuh-dashboard/opensearch_dashboards.yml
 
     common_logger "Wazuh dashboard post-install configuration finished."
 
@@ -98,7 +109,7 @@ function dashboard_initialize() {
         print_ip="${nodes_dashboard_ip}"
     fi
 
-    until [ "$(curl -XGET https://"${nodes_dashboard_ip}"/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null)" -eq "200" ] || [ "${j}" -eq "12" ]; do
+    until [ "$(curl -XGET https://"${nodes_dashboard_ip}":"${http_port}"/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null)" -eq "200" ] || [ "${j}" -eq "12" ]; do
         sleep 10
         j=$((j+1))
     done
@@ -119,7 +130,7 @@ function dashboard_initialize() {
 
         common_logger "Wazuh dashboard web application initialized."
         common_logger -nl "--- Summary ---"
-        common_logger -nl "You can access the web interface https://${print_ip}\n    User: admin\n    Password: ${u_pass}"
+        common_logger -nl "You can access the web interface https://${print_ip}:${http_port}\n    User: admin\n    Password: ${u_pass}"
 
     elif [ ${j} -eq 12 ]; then
         flag="-w"
@@ -164,12 +175,12 @@ function dashboard_initializeAIO() {
 
     common_logger "Initializing Wazuh dashboard web application."
     installCommon_getPass "admin"
-    http_code=$(curl -XGET https://localhost/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null)
+    http_code=$(curl -XGET https://localhost:"${http_port}"/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null)
     retries=0
     max_dashboard_initialize_retries=20
     while [ "${http_code}" -ne "200" ] && [ "${retries}" -lt "${max_dashboard_initialize_retries}" ]
     do
-        http_code=$(curl -XGET https://localhost/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null)
+        http_code=$(curl -XGET https://localhost:"${http_port}"/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null)
         common_logger "Wazuh dashboard web application not yet initialized. Waiting..."
         retries=$((retries+1))
         sleep 15
@@ -177,7 +188,7 @@ function dashboard_initializeAIO() {
     if [ "${http_code}" -eq "200" ]; then
         common_logger "Wazuh dashboard web application initialized."
         common_logger -nl "--- Summary ---"
-        common_logger -nl "You can access the web interface https://<wazuh-dashboard-ip>\n    User: admin\n    Password: ${u_pass}"
+        common_logger -nl "You can access the web interface https://<wazuh-dashboard-ip>:${http_port}\n    User: admin\n    Password: ${u_pass}"
     else
         common_logger -e "Wazuh dashboard installation failed."
         installCommon_rollBack

@@ -40,6 +40,9 @@ function getHelp() {
     echo -e "        -o,  --overwrite"
     echo -e "                Overwrites previously installed components. This will erase all the existing configuration and data."
     echo -e ""
+    echo -e "        -p,  --port"
+    echo -e "                Specifies the Wazuh web user interface port. By default is the 443 TCP port. Recommended ports are: 8443, 8444, 8080, 8888, 9000."
+    echo -e ""
     echo -e "        -s,  --start-cluster"
     echo -e "                Initialize Wazuh indexer cluster security settings."
     echo -e ""
@@ -110,6 +113,16 @@ function main() {
             "-o"|"--overwrite")
                 overwrite=1
                 shift 1
+                ;;
+            "-p"|"--port")
+                if [ -z "${2}" ]; then
+                    common_logger -e "Error on arguments. Probably missing <port> after -p|--port"
+                    getHelp
+                    exit 1
+                fi
+                port_specified=1
+                port_number="${2}"
+                shift 2
                 ;;
             "-s"|"--start-cluster")
                 start_indexer_cluster=1
@@ -230,7 +243,15 @@ function main() {
     else
         checks_health
     fi
-    if [ -n "${AIO}" ] ; then
+
+    if [ -n "${port_specified}" ]; then
+        checks_available_port "${port_number}" "${wazuh_aio_ports[@]}"
+        dashboard_changePort "${port_number}"
+    elif [ -n "${AIO}" ] || [ -n "${dashboard}" ]; then
+        dashboard_changePort "${http_port}"
+    fi
+    
+    if [ -n "${AIO}" ]; then
         rm -f "${tar_file}"
         checks_ports "${wazuh_aio_ports[@]}"
     fi
