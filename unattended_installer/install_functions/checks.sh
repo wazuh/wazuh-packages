@@ -18,6 +18,15 @@ function checks_arch() {
 
 function checks_arguments() {
 
+    # -------------- Port option validation ---------------------
+
+    if [ -n "${port_specified}" ]; then
+        if [ -z "${AIO}" ] && [ -z "${dashboard}" ]; then
+            common_logger -e "The argument -p|--port can only be used with -a|--all-in-one or -wd|--wazuh-dashboard."
+            exit 1
+        fi
+    fi
+
     # -------------- Configurations ---------------------------------
 
     if [ -f "${tar_file}" ]; then
@@ -351,5 +360,19 @@ function check_versions() {
     else
         echo 1
     fi
+}
 
+function checks_available_port() {
+    chosen_port="$1"
+    shift
+    ports_list=("$@")
+
+    if [ "$chosen_port" -ne "${http_port}" ]; then
+        for port in "${ports_list[@]}"; do
+            if [ "$chosen_port" -eq "$port" ]; then
+                common_logger -e "Port ${chosen_port} is reserved by Wazuh. Please, choose another port."
+                exit 1
+            fi
+        done
+    fi
 }
