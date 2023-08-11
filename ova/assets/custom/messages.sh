@@ -12,15 +12,16 @@ cat > /etc/issue <<EOF
 Welcome to the Wazuh OVA version
 Wazuh - ${WAZUH_VERSION}
 Login credentials:
-  User: wazuh-user
+  User: ${SYSTEM_USER}
   Password: wazuh
 
 EOF
 
 # User Welcome message
-cat > /etc/motd <<EOF
+cat > /etc/update-motd.d/30-banner <<EOF
 
-
+#!/bin/sh
+cat << EOF
 wwwwww.           wwwwwww.          wwwwwww.
 wwwwwww.          wwwwwww.          wwwwwww.
  wwwwww.         wwwwwwwww.        wwwwwww.
