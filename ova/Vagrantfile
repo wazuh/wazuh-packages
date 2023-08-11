@@ -3,7 +3,8 @@
 
 Vagrant.configure("2") do |config|
 
-  config.vm.box = "centos/7"
+  config.vm.box_url = "https://packages-dev.wazuh.com/vms/ova/amazonlinux-2.box"
+  config.vm.box = "amazonlinux-2"
   config.vm.hostname = "wazuh-server"
   config.vm.provider "virtualbox" do |vb|
     vb.name = "vm_wazuh"
@@ -11,13 +12,15 @@ Vagrant.configure("2") do |config|
     vb.cpus = "4"
   end
 
+  config.ssh.username = "wazuh-user"
+  config.ssh.password = "wazuh"
+  config.ssh.insert_key = true
+
   # Synced folder configuration
   config.vm.synced_folder ".", "/vagrant", disabled: true
   config.vm.synced_folder ".", "/tmp", type: "rsync", :rsync__exclude => ['output']
 
   # Provision stage
   config.vm.provision :shell, path: "provision.sh", :args => "#{ENV['PACKAGES_REPOSITORY']} #{ENV['DEBUG']}"
-  # Provision cleanup stage
-  config.vm.provision :shell, path: "assets/postProvision.sh", :args => "#{ENV['DEBUG']}"
 
 end
