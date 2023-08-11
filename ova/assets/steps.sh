@@ -13,6 +13,11 @@ systemConfig() {
   mv ${CUSTOM_PATH}/grub/grub /etc/default/
   grub2-mkconfig -o /boot/grub2/grub.cfg > /dev/null 2>&1
 
+  # Enable fips
+  mv ${CUSTOM_PATH}/enable_fips.sh /tmp/
+  chmod 755 /tmp/enable_fips.sh
+  bash /tmp/enable_fips.sh
+
   # Update Wazuh indexer jvm heap
   mv ${CUSTOM_PATH}/automatic_set_ram.sh /etc/
   chmod 755 /etc/automatic_set_ram.sh
@@ -20,14 +25,6 @@ systemConfig() {
   systemctl daemon-reload
   systemctl enable updateIndexerHeap.service
 
-  # Change root password (root:wazuh)
-  sed -i "s/root:.*:/root:\$1\$pNjjEA7K\$USjdNwjfh7A\.vHCf8suK41::0:99999:7:::/g" /etc/shadow
-
-  # Add custom user ($1$pNjjEA7K$USjdNwjfh7A.vHCf8suK41 -> wazuh)
-  adduser ${SYSTEM_USER}
-  sed -i "s/${SYSTEM_USER}:!!/${SYSTEM_USER}:\$1\$pNjjEA7K\$USjdNwjfh7A\.vHCf8suK41/g" /etc/shadow
-
-  gpasswd -a ${SYSTEM_USER} wheel
   hostname ${HOSTNAME}
 
   # AWS instance has this enabled
@@ -65,5 +62,16 @@ clean() {
 
   rm -f /securityadmin_demo.sh
   yum clean all
+
+  systemctl daemon-reload
+
+  # Clear synced files
+  rm -rf ${CURRENT_PATH}/* ${CURRENT_PATH}/.gitignore
+
+  # Remove logs
+  find /var/log/ -type f -exec bash -c 'cat /dev/null > {}' \;
+  find /var/ossec/logs/ -type f -exec bash -c 'cat /dev/null > {}' \;
+
+  cat /dev/null > ~/.bash_history && history -c
 
 }
