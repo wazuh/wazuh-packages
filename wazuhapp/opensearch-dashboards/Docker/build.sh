@@ -13,13 +13,14 @@ source_dir="${plugin_platform_dir}/plugins/wazuh"
 build_dir="${source_dir}/build"
 destination_dir="/wazuh_app"
 checksum_dir="/var/local/checksum"
+git_clone_tmp_dir="/tmp/wazuh-app"
 
 # Repositories URLs
 wazuh_app_clone_repo_url="https://github.com/wazuh/wazuh-kibana-app.git"
 wazuh_app_raw_repo_url="https://raw.githubusercontent.com/wazuh/wazuh-kibana-app"
 plugin_platform_app_repo_url="https://github.com/opensearch-project/OpenSearch-Dashboards.git"
 plugin_platform_app_raw_repo_url="https://raw.githubusercontent.com/opensearch-project/OpenSearch-Dashboards"
-wazuh_app_package_json_url="${wazuh_app_raw_repo_url}/${wazuh_branch}/package.json"
+wazuh_app_package_json_url="${wazuh_app_raw_repo_url}/${wazuh_branch}/plugins/main/package.json"
 
 # Script vars
 wazuh_version=""
@@ -97,12 +98,13 @@ install_dependencies () {
 
 
 download_wazuh_app_sources() {
-    if ! git clone $wazuh_app_clone_repo_url --branch ${wazuh_branch} --depth=1 ${plugin_platform_dir}/plugins/wazuh ; then
-        echo "Error downloading the source code from wazuh-kibana-app GitHub repository."
+    if ! git clone $wazuh_app_clone_repo_url --branch ${wazuh_branch} --depth=1 ${git_clone_tmp_dir}; then
+        echo "Error downloading the source code from wazuh-dashboard-app GitHub repository."
         exit 1
     fi
-}
 
+    cp -r ${git_clone_tmp_dir}/plugins/main ${source_dir}
+}
 
 build_package(){
 
