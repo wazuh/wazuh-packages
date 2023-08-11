@@ -12,9 +12,9 @@ CURRENT_PATH="$( cd $(dirname ${0}) ; pwd -P )"
 SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
 WAZUH_PATH="${SOURCES_DIRECTORY}/wazuh"
 WAZUH_SOURCE_REPOSITORY="https://github.com/wazuh/wazuh"
-AGENT_PKG_FILE="${CURRENT_PATH}/package_files/wazuh-agent.pkgproj"
 export CONFIG="${WAZUH_PATH}/etc/preloaded-vars.conf"
 ENTITLEMENTS_PATH="${CURRENT_PATH}/entitlements.plist"
+ARCH="intel64"
 INSTALLATION_PATH="/Library/Ossec"    # Installation path
 VERSION=""                            # Default VERSION (branch/tag)
 REVISION="1"                          # Package revision.
@@ -150,8 +150,8 @@ function build_package() {
 
     # create package
     if packagesbuild ${AGENT_PKG_FILE} --build-folder ${DESTINATION} ; then
-        echo "The wazuh agent package for MacOS X has been successfully built."
-        pkg_name="wazuh-agent-${VERSION}-${REVISION}.pkg"
+        echo "The wazuh agent package for macOS has been successfully built."
+        pkg_name="wazuh-agent-${VERSION}-${REVISION}.${ARCH}.pkg"
         sign_pkg
         notarize_pkg
         if [[ "${CHECKSUM}" == "yes" ]]; then
@@ -170,6 +170,7 @@ function help() {
     echo "Usage: $0 [OPTIONS]"
     echo
     echo "  Build options:"
+    echo "    -a, --architecture <arch>     [Optional] Target architecture of the package [intel64/arm64]. By Default: intel64."
     echo "    -b, --branch <branch>         [Required] Select Git branch or tag e.g. $BRANCH"
     echo "    -s, --store-path <path>       [Optional] Set the destination absolute path of package."
     echo "    -j, --jobs <number>           [Optional] Number of parallel jobs when compiling."
@@ -196,14 +197,14 @@ function get_pkgproj_specs() {
 
     VERSION=$(< "${WAZUH_PATH}/src/VERSION"  cut -d "-" -f1 | cut -c 2-)
 
-    pkg_file="specs/wazuh-agent.pkgproj"
+    pkg_file="specs/wazuh-agent-${ARCH}.pkgproj"
 
     if [ ! -f "${pkg_file}" ]; then
         echo "Warning: the file ${pkg_file} does not exists. Check the version selected."
         exit 1
     else
         echo "Modifiying ${pkg_file} to match revision."
-        sed -i -e "s:${VERSION}-.*<:${VERSION}-${REVISION}<:g" "${pkg_file}"
+        sed -i -e "s:${VERSION}-.*<:${VERSION}-${REVISION}.${ARCH}<:g" "${pkg_file}"
         cp "${pkg_file}" "${AGENT_PKG_FILE}"
     fi
 
@@ -236,6 +237,10 @@ function install_deps() {
         echo "Something went wrong installing packagesbuild."
     fi
 
+    if [ "$(uname -m)" = "arm64" ]; then
+        echo "Installing build dependencies for arm64 architecture"
+        brew install gcc binutils autoconf automake libtool cmake
+    fi
     exit 0
 }
 
@@ -262,6 +267,14 @@ function main() {
     while [ -n "$1" ]
     do
         case "$1" in
+        "-a"|"--architecture")
+            if [ -n "$2" ]; then
+                ARCH="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
         "-b"|"--branch")
             if [ -n "$2" ]; then
                 BRANCH_TAG="$2"
@@ -382,12 +395,19 @@ function main() {
 
     testdep
 
+    if [ "${ARCH}" != "intel64" ] && [ "${ARCH}" != "arm64" ]; then
+        echo "Error: architecture not supported."
+        echo "Supported architectures: intel64, arm64"
+        exit 1
+    fi
+
     if [ -z "${CHECKSUMDIR}" ]; then
         CHECKSUMDIR="${DESTINATION}"
     fi
 
     if [[ "$BUILD" != "no" ]]; then
         check_root
+        AGENT_PKG_FILE="${CURRENT_PATH}/package_files/wazuh-agent-${ARCH}.pkgproj"
         build_package
         "${CURRENT_PATH}/uninstall.sh"
     else
