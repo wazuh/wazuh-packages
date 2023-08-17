@@ -86,9 +86,6 @@ case "$1" in
         fi
     fi
 
-    # Remove Vuln-detector database
-    rm -f ${DIR}/queue/vulnerabilities/cve.db || true
-
     # Remove groups backup files
     rm -rf ${DIR}/backup/groups
 

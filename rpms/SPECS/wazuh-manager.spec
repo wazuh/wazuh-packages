@@ -235,9 +235,6 @@ if [ -f %{_localstatedir}/queue/db/global.db ]; then
   chown wazuh:wazuh %{_localstatedir}/queue/db/global.db*
 fi
 
-# Remove Vuln-detector database
-rm -f %{_localstatedir}/queue/vulnerabilities/cve.db || true
-
 # Remove plain-text agent information if exists
 if [ -d %{_localstatedir}/queue/agent-info ]; then
   rm -rf %{_localstatedir}/queue/agent-info/* > /dev/null 2>&1
