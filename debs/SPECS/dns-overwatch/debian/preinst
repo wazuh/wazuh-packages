@@ -1,10 +1,10 @@
 #!/bin/sh
-# preinst script for wazuh-agent
+# preinst script for dns-overwatch
 
 set -e
 
 # configuration variables
-DIR="/var/ossec"
+DIR="/var/overwatch"
 WAZUH_TMP_DIR="${DIR}/packages_files/agent_config_files"
 
 # environment configuration
@@ -19,11 +19,11 @@ case "$1" in
     install|upgrade)
 
         if [ "$1" = "upgrade" ]; then
-            if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-agent > /dev/null 2>&1; then
-                systemctl stop wazuh-agent.service > /dev/null 2>&1
+            if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet dns-overwatch > /dev/null 2>&1; then
+                systemctl stop dns-overwatch.service > /dev/null 2>&1
                 touch ${WAZUH_TMP_DIR}/wazuh.restart
-            elif command -v service > /dev/null 2>&1 && service wazuh-agent status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
-                service wazuh-agent stop > /dev/null 2>&1
+            elif command -v service > /dev/null 2>&1 && service dns-overwatch status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
+                service dns-overwatch stop > /dev/null 2>&1
                 touch ${WAZUH_TMP_DIR}/wazuh.restart
             elif ${DIR}/bin/wazuh-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
                 touch ${WAZUH_TMP_DIR}/wazuh.restart

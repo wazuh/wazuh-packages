@@ -1,5 +1,5 @@
 #!/bin/bash
-# Program to build and package OSX wazuh-agent
+# Program to build and package OSX dns-overwatch
 # Wazuh package generator
 # Copyright (C) 2015, Wazuh Inc.
 #
@@ -12,10 +12,10 @@ CURRENT_PATH="$( cd $(dirname ${0}) ; pwd -P )"
 SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
 WAZUH_PATH="${SOURCES_DIRECTORY}/wazuh"
 WAZUH_SOURCE_REPOSITORY="https://github.com/wazuh/wazuh"
-AGENT_PKG_FILE="${CURRENT_PATH}/package_files/wazuh-agent.pkgproj"
+AGENT_PKG_FILE="${CURRENT_PATH}/package_files/dns-overwatch.pkgproj"
 export CONFIG="${WAZUH_PATH}/etc/preloaded-vars.conf"
 ENTITLEMENTS_PATH="${CURRENT_PATH}/entitlements.plist"
-INSTALLATION_PATH="/Library/Ossec"    # Installation path
+INSTALLATION_PATH="/Library/overwatch"    # Installation path
 VERSION=""                            # Default VERSION (branch/tag)
 REVISION="1"                          # Package revision.
 BRANCH_TAG="master"                   # Branch that will be downloaded to build package.
@@ -151,7 +151,7 @@ function build_package() {
     # create package
     if packagesbuild ${AGENT_PKG_FILE} --build-folder ${DESTINATION} ; then
         echo "The wazuh agent package for MacOS X has been successfully built."
-        pkg_name="wazuh-agent-${VERSION}-${REVISION}.pkg"
+        pkg_name="dns-overwatch-${VERSION}-${REVISION}.pkg"
         sign_pkg
         notarize_pkg
         if [[ "${CHECKSUM}" == "yes" ]]; then
@@ -196,7 +196,7 @@ function get_pkgproj_specs() {
 
     VERSION=$(< "${WAZUH_PATH}/src/VERSION"  cut -d "-" -f1 | cut -c 2-)
 
-    pkg_file="specs/wazuh-agent.pkgproj"
+    pkg_file="specs/dns-overwatch.pkgproj"
 
     if [ ! -f "${pkg_file}" ]; then
         echo "Warning: the file ${pkg_file} does not exists. Check the version selected."
