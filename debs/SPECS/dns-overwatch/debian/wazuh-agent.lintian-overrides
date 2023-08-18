@@ -1,0 +1,9 @@
+dns-overwatch: embedded-library
+dns-overwatch: embedded-zlib
+dns-overwatch: possible-gpl-code-linked-with-openssl
+dns-overwatch: new-package-should-close-itp-bug
+dns-overwatch: possibly-insecure-handling-of-tmp-files-in-maintainer-script
+dns-overwatch: non-standard-dir-in-var
+dns-overwatch: file-in-unusual-dir
+dns-overwatch: hardening-no-fortify-functions
+dns-overwatch: hardening-no-relro

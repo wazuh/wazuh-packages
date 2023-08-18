@@ -1,10 +1,10 @@
 #!/bin/sh
-# postrm script for wazuh-agent
+# postrm script for dns-overwatch
 # Wazuh, Inc 2015
 
 set -e
 
-DIR="/var/ossec"
+DIR="/var/overwatch"
 WAZUH_TMP_DIR="${DIR}/packages_files/agent_config_files"
 
 case "$1" in

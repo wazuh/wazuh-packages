@@ -1,5 +1,5 @@
 #!/bin/bash
-# Program to build OSX wazuh-agent
+# Program to build OSX dns-overwatch
 # Wazuh package generator
 # Copyright (C) 2015, Wazuh Inc.
 #
