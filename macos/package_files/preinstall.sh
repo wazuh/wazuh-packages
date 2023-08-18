@@ -9,7 +9,7 @@
 # $1 is the message
 # $2 is the error code
 
-DIR="/Library/Ossec"
+DIR="/Library/overwatch"
 
 if [ -d "${DIR}" ]; then
     if [ -f "${DIR}/WAZUH_PKG_UPGRADE" ]; then

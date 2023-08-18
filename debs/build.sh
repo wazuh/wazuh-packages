@@ -87,9 +87,9 @@ sed -i "s:export DEBUG_ENABLED=.*:export DEBUG_ENABLED=${debug}:g" ${sources_dir
 sed -i "s#export PATH=.*#export PATH=/usr/local/gcc-5.5.0/bin:${PATH}#g" ${sources_dir}/debian/rules
 sed -i "s#export LD_LIBRARY_PATH=.*#export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}#g" ${sources_dir}/debian/rules
 sed -i "s:export INSTALLATION_DIR=.*:export INSTALLATION_DIR=${dir_path}:g" ${sources_dir}/debian/rules
-sed -i "s:DIR=\"/var/ossec\":DIR=\"${dir_path}\":g" ${sources_dir}/debian/{preinst,postinst,prerm,postrm}
+sed -i "s:DIR=\"/var/overwatch\":DIR=\"${dir_path}\":g" ${sources_dir}/debian/{preinst,postinst,prerm,postrm}
 if [ "${build_target}" == "api" ]; then
-    sed -i "s:DIR=\"/var/ossec\":DIR=\"${dir_path}\":g" ${sources_dir}/debian/wazuh-api.init
+    sed -i "s:DIR=\"/var/overwatch\":DIR=\"${dir_path}\":g" ${sources_dir}/debian/wazuh-api.init
     if [ "${architecture_target}" == "ppc64le" ]; then
         sed -i "s: nodejs (>= 4.6), npm,::g" ${sources_dir}/debian/control
     fi
