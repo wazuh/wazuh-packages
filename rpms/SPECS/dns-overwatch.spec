@@ -6,7 +6,7 @@
 %endif
 
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
-Name:        wazuh-agent
+Name:        dns-overwatch
 Version:     4.5.0
 Release:     %{_release}
 License:     GPL
@@ -94,9 +94,9 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.ssh
 cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
 mkdir -p ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
 sed -i "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/ossec-hids-rh.init
-install -m 0755 src/init/templates/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-agent
-sed -i "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/wazuh-agent.service
-install -m 0644 src/init/templates/wazuh-agent.service ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
+install -m 0755 src/init/templates/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/dns-overwatch
+sed -i "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/dns-overwatch.service
+install -m 0644 src/init/templates/dns-overwatch.service ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
 
 # Clean the preinstalled configuration assesment files
 rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ruleset/sca/*
@@ -193,12 +193,12 @@ fi
 
 # Stop the services to upgrade the package
 if [ $1 = 2 ]; then
-  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-agent > /dev/null 2>&1; then
-    systemctl stop wazuh-agent.service > /dev/null 2>&1
+  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet dns-overwatch > /dev/null 2>&1; then
+    systemctl stop dns-overwatch.service > /dev/null 2>&1
     touch %{_localstatedir}/tmp/wazuh.restart
   # Check for SysV
-  elif command -v service > /dev/null 2>&1 && service wazuh-agent status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
-    service wazuh-agent stop > /dev/null 2>&1
+  elif command -v service > /dev/null 2>&1 && service dns-overwatch status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
+    service dns-overwatch stop > /dev/null 2>&1
     touch %{_localstatedir}/tmp/wazuh.restart
   elif %{_localstatedir}/bin/wazuh-control status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
     touch %{_localstatedir}/tmp/wazuh.restart
@@ -246,7 +246,7 @@ fi
 if [ -f /etc/os-release ]; then
   source /etc/os-release
   if [ "${NAME}" = "Red Hat Enterprise Linux" ] && [ "$((${VERSION_ID:0:1}))" -ge 9 ]; then
-    rm -f %{_initrddir}/wazuh-agent
+    rm -f %{_initrddir}/dns-overwatch
   fi
 fi
 
@@ -263,8 +263,8 @@ fi
   fi
 
   if [ -n "$sles" ] && [ $(ps --no-headers -o comm 1) == "systemd" ]; then
-    if [ -f /etc/init.d/wazuh-agent ]; then
-      rm -f /etc/init.d/wazuh-agent
+    if [ -f /etc/init.d/dns-overwatch ]; then
+      rm -f /etc/init.d/dns-overwatch
     fi
   fi
 
@@ -396,11 +396,11 @@ if [ $1 = 0 ]; then
 
   # Stop the services before uninstall the package
   # Check for systemd
-  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-agent > /dev/null 2>&1; then
-    systemctl stop wazuh-agent.service > /dev/null 2>&1
+  if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet dns-overwatch > /dev/null 2>&1; then
+    systemctl stop dns-overwatch.service > /dev/null 2>&1
   # Check for SysV
-  elif command -v service > /dev/null 2>&1 && service wazuh-agent status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
-    service wazuh-agent stop > /dev/null 2>&1
+  elif command -v service > /dev/null 2>&1 && service dns-overwatch status 2>/dev/null | grep "is running" > /dev/null 2>&1; then
+    service dns-overwatch stop > /dev/null 2>&1
   fi
   %{_localstatedir}/bin/wazuh-control stop > /dev/null 2>&1
 
@@ -419,7 +419,7 @@ if [ $1 = 0 ]; then
     sles=$(grep "SUSE Linux Enterprise Server" /etc/SuSE-release)
   fi
   if [ ! -z "$sles" ]; then
-    rm -f /etc/init.d/wazuh-agent
+    rm -f /etc/init.d/dns-overwatch
   fi
 
   # Remove SCA files
@@ -460,8 +460,8 @@ fi
 
 # posttrans code is the last thing executed in a install/upgrade
 %posttrans
-if [ -f %{_sysconfdir}/systemd/system/wazuh-agent.service ]; then
-  rm -rf %{_sysconfdir}/systemd/system/wazuh-agent.service
+if [ -f %{_sysconfdir}/systemd/system/dns-overwatch.service ]; then
+  rm -rf %{_sysconfdir}/systemd/system/dns-overwatch.service
   systemctl daemon-reload > /dev/null 2>&1
 fi
 
@@ -469,9 +469,9 @@ if [ -f %{_localstatedir}/tmp/wazuh.restart ]; then
   rm -f %{_localstatedir}/tmp/wazuh.restart
   if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 ; then
     systemctl daemon-reload > /dev/null 2>&1
-    systemctl restart wazuh-agent.service > /dev/null 2>&1
+    systemctl restart dns-overwatch.service > /dev/null 2>&1
   elif command -v service > /dev/null 2>&1; then
-    service wazuh-agent restart > /dev/null 2>&1
+    service dns-overwatch restart > /dev/null 2>&1
   else
     %{_localstatedir}/bin/wazuh-control restart > /dev/null 2>&1
   fi
@@ -495,9 +495,9 @@ rm -fr %{buildroot}
 
 %files
 %defattr(-,root,root)
-%config(missingok) %{_initrddir}/wazuh-agent
+%config(missingok) %{_initrddir}/dns-overwatch
 %attr(640, root, wazuh) %verify(not md5 size mtime) %ghost %{_sysconfdir}/ossec-init.conf
-/usr/lib/systemd/system/wazuh-agent.service
+/usr/lib/systemd/system/dns-overwatch.service
 %dir %attr(750, root, wazuh) %{_localstatedir}
 %attr(750, root, wazuh) %{_localstatedir}/agentless
 %dir %attr(770, root, wazuh) %{_localstatedir}/.ssh

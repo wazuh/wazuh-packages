@@ -4,7 +4,7 @@
 set -e
 
 # configuration variables
-DIR="/var/ossec"
+DIR="/var/overwatch"
 WAZUH_TMP_DIR="${DIR}/packages_files/agent_config_files"
 
 # environment configuration

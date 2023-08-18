@@ -3,7 +3,7 @@
 
 set -e
 
-DIR="/var/ossec"
+DIR="/var/overwatch"
 
 case "$1" in
     upgrade|deconfigure)
@@ -14,11 +14,11 @@ case "$1" in
 
       # Stop the services before uninstalling the package
       # Check for systemd
-      if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet wazuh-agent > /dev/null 2>&1; then
-          systemctl stop wazuh-agent > /dev/null 2>&1
+      if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 && systemctl is-active --quiet dns-overwatch > /dev/null 2>&1; then
+          systemctl stop dns-overwatch > /dev/null 2>&1
       # Check for SysV
-      elif command -v service > /dev/null 2>&1 && service wazuh-agent status 2>/dev/null | grep "running" > /dev/null 2>&1; then
-          service wazuh-agent stop > /dev/null 2>&1
+      elif command -v service > /dev/null 2>&1 && service dns-overwatch status 2>/dev/null | grep "running" > /dev/null 2>&1; then
+          service dns-overwatch stop > /dev/null 2>&1
       fi
       ${DIR}/bin/wazuh-control stop > /dev/null 2>&1
 
