@@ -111,7 +111,7 @@ function offline_download() {
 
   for package in "${packages_to_download[@]}"
   do
-    
+
     package_name="${package}_${package_type}_package"
     eval "package_base_url=${package}_${package_type}_base_url"
 
