@@ -67,7 +67,7 @@ function filebeat_copyCertificates() {
             if ! tar -tvf "${tar_file}" | grep -q "${winame}" ; then
                 common_logger -e "Tar file does not contain certificate for the node ${winame}."
                 installCommon_rollBack
-                exit 1;
+                exit 1
             fi
             eval "sed -i s/filebeat.pem/${winame}.pem/ /etc/filebeat/filebeat.yml ${debug}"
             eval "sed -i s/filebeat-key.pem/${winame}-key.pem/ /etc/filebeat/filebeat.yml ${debug}"
@@ -81,7 +81,7 @@ function filebeat_copyCertificates() {
         eval "chown root:root ${filebeat_cert_path}/* ${debug}"
     else
         common_logger -e "No certificates found. Could not initialize Filebeat"
-        exit 1;
+        exit 1
     fi
 
 }
