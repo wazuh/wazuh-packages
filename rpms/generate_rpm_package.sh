@@ -32,13 +32,16 @@ RPM_AGENT_I386_BUILDER="rpm_agent_builder_i386"
 RPM_AGENT_PPC64LE_BUILDER="rpm_agent_builder_ppc64le"
 LEGACY_RPM_X86_BUILDER="rpm_legacy_builder_x86"
 LEGACY_RPM_I386_BUILDER="rpm_legacy_builder_i386"
-RPM_AGENT_X86_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/6/i386"
+RPM_AGENT_X86_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/6/x86_64"
+RPM_AGENT_I386_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/6/i386"
 RPM_MANAGER_X86_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/7/x86_64"
-RPM_I386_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/6/i386"
-RPM_AARCH64_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/7/aarch64"
-RPM_ARMV7HL_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/7/armv7hl"
-RPM_PPC64LE_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/7/ppc64le"
-LEGACY_RPM_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/5"
+RPM_AGENT_AARCH64_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/7/aarch64"
+RPM_MANAGER_AARCH64_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/7/aarch64"
+RPM_AGENT_ARMV7HL_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/7/armv7hl"
+RPM_AGENT_PPC64LE_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/7/ppc64le"
+RPM_MANAGER_PPC64LE_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/7/ppc64le"
+LEGACY_RPM_AGENT_I386_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/5/i386"
+LEGACY_RPM_AGENT_X86_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/5/x86_64"
 LEGACY_TAR_FILE="${LEGACY_RPM_BUILDER_DOCKERFILE}/i386/centos-5-i386.tar.gz"
 TAR_URL="https://packages-dev.wazuh.com/utils/centos-5-i386-build/centos-5-i386.tar.gz"
 INSTALLATION_PATH="/var/ossec"
@@ -52,11 +55,15 @@ FUTURE="no"
 
 trap ctrl_c INT
 
-if command -v curl > /dev/null 2>&1 ; then
-    DOWNLOAD_TAR="curl ${TAR_URL} -o ${LEGACY_TAR_FILE} -s"
-elif command -v wget > /dev/null 2>&1 ; then
-    DOWNLOAD_TAR="wget ${TAR_URL} -o ${LEGACY_TAR_FILE} -q"
-fi
+download_file() {
+    URL=$1
+    DESTDIR=$2
+    if command -v curl > /dev/null 2>&1 ; then
+        (cd ${DESTDIR} && curl -sO ${URL})
+    elif command -v wget > /dev/null 2>&1 ; then
+        wget ${URL} -P ${DESTDIR} -q
+    fi
+}
 
 clean() {
     exit_code=$1
@@ -80,8 +87,8 @@ build_rpm() {
 
 
     # Download the legacy tar file if it is needed
-    if [ "${CONTAINER_NAME}" == "${LEGACY_RPM_I386_BUILDER}" ] && [ ! -f "${LEGACY_TAR_FILE}" ]; then
-        ${DOWNLOAD_TAR}
+    if ([[ "${CONTAINER_NAME}" == "${LEGACY_RPM_I386_BUILDER}" ]] || [[ "${CONTAINER_NAME}" == "${LEGACY_RPM_X86_BUILDER}" ]] ) && [ ! -f "${LEGACY_TAR_FILE}" ]; then
+        download_file ${TAR_URL} ${DOCKERFILE_PATH}
     fi
 
     # Create an optional parameter to share the local source code as a volume
@@ -133,10 +140,10 @@ build() {
             FILE_PATH="${RPM_MANAGER_X86_BUILDER_DOCKERFILE}"
         elif [[ "${ARCHITECTURE}" == "ppc64le" ]]; then
             BUILD_NAME="${RPM_MANAGER_PPC64LE_BUILDER}"
-            FILE_PATH="${RPM_PPC64LE_BUILDER_DOCKERFILE}"
+            FILE_PATH="${RPM_MANAGER_PPC64LE_BUILDER_DOCKERFILE}"
         elif [[ "${ARCHITECTURE}" == "aarch64" ]]; then
             BUILD_NAME="${RPM_MANAGER_AARCH64_BUILDER}"
-            FILE_PATH="${RPM_AARCH64_BUILDER_DOCKERFILE}"
+            FILE_PATH="${RPM_MANAGER_AARCH64_BUILDER_DOCKERFILE}"
         else
             echo "Invalid architecture '${ARCHITECTURE}' for '${TARGET}'. Choose one of amd64/arm64/ppc64le"
             return 1
@@ -150,12 +157,12 @@ build() {
         if [[ "${LEGACY}" == "yes" ]]; then
             if [[ "${ARCHITECTURE}" == "x86_64" ]]; then
                 REVISION="${REVISION}.el5"
-                BUILD_NAME="${LEGACY_RPM_I386_BUILDER}"
-                FILE_PATH="${LEGACY_RPM_BUILDER_DOCKERFILE}"
+                BUILD_NAME="${LEGACY_RPM_X86_BUILDER}"
+                FILE_PATH="${LEGACY_RPM_AGENT_X86_BUILDER_DOCKERFILE}"
             elif [[ "${ARCHITECTURE}" == "i386" ]]; then
                 REVISION="${REVISION}.el5"
-                BUILD_NAME="${LEGACY_RPM_X86_BUILDER}"
-                FILE_PATH="${LEGACY_RPM_BUILDER_DOCKERFILE}"
+                BUILD_NAME="${LEGACY_RPM_I386_BUILDER}"
+                FILE_PATH="${LEGACY_RPM_AGENT_I386_BUILDER_DOCKERFILE}"
             else
                 echo "Legacy is not available on '${ARCHITECTURE}'. Choose one of x86_64/i386"
                 return 1
@@ -165,16 +172,16 @@ build() {
             FILE_PATH="${RPM_AGENT_X86_BUILDER_DOCKERFILE}"
         elif [[ "${ARCHITECTURE}" == "i386" ]]; then
             BUILD_NAME="${RPM_AGENT_I386_BUILDER}"
-            FILE_PATH="${RPM_I386_BUILDER_DOCKERFILE}"
+            FILE_PATH="${RPM_AGENT_I386_BUILDER_DOCKERFILE}"
         elif [[ "${ARCHITECTURE}" == "ppc64le" ]]; then
             BUILD_NAME="${RPM_AGENT_PPC64LE_BUILDER}"
-            FILE_PATH="${RPM_PPC64LE_BUILDER_DOCKERFILE}"
+            FILE_PATH="${RPM_AGENT_PPC64LE_BUILDER_DOCKERFILE}"
         elif [[ "${ARCHITECTURE}" == "aarch64" ]]; then
             BUILD_NAME="${RPM_AGENT_AARCH64_BUILDER}"
-            FILE_PATH="${RPM_AARCH64_BUILDER_DOCKERFILE}"
+            FILE_PATH="${RPM_AGENT_AARCH64_BUILDER_DOCKERFILE}"
         elif [[ "${ARCHITECTURE}" == "armv7hl" ]]; then
             BUILD_NAME="${RPM_AGENT_ARMV7HL_BUILDER}"
-            FILE_PATH="${RPM_ARMV7HL_BUILDER_DOCKERFILE}"
+            FILE_PATH="${RPM_AGENT_ARMV7HL_BUILDER_DOCKERFILE}"
         else
             echo "Invalid architecture '${ARCHITECTURE}' for '${TARGET}'. Choose one of x86_64/i386/ppc64le/aarch64/armv7hl."
             return 1
