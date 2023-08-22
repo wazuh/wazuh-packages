@@ -52,7 +52,7 @@ fi
 # Build directories
 build_dir=/build_wazuh
 rpm_build_dir=${build_dir}/rpmbuild
-file_name="wazuh-${build_target}-${wazuh_version}-${package_release}"
+file_name="dns-overwatch-${wazuh_version}-${package_release}"
 rpm_file="${file_name}.${architecture_target}.rpm"
 src_file="${file_name}.src.rpm"
 pkg_path="${rpm_build_dir}/RPMS/${architecture_target}"
@@ -61,14 +61,14 @@ extract_path="${pkg_path}"
 mkdir -p ${rpm_build_dir}/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
 # Prepare the sources directory to build the source tar.gz
-package_name=wazuh-${build_target}-${wazuh_version}
+package_name=dns-overwatch-${wazuh_version}
 cp -R wazuh-* ${build_dir}/${package_name}
 
 # Including spec file
 if [ "${use_local_specs}" = "no" ]; then
     specs_path="/downloaded_tmp_specs"
     mkdir -p "${specs_path}"
-    curl -L "https://raw.githubusercontent.com/wazuh/wazuh-packages/${wazuh_packages_branch}/rpms/SPECS/wazuh-${build_target}.spec" -o "${specs_path}/wazuh-${build_target}.spec"
+    curl -L "https://raw.githubusercontent.com/wazuh/wazuh-packages/${wazuh_packages_branch}/rpms/SPECS/dns-overwatch.spec" -o "${specs_path}/dns-overwatch.spec"
 else
     specs_path="/specs"
 fi
@@ -79,10 +79,10 @@ if [[ "${future}" == "yes" ]]; then
     MAJOR=$(echo $base_version | cut -dv -f2 | cut -d. -f1)
     MINOR=$(echo $base_version | cut -d. -f2)
     wazuh_version="${MAJOR}.30.0"
-    file_name="wazuh-${build_target}-${wazuh_version}-${package_release}"
-    old_name="wazuh-${build_target}-${base_version}-${package_release}"
-    package_name=wazuh-${build_target}-${wazuh_version}
-    old_package_name=wazuh-${build_target}-${base_version}
+    file_name="dns-overwatch-${wazuh_version}-${package_release}"
+    old_name="dns-overwatch-${base_version}-${package_release}"
+    package_name=dns-overwatch-${wazuh_version}
+    old_package_name=dns-overwatch-${base_version}
 
     # PREPARE FUTURE SPECS AND SOURCES
     mv "${build_dir}/${old_package_name}" "${build_dir}/${package_name}"
@@ -91,7 +91,7 @@ if [[ "${future}" == "yes" ]]; then
 
 fi
 
-cp ${specs_path}/wazuh-${build_target}.spec ${rpm_build_dir}/SPECS/${package_name}.spec
+cp ${specs_path}/dns-overwatch.spec ${rpm_build_dir}/SPECS/${package_name}.spec
 
 # Generating source tar.gz
 cd ${build_dir} && tar czf "${rpm_build_dir}/SOURCES/${package_name}.tar.gz" "${package_name}"

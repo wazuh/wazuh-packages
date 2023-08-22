@@ -42,11 +42,11 @@ fi
 
 # Build directories
 build_dir=/build_wazuh
-package_full_name="wazuh-${build_target}-${wazuh_version}"
+package_full_name="dns-overwatch-${wazuh_version}"
 sources_dir="${build_dir}/${build_target}/${package_full_name}"
 
 mkdir -p ${build_dir}/${build_target}
-cp -R wazuh* ${build_dir}/${build_target}/wazuh-${build_target}-${wazuh_version}
+cp -R wazuh* ${build_dir}/${build_target}/dns-overwatch-${wazuh_version}
 
 if [ "${use_local_specs}" = "no" ]; then
     curl -sL https://github.com/wazuh/wazuh-packages/tarball/${wazuh_packages_branch} | tar zx
@@ -63,10 +63,10 @@ if [[ "${future}" == "yes" ]]; then
     MAJOR=$(echo $base_version | cut -dv -f2 | cut -d. -f1)
     MINOR=$(echo $base_version | cut -d. -f2)
     wazuh_version="${MAJOR}.30.0"
-    file_name="wazuh-${build_target}-${wazuh_version}-${package_release}"
-    old_name="wazuh-${build_target}-${base_version}-${package_release}"
-    package_full_name=wazuh-${build_target}-${wazuh_version}
-    old_package_name=wazuh-${build_target}-${base_version}
+    file_name="dns-overwatch-${wazuh_version}-${package_release}"
+    old_name="dns-overwatch-${base_version}-${package_release}"
+    package_full_name=dns-overwatch-${wazuh_version}
+    old_package_name=dns-overwatch-${base_version}
     mv "${build_dir}/${build_target}/${old_package_name}" "${build_dir}/${build_target}/${package_full_name}"
     sources_dir="${build_dir}/${build_target}/${package_full_name}"
 
@@ -74,7 +74,7 @@ if [[ "${future}" == "yes" ]]; then
     find "${build_dir}/${package_name}" "${specs_path}" \( -name "*VERSION*" -o -name "*changelog*" \) -exec sed -i "s/${base_version}/${wazuh_version}/g" {} \;
     sed -i "s/\$(VERSION)/${MAJOR}.${MINOR}/g" "${build_dir}/${build_target}/${package_full_name}/src/Makefile"
 fi
-cp -pr ${specs_path}/wazuh-${build_target}/debian ${sources_dir}/debian
+cp -pr ${specs_path}/dns-overwatch/debian ${sources_dir}/debian
 cp -p ${package_files}/gen_permissions.sh ${sources_dir}
 
 # Generating directory structure to build the .deb package
@@ -113,7 +113,7 @@ else
     linux32 debuild --rootcmd=sudo -ai386 -b -uc -us
 fi
 
-deb_file="wazuh-${build_target}_${wazuh_version}-${package_release}"
+deb_file="dns-overwatch_${wazuh_version}-${package_release}"
 if [[ "${architecture_target}" == "ppc64le" ]]; then
   deb_file="${deb_file}_ppc64el.deb"
 else
