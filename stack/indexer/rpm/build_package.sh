@@ -8,7 +8,7 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-set -ex
+set -e
 
 current_path="$( cd $(dirname $0) ; pwd -P )"
 architecture="x86_64"
