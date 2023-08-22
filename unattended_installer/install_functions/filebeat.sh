@@ -8,7 +8,7 @@
 
 function filebeat_configure(){
 
-    eval "common_curl -so /etc/filebeat/wazuh-template.json ${filebeat_wazuh_template} --max-time 300 --retry 5 --retry-delay 5 --fail ${debug}"
+    eval "common_curl -sSo /etc/filebeat/wazuh-template.json ${filebeat_wazuh_template} --max-time 300 --retry 5 --retry-delay 5 --fail ${debug}"
     if [ ! -f "/etc/filebeat/wazuh-template.json" ]; then
         common_logger -e "Error downloading wazuh-template.json file."
         installCommon_rollBack
@@ -16,7 +16,7 @@ function filebeat_configure(){
     fi
 
     eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
-    eval "common_curl -s ${filebeat_wazuh_module} --max-time 300 --retry 5 --retry-delay 5 --fail | tar -xvz -C /usr/share/filebeat/module ${debug}"
+    eval "common_curl -sS ${filebeat_wazuh_module} --max-time 300 --retry 5 --retry-delay 5 --fail | tar -xvz -C /usr/share/filebeat/module ${debug}"
     if [ ! -d "/usr/share/filebeat/module" ]; then
         common_logger -e "Error downloading wazuh filebeat module."
         installCommon_rollBack
@@ -55,7 +55,7 @@ function filebeat_copyCertificates() {
             if ! tar -tvf "${tar_file}" | grep -q "${server_node_names[0]}" ; then
                 common_logger -e "Tar file does not contain certificate for the node ${server_node_names[0]}."
                 installCommon_rollBack
-                exit 1;
+                exit 1
             fi
             eval "sed -i s/filebeat.pem/${server_node_names[0]}.pem/ /etc/filebeat/filebeat.yml ${debug}"
             eval "sed -i s/filebeat-key.pem/${server_node_names[0]}-key.pem/ /etc/filebeat/filebeat.yml ${debug}"
