@@ -123,7 +123,6 @@ function offline_download() {
       exit 1
     fi
 
-
   done
 
   common_logger "The packages are in ${dest_path}"
