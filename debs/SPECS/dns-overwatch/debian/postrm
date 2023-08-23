@@ -1,5 +1,5 @@
 #!/bin/sh
-# postrm script for wazuh-agent
+# postrm script for dns-overwatch
 # Wazuh, Inc 2015
 
 set -e
