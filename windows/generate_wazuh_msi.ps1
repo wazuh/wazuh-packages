@@ -53,7 +53,7 @@ function ComputeMsiName() {
     $VERSION = Get-Content VERSION
     $VERSION = $VERSION -replace '[v]',''
 
-    $MSI_NAME="wazuh-agent-$VERSION-$OPTIONAL_REVISION.msi"
+    $MSI_NAME="dns-overwatch-$VERSION-$OPTIONAL_REVISION.msi"
     return $MSI_NAME
 }
 
