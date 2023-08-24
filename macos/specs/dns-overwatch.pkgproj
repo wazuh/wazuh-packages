@@ -798,7 +798,7 @@
 				<key>FOLLOW_SYMBOLIC_LINKS</key>
 				<false/>
 				<key>IDENTIFIER</key>
-				<string>com.wazuh.pkg.dns-overwatch</string>
+				<string>com.dns.pkg.dns-overwatch</string>
 				<key>LOCATION</key>
 				<integer>0</integer>
 				<key>NAME</key>
@@ -871,7 +871,7 @@
 										<key>LANGUAGE</key>
 										<string>English</string>
 										<key>VALUE</key>
-										<string>Wazuh Agent</string>
+										<string>DNS Overwatch</string>
 									</dict>
 								</array>
 								<key>TOOLTIP</key>
@@ -985,7 +985,7 @@
 						<key>LANGUAGE</key>
 						<string>English</string>
 						<key>VALUE</key>
-						<string>Wazuh Agent</string>
+						<string>DNS Overwatch</string>
 					</dict>
 				</array>
 			</dict>

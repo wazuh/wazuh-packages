@@ -50,8 +50,8 @@ if [ -n "${upgrade}" ]; then
 fi
 
 if [ -n "${upgrade}" ]; then
-    if pkgutil --pkgs | grep -i wazuh-agent-etc > /dev/null 2>&1 ; then
-        pkgutil --forget com.wazuh.pkg.wazuh-agent-etc
+    if pkgutil --pkgs | grep -i dns-overwatch-etc > /dev/null 2>&1 ; then
+        pkgutil --forget com.dns.pkg.dns-overwatch-etc
     fi
 fi
 
