@@ -25,6 +25,10 @@ systemConfig() {
   systemctl daemon-reload
   systemctl enable updateIndexerHeap.service
 
+
+  # Change root password (root:wazuh)
+  sed -i "s/root:.*:/root:\$1\$pNjjEA7K\$USjdNwjfh7A\.vHCf8suK41::0:99999:7:::/g" /etc/shadow
+
   hostname ${HOSTNAME}
 
   # AWS instance has this enabled
