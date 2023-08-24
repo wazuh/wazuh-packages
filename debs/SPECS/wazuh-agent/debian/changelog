@@ -8,25 +8,25 @@ wazuh-agent (4.5.2-RELEASE) stable; urgency=low
 
   * More info: https://documentation.wazuh.com/current/release-notes/release-4-5-2.html
 
- -- Wazuh, Inc <info@wazuh.com>  Fri, 04 Aug 2023 00:00:00 +0000
+ -- Wazuh, Inc <info@wazuh.com>  Thu, 31 Aug 2023 00:00:00 +0000
 
 wazuh-agent (4.5.1-RELEASE) stable; urgency=low
 
   * More info: https://documentation.wazuh.com/current/release-notes/release-4-5-1.html
 
- -- Wazuh, Inc <info@wazuh.com>  Tue, 01 Aug 2023 15:56:43 +0000
+ -- Wazuh, Inc <info@wazuh.com>  Thu, 24 Aug 2023 15:56:43 +0000
 
 wazuh-agent (4.5.0-RELEASE) stable; urgency=low
 
   * More info: https://documentation.wazuh.com/current/release-notes/release-4-5-0.html
 
- -- Wazuh, Inc <info@wazuh.com>  Fri, 30 Jun 2023 11:56:07 +0000
+ -- Wazuh, Inc <info@wazuh.com>  Thu, 10 Aug 2023 15:56:43 +0000
 
 wazuh-agent (4.4.5-RELEASE) stable; urgency=low
 
   * More info: https://documentation.wazuh.com/current/release-notes/release-4-4-5.html
 
- -- Wazuh, Inc <info@wazuh.com>  Wed, 19 Jul 2023 15:56:43 +0000
+ -- Wazuh, Inc <info@wazuh.com>  Mon, 10 Jul 2023 15:56:43 +0000
 
 wazuh-agent (4.4.4-RELEASE) stable; urgency=low
 
