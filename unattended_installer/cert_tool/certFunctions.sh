@@ -99,7 +99,7 @@ function cert_generateCertificateconfiguration() {
         sed -i '/IP.1/d' "${cert_tmp_path}/${1}.conf"
         for (( i=2; i<=${#@}; i++ )); do
             isIP=$(echo "${!i}" | grep -P "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")
-            isDNS=$(echo "${!i}" | grep -P "^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z-]{2,})+$" )
+            isDNS=$(echo "${!i}" | grep -P "^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])\.([A-Za-z]{2,})$" )
             j=$((i-1))
             if [ "${isIP}" ]; then
                 printf '%s\n' "        IP.${j} = ${!i}" >> "${cert_tmp_path}/${1}.conf"
@@ -330,9 +330,12 @@ function cert_readConfig() {
         all_ips=("${indexer_node_ips[@]}" "${server_node_ips[@]}" "${dashboard_node_ips[@]}")
 
         for ip in "${all_ips[@]}"; do
-            if ! cert_checkPrivateIp "$ip"; then
-                common_logger -e "The IP ${ip} is public."
-                exit 1
+            isIP=$(echo "${ip}" | grep -P "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")
+            if [[ -n "${isIP}" ]]; then
+                if ! cert_checkPrivateIp "$ip"; then
+                    common_logger -e "The IP ${ip} is public."
+                    exit 1
+                fi
             fi
         done
 
