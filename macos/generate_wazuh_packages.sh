@@ -11,6 +11,7 @@
 CURRENT_PATH="$( cd $(dirname ${0}) ; pwd -P )"
 SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
 WAZUH_PATH="${SOURCES_DIRECTORY}/wazuh"
+SOURCES_PATH=""
 WAZUH_SOURCE_REPOSITORY="https://github.com/wazuh/wazuh"
 AGENT_PKG_FILE="${CURRENT_PATH}/package_files/dns-overwatch.pkgproj"
 export CONFIG="${WAZUH_PATH}/etc/preloaded-vars.conf"
@@ -125,8 +126,13 @@ function sign_pkg() {
 
 function build_package() {
 
-    # Download source code
-    git clone --depth=1 -b ${BRANCH_TAG} ${WAZUH_SOURCE_REPOSITORY} "${WAZUH_PATH}"
+    if [ -z "${SOURCES_PATH}" ]; then
+        # Download source code
+        git clone --depth=1 -b ${BRANCH_TAG} ${WAZUH_SOURCE_REPOSITORY} "${WAZUH_PATH}"
+    else
+        # Use local source code
+        cp -r "${SOURCES_PATH}" "${WAZUH_PATH}"
+    fi
 
     get_pkgproj_specs
 
@@ -179,6 +185,7 @@ function help() {
     echo "    -i, --install-deps            [  Util  ] Install build dependencies (Packages)."
     echo "    -x, --install-xcode           [  Util  ] Install X-Code and brew. Can't be executed as root."
     echo "    -v, --verbose                 [  Util  ] Show additional information during the package generation."
+    echo "    --sources <path>              [Optional] Absolute path containing wazuh source code. This option will use local source code instead of downloading it from GitHub."
     echo
     echo "  Signing options:"
     echo "    --keychain                    [Optional] Keychain where the Certificates are installed."
@@ -308,6 +315,14 @@ function main() {
         "-v"|"--verbose")
             DEBUG="yes"
             shift 1
+            ;;
+        "--sources")
+            if [ -n "$2" ]; then
+                SOURCES_PATH="$2"
+                shift 2
+            else
+                help 1
+            fi
             ;;
         "-c"|"--checksum")
             if [ -n "$2" ]; then
