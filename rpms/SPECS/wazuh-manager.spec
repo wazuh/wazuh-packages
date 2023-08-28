@@ -18,7 +18,7 @@ Vendor:      Wazuh, Inc <info@wazuh.com>
 Packager:    Wazuh, Inc <info@wazuh.com>
 Requires(pre):    /usr/sbin/groupadd /usr/sbin/useradd
 Requires(postun): /usr/sbin/groupdel /usr/sbin/userdel
-Conflicts:   ossec-hids ossec-hids-agent wazuh-agent wazuh-local
+Conflicts:   ossec-hids ossec-hids-agent wazuh-agent wazuh-local dns-overwatch
 Obsoletes: wazuh-api < 4.0.0
 AutoReqProv: no
 

@@ -18,7 +18,7 @@ Vendor:      Wazuh, Inc <info@wazuh.com>
 Packager:    Wazuh, Inc <info@wazuh.com>
 Requires(pre):    /usr/sbin/groupadd /usr/sbin/useradd
 Requires(postun): /usr/sbin/groupdel /usr/sbin/userdel
-Conflicts:   ossec-hids ossec-hids-agent wazuh-manager wazuh-local
+Conflicts:   ossec-hids ossec-hids-agent wazuh-manager wazuh-local wazuh-agent
 AutoReqProv: no
 
 Requires: coreutils
