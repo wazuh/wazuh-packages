@@ -8,12 +8,15 @@ DEBUG=$3
 REVISION=$4
 TRUST_VERIFICATION=$5
 CA_NAME=$6
+SOURCES=$7
 ZIP_NAME="windows_agent_${REVISION}.zip"
 
 URL_REPO=https://github.com/wazuh/wazuh/archive/${BRANCH}.zip
 
 # Download the wazuh repository
-wget -O wazuh.zip ${URL_REPO} && unzip wazuh.zip
+if [ ${SOURCES} = "no" ]; then
+    wget -O wazuh.zip ${URL_REPO} && unzip wazuh.zip
+fi
 
 # Compile the wazuh agent for Windows
 FLAGS="-j ${JOBS} IMAGE_TRUST_CHECKS=${TRUST_VERIFICATION} CA_NAME=\"${CA_NAME}\" "

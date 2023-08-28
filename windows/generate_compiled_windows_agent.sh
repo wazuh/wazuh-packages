@@ -8,9 +8,11 @@ OUTDIR="$(pwd)"
 REVISION="1"
 TRUST_VERIFICATION="1"
 CA_NAME="DigiCert Assured ID Root CA"
+SOURCES="no"
 
 DOCKERFILE_PATH="./"
 DOCKER_IMAGE_NAME="compile_windows_agent"
+SOURCES_PATH=""
 TAG=$1
 
 
@@ -22,7 +24,7 @@ generate_compiled_win_agent() {
     fi
 
     docker build -t ${DOCKER_IMAGE_NAME} ./ || exit 1
-    docker run --rm -v ${OUTDIR}:/shared ${DOCKER_IMAGE_NAME} ${BRANCH} ${JOBS} ${DEBUG} ${REVISION} ${TRUST_VERIFICATION} "${CA_NAME}" || exit 1
+    docker run --rm -v ${OUTDIR}:/shared -v ${SOURCES_PATH}:/wazuh-sources ${DOCKER_IMAGE_NAME} ${BRANCH} ${JOBS} ${DEBUG} ${REVISION} ${TRUST_VERIFICATION} "${CA_NAME}" ${SOURCES} || exit 1
     echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
 }
 
@@ -38,6 +40,7 @@ help() {
     echo "    -d, --debug               [Optional] Build the binaries with debug symbols. By default: no."
     echo "    -t, --trust_verification  [Optional] Build the binaries with trust load images verification. By default: 1 (only warnings)."
     echo "    -c, --ca_name <CA name>   [Optional] CA name to be used to verify the trust of the agent. By default: DigiCert Assured ID Root CA."
+    echo "    --sources <path>          [Optional] Absolute path containing wazuh source code. This option will use local source code instead of downloading it from GitHub."
     echo "    -h, --help                Show this help."
     echo
     exit $1
@@ -100,6 +103,15 @@ main() {
         "-c"|"--ca_name")
             if [ -n "$2" ]; then
                 CA_NAME="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
+        "--sources")
+            if [ -n "$2" ]; then
+                SOURCES="yes"
+                SOURCES_PATH="$2"
                 shift 2
             else
                 help 1
