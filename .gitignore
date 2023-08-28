@@ -19,6 +19,7 @@ ova/Config_files/filebeat.yml
 *.pkg.tar.zst
 .gradle
 .java
+filebeat/output
 stack/dashboard/base/output
 stack/indexer/base/output
 .cache
