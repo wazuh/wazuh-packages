@@ -154,7 +154,7 @@ override_dh_fixperms:
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/bin/performance-analyzer-agent
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/performance-analyzer-rca-2.8.0.0.jar
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/sqlite-jdbc-3.32.3.2.jar
+	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/sqlite-jdbc-3.41.2.2.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/log4j-api-2.17.1.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/j2objc-annotations-1.3.jar
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/performance-analyzer-rca/lib/commons-lang3-3.9.jar
