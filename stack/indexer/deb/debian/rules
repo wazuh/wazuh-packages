@@ -1146,8 +1146,6 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/conf/management/jmxremote.access
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/conf/management/management.properties
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/jdk/conf/management/jmxremote.password.template
-	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/etc/
-	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/etc/wazuh-indexer/
 	chmod 750 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/internal_users.yml
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/audit.yml
