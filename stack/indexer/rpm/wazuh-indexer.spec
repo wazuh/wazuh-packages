@@ -1339,27 +1339,27 @@ rm -fr %{buildroot}
 %config(noreplace) %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/nodes_dn.yml
 %config(noreplace) %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/config.yml
 %dir %attr(750, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-notifications/
-%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR})/opensearch-notifications/notifications.yml
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-notifications/notifications.yml
 %config(noreplace) %attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/jvm.options
 %dir %attr(750, %{USER}, %{GROUP}) %{CONFIG_DIR}/jvm.options.d/
 %dir %attr(750, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-reports-scheduler/
 %attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-reports-scheduler/reports-scheduler.yml
 %config(noreplace) %attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/log4j2.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-notifications-core/
-%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR})/opensearch-notifications-core/notifications-core.yml
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-notifications-core/notifications-core.yml
 %config(noreplace) %attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch.yml
 %dir %attr(750, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-observability/
 %attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-observability/observability.yml
 %dir %attr(750, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/
-%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR})/opensearch-performance-analyzer/agent-stats-metadata
-%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR})/opensearch-performance-analyzer/rca_cluster_manager.conf
-%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR})/opensearch-performance-analyzer/rca_idle_cluster_manager.conf
-%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR})/opensearch-performance-analyzer/log4j2.xml
-%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR})/opensearch-performance-analyzer/rca.conf
-%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR})/opensearch-performance-analyzer/performance-analyzer.properties
-%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR})/opensearch-performance-analyzer/plugin-stats-metadata
-%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR})/opensearch-performance-analyzer/supervisord.conf
-%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR})/opensearch-performance-analyzer/opensearch_security.policy
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/agent-stats-metadata
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/rca_cluster_manager.conf
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/rca_idle_cluster_manager.conf
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/log4j2.xml
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/rca.conf
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/performance-analyzer.properties
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/plugin-stats-metadata
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/supervisord.conf
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/opensearch_security.policy
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/config/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/config/agent-stats-metadata
@@ -1422,16 +1422,16 @@ rm -fr %{buildroot}
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/bin/performance-analyzer-agent
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/bin/performance-analyzer-rca
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/
-%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-cli
-%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/systemd-entrypoint
-%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-upgrade
-%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-shard
-%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch
-%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-plugin
-%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-node
-%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-env
-%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-env-from-file
-%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-keystore
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-cli
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/systemd-entrypoint
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-upgrade
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-shard
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-plugin
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-node
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-env
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-env-from-file
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-keystore
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-performance-analyzer/
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-performance-analyzer/performance-analyzer-agent-cli
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-performance-analyzer/performance-analyzer-agent
