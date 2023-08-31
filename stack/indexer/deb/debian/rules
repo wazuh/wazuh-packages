@@ -147,17 +147,7 @@ override_dh_fixperms:
 	chmod 640 $(TARGET_DIR)$(SYS_DIR)/tmpfiles.d/$(NAME).conf
 	chown root:root $(TARGET_DIR)$(SYS_DIR)/tmpfiles.d/$(NAME).conf
 
-		chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/
-	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/usr/
-	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/usr/lib/
-	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/usr/lib/tmpfiles.d/
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/usr/lib/tmpfiles.d/wazuh-indexer.conf
-	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/usr/lib/sysctl.d/
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/usr/lib/sysctl.d/wazuh-indexer.conf
-	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/usr/lib/systemd/
-	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/usr/lib/systemd/system/
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/usr/lib/systemd/system/wazuh-indexer.service
-	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/usr/lib/systemd/system/wazuh-indexer-performance-analyzer.service
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/
 	chmod 640 $(TARGET_DIR)$(INSTALLATION_DIR)/NOTICE.txt
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-job-scheduler/
