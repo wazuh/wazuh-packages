@@ -58,7 +58,7 @@ find -type l -exec rm -rf {} \;
 find -name "*.bat" -exec rm -rf {} \;
 rm -rf README.md manifest.yml opensearch-tar-install.sh logs
 sed -i 's|OPENSEARCH_DISTRIBUTION_TYPE=tar|OPENSEARCH_DISTRIBUTION_TYPE=rpm|g' bin/opensearch-env
-sed -i 's|"$OPENSEARCH_HOME"/config|/etc/wazuh-indexer|g' bin/opensearch-env 
+sed -i 's|"$OPENSEARCH_HOME"/config|/etc/wazuh-indexer|g' bin/opensearch-env
 cp -r /root/stack/indexer/base/files/systemd-entrypoint bin/
 mkdir -p ./etc/wazuh-indexer/
 cp -r ./config/* ./etc/wazuh-indexer/
@@ -84,6 +84,12 @@ cp build/generated-resources/plugin-descriptor.properties "${base_dir}"/modules/
 sed -i 's|-SNAPSHOT||g' "${base_dir}"/modules/systemd/plugin-descriptor.properties
 cd "${base_dir}"
 rm -rf OpenSearch
+
+find -type d -exec chmod 750 {} \;
+find -type f -perm 644 -exec chmod 640 {} \;
+find -type f -perm 664 -exec chmod 660 {} \;
+find -type f -perm 755 -exec chmod 750 {} \;
+find -type f -perm 744 -exec chmod 740 {} \;
 
 # -----------------------------------------------------------------------------
 
