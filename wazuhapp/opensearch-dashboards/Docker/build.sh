@@ -54,7 +54,7 @@ prepare_env() {
     fi
 
     if ! curl $wazuh_app_nvmrc_url -o "/tmp/.nvmrc" ; then
-        echo "Error downloading package.json from GitHub."
+        echo "Error downloading .nvmrc from GitHub."
         exit 1
     fi
     wazuh_version=$(python -c 'import json, os; f=open("/tmp/package.json"); pkg=json.load(f); f.close();\
@@ -71,8 +71,7 @@ prepare_env() {
         exit 1
     fi
 
-    plugin_platform_node_version=$(python -c 'import json, os; f=open("/tmp/.nvmrc"); pkg=f.readline(); f.close();\
-                          print(pkg)')
+    plugin_platform_node_version=$(cat /tmp/.nvmrc)
 
     plugin_platform_yarn_version=$(python -c 'import json, os; f=open("/tmp/package.json"); pkg=json.load(f); f.close();\
                           print(str(pkg["engines"]["yarn"]).replace("^",""))')
