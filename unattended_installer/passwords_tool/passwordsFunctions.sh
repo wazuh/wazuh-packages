@@ -48,7 +48,7 @@ function passwords_changePassword() {
     if [ "${nuser}" == "admin" ] || [ -n "${changeall}" ]; then
         if [ -n "${filebeat_installed}" ]; then
             if filebeat keystore list | grep -q password ; then
-                eval "echo ${adminpass} | filebeat keystore add password --force --stdin ${debug}"
+                eval "(echo ${adminpass} | filebeat keystore add password --force --stdin)" "${debug}"
             else
                 wazuhold=$(grep "password:" /etc/filebeat/filebeat.yml )
                 ra="  password: "
