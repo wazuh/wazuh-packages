@@ -54,6 +54,7 @@ useradd -g %{GROUP} %{USER}
 %build
 
 tar -xf %{DASHBOARD_FILE}
+sed -i "s/cross_platform_1.REPO_ROOT\, 'config\//'\/etc\/wazuh-dashboard\/', '/g" "wazuh-dashboard-base/node_modules/@osd/utils/target/path/index.js"
 
 # -----------------------------------------------------------------------------
 
