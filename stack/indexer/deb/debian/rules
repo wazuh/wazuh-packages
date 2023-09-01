@@ -149,7 +149,6 @@ override_dh_fixperms:
 	chown root:root $(TARGET_DIR)$(SYS_DIR)/tmpfiles.d/$(NAME).conf
 
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)
-	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/extensions
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/jvm.options
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch.yml
 	chmod 750 $(TARGET_DIR)$(CONFIG_DIR)/jvm.options.d
