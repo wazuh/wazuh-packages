@@ -1839,6 +1839,198 @@
         "type": "file",
         "user": "root"
     },
+    "/var/ossec/wodles/aws/__init__.py": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/wodles/aws/aws_tools.py": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/wodles/aws/wazuh_integration.py": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/wodles/aws/buckets_s3": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "drwxr-x---",
+        "type": "directory",
+        "user": "root"
+    },
+    "/var/ossec/wodles/aws/buckets_s3/__init__.py": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/wodles/aws/buckets_s3/aws_bucket.py": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/wodles/aws/buckets_s3/cloudtrail.py": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/wodles/aws/buckets_s3/config.py": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/wodles/aws/buckets_s3/guardduty.py": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/wodles/aws/buckets_s3/load_balancers.py": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/wodles/aws/buckets_s3/server_access.py": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/wodles/aws/buckets_s3/umbrella.py": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/wodles/aws/buckets_s3/vpcflow.py": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/wodles/aws/buckets_s3/waf.py": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/wodles/aws/services": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "drwxr-x---",
+        "type": "directory",
+        "user": "root"
+    },
+    "/var/ossec/wodles/aws/services/__init__.py": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/wodles/aws/services/was_service.py": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/wodles/aws/services/cloudwatchlogs.py": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/wodles/aws/services/inspector.py": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/wodles/aws/subscribers": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "drwxr-x---",
+        "type": "directory",
+        "user": "root"
+    },
+    "/var/ossec/wodles/aws/subscribers/__init__.py": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/wodles/aws/subscribers/s3_log_handler.py": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/wodles/aws/subscribers/sqs_message_processor.py": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
+    "/var/ossec/wodles/aws/subscribers/sqs_queue.pyv": {
+        "class": "static",
+        "group": "wazuh",
+        "mode": "0750",
+        "prot": "-rwxr-x---",
+        "type": "file",
+        "user": "root"
+    },
     "/var/ossec/wodles/azure": {
         "class": "static",
         "group": "wazuh",
