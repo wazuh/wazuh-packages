@@ -133,17 +133,21 @@ override_dh_fixperms:
 	chown -R $(USER):$(GROUP) $(TARGET_DIR)$(LIB_DIR)
 	chmod 750 $(TARGET_DIR)$(LOG_DIR)
 	chown -R $(USER):$(GROUP) $(TARGET_DIR)$(LOG_DIR)
+
+
 	chmod 660 $(TARGET_DIR)/etc/default/$(NAME)
 	chown root:$(GROUP) $(TARGET_DIR)/etc/default/$(NAME)
 	chmod 750 $(TARGET_DIR)/etc/init.d/$(NAME)
 	chown root:root $(TARGET_DIR)/etc/init.d/$(NAME)
-	chown root:root $(TARGET_DIR)$(SYS_DIR)/sysctl.d/$(NAME).conf
-	chown root:root $(TARGET_DIR)$(SYS_DIR)/systemd/system/$(NAME).service
+	chmod 640 $(TARGET_DIR)$(SYS_DIR)/sysctl.d/$(NAME).conf	
+	chown root:root $(TARGET_DIR)$(SYS_DIR)/sysctl.d/$(NAME).conf	
 	chmod 640 $(TARGET_DIR)$(SYS_DIR)/systemd/system/$(NAME).service
-	chown root:root $(TARGET_DIR)$(SYS_DIR)/systemd/system/$(NAME)-performance-analyzer.service
+	chown root:root $(TARGET_DIR)$(SYS_DIR)/systemd/system/$(NAME).service
 	chmod 640 $(TARGET_DIR)$(SYS_DIR)/systemd/system/$(NAME)-performance-analyzer.service
+	chown root:root $(TARGET_DIR)$(SYS_DIR)/systemd/system/$(NAME)-performance-analyzer.service
 	chmod 640 $(TARGET_DIR)$(SYS_DIR)/tmpfiles.d/$(NAME).conf
 	chown root:root $(TARGET_DIR)$(SYS_DIR)/tmpfiles.d/$(NAME).conf
+
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/jvm.options
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch.yml
