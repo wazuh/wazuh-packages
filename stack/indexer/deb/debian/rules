@@ -150,7 +150,7 @@ override_dh_fixperms:
 
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/jvm.options
-	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/aggs-matrix-stats
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/aggs-matrix-stats
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch.yml
 	chmod 750 $(TARGET_DIR)$(CONFIG_DIR)/jvm.options.d
 	chmod 440 $(TARGET_DIR)$(INSTALLATION_DIR)/VERSION
