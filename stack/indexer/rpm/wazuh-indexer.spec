@@ -870,7 +870,7 @@ rm -fr %{buildroot}
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/rank-eval/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/rank-eval/rank-eval-client-2.8.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/rank-eval/plugin-descriptor.properties
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/aggs-matrix-stats/
+%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/aggs-matrix-stats/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/aggs-matrix-stats/aggs-matrix-stats-client-2.8.0.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/aggs-matrix-stats/plugin-descriptor.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/geo/
@@ -923,10 +923,10 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/commons-logging-1.2.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/httpcore-nio-4.4.15.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/reindex-client-2.8.0.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/transport-netty4/
+%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/transport-netty4/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/transport-netty4/plugin-security.policy
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/transport-netty4/plugin-descriptor.properties
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/parent-join/
+%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/parent-join/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/parent-join/plugin-descriptor.properties
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/httpcore-4.4.15.jar
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/plugin-security.policy
@@ -1303,7 +1303,7 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.desktop/mesa3d.md
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.desktop/giflib.md
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.desktop/lcms.md
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.jlink/
+%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.jlink/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/security/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/security/java.policy
