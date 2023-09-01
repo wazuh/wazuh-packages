@@ -1126,7 +1126,7 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libprefs.so
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libjaas.so
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libjawt.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/jspawnhelper
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/jspawnhelper
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libjdwp.so
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libawt.so
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/psfont.properties.ja
