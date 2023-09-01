@@ -47,7 +47,7 @@ function installCommon_addWazuhRepo() {
                 common_logger -e "Cannot import Wazuh GPG key"
                 exit 1
             fi
-            eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-\${releasever} - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo ${debug}"
+            eval "(echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-\${releasever} - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo)" "${debug}"
             eval "chmod 644 /etc/yum.repos.d/wazuh.repo ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "common_curl -s ${repogpg} --max-time 300 --retry 5 --retry-delay 5 --fail | gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import - ${debug}"
@@ -56,7 +56,7 @@ function installCommon_addWazuhRepo() {
                 exit 1
             fi
             eval "chmod 644 /usr/share/keyrings/wazuh.gpg ${debug}"
-            eval "echo \"deb [signed-by=/usr/share/keyrings/wazuh.gpg] ${repobaseurl}/apt/ ${reporelease} main\" | tee /etc/apt/sources.list.d/wazuh.list ${debug}"
+            eval "(echo \"deb [signed-by=/usr/share/keyrings/wazuh.gpg] ${repobaseurl}/apt/ ${reporelease} main\" | tee /etc/apt/sources.list.d/wazuh.list)" "${debug}"
             eval "apt-get update -q ${debug}"
             eval "chmod 644 /etc/apt/sources.list.d/wazuh.list ${debug}"
         fi
