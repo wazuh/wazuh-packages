@@ -139,8 +139,8 @@ override_dh_fixperms:
 	chown root:$(GROUP) $(TARGET_DIR)/etc/default/$(NAME)
 	chmod 750 $(TARGET_DIR)/etc/init.d/$(NAME)
 	chown root:root $(TARGET_DIR)/etc/init.d/$(NAME)
-	chmod 640 $(TARGET_DIR)$(SYS_DIR)/sysctl.d/$(NAME).conf	
-	chown root:root $(TARGET_DIR)$(SYS_DIR)/sysctl.d/$(NAME).conf	
+	chmod 640 $(TARGET_DIR)$(SYS_DIR)/sysctl.d/$(NAME).conf
+	chown root:root $(TARGET_DIR)$(SYS_DIR)/sysctl.d/$(NAME).conf
 	chmod 640 $(TARGET_DIR)$(SYS_DIR)/systemd/system/$(NAME).service
 	chown root:root $(TARGET_DIR)$(SYS_DIR)/systemd/system/$(NAME).service
 	chmod 640 $(TARGET_DIR)$(SYS_DIR)/systemd/system/$(NAME)-performance-analyzer.service
@@ -153,6 +153,9 @@ override_dh_fixperms:
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch.yml
 	chmod 750 $(TARGET_DIR)$(CONFIG_DIR)/jvm.options.d
 	chmod 440 $(TARGET_DIR)$(INSTALLATION_DIR)/VERSION
+
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/indexer-security-init.sh
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/systemd-entrypoint
 
 	find "$(TARGET_DIR)$(INSTALLATION_DIR)" -type d -exec chmod 750 {} \;
 	find "$(TARGET_DIR)$(INSTALLATION_DIR)" -type f -perm 644 -exec chmod 640 {} \;
