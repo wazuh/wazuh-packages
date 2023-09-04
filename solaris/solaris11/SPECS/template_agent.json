@@ -1967,7 +1967,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/wodles/aws/services/was_service.py": {
+    "/var/ossec/wodles/aws/services/aws_service.py": {
         "class": "static",
         "group": "wazuh",
         "mode": "0750",
@@ -2023,7 +2023,7 @@
         "type": "file",
         "user": "root"
     },
-    "/var/ossec/wodles/aws/subscribers/sqs_queue.pyv": {
+    "/var/ossec/wodles/aws/subscribers/sqs_queue.py": {
         "class": "static",
         "group": "wazuh",
         "mode": "0750",
