@@ -53,7 +53,7 @@ jobs:
             deb_images:
               - 'debs/Debian/**'
               - 'debs/build.sh'
-            deb_images_i386:
+            deb_images_agent_i386:
               - 'debs/Debian/7/i386/**'
               - 'debs/build.sh'
             deb_images_amd64:
@@ -65,14 +65,14 @@ jobs:
               - 'debs/generate_debian_package.sh'
 
       - name: Setup directories and variables
-        if: steps.changes.outputs.deb_packages == 'true' || (steps.changes.outputs.deb_images_i386 == 'true' && matrix.ARCHITECTURE == 'i386') || (steps.changes.outputs.deb_images_amd64 == 'true' && matrix.ARCHITECTURE == 'amd64')
+        if: steps.changes.outputs.deb_packages == 'true' || (steps.changes.outputs.deb_images_agent_i386 == 'true' && matrix.ARCHITECTURE == 'i386') || (steps.changes.outputs.deb_images_amd64 == 'true' && matrix.ARCHITECTURE == 'amd64')
         run: |
           VERSION=$(cat $GITHUB_WORKSPACE/VERSION)
           REVISION=$( echo ${{ github.head_ref }})
           echo "PACKAGE_NAME=wazuh-${{ matrix.type }}_${VERSION}-${REVISION}_${{ matrix.arch }}.deb" >> $GITHUB_ENV
 
       - name: Download the Wazuh ${{ matrix.type }} package for ${{ matrix.system.NAME }}
-        if: steps.changes.outputs.deb_packages == 'true' || (steps.changes.outputs.deb_images_i386 == 'true' && matrix.ARCHITECTURE == 'i386') || (steps.changes.outputs.deb_images_amd64 == 'true' && matrix.ARCHITECTURE == 'amd64')
+        if: steps.changes.outputs.deb_packages == 'true' || (steps.changes.outputs.deb_images_agent_i386 == 'true' && matrix.ARCHITECTURE == 'i386') || (steps.changes.outputs.deb_images_amd64 == 'true' && matrix.ARCHITECTURE == 'amd64')
         id: download-artifact
         continue-on-error: true
         uses: dawidd6/action-download-artifact@v2
@@ -83,11 +83,11 @@ jobs:
           if_no_artifact_found: fail
 
       - name: Move the Wazuh ${{ matrix.type }} package for ${{ matrix.distro_name }} to the packages directory
-        if: steps.changes.outputs.deb_packages == 'true' || (steps.changes.outputs.deb_images_i386 == 'true' && matrix.ARCHITECTURE == 'i386') || (steps.changes.outputs.deb_images_amd64 == 'true' && matrix.ARCHITECTURE == 'amd64')
+        if: steps.changes.outputs.deb_packages == 'true' || (steps.changes.outputs.deb_images_agent_i386 == 'true' && matrix.ARCHITECTURE == 'i386') || (steps.changes.outputs.deb_images_amd64 == 'true' && matrix.ARCHITECTURE == 'amd64')
         run: |
           mkdir $GITHUB_WORKSPACE/packages
           mv ${{env.PACKAGE_NAME}} $GITHUB_WORKSPACE/packages
 
       - name: Launch docker
-        if: steps.changes.outputs.deb_packages == 'true' || (steps.changes.outputs.deb_images_i386 == 'true' && matrix.ARCHITECTURE == 'i386') || (steps.changes.outputs.deb_images_amd64 == 'true' && matrix.ARCHITECTURE == 'amd64')
+        if: steps.changes.outputs.deb_packages == 'true' || (steps.changes.outputs.deb_images_agent_i386 == 'true' && matrix.ARCHITECTURE == 'i386') || (steps.changes.outputs.deb_images_amd64 == 'true' && matrix.ARCHITECTURE == 'amd64')
         run: sudo docker run -v $GITHUB_WORKSPACE/.github/actions/test-install-components/:/tests -v $GITHUB_WORKSPACE/packages/:/packages ${{ matrix.arch }}/${{ matrix.distro_name }} bash /tests/install_component.sh $PACKAGE_NAME ${{ matrix.type }}
