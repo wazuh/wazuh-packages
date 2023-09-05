@@ -62,7 +62,7 @@ jobs:
             rpm_images:
               - 'rpms/CentOS/**'
               - 'rpms/build.sh'
-              rpm_images_agent_i386:
+            rpm_images_agent_i386:
               - 'rpms/CentOS/6/i386/**'
               - 'rpms/build.sh'
             rpm_images_x86_64:
