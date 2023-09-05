@@ -54,6 +54,7 @@ useradd -g %{GROUP} %{USER}
 %build
 
 tar -xf %{DASHBOARD_FILE}
+sed -i "s/cross_platform_1.REPO_ROOT\, 'config\//'\/etc\/wazuh-dashboard\/', '/g" "wazuh-dashboard-base/node_modules/@osd/utils/target/path/index.js"
 
 # -----------------------------------------------------------------------------
 
@@ -391,6 +392,7 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) "%{INSTALL_DIR}/LICENSE.txt"
 %attr(640, %{USER}, %{GROUP}) "%{INSTALL_DIR}/NOTICE.txt"
 %attr(640, %{USER}, %{GROUP}) "%{INSTALL_DIR}/README.txt"
+%attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/bin/use_node"
 %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/bin/opensearch-dashboards"
 %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/bin/opensearch-dashboards-plugin"
 %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/bin/opensearch-dashboards-keystore"
