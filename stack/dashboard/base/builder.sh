@@ -90,11 +90,8 @@ cp ./etc/styles.js ./src/core/server/rendering/views/styles.js
 sed -i "s|defaultValue: ''|defaultValue: \'Wazuh\'|g" ./src/core/server/opensearch_dashboards_config.js
 sed -i "90s|defaultValue: true|defaultValue: false|g" ./src/core/server/opensearch_dashboards_config.js
 # Replace config path
-sed -i "s'\$DIR/config'/etc/wazuh-dashboard'g" ./bin/opensearch-dashboards
 sed -i "s'\$DIR/config'/etc/wazuh-dashboard'g" ./bin/opensearch-dashboards-keystore
 sed -i "s'\$DIR/config'/etc/wazuh-dashboard'g" ./bin/opensearch-dashboards-plugin
-sed -i "s'NODE_OPTIONS=\"--no-warnings --max-http-header-size=65536 \$OSD_NODE_OPTS \$NODE_OPTIONS\" NODE_ENV=production exec \"\${NODE}\" \"\${DIR}/src/cli/dist\" \${@}'NODE_OPTIONS=\"--no-warnings --max-http-header-size=65536 \$OSD_NODE_OPTS \$NODE_OPTIONS\"'g" ./bin/opensearch-dashboards
-echo "NODE_ENV=production exec \"\${NODE}\" \${NODE_OPTIONS} \"\${DIR}/src/cli/dist\" \${@}" >> ./bin/opensearch-dashboards
 # Replace the redirection to `home` in the header logo
 sed -i "s'/app/home'/app/wazuh'g" ./src/core/target/public/core.entry.js
 # Replace others redirections to `home`

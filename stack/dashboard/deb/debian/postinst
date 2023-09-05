@@ -36,7 +36,7 @@ case "$1" in
                 service wazuh-dashboard restart > /dev/null 2>&1
             fi
         fi
-        if [ ! -f "${INSTALLATION_DIR}"/config/opensearch_dashboards.keystore ]; then
+        if [ ! -f "${CONFIG_DIR}"/opensearch_dashboards.keystore ]; then
             runuser "${NAME}" --shell="/bin/bash" --command="${INSTALLATION_DIR}/bin/opensearch-dashboards-keystore create" > /dev/null 2>&1
             runuser "${NAME}" --shell="/bin/bash" --command="echo kibanaserver | ${INSTALLATION_DIR}/bin/opensearch-dashboards-keystore add opensearch.username --stdin" > /dev/null 2>&1
             runuser "${NAME}" --shell="/bin/bash" --command="echo kibanaserver | ${INSTALLATION_DIR}/bin/opensearch-dashboards-keystore add opensearch.password --stdin" > /dev/null 2>&1
