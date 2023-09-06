@@ -405,7 +405,6 @@ rm -fr %{buildroot}
 %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/bin/opensearch-dashboards-keystore"
 %dir %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/config"
 %attr(640, %{USER}, %{GROUP}) "%{CONFIG_DIR}/node.options"
-%attr(640, %{USER}, %{GROUP}) "%{CONFIG_DIR}/opensearch-dashboards.keystore"
 %attr(640, root, root) "/etc/systemd/system/wazuh-dashboard.service"
 
 %changelog
