@@ -124,7 +124,7 @@ function cert_generateIndexercertificates() {
 
         for i in "${!indexer_node_names[@]}"; do
             indexer_node_name=${indexer_node_names[$i]}
-            cert_generateCertificateconfiguration "${indexer_node_name}" "${indexer_node_ips[i]}"
+            cert_generateCertificateconfiguration "${indexer_node_name}" "${indexer_node_dns[i]}"
             eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${cert_tmp_path}/${indexer_node_name}-key.pem -out ${cert_tmp_path}/${indexer_node_name}.csr -config ${cert_tmp_path}/${indexer_node_name}.conf -days 3650 ${debug}"
             eval "openssl x509 -req -in ${cert_tmp_path}/${indexer_node_name}.csr -CA ${cert_tmp_path}/root-ca.pem -CAkey ${cert_tmp_path}/root-ca.key -CAcreateserial -out ${cert_tmp_path}/${indexer_node_name}.pem -extfile ${cert_tmp_path}/${indexer_node_name}.conf -extensions v3_req -days 3650 ${debug}"
         done
@@ -142,8 +142,8 @@ function cert_generateFilebeatcertificates() {
         for i in "${!server_node_names[@]}"; do
             server_name="${server_node_names[i]}"
             j=$((i+1))
-            declare -a server_ips=(server_node_ip_"$j"[@])
-            cert_generateCertificateconfiguration "${server_name}" "${!server_ips}"
+            declare -a server_dns=(server_node_dns_"$j"[@])
+            cert_generateCertificateconfiguration "${server_name}" "${!server_dns}"
             eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${cert_tmp_path}/${server_name}-key.pem -out ${cert_tmp_path}/${server_name}.csr  -config ${cert_tmp_path}/${server_name}.conf -days 3650 ${debug}"
             eval "openssl x509 -req -in ${cert_tmp_path}/${server_name}.csr -CA ${cert_tmp_path}/root-ca.pem -CAkey ${cert_tmp_path}/root-ca.key -CAcreateserial -out ${cert_tmp_path}/${server_name}.pem -extfile ${cert_tmp_path}/${server_name}.conf -extensions v3_req -days 3650 ${debug}"
         done
@@ -160,7 +160,7 @@ function cert_generateDashboardcertificates() {
 
         for i in "${!dashboard_node_names[@]}"; do
             dashboard_node_name="${dashboard_node_names[i]}"
-            cert_generateCertificateconfiguration "${dashboard_node_name}" "${dashboard_node_ips[i]}"
+            cert_generateCertificateconfiguration "${dashboard_node_name}" "${dashboard_node_dns[i]}"
             eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${cert_tmp_path}/${dashboard_node_name}-key.pem -out ${cert_tmp_path}/${dashboard_node_name}.csr -config ${cert_tmp_path}/${dashboard_node_name}.conf -days 3650 ${debug}"
             eval "openssl x509 -req -in ${cert_tmp_path}/${dashboard_node_name}.csr -CA ${cert_tmp_path}/root-ca.pem -CAkey ${cert_tmp_path}/root-ca.key -CAcreateserial -out ${cert_tmp_path}/${dashboard_node_name}.pem -extfile ${cert_tmp_path}/${dashboard_node_name}.conf -extensions v3_req -days 3650 ${debug}"
         done
@@ -185,11 +185,11 @@ function cert_parseYaml() {
     local indexfix
     # Detect awk flavor
     if awk --version 2>&1 | grep -q "GNU Awk" ; then
-    # GNU Awk detected
-    indexfix=-1
+        # GNU Awk detected
+        indexfix=-1
     elif awk -Wv 2>&1 | grep -q "mawk" ; then
-    # mawk detected
-    indexfix=0
+        # mawk detected
+        indexfix=0
     fi
 
     local s='[[:space:]]*' sm='[ \t]*' w='[a-zA-Z0-9_]*' fs=${fs:-$(echo @|tr @ '\034')} i=${i:-  }
@@ -209,7 +209,7 @@ function cert_parseYaml() {
                 if (multi==2){
                     if(match(\$0,/^$sm$/))
                         obuf=obuf \"\\\\n\";
-                        else obuf=obuf \" \";
+                    else obuf=obuf \" \";
                 }
                 getline;
             }
@@ -219,7 +219,7 @@ function cert_parseYaml() {
             if(match(\$0,/$sm\|$sm$/)){multi=1; sub(/$sm\|$sm$/,\"\");}
             if(match(\$0,/$sm>$sm$/)){multi=2; sub(/$sm>$sm$/,\"\");}
         }
-    print}" | \
+        print}" | \
     sed  -e "s|^\($s\)?|\1-|" \
         -ne "s|^$s#.*||;s|$s#[^\"']*$||;s|^\([^\"'#]*\)#.*|\1|;t1;t;:1;s|^$s\$||;t2;p;:2;d" | \
     sed -ne "s|,$s\]$s\$|]|" \
@@ -239,7 +239,7 @@ function cert_parseYaml() {
         -e "s|^\($s\)\(\.\.\.\)\($s\)||" \
         -e "s|^\($s\)-$s[\"']\(.*\)[\"']$s\$|\1$fs$fs\2|p;t" \
         -e "s|^\($s\)\($w\)$s:$s[\"']\(.*\)[\"']$s\$|\1$fs\2$fs\3|p;t" \
-        -e "s|^\($s\)-$s\(.*\)$s\$|\1$fs$fs\2|" \
+        -e "s|^\($s\)-$s\([$w]*\)$s[\"']\?\(.*\)$s\$|\1$fs$fs\3|" \
         -e "s|^\($s\)\($w\)$s:$s[\"']\?\(.*\)$s\$|\1$fs\2$fs\3|" \
         -e "s|^\($s\)[\"']\?\([^&][^$fs]\+\)[\"']$s\$|\1$fs$fs$fs\2|" \
         -e "s|^\($s\)[\"']\?\([^&][^$fs]\+\)$s\$|\1$fs$fs$fs\2|" \
@@ -247,6 +247,7 @@ function cert_parseYaml() {
     awk -F$fs "{
         gsub(/\t/,\"        \",\$1);
         gsub(\"name: \", \"\");
+        gsub(\"dns: \", \"\"); # Replace "dns:" with "ip:" here
         if(NF>3){if(value!=\"\"){value = value \" \";}value = value  \$4;}
         else {
         if(match(\$1,/^&/)){anchor[substr(\$1,2)]=full_vn;getline};
@@ -282,6 +283,8 @@ function cert_parseYaml() {
             }
         }
     } else if (length(value) > 0) {
+        gsub(\":\", \"\", value);
+        gsub(/^[[:space:]]+|[[:space:]]+$/, \"\", value);
         printf(\"%s=\\\"%s\\\"\n\", full_vn, value);
     }
     }END{
@@ -306,15 +309,15 @@ function cert_readConfig() {
         eval "indexer_node_names=( $(cert_parseYaml "${config_file}" | grep -E "nodes[_]+indexer[_]+[0-9]+=" | cut -d = -f 2 ) )"
         eval "server_node_names=( $(cert_parseYaml "${config_file}"  | grep -E "nodes[_]+server[_]+[0-9]+=" | cut -d = -f 2 ) )"
         eval "dashboard_node_names=( $(cert_parseYaml "${config_file}" | grep -E "nodes[_]+dashboard[_]+[0-9]+=" | cut -d = -f 2) )"
-        eval "indexer_node_ips=( $(cert_parseYaml "${config_file}" | grep -E "nodes[_]+indexer[_]+[0-9]+[_]+ip=" | cut -d = -f 2) )"
-        eval "server_node_ips=( $(cert_parseYaml "${config_file}"  | grep -E "nodes[_]+server[_]+[0-9]+[_]+ip=" | cut -d = -f 2) )"
-        eval "dashboard_node_ips=( $(cert_parseYaml "${config_file}"  | grep -E "nodes[_]+dashboard[_]+[0-9]+[_]+ip=" | cut -d = -f 2 ) )"
+        eval "indexer_node_dns=( $(cert_parseYaml "${config_file}" | grep -E "nodes[_]+indexer[_]+[0-9]+[_]+dns=" | cut -d = -f 2) )"
+        eval "server_node_dns=( $(cert_parseYaml "${config_file}"  | grep -E "nodes[_]+server[_]+[0-9]+[_]+dns=" | cut -d = -f 2) )"
+        eval "dashboard_node_dns=( $(cert_parseYaml "${config_file}"  | grep -E "nodes[_]+dashboard[_]+[0-9]+[_]+dns=" | cut -d = -f 2 ) )"
         eval "server_node_types=( $(cert_parseYaml "${config_file}"  | grep -E "nodes[_]+server[_]+[0-9]+[_]+node_type=" | cut -d = -f 2 ) )"
-        eval "number_server_ips=( $(cert_parseYaml "${config_file}" | grep -o -E 'nodes[_]+server[_]+[0-9]+[_]+ip' | sort -u | wc -l) )"
+        eval "number_server_dns=( $(cert_parseYaml "${config_file}" | grep -o -E 'nodes[_]+server[_]+[0-9]+[_]+dns' | sort -u | wc -l) )"
 
-        for i in $(seq 1 "${number_server_ips}"); do
-            nodes_server="nodes[_]+server[_]+${i}[_]+ip"
-            eval "server_node_ip_$i=( $( cert_parseYaml "${config_file}" | grep -E "${nodes_server}" | sed '/\./!d' | cut -d = -f 2 | sed -r 's/\s+//g') )"
+        for i in $(seq 1 "${number_server_dns}"); do
+            nodes_server="nodes[_]+server[_]+${i}[_]+dns"
+            eval "server_node_dns_$i=( $( cert_parseYaml "${config_file}" | grep -E "${nodes_server}" | sed '/\./!d' | cut -d = -f 2 | sed -r 's/\s+//g') )"
         done
 
         unique_names=($(echo "${indexer_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
@@ -323,9 +326,9 @@ function cert_readConfig() {
             exit 1
         fi
 
-        unique_ips=($(echo "${indexer_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
-        if [ "${#unique_ips[@]}" -ne "${#indexer_node_ips[@]}" ]; then 
-            common_logger -e "Duplicated indexer node ips."
+        unique_dns=($(echo "${indexer_node_dns[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+        if [ "${#unique_dns[@]}" -ne "${#indexer_node_dns[@]}" ]; then 
+            common_logger -e "Duplicated indexer node DNS."
             exit 1
         fi
 
@@ -335,9 +338,9 @@ function cert_readConfig() {
             exit 1
         fi
 
-        unique_ips=($(echo "${server_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
-        if [ "${#unique_ips[@]}" -ne "${#server_node_ips[@]}" ]; then 
-            common_logger -e "Duplicated Wazuh server node ips."
+        unique_dns=($(echo "${indexer_node_dns[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+        if [ "${#unique_dns[@]}" -ne "${#indexer_node_dns[@]}" ]; then 
+            common_logger -e "Duplicated Wazuh server node DNS."
             exit 1
         fi
 
@@ -347,9 +350,9 @@ function cert_readConfig() {
             exit 1
         fi
 
-        unique_ips=($(echo "${dashboard_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
-        if [ "${#unique_ips[@]}" -ne "${#dashboard_node_ips[@]}" ]; then
-            common_logger -e "Duplicated dashboard node ips."
+        unique_dns=($(echo "${dashboard_node_dns[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+        if [ "${#unique_dns[@]}" -ne "${#dashboard_node_dns[@]}" ]; then
+            common_logger -e "Duplicated dashboard node DNS."
             exit 1
         fi
 
@@ -379,8 +382,8 @@ function cert_readConfig() {
             exit 1
         fi
 
-        if [ "${#dashboard_node_names[@]}" -ne "${#dashboard_node_ips[@]}" ]; then
-            common_logger -e "Different number of dashboard node names and IPs."
+        if [ "${#dashboard_node_names[@]}" -ne "${#dashboard_node_dns[@]}" ]; then
+            common_logger -e "Different number of dashboard node names and DNS."
             exit 1
         fi
 
