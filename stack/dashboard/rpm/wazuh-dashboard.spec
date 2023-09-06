@@ -136,16 +136,6 @@ fi
 %post
 setcap 'cap_net_bind_service=+ep' %{INSTALL_DIR}/node/bin/node
 
-# Move keystore file if upgrade (file exists in install dir in <= 4.6.0)
-if [ -f "${INSTALLATION_DIR}"/opensearch_dashboards.keystore ]; then
-  mv "${INSTALLATION_DIR}"/opensearch_dashboards.keystore "${CONFIG_DIR}"/opensearch_dashboards.keystore
-elif [ ! -f %{CONFIG_DIR}/opensearch_dashboards.keystore ]; then
-  runuser %{USER} --shell="/bin/bash" --command="%{INSTALL_DIR}/bin/opensearch-dashboards-keystore create" > /dev/null 2>&1
-  runuser %{USER} --shell="/bin/bash" --command="echo kibanaserver | %{INSTALL_DIR}/bin/opensearch-dashboards-keystore add opensearch.username --stdin" > /dev/null 2>&1
-  runuser %{USER} --shell="/bin/bash" --command="echo kibanaserver | %{INSTALL_DIR}/bin/opensearch-dashboards-keystore add opensearch.password --stdin" > /dev/null 2>&1
-  chmod 640 "%{CONFIG_DIR}"/opensearch_dashboards.keystore
-fi
-
 # -----------------------------------------------------------------------------
 
 %preun
@@ -189,6 +179,16 @@ fi
 if [ ! -d %{PID_DIR} ]; then
     mkdir -p %{PID_DIR}
     chown %{USER}:%{GROUP} %{PID_DIR}
+fi
+
+# Move keystore file if upgrade (file exists in install dir in <= 4.6.0)
+if [ -f "%{INSTALL_DIR}"/config/opensearch_dashboards.keystore ]; then
+  mv "%{INSTALL_DIR}"/config/opensearch_dashboards.keystore "%{CONFIG_DIR}"/opensearch_dashboards.keystore
+elif [ ! -f %{CONFIG_DIR}/opensearch_dashboards.keystore ]; then
+  runuser %{USER} --shell="/bin/bash" --command="%{INSTALL_DIR}/bin/opensearch-dashboards-keystore create" > /dev/null 2>&1
+  runuser %{USER} --shell="/bin/bash" --command="echo kibanaserver | %{INSTALL_DIR}/bin/opensearch-dashboards-keystore add opensearch.username --stdin" > /dev/null 2>&1
+  runuser %{USER} --shell="/bin/bash" --command="echo kibanaserver | %{INSTALL_DIR}/bin/opensearch-dashboards-keystore add opensearch.password --stdin" > /dev/null 2>&1
+  chmod 640 "%{CONFIG_DIR}"/opensearch_dashboards.keystore
 fi
 
 if [ -f %{INSTALL_DIR}/wazuh-dashboard.restart ]; then
