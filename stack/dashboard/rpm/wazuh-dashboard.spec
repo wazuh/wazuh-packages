@@ -54,7 +54,10 @@ useradd -g %{GROUP} %{USER}
 %build
 
 tar -xf %{DASHBOARD_FILE}
-sed -i "s/cross_platform_1.REPO_ROOT\, 'config\//'\/etc\/wazuh-dashboard\/', '/g" "wazuh-dashboard-base/node_modules/@osd/utils/target/path/index.js"
+
+# Set custom config dir
+sed -i 's/OSD_NODE_OPTS_PREFIX/OSD_PATH_CONF="\/etc\/wazuh-dashboard" OSD_NODE_OPTS_PREFIX/g' "wazuh-dashboard-base/bin/opensearch-dashboards"
+sed -i 's/OSD_USE_NODE_JS_FILE_PATH/OSD_PATH_CONF="\/etc\/wazuh-dashboard" OSD_USE_NODE_JS_FILE_PATH/g' "wazuh-dashboard-base/bin/opensearch-dashboards-keystore"
 
 # -----------------------------------------------------------------------------
 
@@ -133,12 +136,6 @@ fi
 %post
 setcap 'cap_net_bind_service=+ep' %{INSTALL_DIR}/node/bin/node
 
-if [ ! -f %{INSTALLATION_DIR}/config/opensearch_dashboards.keystore ]; then
-  runuser %{USER} --shell="/bin/bash" --command="%{INSTALL_DIR}/bin/opensearch-dashboards-keystore create" > /dev/null 2>&1
-  runuser %{USER} --shell="/bin/bash" --command="echo kibanaserver | %{INSTALL_DIR}/bin/opensearch-dashboards-keystore add opensearch.username --stdin" > /dev/null 2>&1
-  runuser %{USER} --shell="/bin/bash" --command="echo kibanaserver | %{INSTALL_DIR}/bin/opensearch-dashboards-keystore add opensearch.password --stdin" > /dev/null 2>&1
-fi
-
 # -----------------------------------------------------------------------------
 
 %preun
@@ -182,6 +179,16 @@ fi
 if [ ! -d %{PID_DIR} ]; then
     mkdir -p %{PID_DIR}
     chown %{USER}:%{GROUP} %{PID_DIR}
+fi
+
+# Move keystore file if upgrade (file exists in install dir in <= 4.6.0)
+if [ -f "%{INSTALL_DIR}"/config/opensearch_dashboards.keystore ]; then
+  mv "%{INSTALL_DIR}"/config/opensearch_dashboards.keystore "%{CONFIG_DIR}"/opensearch_dashboards.keystore
+elif [ ! -f %{CONFIG_DIR}/opensearch_dashboards.keystore ]; then
+  runuser %{USER} --shell="/bin/bash" --command="%{INSTALL_DIR}/bin/opensearch-dashboards-keystore create" > /dev/null 2>&1
+  runuser %{USER} --shell="/bin/bash" --command="echo kibanaserver | %{INSTALL_DIR}/bin/opensearch-dashboards-keystore add opensearch.username --stdin" > /dev/null 2>&1
+  runuser %{USER} --shell="/bin/bash" --command="echo kibanaserver | %{INSTALL_DIR}/bin/opensearch-dashboards-keystore add opensearch.password --stdin" > /dev/null 2>&1
+  chmod 640 "%{CONFIG_DIR}"/opensearch_dashboards.keystore
 fi
 
 if [ -f %{INSTALL_DIR}/wazuh-dashboard.restart ]; then

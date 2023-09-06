@@ -58,7 +58,8 @@ override_dh_install:
 	useradd -g $(GROUP) $(USER)
 
 	tar -xf $(DASHBOARD_FILE)
-	sed -i "s/cross_platform_1.REPO_ROOT\, 'config\//'\/etc\/wazuh-dashboard\/', '/g" "wazuh-dashboard-base/node_modules/@osd/utils/target/path/index.js"
+	sed -i 's/OSD_NODE_OPTS_PREFIX/OSD_PATH_CONF="\/etc\/wazuh-dashboard" OSD_NODE_OPTS_PREFIX/g' "wazuh-dashboard-base/bin/opensearch-dashboards"
+	sed -i 's/OSD_USE_NODE_JS_FILE_PATH/OSD_PATH_CONF="\/etc\/wazuh-dashboard" OSD_USE_NODE_JS_FILE_PATH/g' "wazuh-dashboard-base/bin/opensearch-dashboards-keystore"
 
 	mkdir -p $(TARGET_DIR)$(CONFIG_DIR)
 	mkdir -p $(TARGET_DIR)$(INSTALLATION_DIR)
@@ -105,7 +106,7 @@ override_dh_fixperms:
 	chmod 750 $(TARGET_DIR)/etc/default/wazuh-dashboard
 	chmod 640 "$(TARGET_DIR)$(CONFIG_DIR)"/opensearch_dashboards.yml
 	chmod 640 "$(TARGET_DIR)$(CONFIG_DIR)"/node.options
-	chmod 640 $(TARGET_DIR)/etc/systemd/system/wazuh-dashboard.service
+	chmod 640 "$(TARGET_DIR)"/etc/systemd/system/wazuh-dashboard.service
 	find "$(TARGET_DIR)$(INSTALLATION_DIR)" -type d -exec chmod 750 {} \;
 	find "$(TARGET_DIR)$(INSTALLATION_DIR)" -type f -perm 644 -exec chmod 640 {} \;
 	find "$(TARGET_DIR)$(INSTALLATION_DIR)" -type f -perm 755 -exec chmod 750 {} \;
