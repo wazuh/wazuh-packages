@@ -21,6 +21,7 @@ wazuh_app_raw_repo_url="https://raw.githubusercontent.com/wazuh/wazuh-kibana-app
 plugin_platform_app_repo_url="https://github.com/opensearch-project/OpenSearch-Dashboards.git"
 plugin_platform_app_raw_repo_url="https://raw.githubusercontent.com/opensearch-project/OpenSearch-Dashboards"
 wazuh_app_package_json_url="${wazuh_app_raw_repo_url}/${wazuh_branch}/plugins/main/package.json"
+wazuh_app_nvmrc_url="${wazuh_app_raw_repo_url}/${wazuh_branch}/.nvmrc"
 
 # Script vars
 wazuh_version=""
@@ -46,12 +47,16 @@ change_node_version () {
 
 
 prepare_env() {
-    echo "Downloading package.json from wazuh-kibana-app repository"
+    echo "Downloading package.json and .nvmrc from wazuh-kibana-app repository"
     if ! curl $wazuh_app_package_json_url -o "/tmp/package.json" ; then
         echo "Error downloading package.json from GitHub."
         exit 1
     fi
 
+    if ! curl $wazuh_app_nvmrc_url -o "/tmp/.nvmrc" ; then
+        echo "Error downloading .nvmrc from GitHub."
+        exit 1
+    fi
     wazuh_version=$(python -c 'import json, os; f=open("/tmp/package.json"); pkg=json.load(f); f.close();\
                     print(pkg["version"])')
     plugin_platform_version=$(python -c 'import json, os; f=open("/tmp/package.json"); pkg=json.load(f); f.close();\
@@ -66,11 +71,10 @@ prepare_env() {
         exit 1
     fi
 
-    plugin_platform_node_version=$(python -c 'import json, os; f=open("/tmp/package.json"); pkg=json.load(f); f.close();\
-                          print(pkg["engines"]["node"])')
+    plugin_platform_node_version=$(cat /tmp/.nvmrc)
 
     plugin_platform_yarn_version=$(python -c 'import json, os; f=open("/tmp/package.json"); pkg=json.load(f); f.close();\
-                          print(pkg["engines"]["yarn"])')
+                          print(str(pkg["engines"]["yarn"]).replace("^",""))')
 }
 
 

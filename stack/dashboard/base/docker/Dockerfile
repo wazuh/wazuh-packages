@@ -21,7 +21,7 @@ RUN yum install -y \
     jq \
     unzip
 
-RUN git clone https://github.com/google/brotli.git
+RUN git clone https://github.com/google/brotli.git -b v1.0.9
 
 RUN cd brotli && chmod +x ./bootstrap && ./bootstrap && ./configure --prefix=/usr --bindir=/usr/bin --sbindir=/usr/sbin --libexecdir=/usr/lib64/brotli --libdir=/usr/lib64/brotli --datarootdir=/usr/share --mandir=/usr/share/man/man1 --docdir=/usr/share/doc \
     && make && make install
