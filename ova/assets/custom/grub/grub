@@ -1,9 +1,8 @@
-
-GRUB_CMDLINE_LINUX="console=tty12"
+GRUB_CMDLINE_LINUX_DEFAULT="console=tty0 console=ttyS0,115200n8 net.ifnames=0 biosdevname=0 nvme_core.io_timeout=4294967295 rd.emergency=poweroff quiet splash rd.plymouth=0 plymouth.enable=0 loglevel=0 systemd.show_status=0 systemd.log_level=0 vt.cur_default=0 rd.shell=0 root=/dev/sda1"
 GRUB_DEFAULT=0
 GRUB_TIMEOUT=0
 GRUB_HIDDEN_TIMEOUT=2
 GRUB_DISABLE_RECOVERY="true"
 GRUB_DISABLE_SUBMENU=y
-GRUB_CMDLINE_LINUX_DEFAULT="net.ifnames=0 biosdevname=0 quiet splash rd.plymouth=0 plymouth.enable=0 loglevel=0 systemd.show_status=0 systemd.log_level=0 vt.cur_default=0"
+GRUB_DISABLE_LINUX_UUID=true
 GRUB_BACKGROUND="/boot/grub2/wazuh.png"
