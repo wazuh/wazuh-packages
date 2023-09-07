@@ -63,7 +63,7 @@ function passwords_changePassword() {
     if [ "$nuser" == "kibanaserver" ] || [ -n "$changeall" ]; then
         if [ -n "${dashboard_installed}" ] && [ -n "${dashpass}" ]; then
             if /usr/share/wazuh-dashboard/bin/opensearch-dashboards-keystore --allow-root list | grep -q opensearch.password; then
-                eval "echo ${dashpass} | /usr/share/wazuh-dashboard/bin/opensearch-dashboards-keystore --allow-root add -f --stdin opensearch.password ${debug_pass}"
+                eval "echo ${dashpass} | /usr/share/wazuh-dashboard/bin/opensearch-dashboards-keystore --allow-root add -f --stdin opensearch.password ${debug_pass} > /dev/null 2>&1"
             else
                 wazuhdashold=$(grep "password:" /etc/wazuh-dashboard/opensearch_dashboards.yml )
                 rk="opensearch.password: "
