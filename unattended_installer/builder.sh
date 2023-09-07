@@ -16,7 +16,7 @@ readonly resources_certs="${base_path_builder}/cert_tool"
 readonly resources_passwords="${base_path_builder}/passwords_tool"
 readonly resources_common="${base_path_builder}/common_functions"
 readonly resources_download="${base_path_builder}/downloader"
-readonly source_branch="4.8.0"
+readonly source_branch="master"
 
 function getHelp() {
 
@@ -48,9 +48,6 @@ function getHelp() {
 
 function buildInstaller() {
 
-    checkDistDetectURL
-    checkFilebeatURL
-
     output_script_path="${base_path_builder}/wazuh-install.sh"
 
     ## Create installer script
@@ -77,6 +74,7 @@ function buildInstaller() {
         echo 'readonly filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.2.tar.gz"' >> "${output_script_path}"
         echo 'readonly bucket="packages-dev.wazuh.com"' >> "${output_script_path}"
         echo 'readonly repository="'"${devrepo}"'"' >> "${output_script_path}"
+        sed -i 's|v${wazuh_version}|${wazuh_version}|g' "${resources_installer}/installVariables.sh"
     else
         echo 'readonly repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"' >> "${output_script_path}"
         echo 'readonly repobaseurl="https://packages.wazuh.com/4.x"' >> "${output_script_path}"
@@ -132,6 +130,9 @@ function buildInstaller() {
     ## Main function and call to it
     echo >> "${output_script_path}"
     echo "main \"\$@\"" >> "${output_script_path}"
+
+    checkDistDetectURL
+    checkFilebeatURL
 
 }
 
@@ -263,7 +264,10 @@ function builder_main() {
         buildInstaller
         chmod 500 ${output_script_path}
         if [ -n "${change_filebeat_url}" ]; then
-            sed -i -E "s|(https.+)master(.+wazuh-template.json)|\1\\$\\{wazuh_major\\}\2|"  "${resources_installer}/installVariables.sh"
+            sed -i -E "s|(https.+)master(.+wazuh-template.json)|\1\\$\\{source_branch\\}\2|"  "${resources_installer}/installVariables.sh"
+        fi
+        if [ -n "${development}" ]; then
+            sed -i 's|${wazuh_version}|v${wazuh_version}|g' "${resources_installer}/installVariables.sh"
         fi
     fi
 

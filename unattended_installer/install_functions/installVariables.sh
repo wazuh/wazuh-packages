@@ -11,6 +11,7 @@ readonly wazuh_major="4.8"
 readonly wazuh_version="4.8.0"
 readonly filebeat_version="7.10.2"
 readonly wazuh_install_vesion="0.1"
+readonly source_branch="v${wazuh_version}"
 
 ## Links and paths to resources
 readonly resources="https://${bucket}/${wazuh_major}"
@@ -21,7 +22,7 @@ config_file="${base_path}/config.yml"
 readonly tar_file_name="wazuh-install-files.tar"
 tar_file="${base_path}/${tar_file_name}"
 
-readonly filebeat_wazuh_template="https://raw.githubusercontent.com/wazuh/wazuh/${wazuh_major}/extensions/elasticsearch/7.x/wazuh-template.json"
+readonly filebeat_wazuh_template="https://raw.githubusercontent.com/wazuh/wazuh/${source_branch}/extensions/elasticsearch/7.x/wazuh-template.json"
 
 readonly dashboard_cert_path="/etc/wazuh-dashboard/certs"
 readonly filebeat_cert_path="/etc/filebeat/certs"
@@ -52,4 +53,4 @@ http_port=443
 readonly wazuh_aio_ports=( 9200 9300 1514 1515 1516 55000 "${http_port}")
 readonly wazuh_indexer_ports=( 9200 9300 )
 readonly wazuh_manager_ports=( 1514 1515 1516 55000 )
-readonly wazuh_dashboard_ports=( "${http_port}" )
+readonly wazuh_dashboard_port="${http_port}"
