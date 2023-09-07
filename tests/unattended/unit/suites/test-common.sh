@@ -108,7 +108,7 @@ test-05-common_checkInstalled-all-installed-yum-assert() {
     @echo "wazuh-manager.x86_64 4.6.0-1 @wazuh"
     @echo 1
 
-    @echo "wazuh-indexer.x86_64 1.13.2-1 @wazuh"
+    @echo "wazuh-indexer.x86_64 4.6.0-1 @wazuh"
     @echo 1
 
     @echo "filebeat.x86_64 7.10.2-1 @wazuh"
