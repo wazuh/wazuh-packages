@@ -55,6 +55,10 @@ useradd -g %{GROUP} %{USER}
 
 tar -xf %{DASHBOARD_FILE}
 
+# Set custom config dir
+sed -i 's/OSD_NODE_OPTS_PREFIX/OSD_PATH_CONF="\/etc\/wazuh-dashboard" OSD_NODE_OPTS_PREFIX/g' "wazuh-dashboard-base/bin/opensearch-dashboards"
+sed -i 's/OSD_USE_NODE_JS_FILE_PATH/OSD_PATH_CONF="\/etc\/wazuh-dashboard" OSD_USE_NODE_JS_FILE_PATH/g' "wazuh-dashboard-base/bin/opensearch-dashboards-keystore"
+
 # -----------------------------------------------------------------------------
 
 %install
@@ -132,12 +136,6 @@ fi
 %post
 setcap 'cap_net_bind_service=+ep' %{INSTALL_DIR}/node/bin/node
 
-if [ ! -f %{INSTALLATION_DIR}/config/opensearch_dashboards.keystore ]; then
-  runuser %{USER} --shell="/bin/bash" --command="%{INSTALL_DIR}/bin/opensearch-dashboards-keystore create" > /dev/null 2>&1
-  runuser %{USER} --shell="/bin/bash" --command="echo kibanaserver | %{INSTALL_DIR}/bin/opensearch-dashboards-keystore add opensearch.username --stdin" > /dev/null 2>&1
-  runuser %{USER} --shell="/bin/bash" --command="echo kibanaserver | %{INSTALL_DIR}/bin/opensearch-dashboards-keystore add opensearch.password --stdin" > /dev/null 2>&1
-fi
-
 # -----------------------------------------------------------------------------
 
 %preun
@@ -181,6 +179,16 @@ fi
 if [ ! -d %{PID_DIR} ]; then
     mkdir -p %{PID_DIR}
     chown %{USER}:%{GROUP} %{PID_DIR}
+fi
+
+# Move keystore file if upgrade (file exists in install dir in <= 4.6.0)
+if [ -f "%{INSTALL_DIR}"/config/opensearch_dashboards.keystore ]; then
+  mv "%{INSTALL_DIR}"/config/opensearch_dashboards.keystore "%{CONFIG_DIR}"/opensearch_dashboards.keystore
+elif [ ! -f %{CONFIG_DIR}/opensearch_dashboards.keystore ]; then
+  runuser %{USER} --shell="/bin/bash" --command="%{INSTALL_DIR}/bin/opensearch-dashboards-keystore create" > /dev/null 2>&1
+  runuser %{USER} --shell="/bin/bash" --command="echo kibanaserver | %{INSTALL_DIR}/bin/opensearch-dashboards-keystore add opensearch.username --stdin" > /dev/null 2>&1
+  runuser %{USER} --shell="/bin/bash" --command="echo kibanaserver | %{INSTALL_DIR}/bin/opensearch-dashboards-keystore add opensearch.password --stdin" > /dev/null 2>&1
+  chmod 640 "%{CONFIG_DIR}"/opensearch_dashboards.keystore
 fi
 
 if [ -f %{INSTALL_DIR}/wazuh-dashboard.restart ]; then
@@ -391,6 +399,7 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) "%{INSTALL_DIR}/LICENSE.txt"
 %attr(640, %{USER}, %{GROUP}) "%{INSTALL_DIR}/NOTICE.txt"
 %attr(640, %{USER}, %{GROUP}) "%{INSTALL_DIR}/README.txt"
+%attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/bin/use_node"
 %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/bin/opensearch-dashboards"
 %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/bin/opensearch-dashboards-plugin"
 %attr(750, %{USER}, %{GROUP}) "%{INSTALL_DIR}/bin/opensearch-dashboards-keystore"
@@ -399,10 +408,12 @@ rm -fr %{buildroot}
 %attr(640, root, root) "/etc/systemd/system/wazuh-dashboard.service"
 
 %changelog
-* Mon Sep 04 2023 support <info@wazuh.com> - %{version}
+* Tue Nov 07 2023 support <info@wazuh.com> - 4.7.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-7-0.html
-* Sat Oct 28 2023 support <info@wazuh.com> - 4.6.0
+* Mon Oct 16 2023 support <info@wazuh.com> - 4.6.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-6-0.html
+* Wed Sep 06 2023 support <info@wazuh.com> - 4.5.3
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-5-3.html
 * Thu Aug 31 2023 support <info@wazuh.com> - 4.5.2
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-5-2.html
 * Thu Aug 24 2023 support <info@wazuh.com> - 4.5.1
