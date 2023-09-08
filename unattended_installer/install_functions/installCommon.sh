@@ -689,7 +689,7 @@ function installCommon_yumInstallList(){
     dependencies=("$@")
     not_installed=()
     for dep in "${dependencies[@]}"; do
-        if ! yum list installed 2>/dev/null | grep -q -E ^"${dep}"\\.;then
+        if ! yum list installed 2>/dev/null | grep -q -E ^"${dep}";then
             not_installed+=("${dep}")
         fi
     done
