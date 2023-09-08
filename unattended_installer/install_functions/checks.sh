@@ -210,7 +210,7 @@ function check_dist() {
         fi
     fi
     if [ -n "${notsupported}" ] && [ -z "${ignore}" ]; then
-        common_logger -e "The recommended systems are: Red Hat Enterprise Linux 7, 8, 9; CentOS 7, 8; Amazon Linux 2; Ubuntu 16.04, 18.04, 20.04, 22.04. The current system does not match this list. Use -i|--ignore-check to skip this check."
+        common_logger -e "The recommended systems are: Red Hat Enterprise Linux 7, 8, 9; CentOS 7, 8; Amazon Linux 2, Amazon Linux 2023; Ubuntu 16.04, 18.04, 20.04, 22.04. The current system does not match this list. Use -i|--ignore-check to skip this check."
         exit 1
     fi
 }
