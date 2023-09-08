@@ -195,7 +195,7 @@ function check_dist() {
         notsupported=1
     fi
     if [ "${DIST_NAME}" == "amzn" ]; then
-        if [ "${DIST_VER}" -ne "2" ]| | [ "${DIST_VER}" -ne "2023" ]; then
+        if [ "${DIST_VER}" -ne "2" ] || [ "${DIST_VER}" -ne "2023" ]; then
             notsupported=1
         fi
     fi
