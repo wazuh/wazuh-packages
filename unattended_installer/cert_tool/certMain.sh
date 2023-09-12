@@ -20,7 +20,7 @@ function getHelp() {
     echo -e "                Creates the admin certificates, add root-ca.pem and root-ca.key."
     echo -e ""
     echo -e "        -A, --all </path/to/root-ca.pem> </path/to/root-ca.key>"
-    echo -e "                Creates Wazuh server, Wazuh indexer, Wazuh dashboard, and admin certificates. Add a root-ca.pem and root-ca.key or leave it empty so a new one will be created."
+    echo -e "                Creates certificates specified in config.yml and admin certificates. Add a root-ca.pem and root-ca.key or leave it empty so a new one will be created."
     echo -e ""
     echo -e "        -ca, --root-ca-certificates"
     echo -e "                Creates the root-ca certificates."
@@ -186,26 +186,21 @@ function main() {
         fi
 
         if [[ -n "${all}" ]]; then
-            if [[ ${#indexer_node_names[@]} -gt 0 ]] && [[ ${#server_node_names[@]} -gt 0 ]] && [[ ${#dashboard_node_names[@]} -gt 0 ]]; then
-                cert_checkRootCA
-                cert_generateAdmincertificate
-                common_logger "Admin certificates created."
-                if cert_generateIndexercertificates; then
-                    common_logger "Wazuh indexer certificates created."
-                fi
-                if cert_generateFilebeatcertificates; then
-                    common_logger "Wazuh server certificates created."
-                fi
-                if cert_generateDashboardcertificates; then
-                    common_logger "Wazuh dashboard certificates created."
-                fi
-                cert_cleanFiles
-                cert_setpermisions
-                eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
-            else
-                common_logger -e "You must specify at least one indexer, one server and one dashboard node."
-                exit 1
+            cert_checkRootCA
+            cert_generateAdmincertificate
+            common_logger "Admin certificates created."
+            if cert_generateIndexercertificates; then
+                common_logger "Wazuh indexer certificates created."
             fi
+            if cert_generateFilebeatcertificates; then
+                common_logger "Wazuh server certificates created."
+            fi
+            if cert_generateDashboardcertificates; then
+                common_logger "Wazuh dashboard certificates created."
+            fi
+            cert_cleanFiles
+            cert_setpermisions
+            eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
         fi
 
         if [[ -n "${ca}" ]]; then
