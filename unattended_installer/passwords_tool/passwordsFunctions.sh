@@ -179,7 +179,9 @@ function passwords_createBackUp() {
     fi
 
     common_logger -d "Creating password backup."
-    eval "mkdir /etc/wazuh-indexer/backup ${debug}"
+    if [ ! -d "/etc/wazuh-indexer/backup" ]; then
+        eval "mkdir /etc/wazuh-indexer/backup ${debug}"
+    fi
     eval "JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_CONF_DIR=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -backup /etc/wazuh-indexer/backup -icl -p 9200 -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -h ${IP} ${debug}"
     if [ "${PIPESTATUS[0]}" != 0 ]; then
         common_logger -e "The backup could not be created"
