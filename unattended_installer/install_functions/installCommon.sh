@@ -47,7 +47,7 @@ function installCommon_addWazuhRepo() {
                 common_logger -e "Cannot import Wazuh GPG key"
                 exit 1
             fi
-            eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-\${releasever} - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo ${debug}"
+            eval "(echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-\${releasever} - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo)" "${debug}"
             eval "chmod 644 /etc/yum.repos.d/wazuh.repo ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "common_curl -s ${repogpg} --max-time 300 --retry 5 --retry-delay 5 --fail | gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import - ${debug}"
@@ -56,7 +56,7 @@ function installCommon_addWazuhRepo() {
                 exit 1
             fi
             eval "chmod 644 /usr/share/keyrings/wazuh.gpg ${debug}"
-            eval "echo \"deb [signed-by=/usr/share/keyrings/wazuh.gpg] ${repobaseurl}/apt/ ${reporelease} main\" | tee /etc/apt/sources.list.d/wazuh.list ${debug}"
+            eval "(echo \"deb [signed-by=/usr/share/keyrings/wazuh.gpg] ${repobaseurl}/apt/ ${reporelease} main\" | tee /etc/apt/sources.list.d/wazuh.list)" "${debug}"
             eval "apt-get update -q ${debug}"
             eval "chmod 644 /etc/apt/sources.list.d/wazuh.list ${debug}"
         fi
@@ -355,7 +355,7 @@ function installCommon_installChrome() {
 
     if [ "${sys_type}" == "yum" ]; then
         chrome_package="/tmp/wazuh-install-files/chrome.rpm"
-        common_curl -so "${chrome_package}" https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm --max-time 100 --retry 5 --retry-delay 5 --fail
+        common_curl -sSo "${chrome_package}" https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm --max-time 100 --retry 5 --retry-delay 5 --fail "${debug}"
         eval "yum install ${chrome_package} -y ${debug}"
 
         if [ "${PIPESTATUS[0]}" != 0 ]; then
@@ -364,7 +364,7 @@ function installCommon_installChrome() {
 
     elif [ "${sys_type}" == "apt-get" ]; then
         chrome_package="/tmp/wazuh-install-files/chrome.deb"
-        common_curl -so "${chrome_package}" https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb --max-time 100 --retry 5 --retry-delay 5 --fail
+        common_curl -sSo "${chrome_package}" https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb --max-time 100 --retry 5 --retry-delay 5 --fail "${debug}"
         installCommon_aptInstall "${chrome_package}"
 
         if [ "${install_result}" != 0 ]; then

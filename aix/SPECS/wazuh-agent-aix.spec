@@ -1,6 +1,6 @@
 # Spec file for AIX systems
 Name:        wazuh-agent
-Version:     4.6.0
+Version:     4.8.0
 Release:     1
 License:     GPL
 URL:         https://www.wazuh.com/
@@ -290,8 +290,14 @@ rm -fr %{buildroot}
 %attr(750, root, wazuh) %{_localstatedir}/wodles/*
 
 %changelog
-* Fri Sep 08 2023 support <info@wazuh.com> - 4.6.0
+* Fri Dec 15 2023 support <info@wazuh.com> - 4.8.0
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-8-0.html
+* Sat Oct 28 2023 support <info@wazuh.com> - 4.7.0
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-7-0.html
+* Mon Sep 04 2023 support <info@wazuh.com> - 4.6.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-6-0.html
+* Wed Sep 06 2023 support <info@wazuh.com> - 4.5.3
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-5-3.html
 * Thu Aug 31 2023 support <info@wazuh.com> - 4.5.2
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-5-2.html
 * Thu Aug 24 2023 support <info@wazuh.com> - 4.5.1

@@ -293,6 +293,22 @@ function cert_parseYaml() {
 
 }
 
+function cert_checkPrivateIp() {
+    local ip=$1
+
+    # Check private IPv4 ranges
+    if [[ $ip =~ ^10\.|^192\.168\.|^172\.(1[6-9]|2[0-9]|3[0-1])\.|^(127\.) ]]; then
+        return 0
+    fi
+
+    # Check private IPv6 ranges (fc00::/7 prefix)
+    if [[ $ip =~ ^fc ]]; then
+        return 0
+    fi
+
+    return 1
+
+}
 
 function cert_readConfig() {
 
@@ -311,6 +327,17 @@ function cert_readConfig() {
         eval "dashboard_node_ips=( $(cert_parseYaml "${config_file}"  | grep -E "nodes[_]+dashboard[_]+[0-9]+[_]+ip=" | cut -d = -f 2 ) )"
         eval "server_node_types=( $(cert_parseYaml "${config_file}"  | grep -E "nodes[_]+server[_]+[0-9]+[_]+node_type=" | cut -d = -f 2 ) )"
         eval "number_server_ips=( $(cert_parseYaml "${config_file}" | grep -o -E 'nodes[_]+server[_]+[0-9]+[_]+ip' | sort -u | wc -l) )"
+        all_ips=("${indexer_node_ips[@]}" "${server_node_ips[@]}" "${dashboard_node_ips[@]}")
+
+        for ip in "${all_ips[@]}"; do
+            isIP=$(echo "${ip}" | grep -P "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")
+            if [[ -n "${isIP}" ]]; then
+                if ! cert_checkPrivateIp "$ip"; then
+                    common_logger -e "The IP ${ip} is public."
+                    exit 1
+                fi
+            fi
+        done
 
         for i in $(seq 1 "${number_server_ips}"); do
             nodes_server="nodes[_]+server[_]+${i}[_]+ip"

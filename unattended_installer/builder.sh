@@ -16,7 +16,7 @@ readonly resources_certs="${base_path_builder}/cert_tool"
 readonly resources_passwords="${base_path_builder}/passwords_tool"
 readonly resources_common="${base_path_builder}/common_functions"
 readonly resources_download="${base_path_builder}/downloader"
-source_branch="v4.6.0"
+readonly source_branch="master"
 
 function getHelp() {
 
@@ -75,7 +75,6 @@ function buildInstaller() {
         echo 'readonly bucket="packages-dev.wazuh.com"' >> "${output_script_path}"
         echo 'readonly repository="'"${devrepo}"'"' >> "${output_script_path}"
         sed -i 's|v${wazuh_version}|${wazuh_version}|g' "${resources_installer}/installVariables.sh"
-        source_branch="4.6.0"
     else
         echo 'readonly repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"' >> "${output_script_path}"
         echo 'readonly repobaseurl="https://packages.wazuh.com/4.x"' >> "${output_script_path}"

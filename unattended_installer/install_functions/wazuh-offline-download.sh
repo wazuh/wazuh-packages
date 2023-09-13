@@ -115,12 +115,12 @@ function offline_download() {
     package_name="${package}_${package_type}_package"
     eval "package_base_url=${package}_${package_type}_base_url"
 
-    eval "common_curl -so ${dest_path}/${!package_name} ${!package_base_url}/${!package_name} --max-time 300 --retry 5 --retry-delay 5 --fail"
-    if [  "${PIPESTATUS[0]}" != 0  ]; then
-        common_logger -e "The ${package} package could not be downloaded. Exiting."
-        exit 1
+    if output=$(common_curl -sSo "${dest_path}/${!package_name}" "${!package_base_url}/${!package_name}" --max-time 300 --retry 5 --retry-delay 5 --fail 2>&1); then
+      common_logger "The ${package} package was downloaded."
     else
-        common_logger "The ${package} package was downloaded."
+      common_logger -e "The ${package} package could not be downloaded. Exiting."
+      eval "echo \${output} ${debug}"
+      exit 1
     fi
 
   done
@@ -145,12 +145,12 @@ function offline_download() {
   for file in "${files_to_download[@]}"
   do
 
-    eval "common_curl -sO ${file} --max-time 300 --retry 5 --retry-delay 5 --fail"
-    if [  "${PIPESTATUS[0]}" != 0  ]; then
-        common_logger -e "The resource ${file} could not be downloaded. Exiting."
-        exit 1
-    else
+    if output=$(common_curl -sSO ${file} --max-time 300 --retry 5 --retry-delay 5 --fail 2>&1); then
         common_logger "The resource ${file} was downloaded."
+    else
+        common_logger -e "The resource ${file} could not be downloaded. Exiting."
+        eval "echo \${output} ${debug}"
+        exit 1
     fi
 
   done
