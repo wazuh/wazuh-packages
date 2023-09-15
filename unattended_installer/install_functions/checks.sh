@@ -18,6 +18,15 @@ function checks_arch() {
 
 function checks_arguments() {
 
+    # -------------- Port option validation ---------------------
+
+    if [ -n "${port_specified}" ]; then
+        if [ -z "${AIO}" ] && [ -z "${dashboard}" ]; then
+            common_logger -e "The argument -p|--port can only be used with -a|--all-in-one or -wd|--wazuh-dashboard."
+            exit 1
+        fi
+    fi
+
     # -------------- Configurations ---------------------------------
 
     if [ -f "${tar_file}" ]; then
@@ -52,19 +61,19 @@ function checks_arguments() {
         fi
 
         if [ -z "${wazuh_installed}" ] && [ -z "${wazuh_remaining_files}" ]; then
-            common_logger "Wazuh manager was not found in the system so it was not uninstalled."
+            common_logger "Wazuh manager not found in the system so it was not uninstalled."
         fi
 
         if [ -z "${filebeat_installed}" ] && [ -z "${filebeat_remaining_files}" ]; then
-            common_logger "Filebeat was not found in the system so it was not uninstalled."
+            common_logger "Filebeat not found in the system so it was not uninstalled."
         fi
 
         if [ -z "${indexer_installed}" ] && [ -z "${indexer_remaining_files}" ]; then
-            common_logger "Wazuh indexer was not found in the system so it was not uninstalled."
+            common_logger "Wazuh indexer not found in the system so it was not uninstalled."
         fi
 
         if [ -z "${dashboard_installed}" ] && [ -z "${dashboard_remaining_files}" ]; then
-            common_logger "Wazuh dashboard was not found in the system so it was not uninstalled."
+            common_logger "Wazuh dashboard not found in the system so it was not uninstalled."
         fi
 
     fi
@@ -166,6 +175,17 @@ function checks_arguments() {
 
 }
 
+# Checks if the --retry-connrefused is available in curl
+function check_curlVersion() {
+
+    # --retry-connrefused was added in 7.52.0
+    curl_version=$(curl -V | head -n 1 | awk '{ print $2 }')
+    if [ $(check_versions ${curl_version} 7.52.0) == "0" ]; then
+        curl_has_connrefused=0
+    fi
+
+}
+
 function check_dist() {
     dist_detect
     if [ "${DIST_NAME}" != "centos" ] && [ "${DIST_NAME}" != "rhel" ] && [ "${DIST_NAME}" != "amzn" ] && [ "${DIST_NAME}" != "ubuntu" ]; then
@@ -257,7 +277,7 @@ function checks_names() {
         exit 1
     fi
 
-    if [ -n "${dashname}" ] && ! echo "${dashboard_node_names[@]}" | grep -w "${dashname}"; then
+    if [ -n "${dashname}" ] && ! echo "${dashboard_node_names[@]}" | grep -w -q "${dashname}"; then
         common_logger -e "The Wazuh dashboard node name ${dashname} does not appear on the configuration file."
         exit 1
     fi
@@ -330,4 +350,29 @@ function checks_ports() {
         exit 1
     fi
 
+}
+
+# Checks if the first version is greater equal than to second one
+function check_versions() {
+
+    if test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1"; then
+        echo 0
+    else
+        echo 1
+    fi
+}
+
+function checks_available_port() {
+    chosen_port="$1"
+    shift
+    ports_list=("$@")
+
+    if [ "$chosen_port" -ne "${http_port}" ]; then
+        for port in "${ports_list[@]}"; do
+            if [ "$chosen_port" -eq "$port" ]; then
+                common_logger -e "Port ${chosen_port} is reserved by Wazuh. Please, choose another port."
+                exit 1
+            fi
+        done
+    fi
 }

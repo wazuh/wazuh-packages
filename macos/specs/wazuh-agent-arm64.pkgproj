@@ -812,7 +812,7 @@
 				<key>USE_HFS+_COMPRESSION</key>
 				<false/>
 				<key>VERSION</key>
-				<string>4.5.1-1</string>
+				<string>4.8.0-1</string>
 			</dict>
 			<key>TYPE</key>
 			<integer>0</integer>
@@ -1000,9 +1000,9 @@
 					<key>DICTIONARY</key>
 					<dict>
 						<key>IC_REQUIREMENT_CPU_ARCHITECTURE_FAMILY</key>
-						<integer>2</integer>
+						<integer>3</integer>
 						<key>IC_REQUIREMENT_CPU_INTEL_ARCHITECTURE_TYPE</key>
-						<integer>2</integer>
+						<integer>0</integer>
 						<key>IC_REQUIREMENT_CPU_MINIMUM_CPU_CORES_COUNT</key>
 						<integer>1</integer>
 						<key>IC_REQUIREMENT_CPU_MINIMUM_FREQUENCY</key>
@@ -1022,9 +1022,10 @@
 							<key>SECONDARY_VALUE</key>
 							<string></string>
 							<key>VALUE</key>
-							<string>This installer has been built for 64-bit Intel architecture. It won't install in other platforms.</string>
+							<string>This installer has been built for Apple Silicon architecture. It won't install in other platforms.</string>
 						</dict>
 					</array>
+
 					<key>NAME</key>
 					<string>Processor</string>
 					<key>STATE</key>
@@ -1239,7 +1240,7 @@
 				</dict>
 			</array>
 			<key>NAME</key>
-			<string>wazuh-agent-4.5.1-1</string>
+			<string>wazuh-agent-4.8.0-1.arm64</string>
 			<key>PAYLOAD_ONLY</key>
 			<false/>
 			<key>TREAT_MISSING_PRESENTATION_DOCUMENTS_AS_WARNING</key>

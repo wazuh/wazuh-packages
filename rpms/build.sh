@@ -129,3 +129,4 @@ if [[ "${src}" == "yes" ]]; then
 fi
 
 find ${extract_path} -maxdepth 3 -type f -name "${file_name}*" -exec mv {} /var/local/wazuh \;
+ 

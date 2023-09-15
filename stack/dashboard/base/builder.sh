@@ -16,7 +16,7 @@ revision="$2"
 future="$3"
 repository="$4"
 reference="$5"
-opensearch_version="2.6.0"
+opensearch_version="2.8.0"
 base_dir=/opt/wazuh-dashboard-base
 
 # -----------------------------------------------------------------------------
@@ -65,6 +65,9 @@ cd /opt
 
 curl -sL https://artifacts.opensearch.org/releases/bundle/opensearch-dashboards/"${opensearch_version}"/opensearch-dashboards-"${opensearch_version}"-linux-${architecture}.tar.gz | tar xz
 
+pip3 install pathfix.py
+/usr/bin/pathfix.py -pni "/usr/bin/python3 -s" opensearch-dashboards-"${opensearch_version}" > /dev/null 2>&1
+
 # Remove unnecessary files and set up configuration
 mv opensearch-dashboards-* "${base_dir}"
 cd "${base_dir}"
@@ -87,11 +90,11 @@ cp ./etc/styles.js ./src/core/server/rendering/views/styles.js
 sed -i "s|defaultValue: ''|defaultValue: \'Wazuh\'|g" ./src/core/server/opensearch_dashboards_config.js
 sed -i "90s|defaultValue: true|defaultValue: false|g" ./src/core/server/opensearch_dashboards_config.js
 # Replace config path
-sed -i "s'\$DIR/config'/etc/wazuh-dashboard'g" ./bin/opensearch-dashboards
 sed -i "s'\$DIR/config'/etc/wazuh-dashboard'g" ./bin/opensearch-dashboards-keystore
 sed -i "s'\$DIR/config'/etc/wazuh-dashboard'g" ./bin/opensearch-dashboards-plugin
-sed -i "s'NODE_OPTIONS=\"--no-warnings --max-http-header-size=65536 \$OSD_NODE_OPTS \$NODE_OPTIONS\" NODE_ENV=production exec \"\${NODE}\" \"\${DIR}/src/cli/dist\" \${@}'NODE_OPTIONS=\"--no-warnings --max-http-header-size=65536 \$OSD_NODE_OPTS \$NODE_OPTIONS\"'g" ./bin/opensearch-dashboards
-echo "NODE_ENV=production exec \"\${NODE}\" \${NODE_OPTIONS} \"\${DIR}/src/cli/dist\" \${@}" >> ./bin/opensearch-dashboards
+# Add fix to Node variables as Node is not using the NODE_OPTIONS environment variables
+sed -i 's/NODE_OPTIONS="$OSD_NODE_OPTS_PREFIX $OSD_NODE_OPTS $NODE_OPTIONS"/NODE_OPTIONS="$OSD_NODE_OPTS_PREFIX $OSD_NODE_OPTS $NODE_OPTIONS"\n/g' ./bin/use_node
+sed -i 's/exec "${NODE}"/NODE_ENV=production exec "${NODE}" ${NODE_OPTIONS} /g' ./bin/use_node
 # Replace the redirection to `home` in the header logo
 sed -i "s'/app/home'/app/wazuh'g" ./src/core/target/public/core.entry.js
 # Replace others redirections to `home`
@@ -143,6 +146,7 @@ sed -i 's|DEFAULT_MARK="opensearch_mark_default_mode.svg"|DEFAULT_MARK="home.svg
 sed -i 's|DEFAULT_DARK_MARK="opensearch_mark_dark_mode.svg"|DEFAULT_DARK_MARK="home_dark_mode.svg"|g' ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
 gzip -c ./plugins/securityDashboards/target/public/securityDashboards.plugin.js > ./plugins/securityDashboards/target/public/securityDashboards.plugin.js.gz
 brotli -c ./plugins/securityDashboards/target/public/securityDashboards.plugin.js > ./plugins/securityDashboards/target/public/securityDashboards.plugin.js.br
+
 # Generate compressed files
 gzip -c ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js > ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js.gz
 brotli -c ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js > ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js.br

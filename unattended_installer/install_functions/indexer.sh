@@ -29,7 +29,7 @@ function indexer_configure() {
             pos=0
             {
             echo "node.name: ${indxname}"
-            echo "network.host: ${indexer_node_ips[0]}" 
+            echo "network.host: ${indexer_node_ips[0]}"
             echo "cluster.initial_master_nodes: ${indxname}"
             echo "plugins.security.nodes_dn:"
             echo '        - CN='"${indxname}"',OU=Wazuh,O=Wazuh,L=California,C=US'
@@ -111,12 +111,10 @@ function indexer_copyCertificates() {
 function indexer_initialize() {
 
     common_logger "Initializing Wazuh indexer cluster security settings."
-    i=0
-    until curl -XGET https://"${indexer_node_ips[pos]}":9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null || [ "${i}" -eq 12 ]; do
-        sleep 10
-        i=$((i+1))
-    done
-    if [ ${i} -eq 12 ]; then
+    eval "common_curl -XGET https://"${indexer_node_ips[pos]}":9200/ -uadmin:admin -k --max-time 120 --silent --output /dev/null"
+    e_code="${PIPESTATUS[0]}"
+
+    if [ "${e_code}" -ne "0" ]; then
         common_logger -e "Cannot initialize Wazuh indexer cluster."
         installCommon_rollBack
         exit 1
@@ -160,21 +158,16 @@ function indexer_install() {
 
 function indexer_startCluster() {
 
-    retries=0
     for ip_to_test in "${indexer_node_ips[@]}"; do
-        eval "curl -XGET https://"${ip_to_test}":9200/ -k -s -o /dev/null"
+        eval "common_curl -XGET https://"${ip_to_test}":9200/ -k -s -o /dev/null"
         e_code="${PIPESTATUS[0]}"
-        until [ "${e_code}" -ne 7 ] || [ "${retries}" -eq 12 ]; do
-            sleep 10
-            retries=$((retries+1))
-            eval "curl -XGET https://"${ip_to_test}":9200/ -k -s -o /dev/null"
-            e_code="${PIPESTATUS[0]}"
-        done
-        if [ ${retries} -eq 12 ]; then
+
+        if [ "${e_code}" -eq "7" ]; then
             common_logger -e "Connectivity check failed on node ${ip_to_test} port 9200. Possible causes: Wazuh indexer not installed on the node, the Wazuh indexer service is not running or you have connectivity issues with that node. Please check this before trying again."
             exit 1
         fi
     done
+
     eval "wazuh_indexer_ip=( $(cat /etc/wazuh-indexer/opensearch.yml | grep network.host | sed 's/network.host:\s//') )"
     eval "sudo -u wazuh-indexer JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_CONF_DIR=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -cd /etc/wazuh-indexer/opensearch-security -icl -p 9200 -nhnv -cacert /etc/wazuh-indexer/certs/root-ca.pem -cert /etc/wazuh-indexer/certs/admin.pem -key /etc/wazuh-indexer/certs/admin-key.pem -h ${wazuh_indexer_ip} ${debug}"
     if [  "${PIPESTATUS[0]}" != 0  ]; then
@@ -183,7 +176,7 @@ function indexer_startCluster() {
     else
         common_logger "Wazuh indexer cluster security configuration initialized."
     fi
-    eval "curl --silent ${filebeat_wazuh_template} | curl -X PUT 'https://${indexer_node_ips[pos]}:9200/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k --silent ${debug}"
+    eval "common_curl --silent ${filebeat_wazuh_template} --max-time 300 --retry 5 --retry-delay 5 ${debug}" | eval "common_curl -X PUT 'https://${indexer_node_ips[pos]}:9200/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k --silent --max-time 300 --retry 5 --retry-delay 5 ${debug}"
     if [  "${PIPESTATUS[0]}" != 0  ]; then
         common_logger -e "The wazuh-alerts template could not be inserted into the Wazuh indexer cluster."
         exit 1

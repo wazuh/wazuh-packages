@@ -6,6 +6,15 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
+function dashboard_changePort() {
+
+    chosen_port="$1"
+    http_port="${chosen_port}" 
+
+    sed -i 's/server\.port: [0-9]\+$/server.port: '"${chosen_port}"'/' "$0"
+    common_logger "Wazuh web interface port will be ${chosen_port}."
+}
+
 function dashboard_configure() {
 
     if [ -n "${AIO}" ]; then
@@ -41,6 +50,8 @@ function dashboard_configure() {
             done
         fi
     fi
+
+    sed -i 's/server\.port: [0-9]\+$/server.port: '"${chosen_port}"'/' /etc/wazuh-dashboard/opensearch_dashboards.yml
 
     common_logger "Wazuh dashboard post-install configuration finished."
 
@@ -98,7 +109,7 @@ function dashboard_initialize() {
         print_ip="${nodes_dashboard_ip}"
     fi
 
-    until [ "$(curl -XGET https://"${nodes_dashboard_ip}"/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null)" -eq "200" ] || [ "${j}" -eq "12" ]; do
+    until [ "$(curl -XGET https://"${nodes_dashboard_ip}":"${http_port}"/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null)" -eq "200" ] || [ "${j}" -eq "12" ]; do
         sleep 10
         j=$((j+1))
     done
@@ -119,9 +130,9 @@ function dashboard_initialize() {
 
         common_logger "Wazuh dashboard web application initialized."
         common_logger -nl "--- Summary ---"
-        common_logger -nl "You can access the web interface https://${print_ip}\n    User: admin\n    Password: ${u_pass}"
+        common_logger -nl "You can access the web interface https://${print_ip}:${http_port}\n    User: admin\n    Password: ${u_pass}"
 
-    elif [ ${j} -eq 12 ]; then
+    else
         flag="-w"
         if [ -z "${force}" ]; then
             flag="-e"
@@ -130,13 +141,12 @@ function dashboard_initialize() {
         common_logger "${flag}" "Cannot connect to Wazuh dashboard."
 
         for i in "${!indexer_node_ips[@]}"; do
-            curl=$(curl -XGET https://"${indexer_node_ips[i]}":9200/ -uadmin:"${u_pass}" -k -s)
+            curl=$(common_curl -XGET https://"${indexer_node_ips[i]}":9200/ -uadmin:"${u_pass}" -k -s --max-time 300 --retry 5 --retry-delay 5 --fail)
             exit_code=${PIPESTATUS[0]}
             if [[ "${exit_code}" -eq "7" ]]; then
                 failed_connect=1
                 failed_nodes+=("${indexer_node_names[i]}")
-            fi
-            if [ "${curl}" == "OpenSearch Security not initialized." ]; then
+            elif [ "${exit_code}" -eq "22" ]; then
                 sec_not_initialized=1
             fi
         done
@@ -164,12 +174,12 @@ function dashboard_initializeAIO() {
 
     common_logger "Initializing Wazuh dashboard web application."
     installCommon_getPass "admin"
-    http_code=$(curl -XGET https://localhost/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null)
+    http_code=$(curl -XGET https://localhost:"${http_port}"/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null)
     retries=0
     max_dashboard_initialize_retries=20
     while [ "${http_code}" -ne "200" ] && [ "${retries}" -lt "${max_dashboard_initialize_retries}" ]
     do
-        http_code=$(curl -XGET https://localhost/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null)
+        http_code=$(curl -XGET https://localhost:"${http_port}"/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null)
         common_logger "Wazuh dashboard web application not yet initialized. Waiting..."
         retries=$((retries+1))
         sleep 15
@@ -177,7 +187,7 @@ function dashboard_initializeAIO() {
     if [ "${http_code}" -eq "200" ]; then
         common_logger "Wazuh dashboard web application initialized."
         common_logger -nl "--- Summary ---"
-        common_logger -nl "You can access the web interface https://<wazuh-dashboard-ip>\n    User: admin\n    Password: ${u_pass}"
+        common_logger -nl "You can access the web interface https://<wazuh-dashboard-ip>:${http_port}\n    User: admin\n    Password: ${u_pass}"
     else
         common_logger -e "Wazuh dashboard installation failed."
         installCommon_rollBack
@@ -202,5 +212,29 @@ function dashboard_install() {
     else
         common_logger "Wazuh dashboard installation finished."
     fi
+
+}
+
+function dashboard_installReportDependencies() {
+
+    # Flags that indicates that is an optional installation.
+    optional_installation=1
+    report_dependencies=1
+
+    installCommon_checkChromium
+
+    if [ "${sys_type}" == "yum" ]; then
+        dashboard_dependencies+=( nss xorg-x11-fonts-100dpi xorg-x11-fonts-75dpi xorg-x11-utils xorg-x11-fonts-cyrillic xorg-x11-fonts-Type1 xorg-x11-fonts-misc fontconfig freetype )
+        installCommon_yumInstallList "${dashboard_dependencies[@]}"
+    
+    elif [ "${sys_type}" == "apt-get" ]; then
+        dashboard_dependencies+=( libnss3-dev fonts-liberation libfontconfig1 )
+        installCommon_aptInstallList "${dashboard_dependencies[@]}"
+    fi
+
+    if [ "${pdf_warning}" == 1 ]; then
+        common_logger -w "Wazuh dashboard dependencies skipped. PDF report generation may not work."
+    fi
+    optional_installation=0
 
 }
