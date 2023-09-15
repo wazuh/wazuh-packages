@@ -6,6 +6,9 @@ declare -A files_new
 PACKAGE_NAME="${1}"
 MAJOR_MINOR_RELEASE=$((${2}))
 
+# This list indicates the SHA values changes between versions
+CONFIG_YML_EXCEPTIONS=("config.yml" "25c499973687a8fd3eb8b9ceb3da7a68")
+
 # Check the system to differ between DEB and RPM
 function check_system() {
 
@@ -46,11 +49,22 @@ function compare_arrays() {
         echo "Comparing $file file checksum..."
         echo "Old: ${files_old[$file]}"
         echo "New: ${files_new[$file]}"
+        expected=false
+        for sha in "${!CONFIG_YML_EXCEPTIONS[@]}"; do
+            if [[ "${file}" == "${CONFIG_YML_EXCEPTIONS[0]}" && "${files_new[$file]}" == "${CONFIG_YML_EXCEPTIONS[$sha]}" ]]; then
+                expected=true
+                break
+            fi
+        done
         if [[ "${files_old[$file]}" == "${files_new[$file]}" ]]; then
             echo "${file} - Same checksum."
         else
-            echo "${file} - Different checksum."
-            exit 1
+            if [[ $expected ]]; then
+                echo "${file} - Expected change."
+            else
+                echo "${file} - Different checksum."
+                exit 1
+            fi
         fi
     done
 
@@ -59,7 +73,7 @@ function compare_arrays() {
 # Steps before installing the RPM release package.
 function add_production_repository() {
 
-    rpm --import https://packages.wazuh.com/key/GPG-KEY-WAZUH
+    rpm --import https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH
     echo -e '[wazuh]\ngpgcheck=1\ngpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages.wazuh.com/4.x/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo
 
 }
