@@ -73,7 +73,7 @@ function compare_arrays() {
 # Steps before installing the RPM release package.
 function add_production_repository() {
 
-    rpm --import https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH
+    rpm --import https://packages.wazuh.com/key/GPG-KEY-WAZUH
     echo -e '[wazuh]\ngpgcheck=1\ngpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages.wazuh.com/4.x/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo
 
 }
