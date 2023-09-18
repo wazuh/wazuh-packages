@@ -51,13 +51,17 @@ build_deb() {
         fi
         ../base/generate_base.sh -s ${outdir} -r ${revision} ${base_cmd}
     else
-        version=$(cat ${current_path}/../../../VERSION)
+        if [ "${reference}" ];then
+            version=$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh-packages/${reference}/VERSION | cat)
+        else
+            version=$(cat ${current_path}/../../../VERSION)
+        fi
         basefile="${outdir}/wazuh-indexer-base-${version}-${revision}-linux-x64.tar.xz"
         if test -f "${basefile}"; then
             echo "Building using base file: ${basefile}"
         else
-            echo "Did not find expected Wazuh Indexer base file: ${basefile} in output path. Exiting..."
-            exit 0
+            echo "Did not find expected Wazuh indexer base file: ${basefile} in output path. Exiting..."
+            exit 1
         fi
     fi
 
