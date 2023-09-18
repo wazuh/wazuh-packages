@@ -65,10 +65,8 @@ build_rpm() {
             version=$(cat ${current_path}/../../../VERSION)
         fi
         basefile="${outdir}/wazuh-dashboard-base-${version}-${revision}-linux-x64.tar.xz"
-        if test -f "${basefile}"; then
-            echo "Building using base file: ${basefile}"
-        else
-            echo "Did not find expected Wazuh dashboard base file: ${basefile} in output path. Exiting..."
+        if ! test -f "${basefile}"; then
+            echo "Did not find expected Wazuh dndexer base file: ${basefile} in output path. Exiting..."
             exit 1
         fi
     fi
