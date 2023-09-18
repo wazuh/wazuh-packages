@@ -35,7 +35,7 @@ print_files "files_new"
 
 compare_arrays
 if [ "$?" -eq 0 ]; then
-    echo "Same or accepted checksums - Test passed correctly."
+    echo "Valid checksums - Test passed correctly."
     exit 0
 fi
 echo "Error: different checksums detected."
