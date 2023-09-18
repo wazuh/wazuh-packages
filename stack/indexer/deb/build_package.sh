@@ -40,7 +40,7 @@ build_deb() {
 
     # Copy the necessary files
     cp ${current_path}/builder.sh ${dockerfile_path}
-
+    
     if [ "${build_base}" == "yes" ];then
         # Base generation
         if [ "${future}" == "yes" ];then
@@ -50,6 +50,15 @@ build_deb() {
             base_cmd+="--reference ${reference}"
         fi
         ../base/generate_base.sh -s ${outdir} -r ${revision} ${base_cmd}
+    else
+        version=$(cat ${current_path}/../../../VERSION)
+        basefile="${outdir}/wazuh-indexer-base-${version}-${revision}-linux-x64.tar.xz"
+        if test -f "${basefile}"; then
+            echo "Building using base file: ${basefile}"
+        else
+            echo "Did not find expected Wazuh Indexer base file: ${basefile} in output path. Exiting..."
+            exit 0
+        fi
     fi
 
     # Build the Docker image
