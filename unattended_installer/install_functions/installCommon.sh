@@ -219,11 +219,11 @@ function installCommon_createInstallFiles() {
         fi
         gen_file="/tmp/wazuh-install-files/wazuh-passwords.txt"
         passwords_generatePasswordFile
-        eval "cp '${config_file}' '/tmp/wazuh-install-files/config.yml'"
-        eval "chown root:root /tmp/wazuh-install-files/*"
+        eval "cp '${config_file}' '/tmp/wazuh-install-files/config.yml' ${debug}"
+        eval "chown root:root /tmp/wazuh-install-files/* ${debug}"
         eval "tar -zcf '${tar_file}' -C '/tmp/' wazuh-install-files/ ${debug}"
         eval "rm -rf '/tmp/wazuh-install-files' ${debug}"
-	eval "rm -rf ${config_file} ${debug}"
+	    eval "rm -rf ${config_file} ${debug}"
         common_logger "Created ${tar_file_name}. It contains the Wazuh cluster key, certificates, and passwords necessary for installation."
     else
         common_logger -e "Unable to create /tmp/wazuh-install-files"
@@ -355,7 +355,7 @@ function installCommon_installChrome() {
 
     if [ "${sys_type}" == "yum" ]; then
         chrome_package="/tmp/wazuh-install-files/chrome.rpm"
-        common_curl -sSo "${chrome_package}" https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm --max-time 100 --retry 5 --retry-delay 5 --fail "${debug}"
+        common_curl -sSo "${chrome_package}" https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm --max-time 100 --retry 5 --retry-delay 5 --fail
         eval "yum install ${chrome_package} -y ${debug}"
 
         if [ "${PIPESTATUS[0]}" != 0 ]; then
@@ -364,7 +364,7 @@ function installCommon_installChrome() {
 
     elif [ "${sys_type}" == "apt-get" ]; then
         chrome_package="/tmp/wazuh-install-files/chrome.deb"
-        common_curl -sSo "${chrome_package}" https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb --max-time 100 --retry 5 --retry-delay 5 --fail "${debug}"
+        common_curl -sSo "${chrome_package}" https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb --max-time 100 --retry 5 --retry-delay 5 --fail
         installCommon_aptInstall "${chrome_package}"
 
         if [ "${install_result}" != 0 ]; then
@@ -530,11 +530,11 @@ function installCommon_rollBack() {
     fi
 
     if [ -f "/etc/yum.repos.d/wazuh.repo" ]; then
-        eval "rm /etc/yum.repos.d/wazuh.repo"
+        eval "rm /etc/yum.repos.d/wazuh.repo ${debug}"
     elif [ -f "/etc/zypp/repos.d/wazuh.repo" ]; then
-        eval "rm /etc/zypp/repos.d/wazuh.repo"
+        eval "rm /etc/zypp/repos.d/wazuh.repo ${debug}"
     elif [ -f "/etc/apt/sources.list.d/wazuh.list" ]; then
-        eval "rm /etc/apt/sources.list.d/wazuh.list"
+        eval "rm /etc/apt/sources.list.d/wazuh.list ${debug}"
     fi
 
     if [[ -n "${wazuh_installed}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]];then
@@ -612,7 +612,7 @@ function installCommon_rollBack() {
                             "/lib/firewalld/services/dashboard.xml"
                             "/lib/firewalld/services/opensearch.xml" )
 
-    eval "rm -rf ${elements_to_remove[*]}"
+    eval "rm -rf ${elements_to_remove[*]} ${debug}"
 
     common_remove_gpg_key
 

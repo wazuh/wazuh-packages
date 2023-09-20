@@ -15,10 +15,10 @@ function offline_download() {
   dest_path="${base_dest_folder}/wazuh-packages"
 
   if [ -d "${dest_path}" ]; then
-    eval "rm -f ${dest_path}/*" # Clean folder before downloading specific versions
-    eval "chmod 700 ${dest_path}"
+    eval "rm -f ${dest_path}/* ${debug}" # Clean folder before downloading specific versions
+    eval "chmod 700 ${dest_path} ${debug}"
   else
-    eval "mkdir -m700 -p ${dest_path}" # Create folder if it does not exist
+    eval "mkdir -m700 -p ${dest_path} ${debug}" # Create folder if it does not exist
   fi
 
   packages_to_download=( "manager" "filebeat" "indexer" "dashboard" )
@@ -133,10 +133,10 @@ function offline_download() {
   dest_path="${base_dest_folder}/wazuh-files"
 
   if [ -d "${dest_path}" ]; then
-    eval "rm -f ${dest_path}/*" # Clean folder before downloading specific versions
-    eval "chmod 700 ${dest_path}"
+    eval "rm -f ${dest_path}/* ${debug}" # Clean folder before downloading specific versions
+    eval "chmod 700 ${dest_path} ${debug}"
   else
-    eval "mkdir -m700 -p ${dest_path}" # Create folder if it does not exist
+    eval "mkdir -m700 -p ${dest_path} ${debug}" # Create folder if it does not exist
   fi
 
   files_to_download=( "${wazuh_gpg_key}" "${filebeat_config_file}" "${filebeat_wazuh_template}" "${filebeat_wazuh_module}" )
@@ -156,12 +156,12 @@ function offline_download() {
   done
   eval "cd - > /dev/null"
 
-  eval "chmod 500 ${base_dest_folder}"
+  eval "chmod 500 ${base_dest_folder} ${debug}"
 
   common_logger "The configuration files and assets are in wazuh-offline.tar.gz"
 
-  eval "tar -czf ${base_dest_folder}.tar.gz ${base_dest_folder}"
-  eval "chmod -R 700 ${base_dest_folder} && rm -rf ${base_dest_folder}"
+  eval "tar -czf ${base_dest_folder}.tar.gz ${base_dest_folder} ${debug}"
+  eval "chmod -R 700 ${base_dest_folder} && rm -rf ${base_dest_folder} ${debug}"
 
   common_logger "You can follow the installation guide here https://documentation.wazuh.com/current/deployment-options/offline-installation.html"
 

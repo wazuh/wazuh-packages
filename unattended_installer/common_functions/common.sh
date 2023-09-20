@@ -62,6 +62,7 @@ function common_checkRoot() {
 
 function common_checkInstalled() {
 
+    common_logger -d "Checking Wazuh installation."
     wazuh_installed=""
     indexer_installed=""
     filebeat_installed=""
@@ -160,14 +161,14 @@ function common_remove_gpg_key() {
     if [ "${sys_type}" == "yum" ]; then
         if { rpm -q gpg-pubkey --qf '%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n' | grep "Wazuh"; } >/dev/null ; then
             key=$(rpm -q gpg-pubkey --qf '%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n' | grep "Wazuh Signing Key" | awk '{print $1}' )
-            rpm -e "${key}"
+            rpm -e "${key}" "${debug}"
         else
             common_logger "Wazuh GPG key not found in the system"
             return 1
         fi
     elif [ "${sys_type}" == "apt-get" ]; then
         if [ -f "/usr/share/keyrings/wazuh.gpg" ]; then
-            rm -rf "/usr/share/keyrings/wazuh.gpg"
+            rm -rf "/usr/share/keyrings/wazuh.gpg" "${debug}"
         else
             common_logger "Wazuh GPG key not found in the system"
             return 1

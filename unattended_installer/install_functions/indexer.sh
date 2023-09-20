@@ -96,7 +96,7 @@ function indexer_copyCertificates() {
         eval "tar -xf ${tar_file} -C ${indexer_cert_path} wazuh-install-files/root-ca.pem --strip-components 1 ${debug}"
         eval "tar -xf ${tar_file} -C ${indexer_cert_path} wazuh-install-files/admin.pem --strip-components 1 ${debug}"
         eval "tar -xf ${tar_file} -C ${indexer_cert_path} wazuh-install-files/admin-key.pem --strip-components 1 ${debug}"
-        eval "rm -rf ${indexer_cert_path}/wazuh-install-files/"
+        eval "rm -rf ${indexer_cert_path}/wazuh-install-files/ ${debug}"
         eval "chown -R wazuh-indexer:wazuh-indexer ${indexer_cert_path} ${debug}"
         eval "chmod 500 ${indexer_cert_path} ${debug}"
         eval "chmod 400 ${indexer_cert_path}/* ${debug}"

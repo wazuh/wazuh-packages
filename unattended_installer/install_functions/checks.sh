@@ -215,7 +215,7 @@ function check_dist() {
 
 function checks_health() {
 
-    logger "Verifying that your system meets the recommended minimum hardware requirements."
+    common_logger "Verifying that your system meets the recommended minimum hardware requirements."
 
     checks_specifications
 
@@ -346,7 +346,7 @@ function checks_ports() {
 
     if [ "${used_port}" -eq 1 ]; then
         common_logger "The installation can not continue due to port usage by other processes."
-        installCommon_rollBack
+        installCommon_rollBack 
         exit 1
     fi
 

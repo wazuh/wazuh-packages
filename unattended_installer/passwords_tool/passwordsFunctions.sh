@@ -10,8 +10,8 @@ function passwords_changePassword() {
 
     if [ -n "${changeall}" ]; then
         if [ -n "${indexer_installed}" ] && [ -z ${no_indexer_backup} ]; then
-            eval "mkdir /etc/wazuh-indexer/backup/ 2>/dev/null"
-            eval "cp /etc/wazuh-indexer/opensearch-security/* /etc/wazuh-indexer/backup/ 2>/dev/null"
+            eval "mkdir /etc/wazuh-indexer/backup/ ${debug}"
+            eval "cp /etc/wazuh-indexer/opensearch-security/* /etc/wazuh-indexer/backup/ ${debug}"
             passwords_createBackUp
         fi
         for i in "${!passwords[@]}"
@@ -29,8 +29,8 @@ function passwords_changePassword() {
         done
     else
         if [ -z "${api}" ] && [ -n "${indexer_installed}" ]; then
-            eval "mkdir /etc/wazuh-indexer/backup/ 2>/dev/null"
-            eval "cp /etc/wazuh-indexer/opensearch-security/* /etc/wazuh-indexer/backup/ 2>/dev/null"
+            eval "mkdir /etc/wazuh-indexer/backup/ ${debug}"
+            eval "cp /etc/wazuh-indexer/opensearch-security/* /etc/wazuh-indexer/backup/ ${debug}"
             passwords_createBackUp
         fi
         if [ -n "${indexer_installed}" ] && [ -f "/etc/wazuh-indexer/backup/internal_users.yml" ]; then
@@ -118,7 +118,7 @@ function passwords_changeDashboardApiPassword() {
     j=0
     until [ -n "${file_exists}" ] || [ "${j}" -eq "12" ]; do
         if [ -f "/usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml" ]; then
-            eval "sed -i 's|password: .*|password: \"${1}\"|g' /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml"
+            eval "sed -i 's|password: .*|password: \"${1}\"|g' /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml ${debug}"
             if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_indexer_cluster}" ]; then
                 common_logger "Updated wazuh-wui user password in wazuh dashboard. Remember to restart the service."
             fi
