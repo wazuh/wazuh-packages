@@ -8,6 +8,7 @@
 
 function manager_startCluster() {
 
+    common_logger -d "Starting Wazuh manager cluster."
     for i in "${!server_node_names[@]}"; do
         if [[ "${server_node_names[i]}" == "${winame}" ]]; then
             pos="${i}";

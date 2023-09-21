@@ -70,6 +70,7 @@ function offline_download() {
       manager_deb_package="wazuh-manager_${wazuh_version}-${manager_revision}_amd64.deb"
     fi
   fi
+  common_logger -d "Wazuh manager package revision fetched."
 
   while common_curl -s -I -o /dev/null -w "%{http_code}" "${indexer_base_url}/${indexer_package}" --max-time 300 --retry 5 --retry-delay 5 --fail | grep -q "200"; do
     indexer_revision=$((indexer_revision+1))
@@ -89,6 +90,7 @@ function offline_download() {
       indexer_deb_package="wazuh-indexer_${wazuh_version}-${indexer_revision}_amd64.deb"
     fi
   fi
+  common_logger -d "Wazuh indexer package revision fetched."
 
   while common_curl -s -I -o /dev/null -w "%{http_code}" "${dashboard_base_url}/${dashboard_package}" --max-time 300 --retry 5 --retry-delay 5 --fail | grep -q "200"; do
     dashboard_revision=$((dashboard_revision+1))
@@ -108,10 +110,11 @@ function offline_download() {
       dashboard_deb_package="wazuh-dashboard_${wazuh_version}-${dashboard_revision}_amd64.deb"
     fi
   fi
+  common_logger -d "Wazuh dashboard package revision fetched."
 
   for package in "${packages_to_download[@]}"
   do
-
+    common_logger -d "Downloading Wazuh ${package} package..."
     package_name="${package}_${package_type}_package"
     eval "package_base_url=${package}_${package_type}_base_url"
 
@@ -144,7 +147,7 @@ function offline_download() {
   eval "cd ${dest_path}"
   for file in "${files_to_download[@]}"
   do
-
+    common_logger -d "Downloading ${file}..."
     if output=$(common_curl -sSO ${file} --max-time 300 --retry 5 --retry-delay 5 --fail 2>&1); then
         common_logger "The resource ${file} was downloaded."
     else

@@ -260,6 +260,7 @@ function passwords_generatePassword() {
 
 function passwords_generatePasswordFile() {
 
+    common_logger -d "Generating password file."
     users=( admin kibanaserver kibanaro logstash readall snapshotrestore )
     api_users=( wazuh wazuh-wui )
     user_description=(
@@ -499,6 +500,7 @@ function passwords_readUsers() {
 
 function passwords_restartService() {
 
+    common_logger -d "Restarting ${1} service..."
     if [ "$#" -ne 1 ]; then
         common_logger -e "passwords_restartService must be called with 1 argument."
         exit 1
@@ -559,6 +561,7 @@ function passwords_restartService() {
 
 function passwords_runSecurityAdmin() {
 
+    common_logger -d "Running security admin tool."
     if [ -z "${indexer_installed}" ] && [ -z "${dashboard_installed}" ] && [ -z "${filebeat_installed}" ]; then
         common_logger -e "Cannot find Wazuh indexer, Wazuh dashboard or Filebeat on the system."
         exit 1;

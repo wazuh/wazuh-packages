@@ -53,6 +53,7 @@ function common_logger() {
 
 function common_checkRoot() {
 
+    common_logger -d "Checking root permissions."
     if [ "$EUID" -ne 0 ]; then
         echo "This script must be run as root."
         exit 1;
@@ -75,6 +76,7 @@ function common_checkInstalled() {
     fi
 
     if [ -d "/var/ossec" ]; then
+        common_logger -d "There are Wazuh remaining files."
         wazuh_remaining_files=1
     fi
 
@@ -85,6 +87,7 @@ function common_checkInstalled() {
     fi
 
     if [ -d "/var/lib/wazuh-indexer/" ] || [ -d "/usr/share/wazuh-indexer" ] || [ -d "/etc/wazuh-indexer" ] || [ -f "${base_path}/search-guard-tlstool*" ]; then
+        common_logger -d "There are Wazuh indexer remaining files."
         indexer_remaining_files=1
     fi
 
@@ -95,6 +98,7 @@ function common_checkInstalled() {
     fi
 
     if [ -d "/var/lib/filebeat/" ] || [ -d "/usr/share/filebeat" ] || [ -d "/etc/filebeat" ]; then
+        common_logger -d "There are Filebeat remaining files."
         filebeat_remaining_files=1
     fi
 
@@ -105,6 +109,7 @@ function common_checkInstalled() {
     fi
 
     if [ -d "/var/lib/wazuh-dashboard/" ] || [ -d "/usr/share/wazuh-dashboard" ] || [ -d "/etc/wazuh-dashboard" ] || [ -d "/run/wazuh-dashboard/" ]; then
+        common_logger -d "There are Wazuh dashboard remaining files."
         dashboard_remaining_files=1
     fi
 
@@ -115,9 +120,11 @@ function common_checkSystem() {
     if [ -n "$(command -v yum)" ]; then
         sys_type="yum"
         sep="-"
+        common_logger -d "YUM package manager will be used."
     elif [ -n "$(command -v apt-get)" ]; then
         sys_type="apt-get"
         sep="="
+        common_logger -d "APT package manager will be used."
     else
         common_logger -e "Couldn't find type of system"
         exit 1
@@ -127,6 +134,7 @@ function common_checkSystem() {
 
 function common_checkWazuhConfigYaml() {
 
+    common_logger -d "Checking Wazuh YAML configuration file."
     filecorrect=$(cert_parseYaml "${config_file}" | grep -Ev '^#|^\s*$' | grep -Pzc "\A(\s*(nodes_indexer__name|nodes_indexer__ip|nodes_server__name|nodes_server__ip|nodes_server__node_type|nodes_dashboard__name|nodes_dashboard__ip)=.*?)+\Z")
     if [[ "${filecorrect}" -ne 1 ]]; then
         common_logger -e "The configuration file ${config_file} does not have a correct format."
@@ -139,16 +147,16 @@ function common_checkWazuhConfigYaml() {
 function common_curl() {
 
     if [ -n "${curl_has_connrefused}" ]; then
-        eval "curl $@ --retry-connrefused"
+        eval "curl $@ --retry-connrefused ${debug}"
         e_code="${PIPESTATUS[0]}"
     else
         retries=0
-        eval "curl $@"
+        eval "curl $@ ${debug}"
         e_code="${PIPESTATUS[0]}"
         while [ "${e_code}" -eq 7 ] && [ "${retries}" -ne 12 ]; do
             retries=$((retries+1))
             sleep 5
-            eval "curl $@"
+            eval "curl $@ ${debug}"
             e_code="${PIPESTATUS[0]}"
         done
     fi
@@ -158,6 +166,7 @@ function common_curl() {
 
 function common_remove_gpg_key() {
 
+    common_logger -d "Removing GPG key from system."
     if [ "${sys_type}" == "yum" ]; then
         if { rpm -q gpg-pubkey --qf '%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n' | grep "Wazuh"; } >/dev/null ; then
             key=$(rpm -q gpg-pubkey --qf '%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n' | grep "Wazuh Signing Key" | awk '{print $1}' )

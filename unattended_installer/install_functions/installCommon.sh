@@ -125,6 +125,8 @@ function installCommon_aptInstallList(){
 
 function installCommon_changePasswordApi() {
 
+    common_logger -d "Changing API passwords."
+
     #Change API password tool
     if [ -n "${changeall}" ]; then
         for i in "${!api_passwords[@]}"; do
@@ -171,6 +173,7 @@ function installCommon_checkOptionalInstallation() {
 
 function installCommon_createCertificates() {
 
+    common_logger -d "Creating Wazuh certificates."
     if [ -n "${AIO}" ]; then
         eval "installCommon_getConfig certificate/config_aio.yml ${config_file} ${debug}"
     fi
@@ -301,6 +304,7 @@ function installCommon_checkChromium() {
 
 function installCommon_extractConfig() {
 
+    common_logger -d "Extracting Wazuh configuration."
     if ! tar -tf "${tar_file}" | grep -q wazuh-install-files/config.yml; then
         common_logger -e "There is no config.yml file in ${tar_file}."
         exit 1
@@ -336,6 +340,7 @@ function installCommon_getPass() {
 
 function installCommon_installCheckDependencies() {
 
+    common_logger -d "Installing check dependencies."
     if [ "${sys_type}" == "yum" ]; then
         dependencies=( systemd grep tar coreutils sed procps-ng gawk lsof curl openssl )
         installCommon_yumInstallList "${dependencies[@]}"
@@ -376,6 +381,7 @@ function installCommon_installChrome() {
 
 function installCommon_installPrerequisites() {
 
+    common_logger -d "Installing prerequisites dependencies."
     if [ "${sys_type}" == "yum" ]; then
         dependencies=( libcap gnupg2 )
         installCommon_yumInstallList "${dependencies[@]}"
@@ -508,6 +514,7 @@ For Wazuh API users, the file must have this format:
 
 function installCommon_restoreWazuhrepo() {
 
+    common_logger -d "Restoring Wazuh repository."
     if [ -n "${development}" ]; then
         if [ "${sys_type}" == "yum" ] && [ -f "/etc/yum.repos.d/wazuh.repo" ]; then
             file="/etc/yum.repos.d/wazuh.repo"

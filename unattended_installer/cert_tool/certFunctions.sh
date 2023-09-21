@@ -8,7 +8,8 @@
 
 
 function cert_cleanFiles() {
-
+    
+    common_logger -d "Cleaning certificate files."
     eval "rm -f ${cert_tmp_path}/*.csr ${debug}"
     eval "rm -f ${cert_tmp_path}/*.srl ${debug}"
     eval "rm -f ${cert_tmp_path}/*.conf ${debug}"
@@ -18,6 +19,8 @@ function cert_cleanFiles() {
 
 function cert_checkOpenSSL() {
 
+    common_logger -d "Checking if OpenSSL is installed."
+
     if [ -z "$(command -v openssl)" ]; then
         common_logger -e "OpenSSL not installed."
         exit 1
@@ -26,6 +29,8 @@ function cert_checkOpenSSL() {
 }
 
 function cert_checkRootCA() {
+
+    common_logger -d "Checking if the root CA exists."
 
     if  [[ -n ${rootca} || -n ${rootcakey} ]]; then
         # Verify variables match keys
@@ -57,6 +62,7 @@ function cert_checkRootCA() {
 
 function cert_generateAdmincertificate() {
 
+    common_logger -d "Generating Admin certificates."
     eval "openssl genrsa -out ${cert_tmp_path}/admin-key-temp.pem 2048 ${debug}"
     eval "openssl pkcs8 -inform PEM -outform PEM -in ${cert_tmp_path}/admin-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out ${cert_tmp_path}/admin-key.pem ${debug}"
     eval "openssl req -new -key ${cert_tmp_path}/admin-key.pem -out ${cert_tmp_path}/admin.csr -batch -subj '/C=US/L=California/O=Wazuh/OU=Wazuh/CN=admin' ${debug}"
@@ -66,6 +72,7 @@ function cert_generateAdmincertificate() {
 
 function cert_generateCertificateconfiguration() {
 
+    common_logger -d "Generating certificate configuration."
     cat > "${cert_tmp_path}/${1}.conf" <<- EOF
         [ req ]
         prompt = no
@@ -119,6 +126,7 @@ function cert_generateCertificateconfiguration() {
 
 function cert_generateIndexercertificates() {
 
+    common_logger -d "Generating Wazuh indexer certificates."
     if [ ${#indexer_node_names[@]} -gt 0 ]; then
         common_logger -d "Creating the Wazuh indexer certificates."
 
@@ -136,6 +144,7 @@ function cert_generateIndexercertificates() {
 
 function cert_generateFilebeatcertificates() {
 
+    common_logger -d "Generating Filebeat certificates."
     if [ ${#server_node_names[@]} -gt 0 ]; then
         common_logger -d "Creating the Wazuh server certificates."
 
@@ -155,6 +164,7 @@ function cert_generateFilebeatcertificates() {
 
 function cert_generateDashboardcertificates() {
 
+    common_logger -d "Generating Wazuh dashboard certificates."
     if [ ${#dashboard_node_names[@]} -gt 0 ]; then
         common_logger -d "Creating the Wazuh dashboard certificates."
 
@@ -294,7 +304,9 @@ function cert_parseYaml() {
 }
 
 function cert_checkPrivateIp() {
+    
     local ip=$1
+    common_logger -d "Checking if ${ip} is private."
 
     # Check private IPv4 ranges
     if [[ $ip =~ ^10\.|^192\.168\.|^172\.(1[6-9]|2[0-9]|3[0-1])\.|^(127\.) ]]; then
@@ -311,6 +323,8 @@ function cert_checkPrivateIp() {
 }
 
 function cert_readConfig() {
+
+    common_logger -d "Reading configuration file."
 
     if [ -f "${config_file}" ]; then
         if [ ! -s "${config_file}" ]; then
