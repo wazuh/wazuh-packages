@@ -147,16 +147,16 @@ function common_checkWazuhConfigYaml() {
 function common_curl() {
 
     if [ -n "${curl_has_connrefused}" ]; then
-        eval "curl $@ --retry-connrefused ${debug}"
+        eval "curl $@ --retry-connrefused"
         e_code="${PIPESTATUS[0]}"
     else
         retries=0
-        eval "curl $@ ${debug}"
+        eval "curl $@"
         e_code="${PIPESTATUS[0]}"
         while [ "${e_code}" -eq 7 ] && [ "${retries}" -ne 12 ]; do
             retries=$((retries+1))
             sleep 5
-            eval "curl $@ ${debug}"
+            eval "curl $@"
             e_code="${PIPESTATUS[0]}"
         done
     fi

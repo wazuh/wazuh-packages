@@ -441,6 +441,6 @@ function cert_convertCRLFtoLF() {
         mkdir "/tmp/wazuh-install-files" "${debug}"
     fi
     eval "chmod -R 755 /tmp/wazuh-install-files ${debug}"
-    eval "tr -d '\015' < $1 > /tmp/wazuh-install-files/new_config.yml ${debug}"
+    eval "tr -d '\015' < $1 > /tmp/wazuh-install-files/new_config.yml"
     eval "mv /tmp/wazuh-install-files/new_config.yml $1 ${debug}"
 }
