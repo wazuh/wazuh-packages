@@ -18,7 +18,7 @@ function filebeat_configure(){
     common_logger -d "Filebeat template was download successfully."
 
     eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
-    eval "(common_curl -sS ${filebeat_wazuh_module} --max-time 300 --retry 5 --retry-delay 5 --fail | tar -xvz -C /usr/share/filebeat/module)"
+    eval "(common_curl -sS ${filebeat_wazuh_module} --max-time 300 --retry 5 --retry-delay 5 --fail | tar -xvz -C /usr/share/filebeat/module) ${debug}"
     if [ ! -d "/usr/share/filebeat/module" ]; then
         common_logger -e "Error downloading wazuh filebeat module."
         installCommon_rollBack
