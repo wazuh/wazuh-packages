@@ -579,6 +579,7 @@ function passwords_runSecurityAdmin() {
         common_logger -e "Could not load the changes."
         exit 1;
     fi
+    eval "cp /etc/wazuh-indexer/backup/internal_users.yml /etc/wazuh-indexer/opensearch-security/internal_users.yml"
     eval "rm -rf /etc/wazuh-indexer/backup/ ${debug}"
 
     if [[ -n "${nuser}" ]] && [[ -n ${autopass} ]]; then
