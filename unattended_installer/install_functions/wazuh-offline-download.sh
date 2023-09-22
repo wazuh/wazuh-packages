@@ -15,10 +15,10 @@ function offline_download() {
   dest_path="${base_dest_folder}/wazuh-packages"
 
   if [ -d "${dest_path}" ]; then
-    eval "rm -f ${dest_path}/*" # Clean folder before downloading specific versions
-    eval "chmod 700 ${dest_path}"
+    eval "rm -f ${dest_path}/* ${debug}" # Clean folder before downloading specific versions
+    eval "chmod 700 ${dest_path} ${debug}"
   else
-    eval "mkdir -m700 -p ${dest_path}" # Create folder if it does not exist
+    eval "mkdir -m700 -p ${dest_path} ${debug}" # Create folder if it does not exist
   fi
 
   packages_to_download=( "manager" "filebeat" "indexer" "dashboard" )
@@ -70,6 +70,7 @@ function offline_download() {
       manager_deb_package="wazuh-manager_${wazuh_version}-${manager_revision}_amd64.deb"
     fi
   fi
+  common_logger -d "Wazuh manager package revision fetched."
 
   while common_curl -s -I -o /dev/null -w "%{http_code}" "${indexer_base_url}/${indexer_package}" --max-time 300 --retry 5 --retry-delay 5 --fail | grep -q "200"; do
     indexer_revision=$((indexer_revision+1))
@@ -89,6 +90,7 @@ function offline_download() {
       indexer_deb_package="wazuh-indexer_${wazuh_version}-${indexer_revision}_amd64.deb"
     fi
   fi
+  common_logger -d "Wazuh indexer package revision fetched."
 
   while common_curl -s -I -o /dev/null -w "%{http_code}" "${dashboard_base_url}/${dashboard_package}" --max-time 300 --retry 5 --retry-delay 5 --fail | grep -q "200"; do
     dashboard_revision=$((dashboard_revision+1))
@@ -108,10 +110,11 @@ function offline_download() {
       dashboard_deb_package="wazuh-dashboard_${wazuh_version}-${dashboard_revision}_amd64.deb"
     fi
   fi
+  common_logger -d "Wazuh dashboard package revision fetched."
 
   for package in "${packages_to_download[@]}"
   do
-
+    common_logger -d "Downloading Wazuh ${package} package..."
     package_name="${package}_${package_type}_package"
     eval "package_base_url=${package}_${package_type}_base_url"
 
@@ -133,10 +136,10 @@ function offline_download() {
   dest_path="${base_dest_folder}/wazuh-files"
 
   if [ -d "${dest_path}" ]; then
-    eval "rm -f ${dest_path}/*" # Clean folder before downloading specific versions
-    eval "chmod 700 ${dest_path}"
+    eval "rm -f ${dest_path}/* ${debug}" # Clean folder before downloading specific versions
+    eval "chmod 700 ${dest_path} ${debug}"
   else
-    eval "mkdir -m700 -p ${dest_path}" # Create folder if it does not exist
+    eval "mkdir -m700 -p ${dest_path} ${debug}" # Create folder if it does not exist
   fi
 
   files_to_download=( "${wazuh_gpg_key}" "${filebeat_config_file}" "${filebeat_wazuh_template}" "${filebeat_wazuh_module}" )
@@ -144,7 +147,7 @@ function offline_download() {
   eval "cd ${dest_path}"
   for file in "${files_to_download[@]}"
   do
-
+    common_logger -d "Downloading ${file}..."
     if output=$(common_curl -sSO ${file} --max-time 300 --retry 5 --retry-delay 5 --fail 2>&1); then
         common_logger "The resource ${file} was downloaded."
     else
@@ -156,12 +159,12 @@ function offline_download() {
   done
   eval "cd - > /dev/null"
 
-  eval "chmod 500 ${base_dest_folder}"
+  eval "chmod 500 ${base_dest_folder} ${debug}"
 
   common_logger "The configuration files and assets are in wazuh-offline.tar.gz"
 
-  eval "tar -czf ${base_dest_folder}.tar.gz ${base_dest_folder}"
-  eval "chmod -R 700 ${base_dest_folder} && rm -rf ${base_dest_folder}"
+  eval "tar -czf ${base_dest_folder}.tar.gz ${base_dest_folder} ${debug}"
+  eval "chmod -R 700 ${base_dest_folder} && rm -rf ${base_dest_folder} ${debug}"
 
   common_logger "You can follow the installation guide here https://documentation.wazuh.com/current/deployment-options/offline-installation.html"
 

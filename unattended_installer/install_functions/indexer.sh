@@ -79,6 +79,7 @@ function indexer_configure() {
 
 function indexer_copyCertificates() {
 
+    common_logger -d "Copying Wazuh indexer certificates."
     eval "rm -f ${indexer_cert_path}/* ${debug}"
     name=${indexer_node_names[pos]}
 
@@ -96,7 +97,7 @@ function indexer_copyCertificates() {
         eval "tar -xf ${tar_file} -C ${indexer_cert_path} wazuh-install-files/root-ca.pem --strip-components 1 ${debug}"
         eval "tar -xf ${tar_file} -C ${indexer_cert_path} wazuh-install-files/admin.pem --strip-components 1 ${debug}"
         eval "tar -xf ${tar_file} -C ${indexer_cert_path} wazuh-install-files/admin-key.pem --strip-components 1 ${debug}"
-        eval "rm -rf ${indexer_cert_path}/wazuh-install-files/"
+        eval "rm -rf ${indexer_cert_path}/wazuh-install-files/ ${debug}"
         eval "chown -R wazuh-indexer:wazuh-indexer ${indexer_cert_path} ${debug}"
         eval "chmod 500 ${indexer_cert_path} ${debug}"
         eval "chmod 400 ${indexer_cert_path}/* ${debug}"
@@ -158,6 +159,7 @@ function indexer_install() {
 
 function indexer_startCluster() {
 
+    common_logger -d "Starting Wazuh indexer cluster."
     for ip_to_test in "${indexer_node_ips[@]}"; do
         eval "common_curl -XGET https://"${ip_to_test}":9200/ -k -s -o /dev/null"
         e_code="${PIPESTATUS[0]}"
