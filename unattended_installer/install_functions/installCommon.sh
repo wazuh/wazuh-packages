@@ -280,6 +280,8 @@ function installCommon_checkChromium() {
         if (! yum list installed 2>/dev/null | grep -q -E ^"google-chrome-stable"\\.) && (! yum list installed 2>/dev/null | grep -q -E ^"chromium"\\.); then
             if [ "${DIST_NAME}" == "amzn" ]; then
                 installCommon_installChrome
+            elif [[ "${DIST_NAME}" == "centos" ]] && [[ "${DIST_VER}" == "7" ]]; then
+                installCommon_installChrome
             else
                 dashboard_dependencies=(chromium)
             fi
