@@ -222,7 +222,11 @@ clean() {
     rm -rf src/{addagent,analysisd,client-agent,config,error_messages,external/*}
     rm -rf src/{headers,logcollector,monitord,os_auth,os_crypto,os_csyslogd}
     rm -rf src/{os_dbd,os_execd,os_integrator,os_maild,os_net,os_regex,os_xml,os_zlib}
-    rm -rf src/{remoted,reportd,shared,syscheckd,unit_tests,wazuh_db}
+    rm -rf src/{remoted,reportd,shared,unit_tests,wazuh_db}
+
+    # Clean syscheckd folder
+    find src/syscheckd -type f -not -name "wazuh-syscheckd" -not -name "libfimdb.dylib" -not -name "libfimdb.so" -delete
+
 
     if [[ "${BUILD_TARGET}" != "winagent" ]]; then
         rm -rf src/win32
