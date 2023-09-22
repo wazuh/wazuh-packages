@@ -78,7 +78,7 @@ function read_files() {
 
             # Change only the old files
             if [ "${2}" == "old" ]; then
-                echo "# Adding a new line to force changed checksum" >> ${f}
+                echo "# Adding a new line to force changed checksum" >> ${file}
                 echo "Changed file."
             fi
             checksum=`md5sum ${file} | cut -d " " -f1`
