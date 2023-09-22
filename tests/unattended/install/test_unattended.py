@@ -183,11 +183,11 @@ def test_check_filebeat_process():
 
 @pytest.mark.indexer
 def test_check_indexer_process():
-    assert check_call("ps -xa | grep \"/usr/share/wazuh-indexer/jdk/bin/java\" | grep -v grep | cut -d \" \" -f15", shell=True) != ""
+    assert check_call("ps -xa | grep wazuh-indexer | grep -v grep | cut -d \" \" -f15", shell=True) != ""
 
 @pytest.mark.dashboard
 def test_check_dashboard_process():
-    assert check_call("ps -xa | grep \"/usr/share/wazuh-dashboard/bin/../node/bin/node\" | grep -v grep", shell=True) != ""
+    assert check_call("ps -xa | grep wazuh-dashboard | grep -v grep", shell=True) != ""
 
 @pytest.mark.indexer
 def test_check_indexer_cluster_status_not_red():
