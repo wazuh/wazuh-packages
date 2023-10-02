@@ -22,7 +22,6 @@ function installCommon_addCentOSRepository() {
 
 }
 
-
 function installCommon_cleanExit() {
 
     rollback_conf=""
