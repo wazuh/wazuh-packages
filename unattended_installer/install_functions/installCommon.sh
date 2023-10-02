@@ -489,13 +489,9 @@ function installCommon_rollBack() {
     fi
 
     if [[ ( -n "${indexer_remaining_files}" || -n "${indexer_installed}" ) && ( -n "${indexer}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
-        common_logger "Removing Wazuh indexer."
-        if [ "${sys_type}" == "yum" ]; then
-            eval "yum remove wazuh-indexer -y ${debug}"
-        elif [ "${sys_type}" == "apt-get" ]; then
-            eval "apt-get remove --purge wazuh-indexer -y ${debug}"
-        fi
-        common_logger "Wazuh indexer removed."
+        eval "rm -rf /var/lib/wazuh-indexer/ ${debug}"
+        eval "rm -rf /usr/share/wazuh-indexer/ ${debug}"
+        eval "rm -rf /etc/wazuh-indexer/ ${debug}"
     fi
 
     if [[ -n "${filebeat_installed}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
