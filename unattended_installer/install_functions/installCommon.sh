@@ -81,18 +81,20 @@ function installCommon_aptInstall() {
     else
         installer=${package}
     fi
-    command="DEBIAN_FRONTEND=noninteractive apt-get install ${installer} -y -q ${debug}"
+    command="DEBIAN_FRONTEND=noninteractive apt-get install ${installer} -y -q"
     seconds=30
-    eval "${command}"
+    apt_output=$(eval "${command} 2>&1")
     install_result="${PIPESTATUS[0]}"
+    eval "echo \${apt_output} ${debug}"
     eval "tail -n 2 ${logfile} | grep -q 'Could not get lock'"
     grep_result="${PIPESTATUS[0]}"
     while [ "${grep_result}" -eq 0 ] && [ "${attempt}" -lt 10 ]; do
         attempt=$((attempt+1))
         common_logger "An external process is using APT. This process has to end to proceed with the Wazuh installation. Next retry in ${seconds} seconds (${attempt}/10)"
         sleep "${seconds}"
-        eval "${command}"
+        apt_output=$(eval "${command} 2>&1")
         install_result="${PIPESTATUS[0]}"
+        eval "echo \${apt_output} ${debug}"
         eval "tail -n 2 ${logfile} | grep -q 'Could not get lock'"
         grep_result="${PIPESTATUS[0]}"
     done
@@ -700,8 +702,11 @@ function installCommon_yumInstallList(){
         common_logger "--- Dependencies ---"
         for dep in "${not_installed[@]}"; do
             common_logger "Installing $dep."
-            eval "yum install ${dep} -y ${debug}"
-            if [  "${PIPESTATUS[0]}" != 0  ]; then
+            yum_output=$(yum install ${dep} -y 2>&1)
+            yum_code="${PIPESTATUS[0]}"
+
+            eval "echo \${yum_output} ${debug}"
+            if [  "${yum_code}" != 0  ]; then
                 installCommon_checkOptionalInstallation
             fi
         done
