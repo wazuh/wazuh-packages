@@ -325,7 +325,7 @@ function installCommon_configureCentOSRepositories() {
 
     centos_repos_configured=1
     centos_key="/etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial"
-    curl -so "${centos_key}" 'https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official'
+    eval "common_curl -sLo ${centos_key} 'https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official' --max-time 300 --retry 5 --retry-delay 5 --fail"
 
     if [ ! -f "${centos_key}" ]; then
         common_logger -w "The CentOS key could not be added. Chromium package skipped."
