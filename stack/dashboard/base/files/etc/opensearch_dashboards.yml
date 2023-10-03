@@ -4,7 +4,7 @@ opensearch.hosts: https://localhost:9200
 opensearch.ssl.verificationMode: certificate
 #opensearch.username:
 #opensearch.password:
-opensearch.requestHeadersWhitelist: ["securitytenant","Authorization"]
+opensearch.requestHeadersAllowlist: ["securitytenant","Authorization"]
 opensearch_security.multitenancy.enabled: false
 opensearch_security.readonly_mode.roles: ["kibana_read_only"]
 server.ssl.enabled: true
