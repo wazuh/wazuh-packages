@@ -153,7 +153,7 @@ gzip -c ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js
 brotli -c ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js > ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js.br
 
 # Define categories
-category_explore='{id:"explore",label:"Explore",order:5e3,euiIconType:"managementApp"}'
+category_explore='{id:"explore",label:"Explore",order:5,euiIconType:"managementApp"}'
 category_dashboard_management='{id:"management",label:"Dashboard Management",order:5e3,euiIconType:"managementApp"}'
 
 # Add custom categories (explore) to the built-in
