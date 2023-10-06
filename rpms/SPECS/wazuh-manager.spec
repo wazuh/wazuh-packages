@@ -822,7 +822,7 @@ rm -fr %{buildroot}
 %attr(750, root, wazuh) %{_localstatedir}/wodles/gcloud/*
 
 %changelog
-* Mon Oct 16 2023 support <info@wazuh.com> - 4.6.0
+* Tue Oct 24 2023 support <info@wazuh.com> - 4.6.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-6-0.html
 * Tue Oct 10 2023 support <info@wazuh.com> - 4.5.3
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-5-3.html
