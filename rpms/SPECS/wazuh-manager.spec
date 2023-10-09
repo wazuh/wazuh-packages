@@ -663,6 +663,7 @@ rm -fr %{buildroot}
 %attr(750, root, wazuh) %{_localstatedir}/lib/libcontent_manager.so
 %attr(750, root, wazuh) %{_localstatedir}/lib/libindexer_connector.so
 %attr(750, root, wazuh) %{_localstatedir}/lib/librocksdb.so.8
+%attr(750, root, wazuh) %{_localstatedir}/lib/libflatccrt.so
 %attr(750, root, wazuh) %{_localstatedir}/lib/librouter.so
 %attr(750, root, wazuh) %{_localstatedir}/lib/libvulnerability_scanner.so
 %{_localstatedir}/lib/libpython3.9.so.1.0
