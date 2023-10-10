@@ -228,6 +228,11 @@ function dashboard_installReportDependencies() {
     if [ "${sys_type}" == "yum" ]; then
         dashboard_dependencies+=( nss xorg-x11-fonts-100dpi xorg-x11-fonts-75dpi xorg-x11-utils xorg-x11-fonts-cyrillic xorg-x11-fonts-Type1 xorg-x11-fonts-misc fontconfig freetype )
         installCommon_yumInstallList "${dashboard_dependencies[@]}"
+
+        # In RHEL cases, remove the CentOS repositories configuration
+        if [ "${centos_repos_configured}" == 1 ]; then
+            installCommon_removeCentOSrepositories
+        fi
     
     elif [ "${sys_type}" == "apt-get" ]; then
         dashboard_dependencies+=( libnss3-dev fonts-liberation libfontconfig1 )
