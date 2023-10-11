@@ -18,6 +18,7 @@ WorkingDirectory=/usr/share/wazuh-indexer
 
 User=wazuh-indexer
 Group=wazuh-indexer
+UMask=0027
 
 ExecStart=/usr/share/wazuh-indexer/bin/systemd-entrypoint -p ${PID_DIR}/wazuh-indexer.pid --quiet
 
